@@ -38,25 +38,26 @@ public:
 
     Seis::GeomType	geomType() const	{ return geom_; }
     const IOPar&	pars() const		{ return pars_; }
-    void		setMaxNrtraces( int n )	{ nrtrcs_ = n; }
-    void		setForceRev0( bool yn )	{ forcerev0_ = yn; }
+    void		setMaxNrtraces( int n ) { nrtrcs_ = n; }
+    void		setForceRev0( bool yn ) { forcerev0_ = yn; }
     void		setRichInfo( bool yn )	{ richinfo_ = yn; }
     void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
 
-    int			nextStep();
-    uiString		uiMessage() const	{ return msg_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const;
-    uiString		uiNrDoneText() const	{ return tr("Traces scanned"); }
+    int			nextStep() override;
+    uiString		uiMessage() const override	{ return msg_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override;
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces scanned"); }
 
     const FileDataSet&	fileDataSet() const	{ return fds_; }
     FileDataSet&	fileDataSet()		{ return fds_; }
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read
-    uiStringSet	failerrmsgs_;	//!< Err Msgs for failed
+    uiStringSet failerrmsgs_;	//!< Err Msgs for failed
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
-    uiStringSet	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
+    uiStringSet scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
     void			getReport(IOPar&,const IOPar* inppars=0) const;
     StepInterval<float>		zRange() const;

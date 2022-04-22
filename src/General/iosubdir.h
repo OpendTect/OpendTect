@@ -19,32 +19,32 @@ class IOSubDir : public IOObj
 public:
 		IOSubDir(const char* subdirnm);
 		IOSubDir(const IOSubDir&);
-    bool	isSubdir() const	{ return true; }
-    bool	isBad() const		{ return isbad_; }
-    void	copyFrom(const IOObj*)	{}
+    bool	isSubdir() const override	{ return true; }
+    bool	isBad() const override		{ return isbad_; }
+    void	copyFrom(const IOObj*) override {}
     static IOSubDir* get(ascistream&,const char* rootdirnm);
 
-    const char*	fullUserExpr(bool) const;
-    bool	implExists(bool) const	{ return !isbad_; }
-    bool	implReadOnly() const	{ return false; }
-    bool	implRemove() const	{ return false; }
-    bool	implManagesObjects() const { return true; }
-    bool	implRename(const char*,const CallBack*)
+    const char* fullUserExpr(bool) const override;
+    bool	implExists(bool) const override { return !isbad_; }
+    bool	implReadOnly() const override	{ return false; }
+    bool	implRemove() const override	{ return false; }
+    bool	implManagesObjects() const override { return true; }
+    bool	implRename(const char*,const CallBack*) override
 					{ return false; }
-    bool        implSetReadOnly(bool) const { return false; }
+    bool	implSetReadOnly(bool) const override { return false; }
 
-    const char*	connType() const	{ return 0; }
-    Conn*	getConn( bool forread ) const { return 0; }
+    const char* connType() const override	{ return 0; }
+    Conn*	getConn( bool forread ) const override { return 0; }
 
-    const char*	dirName() const		{ return fullUserExpr(true); }
-    int		myKey() const		{ return key_.groupID(); }
+    const char* dirName() const override	{ return fullUserExpr(true); }
+    int		myKey() const override		{ return key_.groupID(); }
 
 protected:
 
     bool	isbad_;
 
-    bool	getFrom(ascistream&)	{ return true; }
-    bool	putTo(ascostream&) const;
+    bool	getFrom(ascistream&) override	{ return true; }
+    bool	putTo(ascostream&) const override;
 
    friend class	IOMan;
 

@@ -43,7 +43,8 @@ public:
     bool		isOK() const;
 
     void		setGeomID(Pos::GeomID);
-    uiString		uiMessage() const { return tr("Stretching data"); }
+    uiString		uiMessage() const override
+			{ return tr("Stretching data"); }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }
@@ -51,10 +52,10 @@ public:
 protected:
 
     void		init(const IOObj& in,const IOObj& out);
-    bool		doPrepare(int);
-    bool		doFinish(bool);
-    bool		doWork(od_int64,od_int64,int);
-    od_int64		nrIterations() const		{ return totalnr_; }
+    bool		doPrepare(int) override;
+    bool		doFinish(bool) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    od_int64		nrIterations() const override	{ return totalnr_; }
 
     bool				getInputTrace(SeisTrc&,TrcKey&);
     bool				getModelTrace(SeisTrc&,TrcKey&);

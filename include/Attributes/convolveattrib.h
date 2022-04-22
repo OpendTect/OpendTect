@@ -65,8 +65,8 @@ public:
     static const float		prewitt[];
     static const float		prewitt2D[];
 
-    virtual bool		isSingleTrace() const;
-    virtual void		prepPriorToBoundsCalc();
+    bool			isSingleTrace() const override;
+    void			prepPriorToBoundsCalc() override;
 
 protected:
 				~Convolve();
@@ -74,21 +74,23 @@ protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputation() const;
+    bool			allowParallelComputation() const override;
     bool			getInputOutput(int input,
-					       TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int idx);
+					   TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int idx) override;
     bool			computeDataKernel(const DataHolder&,
 						  int t0, int nrsamples ) const;
     bool			computeDataWavelet(const DataHolder&,
 						  int t0, int nrsamples ) const;
     bool			computeData(const DataHolder&,const BinID& rel,
 					    int t0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const BinID*		reqStepout(int input,int output) const;
-    const Interval<int>*	reqZSampMargin(int input,int output) const;
-    const Interval<int>*	desZSampMargin(int input,int output) const;
+    const BinID*		reqStepout(int input,int output) const override;
+    const Interval<int>*	reqZSampMargin(int input,
+					       int output) const override;
+    const Interval<int>*	desZSampMargin(int input,
+					       int output) const override;
 
     int				kerneltype_;
     int				shape_;

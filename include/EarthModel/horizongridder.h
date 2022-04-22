@@ -85,17 +85,17 @@ public:
 				"InverseDistance",
 				tr("Inverse distance") )
 
-    virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    void		setTrcKeySampling(const TrcKeySampling&) override;
+    bool		setArray2D(Array2D<float>&,TaskRunner* =0) override;
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 
-    bool		initFromArray(TaskRunner*);
+    bool		initFromArray(TaskRunner*) override;
     void		setFrom(od_int64 target, const od_int64* sources,
-				const float* weights, int nrsrc);
+				const float* weights, int nrsrc) override;
 };
 
 
@@ -108,17 +108,17 @@ public:
 				TriangulationHor3DGridder, "Triangulation",
 				 ::toUiString(sFactoryKeyword()))
 
-    virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    void		setTrcKeySampling(const TrcKeySampling&) override;
+    bool		setArray2D(Array2D<float>&,TaskRunner* =0) override;
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 
-    bool		initFromArray(TaskRunner*);
+    bool		initFromArray(TaskRunner*) override;
     void		setFrom(od_int64 target, const od_int64* sources,
-				const float* weights, int nrsrc);
+				const float* weights, int nrsrc) override;
 };
 
 
@@ -131,11 +131,11 @@ public:
 				ExtensionHor3DGridder,
 				 "Extension", ::toUiString(sFactoryKeyword()))
 
-    virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    void		setTrcKeySampling(const TrcKeySampling&) override;
+    bool		setArray2D(Array2D<float>&,TaskRunner* =0) override;
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 
@@ -152,11 +152,11 @@ public:
 			     "ContinuousCurvature",
 			     tr("Continuous curvature") )
 
-    virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    void		setTrcKeySampling(const TrcKeySampling&) override;
+    bool		setArray2D(Array2D<float>&,TaskRunner* =0) override;
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 };
 

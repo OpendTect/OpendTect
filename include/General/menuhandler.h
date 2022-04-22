@@ -217,7 +217,7 @@ protected:
 				MenuHandler( int id );
     virtual			~MenuHandler();
 
-    void			assignItemID(MenuItem&);
+    void			assignItemID(MenuItem&) override;
     void			executeQueue();
 
     int				id_;

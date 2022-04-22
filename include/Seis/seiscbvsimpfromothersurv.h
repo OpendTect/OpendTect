@@ -35,11 +35,15 @@ public:
 			SeisImpCBVSFromOtherSurvey(const IOObj&);
 			~SeisImpCBVSFromOtherSurvey();
 
-    uiString		uiMessage() const	{ return tr("Importing CBVS"); }
-    od_int64		nrDone() const          { return nrdone_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
-    od_int64		totalNr() const		{ return totnr_; }
-    int			nextStep();
+    uiString		uiMessage() const override
+			{ return tr("Importing CBVS"); }
+
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces handled"); }
+
+    od_int64		totalNr() const override	{ return totnr_; }
+    int			nextStep() override;
 
     uiString		errMsg() const		{ return errmsg_; }
     bool		prepareRead(const char*);

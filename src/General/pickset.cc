@@ -355,7 +355,7 @@ public:
     }
 
 
-    const char* getStandardDesc() const
+    const char* getStandardDesc() const override
     {
 	if ( type_ == Insert )
 	    return "Insert Knot";
@@ -368,7 +368,7 @@ public:
     }
 
 
-    bool unDo()
+    bool unDo() override
     {
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
@@ -414,7 +414,7 @@ public:
     }
 
 
-    bool reDo()
+    bool reDo() override
     {
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
@@ -486,7 +486,7 @@ public:
     }
 
 
-    const char* getStandardDesc() const
+    const char* getStandardDesc() const override
     {
 	if ( type_ == Insert )
 	    return "Insert Bulk";
@@ -495,7 +495,7 @@ public:
     }
 
 
-    bool unDo()
+    bool unDo() override
     {
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
@@ -528,7 +528,7 @@ public:
     }
 
 
-    bool reDo()
+    bool reDo() override
     {
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );

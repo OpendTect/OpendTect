@@ -118,16 +118,16 @@ public:
     const SeisTrcReader& reader() const		{ return rdr_; }
     SeisTrcReader&	reader()		{ return rdr_; }
 
-    const char*		name() const		{ return name_; }
-    const char*		implName() const;
-    bool		fetch(SeisTrc&);
+    const char*		name() const override	{ return name_; }
+    const char*		implName() const override;
+    bool		fetch(SeisTrc&) override;
 
     void		removeNull( bool yn )	{ remnull_ = yn; }
     void		setResampler(SeisResampler*);	//!< becomes mine
     void		setScaler(Scaler*);		//!< becomes mine
     void		setSelData(Seis::SelData*);	//!< becomes mine
 
-    int			totalNr() const;
+    int			totalNr() const override;
 
 protected:
 

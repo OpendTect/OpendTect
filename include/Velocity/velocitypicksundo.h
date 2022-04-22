@@ -27,10 +27,10 @@ public:
     		PickSetEvent(Picks&,const Pick& oldpick,
 			     const Pick& newpick,const BinID&);
 
-    bool		unDo();
-    bool		reDo();
-    const char*		getStandardDesc() const;
-    const BinID&	getBinID() const	{ return bid_; }
+    bool		unDo() override;
+    bool		reDo() override;
+    const char*		getStandardDesc() const override;
+    const BinID&	getBinID() const override	{ return bid_; }
 
 protected:
 
@@ -47,10 +47,10 @@ mClass(Velocity) PickAddEvent : public BinIDUndoEvent
 public:
 			PickAddEvent(Picks&, const RowCol&);
 
-    bool		unDo();
-    bool		reDo();
-    const char*		getStandardDesc() const;
-    const BinID&	getBinID() const	{ return newbid_; }
+    bool		unDo() override;
+    bool		reDo() override;
+    const char*		getStandardDesc() const override;
+    const BinID&	getBinID() const override	{ return newbid_; }
 
 protected:
 
@@ -67,10 +67,10 @@ mClass(Velocity) PickRemoveEvent : public BinIDUndoEvent
 public:
 			PickRemoveEvent(Picks&, const RowCol&);
 
-    bool		unDo();
-    bool		reDo();
-    const char*		getStandardDesc() const;
-    const BinID&	getBinID() const	{ return oldbid_; }
+    bool		unDo() override;
+    bool		reDo() override;
+    const char*		getStandardDesc() const override;
+    const BinID&	getBinID() const override	{ return oldbid_; }
 
 protected:
 

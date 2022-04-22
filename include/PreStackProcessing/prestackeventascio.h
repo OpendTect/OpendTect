@@ -44,17 +44,18 @@ The columns are as follows:
 mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 { mODTextTranslationClass(EventExporter);
 public:
-    			EventExporter(od_ostream& strm,EventManager&);
-    			~EventExporter();
+			EventExporter(od_ostream& strm,EventManager&);
+			~EventExporter();
 
     void		setHRange(const TrcKeySampling&);
 
-    od_int64		nrDone() const	{ return nrdone_; }
-    od_int64		totalNr() const	{ return locations_.totalSize(); }
+    od_int64		nrDone() const override { return nrdone_; }
+    od_int64		totalNr() const override
+			{ return locations_.totalSize(); }
 
-    uiString		uiMessage() const	{ return message_; }
-    int			nextStep();
-    uiString		uiNrDoneText() const;
+    uiString		uiMessage() const override	{ return message_; }
+    int			nextStep() override;
+    uiString		uiNrDoneText() const override;
 
 protected:
 
@@ -81,13 +82,13 @@ public:
 				EventAscIO(const Table::FormatDesc&,
 					   od_istream&);
 
-    static Table::FormatDesc*   getDesc();
+    static Table::FormatDesc*	getDesc();
     static void			updateDesc(Table::FormatDesc&);
-    static void                 createDescBody(Table::FormatDesc*);
+    static void			createDescBody(Table::FormatDesc*);
 
     bool			isXY() const;
     int				getNextLine(BinID& bid,int& horid,
-	    				    float& off,float& val);
+					    float& off,float& val);
 
 protected:
 
@@ -105,16 +106,15 @@ protected:
 mExpClass(PreStackProcessing) EventImporter : public SequentialTask
 { mODTextTranslationClass(EventImporter);
 public:
-    			EventImporter(const char*,const Table::FormatDesc&,
+			EventImporter(const char*,const Table::FormatDesc&,
 				      EventManager&);
-    			~EventImporter();
+			~EventImporter();
 
-    od_int64		nrDone() const;
-    od_int64		totalNr() const		{ return totalnr_; }
-
-    uiString		uiMessage() const	{ return message_; }
-    int			nextStep();
-    uiString		uiNrDoneText() const;
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override	{ return totalnr_; }
+    uiString		uiMessage() const override	{ return message_; }
+    int			nextStep() override;
+    uiString		uiNrDoneText() const override;
 
 protected:
 

@@ -34,38 +34,38 @@ class FaultAuxData;
 mExpClass(EarthModel) Fault3DGeometry : public FaultGeometry
 {
 public:
-    			Fault3DGeometry(Surface&);
+			Fault3DGeometry(Surface&);
 			~Fault3DGeometry();
 
     int			nrSticks(const SectionID&) const;
     int			nrKnots(const SectionID&,int sticknr) const;
 
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
-	    			    const Coord3& pos,const Coord3& editnormal,
-				    bool addtohistory);
+				    const Coord3& pos,const Coord3& editnormal,
+				    bool addtohistory) override;
     bool		removeStick(const SectionID&,int sticknr,
-				    bool addtohistory);
+				    bool addtohistory) override;
     bool		insertKnot(const SectionID&,const SubID&,
-	    			   const Coord3& pos,bool addtohistory);
+			       const Coord3& pos,bool addtohistory) override;
     bool		removeKnot(const SectionID&,const SubID&,
-	    			   bool addtohistory);
+				   bool addtohistory) override;
     
     bool		areSticksVertical(const SectionID&) const;
     bool		areEditPlanesMostlyCrossline() const;
 
     Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&);
+			sectionGeometry(const SectionID&) override;
     const Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&) const;
+			sectionGeometry(const SectionID&) const override;
 
     EMObjectIterator*	createIterator(const SectionID&,
-				       const TrcKeyZSampling* =0) const;
+				   const TrcKeyZSampling* =0) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
-    Geometry::FaultStickSurface*	createSectionGeometry() const;
+    Geometry::FaultStickSurface*	createSectionGeometry() const override;
 };
 
 
@@ -76,17 +76,17 @@ protected:
 mExpClass(EarthModel) Fault3D : public Fault
 { mDefineEMObjFuncs( Fault3D );
 public:
-    Fault3DGeometry&		geometry();
-    const Fault3DGeometry&	geometry() const;
-    void			apply(const Pos::Filter&);
-    uiString			getUserTypeStr() const;
+    Fault3DGeometry&		geometry() override;
+    const Fault3DGeometry&	geometry() const override;
+    void			apply(const Pos::Filter&) override;
+    uiString			getUserTypeStr() const override;
 
     FaultAuxData*		auxData();
     const FaultAuxData*		auxData() const;
 
 protected:
 
-    const IOObjContext&		getIOObjContext() const;
+    const IOObjContext&		getIOObjContext() const override;
 
     friend class		EMManager;
     friend class		EMObject;
@@ -102,7 +102,7 @@ protected:
 mExpClass(EarthModel) FaultAscIO : public Table::AscIO
 {
 public:
-    				FaultAscIO( const Table::FormatDesc& fd )
+				FaultAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)		{}
 
     static Table::FormatDesc*	getDesc(bool is2d);
@@ -122,7 +122,7 @@ protected:
 mExpClass(EarthModel)	FaultStick
 {
 public:
-    			FaultStick(int idx)	: stickidx_(idx)	{}
+			FaultStick(int idx)	: stickidx_(idx)	{}
 
     Coord3		getNormal(bool is2d) const;
 

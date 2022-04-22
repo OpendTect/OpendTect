@@ -45,13 +45,14 @@ public:
     static const char*		sKeyOutput();
 
 protected:
-    od_int64			nrIterations() const { return totalnr_; }
-    bool			doPrepare(int);
-    bool			doFinish(bool);
-    bool			doWork(od_int64,od_int64,int);
-    uiString			uiNrDoneText() const { 
-						return tr("Traces written");
-						     }
+    od_int64			nrIterations() const override
+				{ return totalnr_; }
+
+    bool			doPrepare(int) override;
+    bool			doFinish(bool) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    uiString			uiNrDoneText() const override
+				{ return tr("Traces written"); }
 
     char			getNewTrace(SeisTrc&,int threadidx);
 

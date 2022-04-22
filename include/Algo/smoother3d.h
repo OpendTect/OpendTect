@@ -40,10 +40,10 @@ public:
     inline void			fillPar(IOPar&) const;
     inline bool			usePar(const IOPar&);
 
-    inline bool			execute();
-    inline void			enableWorkControl(bool);
-    inline void			controlWork(Task::Control);
-    inline Task::Control	getState() const;
+    inline bool			execute() override;
+    inline void			enableWorkControl(bool) override;
+    inline void			controlWork(Task::Control) override;
+    inline Task::Control	getState() const override;
 
     static const char*		sKeyWinFunc() { return "Window function"; }
     static const char*		sKeyWinParam() { return "Window parameter"; }

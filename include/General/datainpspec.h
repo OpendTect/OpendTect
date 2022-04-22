@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          08/02/2001
+ Author:	A.H. Lammertink
+ Date:		08/02/2001
 ________________________________________________________________________
 
 -*/
@@ -67,11 +67,11 @@ public:
 			    : DataType( rep__( (T)0 ), frm ) {}
 protected:
 
-    inline Rep		rep__( int i )    const	{ return intTp; }
+    inline Rep		rep__( int i )	  const { return intTp; }
     inline Rep		rep__( od_int64 i ) const { return int64Tp; }
-    inline Rep		rep__( float f )  const	{ return floatTp; }
-    inline Rep		rep__( double d ) const	{ return doubleTp; }
-    inline Rep		rep__( bool b )   const	{ return boolTp; }
+    inline Rep		rep__( float f )  const { return floatTp; }
+    inline Rep		rep__( double d ) const { return doubleTp; }
+    inline Rep		rep__( bool b )   const { return boolTp; }
     inline Rep		rep__( const char* s ) const	{ return stringTp; }
 
 };
@@ -97,14 +97,14 @@ public:
     DataType		type() const;
 
     virtual DataInpSpec* clone() const			=0;
-    virtual int	nElems() const			{ return 1; }
+    virtual int nElems() const			{ return 1; }
 
     virtual bool	isUndef( int idx=0 ) const	=0;
 
     virtual bool	hasLimits() const		{ return false; }
     virtual bool	isInsideLimits(int idx=0) const;
 
-    virtual const char*	text( int idx=0 ) const		=0;
+    virtual const char* text( int idx=0 ) const		=0;
     virtual bool	setText(const char*,int idx=0)	=0;
 
     void		fillPar(IOPar&) const;
@@ -128,7 +128,7 @@ public:
     virtual double	getDefaultValue(int idx=0) const;
     virtual float	getDefaultfValue(int idx=0) const;
     virtual bool	getDefaultBoolValue(int idx=0) const;
-    virtual const char*	getDefaultStringValue(int idx=0) const;
+    virtual const char* getDefaultStringValue(int idx=0) const;
 
     virtual void	setDefaultValue(int i,int idx=0)		{}
     virtual void	setDefaultValue(double d,int idx=0)		{}
@@ -136,7 +136,7 @@ public:
     virtual void	setDefaultValue(bool b,int idx=0)		{}
     virtual void	setDefaultValue(const char* s,int idx=0)	{}
 
-    virtual const char*	name(int idx=0) const;
+    virtual const char* name(int idx=0) const;
     virtual DataInpSpec& setName(const char*,int idx=0);
 
 protected:
@@ -161,10 +161,10 @@ public:
 
 
 #define mDefDISSetValBaseClassImpl(typ) \
-    virtual void	setValue( typ val, int idx=0 ) \
+    void		setValue( typ val, int idx=0 ) override\
 			{ DataInpSpec::setValue(val,idx); }
 #define mDefDISSetDefValBaseClassImpl(typ) \
-    virtual void	setDefaultValue( typ val, int idx=0 ) \
+    void		setDefaultValue( typ val, int idx=0 )  override\
 			{ DataInpSpec::setDefaultValue(val,idx); }
 
 
@@ -200,33 +200,36 @@ public:
 			NumInpSpec(const NumInpSpec<T>&);
 			~NumInpSpec()			{ delete limits_; }
 
-    virtual NumInpSpec<T>* clone() const
+    NumInpSpec<T>*	clone() const override
 			    { return new NumInpSpec<T>( *this ); }
 
-    virtual bool	isUndef( int idx=0 ) const
+    bool		isUndef( int idx=0 ) const override
 			    { return mIsUdf(value_); }
 
-    virtual bool	setText( const char* s, int idx=0 )
+    bool		setText( const char* s, int idx=0 ) override
 			    { return getFromString( value_, s, mUdf(T) ); }
 
-    virtual int		getIntValue(int idx=0) const { return (int)value(); }
-    virtual od_int64	getInt64Value(int idx=0) const
-						{ return (od_int64)value(); }
-    virtual double	getDValue(int idx=0) const    { return value(); }
-    virtual float	getFValue(int idx=0) const   { return (float)value(); }
+    int			getIntValue(int idx=0) const override
+			    { return (int)value(); }
+    od_int64		getInt64Value(int idx=0) const override
+			    { return (od_int64)value(); }
+    double		getDValue(int idx=0) const override
+			    { return value(); }
+    float		getFValue(int idx=0) const override
+			    { return (float)value(); }
 
-    virtual int		getDefaultIntValue(int idx=0) const
+    int			getDefaultIntValue(int idx=0) const override
 			{ return (int)defaultValue(); }
-    virtual double	getDefaultValue(int idx=0) const
+    double		getDefaultValue(int idx=0) const override
 			{ return defaultValue(); }
-    virtual float	getDefaultfValue(int idx=0) const
+    float		getDefaultfValue(int idx=0) const override
 			{ return ( float ) defaultValue(); }
 
-    virtual void	setDefaultValue( int val, int idx=0 )
+    void		setDefaultValue( int val, int idx=0 ) override
 			{ defaultvalue_ = (T)val; }
-    virtual void	setDefaultValue( double val, int idx=0 )
+    void		setDefaultValue( double val, int idx=0 ) override
 			{ defaultvalue_ = (T)val; }
-    virtual void	setDefaultValue( float val, int idx=0 )
+    void		setDefaultValue( float val, int idx=0 ) override
 			{ defaultvalue_ = (T)val; }
 			mDefDISSetDefValBaseClassImpl(bool)
 			mDefDISSetDefValBaseClassImpl(const char*)
@@ -242,14 +245,14 @@ public:
 			    return defaultvalue_;
 			}
 
-    virtual const char*	text( int idx=0 ) const
+    const char*		text( int idx=0 ) const override
 			{
 			    if ( isUndef() )	return "";
 			    else		return toString( value() );
 			}
 
-    virtual bool	hasLimits() const		{ return limits_; }
-    virtual bool	isInsideLimits( int idx=0 ) const
+    bool		hasLimits() const override	{ return limits_; }
+    bool		isInsideLimits( int idx=0 ) const override
 			{
 			    if ( !limits_ ) return true;
 			    if ( !isUndef(idx) )
@@ -372,13 +375,13 @@ public:
 			    delete steplimits_;
 			}
 
-    virtual NumInpIntervalSpec<T>* clone() const
+    NumInpIntervalSpec<T>* clone() const override
 			{ return new NumInpIntervalSpec<T>( *this ); }
 
-    virtual int		nElems()  const	{ return hasStep() ? 3 : 2; }
-    inline bool		hasStep() const	{ return stpi(); }
+    int			nElems()  const override { return hasStep() ? 3 : 2; }
+    inline bool		hasStep() const { return stpi(); }
 
-    virtual bool	isUndef( int idx=0 ) const
+    bool		isUndef( int idx=0 ) const override
 			{
 			    if ( !interval_ ) return true;
 			    return mIsUdf( value_(idx) );
@@ -406,7 +409,7 @@ public:
 			mDefDISSetDefValBaseClassImpl(bool)
 			mDefDISSetDefValBaseClassImpl(const char*)
 
-    virtual bool	setText( const char* s, int idx=0 )
+    bool		setText( const char* s, int idx=0 ) override
 			{
 			    if ( pt_value_(idx) )
 				return getFromString(*pt_value_(idx),s,mUdf(T));
@@ -419,11 +422,14 @@ public:
 			    return value_(idx);
 			}
 
-    virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
-    virtual od_int64	getInt64Value(int idx=0) const
-						{ return (od_int64)value(idx); }
-    virtual double	getDValue(int idx=0) const   { return value(idx); }
-    virtual float	getFValue(int idx=0) const { return (float)value(idx); }
+    int			getIntValue(int idx=0) const override
+			{ return (int)value(idx); }
+    od_int64		getInt64Value(int idx=0) const override
+			{ return (od_int64)value(idx); }
+    double		getDValue(int idx=0) const override
+			{ return value(idx); }
+    float		getFValue(int idx=0) const override
+			{ return (float)value(idx); }
 
     T			defaultValue( int idx=0 ) const
 			{
@@ -431,22 +437,22 @@ public:
 			    return defaultvalue_(idx);
 			}
 
-    virtual int		getDefaultIntValue(int idx=0) const
+    int			getDefaultIntValue(int idx=0) const override
 			{ return (int)defaultValue(idx); }
-    virtual double	getDefaultValue(int idx=0) const
+    double		getDefaultValue(int idx=0) const override
 			{ return defaultValue(idx); }
-    virtual float	getDefaultfValue(int idx=0) const
+    float		getDefaultfValue(int idx=0) const override
 			{ return (float) defaultValue(idx); }
 
-    virtual const char*	text( int idx=0 ) const
+    const char*		text( int idx=0 ) const override
 			{
 			    if ( isUndef(idx) ) return "";
 			    return toString( value(idx));
 			}
 
-    virtual bool	hasLimits() const
+    bool		hasLimits() const override
 			{ return startlimits_||stoplimits_||steplimits_; }
-    virtual bool	isInsideLimits( int idx=0 ) const
+    bool		isInsideLimits( int idx=0 ) const override
 			{
 			    const StepInterval<T>* lims = limits(idx);
 			    if ( !lims ) return true;
@@ -491,7 +497,7 @@ public:
 			    idx = -1: sets start and stop limits
 			    idx = -2: sets start, stop and step limits
 			*/
-    NumInpIntervalSpec&	setLimits( const StepInterval<T>& r, int idx=-1 )
+    NumInpIntervalSpec& setLimits( const StepInterval<T>& r, int idx=-1 )
 			{
 			    if ( idx<0 || idx==0 )
 			    {
@@ -511,7 +517,7 @@ public:
 
 			    return *this;
 			}
-    NumInpIntervalSpec&	setLimits( const Interval<T>& r, int idx=-1 )
+    NumInpIntervalSpec& setLimits( const Interval<T>& r, int idx=-1 )
 			{
 			    return setLimits(
 				StepInterval<T>(r.start,r.stop,1), idx );
@@ -561,8 +567,8 @@ protected:
 			    else
 			    {
 				if ( !interval_) return 0;
-				if ( idx == 0 )	 return &interval_->start;
-				if ( idx == 1 )	 return &interval_->stop;
+				if ( idx == 0 )  return &interval_->start;
+				if ( idx == 1 )  return &interval_->stop;
 				if ( hasStep() ) return &stpi()->step;
 			    }
 			    return 0;
@@ -587,16 +593,16 @@ mExpClass(General) StringInpSpec : public DataInpSpec
 { mODTextTranslationClass(StringInpSpec);
 public:
 			StringInpSpec( const char* s=0 );
-    virtual bool	isUndef(int idx=0) const;
+    bool		isUndef(int idx=0) const override;
 
-    virtual DataInpSpec* clone() const;
+    DataInpSpec*	clone() const override;
     const char*		text() const;
 
-    virtual bool	setText(const char*,int idx=0) ;
-    virtual const char*	text(int) const;
+    bool		setText(const char*,int idx=0) override;
+    const char*		text(int) const override;
 
-    void		setDefaultValue(const char*,int);
-    const char*		getDefaultStringValue(int) const;
+    void		setDefaultValue(const char*,int) override;
+    const char*		getDefaultStringValue(int) const override;
 
 			mDefDISSetDefValBaseClassImpl(int)
 			mDefDISSetDefValBaseClassImpl(float)
@@ -617,7 +623,8 @@ mExpClass(General) FileNameInpSpec : public StringInpSpec
 { mODTextTranslationClass(FileNameInpSpec);
 public:
 				FileNameInpSpec( const char* fname=0 );
-    virtual DataInpSpec*	clone() const;
+
+    DataInpSpec*	clone() const override;
 };
 
 
@@ -642,25 +649,25 @@ public:
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 
-    virtual bool	isUndef(int idx=0) const;
+    bool		isUndef(int idx=0) const override;
 
-    virtual DataInpSpec* clone() const;
+    DataInpSpec*	clone() const override;
     uiString		trueFalseTxt(bool tf=true) const;
     void		setTrueFalseTxt(bool,const uiString&);
 
     bool		checked() const;
     void		setChecked(bool yesno);
-    virtual const char*	text(int idx=0) const;
+    const char*		text(int idx=0) const override;
 
-    virtual bool	setText(const char* s,int idx=0);
-    virtual bool	getBoolValue(int idx=0) const;
-    virtual void	setValue(bool,int idx=0);
+    bool		setText(const char* s,int idx=0) override;
+    bool		getBoolValue(int idx=0) const override;
+    void		setValue(bool,int idx=0) override;
 			mDefDISSetValBaseClassImpl(int)
 			mDefDISSetValBaseClassImpl(od_int64)
 			mDefDISSetValBaseClassImpl(float)
 			mDefDISSetValBaseClassImpl(double)
-    virtual bool	getDefaultBoolValue(int idx=0) const;
-    virtual void	setDefaultValue(bool,int idx=0);
+    bool		getDefaultBoolValue(int idx=0) const override;
+    void		setDefaultValue(bool,int idx=0) override;
 			mDefDISSetDefValBaseClassImpl(int)
 			mDefDISSetDefValBaseClassImpl(float)
 			mDefDISSetDefValBaseClassImpl(double)
@@ -698,9 +705,9 @@ public:
 			StringListInpSpec(const StringListInpSpec&);
 			~StringListInpSpec();
 
-    virtual bool	isUndef(int idx=0) const;
+    bool		isUndef(int idx=0) const override;
 
-    virtual DataInpSpec* clone() const;
+    DataInpSpec*	clone() const override;
 
     const uiStringSet& strings() const;
 
@@ -709,23 +716,23 @@ public:
 			//!<EnumDef is assumed to remain in mem
 
     void		addString(const uiString& txt);
-    virtual const char*	text(int idx=0) const;
+    const char*		text(int idx=0) const override;
     void		setItemText(int idx, const uiString&);
-    virtual bool	setText(const char* s,int nr);
+    bool		setText(const char* s,int nr) override;
 
-    virtual int		getIntValue(int idx=0) const;
-    virtual od_int64	getInt64Value(int idx=0) const;
-    virtual double	getDValue(int idx=0) const;
-    virtual float	getFValue(int idx=0) const;
+    int			getIntValue(int idx=0) const override;
+    od_int64		getInt64Value(int idx=0) const override;
+    double		getDValue(int idx=0) const override;
+    float		getFValue(int idx=0) const override;
 
-    virtual void	setValue(int i,int idx=0);
-    virtual void	setValue(od_int64 i,int idx=0);
-    virtual void	setValue(double d,int idx=0);
-    virtual void	setValue(float f,int idx=0);
+    void		setValue(int i,int idx=0) override;
+    void		setValue(od_int64 i,int idx=0) override;
+    void		setValue(double d,int idx=0) override;
+    void		setValue(float f,int idx=0) override;
 			mDefDISSetValBaseClassImpl(bool)
 
-    virtual void	setDefaultValue(int i,int idx=0);
-    virtual int		getDefaultIntValue(int idx=0) const;
+    void		setDefaultValue(int i,int idx=0) override;
+    int			getDefaultIntValue(int idx=0) const override;
 			mDefDISSetDefValBaseClassImpl(const char*)
 			mDefDISSetDefValBaseClassImpl(float)
 			mDefDISSetDefValBaseClassImpl(double)
@@ -780,24 +787,25 @@ public:
 						     bool is2d=false);
 			PositionInpSpec(int trcnr,bool isps=false);
 
-    virtual DataInpSpec* clone() const	{ return new PositionInpSpec(*this); }
-    virtual int	nElems() const;
+    DataInpSpec*	clone() const override
+			    { return new PositionInpSpec(*this); }
+    int			nElems() const override;
 
     float		value( int idx=0 ) const
 			{ return getVal(setup_,idx); }
-    void		setValue( float f, int idx=0 )
+    void		setValue( float f, int idx=0 ) override
 			{ setVal( setup_, idx, f ); }
 			mDefDISSetValBaseClassImpl(int)
 			mDefDISSetValBaseClassImpl(od_int64)
 			mDefDISSetValBaseClassImpl(bool)
 			mDefDISSetValBaseClassImpl(double)
-    virtual bool	isUndef(int idx=0) const;
-    virtual const char*	text(int idx=0) const;
-    virtual bool	setText(const char* s,int idx=0);
+    bool		isUndef(int idx=0) const override;
+    const char*		text(int idx=0) const override;
+    bool		setText(const char* s,int idx=0) override;
 
     float		defaultValue( int idx=0 ) const
 			{ return getVal(defsetup_,idx); }
-    void		setDefaultValue( float f, int idx=0 )
+    void		setDefaultValue( float f, int idx=0 ) override
 			{ setVal( defsetup_, idx, f ); }
 			mDefDISSetDefValBaseClassImpl(int)
 			mDefDISSetDefValBaseClassImpl(const char*)

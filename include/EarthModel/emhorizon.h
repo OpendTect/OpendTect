@@ -45,10 +45,10 @@ public:
 mExpClass(EarthModel) Horizon : public Surface
 {
 public:
-    virtual HorizonGeometry&		geometry()			= 0;
-    virtual const HorizonGeometry&	geometry() const
-					{ return const_cast<Horizon*>(this)
-								->geometry(); }
+    HorizonGeometry&		geometry() override		= 0;
+    const HorizonGeometry&	geometry() const override
+				{ return const_cast<Horizon*>(this)
+							->geometry(); }
 
     virtual float	getZ(const TrcKey&) const			= 0;
     virtual bool	setZ(const TrcKey&,float z,bool addtohist)	= 0;
@@ -67,13 +67,13 @@ public:
     int			stratLevelID() const
 			{ return stratlevelid_; }
 
-    virtual void	fillPar( IOPar& par ) const
+    void		fillPar( IOPar& par ) const override
 			{
 			    Surface::fillPar( par );
 			    par.set( sKey::StratRef(), stratlevelid_ );
 			}
 
-    virtual bool	usePar( const IOPar& par )
+    bool		usePar( const IOPar& par ) override
 			{
 			    par.get( sKey::StratRef(), stratlevelid_ );
 			    return Surface::usePar( par );
@@ -85,7 +85,7 @@ protected:
 			Horizon( EMManager& emm )
 			    : Surface(emm), stratlevelid_(-1)	{}
 
-    virtual const IOObjContext&	getIOObjContext() const			= 0;
+    const IOObjContext& getIOObjContext() const override		= 0;
 
     int			stratlevelid_;
 };

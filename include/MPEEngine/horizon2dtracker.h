@@ -32,8 +32,9 @@ public:
     static EMTracker*		create(EM::EMObject* =0);
     static void			initClass();
 
-    bool			is2D() const			{ return true; }
-    EMSeedPicker*		getSeedPicker(bool createifnotpresent=true);
+    bool			is2D() const override		{ return true; }
+    EMSeedPicker*		getSeedPicker(
+					bool createifnotpresent=true) override;
 
     static const char*		keyword();
 
@@ -44,7 +45,7 @@ protected:
     EM::Horizon2D*		getHorizon2D();
     const EM::Horizon2D*	getHorizon2D() const;
 
-    SectionTracker*		createSectionTracker(EM::SectionID);
+    SectionTracker*		createSectionTracker(EM::SectionID) override;
     Horizon2DSeedPicker*	seedpicker_;
 };
 

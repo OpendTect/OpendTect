@@ -83,12 +83,12 @@ public:
 			    : inl_(inl)
 			{}
 
-    const char*		type() const;
-    void		getSideStrs(uiStringSet&) const;
-    bool		onRightSide(const TrcKey&,float z) const;
+    const char*		type() const override;
+    void		getSideStrs(uiStringSet&) const override;
+    bool		onRightSide(const TrcKey&,float z) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
     int			inl_;
 };
@@ -101,12 +101,12 @@ public:
 			    : crl_(crl)
 			{}
 
-    const char*		type() const;
-    void		getSideStrs(uiStringSet&) const;
-    bool		onRightSide(const TrcKey&,float z) const;
+    const char*		type() const override;
+    void		getSideStrs(uiStringSet&) const override;
+    bool		onRightSide(const TrcKey&,float z) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
     int			crl_;
 };
@@ -118,12 +118,12 @@ public:
 			RegionZBoundary( float z=mUdf(float) )
 			    : z_(z) {}
 
-    const char*		type() const;
-    void		getSideStrs(uiStringSet&) const;
-    bool		onRightSide(const TrcKey&,float z) const;
+    const char*		type() const override;
+    void		getSideStrs(uiStringSet&) const override;
+    bool		onRightSide(const TrcKey&,float z) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
     float		z_;
 };
@@ -135,16 +135,16 @@ public:
 			RegionHor3DBoundary(const MultiID&);
 			~RegionHor3DBoundary();
 
-    const char*		type() const;
+    const char*		type() const override;
     void		setKey(const MultiID&);
-    const MultiID&	key() const		{ return key_; }
-    bool		hasName() const			{ return true; }
-    bool		init(TaskRunner*);
-    void		getSideStrs(uiStringSet&) const;
-    bool		onRightSide(const TrcKey&,float z) const;
+    const MultiID&	key() const			{ return key_; }
+    bool		hasName() const override	{ return true; }
+    bool		init(TaskRunner*) override;
+    void		getSideStrs(uiStringSet&) const override;
+    bool		onRightSide(const TrcKey&,float z) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
     MultiID		key_;
@@ -158,16 +158,16 @@ public:
 			RegionFaultBoundary(const MultiID&);
 			~RegionFaultBoundary();
 
-    const char*		type() const;
+    const char*		type() const override;
     void		setKey(const MultiID&);
-    const MultiID&	key() const		{ return key_; }
-    bool		hasName() const			{ return true; }
-    bool		init(TaskRunner*);
-    void		getSideStrs(uiStringSet&) const;
-    bool		onRightSide(const TrcKey&,float z) const;
+    const MultiID&	key() const			{ return key_; }
+    bool		hasName() const override	{ return true; }
+    bool		init(TaskRunner*) override;
+    void		getSideStrs(uiStringSet&) const override;
+    bool		onRightSide(const TrcKey&,float z) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
     MultiID			key_;
@@ -183,15 +183,15 @@ public:
 			RegionPolygonBoundary(const MultiID&);
 			~RegionPolygonBoundary();
 
-    const char*		type() const;
+    const char*		type() const override;
     void		setKey(const MultiID&);
-    const MultiID&	key() const		{ return key_; }
-    bool		hasName() const			{ return true; }
-    void		getSideStrs(uiStringSet&) const;
-    bool		onRightSide(const TrcKey&,float z) const;
+    const MultiID&	key() const			{ return key_; }
+    bool		hasName() const override	{ return true; }
+    void		getSideStrs(uiStringSet&) const override;
+    bool		onRightSide(const TrcKey&,float z) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
     MultiID			key_;
     const ODPolygon<float>*	polygon_;
@@ -214,10 +214,11 @@ public:
     void		setEmpty();
 
     bool		init(TaskRunner*);
-    bool		isInside(const TrcKey&,float z,bool inclborder) const;
+    bool		isInside(const TrcKey&,float z,
+				 bool inclborder) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
     ObjectSet<RegionBoundary>	boundaries_;

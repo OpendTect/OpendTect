@@ -813,9 +813,9 @@ IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
     }
 }
 
-od_int64 nrIterations() const { return cubedata_.size(); }
+od_int64 nrIterations() const override { return cubedata_.size(); }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     for ( IdxPair::IdxType idx=(IdxPair::IdxType)start; idx<=stop; idx++ )
     {

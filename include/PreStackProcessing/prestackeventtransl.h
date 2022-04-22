@@ -29,7 +29,8 @@ mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
 public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
-    const char*			defExtension() const { return sDefExtension(); }
+    const char*			defExtension() const override
+				{ return sDefExtension(); }
     static const char*		sDefExtension()	     { return "psevent"; }
 };
 
@@ -66,11 +67,11 @@ mExpClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
 public:
     			mDefEmptyTranslatorConstructor(dgb,PSEvent);
     Executor*		createReader(PreStack::EventManager&,
-	    			     const BinIDValueSet*,
-				     const TrcKeySampling*,IOObj*,bool);
-    Executor*		createWriter(PreStack::EventManager&,IOObj*);
-    Executor*		createSaveAs(PreStack::EventManager&,IOObj*);
-    Executor*		createOptimizer(IOObj*) { return 0; }
+				 const BinIDValueSet*,
+				 const TrcKeySampling*,IOObj*,bool) override;
+    Executor*		createWriter(PreStack::EventManager&,IOObj*) override;
+    Executor*		createSaveAs(PreStack::EventManager&,IOObj*) override;
+    Executor*		createOptimizer(IOObj*) override { return 0; }
 
 };
 

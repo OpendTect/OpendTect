@@ -181,18 +181,18 @@ DPSPointExtractor( DataPointSet& dps, ::Pos::Provider& prov,
 }
 
 
-od_int64 totalNr() const	{ return totalnr_; }
+od_int64 totalNr() const override	{ return totalnr_; }
 
-od_int64 nrDone() const		{ return nrdone_; }
+od_int64 nrDone() const override	{ return nrdone_; }
 
-uiString uiMessage() const	{ return tr("Extracting positions"); }
+uiString uiMessage() const override	{ return tr("Extracting positions"); }
 
-uiString uiNrDoneText() const	{ return tr("Positions done"); }
+uiString uiNrDoneText() const override	{ return tr("Positions done"); }
 
 
 protected:
 
-int nextStep()
+int nextStep() override
 {
     nrdone_++;
     if ( !prov_.toNextZ() )

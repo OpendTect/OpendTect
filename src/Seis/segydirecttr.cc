@@ -33,24 +33,30 @@ public:
 				: SeisPSIOProvider(mSEGYDirectTranslNm)
 			{}
 
-    virtual bool	canHandle( bool forread, bool for2d ) const
+    virtual bool	canHandle( bool forread, bool for2d ) const override
 			{ return forread; }
 
-    SeisPS3DReader*	make3DReader( const char* fnm, int ) const
+    SeisPS3DReader*	make3DReader( const char* fnm, int ) const override
 			{ return new SEGYDirect3DPSReader(fnm); }
-    SeisPSWriter*	make3DWriter( const char* fnm ) const
+    SeisPSWriter*	make3DWriter( const char* fnm ) const override
 			{ return 0; }
-    SeisPS2DReader*	make2DReader( const char* dirnm, const char* lnm ) const
+    SeisPS2DReader*	make2DReader( const char* dirnm,
+				      const char* lnm ) const override
 			{ return new SEGYDirect2DPSReader(dirnm,lnm); }
-    SeisPS2DReader*	make2DReader( const char* dirnm, Pos::GeomID gid ) const
+    SeisPS2DReader*	make2DReader( const char* dirnm,
+				      Pos::GeomID gid ) const override
 			{ return new SEGYDirect2DPSReader(dirnm,gid); }
-    SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
+    SeisPSWriter*	make2DWriter( const char* dirnm,
+				      const char* lnm ) const override
 			{ return 0; }
-    SeisPSWriter*	make2DWriter( const char* dirnm, Pos::GeomID ) const
+    SeisPSWriter*	make2DWriter( const char* dirnm,
+				      Pos::GeomID ) const override
 			{ return 0; }
 
-    bool		getGeomIDs(const char*,TypeSet<Pos::GeomID>&) const;
-    bool		getLineNames(const char*,BufferStringSet&) const;
+    bool		getGeomIDs(const char*,
+				   TypeSet<Pos::GeomID>&) const override;
+    bool		getLineNames(const char*,
+				     BufferStringSet&) const override;
 
     static int		factid;
 };

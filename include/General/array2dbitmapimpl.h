@@ -77,7 +77,7 @@ protected:
     float			getDim0Offset(float val) const;
     int				dim0SubSampling(int nrdisptrcs) const;
 
-    void			doFill();
+    void			doFill() override;
     void			drawTrace(int);
     void			drawVal(int,int,float,float,float,float);
 };
@@ -122,8 +122,8 @@ public:
 				{ gtPars().lininterp_ = yn; }
 
 protected:
-    od_int64			nrIterations() const;
-    bool			doWork(od_int64,od_int64,int);
+    od_int64			nrIterations() const override;
+    bool			doWork(od_int64,od_int64,int) override;
 
     inline VDA2DBitMapGenPars& gtPars() const
 				{ return (VDA2DBitMapGenPars&)pars_; }
@@ -135,7 +135,7 @@ protected:
 				    //!< Not implemented to prevent usage
 				    //!< Copy the pars instead
 
-    void			doFill();
+    void			doFill() override;
 
     void			drawStrip(int);
     void			drawPixLines(int,const Interval<int>&);

@@ -58,27 +58,27 @@ public:
     float		getAcceptValue() const  { return acceptvalue_; }
 
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
-    bool		needsInput() const		{ return true; }
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return true; }
-    bool		areSamplesIndependent() const	{ return false; }
-    virtual uiString	errMsg() const			{ return errmsg_; }
+    bool		needsInput() const override		{ return true; }
+    bool		canInputAndOutputBeSame() const override{ return true; }
+    bool		needsFullVolume() const override	{ return true; }
+    bool		areSamplesIndependent() const override { return false; }
+    uiString		errMsg() const override		{ return errmsg_; }
 
-    Task*		createTask();
+    Task*		createTask() override;
 
-    mDeprecatedDef virtual od_int64	getProcTimeExtraMemory() const
-			{ return 0; }
+    mDeprecatedDef od_int64	getProcTimeExtraMemory() const override
+				{ return 0; }
 
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 
-		    VoxelConnectivityFilter();
-		    ~VoxelConnectivityFilter();
+			VoxelConnectivityFilter();
+			~VoxelConnectivityFilter();
 
     static const char*	sKeyRange()		{ return "Range"; }
     static const char*	sKeyConnectivity()	{ return "Connectivity"; }

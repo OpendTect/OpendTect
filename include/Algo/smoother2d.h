@@ -41,10 +41,10 @@ public:
     inline void			fillPar(IOPar&) const;
     inline bool			usePar(const IOPar&);
 
-    inline bool			execute();
-    inline void			enableWorkControl(bool);
-    inline void			controlWork(Task::Control);
-    inline Task::Control	getState() const;
+    inline bool			execute() override;
+    inline void			enableWorkControl(bool) override;
+    inline void			controlWork(Task::Control) override;
+    inline Task::Control	getState() const override;
 
     static const char*		sKeyWinFunc() { return "Window function"; }
     static const char*		sKeyWinParam() { return "Window parameter"; }
@@ -134,7 +134,8 @@ void Smoother2D<T>::fillPar( IOPar& par ) const
     if ( !mIsUdf(windowparam_) )
 	par.set( sKeyWinParam(), windowparam_ );
 
-    par.set(sKeyWinSize(),window_->info().getSize(0),window_->info().getSize(1));
+    par.set( sKeyWinSize(), window_->info().getSize(0),
+	     window_->info().getSize(1) );
 }
 
 
@@ -215,8 +216,9 @@ bool Smoother2D<T>::execute()
 	}
 
 	if ( weightsum>1 )
-	    mDoArrayPtrOperation( float, window_->getData(), /= (float)weightsum,
-		        window_->info().getTotalSz(), ++ );
+	    mDoArrayPtrOperation( float, window_->getData(),
+				  /= (float)weightsum,
+				  window_->info().getTotalSz(), ++ );
 
 	convolver_.setY( *window_, false );
     }

@@ -76,7 +76,7 @@ public:
     static const char*		dumptofileStr()		{ return "dumptofile"; }
     static const char*		smoothspectrumStr()	{ return "smoothspect";}
 
-    void			prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc() override;
 
 protected:
 				~Frequency();
@@ -84,17 +84,17 @@ protected:
     static void			updateDesc(Desc&);
     static void			updateDefaults(Desc&);
 
-    bool			checkInpAndParsAtStart();
-    bool			allowParallelComputation() const
+    bool			checkInpAndParsAtStart() override;
+    bool			allowParallelComputation() const override
 				{ return false; }
     bool			getInputOutput(int input,
-					       TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int idx);
+					   TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int idx) override;
     bool			computeData(const DataHolder&,const BinID& rel,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const override;
 
     Interval<float>		gate_;
     Interval<int>		samplegate_;
@@ -128,7 +128,7 @@ protected:
 			    : func_( func )
 			    , sz_(sz)			{}
 
-    virtual float	getValue( float x ) const
+    float		getValue( float x ) const override
 			{
 				ValueSeriesInterpolator<float> interp(sz_);
 				return interp.value(func_,x);

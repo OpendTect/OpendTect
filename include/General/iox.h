@@ -22,17 +22,17 @@ mExpClass(General) IOX : public IOObj
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
     virtual		~IOX();
-    bool		isBad() const;
+    bool		isBad() const override;
 
-    void		copyFrom(const IOObj*);
-    const char*		fullUserExpr(bool forread=true) const;
-    const char*		dirName() const;
+    void		copyFrom(const IOObj*) override;
+    const char*		fullUserExpr(bool forread=true) const override;
+    const char*		dirName() const override;
 
-    bool		implExists(bool) const;
-    bool		implManagesObjects() const	{ return true; }
+    bool		implExists(bool) const override;
+    bool		implManagesObjects() const override	{ return true; }
 
-    const char*		connType() const;
-    Conn*		getConn(bool) const;
+    const char*		connType() const override;
+    Conn*		getConn(bool) const override;
     IOObj*		getIOObj() const;
 
     const MultiID&	ownKey() const			{ return ownkey_; }
@@ -42,8 +42,8 @@ protected:
 
     MultiID		ownkey_;
 
-    bool		getFrom(ascistream&);
-    bool		putTo(ascostream&) const;
+    bool		getFrom(ascistream&) override;
+    bool		putTo(ascostream&) const override;
 
     static int		prodid; //!< for factory implementation
 };

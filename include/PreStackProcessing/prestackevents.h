@@ -250,11 +250,13 @@ public:
 			SetPickUndo(EventManager&,const BinID&,int horidx,
 				    const OffsetAzimuth&,float depth,
 				    unsigned char pickquality);
-    const char*		getStandardDesc() const { return "prestack pick"; }
-    const BinID&	getBinID() const	{ return bid_; }
+    const char*		getStandardDesc() const override
+			{ return "prestack pick"; }
 
-    bool		unDo();
-    bool		reDo();
+    const BinID&	getBinID() const override	{ return bid_; }
+
+    bool		unDo() override;
+    bool		reDo() override;
 
 protected:
 
@@ -282,11 +284,13 @@ public:
 				    short horid,VSEvent::Type,
 				    unsigned char pickquality);
 			SetEventUndo(EventManager&,const BinID&,int horidx);
-    const char*		getStandardDesc() const { return "prestack pick"; }
+    const char*		getStandardDesc() const override
+			{ return "prestack pick"; }
+
     const BinID&	getBinID() const	{ return bid_; }
 
-    bool		unDo();
-    bool		reDo();
+    bool		unDo() override;
+    bool		reDo() override;
 
 protected:
 

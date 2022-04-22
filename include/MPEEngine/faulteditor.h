@@ -69,13 +69,13 @@ protected:
     void		getPidsOnStick( EM::PosID& insertpid,int stick,
 			    const EM::SectionID&,const Coord3& pos) const;
 
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
     Coord3			scalevector_;
     int				sceneidx_;
 
     int				getLastClickedStick() const;
 
-    void			cloneMovingNode(CallBacker*);
+    void			cloneMovingNode(CallBacker*) override;
 
     Coord3			sowingpivot_;
     TypeSet<Coord3>		sowinghistory_;

@@ -48,7 +48,7 @@ public:
 				~Seis2DLineEventSnapper();
 
 protected:
-    virtual int			nextStep();
+    int				nextStep() override;
 
     Pos::GeomID			geomid_;
     SeisTrc			trc_;

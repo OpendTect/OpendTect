@@ -35,7 +35,7 @@ public:
 
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
-    void		setName(const char*);
+    void		setName(const char*) override;
     void		setNodePosition(int idx,const BinID&,bool moving=false);
     void		setNodePositions(const TypeSet<BinID>&);
     void		removeNode(int);

@@ -22,7 +22,7 @@ mExpClass(General) SurvGeom2DTranslatorGroup : public TranslatorGroup
 			isTranslatorGroup(SurvGeom2D);
 public:
 			mDefEmptyTranslatorGroupConstructor(SurvGeom2D);
-    const char*		defExtension() const	{ return "geom"; }
+    const char*		defExtension() const override	{ return "geom"; }
 };
 
 
@@ -49,11 +49,12 @@ public:
 			dgbSurvGeom2DTranslator(const char* s1,const char* s2)
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
-    const char*		defExtension() const	{ return "geom"; }
-    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
-    bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
+    const char*		defExtension() const override	{ return "geom"; }
+    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const override;
+    bool		writeGeometry(IOObj&,Survey::Geometry&,
+				      uiString&) const override;
     bool		implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const;
+				   const CallBack* cb=0) const override;
 };
 
 

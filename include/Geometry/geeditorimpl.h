@@ -1,12 +1,12 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          23-10-1996
- Contents:      Ranges
+ Author:	A.H. Bril
+ Date:		23-10-1996
+ Contents:	Ranges
 ________________________________________________________________________
 
 -*/
@@ -23,19 +23,19 @@ class TrackPlane;
 mExpClass(Geometry) ElementEditorImpl : public ElementEditor
 {
 public:
-    		ElementEditorImpl( Element& elem,
+		ElementEditorImpl( Element& elem,
 			const Coord3& dir1d=Coord3::udf(),
 			const Coord3& norm2d=Coord3::udf(),
 			bool allow3d=false );
 		~ElementEditorImpl();
 
-    bool	mayTranslate1D( GeomPosID ) const;
-    Coord3	translation1DDirection( GeomPosID ) const;
+    bool	mayTranslate1D( GeomPosID ) const override;
+    Coord3	translation1DDirection( GeomPosID ) const override;
 
-    bool	mayTranslate2D( GeomPosID ) const;
-    Coord3	translation2DNormal( GeomPosID ) const;
+    bool	mayTranslate2D( GeomPosID ) const override;
+    Coord3	translation2DNormal( GeomPosID ) const override;
 
-    bool	mayTranslate3D( GeomPosID ) const;
+    bool	mayTranslate3D( GeomPosID ) const override;
 
 protected:
     void	addedKnots(CallBacker*);

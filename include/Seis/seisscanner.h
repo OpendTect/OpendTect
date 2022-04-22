@@ -35,11 +35,11 @@ public:
 				    int max_nr_trcs=-1);
 			~SeisScanner();
 
-    uiString		uiMessage() const;
-    od_int64		totalNr() const;
-    od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
-    int			nextStep();
+    uiString		uiMessage() const override;
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
+    int			nextStep() override;
 
     void		report(IOPar&) const;
     bool		getSurvInfo(TrcKeyZSampling&,Coord crd[3]) const;

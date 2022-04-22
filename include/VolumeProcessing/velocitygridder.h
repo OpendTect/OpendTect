@@ -41,7 +41,7 @@ public:
 			VelocityGridder();
 			~VelocityGridder();
 
-    const VelocityDesc* getVelDesc() const;
+    const VelocityDesc* getVelDesc() const override;
 
     void		setSources(ObjectSet<Vel::FunctionSource>&);
     const ObjectSet<Vel::FunctionSource>&	getSources() const;
@@ -52,14 +52,16 @@ public:
     void		setLayerModel(InterpolationLayerModel*); //becomes mine
     const InterpolationLayerModel* getLayerModel() const;
 
-    bool		needsInput() const;
-    void		releaseData();
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return true;}
+    bool		needsInput() const override;
+    void		releaseData() override;
+    bool		canInputAndOutputBeSame() const override
+			{ return true; }
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    virtual uiString	errMsg() const		{ return errmsg_; }
+    bool		needsFullVolume() const override	{ return true;}
+
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
+    virtual uiString	errMsg() const override		{ return errmsg_; }
 
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
@@ -68,11 +70,11 @@ public:
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 
-    Task*		createTask();
+    Task*		createTask() override;
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;

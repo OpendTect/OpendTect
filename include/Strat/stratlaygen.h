@@ -74,19 +74,20 @@ protected:
 
 #define mDefLayerGeneratorFns(clss,typstr) \
 protected: \
-    virtual bool	genMaterial(Strat::LayerSequence&, \
-			    Property::EvalOpts eo=Property::EvalOpts()) const; \
+    bool		genMaterial(Strat::LayerSequence&, \
+			    Property::EvalOpts eo=Property::EvalOpts() \
+			    ) const override; \
 public: \
     static const char*	typeStr()		{ return typstr; } \
-    virtual const char* factoryKeyword() const	{ return typeStr(); } \
+    const char*		factoryKeyword() const override { return typeStr(); } \
     static Strat::LayerGenerator* create()	{ return new clss; } \
     static void		initClass() { factory().addCreator(create,typeStr());} \
-    virtual const char* name() const; \
-    virtual float	dispThickness(bool max=true) const; \
-    virtual bool	usePar(const IOPar&,const Strat::RefTree&); \
-    virtual void	fillPar(IOPar&) const; \
-    virtual void	syncProps(const PropertyRefSelection&); \
-    virtual void	updateUsedProps(PropertyRefSelection&) const
+    const char*		name() const override; \
+    float		dispThickness(bool max=true) const override; \
+    bool		usePar(const IOPar&,const Strat::RefTree&) override; \
+    void		fillPar(IOPar&) const override; \
+    void		syncProps(const PropertyRefSelection&) override; \
+    void		updateUsedProps(PropertyRefSelection&) const override
 
 
 

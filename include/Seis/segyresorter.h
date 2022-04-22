@@ -57,16 +57,17 @@ public:
 
     };
 
-    			ReSorter(const Setup&,const char* linename=0);
-    			~ReSorter();
+			ReSorter(const Setup&,const char* linename=0);
+			~ReSorter();
 
     void		setFilter(const Pos::Filter&);
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const		{ return totnr_; }
-    int			nextStep();
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces handled"); }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totnr_; }
+    int			nextStep() override;
 
     const DirectDef&	dDef() const;
     const FileDataSet&	fds() const;
@@ -75,7 +76,7 @@ protected:
 
     const Setup		setup_;
 
-    SEGY::DirectReader*	drdr_;
+    SEGY::DirectReader* drdr_;
     uiString		msg_;
     od_int64		nrdone_;
     od_int64		totnr_;

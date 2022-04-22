@@ -22,13 +22,13 @@ ________________________________________________________________________
 mExpClass(General) BIDValSetArrAdapter : public Array2D<float>
 {
 public:			
-    				BIDValSetArrAdapter(const BinIDValueSet&,
+				BIDValSetArrAdapter(const BinIDValueSet&,
 						    int col,const BinID& step);
 
-    void			set(int inlidx,int crlidx,float val);
-    float			get(int inlidx,int crlidx) const;
+    void			set(int inlidx,int crlidx,float val) override;
+    float			get(int inlidx,int crlidx) const override;
 
-    const Array2DInfo&		info() const		{ return arrinfo_; }
+    const Array2DInfo&		info() const override	{ return arrinfo_; }
     TrcKeySampling			tks_;
 
 protected:

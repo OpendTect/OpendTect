@@ -51,11 +51,11 @@ public:
     static const char*		sKeyPostNorm();
     static const char*		sKeyPreScale();
 
-    int				nextStep();
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const;
-    od_int64			nrDone() const;
-    od_int64			totalNr() const;
+    int				nextStep() override;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
 protected:
 

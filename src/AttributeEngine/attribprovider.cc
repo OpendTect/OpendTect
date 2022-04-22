@@ -45,7 +45,7 @@ ProviderTask( Provider& p )
 {}
 
 
-int minThreadSize() const { return provider_.minTaskSize(); }
+int minThreadSize() const override { return provider_.minTaskSize(); }
 
 
 void setVars( const DataHolder* res, const BinID& relpos, int z0,
@@ -58,10 +58,10 @@ void setVars( const DataHolder* res, const BinID& relpos, int z0,
 }
 
 
-od_int64 nrIterations() const { return nrsamples_; }
+od_int64 nrIterations() const override { return nrsamples_; }
 
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
     if ( !res_ ) return true;
     return provider_.computeData( *res_, relpos_, mCast(int,start+z0_),
@@ -69,11 +69,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 
-bool doPrepare( int nrthreads )
+bool doPrepare( int nrthreads ) override
 { return provider_.setNrThreads( nrthreads ); }
 
 
-bool doFinish( bool success )
+bool doFinish( bool success ) override
 { return provider_.finalizeCalculation( success ); }
 
 protected:

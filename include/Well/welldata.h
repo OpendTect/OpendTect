@@ -134,8 +134,9 @@ public:
     void			setMultiID( const MultiID& mid ) const
 							{ mid_ = mid; }
 
-    virtual const OD::String&	name() const		{ return info_.name(); }
-    virtual void		setName(const char* nm) { info_.setName( nm ); }
+    const OD::String&		name() const override	{ return info_.name(); }
+    void			setName(const char* nm) override
+				{ info_.setName( nm ); }
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
     const Track&		track() const		{ return track_; }

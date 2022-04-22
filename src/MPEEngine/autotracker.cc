@@ -52,7 +52,7 @@ TrackerTask( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
 }
 
 
-bool execute()
+bool execute() override
 {
     sectiontracker_ = mgr_.getFreeSectionTracker();
     const bool isok = sectiontracker_ && sectiontracker_->extender() &&

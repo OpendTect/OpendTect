@@ -34,18 +34,18 @@ mExpClass(Velocity) VolumeFunction : public Function
 { mODTextTranslationClass(VolumeFunction);
 public:
 			VolumeFunction(VolumeFunctionSource&);
-    bool		moveTo(const BinID&);
-    StepInterval<float>	getAvailableZ() const;
-    StepInterval<float>	getLoadedZ() const;
+    bool		moveTo(const BinID&) override;
+    StepInterval<float> getAvailableZ() const override;
+    StepInterval<float> getLoadedZ() const;
 
     void		enableExtrapolation(bool);
     void		setStatics(float t,float vel);
-    			//!<Only used with RMS velocities extrapolation
+			//!<Only used with RMS velocities extrapolation
 
 protected:
 
     bool		computeVelocity(float z0, float dz, int nr,
-					float* res ) const;
+					float* res ) const override;
 
     bool			zit_;
     SamplingData<float>		velsampling_;
@@ -63,24 +63,25 @@ public:
 				mDefaultFactoryInstanciationBase(
 				"Velocity volume", 
 				toUiString(sFactoryKeyword()));
-    				VolumeFunctionSource();
+				VolumeFunctionSource();
 
-    const VelocityDesc&		getDesc() const 	{ return desc_; }
+    const VelocityDesc&		getDesc() const override { return desc_; }
 
     bool			zIsTime() const;
     bool			setFrom(const MultiID& vel);
 
-    VolumeFunction*		createFunction(const BinID&);
+    VolumeFunction*		createFunction(const BinID&) override;
 
-    void			getAvailablePositions(BinIDValueSet&) const;
+    void			getAvailablePositions(
+						BinIDValueSet&) const override;
     bool			getVel(const BinID&,SamplingData<float>&,
-	    			       TypeSet<float>&);
+				       TypeSet<float>&);
 
     static const char*		sKeyZIsTime() { return "Z is Time"; }
 
 protected:
     static FunctionSource*	create(const MultiID&);
-    				~VolumeFunctionSource();
+				~VolumeFunctionSource();
 
     SeisTrcReader*		getReader();
 

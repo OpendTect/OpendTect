@@ -142,18 +142,18 @@ public:
 		    : trc_(const_cast<SeisTrc&>(t))
 		    , icomp_(c)			{}
 
-    void	setComponent( int idx )		{ icomp_ = idx; }
-    float	value( od_int64 idx ) const;
-    bool	writable() const		{ return true; }
-    void	setValue(od_int64 idx,float v);
-    float*	arr();
-    const float* arr() const;
+    void	setComponent( int idx )			{ icomp_ = idx; }
+    float	value( od_int64 idx ) const override;
+    bool	writable() const override		{ return true; }
+    void	setValue(od_int64 idx,float v) override;
+    float*	arr() override;
+    const float* arr() const override;
 
-    od_int64	size() const override	{ return trc_.size(); }
+    od_int64	size() const override			{ return trc_.size(); }
 
     bool	copytoArray(Array1D<float>&);
 
-    inline ValueSeries<float>*	clone() const;
+    inline ValueSeries<float>*	clone() const override;
 
 protected:
 
@@ -175,7 +175,9 @@ public:
 		SeisTrcFunction(const SeisTrc& trc, int icomp)
 		    : trc_(trc), icomp_(icomp)			{}
 
-    float	getValue( float z ) const { return trc_.getValue(z,icomp_); }
+    float	getValue( float z ) const override
+		{ return trc_.getValue(z,icomp_); }
+
     float	getValue( const float* p ) const { return getValue(*p); }
 
 protected:

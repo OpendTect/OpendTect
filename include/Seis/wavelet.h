@@ -110,14 +110,14 @@ public:
 			WaveletValueSeries( const Wavelet& wv )
 			    :wv_(const_cast<Wavelet&>(wv)) {}
 
-    float		value( od_int64 idx ) const;
-    bool		writable() const		{ return true; }
-    void		setValue( od_int64 idx,float v);
-    float*		arr();
-    const float*	arr() const;
+    float		value( od_int64 idx ) const override;
+    bool		writable() const override		{ return true; }
+    void		setValue( od_int64 idx,float v) override;
+    float*		arr() override;
+    const float*	arr() const override;
     od_int64		size() const override	{ return wv_.size(); }
 
-    inline ValueSeries<float>*	clone() const;
+    inline ValueSeries<float>*	clone() const override;
 
 protected:
 
@@ -138,7 +138,7 @@ public:
 		    : wv_(wv)
 		{}
 
-    float	getValue( float z ) const { return wv_.getValue(z); }
+    float	getValue( float z ) const override { return wv_.getValue(z); }
     float	getValue( const float* p ) const { return getValue(*p); }
 
 protected:

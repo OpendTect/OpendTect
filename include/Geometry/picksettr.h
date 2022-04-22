@@ -25,7 +25,7 @@ mExpClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(PickSet)
 
-    const char*		defExtension() const		{ return "pck"; }
+    const char*		defExtension() const override	{ return "pck"; }
     static const char*	sKeyPickSet()			{ return "PickSet"; }
 };
 
@@ -62,9 +62,9 @@ public:
     static void		fillConstraints(IOObjContext&,bool ispoly);
     static void		tagLegacyPickSets();
 
-    bool		implRemove(const IOObj*) const;
+    bool		implRemove(const IOObj*) const override;
     bool		implRename(const IOObj*,const char*,
-				   const CallBack*) const;
+				   const CallBack*) const override;
 };
 
 
@@ -74,8 +74,8 @@ public:
 
 			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
-    const char*		read(Pick::Set&,Conn&,bool checkdir=true);
-    const char*		write(const Pick::Set&,Conn&);
+    const char*		read(Pick::Set&,Conn&,bool checkdir=true) override;
+    const char*		write(const Pick::Set&,Conn&) override;
 
 };
 

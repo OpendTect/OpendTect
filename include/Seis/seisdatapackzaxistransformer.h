@@ -37,10 +37,10 @@ public:
 
 protected:
 
-    bool			doPrepare(int nrthreads);
-    bool			doWork(od_int64,od_int64,int threadid);
-    bool			doFinish(bool success);
-    od_int64			nrIterations() const;
+    bool			doPrepare(int nrthreads) override;
+    bool			doWork(od_int64,od_int64,int threadid) override;
+    bool			doFinish(bool success) override;
+    od_int64			nrIterations() const override;
 
     bool			interpolate_;
     DataPackMgr&		dpm_;

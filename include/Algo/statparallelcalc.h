@@ -50,19 +50,20 @@ public:
 
     const uiString		errMsg() const		{ return errmsg_; }
 
-    virtual inline double	variance() const;
+    inline double		variance() const override;
 
     using BaseCalc<T>::medvals_;
 
 protected:
 
-    od_int64			nrIterations() const	{ return nradded_; }
+    od_int64		nrIterations() const override
+			{ return nradded_; }
 
-    inline bool                 doPrepare(int);
-    inline bool                 doWork(od_int64,od_int64,int);
-    inline bool                 doFinish(bool);
+    inline bool		doPrepare(int) override;
+    inline bool		doWork(od_int64,od_int64,int) override;
+    inline bool		doFinish(bool) override;
 
-    virtual const T*		sort(idx_type* index_of_median =nullptr);
+    const T*		sort(idx_type* index_of_median =nullptr) override;
 
     uiString		        errmsg_;
 
@@ -149,7 +150,8 @@ inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 
 
 template <class T>
-inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
+inline bool ParallelCalc<T>::doWork( od_int64 start,
+				     od_int64 stop, int thread )
 {
     double sum_w = 0;
     double sum_wx = 0;

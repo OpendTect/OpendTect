@@ -57,9 +57,9 @@ void setFDS( const FileDataSet* fds )
     fds_ = fds;
 }
 
-od_int64 size() const { return fds_->size(); }
+od_int64 size() const override { return fds_->size(); }
 
-bool key( od_int64 nr, Seis::PosKey& pk ) const
+bool key( od_int64 nr, Seis::PosKey& pk ) const override
 {
     bool usable;
     if ( !fds_ || !fds_->getDetails( nr, pk, usable ) )

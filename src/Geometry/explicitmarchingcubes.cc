@@ -63,15 +63,15 @@ public:
 
 protected:
 
-    od_int64 nrIterations() const { return totalnr_; }
-    uiString uiMessage() const
+    od_int64 nrIterations() const override { return totalnr_; }
+    uiString uiMessage() const override
     {
 	return updatecoords_ ? tr("Triangulation: updating coordinates")
 	    : tr("Triangulation: updating indices");
     }
-    uiString uiNrDoneText() const	{ return tr("Positions updated"); }
+    uiString uiNrDoneText() const override { return tr("Positions updated"); }
 
-    bool doWork( od_int64 start, od_int64 stop, int thread )
+    bool doWork( od_int64 start, od_int64 stop, int thread ) override
     {
 	const int* tableidxs = idxstocompute_.arr();
 	const bool usetable = xrg_;
@@ -124,7 +124,7 @@ protected:
 	return true;
     }
 
-    int	minThreadSize() const { return 10000; }
+    int minThreadSize() const override { return 10000; }
 
     Interval<int>*			xrg_;
     Interval<int>*			yrg_;

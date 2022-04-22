@@ -41,7 +41,7 @@ public:
     const CBVSInfo&	info() const		{ return info_; }
     int			bytesOverheadPerTrace() const;
     int			estimatedNrTraces() const;
-    void		close();
+    void		close() override;
     void		setSingleLineMode(bool yn=true);
 
     BinID		nextBinID() const;
@@ -62,8 +62,8 @@ public:
 			//!< Determines whether this is a CBVS file pack.
 			//!< returns an error message, or null if OK.
 
-    int			nrComponents() const;
-    const BinID&	binID() const;
+    int			nrComponents() const override;
+    const BinID&	binID() const override;
     void		getIsRev(bool& inl, bool& crl) const;
 
     const char*		baseFileName() const
@@ -92,7 +92,7 @@ protected:
     bool		addReader(od_istream*,const TrcKeyZSampling*,bool,bool);
     bool		addReader(const char*,const TrcKeyZSampling*,bool,bool);
     int			nextRdrNr(int) const;
-    const char*		errMsg_() const;
+    const char*		errMsg_() const override;
 
 private:
 

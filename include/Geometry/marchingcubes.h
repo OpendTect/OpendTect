@@ -123,11 +123,11 @@ public:
 				MarchingCubesSurface&);
 		~Implicit2MarchingCubes();
 
-    od_int64	nrIterations() const;
-    bool	doWork(od_int64,od_int64,int);
-    uiString	uiMessage() const
+    od_int64	nrIterations() const override;
+    bool	doWork(od_int64,od_int64,int) override;
+    uiString	uiMessage() const override
 		{ return tr("Implicit body to MarchingCubes: Contouring"); }
-    uiString	uiNrDoneText() const
+    uiString	uiNrDoneText() const override
 		{ return tr("Nr done"); }
 
 
@@ -166,15 +166,15 @@ public:
 		~MarchingCubes2Implicit();
 
     float	threshold() const { return 0; }
-    uiString	uiMessage() const
+    uiString	uiMessage() const override
 		{ return tr("Processing MarchingCubes2Implicit."); }
 
 protected:
-    od_int64	nrDone() const;
-    od_int64	nrIterations() const;
+    od_int64	nrDone() const override;
+    od_int64	nrIterations() const override;
 
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
+    bool	doPrepare(int) override;
+    bool	doWork(od_int64,od_int64,int) override;
     bool	processSeeds( const od_int64*, int nr );
 
     friend	class MarchingCubes2ImplicitDistGen;

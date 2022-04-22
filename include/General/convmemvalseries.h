@@ -33,21 +33,21 @@ public:
 					   const Scaler* scaler=0);
 
     inline		~ConvMemValueSeries();
-    inline bool		isOK() const;
+    inline bool		isOK() const override;
 
-    ValueSeries<T>*	clone() const;
+    ValueSeries<T>*	clone() const override;
 
-    inline od_int64	size() const;
-    inline bool		writable() const;
-    inline T		value(od_int64 idx) const;
-    inline void		setValue( od_int64 idx, T v );
+    inline od_int64	size() const override;
+    inline bool		writable() const override;
+    inline T		value(od_int64 idx) const override;
+    inline void		setValue( od_int64 idx, T v ) override;
 
-    inline bool		selfSufficient() const	{ return true; }
-    inline bool		reSizeable() const	{ return true; }
-    inline bool		setSize(od_int64);
+    inline bool		selfSufficient() const override { return true; }
+    inline bool		reSizeable() const override	{ return true; }
+    inline bool		setSize(od_int64) override;
 
-    inline const T*	arr() const;
-    inline T*		arr();
+    inline const T*	arr() const override;
+    inline T*		arr() override;
 
     inline char*	storArr();
     inline const char*	storArr() const;

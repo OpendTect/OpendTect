@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Yuancheng Liu
- Date:          July 2008
+ Author:	Yuancheng Liu
+ Date:		July 2008
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,12 @@ class PolygonSurface;
 
 
 mExpClass(Geometry) ExplPolygonSurface : public Geometry::IndexedShape
-    				       , public CallBacker
+				       , public CallBacker
 {
 public:
 			ExplPolygonSurface(const PolygonSurface*,
 					   float zscale=1);
-    			~ExplPolygonSurface();
+			~ExplPolygonSurface();
 
     void		display(bool polygons,bool body);
     void		setPolygonSurface(const PolygonSurface*);
@@ -39,35 +39,35 @@ public:
     void		setZScale(float);
 
     bool		arePolygonsDisplayed() const { return displaypolygons_;}
-    bool		isBodyDisplayed() const	     { return displaybody_; }
+    bool		isBodyDisplayed() const      { return displaybody_; }
 
-    bool		needsUpdate() const	     { return needsupdate_; }
+    bool		needsUpdate() const override { return needsupdate_; }
     DAGTetrahedraTree*	getTetrahedraTree() const    { return tetrahedratree_; }
 
     TypeSet<Coord3>	getSurfaceSamples() const    { return samples_; }
     TypeSet<int>	getSampleIndices() const     { return sampleindices_; }
-    			/*<The indices are corresponding to the samples_. */
+			/*<The indices are corresponding to the samples_. */
     
     bool		prepareBodyDAGTree();
-    			/*<Create body tetrahedras based on surface polygons.*/
+			/*<Create body tetrahedras based on surface polygons.*/
     char		positionToBody(const Coord3 point);
-    			/*<Check point is inside, on, or outside a triangulated 
+			/*<Check point is inside, on, or outside a triangulated
 			   body surface, ret 1, 0, -1 respectively. */
 
-    bool		createsNormals() const       { return true; }
+    bool		createsNormals() const override       { return true; }
     
-    bool		update(bool forceall,TaskRunner*);
+    bool		update(bool forceall,TaskRunner*) override;
 
 protected:
 
     void		updateGeometries();
     bool		updateBodyDisplay();
-    void		removeAll(bool);
+    void		removeAll(bool) override;
     void		addToGeometries(IndexedGeometry*);
     void		removeFromGeometries(const IndexedGeometry*);
     void		addToTrianglePrimitiveSet(Geometry::PrimitiveSet*,
 						  int,int,int);
-    void 		calcNormals(int nrtriangles,int idx1,int idx2,int idx3);
+    void		calcNormals(int nrtriangles,int idx1,int idx2,int idx3);
 
 
 

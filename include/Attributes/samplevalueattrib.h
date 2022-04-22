@@ -35,10 +35,10 @@ protected:
 
     static Provider*		createInstance(Desc&);
 
-    bool			allowParallelComputation() const;
-    bool			getInputData(const BinID&,int);
+    bool			allowParallelComputation() const override;
+    bool			getInputData(const BinID&,int) override;
     bool			computeData(const DataHolder&,
-					    const BinID&,int,int,int) const;
+				    const BinID&,int,int,int) const override;
 
     const DataHolder*		inputdata_;
     int				dataidx_;

@@ -31,20 +31,21 @@ mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
 { mDefineEMObjFuncs( MarchingCubesSurface );
 public:
 
-    const char*			type() const		{ return typeStr(); }
-    virtual int			nrSections() const	{ return 1; }
-    virtual SectionID		sectionID(int) const	{ return 0; }
-    virtual bool		canSetSectionName() const	{ return false;}
+    const char*			type() const override	{ return typeStr(); }
+    int				nrSections() const override	{ return 1; }
+    SectionID			sectionID(int) const override	{ return 0; }
+    bool			canSetSectionName() const override
+								{ return false;}
 
     Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
     const Geometry::Element*	sectionGeometry(const SectionID&) const
 								  { return 0; }
-    virtual Executor*		loader();
-    virtual Executor*		saver();
+    Executor*			loader() override;
+    Executor*			saver() override;
     virtual Executor*		saver(const IOObj*);
-    virtual bool		isEmpty() const;
+    bool			isEmpty() const override;
 
-    const IOObjContext&		getIOObjContext() const;
+    const IOObjContext&		getIOObjContext() const override;
 
     ::MarchingCubesSurface&	surface() { return *mcsurface_; }
     const ::MarchingCubesSurface& surface() const { return *mcsurface_; }
@@ -58,25 +59,26 @@ public:
     void			setZSampling(const SamplingData<float>&);
     void			setSampling(const TrcKeyZSampling&);
 
-    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
-    bool			getBodyRange(TrcKeyZSampling& cs);
+    ImplicitBody*		createImplicitBody(TaskRunner*,
+						   bool) const override;
+    bool			getBodyRange(TrcKeyZSampling& cs) override;
 
-    void			refBody();
-    void			unRefBody();
-    MultiID			storageID() const;
-    BufferString		storageName() const;
+    void			refBody() override;
+    void			unRefBody() override;
+    MultiID			storageID() const override;
+    BufferString		storageName() const override;
 
-    EM::BodyOperator*		getBodyOperator() const	{ return operator_; }
+    EM::BodyOperator*		getBodyOperator() const { return operator_; }
     void			createBodyOperator();
     void			setBodyOperator(EM::BodyOperator*);
 				/*<Set operator only, to use it, call
 				   regenerateMCBody() to update the surface.*/
     bool			regenerateMCBody(TaskRunner* tr=0);
 
-    bool			useBodyPar(const IOPar&);
-    void			fillBodyPar(IOPar&) const;
+    bool			useBodyPar(const IOPar&) override;
+    void			fillBodyPar(IOPar&) const override;
 
-    uiString			getUserTypeStr() const
+    uiString			getUserTypeStr() const override
 				{ return tr("Marching Cubes Geobody"); }
 
 protected:

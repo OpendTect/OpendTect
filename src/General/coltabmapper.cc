@@ -344,9 +344,9 @@ SymmetryCalc( const ValueSeries<float>& vs, od_int64 sz )
     , lock_(true)
 {}
 
-od_int64 nrIterations() const { return sz_; }
+od_int64 nrIterations() const override	{ return sz_; }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     od_int64 above0 = 0;
     od_int64 below0 = 0;
@@ -376,7 +376,7 @@ bool isSymmAroundZero() const
 }
 
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 {
     return uiStrings::sDone();
 }

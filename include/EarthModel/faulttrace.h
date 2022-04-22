@@ -34,19 +34,19 @@ mExpClass(EarthModel) FaultTrace : public Coord3List
 { mODTextTranslationClass(FaultTrace);
 public:
 
-    int			nextID(int) const;
-    int			add(const Coord3&);
+    int			nextID(int) const override;
+    int			add(const Coord3&) override;
     int			add(const Coord3&,float trcnr);
-    Coord3		get(int) const;
+    Coord3		get(int) const override;
     const TypeSet<int>&	getIndices() const;
     float		getTrcNr(int) const;
-    void		set(int,const Coord3&);
+    void		set(int,const Coord3&) override;
     void		set(int,const Coord3&,float);
     void		setIndices(const TypeSet<int>&);
-    void		remove(int);
-    void		remove(const TypeSet<int>&)	{}
-    bool		isDefined(int) const;
-    int			size() const	{ return coords_.size(); }
+    void		remove(int) override;
+    void		remove(const TypeSet<int>&) override	{}
+    bool		isDefined(int) const override;
+    int			size() const override	{ return coords_.size(); }
     FaultTrace*		clone() const;
 
     bool		isInl() const			{ return isinl_; }
@@ -91,7 +91,7 @@ public:
 
     float		getZValFor(const BinID&) const;
     bool		isOnPosSide(const BinID&,float) const;
-    void		addValue(int id,const Coord3&)	{}
+    void		addValue(int id,const Coord3&) override {}
     void		computeRange();
     bool		includes(const BinID&) const;
     bool		isOK() const;
@@ -165,15 +165,15 @@ public:
 			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
 
-    uiString		uiMessage() const;
+    uiString		uiMessage() const override;
 
 protected:
 
     virtual bool	extractFaultTrace(int)			= 0;
-    virtual od_int64	nrIterations() const;
-    virtual bool	doPrepare(int);
-    virtual bool	doWork(od_int64,od_int64,int);
-    virtual bool	doFinish(bool)	{ return true; }
+    virtual od_int64	nrIterations() const override;
+    virtual bool	doPrepare(int) override;
+    virtual bool	doWork(od_int64,od_int64,int) override;
+    virtual bool	doFinish(bool) override { return true; }
 
     const EM::Fault&	fault_;
     FaultTrcHolder&	holder_;
@@ -190,9 +190,9 @@ public:
 
 protected:
 
-    bool		extractFaultTrace(int);
+    bool		extractFaultTrace(int) override;
 
-    virtual bool	doPrepare(int);
+    virtual bool	doPrepare(int) override;
 
     Geometry::ExplFaultStickSurface* fltsurf_;
 
@@ -208,9 +208,9 @@ public:
 
 protected:
 
-    bool		extractFaultTrace(int);
-    virtual bool	doPrepare(int);
-    virtual bool	doFinish(bool);
+    bool		extractFaultTrace(int) override;
+    virtual bool	doPrepare(int) override;
+    virtual bool	doFinish(bool) override;
 
     Pos::GeomID		geomid_;
 };

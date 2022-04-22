@@ -97,7 +97,7 @@ public:
 			Track(const Track&);
 			~Track();
 
-	virtual const char* subjectName() const { return "Track"; }
+	const char*	subjectName() const override { return "Track"; }
 
 	bool		operator ==(const Track&) const;
 	bool		operator !=(const Track&) const;
@@ -109,8 +109,8 @@ public:
 
     private:
 
-	virtual void	doUsePar(const IOPar&);
-	virtual void	doFillPar(IOPar&) const;
+	void		doUsePar(const IOPar&) override;
+	void		doFillPar(IOPar&) const override;
 
     };
 
@@ -125,7 +125,7 @@ public:
 	bool		operator ==(const Markers&) const;
 	bool		operator !=(const Markers&) const;
 
-	virtual const char* subjectName() const { return "Markers"; }
+	const char*	subjectName() const override { return "Markers"; }
 	bool		isEmpty() const;
 	bool		isSelected(const char* nm) const;
 
@@ -142,8 +142,8 @@ public:
 
     private:
 
-	virtual void	doUsePar(const IOPar&);
-	virtual void	doFillPar(IOPar&) const;
+	void		doUsePar(const IOPar&) override;
+	void		doFillPar(IOPar&) const override;
 
 	void		adjustSelection(const BufferStringSet& markernms);
 
@@ -162,7 +162,7 @@ public:
 	bool		operator ==(const Log&) const;
 	bool		operator !=(const Log&) const;
 
-	virtual const char* subjectName() const { return "Log"; }
+	const char*	subjectName() const override { return "Log"; }
 	void		setTo(const Data*,const Log&,bool forceifmissing=false);
 
 	BufferString	name_ = sKey::None();
@@ -187,12 +187,12 @@ public:
 
     private:
 
-	virtual void	doUseLeftPar(const IOPar&);
-	virtual void	doUseCenterPar(const IOPar&);
-	virtual void	doUseRightPar(const IOPar&);
-	virtual void	doFillLeftPar(IOPar&) const;
-	virtual void	doFillCenterPar(IOPar&) const;
-	virtual void	doFillRightPar(IOPar&) const;
+	void		doUseLeftPar(const IOPar&) override;
+	void		doUseCenterPar(const IOPar&) override;
+	void		doUseRightPar(const IOPar&) override;
+	void		doFillLeftPar(IOPar&) const override;
+	void		doFillCenterPar(IOPar&) const override;
+	void		doFillRightPar(IOPar&) const override;
 
     };
 

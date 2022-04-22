@@ -99,13 +99,13 @@ public:
     const IOPar*	pars() const;
     int			getParsOffset() const;
 
-    virtual od_int64	nrDone() const;
-    virtual uiString	uiNrDoneText() const;
-    virtual od_int64	totalNr() const;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		totalNr() const override;
 
-    virtual int		nextStep();
+    int			nextStep() override;
 
-    virtual uiString	uiMessage() const;
+    uiString		uiMessage() const override;
 
     static const char*	sKeyNrSections();
     static const char*	sKeyNrSectionsV1();
@@ -295,13 +295,13 @@ public:
     void			setWriteOnlyZ(bool yn);
     IOPar*			pars();
 
-    virtual od_int64		nrDone() const;
-    virtual uiString		uiNrDoneText() const;
-    virtual od_int64		totalNr() const;
+    od_int64			nrDone() const override;
+    uiString			uiNrDoneText() const override;
+    od_int64			totalNr() const override;
 
-    virtual int			nextStep();
+    int				nextStep() override;
 
-    virtual uiString		uiMessage() const;
+    uiString			uiMessage() const override;
 
 protected:
 

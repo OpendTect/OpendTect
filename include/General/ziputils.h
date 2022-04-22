@@ -90,23 +90,23 @@ mExpClass(General) Zipper : public Executor
 { mODTextTranslationClass(Zipper)
 public:
 				Zipper(const char*,const BufferStringSet&, 
-                                       ZipHandler::CompLevel);
+				       ZipHandler::CompLevel);
 
-                                Zipper(const char*,const char*, 
-                                       ZipHandler::CompLevel);
+				Zipper(const char*,const char*,
+				       ZipHandler::CompLevel);
 
-    uiString			uiMessage() const;
-    od_int64			nrDone() const;
-    uiString			uiNrDoneText() const;
-    od_int64			totalNr() const;
-    bool                        isOk() const { return isok_; }
+    uiString			uiMessage() const override;
+    od_int64			nrDone() const override;
+    uiString			uiNrDoneText() const override;
+    od_int64			totalNr() const override;
+    bool			isOk() const { return isok_; }
 
 protected:
 
-    int				nextStep();
+    int				nextStep() override;
     ZipHandler			ziphd_;
     int				nrdone_;
-    bool                        isok_;
+    bool			isok_;
 };
 
 
@@ -121,18 +121,18 @@ mExpClass(General) UnZipper : public Executor
 public:
 				UnZipper(const char*,const char*);
 
-    uiString			uiMessage() const;
-    od_int64			nrDone() const;
-    uiString			uiNrDoneText() const;
-    od_int64			totalNr() const;
-    bool                        isOk() const { return isok_; }
+    uiString			uiMessage() const override;
+    od_int64			nrDone() const override;
+    uiString			uiNrDoneText() const override;
+    od_int64			totalNr() const override;
+    bool			isOk() const { return isok_; }
 
 protected:
 
-    int				nextStep();
+    int				nextStep() override;
     ZipHandler			ziphd_;
     int				nrdone_;
-    bool                        isok_;
+    bool			isok_;
 };
 
 

@@ -1,10 +1,10 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Yuancheng Liu
-Date:          March 2010
+Date:	       March 2010
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 					const BinIDSurface&, 
 					const ExplFaultStickSurface&,
 					Coord3List&);
-				~FaultBinIDSurfaceIntersector()	{}
+				~FaultBinIDSurfaceIntersector() {}
 
     void			compute();	
 				
@@ -53,7 +53,7 @@ protected:
 private:
     void			sortPointsToLine(TypeSet<Coord3>&,
 						 TypeSet<Coord3>&);
-    const Coord3	        findNearestPoint(const Coord3&,
+    const Coord3		findNearestPoint(const Coord3&,
 						 TypeSet<Coord3>&);
     bool			findMin(TypeSet<Coord3>&,int&,bool);
     int				optimizeOrder(TypeSet<Coord3>&);
@@ -71,15 +71,15 @@ public:
 
 				~BulkFaultBinIDSurfaceIntersector() {}
 
-    virtual od_int64		totalNr() const { return totalnr_; }
-    virtual od_int64		nrDone() const { return nrdone_; }
-    uiString			uiMessage() const
+    od_int64			totalNr() const override { return totalnr_; }
+    od_int64			nrDone() const override { return nrdone_; }
+    uiString			uiMessage() const override
 				{ return tr( "Fault-Horizon "
 						"Intersector Calculator" ); }
-    uiString			uiNrDoneText() const
+    uiString			uiNrDoneText() const override
 				    { return tr( "Faults handled" ); }
 
-    int				nextStep();
+    int				nextStep() override;
 
     const ObjectSet<Coord3ListImpl>	getIntersectionPoints()
 						{ return crdlistset_; }

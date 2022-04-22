@@ -45,12 +45,12 @@ public:
 			ParamGroup(const ParamGroup&);
 			~ParamGroup();
 
-    ParamGroup<PT>*	clone() const;
-    bool		isOK() const;
+    ParamGroup<PT>*	clone() const override;
+    bool		isOK() const override;
     const char*		errMsg() const;
-    bool                setValues(BufferStringSet&);
-    bool                getCompositeValue(BufferString&) const;
-    void                fillDefStr(BufferString&) const;
+    bool		setValues(BufferStringSet&) override;
+    bool		getCompositeValue(BufferString&) const override;
+    void		fillDefStr(BufferString&) const override;
 
     Param&		operator[]( int idx )		{ return *params_[idx];}
     const Param&	operator[]( int idx ) const	{ return *params_[idx];}
@@ -62,7 +62,7 @@ public:
 
 protected:
     int				getSize() const;
-    bool			isEqual(const Param&) const;
+    bool			isEqual(const Param&) const override;
 
     int				sz_;
 

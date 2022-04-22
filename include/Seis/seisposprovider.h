@@ -33,37 +33,40 @@ public:
 			SeisProvider3D(const SeisProvider3D&);
 			~SeisProvider3D();
     SeisProvider3D&	operator =(const SeisProvider3D&);
-    const char*		type() const		{ return sKeyType(); }
-    const char*		factoryKeyword() const	{ return type(); }
+    const char*		type() const override		{ return sKeyType(); }
+    const char*		factoryKeyword() const override { return type(); }
     static const char*	sKeyType()	{ return "Seismic Cube Positions"; }
-    virtual Provider*	clone() const	{ return new SeisProvider3D(*this); }
+    Provider*		clone() const override
+			{ return new SeisProvider3D(*this); }
 
     uiRetVal		setSeisID(const MultiID&);
     MultiID		seisID() const		{ return id_; }
 
-    virtual void	reset();
+    void		reset() override;
 
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
+    bool		toNextPos() override;
+    bool		toNextZ() override;
 
-    virtual BinID	curBinID() const;
-    virtual float	curZ() const;
-    virtual bool	includes(const BinID&,float z=mUdf(float)) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    BinID		curBinID() const override;
+    float		curZ() const override;
+    bool		includes(const BinID&,
+				 float z=mUdf(float)) const override;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    virtual void	getExtent(BinID& start,BinID& stop) const;
-    virtual void	getZRange(Interval<float>&) const;
-    virtual od_int64	estNrPos() const;
-    virtual int		estNrZPerPos() const;
+    void		getExtent(BinID& start,BinID& stop) const override;
+    void		getZRange(Interval<float>&) const override;
+    od_int64		estNrPos() const override;
+    int			estNrZPerPos() const override;
 
     const ZSampling&	zSampling() const	{ return zsamp_; }
     void		setZSampling( const ZSampling& zrg )
 						{ zsamp_ = zrg; }
     int			nrSamples() const	{ return zsamp_.nrSteps()+1; }
-    virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
-			{ return Pos::Provider3D::includes(c,z); }
+    bool		includes( const Coord& c,
+				  float z=mUdf(float) ) const override
+			    { return Pos::Provider3D::includes(c,z); }
 
 protected:
 

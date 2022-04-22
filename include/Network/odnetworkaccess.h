@@ -106,11 +106,11 @@ public:
 
     od_int64		getDownloadSize();
 
-    uiString		uiMessage() const;
-    int			nextStep();
-    od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
-    od_int64		totalNr() const;
+    uiString		uiMessage() const override;
+    int			nextStep() override;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		totalNr() const override;
 
 protected:
 
@@ -144,11 +144,11 @@ public:
 				     BufferString& header);
 			~DataUploader();
 
-    uiString		uiMessage() const;
-    int			nextStep();
-    od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
-    od_int64		totalNr() const;
+    uiString		uiMessage() const override;
+    int			nextStep() override;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		totalNr() const override;
 
 protected:
 

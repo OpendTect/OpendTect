@@ -52,11 +52,11 @@ protected:
     bool			rotateWavelet();
     bool			taperWavelet();
 
-    int				nextStep();
-    od_int64			totalNr() const	{ return totalnr_ ; }
-    od_int64			nrDone() const	{ return nrdone_; }
-    uiString			uiNrDoneText() const;
-    uiString			uiMessage() const;
+    int				nextStep() override;
+    od_int64			totalNr() const override { return totalnr_ ; }
+    od_int64			nrDone() const override  { return nrdone_; }
+    uiString			uiNrDoneText() const override;
+    uiString			uiMessage() const override;
 
     Wavelet&			wvlt_;
     const IOObj&		iobj_;

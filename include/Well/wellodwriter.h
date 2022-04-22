@@ -35,22 +35,22 @@ public:
 			odWriter(const IOObj&,const Data&,uiString& errmsg);
 			odWriter(const char* fnm,const Data&,uiString& errmsg);
 
-    bool		put() const;
+    bool		put() const override;
 
-    virtual bool	putInfoAndTrack() const;
-    virtual bool	putTrack() const;
-    virtual bool	putLogs() const;
-    virtual bool	putMarkers() const;
-    virtual bool	putD2T() const;
-    virtual bool	putCSMdl() const;
-    virtual bool	putDispProps() const;
-    virtual bool	putLog(const Log&) const;
+    bool		putInfoAndTrack() const override;
+    bool		putTrack() const;
+    bool		putLogs() const override;
+    bool		putMarkers() const override;
+    bool		putD2T() const override;
+    bool		putCSMdl() const override;
+    bool		putDispProps() const override;
+    bool		putLog(const Log&) const override;
     bool		putDefLogs() const override;
-    virtual bool	swapLogs(const Log&,const Log&) const;
-    virtual bool	renameLog(const char* oldnm, 
+    bool		swapLogs(const Log&,const Log&) const override;
+    bool		renameLog(const char* oldnm,
 				  const char* newnm) override;
 
-    virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
+    const uiString& errMsg() const override { return odIO::errMsg(); }
 
     bool		putInfoAndTrack(od_ostream&) const;
     bool		putMarkers(od_ostream&) const;
@@ -67,7 +67,7 @@ protected:
 
     bool		binwrlogs_;
 
-    virtual bool	isFunctional() const;
+    bool		isFunctional() const override;
 
     bool		putLog(od_ostream&,const Log&,
 				  const DataBuffer* databuf = nullptr) const;

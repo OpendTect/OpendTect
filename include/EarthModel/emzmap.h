@@ -29,10 +29,10 @@ public:
 			ZMapImporter(const char* fnm);
 			~ZMapImporter();
 
-    od_int64		nrDone() const			{ return nrdone_; }
-    od_int64		totalNr() const			{ return totalnr_; }
-    uiString		uiMessage() const		{ return msg_; }
-    uiString		uiNrDoneText() const		{ return nrdonetxt_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override	{ return nrdonetxt_; }
 
     void		setCoordSystem(Coords::CoordSystem*);
     void		setUOM(const UnitOfMeasure*);
@@ -48,7 +48,7 @@ protected:
 
     bool		initHeader();
     void		applyCRS();
-    int			nextStep();
+    int			nextStep() override;
 
     od_int64		nrdone_		= 0;
     od_int64		totalnr_	= 0;

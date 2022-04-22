@@ -29,7 +29,7 @@ public:
     			SingleLayerGenerator(const SingleLayerGenerator&);
     			~SingleLayerGenerator()	{}
 
-    virtual bool	canBeCloned() const		{ return true; }
+    bool		canBeCloned() const override	{ return true; }
     const LeafUnitRef&	unit() const;
     void		setUnit( const LeafUnitRef* ur ) { unit_ = ur; }
     const Content&	content() const			{ return *content_; }
@@ -39,14 +39,14 @@ public:
     PropertySet&	properties()		{ return props_; }
     const PropertySet&	properties() const	{ return props_; }
 
-    virtual bool	reset() const;
-    virtual uiString	errMsg() const		{ return errmsg_; }
+    bool		reset() const override;
+    uiString		errMsg() const override		{ return errmsg_; }
 
     mDefLayerGeneratorFns(SingleLayerGenerator,"Single layer");
 
 protected:
 
-    virtual LayerGenerator* createClone() const;
+    LayerGenerator*	createClone() const override;
     const LeafUnitRef*	unit_;
     PropertySet		props_;
     const Content*	content_;

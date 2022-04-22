@@ -47,17 +47,18 @@ public:
     static const char*	logName()		{ return "logname"; }
     static const char*	upscaleType()		{ return "upscaletype"; }
 
-    void		prepareForComputeData();
+    void		prepareForComputeData() override;
 
 protected:
 			~WellLog();
     static Provider*    createInstance(Desc&);
 
-    bool		allowParallelComputation() const;
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&, int idx);
+    bool		allowParallelComputation() const override;
+    bool		getInputOutput(int input,
+				       TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&, int idx) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples,int threadid) const;
+			    int t0,int nrsamples,int threadid) const override;
 
     MultiID		wellid_;
     BufferString	logname_;

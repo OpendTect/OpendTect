@@ -60,7 +60,7 @@ public:
 				     const UnitOfMeasure* out) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }
-    float		value( int idx ) const	{ return t(idx); }
+    float		value( int idx ) const override { return t(idx); }
     float*		valArr()		{ return t_.arr(); }
     const float*	valArr() const		{ return t_.arr(); }
 
@@ -73,7 +73,7 @@ public:
 
     void		add( float d_ah, float tm )
 						{ dah_ += d_ah; t_ += tm; }
-    bool		insertAtDah(float d_ah,float t);
+    bool		insertAtDah(float d_ah,float t) override;
 
     void		makeFromTrack(const Track&, float cstvel,
 				      float replvel);
@@ -89,8 +89,8 @@ protected:
 
     TypeSet<float>	t_;
 
-    void		removeAux( int idx )	{ t_.removeSingle(idx); }
-    void		eraseAux()		{ t_.erase(); }
+    void		removeAux( int idx ) override { t_.removeSingle(idx); }
+    void		eraseAux() override		{ t_.erase(); }
 
     bool		getVelocityBoundsForDah(float d_ah,const Track&,
 					  Interval<double>& depths,

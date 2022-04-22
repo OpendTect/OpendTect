@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:	Kristofer Tingdahl
+ Date:		07-10-1999
 ________________________________________________________________________
 
 -*/
@@ -45,35 +45,37 @@ public:
     static const char*		posStr()	{ return "pos"; }
     static const char*		timeStr()	{ return "time"; }
     static const char*		steeringStr()	{ return "steering"; }
-    void			initSteering()	{ stdPrepSteering(stepout_); }
+    void			initSteering() override
+				{ stdPrepSteering(stepout_); }
 
-    void			prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc() override;
 
-    virtual bool		isSingleTrace() const
+    virtual bool		isSingleTrace() const override
 				{ return !stepout_.inl() && !stepout_.crl(); }
 
 protected:
-    				~Shift() {}
+				~Shift() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     void			init();
 
-    bool			allowParallelComputation() const
-    				{ return false; }
+    bool			allowParallelComputation() const override
+				{ return false; }
 
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputOutput(int inp,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const BinID*		reqStepout(int input,int output) const;
-    const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const BinID*		reqStepout(int input,int output) const override;
+    const Interval<float>*	reqZMargin(int input,int output) const override;
+    const Interval<float>*	desZMargin(int input,int output) const override;
 
     BinID			pos_;
-    float 			time_;
+    float			time_;
     bool			dosteer_;
     
     BinID			stepout_;

@@ -157,7 +157,7 @@ public:
 
     void				setAngleData(
 					    const ObjectSet<PreStack::Gather>&);
-    const SeisTrc*			getTrace(int seqnr) const
+    const SeisTrc*			getTrace(int seqnr) const override
 					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,

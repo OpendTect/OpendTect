@@ -46,7 +46,7 @@ public:
 			//!< if null, assume everything has changed
 
     const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
-    virtual int		level() const			{ return 0; }
+    int			level() const override		{ return 0; }
 
     static void		getStdNames(BufferStringSet&);
     static RefTree*	createStd(const char*);

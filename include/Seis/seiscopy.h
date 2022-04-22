@@ -37,10 +37,10 @@ public:
 						//!< trcproc becomes mine
 				~SeisCubeCopier();
 
-    od_int64			totalNr() const;
-    od_int64			nrDone() const;
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const;
+    od_int64			totalNr() const override;
+    od_int64			nrDone() const override;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
 
 protected:
 
@@ -82,10 +82,10 @@ public:
 
 			~Seis2DCopier();
 
-    od_int64		totalNr() const		{ return totalnr_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const;
+    od_int64		totalNr() const override	{ return totalnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override;
 
 protected:
 

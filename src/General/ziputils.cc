@@ -208,7 +208,7 @@ MultiArchiveUnZipper( const BufferStringSet& archvs, const char* destination )
 }
 
 
-int nextStep()
+int nextStep() override
 {
     if ( archidx_ >= archives_.size() )
 	return Finished();
@@ -234,19 +234,19 @@ int nextStep()
 }
 
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return nrdone_; }
 
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return totalnr_; }
 
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 { return tr("MBytes Processed: "); }
 
 
-uiString uiMessage() const
+uiString uiMessage() const override
 {
     if ( errmsg_.isEmpty() )
 	return tr("Extracting data");

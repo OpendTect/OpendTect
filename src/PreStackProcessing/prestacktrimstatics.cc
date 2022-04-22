@@ -88,10 +88,10 @@ PilotTraceExtractor( const TrimStatics::Iteration& it, const Gather& gth )
     pilottrc_->setAll( mUdf(float) );
 }
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 { return nrz_; }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const int nroffsets = gather_.data().info().getSize( Gather::offsetDim() );
     for ( int idz=mCast(int,start); idz<=stop; idz++, addToNrDone(1) )

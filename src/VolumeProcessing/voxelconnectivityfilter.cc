@@ -59,13 +59,16 @@ public:
 
     ~VoxelConnectivityFilterTask() { releaseData(); }
 
-    uiString	uiNrDoneText() const { return tr("Positions done"); }
-    uiString	uiMessage() const { return tr("Computing voxel connectivity"); }
+    uiString	uiNrDoneText() const override { return tr("Positions done"); }
+    uiString	uiMessage() const override
+		{ return tr("Computing voxel connectivity"); }
 
-    od_int64	nrIterations() const { return input_.info().getTotalSz(); }
-    int		maxNrThreads() const { return 1; } //Todo: remove
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
+    od_int64	nrIterations() const override
+		{ return input_.info().getTotalSz(); }
+
+    int		maxNrThreads() const override { return 1; } //Todo: remove
+    bool	doPrepare(int) override;
+    bool	doWork(od_int64,od_int64,int) override;
 
 protected:
     void		addBodyAlias(od_int64,od_int64);

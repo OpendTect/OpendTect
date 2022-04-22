@@ -30,13 +30,14 @@ public:
 					      const TypeSet<Pos::GeomID>&);
 			~Seis2DFrom3DExtractor();
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces written"); }
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const 	{ return totalnr_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces written"); }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
     Pos::GeomID		curGeomID() const;
 
-    int 		nextStep();
+    int			nextStep() override;
 
 protected:
 

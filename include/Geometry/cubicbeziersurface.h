@@ -1,10 +1,10 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-Date:          December 2004
+Date:	       December 2004
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
     Coord3		computeVTangent(float u, float v) const;
 
     bool		intersectWithLine( const Line3& line,
-	    				float& u, float& v, float eps ) const;
+					float& u, float& v, float eps ) const;
 
     IntervalND<float>	computeBoundingBox() const;
 
@@ -52,29 +52,33 @@ public:
 mExpClass(Geometry) CubicBezierSurface : public ParametricSurface
 { mODTextTranslationClass(CubicBezierSurface);
 public:
-    			CubicBezierSurface( const RowCol& step=RowCol(1,1));
-    			CubicBezierSurface( const CubicBezierSurface& );
+			CubicBezierSurface( const RowCol& step=RowCol(1,1));
+			CubicBezierSurface( const CubicBezierSurface& );
 			~CubicBezierSurface();
 
-    CubicBezierSurface*	clone() const;
-    bool		isEmpty() const { return !positions; }
+    CubicBezierSurface* clone() const override;
+    bool		isEmpty() const override { return !positions; }
 
-    IntervalND<float>	boundingBox(bool approx) const;
+    IntervalND<float>	boundingBox(bool approx) const override;
 
-    Coord3	computePosition(const Coord&) const;
-    Coord3	computeNormal(const Coord&) const;
+    Coord3	computePosition(const Coord&) const override;
+    Coord3	computeNormal(const Coord&) const override;
 
     bool	intersectWithLine(const Line3&,Coord&) const;
 
     Coord3	getBezierVertex(const RowCol& knot,const RowCol& relpos) const;
 
-    bool	insertRow(int row,int nrnew=1);
-    bool	insertCol(int col,int nrnew=1);
-    bool	removeRow(int row,int stoprow=-1); //!< stoprow will be ignored
-    bool	removeCol(int col,int stopcol=-1); //!< stopcol will be ignored
-    virtual Coord3 getKnot( const RowCol& rc ) const
-    		{ return getKnot(rc,false); }
-    Coord3	getKnot(const RowCol&,bool estimateifundef) const;
+    bool	insertRow(int row,int nrnew=1) override;
+    bool	insertCol(int col,int nrnew=1) override;
+    bool	removeRow(int row,int stoprow=-1) override;
+		//!< stoprow will be ignored
+
+    bool	removeCol(int col,int stopcol=-1) override;
+		//!< stopcol will be ignored
+
+    Coord3	getKnot( const RowCol& rc ) const override
+		{ return getKnot(rc,false); }
+    Coord3	getKnot(const RowCol&,bool estimateifundef) const override;
 
     Coord3	getRowDirection(const RowCol&,bool computeifudf) const;
     Coord3	getColDirection(const RowCol&,bool computeifudf) const;
@@ -83,23 +87,23 @@ public:
 
     const CubicBezierSurfacePatch*	getPatch(const RowCol&) const;
     ParametricCurve*	createRowCurve( float row,
-					const Interval<int>* colrange=0 ) const;
+			    const Interval<int>* colrange=0 ) const override;
     ParametricCurve*	createColCurve(float col,
-					const Interval<int>* rowrange=0 ) const;
+			    const Interval<int>* rowrange=0 ) const override;
 
 protected:
 
-    bool	checkSelfIntersection( const RowCol& ) const;
+    bool	checkSelfIntersection( const RowCol& ) const override;
 
     IntervalND<float>	boundingBox(const RowCol&, bool ownvertices ) const;
 
     Coord3	computeRowDirection(const RowCol&) const;
     Coord3	computeColDirection(const RowCol&) const;
 
-    void	_setKnot( int idx, const Coord3& );
+    void	_setKnot( int idx, const Coord3& ) override;
 
-    int		nrRows() const;
-    int		nrCols() const;
+    int		nrRows() const override;
+    int		nrCols() const override;
 
     Array2D<Coord3>*	rowdirections;
     Array2D<Coord3>*	coldirections;

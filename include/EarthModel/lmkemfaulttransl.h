@@ -34,7 +34,7 @@ public:
     virtual Executor*	writer(const EM::Fault3D&,Conn*,
 			       const char* formatfilename);
 
-    virtual bool	isUserSelectable(bool) const	{ return false; }
+    bool		isUserSelectable(bool) const override { return false; }
 
     BufferString	warningmsg;
 
@@ -49,7 +49,7 @@ public:
     static const char*	lineidstr();
     static const char*	tracestr();
 
-    virtual Executor*	reader( EM::Surface& s )
+    Executor*		reader( EM::Surface& s ) override
 			{ return EMSurfaceTranslator::reader(s); }
 };
 
@@ -64,9 +64,9 @@ public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
 					   const char* formatfile);
 			~lmkEMFault3DReader();
-    virtual int		nextStep();
+    int			nextStep() override;
 
-    virtual uiString	uiMessage() const;
+    uiString		uiMessage() const override;
     static const char*  streamerrmsg;
 
 protected:
@@ -104,8 +104,8 @@ public:
 					   Conn*,const char* formatfile);
 			~lmkEMFault3DWriter();
 
-    virtual int		nextStep();
-    virtual uiString	uiMessage() const;
+    int			nextStep() override;
+    uiString		uiMessage() const override;
     static const char*  streamerrmsg;
 
 protected:

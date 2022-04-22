@@ -177,9 +177,9 @@ mExpClass(Seis) SeisPS3DTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
 
-    virtual bool	implRemove(const IOObj*) const;
-    virtual bool	implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const;
+    bool		implRemove(const IOObj*) const override;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const override;
 };
 
 
@@ -188,7 +188,7 @@ mExpClass(Seis) CBVSSeisPS3DTranslator : public SeisPS3DTranslator
 public:
 			mDefEmptyTranslatorConstructor(CBVS,SeisPS3D)
 
-    bool		implRemove(const IOObj*) const;
+    bool		implRemove(const IOObj*) const override;
 };
 
 
@@ -211,7 +211,7 @@ mExpClass(Seis) CBVSSeisPS2DTranslator : public SeisPS2DTranslator
 public:
 			mDefEmptyTranslatorConstructor(CBVS,SeisPS2D)
 
-    bool		implRemove(const IOObj*) const;
+    bool		implRemove(const IOObj*) const override;
 };
 
 

@@ -58,10 +58,11 @@ public:
 			    : WellDataIOProvider("OpendTect")	{}
 
     Well::ReadAccess*	makeReadAccess( const IOObj& ioobj,
-				Well::Data& wd, uiString& errmsg ) const
+			    Well::Data& wd, uiString& errmsg ) const override
 			{ return new Well::odReader(ioobj,wd,errmsg); }
     Well::WriteAccess*	makeWriteAccess( const IOObj& ioobj,
-				const Well::Data& wd, uiString& errmsg ) const
+					 const Well::Data& wd,
+					 uiString& errmsg ) const override
 			{ return new Well::odWriter(ioobj,wd,errmsg); }
 
     static int		factid_;

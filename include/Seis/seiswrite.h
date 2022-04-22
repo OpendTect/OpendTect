@@ -55,7 +55,7 @@ public:
 				//!< Restricted to a given Pos::GeomID
 			SeisTrcWriter(const SeisStoreAccess::Setup&);
 			~SeisTrcWriter();
-    virtual bool	close();
+    bool		close() override;
 
     bool		prepareWork(const SeisTrc&);
     virtual bool	put(const SeisTrc&);
@@ -75,7 +75,7 @@ public:
     const GeomIDProvider* geomIDProvider() const	{ return gidp_; }
     Pos::GeomID		geomID() const override;
     void		setGeomIDProvider(const GeomIDProvider*);
-    void		setSelData(Seis::SelData*);
+    void		setSelData(Seis::SelData*) override;
 				//!< If no GeomIDProvider set,
 				//!< seldata's GeomID will be used
     void		setAttrib( const char* a )	{ attribnm_ = a; }

@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
- Date:          May 2008
+ Author:	K. Tingdahl
+ Date:		May 2008
 ________________________________________________________________________
 
 -*/
@@ -36,19 +36,19 @@ public:
     const TypeSet<Coord3>&	planePolygon(int id) const;
 
     int				addPlane(const Coord3& normal,
-	    				 const TypeSet<Coord3>&);
+					 const TypeSet<Coord3>&);
     bool			setPlane(int id, const Coord3&,
-	    				 const TypeSet<Coord3>&);
+					 const TypeSet<Coord3>&);
     void			removePlane(int id);
 
     void			setShape(const IndexedShape&);
-    				/*!<Is assumed to remain in memory. */
+				/*!<Is assumed to remain in memory. */
     const IndexedShape*		getShape() const;
-    				
 
-    bool			needsUpdate() const;
-    bool			update(bool forceall,TaskRunner*);
-    void			removeAll(bool);
+
+    bool			needsUpdate() const override;
+    bool			update(bool forceall,TaskRunner*) override;
+    void			removeAll(bool) override;
 
     void			setZScale(float nz)	{ zscale_ = nz; }
     float			getZScale() const	{ return zscale_; }
@@ -56,7 +56,7 @@ public:
     struct PlaneIntersection	/*<based on per plane*/
     {
 	bool			operator==(const PlaneIntersection& n) const
-	    			{ return conns_==n.conns_ && n.knots_==knots_; }
+				{ return conns_==n.conns_ && n.knots_==knots_; }
 	TypeSet<Coord3>		knots_;
 	TypeSet<int>		conns_; /*<based on knots_ only, -1 seperate*/
     };

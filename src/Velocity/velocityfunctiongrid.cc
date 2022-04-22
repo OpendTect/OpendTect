@@ -390,8 +390,8 @@ GridderSourceFilter( const BinIDValueSet& bvs, TypeSet<BinID>& bids,
 {}
 
 
-od_int64 nrIterations() const { return bvs_.totalSize(); }
-bool doWork(od_int64 start, od_int64 stop, int )
+od_int64 nrIterations() const override { return bvs_.totalSize(); }
+bool doWork(od_int64 start, od_int64 stop, int ) override
 {
     TypeSet<BinID> sourcebids;
     const BinID step( SI().inlRange(false).step, SI().crlRange(false).step );

@@ -215,9 +215,9 @@ public:
 SeisIOSimpleImportReader( SeisIOSimple& sios )
 	: sios_(sios)		{}
 
-const char* name() const	{ return "Simple File"; }
-const char* implName() const	{ return sios_.iStream().fileName(); }
-bool fetch( SeisTrc& trc )
+const char* name() const override	{ return "Simple File"; }
+const char* implName() const override	{ return sios_.iStream().fileName(); }
+bool fetch( SeisTrc& trc ) override
 {
     int rv = sios_.readImpTrc( trc );
     if ( rv > 0 )

@@ -84,17 +84,19 @@ public:
 
 			SeisCBVSPS3DReader(const char* dirnm,int inl=mUdf(int));
 			~SeisCBVSPS3DReader();
-    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const override
+			{ return SeisCBVSPSIO::errMsg(); }
 
     SeisTrc*		getTrace(const BinID&,int) const override;
     bool		getGather(const BinID&,SeisTrcBuf&) const override;
 
-    const PosInfo::CubeData& posData() const	{ return posdata_; }
-    StepInterval<float>	getZRange() const;
-    bool		getSampleNames( BufferStringSet& bss ) const
+    const PosInfo::CubeData& posData() const override	{ return posdata_; }
+    StepInterval<float> getZRange() const override;
+    bool		getSampleNames( BufferStringSet& bss ) const override
 			{ return SeisCBVSPSIO::getSampleNames(bss); }
 
-    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+    void		usePar( const IOPar& i ) override
+			{ SeisCBVSPSIO::usePar(i); }
 
 protected:
 
@@ -120,16 +122,18 @@ public:
 			SeisCBVSPS2DReader(const char* dirnm,Pos::GeomID);
 			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
 			~SeisCBVSPS2DReader();
-    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const override
+			{ return SeisCBVSPSIO::errMsg(); }
 
     SeisTrc*		getTrace(const BinID&,int) const override;
     bool		getGather(const BinID&,SeisTrcBuf&) const override;
 
-    const PosInfo::Line2DData& posData() const	{ return posdata_; }
-    bool		getSampleNames( BufferStringSet& bss ) const
+    const PosInfo::Line2DData& posData() const override { return posdata_; }
+    bool		getSampleNames( BufferStringSet& bss ) const override
 			{ return SeisCBVSPSIO::getSampleNames(bss); }
 
-    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+    void		usePar( const IOPar& i ) override
+			{ SeisCBVSPSIO::usePar(i); }
 
 protected:
 
@@ -147,21 +151,24 @@ protected:
  */
 
 mExpClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
-		         , public SeisCBVSPSIO
+			 , public SeisCBVSPSIO
 { mODTextTranslationClass(SeisCBVSPS3DWriter);
 public:
 
 			SeisCBVSPS3DWriter(const char* dirnm);
 			~SeisCBVSPS3DWriter();
-    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const override
+			{ return SeisCBVSPSIO::errMsg(); }
 
-    bool		put(const SeisTrc&);
-    void		close();
+    bool		put(const SeisTrc&) override;
+    void		close() override;
 
-    bool		setSampleNames( const BufferStringSet& bss ) const
+    bool		setSampleNames(
+				const BufferStringSet& bss ) const override
 			{ return SeisCBVSPSIO::setSampleNames(bss); }
 
-    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+    void		usePar( const IOPar& i ) override
+			{ SeisCBVSPSIO::usePar(i); }
 
 protected:
 
@@ -179,21 +186,24 @@ protected:
  */
 
 mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
-		         , public SeisCBVSPSIO
+			 , public SeisCBVSPSIO
 { mODTextTranslationClass(SeisCBVSPS2DWriter);
 public:
 
 			SeisCBVSPS2DWriter(const char* dirnm,Pos::GeomID);
 			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
-    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const override
+			{ return SeisCBVSPSIO::errMsg(); }
 
-    bool		put(const SeisTrc&);
-    void		close();
+    bool		put(const SeisTrc&) override;
+    void		close() override;
 
-    bool		setSampleNames( const BufferStringSet& bss ) const
+    bool		setSampleNames(
+				const BufferStringSet& bss ) const override
 			{ return SeisCBVSPSIO::setSampleNames(bss); }
 
-    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+    void		usePar( const IOPar& i ) override
+			{ SeisCBVSPSIO::usePar(i); }
 
 protected:
 

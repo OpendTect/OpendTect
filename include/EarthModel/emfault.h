@@ -82,16 +82,16 @@ protected:
 mExpClass(EarthModel) Fault : public Surface
 {
 public:
-    virtual void		removeAll();
-    virtual FaultGeometry&	geometry()			= 0;
-    virtual const FaultGeometry& geometry() const
+    void			removeAll() override;
+    FaultGeometry&	geometry() override			= 0;
+    const FaultGeometry& geometry() const override
 				{ return const_cast<Fault*>(this)->geometry(); }
 
 protected:
     				Fault( EMManager& em )
 				    : Surface(em)		{}
 
-    const IOObjContext&		getIOObjContext() const		= 0;
+    const IOObjContext&		getIOObjContext() const override	= 0;
 };
 
 
@@ -108,9 +108,9 @@ public:
 			FaultStickUndoEvent(const EM::PosID&,
 					    const Coord3& oldpos,
 					    const Coord3& oldnormal );
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
 
 protected:
     Coord3		pos_;
@@ -132,9 +132,9 @@ public:
 			//Interface for removal
 			FaultKnotUndoEvent(const EM::PosID&,
 					   const Coord3& oldpos);
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
 
 protected:
     Coord3		pos_;

@@ -34,16 +34,16 @@ mExpClass(Geometry) BendPointFinder2DGeomSet : public Executor
 public:
 			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&);
 
-    od_int64		nrDone() const;
-    od_int64		totalNr() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
     const ObjectSet<BendPoints>& bendPoints() const	{ return bendptset_; }
 
 protected:
 
-    int			nextStep();
+    int			nextStep() override;
 
     const TypeSet<Pos::GeomID>&	geomids_;
     ObjectSet<BendPoints>	bendptset_;
@@ -118,9 +118,9 @@ public:
 			Line2DInterSectionFinder(const ObjectSet<BendPoints>&,
 						 Line2DInterSectionSet&);
 
-    od_int64		nrIterations() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    od_int64		nrIterations() const override;
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
 protected:
 
@@ -128,8 +128,9 @@ protected:
     const ObjectSet<BendPoints>&	bendptset_;
     Line2DInterSectionSet&		lsintersections_;
 
-    bool		doWork(od_int64 start,od_int64 stop,int threadid);
-    bool		doFinish(bool success);
+    bool		doWork(od_int64 start,
+			       od_int64 stop,int threadid) override;
+    bool		doFinish(bool success) override;
     Threads::Lock	lock_;
     int			counter_;
 };

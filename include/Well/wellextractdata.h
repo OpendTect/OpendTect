@@ -123,11 +123,11 @@ public:
 			ExtractParams() { setEmpty(); }
 			ExtractParams(const ExtractParams&);
 
-    void		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
 
-    void		setEmpty();
-    bool		isOK(uiString* errmsg=0) const;
+    void		setEmpty() override;
+    bool		isOK(uiString* errmsg=0) const override;
 
     static const char*	sKeySamplePol();
     static const char*	sKeyZExtractInTime();
@@ -152,13 +152,13 @@ public:
 				      bool trackinfo=false);
 			~InfoCollector();
 
-    int			nextStep();
-    uiString		uiMessage() const	{ return curmsg_; }
-    uiString		uiNrDoneText() const	{
-						return tr("Wells inspected");
-						}
-    od_int64		nrDone() const		{ return curidx_; }
-    od_int64		totalNr() const		{ return totalnr_; }
+    int			nextStep() override;
+    uiString		uiMessage() const override	{ return curmsg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Wells inspected"); }
+
+    od_int64		nrDone() const override		{ return curidx_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
 
     const TypeSet<MultiID>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
@@ -218,11 +218,15 @@ public:
 
     void		usePar(const IOPar&);
 
-    int			nextStep();
-    uiString	uiMessage() const   { return tr("Scanning well tracks"); }
-    uiString	uiNrDoneText() const { return tr("Wells inspected"); }
-    od_int64		nrDone() const	   { return curid_; }
-    od_int64		totalNr() const	   { return ids_.size(); }
+    int			nextStep() override;
+    uiString		uiMessage() const override
+			{ return tr("Scanning well tracks"); }
+
+    uiString		uiNrDoneText() const override
+			{ return tr("Wells inspected"); }
+
+    od_int64		nrDone() const override    { return curid_; }
+    od_int64		totalNr() const override   { return ids_.size(); }
 
     uiString		errMsg() const
 			{ return errmsg_.isEmpty() ? uiString::emptyString()
@@ -273,11 +277,13 @@ public:
 
     void		usePar(const IOPar&);
 
-    int			nextStep();
-    uiString		uiMessage() const   { return msg_; }
-    uiString		uiNrDoneText() const { return tr("Wells handled"); }
-    od_int64		nrDone() const	   { return curid_; }
-    od_int64		totalNr() const	   { return ids_.size(); }
+    int			nextStep() override;
+    uiString		uiMessage() const override   { return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Wells handled"); }
+
+    od_int64		nrDone() const override    { return curid_; }
+    od_int64		totalNr() const override   { return ids_.size(); }
 
     const TypeSet<MultiID>&	ioObjIds() const	{ return ids_; }
 
@@ -318,11 +324,13 @@ public:
     void		setSampling(const StepInterval<float>& intv)
 			{ extrintv_ = intv; } //In time if d2TModel is provided
 
-    int			nextStep();
-    od_int64		totalNr() const		{ return extrintv_.nrSteps(); }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString	uiMessage() const	{ return m3Dots(tr("Computing")); }
-    uiString	uiNrDoneText() const	{ return tr("Points done"); }
+    int			nextStep() override;
+    od_int64		totalNr() const override { return extrintv_.nrSteps(); }
+    od_int64		nrDone() const override { return nrdone_; }
+    uiString		uiMessage() const override
+			{ return m3Dots(tr("Computing")); }
+    uiString		uiNrDoneText() const override
+			{ return tr("Points done"); }
 
     void		getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
     void		getCoords(TypeSet<Coord>& cs) const { cs = coords_; }
@@ -391,7 +399,7 @@ public:
     int			nrZSamples() const;
     Interval<float>	zRange() const	{ return zrg_; } //can be in time
 
-    uiString		uiNrDoneText() const;
+    uiString		uiNrDoneText() const override;
 
 protected:
     void		init (const D2TModel*,const Interval<float>&,

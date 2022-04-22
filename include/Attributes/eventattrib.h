@@ -21,9 +21,9 @@ namespace Attrib
   
   EventAttrib  singleevent = 
 	       eventtype = extremum, max, min, zerocrossing...
-  	       tonext = 
-  	       gate =
-  	       outamp = 
+	       tonext =
+	       gate =
+	       outamp =
 	       
   Calculates properties of events ( peakedness, steepness, asymmetry)
   Calculates the distance between the sample and the next or previous eventtype
@@ -41,36 +41,36 @@ public:
     
     static const char*		attribName()		{ return "Event"; }
     static const char*		eventTypeStr()		{ return "eventtype"; }
-    static const char*		tonextStr() 		{ return "tonext"; }
-    static const char*		gateStr() 		{ return "gate"; }
+    static const char*		tonextStr()		{ return "tonext"; }
+    static const char*		gateStr()		{ return "gate"; }
     static const char*		issingleeventStr()
 				{ return "issingleevent"; }
-    static const char*		outampStr() 		{ return "outamp"; }
+    static const char*		outampStr()		{ return "outamp"; }
 
 
 protected:
-    				~Event() {}
+				~Event() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
     bool			getInputOutput(int input,
-	    				       TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
+					   TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    bool			allowParallelComputation() const
-    				{ return true; }
+    bool			allowParallelComputation() const override
+				{ return true; }
 
-    const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const override;
+    const Interval<float>*	desZMargin(int input,int output) const override;
 
     
-    static VSEvent::Type	getEventType(int type); 
+    static VSEvent::Type	getEventType(int type);
     ValueSeriesEvent<float,float> findNextEvent( 
-	    				ValueSeriesEvent<float,float> nextev, 
+					ValueSeriesEvent<float,float> nextev,
 					int dir,VSEvent::Type,int,int) const;
 
     void			singleEvent(const DataHolder&,int,int) const;

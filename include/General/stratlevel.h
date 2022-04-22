@@ -50,7 +50,7 @@ public:
     OD::Color		color() const		{ return color_; }
     const IOPar&	pars() const		{ return pars_; }
 
-    void		setName(const char*);
+    void		setName(const char*) override;
     void		setColor(OD::Color);
     void		setPars(const IOPar&);
 

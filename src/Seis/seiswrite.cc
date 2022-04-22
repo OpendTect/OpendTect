@@ -511,7 +511,7 @@ public:
 	, trc_( trc )
     {}
 
-    bool execute()
+    bool execute() override
     {
 	BufferString errmsg;
 	if ( !writer_.put(*trc_) )

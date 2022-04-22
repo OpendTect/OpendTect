@@ -88,7 +88,7 @@ public:
     bool		hasDataInRange() const;
     uiString		errMsg() const;
 
-    int			nextStep();
+    int			nextStep() override;
 
 protected:
 
@@ -129,7 +129,7 @@ public:
     void	setBinary(bool yn)			{ binary_ = yn; }
     uiString	errMsg() const;
 
-    int		nextStep();
+    int		nextStep() override;
 
 protected:
 

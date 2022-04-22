@@ -52,11 +52,11 @@ PolygonBodyUndoEvent( const EM::PosID& posid, const Coord3& oldpos,
 {}
 
 
-const char* getStandardDesc() const
+const char* getStandardDesc() const override
 { return remove_ ? "Remove polygon" : "Insert polygon"; }
 
 
-bool unDo()
+bool unDo() override
 {
     RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
@@ -71,7 +71,7 @@ bool unDo()
 }
 
 
-bool reDo()
+bool reDo() override
 {
     RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
@@ -117,11 +117,11 @@ PolygonBodyKnotUndoEvent( const EM::PosID& posid, const Coord3& oldpos )
 { }
 
 
-const char* getStandardDesc() const
+const char* getStandardDesc() const override
 { return remove_ ? "Remove knot" : "Insert knot"; }
 
 
-bool unDo()
+bool unDo() override
 {
     RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
@@ -135,7 +135,7 @@ bool unDo()
 }
 
 
-bool reDo()
+bool reDo() override
 {
     RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );

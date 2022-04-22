@@ -32,12 +32,12 @@ public:
     void			setSurface(MarchingCubesSurface*);
     MarchingCubesSurface*	getSurface() { return surface_; }
     const MarchingCubesSurface*	getSurface() const { return surface_; }
-    void			removeAll(bool deep);
+    void			removeAll(bool deep) override;
 
-    bool			update(bool forceall,TaskRunner* = 0);
-    bool			needsUpdate() const;
+    bool			update(bool forceall,TaskRunner* = 0) override;
+    bool			needsUpdate() const override;
 
-    bool			createsNormals() const { return true; }
+    bool			createsNormals() const override { return true; }
 
 protected:
 

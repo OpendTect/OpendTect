@@ -22,7 +22,7 @@ public:
 	, colrg_( ps.colRange() )
     {}
 
-    GeomPosID           next()
+    GeomPosID		next() override
     {
 	if ( curpos_.row()==-1 )
 	{

@@ -28,7 +28,7 @@ mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
 			mDefEmptyTranslatorGroupConstructor(Well)
-    const char*		defExtension() const { return "well"; }
+    const char*		defExtension() const override { return "well"; }
 };
 
 
@@ -51,12 +51,12 @@ mExpClass(Well) odWellTranslator : public WellTranslator
 public:
 				mDefEmptyTranslatorConstructor(od,Well)
 
-    const WellDataIOProvider&	getProv() const;
+    const WellDataIOProvider&	getProv() const override;
 
-    virtual bool		implRemove(const IOObj*) const;
-    virtual bool		implRename(const IOObj*,const char*,
-					   const CallBack* cb=0) const;
-    virtual bool		implSetReadOnly(const IOObj*,bool) const;
+    bool		implRemove(const IOObj*) const override;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const override;
+    bool		implSetReadOnly(const IOObj*,bool) const override;
 
 };
 

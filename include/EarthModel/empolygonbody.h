@@ -51,22 +51,22 @@ public:
     const Coord3&	getPolygonNormal(const SectionID&,int polygon) const;
 
     Geometry::PolygonSurface*
-			sectionGeometry(const SectionID&);
+			sectionGeometry(const SectionID&) override;
     const Geometry::PolygonSurface*
-			sectionGeometry(const SectionID&) const;
+			sectionGeometry(const SectionID&) const override;
 
     EMObjectIterator*	createIterator(const SectionID&,
-				       const TrcKeyZSampling* =0) const;
+				   const TrcKeyZSampling* =0) const override;
 
-    Executor*		loader(const SurfaceIODataSelection* s=0);
+    Executor*		loader(const SurfaceIODataSelection* s=0) override;
     Executor*		saver(const SurfaceIODataSelection* s=0,
-			       const MultiID* key=0);
+			       const MultiID* key=0) override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
-    Geometry::PolygonSurface*	createSectionGeometry() const;
+    Geometry::PolygonSurface*	createSectionGeometry() const override;
 };
 
 
@@ -77,31 +77,32 @@ protected:
 mExpClass(EarthModel) PolygonBody : public Surface, public Body
 { mDefineEMObjFuncs( PolygonBody );
 public:
-    PolygonBodyGeometry&	geometry();
-    const PolygonBodyGeometry&	geometry() const;
+    PolygonBodyGeometry&	geometry() override;
+    const PolygonBodyGeometry&	geometry() const override;
 
-    const char*			type() const	{ return typeStr(); }
-    virtual Executor*		loader();
-    virtual Executor*		saver();
-    virtual Executor*		saver(IOObj*);
+    const char*			type() const override	{ return typeStr(); }
+    Executor*			loader() override;
+    Executor*			saver() override;
+    Executor*			saver(IOObj*) override;
 
-    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
-    bool			getBodyRange(TrcKeyZSampling&);
+    ImplicitBody*		createImplicitBody(TaskRunner*,
+						   bool) const override;
+    bool			getBodyRange(TrcKeyZSampling&) override;
 
-    MultiID			storageID() const;
-    BufferString		storageName() const;
+    MultiID			storageID() const override;
+    BufferString		storageName() const override;
 
-    void			refBody();
-    void			unRefBody();
+    void			refBody() override;
+    void			unRefBody() override;
 
-    bool			useBodyPar(const IOPar&);
-    void			fillBodyPar(IOPar&) const;
+    bool			useBodyPar(const IOPar&) override;
+    void			fillBodyPar(IOPar&) const override;
 
-    uiString			getUserTypeStr() const
+    uiString			getUserTypeStr() const override
 				{ return tr("Polygon Body"); }
 
 protected:
-    const IOObjContext&		getIOObjContext() const;
+    const IOObjContext&		getIOObjContext() const override;
 
 
     friend class		EMManager;

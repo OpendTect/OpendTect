@@ -126,7 +126,7 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
 }
 
     
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 {
     return explsurf_.getShape()->getGeometry().size();
 }
@@ -135,7 +135,7 @@ od_int64 nrIterations() const
 #define mStick	0
 #define mKnot	1
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     if ( !explsurf_.nrPlanes() )
 	return false;

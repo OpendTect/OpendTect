@@ -33,13 +33,13 @@ public:
     virtual void	close()			{}
 
     virtual bool	isBad() const		= 0;
-    virtual const char*	creationMessage() const	{ return 0; }
+    virtual const char* creationMessage() const { return 0; }
 
-    virtual const char*	connType() const	= 0;
+    virtual const char* connType() const	= 0;
     virtual bool	forRead() const		= 0;
     virtual bool	forWrite() const	{ return !forRead(); }
 
-    virtual StreamConn*	getStream()		{ return 0; }
+    virtual StreamConn* getStream()		{ return 0; }
     inline bool		isStream() const
 			{ return const_cast<Conn*>(this)->getStream(); }
 
@@ -76,27 +76,27 @@ mExpClass(General) XConn  : public Conn
 
 public:
 
-			XConn() : conn_(0), mine_(true)	{}
+			XConn() : conn_(0), mine_(true) {}
 			~XConn()	{ if ( mine_ ) delete conn_; }
 
-    virtual bool	isBad() const
+    bool		isBad() const override
 			{ return conn_ ? conn_->isBad() : true; }
-    virtual const char*	creationMessage() const
+    const char*		creationMessage() const override
 			{ return conn_ ? conn_->creationMessage() : 0; }
-    virtual bool	forRead() const
+    bool		forRead() const override
 			{ return conn_ && conn_->forRead(); }
-    virtual bool	forWrite() const
+    bool		forWrite() const override
 			{ return conn_ && conn_->forWrite(); }
-    virtual void	close()
+    void		close() override
 			{ if ( conn_ ) conn_->close(); }
-    virtual StreamConn*	getStream()
+    StreamConn*		getStream() override
 			{ return conn_ ? conn_->getStream() : 0; }
 
     void		setConn( Conn* c, bool becomesmine=true )
 			{ if ( mine_ ) delete conn_;
 			  conn_ = c; mine_ = becomesmine; }
 
-    const char*		connType() const	{ return sType(); }
+    const char*		connType() const override	{ return sType(); }
     static const char*	sType();
 
 protected:
@@ -104,7 +104,8 @@ protected:
     Conn*		conn_;
     bool		mine_;
 
-    Conn*		gtConn() const	{ return const_cast<Conn*>(conn_); }
+    Conn*		gtConn() const override
+			{ return const_cast<Conn*>(conn_); }
 
 };
 

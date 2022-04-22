@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2008
+ Author:	Bert
+ Date:		Feb 2008
 ________________________________________________________________________
 
 
@@ -30,27 +30,29 @@ public:
 			PolyProvider3D(const PolyProvider3D&);
 			~PolyProvider3D();
     PolyProvider3D&	operator =(const PolyProvider3D&);
-    const char*		type() const;	//!< sKey::Polygon()
-    const char*		factoryKeyword() const { return type(); }
-    Provider*		clone() const	{ return new PolyProvider3D(*this); }
+    const char*		type() const override;	//!< sKey::Polygon()
+    const char*		factoryKeyword() const override { return type(); }
+    Provider*		clone() const override
+			    { return new PolyProvider3D(*this); }
 
-    virtual bool	initialize(TaskRunner* tr=0);
-    virtual void	reset()		{ initialize(); }
+    bool		initialize(TaskRunner* tr=0) override;
+    void		reset() override		{ initialize(); }
 
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
+    bool		toNextPos() override;
+    bool		toNextZ() override;
 
-    virtual BinID	curBinID() const	{ return curbid_; }
-    virtual float	curZ() const		{ return curz_; }
-    virtual bool	includes(const BinID&,float) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    BinID		curBinID() const override	{ return curbid_; }
+    float		curZ() const override		{ return curz_; }
+    bool		includes(const BinID&,float) const override;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    virtual void	getExtent(BinID&,BinID&) const;
-    virtual void	getZRange(Interval<float>&) const;
-    virtual od_int64	estNrPos() const;
-    virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
+    void		getExtent(BinID&,BinID&) const override;
+    void		getZRange(Interval<float>&) const override;
+    od_int64		estNrPos() const override;
+    int			estNrZPerPos() const override
+			    { return zrg_.nrSteps()+1; }
 
     const MultiID&	getMultiID() const	{ return mid_; }
     void		setMultiID(const MultiID& mid)	{ mid_ = mid; }
@@ -65,7 +67,7 @@ public:
     static ODPolygon<float>* polyFromPar(const IOPar&,int nr=0);
     static ODPolygon<float>* polyFromPar(const IOPar&,int nr,BufferString* nm);
 
-    virtual bool	includes( const Coord& c, float z ) const
+    bool		includes( const Coord& c, float z ) const override
 			{ return Provider3D::includes(c,z); }
 
     void		setUseAreaInside( bool yn ) { useinside_ = yn; }
@@ -77,10 +79,10 @@ public:
 protected:
 
     ODPolygon<float>&	poly_;
-    StepInterval<float>	zrg_;
+    StepInterval<float> zrg_;
     TrcKeySampling&	hs_;
     MultiID		mid_;
-    bool        useinside_ = true;
+    bool	useinside_ = true;
 
     BinID		curbid_;
     float		curz_;

@@ -50,9 +50,9 @@ bool testFloatIndex( int origin, float target )
 class IbmFormatTester : public ParallelTask
 {
 public:
-    od_int64	nrIterations() const { return UINT_MAX; }
+    od_int64	nrIterations() const override { return UINT_MAX; }
 
-    bool doWork( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int ) override
     {
         for ( od_int64 idx=start; idx<=stop; idx++ )
         {

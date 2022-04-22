@@ -28,8 +28,8 @@ public:
 			SingleJobDispatcher();
     virtual		~SingleJobDispatcher()		{}
 
-    virtual uiString	description() const;
-    virtual bool	isSuitedFor(const char*) const	{ return true; }
+    uiString		description() const override;
+    bool		isSuitedFor(const char*) const override { return true; }
 
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
 				 "Single Process",tr("Single Process"));
@@ -39,8 +39,8 @@ public:
 
 protected:
 
-    virtual bool	init();
-    virtual bool	launch(ID*);
+    bool		init() override;
+    bool		launch(ID*) override;
 
 };
 

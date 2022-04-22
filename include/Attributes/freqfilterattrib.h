@@ -63,16 +63,18 @@ protected:
     static void		updateDesc(Desc&);
     static void		updateDefaults(Desc&);
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&, int idx);
+    bool		getInputOutput(int input,
+				       TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&, int idx) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples,int threadid) const;
+			    int t0,int nrsamples,int threadid) const override;
     void		butterWorthFilter(const DataHolder&, int, int);
     void		fftFilter(const DataHolder&, int, int);
 
     void		setSz(int sz);
     
-    const Interval<int>*	desZSampMargin(int input,int output) const;
+    const Interval<int>*	desZSampMargin(int input,
+					       int output) const override;
 
     int				filtertype_;
     float			minfreq_;

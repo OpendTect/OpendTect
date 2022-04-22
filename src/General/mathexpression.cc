@@ -109,17 +109,13 @@ public:
 				    : Expression( 0 )
 				    , str_(str) { addIfOK(str_.buf()); }
 
-    const char*			fullVariableExpression( int ) const
+    const char*			fullVariableExpression( int ) const override
 							{ return str_.buf(); }
-
-    int	nrVariables() const	{ return 1; }
-
-    double			getValue() const	{ return val_; }
-
-    void			setVariableValue( int, double nv )
+    int				nrVariables() const override	{ return 1; }
+    double			getValue() const override	{ return val_; }
+    void			setVariableValue( int, double nv ) override
 							{ val_ = nv; }
-
-    Expression*		clone() const
+    Expression*			clone() const override
 				{
 				    Expression* res =
 					new ExpressionVariable(str_.buf());
@@ -146,19 +142,19 @@ ExpressionConstant( double val )
 {
 }
 
-double getValue() const
+double getValue() const override
 {
     return val_;
 }
 
-Expression* clone() const
+Expression* clone() const override
 {
     Expression* res = new ExpressionConstant(val_);
     copyInput( res );
     return res;
 }
 
-void dumpSpecifics( BufferString& str, int nrtabs ) const
+void dumpSpecifics( BufferString& str, int nrtabs ) const override
 {
     str.addTab( nrtabs ).add( "Const value: " ).add( val_ ).addNewLine();
 }
@@ -179,9 +175,9 @@ Expression##clss() : Expression( nr ) \
 { \
 } \
  \
-double getValue() const; \
+double getValue() const override; \
  \
-Expression* clone() const \
+Expression* clone() const override \
 { \
     Expression* res = new Expression##clss(); \
     copyInput( res ); \
@@ -457,7 +453,7 @@ Expression##clss() \
     : Expression( 1 ) \
 {} \
 \
-double getValue() const \
+double getValue() const override \
 { \
     double val = inputs_[0]->getValue(); \
     if ( Values::isUdf(val) ) \
@@ -467,7 +463,7 @@ double getValue() const \
     return out == out ? out : mUdf(double); \
 } \
 \
-Expression* clone() const \
+Expression* clone() const override \
 { \
     Expression* res = new Expression##clss(); \
     copyInput( res ); \
@@ -498,7 +494,7 @@ Expression##statnm( int nrvals ) \
     : Expression( nrvals ) \
 {} \
 \
-double getValue() const \
+double getValue() const override \
 { \
     Stats::RunCalc<double> stats( \
 	Stats::CalcSetup().require( Stats::statnm ) ); \
@@ -508,7 +504,7 @@ double getValue() const \
     return (double)stats.getValue( Stats::statnm ); \
 } \
 \
-Expression* clone() const \
+Expression* clone() const override \
 { \
     Expression* res = new Expression##statnm( inputs_.size() ); \
     copyInput( res ); \

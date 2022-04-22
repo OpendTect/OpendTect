@@ -111,12 +111,12 @@ public:
 				    const FileSpec&,bool is2d,const IOPar&);
 			~FileIndexer();
 
-    int                 nextStep();
+    int			nextStep() override;
 
-    uiString		uiMessage() const;
-    od_int64            nrDone() const;
-    od_int64            totalNr() const;
-    uiString		uiNrDoneText() const;
+    uiString		uiMessage() const override;
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    uiString		uiNrDoneText() const override;
 
     const Scanner*	scanner() const		{ return scanner_; }
     Scanner*		scanner()		{ return scanner_; }

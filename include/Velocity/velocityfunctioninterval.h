@@ -32,15 +32,15 @@ mExpClass(Velocity) IntervalFunction : public Function
 public:
 			IntervalFunction(IntervalSource&);
 
-    StepInterval<float>	getAvailableZ() const;
-    bool		moveTo(const BinID&);
+    StepInterval<float> getAvailableZ() const override;
+    bool		moveTo(const BinID&) override;
     void		setInput(Function*);
 
 protected:
     			~IntervalFunction();
 
     bool		computeVelocity(float z0, float dz, int nr,
-					float* res ) const;
+					float* res ) const override;
 
     Function*		inputfunc_;
 };
@@ -50,20 +50,20 @@ mExpClass(Velocity) IntervalSource : public FunctionSource
 {
 public:
     			IntervalSource();
-    const VelocityDesc&	getDesc() const;
-    const char*		factoryKeyword() const { return sType(); }
+    const VelocityDesc& getDesc() const override;
+    const char*		factoryKeyword() const override { return sType(); }
     static const char*	sType() { return "Interval"; }
 
     void		setInput(FunctionSource*);
     void		getSources(TypeSet<MultiID>&) const;
-    void		getAvailablePositions(BinIDValueSet&) const;
+    void		getAvailablePositions(BinIDValueSet&) const override;
 
-    NotifierAccess*	changeNotifier();
-    BinID		changeBinID() const;
+    NotifierAccess*	changeNotifier() override;
+    BinID		changeBinID() const override;
 
 protected:
     void		sourceChangeCB(CallBacker*);
-    IntervalFunction*	createFunction(const BinID&);
+    IntervalFunction*	createFunction(const BinID&) override;
     			~IntervalSource();
 
     FunctionSource*	inputsource_;

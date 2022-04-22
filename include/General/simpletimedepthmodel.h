@@ -39,7 +39,7 @@ public:
     const TypeSet<float>&	getRawTimes() const	{ return rawtimes_; }
     const TypeSet<float>&	getRawDepths() const	{ return rawdepths_; }
 
-    virtual bool		isOK() const;
+    virtual bool		isOK() const override;
 
 protected:
 
@@ -66,15 +66,16 @@ public:
 							 const ZDomain::Def&,
 							 const MultiID&);
 
-    bool			isOK() const;
+    bool			isOK() const override;
     bool			setID(const MultiID&);
-    bool			canTransformSurv(OD::GeomSystem) const
+    bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
-    bool			needsVolumeOfInterest() const { return false; }
+    bool			needsVolumeOfInterest() const override
+				{ return false; }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 
@@ -99,13 +100,13 @@ public:
 
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const;
+					  int sz,float* res) const override;
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
-					      int sz,float* res) const;
+					      int sz,float* res) const override;
 
-    float			getGoodZStep() const;
-    Interval<float>		getZInterval(bool time) const;
+    float			getGoodZStep() const override;
+    Interval<float>		getZInterval(bool time) const override;
 
 protected:
 
@@ -125,13 +126,13 @@ public:
 
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const;
+					  int sz,float* res) const override;
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
-					      int sz,float* res) const;
+					      int sz,float* res) const override;
 
-    float			getGoodZStep() const;
-    Interval<float>		getZInterval(bool time) const;
+    float			getGoodZStep() const override;
+    Interval<float>		getZInterval(bool time) const override;
 
 protected:
 

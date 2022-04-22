@@ -31,20 +31,21 @@ public:
 
     void		setLine(Pos::GeomID);
 
-    bool		startSeedPick();
+    bool		startSeedPick() override;
 
     bool		addSeed(const TrcKeyValue&,bool drop);
     bool		addSeed(const TrcKeyValue& seedcrd,bool drop,
-				const TrcKeyValue& seedkey);
+				const TrcKeyValue& seedkey) override;
     bool		canAddSeed( const Attrib::SelSpec& );
-    bool		removeSeed(const TrcKey&,bool environment,bool retrack);
+    bool		removeSeed(const TrcKey&,
+				   bool environment,bool retrack) override;
     TrcKey		replaceSeed(const TrcKey& oldpos,
-				    const TrcKeyValue& newpos);
+				    const TrcKeyValue& newpos) override;
 
-    bool		reTrack();
+    bool		reTrack() override;
 
     bool		doesModeUseVolume() const;
-    bool		updatePatchLine(bool);
+    bool		updatePatchLine(bool) override;
 
 protected:
 

@@ -21,9 +21,9 @@ class ProbDenFunc;
 mExpClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ProbDenFunc)
 public:
-    			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
+			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
 
-    const char*		defExtension() const		{ return "prdf"; }
+    const char*		defExtension() const override	{ return "prdf"; }
 
 };
 
@@ -31,11 +31,11 @@ public:
 mExpClass(Geometry) ProbDenFuncTranslator : public Translator
 { mODTextTranslationClass(ProbDenFuncTranslator);
 public:
-    			ProbDenFuncTranslator(const char* nm,const char* unm);
+			ProbDenFuncTranslator(const char* nm,const char* unm);
 
     static ProbDenFunc* read(const IOObj&,uiString* emsg=0);
     static bool		write(const ProbDenFunc&,const IOObj&,
-	    		      uiString* emsg=0);
+			      uiString* emsg=0);
 
     virtual ProbDenFunc* read(od_istream&)			= 0;
     virtual bool	 write(const ProbDenFunc&,od_ostream&) = 0;;
@@ -48,10 +48,10 @@ public:
 mExpClass(Geometry) odProbDenFuncTranslator : public ProbDenFuncTranslator
 {				 isTranslator(od,ProbDenFunc)
 public:
-    			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
+			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
 
-    ProbDenFunc*	read(od_istream&);
-    bool		write(const ProbDenFunc&,od_ostream&);
+    ProbDenFunc*	read(od_istream&) override;
+    bool		write(const ProbDenFunc&,od_ostream&) override;
 
 };
 

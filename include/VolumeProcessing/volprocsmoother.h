@@ -32,11 +32,11 @@ public:
 			~Smoother();
 			Smoother();
 
-    bool		needsInput() const { return true; }
-    TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-    StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
+    bool		needsInput() const override		{ return true; }
+    TrcKeySampling	getInputHRg(const TrcKeySampling&) const override;
+    StepInterval<int>	getInputZRg(const StepInterval<int>&) const override;
     StepInterval<int>	getInputZRgWithGeom(const StepInterval<int>&,
-				    Pos::GeomID) const;
+				    Pos::GeomID) const override;
 
     bool		setOperator(const char*,float param,
 				    int inlsz,int crlsz,int zsz);
@@ -47,25 +47,27 @@ public:
     const char*		getOperatorName() const;
     float		getOperatorParam() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
-    void		releaseData();
-    bool		canInputAndOutputBeSame() const	{ return false; }
-    bool		needsFullVolume() const { return true; }
-    bool		canHandle2D() const		{ return true; }
+    void		releaseData() override;
+    bool		canInputAndOutputBeSame() const override
+			{ return false; }
 
-    Task*		createTask();
+    bool		needsFullVolume() const override	{ return true; }
+    bool		canHandle2D() const override		{ return true; }
+
+    Task*		createTask() override;
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 
     static const char*	sKeyZStepout()		{ return "ZStepout"; }
 
-    bool		prepareComp(int)	{ return true; }
+    bool		prepareComp(int) override		{ return true; }
 
     Smoother3D<float>*	smoother_;
 

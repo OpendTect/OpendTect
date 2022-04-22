@@ -5,8 +5,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          Feb 2011
+ Author:	Bruno
+ Date:		Feb 2011
 ________________________________________________________________________
 
 -*/
@@ -41,16 +41,16 @@ public:
 
     void		getOutTrcs(ObjectSet<SeisTrc>&,
 					const TrcKeySampling&) const;
-    uiString		uiMessage() const
+    uiString		uiMessage() const override
 			{ return  errmsg_.isEmpty() ? tr( "interpolating" )
 						    : errmsg_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiNrDoneText() const override
 						{
 					return tr("Number of iterations");
 						}
-    od_int64		totalNr() const		{ return nriter_; }
-    int			nextStep();
+    od_int64		totalNr() const override	{ return nriter_; }
+    int			nextStep() override;
 
 protected:
 
@@ -108,13 +108,13 @@ public:
 			~Seis2DTo3D();
 
 
-    uiString		uiMessage() const
+    uiString		uiMessage() const override
 			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return tr("Done"); }
-    od_int64		totalNr() const;
-    int			nextStep();
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiNrDoneText() const override	{ return tr("Done"); }
+    od_int64		totalNr() const override;
+    int			nextStep() override;
 
     bool		init(const IOPar&);
     bool		useNearestOnly() const	{ return nearesttrace_; }
@@ -157,7 +157,7 @@ protected:
     SeisTrcBuf&		seisbuf_;
     TrcKeySampling	seisbuftks_;
 
-    SeisTrcWriter*      wrr_;
+    SeisTrcWriter*	wrr_;
     SeisTrcBuf		tmpseisbuf_;
 
     SeisInterpol	interpol_;
@@ -178,11 +178,11 @@ mExpClass(Seis) SeisScaler
 public:
 			SeisScaler(const SeisTrcBuf&);
 
-    void                scaleTrace(SeisTrc&);
+    void		scaleTrace(SeisTrc&);
 
 protected:
 
-    float               avgmaxval_;
-    float               avgminval_;
+    float		avgmaxval_;
+    float		avgminval_;
 };
 

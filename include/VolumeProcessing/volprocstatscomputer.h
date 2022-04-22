@@ -38,24 +38,26 @@ public:
 
     static const char*		sZSampMargin()	{ return "Z samples margin"; }
 
-    bool			needsInput() const	{ return true; }
+    bool			needsInput() const override	{ return true; }
     void			setStepout( BinID bid ) { stepout_ = bid; }
     void			setZMargin( int nsamp ) { nzsampextra_ = nsamp;}
     void			setStatsType( BufferString str )
 							{ statstype_ = str; }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+    TrcKeySampling		getInputHRg(
+					const TrcKeySampling&) const override;
 //    StepInterval<int>		getInputZRg(const StepInterval<int>&) const;
 
-    Task*			createTask();
-    virtual bool		needsFullVolume() const { return false; }
+    Task*			createTask() override;
+    bool		needsFullVolume() const override
+				{ return false; }
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 
@@ -77,14 +79,15 @@ public:
     static const char*		sKeyEllipse()	{ return "Ellipse"; }
 				//for now
 
-    od_int64			totalNr() const		{ return totalnr_; }
-    uiString			uiMessage() const;
+    od_int64			totalNr() const override { return totalnr_; }
+    uiString			uiMessage() const override;
 
 protected:
-    bool			doWork(od_int64,od_int64,int);
+    bool			doWork(od_int64,od_int64,int) override;
     void			prepareWork();
 
-    od_int64			nrIterations() const	{ return totalnr_; }
+    od_int64			nrIterations() const override
+				{ return totalnr_; }
 
     od_int64			totalnr_;
 

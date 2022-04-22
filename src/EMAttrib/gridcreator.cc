@@ -60,10 +60,10 @@ public:
 					  Pos::GeomID geomid);
 			~Seis2DLineCreator();
 
-    uiString		uiMessage() const	{ return msg_; }
-    virtual od_int64	nrDone() const		{ return nrdone_; }
-    virtual od_int64	totalNr() const		{ return totalnr_; }
-    virtual int		nextStep();
+    uiString		uiMessage() const override	{ return msg_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
+    int			nextStep() override;
 
 protected:
     od_int64		nrdone_;

@@ -45,9 +45,9 @@ public:
     void		setInput(int,const Property*);
 			//!< Must be done for all inputs after each setDef()
 
-    virtual bool	init(const PropertySet&) const;
-    virtual uiString	errMsg() const		{ return errmsg_; }
-    virtual bool	dependsOn(const Property&) const;
+    bool		init(const PropertySet&) const override;
+    uiString		errMsg() const override		{ return errmsg_; }
+    bool		dependsOn(const Property&) const override;
     bool		hasCyclicalDependency(BufferStringSet& inputnms) const;
 
     mDefPropertyFns(MathProperty,"Math");

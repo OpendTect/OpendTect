@@ -36,10 +36,10 @@ public:
 				       const StepInterval<int> colbnd);
 			~RowColIterator();
 
-    PosID		next();
+    PosID		next() override;
     PosID		fromIndex( int idx ) const;
     int			maxIndex() const;
-    int			maximumSize() const;
+    int			maximumSize() const override;
     int			maximumSize(const SectionID&) const;
 
 protected:

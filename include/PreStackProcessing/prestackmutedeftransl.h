@@ -23,9 +23,9 @@ namespace PreStack { class MuteDef; }
 mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(MuteDef)
 public:
-    			mDefEmptyTranslatorGroupConstructor(MuteDef)
+			mDefEmptyTranslatorGroupConstructor(MuteDef)
 
-    const char*		defExtension() const		{ return "mute"; }
+    const char*		defExtension() const override	{ return "mute"; }
 };
 
 
@@ -36,11 +36,11 @@ public:
 mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
 { mODTextTranslationClass(MuteDefTranslator)
 public:
-    			mDefEmptyTranslatorBaseConstructor(MuteDef)
+			mDefEmptyTranslatorBaseConstructor(MuteDef)
 
-    virtual const char*	read(PreStack::MuteDef&,Conn&)		= 0;
+    virtual const char* read(PreStack::MuteDef&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const PreStack::MuteDef&,Conn&)	= 0;
+    virtual const char* write(const PreStack::MuteDef&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(PreStack::MuteDef&,const IOObj*,uiString&);
@@ -60,10 +60,10 @@ mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,MuteDef)
+			mDefEmptyTranslatorConstructor(dgb,MuteDef)
 
-    const char*		read(PreStack::MuteDef&,Conn&);
-    const char*		write(const PreStack::MuteDef&,Conn&);
+    const char*		read(PreStack::MuteDef&,Conn&) override;
+    const char*		write(const PreStack::MuteDef&,Conn&) override;
 
     static const char*	sKeyRefHor() { return "Reference Horizon";  }
     static bool		hasIOPar(int majorversion,int minorversion);

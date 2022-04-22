@@ -55,11 +55,11 @@ public:
     			KeyReplaceJobDescProv(const IOPar&,const char* key,
 						int nrjobs);
 
-    virtual int		nrJobs() const		{ return nrjobs_; }
-    virtual void	getJob(int,IOPar&) const;
-    virtual const char*	objType() const		{ return objtyp_.buf(); }
-    virtual const char*	objName(int) const;
-    virtual void	dump(od_ostream&) const;
+    int			nrJobs() const override		{ return nrjobs_; }
+    void		getJob(int,IOPar&) const override;
+    const char*		objType() const override { return objtyp_.buf(); }
+    const char*		objName(int) const override;
+    void		dump(od_ostream&) const override;
 
     BufferString	objtyp_;
 
@@ -84,7 +84,7 @@ public:
 protected:
 
     BufferStringSet	names_;
-    virtual const char*	gtObjName(int) const;
+    const char*		gtObjName(int) const override;
 
 };
 
@@ -98,12 +98,12 @@ public:
 					      const StepInterval<int>& idrg);
 			    //!< IOPar, key and bufstringset will be copied
 
-    virtual void	dump(od_ostream&) const;
+    void		dump(od_ostream&) const override;
 
 protected:
 
     const StepInterval<int> idrg_;
-    virtual const char*	gtObjName(int) const;
+    const char*		gtObjName(int) const override;
 
 };
 
@@ -124,11 +124,11 @@ public:
 						const TypeSet<int>&);
 			~InlineSplitJobDescProv();
 
-    virtual int		nrJobs() const;
-    virtual void	getJob(int,IOPar&) const;
-    virtual const char*	objType() const			{ return "inline"; }
-    virtual const char*	objName(int) const;
-    virtual void	dump(od_ostream&) const;
+    int			nrJobs() const override;
+    void		getJob(int,IOPar&) const override;
+    const char*		objType() const override	{ return "inline"; }
+    const char*		objName(int) const override;
+    void		dump(od_ostream&) const override;
 
     void		getRange(StepInterval<int>&) const;
     int			getNrInlsPerJob()		{ return ninlperjob_; }
@@ -172,9 +172,9 @@ public:
 			ParSubselJobDescProv(const IOPar&,
 					     const char* subselkey);
 
-    virtual int		nrJobs() const		{ return subselpars_.size(); }
-    virtual void	getJob(int,IOPar&) const;
-    virtual void	dump(od_ostream&) const;
+    int			nrJobs() const override { return subselpars_.size(); }
+    void		getJob(int,IOPar&) const override;
+    void		dump(od_ostream&) const override;
 
 protected:
 
@@ -192,7 +192,7 @@ mExpClass(MMProc) Line2DSubselJobDescProv : public ParSubselJobDescProv
 public:
 			Line2DSubselJobDescProv(const IOPar&);
 
-    const char*		objType() const		{ return "Line"; }
-    const char*		objName(int) const;
+    const char*		objType() const override	{ return "Line"; }
+    const char*		objName(int) const override;
 };
 

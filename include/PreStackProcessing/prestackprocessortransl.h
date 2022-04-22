@@ -24,9 +24,9 @@ mExpClass(PreStackProcessing) PreStackProcTranslatorGroup :
 						public TranslatorGroup
 {				      isTranslatorGroup(PreStackProc)
 public:
-    			mDefEmptyTranslatorGroupConstructor(PreStackProc)
+			mDefEmptyTranslatorGroupConstructor(PreStackProc)
 
-    const char*		defExtension() const		{ return "psp"; }
+    const char*		defExtension() const override	{ return "psp"; }
 };
 
 
@@ -37,7 +37,7 @@ public:
 mExpClass(PreStackProcessing) PreStackProcTranslator : public Translator
 { mODTextTranslationClass(PreStackProcTranslator)
 public:
-    			mDefEmptyTranslatorBaseConstructor(PreStackProc)
+			mDefEmptyTranslatorBaseConstructor(PreStackProc)
 
     virtual uiString	read(PreStack::ProcessManager&,Conn&)		= 0;
 			//!< returns err msg or null on success
@@ -64,10 +64,10 @@ mExpClass(PreStackProcessing) dgbPreStackProcTranslator :
 			isTranslator(dgb,PreStackProc)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,PreStackProc)
+			mDefEmptyTranslatorConstructor(dgb,PreStackProc)
 
-    uiString		read(PreStack::ProcessManager&,Conn&);
-    uiString		write(const PreStack::ProcessManager&,Conn&);
+    uiString		read(PreStack::ProcessManager&,Conn&) override;
+    uiString		write(const PreStack::ProcessManager&,Conn&) override;
 
 };
 

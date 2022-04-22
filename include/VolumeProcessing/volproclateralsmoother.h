@@ -32,8 +32,8 @@ public:
 			LateralSmoother();
 			~LateralSmoother();
 
-    bool		needsInput() const;
-    TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
+    bool		needsInput() const override;
+    TrcKeySampling	getInputHRg(const TrcKeySampling&) const override;
 
     void		setPars(const Array2DFilterPars&);
     void		setMirrorEdges(bool yn) { mirroredges_=yn; }
@@ -45,20 +45,20 @@ public:
     float		getFixedValue() const	{ return fixedvalue_; }
     bool		getInterpolateUdfs() const {return interpolateundefs_;}
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
+    void	fillPar(IOPar&) const override;
+    bool	usePar(const IOPar&) override;
 
-    virtual bool	areSamplesIndependent() const	{ return true; }
+    bool	areSamplesIndependent() const override	{ return true; }
 
-    bool		canInputAndOutputBeSame() const {return true;}
-    bool		needsFullVolume() const		{return false;}
-    bool		canHandle2D() const		{ return false; }
+    bool		canInputAndOutputBeSame() const override {return true;}
+    bool		needsFullVolume() const override	{return false;}
+    bool		canHandle2D() const override	{ return false; }
 
-    Task*		createTask();
+    Task*		createTask() override;
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 

@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          23-10-1996
- Contents:      Ranges
+ Author:	A.H. Bril
+ Date:		23-10-1996
+ Contents:	Ranges
 ________________________________________________________________________
 
 -*/
@@ -27,22 +27,23 @@ namespace MPE
 mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
 {
 public:
-    void			setDirection(const TrcKeyValue&);
-    const TrcKeyValue*		getDirection() const { return &direction_; }
+    void			setDirection(const TrcKeyValue&) override;
+    const TrcKeyValue*		getDirection() const override
+				{ return &direction_; }
 
-    int				nextStep();
+    int				nextStep() override;
 
-    int				maxNrPosInExtArea() const;
-    void			preallocExtArea();
+    int				maxNrPosInExtArea() const override;
+    void			preallocExtArea() override;
 
-    const TrcKeyZSampling&	getExtBoundary() const;
+    const TrcKeyZSampling&	getExtBoundary() const override;
 
 protected:
 				BaseHorizon3DExtender(EM::Horizon3D&,
 						      EM::SectionID);
 
     virtual float		getDepth(const TrcKey& src,
-					 const TrcKey& target) const;
+					 const TrcKey& target) const override;
 
     TrcKeyValue			direction_;
     EM::Horizon3D&		horizon_;

@@ -40,19 +40,19 @@ public:
 						    int* nrchunks=0);
 
     uiString			errMsg() const;
-    uiString			uiNrDoneText() const;
+    uiString			uiNrDoneText() const override;
 
     const RegularSeisDataPack*	getOutput() const;
-    virtual int			nextStep();
-    virtual od_int64		nrDone() const;
-    virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const;
+    virtual int			nextStep() override;
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+    uiString			uiMessage() const override;
     static uiString		sGetStepErrMsg();
 
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
 
-    void			controlWork(Task::Control);
+    void			controlWork(Task::Control) override;
     void			setJobCommunicator(JobCommunic*);
 
 private:

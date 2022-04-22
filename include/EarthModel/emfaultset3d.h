@@ -27,7 +27,7 @@ mExpClass(EarthModel) FaultSet3D : public EMObject
 { mDefineEMObjFuncs( FaultSet3D );
 public:
 
-    uiString			getUserTypeStr() const;
+    uiString			getUserTypeStr() const override;
 
     int				nrFaults() const;
     FaultID			getFaultID(int idx) const;
@@ -40,15 +40,15 @@ public:
     RefMan<Fault3D>		getFault3D(FaultID);
     ConstRefMan<Fault3D>	getFault3D(FaultID) const;
 
-    int				nrSections() const	{ return 1; }
-    SectionID			sectionID(int) const	{ return 0; }
+    int				nrSections() const override	{ return 1; }
+    SectionID			sectionID(int) const override	{ return 0; }
 
-    Executor*			loader();
-    virtual Executor*		saver();
+    Executor*			loader() override;
+    virtual Executor*		saver() override;
 
 protected:
 
-    const IOObjContext&		getIOObjContext() const;
+    const IOObjContext&		getIOObjContext() const override;
     int				indexOf(FaultID) const;
 
     friend class		ObjectManager;

@@ -93,8 +93,8 @@ public:
 
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const {}
 
-    virtual float		nrKBytes() const;
-    virtual void		dumpInfo(IOPar&) const;
+    float			nrKBytes() const override;
+    void			dumpInfo(IOPar&) const override;
 
     virtual int			size(bool dim0) const;
 
@@ -123,18 +123,20 @@ public:
 					    Array2D<float>*);
 				~MapDataPack();
 
-    Array2D<float>&		data();
-    FlatPosData&		posData();
+    Array2D<float>&		data() override;
+    FlatPosData&		posData() override;
     const Array2D<float>&	rawData() const		{ return *arr2d_; }
     const FlatPosData&		rawPosData() const	{ return posdata_; }
     void			setDimNames(const char*,const char*,bool forxy);
-    const char*			dimName( bool dim0 ) const;
+    const char*			dimName( bool dim0 ) const override;
 
 				//!< Alternatively, it can be in Inl/Crl
-    bool			posDataIsCoord() const	{ return isposcoord_; }
+    bool			posDataIsCoord() const override
+				{ return isposcoord_; }
     void			setPosCoord(bool yn);
 				//!< int,int = Array2D position
-    virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
+    void			getAuxInfo(int idim0,
+					   int idim1,IOPar&) const override;
     void			setProps(StepInterval<double> inlrg,
 					 StepInterval<double> crlrg,
 					 bool,BufferStringSet*);
@@ -159,7 +161,7 @@ protected:
 
 
 /*!\brief DataPack for volume data, where the dims correspond to
-          inl/crl/z . */
+	  inl/crl/z . */
 
 mExpClass(General) VolumeDataPack : public DataPack
 {
@@ -171,8 +173,8 @@ public:
     virtual const char*		dimName(char dim) const;
     virtual double		getPos(char dim,int idx) const;
     int				size(char dim) const;
-    virtual float		nrKBytes() const;
-    virtual void		dumpInfo(IOPar&) const;
+    float			nrKBytes() const override;
+    void			dumpInfo(IOPar&) const override;
 
 
 protected:
@@ -248,8 +250,8 @@ public:
     void			setDataDesc(const BinDataDesc&);
 				//<! Will remove incompatible arrays if any
 
-    float			nrKBytes() const;
-    void			dumpInfo(IOPar&) const;
+    float			nrKBytes() const override;
+    void			dumpInfo(IOPar&) const override;
     void			setRandomLineID(int);
     int				getRandomLineID() const;
 

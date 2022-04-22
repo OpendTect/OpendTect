@@ -30,12 +30,12 @@ public:
 				     Stats::Type,const TrcKeySampling&,bool);
 			~StratAmpCalc();
 
-    int			nextStep();
-    od_int64		totalNr() const		{ return totnr_; }
-    od_int64		nrDone() const		{ return nrdone_; }
+    int			nextStep() override;
+    od_int64		totalNr() const override	{ return totnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const;
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override;
 
     int			init(const IOPar&);
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,

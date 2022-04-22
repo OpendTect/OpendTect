@@ -36,15 +36,15 @@ public:
 			Seis2DTo3DInterPol();
 			~Seis2DTo3DInterPol();
 
-    const char*		message() const
+    const char*		message() const override
 			{ return errmsg_ ? "interpolating"
 						   : errmsg_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    const char*		nrDoneText() const	{ return "Done"; }
-    od_int64		totalNr() const;
-    int				nextStep();
-	void			setStream(od_ostream&);
-	void			setTaskRunner(TaskRunner* );
+    od_int64		nrDone() const override		{ return nrdone_; }
+    const char*		nrDoneText() const override	{ return "Done"; }
+    od_int64		totalNr() const override;
+    int			nextStep() override;
+    void		setStream(od_ostream&);
+    void		setTaskRunner(TaskRunner* );
     virtual bool	init(const IOPar&);
 
     static const char*	sKeyInput();

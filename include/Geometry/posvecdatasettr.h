@@ -21,9 +21,9 @@ class PosVecDataSet;
 mExpClass(Geometry) PosVecDataSetTranslatorGroup : public TranslatorGroup
 {			     isTranslatorGroup(PosVecDataSet)
 public:
-    			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
+			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
 
-    virtual const char*	defExtension() const	 	{ return "pvds"; }
+    const char*		defExtension() const override	 { return "pvds"; }
 };
 
 
@@ -48,8 +48,8 @@ mExpClass(Geometry) odPosVecDataSetTranslator : public PosVecDataSetTranslator
 public:
 			mDefEmptyTranslatorConstructor(od,PosVecDataSet)
 
-    virtual bool	read(const IOObj&,PosVecDataSet&);
-    virtual bool	write(const IOObj&,const PosVecDataSet&);
+    bool		read(const IOObj&,PosVecDataSet&) override;
+    bool		write(const IOObj&,const PosVecDataSet&) override;
 
 };
 

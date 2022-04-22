@@ -29,10 +29,11 @@ mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
 { mDefineEMObjFuncs( RandomPosBody );
 public:
 
-    const char*			type() const { return typeStr(); }
-    virtual int			nrSections() const		{ return 1; }
-    virtual SectionID		sectionID(int) const		{ return 0; }
-    virtual bool		canSetSectionName() const	{ return 0; }
+    const char*			type() const override { return typeStr(); }
+    int				nrSections() const override	{ return 1; }
+    SectionID			sectionID(int) const override	{ return 0; }
+    bool			canSetSectionName() const override
+				    { return 0; }
 
     Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
     const Geometry::Element*	sectionGeometry(const SectionID&) const
@@ -49,32 +50,33 @@ public:
 
     const TypeSet<EM::SubID>&	posIDs() const		{ return ids_; }
 
-    Coord3			getPos(const EM::PosID&) const;
+    Coord3			getPos(const EM::PosID&) const override;
     Coord3			getPos(const EM::SectionID&,
-					const EM::SubID&) const;
+					const EM::SubID&) const override;
     bool			setPos(const EM::PosID&,const Coord3&,
-					bool addtohistory);
+					bool addtohistory) override;
     bool			setPos(const EM::SectionID&,const EM::SubID&,
-					const Coord3&,bool addtohistory);
-    const IOObjContext&		getIOObjContext() const;
-    virtual Executor*		saver();
+				    const Coord3&,bool addtohistory) override;
+    const IOObjContext&		getIOObjContext() const override;
+    Executor*			saver() override;
     virtual Executor*		saver(IOObj*);
-    virtual Executor*		loader();
-    virtual bool		isEmpty() const;
+    Executor*			loader() override;
+    bool			isEmpty() const override;
 
-    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
-    bool			getBodyRange(TrcKeyZSampling&);
+    ImplicitBody*		createImplicitBody(TaskRunner*,
+						   bool) const override;
+    bool			getBodyRange(TrcKeyZSampling&) override;
 
-    MultiID			storageID() const;
-    BufferString		storageName() const;
+    MultiID			storageID() const override;
+    BufferString		storageName() const override;
 
-    void			refBody();
-    void			unRefBody();
+    void			refBody() override;
+    void			unRefBody() override;
 
-    bool			useBodyPar(const IOPar&);
-    void			fillBodyPar(IOPar&) const;
+    bool			useBodyPar(const IOPar&) override;
+    void			fillBodyPar(IOPar&) const override;
 
-    uiString			getUserTypeStr() const
+    uiString			getUserTypeStr() const override
 				{ return tr("Random Position Body"); }
 
     static const char*		sKeySubIDs()	{ return "Position IDs"; }

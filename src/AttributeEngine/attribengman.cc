@@ -384,9 +384,9 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     delete [] outptr_;
 }
 
-od_int64 nrIterations() const		{ return totalnr_; }
+od_int64 nrIterations() const override		{ return totalnr_; }
 
-bool doPrepare( int nrthreads )
+bool doPrepare( int nrthreads ) override
 {
     if ( in_.isEmpty() || out_.isEmpty() )
 	return false;
@@ -439,7 +439,7 @@ bool doPrepare( int nrthreads )
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int threadidx )
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 {
     const TrcKeySampling intks = in_.sampling().hsamp_;
     const TrcKeySampling outtks = out_.sampling().hsamp_;
@@ -1013,14 +1013,14 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
 ~AEMFeatureExtracter()		{ delete proc_; }
 
-od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
-od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const
+od_int64 totalNr() const override  { return proc_ ? proc_->totalNr() : -1; }
+od_int64 nrDone() const override   { return proc_ ? proc_->nrDone() : 0; }
+uiString uiNrDoneText() const override
 {
     return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
 }
 
-uiString uiMessage() const
+uiString uiMessage() const override
 {
     return !errmsg_.isEmpty()
 	? errmsg_
@@ -1035,7 +1035,7 @@ int haveError( const uiString& msg )
     return -1;
 }
 
-int nextStep()
+int nextStep() override
 {
     if ( !proc_ ) return haveError( uiString::emptyString() );
 
@@ -1184,14 +1184,14 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 
 ~AEMTableExtractor()		{ delete proc_; }
 
-od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
-od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const
+od_int64 totalNr() const override  { return proc_ ? proc_->totalNr() : -1; }
+od_int64 nrDone() const override   { return proc_ ? proc_->nrDone() : 0; }
+uiString uiNrDoneText() const override
 {
     return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
 }
 
-uiString uiMessage() const
+uiString uiMessage() const override
 {
     return !errmsg_.isEmpty()
 	? errmsg_
@@ -1206,7 +1206,7 @@ int haveError( const uiString& msg )
     return -1;
 }
 
-int nextStep()
+int nextStep() override
 {
     if ( !proc_ ) return haveError( uiString::emptyString() );
 

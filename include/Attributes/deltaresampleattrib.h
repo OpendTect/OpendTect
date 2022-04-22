@@ -37,10 +37,10 @@ protected:
     float			period_;
     Interval<int>		dessamps_;
 
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
-	    				    const BinID&,int,int,int) const;
-    const Interval<int>*	desZSampMargin(int,int) const;
+				    const BinID&,int,int,int) const override;
+    const Interval<int>*	desZSampMargin(int,int) const override;
 
     const DataHolder*		refcubedata_;
     const DataHolder*		deltacubedata_;

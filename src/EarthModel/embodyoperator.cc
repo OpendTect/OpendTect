@@ -49,13 +49,19 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
     , action_( act )
 {}
 
-float	 getThreshold() const	{ return 0.f; }
-od_int64 nrIterations() const	{ return arr_.info().getTotalSz(); }
-uiString uiMessage() const { return tr("Calculating implicit body operation"); }
+float	 getThreshold() const		{ return 0.f; }
+od_int64 nrIterations() const override	{ return arr_.info().getTotalSz(); }
+
+
+uiString uiMessage() const override
+{
+    return tr("Calculating implicit body operation");
+}
+
 
 protected:
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {

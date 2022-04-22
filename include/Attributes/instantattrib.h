@@ -35,23 +35,24 @@ public:
     static const char*		attribName()	{ return "Instantaneous"; }
     static const char*		rotateAngle()	{ return "rotationangle"; }
 
-    void			getCompNames(BufferStringSet&) const;
-    bool			prepPriorToOutputSetup();
+    void			getCompNames(BufferStringSet&) const override;
+    bool			prepPriorToOutputSetup() override;
 
 protected:
 				~Instantaneous() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			getInputOutput(int in,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&, int);
+    bool			getInputOutput(int in,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&, int) override;
     bool			computeData(const DataHolder&,const BinID& pos,
 					    int t0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const Interval<int>*	reqZSampMargin(int,int) const;
+    const Interval<int>*	reqZSampMargin(int,int) const override;
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
 
     bool			areAllOutputsEnabled() const;

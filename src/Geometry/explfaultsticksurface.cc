@@ -50,10 +50,16 @@ ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
 }
 
 
-od_int64 nrIterations() const	{ return explsurf_.getTextureSize().col(); }
-int minThreadSize() const { return 100; }
+od_int64 nrIterations() const override
+{
+    return explsurf_.getTextureSize().col();
+}
 
-bool doWork( od_int64 start, od_int64 stop, int )
+
+int minThreadSize() const override { return 100; }
+
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const TypeSet<int>& texturecols = explsurf_.texturecolcoords_;
     for ( int stickpos=mCast(int,start); stickpos<=stop; stickpos++ )
@@ -119,7 +125,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-bool doFinish( bool success )
+bool doFinish( bool success ) override
 {
     dpset_.dataChanged();
     return success;
@@ -349,18 +355,18 @@ public:
 {}
 
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 {
     return updatesticksnotpanels_ ? explsurf_.sticks_.size()
 	: explsurf_.paneltriangles_.size()-1;
 }
 
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return curidx_; }
 
 
-int nextStep()
+int nextStep() override
 {
     if ( curidx_ >= totalNr() )
 	return Finished();

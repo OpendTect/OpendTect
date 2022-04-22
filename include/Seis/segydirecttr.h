@@ -64,14 +64,14 @@ public:
 			// Check errMsg() to see failure
 			~SEGYDirect3DPSReader();
 
-    SeisTrc*		getTrace(const BinID&,int) const;
-    bool		getGather(const BinID&,SeisTrcBuf&) const;
-    uiString		errMsg() const		{ return errmsg_; }
+    SeisTrc*		getTrace(const BinID&,int) const override;
+    bool		getGather(const BinID&,SeisTrcBuf&) const override;
+    uiString		errMsg() const override		{ return errmsg_; }
 
-    const PosInfo::CubeData& posData() const;
+    const PosInfo::CubeData& posData() const override;
 
-    virtual SEGY::DirectDef*	getDef()	{ return &def_; }
-    virtual bool		goTo(const BinID&);
+    SEGY::DirectDef*	getDef() override		{ return &def_; }
+    bool		goTo(const BinID&) override;
 
 protected:
 
@@ -96,14 +96,14 @@ public:
 			// Check errMsg() to see failure
 			~SEGYDirect2DPSReader();
 
-    SeisTrc*		getTrace(const BinID&,int) const;
-    bool		getGather(const BinID&,SeisTrcBuf&) const;
-    uiString		errMsg() const		{ return errmsg_; }
+    SeisTrc*		getTrace(const BinID&,int) const override;
+    bool		getGather(const BinID&,SeisTrcBuf&) const override;
+    uiString		errMsg() const override		{ return errmsg_; }
 
-    const PosInfo::Line2DData& posData() const;
+    const PosInfo::Line2DData& posData() const override;
 
-    virtual SEGY::DirectDef*	getDef()	{ return &def_; }
-    virtual bool		goTo(const BinID&);
+    SEGY::DirectDef*	getDef() override		{ return &def_; }
+    bool		goTo(const BinID&) override;
 
 protected:
 
@@ -122,9 +122,11 @@ mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
 
-    virtual bool	isUserSelectable( bool fr ) const { return fr; }
-    virtual const char*	iconName() const		{ return "segy"; }
-    virtual const char* defExtension() const		{ return fileExt(); }
+    bool		isUserSelectable( bool fr ) const override
+			{ return fr; }
+
+    const char*		iconName() const override	{ return "segy"; }
+    const char*		defExtension() const override	{ return fileExt(); }
     static const char*	fileExt()			{ return "sgydef"; }
 
     static const char*	sKeyNrInlPerFile()
@@ -139,7 +141,8 @@ mExpClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
 
-    virtual bool	isUserSelectable( bool fr ) const { return fr; }
+    bool		isUserSelectable( bool fr ) const override
+			{ return fr; }
 
 };
 
@@ -152,41 +155,43 @@ public:
 
 			SEGYDirectSeisTrcTranslator(const char*,const char*);
 			~SEGYDirectSeisTrcTranslator();
-    virtual const char*	defExtension() const	{ return "sgydef"; }
+    const char*		defExtension() const override	{ return "sgydef"; }
 
-    virtual bool	readInfo(SeisTrcInfo&);
-    virtual bool	read(SeisTrc&);
-    virtual bool	skip(int);
-    virtual bool	supportsGoTo() const		{ return true; }
-    virtual bool	isUserSelectable(bool) const	{ return true; }
-    virtual Conn*	curConn();
+    bool		readInfo(SeisTrcInfo&) override;
+    bool		read(SeisTrc&) override;
+    bool		skip(int) override;
+    bool		supportsGoTo() const override		{ return true; }
+    bool		isUserSelectable(bool) const override	{ return true; }
+    Conn*		curConn() override;
     virtual BinID	curBinID() const;
-    virtual bool	forRead() const			{ return forread_; }
+    bool		forRead() const override	{ return forread_; }
 
     virtual void	toSupported(DataCharacteristics&) const;
-    virtual bool	write(const SeisTrc&); // no buffer/resort needed
+    bool		write(const SeisTrc&) override;
+			// no buffer/resort needed
 
-    virtual void	usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
-    virtual bool	implRemove(const IOObj*) const;
-    virtual bool	close();
-    virtual void	cleanUp();
-    virtual IOObj*	createWriteIOObj(const IOObjContext&,
-					 const MultiID&) const;
-    virtual const char*	iconName() const		{ return "segy"; }
+    bool		implRemove(const IOObj*) const override;
+    bool		close() override;
+    void		cleanUp() override;
+    IOObj*		createWriteIOObj(const IOObjContext&,
+					 const MultiID&) const override;
+    const char*		iconName() const override	{ return "segy"; }
 
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
-    virtual SEGY::DirectDef* getDef()	{ return def_; }
-    virtual bool	goTo(const BinID&);
-    virtual uiString	errMsg() const	{ return SeisTrcTranslator::errMsg(); }
+    bool		getGeometryInfo(PosInfo::CubeData&) const override;
+    SEGY::DirectDef*	getDef() override		{ return def_; }
+    bool		goTo(const BinID&) override;
+    uiString		errMsg() const override
+			{ return SeisTrcTranslator::errMsg(); }
 
     static SEGYSeisTrcTranslator* createTranslator(const SEGY::DirectDef& def,
 						   int filenr);
 protected:
 
-    bool		commitSelections_();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
+    bool		commitSelections_() override;
+    bool		initRead_() override;
+    bool		initWrite_(const SeisTrc&) override;
 
     SEGY::DirectDef*	def_ = nullptr;
     SEGY::FileDataSet*	fds_ = nullptr;
@@ -206,7 +211,7 @@ protected:
 private:
 
     void		setCompDataFromInput();
-    virtual bool	readData(TraceData* externalbuf);
+    bool		readData(TraceData* externalbuf) override;
 
 };
 

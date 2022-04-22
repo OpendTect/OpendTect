@@ -27,15 +27,15 @@ public:
 			// Check errMsg() to see failure
 			~MultiCubeSeisPSReader();
 
-    SeisTrc*		getTrace(const BinID&,int) const;
-    bool		getGather(const BinID&,SeisTrcBuf&) const;
-    uiString		errMsg() const		{ return errmsg_; }
+    SeisTrc*		getTrace(const BinID&,int) const override;
+    bool		getGather(const BinID&,SeisTrcBuf&) const override;
+    uiString		errMsg() const override		{ return errmsg_; }
 
-    const PosInfo::CubeData& posData() const	{ return posdata_; }
-    bool		getSampleNames(BufferStringSet&) const
+    const PosInfo::CubeData& posData() const override	{ return posdata_; }
+    bool		getSampleNames(BufferStringSet&) const override
 			{ return false; }
 
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
     void		addReader( SeisTrcReader* rdr, float offs )
 			{ rdrs_ += rdr; offs_ += offs; }
@@ -69,8 +69,9 @@ mExpClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 public:
 			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
 
-    virtual bool	isUserSelectable( bool fr ) const { return fr; }
-    virtual const char*	defExtension() const		  { return "mcps"; }
+    virtual bool	isUserSelectable( bool fr ) const override
+			{ return fr; }
+    const char*		defExtension() const override	{ return "mcps"; }
 };
 
 

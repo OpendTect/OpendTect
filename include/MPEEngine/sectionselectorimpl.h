@@ -29,7 +29,7 @@ mExpClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
 public:
     			BinIDSurfaceSourceSelector(const EM::Horizon3D&,
 			       			   const EM::SectionID&);
-    int			nextStep() { return 0; }
+    int			nextStep() override { return 0; }
 
 protected:
     const EM::Horizon3D&	surface_;
@@ -45,7 +45,7 @@ mExpClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
 public:
     		SurfaceSourceSelector(const EM::EMObject&,
 				      const EM::SectionID&);
-    int		nextStep() { return 0; }
+    int		nextStep() override { return 0; }
 
 protected:
     const EM::EMObject&	emobject_;

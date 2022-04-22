@@ -29,20 +29,20 @@ public:
 			LayerModelGenerator(const LayerSequenceGenDesc&,
 					    LayerModel&,int nrseqs=100);
 
-     void		setNrSeq( int nr )	{ nrseqs_ = nr; }
-     void		reset();
+    void		setNrSeq( int nr )	{ nrseqs_ = nr; }
+    void		reset();
 
-     virtual od_int64	nrDone() const		{ return seqnr_; }
-     virtual od_int64	totalNr() const		{ return nrseqs_; }
-     virtual uiString	uiNrDoneText() const	{ 
-					    return tr("Sequences generated");
-						}
-     virtual uiString	uiMessage() const	{ return msg_; }
-     virtual int	nextStep();
+    od_int64		nrDone() const override		{ return seqnr_; }
+    od_int64		totalNr() const override	{ return nrseqs_; }
+    uiString		uiNrDoneText() const override
+			    { return tr("Sequences generated"); }
+
+    uiString		uiMessage() const override	{ return msg_; }
+    int			nextStep() override;
 
 protected:
 
-    const LayerSequenceGenDesc&	desc_;
+    const LayerSequenceGenDesc& desc_;
     LayerModel&			lm_;
 
     uiString			msg_;

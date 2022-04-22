@@ -37,7 +37,7 @@ class BendPointFinderColors : public BendPointFinderBase
 public:
 		BendPointFinderColors(const ColTab::Sequence&);
 protected:
-    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const override;
     double	sqDistTo(int ipt, int segstart, int segend) const;
 
     const ColTab::Sequence&	seq_;
@@ -49,7 +49,7 @@ class BendPointFinderTrans : public BendPointFinderBase
 public:
 		BendPointFinderTrans(const ColTab::Sequence&);
 protected:
-    float	getMaxSqDistToLine(int& idx,int start, int stop) const;
+    float	getMaxSqDistToLine(int& idx,int start, int stop) const override;
     double	sqDistTo(int ipt, int segstart, int segend) const;
 
     const ColTab::Sequence&	seq_;

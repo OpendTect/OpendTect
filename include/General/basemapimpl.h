@@ -22,19 +22,21 @@ public:
 				BaseMapMarkers();
 				~BaseMapMarkers();
 
-    void			setMarkerStyle(int,const MarkerStyle2D&);
-    const MarkerStyle2D*	getMarkerStyle(int) const
+    void			setMarkerStyle(int,
+					       const MarkerStyle2D&) override;
+    const MarkerStyle2D*	getMarkerStyle(int) const override
 				{ return &markerstyle_;}
 
     TypeSet<Coord>&		positions() { return positions_; }
 				/*!<Obtain lock if you are not main thread */
 
-    void			updateGeometry();
+    void			updateGeometry() override;
 
-    const char*			getType() const { return "Markers"; }
+    const char*			getType() const override { return "Markers"; }
 
-    int				nrShapes() const { return 1; }
-    void			getPoints(int shapeidx,TypeSet<Coord>&) const;
+    int				nrShapes() const override { return 1; }
+    void			getPoints(int shapeidx,
+					  TypeSet<Coord>&) const override;
 
 protected:
 

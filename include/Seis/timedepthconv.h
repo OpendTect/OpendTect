@@ -32,7 +32,7 @@ mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
 
-    bool			canTransformSurv(OD::GeomSystem) const
+    bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
     static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
@@ -55,20 +55,23 @@ public:
 				  toUiString(sFactoryKeyword()));
 
 			Time2DepthStretcher();
-    bool		setVelData(const MultiID&);
-    bool		isOK() const;
+    bool		setVelData(const MultiID&) override;
+    bool		isOK() const override;
 
-    bool		needsVolumeOfInterest() const	{ return true; }
-    int			addVolumeOfInterest(const TrcKeyZSampling&,bool);
-    void		setVolumeOfInterest(int,const TrcKeyZSampling&,bool);
-    void		removeVolumeOfInterest(int);
-    bool		loadDataIfMissing(int,TaskRunner* =0);
+    bool		needsVolumeOfInterest() const override	{ return true; }
+    int			addVolumeOfInterest(const TrcKeyZSampling&,
+					    bool) override;
+    void		setVolumeOfInterest(int,
+					const TrcKeyZSampling&,bool) override;
+    void		removeVolumeOfInterest(int) override;
+    bool		loadDataIfMissing(int,TaskRunner* =0) override;
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
-				  int,float*) const;
+				  int,float*) const override;
     void		transformTrcBack(const TrcKey&,
-				const SamplingData<float>&,int,float*) const;
-    Interval<float>	getZInterval(bool from) const;
-    float		getGoodZStep() const;
+					 const SamplingData<float>&,
+					 int,float*) const override;
+    Interval<float>	getZInterval(bool from) const override;
+    float		getGoodZStep() const override;
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
     MultiID		getZDomainID() const;
@@ -76,8 +79,8 @@ public:
     const Interval<float>& getVavgRg(bool start) const;
     static Interval<float> getDefaultVAvg();
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
     friend		class TimeDepthDataLoader;
@@ -114,27 +117,29 @@ public:
 				  toUiString(sFactoryKeyword()));
 
 			Depth2TimeStretcher();
-    bool		setVelData(const MultiID&);
-    bool		isOK() const;
+    bool		setVelData(const MultiID&) override;
+    bool		isOK() const override;
 
-    bool		needsVolumeOfInterest() const;
-    int			addVolumeOfInterest(const TrcKeyZSampling&,bool);
-    void		setVolumeOfInterest(int,const TrcKeyZSampling&,bool);
-    void		removeVolumeOfInterest(int);
-    bool		loadDataIfMissing(int,TaskRunner* =0);
+    bool		needsVolumeOfInterest() const override;
+    int			addVolumeOfInterest(const TrcKeyZSampling&,
+					    bool) override;
+    void		setVolumeOfInterest(int,
+					const TrcKeyZSampling&,bool) override;
+    void		removeVolumeOfInterest(int) override;
+    bool		loadDataIfMissing(int,TaskRunner* =0) override;
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
-				     int sz,float*) const;
+				     int sz,float*) const override;
     void		transformTrcBack(const TrcKey&,
 					 const SamplingData<float>&,
-					 int sz,float*) const;
-    Interval<float>	getZInterval(bool from) const;
-    float		getGoodZStep() const;
+					 int sz,float*) const override;
+    Interval<float>	getZInterval(bool from) const override;
+    float		getGoodZStep() const override;
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
     MultiID		getZDomainID() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 			~Depth2TimeStretcher()				{}
@@ -151,18 +156,16 @@ public:
 				const VelocityDesc&);
 			~VelocityModelScanner();
 
-    uiString		uiMessage() const	{ return msg_; }
-    od_int64		totalNr() const		{ return subsel_.totalNr(); }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const
-						{
-						return tr("Position scanned");
-						}
+    uiString		uiMessage() const override	{ return msg_; }
+    od_int64		totalNr() const override { return subsel_.totalNr(); }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Position scanned"); }
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
 
-    int				nextStep();
+    int				nextStep() override;
 
 protected:
 
@@ -187,10 +190,10 @@ protected:
 mExpClass(Seis) LinearVelTransform : public ZAxisTransform
 { mODTextTranslationClass(LinearVelTransform);
 public:
-    bool			usePar(const IOPar&);
-    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&) override;
+    void			fillPar(IOPar&) const override;
 
-    bool			canTransformSurv(OD::GeomSystem) const
+    bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
 protected:
@@ -218,15 +221,15 @@ public:
 
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const;
+					  int sz,float* res) const override;
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
-					      int sz,float* res) const;
+					      int sz,float* res) const override;
 
-    Interval<float>		getZInterval(bool time) const;
-    float			getGoodZStep() const;
+    Interval<float>		getZInterval(bool time) const override;
+    float			getGoodZStep() const override;
 
-    bool			needsVolumeOfInterest() const
+    bool			needsVolumeOfInterest() const override
 				{ return false; }
 };
 
@@ -241,14 +244,14 @@ public:
 
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const;
+					  int sz,float* res) const override;
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
-					      int sz,float* res) const;
-    Interval<float>		getZInterval(bool depth) const;
-    float			getGoodZStep() const;
+					      int sz,float* res) const override;
+    Interval<float>		getZInterval(bool depth) const override;
+    float			getGoodZStep() const override;
 
-    bool			needsVolumeOfInterest() const
+    bool			needsVolumeOfInterest() const override
 				{ return false; }
 };
 

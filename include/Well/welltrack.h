@@ -37,7 +37,9 @@ public:
 
     bool		isEmpty() const;
     const Coord3&	pos( int idx ) const	{ return pos_[idx]; }
-    float		value( int idx ) const	{ return (float) pos_[idx].z; }
+    float		value( int idx ) const override
+			{ return (float) pos_[idx].z; }
+
     float		getKbElev() const;
     float		td() const
 			{ return isEmpty() ? 0 : dah_.last(); }
@@ -87,7 +89,7 @@ public:
     Coord3		coordAfterIdx(float d_ah,int) const;
 			//!< Beware: no bounds check on index.
 
-    bool		insertAtDah(float dah,float zpos);
+    bool		insertAtDah(float dah,float zpos) override;
 			//!< will interpolate x,y coords
 
     bool		alwaysDownward() const;
@@ -99,8 +101,10 @@ protected:
     TypeSet<Coord3>	pos_;
     bool		zistime_;
 
-    void		removeAux( int idx )	{ pos_.removeSingle(idx); }
-    void		eraseAux()		{ pos_.erase(); }
+    void		removeAux( int idx ) override
+			{ pos_.removeSingle(idx); }
+
+    void		eraseAux() override		{ pos_.erase(); }
 
 public:
 

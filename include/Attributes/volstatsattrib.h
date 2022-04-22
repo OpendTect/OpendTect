@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:	Kristofer Tingdahl
+ Date:		07-10-1999
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,10 @@ public:
     static const char*		steeringStr()	  { return "steering"; }
     static const char*		shapeTypeStr(int);
 
-    virtual void		prepPriorToBoundsCalc();
-    virtual void		initSteering() { stdPrepSteering(stepout_); }
-    bool			isSingleTrace() const
+    void			prepPriorToBoundsCalc() override;
+    void			initSteering() override
+				{ stdPrepSteering(stepout_); }
+    bool			isSingleTrace() const override
 				{ return !stepout_.inl() && !stepout_.crl(); }
 
 protected:
@@ -47,32 +48,34 @@ protected:
 
     static void			updateDefaults(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
 
-    virtual bool		getInputOutput(int,TypeSet<int>& res) const;
-    virtual bool		getInputData(const BinID&,int zintv);
+    bool			getInputOutput(int,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
 
-    virtual bool		computeData(const DataHolder&,
+    bool			computeData(const DataHolder&,
 					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const = 0;
+					    int threadid) const override = 0;
 
-    const BinID*		desStepout(int input,int output) const;
-    const Interval<float>*	desZMargin( int inp, int ) const;
-    virtual const Interval<float>* reqZMargin(int input,int output) const;
+    const BinID*		desStepout(int input,int output) const override;
+    const Interval<float>*	desZMargin( int inp, int ) const override;
+    const Interval<float>*	reqZMargin(int input,
+					    int output) const override;
 
     BinID			stepout_;
     int				shape_;
     Interval<float>		gate_;
-    Interval<float>             desgate_;
+    Interval<float>		desgate_;
     int				minnrtrcs_;
 
-    TypeSet<BinID>	positions_;
+    TypeSet<BinID>		positions_;
     int				dataidx_;
 
-    ObjectSet<const DataHolder>	inputdata_;
-    const DataHolder*           steeringdata_;
+    ObjectSet<const DataHolder> inputdata_;
+    const DataHolder*		steeringdata_;
 };
 
 
@@ -91,19 +94,19 @@ protected:
   VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
 		   steering=
   Inputs:
-  0-(nrvolumes-1)         The data
-  nrvolumes  -            Steerings (only if steering is enabled)
+  0-(nrvolumes-1)	  The data
+  nrvolumes  -		  Steerings (only if steering is enabled)
 
   Outputs:
-  0       Avg
-  1       Med
-  2       Variance
-  3       Min
-  4       Max
-  5       Sum
-  6       Normalized Variance
-  7       Most Frequent
-  8       RMS
+  0	  Avg
+  1	  Med
+  2	  Variance
+  3	  Min
+  4	  Max
+  5	  Sum
+  6	  Normalized Variance
+  7	  Most Frequent
+  8	  RMS
   9	  Extreme
 </pre>
 */
@@ -116,11 +119,11 @@ public:
 
     static const char*		attribName()	  { return "VolumeStatistics"; }
     static const char*		allowEdgeEffStr() { return "allowedgeeffects"; }
-    static const char*          optstackstepStr() { return "optstackstep"; }
-    static const char*          optstackdirStr()  { return "optstackdir"; }
-    static const char*          optStackDirTypeStr(int);
+    static const char*		optstackstepStr() { return "optstackstep"; }
+    static const char*		optstackdirStr()  { return "optstackdir"; }
+    static const char*		optStackDirTypeStr(int);
 
-    void			prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc() override;
     void			setRdmPaths(const TypeSet<BinID>& truepos,
 					    const TypeSet<BinID>& snappedpos)
 					    override;
@@ -131,13 +134,14 @@ protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    virtual bool		getInputData(const BinID&,int zintv);
-    virtual bool		getInputOutput(int,TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int zintv) override;
+    bool			getInputOutput(int,
+					    TypeSet<int>& res) const override;
 
-    virtual bool		computeData(const DataHolder&,
+    bool			computeData(const DataHolder&,
 					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
     void			getStackPositions(TypeSet<BinID>&) const;
     void			getIdealStackPos(
@@ -145,7 +149,7 @@ protected:
 					TypeSet< Geom::Point2D<float> >&) const;
     void			reInitPosAndSteerIdxes();
 
-    const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const override;
 
     bool			dosteer_;
     bool			allowedgeeffects_;

@@ -34,9 +34,9 @@ public:
 protected:
 
     bool			doWork(od_int64 start,od_int64 stop,
-							int threadidx);
-    bool			doPrepare(int nrthreads);
-    od_int64			nrIterations() const;
+							int threadidx) override;
+    bool			doPrepare(int nrthreads) override;
+    od_int64			nrIterations() const override;
 
     TypeSet<int>		selcols_;
     TypeSet<int>		selcomps_;

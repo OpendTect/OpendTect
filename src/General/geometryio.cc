@@ -38,11 +38,11 @@ public:
     {}
 
 
-    od_int64 nrDone() const
+    od_int64 nrDone() const override
     { return nrdone_; }
 
 
-    od_int64 totalNr() const
+    od_int64 totalNr() const override
     { return objs_.size(); }
 
 protected:
@@ -55,7 +55,7 @@ protected:
 	return -1;
     }
 
-    int nextStep()
+    int nextStep() override
     {
 	const IOObj* ioobj = objs_[int(nrdone_)];
 	const Pos::GeomID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );

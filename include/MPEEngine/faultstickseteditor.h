@@ -34,7 +34,7 @@ public:
     void			setSceneIdx(int idx)	{ sceneidx_ = idx; }
 
     void			setEditIDs(const TypeSet<EM::PosID>* editpids);
-    void			getEditIDs(TypeSet<EM::PosID>&) const;
+    void			getEditIDs(TypeSet<EM::PosID>&) const override;
 
     void			setLastClicked(const EM::PosID&);
     void			setSowingPivot(const Coord3);
@@ -67,7 +67,7 @@ protected:
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
 				const EM::SectionID&,const Coord3& pos) const;
 
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
     Coord3			scalevector_;
     Coord			xtrans_;
     Coord			ytrans_;
@@ -75,7 +75,7 @@ protected:
 
     int				getLastClickedStick() const;
 
-    void			cloneMovingNode(CallBacker*);
+    void			cloneMovingNode(CallBacker*) override;
 
     const TypeSet<EM::PosID>*	editpids_;
 

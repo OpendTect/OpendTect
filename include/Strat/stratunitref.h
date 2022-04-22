@@ -55,7 +55,7 @@ public:
     virtual const OD::String& code() const	= 0;
     virtual void	setCode(const char*)	{}
     const OD::String&	description() const	{ return desc_; }
-    virtual void	setDescription( const char* d )	{ desc_ = d; }
+    virtual void	setDescription( const char* d ) { desc_ = d; }
     OD::Color		color() const		{ return color_; }
     void		setColor(OD::Color);
     IOPar&		pars()			{ return pars_; }
@@ -121,12 +121,14 @@ public:
 			~NodeUnitRef();
     void		setEmpty();
 
-    virtual bool	isEmpty() const		{ return refs_.isEmpty(); }
-    virtual bool	hasChildren() const	{ return !refs_.isEmpty(); }
+    bool		isEmpty() const override
+			    { return refs_.isEmpty(); }
+    bool		hasChildren() const override
+			    { return !refs_.isEmpty(); }
     virtual bool	hasLeaves() const	= 0;
 
-    virtual const OD::String& code() const	{ return code_; }
-    virtual void	setCode( const char* c ) { code_ = c; }
+    const OD::String&	code() const override	{ return code_; }
+    void		setCode( const char* c ) override { code_ = c; }
 
     virtual Interval<float> timeRange() const	{ return timerg_; }
     virtual void	setTimeRange(const Interval<float>&);
@@ -137,13 +139,14 @@ public:
     const UnitRef&	ref( int idx ) const	{ return *refs_[idx]; }
     int			indexOf( const UnitRef* ur ) const
 			{ return refs_.indexOf((const NodeUnitRef*)ur); }
-    virtual bool	isParentOf(const UnitRef&) const;
+    bool		isParentOf(const UnitRef&) const override;
 
     UnitRef*		find( const char* urcode )	{ return fnd(urcode); }
     const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
 
     virtual int		nrLeaves() const;
-    virtual int		level() const { return upnode_?upnode_->level()+1:0; }
+    int			level() const override
+			    { return upnode_?upnode_->level()+1:0; }
 
 protected:
 
@@ -166,8 +169,8 @@ public:
     void		remove( const UnitRef* ur )
 			{ remove( indexOf( ur ) ); }
 
-    virtual void	getPropsFrom(const IOPar&);
-    virtual void	putPropsTo(IOPar&) const;
+    void		getPropsFrom(const IOPar&) override;
+    void		putPropsTo(IOPar&) const override;
 
 protected:
     void		changeTimeRange(float dtime);
@@ -184,9 +187,9 @@ public:
 				     const char* d=0 )
 			: NodeUnitRef(up,c,d)	{}
 
-    virtual bool	hasLeaves() const	{ return false; }
-    virtual Type	type() const		{ return NodeOnly; }
-    virtual const LeafUnitRef*	firstLeaf() const;
+    bool		hasLeaves() const override	{ return false; }
+    Type		type() const override		{ return NodeOnly; }
+    const LeafUnitRef*	firstLeaf() const override;
 
 };
 
@@ -201,14 +204,14 @@ public:
 			: NodeUnitRef(up,c,d)
 			, levelid_(-1)			{}
 
-    virtual Type	type() const		{ return Leaved; }
-    virtual bool	hasLeaves() const	{ return true; }
+    Type		type() const override		{ return Leaved; }
+    bool		hasLeaves() const override	{ return true; }
 
     Level::ID		levelID() const		{ return levelid_; }
     void		setLevelID(Level::ID);
 
-    virtual int		nrLeaves() const	{ return refs_.size(); }
-    virtual const LeafUnitRef*	firstLeaf() const
+    int			nrLeaves() const override	{ return refs_.size(); }
+    const LeafUnitRef*	firstLeaf() const override
 			{ return refs_.isEmpty() ? 0 : refs_[0]->firstLeaf(); }
 
     LeafUnitRef*	getLeaf(int);
@@ -222,8 +225,9 @@ protected:
 
     Level::ID		levelid_;
 
-    virtual void	fill( BufferString& bs ) const	{ doFill(bs,levelid_); }
-    virtual void	use( const char* s )	{ doUse(s,&levelid_); }
+    void		fill( BufferString& bs ) const override
+			    { doFill(bs,levelid_); }
+    void		use( const char* s ) override	{ doUse(s,&levelid_); }
 
 };
 
@@ -236,30 +240,33 @@ public:
 
 			LeafUnitRef(NodeUnitRef*,int lithid=-1,
 				    const char* desc=0);
-    virtual bool	isUndef() const;
+    bool		isUndef() const override;
 
-    virtual Type	type() const		{ return Leaf; }
-    virtual bool	hasChildren() const	{ return false; }
-    virtual const OD::String& code() const;
+    Type		type() const override		{ return Leaf; }
+    bool		hasChildren() const override	{ return false; }
+    const OD::String&	code() const override;
     int			lithology() const	{ return lith_; }
     void		setLithology(int);
 
     const Lithology&	getLithology() const;
     OD::Color		dispColor(bool lith_else_upnode) const;
-    virtual int		level() const { return upnode_?upnode_->level()+1:0; }
-    virtual const LeafUnitRef*	firstLeaf() const { return this; }
+    int			level() const override
+			    { return upnode_?upnode_->level()+1:0; }
+    const LeafUnitRef*	firstLeaf() const override { return this; }
 
 protected:
 
     int			lith_; // Lithology::ID
 
-    virtual void	fill( BufferString& bs ) const	{ doFill(bs,lith_); }
-    virtual void	use( const char* s )	{ doUse(s,&lith_); }
+    void		fill( BufferString& bs ) const override
+			    { doFill(bs,lith_); }
+
+    void		use( const char* s ) override	{ doUse(s,&lith_); }
 
 
 public:
 
-    virtual void	getPropsFrom(const IOPar&);
+    void		getPropsFrom(const IOPar&) override;
 
 };
 

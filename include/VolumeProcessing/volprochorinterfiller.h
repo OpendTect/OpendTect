@@ -39,8 +39,9 @@ public:
 
     bool			isOK() const;
 
-    bool			needsInput() const	{ return false; }
-    bool			isInputPrevStep() const { return true; }
+    bool			needsInput() const override { return false; }
+    bool			isInputPrevStep() const override
+				{ return true; }
 
     bool			setTopHorizon(const MultiID*);
     const MultiID*		getTopHorizonID() const;
@@ -61,30 +62,36 @@ public:
     float			getGradient() const;
     void			setGradient(float);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    void			releaseData();
-    bool			canInputAndOutputBeSame() const { return true; }
-    bool			needsFullVolume() const		{ return false;}
-    bool			canHandle2D() const		{ return true; }
+    void			releaseData() override;
+    bool			canInputAndOutputBeSame() const override
+				{ return true; }
+    bool			needsFullVolume() const override
+				{ return false;}
+    bool			canHandle2D() const override
+				{ return true; }
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
-    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+    od_int64			extraMemoryUsage(OutputSlotID,
+				    const TrcKeySampling&,
+				    const StepInterval<int>&) const override;
 
-    virtual bool		areSamplesIndependent() const	{ return true; }
+    bool		areSamplesIndependent() const override	{ return true; }
 
 protected:
-    bool			prefersBinIDWise() const        { return true; }
-    bool                        prepareComp(int)		{ return true; }
-    bool			computeBinID(const BinID&, int);
+    bool			prefersBinIDWise() const override
+				{ return true; }
+    bool			prepareComp(int) override
+				{ return true; }
+    bool			computeBinID(const BinID&, int) override;
 
     static const char*		sKeyTopHorID()	{ return "Top horizon"; }
     static const char*		sKeyBotHorID()	{ return "Bottom horizon"; }
     static const char*		sKeyTopValue()	{ return "Top Value"; }
     static const char*		sKeyBotValue()	{ return "Bottom Value"; }
-    static const char*		sKeyGradient()  { return "Gradient"; }
+    static const char*		sKeyGradient()	{ return "Gradient"; }
     static const char*		sKeyUseGradient() { return "Use Gradient"; }
 
 

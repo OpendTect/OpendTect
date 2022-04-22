@@ -43,21 +43,21 @@ mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
 public:
 			EMSurfaceProvider();
 			~EMSurfaceProvider();
-    const char*		type() const;	//!< sKey::Surface()
+    const char*		type() const override;	//!< sKey::Surface()
 
-    virtual bool	initialize(TaskRunner* tr=0);
-    virtual void	reset();
+    bool		initialize(TaskRunner* tr=0) override;
+    void		reset() override;
 
     virtual bool	toNextPos();
     virtual bool	toNextZ();
 
     virtual float	curZ() const;
-    virtual bool	hasZAdjustment() const;
-    virtual float	adjustedZ(const Coord&,float) const;
+    bool		hasZAdjustment() const override;
+    float		adjustedZ(const Coord&,float) const override;
 
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
     bool		getZRange(const TrcKey&,Interval<float>&) const;
     virtual void	getZRange(Interval<float>&) const;
@@ -111,18 +111,18 @@ protected:
 
 
 #define mEMSurfaceProviderDefFnsBase \
-    virtual bool	isProvider() const { return true; } \
-    virtual float	estRatio( const Provider& p ) const \
+    bool	isProvider() const override { return true; } \
+    float	estRatio( const Provider& p ) const override \
 			{ return Provider::estRatio(p); } \
-    virtual bool	toNextPos() \
+    bool	toNextPos() override \
 			{ return EMSurfaceProvider::toNextPos(); } \
-    virtual bool	toNextZ() \
+    bool	toNextZ() override \
 			{ return EMSurfaceProvider::toNextZ(); } \
-    virtual float	curZ() const \
+    float	curZ() const override \
 			{ return EMSurfaceProvider::curZ(); } \
-    virtual int		estNrZPerPos() const \
+    int		estNrZPerPos() const override \
 			{ return EMSurfaceProvider::estNrZPerPos(); } \
-    virtual od_int64	estNrPos() const { return estnrpos_; } \
+    od_int64	estNrPos() const override { return estnrpos_; } \
 
 /*!
 \brief EMSurfaceProvider for 3D positioning.
@@ -136,21 +136,21 @@ public:
 			EMSurfaceProvider3D()			{}
 			EMSurfaceProvider3D( const EMSurfaceProvider3D& p )
 			    : EMSurfaceProvider()		{ *this = p; }
-    const char*		factoryKeyword() const { return type(); }
+    const char*		factoryKeyword() const override { return type(); }
     EMSurfaceProvider3D& operator =( const EMSurfaceProvider3D& p )
 			{ copyFrom(p); return *this; }
-    Provider*		clone() const
+    Provider*	clone() const override
 			{ return new EMSurfaceProvider3D(*this); }
 
-    virtual BinID	curBinID() const;
-    virtual bool	includes(const BinID&,float) const;
-    virtual bool	includes( const Coord& c, float z ) const
+    BinID	curBinID() const override;
+    bool	includes(const BinID&,float) const override;
+    bool	includes( const Coord& c, float z ) const override
 			{ return Provider3D::includes(c,z); }
-    virtual void	getExtent(BinID&,BinID&) const;
-    virtual Coord	curCoord() const { return Provider3D::curCoord(); }
-    virtual void	getTrcKeyZSampling( TrcKeyZSampling& cs ) const
+    void	getExtent(BinID&,BinID&) const override;
+    Coord	curCoord() const override { return Provider3D::curCoord(); }
+    void	getTrcKeyZSampling( TrcKeyZSampling& cs ) const override
 			{ return Provider3D::getTrcKeyZSampling(cs); }
-    virtual void	getZRange(Interval<float>& rg ) const
+    void	getZRange(Interval<float>& rg ) const override
 			{ return EMSurfaceProvider::getZRange(rg); }
 
     static void		initClass();
@@ -175,20 +175,20 @@ public:
 			    : EMSurfaceProvider()		{ *this = p; }
     EMSurfaceProvider2D& operator =( const EMSurfaceProvider2D& p )
 			{ copyFrom(p); return *this; }
-    const char*		factoryKeyword() const { return type(); }
-    Provider*		clone() const
+    const char*		factoryKeyword() const override { return type(); }
+    Provider*		clone() const override
 			{ return new EMSurfaceProvider2D(*this); }
 
     virtual const char*	curLine() const;
-    virtual int		curNr() const;
-    virtual TrcKey	curTrcKey() const;
-    virtual Coord	curCoord() const;
-    virtual bool	includes(const Coord&,float) const;
-    virtual bool	includes(int,float,int) const;
-    virtual void	getExtent(Interval<int>&,int nr = -1) const;
-    virtual void	getZRange(Interval<float>& rg, int lidx ) const
+    int		curNr() const override;
+    TrcKey	curTrcKey() const override;
+    Coord	curCoord() const override;
+    bool	includes(const Coord&,float) const override;
+    bool	includes(int,float,int) const override;
+    void	getExtent(Interval<int>&,int nr = -1) const override;
+    void	getZRange(Interval<float>& rg, int lidx ) const override
 			{ return EMSurfaceProvider::getZRange(rg); }
-    virtual void	getZRange(Interval<float>& rg ) const
+    void	getZRange(Interval<float>& rg ) const override
 			{ return EMSurfaceProvider::getZRange(rg); }
     int			nrLines() const			{ return 1; }
 
@@ -212,24 +212,24 @@ public:
 				EMSurface2DProvider3D(
 					const EMSurface2DProvider3D&);
 				~EMSurface2DProvider3D();
-    const char*			factoryKeyword() const { return type(); }
+    const char*		factoryKeyword() const override { return type(); }
     EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
 				//{ copyFrom(p); return *this; }
-    virtual bool		initialize(TaskRunner* tr=0);
-    Provider*			clone() const
+    bool		initialize(TaskRunner* tr=0) override;
+    Provider*		clone() const override
 				{ return new EMSurface2DProvider3D(*this); }
 
-    virtual BinID		curBinID() const;
-    virtual bool		includes(const BinID&,float) const;
-    virtual bool		includes( const Coord& c, float z ) const
+    BinID		curBinID() const override;
+    bool		includes(const BinID&,float) const override;
+    bool		includes( const Coord& c, float z ) const override
 				{ return Provider3D::includes(c,z); }
-    virtual void		getExtent(BinID&,BinID&) const;
-    virtual void		getZRange(Interval<float>& rg ) const
+    void		getExtent(BinID&,BinID&) const override;
+    void		getZRange(Interval<float>& rg ) const override
 				{ return EMSurfaceProvider::getZRange(rg); }
-    virtual Coord		curCoord() const
+    Coord		curCoord() const override
 				{ return Provider3D::curCoord(); }
 
-    const DataPointSet&		dataPointSet( bool nr1 ) const
+    const DataPointSet& dataPointSet( bool nr1 ) const
 				{ return nr1 ? dpssurf1_ : dpssurf2_; }
 
     mEMSurfaceProviderDefFnsBase
@@ -259,33 +259,33 @@ public:
 
     static void			initClass();
     static Provider3D*		create() { return new EMImplicitBodyProvider; }
-    EMImplicitBodyProvider*	clone() const
+    EMImplicitBodyProvider*	clone() const override
 				{ return new EMImplicitBodyProvider(*this); }
 
     EMImplicitBodyProvider&	operator =(const EMImplicitBodyProvider&);
-    const char*			type() const		{ return sKey::Body(); }
-    const char*			factoryKeyword() const	{ return type(); }
+    const char*		type() const override		{ return sKey::Body(); }
+    const char*		factoryKeyword() const override { return type(); }
 
-    virtual bool		initialize(TaskRunner* tr=0);
-    virtual void		reset()			{ initialize(); }
+    bool		initialize(TaskRunner* tr=0) override;
+    void		reset() override		{ initialize(); }
 
-    virtual BinID		curBinID() const	{ return curbid_; }
-    virtual float		curZ() const		{ return curz_; }
+    BinID		curBinID() const override	{ return curbid_; }
+    float		curZ() const override		{ return curz_; }
 
-    virtual bool		toNextPos();
-    virtual bool		toNextZ();
-    virtual int			estNrZPerPos() const;
-    virtual od_int64		estNrPos() const;
-    virtual void		getExtent(BinID&,BinID&) const;
-    virtual void		getZRange(Interval<float>&) const;
-    virtual bool		includes(const Coord& c,float z) const;
-    virtual bool		includes(const BinID&,float) const;
+    bool		toNextPos() override;
+    bool		toNextZ() override;
+    int			estNrZPerPos() const override;
+    od_int64		estNrPos() const override;
+    void		getExtent(BinID&,BinID&) const override;
+    void		getZRange(Interval<float>&) const override;
+    bool		includes(const Coord& c,float z) const override;
+    bool		includes(const BinID&,float) const override;
 
-    virtual void		usePar(const IOPar&);
-    virtual void		fillPar(IOPar&) const;
-    virtual void		getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
+    void		getTrcKeyZSampling(TrcKeyZSampling& cs) const override;
     const TrcKeyZSampling&	getImpBodyRange() const { return tkzs_; }
     Array3D<float>*		getImpBodyData() const	{ return imparr_; }
     float                       getThreshold() const	{ return threshold_; }
@@ -326,33 +326,33 @@ public:
 
     static void			initClass();
     static Provider3D*		create() { return new EMRegion3DProvider; }
-    EMRegion3DProvider*	clone() const
+    EMRegion3DProvider* clone() const override
 				{ return new EMRegion3DProvider(*this); }
 
     EMRegion3DProvider&	operator =(const EMRegion3DProvider&);
-    const char*			type() const		{ return "Region3D"; }
-    const char*			factoryKeyword() const	{ return type(); }
+    const char*		type() const override		{ return "Region3D"; }
+    const char*		factoryKeyword() const override { return type(); }
 
-    virtual bool		initialize(TaskRunner* tr=0);
-    virtual void		reset()			{ initialize(); }
+    bool		initialize(TaskRunner* tr=0) override;
+    void		reset() override		{ initialize(); }
 
-    virtual BinID		curBinID() const	{ return curbid_; }
-    virtual float		curZ() const		{ return curz_; }
+    BinID		curBinID() const override	{ return curbid_; }
+    float		curZ() const override		{ return curz_; }
 
-    virtual bool		toNextPos();
-    virtual bool		toNextZ();
-    virtual int			estNrZPerPos() const;
-    virtual od_int64		estNrPos() const;
-    virtual void		getExtent(BinID&,BinID&) const;
-    virtual void		getZRange(Interval<float>&) const;
-    virtual bool		includes(const Coord& c,float z) const;
-    virtual bool		includes(const BinID&,float) const;
+    bool		toNextPos() override;
+    bool		toNextZ() override;
+    int			estNrZPerPos() const override;
+    od_int64		estNrPos() const override;
+    void		getExtent(BinID&,BinID&) const override;
+    void		getZRange(Interval<float>&) const override;
+    bool		includes(const Coord& c,float z) const override;
+    bool		includes(const BinID&,float) const override;
 
-    virtual void		usePar(const IOPar&);
-    virtual void		fillPar(IOPar&) const;
-    virtual void		getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
+    void		getTrcKeyZSampling(TrcKeyZSampling& cs) const override;
 
     EM::Region3D&		region()		{ return region_; }
     const EM::Region3D&		region() const		{ return region_; }

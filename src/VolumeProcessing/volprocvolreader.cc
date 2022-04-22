@@ -48,7 +48,7 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
 }
 
 
-uiString uiMessage() const
+uiString uiMessage() const override
 { return msg_; }
 
 
@@ -60,7 +60,7 @@ protected:
     return ErrorOccurred(); \
 }
 
-int nextStep()
+int nextStep() override
 {
     Seis::SequentialReader rdr( *ioobj_, &output_->sampling(), &components_ );
     if ( !rdr.setDataPack(*output_) )

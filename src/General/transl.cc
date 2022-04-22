@@ -106,10 +106,13 @@ class EmptyTrGroup : public TranslatorGroup
 public:
 
     EmptyTrGroup() : TranslatorGroup(""), ctxt(0,"")	{}
-    const IOObjContext& ioCtxt() const		{ return ctxt; }
-    int objSelector( const char* ) const	{ return mObjSelUnrelated; }
-    FixedString groupName() const	{ return FixedString::empty(); }
-    uiString typeName(int) const	{ return uiString::emptyString(); }
+    const IOObjContext& ioCtxt() const override		{ return ctxt; }
+    int objSelector( const char* ) const override
+	{ return mObjSelUnrelated; }
+    FixedString groupName() const override
+	{ return FixedString::empty(); }
+    uiString typeName(int) const override
+	{ return uiString::emptyString(); }
 
    IOObjContext ctxt;
 

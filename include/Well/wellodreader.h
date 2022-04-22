@@ -36,20 +36,20 @@ public:
 			odReader(const IOObj&,Data&,uiString& errmsg);
 			odReader(const char* fnm,Data&,uiString& errmsg);
 
-    virtual bool	get() const		{ return true; }
+    bool		get() const override		{ return true; }
 
-    virtual bool	getInfo() const;
-    virtual bool	getTrack() const;
-    virtual bool	getLogs(bool needjustinfo=false) const;
-    virtual bool	getMarkers() const;	//needs to read Track too
-    virtual bool	getD2T() const;
-    virtual bool	getCSMdl() const;
-    virtual bool	getDispProps() const;
-    virtual bool	getLog(const char* lognm) const;
-    virtual void	getLogInfo(BufferStringSet& lognms) const;
+    bool		getInfo() const override;
+    bool		getTrack() const override;
+    bool		getLogs(bool needjustinfo=false) const override;
+    bool		getMarkers() const override; //needs to read Track too
+    bool		getD2T() const override;
+    bool		getCSMdl() const override;
+    bool		getDispProps() const override;
+    bool		getLog(const char* lognm) const override;
+    void		getLogInfo(BufferStringSet& lognms) const override;
     bool		getDefLogs() const override;
 
-    virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
+    const uiString& errMsg() const override	{ return odIO::errMsg(); }
 
     bool		getInfo(od_istream&) const;
     bool		addLog(od_istream&, bool needjustinfo=false) const;

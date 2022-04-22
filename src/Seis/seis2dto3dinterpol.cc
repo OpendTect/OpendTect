@@ -294,7 +294,7 @@ public:
 	n3_ = info.getSize( 2 );
     }
 
-    od_int64	nrIterations() const	{ return n1_*n2_;}
+    od_int64	nrIterations() const override	{ return n1_*n2_;}
 
     uiString uiMessage() const override
     { return tr("Constructing Operator"); }

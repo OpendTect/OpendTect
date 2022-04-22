@@ -91,10 +91,10 @@ FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
 {}
 
 ~FBIntersectionCalculator()		{ stickintersections_.erase(); }
-od_int64 nrIterations() const		{ return shape_.getGeometry().size(); }
+od_int64 nrIterations() const override	{ return shape_.getGeometry().size(); }
 TypeSet<Coord3>& result()		{ return finalres_; }
 
-bool doPrepare( int )
+bool doPrepare( int ) override
 {
     for ( int idx=0; idx<nrIterations(); idx++ )
 	stickintersections_ += TypeSet<Coord3>();
@@ -124,7 +124,7 @@ bool doPrepare( int )
 }
 
 
-bool doFinish( bool )
+bool doFinish( bool ) override
 {
     finalres_.erase();
     for ( int idx=0; idx<stickintersections_.size(); idx++ )
@@ -134,7 +134,7 @@ bool doFinish( bool )
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const float zscale = SI().zScale();
     const StepInterval<int>& surfrrg = surf_.rowRange();

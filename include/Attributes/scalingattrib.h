@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        N. Hemstra
- Date:          December 2004
+ Author:	N. Hemstra
+ Date:		December 2004
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,10 @@ namespace Attrib
   %Scaling gate =
 
   Input:
-  0               Data
+  0		  Data
  
   Outputs:
-  0               The scaled trace
+  0		  The scaled trace
 </pre>
 */
 
@@ -56,12 +56,13 @@ protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
-    bool		allowParallelComputation() const;
+    bool		allowParallelComputation() const override;
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int zintv);
+    bool		getInputOutput(int input,
+				       TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&,int zintv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int z0,int nrsamples,int threadid) const;
+			    int z0,int nrsamples,int threadid) const override;
 
     void		getSampleGates(const TypeSet<Interval<float> >& oldtgs,
 				       TypeSet< Interval<int> >& newsampgates,
@@ -71,11 +72,11 @@ protected:
     void		scaleAGC(const DataHolder&,int z0,int nrsamples) const;
     void		scaleGain(const DataHolder&,int z0,int nrsamples) const;
     void		getScaleFactorsFromStats(
-	    			const TypeSet<Interval<int> >& gates,
+				const TypeSet<Interval<int> >& gates,
 				TypeSet<float>& factors,int) const;
     void		getTrendsFromStats(
-	    			const TypeSet<Interval<int> >& gates,int);
-    const Interval<int>* desZSampMargin( int inp, int ) const;
+				const TypeSet<Interval<int> >& gates,int);
+    const Interval<int>* desZSampMargin( int inp, int ) const override;
 
     int			scalingtype_;
     int			statstype_;
@@ -92,8 +93,8 @@ protected:
 
     // for AGC
     float		width_;
-    Interval<float>     window_;
-    float          	mutefraction_;
+    Interval<float>	window_;
+    float		mutefraction_;
 
     //for trend removal ( trend of aX+b type )
     struct Trend

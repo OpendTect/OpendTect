@@ -47,7 +47,7 @@ public:
     void			setStartPositions(const TypeSet<TrcKey>&);
     void			excludePositions(const TypeSet<TrcKey>*);
     bool			isExcludedPos(const TrcKey&) const;
-    int				nextStep();
+    int				nextStep() override;
 
     void			extendInVolume(const BinID& bidstep,
 					       float zstep);

@@ -49,10 +49,11 @@ mExpClass(EarthModel) SetPosUndoEvent : public EMUndoEvent
 public:
 			SetPosUndoEvent(const Coord3& oldpos,const EM::PosID&);
 
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const { return posid_.objectID(); }
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
+    ObjectID		getObjectID() const override
+			{ return posid_.objectID(); }
 
 protected:
     EM::PosID		posid_;
@@ -74,10 +75,10 @@ public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
 				    Array2D<float>*,const RowCol& oldorigin);
 
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const;
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
+    ObjectID		getObjectID() const override;
 
 protected:
     bool		setArray(const Array2D<float>&, const RowCol& origin);
@@ -102,10 +103,11 @@ public:
 			SetPosAttribUndoEvent(const EM::PosID&,int attrib,
 					      bool yn );
 
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const { return posid_.objectID(); }
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
+    ObjectID		getObjectID() const override
+			{ return posid_.objectID(); }
 
 protected:
     EM::PosID		posid_;
@@ -121,14 +123,14 @@ protected:
 mExpClass(EarthModel) PosIDChangeEvent : public EMUndoEvent
 {
 public:
-    			PosIDChangeEvent(const EM::PosID& from,
+			PosIDChangeEvent(const EM::PosID& from,
 					 const EM::PosID& to,
 					 const Coord3& tosprevpos);
 
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const { return to_.objectID(); }
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
+    ObjectID		getObjectID() const override { return to_.objectID(); }
 
 protected:
     const EM::PosID	from_;
@@ -144,13 +146,13 @@ protected:
 mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
 {
 public:
-    			SetPrefColorEvent(const EM::ObjectID&,
+			SetPrefColorEvent(const EM::ObjectID&,
 					  const OD::Color& oldcol,
 					  const OD::Color& newcol);
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const { return objectid_; }
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
+    ObjectID		getObjectID() const override { return objectid_; }
 
 protected:
     const EM::ObjectID	objectid_;

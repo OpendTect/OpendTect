@@ -46,15 +46,15 @@ public:
 						    const StepInterval<int>&);
     void			usePar(const IOPar&);
 
-    virtual od_int64		nrDone() const;
-    virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const;
-    virtual uiString		uiNrDoneText() const;
-    virtual int			nextStep();
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
+    int				nextStep() override;
 
-    virtual void		setProgressMeter(ProgressMeter*);
-    virtual void		controlWork(Control);
-    virtual void		enableWorkControl(bool yn=true);
+    void			setProgressMeter(ProgressMeter*) override;
+    void			controlWork(Control) override;
+    void			enableWorkControl(bool yn=true) override;
     void			setJobCommunicator(JobCommunic*);
 
 protected:
@@ -62,8 +62,8 @@ protected:
     MultiID			chainid_;
     MultiID			outid_;
     TrcKeyZSampling		cs_;
-    TrcKeySampling     tkscalcscope_;
-    TrcKeySampling     tkscalcdone_;
+    TrcKeySampling		tkscalcscope_;
+    TrcKeySampling		tkscalcdone_;
     IOPar* chainpar_;
 
     Chain*			chain_;

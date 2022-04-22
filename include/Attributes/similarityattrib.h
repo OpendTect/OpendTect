@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:	Kristofer Tingdahl
+ Date:		07-10-1999
 ________________________________________________________________________
 
 -*/
@@ -36,23 +36,23 @@ Input:
 0	Data
 1	Steering
 
-Extension:      0       90/180   Cube	Cross	   AllDir	Diagonal
-1               pos0    pos0		0,0	   0,0		0,0
+Extension:	0	90/180	 Cube	Cross	   AllDir	Diagonal
+1		pos0	pos0		0,0	   0,0		0,0
 2		pos1	pos1		0,step	   -step,step	-step,step
-3                       pos0rot		step,0	   0,step	step,step
-4                       pos1rot		0,-step	   step,step	step,-step
-5					-step,0	   step,0	-step,-step
+3			pos0rot		step,0	   0,step	step,step
+4			pos1rot		0,-step    step,step	step,-step
+5					-step,0    step,0	-step,-step
 6						   step,-step
 7						   0,-step
 8						   -step,-step
 9						   -step,0
 
 Output:
-0       Avg
-1       Med
-2       Var
-3       Min
-4       Max
+0	Avg
+1	Med
+2	Var
+3	Min
+4	Max
 
 and if dip-browser chosen:
 5	Coherency-like Inline Dip (Line Dip in 2D)
@@ -79,9 +79,10 @@ public:
     static const char*		maxdipStr()	{ return "maxdip"; }
     static const char*		ddipStr()	{ return "ddip"; }
     static const char*		extensionTypeStr(int);
-    void			initSteering()	{ stdPrepSteering(stepout_); }
+    void			initSteering() override
+				{ stdPrepSteering(stepout_); }
 
-    void			prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc() override;
 
 protected:
 				~Similarity() {}
@@ -89,20 +90,21 @@ protected:
     static void			updateDesc(Desc&);
     static void			updateDefaults(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
 
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputOutput(int inp,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
 					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const BinID*		reqStepout(int input,int output) const;
-    const BinID*		desStepout(int input,int output) const;
-    const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const BinID*		reqStepout(int input,int output) const override;
+    const BinID*		desStepout(int input,int output) const override;
+    const Interval<float>*	reqZMargin(int input,int output) const override;
+    const Interval<float>*	desZMargin(int input,int output) const override;
     bool			getTrcPos();
 
     BinID			pos0_;
@@ -128,7 +130,7 @@ protected:
     float			distinl_;
     float			distcrl_;
 
-    ObjectSet<const DataHolder>	inputdata_;
+    ObjectSet<const DataHolder> inputdata_;
     const DataHolder*		steeringdata_;
 
     mExpClass(Attributes) SimiFunc : public FloatMathFunction
@@ -139,7 +141,7 @@ protected:
 					, sz_(sz)
 					{}
 
-	virtual float	getValue( float x ) const
+	virtual float	getValue( float x ) const override
 				{
 				    ValueSeriesInterpolator<float> interp(sz_);
     //We can afford using extrapolation with polyReg1DWithUdf because even if

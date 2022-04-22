@@ -25,7 +25,7 @@ public:
 			    , curpos_( -1 )
 			{}
 
-    GeomPosID		next()
+    GeomPosID		next() override
     {
 	GeomPosID newid = curpos_++;
 	if ( !range_.includes( newid, false ) )
@@ -50,10 +50,10 @@ public:
 			   , pos( ppos )
 		       {}
 
-    float		getValue( float p ) const
-			{ return (float) curve.computePosition(p).sqDistTo(pos); }
-    float		getValue( const float* p ) const
-			{ return getValue( *p ); }
+    float	getValue( float p ) const override
+		{ return (float) curve.computePosition(p).sqDistTo(pos); }
+    float	getValue( const float* p ) const
+		{ return getValue( *p ); }
 
 protected:
     const ParametricCurve&	curve;
@@ -125,10 +125,12 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);
-	float fp = (float)(plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
+	float fp = (float)(plane.A_*pos.x+plane.B_*pos.y
+			    +plane.C_*pos.z+plane.D_);
 
 	const Coord3 dir = computeTangent(p);
-	float dp = (float)(plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_);
+	float dp = (float)(plane.A_*dir.x+plane.B_*dir.y
+			    +plane.C_*dir.z+plane.D_);
 
 	const float diff = dp/fp;
 	p = p - diff;

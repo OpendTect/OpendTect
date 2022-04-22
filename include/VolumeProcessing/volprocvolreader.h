@@ -35,25 +35,27 @@ public:
 				"VolumeReader", tr("Input Volume") )
 			~VolumeReader();
 
-    bool		needsInput() const		{ return false; }
+    bool		needsInput() const override	{ return false; }
     bool		setVolumeID(const MultiID&);
     const MultiID&	getVolumeID() const		{ return mid_; }
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return false; }
-    bool		canHandle2D() const		{ return true; }
+    bool		canInputAndOutputBeSame() const override
+			{ return true; }
+
+    bool		needsFullVolume() const override { return false; }
+    bool		canHandle2D() const override	 { return true; }
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 
-    Task*		createTask();
-    bool		prefersBinIDWise() const        { return false; }
+    Task*		createTask() override;
+    bool		prefersBinIDWise() const override { return false; }
 
     bool		prepareWork(const IOObj&);
 

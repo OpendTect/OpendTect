@@ -34,23 +34,25 @@ public:
 					const StepInterval<int>& rrg,
 					const StepInterval<int>& crg);
 
-    od_int64		nrIterations() const
+    od_int64		nrIterations() const override
 			{ return (rowrange_.nrSteps()+1) *
 				 (colrange_.nrSteps()+1); }
 
     virtual int		getCoordIndex(int row,int col)	{ return 0; }
-    const char* 	message() const	{ return "Tesselating geometry"; }
+    const char*		message() const override
+			    { return "Tesselating geometry"; }
 
 			/*<s= 0 for points, 1 for lines, 2 for triangles.*/
     const TypeSet<int>&	arrayIndexes(char s=2) const;
 
-    uiString			uiNrDoneText() const;
+    uiString			uiNrDoneText() const override;
 
 protected:
 
-    bool			doWork(od_int64 start,od_int64 stop,int);
+    bool			doWork(od_int64 start,
+				       od_int64 stop,int) override;
 
-    int				maxNrThreads() const	{ return 1; }
+    int				maxNrThreads() const override	{ return 1; }
 
     const float*		data_;
     int				datarowsize_;

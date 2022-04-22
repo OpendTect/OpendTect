@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:	Kristofer Tingdahl
+ Date:		07-10-1999
 ________________________________________________________________________
 
 -*/
@@ -36,22 +36,24 @@ mExpClass(AttributeEngine) StorageProvider : public Provider
 public:
 
     static void		initClass();
-    static const char*  attribName()		{ return "Storage"; }
-    static const char*  keyStr()		{ return "id"; }
+    static const char*	attribName()		{ return "Storage"; }
+    static const char*	keyStr()		{ return "id"; }
 
     int			moveToNextTrace(BinID startpos=BinID(-1,-1),
-					bool firstcheck=false);
-    bool		getPossibleVolume(int outp,TrcKeyZSampling&);
-    BinID		getStepoutStep() const;
-    void		updateStorageReqs(bool all=true);
-    void		adjust2DLineStoredVolume();
-    Pos::GeomID		getGeomID() const;
+					bool firstcheck=false) override;
+    bool		getPossibleVolume(int outp,TrcKeyZSampling&) override;
+    BinID		getStepoutStep() const override;
+    void		updateStorageReqs(bool all=true) override;
+    void		adjust2DLineStoredVolume() override;
+    Pos::GeomID		getGeomID() const override;
 
-    void		fillDataPackWithTrc(RegularSeisDataPack*) const;
-    bool		needStoredInput() const	{ return true; }
-    virtual void	getCompNames(BufferStringSet&) const;
-    virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;
-    virtual bool	compDistBetwTrcsStats(bool force=false);
+    void		fillDataPackWithTrc(
+					RegularSeisDataPack*) const override;
+    bool		needStoredInput() const override	{ return true; }
+    void		getCompNames(BufferStringSet&) const override;
+    float		getDistBetwTrcs(bool,
+					const char* linenm =0) const override;
+    bool		compDistBetwTrcsStats(bool force=false) override;
     BinID		getElementStepoutStoredSpecial() const;
 
 protected:
@@ -64,11 +66,12 @@ protected:
     static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
 
     bool		getLine2DStoredVolume();
-    bool		checkInpAndParsAtStart();
-    bool		allowParallelComputation() const { return false; }
+    bool		checkInpAndParsAtStart() override;
+    bool		allowParallelComputation() const override
+			{ return false; }
 
     //From disc
-    SeisMSCProvider*	getMSCProvider(bool&) const;
+    SeisMSCProvider*	getMSCProvider(bool&) const override;
     MultiID		getDBKey(const Desc* =nullptr) const;
     bool		initMSCProvider();
     bool		setMSCProvSelData();
@@ -77,20 +80,20 @@ protected:
     SeisTrc*		getTrcFromPack(const BinID&,int) const;
     DataPack::FullID	getDPID(const Desc* =nullptr) const;
 
-    void		setReqBufStepout(const BinID&,bool wait=false);
-    void		setDesBufStepout(const BinID&,bool wait=false);
-    bool	computeData(const DataHolder& output,
-				    const BinID& relpos,
-				    int t0,int nrsamples,int threadid) const;
+    void		setReqBufStepout(const BinID&,bool wait=false) override;
+    void		setDesBufStepout(const BinID&,bool wait=false) override;
+    bool		computeData(const DataHolder& output,
+				    const BinID& relpos,int t0,
+				    int nrsamples,int threadid) const override;
 
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
-    bool		getZStepStoredData(float& step) const
+    bool		getZStepStoredData(float& step) const override
 			{ step = storedvolume_.zsamp_.step; return true; }
-    bool		getZ0StoredData(float& z0) const
+    bool		getZ0StoredData(float& z0) const override
 			{ z0 = storedvolume_.zsamp_.start; return true; }
 
-    BinDataDesc		getOutputFormat(int output) const;
+    BinDataDesc		getOutputFormat(int output) const override;
 
     bool		checkDesiredTrcRgOK(StepInterval<int>,
 					    StepInterval<float>);
@@ -100,7 +103,7 @@ protected:
     bool		set2DRangeSelData();
 
     void		registerNewPosInfo(SeisTrc*,const BinID&,bool,bool&);
-    bool                useInterTrcDist() const;
+    bool		useInterTrcDist() const override;
 			//to counter impossibility to create a virtual function
 
     TypeSet<BinDataDesc> datachar_;

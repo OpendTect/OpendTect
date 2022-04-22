@@ -25,7 +25,7 @@ Seis2DFrom3DGeomIDProvider( const Seis2DFrom3DExtractor& extr )
     : extr_(extr)
 {}
 
-Pos::GeomID geomID() const
+Pos::GeomID geomID() const override
 { return extr_.curGeomID(); }
 
 const Seis2DFrom3DExtractor& extr_;

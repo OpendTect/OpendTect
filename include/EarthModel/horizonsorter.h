@@ -49,14 +49,14 @@ public:
     int				getNrCrossings(const EM::ObjectID,
 					       const EM::ObjectID) const;
 
-    uiString			uiMessage() const;
-    od_int64			totalNr() const;
-    od_int64			nrDone() const;
-    uiString			uiNrDoneText() const;
+    uiString			uiMessage() const override;
+    od_int64			totalNr() const override;
+    od_int64			nrDone() const override;
+    uiString			uiNrDoneText() const override;
 
 protected:
 
-    int				nextStep();
+    int				nextStep() override;
     void			calcBoundingBox();
     void			init();
     void			sort();

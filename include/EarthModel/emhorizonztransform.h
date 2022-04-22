@@ -37,21 +37,22 @@ public:
 			HorizonZTransform();
     void		setHorizon(const Horizon&);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
-				  int sz,float* res) const;
+				  int sz,float* res) const override;
     void		transformTrcBack(const TrcKey&,
 				  const SamplingData<float>&,
-				  int sz,float* res) const;
-    bool		canTransformSurv(OD::GeomSystem) const { return true; }
+				  int sz,float* res) const override;
+    bool		canTransformSurv(OD::GeomSystem) const override
+							{ return true; }
 
-    Interval<float>	getZInterval(bool from) const;
-    float		getZIntervalCenter(bool from) const;
-    bool		needsVolumeOfInterest() const	{ return false; }
+    Interval<float>	getZInterval(bool from) const override;
+    float		getZIntervalCenter(bool from) const override;
+    bool		needsVolumeOfInterest() const override { return false; }
 
     Interval<float>	getDepthRange() const		{ return depthrange_; }
-    NotifierAccess*	changeNotifier()		{ return &change_; }
+    NotifierAccess*	changeNotifier() override	{ return &change_; }
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 			~HorizonZTransform();

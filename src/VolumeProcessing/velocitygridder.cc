@@ -37,9 +37,9 @@ public:
 
     bool			isOK() const;
 
-    od_int64			nrIterations() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
+    od_int64			nrIterations() const override;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
 
     const BinIDValueSet&	completedBids() const { return completedbids_; }
 
@@ -59,9 +59,9 @@ public:
 				VelGriddingFromVolumeTask(VelGriddingTask&);
 				~VelGriddingFromVolumeTask();
 
-    od_int64			nrIterations() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
+    od_int64			nrIterations() const override;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
 
     const BinIDValueSet&	completedBids() const { return completedbids_; }
 
@@ -79,15 +79,15 @@ class VelGriddingTask : public SequentialTask
 { mODTextTranslationClass(VelGriddingTask);
 public:
 				VelGriddingTask(VelocityGridder&);
-    int				nextStep();
+    int				nextStep() override;
 
     BinID			getNextBid();
     bool			report1Done();
 				//!<Returns false if process should continue
-    od_int64			nrDone() const;
-    od_int64			totalNr() const       { return totalnr_; }
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override { return totalnr_; }
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override
 						{ return tr("CDPs gridded"); }
 
     VelocityGridder&		getStep()	      { return step_; }

@@ -284,17 +284,19 @@ public:
 					const char* defstr);
 			~Proj4Projection();
 
-    virtual bool	isOK() const;
-    virtual bool	isOrthogonal() const;
-    virtual bool	isLatLong() const;
-    virtual bool	isMeter() const;
+    bool		isOK() const override;
+    bool		isOrthogonal() const override;
+    bool		isLatLong() const override;
+    bool		isMeter() const override;
 
-    virtual Coord	transformTo(const Projection& target,LatLong) const;
-    virtual LatLong	transformTo(const Projection& target,Coord) const;
+    Coord		transformTo(const Projection& target,
+				    LatLong) const override;
+    LatLong		transformTo(const Projection& target,
+				    Coord) const override;
 
 protected:
 
-    virtual bool	getReady() const;
+    bool		getReady() const override;
 
     bool		init();
     inline projPJ	getLLProj() const

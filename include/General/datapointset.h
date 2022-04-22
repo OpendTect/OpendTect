@@ -154,11 +154,11 @@ public:
     bool		validColID(ColID) const;
 
 			// size, binID, coord, z and trcNr impl PointDataPack
-    int			size() const		{ return bvsidxs_.size(); }
-    BinID		binID(RowID) const;
-    Coord		coord(RowID) const;
-    float		z(RowID) const;
-    int			trcNr(RowID) const;
+    int			size() const override	{ return bvsidxs_.size(); }
+    BinID		binID(RowID) const override;
+    Coord		coord(RowID) const override;
+    float		z(RowID) const override;
+    int			trcNr(RowID) const override;
 
     Pos			pos(RowID) const;
     DataRow		dataRow(RowID) const;
@@ -230,9 +230,9 @@ public:
 			//!< or use dataSet() to add columns
 
     // DataPack interface impl
-    bool		simpleCoords() const		{ return minimal_; }
-    float		nrKBytes() const;
-    void		dumpInfo(IOPar&) const;
+    bool		simpleCoords() const override	{ return minimal_; }
+    float		nrKBytes() const override;
+    void		dumpInfo(IOPar&) const override;
 
 
 protected:
@@ -265,14 +265,15 @@ public:
 						    int component);
 				~DPSFromVolumeFiller();
 
-    virtual uiString		uiMessage() const;
-    virtual uiString		uiNrDoneText() const;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
 
     void			setSampling(const TrcKeyZSampling*);
 
 protected:
-    virtual od_int64		nrIterations() const;
-    virtual bool		doWork(od_int64 start,od_int64 stop,int thridx);
+    od_int64			nrIterations() const override;
+    bool			doWork(od_int64 start,
+				       od_int64 stop,int thridx) override;
 
     DataPointSet&		dps_;
     const SeisDataPack&		sdp_;

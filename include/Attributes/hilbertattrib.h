@@ -32,15 +32,17 @@ public:
 protected:
     static Provider*		createInstance(Desc&);
 
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&, int);
+    bool			getInputOutput(int inp,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&, int) override;
     bool			computeData(const DataHolder&,const BinID& pos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
-    const Interval<int>*        desZSampMargin(int input,int output) const
+    const Interval<int>*	desZSampMargin(int input,
+					       int output) const override
 				{ return &zmargin_; }
 
     const DataHolder*		inputdata_;

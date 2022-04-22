@@ -46,10 +46,10 @@ public:
 			MMJobDispatcher();
     virtual		~MMJobDispatcher()		{}
 
-    virtual uiString	description() const;
-    virtual bool	isSuitedFor(const char*) const;
-    virtual bool	canHandle(const JobSpec&) const;
-    virtual bool	canResume(const JobSpec&) const;
+    uiString		description() const override;
+    bool		isSuitedFor(const char*) const override;
+    bool		canHandle(const JobSpec&) const override;
+    bool		canResume(const JobSpec&) const override;
 
     mDefaultFactoryInstantiation(JobDispatcher,MMJobDispatcher,
 				 "Distributed",tr("Distributed"));
@@ -58,8 +58,8 @@ public:
 
 protected:
 
-    virtual bool	init();
-    virtual bool	launch(ID*);
+    bool		init() override;
+    bool		launch(ID*) override;
 
     int			defIdx(const char* pnm=0) const;
 

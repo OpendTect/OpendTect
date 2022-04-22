@@ -42,7 +42,7 @@ public:
 
     void		setSceneIdx(int idx)		{ sceneidx_ = idx; }
 
-    bool		needsUpdate() const		{ return needsupdate_; }
+    bool		needsUpdate() const override	{ return needsupdate_; }
 
     enum TriProjection	{ None=0, Inline=1, Crossline=2, ZSlice=3 };
 			mDeclareEnumUtils(TriProjection);
@@ -59,8 +59,8 @@ public:
     bool		areSticksDisplayed() const    { return displaysticks_; }
     bool		arePanelsDisplayed() const    { return displaypanels_; }
 
-    bool		createsNormals() const		{ return true; }
-    bool		createsTextureCoords() const	{ return true; }
+    bool		createsNormals() const override		{ return true; }
+    bool		createsTextureCoords() const override	{ return true; }
 
     void		setMaximumTextureSize(int);
     void		setTexturePowerOfTwo(bool yn);
@@ -69,7 +69,7 @@ public:
     void		needUpdateTexture(bool yn);
     bool		needsUpdateTexture() const;
 
-    bool		update(bool forceall,TaskRunner*);
+    bool		update(bool forceall,TaskRunner*) override;
 
     void		addToGeometries(IndexedGeometry*);
     void		removeFromGeometries(const IndexedGeometry*);
@@ -86,7 +86,7 @@ protected:
     friend		class ExplFaultStickSurfaceUpdater;
     friend		class ExplFaultStickTexturePositionExtracter;
 
-    void		removeAll(bool);
+    void		removeAll(bool) override;
     void		insertAll();
 
     void		emptyStick(int stickidx);

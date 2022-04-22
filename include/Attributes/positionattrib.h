@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          November 2002
+ Author:	Nanne Hemstra
+ Date:		November 2002
 ________________________________________________________________________
 
 -*/
@@ -29,11 +29,11 @@ namespace Attrib
   Position stepout=2,2 gate=[0,0] oper=Min|Max steering=
 
   Input:
-  0       Input attribute
-  1       Output attribute
+  0	  Input attribute
+  1	  Output attribute
   
   Output:
-  0       Value of output attribute on statistical calculated position
+  0	  Value of output attribute on statistical calculated position
 \endcode
 */
 
@@ -46,48 +46,50 @@ public:
     static const char*		attribName()	{ return "Position"; }
     static const char*		stepoutStr()	{ return "stepout"; }
     static const char*		gateStr()	{ return "gate"; }
-    static const char*  	operStr()	{ return "oper"; }
+    static const char*		operStr()	{ return "oper"; }
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		operTypeStr(int);
-    void			initSteering()	{ stdPrepSteering(stepout_); }
+    void			initSteering() override
+				{ stdPrepSteering(stepout_); }
 
-    void			prepPriorToBoundsCalc();
-    virtual bool		isSingleTrace() const
+    void			prepPriorToBoundsCalc() override;
+    virtual bool		isSingleTrace() const override
 				{ return !stepout_.inl() && !stepout_.crl(); }
 
 protected:
-    				~Position();
+				~Position();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
 
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputOutput(int inp,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const BinID*		reqStepout(int input,int output) const
-    				{ return &stepout_; }
-    const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const BinID*		reqStepout(int input,int output) const override
+				{ return &stepout_; }
+    const Interval<float>*	reqZMargin(int input,int output) const override;
+    const Interval<float>*	desZMargin(int input,int output) const override;
 
     BinID			stepout_;
     Interval<float>		gate_;
     int				oper_;
     bool			dosteer_;
 
-    TypeSet<BinID>              positions_;
-    Interval<float>             desgate_;
+    TypeSet<BinID>		positions_;
+    Interval<float>		desgate_;
 
     int				inidx_;
     int				outidx_;
     TypeSet<int>		steerindexes_;
 
-    ObjectSet<const DataHolder>	inputdata_;
+    ObjectSet<const DataHolder> inputdata_;
     Array2DImpl<const DataHolder*>* outdata_;
     const DataHolder*		steerdata_;
 };

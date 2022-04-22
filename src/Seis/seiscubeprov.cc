@@ -502,19 +502,19 @@ TrcDataLoader( SeisTrcReader& rdr, Array2D<SeisTrc*>& arr,
 {
 }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return hs_.totalNr(); }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return nrdone_; }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 { return tr("Positions done"); }
 
-uiString uiMessage() const
+uiString uiMessage() const override
 { return tr("Reading Steering traces"); }
 
-int nextStep()
+int nextStep() override
 {
     SeisTrc* trc = new SeisTrc;
     const int res = rdr_.get( trc->info() );

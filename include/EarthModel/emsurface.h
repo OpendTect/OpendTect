@@ -31,33 +31,33 @@ of one or more segments or patches, so they can overlap.
 mExpClass(EarthModel) Surface : public EMObject
 {
 public:
-    int				nrSections() const;
-    EM::SectionID		sectionID(int) const;
-    BufferString		sectionName(const SectionID&) const;
-    bool			canSetSectionName() const;
+    int				nrSections() const override;
+    EM::SectionID		sectionID(int) const override;
+    BufferString		sectionName(const SectionID&) const override;
+    bool			canSetSectionName() const override;
     bool			setSectionName(const SectionID&,const char*,
-					       bool addtohistory);
-    bool			removeSection(SectionID,bool hist);
+					       bool addtohistory) override;
+    bool			removeSection(SectionID,bool hist) override;
 
     virtual void		removeAll();
 
-    bool			isAtEdge(const EM::PosID&) const;
-    bool			isLoaded() const;
-    virtual Executor*		saver();
+    bool			isAtEdge(const EM::PosID&) const override;
+    bool			isLoaded() const override;
+    Executor*			saver() override;
     virtual Executor*		saver(IOObj*)		{ return 0;}
-    virtual Executor*		loader();
+    Executor*			loader() override;
 
     const char*			dbInfo() const		 { return dbinfo.buf();}
     void			setDBInfo(const char* s) { dbinfo = s; }
 
-    virtual bool		usePar(const IOPar&);
-    virtual void		fillPar(IOPar&) const;
+    bool			usePar(const IOPar&) override;
+    void			fillPar(IOPar&) const override;
 
-    virtual EMObjectIterator*	createIterator(const SectionID&,
-					       const TrcKeyZSampling* =0) const;
+    EMObjectIterator*		createIterator(const SectionID&,
+				   const TrcKeyZSampling* =0) const override;
 
-    bool			enableGeometryChecks(bool);
-    bool			isGeometryChecksEnabled() const;
+    bool			enableGeometryChecks(bool) override;
+    bool			isGeometryChecksEnabled() const override;
 
     virtual SurfaceGeometry&		geometry()			= 0;
     virtual const SurfaceGeometry&	geometry() const;
@@ -75,9 +75,10 @@ protected:
 
 				Surface(EMManager&);
 				~Surface();
-    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 
-    BufferString		dbinfo;
+    Geometry::Element*	sectionGeometryInternal(const SectionID&) override;
+
+    BufferString	dbinfo;
 };
 
 

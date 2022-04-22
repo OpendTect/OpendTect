@@ -33,21 +33,22 @@ public:
 			LateralStack();
 			~LateralStack();
 
-    bool		reset(bool force=true);
+    bool		reset(bool force=true) override;
 
-    bool		wantsInput(const BinID&) const;
+    bool		wantsInput(const BinID&) const override;
     bool		setPattern(const BinID& stepout,bool cross);
 			//If cross if false, it will be a rectangle
-    bool		isCross() const	{ return iscross_; }
+    bool		isCross() const { return iscross_; }
     const BinID&	getPatternStepout() const { return patternstepout_; }
-    const BinID&	getInputStepout() const { return inputstepout_; }
-    bool		setOutputInterest(const BinID& relbid,bool);
+    const BinID&	getInputStepout() const override
+			{ return inputstepout_; }
+    bool		setOutputInterest(const BinID& relbid,bool) override;
 
-    bool		prepareWork();
-    uiString		errMsg() const		{ return errmsg_; }
+    bool		prepareWork() override;
+    uiString		errMsg() const override		{ return errmsg_; }
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
     bool		isInPattern(const BinID&) const;
@@ -56,8 +57,9 @@ protected:
     static const char*	sKeyCross()		{ return "Is cross"; }
 
     uiString		errmsg_;
-    bool		doWork(od_int64,od_int64,int);
-    od_int64		nrIterations() const	{ return offsetazi_.size(); }
+    bool		doWork(od_int64,od_int64,int) override;
+    od_int64		nrIterations() const override
+			{ return offsetazi_.size(); }
 
     BinID		inputstepout_;
     BinID		patternstepout_;

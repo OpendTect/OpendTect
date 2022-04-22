@@ -65,7 +65,7 @@ public:
 	iopar.get( sKeyNrPositions(), totalnr_ );
     }
 
-    int nextStep()
+    int nextStep() override
     {
 	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
@@ -109,8 +109,8 @@ public:
 	return MoreToDo();
     }
 
-    od_int64	totalNr() const		{ return totalnr_; }
-    od_int64	nrDone() const		{ return nrdone_; }
+    od_int64	totalNr() const override	{ return totalnr_; }
+    od_int64	nrDone() const override		{ return nrdone_; }
     static const char*	sFileType()	{ return RandomPosBody::typeStr(); }
     static const char*	sOldFileType()	{ return "RandomPosBody"; }
     static const char*	sKeyNrPositions() { return "Nr positions"; }
@@ -154,7 +154,7 @@ public:
 	pars.putTo( astream );
     }
 
-    int nextStep()
+    int nextStep() override
     {
 	if ( nrdone_>=totalNr() )
 	{
@@ -174,8 +174,10 @@ public:
 	return MoreToDo();
     }
 
-    od_int64    totalNr() const	{ return rdposbody_.getPositions().size(); }
-    od_int64    nrDone() const	{ return nrdone_; }
+    od_int64	totalNr() const override
+    { return rdposbody_.getPositions().size(); }
+
+    od_int64	nrDone() const override { return nrdone_; }
 
 protected:
 

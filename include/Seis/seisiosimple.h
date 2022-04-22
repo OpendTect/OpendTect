@@ -93,11 +93,11 @@ public:
 			SeisIOSimple(const Data&,bool imp);
 			~SeisIOSimple();
 
-    int			nextStep();
-    uiString		uiMessage() const;
-    od_int64		nrDone() const;
-    od_int64		totalNr() const;
-    uiString		uiNrDoneText() const;
+    int			nextStep() override;
+    uiString		uiMessage() const override;
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    uiString		uiNrDoneText() const override;
 
 protected:
 

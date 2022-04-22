@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Helene Payraudeau
- Date:          23-02-2006
+ Author:	Helene Payraudeau
+ Date:		23-02-2006
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Attrib
   Calculates the match with a definite vector.
  
 <pre>
-  FingerPrint vector= nrattrib= 
+  FingerPrint vector= nrattrib=
   
   
   Input:
@@ -33,7 +33,7 @@ namespace Attrib
   
   
   Output:
-  0       Match
+  0	  Match
 </pre>
 */
 
@@ -46,32 +46,32 @@ public:
     static const char*		attribName()	{ return "FingerPrint"; }
     static const char*		refposStr()	{ return "refpos"; }
     static const char*		refposzStr()	{ return "refposz"; }
-    static const char*		reflinesetStr()	{ return "reflineset"; }
+    static const char*		reflinesetStr() { return "reflineset"; }
     static const char*		ref2dlineStr()	{ return "ref2dline"; }
     static const char*		valStr()	{ return "value"; }
     static const char*		rangeStr()	{ return "range"; }
     static const char*		weightStr()	{ return "weight"; }
-    static const char*		valpicksetStr()	{ return "valpickset"; }
+    static const char*		valpicksetStr() { return "valpickset"; }
     static const char*		statstypeStr()	{ return "statstype"; }
-    static const char*		valreftypeStr()	{ return "valreftype"; }
+    static const char*		valreftypeStr() { return "valreftype"; }
     static const char*		rgpicksetStr()	{ return "rgpickset"; }
     static const char*		rgreftypeStr()	{ return "rgreftype"; }
 
-    virtual bool		usesTracePosition() const;
+    bool			usesTracePosition() const override;
 
 protected:
-    				~FingerPrint() {}
+				~FingerPrint() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return false; }
 
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
     TypeSet<float>		refvector_;
     TypeSet< Interval<float> >	ranges_;
@@ -80,7 +80,7 @@ protected:
     TypeSet<float>		scaledref_;
     
     TypeSet<int>		dataidx_;
-    ObjectSet<const DataHolder>	inputdata_;
+    ObjectSet<const DataHolder> inputdata_;
 };
 
 } // namespace Attrib

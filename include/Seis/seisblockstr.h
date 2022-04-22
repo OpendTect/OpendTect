@@ -27,27 +27,28 @@ public:
 
 			BlocksSeisTrcTranslator(const char*,const char*);
 			~BlocksSeisTrcTranslator();
-    virtual const char*	defExtension() const		{ return "blocks"; }
-    virtual bool	forRead() const			{ return true; }
+    const char*		defExtension() const override	{ return "blocks"; }
+    bool		forRead() const override	{ return true; }
 
-    virtual bool	readInfo(SeisTrcInfo&);
-    virtual bool	read(SeisTrc&);
-    virtual bool	skip(int);
-    virtual bool	supportsGoTo() const		{ return true; }
-    virtual bool	goTo(const BinID&);
-    virtual bool	isUserSelectable(bool forread) const	{ return forread; }
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
+    bool		readInfo(SeisTrcInfo&) override;
+    bool		read(SeisTrc&) override;
+    bool		skip(int) override;
+    bool		supportsGoTo() const override	{ return true; }
+    bool		goTo(const BinID&) override;
+    bool		isUserSelectable(bool forread) const override
+			{ return forread; }
+    bool		getGeometryInfo(PosInfo::CubeData&) const override;
 
-    virtual void	usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
-    virtual bool	close();
-    virtual void	cleanUp();
-    virtual const char*	iconName() const		{ return "blockscube"; }
+    bool		close() override;
+    void		cleanUp() override;
+    const char*		iconName() const override	{ return "blockscube"; }
     virtual void	convToConnExpr(BufferString&) const;
 
-    virtual int		bytesOverheadPerTrace() const	{ return 0; }
+    int			bytesOverheadPerTrace() const override	{ return 0; }
     virtual bool	isSingleComponent() const	{ return false; }
-    virtual int		estimatedNrTraces() const;
+    int			estimatedNrTraces() const override;
 
     static const char*	sKeyTrName()			{ return "Blocks"; }
 
@@ -58,10 +59,10 @@ protected:
     Reader*		rdr_;
     FPDataRepType	preselfprep_;
 
-    virtual bool	commitSelections_();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
-    virtual bool	writeTrc_(const SeisTrc&);
+    bool		commitSelections_() override;
+    bool		initRead_() override;
+    bool		initWrite_(const SeisTrc&) override;
+    bool		writeTrc_(const SeisTrc&) override;
     virtual bool	wantBuffering() const		{ return false; }
 
 };

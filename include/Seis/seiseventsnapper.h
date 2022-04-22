@@ -33,8 +33,8 @@ public:
 				{ searchgate_ = gate; }
     const Interval<float>&	getSearchGate() const	{ return searchgate_; }
 
-    virtual od_int64		totalNr() const		{ return totalnr_; }
-    virtual od_int64		nrDone() const		{ return nrdone_; }
+    od_int64			totalNr() const override { return totalnr_; }
+    od_int64			nrDone() const override  { return nrdone_; }
 
 protected:
 
@@ -58,7 +58,7 @@ public:
 				~SeisEventSnapper3D();
 
 protected:
-    virtual int			nextStep();
+    int				nextStep() override;
 
     BinIDValueSet&		positions_;
     SeisMSCProvider*		mscprov_;

@@ -30,7 +30,7 @@ mExpClass(Seis) RangeSelData : public SelData
 {
 public:
 
-    Type		type() const		{ return Range; }
+    Type		type() const override		{ return Range; }
 
 			RangeSelData(bool settosurvinfo=false);
 			RangeSelData(const TrcKeySampling&);
@@ -43,30 +43,33 @@ public:
     TrcKeyZSampling&	cubeSampling()		{ return tkzs_; }
     const TrcKeyZSampling& cubeSampling() const	{ return tkzs_; }
 
-    SelData*		clone() const	{ return new RangeSelData(*this); }
-    virtual void	copyFrom(const SelData&);
+    SelData*		clone() const override
+			{ return new RangeSelData(*this); }
 
-    Interval<int>	inlRange() const;
-    Interval<int>	crlRange() const;
-    Interval<float>	zRange() const;
+    void		copyFrom(const SelData&) override;
+
+    Interval<int>	inlRange() const override;
+    Interval<int>	crlRange() const override;
+    Interval<float>	zRange() const override;
     bool		setInlRange(const Interval<int>&) override;
     bool		setCrlRange(const Interval<int>&) override;
     bool		setZRange(const Interval<float>&) override;
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    void		usePar(const IOPar&) override;
 
-    void		extendZ(const Interval<float>&);
-    void		include(const SelData&);
+    void		extendZ(const Interval<float>&) override;
+    void		include(const SelData&) override;
 
-    int			expectedNrTraces(bool for2d,const BinID*) const;
+    int			expectedNrTraces(bool for2d,
+					 const BinID*) const override;
     void		setGeomID(Pos::GeomID) override;
 
 protected:
 
     TrcKeyZSampling&	tkzs_;
 
-    void		doExtendH(BinID,BinID);
+    void		doExtendH(BinID,BinID) override;
     int			selRes3D(const BinID&) const override;
     int			selRes2D(Pos::GeomID,int trcnr) const override;
     void		testIsAll2D();
@@ -79,7 +82,7 @@ mExpClass(Seis) TableSelData : public SelData
 {
 public:
 
-    Type		type() const		{ return Table; }
+    Type		type() const override		{ return Table; }
 
 			TableSelData();
 			TableSelData(const BinIDValueSet&,
@@ -93,21 +96,24 @@ public:
     const BinIDValueSet& binidValueSet() const	{ return bvs_; }
     Interval<float>	extraZ() const		{ return extraz_; }
 
-    SelData*		clone() const	{ return new TableSelData(*this); }
-    virtual void	copyFrom(const SelData&);
+    SelData*		clone() const override
+			{ return new TableSelData(*this); }
 
-    Interval<int>	inlRange() const;
-    Interval<int>	crlRange() const;
-    Interval<float>	zRange() const;
+    void		copyFrom(const SelData&) override;
+
+    Interval<int>	inlRange() const override;
+    Interval<int>	crlRange() const override;
+    Interval<float>	zRange() const override;
     bool		setZRange(const Interval<float>&) override;
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    void		usePar(const IOPar&) override;
 
-    void		extendZ(const Interval<float>&);
-    void		include(const SelData&);
+    void		extendZ(const Interval<float>&) override;
+    void		include(const SelData&) override;
 
-    int			expectedNrTraces(bool for2d,const BinID*) const;
+    int			expectedNrTraces(bool for2d,
+					 const BinID*) const override;
 
 protected:
 
@@ -115,7 +121,7 @@ protected:
     Interval<float>	extraz_;
     Interval<float>	fixedzrange_; // used only if no z vals in bidvalset
 
-    void		doExtendH(BinID,BinID);
+    void		doExtendH(BinID,BinID) override;
     int			selRes3D(const BinID&) const override;
     int			selRes2D(Pos::GeomID,int trcnr) const override;
 			//<! false (not implemented)
@@ -133,7 +139,7 @@ mExpClass(Seis) PolySelData : public SelData
 {
 public:
 
-    Type		type() const		{ return Polygon; }
+    Type		type() const override		{ return Polygon; }
 
 			PolySelData();
 			PolySelData(const ODPolygon<float>&,
@@ -145,22 +151,24 @@ public:
     PolySelData&	operator =( const PolySelData& tsd )
 						{ copyFrom(tsd); return *this; }
 
-    SelData*		clone() const	{ return new PolySelData(*this); }
-    virtual void	copyFrom(const SelData&);
+    SelData*		clone() const override
+			{ return new PolySelData(*this); }
+    void		copyFrom(const SelData&) override;
 
-    Interval<int>	inlRange() const;
-    Interval<int>	crlRange() const;
-    Interval<float>	zRange() const;
+    Interval<int>	inlRange() const override;
+    Interval<int>	crlRange() const override;
+    Interval<float>	zRange() const override;
     bool		setZRange( const Interval<float>& zrg ) override
 			{ zrg_ = zrg; return true; }
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    void		usePar(const IOPar&) override;
 
-    void		extendZ(const Interval<float>&);
-    void		include(const SelData&);
+    void		extendZ(const Interval<float>&) override;
+    void		include(const SelData&) override;
 
-    int			expectedNrTraces(bool for2d,const BinID*) const;
+    int			expectedNrTraces(bool for2d,
+					 const BinID*) const override;
 
 protected:
 
@@ -173,7 +181,7 @@ protected:
 
     BinID		stepoutreach_;
 
-    void		doExtendH(BinID,BinID);
+    void		doExtendH(BinID,BinID) override;
     int			selRes3D(const BinID&) const override;
 };
 

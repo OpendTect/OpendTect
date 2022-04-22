@@ -556,7 +556,7 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     }
 }
 
-bool putRow( const BufferStringSet& bss, uiString& msg )
+bool putRow( const BufferStringSet& bss, uiString& msg ) override
 {
     return ishdr_ ? putHdrRow( bss, msg ) : putBodyRow( bss, msg );
 }

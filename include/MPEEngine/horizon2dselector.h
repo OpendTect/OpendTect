@@ -25,7 +25,7 @@ mExpClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
 public:
     				Horizon2DSelector(const EM::Horizon2D&,
 						  const EM::SectionID&);
-    int				nextStep();
+    int				nextStep() override;
 
 protected:
     const EM::Horizon2D&	horizon_;

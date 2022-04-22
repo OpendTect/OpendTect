@@ -28,15 +28,15 @@ class EMManager;
 mExpClass(EarthModel) FaultStickSetGeometry : public FaultGeometry
 {
 public:
-    			FaultStickSetGeometry(Surface&);
+			FaultStickSetGeometry(Surface&);
 			~FaultStickSetGeometry();
 
-    int 		nrSticks(const SectionID&) const;
+    int			nrSticks(const SectionID&) const;
     int			nrKnots(const SectionID&,int sticknr) const;
 
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    bool addtohistory);
+				    bool addtohistory) override;
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    const MultiID* pickedmid,
@@ -45,33 +45,34 @@ public:
 				    const Coord3& pos,const Coord3& editnormal,
 				    Pos::GeomID pickedgeomid,bool addtohistory);
     bool		removeStick(const SectionID&,int sticknr,
-				    bool addtohistory);
+				    bool addtohistory) override;
     bool		insertKnot(const SectionID&,const SubID&,
-				   const Coord3& pos,bool addtohistory);
+			       const Coord3& pos,bool addtohistory) override;
     bool		removeKnot(const SectionID&,const SubID&,
-				   bool addtohistory);
+				   bool addtohistory) override;
 
     bool		pickedOnPlane(const SectionID&,int sticknr) const;
     bool		pickedOn2DLine(const SectionID&,int sticknr) const;
     bool		pickedOnHorizon(const SectionID&,int sticknr) const;
 
-    const MultiID*	pickedMultiID(const SectionID&,int sticknr) const;
-    const char*		pickedName(const SectionID&,int sticknr) const;
+    const MultiID*	pickedMultiID(const SectionID&,
+				      int sticknr) const override;
+    const char*		pickedName(const SectionID&,int sticknr) const override;
     Pos::GeomID		pickedGeomID(const SectionID&,int sticknr)const;
 
     Geometry::FaultStickSet*
-			sectionGeometry(const SectionID&);
+			sectionGeometry(const SectionID&) override;
     const Geometry::FaultStickSet*
-			sectionGeometry(const SectionID&) const;
+			sectionGeometry(const SectionID&) const override;
 
     EMObjectIterator*	createIterator(const SectionID&,
-				       const TrcKeyZSampling* =0) const;
+				   const TrcKeyZSampling* =0) const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
-    Geometry::FaultStickSet*	createSectionGeometry() const;
+    Geometry::FaultStickSet*	createSectionGeometry() const override;
 
     int			indexOf(const SectionID& sid,int stricnr) const;
 
@@ -98,15 +99,15 @@ protected:
 mExpClass(EarthModel) FaultStickSet: public Fault
 { mDefineEMObjFuncs( FaultStickSet );
 public:
-    FaultStickSetGeometry&		geometry();
-    const FaultStickSetGeometry&	geometry() const;
-    void				apply(const Pos::Filter&);
-    uiString				getUserTypeStr() const;
+    FaultStickSetGeometry&		geometry() override;
+    const FaultStickSetGeometry&	geometry() const override;
+    void				apply(const Pos::Filter&) override;
+    uiString				getUserTypeStr() const override;
 
 
 protected:
 
-    const IOObjContext&			getIOObjContext() const;
+    const IOObjContext&			getIOObjContext() const override;
 
     FaultStickSetGeometry		geometry_;
 };

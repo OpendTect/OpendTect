@@ -36,9 +36,9 @@ public:
  			Mute();
     			~Mute();
 
-    bool		prepareWork();
+    bool		prepareWork() override;
 
-    uiString		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const override		{ return errmsg_; }
 
     static const char*	sTaperLength()		{ return "Taper Length";}
     static const char*	sTailMute()		{ return "Tail Mute";}
@@ -54,9 +54,9 @@ public:
     void		setTailMute(bool yn=true);
     void		setTaperLength(float);
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    bool		mustHaveUserInput() { return false; }
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
+    bool		mustHaveUserInput() override { return false; }
 
 protected:
 
@@ -65,8 +65,8 @@ protected:
     MultiID		id_;
     uiString		errmsg_;
 
-    od_int64		nrIterations() const { return outidx_.size(); }
-    bool		doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const override { return outidx_.size(); }
+    bool		doWork(od_int64,od_int64,int) override;
 
     bool		tail_;
     float		taperlen_;

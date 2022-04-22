@@ -58,11 +58,11 @@ public:
     bool		put(void**);
     bool		put(const TraceData&);
 			//!< See CBVSWriter::put, only now succeeds or fails
-    void		close();
+    void		close() override;
 			//!< See CBVSWriter::close
 
-    int			nrComponents() const;
-    const BinID&	binID() const;
+    int			nrComponents() const override;
+    const BinID&	binID() const override;
 
     void		ensureConsistent();
 
@@ -75,7 +75,7 @@ protected:
     CBVSIO::CoordPol	coordpol_;
     bool		forcetrailers_;
 
-    const char*		errMsg_() const;
+    const char*		errMsg_() const override;
 
     od_ostream*		mkStrm();
     void		cleanup();

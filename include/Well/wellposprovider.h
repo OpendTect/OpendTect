@@ -35,35 +35,35 @@ public:
 			~WellProvider3D();
 
     WellProvider3D&	operator=(const WellProvider3D&);
-    const char*		type() const;	//!< sKey::Well()
-    const char*		factoryKeyword() const { return type(); }
-    Provider*		clone() const	{ return new WellProvider3D(*this); }
+    const char* type() const override;	//!< sKey::Well()
+    const char* factoryKeyword() const override { return type(); }
+    Provider*	clone() const override	{ return new WellProvider3D(*this); }
 
-    virtual bool	initialize(TaskRunner* tr=0);
-    virtual void	reset()		{ initialize(); }
+    bool	initialize(TaskRunner* tr=0) override;
+    void	reset() override		{ initialize(); }
 
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
+    bool	toNextPos() override;
+    bool	toNextZ() override;
 
-    virtual BinID	curBinID() const	{ return curbid_; }
-    virtual float	curZ() const		{ return curz_; }
-    virtual bool	includes(const BinID&,float z) const;
-    virtual bool	includes(const Coord&,float z) const;
-    virtual void	getSummary(BufferString&) const;
+    BinID	curBinID() const override	{ return curbid_; }
+    float	curZ() const override		{ return curz_; }
+    bool	includes(const BinID&,float z) const override;
+    bool	includes(const Coord&,float z) const override;
+    void	getSummary(BufferString&) const override;
 
-    virtual void	getExtent(BinID&,BinID&) const;
-    virtual void	getZRange(Interval<float>&) const;
-    virtual od_int64	estNrPos() const;
-    virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
+    void	getExtent(BinID&,BinID&) const override;
+    void	getZRange(Interval<float>&) const override;
+    od_int64	estNrPos() const override;
+    int		estNrZPerPos() const override	{ return zrg_.nrSteps()+1; }
 
     ConstRefMan<Well::Data>	wellData(int idx) const;
-    StepInterval<float>& zRange()		{ return zrg_; }
-    const StepInterval<float>& zRange() const	{ return zrg_; }
-    TrcKeySampling&	horSampling()		{ return hs_; }
+    StepInterval<float>&	zRange()		{ return zrg_; }
+    const StepInterval<float>&	zRange() const		{ return zrg_; }
+    TrcKeySampling&		horSampling()		{ return hs_; }
     const TrcKeySampling&	horSampling() const	{ return hs_; }
 
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
+    void	usePar(const IOPar&) override;
+    void	fillPar(IOPar&) const override;
 
     static const char*	sKeyInlExt();
     static const char*	sKeyCrlExt();

@@ -32,27 +32,29 @@ public:
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&) override;
-    bool		skip(int nrtrcs=1);
+    bool		skip(int nrtrcs=1) override;
 
-    bool		supportsGoTo() const		{ return true; }
-    bool		goTo(const BinID&);
+    bool		supportsGoTo() const override		{ return true; }
+    bool		goTo(const BinID&) override;
     bool		toStart();
-    virtual int		bytesOverheadPerTrace() const;
+    int			bytesOverheadPerTrace() const override;
     int			estimatedNrTraces() const override;
-    virtual bool	forRead() const;
+    bool		forRead() const override;
 
-    virtual void	usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr_; }
     Pos::IdxPair2Coord	getTransform() const;
 
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
+    bool		getGeometryInfo(PosInfo::CubeData&) const override;
 
-    virtual bool	implRemove(const IOObj*) const;
-    virtual bool	implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const;
-    virtual bool	implSetReadOnly(const IOObj*,bool) const;
-    const char*	defExtension() const	{ return sKeyDefExtension(); }
+    bool		implRemove(const IOObj*) const override;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const override;
+    bool		implSetReadOnly(const IOObj*,bool) const override;
+    const char*		defExtension() const override
+			{ return sKeyDefExtension(); }
+
     static const char*	sKeyDefExtension();
 
     bool		is2D() const;
@@ -65,7 +67,7 @@ public:
     void		setCoordPol(bool dowrite,bool intrailer);
     void		setPreselDataType( int dt )	{ preseldatatype_ = dt;}
 
-    bool		isUserSelectable(bool) const	{ return true; }
+    bool		isUserSelectable(bool) const override	{ return true; }
 
     static const char*	sKeyOptDir()		{ return "Optimized direction";}
 
@@ -87,12 +89,12 @@ protected:
     bool		single_file_ = false;
     bool		forceusecbvsinfo_ = false;
 
-    virtual void	cleanUp();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
-    virtual bool	commitSelections_();
-    virtual bool	writeTrc_(const SeisTrc&);
-    virtual void	blockDumped(int);
+    void		cleanUp() override;
+    bool		initRead_() override;
+    bool		initWrite_(const SeisTrc&) override;
+    bool		commitSelections_() override;
+    bool		writeTrc_(const SeisTrc&) override;
+    void		blockDumped(int) override;
     bool		startWrite();
     bool		toNext();
     bool		getFileName(BufferString&);
@@ -101,10 +103,10 @@ protected:
 
 private:
 
-    static const IOPar&	datatypeparspec;
+    static const IOPar& datatypeparspec;
 
     void		destroyVars(int);
-    virtual bool	readData(TraceData* externalbuf);
+    bool		readData(TraceData* externalbuf) override;
 
 };
 

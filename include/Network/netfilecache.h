@@ -113,8 +113,8 @@ public:
 			ReadCache(file_size_type knownsize=0);
 			~ReadCache();
 
-    virtual void	clearData();
-    virtual void	setMinCacheSize(file_size_type);
+    void		clearData() override;
+    void		setMinCacheSize(file_size_type) override;
 
 			// Free-sized access of buffered data
     bool		isAvailable(FilePosType,file_size_type) const;
@@ -131,7 +131,7 @@ protected:
     TypeSet<block_idx_type> liveblockidxs_;
     block_idx_type	maxnrliveblocks_;
 
-    virtual void	handleNewLiveBlock(block_idx_type);
+    void		handleNewLiveBlock(block_idx_type) override;
 
 };
 
@@ -153,15 +153,15 @@ public:
 			WriteCache();
 			~WriteCache();
 
-    virtual void	clearData();
-    virtual void	setMinCacheSize(file_size_type);
+    void		clearData() override;
+    void		setMinCacheSize(file_size_type) override;
 
 
 protected:
 
     block_idx_type	nrblocksmem_;
 
-    virtual void	handleNewLiveBlock(block_idx_type);
+    void		handleNewLiveBlock(block_idx_type) override;
 
 };
 

@@ -47,10 +47,10 @@ public:
 		    , idzoffset_( 0 )
 		{}
 
-    od_int64	nrIterations() const			{ return path_.size(); }
+    od_int64	nrIterations() const override		{ return path_.size(); }
 
-    bool	doPrepare(int nrthreads);
-    bool	doWork(od_int64 start,od_int64 stop,int thread);
+    bool	doPrepare(int nrthreads) override;
+    bool	doWork(od_int64 start,od_int64 stop,int thread) override;
 
 
 protected:

@@ -113,9 +113,9 @@ public:
 				~VelocityBasedAngleComputer();
 
     bool			setMultiID(const MultiID&);
-    bool			isOK() const { return velsource_; }
+    bool			isOK() const override { return velsource_; }
 
-    Gather*			computeAngles();
+    Gather*			computeAngles() override;
 
 protected:
 
@@ -172,9 +172,9 @@ public:
     void			setRefModel(const OffsetReflectivityModel&,
 					    const TrcKey&);
 
-    bool			isOK() const;
+    bool			isOK() const override;
 
-    Gather*			computeAngles();
+    Gather*			computeAngles() override;
 
 private:
 

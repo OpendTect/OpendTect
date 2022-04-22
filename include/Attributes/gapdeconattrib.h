@@ -37,22 +37,22 @@ public:
     static const char*		isout0phaseStr(){ return "isoutzerophase"; }
     static const char*		onlyacorrStr()	{ return "onlyautocorr"; }
 
-    void                        prepareForComputeData();
+    void			prepareForComputeData() override;
 
 protected:
 
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return false; }
 
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
 					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
-    const Interval<int>*	desZSampMargin(int,int) const
+					    int threadid) const override;
+    const Interval<int>*	desZSampMargin(int,int) const override
 				{ return &dessampgate_; }
 
     Interval<float>		gate_;

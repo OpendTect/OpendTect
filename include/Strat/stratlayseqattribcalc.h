@@ -76,22 +76,24 @@ public:
     void		setExtrGates(const ObjectSet<ExtrGateSet>&,
 				const Strat::Level* stoplvl=0);
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Models handled");}
-    od_int64		nrDone() const		{ return seqidx_; }
-    od_int64		totalNr() const;
-    int			nextStep();
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			    { return tr("Models handled");}
+
+    od_int64		nrDone() const override		{ return seqidx_; }
+    od_int64		totalNr() const override;
+    int			nextStep() override;
 
     static const char*	sKeyModelIdx()		{ return "Model Index"; }
 
 protected:
 
     const LayerModel&		lm_;
-    ObjectSet<LaySeqAttribCalc>	calcs_;
+    ObjectSet<LaySeqAttribCalc> calcs_;
     od_int64			seqidx_;
     TypeSet<int>		dpscidxs_;
     DataPointSet&		dps_;
-    uiString		        msg_;
+    uiString			msg_;
     ObjectSet<ExtrGateSet>	extrgates_;
     const Strat::Level*		stoplvl_;
 

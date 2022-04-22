@@ -41,7 +41,7 @@ public:
 					     const TypeSet<TrcKey>* src=0 );
     void			setSeedPosition(const TrcKey&);
 
-    int				nextStep();
+    int				nextStep() override;
     const char*			errMsg() const;
 
     virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;

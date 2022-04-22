@@ -35,12 +35,12 @@ public:
 			HorizonAdjuster(EM::Horizon&,EM::SectionID);
 			~HorizonAdjuster();
 
-    void		reset();
-    int			nextStep();
+    void		reset() override;
+    int			nextStep() override;
 
     void		getNeededAttribs(
-				TypeSet<Attrib::SelSpec>&) const;
-    TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
+				TypeSet<Attrib::SelSpec>&) const override;
+    TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const override;
 
     void		setCompareMethod(EventTracker::CompareMethod);
     EventTracker::CompareMethod	getCompareMethod() const;
@@ -72,14 +72,15 @@ public:
     void		setSnapToEvent(bool);
     bool		snapToEvent() const;
 
-    int			getNrAttributes() const;
-    const Attrib::SelSpec* getAttributeSel(int idx) const;
-    void		setAttributeSel(int idx,const Attrib::SelSpec&);
+    int			getNrAttributes() const override;
+    const Attrib::SelSpec* getAttributeSel(int idx) const override;
+    void		setAttributeSel(int idx,
+					const Attrib::SelSpec&) override;
 
-    bool		hasInitializedSetup() const;
+    bool		hasInitializedSetup() const override;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 

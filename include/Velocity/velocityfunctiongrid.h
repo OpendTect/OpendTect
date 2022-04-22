@@ -34,8 +34,8 @@ mExpClass(Velocity) GriddedFunction : public Function
 public:
 				GriddedFunction(GriddedSource&);
 
-    StepInterval<float>		getAvailableZ() const;
-    bool			moveTo(const BinID&);
+    StepInterval<float>		getAvailableZ() const override;
+    bool			moveTo(const BinID&) override;
     bool			fetchSources();
 
     bool			isInfluencedBy(const BinID&) const;
@@ -49,7 +49,7 @@ protected:
     friend			class GriddedSource;
 
     bool			computeVelocity(float z0, float dz, int nr,
-					float* res ) const;
+					float* res ) const override;
     ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
     void			fetchPerfectFit(const BinID&);
 
@@ -68,8 +68,9 @@ mExpClass(Velocity) GriddedSource : public FunctionSource
 {
 public:
 				GriddedSource();
-    const VelocityDesc&		getDesc() const;
-    const char*			factoryKeyword() const { return sType(); }
+    const VelocityDesc&		getDesc() const override;
+    const char*			factoryKeyword() const override
+				{ return sType(); }
     static const char*		sType() { return "GridVelocity"; }
 
     const Gridder2D*		getGridder() const;
@@ -83,17 +84,18 @@ public:
 
     const ObjectSet<FunctionSource>&	getSources() const;
 
-    NotifierAccess*		changeNotifier() { return &notifier_; }
-    BinID			changeBinID() const { return changebid_; }
+    NotifierAccess*		changeNotifier() override { return &notifier_; }
+    BinID			changeBinID() const override
+				{ return changebid_; }
 
     GriddedFunction*		createFunction();
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
     friend			class GriddedFunction;
-    GriddedFunction*		createFunction(const BinID&);
+    GriddedFunction*		createFunction(const BinID&) override;
 				~GriddedSource();
     bool			initGridder();
     static const char*		sKeyGridder() { return "Gridder"; }

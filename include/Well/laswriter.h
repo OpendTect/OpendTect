@@ -36,7 +36,7 @@ public:
     od_int64		nrDone() const override		{ return nrdone_; }
 
 protected:
-    int			nextStep();
+    int			nextStep() override;
 
     bool		writeVersionInfoSection(od_ostream&);
     bool		writeWellInfoSection(od_ostream&);

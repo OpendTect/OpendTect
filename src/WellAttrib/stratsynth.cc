@@ -627,7 +627,7 @@ bool doPrepare( int /* nrthreads */ ) override
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int /* threadid */ )
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const Attrib::Desc& psdesc = *descset_->desc( descset_->size()-1 );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
@@ -684,7 +684,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ )
 }
 
 
-bool doFinish( bool success )
+bool doFinish( bool success ) override
 {
     return true;
 }
@@ -1310,7 +1310,7 @@ uiString uiMessage() const override
 }
 
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 {
     return tr("Models done");
 }
@@ -1638,17 +1638,17 @@ ElasticModelAdjuster( const Strat::LayerModel& lm,
 {
 }
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 {
     return aimodels_.size();
 }
 
-uiString uiMessage() const
+uiString uiMessage() const override
 {
     return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
 }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 {
     return tr( "Models done" );
 }
@@ -1659,7 +1659,7 @@ uiString errMsg() const				{ return errmsg_; }
 
 protected:
 
-bool doWork( od_int64 start , od_int64 stop , int )
+bool doWork( od_int64 start , od_int64 stop , int ) override
 {
     for ( int midx=mCast(int,start); midx<=mCast(int,stop); midx++ )
     {

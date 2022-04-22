@@ -156,9 +156,9 @@ public:
     mStopAllowDeprecatedSection
     void		destroyAll();
 
-    virtual const OD::String& name() const      { return ctxt_.name(); }
-    virtual void        setName(const char* nm) { ctxt_.setName(nm); }
-    virtual BufferString getName() const        { return ctxt_.getName(); }
+    virtual const OD::String& name() const override { return ctxt_.name(); }
+    void		setName(const char* nm) override { ctxt_.setName(nm); }
+    BufferString	getName() const override { return ctxt_.getName(); }
 
     void		setObj(IOObj*); //!< destroys previous
     void		setObj(const MultiID&); //!< destroys previous

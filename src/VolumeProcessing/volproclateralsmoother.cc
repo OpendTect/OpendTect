@@ -56,11 +56,14 @@ LateralSmootherTask(const Array3D<float>& input,
 ~LateralSmootherTask()
 { delete kernel_; }
 
-od_int64	nrIterations() const {return i2samples_.width()+1; }
-od_int64	totalNr() const { return totalsz_; }
-uiString	uiMessage() const { return tr("Smothing laterally"); }
-uiString	uiNrDoneText() const { return tr("Samples processed"); }
-bool		doPrepare(int nrthreads) { domt_ = nrthreads==1; return true; }
+od_int64	nrIterations() const override {return i2samples_.width()+1; }
+od_int64	totalNr() const override { return totalsz_; }
+uiString	uiMessage() const override { return tr("Smothing laterally"); }
+uiString	uiNrDoneText() const override
+		{ return tr("Samples processed"); }
+
+bool		doPrepare(int nrthreads) override
+		{ domt_ = nrthreads==1; return true; }
 
 private:
 
@@ -68,7 +71,7 @@ void reportRowDone(CallBacker*)
 { addToNrDone(i1samples_.width()+1); }
 
 
-bool doWork( od_int64 start, od_int64 stop, int thread )
+bool doWork( od_int64 start, od_int64 stop, int thread ) override
 {
     if ( pars_.type_==Stats::Average ) //&& !mIsUdf(pars_.rowdist_) )
 	return processKernel( mCast(int,start), mCast(int,stop), thread );

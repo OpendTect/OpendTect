@@ -20,26 +20,26 @@ class Conn;
 mExpClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(RandomLineSet)
 public:
-    			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
+			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
 
-    const char*		defExtension() const		{ return "rdl"; }
+    const char*		defExtension() const override	{ return "rdl"; }
 };
 
 
 mExpClass(Geometry) RandomLineSetTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
+			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
 
-    virtual const char*	read(Geometry::RandomLineSet&,Conn&)		= 0;
+    virtual const char* read(Geometry::RandomLineSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const Geometry::RandomLineSet&,Conn&)	= 0;
+    virtual const char* write(const Geometry::RandomLineSet&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
-	    			 BufferString&);
+				 BufferString&);
     static bool		store(const Geometry::RandomLineSet&,const IOObj*,
-	    		      BufferString&);
+			      BufferString&);
 };
 
 
@@ -47,10 +47,10 @@ mExpClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
 {				isTranslator(dgb,RandomLineSet)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,RandomLineSet)
+			mDefEmptyTranslatorConstructor(dgb,RandomLineSet)
 
-    const char*		read(Geometry::RandomLineSet&,Conn&);
-    const char*		write(const Geometry::RandomLineSet&,Conn&);
+    const char*		read(Geometry::RandomLineSet&,Conn&) override;
+    const char*		write(const Geometry::RandomLineSet&,Conn&) override;
 };
 
 

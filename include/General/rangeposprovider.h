@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2008
+ Author:	Bert
+ Date:		Feb 2008
 ________________________________________________________________________
 
 
@@ -37,35 +37,38 @@ public:
 			RangeProvider3D(const RangeProvider3D&);
 			~RangeProvider3D();
     RangeProvider3D&	operator =(const RangeProvider3D&);
-    const char*		type() const;	//!< sKey::Range()
-    const char*		factoryKeyword() const { return type(); }
-    virtual Provider*	clone() const	{ return new RangeProvider3D(*this); }
+    const char*		type() const override;	//!< sKey::Range()
+    const char*		factoryKeyword() const override { return type(); }
+    Provider*		clone() const override
+			{ return new RangeProvider3D(*this); }
 
-    virtual bool	initialize(TaskRunner* tr=0);
-    virtual void	reset();
+    bool		initialize(TaskRunner* tr=0) override;
+    void		reset() override;
 
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
+    bool		toNextPos() override;
+    bool		toNextZ() override;
 
-    virtual BinID	curBinID() const	{ return curbid_; }
-    virtual float	curZ() const;
-    virtual bool	includes(const BinID&,float z=mUdf(float)) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    BinID		curBinID() const override	{ return curbid_; }
+    float		curZ() const override;
+    bool		includes(const BinID&,
+				 float z=mUdf(float)) const override;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    virtual void	getExtent(BinID& start,BinID& stop) const;
-    virtual void	getZRange(Interval<float>&) const;
-    virtual od_int64	estNrPos() const;
-    virtual int		estNrZPerPos() const;
-    void		getTrcKeyZSampling(TrcKeyZSampling&) const;
+    void		getExtent(BinID& start,BinID& stop) const override;
+    void		getZRange(Interval<float>&) const override;
+    od_int64		estNrPos() const override;
+    int			estNrZPerPos() const override;
+    void		getTrcKeyZSampling(TrcKeyZSampling&) const override;
 
     const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
     void		setSampling( const TrcKeyZSampling& tkzs );
     void		setHSampling( const TrcKeySampling& tks ) const
 						{ tkzs_.hsamp_ = tks; }
 
-    virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
+    bool		includes( const Coord& c,
+				  float z=mUdf(float) ) const override
 			{ return Pos::Provider3D::includes(c,z); }
 
 protected:
@@ -101,29 +104,34 @@ public:
 			RangeProvider2D(const RangeProvider2D&);
 			~RangeProvider2D();
     RangeProvider2D&	operator =(const RangeProvider2D&);
-    const char*		type() const;	//!< sKey::Range()
-    const char*		factoryKeyword() const { return type(); }
-    virtual Provider*	clone() const	{ return new RangeProvider2D(*this); }
+    const char*		type() const override;	//!< sKey::Range()
+    const char*		factoryKeyword() const override { return type(); }
+    Provider*		clone() const override
+			{ return new RangeProvider2D(*this); }
 
-    virtual void	reset();
+    void		reset() override;
 
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
+    bool		toNextPos() override;
+    bool		toNextZ() override;
 
-    virtual int		curNr() const;
-    virtual float	curZ() const;
-    virtual Coord	curCoord() const;
-    virtual TrcKey	curTrcKey() const;
-    virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
-    virtual bool	includes(const Coord&,float z=mUdf(float)) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    int			curNr() const override;
+    float		curZ() const override;
+    Coord		curCoord() const override;
+    TrcKey		curTrcKey() const override;
+    bool		includes(int,float z=mUdf(float),
+				 int lidx=0) const override;
+    bool		includes(const Coord&,
+				 float z=mUdf(float)) const override;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    virtual void	getExtent( Interval<int>& rg, int lidx=-1 ) const;
-    virtual void	getZRange( Interval<float>& rg, int lidx ) const;
-    virtual od_int64	estNrPos() const;
-    virtual int		estNrZPerPos() const;
+    void		getExtent( Interval<int>& rg,
+				   int lidx=-1 ) const override;
+    void		getZRange( Interval<float>& rg,
+				   int lidx ) const override;
+    od_int64		estNrPos() const override;
+    int			estNrZPerPos() const override;
 
     void			setTrcRange(const StepInterval<int>&,int idx=0);
     const StepInterval<int>&	trcRange(int lidx) const

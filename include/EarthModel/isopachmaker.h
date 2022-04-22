@@ -27,13 +27,13 @@ public:
 				      DataPointSet* dps=0);
 			~IsochronMaker();
 
-    int			nextStep();
+    int			nextStep() override;
     int			finishWork();
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
 			{ return tr("Positions handled"); }
-    od_int64 		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totnr_; }
 
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,

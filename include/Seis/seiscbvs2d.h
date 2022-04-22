@@ -27,22 +27,23 @@ public:
 
 			SeisCBVS2DLineIOProvider();
 
-    bool		isEmpty(const IOObj&,Pos::GeomID) const;
+    bool		isEmpty(const IOObj&,Pos::GeomID) const override;
 
-    bool		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
+    bool		getGeomIDs(const IOObj&,
+				   TypeSet<Pos::GeomID>&) const override;
     bool		getGeometry(const IOObj&,Pos::GeomID,
-				    PosInfo::Line2DData&) const;
+				    PosInfo::Line2DData&) const override;
     Executor*		getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-	    			   const Seis::SelData* sd=0);
-    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID);
+				   const Seis::SelData* sd=0) override;
+    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID) override;
 
     bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
-	    			   BufferString&) const;
+				   BufferString&) const override;
     bool		getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
-	    			  StepInterval<float>&) const;
+				  StepInterval<float>&) const override;
 
-    bool		removeImpl(const IOObj&,Pos::GeomID) const;
-    bool		renameImpl(const IOObj&,const char*) const;
+    bool		removeImpl(const IOObj&,Pos::GeomID) const override;
+    bool		renameImpl(const IOObj&,const char*) const override;
 
     static const OD::String&	getFileName(const IOObj&,Pos::GeomID);
 
@@ -59,11 +60,11 @@ public:
 			SeisCBVS2DLinePutter(const IOObj&,Pos::GeomID);
 			~SeisCBVS2DLinePutter();
 
-    uiString		errMsg() const			{ return errmsg_;}
-    int			nrWritten() const		{ return nrwr_; }
-    bool		put(const SeisTrc&);
-    bool		close();
-    void		setComponentNames(const BufferStringSet&);
+    uiString		errMsg() const override		{ return errmsg_;}
+    int			nrWritten() const override	{ return nrwr_; }
+    bool		put(const SeisTrc&) override;
+    bool		close() override;
+    void		setComponentNames(const BufferStringSet&) override;
 
     int                 		nrwr_;
     BufferString        		fname_;
@@ -83,15 +84,15 @@ public:
 					     const Seis::SelData&);
 			~SeisCBVS2DLineGetter();
 
-    od_int64		nrDone() const		{ return curnr_; }
-    od_int64		totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const override		{ return curnr_; }
+    od_int64		totalNr() const override	{ return totnr_; }
 
-    const SeisTrcTranslator*	translator() const;
+    const SeisTrcTranslator*	translator() const override;
 
 protected:
 
     void		addTrc(SeisTrc*);
-    int			nextStep();
+    int			nextStep() override;
 
     int				curnr_		= 0;
     int				totnr_		= 0;

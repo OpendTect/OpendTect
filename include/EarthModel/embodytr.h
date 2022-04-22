@@ -27,9 +27,9 @@ mExpClass(EarthModel) EMBodyTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(EMBody)
 
-    const char*		defExtension() const    { return "body"; }
-    static FixedString	sKeyExtension()		{ return "body"; }
-    static FixedString	sKeyUserWord()		{ return "od"; }
+    const char*		defExtension() const override	{ return "body"; }
+    static FixedString	sKeyExtension()			{ return "body"; }
+    static FixedString	sKeyUserWord()			{ return "od"; }
 };
 
 
@@ -56,11 +56,11 @@ public:
 			odEMBodyTranslator(const char* nm,const char* unm);
 			~odEMBodyTranslator();
 
-    Executor*		writer(const EM::Body&,IOObj&);
-    Executor*		reader(const IOObj&);
+    Executor*		writer(const EM::Body&,IOObj&) override;
+    Executor*		reader(const IOObj&) override;
 
-    EMBody*		getReadBody()			{ return readbody_; }
-    uiString		errMsg() const			{ return errmsg_; };
+    EMBody*		getReadBody() override		{ return readbody_; }
+    uiString		errMsg() const override		{ return errmsg_; };
 
 protected:
 

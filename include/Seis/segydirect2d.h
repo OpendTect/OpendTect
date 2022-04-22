@@ -27,22 +27,23 @@ public:
 
 			SEGYDirect2DLineIOProvider();
 
-    bool		isEmpty(const IOObj&,Pos::GeomID) const;
+    bool		isEmpty(const IOObj&,Pos::GeomID) const override;
 
-    bool		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
+    bool		getGeomIDs(const IOObj&,
+				   TypeSet<Pos::GeomID>&) const override;
     bool		getGeometry(const IOObj&,Pos::GeomID,
-				    PosInfo::Line2DData&) const;
+				    PosInfo::Line2DData&) const override;
     Executor*		getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-				   const Seis::SelData* sd=0);
-    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID);
+				   const Seis::SelData* sd=0) override;
+    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID) override;
 
     bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
-				   BufferString&) const;
+				   BufferString&) const override;
     bool		getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
-				  StepInterval<float>&) const;
+				  StepInterval<float>&) const override;
 
-    bool		removeImpl(const IOObj&,Pos::GeomID) const;
-    bool		renameImpl(const IOObj&,const char*) const;
+    bool		removeImpl(const IOObj&,Pos::GeomID) const override;
+    bool		renameImpl(const IOObj&,const char*) const override;
 
     static const OD::String&	getFileName(const IOObj&,Pos::GeomID);
 
@@ -59,10 +60,10 @@ public:
 			SEGYDirect2DLinePutter(const IOObj&,Pos::GeomID);
 			~SEGYDirect2DLinePutter();
 
-    uiString		errMsg() const			{ return errmsg_;}
-    int			nrWritten() const		{ return nrwr_; }
-    bool		put(const SeisTrc&);
-    bool		close();
+    uiString		errMsg() const override		{ return errmsg_;}
+    int			nrWritten() const override	{ return nrwr_; }
+    bool		put(const SeisTrc&) override;
+    bool		close() override;
 
     int					nrwr_ = 0;
     BufferString			fname_;
@@ -82,15 +83,15 @@ public:
 					     const Seis::SelData&);
 			~SEGYDirect2DLineGetter();
 
-    od_int64		nrDone() const		{ return curnr_; }
-    od_int64		totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const override		{ return curnr_; }
+    od_int64		totalNr() const override	{ return totnr_; }
 
-    const SeisTrcTranslator*	translator() const;
+    const SeisTrcTranslator*	translator() const override;
 
 protected:
 
     void		addTrc(SeisTrc*);
-    int			nextStep();
+    int			nextStep() override;
 
     int				curnr_ = 0;
     int				totnr_ = 0;
@@ -109,9 +110,10 @@ public:
 						       const char* s2)
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
-    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
-    bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
-    bool		isUserSelectable(bool fr) const		{ return fr; }
+    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const override;
+    bool		writeGeometry(IOObj&,Survey::Geometry&,
+				      uiString&) const override;
+    bool		isUserSelectable(bool fr) const override { return fr; }
 
     static const char*	sKeySEGYDirectID();
 

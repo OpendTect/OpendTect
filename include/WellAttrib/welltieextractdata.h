@@ -5,8 +5,8 @@ ________________________________________________________________________
 
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
-Date:          Feb 2009
-RCS:           $Id: welltieextractdata.h,v 1.1 2009-01-19 13:02:33 cvsbruno Exp
+Date:	       Feb 2009
+RCS:	       $Id: welltieextractdata.h,v 1.1 2009-01-19 13:02:33 cvsbruno Exp
 $
 ________________________________________________________________________
 
@@ -32,11 +32,14 @@ public:
 			SeismicExtractor(const IOObj&);
 			~SeismicExtractor();
 
-    int                 nextStep();
-    od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
-    od_int64            nrDone() const          { return nrdone_; }
-    uiString		uiMessage() const	{ return tr("Computing..."); }
-    uiString		uiNrDoneText() const	{ return tr("Points done"); }
+    int			nextStep() override;
+    od_int64		totalNr() const override
+			{ return extrintv_.nrSteps(); }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiMessage() const override
+			{ return tr("Computing..."); }
+    uiString		uiNrDoneText() const override
+			{ return tr("Points done"); }
     void		setBIDValues(const TypeSet<BinID>&);
     void		setInterval(const StepInterval<float>&);
     //Only 2D
@@ -48,7 +51,7 @@ public:
 protected:
 
     const char*		attrnm_;
-    int                 nrdone_;
+    int			nrdone_;
     int			radius_;
     TrcKeyZSampling*	tkzs_;
     TypeSet<BinID>	bidset_;

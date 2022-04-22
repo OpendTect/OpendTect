@@ -89,7 +89,7 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 }
 
 
-int nextStep()
+int nextStep() override
 {
     if ( nrattribs_ < 0 ) return ErrorOccurred();
 
@@ -137,10 +137,11 @@ int nextStep()
 }
 
 
-uiString	uiMessage() const	{ return msg_; }
-od_int64	totalNr() const		{ return totalnr_; }
-od_int64	nrDone() const		{ return nrdone_; }
-uiString	uiNrDoneText() const	{ return tr("Positions handled"); }
+uiString	uiMessage() const override	{ return msg_; }
+od_int64	totalNr() const override	{ return totalnr_; }
+od_int64	nrDone() const override		{ return nrdone_; }
+uiString	uiNrDoneText() const override
+					{ return tr("Positions handled"); }
 
 protected:
 
@@ -214,12 +215,13 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     deepErase( horarrays_ );
 }
 
-uiString	uiMessage() const	{ return msg_; }
-od_int64	totalNr() const		{ return totalnr_; }
-od_int64	nrDone() const		{ return nrdone_; }
-uiString	uiNrDoneText() const	{ return tr("Positions handled"); }
+uiString	uiMessage() const override	{ return msg_; }
+od_int64	totalNr() const override	{ return totalnr_; }
+od_int64	nrDone() const override		{ return nrdone_; }
+uiString	uiNrDoneText() const override
+					{ return tr("Positions handled"); }
 
-int nextStep()
+int nextStep() override
 {
     if ( nrvals_ == -1 || horarrays_.isEmpty() )
 	return ErrorOccurred();
@@ -1089,7 +1091,7 @@ FindTask( ChildFinder& finder, od_int64 pidx )
 }
 
 
-bool execute()
+bool execute() override
 {
     TypeSet<od_int64> nbs;
     finder_.tks_.neighbors( pidx_, nbs );

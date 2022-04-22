@@ -230,7 +230,7 @@ void Network::FileDownloadMgr::getDataFromReplies(
 	    else
 	    {
 		pErrMsg("Reply nr bytes < requested" );
-	        chunk.stop = chunk.start + nrbytes - 1;
+		chunk.stop = chunk.start + nrbytes - 1;
 	    }
 	}
 
@@ -270,9 +270,9 @@ webstreambuf()
 {
 }
 
-virtual std::ios::pos_type seekoff( std::ios::off_type offs,
+std::ios::pos_type seekoff( std::ios::off_type offs,
 				    std::ios_base::seekdir sd,
-				    std::ios_base::openmode which )
+				    std::ios_base::openmode which ) override
 {
     std::ios::pos_type newpos = offs;
     if ( sd == std::ios_base::cur )
@@ -283,8 +283,8 @@ virtual std::ios::pos_type seekoff( std::ios::off_type offs,
     return seekpos( newpos, which );
 }
 
-virtual std::ios::pos_type seekpos( std::ios::pos_type newpos,
-				    std::ios_base::openmode )
+std::ios::pos_type seekpos( std::ios::pos_type newpos,
+				    std::ios_base::openmode ) override
 {
     if ( goTo(newpos) )
 	return curPos();
@@ -335,12 +335,12 @@ void setGPtrs( FilePosType newpos, bool isvalid )
     }
 }
 
-virtual FilePosType curPos() const
+FilePosType curPos() const override
 {
     return curbidx_ < 0 ? 0 : (mgr_.blockStart( curbidx_ ) + gptr() - eback());
 }
 
-virtual bool goTo( FilePosType newpos )
+bool goTo( FilePosType newpos ) override
 {
     if ( newpos < 0 )
 	newpos = 0;
@@ -352,7 +352,7 @@ virtual bool goTo( FilePosType newpos )
     return isvalid;
 }
 
-virtual int underflow()
+int underflow() override
 {
     char* curgptr = gptr();
     if ( !curgptr )
@@ -378,8 +378,8 @@ virtual int underflow()
     return (int)(*gptr());
 }
 
-virtual std::streamsize xsgetn( std::ios::char_type* buftofill,
-				std::streamsize nrbytes )
+std::streamsize xsgetn( std::ios::char_type* buftofill,
+				std::streamsize nrbytes ) override
 {
     if ( nrbytes < 1 )
 	return nrbytes;
@@ -400,7 +400,7 @@ virtual std::streamsize xsgetn( std::ios::char_type* buftofill,
 }
 
     Network::FileDownloadMgr	mgr_;
-    virtual FileCache&		cache()			{ return mgr_; }
+    FileCache&			cache() override	{ return mgr_; }
 
 };
 
@@ -435,12 +435,12 @@ void setPPtrs( FilePosType newpos, bool isvalid )
     }
 }
 
-virtual FilePosType curPos() const
+FilePosType curPos() const override
 {
     return curbidx_ < 0 ? 0 : (mgr_.blockStart( curbidx_ ) + pptr() - pbase());
 }
 
-virtual bool goTo( FilePosType newpos )
+bool goTo( FilePosType newpos ) override
 {
     if ( newpos < 0 )
 	newpos = 0;
@@ -448,7 +448,7 @@ virtual bool goTo( FilePosType newpos )
     return false;
 }
 
-virtual int overflow( int toput )
+int overflow( int toput ) override
 {
     char* curpptr = pptr();
     if ( !curpptr )
@@ -479,8 +479,8 @@ virtual int overflow( int toput )
     return toput;
 }
 
-virtual std::streamsize xsputn( const std::ios::char_type* buftoput,
-				std::streamsize nrbytes )
+std::streamsize xsputn( const std::ios::char_type* buftoput,
+				std::streamsize nrbytes ) override
 {
     if ( nrbytes < 1 )
 	return nrbytes;
@@ -490,7 +490,7 @@ virtual std::streamsize xsputn( const std::ios::char_type* buftoput,
 }
 
     Network::FileUploadMgr	mgr_;
-    virtual FileCache&		cache()			{ return mgr_; }
+    FileCache&			cache() override	{ return mgr_; }
 
 };
 
@@ -533,22 +533,25 @@ class HttpFileSystemAccess : public OD::FileSystemAccess
 { mODTextTranslationClass(HttpFileSystemAccess)
 public:
 
-    static const char*	    sFactoryKeyword() { return "http"; }
-    static uiString	    sFactoryUserName() { return uiStrings::sWeb(); }
+    static const char*	sFactoryKeyword() { return "http"; }
+    static uiString	sFactoryUserName() { return uiStrings::sWeb(); }
 
-    virtual const char*	    protocol() const { return sFactoryKeyword(); }
-    virtual uiString	    userName() const { return sFactoryUserName(); }
-    virtual bool	    readingSupported() const	{ return true; }
-    virtual bool	    writingSupported() const	{ return false; }
-    virtual bool	    queriesSupported() const	{ return false; }
-    virtual bool	    operationsSupported() const	{ return false; }
+    const char*		protocol() const override { return sFactoryKeyword(); }
+    uiString		userName() const override { return sFactoryUserName(); }
+    bool		readingSupported() const override	{ return true; }
+    bool		writingSupported() const override
+			    { return false; }
+    bool		queriesSupported() const override
+			    { return false; }
+    bool		operationsSupported() const override
+			    { return false; }
 
-    virtual bool	    isReadable(const char*) const;
-    virtual od_int64	    getFileSize(const char*,bool) const;
-    StreamData		    createIStream(const char*,bool) const;
-    StreamData		    createOStream(const char*,bool,bool) const;
+    bool		isReadable(const char*) const override;
+    od_int64		getFileSize(const char*,bool) const override;
+    StreamData		createIStream(const char*,bool) const override;
+    StreamData		createOStream(const char*,bool,bool) const override;
 
-    static void		    initClass();
+    static void		initClass();
     static OD::FileSystemAccess* createInstance()
 			    { return new HttpFileSystemAccess; }
 

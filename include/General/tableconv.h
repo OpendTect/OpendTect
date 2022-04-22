@@ -91,10 +91,11 @@ public:
     TypeSet<int>	selcols_;
     uiString		msg_;
 
-    virtual int		nextStep();
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Records read"); }
-    od_int64		nrDone() const		{ return rowsdone_; }
+    int			nextStep() override;
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			    { return tr("Records read"); }
+    od_int64		nrDone() const override		{ return rowsdone_; }
 
     struct RowManipulator
     {

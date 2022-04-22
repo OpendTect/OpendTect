@@ -61,10 +61,10 @@ public:
 	ystep_ = ( float ) (stoppt_.y - startpt_.y)/width;
     }
 
-    od_int64 nrIterations() const
+    od_int64 nrIterations() const override
     { return mdp_.xyrotarr2d_->info().getTotalSz(); }
 
-    bool doFinish( bool success )
+    bool doFinish( bool success ) override
     {
 	mdp_.xyrotposdata_.setRange( true,
 		StepInterval<double>(startpt_.x,stoppt_.x,xstep_) );
@@ -74,7 +74,7 @@ public:
 	return success;
     }
 
-    bool doWork( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int ) override
     {
 	int startpos[2];
 	if ( !mdp_.xyrotarr2d_->info().getArrayPos(start,startpos) )

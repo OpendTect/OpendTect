@@ -45,23 +45,24 @@ public:
     static const char*	globalminStr()		{ return "globalmin"; }
     static const char*	globalmaxStr()		{ return "globalmax"; }
 
-    void		initSteering()		{ stdPrepSteering(stepout_); }
-    void		prepareForComputeData();
+    void		initSteering() override { stdPrepSteering(stepout_); }
+    void		prepareForComputeData() override;
 
 protected:
 			~Texture() {}
     static Provider*	createInstance(Desc&);
     static void		updateDefaults(Desc&);
 
-    bool		allowParallelComputation() const;
+    bool		allowParallelComputation() const override;
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int zintv);
+    bool		getInputOutput(int input,
+				       TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&,int zintv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int z0,int nrsamples,int threadid) const;
-    const BinID*        desStepout(int,int) const;
-    const BinID*	reqStepout(int,int) const;
-    const Interval<int>* desZSampMargin(int,int) const;
+			    int z0,int nrsamples,int threadid) const override;
+    const BinID*	desStepout(int,int) const override;
+    const BinID*	reqStepout(int,int) const override;
+    const Interval<int>* desZSampMargin(int,int) const override;
     int			scaleVal(float) const;
     void		setFactorShift(float,float);
 

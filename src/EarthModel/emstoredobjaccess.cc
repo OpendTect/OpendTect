@@ -297,12 +297,12 @@ StoredObjAccessReader( StoredObjAccess& oa )
     msg_ = tr("Reading object data");
 }
 
-od_int64 totalNr() const	{ return 100; }
-od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()*100.f); }
-uiString uiMessage() const	{ return tr("Reading object data"); }
-uiString uiNrDoneText() const	{ return uiStrings::sPercentageDone(); }
+od_int64 totalNr() const override	{ return 100; }
+od_int64 nrDone() const override { return mNINT64(oa_.ratioDone()*100.f); }
+uiString uiMessage() const override	{ return tr("Reading object data"); }
+uiString uiNrDoneText() const override	{ return uiStrings::sPercentageDone(); }
 
-int nextStep()
+int nextStep() override
 {
     if ( oa_.isError() )
 	{ msg_ = oa_.getError(); return ErrorOccurred(); }

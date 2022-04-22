@@ -36,8 +36,8 @@ public:
     typedef idx_type	size_type;
     enum Direction	{ Forward, Backward };
 
-    inline		MonitorableIterBase(const MonitoredObject&,idx_type start,
-							   idx_type stop);
+    inline		MonitorableIterBase(const MonitoredObject&,
+					    idx_type start,idx_type stop);
     inline		MonitorableIterBase(const MonitorableIterBase&);
     inline virtual	~MonitorableIterBase()	{ retire(); }
     inline const MonitoredObject& monitored() const	{ return obj_; }
@@ -88,8 +88,8 @@ public:
 					     ITyp startidx,ITyp stopidx);
     inline		MonitorableIter4Read(const MonitorableIter4Read&);
 
-    virtual void	reInit();
-    virtual void	retire();
+    void		reInit() override;
+    void		retire() override;
 
 protected:
 

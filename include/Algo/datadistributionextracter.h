@@ -61,7 +61,7 @@ public:
     void		setNrBins( int nr )		{ nrbins_ = nr; }
     void		setBounds( RangeType intv )	{ bounds_ = intv; }
 
-    virtual od_int64	nrIterations() const		{ return totalsz_; }
+    od_int64		nrIterations() const override	{ return totalsz_; }
 
     DistribRef		getDistribution();
     void		reset()				{ init(); }
@@ -77,8 +77,8 @@ protected:
     int				nrbins_;
     RangeType			bounds_;
 
-    virtual bool		doPrepare(int);
-    virtual bool		doWork(od_int64,od_int64,int);
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
 
     void			init();
     void			determineBounds();

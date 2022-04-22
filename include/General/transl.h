@@ -209,11 +209,11 @@ public: \
     static const IOObjContext& ioContext(); \
     static FixedString sGroupName(); \
     static uiString sTypeName(int num=1); \
-    virtual FixedString groupName() const { return sGroupName(); } \
-    virtual uiString typeName(int num=1) const \
+    FixedString groupName() const override { return sGroupName(); } \
+    uiString typeName(int num=1) const override\
     { return sTypeName(num); } \
-    virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
-    virtual int	objSelector( const char* s ) const { return selector(s); } \
+    const IOObjContext& ioCtxt() const override { return ioContext(); } \
+    int objSelector( const char* s ) const override { return selector(s); } \
     static TranslatorGroup& theInst()
 
 
@@ -289,7 +289,7 @@ mImplTranslatorInitClass( spec, clss, usrnm )
 mExpClass(mod) clss##TranslatorGroup : public TranslatorGroup \
 {			isTranslatorGroup(clss) \
 			mDefEmptyTranslatorGroupConstructor(clss) \
-    const char*		defExtension() const	{ return defext; } \
+    const char*		defExtension() const override	{ return defext; } \
 }; \
  \
 mExpClass(mod) clss##Translator : public Translator \

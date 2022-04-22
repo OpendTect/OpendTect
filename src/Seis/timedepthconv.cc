@@ -213,12 +213,13 @@ public:
 		}
 protected:
 
-    int		nextStep();
-    od_int64	totalNr() const
+    int		nextStep() override;
+    od_int64	totalNr() const override
 		{ return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl(); }
-    od_int64	nrDone() const		{ return nrdone_; }
-    uiString	uiMessage() const	{ return tr("Reading velocity model"); }
-    uiString	uiNrDoneText() const	{ return tr("Position read"); }
+    od_int64	nrDone() const override		{ return nrdone_; }
+    uiString	uiMessage() const override
+		{ return tr("Reading velocity model"); }
+    uiString	uiNrDoneText() const override	{ return tr("Position read"); }
 
     TrcKeyZSampling		readcs_;
     SeisTrcReader&		reader_;
@@ -399,7 +400,7 @@ Time2DepthStretcherProcessor( FloatMathFunction& func,
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     float depth = zrg_.center();
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
@@ -414,9 +415,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
     return true;
 }
 
-od_int64 nrIterations() const	{ return nriter_; }
+od_int64 nrIterations() const override	{ return nriter_; }
 
-int minThreadSize() const	{ return 50; }
+int minThreadSize() const override	{ return 50; }
 
     FloatMathFunction&		samplfunc_;
     const StepInterval<float>	zrg_;

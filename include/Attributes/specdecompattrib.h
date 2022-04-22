@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          Jan 2004
+ Author:	Nanne Hemstra
+ Date:		Jan 2004
 ________________________________________________________________________
 -*/
 
@@ -29,15 +29,15 @@ Calculates the frequency spectrum of a trace
 SpecDecomp gate=[-12,12] window=[Box]|Hamming|Hanning|Barlett|Blackman|CosTaper5
 
 Input:
-0       Real data
-1       Imag data
+0	Real data
+1	Imag data
 
 Output:
-0       Spectrum 0 freq
-1       freq 1
-2       freq 2
-|       etc
-|       etc
+0	Spectrum 0 freq
+1	freq 1
+2	freq 2
+|	etc
+|	etc
 N
 </pre>
 */
@@ -49,7 +49,7 @@ public:
 			SpecDecomp(Desc&);
 
     static const char*	attribName()		{ return "SpecDecomp"; }
-    static const char*  transformTypeStr()	{ return "transformtype"; }
+    static const char*	transformTypeStr()	{ return "transformtype"; }
     static const char*	windowStr()		{ return "window"; }
     static const char*	gateStr()		{ return "gate"; }
     static const char*	deltafreqStr()		{ return "deltafreq"; }
@@ -57,48 +57,51 @@ public:
     static const char*	cwtwaveletStr()		{ return "cwtwavelet"; }
     static const char*	transTypeNamesStr(int);
 
-    void                getCompNames(BufferStringSet&) const;
-    bool		prepPriorToOutputSetup();
+    void		getCompNames(BufferStringSet&) const override;
+    bool		prepPriorToOutputSetup() override;
 
 protected:
-    			~SpecDecomp();
+			~SpecDecomp();
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
     static void		updateDefaults(Desc&);
 
-    bool		allowParallelComputation() const
-    			{ return false; }
+    bool		allowParallelComputation() const override
+			{ return false; }
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int idx);
+    bool		getInputOutput(int input,
+				       TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&,int idx) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples,int threadid) const;
+			    int t0,int nrsamples,int threadid) const override;
     bool		calcDFT(const DataHolder&,int t0,int nrsamples) const;
     bool		calcDWT(const DataHolder&,int t0,int nrsamples) const;
     bool		calcCWT(const DataHolder&,int t0,int nrsamples) const;
 
-    const Interval<float>*	reqZMargin(int input, int output) const;
-    const Interval<int>*	desZSampMargin(int input, int output) const;
+    const Interval<float>*	reqZMargin(int input,
+					   int output) const override;
+    const Interval<int>*	desZSampMargin(int input,
+					       int output) const override;
 
     bool		areAllOutputsEnabled() const;
 
     int					transformtype_;
     ArrayNDWindow::WindowType		windowtype_;
     Interval<float>			gate_;
-    float                       	deltafreq_;
+    float				deltafreq_;
     WaveletTransform::WaveletType	dwtwavelet_;
     CWT::WaveletType			cwtwavelet_;
 
-    Interval<int>               	samplegate_;
+    Interval<int>			samplegate_;
 
-    ArrayNDWindow*              	window_;
-    Fourier::CC*                       	fft_;
-    CWT                         	cwt_;
-    int                         	scalelen_;
+    ArrayNDWindow*			window_;
+    Fourier::CC*			fft_;
+    CWT					cwt_;
+    int					scalelen_;
 
-    float                       	df_;
-    int                         	fftsz_;
-    int                         	sz_;
+    float				df_;
+    int					fftsz_;
+    int					sz_;
 
     bool				fftisinit_;
     Interval<int>			desgate_;
@@ -106,8 +109,8 @@ protected:
     int					realidx_;
     int					imagidx_;
 
-    const DataHolder*		    	redata_;
-    const DataHolder*               	imdata_;
+    const DataHolder*			redata_;
+    const DataHolder*			imdata_;
 };
 
 }; // namespace Attrib

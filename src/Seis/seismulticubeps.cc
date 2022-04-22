@@ -28,23 +28,28 @@ public:
 			MultiCubeSeisPSIOProvider()
 				: SeisPSIOProvider("MultiCube")	{}
 
-    virtual bool	canHandle( bool forread, bool for2d ) const
+    bool		canHandle( bool forread, bool for2d ) const override
 			{ return forread && !for2d; }
 
-    SeisPS3DReader*	make3DReader( const char* fnm, int ) const
+    SeisPS3DReader*	make3DReader( const char* fnm, int ) const override
 			{ return new MultiCubeSeisPSReader(fnm); }
-    SeisPSWriter*	make3DWriter( const char* dirnm ) const
+    SeisPSWriter*	make3DWriter( const char* dirnm ) const override
 			{ return 0; }
-    SeisPS2DReader*	make2DReader( const char* dirnm, const char* lnm ) const
+    SeisPS2DReader*	make2DReader( const char* dirnm,
+				      const char* lnm ) const override
 			{ return 0; }
-    SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
+    SeisPSWriter*	make2DWriter( const char* dirnm,
+				      const char* lnm ) const override
 			{ return 0; }
-    SeisPS2DReader*	make2DReader( const char* dirnm, Pos::GeomID ) const
+    SeisPS2DReader*	make2DReader( const char* dirnm,
+				      Pos::GeomID ) const override
 			{ return 0; }
-    SeisPSWriter*	make2DWriter( const char* dirnm, Pos::GeomID ) const
+    SeisPSWriter*	make2DWriter( const char* dirnm,
+				      Pos::GeomID ) const override
 			{ return 0; }
 
-    bool		getLineNames(const char*,BufferStringSet&) const
+    bool		getLineNames( const char*,
+				      BufferStringSet& ) const override
 			{ return false; }
 
     static int		factid;

@@ -30,15 +30,15 @@ mExpClass(PreStackProcessing) TrimStatics : public Processor
 { mODTextTranslationClass(TrimStatics)
 public:
 			mDefaultFactoryInstantiation(
-				Processor, TrimStatics, "Trim Statics", 
+				Processor, TrimStatics, "Trim Statics",
 				toUiString(sFactoryKeyword()))
 
- 				TrimStatics();
-    				~TrimStatics();
+				TrimStatics();
+				~TrimStatics();
 
-    bool			prepareWork();
+    bool			prepareWork() override;
 
-    uiString			errMsg() const		{ return errmsg_; }
+    uiString			errMsg() const override { return errmsg_; }
 
 	mExpClass(PreStackProcessing) Iteration
 	{
@@ -62,8 +62,8 @@ public:
     void			setOutput( int op )	{ output_ = op; }
     int				getOutput() const	{ return output_; }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
     uiString			errmsg_;
@@ -71,8 +71,8 @@ protected:
     int				output_;
     ObjectSet<Array1D<float> >	pilottrcs_;
 
-    od_int64			nrIterations() const;
-    bool			doWork(od_int64,od_int64,int);
+    od_int64			nrIterations() const override;
+    bool			doWork(od_int64,od_int64,int) override;
     bool			doPilotTraceOutput(od_int64,od_int64);
     bool			doShiftOutput(od_int64,od_int64);
     bool			doTrimStaticsOutput(od_int64,od_int64);

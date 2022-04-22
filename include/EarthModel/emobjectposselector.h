@@ -39,9 +39,10 @@ public:
 
 protected:
 
-    od_int64		nrIterations() const	{ return nrcols_*nrrows_; }
-    bool		doWork( od_int64, od_int64, int );
-    bool		doPrepare(int);
+    od_int64		nrIterations() const override
+			    { return nrcols_*nrrows_; }
+    bool		doWork( od_int64, od_int64, int ) override;
+    bool		doPrepare(int) override;
 
     void		processBlock(const RowCol&,const RowCol&);
     void		makeListGrow(const RowCol&,const RowCol&,int selresult);

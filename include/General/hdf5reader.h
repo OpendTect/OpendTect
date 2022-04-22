@@ -85,7 +85,7 @@ public:
 					  OD::JSON::ValueSet&,
 					  const DataSetKey* =nullptr) const = 0;
 
-    virtual bool	isReader() const		{ return true; }
+    bool		isReader() const override		{ return true; }
 
 protected:
 

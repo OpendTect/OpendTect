@@ -29,7 +29,7 @@ public:
 			Horizon(Desc&);
 			~Horizon();
 
-    virtual void	prepareForComputeData();
+    void		prepareForComputeData() override;
 
     static const char*	attribName()	{ return "Horizon"; }
     static const char*	sKeyHorID()	{ return "horid"; }
@@ -38,17 +38,18 @@ public:
     static const char*	sKeyRelZ()	{ return "relz"; }
     static const char*	outTypeNamesStr(int);
 
-    bool                isOK() const;
+    bool		isOK() const override;
 
 protected:
     static Provider*	createInstance( Desc& );
     static void         updateDesc( Desc& );
 
-    virtual bool	getInputData(const BinID&,int intv);
-    virtual bool	computeData(const DataHolder&,const BinID& relpos,
-	    			    int z0,int nrsamples,int threadid) const;
+    bool		getInputData(const BinID&,int intv) override;
+    bool		computeData(const DataHolder&,const BinID& relpos,
+			    int z0,int nrsamples,int threadid) const override;
 
-    virtual bool	allowParallelComputation() const { return true; }
+    bool		allowParallelComputation() const override
+			{ return true; }
 
     void		fillLineID();
 

@@ -182,7 +182,7 @@ public:
 	, trc_( trc )
     {}
 
-    bool execute()
+    bool execute() override
     {
 	uiString errmsg;
 	if ( !writer_.put( trc_ ) )

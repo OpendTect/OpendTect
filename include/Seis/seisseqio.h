@@ -30,7 +30,7 @@ mExpClass(Seis) SeqIO
 { mODTextTranslationClass(SeqIO);
 public:
 
-    virtual const char*	type() const			= 0;
+    virtual const char* type() const			= 0;
     virtual Seis::GeomType geomType() const		= 0;
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		= 0;
@@ -53,7 +53,7 @@ public:
 
     virtual bool	get(SeisTrc&) const		= 0;
 
-    virtual void	fillPar(IOPar&) const;
+    void		fillPar(IOPar&) const override;
 
     virtual Seis::Bounds* getBounds() const		{ return 0; }
     virtual int		estimateTotalNumber() const	{ return -1; }
@@ -80,19 +80,19 @@ mExpClass(Seis) ODSeqInp : public SeqInp
 { mODTextTranslationClass(ODSeqInp);
 public:
 
-    			ODSeqInp();
-    			~ODSeqInp();
+			ODSeqInp();
+			~ODSeqInp();
 
-    virtual const char*	type() const		{ return sKeyODType; }
+    const char*		type() const override		{ return sKeyODType; }
 
-    virtual Seis::GeomType geomType() const;
+    Seis::GeomType	geomType() const override;
 
-    virtual bool	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	get(SeisTrc&) const;
+    bool		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    bool		get(SeisTrc&) const override;
 
-    virtual Seis::Bounds* getBounds() const;
-    virtual int		estimateTotalNumber() const;
+    Seis::Bounds*	getBounds() const override;
+    int			estimateTotalNumber() const override;
 
     static void		initClass();
     static SeqInp*	create()		{ return new ODSeqInp; }
@@ -137,15 +137,15 @@ mExpClass(Seis) ODSeqOut : public SeqOut
 { mODTextTranslationClass(ODSeqOut);
 public:
 
-    			ODSeqOut() : wrr_(0)	{}
-    			~ODSeqOut();
+			ODSeqOut() : wrr_(0)	{}
+			~ODSeqOut();
 
-    virtual const char*	type() const		{ return sKeyODType; }
-    virtual Seis::GeomType geomType() const;
+    const char*		type() const override		{ return sKeyODType; }
+    Seis::GeomType	geomType() const override;
 
-    virtual bool	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	put(const SeisTrc&);
+    bool		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    bool		put(const SeisTrc&) override;
 
     static void		initClass();
     static SeqOut*	create()		{ return new ODSeqOut; }

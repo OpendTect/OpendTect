@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
- Date:          Nov 2006
+ Author:	Bert Bril
+ Date:		Nov 2006
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ struct Array2DFilterPars
 
 			Array2DFilterPars( Stats::Type t=Stats::Average,
 					   RowCol rc=RowCol(1,1),
-			       		   bool filludf=false )
+					   bool filludf=false )
 			: type_(t)
 			, stepout_(rc)
 			, filludf_(filludf)
@@ -92,12 +92,12 @@ public:
 
     inline		Array2DFilterer(Array2D<T>&,const Array2DFilterPars&);
     inline		Array2DFilterer(const Array2D<T>&,
-	    				Array2D<T>&, const RowCol& origin,
-	    				const Array2DFilterPars&);
+					Array2D<T>&, const RowCol& origin,
+					const Array2DFilterPars&);
     inline		~Array2DFilterer();
 
     inline void		setScope(const Interval<int>& rowrg,
-	    			 const Interval<int>& colrg);
+				 const Interval<int>& colrg);
 
     inline Array2D<T>&	output()		{ return output_; }
     inline const Array2D<T>& output() const	{ return output_; }
@@ -105,11 +105,16 @@ public:
     inline const Array2DFilterPars& pars() const { return pars_; }
     inline const Stats::RunCalc<float>& calc() const { return *calc_; }
 
-    inline int		nextStep();
-    inline uiString	uiMessage() const	{ return tr("Filtering data"); }
-    inline od_int64	nrDone() const		{ return nrrowsdone_; }
-    inline uiString	uiNrDoneText() const	{ return tr("Columns handled");}
-    inline od_int64	totalNr() const		{return outputrowrg_.width()+1;}
+    inline int		nextStep() override;
+    inline uiString	uiMessage() const override
+			{ return tr("Filtering data"); }
+
+    inline od_int64	nrDone() const override		{ return nrrowsdone_; }
+    inline uiString	uiNrDoneText() const override
+			{ return tr("Columns handled");}
+
+    inline od_int64	totalNr() const override
+			{return outputrowrg_.width()+1;}
 
 protected:
 

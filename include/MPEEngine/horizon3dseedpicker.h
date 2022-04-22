@@ -35,17 +35,18 @@ public:
 			~Horizon3DSeedPicker();
 
     bool		addSeed(const TrcKeyValue& seedcrd,bool drop,
-				const TrcKeyValue& seedkey);
-    bool		removeSeed(const TrcKey&,bool environment,bool retrack);
+				const TrcKeyValue& seedkey) override;
+    bool		removeSeed(const TrcKey&,
+				bool environment,bool retrack) override;
     TrcKey		replaceSeed(const TrcKey& oldpos,
-				    const TrcKeyValue& newpos);
+				    const TrcKeyValue& newpos) override;
 
-    bool		reTrack();
+    bool		reTrack() override;
     bool		doesModeUseVolume() const;
 
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
-    bool		updatePatchLine(bool);
+    bool		updatePatchLine(bool) override;
 
 protected:
     bool		retrackOnActiveLine(const TrcKey& starttk,

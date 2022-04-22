@@ -28,7 +28,7 @@ class Coord3List;
 mExpClass(Geometry) Horizon3DTesselator : public SequentialTask
 {
 public:
-    			Horizon3DTesselator(const Coord3List*,
+			Horizon3DTesselator(const Coord3List*,
 				int nrcoordcol,
 				unsigned char spacing,
 				int nrrow,int nrcol,
@@ -41,7 +41,7 @@ public:
 				Coord3List* normals,
 				int nrnormalcols_,
 				int normstartidx);
-    int			nextStep();
+    int			nextStep() override;
 
 protected:
     

@@ -93,12 +93,12 @@ public:
     bool		insertNew(Well::Marker*); //becomes mine
     void		addSameWell(const ObjectSet<Marker>&);
     void		mergeOtherWell(const ObjectSet<Marker>&);
-    virtual void	append( const ObjectSet<Marker>& ms )
+    virtual void	append( const ObjectSet<Marker>& ms ) override
 							{ mergeOtherWell(ms); }
 
-    int			indexOf( const Marker* m ) const
+    int			indexOf( const Marker* m ) const override
 			{ return ObjectSet<Marker>::indexOf(m); }
-    bool		isPresent( const Marker* m ) const
+    bool		isPresent( const Marker* m ) const override
 			{ return ObjectSet<Marker>::isPresent(m); }
 
     void		getNames(BufferStringSet&) const;
@@ -110,7 +110,7 @@ public:
 
 protected:
 
-    virtual ObjectSet<Marker>& doAdd(Marker*);
+    virtual ObjectSet<Marker>& doAdd(Marker*) override;
     Marker*		gtByName(const char*) const;
     Marker*		gtByLvlID(int) const;
     void		addCopy(const ObjectSet<Marker>&,int,float);

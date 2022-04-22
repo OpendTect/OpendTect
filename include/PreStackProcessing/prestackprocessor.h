@@ -53,13 +53,15 @@ public:
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;
-    virtual bool		doWork(od_int64 start,od_int64 stop,int)= 0;
+    bool			doWork(od_int64 start,
+				       od_int64 stop,int) override = 0;
 				/*!<If nrIterations is not overridden, start and
 				    stop will refer to offsets that should
 				    be processed. */
 
     int				nrOffsets() const;
-    virtual od_int64		nrIterations() const { return nrOffsets(); }
+    od_int64			nrIterations() const override
+				{ return nrOffsets(); }
 				/*!<If algorithms cannot be done in parallel
 				    with regards to offsets, override function
 				    and return 1. doWork() will then be called
@@ -115,7 +117,7 @@ protected:
       for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
 		relbid.crl()++ )
       {
-          if ( !processor.wantsInput(relbid) )
+	  if ( !processor.wantsInput(relbid) )
 	      continue;
 
 	  const BinID inputbid( relbid*BinID(SI().inlStep(),SI().crlStep()) );
@@ -181,7 +183,7 @@ public:
     static const char*		sKeyLineKey()	{ return sKey::LineKey(); }
     static const char*		sKeySetup(){ return "Processing Setup"; }
     static const char*		sKeyCDPRange(){ return "CDP Range"; }
-    static const char*		sKeyInputData()	{ return "Input"; }
+    static const char*		sKeyInputData() { return "Input"; }
     static const char*		sKeyOutputData(){ return "Output"; }
 
 

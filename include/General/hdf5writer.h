@@ -102,7 +102,7 @@ public:
 			//!< after deletion, you can't add it again
 			//!< usually, you need a resize
 
-    virtual bool	isReader() const	{ return false; }
+    bool		isReader() const override	{ return false; }
     virtual Reader*	createCoupledReader() const			= 0;
 
 private:

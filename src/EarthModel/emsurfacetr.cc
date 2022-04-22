@@ -541,13 +541,13 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     fltset_.useDisplayPar( disppars );
 }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return curidx_; }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return dl_.size(); }
 
-int nextStep()
+int nextStep() override
 {
     const int nrfaults = dl_.size();
     if ( curidx_ >= nrfaults )
@@ -600,13 +600,13 @@ dGBFaultSet3DWriter( const IOObj& ioobj, const EM::FaultSet3D& fltset )
 {
 }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return curidx_; }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return fltset_.nrFaults(); }
 
-int nextStep()
+int nextStep() override
 {
     const int nrfaults = fltset_.nrFaults();
     if ( curidx_ >= nrfaults )

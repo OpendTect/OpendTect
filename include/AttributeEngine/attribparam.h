@@ -38,18 +38,18 @@ public:
 				BinIDParam(const char*);
 				BinIDParam(const char*,const BinID&,
 					   bool isreq=true);
-    BinIDParam*			clone() const;
+    BinIDParam*			clone() const override;
     void			setLimits(const Interval<int>& inlrg,
 					  const Interval<int>& crlrg);
     void			setLimits(int mininl,int maxinl,
 					  int mincrl,int maxcrl);
 
-    virtual bool		setCompositeValue(const char*);
-    virtual bool		getCompositeValue(BufferString&) const;
+    bool			setCompositeValue(const char*) override;
+    bool			getCompositeValue(BufferString&) const override;
 
     void                        setDefaultValue(const BinID&);
     BinID			getDefaultBinIDValue() const;
-    BufferString		getDefaultValue() const;
+    BufferString		getDefaultValue() const override;
     BinID			getValue() const;
 
     void			toString(BufferString&,const BinID&) const;
@@ -65,10 +65,10 @@ mExpClass(AttributeEngine) BoolParam : public ValParam
 public:
 				BoolParam(const char*);
 				BoolParam(const char*,bool, bool isreq=true);
-    BoolParam*			clone() const;
+    BoolParam*			clone() const override;
 
-    virtual bool		setCompositeValue(const char*);
-    BufferString		getDefaultValue() const;
+    bool			setCompositeValue(const char*) override;
+    BufferString		getDefaultValue() const override;
 
     bool			isSet() const;
     void			setSet(bool yn=true);
@@ -85,15 +85,15 @@ public:
 				EnumParam(const char*);
 				EnumParam(const char*,int defval,
 					  bool isreq=true);
-    EnumParam*			clone() const;
-    BufferString		getDefaultValue() const;
+    EnumParam*			clone() const override;
+    BufferString		getDefaultValue() const override;
 
     void			addEnum(const char*);
     void			addEnums(const char**);
     void			setEnums(const EnumDef&);
 				//!<Enumdef is assumed to remain in memory
 
-    void			fillDefStr(BufferString&) const;
+    void			fillDefStr(BufferString&) const override;
     bool			isSet() const;
     void			setSet(bool yn=true);
 };
@@ -109,11 +109,11 @@ public:
 				StringParam(const char* key);
 				StringParam(const char* key,const char* defstr,
 					    bool isreq=true);
-    StringParam*		clone() const;
+    StringParam*		clone() const override;
 
-    virtual bool		setCompositeValue(const char*);
-    virtual bool		getCompositeValue(BufferString&) const;
-    virtual BufferString	getDefaultValue() const
+    bool			setCompositeValue(const char*) override;
+    bool			getCompositeValue(BufferString&) const override;
+    BufferString		getDefaultValue() const override
 				{ return getDefaultStringValue(); }
 };
 
@@ -133,20 +133,21 @@ public:
 					 bool isreq=true);
 				NumParam(const NumParam<T>&);
 
-    virtual NumParam<T>*	clone() const
+    NumParam<T>*		clone() const override
 				{ return new NumParam<T>(*this); }
 
     void			setLimits(const Interval<T>&);
     void			setLimits(const StepInterval<T>&);
     void			setLimits(T start,T stop,T step=1);
     const StepInterval<T>*	limits() const;
-    virtual bool		getCompositeValue(BufferString& res) const;
-    virtual bool                setCompositeValue(const char*);
+    bool			getCompositeValue(
+					BufferString& res) const override;
+    bool			setCompositeValue(const char*) override;
 
-    virtual int			getIntValue(int idx=0) const;
-    virtual float		getFValue(int idx=0) const;
-    virtual double		getDValue(int idx=0) const;
-    virtual BufferString	getDefaultValue() const;
+    int				getIntValue(int idx=0) const override;
+    float			getFValue(int idx=0) const override;
+    double			getDValue(int idx=0) const override;
+    BufferString		getDefaultValue() const override;
 };
 
 
@@ -260,18 +261,19 @@ public:
 
 				NumGateParam(const NumGateParam<T>&);
 
-    virtual NumGateParam<T>*	clone() const
+    NumGateParam<T>*		clone() const override
 				{ return new NumGateParam<T>(*this); }
 
     void			setLimits(const Interval<T>&);
     void			setLimits(T start,T stop);
-    virtual bool		getCompositeValue(BufferString& res) const;
-    virtual bool		setCompositeValue(const char*);
+    bool			getCompositeValue(
+					BufferString& res) const override;
+    bool			setCompositeValue(const char*) override;
 
     void			setValue(const Interval<T>&);
     Interval<T>			getValue() const;
     void			setDefaultValue(const Interval<T>&);
-    virtual BufferString	getDefaultValue() const;
+    BufferString		getDefaultValue() const override;
     Interval<T>			getDefaultGateValue() const;
 
     void			toString(BufferString&,
@@ -407,8 +409,8 @@ public:
 				SeisStorageRefParam();
 				~SeisStorageRefParam();
 
-    SeisStorageRefParam*	clone() const;
-    bool			isOK() const;
+    SeisStorageRefParam*	clone() const override;
+    bool			isOK() const override;
 };
 
 } // namespace Attrib

@@ -34,12 +34,12 @@ protected:
 			~VolProcAttrib();
     static Attrib::Provider*	createInstance(Attrib::Desc&);
 
-    bool		allowParallelComputation() const;
+    bool		allowParallelComputation() const override;
     bool		computeData(const Attrib::DataHolder&,
 				    const BinID&,int z0,
-				    int nrsamples,int threadid) const;
+				    int nrsamples,int threadid) const override;
 
-    void		prepareForComputeData();
+    void		prepareForComputeData() override;
 
     VolProc::Chain*	chain_;
     MultiID		setupmid_;
@@ -68,20 +68,19 @@ public:
 
     static BufferString	createDefinition(const MultiID& setup);
 
-    bool		setTargetSelSpec(const Attrib::SelSpec&);
+    bool		setTargetSelSpec(const Attrib::SelSpec&) override;
 
-    virtual DataPack::ID createAttrib(const TrcKeyZSampling&,DataPack::ID,
-				     TaskRunner*);
-    virtual bool	createAttrib( ObjectSet<BinIDValueSet>& o,
-				      TaskRunner* trans )
+    DataPack::ID	createAttrib(const TrcKeyZSampling&,DataPack::ID,
+				     TaskRunner*) override;
+    bool		createAttrib( ObjectSet<BinIDValueSet>& o,
+				      TaskRunner* trans ) override
 			{ return Attrib::ExtAttribCalc::createAttrib(o,trans); }
-    virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
-				      TaskRunner* trans )
-			{
-		    return Attrib::ExtAttribCalc::createAttrib(b,tb,trans);
-			}
-    virtual DataPack::ID createAttrib(const TrcKeyZSampling&,
-				      const LineKey&,TaskRunner*);
+    bool		createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
+				      TaskRunner* trans ) override
+			{ return Attrib::ExtAttribCalc::createAttrib(b,
+								tb,trans); }
+    DataPack::ID	createAttrib(const TrcKeyZSampling&,
+				      const LineKey&,TaskRunner*) override;
 
 protected:
 

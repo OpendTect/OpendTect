@@ -64,17 +64,17 @@ mExpClass(Geometry) IndexedPrimitiveSetImpl : public IndexedPrimitiveSet
 {
 public:
 
-    virtual int			size() const;
-    virtual int			get(int) const;
-    virtual int			indexOf(const int);
-    virtual void		append( int );
-    virtual void		append(const int*,int num);
-    virtual void		setEmpty();
-    virtual void		getAll(TypeSet<int>&,bool) const;
+    int				size() const override;
+    int				get(int) const override;
+    int				indexOf(const int) override;
+    void			append( int ) override;
+    void			append(const int*,int num) override;
+    void			setEmpty() override;
+    void			getAll(TypeSet<int>&,bool) const override;
 
-    virtual int			pop();
-    virtual int			set(int,int);
-    virtual void		set(const int*,int num);
+    int				pop() override;
+    int				set(int,int) override;
+    void			set(const int*,int num) override;
 
 protected:
 
@@ -88,8 +88,8 @@ public:
     static RangePrimitiveSet*	create();
     virtual void		setRange(const Interval<int>&)	= 0;
     virtual Interval<int>	getRange() const		= 0;
-    virtual int			indexOf(const int)		= 0;
-    virtual void		getAll(TypeSet<int>&,bool) const;
+    int				indexOf(const int) override	= 0;
+    void			getAll(TypeSet<int>&,bool) const override;
 };
 
 
@@ -113,7 +113,7 @@ protected:
 mExpClass(Geometry) PrimitiveSetCreatorDefImpl : public PrimitiveSetCreator
 {
 protected:
-    virtual PrimitiveSet*	doCreate(bool indexed,bool large);
+    PrimitiveSet*		doCreate(bool indexed,bool large) override;
 };
 
 

@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2007
+ Author:	Bert
+ Date:		Feb 2007
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,8 @@ public:
 			const Geom::Size2D<int>& pix )
 		    : mgr_(mgr), wr_(wr), bufwrsz_(bufwrsz), availpixels_(pix){}
 
-    bool	execute() { return mgr_.generate(wr_,bufwrsz_,availpixels_); }
+    bool	execute() override
+		{ return mgr_.generate(wr_,bufwrsz_,availpixels_); }
 
 protected:
 

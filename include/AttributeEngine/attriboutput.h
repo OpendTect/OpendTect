@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:	Kristofer Tingdahl
+ Date:		07-10-1999
 ________________________________________________________________________
 
 -*/
@@ -74,11 +74,11 @@ public:
     virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
-    static const char*          cubekey();
-    static const char*          tskey();
-    static const char*          surfkey();
-    static const char*          scalekey();
-    static const char*          varzlinekey();
+    static const char*		cubekey();
+    static const char*		tskey();
+    static const char*		surfkey();
+    static const char*		scalekey();
+    static const char*		varzlinekey();
 
     virtual const char*		errMsg() const	{ return ""; }
 
@@ -93,10 +93,10 @@ protected:
 
 
 #define mImplDefAttribOutputFns(typ) \
-    virtual bool		wantsOutput( const typ& t ) const \
+    bool			wantsOutput( const typ& t ) const override \
 				{ return Output::wantsOutput(t); } \
-    virtual TypeSet<Interval<int> > getLocalZRanges( const typ& t,float f, \
-						    TypeSet<float>& ts ) const \
+    TypeSet<Interval<int> >	getLocalZRanges( const typ& t,float f, \
+					TypeSet<float>& ts ) const override \
 				{ return Output::getLocalZRanges(t,f,ts); }
 
 /*!
@@ -108,21 +108,23 @@ mExpClass(AttributeEngine) DataPackOutput : public Output
 public:
 				DataPackOutput(const TrcKeyZSampling&);
 
-    const RegularSeisDataPack*	getDataPack() const;
-    virtual RegularSeisDataPack*getDataPack(float);
+    const RegularSeisDataPack*	getDataPack() const override;
+    RegularSeisDataPack*	getDataPack(float) override;
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
+    bool			getDesiredVolume(
+					    TrcKeyZSampling&) const override;
     void			setGeometry( const TrcKeyZSampling& cs )
 				{ doSetGeometry(cs); }
-    void	setUndefValue( float v )	{ udfval_ = v; }
+    void			setUndefValue( float v )	{ udfval_ = v; }
 
-    bool			wantsOutput(const BinID&) const;
+    bool			wantsOutput(const BinID&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
 				mImplDefAttribOutputFns(Coord)
-    virtual void		collectData(const DataHolder&,float step,
-					    const SeisTrcInfo&);
-    virtual void		adjustInlCrlStep(const TrcKeyZSampling&);
+    void			collectData(const DataHolder&,float step,
+					    const SeisTrcInfo&) override;
+    void			adjustInlCrlStep(
+					    const TrcKeyZSampling&) override;
 
 protected:
     TrcKeyZSampling		desiredvolume_;
@@ -150,22 +152,23 @@ public:
 
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
-    virtual bool		useCoords() const		{ return false;}
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
-    bool			wantsOutput(const BinID&) const;
-    virtual TypeSet< Interval<int> > getLocalZRanges(const BinID&,float,
-						     TypeSet<float>&) const;
+    bool			useCoords() const override	{ return false;}
+    bool			getDesiredVolume(
+					TrcKeyZSampling&) const override;
+    bool			wantsOutput(const BinID&) const override;
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+					     TypeSet<float>&) const override;
 				mImplDefAttribOutputFns(Coord)
     bool			setStorageID(const MultiID&);
     void			setGeometry( const TrcKeyZSampling& cs )
 				{ doSetGeometry(cs); }
 
     bool			doUsePar(const IOPar&);
-    virtual bool		finishWrite();
-    virtual void		collectData(const DataHolder&,float step,
-					    const SeisTrcInfo&);
-    virtual bool		writeTrc();
-    SeisTrc*			getTrc()		{ return trc_; }
+    bool			finishWrite() override;
+    void			collectData(const DataHolder&,float step,
+					    const SeisTrcInfo&) override;
+    bool			writeTrc() override;
+    SeisTrc*			getTrc() override	{ return trc_; }
     void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
@@ -173,7 +176,7 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
-    virtual const char*		errMsg() const
+    const char*			errMsg() const override
 				{ return errmsg_.getFullString(); }
 
     static const char*		seisidkey();
@@ -196,7 +199,7 @@ protected:
     BinID			prevpos_;
     bool			storinited_;
     BufferString		attribname_;
-    Scaler*                     scaler_;
+    Scaler*			scaler_;
     TypeSet<Seis::DataType>	outptypes_;
     bool			growtrctosi_;
     BufferString		datatype_;
@@ -206,7 +209,8 @@ protected:
     friend class		Processor;
 
 public:
-    void			deleteTrc(); //only if you do not use writeTrc
+    void			deleteTrc() override;
+				//only if you do not use writeTrc
 
 };
 
@@ -221,19 +225,19 @@ public:
 				Trc2DVarZStorOutput(Pos::GeomID,
 						    DataPointSet*,float);
 
-    bool			doInit();
-    void			set2D(bool)			{}
-    bool			useCoords() const		{ return true; }
+    bool			doInit() override;
+    void			set2D(bool) override		{}
+    bool			useCoords() const override	{ return true; }
 
-    virtual bool		wantsOutput(const Coord&) const;
+    bool			wantsOutput(const Coord&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
 				mImplDefAttribOutputFns(BinID)
     void			setTrcsBounds(Interval<float>);
 
-    virtual bool		finishWrite();
-    virtual void		collectData(const DataHolder&,float step,
-					    const SeisTrcInfo&);
+    bool			finishWrite() override;
+    void			collectData(const DataHolder&,float step,
+					    const SeisTrcInfo&) override;
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
 protected:
@@ -261,18 +265,20 @@ public:
 				~TwoDOutput();
 
     bool			doInit();
-    bool			wantsOutput(const BinID&) const;
+    bool			wantsOutput(const BinID&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
 				mImplDefAttribOutputFns(Coord)
     void			setGeometry(const Interval<int>&,
 					    const Interval<float>&);
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
+    bool			getDesiredVolume(
+					    TrcKeyZSampling&) const override;
     void			setOutput(Data2DHolder&);
 
     void			collectData(const DataHolder&,float step,
-					    const SeisTrcInfo&);
-    const char*			errMsg() const	{ return errmsg_.str(); }
+					    const SeisTrcInfo&) override;
+    const char*			errMsg() const override
+				{ return errmsg_.str(); }
 
 protected:
 
@@ -293,15 +299,17 @@ public:
 				LocationOutput(BinIDValueSet&);
 				~LocationOutput() {};
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const
+    bool			getDesiredVolume(
+					TrcKeyZSampling&) const override
 				{ return true;}
-    bool			wantsOutput(const BinID&) const;
+
+    bool			wantsOutput(const BinID&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
 				mImplDefAttribOutputFns(Coord)
-    virtual void		collectData(const DataHolder&,float step,
-					    const SeisTrcInfo&);
-    void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
+    void			collectData(const DataHolder&,float step,
+					    const SeisTrcInfo&) override;
+    void			setPossibleBinIDDuplic() { arebiddupl_ = true; }
 
     //TODO : check where we want to put this: output?
     static const char*		filenamekey();
@@ -331,15 +339,16 @@ public:
 						   float outval =0);
 				~TrcSelectionOutput() ;
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const;
-    bool			wantsOutput(const BinID&) const;
+    bool			getDesiredVolume(
+					TrcKeyZSampling&) const override;
+    bool			wantsOutput(const BinID&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
 				mImplDefAttribOutputFns(Coord)
     void			setOutput(SeisTrcBuf*);
     void			setTrcsBounds(Interval<float>);
-    virtual void		collectData(const DataHolder&,float,
-					    const SeisTrcInfo&);
+    void			collectData(const DataHolder&,float,
+					    const SeisTrcInfo&) override;
     void			setGeomID(Pos::GeomID);
 
 protected:
@@ -361,15 +370,17 @@ public:
 				TableOutput(DataPointSet&,int);
 				~TableOutput() {};
 
-    bool			getDesiredVolume(TrcKeyZSampling&) const
+    bool			getDesiredVolume(
+					TrcKeyZSampling&) const override
 				{ return true;}
-    bool			useCoords() const;
-    bool			wantsOutput(const BinID&) const;
-    bool			wantsOutput(const Coord&) const;
+
+    bool			useCoords() const override;
+    bool			wantsOutput(const BinID&) const override;
+    bool			wantsOutput(const Coord&) const override;
     bool			wantsOutput(const TrcKey&) const;
 
-    virtual void		collectData(const DataHolder&,float step,
-					    const SeisTrcInfo&);
+    void			collectData(const DataHolder&,float step,
+					    const SeisTrcInfo&) override;
 
     //ABI frozen: special function for 6.0 only, replaces the virtual one above
     void			collectDataSpecial60(const DataHolder&,
@@ -378,9 +389,9 @@ public:
 						     const TrcKey&);
 
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
-						TypeSet<float>&) const;
+						TypeSet<float>&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const TrcKey&,float,
 						TypeSet<float>&) const;
 
@@ -403,7 +414,7 @@ protected:
 						  float,float*);
     bool			areBIDDuplicated() const;
     void			addLocalInterval(TypeSet<Interval<int> >&,
-					         TypeSet<float>&,
+						 TypeSet<float>&,
 						 int,float) const;
 
     struct PosAndRowIDPair
@@ -425,7 +436,7 @@ protected:
 				    , rid_(rid)			{};
 
 	bool			operator == ( PosAndRowIDPair other ) const
-	    			{ return other.gid_ == gid_ &&
+				{ return other.gid_ == gid_ &&
 					 other.tid_ == tid_ &&
 					 other.rid_ == rid_;
 				}

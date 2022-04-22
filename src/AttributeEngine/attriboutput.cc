@@ -394,7 +394,7 @@ public:
     COLineKeyProvider( Pos::GeomID geomid )
     : geomid_( geomid ) {}
 
-Pos::GeomID geomID() const
+Pos::GeomID geomID() const override
 { return geomid_; }
 
 Pos::GeomID geomid_;

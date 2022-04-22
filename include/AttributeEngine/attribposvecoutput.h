@@ -39,11 +39,11 @@ public:
 				const NLAModel* mdl=0);
 		~PosVecOutputGen();
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
-    od_int64		nrDone() const
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		nrDone() const override
 			{ return outex_ ? outex_->nrDone() : 0; }
-    od_int64		totalNr() const
+    od_int64		totalNr() const override
 			{ return outex_ ? outex_->totalNr() : -1; }
 
 protected:
@@ -56,7 +56,7 @@ protected:
     Executor*			outex_;
     mutable uiString	        msg_;
 
-    int				nextStep();
+    int				nextStep() override;
 };
 
 }; // namespace Attrib

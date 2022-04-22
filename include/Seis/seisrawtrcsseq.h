@@ -97,16 +97,16 @@ public:
 						   int pos, int comp);
 			~RawTrcsSequenceValueSeries();
 
-    ValueSeries<float>* clone() const;
+    ValueSeries<float>* clone() const override;
 
     inline void		setPosition( int pos )		{ ipos_ = pos; }
     inline void		setComponent( int idx )		{ icomp_ = idx; }
-    void		setValue(od_int64,float);
-    float*		arr();
+    void		setValue(od_int64,float) override;
+    float*		arr() override;
 
-    float		value(od_int64) const;
-    bool		writable() const		{ return true; }
-    const float*	arr() const;
+    float		value(od_int64) const override;
+    bool		writable() const override		{ return true; }
+    const float*	arr() const override;
     od_int64		size() const override;
 
 private:

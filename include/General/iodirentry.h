@@ -57,7 +57,7 @@ public:
 			{ return current() ? current()->ioobj_ : 0 ; }
     void		removeWithTranslator(const char*);
     int			indexOf(const char*) const;
-    int			indexOf( const IODirEntry* e ) const
+    int			indexOf( const IODirEntry* e ) const override
 			{ return ObjectSet<IODirEntry>::indexOf(e); }
     void		getIOObjNames(BufferStringSet&) const;
     BufferStringSet	getValuesFor( const char* key ) const;

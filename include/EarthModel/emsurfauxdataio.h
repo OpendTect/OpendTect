@@ -49,11 +49,11 @@ public:
 
 				~dgbSurfDataWriter();
 
-    virtual int			nextStep();
-    virtual od_int64		nrDone() const;
-    virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const;
-    virtual uiString		uiNrDoneText() const;
+    int				nextStep() override;
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
 
     static const char*		sKeyAttrName();
     static const char*		sKeyIntDataChar();
@@ -106,11 +106,11 @@ public:
 
     void			setSurface(EM::Horizon3D&);
 
-    virtual int			nextStep();
-    virtual od_int64		nrDone() const;
-    virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const;
-    virtual uiString		uiNrDoneText() const;
+    int				nextStep() override;
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
 
     static uiString		sHorizonData();
 

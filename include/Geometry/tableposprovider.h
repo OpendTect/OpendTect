@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2008
+ Author:	Bert
+ Date:		Feb 2008
 ________________________________________________________________________
 
 
@@ -33,39 +33,43 @@ public:
 			TableProvider3D( const TableProvider3D& tp )
 			: bvs_(1,true)	{ *this = tp; }
     TableProvider3D&	operator =(const TableProvider3D&);
-    const char*		type() const;	//!< sKey::Table()
-    const char*		factoryKeyword() const { return type(); }
-    TableProvider3D*	clone() const	{ return new TableProvider3D(*this); }
+    const char*		type() const override;	//!< sKey::Table()
+    const char*		factoryKeyword() const override { return type(); }
+    TableProvider3D*	clone() const override
+			    { return new TableProvider3D(*this); }
 
-    virtual void	reset()		{ pos_.reset(); }
+    void		reset() override		{ pos_.reset(); }
 
-    virtual bool	toNextPos()	{ return bvs_.next(pos_,true); }
-    virtual bool	toNextZ()	{ return bvs_.next(pos_,false); }
+    bool		toNextPos() override	{ return bvs_.next(pos_,true); }
+    bool		toNextZ() override
+			    { return bvs_.next(pos_,false); }
 
-    virtual BinID	curBinID() const { return bvs_.getBinID(pos_); }
-    virtual float	curZ() const	{ return *bvs_.getVals(pos_); }
-    virtual bool	includes(const BinID&,float) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    BinID		curBinID() const override
+			    { return bvs_.getBinID(pos_); }
 
-    void		getExtent(BinID&,BinID&) const;
-    void		getZRange(Interval<float>&) const;
-    od_int64		estNrPos() const	{ return bvs_.totalSize(); }
-    int			estNrZPerPos() const	{ return 1; }
+    float		curZ() const override	{ return *bvs_.getVals(pos_); }
+    bool		includes(const BinID&,float) const override;
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
+
+    void		getExtent(BinID&,BinID&) const override;
+    void		getZRange(Interval<float>&) const override;
+    od_int64		estNrPos() const override { return bvs_.totalSize(); }
+    int			estNrZPerPos() const override	{ return 1; }
 
     BinIDValueSet&	binidValueSet()		{ return bvs_; }
     const BinIDValueSet& binidValueSet() const	{ return bvs_; }
 
     static void		getBVSFromPar(const IOPar&,BinIDValueSet&);
 
-    virtual bool	includes( const Coord& c, float z ) const
+    bool		includes( const Coord& c, float z ) const override
 			{ return Provider3D::includes(c,z); }
 
 protected:
 
     BinIDValueSet	bvs_;
-    BinIDValueSet::SPos	pos_;
+    BinIDValueSet::SPos pos_;
 
 public:
 

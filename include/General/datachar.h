@@ -56,11 +56,11 @@ public:
 						{ set(c1,c2); }
 			DataCharacteristics( const char* s )	{ set(s); }
 
-    virtual int         maxStringifiedSize() const      { return 50; }
-    virtual void	toString(BufferString&) const;
-    virtual void	set(const char*);
-    virtual void	dump(unsigned char&,unsigned char&) const;
-    virtual void	set(unsigned char,unsigned char);
+    int			maxStringifiedSize() const override	 { return 50; }
+    void		toString(BufferString&) const override;
+    void		set(const char*) override;
+    void		dump(unsigned char&,unsigned char&) const override;
+    void		set(unsigned char,unsigned char) override;
 
 			mDeclConstr(signed char,true,true)
 			mDeclConstr(short,true,true)

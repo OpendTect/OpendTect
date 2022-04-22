@@ -50,9 +50,10 @@ protected:
     static const char*		sKeyWinParam() { return "Window parameter"; }
     static const char*		sKeyWinLen() { return "Window length"; }
 
-    inline od_int64		nrIterations() const	{ return size_; }
-    inline bool			doPrepare(int);
-    inline bool			doWork(od_int64 start,od_int64 stop,int);
+    inline od_int64		nrIterations() const override { return size_; }
+    inline bool			doPrepare(int) override;
+    inline bool			doWork(od_int64 start,
+				       od_int64 stop,int) override;
 
     TypeSet<T>			window_;
     BufferString		windowname_;

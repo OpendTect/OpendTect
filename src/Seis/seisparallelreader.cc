@@ -127,7 +127,7 @@ void setTrcScalers( const ObjectSet<Scaler>* trcscalers )
 }
 
 
-bool execute()
+bool execute() override
 {
 #ifdef __debug__
     if ( dp_.nrComponents() != outcomponents_.size() )

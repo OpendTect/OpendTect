@@ -56,11 +56,12 @@ public:
     Horizon3D*		getOutputHorizon();
 
 protected:
-    od_int64		nrIterations() const;
+    od_int64		nrIterations() const override;
 
 private:
-    bool		doWork(od_int64 start,od_int64 stop,int threadid);
-    bool		doFinish(bool success);
+    bool		doWork(od_int64 start,od_int64 stop,
+					      int threadid) override;
+    bool		doFinish(bool success) override;
 
     Array2D<float>*	depths_;
     Horizon3D*		outputhor_;

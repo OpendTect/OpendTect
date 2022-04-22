@@ -1,10 +1,10 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-Date:          2005
+Date:	       2005
 Contents:      Ranges
 ________________________________________________________________________
 
@@ -22,22 +22,22 @@ mExpClass(Geometry) CubicBezierCurve : public ParametricCurve
 public:
 			CubicBezierCurve( const Coord3&, const Coord3&,
 					  int firstparam=0, int step=1 );
-    CubicBezierCurve*	clone() const;
-    IntervalND<float>	boundingBox(bool) const;
+    CubicBezierCurve*	clone() const override;
+    IntervalND<float>	boundingBox(bool) const override;
 
-    Coord3 		computePosition( float ) const;
-    Coord3 		computeTangent( float ) const;
+    Coord3		computePosition( float ) const override;
+    Coord3		computeTangent( float ) const override;
 
-    StepInterval<int>	parameterRange() const;
+    StepInterval<int>	parameterRange() const override;
 
-    Coord3	getPosition( GeomPosID ) const;
-    bool	setPosition( GeomPosID, const Coord3&);
+    Coord3	getPosition( GeomPosID ) const override;
+    bool	setPosition( GeomPosID, const Coord3&) override;
     bool	unsetPosition( GeomPosID );
-    		/*!<Sets position to undefined */
-    bool	insertPosition( GeomPosID, const Coord3& );
+		/*!<Sets position to undefined */
+    bool	insertPosition( GeomPosID, const Coord3& ) override;
     bool	removePosition( GeomPosID );
-    		/*!<The opposite of insertPosition */
-    bool	isDefined( GeomPosID ) const;
+		/*!<The opposite of insertPosition */
+    bool	isDefined( GeomPosID ) const override;
 
     Coord3	getBezierVertex( GeomPosID, bool before ) const;
 
@@ -48,12 +48,12 @@ public:
     float	directionInfluence() const;
     void	setTangentInfluence(float);
 
-    bool	isCircular() const;
+    bool	isCircular() const override;
     bool	setCircular(bool yn);
 
 protected:
     int		getIndex( GeomPosID param ) const
-    		{ return mCast(int,(param-firstparam)/paramstep); }
+		{ return mCast(int,(param-firstparam)/paramstep); }
 
     Coord3	computeTangent( GeomPosID ) const;
 
@@ -76,12 +76,12 @@ inline Coord3 cubicDeCasteljau( const Coord3* p, char i0, char di, float u )
     else if ( mIsEqual(u,1,1e-3) ) return p[3*di];
 
     const float one_minus_u = 1-u;
-    Coord3 interpolpos1 = 	p[di]*one_minus_u+p[di*2]	* u;
+    Coord3 interpolpos1 =	p[di]*one_minus_u+p[di*2]	* u;
 
     const Coord3 interpolpos0 = (*p*one_minus_u+p[di]*u)	* one_minus_u +
 				interpolpos1			* u;
 
-    interpolpos1 = 		interpolpos1 			* one_minus_u +
+    interpolpos1 =		interpolpos1			* one_minus_u +
 				(p[di*2]*one_minus_u+p[3*di]*u) * u;
 
     return interpolpos0*one_minus_u+interpolpos1*u;

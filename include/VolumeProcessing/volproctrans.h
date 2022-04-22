@@ -25,12 +25,12 @@ mExpClass(VolumeProcessing) VolProcessingTranslatorGroup
 				: public TranslatorGroup
 {   isTranslatorGroup(VolProcessing);
 public:
-    			mDefEmptyTranslatorGroupConstructor(VolProcessing)
+			mDefEmptyTranslatorGroupConstructor(VolProcessing)
 
-    const char*		defExtension() const	{ return "vpsetup"; }
+    const char*		defExtension() const override	{ return "vpsetup"; }
     static const char*	sKeyIsVolProcSetup()	{ return "VolProcSetup"; }
 
-    			//For od_process_volume par-files
+			//For od_process_volume par-files
     static const char*	sKeyChainID()		{ return "Chain ID"; }
     static const char*	sKeyOutputID()		{ return "Output ID"; }
 };
@@ -43,11 +43,11 @@ public:
 mExpClass(VolumeProcessing) VolProcessingTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(VolProcessing)
+			mDefEmptyTranslatorBaseConstructor(VolProcessing)
 
-    virtual const char*	read(VolProc::Chain&,Conn&)		= 0;
+    virtual const char* read(VolProc::Chain&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const VolProc::Chain&,Conn&)	= 0;
+    virtual const char* write(const VolProc::Chain&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(VolProc::Chain&,const IOObj*,
@@ -66,10 +66,10 @@ mExpClass(VolumeProcessing) dgbVolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,VolProcessing)
+			mDefEmptyTranslatorConstructor(dgb,VolProcessing)
 
-    const char*		read(VolProc::Chain&,Conn&);
-    const char*		write(const VolProc::Chain&,Conn&);
+    const char*		read(VolProc::Chain&,Conn&) override;
+    const char*		write(const VolProc::Chain&,Conn&) override;
 
 };
 
@@ -84,7 +84,7 @@ mExpClass(VolumeProcessing) VolProcessing2DTranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(VolProcessing2D)
 
-    const char*		defExtension() const	{ return "vpsetup"; }
+    const char*		defExtension() const override	{ return "vpsetup"; }
     static const char*	sKeyIsVolProcSetup()	{ return "VolProcSetup2D"; }
 
 			//For od_process_volume par-files
@@ -125,8 +125,8 @@ public:
 
 			mDefEmptyTranslatorConstructor(dgb,VolProcessing2D)
 
-    const char*		read(VolProc::Chain&,Conn&);
-    const char*		write(const VolProc::Chain&,Conn&);
+    const char*		read(VolProc::Chain&,Conn&) override;
+    const char*		write(const VolProc::Chain&,Conn&) override;
 
 };
 

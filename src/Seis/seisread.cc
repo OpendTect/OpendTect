@@ -637,7 +637,7 @@ class SeisTrcReaderLKProv : public GeomIDProvider
 public:
     SeisTrcReaderLKProv( const SeisTrcReader& r )
 				: rdr(r) {}
-    Pos::GeomID geomID() const	{ return rdr.geomID(); }
+    Pos::GeomID geomID() const override		{ return rdr.geomID(); }
     const SeisTrcReader&	rdr;
 };
 

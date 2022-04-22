@@ -54,7 +54,7 @@ public:
 
     bool		isLoaded() const;
 
-    float		value( int idx ) const		{ return vals_[idx]; }
+    float		value( int idx ) const override { return vals_[idx]; }
     void		setValue(int idx,float val);
 
     float		getValue(float md,bool noudfs=false) const;
@@ -66,7 +66,7 @@ public:
 			//!<call it when plotting this log, preferably on a copy
     void		ensureAscZ();
 			// Do this after adding values when Z may be reversed
-    bool		insertAtDah(float md,float val);
+    bool		insertAtDah(float md,float val) override;
     void		removeTopBottomUdfs();
 
     Interval<float>&	valueRange()			{ return range_; }
@@ -120,8 +120,10 @@ protected:
     bool		iscode_ = false;
     IOPar		pars_;
 
-    void		removeAux( int idx )	{ vals_.removeSingle(idx); }
-    void		eraseAux()		{ vals_.erase(); }
+    void		removeAux( int idx ) override
+			{ vals_.removeSingle(idx); }
+
+    void		eraseAux() override		{ vals_.erase(); }
     float		gtVal(float,int&) const;
 
 };

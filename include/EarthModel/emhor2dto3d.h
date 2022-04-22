@@ -40,11 +40,11 @@ public:
 				// TaskRunner is only used in constructor
 				~Hor2DTo3D();
 
-    int				nextStep();
-    uiString			uiMessage() const	{ return msg_; }
-    uiString			uiNrDoneText() const;
-    od_int64			nrDone() const;
-    od_int64			totalNr() const;
+    int				nextStep() override;
+    uiString			uiMessage() const override	{ return msg_; }
+    uiString			uiNrDoneText() const override;
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
 protected:
 

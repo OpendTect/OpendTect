@@ -38,20 +38,20 @@ public:
     void			setAngleThreshold(float radians);
     float			getAngleThreshold() const;
 
-    void			setDirection(const TrcKeyValue&);
-    const TrcKeyValue*		getDirection() const;
+    void			setDirection(const TrcKeyValue&) override;
+    const TrcKeyValue*		getDirection() const override;
     void			setGeomID(Pos::GeomID);
     Pos::GeomID			geomID() const;
 
-    int				nextStep();
+    int				nextStep() override;
 
 protected:
 
     void			addNeighbor(bool upwards,
 					    const TrcKey& sourcesid);
     virtual float		getDepth(const TrcKey& src,
-					 const TrcKey& target) const;
-    virtual void		prepareDataIfRequired()		{}
+					 const TrcKey& target) const override;
+    virtual void		prepareDataIfRequired() override	{}
 
     float			anglethreshold_;
     bool			alldirs_;

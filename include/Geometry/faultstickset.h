@@ -1,10 +1,10 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
-Date:          November 2008
+Date:	       November 2008
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,10 @@ namespace Geometry
 mExpClass(Geometry) FaultStickSet : public RowColSurface
 {
 public:
-    			FaultStickSet();
-    			~FaultStickSet();
-    bool		isEmpty() const		{ return !sticks_.size(); }
-    Element*		clone() const;
+			FaultStickSet();
+			~FaultStickSet();
+    bool		isEmpty() const override  { return !sticks_.size(); }
+    Element*		clone() const override;
 
     virtual bool	insertStick(const Coord3& firstpos,
 				    const Coord3& editnormal,int stick=0,
@@ -42,25 +42,25 @@ public:
     int			nrKnots(int sticknr) const;
     const TypeSet<Coord3>* getStick(int stickidx) const;
 
-    StepInterval<int>	rowRange() const;
-    virtual StepInterval<int> colRange() const
-    			{ return RowColSurface::colRange(); }
-    StepInterval<int>	colRange(int stick) const;
+    StepInterval<int>	rowRange() const override;
+    virtual StepInterval<int> colRange() const override
+			{ return RowColSurface::colRange(); }
+    StepInterval<int>	colRange(int stick) const override;
 
-    bool		setKnot(const RowCol&,const Coord3&);
-    Coord3		getKnot(const RowCol&) const;
-    bool		isKnotDefined(const RowCol&) const;
+    bool		setKnot(const RowCol&,const Coord3&) override;
+    Coord3		getKnot(const RowCol&) const override;
+    bool		isKnotDefined(const RowCol&) const override;
 
     const Coord3&	getEditPlaneNormal(int sticknr) const;
     enum ChangeTag	{ StickChange=__mUndefIntVal+1, StickInsert,
 			  StickRemove, StickHide };
     
-    			// To be used by surface reader only
+			// To be used by surface reader only
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
     void		addEditPlaneNormal(const Coord3&);
 
-    			// Use zscale=0 to measure in xy-direction only and
-   			// zscale=MAXDOUBLE to measure in z-direction only.
+			// Use zscale=0 to measure in xy-direction only and
+			// zscale=MAXDOUBLE to measure in z-direction only.
     void		geometricStickOrder(TypeSet<int>& sticknrs,
 				  double zscale,bool orderall=true) const;
 
@@ -85,7 +85,7 @@ protected:
 
     int				firstrow_;
 
-    ObjectSet<TypeSet<Coord3> >	sticks_;
+    ObjectSet<TypeSet<Coord3> > sticks_;
     TypeSet<int>		firstcols_;
     
     TypeSet<Coord3>		editplanenormals_;

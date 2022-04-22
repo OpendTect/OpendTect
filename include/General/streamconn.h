@@ -32,12 +32,13 @@ public:
 			StreamConn(const char* fnm,bool forread);
     virtual		~StreamConn();
 
-    virtual bool	isBad() const;
-    virtual const char* creationMessage() const	{ return creationmsg_; }
-    virtual bool	forRead() const;
-    virtual bool	forWrite() const;
-    virtual StreamConn*	getStream()		{ return this; }
-    virtual void	close();
+    bool		isBad() const override;
+    const char*		creationMessage() const override
+			{ return creationmsg_; }
+    bool		forRead() const override;
+    bool		forWrite() const override;
+    StreamConn*		getStream() override		{ return this; }
+    void		close() override;
 
     void		setStream(od_istream*); //!< strm becomes all mine
     void		setStream(od_ostream*); //!< strm becomes all mine
@@ -50,7 +51,7 @@ public:
     void		setFileName(const char*,bool forread);
     const char*		fileName() const;
 
-    const char*		connType() const	{ return sType(); }
+    const char*		connType() const override	{ return sType(); }
     static const char*	sType();
 
 

@@ -40,12 +40,12 @@ public:
     void			addOutput(Output*);
     void			setLineName(const char*);
 
-    int				nextStep();
+    int				nextStep() override;
     void			init();
-    od_int64			totalNr() const;
-    od_int64			nrDone() const;
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const
+    od_int64			totalNr() const override;
+    od_int64			nrDone() const override;
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override
 				{ return tr("Positions processed"); }
 
     void			addOutputInterest(int sel);

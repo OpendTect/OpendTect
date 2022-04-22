@@ -30,7 +30,7 @@ public:
 			mDefEmptyTranslatorGroupConstructor(SeisTrc2D)
 
     static const char*	sKeyDefault()	{ return "2D Cube"; }
-    const char*		getSurveyDefaultKey(const IOObj*) const;
+    const char*		getSurveyDefaultKey(const IOObj*) const override;
 };
 
 
@@ -60,15 +60,16 @@ mExpClass(Seis) Seis2DLineGetter : public Executor
 public:
     virtual		~Seis2DLineGetter()	{}
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces read"); }
 
     Pos::GeomID		geomID() const;
     bool		get(int trcnr,SeisTrc&) const;
     bool		get(int trcnr,TraceData&,SeisTrcInfo*) const;
 
-    virtual od_int64	nrDone() const			= 0;
-    virtual od_int64	totalNr() const			= 0;
+    od_int64		nrDone() const override				= 0;
+    od_int64		totalNr() const override			= 0;
 
     virtual const SeisTrcTranslator*	translator() const	{ return 0; }
 
@@ -76,7 +77,7 @@ protected:
 			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
 					 const Seis::SelData&);
 
-    virtual int		nextStep()			= 0;
+    int			nextStep() override				= 0;
 
     SeisTrcBuf&		tbuf_;
     uiString		msg_;
@@ -131,15 +132,15 @@ mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(TwoDSeisTrcTranslator); isTranslator(TwoD,SeisTrc)
 public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
-			: SeisTrcTranslator(s1,s2)      {}
+			: SeisTrcTranslator(s1,s2)	{}
 
-    const char*		defExtension() const		{ return "2ds"; }
-    bool		implRemove(const IOObj*) const;
-    bool		initRead_();		//!< supporting getRanges()
-    bool		initWrite_(const SeisTrc&)	{ return false; }
+    const char*		defExtension() const override	{ return "2ds"; }
+    bool		implRemove(const IOObj*) const override;
+    bool		initRead_() override;	//!< supporting getRanges()
+    bool		initWrite_(const SeisTrc&) override { return false; }
 
     bool		implRename( const IOObj*,const char*,
-				    const CallBack* cb=0) const;
+				    const CallBack* cb=0) const override;
 
 };
 
@@ -150,7 +151,7 @@ mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
   isTranslator(TwoDData,SeisTrc)
 public:
 			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
-			: SeisTrcTranslator(s1,s2)      {}
+			: SeisTrcTranslator(s1,s2)	{}
 
 };
 
@@ -162,16 +163,16 @@ public:
 			SeisTrc2DTranslator(const char* s1,const char* s2)
 			    : SeisTrcTranslator(s1,s2)		{}
 
-    bool		initRead_();		//!< supporting getRanges()
-    bool		initWrite_(const SeisTrc&)	{ return false; }
+    bool		initRead_() override;	//!< supporting getRanges()
+    bool		initWrite_(const SeisTrc&) override { return false; }
 
-    bool		isUserSelectable(bool) const	{ return true; }
+    bool		isUserSelectable(bool) const override	{ return true; }
 
-    bool		implRemove(const IOObj*) const;
+    bool		implRemove(const IOObj*) const override;
     bool		implRename(const IOObj*,const char*,
-				   const CallBack* =nullptr) const;
+				   const CallBack* =nullptr) const override;
 
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
+    bool		getGeometryInfo(PosInfo::CubeData&) const override;
 
     void		setDataSet(const Seis2DDataSet&);
 
@@ -190,7 +191,7 @@ public:
 			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
 			: SeisTrc2DTranslator(s1,s2)	{ setIs2D(true); }
 
-    bool		isUserSelectable(bool) const	{ return true; }
+    bool		isUserSelectable(bool) const override { return true; }
 };
 
 /*!\brief SEGYDirect translator for 2D Seismics */
@@ -202,8 +203,8 @@ public:
 						      const char* s2)
 			: SeisTrc2DTranslator(s1,s2)	{ setIs2D(true); }
 
-    virtual bool	isUserSelectable(bool fr) const { return fr; }
-    virtual const char* iconName() const		{ return "segy"; }
+    bool		isUserSelectable(bool fr) const override { return fr; }
+    const char*		iconName() const override	{ return "segy"; }
 };
 
 

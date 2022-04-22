@@ -35,7 +35,7 @@ public:
     EM::SectionID		sectionID() const;
     virtual void		reset();
 
-    int				nextStep();
+    int				nextStep() override;
     const char*			errMsg() const;
 
     virtual void		fillPar(IOPar&) const {}

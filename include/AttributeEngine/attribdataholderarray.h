@@ -37,12 +37,12 @@ public:
 
 			~DataHolderArray();
 
-    void		set(int i0,int i1,int i2,float val);
-    float		get(int i0,int i1,int i2) const;
-    const Array3DInfo&	info() const		{ return info_; }
+    void		set(int i0,int i1,int i2,float val) override;
+    float		get(int i0,int i1,int i2) const override;
+    const Array3DInfo&	info() const override		{ return info_; }
 
-    virtual void	getAll(float*) const;
-    virtual void	getAll(ValueSeries<float>& vs) const;
+    void		getAll(float*) const override;
+    void		getAll(ValueSeries<float>& vs) const override;
 
 protected:
 

@@ -32,24 +32,25 @@ public:
 				WellT2DTransform();
 				WellT2DTransform(const MultiID&);
 
-    bool			isOK() const;
+    bool			isOK() const override;
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
-					  int sz,float* res) const;
+					  int sz,float* res) const override;
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
-					      int sz,float* res) const;
-    bool			canTransformSurv(OD::GeomSystem) const
+					      int sz,float* res) const override;
+    bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
-    float			getGoodZStep() const;
-    Interval<float>		getZInterval(bool time) const;
-    bool			needsVolumeOfInterest() const { return false; }
+    float			getGoodZStep() const override;
+    Interval<float>		getZInterval(bool time) const override;
+    bool			needsVolumeOfInterest() const override
+				{ return false; }
 
     bool			setWellID(const MultiID&);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 

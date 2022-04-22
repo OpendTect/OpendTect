@@ -24,8 +24,8 @@ namespace MPE {
 mExpClass(MPEEngine) Setup
 {
 public:
-    				Setup();
-    				~Setup();
+				Setup();
+				~Setup();
 
     bool			usePar(const IOPar&);
     void			fillPar(IOPar& par) const;
@@ -50,7 +50,7 @@ mExpClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(MPESetup)
 public:
 			mDefEmptyTranslatorGroupConstructor(MPESetup)
-    const char*		defExtension() const		{ return "ts"; }
+    const char*		defExtension() const override		{ return "ts"; }
 };
 
 
@@ -61,20 +61,20 @@ public:
 mExpClass(MPEEngine) MPESetupTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(MPESetup)
+			mDefEmptyTranslatorBaseConstructor(MPESetup)
 
-    virtual const char*	read(MPESetup&,Conn&)		= 0;
-    			//!< returns err msg or null on success
-    virtual const char*	write(const MPESetup&,Conn&)	= 0;
-    			//!< returns err msg or null on success
-    virtual const char*	warningMsg() const		{ return ""; }
+    virtual const char* read(MPESetup&,Conn&)		= 0;
+			//!< returns err msg or null on success
+    virtual const char* write(const MPESetup&,Conn&)	= 0;
+			//!< returns err msg or null on success
+    virtual const char* warningMsg() const		{ return ""; }
 
     static bool		retrieve(MPESetup&,const IOObj*,BufferString&);
-    			//!< BufferString has errmsg, if any
-    			//!< If true returned, errmsg contains warnings
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
     static bool		store(const MPESetup&,const IOObj*,BufferString&);
-    			//!< BufferString has errmsg, if any
-    			//!< If true returned, errmsg contains warnings
+			//!< BufferString has errmsg, if any
+			//!< If true returned, errmsg contains warnings
 };
     
 
@@ -85,13 +85,13 @@ public:
 mExpClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
 {				  isTranslator(dgb,MPESetup)
 public:
-    			mDefEmptyTranslatorConstructor(dgb,MPESetup)
+			mDefEmptyTranslatorConstructor(dgb,MPESetup)
 
-    const char*		read(MPESetup&,Conn&);
-    			//!< returns err msg or null on success
-    const char*		write( const MPESetup&,Conn&);
-    			//!< returns err msg or null on success
-    const char*		warningMsg() const	{ return warningmsg; }
+    const char*		read(MPESetup&,Conn&) override;
+			//!< returns err msg or null on success
+    const char*		write( const MPESetup&,Conn&) override;
+			//!< returns err msg or null on success
+    const char*		warningMsg() const override	{ return warningmsg; }
 
     BufferString	warningmsg;
 

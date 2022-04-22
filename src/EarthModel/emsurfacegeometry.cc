@@ -37,9 +37,9 @@ public:
 			SurfaceSectionUndoEvent( bool add,
 				ObjectID, const SectionID&,
 				const char* name );
-    const char*         getStandardDesc() const;
-    bool                unDo();
-    bool                reDo();
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
     void                fillPar(IOPar&) const;
     bool                usePar(const IOPar&);
 

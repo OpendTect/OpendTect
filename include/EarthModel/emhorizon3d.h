@@ -40,29 +40,31 @@ mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
 public:
 				Horizon3DGeometry(Surface&);
 
-    const Geometry::BinIDSurface* sectionGeometry(const SectionID&) const;
-    Geometry::BinIDSurface*	sectionGeometry(const SectionID&);
+    const Geometry::BinIDSurface* sectionGeometry(
+					const SectionID&) const override;
+    Geometry::BinIDSurface*	sectionGeometry(const SectionID&) override;
 
-    bool			removeSection(const SectionID&,bool hist);
-    SectionID			cloneSection(const SectionID&);
+    bool			removeSection(const SectionID&,
+					      bool hist) override;
+    SectionID			cloneSection(const SectionID&) override;
 
-    bool			isFullResolution() const;
+    bool			isFullResolution() const override;
     RowCol			loadedStep() const;
     RowCol			step() const;
     void			setStep(const RowCol& step,
 					const RowCol& loadedstep);
 
-    PosID			getPosID(const TrcKey&) const;
-    TrcKey			getTrcKey(const PosID&) const;
+    PosID			getPosID(const TrcKey&) const override;
+    TrcKey			getTrcKey(const PosID&) const override;
 
-    bool			enableChecks(bool yn);
-    bool			isChecksEnabled() const;
-    bool			isNodeOK(const PosID&) const;
+    bool			enableChecks(bool yn) override;
+    bool			isChecksEnabled() const override;
+    bool			isNodeOK(const PosID&) const override;
 
-    bool			isAtEdge(const PosID& pid) const;
+    bool			isAtEdge(const PosID& pid) const override;
     PosID			getNeighbor(const PosID&,const RowCol&) const;
     int				getConnectedPos(const PosID&,
-						TypeSet<PosID>*) const;
+						TypeSet<PosID>*) const override;
 
     bool			getBoundingPolygon(const SectionID&,
 						   Pick::Set&) const;
@@ -74,10 +76,10 @@ public:
 						 Pos::Provider3D* prov=0) const;
 
     EMObjectIterator*		createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* =0) const;
+				   const TrcKeyZSampling* =0) const override;
 protected:
 
-    Geometry::BinIDSurface*	createSectionGeometry() const;
+    Geometry::BinIDSurface*	createSectionGeometry() const override;
 
     RowCol			loadedstep_;
     RowCol			step_;
@@ -95,40 +97,43 @@ mExpClass(EarthModel) Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
-    virtual float		getZ(const TrcKey&) const;
+    float			getZ(const TrcKey&) const override;
 				//!< Fast: reads from the first section
-    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
+    bool			setZ(const TrcKey&,float z,
+				     bool addtohist) override;
 				//!< Fast: writes to the first section
-    virtual bool		setZAndNodeSourceType(const TrcKey&,float z,
-				    bool addtohist, NodeSourceType type=Auto);
+    bool			setZAndNodeSourceType(const TrcKey&,
+					float z,bool addtohist,
+					NodeSourceType type=Auto) override;
 
-    virtual void		setNodeSourceType(const TrcKey&,NodeSourceType);
-    virtual void		setNodeSourceType(const PosID&,NodeSourceType);
-    virtual bool		isNodeSourceType(const PosID&,
-						 NodeSourceType) const;
-    virtual bool		isNodeSourceType(const TrcKey&,
-						 NodeSourceType) const;
-    virtual bool		isNodeLocked(const PosID&)const;
+    void			setNodeSourceType(const TrcKey&,
+						  NodeSourceType) override;
+    void			setNodeSourceType(const PosID&,NodeSourceType);
+    bool			isNodeSourceType(const PosID&,
+						 NodeSourceType) const override;
+    bool			isNodeSourceType(const TrcKey&,
+						 NodeSourceType) const override;
+    bool			isNodeLocked(const PosID&)const override;
 
-    bool			hasNodeSourceType(const PosID&) const;
+    bool			hasNodeSourceType(const PosID&) const override;
 
-    virtual bool		hasZ(const TrcKey&) const;
+    bool			hasZ(const TrcKey&) const override;
 				//!< Fast: checks only the first section
-    virtual Coord3		getCoord(const TrcKey&) const;
-    virtual void		setAttrib(const TrcKey&,int attr,int yn,
-					  bool addtohist);
-    virtual bool		isAttrib(const TrcKey&,int attr) const;
+    Coord3			getCoord(const TrcKey&) const override;
+    void			setAttrib(const TrcKey&,int attr,int yn,
+					  bool addtohist) override;
+    bool			isAttrib(const TrcKey&,int attr) const override;
 
-    virtual float		getZValue(const Coord&,bool allow_udf=true,
-					  int nr=0) const;
+    float			getZValue(const Coord&,bool allow_udf=true,
+					  int nr=0) const override;
 				//!< Slow: if you need the choices
 
     TrcKeySampling		range() const;
     Interval<float>		getZRange() const;
 
-    void			removeAll();
-    Horizon3DGeometry&		geometry();
-    const Horizon3DGeometry&	geometry() const;
+    void			removeAll() override;
+    Horizon3DGeometry&		geometry() override;
+    const Horizon3DGeometry&	geometry() const override;
 
     virtual void		setArray(const SectionID&,const BinID& start,
 					const BinID& step, Array2D<float>* arr,
@@ -164,7 +169,8 @@ public:
 				//!Geometry
     void			setSurveyGeomID(Pos::GeomID);
 
-    uiString			getUserTypeStr() const { return userTypeStr(); }
+    uiString			getUserTypeStr() const override
+				{ return userTypeStr(); }
     static uiString		userTypeStr()
 				{ return tr("3D Horizon"); }
 
@@ -188,30 +194,31 @@ public:
     Array2D<char>*		getChildren() const;
     void			deleteChildren();
     void			resetChildren();
-    void			setNodeLocked(const TrcKey&,bool locked);
-    bool			isNodeLocked(const TrcKey&) const;
-    void			lockAll();
-    void			unlockAll();
-    const Array2D<char>*	getLockedNodes() const;
+    void			setNodeLocked(const TrcKey&,
+					      bool locked) override;
+    bool			isNodeLocked(const TrcKey&) const override;
+    void			lockAll() override;
+    void			unlockAll() override;
+    const Array2D<char>*	getLockedNodes() const override;
 
     void			setParentColor(const OD::Color&);
     const OD::Color&		getParentColor() const;
 
-    virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory);
-    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory);
-    virtual void		apply(const Pos::Filter&);
+    bool			setPos(const EM::PosID&,const Coord3&,
+				       bool addtohistory) override;
+    bool			setPos(const EM::SectionID&,const EM::SubID&,
+				   const Coord3&,bool addtohistory) override;
+    void			apply(const Pos::Filter&) override;
 
 protected:
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-    void			fillDisplayPar(IOPar&) const;
-    bool			useDisplayPar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    void			fillDisplayPar(IOPar&) const override;
+    bool			useDisplayPar(const IOPar&) override;
 
-    const IOObjContext&		getIOObjContext() const;
+    const IOObjContext&		getIOObjContext() const override;
     void			initNodeArraysSize(const StepInterval<int>&,
 						   const StepInterval<int>&);
     void			setNodeArraySize(const StepInterval<int>&,
@@ -250,7 +257,7 @@ public:
 				//!< Fast: writes to the first section
     Array2D<char>*		getChildren(const TrcKey&) const
 				{ return getChildren(); }
-    OD::GeomSystem		getSurveyID() const
+    OD::GeomSystem		getSurveyID() const override
 				{ return geomSystemOf(getSurveyGeomID()); }
 
     static OD::Color		sDefaultSelectionColor();
@@ -271,7 +278,7 @@ protected:
 
     void		addTask(od_int64);
     void		taskFinished(CallBacker*);
-    int			nextStep();
+    int			nextStep() override;
 
     Threads::WorkManager&	twm_;
     int				queueid_;

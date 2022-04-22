@@ -29,15 +29,15 @@ public:
 
     enum Opt		{ MatchTrcNr, MatchCoords, SimpleAppend };
 
-    			Seis2DLineMerger(const BufferStringSet& datanms,
+			Seis2DLineMerger(const BufferStringSet& datanms,
 					 const Pos::GeomID&);
-    			~Seis2DLineMerger();
+			~Seis2DLineMerger();
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return nrdonemsg_; }
-    od_int64		totalNr() const		{ return totnr_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    int			nextStep();
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override	{ return nrdonemsg_; }
+    od_int64		totalNr() const override	{ return totnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    int			nextStep() override;
 
 
     Opt			opt_;

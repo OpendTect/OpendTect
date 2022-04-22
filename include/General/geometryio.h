@@ -28,9 +28,9 @@ public:
 				{ return new GeometryWriter2D; }
     static void			initClass();
     bool			write(Geometry&,uiString&,
-				      const char* crfrmstr=0) const;
-    IOObj*			createEntry(const char* name) const;
-    Pos::GeomID		createNewGeomID(const char* name) const;
+				      const char* crfrmstr=0) const override;
+    IOObj*			createEntry(const char* name) const override;
+    Pos::GeomID		createNewGeomID(const char* name) const override;
 
 };
 
@@ -62,9 +62,10 @@ public:
     static GeometryReader*	create2DReader()
 				{ return new GeometryReader2D; }
     static void			initClass();
-    bool			read(ObjectSet<Geometry>&,TaskRunner*) const;
+    bool			read(ObjectSet<Geometry>&,
+				     TaskRunner*) const override;
     bool			updateGeometries(ObjectSet<Geometry>&,
-						 TaskRunner*) const;
+						 TaskRunner*) const override;
 
 };
 

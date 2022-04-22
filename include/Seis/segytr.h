@@ -32,10 +32,10 @@ public:
 
 			SEGYSeisTrcTranslator(const char*,const char*);
 			~SEGYSeisTrcTranslator();
-    virtual const char*	defExtension() const	{ return "sgy"; }
+    const char* defExtension() const override	{ return "sgy"; }
 
     bool		readInfo(SeisTrcInfo&) override;
-    virtual bool	skip(int);
+    bool		skip(int) override;
     bool		goToTrace(int);
     int			traceSizeOnDisk() const;
     bool		getFullTrcAsBuf(unsigned char*);
@@ -45,25 +45,28 @@ public:
     int			estimatedNrTraces() const override;
 
     void		toSupported(DataCharacteristics&) const;
-    void		usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
     const SEGY::TxtHeader* txtHeader() const	{ return txthead_; }
     const SEGY::BinHeader& binHeader() const	{ return binhead_; }
     const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }
-    void		setTxtHeader(SEGY::TxtHeader*);	//!< write; becomes mine
-    void		setForcedRev( int rev )	{ forcedrev_ = rev; }
-    void		setForceRev0( bool yn )	{ forcedrev_ = yn ? 0 : 1; }
+    void		setTxtHeader(SEGY::TxtHeader*); //!< write; becomes mine
+    void		setForcedRev( int rev ) { forcedrev_ = rev; }
+    void		setForceRev0( bool yn ) { forcedrev_ = yn ? 0 : 1; }
 
     int			dataBytes() const;
     int			forcedRev() const	{ return forcedrev_; }
     bool		rev0Forced() const	{ return forcedrev_ == 0; }
     SEGY::FilePars&	filePars()		{ return filepars_; }
-    SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
+    SEGY::FileReadOpts& fileReadOpts()		{ return fileopts_; }
 
-    bool		implRemove( const IOObj* ) const	{ return true; }
-    virtual bool	implManagesObjects( const IOObj* ) const
-						{ return true; }
-    void		cleanUp();
+    bool		implRemove( const IOObj* ) const override
+			{ return true; }
+
+    bool		implManagesObjects( const IOObj* ) const override
+			{ return true; }
+
+    void		cleanUp() override;
 
     void		setIs2D(bool yn) override;
     void		setIsPS(bool yn) override;
@@ -89,10 +92,10 @@ protected:
 
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn_; }
 
-    bool		commitSelections_();
-    virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&);
-    virtual bool	writeTrc_(const SeisTrc&);
+    bool		commitSelections_() override;
+    bool		initRead_() override;
+    bool		initWrite_(const SeisTrc&) override;
+    bool		writeTrc_(const SeisTrc&) override;
 
     bool		readTraceHeadBuffer();
     bool		readDataToBuf();
@@ -107,9 +110,9 @@ protected:
     void		fillErrMsg(const uiString&, bool);
     bool		noErrMsg();
 
-    DataCharacteristics	getDataChar(int) const;
+    DataCharacteristics getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;
-    void		addWarn(int,const char*);
+    void		addWarn(int,const char*) override;
     const char*		getTrcPosStr() const;
     bool		tryInterpretBuf(SeisTrcInfo&);
     bool		skipThisTrace(SeisTrcInfo&,int&);
@@ -128,7 +131,7 @@ private:
 
     friend class SEGYDirectSeisTrcTranslator;
 
-    virtual bool	readData(TraceData* externalbuf);
+    bool		readData(TraceData* externalbuf) override;
 
 public:
 

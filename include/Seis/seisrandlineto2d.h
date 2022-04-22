@@ -34,11 +34,11 @@ public:
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
-    od_int64		totalNr() const;
-    od_int64		nrDone() const;
-    int			nextStep();
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override;
+    int			nextStep() override;
 
 protected:
 

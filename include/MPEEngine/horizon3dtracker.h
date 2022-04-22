@@ -34,7 +34,8 @@ public:
     static EMTracker*		create(EM::EMObject* =0);
     static void			initClass();
 
-    EMSeedPicker*		getSeedPicker(bool createifnotpresent=true);
+    EMSeedPicker*		getSeedPicker(
+					bool createifnotpresent=true) override;
 
     static const char*		keyword();
 
@@ -44,7 +45,7 @@ protected:
     EM::Horizon3D*		getHorizon();
     const EM::Horizon3D*	getHorizon() const;
 
-    SectionTracker*		createSectionTracker(EM::SectionID);
+    SectionTracker*		createSectionTracker(EM::SectionID) override;
     Horizon3DSeedPicker*	seedpicker_;
 };
 

@@ -34,11 +34,11 @@ public:
 			, index_( index )
 		    {}
 
-    const char* getStandardDesc() const
+    const char* getStandardDesc() const override
     { return "Horizon 3d patch line data"; }
 
 
-    bool reDo()
+    bool reDo() override
     {
 	if ( !patch_ ) return false;
 	patch_->addSeed( trkv_, true );
@@ -46,7 +46,7 @@ public:
     }
 
 
-    bool unDo()
+    bool unDo() override
     {
 	if ( !patch_ ) return false;
 	patch_->removeSeed( index_ );

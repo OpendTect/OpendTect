@@ -43,19 +43,20 @@ public:
 
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 
-    od_int64			nrIterations() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64 start,od_int64 stop,int);
-    bool			doFinish(bool success);
+    od_int64			nrIterations() const override;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64 start,
+				       od_int64 stop,int) override;
+    bool			doFinish(bool success) override;
 
-    uiString			uiMessage() const;
+    uiString			uiMessage() const override;
     uiString			errMsg() const		{ return errmsg_; }
 
     AngleMuteCompPars&		params();
     const AngleMuteCompPars&	params() const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 

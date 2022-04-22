@@ -126,8 +126,9 @@ public:
     virtual		~RowColSurfaceGeometry();
 
 
-    const Geometry::RowColSurface* sectionGeometry(const SectionID&) const;
-    Geometry::RowColSurface*	sectionGeometry(const SectionID&);
+    const Geometry::RowColSurface* sectionGeometry(
+					const SectionID&) const override;
+    Geometry::RowColSurface*	sectionGeometry(const SectionID&) override;
 
     StepInterval<int>		rowRange(const SectionID&) const;
     StepInterval<int>		rowRange() const;
@@ -135,8 +136,8 @@ public:
     StepInterval<int>		colRange() const;
     StepInterval<int>		colRange(int row) const;
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* =0) const;
+    EMObjectIterator*		createIterator(const EM::SectionID&,
+				   const TrcKeyZSampling* =0) const override;
 
 };
 

@@ -52,7 +52,7 @@ public:
     const HdrEntry&		trcIdxEntry()	{ return trcidxhe_; }
 
     int				indexOf(const char* entrynm) const;
-    int				indexOf( const HdrCalc* he ) const
+    int				indexOf( const HdrCalc* he ) const override
 				{ return ObjectSet<HdrCalc>::indexOf(he); }
     bool			set(int,const char* def,uiString* emsg=0);
     bool			add(const HdrEntry&,const char* def,

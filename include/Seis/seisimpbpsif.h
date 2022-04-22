@@ -42,8 +42,9 @@ class SeisPSImpDataMgr;
  \n
 \c \#Value.2.1: STREAMER-1 NEAR RECEIVER X \n
 \c \#Value.2.2: STREAMER-1 NEAR RECEIVER Y \n
-\c \#Value.2.3: RECEIVER ATTRIBUTE-1 = STREAMER-1 NEAR RECEIVER DEPTH (METRES) \n
-\c \#Value.2.4: RECEIVER ATTRIBUTE-2 = STREAMER-1 NEAR RECEIVER AMBIENT RMS NOISE \n
+\c \#Value.2.3: RECEIVER ATTRIBUTE-1 = STREAMER-1 NEAR RECEIVER DEPTH (METRES)\n
+\c \#Value.2.4: RECEIVER ATTRIBUTE-2 =
+				STREAMER-1 NEAR RECEIVER AMBIENT RMS NOISE \n
 \n
 Typically, lines will be extremely long. The number of values per line is:
 3 + nr_opt_shot_attribs + N * (2 + nr_opt_rcv_attribs).
@@ -66,21 +67,22 @@ mExpClass(Seis) SeisImpBPSIF : public Executor
 { mODTextTranslationClass(SeisImpBPSIF);
 public:
 
-    			SeisImpBPSIF(const char* filenm,const MultiID&);
+			SeisImpBPSIF(const char* filenm,const MultiID&);
     virtual		~SeisImpBPSIF();
     void		setMaxInlOffset(int);
 
-    uiString		uiMessage() const;
-    od_int64		nrDone() const		{ return nrshots_; }
-    uiString		uiNrDoneText() const	{ return tr("Shots handled"); }
-    int			nextStep();
+    uiString		uiMessage() const override;
+    od_int64		nrDone() const override		{ return nrshots_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Shots handled"); }
+    int			nextStep() override;
 
     int			nrFiles() const		{ return fnames_.size(); }
-    			// Available after first nextStep():
+			// Available after first nextStep():
     const BufferStringSet& header() const	{ return hdrlines_; }
     const BufferStringSet& shotAttrs() const	{ return shotattrs_; }
     const BufferStringSet& rcvAttrs() const	{ return rcvattrs_; }
-    			// Available after execution:
+			// Available after execution:
     bool		isIrregular() const	{ return irregular_; }
     int			nrShots() const		{ return nrshots_; }
     int			nrRcvrs() const		{ return nrrcvpershot_; }

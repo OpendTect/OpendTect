@@ -37,7 +37,7 @@ public:
     virtual inline bool			isOK() const;
     virtual inline bool			isEmpty() const;
 
-    virtual T				getND(const int*) const	= 0;
+    virtual T				getND(const int*) const = 0;
     virtual bool			isSettable() const	{ return true; }
     virtual void			setND(const int*,T)	= 0;
 
@@ -123,7 +123,8 @@ public:
     bool			writable() const override	{ return true; }
     void			setValue( od_int64 i , T t ) override
 				{ set( (int) i,t); }
-    void			setAll( T t ) override  { ArrayND<T>::setAll(t); }
+    void			setAll( T t ) override
+				{ ArrayND<T>::setAll(t); }
 
     const Array1DInfo&		info() const override = 0;
 
@@ -147,7 +148,7 @@ mClass(Basic) Array2D : public ArrayND<T>
 public:
     virtual void		set( int, int, T )			= 0;
     virtual T			get( int p0, int p1 ) const		= 0;
-    void			setND(  const int* pos, T v ) override
+    void			setND(	const int* pos, T v ) override
 				    { set( pos[0], pos[1], v);}
     T				getND( const int* pos ) const override
 				    { return get( pos[0], pos[1] ); }
@@ -306,10 +307,10 @@ bool ArrayNDIter::setGlobalPos( od_int64 globalidx )
 #define mDefArrayNDStdMembers(nd) \
 public: \
 			Array##nd##Conv(Array##nd<TT>* arr) \
-			    : arr_(arr)	{} \
+			    : arr_(arr) {} \
 			~Array##nd##Conv()	{ delete arr_; } \
  \
-    const Array##nd##Info&	info() const	{ return arr_->info(); } \
+    const Array##nd##Info& info() const override { return arr_->info(); } \
  \
 protected: \
  \

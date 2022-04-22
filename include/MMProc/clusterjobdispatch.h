@@ -42,10 +42,10 @@ public:
 			ClusterJobDispatcher();
     virtual		~ClusterJobDispatcher()		{}
 
-    virtual uiString	description() const;
-    virtual bool	isSuitedFor(const char*) const;
-    virtual bool	canHandle(const JobSpec&) const;
-    virtual bool	canResume(const JobSpec&) const;
+    uiString		description() const override;
+    bool		isSuitedFor(const char*) const override;
+    bool		canHandle(const JobSpec&) const override;
+    bool		canResume(const JobSpec&) const override;
 
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
 				 "Cluster Process",tr("Cluster Process"));
@@ -54,7 +54,7 @@ public:
 
 protected:
 
-    virtual bool	launch(ID*);
+    bool		launch(ID*) override;
 
     int			defIdx(const char* pnm=0) const;
 

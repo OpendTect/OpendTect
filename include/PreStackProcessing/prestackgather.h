@@ -59,7 +59,7 @@ public:
 				//!< Will use the reader geomID
 
     const Coord&		getCoord() const	{ return coord_; }
-    virtual Coord3		getCoord(int,int) const
+    Coord3			getCoord(int,int) const override
 				{ return Coord3(coord_.x,coord_.y,0); }
 
     void                        detectOuterMutes(int* depths,
@@ -88,8 +88,8 @@ public:
 
     bool			isLoaded() const	{ return arr2d_; }
 
-    const char*			dimName(bool dim0) const;
-    void			getAuxInfo(int,int,IOPar&) const;
+    const char*			dimName(bool dim0) const override;
+    void			getAuxInfo(int,int,IOPar&) const override;
 
     static int			offsetDim()		{ return 0; }
     static int			zDim()			{ return 1; }
@@ -180,7 +180,7 @@ public:
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
-    virtual float		nrKBytes() const	{ return 0; }
+    float			nrKBytes() const override	{ return 0; }
 
     const Gather*		getGather(const BinID&) const;
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }

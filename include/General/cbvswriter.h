@@ -56,14 +56,14 @@ public:
     void		forceNrTrcsPerPos( int nr )
 			    { nrtrcsperposn_ = nr; nrtrcsperposn_status_ = 0; }
     void		forceTrailer( bool yn=true )
-    			    { forcetrailer_ = yn; }
+			    { forcetrailer_ = yn; }
 
     int			put(void**,int offs=0);
     int			put(const TraceData&,int offs=0);
 			//!< Expects a buffer for each component
 			//!< returns -1 = error, 0 = OK,
 			//!< 1=not written (threshold reached)
-    void		close()			{ doClose( true ); }
+    void		close() override	{ doClose( true ); }
     void		ciaoForNow()		{ doClose(false); }
 			//!< closes as if final close but doesn't
 			//!< actually close stream. Makes result readable.
@@ -99,7 +99,7 @@ private:
     int			nrtrcsperposn_;
     int			nrtrcsperposn_status_;
     int			checknrtrcsperposn_;
-    PosAuxInfoSelection	auxinfosel_;
+    PosAuxInfoSelection auxinfosel_;
     CBVSInfo::SurvGeom	survgeom_;
 
     const PosAuxInfo*	auxinfo_;

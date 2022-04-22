@@ -95,7 +95,7 @@ public:
 
     void		swapValues(unsigned char*) const;
 
-    int			indexOf( const HdrEntry* he ) const
+    int			indexOf( const HdrEntry* he ) const override
 			{ return ObjectSet<const HdrEntry>::indexOf(he); }
 
 protected:

@@ -26,12 +26,13 @@ public:
 		    msg_ = tr("Executing Volume Builder Task");
 		}
 
-    uiString	uiMessage() const	{ return msg_; }
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	uiMessage() const override	{ return msg_; }
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sTrcFinished(); }
 
 protected:
 
-    bool	doWork(od_int64 start, od_int64 stop, int threadid )
+    bool	doWork(od_int64 start, od_int64 stop, int threadid ) override
 		{
 		    const TrcKeySampling hrg(
 				step_.output_->sampling().hsamp_ );
@@ -71,7 +72,7 @@ protected:
 		    return true;
 		}
 
-    od_int64	nrIterations() const
+    od_int64	nrIterations() const override
 		{
 		    if ( totalnr_==-1 )
 		    {
@@ -83,7 +84,7 @@ protected:
 		    return totalnr_;
 		}
 
-    bool	doPrepare( int nrthreads )
+    bool	doPrepare( int nrthreads ) override
 		{
 		    const bool res = step_.prepareComp( nrthreads );
 		    if ( !res ) msg_ = step_.errMsg();

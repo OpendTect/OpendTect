@@ -100,7 +100,7 @@ public:
     static const char* sOldFileType()	{ return "MarchingCubesSurface"; }
     static const char* sOldFileType2()	{ return "MCBody"; }
 
-    int	nextStep()
+    int nextStep() override
     {
 	if ( !exec_ ) return ErrorOccurred();
 	const int res = exec_->doStep();
@@ -112,17 +112,21 @@ public:
 	return res;
     }
 
-    od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
-    od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-    uiString	uiNrDoneText() const {
-	return exec_ ? exec_->uiNrDoneText() : uiString::emptyString();
-				     }
-    uiString	uiMessage() const
+    od_int64	totalNr() const override
+    { return exec_ ? exec_->totalNr() : -1; }
+
+    od_int64	nrDone() const override
+    { return exec_ ? exec_->nrDone() : -1; }
+
+    uiString	uiNrDoneText() const override
+    { return exec_ ? exec_->uiNrDoneText() : uiString::emptyString(); }
+
+    uiString	uiMessage() const override
     {
 	return errmsg_.isEmpty()
 	    ? tr("Loading body")
 	    : errmsg_;
-     }
+    }
 
 protected:
 
@@ -187,7 +191,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
     exec_ = surface.surface().writeTo( strm, binary );
 }
 
-int nextStep()
+int nextStep() override
 {
     if ( !exec_ ) return ErrorOccurred();
     const int res = exec_->doStep();
@@ -197,11 +201,11 @@ int nextStep()
     return res;
 }
 
-od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
-od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-uiString uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText()
+od_int64 totalNr() const override { return exec_ ? exec_->totalNr() : -1; }
+od_int64 nrDone() const override { return exec_ ? exec_->nrDone() : -1; }
+uiString uiNrDoneText() const override { return exec_ ? exec_->uiNrDoneText()
 					     : uiString::emptyString(); }
-uiString uiMessage() const
+uiString uiMessage() const override
 {
     return errmsg_.isEmpty()
 	? tr("Loading body")

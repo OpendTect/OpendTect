@@ -85,7 +85,7 @@ public:
     static const char*	sKeyDefault3D() { return "Cube"; }
     static const char*	sKeyDefault2D()	{ return "2D Cube"; }
     static const char*	sKeyDefaultAttrib() { return "Attribute"; }
-    const char*		getSurveyDefaultKey(const IOObj*) const;
+    const char*		getSurveyDefaultKey(const IOObj*) const override;
 };
 
 
@@ -191,7 +191,7 @@ public:
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
 
-    virtual void	usePar(const IOPar&);
+    void		usePar(const IOPar&) override;
 
     inline int		selComp( int nr=0 ) const	{ return inpfor_[nr]; }
     inline int		nrSelComps() const		{ return nrout_; }
@@ -244,7 +244,7 @@ public:
     Pos::GeomID		curGeomID() const		{ return geomid_; }
     virtual void	setCurGeomID(Pos::GeomID);
 
-    virtual bool	isUserSelectable(bool) const	{ return false; }
+    bool		isUserSelectable(bool) const override { return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
 
     void		setComponentNames(const BufferStringSet&);

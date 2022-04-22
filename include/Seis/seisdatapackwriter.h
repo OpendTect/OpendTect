@@ -38,12 +38,12 @@ public:
 
     void		setComponentScaler(const Scaler&,int compidx);
 
-    od_int64		nrDone() const;
-    od_int64		totalNr() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override
 			{ return tr("Traces written:"); }
-    int			nextStep();
+    int			nextStep() override;
 
     TrcKeySampling	hSampling() const	{ return tks_; }
     Interval<int>	zSampling() const       { return zrg_; }

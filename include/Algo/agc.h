@@ -36,14 +36,14 @@ public:
 			//!<The lowest fraction will be muted
     float		getMuteFraction() const		{ return mutefraction_;}
 
-    bool		doPrepare(int nrthreads);
+    bool		doPrepare(int nrthreads) override;
 
 protected:
 
     void		computeEnergyMute();
-    bool		doWork(od_int64,od_int64,int);
-    int			minThreadSize() const { return 200; }
-    od_int64		nrIterations() const { return size_; }
+    bool		doWork(od_int64,od_int64,int) override;
+    int			minThreadSize() const override { return 200; }
+    od_int64		nrIterations() const override { return size_; }
 
     const ValueSeries<T>*	input_;
     od_int64			size_;

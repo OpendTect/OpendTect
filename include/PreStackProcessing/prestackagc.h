@@ -25,30 +25,30 @@ namespace PreStack
 mExpClass(PreStackProcessing) AGC : public Processor
 { mODTextTranslationClass(AGC)
 public:
-    				mDefaultFactoryInstantiation(
+				mDefaultFactoryInstantiation(
 					Processor, AGC, "AGC", 
 					toUiString(sFactoryKeyword()))
 
 				AGC();
-    bool			prepareWork();
+    bool			prepareWork() override;
 
     void			setWindow(const Interval<float>&);
     const Interval<float>&	getWindow() const;
     void			getWindowUnit(BufferString&,
-	    				      bool withparens) const;
+					      bool withparens) const;
 
     void			setLowEnergyMute(float fraction);
     float			getLowEnergyMute() const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
     static const char*		sKeyWindow();
     static const char*		sKeyMuteFraction();
 
 protected:
-    bool			doWork(od_int64,od_int64,int);
-    od_int64			totalNr() const { return totalnr_; }
+    bool			doWork(od_int64,od_int64,int) override;
+    od_int64			totalNr() const override { return totalnr_; }
 
     Interval<float>		window_;
     Interval<int>		samplewindow_;

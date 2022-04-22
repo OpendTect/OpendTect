@@ -41,7 +41,7 @@ public:
 
 				WellLogInterpolator();
 				~WellLogInterpolator();
-    void			releaseData();
+    void			releaseData() override;
 
     bool			is2D() const;
 
@@ -51,7 +51,7 @@ public:
     const char*			getGridderName() const;
     float			getSearchRadius() const;
     const InterpolationLayerModel* getLayerModel() const;
-    Well::ExtractParams	getWellExtractParams() { return params_; }
+    Well::ExtractParams getWellExtractParams() { return params_; }
 
     void			setGridder(const char* nm,float radius=0);
     void			setWellData(const TypeSet<MultiID>&,
@@ -60,23 +60,28 @@ public:
 				{ params_ = params;}
     void			setLayerModel(InterpolationLayerModel*);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-    virtual uiString		errMsg() const	{ return errmsg_; }
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    uiString		errMsg() const override { return errmsg_; }
 
-    bool			canInputAndOutputBeSame() const { return true; }
-    bool			needsFullVolume() const		{ return false;}
-    bool			needsInput() const		{ return false;}
+    bool			canInputAndOutputBeSame() const override
+				{ return true; }
+
+    bool			needsFullVolume() const override{ return false;}
+    bool			needsInput() const override	{ return false;}
 
     /* mDeprecated (this function will be protected virtual after 6.2) */
-    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+    od_int64			extraMemoryUsage(OutputSlotID,
+				    const TrcKeySampling&,
+				    const StepInterval<int>&) const override;
 
 protected:
 
-    bool			prefersBinIDWise() const	{ return true; }
-    bool			prepareComp(int);
-    bool			computeBinID(const BinID&,int);
+    bool			prefersBinIDWise() const override
+				{ return true; }
+
+    bool			prepareComp(int) override;
+    bool			computeBinID(const BinID&,int) override;
 
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;

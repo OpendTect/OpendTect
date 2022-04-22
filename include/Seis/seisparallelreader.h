@@ -63,17 +63,17 @@ public:
     void		 setDataPack(RegularSeisDataPack*);
     RegularSeisDataPack* getDataPack();
 
-    uiString		uiNrDoneText() const;
-    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const override;
+    uiString		uiMessage() const override;
 
 protected:
-    od_int64		nrIterations() const { return totalnr_; }
+    od_int64		nrIterations() const override { return totalnr_; }
 
     bool		setOutputComponents();
 
-    bool		doPrepare(int nrthreads);
-    bool		doWork(od_int64,od_int64,int);
-    bool		doFinish(bool);
+    bool		doPrepare(int nrthreads) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
 
 
     TypeSet<int>		components_;
@@ -122,18 +122,18 @@ public:
 
     RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
-    uiString		uiNrDoneText() const;
-    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const override;
+    uiString		uiMessage() const override;
 
 protected:
-    od_int64		nrIterations() const;
-    bool		doPrepare(int nrthreads);
-    bool		doWork(od_int64,od_int64,int);
-    bool		doFinish(bool);
+    od_int64		nrIterations() const override;
+    bool		doPrepare(int nrthreads) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
 
     RegularSeisDataPack*	dp_;
     TypeSet<int>		components_;
-    TypeSet<int>        trcnrs_;
+    TypeSet<int>		trcnrs_;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;
@@ -185,18 +185,18 @@ public:
 
     RegularSeisDataPack* getDataPack();
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const;
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const		{ return totalnr_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override;
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
 
     bool		init();
 
 protected:
 
     bool		setOutputComponents();
-    virtual int		nextStep();
-    virtual bool	goImpl(od_ostream*,bool,bool,int);
+    virtual int		nextStep() override;
+    virtual bool	goImpl(od_ostream*,bool,bool,int) override;
 
 private:
 

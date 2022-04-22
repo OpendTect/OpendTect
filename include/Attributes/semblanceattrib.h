@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          07-01-2008
+ Author:	Nanne Hemstra
+ Date:		07-01-2008
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ Extension:	0	90/180	 Cube	Cross	   AllDir	Diagonal
 9						   -step,0
 
 Output:
-0       Semblance
+0	Semblance
 
 */
 
@@ -59,29 +59,31 @@ public:
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		extensionStr()	{ return "extension"; }
     static const char*		extensionTypeStr(int);
-    virtual void		initSteering()	{ stdPrepSteering(stepout_); }
+    void			initSteering() override
+				{ stdPrepSteering(stepout_); }
 
-    void			prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc() override;
 
 protected:
 				~Semblance() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
 
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputOutput(int inp,
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
 					    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const BinID*		reqStepout(int input,int output) const;
-    const BinID*		desStepout(int input,int output) const;
-    const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const BinID*		reqStepout(int input,int output) const override;
+    const BinID*		desStepout(int input,int output) const override;
+    const Interval<float>*	reqZMargin(int input,int output) const override;
+    const Interval<float>*	desZMargin(int input,int output) const override;
     bool			getTrcPos();
 
     BinID			pos0_;
@@ -97,7 +99,7 @@ protected:
     TypeSet<int>		steerindexes_;
     int				dataidx_;
 
-    ObjectSet<const DataHolder>	inputdata_;
+    ObjectSet<const DataHolder> inputdata_;
     const DataHolder*		steeringdata_;
 };
 

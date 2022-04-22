@@ -96,9 +96,9 @@ public:
 				ValParam(const ValParam&);
     virtual			~ValParam();
 
-    virtual ValParam*		clone() const;
+    ValParam*			clone() const override;
 
-    virtual bool		isOK() const;
+    bool			isOK() const override;
 
     int				nrValues() const;
     virtual int			getIntValue(int idx=0) const;
@@ -129,15 +129,15 @@ public:
     DataInpSpec*		getSpec()	{ return spec_; }
     const DataInpSpec*		getSpec() const	{ return spec_; }
 
-    virtual bool		setCompositeValue(const char*);
-    virtual bool		getCompositeValue(BufferString&) const;
-    virtual BufferString	getDefaultValue() const	{ return ""; }
-    virtual void		fillDefStr(BufferString&) const;
+    bool			setCompositeValue(const char*) override;
+    bool			getCompositeValue(BufferString&) const override;
+    BufferString		getDefaultValue() const override { return ""; }
+    void			fillDefStr(BufferString&) const override;
 
 protected:
     DataInpSpec*		spec_;
 
-    virtual bool		isEqual(const Param&) const;
+    bool			isEqual(const Param&) const override;
 
 public:
 				mDeprecated("Use getFValue instead")

@@ -31,10 +31,10 @@ public:
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
-    void			getEditIDs(TypeSet<EM::PosID>&) const;
+    void			getEditIDs(TypeSet<EM::PosID>&) const override;
 
 protected:
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
 };
 
 
@@ -50,7 +50,7 @@ public:
     static void			initClass();
 
 protected:
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
 };
 
 

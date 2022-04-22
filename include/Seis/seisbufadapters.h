@@ -30,12 +30,12 @@ public:
     			SeisTrcBufArray2D(const SeisTrcBuf*,int compnr);
 			~SeisTrcBufArray2D();
 
-    bool		isOK() const		{ return true; }
+    bool		isOK() const override		{ return true; }
 
-    const Array2DInfo&	info() const		{ return *info_; }
+    const Array2DInfo&	info() const override		{ return *info_; }
     float*		getData() const		{ return 0; }
-    void		set(int,int,float);
-    float		get(int,int) const;
+    void		set(int,int,float) override;
+    float		get(int,int) const override;
 
     void		getAuxInfo(Seis::GeomType,int,IOPar&) const;
 
@@ -79,13 +79,13 @@ public:
 
     bool		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
-    const char*		dimName(bool) const;
-    Coord3		getCoord(int,int) const;
-    void		getAltDim0Keys(BufferStringSet&) const;
-    bool		dimValuesInInt(const char* key) const;
-    double		getAltDim0Value(int,int) const;
-    void		getAuxInfo(int,int,IOPar&) const;
-    bool		posDataIsCoord() const		{ return false; }
+    const char*		dimName(bool) const override;
+    Coord3		getCoord(int,int) const override;
+    void		getAltDim0Keys(BufferStringSet&) const override;
+    bool		dimValuesInInt(const char* key) const override;
+    double		getAltDim0Value(int,int) const override;
+    void		getAuxInfo(int,int,IOPar&) const override;
+    bool		posDataIsCoord() const override { return false; }
 
     SeisTrcBufArray2D&	trcBufArr2D()
     			{ return *((SeisTrcBufArray2D*)arr2d_); }

@@ -92,13 +92,13 @@ public:
 	float		taperlen_ = 10.f;
     };
 
-    uiString		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const override		{ return errmsg_; }
 
     AngleMutePars&	params();
     const AngleMutePars& params() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 

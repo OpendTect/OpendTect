@@ -28,18 +28,17 @@ mExpClass(Seis) SeisMerger : public Executor
 { mODTextTranslationClass(SeisMerger);
 public:
 
-    			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
+			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
 				   bool is2d);
 			SeisMerger(const IOPar&);	//For post-processing
     virtual		~SeisMerger();
 
-    uiString		uiMessage() const;
-    od_int64		nrDone() const		{ return nrpos_; }
-    od_int64		totalNr() const		{ return totnrpos_; }
-    uiString		uiNrDoneText() const	{ 
-					    return tr("Positions handled"); 
-						}
-    int			nextStep();
+    uiString		uiMessage() const override;
+    od_int64		nrDone() const override		{ return nrpos_; }
+    od_int64		totalNr() const override	{ return totnrpos_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Positions handled"); }
+    int			nextStep() override;
     void		setScaler(Scaler*);
 
     bool		stacktrcs_; //!< If not, first trace will be used

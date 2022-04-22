@@ -49,7 +49,7 @@ mExpClass(EarthModel) EMHorizon3DTranslatorGroup : public TranslatorGroup
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
-    const char*			defExtension() const	{ return "hor"; }
+    const char*			defExtension() const override { return "hor"; }
 };
 
 
@@ -62,7 +62,7 @@ mExpClass(EarthModel) EMHorizon2DTranslatorGroup : public TranslatorGroup
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
-    const char*			defExtension() const	{ return "2dh"; }
+    const char*			defExtension() const override { return "2dh"; }
 };
 
 
@@ -86,7 +86,7 @@ mExpClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
-    const char*		defExtension() const { return "flt"; }
+    const char*		defExtension() const override { return "flt"; }
 };
 
 
@@ -110,7 +110,7 @@ mExpClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
-    const char*		defExtension() const { return "fss"; }
+    const char*		defExtension() const override { return "fss"; }
 };
 
 
@@ -147,10 +147,11 @@ public:
 
     uiString			errMsg() const		{ return errmsg_; }
 
-    virtual bool		implRemove(const IOObj*) const;
-    virtual bool		implRename(const IOObj*,const char*,
-					   const CallBack* cb=0) const;
-    virtual bool		implSetReadOnly(const IOObj*,bool) const;
+    bool			implRemove(const IOObj*) const override;
+    bool			implRename(const IOObj*,const char*,
+					   const CallBack* cb=0) const override;
+    bool			implSetReadOnly(const IOObj*,
+						bool) const override;
 
     static bool			getBinarySetting();
 
@@ -185,7 +186,7 @@ public:
 				dgbEMSurfaceTranslator(const char*,const char*);
     virtual			~dgbEMSurfaceTranslator();
 
-    virtual Executor*		reader(EM::Surface&);
+    Executor*			reader(EM::Surface&) override;
 
 protected:
 
@@ -193,8 +194,8 @@ protected:
     bool			setSurfaceTransform(const IOPar&);
     void			getSels(StepInterval<int>&,StepInterval<int>&);
 
-    bool			prepRead();
-    Executor*			getWriter();
+    bool			prepRead() override;
+    Executor*			getWriter() override;
 
     virtual bool		readOnlyZ() const		{ return true; }
     virtual bool		writeOnlyZ() const		{ return true; }
@@ -215,15 +216,16 @@ public:
 						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMHorizon3DTranslator()		{}
-    virtual Executor*		getAuxdataReader(EM::Surface&,int);
-    virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
-						    bool ovwrt=false);
+    Executor*			getAuxdataReader(EM::Surface&,int) override;
+    Executor*			getAuxdataWriter(const EM::Surface&,int,
+						    bool ovwrt=false) override;
 
 
 protected:
-    virtual bool		readOnlyZ() const		{ return true; }
-    virtual bool		writeOnlyZ() const		{ return true; }
-    virtual bool		hasRangeSelection() const	{ return true; }
+    bool			readOnlyZ() const override	{ return true; }
+    bool			writeOnlyZ() const override	{ return true; }
+    bool			hasRangeSelection() const override
+				    { return true; }
 };
 
 
@@ -240,9 +242,10 @@ public:
     virtual			~dgbEMHorizon2DTranslator()		{}
 
 protected:
-    virtual bool		readOnlyZ() const		{return false;}
-    virtual bool		writeOnlyZ() const		{return true;}
-    virtual bool		hasRangeSelection() const	{return false;}
+    bool			readOnlyZ() const override	{return false;}
+    bool			writeOnlyZ() const override	{return true;}
+    bool			hasRangeSelection() const override
+				    {return false;}
 };
 
 
@@ -259,9 +262,10 @@ public:
     virtual			~dgbEMFault3DTranslator()		{}
 
 protected:
-    virtual bool		readOnlyZ() const		{ return false;}
-    virtual bool		writeOnlyZ() const		{ return false;}
-    virtual bool		hasRangeSelection() const	{ return false;}
+    bool			readOnlyZ() const override	{ return false;}
+    bool			writeOnlyZ() const override	{ return false;}
+    bool			hasRangeSelection() const override
+				    { return false;}
 };
 
 
@@ -279,9 +283,10 @@ public:
     virtual			~dgbEMFaultStickSetTranslator()		{}
 
 protected:
-    virtual bool		readOnlyZ() const		{ return false;}
-    virtual bool		writeOnlyZ() const		{ return false;}
-    virtual bool		hasRangeSelection() const	{ return false;}
+    bool			readOnlyZ() const override	{ return false;}
+    bool			writeOnlyZ() const override	{ return false;}
+    bool			hasRangeSelection() const override
+				    { return false;}
 };
 
 
@@ -310,8 +315,9 @@ public:
 				    : EMFaultSet3DTranslator(unm,nm)	{}
     virtual			~dgbEMFaultSet3DTranslator()		{}
 
-    virtual Executor*		writer(const EM::FaultSet3D&,const IOObj&);
-    virtual Executor*		reader(EM::FaultSet3D&,const IOObj&);
+    Executor*			writer(const EM::FaultSet3D&,
+				       const IOObj&) override;
+    Executor*			reader(EM::FaultSet3D&,const IOObj&) override;
 
 };
 

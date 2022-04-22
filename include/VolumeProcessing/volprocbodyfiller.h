@@ -37,16 +37,22 @@ public:
 				BodyFiller();
 				~BodyFiller();
 
-    bool			needsInput() const		{ return false;}
-    bool			isInputPrevStep() const		{ return true; }
-    bool			areSamplesIndependent() const	{ return true; }
+    bool			needsInput() const override	{ return false;}
+    bool			isInputPrevStep() const override
+				{ return true; }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    bool			areSamplesIndependent() const override
+				{ return true; }
 
-    void			releaseData();
-    bool			canInputAndOutputBeSame() const { return true; }
-    bool			needsFullVolume() const		{ return false;}
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+
+    void			releaseData() override;
+    bool			canInputAndOutputBeSame() const override
+				{ return true; }
+
+    bool			needsFullVolume() const override
+				{ return false;}
 
     enum ValueType		{ Constant, PrevStep, Undefined };
 
@@ -62,19 +68,22 @@ public:
 
     bool			setSurface(const MultiID&);
     MultiID			getSurfaceID() { return mid_; }
-    Task*			createTask();
+    Task*			createTask() override;
 
     static const char*		sKeyOldType();
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
 protected:
 
-    bool			prefersBinIDWise() const	{ return true; }
-    bool			prepareComp(int nrthreads)	{ return true; }
-    bool			computeBinID(const BinID&,int);
+    bool			prefersBinIDWise() const override
+				{ return true; }
+    bool			prepareComp(int nrthreads) override
+				{ return true; }
+
+    bool			computeBinID(const BinID&,int) override;
     bool			getFlatPlgZRange(const BinID&,
 						 Interval<double>& result);
 

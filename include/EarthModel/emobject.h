@@ -327,7 +327,7 @@ protected:
 				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete() const;
-    virtual void		prepareForDelete();
+    void			prepareForDelete() override;
     void			posIDChangeCB(CallBacker*);
     const MarkerStyle3D&	preferredMarkerStyle3D() const;
     void			setPreferredMarkerStyle3D(const MarkerStyle3D&);
@@ -376,8 +376,8 @@ public: \
     static EMObject*		create(EM::EMManager&); \
     static clss*		create(const char* nm); \
     static FixedString		typeStr(); \
-    const char*			getTypeStr() const; \
-    void			setNewName(); \
+    const char*			getTypeStr() const override; \
+    void			setNewName() override; \
 protected: \
 				~clss()
 

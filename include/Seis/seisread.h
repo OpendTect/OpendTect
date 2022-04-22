@@ -89,7 +89,7 @@ public:
 			     ignored then - depending on the Translator's
 			     capabilities. */
 
-    void		fillPar(IOPar&) const;
+    void		fillPar(IOPar&) const override;
 
     Seis::Bounds*	getBounds() const;
 			//!< use after prepareWork(). If not avail: survinfo
@@ -101,7 +101,7 @@ public:
 			// 2D only
     int			curLineIdx() const		{ return curlineidx; }
     StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
-    Pos::GeomID		geomID() const;
+    Pos::GeomID		geomID() const override;
     GeomIDProvider*	geomIDProvider() const;
     int			getNrOffsets(int maxnrpostobechecked=10) const;
 

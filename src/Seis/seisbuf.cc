@@ -377,12 +377,12 @@ SeisTrcBufArray2DInfo( const SeisTrcBufArray2DInfo& ai )
 {
 }
 
-ArrayNDInfo* clone() const
+ArrayNDInfo* clone() const override
 {
     return new SeisTrcBufArray2DInfo(buf_);
 }
 
-int getSize( int dim ) const
+int getSize( int dim ) const override
 {
     if ( dim == 0 )
 	return buf_.size();
@@ -392,14 +392,16 @@ int getSize( int dim ) const
 }
 
 // Mandatory functions ... why?
-bool setSize( int, int ) { return false; }
+bool setSize( int, int ) override { return false; }
 // Are these really necessary?
 od_uint64 getMemPos( const int* ) const { return 0; }
-bool validPos( const int* pos ) const { return Array2DInfo::validPos(pos); }
+bool validPos( const int* pos ) const override
+{ return Array2DInfo::validPos(pos); }
 od_uint64 getMemPos( int ) const { return 0; }
 bool validPos( int ) const { return false; }
 od_uint64 getMemPos( int, int ) const { return 0; }
-bool validPos( int p0, int p1 ) const { return Array2DInfo::validPos(p0,p1); }
+bool validPos( int p0, int p1 ) const override
+{ return Array2DInfo::validPos(p0,p1); }
 
     const SeisTrcBuf&	buf_;
 

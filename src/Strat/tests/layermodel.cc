@@ -261,12 +261,12 @@ LayerModelFiller( LayerModel& lm )
     , lm_(lm)
 {}
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 {
     return lm_.size();
 }
 
-bool doWork( od_int64 start, od_int64 stop, int ) \
+bool doWork( od_int64 start, od_int64 stop, int ) override \
 {
     const PropertyRefSelection& prs = lm_.propertyRefs();
     const LeafUnitRef& udfleaf = RT().undefLeaf();

@@ -112,12 +112,12 @@ public:
 						const StepInterval<float>& zrg,
 						Array3D<float>& arr);
 
-    od_int64		nrIterations() const;
+    od_int64		nrIterations() const override;
 
 private:
 
-    bool		doPrepare(int nrthreads);
-    bool		doWork(od_int64,od_int64,int);
+    bool		doPrepare(int nrthreads) override;
+    bool		doWork(od_int64,od_int64,int) override;
 
     const DAGTetrahedraTree&	tree_;
     StepInterval<float>		zrg_;

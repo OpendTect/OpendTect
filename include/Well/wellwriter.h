@@ -85,11 +85,11 @@ public:
 	    MultiWellWriter(const ObjectSet<Well::Data>&,
 			    const ObjectSet<StoreReqs>& reqs);
 
-    int			nextStep();
-    od_int64		totalNr() const;
-    od_int64		nrDone() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    int			nextStep() override;
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override;
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
     bool		allWellsWritten() const { return allwellswritten_; }
 				//Can then be used to launch a warning locally
 

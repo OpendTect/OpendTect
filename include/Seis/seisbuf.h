@@ -33,18 +33,18 @@ public:
 			SeisTrcBuf( bool ownr )
 				: owner_(ownr)	{}
 			SeisTrcBuf( const SeisTrcBuf& b )
-			    	: owner_(b.owner_) { b.copyInto( *this ); }
+				: owner_(b.owner_) { b.copyInto( *this ); }
     virtual		~SeisTrcBuf()		{ if ( owner_ ) deepErase(); }
     inline void		setIsOwner( bool yn )	{ owner_ = yn; }
     inline bool		isOwner() const		{ return owner_; }
 
     void		copyInto(SeisTrcBuf&) const;
     void		stealTracesFrom(SeisTrcBuf&);
-    virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
+    virtual SeisTrcBuf* clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase();
     inline void		erase()
-    			{ if ( owner_ ) deepErase(); else trcs_.erase(); }
+			{ if ( owner_ ) deepErase(); else trcs_.erase(); }
 
     inline int		size() const		{ return trcs_.size(); }
     inline bool		isEmpty() const		{ return trcs_.isEmpty(); }
@@ -52,7 +52,7 @@ public:
 			{ return trcs_.validIdx(idx); }
     void		insert(SeisTrc*,int atidx=0);
     inline SeisTrc*	replace( int idx, SeisTrc* t )
-    						{ return trcs_.replace(idx,t); }
+						{ return trcs_.replace(idx,t); }
     inline void		add( SeisTrc* t )	{ trcs_ += t; }
     void		add(SeisTrcBuf&);	//!< shallow copy if not owner
 
@@ -62,7 +62,7 @@ public:
 			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
     inline const SeisTrc* get( int idx ) const
 			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
-    inline void		remove( SeisTrc* t )	{ if ( t ) trcs_ -= t;  }
+    inline void		remove( SeisTrc* t )	{ if ( t ) trcs_ -= t;	}
     inline SeisTrc*	remove( int idx )
 			{
 			    if ( !trcs_.validIdx(idx) )
@@ -84,15 +84,15 @@ public:
     void		sort(bool ascending,SeisTrcInfo::Fld);
     void		sortForWrite(bool is2d);
     void		enforceNrTrcs(int nrrequired,SeisTrcInfo::Fld,
-	    			      bool stack_before_remove=false);
-    			//!< Makes sure nrtrcs per position is constant
+				      bool stack_before_remove=false);
+			//!< Makes sure nrtrcs per position is constant
     float*		getHdrVals(SeisTrcInfo::Fld,double& offs);
-    			//!< The 'offs' ensures the values fit in floats
-    			//!< returned new float [] becomes yours
+			//!< The 'offs' ensures the values fit in floats
+			//!< returned new float [] becomes yours
 
     bool		dump(const char* filenm,bool is2d,bool isps,
-	    		     int icomp=0) const;
-    			//!< Simple file Ascii format
+			     int icomp=0) const;
+			//!< Simple file Ascii format
 
 protected:
 
@@ -107,13 +107,15 @@ protected:
 mExpClass(Seis) SeisBufReader : public Executor
 { mODTextTranslationClass(SeisBufReader);
 public:
-    			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
+			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
-    od_int64		nrDone() const		{ return buf_.size(); }
-    od_int64		totalNr() const		{ return totnr_; }
-    int			nextStep();
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces read"); }
+
+    od_int64		nrDone() const override		{ return buf_.size(); }
+    od_int64		totalNr() const override	{ return totnr_; }
+    int			nextStep() override;
 
 protected:
 

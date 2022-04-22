@@ -27,20 +27,21 @@ public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
 			IOStream(const IOStream&);
-    virtual bool	isBad() const;
+    bool		isBad() const override;
 
-    virtual void	copyFrom(const IOObj*);
-    virtual const char*	fullUserExpr(bool forread=true) const;
-    virtual BufferString mainFileName() const;
-    virtual const char*	connType() const;
-    virtual Conn*	getConn(bool) const;
+    void		copyFrom(const IOObj*) override;
+    const char*		fullUserExpr(bool forread=true) const override;
+    BufferString	mainFileName() const override;
+    const char*		connType() const override;
+    Conn*		getConn(bool) const override;
 
-    virtual bool	implExists(bool forread) const;
-    virtual bool	implReadOnly() const;
-    virtual bool	implRemove() const;
-    virtual bool	implSetReadOnly(bool) const;
-    virtual bool	implRename(const char*,const CallBack* cb=0);
-    virtual bool	implManagesObjects() const	{ return false; }
+    bool		implExists(bool forread) const override;
+    bool		implReadOnly() const override;
+    bool		implRemove() const override;
+    bool		implSetReadOnly(bool) const override;
+    bool		implRename(const char*,const CallBack* cb=0) override;
+    bool		implManagesObjects() const override
+			    { return false; }
 
     bool		isMultiConn() const	{ return isMulti(); }
     int			curConnIdx() const	{ return curfidx_; }
@@ -61,8 +62,8 @@ public:
 
 protected:
 
-    virtual bool	getFrom(ascistream&);
-    virtual bool	putTo(ascostream&) const;
+    bool		getFrom(ascistream&) override;
+    bool		putTo(ascostream&) const override;
 
     FileSpec		fs_;
     mutable int		curfidx_;
@@ -74,7 +75,7 @@ protected:
 
 public:
 
-    virtual void	setDirName(const char*);
+    void		setDirName(const char*) override;
     virtual void	setAbsDirectory(const char*);
 
 };

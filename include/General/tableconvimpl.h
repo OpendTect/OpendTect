@@ -31,11 +31,11 @@ public:
 			    , insingqstring_(false)
 			    , indoubqstring_(false)	{}
 
-    State		add(char);
+    State		add(char) override;
     const char*		getCol() const			{ return col_.buf(); }
     const char*		errMsg() const			{ return col_.buf(); }
 
-    virtual void	newRow()			{}
+    void		newRow() override			{}
 
 protected:
 
@@ -53,11 +53,11 @@ public:
 			    , nlreplace_('\n')
 			    , instring_(false)	{}
 
-    State		add(char);
+    State		add(char) override;
     const char*		getCol() const		{ return col_.buf(); }
     const char*		errMsg() const		{ return col_.buf(); }
 
-    virtual void	newRow()		{ instring_ = false; }
+    void		newRow() override		{ instring_ = false; }
 
     char		nlreplace_;
 			//!< replace newlines with this char (optional)
@@ -80,7 +80,7 @@ public:
 			    : ExportHandler(s)
 			    , colwshanld_(w)	{}
 
-    bool		putRow(const BufferStringSet&,uiString&);
+    bool		putRow(const BufferStringSet&,uiString&) override;
 
     ColWSHandl		colwshanld_;
 
@@ -97,7 +97,7 @@ public:
 			CSVExportHandler( od_ostream& s )
 			    : ExportHandler(s)		{}
 
-    bool		putRow(const BufferStringSet&,uiString&);
+    bool		putRow(const BufferStringSet&,uiString&) override;
 
 protected:
 
@@ -116,7 +116,7 @@ public:
 			    , stepindex_(1)
 			    , nrrows_(0)	    {}
 
-    bool		putRow(const BufferStringSet&,uiString&);
+    bool		putRow(const BufferStringSet&,uiString&) override;
 
     BufferString	tblname_;	//!< name of the table: mandatory
     BufferStringSet	colnms_;	//!< names of the columns: optional
@@ -172,7 +172,7 @@ public:
     Criterion	start_;
     Criterion	stop_;
 
-    bool	accept(BufferStringSet&) const;
+    bool	accept(BufferStringSet&) const override;
 
 protected:
 
@@ -194,7 +194,7 @@ public:
 			RecordMatcher( bool a=true )
 			    : any_(a)	{}
 
-    bool		accept(BufferStringSet&) const;
+    bool		accept(BufferStringSet&) const override;
 
     bool		any_;		//!< If false, all need to match
     bool		not_;		//!< If true, matches will not pass
@@ -223,7 +223,7 @@ public:
 			DuplicateKeyRemover()
 			    : nrdone_(0), nrremoved_(0)	{}
 
-    bool		accept(BufferStringSet&) const;
+    bool		accept(BufferStringSet&) const override;
 
     TypeSet<int>	keycols_; //!< column numbers (mand)
 

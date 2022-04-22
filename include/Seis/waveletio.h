@@ -21,7 +21,7 @@ mExpClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(Wavelet)
 
-    const char*		 defExtension() const		{ return "wvlt"; }
+    const char*		 defExtension() const override	{ return "wvlt"; }
 };
 
 mExpClass(Seis) WaveletTranslator : public Translator
@@ -40,8 +40,8 @@ mExpClass(Seis) dgbWaveletTranslator : public WaveletTranslator
 public:
 			mDefEmptyTranslatorConstructor(dgb,Wavelet)
 
-    bool		read(Wavelet*,Conn&);
-    bool		write(const Wavelet*,Conn&);
+    bool		read(Wavelet*,Conn&) override;
+    bool		write(const Wavelet*,Conn&) override;
 
 };
 

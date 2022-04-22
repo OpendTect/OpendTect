@@ -43,11 +43,12 @@ public:
 		idx_[2] = -1;
 	    }
 
-    od_int64	totalNr() const		{ return totalnr_; }
-    od_int64	nrDone() const		{ return nrdone_; }
-    uiString	uiNrDoneText() const	{ return tr("Positions written"); }
+    od_int64	totalNr() const override	{ return totalnr_; }
+    od_int64	nrDone() const override		{ return nrdone_; }
+    uiString	uiNrDoneText() const override
+		{ return tr("Positions written"); }
 
-    int	nextStep()
+    int nextStep() override
 		{
 		    if ( !nrdone_ )
 			writeInt32( totalnr_, '\n' );
@@ -108,11 +109,11 @@ MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
     , totalnr_( -1 )
 {}
 
-od_int64 totalNr() const	{ return totalnr_; }
-od_int64 nrDone() const		{ return nrdone_; }
-uiString uiNrDoneText() const	{ return tr("Positions read"); }
+od_int64 totalNr() const override	{ return totalnr_; }
+od_int64 nrDone() const override	{ return nrdone_; }
+uiString uiNrDoneText() const override	{ return tr("Positions read"); }
 
-int nextStep()
+int nextStep() override
 {
     if ( !nrdone_ )
     {
@@ -518,10 +519,10 @@ public:
 	mc2i_.result_.setAll( mUdf(int) );
     }
 
-    od_int64	nrIterations() const { return totalnr_; }
+    od_int64	nrIterations() const override { return totalnr_; }
 
 protected:
-    bool doWork( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int ) override
     {
 	const int nrtimes = mCast( int, stop-start+1 );
 	int surfaceidxs[3];

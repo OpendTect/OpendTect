@@ -4,7 +4,7 @@
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
-Date:          March 2006
+Date:	       March 2006
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ public:
 			Horizon2DLine(const Horizon2DLine&);
 			~Horizon2DLine();
 
-    Horizon2DLine*	clone() const;
-    bool		isEmpty() const { return rows_.isEmpty(); }
+    Horizon2DLine*	clone() const override;
+    bool		isEmpty() const override { return rows_.isEmpty(); }
 
     int			nrLines() const		 { return geomids_.size(); }
     Pos::GeomID		geomID(int rowidx) const { return geomids_[rowidx]; }
@@ -62,29 +62,31 @@ public:
 
     int			getRowIndex(Pos::GeomID) const;
 
-    StepInterval<int>	rowRange() const;
-    StepInterval<int>	colRange(int rowindex) const;
+    StepInterval<int>	rowRange() const override;
+    StepInterval<int>	colRange(int rowindex) const override;
     StepInterval<int>	colRangeForGeomID(Pos::GeomID) const;
-    virtual StepInterval<int> colRange() const
+    StepInterval<int>	colRange() const override
 			{ return RowColSurface::colRange(); }
     Interval<float>	zRange(Pos::GeomID) const;
 
     void		geometry(Pos::GeomID,PosInfo::Line2DData&)const;
 
-    Coord3		getKnot(const RowCol& rc) const; // rc.row() = rowindex
-    bool		setKnot(const RowCol&,const Coord3&);
+    Coord3		getKnot(const RowCol& rc) const override;
+			// rc.row() = rowindex
 
-    bool		isKnotDefined(const RowCol&) const;
+    bool		setKnot(const RowCol&,const Coord3&) override;
+
+    bool		isKnotDefined(const RowCol&) const override;
     Coord3		computePosition(Pos::GeomID,int trcnr) const;
 
-    virtual void	trimUndefParts();
+    void		trimUndefParts() override;
     bool		hasSupport(const RowCol&) const;
     void		checkSupport(bool yn)	{ checksupport_ = yn; }
     bool		checksSupport() const	{ return checksupport_; }
 
-    bool		setPosition(GeomPosID pid,const Coord3& pos);
-    Coord3		getPosition(GeomPosID pid) const;
-    bool		isDefined(GeomPosID pid) const;
+    bool		setPosition(GeomPosID pid,const Coord3& pos) override;
+    Coord3		getPosition(GeomPosID pid) const override;
+    bool		isDefined(GeomPosID pid) const override;
 
 protected:
 
@@ -93,8 +95,8 @@ protected:
 
     bool		checksupport_;
 
-    ObjectSet<TypeSet<Coord3> >	rows_;
-    TypeSet<SamplingData<int> >	colsampling_;
+    ObjectSet<TypeSet<Coord3> > rows_;
+    TypeSet<SamplingData<int> > colsampling_;
     TypeSet<Pos::GeomID>	geomids_;
 };
 

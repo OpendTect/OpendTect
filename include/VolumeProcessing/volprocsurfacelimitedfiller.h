@@ -41,8 +41,8 @@ public:
 
     bool		isOK() const;
 
-    bool		needsInput() const		{ return false; }
-    bool		isInputPrevStep() const		{ return true; }
+    bool		needsInput() const override	 { return false; }
+    bool		isInputPrevStep() const override { return true; }
 
     bool		setSurfaces(const TypeSet<MultiID>&,
 				    const TypeSet<char>& fillside);
@@ -90,31 +90,33 @@ public:
     bool		setRefHorizon(const MultiID*);
     const MultiID*	getRefHorizonID() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
     bool		useHorInterFillerPar(const IOPar&);
-    virtual uiString	errMsg() const			{ return errmsg_; }
+    virtual uiString	errMsg() const override		{ return errmsg_; }
 
-    void		releaseData();
-    bool		canInputAndOutputBeSame() const { return true; }
-    bool		needsFullVolume() const		{ return false; }
-    bool		canHandle2D() const		{ return false; }
+    void		releaseData() override;
+    bool		canInputAndOutputBeSame() const override
+			{ return true; }
+
+    bool		needsFullVolume() const override { return false; }
+    bool		canHandle2D() const override	{ return false; }
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
+				     const StepInterval<int>&) const override;
 
-    virtual bool	areSamplesIndependent() const	{ return true; }
+    virtual bool	areSamplesIndependent() const override	{ return true; }
 
 protected:
 
-    bool		prepareComp(int);
-    bool		computeBinID(const BinID&, int);
+    bool		prepareComp(int) override;
+    bool		computeBinID(const BinID&, int) override;
     EM::Horizon*	loadHorizon(const MultiID&) const;
 			//!<\note horizon is reffed on return.
     int			setDataHorizon(const MultiID&,EM::Horizon3D*&,
 				       int auxdataidx) const;
-    bool		prefersBinIDWise() const	{ return true; }
+    bool		prefersBinIDWise() const override	{ return true; }
 
     static const char*	sKeySurfaceID()		{ return "Surface MID"; }
     static const char*	sKeySurfaceFillSide()	{ return "Surface fill side"; }

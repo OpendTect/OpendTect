@@ -46,9 +46,12 @@ public:
     bool		isOK() const { return errmsg_.isEmpty(); }
     void		resetMsg() { errmsg_.setEmpty(); }
 
-    uiString		uiNrDoneText() const { return tr("Wells handled"); }
-    od_int64		totalNr() const { return nrIterations(); }
-    bool		stopAllOnFailure() const { return false; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Wells handled"); }
+    od_int64		totalNr() const override
+			{ return nrIterations(); }
+    bool		stopAllOnFailure() const override
+			{ return false; }
 
 protected:
     const Well::LogSet*		logset_ = nullptr;
@@ -94,14 +97,15 @@ protected:
 
     uiString			errmsg_;
 
-    od_int64			nrIterations() const { return welldata_.size();}
+    od_int64			nrIterations() const override
+				{ return welldata_.size(); }
     od_int64			nrdone_;
 
     bool			init(const BufferStringSet& lognms,
 				     const TypeSet<MultiID>& wllids);
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
 
     bool			makeLogTraces(int iwell);
     void			getLogNames(BufferStringSet&) const;
