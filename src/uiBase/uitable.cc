@@ -184,7 +184,7 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     setMouseTracking( true );
 
     setItemDelegate( new BackgroundDelegate(this) );
-    setStyleSheet( "selection-background-color: rgba(128, 128, 128, 40);"
+    setStyleSheet( "selection-background-color: lightblue;"
 		   "selection-color: black;" );
 }
 
@@ -1754,7 +1754,10 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
 
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
+    {
+	cb->disabFocus();
 	cb->selectionChanged.notify( mCB(this,uiTable,cellObjChangedCB) );
+    }
 
     mDynamicCastGet(uiButton*,but,obj)
     if ( but )
