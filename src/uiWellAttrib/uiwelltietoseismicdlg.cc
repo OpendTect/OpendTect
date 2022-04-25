@@ -397,6 +397,7 @@ void uiTieWin::applyPushed( CallBacker* cb )
 
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
+    showAndActivate();
 }
 
 
