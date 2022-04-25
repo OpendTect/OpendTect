@@ -463,12 +463,6 @@ void uiMultiWellLogSel::selectOnlyWritableWells()
 }
 
 
-void uiMultiWellLogSel::onFinalize( CallBacker* cb )
-{
-    uiWellZRangeSelector::onFinalize( cb );
-}
-
-
 uiMultiWellLogSel::~uiMultiWellLogSel()
 {
     detachAllNotifiers();

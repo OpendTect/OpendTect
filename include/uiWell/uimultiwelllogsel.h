@@ -180,7 +180,6 @@ protected:
     uiWellExtractParams*	wellparsfld_;
 
     void		init();
-    void		onFinalize(CallBacker*);
 
     void		readWellChoiceDone(CallBacker*);
     void		writeWellChoiceReq(CallBacker*);
