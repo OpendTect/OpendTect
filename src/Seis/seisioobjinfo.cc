@@ -579,7 +579,9 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 
     // No .stats file. Extract stats right now
     SeisTrcReader rdr( *ioobj_ );
-    rdr.prepareWork();
+    if ( !rdr.prepareWork() )
+	return nullptr;
+
     SeisTrcTranslator* trl = rdr.seisTranslator();
     if ( !trl )
 	return nullptr;
