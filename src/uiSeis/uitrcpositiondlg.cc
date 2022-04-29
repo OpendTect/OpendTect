@@ -198,6 +198,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 
     getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
 				   mCB(this,uiTrcPositionDlg,getPosCB) );
+    getposbut_->setToggleButton( true );
     if ( trcnrfld_ )
 	getposbut_->attach( rightOf, trcnrfld_ );
     else
@@ -220,8 +221,10 @@ uiTrcPositionDlg::~uiTrcPositionDlg()
 
 void uiTrcPositionDlg::getPosCB( CallBacker* )
 {
-    pickretriever_->enable( 0 );
-    getposbut_->setSensitive( false );
+    if ( getposbut_->isOn() )
+	pickretriever_->enable( 0 );
+    else
+	pickretriever_->reset();
 }
 
 
@@ -243,7 +246,10 @@ bool uiTrcPositionDlg::getSelLineGeom( PosInfo::Line2DData& l2ddata )
 
 void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 {
-    getposbut_->setSensitive( true );
+    if ( !getposbut_->isOn() )
+	return;
+
+    getposbut_->setOn( false );
     const Coord3 crd = pickretriever_->getPos();
     if ( !pickretriever_->success() )
 	return;
