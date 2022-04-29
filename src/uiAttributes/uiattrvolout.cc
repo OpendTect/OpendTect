@@ -268,13 +268,9 @@ bool uiAttrVolOut::prepareProcessing()
     seloutnms_.erase();
     seloutputs_.erase();
 
-    const IOObj* outioobj = objfld_->ioobj( true );
+    const IOObj* outioobj = objfld_->ioobj();
     if ( !outioobj )
-    {
-	uiString msg = tr("Please select %1").arg( objfld_->labelText() );
-	uiMSG().error( msg );
 	return false;
-    }
 
     if ( todofld_ )
     {

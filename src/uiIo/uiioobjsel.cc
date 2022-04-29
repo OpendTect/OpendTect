@@ -692,21 +692,6 @@ void uiIOObjSel::doCommit( bool noerr ) const
 {
     bool alreadyerr = noerr;
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr);
-    if ( !setup_.optional_ && !inctio_.ioobj_ && !alreadyerr )
-    {
-
-	CtxtIOObj ctio( inctio_.ctxt_ );
-	if ( !ctio.ctxt_.forread_ && !ctio.ioobj_ )
-	{
-	    uiMSG().error( uiStrings::phrCannotCreateDBEntryFor(
-			    toUiString(workctio_.ctxt_.objectTypeName())) );
-	    return;
-	}
-	uiString txt( inctio_.ctxt_.forread_
-			 ? tr( "Please select the %1")
-			 : tr( "Please enter a valid name for the %1" ) );
-	uiMSG().error( txt.arg( workctio_.ctxt_.objectTypeName() ) );
-    }
 }
 
 
@@ -750,7 +735,18 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     if ( inp.isEmpty() )
     {
 	if ( !haveempty_ )
+	{
+	    if ( !setup_.optional_ && !alreadyerr )
+	    {
+		uiString txt( inctio_.ctxt_.forread_
+				? tr( "Please select the %1")
+				: tr( "Please enter a valid name for the %1" ));
+		uiMSG().error( txt.arg(setup_.seltxt_) );
+	    }
+
 	    return false;
+	}
+
 	workctio_.setObj( 0 ); inctio_.setObj( 0 );
 	commitSucceeded();
 	return true;
@@ -792,12 +788,20 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	       "\nPlease enter another name.").arg(getInput()))
 
     }
+
     if ( workctio_.ctxt_.forread_ )
 	return false;
 
     workctio_.setObj( createEntry( getInput() ) );
-    inctio_.setObj( workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0 );
-    if ( !inctio_.ioobj_ ) return false;
+    inctio_.setObj( workctio_.ioobj_ ? workctio_.ioobj_->clone() : nullptr );
+    if ( !inctio_.ioobj_ )
+    {
+	if ( !alreadyerr )
+	    uiMSG().error(
+		    uiStrings::phrCannotCreateDBEntryFor(setup_.seltxt_) );
+
+	return false;
+    }
 
     commitSucceeded();
     return true;
