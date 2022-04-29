@@ -34,7 +34,7 @@ mUseQtnamespace
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
     , NamedCallBacker(nm)
-    , parent_(parnt ? dCast(uiParentBody*,parnt) : nullptr)
+    , parent_(parnt ? dCast(uiParentBody*,parnt->body()) : nullptr)
 {
 #ifdef USE_DISPLAY_TIMER
     displaytimer_ = new Timer( "Display timer" );
