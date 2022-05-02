@@ -444,9 +444,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( is_2d )
     {
-	ti.nr = ti.binid.crl();
 	if ( !mIsUdfGeomID(geomid_) )
-	    ti.binid.inl() = geomid_;
+	    ti.setGeomID( geomid_ );
     }
 
     return (headerdonenew_ = true);
