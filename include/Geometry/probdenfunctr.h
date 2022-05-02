@@ -34,11 +34,13 @@ public:
 			ProbDenFuncTranslator(const char* nm,const char* unm);
 
     static ProbDenFunc* read(const IOObj&,uiString* emsg=0);
+    static ProbDenFunc* readInfo(const IOObj&,uiString* emsg=0);
     static bool		write(const ProbDenFunc&,const IOObj&,
 			      uiString* emsg=0);
 
     virtual ProbDenFunc* read(od_istream&)			= 0;
-    virtual bool	 write(const ProbDenFunc&,od_ostream&) = 0;;
+    virtual ProbDenFunc* readInfo(od_istream&)			= 0;
+    virtual bool	 write(const ProbDenFunc&,od_ostream&)	= 0;
 
     bool		binary_;	//!< default: false
 
@@ -51,6 +53,7 @@ public:
 			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
 
     ProbDenFunc*	read(od_istream&) override;
+    ProbDenFunc*	readInfo(od_istream&) override;
     bool		write(const ProbDenFunc&,od_ostream&) override;
 
 };
