@@ -271,7 +271,7 @@ bool uiExport2DHorizon::doExport()
 	    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step) continue;
 
 	    TrcKey tk( geomid, -1 );
-	    Coord crd; float spnr = mUdf(float);
+	    Coord crd;
 	    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	    {
 		tk.setTrcNr( trcnr );
@@ -283,7 +283,10 @@ bool uiExport2DHorizon::doExport()
 		const BufferString zstr =
 			zudf ? undefstr.buf() : toString( z*zfac, nrzdec );
 
+		float spnr = mUdf(float);
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
+		if ( mIsUdf(spnr) )
+		    spnr = trcnr;
 		Coords::CoordSystem* coordsys = coordsysselfld_ ?
 			coordsysselfld_->getCoordSystem() : nullptr;
 		if ( coordsys && !(*coordsys == *SI().getCoordSystem()) )
