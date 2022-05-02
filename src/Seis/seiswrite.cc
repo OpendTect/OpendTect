@@ -321,7 +321,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
     linedata_->add( pos );
-    spnrs_ += trc.info().refnr;
+    spnrs_ += mIsUdf(trc.info().refnr) ? trc.info().trcNr() : trc.info().refnr;
 
     return res;
 }
@@ -358,7 +358,8 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    PosInfo::Line2DPos pos( trc.info().nr );
 	    pos.coord_ = trc.info().coord;
 	    linedata_->add( pos );
-	    spnrs_ += trc.info().refnr;
+	    spnrs_ += mIsUdf(trc.info().refnr) ? trc.info().trcNr()
+					       : trc.info().refnr;
 	}
     }
     else if ( is2d_ )
