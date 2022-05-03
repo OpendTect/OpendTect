@@ -879,7 +879,8 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
 	return;
     BufferString lmpropsdnm( lmpropdp.propnm_.buf() );
     if ( isEditUsed() )
-	lmpropsdnm += StratSynth::sKeyFRNameSuffix();
+	StratSynth::addFRNameSuffixIfNotAdded( lmpropsdnm );
+
     const BufferString propnm( "[", lmpropsdnm.buf(), "]" );
     SyntheticData* sd = synthdisp_->getSyntheticData( propnm );
     if ( !sd ) return;

@@ -1265,7 +1265,7 @@ void uiStratSynthDisp::copySyntheticDispPars()
 	if ( useed_ )
 	    sdnm.remove( StratSynth::sKeyFRNameSuffix() );
 	else
-	    sdnm += StratSynth::sKeyFRNameSuffix();
+	    StratSynth::addFRNameSuffixIfNotAdded( sdnm );
 
 	const SyntheticData* altsd = altSS().getSynthetic( sdnm );
 	if ( !altsd ) continue;
