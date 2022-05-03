@@ -13,8 +13,10 @@ set(OD_MODULE_SOURCES
 	initmmproc.cc
 	clusterjobdispatch.cc
 	mmbatchjobdispatch.cc
-	mmproc.cc
 	mmexecproxy.cc
+	mmproc.cc
+	mmpserver.cc
+	mmpserverclient.cc
 	remcommhandler.cc
 	remjobexec.cc
 	singlebatchjobdispatch.cc

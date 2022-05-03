@@ -11,11 +11,12 @@ ________________________________________________________________________
 #include "applicationdata.h"
 #include "commandlineparser.h"
 #include "hostdata.h"
-#include "iopar.h"
+#include "mmpkeystr.h"
 #include "netserver.h"
 #include "netsocket.h"
 #include "od_ostream.h"
 #include "oscommand.h"
+#include "odjson.h"
 #include "remjobexec.h"
 #include "singlebatchjobdispatch.h"
 #include "systeminfo.h"
@@ -56,6 +57,7 @@ static void printBatchUsage()
     mExitRet() \
 }
 
+using namespace MMPStr;
 
 class RemExecHandler : public CallBacker
 {
@@ -121,8 +123,8 @@ void doWork( CallBacker* )
     if ( remhostaddress.isEmpty() )
 	remhostaddress = machine_.str();
 
-    IOPar par;
-    par.set( "Proc Name", remotecmd_.str() );
+    OD::JSON::Object par;
+    par.set( sProcName(), remotecmd_.str() );
 
     BufferString primaryhost;
     int primaryport = -1, jobid = 0;
@@ -133,9 +135,9 @@ void doWork( CallBacker* )
     const bool hasjobid = clp_.getVal( OS::MachineCommand::sKeyJobID(), jobid );
     if ( hasprimaryhost && hasprimaryport && hasjobid )
     {
-	par.set( "Host Name", primaryhost );
-	par.set( "Port Name", primaryport );
-	par.set( "Job ID", jobid );
+	par.set( sHostName(), primaryhost );
+	par.set( sPortName(), primaryport );
+	par.set( sJobID(), jobid );
     }
     else if ( hasprimaryhost || hasprimaryport || hasjobid )
     {
@@ -151,9 +153,10 @@ void doWork( CallBacker* )
     if ( normalarguments.isEmpty() )
 	mErrRet()
 
-    par.set( "Par File", normalarguments.get(0) );
+    par.set( sParFile(), normalarguments.get(0) );
 
-    const Network::Authority auth( remhostaddress, mCast(PortNr_Type,5050) );
+    const Network::Authority auth( remhostaddress,
+				   RemoteJobExec::remoteHandlerPort() );
     PtrMan<RemoteJobExec> rje = new RemoteJobExec( auth );
     rje->addPar( par );
     ApplicationData::exit( rje->launchProc() ? 0 : 1 );

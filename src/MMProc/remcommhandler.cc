@@ -12,24 +12,30 @@ ________________________________________________________________________
 
 #include "filepath.h"
 #include "genc.h"
-#include "ioman.h"
-#include "iopar.h"
-#include "oddirs.h"
-#include "odplatform.h"
-#include "odver.h"
+#include "mmpkeystr.h"
+#include "mmpserver.h"
 #include "od_iostream.h"
+#include "oddirs.h"
+#include "odjson.h"
 #include "oscommand.h"
 #include "systeminfo.h"
-#include "netserver.h"
 #include "timefun.h"
 
 
+using namespace MMPStr;
+
 RemCommHandler::RemCommHandler( PortNr_Type port )
     : port_(port)
-    , server_(*new Network::Server(false))
-    , logstrm_(createLogFile())
+    , server_(*new MMPServer(port))
+    , logstrm_(*new od_ostream)
 {
-    mAttachCB( server_.readyRead, RemCommHandler::dataReceivedCB );
+    createLogFile();
+    writeLog( BufferString("Starting: ", GetFullExecutablePath()) );
+    writeLog( BufferString("Using DataRoot: ", GetBaseDataDir()) );
+    mAttachCB( server_.startJob, RemCommHandler::startJobCB );
+    mAttachCB( server_.logMsg, RemCommHandler::writeLogCB );
+    mAttachCB( server_.dataRootChg, RemCommHandler::dataRootChgCB );
+    mAttachCB( server_.getLogFile, RemCommHandler::getLogFileCB );
 }
 
 
@@ -41,37 +47,33 @@ RemCommHandler::~RemCommHandler()
 }
 
 
-void RemCommHandler::listen() const
+void RemCommHandler::dataRootChgCB( CallBacker* )
 {
-    server_.listen( Network::Any, port_ );
+    createLogFile();
+    writeLog( BufferString("New DataRoot: ", GetBaseDataDir()) );
 }
 
 
-void RemCommHandler::dataReceivedCB( CallBacker* cb )
+void RemCommHandler::startJobCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,socketid,cb);
-    IOPar par;
-    server_.read( socketid, par );
-    if ( par.isEmpty() )
-	writeLog( "Could not read any parameters from server" );
+    mCBCapsuleUnpack(const OD::JSON::Object&,reqobj,cb);
 
-    if ( par.hasKey(sKey::Status()) )
-    {
-	writeLog( BufferString("Status request from: ",
-			       par.find(sKey::Status())) );
-	doStatus( socketid, par );
-	return;
-    }
+    writeLog( BufferString("Start Job: \n",reqobj.dumpJSon()) );
 
     BufferString procnm, parfile;
-    par.get( "Proc Name", procnm );
-    par.get( "Par File", parfile );
+    procnm = reqobj.getStringValue( sProcName() );
+    parfile = reqobj.getStringValue( sParFile() );
 
     BufferString hostnm, portnm, jobid;
-    par.get( "Host Name", hostnm );
-    par.get( "Port Name", portnm );
-    par.get( "Job ID", jobid );
+    hostnm = reqobj.getStringValue( sHostName() );
+    portnm = reqobj.getStringValue( sPortName() );
+    jobid = reqobj.getStringValue( sJobID() );
 
+    if ( procnm.isEmpty() || parfile.isEmpty() )
+    {
+	writeLog( BufferString("Start Job Error: bad Proc Name or Par File") );
+	return;
+    }
     OS::MachineCommand machcomm( procnm );
     if ( !hostnm.isEmpty() )
 	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
@@ -81,6 +83,8 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 			      portnm, OS::OldStyle );
     if ( !jobid.isEmpty() )
 	machcomm.addKeyedArg( "jobid", jobid, OS::OldStyle );
+
+    machcomm.addKeyedArg( "DTECT_DATA", GetBaseDataDir(), OS::OldStyle );
     machcomm.addArg( parfile );
 
     OS::CommandLauncher cl( machcomm );
@@ -113,15 +117,39 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 }
 
 
-od_ostream& RemCommHandler::createLogFile()
+void RemCommHandler::writeLogCB( CallBacker* cb )
 {
+    mCBCapsuleUnpack(const uiRetVal&,uirv,cb);
+    if ( uirv.isOK() )
+	return;
+
+    writeLog( uirv.getText() );
+}
+
+
+void RemCommHandler::getLogFileCB( CallBacker* )
+{
+    OD::JSON::Object paramobj;
+    paramobj.set( sLogFile(), logfilename_ );
+    uiRetVal uirv = server_.sendResponse( sGetLogFile(), paramobj );
+    if ( !uirv.isOK() )
+	writeLog( uirv.getText() );
+}
+
+
+void RemCommHandler::createLogFile()
+{
+    if ( !logfilename_.isEmpty() )
+	logstrm_.close();
+
     FilePath logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();
     lhname.replace( '.',  '_' );
     logfp.add( lhname );
     logfp.setExtension( ".log" );
-    od_ostream* strm = new od_ostream( logfp.fullPath() );
-    return *strm;
+    logfilename_ = logfp.fullPath();
+    server_.setLogFile( logfilename_ );
+    logstrm_.open( logfilename_ );
 }
 
 
@@ -129,27 +157,4 @@ void RemCommHandler::writeLog( const char* msg )
 {
     logstrm_ << Time::getDateTimeString() << od_endl;
     logstrm_ << msg <<od_endl;
-}
-
-
-void RemCommHandler::doStatus( int socketid, const IOPar& inpar )
-{
-    IOPar par;
-    BufferString id( GetExecutableName()," on ",
-		     server_.authority().toString() );
-    par.set( sKey::Status(), id );
-    par.set( sKey::Version(), GetFullODVersion() );
-    par.set( OD::Platform::sPlatform(), OD::Platform::local().longName() );
-    par.set( sKey::DataRoot(), GetBaseDataDir() );
-    if ( inpar.hasKey(sKey::DefaultDataRoot()) )
-    {
-	if ( IOMan::isValidDataRoot(inpar.find(sKey::DefaultDataRoot())) )
-	    par.set( sKey::DefaultDataRoot(), sKey::Ok() );
-	else
-	    par.set( sKey::DefaultDataRoot(), sKey::Err() );
-    }
-
-    if ( !server_.write( socketid, par ) )
-	writeLog( BufferString("Status write error: ",
-			       inpar.find(sKey::Status())) );
 }

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "networkcommon.h"
+#include "odjson.h"
 
 namespace Network { class Socket; }
 
@@ -29,19 +30,16 @@ public:
 			~RemoteJobExec();
 
     bool		launchProc() const;
-    void		addPar(const IOPar&);
+    void		addPar(const OD::JSON::Object&);
     static PortNr_Type	remoteHandlerPort()
 					    { return mCast(PortNr_Type,5050); }
     static const char*	remoteHandlerName()	{ return "od_remoteservice"; }
 
 protected:
 
-    void		ckeckConnection();
-    void		uiErrorMsg(const char*);
+    void		checkConnection();
 
-    Network::Socket&	socket_;
-    IOPar&		par_;
-    bool		isconnected_;
+    OD::JSON::Object	par_;
     const Network::Authority	auth_;
 
 };

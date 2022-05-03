@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "genc.h"
 #include "prog.h"
+#include "remjobexec.h"
 
 
 int mProgMainFnName( int argc, char** argv )
@@ -21,9 +22,7 @@ int mProgMainFnName( int argc, char** argv )
     SetProgramArgs( argc, argv );
     ApplicationData app;
 
-    PtrMan<RemCommHandler> handler = new RemCommHandler( mCast(PortNr_Type,
-							       5050) );
-    handler->writeLog( BufferString("Starting: ", GetFullExecutablePath()) );
-    handler->listen();
+    PtrMan<RemCommHandler> handler = new RemCommHandler(
+					RemoteJobExec::remoteHandlerPort() );
     return app.exec();
 }

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "networkcommon.h"
 #include "od_iosfwd.h"
 
-namespace Network { class Server; }
+class MMPServer;
 
 /*!
 \brief Handles commands to be executed remotely on a different machine.
@@ -26,19 +26,21 @@ mExpClass(MMProc) RemCommHandler : public CallBacker
 public:
 			RemCommHandler(PortNr_Type);
 			~RemCommHandler();
+			RemCommHandler(const RemCommHandler&) = delete;
+    RemCommHandler	operator=(const RemCommHandler&) = delete;
 
-    void		listen() const; //!< Has to be called
     void		writeLog(const char* msg);
 
 protected:
-
-    void		dataReceivedCB(CallBacker*);
-    void		doStatus(int,const IOPar&);
-    od_ostream&		createLogFile();
-    od_ostream&		logstrm_;
-
-    Network::Server&	server_;
+    MMPServer&		server_;
     const PortNr_Type	port_;
+    od_ostream&		logstrm_;
+    BufferString	logfilename_;
 
+    void		getLogFileCB(CallBacker*);
+    void		dataRootChgCB(CallBacker*);
+    void		startJobCB(CallBacker*);
+    void		writeLogCB(CallBacker*);
+    void		createLogFile();
 };
 

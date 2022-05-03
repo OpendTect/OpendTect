@@ -58,7 +58,6 @@ protected:
     void		testHostsCB(CallBacker*);
     void		hostSelCB(CallBacker*);
 
-    uiRetVal		doStatusPacket(int row,const char*,const IOPar&);
     void		checkHostData(int row);
     void		ipAddressChanged(int row);
     void		hostNameChanged(int row);

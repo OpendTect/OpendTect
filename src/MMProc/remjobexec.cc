@@ -14,51 +14,55 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "mmpkeystr.h"
+#include "mmpserverclient.h"
 #include "netsocket.h"
 
 
+using namespace MMPStr;
+
 RemoteJobExec::RemoteJobExec( const Network::Authority& auth )
-    : socket_(*new Network::Socket(false))
-    , auth_(auth)
-    , par_(*new IOPar)
-    , isconnected_(false)
+    : auth_(auth)
 {
-    socket_.setTimeout( 4000 );
-    isconnected_ = socket_.connectToHost( auth, true );
-    ckeckConnection();
+    checkConnection();
 }
 
 
 RemoteJobExec::~RemoteJobExec()
 {
-    socket_.disconnectFromHost();
-    delete &socket_;
-    delete &par_;
 }
 
 
 bool RemoteJobExec::launchProc() const
 {
     if ( !par_.isEmpty() )
-	return socket_.write( par_ );
+    {
+	MMPServerClient mmpserver( auth_ );
+	if ( mmpserver.isOK() )
+	{
+	    OD::JSON::Object resp = mmpserver.sendRequest( sStartJob(), par_ );
+	    return (mmpserver.isOK() && resp.isPresent(sOK()));
+	}
+    }
 
     return false;
 }
 
 
-void RemoteJobExec::addPar( const IOPar& par )
+void RemoteJobExec::addPar( const OD::JSON::Object& par )
 { par_ = par; }
 
 
-void RemoteJobExec::ckeckConnection()
+void RemoteJobExec::checkConnection()
 {
     BufferString errmsg( "Connection to Daemon on ", auth_.getHost() );
     errmsg += " failed";
-    if ( !isconnected_ )
+    MMPServerClient mmpserver( auth_ );
+    if ( !mmpserver.isOK() )
     {
-	const uiString socketmsg = socket_.errMsg();
-	if ( !socketmsg.isEmpty() )
-	    errmsg.add( ": " ).add( socketmsg.getFullString() );
+	const BufferString msg = mmpserver.errMsg().getText();
+	if ( !msg.isEmpty() )
+	    errmsg.add( ": " ).add( msg );
 	OD::DisplayErrorMessage( errmsg );
     }
 }

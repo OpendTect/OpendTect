@@ -79,9 +79,11 @@ public:
     uiRetVal		message() const		{ return msg_; }
     void		fillJSON(OD::JSON::Object&) const;
 
+    void		setAuthority(const Authority&);
     void		setPort(PortNr_Type);
     void		setHostName(const char*);
     void		setLogFile(const char*);
+    void		setLogFile(const FilePath&);
     void		setPID(const OS::CommandLauncher&);
     void		setPID(ProcID);
     void		setType( ServType typ ) { type_ = typ; }

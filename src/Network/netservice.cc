@@ -187,7 +187,7 @@ void Network::Service::fillJSON( OD::JSON::Object& jsonobj ) const
     }
 
     if ( logfp_ )
-	jsonobj.set( sKeyLogFile(), logfp_->fullPath() );
+	jsonobj.set( sKeyLogFile(), *logfp_ );
 }
 
 
@@ -249,9 +249,15 @@ uiRetVal Network::Service::useJSON( const OD::JSON::Object& jsonobj )
 	type_ = sCast(ServType,jsonobj.getIntValue( sKeyServiceType() ));
 
     if ( jsonobj.isPresent(sKeyLogFile()) )
-	setLogFile( jsonobj.getStringValue(sKeyLogFile()) );
+	setLogFile( jsonobj.getFilePath(sKeyLogFile()) );
 
     return uirv;
+}
+
+
+void Network::Service::setAuthority( const Authority& auth )
+{
+    auth_ = auth;
 }
 
 
@@ -273,6 +279,15 @@ void Network::Service::setLogFile( const char* fnm )
 	logfp_ = new FilePath();
 
     logfp_->set( fnm );
+}
+
+
+void Network::Service::setLogFile( const FilePath& fp )
+{
+    if ( !logfp_ )
+	logfp_ = new FilePath( fp );
+    else
+	*logfp_ = fp;
 }
 
 

@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "genc.h"
 #include "hostdata.h"
-#include "netsocket.h"
+#include "mmpserverclient.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "remjobexec.h"
@@ -496,7 +496,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
     uiUserShowWait usw( this, tr("Testing remote hosts") );
     for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
-	const auto* hd = hostdatalist_[idx];
+	auto* hd = hostdatalist_[idx];
 	uiString errmsg;
 	if ( !hd->isOK(errmsg) )
 	{
@@ -514,96 +514,71 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	const BufferString remhostaddress( hd->connAddress() );
 	const Network::Authority auth( remhostaddress,
 				       RemoteJobExec::remoteHandlerPort() );
-	PtrMan<Network::Socket> socket = new Network::Socket( false );
-	socket->setTimeout( 1000 );
-	if ( socket->connectToHost(auth,true) )
+	MMPServerClient mmpserver( auth );
+	if ( mmpserver.isOK() )
 	{
-	    IOPar par;
-	    BufferString id( GetExecutableName()," on ",
-			     System::localFullHostName() );
-	    par.set( sKey::Status(), id );
-	    const BufferString drfpstr =
-				hd->getDataRoot().fullPath(hd->pathStyle());
-	    if ( !drfpstr.isEmpty() )
-		par.set( sKey::DefaultDataRoot(), drfpstr );
-
-	    if ( !socket->write(par) )
+	    const Network::Service& serv = mmpserver.serverService();
+	    BufferString plfname( mmpserver.serverPlatform().longName() );
+	    BufferString authstr( serv.getAuthority().toString() );
+	    BufferString drstr( mmpserver.serverDataRoot() );
+	    BufferString defdrstr( hd->getDataRoot().fullPath() );
+	    if ( autoinfobox_->isChecked() && !readonly_ )
 	    {
-		uiRetVal st_uirv( tr("Error writing to %1 : %2").
-				arg(auth.toString()).arg(socket->errMsg()) );
-		uirv.add( st_uirv );
-		setStatus( *table_, idx, Unknown, st_uirv );
+		hd->setPlatform( mmpserver.serverPlatform() );
+		setPlatform( *table_, idx, *hd, readonly_ );
+	    }
+	    else if ( plfname!=hd->getPlatform().longName() )
+	    {
+		uiRetVal msg( tr("%1 - platform name conflict: %2 vs %3")
+			    .arg(authstr).arg(plfname)
+			    .arg(hd->getPlatform().longName()) );
+		uirv.add( msg );
+		setStatus( *table_, idx, Error, msg );
 		continue;
 	    }
 
-	    if ( !socket->read(par) )
+	    if ( drstr.isEmpty() )
 	    {
-		uiRetVal st_uirv( tr("Error reading from %1 : %2").
-				arg(auth.toString()).arg(socket->errMsg()) );
-		uirv.add( st_uirv );
-		setStatus( *table_, idx, Unknown, st_uirv );
+		uiRetVal msg( tr("%1 - data root not set").arg(authstr) );
+		uirv.add( msg );
+		setStatus( *table_, idx, Error, msg );
+		continue;
+	    }
+	    else if ( autoinfobox_->isChecked() && !readonly_ )
+	    {
+		hd->setDataRoot( FilePath(drstr) );
+		setDataRoot( *table_, idx, *hd, readonly_ );
+	    }
+	    else if ( drstr!=defdrstr &&
+				     !mmpserver.validServerDataRoot(defdrstr) )
+	    {
+		uiRetVal msg( tr("%1 - default data root not present")
+								.arg(authstr) );
+		uirv.add( msg );
+		setStatus( *table_, idx, Error, msg );
 		continue;
 	    }
 
-	    uiRetVal st_uirv = doStatusPacket( idx, auth.toString(), par );
-	    if ( !st_uirv.isOK() )
-	    {
-		setStatus( *table_, idx, Error, st_uirv );
-		uirv.add( st_uirv);
-		continue;
-	    }
-
-	    BufferString parstr;
-	    par.dumpPretty( parstr );
-	    setStatus( *table_, idx, OK, uiPhraseSet(::toUiString(parstr)) );
+	    BufferString infostr;
+	    infostr.add("Authority:").addTab().add(authstr).addNewLine();
+	    infostr.add("PID:").addTab().add(serv.PID()).addNewLine();
+	    infostr.add("Platform:").addTab().add(plfname).addNewLine();
+	    infostr.add("ODVersion:").addTab();
+	    infostr.add(mmpserver.serverODVer()).addNewLine();
+	    infostr.add("Data Root:").addTab();
+	    infostr.add(mmpserver.serverDataRoot()).addNewLine();
+	    setStatus( *table_, idx, OK, uiPhraseSet(::toUiString(infostr)) );
 	}
 	else
 	{
-	    uiRetVal st_uirv( tr("%1 : %2").arg(auth.toString())
-					   .arg(socket->errMsg()) );
-	    uirv.add( st_uirv );
-	    setStatus( *table_, idx, Error, st_uirv );
+	    uirv.add( mmpserver.errMsg() );
+	    setStatus( *table_, idx, Error, mmpserver.errMsg() );
 	}
     }
 
     if ( !uirv.isOK() )
 	uiMSG().errorWithDetails( uirv,
 			uiStrings::phrCheck(uiStrings::sSettings()) );
-}
-
-
-uiRetVal uiBatchHostsDlg::doStatusPacket( int row, const char* authstr,
-					  const IOPar& par )
-{
-    uiRetVal uirv;
-    auto* hd = hostdatalist_[row];
-    BufferString plfname;
-    par.get( OD::Platform::sPlatform(), plfname );
-    if ( !OD::Platform::isValidName(plfname, false) )
-	uirv.add( tr("%1 - invalid platform: %2").arg(authstr).arg(plfname) );
-    else if ( autoinfobox_->isChecked() )
-    {
-	hd->setPlatform( OD::Platform(plfname, false) );
-	setPlatform( *table_, row, *hd, readonly_ );
-    }
-    else if ( plfname!=hd->getPlatform().longName() )
-	uirv.add( tr("%1 - platform name conflict: %2 vs %3").arg(authstr).
-							      arg(plfname).
-					    arg(hd->getPlatform().longName()) );
-
-    BufferString drstr;
-    par.get( sKey::DataRoot(), drstr );
-    if ( drstr.isEmpty() )
-	uirv.add( tr("%1 - data root not set").arg(authstr) );
-    else if ( autoinfobox_->isChecked() )
-    {
-	hd->setDataRoot( FilePath(drstr) );
-	setDataRoot( *table_, row, *hd, readonly_ );
-    }
-    else if ( BufferString(par.find(sKey::DefaultDataRoot()))!=sKey::Ok() )
-	uirv.add( tr("%1 - default data root not present").arg(authstr) );
-
-    return uirv;
 }
 
 

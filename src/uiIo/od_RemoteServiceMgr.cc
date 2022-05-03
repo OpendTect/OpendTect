@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "mmpserverclient.h"
 #include "moddepmgr.h"
 #include "netservice.h"
 #include "networkcommon.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uitraydialog.h"
 #include "uistrings.h"
 #include "uitextfile.h"
@@ -56,11 +58,14 @@ protected:
     uiPushButton*	stopbut_;
     uiPushButton*	reloadlogbut_;
 
-    Network::Service	nwservice_;
+    MMPServerClient&	mmpserver_;
 
     void		startCB(CallBacker*);
     void		stopCB(CallBacker*);
     void		reloadlogCB(CallBacker*);
+    void		showErrorCB(CallBacker*);
+    void		logFileChgCB(CallBacker*);
+    void		changeDataRootCB(CallBacker*);
     void		updateCB(CallBacker*);
     void		exitCB(CallBacker*) override;
     bool		rejectOK(CallBacker*) override;
@@ -101,10 +106,11 @@ int mProgMainFnName( int argc, char** argv )
 uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     : uiTrayDialog(p,Setup(tr("Remote Service Manager"), uiString::empty(),
 			   mNoHelpKey))
-    , nwservice_(0)
+    , mmpserver_(*new MMPServerClient(RemoteJobExec::remoteHandlerPort()))
 {
     setCtrlStyle( CloseOnly );
     setTrayToolTip( tr("OpendTect Remote Service Manager") );
+    setIcon( uiPixmap("rsm") );
 
     datarootsel_ = new uiDataRootSel( this );
     auto* buttons =  new uiButtonGroup( this, "buttons", OD::Horizontal );
@@ -120,7 +126,11 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     textbox_ = new uiTextFile( this, nullptr, su );
     textbox_->uiObj()->attach( centeredBelow, buttons );
 
-    nwservice_.setPID( 0 );
+    mAttachCB(mmpserver_.errorNotice, uiRemoteServiceMgr::showErrorCB);
+    mAttachCB(mmpserver_.logFileChg, uiRemoteServiceMgr::logFileChgCB);
+    mAttachCB(datarootsel_->selectionChanged,
+	      uiRemoteServiceMgr::changeDataRootCB);
+    logFileChgCB( nullptr );
     updateCB( nullptr );
 }
 
@@ -128,12 +138,13 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
 uiRemoteServiceMgr::~uiRemoteServiceMgr()
 {
     detachAllNotifiers();
+    delete &mmpserver_;
 }
 
 
 void uiRemoteServiceMgr::startCB( CallBacker* )
 {
-    if ( nwservice_.isAlive() )
+    if ( mmpserver_.serverService().isAlive() )
     {
 	uiMSG().error( tr("Remote service is already running") );
 	return;
@@ -157,14 +168,9 @@ void uiRemoteServiceMgr::startCB( CallBacker* )
     OS::CommandLauncher cl( mc );
     if ( cl.execute(pars) )
     {
-	nwservice_.setPID( cl );
-	nwservice_.setPort( rsport );
-	nwservice_.setType( Network::Service::ODBatch );
-	nwservice_.setLogFile( getLogFileName() );
-	nwservice_.setHostName( System::localAddress() );
-	nwservice_.setName( rsexecnm );
-
-	textbox_->open( getLogFileName() );
+	sleepSeconds( 1 );
+	mmpserver_.refresh();
+	logFileChgCB( nullptr );
     }
     else
 	uiMSG().errorWithDetails( uiStringSet(cl.errorMsg(),
@@ -176,13 +182,12 @@ void uiRemoteServiceMgr::startCB( CallBacker* )
 
 void uiRemoteServiceMgr::stopCB( CallBacker* )
 {
-    if ( !nwservice_.isAlive() )
+    if ( !mmpserver_.serverService().isAlive() )
     {
 	uiMSG().error( tr("Remote service is not running") );
 	return;
     }
-
-    nwservice_.stop( false );
+    mmpserver_.stopServer( false );
 
     updateCB( nullptr );
 }
@@ -190,28 +195,46 @@ void uiRemoteServiceMgr::stopCB( CallBacker* )
 
 void uiRemoteServiceMgr::reloadlogCB( CallBacker* )
 {
-    if ( nwservice_.isAlive() )
+    if ( mmpserver_.serverService().isAlive() )
 	textbox_->reLoad();
+}
+
+
+void uiRemoteServiceMgr::showErrorCB( CallBacker* )
+{
+    uiMSG().errorWithDetails( mmpserver_.errMsg().messages() );
+}
+
+
+void uiRemoteServiceMgr::logFileChgCB( CallBacker* )
+{
+    textbox_->open( mmpserver_.serverService().logFnm() );
+}
+
+
+void uiRemoteServiceMgr::changeDataRootCB( CallBacker* )
+{
+    mmpserver_.setServerDataRoot( datarootsel_->getDataRoot() );
 }
 
 
 void uiRemoteServiceMgr::updateCB( CallBacker*)
 {
-    const bool isalive = nwservice_.isAlive();
+    const bool isalive = mmpserver_.serverService().isAlive();
     startbut_->setSensitive( !isalive );
     stopbut_->setSensitive( isalive );
     reloadlogbut_->setSensitive( isalive );
     if ( isalive )
-	setTrayIcon("reload");
+	setTrayIcon("tray-rsm-active");
     else
-	setTrayIcon("stop");
+	setTrayIcon("tray-rsm-inactive");
 }
 
 
 void uiRemoteServiceMgr::exitCB( CallBacker* )
 {
     showCB( nullptr );
-    if ( nwservice_.isAlive() )
+    if ( mmpserver_.serverService().isAlive() )
     {
 	if ( uiMSG().askGoOn(tr("Confirm Exit of %1").arg(caption())) )
 	    stopCB( nullptr );
