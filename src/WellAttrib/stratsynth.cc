@@ -250,6 +250,12 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
 }
 
 
+void StratSynth::addFRNameSuffixIfNotAdded( BufferString& nm )
+{
+    if ( !nm.endsWith(sKeyFRNameSuffix()) )
+	nm.add( sKeyFRNameSuffix );
+}
+
 
 StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     : lmp_(lmp)
@@ -1059,7 +1065,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	{
 	    BufferString inputsdnm( synthgenpar.inpsynthnm_ );
 	    if ( useed_ )
-		inputsdnm += sKeyFRNameSuffix();
+		addFRNameSuffixIfNotAdded( inputsdnm );
+
 	    const SyntheticData* presd = getSynthetic( inputsdnm );
 	    if ( !presd )
 		mErrRet( tr(" input prestack synthetic data not found."),
@@ -1095,7 +1102,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     if ( useed_ )
     {
 	BufferString sdnm = sd->name();
-	sdnm += sKeyFRNameSuffix();
+	addFRNameSuffixIfNotAdded( sdnm );
 	sd->setName( sdnm );
     }
 
@@ -1465,7 +1472,8 @@ bool doFinish( bool success ) override
 	SeisTrcBufDataPack* dp = seisbufdps_[idx];
 	BufferString propnm = props[idx+1]->name();
 	if ( useed_ )
-	    propnm += StratSynth::sKeyFRNameSuffix();
+	    StratSynth::addFRNameSuffixIfNotAdded( propnm );
+
 	BufferString nm( "[", propnm, "]" );
 	dp->setName( nm );
 	auto* prsd = new StratPropSyntheticData( sgp, *dp, *props[idx+1] );

@@ -132,6 +132,7 @@ public:
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
 
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
+    static void		addFRNameSuffixIfNotAdded(BufferString&);
 
 protected:
 
