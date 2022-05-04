@@ -95,7 +95,7 @@ public:
 protected:
 
     const PropertyRef&	ref_;
-    const Mnemonic*	mn_;
+    const Mnemonic*	mn_ = nullptr;
     mutable float	lastval_;
 
     virtual float	gtVal(EvalOpts) const		= 0;
@@ -202,10 +202,10 @@ public:
 			RangeProperty( const PropertyRef& pr )
 			  : Property(pr)
 			{
-			    if ( mnem() )
-				rg_ = mnem()->disp_.range_;
-			    else if ( pr.name() == "Thickness" )
+			    if ( pr.name() == "Thickness" )
 				rg_ = Interval<float>(1.f,99.f);
+			    else if ( mnem() )
+				rg_ = mnem()->disp_.range_;
 			}
 			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
