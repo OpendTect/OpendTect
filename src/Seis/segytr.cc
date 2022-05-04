@@ -408,7 +408,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	txthead_->setGeomID( curGeomID() );
 
 	txthead_->setUserInfo( ++lastlnr, pinfo_.usrinfo );
-	if ( Settings::common().isTrue("SEGY.Text Header EBCDIC") )
+	if ( Settings::common().isTrue(SEGY::TxtHeader::sKeySettingEBCDIC()) )
 	    txthead_->setEbcdic();
     }
 
