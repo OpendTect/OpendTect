@@ -36,8 +36,9 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
-#include "oddirs.h"
 #include "od_helpids.h"
+#include "od_istream.h"
+#include "oddirs.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
 #include "segyhdr.h"
@@ -45,7 +46,7 @@ ________________________________________________________________________
 #include "seisread.h"
 #include "seissingtrcproc.h"
 #include "seiswrite.h"
-#include "od_istream.h"
+#include "settings.h"
 #include "survgeom.h"
 #include "zdomain.h"
 
@@ -222,12 +223,18 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
     txtheadfld_->attach( alignedBelow, fpfld_ );
 
+    const bool doebcdic =
+	Settings::common().isTrue( SEGY::TxtHeader::sKeySettingEBCDIC() );
+    txtheadfmtsel_ = new uiGenInput( this, tr("Text header format"),
+	    BoolInpSpec(doebcdic,toUiString("EBCDIC"),uiStrings::sASCII()) );
+    txtheadfmtsel_->attach( alignedBelow, txtheadfld_ );
+
     const bool is2d = Seis::is2D(geom_);
     const bool is2dline = geom_ == Seis::Line;
     uiSEGYFileSpec::Setup su( !is2dline );
     su.forread( false ).canbe3d( !is2d );
     fsfld_ = new uiSEGYFileSpec( this, su );
-    fsfld_->attach( alignedBelow, txtheadfld_ );
+    fsfld_->attach( alignedBelow, txtheadfmtsel_ );
 
     if ( is2dline )
     {
@@ -460,6 +467,10 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const bool is2d = Seis::is2D( geom_ );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
+
+    const bool doebcdic = txtheadfmtsel_->getBoolValue();
+    Settings::common().setYN( SEGY::TxtHeader::sKeySettingEBCDIC(), doebcdic );
+    Settings::common().write();
 
     if ( batchfld_ && batchfld_->wantBatch() )
     {

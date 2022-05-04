@@ -100,9 +100,9 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
 								    *outpar );
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"SEG-Y importer", &iop,
-				toUiString("Importing traces") );
+    PtrMan<SeisSingleTraceProc> stp =
+	new SeisSingleTraceProc( *inioobj, *outioobj, "SEG-Y importer", &iop,
+				 toUiString("Importing traces") );
 
     const SeisTrcReader* rdr = stp->reader();
     SeisTrcTranslator* transl =
@@ -155,9 +155,9 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
 								    *outpar );
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-			    "SEG-Y exporter", outpar,
-			    mToUiStringTodo("Exporting traces"), compnr );
+    PtrMan<SeisSingleTraceProc> stp =
+	new SeisSingleTraceProc( *inioobj, *outioobj, "SEG-Y exporter", outpar,
+				 mToUiStringTodo("Exporting traces"), compnr );
     const SeisTrcWriter& wrr = stp->writer();
     SeisTrcTranslator* transl =
 		    const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
