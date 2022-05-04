@@ -253,7 +253,7 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
 void StratSynth::addFRNameSuffixIfNotAdded( BufferString& nm )
 {
     if ( !nm.endsWith(sKeyFRNameSuffix()) )
-	nm.add( sKeyFRNameSuffix );
+	nm.add( sKeyFRNameSuffix() );
 }
 
 
