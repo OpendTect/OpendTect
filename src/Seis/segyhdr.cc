@@ -771,7 +771,7 @@ SEGY::TrcHeader& SEGY::TrcHeader::operator =( const SEGY::TrcHeader& oth )
 	nonrectcoords = oth.nonrectcoords;
 
 	if ( mybuf_ )
-	    { delete [] buf_; buf_ = 0; }
+	    { delete [] buf_; buf_ = nullptr; }
 	mybuf_ = oth.mybuf_;
 	if ( !mybuf_ )
 	    buf_ = oth.buf_;
@@ -788,7 +788,7 @@ SEGY::TrcHeader& SEGY::TrcHeader::operator =( const SEGY::TrcHeader& oth )
 
 const SEGY::HdrDef& SEGY::TrcHeader::hdrDef()
 {
-    mDefineStaticLocalObject( PtrMan<SEGY::HdrDef>, trcdef, = 0 );
+    mDefineStaticLocalObject( PtrMan<SEGY::HdrDef>, trcdef, = nullptr );
     if ( trcdef ) return *(trcdef.ptr());
 
     trcdef = new SEGY::HdrDef( false );
@@ -804,73 +804,79 @@ const SEGY::HdrDef& SEGY::TrcHeader::hdrDef()
 void SEGY::TrcHeader::fillRev1Def( TrcHeaderDef& thd )
 {
     const SEGY::HdrDef& defs = SEGY::TrcHeader::hdrDef();
-    thd.inl_ = *defs[SEGY::TrcHeader::EntryInline()];
-    thd.crl_ = *defs[SEGY::TrcHeader::EntryCrossline()];
-    thd.xcoord_ = *defs[SEGY::TrcHeader::EntryXcdp()];
-    thd.ycoord_ = *defs[SEGY::TrcHeader::EntryYcdp()];
-    thd.trnr_ = *defs[SEGY::TrcHeader::EntryCdp()];
-    thd.refnr_ = *defs[SEGY::TrcHeader::EntrySP()];
-    thd.offs_ = *defs[SEGY::TrcHeader::EntryOffset()];
+    thd.inl_ = *defs[SEGY::TrcHeader::EntryInline()];		// 189-192
+    thd.crl_ = *defs[SEGY::TrcHeader::EntryCrossline()];	// 193-196
+    thd.xcoord_ = *defs[SEGY::TrcHeader::EntryXcdp()];		// 181-184
+    thd.ycoord_ = *defs[SEGY::TrcHeader::EntryYcdp()];		// 185-188
+    thd.trnr_ = *defs[SEGY::TrcHeader::EntryCdp()];		// 21-24
+    thd.refnr_ = *defs[SEGY::TrcHeader::EntrySP()];		// 197-200
+    thd.offs_ = *defs[SEGY::TrcHeader::EntryOffset()];		// 37-40
 }
 
 
 void SEGY::TrcHeader::initRead()
 {
-    const short trid = (short)entryVal( EntryTrid() );
+    const short trid = sCast(short,entryVal(EntryTrid()));	// 29-30
     isusable = trid < 2 || trid > 10;
 
-    const short counit = (short)entryVal( EntryCoUnit() );
+    const short counit = sCast(short,entryVal(EntryCoUnit()));	// 89-90
     nonrectcoords = counit > 1 && counit < 5;
 }
 
 
 unsigned short SEGY::TrcHeader::nrSamples() const
 {
-    return (unsigned short)entryVal( EntryNs() );
+    return sCast(unsigned short,entryVal(EntryNs()));		// 115-116
 }
 
 
 void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 {
     SamplingData<float> sd( sdin );
-    mPIEPAdj(Z,sd.start,false); mPIEPAdj(Z,sd.step,false);
+    PosImpExpPars::SVY().adjustZ( sd.start, false );
+    PosImpExpPars::SVY().adjustZ( sd.step, false );
 
     const float zfac = sCast( float, SI().zDomain().userFactor() );
-    float drt = sd.start * zfac;
-    short delrt = (short)mNINT32(drt);
-    setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel
-    setEntryVal( EntryDelRt(), delrt );
-    int sr_us = (int)( sd.step * 1e3 * zfac + .5 );
-    setEntryVal( EntryDt(), sr_us );
-    if ( ns != 0 )
-	setEntryVal( EntryNs(), ns );
-    else
-	setEntryVal( EntryNs(), SI().zRange(false).nrSteps() + 1 );
+    const float drt = sd.start * zfac;
+    const short delrt = sCast(short,mNINT32(drt));
+    setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel	// 105-106
+    setEntryVal( EntryDelRt(), delrt );				// 109-110
+
+    const int sr_us = sCast(int,sd.step * 1e3f * zfac + .5f);
+    setEntryVal( EntryDt(), sr_us );				// 117-118
+    if ( ns == 0 )
+	ns = SI().zRange(false).nrSteps() + 1;
+
+    setEntryVal( EntryNs(), ns );				// 115-116
 }
 
 
 void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 {
-    Coord crd( ti.coord ); mPIEPAdj(Coord,crd,false);
-    const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
-    setEntryVal( EntryXcdp(), icx );
-    setEntryVal( EntryYcdp(), icy );
+    Coord crd( ti.coord );
+    PosImpExpPars::SVY().adjustCoord( crd, false );
+    const int icx = mNINT32(crd.x*10);
+    const int icy = mNINT32(crd.y*10);
+    setEntryVal( EntryXcdp(), icx );				// 181-184
+    setEntryVal( EntryYcdp(), icy );				// 185-188
 
-    int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
     if ( SEGY::TxtHeader::info2D() )
     {
+	int tnr = ti.nr;
+	PosImpExpPars::SVY().adjustTrcNr( tnr, false );
 	if ( !mIsUdf(ti.refnr) )
 	{
 	    tnr = mNINT32(ti.refnr*100);
-	    setEntryVal( EntrySPscale(), -100 );
+	    setEntryVal( EntrySPscale(), -100 );		// 201-202
 	}
-	setEntryVal( EntrySP(), tnr );
+	setEntryVal( EntrySP(), tnr );				// 197-200
     }
     else
     {
-	BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-	setEntryVal( EntryInline(), bid.inl() );
-	setEntryVal( EntryCrossline(), bid.crl() );
+	BinID bid( ti.binid );
+	PosImpExpPars::SVY().adjustBinID( bid, false );
+	setEntryVal( EntryInline(), bid.inl() );		// 189-192
+	setEntryVal( EntryCrossline(), bid.crl() );		// 193-196
     }
 }
 
@@ -880,54 +886,69 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( isrev0_ ) // For rev0, we initially fill with Rev 1 defaults
 	putRev1Flds( ti );
 
-    setEntryVal( EntryTrid(), 1 );
-    setEntryVal( EntryDUse(), 1 );
-    setEntryVal( EntryCoUnit(), 1 );
+    setEntryVal( EntryTrid(), 1 );				// 29-30
+    setEntryVal( EntryDUse(), 1 );				// 35-36
+    setEntryVal( EntryCoUnit(), 1 );				// 89-90
 
     const bool is2d = SEGY::TxtHeader::info2D();
     if ( !is2d && ti.binid.inl() != previnl_ )
 	lineseqnr_ = 1;
 
     previnl_ = ti.binid.inl();
-    int nr2put = is2d ? seqnr_ : lineseqnr_;
-    setEntryVal( EntryTracl(), nr2put );
-    setEntryVal( EntryTracr(), seqnr_ );
-    seqnr_++; lineseqnr_++;
-    if ( is2d )
-	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
-    else
-	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
-
-    setEntryVal( EntryCdp(), nr2put );
-
-    Coord crd( ti.coord );
-    if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
-    mPIEPAdj(Coord,crd,false);
-    static bool noscalco = GetEnvVarYN( "OD_SEGY_NO_SCALCO" );
-    int iscalco, icx, icy;
-    if ( noscalco )
-	{ iscalco = 1; icx = mNINT32(crd.x); icy = mNINT32(crd.y); }
-    else
-	{ iscalco = -10; icx = mNINT32(crd.x*10); icy = mNINT32(crd.y*10); }
-
-    setEntryVal( EntryScalco(), iscalco );
-    hdef_.xcoord_.putValue( buf_, icx );
-    hdef_.ycoord_.putValue( buf_, icy );
+    const int nr2put = is2d ? seqnr_ : lineseqnr_;
+    setEntryVal( EntryTracl(), nr2put );			// 1-4
+    setEntryVal( EntryTracr(), seqnr_ );			// 5-8
+    seqnr_++;
+    lineseqnr_++;
 
     if ( is2d )
     {
-	int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
-	hdef_.trnr_.putValue( buf_, intval );
-	setEntryVal( EntryOldSP(), int(ti.refnr) );
+	int trcnr = ti.nr;
+	PosImpExpPars::SVY().adjustTrcNr( trcnr, false );
+	setEntryVal( EntryCdp(), trcnr );			// 21-24
+	setEntryVal( EntryOldSP(), int(ti.refnr) );		// 17-20
+
+	hdef_.trnr_.putValue( buf_, trcnr );
     }
     else
     {
-	BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+	BinID bid = ti.binid;
+	PosImpExpPars::SVY().adjustBinID( bid, false );
+	setEntryVal( EntryFldr(), bid.inl() );			// 9-12
+	setEntryVal( EntryCdp(), bid.crl() );			// 21-24
+
 	hdef_.inl_.putValue( buf_, ti.binid.inl() );
 	hdef_.crl_.putValue( buf_, ti.binid.crl() );
     }
 
-    float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
+    Coord crd( ti.coord );
+    if ( mIsUdf(crd.x) )
+	crd.x = crd.y = 0;
+
+    PosImpExpPars::SVY().adjustCoord( crd, false );
+    static bool noscalco = GetEnvVarYN( "OD_SEGY_NO_SCALCO" );
+    int iscalco, icx, icy;
+    if ( noscalco )
+    {
+	iscalco = 1;
+	icx = mNINT32(crd.x);
+	icy = mNINT32(crd.y);
+    }
+    else
+    {
+	iscalco = -10;
+	icx = mNINT32(crd.x*10);
+	icy = mNINT32(crd.y*10);
+    }
+
+    setEntryVal( EntryScalco(), iscalco );			// 71-72
+    setEntryVal( EntrySx(), icx );				// 73-76
+    setEntryVal( EntrySy(), icy );				// 77-80
+    hdef_.xcoord_.putValue( buf_, icx );
+    hdef_.ycoord_.putValue( buf_, icy );
+
+    float tioffs = ti.offset;
+    PosImpExpPars::SVY().adjustOffset( tioffs, false );
     int intval = mNINT32( tioffs );
     hdef_.offs_.putValue( buf_, intval );
     intval = mNINT32( ti.azimuth * 360 / M_PI );
@@ -952,7 +973,7 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     // There seems to be software (Paradigm?) putting this on byte 189
     // Then we'd expect this to be 4 byte. Sigh. How far do we need to go
     // to support crap from SEG-Y vandals?
-    HdrEntry he( *hdrDef()[EntryTrwf()] );
+    HdrEntry he( *hdrDef()[EntryTrwf()] );			// 169-170
     mDefineStaticLocalObject( bool, postscale_byte_established, = false );
     mDefineStaticLocalObject( int, bnr, = he.bytepos_ );
     mDefineStaticLocalObject( bool, smallbtsz, = he.issmall_ );
@@ -966,8 +987,9 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
     he.bytepos_ = (HdrEntry::BytePos)bnr;
     he.issmall_ = smallbtsz;
-    const short trwf = (short)he.getValue( buf_, needswap_ );
-    if ( trwf == 0 || trwf > 50 || trwf < -50 ) return 1;
+    const short trwf = sCast(short,he.getValue(buf_,needswap_));
+    if ( trwf == 0 || trwf > 50 || trwf < -50 )
+	return 1;
 
     return Math::IntPowerOf( ((float)2), trwf );
 }
@@ -975,23 +997,24 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
 void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
-    ti.coord.x = entryVal( EntryXcdp() );
-    ti.coord.y = entryVal( EntryYcdp() );
-    ti.binid.inl() = entryVal( EntryInline() );
-    ti.binid.crl() = entryVal( EntryCrossline() );
-    ti.refnr = sCast( float, entryVal(EntrySP()) );
+    ti.coord.x = entryVal( EntryXcdp() );			// 181-184
+    ti.coord.y = entryVal( EntryYcdp() );			// 185-188
+    ti.binid.inl() = entryVal( EntryInline() );			// 189-192
+    ti.binid.crl() = entryVal( EntryCrossline() );		// 193-196
+    ti.refnr = sCast( float, entryVal(EntrySP()) );		// 197-200
     if ( !isrev0_ )
     {
-	const short scalnr = sCast( short, entryVal(EntrySPscale()) );
-	if ( scalnr )
+	const short scalnr = sCast(short,entryVal(EntrySPscale())); // 201-202
+	if ( scalnr != 0 )
 	{
 	    ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
 	    ti.nr = mNINT32(ti.refnr);
 	}
     }
-    mPIEPAdj(Coord,ti.coord,true);
-    mPIEPAdj(BinID,ti.binid,true);
-    mPIEPAdj(TrcNr,ti.nr,true);
+
+    PosImpExpPars::SVY().adjustCoord( ti.coord, true );
+    PosImpExpPars::SVY().adjustBinID( ti.binid, true );
+    PosImpExpPars::SVY().adjustTrcNr( ti.nr, true );
 }
 
 
@@ -1013,9 +1036,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	getRev1Flds( ti ); // if rev 0, start with rev 1 as default
 
     const float zfac = 1.0f / SI().zDomain().userFactor();
-    short delrt = sCast( short, entryVal(EntryDelRt()) );
+    short delrt = sCast( short, entryVal(EntryDelRt()) );	// 109-110
     if ( delrt == 0 )
-    {
+    {								// 105-106
 	delrt = - sCast( short, entryVal(EntryLagA()) ); // HRS and Petrel
 	mDefineStaticLocalObject( const bool, smt_bad_laga,
 				  = GetEnvVarYN("OD_SEGY_BAD_LAGA") );
@@ -1026,12 +1049,12 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	    delrt = 0;
     }
     ti.sampling.start = delrt * zfac;
-    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001f;
-    mPIEPAdj(Z,ti.sampling.start,true);
-    mPIEPAdj(Z,ti.sampling.step,true);
+    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001f;	// 117-118
+    PosImpExpPars::SVY().adjustZ( ti.sampling.start, true );
+    PosImpExpPars::SVY().adjustZ( ti.sampling.step, true );
 
     ti.pick = ti.refnr = mUdf(float);
-    ti.nr = entryVal( EntryTracl() );
+    ti.nr = entryVal( EntryTracl() );				// 1-4
 
     if ( !hdef_.pick_.isUdf() )
     {
@@ -1039,7 +1062,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	ti.pick = val * 0.001f;
     }
 
-    mPIEPAdj(Z,ti.pick,true);
+    PosImpExpPars::SVY().adjustZ( ti.pick, true );
 
     if ( !hdef_.refnr_.isUdf() )
     {
@@ -1047,8 +1070,8 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	short bp = hdef_.refnr_.bytepos_;
 	if ( !hdef_.refnr_.isInternal() )
 	    bp--;
-	if ( bp == hdrDef()[EntrySP()]->bytepos_ )
-	{
+	if ( bp == hdrDef()[EntrySP()]->bytepos_ )		// 197-200
+	{							// 201-202
 	    const short spscale = sCast(short,entryVal(EntrySPscale()) );
 	    const float scalnr =
 		spscale==0 ? 1 : (spscale>0 ? spscale : -1.f/spscale);
@@ -1062,7 +1085,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.binid.inl() = ti.binid.crl() = 0;
     ti.binid.inl() = hdef_.inl_.getValue(buf_,needswap_);
     ti.binid.crl() = hdef_.crl_.getValue(buf_,needswap_);
-    mPIEPAdj(BinID,ti.binid,true);
+    PosImpExpPars::SVY().adjustBinID( ti.binid, true );
 
     ti.offset = sCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset < 0 ) ti.offset = -ti.offset;
@@ -1081,7 +1104,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 		const_cast<SEGY::TrcHeaderDef&>(hdef_).trnr_.bytepos_ = -5; }
 	ti.nr = seqnr;
     }
-    mPIEPAdj(TrcNr,ti.nr,true);
+    PosImpExpPars::SVY().adjustTrcNr( ti.nr, true );
 
     if ( !isrev0_ )
     {
@@ -1091,8 +1114,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     }
 
     const double scale = getCoordScale( extcoordsc );
-    ti.coord.x *= scale; ti.coord.y *= scale;
-    mPIEPAdj(Coord,ti.coord,true);
+    ti.coord.x *= scale;
+    ti.coord.y *= scale;
+    PosImpExpPars::SVY().adjustCoord( ti.coord, true );
 }
 
 
@@ -1101,7 +1125,7 @@ double SEGY::TrcHeader::getCoordScale( float extcoordsc ) const
     if ( !mIsUdf(extcoordsc) )
 	return double(extcoordsc);
 
-    const short scalco = sCast( short, entryVal(EntryScalco()) );
+    const short scalco = sCast( short, entryVal(EntryScalco()) ); // 71-72
     return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
 }
 
@@ -1109,8 +1133,8 @@ double SEGY::TrcHeader::getCoordScale( float extcoordsc ) const
 Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc ) const
 {
     const double scale = getCoordScale( extcoordsc );
-    Coord ret(	entryVal( rcv?EntryGx():EntrySx() ),
-		entryVal( rcv?EntryGy():EntrySy() ) );
+    Coord ret(	entryVal( rcv?EntryGx():EntrySx() ),		// 81-84, 73-76
+		entryVal( rcv?EntryGy():EntrySy() ) );		// 85-88, 77-80
     ret.x *= scale; ret.y *= scale;
     return ret;
 }
