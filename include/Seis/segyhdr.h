@@ -69,6 +69,9 @@ public:
     void	setLineStarts();
     void	dump(od_ostream&) const;
 
+    static const char*	sKeySettingEBCDIC()
+			{ return "SEGY.Text Header EBCDIC"; }
+
 protected:
 
     int			revision_	= 1;

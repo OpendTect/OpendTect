@@ -47,6 +47,7 @@ protected:
     uiSEGYFilePars*	fpfld_;
     uiSEGYFileSpec*	fsfld_;
     uiSEGYExpTxtHeader*	txtheadfld_;
+    uiGenInput*		txtheadfmtsel_;
     uiCheckBox*		morebox_;
     uiCheckBox*		manipbox_;
     uiBatchJobDispatcherSel* batchfld_;
