@@ -510,26 +510,29 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
 bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 {
-    DescSet* descset = 0;
+    DescSet* descset = nullptr;
     attrdata_.attribid_ = DescID::undef();
     attrdata_.outputnr_ = -1;
 
     if ( !insertedobjmid_.isUdf() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( insertedobjmid_ );
-	if ( !ioobj ) return false;
+	if ( !ioobj )
+	    return false;
 
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
+	attrdata_.compnr_ = 0;
 	if ( !usedasinput_ && descset )
 	    attrdata_.setAttrSet( descset );
 
 	return true;
     }
 
-    if ( !selgrp_ || !in_action_ ) return true;
+    if ( !selgrp_ || !in_action_ )
+	return true;
 
     int selidx = -1;
     const int seltyp = selType();
