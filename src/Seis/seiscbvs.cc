@@ -12,8 +12,8 @@
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "filepath.h"
-#include "iostrm.h"
 #include "ioman.h"
+#include "iostrm.h"
 #include "keystrs.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
@@ -26,22 +26,22 @@
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
-	: SeisTrcTranslator(nm,unm)
-	, headerdone_(false)	// Will be removed
-	, donext_(false)
-	, forread_(true)
-	, storinterps_(0)	// Will be removed
-	, blockbufs_(0)		// Will be removed
-	, compsel_(0)
-	, preseldatatype_(0)
-	, rdmgr_(0)
-	, wrmgr_(0)
-	, nrdone_(0)
-	, brickspec_(*new VBrickSpec)
-	, single_file_(false)
-	, forceusecbvsinfo_(false)
-	, is2d_(false)
-	, coordpol_((int)CBVSIO::NotStored)
+    : SeisTrcTranslator(nm,unm)
+    , headerdone_(false)	// Will be removed
+    , donext_(false)
+    , forread_(true)
+    , storinterps_(nullptr)	// Will be removed
+    , blockbufs_(nullptr)	// Will be removed
+    , compsel_(nullptr)
+    , preseldatatype_(0)
+    , rdmgr_(nullptr)
+    , wrmgr_(nullptr)
+    , nrdone_(0)
+    , brickspec_(*new VBrickSpec)
+    , single_file_(false)
+    , forceusecbvsinfo_(false)
+    , is2d_(false)
+    , coordpol_((int)CBVSIO::NotStored)
 {
 }
 
@@ -57,18 +57,28 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 	bool infoonly, bool is2d, uiString* msg, bool forceusecbvsinf )
 {
     if ( !fnm || !*fnm )
-	{ if ( msg ) *msg = tr("Empty file name"); return 0; }
+    {
+	if ( msg )
+	    *msg = tr("Empty file name");
+
+	return nullptr;
+    }
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->set2D( is2d );
     tr->setForceUseCBVSInfo( forceusecbvsinf );
-    if ( msg ) *msg = uiString::emptyString();
+    if ( msg )
+	*msg = uiString::emptyString();
+
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
 			infoonly ? Seis::PreScan : Seis::Prod) )
     {
-	if ( msg ) *msg = tr->errMsg();
-	delete tr; tr = 0;
+	if ( msg )
+	    *msg = tr->errMsg();
+
+	deleteAndZeroPtr( tr );
     }
+
     return tr;
 }
 
@@ -80,7 +90,7 @@ void CBVSSeisTrcTranslator::cleanUp()
 
     donext_ =false;
     nrdone_ = 0;
-    destroyVars( 0);
+    destroyVars( 0 );
 }
 
 
@@ -124,12 +134,18 @@ void CBVSSeisTrcTranslator::set2D( bool yn )
 bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 {
     if ( !conn_ )
-    { errmsg_ = tr("Cannot open CBVS file"); return false; }
+    {
+	errmsg_ = tr("Cannot open CBVS file");
+	return false;
+    }
 
     PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
     mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
     if ( ioobj && !iostrm )
-    { errmsg_ = tr("Object manager provides wrong type"); return false; }
+    {
+	errmsg_ = tr("Object manager provides wrong type");
+	return false;
+    }
 
     if ( !ioobj || iostrm->isMultiConn() )
     {
@@ -139,6 +155,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 	    errmsg_ = tr("Wrong connection from Object Manager");
 	    return false;
 	}
+
 	fnm = strmconn->fileName();
 	return true;
     }
@@ -164,12 +181,18 @@ int CBVSSeisTrcTranslator::bytesOverheadPerTrace() const
 bool CBVSSeisTrcTranslator::initRead_()
 {
     forread_ = true;
-    BufferString fnm; if ( !getFileName(fnm) ) return false;
+    BufferString fnm;
+    if ( !getFileName(fnm) )
+	return false;
 
-    rdmgr_ = new CBVSReadMgr( fnm, 0, single_file_,
+    rdmgr_ = new CBVSReadMgr( fnm, nullptr, single_file_,
 			read_mode == Seis::PreScan, forceusecbvsinfo_ );
     if ( rdmgr_->failed() )
-	{ errmsg_ = mToUiStringTodo(rdmgr_->errMsg()); return false; }
+    {
+	errmsg_ = toUiString( rdmgr_->errMsg() );
+	deleteAndZeroPtr( rdmgr_ );
+	return false;
+    }
 
     if ( is2d_ )
 	rdmgr_->setSingleLineMode( true );
@@ -206,7 +229,9 @@ bool CBVSSeisTrcTranslator::initRead_()
 
 bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
-    if ( !trc.data().nrComponents() ) return false;
+    if ( !trc.data().nrComponents() )
+	return false;
+
     forread_ = false;
 
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
@@ -224,6 +249,9 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
+    if ( !rdmgr_ )
+	return false;
+
     if ( forread_ && !is2d_ && seldata_ && !seldata_->isAll() )
     {
 	TrcKeyZSampling tkzs;
@@ -237,7 +265,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	tkzs.zsamp_.step = outsd_.step;
 	tkzs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
-	if ( rdmgr_->pruneReaders(tkzs) == 0 )
+	if ( rdmgr_->pruneReaders(tkzs)==0 )
 	{
 	    errmsg_ = tr("Input contains no relevant data");
 	    return false;
@@ -316,7 +344,10 @@ bool CBVSSeisTrcTranslator::toNext()
 	    if ( !res ) break;
 
 	    if ( res%256 == 2 )
-		{ if ( !info.geom_.moveToNextInline(nextbid) ) return false; }
+	    {
+		if ( !info.geom_.moveToNextInline(nextbid) )
+		    return false;
+	    }
 	    else if ( !info.geom_.moveToNextPos(nextbid) )
 		return false;
 	}
@@ -333,8 +364,12 @@ bool CBVSSeisTrcTranslator::toNext()
 
 bool CBVSSeisTrcTranslator::toStart()
 {
-    if ( rdmgr_->toStart() )
-	{ headerdonenew_ = donext_ = false; return true; }
+    if ( rdmgr_ && rdmgr_->toStart() )
+    {
+	headerdonenew_ = donext_ = false;
+	return true;
+    }
+
     return false;
 }
 
@@ -342,19 +377,28 @@ bool CBVSSeisTrcTranslator::toStart()
 bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 {
     if ( rdmgr_ && rdmgr_->goTo(bid) )
-	{ headerdonenew_ = donext_ = false; return true; }
+    {
+	headerdonenew_ = donext_ = false;
+	return true;
+    }
+
     return false;
 }
 
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !commitSelections_() ) return false;
-    if ( headerdonenew_ ) return true;
+    if ( !commitSelections_() )
+	return false;
+
+    if ( headerdonenew_ )
+	return true;
 
     donext_ = donext_ || selRes( rdmgr_->binID() );
 
-    if ( donext_ && !toNext() ) return false;
+    if ( donext_ && !toNext() )
+	return false;
+
     donext_ = true;
 
     if ( !rdmgr_->getAuxInfo(auxinf_) )
@@ -381,17 +425,17 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !storbuf_ && !commitSelections() ) return false;
+    if ( !storbuf_ && !commitSelections() )
+	return false;
 
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;
     if ( !rdmgr_->fetch(tdata,compsel_,&samprg_) )
     {
-	errmsg_ = toUiString(rdmgr_->errMsg());
+	errmsg_ = toUiString( rdmgr_->errMsg() );
 	return false;
     }
 
     headerdonenew_ = false;
-
     return (datareaddone_ = true );
 }
 
@@ -405,7 +449,9 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 bool CBVSSeisTrcTranslator::skip( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
-	if ( !rdmgr_->toNext() ) return false;
+	if ( !rdmgr_->toNext() )
+	    return false;
+
     donext_ = headerdonenew_ = false;
     return true;
 }
@@ -415,20 +461,26 @@ Pos::IdxPair2Coord CBVSSeisTrcTranslator::getTransform() const
 {
     if ( !rdmgr_ || !rdmgr_->nrReaders() )
 	return SI().binID2Coord();
+
     return rdmgr_->info().geom_.b2c;
 }
 
 
 bool CBVSSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
-    cd = readMgr()->info().geom_.cubedata;
+    if ( !rdmgr_ )
+	return false;
+
+    cd = rdmgr_->info().geom_.cubedata;
     return true;
 }
 
 
 bool CBVSSeisTrcTranslator::startWrite()
 {
-    BufferString fnm; if ( !getFileName(fnm) ) return false;
+    BufferString fnm;
+    if ( !getFileName(fnm) )
+	return false;
 
     CBVSInfo info;
     info.auxinfosel_.setAll( true );
@@ -444,7 +496,10 @@ bool CBVSSeisTrcTranslator::startWrite()
     wrmgr_ = new CBVSWriteMgr( fnm, info, &auxinf_, &brickspec_, single_file_,
 				(CBVSIO::CoordPol)coordpol_ );
     if ( wrmgr_->failed() )
-	{ errmsg_ = mToUiStringTodo(wrmgr_->errMsg()); return false; }
+    {
+	errmsg_ = toUiString( wrmgr_->errMsg() );
+	return false;
+    }
 
     if ( is2d_ )
 	wrmgr_->setForceTrailers( true );
@@ -455,7 +510,10 @@ bool CBVSSeisTrcTranslator::startWrite()
 bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
     if ( !wrmgr_ )
-	{ pErrMsg("initWrite not done or failed"); return false; }
+    {
+	pErrMsg("initWrite not done or failed");
+	return false;
+    }
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
@@ -469,7 +527,10 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
     trc.info().putTo( auxinf_ );
     if ( !wrmgr_->put(*storbuf_) )
-	{ errmsg_ = mToUiStringTodo(wrmgr_->errMsg()); return false; }
+    {
+	errmsg_ = mToUiStringTodo(wrmgr_->errMsg());
+	return false;
+    }
 
     return true;
 }
@@ -501,6 +562,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 	    int tmp = fms.getIValue( 0 );
 	    if ( tmp > 0 )
 		brickspec_.nrsamplesperslab = tmp < 100000 ? tmp : 100000;
+
 	    if ( sz > 1 )
 	    {
 		tmp = fms.getIValue( 1 );
@@ -519,7 +581,7 @@ static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
     fp.setExtension( ext );
     StreamProvider* sp = new StreamProvider( fp.fullPath() );
     if ( !sp->exists(true) )
-    { delete sp; sp = 0; }
+	deleteAndZeroPtr( sp );
 
     return sp;
 }
@@ -528,7 +590,8 @@ static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
 static void removeAuxFile( const IOObj* ioobj, const char* ext )
 {
     PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
-    if ( sp ) sp->remove(false);
+    if ( sp )
+	sp->remove(false);
 }
 
 
@@ -536,12 +599,12 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 			   const char* ext )
 {
     PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
-    if ( sp )
-    {
-	FilePath fpnew( newnm );
-	fpnew.setExtension( ext );
-	sp->rename( fpnew.fullPath() );
-    }
+    if ( !sp )
+	return;
+
+    FilePath fpnew( newnm );
+    fpnew.setExtension( ext );
+    sp->rename( fpnew.fullPath() );
 }
 
 
