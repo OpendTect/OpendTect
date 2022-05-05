@@ -609,6 +609,7 @@ public:
     static uiString sSurveys()		{ return sSurvey(mPlural); }
     static uiString sTable(int num=1)	{ return tr("Table",0,num); }
     static uiString sTakeSnapshot()	{ return tr("Take snapshot"); }
+    static uiString sTarget()		{ return tr("Target"); }
     static uiString sTension()		{ return tr("Tension"); }
     static uiString sTerminate()	{ return tr("Terminate"); }
     static uiString sTile()		{ return tr("Tile"); }
