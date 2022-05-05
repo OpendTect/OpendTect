@@ -45,9 +45,9 @@ mDefODPluginInfo(uiSEGY)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"SEG-Y base",
 	"OpendTect",
-	"dGB (Bert)",
+	"dGB",
 	"=od",
-	"Makes SEG-Y handlers available in odMain") );
+	"Support SEG-Y I/O in OpendTect") );
     return &retpi;
 }
 
@@ -55,7 +55,6 @@ mDefODPluginInfo(uiSEGY)
 class uiSEGYMgr	: public uiPluginInitMgr
 { mODTextTranslationClass(uiSEGYMgr);
 public:
-
 			uiSEGYMgr();
 			~uiSEGYMgr();
 
