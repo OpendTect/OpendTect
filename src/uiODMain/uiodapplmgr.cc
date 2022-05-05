@@ -612,7 +612,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     if ( visid<0 ) return false;
 
     const TypeSet<Attrib::SelSpec>* as = visserv_->getSelSpecs( visid, attrib );
-    if ( !as )
+    if ( !as || as->isEmpty() )
     {
 	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
