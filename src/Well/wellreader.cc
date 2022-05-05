@@ -114,6 +114,33 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, const Track&, float,
 }
 
 
+void Well::ReadAccess::adjustTrackIfNecessary( bool frommarkers ) const
+{
+    Interval<float> newmdrg;
+    if ( frommarkers )
+    {
+	const MarkerSet& markers = wd_.markers();
+	if ( markers.isEmpty() )
+	    return;
+
+	newmdrg.set( mUdf(float), -mUdf(float) );
+	for ( const auto* marker : markers )
+	    newmdrg.include( marker->dah() );
+    }
+    else
+    {
+	const LogSet& logs = wd_.logs();
+	if ( logs.isEmpty() )
+	    return;
+
+	newmdrg = logs.dahInterval();
+    }
+
+    if ( const_cast<Track&>(wd_.track()).extendIfNecessary(newmdrg) )
+	wd_.trackchanged.trigger();
+}
+
+
 
 Well::Reader::Reader( const IOObj& ioobj, Data& wd )
 {
@@ -541,33 +568,6 @@ bool Well::odReader::getTrack() const
     }
 
     return isok;
-}
-
-
-void Well::odReader::adjustTrackIfNecessary( bool frommarkers ) const
-{
-    Interval<float> newmdrg;
-    if ( frommarkers )
-    {
-	const MarkerSet& markers = wd_.markers();
-	if ( markers.isEmpty() )
-	    return;
-
-	newmdrg.set( mUdf(float), -mUdf(float) );
-	for ( const auto* marker : markers )
-	    newmdrg.include( marker->dah() );
-    }
-    else
-    {
-	const LogSet& logs = wd_.logs();
-	if ( logs.isEmpty() )
-	    return;
-
-	newmdrg = logs.dahInterval();
-    }
-
-    if ( const_cast<Track&>(wd_.track()).extendIfNecessary(newmdrg) )
-	wd_.trackchanged.trigger();
 }
 
 
