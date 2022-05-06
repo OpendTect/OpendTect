@@ -267,7 +267,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( !rdmgr_ )
+    if ( forread_ && !rdmgr_ )
 	return false;
 
     if ( forread_ && seldata_ && !seldata_->isAll() )
