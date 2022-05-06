@@ -745,14 +745,20 @@ void uiAttrSel::updateInput()
 
 const char* uiAttrSel::userNameFromKey( const char* txt ) const
 {
-    const MultiID dbky( txt );
-    if ( dbky.isUdf() )
+    const FixedString txtstr = txt;
+    if ( txtstr.isEmpty() )
 	return "";
 
-    if ( dbky.isInMemoryID() )
-	return DataPackMgr::nameOf( dbky );
-
     SeparString bs( txt, ':' );
+    if ( bs.size() == 1 )
+    {
+	const MultiID dbky( txt );
+	if ( !dbky.isUdf() && dbky.isInMemoryID() )
+	    return DataPackMgr::nameOf( dbky );
+
+	return "";
+    }
+
     if ( bs.size() < 3 )
 	return "";
 
