@@ -128,6 +128,8 @@ const char* localFullHostName()
 	if ( domainnm && *domainnm && !str.endsWith(domainnm) )
 	    str.add( "." ).add( domainnm );
     }
+    if ( __iswin__ )
+	str.toLower();
 
     return str.buf();
 }

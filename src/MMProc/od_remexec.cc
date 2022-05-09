@@ -153,7 +153,8 @@ void doWork( CallBacker* )
     if ( normalarguments.isEmpty() )
 	mErrRet()
 
-    par.set( sParFile(), normalarguments.get(0) );
+    const FilePath parfp( normalarguments.get(0) );
+    par.set( sParFile(), parfp );
 
     const Network::Authority auth( remhostaddress,
 				   RemoteJobExec::remoteHandlerPort() );

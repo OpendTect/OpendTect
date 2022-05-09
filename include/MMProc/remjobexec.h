@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "networkcommon.h"
 #include "odjson.h"
+#include "ptrman.h"
 
 namespace Network { class Socket; }
 
@@ -39,7 +40,7 @@ protected:
 
     void		checkConnection();
 
-    OD::JSON::Object	par_;
+    PtrMan<OD::JSON::Object>	par_;
     const Network::Authority	auth_;
 
 };

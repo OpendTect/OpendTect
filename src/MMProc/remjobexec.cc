@@ -35,12 +35,12 @@ RemoteJobExec::~RemoteJobExec()
 
 bool RemoteJobExec::launchProc() const
 {
-    if ( !par_.isEmpty() )
+    if ( par_ && !par_->isEmpty() )
     {
 	MMPServerClient mmpserver( auth_ );
 	if ( mmpserver.isOK() )
 	{
-	    OD::JSON::Object resp = mmpserver.sendRequest( sStartJob(), par_ );
+	    OD::JSON::Object resp = mmpserver.sendRequest( sStartJob(), *par_ );
 	    return (mmpserver.isOK() && resp.isPresent(sOK()));
 	}
     }
@@ -50,7 +50,9 @@ bool RemoteJobExec::launchProc() const
 
 
 void RemoteJobExec::addPar( const OD::JSON::Object& par )
-{ par_ = par; }
+{
+    par_.set( par.clone() );
+}
 
 
 void RemoteJobExec::checkConnection()

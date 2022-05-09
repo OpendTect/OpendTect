@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "remcommhandler.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "mmpkeystr.h"
@@ -60,21 +61,32 @@ void RemCommHandler::startJobCB( CallBacker* cb )
 
     writeLog( BufferString("Start Job: \n",reqobj.dumpJSon()) );
 
-    BufferString procnm, parfile;
-    procnm = reqobj.getStringValue( sProcName() );
-    parfile = reqobj.getStringValue( sParFile() );
+    const BufferString procnm( reqobj.getStringValue(sProcName()) );
+    const FilePath parfp( reqobj.getFilePath(sParFile()) );
+    const BufferString parfile( parfp.fullPath() );
 
-    BufferString hostnm, portnm, jobid;
-    hostnm = reqobj.getStringValue( sHostName() );
-    portnm = reqobj.getStringValue( sPortName() );
-    jobid = reqobj.getStringValue( sJobID() );
+    const BufferString hostnm( reqobj.getStringValue(sHostName()) );
+    const BufferString portnm( reqobj.getStringValue(sPortName()) );
+    const BufferString jobid( reqobj.getStringValue(sJobID()) );
 
-    if ( procnm.isEmpty() || parfile.isEmpty() )
+    if ( parfile.isEmpty() || !parfp.exists() )
     {
-	writeLog( BufferString("Start Job Error: bad Proc Name or Par File") );
+	writeLog( BufferString("Start Job Error - no Par File: ", parfile) );
 	return;
     }
-    OS::MachineCommand machcomm( procnm );
+
+    FilePath procfp( GetExecPlfDir(), procnm );
+#ifdef __win__
+    procfp.setExtension( "exe" );
+#endif
+    const BufferString procfile( procfp.fullPath() );
+    if ( !procfp.exists() || !File::isExecutable(procfile) )
+    {
+	writeLog( BufferString("Start Job Error - no Proc: ", procfile) );
+	return;
+    }
+
+    OS::MachineCommand machcomm( procfile );
     if ( !hostnm.isEmpty() )
 	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
 			      hostnm, OS::OldStyle );

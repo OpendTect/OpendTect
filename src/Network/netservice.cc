@@ -71,10 +71,9 @@ Network::Service::~Service()
 {
     pid_ = 0; //TODO: remove later
     if ( !viewonly_ )
-    {
 	stop();
-	delete logfp_;
-    }
+
+    delete logfp_;
 }
 
 
@@ -284,10 +283,11 @@ void Network::Service::setLogFile( const char* fnm )
 
 void Network::Service::setLogFile( const FilePath& fp )
 {
-    if ( !logfp_ )
-	logfp_ = new FilePath( fp );
-    else
-	*logfp_ = fp;
+    auto* logfp = new FilePath( fp );
+    if ( logfp_ )
+	delete logfp_;
+
+    logfp_ = logfp;
 }
 
 

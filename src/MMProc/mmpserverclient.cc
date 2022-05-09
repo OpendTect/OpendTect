@@ -172,7 +172,7 @@ OD::JSON::Object MMPServerClient::sendRequest( const char* reqkey,
 					       const OD::JSON::Object& reqobj )
 {
     const Authority& auth = mmpservice_.getAuthority();
-    return sendRequest( auth, sSetDataRoot(), reqobj );
+    return sendRequest( auth, reqkey, reqobj );
 }
 
 

@@ -98,16 +98,15 @@ void HostData::setHostName( const char* nm )
 
 const char* HostData::getHostName( bool full ) const
 {
+    mDeclStaticString( str );
     if ( staticip_ )
-    {
-	mDeclStaticString( str );
 	str.set( System::hostName( ipaddress_ ) );
-	if ( !full )
-	    str.replace( '.', '\0' );
-	return str.buf();
-    }
+    else
+	str.set( hostname_ );
 
-    return hostname_.buf();
+    if ( !full )
+	str.replace( '.', '\0' );
+    return str.buf();
 }
 
 
