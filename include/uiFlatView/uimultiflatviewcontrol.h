@@ -3,9 +3,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          Feb 2012
- RCS:           $Id$
+ Author:	Bruno
+ Date:		Feb 2012
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -22,13 +22,13 @@ ________________________________________________________________________
 mExpClass(uiFlatView) MFVCViewManager
 {
 public:
-    			MFVCViewManager()
+			MFVCViewManager()
 			    : isflattened_(false)	{};
-    			~MFVCViewManager();
+			~MFVCViewManager();
     void		setD2TModels(const ObjectSet<const TimeDepthModel>&);
     void		setViewerType(const uiFlatViewer* vwr,bool isintime);
     bool		getViewRect(const uiFlatViewer* activevwr,
-	    			    const uiFlatViewer* curvwr,
+				    const uiFlatViewer* curvwr,
 				    uiWorldRect&) const;
     void		setFlattened( bool flattened )	
 			{ isflattened_ = flattened; }
@@ -44,10 +44,10 @@ protected:
 mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
 { mODTextTranslationClass(uiMultiFlatViewControl)
 public:
-    			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
-    			~uiMultiFlatViewControl();
+			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
+			~uiMultiFlatViewControl();
 
-    void                setNewView(Geom::Point2D<double> mousepos,
+    void		setNewView(Geom::Point2D<double> mousepos,
 				   Geom::Size2D<double> size,
 				   uiFlatViewer* vwr=0);
 
@@ -80,12 +80,13 @@ protected:
 
     uiFlatViewer*	activevwr_;
     void		updateZoomManager();
-    			//!< Should be called after the viewer is zoomed in/out.
+			//!< Should be called after the viewer is zoomed in/out.
 
     void		rubBandCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		setZoomAreasCB(CallBacker*);
     void		setZoomBoxesCB(CallBacker*);
+    void		removeAnnotationsCB(CallBacker*);
     void		vwrAdded(CallBacker*);
     void		zoomCB(CallBacker*);
     void		wheelMoveCB(CallBacker*);
