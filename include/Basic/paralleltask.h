@@ -190,6 +190,7 @@ interp.execute();
 #define mDefParallelCalcNoPars(clss,uimsg) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    clss( od_int64 _sz_ ) : sz_(_sz_), reportprogress_(true)	{} \
@@ -197,6 +198,7 @@ interp.execute();
 #define mDefParallelCalc1Par(clss,uimsg,T1,v1) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1		v1##_; \
@@ -206,6 +208,7 @@ interp.execute();
 #define mDefParallelCalc2Pars(clss,uimsg,T1,v1,T2,v2) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; \
@@ -216,6 +219,7 @@ interp.execute();
 #define mDefParallelCalc3Pars(clss,uimsg,T1,v1,T2,v2,T3,v3) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; \
@@ -227,6 +231,7 @@ interp.execute();
 #define mDefParallelCalc4Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \
@@ -236,10 +241,10 @@ interp.execute();
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_), v4##_(_##v4##_)			{} \
 
-
 #define mDefParallelCalc5Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_;\
@@ -252,6 +257,7 @@ interp.execute();
 #define mDefParallelCalc6Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5,T6,v6) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_; T6 v6##_;\
@@ -266,6 +272,7 @@ interp.execute();
 			      T6,v6,T7,v7) \
 	class clss : public ParallelTask \
 	{ mODTextTranslationClass(clss) \
+	  mOD_DisableCopy(clss) \
 	public: \
 	    mDeclareParallelCalcStd(uimsg) \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \

@@ -1553,26 +1553,37 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
     const IOObjContext ctxt = is2d
 	? EMHorizon2DTranslatorGroup::ioContext()
 	: EMHorizon3DTranslatorGroup::ioContext();
-    uiIOObjSel* horfld = new uiIOObjSel( &dlg, ctxt );
-    if ( !dlg.go() || !horfld->ioobj() ) return 0;
+    auto* horfld = new uiIOObjSel( &dlg, ctxt );
+    uiString lbl = tr("Flat value %1").arg( SI().getUiZUnitString() );
+    auto* flatvalfld = new uiGenInput( &dlg, lbl, FloatInpSpec(0) );
+    flatvalfld->attach( alignedBelow, horfld );
+    if ( !dlg.go() || !horfld->ioobj() )
+	return nullptr;
 
     const MultiID hormid = horfld->key();
     EM::ObjectID emid = getObjectID( hormid );
     if ( emid<0 || !isFullyLoaded(emid) )
     {
 	if ( !loadSurface( hormid ) )
-	    return 0;
+	    return nullptr;
     }
 
     emid = getObjectID( hormid );
-    if ( emid<0 ) return 0;
+    if ( emid<0 )
+	return nullptr;
 
     EM::EMObject* obj = em_.getObject( emid );
     mDynamicCastGet(EM::Horizon*,hor,obj)
-    if ( !hor ) return 0;
+    if ( !hor )
+	return nullptr;
+
+    float flatzval = flatvalfld->getFValue();
+    if ( mIsUdf(flatzval) )
+	flatzval = 0.f;
 
     EM::HorizonZTransform* transform = new EM::HorizonZTransform();
     transform->setHorizon( *hor );
+    transform->setFlatZValue( flatzval / SI().zDomain().userFactor() );
     return transform;
 }
 
@@ -1739,11 +1750,11 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	{
 	    const int trcnr = trcrg.atIndex( trcidx );
 	    const Coord3 pos1 = hor2d1->getPos( 0, geomid, trcnr );
-	    const float z1 = mCast( float, pos1.z );
+	    const float z1 = sCast( float, pos1.z );
 	    float z2 = mUdf(float);
 
 	    if ( issecondhor )
-		z2 = mCast( float, hor2d2->getPos(0,geomid,trcnr).z );
+		z2 = sCast( float, hor2d2->getPos(0,geomid,trcnr).z );
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {
