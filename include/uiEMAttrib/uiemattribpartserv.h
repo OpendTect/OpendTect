@@ -54,8 +54,10 @@ public:
     static int			evShiftDlgClosedOK()		{ return 5; }
     static int			evDisplayEMObject()		{ return 6; }
 
-    enum HorOutType		{ OnHor, AroundHor, BetweenHors };
+    enum HorOutType		{ OnHor, AroundHor, BetweenHors,
+				  FlattenSingle };
     void			createHorizonOutput(HorOutType);
+    void			createHorizonOutput(HorOutType,const MultiID&);
 
     void			snapHorizon(const EM::ObjectID&,bool is2d);
 
@@ -117,7 +119,7 @@ protected:
     uiAttrTrcSelOut*		betweenhor3ddlg_ = nullptr;
     uiAttrSurfaceOut*		surfattr2ddlg_ = nullptr;
     uiAttrSurfaceOut*		surfattr3ddlg_ = nullptr;
-    uiCreate2DGrid*         crgriddlg_ = nullptr;
+    uiCreate2DGrid*		crgriddlg_ = nullptr;
 
     void			calcDPS(CallBacker*);
     void			horShifted(CallBacker*);

@@ -158,14 +158,14 @@ uiMenu* uiODMenuMgr::getBaseMnu( uiODApplMgr::ActType at )
 
 uiMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 {
-    return imp ? impmnus_[(int)ot] : expmnus_[(int)ot];
+    const int mnuidx = sCast(int,ot);
+    return imp ? impmnus_[mnuidx] : expmnus_[mnuidx];
 }
 
 
 void uiODMenuMgr::updateStereoMenu()
 {
-    ui3DViewer::StereoType type =
-			(ui3DViewer::StereoType)sceneMgr().getStereoType();
+    auto type = sCast(ui3DViewer::StereoType,sceneMgr().getStereoType());
     stereooffitm_->setChecked( type == ui3DViewer::None );
     stereoredcyanitm_->setChecked( type == ui3DViewer::RedCyan );
     stereoquadbufitm_->setChecked( type == ui3DViewer::QuadBuffer );
@@ -177,7 +177,7 @@ void uiODMenuMgr::updateViewMode( bool isview )
 {
     if ( inviewmode_ == isview )
 	return;
-    toggViewMode( 0 );
+    toggViewMode( nullptr );
 }
 
 
@@ -193,10 +193,14 @@ void uiODMenuMgr::enableMenuBar( bool yn )
 void uiODMenuMgr::enableActButton( bool yn )
 {
     if ( yn )
-	{ viewtb_->setSensitive( actviewid_, true ); return; }
+    {
+	viewtb_->setSensitive( actviewid_, true );
+	return;
+    }
 
     if ( !inviewmode_ )
-	toggViewMode(0);
+	toggViewMode( nullptr );
+
     viewtb_->setSensitive( actviewid_, false );
 }
 
@@ -420,9 +424,9 @@ void uiODMenuMgr::fillImportMenu()
     impmnus_.erase();
     impmnus_.allowNull();
     for ( int idx=0; idx<uiODApplMgr::NrObjTypes; idx++ )
-	impmnus_ += 0;
+	impmnus_ += nullptr;
 
-#define mAddImpMnu(tp,mnu) impmnus_.replace( (int)uiODApplMgr::tp, mnu )
+#define mAddImpMnu(tp,mnu) impmnus_.replace( sCast(int,uiODApplMgr::tp), mnu )
     mAddImpMnu( Seis, impseis );
     mAddImpMnu( Hor, imphor );
     mAddImpMnu( Flt, impfault );
@@ -539,9 +543,9 @@ void uiODMenuMgr::fillExportMenu()
     expmnus_.erase();
     expmnus_.allowNull();
     for ( int idx=0; idx<uiODApplMgr::NrObjTypes; idx++ )
-	expmnus_ += 0;
+	expmnus_ += nullptr;
 
-#define mAddExpMnu(tp,mnu) expmnus_.replace( (int)uiODApplMgr::tp, mnu )
+#define mAddExpMnu(tp,mnu) expmnus_.replace( sCast(int,uiODApplMgr::tp), mnu )
     mAddExpMnu( Seis, expseis );
     mAddExpMnu( Hor, exphor );
     mAddExpMnu( Flt, expflt );
@@ -619,7 +623,7 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
-    csoitm_ = new uiMenu( &appl_, tr("Create Seismic Output") );
+    csoitm_ = new uiMenu( tr("Create Seismic Output") );
 
 // Attributes
     uiMenu* attritm = new uiMenu( uiStrings::sAttribute(mPlural) );
@@ -637,14 +641,19 @@ void uiODMenuMgr::fillProcMenu()
 			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
     }
 
-    add2D3DMenuItem( *attritm, "alonghor", tr("Along Horizon"),
-		     mCompAlongHor2DMnuItm, mCompAlongHor3DMnuItm );
-    add2D3DMenuItem( *attritm, "betweenhors", tr("Between Horizons"),
-		     mCompBetweenHor2DMnuItm, mCompBetweenHor3DMnuItm );
+    auto* horsoitm = new uiMenu( tr("Using Horizons") );
+    csoitm_->addMenu( horsoitm );
 
+    add2D3DMenuItem( *horsoitm, "alonghor", tr("Along Horizon"),
+		     mCompAlongHor2DMnuItm, mCompAlongHor3DMnuItm );
+    add2D3DMenuItem( *horsoitm, "betweenhors", tr("Between Horizons"),
+		     mCompBetweenHor2DMnuItm, mCompBetweenHor3DMnuItm );
+    if ( SI().has3D() )
+	insertAction( horsoitm, m3Dots(tr("Flatten / Unflatten")),
+		      mFlattenSingleMnuItm );
 
 // 2D <-> 3D
-    uiMenu* itm2d3d = 0;
+    uiMenu* itm2d3d = nullptr;
     const uiString menutext = tr("2D <=> 3D");
     if ( SI().has3D() )
     {
@@ -1350,7 +1359,7 @@ void uiODMenuMgr::handleToolClick( CallBacker* cb )
     if ( !itm ) return;
 
     sIsPolySelect = itm->getID()==0;
-    selectionMode( 0 );
+    selectionMode( nullptr );
 }
 
 
@@ -1427,7 +1436,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     const int id = itm->getID();
     switch( id )
     {
-    case mManSurveyMnuItm:		applMgr().selectSurvey(0); break;
+    case mManSurveyMnuItm:		applMgr().selectSurvey(nullptr); break;
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
     case mSessAutoMnuItm:		appl_.autoSession(); break;
@@ -1539,6 +1548,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
+    case mFlattenSingleMnuItm:	applMgr().createHorOutput(3,false); break;
     case mCreate2DFrom3DMnuItm:	applMgr().create2DGrid(); break;
     case m2DFrom3DMnuItm:	applMgr().create2DFrom3D(); break;
     case m3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;

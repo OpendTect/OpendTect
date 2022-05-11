@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "uicalcpoly2horvol.h"
 #include "uicontourtreeitem.h"
 #include "uidatapointsetpickdlg.h"
+#include "uiemattribpartserv.h"
 #include "uiempartserv.h"
-#include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -87,8 +87,8 @@ private:
     uiVisMenuItemHandler pickdatamnuitemhndlr_;
     uiPickSetPolygonMenuItemHandler polyvolmnuitemhndlr_;
 
-    uiEMDataPointSetPickDlg*	dpspickdlg_ = nullptr;
-    uiStratAmpCalc*		stratampdlg_ = nullptr;
+    uiEMDataPointSetPickDlg*	dpspickdlg_	= nullptr;
+    uiStratAmpCalc*		stratampdlg_	= nullptr;
 };
 
 
@@ -110,7 +110,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr()
 		mMkPars(tr("Pick Horizon Data ..."),pickData),"Workflows")
 	, polyvolmnuitemhndlr_(
 		*appl().applMgr().visServer(),tr("Calculate Volume ..."),
-		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
+		mCB(this,uiHorAttribPIMgr,calcPolyVol),nullptr,996)
 {
     init();
     polyvolmnuitemhndlr_.addWhenPickSet( false );
@@ -166,10 +166,11 @@ void uiHorAttribPIMgr::doFlattened( CallBacker* )
     const int displayid = flattenmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
-    if ( !hd ) return;
+    if ( !hd )
+	return;
 
-    uiWriteFlattenedCube dlg( &appl(), hd->getObjectID() );
-    dlg.go();
+    appl().applMgr().EMAttribServer()->createHorizonOutput(
+			uiEMAttribPartServer::FlattenSingle, hd->getMultiID() );
 }
 
 
@@ -194,7 +195,7 @@ void uiHorAttribPIMgr::doIsochron( CallBacker* )
 
     const int attrid = visserv->addAttrib( displayid );
     Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttrib(),
-			     false, 0 );
+			     false, nullptr );
     visserv->setSelSpec( displayid, attrid, selspec );
     visserv->setRandomPosData( displayid, attrid, &dlg.getDPS() );
     uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(

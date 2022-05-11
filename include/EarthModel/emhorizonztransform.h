@@ -26,17 +26,19 @@ patches will not be included.
 */
 
 mExpClass(EarthModel) HorizonZTransform : public ZAxisTransform
-			 , public CallBacker
+					, public CallBacker
 { mODTextTranslationClass(HorizonZTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
-				  "HorizonZTransform", 
+				  "HorizonZTransform",
 				  toUiString(sFactoryKeyword()));
 
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 
-    			HorizonZTransform();
+			HorizonZTransform();
     void		setHorizon(const Horizon&);
+    void		setFlatZValue(float);
+
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
 				  int sz,float* res) const;
     void		transformTrcBack(const TrcKey&,

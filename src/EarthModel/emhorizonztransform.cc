@@ -14,10 +14,13 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "sorting.h"
 #include "zdomain.h"
+
+static HiddenParam<EM::HorizonZTransform,float> hp_zvals( 0 );
 
 namespace EM
 {
@@ -33,7 +36,9 @@ HorizonZTransform::HorizonZTransform()
     , horizon_( 0 )
     , horchanged_( false )
     , change_( this )
-{}
+{
+    hp_zvals.setParam( this, 0 );
+}
 
 
 HorizonZTransform::~HorizonZTransform()
@@ -44,6 +49,8 @@ HorizonZTransform::~HorizonZTransform()
 		mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
+
+    hp_zvals.removeParam( this );
 }
 
 
@@ -69,8 +76,14 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 }
 
 
+void HorizonZTransform::setFlatZValue( float flatzval )
+{
+    hp_zvals.setParam( this, flatzval );
+}
+
+
 void HorizonZTransform::transformTrc( const TrcKey& trckey,
-	const SamplingData<float>& sd, int sz,float* res ) const
+	const SamplingData<float>& sd, int sz, float* res ) const
 {
     if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
     {
@@ -89,7 +102,8 @@ void HorizonZTransform::transformTrc( const TrcKey& trckey,
     }
 
     float top, bottom;
-    if ( !getTopBottom( trckey, top, bottom ) )
+    const bool hastopbot = getTopBottom( trckey, top, bottom );
+    if ( !hastopbot )
     {
 	for ( int idx=sz-1; idx>=0; idx-- )
 	    res[idx] = mUdf(float);
@@ -97,12 +111,11 @@ void HorizonZTransform::transformTrc( const TrcKey& trckey,
 	return;
     }
 
+    const float flatzval = hp_zvals.getParam( this );
     for ( int idx=sz-1; idx>=0; idx-- )
     {
 	const float depth = sd.atIndex( idx );
-	if ( depth<top ) res[idx] = depth-top;
-	else if ( depth>bottom ) res[idx] = depth-bottom;
-	else res[idx] = 0;
+	res[idx] = depth - top + flatzval;
     }
 }
 
@@ -117,29 +130,33 @@ void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 	return;
 
     float top, bottom;
-    if ( !getTopBottom( trckey, top, bottom ) )
+    const bool hastopbot = getTopBottom( trckey, top, bottom );
+    if ( !hastopbot )
 	return;
 
+    const float flatzval = hp_zvals.getParam( this );
     for ( int idx=sz-1; idx>=0; idx-- )
     {
 	const float depth = sd.atIndex( idx );
-	if ( depth<=0 ) res[idx] = depth+top;
-	else res[idx] = depth+bottom;
+	res[idx] = depth + top - flatzval;
     }
 }
 
 
 Interval<float> HorizonZTransform::getZInterval( bool from ) const
 {
-    if ( from ) return SI().zRange(true);
+    if ( from )
+	return SI().zRange(true);
 
     if ( horchanged_ )
 	const_cast<HorizonZTransform*>(this)->calculateHorizonRange();
 
-    if ( horchanged_ ) return SI().zRange(true);
+    if ( horchanged_ )
+	return SI().zRange(true);
 
-    Interval<float> intv( SI().zRange(true).start-depthrange_.stop,
-			  SI().zRange(true).stop-depthrange_.start );
+    const float flatzval = hp_zvals.getParam( this );
+    Interval<float> intv( SI().zRange(true).start-depthrange_.stop+flatzval,
+			  SI().zRange(true).stop-depthrange_.start+flatzval );
     const float step = SI().zRange(true).step;
     float idx = intv.start / step;
     intv.start = Math::Floor(idx) * step;
@@ -207,10 +224,12 @@ void HorizonZTransform::horChangeCB(CallBacker*)
 
 void HorizonZTransform::calculateHorizonRange()
 {
-    if ( !horizon_ ) return;
+    if ( !horizon_ )
+	return;
 
-    PtrMan<EMObjectIterator> iterator = horizon_->createIterator( -1, 0 );
-    if ( !iterator ) return;
+    PtrMan<EMObjectIterator> iterator = horizon_->createIterator( -1, nullptr );
+    if ( !iterator )
+	return;
 
     bool isset = false;
 
@@ -305,15 +324,21 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	    depths += depth;
     }
 
+    if ( depths.size() == 1 ) // most cases
+    {
+	top = bottom = depths.first();
+	return true;
+    }
+
     if ( depths.size()>1 )
+    {
 	sort_array( depths.arr(), depths.size() );
-    else if ( !depths.size() )
-	return false;
+	top = depths.first();
+	bottom = depths.last();
+	return true;
+    }
 
-    top = depths[0];
-    bottom = depths[depths.size()-1];
-
-    return true;
+    return false;
 }
 
 } // namespace EM

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uicreate2dgrid.h"
+#include "uiflatunflatcube.h"
 #include "uihorizonshiftdlg.h"
 #include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
@@ -24,11 +25,14 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "paralleltask.h"
 #include "posvecdataset.h"
 #include "typeset.h"
+
+static HiddenParam<uiEMAttribPartServer,uiFlatUnflatCube*> hp_flatdlg(nullptr);
 
 static const DataColDef	siddef_( "Section ID" );
 
@@ -38,6 +42,7 @@ const DataColDef& uiEMAttribPartServer::sidDef() const
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
 {
+    hp_flatdlg.setParam( this, nullptr );
 }
 
 
@@ -50,7 +55,9 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
     delete betweenhor3ddlg_;
     delete surfattr2ddlg_;
     delete surfattr3ddlg_;
-	delete crgriddlg_;
+    delete crgriddlg_;
+
+    hp_flatdlg.removeAndDeleteParam( this );
 }
 
 
@@ -83,7 +90,32 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
 
 void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 {
-    if ( !descset_ ) return;
+    createHorizonOutput( type, MultiID::udf() );
+}
+
+
+void uiEMAttribPartServer::createHorizonOutput( HorOutType type,
+						const MultiID& key )
+{
+    if ( type==FlattenSingle )
+    {
+	auto* dlg = hp_flatdlg.getParam( this );
+	if ( !dlg )
+	{
+	    dlg = new uiFlatUnflatCube( parent() );
+	    dlg->setModal( false );
+	    hp_flatdlg.setParam( this, dlg );
+	}
+
+	if ( !key.isUdf() )
+	    dlg->setHorizon( key );
+
+	dlg->show();
+	return;
+    }
+
+    if ( !descset_ )
+	return;
 
     if ( type==OnHor )
     {
@@ -147,10 +179,10 @@ void uiEMAttribPartServer::import2DHorizon()
 
 void uiEMAttribPartServer::create2DGrid( const Geometry::RandomLine* rdl )
 {
-	delete crgriddlg_;
-	crgriddlg_ = new uiCreate2DGrid( parent(), rdl );
-	crgriddlg_->setModal( false );
-	crgriddlg_->show();
+    delete crgriddlg_;
+    crgriddlg_ = new uiCreate2DGrid( parent(), rdl );
+    crgriddlg_->setModal( false );
+    crgriddlg_->show();
 }
 
 
@@ -246,7 +278,9 @@ void uiEMAttribPartServer::calcDPS( CallBacker* )
 
 
 const char* uiEMAttribPartServer::getAttribBaseNm() const
-{ return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : 0; }
+{
+    return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : nullptr;
+}
 
 mDefParallelCalc3Pars(HorShiftDPSFiller,
 		     od_static_tr("HorShiftDPSFiller","Make datapointset"),

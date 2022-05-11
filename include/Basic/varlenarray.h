@@ -40,13 +40,13 @@ ArrPtrMan<type> varnm; \
 
 
 
-#ifdef __varlenwithptr__ 
+#ifdef __varlenwithptr__
 
 # define mAllocVarLenArr( type, varnm, __size ) \
     mAllocLargeVarLenArr( type, varnm, __size )
 
 # define mVarLenArr(varnm)	varnm.ptr()
-# define mIsVarLenArrOK(varnm)	((bool)varnm.ptr())
+# define mIsVarLenArrOK(varnm)	(sCast(bool,varnm.ptr()))
 
 #else
 
@@ -63,7 +63,7 @@ ArrPtrMan<type> varnm; \
     if ( mIsVarLenArrOK(var) ) \
 	for ( tp idx=sz-1; idx>=0; idx-- ) \
 	    var[idx] = idx;
-	
+
 
 #undef __varlenwithptr__
 

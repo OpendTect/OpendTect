@@ -26,8 +26,7 @@ class ZAxisTransform;
 
 
 /*!Stretches the zaxis from the input cube with a ZAxisTransform and writes it
-   out into another volume. If stretchinverse is true, the stretching will
-   be done on the inveres of the values. */
+   out into another volume. */
 
 mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
 { mODTextTranslationClass(SeisZAxisStretcher);
@@ -43,10 +42,12 @@ public:
     bool		isOK() const;
 
     void		setGeomID(Pos::GeomID);
-    uiString		uiMessage() const { return tr("Stretching data"); }
+    uiString		uiMessage() const { return tr("Transforming data"); }
+    uiString		uiNrDoneText() const { return tr("Traces done"); }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }
+    void		setUdfVal(float);
 
 protected:
 
@@ -56,9 +57,12 @@ protected:
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const		{ return totalnr_; }
 
-    bool				getInputTrace(SeisTrc&,TrcKey&);
-    bool				getModelTrace(SeisTrc&,TrcKey&);
-    bool				loadTransformChunk(int firstinl);
+    bool		getInputTrace(SeisTrc&,TrcKey&);
+    bool		getModelTrace(SeisTrc&,TrcKey&);
+    bool		loadTransformChunk(int firstinl);
+    bool		doZStretch(SeisTrc& intrc,SeisTrc& outtrc,
+				   const TrcKey&,const SamplingData<float>&);
+
 
     SeisTrcReader*			seisreader_;
     Threads::ConditionVar		readerlock_;
@@ -73,9 +77,9 @@ protected:
     int					nrthreads_;
 
     TrcKeyZSampling			outcs_;
-    TrcKeySampling				curhrg_;
+    TrcKeySampling			curhrg_;
     ZAxisTransform*			ztransform_;
-    int				voiid_;
+    int					voiid_;
     bool				ist2d_;
     bool				is2d_;
     bool				stretchz_;

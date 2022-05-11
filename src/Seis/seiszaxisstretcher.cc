@@ -9,6 +9,7 @@
 
 #include "arrayndimpl.h"
 #include "genericnumer.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "posinfo.h"
 #include "seisioobjinfo.h"
@@ -25,27 +26,32 @@
 #include "zaxistransform.h"
 
 
+static HiddenParam<SeisZAxisStretcher,float> hp_udfval(0);
+
 SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 					const TrcKeyZSampling& outcs,
 					ZAxisTransform& ztf,
 					bool ist2d,
 					bool stretchz )
-    : seisreader_( 0 )
-    , seisreadertdmodel_( 0 )
-    , seiswriter_( 0 )
-    , sequentialwriter_( 0 )
-    , nrwaiting_( 0 )
-    , waitforall_( false )
-    , nrthreads_( 0 )
-    , curhrg_( false )
-    , outcs_( outcs )
-    , ztransform_( &ztf )
-    , voiid_( -1 )
-    , ist2d_( ist2d )
-    , stretchz_( stretchz )
+    : ParallelTask("Transforming Data")
+    , seisreader_(nullptr)
+    , seisreadertdmodel_(nullptr)
+    , seiswriter_(nullptr)
+    , sequentialwriter_(nullptr)
+    , nrwaiting_(0)
+    , waitforall_(false)
+    , nrthreads_(0)
+    , curhrg_(false)
+    , outcs_(outcs)
+    , ztransform_(&ztf)
+    , voiid_(-1)
+    , ist2d_(ist2d)
+    , stretchz_(stretchz)
+    , isvint_(false)
     , isvrms_(false)
 {
     init( in, out );
+    hp_udfval.setParam( this, mUdf(float) );
 }
 
 
@@ -64,8 +70,7 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
     if ( !seisreader_->prepareWork(Seis::Scan) ||
 	 !seisreader_->seisTranslator())
     {
-	delete seisreader_;
-	seisreader_ = 0;
+	deleteAndZeroPtr( seisreader_ );
 	return;
     }
 
@@ -90,11 +95,11 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	if ( packetinfo.cubedata )
 	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hsamp_ );
 	else
-	    totalnr_ = mCast( int, cs.hsamp_.totalNr() );
+	    totalnr_ = sCast( int, cs.hsamp_.totalNr() );
     }
     else
     {
-	totalnr_ = mCast( int, cs.hsamp_.totalNr() );
+	totalnr_ = sCast( int, cs.hsamp_.totalNr() );
     }
 
     seiswriter_ = new SeisTrcWriter( &out );
@@ -107,9 +112,7 @@ SeisZAxisStretcher::~SeisZAxisStretcher()
     delete seisreader_;
     delete seiswriter_;
     delete sequentialwriter_;
-
-    if ( seisreadertdmodel_ )
-	delete seisreadertdmodel_;
+    delete seisreadertdmodel_;
 
     if ( ztransform_ )
     {
@@ -118,6 +121,8 @@ SeisZAxisStretcher::~SeisZAxisStretcher()
 
 	ztransform_->unRef();
     }
+
+    hp_udfval.removeParam( this );
 }
 
 
@@ -135,8 +140,7 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
     seisreader_->setSelData( sd.clone() );
     if ( !seisreader_->prepareWork() )
     {
-	delete seisreader_;
-	seisreader_ = 0;
+	deleteAndZeroPtr( seisreader_ );
 	return;
     }
 
@@ -145,8 +149,7 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 	seisreadertdmodel_->setSelData( sd.clone() );
 	if ( !seisreadertdmodel_->prepareWork() )
 	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
+	    deleteAndZeroPtr( seisreadertdmodel_ );
 	    return;
 	}
     }
@@ -158,8 +161,11 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 }
 
 
-#define mOpInverse(val,inv) \
-  ( inv ? 1.0/val : val )
+void SeisZAxisStretcher::setUdfVal( float val )
+{
+    hp_udfval.setParam( this, val );
+}
+
 
 bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 {
@@ -169,244 +175,43 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 
     SeisTrc intrc;
     SeisTrc modeltrc;
-    PtrMan<FloatMathFunction> intrcfunc = 0;
-    PtrMan<ZAxisTransformSampler> sampler = 0;
+    PtrMan<FloatMathFunction> intrcfunc = nullptr;
+    PtrMan<ZAxisTransformSampler> sampler = nullptr;
 
     if ( !stretchz_ )
     {
-	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
+	const bool forward = ist2d_;
+	sampler = new ZAxisTransformSampler( *ztransform_, forward, sd, is2d_ );
 	if ( is2d_ && seisreader_ && seisreader_->selData() )
 	    sampler->setLineName( Survey::GM().getName(
 					    seisreader_->selData()->geomID()));
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
-	if ( !intrcfunc )
-	    return false;
+	auto* interpol =
+		new ValueSeriesInterpolator<float>( intrc.interpolator() );
+	interpol->udfval_ = hp_udfval.getParam( this );
+	intrc.setInterpolator( interpol );
     }
 
     TrcKey curtrckey;
-    while ( shouldContinue() && getInputTrace( intrc, curtrckey ) )
+    while ( shouldContinue() && getInputTrace(intrc,curtrckey) )
     {
-	int outsz = trcrg.nrSteps()+1;
-	int insz = intrc.size();
-	SeisTrc* outtrc = new SeisTrc( outsz );
+	SeisTrc* outtrc = new SeisTrc( trcrg.nrSteps()+1 );
 	outtrc->info().sampling = sd;
 
 	if ( stretchz_ )
 	{
-	    bool usevint = isvint_;
-
-	    if ( isvrms_ )
-	    {
-		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
-		SamplingData<double> inputsd( intrc.info().sampling );
-		mAllocVarLenArr( float, vintarr, insz );
-		if ( !mIsVarLenArrOK(vintarr) ) return false;
-
-		float* vrmsarr = tmpseistrcvsin.arr();
-		PtrMan<Array1DImpl<float> > inparr = 0;
-		if ( !vrmsarr )
-		{
-		    inparr = new Array1DImpl<float>( insz );
-		    tmpseistrcvsin.copytoArray( *inparr );
-		    vrmsarr = inparr->arr();
-		}
-
-		computeDix( vrmsarr, inputsd, insz, vintarr );
-
-		for ( int ids=0; ids<insz; ids++ )
-		    intrc.set( ids, vintarr[ids], 0 );
-
-		usevint = true;
-	    }
-
-	    //Computed from the input trace, not the model
-	    mAllocVarLenArr(float, twt, insz);
-	    mAllocVarLenArr(float, depths, insz);
-
-	    SamplingData<float> inputsd( intrc.info().sampling );
-	    SeisTrcValueSeries inputvs( intrc, 0 );
-
-
-	    ztransform_->transformTrc( curtrckey, inputsd, insz,
-				       ist2d_ ? depths : twt );
-
-	    if ( ist2d_ )
-	    {
-		int idx=0;
-		for ( ; idx<insz; idx++ )
-		{
-		    if ( !mIsUdf(depths[idx]) && !mIsUdf(inputvs[idx]) )
-			break;
-		    twt[idx] = mUdf(float);
-		}
-
-		//Fill twt using depth array and input-values
-		if ( usevint )
-		{
-		    if ( idx!=insz )
-		    {
-			float prevdepth = depths[idx];
-			float prevtwt = twt[idx] = 2*prevdepth/inputvs[idx];
-			idx++;
-			for ( ; idx<insz; idx++)
-			{
-			    if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
-				twt[idx] = mUdf(float);
-			    else
-			    {
-			        prevtwt = twt[idx] = prevtwt +
-				    (depths[idx]-prevdepth)*2/inputvs[idx];
-				prevdepth = depths[idx];
-			    }
-			}
-		    }
-		}
-		else //Vavg
-		{
-		    for ( ; idx<insz; idx++ )
-		    {
-			if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
-			    twt[idx] = mUdf(float);
-			else
-			    twt[idx] = depths[idx]*2/inputvs[idx];
-		    }
-
-		}
-	    }
-	    else
-	    {
-		int idx=0;
-		for ( ; idx<insz; idx++ )
-		{
-		    if ( !mIsUdf(twt[idx]) && !mIsUdf(inputvs[idx]) )
-			break;
-		    depths[idx] = mUdf(float);
-		}
-
-		//Fill depth using twt array and input-values
-		if ( usevint )
-		{
-		    if ( idx!=insz )
-		    {
-			float prevtwt = twt[idx];
-			float prevdepth = depths[idx] = prevtwt*inputvs[idx]/2;
-			idx++;
-			for ( ; idx<insz; idx++ )
-			{
-			    if ( mIsUdf(twt[idx]) || mIsUdf(inputvs[idx] ) )
-				depths[idx] = mUdf(float);
-			    else
-			    {
-				prevdepth = depths[idx] = prevdepth +
-				    (twt[idx]-prevtwt) * inputvs[idx]/2;
-				prevtwt = twt[idx];
-			    }
-			}
-		    }
-		}
-		else //Vavg
-		{
-		    for ( ; idx<insz; idx++ )
-		    {
-			if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
-			    twt[idx] = mUdf(float);
-			else
-			    depths[idx] = twt[idx] * inputvs[idx]/2;
-		    }
-		}
-	    }
-
-	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,
-				PointBasedMathFunction::ExtraPolGradient );
-	    PointBasedMathFunction tdfunc( PointBasedMathFunction::Linear,
-				PointBasedMathFunction::ExtraPolGradient );
-	    float prevdepth;
-	    float prevtwt;
-
-	    if ( ist2d_ )
-	    {
-		for ( int idx=0; idx<insz; idx++ )
-		{
-		    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
-			continue;
-
-		    dtfunc.add( depths[idx], twt[idx] );
-		}
-
-		prevdepth = sd.atIndex( 0 );
-		prevtwt = dtfunc.size()
-		    ? dtfunc.getValue( prevdepth )
-		    : mUdf(float);
-	    }
-	    else
-	    {
-		for ( int idx=0; idx<insz; idx++ )
-		{
-		    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
-			continue;
-
-		    tdfunc.add( twt[idx], depths[idx] );
-		}
-
-		prevtwt = sd.atIndex( 0 );
-		prevdepth = tdfunc.size()
-		    ? tdfunc.getValue( prevtwt )
-		    : mUdf(float);
-	    }
-
-	    const bool alludf = ist2d_ ? dtfunc.isEmpty() : tdfunc.isEmpty();
-	    for ( int idx=1; idx<outsz; idx++ )
-	    {
-		float vel;
-
-		if ( alludf )
-		    vel = mUdf(float);
-		else
-		{
-		    float curdepth;
-		    float curtwt;
-
-		    if ( ist2d_ )
-		    {
-			curdepth = sd.atIndex( idx );
-			curtwt = dtfunc.getValue( curdepth );
-		    }
-		    else
-		    {
-			curtwt = sd.atIndex( idx );
-			curdepth = tdfunc.getValue( curtwt );
-		    }
-
-
-		    if ( usevint )
-		    {
-			vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
-			prevtwt = curtwt;
-			prevdepth = curdepth;
-		    }
-		    else
-		    {
-			vel = curdepth/curtwt * 2;
-		    }
-		}
-
-		outtrc->set( idx, vel, 0 );
-	    }
-
-	    outtrc->set( 0, outtrc->get( 1, 0 ), 0 );
+	    const bool res = doZStretch( intrc, *outtrc, curtrckey, sd );
+	    if ( !res )
+		return false;
 	}
 	else
 	{
-	    if ( !sampler ) return false;
+	    if ( !sampler )
+		return false;
+
 	    sampler->setTrcKey( curtrckey );
-	    sampler->computeCache( Interval<int>( 0, outtrc->size()-1) );
-
-	    ValueSeriesInterpolator<float>* interpol =
-		new ValueSeriesInterpolator<float>( intrc.interpolator() );
-	    interpol->udfval_ = mUdf(float);
-	    intrc.setInterpolator( interpol );
-
+	    sampler->computeCache( Interval<int>(0,outtrc->size()-1) );
 	    reSample( *intrcfunc, *sampler, outputptr, outtrc->size() );
 	    for ( int idx=outtrc->size()-1; idx>=0; idx-- )
 		outtrc->set( idx, outputptr[idx], 0 );
@@ -421,6 +226,217 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	addToNrDone( 1 );
     }
 
+    return true;
+}
+
+
+bool SeisZAxisStretcher::doZStretch( SeisTrc& intrc, SeisTrc& outtrc,
+				     const TrcKey& curtrckey,
+				     const SamplingData<float>& sd )
+{
+    bool usevint = isvint_;
+    const int insz = intrc.size();
+    const int outsz = outtrc.size();
+    if ( isvrms_ )
+    {
+	SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
+	SamplingData<double> inputsd( intrc.info().sampling );
+	mAllocVarLenArr( float, vintarr, insz );
+	if ( !mIsVarLenArrOK(vintarr) )
+	    return false;
+
+	float* vrmsarr = tmpseistrcvsin.arr();
+	PtrMan<Array1DImpl<float> > inparr = nullptr;
+	if ( !vrmsarr )
+	{
+	    inparr = new Array1DImpl<float>( insz );
+	    tmpseistrcvsin.copytoArray( *inparr );
+	    vrmsarr = inparr->arr();
+	}
+
+	computeDix( vrmsarr, inputsd, insz, vintarr );
+
+	for ( int ids=0; ids<insz; ids++ )
+	    intrc.set( ids, vintarr[ids], 0 );
+
+	usevint = true;
+    }
+
+    //Computed from the input trace, not the model
+    mAllocVarLenArr(float, twt, insz);
+    mAllocVarLenArr(float, depths, insz);
+
+    SamplingData<float> inputsd( intrc.info().sampling );
+    SeisTrcValueSeries inputvs( intrc, 0 );
+
+
+    ztransform_->transformTrc( curtrckey, inputsd, insz,
+			       ist2d_ ? depths : twt );
+
+    if ( ist2d_ )
+    {
+	int idx=0;
+	for ( ; idx<insz; idx++ )
+	{
+	    if ( !mIsUdf(depths[idx]) && !mIsUdf(inputvs[idx]) )
+		break;
+	    twt[idx] = mUdf(float);
+	}
+
+	//Fill twt using depth array and input-values
+	if ( usevint )
+	{
+	    if ( idx!=insz )
+	    {
+		float prevdepth = depths[idx];
+		float prevtwt = twt[idx] = 2*prevdepth/inputvs[idx];
+		idx++;
+		for ( ; idx<insz; idx++)
+		{
+		    if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
+			twt[idx] = mUdf(float);
+		    else
+		    {
+			prevtwt = twt[idx] = prevtwt +
+			    (depths[idx]-prevdepth)*2/inputvs[idx];
+			prevdepth = depths[idx];
+		    }
+		}
+	    }
+	}
+	else //Vavg
+	{
+	    for ( ; idx<insz; idx++ )
+	    {
+		if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
+		    twt[idx] = mUdf(float);
+		else
+		    twt[idx] = depths[idx]*2/inputvs[idx];
+	    }
+
+	}
+    }
+    else
+    {
+	int idx=0;
+	for ( ; idx<insz; idx++ )
+	{
+	    if ( !mIsUdf(twt[idx]) && !mIsUdf(inputvs[idx]) )
+		break;
+	    depths[idx] = mUdf(float);
+	}
+
+	//Fill depth using twt array and input-values
+	if ( usevint )
+	{
+	    if ( idx!=insz )
+	    {
+		float prevtwt = twt[idx];
+		float prevdepth = depths[idx] = prevtwt*inputvs[idx]/2;
+		idx++;
+		for ( ; idx<insz; idx++ )
+		{
+		    if ( mIsUdf(twt[idx]) || mIsUdf(inputvs[idx] ) )
+			depths[idx] = mUdf(float);
+		    else
+		    {
+			prevdepth = depths[idx] = prevdepth +
+			    (twt[idx]-prevtwt) * inputvs[idx]/2;
+			prevtwt = twt[idx];
+		    }
+		}
+	    }
+	}
+	else //Vavg
+	{
+	    for ( ; idx<insz; idx++ )
+	    {
+		if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
+		    twt[idx] = mUdf(float);
+		else
+		    depths[idx] = twt[idx] * inputvs[idx]/2;
+	    }
+	}
+    }
+
+    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,
+			PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction tdfunc( PointBasedMathFunction::Linear,
+			PointBasedMathFunction::ExtraPolGradient );
+    float prevdepth;
+    float prevtwt;
+
+    if ( ist2d_ )
+    {
+	for ( int idx=0; idx<insz; idx++ )
+	{
+	    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
+		continue;
+
+	    dtfunc.add( depths[idx], twt[idx] );
+	}
+
+	prevdepth = sd.atIndex( 0 );
+	prevtwt = dtfunc.size()
+	    ? dtfunc.getValue( prevdepth )
+	    : mUdf(float);
+    }
+    else
+    {
+	for ( int idx=0; idx<insz; idx++ )
+	{
+	    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
+		continue;
+
+	    tdfunc.add( twt[idx], depths[idx] );
+	}
+
+	prevtwt = sd.atIndex( 0 );
+	prevdepth = tdfunc.size()
+	    ? tdfunc.getValue( prevtwt )
+	    : mUdf(float);
+    }
+
+    const bool alludf = ist2d_ ? dtfunc.isEmpty() : tdfunc.isEmpty();
+    for ( int idx=1; idx<outsz; idx++ )
+    {
+	float vel;
+
+	if ( alludf )
+	    vel = mUdf(float);
+	else
+	{
+	    float curdepth;
+	    float curtwt;
+
+	    if ( ist2d_ )
+	    {
+		curdepth = sd.atIndex( idx );
+		curtwt = dtfunc.getValue( curdepth );
+	    }
+	    else
+	    {
+		curtwt = sd.atIndex( idx );
+		curdepth = tdfunc.getValue( curtwt );
+	    }
+
+
+	    if ( usevint )
+	    {
+		vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
+		prevtwt = curtwt;
+		prevdepth = curdepth;
+	    }
+	    else
+	    {
+		vel = curdepth/curtwt * 2;
+	    }
+	}
+
+	outtrc.set( idx, vel, 0 );
+    }
+
+    outtrc.set( 0, outtrc.get(1,0), 0 );
     return true;
 }
 
@@ -447,19 +463,14 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
     {
 	if ( !seisreader_->get(trc) )
 	{
-	    delete seisreader_;
-	    seisreader_ = 0;
+	    deleteAndZeroPtr( seisreader_);
 	    return false;
 	}
 
 	if ( is2d_ )
-	{
 	    trckey = TrcKey( seisreader_->selData()->geomID(), trc.info().nr );
-	}
 	else
-	{
 	    trckey = TrcKey( seisreader_->selData()->geomID(),trc.info().binid);
-	}
 
 	if ( !outcs_.hsamp_.includes( trckey ) )
 	    continue;
@@ -511,22 +522,17 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
     {
 	if ( !seisreadertdmodel_->get(trc) )
 	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
+	    deleteAndZeroPtr( seisreadertdmodel_ );
 	    return false;
 	}
 
 	if ( is2d_ )
-	{
 	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
 					    trc.info().nr );
-	}
 	else
-	{
 	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
 					   trc.info().binid.inl(),
 					   trc.info().binid.crl() );
-	}
 
 	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
 	{
