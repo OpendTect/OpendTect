@@ -40,5 +40,6 @@ set(OD_MODULE_SOURCES
 	uiwellstratdisplay.cc
 	uiwellt2dconv.cc
 	uiwellwriteopts.cc
+	uizrangeselect.cc
 )
 OD_INIT_MODULE()

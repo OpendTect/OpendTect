@@ -28,6 +28,7 @@ ________________________________________________________________________
 uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     : uiGroup(p)
     , orient_(orient)
+    , markerSelectionChg(this)
 {
     const bool hor = orient_ == OD::Horizontal;
     const IOObjContext ctxt = mIOObjContext( Well );
@@ -58,7 +59,7 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     fromlogormnsbut_ = new uiToolButton( this,
 		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
 		tr("Show wells which have selected logs/mnemonics"), cb );
-    fromlogormnsbut_->attach( hor ? centeredBelow : centeredRightOf, 
+    fromlogormnsbut_->attach( hor ? centeredBelow : centeredRightOf,
 	    		      logormnslist_ );
     frommarkerbut_ = new uiToolButton( this,
 		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
@@ -69,6 +70,7 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     mAttachCB( welllistselgrp->selectionChanged, uiWellFilterGrp::selChgCB );
     mAttachCB( logormnslist_->selectionChanged, uiWellFilterGrp::selChgCB );
     mAttachCB( markerlist_->selectionChanged, uiWellFilterGrp::selChgCB );
+    mAttachCB( markerlist_->selectionChanged, uiWellFilterGrp::markerSelChgCB );
 }
 
 
@@ -138,6 +140,9 @@ void uiWellFilterGrp::setFilterItems( const ObjectSet<Well::Data>& wds,
 
 void uiWellFilterGrp::setMaxLinesForLists()
 {
+    if ( orient_==OD::Vertical )
+	return;
+
     int maxsz = mMAX( welllist_->size(),
 		      mMAX(logormnslist_->size(),markerlist_->size()) );
     if ( maxsz > 25 )
@@ -234,6 +239,14 @@ void uiWellFilterGrp::getSelected( BufferStringSet& wellnms,
 	mns.addIfNew( mns_->getByName(*mnnm) );
 
     markerlist_->getChosen( mrkrnms );
+}
+
+
+BufferStringSet uiWellFilterGrp::getSelectedMarkers() const
+{
+    BufferStringSet mrkrnms;
+    markerlist_->getChosen( mrkrnms );
+    return mrkrnms;
 }
 
 
@@ -354,6 +367,12 @@ void uiWellFilterGrp::selChgCB( CallBacker* )
     const int totalmarkers = markerlist_->size();
     markerlist_->setLabelText( tr("Selected Markers %1/%2").arg(selmarkers)
 						     .arg(totalmarkers), 0 );
+}
+
+
+void uiWellFilterGrp::markerSelChgCB( CallBacker* )
+{
+    markerSelectionChg.trigger();
 }
 
 

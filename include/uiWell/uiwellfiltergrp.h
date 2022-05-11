@@ -69,6 +69,8 @@ public:
 					    MnemonicSelection& mns,
 					    BufferStringSet& mrkrs) const;
 
+    BufferStringSet		getSelectedMarkers() const;
+
     void			noLogFilterCB(CallBacker*);
     void			mnemFilterCB(CallBacker*);
     void			wellTypeFilter(OD::WellType);
@@ -78,11 +80,14 @@ public:
     void			logValRangeFilter(const MnemonicSelection& mns,
 				    const TypeSet<Interval<float>>& logvalrg);
 
+    Notifier<uiWellFilterGrp>	markerSelectionChg;
+
 protected:
 
 
     void			selButPush(CallBacker*);
     void			selChgCB(CallBacker*);
+    void			markerSelChgCB(CallBacker*);
 
     void			setMaxLinesForLists();
 

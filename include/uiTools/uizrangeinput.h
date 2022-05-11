@@ -24,10 +24,12 @@ public:
     void			setZRange(T);
     StepInterval<float>		getFZRange() const;
     StepInterval<double>	getDZRange() const;
-    
+
+    void			setIsDepth(bool yn)	{ isdepth_ = yn; }
+
 private:
 
-    const bool			isdepth_;
+    bool			isdepth_;
     const bool			withstep_;
 };
 
@@ -37,7 +39,7 @@ void uiZRangeInput::setZRange( T range )
 {
     if ( !isdepth_ && !range.isUdf() )
 	range.scale( (float) ZDomain::Time().userFactor() );
-    
+
     setValue( range );
 }
 
