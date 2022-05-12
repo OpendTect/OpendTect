@@ -7,7 +7,7 @@ SET( INCLUDES
     ODQtUtils
     ODOsgUtils
     ODZlibUtils
-    ODProj4Utils
+    ODProjUtils
     ODOpenSSLUtils
     ODHDF5Utils
     ODBreakPadUtils

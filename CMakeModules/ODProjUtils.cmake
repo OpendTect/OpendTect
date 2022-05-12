@@ -53,38 +53,47 @@ macro( OD_BUILD_PROJ4 )
     endif()
 endmacro(OD_BUILD_PROJ4)
 
-macro( OD_ADD_PROJ4 )
+macro( OD_ADD_PROJ )
 
-    set ( PROJ4_DIR "${OD_BINARY_BASEDIR}/external/proj4" )
-    if ( NOT EXISTS "${PROJ4_DIR}/CMakeCache.txt" )
-	OD_CONF_PROJ4()
-	OD_BUILD_PROJ4()
-    elseif ( NOT EXISTS "${PROJ4_DIR}/inst" )
-	OD_BUILD_PROJ4()
+    if ( DEFINED PROJ_DIR AND EXISTS "${PROJ_DIR}" )
+	set( PROJ_NAME "PROJ" )
+	set ( PROJ_DIR "${PROJ_DIR}/lib/cmake/proj" )
+	find_package( ${PROJ_NAME} 9 REQUIRED )
     endif()
 
-    set( PROJ4_DIR "${PROJ4_DIR}/inst" )
-    if ( WIN32 )
-	set ( PROJ4_DIR "${PROJ4_DIR}/local" )
-    endif()
-    set ( PROJ4_DIR "${PROJ4_DIR}/lib/cmake/proj4" )
-
-    find_package( PROJ4 QUIET )
-
-    if ( NOT PROJ4_FOUND )
-	message( FATAL_ERROR "Proj4 external not found" )
-    endif()
-
-endmacro(OD_ADD_PROJ4)
-
-macro(OD_SETUP_PROJ4)
-
-    if ( OD_USEPROJ4 )
-	if ( EXISTS "${PROJ4_INCLUDE_DIRS}" )
-	    list( APPEND OD_MODULE_INCLUDESYSPATH
-		    ${PROJ4_INCLUDE_DIRS} )
-	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_LIBRARIES} )
+    if ( NOT PROJ_FOUND )
+	set( PROJ_NAME "PROJ4" )
+	set ( PROJ4_DIR "${OD_BINARY_BASEDIR}/external/proj4" )
+	if ( NOT EXISTS "${PROJ4_DIR}/CMakeCache.txt" )
+	    OD_CONF_PROJ4()
+	    OD_BUILD_PROJ4()
+	elseif ( NOT EXISTS "${PROJ4_DIR}/inst" )
+	    OD_BUILD_PROJ4()
 	endif()
-    endif( OD_USEPROJ4 )
 
-endmacro(OD_SETUP_PROJ4)
+	set( PROJ4_DIR "${PROJ4_DIR}/inst" )
+	if ( WIN32 )
+	    set ( PROJ4_DIR "${PROJ4_DIR}/local" )
+	endif()
+	set ( PROJ4_DIR "${PROJ4_DIR}/lib/cmake/proj4" )
+	find_package( ${PROJ_NAME} 5  REQUIRED)
+
+	if ( NOT ${PROJ_NAME}_FOUND )
+	    message( FATAL_ERROR "Proj4 external not found" )
+	endif()
+    endif()
+
+
+endmacro(OD_ADD_PROJ)
+
+macro(OD_SETUP_PROJ)
+
+    if ( OD_USEPROJ )
+	if ( EXISTS "${${PROJ_NAME}_INCLUDE_DIRS}" )
+	    list( APPEND OD_MODULE_INCLUDESYSPATH
+		    ${${PROJ_NAME}_INCLUDE_DIRS} )
+	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${${PROJ_NAME}_LIBRARIES} )
+	endif()
+    endif( OD_USEPROJ )
+
+endmacro(OD_SETUP_PROJ)

@@ -4,7 +4,7 @@
 #	May 2017	Raman
 #_______________________________________________________________________________
 
-set( OD_USEPROJ4 Yes )
+set( OD_USEPROJ Yes )
 set( OD_MODULE_DEPS Basic )
 set( OD_MODULE_SOURCES 
 	    crsproj.cc
