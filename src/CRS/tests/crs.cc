@@ -103,27 +103,29 @@ static const Coord wgs72xy[] =	{ Coord(468160.7972588778,5698137.987990135),
 				  Coord(468161.8054061992,6179906.107376129) };
 
 static const Coord wgs84n20xy[] = { Coord(732564.42,4892016.76) };
-static const LatLong wgs84n20ll[] = { LatLong(44.1443426,-60.0922381) };
+static const LatLong wgs84n20ll[] = { LatLong(44.1443427171,-60.09223806267) };
 
 static const Coord nad27n20xy[] = { Coord(732510.57,4891795.58) };
-static const LatLong nad27n20ll[] = { LatLong(44.1443175,-60.0929968) };
+static const LatLong nad27n20ll[] = { LatLong(44.1443174906,-60.0929967680) };
 
-#define mRunTest( func ) \
+#define mRunTest( func, desc ) \
     if ( !(func) ) \
     { \
-	errStream() << #func "\tfailed!\n"; \
+	errStream() << desc << "\tfailed!\n"; \
 	return false; \
     } \
     else \
     { \
-	logStream() << #func "\tsuccess!\n"; \
+	logStream() << desc << "\tsuccess!\n"; \
     }
 
 
 static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
-				const Coords::CoordSystem& pbs )
+				const Coords::CoordSystem& pbs,
+				const char* desc )
 {
-    mRunTest( ll == LatLong::transform(pos,false,&pbs) );
+    const LatLong calcll = LatLong::transform( pos, false, &pbs );
+    mRunTest( ll == calcll, desc );
     return true;
 }
 
@@ -136,9 +138,10 @@ static bool coordIsEqual( const Coord pos1, const Coord pos2 )
 
 
 static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
-				const Coords::CoordSystem& pbs, bool wgs84 )
+				const Coords::CoordSystem& pbs, bool wgs84,
+				const char* desc )
 {
-    mRunTest( coordIsEqual(LatLong::transform(ll,wgs84,&pbs),pos) );
+    mRunTest( coordIsEqual(LatLong::transform(ll,wgs84,&pbs),pos), desc );
     return true;
 }
 
@@ -151,35 +154,33 @@ static bool testReversibility( Coords::AuthorityCode crsid )
 
     const Coord* xy = nullptr;
     const LatLong* ll = nullptr;
-    if ( crsid == cWGS84ID() )
-    {
-	xy = wgs84xy;
-	ll = wgs84ll;
-    }
-    else if ( crsid == cED50ID() )
-    {
-	xy = ed50xy;
-	ll = ed50ll;
+    int sz = 0;
+    BufferString coord2lldesc, ll2coorddesc;
 
+#define mUsePosArray( xyarr, llarr ) \
+    { \
+	xy = xyarr; \
+	ll = llarr; \
+	sz = sizeof(xyarr) / sizeof(Coord); \
+	coord2lldesc.add( "From ").add( #xyarr ).add( " to " ).add( #llarr ); \
+	ll2coorddesc.add( "From ").add( #llarr ).add( " to " ).add( #xyarr ); \
     }
+
+    if ( crsid == cWGS84ID() )
+	mUsePosArray(wgs84xy,wgs84ll)
+    else if ( crsid == cED50ID() )
+	mUsePosArray(ed50xy,ed50ll)
     else if ( crsid == cWGS84N20ID() )
-    {
-	xy = wgs84n20xy;
-	ll = wgs84n20ll;
-    }
+	mUsePosArray(wgs84n20xy,wgs84n20ll)
     else if ( crsid == cNAD27N20ID() )
-    {
-	xy = nad27n20xy;
-	ll = nad27n20ll;
-    }
+	mUsePosArray(nad27n20xy,nad27n20ll)
     else
 	return false;
 
-    const int sz = sizeof(xy) / sizeof(Coord);
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( !testCoordToLatLong(xy[idx],ll[idx],pbs) ||
-	     !testLatLongToCoord(ll[idx],xy[idx],pbs,false) )
+	if ( !testCoordToLatLong(xy[idx],ll[idx],pbs,coord2lldesc) ||
+	     !testLatLongToCoord(ll[idx],xy[idx],pbs,false,ll2coorddesc) )
 	    return false;
     }
 
@@ -211,21 +212,26 @@ static bool testTransfer()
     for ( int idx=0; idx<sz; idx++ )
     {
 	const LatLong retll( LatLong::transform(ed50xy[idx],true,&ed50pbs) );
-	mRunTest( retll == ed50aswgs84ll[idx] );
-	if ( !testLatLongToCoord(retll,ed50towgs84xy[idx],wgs84pbs,true) )
+	mRunTest( retll == ed50aswgs84ll[idx], "From ed50xy to ed50aswgs84ll" );
+	if ( !testLatLongToCoord(retll,ed50towgs84xy[idx],wgs84pbs,true,
+		    "From ed50aswgs84ll to ed50towgs84xy") )
 	    return false;
     }
 
     for ( int idx=0; idx<sz; idx++ )
     {
 	mRunTest( coordIsEqual(ed50towgs84xy[idx],
-		Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs84pbs)));
+		Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs84pbs)),
+		"From ed50xy to ed50towgs84xy" );
 	mRunTest( coordIsEqual(ed50towgs84xy[idx],
-		  wgs84pbs.convertFrom(ed50xy[idx],ed50pbs)) );
+		  wgs84pbs.convertFrom(ed50xy[idx],ed50pbs)),
+	          "From ed50xy to ed50towgs84xy" );
 	mRunTest( coordIsEqual(wgs72xy[idx],
-		Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs72pbs)));
+		Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs72pbs)),
+		"From ed50xy to wgs72xy" );
 	mRunTest( coordIsEqual(wgs72xy[idx],
-		  wgs72pbs.convertFrom(ed50xy[idx],ed50pbs)) );
+		  wgs72pbs.convertFrom(ed50xy[idx],ed50pbs)),
+		  "From ed50xy to wgs72xy" );
     }
 
     return true;
@@ -242,8 +248,9 @@ bool initPlugin()
     Coords::ProjectionRepos::addRepos( repos );
     SI().readSavedCoordSystem();
 
-    mRunTest( Coords::ProjectionRepos::getRepos(sKeyRepoNm) )
-    mRunTest( !Coords::ProjectionRepos::reposSet()[0]->isEmpty() )
+    mRunTest( Coords::ProjectionRepos::getRepos(sKeyRepoNm), "Init Repos")
+    mRunTest( !Coords::ProjectionRepos::reposSet()[0]->isEmpty(),
+	      "Repos Populated" )
 
     return true;
 }
