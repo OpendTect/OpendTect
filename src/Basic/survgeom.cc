@@ -362,12 +362,21 @@ TrcKey GeometryManager::traceKey( Pos::GeomID geomid, Pos::TraceID tid ) const
 TrcKey GeometryManager::nearestTrace( const Coord& crd, bool is2d,
 				      float* dist ) const
 {
-    BufferStringSet nms; TypeSet<Pos::GeomID> geomids;
+    BufferStringSet nms;
+    TypeSet<Pos::GeomID> geomids;
     const bool res = getList( nms, geomids, is2d );
     if ( !res )
 	return TrcKey::udf();
 
-    TrcKey tkatmin; float mindist = mUdf(float);
+    return nearestTrace( geomids, crd, dist );
+}
+
+
+TrcKey GeometryManager::nearestTrace( const TypeSet<Pos::GeomID>& geomids,
+				const Coord& crd, float* dist ) const
+{
+    TrcKey tkatmin;
+    float mindist = mUdf(float);
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	const Geometry* geom = getGeometry( geomids[idx] );
