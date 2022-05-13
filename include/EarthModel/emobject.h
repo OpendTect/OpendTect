@@ -321,6 +321,8 @@ public:
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
+    Interval<float>		getZRange(bool compute_if_needed=false) const;
+
 protected:
 				~EMObject();
 				EMObject( EMManager& );

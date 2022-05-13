@@ -8,6 +8,7 @@
 #include "emobject.h"
 
 #include "color.h"
+#include "emioobjinfo.h"
 #include "emundo.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
@@ -870,6 +871,37 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 	    nodes[idy] = cbdata.pid1;
 	}
     }
+}
+
+
+Interval<float> EMObject::getZRange( bool docompute ) const
+{
+    Interval<float> zrg = Interval<float>::udf();
+    const bool ischanged = isChanged();
+    if ( !ischanged )
+    {
+	IOObjInfo info( multiID() );
+	zrg = info.getZRange();
+    }
+
+    if ( !zrg.isUdf() || !docompute )
+	return zrg;
+
+    PtrMan<EMObjectIterator> it = createIterator( -1, nullptr );
+    if ( !it )
+	return zrg;
+
+    EM::PosID pid = it->next();
+    while ( pid.objectID()!=-1  )
+    {
+	const double depth = getPos( pid ).z;
+	if ( !mIsUdf(depth) )
+	    zrg.include( depth, false );
+
+	pid = it->next();
+    }
+
+    return zrg;
 }
 
 } // namespace EM
