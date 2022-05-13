@@ -497,10 +497,21 @@ bool Horizon3D::isAttrib( const TrcKey& tk, int attr ) const
 }
 
 
-float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
+float Horizon3D::getZValue( const Coord& crd, bool allow_udf, int nr ) const
 {
     //TODO support the parameters
-    return getZ( SI().transform(c) );
+    const BinID bid = SI().transform( crd );
+    float zval = getZ( bid );
+    if ( !mIsUdf(zval) || allow_udf )
+	return zval;
+
+    const EM::SectionID sid = sectionID( nr );
+    const Geometry::BinIDSurface* geom = geometry().sectionGeometry( sid );
+    if ( !geom )
+	return zval;
+
+    const Coord3 pos = geom->computePosition( Coord(bid.inl(),bid.crl()) );
+    return sCast(float,pos.z);
 }
 
 
