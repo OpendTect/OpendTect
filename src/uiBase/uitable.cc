@@ -313,6 +313,9 @@ void uiTableBody::paste()
     const QStringList rows = str.split( '\n', QString::SkipEmptyParts );
 #endif
 
+    if ( rows.isEmpty() )
+	return;
+
     const int nrrows = rows.count();
     const int nrcols = rows.first().count('\t') + 1;
     const int startrow = currentRow();
