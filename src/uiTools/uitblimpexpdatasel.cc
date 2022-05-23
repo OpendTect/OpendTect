@@ -43,10 +43,6 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     , tinf_(tinf)
     , ishdr_(ishdr)
     , nrhdrlns_(nrlns)
-    , formfld_(nullptr)
-    , specfld_(nullptr)
-    , unitfld_(nullptr)
-    , crsfld_(nullptr)
 {
     if ( tinf_.nrForms() < 1 )
 	return;
@@ -122,6 +118,17 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	    crsfld_->attach( alignedBelow, (*colboxes_[0])[0] );
 	else
 	    crsfld_->attach( alignedBelow, rightmostfld_ );
+    }
+
+    if ( tinf_.selection_.llsys_
+	    && tinf_.selection_.llsys_->isProjection() )
+    {
+	llsysfld_ = new Coords::uiLatLongSystemSel( this, tr("Lat-Long System"),
+						tinf_.selection_.llsys_ );
+	if ( !colboxes_.isEmpty() && !colboxes_[0]->isEmpty() )
+	    llsysfld_->attach( alignedBelow, (*colboxes_[0])[0] );
+	else
+	    llsysfld_->attach( alignedBelow, rightmostfld_ );
     }
 
     postFinalize().notify( boxcb );
@@ -271,7 +278,10 @@ void boxChg( CallBacker* )
     }
 
     if ( crsfld_ )
-	crsfld_->display( !selformidx );	// When Position is XY.
+	crsfld_->display( tinf_.form(selformidx).name() == tinf_.sKeyXY() );
+    if ( llsysfld_ )
+	llsysfld_->display( tinf_.form(selformidx).name() ==
+			    tinf_.sKeyLatLong() );
 }
 
 bool commit()
@@ -363,6 +373,15 @@ bool commit()
 	    tinf_.selection_.coordsys_ = SI().getCoordSystem();
     }
 
+    if ( llsysfld_ )
+    {
+	if ( llsysfld_->isDisplayed() )
+	    tinf_.selection_.llsys_ = llsysfld_->getCoordSystem();
+	else
+	    tinf_.selection_.llsys_ =
+		SI().getCoordSystem()->getGeodeticSystem();
+    }
+
     return true;
 }
 
@@ -371,10 +390,11 @@ bool commit()
     int					nrhdrlns_;
     uiString				errmsg_;
 
-    uiComboBox*				formfld_;
-    uiComboBox*				specfld_;
-    uiUnitSel*				unitfld_;
-    Coords::uiCoordSystemSel*		crsfld_;
+    uiComboBox*				formfld_	= nullptr;
+    uiComboBox*				specfld_	= nullptr;
+    uiUnitSel*				unitfld_	= nullptr;
+    Coords::uiCoordSystemSel*		crsfld_		= nullptr;
+    Coords::uiLatLongSystemSel*		llsysfld_	= nullptr;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;

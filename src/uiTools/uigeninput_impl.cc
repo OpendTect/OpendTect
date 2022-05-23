@@ -417,6 +417,22 @@ bool uiGenInputBoolFld::isReadOnly() const
 
 bool uiGenInputBoolFld::update_( const DataInpSpec& spec )
 {
+    mDynamicCastGet(const BoolInpSpec*,boolspec,&spec)
+    if ( !boolspec )
+	return false;
+
+    const uiString& truetext = boolspec->trueFalseTxt( true );
+    const uiString& falsetext = boolspec->trueFalseTxt( false );
+    if ( checkbox_ && !truetext.isEmpty() )
+	checkbox_->setText( truetext );
+    else
+    {
+	if ( !truetext.isEmpty() )
+	    rb1_->setText( truetext );
+	if ( !falsetext.isEmpty() )
+	    rb2_->setText( falsetext );
+    }
+
     setvalue_( spec.getBoolValue() );
     return true;
 }

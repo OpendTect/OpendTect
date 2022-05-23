@@ -70,6 +70,8 @@ macro( OD_SETUP_EXTERNALS )
 		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		-DOpendTect_DIR=${OpendTect_DIR}
 		-DOD_NO_OSG=${OD_NO_OSG}
+		-DPROJ_DIR=${PROJ_DIR}
+		-DOD_NO_PROJ=${OD_NO_PROJ}
 		-DUPDATE=No
 		-P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
 	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -82,6 +84,8 @@ macro( OD_SETUP_EXTERNALS )
 	set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		    -DOpendTect_DIR=${OpendTect_DIR}
 		    -DOD_NO_OSG=${OD_NO_OSG}
+		    -DPROJ_DIR=${PROJ_DIR}
+		    -DOD_NO_PROJ=${OD_NO_PROJ}
 		    -DUPDATE=Yes
 		    -P external/Externals.cmake )
     endif()

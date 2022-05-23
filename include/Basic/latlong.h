@@ -37,6 +37,7 @@ public:
 			//Using SI()
 
     bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}
+    bool		isUdf() const { return mIsUdf(lat_) || mIsUdf(lng_); }
     static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
 
     static Coord	transform(const LatLong&,bool towgs84=false,

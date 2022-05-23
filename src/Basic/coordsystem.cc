@@ -132,16 +132,23 @@ RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 Coord CoordSystem::convert( const Coord& in, const CoordSystem& from,
 			       const CoordSystem& to )
 {
-    const LatLong geomwgs84( LatLong::transform(in,true,&from) );
-
-    return LatLong::transform( geomwgs84, true, &to );
+    return from.convertTo( in, to );
 }
 
 
 Coord CoordSystem::convertFrom( const Coord& in,
 				   const CoordSystem& from ) const
 {
-    return convert( in, from, *this );
+    const LatLong wgs84ll = LatLong::transform( in, true, &from );
+    return LatLong::transform( wgs84ll, true, this );
+}
+
+
+Coord CoordSystem::convertTo( const Coord& in,
+				   const CoordSystem& to ) const
+{
+    const LatLong wgs84ll = LatLong::transform( in, true, this );
+    return LatLong::transform( wgs84ll, true, &to );
 }
 
 

@@ -10,21 +10,23 @@ ________________________________________________________________________
 
 #include "uicrssystem.h"
 
-#include "oddirs.h"
+#include "od_helpids.h"
 #include "od_iostream.h"
+#include "oddirs.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+#include "uicombobox.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilatlonginp.h"
-#include "uilistbox.h"
 #include "uilineedit.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uistring.h"
+#include "uitextedit.h"
 #include "uitoolbutton.h"
-#include "od_helpids.h"
 
 using namespace Coords;
 
@@ -35,8 +37,31 @@ static AuthorityCode cDefProjID()
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiCoordSystem( p,sFactoryDisplayName() )
-    , curselidx_(-1)
-    , convdlg_(0)
+{
+    createGUI();
+    fetchList();
+    fillList();
+
+}
+
+
+uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p, bool orthogonal )
+    : uiProjectionBasedSystem(p)
+{
+    orthogonal_ = orthogonal;
+    createGUI();
+    fetchList();
+    fillList();
+}
+
+
+uiProjectionBasedSystem::~uiProjectionBasedSystem()
+{
+    delete convdlg_;
+}
+
+
+void uiProjectionBasedSystem::createGUI()
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select projection") );
     projselfld_ = new uiListBox( this, su, "ProjectionList" );
@@ -45,15 +70,24 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     projselfld_->selectionChanged.notify(
 				mCB(this,uiProjectionBasedSystem,selChgCB) );
 
-    uiButton* searchbut = new uiToolButton( this, "search", tr("Search"),
-				mCB(this,uiProjectionBasedSystem,searchCB) );
-    searchbut->attach( rightAlignedAbove, projselfld_ );
+    uiStringSet filteroptions;
+    filteroptions.add( tr("Area of use") ).add( tr("Authority code") )
+		 .add( tr("Authority name") ).add( uiStrings::sName() )
+		 .add( tr("Projection method") );
+    filtersel_ = new uiLabeledComboBox( this, filteroptions, tr("Filter by") );
+    filtersel_->box()->setCurrentItem( 3 );
+    filtersel_->attach( alignedAbove, projselfld_ );
+    filtersel_->setStretch( 0, 0 );
 
     searchfld_ = new uiLineEdit( this, "Search" );
     searchfld_->setPlaceholderText( tr("ID or name") );
-    searchfld_->attach( leftOf, searchbut );
+    searchfld_->attach( rightOf, filtersel_ );
     searchfld_->returnPressed.notify(
 				mCB(this,uiProjectionBasedSystem,searchCB) );
+
+    uiButton* searchbut = new uiToolButton( this, "search", tr("Search"),
+				mCB(this,uiProjectionBasedSystem,searchCB) );
+    searchbut->attach( rightOf, searchfld_ );
 
     uiToolButton* infobut = new uiToolButton( projselfld_, "info",
 		tr("View details"), mCB(this,uiProjectionBasedSystem,infoCB) );
@@ -66,23 +100,20 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 				mCB(this,uiProjectionBasedSystem,convCB) );
     tb->attach( alignedBelow, infobut );
 
-    setHAlignObj( searchfld_ );
-    fetchList();
-    fillList();
+    setHAlignObj( projselfld_ );
 }
 
 
-uiProjectionBasedSystem::~uiProjectionBasedSystem()
-{ delete convdlg_; }
-
 bool uiProjectionBasedSystem::initFields( const Coords::CoordSystem* sys )
 {
-    mDynamicCastGet( const Coords::ProjectionBasedSystem*, from, sys );
-    if ( !from || !from->isOK() )
+    mDynamicCastGet( const Coords::ProjectionBasedSystem*,projsys,sys)
+    if ( !projsys || !projsys->isOK() )
 	return false;
 
-    Coords::AuthorityCode pid = from->getProjection()->authCode();
-    curselidx_ = ids_.indexOf( pid );
+    Coords::AuthorityCode pid = orthogonal_ ?
+				projsys->getProjection()->authCode() :
+				projsys->getProjection()->getGeodeticAuthCode();
+    curselidx_ = crsinfolist_->indexOf( pid );
     setCurrent();
     return true;
 }
@@ -94,57 +125,40 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
     if ( str.isEmpty() ) // No Filter, display all.
     {
 	dispidxs_.erase();
-	dispidxs_.setCapacity( ids_.size(), true );
-	for ( int idx=0; idx<ids_.size(); idx++ )
+	dispidxs_.setCapacity( crsinfolist_->size(), true );
+	for ( int idx=0; idx<crsinfolist_->size(); idx++ )
 	    dispidxs_.add( idx );
 
 	fillList();
 	return;
     }
 
-    if ( str.size() < 3 ) return; // Not enough to search for.
+    if ( str.size() < 2 ) return; // Not enough to search for.
+
+    BufferString gestr = str;
+    if ( !str.find('*') )
+    {
+	gestr = "*";
+	gestr.add( str ).add( '*' );
+    }
 
     MouseCursorChanger mcch( MouseCursor::Wait );
     dispidxs_.erase();
-    if ( str.isNumber(true) || str.find(':') ) // Search for ID
+    const int filtertype = filtersel_->box()->currentItem();
+    for ( int idx=0; idx<crsinfolist_->size(); idx++ )
     {
-	BufferStringSet authkeys;
-	ProjectionRepos::getAuthKeys( authkeys );
-	BufferString authstr, idstr;
-	char* sep = str.find( ':' );
-	if ( !sep )	// ID only
-	    idstr = str;
-	else		// Auth:ID
+	BufferString crsattr;
+	switch ( filtertype )
 	{
-	    authstr = str;
-	    sep = authstr.find( ':' );
-	    idstr = (const char*) ( sep + 1 );
-	    *sep = '\0';
+	    case 0: crsattr = crsinfolist_->areaName( idx ); break;
+	    case 1: crsattr = crsinfolist_->authCode( idx ); break;
+	    case 2: crsattr = crsinfolist_->authName( idx ); break;
+	    case 3: crsattr = crsinfolist_->name( idx ); break;
+	    case 4: crsattr = crsinfolist_->projMethod( idx ); break;
 	}
 
-	Coords::ProjectionID searchid = idstr.toInt();
-	for ( int idx=0; idx<authkeys.size(); idx++ )
-	{
-	    if ( !authstr.isEmpty() && authstr != authkeys.get(idx) )
-		continue;
-
-	    AuthorityCode code( authkeys.get(idx), searchid );
-	    const int selidx = ids_.indexOf( code );
-	    if ( selidx >= 0 )
-		dispidxs_ += selidx;
-	}
-    }
-    else // Search for Name
-    {
-	BufferString gestr = str;
-	if ( !str.find('*') )
-	{ gestr = '*'; gestr += str; gestr += '*'; }
-
-	for ( int idx=0; idx<names_.size(); idx++ )
-	{
-	    if ( names_.get(idx).matches(gestr,CaseInsensitive) )
-		dispidxs_.add( idx );
-	}
+	if ( crsattr.matches(gestr,CaseInsensitive) )
+	    dispidxs_.add( idx );
     }
 
     fillList();
@@ -153,10 +167,10 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 
 void uiProjectionBasedSystem::fetchList()
 {
-    Projection::getAll( ids_, names_, defstrs_, true );
-    curselidx_ = ids_.indexOf( cDefProjID() );
-    dispidxs_.setCapacity( ids_.size(), true ); \
-    for ( int idx=0; idx<ids_.size(); idx++ ) \
+    crsinfolist_ = getCRSInfoList( orthogonal_ );
+    curselidx_ = crsinfolist_->indexOf( cDefProjID() );
+    dispidxs_.setCapacity( crsinfolist_->size(), true ); \
+    for ( int idx=0; idx<crsinfolist_->size(); idx++ ) \
 	dispidxs_.add( idx );
 }
 
@@ -166,14 +180,7 @@ void uiProjectionBasedSystem::fillList()
     projselfld_->setEmpty();
     uiStringSet itemstodisplay;
     for ( int idx=0; idx<dispidxs_.size(); idx++ )
-    {
-	const int index = dispidxs_[idx];
-	uiString itmtxt = toUiString("[%1:%2] %3" )
-				.arg(ids_[index].authority())
-				.arg(ids_[index].id())
-				.arg(names_.get(index));
-	itemstodisplay.add( itmtxt );
-    }
+	itemstodisplay.add( crsinfolist_->getDispString(dispidxs_[idx]) );
 
     projselfld_->addItems( itemstodisplay );
     setCurrent();
@@ -193,7 +200,8 @@ bool uiProjectionBasedSystem::acceptOK()
     if ( !dispidxs_.validIdx(selidx) )
 	return false;
 
-    const AuthorityCode pid = ids_[dispidxs_[selidx]];
+    const AuthorityCode pid( crsinfolist_->authName(dispidxs_[selidx]),
+			     crsinfolist_->authCode(dispidxs_[selidx]) );
     RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem;
     res->setProjection( pid );
     outputsystem_ = res;
@@ -216,19 +224,13 @@ void uiProjectionBasedSystem::infoCB( CallBacker* )
     if ( !dispidxs_.validIdx(selidx) )
 	return;
 
-    BufferString disptxt( "Name: " );
-    disptxt.add( names_.get(dispidxs_[selidx]) ).addNewLine();
-    const AuthorityCode pid = ids_[dispidxs_[selidx]];
-    disptxt.add( "Authority Code: " ).add( pid.authority() ).add( ":" )
-				     .add( pid.id() ).addNewLine();
-    disptxt.add( Projection::getInfoText(defstrs_.get(dispidxs_[selidx])) );
-
-    uiDialog dlg( this, uiDialog::Setup(tr(projselfld_->textOfItem(selidx)),
-					mNoDlgTitle,mNoHelpKey) );
-    dlg.setCtrlStyle( uiDialog::CloseOnly );
-    uiLabel* infolbl = new uiLabel( &dlg, toUiString(disptxt) );
-    infolbl->setTextSelectable();
-    dlg.go();
+    const uiString nm = crsinfolist_->getDispString( dispidxs_[selidx] );
+    uiDialog infodlg( this, uiDialog::Setup(nm,mNoDlgTitle,mNoHelpKey) );
+    infodlg.setCtrlStyle( uiDialog::CloseOnly );
+    auto* txtfld = new uiTextEdit( &infodlg );
+    txtfld->setText( crsinfolist_->getDescString(dispidxs_[selidx]) );
+    txtfld->setPrefHeightInChar( 10 );
+    infodlg.go();
 }
 
 
@@ -325,8 +327,8 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 
 void uiConvertGeographicPos::finalizeCB( CallBacker* )
 {
-    selChg(0);
-    applyCB(0);
+    selChg( nullptr );
+    applyCB( nullptr );
 }
 
 
@@ -334,7 +336,7 @@ void uiConvertGeographicPos::setCoordSystem(
 				ConstRefMan<Coords::CoordSystem> newsys )
 {
     coordsystem_ = newsys;
-    applyCB(0);
+    applyCB( nullptr );
 }
 
 
@@ -458,5 +460,3 @@ void uiConvertGeographicPos::convFile()
 	uiMSG().message( tr("Total number of points converted: %1")
 							    .arg(nrvals) );
 }
-
-

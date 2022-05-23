@@ -30,6 +30,10 @@ static const char* sKeyHdrToken = "Header.Token";
 static const char* filenamebase = "FileFormats";
 static const char* sKeyGroup = "Group";
 
+const char* TargetInfo::sKeyXY()	{ return "X/Y"; }
+const char* TargetInfo::sKeyInlCrl()	{ return "Inl/Crl"; }
+const char* TargetInfo::sKeyLatLong()	{ return "Lat/Long"; }
+
 FileFormatRepository& FFR()
 {
     mDefineStaticLocalObject( FileFormatRepository, ffrepo, );
@@ -270,27 +274,31 @@ void TargetInfo::usePar( const IOPar& iopar )
 
 
 Table::TargetInfo*
-	TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll, bool wcrs )
+	TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll, bool wcrs,
+				   ConstRefMan<Coords::CoordSystem> crs )
 {
     const ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
     TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
-    ti->form(0).setName( "X/Y" );
+    ti->form(0).setName( sKeyXY() );
     ti->form(0).add( DoubleInpSpec() );
     if ( wcrs )
-	ti->selection_.coordsys_ = SI().getCoordSystem();
+	ti->selection_.coordsys_ = crs ? crs : SI().getCoordSystem();
 
     if ( wic )
     {
-	auto* form = new TargetInfo::Form( "Inl/Crl", IntInpSpec() );
+	auto* form = new TargetInfo::Form( sKeyInlCrl(), IntInpSpec() );
 	form->add( IntInpSpec() );
 	ti->add( form );
     }
 
     if ( wll )
     {
-	auto* form = new TargetInfo::Form( "Lat/Long", StringInpSpec() );
+	auto* form = new TargetInfo::Form( sKeyLatLong(), StringInpSpec() );
 	form->add( StringInpSpec() );
 	ti->add( form );
+	if ( wcrs && ti->selection_.coordsys_->isProjection() )
+	    ti->selection_.llsys_ =
+		ti->selection_.coordsys_->getGeodeticSystem();
     }
 
     if ( ti->nrForms()==1 )
@@ -300,13 +308,14 @@ Table::TargetInfo*
 }
 
 
-Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq )
+Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq,
+					ConstRefMan<Coords::CoordSystem> crs )
 {
     const ReqSpec reqspec( isreq ? Required : Optional );
     TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
-    ti->form(0).setName( "X/Y" );
+    ti->form(0).setName( sKeyXY() );
     ti->form(0).add( DoubleInpSpec() );
-    ti->selection_.coordsys_ = SI().getCoordSystem();
+    ti->selection_.coordsys_ = crs ? crs : SI().getCoordSystem();
 
     auto* form1 = new TargetInfo::Form( "Trace Nr", IntInpSpec() );
     ti->add( form1 );
@@ -316,9 +325,10 @@ Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq )
 
     if ( ti->selection_.coordsys_ && ti->selection_.coordsys_->isProjection() )
     {
-	auto* form3 = new TargetInfo::Form( "Lat/Long", StringInpSpec() );
+	auto* form3 = new TargetInfo::Form( sKeyLatLong(), StringInpSpec() );
 	form3->add( StringInpSpec() );
 	ti->add( form3 );
+	ti->selection_.llsys_ = ti->selection_.coordsys_->getGeodeticSystem();
     }
 
     return ti;
@@ -903,7 +913,8 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 }
 
 
-Coord Table::AscIO::getPos( int xfld, int yfld, double udf ) const
+Coord Table::AscIO::getPos( int xfld, int yfld, double udf, bool isll,
+			    ConstRefMan<Coords::CoordSystem> outcrs ) const
 {
     Coord curpos;
 
@@ -912,11 +923,10 @@ Coord Table::AscIO::getPos( int xfld, int yfld, double udf ) const
 
     if ( !curpos.isUdf() )
     {
-	ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
-
 	for ( int idx=0; idx<fd_.bodyinfos_.size(); idx++ )
 	{
-	    ConstRefMan<Coords::CoordSystem> inpcrs =
+	    ConstRefMan<Coords::CoordSystem> inpcrs = isll ?
+				fd_.bodyinfos_[idx]->selection_.llsys_ :
 				fd_.bodyinfos_[idx]->selection_.coordsys_;
 	    if ( !inpcrs ) continue;
 
@@ -931,17 +941,18 @@ Coord Table::AscIO::getPos( int xfld, int yfld, double udf ) const
 }
 
 
-Coord3 Table::AscIO::getPos3D( int xfld, int yfld, int zfld, double udf ) const
+Coord3 Table::AscIO::getPos3D( int xfld, int yfld, int zfld, double udf,
+		bool isll, ConstRefMan<Coords::CoordSystem> outcrs ) const
 {
-    return Coord3( getPos(xfld,yfld,udf), getDValue(zfld) );
+    return Coord3( getPos(xfld,yfld,udf,isll,outcrs), getDValue(zfld) );
 }
 
 
-BinID Table::AscIO::getBinID( int xfld, int yfld, double udf ) const
+BinID Table::AscIO::getBinID( int inlfld, int crlfld, double udf ) const
 {
     BinID bid;
-    bid.inl() = getIntValue(xfld);
-    bid.crl() = getIntValue(yfld);
+    bid.inl() = getIntValue(inlfld);
+    bid.crl() = getIntValue(crlfld);
     return bid;
 }
 

@@ -51,6 +51,8 @@ public:
     static RefMan<CoordSystem>	createSystem(const IOPar&);
 				//!<Creates subclass with settings
     virtual CoordSystem*	clone() const				= 0;
+    virtual CoordSystem*	getGeodeticSystem() const
+    				{ return clone(); }
 
     virtual uiString		description() const			= 0;
     virtual BufferString	summary() const				= 0;
@@ -63,8 +65,11 @@ public:
 
     static Coord		convert(const Coord&,const CoordSystem& from,
 					const CoordSystem& to);
-    Coord			convertFrom(const Coord&,
+
+    virtual Coord		convertFrom(const Coord&,
 					const CoordSystem& from) const;
+    virtual Coord		convertTo(const Coord&,
+					const CoordSystem& to) const;
 
     virtual uiString		toUiString(const Coord&) const;
     virtual BufferString	toString(const Coord&,
@@ -78,6 +83,7 @@ public:
     virtual bool		isProjection() const	{ return false; }
     virtual bool		isFeet() const		{ return false; }
     virtual bool		isMeter() const		{ return false; }
+    virtual bool		isGeodetic() const	{ return false; }
 
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;

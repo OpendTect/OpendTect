@@ -22,11 +22,38 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem(
 }
 
 
+Coords::ProjectionBasedSystem::~ProjectionBasedSystem()
+{
+    delete proj_;
+}
+
+
 Coords::CoordSystem* Coords::ProjectionBasedSystem::clone() const
 {
     Coords::ProjectionBasedSystem* cp = new Coords::ProjectionBasedSystem;
-    cp->proj_ = proj_;
+    if ( proj_ )
+	cp->setProjection( proj_->authcode_ );
+
     return cp;
+}
+
+
+Coords::CoordSystem* Coords::ProjectionBasedSystem::getGeodeticSystem() const
+{
+    if ( !isOrthogonal() )
+	return clone();
+
+    Coords::ProjectionBasedSystem* cp = new Coords::ProjectionBasedSystem;
+    cp->setProjection( proj_ ? proj_->getGeodeticAuthCode()
+			     : Coords::AuthorityCode::sWGS84AuthCode() );
+    return cp;
+}
+
+
+Coords::CoordSystem* Coords::ProjectionBasedSystem::getWGS84LLSystem()
+{
+    return new Coords::ProjectionBasedSystem(
+				Coords::AuthorityCode::sWGS84AuthCode() );
 }
 
 
@@ -35,8 +62,8 @@ BufferString Coords::ProjectionBasedSystem::summary() const
     if ( !proj_ )
 	return "No Projection Selected";
 
-    BufferString ret( "Projection: [" );
-    ret.add( proj_->authCode().toString() ).add( "] " ).add( proj_->userName());
+    BufferString ret( isOrthogonal() ? "Projection: " : "Geodetic: " );
+    ret.add( proj_->getProjDispString() );
     return ret;
 }
 
@@ -71,14 +98,53 @@ Coord Coords::ProjectionBasedSystem::fromGeographic(
 }
 
 
+Coord Coords::ProjectionBasedSystem::convertFrom(const Coord& incrd,
+						const CoordSystem& from) const
+{
+    mDynamicCastGet(const Coords::ProjectionBasedSystem*,fromproj,&from)
+    if ( !fromproj || !isOK() || !fromproj->isOK() )
+	return Coord::udf();
+
+    return Projection::convert( incrd, *fromproj->getProjection(),
+				*this->getProjection() );
+}
+
+
+Coord Coords::ProjectionBasedSystem::convertTo(const Coord& incrd,
+						const CoordSystem& to) const
+{
+    mDynamicCastGet(const Coords::ProjectionBasedSystem*,toproj,&to)
+    if ( !toproj || !isOK() || !toproj->isOK() )
+	return Coord::udf();
+
+    return Projection::convert( incrd, *this->getProjection(),
+				*toproj->getProjection() );
+}
+
+
 bool Coords::ProjectionBasedSystem::isOrthogonal() const
-{ return !proj_ || proj_->isOrthogonal(); }
+{
+    return !proj_ || proj_->isOrthogonal();
+}
+
 
 bool Coords::ProjectionBasedSystem::isFeet() const
-{ return proj_ && proj_->isFeet(); }
+{
+    return proj_ && proj_->isFeet();
+}
+
 
 bool Coords::ProjectionBasedSystem::isMeter() const
-{ return !proj_ || proj_->isMeter(); }
+{
+    return !proj_ || proj_->isMeter();
+}
+
+
+bool Coords::ProjectionBasedSystem::isWGS84() const
+{
+    return !proj_ ||
+	proj_->getGeodeticAuthCode() == Coords::AuthorityCode::sWGS84AuthCode();
+}
 
 
 bool Coords::ProjectionBasedSystem::doUsePar( const IOPar& par )
@@ -103,12 +169,8 @@ void Coords::ProjectionBasedSystem::doFillPar( IOPar& par ) const
 
 bool Coords::ProjectionBasedSystem::setProjection( Coords::AuthorityCode code )
 {
-    const Coords::Projection* proj = Coords::Projection::getByAuthCode( code );
-    if ( !proj )
-	return false;
-
-    proj_ = proj;
-    return true;
+    proj_ = Coords::Projection::getByAuthCode( code );
+    return proj_;
 }
 
 
@@ -120,6 +182,9 @@ const Coords::Projection* Coords::ProjectionBasedSystem::getProjection() const
 
 BufferString Coords::ProjectionBasedSystem::getURNString() const
 {
+    if ( !proj_ )
+	return BufferString::empty();
+
     Coords::AuthorityCode code = proj_->authcode_;
     return code.toURNString();
 }

@@ -163,13 +163,13 @@ public:
 	    BufferString	val_;
 	};
 
-	int			form_;
+	int			form_				= 0;
 	TypeSet<Elem>		elems_;
-	const UnitOfMeasure*	unit_;
-	ConstRefMan<Coords::CoordSystem>	coordsys_;
+	const UnitOfMeasure*	unit_				= nullptr;
+	ConstRefMan<Coords::CoordSystem>	coordsys_	= nullptr;
+	ConstRefMan<Coords::CoordSystem>	llsys_		= nullptr;
 
-			Selection()
-				: form_(0), unit_(0), coordsys_(0)	{}
+			Selection()	{}
 
 	bool		havePos( int ielem ) const
 			    { return ielem < elems_.size()
@@ -193,9 +193,13 @@ public:
     void		usePar(const IOPar&);
 
     static TargetInfo*	mkHorPosition(bool isreq,bool wic=true,bool wll=false,
-				      bool wcrs=true);
+				      bool wcrs=true,
+				      ConstRefMan<Coords::CoordSystem> crs=
+				      nullptr);
 			//!< form(0)=(X,Y), form(1)=inl/crl, form(1/2)=long/lat
-    static TargetInfo*	mk2DHorPosition(bool isreq);
+    static TargetInfo*	mk2DHorPosition(bool isreq,
+				ConstRefMan<Coords::CoordSystem> crs=
+				nullptr);
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
 				{ return mkZPos(isreq,withunits); }
     static TargetInfo*	mkDepthPosition( bool isreq, bool withunits=true )
@@ -204,6 +208,10 @@ public:
 				{ return mkZPos(isreq,withunits,-1); }
     bool		needsConversion() const;
     Coord		convert(const Coord&) const;
+
+    static const char*	sKeyXY();
+    static const char*	sKeyInlCrl();
+    static const char*	sKeyLatLong();
 
 protected:
 

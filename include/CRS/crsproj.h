@@ -20,29 +20,32 @@ class BufferStringSet;
 namespace Coords
 {
 
-typedef int ProjectionID;
 
 mExpClass(CRS) AuthorityCode
 {
 public:
-			AuthorityCode(const char* auth,ProjectionID i)
-			    : authority_(auth),id_(i) {}
+			AuthorityCode(const char* auth,const char* code)
+			    : authority_(auth),code_(code) {}
+			AuthorityCode(const char* auth,int code)
+			    : authority_(auth),code_(::toString(code)) {}
 			AuthorityCode(const AuthorityCode& oth)
-			    : authority_(oth.authority_),id_(oth.id_) {}
+			    : authority_(oth.authority_),code_(oth.code_) {}
 
-    BufferString	authority() const { return authority_; }
-    ProjectionID	id() const	  { return id_; }
+    const char*		authority() const { return authority_.buf(); }
+    const char*		code() const	  { return code_.buf(); }
 
     bool		operator ==(const AuthorityCode&) const;
 
     static AuthorityCode	fromString(const char*);
+    static AuthorityCode	sWGS84AuthCode();
+
     BufferString	toString() const;
     BufferString	toURNString();
 
 protected:
 
     BufferString	authority_;
-    ProjectionID	id_;
+    BufferString	code_;
 };
 
 
@@ -50,29 +53,28 @@ mExpClass(CRS) Projection
 { mODTextTranslationClass(Projection);
 public:
 
-				Projection(AuthorityCode,const char* usernm,
-					   const char* defstr);
+				Projection(AuthorityCode);
     virtual			~Projection();
 
     AuthorityCode		authCode() const	{ return authcode_; }
-    BufferString		userName() const	{ return usernm_; }
-    BufferString		defStr() const		{ return defstr_; }
+    virtual const char*		userName() const	= 0;
 
     virtual bool		isOK() const;
-    virtual bool		getReady() const	{ return true; }
 
     virtual bool		isOrthogonal() const;
     virtual bool		isLatLong() const	{ return false; }
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
 
-    static void			getAll( TypeSet<AuthorityCode>&,
-					BufferStringSet& names,
-					BufferStringSet& defstrs,
-					bool orthogonalonly=false );
-    static const Projection*	getByAuthCode(AuthorityCode);
-    static const Projection*	getByName(const char*);
-    static BufferString		getInfoText(const char* defstr);
+    virtual AuthorityCode	getGeodeticAuthCode() const;
+
+    virtual BufferString	getProjDispString() const;
+    virtual BufferString	getGeodeticProjDispString() const;
+    static BufferString		sWGS84ProjDispString();
+
+    static Projection*		getByAuthCode(AuthorityCode);
+    static Coord		convert(const Coord&,const Projection& from,
+					const Projection& to);
 
 protected:
 
@@ -80,8 +82,6 @@ protected:
 					     bool wgs84=false) const;
     virtual Coord		fromGeographic(const LatLong&,
 					       bool wgs84=false) const;
-
-    BufferString		defstr_;
 
 private:
 
@@ -91,41 +91,34 @@ private:
 					    Coord) const;
 
     AuthorityCode		authcode_;
-    BufferString		usernm_;
 
     friend class ProjectionBasedSystem;
 };
 
 
-mExpClass(CRS) ProjectionRepos : public ManagedObjectSet<Projection>
-{ mODTextTranslationClass(ProjectionRepos);
+mExpClass(CRS) CRSInfoList
+{
 public:
+    virtual			~CRSInfoList()	{}
 
-				ProjectionRepos(const char* key,
-						uiString desc);
+    virtual int			size() const				= 0;
+    virtual const char*		authCode(int) const			= 0;
+    virtual const char*		authName(int) const			= 0;
+    virtual const char*		name(int) const				= 0;
+    virtual const char*		areaName(int) const			= 0;
+    virtual const char*		projMethod(int) const			= 0;
+    virtual int			indexOf(const AuthorityCode&) const	= 0;
 
-    const char*			key() const		{ return key_.buf(); }
-    uiString			description() const	{ return desc_; }
-
-    bool			readFromFile(const char* fnm);
-
-    const Projection*		getByAuthCode(AuthorityCode) const;
-    const Projection*		getByName(const char*) const;
-
-    static void					addRepos(ProjectionRepos*);
-    static const ProjectionRepos*		getRepos(const char* key);
-    static const ObjectSet<ProjectionRepos>&	reposSet()
-						{ return reposset_; }
-    static void					getAuthKeys(BufferStringSet&);
-    static void					initStdRepos();
+    uiString			getDispString(int) const;
+    uiString			getDescString(int) const;
 
 protected:
-
-    BufferString		key_;
-    uiString			desc_;
-
-    static ObjectSet<ProjectionRepos>	reposset_;
+				CRSInfoList()	{}
 
 };
+
+
+mGlobal(CRS) void		initCRSDatabase();
+mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
 
 }; //namespace

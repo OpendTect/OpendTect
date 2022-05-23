@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "crssystem.h"
 
 class uiCheckBox;
+class uiLabeledComboBox;
 class uiFileInput;
 class uiListBox;
 class uiLineEdit;
@@ -22,6 +23,7 @@ class uiLatLongInp;
 namespace Coords
 {
 
+class CRSInfoList;
 class uiConvertGeographicPos;
 
 mExpClass(uiTools) uiProjectionBasedSystem : public uiCoordSystem
@@ -33,6 +35,7 @@ public:
 				ProjectionBasedSystem::sFactoryDisplayName() );
 
 			uiProjectionBasedSystem(uiParent*);
+			uiProjectionBasedSystem(uiParent*,bool orthogonal);
 			~uiProjectionBasedSystem();
 
     virtual bool	initFields(const CoordSystem*);
@@ -41,17 +44,18 @@ protected:
 
     uiListBox*		projselfld_;
     uiLineEdit*		searchfld_;
+    uiLabeledComboBox*	filtersel_;
 
-    uiConvertGeographicPos*	convdlg_;
+    uiConvertGeographicPos*	convdlg_	= nullptr;
 
-    TypeSet<AuthorityCode>	ids_;
-    BufferStringSet		names_;
-    BufferStringSet		defstrs_;
-    int				curselidx_;
+    bool			orthogonal_	= true;
+    PtrMan<CRSInfoList>		crsinfolist_;
+    int				curselidx_	= -1;
     TypeSet<int>		dispidxs_;
 				// Indexes of ids_/names_ displayed in ListBox.
 
     bool		acceptOK();
+    void		createGUI();
     void		fetchList();
     void		fillList();
     void		setCurrent();
@@ -95,5 +99,19 @@ private:
     void		convPos();
     void		convFile();
 };
+
+
+mExpClass(uiTools) uiGeodeticCoordSystem : public uiProjectionBasedSystem
+{ mODTextTranslationClass(uiGeodeticCoordSystem);
+public:
+			uiGeodeticCoordSystem(uiParent* p)
+			    : uiProjectionBasedSystem(p,false) {}
+			~uiGeodeticCoordSystem() {}
+
+protected:
+
+};
+
+
 
 } // namespace Coords

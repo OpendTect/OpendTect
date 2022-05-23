@@ -11,10 +11,13 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+
 class LatLong;
+class uiGenInput;
 class uiLineEdit;
 class uiRadioButton;
 class uiLatLongDMSInp;
+namespace Coords { class CoordSystem; }
 
 
 mExpClass(uiTools) uiLatLongInp : public uiGroup
@@ -25,6 +28,7 @@ public:
 
     void		get(LatLong&) const;
     void		set(const LatLong&);
+    void		setReadOnly(bool);
 
 protected:
 
@@ -39,5 +43,4 @@ protected:
 
     void		typSel(CallBacker*);
 };
-
 

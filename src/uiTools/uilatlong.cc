@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uilatlonginp.h"
 
+#include "crsproj.h"
+#include "crssystem.h"
 #include "latlong.h"
 #include "od_iostream.h"
 #include "od_helpids.h"
@@ -18,6 +20,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uilatlong2coord.h"
 #include "uilineedit.h"
@@ -35,6 +38,7 @@ public:
 
     double		value() const;
     void		set(double);
+    void		setReadOnly(bool);
 
 protected:
 
@@ -75,6 +79,15 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     hfld_->attach( rightOf, secfld_ );
     hfld_->addItem( lat ? uiStrings::sNorth(true) : uiStrings::sEast(true) );
     hfld_->addItem( lat ? uiStrings::sSouth(true) : uiStrings::sWest(true) );
+}
+
+
+void uiLatLongDMSInp::setReadOnly( bool yn )
+{
+    degfld_->setReadOnly( yn );
+    minfld_->setReadOnly( yn );
+    secfld_->setReadOnly( yn );
+    hfld_->setSensitive( !yn );
 }
 
 
@@ -190,6 +203,15 @@ void uiLatLongInp::set( const LatLong& ll, int opt )
 	latdmsfld_->set( ll.lat_ );
 	lngdmsfld_->set( ll.lng_ );
     }
+}
+
+
+void uiLatLongInp::setReadOnly( bool yn )
+{
+    lngdecfld_->setReadOnly( yn );
+    latdecfld_->setReadOnly( yn );
+    lngdmsfld_->setReadOnly( yn );
+    latdmsfld_->setReadOnly( yn );
 }
 
 

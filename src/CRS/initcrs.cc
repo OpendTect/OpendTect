@@ -63,7 +63,7 @@ mDefModInitFn(CRS)
     if ( !NeedDataBase() )
 	return;
 
+    Coords::initCRSDatabase();
     Coords::ProjectionBasedSystem::initClass();
-    Coords::ProjectionRepos::initStdRepos();
     SI().readSavedCoordSystem();
 }

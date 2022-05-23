@@ -4,10 +4,6 @@
  * DATE     : April 2017
 -*/
 
-
-#include "projects.h"
-#include "proj_api.h"
-
 #include "crsproj.h"
 #include "od_iostream.h"
 #include "bufstringset.h"
@@ -16,30 +12,29 @@
 #include "separstr.h"
 #include "typeset.h"
 
-static FixedString sKeyUnitsArg()	{ return FixedString("+units="); }
-static FixedString sKeyToMeter()	{ return FixedString("+to_meter="); }
+#include "iopar.h"
+
 static FixedString sKeyEPSG()		{ return FixedString("EPSG"); }
 
-static Coords::AuthorityCode cWGS84AuthCode()
+Coords::AuthorityCode Coords::AuthorityCode::sWGS84AuthCode()
 { return Coords::AuthorityCode(sKeyEPSG(),4326); }
 
 bool Coords::AuthorityCode::operator==( const Coords::AuthorityCode& oth ) const
-{ return authority_ == oth.authority_ && id_ == oth.id_; }
+{ return authority_ == oth.authority_ && code_ == oth.code_; }
 
 Coords::AuthorityCode Coords::AuthorityCode::fromString( const char* str )
 {
     FileMultiString fms( str );
     const bool hasauth = fms.size() == 2;
     const BufferString authstr = hasauth ? fms[0] : sKeyEPSG();
-    const int idnum = fms.getIValue( hasauth ? 1 : 0 );
-    return Coords::AuthorityCode( authstr, idnum );
+    return Coords::AuthorityCode( authstr, fms[hasauth ? 1 : 0].buf() );
 }
 
 
 BufferString Coords::AuthorityCode::toString() const
 {
     FileMultiString ret( authority_ );
-    ret.add( id_ );
+    ret.add( code_ );
     return BufferString( ret.buf() );
 }
 
@@ -48,7 +43,7 @@ BufferString Coords::AuthorityCode::toURNString()
 {
     BufferString urnstr = "urn:ogc:def:crs:";
     urnstr.add( authority_ ); urnstr.add( "::" );
-    urnstr.add( id_ );
+    urnstr.add( code_ );
     return urnstr;
 }
 
@@ -56,13 +51,13 @@ BufferString Coords::AuthorityCode::toURNString()
 static const Coords::Projection* getWGS84Proj()
 {
     mDefineStaticLocalObject(const Coords::Projection*,proj,
-			= Coords::Projection::getByAuthCode(cWGS84AuthCode()) );
+				= Coords::Projection::getByAuthCode(
+				    Coords::AuthorityCode::sWGS84AuthCode()) );
     return proj;
 }
 
-Coords::Projection::Projection( Coords::AuthorityCode code, const char* usrnm,
-				const char* defstr )
-    : authcode_(code),usernm_(usrnm),defstr_(defstr)
+Coords::Projection::Projection( Coords::AuthorityCode code )
+    : authcode_(code)
 {}
 
 Coords::Projection::~Projection()
@@ -74,7 +69,7 @@ bool Coords::Projection::isOK() const
 LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 {
     const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
-    if ( !proj || !proj->getReady() )
+    if ( !proj || !proj->isOK() || crd.isUdf() )
 	return LatLong::udf();
 
     return transformTo( *proj, crd );
@@ -84,7 +79,7 @@ LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 Coord Coords::Projection::fromGeographic( const LatLong& ll, bool wgs84 ) const
 {
     const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
-    if ( !proj || !proj->getReady() )
+    if ( !proj || !proj->isOK() || ll.isUdf() )
 	return Coord::udf();
 
     return proj->transformTo( *this, ll );
@@ -92,452 +87,450 @@ Coord Coords::Projection::fromGeographic( const LatLong& ll, bool wgs84 ) const
 
 Coord Coords::Projection::transformTo( const Coords::Projection& target,
 				       LatLong ll ) const
-{ return Coord::udf(); }
+{
+    return Coord::udf();
+}
 
 LatLong Coords::Projection::transformTo( const Coords::Projection& target,
 					 Coord pos ) const
-{ return LatLong::udf(); }
+{
+    return LatLong::udf();
+}
+
 
 bool Coords::Projection::isOrthogonal() const
-{ return true; }
+{
+    return true;
+}
 
 bool Coords::Projection::isFeet() const
-{ return !isMeter(); }
+{
+    return !isMeter();
+}
 
 bool Coords::Projection::isMeter() const
-{ return true; }
-
-void Coords::Projection::getAll( TypeSet<Coords::AuthorityCode>& codes,
-				 BufferStringSet& usrnms,
-				 BufferStringSet& defstrs,
-				 bool orthogonalonly )
 {
-    for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
-    {
-	const Coords::ProjectionRepos* repos =
-			Coords::ProjectionRepos::reposSet()[idx];
-	for ( int idy=0; idy<repos->size(); idy++ )
-	{
-	    const Coords::Projection* proj = (*repos)[idy];
-	    if ( !orthogonalonly || proj->isOrthogonal() )
-	    {
-		// sort by AuthorityCode
-		int index = codes.size()-1;
-		while ( index >= 0 &&
-			codes[index].authority() == proj->authCode().authority()
-			&& codes[index].id() > proj->authCode().id() )
-		    index--;
-
-		index++;
-		if ( index >= codes.size()-1 )
-		{
-		    codes.add( proj->authCode() );
-		    usrnms.add( proj->userName() );
-		    defstrs.add( proj->defStr() );
-		}
-		else
-		{
-		    codes.insert( index, proj->authCode() );
-		    usrnms.insertAt( new BufferString(proj->userName()), index);
-		    defstrs.insertAt( new BufferString(proj->defStr()), index);
-		}
-	    }
-	}
-    }
+    return true;
 }
 
-
-const Coords::Projection* Coords::Projection::getByAuthCode(
-						Coords::AuthorityCode code )
+Coords::AuthorityCode Coords::Projection::getGeodeticAuthCode() const
 {
-    for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
-    {
-	const Coords::ProjectionRepos* repos =
-			Coords::ProjectionRepos::reposSet()[idx];
-	const Coords::Projection* proj = repos->getByAuthCode( code );
-	if ( proj )
-	    return proj;
-    }
-
-    return 0;
+    return Coords::AuthorityCode::sWGS84AuthCode();
 }
 
-
-const Coords::Projection* Coords::Projection::getByName( const char* usrnm )
+BufferString Coords::Projection::getProjDispString() const
 {
-    for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
-    {
-	const Coords::ProjectionRepos* repos =
-			Coords::ProjectionRepos::reposSet()[idx];
-	const Coords::Projection* proj = repos->getByName( usrnm );
-	if ( proj )
-	    return proj;
-    }
-
-    return 0;
+    return BufferString::empty();
 }
 
-
-static BufferString getArgVal( const char* defstr, const char* argkey )
+BufferString Coords::Projection::getGeodeticProjDispString() const
 {
-    FixedString argstr( argkey );
-    BufferString str( defstr );
-    char* ptr = str.find( argkey );
-    if ( !ptr )
-	return BufferString::empty();
-
-    str = ptr + argstr.size();
-    ptr = str.find( ' ' );
-    if ( ptr ) *ptr = '\0';
-
-    return str;	
+    return BufferString::empty();
 }
 
-
-BufferString Coords::Projection::getInfoText( const char* defstr )
+BufferString Coords::Projection::sWGS84ProjDispString()
 {
-    BufferString info;
-    const BufferString projstr = getArgVal( defstr, "+proj=" );
-    if ( !projstr.isEmpty() )
-    {
-	PJ_LIST* pjlist = pj_get_list_ref();
-	for ( int idx=0; pjlist[idx].id != 0; idx++ )
-	{
-	    if ( projstr == pjlist[idx].id )
-	    {
-		BufferString projnm = pjlist[idx].descr[0];
-		char* nl = projnm.find( '\n' );
-		if ( nl ) *nl = '\0';
-		info.add( "Projection: " ).add( projnm ).addNewLine();
-		break;
-	    }
-	}
-    }
-
-    BufferString datumellipsid;
-    const BufferString datumstr = getArgVal( defstr, "+datum=" );
-    if ( !datumstr.isEmpty() )
-    {
-	PJ_DATUMS* pjlist = pj_get_datums_ref();
-	for ( int idx=0; pjlist[idx].id != 0; idx++ )
-	{
-	    if ( datumstr == pjlist[idx].id )
-	    {
-		datumellipsid = pjlist[idx].ellipse_id;
-		BufferString datumnm = pjlist[idx].comments;
-		if ( datumnm.isEmpty() )
-		    datumnm = datumstr;
-		info.add( "Datum: " ).add( datumnm ).addNewLine();
-		break;
-	    }
-	}
-    }
-
-    BufferString ellipsestr = getArgVal( defstr, "+ellps=" );
-    if ( ellipsestr.isEmpty() )
-	ellipsestr = datumellipsid;
-    if ( !ellipsestr.isEmpty() )
-    {
-	PJ_ELLPS* pjlist = pj_get_ellps_ref();
-	for ( int idx=0; pjlist[idx].id != 0; idx++ )
-	{
-	    if ( ellipsestr == pjlist[idx].id )
-	    {
-		info.add( "Ellipse: " ).add( pjlist[idx].name ).addNewLine();
-		break;
-	    }
-	}
-    }
-
-    BufferString zonestr = getArgVal( defstr, "+zone=" );
-    if ( !zonestr.isEmpty() )
-    {
-	zonestr += FixedString(defstr).find("+south") ? "S" : "N";
-	info.add( "Zone: " ).add( zonestr ).addNewLine();
-    }
-
-    const BufferString unitstr = getArgVal( defstr, "+units=" );
-    if ( !unitstr.isEmpty() )
-    {
-	PJ_UNITS* pjlist = pj_get_units_ref();
-	for ( int idx=0; pjlist[idx].id != 0; idx++ )
-	{
-	    if ( unitstr == pjlist[idx].id )
-	    {
-		info.add( "Unit: " ).add( pjlist[idx].name ).addNewLine();
-		break;
-	    }
-	}
-    }
-
-    return info;
+    const Coords::Projection* wgs84proj = getWGS84Proj();
+    return wgs84proj ? wgs84proj->getProjDispString() :
+			Coords::AuthorityCode::sWGS84AuthCode().toString();
 }
 
+#ifndef OD_NO_PROJ
+
+#include "proj.h"
 
 namespace Coords
 {
-class Proj4Projection : public Projection
+class ProjProjection : public Projection
 {
 public:
-			Proj4Projection(Coords::AuthorityCode,
-					const char* usrnm,
-					const char* defstr);
-			~Proj4Projection();
+			ProjProjection(Coords::AuthorityCode);
+			~ProjProjection();
 
+    const char*		userName() const override;
     bool		isOK() const override;
     bool		isOrthogonal() const override;
     bool		isLatLong() const override;
     bool		isMeter() const override;
 
-    Coord		transformTo(const Projection& target,
-				    LatLong) const override;
-    LatLong		transformTo(const Projection& target,
-				    Coord) const override;
+    Coords::AuthorityCode	getGeodeticAuthCode() const;
+
+    BufferString	getProjDispString() const override;
+    BufferString	getGeodeticProjDispString() const override;
+
+    Coord		transformTo(const Projection&,LatLong) const override;
+    LatLong		transformTo(const Projection&,Coord) const override;
+
+    inline PJ*		getProj() const		{ return proj_; }
+    inline PJ*		getLLProj() const
+			{ return llproj_ ? llproj_ : proj_; }
 
 protected:
 
-    bool		getReady() const override;
-
     bool		init();
-    inline projPJ	getLLProj() const
-			{ return llproj_ ? llproj_ : proj_; }
 
-    projPJ		proj_;
-    projPJ		llproj_;
+    PJ*			proj_		= nullptr;
+    PJ*			llproj_		= nullptr;
 };
 } // Namespace
 
-Coords::Proj4Projection::Proj4Projection( Coords::AuthorityCode code,
-					  const char* usrnm, const char* defstr)
-    : Projection(code,usrnm,defstr)
-    , proj_(0),llproj_(0)
+
+static Coord convertCoordFromPJToPJ( const Coord& pos, PJ* from, PJ* to )
 {
+    PJ* pjtr = proj_create_crs_to_crs_from_pj( PJ_DEFAULT_CTX, from, to,
+						nullptr, nullptr );
+    if ( !pjtr )
+	return Coord::udf();
+
+    PJ* pjtrnorm = proj_normalize_for_visualization( PJ_DEFAULT_CTX, pjtr );
+    proj_destroy( pjtr );
+    if ( !pjtrnorm )
+	return Coord::udf();
+
+    const PJ_COORD inpcrd = proj_coord( pos.x, pos.y, 0, 0 );
+    PJ_COORD retcoord = proj_trans( pjtrnorm, PJ_FWD, inpcrd );
+
+    proj_destroy( pjtrnorm );
+    if ( retcoord.v[0] == HUGE_VAL || retcoord.v[1] == HUGE_VAL )
+	return Coord::udf();
+
+    return Coord( retcoord.v[0], retcoord.v[1] );
 }
 
 
-Coords::Proj4Projection::~Proj4Projection()
+Coords::ProjProjection::ProjProjection( Coords::AuthorityCode code )
+    : Projection(code)
 {
-    pj_free( proj_ );
-    pj_free( llproj_ );
+    init();
 }
 
 
-bool Coords::Proj4Projection::isOK() const
+Coords::ProjProjection::~ProjProjection()
+{
+    proj_destroy( proj_ );
+    proj_destroy( llproj_ );
+}
+
+
+const char* Coords::ProjProjection::userName() const
+{
+    return proj_ ? proj_get_name( proj_ ) : "Unknown";
+}
+
+
+bool Coords::ProjProjection::isOK() const
 {
     return proj_;
 }
 
 
-bool Coords::Proj4Projection::getReady() const
+bool Coords::ProjProjection::init()
 {
-    return isOK() || const_cast<Proj4Projection*>(this)->init();
-}
-
-
-bool Coords::Proj4Projection::init()
-{
-    proj_ = pj_init_plus( defstr_.buf() );
+    proj_ = proj_create( PJ_DEFAULT_CTX, authCode().toURNString().buf() );
     if ( proj_ && !isLatLong() )
-	llproj_ = pj_latlong_from_proj( proj_ );
+	llproj_ = proj_crs_get_geodetic_crs( PJ_DEFAULT_CTX, proj_ );
 
     return proj_;
 }
 
 
-bool Coords::Proj4Projection::isLatLong() const
+Coords::AuthorityCode Coords::ProjProjection::getGeodeticAuthCode() const
 {
-    return defstr_.contains( "longlat" );
+    if ( !llproj_ && (!proj_ || !isLatLong()) )
+	return Coords::AuthorityCode::sWGS84AuthCode();
+
+    PJ* llproj = getLLProj();
+    return Coords::AuthorityCode( proj_get_id_auth_name(llproj,0),
+				  proj_get_id_code(llproj,0) );
 }
 
 
-bool Coords::Proj4Projection::isMeter() const
+static BufferString makeProjDispString( PJ* pj )
 {
-    const char* unitstr = defstr_.find( sKeyUnitsArg().buf() );
-    if ( unitstr )
-    {
-	const BufferString unitval( unitstr + sKeyUnitsArg().size() );
-	return unitval.firstChar() == 'm';
-    }
+    if ( !pj )
+	return BufferString::empty();
 
-    const char* tometerstr = defstr_.find( sKeyToMeter().buf() );
-    if ( tometerstr )
-    {
-	const BufferString convval( tometerstr + sKeyToMeter().size() );
-	const bool isft = convval.startsWith( "0.304" );
-	return !isft;
-    }
-
-    return true;
-}
-
-
-Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
-					    LatLong ll ) const
-{
-    if ( !getReady() || !target.getReady() )
-	return Coord::udf();
-
-    projPJ srcproj4 = getLLProj();
-    mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
-    if ( !srcproj4 || !targetproj4 || targetproj4->isLatLong() )
-	return Coord::udf();
-
-    Coord ret( ll.lng_ * mDeg2RadD, ll.lat_ * mDeg2RadD );
-    double dummyz = 0;
-    if ( pj_transform(srcproj4,targetproj4->proj_,1,1,&ret.x,&ret.y,&dummyz) ||
-      ret.x == HUGE_VAL || ret.y == HUGE_VAL )
-	return Coord::udf();
-
+    BufferString ret( "[" );
+    ret.add( proj_get_id_auth_name(pj,0) ).add( ":" )
+	.add( proj_get_id_code(pj,0) ).add( "] " )
+	.add( proj_get_name(pj) );
     return ret;
 }
 
 
-LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
-					      Coord pos ) const
+BufferString Coords::ProjProjection::getProjDispString() const
 {
-    if ( !getReady() || !target.getReady() )
-	return LatLong::udf();
-
-    mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
-    projPJ targetproj4ll = targetproj4 ? targetproj4->getLLProj() : 0;
-    if ( !targetproj4ll )
-	return LatLong::udf();
-
-    double dummyz = 0;
-    if ( pj_transform(proj_,targetproj4ll,1,1,&pos.x,&pos.y,&dummyz) ||
-			      pos.x == HUGE_VAL || pos.y == HUGE_VAL )
-	return LatLong::udf();
-
-    return LatLong( pos.y * mRad2DegD, pos.x * mRad2DegD );
+    return makeProjDispString( proj_ );
 }
 
 
-bool Coords::Proj4Projection::isOrthogonal() const
-{ return !isLatLong();	}
-
-
-
-ObjectSet<Coords::ProjectionRepos> Coords::ProjectionRepos::reposset_;
-
-Coords::ProjectionRepos::ProjectionRepos( const char* reposkey, uiString desc )
-    : key_(reposkey), desc_(desc)
-{}
-
-bool Coords::ProjectionRepos::readFromFile( const char* fnm )
+BufferString Coords::ProjProjection::getGeodeticProjDispString() const
 {
-    od_istream infile( fnm );
-    BufferString linebuf, prevlinebuf;
+    if ( !llproj_ && !isLatLong() )
+	return BufferString::empty();
 
-#define mContinue { prevlinebuf = linebuf; continue; }
-    while ( infile.isOK() && infile.getLine(linebuf) )
-    {
-	if ( linebuf.size() < 3 || linebuf.firstChar() == '#' ) // Not a defstr
-	    mContinue
+    return makeProjDispString( getLLProj() );
+}
 
-	// linebuf is a defstr. So, prevlinebuf should be the usernm.
-	if ( prevlinebuf.size() < 3 || prevlinebuf.firstChar() != '#' )
-	    break;
 
-	const BufferString usrnm( prevlinebuf.getCStr() + 2 );
+bool Coords::ProjProjection::isLatLong() const
+{
+    if ( !proj_ )
+	return false;
 
-	// Get ID
-	BufferString idstr = linebuf;
-	char* firstspace = idstr.find( ' ' );
-	if ( !firstspace ) mContinue
-	*firstspace = '\0';
-	idstr.unEmbed( '<', '>' );
-	const int idnum = idstr.toInt();
-	const Coords::ProjectionID pid = idnum;
+    PJ_TYPE pjtype = proj_get_type( proj_ );
+    return pjtype == PJ_TYPE_GEOGRAPHIC_CRS ||
+	   pjtype == PJ_TYPE_GEOGRAPHIC_2D_CRS ||
+	   pjtype == PJ_TYPE_GEOGRAPHIC_3D_CRS;
+}
 
-	// Trim defstr
-	char* firstplusptr = linebuf.find( '+' );
-	if ( !firstplusptr ) mContinue
-	BufferString defstr( firstplusptr );
-	char* bracesptr = defstr.findLast( '<' );
-	if ( bracesptr )
-	    *bracesptr = '\0';
 
-	Coords::Proj4Projection* proj = new Coords::Proj4Projection(
-		Coords::AuthorityCode(key_,pid), usrnm, defstr );
-
-	add( proj );
-    }
-
+bool Coords::ProjProjection::isMeter() const
+{
     return true;
 }
 
 
-const Coords::Projection* Coords::ProjectionRepos::getByAuthCode(
-					Coords::AuthorityCode code ) const
+Coord Coords::ProjProjection::transformTo( const Coords::Projection& target,
+					    LatLong ll ) const
 {
-    if ( code.authority() != key_ )
-	return 0;
+    if ( !isOK() || !target.isOK() )
+	return Coord::udf();
 
-    for ( int idx=0; idx<size(); idx++ )
+    PJ* srcpj = getLLProj();
+    mDynamicCastGet(const ProjProjection*,targetproj,&target)
+    PJ* targetpj = targetproj ? targetproj->proj_ : nullptr;
+    if ( !srcpj || !targetpj || targetproj->isLatLong() )
+	return Coord::udf();
+
+    const Coord pos( ll.lng_, ll.lat_ );
+    return convertCoordFromPJToPJ( pos, srcpj, targetpj );
+}
+
+
+LatLong Coords::ProjProjection::transformTo( const Coords::Projection& target,
+					      Coord pos ) const
+{
+    if ( !isOK() || !target.isOK() )
+	return LatLong::udf();
+
+    mDynamicCastGet(const ProjProjection*,targetproj,&target)
+    PJ* targetpj = targetproj ? targetproj->getLLProj() : nullptr;
+    if ( !targetpj )
+	return LatLong::udf();
+
+    const Coord llpos = convertCoordFromPJToPJ( pos, proj_, targetpj );
+    return LatLong( llpos.y, llpos.x );
+}
+
+
+bool Coords::ProjProjection::isOrthogonal() const
+{ return !isLatLong();	}
+
+
+Coord Coords::Projection::convert( const Coord& pos,
+				   const Coords::Projection& from,
+				   const Coords::Projection& to )
+{
+    if ( pos.isUdf() )
+	return Coord::udf();
+
+    mDynamicCastGet(const ProjProjection*,fromproj,&from)
+    mDynamicCastGet(const ProjProjection*,toproj,&to)
+    if ( !fromproj || !toproj )
+	return Coord::udf();
+
+    PJ* frompj = fromproj->getProj();
+    PJ* topj = toproj->getProj();
+    if ( !frompj || !topj )
+	return Coord::udf();
+
+    return convertCoordFromPJToPJ( pos, frompj, topj );
+}
+
+
+Coords::Projection* Coords::Projection::getByAuthCode(
+						Coords::AuthorityCode code )
+{
+    Coords::Projection* newproj = new Coords::ProjProjection( code );
+    if ( !newproj->isOK() )
     {
-	const Coords::Projection* proj = (*this)[idx];
-	if ( proj && proj->authCode() == code )
-	    return proj;
+	delete newproj;
+	return nullptr;
     }
 
-    return 0;
+    return newproj;
 }
 
 
-const Coords::Projection* Coords::ProjectionRepos::getByName(
-							const char* nm ) const
+class ProjCRSInfoList : public Coords::CRSInfoList
 {
-    for ( int idx=0; idx<size(); idx++ )
+public:
+ProjCRSInfoList( bool orthogonal )
+{
+    PJ_TYPE orthogonalprojtypes[] = { PJ_TYPE_PROJECTED_CRS };
+    PJ_TYPE geodeticprojtypes[] = { PJ_TYPE_GEOGRAPHIC_CRS,
+				    PJ_TYPE_GEOGRAPHIC_2D_CRS,
+				    PJ_TYPE_GEOGRAPHIC_3D_CRS };
+    PROJ_CRS_LIST_PARAMETERS* params = proj_get_crs_list_parameters_create();
+    if ( params )
     {
-	const Coords::Projection* proj = (*this)[idx];
-	if ( proj && proj->userName() == nm )
-	    return proj;
+	params->types = orthogonal ? orthogonalprojtypes : geodeticprojtypes;
+	params->typesCount = orthogonal ? 1 : 3;
     }
 
-    return 0;
+    infos_ = proj_get_crs_info_list_from_database( nullptr, nullptr, params,
+						   &sz_ );
+    proj_get_crs_list_parameters_destroy( params );
 }
 
-
-void Coords::ProjectionRepos::addRepos( Coords::ProjectionRepos* newrepos )
+~ProjCRSInfoList()
 {
-    reposset_ += newrepos;
+    proj_crs_info_list_destroy( infos_ );
 }
 
-
-const Coords::ProjectionRepos* Coords::ProjectionRepos::getRepos(
-							const char* reposkey )
+int size() const
 {
-    for ( int idx=0; idx<reposset_.size(); idx++ )
+    return sz_;
+}
+
+const char* authCode( int index ) const
+{
+    const PROJ_CRS_INFO* crsinfo = getInfo( index );
+    return crsinfo ? crsinfo->code : nullptr;
+}
+
+const char* authName( int index ) const
+{
+    const PROJ_CRS_INFO* crsinfo = getInfo( index );
+    return crsinfo ? crsinfo->auth_name : nullptr;
+}
+
+const char* name( int index ) const
+{
+    const PROJ_CRS_INFO* crsinfo = getInfo( index );
+    return crsinfo ? crsinfo->name : nullptr;
+}
+
+const char* areaName( int index ) const
+{
+    const PROJ_CRS_INFO* crsinfo = getInfo( index );
+    return crsinfo ? crsinfo->area_name : nullptr;
+}
+
+const char* projMethod( int index ) const
+{
+    const PROJ_CRS_INFO* crsinfo = getInfo( index );
+    return crsinfo ? crsinfo->projection_method_name : nullptr;
+}
+
+int indexOf( const Coords::AuthorityCode& authcode ) const
+{
+    for ( int idx=0; idx<sz_; idx++ )
     {
-	const Coords::ProjectionRepos* repos = reposset_[idx];
-	if ( repos && repos->key_ == reposkey )
-	    return repos;
+	if ( infos_[idx] &&
+		FixedString(authcode.authority()) == infos_[idx]->auth_name &&
+		FixedString(authcode.code()) == infos_[idx]->code )
+	    return idx;
     }
 
-    return 0;
+    return -1;
+}
+
+private:
+
+const PROJ_CRS_INFO* getInfo( int index ) const
+{
+    if ( index < 0 || index >= sz_ )
+	return nullptr;
+
+    return infos_[index];
+}
+
+    PROJ_CRS_INFO**	infos_	= nullptr;
+    int			sz_	= 0;
+};
+
+
+void Coords::initCRSDatabase()
+{
+    FilePath fp( mGetSetupFileName("PROJ"), "proj.db" );
+    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
+				    nullptr, nullptr );
 }
 
 
-void Coords::ProjectionRepos::getAuthKeys( BufferStringSet& keys )
+Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
 {
-    for ( int idx=0; idx<reposset_.size(); idx++ )
+    return new ProjCRSInfoList( orthogonal );
+}
+
+#else
+
+Coord Coords::Projection::convert( const Coord& pos,
+				   const Coords::Projection& from,
+				   const Coords::Projection& to )
+{
+    return Coord::udf();
+}
+
+
+Coords::Projection* Coords::Projection::getByAuthCode(
+						Coords::AuthorityCode code )
+{
+    return nullptr;
+}
+
+
+void Coords::initCRSDatabase()
+{
+}
+
+
+Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
+{
+    return nullptr;
+}
+
+#endif // OD_NO_PROJ
+
+
+// CRSInfoList
+
+uiString Coords::CRSInfoList::getDispString( int idx ) const
+{
+    return toUiString( "[%1:%2] %3" ).arg( authName(idx) )
+				     .arg( authCode(idx) )
+				     .arg( name(idx) );
+}
+
+
+uiString Coords::CRSInfoList::getDescString( int idx ) const
+{
+    BufferString areastr( areaName(idx) );
+    BufferString areapretty;
+    int cidx = 1;
+    while ( cidx<areastr.size()-1 )
     {
-	const Coords::ProjectionRepos* repos = reposset_[idx];
-	keys.add( repos->key_ );
+	const char c = areastr[cidx++];
+	if ( c == ';' || c == '.' || c == ',' )
+	{
+	    BufferString segment( areastr );
+	    segment[cidx] = '\0';
+	    segment.trimBlanks();
+	    areapretty.addTab().add( segment ).addNewLine();
+	    areastr = BufferString( areastr.getCStr() + cidx );
+	    cidx = 1;
+	}
     }
-}
 
-void Coords::ProjectionRepos::initStdRepos()
-{
-    FilePath fp( mGetSetupFileName("CRS") );
-    Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
-				toUiString("Standard EPSG Projectons") );
-    fp.add( "epsg" );
-    repos->readFromFile( fp.fullPath() );
-    Coords::ProjectionRepos::addRepos( repos );
+    areastr.trimBlanks();
+    if ( !areastr.isEmpty() )
+	areapretty.addTab().add( areastr ).addNewLine();
 
-    repos = new Coords::ProjectionRepos( "ESRI", toUiString("ESRI Projectons"));
-    fp.setFileName( "esri" );
-    repos->readFromFile( fp.fullPath() );
-    Coords::ProjectionRepos::addRepos( repos );
+    return toUiString( "Authority:\t%1\nCode:\t%2\nName:\t%3\n"
+			"Projection method:\t%4\nArea of use:\t%5\n" )
+			.arg( authName(idx) ).arg( authCode(idx) )
+			.arg( name(idx) ).arg( projMethod(idx) )
+			.arg( areapretty );
 }

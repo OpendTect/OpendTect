@@ -34,8 +34,9 @@ class uiTabStack;
 namespace Table { class Desc; }
 namespace Coords
 {
-    class uiCoordSystemSel;
     class CoordSystem;
+    class uiCoordSystemSel;
+    class uiLatLongSystemSel;
 }
 
 mExpClass(uiIo) uiConvertPos : public uiDialog
@@ -47,21 +48,18 @@ public:
 				~uiConvertPos();
     enum DataType		{ XY, IC, LL };
 				mDeclareEnumUtils(DataType);
-    enum LatLongType		{ Dec, DMS };
-				mDeclareEnumUtils(LatLongType);
     static const uiString	sLLStr() { return tr("Latitude/Longitude"); }
-    static const uiString	sICStr() { return tr("In-line/Cross-line"); }
+    static const uiString	sICStr() { return tr("Inline/Crossline"); }
     static const uiString	sXYStr() { return tr("X/Y coordinate"); }
 
 private:
 
     uiManualConvGroup*		mangrp_;
     uiFileConvGroup*		filegrp_;
-    uiTabStack*			tabstack_ = 0;
+    uiTabStack*			tabstack_	= nullptr;
+
 };
 
-typedef uiConvertPos::LatLongType   LLType;
-typedef uiConvertPos::DataType	    DataSelType;
 
 mExpClass(uiIo) uiConvPosAscIO : public Table::AscIO
 { mODTextTranslationClass(uiConvPosAscIO)
@@ -69,13 +67,13 @@ public:
 				uiConvPosAscIO(const Table::FormatDesc&,
 						od_istream&);
 
-    static Table::FormatDesc*	getDesc();
-    bool			getData(Coord&);
+    static Table::FormatDesc*	getDesc(const SurveyInfo&);
+    bool			getData(Coord&,
+					ConstRefMan<Coords::CoordSystem>);
     float			udfval_;
     od_istream&			strm_;
     bool			finishedreadingheader_;
-    DataSelType			getConvFromTyp();
-    LLType			getLatLongType();
+    uiConvertPos::DataType	getConvFromTyp();
 
 protected:
     bool			isXY() const;
@@ -94,21 +92,23 @@ public:
 protected:
     // Input
     uiGenInput*			inptypfld_;
-    Coords::uiCoordSystemSel*	inpcrdsysselfld_;
+    Coords::uiCoordSystemSel*	inpcrdsysselfld_	= nullptr;
+    Coords::uiLatLongSystemSel* inpllsysselfld_		= nullptr;
     uiGenInput*			xyinfld_;
     uiGenInput*			inlcrlinfld_;
     uiLatLongInp*		llinfld_;
 
     // Output
-    Coords::uiCoordSystemSel*	outcrdsysselfld_;
+    Coords::uiCoordSystemSel*	outcrdsysselfld_	= nullptr;
+    Coords::uiLatLongSystemSel* outllsysselfld_		= nullptr;
     uiGenInput*			xyoutfld_;
     uiGenInput*			inlcrloutfld_;
-    uiLatLongInp*		lloutfld_;
-
+    uiLatLongInp*		lloutfld_		= nullptr;
     uiPushButton*		convertbut_;
-    uiCheckBox*			towgs84fld_;
 
     const SurveyInfo&		survinfo_;
+
+    EnumDef&			datatypedef_;
 
     void			inputTypChg(CallBacker*);
     void			convButPushCB(CallBacker*);
@@ -127,10 +127,7 @@ public:
 				~uiFileConvGroup();
 
 protected:
-    Table::FormatDesc*		fd_;
-    uiGenInput*			inptypfld_;
-    uiCheckBox*			towgs84fld_;
-    //uiGenInput*		outmodefld_;
+
     uiGenInput*			insertpos_;
     uiGenInput*			lltypfld_;
     uiListBox*			outtypfld_;
@@ -138,18 +135,15 @@ protected:
     uiFileInput*		inpfilefld_;
     uiFileInput*		outfilefld_;
     uiPushButton*		convertbut_;
-    Coords::uiCoordSystemSel*	inpcrdsysselfld_;
-    Coords::uiCoordSystemSel*	outcrdsysselfld_;
+    Coords::uiCoordSystemSel*	outcrdsysselfld_	= nullptr;
+    Coords::uiLatLongSystemSel* outllsysselfld_		= nullptr;
 
+    Table::FormatDesc*		fd_;
     const SurveyInfo&		survinfo_;
-    od_ostream*			ostream_;
+    od_ostream*			ostream_		= nullptr;
 
-    bool			convtoxy_;
-    bool			convtoll_;
-    bool			convtoic_;
+    EnumDef&			datatypedef_;
 
-    void			llFormatTypChg(CallBacker*);
-    //void			outModeChg( CallBacker* );
     void			outTypChg(CallBacker*);
     void			convButPushCB(CallBacker*);
     void			inpFileSpecChg(CallBacker*);

@@ -51,7 +51,7 @@ mExpClass(uiTools) uiCoordSystemSelGrp : public uiDlgGroup
 { mODTextTranslationClass(uiCoordSystemSel);
 public:
 				uiCoordSystemSelGrp(uiParent*,
-						bool onlyorthogonal,
+						bool orthogonal,
 						bool onlyprojection,
 						const SurveyInfo*,
 						const Coords::CoordSystem*);
@@ -65,10 +65,14 @@ public:
 
 private:
 
+    void			createGeodeticUI();
+    void			wgs84Sel(CallBacker*);
     void			systemChangedCB(CallBacker*);
 
     uiGenInput*			coordsystemsel_		= nullptr;
+    uiGenInput*			wgs84selfld_		= nullptr;
     ObjectSet<uiCoordSystem>	coordsystemsuis_;
+
     ManagedObjectSet<IOPar>	coordsystempars_;
     const SurveyInfo*		si_;
 
@@ -79,7 +83,7 @@ private:
 mExpClass(uiTools) uiCoordSystemDlg : public uiDialog
 { mODTextTranslationClass(uiCoordSystemDlg);
 public:
-			uiCoordSystemDlg(uiParent*,bool orthogonalonly,
+			uiCoordSystemDlg(uiParent*,bool orthogonal,
 					bool projectiononly,const SurveyInfo*,
 					const CoordSystem*);
 			~uiCoordSystemDlg();
@@ -101,7 +105,7 @@ mExpClass(uiTools) uiCoordSystemSel : public uiCompoundParSel
 { mODTextTranslationClass(uiCoordSystemSel);
 public:
 			uiCoordSystemSel(uiParent*,
-				bool orthogonalonly=true,
+				bool orthogonal=true,
 				bool projectiononly=true,
 				const CoordSystem* crs=SI().getCoordSystem(),
 				const uiString& seltxt=uiStrings::sCoordSys());
@@ -116,11 +120,22 @@ protected:
     uiCoordSystemDlg*		dlg_ = nullptr;
 
     RefMan<CoordSystem>		coordsystem_;
-    bool			orthogonalonly_;
+    bool			orthogonal_;
     bool			projectiononly_;
 
     BufferString		getSummary() const;
     void			selCB(CallBacker*);
+
+};
+
+
+mExpClass(uiTools) uiLatLongSystemSel : public uiCoordSystemSel
+{
+public:
+			uiLatLongSystemSel(uiParent*,const uiString& seltxt,
+				ConstRefMan<Coords::CoordSystem> cs=nullptr);
+
+    bool		isWGS84() const;
 
 };
 

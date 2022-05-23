@@ -1,8 +1,10 @@
 include ( "CMakeModules/ODExternals.cmake" )
 
 DEFINE_GIT_EXTERNAL( odpy https://github.com/OpendTect/odpy.git main )
-if ( NOT  EXISTS "${PROJ_DIR}" )
-    DEFINE_GIT_EXTERNAL( proj4 https://github.com/OpendTect/proj4.git 5.1.0 )
+if ( NOT EXISTS "${PROJ_DIR}" )
+    if ( NOT OD_NO_PROJ )
+	DEFINE_GIT_EXTERNAL( proj https://github.com/OSGeo/PROJ.git 9.0.0 )
+    endif()
 endif()
 
 if ( NOT OD_NO_OSG )

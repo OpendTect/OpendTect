@@ -75,7 +75,7 @@ list( APPEND SETUPNMS
        USECRYPTO
        LINKOPENSSL
        LINKCRYPTO
-       USEPROJ4
+       USEPROJ
        USEHDF5
 )
 

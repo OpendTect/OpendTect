@@ -34,7 +34,10 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
+
+#ifndef OD_NO_PROJ
     Coords::uiProjectionBasedSystem::initClass();
+#endif
 
     uiSettsMgr();
 }

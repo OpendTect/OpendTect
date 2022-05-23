@@ -4,14 +4,18 @@
 #	May 2017	Raman
 #_______________________________________________________________________________
 
-set( OD_USEPROJ Yes )
+if ( NOT OD_NO_PROJ )
+    set( OD_USEPROJ Yes )
+endif()
+
 set( OD_MODULE_DEPS Basic )
 set( OD_MODULE_SOURCES 
 	    crsproj.cc
 	    crssystem.cc
 	    initcrs.cc )
 
-set( OD_TEST_PROGS
-	    crs.cc )
+if ( NOT OD_NO_PROJ )
+    set( OD_TEST_PROGS crs.cc )
+endif()
 
 OD_INIT_MODULE()

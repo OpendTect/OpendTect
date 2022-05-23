@@ -27,11 +27,14 @@ public:
 
 				ProjectionBasedSystem();
 				ProjectionBasedSystem(AuthorityCode);
+				~ProjectionBasedSystem();
 
     CoordSystem*	clone() const override;
+    CoordSystem*	getGeodeticSystem() const override;
+    static CoordSystem* getWGS84LLSystem();
 
     uiString		description() const override
-				{ return tr("Geographical Coordinate System"); }
+			{ return tr("Projection based Coordinate System"); }
     BufferString	summary() const override;
 
     bool		isOK() const override;
@@ -42,23 +45,31 @@ public:
     bool		isProjection() const override		{ return true; }
     bool		isFeet() const override;
     bool		isMeter() const override;
+    bool		isWGS84() const;
     BufferString	getURNString() const override;
 
-    bool			setProjection(AuthorityCode);
-    const Projection*		getProjection() const;
+    bool		setProjection(AuthorityCode);
+    const Projection*	getProjection() const;
+
+    Coord		convertFrom(const Coord&,
+				    const CoordSystem& from) const override;
+    Coord		convertTo(const Coord&,
+				  const CoordSystem& to) const override;
 
 protected:
 
-    const Projection*		proj_	= nullptr;
+    Projection*		proj_	= nullptr;
 
 private:
 
     LatLong		toGeographic(const Coord&,bool wgs84) const override;
     Coord		fromGeographic(const LatLong&,
 						    bool wgs84) const override;
+
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
 
 };
+
 
 }; //namespace

@@ -12,7 +12,9 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstringset.h"
+#include "coordsystem.h"
 #include "repos.h"
+#include "survinfo.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
 class UnitOfMeasure;
@@ -86,12 +88,17 @@ protected:
 				// For more, use Conv:: stuff
 
     Coord			 getPos(int xfld,int yfld,
-					    double udf=mUdf(double)) const;
+					double udf=mUdf(double),bool isll=false,
+					ConstRefMan<Coords::CoordSystem> crs=
+					SI().getCoordSystem()) const;
 				//Return CRS converted Coord
     Coord3			 getPos3D(int xfld,int yfld, int zfld,
-					    double udf=mUdf(double)) const;
-    BinID			 getBinID(int xfld,int yfld,
-						double udf=mUdf(double)) const;
+					  double udf=mUdf(double),
+					  bool isll=false,
+					  ConstRefMan<Coords::CoordSystem> crs=
+					  SI().getCoordSystem()) const;
+    BinID			 getBinID(int inlfld,int crlfld,
+					  double udf=mUdf(double)) const;
 
     int				formOf(bool hdr,int iinf) const;
     int				columnOf(bool hdr,int iinf,int ielem) const;

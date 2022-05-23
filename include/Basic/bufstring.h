@@ -175,13 +175,8 @@ public:
 #ifndef __win__
 
 // Avoid silent conversion to BufferString from any type.
-
-void OD_Undef_const_char_eq_bs_finder();
-void OD_Undef_const_char_neq_bs_finder();
-inline bool operator==(const char*,const BufferString&)
-{ OD_Undef_const_char_eq_bs_finder(); return false; }
-inline bool operator!=(const char*,const BufferString&)
-{ OD_Undef_const_char_neq_bs_finder(); return true; }
+inline bool operator==(const char*,const BufferString&)		= delete;
+inline bool operator!=(const char*,const BufferString&)		= delete;
 
 #endif
 
