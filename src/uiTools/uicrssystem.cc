@@ -46,7 +46,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p, bool orthogonal )
-    : uiProjectionBasedSystem(p)
+    : uiCoordSystem( p,sFactoryDisplayName() )
 {
     orthogonal_ = orthogonal;
     createGUI();

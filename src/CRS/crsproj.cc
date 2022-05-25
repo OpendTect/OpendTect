@@ -375,7 +375,7 @@ ProjCRSInfoList( bool orthogonal )
     if ( params )
     {
 	params->types = orthogonal ? orthogonalprojtypes : geodeticprojtypes;
-	params->typesCount = orthogonal ? 1 : 3;
+	params->typesCount = 1;
     }
 
     infos_ = proj_get_crs_info_list_from_database( nullptr, nullptr, params,

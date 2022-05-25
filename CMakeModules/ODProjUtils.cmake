@@ -115,7 +115,7 @@ macro(OD_SETUP_PROJ)
 	    if ( UNIX )
 		SET( LIBSEARCHPATHS "${SQLITE_DIR}/lib64;${SQLITE_DIR}/lib" )
 	    else()
-		SET( LIBSEARCHPATHS "${SQLITE_DIR}/bin" )
+		SET( LIBSEARCHPATHS "${SQLITE_DIR}/lib" )
 	    endif()
 	endif()
 
