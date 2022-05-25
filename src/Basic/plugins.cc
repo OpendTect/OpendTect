@@ -582,8 +582,15 @@ bool PluginManager::load( const char* libnm )
 
 void PluginManager::loadAuto( bool late )
 {
+    loadAuto( late, false );
+}
+
+
+void PluginManager::loadAuto( bool late, bool withfilter )
+{
     BufferStringSet dontloadlist;
-    getNotLoadedByUser( dontloadlist );
+    if ( withfilter )
+	getNotLoadedByUser( dontloadlist );
 
     const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
     for ( auto* dataptr : data_ )
