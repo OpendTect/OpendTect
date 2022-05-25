@@ -91,7 +91,7 @@ public:
 
     static PluginManager&	getInstance();
 
-    void			loadAuto(bool late);
+    void			loadAuto(bool late,bool withfilter=false);
 				//!< see class comments
     bool			load(const char* libnm);
 					//!< Explicit load of a plugin

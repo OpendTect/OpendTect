@@ -226,9 +226,9 @@ int ODMain( uiMain& app )
     splash->show();
     splash->showMessage( "Loading plugins ..." );
 
-    PIM().loadAuto( false );
+    PIM().loadAuto( false, !skippluginsel );
     OD::ModDeps().ensureLoaded( "uiODMain" );
-    PIM().loadAuto( true );
+    PIM().loadAuto( true, !skippluginsel );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
