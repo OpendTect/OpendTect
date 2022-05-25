@@ -177,6 +177,7 @@ void uiProjectionBasedSystem::fetchList()
 
 void uiProjectionBasedSystem::fillList()
 {
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     projselfld_->setEmpty();
     uiStringSet itemstodisplay;
     for ( int idx=0; idx<dispidxs_.size(); idx++ )
