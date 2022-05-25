@@ -156,6 +156,10 @@ private:
     void			getALOEntries(const char*,bool);
     void			openALOEntries();
     void			mkALOList();
+
+public:
+
+    void			loadAuto(bool late,bool filter);
 };
 
 mGlobal(Basic) PluginManager& PIM();
