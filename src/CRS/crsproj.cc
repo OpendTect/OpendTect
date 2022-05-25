@@ -7,6 +7,7 @@
 #include "crsproj.h"
 #include "od_iostream.h"
 #include "bufstringset.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "separstr.h"
@@ -369,9 +370,7 @@ public:
 ProjCRSInfoList( bool orthogonal )
 {
     PJ_TYPE orthogonalprojtypes[] = { PJ_TYPE_PROJECTED_CRS };
-    PJ_TYPE geodeticprojtypes[] = { PJ_TYPE_GEOGRAPHIC_CRS,
-				    PJ_TYPE_GEOGRAPHIC_2D_CRS,
-				    PJ_TYPE_GEOGRAPHIC_3D_CRS };
+    PJ_TYPE geodeticprojtypes[] = { PJ_TYPE_GEOGRAPHIC_CRS };
     PROJ_CRS_LIST_PARAMETERS* params = proj_get_crs_list_parameters_create();
     if ( params )
     {
@@ -454,9 +453,10 @@ const PROJ_CRS_INFO* getInfo( int index ) const
 
 void Coords::initCRSDatabase()
 {
-    FilePath fp( mGetSetupFileName("PROJ"), "proj.db" );
-    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
-				    nullptr, nullptr );
+    FilePath fp( mGetSetupFileName("CRS"), "proj.db" );
+    if ( File::exists(fp.fullPath()) )
+	proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
+					nullptr, nullptr );
 }
 
 

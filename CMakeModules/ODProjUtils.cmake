@@ -89,7 +89,9 @@ macro( OD_ADD_PROJ )
 	    endif()
 	endif()
 
-	set ( PROJ_DIR "${PROJ_DIR}/lib/cmake/proj" )
+	if ( NOT EXISTS "${PROJ_DIR}/proj-config.cmake" )
+	    set ( PROJ_DIR "${PROJ_DIR}/lib/cmake/proj" )
+	endif()
 
 	find_package( PROJ QUIET )
 
@@ -105,22 +107,22 @@ macro(OD_SETUP_PROJ)
     if ( OD_USEPROJ )
 	if ( EXISTS "${PROJ_INCLUDE_DIRS}" )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH
-		    ${PROJ_INCLUDE_DIRS} )
-	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ_LIBRARIES} )
+		    "${PROJ_INCLUDE_DIRS}" )
+	    list( APPEND OD_MODULE_EXTERNAL_LIBS "${PROJ_LIBRARIES}" )
 	endif()
 
 	if ( DEFINED SQLITE_DIR )
 	    if ( UNIX )
-		SET( LIBSEARCHPATHS ${SQLITE_DIR}/lib64;${SQLITE_DIR}/lib )
+		SET( LIBSEARCHPATHS "${SQLITE_DIR}/lib64;${SQLITE_DIR}/lib" )
 	    else()
-		SET( LIBSEARCHPATHS ${SQLITE_DIR}/bin )
+		SET( LIBSEARCHPATHS "${SQLITE_DIR}/bin" )
 	    endif()
 	endif()
 
 	if ( APPLE )
 	    od_find_library( LIBSQLITE libsqlite3.dylib )
 	elseif ( WIN32 )
-	    od_find_library( LIBSQLITE sqlite3.dll )
+	    od_find_library( LIBSQLITE sqlite3.lib )
 	else()
 	    od_find_library( LIBSQLITE libsqlite3.so.0 )
 	endif()
@@ -130,6 +132,9 @@ macro(OD_SETUP_PROJ)
 	else()
 	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${LIBSQLITE}" )
 	endif()
+
+	install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+		 DESTINATION data/CRS )
 
     endif( OD_USEPROJ )
 
