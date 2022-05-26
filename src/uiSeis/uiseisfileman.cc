@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 #include "ui2dgeomman.h"
-#include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimergeseis.h"
@@ -98,34 +97,32 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
 				      : mCB(this,uiSeisFileMan,browsePush) );
 
-    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-
-    copybut_ = manipgrp->addButton( "copyobj", is2d ? uiStrings::phrCopy(
+    copybut_ = addManipButton( "copyobj", is2d ? uiStrings::phrCopy(
 				tr("dataset")) : uiStrings::phrCopy(tr("cube")),
 				mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
-	man2dlinesbut_ = manipgrp->addButton( "man2d", uiStrings::phrManage(
-					   uiStrings::sLine(2)),
-					   mCB(this,uiSeisFileMan,man2DPush) );
+	man2dlinesbut_ = addManipButton( "man2d",
+				uiStrings::phrManage(uiStrings::sLine(2)),
+				mCB(this,uiSeisFileMan,man2DPush) );
 	if ( SI().has3D() )
-	    manipgrp->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
+	    addManipButton( "extr3dinto2d", tr("Extract from 3D cube"),
 			mCB(this,uiSeisFileMan,extrFrom3D) );
     }
     else
     {
-	mergecubesbut_ = manipgrp->addButton( "mergeseis",uiStrings::phrMerge(
+	mergecubesbut_ = addManipButton( "mergeseis",uiStrings::phrMerge(
 					tr("cube parts into one cube")),
 					mCB(this,uiSeisFileMan,mergePush) );
-	browsebut_ = manipgrp->addButton( "browseseis",
+	browsebut_ = addManipButton( "browseseis",
 				tr("Browse/edit this cube"),
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
-    attribbut_ = manipgrp->addButton( "attributes", sShowAttributeSet(),
-				      mCB(this,uiSeisFileMan,showAttribSet) );
-    segyhdrbut_ = manipgrp->addButton( "segy", tr("Show SEG-Y EBCDIC Header"),
-				      mCB(this,uiSeisFileMan,showSEGYHeader) );
+    attribbut_ = addManipButton( "attributes", sShowAttributeSet(),
+				 mCB(this,uiSeisFileMan,showAttribSet) );
+    segyhdrbut_ = addManipButton( "segy", tr("Show SEG-Y EBCDIC Header"),
+				  mCB(this,uiSeisFileMan,showSEGYHeader) );
 
     mTriggerInstanceCreatedNotifier();
     mAttachCB( postFinalize(), uiSeisFileMan::selChg );

@@ -68,13 +68,11 @@ uiWellMan::uiWellMan( uiParent* p )
     createDefaultUI();
     setPrefWidth( 50 );
 
-    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "copyobj", tr("Copy Well"),
-			 mCB(this,uiWellMan,copyPush) );
+    addManipButton( "copyobj", tr("Copy Well"), mCB(this,uiWellMan,copyPush) );
 
     if ( SI().zIsTime() )
     {
-	manipgrp->addButton( "z2t",
+	addManipButton( "z2t",
 			tr("Set Depth to Time Model from other Well"),
 			mCB(this,uiWellMan,bulkD2TCB) );
     }

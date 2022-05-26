@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 
 #include "uibutton.h"
-#include "uiioobjmanip.h"
-#include "uiioobjselgrp.h"
 #include "uipixmap.h"
 #include "uiprestkmergedlg.h"
 #include "uiprestkcopy.h"
@@ -30,8 +28,8 @@ ________________________________________________________________________
 
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
-#define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
-                       mODHelpKey(mSeisPrestackMan3DHelpID)
+#define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) \
+		     : mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(createCaption(is2d),mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1).modal(false),
@@ -43,19 +41,18 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     , editbut_(0)
 {
     createDefaultUI( true );
-    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     if ( !is2d )
     {
-	copybut_ = manipgrp->addButton( "copyobj", uiStrings::phrCopy(
+	copybut_ = addManipButton( "copyobj", uiStrings::phrCopy(
 					uiStrings::phrData(tr("Store"))),
 					mCB(this,uiSeisPreStackMan,copyPush) );
-	mergebut_ = manipgrp->addButton( "mergeseis", uiStrings::phrMerge(
+	mergebut_ = addManipButton( "mergeseis", uiStrings::phrMerge(
 					uiStrings::phrData(tr("Stores"))),
 					mCB(this,uiSeisPreStackMan,mergePush) );
-	manipgrp->addButton( "mkmulticubeps",
+	addManipButton( "mkmulticubeps",
 			     tr("Create/Edit Multi-Cube data store"),
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
-	editbut_ = manipgrp->addButton( "browseseis",
+	editbut_ = addManipButton( "browseseis",
 			tr("Change file/folder names in SEG-Y file %1"),
 			mCB(this,uiSeisPreStackMan,editPush) );
     }
@@ -99,7 +96,7 @@ void uiSeisPreStackMan::ownSelChg()
     mSetButToolTip(copybut_,tr("Make a copy of '%1'").arg(cursel),
 		   tr("Copy data store"));
     BufferStringSet selnms;
-    selgrp_->getChosen( selnms );
+    getChosen( selnms );
     if ( selnms.size() > 1 )
     {
 	mSetButToolTip(mergebut_, toUiString(selnms.getDispString(2)),
@@ -180,7 +177,7 @@ void uiSeisPreStackMan::copyPush( CallBacker* )
     const MultiID key( curioobj_->key() );
     uiPreStackCopyDlg dlg( this, key );
     dlg.go();
-    selgrp_->fullUpdate( key );
+    fullUpdate( key );
 }
 
 
@@ -191,10 +188,10 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
     const MultiID key( curioobj_->key() );
     uiPreStackMergeDlg dlg( this );
     BufferStringSet selnms;
-    selgrp_->getChosen( selnms );
+    getChosen( selnms );
     dlg.setInputIds( selnms );
     dlg.go();
-    selgrp_->fullUpdate( key );
+    fullUpdate( key );
 }
 
 
@@ -210,7 +207,7 @@ void uiSeisPreStackMan::mkMultiPush( CallBacker* )
 
     uiSeisMultiCubePS dlg( this, toedit );
     dlg.go();
-    selgrp_->fullUpdate( key );
+    fullUpdate( key );
 }
 
 

@@ -151,25 +151,23 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , switchvalbut_(0)
 {
     createDefaultUI();
-    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-
     if ( type_ != Body )
-	copybut_ = manipgrp->addButton( "copyobj", tr("Copy to new object"),
+	copybut_ = addManipButton( "copyobj", tr("Copy to new object"),
 					mCB(this,uiSurfaceMan,copyCB) );
 
     if ( type_ == Hor2D || type_ == AnyHor )
     {
-	man2dbut_ = manipgrp->addButton( "man2d",
+	man2dbut_ = addManipButton( "man2d",
 	  uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
                                 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
     if ( type_ == Hor3D )
     {
-	mergehorbut_ = manipgrp->addButton( "mergehorizons",
-		       uiStrings::phrMerge(uiStrings::phrJoinStrings(
-		       uiStrings::s3D(), uiStrings::sHorizon(2))),
-		       mCB(this,uiSurfaceMan,merge3dCB) );
+	mergehorbut_ = addManipButton( "mergehorizons",
+		uiStrings::phrMerge(uiStrings::phrJoinStrings(
+				    uiStrings::s3D(), uiStrings::sHorizon(2))),
+		mCB(this,uiSurfaceMan,merge3dCB) );
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
@@ -206,22 +204,22 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_==Body )
     {
-	applybodybut_ = manipgrp->addButton( "set_union",
-					     tr("Apply Geobody operations"),
-					   mCB(this,uiSurfaceMan,mergeBodyCB) );
-	createregbodybut_ = manipgrp->addButton( "set_implicit",
-						 tr("Create geobody/region"),
+	applybodybut_ = addManipButton( "set_union",
+					tr("Apply Geobody operations"),
+					mCB(this,uiSurfaceMan,mergeBodyCB) );
+	createregbodybut_ = addManipButton( "set_implicit",
+				tr("Create geobody/region"),
 				mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	volestimatebut_ = manipgrp->addButton( "bodyvolume",
-					     tr("Volume estimate"),
-					     mCB(this,uiSurfaceMan,calcVolCB) );
-	switchvalbut_ = manipgrp->addButton( "switch_implicit",
-					     tr("Switch inside/outside value"),
+	volestimatebut_ = addManipButton( "bodyvolume",
+					  tr("Volume estimate"),
+					  mCB(this,uiSurfaceMan,calcVolCB) );
+	switchvalbut_ = addManipButton( "switch_implicit",
+					tr("Switch inside/outside value"),
 					mCB(this,uiSurfaceMan,switchValCB) );
     }
     if ( type_ == FltSet )
     {
-	manselsetbut_ = manipgrp->addButton( "man_flt",
+	manselsetbut_ = addManipButton( "man_flt",
 			    uiStrings::phrManage(uiStrings::sFault(mPlural)),
 			    mCB(this,uiSurfaceMan,manFltSetCB) );
     manselsetbut_->setSensitive( false );

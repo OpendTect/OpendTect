@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uiioobjselgrp.h"
-#include "uiioobjmanip.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -52,9 +51,9 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
 	    getIOObjContext(fixedtrkey))
 {
     createDefaultUI();
-    mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
-				    uiStrings::phrMerge(uiStrings::sPointSet()),
-				    mCB(this,uiPickSetMan,mergeSets) );
+    mergebut_ = addManipButton( "mergepicksets",
+				uiStrings::phrMerge(uiStrings::sPointSet()),
+				mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
 }

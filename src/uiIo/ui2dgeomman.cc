@@ -26,8 +26,6 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uiimpexp2dgeom.h"
-#include "uiioobjmanip.h"
-#include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -47,12 +45,10 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
-    selgrp_->getManipGroup()->addButton( "delete",
-				tr("Delete this Line"),
-				mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
-    selgrp_->getManipGroup()->addButton( "browse2dgeom",
-				tr("Manage Line Geometry"),
-				mCB(this,ui2DGeomManageDlg,manLineGeom) );
+    addManipButton( "delete", tr("Delete this Line"),
+			mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
+    addManipButton( "browse2dgeom", tr("Manage Line Geometry"),
+			mCB(this,ui2DGeomManageDlg,manLineGeom) );
 }
 
 
@@ -68,8 +64,9 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
     PtrMan<Translator> transl = curioobj_->createTranslator();
     if ( !transl )
 	return;
+
     TypeSet<MultiID> selids;
-    selgrp_->getChosen( selids );
+    getChosen( selids );
     TypeSet<Pos::GeomID> geomidset;
 
     for ( int idx=0; idx<selids.size(); idx++ )
@@ -82,6 +79,7 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
 	if ( !geomid )
 	    return;
+
 	geomidset += geomid;
     }
 
@@ -151,7 +149,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     MouseCursorChanger chgr( MouseCursor::Wait );
     uiStringSet msgs;
     TypeSet<MultiID> selids;
-    selgrp_->getChosen( selids );
+    getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
@@ -185,7 +183,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     }
 
     chgr.restore();
-    selgrp_->fullUpdate( MultiID::udf() );
+    fullUpdate( MultiID::udf() );
 
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);

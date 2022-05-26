@@ -35,20 +35,17 @@ uiString uiDataPointSetMan::sSelDataSetEmpty()
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     : uiObjFileMan(p,
-        uiDialog::Setup(uiStrings::phrManage( tr("Cross-plot Data")),
-                        mNoDlgTitle,
-                        mODHelpKey(mDataPointSetManHelpID) )
-			       .nrstatusflds(1).modal(false),
-	           PosVecDataSetTranslatorGroup::ioContext())
+	uiDialog::Setup(uiStrings::phrManage( tr("Cross-plot Data")),
+			mNoDlgTitle,mODHelpKey(mDataPointSetManHelpID))
+				.nrstatusflds(1).modal(false),
+	PosVecDataSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
 
-    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "mergeseis",
-			 uiStrings::phrMerge(uiStrings::sCrossPlot()),
-			 mCB(this,uiDataPointSetMan,mergePush) );
+    addManipButton( "mergeseis", uiStrings::phrMerge(uiStrings::sCrossPlot()),
+			mCB(this,uiDataPointSetMan,mergePush) );
 
-    selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
+    selgrp_->setPrefWidthInChar( cPrefWidth );
     infofld_->setPrefWidthInChar( cPrefWidth );
     selChg( this );
 }

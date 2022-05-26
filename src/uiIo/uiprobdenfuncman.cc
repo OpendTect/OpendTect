@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uiioobjseldlg.h"
-#include "uiioobjmanip.h"
 #include "uimsg.h"
 
 #include "bufstring.h"
@@ -39,18 +38,16 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
     mAttachCB( selgrp_->getListField()->doubleClicked,
 	       uiProbDenFuncMan::browsePush );
 
-    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "editprdf",
-			 tr("Browse/edit this Probability Density Function"),
-			 mCB(this,uiProbDenFuncMan,browsePush) );
-    manipgrp->addButton( "genprdf",
-			 tr("Generate Probability Density Function"),
-			 mCB(this,uiProbDenFuncMan,genPush) );
+    addManipButton( "editprdf",
+			tr("Browse/edit this Probability Density Function"),
+			mCB(this,uiProbDenFuncMan,browsePush) );
+    addManipButton( "genprdf",
+			tr("Generate Probability Density Function"),
+			mCB(this,uiProbDenFuncMan,genPush) );
 
-    selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
+    selgrp_->setPrefWidthInChar( cPrefWidth );
     infofld_->setPrefWidthInChar( cPrefWidth );
 }
-
 
 
 uiProbDenFuncMan::~uiProbDenFuncMan()
@@ -71,9 +68,12 @@ void uiProbDenFuncMan::initDlg()
 
 void uiProbDenFuncMan::browsePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
+
     mGetPDF(pdf);
-    if ( !pdf ) return;
+    if ( !pdf )
+	return;
 
     uiEditProbDenFuncDlg dlg( this, *pdf, true );
     if ( dlg.go() && dlg.isChanged() )
