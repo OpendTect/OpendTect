@@ -438,19 +438,26 @@ inline void unRefNoDeletePtr( const RefCount::Referenced* ptr )
 
 //!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline
-void unRefAndZeroPtr( T*& ptr )
+void unRefAndNullPtr( T*& ptr )
 {
     unRefPtr( static_cast<RefCount::Referenced*>( ptr ) );
     ptr = nullptr;
 }
 
 template <class T> inline
-void unRefAndZeroPtr( const T*& ptr )
+void unRefAndNullPtr( const T*& ptr )
 {
     unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) );
     ptr = nullptr;
 }
 
+template <class T> inline
+void unRefAndZeroPtr( T*& ptr )
+{ unRefAndNullPtr( ptr ); }
+
+template <class T> inline
+void unRefAndZeroPtr( const T*& ptr )
+{ unRefAndNullPtr( ptr ); }
 
 #define mDefineRefUnrefObjectSetFn( fn, op, extra ) \
 template <class T> \
