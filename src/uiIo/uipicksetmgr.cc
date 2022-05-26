@@ -84,8 +84,9 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
 
 IOObj* uiPickSetMgr::getSetIOObj( const Pick::Set& ps ) const
 {
-    int setidx = setmgr_.indexOf( ps );
-    if ( setidx < 0 ) return 0;
+    const int setidx = setmgr_.indexOf( ps );
+    if ( setidx < 0 )
+	return nullptr;
 
     IOObj* ioobj = IOM().get( setmgr_.id(setidx) );
     if ( !ioobj )
@@ -120,6 +121,7 @@ bool uiPickSetMgr::storeSets()
 
 	storeSet( setmgr_.get(idx) );
     }
+
     return true;
 }
 
@@ -165,25 +167,11 @@ bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 {
     IOM().commitChanges( ioobj );
     BufferString bs;
-    Pick::Set& editedps = const_cast<Pick::Set&>( ps );
-    if ( ps.isPolygon() && ps.nrItems() &&
-				(ps.disp_.connect_ == Pick::Set::Disp::Open) )
+    if ( !PickSetTranslator::store(ps,&ioobj,bs) )
     {
-	const bool keepopen = uiMSG().question( tr( "Polygon is not closed, "
-			"some display properties will not work in basemap" ),
-			tr("Save Anyway"), tr("Close Polygon and Save"),
-			uiStrings::sCancel() );
-
-	if ( !keepopen )
-	{
-	    editedps.disp_.connect_ = Pick::Set::Disp::Close;
-	    uiPickSetMgr* nonconstmgr = const_cast<uiPickSetMgr*>( this );
-	    setmgr_.reportChange( nonconstmgr, editedps );
-	}
+	uiMSG().error( toUiString(bs) );
+	return false;
     }
-
-    if ( !PickSetTranslator::store( editedps, &ioobj, bs ) )
-	{ uiMSG().error(mToUiStringTodo(bs)); return false; }
 
     return true;
 }
