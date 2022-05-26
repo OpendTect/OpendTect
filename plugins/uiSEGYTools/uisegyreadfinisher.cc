@@ -126,7 +126,7 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
     docopyfld_ = new uiGenInput( this, tr("Copy data"),
-	    BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
+	    BoolInpSpec(false,tr("Yes (import)"),tr("No (scan&&link)")) );
     docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
 
     uiSeisTransfer::Setup trsu( gt );
@@ -412,6 +412,7 @@ void uiSEGYReadFinisher::setCoordSystem( Coords::CoordSystem* crs )
 {
     coordsys_ = crs;
 }
+
 
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 			    SeisTrcWriter& wrr, Pos::GeomID geomid )

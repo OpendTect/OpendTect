@@ -45,6 +45,8 @@ public:
     void		setAsDefaultObj(); //!< call only after successful go()
     void		setCoordSystem(Coords::CoordSystem*);
 
+    MultiID		getOutputKey() const	{ return outputid_;}
+
 protected:
 
     FullSpec		fs_;
