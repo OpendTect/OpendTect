@@ -31,5 +31,8 @@ mDefODInitPlugin(uiSEGYTools)
     uiSurveyInfoEditor::addInfoProvider(new uiSEGYSurvInfoProvider);
     if ( GetEnvVarYN( "OD_ENABLE_SEGY_CLASSIC" ) )
 	uiSurveyInfoEditor::addInfoProvider(new uiSEGYClassicSurvInfoProvider);
+
+    uiSEGY::initClasses();
+
     return nullptr;
 }

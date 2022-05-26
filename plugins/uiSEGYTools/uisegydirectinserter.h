@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "uiioobjinserter.h"
 #include "uistring.h"
 
-class uiSEGYRead;
-
 
 mExpClass(uiSEGYTools) uiSEGYDirectVolInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirectVolInserter);
@@ -31,11 +29,7 @@ public:
 
 protected:
 
-    uiSEGYRead*		segyread_;
-
     void		startScan(CallBacker*);
-    void		scanComplete(CallBacker*);
-
 };
 
 
@@ -54,11 +48,7 @@ public:
 
 protected:
 
-    uiSEGYRead*		segyread_;
-
     void		startScan(CallBacker*);
-    void		scanComplete(CallBacker*);
-
 };
 
 
@@ -77,9 +67,5 @@ public:
 
 protected:
 
-    uiSEGYRead*		segyread_;
-
     void		startScan(CallBacker*);
-    void		scanComplete(CallBacker*);
-
 };

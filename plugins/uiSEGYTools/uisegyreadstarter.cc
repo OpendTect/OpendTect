@@ -1143,6 +1143,7 @@ bool uiSEGYReadStarter::commit( bool permissive )
 
 bool uiSEGYReadStarter::acceptOK( CallBacker* )
 {
+    outputid_.setUdf();
     if ( !commit(false) )
 	return false;
 
@@ -1182,5 +1183,6 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 
     dlg.go();
 
+    outputid_ = dlg.getOutputKey();
     return false;
 }
