@@ -329,6 +329,8 @@ const char* uiColorTableSel::getCurrent() const
 
 static char sNumberFormat = 'g';
 static int sNumberPrecision = 5;
+static int sExtraFieldWidthef = 7;
+static int sExtraFieldWidthg = 6;
 
 uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
     : seqChanged(this)
@@ -354,13 +356,6 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
 {
     parent_ = parnt;
 
-    if ( withminmax )
-    {
-	minfld_ = new uiLineEdit( parnt, "Min" );
-	minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
-	minfld_->setMinimumWidthInChar( 12 );
-    }
-
     canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, orient );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
@@ -370,21 +365,19 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
     canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
     canvas_->setDrawArr( true );
 
-    if ( withminmax )
-    {
-	maxfld_ = new uiLineEdit( parnt, "Max" );
-	maxfld_->setMinimumWidthInChar( 12 );
-	maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
-    }
-
     selfld_ = new uiColorTableSel( parnt, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, 0 );
     selfld_->setCurrent( coltabseq_ );
 
-
     if ( withminmax )
     {
+	minfld_ = new uiLineEdit( parnt, "Min" );
+	mAttachCB( minfld_->returnPressed, uiColorTable::rangeEntered );
+
+	maxfld_ = new uiLineEdit( parnt, "Max" );
+	mAttachCB( maxfld_->returnPressed, uiColorTable::rangeEntered );
+
 	BufferString str1, str2;
 	const bool res = Settings::common().get( sdTectNumberFormat(),
 						 str1, str2 );
@@ -398,6 +391,12 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
 	    if ( prec>=0 && prec<8 )
 		sNumberPrecision = prec;
 	}
+
+	const int extrawidth =
+		sNumberFormat=='g' ? sExtraFieldWidthg : sExtraFieldWidthef;
+	const int fldwidth = sNumberPrecision + extrawidth;
+	minfld_->setMinimumWidthInChar( fldwidth );
+	maxfld_->setMinimumWidthInChar( fldwidth );
     }
 }
 
@@ -437,6 +436,15 @@ void uiColorTable::setNumberFormat( char format, int precision )
     sNumberFormat = format;
     sNumberPrecision = precision;
     updateRgFld();
+
+    if ( minfld_ && maxfld_ )
+    {
+	const int extrawidth =
+		sNumberFormat=='g' ? sExtraFieldWidthg : sExtraFieldWidthef;
+	const int fldwidth = sNumberPrecision + extrawidth;
+	minfld_->setMinimumWidthInChar( fldwidth );
+	maxfld_->setMinimumWidthInChar( fldwidth );
+    }
 }
 
 
