@@ -15,11 +15,11 @@ ________________________________________________________________________
 
 class IOObj;
 class IOObjContext;
-class uiButton;
 class uiButtonGroup;
 class uiGroup;
 class uiIOObjSelGrp;
 class uiTextEdit;
+class uiToolButton;
 
 
 mExpClass(uiIo) uiObjFileMan : public uiDialog
@@ -34,6 +34,13 @@ public:
     uiGroup*			listGroup()		{ return listgrp_; }
     uiGroup*			infoGroup()		{ return infogrp_; }
     uiButtonGroup*		extraButtonGroup()	{ return extrabutgrp_; }
+
+    uiToolButton*		addExtraButton(const char* iconnm,
+						const uiString& tooltip,
+						const CallBack&);
+    uiToolButton*		addManipButton(const char* iconnm,
+						const uiString& tooltip,
+						const CallBack&);
 
 protected:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
