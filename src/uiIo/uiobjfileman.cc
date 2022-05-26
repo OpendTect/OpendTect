@@ -133,6 +133,40 @@ void uiObjFileMan::finalizeDoneCB( CallBacker* )
 }
 
 
+uiToolButton* uiObjFileMan::addExtraButton( const char* iconnm,
+					const uiString& tooltip,
+					const CallBack& cb )
+{
+    return new uiToolButton( extrabutgrp_, iconnm, tooltip, cb );
+}
+
+
+uiToolButton* uiObjFileMan::addManipButton( const char* iconnm,
+					const uiString& tooltip,
+					const CallBack& cb )
+{
+    return selgrp_->getManipGroup()->addButton( iconnm, tooltip, cb );
+}
+
+
+void uiObjFileMan::getChosen( BufferStringSet& nms ) const
+{
+    selgrp_->getChosen( nms );
+}
+
+
+void uiObjFileMan::getChosen( TypeSet<MultiID>& mids ) const
+{
+    selgrp_->getChosen( mids );
+}
+
+
+void uiObjFileMan::fullUpdate( const MultiID& key )
+{
+    selgrp_->fullUpdate( key );
+}
+
+
 static const IOStream* getIOStream( const IOObj& ioobj )
 {
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
@@ -205,7 +239,7 @@ void uiObjFileMan::readNotes()
 }
 
 
-void uiObjFileMan::selChg( CallBacker* cb )
+void uiObjFileMan::selChg( CallBacker* )
 {
     saveNotes(0);
     delete curioobj_;
