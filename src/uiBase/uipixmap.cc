@@ -250,6 +250,34 @@ bool uiPixmap::isPresent( const char* icnm )
     return OD::IconFile::isPresent( icnm );
 }
 
+
+void uiPixmap::params( BufferStringSet& pmparams ) const
+{
+    pmparams.add( source() );
+    pmparams.add( ::toString(width()) );
+    pmparams.add( ::toString(height()) );
+    pmparams.add( OD::Color::NoColor().getStdStr() );
+}
+
+
+uiPixmap* uiPixmap::createFromParams( const BufferStringSet& pmparams )
+{
+    uiPixmap* pm = nullptr;
+    const BufferString& pmsrc = pmparams.get( uiPixmap::sPmParamSrcIdx );
+    if ( pmsrc == uiPixmap::sKeyCreatedSrc() )
+    {
+	pm = new uiPixmap( pmparams.get(uiPixmap::sPmParamWidthIdx).toInt(),
+			   pmparams.get(uiPixmap::sPmParamHeightIdx).toInt() );
+	OD::Color col;
+	col.setStdStr( pmparams.get(uiPixmap::sPmParamColIdx) );
+	pm->fill( col );
+    }
+    else
+	pm = new uiPixmap( pmsrc );
+
+    return pm;
+}
+
 static int sPDFfmtIdx = 6;
 
 static const char* sImageFormats[] =

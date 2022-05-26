@@ -32,11 +32,11 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
     , fd_(fd)
     , isgeom_(isgeom)
-    , ascio_(0)
+    , ascio_(nullptr)
     , isxy_(false)
     , selxy_(false)
     , doscale_(false)
-    , bvalset_(0)
+    , bvalset_(nullptr)
     , fileidx_(0)
     , curmsg_(tr("Scanning"))
     , nrdone_(0)
@@ -53,10 +53,10 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
     , fd_(fd)
     , isgeom_(isgeom)
-    , ascio_(0)
+    , ascio_(nullptr)
     , isxy_(false)
     , selxy_(false)
-    , bvalset_(0)
+    , bvalset_(nullptr)
     , fileidx_(0)
     , nrdone_(0)
 {
@@ -130,6 +130,9 @@ od_int64 HorizonScanner::totalNr() const
 
 void HorizonScanner::setZAxisTransform( ZAxisTransform* transform )
 {
+    if ( !transform )
+	return;
+
     if ( transform_ )
 	transform_->unRef();
 
@@ -268,7 +271,8 @@ static const UnitOfMeasure* getSuggestedZUnit( const UnitOfMeasure* zunit,
 
 bool HorizonScanner::analyzeData()
 {
-    if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
+    if ( !reInitAscIO( filenames_.get(0).buf() ) )
+	return false;
 
     const bool hastransform = transform_ != nullptr;
     const bool zistime = SI().zIsTime();
@@ -299,13 +303,29 @@ bool HorizonScanner::analyzeData()
 	bool validplacement = false;
 	if ( selxy_ )
 	{
-	    if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
-	    else if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
+	    if ( SI().isReasonable(crd) )
+	    {
+		nrxy++;
+		validplacement=true;
+	    }
+	    else if ( SI().isReasonable(bid) )
+	    {
+		nrbid++;
+		validplacement=true;
+	    }
 	}
 	else
 	{
-	    if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
-	    else if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
+	    if ( SI().isReasonable(bid) )
+	    {
+		nrbid++;
+		validplacement=true;
+	    }
+	    else if ( SI().isReasonable(crd) )
+	    {
+		nrxy++;
+		validplacement=true;
+	    }
 	}
 
 	if ( !tryscale )
@@ -347,7 +367,7 @@ bool HorizonScanner::analyzeData()
 
     const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
     const UnitOfMeasure* suggestedzunit = nullptr;
-    if ( nrscale > nrnoscale )
+    if ( nrscale > nrnoscale && transform_ )
 	suggestedzunit = getSuggestedZUnit( selzunit, zscalefac );
 
     if ( suggestedzunit )
@@ -364,7 +384,7 @@ bool HorizonScanner::analyzeData()
 
     isxy_ = selxy_;
     delete ascio_;
-    ascio_ = 0;
+    ascio_ = nullptr;
     return true;
 }
 
@@ -441,9 +461,10 @@ int HorizonScanner::nextStep()
     if ( data.size() < 1 )
 	mErrRet(tr("Not enough data read to analyze"))
 
-    if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
-    bvalset_->allowDuplicateBinIDs(true);
+    if ( !bvalset_ )
+	bvalset_ = new BinIDValueSet( data.size(), false );
 
+    bvalset_->allowDuplicateBinIDs(true);
     BinID bid;
     if ( isxy_ )
 	bid = SI().transform( crd );
@@ -456,7 +477,9 @@ int HorizonScanner::nextStep()
     if ( !SI().isReasonable(bid) )
 	return Executor::MoreToDo();
 
-    transformZIfNeeded( bid, data[0] );
+    if ( transform_ )
+	transformZIfNeeded( bid, data[0] );
+
     bool validpos = true;
     int validx = 0;
     while ( validx < data.size() )
@@ -465,10 +488,21 @@ int HorizonScanner::nextStep()
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
 	const float val = data[validx];
-	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,val) )
+	if ( isgeom_ && validx==0 )
 	{
-	    validpos = false;
-	    break;
+	    if ( transform_ && !isInsideSurvey(bid,val) )
+	    {
+		validpos = false;
+		break;
+	    }
+	    else
+	    {
+		if ( !SI().isReasonable(bid) )
+		{
+		    validpos = false;
+		    break;
+		}
+	    }
 	}
 
 	if ( !mIsUdf(val) )

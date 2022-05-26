@@ -92,6 +92,7 @@ list ( APPEND OD_MODULE_SOURCES
 	survgeometrytransl.cc
 	tableascio.cc
 	tableconv.cc
+	tablemodel.cc
 	transl.cc
 	unitofmeasure.cc
 	usrinputobj.cc

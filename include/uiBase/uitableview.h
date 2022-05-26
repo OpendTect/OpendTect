@@ -14,64 +14,11 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "rowcol.h"
 
-class ODAbstractTableModel;
+class TableModel;
 class ODTableView;
 class QByteArray;
 class QSortFilterProxyModel;
 class QVariant;
-
-mExpClass(uiBase) uiTableModel
-{
-public:
-    mExpClass(uiBase) CellData
-    {
-    public:
-	CellData();
-	CellData(const QVariant&);
-	CellData(const char*);
-	CellData(bool);
-	CellData(int);
-	CellData(float,int nrdec);
-	CellData(double,int nrdec);
-	CellData(const CellData&);
-	~CellData();
-
-	bool		getBoolValue() const;
-	const char*	text() const;
-	float		getFValue() const;
-	double		getDValue() const;
-	int		getIntValue() const;
-
-	QVariant&	qvar_;
-    };
-
-    enum ItemFlag		{ NoFlags=0, ItemSelectable=1, ItemEditable=2,
-				  ItemDragEnabled=4, ItemDropEnabled=8,
-				  ItemIsUserCheckable=16, ItemEnabled=32 };
-    virtual			~uiTableModel();
-
-    virtual int			nrRows() const		= 0;
-    virtual int			nrCols() const		= 0;
-    virtual int			flags(int row,int col) const	= 0;
-    virtual void		setCellData(int row,int col,const CellData&) =0;
-    virtual CellData		getCellData(int row,int col) const =0;
-
-    virtual OD::Color		textColor(int row,int col) const = 0;
-    virtual OD::Color		cellColor(int row,int col) const	= 0;
-    virtual uiPixmap		pixmap(int row,int col) const	= 0;
-    virtual void		setChecked(int row,int col,int val)	{}
-    virtual int			isChecked(int row,int col) const  { return -1; }
-    virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
-    virtual uiString		tooltip(int row,int col) const	= 0;
-    ODAbstractTableModel*	getAbstractModel()	{ return odtablemodel_;}
-    void			beginReset();
-    void			endReset();
-
-protected:
-				uiTableModel();
-
-    ODAbstractTableModel*	odtablemodel_;
-};
 
 
 mExpClass(uiBase) uiTableView : public uiObject
@@ -80,12 +27,13 @@ public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
-    enum CellType		{ Bool, Text, NumI, NumF, NumD, Color, Date };
+    enum CellType		{ Bool, Text, NumI, NumF,
+				  NumD, Color, Date };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
 
-    void			setModel(uiTableModel*);
+    void			setModel(TableModel*);
     void			saveHorizontalHeaderState();
     void			resetHorizontalHeader();
 
@@ -117,7 +65,7 @@ protected:
 
     ODTableView&		mkView(uiParent*,const char*);
 
-    uiTableModel*		tablemodel_	= nullptr;
+    TableModel*			tablemodel_	= nullptr;
     ODTableView*		odtableview_;
     QSortFilterProxyModel*	qproxymodel_	= nullptr;
     QByteArray*			horizontalheaderstate_	= nullptr;

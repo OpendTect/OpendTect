@@ -62,11 +62,27 @@ public:
     void		scaleToWidth(int w);
 
     const char*		source() const		{ return srcname_.buf(); }
+    void		params(BufferStringSet&) const;
+			// -> sets color param to OD::Color::noColor()
+			// -> thus set the color after calling this func.
 
     bool		save(const char* fnm,const char* fmt=0,
 			     int quality=-1) const;
 
     static bool		isPresent(const char*);
+
+    static uiPixmap*	createFromParams(const BufferStringSet& params);
+
+    static const char*	sKeyXpmSrc()		{ return "[xpm]"; }
+    static const char*	sKeyRgbSrc()		{ return "[uiRGBArray]"; }
+    static const char*	sKeyCreatedSrc()	{ return "[created]"; }
+    static const char*	sKeyGradientSrc()	{ return "[Gradient]"; }
+    static const char*	sKeyColorTabSrc()	{ return "[colortable]"; }
+
+    static const int	sPmParamSrcIdx		= 0;
+    static const int	sPmParamWidthIdx	= 1;
+    static const int	sPmParamHeightIdx	= 2;
+    static const int	sPmParamColIdx		= 3;
 
 protected:
 

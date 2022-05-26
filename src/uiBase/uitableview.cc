@@ -9,17 +9,18 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitablemodel.h"
+#include "uitableview.h"
 #include "i_qtableview.h"
 
 #include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
+
 #include "perthreadrepos.h"
+#include "tablemodel.h"
 
 #include "q_uiimpl.h"
 
-#include <QAbstractTableModel>
 #include <QApplication>
 #include <QByteArray>
 #include <QCheckBox>
@@ -27,7 +28,6 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPainter>
-#include <QPixmap>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTableView>
@@ -53,6 +53,58 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	painter->fillRect( option.rect, background.value<QBrush>() );
 
     QStyledItemDelegate::paint( painter, myoption, index );
+}
+
+};
+
+
+class DecorationItemDelegate : public ODStyledItemDelegate
+{
+public:
+DecorationItemDelegate()
+    : ODStyledItemDelegate()
+{}
+
+static const int sXPosPadding = 2;
+static const int sPmScalePadding = 10;
+
+const uiPixmap* createPixmap( const QVariant& qvar, const QRect& rect ) const
+{
+    const QStringList qsl = qvar.toStringList();
+    BufferStringSet pmparams;
+    pmparams.use( qsl );
+    if ( pmparams.isEmpty() )
+	return nullptr;
+    
+    uiPixmap* pm = uiPixmap::createFromParams( pmparams );
+    BufferString pmsrc = pm->source();
+    if ( pm && pmsrc != uiPixmap::sKeyCreatedSrc() )
+	pm->scaleToHeight( rect.height() - sPmScalePadding );
+	
+    return pm;
+}
+
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index ) const override
+{
+    QVariant color = index.data( Qt::BackgroundRole );
+    if ( color.canConvert<QColor>() )
+	painter->fillRect( option.rect, color.value<QColor>() );
+
+    const QVariant qvar = index.data( Qt::DecorationRole );
+    ConstPtrMan<uiPixmap> pm = createPixmap( qvar, option.rect );
+    if ( pm )
+    {
+	const QPixmap* qpm = pm->qpixmap();
+	const int qpmwidth = qpm->rect().width();
+	const int qpmheight = qpm->rect().height();
+	const int xpos = option.rect.left() + sXPosPadding;
+	const int ypos = option.rect.center().y() - qpmheight/2;
+	painter->drawPixmap( xpos, ypos, qpmwidth, qpmheight, *qpm );
+    }
+
+    QStyledItemDelegate::paint( painter, option, index );
 }
 
 };
@@ -114,222 +166,6 @@ void setModelData( QWidget* editor, QAbstractItemModel* model,
 }
 
 };
-
-
-class ODAbstractTableModel : public QAbstractTableModel
-{
-public:
-			ODAbstractTableModel( uiTableModel& mdl )
-			    : model_(mdl)		{}
-
-    Qt::ItemFlags	flags(const QModelIndex&) const;
-    int			rowCount(const QModelIndex&) const;
-    int			columnCount(const QModelIndex&) const;
-    QVariant		data(const QModelIndex&,int role) const;
-    QVariant		headerData(int rowcol,Qt::Orientation orientation,
-				   int role=Qt::DisplayRole) const;
-    bool		setData(const QModelIndex&,const QVariant&,int role);
-    void		beginReset();
-    void		endReset();
-
-protected:
-    uiTableModel&	model_;
-};
-
-
-Qt::ItemFlags ODAbstractTableModel::flags( const QModelIndex& qmodidx ) const
-{
-    if ( !qmodidx.isValid() )
-	return Qt::NoItemFlags;
-
-    const int modelflags = model_.flags( qmodidx.row(), qmodidx.column() );
-    return sCast(Qt::ItemFlags,modelflags);
-}
-
-
-int ODAbstractTableModel::rowCount( const QModelIndex& ) const
-{
-    return model_.nrRows();
-}
-
-
-int ODAbstractTableModel::columnCount( const QModelIndex& ) const
-{
-    return model_.nrCols();
-}
-
-
-QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
-				     int role ) const
-{
-    if ( !qmodidx.isValid() )
-	return QVariant();
-
-    if ( role == Qt::DisplayRole || role == Qt::EditRole )
-    {
-	uiTableModel::CellData cd =
-		model_.getCellData( qmodidx.row(), qmodidx.column() );
-	return cd.qvar_;
-    }
-
-    if ( role == Qt::BackgroundRole )
-    {
-	OD::Color odcol = model_.cellColor( qmodidx.row(), qmodidx.column() );
-	if ( odcol == OD::Color::NoColor() )
-	    return QVariant();
-
-	return QColor( odcol.rgb() );
-    }
-
-    if ( role == Qt::DecorationRole )
-    {
-	uiPixmap pm = model_.pixmap( qmodidx.row(), qmodidx.column() );
-	if ( pm.isEmpty() )
-	    return QVariant();
-
-	return *pm.qpixmap();
-    }
-
-    if ( role == Qt::ForegroundRole )
-    {
-	OD::Color odcol = model_.textColor( qmodidx.row(), qmodidx.column() );
-	return QColor( odcol.rgb() );
-    }
-
-    if ( role == Qt::ToolTipRole )
-    {
-	const uiString tt =
-	    model_.tooltip( qmodidx.row(), qmodidx.column() );
-	return toQString(tt);
-    }
-
-    if ( role == Qt::CheckStateRole )
-    {
-	const int val = model_.isChecked( qmodidx.row(), qmodidx.column() );
-	if ( val==-1 ) // no checkbox
-	    return QVariant();
-
-	return val==1 ? Qt::Checked : Qt::Unchecked;
-    }
-
-    return QVariant();
-}
-
-
-bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
-				    const QVariant& qvar, int role )
-{
-    if ( !qmodidx.isValid() )
-	return false;
-
-    if ( role == Qt::EditRole )
-    {
-	uiTableModel::CellData cd( qvar );
-	model_.setCellData( qmodidx.row(), qmodidx.column(), cd );
-	return true;
-    }
-
-    if ( role == Qt::CheckStateRole )
-    {
-	int val = -1;
-	if ( qvar==Qt::Checked || qvar==Qt::Unchecked )
-	    val = qvar==Qt::Checked ? 1 : 0;
-
-	model_.setChecked( qmodidx.row(), qmodidx.column(), val );
-    }
-
-    return true;
-}
-
-
-QVariant ODAbstractTableModel::headerData( int rowcol, Qt::Orientation orient,
-					   int role ) const
-{
-    if ( role == Qt::DisplayRole )
-    {
-	uiString str = model_.headerText( rowcol,
-	    orient==Qt::Horizontal ? OD::Horizontal : OD::Vertical );
-	return toQString(str);
-    }
-
-    return QVariant();
-}
-
-
-void ODAbstractTableModel::beginReset()
-{ beginResetModel(); }
-
-void ODAbstractTableModel::endReset()
-{ endResetModel(); }
-
-
-// uiTableModel
-uiTableModel::uiTableModel()
-{
-    odtablemodel_ = new ODAbstractTableModel(*this);
-}
-
-
-uiTableModel::~uiTableModel()
-{
-    delete odtablemodel_;
-}
-
-
-uiTableModel::CellData::CellData() : qvar_(*new QVariant())
-{}
-
-uiTableModel::CellData::CellData( const QVariant& qvar)
-    : qvar_(*new QVariant(qvar))
-{}
-
-uiTableModel::CellData::CellData( const char* txt ) : qvar_(*new QVariant(txt))
-{}
-
-uiTableModel::CellData::CellData( int val ) : qvar_(*new QVariant(val))
-{}
-
-uiTableModel::CellData::CellData( float val, int ) : qvar_(*new QVariant(val))
-{}
-
-uiTableModel::CellData::CellData( double val, int ) : qvar_(*new QVariant(val))
-{}
-
-uiTableModel::CellData::CellData( bool val ) : qvar_(*new QVariant(val))
-{}
-
-uiTableModel::CellData::CellData( const CellData& cd )
-    : qvar_(*new QVariant(cd.qvar_))
-{}
-
-uiTableModel::CellData::~CellData()
-{ delete &qvar_; }
-
-bool uiTableModel::CellData::getBoolValue() const
-{ return qvar_.toBool(); }
-
-const char* uiTableModel::CellData::text() const
-{
-    mDeclStaticString( ret );
-    ret.setEmpty();
-    ret = qvar_.toString();
-    return ret.buf();
-}
-
-float uiTableModel::CellData::getFValue() const
-{ return qvar_.toFloat(); }
-
-double uiTableModel::CellData::getDValue() const
-{ return qvar_.toDouble(); }
-
-int uiTableModel::CellData::getIntValue() const
-{ return qvar_.toInt(); }
-
-void uiTableModel::beginReset()
-{ odtablemodel_->beginReset(); }
-
-void uiTableModel::endReset()
-{ odtablemodel_->endReset(); }
 
 
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
@@ -512,7 +348,7 @@ ODTableView& uiTableView::mkView( uiParent* p, const char* nm )
 }
 
 
-void uiTableView::setModel( uiTableModel* mdl )
+void uiTableView::setModel( TableModel* mdl )
 {
     tablemodel_ = mdl;
     if ( !tablemodel_ )
@@ -704,12 +540,23 @@ static DoubleItemDelegate* getDoubleDelegate()
 }
 
 
+static DecorationItemDelegate* getDecorationItemDelegate()
+{
+    mDefineStaticLocalObject( PtrMan<DecorationItemDelegate>, del,
+			      = new DecorationItemDelegate )
+    return del;
+}
+
+
 void uiTableView::setColumnValueType( int col, CellType tp )
 {
     if ( tp==NumD || tp==NumF )
 	odtableview_->setItemDelegateForColumn( col, getDoubleDelegate() );
     else if ( tp==Text )
 	odtableview_->setItemDelegateForColumn( col, getTextDelegate() );
+    else if ( tp==Color )
+	odtableview_->setItemDelegateForColumn( col,
+						getDecorationItemDelegate() );
 }
 
 
