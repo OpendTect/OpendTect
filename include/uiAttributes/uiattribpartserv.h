@@ -218,19 +218,19 @@ protected:
     MenuItem		multcomp3d_;
 
     ObjectSet<uiAttribCrossPlot> attrxplotset_;
-    const Attrib::Desc*	dirshwattrdesc_;
-    uiAttribDescSetEd*	attrsetdlg_;
-    Timer		attrsetclosetim_;
-    bool		is2devsent_;
-    bool		attrsneedupdt_;
-    uiAttrSetMan*	manattribset2ddlg_;
-    uiAttrSetMan*	manattribsetdlg_;
-    uiImpAttrSet*	impattrsetdlg_;
-    uiAttrVolOut*	volattrdlg_;
-    uiAttrVolOut*	multiattrdlg_;
-    uiAttrVolOut*	dataattrdlg_;
+    const Attrib::Desc*	dirshwattrdesc_			= nullptr;
+    uiAttribDescSetEd*	attrsetdlg_			= nullptr;
+    Timer		attrsetclosetimer_;
+    bool		is2devsent_			= false;
+    bool		attrsneedupdt_			= true;
+    uiAttrSetMan*	manattribset2ddlg_		= nullptr;
+    uiAttrSetMan*	manattribsetdlg_		= nullptr;
+    uiImpAttrSet*	impattrsetdlg_			= nullptr;
+    uiAttrVolOut*	volattrdlg_			= nullptr;
+    uiAttrVolOut*	multiattrdlg_			= nullptr;
+    uiAttrVolOut*	dataattrdlg_			= nullptr;
 
-    Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=0,
+    Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=nullptr,
 			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());
 
     void		directShowAttr(CallBacker*);
@@ -260,15 +260,15 @@ protected:
     static const char*	attridstr();
     BufferString	nlaname_;
 
-    bool			alloweval_;
-    bool			allowevalstor_;
-    int				sliceidx_;
-    Attrib::DescSet*		evalset;
+    bool			alloweval_		= false;
+    bool			allowevalstor_		= false;
+    int				sliceidx_		= -1;
+    Attrib::DescSet*		evalset			= nullptr;
     TypeSet<Attrib::SelSpec>	targetspecs_;
 
-    DataPointSetDisplayMgr*	dpsdispmgr_;
+    DataPointSetDisplayMgr*	dpsdispmgr_		= nullptr;
 
-    ColTab::MapperSetup*	evalmapperbackup_;
+    ColTab::MapperSetup*	evalmapperbackup_	= nullptr;
 
 private:
 
