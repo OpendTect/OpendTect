@@ -128,6 +128,22 @@ void uiObjFileMan::finaliseStartCB( CallBacker* )
 }
 
 
+uiToolButton* uiObjFileMan::addExtraButton( const char* iconnm,
+					const uiString& tooltip,
+					const CallBack& cb )
+{
+    return new uiToolButton( extrabutgrp_, iconnm, tooltip, cb );
+}
+
+
+uiToolButton* uiObjFileMan::addManipButton( const char* iconnm,
+					const uiString& tooltip,
+					const CallBack& cb )
+{
+    return selgrp_->getManipGroup()->addButton( iconnm, tooltip, cb );
+}
+
+
 static const IOStream* getIOStream( const IOObj& ioobj )
 {
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
