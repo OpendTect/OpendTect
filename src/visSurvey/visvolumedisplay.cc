@@ -972,7 +972,7 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 	.arg( mNINT32(cs.zsamp_.start*userfactor) )
 	.arg( mNINT32(cs.zsamp_.stop*userfactor) );
 
-    if ( !compact )
+    if ( scene_ && !compact )
 	info.arg( scene_->zDomainInfo().userName() );
 }
 
