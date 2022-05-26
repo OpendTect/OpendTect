@@ -64,6 +64,8 @@ public:
     const SEGY::ImpType& impType() const;
     void		setImpTypIdx(int);
 
+    MultiID		getOutputKey() const	{ return outputid_; }
+
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
@@ -111,6 +113,7 @@ protected:
     bool		lastscanwasfull_	= false;
     bool		nrsampmsgshown_		= false;
     uiSEGYRead*		classicrdr_		= nullptr;
+    MultiID		outputid_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 

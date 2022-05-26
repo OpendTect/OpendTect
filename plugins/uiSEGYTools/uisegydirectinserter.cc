@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uimainwin.h"
 #include "uimsg.h"
-#include "uisegyread.h"
+#include "uisegyreadstarter.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
@@ -49,24 +49,24 @@ uiToolButtonSetup* uiSEGYDirectVolInserter::getButtonSetup() const
 void uiSEGYDirectVolInserter::startScan( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
-    uiParent* par = 0;
-    if ( but ) par = but->mainwin();
+    uiParent* par = nullptr;
+    if ( but )
+	par = but->mainwin();
+
     if ( !par )
-    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+    {
+	pErrMsg( BufferString("Unexpected null: ",but?"but":"par") );
+    }
 
-    uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
-    srsu.geoms_.erase(); srsu.geoms_ += Seis::Vol;
-    segyread_ = new uiSEGYRead( but->parent(), srsu );
-    mAttachCB( segyread_->processEnded, uiSEGYDirectVolInserter::scanComplete );
-}
+    SEGY::ImpType imptype( Seis::Vol );
+    uiSEGYReadStarter dlg( par, false, &imptype );
+    dlg.setModal( true );
+    dlg.go();
 
-
-void uiSEGYDirectVolInserter::scanComplete( CallBacker* )
-{
-    if ( segyread_->state() != uiVarWizard::cFinished() )
+    const MultiID outky = dlg.getOutputKey();
+    if ( outky.isUdf() )
 	return;
 
-    const MultiID outky( segyread_->outputID() );
     CBCapsule<MultiID> caps( outky, this );
     objectInserted.trigger( &caps );
 }
@@ -108,24 +108,24 @@ uiToolButtonSetup* uiSEGYDirect2DInserter::getButtonSetup() const
 void uiSEGYDirect2DInserter::startScan( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
-    uiParent* par = 0;
-    if ( but ) par = but->mainwin();
+    uiParent* par = nullptr;
+    if ( but )
+	par = but->mainwin();
+
     if ( !par )
-    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+    {
+	pErrMsg( BufferString("Unexpected null: ",but?"but":"par") );
+    }
 
-    uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
-    srsu.geoms_.erase(); srsu.geoms_ += Seis::Line;
-    segyread_ = new uiSEGYRead( but->parent(), srsu );
-    mAttachCB( segyread_->processEnded, uiSEGYDirect2DInserter::scanComplete );
-}
+    SEGY::ImpType imptype( Seis::Line );
+    uiSEGYReadStarter dlg( par, false, &imptype );
+    dlg.setModal( true );
+    dlg.go();
 
-
-void uiSEGYDirect2DInserter::scanComplete( CallBacker* )
-{
-    if ( segyread_->state() != uiVarWizard::cFinished() )
+    const MultiID outky = dlg.getOutputKey();
+    if ( outky.isUdf() )
 	return;
 
-    const MultiID outky( segyread_->outputID() );
     CBCapsule<MultiID> caps( outky, this );
     objectInserted.trigger( &caps );
 }
@@ -167,25 +167,24 @@ uiToolButtonSetup* uiSEGYDirectPS3DInserter::getButtonSetup() const
 void uiSEGYDirectPS3DInserter::startScan( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
-    uiParent* par = 0;
-    if ( but ) par = but->mainwin();
+    uiParent* par = nullptr;
+    if ( but )
+	par = but->mainwin();
+
     if ( !par )
-    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+    {
+	pErrMsg( BufferString("Unexpected null: ",but?"but":"par") );
+    }
 
-    uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
-    srsu.geoms_.erase(); srsu.geoms_ += Seis::VolPS;
-    segyread_ = new uiSEGYRead( but->parent(), srsu );
-    mAttachCB( segyread_->processEnded,
-				    uiSEGYDirectPS3DInserter::scanComplete );
-}
+    SEGY::ImpType imptype( Seis::VolPS );
+    uiSEGYReadStarter dlg( par, false, &imptype );
+    dlg.setModal( true );
+    dlg.go();
 
-
-void uiSEGYDirectPS3DInserter::scanComplete( CallBacker* )
-{
-    if ( segyread_->state() != uiVarWizard::cFinished() )
+    const MultiID outky = dlg.getOutputKey();
+    if ( outky.isUdf() )
 	return;
 
-    const MultiID outky( segyread_->outputID() );
     CBCapsule<MultiID> caps( outky, this );
     objectInserted.trigger( &caps );
 }
