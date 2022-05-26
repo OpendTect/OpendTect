@@ -66,7 +66,9 @@ public:
     bool	hasParam(const O* obj) const;
     void	removeParam(O* obj);
     void	removeAndDeleteParam(O* obj);
-    void	deleteAndZeroPtrParam(O* obj);
+    void	deleteAndNullPtrParam(O* obj);
+    void	deleteAndZeroPtrParam(O* obj)
+		{ deleteAndNullPtrParam( obj ); }
 
 protected:
 
@@ -187,7 +189,7 @@ void HiddenParam<O,V>::removeAndDeleteParam( O* obj )
 
 
 template <class O, class V>
-void HiddenParam<O,V>::deleteAndZeroPtrParam( O* obj )
+void HiddenParam<O,V>::deleteAndNullPtrParam( O* obj )
 {
     Threads::Locker locker( lock_ );
     const int idx = objects_.indexOf( obj );
@@ -198,6 +200,5 @@ void HiddenParam<O,V>::deleteAndZeroPtrParam( O* obj )
     }
 
     delete params_[idx];
-    params_[idx] = 0;
+    params_[idx] = nullptr;
 }
-
