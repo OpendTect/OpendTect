@@ -23,13 +23,20 @@ template <class T> class WeakPtr;
 /*!Convenience function to delete and zero pointer. */
 
 template <class T>
-void deleteAndZeroPtr( T*& ptr, bool isowner=true )
+void deleteAndNullPtr( T*& ptr, bool isowner=true )
 { if ( isowner ) delete ptr; ptr = nullptr; }
 
+template <class T>
+void deleteAndZeroPtr( T*& ptr, bool isowner=true )
+{ deleteAndNullPtr( ptr, isowner ); }
+
+template <class T>
+void deleteAndNullArrPtr( T*& ptr, bool isowner=true )
+{ if ( isowner ) delete [] ptr; ptr = nullptr; }
 
 template <class T>
 void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
-{ if ( isowner ) delete [] ptr; ptr = nullptr; }
+{ deleteAndNullArrPtr( ptr, isowner ); }
 
 template <class T> T* createSingleObject()		{ return new T; }
 template <class T> T* createObjectArray(od_int64 sz)	{ return new T[sz]; }
