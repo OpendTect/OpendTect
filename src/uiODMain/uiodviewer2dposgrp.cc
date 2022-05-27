@@ -285,7 +285,8 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    posdatasel_->rdmlinemultiid_ = rdlobj->key();
 	    const Geometry::RandomLine* rdlgeom =
 				Geometry::RLM().get( rdlobj->key() );
-	    posdatasel_->rdmlineid_ = rdlgeom ? rdlgeom->ID() : -1;
+	    posdatasel_->rdmlineid_ =
+				rdlgeom ? rdlgeom->ID() : RandomLineID::udf();
 	    break;
     }
 
@@ -451,7 +452,7 @@ void Viewer2DPosDataSel::fillPar( IOPar& iop ) const
     if ( postype_ == Viewer2DPosDataSel::RdmLine )
     {
 	iop.set( sKeyRdmLineMultiID(), rdmlinemultiid_ );
-	iop.set( sKeyRdmLineID(), rdmlineid_ );
+	iop.set( sKeyRdmLineID(), rdmlineid_.asInt() );
     }
 
     iop.setYN( sKeySelectData(), selectdata_ );
@@ -467,7 +468,7 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
     parseEnum( iop, PosTypeDef().name(), postype_ );
     if ( postype_ == Viewer2DPosDataSel::RdmLine )
     {
-	iop.get( sKeyRdmLineID(), rdmlineid_ );
+	iop.get( sKeyRdmLineID(), rdmlineid_.asInt() );
 	iop.get( sKeyRdmLineMultiID(), rdmlinemultiid_ );
     }
     else

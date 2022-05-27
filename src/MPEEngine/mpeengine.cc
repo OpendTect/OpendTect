@@ -111,12 +111,12 @@ void Engine::setActivePath( const TrcKeyPath* tkp )
 }
 
 
-int Engine::activeRandomLineID() const
+RandomLineID Engine::activeRandomLineID() const
 {
     return rdlid_;
 }
 
-void Engine::setActiveRandomLineID( int rdlid )
+void Engine::setActiveRandomLineID( RandomLineID rdlid )
 {
     rdlid_ = rdlid;
 }

@@ -1307,7 +1307,7 @@ int uiODSceneMgr::addPickSetItem( Pick::Set& ps, int sceneid )
 }
 
 
-int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
+int uiODSceneMgr::addRandomLineItem( RandomLineID rlid, int sceneid )
 {
     mGetOrAskForScene
 

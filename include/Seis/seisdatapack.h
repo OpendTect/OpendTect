@@ -14,8 +14,9 @@ ________________________________________________________________________
 #include "seismod.h"
 
 #include "datapackbase.h"
-#include "trckeyzsampling.h"
+#include "integerid.h"
 #include "seisinfo.h"
+#include "trckeyzsampling.h"
 
 class BinIDValueSet;
 class TraceData;
@@ -117,11 +118,11 @@ protected:
 
 public:
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
-						   int rdmlineid,
+						   RandomLineID rdmlineid,
 						   const Interval<float>& zrg);
 
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
-					       int rdmlineid,
+					       RandomLineID rdmlineid,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
 
@@ -170,7 +171,7 @@ public:
     const ZDomain::Info&	zDomain() const
 				{ return source_.zDomain(); }
     float			nrKBytes() const override;
-    int				getRandomLineID() const;
+    RandomLineID		getRandomLineID() const;
 
 protected:
 
@@ -188,7 +189,7 @@ protected:
     const StepInterval<float>	zsamp_;
 
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
-    int				rdlid_;
+    RandomLineID		rdlid_;
 };
 
 

@@ -12,13 +12,14 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
+#include "arrayndimpl.h"
 #include "bindatadesc.h"
 #include "bufstringset.h"
 #include "datapack.h"
+#include "integerid.h"
 #include "position.h"
 #include "trckeysampling.h"
 #include "valseries.h"
-#include "arrayndimpl.h"
 
 class FlatPosData;
 class Scaler;
@@ -252,8 +253,8 @@ public:
 
     float			nrKBytes() const override;
     void			dumpInfo(IOPar&) const override;
-    void			setRandomLineID(int);
-    int				getRandomLineID() const;
+    void			setRandomLineID(RandomLineID);
+    RandomLineID		getRandomLineID() const;
 
     int				getComponentIdx(const char* nm,
 						int defcompidx=-1) const;
@@ -270,6 +271,6 @@ protected:
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
     const Scaler*			scaler_;
-    int					rdlid_;
+    RandomLineID			rdlid_;
 };
 

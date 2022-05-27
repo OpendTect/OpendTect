@@ -14,13 +14,15 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "visobject.h"
 
-#include "attribsel.h"
 #include "attribdataholder.h"
-#include "trckeyzsampling.h"
+#include "attribsel.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "geomelement.h"
+#include "integerid.h"
 #include "trckey.h"
+#include "trckeyzsampling.h"
+
 
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
@@ -108,8 +110,8 @@ protected:
     const RegularSeisDataPack*		attrdata_;
     Attrib::SelSpec			attrsel_;
     const TrcKeyPath*			rdltkpath_;
-    int					rdlid_;
-    int                 emvisids_ = -1;
+    RandomLineID			rdlid_;
+    int					emvisids_ = -1;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID				geomid_;
@@ -117,11 +119,11 @@ protected:
     DataPack::ID			datapackid_;
 
     void			setObjTKPath(const TrcKeyPath*);
-    void			setObjRandomLineID(int);
+    void			setObjRandomLineID(RandomLineID);
 
 public:
     const TrcKeyPath*		getObjTKPath() const;
-    int				getObjRandomLineID() const;
+    RandomLineID		getObjRandomLineID() const;
 };
 
 

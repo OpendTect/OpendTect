@@ -156,7 +156,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 	if ( !is2d && !seedpicker_->lineTrackDirection(dir) )
 	{
 	    const TrcKeyPath* rdmlinepath = engine().activePath();
-	    const int rdlid = engine().activeRandomLineID();
+	    const RandomLineID rdlid = engine().activeRandomLineID();
 	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
 	    if ( !rlgeom || !rdmlinepath )
 		return -1;
@@ -187,7 +187,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 	    if ( idx<0 )
 		return -1;
 
-	    const int rdlid = engine().activeRandomLineID();
+	    const RandomLineID rdlid = engine().activeRandomLineID();
 	    const TrcKeyPath* rdmlinepath = engine().activePath();
 	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
 	    if ( !rlgeom || !rdmlinepath )
@@ -245,7 +245,7 @@ void Patch::removeSeed( int idx )
 int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
 {
     const TrcKeyPath* rdmlinepath = engine().activePath();
-    const int rdlid = engine().activeRandomLineID();
+    const RandomLineID rdlid = engine().activeRandomLineID();
     RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
     if ( !rdmlinepath || !rlgeom )
 	return -1;

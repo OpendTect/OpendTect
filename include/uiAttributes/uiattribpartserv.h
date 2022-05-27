@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "datapack.h"
+#include "integerid.h"
 #include "menuhandler.h"
 #include "survgeom.h"
 #include "timer.h"
@@ -282,7 +283,7 @@ public:
     static uiAttribPartServer*	getInst();
 
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
-					    int rdlidx);
+					    RandomLineID rdlid);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
 					  int geomid, bool isstored,
 					  int steerpol );

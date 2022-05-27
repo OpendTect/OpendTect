@@ -1085,7 +1085,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
 
 DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
-						      int rdlid )
+						      RandomLineID rdlid )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )

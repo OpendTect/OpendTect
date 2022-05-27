@@ -16,10 +16,11 @@ ________________________________________________________________________
 #include "draw.h"
 #include "emposid.h"
 #include "flatview.h"
+#include "randomlinegeom.h"
 
 namespace FlatView { class Viewer; }
 namespace Geometry { class FaultStickSurface; class ExplPlaneIntersection;
-		     class PrimitiveSet;}
+		     class PrimitiveSet; }
 
 class FlatPosData;
 
@@ -106,7 +107,7 @@ protected:
     FlatView::Point	getFVAuxPoint(const Coord3&) const;
 
     virtual void	fault3DChangedCB(CallBacker*);
-     
+
     TrcKeyZSampling	tkzs_;
     const TrcKeyPath*	path_;
     const FlatPosData*  flatposdata_;
@@ -116,17 +117,17 @@ protected:
 
     MarkerStyle2D	markerstyle_;
 
-    EM::ObjectID        emid_;
+    EM::ObjectID	emid_;
     ObjectSet<Fault3DMarker>    f3dmarkers_;
 
     int			activestickid_;
     bool		linenabled_;
     bool		knotenabled_;
-    int			rdlid_;
+    RandomLineID	rdlid_;
     bool		paintenable_;
 
 public:
-    void		setRandomLineID(int rdlid);
+    void		setRandomLineID(RandomLineID rdlid);
 };
 
 } //namespace EM

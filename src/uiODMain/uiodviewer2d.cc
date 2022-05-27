@@ -902,11 +902,12 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 uiString uiODViewer2D::getInfoTitle() const
 {
     uiString info = toUiString("%1: %2");
-    if ( !mIsUdf(rdmlineid_) )
+    if ( !rdmlineid_.isUdf() )
     {
 	const Geometry::RandomLine* rdmline =
-		    Geometry::RLM().get( rdmlineid_ );
-	if ( rdmline ) info = toUiString( rdmline->name() );
+			Geometry::RLM().get( rdmlineid_ );
+	if ( rdmline )
+	    info = toUiString( rdmline->name() );
     }
     else if ( tkzs_.is2D() )
     {

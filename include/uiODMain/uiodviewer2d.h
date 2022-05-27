@@ -10,9 +10,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "trckeyzsampling.h"
+
 #include "datapack.h"
 #include "emposid.h"
+#include "integerid.h"
+#include "trckeyzsampling.h"
+
 #include "uigeom.h"
 #include "uistring.h"
 
@@ -27,6 +30,7 @@ class uiSlicePos2DView;
 class uiToolBar;
 class uiTreeItem;
 class uiTreeFactorySet;
+
 class MouseCursorExchange;
 class RegularFlatDataPack;
 class TaskRunner;
@@ -100,9 +104,9 @@ public:
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
     virtual void		setPos(const TrcKeyZSampling&);
-    void			setRandomLineID( int id )
+    void			setRandomLineID( RandomLineID id )
 				{ rdmlineid_ = id; }
-    int				getRandomLineID() const
+    RandomLineID		getRandomLineID() const
 				{ return rdmlineid_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
 						   TaskRunner* =0);
@@ -225,7 +229,7 @@ protected:
     TrcKeyZSampling		tkzs_;
     uiString			basetxt_;
     uiODMain&			appl_;
-    int				rdmlineid_;
+    RandomLineID		rdmlineid_;
     int				voiidx_;
     int				syncsceneid_;
 

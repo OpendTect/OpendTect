@@ -73,7 +73,7 @@ void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 void FaultStickPainter::setPath( const TrcKeyPath& path )
 { path_ = &path; }
 
-void FaultStickPainter::setRandomLineID( int rdlid )
+void FaultStickPainter::setRandomLineID( RandomLineID rdlid )
 { rdlid_ = rdlid; }
 
 

@@ -14,11 +14,13 @@ ________________________________________________________________________
 
 
 #include "uiodmainmod.h"
+
 #include "uigroup.h"
 #include "uislicesel.h"
 #include "uistring.h"
 
 #include "attribsel.h"
+#include "integerid.h"
 #include "multiid.h"
 #include "survgeom.h"
 #include "survinfo.h"
@@ -26,10 +28,10 @@ ________________________________________________________________________
 
 class IOObj;
 class uiAttrSel;
-class uiLabeledComboBox;
 class uiIOObjSel;
-class uiODMain;
+class uiLabeledComboBox;
 class uiODApplMgr;
+class uiODMain;
 class uiPushButton;
 class uiSeis2DSubSel;
 class uiSliceSel;
@@ -58,13 +60,12 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			{
 			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
 						: Viewer2DPosDataSel::Line2D;
-			    selspec_	    = Attrib::SelSpec();
-			    tkzs_	    = TrcKeyZSampling(true);
-			    rdmlineid_	    = -1;
+			    selspec_ = Attrib::SelSpec();
+			    tkzs_ = TrcKeyZSampling(true);
 			    rdmlinemultiid_ = MultiID::udf();
-			    rdmlineid_ = mUdf(int);
+			    rdmlineid_.setUdf();
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
-			    selectdata_	    = true;
+			    selectdata_	= true;
 			}
 
     PosType		postype_;
@@ -72,7 +73,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
     TrcKeyZSampling	tkzs_;
     Pos::GeomID		geomid_;
     MultiID		rdmlinemultiid_;
-    int			rdmlineid_;
+    RandomLineID	rdmlineid_;
     bool		selectdata_;
 
     static const char*	sKeyRdmLineMultiID(){ return "Random Line MultiID"; }

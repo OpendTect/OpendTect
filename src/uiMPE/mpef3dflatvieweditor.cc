@@ -144,7 +144,7 @@ void Fault3DFlatViewEditor::setPath( const TrcKeyPath& path )
 }
 
 
-void Fault3DFlatViewEditor::setRandomLineID( int rdlid )
+void Fault3DFlatViewEditor::setRandomLineID( RandomLineID rdlid )
 {
     rdlid_ = rdlid;
     f3dpainter_->setRandomLineID( rdlid );

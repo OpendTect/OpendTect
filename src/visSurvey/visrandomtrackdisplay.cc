@@ -16,27 +16,27 @@
 #include "arrayndslice.h"
 #include "color.h"
 #include "convmemvalseries.h"
-#include "seisdatapack.h"
-#include "seisdatapackzaxistransformer.h"
-#include "randomlinegeom.h"
 #include "mousecursor.h"
 #include "polylinend.h"
+#include "randomlinegeom.h"
+#include "seisdatapack.h"
+#include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 #include "uistrings.h"
+#include "zaxistransform.h"
 
 #include "visdragger.h"
 #include "visevent.h"
 #include "vishorizondisplay.h"
-#include "vismaterial.h"
 #include "vismarkerset.h"
-#include "vispolyline.h"
+#include "vismaterial.h"
 #include "visplanedatadisplay.h"
+#include "vispolyline.h"
 #include "visrandomtrackdragger.h"
 #include "visselman.h"
 #include "vistexturechannels.h"
 #include "vistexturepanelstrip.h"
 #include "vistopbotimage.h"
-#include "zaxistransform.h"
 
 
 namespace visSurvey
@@ -208,7 +208,7 @@ BufferString RandomTrackDisplay::getRandomLineName() const
 }
 
 
-void RandomTrackDisplay::setRandomLineID( int rlid )
+void RandomTrackDisplay::setRandomLineID( RandomLineID rlid )
 {
     if ( rl_ )
     {
@@ -234,8 +234,8 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
 }
 
 
-int RandomTrackDisplay::getRandomLineID() const
-{ return rl_ ? rl_->ID() : -1; }
+RandomLineID RandomTrackDisplay::getRandomLineID() const
+{ return rl_ ? rl_->ID() : RandomLineID::udf(); }
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()

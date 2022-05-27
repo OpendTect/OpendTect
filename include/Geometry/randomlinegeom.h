@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "sharedobject.h"
 
 #include "binid.h"
+#include "integerid.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "trckeysampling.h"
@@ -31,7 +32,7 @@ mExpClass(Geometry) RandomLine : public SharedObject
 public:
 			RandomLine(const char* nm=0);
 
-    int			ID() const		{ return id_; }
+    RandomLineID	ID() const		{ return id_; }
 
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
@@ -90,7 +91,7 @@ protected:
     friend class	RandomLineSet;
 
 private:
-    int			id_;
+    RandomLineID	id_;
 
 public:
     mDeprecated("Use TrcKey")
@@ -171,16 +172,16 @@ public:
 			~RandomLineManager();
 
     RandomLine*		get(const MultiID&);
-    RandomLine*		get(int id);
-    const RandomLine*	get(int id) const;
+    RandomLine*		get(RandomLineID);
+    const RandomLine*	get(RandomLineID) const;
     bool		isLoaded(const MultiID&) const;
-    bool		isLoaded(int id) const;
+    bool		isLoaded(RandomLineID) const;
 
-    int			add(RandomLine*);
+    RandomLineID	add(RandomLine*);
     void		remove(RandomLine*);
 
-    CNotifier<RandomLineManager,int>	added;
-    CNotifier<RandomLineManager,int>	removed;
+    CNotifier<RandomLineManager,RandomLineID>	added;
+    CNotifier<RandomLineManager,RandomLineID>	removed;
 
 
 protected:

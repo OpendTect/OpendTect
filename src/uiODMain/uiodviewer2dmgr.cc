@@ -250,11 +250,11 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
-	!mIsUdf(posdatasel.rdmlineid_) || !posdatasel.rdmlinemultiid_.isUdf();
+	!posdatasel.rdmlineid_.isUdf() || !posdatasel.rdmlinemultiid_.isUdf();
     if ( isrl )
     {
 	Geometry::RandomLine* rdmline = 0;
-	if ( !mIsUdf(posdatasel.rdmlineid_) )
+	if ( !posdatasel.rdmlineid_.isUdf() )
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlineid_ );
 	else
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlinemultiid_ );

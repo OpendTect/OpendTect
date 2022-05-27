@@ -13,11 +13,12 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "callback.h"
 
-#include "trckeyzsampling.h"
+#include "coord.h"
 #include "draw.h"
 #include "emposid.h"
 #include "flatview.h"
-#include "coord.h"
+#include "integerid.h"
+#include "trckeyzsampling.h"
 
 namespace FlatView { class Viewer; }
 
@@ -41,7 +42,7 @@ public:
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
     void		setPath(const TrcKeyPath&);
-    void		setRandomLineID(int rdlid);
+    void		setRandomLineID(RandomLineID rdlid);
     void		setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
     void		enableKnots(bool);
@@ -107,7 +108,7 @@ protected:
 
     FlatView::Viewer&   viewer_;
 
-    EM::ObjectID        emid_;
+    EM::ObjectID	emid_;
 
     ObjectSet<ObjectSet<StkMarkerInfo> >	sectionmarkerlines_;
 
@@ -123,8 +124,7 @@ protected:
     bool		linenabled_;
     bool		knotenabled_;
     bool		paintenable_;
-    int			rdlid_;
+    RandomLineID	rdlid_;
 };
 
 } //namespace EM
-

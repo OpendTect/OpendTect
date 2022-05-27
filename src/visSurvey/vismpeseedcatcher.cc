@@ -695,20 +695,20 @@ void MPEClickInfo::clear()
     ctrlclicked_ = false;
     shiftclicked_ = false;
     altclicked_ = false;
-    clickednode_ = TrcKey::udf();
+    clickednode_.setUdf();
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
     clickedemobjid_ = -1;
     clickedcs_.init( false);
-    attrsel_ = 0;
-    attrdata_ = 0;
-    linedata_ = 0;
+    attrsel_ = nullptr;
+    attrdata_ = nullptr;
+    linedata_ = nullptr;
     linename_ = "";
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
     rdltkpath_ = 0;
-    rdlid_ = -1;
-	emvisids_ = -1;
+    rdlid_.setUdf();
+    emvisids_ = -1;
 }
 
 
@@ -789,10 +789,10 @@ void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
 const TrcKeyPath* MPEClickInfo::getObjTKPath() const
 { return rdltkpath_; }
 
-void MPEClickInfo::setObjRandomLineID( int rdlid )
+void MPEClickInfo::setObjRandomLineID( RandomLineID rdlid )
 { rdlid_ = rdlid; }
 
-int MPEClickInfo::getObjRandomLineID() const
+RandomLineID MPEClickInfo::getObjRandomLineID() const
 { return rdlid_; }
 
 } // namespce visSurvey

@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
+
+#include "integerid.h"
 #include "ranges.h"
 
 class TrcKeyZSampling;
@@ -57,8 +59,8 @@ public:
 				    "RandomTrackDisplay",
 				    toUiString(sFactoryKeyword()));
 
-    void			setRandomLineID(int id);
-    int				getRandomLineID() const;
+    void			setRandomLineID(RandomLineID id);
+    RandomLineID		getRandomLineID() const;
     Geometry::RandomLine*	getRandomLine();
 
     int				nameNr() const { return namenr_; }

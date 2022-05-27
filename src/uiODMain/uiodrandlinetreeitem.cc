@@ -16,12 +16,13 @@ ___________________________________________________________________
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "mousecursor.h"
+#include "od_helpids.h"
 #include "ptrman.h"
-#include "randomlinetr.h"
-#include "randomlinegeom.h"
 #include "randcolor.h"
-#include "survinfo.h"
+#include "randomlinegeom.h"
+#include "randomlinetr.h"
 #include "strmprov.h"
+#include "survinfo.h"
 #include "trigonometry.h"
 
 #include "uibutton.h"
@@ -30,8 +31,8 @@ ___________________________________________________________________
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uiioobjseldlg.h"
-#include "uilistbox.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -39,17 +40,16 @@ ___________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipositiontable.h"
+#include "uiseispartserv.h"
 #include "uiselsimple.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
-#include "uiseispartserv.h"
 #include "visrandomtrackdisplay.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "visselman.h"
-#include "od_helpids.h"
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
@@ -376,7 +376,8 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 }
 
 
-uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp, int rlid )
+uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp,
+						RandomLineID rlid )
     : type_(tp)
     , rlid_(rlid)
     , editnodesmnuitem_(m3Dots(tr("Position")))
@@ -410,7 +411,7 @@ bool uiODRandomLineTreeItem::init()
 	}
 
 	displayid_ = rtd->id();
-	if ( rlid_ >= 0 )
+	if ( !rlid_.isUdf() )
 	    setRandomLineID( rlid_ );
 	visserv_->addObject( rtd, sceneID(), true );
     }
@@ -434,11 +435,12 @@ bool uiODRandomLineTreeItem::init()
 }
 
 
-void uiODRandomLineTreeItem::setRandomLineID( int id )
+void uiODRandomLineTreeItem::setRandomLineID( RandomLineID id )
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv_->getObject(displayid_));
-    if ( !rtd ) return;
+		    visserv_->getObject(displayid_))
+    if ( !rtd )
+	return;
 
     rtd->setRandomLineID( id );
 }

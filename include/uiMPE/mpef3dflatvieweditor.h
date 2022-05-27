@@ -11,10 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "geometry.h"
-#include "emfaultsticksetflatvieweditor.h"
 
+#include "emfaultsticksetflatvieweditor.h"
 #include "emposid.h"
+#include "geometry.h"
+#include "integerid.h"
 
 class FlatPosData;
 class IndexInfo;
@@ -38,11 +39,11 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setPath(const TrcKeyPath&);
-    void                setFlatPosData(const FlatPosData*);
+    void		setFlatPosData(const FlatPosData*);
     void		drawFault();
     void		enableLine(bool);
     void		enableKnots(bool);
-    void		setRandomLineID(int rdlid);
+    void		setRandomLineID(RandomLineID rdlid);
 
 protected:
 
@@ -82,7 +83,7 @@ protected:
     bool			seedhasmoved_;
     bool			makenewstick_;
     bool			doubleclicked_;
-    int				rdlid_;
+    RandomLineID		rdlid_;
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<StkMarkerIdInfo>	markeridinfo_;

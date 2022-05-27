@@ -11,10 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "geometry.h"
-#include "emfaultsticksetflatvieweditor.h"
 
+#include "emfaultsticksetflatvieweditor.h"
 #include "emposid.h"
+#include "geometry.h"
+#include "integerid.h"
 
 class FlatPosData;
 class MouseEventHandler;
@@ -39,7 +40,7 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setPath(const TrcKeyPath&);
-    void                setFlatPosData(const FlatPosData*);
+    void		setFlatPosData(const FlatPosData*);
     void		drawFault();
     void		enableLine(bool);
     void		enableKnots(bool);
@@ -50,7 +51,7 @@ public:
     TypeSet<int>&	getTrcNos();
     TypeSet<float>&	getDistances();
     TypeSet<Coord>&	getCoords();
-    void		setRandomLineID(int rdlid);
+    void		setRandomLineID(RandomLineID rdlid);
 
 protected:
 
@@ -75,8 +76,8 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
-    int				getStickId(int markerid) const; 
-    
+    int				getStickId(int markerid) const;
+
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,
 				    IndexInfo& ix, IndexInfo& iy,
@@ -90,7 +91,7 @@ protected:
     bool			seedhasmoved_;
     bool			makenewstick_;
     bool			doubleclicked_;
-    int				rdlid_;
+    RandomLineID		rdlid_;
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<StkMarkerIdInfo>	markeridinfo_;

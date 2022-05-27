@@ -33,8 +33,8 @@ RandomLine::RandomLine( const char* nm )
 {
     assign( zrange_, SI().zRange(true) );
 
-    mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
-    id_ = oid++;
+    mDefineStaticLocalObject( Threads::Atomic<od_int16>, oid, (0) );
+    id_.set( oid++ );
 
     RLM().add( this );
 }
@@ -43,7 +43,7 @@ RandomLine::RandomLine( const char* nm )
 RandomLine::~RandomLine()
 {
     RLM().remove( this );
-    id_ = -2;
+    id_.set( -2 );
 }
 
 
@@ -667,7 +667,7 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
 }
 
 
-RandomLine* RandomLineManager::get( int id )
+RandomLine* RandomLineManager::get( RandomLineID id )
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
     {
@@ -675,11 +675,11 @@ RandomLine* RandomLineManager::get( int id )
 	    return lines_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-const RandomLine* RandomLineManager::get( int id ) const
+const RandomLine* RandomLineManager::get( RandomLineID id ) const
 { return const_cast<RandomLineManager*>(this)->get( id ); }
 
 
@@ -690,13 +690,14 @@ bool RandomLineManager::isLoaded( const MultiID& mid ) const
 }
 
 
-bool RandomLineManager::isLoaded( int id ) const
+bool RandomLineManager::isLoaded( RandomLineID id ) const
 { return (bool)get( id ); }
 
 
-int RandomLineManager::add( RandomLine* rl )
+RandomLineID RandomLineManager::add( RandomLine* rl )
 {
-    if ( !rl ) return -1;
+    if ( !rl )
+	return RandomLineID::udf();
 
     const bool res = lines_.addIfNew( rl );
     if ( res )

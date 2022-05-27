@@ -734,8 +734,8 @@ const Array3DImpl<float>& SeisDataPack::data( int component ) const
 Array3DImpl<float>& SeisDataPack::data( int component )
 { return *arrays_[component]; }
 
-void SeisDataPack::setRandomLineID( int rdlid )
+void SeisDataPack::setRandomLineID( RandomLineID rdlid )
 { rdlid_ = rdlid; }
 
-int SeisDataPack::getRandomLineID() const
+RandomLineID SeisDataPack::getRandomLineID() const
 { return rdlid_; }

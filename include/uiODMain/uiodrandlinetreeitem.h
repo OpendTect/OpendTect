@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
+#include "integerid.h"
 
 class IOObj;
 class uiRandomLinePolyLineDlg;
@@ -63,12 +64,12 @@ public:
     enum Type		{ Empty, Select, Default, RGBA };
 
 			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty,
-					       int rlid_=-1);
+					RandomLineID id=RandomLineID::udf());
 			~uiODRandomLineTreeItem();
 
     bool		init();
     bool		displayDefaultData();
-    void		setRandomLineID(int id);
+    void		setRandomLineID(RandomLineID);
 
 protected:
 
@@ -88,7 +89,5 @@ protected:
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
     Type		type_;
-    int			rlid_;
+    RandomLineID	rlid_;
 };
-
-

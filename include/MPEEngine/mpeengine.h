@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "datapack.h"
 #include "emposid.h"
+#include "integerid.h"
 #include "survgeom.h"
 
 class BufferStringSet;
@@ -148,8 +149,8 @@ public:
     bool			usePar(const IOPar&);
     const TrcKeyPath*		activePath() const;
     void			setActivePath(const TrcKeyPath*);
-    int				activeRandomLineID() const;
-    void			setActiveRandomLineID(int);
+    RandomLineID		activeRandomLineID() const;
+    void			setActiveRandomLineID(RandomLineID);
     void			refTracker(EM::ObjectID);
     void			unRefTracker(EM::ObjectID,bool nodel=false);
     bool			hasTracker(EM::ObjectID) const;
@@ -173,7 +174,7 @@ protected:
     int				undoeventid_;
     DataPackMgr&		dpm_;
     const TrcKeyPath*		rdmlinetkpath_;
-    int				rdlid_;
+    RandomLineID		rdlid_;
     TrackSettingsValidator*	validator_;
 
     bool			prepareForTrackInVolume(uiString&);
