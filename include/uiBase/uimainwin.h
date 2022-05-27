@@ -258,9 +258,14 @@ public:
 
 
 template <class T>
-void closeAndZeroPtr( T*& ptr )
+void closeAndNullPtr( T*& ptr )
 {
     auto* uimw = dCast( uiMainWin*, ptr );
-    if ( uimw ) uimw->forceClose();
+    if ( uimw )
+	uimw->forceClose();
     ptr = nullptr;
 }
+
+template <class T>
+void closeAndZeroPtr( T*& ptr )
+{ closeAndNullPtr( ptr); }
