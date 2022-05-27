@@ -64,7 +64,6 @@ protected:
     uiIOObjSel*		outputfld_;
 
     uiCheckBox*		tdsel_;
-    uiCheckBox*		impdepsel_;
     uiT2DConvSel*	transfld_;
 
     virtual bool	acceptOK(CallBacker*);
@@ -78,7 +77,6 @@ protected:
     void		stratLvlChg(CallBacker*);
     void		interpolSettingsCB(CallBacker*);
     void		zDomSel(CallBacker*);
-    void		impDepthDomain(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();
