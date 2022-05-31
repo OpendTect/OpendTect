@@ -185,14 +185,14 @@ void uiSynthSeisGrp::fillPar( IOPar& iopar ) const
 
 
 class uiSynthCorrAdvancedDlg : public uiDialog
-{ mODTextTranslationClass(uiSynthCorrAdvancedDlg);
-    public:
-				uiSynthCorrAdvancedDlg(uiParent*);
+{ mODTextTranslationClass(uiSynthCorrAdvancedDlg)
+public:
+			uiSynthCorrAdvancedDlg(uiParent*);
 
     uiGenInput*		stretchmutelimitfld_;
     uiGenInput*		mutelenfld_;
 
-    protected:
+protected:
 
     bool			acceptOK(CallBacker*);
 };
@@ -267,13 +267,13 @@ uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
 			 tr("Specify advanced options"),
 			 mODHelpKey(mSynthCorrAdvancedDlgHelpID)) )
 {
-    FloatInpSpec inpspec;
+    FloatInpSpec inpspec(20);
     inpspec.setLimits( Interval<float>(1,500) );
     stretchmutelimitfld_ = new uiGenInput(this, tr("Stretch mute (%)"),
 					  inpspec );
 
     mutelenfld_ = new uiGenInput( this, tr("Mute taper-length (ms)"),
-				  FloatInpSpec() );
+				  FloatInpSpec(20) );
     mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
 }
 
