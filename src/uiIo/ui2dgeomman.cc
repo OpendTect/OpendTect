@@ -115,7 +115,7 @@ void ui2DGeomManageDlg::mkFileInfo()
     {
 	const StepInterval<int> trcrg = geom2d->data().trcNrRange();
 	Interval<float> sprg; sprg.setUdf();
-	if ( !geom2d->spnrs().isEmpty() )
+	if ( geom2d->hasValidSPNrs() )
 	    sprg.set( geom2d->spnrs().first(), geom2d->spnrs().last() );
 	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
 	const BufferString lengthstr = toString(geom2d->lineLength(),0);
@@ -423,10 +423,11 @@ void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
     table_->setNrRows( positions.size() );
     const int nrdec = SI().nrXYDecimals();
     const int nrspdec = 3;
+    const bool hasspnrs = geom2d.hasValidSPNrs();
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1,
+	table_->setValue( RowCol(idx,1), hasspnrs ? spnrs[idx] : mUdf(float),
 			  nrspdec );
 	table_->setValue( RowCol(idx,2), positions[idx].coord_.x, nrdec );
 	table_->setValue( RowCol(idx,3), positions[idx].coord_.y, nrdec );
