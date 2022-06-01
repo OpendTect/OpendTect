@@ -264,7 +264,7 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 	else if ( namepos_ == 0 )
 	    listpos = poly_.size()/2;
 
-	FlatView::Point modnamepos = poly_[listpos];
+	FlatView::Point modnamepos = mCast(FlatView::Point,poly_[listpos]);
 
 	Interval<float> vwrxrg;
 	vwrxrg.start = sCast(float,curview.topLeft().x);
