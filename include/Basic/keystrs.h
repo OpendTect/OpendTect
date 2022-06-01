@@ -129,6 +129,7 @@ namespace sKey
     inline FixedString Region()		{ return "Region"; }
     inline FixedString Sampling()	{ return "Sampling"; }
     inline FixedString Scale()		{ return "Scale"; }
+    inline FixedString Scaling()	{ return "Scaling"; }
     inline FixedString SeisID()		{ return "SeisID"; }
     inline FixedString SeisCubePositions() { return "Seismic Cube Positions"; }
     inline FixedString Selection()	{ return "Selection"; }
