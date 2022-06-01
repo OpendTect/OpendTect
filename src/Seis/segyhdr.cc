@@ -220,7 +220,7 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
 	Interval<float> sprg( 0, 0 );
 	const Survey::Geometry2D& geom2d =
 			Survey::GM().get2D( info->inlrg.start );
-	if ( !geom2d.spnrs().isEmpty() )
+	if ( geom2d.hasValidSPNrs() )
 	    sprg.set( geom2d.spnrs().first(), geom2d.spnrs().last() );
 	putAt( ++lnr, sDefStartPos, 20, BufferString(sKey::Shotpoint(),":") );
 	txt.set(sprg.start).add("-").add(sprg.stop);

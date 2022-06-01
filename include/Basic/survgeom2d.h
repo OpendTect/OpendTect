@@ -57,11 +57,14 @@ public:
     const PosInfo::Line2DData&	data() const		{ return data_; }
     TypeSet<float>&		spnrs()			{ return spnrs_; }
     const TypeSet<float>&	spnrs() const		{ return spnrs_; }
+    bool			hasValidSPNrs() const;
 
     StepInterval<float>		zRange() const;
 
+    static float		udfSPNr()		{ return -1.f; }
     static BufferString		makeUniqueLineName(const char* lsnm,
 						   const char* lnm);
+
     float			averageTrcDist() const;
     void			setAverageTrcDist(float);
     float			lineLength() const;

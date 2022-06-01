@@ -88,7 +88,7 @@ bool Survey::Geometry2D::getPosByTrcNr( int trcnr, Coord& crd,
 	return false;
 
     crd = data_.positions()[posidx].coord_;
-    spnr = spnrs_.validIdx(posidx) ? spnrs_[posidx] : mUdf(int);
+    spnr = spnrs_.validIdx(posidx) ? spnrs_[posidx] : udfSPNr();
     return true;
 }
 
@@ -122,7 +122,7 @@ bool Survey::Geometry2D::getPosByCoord( const Coord& crd, int& trcnr,
 	return false;
 
     trcnr = data_.positions()[posidx].nr_;
-    spnr = spnrs_.validIdx(posidx) ? spnrs_[posidx] : mUdf(int);
+    spnr = spnrs_.validIdx(posidx) ? spnrs_[posidx] : udfSPNr();
     return true;
 }
 
@@ -252,4 +252,25 @@ BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
     newlnm.add( "-" );
     newlnm.add( lnm );
     return newlnm;
+}
+
+
+bool Survey::Geometry2D::hasValidSPNrs() const
+{
+    if ( spnrs().size() != size() )
+	return false;
+
+    float prevspnr = mUdf(float);
+    for ( auto spnr : spnrs_ )
+    {
+	if ( !mIsUdf(spnr) && spnr > 0 )
+	{
+	    if ( !mIsUdf(prevspnr) && prevspnr!=spnr )
+		return true;
+
+	    prevspnr = spnr;
+	}
+    }
+
+    return false;
 }

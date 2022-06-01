@@ -286,7 +286,8 @@ bool uiExport2DHorizon::doExport()
 		float spnr = mUdf(float);
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
 		if ( mIsUdf(spnr) )
-		    spnr = trcnr;
+		    spnr = Survey::Geometry2D::udfSPNr();
+
 		Coords::CoordSystem* coordsys = coordsysselfld_ ?
 			coordsysselfld_->getCoordSystem() : nullptr;
 		if ( coordsys && !(*coordsys == *SI().getCoordSystem()) )

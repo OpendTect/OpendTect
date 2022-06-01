@@ -103,7 +103,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
-    geom->spnrs().setSize( data->size(), -1 );
+    geom->spnrs().setSize( data->size(), Survey::Geometry2D::udfSPNr() );
     geom->setAverageTrcDist( avgtrcdist );
     geom->setLineLength( linelength );
 
@@ -112,12 +112,13 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	const bool spstoredasint = version == 2;
 	for ( int idx=0; idx<data->size(); idx++ )
 	{
-	    float spnr = -1;
+	    float spnr = Survey::Geometry2D::udfSPNr();
 	    if ( spstoredasint )
 	    {
 		int isp = mUdf(int);
 		strm.getBin( isp );
-		spnr = sCast(float,isp);
+		spnr = mIsUdf(isp) ? Survey::Geometry2D::udfSPNr()
+				   : sCast(float,isp);
 	    }
 	    else
 		strm.getBin( spnr );

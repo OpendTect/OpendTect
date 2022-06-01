@@ -559,8 +559,8 @@ const char* FormatProvider::spnr() const
 {
     mDeclStaticString( ret );
     const od_uint16 width = 10;
-    const od_uint16 precision = 2;
-    ret.set( cformat( 'f', width, precision ) );
+    const od_uint16 nrsigdigits = 7;
+    ret.set( cformat( 'g', width, nrsigdigits ) );
     return ret.buf();
 }
 
