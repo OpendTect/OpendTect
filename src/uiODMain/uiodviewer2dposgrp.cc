@@ -468,7 +468,7 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
     parseEnum( iop, PosTypeDef().name(), postype_ );
     if ( postype_ == Viewer2DPosDataSel::RdmLine )
     {
-	iop.get( sKeyRdmLineID(), rdmlineid_.asInt() );
+	iop.get( sKeyRdmLineID(), rdmlineid_ );
 	iop.get( sKeyRdmLineMultiID(), rdmlinemultiid_ );
     }
     else

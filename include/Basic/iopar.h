@@ -12,10 +12,12 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "namedobj.h"
-#include "fixedstring.h"
+
 #include "dbkey.h"
-#include "samplingdata.h"
+#include "fixedstring.h"
+#include "integerid.h"
 #include "od_iosfwd.h"
+#include "samplingdata.h"
 
 class BufferStringSet;
 class SeparString;
@@ -183,6 +185,8 @@ public:
     bool		get(const char*,Interval<T>&) const;
     template <class T>
     bool		get(const char*,SamplingData<T>&) const;
+    template <class T>
+    bool		get(const char*,IntegerID<T>&) const;
 
     bool		getPtr(const char*,void*&) const;
 
@@ -372,3 +376,15 @@ inline void IOPar::set( const char* k, const SamplingData<T>& sd )
 }
 
 
+template <class T>
+bool IOPar::get( const char* key, IntegerID<T>& id ) const
+{
+    T val;
+    const bool res = get( key, val );
+    if ( res )
+	id.set( val );
+    else
+	id.setUdf();
+
+    return res;
+}
