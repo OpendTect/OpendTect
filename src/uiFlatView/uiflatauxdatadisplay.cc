@@ -227,7 +227,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	nameitem_->setAlignment( namealignment_ );
 
 	nameitem_->setTextColor( linestyle_.color_ );
-	int listpos;
+	int listpos = 0;
 	if ( namepos_ < 0 || poly_.size() == 1 )
 	    listpos = 0;
 	else if ( namepos_ > 0 )
@@ -256,7 +256,7 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 
     if ( fitnameinview_ && nameitem_ && !mIsUdf(namepos_) && !poly_.isEmpty() )
     {
-	int listpos;
+	int listpos = 0;
 	if ( namepos_ < 0 || poly_.size() == 1 )
 	    listpos = 0;
 	else if ( namepos_ > 0 )
