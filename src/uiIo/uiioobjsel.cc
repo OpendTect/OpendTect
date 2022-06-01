@@ -747,7 +747,8 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    return false;
 	}
 
-	workctio_.setObj( 0 ); inctio_.setObj( 0 );
+	workctio_.setObj( 0 );
+	inctio_.setObj( 0 );
 	commitSucceeded();
 	return true;
     }
@@ -760,8 +761,10 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    if ( !workctio_.ctxt_.forread_ && wrtrselfld_
 		&& !wrtrselfld_->isEmpty()
 		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj_) )
-		mErrRet( tr("Cannot change the output format "
-			 "for an already existing entry") )
+		mErrRet(tr("'%1' already exists as a '%2' %3"
+			   "\nPlease enter another name.")
+			   .arg(getInput()).arg(workctio_.ioobj_->translator())
+			   .arg(workctio_.ctxt_.trgroup_->typeName()))
 
 	    const bool isalreadyok = inctio_.ioobj_
 			    && inctio_.ioobj_->key() == workctio_.ioobj_->key();
@@ -781,7 +784,8 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    }
 
 	    inctio_.setObj( workctio_.ioobj_->clone() );
-	    commitSucceeded(); return true;
+	    commitSucceeded();
+	    return true;
 	}
 
 	mErrRet(tr("'%1' already exists as another object type."

@@ -99,7 +99,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
 	return false;
-    const IOObj* outioobj = outfld_->ioobj( true );
+    const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
 

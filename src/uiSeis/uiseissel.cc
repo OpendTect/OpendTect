@@ -449,7 +449,6 @@ void uiSeisSel::processInput()
 	return;
 
     uiIOObjSel::fillPar( dlgiopar_ );
-    updateInput();
 }
 
 
