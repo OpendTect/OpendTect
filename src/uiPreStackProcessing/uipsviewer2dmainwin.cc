@@ -264,15 +264,16 @@ void uiViewer2DMainWin::displayMutes()
     {
 	uiObjectItem* item = mainViewer()->getItem( gidx );
 	mDynamicCastGet(uiGatherDisplay*,gd,item->getGroup());
-	if ( !gd ) continue;
+	if ( !gd )
+	    continue;
 
-	gd->getUiFlatViewer()->handleChange( FlatView::Viewer::Auxdata );
+	uiFlatViewer* uivwr = gd->getUiFlatViewer();
 	for ( int muteidx=0; muteidx<mutes_.size(); muteidx++ )
 	{
 	    const PreStack::MuteDef* mutedef = mutes_[muteidx];
 	    const BinID& bid = gd->getBinID();
 	    FlatView::AuxData* muteaux =
-		gd->getUiFlatViewer()->createAuxData( mutedef->name() );
+			       uivwr->createAuxData( mutedef->name() );
 	    muteaux->linestyle_.color_ = mutecolors_[muteidx];
 	    muteaux->linestyle_.type_ = OD::LineStyle::Solid;
 	    muteaux->linestyle_.width_ = 3;
@@ -284,13 +285,16 @@ void uiViewer2DMainWin::displayMutes()
 	    for ( int offsidx=0; offsidx<sz; offsidx++ )
 	    {
 		const float offset = offsetrg.atIndex( offsidx );
-		const float val = mutedef->value( offset, bid );
-		muteaux->poly_ +=  FlatView::Point( offset, val );
+		const float zval = mutedef->value( offset, bid );
+		muteaux->poly_ += FlatView::Point( offset, zval );
 	    }
 
-	    muteaux->namepos_ = sz/2;
-	    gd->getUiFlatViewer()->addAuxData( muteaux );
+	    muteaux->namepos_ = 1;
+	    muteaux->namealignment_.set( Alignment::Right );
+	    muteaux->namealignment_.set( Alignment::Bottom );
+	    uivwr->addAuxData( muteaux );
 	}
+	uivwr->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
     }
 }
 
@@ -609,7 +613,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     fv->appearance().annot_.x1_.showannot_ = true;
     fv->appearance().annot_.x2_.showannot_ = vwrs_.size()==1;
     setAnnotationPars( fv->appearance().annot_ );
-    fv->handleChange( FlatView::Viewer::DisplayPars | FlatView::Viewer::Annot );
+    fv->handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) |
+		      sCast(od_uint32,FlatView::Viewer::Annot) );
     control_->addViewer( *fv );
 }
 
@@ -706,8 +711,8 @@ void uiViewer2DMainWin::setAppearance( const FlatView::Appearance& app,
 	viewapp.annot_.x2_.showannot_ = gidx==0;
 	setAnnotationPars( viewapp.annot_ );
 	vwr->appearance() = viewapp;
-	vwr->handleChange( FlatView::Viewer::DisplayPars |
-			   FlatView::Viewer::Annot );
+	vwr->handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) |
+			   sCast(od_uint32,FlatView::Viewer::Annot) );
     }
 }
 
@@ -1500,7 +1505,7 @@ void uiViewer2DControl::coltabChg( CallBacker* )
 	if ( !vwrs_[ivwr] ) continue;
 	uiFlatViewer& vwr = *vwrs_[ivwr];
 	vwr.appearance().ddpars_ = app_.ddpars_;
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
+	vwr.handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) );
     }
 }
 
@@ -1567,8 +1572,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 		vwr.usePack( true, id, false );
 	}
 
-	vwr.handleChange( FlatView::Viewer::DisplayPars |
-			  FlatView::Viewer::Annot );
+	vwr.handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) |
+			  sCast(od_uint32,FlatView::Viewer::Annot) );
     }
 }
 
