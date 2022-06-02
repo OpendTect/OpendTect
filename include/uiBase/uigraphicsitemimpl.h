@@ -322,6 +322,7 @@ public:
 
     void		setAlignment(const Alignment&);
     void		setDefaultTextColor(const Color&);
+    void		setFont(const uiFont&);
     void		setFont(const FontData&);
     void		setPlainText(const uiString&);
     void		setTextWidth(float);
