@@ -49,6 +49,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
+	textitem->setItemIgnoresTransformations( true );
 	graphitem_.addChild( textitem );
 	labels_ += textitem;
     }
@@ -133,11 +134,12 @@ void uiSurveyBoxObject::update()
     {
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
 	const bool bot = mapcnr[idx].y < mapcnr[oppidx].y;
-	BinID bid = si.transform( mapcnr[idx] );
+	const BinID bid = si.transform( mapcnr[idx] );
+	const BufferString bidstr = bid.toString();
 	Alignment al( Alignment::HCenter,
 		      bot ? Alignment::Top : Alignment::Bottom );
 	labels_[idx]->setPos( mapcnr[idx] );
-	labels_[idx]->setText( toUiString(bid.toString()) );
+	labels_[idx]->setText( toUiString(bidstr.buf()) );
 	labels_[idx]->setAlignment( al );
 	labels_[idx]->setVisible( showlabels_ );
     }
