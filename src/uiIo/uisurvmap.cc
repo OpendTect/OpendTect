@@ -149,7 +149,8 @@ void uiSurveyBoxObject::update()
 // uiNorthArrowObject
 uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     : uiBaseMapObject(bmo)
-    , angleline_(0), anglelabel_(0)
+    , angleline_(nullptr)
+    , anglelabel_(nullptr)
 {
     ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
     arrowstyle.linestyle_.width_ = 3;
@@ -243,7 +244,7 @@ void uiNorthArrowObject::update()
 	}
     }
 
-    anglelabel_->setPos( mCast(float,lastx), mCast(float,yarrowtop) );
+    anglelabel_->setPos( sCast(float,lastx), sCast(float,yarrowtop) );
     anglelabel_->setText( angtxt );
     setVisibility( true );
 }
@@ -252,22 +253,21 @@ void uiNorthArrowObject::update()
 // uiSurveyMap
 uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     : uiBaseMap(p)
-    , survbox_(0)
-    , survinfo_(0)
-    , title_(0)
+    , survbox_(nullptr)
+    , title_(nullptr)
+    , survinfo_(nullptr)
 {
     view_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
-    survbox_ = new uiSurveyBoxObject( 0 );
+    survbox_ = new uiSurveyBoxObject( nullptr );
     addObject( survbox_ );
 
-    const mDeclAlignment( txtalign, Left, Top );
     if ( withtitle )
     {
-	title_ = view_.scene().addItem(
-		new uiTextItem(uiPoint(10,10),mJoinUiStrs(sSurvey(),sName()),
-								    txtalign) );
+	title_ = view_.scene().addItem( new uiTextItem );
+	title_->setPos( 5, 5 );
+	title_->setAlignment( Alignment(Alignment::Left,Alignment::Top) );
 	title_->setPenColor( Color::Black() );
 	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }
@@ -307,7 +307,9 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	const double diffy = maxcoord.y - mincoord.y;
 	const uiWorldRect wr( mincoord.x-diffx/4, maxcoord.y+diffy/4,
 			      maxcoord.x+diffx/4, mincoord.y-diffy/4 );
-	if ( title_ ) title_->setText( toUiString(survinfo_->name()) );
+	if ( title_ )
+	    title_->setText( toUiString(survinfo_->name()) );
+
 	setView( wr );
     }
 
