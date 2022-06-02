@@ -261,7 +261,7 @@ bool Survey::Geometry2D::hasValidSPNrs() const
 	return false;
 
     float prevspnr = mUdf(float);
-    for ( auto spnr : spnrs_ )
+    for ( const auto& spnr : spnrs_ )
     {
 	if ( !mIsUdf(spnr) && spnr > 0 )
 	{
