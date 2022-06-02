@@ -129,11 +129,11 @@ void uiTieView::redrawViewer()
     drawTraces();
     redrawViewerAuxDatas();
 
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::All) );
     mDynamicCastGet(uiControlView*,ctrl,vwr_->control())
     if ( ctrl )
 	ctrl->setSelView( false, false );
-    zoomChg(0);
+    zoomChg( nullptr );
 }
 
 
@@ -142,7 +142,7 @@ void uiTieView::redrawViewerAuxDatas()
     drawUserPicks();
     drawViewerWellMarkers();
     drawHorizons();
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -403,8 +403,8 @@ void uiTieView::drawViewerWellMarkers()
 	if ( !params_.dispmrkfullnames_ && mtxt.size()>4 )
 	    mtxt[4] = '\0';
 	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = Alignment(Alignment::Left,Alignment::Top);
-	auxdata->namepos_ = 0;
+	auxdata->namealignment_ = mAlignment(Left,Top);
+	auxdata->namepos_ = -1;
 
 	drawMarker( auxdata, true, zpos );
     }
@@ -449,18 +449,18 @@ void uiTieView::drawHorizons()
     const TypeSet<Marker>& horizons = data_.horizons_;
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
-	FlatView::AuxData* auxdata = vwr_->createAuxData( 0 );
+	FlatView::AuxData* auxdata = vwr_->createAuxData( nullptr );
 	horauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
 	const Marker& hor = horizons[idx];
-	float zval = hor.zpos_*(1.f/SI().zDomain().userFactor());
+	const float zval = hor.zpos_*(1.f/SI().zDomain().userFactor());
 
 	BufferString mtxt( hor.name_ );
 	if ( !params_.disphorfullnames_ && mtxt.size() > 3 )
 	    mtxt[3] = '\0';
 	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
-	auxdata->namepos_ = 0;
+	auxdata->namealignment_ = mAlignment(Right,Top);
+	auxdata->namepos_ = 1;
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, 2, hor.color_ );
 	auxdata->linestyle_ = ls;
 

@@ -45,7 +45,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
     {
-	uiTextItem* textitem = new uiTextItem();
+	auto* textitem = new uiTextItem();
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
@@ -136,8 +136,8 @@ void uiSurveyBoxObject::update()
 	const bool bot = mapcnr[idx].y < mapcnr[oppidx].y;
 	const BinID bid = si.transform( mapcnr[idx] );
 	const BufferString bidstr = bid.toString();
-	Alignment al( Alignment::HCenter,
-		      bot ? Alignment::Top : Alignment::Bottom );
+	const Alignment al( Alignment::HCenter,
+			    bot ? Alignment::Top : Alignment::Bottom );
 	labels_[idx]->setPos( mapcnr[idx] );
 	labels_[idx]->setText( toUiString(bidstr.buf()) );
 	labels_[idx]->setAlignment( al );

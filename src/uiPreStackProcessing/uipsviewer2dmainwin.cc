@@ -290,8 +290,7 @@ void uiViewer2DMainWin::displayMutes()
 	    }
 
 	    muteaux->namepos_ = 1;
-	    muteaux->namealignment_.set( Alignment::Right );
-	    muteaux->namealignment_.set( Alignment::Bottom );
+	    muteaux->namealignment_ = mAlignment(Right,Bottom);
 	    uivwr->addAuxData( muteaux );
 	}
 	uivwr->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
