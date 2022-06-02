@@ -221,6 +221,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	if ( !nameitem_ )
 	{
 	    nameitem_ = new uiTextItem;
+	    nameitem_->setItemIgnoresTransformations( true );
 	    display_->add( nameitem_ );
 	}
 	nameitem_->setText( mToUiStringTodo(name_) );
