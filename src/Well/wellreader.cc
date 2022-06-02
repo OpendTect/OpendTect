@@ -458,6 +458,8 @@ bool Well::odReader::getInfo( od_istream& strm ) const
 	    wd_.info().province_ = astrm.value();
 	else if ( astrm.hasKeyword(Info::sKeyCountry()) )
 	    wd_.info().country_ = astrm.value();
+	else if ( astrm.hasKeyword(Info::sKeyWellType()) )
+	    wd_.info().welltype_ = (OD::WellType) astrm.getIValue();
 	else if ( astrm.hasKeyword(Info::sKeyCoord()) )
 	    wd_.info().surfacecoord_.fromString( astrm.value() );
 	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||

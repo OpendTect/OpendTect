@@ -219,6 +219,7 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
     astrm.put( Well::Info::sKeyState(), wd_.info().state_ );
     astrm.put( Well::Info::sKeyProvince(), wd_.info().province_ );
     astrm.put( Well::Info::sKeyCountry(), wd_.info().country_ );
+    astrm.put( Well::Info::sKeyWellType(), wd_.info().welltype_ );
     if ( wd_.info().surfacecoord_ != Coord(0,0) )
 	astrm.put(Well::Info::sKeyCoord(), wd_.info().surfacecoord_.toString());
     astrm.put( Well::Info::sKeyReplVel(), wd_.info().replvel_ );
