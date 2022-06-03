@@ -398,11 +398,12 @@ void Horizon3D::setNodeSourceType( const PosID& posid, NodeSourceType type )
 }
 
 
-void Horizon3D::setNodeSourceType(const TrcKey& tk,NodeSourceType type)
+void Horizon3D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
 {
-    if ( !nodesource_ || !trackingsamp_.includes(tk) ) return;
+    if ( !nodesource_ || !trackingsamp_.includes(tk) )
+	return;
 
-    nodesource_->getData()[trackingsamp_.globalIdx(tk)] = (char)type;
+    nodesource_->getData()[trackingsamp_.globalIdx(tk)] = sCast(char,type);
 }
 
 
@@ -410,31 +411,31 @@ bool Horizon3D::hasNodeSourceType( const PosID& posid ) const
 {
     const TrcKey tk = geometry_.getTrcKey( posid );
     return nodesource_ ? nodesource_->getData()[tk.trcNr()] !=
-	(char)EMObject::None : false;
+					sCast(char,EMObject::None) : false;
 }
 
 
-bool Horizon3D::isNodeSourceType( const PosID& posid,
-    NodeSourceType type ) const
+bool Horizon3D::isNodeSourceType( const PosID& posid, NodeSourceType type) const
 {
     const TrcKey tk = geometry_.getTrcKey( posid );
     return !tk.isUdf() ? isNodeSourceType( tk, type ) : false;
 }
 
 
-bool  Horizon3D::isNodeSourceType( const TrcKey& tk,
-    NodeSourceType type ) const
+bool Horizon3D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
 {
-    return nodesource_ ?
-	nodesource_->getData()[trackingsamp_.globalIdx(tk)]
-	== (char)type : false;
+    if ( !nodesource_ || !trackingsamp_.includes(tk) )
+	return false;
+
+    return
+	nodesource_->getData()[trackingsamp_.globalIdx(tk)] == sCast(char,type);
 }
 
 
 bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
     return setPos(
-	sectionID(0), tk.binID().toInt64(), Coord3(0,0,z), addtohist);
+	sectionID(0), tk.binID().toInt64(), Coord3(0,0,z), addtohist );
 }
 
 
