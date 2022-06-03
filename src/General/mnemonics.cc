@@ -11,6 +11,7 @@
 #include "ascstream.h"
 #include "ioman.h"
 #include "globexpr.h"
+#include "odpair.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "unitofmeasure.h"
@@ -176,6 +177,43 @@ bool Mnemonic::operator ==( const Mnemonic& oth ) const
 bool Mnemonic::operator !=( const Mnemonic& oth ) const
 {
     return !(*this == oth);
+}
+
+
+float Mnemonic::getMatchValue( const char* nm ) const
+{
+    const FixedString nmstr( nm );
+    if ( nmstr.isEmpty() )
+	return 0.f;
+
+    const BufferString& nmx = name();
+    if ( name().matches(nm, CaseInsensitive) )
+	return 1;
+
+    BufferStringSet nms( name(), logtypename_ );
+    nms.add( aliases_, false );
+    for ( const auto* findnm : nms )
+    {
+	if ( findnm->isEmpty() )
+	    continue;
+
+	if ( findnm->isEqual(nmstr) )
+	    return 1;
+
+	BufferString gexpr( findnm->buf() );
+	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
+	const GlobExpr ge( gexpr, false );
+	if ( ge.matches(nmstr) )
+	{
+	    const unsigned int levdist =
+			    nmstr.getLevenshteinDist( findnm->buf(), false );
+	    const int nmsize = nmstr.size();
+	    const float val = (float)levdist / nmsize;
+	    return val;
+	}
+    }
+
+    return 0;
 }
 
 
@@ -457,11 +495,55 @@ Mnemonic* MnemonicSet::getByName( const char* nm, bool matchaliases )
 const Mnemonic* MnemonicSet::getByName( const char* nm,
 					bool matchaliases ) const
 {
+    ObjectSet<const Mnemonic> possiblemnemonics;
     if ( nm && *nm )
     {
+	TypeSet<OD::Pair<const Mnemonic*,float>> mnemmatchvals;
 	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases) )
+	    if (mnc->matches(nm, matchaliases))
 		return mnc;
+    }
+
+
+
+    return nullptr;
+}
+
+
+const Mnemonic* MnemonicSet::getBestGuessedMnemonics(const char* nm,
+						 bool matchaliases) const
+{
+    ObjectSet<const Mnemonic> possiblemnemonics;
+    if ( nm && *nm )
+    {
+	TypeSet<OD::Pair<const Mnemonic*, float>> mnemmatchvals;
+	for ( const auto* mnc : *this )
+	{
+	    if ( !matchaliases && mnc->matches(nm,false) )
+		return mnc;
+	    else
+	    {
+		float matchval = mnc->getMatchValue( nm );
+		if ( mIsEqual(matchval,1,1e-6) ) //This signifies exact match,
+		    return mnc;
+
+		OD::Pair<const Mnemonic*,float> pair( mnc, matchval );
+		mnemmatchvals.add( pair );
+	    }
+	}
+
+	const Mnemonic* mnem = nullptr;
+	float prevval = 0.f;
+	for ( const auto valpair : mnemmatchvals )
+	{
+	    if ( prevval < valpair.second() )
+	    {
+		prevval = valpair.second();
+		mnem = valpair.first();
+	    }
+	}
+
+	return mnem;
     }
 
     return nullptr;

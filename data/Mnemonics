@@ -2,47 +2,47 @@ dTect V6.8.0
 Mnemonic
 Tue Feb 01 11:29:44 2022
 !
-GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH
-POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`
-THOR: Spectral Gamma Ray`Fluid`Lin`0`40`0`40`ppm`255`0`0`
-URAN: Spectral Gamma Ray`Fluid`Lin`0`30`0`30`ppm`255`0`0`
-RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8`
-SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`SSP
-RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL
-RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
+GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH`GR1`GRC`GAMMA
+POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`GammaRayPotassium
+THOR: Spectral Gamma Ray`Fluid`Lin`0`40`0`40`ppm`255`0`0`GammaRayThorium
+URAN: Spectral Gamma Ray`Fluid`Lin`0`30`0`30`ppm`255`0`0`GammaRayUranium
+RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8
+SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`SSP`SPAR
+RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL`LLG
+RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LLD
 RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
-RESS: Shallow Resistivity`Resistivity`Log`0.2`2000`0.2`2000`ohmm`200`200`0`
-IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI
-DT: Sonic`Sonic travel time`Lin`220`30`200`50`us/ft`0`255`255`AC`ACL`BHC`BCS
-DTS: Shear Sonic`Sonic travel time`Lin`440`60`400`100`us/ft`255`20`147`DSI`FWS
+RESS: Shallow Resistivity`Resistivity`Log`0.2`2000`0.2`2000`ohmm`200`200`0`HRLS
+IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI`InductionResistivity
+DT: Sonic`Sonic travel time`Lin`220`30`200`50`us/ft`0`255`255`AC`ACL`BHC`BCS`SonicTT`LSDT
+DTS: Shear Sonic`Sonic travel time`Lin`440`60`400`100`us/ft`255`20`147`DSI`FWS`DTSH_FAST
 PHI: Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIT: Total Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIE: Effective Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`
-PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR
-PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`
+PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR`PorosityDensity
+PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`BPHI
 NPHI: Compensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL
-SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE
+SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE`SUWI
 VCL: Vclay`Volumetrics`Lin`0`100`0`100`%`100`200`100`VCLU`VCLC`VCLF`VSH
-FRACRHO: Fracture Density`Volumetrics`Lin`0`10`0`2`Fraction`169`172`148`
-FRACSTRIKE: Fracture Orientation`Angle`Lin`0`360`0`360`Degrees`93`72`200`
-VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`
-VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`
-IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`
-AI: Acoustic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`P Imp
-EI: Elastic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`200`255`100`EEI
-SI: Shear Impedance`Impedance`Lin`1e6`1.2e7`1.1e6`1.1e7`m/s x kg/m3`100`255`100`S Imp
+FRACRHO: Fracture Density`Volumetrics`Lin`0`10`0`2`Fraction`169`172`148`VolumeFrac
+FRACSTRIKE: Fracture Orientation`Angle`Lin`0`360`0`360`Degrees`93`72`200`FracOrient
+VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`VelocityRatioVSVP
+VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`VelocityRatioVpVs
+IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`AIMP
+AI: Acoustic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`P Imp`ImpedanceP
+EI: Elastic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`200`255`100`EEI`ExtendedElasticImpedance
+SI: Shear Impedance`Impedance`Lin`1e6`1.2e7`1.1e6`1.1e7`m/s x kg/m3`100`255`100`S Imp`ImpedanceS
 VEL: Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`Vint`Vrms`Vavg
-PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`P wave`Vp
-SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`S wave`Vs
-PERM: Permeability`Permeability`Log`0.01`5000`1`2000`mD`200`0`0`
-PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI
-TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`
-LITHO: Lithology`Classification`Lin`0`7`1`5``0`255`255`
+PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`P wave`Vp`VelocityP
+SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`S wave`Vs`VelocityS
+PERM: Permeability`Permeability`Log`0.01`5000`1`2000`mD`200`0`0`Permeab
+PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI`PoissonRatio
+TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`GTEM
+LITHO: Lithology`Classification`Lin`0`7`1`5``0`255`255`LITHOF1_FACIES
 NETP: NetPay`Classification`Lin`0`1`0`1``255`255`0`
-NMR: Nuclear Magnetic Resonance`Time`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX
-CAL: Caliper`Distance/Depth`Lin`0`25`0`25`in`0`0`0`CALI
-BS: Bit Size`Distance/Depth`Lin`-5`20`-5`20`in`0`0`0`BIT
+NMR: Nuclear Magnetic Resonance`Time`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX`NuclearMagRes
+CAL: Caliper`Distance/Depth`Lin`0`25`0`25`in`0`0`0`CALI`CAL1
+BS: Bit Size`Distance/Depth`Lin`-5`20`-5`20`in`0`0`0`BIT`WellBoreRadius
 DEL: Delta`Anisotropy`Lin`-1`1`-1`1``150`200`150`DL
 EPS: Epsilon`Anisotropy`Lin`-1`1`-1`1``200`150`150`EP
 ETA: Eta`Anisotropy`Lin`-1`1`-1`1``200`150`250`
@@ -55,4 +55,6 @@ KB: Bulk modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Incompressibility
 TWT: Two-way traveltime`Time`lin`````ms````Time
 OWT: One-way traveltime`Time`lin`````ms````
 CONF: Confidence`Other`Lin`````````
+PEF: Photoeletcric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
 !
+

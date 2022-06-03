@@ -58,6 +58,7 @@ public:
     bool		matches(const char* nm,bool matchaliases) const;
     bool		isKnownAs(const char*) const;
     bool		isCompatibleWith(const Mnemonic*) const;
+    float		getMatchValue(const char* nm) const;
 
     inline bool		isUdf() const	{ return *this == undef(); }
 
@@ -149,6 +150,8 @@ public:
 			       const BufferStringSet* hintnms =nullptr) const;
 			//!< first match only, returns undef() is missing
     void		getNames(BufferStringSet&) const;
+    const Mnemonic*	getBestGuessedMnemonics(const char*,
+					    bool matchaliases = true) const;
 
 private:
 			MnemonicSet();
