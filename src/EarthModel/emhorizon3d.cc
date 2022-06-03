@@ -420,12 +420,13 @@ bool Horizon3D::isNodeSourceType( const PosID& posid, NodeSourceType type) const
 }
 
 
-bool  Horizon3D::isNodeSourceType( const TrcKey& tk,
-    NodeSourceType type ) const
+bool Horizon3D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
 {
-    return nodesource_ ?
-	nodesource_->getData()[trackingsamp_.globalIdx(tk)] == sCast(char,type)
-		       : false;
+    if ( !nodesource_ || !trackingsamp_.includes(tk) )
+	return false;
+
+    return
+	nodesource_->getData()[trackingsamp_.globalIdx(tk)] == sCast(char,type);
 }
 
 
