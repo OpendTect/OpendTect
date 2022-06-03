@@ -216,7 +216,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	item->setCursor( cursor_ );
     }
 
-    if ( !name_.isEmpty() && !mIsUdf(namepos_) && !poly_.isEmpty() )
+    if ( !name_.isEmpty() && !mIsUdf(namepos_) )
     {
 	if ( !nameitem_ )
 	{

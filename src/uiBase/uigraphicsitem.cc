@@ -646,17 +646,18 @@ void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 {
     if ( !itm ) return;
 
-    if ( !isMainThreadCurrent() )
-    {
-	scene_->addUpdateToQueue(
-		new uiGraphicsSceneChanger(*this,*itm,false) );
-    }
-    else
+    if ( isMainThreadCurrent() )
     {
 	items_ += itm;
 	itm->setScene( scene_ );
+	itm->setZValue( getZValue() );
 	itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
 	qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
+    }
+    else
+    {
+	scene_->addUpdateToQueue(
+		new uiGraphicsSceneChanger(*this,*itm,false) );
     }
 }
 
