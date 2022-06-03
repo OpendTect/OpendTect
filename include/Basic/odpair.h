@@ -83,4 +83,14 @@ Pair<T1,T2> Pair<T1,T2>::udf()
     return Pair<T1,T2>( mUdf(T1), mUdf(T2) );
 }
 
+// For convenience
+using PairUI16 = Pair<od_int16,od_uint16>;
+using PairUI32 = Pair<od_int32,od_uint32>;
+using PairUI64 = Pair<od_int64,od_uint64>;
+using PairI16 = Pair<od_int16,od_int16>;
+using PairI32 = Pair<od_int32,od_int32>;
+using PairI64 = Pair<od_int64,od_int64>;
+using PairF = Pair<float,float>;
+using PairD = Pair<double,double>;
+
 } // namespace OD
