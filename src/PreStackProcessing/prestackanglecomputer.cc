@@ -195,7 +195,11 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 
 	Array1DImpl<float> angles( zsizeintime );
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
-	    angles.set( zidx, asin(sinanglevals.getValue( zidx*deftimestep )) );
+	{
+	    const float sinval = sinanglevals.getValue( zidx*deftimestep );
+	    const float asinval = Math::ASin( sinval );
+	    angles.set( zidx, asinval );
+	}
 
 	filter.apply( angles );
 	PointBasedMathFunction sinanglevalsindepth(PointBasedMathFunction::Poly,
@@ -215,8 +219,9 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
-	    const float depth = mCast( float, zrange.atIndex(zidx) );
-	    arr1doutput[zidx] = asin( sinanglevalsindepth.getValue( depth ) );
+	    const float depth = sCast( float, zrange.atIndex(zidx) );
+	    arr1doutput[zidx] =
+		Math::ASin( sinanglevalsindepth.getValue(depth) );
 	}
 
 	arr1doutput = arr1doutput + zsize;
@@ -313,12 +318,15 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 {
     const RayTracer1D* rt = curRayTracer();
-    if ( !rt ) return false;
+    if ( !rt )
+	return false;
 
     const int nrlayers = rt->getModel().size();
     mAllocVarLenArr( float, depths, nrlayers );
     mAllocVarLenArr( float, times, nrlayers );
-    if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
+    if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) )
+	return false;
+
     const bool zistime = SI().zIsTime();
     if ( !zistime || gatheriscorrected_ )
     {
@@ -343,11 +351,11 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	const float offset = offsets[ofsidx];
 	const bool zerooffset = mIsZero(offset,1e-1f);
 	PointBasedMathFunction sinanglevals(
-				    PointBasedMathFunction::Poly,
-				    PointBasedMathFunction::ExtraPolGradient ),
-			       anglevals(
-				    PointBasedMathFunction::Linear,
-				    PointBasedMathFunction::ExtraPolGradient );
+				PointBasedMathFunction::Poly,
+				PointBasedMathFunction::ExtraPolGradient );
+	PointBasedMathFunction anglevals(
+				PointBasedMathFunction::Linear,
+				PointBasedMathFunction::ExtraPolGradient );
 
 	sinanglevals.add( 0.f, zerooffset ? 0.f : 1.f );
 	anglevals.add( 0.f, zerooffset ? 0.f : M_PI_2f );
@@ -372,12 +380,10 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const double layerz = outputzrg.atIndex( zidx );
-	    const float zval = mCast(float, layerz );
+	    const float zval = sCast(float,layerz);
 	    const float sinangle = sinanglevals.getValue( zval );
-	    float angle = asin( sinangle );
-	    if ( mIsUdf(sinangle) || !Math::IsNormalNumber(angle) )
-		angle = anglevals.getValue( zval );
-
+	    const float angle = !mIsUdf(sinangle) ? Math::ASin( sinangle )
+						  : anglevals.getValue( zval );
 	    angledata.set( ofsidx, zidx, angle );
 	}
     }
@@ -451,7 +457,7 @@ VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 {
     if ( velsource_ ) velsource_->unRef();
-    velsource_ = Vel::FunctionSource::factory().create( 0, mid, false );
+    velsource_ = Vel::FunctionSource::factory().create( nullptr, mid, false );
     if ( velsource_ ) velsource_->ref();
 
     return velsource_;
@@ -464,19 +470,19 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 	Survey::GM().getGeometry( trckey_.geomID() );
 
     if ( geom && geom->is2D() )
-	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }
+	{ pErrMsg( "Only 3D is supported at this time" ); return nullptr; }
 
     RefMan<Vel::FunctionSource> source = velsource_;
     if ( !source )
-	return 0;
+	return nullptr;
 
     ConstRefMan<Vel::Function> func = source->getFunction( trckey_.position() );
     if ( !func )
-	return 0;
+	return nullptr;
 
     VelocityDesc veldesc = func->getDesc();
     if ( !veldesc.isVelocity() )
-	return 0;
+	return nullptr;
 
     const StepInterval<float> desiredzrange = func->getDesiredZ();
     StepInterval<float> zrange = func->getAvailableZ();
@@ -486,14 +492,14 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     mAllocVarLenArr( float, velsrc, zsize );
     mAllocVarLenArr( float, vel, zsize );
     if ( !mIsVarLenArrOK(velsrc) || !mIsVarLenArrOK(vel) )
-	return 0;
+	return nullptr;
 
     for( int idx=0; idx<zsize; idx++ )
 	velsrc[idx] = func->getVelocity( zrange.atIndex(idx) );
 
     if ( !convertToVintIfNeeded(velsrc,veldesc,zrange,vel) ||
 	 !elasticmodel_.createFromVel(zrange,vel) )
-	return 0;
+	return nullptr;
 
     elasticmodel_.setMaxThickness( maxthickness_ );
 

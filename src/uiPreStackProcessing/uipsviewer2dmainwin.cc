@@ -1049,10 +1049,14 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 {
-    if ( !hasangledata_ || !angleparams_ ) return -1;
+    if ( !hasangledata_ || !angleparams_ )
+	return -1;
+
     DataPack* dp = DPM( DataPackMgr::FlatID() ).obtain( gatherid );
     mDynamicCastGet(PreStack::Gather*,gather,dp);
-    if ( !gather ) return -1;
+    if ( !gather )
+	return -1;
+
     PreStack::VelocityBasedAngleComputer velangcomp;
     velangcomp.setMultiID( angleparams_->velvolmid_ );
     velangcomp.setRayTracer( angleparams_->raypar_ );
@@ -1062,7 +1066,9 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
     velangcomp.setGatherIsNMOCorrected( gather->isCorrected() );
     velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
     PreStack::Gather* angledata = velangcomp.computeAngles();
-    if ( !angledata ) return -1;
+    if ( !angledata )
+	return -1;
+
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );
     convAngleDataToDegrees( angledata );
