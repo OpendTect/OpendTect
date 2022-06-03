@@ -462,6 +462,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 
     TrcKeyPath knots, tkpath;
     rdmline->allNodePositions( knots );
+    Geometry::RandomLine::getPathBids( knots, tkpath );
     randsdp->setPath( tkpath );
 
     TrcKeyPath& path = randsdp->getPath();
