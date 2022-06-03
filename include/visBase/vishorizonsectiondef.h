@@ -40,9 +40,3 @@ enum	GeometryType{ Triangle = 0, Line,Point, WireFrame };
 #   define BOTTOMTILE 7
 #   define RIGHTBOTTOMTILE 8
 
-#define mDefineRCRange(section, op )\
-    const StepInterval<int> rrg = section op userchangedisplayrg_ ?\
-    section op displayrrg_ : section op geometry_->rowRange(); \
-    const StepInterval<int>  crg = section op userchangedisplayrg_ ?\
-    section op displaycrg_ : section op geometry_->colRange();\
-

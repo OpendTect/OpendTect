@@ -40,9 +40,11 @@ HorTilesCreatorAndUpdator::~HorTilesCreatorAndUpdator()
 void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 				      TaskRunner* tr )
 {
-    if (!horsection_) return;
-    mDefineRCRange( horsection_,-> );
+    if ( !horsection_ )
+	return;
 
+    const StepInterval<int> rrg = horsection_->displayedRowRange();
+    const StepInterval<int> crg = horsection_->displayedColRange();
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return;
 
@@ -252,8 +254,11 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
 HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 							  int tilecolidx )
 {
-    mDefineRCRange( horsection_,-> );
+    if ( !horsection_ )
+	return nullptr;
 
+    const StepInterval<int> rrg = horsection_->displayedRowRange();
+    const StepInterval<int> crg = horsection_->displayedColRange();
     const RowCol step( rrg.step, crg.step );
     const RowCol tileorigin( horsection_->origin_.row() +
 		 tilerowidx*horsection_->tilesidesize_*step.row(),
@@ -328,8 +333,11 @@ void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
 
 void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 {
-    mDefineRCRange( horsection_,-> );
+    if ( !horsection_ )
+	return;
 
+    const StepInterval<int> rrg = horsection_->displayedRowRange();
+    const StepInterval<int> crg = horsection_->displayedColRange();
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return;
 

@@ -258,11 +258,11 @@ void HorizonTextureHandler::setTextureData( int channel,  int sectionid,
 void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 				   const DataPointSet* dtpntset)
 {
-    if ( !horsection_ ) return;
+    if ( !horsection_ || !horsection_->geometry_ )
+	return;
 
     const BinIDValueSet* data = cache_.validIdx(channel) ? cache_[channel] : 0;
-    if ( !horsection_->geometry_ || !horsection_->geometry_->getArray() ||
-	 !dtpntset || !data )
+    if ( !horsection_->geometry_->getArray() || !dtpntset || !data )
 	return;
 
     const int nrfixedcols = dtpntset->nrFixedCols();
@@ -276,7 +276,8 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
     const int nrversions = data->nrVals()-shift;
     setNrVersions( channel, nrversions );
 
-    mDefineRCRange(horsection_,->);
+    const StepInterval<int> rrg = horsection_->displayedRowRange();
+    const StepInterval<int> crg = horsection_->displayedColRange();
     const int nrrows = rrg.nrSteps()+1;
     const int nrcols = crg.nrSteps()+1;
 

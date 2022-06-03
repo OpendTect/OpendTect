@@ -127,13 +127,13 @@ bool HorizonTileResolutionTesselator:: doPrepare( int nrthreads )
 }
 
 
-bool HorizonTileResolutionTesselator::doWork(
-    od_int64 start, od_int64 stop, int )
+bool HorizonTileResolutionTesselator::doWork( od_int64 start, od_int64 stop,int)
 {
-    mDefineRCRange( horsection_,-> );
-
-    if ( !horsection_->geometry_ )
+    if ( !horsection_ || !horsection_->geometry_ )
 	return false;
+
+    const StepInterval<int> rrg = horsection_->displayedRowRange();
+    const StepInterval<int> crg = horsection_->displayedColRange();
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -177,8 +177,11 @@ bool HorizonTileResolutionTesselator::doWork(
 
 bool HorizonTileResolutionTesselator::createTiles()
 {
-    mDefineRCRange( horsection_,-> );
+    if ( !horsection_ )
+	return false;
 
+    const StepInterval<int> rrg = horsection_->displayedRowRange();
+    const StepInterval<int> crg = horsection_->displayedColRange();
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return false;
 

@@ -412,7 +412,7 @@ void HorizonSection::setLineWidth( int width )
     linewidths_ = width;
     HorizonSectionTile** tileptrs = tiles_.getData();
     spinlock_.lock();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    for ( od_uint64 idx=0; idx<tiles_.info().getTotalSz(); idx++ )
     {
 	if ( tileptrs[idx] )
 	    tileptrs[idx]->setLineWidth( width );
@@ -423,7 +423,6 @@ void HorizonSection::setLineWidth( int width )
 
 void HorizonSection::configSizeParameters()
 {
-    mDefineRCRange(,);
     nrcoordspertileside_ = cNumberNodePerTileSide;
     nrhorsectnrres_ = cMaximumResolution;
     tilesidesize_ = nrcoordspertileside_ - 1;
@@ -439,7 +438,6 @@ void HorizonSection::configSizeParameters()
 	normalstartidx_ += totalnormalsize_;
 	totalnormalsize_ += normalsidesize_[res] * normalsidesize_[res];
     }
-
 }
 
 
