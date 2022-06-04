@@ -43,7 +43,7 @@ RandomLine::RandomLine( const char* nm )
 RandomLine::~RandomLine()
 {
     RLM().remove( this );
-    id_.set( -2 );
+    id_.set( RandomLineID::udf().asInt()-1 );
 }
 
 
