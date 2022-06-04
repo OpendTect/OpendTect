@@ -25,6 +25,7 @@ ________________________________________________________________________
 
 namespace EM
 {
+
 Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
@@ -37,7 +38,6 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , linenabled_(true)
     , knotenabled_(false)
     , paintenable_(true)
-    , rdlid_(-1)
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )

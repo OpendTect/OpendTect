@@ -44,7 +44,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , mousepid_( EM::PosID::udf() )
     , makenewstick_(false)
     , doubleclicked_(false)
-    , rdlid_(-1)
 {
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
@@ -401,8 +400,7 @@ Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
     {
 	const BinID mousebid = SI().transform( *mousepos );
 	TrcKey mousetk( mousebid );
-	RefMan<Geometry::RandomLine> rlgeom =
-	    Geometry::RLM().get( rdlid_ );
+	RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid_ );
 	if ( !rlgeom || !path_ )
 	    return Coord3::udf();
 

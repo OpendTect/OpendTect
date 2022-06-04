@@ -43,7 +43,6 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , mousepid_( EM::PosID::udf() )
     , makenewstick_(false)
     , doubleclicked_(false)
-    , rdlid_(-1)
 {
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
@@ -357,8 +356,7 @@ Coord3 Fault3DFlatViewEditor::getNormal( const Coord3* mousepos ) const
     {
 	const BinID mousebid = SI().transform( *mousepos );
 	TrcKey mousetk( mousebid );
-	RefMan<Geometry::RandomLine> rlgeom =
-	    Geometry::RLM().get( rdlid_ );
+	RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid_ );
 	if ( !rlgeom || !path_ )
 	    return Coord3::udf();
 

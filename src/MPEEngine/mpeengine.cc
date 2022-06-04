@@ -62,7 +62,6 @@ Engine::Engine()
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
     , rdmlinetkpath_(0)
-    , rdlid_(-1)
     , validator_(0)
 {
     trackers_.allowNull();
