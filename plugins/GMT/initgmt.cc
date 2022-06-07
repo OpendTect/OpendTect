@@ -18,8 +18,11 @@ ________________________________________________________________________
 #include "gmt2dlines.h"
 #include "gmtprocflowtr.h"
 #include "initgmtplugin.h"
+#include "msgh.h"
 #include "oscommand.h"
 #include "separstr.h"
+#include "threadwork.h"
+
 
 namespace GMT {
 
@@ -95,11 +98,12 @@ static void extractVersionString( const BufferString& inp )
 }
 
 
-static void checkGMTAvailability()
+static bool checkGMTAvailability()
 {
     BufferString versiontxt;
+    BufferString errortxt;
     OS::MachineCommand machcomm( sKeyGMTExec(), "--version" );
-    hasgmt5_ = machcomm.execute( versiontxt );
+    hasgmt5_ = machcomm.execute( versiontxt, &errortxt );
     if ( hasgmt5_ )
 	extractVersionString( versiontxt );
     else
@@ -113,10 +117,17 @@ static void checkGMTAvailability()
 #endif
 
 	versiontxt.setEmpty();
-	hasgmt4_ = machcomm.execute( versiontxt );
+	hasgmt4_ = machcomm.execute( versiontxt, &errortxt );
 	if ( hasgmt4_ )
 	    extractVersionString( versiontxt );
     }
+    if ( versiontxt.isEmpty() || !errortxt.isEmpty() )
+    {
+	ErrMsg( BufferString("Compatible GMT version not found: ", errortxt) );
+	return false;
+    }
+    UsrMsg( BufferString("Found GMT", versiontxt) );
+    return true;
 }
 
 };
@@ -128,7 +139,7 @@ void GMT::initStdClasses()
     ODGMTProcFlowTranslatorGroup::initClass();
     dgbODGMTProcFlowTranslator::initClass();
 
-    checkGMTAvailability();
+    Threads::WorkManager::twm().addWork( Threads::Work(&checkGMTAvailability) );
 
     GMTBaseMap::initClass();
     GMTClip::initClass();
@@ -144,7 +155,6 @@ void GMT::initStdClasses()
     GMTCommand::initClass();
     GMTSurfaceGrid::initClass();
     GMTNearNeighborGrid::initClass();
-
 }
 
 

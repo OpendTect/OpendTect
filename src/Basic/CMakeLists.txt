@@ -130,6 +130,7 @@ set( OD_MODULE_SOURCES
 	survinfo.cc
 	task.cc
 	thread.cc
+	threadlauncher.cc
 	threadwork.cc
 	texttranslator.cc
 	timefun.cc

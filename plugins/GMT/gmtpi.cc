@@ -9,6 +9,7 @@
 #include "odplugin.h"
 #include "gmtmod.h"
 
+
 mDefODPluginEarlyLoad(GMT)
 mDefODPluginInfo(GMT)
 {
@@ -26,5 +27,5 @@ mDefODInitPlugin(GMT)
 {
     GMT::initStdClasses();
 
-    return 0;
+    return nullptr;
 }
