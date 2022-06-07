@@ -58,7 +58,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     interpfld_->attach( ensureBelow, sep1 );
     interpfld_->attach( alignedBelow, subselfld_ );
     interpfld_->setValue ( false );
-    interpfld_->setSensitive( false );
+    interpfld_->setWithCheck( true );
 
     cellsizefld_ = new uiLabeledSpinBox(this, tr("Lateral stepout (Inl/Crl)"));
     cellsizefld_->attach( alignedBelow, interpfld_ );
@@ -109,7 +109,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 	}
 
 	interpfld_->setValue ( needinterpol );
-	interpfld_->setSensitive( needinterpol );
+	interpfld_->setChecked( needinterpol );
 	interpSelDone(nullptr);
     }
 }
