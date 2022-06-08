@@ -30,13 +30,14 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom )
     : Executor("Scan horizon file(s)")
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
+    , zdomain_(&ZDomain::SI())
     , fd_(fd)
     , isgeom_(isgeom)
-    , ascio_(0)
+    , ascio_(nullptr)
     , isxy_(false)
     , selxy_(false)
     , doscale_(false)
-    , bvalset_(0)
+    , bvalset_(nullptr)
     , fileidx_(0)
     , curmsg_(tr("Scanning"))
     , nrdone_(0)
@@ -48,20 +49,22 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom,
-				ZAxisTransform* trans )
+				ZAxisTransform* trans, bool iszdepth )
     : Executor("Scan horizon file(s)")
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
+    , zdomain_(&ZDomain::SI())
     , fd_(fd)
     , isgeom_(isgeom)
-    , ascio_(0)
+    , ascio_(nullptr)
     , isxy_(false)
     , selxy_(false)
-    , bvalset_(0)
+    , bvalset_(nullptr)
     , fileidx_(0)
     , nrdone_(0)
 {
     filenames_ = fnms;
     setZAxisTransform( trans );
+    iszdepth ? setZInDepth() : setZInTime();
     init();
 }
 
@@ -140,7 +143,34 @@ void HorizonScanner::setZAxisTransform( ZAxisTransform* transform )
 
 
 const ZAxisTransform* HorizonScanner::getZAxisTransform() const
-{ return transform_; }
+{
+    return transform_;
+}
+
+
+bool HorizonScanner::isZInDepth() const
+{
+    return zdomain_->isDepth();
+}
+
+
+void HorizonScanner::setZInDepth()
+{
+    if ( isZInDepth() )
+	return;
+
+    zdomain_ = &ZDomain::Depth();
+}
+
+
+void HorizonScanner::setZInTime()
+{
+    if ( !isZInDepth() )
+	return;
+
+    zdomain_ = &ZDomain::Time();
+}
+
 
 void HorizonScanner::report( IOPar& iopar ) const
 {
@@ -158,11 +188,13 @@ void HorizonScanner::report( IOPar& iopar ) const
     dtctor_.report( iopar );
     if ( isgeom_ && valranges_.size() > 0 )
     {
-	BufferString zrgkey =
-		SI().zIsTime() ? sKey::TimeRange() : sKey::ZRange();
-	zrgkey.add( SI().getZUnitString() );
+	BufferString zrgkey = isZInDepth() ? sKey::DepthRange()
+					   : sKey::TimeRange();
+	zrgkey.add( isZInDepth()
+		    ? UnitOfMeasure::surveyDefDepthUnitAnnot(true,true)
+		    : UnitOfMeasure::surveyDefZUnitAnnot(true,true) );
 	Interval<float> zrg = valranges_[0];
-	if ( SI().zIsTime() )
+	if ( SI().zIsTime() && !isZInDepth() )
 	    zrg.scale( SI().showZ2UserFactor() );
 
 	iopar.set( zrgkey, zrg );
@@ -216,9 +248,10 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
 {
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
-    IOPar iopar; report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
+    IOPar iopar;
+    report( iopar );
+    iopar.write( fnm, IOPar::sKeyDumpPretty() );
     File::launchViewer( fnm );
 }
 
@@ -231,6 +264,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 	deleteAndZeroPtr( ascio_ );
 	return false;
     }
+
     return true;
 }
 
@@ -266,19 +300,64 @@ static const UnitOfMeasure* getSuggestedZUnit( const UnitOfMeasure* zunit,
 }
 
 
+const Interval<float> HorizonScanner::getValidZRange() const
+{
+    Interval<float> validrg( SI().zRange(false) );
+    validrg.sort();
+    int zscalestart = 1;
+    int zscalestop = 1;
+    const Mnemonic& vel = Mnemonic::defVEL();
+    if ( isZInDepth() && SI().zIsTime() )
+    {
+	zscalestart = ( zscalestart * vel.disp_.range_.start ) / 2;
+	zscalestop = ( zscalestop * vel.disp_.range_.stop ) / 2;
+    }
+    else if ( !isZInDepth() && !SI().zIsTime() )
+    {
+	zscalestart = ( zscalestart / vel.disp_.range_.start ) * 2;
+	zscalestop = ( zscalestop / vel.disp_.range_.stop ) * 2;
+    }
+
+    validrg.start *= zscalestart;
+    validrg.stop *= zscalestop;
+    const float zwidth = validrg.width();
+    validrg.start -= zwidth;
+    return validrg;
+}
+
+
 bool HorizonScanner::analyzeData()
 {
-    if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
+    if ( !reInitAscIO( filenames_.get(0).buf() ) )
+	return false;
 
     const bool hastransform = transform_ != nullptr;
-    const bool zistime = SI().zIsTime();
+    const bool zistime = !isZInDepth();
     const bool tryscale = isgeom_ && zistime && !hastransform;
-    const float zscalefac = 0.001;
-    Interval<float> validrg( SI().zRange(false) );
-    const float zwidth = validrg.width();
+    const float zscalefac = zistime && ascio_->getSelZUnit() == UoMR().get("s")
+						    ? 1000 : 0.001;
+    Interval<float> validrg( getValidZRange() );
+/*    Interval<float> validrg( SI().zRange(false) );
     validrg.sort();
+    int zscalestart = 1;
+    int zscalestop = 1;
+    const Mnemonic& vel = Mnemonic::defVEL();
+    if ( !zistime && SI().zIsTime() )
+    {
+	zscalestart = ( zscalestart * vel.disp_.range_.start ) / 2;
+	zscalestop = ( zscalestop * vel.disp_.range_.stop ) / 2;
+    }
+    else if ( zistime && !SI().zIsTime() )
+    {
+	zscalestart = ( zscalestart / vel.disp_.range_.start ) * 2;
+	zscalestop = ( zscalestop / vel.disp_.range_.stop ) * 2;
+    }
+
+    validrg.start *= zscalestart;
+    validrg.stop *= zscalestop;
+    const float zwidth = validrg.width();
     validrg.start -= zwidth;
-    validrg.stop += zwidth;
+    validrg.stop += zwidth;*/
 
     int maxcount = 100;
     int count, nrxy, nrbid, nrscale, nrnoscale;
@@ -299,13 +378,29 @@ bool HorizonScanner::analyzeData()
 	bool validplacement = false;
 	if ( selxy_ )
 	{
-	    if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
-	    else if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
+	    if ( SI().isReasonable(crd) )
+	    {
+		nrxy++;
+		validplacement=true;
+	    }
+	    else if ( SI().isReasonable(bid) )
+	    {
+		nrbid++;
+		validplacement=true;
+	    }
 	}
 	else
 	{
-	    if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
-	    else if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
+	    if ( SI().isReasonable(bid) )
+	    {
+		nrbid++;
+		validplacement=true;
+	    }
+	    else if ( SI().isReasonable(crd) )
+	    {
+		nrxy++;
+		validplacement=true;
+	    }
 	}
 
 	if ( !tryscale )
@@ -347,7 +442,7 @@ bool HorizonScanner::analyzeData()
 
     const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
     const UnitOfMeasure* suggestedzunit = nullptr;
-    if ( nrscale > nrnoscale )
+    if ( tryscale && nrscale > nrnoscale )
 	suggestedzunit = getSuggestedZUnit( selzunit, zscalefac );
 
     if ( suggestedzunit )
@@ -363,8 +458,7 @@ bool HorizonScanner::analyzeData()
     }
 
     isxy_ = selxy_;
-    delete ascio_;
-    ascio_ = 0;
+    deleteAndZeroPtr( ascio_ );
     return true;
 }
 
@@ -441,9 +535,10 @@ int HorizonScanner::nextStep()
     if ( data.size() < 1 )
 	mErrRet(tr("Not enough data read to analyze"))
 
-    if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
-    bvalset_->allowDuplicateBinIDs(true);
+    if ( !bvalset_ )
+	bvalset_ = new BinIDValueSet( data.size(), false );
 
+    bvalset_->allowDuplicateBinIDs(true);
     BinID bid;
     if ( isxy_ )
 	bid = SI().transform( crd );
@@ -456,7 +551,9 @@ int HorizonScanner::nextStep()
     if ( !SI().isReasonable(bid) )
 	return Executor::MoreToDo();
 
-    transformZIfNeeded( bid, data[0] );
+    if ( transform_ )
+	transformZIfNeeded( bid, data[0] );
+
     bool validpos = true;
     int validx = 0;
     while ( validx < data.size() )
@@ -465,10 +562,21 @@ int HorizonScanner::nextStep()
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
 	const float val = data[validx];
-	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,val) )
+	if ( isgeom_ && validx==0 )
 	{
-	    validpos = false;
-	    break;
+	    if ( zdomain_->isSI() && !isInsideSurvey(bid,val) )
+	    {
+		validpos = false;
+		break;
+	    }
+	    else
+	    {
+		if ( !SI().isReasonable(bid) )
+		{
+		    validpos = false;
+		    break;
+		}
+	    }
 	}
 
 	if ( !mIsUdf(val) )

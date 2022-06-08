@@ -344,6 +344,7 @@ bool dgbEMSurfaceTranslator::prepRead()
 	sd_.rg.step_.crl() = reader_->colInterval().step;
 	sd_.zrg.start = reader_->zInterval().start;
 	sd_.zrg.stop = reader_->zInterval().stop;
+	sd_.zunit = reader_->zUnit();
 
 	sd_.dbinfo = reader_->dbInfo();
     }

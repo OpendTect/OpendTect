@@ -59,6 +59,7 @@ namespace sKey
     inline FixedString Default()	{ return "Default"; }
     inline FixedString DefaultDataRoot(){ return "Default Data Root"; }
     inline FixedString Depth()		{ return "Depth"; }
+    inline FixedString DepthRange()	{ return "Depth Range"; }
     inline FixedString Desc()		{ return "Description"; }
     inline FixedString Distribution()	{ return "Distribution"; }
     inline FixedString EmptyString()	{ return ""; }

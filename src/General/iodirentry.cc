@@ -209,7 +209,7 @@ BufferStringSet IODirEntryList::getValuesFor( const char* key ) const
 	    BufferString val;
 	    if ( ioobj->group() == key )
 		val = ioobj->translator();
-	    else if ( ioobj->pars().get( key, val ) )
+	    else if ( !ioobj->pars().get( key, val ) )
 		continue;
 
 	    if ( !val.isEmpty() )

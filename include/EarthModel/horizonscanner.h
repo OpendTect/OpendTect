@@ -20,6 +20,7 @@ class ZAxisTransform;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
+namespace ZDomain { class Def; }
 
 /*!
 \brief Executor to scan horizons.
@@ -31,7 +32,7 @@ public:
 
 			HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom,
-					ZAxisTransform*);
+					ZAxisTransform*, bool iszdepth=false);
     mDeprecatedDef	HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom);
 			~HorizonScanner();
@@ -58,14 +59,19 @@ public:
     void			setZAxisTransform(ZAxisTransform*);
     const ZAxisTransform*	getZAxisTransform() const;
 
+    void		setZInDepth();
+    void		setZInTime();
+    bool		isZInDepth() const;
+
     const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
 
 protected:
 
-    int			nextStep() override;
-    void		transformZIfNeeded(const BinID&,float&) const;
+    int				nextStep() override;
+    void			transformZIfNeeded(const BinID&,float&) const;
 
-    void		init();
+    void			init();
+    const Interval<float>	getValidZRange() const;
 
     mutable int		totalnr_;
     int			nrdone_;
@@ -87,6 +93,7 @@ protected:
     ObjectSet<BinIDValueSet> sections_;
 
     ZAxisTransform*	transform_	= nullptr;
+    const ZDomain::Def* zdomain_;
 
     mutable uiString	curmsg_;
 };

@@ -74,14 +74,15 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				 .modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
-    , filludffld_(0)
-    , interpol_(0)
-    , colbut_(0)
-    , stratlvlfld_(0)
+    , filludffld_(nullptr)
+    , interpol_(nullptr)
+    , colbut_(nullptr)
+    , stratlvlfld_(nullptr)
     , fd_(*EM::Horizon3DAscIO::getDesc())
-    , scanner_(0)
-    , tdsel_(0)
-    , transfld_(0)
+    , scanner_(nullptr)
+    , tdsel_(nullptr)
+    , impdepsel_(nullptr)
+    , transfld_(nullptr)
     , importReady(this)
 {
     setVideoKey( mODVideoKey(mImportHorAttribHelpID) );
@@ -128,6 +129,12 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				mCB(this,uiImportHorizon,zDomSel) );
 	tdsel_->attach( alignedBelow, attrlistfld_ );
 	tdsel_->attach( ensureBelow, sep );
+
+	impdepsel_ = new uiCheckBox( this, tr("Import in Depth domain"),
+				mCB(this,uiImportHorizon,impDepthDomain) );
+	impdepsel_->attach( rightOf, tdsel_ );
+	impdepsel_->attach( ensureBelow, sep );
+	impdepsel_->display( false );
 
 	uiT2DConvSel::Setup t2dsu( 0, false );
 	t2dsu.ist2d( !SI().zIsTime() );
@@ -188,7 +195,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				    .lbltxt(tr("Base color")) );
 	colbut_->attach( alignedBelow, stratlvlfld_ );
 
-	fillUdfSel(0);
+	fillUdfSel( nullptr );
     }
 
     postFinalize().notify( mCB(this,uiImportHorizon,inputChgd) );
@@ -210,10 +217,21 @@ void uiImportHorizon::descChg( CallBacker* )
 
 void uiImportHorizon::zDomSel( CallBacker* )
 {
-    if ( transfld_ )
-	transfld_->display( tdsel_->isChecked() );
+    if ( impdepsel_ )
+    {
+	impdepsel_->display( tdsel_->isChecked() );
+	impdepsel_->setChecked( true );
+    }
+}
 
-    inputChgd( 0 );
+
+void uiImportHorizon::impDepthDomain( CallBacker* )
+{
+    const bool disptransfld = tdsel_->isChecked() && !impdepsel_->isChecked();
+    if ( transfld_ )
+	transfld_->display( disptransfld );
+
+    inputChgd( nullptr );
 }
 
 
@@ -268,7 +286,7 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
     else
     {
 	delete scanner_;
-	scanner_ = 0;
+	scanner_ = nullptr;
     }
 
     FilePath fnmfp( fnm );
@@ -283,7 +301,8 @@ void uiImportHorizon::addAttribCB( CallBacker* )
     uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sAttribute()),
 			     uiStrings::sName(),
 			     new StringInpSpec() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const char* attrnm = dlg.text();
     attrlistfld_->addItem( toUiString(attrnm) );
@@ -330,7 +349,7 @@ void uiImportHorizon::scanPush( CallBacker* )
     {
 	filludffld_->setSensitive( scanner_->gapsFound(true) ||
 				   scanner_->gapsFound(false) );
-	fillUdfSel(0);
+	fillUdfSel( nullptr );
     }
 
     subselfld_->setSensitive( true );
@@ -360,12 +379,14 @@ uiString uiImportHorizon::goOnMsg()
 bool uiImportHorizon::doScan()
 {
     BufferStringSet filenms;
-    if ( !getFileNames(filenms) ) return false;
+    if ( !getFileNames(filenms) )
+	return false;
 
     uiTaskRunner taskrunner( this );
     ZAxisTransform* zatf = nullptr;
     int zatfvoi = -1;
-    if ( tdsel_ && tdsel_->isChecked() && transfld_ && transfld_->acceptOK() )
+    if ( tdsel_ && tdsel_->isChecked() && !impdepsel_->isChecked()
+		&& transfld_ && transfld_->acceptOK() )
     {
 	zatf = transfld_->getSelection();
 	if ( zatf->needsVolumeOfInterest() )
@@ -380,7 +401,8 @@ bool uiImportHorizon::doScan()
 	}
     }
 
-    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf );
+    bool iszdepth = impdepsel_ && impdepsel_->isChecked();
+    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf, iszdepth );
     if ( !scanner_->uiMessage().isEmpty() )
     {
 	const bool res = uiMSG().askGoOn( tr("%1\nDo you want to continue?")
@@ -518,6 +540,7 @@ bool uiImportHorizon::doImport()
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs.lineRange().step==0 || hs.trcRange().step==0 )
 	mErrRetUnRef( tr("Cannot have '0' as a step value") )
+
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( tr("Nr positions done") );
     int startidx = 0;
@@ -536,6 +559,9 @@ bool uiImportHorizon::doImport()
     if ( !success )
 	mErrRetUnRef(tr("Cannot import horizon"))
 
+    const bool imphorzisdepth = tdsel_ && tdsel_->isChecked()
+				&& impdepsel_ && impdepsel_->isChecked();
+    imphorzisdepth ? horizon->setZInDepth() : horizon->setZInTime();
     bool rv;
     if ( isgeom_ )
     {
@@ -572,6 +598,14 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	if ( ioobj )
 	{
 	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+	    const bool zdomisdepth = (SI().zDomain().isTime()
+				       && impdepsel_ && impdepsel_->isChecked())
+				     || SI().zDomain().isDepth();
+	    ioobj->pars().update( ZDomain::sKey(), zdomisdepth
+						   ? sKey::Depth()
+						   : sKey::Time() );
+
+
 	    ioobj->updateCreationPars();
 	    IOM().commitChanges( *ioobj );
 	}

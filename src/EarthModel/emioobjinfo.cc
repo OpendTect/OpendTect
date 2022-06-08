@@ -175,6 +175,21 @@ Interval<float> IOObjInfo::getZRange() const
 }
 
 
+const BufferString IOObjInfo::getZUnitLabel() const
+{
+    if ( !ioobj_ )
+	return BufferString::empty();
+
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return BufferString::empty();
+
+    const SurfaceIOData& newsd = str->selections().sd;
+    return newsd.zunit->getLabel();
+}
+
+
 StepInterval<int> IOObjInfo::getInlRange() const
 {
     if ( !ioobj_ )

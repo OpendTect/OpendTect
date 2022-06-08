@@ -78,7 +78,7 @@ public:
 protected:
 
     BufferString	key_;
-    uiString	usrnm_;
+    uiString		usrnm_;
     BufferString	defunit_;
     int			usrfac_; //!< usually 1 or 1000, not FeetFac
 };

@@ -695,7 +695,7 @@ bool putBodyRow( const BufferStringSet& bss, uiString& msg )
 	if ( bss.validIdx(bodyinf.col_) )
 	    aio_.addVal( bss.get(bodyinf.col_), bodyinf.sel_.unit_ );
 	else
-	    aio_.addVal( "", 0 );
+	    aio_.addVal( "", nullptr );
     }
 
     if ( aio_.needfullline_ )

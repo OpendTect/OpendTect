@@ -30,6 +30,7 @@ class IOObjContext;
 class TaskRunner;
 
 namespace Geometry { class Element; }
+namespace ZDomain { class Def; }
 
 template <class T> class Selector;
 template <class T> class Array2D;
@@ -124,7 +125,7 @@ public:
     virtual		~EMObjectIterator() {}
     virtual EM::PosID	next()		= 0;
 			/*!<posid.objectID()==-1 when there are no more pids*/
-    virtual int		approximateSize() const	{ return maximumSize(); }
+    virtual int		approximateSize() const { return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
     virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(-1,-1,-1); }
@@ -319,9 +320,13 @@ public:
     static int			sSeedNode();
     static int			sIntersectionNode();
 
-    virtual const IOObjContext&	getIOObjContext() const = 0;
+    virtual const IOObjContext& getIOObjContext() const = 0;
 
     Interval<float>		getZRange(bool compute_if_needed=false) const;
+    bool			isZInDepth() const;
+    void			setZInDepth();
+    void			setZInTime();
+
 
 protected:
 				~EMObject();
@@ -361,6 +366,7 @@ protected:
 
     bool			insideselremoval_;
     bool			selremoving_;
+    const ZDomain::Def*		zdomain_;
 
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();
@@ -394,7 +400,7 @@ EMObject* clss::create( EM::EMManager& emm ) \
 { \
     EMObject* obj = new clss( emm ); \
     if ( !obj ) return 0; \
-    obj->ref();         \
+    obj->ref();		\
     emm.addObject( obj ); \
     obj->unRefNoDelete(); \
     return obj; \

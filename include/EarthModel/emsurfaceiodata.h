@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "bufstringset.h"
 #include "typeset.h"
+#include "unitofmeasure.h"
 
 
 namespace EM
@@ -37,16 +38,17 @@ public:
     void		clear();
     void		use(const Surface&);
 
-    BufferString	dbinfo;
-    TrcKeySampling	rg;			// 3D only
-    Interval<float>	zrg;
-    BufferStringSet	valnames;
-    TypeSet<float>	valshifts_;
-    BufferStringSet	sections;
+    BufferString		dbinfo;
+    TrcKeySampling		rg;			// 3D only
+    Interval<float>		zrg;
+    BufferStringSet		valnames;
+    TypeSet<float>		valshifts_;
+    BufferStringSet		sections;
+    const UnitOfMeasure*	zunit = UnitOfMeasure::surveyDefZStorageUnit();
 
     /*! For 2D Only: */
-    BufferStringSet	linenames;
-    BufferStringSet	linesets;
+    BufferStringSet		linenames;
+    BufferStringSet		linesets;
     TypeSet<Pos::GeomID>	geomids;
     TypeSet<StepInterval<int> > trcranges;
     int				nrfltsticks_;

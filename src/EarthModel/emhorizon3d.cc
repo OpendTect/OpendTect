@@ -306,7 +306,6 @@ Horizon3D::Horizon3D( EMManager& man )
     , survgeomid_(OD::Geom3D)
     , nodesource_(nullptr)
     , arrayinited_(false)
-
 {
     geometry_.addSection( "", false );
 }

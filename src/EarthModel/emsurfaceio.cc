@@ -107,17 +107,18 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
 {
     conn_ = new StreamConn( fullexpr, Conn::Read );
     cube_ = 0;
-    surface_ = 0;
-    arr_ = 0;
-    par_ = 0;
+    surface_ = nullptr;
+    arr_ = nullptr;
+    par_ = nullptr;
     setsurfacepar_ = false;
-    readrowrange_ = 0;
-    readcolrange_ = 0;
+    readrowrange_ = nullptr;
+    readcolrange_ = nullptr;
     zrange_ = Interval<float>(mUdf(float),mUdf(float));
-    int16interpreter_ = 0;
-    int32interpreter_ = 0;
-    int64interpreter_ = 0;
-    floatinterpreter_ = 0;
+    zunit_ = UnitOfMeasure::surveyDefZStorageUnit();
+    int16interpreter_ = nullptr;
+    int32interpreter_ = nullptr;
+    int64interpreter_ = nullptr;
+    floatinterpreter_ = nullptr;
     nrdone_ = 0;
     readonlyz_ =true;
     sectionindex_ = 0;
@@ -364,6 +365,11 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     par_->get( sKeyZRange(), zrange_ );
     par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
+    BufferString zunitlbl;
+    par_->get( sKey::ZUnit(), zunitlbl );
+    if ( !zunitlbl.isEmpty() )
+	zunit_ = UoMR().get( zunitlbl );
+
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
     if ( res < 0 ) return false;
@@ -559,6 +565,12 @@ const StepInterval<int>& dgbSurfaceReader::colInterval() const
 const Interval<float>& dgbSurfaceReader::zInterval() const
 {
     return zrange_;
+}
+
+
+const UnitOfMeasure* dgbSurfaceReader::zUnit() const
+{
+    return zunit_;
 }
 
 
@@ -1609,8 +1621,10 @@ void dgbSurfaceWriter::finishWriting()
 	    par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
     }
 
-    par_->set( sKey::ZUnit(),
-	       UnitOfMeasure::surveyDefZStorageUnit()->name() );
+    const UnitOfMeasure* zunit = surface_.isZInDepth()
+				 ? UnitOfMeasure::surveyDefDepthStorageUnit()
+				 : UnitOfMeasure::surveyDefTimeStorageUnit();
+    par_->set( sKey::ZUnit(), zunit->name() );
 
     ascostream astream( strm );
     astream.newParagraph();

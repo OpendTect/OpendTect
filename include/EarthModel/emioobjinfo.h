@@ -58,6 +58,7 @@ public:
     bool		getSectionNames(BufferStringSet&) const;
     bool		getAttribNames(BufferStringSet&) const;
     Interval<float>	getZRange() const;
+    const BufferString	getZUnitLabel() const;
     StepInterval<int>	getInlRange() const;
     StepInterval<int>	getCrlRange() const;
     IOPar*		getPars() const;

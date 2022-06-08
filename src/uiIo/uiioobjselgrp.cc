@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "od_iostream.h"
 #include "strmprov.h"
+#include "survinfo.h"
+#include "zdomain.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"

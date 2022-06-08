@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 #include "embodytr.h"
 #include "emfault3d.h"
@@ -128,16 +129,10 @@ static HelpKey getHelpID( uiSurfaceMan::Type typ )
 }
 
 
-static BufferString getGroupName( uiSurfaceMan::Type typ )
-{
-    return getIOCtxt( typ ).trgroup_->groupName();
-}
-
-
 uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,tr("Manage")),
 			    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
-			    .modal(false), getIOCtxt(typ), getGroupName(typ) )
+			    .modal(false), getIOCtxt(typ), ZDomain::sKey() )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
@@ -605,10 +600,21 @@ void uiSurfaceMan::mkFileInfo()
 #define mAddZRangeTxt() \
     if ( !zrange.isUdf() ) \
     { \
-	txt += "Z range"; txt += SI().getZUnitString(); txt += ": "; \
-	txt += mNINT32( zrange.start * SI().zDomain().userFactor() ); \
+	txt += "Z range"; \
+	BufferString zunitsym; \
+	if ( zunitsymbol.isEmpty() ) \
+	    zunitsym = SI().getZUnitString(); \
+	else \
+	{ \
+	    zunitsym += "("; zunitsym += zunitsymbol.buf(); zunitsym += ")"; \
+	} \
+	txt += zunitsym; \
+	txt += ": "; \
+	txt += mNINT32( zrange.start * (convert ? SI().zDomain().userFactor() \
+						: 1) ); \
 	txt += " - "; \
-	txt += mNINT32( zrange.stop * SI().zDomain().userFactor() ); \
+	txt += mNINT32( zrange.stop * (convert ? SI().zDomain().userFactor()\
+					       : 1) ); \
 	txt += "\n"; \
     }
 
@@ -667,6 +673,8 @@ void uiSurfaceMan::mkFileInfo()
 	    txt += "Cross-line range: "; mAddInlCrlRangeTxt()
 
 	    const Interval<float>& zrange = cs.zsamp_;
+	    const BufferString& zunitsymbol = BufferString::empty();
+	    const bool convert = true;
 	    mAddZRangeTxt()
 	}
     }
@@ -678,6 +686,15 @@ void uiSurfaceMan::mkFileInfo()
 	txt += "Cross-line range: "; mAddInlCrlRangeTxt()
 
 	const Interval<float>& zrange = eminfo.getZRange();
+	const UnitOfMeasure* zunit = UoMR().get(eminfo.getZUnitLabel());
+	const BufferString& zunitsymbol = zunit ? zunit->symbol()
+						: BufferString::empty().buf();
+	bool convert = true;
+	BufferString zdomain;
+	eminfo.ioObj()->pars().get( ZDomain::sKey(), zdomain );
+	if ( (SI().zDomain().isTime() && zdomain == sKey::Depth())
+	     || (SI().zDomain().isDepth() && zdomain == sKey::Time()) )
+	    convert = false;
 	mAddZRangeTxt()
     }
 

@@ -61,6 +61,7 @@ EMObject::EMObject( EMManager& emm )
     , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
 			    preferredcolor_.complementaryColor()))
     , haslockednodes_(false)
+    , zdomain_(&ZDomain::SI())
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -902,6 +903,30 @@ Interval<float> EMObject::getZRange( bool docompute ) const
     }
 
     return zrg;
+}
+
+
+bool EMObject::isZInDepth() const
+{
+    return zdomain_->isDepth();
+}
+
+
+void EMObject::setZInDepth()
+{
+    if ( isZInDepth() )
+	return;
+
+    zdomain_ = &ZDomain::Depth();
+}
+
+
+void EMObject::setZInTime()
+{
+    if ( !isZInDepth() )
+	return;
+
+    zdomain_ = &ZDomain::Time();
 }
 
 } // namespace EM

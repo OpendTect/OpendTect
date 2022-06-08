@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "rowcol.h"
 #include "od_iosfwd.h"
+#include "unitofmeasure.h"
 
 class StreamConn;
 class IOObj;
@@ -83,6 +84,7 @@ public:
     const StepInterval<int>&	rowInterval() const;
     const StepInterval<int>&	colInterval() const;
     const Interval<float>&	zInterval() const;
+    const UnitOfMeasure*	zUnit() const;
 
     void		setRowInterval(const StepInterval<int>&);
     void		setColInterval(const StepInterval<int>&);
@@ -196,6 +198,7 @@ protected:
     StepInterval<int>	rowrange_;
     StepInterval<int>	colrange_;
     Interval<float>	zrange_;
+    const UnitOfMeasure*	zunit_;
 
     StepInterval<int>*	readrowrange_;
     StepInterval<int>*	readcolrange_;

@@ -183,8 +183,7 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthStorageUnit()
 {
-    return UoMR().get( SI().zDomain().isDepth() &&
-		       SI().depthsInFeet() ? feetKey : meterKey );
+    return UoMR().get( SI().zInFeet() ? feetKey : meterKey );
 }
 
 
