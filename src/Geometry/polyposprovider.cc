@@ -251,7 +251,8 @@ od_int64 Pos::PolyProvider3D::estNrPos() const
 {
     float fnr = (float) poly_.area() / hs_.step_.inl();
     fnr /= hs_.step_.crl();
-    return mRounded(od_int64,fnr);
+    const od_int64 nrposinside = mRounded(od_int64,fnr);
+    return usesAreaInside() ? nrposinside : mMAX(0,hs_.totalNr()-nrposinside);
 }
 
 

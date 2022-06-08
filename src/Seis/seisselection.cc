@@ -6,23 +6,24 @@
 -*/
 
 
-#include "seisselectionimpl.h"
-#include "trckeyzsampling.h"
-#include "pickset.h"
-#include "picksettr.h"
 #include "binidvalset.h"
-#include "polygon.h"
-#include "iopar.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "survinfo.h"
-#include "survgeom2d.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "tableposprovider.h"
+#include "pickset.h"
+#include "picksettr.h"
+#include "polygon.h"
 #include "polyposprovider.h"
+#include "ptrman.h"
+#include "seisselectionimpl.h"
 #include "strmprov.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "tableposprovider.h"
+#include "trckeyzsampling.h"
 
 #define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
 static const char* sKeyBinIDSel = "BinID selection";
@@ -551,10 +552,12 @@ int Seis::TableSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 
 //--- Poly ---
 
+static HiddenParam<Seis::PolySelData,char>	hp_useinside(true);
 
 Seis::PolySelData::PolySelData()
     : stepoutreach_(0,0)
 {
+    setUseAreaInside( true );
     initZrg( 0 );
 }
 
@@ -563,6 +566,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<float>& poly,
 			        const Interval<float>* zrg )
     : stepoutreach_(0,0)
 {
+    setUseAreaInside( true );
     polys_ += new ODPolygon<float>( poly );
     initZrg( zrg );
 }
@@ -572,6 +576,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
 			        const Interval<float>* zrg )
     : stepoutreach_(0,0)
 {
+    setUseAreaInside( true );
     polys_ += new ODPolygon<float>;
 
     for ( int idx=0; idx<poly.size(); idx++ )
@@ -588,6 +593,7 @@ Seis::PolySelData::PolySelData( const Seis::PolySelData& sd )
     : stepoutreach_(0,0)
     , zrg_(sd.zrg_)
 {
+    setUseAreaInside( sd.usesAreaInside() );
     for ( int idx=0; idx<sd.polys_.size(); idx++ )
 	polys_ += new ODPolygon<float>( *sd.polys_[idx] );
 }
@@ -604,6 +610,7 @@ void Seis::PolySelData::initZrg( const Interval<float>* zrg )
 
 Seis::PolySelData::~PolySelData()
 {
+    hp_useinside.removeParam( this );
     deepErase( polys_ );
 }
 
@@ -619,6 +626,7 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	stepoutreach_ = psd.stepoutreach_;
 	zrg_ = psd.zrg_;
 
+	setUseAreaInside( psd.usesAreaInside() );
 	deepErase( polys_ );
 	for ( int idx=0; idx<psd.polys_.size(); idx++ )
 	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
@@ -646,7 +654,8 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 
 Interval<int> Seis::PolySelData::inlRange() const
 {
-    if ( isall_ ) return Seis::SelData::inlRange();
+    if ( isall_ || !usesAreaInside() )
+	return Seis::SelData::inlRange();
 
     if ( polys_.isEmpty() )
 	return Interval<int>( mUdf(int), mUdf(int) );
@@ -665,7 +674,8 @@ Interval<int> Seis::PolySelData::inlRange() const
 
 Interval<int> Seis::PolySelData::crlRange() const
 {
-    if ( isall_  ) return Seis::SelData::crlRange();
+    if ( isall_ || !usesAreaInside() )
+	return Seis::SelData::crlRange();
 
     if ( polys_.isEmpty() )
 	return Interval<int>( mUdf(int), mUdf(int) );
@@ -684,8 +694,7 @@ Interval<int> Seis::PolySelData::crlRange() const
 
 Interval<float> Seis::PolySelData::zRange() const
 {
-    if ( isall_ ) return Seis::SelData::zRange();
-    return zrg_;
+    return isall_ ? Seis::SelData::zRange() : zrg_;
 }
 
 
@@ -698,6 +707,7 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
 
     iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
+    iop.setYN( mGetPolyKey("Inside"), usesAreaInside() );
 
     iop.set( mGetPolyKey("NrPolygons"), polys_.size() );
     for ( int idx=0; idx<polys_.size(); idx++ )
@@ -714,6 +724,9 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 
     iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
+    bool useinside = true;
+    iop.getYN( mGetPolyKey("Inside"), useinside );
+    setUseAreaInside( useinside );
 
     int nrpolys = 0;
     iop.get( mGetPolyKey("NrPolygons"), nrpolys );
@@ -754,21 +767,30 @@ void Seis::PolySelData::doExtendH( BinID so, BinID sos )
 
 void Seis::PolySelData::include( const Seis::SelData& sd )
 {
-    if ( isall_ )
+    if ( isall_ || !usesAreaInside() )
 	return;
+
     if ( sd.isAll() )
-	{ isall_ = true; return; }
+    {
+	isall_ = true;
+	return;
+    }
 
     if ( sd.type() == type() )
     {
 	mDynamicCastGet(const Seis::PolySelData&,psd,sd)
-	if ( zrg_.start < psd.zrg_.start )
-	    zrg_.start = psd.zrg_.start;
-	if ( zrg_.stop > psd.zrg_.stop )
-	    zrg_.stop = psd.zrg_.stop;
+	if ( !psd.usesAreaInside() )
+	    pErrMsg("Cannot mix inside/outside PolySelData");
+	else
+	{
+	    if ( zrg_.start < psd.zrg_.start )
+		zrg_.start = psd.zrg_.start;
+	    if ( zrg_.stop > psd.zrg_.stop )
+		zrg_.stop = psd.zrg_.stop;
 
-	for ( int idx=0; idx<psd.polys_.size(); idx++ )
-	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
+	    for ( int idx=0; idx<psd.polys_.size(); idx++ )
+		polys_ += new ODPolygon<float>( *psd.polys_[idx] );
+	}
     }
     else
     {
@@ -821,12 +843,12 @@ int Seis::PolySelData::selRes( const BinID& bid ) const
     for ( int idx=0; idx<polys_.size(); idx++ )
     {
 	if ( polys_[idx]->windowOverlaps(inlrg, crlrg, 0.5) )
-	    return 0;
+	    return usesAreaInside() ? 0 : 1;
     }
 
     const int inlres = inlRange().includes(bid.inl(),true) ? 0 : 2;
     const int crlres = 1; // Maybe not true, but safe
-    return inlres + 256 * crlres;
+    return usesAreaInside() ? inlres + 256 * crlres : 0;
 }
 
 
@@ -834,7 +856,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
     if ( isall_ || for2d ) return tracesInSI();
 
-    int estnrtraces = 0;
+    int nrtracesinside = 0;
     // Estimation does not compensate for eventual overlap between polys
     for ( int idx=0; idx<polys_.size(); idx++ )
     {
@@ -854,8 +876,23 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	hs.set( inlrg, crlrg );
 	if ( step ) hs.step_ = *step;
 	hs.snapToSurvey();
-	estnrtraces += mNINT32( coverfrac * hs.totalNr() );
+	nrtracesinside += mNINT32( coverfrac * hs.totalNr() );
     }
 
-    return mMIN( estnrtraces, tracesInSI() );
+    if ( tracesInSI() < nrtracesinside )
+	nrtracesinside = tracesInSI();
+
+    return usesAreaInside() ? nrtracesinside : tracesInSI() - nrtracesinside;
+}
+
+
+void Seis::PolySelData::setUseAreaInside( bool yn )
+{
+    hp_useinside.setParam( this, yn );
+}
+
+
+bool Seis::PolySelData::usesAreaInside() const
+{
+    return hp_useinside.getParam( this );
 }

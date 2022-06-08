@@ -160,6 +160,9 @@ public:
     void		extendZ(const Interval<float>&);
     void		include(const SelData&);
 
+    void		setUseAreaInside(bool);
+    bool		usesAreaInside() const;
+
     int			selRes(const BinID&) const;
     int			expectedNrTraces(bool for2d,const BinID*) const;
 
