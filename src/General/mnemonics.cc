@@ -673,6 +673,38 @@ const Mnemonic* MnemonicSelection::getByName( const char* nm,
 }
 
 
+void MnemonicSelection::fillPar( IOPar& iop ) const
+{
+    BufferStringSet mnnms;
+    for ( const auto* mnc : *this )
+	mnnms.addIfNew( mnc->name() );
+
+    iop.set( sKey::Mnemonics(), mnnms );
+}
+
+
+bool MnemonicSelection::usePar( const IOPar& iop )
+{
+    MnemonicSelection newmns;
+    BufferStringSet mnnms;
+    if ( !iop.get( sKey::Mnemonics(),mnnms ) )
+	return false;
+
+    bool ret = !mnnms.isEmpty();
+    for ( const auto* nm : mnnms )
+    {
+	const Mnemonic* mn = MNC().getByName( *nm, false );
+	if ( mn )
+	    addIfNew(mn);
+	else
+	    ret = false;
+
+    }
+
+    return ret;
+}
+
+
 void MnemonicSelection::getAll( const BufferStringSet& mnnms,
 				MnemonicSelection& ret )
 {

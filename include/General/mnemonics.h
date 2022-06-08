@@ -182,6 +182,9 @@ public:
 			MnemonicSelection(const Mnemonic::StdType);
 
     const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
     static MnemonicSelection	getAllVolumetrics();
     static MnemonicSelection	getAllPorosity();
 
