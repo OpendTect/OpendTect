@@ -21,10 +21,10 @@ class Coord3;
 namespace osg { class Vec3f; class Array; class Referenced; }
 
 
-#define mGetOsgArrPtr(tp,ptr) ((tp) ptr->getDataPointer() )
-#define mGetOsgVec2Arr(ptr) ((osg::Vec2Array*) ptr )
-#define mGetOsgVec3Arr(ptr) ((osg::Vec3Array*) ptr )
-#define mGetOsgVec4Arr(ptr) ((osg::Vec4Array*) ptr )
+#define mGetOsgArrPtr(tp,ptr) sCast(tp,ptr->getDataPointer())
+#define mGetOsgVec2Arr(ptr) sCast(osg::Vec2Array*,ptr)
+#define mGetOsgVec3Arr(ptr) sCast(osg::Vec3Array*,ptr)
+#define mGetOsgVec4Arr(ptr) sCast(osg::Vec4Array*,ptr)
 
 #if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS) || \
 defined(uiOSG_EXPORTS) || defined(UIOSG_EXPORTS)

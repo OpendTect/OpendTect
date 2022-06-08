@@ -66,11 +66,12 @@ bool TileCoordinatesUpdator::doWork( od_int64 start, od_int64 stop, int )
     if ( !transform_ || !hrsection_ )
 	return false;
 
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	HorizonSectionTile* tile = hrsection_->getTile( idx );
 	updateCoordinates( tile );
     }
+
     return true;
 }
 
@@ -82,6 +83,7 @@ void TileCoordinatesUpdator::updateCoordinates( HorizonSectionTile* tile )
 			 hrsection_->nrcoordspertileside_;
 
     osg::Vec3Array* vertices = mGetOsgVec3Arr( tile->getOsgVertexArray() );
+    osg::Vec3Array* normals = mGetOsgVec3Arr( tile->getNormals() );
 
     for ( int idx=0; idx<nrcoords; idx++ )
     {
@@ -92,8 +94,7 @@ void TileCoordinatesUpdator::updateCoordinates( HorizonSectionTile* tile )
 	if ( !transback_ )
 	{
 	    transform_->transform( pos );
-	    tile->computeNormal(
-		idx,(*mGetOsgVec3Arr(tile->getNormals()))[idx] );
+	    tile->computeNormal( idx, (*normals)[idx] );
 	}
 	else
 	    transform_->transformBack( pos );
@@ -103,7 +104,6 @@ void TileCoordinatesUpdator::updateCoordinates( HorizonSectionTile* tile )
 	if ( !transback_ && mIsOsgVec3Def((*vertices)[idx]) )
 	    tile->bbox_.expandBy( (*vertices)[idx] );
     }
-
 }
 
 

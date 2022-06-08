@@ -14,22 +14,23 @@ ________________________________________________________________________
 // this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
+#include "visbasemod.h"
 
 #include "typeset.h"
+#include "vishorizonsectiontile.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
-#include "vishorizonsectiontile.h"
 
 #include "thread.h"
 
 namespace osg
 {
-    class Geometry;
-    class Geode;
-    class UserDataContainer;
     class Array;
-    class StateSet;
     class DrawElementsUShort;
+    class Geode;
+    class Geometry;
+    class StateSet;
+    class UserDataContainer;
 }
 
 namespace osgUtil { class CullVisitor; }
@@ -38,9 +39,11 @@ namespace osgGeo { class LayeredTexture; }
 
 namespace visBase
 {
-    class HorizonSectionTile;
-    class TextureChannels;
-    class Coordinates;
+
+class Coordinates;
+class HorizonSectionTile;
+class TextureChannels;
+
 
 class TileResolutionData
 {
@@ -51,11 +54,11 @@ public:
 
     void		setTexture(const unsigned int unit,osg::Array* arr,
 				   osg::StateSet* stateset);
-    void		enableGeometryTypeDisplay(GeometryType type,bool yn);
+    void		enableGeometryTypeDisplay(GeometryType,bool yn);
 
     bool		tesselateResolution(bool onlyifabsness);
     void		updatePrimitiveSets();
-    void		setWireframeColor(OD::Color& color);
+    void		setWireframeColor(OD::Color&);
     void		dirtyGeometry();
     const osg::PrimitiveSet*	getPrimitiveSet(GeometryType) const;
     void		setLineWidth(int);
@@ -73,24 +76,24 @@ protected:
     const osg::Array*		normals_;
     osg::Array*			linecolor_;
 
-    osg::DrawElementsUShort*	trianglesps_;
-    osg::DrawElementsUShort*	linesps_;
-    osg::DrawElementsUShort*	pointsps_;
-    osg::DrawElementsUShort*	wireframesps_;
+    osg::DrawElementsUShort*	trianglesps_		= nullptr;
+    osg::DrawElementsUShort*	linesps_		= nullptr;
+    osg::DrawElementsUShort*	pointsps_		= nullptr;
+    osg::DrawElementsUShort*	wireframesps_		= nullptr;
 
-    osg::DrawElementsUShort*	trianglesosgps_;
-    osg::DrawElementsUShort*	linesosgps_;
-    osg::DrawElementsUShort*	pointsosgps_;
-    osg::DrawElementsUShort*	wireframesosgps_;
+    osg::DrawElementsUShort*	trianglesosgps_		= nullptr;
+    osg::DrawElementsUShort*	linesosgps_		= nullptr;
+    osg::DrawElementsUShort*	pointsosgps_		= nullptr;
+    osg::DrawElementsUShort*	wireframesosgps_	= nullptr;
 
     Threads::Mutex		tesselatemutex_;
 
-    bool			updateprimitiveset_;
-    char			needsretesselation_;
+    bool			updateprimitiveset_	= true;
+    char			needsretesselation_	= cMustRetesselate;
     char			resolution_;
-    int				nrverticesperside_;
-    bool			needsetposition_;
-    int				dispgeometrytype_;
+    int				nrverticesperside_	=cNumberNodePerTileSide;
+    bool			needsetposition_	= true;
+    int				dispgeometrytype_	= Triangle;
 
 private:
 

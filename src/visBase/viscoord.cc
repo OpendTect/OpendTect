@@ -44,7 +44,7 @@ private:
     Coord3			singlecoord_;
     bool			setwithsinglecoord_;
     const int			startidx_;
-    bool			scenespace_; 
+    bool			scenespace_;
 };
 
 
@@ -120,8 +120,11 @@ void Coordinates::copyFrom( const Coordinates& nc )
     unusedcoords_ = nc.unusedcoords_;
 }
 
-#define mArrSize \
-    ( (int) mGetOsgVec3Arr(osgcoords_)->size() ) \
+
+int Coordinates::arraySize() const
+{
+    return sCast(osg::Vec3Array*,osgcoords_)->size();
+}
 
 
 void Coordinates::setDisplayTransformation( const mVisTrans* nt )
@@ -129,7 +132,7 @@ void Coordinates::setDisplayTransformation( const mVisTrans* nt )
     if ( nt==transformation_ ) return;
 
     TypeSet<Coord3> worldpos;
-    worldpos.setSize( mArrSize );
+    worldpos.setSize( arraySize() );
     getPositions(worldpos);
 
     if ( transformation_ )
@@ -154,7 +157,7 @@ const mVisTrans*  Coordinates::getDisplayTransformation() const
 
 int Coordinates::size(bool includedeleted) const
 {
-    return mArrSize -(includedeleted ? 0 : unusedcoords_.size());
+    return arraySize() -(includedeleted ? 0 : unusedcoords_.size());
 }
 
 
@@ -174,7 +177,7 @@ int Coordinates::nextID( int previd ) const
 {
     Threads::MutexLocker lock( mutex_ );
 
-    const int sz = mArrSize;
+    const int sz = arraySize();
 
     int res = previd+1;
     while ( res<sz )
@@ -217,7 +220,7 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
 
-    if ( unusedcoords_.isPresent(idx) || 
+    if ( unusedcoords_.isPresent(idx) ||
 	mGetOsgVec3Arr(osgcoords_)->size()<idx )
 	return;
 
@@ -225,7 +228,7 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
     if ( postoset.isDefined() && transformation_ )
 	transformation_->transform(postoset);
 
-    mGetOsgVec3Arr(osgcoords_)->insert( 
+    mGetOsgVec3Arr(osgcoords_)->insert(
 	mGetOsgVec3Arr(osgcoords_)->begin()+idx,Conv::to<osg::Vec3f>(postoset));
 
     for ( int idy = unusedcoords_.size()-1; idy>=0; idy-- )
@@ -241,11 +244,12 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
 
 Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
-    if ( idx >= mArrSize )
+    if ( idx >= arraySize() )
 	return Coord3::udf();
 
-    const float* scenepos =
-	mGetOsgArrPtr(const osg::Vec3*,osgcoords_)[idx].ptr();
+    const osg::Vec3* allpos =
+		sCast(const osg::Vec3*,osgcoords_->getDataPointer());
+    const float* scenepos = allpos[idx].ptr();
 
     Coord3 res = scenepos ? Coord3( scenepos[0], scenepos[1], scenepos[2] )
 			  : Coord3::udf();
@@ -262,7 +266,7 @@ Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 bool Coordinates::isDefined( int idx ) const
 {
     Threads::MutexLocker lock( mutex_ );
-    if ( idx<0 || idx>=mArrSize ||
+    if ( idx<0 || idx>=arraySize() ||
 	 unusedcoords_.isPresent( idx ) )
 	return false;
 
@@ -286,7 +290,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
     if ( unusedcoords_.isPresent(idx) )
 	return;
 
-    for ( int idy=mArrSize; idy<idx; idy++ )
+    for ( int idy=arraySize(); idy<idx; idy++ )
 	unusedcoords_ += idy;
 
     Coord3 postoset = pos;
@@ -309,7 +313,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
 void Coordinates::removePos( int idx, bool keepidxafter )
 {
     Threads::MutexLocker lock( mutex_ );
-    const int nrcoords = mArrSize;
+    const int nrcoords = arraySize();
     if ( idx>=nrcoords || idx<0 )
     {
 	pErrMsg("Invalid index");
@@ -347,7 +351,7 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 void Coordinates::removeAfter( int idx )
 {
     Threads::MutexLocker lock( mutex_ );
-    if ( idx<-1 || idx>=mArrSize-1 )
+    if ( idx<-1 || idx>=arraySize()-1 )
 	return;
 
     mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
@@ -368,10 +372,11 @@ void Coordinates::removeAfter( int idx )
 void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
 {
     Threads::MutexLocker lock( mutex_ );
-    if ( sz != mArrSize )
+    if ( sz != arraySize() )
 	mGetOsgVec3Arr(osgcoords_)->resize( sz );
 
-    float* zvals = mGetOsgArrPtr(float*,osgcoords_)+2;
+    auto* czvals = sCast(const float*,osgcoords_->getDataPointer())+2;
+    float* zvals = cCast(float*,czvals);
     float* stopptr = zvals + sz*3;
     while ( zvals<stopptr )
     {
@@ -389,10 +394,10 @@ void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
 void Coordinates::getPositions(TypeSet<Coord3>& res) const
 {
     Threads::MutexLocker lock(mutex_);
-    
+
     SetOrGetCoordinates getcoordinates( const_cast<Coordinates*>(this),
-	mArrSize, 0, &res );
-    
+	arraySize(), 0, &res );
+
     getcoordinates.execute();
 }
 
@@ -431,7 +436,7 @@ void Coordinates::setAllPositions( const Coord3& pos, int sz, int start )
 
 void Coordinates::dirty() const
 {
-    if ( osgcoords_  ) 
+    if ( osgcoords_  )
 	osgcoords_->dirty();
 }
 

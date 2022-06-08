@@ -94,6 +94,7 @@ protected:
 
     int			getFreeIdx();
 			/*!< Object should be locked when calling */
+    int			arraySize() const;
 
 			~Coordinates();
 

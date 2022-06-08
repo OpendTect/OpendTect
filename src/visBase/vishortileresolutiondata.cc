@@ -31,29 +31,34 @@
 const char cTowardDown  = 0;
 const char cTowardRight = 1;
 
-#define mGetOsgGeode(dtcntr,idx) ( (osg::Geode*) dtcntr->getUserObject( idx ) )
-
-#define mGetOsgGeometry(ptr)( ( osg::Geometry* )ptr->getDrawable( 0 ) )
-
 namespace visBase
 {
 
+static osg::Geometry* getOSGGeometry( osg::Geode* geode )
+{
+    return sCast(osg::Geometry*,geode->getDrawable(0));
+}
+
+
+static const osg::Geometry* getOSGGeometry( const osg::Geode* geode )
+{
+    return sCast(const osg::Geometry*,geode->getDrawable(0));
+}
+
+
+static osg::Geode* getOSGGeode( osg::UserDataContainer* cont, int idx )
+{
+    return sCast(osg::Geode*,cont->getUserObject(idx));
+}
+
+
 TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
-    char resolution )
-    : osgswitch_( new osg::Switch )
-    , normals_( 0 )
-    , needsretesselation_( cMustRetesselate )
-    , sectile_( sectile )
-    , resolution_( resolution )
-    , updateprimitiveset_( true )
-    , linecolor_( new osg::Vec4Array )
-    , geodes_( new osg::DefaultUserDataContainer )
-    , trianglesosgps_( 0 )
-    , linesosgps_( 0 )
-    , pointsosgps_( 0 )
-    , wireframesosgps_( 0 )
-    , needsetposition_( true )
-    , dispgeometrytype_( Triangle )
+					char resolution )
+    : sectile_(sectile)
+    , osgswitch_(new osg::Switch)
+    , geodes_(new osg::DefaultUserDataContainer)
+    , linecolor_(new osg::Vec4Array)
+    , resolution_(resolution)
 {
     geodes_->ref();
     osgswitch_->ref();
@@ -98,13 +103,14 @@ void TileResolutionData::setGeometryTexture( const unsigned int unit,
     if ( geometrytype > geodes_->getNumUserObjects() )
 	return;
 
-    osg::Geode* geode = mGetOsgGeode( geodes_, geometrytype );
+    osg::Geode* geode = getOSGGeode( geodes_, geometrytype );
     if ( !geode ) return;
 
-    osg::Geometry* geom = mGetOsgGeometry( geode );
+    osg::Geometry* geom = getOSGGeometry( geode );
     if ( geom )
     {
-	geom->setTexCoordArray( unit, mGetOsgVec2Arr(arr) );
+	auto* carr = sCast(const osg::Vec2Array*,arr);
+	geom->setTexCoordArray( unit, cCast(osg::Vec2Array*,carr) );
 	geode->setStateSet( stateset );
     }
 }
@@ -140,11 +146,11 @@ void TileResolutionData::dirtyGeometry()
 
 void TileResolutionData::dirtyGeometry( int type )
 {
-    osg::Geode* geode = mGetOsgGeode( geodes_, type );
+    osg::Geode* geode = getOSGGeode( geodes_, type );
     if ( geode )
     {
-	mGetOsgGeometry( geode )->dirtyBound();
-	mGetOsgGeometry( geode )->dirtyGLObjects();
+	getOSGGeometry( geode )->dirtyBound();
+	getOSGGeometry( geode )->dirtyGLObjects();
     }
 }
 
@@ -223,10 +229,10 @@ void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
     if( !geomps || geometrytype>geodes_->getNumUserObjects() )
 	return;
 
-    osg::Geode* geode = mGetOsgGeode( geodes_, geometrytype );
+    osg::Geode* geode = getOSGGeode( geodes_, geometrytype );
     if( !geode ) return;
 
-    osg::Geometry* geom = mGetOsgGeometry( geode );
+    osg::Geometry* geom = getOSGGeometry( geode );
     if( !geom ) return;
 
     geom->removePrimitiveSet( 0, geom->getNumPrimitiveSets() );
@@ -268,42 +274,49 @@ void TileResolutionData::updatePrimitiveSets()
 }
 
 
-#define mAddPointIndex( geomps, idx ) { geomps->push_back( idx ); }
-
-#define mAddLineIndexes( geomps, idx1, idx2 )\
-{\
-    mAddPointIndex( geomps, idx1 );\
-    mAddPointIndex( geomps, idx2 );\
+static void addPointIndex( osg::DrawElementsUShort* geomps, int idx )
+{
+    geomps->push_back( idx );
 }
 
-#define mAddClockwiseTriangleIndexes( geomps, idx0, idxa, idxb ) \
-{ \
-    const int pssize = geomps->getNumIndices(); \
-    const int idx1 = pssize%2 ? idxa : idxb; \
-    const int idx2 = pssize%2 ? idxb : idxa; \
-    bool continuestrip = pssize > 2; \
-    if ( continuestrip ) \
-    { \
-	const int lastidx = geomps->index( pssize-1 ); \
-	if ( lastidx==idx0 && geomps->index(pssize-2)==idx1 ) \
-    	    geomps->push_back( idx2 ); \
-	else if ( lastidx==idx1 && geomps->index(pssize-2)==idx2 ) \
-    	    geomps->push_back( idx0 ); \
-	else if ( lastidx==idx2 && geomps->index(pssize-2)==idx0 ) \
-    	    geomps->push_back( idx1 ); \
-	else \
-	{ \
-	    continuestrip = false; \
-	    geomps->push_back( lastidx ); \
-	    geomps->push_back( idx0 ); \
-	} \
-    } \
-    if ( !continuestrip ) \
-    { \
-	geomps->push_back( idx0 ); \
-	geomps->push_back( idx1 ); \
-	geomps->push_back( idx2 ); \
-    } \
+
+static void addLineIndexes( osg::DrawElementsUShort* geomps, int idx1, int idx2)
+{
+    addPointIndex( geomps, idx1 );
+    addPointIndex( geomps, idx2 );
+}
+
+
+static void addClockwiseTriangleIndexes( osg::DrawElementsUShort* geomps,
+					 int idx0, int idxa, int idxb )
+{
+    const int pssize = geomps->getNumIndices();
+    const int idx1 = pssize%2 ? idxa : idxb;
+    const int idx2 = pssize%2 ? idxb : idxa;
+    bool continuestrip = pssize > 2;
+    if ( continuestrip )
+    {
+	const int lastidx = geomps->index( pssize-1 );
+	if ( lastidx==idx0 && geomps->index(pssize-2)==idx1 )
+    	    geomps->push_back( idx2 );
+	else if ( lastidx==idx1 && geomps->index(pssize-2)==idx2 )
+    	    geomps->push_back( idx0 );
+	else if ( lastidx==idx2 && geomps->index(pssize-2)==idx0 )
+    	    geomps->push_back( idx1 );
+	else
+	{
+	    continuestrip = false;
+	    geomps->push_back( lastidx );
+	    geomps->push_back( idx0 );
+	}
+    }
+
+    if ( !continuestrip )
+    {
+	geomps->push_back( idx0 );
+	geomps->push_back( idx1 );
+	geomps->push_back( idx2 );
+    }
 }
 
 
@@ -352,21 +365,21 @@ void TileResolutionData::tesselateCell( int row, int col )
 		mIsOsgVec3Def(( *osgvertices )[idxtop]) : false;
 
 	    if ( !leftdef && !topdef )
-		mAddPointIndex( pointsps_, idxthis );
+		addPointIndex( pointsps_, idxthis );
 	}
 	else if ( bottomisdef )
 	{
 	    if ( !rightbottomisdef )
 	    {
-		mAddLineIndexes( wireframesps_,idxthis, idxbottom  );
+		addLineIndexes( wireframesps_,idxthis, idxbottom  );
 		if ( detectIsolatedLine( idxthis, cTowardDown ) )
-		    mAddLineIndexes( linesps_,idxthis, idxbottom );
+		    addLineIndexes( linesps_,idxthis, idxbottom );
 	    }
 	    else
 	    {
-		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
-					      idxrightbottom, idxbottom );
-		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		addClockwiseTriangleIndexes( trianglesps_, idxthis,
+					     idxrightbottom, idxbottom );
+		addLineIndexes( wireframesps_, idxthis, idxbottom );
 	    }
 
 	}
@@ -377,34 +390,34 @@ void TileResolutionData::tesselateCell( int row, int col )
 	{
 	    if ( rightbottomisdef )
 	    {
-		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
-					      idxright, idxbottom );
-		mAddClockwiseTriangleIndexes( trianglesps_, idxbottom,
-					      idxright, idxrightbottom );
-		mAddLineIndexes( wireframesps_, idxthis, idxright );
-		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		addClockwiseTriangleIndexes( trianglesps_, idxthis,
+					     idxright, idxbottom );
+		addClockwiseTriangleIndexes( trianglesps_, idxbottom,
+					     idxright, idxrightbottom );
+		addLineIndexes( wireframesps_, idxthis, idxright );
+		addLineIndexes( wireframesps_, idxthis, idxbottom );
 	    }
 	    else if ( !rightbottomisdef )
 	    {
-		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
-					      idxright, idxbottom );
-		mAddLineIndexes( wireframesps_, idxthis, idxright );
-		mAddLineIndexes( wireframesps_, idxthis, idxbottom );
+		addClockwiseTriangleIndexes( trianglesps_, idxthis,
+					     idxright, idxbottom );
+		addLineIndexes( wireframesps_, idxthis, idxright );
+		addLineIndexes( wireframesps_, idxthis, idxbottom );
 	    }
 	}
 	else if ( !bottomisdef )
 	{
 	    if ( rightbottomisdef )
 	    {
-		mAddClockwiseTriangleIndexes( trianglesps_, idxthis,
-					      idxright, idxrightbottom );
-		mAddLineIndexes( wireframesps_, idxthis, idxright );
+		addClockwiseTriangleIndexes( trianglesps_, idxthis,
+					     idxright, idxrightbottom );
+		addLineIndexes( wireframesps_, idxthis, idxright );
 	    }
 	    else
 	    {
-		mAddLineIndexes( wireframesps_, idxthis, idxright );
+		addLineIndexes( wireframesps_, idxthis, idxright );
 		if ( detectIsolatedLine( idxthis, cTowardRight ) )
-		    mAddLineIndexes( linesps_,idxthis, idxright );
+		    addLineIndexes( linesps_,idxthis, idxright );
 	    }
 	}
     }
@@ -568,24 +581,23 @@ void TileResolutionData::buildOsgGeometres()
 
     createPrimitiveSets();
     refOsgPrimitiveSets();
-
 }
 
 
 void TileResolutionData::setWireframeColor( OD::Color& color)
 {
-    mGetOsgVec4Arr( linecolor_ )->clear();
-    mGetOsgVec4Arr( linecolor_ )->push_back( Conv::to<osg::Vec4>( color ) );
+    sCast(osg::Vec4Array*,linecolor_)->clear();
+    sCast(osg::Vec4Array*,linecolor_)->push_back( Conv::to<osg::Vec4>(color) );
     dirtyGeometry();
 }
 
 
 void TileResolutionData::setLineWidth( int width )
 {
-    osg::Geode* linegeode = mGetOsgGeode( geodes_, Line );
+    osg::Geode* linegeode = getOSGGeode( geodes_, Line );
     if ( !linegeode ) return;
 
-    osg::Geometry* linegeom = mGetOsgGeometry( linegeode );
+    osg::Geometry* linegeom = getOSGGeometry( linegeode );
     if ( !linegeom ) return;
 
     osg::ref_ptr<osg::LineWidth> linewidth = new osg::LineWidth;
@@ -629,13 +641,13 @@ void TileResolutionData::createPrimitiveSets()
 
 void TileResolutionData::buildLineGeometry( int idx, int width )
 {
-    osg::Geode* linegeode = mGetOsgGeode( geodes_, idx );
+    osg::Geode* linegeode = getOSGGeode( geodes_, idx );
     if ( !linegeode ) return;
 
     osg::ref_ptr<osg::LineWidth> linewidth = new osg::LineWidth;
     mGetOsgVec4Arr( linecolor_ )->push_back( osg::Vec4d( 1, 1, 1, 0 ) );
     linewidth->setWidth( width );
-    osg::Geometry* linegeom = mGetOsgGeometry( linegeode );
+    osg::Geometry* linegeom = getOSGGeometry( linegeode );
     linegeom->setColorArray( mGetOsgVec4Arr( linecolor_ ) );
     linegeom->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr<osg::Vec3Array> linenormal = new osg::Vec3Array;
@@ -649,21 +661,22 @@ void TileResolutionData::buildLineGeometry( int idx, int width )
 
 void TileResolutionData::buildTraingleGeometry( int idx )
 {
-    osg::Geode* trainglegeode = mGetOsgGeode( geodes_, idx );
+    osg::Geode* trainglegeode = getOSGGeode( geodes_, idx );
     if ( !trainglegeode ) return;
 
-    osg::Geometry* geom = mGetOsgGeometry( trainglegeode );
-    geom->setNormalArray( mGetOsgVec3Arr( normals_ ) );
+    osg::Geometry* geom = getOSGGeometry( trainglegeode );
+    auto* cnormals = sCast(const osg::Vec3Array*,normals_);
+    geom->setNormalArray( cCast(osg::Vec3Array*,cnormals) );
     geom->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 }
 
 
 void TileResolutionData::buildPointGeometry( int idx )
 {
-    osg::Geode* pointgeode = mGetOsgGeode( geodes_, idx );
+    osg::Geode* pointgeode = getOSGGeode( geodes_, idx );
     if ( !pointgeode ) return;
 
-    osg::Geometry* geom = mGetOsgGeometry( pointgeode );
+    osg::Geometry* geom = getOSGGeometry( pointgeode );
     osg::ref_ptr<osg::Point> point=new osg::Point;
     point->setSize( 4 );
     osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
@@ -677,10 +690,10 @@ void TileResolutionData::buildPointGeometry( int idx )
 const osg::PrimitiveSet*
 	TileResolutionData::getPrimitiveSet( GeometryType type ) const
 {
-    const osg::Geode* geode = mGetOsgGeode( geodes_, Triangle );
+    const osg::Geode* geode = getOSGGeode( geodes_, Triangle );
     if ( !geode ) return 0;
 
-    osg::Geometry* geom = mGetOsgGeometry( geode );
+    const osg::Geometry* geom = getOSGGeometry( geode );
     if ( !geom || geom->getNumPrimitiveSets()==0 )
     {
 	if ( trianglesps_ && trianglesps_->size()>0 )

@@ -313,9 +313,9 @@ void Annotation::setPixelDensity( float dpi )
 
 void Annotation::setCorner( int idx, float x, float y, float z )
 {
-    osg::Vec3& coord =
-	 ((osg::Vec3*) box_->getVertexArray()->getDataPointer())[idx];
-
+    auto* cornercoords = sCast(const osg::Vec3f*,
+			       box_->getVertexArray()->getDataPointer());
+    osg::Vec3f& coord = cCast(osg::Vec3&,cornercoords[idx]);
     mVisTrans::transform( displaytrans_, osg::Vec3(x,y,z), coord );
 }
 
@@ -383,9 +383,8 @@ void Annotation::updateGridLines()
 
     coords->resize( 0 );
 
-    const osg::Vec3f* cornercoords = (const osg::Vec3f*)
-	box_->getVertexArray()->getDataPointer();
-
+    auto* cornercoords = sCast(const osg::Vec3f*,
+			       box_->getVertexArray()->getDataPointer());
     for ( int dim=0; dim<3; dim++ )
     {
 	osg::Vec3 p0;
@@ -479,9 +478,8 @@ void Annotation::getAxisCoords( int dim, osg::Vec3& p0, osg::Vec3& p1 ) const
 	pidx1 = 4;
     }
 
-    const osg::Vec3f* cornercoords = (const osg::Vec3f*)
-	box_->getVertexArray()->getDataPointer();
-
+    auto* cornercoords = sCast(const osg::Vec3f*,
+			       box_->getVertexArray()->getDataPointer());
     mVisTrans::transformBack( displaytrans_, cornercoords[pidx0], p0 );
     mVisTrans::transformBack( displaytrans_, cornercoords[pidx1], p1 );
 }
@@ -569,14 +567,13 @@ void Annotation::fillPar( IOPar& par ) const
 {
     BufferString key;
 
-    const osg::Vec3f* cornercoords =
-	(const osg::Vec3f*) box_->getVertexArray()->getDataPointer();
-
+    auto* cornercoords = sCast(const osg::Vec3f*,
+			       box_->getVertexArray()->getDataPointer());
     for ( int idx=0; idx<8; idx++ )
     {
 	key = cornerprefixstr();
 	key += idx;
-	const osg::Vec3 pos = cornercoords[idx];
+	const osg::Vec3f& pos = cornercoords[idx];
 	par.set( key, pos[0], pos[1], pos[2] );
     }
 

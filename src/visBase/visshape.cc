@@ -468,8 +468,8 @@ Coord3 VertexShape::getOsgNormal( int idx ) const
     if ( osggeom_ )
     {
 	const osg::Array* arr = osggeom_->getNormalArray();
-	osg::Vec3Array* osgnormals = mGetOsgVec3Arr( arr );
-	if ( osgnormals->size()>idx )
+	const osg::Vec3Array* osgnormals = sCast(const osg::Vec3Array*,arr);
+	if ( osgnormals->size() > idx )
 	    nm = Conv::to<Coord3>( (*osgnormals)[idx] );
     }
     return nm;

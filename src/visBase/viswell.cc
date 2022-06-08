@@ -1028,13 +1028,9 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	pss += ps;
     }
 
-    const osg::Vec3Array* vertices =
-	mGetOsgVec3Arr( dynamic_cast<osg::Array*>(geom->getVertexArray()) );
-    const osg::Vec3Array* osgnormals =
-	mGetOsgVec3Arr( dynamic_cast<osg::Array*>(geom->getNormalArray()) );
-
-    const osg::Vec4Array* clrarr =
-	mGetOsgVec4Arr( dynamic_cast<osg::Array*>(geom->getColorArray()) );
+    const osg::Vec3Array* vertices = mGetOsgVec3Arr( geom->getVertexArray() );
+    const osg::Vec3Array* osgnormals = mGetOsgVec3Arr( geom->getNormalArray() );
+    const osg::Vec4Array* clrarr = mGetOsgVec4Arr( geom->getColorArray() );
 
     for ( int idx=0; idx<vertices->size(); idx++ )
 	coords += Conv::to<Coord3>( (*vertices)[idx] );
