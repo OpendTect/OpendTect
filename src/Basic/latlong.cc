@@ -234,7 +234,7 @@ LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
     : latdist_(cAvgEarthRadius*mDeg2RadD)
     , scalefac_(-1)
 {
-    set( c, l );
+    set( l, c );
 }
 
 

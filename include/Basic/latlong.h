@@ -32,8 +32,7 @@ public:
 
     bool		operator ==(const LatLong&) const;
 
-			LatLong( const Coord& c ) { *this = transform(c); }
-			operator Coord() const	  { return transform(*this); }
+    explicit		LatLong( const Coord& c ) { *this = transform(c); }
 			//Using SI()
 
     bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}
