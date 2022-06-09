@@ -35,10 +35,13 @@ class uiLatLongDMSInp : public uiGroup
 { mODTextTranslationClass(uiLatLongDMSInp);
 public:
 			uiLatLongDMSInp(uiParent*,bool lat);
+			~uiLatLongDMSInp();
 
     double		value() const;
     void		set(double);
     void		setReadOnly(bool);
+
+    Notifier<uiLatLongDMSInp> valueChanged;
 
 protected:
 
@@ -48,11 +51,14 @@ protected:
     uiSpinBox*		minfld_;
     uiLineEdit*		secfld_;
     uiComboBox*		hfld_;
+
+    void		valChgCB(CallBacker*);
 };
 
 
 uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     : uiGroup(p,BufferString(lat?"lat":"long"," DMS group"))
+    , valueChanged(this)
     , islat_(lat)
 {
     const char* nm = islat_ ? "Latitude" : "Longitude";
@@ -62,10 +68,12 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     else
 	degfld_->setInterval( 0, 180, 1 );
     degfld_->setValue( 0 );
+
     minfld_ = new uiSpinBox( this, 0, BufferString("DMS ",nm," min") );
     minfld_->setInterval( 0, 59, 1 );
     minfld_->setValue( 0 );
     minfld_->attach( rightOf, degfld_ );
+
     secfld_ = new uiLineEdit( this, BufferString("DMS ",nm," sec") );
     secfld_->setHSzPol( uiObject::Small );
     secfld_->attach( rightOf, minfld_ );
@@ -79,6 +87,23 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     hfld_->attach( rightOf, secfld_ );
     hfld_->addItem( lat ? uiStrings::sNorth(true) : uiStrings::sEast(true) );
     hfld_->addItem( lat ? uiStrings::sSouth(true) : uiStrings::sWest(true) );
+
+    mAttachCB( degfld_->valueChanged, uiLatLongDMSInp::valChgCB );
+    mAttachCB( minfld_->valueChanged, uiLatLongDMSInp::valChgCB );
+    mAttachCB( secfld_->editingFinished, uiLatLongDMSInp::valChgCB );
+    mAttachCB( hfld_->selectionChanged, uiLatLongDMSInp::valChgCB );
+}
+
+
+uiLatLongDMSInp::~uiLatLongDMSInp()
+{
+    detachAllNotifiers();
+}
+
+
+void uiLatLongDMSInp::valChgCB( CallBacker* )
+{
+    valueChanged.trigger();
 }
 
 
@@ -117,38 +142,51 @@ void uiLatLongDMSInp::set( double val )
 }
 
 
+// uiLatLongInp
 uiLatLongInp::uiLatLongInp( uiParent* p )
     : uiGroup(p,"Lat/Long inp group")
+    , valueChanged(this)
 {
-    const CallBack tscb( mCB(this,uiLatLongInp,typSel) );
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp",
-					     OD::Horizontal );
+    auto* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp", OD::Horizontal );
     bgrp->setExclusive( true );
     isdecbut_ = new uiRadioButton( bgrp, uiStrings::sDecimal() );
     isdecbut_->setChecked( true );
-    isdecbut_->activated.notify( tscb );
-    uiRadioButton* isdmsbut = new uiRadioButton( bgrp, tr("DMS") );
-    isdmsbut->activated.notify( tscb );
+    mAttachCB( isdecbut_->activated, uiLatLongInp::typSel );
+    auto* isdmsbut = new uiRadioButton( bgrp, tr("DMS") );
+    mAttachCB( isdmsbut->activated, uiLatLongInp::typSel );
 
-    uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
-    uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
-    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
+    auto* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
+    auto* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
+    auto* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
     latlbl->attach( alignedBelow, lnglbl );
     lblgrp->setHAlignObj( lnglbl );
 
-    uiGroup* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
+    auto* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
     lngdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Longitude" );
+    inpgrp->setHAlignObj( lngdecfld_ );
+
     latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
     latdecfld_->attach( alignedBelow, lngdecfld_ );
+
     lngdmsfld_ = new uiLatLongDMSInp( inpgrp, false );
     latdmsfld_ = new uiLatLongDMSInp( inpgrp, true );
     latdmsfld_->attach( alignedBelow, lngdmsfld_ );
-    inpgrp->setHAlignObj( lngdecfld_ );
+
+    mAttachCB( lngdecfld_->editingFinished, uiLatLongInp::llchgCB );
+    mAttachCB( latdecfld_->editingFinished, uiLatLongInp::llchgCB );
+    mAttachCB( lngdmsfld_->valueChanged, uiLatLongInp::llchgCB );
+    mAttachCB( latdmsfld_->valueChanged, uiLatLongInp::llchgCB );
 
     lblgrp->attach( leftTo, inpgrp );
     inpgrp->attach( alignedBelow, bgrp );
     setHAlignObj( inpgrp );
-    postFinalize().notify( tscb );
+    mAttachCB( postFinalize(), uiLatLongInp::typSel );
+}
+
+
+uiLatLongInp::~uiLatLongInp()
+{
+    detachAllNotifiers();
 }
 
 
@@ -161,6 +199,12 @@ void uiLatLongInp::typSel( CallBacker* )
     lngdecfld_->display( isdec );
     latdmsfld_->display( !isdec );
     lngdmsfld_->display( !isdec );
+}
+
+
+void uiLatLongInp::llchgCB( CallBacker* )
+{
+    valueChanged.trigger();
 }
 
 
@@ -193,6 +237,15 @@ void uiLatLongInp::set( const LatLong& ll )
 
 void uiLatLongInp::set( const LatLong& ll, int opt )
 {
+    if ( ll.isUdf() )
+    {
+	latdecfld_->setValue( 0 );
+	lngdecfld_->setValue( 0 );
+	latdmsfld_->set( 0 );
+	lngdmsfld_->set( 0 );
+	return;
+    }
+
     if ( opt >= 0 )
     {
 	latdecfld_->setValue( ll.lat_ );

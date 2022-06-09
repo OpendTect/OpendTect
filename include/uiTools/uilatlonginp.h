@@ -14,9 +14,10 @@ ________________________________________________________________________
 
 class LatLong;
 class uiGenInput;
+class uiLatLongDMSInp;
 class uiLineEdit;
 class uiRadioButton;
-class uiLatLongDMSInp;
+
 namespace Coords { class CoordSystem; }
 
 
@@ -24,11 +25,14 @@ mExpClass(uiTools) uiLatLongInp : public uiGroup
 { mODTextTranslationClass(uiLatLongInp)
 public:
 
-    			uiLatLongInp(uiParent*);
+			uiLatLongInp(uiParent*);
+			~uiLatLongInp();
 
     void		get(LatLong&) const;
     void		set(const LatLong&);
     void		setReadOnly(bool);
+
+    Notifier<uiLatLongInp> valueChanged;
 
 protected:
 
@@ -42,5 +46,6 @@ protected:
     void		set(const LatLong&,int);
 
     void		typSel(CallBacker*);
+    void		llchgCB(CallBacker*);
 };
 
