@@ -184,9 +184,14 @@ bool ODGoogle::KMLWriter::writePoint(
 }
 
 
+bool ODGoogle::KMLWriter::writePoint( const LatLong& ll, const char* nm )
+{
+    return putIconStyles() && putPlaceMark( ll, nm );
+}
+
+
 bool ODGoogle::KMLWriter::writePoint( const Coord& coord, const char* nm )
 {
-    TypeSet<Coord> crds; crds += coord;
     return putIconStyles() && putPlaceMark( coord, nm );
 }
 

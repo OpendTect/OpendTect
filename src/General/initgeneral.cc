@@ -57,6 +57,9 @@ mDefModInitFn(General)
     RangeProperty::initClass();
     MathProperty::initClass();
 
+    GeoJSONWriter::initClass();
+    ODGoogle::KMLWriter::initClass();
+
     if ( !NeedDataBase() )
 	return;
 
@@ -71,9 +74,6 @@ mDefModInitFn(General)
     odSimpleTimeDepthModelTranslator::initClass();
     SimpleT2DTransform::initClass();
     SimpleD2TTransform::initClass();
-
-    GeoJSONWriter::initClass();
-    ODGoogle::KMLWriter::initClass();
 
     IOM().setDataSource( CommandLineParser() );
 }

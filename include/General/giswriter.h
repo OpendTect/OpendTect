@@ -52,7 +52,8 @@ public:
 
     virtual bool		writePoints(const TypeSet<Coord>&,
 					const BufferStringSet& nms) = 0;
-    virtual bool		writePoint(const Coord&,const char*nm = 0) = 0;
+    virtual bool		writePoint(const Coord&,const char* nm=0) = 0;
+    virtual bool		writePoint(const LatLong&,const char* nm=0) = 0;
     virtual bool		writePoint(
 				    const RefObjectSet<const Pick::Set>&) = 0;
     virtual bool		writeLine(const TypeSet<Coord>&,

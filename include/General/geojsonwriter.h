@@ -38,8 +38,7 @@ mDefaultFactoryInstantiation( GISWriter, GeoJSONWriter, "GeoJSON",
 			GeoJSONWriter();
 			~GeoJSONWriter();
 
-
-    uiString		errMsg() const override	{ return errmsg_; }
+    uiString		errMsg() const override		{ return errmsg_; }
     void		setStream(const BufferString&) override;
 
     void		setElemName(const char* nm) //!< before open()
@@ -53,7 +52,8 @@ mDefaultFactoryInstantiation( GISWriter, GeoJSONWriter, "GeoJSON",
 			    const BufferStringSet& nms) override;
     bool		writePoint(
 			    const RefObjectSet<const Pick::Set>&) override;
-    bool		writePoint(const Coord&, const char* nm=0) override;
+    bool		writePoint(const LatLong&,const char* nm=0) override;
+    bool		writePoint(const Coord&,const char* nm=0) override;
     bool		writeLine(const TypeSet<Coord>&,
 				  const char* nm=0) override;
     bool		writeLine(

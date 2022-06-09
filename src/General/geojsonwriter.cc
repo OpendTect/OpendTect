@@ -59,14 +59,18 @@ bool GeoJSONWriter::close()
 }
 
 
-#define mIsMulti( object ) \
-    const int sz = object.size(); \
-    if ( !sz ) return; \
-    const bool ismulti = sz > 1;
+
+bool GeoJSONWriter::writePoint( const LatLong& ll, const char* nm )
+{
+    pErrMsg("Not implemented yet");
+    return false;
+}
+
 
 bool GeoJSONWriter::writePoint( const Coord& coord, const char* nm )
 {
-    TypeSet<Coord> crds;  crds += coord;
+    TypeSet<Coord> crds;
+    crds += coord;
     BufferStringSet nms;
     nms.add( nm );
     return writeGeometry( "Point", crds, nms );

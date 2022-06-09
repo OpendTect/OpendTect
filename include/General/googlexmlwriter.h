@@ -22,36 +22,43 @@ class XMLItem;
 mExpClass(General) KMLWriter : public GISWriter
 { mODTextTranslationClass(KMLWriter);
 public:
-    mDefaultFactoryInstantiation( GISWriter, ODGoogle::KMLWriter, "KML",
-							toUiString("KML") );
+    mDefaultFactoryInstantiation(GISWriter,ODGoogle::KMLWriter, "KML",
+				 toUiString("KML"));
 
 			KMLWriter();
 			~KMLWriter();
 
-    uiString	errMsg() const override			{ return errmsg_; }
+    BufferString	getExtension() override	{ return BufferString("kml"); }
+    uiString		errMsg() const override		{ return errmsg_; }
 
-    void	setElemName( const char* nm ) //!< before open()
-						{ elemnm_ = nm; }
-    void	setSurveyName( const char* nm ) //!< before open()
-						{ survnm_ = nm; }
-    void	setStream(const BufferString& fnm) override;
-    void	setDesc(const BufferString& desc) { desc_ = desc; }
+    void		setElemName( const char* nm ) //!< before open()
+			{ elemnm_ = nm; }
+    void		setSurveyName( const char* nm ) //!< before open()
+			{ survnm_ = nm; }
+    void		setStream(const BufferString& fnm) override;
+    void		setDesc(const BufferString& desc) { desc_ = desc; }
 
-    bool	close() override;
+    bool		close() override;
 
-    bool	writePoints(const TypeSet<Coord>&,
+    bool		writePoints(const TypeSet<Coord>&,
 					const BufferStringSet& nms) override;
-    bool	writeLine(const TypeSet<Coord>&,
+    bool		writeLine(const TypeSet<Coord>&,
 			const char* nm=nullptr) override;
-    bool	writePoint(const Coord&, const char* nm=nullptr) override;
-    bool	writePolygon(const TypeSet<Coord>&,
-			const char* nm=nullptr) override;
-    bool	writePolygon(const TypeSet<Coord3>&,
-			const char* nm=nullptr) override;
-    bool	writeLine(const RefObjectSet<const Pick::Set>&) override;
-    bool	writePoint(const RefObjectSet<const Pick::Set>&) override;
-    bool	writePolygon(const RefObjectSet<const Pick::Set>&) override;
-    BufferString getExtension() override	{ return BufferString("kml"); }
+    bool		writePoint(const Coord&,
+				   const char* nm=nullptr) override;
+    bool		writePoint(const LatLong&,
+				   const char* nm=nullptr) override;
+    bool		writePolygon(const TypeSet<Coord>&,
+				     const char* nm=nullptr) override;
+    bool		writePolygon(const TypeSet<Coord3>&,
+				     const char* nm=nullptr) override;
+    bool		writeLine(
+				const RefObjectSet<const Pick::Set>&) override;
+    bool		writePoint(
+				const RefObjectSet<const Pick::Set>&) override;
+    bool		writePolygon(
+				const RefObjectSet<const Pick::Set>&) override;
+
 protected:
 
     BufferString	elemnm_;
