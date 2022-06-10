@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
+#include "uiicon.h"
 
 #include "perthreadrepos.h"
 #include "tablemodel.h"
@@ -24,9 +25,11 @@ ________________________________________________________________________
 #include <QApplication>
 #include <QByteArray>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QMargins>
 #include <QPainter>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
@@ -36,6 +39,10 @@ ________________________________________________________________________
 class ODStyledItemDelegate : public QStyledItemDelegate
 {
 public:
+
+ODStyledItemDelegate( uiTableView::CellType typ )
+    : celltype_(typ)
+{}
 
 void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	    const QModelIndex& index ) const override
@@ -55,6 +62,15 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     QStyledItemDelegate::paint( painter, myoption, index );
 }
 
+uiTableView::CellType cellType() const
+{
+    return celltype_;
+}
+
+private:
+
+	uiTableView::CellType	celltype_;
+
 };
 
 
@@ -62,7 +78,7 @@ class DecorationItemDelegate : public ODStyledItemDelegate
 {
 public:
 DecorationItemDelegate()
-    : ODStyledItemDelegate()
+    : ODStyledItemDelegate(uiTableView::Color)
 {}
 
 static const int sXPosPadding = 2;
@@ -104,7 +120,7 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	painter->drawPixmap( xpos, ypos, qpmwidth, qpmheight, *qpm );
     }
 
-    QStyledItemDelegate::paint( painter, option, index );
+    ODStyledItemDelegate::paint( painter, option, index );
 }
 
 };
@@ -113,8 +129,8 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 class DoubleItemDelegate : public ODStyledItemDelegate
 {
 public:
-DoubleItemDelegate()
-    : ODStyledItemDelegate()
+DoubleItemDelegate(uiTableView::CellType tp)
+    : ODStyledItemDelegate(tp)
     , nrdecimals_(2)
 {}
 
@@ -137,7 +153,7 @@ class TextItemDelegate : public ODStyledItemDelegate
 {
 public:
 TextItemDelegate()
-    : ODStyledItemDelegate()
+    : ODStyledItemDelegate(uiTableView::Text)
 {}
 
 
@@ -164,6 +180,102 @@ void setModelData( QWidget* editor, QAbstractItemModel* model,
     QString txt = lineedit->text();
     model->setData( index, txt, Qt::EditRole );
 }
+
+};
+
+
+class EnumItemDelegate : public ODStyledItemDelegate
+{
+public:
+EnumItemDelegate(const EnumDef* enumdef)
+    : ODStyledItemDelegate(uiTableView::Enum)
+    , enumdef_(enumdef)
+{}
+
+
+static const int sXPosPadding = 2;
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index ) const override
+{
+    if ( !enumdef_ )
+    {
+	pErrMsg("Model must supply an EnumDef for columns with CellType Enum");
+	QStyledItemDelegate::paint( painter, option, index );
+	return;
+    }
+
+    const int fontheight = option.fontMetrics.height();
+    QRect rect = option.rect;
+    const int ymargin = (rect.height() - fontheight) / 2;
+    rect -= QMargins( sXPosPadding, ymargin, sXPosPadding, ymargin );
+
+    const QVariant qvar = index.data( Qt::DisplayRole );
+    const int enumidx = enumdef_->indexOf( qvar.toInt() );
+    const char* iconfnm = enumdef_->getIconFileForIndex( enumidx );
+    if ( iconfnm && *iconfnm )
+    {
+	uiIcon icon( iconfnm );
+	icon.qicon().paint( painter, rect, Qt::AlignCenter );
+    }
+    else
+    {
+	uiString label = enumdef_->getUiStringForIndex( enumidx );
+	QString labeltxt;
+	painter->drawText( rect, Qt::AlignCenter, label.fillQString(labeltxt) );
+    }
+}
+
+
+QWidget* createEditor( QWidget* prnt,
+		       const QStyleOptionViewItem&,
+		       const QModelIndex& ) const override
+{
+    auto* qcb = new QComboBox( prnt );
+    if ( !enumdef_ )
+	return qcb;
+
+    for ( int idx=0; idx<enumdef_->size(); idx++ )
+    {
+	qcb->addItem( toQString(enumdef_->getUiStringForIndex(idx)) );
+	const char* iconnm = enumdef_->getIconFileForIndex( idx );
+	if ( !iconnm )
+	    continue;
+
+	uiIcon icon( iconnm );
+	qcb->setItemIcon( idx, icon.qicon() );
+    }
+
+    return qcb;
+}
+
+
+void setEditorData( QWidget* editor, const QModelIndex& index ) const override
+{
+    if ( !enumdef_ )
+	return;
+
+    const QVariant qvar = index.data( Qt::DisplayRole );
+    const int enumidx = enumdef_->indexOf( qvar.toInt() );
+    QComboBox* qcb = static_cast<QComboBox*>(editor);
+    qcb->setCurrentIndex( enumidx );
+}
+
+
+void setModelData( QWidget* editor, QAbstractItemModel* model,
+		   const QModelIndex& index ) const override
+{
+    if ( !enumdef_ )
+	return;
+
+    QComboBox* qcb = static_cast<QComboBox*>(editor);
+    const int enumval = enumdef_->getEnumValForIndex( qcb->currentIndex() );
+    model->setData( index, enumval, Qt::EditRole );
+}
+
+protected:
+
+    const EnumDef*	enumdef_;
 
 };
 
@@ -332,12 +444,14 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
 {
+    columndelegates_.setNullAllowed( true );
 }
 
 
 uiTableView::~uiTableView()
 {
     delete horizontalheaderstate_;
+    deepErase( columndelegates_ );
 }
 
 
@@ -524,39 +638,42 @@ bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
 }
 
 
-static TextItemDelegate* getTextDelegate()
-{
-    mDefineStaticLocalObject( PtrMan<TextItemDelegate>, del,
-			      = new TextItemDelegate )
-    return del;
-}
-
-
-static DoubleItemDelegate* getDoubleDelegate()
-{
-    mDefineStaticLocalObject( PtrMan<DoubleItemDelegate>, del,
-			      = new DoubleItemDelegate )
-    return del;
-}
-
-
-static DecorationItemDelegate* getDecorationItemDelegate()
-{
-    mDefineStaticLocalObject( PtrMan<DecorationItemDelegate>, del,
-			      = new DecorationItemDelegate )
-    return del;
-}
-
-
 void uiTableView::setColumnValueType( int col, CellType tp )
 {
+    ODStyledItemDelegate* coldelegate = getColumnDelegate( col, tp );
+    if ( coldelegate )
+	odtableview_->setItemDelegateForColumn( col, coldelegate );
+}
+
+
+ODStyledItemDelegate* uiTableView::getColumnDelegate( int col, CellType tp )
+{
+    if ( columndelegates_.validIdx(col) && columndelegates_[col] &&
+	    columndelegates_[col]->cellType() == tp )
+	return columndelegates_[col];
+
+    while ( columndelegates_.size() <= col )
+	columndelegates_ += nullptr;
+
+    ODStyledItemDelegate* res = createColumnDelegate( col, tp );
+    delete columndelegates_.replace( col, res );
+    return res;
+}
+
+
+ODStyledItemDelegate* uiTableView::createColumnDelegate( int col, CellType tp )
+{
     if ( tp==NumD || tp==NumF )
-	odtableview_->setItemDelegateForColumn( col, getDoubleDelegate() );
-    else if ( tp==Text )
-	odtableview_->setItemDelegateForColumn( col, getTextDelegate() );
-    else if ( tp==Color )
-	odtableview_->setItemDelegateForColumn( col,
-						getDecorationItemDelegate() );
+	return new DoubleItemDelegate(tp);
+    if ( tp==Text )
+	return new TextItemDelegate;
+    if ( tp==Enum )
+	return new EnumItemDelegate( tablemodel_ ? tablemodel_->getEnumDef(col)
+						 : nullptr );
+    if ( tp==Color )
+	return new DecorationItemDelegate;
+
+    return nullptr;
 }
 
 

@@ -29,6 +29,7 @@ public:
     public:
 	CellData();
 	CellData(const QVariant&);
+	CellData(const QString&);
 	CellData(const char*);
 	CellData(bool);
 	CellData(int);
@@ -64,6 +65,9 @@ public:
     virtual int			isChecked(int row,int col) const  { return -1; }
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const		= 0;
+    virtual const EnumDef*	getEnumDef(int col) const
+				{ return nullptr; }
+
     QAbstractTableModel*	getAbstractModel();
     void			beginReset();
     void			endReset();

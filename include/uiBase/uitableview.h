@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class TableModel;
 class ODTableView;
+class ODStyledItemDelegate;
 class QByteArray;
 class QSortFilterProxyModel;
 class QVariant;
@@ -28,7 +29,7 @@ public:
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
     enum CellType		{ Bool, Text, NumI, NumF,
-				  NumD, Color, Date };
+				  NumD, Color, Date, Enum, Other };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
@@ -59,14 +60,19 @@ public:
     bool			getSelectedCells(TypeSet<RowCol>&) const;
 
     void			setColumnValueType(int col,CellType);
-    void			setColumnWidth( int col,int width );
+    void			setColumnWidth(int col,int width );
 
 protected:
 
     ODTableView&		mkView(uiParent*,const char*);
+    ODStyledItemDelegate*	getColumnDelegate(int col,CellType);
 
     TableModel*			tablemodel_	= nullptr;
     ODTableView*		odtableview_;
     QSortFilterProxyModel*	qproxymodel_	= nullptr;
     QByteArray*			horizontalheaderstate_	= nullptr;
+
+    ObjectSet<ODStyledItemDelegate>	columndelegates_;
+
+    virtual ODStyledItemDelegate*	createColumnDelegate(int col,CellType);
 };

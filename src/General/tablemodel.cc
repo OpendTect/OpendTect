@@ -186,6 +186,10 @@ TableModel::CellData::CellData( const QVariant& qvar)
     : qvar_(*new QVariant(qvar))
 {}
 
+TableModel::CellData::CellData( const QString& qstr)
+    : qvar_(*new QVariant(qstr))
+{}
+
 TableModel::CellData::CellData( const char* txt )
     : qvar_(*new QVariant(txt))
 {}
