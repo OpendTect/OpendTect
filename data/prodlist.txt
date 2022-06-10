@@ -1,7 +1,7 @@
 OpendTect Pro`dgbpro
 Dip Steering`dgbds
 HorizonCube`dgbhc
-Sequence Stratigraphic Interpretation System`dgbssis
+Sequence Stratigraphy Interpretation System`dgbssis
 Faults and Fractures`dgbflt
 Machine Learning`dgbml
 Neural Networks`dgbnn

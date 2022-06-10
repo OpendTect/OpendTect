@@ -320,3 +320,75 @@ bool uiPluginMan::rejectOK( CallBacker* )
 {
     return true;
 }
+
+
+
+static SharedLibAccess* prodloader_ = nullptr;
+
+static bool doBasicProdSelFn( uiParent* p, bool& skippluginsel, uiRetVal& msgs )
+{
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "uidGBTools", libnm.getCStr(),libnm.bufSize());
+    const FilePath fp( GetLibPlfDir(), libnm );
+    if ( !fp.exists() )
+    {
+	msgs.setOK(); //PRO not installed
+	return true;
+    }
+
+    delete prodloader_;
+    prodloader_ = new SharedLibAccess( fp.fullPath() );
+    if ( !prodloader_ || !prodloader_->isOK() )
+    {
+	msgs.add( od_static_tr("doBasicProdSelFn",
+			       "Cannot load uidGBTools library") );
+	if ( prodloader_ )
+	{
+	    msgs.add( toUiString(prodloader_->errMsg()) );
+	    prodloader_->close();
+	}
+	deleteAndZeroPtr( prodloader_ );
+	return false;
+    }
+
+    using VoidVoidFn = void(*)(void);
+    VoidVoidFn preinitfn =
+	    (VoidVoidFn)prodloader_->getFunction( "PreInituidGBToolsPlugin" );
+    if ( preinitfn )
+	(*preinitfn)();
+    else
+	msgs.add( od_static_tr("doBasicProdSelFn",
+		    "Cannot load uidGBTools library") );
+
+    return preinitfn;
+}
+
+
+using boolFromuiParentPtrFn = bool(*)(uiParent*,bool&,uiRetVal&);
+static boolFromuiParentPtrFn prodselfn_ = doBasicProdSelFn;
+
+mGlobal(uiTools) void setGlobal_uiTools_Fns(boolFromuiParentPtrFn);
+void setGlobal_uiTools_Fns( boolFromuiParentPtrFn prodselfn )
+{
+    prodselfn_ = prodselfn;
+}
+
+
+extern "C" {
+    mGlobal(uiTools) bool doProductSelection(uiParent*,bool&,uiRetVal&);
+}
+
+mExternC(uiTools) bool doProductSelection( uiParent* p, bool& skippluginsel,
+					   uiRetVal& msgs )
+{
+    if ( !doBasicProdSelFn(p,skippluginsel,msgs) )
+	return false;
+
+    const bool res = prodselfn_ == doBasicProdSelFn
+		   ? true : (*prodselfn_)(p,skippluginsel,msgs);
+    if ( prodloader_ )
+	prodloader_->close();
+    deleteAndZeroPtr( prodloader_ );
+
+    return res;
+}
