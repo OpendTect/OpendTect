@@ -207,8 +207,8 @@ void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
     if ( setup!=colorhandler_->mapper_.setup_ )
     {
 	colorhandler_->mapper_.setup_ = setup;
-	if ( setup.type_!=ColTab::MapperSetup::Fixed )
-	    reClip();
+	reClip();
+	updateGeometryMaterial();
     }
 }
 
