@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
-#include "uipluginsel.h"
 #include "uiseispartserv.h"
 #include "uisetdatadir.h"
 #include "uisplashscreen.h"
@@ -47,6 +46,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "genc.h"
 #include "file.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
@@ -73,7 +73,12 @@ ________________________________________________________________________
 #include <iostream>
 
 
-extern "C" const char* GetSettingsDataDir();
+extern "C" {
+
+    mGlobal(uiTools) bool doProductSelection(uiParent*,bool&,uiRetVal&);
+
+}
+
 
 static uiODMain* manODMainWin( uiODMain* i )
 {
@@ -216,15 +221,14 @@ int ODMain( uiMain& app )
     manODMainWin( odmain );
 
     checkScreenRes();
-
-    const bool skippluginsel = GetEnvVarYN( "OD_SKIP_PLUGIN_SEL" );
-    if ( !skippluginsel )
+    uiRetVal uirv;
+    bool skippluginsel = false;
+    if ( !doProductSelection(odmain,skippluginsel,uirv) )
     {
-	uiPluginSel dlg( odmain );
-	dlg.setPopupArea( uiMainWin::Auto );
-	dlg.setActivateOnFirstShow();
-	if ( dlg.go() == uiDialog::Rejected )
-	    return 1;
+	if ( !uirv.isOK() )
+	    uiMSG().error( uirv );
+
+	return 1;
     }
 
     SetProgramRestarter( ODMainProgramRestarter );
