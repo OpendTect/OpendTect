@@ -580,6 +580,7 @@ public:
     static uiString sSetting(int num=1)	{ return tr("Setting", 0, num ); }
     static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
+    static uiString sShape(int num=1)	{ return tr("Shape", 0, num ); }
     static uiString sShift()		{ return tr("Shift" ); }
     static uiString sShow()		{ return tr("Show"); }
     static uiString sShowIn()		{ return tr("Show in"); }
