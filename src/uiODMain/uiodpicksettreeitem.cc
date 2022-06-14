@@ -28,12 +28,14 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodbodydisplaytreeitem.h"
 #include "uiodscenemgr.h"
+#include "uinotsaveddlg.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
 #include "uipolygonzchanger.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
+#include "threadwork.h"
 #include "visseedpainter.h"
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
@@ -244,6 +246,10 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 
     mAttachCB( visBase::DM().selMan().selnotifier,
 	       uiODPickSetTreeItem::selChangedCB );
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODPickSetTreeItem::askSaveCB );
+
     propertymnuitem_.iconfnm = "disppars";
     paintingmnuitem_.iconfnm = "spraycan";
     storemnuitem_.iconfnm = "save";
@@ -512,6 +518,32 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
+void uiODPickSetTreeItem::askSaveCB( CallBacker* )
+{
+    const bool ischanged = Pick::Mgr().isChanged(
+				Pick::Mgr().indexOf(set_.ptr()->name()) );
+    if ( !ischanged )
+	return;
+
+    const uiString obj = toUiString("%1 ").arg( set_->name().buf() );
+    NotSavedPrompter::NSP().addObject( obj,
+				       mCB(this,uiODPickSetTreeItem,saveCB),
+				       false, 0 );
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+			   NotSavedPrompter::NSP().queueID(), false );
+}
+
+
+void uiODPickSetTreeItem::saveCB( CallBacker* cb )
+{
+    const bool issaved = applMgr()->storePickSet( *set_ );
+
+    if ( issaved && cb )
+	NotSavedPrompter::NSP().reportSuccessfullSave();
+}
+
+
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPolygon() )
 {
@@ -674,6 +706,9 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODPolygonTreeItem::askSaveCB );
+
     propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
@@ -684,6 +719,33 @@ uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     Pick::Mgr().removeCBs( this );
 }
+
+
+void uiODPolygonTreeItem::askSaveCB( CallBacker* )
+{
+    const bool ischanged = Pick::Mgr().isChanged(
+				Pick::Mgr().indexOf(set_.ptr()->name()) );
+    if ( !ischanged )
+	return;
+
+    const uiString obj = toUiString("%1 ").arg( set_->name().buf() );
+    NotSavedPrompter::NSP().addObject( obj,
+				       mCB(this,uiODPolygonTreeItem,saveCB),
+				       false, 0 );
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+			   NotSavedPrompter::NSP().queueID(), false );
+}
+
+
+void uiODPolygonTreeItem::saveCB( CallBacker* cb )
+{
+    const bool issaved = applMgr()->storePickSet( *set_ );
+
+    if ( issaved && cb )
+	NotSavedPrompter::NSP().reportSuccessfullSave();
+}
+
 
 
 bool uiODPolygonTreeItem::actModeWhenSelected() const
@@ -780,7 +842,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
-					   !set_->isReadOnly(),!psd->allShown());
+		  !set_->isReadOnly(),!psd->allShown() );
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
 
     const int setidx = Pick::Mgr().indexOf( *set_ );

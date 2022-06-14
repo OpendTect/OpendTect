@@ -81,6 +81,8 @@ protected:
     void		selChangedCB(CallBacker*);
     void		paintDlgClosedCB(CallBacker*);
     void		enablePainting(bool);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 };
 
 
@@ -145,6 +147,8 @@ protected:
     MenuItem		calcvolmnuitem_;
 
     void		selChangedCB(CallBacker*);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 };
 
 
