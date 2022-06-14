@@ -68,6 +68,13 @@ ___________________________________________________________________
 #include "survinfo.h"
 
 
+CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*>&
+	uiODBodyDisplayParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
     : uiODParentTreeItem( uiStrings::sGeobody() )
@@ -105,6 +112,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	mnu.addMenu( displaymnu );
     }
 
+    showMenuNotifier().trigger( &mnu, this );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();

@@ -18,8 +18,12 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
-		      class RandomPosBodyDisplay; }
+namespace visSurvey
+{
+class MarchingCubesDisplay;
+class PolygonBodyDisplay;
+class RandomPosBodyDisplay;
+}
 
 
 mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODParentTreeItem
@@ -27,6 +31,8 @@ mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODParentTreeItem
 public:
 			uiODBodyDisplayParentTreeItem();
 			~uiODBodyDisplayParentTreeItem();
+
+    static CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
     const char*		iconName() const override;

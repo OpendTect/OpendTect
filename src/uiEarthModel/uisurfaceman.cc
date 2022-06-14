@@ -132,7 +132,7 @@ static HelpKey getHelpID( uiSurfaceMan::Type typ )
 uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,tr("Manage")),
 			    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
-			    .modal(false), getIOCtxt(typ), ZDomain::sKey() )
+			    .modal(false), getIOCtxt(typ) )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
