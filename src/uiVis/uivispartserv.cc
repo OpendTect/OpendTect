@@ -1880,18 +1880,22 @@ void uiVisPartServer::setColor( int id, const OD::Color& col )
 
 bool uiVisPartServer::writeSceneToFile( int id, const uiString& dlgtitle ) const
 {
+    visBase::DataObject* obj = visBase::DM().getObject( id );
+    if ( !obj )
+	return false;
+
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
 			"*.osg", dlgtitle );
     filedlg.setDefaultExtension( "osg" );
 
-    if ( filedlg.go() )
-    {
-	visBase::DataObject* obj = visBase::DM().getObject( id );
-	if ( !obj ) return false;
-	return obj->serialize( filedlg.fileName() );
-    }
+    if ( !filedlg.go() )
+	return false;
 
-    return false;
+    const bool res = obj->serialize( filedlg.fileName() );
+    if ( !res )
+	uiMSG().error( tr("Could not write scene to file.") );
+
+    return res;
 }
 
 
