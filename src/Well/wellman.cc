@@ -481,6 +481,7 @@ bool Well::Man::deleteLogs( const MultiID& key,
 	return false;
     }
 
+    wd->logschanged.trigger(-1);
     return true;
 }
 
