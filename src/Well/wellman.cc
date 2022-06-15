@@ -309,12 +309,12 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
 	reloadLogs( key );
     else if ( lreqs.includes(LogInfos) )
     {
+	NotifyStopper ns( wd->logs().logAdded );
 	readReqData( key, *wd, LoadReqs(LogInfos) );
 	wd->logschanged.trigger( -1 );
     }
 
     wd->reloaded.trigger();
-
     return true;
 }
 
@@ -342,6 +342,7 @@ bool Well::Man::reloadLogs( const MultiID& key )
     BufferStringSet loadedlogs;
     RefMan<Data> wd = wells_[wdidx];
     wd->logs().getNames( loadedlogs, true );
+    NotifyStopper ns( wd->logs().logAdded );
     if ( !readReqData(key,*wd,LoadReqs(LogInfos)) )
 	return false;
 
@@ -471,6 +472,7 @@ bool Well::Man::deleteLogs( const MultiID& key,
 	if ( logidx<0 )
 	    continue;
 
+	NotifyStopper ns( wls.logRemoved );
 	delete wls.remove( logidx );
     }
 
@@ -729,6 +731,7 @@ bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
     }
     else
     {
+	NotifyStopper ns( currlogset.logAdded );
 	currlogset.add( const_cast<Well::Log*>(&log) );
 	logadded = true;
     }
@@ -740,6 +743,7 @@ bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
 	    *currlogset.getLog(newlognm) = currlogcopy;
 	else if ( logadded )
 	{
+	    NotifyStopper rmns( currlogset.logRemoved );
 	    const int idx = currlogset.indexOf( newlognm );
 	    delete currlogset.remove( idx );
 	}
