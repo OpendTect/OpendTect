@@ -19,11 +19,13 @@ mExpClass(uiTools) uiHostIDDlg : public uiDialog
 { mODTextTranslationClass(uiHostIDDlg)
 public:
 			uiHostIDDlg(uiParent*);
+			~uiHostIDDlg();
 protected:
     void		copyCB(CallBacker*);
 
     uiGenInput*		hostidfld_;
     uiLocalHostGrp*	localhostgrp_;
+    uiGenInput*		timezonefld_;
     uiGenInput*		osfld_;
     uiGenInput*		productnmfld_;
     uiGenInput*		usernmfld_;

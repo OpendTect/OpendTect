@@ -23,6 +23,8 @@ ___________________________________________________________________
 #include "uimsg.h"
 #include "uitoolbutton.h"
 
+#include <QTimeZone>
+
 uiHostIDDlg::uiHostIDDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Host Information"),mNoDlgTitle,mNoHelpKey))
 {
@@ -47,10 +49,15 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     hostidfld_->setReadOnly();
     localhostgrp_ = new uiLocalHostGrp( this, tr("Computer/Host") );
     localhostgrp_->attach( alignedBelow, hostidfld_ );
+
+    timezonefld_ = new uiGenInput( this, tr("Time Zone") );
+    timezonefld_->setReadOnly();
+    timezonefld_->attach( alignedBelow, localhostgrp_ );
+
     osfld_ = new uiGenInput( this, tr("Operating System") );
     osfld_->setStretch( 2, 1 );
     osfld_->setReadOnly();
-    osfld_->attach( alignedBelow, localhostgrp_ );
+    osfld_->attach( alignedBelow, timezonefld_ );
     productnmfld_ = new uiGenInput( this, tr("OS Product name") );
     productnmfld_->setStretch( 2, 1 );
     productnmfld_->setReadOnly();
@@ -63,8 +70,17 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     BufferString hostidstext = hostids.cat( " " );
     if ( hostids.size() > 1 )
 	hostidstext.quote( '"' );
+    const QTimeZone qloczone = QTimeZone::systemTimeZone();
+    const QTimeZone::TimeType ttyp = QTimeZone::GenericTime;
+    const QString qloczoneabbr = qloczone.displayName( ttyp,
+						       QTimeZone::ShortName );
+    const QString qloczoneoffs = qloczone.displayName( ttyp,
+						       QTimeZone::OffsetName );
+    BufferString zonestr( qloczoneabbr );
+    zonestr.add( " (" ).add( qloczoneoffs ).add( ")" );
 
     hostidfld_->setText( hostidstext );
+    timezonefld_->setText( zonestr );
     osfld_->setText( OD::Platform().longName() );
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
@@ -76,12 +92,17 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 }
 
 
+uiHostIDDlg::~uiHostIDDlg()
+{
+}
+
 void uiHostIDDlg::copyCB( CallBacker* )
 {
     BufferString txt;
     txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
        .add( "Host name: " ).add( localhostgrp_->hostname() ).addNewLine()
        .add( "IP Address: " ).add( localhostgrp_->address() ).addNewLine()
+       .add( "Time Zone: " ).add( timezonefld_->text() ).addNewLine()
        .add( "Operating System: " ).add( osfld_->text() ).addNewLine()
        .add( "Product name: " ).add( productnmfld_->text() ).addNewLine()
        .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
