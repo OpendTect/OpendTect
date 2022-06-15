@@ -65,7 +65,9 @@ set( OD_SUBSYSTEM "od" )
 
 option ( OD_NO_QT "Turn off all QT" OFF )
 option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
-set( PROJ_DIR "" CACHE PATH "External proj installation" )
+option ( OD_NO_PROJ "Do not use proj library for CRS" OFF )
+option ( BUILD_PROJ "Checkout and build proj in external" OFF )
+set( PROJ_DIR "" CACHE PATH "Pre-built proj installation" )
 option ( OD_ENABLE_BREAKPAD "Use breakpad" OFF )
 
 include( OD_SetupOD )
