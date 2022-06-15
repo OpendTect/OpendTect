@@ -43,9 +43,9 @@ public:
 	    Threads::sleep( 1 );
     }
 
-    bool isOK(bool stderr=false)
+    bool isOK(bool check_stderr=false)
     {
-	return finished_ && (stderr ? expout_==error_ : expout_==output_);
+	return finished_ && (check_stderr ? expout_==error_ : expout_==output_);
     }
 
     BufferString output_;
