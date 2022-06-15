@@ -72,6 +72,7 @@ macro( OD_SETUP_EXTERNALS )
 		-DOD_NO_OSG=${OD_NO_OSG}
 		-DPROJ_DIR=${PROJ_DIR}
 		-DOD_NO_PROJ=${OD_NO_PROJ}
+		-DBUILD_PROJ=${BUILD_PROJ}
 		-DUPDATE=No
 		-P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
 	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -86,6 +87,7 @@ macro( OD_SETUP_EXTERNALS )
 		    -DOD_NO_OSG=${OD_NO_OSG}
 		    -DPROJ_DIR=${PROJ_DIR}
 		    -DOD_NO_PROJ=${OD_NO_PROJ}
+		    -DBUILD_PROJ=${BUILD_PROJ}
 		    -DUPDATE=Yes
 		    -P external/Externals.cmake )
     endif()
