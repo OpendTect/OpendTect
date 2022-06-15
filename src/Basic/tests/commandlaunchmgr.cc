@@ -12,8 +12,6 @@
 
 #include <iostream>
 
-
-
 using namespace Threads;
 
 class TestClass : public CallBacker
@@ -43,9 +41,9 @@ public:
 	    Threads::sleep( 1 );
     }
 
-    bool isOK(bool stderr=false)
+    bool isOK( bool isstderr=false )
     {
-	return finished_ && (stderr ? expout_==error_ : expout_==output_);
+	return finished_ && (isstderr ? error_==expout_ : output_==expout_);
     }
 
     BufferString output_;
@@ -58,27 +56,30 @@ public:
 static bool testCmdWithCallback()
 {
     BufferString hello( "Hello Test with Callback" );
-#ifdef __win__
-    //TODO
-#else
-    OS::MachineCommand machcomm1( "echo", hello );
-    OS::MachineCommand machcomm2( "echo", hello, ">&2" );
-#endif
+    const OS::MachineCommand machcomm1( "echo", hello );
+    const OS::MachineCommand machcomm2( "echo", hello, ">&2" );
+    if ( __iswin__ )
+	hello.quote( '\"' );
+
     CommandLaunchMgr& mgr = CommandLaunchMgr::getMgr();
     {
 	TestClass test( hello );
-	CallBack cb(mCB(&test, TestClass, finishedCB));
+	CallBack cb( mCB(&test,TestClass,finishedCB) );
 	mgr.execute( machcomm1, true, true, &cb );
 	test.wait4Finish();
 	mRunStandardTest( test.isOK(), "CommandLaunchMgr::read stdout" );
     }
     {
+	if ( __iswin__ )
+	    hello.addSpace();
+
 	TestClass test( hello );
-	CallBack cb(mCB(&test, TestClass, finishedCB));
+	CallBack cb( mCB(&test,TestClass,finishedCB) );
 	mgr.execute( machcomm2, true, true, &cb );
 	test.wait4Finish();
 	mRunStandardTest( test.isOK(true), "CommandLaunchMgr::read stderr" );
     }
+
     return true;
 }
 
@@ -89,7 +90,6 @@ int mTestMainFnName( int argc, char** argv )
 
     // Debugging output screws up the command output, needs to be disabled:
     UnsetOSEnvVar( "DTECT_DEBUG" );
-
 
     const bool result = testCmdWithCallback();
 
