@@ -74,10 +74,13 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     const QTimeZone::TimeType ttyp = QTimeZone::GenericTime;
     const QString qloczoneabbr = qloczone.displayName( ttyp,
 						       QTimeZone::ShortName );
-    const QString qloczoneoffs = qloczone.displayName( ttyp,
-						       QTimeZone::OffsetName );
     BufferString zonestr( qloczoneabbr );
-    zonestr.add( " (" ).add( qloczoneoffs ).add( ")" );
+    if ( !__iswin__ )
+    {
+	const QString qloczoneoffs = qloczone.displayName( ttyp,
+						QTimeZone::OffsetName );
+	zonestr.add( " (" ).add( qloczoneoffs ).add( ")" );
+    }
 
     hostidfld_->setText( hostidstext );
     timezonefld_->setText( zonestr );
