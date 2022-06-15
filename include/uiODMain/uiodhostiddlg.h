@@ -24,6 +24,7 @@ public:
 protected:
     void		copyCB(CallBacker*);
     uiLocalHostGrp*	localhostgrp();
+    uiGenInput*		timeZoneFld();
 
     uiGenInput*		hostidfld_;
     uiGenInput*		hostnmfld_;
