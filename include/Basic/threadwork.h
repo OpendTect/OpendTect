@@ -197,6 +197,7 @@ public:
     inline		Work(Task& t,bool takeover);
 
     bool		operator==(const Work&) const;
+    inline const Task*	getTask() const;
 
     inline bool		isOK() const;
     inline bool		execute();
@@ -209,7 +210,7 @@ private:
     CallBackFunction	cbf_;
     TaskFunction	tf_;
     StaticTaskFunction	stf_;
-    bool		takeover_;
+    bool		takeover_=false;
 
     uiString		msg_;
 
@@ -245,6 +246,13 @@ inline Threads::Work::Work( Task& t, bool takeover )
     , takeover_( takeover )						{}
 
 
+inline const Task* Threads::Work::getTask() const
+{
+    mDynamicCastGet(const Task*, task, obj_);
+    return task;
+}
+
+
 inline bool Threads::Work::isOK() const
 { return stf_ || (obj_ && (tf_ || cbf_) ); }
 
@@ -262,8 +270,6 @@ inline bool Threads::Work::execute()
 	    mDynamicCastGet(Task*,task,obj_)
 	    msg_ = task ? task->uiMessage() : uiString::emptyString();
 	}
-
-	if ( takeover_ ) delete obj_;
 
 	return res;
     }

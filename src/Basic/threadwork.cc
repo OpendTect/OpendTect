@@ -200,6 +200,7 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    exitstatus_ = retval;
 	    fillMessage( task_ );
 	    finishedcb_.doCall( this );
+	    task_.destroy();
 	    manager_.workloadcond_.lock();
 	    bool isidle = false;
 

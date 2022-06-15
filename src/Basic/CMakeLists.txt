@@ -23,6 +23,7 @@ set( QT_MOC_HEADERS
 set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
+	commandlaunchmgr.cc
 	commandlineparser.cc
 	datapack.cc
 	file.cc
@@ -63,6 +64,7 @@ set( OD_MODULE_SOURCES
 	color.cc
 	compoundkey.cc
 	commanddefs.cc
+	commandlaunchmgr.cc
 	commandlineparser.cc
 	coordsystem.cc
 	dateinfo.cc
@@ -130,7 +132,6 @@ set( OD_MODULE_SOURCES
 	survinfo.cc
 	task.cc
 	thread.cc
-	threadlauncher.cc
 	threadwork.cc
 	texttranslator.cc
 	timefun.cc
