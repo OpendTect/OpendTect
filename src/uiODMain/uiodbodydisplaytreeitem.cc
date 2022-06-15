@@ -102,6 +102,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
     mnu.insertAction( new uiAction(tr("New polygon based Geobody")), 1 );
+    showMenuNotifier().trigger( &mnu, this );
+
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -112,7 +114,6 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	mnu.addMenu( displaymnu );
     }
 
-    showMenuNotifier().trigger( &mnu, this );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
