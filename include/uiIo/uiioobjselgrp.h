@@ -148,6 +148,7 @@ public:
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
 
+    Notifier<uiIOObjSelGrp>& listUpdated();
     void		fullUpdate(const MultiID& kpselected);
     void		fullUpdate(int);
 
