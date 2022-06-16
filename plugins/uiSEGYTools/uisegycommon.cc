@@ -53,6 +53,7 @@ void SEGY::FullSpec::fillPar( IOPar& iop ) const
     iop.setYN( FilePars::sKeyForceRev0(), rev_ == 0 );
     iop.setYN( sKeyIsVSP, isvsp_ );
     iop.setYN( sKeyZInFeet, zinfeet_ );
+    iop.set( sKey::LineNames(), linenames_ );
     if ( !isVSP() )
 	iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
     else
@@ -69,6 +70,7 @@ void SEGY::FullSpec::usePar( const IOPar& iop )
     readopts_.usePar( iop );
     iop.getYN( sKeyIsVSP, isvsp_ );
     iop.getYN( sKeyZInFeet, zinfeet_ );
+    iop.get( sKey::LineNames(), linenames_ );
     iop.get( FilePars::sKeyRevision(), rev_ );
     if ( iop.isTrue(FilePars::sKeyForceRev0()) )
 	rev_ = 0;
