@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uisegysip.h"
+#include "uisegymultilinesel.h"
 #include "uisegyreadstarter.h"
 #include "uisegyreadfinisher.h"
 
@@ -89,6 +90,16 @@ void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
     Seis::GeomType gt = Seis::Vol; Seis::getFromPar( iop, gt );
     SEGY::FullSpec fullspec( gt );
     fullspec.usePar( iop );
+    if ( gt == Seis::Line && fullspec.spec_.nrFiles() > 1 &&
+	 fullspec.linenames_.size() != fullspec.spec_.nrFiles() )
+    {
+	int wcidx = 0;
+	uiSEGYMultiLineSel linedlg( p, fullspec.spec_, wcidx,
+			   fullspec.linenames_ );
+	if ( !linedlg.go() )
+	    return;
+    }
+
     uiSEGYReadFinisher dlg( p, fullspec, userfilename_ );
     if ( dlg.go() )
 	dlg.setAsDefaultObj();

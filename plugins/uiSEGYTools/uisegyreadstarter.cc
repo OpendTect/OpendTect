@@ -989,8 +989,8 @@ bool uiSEGYReadStarter::getFileSpec()
     if ( userfilename_.isEmpty() )
 	return false;
 
+    const BufferStringSet oldfnames = filespec_.fnames_;
     filespec_.setEmpty();
-    linenames_.setEmpty();
     if ( !userfilename_.find('*') )
     {
 	if ( !getExistingFileName(userfilename_) )
@@ -1013,6 +1013,9 @@ bool uiSEGYReadStarter::getFileSpec()
 
 	filespec_.setUsrStr( userfilename_ );
     }
+
+    if ( oldfnames != filespec_.fnames_ )
+	linenames_.setEmpty();
 
     return true;
 }
