@@ -76,7 +76,6 @@ set( OD_MODULE_SOURCES
 	uiofferinfo.cc
 	uipathsel.cc
 	uipluginman.cc
-	uipluginsel.cc
 	uipolardiagram.cc
 	uipositiontable.cc
 	uipropvalfld.cc
