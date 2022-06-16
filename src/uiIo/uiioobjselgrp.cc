@@ -56,8 +56,14 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     , selgrp_(sg)
     , manipgrp_(0)
 {
-    selgrp_->selectionChanged.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
-    selgrp_->itemChosen.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
+    mAttachCB( selgrp_->selectionChanged, uiIOObjSelGrpManipSubj::selChg );
+    mAttachCB( selgrp_->itemChosen, uiIOObjSelGrpManipSubj::selChg );
+}
+
+
+~uiIOObjSelGrpManipSubj()
+{
+    detachAllNotifiers();
 }
 
 
@@ -107,7 +113,7 @@ void relocStart( const char* msg )
     uiIOObjManipGroup*	manipgrp_;
 
 };
-
+HiddenParam<uiIOObjSelGrp, Notifier<uiIOObjSelGrp>*> listUpdated_(nullptr);
 
 #define muiIOObjSelGrpConstructorCommons \
       uiGroup(p) \
@@ -124,7 +130,6 @@ void relocStart( const char* msg )
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init();
 }
 
@@ -133,7 +138,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 			      const uiString& seltxt )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init( seltxt );
 }
 
@@ -143,7 +147,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init();
 }
 
@@ -153,7 +156,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init( seltxt );
 }
 
@@ -161,7 +163,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init();
 }
 
@@ -170,7 +171,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const uiString& seltxt )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init( seltxt );
 }
 
@@ -180,7 +180,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init();
 }
 
@@ -190,7 +189,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, new BufferStringSet() );
     init( seltxt );
 }
 
@@ -199,7 +197,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 					const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init();
 }
 
@@ -208,7 +205,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 		const uiString& seltxt, const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init( seltxt );
 }
 
@@ -218,7 +214,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init();
 }
 
@@ -229,7 +224,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init( seltxt );
 }
 
@@ -238,7 +232,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 					const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init();
 }
 
@@ -247,7 +240,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 		const uiString& seltxt, const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init( seltxt );
 }
 
@@ -257,7 +249,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init();
 }
 
@@ -268,13 +259,14 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
-    trnotallowed_.setParam( this, trnotallowed.clone() );
     init( seltxt );
 }
 
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
+    listUpdated_.setParam( this, new Notifier<uiIOObjSelGrp>(this) );
+    trnotallowed_.setParam( this, new BufferStringSet() );
     iconnms_.allowNull( true );
     ctio_.ctxt_.fillTrGroup();
     nmfld_ = 0; wrtrselfld_ = 0;
@@ -290,7 +282,8 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	mkManipulators();
 
     setHAlignObj( topgrp_ );
-    postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
+
+    mAttachCB( postFinalise(), uiIOObjSelGrp::setInitial );
 }
 
 uiObject* uiIOObjSelGrp::getFilterFieldAttachObj()
@@ -308,7 +301,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
     filtfld_->setElemSzPol( uiObject::SmallVar );
-    filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    mAttachCB( filtfld_->updateRequested, uiIOObjSelGrp::filtChg );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( !withctxtfilter.isEmpty() )
     {
@@ -344,9 +337,9 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     if ( isMultiChoice() )
     {
 	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, mObjTypeName );
-	lbchoiceio_->readDone.notify( mCB(this,uiIOObjSelGrp,readChoiceDone) );
-	lbchoiceio_->storeRequested.notify(
-				mCB(this,uiIOObjSelGrp,writeChoiceReq) );
+	mAttachCB( lbchoiceio_->readDone, uiIOObjSelGrp::readChoiceDone );
+	mAttachCB( lbchoiceio_->storeRequested,
+					    uiIOObjSelGrp::writeChoiceReq );
     }
 
     fullUpdate( -1 );
@@ -364,8 +357,8 @@ void uiIOObjSelGrp::mkWriteFlds()
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_,
 					getTrNotAllowed(), true );
-	wrtrselfld_->suggestedNameAvailble.notify(
-				mCB(this,uiIOObjSelGrp,nameAvCB) );
+	mAttachCB( wrtrselfld_->suggestedNameAvailble,
+						    uiIOObjSelGrp::nameAvCB );
     }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
@@ -438,7 +431,7 @@ void uiIOObjSelGrp::mkManipulators()
 	if ( prevnrbuts > 0 )
 	    but->attach( rightAlignedBelow, insertbuts_[prevnrbuts-1] );
 
-	inserter->objectInserted.notify( mCB(this,uiIOObjSelGrp,objInserted) );
+	mAttachCB( inserter->objectInserted, uiIOObjSelGrp::objInserted );
 	inserters_ += inserter;
     }
 
@@ -449,6 +442,7 @@ void uiIOObjSelGrp::mkManipulators()
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     detachAllNotifiers();
+    listUpdated_.removeAndDeleteParam(this);
     deepErase( ioobjids_ );
     deepErase( inserters_ );
     if ( manipgrpsubj )
@@ -461,6 +455,12 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     delete lbchoiceio_;
 
     trnotallowed_.removeAndDeleteParam( this );
+}
+
+
+Notifier<uiIOObjSelGrp>& uiIOObjSelGrp::listUpdated()
+{
+    return *listUpdated_.getParam( this );
 }
 
 
@@ -820,7 +820,8 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
     fillListBox();
     setCurrent( curidx );
-    selChg( 0 );
+    listUpdated_.getParam( this )->trigger();
+    selChg( nullptr );
 }
 
 
@@ -933,10 +934,9 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	}
     }
 
-    listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,choiceChg) );
-    listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
-
+    mAttachCB( listfld_->selectionChanged, uiIOObjSelGrp::selChg );
+    mAttachCB( listfld_->itemChosen, uiIOObjSelGrp::choiceChg );
+    mAttachCB( listfld_->deleteButtonPressed, uiIOObjSelGrp::delPress );
     if ( ctio_.ctxt_.forread_ )
 	selChg( 0 );
 }
