@@ -84,6 +84,7 @@ bool CommandTask::execute()
     else
 	res = machcmd_.execute( execpars_ );
 
+    result_ = res;
     return res;
 }
 

@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "gmtprocflowtr.h"
 #include "initgmtplugin.h"
 #include "msgh.h"
-#include "oscommand.h"
 #include "separstr.h"
-#include "threadwork.h"
+#include "callback.h"
+#include "commandlaunchmgr.h"
 
 
 namespace GMT {
@@ -98,16 +98,43 @@ static void extractVersionString( const BufferString& inp )
 }
 
 
-static bool checkGMTAvailability()
+static void checkGMTAvailability( bool isgmt5 );
+
+static void gmtVersionCB( CallBacker* cb )
+{
+    const auto* ct = Threads::CommandLaunchMgr::getMgr().getCommandTask( cb );
+    if ( !ct )
+	return;
+
+    const auto& mc = ct->getMachineCommand();
+    const BufferString versiontxt = ct->getStdOutput();
+    const BufferString errortxt = ct->getStdError();
+    if ( BufferString(mc.program())==sKeyGMTExec() )
+    {
+	hasgmt5_ = ct->getResult();
+	if ( !hasgmt5_ )
+	{
+	    checkGMTAvailability( false );
+	    return;
+	}
+    }
+    else
+	hasgmt4_ = ct->getResult();
+
+    extractVersionString( versiontxt );
+    if ( versiontxt.isEmpty() || !errortxt.isEmpty() )
+	ErrMsg( BufferString("Compatible GMT version not found: ", errortxt) );
+    else
+	UsrMsg( BufferString("Found GMT", versiontxt) );
+}
+
+
+static void checkGMTAvailability( bool isgmt5)
 {
     BufferString versiontxt;
     BufferString errortxt;
     OS::MachineCommand machcomm( sKeyGMTExec(), "--version" );
-    hasgmt5_ = machcomm.execute( versiontxt, &errortxt );
-    if ( hasgmt5_ )
-	extractVersionString( versiontxt );
-    else
-    {
+    if ( !isgmt5 )
 #if defined __mac__
 	return; // Never supported GMT4 on MAC
 #elif defined __lux__
@@ -116,30 +143,19 @@ static bool checkGMTAvailability()
 	machcomm.setProgram( sKeyWindowsGMT4TestExec() );
 #endif
 
-	versiontxt.setEmpty();
-	hasgmt4_ = machcomm.execute( versiontxt, &errortxt );
-	if ( hasgmt4_ )
-	    extractVersionString( versiontxt );
-    }
-    if ( versiontxt.isEmpty() || !errortxt.isEmpty() )
-    {
-	ErrMsg( BufferString("Compatible GMT version not found: ", errortxt) );
-	return false;
-    }
-    UsrMsg( BufferString("Found GMT", versiontxt) );
-    return true;
+    auto& mgr = Threads::CommandLaunchMgr::getMgr();
+    CallBack cb( mSCB(gmtVersionCB) );
+    mgr.execute( machcomm, true, true, &cb );
 }
 
 };
-
-
 
 void GMT::initStdClasses()
 {
     ODGMTProcFlowTranslatorGroup::initClass();
     dgbODGMTProcFlowTranslator::initClass();
 
-    Threads::WorkManager::twm().addWork( Threads::Work(&checkGMTAvailability) );
+    checkGMTAvailability( true );
 
     GMTBaseMap::initClass();
     GMTClip::initClass();

@@ -42,6 +42,8 @@ public:
 				mOD_DisableCopy(CommandTask);
 
     bool			execute() override;
+    bool			getResult() const	{ return result_; }
+    const OS::MachineCommand&	getMachineCommand() const { return machcmd_; }
 
     BufferString		getStdOutput() const;
     BufferString		getStdError() const;
@@ -52,6 +54,7 @@ protected:
     BufferString*		stdoutput_ = nullptr;
     BufferString*		stderror_ = nullptr;
     bool			inpythonenv_ = false;
+    bool			result_ = false;
 
 };
 
