@@ -20,7 +20,6 @@ ________________________________________________________________________
 #define		mLooknFeelSettingsHelpID			0x00002003
 #define		mShortcutsDlgHelpID				0x00002004
 #define		mPluginManHelpID				0x00002005
-#define		mPluginSelHelpID				0x00002006
 #define		mODSceneMgrsetKeyBindingsHelpID			0x00002007
 #define		mSurveySettingsHelpID				0x00002008
 #define		mPythonSettingsHelpID				0x00002009
