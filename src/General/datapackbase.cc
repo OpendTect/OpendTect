@@ -127,7 +127,7 @@ protected:
     MapDataPack&	mdp_;
     Coord		startpt_;
     Coord		stoppt_;
-    TrcKeySampling		hsamp_;
+    TrcKeySampling	hsamp_;
     float		xstep_;
     float		ystep_;
 };
@@ -154,14 +154,14 @@ FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
 
 FlatDataPack::FlatDataPack( const FlatDataPack& fdp )
     : DataPack( fdp )
-    , arr2d_( fdp.arr2d_ ? new Array2DImpl<float>( *fdp.arr2d_ ) : 0 )
+    , arr2d_( fdp.arr2d_ ? new Array2DImpl<float>( *fdp.arr2d_ ) : nullptr )
     , posdata_( *new FlatPosData(fdp.posdata_) )
 { }
 
 
 FlatDataPack::FlatDataPack( const char* cat )
     : DataPack(cat)
-    , arr2d_(0)
+    , arr2d_(nullptr)
     , posdata_(*new FlatPosData)
 {
     // We cannot call init() here: size() does not dispatch virtual here
@@ -244,7 +244,7 @@ int FlatDataPack::size( bool dim0 ) const
 MapDataPack::MapDataPack( const char* cat, Array2D<float>* arr )
     : FlatDataPack(cat,arr)
     , isposcoord_(false)
-    , xyrotarr2d_(0)
+    , xyrotarr2d_(nullptr)
     , xyrotposdata_(*new FlatPosData)
     , axeslbls_(4,"")
 {
@@ -313,10 +313,10 @@ void MapDataPack::setRange( StepInterval<double> dim0rg,
 }
 
 
-void MapDataPack::initXYRotArray( TaskRunner* tr )
+void MapDataPack::initXYRotArray( TaskRunner* taskr )
 {
     MapDataPackXYRotator rotator( *this );
-    TaskRunner::execute( tr, rotator );
+    TaskRunner::execute( taskr, rotator );
 }
 
 
@@ -324,7 +324,7 @@ Array2D<float>& MapDataPack::data()
 {
     Threads::Locker lck( initlock_ );
     if ( isposcoord_ && !xyrotarr2d_ )
-	initXYRotArray( 0 );
+	initXYRotArray( nullptr );
 
     return isposcoord_ ? *xyrotarr2d_ : *arr2d_;
 }
@@ -334,7 +334,7 @@ FlatPosData& MapDataPack::posData()
 {
     Threads::Locker lck( initlock_ );
     if ( isposcoord_ && !xyrotarr2d_ )
-	initXYRotArray( 0 );
+	initXYRotArray( nullptr );
 
     return isposcoord_ ? xyrotposdata_ : posdata_;
 }
@@ -373,7 +373,7 @@ VolumeDataPack::VolumeDataPack( const char* categry,
 
 VolumeDataPack::VolumeDataPack( const char* cat )
     : DataPack(cat)
-    , arr3d_(0)
+    , arr3d_(nullptr)
 {}
 
 
@@ -426,7 +426,7 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
-    , scaler_(0)
+    , scaler_(nullptr)
     , rdlid_(-1)
 {
 }
@@ -470,7 +470,7 @@ void SeisDataPack::getPath( TrcKeyPath& path ) const
 {
     path.erase();
     for ( int idx=0; idx<nrTrcs(); idx++ )
-        path += getTrcKey( idx );
+	path += getTrcKey( idx );
 }
 
 
@@ -479,7 +479,7 @@ const OffsetValueSeries<float>
 {
     const Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->info().getSize(2) );
+			od_int64(globaltrcidx) * array->info().getSize(2) );
 }
 
 
@@ -487,31 +487,94 @@ OffsetValueSeries<float> SeisDataPack::getTrcStorage(int comp, int globaltrcidx)
 {
     Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->info().getSize(2) );
+			od_int64(globaltrcidx) * array->info().getSize(2) );
 }
 
 
 const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
     const Array3D<float>* array = arrays_[comp];
-    if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+    if ( !array->getData() )
+	return nullptr;
+
+    return array->getData() + od_int64(globaltrcidx) * array->info().getSize(2);
 }
 
 
 float* SeisDataPack::getTrcData( int comp, int globaltrcidx )
 {
     Array3D<float>* array = arrays_[comp];
-    if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+    if ( !array->getData() )
+	return nullptr;
+
+    return array->getData() + od_int64(globaltrcidx) * array->info().getSize(2);
 }
 
 
 bool SeisDataPack::getCopiedTrcData( int comp, int globaltrcidx,
-				     Array1D<float>& ) const
+				     Array1D<float>& out ) const
 {
-    pErrMsg("Not implemented yet");
-    return false;
+   if ( !arrays_.validIdx(comp) )
+	return false;
+
+    const auto nrz = getZRange().nrSteps() + 1;
+    const float* dataptr = getTrcData( comp, globaltrcidx );
+    float* outptr = out.getData();
+    if ( dataptr )
+    {
+	if ( outptr )
+	    OD::sysMemCopy( outptr, dataptr, nrz * sizeof(float) );
+	else
+	{
+	    for ( auto idz=0; idz<nrz; idz++ )
+		out.set( idz, dataptr[idz] );
+	}
+
+	return true;
+    }
+
+    const Array1DInfoImpl info1d( nrz );
+    if ( out.getSize(0) != nrz && !out.setInfo(info1d) )
+	return false;
+
+    const Array3D<float>& array = *arrays_[comp];
+    if ( array.getStorage() )
+    {
+	auto ovs = getTrcStorage( comp, globaltrcidx );
+	const OffsetValueSeries<float> offstor( ovs );
+	if ( outptr )
+	{
+	    for ( auto idz=0; idz<nrz; idz++ )
+		outptr[idz] = offstor.value( idz );
+	}
+	else
+	{
+	    for ( auto idz=0; idz<nrz; idz++ )
+		out.set( idz, offstor.value( idz ) );
+	}
+
+	return true;
+    }
+
+    const od_int64 offset = od_int64(globaltrcidx) * nrz;
+    mAllocLargeVarLenArr( int, pos, array.nrDims() );
+    if ( !array.info().getArrayPos(offset,pos) )
+	return false;
+
+    const auto idx = pos[0];
+    const auto idy = pos[1];
+    if ( outptr )
+    {
+	for ( auto idz=0; idz<nrz; idz++ )
+	    outptr[idz] = array.get( idx, idy, idz );
+    }
+    else
+    {
+	for ( auto idz=0; idz<nrz; idz++ )
+	    out.set( idz, array.get( idx, idy, idz ) );
+    }
+
+    return true;
 }
 
 
@@ -525,7 +588,7 @@ void SeisDataPack::setComponentName( const char* nm, int component )
 const char* SeisDataPack::getComponentName( int component ) const
 {
     return componentnames_.validIdx(component)
-	? componentnames_[component]->buf() : 0;
+	? componentnames_[component]->buf() : nullptr;
 }
 
 
