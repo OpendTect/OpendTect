@@ -414,10 +414,11 @@ void uiWellMan::edMarkers( CallBacker* )
 
     const MultiID curmid( curioobj_->key() );
     RefMan<Well::Data> wd = Well::MGR().get( curmid,
-			 Well::LoadReqs( Well::Trck, Well::D2T, Well::Mrkrs ) );
+		     Well::LoadReqs( Well::Trck, Well::D2T, Well::Mrkrs ) );
     if ( !wd )
     {
-	ErrMsg( Well::MGR().errMsg() );
+	uiMSG().error( tr("Markers not present in %1")
+						     .arg(curioobj_->name()) );
 	return;
     }
 
@@ -453,16 +454,14 @@ void uiWellMan::edWellTrack( CallBacker* )
 	return;
 
     const MultiID curmid( curioobj_->key() );
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
-    else
+    RefMan<Well::Data> wd = Well::MGR().get( curmid,
+				    Well::LoadReqs(Well::Inf,Well::Trck) );
+
+    if ( !wd )
     {
-	PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-	const bool found = wrdr->getInfo() && wrdr->getTrack();
-	if ( !found &&
-	     !uiMSG().askGoOn(tr("No track found. Continue editing?")) )
-	    return;
+	uiMSG().error( tr("Track data not present in %1").arg(
+							curioobj_->name()) );
+	return;
     }
 
     const Well::Track origtrck = wd->track();
@@ -474,7 +473,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 	return;
 
     Well::Writer wtr( curmid, *wd );
-    if ( !wtr.putInfoAndTrack( ) )
+    if ( !wtr.putInfoAndTrack() )
     {
 	uiMSG().error( tr("Cannot write new track to disk") );
 	wd->track() = origtrck;
@@ -501,20 +500,31 @@ void uiWellMan::edChckSh( CallBacker* )
 
 void uiWellMan::defD2T( bool chkshot )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
 
     const MultiID curmid = curioobj_->key();
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
+    RefMan<Well::Data> wd = nullptr;
+    if ( chkshot )
+	wd = Well::MGR().get( curmid, Well::LoadReqs(Well::Inf,Well::Trck,
+								Well::CSMdl) );
     else
+	wd = Well::MGR().get( curmid, Well::LoadReqs(Well::Inf, Well::Trck,
+								Well::D2T) );
+
+    if ( !wd )
     {
-	PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
+	uiString errmsg;
+	const BufferString& nm = curioobj_->name();
 	if ( chkshot )
-	    wrdr->getCSMdl();
+	    errmsg = tr("Checkshot data not present in %1").arg( nm );
 	else
-	    wrdr->getD2T();
+	    errmsg = tr("Time-Depth data not present in %1").arg( nm );
+
+	uiMSG().error( errmsg );
+	return;
     }
+
 
     if ( !chkshot && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
