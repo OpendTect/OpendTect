@@ -35,6 +35,7 @@ public:
     explicit		LatLong( const Coord& c ) { *this = transform(c); }
 			//Using SI()
 
+    bool		isNull() const { return lat_==0 && lng_==0; }
     bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}
     bool		isUdf() const { return mIsUdf(lat_) || mIsUdf(lng_); }
     static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
