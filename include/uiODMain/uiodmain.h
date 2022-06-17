@@ -134,10 +134,10 @@ private:
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);
 
-    void		doCheckUpdateAvailableCB(CallBacker*);
     void		updateCaptionCB(CallBacker*);
 
-    void		startCheckUpdateAvailable();
+    void		checkUpdateAvailable();
+    void		updateStatusCB(CallBacker*);
     uiString		getProgramString() const;
     void		translateText();
 

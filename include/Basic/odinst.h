@@ -18,6 +18,8 @@ class BufferStringSet;
 
 /*!\brief OpendTect Installation*/
 
+namespace OS { class MachineCommand; }
+
 namespace ODInst
 {
     mGlobal(Basic) const char*	sKeyHasUpdate();
@@ -29,8 +31,8 @@ namespace ODInst
     mGlobal(Basic) void		startInstManagement();
     mGlobal(Basic) void		startInstManagementWithRelDir(const char*);
 
+    mGlobal(Basic) void		getMachComm(const char*, OS::MachineCommand&);
     mGlobal(Basic) bool		updatesAvailable(int inited=-1);
-    mGlobal(Basic) void		checkUpdatesAvailable();
     mDeprecated("Use updatesAvailable")
     mGlobal(Basic) bool		runInstMgrForUpdt();
     mGlobal(Basic) const char*	getPkgVersion(const char* file_pkg_basenm);

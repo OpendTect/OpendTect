@@ -159,6 +159,10 @@ static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
     if ( machcomm.isBad() || !File::isExecutable(machcomm.program()) ) \
         errretstmt
 
+void ODInst::getMachComm( const char* reldir, OS::MachineCommand& mc )
+{
+    mc = getFullMachComm( reldir );
+}
 
 const char* ODInst::sKeyHasUpdate()
 {
@@ -273,18 +277,6 @@ bool ODInst::updatesAvailable( int isavailable )
 	updavailable = isavailable;
 
     return updavailable == 1;
-}
-
-
-void ODInst::checkUpdatesAvailable()
-{
-    mGetFullMachComm(mRelRootDir,return);
-    machcomm.addFlag( "updcheck_report" );
-    BufferString stdoutstr;
-    if ( !machcomm.execute(stdoutstr) || stdoutstr.isEmpty() )
-	updatesAvailable( 0 );
-
-    updatesAvailable( stdoutstr == sKeyHasUpdate() ? 1 : 0 );
 }
 
 

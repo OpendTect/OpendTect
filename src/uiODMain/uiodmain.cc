@@ -42,8 +42,10 @@ ________________________________________________________________________
 #include "uiserviceclientmgr.h"
 
 #include "coltabsequence.h"
+#include "commandlaunchmgr.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
+#include "filepath.h"
 #include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -670,7 +672,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 void uiODMain::afterStartupCB( CallBacker* )
 {
     uiServiceClientMgr::setFor( *this );
-    startCheckUpdateAvailable();
+    checkUpdateAvailable();
 }
 
 
@@ -796,18 +798,40 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 }
 
 
-void uiODMain::startCheckUpdateAvailable()
+void uiODMain::checkUpdateAvailable()
 {
-    CallBack checkupdavailable( mCB(this,uiODMain,doCheckUpdateAvailableCB) );
-    CallBack updcheckfinish( mCB(this,uiODMain,updateCaptionCB) );
-    Threads::WorkManager::twm().addWork( Threads::Work(checkupdavailable),
-					 &updcheckfinish );
+    const BufferString relrootdir( __ismac__ ?
+				    FilePath(GetSoftwareDir(true)).pathOnly() :
+				    BufferString(GetSoftwareDir(true)) );
+    OS::MachineCommand mc;
+    ODInst::getMachComm( relrootdir, mc );
+    mc.addFlag( "updcheck_report" );
+    auto& mgr = Threads::CommandLaunchMgr::getMgr();
+    CallBack cb( mCB(this,uiODMain,updateStatusCB) );
+    mgr.execute( mc, true, true, &cb );
 }
 
 
-void uiODMain::doCheckUpdateAvailableCB( CallBacker* )
+void uiODMain::updateStatusCB( CallBacker* cb )
 {
-    ODInst::checkUpdatesAvailable();
+    const auto* ct = Threads::CommandLaunchMgr::getMgr().getCommandTask( cb );
+    if ( ct )
+    {
+	const BufferString stdoutstr = ct->getStdOutput();
+	const BufferString stderrstr = ct->getStdError();
+	if ( stdoutstr.isEmpty() || !stderrstr.isEmpty() )
+	{
+	    ODInst::updatesAvailable( 0 );
+	    if ( !stderrstr.isEmpty() )
+		ErrMsg( BufferString("Error checking for software updates: ",
+				     stderrstr) );
+	}
+	else
+	    ODInst::updatesAvailable(
+				stdoutstr==ODInst::sKeyHasUpdate() ? 1 : 0 );
+	updateCaptionCB( nullptr );
+    }
+
 }
 
 
