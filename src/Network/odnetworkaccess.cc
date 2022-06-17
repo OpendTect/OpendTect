@@ -30,7 +30,7 @@ ________________________________________________________________________
 namespace System
 {
 #ifdef __unix__
-static bool findLibraryPath( const char* libnm, FilePath& ret )
+static bool mUnusedVar findLibraryPath( const char* libnm, FilePath& ret )
 {
 #ifdef __mac__
     //TODO
@@ -80,6 +80,7 @@ static bool findLibraryPath( const char* libnm, FilePath& ret )
 namespace Network
 {
 
+#ifdef __OpenSSL_Crypto_LIBRARY__
 static bool canUseSystemOpenSSL()
 {
 #ifdef __unix__
@@ -104,6 +105,7 @@ static bool canUseSystemOpenSSL()
     return false;
 #endif
 }
+#endif
 
 
 static void loadOpenSSL()

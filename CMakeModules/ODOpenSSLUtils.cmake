@@ -4,9 +4,8 @@
 # 	Oct 2020	A.Huck
 #_______________________________________________________________________________
 
-macro( OD_FIND_OPENSSLCOMP COMP )
-
-    if ( EXISTS "${QT_DIR}" )
+macro( OD_ADD_QTOPENSSL_HINT )
+    if ( DEFINED Qt5_DIR )
 	OD_FIND_QTDIR()
 	get_filename_component( QTINSTDIR ${QTDIR} REALPATH )
 	set( OPENSSL_HINT_DIR "${QTINSTDIR}/../../Tools/OpenSSL" )
@@ -19,9 +18,16 @@ macro( OD_FIND_OPENSSLCOMP COMP )
 		set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/binary )
 	    endif( WIN32 )
 	endif()
-    endif( EXISTS "${QT_DIR}" )
+    endif( DEFINED Qt5_DIR )
+endmacro( OD_ADD_QTOPENSSL_HINT )
+
+macro( OD_FIND_OPENSSLCOMP COMP )
 
     find_package( OpenSSL 1.1.1 QUIET COMPONENTS ${COMP} )
+    if ( NOT DEFINED OPENSSL_${COMP}_LIBRARY} )
+	OD_ADD_QTOPENSSL_HINT()
+	find_package( OpenSSL 1.1.1 QUIET COMPONENTS ${COMP} )
+    endif()
 
 endmacro( OD_FIND_OPENSSLCOMP )
 
