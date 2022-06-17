@@ -32,6 +32,15 @@ ________________________________________________________________________
 
 #include <iostream>
 
+static const FilePath& getProdListFP( const FilePath* newfp )
+{
+    static FilePath prodlistfp_( mGetSWDirDataDir(), "prodlist.txt" );
+    if ( newfp && newfp->exists() )
+	prodlistfp_ = *newfp;
+
+    return prodlistfp_;
+}
+
 uiPluginMan::uiPluginMan( uiParent* p )
 	: uiDialog(p,Setup(tr("Plugin Management"), mNoDlgTitle,
 			    mODHelpKey(mPluginManHelpID) ) )
@@ -140,8 +149,7 @@ static int getProductIndex( ObjectSet<PluginProduct>& prods,
 
 static void setIcons( ObjectSet<PluginProduct>& products )
 {
-    const FilePath prodlistfp( mGetSWDirDataDir(), "prodlist.txt" );
-    od_istream prodstrm( prodlistfp.fullPath() ) ;
+    od_istream prodstrm( getProdListFP(nullptr).fullPath() ) ;
     while ( prodstrm.isOK() )
     {
 	BufferString line;
@@ -389,4 +397,13 @@ mExternC(uiTools) bool doProductSelection( uiParent* p, bool& skippluginsel,
     deleteAndZeroPtr( prodloader_ );
 
     return res;
+}
+
+extern "C" {
+    mGlobal(uiTools) void setProdSelFp(const FilePath&);
+}
+
+mExternC(uiTools) void setProdSelFp( const FilePath& fp )
+{
+    getProdListFP( &fp );
 }
