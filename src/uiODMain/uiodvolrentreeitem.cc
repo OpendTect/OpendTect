@@ -53,6 +53,14 @@
    if these classes are prolongated. */
 
 
+CNotifier<uiODVolrenParentTreeItem,uiMenu*>&
+	uiODVolrenParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODVolrenParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODVolrenParentTreeItem::uiODVolrenParentTreeItem()
     : uiODParentTreeItem( uiStrings::sVolume() )
 {
@@ -96,6 +104,8 @@ bool uiODVolrenParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(uiStrings::sAdd()), mAddIdx );
     mnu.insertAction( new uiAction(uiStrings::sAddColBlend()), mAddCBIdx );
+    showMenuNotifier().trigger( &mnu, this );
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();

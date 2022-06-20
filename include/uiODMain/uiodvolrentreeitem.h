@@ -21,6 +21,8 @@ public:
 			uiODVolrenParentTreeItem();
 			~uiODVolrenParentTreeItem();
 
+    static CNotifier<uiODVolrenParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     const char*		iconName() const override;
     bool		showSubMenu() override;

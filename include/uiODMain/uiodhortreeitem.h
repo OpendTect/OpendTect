@@ -24,6 +24,8 @@ public:
 
     virtual void	removeChild(uiTreeItem*);
 
+    static CNotifier<uiODHorizonParentTreeItem,uiMenu*>& showMenuNotifier();
+
     CNotifier<uiODHorizonParentTreeItem,int>	handleMenu;
     MenuItem		newmenu_;
 
@@ -112,6 +114,8 @@ mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODParentTreeItem
 public:
 			uiODHorizon2DParentTreeItem();
 			~uiODHorizon2DParentTreeItem();
+
+    static CNotifier<uiODHorizon2DParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
 

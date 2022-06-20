@@ -33,6 +33,14 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+CNotifier<uiODPSEventsParentTreeItem,uiMenu*>&
+	uiODPSEventsParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODPSEventsParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPreStackEvents() )
     , child_(0)
@@ -47,6 +55,8 @@ bool uiODPSEventsParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
+    showMenuNotifier().trigger( &mnu, this );
+
     addStandardItems( mnu );
 
     const int mnusel = mnu.exec();

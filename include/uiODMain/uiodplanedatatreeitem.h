@@ -86,6 +86,8 @@ public:
 			uiODInlineParentTreeItem();
 			~uiODInlineParentTreeItem();
 
+    static CNotifier<uiODInlineParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     const char*		iconName() const override;
     bool		showSubMenu() override;
@@ -121,6 +123,8 @@ public:
 			uiODCrosslineParentTreeItem();
 			~uiODCrosslineParentTreeItem();
 
+    static CNotifier<uiODCrosslineParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     const char*		iconName() const override;
     bool		showSubMenu() override;
@@ -155,6 +159,8 @@ mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODParentTreeItem
 public:
 			uiODZsliceParentTreeItem();
 			~uiODZsliceParentTreeItem();
+
+    static CNotifier<uiODZsliceParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
     const char*		iconName() const override;

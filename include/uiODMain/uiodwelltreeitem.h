@@ -26,6 +26,8 @@ public:
 			uiODWellParentTreeItem();
 			~uiODWellParentTreeItem();
 
+    static CNotifier<uiODWellParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
 
     const char*		iconName() const override;

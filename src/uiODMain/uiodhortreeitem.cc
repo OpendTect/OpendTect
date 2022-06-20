@@ -69,6 +69,14 @@ ___________________________________________________________________
 static const char* sKeyContours = "Contours";
 
 
+CNotifier<uiODHorizonParentTreeItem,uiMenu*>&
+	uiODHorizonParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODHorizonParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODParentTreeItem(tr("3D Horizon"))
     , newmenu_(uiStrings::sNew())
@@ -127,6 +135,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiMenu* newmenu = new uiMenu( newmenu_ );
     mnu.addMenu( newmenu );
     newmenu->setEnabled( !hastransform && SI().has3D() );
+    showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() )
     {
@@ -882,6 +891,14 @@ void uiODHorizonTreeItem::dataReadyCB( CallBacker* )
 
 
 // uiODHorizon2DParentTreeItem
+CNotifier<uiODHorizon2DParentTreeItem,uiMenu*>&
+	uiODHorizon2DParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODHorizon2DParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODParentTreeItem(tr("2D Horizon"))
 {}
@@ -912,6 +929,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     mnu.insertAction( newmenu, 1 );
     mnu.insertAction( new uiAction(m3Dots(tr("Create from 3D"))), 2 );
     newmenu->setEnabled( !hastransform );
+    showMenuNotifier().trigger( &mnu, this );
+
     if ( children_.size() )
     {
 	mnu.insertAction( new uiAction(m3Dots(tr("Sort"))), mSortIdx );

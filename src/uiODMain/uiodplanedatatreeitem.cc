@@ -91,6 +91,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 	    new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 2 ); \
     mnu.insertAction( \
 	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 3 ); \
+    showMenuNotifier().trigger( &mnu, this ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
     if ( mnuid==0 || mnuid==1 || mnuid==3 ) \
@@ -685,6 +686,14 @@ uiTreeItem*
 }
 
 
+CNotifier<uiODInlineParentTreeItem,uiMenu*>&
+	uiODInlineParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODInlineParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
     : uiODParentTreeItem( uiStrings::sInline() )
 {}
@@ -734,6 +743,14 @@ uiTreeItem*
 		    pdd->getChannels2RGBA());
     return new uiODCrosslineTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
+}
+
+
+CNotifier<uiODCrosslineParentTreeItem,uiMenu*>&
+	uiODCrosslineParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODCrosslineParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
 }
 
 
@@ -787,6 +804,14 @@ uiTreeItem*
 
     return new uiODZsliceTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
+}
+
+
+CNotifier<uiODZsliceParentTreeItem,uiMenu*>&
+	uiODZsliceParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODZsliceParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
 }
 
 

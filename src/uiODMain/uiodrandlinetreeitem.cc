@@ -140,6 +140,14 @@ uiTreeItem*
 }
 
 
+CNotifier<uiODRandomLineParentTreeItem,uiMenu*>&
+	uiODRandomLineParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODRandomLineParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
     : uiODParentTreeItem( uiStrings::sRandomLine() )
     , rdlpolylinedlg_(0)
@@ -174,6 +182,8 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     newmnu->insertAction( new uiAction(m3Dots(tr("From Table"))), 8 );
     newmnu->insertAction( new uiAction(m3Dots(tr("From Wells"))), 9 );
     mnu.addMenu( newmnu );
+    showMenuNotifier().trigger( &mnu, this );
+
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 

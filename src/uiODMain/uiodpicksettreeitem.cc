@@ -53,6 +53,14 @@ static bool isPickSetPolygon( const MultiID& mid )
 }
 
 
+CNotifier<uiODPickSetParentTreeItem,uiMenu*>&
+	uiODPickSetParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODPickSetParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPointSet())
 {
@@ -128,6 +136,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	newmnu->insertAction( new uiAction(m3Dots(tr("Generate 2D"))),
 			      mRandom2DIdx);
     mnu.addMenu( newmnu );
+    showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() > 0 )
     {
@@ -544,6 +553,15 @@ void uiODPickSetTreeItem::saveCB( CallBacker* cb )
 }
 
 
+// uiODPolygonParentTreeItem
+CNotifier<uiODPolygonParentTreeItem,uiMenu*>&
+	uiODPolygonParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODPolygonParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPolygon() )
 {
@@ -610,6 +628,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(tr("Add"))), mLoadPolyIdx );
     mnu.insertAction( new uiAction(m3Dots(tr("New"))), mNewPolyIdx );
+    showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() > 0 )
     {

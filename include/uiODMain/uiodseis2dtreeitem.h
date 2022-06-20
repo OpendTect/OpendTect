@@ -27,6 +27,8 @@ public:
     static const char*	sKeyRightClick();
     static const char*	sKeyUnselected();
 
+    static CNotifier<uiODLine2DParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     bool		loadDefaultData();
     bool		selectLoadAttribute(const TypeSet<Pos::GeomID>&,

@@ -29,6 +29,8 @@ public:
 			uiODFaultParentTreeItem();
 			~uiODFaultParentTreeItem();
 
+    static CNotifier<uiODFaultParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     const char*		iconName() const;
     bool		showSubMenu();
@@ -95,6 +97,9 @@ mExpClass(uiODMain) uiODFaultStickSetParentTreeItem : public uiODParentTreeItem
 public:
 			uiODFaultStickSetParentTreeItem();
 			~uiODFaultStickSetParentTreeItem();
+
+    static CNotifier<uiODFaultStickSetParentTreeItem,uiMenu*>&
+			showMenuNotifier();
 
 protected:
     const char*		iconName() const override;

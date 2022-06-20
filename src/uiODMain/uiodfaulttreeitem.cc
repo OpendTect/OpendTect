@@ -40,6 +40,14 @@ ___________________________________________________________________
 #include "visfaultsticksetdisplay.h"
 
 
+CNotifier<uiODFaultParentTreeItem,uiMenu*>&
+	uiODFaultParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODFaultParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
     : uiODParentTreeItem( uiStrings::sFault() )
 {
@@ -90,6 +98,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     uiAction* newmenu = new uiAction( uiStrings::sNew() );
     mnu.insertAction( newmenu, mNewMnuID );
     newmenu->setEnabled( !hastransform && SI().has3D() );
+    showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() )
     {
@@ -464,6 +473,14 @@ bool uiODFaultTreeItem::isOnlyAtSections() const
 
 
 // uiODFaultStickSetParentTreeItem
+CNotifier<uiODFaultStickSetParentTreeItem,uiMenu*>&
+	uiODFaultStickSetParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODFaultStickSetParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
     : uiODParentTreeItem( uiStrings::sFaultStickSet() )
 {}
@@ -490,6 +507,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
     mnu.insertAction( new uiAction(uiStrings::sNew()), mNewMnuID );
+    showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() )
     {

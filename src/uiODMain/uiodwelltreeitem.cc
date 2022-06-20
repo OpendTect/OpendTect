@@ -36,6 +36,14 @@ ___________________________________________________________________
 #include "viswelldisplay.h"
 
 
+CNotifier<uiODWellParentTreeItem,uiMenu*>&
+	uiODWellParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODWellParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODWellParentTreeItem::uiODWellParentTreeItem()
     : uiODParentTreeItem( uiStrings::sWell() )
     , constlogsize_(true)
@@ -74,12 +82,13 @@ bool uiODWellParentTreeItem::showSubMenu()
 
     if ( children_.size() )
     {
-	mnu.insertSeparator();
 	uiAction* szmenuitem = new uiAction(tr("Constant Log Size"));
 	mnu.insertAction( szmenuitem, cLogDispSize );
 	szmenuitem->setCheckable( true );
 	szmenuitem->setChecked( constlogsize_ );
     }
+
+    showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() > 1 )
     {

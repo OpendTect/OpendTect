@@ -26,6 +26,8 @@ public:
 			uiODRandomLineParentTreeItem();
 			~uiODRandomLineParentTreeItem();
 
+    static CNotifier<uiODRandomLineParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     const char*		iconName() const override;
     bool		showSubMenu() override;

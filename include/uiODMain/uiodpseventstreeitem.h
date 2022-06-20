@@ -25,6 +25,8 @@ public:
 
     int				sceneID() const;
 
+    static CNotifier<uiODPSEventsParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     bool			init();
     const char*			parentType() const;

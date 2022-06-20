@@ -63,6 +63,14 @@ static const char* sKeySelecting()
 { return "<Selecting>"; }
 
 
+CNotifier<uiODLine2DParentTreeItem,uiMenu*>&
+	uiODLine2DParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODLine2DParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
+
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     : uiODParentTreeItem( tr("2D Line") )
     , replaceattritm_(nullptr)
@@ -120,7 +128,7 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     {
 	mnu.insertAction( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),
 			mGridFrom3D );
-	mnu.insertAction( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D );
+	mnu.insertAction( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D);
     }
 
 #ifdef __debug__
@@ -190,6 +198,8 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	mInsertItm( hidemnu, tr("Line Geometry"), mHidePolyLines, true )
 	mnu.addMenu( hidemnu );
     }
+
+    showMenuNotifier().trigger( &mnu, this );
 
     addStandardItems( mnu );
 

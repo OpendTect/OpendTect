@@ -24,6 +24,8 @@ public:
 			uiODPickSetParentTreeItem();
 			~uiODPickSetParentTreeItem();
 
+    static CNotifier<uiODPickSetParentTreeItem,uiMenu*>& showMenuNotifier();
+
 protected:
     const char*		iconName() const override;
     bool		showSubMenu() override;
@@ -91,6 +93,8 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
 public:
 			uiODPolygonParentTreeItem();
 			~uiODPolygonParentTreeItem();
+
+    static CNotifier<uiODPolygonParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
     const char*		iconName() const override;
