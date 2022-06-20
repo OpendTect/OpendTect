@@ -133,9 +133,9 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     if ( !setDefaultLog(wls,normMn()) )
     {
 	if ( !prevlognm.isEmpty() && normnms.isPresent(prevlognm.str()) )
-		lognmfld->setCurrentItem( normnms.indexOf(prevlognm.str()) );
+	    lognmfld->setCurrentItem( normnms.indexOf(prevlognm.str()) );
 	else if ( normnms.size() > 1 )
-		lognmfld->setCurrentItem( 1 );
+	    lognmfld->setCurrentItem( 1 );
     }
 
     switchPropCB( lognmfld );
@@ -178,7 +178,7 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 bool uiWellSinglePropSel::setDefaultLog( const Well::LogSet& wls,
 					 const Mnemonic& mnem )
 {
-    const Well::Log* deflog = wls.getLog( mnem );
+    const Well::Log* deflog = wls.getDefaultLog( mnem );
     if ( !deflog )
 	return false;
 

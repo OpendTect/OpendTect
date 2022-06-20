@@ -295,6 +295,19 @@ void Well::LogSet::renameDefaultLog( const char* oldnm,
 
 const Well::Log* Well::LogSet::getLog( const Mnemonic& mnem ) const
 {
+    if ( hasDefaultFor(mnem) )
+	return getDefaultLog( mnem );
+
+    const TypeSet<int> logidxs = getSuitable( mnem );
+    if ( logidxs.isEmpty() )
+	return nullptr;
+
+    return &getLog( logidxs.first() );
+}
+
+
+const Well::Log* Well::LogSet::getDefaultLog( const Mnemonic& mnem ) const
+{
     if ( !hasDefaultFor(mnem) )
 	return nullptr;
 

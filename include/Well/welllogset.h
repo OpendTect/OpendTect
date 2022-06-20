@@ -51,10 +51,15 @@ public:
 				       bool onlyloaded=false) const;
     bool		isDefaultLog(const char* lognm) const;
     void		renameDefaultLog(const char* oldnm, const char* newnm);
-			// -> make sure the log is renamed first
+			//<! make sure the log is renamed first
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
+
     const Log*		getLog(const Mnemonic&) const;
+			/*<! default if default is present, otherwise first
+			     of suitable logs !>*/
+    const Log*		getDefaultLog(const Mnemonic&) const;
+			//<! returns null if default is not assigned.
 
     Interval<float>	dahInterval() const	{ return dahintv_; }
 						//!< not def if start == undef
