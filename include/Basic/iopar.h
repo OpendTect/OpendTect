@@ -173,6 +173,7 @@ public:
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
     bool		get(const char*,MultiID&) const;
+    bool		get(const char*,DBKey&) const;
     bool		get(const char*,OD::Color&) const;
     bool		get(const char*,SeparString&) const;
     bool		get(const char*,uiString&) const;
@@ -262,6 +263,7 @@ public:
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
     void		set(const char*,const MultiID&);
+    void		set(const char*,const DBKey&);
     void		set(const char*,const OD::Color&);
     void		set(const char*,const SeparString&);
     void		set(const char*,const uiString&);
