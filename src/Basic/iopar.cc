@@ -1141,9 +1141,23 @@ bool IOPar::get( const char* keyw, MultiID& mid ) const
 }
 
 
+bool IOPar::get( const char* keyw, DBKey& key ) const
+{
+    mGetStartNotEmpty(pval);
+    key.fromString( pval );
+    return true;
+}
+
+
 void IOPar::set( const char* keyw, const MultiID& mid )
 {
     set( keyw, mid.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const DBKey& key )
+{
+    set( keyw, key.toString(true) );
 }
 
 

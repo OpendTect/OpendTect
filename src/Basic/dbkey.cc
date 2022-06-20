@@ -132,7 +132,7 @@ bool DBKey::fromString( const char* str )
 	*ptr = '\0';
 	const BufferString survpath = ptr + 1;
 	const FilePath fp( survpath );
-	const SurveyDiskLocation sdl( fp.fullPath() );
+	const SurveyDiskLocation sdl( fp );
 	setSurveyDiskLocation( sdl );
     }
 
