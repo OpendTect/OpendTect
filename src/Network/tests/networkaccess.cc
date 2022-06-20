@@ -44,16 +44,16 @@ static BufferString intranetUrl( const char* url )
 
 bool testPing()
 {
-    BufferString url( "http://dgbes.com" );
+    BufferString url( "https://dgbes.com" );
     uiString err;
 
     mRunStandardTestWithError( Network::ping(url.str(),err),
-				BufferString( prefix_, "Ping existant URL"),
+				BufferString( prefix_, "Ping existing URL"),
 				toString(err) );
 
-    url.add( "/thisfiledoesnotexist" );
+    url.set( "http://nonexistingurl.www" ).add( "/thisfiledoesnotexist" );
     mRunStandardTestWithError( Network::ping(url.str(),err)==false,
-	BufferString( prefix_, "Ping non-existent URL"), toString(err) );
+	BufferString( prefix_, "Ping non-existing URL"), toString(err) );
 
     return true;
 }
@@ -127,7 +127,6 @@ bool testFileSizes()
     Network::getRemoteFileSize( url2, sizeremotefile, err );
     const BufferString url3 = intranetUrl( "dumpuploads/test_file" );
     Network::getRemoteFileSize( url3, sizeofuploadedfile, err );
-
 
     mRunStandardTestWithError(
 	    sizeofuploadedfile >= 0 && sizeremotefile >= 0 &&
