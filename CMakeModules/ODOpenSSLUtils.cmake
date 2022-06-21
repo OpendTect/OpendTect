@@ -5,9 +5,10 @@
 #_______________________________________________________________________________
 
 macro( OD_ADD_QTOPENSSL_HINT )
-    if ( EXISTS "${QT_DIR}" )
-	get_filename_component( QTINSTDIR ${QT_DIR} REALPATH )
-	set( OPENSSL_HINT_DIR "${QTINSTDIR}/../../../../../Tools/OpenSSL" )
+    if ( EXISTS "${Qt5_DIR}" )
+	OD_FIND_QTDIR()
+	get_filename_component( QTINSTDIR ${QTDIR} REALPATH )
+	set( OPENSSL_HINT_DIR "${QTINSTDIR}/../../Tools/OpenSSL" )
 	get_filename_component( OPENSSL_HINT_DIR ${OPENSSL_HINT_DIR} REALPATH )
 	if ( EXISTS ${OPENSSL_HINT_DIR} )
 	    set( OPENSSL_ROOT_DIR ${OPENSSL_HINT_DIR} )
@@ -17,7 +18,7 @@ macro( OD_ADD_QTOPENSSL_HINT )
 		set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/binary )
 	    endif( WIN32 )
 	endif()
-    endif( EXISTS "${QT_DIR}" )
+    endif( EXISTS "${Qt5_DIR}" )
 endmacro( OD_ADD_QTOPENSSL_HINT )
 
 macro( OD_FIND_OPENSSL )
