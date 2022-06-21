@@ -24,8 +24,10 @@
 # OD_USEBREAKPAD			: Runtime availability on breakpad is enabled if set
 # OD_USEOPENSSL				: Runtime availability on OpenSSL::SSL is enabled if set.
 # OD_USECRYPTO				: Runtime availability on OpenSSL::Crypto is enabled if set.
+# OD_USESQLITE				: Runtime availability on sqlite is enabled if set
 # OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
 # OD_LINKCRYPTO				: Dependency on OpenSSL::Crypto is enabled if set.
+# OD_LINKSQLITE				: Dependency on sqlite is enabled if set
 # OD_USEHDF5				: Dependency on HDF5 is enabled if set.
 # OD_IS_PLUGIN				: Tells if this is a plugin (if set)
 # OD_PLUGINMODULES			: A list of eventual sub-modules of
@@ -157,6 +159,10 @@ endif()
 
 if( OD_USEOPENSSL OR OD_LINKOPENSSL )
     OD_SETUP_OPENSSL()
+endif()
+
+if ( OD_USESQLITE OR OD_LINKSQLITE )
+    OD_SETUP_SQLITE()
 endif()
 
 if( OD_USECRYPTO OR OD_LINKCRYPTO )

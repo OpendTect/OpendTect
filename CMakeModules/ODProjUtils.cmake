@@ -111,28 +111,6 @@ macro(OD_SETUP_PROJ)
 	    list( APPEND OD_MODULE_EXTERNAL_LIBS "${PROJ_LIBRARIES}" )
 	endif()
 
-	if ( DEFINED SQLITE_DIR )
-	    if ( UNIX )
-		SET( LIBSEARCHPATHS "${SQLITE_DIR}/lib64;${SQLITE_DIR}/lib" )
-	    else()
-		SET( LIBSEARCHPATHS "${SQLITE_DIR}/lib" )
-	    endif()
-	endif()
-
-	if ( APPLE )
-	    od_find_library( LIBSQLITE libsqlite3.dylib )
-	elseif ( WIN32 )
-	    od_find_library( LIBSQLITE sqlite3.lib )
-	else()
-	    od_find_library( LIBSQLITE libsqlite3.so.0 )
-	endif()
-
-	if ( NOT DEFINED LIBSQLITE )
-	    message( "SQLITE LIBRARY NOT FOUND: Please provide SQLITE_DIR" )
-	else()
-	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${LIBSQLITE}" )
-	endif()
-
 	install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
 		 DESTINATION data/CRS )
 

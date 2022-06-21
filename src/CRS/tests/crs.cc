@@ -10,7 +10,10 @@
 
 #include "crssystem.h"
 #include "oddirs.h"
+#include "moddepmgr.h"
+#include "plugins.h"
 #include "survinfo.h"
+
 
 static const char* sKeyRepoNm = "EPSG";
 static Coords::AuthorityCode cWGS84ID()
@@ -238,21 +241,17 @@ static bool testTransfer()
 }
 
 
-bool initPlugin()
-{
-    Coords::initCRSDatabase();
-    Coords::ProjectionBasedSystem::initClass();
-    return true;
-}
-
-
-
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !initPlugin() ||
-	 !testReversibility(cWGS84ID()) ||
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "CRS" );
+    Coords::initCRSDatabase();
+    Coords::ProjectionBasedSystem::initClass();
+    PIM().loadAuto( true );
+
+    if ( !testReversibility(cWGS84ID()) ||
 	 !testReversibility(cED50ID()) ||
 	 !testReversibility(cWGS84N20ID()) ||
 	 !testReversibility(cNAD27N20ID()) ||

@@ -6,6 +6,7 @@
 
 if ( NOT OD_NO_PROJ )
     set( OD_USEPROJ Yes )
+    set( OD_USESQLITE Yes )
 endif()
 
 set( OD_MODULE_DEPS Basic )
