@@ -707,7 +707,8 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
 
     const bool wva = dest == WVA || dest == Both;
     const bool vd = dest == VD || dest == Both;
-    DataPack::ID curwvaid, curvdid;
+    DataPack::ID curwvaid = DataPack::cUdfID();
+    DataPack::ID curvdid = DataPack::cUdfID();
     if ( wva )
 	curwvaid = packID( true );
     if ( vd )

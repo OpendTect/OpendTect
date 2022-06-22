@@ -473,7 +473,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 	iter->setGlobalPos( start );
     }
 
-    float val;
+    float val = mUdf(float);
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	if ( dataptr_ )

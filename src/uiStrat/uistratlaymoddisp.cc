@@ -114,7 +114,7 @@ void uiStratLayerModelDisp::initGrp( CallBacker* )
     mAttachCB( lms_.modelChanged, uiStratLayerModelDisp::modelChangedCB );
     mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::vwResizeCB );
 
-    auto& mehdlr = vwr_.rgbCanvas().getMouseEventHandler();
+    MouseEventHandler& mehdlr = vwr_.rgbCanvas().getMouseEventHandler();
     mAttachCB( mehdlr.buttonReleased, uiStratLayerModelDisp::usrClickedCB );
     mAttachCB( mehdlr.doubleClick, uiStratLayerModelDisp::doubleClickedCB );
     mAttachCB( mehdlr.movement, uiStratLayerModelDisp::mouseMovedCB );
@@ -619,7 +619,7 @@ int uiStratLayerModelDisp::curPropIdx() const
 int uiStratLayerModelDisp::usrPointedModelNr() const
 {
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    if ( layerModel().isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
+    if ( layerModel().isEmpty() || !mevh.hasEvent() )
 	return -1;
 
     const MouseEvent& mev = mevh.event();
