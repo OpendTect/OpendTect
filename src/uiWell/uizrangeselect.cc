@@ -56,6 +56,7 @@ void uiZRangeSelect::reset()
 {
     zrangefld_->setEmpty();
     markeroffsetfld_->setEmpty();
+    markersel_->reset();
     zchoicefld_->setValue( 0 );
     updateDisplayCB( nullptr );
 }
