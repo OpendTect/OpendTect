@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "uistring.h"
+
+#include "emhorizon.h"
 #include "multiid.h"
 #include "trckeysampling.h"
 
@@ -27,7 +29,7 @@ class uiGenInput;
 class uiStratSeisEvent;
 class uiSynthToRealScaleStatsDisp;
 template <class T> class ODPolygon;
-namespace EM { class Horizon; class EMObjectIterator; }
+namespace EM { class EMObjectIterator; }
 namespace Strat { class SeisEvent; }
 namespace StratSynth { class DataMgr; }
 

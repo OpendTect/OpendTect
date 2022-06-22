@@ -395,7 +395,7 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
     int lastoffsidx = offsets.size()-1; //TODO: should be const
     const float lastoffs = offsets[lastoffsidx];
     SeisTrcInfo lastgathertrc1info, lastgathertrc2info, lastangletrcinfo;
-    bool haslasttrace1, haslasttrace2, haslasttrace3 = false;
+    bool haslasttrace1 = false, haslasttrace2 = false, haslasttrace3 = false;
     const SeisTrc* lastgathertrc1 =
 			    presdamps.getTrace( nrpos-1, lastoffsidx );
     if ( lastgathertrc1 )
