@@ -399,10 +399,6 @@ void PolygonBodyDisplay::updateSingleColor()
 }
 
 
-NotifierAccess* PolygonBodyDisplay::materialChange()
-{ return &getMaterial()->change; }
-
-
 void PolygonBodyDisplay::matChangeCB(CallBacker*)
 {
     if ( bodydisplay_ )

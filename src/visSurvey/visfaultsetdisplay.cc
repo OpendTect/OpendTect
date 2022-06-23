@@ -433,10 +433,6 @@ bool FaultSetDisplay::canShowTexture() const
 { return validtexture_ && isAnyAttribEnabled() && arePanelsDisplayedInFull(); }
 
 
-NotifierAccess* FaultSetDisplay::materialChange()
-{ return &getMaterial()->change; }
-
-
 OD::Color FaultSetDisplay::getColor() const
 {
     return nontexturecol_;

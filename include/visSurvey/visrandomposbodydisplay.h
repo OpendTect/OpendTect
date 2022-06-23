@@ -31,7 +31,7 @@ mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
 { mODTextTranslationClass(RandomPosBodyDisplay);
 public:
 				RandomPosBodyDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				 visSurvey::SurveyObject,RandomPosBodyDisplay,
 				 "RandomPosBodyDisplay",
 				 toUiString(sFactoryKeyword()));
@@ -43,7 +43,6 @@ public:
     OD::Color			getColor() const;
     void			setColor(OD::Color);
     bool			allowMaterialEdit() const { return true; }
-    NotifierAccess*		materialChange();
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
@@ -60,7 +59,7 @@ protected:
 
     static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }
     virtual			~RandomPosBodyDisplay();
-    
+
     bool			updateVisFromEM();
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

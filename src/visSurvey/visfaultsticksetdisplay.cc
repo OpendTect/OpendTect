@@ -259,10 +259,6 @@ void FaultStickSetDisplay::setColor( OD::Color nc )
 }
 
 
-NotifierAccess* FaultStickSetDisplay::materialChange()
-{ return &getMaterial()->change; }
-
-
 OD::Color FaultStickSetDisplay::getColor() const
 {
     return getMaterial()->getColor();

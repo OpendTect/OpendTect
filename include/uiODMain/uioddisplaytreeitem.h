@@ -64,6 +64,7 @@ protected:
     virtual uiString	createDisplayName() const;
     void		updateLockPixmap(bool islocked);
     void		selectRGBA(const Pos::GeomID&);
+    virtual void	colorChgCB(CallBacker*);
 
     virtual bool	askContinueAndSaveIfNeeded(bool withcancel)
 			{ return true; }

@@ -93,6 +93,8 @@ public:
     static const char*	sKeyMaterial();
     static const char*	sKeyIsOn();
 
+    NotifierAccess*	materialChange();
+
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 

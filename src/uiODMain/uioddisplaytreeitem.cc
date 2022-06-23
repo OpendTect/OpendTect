@@ -570,3 +570,9 @@ void uiODDisplayTreeItem::prepareForShutdown()
 
     visserv_->removeObject( displayid_, sceneID() );
 }
+
+
+void uiODDisplayTreeItem::colorChgCB( CallBacker* )
+{
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}

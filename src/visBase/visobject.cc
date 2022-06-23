@@ -146,6 +146,13 @@ Material* VisualObjectImpl::getMaterial()
 }
 
 
+
+NotifierAccess* VisualObjectImpl::materialChange()
+{
+    return getMaterial() ? &getMaterial()->change : nullptr;
+}
+
+
 void VisualObjectImpl::setGroupNode( osg::Group* grpnode )
 {
     if ( !grpnode || osgroot_ == grpnode )

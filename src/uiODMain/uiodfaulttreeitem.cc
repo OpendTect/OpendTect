@@ -327,15 +327,9 @@ bool uiODFaultTreeItem::init()
     ODMainWin()->menuMgr().createFaultToolMan();
 
     mAttachCB( faultdisplay_->materialChange(),
-	       uiODFaultTreeItem::colorChCB );
+	       uiODFaultTreeItem::colorChgCB );
 
     return uiODDisplayTreeItem::init();
-}
-
-
-void uiODFaultTreeItem::colorChCB( CallBacker* )
-{
-    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -349,12 +343,12 @@ void uiODFaultTreeItem::prepareForShutdown()
 {
     if ( faultdisplay_ )
     {
-	faultdisplay_->materialChange()->remove(
-	    mCB(this,uiODFaultTreeItem,colorChCB));
+	mDetachCB( faultdisplay_->materialChange(),
+		   uiODFaultTreeItem::colorChgCB );
 	faultdisplay_->unRef();
     }
 
-    faultdisplay_ = 0;
+    faultdisplay_ = nullptr;
     uiODDisplayTreeItem::prepareForShutdown();
 }
 

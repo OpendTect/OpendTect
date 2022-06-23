@@ -379,13 +379,13 @@ bool uiODBodyDisplayTreeItem::init()
     }
 
    if ( plg_ )
-	mAttachCB( plg_->materialChange(),uiODBodyDisplayTreeItem::colorChCB );
+	mAttachCB( plg_->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
 
     if ( mcd_ )
-	mAttachCB( mcd_->materialChange(),uiODBodyDisplayTreeItem::colorChCB );
+	mAttachCB( mcd_->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
 
     if ( rpb_ )
-	mAttachCB( rpb_->materialChange(),uiODBodyDisplayTreeItem::colorChCB );
+	mAttachCB( rpb_->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
 
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	uiODBodyDisplayTreeItem::keyPressedCB );
@@ -461,12 +461,6 @@ void uiODBodyDisplayTreeItem::saveCB( CallBacker* cb )
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	NotSavedPrompter::NSP().reportSuccessfullSave();
     }
-}
-
-
-void uiODBodyDisplayTreeItem::colorChCB( CallBacker* )
-{
-    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 

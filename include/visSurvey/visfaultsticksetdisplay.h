@@ -61,7 +61,6 @@ public:
     OD::Color			getColor() const;
     void			setColor(OD::Color);
     bool			allowMaterialEdit() const	{ return true; }
-    NotifierAccess*		materialChange();
 
     const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);

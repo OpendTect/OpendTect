@@ -171,12 +171,6 @@ OD::Color RandomPosBodyDisplay::getColor() const
 }
 
 
-NotifierAccess* RandomPosBodyDisplay::materialChange()
-{
-    return &getMaterial()->change;
-}
-
-
 void RandomPosBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );

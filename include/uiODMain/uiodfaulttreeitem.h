@@ -69,7 +69,6 @@ protected:
     void		prepareForShutdown();
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    void		colorChCB(CallBacker*);
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
 

@@ -80,7 +80,6 @@ public:
     OD::Color			getColor() const;
     void			setColor(OD::Color);
     bool			allowMaterialEdit() const	{ return true; }
-    NotifierAccess*		materialChange();
 
     void			useTexture( bool yn, bool trigger );
     bool			usesTexture() const;

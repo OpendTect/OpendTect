@@ -597,10 +597,6 @@ void MarchingCubesDisplay::setColor( OD::Color nc )
 }
 
 
-NotifierAccess* MarchingCubesDisplay::materialChange()
-{ return &getMaterial()->change; }
-
-
 OD::Color MarchingCubesDisplay::getColor() const
 {
     return getMaterial()->getColor();
