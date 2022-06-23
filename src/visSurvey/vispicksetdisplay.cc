@@ -195,6 +195,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     LocationDisplay::dispChg( cb );
     markerset_->setMarkersSingleColor( set_->disp_.color_  );
     markerset_->forceRedraw( true );
+
     showLine( needLine() );
 
     displayBody( set_->disp_.dofill_ );
@@ -328,7 +329,7 @@ void PickSetDisplay::redrawMultiSets()
 	TypeSet<int> ps;
 	bool first = true;
 	int firstidx = 0;
-	for ( int idy=start; idy<stop; idy++ )
+	for ( int idy=start; idy<=stop; idy++ )
 	{
 	    Coord3 pos = set_->getPos( idy );
 	    if ( datatransform_ )
@@ -425,7 +426,12 @@ void PickSetDisplay::redrawLine()
 	return;
 
     polylines_->setLineStyle( set_->disp_.linestyle_ );
+
+    if ( set_->nrSets() > 1 )
+	return;
+
     polylines_->removeAllPoints();
+
     int idx=0;
     for ( ; idx<set_->size(); idx++ )
     {
