@@ -761,19 +761,24 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
-	mErrRet(uiString::emptyString())
+	mErrRet(uiString::empty())
     if ( samedataroot && samesurvey && !parschanged_ )
 	mRetExitWin
 
-    // Step 2: write default/current survey file
-    if ( !writeSettingsSurveyFile() )
-	mErrRet(uiString::emptyString())
+    if ( !checkSurveyName() )
+	mErrRet(uiString::empty())
 
-    // Step 3: record data root preference
-    if ( !samedataroot )
-	updateDataRootInSettings();
+    // Step 2: write default/current survey file and record data root preference
+    uiRetVal uirv;
+    const SurveyDiskLocation sdl( selectedSurveyName(), dataroot_ );
+    if ( !IOM().recordDataSource(sdl,uirv) )
+    {
+	if ( !uirv.isOK() )
+	     uiMSG().error( uirv );
+	return false;
+    }
 
-    // Step 4: Do the IOMan changes necessary
+    // Step 3: Do the IOMan changes necessary
     if ( samesurvey )
     {
 	if ( cursurvinfo_ )
@@ -811,7 +816,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	}
     }
 
-    // Step 5: if fresh survey, help user on his/her way
+    // Step 4: if fresh survey, help user on his/her way
     if ( impiop_ && impsip_ )
     {
 	freshsurveyselected_ = true;
@@ -1220,27 +1225,21 @@ void uiSurvey::updateSurvList()
 
 bool uiSurvey::writeSettingsSurveyFile()
 {
+    return false;
+}
+
+
+bool uiSurvey::checkSurveyName()
+{
     if ( dirfld_->isEmpty() )
 	{ pErrMsg( "No survey in the list" ); return false; }
 
-    BufferString seltxt( selectedSurveyName() );
+    const BufferString seltxt( selectedSurveyName() );
     if ( seltxt.isEmpty() )
 	mErrRet(tr("Survey folder name cannot be empty"))
 
     if ( !File::exists(FilePath(dataroot_,seltxt).fullPath()) )
 	mErrRet(tr("Survey directory does not exist anymore"))
-
-    const char* survfnm = SurveyInfo::surveyFileName();
-    if ( !survfnm )
-	mErrRet(tr("Internal error: cannot construct last-survey-filename"))
-
-    od_ostream strm( survfnm );
-    if ( !strm.isOK() )
-	mErrRet(tr("Cannot open %1 for write").arg(survfnm))
-
-    strm << seltxt;
-    if ( !strm.isOK() )
-	mErrRet( tr("Error writing to %1").arg(survfnm) )
 
     return true;
 }

@@ -181,7 +181,8 @@ private:
     bool		doReloc(const MultiID&,Translator*,IOStream&,IOStream&,
 				const CallBack* cb=nullptr);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
-
+    bool		writeSettingsSurveyFile(const char* dirnm,
+						uiRetVal&) const;
     int			getSuffixForName(const BufferString& orgnm,
 				    const BufferString& trgrpnm, int idx=0);
     void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
@@ -220,6 +221,10 @@ public:
     uiRetVal		setDataSource(const CommandLineParser&,
 				      bool refresh=false);
     BufferString	fullSurveyPath() const;
+    bool		recordDataSource(const SurveyDiskLocation&,
+					 uiRetVal&) const;
+			/*!< records dataroot in settings,
+			     and project in survey file */
     IODir*		getDir(const char* trlgrpnm) const;
     IODir*		getDir(IOObjContext::StdSelType) const;
     IODir*		getDir(const MultiID&) const;

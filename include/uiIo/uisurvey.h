@@ -114,6 +114,8 @@ protected:
     void		updateDataRootLabel();
     void		updateSurvList();
     void		putToScreen();
+    bool		checkSurveyName();
+    mDeprecatedDef
     bool		writeSettingsSurveyFile();
     bool		writeSurvInfoFileIfCommentChanged();
     bool		rootDirWritable() const;

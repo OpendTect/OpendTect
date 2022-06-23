@@ -16,13 +16,33 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+
 #include "uifileinput.h"
 #include "uilistbox.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uisurvey.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
 #include "uistrings.h"
+
+
+bool doSurveySelection( SurveyDiskLocation& newsdl, uiParent* p,
+			const SurveyDiskLocation* cursdl,
+			uiDialog::DoneResult* doneres )
+{
+    uiSurveySelectDlg dlg( p ? p : uiMain::theMain().topLevel() );
+    if ( cursdl )
+	dlg.setSurveyDiskLocation( *cursdl );
+
+    const int res = dlg.go();
+    if ( doneres )
+	*doneres = sCast(uiDialog::DoneResult,res);
+
+    newsdl = dlg.surveyDiskLocation();
+    return true;
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
@@ -50,21 +70,19 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
 				 mODHelpKey(mSurveySelectDlgHelpID)))
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
-    , surveyfld_(0)
-
+    , surveyfld_(nullptr)
 {
+    const SurveyDiskLocation& sdl = SI().diskLocation();
     datarootfld_ = new uiFileInput( this, tr("%1 Root").arg(uiStrings::sData()),
 		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
 		.directories(true) );
-    setDataRoot( dataroot );
-    datarootfld_->valuechanged.notify(
-		mCB(this,uiSurveySelectDlg,rootSelCB) );
+    setDataRoot( dataroot ? dataroot : sdl.basePath().buf() );
+    mAttachCB( datarootfld_->valuechanged, uiSurveySelectDlg::rootSelCB );
 
     surveylistfld_ = new uiListBox( this, "Survey list", OD::ChooseOnlyOne );
     surveylistfld_->setNrLines( 10 );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
-    surveylistfld_->selectionChanged.notify(
-		mCB(this,uiSurveySelectDlg,surveySelCB) );
+    mAttachCB( surveylistfld_->selectionChanged,uiSurveySelectDlg::surveySelCB);
 
     if ( !forread_ )
     {
@@ -74,12 +92,27 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     }
 
     fillSurveyList();
-    setSurveyName( survnm );
+    setSurveyName( survnm ? survnm : sdl.dirName().buf() );
 }
 
 
 uiSurveySelectDlg::~uiSurveySelectDlg()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiSurveySelectDlg::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+{
+    setDataRoot( sdl.basePath() );
+    setSurveyName( sdl.dirName() );
+}
+
+
+SurveyDiskLocation uiSurveySelectDlg::surveyDiskLocation() const
+{
+    return SurveyDiskLocation( getSurveyName(), getDataRoot() );
+}
 
 
 void uiSurveySelectDlg::setDataRoot( const char* dataroot )
@@ -87,12 +120,15 @@ void uiSurveySelectDlg::setDataRoot( const char* dataroot )
     BufferString basedatadir( dataroot );
     if ( basedatadir.isEmpty() )
 	basedatadir = GetBaseDataDir();
+
     datarootfld_->setText( dataroot );
 }
 
 
 const char* uiSurveySelectDlg::getDataRoot() const
-{ return datarootfld_->text(); }
+{
+    return datarootfld_->text();
+}
 
 
 void uiSurveySelectDlg::setSurveyName( const char* nm )
@@ -104,7 +140,10 @@ void uiSurveySelectDlg::setSurveyName( const char* nm )
 
 
 const char* uiSurveySelectDlg::getSurveyName() const
-{ return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText(); }
+{
+    return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();
+}
+
 
 const BufferString uiSurveySelectDlg::getSurveyPath() const
 {
@@ -124,7 +163,6 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 	    tr("Selected folder is not a valid Data Root. Do you still "
 	       "want to search for OpendTect Surveys in this location") );
     return res;
-
 }
 
 

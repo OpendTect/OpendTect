@@ -246,3 +246,22 @@ mExternC(Basic) const char* GetSettingsDataDir()
     Settings::common().get( "Default DATA directory", ret );
     return ret.buf();
 }
+
+
+bool SetSettingsDataDir( const char* dataroot, uiRetVal& uirv )
+{
+    const FixedString curdataroot = GetSettingsDataDir();
+    if ( !curdataroot.isEmpty() && curdataroot == dataroot )
+	return true;
+
+    Settings::common().set( "Default DATA directory", dataroot );
+    if ( !Settings::common().write() )
+    {
+	uirv.add( od_static_tr("SetSettingsDataDir",
+		    "Could not save Survey Data Root "
+		    "location in the settings file") );
+	return false;
+    }
+
+    return true;
+}
