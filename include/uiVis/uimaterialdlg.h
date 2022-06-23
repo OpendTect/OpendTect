@@ -114,7 +114,12 @@ mExpClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
 public:
 				uiPropertiesDlg(uiParent*,
 						visSurvey::SurveyObject*);
+				~uiPropertiesDlg();
+
+    static CNotifier<uiPropertiesDlg,int>& closeNotifier();
+
 protected:
+    void			dlgClosed(CallBacker*);
 
     visSurvey::SurveyObject*	survobj_;
 };

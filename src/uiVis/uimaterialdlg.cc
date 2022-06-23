@@ -32,6 +32,13 @@ ________________________________________________________________________
 
 
 // uiPropertiesDlg
+CNotifier<uiPropertiesDlg,int>& uiPropertiesDlg::closeNotifier()
+{
+    static CNotifier<uiPropertiesDlg,int> notif( nullptr );
+    return notif;
+}
+
+
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
 				mNoDlgTitle,mODHelpKey(mPropertiesDlgHelpID)))
@@ -73,6 +80,22 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     }
 
     setCancelText( uiString::emptyString() );
+
+    mAttachCB( windowClosed, uiPropertiesDlg::dlgClosed );
+}
+
+
+uiPropertiesDlg::~uiPropertiesDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void uiPropertiesDlg::dlgClosed( CallBacker* )
+{
+    mDynamicCastGet(visBase::VisualObject*,vo,survobj_)
+    if ( vo )
+	closeNotifier().trigger( vo->id(), this );
 }
 
 
