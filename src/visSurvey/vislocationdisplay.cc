@@ -729,10 +729,11 @@ void LocationDisplay::setColor( OD::Color nc )
 
 OD::Color LocationDisplay::getColor() const
 {
-    if ( set_ )
-	return set_->disp_.color_;
+    if ( !set_ )
+	return OD::Color::DgbColor();
 
-    return OD::Color::DgbColor();
+    return set_->disp_.markertype_ != MarkerStyle3D::None
+			? set_->disp_.color_ : set_->disp_.linestyle_.color_;
 }
 
 
