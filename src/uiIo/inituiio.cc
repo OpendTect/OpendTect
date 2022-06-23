@@ -20,7 +20,12 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "mmbatchjobdispatch.h"
 #include "settings.h"
+#include "uisurveyselect.h"
+#include "uitoolsmod.h"
 
+using fromFromSdlUiParSdlPtrFn = bool(*)(SurveyDiskLocation&,uiParent*,
+			    const SurveyDiskLocation*,uiDialog::DoneResult* );
+mGlobal(uiTools) void setGlobal_uiTools_SurvSelFns(fromFromSdlUiParSdlPtrFn);
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
@@ -76,4 +81,6 @@ mDefModInitFn(uiIo)
     Coords::uiAnchorBasedXYSystem::initClass();
 
     uiSimpleTimeDepthTransform::initClass();
+
+    setGlobal_uiTools_SurvSelFns( doSurveySelection );
 }

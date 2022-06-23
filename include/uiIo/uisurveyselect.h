@@ -20,6 +20,10 @@ class uiListBox;
 class uiFileInput;
 class SurveyDiskLocation;
 
+mGlobal(uiIo) bool doSurveySelection(SurveyDiskLocation& newsdl,
+				    uiParent*,const SurveyDiskLocation* initsdl,
+				    uiDialog::DoneResult*);
+
 mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 { mODTextTranslationClass(uiSurveySelectDlg);
 public:
@@ -29,6 +33,8 @@ public:
 					  bool needvalidrootdir=true);
 			~uiSurveySelectDlg();
 
+    void		setSurveyDiskLocation(const SurveyDiskLocation&);
+    SurveyDiskLocation	surveyDiskLocation() const;
     void		setDataRoot(const char*);
     const char*		getDataRoot() const;
     void		setSurveyName(const char*);

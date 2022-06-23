@@ -18,6 +18,32 @@ ________________________________________________________________________
 #include "uiraytrace1d.h"
 #include "uisettings.h"
 
+
+using fromFromSdlUiParSdlPtrFn = bool(*)(SurveyDiskLocation&,uiParent*,
+			    const SurveyDiskLocation*,uiDialog::DoneResult* );
+static fromFromSdlUiParSdlPtrFn dosurvselfn_ = nullptr;
+
+mGlobal(uiTools) void setGlobal_uiTools_SurvSelFns(fromFromSdlUiParSdlPtrFn);
+void setGlobal_uiTools_SurvSelFns( fromFromSdlUiParSdlPtrFn dosurvselfn )
+{
+    dosurvselfn_ = dosurvselfn;
+}
+
+extern "C" {
+    mGlobal(uiTools) bool doSurveySelectionDlg(SurveyDiskLocation&,uiParent*,
+				     const SurveyDiskLocation*,
+				     uiDialog::DoneResult*);
+}
+
+mExternC(uiTools) bool doSurveySelectionDlg( SurveyDiskLocation& newsdl,
+				uiParent* p, const SurveyDiskLocation* cursdl,
+				uiDialog::DoneResult* doneres )
+{
+    return dosurvselfn_ ? (*dosurvselfn_)(newsdl,p,cursdl,doneres) : false;
+}
+
+
+
 mDefModInitFn(uiTools)
 {
     mIfNotFirstTime( return );
