@@ -222,7 +222,6 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 	    markerset_->setShape( osgGeo::MarkerShape::Point );
 	    break;
 	default:
-	    pErrMsg("Shape not implemented");
 	    markerset_->setShape( osgGeo::MarkerShape::None );
     }
 
