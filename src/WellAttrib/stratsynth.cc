@@ -89,6 +89,7 @@ StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
 {
     ids_ = oth.ids_;
     genparams_ = oth.genparams_;
+    wvlt_ = oth.wvlt_;
     for ( int idx=0; idx<nrLayerModels(); idx++ )
 	addLayModelSets();
 

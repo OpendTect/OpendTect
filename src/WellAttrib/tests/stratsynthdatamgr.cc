@@ -466,7 +466,9 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
 
 static bool testAllMgrs( const Strat::LayerModelSuite& lms )
 {
-    const Wavelet syntheticricker( true, 50.f, 0.004f, 1.f );
+    Wavelet syntheticricker( true, 50.f, 0.004f, 1.f );
+    syntheticricker.setName( BufferString( syntheticricker.name(),
+			" for TEST program only" ) );
 
     StratSynth::DataMgr datamgr( lms );
     datamgr.setCalcEach( calceach_ );
