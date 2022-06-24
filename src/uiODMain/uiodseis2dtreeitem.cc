@@ -83,9 +83,10 @@ const char* uiODLine2DParentTreeItem::iconName() const
 
 
 #define mAdd		0
-#define mGridFrom3D	1
-#define mFrom3D		2
-#define mTo3D		3
+#define mAddRGB		1
+#define mGridFrom3D	2
+#define mFrom3D		3
+#define mTo3D		4
 
 #define mDispNames	10
 #define mDispPanels	11
@@ -116,11 +117,12 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAdd );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAddColBlend())), mAddRGB);
     if ( SI().has3D() )
     {
 	mnu.insertAction( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),
 			mGridFrom3D );
-	mnu.insertAction( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D );
+	mnu.insertAction( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D);
     }
 
 #ifdef __debug__
@@ -225,17 +227,21 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	displayedgeomids += s2d->getGeomID();
     }
 
-    if ( mnuid == mAdd )
+    if ( mnuid == mAdd || mnuid == mAddRGB )
     {
-	int action = 0;
+	int action = mnuid == mAddRGB ? 3 : 0;
 	TypeSet<Pos::GeomID> geomids;
 	applMgr()->seisServer()->select2DLines( geomids, action );
 	const bool rgba = action==3;
 
+	ObjectSet<uiOD2DLineTreeItem> newitems;
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
 	    setMoreObjectsToDoHint( idx>0 );
-	    addChild( new uiOD2DLineTreeItem(geomids[idx],-1,rgba), false );
+	    uiOD2DLineTreeItem* newitem =
+			new uiOD2DLineTreeItem( geomids[idx], -1, rgba );
+	    addChild( newitem, false );
+	    newitems.add( newitem );
 	}
 
 	if ( action==0 || geomids.isEmpty() ) return true;
@@ -244,6 +250,8 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	    loadDefaultData();
 	else if ( action==2 )
 	    selectLoadAttribute( geomids );
+	else if ( action==3 )
+	    selectLoadRGB( newitems );
     }
     else if ( mnuid == mGridFrom3D )
 	ODMainWin()->applMgr().create2DGrid();
@@ -459,6 +467,51 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 }
 
 
+bool uiODLine2DParentTreeItem::selectLoadRGB(
+				const ObjectSet<uiOD2DLineTreeItem>& lineitems )
+{
+    if ( lineitems.isEmpty() )
+	return false;
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    TypeSet<Attrib::SelSpec> rgbaspecs( 4, Attrib::SelSpec() );
+    for ( int idx=0; idx<4; idx++ )
+    {
+	const Attrib::SelSpec* as =
+		visserv->getSelSpec( lineitems.get(0)->displayID(), idx );
+	if ( as )
+	    rgbaspecs[idx] = *as;
+    }
+
+    const bool selok = applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, 0,
+						lineitems.get(0)->getGeomID() );
+    if ( !selok )
+	return false;
+
+    for ( auto* lineitem : lineitems )
+    {
+	const int dispid = lineitem->displayID();
+	for ( int idx=0; idx<rgbaspecs.size(); idx++ )
+	{
+	    const Attrib::SelSpec& as = rgbaspecs[idx];
+	    if ( !as.id().isValid() )
+		continue;
+
+	    visserv->setSelSpec( dispid, idx, as );
+	    visserv->calculateAttrib( dispid, idx, false );
+	}
+
+	lineitem->updateColumnText( uiODSceneMgr::cNameColumn() );
+	mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		    ODMainWin()->applMgr().visServer()->getObject(dispid))
+	if ( s2d )
+	    s2d->showPanel( true );
+    }
+
+    return true;
+}
+
+
 // Line2DTreeItemFactory
 uiTreeItem*
     Line2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
@@ -466,7 +519,7 @@ uiTreeItem*
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    ODMainWin()->applMgr().visServer()->getObject(visid))
     if ( !s2d || !treeitem )
-	    return nullptr;
+	return nullptr;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
 		    s2d->getChannels2RGBA())
@@ -582,9 +635,6 @@ bool uiOD2DLineTreeItem::init()
     if ( applMgr() )
 	applMgr()->getOtherFormatData.notify(
 	    mCB(this,uiOD2DLineTreeItem,getNewData) );
-
-    if ( rgba_ )
-	selectRGBA( geomid_ );
 
     return uiODDisplayTreeItem::init();
 }

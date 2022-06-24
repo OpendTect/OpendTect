@@ -432,13 +432,17 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 	   .add( "Color blended" );
     uiGenInput* optfld =
 	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
-    optfld->setValue( seis2dloadaction );
+    const bool showoptions = action == 0;
+    optfld->setValue( showoptions ? seis2dloadaction : action );
+    optfld->setSensitive( showoptions );
     optfld->attach( alignedBelow, lchfld );
     cursorchgr.restore();
     if ( !dlg.go() )
 	return false;
 
-    seis2dloadaction = action = optfld->getIntValue();
+    if ( showoptions )
+	seis2dloadaction = action = optfld->getIntValue();
+
     lchfld->getChosen( selids );
     return selids.size();
 }
