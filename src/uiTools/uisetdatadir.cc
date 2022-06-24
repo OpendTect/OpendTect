@@ -47,9 +47,9 @@ static const char* doSetRootDataDir( const char* inpdatadir )
 	return "Provided folder name is not a valid OpendTect Survey Data Root";
 
     SetCurBaseDataDir( datadir );
-
-    Settings::common().set( "Default DATA directory", datadir );
-    return Settings::common().write() ? 0 : "Cannot write user settings file";
+    uiRetVal uirv;
+    return SetSettingsDataDir( datadir, uirv ) ? nullptr
+					    : "Cannot write user settings file";
 }
 
 
@@ -442,4 +442,28 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     }
 
     (void)uiSurvey_UnzipFile( par, zipfilenm, datadir );
+}
+
+
+using fromFromSdlUiParSdlPtrFn = bool(*)(SurveyDiskLocation&,uiParent*,
+                            const SurveyDiskLocation*,uiDialog::DoneResult* );
+static fromFromSdlUiParSdlPtrFn dosurvselfn_ = nullptr;
+
+mGlobal(uiTools) void setGlobal_uiTools_SurvSelFns(fromFromSdlUiParSdlPtrFn);
+void setGlobal_uiTools_SurvSelFns( fromFromSdlUiParSdlPtrFn dosurvselfn )
+{
+    dosurvselfn_ = dosurvselfn;
+}
+
+extern "C" {
+    mGlobal(uiTools) bool doSurveySelectionDlg(SurveyDiskLocation&,uiParent*,
+                                     const SurveyDiskLocation*,
+                                     uiDialog::DoneResult*);
+}
+
+mExternC(uiTools) bool doSurveySelectionDlg( SurveyDiskLocation& newsdl,
+                                uiParent* p, const SurveyDiskLocation* cursdl,
+                                uiDialog::DoneResult* doneres )
+{
+    return dosurvselfn_ ? (*dosurvselfn_)(newsdl,p,cursdl,doneres) : false;
 }

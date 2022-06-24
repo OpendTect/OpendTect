@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 class SettingsManager;
+class uiRetVal;
 
 /*!
 \brief Settings class holds the user settings. It is an IOPar.
@@ -72,7 +73,8 @@ private:
 };
 
 
-mExternC( Basic ) const char* GetSettingsDataDir(void);
+mExternC(Basic) const char* GetSettingsDataDir(void);
+mGlobal(Basic) bool SetSettingsDataDir(const char*,uiRetVal&);
 
 
 //!> macro for easy set to Settings::common()

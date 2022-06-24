@@ -21,9 +21,9 @@
 #include "iosubdir.h"
 #include "keystrs.h"
 #include "msgh.h"
-#include "od_ostream.h"
 #include "oddirs.h"
 #include "perthreadrepos.h"
+#include "safefileio.h"
 #include "separstr.h"
 #include "settings.h"
 #include "strmprov.h"
@@ -31,6 +31,7 @@
 #include "survinfo.h"
 #include "timefun.h"
 #include "transl.h"
+#include "uistrings.h"
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
@@ -1468,6 +1469,44 @@ BufferString IOMan::fullSurveyPath() const
 {
     FilePath fp( rootDir(), surveyName() );
     return fp.fullPath();
+}
+
+
+bool IOMan::recordDataSource( const SurveyDiskLocation& sdl,
+			      uiRetVal& uirv ) const
+{
+    const bool survok = writeSettingsSurveyFile( sdl.dirName(), uirv );
+    const bool datadirok = SetSettingsDataDir( sdl.basePath(), uirv );
+    return survok && datadirok;
+}
+
+
+bool IOMan::writeSettingsSurveyFile( const char* surveydirnm,
+				     uiRetVal& uirv ) const
+{
+    const BufferString survfnm( SurveyInfo::surveyFileName() );
+    if ( survfnm.isEmpty() )
+    {
+	uirv.add( uiStrings::phrInternalErr(
+			    "Cannot construct last-survey-filename" ) );
+	return false;
+    }
+
+    SafeFileIO sfio( survfnm );
+    if ( !sfio.open(false) )
+    {
+	uirv.add( mToUiStringTodo(sfio.errMsg() ) );
+	return false;
+    }
+
+    sfio.ostrm() << surveydirnm;
+    if ( !sfio.closeSuccess() )
+    {
+	uirv.add( mToUiStringTodo(sfio.errMsg() ) );
+	return false;
+    }
+
+    return true;
 }
 
 

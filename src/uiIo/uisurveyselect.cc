@@ -16,14 +16,34 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+
 #include "uifileinput.h"
 #include "uilistbox.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uisurvey.h"
 #include "uiseparator.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
 #include "uistrings.h"
+
+
+bool doSurveySelection( SurveyDiskLocation& newsdl, uiParent* p,
+			const SurveyDiskLocation* cursdl,
+			uiDialog::DoneResult* doneres )
+{
+    uiSurveySelectDlg dlg( p ? p : uiMain::instance().topLevel() );
+    if ( cursdl )
+	dlg.setSurveyDiskLocation( *cursdl );
+
+    const int res = dlg.go();
+    if ( doneres )
+	*doneres = sCast(uiDialog::DoneResult,res);
+
+    newsdl = dlg.surveyDiskLocation();
+    return true;
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
@@ -53,22 +73,21 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
 {
+    const SurveyDiskLocation& sdl = SI().diskLocation();
     datarootfld_ = new uiFileInput( this, tr("%1 Root").arg(uiStrings::sData()),
 		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
 		.directories(true) );
-    setDataRoot( dataroot );
-    datarootfld_->valuechanged.notify(
-		mCB(this,uiSurveySelectDlg,rootSelCB) );
+    setDataRoot( dataroot ? dataroot : sdl.basePath().buf() );
+    mAttachCB( datarootfld_->valuechanged, uiSurveySelectDlg::rootSelCB );
 
-    auto* sep = new uiSeparator( this, "Well2Log Sep" );
+    auto* sep = new uiSeparator( this, "Survey list" );
     sep->attach( stretchedBelow, datarootfld_ );
     surveylistfld_ = new uiListBox( this, "Survey list",
-				    selmultiplesurveys ? OD::ChooseOnlyOne
-						       : OD::ChooseAtLeastOne );
+				    selmultiplesurveys ? OD::ChooseAtLeastOne
+						       : OD::ChooseOnlyOne );
     surveylistfld_->setNrLines( 10 );
     surveylistfld_->attach( alignedBelow, sep );
-    surveylistfld_->selectionChanged.notify(
-		mCB(this,uiSurveySelectDlg,surveySelCB) );
+    mAttachCB( surveylistfld_->selectionChanged,uiSurveySelectDlg::surveySelCB);
 
     if ( !forread_ && !selmultiplesurveys)
     {
@@ -78,12 +97,27 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     }
 
     fillSurveyList();
-    setSurveyName( survnm );
+    setSurveyName( survnm ? survnm : sdl.dirName().buf() );
 }
 
 
 uiSurveySelectDlg::~uiSurveySelectDlg()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiSurveySelectDlg::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+{
+    setDataRoot( sdl.basePath() );
+    setSurveyName( sdl.dirName() );
+}
+
+
+SurveyDiskLocation uiSurveySelectDlg::surveyDiskLocation() const
+{
+    return SurveyDiskLocation( getSurveyName(), getDataRoot() );
+}
 
 
 void uiSurveySelectDlg::setDataRoot( const char* dataroot )
@@ -96,7 +130,7 @@ void uiSurveySelectDlg::setDataRoot( const char* dataroot )
 }
 
 
-const char* uiSurveySelectDlg::getDataRoot() const
+BufferString uiSurveySelectDlg::getDataRoot() const
 {
     return datarootfld_->text();
 }
@@ -110,7 +144,7 @@ void uiSurveySelectDlg::setSurveyName( const char* nm )
 }
 
 
-const char* uiSurveySelectDlg::getSurveyName() const
+BufferString uiSurveySelectDlg::getSurveyName() const
 {
     return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();
 }
@@ -124,12 +158,22 @@ void uiSurveySelectDlg::getSurveyNames( BufferStringSet& survnms ) const
 
 void uiSurveySelectDlg::getSurveyPaths( BufferStringSet& survpaths ) const
 {
-    FilePath fps(getDataRoot(),getSurveyName());
+    const FilePath fps(getDataRoot(),getSurveyName());
     survpaths.addIfNew( fps.fullPath() );
 }
 
 
-const BufferString uiSurveySelectDlg::getSurveyPath() const
+void uiSurveySelectDlg::getSurveyLocations(
+				TypeSet<SurveyDiskLocation>& sdls ) const
+{
+    BufferStringSet survpaths;
+    getSurveyPaths( survpaths );
+    for ( const auto* survpath : survpaths )
+	sdls.add( SurveyDiskLocation(survpath->buf()) );
+}
+
+
+BufferString uiSurveySelectDlg::getSurveyPath() const
 {
     return FilePath(getDataRoot(),getSurveyName()).fullPath();
 }
@@ -147,7 +191,6 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 	    tr("Selected folder is not a valid Data Root. Do you still "
 	       "want to search for OpendTect Surveys in this location") );
     return res;
-
 }
 
 

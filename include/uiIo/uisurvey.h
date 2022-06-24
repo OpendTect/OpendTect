@@ -116,7 +116,7 @@ protected:
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
     void		updateSurvList();
     void		putToScreen();
-    bool		writeSettingsSurveyFile();
+    bool		checkSurveyName();
     bool		writeSurvInfoFileIfCommentChanged();
     bool		rootDirWritable() const;
     bool		doSurvInfoDialog(bool isnew);

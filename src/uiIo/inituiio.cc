@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
+
+#include "ui2dsip.h"
 #include "uibatchjobdispatcherlauncher.h"
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
@@ -19,11 +21,16 @@ ________________________________________________________________________
 #include "uisimpletimedepthmodel.h"
 #include "uisurvinfoed.h"
 #include "uisurvey.h"
-#include "ui2dsip.h"
+#include "uisurveyselect.h"
+#include "uitoolsmod.h"
+
 #include "envvars.h"
 #include "mmbatchjobdispatch.h"
 #include "settings.h"
 
+using fromFromSdlUiParSdlPtrFn = bool(*)(SurveyDiskLocation&,uiParent*,
+                            const SurveyDiskLocation*,uiDialog::DoneResult* );
+mGlobal(uiTools) void setGlobal_uiTools_SurvSelFns(fromFromSdlUiParSdlPtrFn);
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
@@ -80,6 +87,7 @@ mDefModInitFn(uiIo)
 
     uiSimpleTimeDepthTransform::initClass();
 
+    setGlobal_uiTools_SurvSelFns( doSurveySelection );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider);
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );

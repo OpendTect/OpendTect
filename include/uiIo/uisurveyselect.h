@@ -19,28 +19,35 @@ class uiListBox;
 class uiFileInput;
 class SurveyDiskLocation;
 
+mGlobal(uiIo) bool doSurveySelection(SurveyDiskLocation& newsdl,
+				    uiParent*,const SurveyDiskLocation* initsdl,
+				    uiDialog::DoneResult*);
+
 mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 { mODTextTranslationClass(uiSurveySelectDlg);
 public:
-			uiSurveySelectDlg(uiParent*,const char* survnm=0,
-					  const char* dataroot=0,
+			uiSurveySelectDlg(uiParent*,const char* survnm=nullptr,
+					  const char* dataroot=nullptr,
 					  bool forread=true,
 					  bool needvalidrootdir=true,
 					  bool selmultiplesurveys=false);
 			~uiSurveySelectDlg();
 
+    void		setSurveyDiskLocation(const SurveyDiskLocation&);
     void		setDataRoot(const char*);
-    const char*		getDataRoot() const;
     void		setSurveyName(const char*);
-    const char*		getSurveyName() const;
-    const BufferString	getSurveyPath() const;
 
+    bool		isNewSurvey() const;
+    SurveyDiskLocation	surveyDiskLocation() const;
+    BufferString	getDataRoot() const;
+    BufferString	getSurveyName() const;
+    BufferString	getSurveyPath() const;
+
+    void		getSurveyLocations(TypeSet<SurveyDiskLocation>&) const;
     void		getSurveyNames(BufferStringSet&) const;
     void		getSurveyPaths(BufferStringSet&) const;
 
-    bool		isNewSurvey() const;
-
-protected:
+private:
 
     void		rootSelCB(CallBacker*);
     void		surveySelCB(CallBacker*);
@@ -61,7 +68,7 @@ mExpClass(uiIo) uiSurveySelect : public uiIOSelect
 public:
 			uiSurveySelect(uiParent*,bool forread,
 				       bool needvalidrootdir,
-				       const char* label=0);
+				       const char* label=nullptr);
 			~uiSurveySelect();
 
     bool		isNewSurvey() const	{ return isnewsurvey_; }
@@ -70,7 +77,7 @@ public:
     void		setSurveyDiskLocation(const SurveyDiskLocation&);
     SurveyDiskLocation	surveyDiskLocation() const;
 
-protected:
+private:
 
     void		selectCB(CallBacker*);
     void		updateList();
