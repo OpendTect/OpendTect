@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 
 class uiMenu;
+class uiOD2DLineTreeItem;
 class uiTaskRunner;
 
 mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODParentTreeItem
@@ -32,6 +33,7 @@ protected:
     bool		loadDefaultData();
     bool		selectLoadAttribute(const TypeSet<Pos::GeomID>&,
 			    const char* attrnm=sKeyRightClick(),int attridx=-1);
+    bool		selectLoadRGB(const ObjectSet<uiOD2DLineTreeItem>&);
     uiMenu*		replaceattritm_;
     uiMenu*		removeattritm_;
     uiMenu*		dispattritm_;

@@ -115,7 +115,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
     mnu.insertAction( new uiAction(m3Dots(tr("Add at Sections Only"))),
 		    mAddAtSectIdx);
-    mnu.insertAction( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx);
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAddColBlend())),
+		      mAddCBIdx );
 
     uiMenu* newmenu = new uiMenu( newmenu_ );
     mnu.addMenu( newmenu );
