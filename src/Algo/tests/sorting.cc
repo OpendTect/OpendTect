@@ -285,7 +285,7 @@ static bool testRandom( bool dodiff, bool dotime )
     rcld.clear();
     for ( int idx=0; idx<sz; idx++ )
 	rcld.addValue( dvals[idx] );
-    mTestValD( 0., double(rcld.average()), epsstd, "Gaussian average - get" );
+    mTestValD( expavg, double(rcld.average()),epsstd, "Gaussian average - get");
     mTestValD( expstddev, double(rcld.stdDev()), epsstd,
 	       "Gaussian stddev - get" );
 
@@ -367,6 +367,7 @@ static bool testRandom( bool dodiff, bool dotime )
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+    quiet_ = false;
 
     if ( !testParallelQuickSort() )
 	return 1;
