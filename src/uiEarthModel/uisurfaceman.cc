@@ -132,7 +132,7 @@ static HelpKey getHelpID( uiSurfaceMan::Type typ )
 uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,tr("Manage")),
 			    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
-			    .modal(false), getIOCtxt(typ) )
+			    .modal(false), getIOCtxt(typ), ZDomain::sKey() )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
@@ -586,38 +586,46 @@ void uiSurfaceMan::fillAttribList()
 }
 
 
+static void addZRangeTxt( BufferString& txt, const Interval<float>& zrange,
+			  const UnitOfMeasure* zunit )
+{
+    if ( zrange.isUdf() )
+	return;
+
+    txt += "Z range";
+    BufferString zunitsym;
+    if ( zunit )
+	zunitsym = SI().getZUnitString();
+    else
+    {
+	zunitsym += "(";
+	zunitsym += zunit->symbol();
+	zunitsym += ")";
+    }
+
+    txt += ": ";
+    txt += zunit ? zunit->userValue(zrange.start) : zrange.start;
+    txt += " - ";
+    txt += zunit ? zunit->userValue(zrange.stop) : zrange.stop;
+    txt += "\n";
+}
+
+
+static void addInlCrlRangeTxt( BufferString& txt,
+			       const StepInterval<int>& range )
+{
+    if ( range.isUdf() )
+	txt += "-\n";
+    else
+    {
+	txt += range.start; txt += " - "; txt += range.stop;
+	txt += " - "; txt += range.step; txt += "\n";
+    }
+}
+
+
 void uiSurfaceMan::mkFileInfo()
 {
-#define mAddInlCrlRangeTxt() \
-    if ( range.isUdf() ) \
-	txt += "-\n"; \
-    else \
-    { \
-	txt += range.start; txt += " - "; txt += range.stop; \
-	txt += " - "; txt += range.step; txt += "\n"; \
-    }
-
-#define mAddZRangeTxt() \
-    if ( !zrange.isUdf() ) \
-    { \
-	txt += "Z range"; \
-	BufferString zunitsym; \
-	if ( zunitsymbol.isEmpty() ) \
-	    zunitsym = SI().getZUnitString(); \
-	else \
-	{ \
-	    zunitsym += "("; zunitsym += zunitsymbol.buf(); zunitsym += ")"; \
-	} \
-	txt += zunitsym; \
-	txt += ": "; \
-	txt += mNINT32( zrange.start * (convert ? SI().zDomain().userFactor() \
-						: 1) ); \
-	txt += " - "; \
-	txt += mNINT32( zrange.stop * (convert ? SI().zDomain().userFactor()\
-					       : 1) ); \
-	txt += "\n"; \
-    }
-
     fillAttribList();
     BufferString txt;
     EM::IOObjInfo eminfo( curioobj_ );
@@ -668,34 +676,28 @@ void uiSurfaceMan::mkFileInfo()
 	if ( eminfo.getBodyRange(cs) )
 	{
 	    StepInterval<int> range = cs.hsamp_.lineRange();
-	    txt = "In-line range: "; mAddInlCrlRangeTxt()
+	    txt = "In-line range: ";
+	    addInlCrlRangeTxt( txt, range );
 	    range = cs.hsamp_.trcRange();
-	    txt += "Cross-line range: "; mAddInlCrlRangeTxt()
+	    txt += "Cross-line range: ";
+	    addInlCrlRangeTxt( txt, range );
 
 	    const Interval<float>& zrange = cs.zsamp_;
-	    const BufferString& zunitsymbol = BufferString::empty();
-	    const bool convert = true;
-	    mAddZRangeTxt()
+	    addZRangeTxt( txt, zrange, nullptr );
 	}
     }
     else
     {
 	StepInterval<int> range = eminfo.getInlRange();
-	txt = "In-line range: "; mAddInlCrlRangeTxt()
+	txt = "In-line range: ";
+	addInlCrlRangeTxt( txt, range );
 	range = eminfo.getCrlRange();
-	txt += "Cross-line range: "; mAddInlCrlRangeTxt()
+	txt += "Cross-line range: ";
+	addInlCrlRangeTxt( txt, range );
 
 	const Interval<float>& zrange = eminfo.getZRange();
 	const UnitOfMeasure* zunit = UoMR().get(eminfo.getZUnitLabel());
-	const BufferString& zunitsymbol = zunit ? zunit->symbol()
-						: BufferString::empty().buf();
-	bool convert = true;
-	BufferString zdomain;
-	eminfo.ioObj()->pars().get( ZDomain::sKey(), zdomain );
-	if ( (SI().zDomain().isTime() && zdomain == sKey::Depth())
-	     || (SI().zDomain().isDepth() && zdomain == sKey::Time()) )
-	    convert = false;
-	mAddZRangeTxt()
+	addZRangeTxt( txt, zrange, zunit );
     }
 
     txt += getFileInfo();

@@ -53,7 +53,7 @@ protected:
 
     uiGenInput* 		rangefld_;
     bool			rangechanged_;
-    bool            is2dzat_ = false;
+    bool			is2dzat_ = false;
 };
 
 

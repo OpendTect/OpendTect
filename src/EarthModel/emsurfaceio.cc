@@ -1535,7 +1535,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     writecolrange_ = 0;
     writtenrowrange_ = Interval<int>( INT_MAX, INT_MIN );
     writtencolrange_ = Interval<int>( INT_MAX, INT_MIN );
-    zrange_ = Interval<float>(SI().zRange(false).stop,SI().zRange(false).start);
+    zrange_ = Interval<float>(Interval<float>::udf());
     nrdone_ = 0;
     sectionindex_ = 0;
     oldsectionindex_= -1;

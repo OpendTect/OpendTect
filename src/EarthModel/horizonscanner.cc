@@ -69,7 +69,6 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 }
 
 
-
 HorizonScanner::~HorizonScanner()
 {
     delete &dtctor_;
@@ -190,12 +189,15 @@ void HorizonScanner::report( IOPar& iopar ) const
     {
 	BufferString zrgkey = isZInDepth() ? sKey::DepthRange()
 					   : sKey::TimeRange();
-	zrgkey.add( isZInDepth()
-		    ? UnitOfMeasure::surveyDefDepthUnitAnnot(true,true)
-		    : UnitOfMeasure::surveyDefZUnitAnnot(true,true) );
+	zrgkey.add( UnitOfMeasure::zUnitAnnot(!isZInDepth(),true,true) );
 	Interval<float> zrg = valranges_[0];
-	if ( SI().zIsTime() && !isZInDepth() )
-	    zrg.scale( SI().showZ2UserFactor() );
+	if ( !isZInDepth() )
+	{
+	    zrg.start = UnitOfMeasure::surveyDefTimeUnit()
+					->getUserValueFromSI( zrg.start );
+	    zrg.stop = UnitOfMeasure::surveyDefTimeUnit()
+					->getUserValueFromSI( zrg.stop );
+	}
 
 	iopar.set( zrgkey, zrg );
     }
@@ -300,28 +302,30 @@ static const UnitOfMeasure* getSuggestedZUnit( const UnitOfMeasure* zunit,
 }
 
 
-const Interval<float> HorizonScanner::getValidZRange() const
+const Interval<float> HorizonScanner::getReasonableZRange() const
 {
     Interval<float> validrg( SI().zRange(false) );
     validrg.sort();
-    int zscalestart = 1;
-    int zscalestop = 1;
+    float zscalestart = 1.f;
+    float zscalestop = 1.f;
     const Mnemonic& vel = Mnemonic::defVEL();
+    const float zfacmtofeet = SI().depthsInFeet() ? mToFeetFactorF : 1.f;
     if ( isZInDepth() && SI().zIsTime() )
     {
-	zscalestart = ( zscalestart * vel.disp_.range_.start ) / 2;
-	zscalestop = ( zscalestop * vel.disp_.range_.stop ) / 2;
+	zscalestart = ( zscalestart * vel.disp_.range_.start * zfacmtofeet )/2;
+	zscalestop = ( zscalestop * vel.disp_.range_.stop * zfacmtofeet )/2;
     }
     else if ( !isZInDepth() && !SI().zIsTime() )
     {
-	zscalestart = ( zscalestart / vel.disp_.range_.start ) * 2;
-	zscalestop = ( zscalestop / vel.disp_.range_.stop ) * 2;
+	zscalestart = ( zscalestart / vel.disp_.range_.stop * zfacmtofeet )*2;
+	zscalestop = ( zscalestop / vel.disp_.range_.start * zfacmtofeet )*2;
     }
 
     validrg.start *= zscalestart;
     validrg.stop *= zscalestop;
     const float zwidth = validrg.width();
     validrg.start -= zwidth;
+    validrg.stop += zwidth;
     return validrg;
 }
 
@@ -334,31 +338,10 @@ bool HorizonScanner::analyzeData()
     const bool hastransform = transform_ != nullptr;
     const bool zistime = !isZInDepth();
     const bool tryscale = isgeom_ && zistime && !hastransform;
-    const float zscalefac = zistime && ascio_->getSelZUnit() == UoMR().get("s")
-						    ? 1000 : 0.001;
-    Interval<float> validrg( getValidZRange() );
-/*    Interval<float> validrg( SI().zRange(false) );
-    validrg.sort();
-    int zscalestart = 1;
-    int zscalestop = 1;
-    const Mnemonic& vel = Mnemonic::defVEL();
-    if ( !zistime && SI().zIsTime() )
-    {
-	zscalestart = ( zscalestart * vel.disp_.range_.start ) / 2;
-	zscalestop = ( zscalestop * vel.disp_.range_.stop ) / 2;
-    }
-    else if ( zistime && !SI().zIsTime() )
-    {
-	zscalestart = ( zscalestart / vel.disp_.range_.start ) * 2;
-	zscalestop = ( zscalestop / vel.disp_.range_.stop ) * 2;
-    }
-
-    validrg.start *= zscalestart;
-    validrg.stop *= zscalestop;
-    const float zwidth = validrg.width();
-    validrg.start -= zwidth;
-    validrg.stop += zwidth;*/
-
+    const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
+    const float zscalefac = zistime && selzunit == UoMR().get("s")
+						? 1000.0f : 0.001f;
+    Interval<float> validrg( getReasonableZRange() );
     int maxcount = 100;
     int count, nrxy, nrbid, nrscale, nrnoscale;
     count = nrxy = nrbid = nrscale = nrnoscale = 0;
@@ -368,7 +351,8 @@ bool HorizonScanner::analyzeData()
     selxy_ = ascio_->isXY();
     while ( ascio_->getNextLine(crd,data) > 0 )
     {
-	if ( data.isEmpty() ) break;
+	if ( data.isEmpty() )
+	    break;
 
 	if ( count > maxcount )
 	    break;
@@ -440,7 +424,6 @@ bool HorizonScanner::analyzeData()
 		     .arg( apparentisxy ? "X/Y" : "Inl/Crl" );
     }
 
-    const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
     const UnitOfMeasure* suggestedzunit = nullptr;
     if ( tryscale && nrscale > nrnoscale )
 	suggestedzunit = getSuggestedZUnit( selzunit, zscalefac );

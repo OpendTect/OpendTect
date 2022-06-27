@@ -71,31 +71,31 @@ protected:
     void			transformZIfNeeded(const BinID&,float&) const;
 
     void			init();
-    const Interval<float>	getValidZRange() const;
+    const Interval<float>	getReasonableZRange() const;
 
-    mutable int		totalnr_;
-    int			nrdone_;
-    PosInfo::Detector&	dtctor_;
-    EM::Horizon3DAscIO*	ascio_;
-    BufferStringSet	filenames_;
-    int			fileidx_;
-    BufferStringSet	rejectedlines_;
+    mutable int			totalnr_;
+    int				nrdone_;
+    PosInfo::Detector&		dtctor_;
+    EM::Horizon3DAscIO*		ascio_;
+    BufferStringSet		filenames_;
+    int				fileidx_;
+    BufferStringSet		rejectedlines_;
 
-    bool		firsttime_;
-    bool		isgeom_;
-    bool		isxy_;
-    bool		selxy_;
-    bool		doscale_;
-    TypeSet<Interval<float> > valranges_;
-    Table::FormatDesc&	fd_;
+    bool			firsttime_;
+    bool			isgeom_;
+    bool			isxy_;
+    bool			selxy_;
+    bool			doscale_;
+    TypeSet<Interval<float> >	valranges_;
+    Table::FormatDesc&		fd_;
 
-    BinIDValueSet*	bvalset_;
-    ObjectSet<BinIDValueSet> sections_;
+    BinIDValueSet*		bvalset_;
+    ObjectSet<BinIDValueSet>	sections_;
 
-    ZAxisTransform*	transform_	= nullptr;
-    const ZDomain::Def* zdomain_;
+    ZAxisTransform*		transform_	= nullptr;
+    const ZDomain::Def*		zdomain_;
 
-    mutable uiString	curmsg_;
+    mutable uiString		curmsg_;
 };
 
 

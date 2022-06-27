@@ -175,7 +175,7 @@ Interval<float> IOObjInfo::getZRange() const
 }
 
 
-const BufferString IOObjInfo::getZUnitLabel() const
+BufferString IOObjInfo::getZUnitLabel() const
 {
     if ( !ioobj_ )
 	return BufferString::empty();

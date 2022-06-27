@@ -55,16 +55,16 @@ protected:
     uiPushButton*	scanbut_;
     uiListBox*		attrlistfld_;
     uiPosSubSel*	subselfld_;
-    uiGenInput*		filludffld_;
+    uiGenInput*		filludffld_			= nullptr;
     uiPushButton*	interpolparbut_;
-    Array2DInterpol*	interpol_;
+    Array2DInterpol*	interpol_			= nullptr;
     uiTableImpDataSel*	dataselfld_;
-    uiColorInput*	colbut_;
-    uiStratLevelSel*	stratlvlfld_;
+    uiColorInput*	colbut_				= nullptr;
+    uiStratLevelSel*	stratlvlfld_			= nullptr;
     uiIOObjSel*		outputfld_;
 
-    uiCheckBox*		tdsel_;
-    uiCheckBox*		impdepsel_;
+    uiGenInput*		domsel_				= nullptr;
+    uiGenInput*		impdomsel_			= nullptr;
     uiT2DConvSel*	transfld_;
 
     virtual bool	acceptOK(CallBacker*);
@@ -78,7 +78,7 @@ protected:
     void		stratLvlChg(CallBacker*);
     void		interpolSettingsCB(CallBacker*);
     void		zDomSel(CallBacker*);
-    void		impDepthDomain(CallBacker*);
+    void		impDomSel(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();
@@ -90,7 +90,7 @@ protected:
 
     CtxtIOObj&		ctio_;
     Table::FormatDesc&	fd_;
-    HorizonScanner*	scanner_;
+    HorizonScanner*	scanner_			= nullptr;
     bool		isgeom_;
 
 private:

@@ -74,15 +74,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				 .modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
-    , filludffld_(nullptr)
-    , interpol_(nullptr)
-    , colbut_(nullptr)
-    , stratlvlfld_(nullptr)
     , fd_(*EM::Horizon3DAscIO::getDesc())
-    , scanner_(nullptr)
-    , tdsel_(nullptr)
-    , impdepsel_(nullptr)
-    , transfld_(nullptr)
     , importReady(this)
 {
     setVideoKey( mODVideoKey(mImportHorAttribHelpID) );
@@ -123,24 +115,29 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 		  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
-    if ( isgeom && SI().zIsTime() )
+    if ( isgeom )
     {
-	tdsel_ = new uiCheckBox( this, tr("Horizon is in Depth domain"),
-				mCB(this,uiImportHorizon,zDomSel) );
-	tdsel_->attach( alignedBelow, attrlistfld_ );
-	tdsel_->attach( ensureBelow, sep );
+	domsel_ = new uiGenInput( this, tr("Horizon is in:"),
+				     BoolInpSpec(true,tr("Time"),
+						      tr("Depth")) );
+	domsel_->attach( alignedBelow, attrlistfld_ );
+	domsel_->attach( ensureBelow, sep );
+	domsel_->setValue( SI().zIsTime() );
+	domsel_->valuechanged.notify( mCB(this,uiImportHorizon,zDomSel) );
 
-	impdepsel_ = new uiCheckBox( this, tr("Import in Depth domain"),
-				mCB(this,uiImportHorizon,impDepthDomain) );
-	impdepsel_->attach( rightOf, tdsel_ );
-	impdepsel_->attach( ensureBelow, sep );
-	impdepsel_->display( false );
+	impdomsel_ = new uiGenInput( this, tr("Import Horizon in"),
+				     BoolInpSpec(true,tr("Time"),
+						      tr("Depth")) );
+	impdomsel_->attach( alignedBelow, domsel_  );
+	impdomsel_->attach( ensureBelow, sep );
+	impdomsel_->setValue( SI().zIsTime() );
+	impdomsel_->valuechanged.notify( mCB(this,uiImportHorizon,impDomSel) );
 
 	uiT2DConvSel::Setup t2dsu( 0, false );
 	t2dsu.ist2d( !SI().zIsTime() );
 	transfld_ = new uiT2DConvSel( this, t2dsu );
 	transfld_->display( false );
-	transfld_->attach( alignedBelow, tdsel_ );
+	transfld_->attach( alignedBelow, impdomsel_ );
 	dataselfld_->attach( alignedBelow, transfld_ );
     }
     else
@@ -198,6 +195,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	fillUdfSel( nullptr );
     }
 
+    zDomSel( nullptr );
     postFinalize().notify( mCB(this,uiImportHorizon,inputChgd) );
 }
 
@@ -217,21 +215,27 @@ void uiImportHorizon::descChg( CallBacker* )
 
 void uiImportHorizon::zDomSel( CallBacker* )
 {
-    if ( impdepsel_ )
+    const bool selhorisinsidomain = (domsel_->getBoolValue() && SI().zIsTime())
+			      || (!domsel_->getBoolValue() && !SI().zIsTime());
+    if ( selhorisinsidomain )
     {
-	impdepsel_->display( tdsel_->isChecked() );
-	impdepsel_->setChecked( true );
+	impdomsel_->setValue( domsel_->getBoolValue() );
+	impdomsel_->setSensitive( false );
     }
+    else
+	impdomsel_->setSensitive( true );
+
+    impDomSel( nullptr );
+    inputChgd( nullptr );
 }
 
 
-void uiImportHorizon::impDepthDomain( CallBacker* )
+void uiImportHorizon::impDomSel( CallBacker* )
 {
-    const bool disptransfld = tdsel_->isChecked() && !impdepsel_->isChecked();
+    const bool disptransfld =
+			domsel_->getBoolValue() != impdomsel_->getBoolValue();
     if ( transfld_ )
 	transfld_->display( disptransfld );
-
-    inputChgd( nullptr );
 }
 
 
@@ -260,8 +264,8 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
     if ( isgeom_ )
     {
 	BufferString zvalstr( sKey::ZValue() );
-	if ( tdsel_ && tdsel_->isChecked() )
-	    zvalstr = SI().zIsTime() ? sKey::Depth() : sKey::Time();
+	if ( domsel_ )
+	    zvalstr = domsel_->getBoolValue() ? sKey::Time() : sKey::Depth();
 
 	attrnms.insertAt( new BufferString(zvalstr), 0 );
     }
@@ -324,7 +328,7 @@ void uiImportHorizon::rmAttribCB( CallBacker* )
     attrlistfld_->setChosen( selidx );
 
     if ( updatedef )
-	inputChgd( 0 );
+	inputChgd( nullptr );
 }
 
 
@@ -334,7 +338,7 @@ void uiImportHorizon::clearListCB( CallBacker* )
     attrlistfld_->setEmpty();
 
     if ( updatedef )
-	inputChgd( 0 );
+	inputChgd( nullptr );
 }
 
 
@@ -385,8 +389,9 @@ bool uiImportHorizon::doScan()
     uiTaskRunner taskrunner( this );
     ZAxisTransform* zatf = nullptr;
     int zatfvoi = -1;
-    if ( tdsel_ && tdsel_->isChecked() && !impdepsel_->isChecked()
-		&& transfld_ && transfld_->acceptOK() )
+    const bool needstransform =	
+			domsel_->getBoolValue() != impdomsel_->getBoolValue();
+    if ( needstransform && transfld_ && transfld_->acceptOK() )
     {
 	zatf = transfld_->getSelection();
 	if ( zatf->needsVolumeOfInterest() )
@@ -401,8 +406,8 @@ bool uiImportHorizon::doScan()
 	}
     }
 
-    bool iszdepth = impdepsel_ && impdepsel_->isChecked();
-    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf, iszdepth );
+    bool importindepth = impdomsel_ && !impdomsel_->getBoolValue();
+    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf, importindepth );
     if ( !scanner_->uiMessage().isEmpty() )
     {
 	const bool res = uiMSG().askGoOn( tr("%1\nDo you want to continue?")
@@ -498,7 +503,7 @@ bool uiImportHorizon::doImport()
     if ( isgeom_ )
     {
 	BufferString zvalstr( sKey::ZValue() );
-	if ( tdsel_ && tdsel_->isChecked() )
+	if ( domsel_ && domsel_->getBoolValue() != SI().zIsTime() )
 	    zvalstr = SI().zIsTime() ? sKey::Depth() : sKey::Time();
 
 	attrnms.insertAt( new BufferString(zvalstr), 0 );
@@ -559,9 +564,8 @@ bool uiImportHorizon::doImport()
     if ( !success )
 	mErrRetUnRef(tr("Cannot import horizon"))
 
-    const bool imphorzisdepth = tdsel_ && tdsel_->isChecked()
-				&& impdepsel_ && impdepsel_->isChecked();
-    imphorzisdepth ? horizon->setZInDepth() : horizon->setZInTime();
+    impdomsel_ && impdomsel_->getBoolValue() ? horizon->setZInTime()
+						    : horizon->setZInDepth();
     bool rv;
     if ( isgeom_ )
     {
@@ -598,13 +602,9 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	if ( ioobj )
 	{
 	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	    const bool zdomisdepth = (SI().zDomain().isTime()
-				       && impdepsel_ && impdepsel_->isChecked())
-				     || SI().zDomain().isDepth();
-	    ioobj->pars().update( ZDomain::sKey(), zdomisdepth
-						   ? sKey::Depth()
-						   : sKey::Time() );
-
+	    const bool zisdepth = !impdomsel_->getBoolValue();
+	    ioobj->pars().update( ZDomain::sKey(), zisdepth ? sKey::Depth()
+							    : sKey::Time() );
 
 	    ioobj->updateCreationPars();
 	    IOM().commitChanges( *ioobj );
