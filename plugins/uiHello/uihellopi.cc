@@ -19,12 +19,12 @@
 mDefODPluginInfo(uiHello)
 {
     mDefineStaticLocalObject( PluginInfo, retpi, (
-	"Hello World plugin (GUI)",
-	"Hello World",
-	"dGB",
-	"1.1.1",
-	"This is the GUI variant of the uiHello example.\n"
-	"See the plugin manual for details.") );
+	"Hello World (GUI)",
+	"OpendTect",
+	"Me",
+	"1.0",
+	"User Interface for the uiHello example.\n"
+	"See the plugin manual for details." ))
     return &retpi;
 }
 
@@ -115,7 +115,7 @@ mDefODInitPlugin(uiHello)
     mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_,
 				= new uiHelloMgr() );
     if ( !theinst_ )
-	return "Cannot instantiate Hello plugin";
+	return "Cannot instantiate the Hello plugin";
 
     return nullptr; // All OK - no error messages
 }

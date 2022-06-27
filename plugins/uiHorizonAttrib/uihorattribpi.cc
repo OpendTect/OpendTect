@@ -48,12 +48,12 @@ mDefODPluginInfo(uiHorizonAttrib)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Horizon-Attribute (GUI)",
 	"OpendTect",
-	"dGB (Nanne Hemstra)",
+	"dGB Earth Sciences (Nanne Hemstra)",
 	"=od",
 	"The 'Horizon' Attribute allows getting values from horizons. "
 	"Not to be confused with calculating attributes on horizons.\n"
 	"Also, the Stratal Amplitude and Isochron is provided by this plugin, "
-	"as well as the writing of flattened cubes" ) )
+	"as well as the writing of flattened cubes" ))
     return &retpi;
 }
 
@@ -378,7 +378,7 @@ mDefODInitPlugin(uiHorizonAttrib)
     mDefineStaticLocalObject( PtrMan<uiHorAttribPIMgr>, theinst_,
 			    = new uiHorAttribPIMgr() );
     if ( !theinst_ )
-	return "Cannot instantiate HorizonAttrib plugin";
+	return "Cannot instantiate the HorizonAttrib plugin";
 
     uiHorizonAttrib::initClass();
     uiContourTreeItem::initClass();

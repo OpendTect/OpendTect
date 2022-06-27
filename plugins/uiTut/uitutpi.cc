@@ -37,11 +37,11 @@ mDefODPluginInfo(uiTut)
 {
     mDefineStaticLocalObject( PluginInfo, retpi, (
 	"Tutorial plugin (GUI)",
-	"Tutorial",
-	"dGB (Raman/Bert)",
-	"3.2",
-	"Shows some simple plugin development basics.\n"
-	"Can be loaded into od_main only.") );
+	"OpendTect",
+	"dGB Earth Sciences (Raman/Bert)",
+	"=od",
+	"User Interface for some simple plugin development basics.\n"
+	"Can be loaded into od_main only." ))
     return &retpi;
 }
 
@@ -182,7 +182,7 @@ mDefODInitPlugin(uiTut)
 		= new uiTutMgr() );
 
     if ( !theinst_ )
-	return "Cannot instantiate Tutorial plugin";
+	return "Cannot instantiate the Tutorial plugin";
 
     uiTutorialAttrib::initClass();
     TutHelpProvider::initClass();

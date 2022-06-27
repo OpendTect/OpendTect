@@ -6,37 +6,27 @@
 -*/
 
 
+#include "odplugin.h"
+
 #include "tutmod.h"
 #include "tutorialattrib.h"
 #include "tutvolproc.h"
-#include "odplugin.h"
 
-mExternC(Tut) int GetTutPluginType();
-mExternC(Tut) PluginInfo* GetTutPluginInfo();
-mExternC(Tut) const char* InitTutPlugin(int,char**);
-
-
-int GetTutPluginType()
+mDefODPluginEarlyLoad(Tut)
+mDefODPluginInfo(Tut)
 {
-    return PI_AUTO_INIT_EARLY;
-}
-
-
-PluginInfo* GetTutPluginInfo()
-{
-    mDefineStaticLocalObject( PluginInfo, info, );
-    info.dispname_ = "Tutorial plugin (Base)";
-    info.productname_ = "Tutorial";
-    info.creator_ = "dGB (Raman/Bert)";
-    info.version_ = "3.2";
-    info.text_ =
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Tutorial plugin (Base)",
+	"OpendTect",
+	"dGB Earth Sciences (Raman/Bert)",
+	"=od",
 	"Back-end for the plugin that shows simple plugin development basics.\n"
-	"This non-UI part can also be loaded into od_process_attrib.";
-    return &info;
+	"This non-UI part can also be loaded into od_process_attrib." ))
+    return &retpi;
 }
 
 
-const char* InitTutPlugin( int argc, char** argv )
+mDefODInitPlugin(Tut)
 {
     Attrib::Tutorial::initClass();
     VolProc::TutOpCalculator::initClass();

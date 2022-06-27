@@ -16,12 +16,12 @@
 
 mDefODPluginInfo(uiQtApp)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"QT Application plugin",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"QT Application plugin (GUI)",
 	"OpendTect",
-	"dGB (Bert)",
-	"0.001",
-	"Example of how to call a Qt something from a plugin.") );
+	"dGB Earth Sciences (Bert)",
+	"=od",
+	"Example of how to call a Qt something from a plugin." ))
     return &retpi;
 }
 
@@ -77,7 +77,7 @@ mDefODInitPlugin(uiQtApp)
 		    = new uiQtAppMgr() );
 
     if ( !theinst_ )
-	return "Cannot instantiate QtApp plugin";
+	return "Cannot instantiate the QtApp plugin";
 
     return nullptr;
 }

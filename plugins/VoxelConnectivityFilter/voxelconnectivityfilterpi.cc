@@ -8,15 +8,15 @@
 #include "odplugin.h"
 #include "voxelconnectivityfilter.h"
 
-mDefODPluginEarlyLoad(VoxelConnectivityFilter);
+mDefODPluginEarlyLoad(VoxelConnectivityFilter)
 mDefODPluginInfo(VoxelConnectivityFilter)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    mDefineStaticLocalObject( PluginInfo, retpi, (
 	"VoxelConnectivityFilter (Base)",
 	"OpendTect",
-	"dGB (Kristofer)",
+	"dGB Earth Sciences (Kristofer)",
 	"=od",
-   	"(c) dGB Beheer BV.\nDevelopment funded by Tetrale Technologies."));
+	"(c) dGB Beheer BV.\nDevelopment funded by Tetrale Technologies." ))
     return &retpi;
 }
 
@@ -24,5 +24,5 @@ mDefODPluginInfo(VoxelConnectivityFilter)
 mDefODInitPlugin(VoxelConnectivityFilter)
 {
     VolProc::VoxelConnectivityFilter::initClass();
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }

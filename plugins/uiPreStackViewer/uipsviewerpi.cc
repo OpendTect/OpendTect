@@ -13,13 +13,13 @@
 
 mDefODPluginInfo(uiPreStackViewer)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-    "Prestack Viewer",
-    "OpendTect",
-    "dGB - Kristofer/Yuancheng",
-    "1.1.1",
-    "This is the PreStack Viewer in the 3D scene."
-	"\nIt can be activated by right-clicking on a plane in the scene."));
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Prestack Viewer (GUI)",
+	"OpendTect",
+	"dGB Earth Sciences (Kristofer/Yuancheng)",
+	"=od",
+	"This is the PreStack Viewer in the 3D scene."
+	    "\nIt can be activated by right-clicking on a plane in the scene."))
     return &retpi;
 }
 
@@ -30,7 +30,7 @@ mDefODInitPlugin(uiPreStackViewer)
 		    = new PreStackView::uiViewer3DMgr() );
 
     if ( !theinst_ )
-	return "Cannot instantiate PreStackViewer plugin";
+	return "Cannot instantiate the PreStackViewer plugin";
 
     return nullptr;
 }

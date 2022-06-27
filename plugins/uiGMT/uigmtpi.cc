@@ -38,14 +38,13 @@
 
 mDefODPluginInfo(uiGMT)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    mDefineStaticLocalObject( PluginInfo, retpi, (
 	"GMT Link (GUI)",
 	"OpendTect",
-	"dGB (Raman)",
-	"3.2",
-	"A link to the GMT mapping tool."
-	    "\nThis is the User interface of the link."
-	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" ));
+	"dGB Earth Sciences (Raman)",
+	"=od",
+	"User Interface for the link to the GMT mapping tool."
+	    "\nSee https://www.generic-mapping-tools.org for info on GMT" ))
     return &retpi;
 }
 
@@ -156,7 +155,7 @@ mDefODInitPlugin(uiGMT)
 {
     mDefineStaticLocalObject( PtrMan<uiGMTMgr>, theinst_, = new uiGMTMgr() );
     if ( !theinst_ )
-	return "Cannot instantiate GMT plugin";
+	return "Cannot instantiate the GMT plugin";
 
     IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
 			      "GMT data" );

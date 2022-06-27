@@ -12,12 +12,12 @@
 mDefODPluginEarlyLoad(Madagascar)
 mDefODPluginInfo(Madagascar)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    mDefineStaticLocalObject( PluginInfo, retpi, (
 	"Madagascar Link (Base)",
 	"OpendTect",
-	"dGB (Raman Singh)",
+	"dGB Earth Sciences (Raman Singh)",
 	"=od",
-	"The Madagascar batch-level tools.") );
+	"The Madagascar batch-level tools." ))
     return &retpi;
 }
 
@@ -29,5 +29,5 @@ mDefODInitPlugin(Madagascar)
 
     mDefineStaticLocalObject(BufferString, prescanmsg,
 			     = ODMad::PI().errMsg().getFullString());
-    return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();
+    return prescanmsg.isEmpty() ? nullptr : prescanmsg.buf();
 }

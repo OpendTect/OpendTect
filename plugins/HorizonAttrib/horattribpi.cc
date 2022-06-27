@@ -17,12 +17,12 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(HorizonAttrib)
 mDefODPluginInfo(HorizonAttrib)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    mDefineStaticLocalObject( PluginInfo, retpi, (
 	"Horizon-Attribute (Base)",
 	"OpendTect",
-	"dGB (Nanne)",
+	"dGB Earth Sciences (Nanne)",
 	"=od",
-	"The 'Horizon' attribute plugin." ));
+	"The 'Horizon' attribute plugin." ))
     return &retpi;
 }
 

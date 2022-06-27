@@ -21,11 +21,11 @@ ________________________________________________________________________
 mDefODPluginInfo(uiExpAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Experimental Attributes (UI)",
+	"Experimental Attributes (GUI)",
 	"OpendTect",
-	"dGB",
+	"dGB Earth Sciences",
 	"=od",
-	"" ));
+	"User Interface for Experimental Attributes plugin" ));
     return &retpi;
 }
 
@@ -40,5 +40,5 @@ mDefODInitPlugin(uiExpAttribs)
     uiIntegratedTrace::initClass();
 #endif
 
-    return 0;
+    return nullptr;
 }
