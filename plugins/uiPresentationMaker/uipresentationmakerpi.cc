@@ -18,12 +18,12 @@
 
 mDefODPluginInfo(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Presentation Maker",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Presentation Maker (GUI)",
 	"OpendTect",
-	"dGB",
-	"1.0",
-	"Create PowerPoint presentations from OpendTect") );
+	"dGB Earth Sciences",
+	"=od",
+	"Create PowerPoint presentations from OpendTect" ))
     return &retpi;
 }
 
@@ -88,7 +88,7 @@ mDefODInitPlugin(uiPresentationMaker)
     mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, theinst_,
 				= new uiPresMakerPIMgr() );
     if ( !theinst_ )
-	return "Cannot instantiate uiPresentationMaker plugin";
+	return "Cannot instantiate the Presentation Maker plugin";
 
     return nullptr;
 }

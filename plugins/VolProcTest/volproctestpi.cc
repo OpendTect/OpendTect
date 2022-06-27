@@ -12,13 +12,14 @@
 #include "odplugin.h"
 
 
-mDefODPluginInfo(VolProcTest)
+mDefODPluginEarlyLoad(VolProcTest)
 {
-    static PluginInfo retpi = {
-    "Volume Processing Reader Test",
-    "Yuancheng",
-    "1.1.1",
-    "Hello, there! :)" };
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Volume Processing Reader (Base)",
+	"OpendTect",
+	"dGB Earth Sciences (Yuancheng)",
+	"=od",
+	"Volume Processing Reader test" ))
     return &retpi;
 }
 
@@ -29,5 +30,5 @@ mDefODInitPlugin(VolProcTest)
     VolProc::ThresholdStep::initClass();
 
     VolProc::AttributeAdapter::initClass();
-    return 0; // All OK - no error messages
+    return nullptr;
 }

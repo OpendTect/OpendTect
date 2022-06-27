@@ -9,7 +9,7 @@
 #include "odplugin.h"
 #include "ptrman.h"
 
-
+mDefODPluginEarlyLoad(My_Plugin_Name)
 mDefODPluginInfo(My_Plugin_Name)
 {
     mDefineStaticLocalObject( PluginInfo, retpi, (
@@ -19,7 +19,7 @@ mDefODPluginInfo(My_Plugin_Name)
 	"My version",
 	"My description ..."
 	    "\n ... which can span many lines."
-	    "\nDon't put commas between those lines though ...") );
+	    "\nDon't put commas between those lines though ..." ))
     return &retpi;
 }
 
@@ -27,7 +27,9 @@ mDefODPluginInfo(My_Plugin_Name)
 mDefODInitPlugin(My_Plugin_Name)
 {
     mDefineStaticLocalObject( PtrMan<My_Class>, theinst_,
-	    = new My_Class() );
+				= new My_Class() );
+    if ( !theinst_ )
+	return "Cannot instantiate My_Plugin_Name plugin";
 
     return nullptr;
 }

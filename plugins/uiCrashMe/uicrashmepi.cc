@@ -16,10 +16,10 @@
 mDefODPluginInfo(uiCrashMe)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"The Crash Plugin",
+	"The Crash Plugin (GUI)",
 	"OpendTect",
-	"Raman",
-	"1.1.1",
+	"dGB Earth Sciences (Raman)",
+	"=od",
 	"This is meant for developers to force a crash.\n"
 	"Yeah, seriously! All it does is CRASH!") );
     return &retpi;
@@ -73,7 +73,7 @@ mDefODInitPlugin(uiCrashMe)
 {
     mDefineStaticLocalObject( PtrMan<uiCrashMgr>, theinst_, = new uiCrashMgr());
     if ( !theinst_ )
-	return "Cannot instantiate The Crash plugin";
+	return "Cannot instantiate the Crash plugin";
 
     return nullptr;
 }

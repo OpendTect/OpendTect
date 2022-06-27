@@ -20,11 +20,10 @@ mDefODPluginInfo(uiGLCM)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GLCM (GUI)",
 	"OpendTect",
-	"Christoph Eichkitz",
+	"Joanneum Research (Christoph Eichkitz)",
 	"1.0",
-	"Plugin for the calculation of Grey level co-occurrence"
-	" matrix-based attributes.\n"
-	"(Joanneum Research)") )
+	"User Interface for for the calculation of Grey level co-occurrence"
+	" matrix-based attributes" ))
     return &retpi;
 }
 

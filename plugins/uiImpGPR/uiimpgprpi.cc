@@ -34,14 +34,14 @@ static const char* menunm = "GPR: DZT ...";
 
 mDefODPluginInfo(uiImpGPR)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GPR: .DZT import",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"GPR: .DZT import (GUI)",
 	"OpendTect",
-	"dGB (Bert Bril)",
+	"dGB Earth Sciences (Bert Bril)",
 	"=od",
 	"Imports GPR data in DZT format."
 	"\nThanks to Matthias Schuh (m.schuh@neckargeo.net) for information,"
-	"\ntest data and comments.") );
+	"\ntest data and comments." ))
     return &retpi;
 }
 
@@ -190,7 +190,7 @@ mDefODInitPlugin(uiImpGPR)
 	= new uiImpGPRMgr() );
 
     if ( !theinst_ )
-	return "Cannot instantiate ImpGPR plugin";
+	return "Cannot instantiate the ImpGPR plugin";
 
     return nullptr; // All OK - no error messages
 }

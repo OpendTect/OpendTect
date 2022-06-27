@@ -43,25 +43,20 @@ void MnuMgr::Mnufnctn( CallBacker* )
 }
 
 
-mExternC  int GetuiMFCPluginType()
+mDefODPluginInfo(uiMFC)
 {
-    return PI_AUTO_INIT_LATE;
-}
-
-mExternC PluginInfo* GetuiMFCPluginInfo()
-{
-    static PluginInfo retpi = { 
-        "MFC Classes for UI -- Demo",
-        "dGB Earth Science -India- (Ranojay)",
-        "1.0",
-        "Shows simple MFC Dialog Class built in.\nDeveloper Studio" }; 
+    mDefineStaticLocalObject( (PluginInfo, retpi, (
+	"MFC Classes (GUI)",
+	"OpendTect",
+	"dGB Earth Sciences (Ranojay)",
+	"=od",
+        "Shows simple MFC Dialog Class built in Developer Studio" ))
     return &retpi;
 }
 
 
-mExternC const char* InituiMFCPlugin( int, char** )
+mDefODInitPlugin(uiMFC)
 {
     (void)new MnuMgr( *ODMainWin() );
-    return 0; // All OK - no error messages
+    return nullptr;
 }
-

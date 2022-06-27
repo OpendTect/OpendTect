@@ -13,16 +13,17 @@
 mDefODPluginEarlyLoad(Bouncy)
 mDefODPluginInfo(Bouncy)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
-	"Bouncy thingy (Non-UI)",
-	"dGB (Karthika)",
-	"4.2",
-    	"Having some fun in OpendTect." ) );
+    mDefineStaticLocalObject(PluginInfo, retpi, (
+	"Bouncy thingy (Base)",
+	"OpendTect",
+	"dGB Earth Sciences (Karthika)",
+	"=od",
+	"Having some fun in OpendTect." ))
     return &retpi;
 }
 
 
 mDefODInitPlugin(Bouncy)
 {
-    return 0;
+    return nullptr;
 }

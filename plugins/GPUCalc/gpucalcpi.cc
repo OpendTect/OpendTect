@@ -12,10 +12,13 @@
 mDefODPluginEarlyLoad(GPUCalc)
 mDefODPluginInfo(GPUCalc)
 {
-    static PluginInfo retpii = {
-	"Graphics card based calculations", "dGB (Kristofer Tingdahl)", "=dgb",
-	"" };
-    return &retpii;
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Graphics card based calculations (Base)",
+	"OpendTect",
+	"dGB Earth Sciences (Kristofer Tingdahl)",
+	"=od",
+	"Graphics card based calculations" ))
+    return &retpi;
 }
 
 
@@ -24,5 +27,5 @@ mDefODInitPlugin(GPUCalc)
     const char* nm = GPU::manager().getDevice(0)->name();
     nm = GPU::manager().getDevice( 1 )->name();
 
-    return 0;
+    return nullptr;
 }

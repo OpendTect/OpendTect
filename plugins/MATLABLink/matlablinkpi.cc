@@ -12,12 +12,12 @@
 mDefODPluginEarlyLoad(MATLABLink)
 mDefODPluginInfo(MATLABLink)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"MATLAB (base)",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"MATLAB (Base)",
 	"OpendTect",
 	"dGB Earth Sciences",
 	"=od",
-	"MATLAB - base" ) );
+	"MATLAB" ))
     return &retpi;
 }
 
@@ -25,5 +25,5 @@ mDefODPluginInfo(MATLABLink)
 mDefODInitPlugin(MATLABLink)
 {
     VolProc::MatlabStep::initClass();
-    return 0;
+    return nullptr;
 }

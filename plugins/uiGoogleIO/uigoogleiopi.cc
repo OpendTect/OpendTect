@@ -40,14 +40,14 @@ static const int cRLMnuIdx = -995;
 
 mDefODPluginInfo(uiGoogleIO)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Google KML",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Google KML Support (GUI)",
 	"OpendTect",
-	"dGB",
+	"dGB Earth Sciences",
 	"=od",
 	"Export to Google programs (Maps,Earth)."
 	    "\nThis plugin adds functionality to generate KML files "
-	    "from Opendtect."));
+	    "from Opendtect." ))
     return &retpi;
 }
 

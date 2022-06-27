@@ -24,11 +24,11 @@ namespace CmdDrive
 mDefODPluginInfo(CmdDriver)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Command driver",
+	"Command driver (GUI)",
 	"OpendTect",
-	"dGB (Bert/Jaap)",
+	"dGB Earth Sciences (Bert/Jaap)",
 	"=od",
-	"Used for testing and general 'scripting'." ));
+	"Used for testing and general 'scripting'." ))
     return &retpi;
 }
 
