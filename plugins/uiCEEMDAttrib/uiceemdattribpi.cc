@@ -12,13 +12,13 @@
 
 mDefODPluginInfo(uiCEEMDAttrib)
 {
-    mDefineStaticLocalObject (PluginInfo, retpi, (
+    mDefineStaticLocalObject(PluginInfo, retpi, (
 	"CEEMD (GUI)",
 	"OpendTect",
-	"dGB (Paul de Groot)",
+	"dGB Earth Sciences (Paul de Groot)",
 	"=od",
 	"User Interface for Complete Ensemble Empirical Mode Decomposition "
-	"Plugin" ))
+	"attribute" ))
     return &retpi;
 }
 

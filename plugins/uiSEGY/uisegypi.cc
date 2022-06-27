@@ -41,12 +41,12 @@ static bool enableClassic()
 
 mDefODPluginInfo(uiSEGY)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"SEG-Y base",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"SEG-Y support (GUI)",
 	"OpendTect",
-	"dGB",
+	"dGB Earth Sciences",
 	"=od",
-	"Support SEG-Y I/O in OpendTect") );
+	"Support for the SEG-Y I/O in the OpendTect main application" ))
     return &retpi;
 }
 
@@ -274,7 +274,7 @@ mDefODInitPlugin(uiSEGY)
     mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = new uiSEGYMgr() );
 
     if ( !theinst_ )
-	return "Cannot instantiate SEG-Y plugin";
+	return "Cannot instantiate the SEG-Y plugin";
 
     return nullptr;
 }

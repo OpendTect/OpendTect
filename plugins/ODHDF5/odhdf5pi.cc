@@ -22,10 +22,13 @@ mDefODPluginInfo(ODHDF5)
     mDeclStaticString( infostr );
     infostr.set( "HDF5 plugin" ).addNewLine(2)
 	   .add( "Using HDF5 version: " ).add( version );
-    mDefineStaticLocalObject( PluginInfo, retpi,
-	( "HDF5 Support (Base)", "OpendTect",
-	"dGB", "=od",
-	infostr.buf() ) );
+
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"HDF5 Support (Base)",
+	"OpendTect",
+	"dGB Earth Sciences",
+	"=od",
+	infostr.buf() ))
     return &retpi;
 }
 
@@ -33,5 +36,5 @@ mDefODPluginInfo(ODHDF5)
 mDefODInitPlugin(ODHDF5)
 {
     HDF5::AccessProviderImpl::initHDF5();
-    return 0;
+    return nullptr;
 }

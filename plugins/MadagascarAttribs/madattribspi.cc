@@ -14,9 +14,9 @@ mDefODPluginInfo(MadagascarAttribs)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar Attributes (Base)",
 	"OpendTect",
-	"dGB - Helene Huck",
+	"dGB Earth Sciences - Helene Huck",
 	"=od",
-	"Transforming Madagascar routines into OpendTect attributes." ));
+	"Transforming Madagascar routines into OpendTect attributes." ))
     return &retpi;
 }
 
@@ -25,5 +25,5 @@ mDefODInitPlugin(MadagascarAttribs)
 {
     Attrib::MadAGC::initClass();
 
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }

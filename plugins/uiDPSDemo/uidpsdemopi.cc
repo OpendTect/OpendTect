@@ -37,12 +37,12 @@ mDefODPluginInfo(uiDPSDemo)
 	*commenttxt += ").";
     }
 
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"DataPointSet demo",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"DataPointSet demo (GUI)",
 	"OpendTect",
-	"Bert",
-	"7.8.9",
-	commenttxt->buf() ) );
+	"dGB Earth Sciences (Bert)",
+	"=od",
+	commenttxt->buf() ));
     return &retpi;
 }
 
@@ -128,7 +128,7 @@ mDefODInitPlugin(uiDPSDemo)
     mDefineStaticLocalObject( PtrMan<uiDPSDemoMgr>, theinst_,
 			    = new uiDPSDemoMgr() );
     if ( !theinst_ )
-	return "Cannot instantiate DPS Demo plugin";
+	return "Cannot instantiate the DPS Demo plugin";
 
     return nullptr;
 }

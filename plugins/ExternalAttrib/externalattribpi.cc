@@ -9,18 +9,20 @@
 
 #include "externalattribrandom.h"
 
+mDefODPluginEarlyLoad(ExternalAttrib)
 mDefODPluginInfo(ExternalAttrib)
 {
-    static PluginInfo retpii = {
-	"External attribute example plugin",
-	"dGB - Kristofer Tingdahl",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"External attribute example plugin (Base)",
+	"OpendTect",
+	"dGB Earth Sciences (Kristofer Tingdahl)",
 	"=od",
-	"Defining an external plugin with random numbers between 0 and 1." };
-    return &retpii;
+	"Defining an external plugin with random numbers between 0 and 1." ))
+    return &retpi;
 }
 
 
-static PtrMan<ExternalAttrib::RandomManager> randommanager = 0;
+static PtrMan<ExternalAttrib::RandomManager> randommanager;
 
 
 mDefODInitPlugin(ExternalAttrib)
@@ -28,8 +30,7 @@ mDefODInitPlugin(ExternalAttrib)
     ExternalAttrib::uiRandomTreeItem::initClass();
     ExternalAttrib::Random::initClass();
 
-    if ( !randommanager )
-	randommanager = new ExternalAttrib::RandomManager();
+    randommanager.createIfNull( new ExternalAttrib::RandomManager() );
 
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }

@@ -15,12 +15,12 @@
 
 mDefODPluginInfo(uiTutMadagascar)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Madagascar Tutorial plugin",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Madagascar Tutorial plugin (GUI)",
 	"OpendTect",
-	"dGB (Helene)",
+	"dGB Earth Sciences (Helene)",
 	"=od",
-	"User Interface for Madagascar tutorial plugin."));
+	"User Interface for Madagascar tutorial plugin." ))
     return &retpi;
 }
 
@@ -70,7 +70,7 @@ mDefODInitPlugin(uiTutMadagascar)
 		    = new uiMadTutMgr() );
 
     if ( !theinst_ )
-	return "Cannot instantiate Madagascar tutorial plugin";
+	return "Cannot instantiate the Madagascar tutorial plugin";
 
     return nullptr; // All OK - no error messages
 }

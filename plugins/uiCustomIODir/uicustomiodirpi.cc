@@ -21,12 +21,12 @@
 
 mDefODPluginInfo(uiCustomIODir)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-      "Custom Data directory usage",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+      "Custom Data directory usage (GUI)",
       "OpendTect",
-      "dGB",
-      "0.0.3",
-      "Test of Custom Data directory usage." ) );
+      "dGB Earth Sciences",
+      "=od",
+      "Test of Custom Data directory usage." ));
     return &retpi;
 }
 
@@ -89,7 +89,7 @@ uiCustomIODirTester( uiParent* p )
     seloutfld_->attach( alignedBelow, selinfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const IOObj* inioobj = selinfld_->ioobj();
     const IOObj* outioobj = seloutfld_->ioobj();
@@ -122,7 +122,7 @@ mDefODInitPlugin(uiCustomIODir)
     mDefineStaticLocalObject( PtrMan<uiCustomIODirMgr>, theinst_,
 				= new uiCustomIODirMgr() );
     if ( !theinst_ )
-	return "Cannot instantiate CustomDir plugin";
+	return "Cannot instantiate the CustomDir plugin";
 
     // These factory adds are necessary since 4.6:
     MyObjTranslatorGroup::initClass();
@@ -147,3 +147,4 @@ mDefODInitPlugin(uiCustomIODir)
     // go.
 
     return nullptr;
+}

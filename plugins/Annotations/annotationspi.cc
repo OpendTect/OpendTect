@@ -19,15 +19,16 @@ ________________________________________________________________________
 
 #include "annotationsmod.h"
 
-
+mDefODPluginEarlyLoad(Annotations)
 mDefODPluginInfo(Annotations)
 {
-    mDefineStaticLocalObject( PluginInfo, retpii , (
-	"Annotations",
+    mDefineStaticLocalObject(PluginInfo, retpi , (
+	"Annotations (Base)",
+	"OpendTect",
 	"dGB Earth Sciences (Nanne)",
 	"=od",
 	"Annotation display utilities."
-	    "\nThis delivers the 'Annotations' item in the tree." ) );
+	    "\nThis delivers the 'Annotations' item in the tree." ))
     return &retpii;
 }
 
@@ -45,5 +46,5 @@ mDefODInitPlugin(Annotations)
     Annotations::ScaleBar::initClass();
     Annotations::ScaleBarDisplay::initClass();
 
-    return 0;
+    return nullptr;
 }

@@ -16,9 +16,10 @@ mDefODPluginInfo(GMT)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GMT Link (Base)",
 	"OpendTect",
-	"dGB (Raman)",
+	"dGB Earth Sciences (Raman)",
 	"=od",
-    	"GMT mapping tool - base" ));
+	"A link to the GMT mapping tool"
+	    "\nSee https://www.generic-mapping-tools.org for info on GMT" ))
     return &retpi;
 }
 

@@ -5,21 +5,20 @@
 -*/
 
 
-#include "ceemdattribmod.h"
-#include "ceemdattrib.h"
 #include "odplugin.h"
 
+#include "ceemdattribmod.h"
+#include "ceemdattrib.h"
+
 mDefODPluginEarlyLoad(CEEMDAttrib)
-
-
 mDefODPluginInfo(CEEMDAttrib)
 {
-    mDefineStaticLocalObject (PluginInfo, retpi, (
+    mDefineStaticLocalObject( PluginInfo, retpi, (
 	"CEEMD (Base)",
 	"OpendTect",
-	"dGB (Paul de Groot)",
+	"dGB Earth Sciences (Paul de Groot)",
 	"=od",
-	"CEEMD - Complete Ensemble Empirical Mode Decomposition Attribute" ));
+	"CEEMD - Complete Ensemble Empirical Mode Decomposition Attribute" ))
     return &retpi;
 }
 

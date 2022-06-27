@@ -10,26 +10,20 @@
 #include "odplugin.h"
 #include "od_ostream.h"
 
-mExternC(Hello) int GetHelloPluginType();
-mExternC(Hello) PluginInfo* GetHelloPluginInfo();
-mExternC(Hello) const char* InitHelloPlugin(int,char**);
-
-
-int GetHelloPluginType()
+mDefODPluginEarlyLoad(Hello)
+mDefODPluginInfo(Hello)
 {
-    return PI_AUTO_INIT_EARLY;
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Hello World (Base)",
+	"OpendTect",
+	"Me",
+	"1.0",
+	"Hello World description" ))
+    return &retpi;
 }
 
 
-PluginInfo* GetHelloPluginInfo()
-{
-    mDefineStaticLocalObject( PluginInfo, info, );
-    info.dispname_ = "Hello World";
-    return &info;
-}
-
-
-const char* InitHelloPlugin( int argc, char** argv )
+mDefODInitPlugin(Hello)
 {
     od_cout() << "Hello world" << od_endl;
     return nullptr; // All OK - no error messages
