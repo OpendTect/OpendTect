@@ -441,7 +441,8 @@ void uiWellMan::edMarkers( CallBacker* )
 			 Well::LoadReqs( Well::Trck, Well::D2T, Well::Mrkrs ) );
     if ( !wd )
     {
-	ErrMsg( Well::MGR().errMsg() );
+	uiMSG().error( tr("Markers not present in %1")
+						     .arg(curioobj_->name()) );
 	return;
     }
 
@@ -479,6 +480,13 @@ void uiWellMan::edWellTrack( CallBacker* )
     const MultiID curmid( curioobj_->key() );
     Well::LoadReqs lreqs( Well::Trck );
     RefMan<Well::Data> wd = Well::MGR().get( curmid, lreqs );
+    if ( !wd )
+    {
+	uiMSG().error( tr("Track data not present in %1").arg(
+							curioobj_->name()) );
+	return;
+    }
+
     const bool notfound = !wd->info().isLoaded() && wd->track().isEmpty();
     if ( notfound && !uiMSG().askGoOn(tr("No track found. Continue editing?")) )
 	return;
@@ -524,6 +532,18 @@ void uiWellMan::defD2T( bool chkshot )
     const MultiID curmid = curioobj_->key();
     Well::LoadReqs lreqs( chkshot? Well::CSMdl : Well::D2T );
     RefMan<Well::Data> wd =  Well::MGR().get( curmid, lreqs );
+    if ( !wd )
+    {
+	uiString errmsg;
+	const OD::String& nm = curioobj_->name();
+	if ( chkshot )
+	    errmsg = tr("Checkshot data not present in %1").arg( nm );
+	else
+	    errmsg = tr("Time-Depth data not present in %1").arg( nm );
+
+	uiMSG().error( errmsg );
+	return;
+    }
 
     if ( !chkshot && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
