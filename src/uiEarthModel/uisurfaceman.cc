@@ -744,7 +744,7 @@ od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 class uiSurfaceStratDlg : public uiDialog
 { mODTextTranslationClass(uiSurfaceStratDlg);
 public:
-uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
+uiSurfaceStratDlg( uiParent* p,  const TypeSet<MultiID>& ids )
     : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(),mNoDlgTitle,
                                  mNoHelpKey))
     , objids_(ids)
@@ -770,9 +770,9 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	par.setEmpty();
-	if ( !EM::EMM().readDisplayPars(*ids[idx],par) )
+	if ( !EM::EMM().readDisplayPars(ids[idx],par) )
 	    continue;
-	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
+	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(ids[idx]) );
 
 	OD::Color col( OD::Color::White() );
 	par.get( sKey::Color(), col );
@@ -842,7 +842,7 @@ bool acceptOK( CallBacker* )
 	IOPar displaypar;
 	displaypar.set( sKey::StratRef(), lvlid );
 	displaypar.set( sKey::Color(), col );
-	EM::EMM().writeDisplayPars( *objids_[idx], displaypar );
+	EM::EMM().writeDisplayPars( objids_[idx], displaypar );
     }
 
     return true;
@@ -850,14 +850,14 @@ bool acceptOK( CallBacker* )
 
 
     uiTable*	tbl_;
-    const ObjectSet<MultiID>& objids_;
+    const TypeSet<MultiID>& objids_;
 
 };
 
 
 void uiSurfaceMan::stratSel( CallBacker* )
 {
-    const ObjectSet<MultiID>& ids = selgrp_->getIOObjIds();
+    const TypeSet<MultiID>& ids = selgrp_->getIOObjIds();
     uiSurfaceStratDlg dlg( this, ids );
     dlg.go();
 }

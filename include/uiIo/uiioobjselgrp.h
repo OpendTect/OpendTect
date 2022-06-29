@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          April 2001
+ Author:	A.H. Bril
+ Date:		April 2001
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,54 @@ class uiIOObjSelWriteTranslator;
   updateCtxtIOObj() is required. Otherwise, this is not needed.
 
 */
+
+
+mExpClass(uiIo) EntryData
+{
+public:
+			EntryData(const MultiID&);
+			EntryData(const MultiID&,const BufferString& objnm,
+				    const BufferString& dispnm,
+				    const BufferString& icnnm);
+			~EntryData() {}
+    void		setIconName(const BufferString&);
+    void		setDisplayName(const BufferString&);
+    void		setObjName(const BufferString&);
+    MultiID		getMID() const { return mid_; }
+    BufferString	getDispNm() const { return dispnm_; }
+    BufferString	getObjNm() const { return objnm_; }
+    BufferString	getIcnNm() const { return icnnm_; }
+protected:
+    MultiID		mid_ = MultiID::udf();
+    BufferString	icnnm_ = "NONE";
+    BufferString	dispnm_ = "NONE";
+    BufferString	objnm_ = "NONE";
+};
+
+
+mExpClass(uiIo) EntryDataSet : public ManagedObjectSet<EntryData>
+{
+public:
+			    EntryDataSet() {}
+			    ~EntryDataSet() {}
+
+    const EntryData*	    getDataFor(const MultiID&) const;
+    EntryData*		    getDataFor(const MultiID&);
+    EntryDataSet&	    addMID(const MultiID&);
+    EntryDataSet&	    removeMID(const MultiID&);
+    EntryDataSet&	    updateMID(const MultiID&, EntryData*);
+
+    TypeSet<MultiID>	    getIOObjIds(bool reread=false) const;
+    BufferStringSet	    getIOObjNms() const;
+    BufferStringSet	    getDispNms() const;
+    BufferStringSet	    getIconNms() const;
+    int			    indexOfMID(const MultiID& mid) const;
+    int			    indexOfNm(const BufferString&,bool isdispnm) const;
+
+protected:
+
+    mutable TypeSet<MultiID> livemids_;
+};
 
 
 mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
@@ -95,7 +143,7 @@ public:
     MultiID		currentID() const;
     int			nrChosen() const;
     bool		isChosen(int) const;
-    const MultiID&	chosenID(int idx=0) const;
+    MultiID		chosenID(int idx=0) const;
     void		getChosen(TypeSet<MultiID>&) const;
     void		getChosen(BufferStringSet&) const;
     void		setCurrent(int);
@@ -103,10 +151,11 @@ public:
     void		setChosen(int,bool yn=true);
     void		setChosen(const TypeSet<MultiID>&);
     void		chooseAll(bool yn=true);
+    TypeSet<MultiID>	getIOObjIds() const;
 
     bool		updateCtxtIOObj(); //!< mostly interesting for write
     const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
-    const IOObjContext&	getContext() const;
+    const IOObjContext& getContext() const;
     void		setContext(const IOObjContext&);
     void		setDefTranslator(const Translator*);
 
@@ -116,7 +165,7 @@ public:
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     void		displayManipGroup(bool yn,bool shrink=false);
-    const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
+    //const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
 
     void		setConfirmOverwrite( bool yn )
 				{ setup_.confirmoverwrite_ = yn; }
@@ -133,21 +182,27 @@ public:
     Notifier<uiIOObjSelGrp> newStatusMsg;
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
+    Notifier<uiIOObjSelGrp> listUpdated;
+
+    CNotifier<uiIOObjSelGrp,const MultiID&> itemAdded;
+    CNotifier<uiIOObjSelGrp,const MultiID&> itemRemoved;
+    CNotifier<uiIOObjSelGrp,const BufferStringSet&> itemChanged;
 
     void		fullUpdate(const MultiID& kpselected);
     void		fullUpdate(int);
+    void		addEntry(const MultiID&);
+    void		removeEntry(const MultiID&);
+    void		updateEntry(const MultiID&,const BufferString& objnm,
+			  const BufferString& dispnm,const BufferString& icnnm);
 
 protected:
 
     CtxtIOObj&		ctio_;
     Setup		setup_;
-    ObjectSet<MultiID>	ioobjids_;
-    BufferStringSet	ioobjnms_;
+    EntryDataSet	dataset_;
     TypeSet<int>	defaultidxs_;
-    BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_ = false;
-    ObjectSet<const char> iconnms_;
 
     uiListBox*		listfld_;
     uiGenInput*		nmfld_ = nullptr;
@@ -156,7 +211,7 @@ protected:
     uiIOObjSelWriteTranslator* wrtrselfld_ = nullptr;
     uiToolButton*	mkdefbut_ = nullptr;
     uiListBoxChoiceIO*	lbchoiceio_;
-    ObjectSet<uiButton>	insertbuts_;
+    ObjectSet<uiButton> insertbuts_;
     ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
     uiComboBox*		ctxtfiltfld_ = nullptr;
@@ -172,13 +227,13 @@ protected:
     void		choiceChg(CallBacker*);
     void		filtChg(CallBacker*);
     void		objInserted(CallBacker*);
+    void		objRemoved(CallBacker*);
     void		nameAvCB(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
     void		ctxtChgCB(CallBacker*);
-
 
 private:
 

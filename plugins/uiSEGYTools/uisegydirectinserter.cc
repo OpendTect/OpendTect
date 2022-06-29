@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uisegydirectinserter.h"
 
+#include "ioman.h"
 #include "segydirecttr.h"
 #include "seis2dlineio.h"
 #include "uibutton.h"
@@ -67,8 +68,7 @@ void uiSEGYDirectVolInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    CBCapsule<MultiID> caps( outky, this );
-    objectInserted.trigger( &caps );
+    IOM().entryAdded.trigger( outky );
 }
 
 
@@ -126,8 +126,7 @@ void uiSEGYDirect2DInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    CBCapsule<MultiID> caps( outky, this );
-    objectInserted.trigger( &caps );
+    IOM().entryAdded.trigger(outky);
 }
 
 
@@ -185,8 +184,7 @@ void uiSEGYDirectPS3DInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    CBCapsule<MultiID> caps( outky, this );
-    objectInserted.trigger( &caps );
+    IOM().entryAdded.trigger(outky);
 }
 
 

@@ -85,6 +85,7 @@ public:
     IOObjSelConstraints toselect_;
 
     bool		validIOObj(const IOObj&) const;
+    bool		validObj(const MultiID&) const;
 
     struct StdDirData
     {

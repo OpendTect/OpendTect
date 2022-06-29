@@ -281,9 +281,8 @@ void uiIOObjSel::init()
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
 					extselbuts_, setup_.trsnotallwed_ );
-	for ( int idx=0; idx<inserters_.size(); idx++ )
-	    inserters_[idx]->objectInserted.notify(
-					mCB(this,uiIOObjSel,objInserted) );
+	mAttachCB( IOM().entryAdded, uiIOObjSel::objInserted );
+
     }
     else if ( setup_.withwriteopts_ )
     {
@@ -672,7 +671,10 @@ void uiIOObjSel::doObjSel( CallBacker* )
 
 void uiIOObjSel::objInserted( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, ky, cb );
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const MultiID&, ky, cb );
     if ( !ky.isUdf() )
 	setInput( ky );
 }

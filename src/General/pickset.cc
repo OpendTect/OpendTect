@@ -300,7 +300,10 @@ void SetMgr::survChg( CallBacker* )
 
 void SetMgr::objRm( CallBacker* cb )
 {
-    mCBCapsuleUnpack(MultiID,ky,cb);
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const  MultiID&, ky, cb );
     if ( indexOf(ky) >= 0 )
 	set( ky, 0 );
 }

@@ -371,6 +371,16 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 }
 
 
+bool IOObjContext::validObj( const MultiID& mid ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( ioobj )
+	return validIOObj( *ioobj );
+
+    return false;
+}
+
+
 
 IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 					    const MultiID& ky ) const

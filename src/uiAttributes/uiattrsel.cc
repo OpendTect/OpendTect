@@ -177,11 +177,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 	const BufferStringSet nms;
 	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
 					    extselbuts_, nms );
-	for ( int idx=0; idx<inserters_.size(); idx++ )
-	{
-	    inserters_[idx]->objectInserted.notify(
-		    mCB(this,uiAttrSelDlg,objInserted) );
-	}
+	mAttachCB( IOM().entryAdded, uiAttrSelDlg::objInserted );
 	butgrp->attach( ensureBelow, selgrp_ );
     }
 
@@ -634,7 +630,10 @@ void uiAttrSelDlg::replaceStoredByInMem()
 
 void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, ky, cb );
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const MultiID&, ky, cb );
     if ( !ky.isUdf() )
     {
 	insertedobjmid_ = ky;

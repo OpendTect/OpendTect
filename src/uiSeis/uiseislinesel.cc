@@ -68,12 +68,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 	const BufferStringSet nms;
 	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
 					    insertbuts_, nms );
-	for ( int idx=0; idx<inserters_.size(); idx++ )
-	{
-	    inserters_[idx]->objectInserted.notify(
-		    mCB(this,uiSeis2DLineChoose,objInserted) );
-	}
-
+	mAttachCB( IOM().entryAdded, uiSeis2DLineChoose::objInserted );
 	butgrp->attach( centeredLeftOf, listfld_ );
     }
 }
@@ -84,7 +79,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
     : uiGroup(p,"Line chooser")
     , lnms_(lnms)
     , geomids_(gids)
-    , lbchoiceio_(0)
+    , lbchoiceio_(nullptr)
 {
     init( cm );
 }
@@ -92,9 +87,10 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
 
 void uiSeis2DLineChoose::objInserted( CallBacker* cb )
 {
-    if ( !cb ) return;
+    if ( !cb || !cb->isCapsule() )
+	return;
 
-    mCBCapsuleUnpack(MultiID,dsid,cb);
+    mCBCapsuleUnpack( const MultiID&, dsid, cb );
     PtrMan<IOObj> dsobj = IOM().get( dsid );
     if ( !dsobj )
 	return;

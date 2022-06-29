@@ -834,8 +834,8 @@ void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
 
     if ( needstrigger )
     {
-	CBCapsule<MultiID> caps( ioobj->key(), this );
-	entryAdded.trigger( &caps );
+	const MultiID mid = ioobj->key();
+	entryAdded.trigger( mid );
     }
 }
 
@@ -1206,8 +1206,7 @@ bool IOMan::permRemove( const MultiID& ky )
 
     lock.unlockNow();
 
-    CBCapsule<MultiID> caps( ky, this );
-    entryRemoved.trigger( &caps );
+    entryRemoved.trigger( ky );
     if ( issurvdefault )
     {
 	SI().getPars().removeWithKey( defaultkey.buf() );

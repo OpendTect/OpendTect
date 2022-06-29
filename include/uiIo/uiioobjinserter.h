@@ -30,8 +30,7 @@ mExpClass(uiIo) uiIOObjInserter : public CallBacker
 {
 public:
 			uiIOObjInserter( const Translator& trl )
-			    : objectInserted(this)
-			    , transl_(trl)
+			    : transl_(trl)
 			    , ctxt_(*new IOObjContext(nullptr))
 			{}
     virtual		~uiIOObjInserter()	{}
@@ -61,7 +60,6 @@ public:
 
     void		setIOObjCtxt(const IOObjContext&);
 
-    Notifier<uiIOObjInserter>	objectInserted;
 				//!< pass a CBCapsule<MultiID> in trigger(),
 
 protected:

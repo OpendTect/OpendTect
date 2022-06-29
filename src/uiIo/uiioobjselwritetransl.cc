@@ -310,5 +310,5 @@ void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
     if ( fld )
 	fld->use( ioobj.pars() );
 
-    selChg( 0 );
+    selChg( nullptr );
 }
