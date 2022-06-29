@@ -74,11 +74,9 @@ void EnumDef::setIconFileForIndex( int i, const char* iconname )
     if ( i>=size() || !iconname || !*iconname )
 	return;
 
-    if ( !iconfiles_.size() )
-    {
-	for ( int idx=0; idx<size(); idx++ )
-	    iconfiles_.add( sKey::EmptyString() );
-    }
+    for ( int idx=iconfiles_.size(); idx<keys_.size(); idx++ )
+	iconfiles_.add( sKey::EmptyString() );
+
     iconfiles_.get(i) = iconname;
 }
 
