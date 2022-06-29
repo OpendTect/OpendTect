@@ -220,7 +220,7 @@ public:
     BinIDValueSet::SPos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
 
 			// Building from scratch
-			DataPointSet(bool is2d,bool minimal=false);
+    explicit		DataPointSet(bool is2d,bool minimal=false);
     bool		extractPositions(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
 				     const ::Pos::Filter* f=0,
