@@ -48,11 +48,11 @@ public:
 			Batch::JobSpec&,factory);
 
 protected:
-				uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
-				    : jobspec_(js)		{}
+			    uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
+				: jobspec_(js)
+			    {}
 
     Batch::JobSpec&	jobspec_;
-
     virtual Batch::JobDispatcher& gtDsptchr()	= 0;
 
 };

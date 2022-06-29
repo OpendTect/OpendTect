@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uibatchjobdispatcherlauncher.h"
 
 #include "batchjobdispatch.h"
+#include "batchprogtracker.h"
+#include "clientservicebase.h"
 #include "errmsg.h"
 #include "file.h"
 #include "genc.h"
@@ -23,13 +25,14 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "singlebatchjobdispatch.h"
 
-#include "uigeninput.h"
-#include "uidialog.h"
 #include "uibutton.h"
-#include "uilabel.h"
-#include "uislider.h"
 #include "uicombobox.h"
+#include "uidialog.h"
+#include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
+#include "uislider.h"
 #include "uistrings.h"
 
 static const char* sGroupName = "Batch job dispatcher selector";
@@ -230,7 +233,14 @@ bool uiBatchJobDispatcherSel::start( Batch::ID* batchid )
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
-    return dl->go( this, batchid );
+    if ( dl->go(this,batchid) )
+    {
+	mAttachCB( NotSavedPrompter::NSP().promptSaving,
+		    uiBatchJobDispatcherSel::removeBatchProcess );
+	return true;
+    }
+
+    return false;
 }
 
 
@@ -254,6 +264,50 @@ bool uiBatchJobDispatcherSel::saveProcPars( const IOObj& ioobj ) const
 void uiBatchJobDispatcherSel::setJobName( const char* nm )
 {
     jobname_ = nm;
+}
+
+
+BufferStringSet uiBatchJobDispatcherSel::getActiveProgramList() const
+{
+    BufferStringSet activeprogramlist;
+    BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
+    const TypeSet<Network::Service::ID>& servids = BPT().getServiceIDs();
+    for (const auto& servid : servids)
+    {
+	FilePath fp(mgr.getLockFileFP(servid));
+	fp.setExtension(nullptr);
+	activeprogramlist.add(fp.fileName());
+    }
+
+    return activeprogramlist;
+}
+
+
+void uiBatchJobDispatcherSel::removeBatchProcess( CallBacker* )
+{
+    BatchProgramTracker& bpt = eBPT();
+    const BufferStringSet& activebatchprogs = getActiveProgramList();
+    const TypeSet<Network::Service::ID>& servids = bpt.getServiceIDs();
+    NotSavedPrompter& nsp = NotSavedPrompter::NSP();
+    for( int idx=0; idx<activebatchprogs.size(); idx++ )
+    {
+	const auto& activebatchprog = activebatchprogs.get( idx );
+	const auto& dataid = servids[idx];
+	nsp.addObject( activebatchprog.buf(),
+	    mCB(this,uiBatchJobDispatcherSel,triggerRemove), false, &dataid );
+    }
+}
+
+
+void uiBatchJobDispatcherSel::triggerRemove( CallBacker* )
+{
+    const Network::Service::ID* servid =
+	(Network::Service::ID*)NotSavedPrompter::NSP().getCurrentObjectData();
+
+    if ( !servid )
+	return;
+
+    eBPT().cleanProcess( *servid );
 }
 
 

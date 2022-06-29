@@ -177,8 +177,9 @@ bool uiBatchSetup::acceptOK( CallBacker* )
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
-    const IOObj* outputioobj = setupsel_->ioobj( true );
-    if ( !outputioobj ) return false;
+    const IOObj* outputioobj = outputsel_->ioobj( true );
+    if ( !outputioobj )
+	return false;
 
     if ( batchfld_->wantBatch() )
     {

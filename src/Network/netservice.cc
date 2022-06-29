@@ -165,6 +165,23 @@ BufferString Network::Service::logFnm() const
     BufferString ret;
     if ( logfp_ )
 	ret = logfp_->fullPath();
+
+    return ret;
+}
+
+
+BufferString Network::Service::lockFnm() const
+{
+    BufferString ret;
+    if ( logfp_ )
+    {
+	BufferString logflpath = logfp_->fullPath();
+	logflpath.remove( "_log" );
+	FilePath lockfp( logflpath );
+	lockfp.setExtension( "lock" );
+	ret = lockfp.fullPath();
+    }
+
     return ret;
 }
 

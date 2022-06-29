@@ -6,6 +6,7 @@
 
 #include "singlebatchjobdispatch.h"
 
+#include "batchprogtracker.h"
 #include "clientservicebase.h"
 #include "file.h"
 #include "filepath.h"
@@ -16,6 +17,7 @@
 #include "keystrs.h"
 #include "netserver.h"
 #include "oddirs.h"
+#include "od_ostream.h"
 #include "oscommand.h"
 
 
@@ -36,9 +38,16 @@ bool Batch::SingleJobDispatcher::init()
 	getDefParFilename( jobspec_.prognm_, parfnm_ );
 
     FilePath fp( parfnm_ );
-    fp.setExtension( 0 );
+    fp.setExtension( nullptr );
     BufferString logfnm( fp.fullPath() );
     logfnm.add( "_log.txt" );
+    if ( File::isInUse(logfnm) )
+    {
+	errmsg_ = tr("File %1 is already in use, "
+	    "please close the process and try again").arg( logfnm );
+	return false;
+    }
+
     jobspec_.pars_.update( sKey::LogFile(), logfnm );
 
     return true;
@@ -67,7 +76,10 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
     {
 	exechost = hdl.find( remotehost_ );
 	if ( !exechost )
+	{
+	    errmsg_ = tr("Wrong host information");
 	    return false;
+	}
 
 	const bool unix2unix = !localhost->isWindows()
 			      && !exechost->isWindows();
@@ -139,10 +151,22 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
 	DBG::message(msg);
     }
 
-/*    if ( jobspec_.execpars_.launchtype_ >= OS::Batch )
-      Not (yet) registering all batch programs */
-    if ( jobspec_.execpars_.launchtype_ > OS::Batch )
+    if ( jobspec_.execpars_.launchtype_ >= OS::Batch )
 	ServiceClientMgr::addApplicationAuthority( mc );
 
-    return mc.execute( jobspec_.execpars_ );
+    FilePath fp( parfnm_ );
+    fp.setExtension( "lock" );
+    const BufferString lockflfp = fp.fullPath();
+    od_ostream parstrm( lockflfp );
+    parstrm.close();
+
+    if ( mc.execute(jobspec_.execpars_) )
+	BPT();
+    else
+    {
+	File::remove( lockflfp );
+	return false;
+    }
+
+    return true;
 }

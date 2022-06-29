@@ -65,12 +65,14 @@ protected:
 
     void		init(bool optional);
     int			selIdx() const;
+    BufferStringSet	getActiveProgramList() const;
 
     void		initFlds(CallBacker*);
     void		selChg(CallBacker*);
     void		fldChck(CallBacker*);
     void		optsPush(CallBacker*);
-
+    void		removeBatchProcess(CallBacker*);
+    void		triggerRemove(CallBacker*);
     bool		noLaunchersAvailable() const	{ return !optsbut_; }
 
 };

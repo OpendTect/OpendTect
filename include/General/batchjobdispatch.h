@@ -122,6 +122,7 @@ protected:
 
     bool		writeParFile() const;
 
+    void		serviceEnded(CallBacker*);
 public:
 
     static const char*	sKeyFinishMsg() { return "Finished batch processing.";}

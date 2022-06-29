@@ -7,6 +7,7 @@
 set(OD_MODULE_DEPS Network)
 
 set(OD_MODULE_SOURCES
+	batchprogtracker.cc
 	jobdescprov.cc
 	jobiomgr.cc
 	jobrunner.cc

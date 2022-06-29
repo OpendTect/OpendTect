@@ -252,6 +252,18 @@ bool ServiceClientMgr::removeService( const Network::Service::ID servid )
 }
 
 
+BufferString ServiceClientMgr::getLockFileFP(
+					const Network::Service::ID id ) const
+{
+    BufferString ret;
+    const Network::Service* serv = getService( id );
+    if ( serv )
+	ret = serv->lockFnm();
+
+    return ret;
+}
+
+
 const Network::Service* ServiceClientMgr::getService(
 				 const Network::Service::ID servid ) const
 {
@@ -293,7 +305,9 @@ void ServiceClientMgr::cleanupServices()
     {
 	if ( service->isAlive() )
 	    continue;
+
 	services_ -= service;
+	serviceRemoved.trigger( service->PID() );
 	delete service;
     }
 }

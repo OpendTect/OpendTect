@@ -225,21 +225,24 @@ void Batch::JobDispatcher::setJobName( const char* inp )
 
 bool Batch::JobDispatcher::writeParFile() const
 {
+    od_ostream parstrm( parfnm_ );
+    const bool ret = parstrm.isOK();
+    if ( !ret )
+    {
+	errmsg_ = tr("Cannot write parameter file:\n %1").arg( parfnm_ );
+	parstrm.addErrMsgTo( errmsg_ );
+	return false;
+    }
+
+    ascostream astrm( parstrm );
+    astrm.putHeader("Parameters");
     IOPar wrpar( jobspec_.pars_ );
     jobspec_.fillPar( wrpar );
     wrpar.set( sKey::Survey(), IOM().surveyName() );
     wrpar.set( sKey::DataRoot(), GetBaseDataDir() );
-
-    od_ostream parstrm( parfnm_ ); ascostream astrm( parstrm );
-    astrm.putHeader( "Parameters" );
     wrpar.putTo( astrm );
-    const bool ret = parstrm.isOK();
     parstrm.close();
-    if ( !ret )
-    {
-	errmsg_ = tr( "Cannot write parameter file:\n %1" ).arg( parfnm_ );
-	parstrm.addErrMsgTo( errmsg_ );
-    }
+
     return ret;
 }
 

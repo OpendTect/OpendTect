@@ -48,7 +48,7 @@ public:
 				  od_ostream* = nullptr) const;
 
     static bool		addApplicationAuthority(OS::MachineCommand&);
-
+    BufferString	getLockFileFP(const Network::Service::ID) const;
 protected:
 				ServiceClientMgr(const char* servicenm);
 				ServiceClientMgr(const char* servicenm,
@@ -73,8 +73,8 @@ protected:
     uiRetVal		doHandleAction(const char* action) override;
     uiRetVal		doHandleRequest(const OD::JSON::Object&) override;
 
-    const Network::Service*	getService(const Network::Service::ID) const;
-    Network::Service*	getService(const Network::Service::ID);
+    const Network::Service* getService(const Network::Service::ID) const;
+    Network::Service* getService(const Network::Service::ID);
 
     void		doAppClosing(CallBacker*) override;
     void		closeApp() override;
@@ -113,7 +113,6 @@ private:
 mExpClass(Network) BatchServiceClientMgr : public ServiceClientMgr
 { mODTextTranslationClass(BatchServiceClientMgr)
 public:
-
     virtual			~BatchServiceClientMgr();
 
     static BatchServiceClientMgr&	getMgr();

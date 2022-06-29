@@ -76,6 +76,7 @@ public:
     PortNr_Type		port() const;
     ServType		type() const		{ return type_; }
     BufferString	logFnm() const;
+    BufferString	lockFnm() const;
     uiRetVal		message() const		{ return msg_; }
     void		fillJSON(OD::JSON::Object&) const;
 

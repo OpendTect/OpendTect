@@ -67,7 +67,7 @@ public:
 
     enum Status { Start, ParseFail, ParseOK, CommFail, CommOK, LogFail, LogOK,
 		  WorkWait, WorkStarted, WorkFail, WorkPaused, MoreToDo, WorkOK,
-		  Killed };
+		  Killed, LockOK };
 			mDeclareEnumUtils(Status);
 
     mExp(Batch) void		loadModules();
@@ -117,6 +117,8 @@ private:
     void		progKilled(CallBacker*);
     void		killNotify(bool yn);
 
+    const BufferString	getLockFileFP() const;
+
     JobCommunic*	mmComm()		{ return comm_; }
     Batch::ID		jobId()			{ return jobid_; }
     mExp(Batch) float	getPriority() const	{ return priority_; }
@@ -154,6 +156,7 @@ private:
 
     mExp(Batch) void	modulesLoaded();
     bool		canStartdoWork() const;
+    bool		updateLockFilePars() const;
 
     static BatchProgram* inst_;
 

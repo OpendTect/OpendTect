@@ -56,7 +56,7 @@ mDefineEnumUtils(BatchProgram,Status,"Batch program status")
     "Opening log stream failed", "Opening log stream OK",
     "Waiting for instructions", "Work started", "Work error",
     "Work paused", "More work to do", "Work finished OK",
-    "Process killed", 0
+    "Process killed", "Lock file created", 0
 };
 
 
@@ -108,10 +108,12 @@ BatchProgram::BatchProgram()
 BatchProgram::~BatchProgram()
 {
     delete timer_;
+    File::remove( getLockFileFP() );
     if ( strmismine_ )
 	delete strm_;
     else
 	strm_->close();
+
     deleteAndZeroPtr( clparser_ );
     delete iopar_;
     delete comm_;
@@ -119,10 +121,28 @@ BatchProgram::~BatchProgram()
 }
 
 
+const BufferString BatchProgram::getLockFileFP() const
+{
+    FilePath fp( name() );
+    fp.setExtension( "lock" );
+    return fp.fullPath();
+}
+
 bool BatchProgram::isOK() const
 {
     return status_ != ParseFail && status_ != CommFail &&
 	   status_ != LogFail && status_ != WorkFail && status_ != Killed;
+}
+
+
+bool BatchProgram::updateLockFilePars() const
+{
+    IOPar lockpars;
+    lockpars.add( "System ID", GetLocalHostName() );
+    lockpars.add( "User ID", GetUserNm() );
+    lockpars.add( "Process ID", GetPID() );
+    lockpars.write( getLockFileFP(), nullptr );
+    return true;
 }
 
 
@@ -134,7 +154,11 @@ bool BatchProgram::init()
 	status_ = initComm() ? CommOK : CommFail;
     if ( status_ == CommOK )
 	status_ = initLogging() ? LogOK : LogFail;
-    return status_ == LogOK;
+
+    if ( status_ == LogOK && updateLockFilePars() )
+	status_ = LockOK;
+
+    return status_ == LockOK;
 }
 
 
