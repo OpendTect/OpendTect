@@ -82,6 +82,7 @@ private:
     void		testPythonModules();
     void		testCB(CallBacker*);
     void		promptCB(CallBacker*);
+    void		cloneCB(CallBacker*);
     void		safetycheckCB(CallBacker*);
     bool		getPythonEnvBinPath(BufferString&) const;
     void		updateIDEfld();
@@ -1155,6 +1156,13 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     safetychkbut->setIcon( "safety" );
     safetychkbut->attach( rightOf, cmdwinbut );
 
+    auto* clonebut = new uiPushButton( this, tr("Clone Environment"),
+				   mCB(this,uiPythonSettings,cloneCB), true );
+    clonebut->setIcon( "copyobj" );
+    clonebut->attach( rightOf, safetychkbut );
+
+
+
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
 
@@ -1490,6 +1498,52 @@ void uiPythonSettings::safetycheckCB( CallBacker* )
     dlg.setCancelText( uiString::empty() );
     usw.readyNow();
     dlg.go();
+}
+
+
+void uiPythonSettings::cloneCB( CallBacker* )
+{
+    if ( !useScreen() )
+	return;
+
+    FilePath envpath;
+    OD::PythA().GetPythonEnvPath( envpath );
+    const BufferString envname( envpath.baseName() );
+    if ( envpath.isEmpty() )
+    {
+	uiMSG().error(
+		tr("Can only clone Internal or Custom Python environments") );
+	return;
+    }
+
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, nullptr, nullptr,
+		      tr("Destination for Cloned Environment") );
+    if ( !dlg.go() )
+	return;
+
+    const BufferString dirloc( dlg.fileName() );
+    FilePath fp( dirloc, BufferString(envname,"_clone") );
+    if ( File::exists(fp.fullPath()) || !File::isWritable(dirloc) )
+    {
+	uiMSG().error( uiStrings::phrCannotCreateDirectory(
+						toUiString(fp.fullPath())) );
+	return;
+    }
+
+    BufferStringSet mcargs;
+    mcargs.add("create").add("--clone").add(envname)
+						.add("-p").add(fp.fullPath());
+    const OS::MachineCommand mc( "conda", mcargs );
+    uiUserShowWait uisw( this, tr("Cloning conda environment") );
+    uiString errmsg;
+    BufferString stdoutstr, stderrstr;
+    if ( !OD::PythA().execute(mc,stdoutstr,&stderrstr,&errmsg) )
+    {
+	uiMSG().errorWithDetails( toUiString(stderrstr), errmsg );
+	return;
+    }
+
+    setCustomEnvironmentNames();
 }
 
 
