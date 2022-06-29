@@ -103,7 +103,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 }
 
 
-bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( !ioobj ) return true;
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -115,8 +115,8 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
-					const CallBack* cb ) const
+bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj,
+					const char* newnm ) const
 {
     if ( !ioobj )
 	return false;
@@ -128,7 +128,7 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
     BufferString oldname( oldioobj->name() );
     implSetReadOnly( ioobj, isro );
 
-    return Translator::implRename( ioobj, newnm, cb );
+    return Translator::implRename( ioobj, newnm );
 }
 
 
@@ -146,7 +146,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 }
 
 
-bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
+bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( !ioobj ) return true;
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -165,7 +165,7 @@ bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
 
 
 bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
-				    const char* newnm,const CallBack* cb ) const
+				      const char* newnm ) const
 {
     if ( !ioobj )
 	return false;
@@ -181,7 +181,7 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 
     implSetReadOnly( ioobj, isro );
 
-    return Translator::implRename( ioobj, newnm, cb );
+    return Translator::implRename( ioobj, newnm );
 }
 
 

@@ -44,26 +44,25 @@ mGlobal(General) const char* setDBMDataSource(const char* fullpath,
 	  Returns an error message if it fails */
 }
 
-mExpClass(General) IOMan : public NamedCallBacker
+mExpClass(General) IOMan final : public NamedCallBacker
 { mODTextTranslationClass(IOMan);
 public:
 
     bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
-    const OD::String&	message() const		{ return msg_; }
+    const OD::String&	message() const		{ return msg_.getFullString(); }
+    const uiString&	uiMessage() const	{ return msg_; }
 
     bool		isUsable(const DBKey&) const;
     bool		isUsable(const MultiID&) const;
+    bool		implIsLink(const MultiID&) const;
     bool		implExists(const MultiID&) const;
     bool		isReadOnly(const MultiID&) const;
-    bool		isManagesObject(const MultiID&) const;
-    bool		implRename(const MultiID&,const char* newnm,
-				   const CallBack* cb=nullptr);
-    bool		implReloc(const MultiID&,const char* newdir,
-				   const CallBack* cb=nullptr);
+    bool		implRename(const MultiID&,const char* newnm);
+    bool		implReloc(const MultiID&,const char* newdir);
     bool		implRemove(const MultiID&,
 				   bool rmentry=false,uiRetVal* uirv=nullptr);
-    bool		implRemove(const IOObj&) const;
+    bool		implRemove(const IOObj&,bool deep=true) const;
 
     void		removeUnusable(DBKeySet&);
 			//! Next functions return a new (unmanaged) IOObj
@@ -165,7 +164,7 @@ private:
     State		state_ = NeedInit;
     IODir*		dirptr_ = nullptr;
     int			curlvl_;
-    BufferString	msg_;
+    uiString		msg_;
     bool		survchgblocked_ = false;
     mutable Threads::Lock lock_;
 
@@ -181,7 +180,6 @@ private:
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
-    bool		doReloc(const MultiID&,Translator*,IOStream&,IOStream&);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
     bool		writeSettingsSurveyFile(const char* dirnm,
 						uiRetVal&) const;

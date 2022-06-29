@@ -77,12 +77,12 @@ public:
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
     virtual BufferString	mainFileName() const { return fullUserExpr(); }
 
+    virtual bool		implIsLink() const;
     virtual bool		implExists(bool forread) const	= 0;
     virtual bool		implReadOnly() const		{ return true; }
     virtual bool		implRemove() const		{ return false;}
     virtual bool		implManagesObjects() const	{ return false;}
-    virtual bool		implRename(const char*,const CallBack* cb=0)
-							{ return false; }
+    virtual bool		implRename(const char*)		{ return false;}
     virtual bool		implSetReadOnly(bool) const	{ return false;}
 
     virtual const char*		dirName() const		{ return dirnm_; }

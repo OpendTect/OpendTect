@@ -237,10 +237,18 @@ void IOObj::acquireNewKeyIn( const MultiID& dirky )
 }
 
 
+bool IOObj::implIsLink() const
+{
+    bool ret = false;
+    pars().getYN( sKey::IsLink(), ret );
+    return ret;
+}
 
 
 bool IOObj::isKey( const char* ky )
-{ return IOM().isKey(ky); }
+{
+    return IOM().isKey(ky);
+}
 
 
 void IOObj::updateCreationPars() const

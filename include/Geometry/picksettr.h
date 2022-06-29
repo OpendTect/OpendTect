@@ -62,9 +62,8 @@ public:
     static void		fillConstraints(IOObjContext&,bool ispoly);
     static void		tagLegacyPickSets();
 
-    bool		implRemove(const IOObj*) const override;
-    bool		implRename(const IOObj*,const char*,
-				   const CallBack*) const override;
+    bool		implRemove(const IOObj*,bool) const override;
+    bool		implRename(const IOObj*,const char*) const override;
 };
 
 

@@ -90,6 +90,7 @@ namespace sKey
     inline StringView Inline()		{ return "In-line"; }
     inline StringView Input()		{ return "Input"; }
     inline StringView Is2D()		{ return "Is2D"; }
+    inline StringView IsLink()		{ return "Is Link"; }
     inline StringView Keys()		{ return "Keys"; }
     inline StringView LastCrl()	{ return "Last Cross-line"; }
     inline StringView LastInl()	{ return "Last In-line"; }

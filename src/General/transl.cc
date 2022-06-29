@@ -21,6 +21,7 @@
 #include "preloads.h"
 #include "streamconn.h"
 #include "strmprov.h"
+#include "uistrings.h"
 
 
 uiString Translator::sNoIoobjMsg()
@@ -39,8 +40,6 @@ uiString Translator::sSelObjectIsWrongType()
 
 TranslatorGroup::TranslatorGroup( const char* clssnm )
     : clssname_(clssnm)
-    , selhist_(0)
-    , deftridx_(0)
 {
 }
 
@@ -72,7 +71,8 @@ ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 
 bool TranslatorGroup::add( Translator* tr )
 {
-    if ( !tr ) return false;
+    if ( !tr )
+	return false;
 
     bool res = false;
 
@@ -88,9 +88,10 @@ bool TranslatorGroup::add( Translator* tr )
 		msg += "' - replacing old.";
 		DBG::message( msg );
 	    }
-	    res = true;
-		    templs_ -= oldtr; break;
 
+	    res = true;
+	    templs_ -= oldtr;
+	    break;
 	}
     }
 
@@ -104,15 +105,29 @@ bool TranslatorGroup::add( Translator* tr )
 class EmptyTrGroup : public TranslatorGroup
 {
 public:
+EmptyTrGroup()
+    : TranslatorGroup(""), ctxt(0,"")
+{}
 
-    EmptyTrGroup() : TranslatorGroup(""), ctxt(0,"")	{}
-    const IOObjContext& ioCtxt() const override		{ return ctxt; }
-    int objSelector( const char* ) const override
-	{ return mObjSelUnrelated; }
-    StringView groupName() const override
-	{ return StringView::empty(); }
-    uiString typeName(int) const override
-	{ return uiString::emptyString(); }
+const IOObjContext& ioCtxt() const override
+{
+    return ctxt;
+}
+
+int objSelector( const char* ) const override
+{
+    return mObjSelUnrelated;
+}
+
+StringView groupName() const override
+{
+    return StringView::empty();
+}
+
+uiString typeName(int) const override
+{
+    return uiString::emptyString();
+}
 
    IOObjContext ctxt;
 
@@ -123,7 +138,7 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
 				   const char* nm, bool iserr )
 {
     if ( !nm || !*nm )
-	return 0;
+	return nullptr;
 
     for ( int idx=0; idx<grps.size(); idx++ )
     {
@@ -135,9 +150,10 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
     {
 	const StringView fsspace = firstOcc( nm, ' ' );
 	if ( fsspace.startsWith(" directory",CaseInsensitive) )
-	    return 0;
+	    return nullptr;
     }
-    return 0;
+
+    return nullptr;
 }
 
 static PtrMan<EmptyTrGroup>* emptytrgroup = nullptr;
@@ -259,10 +275,11 @@ Translator* TranslatorGroup::make( const char* nm, bool usr ) const
 
 const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 {
-    if ( !nm || !*nm ) return 0;
+    if ( !nm || !*nm )
+	return nullptr;
 
     // Direct match is OK - just return it
-    const Translator* tr = 0;
+    const Translator* tr = nullptr;
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
 	if ( gtNm(templs_[idx],usr) == nm )
@@ -275,7 +292,8 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 	if ( gtNm(templs_[idx],usr).startsWith(nm) )
 	{
 	    if ( tr ) // more than one match
-		return 0;
+		return nullptr;
+
 	    tr = templs_[idx];
 	}
     }
@@ -290,7 +308,9 @@ const char* TranslatorGroup::getSurveyDefaultKey(const IOObj*) const
 }
 
 const char* TranslatorGroup::translationApplication() const
-{ return uiString::sODLocalizationApplication(); }
+{
+    return uiString::sODLocalizationApplication();
+}
 
 
 extern "C" void od_Basic_initStdClasses();
@@ -298,7 +318,6 @@ extern "C" void od_Basic_initStdClasses();
 Translator::Translator( const char* nm, const char* unm )
     : typname_(nm)
     , usrname_(unm)
-    , group_(0)
 {
     mDefineStaticLocalObject( bool, init_done, = false );
     if ( !init_done )
@@ -312,6 +331,12 @@ Translator::Translator( const char* nm, const char* unm )
 const char* Translator::connType() const
 {
     return StreamConn::sType();
+}
+
+
+const char* Translator::defExtension() const
+{
+    return group_ ? group_->defExtension() : nullptr;
 }
 
 
@@ -335,29 +360,35 @@ const Translator* Translator::getTemplateInstance( const char* displayname )
     BufferString trnm( displayname );
     char* grpptr = trnm.find( ' ' );
     if ( !grpptr || !*(grpptr+1) )
-	return 0;
+	return nullptr;
 
     *grpptr = '\0';
     BufferString grpnm( grpptr+1 );
     grpnm.unEmbed( '[', ']' );
     trnm.trimBlanks(); grpnm.trimBlanks();
     if ( trnm.isEmpty() || grpnm.isEmpty() )
-	return 0;
+	return nullptr;
 
     const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
     const TranslatorGroup* trgrp = 0;
     for ( int idx=0; idx<grps.size(); idx++ )
+    {
 	if ( grpnm == grps[idx]->groupName() )
-	    { trgrp = grps[idx]; break; }
+	{
+	    trgrp = grps[idx];
+	    break;
+	}
+    }
+
     if ( !trgrp )
-	return 0;
+	return nullptr;
 
     const ObjectSet<const Translator>& tpls = trgrp->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
 	if ( trnm == tpls[idx]->userName() )
 	    return tpls[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -369,55 +400,155 @@ IOPar& TranslatorGroup::selHist()
 	parnm += " selection history";
 	selhist_ = new IOPar( parnm );
     }
+
     return *selhist_;
 }
 
 
 void TranslatorGroup::clearSelHist()
 {
-    if ( selhist_ ) selhist_->setEmpty();
+    if ( selhist_ )
+	selhist_->setEmpty();
+}
+
+
+bool Translator::implIsLink( const IOObj* ioobj ) const
+{
+    return ioobj && ioobj->implIsLink();
 }
 
 
 bool Translator::implExists( const IOObj* ioobj, bool forread ) const
 {
-    if ( !ioobj ) return false;
-    return ioobj->implExists( forread );
+    return ioobj && ioobj->implExists( forread );
 }
 
 
 bool Translator::implReadOnly( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return false;
-    return ioobj->implReadOnly();
+    return ioobj && ioobj->implReadOnly();
 }
 
 
-bool Translator::implRemove( const IOObj* ioobj ) const
+bool Translator::implRemove( const IOObj* ioobj, bool deep ) const
 {
-    if ( !ioobj ) return false;
-    return ioobj->implRemove();
+    return ioobj && ioobj->implRemove();
 }
 
 
-bool Translator::implManagesObjects( const IOObj* ioobj ) const
+bool Translator::implRename( const IOObj* ioobj, const char* newnm ) const
 {
-    return ioobj ? ioobj->implManagesObjects() : false;
+    if ( !ioobj )
+	return false;
+
+    PtrMan<IOObj> ioobjcopy = ioobj->clone();
+    mDynamicCastGet(IOStream*,iostrm,ioobjcopy.ptr())
+    if ( !iostrm )
+	return true;
+
+    if ( !iostrm->implExists(true) )
+    {
+	iostrm->genFileName();
+	return true;
+    }
+
+    IOStream chiostrm;
+    chiostrm.copyFrom( iostrm );
+    FilePath fp( iostrm->fileSpec().fileName() );
+    chiostrm.setExt( defExtension() );
+
+    BufferString cleannm( chiostrm.name() );
+    cleannm.clean( BufferString::NoFileSeps );
+    chiostrm.setName( cleannm );
+    chiostrm.genFileName();
+    chiostrm.setName( newnm );
+
+    FilePath deffp( chiostrm.fileSpec().fileName() );
+    fp.setFileName( deffp.fileName() );
+    chiostrm.fileSpec().setFileName( fp.fullPath() );
+
+    const bool newfnm = StringView(chiostrm.fileSpec().fileName())
+				    != iostrm->fileSpec().fileName();
+    if ( newfnm && !doReloc(*iostrm,chiostrm) )
+    {
+	cleannm = newnm;
+	if ( !cleannm.contains('/') && !cleannm.contains('\\') )
+	    return false;
+
+	cleannm.clean( BufferString::AllowDots );
+	chiostrm.setName( cleannm );
+	chiostrm.genFileName();
+	deffp.set( chiostrm.fileSpec().fileName() );
+	fp.setFileName( deffp.fileName() );
+	chiostrm.fileSpec().setFileName( fp.fullPath() );
+	chiostrm.setName( iostrm->name() );
+	if (!doReloc(*iostrm,chiostrm))
+	    return false;
+    }
+
+    iostrm->copyFrom( &chiostrm );
+    return true;
 }
 
 
-bool Translator::implRename( const IOObj* ioobj, const char* newnm,
-			     const CallBack* cb ) const
+bool Translator::implReloc( const IOObj* ioobj, const char* newdir ) const
 {
-    if ( !ioobj ) return false;
-    return const_cast<IOObj*>(ioobj)->implRename( newnm, cb );
+    if ( !ioobj )
+	return false;
+
+    PtrMan<IOObj> ioobjcopy = ioobj->clone();
+    mDynamicCastGet(IOStream*,iostrm,ioobjcopy.ptr())
+    BufferString oldfnm( iostrm->fullUserExpr() );
+    IOStream chiostrm;
+    chiostrm.copyFrom( iostrm );
+    if ( !File::isDirectory(newdir) )
+	return false;
+
+    FilePath fp( oldfnm );
+    fp.setPath( newdir );
+    chiostrm.fileSpec().setFileName( fp.fullPath() );
+    return doReloc( *iostrm,chiostrm );
+}
+
+
+bool Translator::doReloc( IOStream& iostrm, IOStream& chiostrm ) const
+{
+    const BufferString newfname( chiostrm.fullUserExpr() );
+    bool succeeded = true;
+    if ( implExists(&iostrm,true) )
+    {
+	if ( implExists(&chiostrm,true) && !implRemove(&iostrm) )
+	    return false;
+
+	succeeded = implRename( &iostrm, newfname );
+    }
+
+    if ( succeeded )
+	iostrm.fileSpec().setFileName( newfname );
+
+    return succeeded;
 }
 
 
 bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
-    if ( !ioobj ) return false;
-    return ioobj->implSetReadOnly( yn );
+    return ioobj && ioobj->implSetReadOnly( yn );
+}
+
+
+bool Translator::getConfirmRemoveMsg( const IOObj* ioobj, uiString& msg,
+		uiString& canceltxt, uiString& yestxt, uiString& notxt ) const
+{
+    if ( !ioobj || !ioobj->implExists(true) )
+	return false;
+
+    msg = tr("Database entry for %1 '%2' will be permanently removed "
+	    "along with the associated data.")
+	    .arg(userName()).arg(ioobj->name());
+    canceltxt = uiStrings::sCancel();
+    yestxt = uiStrings::sRemove();
+    notxt = uiString::empty();
+    return true;
 }
 
 

@@ -189,7 +189,7 @@ bool IOStream::implDoAll( bool dorem, bool yn ) const
 }
 
 
-bool IOStream::implRename( const char* newnm, const CallBack* cb )
+bool IOStream::implRename( const char* newnm )
 {
     const int nrfiles = nrFiles();
     if ( nrfiles != 1 )

@@ -60,7 +60,9 @@ public:
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts& fileReadOpts()		{ return fileopts_; }
 
-    bool		implRemove( const IOObj* ) const override
+    bool		implIsLink( const IOObj* ) const override
+			{ return true; }
+    bool		implRemove( const IOObj*, bool ) const override
 			{ return true; }
 
     bool		implManagesObjects( const IOObj* ) const override

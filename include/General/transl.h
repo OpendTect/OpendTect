@@ -96,8 +96,8 @@ protected:
 
     BufferString		clssname_;
     ObjectSet<const Translator>	templs_;
-    int				deftridx_;
-    IOPar*			selhist_;
+    int				deftridx_		= 0;
+    IOPar*			selhist_		= nullptr;
 
     static ObjectSet<TranslatorGroup>& getGroups();
 
@@ -131,26 +131,34 @@ public:
 
     virtual Translator*		getNew() const		= 0;
 
+    virtual bool		implIsLink(const IOObj*) const;
     virtual bool		implExists(const IOObj*,bool forread) const;
     virtual bool		implReadOnly(const IOObj*) const;
-    virtual bool		implRename(const IOObj*,const char*,
-						const CallBack* cb=0) const;
-    virtual bool		implManagesObjects(const IOObj*) const;
-    virtual bool		implRemove(const IOObj*) const;
+    virtual bool		implRename(const IOObj*,
+					   const char* newnm) const;
+    virtual bool		implReloc(const IOObj*,
+					  const char* newdir) const;
+    virtual bool		implRemove(const IOObj*,bool deep=true) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
     virtual const char*		connType() const;
     virtual void		usePar(const IOPar&)		{}
-    virtual const char*		defExtension() const
-				{ return group_ ? group_->defExtension() : 0; }
+    virtual const char*		defExtension() const;
 
     void			setGroup( TranslatorGroup* g )	{ group_ = g; }
 
     virtual bool		isUserSelectable( bool forread=true ) const
 				{ return true; }
+    virtual bool		getConfirmRemoveMsg(const IOObj*,uiString& msg,
+						    uiString& canceltxt,
+						    uiString& yestxt,
+						    uiString& notxt) const;
+				/*!< yestxt for deep delete, notxt for shallow*/
     virtual IOObj*		createWriteIOObj(const IOObjContext&,
 						 const MultiID&) const;
     virtual const char*		iconName() const	{ return "od"; }
+    virtual const uiString&	message() const		{ return msg_; }
+
     const char*			getDisplayName() const; //!< "username [group]"
     static const Translator*	getTemplateInstance(const char* displayname);
 
@@ -158,7 +166,9 @@ protected:
 
     BufferString		typname_;
     BufferString		usrname_;
-    TranslatorGroup*		group_;
+    uiString			msg_;
+
+    TranslatorGroup*		group_			= nullptr;
 
     static BufferString		getAssociatedFileName(const IOObj&,
 						const char* extension);
@@ -171,7 +181,9 @@ protected:
     static bool			setPermAssociatedFile(const char* fnm,
 				    const char* ext,bool setwritable);
     static bool			renameLargeFile(const char* fnm,
-				    const char* newfnm,const CallBack* cb=0);
+						const char* newfnm,
+						const CallBack* cb=nullptr);
+    bool			doReloc(IOStream&,IOStream&) const;
 
 public:
 
@@ -179,6 +191,8 @@ public:
     static uiString		sBadConnection();
     uiString			sSelObjectIsWrongType();
 
+    virtual bool		implManagesObjects(const IOObj*) const
+				{ return false; }
 };
 
 

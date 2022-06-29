@@ -311,7 +311,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     const MultiID& key = ioobj.key();
     const bool exists = IOM().implExists( key );
     const bool readonly = IOM().isReadOnly( key );
-    bool shldrm = IOM().isManagesObject( key );
+    bool shldrm = !IOM().implIsLink( key );
     if ( exists && readonly && shldrm )
     {
 	uiString msg = tr("'%1' is not writable; the actual data "

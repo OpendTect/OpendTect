@@ -175,7 +175,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
                                                       basefnm.buf(),nr).buf() )
 
 
-bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
+bool EMSurfaceTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( ioobj )
     {
@@ -213,8 +213,8 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
-				      const CallBack* cb ) const
+bool EMSurfaceTranslator::implRename( const IOObj* ioobj,
+				      const char* newnm ) const
 {
     if ( ioobj )
     {
@@ -228,7 +228,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	}
     }
 
-    mImplStart(rename(newnm,cb));
+    mImplStart(rename(newnm));
 
     int gap = 0;
     for ( int nr=0; ; nr++ )
@@ -238,7 +238,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 		EM::dgbSurfDataWriter::createHovName(newnm,nr).buf() );
 	spnew.addPathIfNecessary( pathnm.buf() );
 	if ( loopsp.exists(true) )
-	    loopsp.rename( spnew.fileName(), cb );
+	    loopsp.rename( spnew.fileName() );
 	else
 	    gap++;
     }
@@ -250,7 +250,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
     FilePath newfp( newnm ); \
     newfp.setExtension( fp.extension() ); \
     if ( oldsp.exists(true) ) \
-	oldsp.rename( newfp.fullPath().buf(), cb ); }
+	oldsp.rename( newfp.fullPath().buf() ); }
 
     mRename( getSetupFileName )
     mRename( getParFileName )

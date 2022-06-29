@@ -648,7 +648,7 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 	    return true;
 
 
-bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     mImplStart( implRemove() );
 
@@ -671,8 +671,8 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
-					const CallBack* cb ) const
+bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj,
+					const char* newnm ) const
 {
     mImplStart( implRename(newnm) );
 
@@ -686,7 +686,7 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
 	StreamProvider spnew( CBVSIOMgr::getFileName(newnm,nr) );
 	spnew.addPathIfNecessary( pathnm );
-	if ( !sp.rename(spnew.fileName(),cb) )
+	if ( !sp.rename(spnew.fileName()) )
 	{
 	    rv = false;
 	    break;

@@ -165,6 +165,10 @@ public:
     Conn*		curConn() override;
     virtual BinID	curBinID() const;
     bool		forRead() const override	{ return forread_; }
+    bool		getConfirmRemoveMsg(const IOObj*,uiString& msg,
+					    uiString& canceltxt,
+					    uiString& yestxt,
+					    uiString& notxt) const override;
 
     virtual void	toSupported(DataCharacteristics&) const;
     bool		write(const SeisTrc&) override;
@@ -172,7 +176,7 @@ public:
 
     void		usePar(const IOPar&) override;
 
-    bool		implRemove(const IOObj*) const override;
+    bool		implRemove(const IOObj*,bool) const override;
     bool		close() override;
     void		cleanUp() override;
     IOObj*		createWriteIOObj(const IOObjContext&,

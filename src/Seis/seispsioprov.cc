@@ -262,7 +262,7 @@ mDefSimpleTranslatorioContext(SeisPS3D,Seis)
 mDefSimpleTranslatorioContext(SeisPS2D,Seis)
 
 
-bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
+bool SeisPS3DTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( ioobj )
     {
@@ -277,8 +277,8 @@ bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool SeisPS3DTranslator::implRename( const IOObj* ioobj, const char* newnm,
-				     const CallBack* cb ) const
+bool SeisPS3DTranslator::implRename( const IOObj* ioobj,
+				     const char* newnm ) const
 {
     if ( ioobj )
     {
@@ -295,16 +295,16 @@ bool SeisPS3DTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	}
     }
 
-    return Translator::implRename( ioobj, newnm, cb );
+    return Translator::implRename( ioobj, newnm );
 }
 
 
-bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 {
     if ( !ioobj )
 	return true;
 
-    SeisPS3DTranslator::implRemove( ioobj );
+    SeisPS3DTranslator::implRemove( ioobj, deep );
 
     const BufferString fnm( ioobj->fullUserExpr(true) );
     if ( File::exists(fnm) )
@@ -314,7 +314,7 @@ bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( !ioobj ) return false;
     BufferString fnm( ioobj->fullUserExpr(true) );

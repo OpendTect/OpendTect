@@ -53,9 +53,8 @@ public:
 
     const WellDataIOProvider&	getProv() const override;
 
-    bool		implRemove(const IOObj*) const override;
-    bool		implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const override;
+    bool		implRemove(const IOObj*,bool) const override;
+    bool		implRename(const IOObj*,const char*) const override;
     bool		implSetReadOnly(const IOObj*,bool) const override;
 
 };

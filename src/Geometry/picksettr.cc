@@ -316,7 +316,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 }
 
 
-bool PickSetTranslator::implRemove( const IOObj* ioobj ) const
+bool PickSetTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( !ioobj )
 	return false;
@@ -333,13 +333,13 @@ bool PickSetTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
-				    const CallBack* cb ) const
+bool PickSetTranslator::implRename( const IOObj* ioobj,
+				    const char* newnm ) const
 {
     if ( !ioobj )
 	return false;
 
-    const bool res = Translator::implRename( ioobj, newnm, cb );
+    const bool res = Translator::implRename( ioobj, newnm );
     if ( !res )
 	return false;
 
@@ -348,7 +348,7 @@ bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
     FilePath newfp( newnm );
     newfp.setExtension( fp.extension() );
     if ( oldsp.exists(true) )
-	oldsp.rename( newfp.fullPath().buf(), cb );
+	oldsp.rename( newfp.fullPath().buf() );
 
     const int setidx = Pick::Mgr().indexOf( ioobj->key() );
     if ( setidx>= 0 )

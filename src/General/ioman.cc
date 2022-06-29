@@ -35,16 +35,6 @@
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
-static bool doRemoveImpl( const IOObj& ioobj )
-{
-    if ( ioobj.isSubdir() )
-	return false;
-
-    PtrMan<Translator> tr = ioobj.createTranslator();
-    return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
-}
-
-
 class IOMManager : public CallBacker
 {
 public:
@@ -140,14 +130,14 @@ void IOMan::init()
     state_ = Bad;
     if ( rootdir_.isEmpty() )
     {
-	msg_ = "Survey Data Root is not set";
+	msg_ = tr("Survey Data Root is not set");
 	return;
     }
 
     if ( !File::isDirectory(rootdir_) )
     {
-	msg_ = "Survey Data Root does not exist or is not a folder:\n";
-	msg_ += rootdir_;
+	msg_ = tr("Survey Data Root does not exist or is not a folder:\n%1")
+		.arg(rootdir_);
 	return;
     }
 
@@ -156,9 +146,8 @@ void IOMan::init()
         FilePath surveyfp( GetDataDir(), ".omf" );
         if ( File::exists(surveyfp.fullPath().buf()) )
         {
-            msg_ = "Warning: Invalid '.omf' found in:\n";
-	    msg_ += rootdir_;
-            msg_ += ".\nThis survey is corrupt.";
+	    msg_ = tr("Warning: Invalid '.omf' found in:\n%1.\n"
+		    "This survey is corrupt.").arg( rootdir_ );
 	    return;
         }
 
@@ -167,9 +156,8 @@ void IOMan::init()
         File::copy( basicfp.fullPath(),surveyfp.fullPath() );
 	if ( !to(emptykey,true) )
         {
-            msg_ = "Warning: Invalid or no '.omf' found in:\n";
-	    msg_ += rootdir_;
-            msg_ += ".\nThis survey is corrupt.";
+	    msg_ = tr("Warning: Invalid or no '.omf' found in:\n%1.\n"
+		    "This survey is corrupt.").arg( rootdir_ );
 	    return;
         }
     }
@@ -207,7 +195,7 @@ void IOMan::init()
 	rootfp.setFileName( dd->dirnm_ );
 	BufferString dirnm = rootfp.fullPath();
 
-#define mErrMsgRet(s) ErrMsg(s); msg_ = s; state_ = Bad; return
+#define mErrMsgRet(s) msg_ = s; ErrMsg(message()); state_ = Bad; return
 	if ( !File::exists(dirnm) )
 	{
 	    // This directory should have been in the survey.
@@ -215,14 +203,14 @@ void IOMan::init()
 	    // continue. Otherwise, we want to copy the Basic Survey directory.
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
-		BufferString msg( "Corrupt survey: missing directory: " );
-		msg += dirnm; mErrMsgRet( msg );
+		mErrMsgRet( tr("Corrupt survey: missing directory: %1")
+			    .arg(dirnm) );
 	    }
 	    else if ( !File::copy(basicdirnm,dirnm) )
 	    {
-		BufferString msg( "Cannot create directory: " ); msg += dirnm;
-		msg += ". You probably do not have write permissions in ";
-		msg += rootfp.pathOnly(); mErrMsgRet( msg );
+		mErrMsgRet( tr("Cannot create directory: %1.\n"
+			    "You probably do not have write permissions in %2.")
+			    .arg(dirnm).arg(rootfp.pathOnly()) );
 	    }
 	}
 
@@ -924,6 +912,17 @@ bool IOMan::isUsable( const MultiID& key ) const
 }
 
 
+bool IOMan::implIsLink( const MultiID& key ) const
+{
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    ConstPtrMan<Translator> trans = ioobj->createTranslator();
+    return trans && trans->implIsLink( ioobj );
+}
+
+
 bool IOMan::implExists( const MultiID& key ) const
 {
     ConstPtrMan<IOObj> ioobj = IOM().get( key );
@@ -948,105 +947,37 @@ bool IOMan::isReadOnly( const MultiID& key ) const
 }
 
 
-bool IOMan::isManagesObject( const MultiID& key ) const
-{
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj )
-	return false;
-
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    return trans ? !trans->implManagesObjects(ioobj.ptr())
-			: !ioobj->implManagesObjects();
-}
-
-
-bool IOMan::implRename( const MultiID& key, const char* newname,
-					    const CallBack* cb )
+bool IOMan::implRename( const MultiID& key, const char* newname )
 {
     BufferString newnm( newname );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
     {
-	msg_ = "Cannot create an object for";
-	msg_ += key;
+	msg_ = uiStrings::phrCannotFindDBEntry( key );
 	return false;
     }
 
     PtrMan<Translator> trans = ioobj->createTranslator();
     ioobj->setName( newnm );
-
-    mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
-    if ( iostrm )
-    {
-	if ( !iostrm->implExists(true) )
-	    iostrm->genFileName();
-	else if ( !isManagesObject(key) )
-	{
-	    IOStream chiostrm;
-	    chiostrm.copyFrom( iostrm );
-	    FilePath fp( iostrm->fileSpec().fileName() );
-	    if ( trans )
-		chiostrm.setExt( trans->defExtension() );
-
-	    BufferString cleannm( chiostrm.name() );
-	    cleannm.clean( BufferString::NoFileSeps );
-	    chiostrm.setName( cleannm );
-	    chiostrm.genFileName();
-	    chiostrm.setName( newnm );
-
-	    FilePath deffp( chiostrm.fileSpec().fileName() );
-	    fp.setFileName( deffp.fileName() );
-	    chiostrm.fileSpec().setFileName( fp.fullPath() );
-
-	    const bool newfnm = StringView(chiostrm.fileSpec().fileName())
-					    != iostrm->fileSpec().fileName();
-	    if ( newfnm && !doReloc(key, trans,*iostrm,chiostrm) )
-	    {
-		if ( !newnm.contains('/') && !newnm.contains('\\') )
-		    return false;
-
-		newnm.clean( BufferString::AllowDots );
-		chiostrm.setName( newnm );
-		chiostrm.genFileName();
-		deffp.set( chiostrm.fileSpec().fileName() );
-		fp.setFileName( deffp.fileName() );
-		chiostrm.fileSpec().setFileName( fp.fullPath() );
-		chiostrm.setName( iostrm->name() );
-		if (!doReloc(key, trans, *iostrm, chiostrm))
-		    return false;
-	    }
-
-	    iostrm->copyFrom( &chiostrm );
-	}
-    }
+    if ( !trans || !trans->implRename(ioobj,newname) )
+	return false;
 
     IOM().commitChanges( *ioobj );
     return true;
 }
 
 
-bool IOMan::implReloc( const MultiID& key,
-		       const char* newdir, const CallBack* cb )
+bool IOMan::implReloc( const MultiID& key, const char* newdir )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
     {
-	msg_ = "Cannot create an object for";
-	msg_ += key;
+	msg_ = uiStrings::phrCannotFindDBEntry( key );
 	return false;
     }
 
     PtrMan<Translator> trans = ioobj->createTranslator();
-    mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
-    BufferString oldfnm( iostrm->fullUserExpr() );
-    IOStream chiostrm;
-    chiostrm.copyFrom( iostrm );
-    if ( !File::isDirectory(newdir) )
-	return false;
-
-    FilePath fp( oldfnm ); fp.setPath( newdir );
-    chiostrm.fileSpec().setFileName( fp.fullPath() );
-    if (!doReloc(key, trans, *iostrm, chiostrm))
+    if ( !trans || !trans->implReloc(ioobj,newdir) )
 	return false;
 
     IOM().commitChanges( *ioobj );
@@ -1060,7 +991,7 @@ bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
     if ( !ioobj )
 	return false;
 
-    if ( !doRemoveImpl(*ioobj) && !rmentry )
+    if ( !implRemove(*ioobj) && !rmentry )
     {
 	if ( uirv )
 	    *uirv = tr("Could not delete data file(s).");
@@ -1075,35 +1006,10 @@ bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
 }
 
 
-bool IOMan::implRemove( const IOObj& obj ) const
+bool IOMan::implRemove( const IOObj& obj, bool deep ) const
 {
-    return doRemoveImpl( obj );
-}
-
-
-bool IOMan::doReloc( const MultiID& key, Translator* trans,
-			   IOStream& iostrm, IOStream& chiostrm )
-{
-    const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
-				    : iostrm.implExists( true );
-    const BufferString newfname( chiostrm.fullUserExpr() );
-
-    bool succeeded = true;
-    if ( oldimplexist )
-    {
-	const bool newimplexist = trans ? trans->implExists(&chiostrm, true)
-					: chiostrm.implExists(true);
-	if ( newimplexist && !implRemove(key) )
-	    return false;
-
-	succeeded = trans ? trans->implRename( &iostrm, newfname, nullptr )
-			  : iostrm.implRename( newfname, nullptr );
-    }
-
-    if ( succeeded )
-	iostrm.fileSpec().setFileName( newfname );
-
-    return succeeded;
+    PtrMan<Translator> trans = obj.createTranslator();
+    return trans && trans->implRemove( &obj, deep );
 }
 
 
@@ -1186,16 +1092,15 @@ bool IOMan::permRemove( const MultiID& ky )
     PtrMan<IOObj> ioobj = IOM().get( ky );
     if ( !ioobj )
     {
-	msg_ = "Cannot create an object for";
-	msg_ += ky;
+	msg_ = uiStrings::phrCannotFindDBEntry( ky );
 	return false;
     }
 
     PtrMan<Translator> trl = ioobj->createTranslator();
     if ( !trl )
     {
-	msg_ = "Could not retrieve translator of object with key: ";
-	msg_ += ky;
+	msg_ = tr("Could not retrieve translator of object '%1'")
+	       .arg( ioobj->name() );
 	return false;
     }
 

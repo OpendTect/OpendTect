@@ -18,6 +18,7 @@
 #include "seisselection.h"
 #include "seispacketinfo.h"
 #include "survgeom.h"
+#include "uistrings.h"
 
 
 SEGY::DirectReader::~DirectReader()
@@ -658,13 +659,49 @@ IOObj* SEGYDirectSeisTrcTranslator::createWriteIOObj( const IOObjContext& ctxt,
 }
 
 
-bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj,
+					      bool deep ) const
 {
-    Translator::implRemove( ioobj );
     if ( !ioobj )
 	return true;
 
-    // Remove SEG-Y file too? Only if we have created it?
+    if ( deep )
+    {
+	SEGY::DirectDef segydef( ioobj->mainFileName() );
+	const SEGY::FileDataSet& fds = segydef.fileDataSet();
+	for ( int idx=0; idx<fds.nrFiles(); idx++ )
+	    File::remove( fds.fileName(idx) );
+    }
+
+    Translator::implRemove( ioobj );
+    return true;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
+				uiString& msg, uiString& canceltxt,
+				uiString& yestxt, uiString& notxt ) const
+{
+    if ( !ioobj || !ioobj->implExists(true) )
+	return false;
+
+    BufferStringSet segyfiles;
+    SEGY::DirectDef segydef( ioobj->mainFileName() );
+    const SEGY::FileDataSet& fds = segydef.fileDataSet();
+    for ( int idx=0; idx<fds.nrFiles(); idx++ )
+	if ( File::exists(fds.fileName(idx)) )
+	    segyfiles.add( fds.fileName(idx) );
+
+    if ( segyfiles.isEmpty() )
+	return Translator::getConfirmRemoveMsg( ioobj, msg, canceltxt,
+						yestxt, notxt );
+
+    msg = tr("Database entry for %1 '%2' will be permanently removed "
+	    "along with the linked SEGY files:\n%3")
+	    .arg(userName()).arg(ioobj->name()).arg(segyfiles.cat());
+    canceltxt = uiStrings::sCancel();
+    yestxt = tr("Remove all");
+    notxt = tr("Keep SEGY files");
     return true;
 }
 

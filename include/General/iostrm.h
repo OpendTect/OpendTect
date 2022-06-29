@@ -39,7 +39,7 @@ public:
     bool		implReadOnly() const override;
     bool		implRemove() const override;
     bool		implSetReadOnly(bool) const override;
-    bool		implRename(const char*,const CallBack* cb=0) override;
+    bool		implRename(const char*) override;
     bool		implManagesObjects() const override
 			    { return false; }
 

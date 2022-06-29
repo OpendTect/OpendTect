@@ -167,10 +167,10 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
 }
 
 
-bool dgbSurvGeom2DTranslator::implRename( const IOObj* ioobj, const char* newnm,
-					  const CallBack* cb ) const
+bool dgbSurvGeom2DTranslator::implRename( const IOObj* ioobj,
+					  const char* newnm ) const
 {
-    const bool res = Translator::implRename( ioobj, newnm, cb );
+    const bool res = Translator::implRename( ioobj, newnm );
     if ( !res )
 	return false;
 

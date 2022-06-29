@@ -35,9 +35,10 @@ public:
     bool	goTo(const BinID&) override;
     int		bytesOverheadPerTrace() const override	{ return 52; }
 
-    bool	implRemove(const IOObj*) const override { return false; }
-    bool	implRename(const IOObj*,const char*,
-			   const CallBack*) const override { return false; }
+    bool	implIsLink(const IOObj*) const override { return true; }
+    bool	implRemove(const IOObj*,bool) const override { return false; }
+    bool	implRename(const IOObj*,const char*) const override
+							{ return false; }
     bool	implSetReadOnly(const IOObj*,bool) const override
 							{ return false; }
 

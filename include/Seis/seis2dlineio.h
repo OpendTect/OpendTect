@@ -135,12 +135,11 @@ public:
 			: SeisTrcTranslator(s1,s2)	{}
 
     const char*		defExtension() const override	{ return "2ds"; }
-    bool		implRemove(const IOObj*) const override;
+    bool		implRemove(const IOObj*,bool) const override;
     bool		initRead_() override;	//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&) override { return false; }
 
-    bool		implRename( const IOObj*,const char*,
-				    const CallBack* cb=0) const override;
+    bool		implRename( const IOObj*,const char*) const override;
 
 };
 
@@ -168,9 +167,8 @@ public:
 
     bool		isUserSelectable(bool) const override	{ return true; }
 
-    bool		implRemove(const IOObj*) const override;
-    bool		implRename(const IOObj*,const char*,
-				   const CallBack* =nullptr) const override;
+    bool		implRemove(const IOObj*,bool) const override;
+    bool		implRename(const IOObj*,const char*) const override;
 
     bool		getGeometryInfo(PosInfo::CubeData&) const override;
 

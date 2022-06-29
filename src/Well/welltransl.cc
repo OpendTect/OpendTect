@@ -50,7 +50,7 @@ mDefSimpleTranslatorioContext(Well,WllInf)
     extra; \
 }
 
-bool odWellTranslator::implRemove( const IOObj* ioobj ) const
+bool odWellTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     mImplStart(remove(false));
 
@@ -75,15 +75,15 @@ bool odWellTranslator::implRemove( const IOObj* ioobj ) const
     StreamProvider spnew( Well::odIO::mkFileName(newbnm,ext,nr) ); \
     spnew.addPathIfNecessary( pathnm ); \
     const bool exists = sp.exists( true ); \
-    if ( exists && !sp.rename(spnew.fileName(),cb) ) \
+    if ( exists && !sp.rename(spnew.fileName()) ) \
 	return false; \
     extra; \
 }
 
-bool odWellTranslator::implRename( const IOObj* ioobj, const char* newnm,
-				 const CallBack* cb ) const
+bool odWellTranslator::implRename( const IOObj* ioobj,
+				   const char* newnm ) const
 {
-    mImplStart(rename(newnm,cb));
+    mImplStart(rename(newnm));
 
     FilePath fp( filenm ); fp.setExtension( 0, true );
     const BufferString bnm = fp.fullPath();

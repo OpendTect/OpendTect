@@ -54,8 +54,7 @@ public:
     Survey::Geometry*	readGeometry(const IOObj&,uiString&) const override;
     bool		writeGeometry(IOObj&,Survey::Geometry&,
 				      uiString&) const override;
-    bool		implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const override;
+    bool		implRename(const IOObj*,const char*) const override;
 };
 
 
