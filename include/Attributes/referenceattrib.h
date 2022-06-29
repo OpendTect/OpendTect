@@ -30,7 +30,7 @@ Outputs 3D:
 4		Crossline position
 5		absolute sample number
 6		inline index		( taken from the first inline /
-7		crossline index		crossline / 
+7		crossline index		crossline /
 8		z index			z sample of the desired volume chosen )
 
 
@@ -56,6 +56,7 @@ public:
 
 protected:
 			~Reference() {}
+
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
@@ -68,9 +69,6 @@ protected:
 			    int t0,int nrsamples,int threadid) const override;
 
     bool		is2d_;
-    
-    const DataHolder*	inputdata_;
 };
 
-}; // namespace Attrib
-
+} // namespace Attrib

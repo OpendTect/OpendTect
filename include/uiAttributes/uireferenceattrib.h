@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 namespace Attrib { class Desc; };
 
-class uiImagAttrSel;
 class uiGenInput;
 
 /*! \brief Reference Attribute description editor */
@@ -28,21 +27,17 @@ public:
 
 protected:
 
-    uiAttrSel*          inpfld;
-    uiGenInput*		outpfld3d;
-    uiGenInput*		outpfld2d;
-
-    static const char*	outstrs3d[];
-    static const char*	outstrs2d[];
+    uiGenInput*		outpfld3d_	= nullptr;
+    uiGenInput*		outpfld2d_	= nullptr;
 
     bool		setParameters(const Attrib::Desc&);
-    bool                setInput(const Attrib::Desc&);
+    bool		setInput(const Attrib::Desc&);
     bool		setOutput(const Attrib::Desc&);
 
     bool		getOutput(Attrib::Desc&);
-    bool                getInput(Attrib::Desc&);
-    bool                getParameters(Attrib::Desc&);
+    bool		getInput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 

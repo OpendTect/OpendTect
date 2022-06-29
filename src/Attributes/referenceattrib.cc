@@ -26,10 +26,7 @@ void Reference::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    desc->addInput( InputSpec("Input Data",true) );
-
     desc->setLocality( Desc::SingleTrace );
-    desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }
 
@@ -58,8 +55,7 @@ bool Reference::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Reference::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs_[0]->getData( relpos, zintv );
-    return inputdata_;
+    return true;
 }
 
 

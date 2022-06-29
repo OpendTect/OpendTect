@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "survinfo.h"
 #include "uiattribfactory.h"
-#include "uiattrsel.h"
 #include "uigeninput.h"
 #include "od_helpids.h"
 
@@ -52,24 +51,23 @@ mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp())
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d, mODHelpKey(mReferenceAttribHelpID) )
-
+    : uiAttrDescEd(p,is2d,mODHelpKey(mReferenceAttribHelpID))
 {
     uiStringSet outpstrs3d, outpstrs2d;
     getOutputNames( outpstrs3d, outpstrs2d );
-    inpfld = createInpFld( is2d );
 
-    outpfld3d = new uiGenInput( this, tr("Desired Output"),
-                                StringListInpSpec(outpstrs3d) );
-    outpfld3d->attach( alignedBelow, inpfld );
-    outpfld3d->display( !is2d_ );
-
-    outpfld2d = new uiGenInput( this, tr("Desired Output"),
-				StringListInpSpec(outpstrs2d) );
-    outpfld2d->attach( alignedBelow, inpfld );
-    outpfld2d->display( is2d_ );
-
-    setHAlignObj( outpfld3d );
+    if ( is2d )
+    {
+	outpfld2d_ = new uiGenInput( this, tr("Desired Output"),
+				     StringListInpSpec(outpstrs2d) );
+	setHAlignObj( outpfld2d_ );
+    }
+    else
+    {
+	outpfld3d_ = new uiGenInput( this, tr("Desired Output"),
+				     StringListInpSpec(outpstrs3d) );
+	setHAlignObj( outpfld3d_ );
+    }
 }
 
 
@@ -79,25 +77,27 @@ bool uiReferenceAttrib::setParameters( const Attrib::Desc& desc )
 }
 
 
-bool uiReferenceAttrib::setInput( const Attrib::Desc& desc )
+bool uiReferenceAttrib::setInput( const Attrib::Desc& )
 {
-    putInp( inpfld, desc, 0 );
     return true;
 }
 
 
 bool uiReferenceAttrib::setOutput( const Desc& desc )
 {
-    is2d_ ? outpfld2d->setValue( desc.selectedOutput() ) :
-	    outpfld3d->setValue( desc.selectedOutput() );
+    uiGenInput* fld = is2d_ ? outpfld2d_ : outpfld3d_;
+    if ( fld )
+	fld->setValue( desc.selectedOutput() );
+
     return true;
 }
 
 
 bool uiReferenceAttrib::getOutput( Desc& desc )
 {
-    is2d_ ? fillOutput( desc, outpfld2d->getIntValue() ) :
-	    fillOutput( desc, outpfld3d->getIntValue() );
+    uiGenInput* fld = is2d_ ? outpfld2d_ : outpfld3d_;
+    if ( fld )
+	fillOutput( desc, fld->getIntValue() );
 
     return true;
 }
@@ -109,8 +109,7 @@ bool uiReferenceAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiReferenceAttrib::getInput( Attrib::Desc& desc )
+bool uiReferenceAttrib::getInput( Attrib::Desc& )
 {
-    fillInp( inpfld, desc, 0 );
     return true;
 }
