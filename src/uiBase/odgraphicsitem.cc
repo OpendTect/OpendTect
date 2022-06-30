@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "odgraphicsitem.h"
 
 #include "enums.h"
+#include "envvars.h"
 #include "geometry.h"
 #include "uifont.h"
 #include "uimain.h"
@@ -79,9 +80,10 @@ static float getNrPixelsFromPoints( int nrpts, const QPainter* painter )
 // ODGraphicsPointItem
 ODGraphicsPointItem::ODGraphicsPointItem()
     : QAbstractGraphicsShapeItem()
-    , highlight_(false)
-    , penwidth_(2)
-    , pencolor_(OD::Color::Black())
+{}
+
+
+ODGraphicsPointItem::~ODGraphicsPointItem()
 {}
 
 
@@ -94,7 +96,7 @@ QRectF ODGraphicsPointItem::boundingRect() const
 
 void ODGraphicsPointItem::paint( QPainter* painter,
 				 const QStyleOptionGraphicsItem* option,
-				 QWidget *widget )
+				 QWidget* widget )
 {
     painter->setPen( pen() );
     drawPoint( painter );
@@ -142,7 +144,6 @@ void ODGraphicsPointItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     : QAbstractGraphicsShapeItem()
     , mstyle_(new MarkerStyle2D())
-    , fill_(false)
 {
     setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
 }
@@ -412,6 +413,80 @@ ODGraphicsTextItem::ODGraphicsTextItem()
 }
 
 
+QRectF getTextRect( const ODGraphicsTextItem* itm )
+{
+    QFontMetrics qfm( itm->font() );
+    const QRectF textrect = qfm.boundingRect( itm->toPlainText() );
+    const double textwidth = textrect.width();
+    const double textheight = textrect.height();
+
+    QRectF ret = textrect;
+    switch ( itm->getAlignment().hPos() )
+    {
+	case Alignment::Left: break; // default
+	case Alignment::Right: ret.translate( -textwidth, 0 ); break;
+	case Alignment::HCenter: ret.translate( -textwidth/2, 0 ); break;
+    }
+
+    switch ( itm->getAlignment().vPos() )
+    {
+	case Alignment::Top: break; // default
+	case Alignment::Bottom: ret.translate( 0, -textheight ); break;
+	case Alignment::VCenter: ret.translate( 0, -textheight/2 ); break;
+    }
+
+    return ret;
+}
+
+
+QRectF ODGraphicsTextItem::boundingRect() const
+{
+    QRectF br = QGraphicsTextItem::boundingRect();
+    if ( !ownpaint_ )
+	return br;
+
+    QRectF newbr = getTextRect( this );
+    return newbr;
+}
+
+
+void ODGraphicsTextItem::paint( QPainter* painter,
+				const QStyleOptionGraphicsItem* itm,
+				QWidget* qw )
+{
+    if ( !ownpaint_ )
+    {
+	QGraphicsTextItem::paint( painter, itm, qw );
+	return;
+    }
+
+/*
+    const QTransform& transform = painter->transform();
+    qreal m11 = transform.m11();    // Horizontal scaling
+    qreal m12 = transform.m12();    // Vertical shearing
+    qreal m13 = transform.m13();    // =0 Horizontal Projection
+    qreal m21 = transform.m21();    // Horizontal shearing
+    qreal m22 = transform.m22();    // vertical scaling
+    qreal m23 = transform.m23();    // =0 Vertical Projection
+    qreal m31 = transform.m31();    // Horizontal Position (DX)
+    qreal m32 = transform.m32();    // Vertical Position (DY)
+    qreal m33 = transform.m33();    // =1 Addtional Projection Factor
+*/
+
+
+    static bool showtextbb = GetEnvVarYN( "OD_SHOW_TEXT_BOX" );
+    if ( showtextbb )
+    {
+	const QRectF br = getTextRect( this );
+	painter->drawText( br, Qt::AlignCenter, toPlainText() );
+	painter->drawRect( br );
+    }
+
+    painter->save();
+    painter->restore();
+}
+
+
 void ODGraphicsTextItem::setCentered()
 {
     document()->setDefaultTextOption( QTextOption(Qt::AlignCenter) );
@@ -466,13 +541,11 @@ void ODGraphicsAdvancedTextItem::contextMenuEvent(
 // ODGraphicsPixmapItem
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
     : QGraphicsPixmapItem()
-    , paintincenter_(false)
 {}
 
 
 ODGraphicsPixmapItem::ODGraphicsPixmapItem( const uiPixmap& pm )
     : QGraphicsPixmapItem(*pm.qpixmap())
-    , paintincenter_(false)
 {}
 
 
@@ -622,7 +695,6 @@ void ODGraphicsPolyLineItem::unHighlight()
 // ODGraphicsMultiColorPolyLineItem
 ODGraphicsMultiColorPolyLineItem::ODGraphicsMultiColorPolyLineItem()
     : QAbstractGraphicsShapeItem()
-    , highlight_(false)
 {}
 
 
@@ -849,9 +921,6 @@ void ODGraphicsItemGroup::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
     , bbox_( 0, 0, 1, 1 )
-    , updatedynpixmap_( false )
-    , updatebasepixmap_( false )
-    , issnapshot_( false )
 {
     baserev_[0] = baserev_[1] = dynamicrev_[0] = dynamicrev_[1] = false;
 }
@@ -1166,7 +1235,7 @@ void ODGraphicsWellSymbolItem::paint( QPainter* painter,
 
 void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 {
-    const float sz = getNrPixelsFromPoints( wellsymbol_.size_, &painter );
+    const double sz = getNrPixelsFromPoints( wellsymbol_.size_, &painter );
 
     QPen qpen = pen();
     qpen.setColor( QColor(QRgb(wellsymbol_.color_.rgb())) );
@@ -1191,14 +1260,14 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
 	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
 	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2*sz, -M_SQRT1_2*sz,
+				      -M_SQRT1_2*sz/2, -M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2*sz, M_SQRT1_2*sz,
+				      -M_SQRT1_2*sz/2, M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2*sz, M_SQRT1_2*sz,
+				      M_SQRT1_2*sz/2, M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2*sz, -M_SQRT1_2*sz,
+				      M_SQRT1_2*sz/2, -M_SQRT1_2*sz/2 ) );
 	    break;
 
 	case OD::OilGasWell:
@@ -1208,14 +1277,14 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
 	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
 	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2*sz, -M_SQRT1_2*sz,
+				      -M_SQRT1_2*sz/2, -M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2*sz, M_SQRT1_2*sz,
+				      -M_SQRT1_2*sz/2, M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2*sz, M_SQRT1_2*sz,
+				      M_SQRT1_2*sz/2, M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2*sz, -M_SQRT1_2*sz,
+				      M_SQRT1_2*sz/2, -M_SQRT1_2*sz/2 ) );
 	    break;
 
 	case OD::DryHole:
@@ -1238,10 +1307,10 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
 	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
 	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2*sz, -M_SQRT1_2*sz,
+				      -M_SQRT1_2*sz/2, -M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2*sz, M_SQRT1_2*sz,
+				      M_SQRT1_2*sz/2, M_SQRT1_2*sz/2 ) );
 	    painter.drawLine( QLineF( sz, -sz, -sz, sz ) );
 	    break;
 
@@ -1252,10 +1321,10 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
 	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
 	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2*sz, -M_SQRT1_2*sz,
+				      -M_SQRT1_2*sz/2, -M_SQRT1_2*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2*sz, M_SQRT1_2*sz,
+				      M_SQRT1_2*sz/2, M_SQRT1_2*sz/2 ) );
 	    painter.drawLine( QLineF( sz, -sz, -sz, sz ) );
 	    break;
 

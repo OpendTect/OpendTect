@@ -317,11 +317,11 @@ void uiBaseMapObject::update()
 	    const FontData fontdata = bmobject_->getFont( idx );
 	    itm->setFontData( fontdata );
 
-	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
-	    itm->setTextRotation( -angle );
-
 	    const Coord offset = bmobject_->getTextOffset( idx );
 	    itm->setPos( txtpos+offset );
+
+	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
+	    itm->setTextRotation( -angle );
 
 	    labelitemnr++;
 	}

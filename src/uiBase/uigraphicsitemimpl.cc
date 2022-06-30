@@ -739,49 +739,61 @@ void uiTextItem::setAlignment( const Alignment& al )
 void uiTextItem::stPos( float x, float y )
 {
     const Alignment al = qtextitem_->getAlignment();
-    if ( !isItemIgnoresTransformationsEnabled() )
+    QRectF boundrec = qtextitem_->boundingRect();
+    switch( al.hPos() )
     {
-	QRectF boundrec = qtextitem_->boundingRect();
-	switch( al.hPos() )
-	{
-	case Alignment::Left:
-	    boundrec.translate( 0., 0. );
-	    break;
-	case Alignment::HCenter:
-	    boundrec.translate( -boundrec.width()/2., 0. );
-	    break;
-	case Alignment::Right:
-	    boundrec.translate( -boundrec.width(), 0. );
-	    break;
-	}
+    case Alignment::Left:
+	boundrec.translate( 0., 0. );
+	break;
+    case Alignment::HCenter:
+	boundrec.translate( -boundrec.width()/2., 0. );
+	break;
+    case Alignment::Right:
+	boundrec.translate( -boundrec.width(), 0. );
+	break;
+    }
 
-	switch( al.vPos() )
-	{
-	case Alignment::Top:
-	    boundrec.translate( 0., 0. );
-	    break;
-	case Alignment::VCenter:
-	    boundrec.translate( 0., -boundrec.height()/2. );
-	    break;
-	case Alignment::Bottom:
-	    boundrec.translate( 0., -boundrec.height() );
-	    break;
-	}
+    switch( al.vPos() )
+    {
+    case Alignment::Top:
+	boundrec.translate( 0., 0. );
+	break;
+    case Alignment::VCenter:
+	boundrec.translate( 0., -boundrec.height()/2. );
+	break;
+    case Alignment::Bottom:
+	boundrec.translate( 0., -boundrec.height() );
+	break;
+    }
 
-	const QPointF p00 = qtextitem_->mapToParent( QPointF(0,0) );
-	const QPointF d01 = qtextitem_->mapToParent( QPointF(0,1) )-p00;
-	const QPointF d10 = qtextitem_->mapToParent( QPointF(1,0) )-p00;
+    const bool ignorestf = isItemIgnoresTransformationsEnabled();
+    if ( ignorestf )
+    {
+	qtextitem_->overrulePaint( true );
+	qtextitem_->setPos( x, y );
+	/*
+	const QPointF p00 = qtextitem_->mapToScene( QPointF(0,0) );
+	qtextitem_->setTransformOriginPoint( boundrec.center() );
+	const QPointF newscenept = p00 + boundrec.topLeft();
+	const QPointF newxypt = qtextitem_->mapFromScene( newscenept );
+	qtextitem_->setPos( x+newxypt.x(), y+newxypt.y() );
+	*/
+    }
+    else
+    {
+	const QPointF p00 = qtextitem_->mapToScene( QPointF(0,0) );
+	const QPointF d01 = qtextitem_->mapToScene( QPointF(0,1) )-p00;
+	const QPointF d10 = qtextitem_->mapToScene( QPointF(1,0) )-p00;
 
 	const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
 	const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
 
-	const float xlin = x+mCast(float,boundrec.left())*xdist;
-	const float ylin = y+mCast(float,boundrec.top())*ydist;
+	const float xlin = x+sCast(float,boundrec.left())*xdist;
+	const float ylin = y+sCast(float,boundrec.top())*ydist;
+
 	qtextitem_->setTransformOriginPoint( boundrec.center() );
 	uiGraphicsItem::stPos( xlin, ylin );
     }
-    else
-	uiGraphicsItem::stPos( x, y );
 }
 
 
@@ -870,6 +882,12 @@ void uiAdvancedTextItem::setDefaultTextColor( const OD::Color& col )
 }
 
 
+void uiAdvancedTextItem::setFont( const uiFont& ft )
+{
+    qtextitem_->setFont( ft.qFont() );
+}
+
+
 void uiAdvancedTextItem::setFont( const FontData& fd )
 {
     QFont qfont;
@@ -907,35 +925,44 @@ QGraphicsItem* uiAdvancedTextItem::mkQtObj()
 
 void uiAdvancedTextItem::stPos( float x, float y )
 {
-    if ( !isItemIgnoresTransformationsEnabled() )
+    QRectF boundrec = qtextitem_->boundingRect();
+    switch( al_.hPos() )
     {
-	QRectF boundrec = qtextitem_->boundingRect();
-	switch( al_.hPos() )
-	{
-	case Alignment::Left:
-	    boundrec.translate( 0., 0. );
-	    break;
-	case Alignment::HCenter:
-	    boundrec.translate( -boundrec.width()/2., 0. );
-	    break;
-	case Alignment::Right:
-	    boundrec.translate( -boundrec.width(), 0. );
-	    break;
-	}
+    case Alignment::Left:
+	boundrec.translate( 0., 0. );
+	break;
+    case Alignment::HCenter:
+	boundrec.translate( -boundrec.width()/2., 0. );
+	break;
+    case Alignment::Right:
+	boundrec.translate( -boundrec.width(), 0. );
+	break;
+    }
 
-	switch( al_.vPos() )
-	{
-	case Alignment::Top:
-	    boundrec.translate( 0., 0. );
-	    break;
-	case Alignment::VCenter:
-	    boundrec.translate( 0., -boundrec.height()/2. );
-	    break;
-	case Alignment::Bottom:
-	    boundrec.translate( 0., -boundrec.height() );
-	    break;
-	}
+    switch( al_.vPos() )
+    {
+    case Alignment::Top:
+	boundrec.translate( 0., 0. );
+	break;
+    case Alignment::VCenter:
+	boundrec.translate( 0., -boundrec.height()/2. );
+	break;
+    case Alignment::Bottom:
+	boundrec.translate( 0., -boundrec.height() );
+	break;
+    }
 
+    if ( isItemIgnoresTransformationsEnabled() )
+    {
+	qtextitem_->setPos( x, y );
+	const QPointF p00 = qtextitem_->mapToScene( QPointF(0,0) );
+	qtextitem_->setTransformOriginPoint( boundrec.center() );
+	const QPointF newscenept = p00 + boundrec.topLeft();
+	const QPointF newxypt = qtextitem_->mapFromScene( newscenept );
+	qtextitem_->setPos( x+newxypt.x(), y+newxypt.y() );
+    }
+    else
+    {
 	const QPointF p00 = qtextitem_->mapToParent( QPointF(0,0) );
 	const QPointF d01 = qtextitem_->mapToParent( QPointF(0,1) )-p00;
 	const QPointF d10 = qtextitem_->mapToParent( QPointF(1,0) )-p00;
@@ -947,8 +974,6 @@ void uiAdvancedTextItem::stPos( float x, float y )
 	const float ylin = y+mCast(float,boundrec.top())*ydist;
 	uiGraphicsItem::stPos( xlin, ylin );
     }
-    else
-	uiGraphicsItem::stPos( x, y );
 }
 
 

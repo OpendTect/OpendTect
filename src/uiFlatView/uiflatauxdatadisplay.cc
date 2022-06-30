@@ -219,6 +219,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	if ( !nameitem_ )
 	{
 	    nameitem_ = new uiTextItem;
+	    nameitem_->setItemIgnoresTransformations( true );
 	    display_->add( nameitem_ );
 	}
 
@@ -244,7 +245,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 }
 
 
-void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
+void uiAuxDataDisplay::updateTransformCB( CallBacker* )
 {
     //The aux-data is sitting in the viewer's world space.
     //If we have own axes, we need to set the transform
@@ -263,7 +264,7 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 	else if ( namepos_ == Center )
 	    listpos = poly_.size()-2;
 
-	FlatView::Point modnamepos = mCast(FlatView::Point,poly_[listpos]);
+	FlatView::Point modnamepos = sCast(FlatView::Point,poly_[listpos]);
 
 	Interval<float> vwrxrg;
 	vwrxrg.start = sCast(float,curview.topLeft().x);

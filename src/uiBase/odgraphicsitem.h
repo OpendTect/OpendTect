@@ -30,8 +30,8 @@ static int ODGraphicsType = 100000;
 class ODGraphicsHighlightItem
 {
 public:
-    virtual void		highlight()	{}
-    virtual void		unHighlight()	{}
+    virtual void		highlight()		= 0;
+    virtual void		unHighlight()		= 0;
 
     virtual void		setQPen(const QPen&)	{}
 };
@@ -41,10 +41,11 @@ class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
 				ODGraphicsPointItem();
+				~ODGraphicsPointItem();
 
-    QRectF			boundingRect() const;
+    QRectF			boundingRect() const override;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+				      QWidget*) override;
 
     void			drawPoint(QPainter*);
     void			setHighLight( bool hl )
@@ -52,13 +53,15 @@ public:
     void			setColor( const OD::Color& col )
 				{ pencolor_ = col ; }
 
-    virtual int			type() const	{ return ODGraphicsType+1; }
+    int				type() const override
+				{ return ODGraphicsType+1; }
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    bool			highlight_;
-    int				penwidth_;
-    OD::Color			pencolor_;
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
+    bool			highlight_	= false;
+    int				penwidth_	= 2;
+    OD::Color			pencolor_	= OD::Color::Black();
 };
 
 
@@ -69,28 +72,32 @@ public:
 				ODGraphicsMarkerItem();
     virtual			~ODGraphicsMarkerItem();
 
-    QRectF			boundingRect() const;
+    QRectF			boundingRect() const override;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+				      QWidget*) override;
     static void			drawMarker(QPainter&,MarkerStyle2D::Type,
 					   float,float);
 
+    const MarkerStyle2D*	getMarkerStyle() { return mstyle_; }
     void			setMarkerStyle(const MarkerStyle2D&);
+
     void			setFill( bool fill )	  { fill_ = fill; }
     void			setFillColor( const OD::Color& col )
 				{ fillcolor_ = col; }
     void			setSideLength( int side ) { side_ = side; }
 
-    virtual int			type() const	{ return ODGraphicsType+2; }
-    const MarkerStyle2D*	getMarkerStyle() { return mstyle_; }
+    int				type() const override
+				{ return ODGraphicsType+2; }
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
+
     QRectF			boundingrect_;
     MarkerStyle2D*		mstyle_;
-    OD::Color			fillcolor_;
-    bool			fill_;
-    int				side_;
+    OD::Color			fillcolor_		= OD::Color::White();
+    bool			fill_			= false;
+    int				side_			= 1;
 };
 
 
@@ -101,18 +108,22 @@ public:
 				ODGraphicsPixmapItem(const uiPixmap&);
 
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+				      QWidget*) override;
 
-    virtual int			type() const	{ return ODGraphicsType+3; }
     void			setPaintInCenter(bool);
 
+    int				type() const override
+				{ return ODGraphicsType+3; }
+
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
-    virtual void		hoverLeaveEvent(QGraphicsSceneHoverEvent*);
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
+    void			hoverEnterEvent(
+					QGraphicsSceneHoverEvent*) override;
+    void			hoverLeaveEvent(
+					QGraphicsSceneHoverEvent*) override;
 
-    bool			paintincenter_;
-
+    bool			paintincenter_		= false;
 };
 
 
@@ -121,9 +132,9 @@ class ODGraphicsArrowItem : public QAbstractGraphicsShapeItem
 public:
 				ODGraphicsArrowItem();
 
-    QRectF			boundingRect() const;
+    QRectF			boundingRect() const override;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+				      QWidget*) override;
 
     void			drawArrow(QPainter&);
     double			getAddedAngle(double,float);
@@ -132,21 +143,23 @@ public:
 					      const QPoint&);
     void			setArrowStyle( const ArrowStyle& arrowstyle )
 				{ arrowstyle_ = arrowstyle ; }
-    void			setArrowSize( const int arrowsz )
+    void			setArrowSize( int arrowsz )
 				{ arrowsz_ = arrowsz ; }
     void			setLineStyle(QPainter&,const OD::LineStyle&);
 
-    virtual int			type() const	{ return ODGraphicsType+4; }
+    int				type() const override
+				{ return ODGraphicsType+4; }
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
 
     ArrowStyle			arrowstyle_;
-    int				arrowsz_;
+    int				arrowsz_		= 1;
 };
 
 
-class ODGraphicsTextItem  : public QGraphicsTextItem
+class ODGraphicsTextItem : public QGraphicsTextItem
 {
 public:
 			ODGraphicsTextItem();
@@ -154,12 +167,20 @@ public:
     void		setCentered();
     void		setAlignment( const Alignment& al )	{ al_ = al; }
     Alignment		getAlignment() const			{ return al_; }
+    void		overrulePaint( bool yn )	{ ownpaint_ = yn; }
+
+    QRectF		boundingRect() const override;
 
 protected:
-    virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    virtual void	contextMenuEvent(QGraphicsSceneContextMenuEvent*);
+    void		mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
+    void		contextMenuEvent(
+				QGraphicsSceneContextMenuEvent*) override;
 
+    void		paint(QPainter*,const QStyleOptionGraphicsItem*,
+				QWidget*) override;
     Alignment		al_;
+
+    bool		ownpaint_		= false;
 };
 
 
@@ -169,8 +190,9 @@ public:
 			ODGraphicsAdvancedTextItem(bool);
 
 protected:
-    virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    virtual void	contextMenuEvent(QGraphicsSceneContextMenuEvent*);
+    void		mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
+    void		contextMenuEvent(
+				QGraphicsSceneContextMenuEvent*) override;
 };
 
 
@@ -182,11 +204,11 @@ public:
 				~ODGraphicsPathItem();
 
     void			set(const QPainterPath&);
-    QPainterPath		shape() const;
+    QPainterPath		shape() const override;
 
-    void			setQPen(const QPen& pen);
-    void			highlight();
-    void			unHighlight();
+    void			setQPen(const QPen& pen) override;
+    void			highlight() override;
+    void			unHighlight() override;
 
 protected:
     QPainterPath		path_;
@@ -201,24 +223,26 @@ public:
 				ODGraphicsPolyLineItem();
 				~ODGraphicsPolyLineItem();
 
-    QRectF			boundingRect() const;
+    QRectF			boundingRect() const override;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
-    QPainterPath		shape() const;
+				      QWidget*) override;
+    QPainterPath		shape() const override;
 
     void			setPolyLine(const QPolygonF&,bool closed);
     void			setFillRule(Qt::FillRule);
     bool			isEmpty() const;
     void			setEmpty();
 
-    void			setQPen(const QPen& pen);
-    void			highlight();
-    void			unHighlight();
+    void			setQPen(const QPen&) override;
+    void			highlight() override;
+    void			unHighlight() override;
 
-    virtual int			type() const	{ return ODGraphicsType+6; }
+    int				type() const override
+				{ return ODGraphicsType+6; }
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
 
     bool			closed_;
     QPolygonF			qpolygon_;
@@ -235,20 +259,21 @@ public:
 				ODGraphicsMultiColorPolyLineItem();
 				~ODGraphicsMultiColorPolyLineItem();
 
-    QRectF			boundingRect() const;
+    QRectF			boundingRect() const override;
     void			paint(QPainter*,
 				      const QStyleOptionGraphicsItem*,
-				      QWidget*);
-    QPainterPath		shape() const;
+				      QWidget*) override;
+    QPainterPath		shape() const override;
 
     void			setPolyLine(const QPolygonF&);
     void			setQPens(const QVector<QPen>&);
     void			setPenWidth(int);
 
-    void			highlight()	{ highlight_ = true; }
-    void			unHighlight()	{ highlight_ = false; }
+    void			highlight() override	{ highlight_ = true; }
+    void			unHighlight() override	{ highlight_ = false; }
 
-    virtual int			type() const	{ return ODGraphicsType+8; }
+    int				type() const override
+				{ return ODGraphicsType+8; }
 
 protected:
 
@@ -264,10 +289,11 @@ protected:
 				    void		setWidth(int);
 				};
 
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
     void			cleanupPolygon();
 
-    bool			highlight_;
+    bool			highlight_		= false;
     QPolygonF			inputqpolygon_;
     QVector<QPen>		inputqpens_;
     QVector<ODLineSegment>	odlinesegments_;
@@ -279,13 +305,13 @@ protected:
 class ODGraphicsItemGroup : public QGraphicsItemGroup
 {
 public:
-				ODGraphicsItemGroup();
+			ODGraphicsItemGroup();
 
-    QRectF			boundingRect() const;
-    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+    QRectF		boundingRect() const override;
+    void		paint(QPainter*,const QStyleOptionGraphicsItem*,
+				QWidget*) override;
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void		mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
 
 };
 
@@ -295,9 +321,9 @@ class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
 public:
 				ODGraphicsDynamicImageItem();
 
-    QRectF			boundingRect() const { return bbox_; }
+    QRectF			boundingRect() const override { return bbox_; }
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+				      QWidget*) override;
 
     void			setImage(bool isdynamic,const QImage&,
 					 const QRectF&);
@@ -305,7 +331,8 @@ public:
     const QRectF&		wantedWorldRect() const;
     const QSize&		wantedScreenSize() const;
 
-    virtual int			type() const	{ return ODGraphicsType+7; }
+    int				type() const override
+				{ return ODGraphicsType+7; }
 
     Notifier<ODGraphicsDynamicImageItem>	wantsData;
     bool					isSnapshot() const;
@@ -315,22 +342,23 @@ public:
 						   requested image. */
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void			mouseMoveEvent(
+					QGraphicsSceneMouseEvent*) override;
 
     QRectF			wantedwr_;
     QSize			wantedscreensz_;
 
     QMutex			imagelock_;
     QWaitCondition		imagecond_;
-    bool			updatedynpixmap_;
+    bool			updatedynpixmap_	= false;
     QImage			dynamicimage_;
     QRectF			dynamicimagebbox_;
     bool			dynamicrev_[2];
-    bool			updatebasepixmap_;
+    bool			updatebasepixmap_	= false;
     QImage			baseimage_;
     QRectF			bbox_;
     bool			baserev_[2];
-    bool			issnapshot_;
+    bool			issnapshot_		= false;
 
     PtrMan<QPixmap>		basepixmap_;	//Only access in paint
     PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
@@ -345,9 +373,9 @@ public:
 				ODGraphicsWellSymbolItem();
     virtual			~ODGraphicsWellSymbolItem();
 
-    QRectF			boundingRect() const;
+    QRectF			boundingRect() const override;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
+				      QWidget*) override;
 
     void			setWellSymbol(const WellSymbol&);
     const WellSymbol&		getWellSymbol() const;
@@ -356,7 +384,8 @@ public:
     void			setFontColor(const OD::Color&,OD::Edge);
     void			setLabelText(const uiString&,OD::Edge);
 
-    virtual int			type() const	{ return ODGraphicsType+10; }
+    int				type() const override
+				{ return ODGraphicsType+10; }
 
 protected:
 
@@ -383,6 +412,5 @@ protected:
     const LabelData&		getLabelData(OD::Edge) const;
 
 };
-
 
 #endif
