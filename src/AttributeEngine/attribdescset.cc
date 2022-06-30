@@ -346,13 +346,16 @@ void DescSet::fillPar( IOPar& par ) const
 	if ( !dsc.getDefStr(defstr) )
 	    continue;
 
-	const MultiID storeid( dsc.getStoredID( true ) );
-	if ( storeid.isInMemoryID() )
-	    continue;
+	if ( dsc.isStored() || dsc.nrInputs()>0 )
+	{
+	    const MultiID storeid( dsc.getStoredID(true) );
+	    if ( storeid.isInMemoryID() )
+		continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( storeid );
-	if ( !ioobj )
-	    continue;
+	    PtrMan<IOObj> ioobj = IOM().get( storeid );
+	    if ( !ioobj )
+		continue;
+	}
 
 	apar.set( definitionStr(), defstr );
 
@@ -365,7 +368,8 @@ void DescSet::fillPar( IOPar& par ) const
 
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
-	    if ( !dsc.getInput(input) ) continue;
+	    if ( !dsc.getInput(input) )
+		continue;
 
 	    const char* key = IOPar::compKey( inputPrefixStr(), input );
 	    apar.set( key, getID( *dsc.getInput(input) ).asInt() );
@@ -373,7 +377,8 @@ void DescSet::fillPar( IOPar& par ) const
 
 	par.mergeComp( apar, BufferString("",ids_[idx].asInt()) );
 
-	if ( ids_[idx].asInt() > maxid ) maxid = ids_[idx].asInt();
+	if ( ids_[idx].asInt() > maxid )
+	    maxid = ids_[idx].asInt();
     }
 
     par.set( highestIDStr(), maxid );
