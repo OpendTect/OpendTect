@@ -495,7 +495,7 @@ bool Processor::setZIntervalsSpecial60(
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[idx] );
-	bool wantsout = !tkey.isUdf() && taboutp
+	bool wantsout = !tkey.isUdf() && taboutp && is2d_
 			   ? taboutp->wantsOutput(tkey)
 			   : outputs_[idx]->useCoords()
 				? outputs_[idx]->wantsOutput(curcoords)
