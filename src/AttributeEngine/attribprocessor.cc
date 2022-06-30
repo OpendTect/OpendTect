@@ -508,7 +508,7 @@ bool Processor::setZIntervalsSpecial60(
 	    continue;
 
 	const float refzstep = provider_->getRefStep();
-	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp
+	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp && is2d_
 	    ? taboutp->getLocalZRanges( tkey, refzstep, exactz )
 	    : outputs_[idx]->useCoords()
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )

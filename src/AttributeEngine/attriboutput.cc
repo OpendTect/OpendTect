@@ -1153,6 +1153,16 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 }
 
 
+TableOutput::~TableOutput()
+{}
+
+
+bool TableOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
+{
+    return datapointset_.getRange( tkzs );
+}
+
+
 void TableOutput::initPairsTable()
 {
     arebiddupl_ = false;
@@ -1285,7 +1295,7 @@ void TableOutput::collectDataSpecial60( const DataHolder& data,
 {
     DataPointSet::RowID rid = -1;
     int pairidx = -1;
-    if ( !tkey.isUdf() )	//95% of the cases
+    if ( !tkey.isUdf() && datapointset_.is2D() )
     {
 	bool foundamatch = false;
 	for ( pairidx=0; pairidx<parpset_.size(); pairidx++ )

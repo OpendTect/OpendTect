@@ -368,11 +368,10 @@ mExpClass(AttributeEngine) TableOutput : public Output
 {
 public:
 				TableOutput(DataPointSet&,int);
-				~TableOutput() {};
+				~TableOutput();
 
     bool			getDesiredVolume(
-					TrcKeyZSampling&) const override
-				{ return true;}
+					TrcKeyZSampling&) const override;
 
     bool			useCoords() const override;
     bool			wantsOutput(const BinID&) const override;
