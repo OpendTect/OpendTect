@@ -109,7 +109,7 @@ void adjustSteeringScaler()
     if ( zuom && zdef.isDepth() )
 	zstep = zuom->getSIValue( zstep );
 
-    const UnitOfMeasure* zdipuom = zdef.isDepth() ? UoMR().get( "Millimeters" )
+    const UnitOfMeasure* zdipuom = zdef.isDepth() ? UoMR().get( "Millimeter" )
 						  : UoMR().get( "Microseconds");
     const UnitOfMeasure* targetzuom = zdipuom;
     if ( targetzuom )
