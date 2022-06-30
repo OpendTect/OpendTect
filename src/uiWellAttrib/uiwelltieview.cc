@@ -150,10 +150,11 @@ void uiTieView::initLogViewers()
     logdispgrp_->setBorder(0);
     for ( int idx=0; idx<2; idx++ )
     {
-	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
+	uiWellLogDisplay::Setup wldsu;
+	wldsu.nrmarkerchars(3);
+	wldsu.border( uiBorder(15,10,10,10) );
 	uiWellLogDisplay* logdisp = new uiWellLogDisplay( logdispgrp_, wldsu );
 	logsdisp_ += logdisp;
-	logdisp->setSceneBorder( 2 );
 	logdisp->setPrefWidth( vwr_->prefHNrPics()/2 );
 	logdisp->setPrefHeight( vwr_->prefVNrPics() );
 	logdisp->disableScrollZoom();

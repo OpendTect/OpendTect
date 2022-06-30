@@ -474,8 +474,13 @@ bool uiTieWinMGRDlg::initSetup()
     {
 	uiTieWin* win = welltiedlgset_[idx];
 	if ( win->welltieSetup().wellid_ == wellid )
-	    mErrRet( tr("A window with this well is already opened") )
+	{
+	    win->raise();
+	    win->show();
+	    return false;
+	}
     }
+
     wtsetup_.wellid_ = wellid;
 
     const bool is2d = selIs2D();
