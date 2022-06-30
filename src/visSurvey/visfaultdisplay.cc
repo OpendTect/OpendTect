@@ -69,7 +69,6 @@ FaultDisplay::FaultDisplay()
     : MultiTextureSurveyObject()
     , StickSetDisplay( false )
     , activestickmarker_( visBase::PolyLine3D::create() )
-    , validtexture_( false )
     , paneldisplay_( 0 )
     , stickdisplay_( 0 )
     , intersectiondisplay_( 0 )
@@ -83,7 +82,6 @@ FaultDisplay::FaultDisplay()
     , activestick_( mUdf(int) )
     , colorchange( this )
     , displaymodechange( this )
-    , usestexture_( true )
     , displaypanels_( true )
     , displayintersections_( false )
     , displayhorintersections_( false )
@@ -511,16 +509,10 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 }
 
 
-bool FaultDisplay::usesTexture() const
-{ return usestexture_; }
-
-
-bool FaultDisplay::showsTexture() const
-{ return canShowTexture() && usesTexture(); }
-
-
 bool FaultDisplay::canShowTexture() const
-{ return validtexture_ && isAnyAttribEnabled() && arePanelsDisplayedInFull(); }
+{
+    return validtexture_ && isAnyAttribEnabled() && arePanelsDisplayedInFull();
+}
 
 
 OD::Color FaultDisplay::getColor() const

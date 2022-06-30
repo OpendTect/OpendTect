@@ -38,16 +38,7 @@ namespace visSurvey
 
 MarchingCubesDisplay::MarchingCubesDisplay()
     : VisualObjectImpl(true)
-    , emsurface_( 0 )
-    , displaysurface_( 0 )
-    , impbody_( 0 )
-    , displayintersections_( false )
-    , model2displayspacetransform_( 0 )
-    , intersectiontransform_( 0 )
-    , validtexture_( false )
-    , usestexture_( true )
-    , isattribenabled_( true )
-	, selspecs_(1, Attrib::SelSpec())
+    , selspecs_(1,Attrib::SelSpec())
 {
     cache_.allowNull( true );
     setColor( OD::getRandomColor(false) );
@@ -83,7 +74,7 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 }
 
 
-void MarchingCubesDisplay::useTexture( bool yn )
+void MarchingCubesDisplay::useTexture( bool yn, bool trigger )
 {
     usestexture_ = displaysurface_ && yn;
     updateSingleColor();
@@ -100,18 +91,6 @@ void MarchingCubesDisplay::updateSingleColor()
 {
     if ( displaysurface_ )
 	displaysurface_->getShape()->enableColTab( showsTexture() );
-}
-
-
-bool MarchingCubesDisplay::usesTexture() const
-{
-    return usestexture_;
-}
-
-
-bool MarchingCubesDisplay::showsTexture() const
-{
-    return canShowTexture() && usesTexture();
 }
 
 
@@ -856,7 +835,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 
 	if ( planepresent ) continue;
 
-	PlaneIntersectInfo* pi = new PlaneIntersectInfo();
+	auto* pi = new PlaneIntersectInfo();
 	pi->visshape_->updateMaterialFrom( getMaterial() );
 	pi->visshape_->turnOn( displayintersections_ );
 	addChild( pi->visshape_->osgNode() );
@@ -959,7 +938,8 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
     planeorientation_ = -1;
     planepos_ = mUdf(float);
     computed_ = false;
-    visBase::PolygonOffset* offset = new visBase::PolygonOffset;
+
+    auto* offset = new visBase::PolygonOffset;
     offset->setFactor( -1.0f );
     offset->setUnits( 1.0f );
     offset->setMode(

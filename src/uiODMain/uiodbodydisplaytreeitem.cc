@@ -602,7 +602,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
-	mcd_->useTexture( !mcd_->showsTexture() );
+	mcd_->useTexture( !mcd_->showsTexture(), true );
     }
     else
 	return;

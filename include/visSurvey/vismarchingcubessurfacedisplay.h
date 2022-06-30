@@ -45,9 +45,7 @@ public:
     void			setColor(OD::Color);
     bool			allowMaterialEdit() const { return true; }
 
-    void			useTexture(bool yn);
-    bool			usesTexture() const;
-    bool			showsTexture() const;
+    void			useTexture(bool yn,bool trigger);
     bool			canShowTexture() const;
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -123,23 +121,22 @@ protected:
     static const char*	sKeyColTabSequence()	{ return "Coltab sequence"; }
     static const char*	sKeyUseTexture()	{ return "Use texture"; }
 
-    visBase::MarchingCubesSurface*		displaysurface_;
-    EM::MarchingCubesSurface*			emsurface_;
+    visBase::MarchingCubesSurface*		displaysurface_	= nullptr;
+    EM::MarchingCubesSurface*			emsurface_	= nullptr;
     Attrib::SelSpec				selspec_; // Not used
     ObjectSet<DataPointSet>			cache_;
-    TypeSet<Attrib::SelSpec>        selspecs_;
+    TypeSet<Attrib::SelSpec>			selspecs_;
 
-    bool					usestexture_;
-    bool					validtexture_;
-    bool					isattribenabled_;
+    bool					isattribenabled_ = true;
 
-    EM::ImplicitBody*				impbody_;
-    bool					displayintersections_;
+    EM::ImplicitBody*				impbody_	= nullptr;
+    bool					displayintersections_ = false;
 
     struct PlaneIntersectInfo
     {
 						PlaneIntersectInfo();
 						~PlaneIntersectInfo();
+
 	visBase::GeomIndexedShape*		visshape_;
 	Geometry::ExplicitIndexedShape*		shape_;
 
@@ -151,8 +148,9 @@ protected:
     };
 
     ObjectSet<PlaneIntersectInfo>		intsinfo_;
-    visBase::Transformation*			model2displayspacetransform_;
-    const mVisTrans*				intersectiontransform_;
+    visBase::Transformation*			model2displayspacetransform_
+								= nullptr;
+    const mVisTrans*				intersectiontransform_ =nullptr;
 
 public:
     void			displayIntersections(bool yn)

@@ -82,8 +82,6 @@ public:
     bool			allowMaterialEdit() const	{ return true; }
 
     void			useTexture( bool yn, bool trigger );
-    bool			usesTexture() const;
-    bool			showsTexture() const;
     bool			canShowTexture() const;
 
     void			setDepthAsAttrib(int);
@@ -270,9 +268,7 @@ protected:
 
     TypeSet<DataPack::ID>		datapackids_;
 
-    bool				validtexture_;
     OD::Color				nontexturecol_;
-    bool				usestexture_;
 
     bool				displaypanels_;
 

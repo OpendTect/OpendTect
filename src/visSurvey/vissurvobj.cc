@@ -24,11 +24,6 @@ namespace visSurvey {
 mImplFactory( SurveyObject, SurveyObject::factory );
 
 SurveyObject::SurveyObject()
-    : scene_(0)
-    , s3dgeom_( 0 )
-    , locked_(false)
-    , updatestagenr_( 0 )
-    , saveinsessionsflag_( true )
 {
     set3DSurvGeom( SI().get3DGeometry(true) );
 }
@@ -398,6 +393,13 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 }
 
 
+const Attrib::SelSpec* SurveyObject::getSelSpec( int attrib, int version ) const
+{
+    const TypeSet<Attrib::SelSpec>* specs = getSelSpecs( attrib );
+    return specs && specs->validIdx(version) ? &(*specs)[version] : nullptr;
+}
+
+
 void SurveyObject::setSelSpec( int attrib, const Attrib::SelSpec& newselspec )
 {
     setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,newselspec) );
@@ -411,6 +413,18 @@ void SurveyObject::setSelSpecs(
     const Attrib::SelSpec* oldselspec = getSelSpec( attrib, 0 );
     if ( !oldselspec || !hasnewspecs || (*oldselspec)!=newselspecs[0] )
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+}
+
+
+bool SurveyObject::usesTexture() const
+{
+    return usestexture_;
+}
+
+
+bool SurveyObject::showsTexture() const
+{
+    return canShowTexture() && usesTexture();
 }
 
 } // namespace visSurvey

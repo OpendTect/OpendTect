@@ -70,8 +70,6 @@ public:
     TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
     void			useTexture(bool yn,bool trigger=false);
-    bool			usesTexture() const;
-    bool			showsTexture() const;
     bool			canShowTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
@@ -311,7 +309,6 @@ private:
     TypeSet<ColTab::Sequence>		coltabsequences_;  //for each channel
     bool				enabletextureinterp_;
 
-    bool				usestexture_;
     char				resolution_;
     int					curtextureidx_;
 
@@ -322,7 +319,6 @@ private:
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
-    bool				validtexture_;
     bool				displaysurfacegrid_;
 
     TypeSet<EM::SectionID>		oldsectionids_;

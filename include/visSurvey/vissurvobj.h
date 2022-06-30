@@ -168,6 +168,11 @@ public:
     virtual OD::Color		getAnnotColor() const
 				{ return OD::Color::DgbColor(); }
 
+    virtual void		useTexture(bool yn,bool trigger)	{}
+    virtual bool		usesTexture() const;
+    virtual bool		showsTexture() const;
+    virtual bool		canShowTexture() const		{ return false;}
+
     virtual int			nrResolutions() const		{ return 1; }
     virtual BufferString	getResolutionName(int) const;
     virtual int			getResolution() const		{ return 0; }
@@ -243,8 +248,7 @@ public:
     virtual void		   setSelSpecs(int attrib,
 					       const TypeSet<Attrib::SelSpec>&);
 
-    virtual const Attrib::SelSpec* getSelSpec(int attrib,int version=0) const
-				   { return 0; }
+    virtual const Attrib::SelSpec* getSelSpec(int attrib,int version=0) const;
     virtual const TypeSet<Attrib::SelSpec>* getSelSpecs( int attrib ) const
 					    { return 0; }
 
@@ -389,14 +393,17 @@ protected:
     static int			cValNameOffset()	{ return 12; }
 
     mutable BufferString	errmsg_;
-    Scene*			scene_;
-    int				updatestagenr_;
-    bool			locked_;
+    Scene*			scene_			= nullptr;
+    int				updatestagenr_		= 0;
+    bool			locked_			= false;
     ObjectSet<BufferStringSet>	userrefs_;
 
-    const Survey::Geometry3D*	s3dgeom_;
+    const Survey::Geometry3D*	s3dgeom_		= nullptr;
     BufferString		survname_; //Only from IOPar
-    bool			saveinsessionsflag_;
+    bool			saveinsessionsflag_	= true;
+
+    bool			usestexture_		= true;
+    bool			validtexture_		= false;
 
 };
 

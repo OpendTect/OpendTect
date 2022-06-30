@@ -285,8 +285,6 @@ HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
     , parcolrg_( -1, -1, -1 )
     , curtextureidx_( 0 )
-    , usestexture_( true )
-    , validtexture_( false )
     , resolution_( 0 )
     , allowshading_( true )
     , intersectionlinematerial_( 0 )
@@ -608,19 +606,9 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
 }
 
 
-bool HorizonDisplay::usesTexture() const
-{ return usestexture_; }
-
-
 bool HorizonDisplay::canShowTexture() const
 {
     return validtexture_ && isAnyAttribEnabled() && !displayedOnlyAtSections();
-}
-
-
-bool HorizonDisplay::showsTexture() const
-{
-    return canShowTexture() && usesTexture();
 }
 
 

@@ -737,6 +737,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     Pick::Mgr().removeCBs( this );
+    detachAllNotifiers();
 }
 
 

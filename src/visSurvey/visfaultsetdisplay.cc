@@ -61,7 +61,6 @@ const char* FaultSetDisplay::sKeyZValues()		{ return "Z values"; }
 
 FaultSetDisplay::FaultSetDisplay()
     : MultiTextureSurveyObject()
-    , validtexture_(false)
     , zaxistransform_(nullptr)
     , eventcatcher_(nullptr)
     , faultset_(nullptr)
@@ -69,7 +68,6 @@ FaultSetDisplay::FaultSetDisplay()
     , voiid_(-1)
     , colorchange(this)
     , displaymodechange(this)
-    , usestexture_(true)
     , displaypanels_(true)
     , displayintersections_(false)
     , displayhorintersections_(false)
@@ -421,16 +419,10 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 }
 
 
-bool FaultSetDisplay::usesTexture() const
-{ return usestexture_; }
-
-
-bool FaultSetDisplay::showsTexture() const
-{ return canShowTexture() && usesTexture(); }
-
-
 bool FaultSetDisplay::canShowTexture() const
-{ return validtexture_ && isAnyAttribEnabled() && arePanelsDisplayedInFull(); }
+{
+    return validtexture_ && isAnyAttribEnabled() && arePanelsDisplayedInFull();
+}
 
 
 OD::Color FaultSetDisplay::getColor() const
