@@ -923,10 +923,10 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	return false;
     }
 
+    const od_int64 nrelements = channelinfo_[channel]->nrElements( false );
     const float* useddata = data;
     if ( useddata && cp==OD::CopyPtr )
     {
-	const od_int64 nrelements = channelinfo_[channel]->nrElements( false );
 	mDeclareAndTryAlloc( float*, newdata, float[nrelements] );
 	if ( !useddata )
 	    return false;
@@ -938,7 +938,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 
     ValueSeries<float>* vs = useddata
 	? new ArrayValueSeries<float,float>(
-	    const_cast<float*>(useddata), cp==OD::TakeOverPtr )
+	    const_cast<float*>(useddata), cp==OD::TakeOverPtr, nrelements )
 	: 0;
 
     return channelinfo_[channel]->setUnMappedData( version, vs, OD::TakeOverPtr,
