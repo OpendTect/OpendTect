@@ -40,6 +40,8 @@ ________________________________________________________________________
 #include "uilabel.h"
 
 
+static const char* NoIconNm = "empty";
+
 //EntryData Class
 EntryData::EntryData( const MultiID& mid )
 {
@@ -85,7 +87,7 @@ EntryDataSet& EntryDataSet::addMID( const MultiID& mid )
 	return *this;
 
     const BufferString& nm = ioobj->name();
-    BufferString icnnm = "NONE";
+    BufferString icnnm = NoIconNm;
     PtrMan<Translator> transl = ioobj->createTranslator();
     if ( transl )
 	icnnm = transl->iconName();
@@ -808,7 +810,7 @@ void uiIOObjSelGrp::addEntry( const MultiID& mid )
 	if ( !ioobj )
 	    return;
 
-	const char* icnnm = "NONE";
+	const char* icnnm = NoIconNm;
 	PtrMan<Translator> transl = ioobj->createTranslator();
 	if ( transl )
 	    icnnm = transl->iconName();
@@ -970,7 +972,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 	return false;
     }
 
-    const char* icnnm = "NONE";
+    const char* icnnm = NoIconNm;
     PtrMan<Translator> transl = ioobj->createTranslator();
     if (transl)
 	icnnm = transl->iconName();

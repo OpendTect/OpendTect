@@ -59,7 +59,7 @@ public:
     BufferString	getIcnNm() const { return icnnm_; }
 protected:
     MultiID		mid_ = MultiID::udf();
-    BufferString	icnnm_ = "NONE";
+    BufferString	icnnm_ = "empty";
     BufferString	dispnm_ = "NONE";
     BufferString	objnm_ = "NONE";
 };
