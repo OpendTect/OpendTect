@@ -216,7 +216,9 @@ void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
 
 
 const ColTab::MapperSetup* GeomIndexedShape::getDataMapper() const
-{ return colorhandler_ ? &colorhandler_->mapper_.setup_ : 0; }
+{
+    return colorhandler_ ? &colorhandler_->mapper_.setup_ : 0;
+}
 
 
 void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
@@ -242,7 +244,9 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 
 
 const ColTab::Sequence* GeomIndexedShape::getDataSequence() const
-{ return colorhandler_ ? &colorhandler_->sequence_ : 0; }
+{
+    return colorhandler_ ? &colorhandler_->sequence_ : 0;
+}
 
 
 void GeomIndexedShape::setDisplayTransformation( const mVisTrans* nt )
@@ -483,10 +487,11 @@ void GeomIndexedShape::setLineStyle( const OD::LineStyle& lnstyle )
     linestyle_ = lnstyle;
 
     if ( vtexshape_ )
-	    vtexshape_->setLineStyle( lnstyle );
+	vtexshape_->setLineStyle( lnstyle );
     else
 	touch( true );
 }
+
 
 void GeomIndexedShape::setGeometryShapeType( GeomShapeType shapetype,
 			Geometry::PrimitiveSet::PrimitiveType pstype )
@@ -544,5 +549,4 @@ void GeomIndexedShape::setPixelDensity( float dpi )
 
 }
 
-
-}; // namespace visBase
+} // namespace visBase
