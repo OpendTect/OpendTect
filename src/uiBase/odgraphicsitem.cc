@@ -452,13 +452,12 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 */
 
 
+    const QRectF br = getTextRect( this );
+    painter->drawText( br, Qt::AlignCenter, toPlainText() );
+
     static bool showtextbb = GetEnvVarYN( "OD_SHOW_TEXT_BOX" );
     if ( showtextbb )
-    {
-	const QRectF br = getTextRect( this );
-	painter->drawText( br, Qt::AlignCenter, toPlainText() );
 	painter->drawRect( br );
-    }
 
     painter->save();
     painter->restore();
