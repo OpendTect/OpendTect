@@ -48,8 +48,7 @@ public:
 					const char* topnm,const char* botnm,
 					const BufferStringSet& alllognms,
 					Array2D<int>& presence,
-					BufferStringSet& lognms,
-					Well::Info::DepthType depthtype) const;
+					BufferStringSet& lognms) const;
     void			getLogPresenceFromValFilter(
 					const BufferStringSet& wellnms,
 					const BufferStringSet& lognms,
@@ -87,12 +86,10 @@ public:
 
 private:
 
-    const Interval<float>	getDepthRangeFromMarkers(
+    Interval<float>		getDepthRangeFromMarkers(
 					const Well::Data* wd,
 					const char* topnm,const char* botnm,
-					Well::Info::DepthType depthtype=
-							Well::Info::MD) const;
-
+					bool vertical) const;
 
     const ObjectSet<Well::Data>&	allwds_;
 };

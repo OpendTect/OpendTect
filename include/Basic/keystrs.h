@@ -108,6 +108,7 @@ namespace sKey
     inline FixedString Logs()		{ return "Logs"; }
     inline FixedString MD(int n=1)	{ return n<2 ? "MD" : "MDs"; }
     inline FixedString Marker()		{ return "Marker"; }
+    inline FixedString Markers()	{ return "Markers"; }
     inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString Maximum()	{ return "Maximum"; }
     inline FixedString Median()		{ return "Median"; }

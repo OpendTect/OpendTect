@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uimnemonicsel.h"
 #include "uistatusbar.h"
 #include "uitoolbutton.h"
-#include "welllogset.h"
+#include "wellman.h"
 #include "wellman.h"
 #include "welltransl.h"
 
@@ -268,12 +268,8 @@ void uiWellFilterGrp::noLogFilterCB( CallBacker* )
 void uiWellFilterGrp::mnemFilterCB( CallBacker* )
 {
     MnemonicSelection mns;
-    MnemonicSelection availmns;
-    for ( const auto* wd : *wds_ )
-	wd->logs().getAllAvailMnems(availmns);
-
     BufferStringSet suitablelogs;
-    uiMultiMnemonicsSel dlg( this, mns, &availmns );
+    uiMultiMnemonicsSel dlg( this, mns );
     if ( !dlg.go() )
 	return;
 

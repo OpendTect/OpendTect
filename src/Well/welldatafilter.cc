@@ -184,8 +184,7 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 				     const char* topnm, const char* botnm,
 				     const BufferStringSet& alllognms,
 				     Array2D<int>& presence,
-				     BufferStringSet& lognms,
-				     Well::Info::DepthType depthtype ) const
+				     BufferStringSet& lognms ) const
 {
     presence.setAll( -1 );
 
@@ -196,8 +195,8 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers(
-						wd, topnm, botnm, depthtype );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
+							       botnm, true );
 	if ( markerrg.isUdf() )
 	{
 	    for ( int lidx=0; lidx<alllognms.size(); lidx++ )
@@ -278,8 +277,8 @@ void WellDataFilter::getLogPresenceFromValFilter(
 
 
 void WellDataFilter::getLogsInMarkerZone( BufferStringSet& wellnms,
-					  const char* topnm, const char* botnm,
-					  BufferStringSet& lognms ) const
+				      const char* topnm, const char* botnm,
+				      BufferStringSet& lognms ) const
 {
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
@@ -288,8 +287,8 @@ void WellDataFilter::getLogsInMarkerZone( BufferStringSet& wellnms,
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers(
-							    wd, topnm, botnm );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
+							       botnm, false );
 	if ( markerrg.isUdf() )
 	{
 	    wellnms.remove( wd->name() );
@@ -322,8 +321,8 @@ void WellDataFilter::getLogsInMarkerZone( BufferStringSet& wellnms,
 
 
 void WellDataFilter::getMnemsInMarkerZone( BufferStringSet& wellnms,
-					   const char* topnm, const char* botnm,
-					   MnemonicSelection& mns ) const
+					 const char* topnm, const char* botnm,
+					 MnemonicSelection& mns ) const
 {
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
@@ -332,8 +331,8 @@ void WellDataFilter::getMnemsInMarkerZone( BufferStringSet& wellnms,
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers(
-							    wd, topnm, botnm );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
+							       botnm, false );
 	if ( markerrg.isUdf() )
 	{
 	    wellnms.remove( wd->name() );
@@ -368,8 +367,8 @@ void WellDataFilter::getMnemsInMarkerZone( BufferStringSet& wellnms,
 
 
 void WellDataFilter::getMnemsInDepthInterval( const Interval<float> depthrg,
-					     BufferStringSet& wellnms,
-					     MnemonicSelection& mns ) const
+				     BufferStringSet& wellnms,
+				     MnemonicSelection& mns ) const
 {
     for ( const auto* wd : allwds_ )
     {
@@ -398,8 +397,8 @@ void WellDataFilter::getMnemsInDepthInterval( const Interval<float> depthrg,
 
 
 void WellDataFilter::getLogsInDepthInterval( const Interval<float> depthrg,
-					     BufferStringSet& wellnms,
-					     BufferStringSet& lognms ) const
+				     BufferStringSet& wellnms,
+				     BufferStringSet& lognms ) const
 {
     for ( const auto* wd : allwds_ )
     {
@@ -460,48 +459,37 @@ void WellDataFilter::getLogsInValRange( const MnemonicSelection& mns,
 }
 
 
-const Interval<float> WellDataFilter::getDepthRangeFromMarkers(	
+Interval<float> WellDataFilter::getDepthRangeFromMarkers(
 					const Well::Data* wd,
 					const char* topnm, const char* botnm,
-					Well::Info::DepthType depthtype ) const
+					bool vertical ) const
 {
     Interval<float> markerrg = Interval<float>::udf();
-    float kbelv = wd->track().getKbElev();
     if ( FixedString(topnm) == Well::ZRangeSelector::sKeyDataStart() )
-	markerrg.start = wd->track().dahRange().start;
+	markerrg.start = vertical ? wd->track().zRange().start
+				  : wd->track().dahRange().start;
     else
     {
 	const Well::Marker* marker = wd->markers().getByName( topnm );
 	if ( marker )
 	{
 	    float mrkrdahstart = marker->dah();
-	    if ( depthtype == Well::Info::MD)
-		markerrg.start = mrkrdahstart;
-	    else
-	    {
-		markerrg.start = wd->track().getPos(mrkrdahstart).z;
-		if ( depthtype == Well::Info::TVD )
-		    markerrg.start += kbelv;
-	    }
+	    markerrg.start = vertical ? wd->track().getPos(mrkrdahstart).z
+				      : mrkrdahstart;
 	}
     }
 
     if ( FixedString(botnm) == Well::ZRangeSelector::sKeyDataEnd() )
-	markerrg.stop = wd->track().dahRange().stop;
+	markerrg.stop = vertical ? wd->track().zRange().stop
+				 : wd->track().dahRange().stop;
     else
     {
 	const Well::Marker* marker = wd->markers().getByName( botnm );
 	if ( marker )
 	{
 	    float mrkrdahstop = marker->dah();
-	    if ( depthtype == Well::Info::MD )
-		markerrg.stop = mrkrdahstop;
-	    else
-	    {
-		markerrg.stop = wd->track().getPos(mrkrdahstop).z;
-		if ( depthtype == Well::Info::TVD )
-		    markerrg.stop += kbelv;
-	    }
+	    markerrg.stop = vertical ? wd->track().getPos(mrkrdahstop).z
+				     : mrkrdahstop;
 	}
     }
 
