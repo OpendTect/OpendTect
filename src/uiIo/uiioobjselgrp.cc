@@ -191,11 +191,11 @@ const EntryData* EntryDataSet::getDataFor( const MultiID& mid ) const
 
 EntryData* EntryDataSet::getDataFor(const MultiID& mid)
 {
-    const EntryData* ed = getDataFor( mid );
-    if ( !ed )
+    const int idx = livemids_.indexOf(mid);
+    if ( mid.isUdf() || idx < 0 )
 	return nullptr;
-    else
-	return const_cast<EntryData*>( ed );
+
+    return this->get( idx );
 }
 
 
