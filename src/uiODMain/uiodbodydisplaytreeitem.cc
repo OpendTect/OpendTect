@@ -68,6 +68,13 @@ ___________________________________________________________________
 #include "survinfo.h"
 
 
+CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*>&
+	uiODBodyDisplayParentTreeItem::showMenuNotifier()
+{
+    static CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*> notif( nullptr );
+    return notif;
+}
+
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
     : uiODParentTreeItem( uiStrings::sBody() )
@@ -95,6 +102,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
     mnu.insertAction( new uiAction(tr("New Polygon Body")), 1 );
+    showMenuNotifier().trigger( &mnu, this );
+
     if ( children_.size() )
     {
 	mnu.insertSeparator();

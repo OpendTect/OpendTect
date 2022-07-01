@@ -10,18 +10,20 @@ ________________________________________________________________________
 
 #include "visgeomindexedshape.h"
 
-#include "datapointset.h"
 #include "datacoldef.h"
-#include "posvecdataset.h"
+#include "datapointset.h"
 #include "indexedshape.h"
+#include "posvecdataset.h"
+#include "survinfo.h"
+
 #include "viscoord.h"
 #include "visdrawstyle.h"
 #include "vismaterial.h"
 #include "visnormals.h"
+#include "vispolygonoffset.h"
+#include "vispolyline.h"
 #include "vistexturechannels.h"
 #include "vistexturecoords.h"
-#include "vispolyline.h"
-#include "vispolygonoffset.h"
 
 #include <osg/Geometry>
 #include <osg/Geode>
@@ -376,10 +378,20 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 	if ( !pos.isDefined() )
 	    continue;
 
-	mVisTrans::transform( toinlcrltrans, pos );
+	DataPointSet::Pos dpsetpos;
+	if ( toinlcrltrans )
+	{
+	    mVisTrans::transform( toinlcrltrans, pos );
+	    dpsetpos.set( BinID(mNINT32(pos.x),mNINT32(pos.y)) );
+	    dpsetpos.z_ = pos.z;
+	}
+	else
+	{
+	    const BinID bid = SI().transform( pos );
+	    dpsetpos.set( bid );
+	    dpsetpos.z_ = pos.z;
+	}
 
-	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), 
-	    (float) pos.z );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
 	datarow.data_[col-set.nrFixedCols()] =  coordid;
@@ -472,7 +484,7 @@ void GeomIndexedShape::setLineStyle( const OD::LineStyle& lnstyle )
     linestyle_ = lnstyle;
 
     if ( vtexshape_ )
-    	    vtexshape_->setLineStyle( lnstyle );
+	vtexshape_->setLineStyle( lnstyle );
     else
 	touch( true );
 }
