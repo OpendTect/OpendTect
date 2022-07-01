@@ -3,9 +3,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        N. Hemstra
- Date:          April 2002
- RCS:           $Id$
+ Author:	N. Hemstra
+ Date:		April 2002
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ protected:
 mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
 { mODTextTranslationClass(uiLineStyleGrp);
 public:
-    				uiLineStyleGrp(uiParent*,
+				uiLineStyleGrp(uiParent*,
 					       visSurvey::SurveyObject*);
 
 protected:
@@ -98,7 +98,7 @@ public:
 				uiMarkerStyleGrp(uiParent*,
 					    visSurvey::SurveyObject*);
 protected:
-    uiMarkerStyle3D*	    	stylefld_;
+    uiMarkerStyle3D*		stylefld_;
     visSurvey::SurveyObject*	survobj_;
     void			sizeChg(CallBacker*);
     void			typeSel(CallBacker*);
@@ -112,7 +112,11 @@ mExpClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
 public:
 				uiPropertiesDlg(uiParent*,
 						visSurvey::SurveyObject*);
+
+    static CNotifier<uiPropertiesDlg,int>& closeNotifier();
+
 protected:
+    void			dlgClosed(CallBacker*);
 
     visSurvey::SurveyObject*	survobj_;
     visBase::VisualObject*	visobj_;

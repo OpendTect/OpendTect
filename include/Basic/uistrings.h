@@ -572,6 +572,7 @@ public:
     static uiString sSetting(int num=1);
     static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
+    static uiString sShape(int num=1)	{ return tr("Shape",0,num); }
     static uiString sShift();
     static uiString sSPNumber()		{ return tr("Shotpoint number"); }
     static uiString sShow()		{ return tr("Show"); }
