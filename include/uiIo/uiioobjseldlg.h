@@ -57,7 +57,7 @@ public:
 			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
-    const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
+    const MultiID	chosenID(int i=0) const { return selgrp_->chosenID(i); }
     void		getChosen( TypeSet<MultiID>& ids ) const
 						{ selgrp_->getChosen( ids ); }
     void		getChosen( BufferStringSet& nms ) const
