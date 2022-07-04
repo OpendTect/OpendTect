@@ -201,6 +201,7 @@ EntryData* EntryDataSet::getDataFor(const MultiID& mid)
 
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
+
 static bool requireIcon()
 {
     mDefineStaticLocalObject(const bool, icsel,
@@ -875,7 +876,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
 	MultiID objid = MultiID::udf();
-	const char* icnm = 0;
+	const char* icnm = NoIconNm;
 
 	if ( !ioobj )
 	    ioobjnm = dispnm;
@@ -924,15 +925,18 @@ void uiIOObjSelGrp::fillListBox()
 
     listfld_->setEmpty();
     listfld_->addItems( dataset_.getDispNms() );
-    const BufferStringSet& iconnm = dataset_.getIconNms();
-    for ( int idx=0; idx< iconnm.size(); idx++ )
+    if ( requireIcon() )
     {
-	const char* icnm = iconnm.get( idx );
-	if ( !icnm )
-	    icnm = "empty";
+	const BufferStringSet& iconnm = dataset_.getIconNms();
+	for ( int idx=0; idx< iconnm.size(); idx++ )
+	{
+	    BufferString icnm( iconnm.get(idx) );
+	    if ( icnm.isEmpty() )
+		icnm = NoIconNm;
 
-	listfld_->setIcon( idx, icnm );
-	listfld_->setDefaultColor( idx );
+	    listfld_->setIcon( idx, icnm );
+	    listfld_->setDefaultColor( idx );
+	}
     }
 
     for ( const auto& idx : defaultidxs_ )
