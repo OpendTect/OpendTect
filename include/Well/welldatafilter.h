@@ -47,8 +47,12 @@ public:
 					const BufferStringSet& wellnms,
 					const char* topnm,const char* botnm,
 					const BufferStringSet& alllognms,
-					Array2D<int>& presence,
-					BufferStringSet& lognms) const;
+					Array2D<int>& presence ) const;
+    void			getLogPresenceForMnems(
+					const BufferStringSet& wellnms,
+					const char* topnm,const char* botnm,
+					const MnemonicSelection& mns,
+					Array2D<int>& presence ) const;
     void			getLogPresenceFromValFilter(
 					const BufferStringSet& wellnms,
 					const BufferStringSet& lognms,

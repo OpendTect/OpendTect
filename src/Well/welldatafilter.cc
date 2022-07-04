@@ -183,8 +183,7 @@ void WellDataFilter::getMarkersLogsMnemsFromWells(
 void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 				     const char* topnm, const char* botnm,
 				     const BufferStringSet& alllognms,
-				     Array2D<int>& presence,
-				     BufferStringSet& lognms ) const
+				     Array2D<int>& presence ) const
 {
     presence.setAll( -1 );
 
@@ -226,6 +225,56 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 	    }
 
 	    presence.set( widx, lidx, perc );
+	}
+    }
+}
+
+
+void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
+				     const char* topnm, const char* botnm,
+				     const MnemonicSelection& mns,
+				     Array2D<int>& presence ) const
+{
+    presence.setAll( -1 );
+
+    for ( int widx=0; widx<allwds_.size(); widx++ )
+    {
+	const Well::Data* wd = allwds_[widx];
+	const bool haswellnm = wellnms.isPresent( wd->name() );
+	if ( !haswellnm )
+	    continue;
+
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
+							       botnm, true );
+	if ( markerrg.isUdf() )
+	{
+	    for ( int mnidx=0; mnidx<mns.size(); mnidx++ )
+		presence.set( widx, mnidx, 100 );
+
+	    continue;
+	}
+
+	const float markerwidth = markerrg.width();
+	for ( const auto* mn : mns )
+	{
+	    const Well::Log* log = wd->logs().getLog( *mn );
+	    if ( !log )
+		continue;
+
+	    const Interval<float> logrg = log->dahRange();
+	    int perc = 0;
+	    if ( logrg.includes(markerrg,false) )
+		perc = 100;
+	    else if ( !logrg.overlaps(markerrg,false) )
+		perc = 0;
+	    else
+	    {
+		Interval<float> avlogrg = logrg;
+		avlogrg.limitTo( markerrg );
+		perc = mNINT32( 100.f * avlogrg.width()/markerwidth );
+	    }
+
+	    presence.set( widx, mns.indexOf(mn), perc );
 	}
     }
 }
@@ -379,7 +428,9 @@ void WellDataFilter::getMnemsInDepthInterval( const Interval<float> depthrg,
 	    if ( !log )
 		continue;
 
-	    const Interval<float> logrg = log->dahRange();
+	    Interval<float> logrg = log->dahRange();
+	    logrg.start = wd->track().getPos(logrg.start).z;
+	    logrg.stop = wd->track().getPos(logrg.stop).z;
 	    if ( !logrg.overlaps(depthrg,false) )
 		continue;
 
@@ -409,7 +460,9 @@ void WellDataFilter::getLogsInDepthInterval( const Interval<float> depthrg,
 	    if ( !log )
 		continue;
 
-	    const Interval<float> logrg = log->dahRange();
+	    Interval<float> logrg = log->dahRange();
+	    logrg.start = wd->track().getPos(logrg.start).z;
+	    logrg.stop = wd->track().getPos(logrg.stop).z;
 	    if ( !logrg.overlaps(depthrg,false) )
 		continue;
 
