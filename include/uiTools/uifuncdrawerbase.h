@@ -32,6 +32,7 @@ public:
 			    , canvaswidth_(400)
 			    , canvasheight_(250)
 			    , width_(2)
+			    , name_(nullptr)
 			{}
 
 	mDefSetupMemb(StepInterval<float>,xaxrg)

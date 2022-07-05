@@ -889,7 +889,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
     const bool wt4finish = pars.launchtype_ == Wait4Finish;
     const bool createstreams = pars.createstreams_;
 #ifndef OD_NO_QT
-    process_ = wt4finish || createstreams ? new QProcess : 0;
+    process_ = wt4finish || createstreams ? new QProcess : nullptr;
 
     if ( createstreams )
     {
@@ -961,7 +961,6 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	    process_->waitForFinished(-1);
 
 	const bool res = process_->exitStatus()==QProcess::NormalExit;
-
 	if ( createstreams )
 	{
 	    stderrorbuf_->detachDevice( true );

@@ -1563,7 +1563,7 @@ OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
     if ( !namestr.isEmpty() )
 	setName( namestr );
 
-    mSkipBlanks( nextword ); if ( !*nextword ) return;
+    mSkipBlanks( nextword ); if ( !nextword || !*nextword ) return;
 
     getNextWord( nextword, valbuf );
     versionstr_.set( valbuf ).clean( BufferString::NoSpaces );
@@ -1644,7 +1644,7 @@ static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
 	lastword = nextword;
 	nextword = getNextWord( nextword, valbuf );
 	mSkipBlanks( nextword );
-    } while ( *nextword );
+    } while ( nextword && *nextword );
 
     const float version = toFloat(lastword);
     int idx = 0;
