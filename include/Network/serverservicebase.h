@@ -81,11 +81,12 @@ protected:
     virtual void	checkOnReportToApplication(bool startyn,
 						   int eachms=5000);
 
+    void		doPyEnvChange(CallBacker*) override;
     void		doAppClosing(CallBacker*) override;
 
-    const Network::Service*	thisService() const	{ return thisservice_; }
+    const Network::Service*	thisService() const { return thisservice_; }
 
-	void		setUnregistered() {	registerstatus_ = Unregistered;	}
+    void		setUnregistered() { registerstatus_ = Unregistered; }
 
 private:
 
@@ -97,7 +98,6 @@ private:
 			//<! On application closing, inform the main App
     uiRetVal		doRegister_(const char*,bool doreg);
 
-    void		doPyEnvChange(CallBacker*) override;
     virtual void	reportToCheckCB(CallBacker*);
 
     Network::Service*	thisservice_ = nullptr;
