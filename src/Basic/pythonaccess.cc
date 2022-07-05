@@ -70,7 +70,7 @@ const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
 
 mDefineNameSpaceEnumUtils(OD,PythonSource,"Python Source")
 {
-    "Internal", "System", "Custom", 0
+    "Internal", "System", "Custom", nullptr
 };
 template <>
 void EnumDefImpl<OD::PythonSource>::init()
@@ -411,6 +411,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 				    const char* scriptstr,
 				    const char* scriptexpectedout )
 {
+    Threads::Locker locker( lock_ );
     PtrMan<FilePath> activatefp;
     BufferString venvnm( envnm );
     if ( pythonenvfp )
@@ -493,6 +494,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString* stderrstr,
 				uiString* errmsg ) const
 {
+    Threads::Locker locker( lock_ );
     if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
 	return false;
 
@@ -513,6 +515,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				const OS::CommandExecPars& pars,
 				int* pid, uiString* errmsg ) const
 {
+    Threads::Locker locker( lock_ );
     if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
 	return false;
 
@@ -856,6 +859,8 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 				  const FilePath* activatefp,
 				  const char* envnm ) const
 {
+    Threads::Locker locker( lock_ );
+
     laststdout_.setEmpty();
     laststderr_.setEmpty();
     msg_.setEmpty();
@@ -1247,6 +1252,7 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 
 bool OD::PythonAccess::retrievePythonVersionStr()
 {
+    Threads::Locker locker( lock_ );
     if ( !isUsable_(!istested_) )
 	return false;
 
@@ -1291,6 +1297,7 @@ void OD::PythonAccess::pluginsLoaded( CallBacker* cb )
 
 uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
+    Threads::Locker locker( lock_ );
     if ( !isUsable_(!istested_) )
     {
 	uiRetVal ret = tr("Could not detect a valid Python installation:\n%1")

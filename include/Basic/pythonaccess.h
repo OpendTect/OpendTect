@@ -174,6 +174,7 @@ namespace OD
 
 	friend class ::uiPythonSettings;
 	friend class ::ServiceMgrBase;
+	mutable Threads::Lock	lock_;
 
     public:
 
