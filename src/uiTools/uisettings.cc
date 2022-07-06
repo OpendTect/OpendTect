@@ -378,7 +378,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	    cmd = commands.get( idx );
 	    prognms_.add( commands.program(idx) );
 	    progargs_.add( commands.args(idx)
-			    ? new BufferStringSet( *commands.args(idx) ) 
+			    ? new BufferStringSet( *commands.args(idx) )
 			    : nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
@@ -1523,10 +1523,14 @@ bool uiPythonSettings::acceptOK( CallBacker* )
     {
 	if ( ismodified )
 	{
+	    NotifyStopper ns( OD::PythA().envChange );
 	    OD::PythA().istested_ = false;
 	    OD::PythA().envChangeCB( nullptr );
 	    OD::PythA().updatePythonPath();
+	    ns.enableNotification();
+	    OD::PythA().envChange.trigger();
 	    needrestore_ = false;
+
 	    uiSettsMgr().updateUserCmdToolBar();
 	}
     }
