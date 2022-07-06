@@ -1692,10 +1692,14 @@ bool uiPythonSettings::acceptOK( CallBacker* )
     {
 	if ( ismodified )
 	{
+	    NotifyStopper ns( OD::PythA().envChange );
 	    OD::PythA().istested_ = false;
 	    OD::PythA().envChangeCB( nullptr );
 	    OD::PythA().updatePythonPath();
+	    ns.enableNotification();
+	    OD::PythA().envChange.trigger();
 	    needrestore_ = false;
+
 	    uiSettsMgr().updateUserCmdToolBar();
 	}
     }
