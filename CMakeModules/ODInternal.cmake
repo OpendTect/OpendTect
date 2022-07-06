@@ -233,6 +233,9 @@ if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
 	     CONFIGURATIONS Release )
+elseif ( APPLE )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
+	     DESTINATION ${MISC_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm.dgb/ )
 else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/../lm.dgb/ )
