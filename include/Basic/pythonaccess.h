@@ -86,6 +86,8 @@ namespace OD
 	{
 	    public:
 				ModuleInfo(const char*);
+	    bool		operator ==(const ModuleInfo&) const;
+	    bool		operator !=(const ModuleInfo&) const;
 
 	    BufferString	displayStr(bool withver=true) const;
 
@@ -105,7 +107,10 @@ namespace OD
 			//<! Initial value of PYTHONPATH before OD starts
 
 	uiRetVal	hasModule(const char* modname,
-				  const char* minversion=0) const;
+				  const char* minversion=nullptr) const;
+	static uiRetVal	hasModule(const ObjectSet<ModuleInfo>&,
+				  const char* modname,
+				  const char* minversion=nullptr);
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 	void		setForScript(const char* scriptnm,
 				     OS::MachineCommand&) const;
