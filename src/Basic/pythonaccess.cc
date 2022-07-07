@@ -70,7 +70,7 @@ const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
 
 mDefineNameSpaceEnumUtils(OD,PythonSource,"Python Source")
 {
-    "Internal", "System", "Custom", 0
+    "Internal", "System", "Custom", nullptr
 };
 template <>
 void EnumDefImpl<OD::PythonSource>::init()
@@ -1378,6 +1378,14 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
 uiRetVal OD::PythonAccess::hasModule( const char* modname,
 				      const char* minversion ) const
 {
+    return hasModule( moduleinfos_, modname, minversion );
+}
+
+
+uiRetVal OD::PythonAccess::hasModule( const ObjectSet<ModuleInfo>& moduleinfos,
+				      const char* modname,
+				      const char* minversion )
+{
     uiString msg;
     if ( minversion )
 	msg = tr("Package: %1 Version: %2 or higher required").arg( modname )
@@ -1385,12 +1393,12 @@ uiRetVal OD::PythonAccess::hasModule( const char* modname,
     else
 	msg = tr("Package: %1 required").arg( modname );
 
-    for ( auto module : moduleinfos_ )
+    for ( const auto* reqmod : moduleinfos )
     {
-	if ( module->name() == modname )
+	if ( reqmod->name() == modname )
 	{
 	    if ( minversion ) {
-		const SeparString actverstr( module->versionstr_, '.' );
+		const SeparString actverstr( reqmod->versionstr_, '.' );
 		const SeparString reqverstr( minversion, '.' );
 		for ( int ver=0; ver<reqverstr.size(); ver++ )
 		{
@@ -1398,7 +1406,7 @@ uiRetVal OD::PythonAccess::hasModule( const char* modname,
 			 reqverstr.getUIValue(ver) )
 			return uiRetVal( tr("%1, but installed Version: %2")
 					    .arg( msg )
-			.arg( module->versionstr_ ) );
+			.arg( reqmod->versionstr_ ) );
 		    else if ( actverstr.getUIValue(ver)>reqverstr
 				.getUIValue(ver))
 			break;
@@ -1563,10 +1571,22 @@ OD::PythonAccess::ModuleInfo::ModuleInfo( const char* modulestr )
     if ( !namestr.isEmpty() )
 	setName( namestr );
 
-    mSkipBlanks( nextword ); if ( !*nextword ) return;
+    mSkipBlanks( nextword ); if ( !nextword || !*nextword ) return;
 
     getNextWord( nextword, valbuf );
     versionstr_.set( valbuf ).clean( BufferString::NoSpaces );
+}
+
+
+bool OD::PythonAccess::ModuleInfo::operator ==( const ModuleInfo& oth ) const
+{
+    return name() == oth.name() && versionstr_ == oth.versionstr_;
+}
+
+
+bool OD::PythonAccess::ModuleInfo::operator !=( const ModuleInfo& oth ) const
+{
+    return !(*this == oth);
 }
 
 
@@ -1644,7 +1664,7 @@ static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
 	lastword = nextword;
 	nextword = getNextWord( nextword, valbuf );
 	mSkipBlanks( nextword );
-    } while ( *nextword );
+    } while ( nextword && *nextword );
 
     const float version = toFloat(lastword);
     int idx = 0;
