@@ -329,7 +329,8 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 
 const char* uiSeisSel::userNameFromKey( const char* txt ) const
 {
-    if ( !txt || !*txt ) return "";
+    if ( !txt || !*txt )
+	return "";
 
     LineKey lk( txt );
     curusrnm_ = uiIOObjSel::userNameFromKey( lk.lineName() );
@@ -350,7 +351,8 @@ void uiSeisSel::setCompNr( int nr )
 
 const char* uiSeisSel::compNameFromKey( const char* txt ) const
 {
-    if ( !txt || !*txt ) return "";
+    if ( !txt || !*txt )
+	return "";
 
     LineKey lk( txt );
     return uiIOObjSel::userNameFromKey( lk.attrName() );
@@ -364,6 +366,7 @@ bool uiSeisSel::existingTyped() const
     ptr = firstOcc( getInput(), '|' );
     if ( ptr )
 	containscompnm = true;
+
     return (!is2D() && !containscompnm) || isPS() ? uiIOObjSel::existingTyped()
 	 : existingUsrName( LineKey(getInput()).lineName() );
 }

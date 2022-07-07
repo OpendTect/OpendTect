@@ -177,7 +177,9 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 	const BufferStringSet nms;
 	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
 					    extselbuts_, nms );
-	mAttachCB( IOM().entryAdded, uiAttrSelDlg::objInserted );
+	for ( auto* inserter : inserters_ )
+	    mAttachCB( inserter->objInserterd, uiAttrSelDlg::objInserted );
+
 	butgrp->attach( ensureBelow, selgrp_ );
     }
 

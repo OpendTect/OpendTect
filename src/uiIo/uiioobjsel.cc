@@ -281,8 +281,8 @@ void uiIOObjSel::init()
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
 					extselbuts_, setup_.trsnotallwed_ );
-	mAttachCB( IOM().entryAdded, uiIOObjSel::objInserted );
-
+	for ( auto* inserter : inserters_ )
+	    mAttachCB( inserter->objInserterd, uiIOObjSel::objInserted );
     }
     else if ( setup_.withwriteopts_ )
     {
@@ -290,7 +290,8 @@ void uiIOObjSel::init()
 					    setup_.trsnotallwed_, false );
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
-    preFinalize().notify( mCB(this,uiIOObjSel,preFinalizeCB) );
+
+    mAttachCB( preFinalize(), uiIOObjSel::preFinalizeCB );
     mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
     mAttachCB( optionalChecked, uiIOObjSel::optCheckCB );
 }

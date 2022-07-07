@@ -68,7 +68,7 @@ void uiSEGYDirectVolInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    IOM().entryAdded.trigger( outky );
+    objInserterd.trigger( outky );
 }
 
 
@@ -126,7 +126,7 @@ void uiSEGYDirect2DInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    IOM().entryAdded.trigger(outky);
+    objInserterd.trigger(outky);
 }
 
 
@@ -184,7 +184,7 @@ void uiSEGYDirectPS3DInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    IOM().entryAdded.trigger(outky);
+    objInserterd.trigger(outky);
 }
 
 

@@ -68,7 +68,9 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 	const BufferStringSet nms;
 	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
 					    insertbuts_, nms );
-	mAttachCB( IOM().entryAdded, uiSeis2DLineChoose::objInserted );
+	for ( auto* inserter : inserters_ )
+	    mAttachCB(inserter->objInserterd, uiSeis2DLineChoose::objInserted);
+
 	butgrp->attach( centeredLeftOf, listfld_ );
     }
 }

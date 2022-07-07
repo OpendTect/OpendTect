@@ -50,13 +50,15 @@ EntryData::EntryData( const MultiID& mid )
 
 
 EntryData::EntryData( const MultiID& mid, const BufferString& objnm,
-			const BufferString& dispnm, const BufferString& icnnm )
+	    const BufferString& dispnm, const BufferString& icnnm, bool isdef )
 {
     mid_ = mid;
     objnm_ = objnm;
     dispnm_ = dispnm;
     icnnm_ = icnnm;
+    isdef_ = isdef;
 }
+
 
 void EntryData::setIconName(const BufferString& iconnm )
 {
@@ -77,7 +79,7 @@ void EntryData::setObjName( const BufferString& objnm )
 
 
 //EntryDataSet Class
-EntryDataSet& EntryDataSet::addMID( const MultiID& mid )
+EntryDataSet& EntryDataSet::add( const MultiID& mid, bool isdef )
 {
     if ( mid.isUdf() || livemids_.isPresent(mid) )
 	return *this;
@@ -92,10 +94,37 @@ EntryDataSet& EntryDataSet::addMID( const MultiID& mid )
     if ( transl )
 	icnnm = transl->iconName();
 
-    EntryData* data = new EntryData( mid, nm, nm, icnnm );
+    auto* data = new EntryData( mid, nm, nm, icnnm, isdef );
+    *this += data;
+    livemids_.add( mid );
+    if ( isdef )
+	defaultidxs_.add( this->size()-1 );
+
+    return *this;
+}
+
+
+EntryDataSet& EntryDataSet::add( const MultiID& mid, const BufferString& objnm,
+			const BufferString& dispnm, bool isdef )
+{
+    if ( mid.isUdf() || livemids_.isPresent(mid) )
+	return *this;
+
+    EntryData* data = new EntryData( mid, objnm, dispnm, NoIconNm, isdef );
     *this += data;
     livemids_.add(mid);
+    if (isdef)
+	defaultidxs_.add(this->size() - 1);
+
     return *this;
+}
+
+
+void EntryDataSet::erase()
+{
+    ManagedObjectSet::erase();
+    livemids_.setEmpty();
+    defaultidxs_.setEmpty();
 }
 
 
@@ -104,8 +133,8 @@ EntryDataSet& EntryDataSet::removeMID( const MultiID & mid )
     if ( mid.isUdf() || !livemids_.isPresent(mid) )
 	return *this;
 
-    const int idx = livemids_.indexOf(mid);
-    this->removeSingle(idx);
+    const int idx = livemids_.indexOf( mid );
+    this->removeSingle( idx );
     return *this;
 }
 
@@ -116,7 +145,7 @@ EntryDataSet& EntryDataSet::updateMID( const MultiID& mid, EntryData* ed )
 	return *this;
 
     const int idx = livemids_.indexOf(mid);
-    this->replace(idx, ed);
+    this->replace( idx, ed );
 
     return *this;
 }
@@ -127,12 +156,28 @@ TypeSet<MultiID> EntryDataSet::getIOObjIds( bool reread ) const
     if ( reread || livemids_.size() != this->size() )
     {
 	livemids_.setEmpty();
-	TypeSet<MultiID> mids;
-	for (const EntryData* ed : *this)
+	for ( const auto* ed : *this )
 	    livemids_.add( ed->getMID() );
     }
 
     return livemids_;
+}
+
+
+TypeSet<int> EntryDataSet::getDefaultIdxs( bool reread ) const
+{
+    if ( reread || defaultidxs_.size() != this->size() )
+    {
+	defaultidxs_.setEmpty();
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const auto* ed = get( idx );
+	    if ( ed->isDef() )
+		defaultidxs_.add( idx );
+	}
+    }
+
+    return defaultidxs_;
 }
 
 
@@ -149,7 +194,7 @@ BufferStringSet EntryDataSet::getIOObjNms() const
 BufferStringSet EntryDataSet::getDispNms() const
 {
     BufferStringSet dispnms;
-    for (const EntryData* ed : *this)
+    for ( const EntryData* ed : *this )
 	dispnms.add( ed->getDispNm( ));
 
     return dispnms;
@@ -191,9 +236,11 @@ const EntryData* EntryDataSet::getDataFor( const MultiID& mid ) const
 
 EntryData* EntryDataSet::getDataFor(const MultiID& mid)
 {
-    const int idx = livemids_.indexOf(mid);
+    int idx = livemids_.indexOf( mid );
     if ( mid.isUdf() || idx < 0 )
+    {
 	return nullptr;
+    }
 
     return this->get( idx );
 }
@@ -491,6 +538,8 @@ void uiIOObjSelGrp::mkManipulators()
 	if ( prevnrbuts > 0 )
 	    but->attach( rightAlignedBelow, insertbuts_[prevnrbuts-1] );
 
+	mAttachCB( inserter->objInserterd, uiIOObjSelGrp::objInserted );
+
 	inserters_ += inserter;
     }
 
@@ -537,16 +586,14 @@ MultiID uiIOObjSelGrp::currentID() const
 
 MultiID uiIOObjSelGrp::chosenID( int objnr ) const
 {
+    const TypeSet<MultiID> mids = getIOObjIds();
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
 	if ( isChosen(idx) )
 	    objnr--;
 
 	if ( objnr < 0 )
-	{
-	    const TypeSet<MultiID> mids = getIOObjIds();
 	    return mids[idx];
-	}
     }
 
     BufferString msg( "Should not reach. objnr=" );
@@ -804,26 +851,20 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::addEntry( const MultiID& mid )
 {
-    int selidx = dataset_.indexOfMID( mid );
+    const int selidx = dataset_.indexOfMID( mid );
     if ( selidx < 0 )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
 	    return;
 
-	const char* icnnm = NoIconNm;
-	PtrMan<Translator> transl = ioobj->createTranslator();
-	if ( transl )
-	    icnnm = transl->iconName();
-
-	dataset_.add( new EntryData(mid,ioobj->name(),ioobj->name(),icnnm) );
+	const bool isdef = setup_.allowsetdefault_
+				    ? IOObj::isSurveyDefault(mid) : false;
+	dataset_.add( mid, isdef );
     }
 
-    selidx = dataset_.indexOfMID( mid );
-    fillListBox();
-    setCurrent( selidx );
+    addEntryToListBox( mid );
     itemAdded.trigger( mid );
-    selChg(nullptr);
 }
 
 
@@ -865,8 +906,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     GlobExpr::validateFilterString( nmflt );
     del.fill( iodir, nmflt );
 
-    dataset_.erase();
-    defaultidxs_.erase();
+    dataset_.setEmpty();
     const bool requireincom = requireIcon();
     for ( int idx=0; idx<del.size(); idx++ )
     {
@@ -877,21 +917,18 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	BufferString ioobjnm;
 	MultiID objid = MultiID::udf();
 	const char* icnm = NoIconNm;
-
+	bool isdef = false;
 	if ( !ioobj )
 	    ioobjnm = dispnm;
 	else
 	{
 	    objid = del[idx]->ioobj_->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
-	    const bool isdef = setup_.allowsetdefault_
+	    isdef = setup_.allowsetdefault_
 			? IOObj::isSurveyDefault( objid ) : false;
 
 	    ioobjnm = ioobj->name();
-	    dispnm.setEmpty();
-	    dispnm += ioobj->name();
-	    if ( isdef )
-		defaultidxs_ += idx;
+	    dispnm = ioobj->name();
 
 	    if ( curidx < 0 )
 	    {
@@ -908,13 +945,33 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	}
 
 	//TODO cleaner is to put this into one object: uiIOObjEntryInfo
-	dataset_.add( new EntryData(objid,ioobjnm,dispnm,icnm) );
+	dataset_.add( objid, ioobjnm, dispnm, isdef );
     }
 
     fillListBox();
     setCurrent( curidx );
     listUpdated.trigger();
     selChg( nullptr );
+}
+
+
+void uiIOObjSelGrp::addEntryToListBox( const MultiID& mid )
+{
+    NotifyStopper ns1( listfld_->selectionChanged );
+    NotifyStopper ns2( listfld_->itemChosen );
+    const EntryData* ed = dataset_.getDataFor( mid );
+    const BufferString& dispnm = ed->getDispNm();
+    listfld_->addItem( dispnm );
+    if ( requireIcon() )
+    {
+	BufferString icnm( ed->getIcnNm() );
+	if ( icnm.isEmpty() )
+	    icnm = NoIconNm;
+
+	const int idx = listfld_->indexOf( dispnm );
+	listfld_->setIcon( idx, icnm );
+	listfld_->setDefaultColor( idx );
+    }
 }
 
 
@@ -939,7 +996,8 @@ void uiIOObjSelGrp::fillListBox()
 	}
     }
 
-    for ( const auto& idx : defaultidxs_ )
+    const TypeSet<int> defaultidxs = dataset_.getDefaultIdxs();
+    for ( const auto& idx : defaultidxs )
 	listfld_->setColor( idx, OD::Color(240,240,200) );
 
     selectionChanged.trigger();
@@ -976,13 +1034,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 	return false;
     }
 
-    const char* icnnm = NoIconNm;
-    PtrMan<Translator> transl = ioobj->createTranslator();
-    if (transl)
-	icnnm = transl->iconName();
-
-    dataset_.add(
-		new EntryData(ioobj->key(),ioobj->name(),ioobj->name(),icnnm) );
+    dataset_.add( ioobj->key(), false );
     fillListBox();
     listfld_->setCurrentItem( ioobj->name() );
     if ( nmfld_ && ioobj->name() != seltxt )
@@ -1048,12 +1100,11 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	}
     }
 
-    listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,choiceChg) );
-    listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
-
+    mAttachCB( listfld_->selectionChanged, uiIOObjSelGrp::selChg );
+    mAttachCB( listfld_->itemChosen, uiIOObjSelGrp::choiceChg );
+    mAttachCB( listfld_->deleteButtonPressed, uiIOObjSelGrp::delPress );
     if ( ctio_.ctxt_.forread_ )
-	selChg( 0 );
+	selChg( nullptr );
 }
 
 
@@ -1104,7 +1155,7 @@ void uiIOObjSelGrp::objInserted( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack( const MultiID&, ky, cb );
-    if ( !ky.isUdf() )
+    if ( !ky.isUdf() && ctio_.ctxt_.validObj(ky) )
 	addEntry( ky );
 }
 
@@ -1168,7 +1219,8 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 
 void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 {
-    if ( !lbchoiceio_ ) return;
+    if ( !lbchoiceio_ )
+	return;
 
     lbchoiceio_->keys().setEmpty();
     const TypeSet<MultiID>& mids = getIOObjIds();

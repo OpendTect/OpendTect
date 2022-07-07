@@ -48,20 +48,25 @@ public:
 			EntryData(const MultiID&);
 			EntryData(const MultiID&,const BufferString& objnm,
 				    const BufferString& dispnm,
-				    const BufferString& icnnm);
+				    const BufferString& icnnm,bool isdef);
 			~EntryData() {}
     void		setIconName(const BufferString&);
     void		setDisplayName(const BufferString&);
     void		setObjName(const BufferString&);
+    void		setIsDef(bool isdef) { isdef_ = isdef; }
+
     MultiID		getMID() const { return mid_; }
     BufferString	getDispNm() const { return dispnm_; }
     BufferString	getObjNm() const { return objnm_; }
     BufferString	getIcnNm() const { return icnnm_; }
+    bool		isDef() const { return isdef_; }
+
 protected:
     MultiID		mid_ = MultiID::udf();
     BufferString	icnnm_ = "empty";
     BufferString	dispnm_ = "NONE";
     BufferString	objnm_ = "NONE";
+    bool		isdef_ = false;
 };
 
 
@@ -73,20 +78,26 @@ public:
 
     const EntryData*	    getDataFor(const MultiID&) const;
     EntryData*		    getDataFor(const MultiID&);
-    EntryDataSet&	    addMID(const MultiID&);
+    EntryDataSet&	    add(const MultiID&,bool isdef=false);
+    EntryDataSet&	    add(const MultiID&,const BufferString&,
+				const BufferString&,bool isdef = false);
     EntryDataSet&	    removeMID(const MultiID&);
     EntryDataSet&	    updateMID(const MultiID&, EntryData*);
 
     TypeSet<MultiID>	    getIOObjIds(bool reread=false) const;
+    TypeSet<int>	    getDefaultIdxs(bool reread=false) const;
     BufferStringSet	    getIOObjNms() const;
     BufferStringSet	    getDispNms() const;
     BufferStringSet	    getIconNms() const;
     int			    indexOfMID(const MultiID& mid) const;
     int			    indexOfNm(const BufferString&,bool isdispnm) const;
 
+    void		    erase() override;
+
 protected:
 
-    mutable TypeSet<MultiID> livemids_;
+    mutable TypeSet<MultiID>	    livemids_;
+    mutable TypeSet<int>	    defaultidxs_;
 };
 
 
@@ -200,7 +211,6 @@ protected:
     CtxtIOObj&		ctio_;
     Setup		setup_;
     EntryDataSet	dataset_;
-    TypeSet<int>	defaultidxs_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_ = false;
 
@@ -217,6 +227,7 @@ protected:
     uiComboBox*		ctxtfiltfld_ = nullptr;
 
     void		fillListBox();
+    void		addEntryToListBox(const MultiID&);
     IOObj*		getIOObj(int);
     virtual bool	createEntry(const char*);
     IOObj*		updStatusBarInfo(bool);
