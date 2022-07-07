@@ -14,9 +14,17 @@
 
 const char* DataInpSpec::valuestr = "Val";
 
+DataType::DataType( Rep tp, Form frm )
+    : rep_(tp)
+    , form_(frm)
+{
+}
+
+
 
 DataInpSpec::DataInpSpec( DataType t )
-    : tp_(t), prefempty_(true)
+    : tp_(t)
+    , prefempty_(true)
 {}
 
 

@@ -125,13 +125,7 @@ mDeclareNameSpaceEnumUtils(Basic,WellType);
 } // namespace OD
 
 
-inline bool isHorizontal( OD::Orientation orient )
-				{ return orient == OD::Horizontal; }
-inline bool isVertical( OD::Orientation orient )
-				{ return orient == OD::Vertical; }
-inline bool isMultiChoice( OD::ChoiceMode cm )
-				{ return cm > 1; }
-inline bool isOptional( OD::ChoiceMode cm )
-				{ return cm == OD::ChooseZeroOrMore; }
-
-
+mGlobal(Basic) bool isHorizontal(OD::Orientation);
+mGlobal(Basic) bool isVertical(OD::Orientation);
+mGlobal(Basic) bool isMultiChoice(OD::ChoiceMode);
+mGlobal(Basic) bool isOptional(OD::ChoiceMode);

@@ -138,33 +138,9 @@ mExpClass(Basic) TrcKeyZSamplingSet : public TypeSet<TrcKeyZSampling>
 };
 
 
-inline TrcKeyZSampling::Dir direction( TrcKeyZSampling::Dir slctype, int dimnr )
-{
-    if ( dimnr == 0 )
-	return slctype;
-    else if ( dimnr == 1 )
-	return slctype == TrcKeyZSampling::Inl ? TrcKeyZSampling::Crl
-					    : TrcKeyZSampling::Inl;
-    else
-	return slctype == TrcKeyZSampling::Z
-		? TrcKeyZSampling::Crl
-		: TrcKeyZSampling::Z;
-}
-
-
-inline int dimension( TrcKeyZSampling::Dir slctype,
-		      TrcKeyZSampling::Dir direction )
-{
-    if ( slctype == direction )
-	return 0;
-
-    else if ( direction == TrcKeyZSampling::Z )
-	return 2;
-    else if ( direction == TrcKeyZSampling::Inl )
-	return 1;
-
-    return slctype == TrcKeyZSampling::Z ? 2 : 1;
-}
+mGlobal(Basic) TrcKeyZSampling::Dir direction(TrcKeyZSampling::Dir,
+					      int dimnr);
+mGlobal(Basic) int dimension(TrcKeyZSampling::Dir,TrcKeyZSampling::Dir);
 
 
 typedef TrcKeyZSampling CubeSampling;

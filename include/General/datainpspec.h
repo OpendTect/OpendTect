@@ -33,8 +33,7 @@ public:
     enum	Rep  { intTp, int64Tp, floatTp, doubleTp, boolTp, stringTp };
     enum	Form { normal, interval, filename, position, list };
 
-		DataType( Rep tp, Form frm=normal )
-		    : rep_( tp ), form_(frm) {}
+		DataType(Rep,Form =normal);
 
     inline Rep	rep() const		{ return rep_; }
     inline Form form() const		{ return form_; }

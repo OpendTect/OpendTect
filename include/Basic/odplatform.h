@@ -30,8 +30,7 @@ public:
 		mDeclareEnumUtils(Type)
 
     		Platform();		//!< This platform
-    		Platform( Type t )	//!< That platform
-		    : type_(t)		{}
+		Platform(Type);		//!< That platform
 		Platform( const char* s, bool isshortnm )
 					{ set(s,isshortnm); }
 		Platform( bool iswin, bool is32, bool ismac=false )

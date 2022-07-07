@@ -23,7 +23,7 @@ mDefineNameSpaceEnumUtils(OD,WellType,"Well Type")
     "PermittedLocation",
     "CanceledLocation",
     "InjectionDisposalWell",
-    0
+    nullptr
 };
 
 
@@ -53,4 +53,27 @@ void EnumDefImpl<OD::WellType>::init()
     iconfiles_.add( "permittedlocation" );
     iconfiles_.add( "canceledlocation" );
     iconfiles_.add( "injectiondisposalwell" );
+}
+
+bool isHorizontal( OD::Orientation orient )
+{
+    return orient == OD::Horizontal;
+}
+
+
+bool isVertical( OD::Orientation orient )
+{
+    return orient == OD::Vertical;
+}
+
+
+bool isMultiChoice( OD::ChoiceMode cm )
+{
+    return cm > OD::ChooseOnlyOne;
+}
+
+
+bool isOptional( OD::ChoiceMode cm )
+{
+    return cm == OD::ChooseZeroOrMore;
 }

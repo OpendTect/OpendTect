@@ -1477,6 +1477,33 @@ void TrcKeyZSampling::normalize()
 }
 
 
+TrcKeyZSampling::Dir direction( TrcKeyZSampling::Dir slctype , int dimnr )
+{
+    if ( dimnr == 0 )
+	return slctype;
+    else if ( dimnr == 1 )
+	return slctype == TrcKeyZSampling::Inl ? TrcKeyZSampling::Crl
+	: TrcKeyZSampling::Inl;
+    else
+	return slctype == TrcKeyZSampling::Z
+	? TrcKeyZSampling::Crl
+	: TrcKeyZSampling::Z;
+}
+
+
+int dimension( TrcKeyZSampling::Dir slctype,
+	       TrcKeyZSampling::Dir direction )
+{
+    if ( slctype == direction )
+	return 0;
+    else if ( direction == TrcKeyZSampling::Z )
+	return 2;
+    else if ( direction == TrcKeyZSampling::Inl )
+	return 1;
+
+    return slctype == TrcKeyZSampling::Z ? 2 : 1;
+}
+
 
 void TrcKeySamplingIterator::setSampling( const TrcKeySampling& tks )
 {

@@ -30,7 +30,7 @@ mDefineEnumUtils(OD::Platform,Type,"Platform")
 	"Windows (32 bits)",
 	"Windows (64 bits)",
 	"Mac OS X",
-	0
+	nullptr
 };
 
 
@@ -166,6 +166,12 @@ OD::Platform::Platform()
     : type_(__ismac__ ?				     Mac
 		      : (__iswin__ ? (__is32bits__ ? Win32 : Win64)
 				   : Lin64))
+{
+}
+
+
+OD::Platform::Platform( Type typ )
+    : type_(typ)
 {
 }
 
