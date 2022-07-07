@@ -951,8 +951,8 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
     if ( idx < 0 || idx >= dataset_.size() )
 	return nullptr;
 
-    const MultiID& mid = dataset_.get( idx )->getMID();
-    return mid.isUdf() ? IOM().get( mid ) : nullptr;
+    const MultiID mid = dataset_.get( idx )->getMID();
+    return mid.isUdf() ? nullptr : IOM().get( mid );
 }
 
 
