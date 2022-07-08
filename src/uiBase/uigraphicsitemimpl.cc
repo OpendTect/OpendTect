@@ -766,14 +766,11 @@ void uiTextItem::stPos( float x, float y )
 	break;
     }
 
-    if ( isItemIgnoresTransformationsEnabled() )
+    const bool ignorestf = isItemIgnoresTransformationsEnabled();
+    if ( ignorestf )
     {
+	qtextitem_->overrulePaint( true );
 	qtextitem_->setPos( x, y );
-	const QPointF p00 = qtextitem_->mapToScene( QPointF(0,0) );
-	qtextitem_->setTransformOriginPoint( boundrec.center() );
-	const QPointF newscenept = p00 + boundrec.topLeft();
-	const QPointF newxypt = qtextitem_->mapFromScene( newscenept );
-	qtextitem_->setPos( x+newxypt.x(), y+newxypt.y() );
     }
     else
     {

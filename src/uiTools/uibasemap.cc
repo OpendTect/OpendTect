@@ -312,10 +312,10 @@ void uiBaseMapObject::update()
 
 	    const Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
+	    itm->setPos( txtpos );
 
 	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
 	    itm->setTextRotation( -angle );
-	    itm->setPos( txtpos );
 
 	    labelitemnr++;
 	}
