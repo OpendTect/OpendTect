@@ -907,7 +907,6 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     del.fill( iodir, nmflt );
 
     dataset_.setEmpty();
-    const bool requireincom = requireIcon();
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
@@ -933,13 +932,6 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    {
 		if ( issel || (isdef && !ctio_.ioobj_ && ctio_.ctxt_.forread_) )
 		    curidx = idx;
-	    }
-
-	    if ( requireincom )
-	    {
-		PtrMan<Translator> transl = ioobj->createTranslator();
-		if ( transl )
-		    icnm = transl->iconName();
 	    }
 	}
 
