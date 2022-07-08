@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "odgraphicsitem.h"
 
 #include "enums.h"
+#include "envvars.h"
 #include "geometry.h"
 #include "uifont.h"
 #include "uimain.h"
@@ -62,6 +63,10 @@ ODGraphicsPointItem::ODGraphicsPointItem()
 {}
 
 
+ODGraphicsPointItem::~ODGraphicsPointItem()
+{}
+
+
 QRectF ODGraphicsPointItem::boundingRect() const
 {
     return highlight_ ? QRectF( -2, -2, 4, 4 )
@@ -71,7 +76,7 @@ QRectF ODGraphicsPointItem::boundingRect() const
 
 void ODGraphicsPointItem::paint( QPainter* painter,
 				 const QStyleOptionGraphicsItem* option,
-				 QWidget *widget )
+				 QWidget* widget )
 {
     painter->setPen( pen() );
     drawPoint( painter );
@@ -386,6 +391,80 @@ ODGraphicsTextItem::ODGraphicsTextItem()
 }
 
 
+QRectF getTextRect( const ODGraphicsTextItem* itm )
+{
+    QFontMetrics qfm( itm->font() );
+    const QRectF textrect = qfm.boundingRect( itm->toPlainText() );
+    const double textwidth = textrect.width();
+    const double textheight = textrect.height();
+
+    QRectF ret = textrect;
+    switch ( itm->getAlignment().hPos() )
+    {
+	case Alignment::Left: break; // default
+	case Alignment::Right: ret.translate( -textwidth, 0 ); break;
+	case Alignment::HCenter: ret.translate( -textwidth/2, 0 ); break;
+    }
+
+    switch ( itm->getAlignment().vPos() )
+    {
+	case Alignment::Top: break; // default
+	case Alignment::Bottom: ret.translate( 0, -textheight ); break;
+	case Alignment::VCenter: ret.translate( 0, -textheight/2 ); break;
+    }
+
+    return ret;
+}
+
+
+QRectF ODGraphicsTextItem::boundingRect() const
+{
+    QRectF br = QGraphicsTextItem::boundingRect();
+    if ( !ownpaint_ )
+	return br;
+
+    QRectF newbr = getTextRect( this );
+    return newbr;
+}
+
+
+void ODGraphicsTextItem::paint( QPainter* painter,
+				const QStyleOptionGraphicsItem* itm,
+				QWidget* qw )
+{
+    if ( !ownpaint_ )
+    {
+	QGraphicsTextItem::paint( painter, itm, qw );
+	return;
+    }
+
+/*
+    const QTransform& transform = painter->transform();
+    qreal m11 = transform.m11();    // Horizontal scaling
+    qreal m12 = transform.m12();    // Vertical shearing
+    qreal m13 = transform.m13();    // =0 Horizontal Projection
+    qreal m21 = transform.m21();    // Horizontal shearing
+    qreal m22 = transform.m22();    // vertical scaling
+    qreal m23 = transform.m23();    // =0 Vertical Projection
+    qreal m31 = transform.m31();    // Horizontal Position (DX)
+    qreal m32 = transform.m32();    // Vertical Position (DY)
+    qreal m33 = transform.m33();    // =1 Addtional Projection Factor
+*/
+
+
+    static bool showtextbb = GetEnvVarYN( "OD_SHOW_TEXT_BOX" );
+    if ( showtextbb )
+    {
+	const QRectF br = getTextRect( this );
+	painter->drawText( br, Qt::AlignCenter, toPlainText() );
+	painter->drawRect( br );
+    }
+
+    painter->save();
+    painter->restore();
+}
+
+
 void ODGraphicsTextItem::setCentered()
 {
     document()->setDefaultTextOption( QTextOption(Qt::AlignCenter) );
@@ -440,13 +519,11 @@ void ODGraphicsAdvancedTextItem::contextMenuEvent(
 // ODGraphicsPixmapItem
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
     : QGraphicsPixmapItem()
-    , paintincenter_(false)
 {}
 
 
 ODGraphicsPixmapItem::ODGraphicsPixmapItem( const uiPixmap& pm )
     : QGraphicsPixmapItem(*pm.qpixmap())
-    , paintincenter_(false)
 {}
 
 
@@ -596,7 +673,6 @@ void ODGraphicsPolyLineItem::unHighlight()
 // ODGraphicsMultiColorPolyLineItem
 ODGraphicsMultiColorPolyLineItem::ODGraphicsMultiColorPolyLineItem()
     : QAbstractGraphicsShapeItem()
-    , highlight_(false)
 {}
 
 
@@ -823,9 +899,6 @@ void ODGraphicsItemGroup::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
     , bbox_( 0, 0, 1, 1 )
-    , updatedynpixmap_( false )
-    , updatebasepixmap_( false )
-    , issnapshot_( false )
 {
     baserev_[0] = baserev_[1] = dynamicrev_[0] = dynamicrev_[1] = false;
 }

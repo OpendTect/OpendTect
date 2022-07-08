@@ -135,11 +135,10 @@ void uiSurveyBoxObject::update()
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
 	const bool bot = mapcnr[idx].y < mapcnr[oppidx].y;
 	const BinID bid = si.transform( mapcnr[idx] );
-	const BufferString bidstr = bid.toString();
 	const Alignment al( Alignment::HCenter,
 			    bot ? Alignment::Top : Alignment::Bottom );
 	labels_[idx]->setPos( mapcnr[idx] );
-	labels_[idx]->setText( toUiString(bidstr.buf()) );
+	labels_[idx]->setText( toUiString(bid.toString()) );
 	labels_[idx]->setAlignment( al );
 	labels_[idx]->setVisible( showlabels_ );
     }
