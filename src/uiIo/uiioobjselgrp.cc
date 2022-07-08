@@ -916,7 +916,6 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
 	MultiID objid = MultiID::udf();
-	const char* icnm = NoIconNm;
 	bool isdef = false;
 	if ( !ioobj )
 	    ioobjnm = dispnm;
