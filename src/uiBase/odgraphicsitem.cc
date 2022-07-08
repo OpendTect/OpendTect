@@ -394,7 +394,8 @@ ODGraphicsTextItem::ODGraphicsTextItem()
 QRectF getTextRect( const ODGraphicsTextItem* itm )
 {
     QFontMetrics qfm( itm->font() );
-    const QRectF textrect = qfm.boundingRect( itm->toPlainText() );
+    QRectF textrect = qfm.boundingRect( itm->toPlainText() );
+    textrect.moveTo( 0, 0 );
     const double textwidth = textrect.width();
     const double textheight = textrect.height();
 
