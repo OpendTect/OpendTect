@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "commanddefs.h"
+#include "commandlaunchmgr.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
@@ -82,6 +83,8 @@ private:
     void		testPythonModules();
     void		testCB(CallBacker*);
     void		promptCB(CallBacker*);
+    void		cloneCB(CallBacker*);
+    void		cloneFinishedCB(CallBacker*);
     void		safetycheckCB(CallBacker*);
     bool		getPythonEnvBinPath(BufferString&) const;
     void		updateIDEfld();
@@ -122,8 +125,8 @@ uiSettingsMgr::uiSettingsMgr()
 
 uiSettingsMgr::~uiSettingsMgr()
 {
-    deepErase( progargs_ );
     detachAllNotifiers();
+    deepErase( progargs_ );
 }
 
 
@@ -1040,6 +1043,11 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     safetychkbut->setIcon( "safety" );
     safetychkbut->attach( rightOf, cmdwinbut );
 
+    auto* clonebut = new uiPushButton( this, tr("Clone Environment"),
+				   mCB(this,uiPythonSettings,cloneCB), true );
+    clonebut->setIcon( "copyobj" );
+    clonebut->attach( rightOf, safetychkbut );
+
     mAttachCB( postFinalize(), uiPythonSettings::initDlg );
 }
 
@@ -1375,6 +1383,71 @@ void uiPythonSettings::safetycheckCB( CallBacker* )
     dlg.setCancelText( uiString::empty() );
     usw.readyNow();
     dlg.go();
+}
+
+
+void uiPythonSettings::cloneCB( CallBacker* )
+{
+    if ( !useScreen() )
+	return;
+
+    FilePath envpath;
+    OD::PythA().GetPythonEnvPath( envpath );
+    const BufferString envname( envpath.baseName() );
+    if ( envpath.isEmpty() )
+    {
+	uiMSG().error(
+		tr("Can only clone Internal or Custom Python environments") );
+	return;
+    }
+
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, nullptr, nullptr,
+		      tr("Destination for Cloned Environment") );
+    if ( !dlg.go() )
+	return;
+
+    const BufferString dirloc( dlg.fileName() );
+    const BufferString clonename( envname,"_clone" );
+    FilePath fp( dirloc, clonename );
+    if ( File::exists(fp.fullPath()) || !File::isWritable(dirloc) )
+    {
+	uiMSG().error( uiStrings::phrCannotCreateDirectory(
+						toUiString(fp.fullPath())) );
+	return;
+    }
+
+    BufferStringSet mcargs;
+    mcargs.add("create").add("--clone").add(envname)
+						.add("-p").add(fp.fullPath());
+    const OS::MachineCommand mc( "conda", mcargs );
+    auto& mgr = Threads::CommandLaunchMgr::getMgr();
+    CallBack cb( mCB(this,uiPythonSettings,cloneFinishedCB) );
+    setButtonSensitive( OK, false );
+    setButtonSensitive( CANCEL, false );
+    mgr.execute( mc, true, true, &cb, true );
+}
+
+
+void uiPythonSettings::cloneFinishedCB( CallBacker* cb )
+{
+    const auto* ct = Threads::CommandLaunchMgr::getMgr().getCommandTask( cb );
+    if ( ct )
+    {
+	const BufferString stdoutstr = ct->getStdOutput();
+	const BufferString stderrstr = ct->getStdError();
+	if ( !stderrstr.isEmpty() )
+	{
+	    uiMSG().errorWithDetails( toUiString(stderrstr),
+				      tr("Error cloning conda environment") );
+	    return;
+	}
+
+	uiMSG().message( tr("Cloning conda environment completed") );
+
+	setCustomEnvironmentNames();
+    }
+    setButtonSensitive( OK, true );
+    setButtonSensitive( CANCEL, true );
 }
 
 
