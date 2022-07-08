@@ -12,7 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+
 #include "factory.h"
+#include "seisdatapack.h"
 #include "survgeom.h"
 #include "trckeysampling.h"
 #include "uistrings.h"
@@ -20,8 +22,6 @@ ________________________________________________________________________
 class Task;
 class VelocityDesc;
 class ProgressMeter;
-class TrcKeyZSampling;
-class RegularSeisDataPack;
 
 
 namespace VolProc

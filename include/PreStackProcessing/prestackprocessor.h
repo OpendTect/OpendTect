@@ -11,20 +11,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
-#include "bufstringset.h"
-#include "datapack.h"
+#include "prestackgather.h"
+
 #include "factory.h"
 #include "keystrs.h"
 #include "paralleltask.h"
-#include "position.h"
-#include "sets.h"
-#include "trckeysampling.h"
+
 
 namespace PreStack
 {
-
-class Gather;
 
 /*!
 \brief Processes PreStack data at one cdp location. The algorithm is

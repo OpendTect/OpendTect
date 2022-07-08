@@ -6,7 +6,6 @@
 
 
 #include "volprocchain.h"
-#include "seisdatapack.h"
 
 
 namespace VolProc
