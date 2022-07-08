@@ -10,14 +10,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
-#include "visdepthtabplanedragger.h"
-#include "vistexturerect.h"
 
 #include "mousecursor.h"
 #include "odcommonenums.h"
+#include "seisdatapack.h"
 #include "undo.h"
+#include "visdepthtabplanedragger.h"
+#include "vistexturerect.h"
+
 
 template <class T> class Array2D;
 namespace visBase{ class GridLines; }

@@ -16,7 +16,6 @@
 #include "arrayndslice.h"
 #include "color.h"
 #include "convmemvalseries.h"
-#include "mousecursor.h"
 #include "polylinend.h"
 #include "randomlinegeom.h"
 #include "seisdatapackzaxistransformer.h"

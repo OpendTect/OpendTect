@@ -11,12 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vismultiattribsurvobj.h"
 
 #include "multiid.h"
 #include "posinfo2dsurv.h"
 #include "seisdatapack.h"
-#include "vismultiattribsurvobj.h"
+
 
 class ZAxisTransform;
 

@@ -25,7 +25,6 @@
 #include "bendpointfinder.h"
 #include "color.h"
 #include "mousecursor.h"
-#include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "survgeom2d.h"
 #include "zaxistransform.h"

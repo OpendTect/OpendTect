@@ -9,12 +9,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vismultiattribsurvobj.h"
 
 #include "mousecursor.h"
 #include "ranges.h"
 #include "seisdatapack.h"
-#include "vismultiattribsurvobj.h"
+
 
 class TrcKeyZSampling;
 

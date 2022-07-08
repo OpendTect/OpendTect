@@ -12,16 +12,13 @@
 #include "array2dresample.h"
 #include "color.h"
 #include "datapointset.h"
-#include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 
-#include "visdepthtabplanedragger.h"
 #include "visevent.h"
 #include "visgridlines.h"
 #include "vismaterial.h"
 #include "vistexturechannels.h"
-#include "vistexturerect.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
 
