@@ -47,9 +47,8 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     {
 	auto* textitem = new uiTextItem();
 	textitem->setTextColor( Color::Black() );
-	textitem->setAlignment( postxtalign );
-	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
 	textitem->setItemIgnoresTransformations( true );
+	textitem->setAlignment( postxtalign );
 	graphitem_.addChild( textitem );
 	labels_ += textitem;
     }
