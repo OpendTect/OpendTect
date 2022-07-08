@@ -25,7 +25,7 @@ ________________________________________________________________________
 static bool isVertical( const uiFlatViewer& vwr )
 {
     const bool usewva = !vwr.isVisible( false );
-    ConstRefMan<FlatDataPack> fdp = vwr.obtainPack( usewva, true );
+    ConstRefMan<FlatDataPack> fdp = vwr.getPack( usewva, true );
     if ( !fdp )
 	return true;
 
@@ -252,7 +252,7 @@ void AxesDrawer::updateViewRect()
 void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
 {
     const bool usewva = !vwr_.isVisible( false );
-    ConstRefMan<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     if ( !fdp )
 	return;
 
@@ -280,7 +280,7 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
 void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
-    ConstRefMan<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     transformAndSetAuxAnnotation( true );
     transformAndSetAuxAnnotation( false );
     setScaleBarWorld2UI( wr );
@@ -331,8 +331,7 @@ void AxesDrawer::setScaleBarWorld2UI( const uiWorldRect& wr )
     if ( !vwr_.appearance().annot_.showscalebar_ )
 	return;
 
-    ConstRefMan<FlatDataPack> fdp = vwr_.obtainPack( !vwr_.isVisible(false),
-						     true );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( !vwr_.isVisible(false), true);
     if ( !fdp )
 	return;
 

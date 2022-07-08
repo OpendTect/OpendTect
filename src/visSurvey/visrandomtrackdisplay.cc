@@ -19,7 +19,6 @@
 #include "mousecursor.h"
 #include "polylinend.h"
 #include "randomlinegeom.h"
-#include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 #include "uistrings.h"
@@ -55,27 +54,15 @@ RandomTrackDisplay::RandomTrackDisplay()
     , panelstrip_( visBase::TexturePanelStrip::create() )
     , dragger_( visBase::RandomTrackDragger::create())
     , polyline_( visBase::PolyLine::create())
-    , polylinemode_(false)
+    , markerset_( visBase::MarkerSet::create() )
+    , selnodeidx_(mUdf(int))
+    , depthrg_(SI().zRange(true))
     , nodemoving_(this)
     , moving_(this)
-    , selnodeidx_(mUdf(int))
-    , ismanip_(false)
-    , interactivetexturedisplay_( false )
-    , originalresolution_(-1)
-    , datatransform_(0)
-    , lockgeometry_(false)
-    , eventcatcher_(0)
-    , depthrg_(SI().zRange(true))
-    , voiidx_(-1)
-    , markerset_( visBase::MarkerSet::create() )
-    , rl_(0)
-    , nrgeomchangecbs_(0)
-    , premovingselids_(0)
-    , geomnodejustmoved_(false)
-    , pickstartnodeidx_( -1 )
-    , ispicking_(false)
-    , oldstyledoubleclicked_(0)
 {
+    datapacks_.setNullAllowed();
+    transfdatapacks_.setNullAllowed();
+
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
     int highestnamenr = 0;
@@ -183,13 +170,6 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     removeChild( markerset_->osgNode() );
     markerset_->unRef();
-
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpm.unRef( datapackids_[idx] );
-
-    for ( int idx=0; idx<transfdatapackids_.size(); idx++ )
-	dpm.unRef( transfdatapackids_[idx] );
 
     if ( rl_ )
     {
@@ -338,6 +318,7 @@ int RandomTrackDisplay::nrNodes() const
 	rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB)); \
     } \
 }
+
 
 void RandomTrackDisplay::addNode( const BinID& bid )
 {
@@ -668,16 +649,15 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 					TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
+    RefMan<RandomSeisDataPack> randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
     {
-	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
 	channels_->turnOn( false );
 	return false;
     }
 
-    dpm.unRef( datapackids_[attrib] );
-    datapackids_[attrib] = dpid;
+    datapacks_.replace( attrib, randsdp );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -687,8 +667,9 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
 {
-    return datapackids_.validIdx(attrib) ? datapackids_[attrib]
-					 : DataPack::cNoID();
+    return datapacks_.validIdx(attrib) && datapacks_[attrib]
+	? datapacks_[attrib]->id()
+	: DataPack::cNoID();
 }
 
 
@@ -696,8 +677,9 @@ DataPack::ID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	const TypeSet<DataPack::ID>& dpids = transfdatapackids_;
-	return dpids.validIdx(attrib) ? dpids[attrib] : DataPack::cNoID();
+	return transfdatapacks_.validIdx(attrib) && transfdatapacks_[attrib]
+            ? transfdatapacks_[attrib]->id()
+            : DataPack::cNoID();
     }
 
     return getDataPackID( attrib );
@@ -817,10 +799,11 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 
 void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
     auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
-    if ( !randsdp ) return;
+    if ( !randsdp )
+	return;
 
     updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->zRange() );
 
@@ -862,7 +845,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
+	channels_->setUnMappedData( attrib, idx, arr, cp, nullptr,
 				    interactivetexturedisplay_ );
     }
 
@@ -873,13 +856,14 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 void RandomTrackDisplay::createTransformedDataPack(
 				int attrib, TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
+    ConstRefMan<RandomSeisDataPack> randsdp =
+				    dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return;
 
-    DataPack::ID outputid = DataPack::cNoID();
+    RefMan<RandomSeisDataPack> output;
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	if ( datatransform_->needsVolumeOfInterest() )
@@ -900,14 +884,13 @@ void RandomTrackDisplay::createTransformedDataPack(
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( randsdp.ptr() );
-	transformer.setOutput( outputid );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.execute();
+
+        output = transformer.getOutput();
     }
 
-    dpm.unRef( transfdatapackids_[attrib] );
-    transfdatapackids_[attrib] = outputid;
-    dpm.ref( outputid );
+    transfdatapacks_.replace( attrib, output.ptr() );
 }
 
 
@@ -1573,7 +1556,8 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
+    ConstRefMan<RandomSeisDataPack> randsdp =
+				    dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 
@@ -1592,44 +1576,38 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 
 void RandomTrackDisplay::addCache()
 {
-    datapackids_ += DataPack::cNoID();
-    transfdatapackids_ += DataPack::cNoID();
+    datapacks_ += nullptr;
+    transfdatapacks_ += nullptr;
 }
 
 
 void RandomTrackDisplay::removeCache( int attrib )
 {
-    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
-    datapackids_.removeSingle( attrib );
-
-    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
-    transfdatapackids_.removeSingle( attrib );
+    datapacks_.removeSingle( attrib );
+    transfdatapacks_.removeSingle( attrib );
 }
 
 
 void RandomTrackDisplay::swapCache( int a0, int a1 )
 {
-    datapackids_.swap( a0, a1 );
-    transfdatapackids_.swap( a0, a1 );
+    datapacks_.swap( a0, a1 );
+    transfdatapacks_.swap( a0, a1 );
 }
 
 
 void RandomTrackDisplay::emptyCache( int attrib )
 {
-    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
-    datapackids_[attrib] = DataPack::cNoID();
-
-    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
-    transfdatapackids_[attrib] = DataPack::cNoID();
+    datapacks_.replace( attrib, 0 );
+    transfdatapacks_.replace( attrib, 0 );
 
     channels_->setNrVersions( attrib, 1 );
-    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, nullptr );
 }
 
 
 bool RandomTrackDisplay::hasCache( int attrib ) const
 {
-    return datapackids_[attrib] != DataPack::cNoID();
+    return datapacks_[attrib];
 }
 
 
@@ -1907,7 +1885,7 @@ void RandomTrackDisplay::setPolyLineMode( bool yn )
     dragger_->handleEvents( !yn );
 
     pickstartnodeidx_ = -1;
-    ispicking_ =  yn;
+    ispicking_ = yn;
 
     if ( scene_ )
 	scene_->blockMouseSelection( yn );

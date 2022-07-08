@@ -714,7 +714,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	ConstRefMan<PreStack::Gather> gather =
-			viewers2d_[idx]->viewer().obtainPack( false );
+			viewers2d_[idx]->viewer().getPack( false );
 	if ( !gather )
 	    continue;
 

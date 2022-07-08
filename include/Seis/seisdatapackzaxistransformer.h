@@ -23,17 +23,18 @@ specified input SeisDataPack.
 mExpClass(Seis) SeisDataPackZAxisTransformer : public ParallelTask
 {
 public:
-				SeisDataPackZAxisTransformer(ZAxisTransform&);
+				SeisDataPackZAxisTransformer(ZAxisTransform&,
+						SeisDataPack* outputdp=nullptr);
 				~SeisDataPackZAxisTransformer();
 
     void			setInput( const SeisDataPack* dp )
-			    { inputdp_ = dp ? dpm_.getDP(dp->id()) : nullptr; }
-    void			setOutput( DataPack::ID& dpid )
-				{ outputid_ = &dpid; dpid = DataPack::cNoID(); }
-    void			setOutputZRange( const StepInterval<float>& zrg)
+				{ inputdp_ = dp; }
+    void			setOutputZRange( const ZSampling& zrg )
 				{ zrange_ = zrg; }
     void			setInterpolate( bool yn )
 				{ interpolate_ = yn; }
+
+    RefMan<SeisDataPack>	getOutput() { return outputdp_; }
 
 protected:
 
@@ -42,13 +43,11 @@ protected:
     bool			doFinish(bool success) override;
     od_int64			nrIterations() const override;
 
-    bool			interpolate_;
+    bool			interpolate_ = true;
     DataPackMgr&		dpm_;
     ZAxisTransform&		transform_;
-    StepInterval<float>		zrange_;
+    ZSampling			zrange_;
 
     ConstRefMan<DataPack>	inputdp_;
-    SeisDataPack*		outputdp_;
-    DataPack::ID*		outputid_;
+    RefMan<SeisDataPack>	outputdp_;
 };
-

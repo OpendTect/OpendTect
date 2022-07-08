@@ -118,7 +118,7 @@ public:
 
     DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
     ConstRefMan<RegularSeisDataPack>	createOutput(const TrcKeyZSampling&,
-					 const RegularSeisDataPack* prevslcs=0);
+				 const RegularSeisDataPack* prevslcs=nullptr);
     bool		createOutput(DataPointSet&,int firstcol =0,
 				     bool showprogress=true);
     bool		createOutput(ObjectSet<DataPointSet>&,

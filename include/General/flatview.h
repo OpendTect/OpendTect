@@ -378,11 +378,8 @@ public:
     bool		enableChange(bool yn);
 			//!< Returns previous state
 
-    ConstRefMan<FlatDataPack> obtainPack(bool wva,bool checkother=false) const;
-			/*!< Obtains DataPack before returning the pointer. Has
-			 to be released after it is used. For convenience use
-			 ConstDataPackRef which releases the DataPack in its
-			 destructor.
+    ConstRefMan<FlatDataPack> getPack(bool wva,bool checkother=false) const;
+			/*!<
 			 \param wva if true, wiggle, else variable density
 			 \param checkother if true, the datapack of other
 			 display (i.e. variable density or wiggles) is returned
@@ -496,6 +493,9 @@ public:
     mDeprecated("Use VwrDest enum")
     void		setVisible( bool wva, bool visibility )
 			{ setVisible( wva ? WVA : VD, visibility ); }
+
+    mDeprecated("Use getPack")
+    ConstRefMan<FlatDataPack> obtainPack(bool wva,bool checkother=false) const;
 
 };
 

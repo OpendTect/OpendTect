@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -8,15 +7,14 @@ ________________________________________________________________________
  Date:		January 2003
 ________________________________________________________________________
 
-
 -*/
 
-#include "mousecursor.h"
 #include "vissurveymod.h"
-#include "vismultiattribsurvobj.h"
 
-#include "integerid.h"
+#include "mousecursor.h"
 #include "ranges.h"
+#include "seisdatapack.h"
+#include "vismultiattribsurvobj.h"
 
 class TrcKeyZSampling;
 
@@ -228,11 +226,11 @@ protected:
     void			draggerMoveFinished(CallBacker*);
     void			updateMouseCursorCB(CallBacker*);
 
-    int				nrgeomchangecbs_;
-    TypeSet<int>*		premovingselids_;
-    bool			geomnodejustmoved_;
+    int				nrgeomchangecbs_ = 0;
+    TypeSet<int>*		premovingselids_ = nullptr;
+    bool			geomnodejustmoved_ = false;
 
-    Geometry::RandomLine*	rl_;
+    Geometry::RandomLine*	rl_ = nullptr;
     visBase::TexturePanelStrip*	panelstrip_;
 
     visBase::RandomTrackDragger* dragger_;
@@ -240,23 +238,24 @@ protected:
     visBase::PolyLine*		polyline_;
     visBase::MarkerSet*		markerset_;
 
-    visBase::EventCatcher*	eventcatcher_;
+    visBase::EventCatcher*	eventcatcher_ = nullptr;
     MouseCursor			mousecursor_;
 
     int				selnodeidx_;
-    TypeSet<DataPack::ID>	datapackids_;
-    TypeSet<DataPack::ID>	transfdatapackids_;
+    RefObjectSet<RandomSeisDataPack>	datapacks_;
+    RefObjectSet<RandomSeisDataPack>	transfdatapacks_;
+
     TypeSet<BinID>		trcspath_;
     TypeSet<BinID>		nodes_;
 
-    ZAxisTransform*		datatransform_;
+    ZAxisTransform*		datatransform_ = nullptr;
     Interval<float>		depthrg_;
-    int				voiidx_;
+    int				voiidx_ = -1;
 
     TrcKeyPath			trckeypath_;
-    int				pickstartnodeidx_;
-    bool			ispicking_;
-    int				oldstyledoubleclicked_;
+    int				pickstartnodeidx_ = -1;
+    bool			ispicking_ = false;
+    int				oldstyledoubleclicked_ = 0;
 
     struct UpdateStageInfo
     {
@@ -264,12 +263,12 @@ protected:
     };
     UpdateStageInfo		updatestageinfo_;
 
-    bool			lockgeometry_;
-    bool			ismanip_;
+    bool			lockgeometry_ = false;
+    bool			ismanip_ = false;
     int				namenr_;
-    bool			polylinemode_;
-    bool			interactivetexturedisplay_;
-    int				originalresolution_;
+    bool			polylinemode_ = false;
+    bool			interactivetexturedisplay_ = false;
+    int				originalresolution_ = -1;
 
     static const char*		sKeyTrack();
     static const char*		sKeyNrKnots();

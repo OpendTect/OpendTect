@@ -51,7 +51,7 @@ void VW2DFault::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<FlatDataPack> fdp = vwr.obtainPack( true, true );
+	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
 	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp )
@@ -94,7 +94,7 @@ void VW2DFault::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<FlatDataPack> fdp = vwr.obtainPack( true, true );
+	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
 	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp ) continue;

@@ -191,15 +191,15 @@ protected:
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
     void			updateTexShiftAndGrowth();
 
-    visBase::EventCatcher*		eventcatcher_;
+    visBase::EventCatcher*		eventcatcher_ = nullptr;
     MouseCursor				mousecursor_;
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
 
     visBase::GridLines*			gridlines_;
     SliceType				orientation_;
 
-    TypeSet<DataPack::ID>		datapackids_;
-    TypeSet<DataPack::ID>		transfdatapackids_;
+    RefObjectSet<RegularSeisDataPack>	datapacks_;
+    RefObjectSet<RegularSeisDataPack>	transfdatapacks_;
 
     ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
     ObjectSet<BinIDValueSet>		rposcache_;
@@ -210,15 +210,15 @@ protected:
     Notifier<PlaneDataDisplay>		movefinished_;
     Notifier<PlaneDataDisplay>		datachanged_;
 
-    ZAxisTransform*			datatransform_;
-    int					voiidx_;
+    ZAxisTransform*			datatransform_ = nullptr;
+    int					voiidx_ = -1;
 
     ConstRefMan<mVisTrans>		displaytrans_;
     RefMan<visBase::TextureRectangle>	texturerect_;
 
-    int					originalresolution_;
-    bool				forcemanipupdate_;
-    bool				interactivetexturedisplay_;
+    int					originalresolution_ = -1;
+    bool				forcemanipupdate_ = false;
+    bool				interactivetexturedisplay_ = false;
 
     struct UpdateStageInfo
     {
@@ -226,9 +226,9 @@ protected:
 	TrcKeyZSampling oldcs_;
 	SliceType	oldorientation_;
     };
-    UpdateStageInfo			updatestageinfo_;
-    TrcKeyZSampling			startmovepos_;
-    Undo&				undo_;
+    UpdateStageInfo		updatestageinfo_;
+    TrcKeyZSampling		startmovepos_;
+    Undo&			undo_;
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyResolution()  { return "Resolution"; }

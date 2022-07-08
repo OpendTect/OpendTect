@@ -745,13 +745,15 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     }
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    auto cache = dpm.get<RegularSeisDataPack>( cacheid );
-    ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr());
+    ConstRefMan<RegularSeisDataPack> cache =
+					dpm.get<RegularSeisDataPack>( cacheid );
+    ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr() );
     if ( !newpack )
 	return DataPack::cNoID();
 
+    newpack.setNoDelete( true );
     dpm.add( newpack );
-    dpm.ref( newpack->id() );
+
     return newpack->id();
 }
 
@@ -817,7 +819,7 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     }
 
     bool success = true;
-    PtrMan<Processor> process = nullptr;
+    PtrMan<Processor> process;
     RefMan<RegularSeisDataPack> output;
     //note: 1 attrib computed at a time
     if ( !preloadeddatapack && !atsamplepos )
@@ -831,17 +833,17 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
 	uiTaskRunner taskr( parent() );
-	DataPointSet posvals( rgprov3d.is2D() );
-	if ( !posvals.extractPositions(rgprov3d,dtcoldefset,nullptr,&taskr) )
+	RefMan<DataPointSet> posvals = new DataPointSet( rgprov3d.is2D() );
+	if ( !posvals->extractPositions(rgprov3d,dtcoldefset,nullptr,&taskr) )
 	    return nullptr;
 
 	const int firstcolidx = 0;
 
 	uiString errmsg;
-	process = aem->getTableOutExecutor( posvals, errmsg, firstcolidx );
+	process = aem->getTableOutExecutor( *posvals, errmsg, firstcolidx );
 	if ( !process )
 	{
-	    uiMSG().error(errmsg);
+	    uiMSG().error( errmsg );
 	    return nullptr;
 	}
 
@@ -849,7 +851,7 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    return nullptr;
 
 	TypeSet<float> vals;
-	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, vals,
+	posvals->bivSet().getColumn( posvals->nrFixedCols()+firstcolidx, vals,
 				    true );
 	if ( !vals.isEmpty() )
 	{
@@ -1092,7 +1094,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     if ( targetdesc )
     {
 	const MultiID mid( targetdesc->getStoredID() );
-	auto sdp = Seis::PLDM().get<RegularSeisDataPack>( mid );
+	ConstRefMan<RegularSeisDataPack> sdp =
+			Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
 	{
 	    BufferStringSet componentnames;
@@ -1207,7 +1210,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 			   : attrds->getDesc(targetspecs_[0].id());
 
     const MultiID mid( targetdesc->getStoredID() );
-    auto sdp = Seis::PLDM().get<RegularSeisDataPack>( mid );
+    ConstRefMan<RegularSeisDataPack> sdp =
+				Seis::PLDM().get<RegularSeisDataPack>( mid );
     if ( sdp )
     {
 	BufferStringSet componentnames;
@@ -1226,7 +1230,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     if ( !createOutput(bidset,output,trueknotspos,trckeys) )
 	return DataPack::cNoID();
 
-    RandomSeisDataPack* newpack = new RandomSeisDataPack(
+    auto* newpack = new RandomSeisDataPack(
 				SeisDataPack::categoryStr(true,false) );
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );

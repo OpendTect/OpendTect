@@ -364,7 +364,7 @@ mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 template <class T> inline
 RefMan<T> DataPackMgr::get( PackID dpid )
 {
-    auto pack = getDP( dpid );
+    RefMan<DataPack> pack = getDP( dpid );
     mDynamicCastGet( T*, casted, pack.ptr() );
     return RefMan<T>( casted );
 }
@@ -372,7 +372,7 @@ RefMan<T> DataPackMgr::get( PackID dpid )
 template <class T> inline
 ConstRefMan<T> DataPackMgr::get( PackID dpid ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     mDynamicCastGet( const T*, casted, pack.ptr() );
     return ConstRefMan<T>( casted );
 }
@@ -381,7 +381,7 @@ ConstRefMan<T> DataPackMgr::get( PackID dpid ) const
 template <class T> inline
 WeakPtr<T> DataPackMgr::observe( PackID dpid ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     pack.setNoDelete( true );
 
     mDynamicCastGet( const T*, casted, pack.ptr() );

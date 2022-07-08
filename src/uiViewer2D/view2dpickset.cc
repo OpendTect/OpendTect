@@ -87,7 +87,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 	crd.z = vwr.getZAxisTransform()->transformBack( crd );
 
     Pick::Location newloc( crd );
-    ConstRefMan<FlatDataPack> dp = vwr.obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true );
     if ( dp )
     {
 	mDynamicCastGet(const SeisFlatDataPack*,seisdp,dp.ptr())
@@ -112,7 +112,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 {
     mCBCapsuleGet(bool,caps,cb);
     mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,caps->caller);
-    ConstRefMan<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true );
     if ( !fdp || !editor || !pickset_ )
 	return;
 
@@ -222,7 +222,7 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 
 void VW2DPickSet::drawAll()
 {
-    ConstRefMan<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true );
     if ( !fdp || !pickset_ ) return;
 
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());

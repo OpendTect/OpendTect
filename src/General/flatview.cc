@@ -527,7 +527,7 @@ void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
-    ConstRefMan<FlatDataPack> dp = obtainPack( iswva );
+    ConstRefMan<FlatDataPack> dp = getPack( iswva );
     if ( !dp )
     {
 	iswva ? iop.removeWithKey( sKeyWVAData() )
@@ -574,8 +574,9 @@ int FlatView::Viewer::nrDec() const
 
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
-    ConstRefMan<FlatDataPack> fdp = obtainPack( false, true );
-    if ( !fdp ) return Coord3::udf();
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
+    if ( !fdp )
+	return Coord3::udf();
 
     const FlatPosData& pd = fdp->posData();
     const IndexInfo ix = pd.indexInfo( true, wp.x );
@@ -588,7 +589,7 @@ Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
     const int ceilx = ix.roundedtolow_ ? ix.nearest_ + 1 : ix.nearest_;
     const int ceily = iy.roundedtolow_ ? iy.nearest_ + 1 : ix.nearest_;
     if ( !fdp->data().info().validPos(floorx,floory) ||
-	    !fdp->data().info().validPos(ceilx,ceily) )
+	 !fdp->data().info().validPos(ceilx,ceily) )
 	return fdp->getCoord( ix.nearest_, iy.nearest_ );
 
     Coord3 pos1 = fdp->getCoord( floorx, floory );
@@ -640,21 +641,35 @@ void FlatView::Viewer::addPack( DataPack::ID id )
 }
 
 
-ConstRefMan<FlatDataPack> FlatView::Viewer::obtainPack(
-				bool wva, bool checkother ) const
+ConstRefMan<FlatDataPack>
+FlatView::Viewer::getPack( bool wva, bool checkother ) const
 {
     Threads::Locker locker( lock_ );
     ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
     if ( !res && checkother )
 	res = wva ? vdpack_.get() : wvapack_.get();
-    dpm_.add( res );
+
+    return res;
+}
+
+
+ConstRefMan<FlatDataPack>
+FlatView::Viewer::obtainPack( bool wva, bool checkother ) const
+{
+    Threads::Locker locker( lock_ );
+    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
+    if ( !res && checkother )
+	res = wva ? vdpack_.get() : wvapack_.get();
+
+    refPtr( res );
+    dpm_.add( const_cast<FlatDataPack*>(res.ptr()) );
     return res;
 }
 
 
 DataPack::ID FlatView::Viewer::packID( bool wva ) const
 {
-    ConstRefMan<FlatDataPack> dp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> dp = getPack( wva );
     return dp ? dp->id() : ::DataPack::cNoID();
 }
 
@@ -740,7 +755,7 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
 	    vdpack_ = dpm_.observe<FlatDataPack>( id );
     }
 
-    ConstRefMan<FlatDataPack> fdp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> fdp = getPack( wva );
     if ( !fdp )
     {
 	if ( ids_.size() == 1 && ids_[0] == id && id == DataPack::cNoID() &&
@@ -850,8 +865,9 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = appearance().ddpars_.wva_.show_;
-    ConstRefMan<FlatDataPack> dp = obtainPack( wva, true );
-    if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
+    ConstRefMan<FlatDataPack> dp = getPack( wva, true );
+    if ( !dp )
+	return StepInterval<double>(mUdf(double),mUdf(double),1);
     return dp->posData().range( forx1 );
 }
 

@@ -513,7 +513,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     const double offsetscale = Coord( basedirection_.x*SI().inlDistance(),
 				     basedirection_.y*SI().crlDistance()).abs();
 
-    ConstRefMan<FlatDataPack> fdp = flatviewer_->obtainPack( false );
+    ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false );
     int nrtrcs = 0;
     if ( fdp )
     {
@@ -950,7 +950,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     if ( !flatviewer_  )
 	return;
 
-    ConstRefMan<FlatDataPack> fdp = flatviewer_->obtainPack( false );
+    ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false );
     if ( !fdp ) return;
 
     const int nrtrcs = fdp->size( true );

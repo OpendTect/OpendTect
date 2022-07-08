@@ -664,23 +664,22 @@ DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 DataPack::ID uiODViewer2D::createFlatDataPack(
 				DataPack::ID dpid, int comp ) const
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( !seisdp || !(comp<seisdp->nrComponents()) ) return dpid;
+    if ( !seisdp || !(comp<seisdp->nrComponents()) )
+	return dpid;
 
     const FixedString zdomainkey( seisdp->zDomain().key() );
     const bool alreadytransformed =
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( datatransform_ && !alreadytransformed )
     {
-	DataPack::ID outputid = DataPack::cNoID();
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( seisdp.ptr() );
-	transformer.setOutput( outputid );
 	transformer.setInterpolate( true );
 	transformer.execute();
-	if ( outputid != DataPack::cNoID() )
-	    seisdp = dpm.get<SeisDataPack>( outputid );
+	if ( transformer.getOutput() )
+            seisdp = transformer.getOutput();
     }
 
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
@@ -977,7 +976,7 @@ void uiODViewer2D::usePar( const IOPar& iop )
     {
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
-	ConstRefMan<RegularSeisDataPack> regsdp = vwr.obtainPack( iswva );
+	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva );
 	if ( regsdp ) setPos( tkzs );
     }
 
@@ -1046,7 +1045,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	marker_->markerstyles_ += MarkerStyle2D();
     }
 
-    ConstRefMan<FlatDataPack> fdp = vwr.obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = vwr.getPack( false, true );
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
     if ( !seisfdp && !mapdp ) return;

@@ -106,7 +106,7 @@ void DataPack::setManager( const DataPackMgr* mgr )
 {
     if ( manager_ && mgr )
     {
-	if ( manager_!=mgr )
+	if ( manager_ != mgr )
 	    DBG::forceCrash( false );
 
 	return;
@@ -160,13 +160,13 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
 
 const char* DataPackMgr::nameOf( const DataPack::FullID& fid )
 {
-    return ::DPM(fid).nameOf( DataPack::getID(fid) );
+    return ::DPM(fid).nameOf( fid.packID() );
 }
 
 
 const char* DataPackMgr::categoryOf( const DataPack::FullID& fid )
 {
-    return ::DPM(fid).categoryOf( DataPack::getID(fid) );
+    return ::DPM(fid).categoryOf( fid.packID() );
 }
 
 
@@ -216,7 +216,7 @@ DataPackMgr::~DataPackMgr()
 
 const char* DataPackMgr::categoryOf( PackID dpid ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     if ( !pack )
 	return nullptr;
 
@@ -227,12 +227,14 @@ const char* DataPackMgr::categoryOf( PackID dpid ) const
 
 bool DataPackMgr::doAdd( const DataPack* constdp )
 {
-    RefMan<DataPack> dp = const_cast<DataPack*>( constdp );
+    auto* dp = const_cast<DataPack*>( constdp );
     if ( !dp )
 	{ pErrMsg("null datapack to add"); return false; }
     else if ( isPresent(dp->id()) )
 	return false;
 
+    RefMan<DataPack> keeper = dp;
+    keeper.setNoDelete( true );
     dp->setManager( this );
 
     packs_ += dp;
@@ -273,9 +275,10 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 
 void DataPackMgr::dumpInfoFor( PackID dpid, IOPar& iop ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     pack.setNoDelete( true );
-    if ( pack ) pack->dumpInfo( iop );
+    if ( pack )
+	pack->dumpInfo( iop );
 }
 
 
@@ -344,9 +347,9 @@ bool DataPackMgr::isPresent( PackID packid ) const
 
 const char* DataPackMgr::nameOf( PackID dpid ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     if ( !pack )
-	return 0;
+	return nullptr;
 
     pack.setNoDelete( true );
     return pack->name();
@@ -355,7 +358,7 @@ const char* DataPackMgr::nameOf( PackID dpid ) const
 
 float DataPackMgr::nrKBytes() const
 {
-    float res = 0;
+    float res = 0.f;
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
 	ConstRefMan<DataPack> pack = packs_[idx];
@@ -369,9 +372,9 @@ float DataPackMgr::nrKBytes() const
 
 float DataPackMgr::nrKBytesOf( PackID dpid ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     if ( !pack )
-	return 0;
+	return 0.f;
 
     pack.setNoDelete( true );
     return pack->nrKBytes();
@@ -396,7 +399,7 @@ WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
 
 bool DataPackMgr::ref( PackID dpid )
 {
-    auto pack = getDP( dpid );
+    RefMan<DataPack> pack = getDP( dpid );
     if ( pack )
 	{ pack->ref(); return true; }
     return false;
@@ -405,7 +408,7 @@ bool DataPackMgr::ref( PackID dpid )
 
 bool DataPackMgr::unRef( PackID dpid )
 {
-    auto pack = getDP( dpid );
+    RefMan<DataPack> pack = getDP( dpid );
     if ( pack )
 	{ pack->unRef(); return true; }
 
@@ -418,7 +421,8 @@ void DataPack::dumpInfo( IOPar& iop ) const
     iop.set( sKeyCategory(), category() );
     iop.set( sKey::Name(), name() );
     iop.set( "Pack.ID", id_.asInt() );
-    iop.set( "Nr users", nrRefs() );
+    iop.set( "Nr users", nrRefs() > 0 ? nrRefs()-1 : nrRefs() );
+		// Omitting the reference coming from this function call
     const od_int64 nrkb = static_cast<od_int64>( nrKBytes()+0.5f );
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
 }

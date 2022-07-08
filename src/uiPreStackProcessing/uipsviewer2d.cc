@@ -71,8 +71,10 @@ uiGatherDisplay::~uiGatherDisplay()
 void uiGatherDisplay::setVDGather( DataPack::ID vdid )
 {
     gatherpainter_->setVDGather( vdid );
-    ConstRefMan<FlatDataPack> dp = viewer_->obtainPack( false );
-    if ( !dp ) return;
+    ConstRefMan<FlatDataPack> dp = viewer_->getPack( false );
+    if ( !dp )
+	return;
+
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
 		      (float)pd.range(true).stop );
@@ -84,8 +86,10 @@ void uiGatherDisplay::setVDGather( DataPack::ID vdid )
 void uiGatherDisplay::setWVAGather( DataPack::ID wvaid )
 {
     gatherpainter_->setWVAGather( wvaid );
-    ConstRefMan<FlatDataPack> dp = viewer_->obtainPack( true );
-    if ( !dp ) return;
+    ConstRefMan<FlatDataPack> dp = viewer_->getPack( true );
+    if ( !dp )
+	return;
+
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
 		      (float)pd.range(true).stop );

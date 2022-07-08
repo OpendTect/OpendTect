@@ -170,7 +170,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !checkSanity(*tracker,*emobj,*seedpicker,pickinvd) )
 	return;
 
-    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
+    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().getPack(!pickinvd);
     if ( !dp )
 	{ uiMSG().error( tr("No data to choose from") ); return; }
 

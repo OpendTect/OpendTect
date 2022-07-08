@@ -190,8 +190,9 @@ void uiFlatViewer::setInitialSize( const uiSize& sz )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    ConstRefMan<FlatDataPack> dp = obtainPack( wva, true );
-    if ( !dp ) return uiWorldRect(0,0,1,1);
+    ConstRefMan<FlatDataPack> dp = getPack( wva, true );
+    if ( !dp )
+	return uiWorldRect(0,0,1,1);
 
     const FlatPosData& pd = dp->posData();
     StepInterval<double> rg0( pd.range(true) );
@@ -249,7 +250,7 @@ void uiFlatViewer::removePack( ::DataPack::ID dpid )
 
 StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 {
-    ConstRefMan<FlatDataPack> dp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = getPack( false, true );
     return dp ? dp->posData().range(forx1) : StepInterval<double>();
 }
 
@@ -312,8 +313,8 @@ void uiFlatViewer::updateCB( CallBacker* cb )
 
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
-    ConstRefMan<FlatDataPack> wvapack = obtainPack( true );
-    ConstRefMan<FlatDataPack> vdpack = obtainPack( false );
+    ConstRefMan<FlatDataPack> wvapack = getPack( true );
+    ConstRefMan<FlatDataPack> vdpack = getPack( false );
     bitmapdisp_->setDataPack( wvapack.ptr(), true );
     bitmapdisp_->setDataPack( vdpack.ptr(), false );
 
@@ -326,7 +327,7 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
-    ConstRefMan<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )
@@ -338,7 +339,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 
 void uiFlatViewer::setAnnotChoice( int sel )
 {
-    ConstRefMan<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
     if ( !fdp ) return;
 
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
@@ -432,6 +433,6 @@ void uiFlatViewer::setSeisGeomidsToViewer(TypeSet<Pos::GeomID>& geomids)
 
 const FlatPosData* uiFlatViewer::getFlatPosData( bool iswva )
 {
-    ConstRefMan<FlatDataPack> fdp = obtainPack(iswva);
+    ConstRefMan<FlatDataPack> fdp = getPack(iswva);
     return fdp ? &fdp->posData() : nullptr;
 }
