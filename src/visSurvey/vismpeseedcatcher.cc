@@ -368,12 +368,16 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
-    if ( !hor2d ) return;
+    if ( !hor2d )
+	return;
 
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
     EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
 					eventinfo.pickedobjids,clickedpos );
+    if ( nodepid.isUdf() )
+	return;
+
     const int lineidx = nodepid.getRowCol().row();
     const Pos::GeomID geomid = hor2d->geometry().geomID( lineidx );
     const TrcKey tk( geomid, nodepid.getRowCol().col() );

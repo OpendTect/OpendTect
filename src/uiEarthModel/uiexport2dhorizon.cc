@@ -350,7 +350,9 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	return;
 
     const bool wrtlnm = optsfld_->isChecked( 0 );
-    const BufferString zstr( "Z ", optsfld_->isChecked(1) ? "(ms)" : "(s)" );
+    const BufferString zstr( "Z ", optsfld_->isChecked(1) ? 
+	    				(SI().zIsTime() ? "(ms)" : "(ft)")
+					: (SI().zIsTime() ? "(s)" : "(m)") );
     BufferString headerstr;
     if ( headerfld_->getIntValue() == 1 )
     {
