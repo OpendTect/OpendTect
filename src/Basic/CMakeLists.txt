@@ -29,6 +29,7 @@ set( OD_TEST_PROGS
 	file.cc
 	geometry.cc
 	globexpr.cc
+	iopar.cc
 	latlong.cc
 	math2.cc
 	memcopying.cc
