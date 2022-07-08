@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiprestackprocessingmod.h"
+#include "datapack.h"
 #include "position.h"
 #include "uiobjectitemview.h"
 #include "uigroup.h"
@@ -34,8 +35,8 @@ public:
 
     virtual void                setPosition(const BinID&,
 					    const Interval<double>* zrg=0);
-    void			setVDGather(int);
-    void			setWVAGather(int);
+    void			setVDGather(DataPack::ID);
+    void			setWVAGather(DataPack::ID);
 
     void                        displayAnnotation(bool yn);
     bool                        displaysAnnotation() const;
@@ -73,11 +74,12 @@ protected:
 
 mExpClass(uiPreStackProcessing) uiViewer2D : public uiObjectItemView
 {
-public: 
+public:
 				uiViewer2D(uiParent*);
 				~uiViewer2D();
 
-    uiGatherDisplay*		addGatherDisplay(int vdid, int wvaid=-1);
+    uiGatherDisplay*		addGatherDisplay(DataPack::ID vdid,
+				 DataPack::ID wvaid=DataPack::ID::getInvalid());
     void			addGatherDisplay(uiGatherDisplay*);
     void 			removeGatherDisplay(const uiGatherDisplay*);
     uiGatherDisplay& 		getGatherDisplay(int idx);

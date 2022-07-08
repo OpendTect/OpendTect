@@ -559,7 +559,7 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
     if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
 	return;
 
-    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd_ );
+    ConstRefMan<FlatDataPack> dp = vwr->obtainPack( !pickinvd_ );
     if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
 	return;
 
@@ -685,7 +685,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
     if ( h2dsp )
 	h2dsp->setSelSpec( as );
 
-    if ( dp.id() > DataPack::cNoID() )
+    if ( dp.id().isValid() && dp.id()!=DataPack::cNoID() )
 	MPE::engine().setAttribData( *as, dp.id() );
 
     if ( !h2dsp || !h2dsp->canAddSeed(*as) )

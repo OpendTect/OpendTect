@@ -68,7 +68,7 @@ void uiHistogramSel::setEmpty()
 
 
 bool uiHistogramSel::setDataPackID(
-	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
+	DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
 {
     const bool retval = histogramdisp_->setDataPackID( dpid, dmid,version);
     const bool nodata = histogramdisp_->xVals().isEmpty();

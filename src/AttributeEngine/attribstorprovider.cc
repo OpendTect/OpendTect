@@ -62,7 +62,8 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     const MultiID dbky( valstr.buf() );
     if ( dbky.isInMemoryID() )
     {
-	if ( !DPM(dbky).haveID(dbky) )
+	const DataPack::FullID fid( dbky );
+	if ( !DPM(fid).isPresent(fid) )
 	    desc.setErrMsg( "Cannot find data in memory" );
 	return;
     }
@@ -172,7 +173,8 @@ StorageProvider::StorageProvider( Desc& desc )
     , stepoutstep_(-1,0)
 {
     const MultiID dbky = getDBKey( &desc );
-    isondisc_ = dbky.isInMemoryID() ? !DPM(dbky).haveID(dbky) : true;
+    const DataPack::FullID fid( dbky );
+    isondisc_ = dbky.isInMemoryID() ? !DPM(fid).isPresent(fid) : true;
 }
 
 
@@ -195,8 +197,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     {
 	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
 	const DataPack::FullID fid = getDPID();
-	DataPackRef<SeisTrcBufDataPack> stbdtp =
-				DPM(fid).obtain( DataPack::getID(fid) );
+	auto stbdtp = DPM(fid).get<SeisTrcBufDataPack>( DataPack::getID(fid) );
 	if ( !stbdtp )
 	    return false;
 
@@ -739,15 +740,14 @@ DataPack::FullID StorageProvider::getDPID( const Desc* desc ) const
 {
     const Desc* usedesc = desc ? desc : &desc_;
     const MultiID dbky = getDBKey( usedesc );
-    return dbky.isInMemoryID() ? dbky : DataPack::FullID::udf();
+    return dbky.isInMemoryID() ? dbky : DataPack::FullID::getInvalid();
 }
 
 
 SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 {
     const DataPack::FullID fid = getDPID();
-    DataPackRef<SeisTrcBufDataPack> stbdtp =
-				    DPM( fid ).obtain( DataPack::getID(fid) );
+    auto stbdtp = DPM( fid ).get<SeisTrcBufDataPack>( DataPack::getID(fid) );
     if ( !stbdtp )
 	return nullptr;
 

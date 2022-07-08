@@ -57,7 +57,7 @@ EngineMan::~EngineMan()
     delete nlamodel_;
     delete &tkzs_;
     if ( cache_ )
-	dpm_.release( cache_ );
+	dpm_.unRef( cache_->id() );
 }
 
 
@@ -296,9 +296,9 @@ const char* EngineMan::getCurUserRef() const
 }
 
 
-const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
+RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 {
-    RegularSeisDataPack* output = 0;
+    RefMan<RegularSeisDataPack> output;
     if ( proc.outputs_.size()==1 && !cache_ )
     {
 	output = const_cast<RegularSeisDataPack*>(
@@ -318,32 +318,34 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
     ObjectSet<const RegularSeisDataPack> packset;
     for ( int idx=0; idx<proc.outputs_.size(); idx++ )
     {
-	const RegularSeisDataPack* dp =
-		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
+	ConstRefMan<RegularSeisDataPack> dp = proc.outputs_[idx] ?
+					    proc.outputs_[idx]->getDataPack()
+					    : nullptr;
 	if ( !dp || !dp->sampling().isDefined() )
 	    continue;
 
-	dpm_.addAndObtain( const_cast<RegularSeisDataPack*>(dp) );
+	dpm_.add( const_cast<RegularSeisDataPack*>(dp.ptr()) );
 	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
 	{
-	    dpm_.release( dp->id() );
+	    dpm_.unRef( dp->id() );
 	    continue;
 	}
 
+	dp->ref();
 	packset += dp;
     }
 
     if ( cache_ )
     {
 	packset += cache_;
-	dpm_.obtain( cache_->id() );
+	dpm_.ref( cache_->id() );
     }
 
     if ( !packset.isEmpty() )
-	output = const_cast<RegularSeisDataPack*>( getDataPackOutput(packset) );
+	output = const_cast<RegularSeisDataPack*>(
+					    getDataPackOutput(packset).ptr() );
 
-    for ( int idx=packset.size()-1; idx>=0; idx-- )
-	dpm_.release( packset[idx] );
+    deepUnRef( packset );
 
     return output;
 }
@@ -599,7 +601,7 @@ protected:
 };
 
 
-const RegularSeisDataPack* EngineMan::getDataPackOutput(
+RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
     if ( packset.isEmpty() ) return nullptr;
@@ -854,8 +856,8 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 {
     if ( cache_ )
     {
-	dpm_.release( cache_ );
-	cache_ = 0;
+	dpm_.unRef( cache_->id() );
+	cache_ = nullptr;
     }
 
 
@@ -864,7 +866,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
     else if ( prev )
     {
 	cache_ = prev;
-	dpm_.obtain( cache_->id() );
+	dpm_.ref( cache_->id() );
 	const TrcKeyZSampling cachecs = cache_->sampling();
 	if ( mRg(h).step_ != tkzs_.hsamp_.step_
 	  || (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
@@ -879,7 +881,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
 	    // No overlap, gotta crunch all the numbers ...
 	{
-	    dpm_.release( cache_ );
+	    dpm_.unRef( cache_->id() );
 	    cache_ = 0;
 	}
     }

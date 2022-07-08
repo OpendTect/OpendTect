@@ -39,17 +39,18 @@ protected:
     uiSlider*			possldr_;
     uiComboBox*			altdimnmflds_;
     uiGenInput*			posvalfld_;
-    FlatDataPack*		fdp_;
+    RefMan<FlatDataPack>	fdp_;
 
     void			sldrPosChangedCB(CallBacker*);
 };
 
 mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
 {  mODTextTranslationClass(uiTrcPositionDlg);
-public:                                                                         
+public:
 				uiTrcPositionDlg(uiParent*,
 						 const DataPack::FullID&);
-				uiTrcPositionDlg(uiParent*,const TrcKeyZSampling&,
+				uiTrcPositionDlg(uiParent*,
+						 const TrcKeyZSampling&,
 			      			 bool,const MultiID&);
 				~uiTrcPositionDlg();
 

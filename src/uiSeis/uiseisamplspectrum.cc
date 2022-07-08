@@ -15,14 +15,13 @@ _______________________________________________________________________
 
 
 void uiSeisAmplSpectrum::setDataPackID(
-		DataPack::ID dpid, DataPackMgr::ID dmid, int version )
+		DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
 {
     uiAmplSpectrum::setDataPackID( dpid, dmid, version );
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
-	mDynamicCastGet(const SeisDataPack*,dp,datapack.ptr());
+	auto dp = DPM(dmid).get<SeisDataPack>( dpid );
 	if ( dp )
 	{
 	    setup_.nyqvistspspace_ = dp->zRange().step;

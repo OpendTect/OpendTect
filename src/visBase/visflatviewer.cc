@@ -33,7 +33,7 @@ mCreateFactoryEntry( visBase::FlatViewer );
 
 namespace visBase
 {
-   
+
 FlatViewer::FlatViewer()
     : VisualObjectImpl(false)
     , dataChanged(this)
@@ -56,7 +56,7 @@ FlatViewer::FlatViewer()
     if ( channels_->nrChannels()<1 )
     {
     	channels_->addChannel();
-    	channel2rgba_->setEnabled( 0, true );	
+	channel2rgba_->setEnabled( 0, true );
     }
 
     rectangle_->setMaterial( 0 );
@@ -88,10 +88,10 @@ void FlatViewer::handleChange( unsigned int dt)
 {
     switch ( dt )
     {
-	case All:	
-	case Auxdata:	
+	case All:
+	case Auxdata:
 	case Annot:
-	    {	
+	    {
 		updateGridLines( true );
 		updateGridLines( false );
 
@@ -100,7 +100,7 @@ void FlatViewer::handleChange( unsigned int dt)
 	    }
 	case BitmapData:
 	    {
-		ConstDataPackRef<FlatDataPack> dp = obtainPack( false );
+		ConstRefMan<FlatDataPack> dp = obtainPack( false );
 		if ( !dp )
 		    channels_->turnOn( false );
 		else
@@ -108,10 +108,10 @@ void FlatViewer::handleChange( unsigned int dt)
 		    const Array2D<float>& dparr = dp->data();
 		    const float* arr = dparr.getData();
 		    OD::PtrPolicy cp = OD::UsePtr;
-		    
+
 		    int rowsz = dparr.info().getSize(0);
 		    int colsz = dparr.info().getSize(1);
-		    
+
 		    if ( !arr || resolution_!=0 )
 		    {
 			rowsz = 1 + (rowsz-1) * (resolution_+1);
@@ -119,7 +119,7 @@ void FlatViewer::handleChange( unsigned int dt)
 
 			const od_int64 totalsz = rowsz*colsz;
 			mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
-			
+
 			if ( !tmparr )
 			{
 			    channels_->turnOn( false );
@@ -152,7 +152,7 @@ void FlatViewer::handleChange( unsigned int dt)
 			break;
 		}
 	    }
-	case DisplayPars: 	
+	case DisplayPars:
 	    {
 	    	const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
 	    	ColTab::MapperSetup mappersetup;
@@ -173,11 +173,11 @@ void FlatViewer::handleChange( unsigned int dt)
 		}
 		dispParsChanged.trigger();
 	    }
-    }			
+    }
 }
 
 
-void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01, 
+void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 			      const Coord3& c10, const Coord3& c11 )
 {
     const Coord3 center = 0.5 * (c01+c10);
@@ -194,15 +194,15 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
     c01_ = c01;
     c10_ = c10;
     c11_ = c11;
-    
+
     updateGridLines( true );
     updateGridLines( false );
-}    
+}
 
 
 const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( false );
+    ConstRefMan<FlatDataPack> dp = obtainPack( false );
     if ( !dp )
 	return SamplingData<float>( 0, 1 );
 
@@ -229,7 +229,7 @@ void FlatViewer::updateGridLines( bool x1 )
     	x2gridlines_->getMaterial()->setColor( markcolor );
     }
 
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( false );
+    ConstRefMan<FlatDataPack> dp = obtainPack( false );
     PolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
 
     if ( !dp || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
@@ -255,13 +255,13 @@ void FlatViewer::updateGridLines( bool x1 )
     {
 	const float relpos = (pos-range.start)/rgwidth;
 
-	const Coord3 startpos = x1 
+	const Coord3 startpos = x1
 	    ? c00_*(1-relpos)+c10_*relpos
 	    : c00_*(1-relpos)+c01_*relpos;
 	const Coord3 stoppos = x1
 	    ? c01_*(1-relpos)+c11_*relpos
 	    : c10_*(1-relpos)+c11_*relpos;
-	
+
 	gridlines->addPoint( startpos );
 	gridlines->addPoint( stoppos );
 	const int lastidx = gridlines->size();
@@ -308,9 +308,9 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
     Interval<float> range = mapper.range_;
     if ( !range.isUdf() )
 	return range;
- 
+
     DataClipper clipper;
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> dp = obtainPack( wva );
     if ( dp )
 	clipper.putData( dp->data() );
     clipper.fullSort();

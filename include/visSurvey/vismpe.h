@@ -139,7 +139,7 @@ public:
     const RegularSeisDataPack*	getCacheVolume(int attrib) const;
     bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
     DataPack::ID	getDataPackID(int attrib) const;
-    virtual DataPackMgr::ID	getDataPackMgrID() const
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const
                                 { return DataPackMgr::SeisID(); }
 
     virtual bool        allowsPicks() const;

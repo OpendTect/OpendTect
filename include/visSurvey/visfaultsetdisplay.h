@@ -128,7 +128,7 @@ public:
     bool			setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
-    DataPackMgr::ID		getDataPackMgrID() const
+    DataPackMgr::MgrID		getDataPackMgrID() const
 				{ return DataPackMgr::PointID(); }
 
     void			doOtherObjectsMoved(

@@ -187,9 +187,9 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 
 
 void uiFKSpectrum::setDataPackID(
-	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
+	DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
 {
-    ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
+    ConstRefMan<DataPack> datapack = DPM(dmid).getDP( dpid );
     setCaption( !datapack ? tr("No data")
 	    : tr("F-K Spectrum for %1").arg(datapack->name()) );
 

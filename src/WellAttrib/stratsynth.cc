@@ -2489,7 +2489,7 @@ bool createInstAttributeSet()
 {
     delete descset_;
     descset_ = new Attrib::DescSet( false );
-    const MultiID dbky = sd_.fullID();
+    const MultiID dbky = sd_.fullID().asMultiID();
     const Attrib::DescID did = descset_->getStoredID( dbky, 0, true );
     const Attrib::Desc* inpdesc = descset_->getDesc( did );
     if ( !inpdesc )

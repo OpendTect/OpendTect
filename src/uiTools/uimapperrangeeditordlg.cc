@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
-						DataPackMgr::ID dmid )
+						DataPackMgr::MgrID dmid )
     : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(),
 				mNoDlgTitle,
 				mODHelpKey(mMultiMapperRangeEditWinHelpID) )

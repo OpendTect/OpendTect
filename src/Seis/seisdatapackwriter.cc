@@ -177,7 +177,7 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 
 void SeisDataPackWriter::obtainDP()
 {
-    if ( !dp_ || !DPM( DataPackMgr::SeisID() ).obtain(dp_->id()) )
+    if ( !dp_ || !DPM( DataPackMgr::SeisID() ).ref(dp_->id()) )
     {
 	releaseDP();
 	return;
@@ -189,9 +189,9 @@ void SeisDataPackWriter::obtainDP()
 
 void SeisDataPackWriter::releaseDP()
 {
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
-    dp_ = 0;
-    posinfo_ = 0;
+    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
+    dp_ = nullptr;
+    posinfo_ = nullptr;
 }
 
 

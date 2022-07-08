@@ -26,8 +26,10 @@ class uiTable;
 mExpClass(uiIo) DPSMergerProp
 { mODTextTranslationClass(DPSMergerProp);
 public:
-				DPSMergerProp( const MultiID& id, int mid,
-					       int sid )
+    typedef DataPack::ID	PackID;
+
+				DPSMergerProp( const MultiID& id, PackID mid,
+					       PackID sid )
 				    : masterdpsid_(mid), slavedpsid_(sid)
 				    , newdpsid_(id), maxz_(mUdf(float))
 				    , maxhordist_(mUdf(float))
@@ -46,8 +48,8 @@ public:
 
    ReplacePolicy		replacePolicy() const	{ return replacepol_; }
 
-   int				primaryDPID() const;
-   int				secondaryDPID() const;
+   PackID			primaryDPID() const;
+   PackID			secondaryDPID() const;
    const TypeSet<int>&		primaryColIDs() const;
    const TypeSet<int>&		secondaryColIDs() const;
    const MultiID&		newDPSID() const	{ return newdpsid_; }
@@ -72,9 +74,9 @@ protected:
 
    bool				dooverwriteundef_;
    // TODO: rename to primarydpsid_;
-   int 				masterdpsid_;
+   PackID				masterdpsid_;
    // TODO: rename to secondarydpsid_;
-   int 				slavedpsid_;
+   PackID				slavedpsid_;
    // TODO: rename to primarycolids_;
    TypeSet<int>			mastercolids_;
    // TODO: rename to secondarycolids_;
@@ -85,9 +87,9 @@ protected:
 
 public:
    mDeprecated("Use primaryDPID()")
-   int 				masterDPID() const	{ return masterdpsid_;}
+   PackID			masterDPID() const	{ return masterdpsid_;}
    mDeprecated("Use secondaryDPID()")
-   int 				slaveDPID() const	{ return slavedpsid_; }
+   PackID			slaveDPID() const	{ return slavedpsid_; }
    mDeprecated("Use primaryColIDs()")
    const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
    mDeprecated("Use secondaryColIDs()")
@@ -106,13 +108,13 @@ public:
     uiString			uiNrDoneText() const
 				{return uiStrings::phrJoinStrings(
 				uiStrings::sPosition(mPlural),tr("processed"));}
-    DataPointSet*		getNewDPS()		{ return newdps_; }
+    RefMan<DataPointSet>	getNewDPS()		{ return newdps_; }
 
 protected:
     DPSMergerProp		prop_;
-    DataPointSet*		mdps_;
-    DataPointSet*		sdps_;
-    DataPointSet*		newdps_;
+    RefMan<DataPointSet>	mdps_;
+    RefMan<DataPointSet>	sdps_;
+    RefMan<DataPointSet>	newdps_;
     int 			rowdone_;
 
     int 			nextStep();
@@ -134,8 +136,8 @@ public:
 				~uiDataPointSetMerger();
 protected:
 
-    DataPointSet*		mdps_;
-    DataPointSet*		sdps_;
+    RefMan<DataPointSet>	mdps_;
+    RefMan<DataPointSet>	sdps_;
     CtxtIOObj			ctio_;
 
     uiTable*			tbl_;

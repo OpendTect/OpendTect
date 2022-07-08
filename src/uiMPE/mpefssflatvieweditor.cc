@@ -317,8 +317,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
 	    const Geom::Point2D<int>& mousepos, IndexInfo& ix, IndexInfo& iy,
 	    Coord3& worldpos, int* trcnr ) const
 {
-    ConstDataPackRef<FlatDataPack> dp =
-		editor_->viewer().obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = editor_->viewer().obtainPack( false, true );
     if ( !dp ) return false;
 
     const uiRect datarect( editor_->getMouseArea() );

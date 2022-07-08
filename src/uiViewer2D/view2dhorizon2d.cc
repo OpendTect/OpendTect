@@ -46,8 +46,7 @@ void Vw2DHorizon2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<RegularFlatDataPack> regfdp =
-				vwr.obtainPack( true, true );
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.obtainPack( true, true );
 	if ( !regfdp || !regfdp->is2D() )
 	{
 	    horeds_ += 0;
@@ -113,8 +112,7 @@ void Vw2DHorizon2D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<RegularFlatDataPack> regfdp =
-				    vwr.obtainPack( true, true );
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.obtainPack( true, true );
 	if ( !regfdp ) continue;
 
 	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );

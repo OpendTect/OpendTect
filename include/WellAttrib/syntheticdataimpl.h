@@ -48,7 +48,7 @@ public:
 
 private:
 
-    static DataPack::ID		groupID();
+    static DataPack::MgrID	groupID();
 
 };
 
@@ -199,7 +199,7 @@ private:
     PreStack::GatherSetDataPack*	angledp_ = nullptr;
     void				convertAngleDataToDegrees(
 						PreStack::Gather&) const;
-    static DataPack::ID		groupID();
+    static DataPack::MgrID		groupID();
 };
 
 

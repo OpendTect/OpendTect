@@ -424,7 +424,8 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	    const char* dpbuf = inputpsidstr.buf();
 	    dpbuf++;
 	    inputpsidstr = dpbuf;
-	    DataPack::FullID inputdpid( inputpsidstr );
+	    DataPack::FullID inputdpid = DataPack::FullID::getFromString(
+								inputpsidstr );
 	    const int inpdsidx = dpids.indexOf( inputdpid );
 	    ConstRefMan<SyntheticData> sd =
 				       synthmgr_->getDataSetByIdx( inpdsidx );
@@ -435,7 +436,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	    //TODO: obtain angle gathers
 	    mDynamicCastGet(Attrib::IntParam*,angledpparam,
 			    desc.getValParam(Attrib::PSAttrib::angleDPIDStr()))
-	    angledpparam->setValue( pssd->angleData().id() );
+	    angledpparam->setValue( pssd->angleData().id().asInt() );
 	}
     }
 }
@@ -604,14 +605,13 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 					evfld_->event().downToLevelID() );
     const Strat::Level* stoplvl = downtolevel.id() == Strat::Level::cUndefID()
 				? nullptr : &downtolevel;
-    DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin, zstep,
-				 stoplvl );
+    RefMan<DataPointSet> dps = getData( seisattrs, seqattrs, lvl, extrwin,
+					zstep, stoplvl );
     if ( !dps )
 	return false;
 
     dps->setName( "Layer model" );
-    DPM(DataPackMgr::PointID()).addAndObtain( dps );
+    DPM(DataPackMgr::PointID()).add( dps );
     launchCrossPlot( *dps, lvl, stoplvl, extrwin, zstep );
-    DPM(DataPackMgr::PointID()).release( dps->id() );
     return false;
 }

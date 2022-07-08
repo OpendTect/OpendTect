@@ -244,7 +244,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
     const DataPack::ID dpid =
 	visserv_->getDisplayedDataPackID( displayID(), attribNr() );
-    const bool hasdatapack = dpid>DataPack::cNoID();
+    const bool hasdatapack = dpid.isValid() && dpid!=DataPack::cNoID();
     const bool isvert = visserv_->isVerticalDisp( displayID() );
     if ( hasdatapack )
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
@@ -378,20 +378,20 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const int visid = displayID();
 	const int attribid = attribNr();
 	DataPack::ID dpid = visserv_->getDataPackID( visid, attribid );
-	const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( visid );
+	const DataPackMgr::MgrID dmid = visserv_->getDataPackMgrID( visid );
 	const int version = visserv_->selectedTexture( visid, attribid );
 	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attribid );
 	const FixedString dpname = DPM(dmid).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
 	{
-	    const int nrpacks = DPM(dmid).packs().size();
-	    for ( int idx=0; idx<nrpacks; idx++ )
+	    TypeSet<DataPackMgr::PackID> packids;
+	    DPM(dmid).getPackIDs( packids );
+	    for ( const auto& packid : packids )
 	    {
-		const int tmpdtpackid = DPM(dmid).packs()[idx]->id();
-		const FixedString tmpnm = DPM(dmid).nameOf(tmpdtpackid);
+		const FixedString tmpnm = DPM(dmid).nameOf( packid );
 		if ( tmpnm == as->userRef() )
 		{
-		    dpid = tmpdtpackid;
+		    dpid = packid;
 		    break;
 		}
 	    }

@@ -40,7 +40,7 @@ SeisDataPackZAxisTransformer::~SeisDataPackZAxisTransformer()
 od_int64 SeisDataPackZAxisTransformer::nrIterations() const
 {
     if ( !inputdp_ ) return -1;
-    ConstDataPackRef<SeisDataPack> seisdp = dpm_.obtain( inputdp_->id() );
+    auto seisdp = dpm_.get<SeisDataPack>( inputdp_->id() );
     return seisdp ? seisdp->nrTrcs() : -1;
 }
 
@@ -49,7 +49,7 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 {
     if ( !inputdp_ ) return false;
 
-    ConstDataPackRef<SeisDataPack> seisdp = dpm_.obtain( inputdp_->id() );
+    auto seisdp = dpm_.get<SeisDataPack>( inputdp_->id() );
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
     if ( !(regsdp || randsdp) || seisdp->isEmpty() )
@@ -87,7 +87,7 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 bool SeisDataPackZAxisTransformer::doWork(
 				od_int64 start, od_int64 stop, int threadid )
 {
-    ConstDataPackRef<SeisDataPack> seisdp = dpm_.obtain( inputdp_->id() );
+    auto seisdp = dpm_.get<SeisDataPack>( inputdp_->id() );
     if ( !seisdp || !outputdp_ || outputdp_->isEmpty() )
 	return false;
 
@@ -170,7 +170,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 
 bool SeisDataPackZAxisTransformer::doFinish( bool success )
 {
-    ConstDataPackRef<SeisDataPack> seisdp = dpm_.obtain( inputdp_->id() );
+    auto seisdp = dpm_.get<SeisDataPack>( inputdp_->id() );
     if ( !seisdp ) return false;
 
     outputdp_->setZDomain( transform_.toZDomainInfo() );

@@ -47,11 +47,6 @@ VolProc::ChainExecutor::~ChainExecutor()
     if ( curepoch_ )
 	delete curepoch_;
 
-    DataPackMgr& seismgr = DPM( DataPackMgr::SeisID() );
-    if ( !outputdp_ || !seismgr.haveID(outputdp_->id()) )
-	return;
-
-    seismgr.release( outputdp_->id() );
 }
 
 
@@ -653,24 +648,16 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	const RegularSeisDataPack* outfrominp =
 			currentstep->canInputAndOutputBeSame() &&
 			currentstep->validInputSlotID(0) ?
-		currentstep->getInput( currentstep->getInputSlotID(0) ) : 0;
+	    currentstep->getInput( currentstep->getInputSlotID(0) ) : nullptr;
 
-	RegularSeisDataPack* outcube = outfrominp
-			     ? const_cast<RegularSeisDataPack*>( outfrominp )
-			     : new RegularSeisDataPack( 0 );
+	RefMan<RegularSeisDataPack> outcube;
 	if ( outfrominp )
-	{
-	    if ( !outcube ||
-		 !DPM( DataPackMgr::SeisID() ).obtain(outcube->id()) )
-	    {
-		if ( outcube ) outcube->release();
-		return false;
-	    }
-	}
+	    outcube = const_cast<RegularSeisDataPack*>( outfrominp );
 	else
 	{
+	    outcube = new RegularSeisDataPack( 0 );
 	    outcube->setName( "New VolProc DP" );
-	    DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
+	    DPM( DataPackMgr::SeisID() ).add( outcube );
 	    outcube->setSampling( csamp );
 	    if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
 	    {
@@ -687,7 +674,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 		if ( !outcube->addComponentNoInit(0) )
 		{
 		    errmsg_ = "Cannot allocate enough memory.";
-		    outcube->release();
+		    outcube = nullptr;
 		    return false;
 		}
 	    }
@@ -698,7 +685,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	currentstep->setOutput( outputslotid, outcube, unusedtks, unusedzrg );
 
 	//The step should have reffed it, so we can forget it now.
-	outcube->release();
+	outcube = nullptr;
 
 	TypeSet<Chain::Connection> outputconnections;
 	chainexec_.web_.getConnections( currentstep->getID(),
@@ -733,13 +720,14 @@ void VolProc::ChainExecutor::Epoch::releaseData()
 }
 
 
-const RegularSeisDataPack* VolProc::ChainExecutor::Epoch::getOutput() const
+RefMan<RegularSeisDataPack> VolProc::ChainExecutor::Epoch::getOutput()
 {
-    return steps_[steps_.size()-1] ? steps_[steps_.size()-1]->getOutput() : 0;
+    return steps_[steps_.size()-1] ? steps_[steps_.size()-1]->getOutput() :
+									nullptr;
 }
 
 
-const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
+ConstRefMan<RegularSeisDataPack> VolProc::ChainExecutor::getOutput() const
 {
     return outputdp_;
 }
@@ -797,20 +785,7 @@ int VolProc::ChainExecutor::nextStep()
     mDetachCB( curreptask->progressUpdated, ChainExecutor::progressChanged );
     const bool finished = epochs_.isEmpty();
     if ( finished )		//we just executed the last one
-    {
 	outputdp_ = curepoch_->getOutput();
-	if ( !outputdp_ ||
-	     !DPM( DataPackMgr::SeisID() ).obtain(outputdp_->id()) )
-	{
-	    if ( outputdp_ )
-	    {
-		const_cast<RegularSeisDataPack*>( outputdp_ )->release();
-		outputdp_ = 0;
-	    }
-
-	    return false;
-	}
-    }
 
     //Give output volumes to all steps that need them
     if ( !finished && !curepoch_->updateInputs() )

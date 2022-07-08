@@ -362,7 +362,7 @@ HorizonDisplay::~HorizonDisplay()
     {
 	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
 	for ( int idy=dpids.size()-1; idy>=0; idy-- )
-	    dpm.release( dpids[idy] );
+	    dpm.unRef( dpids[idy] );
     }
 
     deepErase( dispdatapackids_ );
@@ -740,7 +740,7 @@ bool HorizonDisplay::removeAttrib( int channel )
 
     const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
     for ( int idy=dpids.size()-1; idy>=0; idy-- )
-	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+	DPM(DataPackMgr::FlatID()).unRef( dpids[idy] );
     delete dispdatapackids_.removeSingle( channel );
 
     coltabmappersetups_.removeSingle( channel );
@@ -2532,11 +2532,11 @@ void HorizonDisplay::setDisplayDataPackIDs( int attrib,
 {
     TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).unRef( dpids[idx] );
 
     dpids = newdpids;
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).ref( dpids[idx] );
 }
 
 
@@ -2553,7 +2553,8 @@ DataPack::ID HorizonDisplay::getDisplayedDataPackID( int channel ) const
 
     const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
     const int curversion = sections_[0]->activeVersion( channel );
-    return dpids.validIdx(curversion) ? dpids[curversion] : DataPack::cUdfID();
+    return dpids.validIdx(curversion) ? dpids[curversion] :
+						    DataPack::ID::getInvalid();
 }
 
 

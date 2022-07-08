@@ -115,7 +115,7 @@ void uiStatsDisplay::setDataName( const char* nm )
 
 
 bool uiStatsDisplay::setDataPackID(
-	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
+	DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
 {
     if ( !histgramdisp_ || (histgramdisp_ &&
 		!histgramdisp_->setDataPackID(dpid,dmid,version)) )
@@ -129,7 +129,7 @@ bool uiStatsDisplay::setDataPackID(
 						.require(Stats::RMS)) );
 
 	DataPackMgr& dpman = DPM( dmid );
-	ConstDataPackRef<DataPack> datapack = dpman.obtain( dpid );
+	auto datapack = dpman.getDP( dpid );
 	if ( !datapack ) return false;
 
 	TypeSet<float> valarr;

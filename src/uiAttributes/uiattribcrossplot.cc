@@ -271,13 +271,13 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
 
 #define mErrRet(s) \
 { \
-    if ( dps ) mDPM.release(dps->id()); \
+    if ( dps ) mDPM.unRef(dps->id()); \
     if ( !s.isEmpty() ) uiMSG().error(s); return false; \
 }
 
 bool uiAttribCrossPlot::acceptOK( CallBacker* )
 {
-    DataPointSet* dps = 0;
+    RefMan<DataPointSet> dps;
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
 	mErrRet(toUiString("Internal: no Pos::Provider"))
@@ -329,10 +329,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( prov->is2D() );
     if ( !dps->extractPositions(*prov,dcds,filt,&taskrunner) )
-    {
-	delete dps;
 	return false;
-    }
 
     MouseCursorManager::restoreOverride();
     if ( dps->isEmpty() )
@@ -348,7 +345,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     IOPar descsetpars;
     ads_.fillPar( descsetpars );
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
-    mDPM.addAndObtain( dps );
+    mDPM.add( dps );
 
     uiString errmsg; Attrib::EngineMan aem;
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -357,10 +354,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 
     if ( !TaskRunner::execute( &taskrunner, *tabextr ) )
-    {
-	mDPM.release( dps->id() );
 	return false;
-    }
 
     uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
 		uiDataPointSet::Setup(tr("Attribute data"),false),dpsdispmgr_ );
@@ -369,7 +363,6 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     ads_.fillPar( attrpar );
     if ( attrpar.name().isEmpty() )
 	attrpar.setName( "Attributes" );
-    mDPM.release( dps->id() );
     return uidps->go() ? true : false;
 }
 

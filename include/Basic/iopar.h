@@ -386,7 +386,7 @@ bool IOPar::get( const char* key, IntegerID<T>& id ) const
     if ( res )
 	id.set( val );
     else
-	id.setUdf();
+	id.setInvalid();
 
     return res;
 }

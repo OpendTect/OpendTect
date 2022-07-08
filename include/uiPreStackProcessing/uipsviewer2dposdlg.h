@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "bufstringset.h"
+#include "datapack.h"
 #include "rowcol.h"
 #include "uistring.h"
 #include "uiprestackprocessingmod.h"
@@ -28,13 +29,15 @@ namespace PreStackView
 mStruct(uiPreStackProcessing) GatherInfo
 {
     			GatherInfo()
-			: isstored_(true), isselected_( false ), vddpid_(-1)
-			, wvadpid_(-1), bid_(mUdf(int),mUdf(int))	{}
+			: isstored_(true), isselected_( false )
+			, vddpid_(DataPack::ID::getInvalid())
+			, wvadpid_(DataPack::ID::getInvalid())
+			, bid_(mUdf(int),mUdf(int))	{}
     bool		isstored_;
     bool		isselected_;
     MultiID		mid_;
-    int			vddpid_;
-    int			wvadpid_;
+    DataPack::ID	vddpid_;
+    DataPack::ID	wvadpid_;
     BufferString	gathernm_;
     BinID		bid_;
 bool operator==( const GatherInfo& info ) const
@@ -55,10 +58,10 @@ public:
 						    const BufferStringSet&,
 						    bool issynthetic=false);
 
-    const TrcKeyZSampling&		cubeSampling();	
+    const TrcKeyZSampling&		cubeSampling();
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
-    void 			setStep(int);	
-    int 			step() const;	
+    void			setStep(int);
+    int				step() const;
 
     void			enableZDisplay(bool);
     void			getSelGatherInfos(TypeSet<GatherInfo>&);
@@ -115,17 +118,17 @@ protected:
 
 mExpClass(uiPreStackProcessing) uiViewer2DSelDataDlg : public uiDialog
 { mODTextTranslationClass(uiViewer2DSelDataDlg);
-public: 	
+public:
 			    uiViewer2DSelDataDlg(uiParent*,
 				    const BufferStringSet&,BufferStringSet&);
 protected:
 
     uiListBox*			allgatherfld_;
     uiListBox*			selgatherfld_;
-    uiToolButton*		toselect_;	
+    uiToolButton*		toselect_;
     uiToolButton*		fromselect_;
 
-    BufferStringSet&		selgathers_;	
+    BufferStringSet&		selgathers_;
 
     void 			selButPush(CallBacker*);
     bool 			acceptOK(CallBacker*);

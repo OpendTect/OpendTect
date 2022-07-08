@@ -25,7 +25,7 @@ mExpClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
 { mODTextTranslationClass(uiMultiMapperRangeEditWin);
 public:
 					uiMultiMapperRangeEditWin(uiParent*,
-						int nr,DataPackMgr::ID dmid);
+						int nr,DataPackMgr::MgrID dmid);
 					~uiMultiMapperRangeEditWin();
 
     uiMapperRangeEditor*		getuiMapperRangeEditor(int);

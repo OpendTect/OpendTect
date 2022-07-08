@@ -614,7 +614,7 @@ void uiAttrSelDlg::replaceStoredByInMem()
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	ioobjnmscopy.add( DataPackMgr::nameOf(dpfids_[idx]) );
-	ioobjidscopy.add( dpfids_[idx] );
+	ioobjidscopy.add( dpfids_[idx].asMultiID() );
     }
 
     int* sortindexes = ioobjnmscopy.getSortIndexes();
@@ -931,7 +931,8 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
 
     //use the first fid as default data
     attrdata_.attribid_ = const_cast<Attrib::DescSet*>(&getAttrSet())
-					    ->getStoredID( ids[0], 0, true );
+					    ->getStoredID( ids[0].asMultiID(),
+							   0, true );
     updateInput();
 }
 

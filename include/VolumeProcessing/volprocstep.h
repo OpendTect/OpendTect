@@ -148,11 +148,12 @@ protected:
     void			setOutputNrComps(int nr) { nroutcomps_ = nr; }
 
     int				getNrInputComponents(InputSlotID) const;
-    int				getNrOutComponents() const { return nroutcomps_; }
+    int				getNrOutComponents() const
+				{ return nroutcomps_; }
 
 private:
 
-    RegularSeisDataPack*	output_;
+    RefMan<RegularSeisDataPack> output_;
 
     BinID           hstep_;
     int             vstep_ = 0;

@@ -84,7 +84,7 @@ bool testCompoundKey()
     testid.fromString( "3.33" );
     mRunStandardTest( !testid.isDatabaseID() && !testid.isSyntheticID() &&
 		       testid.isInMemoryID() &&
-		       testid.groupID() == DataPackMgr::SeisID() &&
+		       testid.groupID() == DataPackMgr::SeisID().asInt() &&
 		       testid.toString() == "3.33",
 		      "Valid in-memory MultiID" );
 

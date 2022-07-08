@@ -37,8 +37,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     , possldr_( 0 )
     , posvalfld_( 0 )
 {
-    DataPack* dp = DPM( dpfid.ID(0) ).obtain( dpfid.ID(1) );
-    mDynamicCast(FlatDataPack*,fdp_,dp);
+    auto fdp = DPM( dpfid.mgrID() ).get<FlatDataPack>( dpfid.packID() );
     if ( !fdp_ )
     {
 	pErrMsg( "Have no flatdatapack, Cannot construct the class" );
@@ -67,7 +66,6 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
 
 uiFlatDPPosSel::~uiFlatDPPosSel()
 {
-    DPM( DataPackMgr::FlatID() ).release( fdp_ );
 }
 
 
@@ -103,22 +101,20 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     , crlfld_( 0 )
     , pickretriever_( 0 )
 {
-    const int dpmid = dpfid.ID( 0 );
+    const DataPack::MgrID dpmid = dpfid.mgrID();
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
     {
 	pErrMsg( "Only Flat & Cube DataPacks supported" );
 	return;
     }
 
-    DataPack* dp = DPM( dpmid ).obtain( dpfid.ID(1) );
     if ( dpmid == DataPackMgr::FlatID() )
     {
 	fdpposfld_ = new uiFlatDPPosSel( this, dpfid );
-	mDynamicCastGet(FlatDataPack*,fdp,dp);
+	auto fdp = DPM( dpmid ).get<FlatDataPack>( dpfid.packID() );
 	if ( !fdp )
 	{
 	    pErrMsg( "Could not find Flat DataPack" );
-	    DPM( dpmid ).release( dpfid.ID(1) );
 	    return;
 	}
 
@@ -130,11 +126,10 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     }
     else if ( dpmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(RegularSeisDataPack*,sdp,dp);
+	auto sdp = DPM( dpmid ).get<RegularSeisDataPack>( dpfid.packID() );
 	if ( !sdp )
 	{
 	    pErrMsg( "Could not find Cube DataPack" );
-	    DPM( dpmid ).release( dpfid.ID(1) );
 	    return;
 	}
 
@@ -151,13 +146,12 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	zrg_ = cs.zsamp_;
     }
 
-    DPM( dpmid ).release( dpfid.ID(1) );
 }
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"), 
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
 				   uiStrings::sEmptyString(),
                                    mODHelpKey(mTrcPositionDlgHelpID) )
 				   .modal(false) )

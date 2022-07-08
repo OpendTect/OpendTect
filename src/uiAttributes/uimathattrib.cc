@@ -72,7 +72,6 @@ void uiMathAttrib::formSel( CallBacker* )
 DataPack::FullID uiMathAttrib::getInputDPID( int inpidx ) const
 {
     DataPack::FullID undefid;
-    undefid.setUdf();
     if ( dpfids_.isEmpty() )
 	return undefid;
 
@@ -227,7 +226,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		const BufferString dpidstr = inpdsc->getValParam(
 			Attrib::StorageProvider::keyStr() )->getStringValue(0);
 		const MultiID dbky( dpidstr.buf() );
-		const DataPack::FullID dpfid( dbky.toString() );
+		const DataPack::FullID dpfid( dbky );
 		refstr = DataPackMgr::nameOf( dpfid );
 	    }
 
@@ -328,7 +327,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 	    else
 	    {
 		const DataPack::FullID inpdpfid = getInputDPID( attrinpidx );
-		if ( inpdpfid.isUdf() )
+		if ( !inpdpfid.isValid() )
 		    return false;
 
 		inpdesc = Attrib::PF().createDescCopy(

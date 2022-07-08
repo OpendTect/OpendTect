@@ -255,7 +255,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		unsigned char transpar =
 		    rtd->getAttribTransparency( attrib );
 		datapackid = rtd->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
 		     rtd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -287,7 +287,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		attrib--;
 		datapackid = pdd->getDataPackID( attrib );
 		unsigned char transpar = pdd->getAttribTransparency( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
 		     pdd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -338,7 +338,7 @@ void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
 	unsigned char transpar =
 	    seis2ddisp->getAttribTransparency(attrib );
 	datapackid = seis2ddisp->getDataPackID( attrib );
-	if ( ( datapackid > DataPack::cNoID() ) &&
+	if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
 	    seis2ddisp->isAttribEnabled(attrib) && (transpar<198) )
 	    break;
     }
@@ -493,7 +493,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 		attrib--;
 		unsigned char transpar = pdd->getAttribTransparency( attrib );
 		datapackid = pdd->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
 		     pdd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -525,7 +525,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    attrib--;
 	    unsigned char transpar = rtd->getAttribTransparency( attrib );
 	    datapackid = rtd->getDataPackID( attrib );
-	    if ( (datapackid > DataPack::cNoID()) &&
+	    if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
 		 rtd->isAttribEnabled(attrib) && (transpar<198) )
 		break;
 	}
@@ -707,7 +707,7 @@ void MPEClickInfo::clear()
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
     rdltkpath_ = 0;
-    rdlid_.setUdf();
+    rdlid_.setInvalid();
     emvisids_ = -1;
 }
 

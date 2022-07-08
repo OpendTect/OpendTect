@@ -63,20 +63,6 @@ PropCalc::~PropCalc()
 
 void PropCalc::removeGather()
 {
-    if ( gather_ )
-    {
-	if ( DPM(DataPackMgr::FlatID()).haveID( gather_->id() ) )
-	    DPM(DataPackMgr::FlatID()).release( gather_->id() );
-	gather_ = nullptr;
-    }
-
-    if ( angledata_ )
-    {
-	if ( DPM(DataPackMgr::FlatID()).haveID( angledata_->id() ) )
-	    DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-	angledata_ = nullptr;
-    }
-
     delete [] innermutes_;
     innermutes_ = outermutes_ = 0;
 }
@@ -101,7 +87,7 @@ void PropCalc::handleNewGather()
 void PropCalc::setGather( const PreStack::Gather& gather )
 {
     removeGather();
-    gather_ = const_cast<PreStack::Gather*>( &gather );
+    gather_ = &gather;
     handleNewGather();
 }
 
@@ -110,43 +96,30 @@ void PropCalc::setGather( DataPack::ID id )
 {
     removeGather();
 
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
-    mDynamicCastGet( Gather*, gather, dp );
+    auto gather = DPM(DataPackMgr::FlatID()).get<Gather>( id );
     if ( gather )
     {
 	gather_ = gather;
 	handleNewGather();
     }
-    else if ( dp && DPM(DataPackMgr::FlatID()).haveID( id ) )
-	DPM(DataPackMgr::FlatID()).release( id );
 }
 
 
 void PropCalc::setAngleData( const PreStack::Gather& gather )
 {
-    if ( angledata_ && DPM(DataPackMgr::FlatID()).haveID( angledata_->id() ) )
-	DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-
-    angledata_ = const_cast<PreStack::Gather*>( &gather );
+    angledata_ = &gather;
     init();
 }
 
 
 void PropCalc::setAngleData( DataPack::ID id )
 {
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
-    mDynamicCastGet( Gather*, angledata, dp );
-
+    auto angledata = DPM(DataPackMgr::FlatID()).get<Gather>( id );
     if ( angledata )
     {
-	if ( angledata_ && DPM(DataPackMgr::FlatID()).haveID( angledata_->id()))
-	    DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-
 	angledata_ = angledata;
 	init();
     }
-    else if ( DPM(DataPackMgr::FlatID()).haveID( id ) )
-	DPM(DataPackMgr::FlatID()).release( id );
 }
 
 

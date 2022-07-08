@@ -117,10 +117,7 @@ VolProc::Step::Step()
 
 VolProc::Step::~Step()
 {
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
-
-    DPM( DataPackMgr::SeisID() ).release( output_ );
+    deepUnRef( inputs_ );
 }
 
 mStopAllowDeprecatedSection
@@ -145,8 +142,7 @@ int VolProc::Step::getNrInputComponents( InputSlotID slotid ) const
 
 void VolProc::Step::resetInput()
 {
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
+    deepUnRef( inputs_ );
 
     inputslotids_.setEmpty();
     for ( int idx=0; idx<getNrInputs(); idx++ )
@@ -154,7 +150,7 @@ void VolProc::Step::resetInput()
 	if ( inputs_.validIdx(idx) )
 	    inputs_.replace( idx, 0 );
 	else
-	    inputs_ += 0;
+	    inputs_ += nullptr;
 
 	inputslotids_ += idx;
     }
@@ -163,8 +159,7 @@ void VolProc::Step::resetInput()
 
 void VolProc::Step::releaseData()
 {
-    DPM( DataPackMgr::SeisID() ).release( output_ );
-    output_ = 0;
+    output_ = nullptr;
 
     resetInput();
 }
@@ -369,16 +364,12 @@ void VolProc::Step::setInput( InputSlotID slotid,
 	return;
 
     if ( inputs_[idx] )
-	DPM( DataPackMgr::SeisID() ).release( inputs_[idx]->id() );
+	DPM( DataPackMgr::SeisID() ).unRef( inputs_[idx]->id() );
+
     inputs_.replace( idx, dc );
     if ( inputs_[idx] )
-    {
-	if ( !DPM( DataPackMgr::SeisID() ).obtain(inputs_[idx]->id()) )
-	{
-	    const_cast<RegularSeisDataPack*>( inputs_[idx] )->release();
-	    inputs_.replace( idx, 0 );
-	}
-    }
+	DPM( DataPackMgr::SeisID() ).ref( inputs_[idx]->id() );
+
 }
 
 
@@ -392,13 +383,7 @@ const RegularSeisDataPack* VolProc::Step::getInput( InputSlotID slotid ) const
 void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 			       const TrcKeySampling&, const StepInterval<int>& )
 {
-    DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = dc;
-    if ( !output_ || !DPM( DataPackMgr::SeisID() ).obtain(output_->id()) )
-    {
-	if ( output_ ) output_->release();
-	return;
-    }
 }
 
 

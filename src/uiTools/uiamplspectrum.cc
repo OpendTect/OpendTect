@@ -122,9 +122,9 @@ uiAmplSpectrum::~uiAmplSpectrum()
 
 
 void uiAmplSpectrum::setDataPackID(
-		DataPack::ID dpid, DataPackMgr::ID dmid, int version )
+		DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
 {
-    ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
+    auto datapack = DPM(dmid).getDP( dpid );
     if ( datapack )
 	setCaption( !datapack ? tr("No data")
 			      : tr( "Amplitude Spectrum for %1" )

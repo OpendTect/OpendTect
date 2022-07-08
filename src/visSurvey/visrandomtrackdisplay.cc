@@ -186,10 +186,10 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpm.release( datapackids_[idx] );
+	dpm.unRef( datapackids_[idx] );
 
     for ( int idx=0; idx<transfdatapackids_.size(); idx++ )
-	dpm.release( transfdatapackids_[idx] );
+	dpm.unRef( transfdatapackids_[idx] );
 
     if ( rl_ )
     {
@@ -235,7 +235,7 @@ void RandomTrackDisplay::setRandomLineID( RandomLineID rlid )
 
 
 RandomLineID RandomTrackDisplay::getRandomLineID() const
-{ return rl_ ? rl_->ID() : RandomLineID::udf(); }
+{ return rl_ ? rl_->ID() : RandomLineID::getInvalid(); }
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
@@ -539,7 +539,7 @@ void RandomTrackDisplay::removeAllNodes()
     }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	setDataPackID( idx, -1, 0 );
+	setDataPackID( idx, DataPack::ID::getInvalid(), nullptr );
 
     nodes_.erase();
     updatePanelStripPath();
@@ -668,17 +668,15 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 					TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack* datapack = dpm.obtain( dpid );
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,datapack);
+    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
     {
-	dpm.release( dpid );
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 	channels_->turnOn( false );
 	return false;
     }
 
-    dpm.release( datapackids_[attrib] );
+    dpm.unRef( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
 
     createTransformedDataPack( attrib, taskr );
@@ -821,7 +819,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
+    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp ) return;
 
     updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->zRange() );
@@ -877,7 +875,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
+    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return;
 
@@ -907,9 +905,9 @@ void RandomTrackDisplay::createTransformedDataPack(
 	transformer.execute();
     }
 
-    dpm.release( transfdatapackids_[attrib] );
+    dpm.unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = outputid;
-    dpm.obtain( outputid );
+    dpm.ref( outputid );
 }
 
 
@@ -1575,7 +1573,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
+    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 
@@ -1601,10 +1599,10 @@ void RandomTrackDisplay::addCache()
 
 void RandomTrackDisplay::removeCache( int attrib )
 {
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_.removeSingle( attrib );
 }
 
@@ -1618,10 +1616,10 @@ void RandomTrackDisplay::swapCache( int a0, int a1 )
 
 void RandomTrackDisplay::emptyCache( int attrib )
 {
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = DataPack::cNoID();
 
     channels_->setNrVersions( attrib, 1 );

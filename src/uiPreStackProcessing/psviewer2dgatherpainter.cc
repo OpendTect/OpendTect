@@ -24,9 +24,9 @@ Viewer2DGatherPainter::Viewer2DGatherPainter( FlatView::Viewer& v )
 Viewer2DGatherPainter::~Viewer2DGatherPainter()
 {
     if ( inputwvagather_ )
-	DPM( DataPackMgr::FlatID() ).release(inputwvagather_->id());
+	DPM( DataPackMgr::FlatID() ).unRef(inputwvagather_->id());
     if ( inputvdgather_ )
-	DPM( DataPackMgr::FlatID() ).release(inputvdgather_->id());
+	DPM( DataPackMgr::FlatID() ).unRef(inputvdgather_->id());
 }
 
 
@@ -45,12 +45,11 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
     if ( inputvdgather_ )
     {
 	viewer_.removePack( inputvdgather_->id() );
-	DPM( DataPackMgr::FlatID() ).release( inputvdgather_->id() );
+	DPM( DataPackMgr::FlatID() ).unRef( inputvdgather_->id() );
 	inputvdgather_ = nullptr;
     }
 
-    DataPack* vddp = DPM( DataPackMgr::FlatID() ).obtain( vdid );
-    mDynamicCastGet( PreStack::Gather*, vdgather, vddp );
+    auto vdgather = DPM( DataPackMgr::FlatID() ).get<PreStack::Gather>( vdid );
     viewer_.appearance().ddpars_.vd_.show_ = vdgather;
     Interval<float> rng;
     viewer_.appearance().ddpars_.vd_.mappersetup_.range_ = rng.udf();
@@ -59,35 +58,30 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 	inputvdgather_ = vdgather;
 	viewer_.setPack( FlatView::Viewer::VD, vdid, !hadpack );
     }
-    else if ( vddp )
-	DPM( DataPackMgr::FlatID() ).release( vddp->id() );
 }
 
 
 
 void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
 {
-    if ( wvaid<0 &&inputwvagather_ && inputwvagather_->id()==wvaid )
+    if ( !wvaid.isValid() &&inputwvagather_ && inputwvagather_->id()==wvaid )
 	return;
 
     const bool hadpack = inputwvagather_;
     if ( inputwvagather_ )
     {
 	viewer_.removePack( inputwvagather_->id() );
-	DPM( DataPackMgr::FlatID() ).release( inputwvagather_->id() );
+	DPM( DataPackMgr::FlatID() ).unRef( inputwvagather_->id() );
 	inputwvagather_ = nullptr;
     }
 
-    DataPack* wvadp = DPM( DataPackMgr::FlatID() ).obtain( wvaid );
-    mDynamicCastGet( PreStack::Gather*, wvagather, wvadp );
+    auto wvagather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( wvaid );
     viewer_.appearance().ddpars_.wva_.show_ = wvagather;
     if ( wvagather )
     {
 	inputwvagather_ = wvagather;
 	viewer_.setPack( FlatView::Viewer::WVA, wvaid, !hadpack );
     }
-    else if ( wvadp )
-	DPM( DataPackMgr::FlatID() ).release( wvadp->id() );
 }
 
 

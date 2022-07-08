@@ -52,7 +52,7 @@ HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
     delete &evtracker_;
-    dpm_.release( datapackid_ );
+    dpm_.unRef( datapackid_ );
 }
 
 
@@ -66,10 +66,10 @@ const Attrib::SelSpec* HorizonAdjuster::getAttributeSel( int idx ) const
 
 void HorizonAdjuster::reset()
 {
-    dpm_.release( datapackid_ );
+    dpm_.unRef( datapackid_ );
     datapackid_ = attribsel_ ? engine().getAttribCacheID(*attribsel_)
 			     : DataPack::cNoID();
-    dpm_.obtain( datapackid_ );
+    dpm_.ref( datapackid_ );
 }
 
 
@@ -162,7 +162,7 @@ bool HorizonAdjuster::snapToEvent() const
 
 int HorizonAdjuster::nextStep()
 {
-    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    auto sdp = dpm_.get<SeisDataPack>( datapackid_ );
     if ( !sdp || sdp->isEmpty() )
 	return ErrorOccurred();
 
@@ -218,7 +218,7 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 			     float& targetz ) const
 {
-    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    auto sdp = dpm_.get<SeisDataPack>( datapackid_ );
     if ( !sdp || sdp->isEmpty() )
 	return false;
 
@@ -349,9 +349,9 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
     if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
     *attribsel_ = as;
 
-    dpm_.release( datapackid_ );
+    dpm_.unRef( datapackid_ );
     datapackid_ = engine().getAttribCacheID( *attribsel_ );
-    dpm_.obtain( datapackid_ );
+    dpm_.ref( datapackid_ );
 }
 
 

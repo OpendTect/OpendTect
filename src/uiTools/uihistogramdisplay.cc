@@ -66,10 +66,10 @@ void uiHistogramDisplay::setEmpty()
 
 
 bool uiHistogramDisplay::setDataPackID(
-	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
+	DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
 {
     rc_.setEmpty();
-    ConstDataPackRef<DataPack> dp = DPM(dmid).obtain( dpid );
+    auto dp = DPM(dmid).getDP( dpid );
     if ( !dp ) return false;
 
     BufferString dpversionnm;

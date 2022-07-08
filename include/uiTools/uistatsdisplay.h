@@ -41,7 +41,7 @@ public:
     };
 				uiStatsDisplay(uiParent*,const Setup&);
 
-    bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
+    bool			setDataPackID(DataPack::ID,DataPackMgr::MgrID,
 					      int version=0);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);

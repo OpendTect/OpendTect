@@ -193,24 +193,23 @@ PSAttrib::PSAttrib( Desc& ds )
     bool useangle = setup_.useangle_;
     mGetBool( useangle, useangleStr() );
     setup_.useangle_ = useangle;
-    mGetInt(anglegsdpid_,angleDPIDStr());
+    mGetDataPackID(anglegsdpid_,angleDPIDStr());
     if ( setup_.useangle_ )
     {
 	int anglestart, anglestop;
 	mGetInt( anglestart, angleStartStr() );
 	mGetInt( anglestop, angleStopStr() );
 	setup_.anglerg_ = Interval<int>( anglestart, anglestop );
-	if ( anglegsdpid_>=0 )
+	if ( anglegsdpid_.isValid() )
 	    return;
 
 	mGetMultiID( velocityid_, velocityIDStr() );
 	if ( !velocityid_.isUdf() )
 	{
-	    auto* velangcomp = new PreStack::VelocityBasedAngleComputer;
+	    RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
+				    new PreStack::VelocityBasedAngleComputer;
 	    velangcomp->setMultiID( velocityid_ );
-	    unRefAndZeroPtr( anglecomp_ );
 	    anglecomp_ = velangcomp;
-	    anglecomp_->ref();
 	}
 	else
 	    velocityid_.setUdf();
@@ -248,8 +247,6 @@ PSAttrib::~PSAttrib()
 {
     if ( anglecomp_ ) anglecomp_->unRef();
     delete propcalc_;
-    PreStack::GatherSetDataPack* psgdp = getMemoryGatherSetDP();
-    if ( psgdp ) psgdp->release();
     delete preprocessor_;
     delete psrdr_;
     delete psioobj_;
@@ -297,10 +294,8 @@ void PSAttrib::setAngleData( DataPack::ID angledpid )
 
 void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
 {
-    unRefAndZeroPtr( anglecomp_ );
     if ( !ac ) return;
     anglecomp_ = ac;
-    anglecomp_->ref();
     setSmootheningPar();
 }
 
@@ -341,14 +336,11 @@ bool PSAttrib::getAngleInputData()
     anglecomp_->setOutputSampling( fp );
     anglecomp_->setGatherIsNMOCorrected( gather->isCorrected() );
     anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
-    PreStack::Gather* angledata = anglecomp_->computeAngles();
+    RefMan<PreStack::Gather> angledata = anglecomp_->computeAngles();
     if ( !angledata )
 	return false;
 
-    DPM(DataPackMgr::FlatID()).addAndObtain( angledata );
     propcalc_->setAngleData( angledata->id() );
-    DPM(DataPackMgr::FlatID()).release( angledata->id() );
-
     return true;
 }
 
@@ -375,17 +367,13 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 {
     if ( gatherset_.size() )
     {
-	const PreStack::GatherSetDataPack* anglegsdp = nullptr;
-	if ( anglegsdpid_>= 0 )
-	{
-	    ConstDataPackRef<DataPack> angledp =
-		DPM( DataPackMgr::SeisID() ).obtain( anglegsdpid_ );
-	    mDynamicCast( const PreStack::GatherSetDataPack*,anglegsdp,
-			  angledp.ptr() );
-	}
+	ConstRefMan<PreStack::GatherSetDataPack> anglegsdp;
+	if ( anglegsdpid_.isValid() )
+	    anglegsdp = DPM( DataPackMgr::SeisID() ).
+			    get<PreStack::GatherSetDataPack>( anglegsdpid_ );
 
-	const PreStack::Gather* curgather = nullptr;
-	const PreStack::Gather* curanglegather = nullptr;
+	ConstRefMan<PreStack::Gather> curgather;
+	ConstRefMan<PreStack::Gather> curanglegather;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
 	    const bool hasanglegather =
@@ -422,11 +410,10 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	    return false;
 	}
 
-	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
+	DPM(DataPackMgr::FlatID()).add( gather );
 	setGatherIsAngle( *gather );
 	curgatherid = gather->id();
 	propcalc_->setGather( curgatherid );
-	DPM(DataPackMgr::FlatID()).release( curgatherid );
     }
 
     return true;
@@ -436,11 +423,11 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 {
     if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
-    TypeSet<int> gatheridstoberemoved;
+    TypeSet<DataPack::ID> gatheridstoberemoved;
     const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
@@ -464,7 +451,7 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 		    continue;
 		}
 
-		DPM(DataPackMgr::FlatID()).addAndObtain( gather );
+		DPM(DataPackMgr::FlatID()).add( gather );
 		gatheridstoberemoved += gather->id();
 	    }
 	    else
@@ -490,11 +477,11 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
     if ( !preprocessor_->process() )
     {
 	errmsg_ = preprocessor_->errMsg();
-	return -1;
+	return DataPack::ID::getInvalid();
     }
 
     for ( int idx=0; idx<gatheridstoberemoved.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( gatheridstoberemoved[idx] );
+	DPM(DataPackMgr::FlatID()).unRef( gatheridstoberemoved[idx] );
 
     return preprocessor_->getOutput();
 }
@@ -506,14 +493,14 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	return false;
 
     const BinID bid = currentbid_+relpos;
-    DataPack::ID curgatherid = -1;
-    DataPack::ID curanglegatherid = -1;
+    DataPack::ID curgatherid = DataPack::ID::getInvalid();
+    DataPack::ID curanglegatherid = DataPack::ID::getInvalid();
     if ( !getGatherData(bid,curgatherid,curanglegatherid) )
 	return false;
 
     if ( preprocessor_ && preprocessor_->nrProcessors() )
     {
-	DPM(DataPackMgr::FlatID()).release( curgatherid );
+	DPM(DataPackMgr::FlatID()).unRef( curgatherid );
 	curgatherid = getPreProcessedID( relpos );
 	propcalc_->setGather( curgatherid );
     }
@@ -525,13 +512,13 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 }
 
 
-PreStack::GatherSetDataPack* PSAttrib::getMemoryGatherSetDP() const
+WeakPtr<PreStack::GatherSetDataPack> PSAttrib::getMemoryGatherSetDP() const
 {
     if ( !psid_.isInMemoryID() )
 	return nullptr;
 
-    DataPack* dtp = DPM( psid_ ).observe( DataPack::getID(psid_) );
-    mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
+    auto psgdtp = DPM( psid_ ).observe<PreStack::GatherSetDataPack>(
+						    DataPack::getID(psid_) );
     return psgdtp;
 }
 
@@ -542,7 +529,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 {
     delete psioobj_;
 
-    PreStack::GatherSetDataPack* psgdtp = getMemoryGatherSetDP();
+    auto psgdtp = getMemoryGatherSetDP();
     bool isondisc = true;
     if ( psid_.isInMemoryID() )
     {
@@ -550,8 +537,8 @@ void PSAttrib::prepPriorToBoundsCalc()
 	if ( isondisc )
 	    mErrRet(tr("Cannot obtain gathers kept in memory"))
 
-	psgdtp->obtain();
-	gatherset_ = psgdtp->getGathers();
+	auto dp = psgdtp.get();
+	gatherset_ = dp->getGathers();
     }
     else
     {

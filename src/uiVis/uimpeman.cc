@@ -588,7 +588,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		{
 		    DataPack::ID datapackid =
 				clickcatcher_->info().getObjDataPackID();
-		    if ( datapackid > DataPack::cNoID() )
+		    if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
 			engine.setAttribData( *clickedas, datapackid );
 		    seedpicker->setSelSpec( clickedas );
 		}
@@ -650,7 +650,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    mSeedClickReturn();
 	}
 
-	if ( datapackid > DataPack::cNoID() )
+	if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
 	    engine.setAttribData( *clickedas, datapackid );
 
 	h2dsp->setLine( geomid );
@@ -685,7 +685,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    {
 		DataPack::ID datapackid =
 				clickcatcher_->info().getObjDataPackID();
-		if ( datapackid > DataPack::cNoID() )
+		if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
 		    engine.setAttribData( *clickedas, datapackid );
 	    }
 

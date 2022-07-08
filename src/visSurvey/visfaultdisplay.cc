@@ -160,7 +160,7 @@ FaultDisplay::~FaultDisplay()
 
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+	dpman.unRef( datapackids_[idx] );
 
     deepErase( texuredatas_ );
 }
@@ -468,8 +468,8 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 			      false, "" );
     setSelSpec( attrib, as );
 
-    DataPointSet* data = new DataPointSet( false, true );
-    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+    RefMan<DataPointSet> data = new DataPointSet( false, true );
+    DPM( DataPackMgr::PointID() ).add( data );
     getRandomPos( *data, 0 );
     DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
     data->dataSet().add( zvalsdef );
@@ -495,8 +495,6 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 
 	setRandomPosData( attrib, data, 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).release( data->id() );
 
     if ( !attribwasdepth )
     {
@@ -1168,12 +1166,9 @@ void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 
     DataPack::ID dpid = getDataPackID( attrib );
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet( const DataPointSet*, dps, datapack );
+    auto dps = dpman.get<DataPointSet>( dpid );
     if ( dps )
 	data  = *dps;
-
-    dpman.release( dpid );
 }
 
 
@@ -1303,7 +1298,7 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultDisplay::addCache()
 {
-    datapackids_ += DataPack::cUdfID();
+    datapackids_ += DataPack::ID::getInvalid();
 }
 
 void FaultDisplay::removeCache( int attrib )
@@ -1311,7 +1306,7 @@ void FaultDisplay::removeCache( int attrib )
     if ( !datapackids_.validIdx(attrib) )
 	return;
 
-    DPM( DataPackMgr::SurfID() ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::SurfID() ).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 }
 
@@ -1945,7 +1940,7 @@ void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-int FaultDisplay::addDataPack( const DataPointSet& dpset ) const
+DataPack::ID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 {
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     DataPointSet* newdpset = new DataPointSet( dpset );
@@ -1962,13 +1957,13 @@ bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    const DataPack* datapack = dpman.obtain( dpid );
+    auto datapack = dpman.getDP( dpid );
     if ( !datapack )
 	return false;
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
-    dpman.release( oldid );
+    dpman.unRef( oldid );
     return true;
 }
 

@@ -759,11 +759,10 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , zrg_(0.f,1.f)
     , curproprg_(mUdf(float),mUdf(float))
 {
-    const FlatView::Viewer::VwrDest dest =
-				FlatView::Viewer::Both;
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::Both;
     vwr_.setVisible( dest, false );
     fvdp_ = new uiSSLMFlatViewDataPack();
-    DPM( DataPackMgr::FlatID() ).addAndObtain( fvdp_ );
+    DPM( DataPackMgr::FlatID() ).add( fvdp_ );
     vwr_.setPack( dest, fvdp_->id() );
 }
 
@@ -771,7 +770,6 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 {
     detachAllNotifiers();
-    DPM( DataPackMgr::FlatID() ).release( fvdp_ );
     vwr_.removeAuxDatas( layerads_ );
     deepErase( layerads_ );
     vwr_.removeAuxDatas( levelads_ );

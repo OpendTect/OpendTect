@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
+#include "prestackanglecomputer.h"
 #include "prestackprop.h"
 #include "multiid.h"
 #include "datapack.h"
@@ -20,7 +21,7 @@ ________________________________________________________________________
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class AngleComputer; class Gather;
+namespace PreStack { class Gather;
 		     class GatherSetDataPack; class ProcessManager; }
 
 
@@ -125,8 +126,8 @@ protected:
     PreStack::ProcessManager*	preprocessor_ = nullptr;
     PreStack::PropCalc*		propcalc_ = nullptr;
     PreStack::PropCalc::Setup	setup_;
-    PreStack::AngleComputer*	anglecomp_ = nullptr;
-    int				anglegsdpid_ = -1;
+    RefMan<PreStack::AngleComputer>	anglecomp_ = nullptr;
+    DataPack::ID		anglegsdpid_ = DataPack::FullID::PackID(-1);
 
     MultiID			preprocid_;
     int				dataidx_;
@@ -137,7 +138,7 @@ protected:
 
 private:
 
-    PreStack::GatherSetDataPack*	getMemoryGatherSetDP() const;
+    WeakPtr<PreStack::GatherSetDataPack>	getMemoryGatherSetDP() const;
     void			setGatherIsAngle(PreStack::Gather&);
 };
 

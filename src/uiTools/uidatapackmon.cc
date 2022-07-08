@@ -39,7 +39,7 @@ uiDataPackMonitor::uiDataPackMonitor( uiParent* p, int repeatinsec )
 
     txtbr_ = new uiTextEdit( this, "DataPack manager", true );
 
-    TypeSet<DataPackMgr::ID> dpmgrids;
+    TypeSet<DataPackMgr::MgrID> dpmgrids;
     dpmgrids += DataPackMgr::BufID();
     dpmgrids += DataPackMgr::PointID();
     dpmgrids += DataPackMgr::SeisID();
@@ -121,7 +121,6 @@ void uiDataPackMonitor::deletedCB( CallBacker* )
 
 void uiDataPackMonitor::launchFrom( uiParent* p, int refreshint )
 {
-    delete uidpmondlg_;
     uidpmondlg_ = new uiDataPackMonitor( p, refreshint );
     uidpmondlg_->show();
 }

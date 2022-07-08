@@ -11,10 +11,10 @@ _______________________________________________________________________
 
 
 #include "uiseismod.h"
+#include "seisbufadapters.h"
 #include "seistype.h"
 #include "uiflatviewmainwin.h"
 class SeisTrcBuf;
-class SeisTrcBufDataPack;
 
 
 /*! Displays SeisTrcBuf's
@@ -38,7 +38,7 @@ public:
 			      const char* dp_cat,const char* nm,int compnr=0);
     			//!< This makes a copy of the buf
 
-    SeisTrcBufDataPack*	dataPack()		{ return dp_; }
+    RefMan<SeisTrcBufDataPack>	dataPack()		{ return dp_; }
     void		handleBufChange();
 
     // Convenience
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    SeisTrcBufDataPack*	dp_;
+    RefMan<SeisTrcBufDataPack>	dp_;
 
     void	setBuf(const SeisTrcBuf&,Seis::GeomType,
 		       const char*,const char* nm,int compnr,bool);

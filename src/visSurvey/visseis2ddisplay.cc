@@ -103,10 +103,10 @@ Seis2DDisplay::~Seis2DDisplay()
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpm.release( datapackids_[idx] );
+	dpm.unRef( datapackids_[idx] );
 
     for ( int idx=0; idx<transfdatapackids_.size(); idx++ )
-	dpm.release( transfdatapackids_[idx] );
+	dpm.unRef( transfdatapackids_[idx] );
 
     polyline_->removeNodeState( polylineds_ );
     polylineds_->unRef();
@@ -368,16 +368,14 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				   TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack* datapack = dpm.obtain( dpid );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack);
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
     {
-	dpm.release( dpid );
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
 	return false;
     }
 
-    dpm.release( datapackids_[attrib] );
+    dpm.unRef( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
 
     createTransformedDataPack( attrib, taskr );
@@ -428,7 +426,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    DataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp ) return;
 
     updateTexOriginAndScale( attrib, regsdp->sampling() );
@@ -497,7 +495,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -521,9 +519,9 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 	transformer.execute();
     }
 
-    dpm.release( transfdatapackids_[attrib] );
+    dpm.unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = outputid;
-    dpm.obtain( outputid );
+    dpm.ref( outputid );
 }
 
 
@@ -803,17 +801,17 @@ SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat( int ) const
 
 void Seis2DDisplay::addCache()
 {
-    datapackids_ += DataPack::cUdfID();
+    datapackids_ += DataPack::ID::getInvalid();
     transfdatapackids_ += DataPack::cNoID();
 }
 
 
 void Seis2DDisplay::removeCache( int attrib )
 {
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_.removeSingle( attrib );
 }
 
@@ -827,10 +825,10 @@ void Seis2DDisplay::swapCache( int a0, int a1 )
 
 void Seis2DDisplay::emptyCache( int attrib )
 {
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = DataPack::cNoID();
 
     channels_->setNrVersions( attrib, 1 );
@@ -893,7 +891,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

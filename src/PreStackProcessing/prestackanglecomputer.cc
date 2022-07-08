@@ -360,9 +360,9 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 }
 
 
-Gather* AngleComputer::computeAngleData()
+RefMan<Gather> AngleComputer::computeAngleData()
 {
-    PtrMan<Gather> gather = new Gather( outputsampling_ );
+    RefMan<Gather> gather = new Gather( outputsampling_ );
     gather->setTrcKey( trckey_ );
     Array2D<float>& angledata = gather->data();
 
@@ -417,7 +417,7 @@ Gather* AngleComputer::computeAngleData()
     else if ( smtype == FFTFilter )
 	fftSmooth( angledata );
 
-    return gather.release();
+    return gather;
 }
 
 
@@ -453,7 +453,7 @@ void VelocityBasedAngleComputer::setRefModel(
 }
 
 
-Gather* VelocityBasedAngleComputer::computeAngles()
+RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 {
     ConstRefMan<Survey::Geometry> geom =
 	Survey::GM().getGeometry( const_cast<const TrcKey&>(trckey_).geomID() );
@@ -670,7 +670,7 @@ const OffsetReflectivityModel* ModelBasedAngleComputer::curRefModel() const
 }
 
 
-Gather* ModelBasedAngleComputer::computeAngles()
+RefMan<Gather> ModelBasedAngleComputer::computeAngles()
 {
     return computeAngleData();
 }

@@ -83,13 +83,14 @@ protected:
 mExpClass(Seis) PreLoadDataEntry
 {
 public:
-			PreLoadDataEntry(const MultiID&,Pos::GeomID,int dpid);
+    typedef	DataPack::ID	PackID;
+			PreLoadDataEntry(const MultiID&,Pos::GeomID,PackID);
 
     bool		equals(const MultiID&,Pos::GeomID) const;
 
     MultiID		mid_;
     Pos::GeomID		geomid_;
-    int			dpid_;
+    PackID		dpid_;
     bool		is2d_;
     BufferString	name_;
 };
@@ -98,23 +99,36 @@ public:
 mExpClass(Seis) PreLoadDataManager : public CallBacker
 {
 public:
+    typedef	DataPack::ID	PackID;
+
     void		add(const MultiID&,DataPack*);
     void		add(const MultiID&,Pos::GeomID,DataPack*);
     void		remove(const MultiID&,Pos::GeomID =-1);
-    void		remove(int dpid);
+    void		remove(PackID dpid);
     void		removeAll();
 
-    DataPack*		get(const MultiID&,Pos::GeomID =-1);
-    DataPack*		get(int dpid);
-    const DataPack*	get(const MultiID&,Pos::GeomID =-1) const;
-    const DataPack*	get(int dpid) const;
-    void		getInfo(const MultiID&,Pos::GeomID,
-				BufferString&) const;
+    template<class T>
+    inline RefMan<T>		get(const MultiID&,Pos::GeomID =-1);
+    template<class T>
+    inline RefMan<T>		get(PackID dpid);
+    template<class T>
+    inline ConstRefMan<T>	get(const MultiID&,Pos::GeomID =-1) const;
+    template<class T>
+    inline ConstRefMan<T>	get(PackID dpid) const;
 
-    void		getIDs(TypeSet<MultiID>&) const;
-    bool		isPresent(const MultiID&,Pos::GeomID =-1) const;
+    void			getInfo(const MultiID&,Pos::GeomID,
+					BufferString&) const;
+
+    void			getIDs(TypeSet<MultiID>&) const;
+    bool			isPresent(const MultiID&,Pos::GeomID =-1) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
+    RefMan<DataPack>		getDP(const MultiID&,Pos::GeomID = -1);
+    ConstRefMan<DataPack>	getDP(const MultiID&,Pos::GeomID = -1) const;
+    inline RefMan<DataPack>	getDP( PackID dpid )
+				{ return dpmgr_.getDP( dpid ); }
+    inline ConstRefMan<DataPack> getDP( DataPack::ID dpid ) const
+				{ return dpmgr_.getDP( dpid ); }
 
     Notifier<PreLoadDataManager>	changed;
 
@@ -129,6 +143,39 @@ public:
 };
 
 mGlobal(Seis) PreLoadDataManager& PLDM();
+
+
+template <class T> inline RefMan<T>
+PreLoadDataManager::get( const MultiID& mid, Pos::GeomID gid )
+{
+    auto dp = getDP( mid, gid );
+    mDynamicCastGet( T*, casted, dp.ptr() );
+    return RefMan<T>( casted );
+}
+
+template <class T> inline ConstRefMan<T>
+PreLoadDataManager::get( const MultiID& mid, Pos::GeomID gid ) const
+{
+    auto dp = getDP( mid, gid );
+    mDynamicCastGet( const T*, casted, dp.ptr() );
+    return ConstRefMan<T>( casted );
+}
+
+template <class T> inline RefMan<T>
+PreLoadDataManager::get( PackID dpid )
+{
+    auto dp = getDP( dpid );
+    mDynamicCastGet( T*, casted, dp.ptr() );
+    return RefMan<T>( casted );
+}
+
+template <class T> inline ConstRefMan<T>
+PreLoadDataManager::get( PackID dpid ) const
+{
+    auto dp = getDP( dpid );
+    mDynamicCastGet( const T*, casted, dp.ptr() );
+    return ConstRefMan<T>( casted );
+}
 
 } // namespace Seis
 

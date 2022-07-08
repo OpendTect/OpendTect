@@ -223,7 +223,7 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 	return DataPack::cNoID();
     }
 
-    const RegularSeisDataPack* output = executor.getOutput();
+    ConstRefMan<RegularSeisDataPack> output = executor.getOutput();
     if ( !output || output->isEmpty() )
     {
 	errmsg_ = tr("No output produced");
@@ -231,8 +231,7 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
     }
 
     //Ensure it survives the chain executor destruction
-    DPM( DataPackMgr::SeisID() ).addAndObtain(
-				 const_cast<RegularSeisDataPack*>( output ) );
+    DPM( DataPackMgr::SeisID() ).add( output );
 
     return output->id();
 }
@@ -242,7 +241,7 @@ DataPack::ID
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 					const LineKey& lk, TaskRunner* taskr )
 {
-    return createAttrib( tkzs, -1, taskr );
+    return createAttrib( tkzs, DataPack::ID(-1), taskr );
 }
 
 } // namespace VolProc

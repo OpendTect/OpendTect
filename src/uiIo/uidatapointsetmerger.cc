@@ -27,10 +27,10 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 // DPSMergerProp
-int DPSMergerProp::primaryDPID() const
+DPSMergerProp::PackID DPSMergerProp::primaryDPID() const
 { return masterdpsid_; }
 
-int DPSMergerProp::secondaryDPID() const
+DPSMergerProp::PackID DPSMergerProp::secondaryDPID() const
 { return slavedpsid_; }
 
 const TypeSet<int>& DPSMergerProp::primaryColIDs() const
@@ -46,10 +46,10 @@ DPSMerger::DPSMerger( const DPSMergerProp& prop )
     , rowdone_(-1)
     , prop_(prop)
 {
-    DataPack* mdp = DPM(DataPackMgr::PointID()).obtain( prop.primaryDPID() );
-    mDynamicCast(DataPointSet*,mdps_,mdp);
-    DataPack* sdp = DPM(DataPackMgr::PointID()).obtain( prop.secondaryDPID() );
-    mDynamicCast(DataPointSet*,sdps_,sdp);
+    auto mdp = DPM(DataPackMgr::PointID()).getDP( prop.primaryDPID() );
+    mDynamicCast(DataPointSet*,mdps_,mdp.ptr());
+    auto sdp = DPM(DataPackMgr::PointID()).getDP( prop.secondaryDPID() );
+    mDynamicCast(DataPointSet*,sdps_,sdp.ptr());
     newdps_ = new DataPointSet( *mdps_ );
 }
 
@@ -201,8 +201,8 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
 {
     setPrefHeight( 500 );
-    DPM( DataPackMgr::PointID() ).addAndObtain( mdps_ );
-    DPM( DataPackMgr::PointID() ).addAndObtain( sdps_ );
+    DPM( DataPackMgr::PointID() ).add( mdps_ );
+    DPM( DataPackMgr::PointID() ).add( sdps_ );
 
     uiString capt = uiStrings::phrMerge(tr("'%1' with '%2'")
 			       .arg(toUiString(mdps->name()))
@@ -287,8 +287,6 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 
 uiDataPointSetMerger::~uiDataPointSetMerger()
 {
-    DPM( DataPackMgr::PointID() ).release( mdps_->id() );
-    DPM( DataPackMgr::PointID() ).release( sdps_->id() );
 }
 
 

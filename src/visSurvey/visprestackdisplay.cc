@@ -184,13 +184,13 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
 DataPack::ID PreStackDisplay::preProcess()
 {
     if ( !ioobj_ || !reader_ )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     if ( !preprocmgr_.nrProcessors() || !preprocmgr_.reset() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     if ( !preprocmgr_.prepareWork() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     const BinID stepout = preprocmgr_.getInputStepout();
 
@@ -224,14 +224,14 @@ DataPack::ID PreStackDisplay::preProcess()
 		continue;
 	    }
 
-	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
+	    DPM( DataPackMgr::FlatID() ).add( gather );
 	    preprocmgr_.setInput( relbid, gather->id() );
-	    DPM( DataPackMgr::FlatID() ).release( gather );
+	    DPM( DataPackMgr::FlatID() ).unRef( gather->id() );
 	}
     }
 
     if ( !preprocmgr_.process() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     return preprocmgr_.getOutput();
 }
@@ -513,7 +513,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     const double offsetscale = Coord( basedirection_.x*SI().inlDistance(),
 				     basedirection_.y*SI().crlDistance()).abs();
 
-    ConstDataPackRef<FlatDataPack> fdp = flatviewer_->obtainPack( false );
+    ConstRefMan<FlatDataPack> fdp = flatviewer_->obtainPack( false );
     int nrtrcs = 0;
     if ( fdp )
     {
@@ -950,7 +950,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     if ( !flatviewer_  )
 	return;
 
-    ConstDataPackRef<FlatDataPack> fdp = flatviewer_->obtainPack( false );
+    ConstRefMan<FlatDataPack> fdp = flatviewer_->obtainPack( false );
     if ( !fdp ) return;
 
     const int nrtrcs = fdp->size( true );

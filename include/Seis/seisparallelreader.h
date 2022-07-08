@@ -61,7 +61,7 @@ public:
 			{ components_ = compnrs; }
 
     void		 setDataPack(RegularSeisDataPack*);
-    RegularSeisDataPack* getDataPack();
+    RefMan<RegularSeisDataPack> getDataPack();
 
     uiString		uiNrDoneText() const override;
     uiString		uiMessage() const override;
@@ -80,7 +80,7 @@ protected:
 
     BinIDValueSet*		bidvals_;
 
-    RegularSeisDataPack*	dp_;
+    RefMan<RegularSeisDataPack> dp_;
     TrcKeyZSampling		tkzs_;
     ObjectSet<TrcKeySampling>   tks_;
     PosInfo::CubeData* trcssampling_ = nullptr;
@@ -120,7 +120,7 @@ public:
     void		setScaler(Scaler*);
     bool		init();
 
-    RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
+    RefMan<RegularSeisDataPack> getDataPack();
 
     uiString		uiNrDoneText() const override;
     uiString		uiMessage() const override;
@@ -131,7 +131,7 @@ protected:
     bool		doWork(od_int64,od_int64,int) override;
     bool		doFinish(bool) override;
 
-    RegularSeisDataPack*	dp_;
+    RefMan<RegularSeisDataPack> dp_;
     TypeSet<int>		components_;
     TypeSet<int>		trcnrs_;
     TrcKeyZSampling		tkzs_;
@@ -183,7 +183,7 @@ public:
 			     DataChar is not forwarded
 			*/
 
-    RegularSeisDataPack* getDataPack();
+    RefMan<RegularSeisDataPack> getDataPack();
 
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override;
@@ -208,7 +208,7 @@ private:
     IOObj*			ioobj_;
     bool			is2d_;
     SeisTrcReader&		rdr_;
-    RegularSeisDataPack*	dp_;
+    RefMan<RegularSeisDataPack> dp_;
     TrcKeyZSampling		tkzs_;
     TypeSet<float>		refnrs_;
     TypeSet<int>		components_;

@@ -66,7 +66,7 @@ public:
     enum Type		{ Empty, Select, Default, RGBA };
 
 			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty,
-					RandomLineID id=RandomLineID::udf());
+				    RandomLineID id=RandomLineID::getInvalid());
 			~uiODRandomLineTreeItem();
 
     bool		init();

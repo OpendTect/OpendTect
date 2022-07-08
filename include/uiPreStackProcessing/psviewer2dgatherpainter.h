@@ -13,12 +13,12 @@ ________________________________________________________________________
 
 #include "uiprestackprocessingmod.h"
 #include "position.h"
+#include "prestackgather.h"
 #include "datapack.h"
 
 namespace FlatView { class Viewer; };
 template <class T> class SamplingData;
 
-namespace PreStack { class Gather; }
 
 //!Gather display
 
@@ -46,8 +46,8 @@ protected:
 					       int& nrsamp) const;
 
     FlatView::Viewer&		viewer_;
-    const PreStack::Gather*	inputwvagather_;
-    const PreStack::Gather*	inputvdgather_;
+    ConstRefMan<PreStack::Gather>	inputwvagather_;
+    ConstRefMan<PreStack::Gather>	inputvdgather_;
 };
 
 

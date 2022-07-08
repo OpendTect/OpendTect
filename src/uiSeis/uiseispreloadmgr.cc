@@ -807,7 +807,7 @@ void uiSeisPreLoadedDataSel::setInput( const MultiID& inpkey, int compnr )
 	return;
 
 
-    mDynamicCastGet(const SeisDataPack*,seisdp,PLDM().get(inpkey))
+    auto seisdp = PLDM().get<SeisDataPack>(inpkey );
     if ( !seisdp )
 	return;
 
@@ -840,7 +840,7 @@ const char* uiSeisPreLoadedDataSel::selectedCompName() const
     if ( selkey_.isUdf() )
 	return nullptr;
 
-    mDynamicCastGet(const SeisDataPack*,dp,PLDM().get(selkey_))
+    auto dp = PLDM().get<SeisDataPack>(selkey_ );
     if ( !dp || dp->nrComponents()==1 || compnr_ < dp->nrComponents() )
 	return nullptr;
 
@@ -850,8 +850,8 @@ const char* uiSeisPreLoadedDataSel::selectedCompName() const
 
 DataPack::ID uiSeisPreLoadedDataSel::selectedDPID() const
 {
-    const DataPack* dp = PLDM().get( selkey_ );
-    return dp ? dp->id() : DataPack::cUdfID();
+    ConstRefMan<DataPack> dp = PLDM().getDP( selkey_ );
+    return dp ? dp->id() : DataPack::ID::getInvalid();
 }
 
 
@@ -895,7 +895,7 @@ void uiSeisPreLoadedDataSel::selCB( CallBacker* )
     }
 
     const MultiID selkey = keys_[selidx];
-    mDynamicCastGet(const SeisDataPack*,dp,PLDM().get(selkey))
+    auto dp = PLDM().get<SeisDataPack>(selkey );
     if ( !dp )
 	return;
 
@@ -948,7 +948,7 @@ void selCB( CallBacker* )
     if ( !keys_.validIdx(selidx) )
 	return;
 
-    mDynamicCastGet(const SeisDataPack*,seisdp,PLDM().get(keys_[selidx]))
+    auto seisdp = PLDM().get<SeisDataPack>( keys_[selidx] );
     if ( !seisdp )
 	return;
 

@@ -43,7 +43,7 @@ RandomLine::RandomLine( const char* nm )
 RandomLine::~RandomLine()
 {
     RLM().remove( this );
-    id_.set( RandomLineID::udf().asInt()-1 );
+    id_.set( RandomLineID::getInvalid().asInt() );
 }
 
 
@@ -697,7 +697,7 @@ bool RandomLineManager::isLoaded( RandomLineID id ) const
 RandomLineID RandomLineManager::add( RandomLine* rl )
 {
     if ( !rl )
-	return RandomLineID::udf();
+	return RandomLineID::getInvalid();
 
     const bool res = lines_.addIfNew( rl );
     if ( res )

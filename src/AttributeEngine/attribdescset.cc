@@ -1045,10 +1045,11 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     }
     else if ( multiid.isInMemoryID() )
     {
-	if ( !DPM(multiid).haveID(multiid) )
+	DataPack::FullID fid( multiid );
+	if ( !DPM(fid).isPresent(fid) )
 	    return DescID::undef();
 
-	objnm = DataPackMgr::nameOf( multiid );
+	objnm = DataPackMgr::nameOf( fid );
     }
     else
 	return DescID::undef();

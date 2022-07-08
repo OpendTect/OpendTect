@@ -208,8 +208,8 @@ public:
 		    , seisdatapack_(nullptr)
 		    , scaler_(scaler)
 		{
-		    mDynamicCast( const RegularSeisDataPack*,
-			seisdatapack_,Seis::PLDM().get(reader.ioObj()->key()) );
+		    seisdatapack_ = Seis::PLDM().get<RegularSeisDataPack>(
+						    reader.ioObj()->key() );
 		}
 protected:
 

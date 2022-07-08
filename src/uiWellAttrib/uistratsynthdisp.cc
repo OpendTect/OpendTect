@@ -154,10 +154,10 @@ SynthSpecificPars& operator =( const SynthSpecificPars& oth )
 }
 
 
-const FlatDataPack* find( int lmsidx, const Strat::Level::ID flatlvlid,
+ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::Level::ID flatlvlid,
 			  int offsidx ) const
 {
-    DataPack::ID dpid = DataPack::cUdfID();
+    DataPack::ID dpid = DataPack::ID::getInvalid();
     for ( const auto* dpobj : dpobjs_ )
     {
 	if ( lmsidx == dpobj->curLayerModelIdx() &&
@@ -168,11 +168,10 @@ const FlatDataPack* find( int lmsidx, const Strat::Level::ID flatlvlid,
 	}
     }
 
-    if ( dpid == DataPack::cUdfID() )
+    if ( dpid == DataPack::ID::getInvalid() )
 	return nullptr;
 
-    const DataPack* dp = DPM( DataPackMgr::FlatID() ).observe( dpid );
-    return dynamic_cast<const FlatDataPack*>( dp );
+    return DPM( DataPackMgr::FlatID() ).get<FlatDataPack>( dpid );
 }
 
 
@@ -185,7 +184,7 @@ void addIfNew( DataPack::ID dpid, int lmsidx, const Strat::Level::ID flatlvlid,
 	if ( *newobj.ptr() == *dpobj )
 	    return;
 
-    dpobjs_.add( newobj.release() );
+    dpobjs_.add( newobj );
 }
 
 
@@ -305,7 +304,7 @@ const StepInterval<float>& getOffsetRg() const
 
 void useWVADispPars( const FlatView::DataDispPars::WVA& wvapars )
 {
-    if ( id_ == DataPack::cNoID() )
+    if ( id_ == DataPack::cNoID().asInt() )
 	return;
 
     wvamapper_->setup_ = wvapars.mappersetup_;
@@ -315,7 +314,7 @@ void useWVADispPars( const FlatView::DataDispPars::WVA& wvapars )
 
 void useVDDispPars( const FlatView::DataDispPars::VD& vdpars )
 {
-    if ( id_ == DataPack::cNoID() )
+    if ( id_ == DataPack::cNoID().asInt() )
 	return;
 
     vdmapper_->setup_ = vdpars.mappersetup_;
@@ -664,7 +663,7 @@ bool canDoWiggle() const
 }
 
     Notifier<uiStratSynthDispDSSel> selChange;
-    DataPack::ID datapackid_ = DataPack::cUdfID();
+    DataPack::ID datapackid_ = DataPack::ID::getInvalid();
 
 private:
 
@@ -1006,7 +1005,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 					    : DataPack::cNoID();
     if ( selfld.packID() == newpackid )
     {
-	pack2use.set( nullptr, !dpm.haveID(newpackid) );
+	pack2use.set( nullptr, !dpm.isPresent(newpackid) );
 	if ( dest == FlatView::Viewer::Both )
 	    vdselfld_->datapackid_ = newpackid;
 
@@ -1014,14 +1013,15 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 	return;
     }
 
-    const bool hadpack = selfld.packID() > 0;
+    const bool hadpack = selfld.packID().isValid() &&
+					    selfld.packID()!=DataPack::cNoID();
     selfld.datapackid_ = newpackid;
     if ( dest == FlatView::Viewer::Both )
 	vdselfld_->datapackid_ = newpackid;
 
     if ( newpackid != DataPack::cNoID() )
     {
-	if ( !dpm.haveID(newpackid) )
+	if ( !dpm.isPresent(newpackid) )
 	    dpm.add( const_cast<FlatDataPack*>( pack2use.ptr() ) );
 	if ( !vwr_->isAvailable(newpackid) )
 	    vwr_->addPack( newpackid );
@@ -1033,7 +1033,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     vwr_->usePack( dest, newpackid, !hadpack );
     ctyp = Math::SetBits( ctyp, FlatView::Viewer::BitmapData, true );
 
-    pack2use.release();
+    pack2use->unRef();
 
     if ( control_ && sd )
     {
@@ -1064,9 +1064,10 @@ void uiStratSynthDisp::updateDispPars( FlatView::Viewer::VwrDest dest,
 
     const SyntheticData::SynthID wvacurid = wvaselfld_->curID();
     const SyntheticData::SynthID vdcurid = vdselfld_->curID();
-    if ( (dest == FlatView::Viewer::WVA && wvacurid == DataPack::cNoID()) ||
-	 (dest == FlatView::Viewer::VD && vdcurid == DataPack::cNoID()) ||
-	 (wvacurid == DataPack::cNoID() && vdcurid == DataPack::cNoID()) )
+    const int noID = DataPack::cNoID().asInt();
+    if ( (dest == FlatView::Viewer::WVA && wvacurid == noID) ||
+	 (dest == FlatView::Viewer::VD && vdcurid == noID) ||
+	 (wvacurid == noID && vdcurid == noID) )
 	return;
 
     FlatView::DataDispPars& ddpars = vwr_->appearance().ddpars_;
@@ -1612,17 +1613,16 @@ void uiStratSynthDisp::synthRenamedCB( CallBacker* cb )
 	for ( const auto* dpobj : disppars->dpobjs_ )
 	{
 	    const DataPack::ID dpid = dpobj->id();
-	    if ( !dpm.haveID(dpid) )
+	    if ( !dpm.isPresent(dpid) )
 		continue;
 
-	    DataPack* dp = dpm.obtain( dpid );
+	    RefMan<DataPack> dp = dpm.getDP( dpid );
 	    if ( !dp )
 		continue;
 
 	    if ( dp != &sd->getPack() )
 		dp->setName( newnm );
 
-	    dpm.release( dpid );
 	}
     }
 }

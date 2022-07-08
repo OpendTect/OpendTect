@@ -48,7 +48,7 @@ public:
     DataPack::ID		getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
-    virtual uiString		errMsg() const 
+    virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
 
     virtual void		fillPar(IOPar&) const			= 0;
@@ -84,10 +84,10 @@ protected:
     static void			freeArray(ObjectSet<Gather>&);
 
     BinID			outputstepout_;
-    ObjectSet<Gather>		outputs_;
+    RefObjectSet<Gather>	outputs_;
     BoolTypeSet			outputinterest_;
 
-    ObjectSet<Gather>		inputs_;
+    RefObjectSet<Gather>	inputs_;
 };
 
 

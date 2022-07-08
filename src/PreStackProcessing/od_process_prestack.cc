@@ -303,7 +303,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 		    bids += inputbid;
 		    gathers += gather;
-		    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
+		    DPM( DataPackMgr::FlatID() ).add( gather );
 		}
 
 		if ( !gather )
@@ -322,9 +322,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	if ( nrfound && procman->process() )
 	{
-	    const DataPack* dp =
-		DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
-	    mDynamicCastGet( const Gather*, gather, dp );
+	    auto gather = DPM(DataPackMgr::FlatID()).get<Gather>(
+							procman->getOutput() );
 	    if ( gather )
 	    {
 		const int nrtraces =
@@ -360,8 +359,6 @@ bool BatchProgram::doWork( od_ostream& strm )
 			mRetError("\nCannot write output");
 		    }
 		}
-
-		DPM(DataPackMgr::FlatID()).release( dp );
 	    }
 
 	    ++progressmeter;
@@ -383,8 +380,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		    if ( bids[idx].inl()<=obsoleteline )
 		    {
 			bids.removeSingle( idx );
-			DPM( DataPackMgr::FlatID() ).release(
-			    gathers.removeSingle(idx) );
+			DPM( DataPackMgr::FlatID() ).unRef(
+					    gathers.removeSingle(idx)->id() );
 		    }
 		}
 	    }
@@ -401,8 +398,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		if ( bids[idx].crl()<=obsoletetrace )
 		{
 		    bids.removeSingle( idx );
-		    DPM( DataPackMgr::FlatID() ).release(
-			gathers.removeSingle(idx) );
+		    DPM( DataPackMgr::FlatID() ).unRef(
+					    gathers.removeSingle(idx)->id() );
 		}
 	    }
 	}
@@ -414,8 +411,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     mMessage( "Threads closed; Writing finish status" );
 
-    for ( int idx=gathers.size()-1;  idx>=0; idx-- )
-	DPM( DataPackMgr::FlatID() ).release( gathers.removeSingle(idx) );
+    deepUnRef( gathers );
 
     if ( !comm_ )
     {

@@ -50,7 +50,7 @@ void VW2DFaultSS2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<RegularFlatDataPack> regfdp = vwr.obtainPack( true );
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.obtainPack( true );
 	if ( !regfdp )
 	{
 	    fsseds_ += 0;
@@ -84,8 +84,7 @@ void VW2DFaultSS2D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<RegularFlatDataPack> regfdp =
-					vwr.obtainPack( true, true );
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.obtainPack( true, true );
 	if ( !regfdp ) continue;
 
 	if ( fsseds_[ivwr] )

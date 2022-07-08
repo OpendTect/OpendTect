@@ -759,7 +759,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 {
     if ( !preprocmgr_->prepareWork() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
@@ -789,7 +789,7 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
     if ( !preprocmgr_->process() )
     {
 	uiMSG().error( preprocmgr_->errMsg() );
-	return -1;
+	return DataPack::ID::getInvalid();
     }
 
     return preprocmgr_->getOutput();
@@ -801,8 +801,8 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 {
     if ( ginfo.isstored_ )
     {
-	DataPackRef<PreStack::Gather> gather =
-	    DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
+	RefMan<PreStack::Gather> gather = new PreStack::Gather;
+	DPM(DataPackMgr::FlatID()).add( gather );
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
 	if ( !storedpsmw )
 	    return;
@@ -827,7 +827,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	    return;
 	const GatherInfo& inputginfo = gatherinfos_[gidx];
 	preprocmgr_->setInput( relbid,
-			       inputginfo.vddpid_>=0 ? inputginfo.wvadpid_
+			   inputginfo.vddpid_.isValid() ? inputginfo.wvadpid_
 						     : inputginfo.vddpid_ );
     }
 }
@@ -1045,12 +1045,11 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 {
     if ( !hasangledata_ || !angleparams_ )
-	return -1;
+	return DataPack::ID::getInvalid();
 
-    DataPack* dp = DPM( DataPackMgr::FlatID() ).obtain( gatherid );
-    mDynamicCastGet(PreStack::Gather*,gather,dp);
+    auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( gatherid );
     if ( !gather )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     PreStack::VelocityBasedAngleComputer velangcomp;
     velangcomp.setMultiID( angleparams_->velvolmid_ );
@@ -1060,20 +1059,20 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
     velangcomp.setOutputSampling( fp );
     velangcomp.setGatherIsNMOCorrected( gather->isCorrected() );
     velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
-    auto* angledata = velangcomp.computeAngles();
+    auto angledata = velangcomp.computeAngles();
     if ( !angledata )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );
     convAngleDataToDegrees( *angledata );
-    DPM( DataPackMgr::FlatID() ).addAndObtain( angledata );
+    DPM( DataPackMgr::FlatID() ).add( angledata );
     if ( doanglegather_ )
     {
 	PreStack::Gather* anglegather =
 	     getAngleGather( *gather, *angledata, angleparams_->anglerange_ );
-	DPM( DataPackMgr::FlatID() ).addAndObtain( anglegather );
-	DPM( DataPackMgr::FlatID() ).release( angledata->id() );
+	DPM( DataPackMgr::FlatID() ).add( anglegather );
+	DPM( DataPackMgr::FlatID() ).unRef( angledata->id() );
 	return anglegather->id();
     }
 
@@ -1209,8 +1208,8 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     Interval<float> zrg( mUdf(float), 0 );
     auto* gd = new uiGatherDisplay( 0 );
-    DataPackRef<PreStack::Gather> gather =
-	DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
+    RefMan<PreStack::Gather> gather = new PreStack::Gather;
+    DPM(DataPackMgr::FlatID()).add( gather );
     const MultiID& mid = gatherinfo.mid_;
     TrcKey tk;
     if ( is2D() )
@@ -1223,21 +1222,23 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     if ( gather->readFrom(mid,tk) )
     {
-	DataPack::ID ppgatherid = -1;
+	DataPack::ID ppgatherid = DataPack::ID::getInvalid();
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	    ppgatherid = getPreProcessedID( gatherinfo );
 
-	const int gatherid = ppgatherid>=0 ? ppgatherid : gather->id();
-	const int anglegatherid = getAngleData( gatherid );
+	const DataPack::ID gatherid = ppgatherid.isValid() ? ppgatherid
+							    : gather->id();
+	const DataPack::ID anglegatherid = getAngleData( gatherid );
 	gd->setVDGather( hasangledata_ ? anglegatherid : gatherid );
-	gd->setWVAGather( hasangledata_ ? gatherid : -1 );
+	gd->setWVAGather( hasangledata_ ? gatherid :
+						DataPack::ID::getInvalid() );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
-	DPM(DataPackMgr::FlatID()).release( anglegatherid );
+	DPM(DataPackMgr::FlatID()).unRef( anglegatherid );
     }
     else
-	gd->setVDGather( -1 );
+	gd->setVDGather( DataPack::ID::getInvalid() );
 
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, gatherinfo );
@@ -1374,29 +1375,29 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 
     auto* gd = new uiGatherDisplay( nullptr );
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
-    ConstDataPackRef<PreStack::Gather> vdgather = dpm.obtain( ginfo.vddpid_ );
-    ConstDataPackRef<PreStack::Gather> wvagather = dpm.obtain( ginfo.wvadpid_ );
+    auto vdgather = dpm.get<PreStack::Gather>( ginfo.vddpid_ );
+    auto wvagather = dpm.get<PreStack::Gather>( ginfo.wvadpid_ );
 
     if ( !vdgather && !wvagather  )
     {
-	gd->setVDGather( DataPack::cUdfID() );
-	gd->setWVAGather( DataPack::cUdfID() );
+	gd->setVDGather( DataPack::ID::getInvalid() );
+	gd->setWVAGather( DataPack::ID::getInvalid() );
 	return;
     }
 
     if ( !posdlg_ )
 	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
 				        : vdgather->zRange(), false );
-    DataPack::ID ppgatherid = DataPack::cUdfID();
+    DataPack::ID ppgatherid = DataPack::ID::getInvalid();
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgatherid = getPreProcessedID( ginfo );
 
-    gd->setVDGather( ginfo.vddpid_<0 ? ppgatherid>=0 ? ppgatherid
-						     : ginfo.wvadpid_
-				     : ginfo.vddpid_ );
-    gd->setWVAGather( ginfo.vddpid_>=0 ? ppgatherid>=0 ? ppgatherid
-						       : ginfo.wvadpid_
-				       : -1 );
+    gd->setVDGather( !ginfo.vddpid_.isValid() ?
+			    ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_
+			  : ginfo.vddpid_ );
+    gd->setWVAGather( ginfo.vddpid_.isValid() ?
+			    ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_
+				       : DataPack::ID::getInvalid() );
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
@@ -1522,10 +1523,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     propChanged.trigger();
     ctabsel_->setCurrent( app_.ddpars_.vd_.ctab_.buf() );
 
-    ConstDataPackRef<FlatDataPack> vddatapack =
-		vwrs_[actvwridx]->obtainPack( false );
-    ConstDataPackRef<FlatDataPack> wvadatapack =
-		vwrs_[actvwridx]->obtainPack( true );
+    ConstRefMan<FlatDataPack> vddatapack = vwrs_[actvwridx]->obtainPack(false);
+    ConstRefMan<FlatDataPack> wvadatapack = vwrs_[actvwridx]->obtainPack(true);
     for( int ivwr=0; ivwr<vwridxs.size(); ivwr++ )
     {
 	const int vwridx = vwridxs[ivwr];

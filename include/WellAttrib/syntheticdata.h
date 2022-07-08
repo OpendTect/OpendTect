@@ -41,8 +41,8 @@ public:
     float				getTime(float dpt,int trcnr) const;
     float				getDepth(float time,int trcnr) const;
 
-    const DataPack&			getPack() const { return datapack_; }
-    DataPack&				getPack()	{ return datapack_; }
+    const DataPack&			getPack() const { return *datapack_; }
+    DataPack&				getPack()	{ return *datapack_; }
     virtual DataPack::FullID		fullID() const			= 0;
 
     const Seis::SynthGenDataPack&	synthGenDP() const;
@@ -79,7 +79,7 @@ protected:
 
     SynthID			id_ = -1;
     SynthGenParams		sgp_;
-    DataPack&			datapack_;
+    RefMan<DataPack>		datapack_;
     ConstRefMan<Seis::SynthGenDataPack> synthgendp_;
 
 public:

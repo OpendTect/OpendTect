@@ -19,11 +19,11 @@
 
 #include <iostream>
 
-DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
-DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
-DataPackMgr::ID DataPackMgr::SeisID()		{ return 3; }
-DataPackMgr::ID DataPackMgr::FlatID()		{ return 4; }
-DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
+DataPackMgr::MgrID DataPackMgr::BufID()		{ return MgrID::get(1); }
+DataPackMgr::MgrID DataPackMgr::PointID()	{ return MgrID::get(2); }
+DataPackMgr::MgrID DataPackMgr::SeisID()	{ return MgrID::get(3); }
+DataPackMgr::MgrID DataPackMgr::FlatID()	{ return MgrID::get(4); }
+DataPackMgr::MgrID DataPackMgr::SurfID()	{ return MgrID::get(5); }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 
@@ -52,14 +52,29 @@ static bool trackDataPacks()
 }
 
 
+DataPack::FullID DataPack::FullID::getFromString( const char* str )
+{
+    FullID fid = getInvalid();
+    if ( !isValidString(str) )
+	return fid;
+    fid.fromString( str );
+    return fid;
+}
+
+
+DataPack::FullID DataPack::FullID::getInvalid()
+{
+    const GroupedID grid = GroupedID::getInvalid();
+    return FullID( grid.groupID(), grid.objID() );
+}
+
+
 mDefineInstanceCreatedNotifierAccess(DataPack)
 static Threads::Atomic<int> curdpidnr( 0 );
 
 DataPack::DataPack( const char* categry )
-    : NamedCallBacker("<?>")
+    : SharedObject("<?>")
     , category_(categry)
-    , nrusers_( 0 )
-    , manager_( 0 )
     , id_(getNewID())
 {
     mTriggerInstanceCreatedNotifier();
@@ -67,10 +82,8 @@ DataPack::DataPack( const char* categry )
 
 
 DataPack::DataPack( const DataPack& dp )
-    : NamedCallBacker( dp.name().buf() )
+    : SharedObject( dp.name().buf() )
     , category_( dp.category_ )
-    , nrusers_( 0 )
-    , manager_( 0 )
     , id_(getNewID())
 {
     mTriggerInstanceCreatedNotifier();
@@ -85,13 +98,12 @@ DataPack::~DataPack()
 
 DataPack::ID DataPack::getNewID()
 {
-    return ++curdpidnr;
+    return ID::get( ++curdpidnr );
 }
 
 
 void DataPack::setManager( const DataPackMgr* mgr )
 {
-    Threads::Locker lock ( nruserslock_ );
     if ( manager_ && mgr )
     {
 	if ( manager_!=mgr )
@@ -104,50 +116,31 @@ void DataPack::setManager( const DataPackMgr* mgr )
 }
 
 
-void DataPack::release()
-{
-    if ( !manager_ ) return;
-
-    const_cast<DataPackMgr*>(manager_)->release( this );
-}
-
-
-DataPack* DataPack::obtain()
-{
-    Threads::Locker lock( nruserslock_ );
-    if ( !manager_ ) return 0;
-    nrusers_++;
-
-    return this;
-}
-
-
-DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )
+DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::MgrID dpid, bool crnew )
 {
     Threads::Locker lock( mgrlistlock_ );
 
-    for ( int idx=0; idx<mgrs_.size(); idx++ )
+    for ( auto* mgr : mgrs_ )
     {
-	DataPackMgr* mgr = mgrs_[idx];
 	if ( mgr->id() == dpid )
 	    return mgr;
     }
     if ( !crnew )
-	return 0;
+	return nullptr;
 
-    DataPackMgr* newmgr = new DataPackMgr( dpid );
+    auto* newmgr = new DataPackMgr( dpid );
     mgrs_ += newmgr;
     return newmgr;
 }
 
 
-DataPackMgr& DataPackMgr::DPM( DataPackMgr::ID dpid )
+DataPackMgr& DataPackMgr::DPM( DataPackMgr::MgrID dpid )
 {
     return *gtDPM( dpid, true );
 }
 
 
-DataPackMgr& DPM( DataPackMgr::ID dpid )
+DataPackMgr& DPM( DataPackMgr::MgrID dpid )
 {
     return DataPackMgr::DPM( dpid );
 }
@@ -155,7 +148,7 @@ DataPackMgr& DPM( DataPackMgr::ID dpid )
 
 DataPackMgr& DPM( const DataPack::FullID& fid )
 {
-    const DataPackMgr::ID manid = fid.ID(0);
+    const DataPackMgr::MgrID manid = fid.mgrID();
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
@@ -163,7 +156,6 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
     emptymgr = new DataPackMgr( manid );
     return *emptymgr;
 }
-
 
 
 const char* DataPackMgr::nameOf( const DataPack::FullID& fid )
@@ -182,18 +174,18 @@ void DataPackMgr::dumpDPMs( od_ostream& strm )
 {
     Threads::Locker lock( mgrlistlock_ );
     strm << "** Data Pack Manager dump **\n";
-    if ( !mgrs_.size() )
+    if ( mgrs_.isEmpty() )
 	{ strm << "No Data pack managers (yet)" << od_newline; return; }
 
-    for ( int imgr=0; imgr<mgrs_.size(); imgr++ )
+    for ( const auto* mgr : mgrs_ )
     {
 	strm << "\n\n";
-	mgrs_[imgr]->dumpInfo(strm);
+	mgr->dumpInfo(strm);
     }
 }
 
 
-DataPackMgr::DataPackMgr( DataPackMgr::ID dpid )
+DataPackMgr::DataPackMgr( DataPackMgr::MgrID dpid )
     : id_(dpid)
     , newPack(this)
     , packToBeRemoved(this)
@@ -207,21 +199,157 @@ DataPackMgr::~DataPackMgr()
     //Don't do in release mode, as we may have race conditions of sta-tic
     //variables deleting at different times
     for ( int idx=0; idx<packs_.size(); idx++ )
-    { //Using std C++ function because we cannot use pErrMsg or BufferString
-	std::cerr << "(PE) DataPackMgr | Datapack " << packs_[idx]->id();
-	if ( packs_[idx]->category() )
-	    std::cerr << " with category " << packs_[idx]->category();
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	if ( !pack )
+	    continue;
+
+	//Using std C++ function because we cannot use pErrMsg or BufferString
+	std::cerr << "(PE) DataPackMgr | Datapack " << pack->id().asInt();
+	if ( pack->category() )
+	    std::cerr << " with category " << pack->category();
 	std::cerr << " is still referenced.\n";
     }
-
-    deepErase( packs_ );
 #endif
 }
 
 
-bool DataPackMgr::haveID( DataPack::ID dpid ) const
+const char* DataPackMgr::categoryOf( PackID dpid ) const
 {
-    return indexOf( dpid ) >= 0;
+    auto pack = getDP( dpid );
+    if ( !pack )
+	return nullptr;
+
+    pack.setNoDelete( true );
+    return pack->category();
+}
+
+
+bool DataPackMgr::doAdd( const DataPack* constdp )
+{
+    RefMan<DataPack> dp = const_cast<DataPack*>( constdp );
+    if ( !dp )
+	{ pErrMsg("null datapack to add"); return false; }
+    else if ( isPresent(dp->id()) )
+	return false;
+
+    dp->setManager( this );
+
+    packs_ += dp;
+
+    mTrackDPMsg( BufferString("[DP]: add ",dp->id().asInt(),
+		 BufferString(" '",dp->name(),"'")) );
+
+    newPack.trigger( dp );
+    return true;
+}
+
+
+void DataPackMgr::dumpInfo( od_ostream& strm ) const
+{
+    strm << "Manager.ID: " << id().asInt() << od_newline;
+    const auto nrkb = static_cast<od_int64>( nrKBytes()+0.5f );
+    strm << "Total memory: " << File::getFileSizeString(nrkb)
+			     << od_newline;
+    ascostream astrm( strm );
+    astrm.newParagraph();
+
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	pack.setNoDelete(true);
+	if ( !pack )
+	    continue;
+
+	IOPar iop;
+	pack->dumpInfo( iop );
+	if ( !iop.isEmpty() )
+	    iop.putTo( astrm );
+
+    }
+}
+
+
+void DataPackMgr::dumpInfoFor( PackID dpid, IOPar& iop ) const
+{
+    auto pack = getDP( dpid );
+    pack.setNoDelete( true );
+    if ( pack ) pack->dumpInfo( iop );
+}
+
+
+RefMan<DataPack> DataPackMgr::getDP( PackID dpid )
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	RefMan<DataPack> pack = packs_[idx];
+	if ( pack && pack->id() == dpid )
+	    return pack;
+
+	pack.setNoDelete( true );
+    }
+
+    return nullptr;
+}
+
+
+ConstRefMan<DataPack> DataPackMgr::getDP( PackID dpid ) const
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	if ( pack && pack->id() == dpid )
+	    return pack;
+
+	pack.setNoDelete( true );
+    }
+
+    return nullptr;
+}
+
+
+void DataPackMgr::getPackIDs( TypeSet<PackID>& ids ) const
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	pack.setNoDelete(true);
+	if ( pack )
+	    ids += pack->id();
+    }
+}
+
+
+bool DataPackMgr::isPresent( PackID packid ) const
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	pack.setNoDelete(true);
+	if ( pack && pack->id() == packid )
+	    return true;
+    }
+    return false;
+}
+
+
+const char* DataPackMgr::nameOf( PackID dpid ) const
+{
+    auto pack = getDP( dpid );
+    if ( !pack )
+	return 0;
+
+    pack.setNoDelete( true );
+    return pack->name();
 }
 
 
@@ -229,202 +357,59 @@ float DataPackMgr::nrKBytes() const
 {
     float res = 0;
     for ( int idx=0; idx<packs_.size(); idx++ )
-	res += packs_[idx]->nrKBytes();
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	pack.setNoDelete(true);
+	if ( pack )
+	    res += pack->nrKBytes();
+    }
     return res;
 }
 
 
-void DataPackMgr::dumpInfo( od_ostream& strm ) const
+float DataPackMgr::nrKBytesOf( PackID dpid ) const
 {
-    strm << "Manager.ID: " << id() << od_newline;
-    if ( packs_.isEmpty() )
-    {
-	strm << "[Empty]" << od_newline;
-	return;
-    }
-    else
-    {
-	const od_int64 nrkb = mCast(od_int64,nrKBytes());
-	strm << "Total memory: " << File::getFileSizeString(nrkb)
-				 << od_newline;
-    }
+    auto pack = getDP( dpid );
+    if ( !pack )
+	return 0;
 
-    ascostream astrm( strm );
-    astrm.newParagraph();
-    for ( const auto* pack : packs_ )
-    {
-	IOPar iop;
-	pack->dumpInfo( iop );
-	if ( !iop.isEmpty() )
-	    iop.putTo( astrm );
-    }
+    pack.setNoDelete( true );
+    return pack->nrKBytes();
 }
 
 
-#define mGetWriteLocker(lck,var) \
-    Threads::Locker var( lck, Threads::Locker::WriteLock )
 
-void DataPackMgr::add( DataPack* dp )
+WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
 {
-    if ( !dp ) return;
-
-    Threads::Locker usrlock( dp->nruserslock_ );
-    dp->setManager( this );
-    usrlock.unlockNow();
-
-    mGetWriteLocker( rwlock_, lckr );
-    packs_ += dp;
-    mTrackDPMsg( BufferString("[DP]: add ",dp->id(),
-		 BufferString(" '",dp->name(),"'")) );
-    lckr.unlockNow();
-    newPack.trigger( dp );
-}
-
-
-DataPack* DataPackMgr::addAndObtain( DataPack* dp )
-{
-    if ( !dp ) return 0;
-
-    Threads::Locker lckr( dp->nruserslock_ );
-    dp->nrusers_++;
-    dp->setManager( this );
-    lckr.unlockNow();
-
-    mGetWriteLocker( rwlock_, rwlckr );
-    const int idx = packs_.indexOf( dp );
-    if ( idx==-1 )
-    {
-	mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id(),
-		     BufferString(" '",dp->name(),"'")) );
-	packs_ += dp;
-    }
-    else
-    {
-	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",dp->id(),
-			BufferString(" nrusers=",dp->nrusers_)) );
-    }
-    rwlckr.unlockNow();
-
-    if ( idx==-1 )
-	newPack.trigger( dp );
-
-    return dp;
-}
-
-
-DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
-{
-    Threads::Locker lckr( rwlock_ );
-    const int idx = indexOf( dpid );
-
-    DataPack* res = 0;
-    if ( idx!=-1 )
-    {
-	res = const_cast<DataPack*>( packs_[idx] );
-	if ( !obs )
-	{
-	    Threads::Locker ulckr( res->nruserslock_ );
-	    res->nrusers_++;
-	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id(),
-			 BufferString(" nrusers=",res->nrusers_)) );
-	}
-    }
-
-    return res;
-}
-
-
-int DataPackMgr::indexOf( DataPack::ID dpid ) const
-{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	if ( packs_[idx]->id()==dpid )
-	    return idx;
+	RefMan<DataPack> pack = packs_[idx];
+	pack.setNoDelete(true);
+	if ( pack && pack->id() == dpid )
+	    return WeakPtr<DataPack>( pack );
     }
 
-    return -1;
+    return nullptr;
 }
 
 
-void DataPackMgr::release( DataPack::ID dpid )
+bool DataPackMgr::ref( PackID dpid )
 {
-    Threads::Locker lckr( rwlock_ );
-    int idx = indexOf( dpid );
-    if ( idx==-1 )
-	return;
-
-    DataPack* pack = const_cast<DataPack*>( packs_[idx] );
-    Threads::Locker usrslckr( pack->nruserslock_ );
-    pack->nrusers_--;
-
-    if ( pack->nrusers_>0 )
-    {
-	mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
-		     BufferString(" nrusers=",pack->nrusers_)) );
-	return;
-    }
-
-    //We should be unlocked during callback
-    //to avoid deadlocks
-    usrslckr.unlockNow();
-    lckr.unlockNow();
-
-    packToBeRemoved.trigger( pack );
-
-    mGetWriteLocker( rwlock_, wrlckr );
-    usrslckr.reLock();
-
-    if ( pack->nrusers_>0 )
-    {
-	mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
-		     BufferString(" nrusers=",pack->nrusers_)) );
-	return;
-    }
-
-    //We lost our lock, so idx may have changed.
-    if ( !packs_.isPresent( pack ) )
-	{ pErrMsg("Double delete detected"); }
-
-    pack->setManager( 0 );
-    usrslckr.unlockNow();
-
-
-    mTrackDPMsg( BufferString("[DP]: release/delete ",pack->id()) );
-    packs_ -= pack;
-    delete pack;
+    auto pack = getDP( dpid );
+    if ( pack )
+	{ pack->ref(); return true; }
+    return false;
 }
 
 
-void DataPackMgr::releaseAll( bool notif )
+bool DataPackMgr::unRef( PackID dpid )
 {
-    if ( !notif )
-    {
-	mGetWriteLocker( rwlock_, wrlckr );
-	deepErase( packs_ );
-    }
-    else
-    {
-	for ( int idx=packs_.size()-1; idx>=0; idx-- )
-	    release( packs_[idx]->id() );
-    }
-}
+    auto pack = getDP( dpid );
+    if ( pack )
+	{ pack->unRef(); return true; }
 
-
-#define mDefDPMDataPackFn(ret,fn) \
-ret DataPackMgr::fn##Of( DataPack::ID dpid ) const \
-{ \
-    const int idx = indexOf( dpid ); if ( idx < 0 ) return 0; \
-    return packs_[idx]->fn(); \
-}
-
-mDefDPMDataPackFn(const char*,name)
-mDefDPMDataPackFn(const char*,category)
-mDefDPMDataPackFn(float,nrKBytes)
-
-void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
-{
-    const int idx = indexOf( dpid ); if ( idx < 0 ) return;
-    packs_[idx]->dumpInfo( iop );
+    return false;
 }
 
 
@@ -432,8 +417,38 @@ void DataPack::dumpInfo( IOPar& iop ) const
 {
     iop.set( sKeyCategory(), category() );
     iop.set( sKey::Name(), name() );
-    iop.set( "Pack.ID", id_ );
-    iop.set( "Nr users", nrusers_ );
-    const od_int64 nrkb = mCast(od_int64,nrKBytes());
+    iop.set( "Pack.ID", id_.asInt() );
+    iop.set( "Nr users", nrRefs() );
+    const od_int64 nrkb = static_cast<od_int64>( nrKBytes()+0.5f );
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
+}
+
+
+BufferDataPack::BufferDataPack( char* b, od_int64 sz, const char* catgry )
+    : DataPack(catgry)
+{
+    setBuf( b, sz );
+}
+
+
+BufferDataPack::BufferDataPack( const BufferDataPack& oth )
+    : DataPack(oth)
+{
+    setBuf( oth.sz_>0 ? new char[oth.sz_] : nullptr, oth.sz_ );
+    if ( buf_ )
+	OD::memCopy( buf_, oth.buf_, sz_ );
+}
+
+
+BufferDataPack::~BufferDataPack()
+{
+    delete [] buf_;
+}
+
+
+void BufferDataPack::setBuf( char* b, od_int64 sz )
+{
+    delete [] buf_;
+    buf_ = b;
+    sz_ = buf_ ? sz : 0;
 }

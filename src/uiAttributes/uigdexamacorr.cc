@@ -133,8 +133,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     BufferStringSet cnames; cnames.add( "autocorrelation" );
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 					d2dh, sampling, SI().zDomain(),&cnames);
-    ConstDataPackRef<RegularSeisDataPack> regsdp =
-		DPM(DataPackMgr::SeisID()).obtain( outputid );
+    auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
     if ( !regsdp ) return;
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
@@ -146,8 +145,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 					    Processor* proc )
 {
-    RegularSeisDataPack* output = const_cast<RegularSeisDataPack*>(
-						aem->getDataPackOutput(*proc) );
+    RefMan<RegularSeisDataPack> output = aem->getDataPackOutput( *proc );
     if ( !output ) return;
 
     bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )

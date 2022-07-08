@@ -421,7 +421,7 @@ bool uiODRandomLineTreeItem::init()
 	}
 
 	displayid_ = rtd->id();
-	if ( !rlid_.isUdf() )
+	if ( rlid_.isValid() )
 	    setRandomLineID( rlid_ );
 	visserv_->addObject( rtd, sceneID(), true );
     }

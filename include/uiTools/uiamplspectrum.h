@@ -49,7 +49,7 @@ public:
 					uiAmplSpectrum::Setup());
 				~uiAmplSpectrum();
 
-    void			setDataPackID(DataPack::ID,DataPackMgr::ID,
+    void			setDataPackID(DataPack::ID,DataPackMgr::MgrID,
 					      int version=0);
     void			setData(const float* array,int size);
     void			setData(const Array1D<float>&);

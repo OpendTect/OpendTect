@@ -807,7 +807,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
     else
     {
 	applMgr()->attrServer()->setTargetSelSpecs( as );
-	dpid = applMgr()->attrServer()->createOutput( tkzs, 0 );
+	dpid = applMgr()->attrServer()->createOutput( tkzs, DataPack::cNoID() );
     }
 
     if ( dpid == DataPack::cNoID() )
@@ -1116,9 +1116,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	as[idx].setDefString( defstring );
     }
 
-    bool releasedp = false;
-    RegularSeisDataPack* rsdp = nullptr;
-    mDynamicCast(RegularSeisDataPack*,rsdp,Seis::PLDM().get(key,geomid) )
+    auto rsdp = Seis::PLDM().get<RegularSeisDataPack>( key,geomid );
     if ( !rsdp )
     {
 	attrserv->setTargetSelSpecs( as );
@@ -1136,8 +1134,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
 
 	rsdp = rdr.getDataPack();
-	DPM(DataPackMgr::SeisID()).addAndObtain( rsdp );
-	releasedp = true;
+	DPM(DataPackMgr::SeisID()).add( rsdp );
     }
 
     const DataPack::ID dpid = rsdp ? rsdp->id() : DataPack::cNoID();
@@ -1156,9 +1153,6 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     if ( s2d->isOn() != isChecked() )
 	setChecked( s2d->isOn(), true );
 
-    if ( releasedp )
-	rsdp->release();
-
     return true;
 }
 
@@ -1174,7 +1168,8 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
     const DataPack::ID dpid = applMgr()->attrServer()->createOutput(
-					s2d->getTrcKeyZSampling(false), 0 );
+						s2d->getTrcKeyZSampling(false),
+							    DataPack::cNoID() );
     if ( dpid == DataPack::cNoID() )
 	return;
 

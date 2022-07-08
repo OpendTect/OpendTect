@@ -33,7 +33,7 @@ public:
     SliderTextPolicy		sliderTextPolicy() const;
 
     void			setEmpty();
-    bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
+    bool			setDataPackID(DataPack::ID,DataPackMgr::MgrID,
 					      int version);
     void			setData(const Array2D<float>*);
     void			setData(const float*,int sz);

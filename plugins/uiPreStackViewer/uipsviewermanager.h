@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "callback.h"
+#include "datapack.h"
 #include "menuhandler.h"
 #include "multiid.h"
 #include "uistring.h"
@@ -57,13 +58,13 @@ protected:
 
     uiStoredViewer2DMainWin*	createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
-    uiFlatViewMainWin*	create2DViewer(const uiString&,int dpid);
+    uiFlatViewMainWin*	create2DViewer(const uiString&,DataPack::ID dpid);
 
     int			getSceneID(int mnid);
     static void		getSeis2DTitle(int trnr,const char*,uiString&);
     static void		getSeis3DTitle(const BinID&,const char*,uiString&);
     bool		add3DViewer(const uiMenuHandler*,int scnid,int mnuidx);
-    void		removeViewWin(int dpid);
+    void		removeViewWin(DataPack::ID dpid);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,

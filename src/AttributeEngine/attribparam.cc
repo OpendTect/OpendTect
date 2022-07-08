@@ -308,7 +308,10 @@ bool SeisStorageRefParam::isOK() const
     const BufferString valstr( spec_->text(0) );
     const MultiID dbky( valstr.buf() );
     if ( dbky.isInMemoryID() )
-	return DPM(dbky).haveID( dbky );
+    {
+	const DataPack::FullID fid( dbky );
+	return DPM(fid).isPresent( fid );
+    }
     else if ( !dbky.isDatabaseID() )
 	return false;
 

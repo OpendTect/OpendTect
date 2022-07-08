@@ -343,8 +343,8 @@ bool acceptOK( CallBacker* )
 
 	uiComboBox* inpfld = inpflds_[inpfldidx]->box();
 	const int seldpidx = inpfld->currentItem();
-	const MultiID& dbky = dpfids_[seldpidx];
-	const FixedString dpnm( DataPackMgr::nameOf(dbky) );
+	const MultiID& dbky = dpfids_[seldpidx].asMultiID();
+	const FixedString dpnm( DataPackMgr::nameOf(dpfids_[seldpidx]) );
 	if ( attrset_ )
 	{
 	    Desc* ad = attrset_->getDesc( storedid.firstid_ );

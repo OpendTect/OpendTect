@@ -396,7 +396,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
 	return;
 
-    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd_ );
+    ConstRefMan<FlatDataPack> dp = vwr->obtainPack( !pickinvd_ );
     if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
 	return;
 
@@ -686,12 +686,12 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,&dp);
     MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
     MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
-						 : RandomLineID::udf() );
+						 : RandomLineID::getInvalid() );
     notifystopper.enableNotification();
 
     seedpicker.setSelSpec( as );
 
-    if ( dp.id() > DataPack::cNoID() )
+    if ( dp.id().isValid() && dp.id()!=DataPack::cNoID() )
 	MPE::engine().setAttribData( *as, dp.id() );
 
     MPE::engine().activevolumechange.trigger();
@@ -819,8 +819,7 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
     if ( !emobj ) return;
 
     TypeSet<TrcKeyValue> path = patch->getPath();
-    ConstDataPackRef<FlatDataPack> fdp =
-	editor_->viewer().obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp = editor_->viewer().obtainPack( true, true );
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     for ( int idx=0; idx<path.size(); idx++ )
     {
@@ -968,8 +967,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
     }
 
     BinID bid;
-    ConstDataPackRef<FlatDataPack> fdp =
-	editor_->viewer().obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp = editor_->viewer().obtainPack( true, true );
     mDynamicCastGet( const RandomFlatDataPack*, randfdp, fdp.ptr() );
 
     for ( int ids=0; ids<selectedids.size(); ids++ )

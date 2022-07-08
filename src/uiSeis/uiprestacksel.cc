@@ -29,7 +29,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	datapackinpfld_->addItem(toUiString(DataPackMgr::nameOf(dpfids_[idx])));
-	if ( dpfids_[idx] == selid )
+	if ( dpfids_[idx] == DataPack::FullID(selid) )
 	    datapackinpfld_->setCurrentItem( idx );
     }
     if ( selid.isUdf() && !dpfids_.isEmpty() )
@@ -40,7 +40,8 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 bool uiPreStackDataPackSelDlg::acceptOK( CallBacker* )
 {
     const int selidx = datapackinpfld_->currentItem();
-    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : MultiID::udf();
+    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx].asMultiID() :
+								MultiID::udf();
     return true;
 }
 
@@ -128,7 +129,7 @@ void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
     dpfids_ = ids;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	BufferString mid; mid += ids[0];
+	BufferString mid; mid += ids[0].asMultiID();
 	if ( *mid.buf() == '#' )
 	{
 	    const char* newmid = mid.buf() + 1;
@@ -137,7 +138,7 @@ void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
     }
 
     if ( !dpfids_.isEmpty() )
-	setInput( dpfids_[0] );
+	setInput( dpfids_[0].asMultiID() );
 
     datapackinpfld_->display( true );
     seisinpfld_->display( false );

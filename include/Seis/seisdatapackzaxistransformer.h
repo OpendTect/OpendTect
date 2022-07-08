@@ -27,7 +27,7 @@ public:
 				~SeisDataPackZAxisTransformer();
 
     void			setInput( const SeisDataPack* dp )
-				{ inputdp_ = dp ? dpm_.obtain(dp->id()) : 0; }
+			    { inputdp_ = dp ? dpm_.getDP(dp->id()) : nullptr; }
     void			setOutput( DataPack::ID& dpid )
 				{ outputid_ = &dpid; dpid = DataPack::cNoID(); }
     void			setOutputZRange( const StepInterval<float>& zrg)
@@ -47,7 +47,7 @@ protected:
     ZAxisTransform&		transform_;
     StepInterval<float>		zrange_;
 
-    ConstDataPackRef<DataPack>	inputdp_;
+    ConstRefMan<DataPack>	inputdp_;
     SeisDataPack*		outputdp_;
     DataPack::ID*		outputid_;
 };

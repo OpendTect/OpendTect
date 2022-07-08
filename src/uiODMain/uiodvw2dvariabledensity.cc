@@ -249,7 +249,7 @@ void uiODVW2DVariableDensityTreeItem::handleMenuCB( CallBacker* cb )
 void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -278,7 +278,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 {
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -327,7 +327,7 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
 			const bool steering, const bool stored )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return DataPack::cNoID();
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();

@@ -24,10 +24,10 @@ SyntheticData::SyntheticData( const SynthGenParams& sgp,
 			      DataPack& dp )
     : SharedObject(sgp.name_)
     , sgp_(sgp)
-    , datapack_(dp)
+    , datapack_(&dp)
     , synthgendp_(&synthgendp)
 {
-    datapack_.setName( sgp.name_ );
+    datapack_->setName( sgp.name_ );
 }
 
 
@@ -45,7 +45,7 @@ SyntheticData::SynthID SyntheticData::getNewID()
 void SyntheticData::setName( const char* nm )
 {
     SharedObject::setName( nm );
-    datapack_.setName( nm );
+    datapack_->setName( nm );
     if ( sgp_.name_ != nm )
 	sgp_.name_.set( nm );
 }
@@ -194,17 +194,16 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 				    SeisTrcBufDataPack& dp)
     : SyntheticData(sgp,synthdp,dp)
 {
-    DPM( groupID() ).addAndObtain( &datapack_ );
+    DPM( groupID() ).add( datapack_ );
 }
 
 
 PostStackSyntheticData::~PostStackSyntheticData()
 {
-    DPM( groupID() ).release( datapack_.id() );
 }
 
 
-DataPack::ID PostStackSyntheticData::groupID()
+DataPack::MgrID PostStackSyntheticData::groupID()
 {
     return DataPackMgr::FlatID();
 }
@@ -213,7 +212,8 @@ DataPack::ID PostStackSyntheticData::groupID()
 DataPack::FullID PostStackSyntheticData::fullID() const
 {
     DataPack::FullID fid;
-    fid.setGroupID( groupID() ).setObjectID( datapack_.id() );
+    fid.setGroupID( groupID() );
+    fid.setObjID( datapack_->id() );
     return fid;
 }
 
@@ -243,13 +243,13 @@ ZSampling PostStackSyntheticData::zRange() const
 
 SeisTrcBufDataPack& PostStackSyntheticData::postStackPack()
 {
-    return static_cast<SeisTrcBufDataPack&>( datapack_ );
+    return static_cast<SeisTrcBufDataPack&>( *datapack_ );
 }
 
 
 const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
 {
-    return static_cast<const SeisTrcBufDataPack&>( datapack_ );
+    return static_cast<const SeisTrcBufDataPack&>( *datapack_ );
 }
 
 
@@ -300,7 +300,7 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 					PreStack::GatherSetDataPack& dp )
     : SyntheticData(sgp,synthdp,dp)
 {
-    DPM( groupID() ).addAndObtain( &datapack_ );
+    DPM( groupID() ).add( datapack_ );
     auto& gathers = const_cast<ObjectSet<PreStack::Gather>&>( dp.getGathers() );
     for ( auto* gather : gathers )
 	gather->setName( name() );
@@ -309,13 +309,13 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 
 PreStackSyntheticData::~PreStackSyntheticData()
 {
-    DPM( groupID() ).release( datapack_.id() );
+    DPM( groupID() ).unRef( datapack_->id() );
     if ( angledp_ )
-	DPM( groupID() ).release( angledp_->id() );
+	DPM( groupID() ).unRef( angledp_->id() );
 }
 
 
-DataPack::ID PreStackSyntheticData::groupID()
+DataPack::MgrID PreStackSyntheticData::groupID()
 {
     return DataPackMgr::SeisID();
 }
@@ -324,7 +324,8 @@ DataPack::ID PreStackSyntheticData::groupID()
 DataPack::FullID PreStackSyntheticData::fullID() const
 {
     DataPack::FullID fid;
-    fid.setGroupID( groupID() ).setObjectID( datapack_.id() );
+    fid.setGroupID( groupID() );
+    fid.setObjID( datapack_->id() );
     return fid;
 }
 
@@ -348,13 +349,13 @@ void PreStackSyntheticData::setName( const char* nm )
 
 PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack()
 {
-    return static_cast<PreStack::GatherSetDataPack&>( datapack_ );
+    return static_cast<PreStack::GatherSetDataPack&>( *datapack_ );
 }
 
 
 const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
 {
-    return static_cast<const PreStack::GatherSetDataPack&>( datapack_ );
+    return static_cast<const PreStack::GatherSetDataPack&>( *datapack_ );
 }
 
 
@@ -391,14 +392,14 @@ void PreStackSyntheticData::setAngleData(
 					const ObjectSet<PreStack::Gather>& ags )
 {
     if ( angledp_ )
-	DPM( groupID() ).release( angledp_->id() );
+	DPM( groupID() ).unRef( angledp_->id() );
 
     angledp_ = new PreStack::GatherSetDataPack( nullptr, ags );
     const BufferString angledpnm( name().buf(), " (Angle Gather)" );
     angledp_->setName( angledpnm );
     for ( auto* gather : const_cast<ObjectSet<PreStack::Gather>&>(ags) )
 	gather->setName( angledpnm );
-    DPM( groupID() ).addAndObtain( angledp_ );
+    DPM( groupID() ).add( angledp_ );
 }
 
 

@@ -88,10 +88,10 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	return false;
     }
 
-    RegularSeisDataPack* dp = rdr.getDataPack();
+    ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
     if ( !dp ) return false;
 
-    PLDM().add( mid_, geomid_, dp );
+    PLDM().add( mid_, geomid_, dp.getNonConstPtr() );
 
     return true;
 }
@@ -133,9 +133,9 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
     {
 	SequentialReader& rdr = *rdrs[idx];
 	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
-	RegularSeisDataPack* dp = rdr.getDataPack();
+	ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
 	if ( !dp ) continue;
-	PLDM().add( mid_, loadedgeomid, dp );
+	PLDM().add( mid_, loadedgeomid, dp.getNonConstPtr() );
     }
 
     return true;
@@ -245,7 +245,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,PLDM().get(mid_,geomid_));
+    auto regsdp = PLDM().get<RegularSeisDataPack>( mid_,geomid_ );
     if ( regsdp )
     {
 	iop.set( sKeyUserType(), DataCharacteristics::toString(
@@ -283,7 +283,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 
 // PreLoadDataEntry
 PreLoadDataEntry::PreLoadDataEntry( const MultiID& mid, Pos::GeomID geomid,
-				    int dpid )
+				    PackID dpid )
     : mid_(mid), geomid_(geomid), dpid_(dpid), is2d_(geomid!=-1)
 {
     name_ = IOM().nameOf( mid );
@@ -315,7 +315,6 @@ PreLoadDataManager::PreLoadDataManager()
 
 PreLoadDataManager::~PreLoadDataManager()
 {
-    dpmgr_.releaseAll( true );
 }
 
 
@@ -328,10 +327,11 @@ void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
 {
     if ( !dp ) return;
 
-    entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
-    dpmgr_.addAndObtain( dp );
-    changed.trigger();
+    dp->ref();
+    dpmgr_.add( dp );
 
+    entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
+    changed.trigger();
 }
 
 
@@ -345,14 +345,14 @@ void PreLoadDataManager::remove( const MultiID& mid, Pos::GeomID geomid )
 }
 
 
-void PreLoadDataManager::remove( int dpid )
+void PreLoadDataManager::remove( PackID dpid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
 	if ( entries_[idx]->dpid_ == dpid )
 	{
 	    entries_.removeSingle( idx );
-	    dpmgr_.release( dpid );
+	    dpmgr_.unRef( dpid );
 	    changed.trigger();
 	    return;
 	}
@@ -364,7 +364,7 @@ void PreLoadDataManager::removeAll()
 {
     while ( entries_.size() )
     {
-	dpmgr_.release( entries_[0]->dpid_ );
+	dpmgr_.unRef( entries_[0]->dpid_ );
 	entries_.removeSingle( 0 );
     }
 
@@ -372,37 +372,28 @@ void PreLoadDataManager::removeAll()
 }
 
 
-DataPack* PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
+RefMan<DataPack> PreLoadDataManager::getDP( const MultiID& mid,
+					    Pos::GeomID geomid )
 {
-    for ( int idx=0; idx<entries_.size(); idx++ )
-    {
-	if ( entries_[idx]->equals(mid,geomid) )
-	    return get( entries_[idx]->dpid_ );
-    }
+    for ( auto* entry : entries_ )
+	if ( entry->equals(mid,geomid) )
+	    return getDP( entry->dpid_ );
 
-    return 0;
+    return nullptr;
 }
 
 
-const DataPack* PreLoadDataManager::get( const MultiID& mid,
+ConstRefMan<DataPack> Seis::PreLoadDataManager::getDP( const MultiID& mid,
 					 Pos::GeomID geomid ) const
-{ return const_cast<PreLoadDataManager*>(this)->get( mid, geomid ); }
-
-
-DataPack* PreLoadDataManager::get( int dpid )
 {
-    return dpmgr_.haveID(dpid) ? dpmgr_.observe( dpid ) : 0;
+    return const_cast<PreLoadDataManager*>(this)->getDP( mid, geomid );
 }
-
-
-const DataPack* PreLoadDataManager::get( int dpid ) const
-{ return const_cast<PreLoadDataManager*>(this)->get( dpid ); }
 
 
 void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
 				  BufferString& info ) const
 {
-    const DataPack* dp = get( mid, geomid );
+    auto dp = getDP( mid, geomid );
     if ( !dp ) return;
 
     IOPar par; dp->dumpInfo( par );
@@ -414,17 +405,17 @@ void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
 
 void PreLoadDataManager::getIDs( TypeSet<MultiID>& ids ) const
 {
-    for ( int idx=0; idx<entries_.size(); idx++ )
-	ids += entries_[idx]->mid_;
+    for ( const auto* entry : entries_ )
+	ids += entry->mid_;
 }
 
 
 bool PreLoadDataManager::isPresent( const MultiID& mid,
 				    Pos::GeomID geomid ) const
 {
-    for ( int idx=0; idx<entries_.size(); idx++ )
+    for ( const auto* entry : entries_ )
     {
-	if ( entries_[idx]->equals(mid,geomid) )
+	if ( entry->equals(mid,geomid) )
 	    return true;
     }
 

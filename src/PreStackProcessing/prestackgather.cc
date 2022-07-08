@@ -526,16 +526,7 @@ GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
 GatherSetDataPack::~GatherSetDataPack()
 {
     delete &arr3d_;
-    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
-    while ( !gathers_.isEmpty() )
-    {
-	auto* gather = gathers_.pop();
-	const DataPack::ID id = gather->id();
-	if ( dpm.haveID(id) )
-	    dpm.release( id );
-	else
-	    delete gather;
-    }
+    deepUnRef( gathers_ );
 }
 
 
@@ -556,8 +547,8 @@ void GatherSetDataPack::obtainGathers()
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     for ( auto* gather : gathers_ )
     {
-	if ( !dpm.haveID(gather->id()) )
-	    dpm.addAndObtain( gather );
+	if ( !dpm.isPresent(gather->id()) )
+	    dpm.add( gather );
     }
 }
 

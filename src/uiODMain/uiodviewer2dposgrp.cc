@@ -286,7 +286,7 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    const Geometry::RandomLine* rdlgeom =
 				Geometry::RLM().get( rdlobj->key() );
 	    posdatasel_->rdmlineid_ =
-				rdlgeom ? rdlgeom->ID() : RandomLineID::udf();
+			rdlgeom ? rdlgeom->ID() : RandomLineID::getInvalid();
 	    break;
     }
 

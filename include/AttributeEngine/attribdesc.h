@@ -317,6 +317,14 @@ protected:
 		__desc.getValParam(varstring)->getDefaultStringValue(0) ); \
 }
 
+#define mGetDataPackIDFromDesc( __desc, var, varstring ) \
+{ \
+    var.fromString( __desc.getValParam(varstring)->getStringValue(0) ); \
+    if ( !var.isValid() ) \
+	var.fromString( \
+		__desc.getValParam(varstring)->getDefaultStringValue(0) ); \
+}
+
 #define mGetBinIDFromDesc( __desc, var, varstring ) \
 {\
     var.inl() = __desc.getValParam(varstring)->getIntValue(0); \
@@ -359,6 +367,8 @@ protected:
     mGetStringFromDesc( desc_, var, varstring )
 #define mGetMultiID( var, varstring ) \
     mGetMultiIDFromDesc( desc_, var, varstring )
+#define mGetDataPackID( var, varstring ) \
+    mGetDataPackIDFromDesc( desc_, var, varstring )
 #define mGetBinID( var, varstring ) \
     mGetBinIDFromDesc( desc_, var, varstring )
 #define mGetFloatInterval( var, varstring ) \

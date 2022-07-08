@@ -42,7 +42,7 @@ public:
     uiString			errMsg() const;
     uiString			uiNrDoneText() const override;
 
-    const RegularSeisDataPack*	getOutput() const;
+    ConstRefMan<RegularSeisDataPack>	getOutput() const;
     virtual int			nextStep() override;
     od_int64			nrDone() const override;
     od_int64			totalNr() const override;
@@ -73,7 +73,7 @@ private:
 	Task&			getTask()		{ return taskgroup_; }
 
 	bool			needsStepOutput(Step::ID) const;
-	const RegularSeisDataPack* getOutput() const;
+	RefMan<RegularSeisDataPack>	getOutput();
 
     private:
 
@@ -123,7 +123,7 @@ private:
     int				totalnrepochs_		= 1;
     ObjectSet<TrcKeyZSampling>	stepstkzs_;
 
-    const RegularSeisDataPack*	outputdp_		= nullptr;
+    RefMan<RegularSeisDataPack> outputdp_;
     JobCommunic*		jobcomm_		= nullptr;
 
     friend class ChainOutput;

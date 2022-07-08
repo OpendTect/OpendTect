@@ -61,9 +61,6 @@ void setScope( const uiWorldRect& wr, const uiSize& sz )
 
 void setDataPack( const FlatDataPack* fdp, bool wva )
 {
-    if ( fdp )
-	const_cast<FlatDataPack*>(fdp)->obtain();
-
     (wva ? wvapack_ : vdpack_) = fdp;
     setupdone_ = false;
 }
@@ -179,8 +176,8 @@ Interval<float> getBitmapDataRange( bool iswva )
     bool			setupdone_;
 
     FlatView::Appearance&	appearance_;
-    ConstDataPackRef<FlatDataPack> wvapack_		= nullptr;
-    ConstDataPackRef<FlatDataPack> vdpack_		= nullptr;
+    ConstRefMan<FlatDataPack>	wvapack_		= nullptr;
+    ConstRefMan<FlatDataPack>	vdpack_			= nullptr;
     BitMapMgr*			wvabmpmgr_		= nullptr;
     BitMapMgr*			vdbmpmgr_		= nullptr;
     uiRGBArray*			image_;
@@ -199,8 +196,6 @@ uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app, bool withalpha )
     , basetask_(new uiBitMapDisplayTask(app,*display_,false,withalpha))
     , finishedcb_(mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ))
     , overlap_(0.5f)
-    , wvapack_(0)
-    , vdpack_(0)
     , rangeUpdated(this)
 {
     const int nrcpu = Threads::getNrProcessors();
@@ -261,12 +256,10 @@ void uiBitMapDisplay::setDataPack( const FlatDataPack* fdp, bool wva )
 {
     if ( wva && wvapack_.ptr() != fdp )
     {
-	if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
 	wvapack_ = fdp;
     }
     if ( !wva && vdpack_.ptr() != fdp )
     {
-	if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
 	vdpack_ = fdp;
     }
 }

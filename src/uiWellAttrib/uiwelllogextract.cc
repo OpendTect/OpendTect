@@ -98,8 +98,8 @@ uiWellLogExtractGrp::~uiWellLogExtractGrp()
 
 void uiWellLogExtractGrp::releaseDPS()
 {
-    mDPM.release( curdps_ );
-    curdps_ = 0;
+    mDPM.unRef( curdps_->id() );
+    curdps_ = nullptr;
 }
 
 
@@ -344,7 +344,7 @@ bool uiWellLogExtractGrp::extractDPS()
 	releaseDPS();
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
-    mDPM.addAndObtain( curdps_ );
+    mDPM.add( curdps_ );
 
     deepErase( dcds );
     const int nrattribs = attrnms.size();

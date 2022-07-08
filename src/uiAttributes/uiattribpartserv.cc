@@ -745,12 +745,13 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     }
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstDataPackRef<RegularSeisDataPack> cache = dpm.obtain( cacheid );
-    const RegularSeisDataPack* newpack = createOutput( tkzs, cache.ptr() );
+    auto cache = dpm.get<RegularSeisDataPack>( cacheid );
+    ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr());
     if ( !newpack )
 	return DataPack::cNoID();
 
-    dpm.add( const_cast<RegularSeisDataPack*>(newpack) );
+    dpm.add( newpack );
+    dpm.ref( newpack->id() );
     return newpack->id();
 }
 
@@ -769,7 +770,7 @@ static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 }
 
 
-const RegularSeisDataPack* uiAttribPartServer::createOutput(
+ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
@@ -781,14 +782,13 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
-    RegularSeisDataPack* preloadeddatapack = nullptr;
+    RefMan<RegularSeisDataPack> preloadeddatapack;
     if ( targetdesc )
     {
 	if ( targetdesc->isStored() && !isnla )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
-	    mDynamicCast( RegularSeisDataPack*, preloadeddatapack,
-						Seis::PLDM().get(mid) )
+	    preloadeddatapack = Seis::PLDM().get<RegularSeisDataPack>( mid );
 	}
 
 	BufferString defstr;
@@ -818,7 +818,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
     bool success = true;
     PtrMan<Processor> process = nullptr;
-    RegularSeisDataPack* output = nullptr;
+    RefMan<RegularSeisDataPack> output;
     //note: 1 attrib computed at a time
     if ( !preloadeddatapack && !atsamplepos )
     {
@@ -859,10 +859,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    output->setSampling( tkzs );
 	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
 		    !output->data(0).getStorage() )
-	    {
-		delete output;
 		output = nullptr;
-	    }
 	    else
 	    {
 		ValueSeries<float>* arr3dvs = output->data(0).getStorage();
@@ -945,18 +942,14 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    }
 	}
 
-	output = const_cast<RegularSeisDataPack*>(
-			aem->getDataPackOutput(*process) );
+	output = aem->getDataPackOutput( *process );
     }
 
     if ( output && !success )
     {
 	if ( !uiMSG().askGoOn(tr("Attribute loading/calculation aborted.\n"
 	    "Do you want to use the partially loaded/computed data?"), true ) )
-	{
-	    delete output;
 	    output = nullptr;
-	}
     }
 
     return output;
@@ -970,7 +963,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
     if ( targetdesc && targetdesc->isStored() )
     {
 	const MultiID mid( targetdesc->getStoredID() );
-	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid))
+	auto sdp = Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
 	{
 	    const TrcKeyZSampling& seistkzs = sdp->sampling();
@@ -1099,7 +1092,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     if ( targetdesc )
     {
 	const MultiID mid( targetdesc->getStoredID() );
-	mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+	auto sdp = Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
 	{
 	    BufferStringSet componentnames;
@@ -1214,7 +1207,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 			   : attrds->getDesc(targetspecs_[0].id());
 
     const MultiID mid( targetdesc->getStoredID() );
-    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+    auto sdp = Seis::PLDM().get<RegularSeisDataPack>( mid );
     if ( sdp )
     {
 	BufferStringSet componentnames;
@@ -1435,8 +1428,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	if ( targetdesc )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
-	    mDynamicCastGet(const RegularSeisDataPack*,regsdp,
-			    Seis::PLDM().get(mid,geomid) );
+	    auto regsdp = Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
 	    if ( regsdp ) return regsdp->id();
 	}
     }

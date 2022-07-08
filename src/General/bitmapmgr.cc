@@ -17,12 +17,7 @@ ________________________________________________________________________
 
 
 BitMapMgr::BitMapMgr()
-    : datapack_(0)
-    , appearance_(*new FlatView::Appearance)
-    , bmp_(0)
-    , pos_(0)
-    , data_(0)
-    , gen_(0)
+    : appearance_(*new FlatView::Appearance)
     , wva_(false)
     , sz_(mUdf(int),mUdf(int))
     , wr_(mUdf(double),mUdf(double),mUdf(double),mUdf(double))
@@ -42,7 +37,6 @@ void BitMapMgr::init( const FlatDataPack* fdp, const FlatView::Appearance& app,
 {
     clearAll();
 
-    if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
     datapack_ = fdp;
 
     appearance_ = app;

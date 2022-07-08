@@ -28,7 +28,8 @@ public:
 				uiFKSpectrum(uiParent*,bool setbp=false);
 				~uiFKSpectrum();
 
-    void			setDataPackID(DataPack::ID,DataPackMgr::ID,
+    void			setDataPackID(DataPack::ID,
+					      DataPackMgr::MgrID,
 					      int version=0);
     void			setData(const Array2D<float>&);
 

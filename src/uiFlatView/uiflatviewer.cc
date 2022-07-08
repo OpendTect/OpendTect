@@ -190,7 +190,7 @@ void uiFlatViewer::setInitialSize( const uiSize& sz )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva, true );
+    ConstRefMan<FlatDataPack> dp = obtainPack( wva, true );
     if ( !dp ) return uiWorldRect(0,0,1,1);
 
     const FlatPosData& pd = dp->posData();
@@ -249,7 +249,7 @@ void uiFlatViewer::removePack( ::DataPack::ID dpid )
 
 StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = obtainPack( false, true );
     return dp ? dp->posData().range(forx1) : StepInterval<double>();
 }
 
@@ -312,8 +312,8 @@ void uiFlatViewer::updateCB( CallBacker* cb )
 
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
-    ConstDataPackRef<FlatDataPack> wvapack = obtainPack( true );
-    ConstDataPackRef<FlatDataPack> vdpack = obtainPack( false );
+    ConstRefMan<FlatDataPack> wvapack = obtainPack( true );
+    ConstRefMan<FlatDataPack> vdpack = obtainPack( false );
     bitmapdisp_->setDataPack( wvapack.ptr(), true );
     bitmapdisp_->setDataPack( vdpack.ptr(), false );
 
@@ -326,7 +326,7 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = obtainPack( false, true );
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )
@@ -338,7 +338,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 
 void uiFlatViewer::setAnnotChoice( int sel )
 {
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = obtainPack( false, true );
     if ( !fdp ) return;
 
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
@@ -432,6 +432,6 @@ void uiFlatViewer::setSeisGeomidsToViewer(TypeSet<Pos::GeomID>& geomids)
 
 const FlatPosData* uiFlatViewer::getFlatPosData( bool iswva )
 {
-    const FlatDataPack* fdp = obtainPack(iswva);
-    return fdp ? &fdp->posData() : 0;
+    ConstRefMan<FlatDataPack> fdp = obtainPack(iswva);
+    return fdp ? &fdp->posData() : nullptr;
 }

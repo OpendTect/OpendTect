@@ -676,7 +676,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );
-		DPM( DataPackMgr::SeisID() ).release( dpid );
+		DPM( DataPackMgr::SeisID() ).unRef( dpid );
 		delete calc;
 		break;
 	    }
@@ -718,7 +718,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const DataPack::ID newid = attrserv_->createRdmTrcsOutput(
 		    zrg, rdmtdisp->getRandomLineID() );
 	    res = true;
-	    if ( newid == -1 )
+	    if ( !newid.isValid() )
 		res = false;
 	    visserv_->setDataPackID( visid, attrib, newid );
 	    break;
@@ -862,8 +862,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
 	if ( auxdatanr>=0 )
 	{
-	    DataPackRef<DataPointSet> data =
-		dpm.addAndObtain( new DataPointSet(false,true) );
+	    RefMan<DataPointSet> data = new DataPointSet(false,true);
+	    dpm.add( data );
 	    TypeSet<float> shifts( 1, 0 );
 	    emserv_->getAuxData( emid, auxdatanr, *data, shifts[0] );
 	    setRandomPosData( visid, attrib, *data );
@@ -880,8 +880,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	return auxdatanr>=0;
     }
 
-    DataPackRef<DataPointSet> data =
-		dpm.addAndObtain( new DataPointSet(false,true) );
+    RefMan<DataPointSet> data = new DataPointSet(false,true);
+    dpm.add( data );
     visserv_->getRandomPos( visid, *data );
     const int firstcol = data->nrCols();
     data->dataSet().add( new DataColDef(myas.userRef()) );
@@ -893,8 +893,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
     {
-	const int id = fd->addDataPack( *data );
-	fd->setDataPackID( attrib, id, 0 );
+	const DataPack::ID id = fd->addDataPack( *data );
+	fd->setDataPackID( attrib, id, nullptr );
 	fd->setRandomPosData( attrib, data.ptr(), 0 );
 	if ( visServer()->getSelAttribNr() == attrib )
 	    fd->useTexture( true, true ); // tree only, not at restore session
@@ -958,7 +958,8 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     if ( !s2d ) return false;
 
     const DataPack::ID dpid = attrserv_->createOutput(
-					s2d->getTrcKeyZSampling(false), 0 );
+						s2d->getTrcKeyZSampling(false),
+						      DataPack::cNoID() );
     if ( dpid == DataPack::cNoID() )
 	return false;
 
@@ -1660,12 +1661,12 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
     {
-	const DataPointSet& dps = nlaserv_->dps();
-	DataPointSet mcpicks( dps.is2D() );
-	for ( int irow=0; irow<dps.size(); irow++ )
+	ConstRefMan<DataPointSet> dps = nlaserv_->dps();
+	DataPointSet mcpicks( dps->is2D() );
+	for ( int irow=0; irow<dps->size(); irow++ )
 	{
-	    if ( dps.group(irow) == 3 )
-		mcpicks.addRow( dps.dataRow(irow) );
+	    if ( dps->group(irow) == 3 )
+		mcpicks.addRow( dps->dataRow(irow) );
 	}
 	mcpicks.dataChanged();
 	pickserv_->setMisclassSet( mcpicks );

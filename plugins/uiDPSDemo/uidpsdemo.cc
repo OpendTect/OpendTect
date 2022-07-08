@@ -55,7 +55,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 uiDPSDemo::~uiDPSDemo()
 {
     if ( dps_ )
-	DPM(DataPackMgr::PointID()).release( dps_->id() );
+	DPM(DataPackMgr::PointID()).unRef( dps_->id() );
 }
 
 
@@ -91,7 +91,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     dps_->dataSet().add( new DataColDef("Peakedness") );
     dps_->dataSet().add( new DataColDef("PeakSkew") );
     dps_->dataSet().add( new DataColDef("Frequency") );
-    DPM(DataPackMgr::PointID()).addAndObtain( dps_ );
+    DPM(DataPackMgr::PointID()).add( dps_ );
 
     hor->ref();
     const bool isok = getRandPositions(*hor,nrpts,*dps_);

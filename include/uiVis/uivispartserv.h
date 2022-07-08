@@ -173,7 +173,7 @@ public:
     bool		setDataPackID(int id,int attrib,DataPack::ID);
     DataPack::ID	getDataPackID(int id,int attrib) const;
     DataPack::ID	getDisplayedDataPackID(int id,int attrib) const;
-    DataPackMgr::ID	getDataPackMgrID(int id) const;
+    DataPackMgr::MgrID	getDataPackMgrID(int id) const;
     int			currentVersion(int id,int attrib) const;
 
 			//Trace data

@@ -164,7 +164,7 @@ public:
     bool			setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
-    virtual DataPackMgr::ID     getDataPackMgrID() const
+    virtual DataPackMgr::MgrID	   getDataPackMgrID() const
 				{ return DataPackMgr::SeisID(); }
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
@@ -285,9 +285,9 @@ protected:
 					AttribData();
 					~AttribData();
 
-	TypeSet<Attrib::SelSpec>*	selspec_;
-	Attrib::SelSpec&		as_;
-	const RegularSeisDataPack*	cache_;
+	TypeSet<Attrib::SelSpec>*		selspec_;
+	Attrib::SelSpec&			as_;
+	ConstRefMan<RegularSeisDataPack>	cache_;
     };
 
     ObjectSet<AttribData>	attribs_;

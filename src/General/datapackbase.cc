@@ -427,7 +427,7 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
     , scaler_(0)
-    , rdlid_(RandomLineID::udf())
+    , rdlid_(RandomLineID::getInvalid())
 {
 }
 

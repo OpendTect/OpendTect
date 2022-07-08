@@ -85,9 +85,9 @@ Engine::~Engine()
     deepErase( flatcubescontainer_ );
 
     for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
-	dpm_.release( attribcachedatapackids_[idx] );
+	dpm_.unRef( attribcachedatapackids_[idx] );
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
-	dpm_.release( attribbkpcachedatapackids_[idx] );
+	dpm_.unRef( attribbkpcachedatapackids_[idx] );
 }
 
 
@@ -357,7 +357,7 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
     if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
 
-    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(key));
+    auto sdp = Seis::PLDM().get<RegularSeisDataPack>( key );
     setAttribData( as, sdp->id() );
     setActiveVolume( sdp->sampling() );
     return true;
@@ -751,16 +751,14 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
     const DataPack::ID dpid = getAttribCacheID( as );
-    ConstDataPackRef<SeisDataPack> regsdp = dpm_.obtain( dpid );
-    return regsdp;
+    return dpm_.isPresent( dpid );
 }
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPack::ID cacheid )
 {
-    ConstDataPackRef<SeisFlatDataPack> regfdp =
-		DPM(DataPackMgr::FlatID()).obtain( cacheid );
+    auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
     if ( regfdp ) cacheid = regfdp->getSourceDataPack().id();
 
     const int idx = getCacheIndexOf(as);
@@ -768,24 +766,24 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     {
 	if ( cacheid == DataPack::cNoID() )
 	{
-	    dpm_.release( attribcachedatapackids_[idx] );
+	    dpm_.unRef( attribcachedatapackids_[idx] );
 	    attribcachedatapackids_.removeSingle( idx );
 	    delete attribcachespecs_.removeSingle( idx );
 	}
 	else
 	{
-	    ConstDataPackRef<SeisDataPack> newdata= dpm_.obtain(cacheid);
+	    auto newdata= dpm_.get<SeisDataPack>(cacheid);
 	    if ( newdata )
 	    {
-		dpm_.release( attribcachedatapackids_[idx] );
+		dpm_.unRef( attribcachedatapackids_[idx] );
 		attribcachedatapackids_[idx] = cacheid;
-		dpm_.obtain( cacheid );
+		dpm_.ref( cacheid );
 	    }
 	}
     }
     else if ( cacheid != DataPack::cNoID() )
     {
-	ConstDataPackRef<SeisDataPack> newdata = dpm_.obtain( cacheid );
+	auto newdata = dpm_.get<SeisDataPack>( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -793,7 +791,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 		new CacheSpecs( as ) ;
 
 	    attribcachedatapackids_ += cacheid;
-	    dpm_.obtain( cacheid );
+	    dpm_.ref( cacheid );
 	}
     }
 
@@ -804,11 +802,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstDataPackRef<SeisDataPack> cache =
-				dpm_.obtain( getAttribCacheID(as) );
-    if ( !cache ) return false;
-
-    mDynamicCastGet(const RegularSeisDataPack*,sdp,cache.ptr());
+    auto sdp = dpm_.get<RegularSeisDataPack>( getAttribCacheID(as) );
     if ( !sdp ) return false;
 
     TrcKeyZSampling cachedcs = sdp->sampling();
@@ -915,7 +909,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID pldpid = getAttribCacheID( specs[0] );
-    ConstDataPackRef<SeisDataPack> sdp = dpm.obtain( pldpid );
+    auto sdp = dpm.get<SeisDataPack>( pldpid );
     if ( !sdp ) return DataPack::cNoID();
 
     const int globidx = sdp->getNearestGlobalIdx( tk );
@@ -1119,9 +1113,9 @@ void Engine::init()
     deepErase( trackermgrs_ );
 
     for ( int idx=0; idx<attribcachedatapackids_.size(); idx++ )
-	dpm_.release( attribcachedatapackids_[idx] );
+	dpm_.unRef( attribcachedatapackids_[idx] );
     for ( int idx=0; idx<attribbkpcachedatapackids_.size(); idx++ )
-	dpm_.release( attribbkpcachedatapackids_[idx] );
+	dpm_.unRef( attribbkpcachedatapackids_[idx] );
 
     attribcachedatapackids_.erase();
     attribbkpcachedatapackids_.erase();

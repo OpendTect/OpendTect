@@ -68,10 +68,10 @@ uiGatherDisplay::~uiGatherDisplay()
     delete gatherpainter_;
 }
 
-void uiGatherDisplay::setVDGather( int vdid )
+void uiGatherDisplay::setVDGather( DataPack::ID vdid )
 {
     gatherpainter_->setVDGather( vdid );
-    ConstDataPackRef<FlatDataPack> dp = viewer_->obtainPack( false );
+    ConstRefMan<FlatDataPack> dp = viewer_->obtainPack( false );
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
@@ -81,10 +81,10 @@ void uiGatherDisplay::setVDGather( int vdid )
 }
 
 
-void uiGatherDisplay::setWVAGather( int wvaid )
+void uiGatherDisplay::setWVAGather( DataPack::ID wvaid )
 {
     gatherpainter_->setWVAGather( wvaid );
-    ConstDataPackRef<FlatDataPack> dp = viewer_->obtainPack( true );
+    ConstRefMan<FlatDataPack> dp = viewer_->obtainPack( true );
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
@@ -220,7 +220,8 @@ void uiViewer2D::enableScrollBars( bool yn )
 }
 
 
-uiGatherDisplay* uiViewer2D::addGatherDisplay( int vdid, int wvaid )
+uiGatherDisplay* uiViewer2D::addGatherDisplay( DataPack::ID vdid,
+					       DataPack::ID wvaid )
 {
     uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
     gatherdisp->setVDGather( vdid );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "enums.h"
+#include "prestackgather.h"
 #include "ranges.h"
 #include "stattype.h"
 
@@ -21,8 +22,6 @@ class SeisPSReader;
 
 namespace PreStack
 {
-
-class Gather;
 
 /*!
 \brief Calculates 'post-stack' properties of a PreStack data store.
@@ -91,10 +90,10 @@ protected:
 
     void		removeGather();
 
-    Gather*		gather_ = nullptr;
+    ConstRefMan<Gather> gather_ = nullptr;
     int*		innermutes_;
     int*		outermutes_;
-    Gather*		angledata_ = nullptr;;
+    ConstRefMan<Gather> angledata_ = nullptr;;
 
     Setup		setup_;
 	bool		anglevalinradians_ = false;

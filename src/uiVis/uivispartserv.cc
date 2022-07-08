@@ -731,21 +731,22 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( int id,
 DataPack::ID uiVisPartServer::getDataPackID( int id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackID( attrib ) : -1;
+    return so ? so->getDataPackID( attrib ) : DataPack::ID::getInvalid();
 }
 
 
 DataPack::ID uiVisPartServer::getDisplayedDataPackID( int id, int attrib )const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDisplayedDataPackID( attrib ) : -1;
+    return so ? so->getDisplayedDataPackID( attrib ) :
+						    DataPack::ID::getInvalid();
 }
 
 
-DataPackMgr::ID	uiVisPartServer::getDataPackMgrID( int id ) const
+DataPackMgr::MgrID	uiVisPartServer::getDataPackMgrID( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackMgrID() : -1;
+    return so ? so->getDataPackMgrID() : DataPack::MgrID::getInvalid();
 }
 
 
@@ -2284,8 +2285,8 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 	multirgeditwin_ = 0;
     }
 
-    const DataPackMgr::ID dpmid = getDataPackMgrID( visid );
-    if ( dpmid < 1 )
+    const DataPackMgr::MgrID dpmid = getDataPackMgrID( visid );
+    if ( !dpmid.isValid() )
     {
 	uiMSG().error( tr("Cannot display histograms for this type of data") );
 	return;
@@ -2307,7 +2308,7 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 	const int statsidx = attribid==-1 ? idx : 0;
 
 	const DataPack::ID dpid = getDataPackID( visid, dpidx );
-	if ( dpid < 1 )
+	if ( !dpid.isValid() )
 	    continue;
 
 	const int textureidx = selectedTexture( visid, dpidx );

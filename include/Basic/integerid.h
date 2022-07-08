@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "undefval.h"
+#include "string2.h"
 
 
 /*!\brief Single integer ID with comparison but no automatic conversion.
@@ -60,16 +61,18 @@ public:
 
     inline IntType		asInt() const		{ return nr_; }
     inline void			set( IntType i )	{ nr_ = i; }
+    inline void			fromString(const char* s,
+					   int defval=mUdf(IntType))
+				{ nr_ = toInt(s, defval); }
 
     inline virtual bool		operator==( const IntegerID& oth ) const
 				{ return this->nr_ == oth.nr_; }
     inline virtual bool		operator!=( const IntegerID& oth ) const
 				{ return this->nr_ != oth.nr_; }
 
-    inline virtual bool		isValid() const { return nr_>=0 && !isUdf(); }
-    inline bool			isUdf() const	{ return nr_ == udfVal(); }
-    inline void			setUdf()	{ nr_ = udfVal(); }
-    static inline IntegerID	udf()		{ return IntegerID(); }
+    inline virtual bool		isValid() const { return nr_!=udfVal(); }
+    inline void			setInvalid()	{ nr_ = udfVal(); }
+    static inline IntegerID	getInvalid()	{ return IntegerID(); }
 
 protected:
     virtual IntType		udfVal() const	{ return mUdf(IntType); }

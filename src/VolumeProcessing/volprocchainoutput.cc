@@ -350,19 +350,13 @@ int VolProc::ChainOutput::setNextChunk()
 
 bool VolProc::ChainOutput::openOutput()
 {
-    const RegularSeisDataPack* seisdp = chainexec_->getOutput();
-    if ( !seisdp || !DPM( DataPackMgr::SeisID() ).obtain(seisdp->id()) )
-    {
-	const_cast<RegularSeisDataPack*>( seisdp )->release();
+    ConstRefMan<RegularSeisDataPack> seisdp = chainexec_->getOutput();
+    if ( !seisdp )
 	mErrRet( tr("No output data available") )
-    }
 
     PtrMan<IOObj> ioobj = IOM().get( outid_ );
     if ( !ioobj )
-    {
-	DPM( DataPackMgr::SeisID() ).release( seisdp->id() );
 	mErrRet( uiStrings::phrCannotFind( tr("output cube ID in database") ) )
-    }
 
     const VelocityDesc* vd = chain_->getVelDesc();
     ConstPtrMan<VelocityDesc> veldesc = vd ? new VelocityDesc( *vd ) : 0;
@@ -381,8 +375,7 @@ bool VolProc::ChainOutput::openOutput()
 
     delete wrr_;
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
-    DPM( DataPackMgr::SeisID() ).release( seisdp->id() );
-    seisdp = 0;
+    seisdp = nullptr;
 
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );
     for ( int idx=0; idx<chain_->getOutputScalers().size(); idx++ )
@@ -410,19 +403,11 @@ public:
 ChainOutputStorer( ChainOutput& co, const RegularSeisDataPack& dp )
     : co_(co)
     , dp_(&dp)
-    , work_(0)
 {
-    if ( !DPM( DataPackMgr::SeisID() ).obtain(dp.id()) )
-    {
-	const_cast<RegularSeisDataPack*>( dp_ )->release();
-	errmsg_ = tr("Error during background write");
-	dp_ = 0;
-    }
 }
 
 ~ChainOutputStorer()
 {
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
 }
@@ -443,8 +428,7 @@ void startWork()
     else
 	wrr.setNextDataPack( *dp_ );
 
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
-    dp_ = 0;
+    dp_ = nullptr;
 
     //Disabling silent background writing:
 /*    if ( co_.nrexecs_ == co_.curexecnr_ )
@@ -478,8 +462,8 @@ void workFinished( CallBacker* cb )
 private:
 
     ChainOutput&	    co_;
-    const RegularSeisDataPack* dp_;
-    Threads::Work*	    work_;
+    ConstRefMan<RegularSeisDataPack> dp_;
+    Threads::Work*	    work_	= nullptr;
 
 };
 
@@ -488,14 +472,13 @@ private:
 
 void VolProc::ChainOutput::startWriteChunk()
 {
-    const RegularSeisDataPack* dp = chainexec_->getOutput();
+    ConstRefMan<RegularSeisDataPack> dp = chainexec_->getOutput();
     if ( !dp )
 	return;
 
     Threads::Locker slock( storerlock_ );
     storers_ += new ChainOutputStorer( *this, *dp );
-    DPM( DataPackMgr::SeisID() ).release( dp );
-    chainexec_->outputdp_ = 0; //The chain executor no longer needs it
+    dp = nullptr;
 
     //Disabling silent background writing:
     manageStorers(); //Starts writing
@@ -514,7 +497,6 @@ void VolProc::ChainOutput::reportFinished( ChainOutputStorer& storer )
 	progresskeeper_.setMessage( storer.errmsg_ );
 	storererr_ = true;
     }
-    wrr_->releaseDP();
 }
 
 

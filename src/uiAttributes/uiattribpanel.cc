@@ -102,7 +102,7 @@ EngineMan* uiAttribPanel::createEngineMan()
 }
 
 
-FlatDataPack* uiAttribPanel::createFDPack( const Data2DHolder& d2dh ) const
+RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 {
     if ( d2dh.dataset_.isEmpty() )
 	return nullptr;
@@ -112,14 +112,13 @@ FlatDataPack* uiAttribPanel::createFDPack( const Data2DHolder& d2dh ) const
 
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 						d2dh, sampling, SI().zDomain());
-    ConstDataPackRef<RegularSeisDataPack> regsdp =
-		DPM(DataPackMgr::SeisID()).obtain( outputid );
+    auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
     return regsdp ? new RegularFlatDataPack(*regsdp,-1) : nullptr;
 }
 
 
-FlatDataPack* uiAttribPanel::createFDPack( EngineMan* aem,
-					   Processor* proc ) const
+RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
+						  Processor* proc ) const
 {
     const RegularSeisDataPack* output = aem->getDataPackOutput( *proc );
     return output ? new RegularFlatDataPack(*output,-1) : nullptr;

@@ -185,7 +185,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     computer->setTrcKey( TrcKey(BinID(426,800)) );
     mRunStandardTest( computer->isOK(), "Angle computer is OK" );
 
-    PtrMan<PreStack::Gather> angles = computer->computeAngles();
+    auto angles = computer->computeAngles();
     mRunStandardTest( angles.ptr(), "Created angle data" );
     mRunStandardTest( isRawAngleOK(*angles), "Test raw angle values" );
 
@@ -254,7 +254,7 @@ bool testAnglesForDifferentSurveys()
 	    return false;
 	}
 
-	PtrMan<PreStack::Gather> angles = computer->computeAngles();
+	auto angles = computer->computeAngles();
 	if ( !angles )
 	{
 	    od_cout() << survnm ;

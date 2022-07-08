@@ -110,7 +110,7 @@ FaultSetDisplay::~FaultSetDisplay()
 
     DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+	dpman.unRef( datapackids_[idx] );
 
     for ( int idx=0; idx<texturedataset_.size(); idx++ )
 	deepErase( *texturedataset_[idx] );
@@ -378,7 +378,7 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
     setSelSpec( attrib, as );
 
     DataPointSet* data = new DataPointSet( false, true );
-    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+    DPM( DataPackMgr::PointID() ).add( data );
     getRandomPos( *data, 0 );
     data->setName( sKeyZValues() );
     DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
@@ -406,7 +406,7 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 	setRandomPosData( attrib, data, 0 );
     }
 
-    DPM( DataPackMgr::PointID() ).release( data->id() );
+    DPM( DataPackMgr::PointID() ).unRef( data->id() );
 
     if ( !attribwasdepth )
     {
@@ -765,12 +765,10 @@ void FaultSetDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 
     DataPack::ID dpid = getDataPackID( attrib );
     DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
-    const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet( const DataPointSet*, dps, datapack );
+    auto dps = dpman.get<DataPointSet>( dpid );
     if ( dps )
 	data  = *dps;
 
-    dpman.release( dpid );
 }
 
 
@@ -872,7 +870,7 @@ bool FaultSetDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultSetDisplay::addCache()
 {
-    datapackids_ += 0;
+    datapackids_ += DataPack::cNoID();
 }
 
 void FaultSetDisplay::removeCache( int attrib )
@@ -880,7 +878,7 @@ void FaultSetDisplay::removeCache( int attrib )
     if ( !datapackids_.validIdx(attrib) )
 	return;
 
-    DPM( DataPackMgr::PointID() ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::PointID() ).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 }
 
@@ -1268,13 +1266,13 @@ bool FaultSetDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
-    const DataPack* datapack = dpman.obtain( dpid );
+    ConstRefMan<DataPack> datapack = dpman.getDP( dpid );
     if ( !datapack )
 	return false;
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
-    dpman.release( oldid );
+    dpman.unRef( oldid );
     return true;
 }
 

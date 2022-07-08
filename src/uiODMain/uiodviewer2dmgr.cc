@@ -250,11 +250,11 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
-	!posdatasel.rdmlineid_.isUdf() || !posdatasel.rdmlinemultiid_.isUdf();
+	posdatasel.rdmlineid_.isValid() || !posdatasel.rdmlinemultiid_.isUdf();
     if ( isrl )
     {
 	Geometry::RandomLine* rdmline = 0;
-	if ( !posdatasel.rdmlineid_.isUdf() )
+	if ( posdatasel.rdmlineid_.isValid() )
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlineid_ );
 	else
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
@@ -300,7 +300,7 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
     const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
-    if ( id < 0 ) return;
+    if ( !id.isValid() ) return;
 
     uiODViewer2D* vwr2d = find2DViewer( visid, true );
     const bool isnewvwr = !vwr2d;

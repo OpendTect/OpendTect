@@ -48,12 +48,12 @@ private:
     void				setup();
 
     mutable Threads::Lock		lock_;
-    ConstDataPackRef<FlatDataPack>	datapack_;
+    ConstRefMan<FlatDataPack>		datapack_;
     FlatView::Appearance&		appearance_;
-    A2DBitMap*				bmp_;
-    A2DBitMapPosSetup*			pos_;
-    A2DBitMapInpData*			data_;
-    A2DBitMapGenerator*			gen_;
+    A2DBitMap*				bmp_ = nullptr;
+    A2DBitMapPosSetup*			pos_ = nullptr;
+    A2DBitMapInpData*			data_ = nullptr;
+    A2DBitMapGenerator*			gen_ = nullptr;
     bool				wva_;
 
     Geom::Size2D<int>			sz_;

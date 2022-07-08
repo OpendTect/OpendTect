@@ -44,7 +44,7 @@ public:
     enum smoothingType { None, MovingAverage, FFTFilter };
     mDeclareEnumUtils(smoothingType)
 
-    virtual Gather*		computeAngles() = 0;
+    virtual RefMan<Gather>	computeAngles() = 0;
     virtual bool		isOK() const = 0;
     void			setTrcKey( const TrcKey & tk )
 				{ trckey_ = tk; }
@@ -77,7 +77,7 @@ protected:
     virtual			~AngleComputer();
 
     bool			fillandInterpArray(Array2D<float>& angledata);
-    Gather*			computeAngleData();
+    RefMan<Gather>		computeAngleData();
     void			averageSmooth(Array2D<float>& angledata);
     void			fftSmooth(Array2D<float>& angledata);
     void			fftTimeSmooth(::FFTFilter& fftfilter,
@@ -115,7 +115,7 @@ public:
     bool			setMultiID(const MultiID&);
     bool			isOK() const override { return velsource_; }
 
-    Gather*			computeAngles() override;
+    RefMan<Gather>		computeAngles() override;
 
 protected:
 
@@ -174,7 +174,7 @@ public:
 
     bool			isOK() const override;
 
-    Gather*			computeAngles() override;
+    RefMan<Gather>		computeAngles() override;
 
 private:
 

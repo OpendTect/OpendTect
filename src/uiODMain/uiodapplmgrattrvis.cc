@@ -167,7 +167,7 @@ void uiODApplMgrAttrVisHandler::setRandomPosData( int visid, int attrib,
 						 const DataPointSet& data )
 {
     DataPack::ID cacheid = am_.visserv_->getDataPackID( visid, attrib );
-    if ( cacheid == -1 )
+    if ( !cacheid.isValid() )
 	am_.useDefColTab( visid, attrib );
 
     am_.visserv_->setRandomPosData( visid, attrib, &data );

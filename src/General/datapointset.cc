@@ -944,8 +944,8 @@ DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
     , hasstorage_(false)
     , sampling_(0)
 {
-    dps_.obtain();
-    const_cast<SeisDataPack&>(sdp_).obtain();
+    dps_.ref();
+    sdp_.ref();
 
     const int testcomponent = component==-1 ? 0 : component;
     if ( !sdp_.isEmpty() )
@@ -959,8 +959,8 @@ DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
 
 DPSFromVolumeFiller::~DPSFromVolumeFiller()
 {
-    dps_.release();
-    const_cast<SeisDataPack&>(sdp_).release();
+    dps_.unRef();
+    sdp_.unRef();
 }
 
 

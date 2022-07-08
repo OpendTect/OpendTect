@@ -616,7 +616,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 
     TrcKeyPath nodes;
     RefMan<Geometry::RandomLine> rlgeom = nullptr;
-    if ( rdlpath && !rdlid.isUdf() )
+    if ( rdlpath && rdlid.isValid() )
     {
 	rlgeom = Geometry::RLM().get( rdlid );
 	if ( rlgeom )

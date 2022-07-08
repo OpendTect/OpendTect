@@ -149,11 +149,11 @@ public:
     bool			allowsPicks() const		{ return true; }
     bool			isVerticalPlane() const		{return false;}
     bool			canBDispOn2DViewer() const	{return false;}
-    int				addDataPack(const DataPointSet&) const ;
+    DataPack::ID		addDataPack(const DataPointSet&) const ;
     bool			setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
-    DataPackMgr::ID		getDataPackMgrID() const
+    DataPackMgr::MgrID		getDataPackMgrID() const
 				{ return DataPackMgr::SurfID(); }
 
     void			doOtherObjectsMoved(

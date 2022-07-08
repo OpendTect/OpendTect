@@ -68,20 +68,19 @@ bool Processor::wantsInput( const BinID& bid ) const
 
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
-    Gather* input = 0;
-    mObtainDataPack( input, Gather*, DataPackMgr::FlatID(), id );
+    auto input = DPM(DataPackMgr::FlatID()).get<Gather>( id );
 
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );
     if ( offset>=inputs_.size() )
     {
-	if ( input ) DPM( DataPackMgr::FlatID() ).release( input->id() );
+	if ( input ) DPM( DataPackMgr::FlatID() ).unRef( input->id() );
 	return;
     }
 
     if ( inputs_[offset] )
     {
-	DPM( DataPackMgr::FlatID() ).release( inputs_[offset]->id() );
+	DPM( DataPackMgr::FlatID() ).unRef( inputs_[offset]->id() );
     }
 
     inputs_.replace( offset, input );
@@ -145,16 +144,16 @@ bool Processor::prepareWork()
 		const int inputoffset = getRelBidOffset(curpos,inputstepout);
 		if ( !inputs_[inputoffset] )
 		{
-		    outputs_ += 0;
+		    outputs_ += nullptr;
 		    continue;
 		}
 
 		Gather* output = createOutputArray(*(inputs_[inputoffset]) );
 		outputs_ += output;
-		DPM( DataPackMgr::FlatID() ).addAndObtain( output );
+		DPM( DataPackMgr::FlatID() ).add( output );
 	    }
 	    else
-		outputs_ += 0;
+		outputs_ += nullptr;
 	}
     }
 
@@ -416,7 +415,7 @@ bool ProcessManager::usePar( const IOPar& par )
 void Processor::freeArray( ObjectSet<Gather>& arr )
 {
     for ( int idx=0; idx<arr.size(); idx++ )
-	DPM( DataPackMgr::FlatID() ).release( arr[idx] );
+	DPM( DataPackMgr::FlatID() ).unRef( arr[idx]->id() );
 
     arr.erase();
 }

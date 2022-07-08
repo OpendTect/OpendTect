@@ -378,7 +378,7 @@ public:
     bool		enableChange(bool yn);
 			//!< Returns previous state
 
-    const FlatDataPack* obtainPack(bool wva,bool checkother=false) const;
+    ConstRefMan<FlatDataPack> obtainPack(bool wva,bool checkother=false) const;
 			/*!< Obtains DataPack before returning the pointer. Has
 			 to be released after it is used. For convenience use
 			 ConstDataPackRef which releases the DataPack in its
@@ -481,8 +481,8 @@ protected:
 
 private:
 
-    const FlatDataPack*		wvapack_ = nullptr;
-    const FlatDataPack*		vdpack_ = nullptr;
+    WeakPtr<FlatDataPack>	wvapack_ = nullptr;
+    WeakPtr<FlatDataPack>	vdpack_ = nullptr;
     TypeSet<Pos::GeomID>	geom2dids_;
     bool			canhandlechange_ = true;
 

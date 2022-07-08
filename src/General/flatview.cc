@@ -480,7 +480,7 @@ FlatView::Viewer::~Viewer()
 
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
-	dpm_.release( ids_[idx] );
+	dpm_.unRef( ids_[idx] );
     }
 
     delete zdinfo_;
@@ -527,7 +527,7 @@ void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( iswva );
+    ConstRefMan<FlatDataPack> dp = obtainPack( iswva );
     if ( !dp )
     {
 	iswva ? iop.removeWithKey( sKeyWVAData() )
@@ -574,7 +574,7 @@ int FlatView::Viewer::nrDec() const
 
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = obtainPack( false, true );
     if ( !fdp ) return Coord3::udf();
 
     const FlatPosData& pd = fdp->posData();
@@ -636,25 +636,25 @@ void FlatView::Viewer::addPack( DataPack::ID id )
 {
     if ( ids_.isPresent(id) ) return;
     ids_ += id;
-    dpm_.obtain( id );
+    dpm_.ref( id );
 }
 
 
-const FlatDataPack* FlatView::Viewer::obtainPack(
+ConstRefMan<FlatDataPack> FlatView::Viewer::obtainPack(
 				bool wva, bool checkother ) const
 {
     Threads::Locker locker( lock_ );
-    const FlatDataPack* res = wva ? wvapack_ : vdpack_;
+    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
     if ( !res && checkother )
-	res = wva ? vdpack_ : wvapack_;
-    dpm_.addAndObtain( const_cast<FlatDataPack*>(res) );
+	res = wva ? vdpack_.get() : wvapack_.get();
+    dpm_.add( res );
     return res;
 }
 
 
 DataPack::ID FlatView::Viewer::packID( bool wva ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> dp = obtainPack( wva );
     return dp ? dp->id() : ::DataPack::cNoID();
 }
 
@@ -678,7 +678,7 @@ void FlatView::Viewer::removePack( DataPack::ID id )
     usePack( dest, DataPack::cNoID(), false );
 
     ids_.removeSingle( idx );
-    dpm_.release( id );
+    dpm_.unRef( id );
 }
 
 
@@ -707,8 +707,8 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
 
     const bool wva = dest == WVA || dest == Both;
     const bool vd = dest == VD || dest == Both;
-    DataPack::ID curwvaid = DataPack::cUdfID();
-    DataPack::ID curvdid = DataPack::cUdfID();
+    DataPack::ID curwvaid = DataPack::ID::getInvalid();
+    DataPack::ID curvdid = DataPack::ID::getInvalid();
     if ( wva )
 	curwvaid = packID( true );
     if ( vd )
@@ -723,17 +723,9 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
     if ( id == DataPack::cNoID() )
     {
 	if ( wva )
-	{
-	    if ( wvapack_ )
-		category.set( wvapack_->category() );
 	    wvapack_ = nullptr;
-	}
 	if ( vd )
-	{
-	    if ( vdpack_ && category.isEmpty() )
-		category.set( vdpack_->category() );
 	    vdpack_ = nullptr;
-	}
     }
     else if ( !ids_.isPresent(id) )
     {
@@ -743,12 +735,12 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
     else
     {
 	if ( wva )
-	    wvapack_ = (FlatDataPack*)dpm_.observe( id );
+	    wvapack_ = dpm_.observe<FlatDataPack>( id );
 	if ( vd )
-	    vdpack_ = (FlatDataPack*)dpm_.observe( id );
+	    vdpack_ = dpm_.observe<FlatDataPack>( id );
     }
 
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> fdp = obtainPack( wva );
     if ( !fdp )
     {
 	if ( ids_.size() == 1 && ids_[0] == id && id == DataPack::cNoID() &&
@@ -858,7 +850,7 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = appearance().ddpars_.wva_.show_;
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva, true );
+    ConstRefMan<FlatDataPack> dp = obtainPack( wva, true );
     if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
     return dp->posData().range( forx1 );
 }

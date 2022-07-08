@@ -351,12 +351,10 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==statisticsmnuitem_.id )
     {
-	const DataPack::ID dpid = visserv->getDataPackID(
-					displayID(), attribNr() );
-	const DataPackMgr::ID dmid =
-		visserv->getDataPackMgrID( displayID() );
-	const int version = visserv->selectedTexture(
-					displayID(), attribNr() );
+	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
+							  attribNr() );
+	const DataPackMgr::MgrID dmid = visserv->getDataPackMgrID(displayID());
+	const int version = visserv->selectedTexture( displayID(), attribNr() );
 	uiStatsDisplay::Setup su; su.countinplot( false );
 	uiStatsDisplayWin* dwin =
 	    new uiStatsDisplayWin( applMgr()->applService().parent(),
@@ -371,7 +369,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const DataPack::ID dpid = visserv->getDataPackID(
 					displayID(), attribNr() );
-	const DataPackMgr::ID dmid =
+	const DataPackMgr::MgrID dmid =
 		visserv->getDataPackMgrID( displayID() );
 	const int version = visserv->selectedTexture(
 					displayID(), attribNr() );

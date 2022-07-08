@@ -90,7 +90,6 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 VolumeDisplay::AttribData::AttribData()
     : as_( *new Attrib::SelSpec )
     , selspec_(new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
-    , cache_( nullptr )
 {}
 
 
@@ -98,7 +97,6 @@ VolumeDisplay::AttribData::~AttribData()
 {
     delete &as_;
     delete selspec_;
-    DPM( DataPackMgr::SeisID() ).release( cache_ );
 }
 
 
@@ -1078,7 +1076,6 @@ void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
 	return;
 
     *attribs_[attrib]->selspec_ = as;
-    DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
     attribs_[attrib]->cache_ = nullptr;
 
     TrcKeyZSampling emptytkzs( false );
@@ -1103,16 +1100,14 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack* datapack = dpm.obtain( dpid );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack)
+    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     const bool res = setDataVolume( attrib, regsdp, taskr );
     if ( !res )
     {
-	dpm.release( dpid );
+	dpm.unRef( dpid );
 	return false;
     }
 
-    dpm.release( attribs_[attrib]->cache_->id() );
     attribs_[attrib]->cache_ = regsdp;
     return true;
 }
@@ -1170,11 +1165,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 					 usedarray->info().getSize(0) );
 
     if ( attribs_[attrib]->cache_ != attribdata )
-    {
-	DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
 	attribs_[attrib]->cache_ = attribdata;
-	DPM( DataPackMgr::SeisID() ).obtain( attribs_[attrib]->cache_->id() );
-    }
 
     isinited_ = true;
     updateAttribEnabling();

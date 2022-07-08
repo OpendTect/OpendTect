@@ -550,9 +550,9 @@ void uiODApplMgrDispatcher::openXPlot()
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
-    DataPointSet* newdps = new DataPointSet( pvds, false );
+    RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
     newdps->setName( seldlg.ioObj()->name() );
-    DPM(DataPackMgr::PointID()).addAndObtain( newdps );
+    DPM(DataPackMgr::PointID()).add( newdps );
     uiDataPointSet* uidps =
 	new uiDataPointSet( ODMainWin(), *newdps,
 	uiDataPointSet::Setup(tr("Cross-plot Data: %1").arg(newdps->name())),

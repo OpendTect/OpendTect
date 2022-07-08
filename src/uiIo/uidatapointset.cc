@@ -185,9 +185,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
     mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
 
-    if ( mDPM.haveID(dps_.id()) )
-	mDPM.obtain( dps_.id() );
-
     setCtrlStyle( CloseOnly );
     runcalcs_.allowNull( true );
 
@@ -1357,7 +1354,6 @@ bool uiDataPointSet::rejectOK( CallBacker* )
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
     removeSelPts( nullptr );
-    mDPM.release( dps_.id() );
 
     closeAndZeroPtr( xplotwin_ );
     closeAndZeroPtr( statswin_ );

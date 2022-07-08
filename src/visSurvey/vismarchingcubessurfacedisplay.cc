@@ -63,7 +63,7 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
     for ( int idx=cache_.size()-1; idx>=0; idx-- )
     {
 	if ( cache_[idx] )
-	    DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
+	    DPM( DataPackMgr::PointID() ).unRef( cache_[idx]->id() );
     }
 
     if ( model2displayspacetransform_ )
@@ -268,13 +268,13 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 		FixedString(selspecs_.first().userRef())!=nm; \
     selspecs_.first().set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     DataPointSet* data = new DataPointSet(false,true); \
-    DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
+    DPM( DataPackMgr::PointID() ).add( data ); \
     getRandomPos( *data, 0 ); \
     DataColDef* isovdef = new DataColDef(nm); \
     data->dataSet().add( isovdef ); \
     BinIDValueSet& bivs = data->bivSet();  \
     if ( !data->size() || bivs.nrVals()!=3 ) \
-    { DPM( DataPackMgr::PointID() ).release( data->id() ); return;} \
+    { DPM( DataPackMgr::PointID() ).unRef( data->id() ); return;} \
     int valcol = data->dataSet().findColDef( *isovdef, \
 	    PosVecDataSet::NameExact ); \
     if ( valcol==-1 ) valcol = 1
@@ -347,7 +347,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
     }
 
-    DPM( DataPackMgr::PointID() ).release( data->id() );
+    DPM( DataPackMgr::PointID() ).unRef( data->id() );
 }
 
 
@@ -372,7 +372,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
     }
 
-    DPM( DataPackMgr::PointID() ).release( data->id() );
+    DPM( DataPackMgr::PointID() ).unRef( data->id() );
 }
 
 
@@ -415,7 +415,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     if ( cache_.validIdx(attrib) )
     {
 	if ( cache_[attrib] )
-	    DPM( DataPackMgr::PointID() ).release( cache_[attrib]->id() );
+	    DPM( DataPackMgr::PointID() ).unRef( cache_[attrib]->id() );
 
 	cache_.replace(attrib,ndps);
     }
@@ -427,7 +427,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     }
 
     if ( cache_[attrib] )
-	DPM( DataPackMgr::PointID() ).obtain( cache_[attrib]->id() );
+	DPM( DataPackMgr::PointID() ).ref( cache_[attrib]->id() );
 
     validtexture_ = true;
     updateSingleColor();
