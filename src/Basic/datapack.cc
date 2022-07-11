@@ -139,6 +139,12 @@ DataPack::DataPack( const DataPack& oth )
 
 DataPack::~DataPack()
 {
+    if ( manager_ )
+    {
+	mTrackDPMsg( BufferString("[DP]: delete ",id_.getI(),
+		     BufferString(" '",name(),"'")) );
+    }
+
     sendDelNotif();
 }
 
@@ -526,9 +532,10 @@ kb_size_type DataPackMgr::nrKBytesOf( PackID dpid ) const
 
 void DataPackMgr::dumpInfoFor( PackID dpid, IOPar& iop ) const
 {
-    auto pack = getDP( dpid );
+    ConstRefMan<DataPack> pack = getDP( dpid );
     pack.setNoDelete( true );
-    if ( pack ) pack->dumpInfo( iop );
+    if ( pack )
+	pack->dumpInfo( iop );
 }
 
 
