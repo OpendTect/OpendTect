@@ -13,11 +13,11 @@ ________________________________________________________________________
 
 
 #include "vissurveymod.h"
-#include "vissurvobj.h"
-#include "visobject.h"
+
 #include "mousecursor.h"
-#include "vissurvobj.h"
 #include "ranges.h"
+#include "visobject.h"
+#include "vissurvobj.h"
 
 
 class MarchingCubesSurface;
@@ -171,7 +171,7 @@ public:
 						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
-				     		Coord3&,BufferString& val,
+						Coord3&,BufferString& val,
 						BufferString& info) const;
     void			getObjectInfo(BufferString&) const;
     void			getTreeObjectInfo(uiString&) const;

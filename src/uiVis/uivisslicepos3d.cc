@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "visvolorthoslice.h"
-#include "visplanedatadisplay.h"
-#include "visvolumedisplay.h"
 #include "vissurvscene.h"
 #include "uivispartserv.h"
 
@@ -25,9 +23,7 @@ ________________________________________________________________________
 
 
 uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p, uiVisPartServer* server )
-    : uiSlicePos( p )
-    , curpdd_(0)
-    , curvol_(0)
+    : uiSlicePos(p)
     , vispartserv_(server)
 {
     const bool isobj = curpdd_ || curvol_;
@@ -49,8 +45,6 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
 	prevso->getMovementNotifier()->remove( movecb );
 	prevso->getManipulationNotifier()->remove( manipcb );
     }
-    if ( curpdd_ ) { curpdd_->unRef(); curpdd_ = nullptr; }
-    if ( curvol_ ) { curvol_->unRef(); curvol_ = nullptr; }
 
     mDynamicCastGet(Object*,so,vispartserv_->getObject(dispid));
     mDynamicCastGet(Plane*,pdd,so);
@@ -63,13 +57,11 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
     prevbut_->setSensitive( isvalidso );
     nextbut_->setSensitive( isvalidso );
 
-    if ( !isvalidso ) return;
+    curpdd_ = isvalidso ? pdd : nullptr;
+    curvol_ = isvalidso ? vol : nullptr;
+    if ( !isvalidso )
+	return;
 
-    curpdd_ = pdd;
-    curvol_ = vol;
-
-    if ( curpdd_ ) curpdd_->ref();
-    if ( curvol_ ) curvol_->ref();
     so->getMovementNotifier()->notify( movecb );
     so->getManipulationNotifier()->notify( manipcb );
 

@@ -61,7 +61,7 @@ public:
 			{ components_ = compnrs; }
 
     void		 setDataPack(RegularSeisDataPack*);
-    RefMan<RegularSeisDataPack> getDataPack();
+    ConstRefMan<RegularSeisDataPack> getDataPack() const;
 
     uiString		uiNrDoneText() const override;
     uiString		uiMessage() const override;
@@ -78,7 +78,7 @@ protected:
 
     TypeSet<int>		components_;
 
-    BinIDValueSet*		bidvals_;
+    BinIDValueSet*		bidvals_ = nullptr;
 
     RefMan<RegularSeisDataPack> dp_;
     TrcKeyZSampling		tkzs_;
@@ -120,7 +120,7 @@ public:
     void		setScaler(Scaler*);
     bool		init();
 
-    RefMan<RegularSeisDataPack> getDataPack();
+    ConstRefMan<RegularSeisDataPack> getDataPack() const;
 
     uiString		uiNrDoneText() const override;
     uiString		uiMessage() const override;
@@ -138,11 +138,10 @@ protected:
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;
     DataCharacteristics		dc_;
-    Scaler*			scaler_;
+    Scaler*			scaler_ = nullptr;
     od_int64			totalnr_;
     uiString			msg_;
 
-    bool			dpclaimed_;
 };
 
 
@@ -183,7 +182,7 @@ public:
 			     DataChar is not forwarded
 			*/
 
-    RefMan<RegularSeisDataPack> getDataPack();
+    ConstRefMan<RegularSeisDataPack> getDataPack() const;
 
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override;
@@ -213,21 +212,21 @@ private:
     TypeSet<float>		refnrs_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
-    PosInfo::CubeData*		trcssampling_;
-    PosInfo::CubeDataIterator*	trcsiterator3d_;
-    bool			samedatachar_;
+    PosInfo::CubeData*		trcssampling_ = nullptr;
+    PosInfo::CubeDataIterator*	trcsiterator3d_ = nullptr;
+    bool			samedatachar_ = false;
     StepInterval<float>		dpzsamp_;
-    bool			needresampling_;
+    bool			needresampling_ = true;
     DataCharacteristics		dc_;
-    Scaler*			scaler_;
-    ObjectSummary*		seissummary_;
+    Scaler*			scaler_ = nullptr;
+    ObjectSummary*		seissummary_ = nullptr;
 
     int				queueid_;
 
-    od_int64			totalnr_;
-    od_int64			nrdone_;
+    od_int64			totalnr_ = 0;
+    od_int64			nrdone_ = 0;
     uiString			msg_;
-    bool			initialized_;
+    bool			initialized_ = false;
     TypeSet<int>		outcomponents_;
     ObjectSet<Scaler>		compscalers_;
 

@@ -1116,7 +1116,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	as[idx].setDefString( defstring );
     }
 
-    auto rsdp = Seis::PLDM().get<RegularSeisDataPack>( key,geomid );
+    ConstRefMan<RegularSeisDataPack> rsdp =
+			Seis::PLDM().get<RegularSeisDataPack>( key, geomid );
     if ( !rsdp )
     {
 	attrserv->setTargetSelSpecs( as );
@@ -1134,7 +1135,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
 
 	rsdp = rdr.getDataPack();
-	DPM(DataPackMgr::SeisID()).add( rsdp );
+	DPM( DataPackMgr::SeisID() ).add( rsdp );
     }
 
     const DataPack::ID dpid = rsdp ? rsdp->id() : DataPack::cNoID();

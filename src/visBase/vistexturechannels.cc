@@ -37,7 +37,7 @@ namespace visBase
 class ChannelInfo : public CallBacker
 {
 public:
-				ChannelInfo( TextureChannels& );
+				ChannelInfo(TextureChannels&);
 				~ChannelInfo();
 
     void			setSize(int,int,int);
@@ -89,7 +89,7 @@ public:
     ObjectSet<const ValueSeries<float> >	unmappeddata_;
     BoolTypeSet					ownsunmappeddata_;
     ObjectSet<ColTab::Mapper>			mappers_;
-    int						currentversion_;
+    int						currentversion_ = 0;
     TextureChannels&				texturechannels_;
     TypeSet<float>				histogram_;
     int						size_[3];
@@ -102,8 +102,7 @@ public:
 
 
 ChannelInfo::ChannelInfo( TextureChannels& nc )
-    : texturechannels_( nc )
-    , currentversion_( 0 )
+    : texturechannels_(nc)
     , histogram_( mNrColors, 0 )
     , origin_( 0.0, 0.0 )
     , scale_( 1.0, 1.0 )
@@ -112,9 +111,9 @@ ChannelInfo::ChannelInfo( TextureChannels& nc )
     size_[1] = 0;
     size_[2] = 0;
 
-    osgimages_.allowNull(true);
-    mappeddata_.allowNull(true);
-    unmappeddata_.allowNull(true);
+    osgimages_.setNullAllowed();
+    mappeddata_.setNullAllowed();
+    unmappeddata_.setNullAllowed();
     setNrVersions( 1 );
 }
 
@@ -244,9 +243,12 @@ bool ChannelInfo::reMapData(bool dontreclip,TaskRunner* tr )
 
 void ChannelInfo::removeImages()
 {
-    mObjectSetApplyToAll( osgimages_,
-	    { if ( osgimages_[idx] ) osgimages_[idx]->unref();
-	      osgimages_.replace( idx, 0 ); } );
+    for ( int idx=0; idx<osgimages_.size(); idx++ )
+    {
+	if ( osgimages_.get(idx) )
+	    osgimages_.get(idx)->unref();
+	osgimages_.replace( idx, nullptr );
+    }
 }
 
 
@@ -256,8 +258,8 @@ void ChannelInfo::removeCaches()
     ObjectSet<const ValueSeries<float> > unmappeddata = unmappeddata_;
     for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
     {
-	mappeddata_.replace( idx, 0 );
-	unmappeddata_.replace( idx, 0 );
+	mappeddata_.replace( idx, nullptr );
+	unmappeddata_.replace( idx, nullptr );
     }
 
     removeImages();
@@ -295,16 +297,16 @@ void ChannelInfo::setNrVersions( int nsz )
 
     const ColTab::MapperSetup* templ = mappers_.size()
 	? &mappers_[0]->setup_
-	: 0;
+	: nullptr;
 
     while ( mappeddata_.size()<nsz )
     {
-	mappeddata_ += 0;
-	unmappeddata_ += 0;
+	mappeddata_ += nullptr;
+	unmappeddata_ += nullptr;
 	ownsmappeddata_ += false;
 	ownsunmappeddata_ += false;
 
-	ColTab::Mapper* mapper = new ColTab::Mapper;
+	auto* mapper = new ColTab::Mapper;
 	if ( templ )
 	    mapper->setup_ = *templ;
 	mappers_ += mapper;
@@ -322,7 +324,7 @@ void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
     const int nr = osgids.size();
 
     while ( nr>osgimages_.size() )
-	osgimages_ += 0;
+	osgimages_ += nullptr;
 
     while ( osgimages_.size()>nr )
     {
@@ -349,7 +351,7 @@ bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
 	if ( ownsunmappeddata_[version] )
 	    delete unmappeddata_[version];
 
-	unmappeddata_.replace( version, 0 );
+	unmappeddata_.replace( version, nullptr );
     }
 
     if ( policy==OD::UsePtr || policy==OD::TakeOverPtr )
@@ -369,7 +371,7 @@ bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
 	}
 	else
 	{
-	    unmappeddata_.replace( version, 0 );
+	    unmappeddata_.replace( version, nullptr );
 	}
 
 	ownsunmappeddata_[version] = true;
@@ -389,7 +391,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	return true;
 
     //Make sure old data is alive until it's replaced in Coin
-    ArrPtrMan<unsigned char> oldptr = 0;
+    ArrPtrMan<unsigned char> oldptr;
 
     if ( mappeddata_[version] &&
 	 (!ownsmappeddata_[version] || !unmappeddata_[version] ) )
@@ -397,7 +399,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	if ( ownsmappeddata_[version] )
 	    oldptr = mappeddata_[version];
 
-	mappeddata_.replace( version, 0 );
+	mappeddata_.replace( version, nullptr );
     }
 
     if ( !unmappeddata_[version] )
@@ -420,7 +422,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	ownsmappeddata_[version] = true;
     }
 
-    unsigned char* mappedudfs = 0;
+    unsigned char* mappedudfs = nullptr;
     if ( texturechannels_.nrUdfBands() )
 	mappedudfs = mappeddata_[version] + texturechannels_.nrDataBands();
 
@@ -465,7 +467,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
     {
 	if (  ownsmappeddata_[version] )
 	    delete mappeddata_[version];
-	mappeddata_.replace( version, 0 );
+	mappeddata_.replace( version, nullptr );
     }
 
     if ( policy==OD::UsePtr || policy==OD::TakeOverPtr )
@@ -487,7 +489,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	}
 	else
 	{
-	    mappeddata_.replace( version, 0 );
+	    mappeddata_.replace( version, nullptr );
 	}
 
 	ownsmappeddata_[version] = true;
@@ -571,10 +573,8 @@ public:
 #define mGetFilterType (interpolatetexture_ ? osgGeo::Linear : osgGeo::Nearest)
 
 TextureChannels::TextureChannels()
-    : tc2rgba_( 0 )
-    , osgtexture_( new osgGeo::LayeredTexture )
-    , texturecallbackhandler_( new TextureCallbackHandler() )
-    , interpolatetexture_( true )
+    : osgtexture_(new osgGeo::LayeredTexture)
+    , texturecallbackhandler_(new TextureCallbackHandler())
 {
     turnOn( true );
 
@@ -604,7 +604,7 @@ TextureChannels::TextureChannels()
 TextureChannels::~TextureChannels()
 {
     deepErase( channelinfo_ );
-    setChannels2RGBA( 0 );
+    setChannels2RGBA( nullptr );
 
     osgtexture_->removeCallback( texturecallbackhandler_ );
     texturecallbackhandler_->unref();
@@ -708,7 +708,7 @@ int TextureChannels::addChannel()
 
     osgids += osgid;
 
-    ChannelInfo* newchannel = new ChannelInfo( *this );
+    auto* newchannel = new ChannelInfo( *this );
 
     const int res = channelinfo_.size();
     if ( res )
@@ -720,7 +720,7 @@ int TextureChannels::addChannel()
 	newchannel->setScale( channelinfo_[0]->getScale() );
     }
 
-    channelinfo_ += newchannel;
+    channelinfo_.add( newchannel );
     newchannel->setOsgIDs( osgids );
 
     update( res );
@@ -756,7 +756,7 @@ int TextureChannels::insertChannel( int channel )
     if ( channel<0 )
 	{ pErrMsg("Negative index"); channel=0; }
 
-    ChannelInfo* newchannel = new ChannelInfo( *this );
+    auto* newchannel = new ChannelInfo( *this );
     channelinfo_.insertAt( newchannel, channel );
     for ( int idy=channel; idy<nrChannels(); idy++ )
 	update( idy );
@@ -773,12 +773,11 @@ void TextureChannels::removeChannel( int channel )
     if ( !channelinfo_.validIdx(channel) )
 	return;
 
-    PtrMan<ChannelInfo> info = channelinfo_[channel];
+    const TypeSet<int>& osgidxs = channelinfo_.get(channel)->getOsgIDs();
+    for ( int idx=osgidxs.size()-1; idx>=0; idx-- )
+	osgtexture_->removeDataLayer( osgidxs[idx] );
 
-    for ( int idx=info->getOsgIDs().size()-1; idx>=0; idx-- )
-	osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
-
-    channelinfo_.removeSingle(channel);
+    delete channelinfo_.removeSingle(channel);
 
     if ( tc2rgba_ )
 	tc2rgba_->notifyChannelRemove( channel );
@@ -939,7 +938,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
     ValueSeries<float>* vs = useddata
 	? new ArrayValueSeries<float,float>(
 	    const_cast<float*>(useddata), cp==OD::TakeOverPtr, nrelements )
-	: 0;
+	: nullptr;
 
     return channelinfo_[channel]->setUnMappedData( version, vs, OD::TakeOverPtr,
 						   tr, skipclip );
@@ -950,7 +949,7 @@ bool TextureChannels::setMappedData( int channel, int version,
 				     unsigned char* data,
 				     OD::PtrPolicy cp )
 {
-    setUnMappedData( channel, version, 0, OD::UsePtr, 0 );
+    setUnMappedData( channel, version, 0, OD::UsePtr, nullptr );
 
     if ( channel<0 || channel>=channelinfo_.size() )
     {
@@ -1002,7 +1001,7 @@ TextureChannel2RGBA* TextureChannels::getChannels2RGBA()
 
 const SbImagei32* TextureChannels::getChannels() const
 {
-    return 0;
+    return nullptr;
 }
 
 
@@ -1079,7 +1078,7 @@ void TextureChannels::touchMappedData()
 const TypeSet<int>* TextureChannels::getOsgIDs( int channel ) const
 {
     if ( channel<0 || channel>=channelinfo_.size() )
-	return 0;
+	return nullptr;
 
     return &channelinfo_[channel]->getOsgIDs();
 }

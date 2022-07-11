@@ -114,7 +114,6 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr( manwvltdlg_ );
     deleteAndZeroPtr( impwvltdlg_ );
     deleteAndZeroPtr( expwvltdlg_ );
-    Seis::PLDM().removeAll();
 
     deleteAndZeroPtr( impcbvsdlg_ );
     deleteAndZeroPtr( impcbvsothsurvdlg_ );

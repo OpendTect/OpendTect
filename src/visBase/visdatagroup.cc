@@ -20,11 +20,9 @@ namespace visBase
 {
 
 DataObjectGroup::DataObjectGroup()
-    : osggroup_( new osg::Group )
-    , separate_( true )
-    , change( this )
-    , righthandsystem_( true )
-    , pixeldensity_( getDefaultPixelDensity() )
+    : osggroup_(new osg::Group)
+    , pixeldensity_(getDefaultPixelDensity())
+    , change(this)
 {
     setOsgNode( osggroup_ );
 }
@@ -32,48 +30,52 @@ DataObjectGroup::DataObjectGroup()
 
 DataObjectGroup::~DataObjectGroup()
 {
-    mObjectSetApplyToAll( objects_, objects_[idx]->setParent( 0 ));
-
-    deepUnRef( objects_ );
+    for ( auto* no : objects_ )
+	no->setParent( nullptr );
 }
 
 
 int DataObjectGroup::size() const
-{ return objects_.size(); }
+{
+    return objects_.size();
+}
 
 
-#define mNewObjectOperations \
-no->ref(); \
-no->setRightHandSystem( isRightHandSystem() ); \
-no->setPixelDensity( getPixelDensity() ); \
-no->setParent( this ); \
-change.trigger(); \
-requestSingleRedraw();
+void DataObjectGroup::handleNewObj( DataObject* no )
+{
+    no->setRightHandSystem( isRightHandSystem() );
+    no->setPixelDensity( getPixelDensity() );
+    no->setParent( this );
+    change.trigger();
+    requestSingleRedraw();
+}
+
 
 void DataObjectGroup::addObject( DataObject* no )
 {
-    objects_ += no;
+    objects_.add( no );
 
-    if ( osggroup_ && no->osgNode() ) osggroup_->addChild( no->osgNode() );
+    if ( osggroup_ && no->osgNode() )
+	osggroup_->addChild( no->osgNode() );
 
-    mNewObjectOperations;
+    handleNewObj( no );
 }
 
 
 void DataObjectGroup::setDisplayTransformation( const mVisTrans* nt )
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
-	objects_[idx]->setDisplayTransformation(nt);
+    for ( auto* obj : objects_ )
+	obj->setDisplayTransformation( nt );
 }
 
 
 const mVisTrans* DataObjectGroup::getDisplayTransformation() const
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
-	if ( objects_[idx]->getDisplayTransformation() )
-	    return objects_[idx]->getDisplayTransformation();
+    for ( const auto* obj : objects_ )
+	if ( obj->getDisplayTransformation() )
+	    return obj->getDisplayTransformation();
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -83,8 +85,8 @@ void DataObjectGroup::setRightHandSystem( bool yn )
 
     yn = isRightHandSystem();
 
-    for ( int idx=0; idx<objects_.size(); idx++ )
-	objects_[idx]->setRightHandSystem( yn );
+    for ( auto* obj : objects_ )
+	obj->setRightHandSystem( yn );
 }
 
 
@@ -93,34 +95,38 @@ void DataObjectGroup::setPixelDensity( float dpi )
     DataObject::setPixelDensity( dpi );
 
     pixeldensity_ = dpi;
-
-    for ( int idx=0; idx<objects_.size(); idx++ )
-	objects_[idx]->setPixelDensity( dpi );
+    for ( auto* obj : objects_ )
+	obj->setPixelDensity( dpi );
 }
 
 
 bool DataObjectGroup::isRightHandSystem() const
-{ return righthandsystem_; }
-
-
-void DataObjectGroup::addObject(int nid)
 {
-    DataObject* no =
-	dynamic_cast<DataObject*>( DM().getObject(nid) );
+    return righthandsystem_;
+}
 
-    if ( !no ) return;
+
+void DataObjectGroup::addObject( int nid )
+{
+    mDynamicCastGet(DataObject*,no,DM().getObject(nid));
+    if ( !no )
+	return;
+
     addObject( no );
 }
 
 
 void DataObjectGroup::insertObject( int insertpos, DataObject* no )
 {
-    if ( insertpos>=size() ) return addObject( no );
+    if ( insertpos>=size() )
+	return addObject( no );
 
     objects_.insertAt( no, insertpos );
 
-    if ( no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
-    mNewObjectOperations;
+    if ( no->osgNode() )
+	osggroup_->insertChild( insertpos, no->osgNode() );
+
+    handleNewObj( no );
 }
 
 
@@ -129,27 +135,29 @@ int DataObjectGroup::getFirstIdx( int nid ) const
     const DataObject* sceneobj =
 	(const DataObject*) DM().getObject(nid);
 
-    if ( !sceneobj ) return -1;
+    if ( !sceneobj )
+	return -1;
 
     return getFirstIdx( sceneobj );
 }
 
 
 int DataObjectGroup::getFirstIdx( const DataObject* sceneobj ) const
-{ return objects_.indexOf(sceneobj); }
+{
+    return objects_.indexOf( sceneobj );
+}
 
 
 void DataObjectGroup::removeObject( int idx )
 {
-    if ( idx< 0 )  return;
+    if ( !objects_.validIdx(idx) )
+	return;
+
     DataObject* sceneobject = objects_[idx];
     osggroup_->removeChild( sceneobject->osgNode() );
-
-
+    sceneobject->setParent( nullptr );
     objects_.removeSingle( idx );
 
-    sceneobject->setParent( 0 );
-    sceneobject->unRef();
     change.trigger();
     requestSingleRedraw();
 }
@@ -157,8 +165,8 @@ void DataObjectGroup::removeObject( int idx )
 
 void DataObjectGroup::removeAll()
 {
-    while ( size() ) removeObject( 0 );
+    while ( size() )
+	removeObject( 0 );
 }
-
 
 }; // namespace visBase

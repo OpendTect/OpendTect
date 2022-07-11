@@ -332,9 +332,7 @@ protected:
 
 Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 				      const TrcKeyZSampling& tkzs )
-    : dp_(0)
-    , bidvals_(0)
-    , tkzs_(tkzs)
+    : tkzs_(tkzs)
     , ioobj_( ioobj.clone() )
 {
     const SeisIOObjInfo seisinfo( ioobj );
@@ -369,8 +367,7 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 
 Seis::ParallelReader::ParallelReader( const IOObj& ioobj,BinIDValueSet& bidvals,
 				      const TypeSet<int>& components )
-    : dp_(0)
-    , components_( components )
+    : components_( components )
     , bidvals_( &bidvals )
     , ioobj_( ioobj.clone() )
     , totalnr_( bidvals.totalSize() )
@@ -383,9 +380,7 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,BinIDValueSet& bidvals,
 
 Seis::ParallelReader::~ParallelReader()
 {
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
     delete ioobj_;
-
     deepErase( tks_ );
     delete trcssampling_;
 }
@@ -405,24 +400,13 @@ bool Seis::ParallelReader::setOutputComponents()
 }
 
 
-#define mAddNewDP(act) \
-{ \
-    if ( !dp_ || !DPM( DataPackMgr::SeisID() ).getDP(dp_->id()) ) \
-    { \
-	dp_ = 0; \
-	act; \
-    } \
-}
-
 void Seis::ParallelReader::setDataPack( RegularSeisDataPack* dp )
 {
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
     dp_ = dp;
-    mAddNewDP(;)
 }
 
 
-RefMan<RegularSeisDataPack> Seis::ParallelReader::getDataPack()
+ConstRefMan<RegularSeisDataPack> Seis::ParallelReader::getDataPack() const
 {
     return dp_;
 }
@@ -479,15 +463,14 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
     {
 	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false) );
 	dp_->setName( ioobj_->name() );
-	DPM( DataPackMgr::SeisID() ).add( dp_ );
 	dp_->setSampling( tkzs_ );
-	if (trcssampling_)
+	if ( trcssampling_ )
 	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
 
 	uiString errmsg;
 	if ( !addComponents(*dp_,*ioobj_,components_,errmsg) )
 	{
-	    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() ); dp_ = nullptr;
+	    dp_ = nullptr;
 	    errmsg_ = allocprob;
 	    errmsg_.append( errmsg, true );
 	    return false;
@@ -496,7 +479,7 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 
     if ( !setOutputComponents() )
     {
-	DPM( DataPackMgr::SeisID() ).unRef( dp_->id() ); dp_ = nullptr;
+	dp_ = nullptr;
 	return false;
     }
 
@@ -505,7 +488,6 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
     deepErase( tks_ );
     for ( int idx=0; idx<nrthreads; idx++ )
         tks_ += new TrcKeySampling( tkzs_.hsamp_.getLineChunk(nrthreads,idx) );
-
 
     errmsg_ = uiStrings::phrReading( tr("%1 \'%2\'")
 			    .arg( uiStrings::sVolDataName(false,true,false) )
@@ -619,9 +601,6 @@ Seis::ParallelReader2D::ParallelReader2D( const IOObj& ioobj,Pos::GeomID geomid,
 					  const TypeSet<int>* comps )
     : ioobj_(ioobj.clone())
     , dc_(DataCharacteristics::Auto)
-    , dpclaimed_(false)
-    , scaler_(0)
-    , dp_(0)
 {
     if ( comps )
 	components_ = *comps;
@@ -646,8 +625,6 @@ Seis::ParallelReader2D::~ParallelReader2D()
 {
     delete ioobj_;
     delete scaler_;
-
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
 }
 
 
@@ -705,14 +682,13 @@ bool Seis::ParallelReader2D::init()
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
     dp_->setName( ioobj_->name() );
-    DPM( DataPackMgr::SeisID() ).add( dp_ );
     dp_->setSampling( tkzs_ );
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
     if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
-	DPM( DataPackMgr::SeisID() ).unRef( dp_->id() ); dp_ = nullptr;
+	dp_ = nullptr;
 	return false;
     }
 
@@ -730,7 +706,7 @@ bool Seis::ParallelReader2D::init()
 void Seis::ParallelReader2D::setScaler( Scaler* newsc )
 {
     delete scaler_;
-    scaler_ = newsc ? newsc->clone() : 0;
+    scaler_ = newsc ? newsc->clone() : nullptr;
 }
 
 
@@ -831,9 +807,8 @@ bool Seis::ParallelReader2D::doFinish( bool success )
 { return success; }
 
 
-RefMan<RegularSeisDataPack> Seis::ParallelReader2D::getDataPack()
+ConstRefMan<RegularSeisDataPack> Seis::ParallelReader2D::getDataPack() const
 {
-//    dpclaimed_ = true;
     return dp_;
 }
 
@@ -844,20 +819,10 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 					  const TypeSet<int>* comps )
     : Executor("Volume Reader")
     , ioobj_(ioobj.clone())
-    , dp_(0)
-    , scaler_(0)
     , rdr_(*new SeisTrcReader(ioobj))
     , dc_(DataCharacteristics::Auto)
-    , initialized_(false)
-    , trcssampling_(0)
-    , trcsiterator3d_(0)
-    , samedatachar_(false)
-    , needresampling_(true)
-    , seissummary_(0)
-    , nrdone_(0)
-    , totalnr_(0)
 {
-    compscalers_.allowNull( true );
+    compscalers_.setNullAllowed();
     const SeisIOObjInfo info( ioobj );
     info.getDataChar( dc_ );
     if ( !comps )
@@ -866,14 +831,14 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 	for ( int idx=0; idx<nrcomps; idx++ )
 	{
 	    components_ += idx;
-	    compscalers_ += 0;
+	    compscalers_ += nullptr;
 	}
     }
     else
     {
 	components_ = *comps;
 	for ( int idx=0; idx<components_.size(); idx++ )
-	    compscalers_ += 0;
+	    compscalers_ += nullptr;
     }
 
     is2d_ = info.is2D();
@@ -912,7 +877,6 @@ Seis::SequentialReader::~SequentialReader()
 {
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
     delete &rdr_;
     delete ioobj_;
     delete scaler_;
@@ -963,7 +927,7 @@ void Seis::SequentialReader::setDataChar( DataCharacteristics::UserType type )
 void Seis::SequentialReader::setScaler( Scaler* newsc )
 {
     delete scaler_;
-    scaler_ = newsc ? newsc->clone() : 0;
+    scaler_ = newsc ? newsc->clone() : nullptr;
 //    rdr_.forceFloatData( scaler_ ); // Not sure if needed
 }
 
@@ -1019,8 +983,10 @@ void Seis::SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 }
 
 
-RefMan<RegularSeisDataPack> Seis::SequentialReader::getDataPack()
-{ return dp_; }
+ConstRefMan<RegularSeisDataPack> Seis::SequentialReader::getDataPack() const
+{
+    return dp_;
+}
 
 
 bool Seis::SequentialReader::init()
@@ -1079,21 +1045,20 @@ bool Seis::SequentialReader::init()
 	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,is2d_),
 				       &dc_);
 	dp_->setName( ioobj_->name() );
-	DPM( DataPackMgr::SeisID() ).add( dp_ );
 	dp_->setSampling( tkzs_ );
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 
 	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
 	{
-	    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() ); dp_ = nullptr;
+	    dp_ = nullptr;
 	    return false;
 	}
     }
 
     if ( !setOutputComponents() )
     {
-	DPM( DataPackMgr::SeisID() ).unRef( dp_->id() ); dp_ = nullptr;
+	dp_ = nullptr;
 	return false;
     }
 
@@ -1156,9 +1121,7 @@ bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
 					  od_ostream* extstrm )
 {
     initialized_ = false;
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
     dp_ = &dp;
-    mAddNewDP(return false)
 
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()
@@ -1173,7 +1136,7 @@ bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
     if ( dp.nrComponents() < components_.size() &&
 	 !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
-	DPM( DataPackMgr::SeisID() ).unRef( dp_->id() ); dp_ = nullptr;
+	dp_ = nullptr;
 	if ( extstrm )
 	    *extstrm << msg_.getFullString() << od_endl;
 
@@ -1280,7 +1243,7 @@ int Seis::SequentialReader::nextStep()
     }
 
     if ( is2d_ ) refnrs_.append( refnrs );
-    ArrayFiller* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
+    auto* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_,
 				  compscalers_, outcomponents_, *dp_, is2d_ );
     task->setTrcScalers( trcscalers );
@@ -1316,7 +1279,7 @@ void Seis::SequentialReader::submitUdfWriterTasks()
     if ( trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
 	return;
 
-    TaskGroup* udfwriters = new TaskGroup;
+    auto* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
 	udfwriters->addTask(

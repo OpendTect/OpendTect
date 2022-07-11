@@ -137,23 +137,11 @@ public:
 };
 
 
-#define mObjectSetApplyToAll( os, op ) \
-    mODSetApplyToAll( ObjectSet<int>::size_type, os, op )
-
-#define mObjectSetApplyToAllFunc( fn, op, extra ) \
-template <class T> \
-inline void fn( ObjectSet<T>& os ) \
-{ \
-    mObjectSetApplyToAll( os, op ); \
-    extra; \
-}
-
-
 //! empty the ObjectSet deleting all objects pointed to.
 template <class T>
 inline void deepErase( ObjectSet<T>& os )
 {
-    for ( auto obj : os )
+    for ( auto* obj : os )
 	delete obj;
     os.plainErase();
 }
@@ -162,7 +150,7 @@ inline void deepErase( ObjectSet<T>& os )
 template <class T>
 inline void deepEraseArr( ObjectSet<T>& os )
 {
-    for ( auto obj : os )
+    for ( auto* obj : os )
 	delete [] obj;
     os.plainErase();
 }

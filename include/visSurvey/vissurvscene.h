@@ -213,8 +213,8 @@ protected:
     void			selChangeCB(CallBacker*);
 
     TypeSet<int>		hoveredposmodemanipobjids_;
-    int				posmodemanipdeselobjid_;
-    bool			spacebarwaspressed_;
+    int				posmodemanipdeselobjid_ = -1;
+    bool			spacebarwaspressed_ = false;
 
     RefMan<visBase::Transformation>	tempzstretchtrans_;
 
@@ -222,16 +222,16 @@ protected:
     RefMan<visBase::Transformation>	inlcrlscale_;
     RefMan<visBase::Transformation>	utm2disptransform_;
 
-    ZAxisTransform*			datatransform_;
+    ZAxisTransform*			datatransform_ = nullptr;
 
-    visBase::Annotation*	annot_;
-    visBase::MarkerSet*		markerset_;
-    visBase::PolygonSelection*	polyselector_;
-    Selector<Coord3>*		coordselector_;
-    visBase::SceneColTab*	scenecoltab_;
+    visBase::Annotation*	annot_		= nullptr;
+    visBase::MarkerSet*		markerset_	= nullptr;
+    visBase::PolygonSelection*	polyselector_	= nullptr;
+    Selector<Coord3>*		coordselector_	= nullptr;
+    visBase::SceneColTab*	scenecoltab_	= nullptr;
 
-    visBase::TopBotImage*	topimg_;
-    visBase::TopBotImage*	botimg_;
+    visBase::TopBotImage*	topimg_ = nullptr;
+    visBase::TopBotImage*	botimg_ = nullptr;
     int				getImageFromPar(const IOPar&,const char*,
 						visBase::TopBotImage*&);
 
@@ -239,10 +239,10 @@ protected:
     TrcKey			mousetrckey_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
-    const MouseCursor*		mousecursor_;
+    const MouseCursor*		mousecursor_ = nullptr;
     IOPar&			infopar_;
 
-    float			curzstretch_;
+    float			curzstretch_ = 2.f;
 
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
@@ -251,9 +251,9 @@ protected:
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		annotscale_;
 
-    bool			ctshownusepar_;
-    bool			usepar_;
-    bool			moreobjectstodo_;
+    bool			ctshownusepar_ = false;
+    bool			usepar_ = false;
+    bool			moreobjectstodo_ = false;
     Threads::Lock		updatelock_;
 
     static const char*		sKeyShowAnnot();

@@ -30,7 +30,7 @@ mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader)
 public:
 			PreLoader(const MultiID&,Pos::GeomID =-1,
-				  TaskRunner* =0);
+				  TaskRunner* =nullptr);
 
     const MultiID&	id() const			{ return mid_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
@@ -38,30 +38,31 @@ public:
 
     IOObj*		getIOObj() const;
     Interval<int>	inlRange() const;
-    			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
+			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
     void		getLineNames(BufferStringSet&) const;
-    			//!< Line 2D only.
+			//!< Line 2D only.
 
     bool		load(const TrcKeyZSampling&,
 				DataCharacteristics::UserType=
 					DataCharacteristics::Auto,
-				Scaler* =0) const;
+				Scaler* =nullptr) const;
     bool		load(const TypeSet<TrcKeyZSampling>&,
 			     const TypeSet<Pos::GeomID>&,
 				DataCharacteristics::UserType=
 					DataCharacteristics::Auto,
-				Scaler* =0) const;
-    bool		loadPS3D(const Interval<int>* inlrg=0) const;
-    bool		loadPS2D(const char* lnm=0) const;	//!< null => all
+				Scaler* =nullptr) const;
+    bool		loadPS3D(const Interval<int>* inlrg=nullptr) const;
+    bool		loadPS2D(const char* lnm=nullptr) const;
+			//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
     uiString		errMsg() const			{ return errmsg_; }
 
-    static void		load(const IOPar&,TaskRunner* tr=0);
-    			//!< Seis.N.[loadObj_fmt]
-    static void		loadObj(const IOPar&,TaskRunner* tr=0);
-    			//!< sKey::ID() and optional subselections
+    static void		load(const IOPar&,TaskRunner* =nullptr);
+			//!< Seis.N.[loadObj_fmt]
+    static void		loadObj(const IOPar&,TaskRunner* =nullptr);
+			//!< sKey::ID() and optional subselections
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
@@ -76,45 +77,50 @@ protected:
     mutable uiString	errmsg_;
 
     TaskRunner&		getTr() const
-    			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }
+			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }
 };
 
 
 mExpClass(Seis) PreLoadDataEntry
 {
 public:
-    typedef	DataPack::ID	PackID;
-			PreLoadDataEntry(const MultiID&,Pos::GeomID,PackID);
+			PreLoadDataEntry(const DataPack&,const MultiID&,
+					 Pos::GeomID);
 
     bool		equals(const MultiID&,Pos::GeomID) const;
+    DataPack::ID	dpID() const;
+
+    ConstRefMan<DataPack> getDP() const;
+    RefMan<DataPack>	getDP();
 
     MultiID		mid_;
     Pos::GeomID		geomid_;
-    PackID		dpid_;
     bool		is2d_;
     BufferString	name_;
+
+private:
+
+    ConstRefMan<DataPack> dp_;
+    DataPackMgr&	dpmgr_;
 };
 
 
 mExpClass(Seis) PreLoadDataManager : public CallBacker
 {
 public:
-    typedef	DataPack::ID	PackID;
 
-    void		add(const MultiID&,DataPack*);
-    void		add(const MultiID&,Pos::GeomID,DataPack*);
+    void		add(const DataPack&,const MultiID&);
+    void		add(const DataPack&,const MultiID&,Pos::GeomID);
     void		remove(const MultiID&,Pos::GeomID =-1);
-    void		remove(PackID dpid);
-    void		removeAll();
+    void		remove(const DataPack::ID&);
 
     template<class T>
-    inline RefMan<T>		get(const MultiID&,Pos::GeomID =-1);
-    template<class T>
-    inline RefMan<T>		get(PackID dpid);
+    inline ConstRefMan<T>	get(DataPack::ID) const;
     template<class T>
     inline ConstRefMan<T>	get(const MultiID&,Pos::GeomID =-1) const;
-    template<class T>
-    inline ConstRefMan<T>	get(PackID dpid) const;
+
+    ConstRefMan<DataPack>	getDP(DataPack::ID) const;
+    ConstRefMan<DataPack>	getDP(const MultiID&,Pos::GeomID =-1) const;
 
     void			getInfo(const MultiID&,Pos::GeomID,
 					BufferString&) const;
@@ -123,35 +129,23 @@ public:
     bool			isPresent(const MultiID&,Pos::GeomID =-1) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
-    RefMan<DataPack>		getDP(const MultiID&,Pos::GeomID = -1);
-    ConstRefMan<DataPack>	getDP(const MultiID&,Pos::GeomID = -1) const;
-    inline RefMan<DataPack>	getDP( PackID dpid )
-				{ return dpmgr_.getDP( dpid ); }
-    inline ConstRefMan<DataPack> getDP( DataPack::ID dpid ) const
-				{ return dpmgr_.getDP( dpid ); }
 
     Notifier<PreLoadDataManager>	changed;
 
-protected:
+private:
 
-    DataPackMgr&	dpmgr_;
+    void		surveyChangeCB(CallBacker*);
+
     ManagedObjectSet<PreLoadDataEntry> entries_;
 
 public:
 			PreLoadDataManager();
 			~PreLoadDataManager();
+
 };
 
 mGlobal(Seis) PreLoadDataManager& PLDM();
 
-
-template <class T> inline RefMan<T>
-PreLoadDataManager::get( const MultiID& mid, Pos::GeomID gid )
-{
-    auto dp = getDP( mid, gid );
-    mDynamicCastGet( T*, casted, dp.ptr() );
-    return RefMan<T>( casted );
-}
 
 template <class T> inline ConstRefMan<T>
 PreLoadDataManager::get( const MultiID& mid, Pos::GeomID gid ) const
@@ -161,16 +155,8 @@ PreLoadDataManager::get( const MultiID& mid, Pos::GeomID gid ) const
     return ConstRefMan<T>( casted );
 }
 
-template <class T> inline RefMan<T>
-PreLoadDataManager::get( PackID dpid )
-{
-    auto dp = getDP( dpid );
-    mDynamicCastGet( T*, casted, dp.ptr() );
-    return RefMan<T>( casted );
-}
-
 template <class T> inline ConstRefMan<T>
-PreLoadDataManager::get( PackID dpid ) const
+PreLoadDataManager::get( DataPack::ID dpid ) const
 {
     auto dp = getDP( dpid );
     mDynamicCastGet( const T*, casted, dp.ptr() );

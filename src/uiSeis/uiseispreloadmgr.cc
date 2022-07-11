@@ -454,18 +454,19 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
 
-    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
+    auto* leftgrp = new uiGroup( this, "Left Group" );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
     if ( !input.isUdf() )
 	seissel_->setInput( input );
-    seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
+
+    mAttachCB( seissel_->selectionDone, uiSeisPreLoadSel::seisSel );
 
     SelSetup selsu( geom ); selsu.multiline(true);
     subselfld_ = uiSeisSubSel::get( leftgrp, selsu );
-    subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
+    mAttachCB( subselfld_->selChange, uiSeisPreLoadSel::selChangeCB );
     subselfld_->attach( alignedBelow, seissel_ );
 
     formatdiskfld_ = new uiGenInput( leftgrp, tr("Format on disk") );
@@ -482,7 +483,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(formats) );
-    typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
+    mAttachCB( typefld_->valuechanged, uiSeisPreLoadSel::selChangeCB );
     typefld_->attach( alignedBelow, formatdiskfld_ );
 
     memusagefld_ = new uiGenInput( leftgrp, tr("Est usage") );
@@ -491,7 +492,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     doscalefld_ = new uiGenInput( leftgrp, tr("Scale Values"),
 				  BoolInpSpec(false) );
-    doscalefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,doScaleCB) );
+    mAttachCB( doscalefld_->valuechanged, uiSeisPreLoadSel::doScaleCB );
     doscalefld_->attach( alignedBelow, typefld_ );
 
     fromrgfld_ = new uiGenInput( leftgrp, tr("Scale From"),
@@ -502,23 +503,24 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 	FloatInpIntervalSpec().setName("To start",0).setName("To stop",1) );
     torgfld_->attach( alignedBelow, fromrgfld_ );
 
-    uiGroup* rightgrp = new uiGroup( this, "Right Group" );
+    auto* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
     nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"),
 				 IntInpSpec(mDefaultNrTrcs) );
-    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Scan"), true );
-    scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
+    auto* scanbut = new uiPushButton( rightgrp, tr("Scan"), true );
+    mAttachCB( scanbut->activated, uiSeisPreLoadSel::fillHist );
     scanbut->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
-    histfld_->rangeChanged.notify( mCB(this,uiSeisPreLoadSel,histChangeCB) );
+    mAttachCB( histfld_->rangeChanged, uiSeisPreLoadSel::histChangeCB );
     histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
 
-    postFinalize().notify( mCB(this,uiSeisPreLoadSel,finalizeDoneCB) );
+    mAttachCB( postFinalize(), uiSeisPreLoadSel::finalizeDoneCB );
 }
 
 
 uiSeisPreLoadSel::~uiSeisPreLoadSel()
 {
+    detachAllNotifiers();
     delete scaler_;
     delete &gen_;
 }
@@ -526,8 +528,8 @@ uiSeisPreLoadSel::~uiSeisPreLoadSel()
 
 void uiSeisPreLoadSel::finalizeDoneCB( CallBacker* )
 {
-    doScaleCB( 0 );
-    seisSel( 0 );
+    doScaleCB( nullptr );
+    seisSel( nullptr );
 }
 
 
@@ -807,7 +809,7 @@ void uiSeisPreLoadedDataSel::setInput( const MultiID& inpkey, int compnr )
 	return;
 
 
-    auto seisdp = PLDM().get<SeisDataPack>(inpkey );
+    ConstRefMan<SeisDataPack> seisdp = PLDM().get<SeisDataPack>(inpkey );
     if ( !seisdp )
 	return;
 
@@ -840,7 +842,7 @@ const char* uiSeisPreLoadedDataSel::selectedCompName() const
     if ( selkey_.isUdf() )
 	return nullptr;
 
-    auto dp = PLDM().get<SeisDataPack>(selkey_ );
+    ConstRefMan<SeisDataPack> dp = PLDM().get<SeisDataPack>(selkey_ );
     if ( !dp || dp->nrComponents()==1 || compnr_ < dp->nrComponents() )
 	return nullptr;
 
@@ -862,7 +864,7 @@ void uiSeisPreLoadedDataSel::updateCB( CallBacker* )
     const ObjectSet<PreLoadDataEntry>& plentries = PLDM().getEntries();
     for ( int idx=0; idx<plentries.size(); idx++ )
     {
-	SeisIOObjInfo objinfo( plentries[idx]->mid_ );
+	const SeisIOObjInfo objinfo( plentries[idx]->mid_ );
 	if ( objinfo.geomType() != geomtype_ )
 	    continue;
 
@@ -895,7 +897,7 @@ void uiSeisPreLoadedDataSel::selCB( CallBacker* )
     }
 
     const MultiID selkey = keys_[selidx];
-    auto dp = PLDM().get<SeisDataPack>(selkey );
+    ConstRefMan<SeisDataPack> dp = PLDM().get<SeisDataPack>(selkey );
     if ( !dp )
 	return;
 
@@ -937,7 +939,13 @@ uiSeisPLDataSelDlg( uiParent* p, const uiSelectFromList::Setup& su,
     compfld_->attach( alignedBelow, selFld() );
     compfld_->display( false );
 
-    selFld()->selectionChanged.notify( mCB(this,uiSeisPLDataSelDlg,selCB) );
+    mAttachCB( selFld()->selectionChanged, uiSeisPLDataSelDlg::selCB );
+}
+
+
+~uiSeisPLDataSelDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -948,7 +956,7 @@ void selCB( CallBacker* )
     if ( !keys_.validIdx(selidx) )
 	return;
 
-    auto seisdp = PLDM().get<SeisDataPack>( keys_[selidx] );
+    ConstRefMan<SeisDataPack> seisdp = PLDM().get<SeisDataPack>( keys_[selidx]);
     if ( !seisdp )
 	return;
 

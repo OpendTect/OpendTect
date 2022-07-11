@@ -92,6 +92,12 @@ DataPack::DataPack( const DataPack& dp )
 
 DataPack::~DataPack()
 {
+    if ( manager_ )
+    {
+	mTrackDPMsg( BufferString("[DP]: delete ",id_.asInt(),
+		     BufferString(" '",name(),"'")) );
+    }
+
     sendDelNotif();
 }
 

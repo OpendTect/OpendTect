@@ -11,14 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uislicepos.h"
 
-namespace visSurvey
-{
-    class PlaneDataDisplay;
-    class VolumeDisplay;
-    class SurveyObject;
-}
+#include "uislicepos.h"
+#include "visplanedatadisplay.h"
+#include "visvolumedisplay.h"
+
 class uiVisPartServer;
 
 /*! \brief Toolbar for setting slice position _ 3D visualization display */
@@ -31,10 +28,10 @@ public:
     void		setDisplay(int dispid);
     int			getDisplayID() const;
 
-protected:
+private:
 
-    visSurvey::PlaneDataDisplay* curpdd_;
-    visSurvey::VolumeDisplay*	curvol_;
+    RefMan<visSurvey::PlaneDataDisplay> curpdd_;
+    RefMan<visSurvey::VolumeDisplay>	curvol_;
     uiVisPartServer*		vispartserv_;
 
     uiSlicePos::SliceDir	getOrientation() const;

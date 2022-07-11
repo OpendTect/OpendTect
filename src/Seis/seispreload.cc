@@ -78,7 +78,8 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     if ( !tkzs.hsamp_.isDefined() && info.is2D() )
 	tkzstoload.hsamp_ = TrcKeySampling( geomid_ );
 
-    SequentialReader rdr( *ioobj, tkzstoload.isDefined() ? &tkzstoload : 0 );
+    SequentialReader rdr( *ioobj, tkzstoload.isDefined() ? &tkzstoload
+							 : nullptr );
     rdr.setName( caption.getFullString() );
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
@@ -89,9 +90,10 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     }
 
     ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
-    if ( !dp ) return false;
+    if ( !dp )
+	return false;
 
-    PLDM().add( mid_, geomid_, dp.getNonConstPtr() );
+    PLDM().add( *dp.ptr(), mid_, geomid_ );
 
     return true;
 }
@@ -117,7 +119,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	if ( !tkzs.hsamp_.isDefined() )
 	    tkzs.hsamp_ = TrcKeySampling( geomid );
 
-	SequentialReader* rdr = new SequentialReader( *ioobj, &tkzs );
+	auto* rdr = new SequentialReader( *ioobj, &tkzs );
 	rdr->setName( caption.getFullString() );
 	rdr->setScaler( scaler );
 	rdr->setDataChar( type );
@@ -134,8 +136,10 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	SequentialReader& rdr = *rdrs[idx];
 	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
 	ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
-	if ( !dp ) continue;
-	PLDM().add( mid_, loadedgeomid, dp.getNonConstPtr() );
+	if ( !dp )
+	    continue;
+
+	PLDM().add( *dp.ptr(), mid_, loadedgeomid );
     }
 
     return true;
@@ -195,7 +199,8 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     iop.get( sKey::GeomID(), geomid );
 
     SeisIOObjInfo info( mid );
-    if ( !info.isOK() ) return;
+    if ( !info.isOK() )
+	return;
 
     DataCharacteristics dc; info.getDataChar( dc );
     DataCharacteristics::UserType usertype( dc.userType() );
@@ -203,7 +208,9 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 
     BufferString scalerstr;
     iop.get( sKey::Scale(), scalerstr );
-    Scaler* scaler = !scalerstr.isEmpty() ? Scaler::get(scalerstr.buf()) : 0;
+    PtrMan<Scaler> scaler;
+    if ( !scalerstr.isEmpty() )
+	scaler = Scaler::get( scalerstr.buf() );
 
     PLDM().remove( mid, geomid );
 
@@ -222,7 +229,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	    spl.load( tkzs, usertype, scaler );
 	} break;
 	case VolPS: {
-	    Interval<int> nrrg; Interval<int>* toload = 0;
+	    Interval<int> nrrg; Interval<int>* toload = nullptr;
 	    if ( iop.get(sKey::Range(),nrrg) )
 		toload = &nrrg;
 	    spl.loadPS3D( toload );
@@ -240,12 +247,14 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 
 void PreLoader::fillPar( IOPar& iop ) const
 {
-    SeisIOObjInfo oinf( mid_ );
-    if ( !oinf.isOK() ) return;
+    const SeisIOObjInfo oinf( mid_ );
+    if ( !oinf.isOK() )
+	return;
 
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
-    auto regsdp = PLDM().get<RegularSeisDataPack>( mid_,geomid_ );
+    ConstRefMan<RegularSeisDataPack> regsdp =
+				PLDM().get<RegularSeisDataPack>( mid_,geomid_ );
     if ( regsdp )
     {
 	iop.set( sKeyUserType(), DataCharacteristics::toString(
@@ -282,10 +291,19 @@ void PreLoader::fillPar( IOPar& iop ) const
 
 
 // PreLoadDataEntry
-PreLoadDataEntry::PreLoadDataEntry( const MultiID& mid, Pos::GeomID geomid,
-				    PackID dpid )
-    : mid_(mid), geomid_(geomid), dpid_(dpid), is2d_(geomid!=-1)
+PreLoadDataEntry::PreLoadDataEntry( const DataPack& dp, const MultiID& mid,
+				    Pos::GeomID geomid )
+    : dp_(&dp)
+    , mid_(mid)
+    , geomid_(geomid)
+    , is2d_(Survey::is2DGeom(geomid))
+    , dpmgr_(DPM(DataPackMgr::SeisID()))
 {
+    if ( dpmgr_.isPresent(dp.id()) )
+	{ pErrMsg("DP should not already have been added"); }
+
+    dpmgr_.add( dp );
+
     name_ = IOM().nameOf( mid );
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     is2d_ = geom && geom->is2D();
@@ -304,33 +322,49 @@ bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
 }
 
 
+DataPack::ID PreLoadDataEntry::dpID() const
+{
+    return dp_ ? dp_->id() : DataPack::cNoID();
+}
+
+
+RefMan<DataPack> PreLoadDataEntry::getDP()
+{
+    return dp_.getNonConstPtr();
+}
+
+
+ConstRefMan<DataPack> PreLoadDataEntry::getDP() const
+{
+    return mSelf().getDP();
+}
+
+
 
 // PreLoadDataManager
 PreLoadDataManager::PreLoadDataManager()
-    : dpmgr_(DPM(DataPackMgr::SeisID()))
-    , changed(this)
+    : changed(this)
 {
+    mAttachCB( IOM().surveyToBeChanged, PreLoadDataManager::surveyChangeCB );
 }
 
 
 PreLoadDataManager::~PreLoadDataManager()
 {
+    detachAllNotifiers();
 }
 
 
-void PreLoadDataManager::add( const MultiID& mid, DataPack* dp )
-{ add( mid, -1, dp ); }
-
-
-void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
-			      DataPack* dp )
+void PreLoadDataManager::add( const DataPack& dp, const MultiID& mid )
 {
-    if ( !dp ) return;
+    add( dp, mid, -1 );
+}
 
-    dp->ref();
-    dpmgr_.add( dp );
 
-    entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
+void PreLoadDataManager::add( const DataPack& dp, const MultiID& mid,
+			      Pos::GeomID geomid )
+{
+    entries_ += new PreLoadDataEntry( dp, mid, geomid );
     changed.trigger();
 }
 
@@ -339,62 +373,65 @@ void PreLoadDataManager::remove( const MultiID& mid, Pos::GeomID geomid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	if ( entries_[idx]->equals(mid,geomid) )
-	    return remove( entries_[idx]->dpid_ );
+	const PreLoadDataEntry& entry = *entries_.get( idx );
+	if ( !entry.equals(mid,geomid) )
+	    continue;
+
+	entries_.removeSingle( idx );
+	changed.trigger();
+	return;
     }
 }
 
 
-void PreLoadDataManager::remove( PackID dpid )
+void PreLoadDataManager::remove( const DataPack::ID& dpid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	if ( entries_[idx]->dpid_ == dpid )
-	{
-	    entries_.removeSingle( idx );
-	    dpmgr_.unRef( dpid );
-	    changed.trigger();
-	    return;
-	}
+	const PreLoadDataEntry& entry = *entries_.get( idx );
+	if ( entry.dpID() != dpid )
+	    continue;
+
+	entries_.removeSingle( idx );
+	changed.trigger();
+	return;
     }
 }
 
 
-void PreLoadDataManager::removeAll()
+void PreLoadDataManager::surveyChangeCB( CallBacker* )
 {
-    while ( entries_.size() )
-    {
-	dpmgr_.unRef( entries_[0]->dpid_ );
-	entries_.removeSingle( 0 );
-    }
-
-    changed.trigger();
+    entries_.setEmpty();
 }
 
 
-RefMan<DataPack> PreLoadDataManager::getDP( const MultiID& mid,
-					    Pos::GeomID geomid )
+ConstRefMan<DataPack> PreLoadDataManager::getDP( DataPack::ID dpid ) const
 {
-    for ( auto* entry : entries_ )
-	if ( entry->equals(mid,geomid) )
-	    return getDP( entry->dpid_ );
+    for ( const auto* entry : entries_ )
+	if ( entry->dpID() == dpid )
+	    return entry->getDP();
 
     return nullptr;
 }
 
 
-ConstRefMan<DataPack> Seis::PreLoadDataManager::getDP( const MultiID& mid,
-					 Pos::GeomID geomid ) const
+ConstRefMan<DataPack> PreLoadDataManager::getDP( const MultiID& mid,
+					    Pos::GeomID geomid ) const
 {
-    return const_cast<PreLoadDataManager*>(this)->getDP( mid, geomid );
+    for ( const auto* entry : entries_ )
+	if ( entry->equals(mid,geomid) )
+	    return entry->getDP();
+
+    return nullptr;
 }
 
 
 void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
 				  BufferString& info ) const
 {
-    auto dp = getDP( mid, geomid );
-    if ( !dp ) return;
+    ConstRefMan<DataPack> dp = getDP( mid, geomid );
+    if ( !dp )
+	return;
 
     IOPar par; dp->dumpInfo( par );
     par.removeWithKey( DataPack::sKeyCategory() );
@@ -424,13 +461,15 @@ bool PreLoadDataManager::isPresent( const MultiID& mid,
 
 
 const ObjectSet<PreLoadDataEntry>& PreLoadDataManager::getEntries() const
-{ return entries_; }
+{
+    return entries_;
+}
 
 
 PreLoadDataManager& PLDM()
 {
     mDefineStaticLocalObject(PtrMan<PreLoadDataManager>,pldm,
-			     (new PreLoadDataManager));
+			     = new PreLoadDataManager() );
     return *pldm;
 }
 

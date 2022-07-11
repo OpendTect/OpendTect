@@ -70,32 +70,14 @@ static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
 Scene::Scene()
-    : tempzstretchtrans_(0)
-    , annot_(0)
-    , markerset_(0)
+    : zscale_( SI().zScale() )
+    , infopar_(*new IOPar)
+    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
     , mouseclicked(this)
     , sceneboundingboxupdated(this)
-    , mouseposval_(0)
-    , mouseposstr_("")
-    , curzstretch_( 2 )
-    , datatransform_( 0 )
-    , mousecursor_( 0 )
-    , polyselector_( 0 )
-    , coordselector_( 0 )
-    , zscale_( SI().zScale() )
-    , infopar_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
-    , ctshownusepar_( false )
-    , usepar_( false )
-    , scenecoltab_(0)
-    , topimg_( 0 )
-    , botimg_( 0 )
-    , posmodemanipdeselobjid_( -1 )
-    , spacebarwaspressed_( false )
-    , moreobjectstodo_( false )
 {
     mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
@@ -188,14 +170,14 @@ Scene::~Scene()
 {
     detachAllNotifiers();
 
-    if ( datatransform_ ) datatransform_->unRef();
+    unRefPtr( datatransform_ );
 
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx));
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	if ( vo ) vo->setSceneEventCatcher( 0 );
-	if ( so ) so->setScene( 0 );
+	if ( vo ) vo->setSceneEventCatcher( nullptr );
+	if ( so ) so->setScene( nullptr );
     }
 
     mRemoveSelector;
@@ -423,7 +405,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
 void Scene::removeObject( int idx )
 {
-    mousecursor_ = 0;
+    mousecursor_ = nullptr;
     DataObject* obj = getObject( idx );
     mDynamicCastGet(SurveyObject*,so,obj)
     if ( so )
@@ -666,6 +648,7 @@ void Scene::objectMoved( CallBacker* cb )
     }
 }
 
+
 #define mGetPosModeManipObjInfo( idx, dataobj, so, canmove ) \
 \
     const visBase::DataObject* dataobj = getObject( idx ); \
@@ -678,6 +661,7 @@ void Scene::objectMoved( CallBacker* cb )
 void Scene::selChangeCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( int, selid, cber );
+
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
@@ -808,10 +792,10 @@ void Scene::mouseCB( CallBacker* cb )
 
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
-    mouseposval_ = "";
-    mouseposstr_ = "";
+    mouseposval_.setEmpty();
+    mouseposstr_.setEmpty();
     xytmousepos_ = Coord3::udf();
-    mousetrckey_ = TrcKey::udf();
+    mousetrckey_.setUdf();
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     for ( int idx=0; idx<selectedids.size(); idx++ )
@@ -860,7 +844,7 @@ void Scene::mouseCB( CallBacker* cb )
 		    IOPar infopar;
 		    so->getMousePosInfo( eventinfo, infopar );
 		    if ( !infopar.get(sKey::TraceKey(),mousetrckey_) )
-			mousetrckey_ = TrcKey::udf();
+			mousetrckey_.setUdf();
 
 		    if ( !newstr.isEmpty() )
 			mouseposstr_ = newstr;
@@ -1188,8 +1172,10 @@ void Scene::removeAll()
     if ( idx!=-1 )
 	visBase::DataObjectGroup::removeObject( idx );
 
-    tempzstretchtrans_ = 0; inlcrlrotation_ = 0; annot_ = 0;
-    markerset_ = 0;
+    tempzstretchtrans_ = nullptr;
+    inlcrlrotation_ = nullptr;
+    annot_ = nullptr;
+    markerset_ = nullptr;
 
     mRemoveSelector;
 
@@ -1466,7 +1452,7 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 	tempzstretchtrans_->transform( p2 );
 
 	if ( mCast(bool,top) == (outerside == s3dgeom->isRightHandSystem()) )
-	    Swap( p1, p2 );
+	    std::swap( p1, p2 );
 
 	const Plane3 plane( p0, p1, p2 );
 	double t;

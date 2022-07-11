@@ -784,7 +784,7 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
-    RefMan<RegularSeisDataPack> preloadeddatapack;
+    ConstRefMan<RegularSeisDataPack> preloadeddatapack;
     if ( targetdesc )
     {
 	if ( targetdesc->isStored() && !isnla )
@@ -965,7 +965,8 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
     if ( targetdesc && targetdesc->isStored() )
     {
 	const MultiID mid( targetdesc->getStoredID() );
-	auto sdp = Seis::PLDM().get<RegularSeisDataPack>( mid );
+	ConstRefMan<RegularSeisDataPack> sdp =
+				Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
 	{
 	    const TrcKeyZSampling& seistkzs = sdp->sampling();
@@ -981,9 +982,8 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
 		uiString msg( tr("Pre-loaded data does not cover the "
 				"full requested area.\n"
 				"Please choose one of the following options:"));
-		uiLabel* lbl = new uiLabel( &dlg, msg );
-		uiButtonGroup* grp =
-		    new uiButtonGroup( &dlg, "Options", OD::Vertical );
+		auto* lbl = new uiLabel( &dlg, msg );
+		auto* grp = new uiButtonGroup( &dlg, "Options", OD::Vertical );
 		grp->attach( alignedBelow, lbl );
 		new uiCheckBox( grp, tr("Use pre-loaded data (fast)") );
 		new uiCheckBox( grp, tr("Read data from disk (slow)") );
@@ -1432,13 +1432,16 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	if ( targetdesc )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
-	    auto regsdp = Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
-	    if ( regsdp ) return regsdp->id();
+	    ConstRefMan<RegularSeisDataPack> regsdp =
+			Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
+	    if ( regsdp )
+		return regsdp->id();
 	}
     }
 
     PtrMan<EngineMan> aem = createEngMan( &tkzs, geomid );
-    if ( !aem ) return DataPack::cNoID();
+    if ( !aem )
+	return DataPack::cNoID();
 
     uiString errmsg;
     RefMan<Data2DHolder> data2d = new Data2DHolder;
@@ -1577,7 +1580,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
     for ( int idx=start; idx<stop; idx++ )
     {
 	const BufferString& nm = nms.get( idx );
-	MenuItem* itm = new MenuItem( toUiString(nm) );
+	auto* itm = new MenuItem( toUiString(nm) );
 	itm->checkable = true;
 	if ( ids && Seis::PLDM().isPresent(ids->get(idx)) )
 	    itm->iconfnm = "preloaded";
@@ -1586,7 +1589,8 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	mAddMenuItem( &mnu, itm, true, docheck );
     }
 
-    if ( checkparent ) mnu.checked = true;
+    if ( checkparent )
+	mnu.checked = true;
 }
 
 

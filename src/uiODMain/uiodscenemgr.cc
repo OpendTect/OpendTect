@@ -156,6 +156,8 @@ uiODSceneMgr::~uiODSceneMgr()
     cleanUp( false );
     delete tifs_;
     delete mdiarea_;
+    for ( auto* scene : scenes_ )
+	scene->itemmanager_->prepareForShutdown();
     deepErase( scenes_ );
     delete wingrabber_;
     delete tiletimer_;
@@ -176,7 +178,8 @@ void uiODSceneMgr::cleanUp( bool startnew )
 
     visServ().deleteAllObjects();
     vwridx_ = 0;
-    if ( startnew ) addScene(true);
+    if ( startnew )
+	addScene( true );
 }
 
 
