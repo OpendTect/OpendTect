@@ -11,12 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
+#include "prestackgather.h"
 #include "syntheticdata.h"
 
 class SeisTrcBufDataPack;
 class PropertyRef;
-
-namespace PreStack { class GatherSetDataPack; class Gather; }
 
 
 mExpClass(WellAttrib) PostStackSyntheticData : public SyntheticData

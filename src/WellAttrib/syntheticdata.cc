@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "arrayndalgo.h"
 #include "ioman.h"
-#include "prestackgather.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 
