@@ -762,6 +762,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::Both;
     vwr_.setVisible( dest, false );
     fvdp_ = new uiSSLMFlatViewDataPack();
+    fvdp_->setName( "Simple Layer Model Display BackDrop" );
     DPM( DataPackMgr::FlatID() ).add( fvdp_ );
     vwr_.setPack( dest, fvdp_->id() );
 }
@@ -1285,5 +1286,4 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     fvdp_->posData().setRange( true,
 			StepInterval<double>( 1, nrseqs<2 ? 1 : nrseqs, 1 ) );
     fvdp_->posData().setRange( false, zrg );
-    fvdp_->setName( "Simple Layer Model Display BackDrop" );
 }

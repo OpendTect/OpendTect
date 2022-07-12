@@ -11,12 +11,10 @@
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datapackbase.h"
 #include "posinfo.h"
 #include "prestackanglecomputer.h"
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
-#include "prestackgather.h"
 #include "prestackprop.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -365,7 +363,7 @@ static bool getTrcKey( const SeisPSReader& rdr, const BinID& bid, TrcKey& tk  )
 bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 			      DataPack::ID& curanglegatherid )
 {
-    if ( gatherset_.size() )
+    if ( !gatherset_.isEmpty() )
     {
 	ConstRefMan<PreStack::GatherSetDataPack> anglegsdp;
 	if ( anglegsdpid_.isValid() )
@@ -376,41 +374,35 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	ConstRefMan<PreStack::Gather> curanglegather;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
-	    const bool hasanglegather =
-		anglegsdp && anglegsdp->getGathers().validIdx( idx );
 	    const int trcnr = idx+1;
 	    //TODO full support for 2d : idx is not really my number of traces
 	    if ( (is2D() && trcnr == bid.trcNr()) ||
 		 (gatherset_[idx]->getBinID() == bid) )
 	    {
 	       curgather = gatherset_[idx];
-	       if ( hasanglegather )
-		   curanglegather = anglegsdp->getGathers()[idx];
+	       if ( anglegsdp )
+		   curanglegather = anglegsdp->getGather( idx );
 	       break;
 	    }
 	}
 
-	if ( !curgather ) return false;
+	if ( !curgather )
+	    return false;
+
 	setGatherIsAngle( const_cast<PreStack::Gather&>( *curgather ) );
-	propcalc_->setGather( *curgather );
+	propcalc_->setGather( *curgather.ptr() );
 	if ( curanglegather )
-	    propcalc_->setAngleData( *curanglegather );
+	    propcalc_->setAngleData( *curanglegather.ptr() );
     }
     else
     {
-	mDeclareAndTryAlloc( PreStack::Gather*, gather, PreStack::Gather );
-	if ( !gather )
-	    return false;
-
+	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	TrcKey tk;
 	getTrcKey( *psrdr_, bid, tk );
 	if ( !gather->readFrom(*psioobj_,*psrdr_,tk,component_) )
-	{
-	    delete gather;
 	    return false;
-	}
 
-	DPM(DataPackMgr::FlatID()).add( gather );
+	DPM( DataPackMgr::FlatID() ).add( gather );
 	setGatherIsAngle( *gather );
 	curgatherid = gather->id();
 	propcalc_->setGather( curgatherid );
@@ -439,20 +431,14 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 		continue;
 
 	    const BinID bid = currentbid_+relpos+relbid*sistep;
-	    PreStack::Gather* gather = nullptr;
+	    ConstRefMan<PreStack::Gather> gather;
 	    if ( gatherset_.isEmpty() )
 	    {
-		gather = new PreStack::Gather;
+		RefMan<PreStack::Gather> dbgather = new PreStack::Gather;
 		TrcKey tk;
 		getTrcKey( *psrdr_, bid, tk );
-		if (!gather->readFrom(*psioobj_,*psrdr_,tk,component_) )
-		{
-		    delete gather;
-		    continue;
-		}
-
-		DPM(DataPackMgr::FlatID()).add( gather );
-		gatheridstoberemoved += gather->id();
+		if ( dbgather->readFrom(*psioobj_,*psrdr_,tk,component_) )
+		    gather = dbgather;
 	    }
 	    else
 	    {
@@ -464,13 +450,13 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 			break;
 		    }
 		}
-
-		if ( !gather )
-		    continue;
 	    }
 
+	    if ( !gather )
+		continue;
+
+	    DPM( DataPackMgr::FlatID() ).add( gather );
 	    preprocessor_->setInput( relbid, gather->id() );
-	    gather = nullptr;
 	}
     }
 
@@ -479,9 +465,6 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 	errmsg_ = preprocessor_->errMsg();
 	return DataPack::ID::getInvalid();
     }
-
-    for ( int idx=0; idx<gatheridstoberemoved.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).unRef( gatheridstoberemoved[idx] );
 
     return preprocessor_->getOutput();
 }
@@ -500,7 +483,6 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 
     if ( preprocessor_ && preprocessor_->nrProcessors() )
     {
-	DPM(DataPackMgr::FlatID()).unRef( curgatherid );
 	curgatherid = getPreProcessedID( relpos );
 	propcalc_->setGather( curgatherid );
     }
@@ -512,38 +494,31 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 }
 
 
-WeakPtr<PreStack::GatherSetDataPack> PSAttrib::getMemoryGatherSetDP() const
-{
-    if ( !psid_.isInMemoryID() )
-	return nullptr;
-
-    auto psgdtp = DPM( psid_ ).observe<PreStack::GatherSetDataPack>(
-						    DataPack::getID(psid_) );
-    return psgdtp;
-}
-
-
 #define mErrRet(s1) { errmsg_ = s1; return; }
 
 void PSAttrib::prepPriorToBoundsCalc()
 {
     delete psioobj_;
 
-    auto psgdtp = getMemoryGatherSetDP();
-    bool isondisc = true;
     if ( psid_.isInMemoryID() )
     {
-	isondisc = !psgdtp;
-	if ( isondisc )
+	const DataPack::FullID fid( psid_ );
+	const DataPack::MgrID mgrid = fid.mgrID();
+	const DataPack::ID presdid = fid.packID();
+	ConstRefMan<PreStack::GatherSetDataPack> presd =
+		     DPM( mgrid ).get<PreStack::GatherSetDataPack>( presdid );
+	if ( !presd )
 	    mErrRet(tr("Cannot obtain gathers kept in memory"))
 
-	auto dp = psgdtp.get();
-	gatherset_ = dp->getGathers();
+	const int nrgathers = presd->nrGathers();
+	gatherset_.setEmpty();
+	for ( int idx=0; idx<nrgathers; idx++ )
+	    gatherset_.add( presd->getGather(idx).getNonConstPtr() );
     }
     else
     {
 	psioobj_ = IOM().get( psid_ );
-	if ( !psioobj_ && isondisc )
+	if ( !psioobj_ )
 	    mErrRet( uiStrings::phrCannotFindDBEntry( ::toUiString(psid_)) )
 
 	if ( is2D() )

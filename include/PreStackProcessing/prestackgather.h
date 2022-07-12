@@ -79,8 +79,8 @@ public:
     const BinID&		getBinID() const;
     void			setBinID(const BinID&);
     const MultiID&		getStoredID() const	{ return storagemid_; }
-    const StepInterval<float>&	zRange() const		{ return zrg_; }
-    Gather&			setZRange( const StepInterval<float>& zrg )
+    const ZSampling&		zRange() const		{ return zrg_; }
+    Gather&			setZRange( const ZSampling& zrg )
 				{ zrg_ = zrg; return *this; }
 
     int				getSeis2DTraceNr() const;
@@ -136,7 +136,7 @@ protected:
     TrcKey			tk_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
-    StepInterval<float>		zrg_;
+    ZSampling			zrg_;
 
 public:
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
@@ -179,28 +179,35 @@ public:
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
+    ConstRefMan<PreStack::Gather> getGather(int gatheridx) const;
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
     float			nrKBytes() const override	{ return 0.f; }
+    int				nrGathers() const;
+    Interval<float>		offsetRange() const;
+    float			offsetRangeStep() const;
 
-    const Gather*		getGather(const BinID&) const;
+    TrcKey			getTrcKeyByIdx(int idx) const;
+    DataPack::ID		getGatherIDByIdx(int idx) const;
+    DataPack::ID		getGatherID(const BinID&) const;
+
     const Array3D<float>&	data() const		{ return arr3d_; }
-    const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
 
     void			addGather(PreStack::Gather&);
 				//!< Gather becomes mine
     void			finalize();
 				//!< Once when all gathers have been added
+    void			setName(const char*) override;
 
-    StepInterval<float>		zRange() const;
+    ZSampling			zRange() const;
 
     static const char*		sDataPackCategory();
 
 private:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
-    ObjectSet<Gather>		gathers_;
+    RefObjectSet<Gather>	gathers_;
     Array3D<float>&		arr3d_;
 
 				mOD_DisableCopy( GatherSetDataPack );

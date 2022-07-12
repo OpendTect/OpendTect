@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uistratlaymoddisp.h"
 
+#include "datapack.h"
+
 
 mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 { mODTextTranslationClass(uiStratSimpleLayerModelDisp)
@@ -33,7 +35,7 @@ protected:
     ObjectSet<FlatView::AuxData> levelads_;
     FlatView::AuxData*	selseqad_ = nullptr;
 
-    FlatDataPack*	fvdp_;
+    RefMan<FlatDataPack> fvdp_;
     Interval<float>	zrg_;
     Interval<float>	curproprg_;
 

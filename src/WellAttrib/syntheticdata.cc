@@ -161,13 +161,13 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 	    return nullptr;
 
 	const bool iscorrected = sgp.isCorrected();
-	ObjectSet<PreStack::Gather> gatherset;
+	RefObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
 	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-	    auto* gather = new PreStack::Gather();
+	    RefMan<PreStack::Gather> gather = new PreStack::Gather();
 	    if ( !gather->setFromTrcBuf(*tbuf,0) )
-		{ delete gather; continue; }
+		continue;
 
 	    gather->setName( sgp.name_ );
 	    gather->setCorrected( iscorrected );
@@ -194,7 +194,6 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 				    SeisTrcBufDataPack& dp)
     : SyntheticData(sgp,synthdp,dp)
 {
-    DPM( groupID() ).add( datapack_ );
 }
 
 
@@ -211,10 +210,7 @@ DataPack::MgrID PostStackSyntheticData::groupID()
 
 DataPack::FullID PostStackSyntheticData::fullID() const
 {
-    DataPack::FullID fid;
-    fid.setGroupID( groupID() );
-    fid.setObjID( datapack_->id() );
-    return fid;
+    return DataPack::FullID( groupID(), datapack_->id() );
 }
 
 
@@ -231,6 +227,15 @@ const SeisTrc* PostStackSyntheticData::getTrace( int trcnr ) const
 int PostStackSyntheticData::nrPositions() const
 {
     return postStackPack().trcBuf().size();
+}
+
+
+TrcKey PostStackSyntheticData::getTrcKey( int trcnr ) const
+{
+    const SeisTrcBuf& tbuf = postStackPack().trcBuf();
+    return tbuf.validIdx( trcnr ) ? tbuf.get( trcnr )->info().trcKey()
+				  : TrcKey::udf();
+
 }
 
 
@@ -300,18 +305,12 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 					PreStack::GatherSetDataPack& dp )
     : SyntheticData(sgp,synthdp,dp)
 {
-    DPM( groupID() ).add( datapack_ );
-    auto& gathers = const_cast<ObjectSet<PreStack::Gather>&>( dp.getGathers() );
-    for ( auto* gather : gathers )
-	gather->setName( name() );
+    preStackPack().setName( name() );
 }
 
 
 PreStackSyntheticData::~PreStackSyntheticData()
 {
-    DPM( groupID() ).unRef( datapack_->id() );
-    if ( angledp_ )
-	DPM( groupID() ).unRef( angledp_->id() );
 }
 
 
@@ -323,27 +322,19 @@ DataPack::MgrID PreStackSyntheticData::groupID()
 
 DataPack::FullID PreStackSyntheticData::fullID() const
 {
-    DataPack::FullID fid;
-    fid.setGroupID( groupID() );
-    fid.setObjID( datapack_->id() );
-    return fid;
+    return DataPack::FullID( groupID(), datapack_->id() );
 }
 
 
 void PreStackSyntheticData::setName( const char* nm )
 {
     SyntheticData::setName( nm );
-    auto& gathers =
-	const_cast<ObjectSet<PreStack::Gather>&>( preStackPack().getGathers() );
-    for ( auto* gather : gathers )
-	gather->setName( nm );
-
-    const BufferString anglenm( nm, " (Angle Gather)" );
-    angledp_->setName( anglenm );
-    auto& anglegathers =
-	const_cast<ObjectSet<PreStack::Gather>&>( angledp_->getGathers() );
-    for ( auto* anglegather : anglegathers )
-	anglegather->setName( anglenm );
+    preStackPack().setName( nm );
+    if ( angledp_ )
+    {
+	const BufferString anglenm( nm, " (Angle Gather)" );
+	angledp_.getNonConstPtr()->setName( anglenm );
+    }
 }
 
 
@@ -363,13 +354,35 @@ void PreStackSyntheticData::obtainGathers()
 {
     preStackPack().obtainGathers();
     if ( angledp_ )
-	angledp_->obtainGathers();
+	angledp_.getNonConstPtr()->obtainGathers();
 }
 
 
 int PreStackSyntheticData::nrPositions() const
 {
-    return preStackPack().getGathers().size();
+    return preStackPack().nrGathers();
+}
+
+
+TrcKey PreStackSyntheticData::getTrcKey( int trcnr ) const
+{
+    return preStackPack().getTrcKeyByIdx( trcnr );
+}
+
+
+ConstRefMan<PreStack::Gather> PreStackSyntheticData::getGather( int trcnr,
+							    bool angles ) const
+{
+    return angles ? ( angledp_ ? angledp_->getGather( trcnr ) : nullptr )
+		  : preStackPack().getGather( trcnr );
+}
+
+
+DataPack::ID PreStackSyntheticData::getGatherIDByIdx( int trcnr,
+						      bool angles ) const
+{
+    ConstRefMan<PreStack::Gather> gather = getGather( trcnr, angles );
+    return gather ? gather->id() : DataPack::cNoID();
 }
 
 
@@ -389,44 +402,21 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 
 
 void PreStackSyntheticData::setAngleData(
-					const ObjectSet<PreStack::Gather>& ags )
+					const PreStack::GatherSetDataPack* ags )
 {
-    if ( angledp_ )
-	DPM( groupID() ).unRef( angledp_->id() );
+    angledp_ = ags;
+}
 
-    angledp_ = new PreStack::GatherSetDataPack( nullptr, ags );
-    const BufferString angledpnm( name().buf(), " (Angle Gather)" );
-    angledp_->setName( angledpnm );
-    for ( auto* gather : const_cast<ObjectSet<PreStack::Gather>&>(ags) )
-	gather->setName( angledpnm );
-    DPM( groupID() ).add( angledp_ );
+
+Interval<float> PreStackSyntheticData::offsetRange() const
+{
+    return preStackPack().offsetRange();
 }
 
 
 float PreStackSyntheticData::offsetRangeStep() const
 {
-    float offsetstep = mUdf(float);
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
-    if ( !gathers.isEmpty() )
-    {
-	const PreStack::Gather& gather = *gathers[0];
-	offsetstep = gather.getOffset(1)-gather.getOffset(0);
-    }
-
-    return offsetstep;
-}
-
-
-const Interval<float> PreStackSyntheticData::offsetRange() const
-{
-    Interval<float> offrg( 0, 0 );
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
-    if ( !gathers.isEmpty() )
-    {
-	const PreStack::Gather& gather = *gathers[0];
-	offrg.set(gather.getOffset(0),gather.getOffset( gather.size(true)-1));
-    }
-    return offrg;
+    return preStackPack().offsetRangeStep();
 }
 
 

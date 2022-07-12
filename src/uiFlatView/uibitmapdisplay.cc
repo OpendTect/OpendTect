@@ -176,8 +176,8 @@ Interval<float> getBitmapDataRange( bool iswva )
     bool			setupdone_;
 
     FlatView::Appearance&	appearance_;
-    ConstRefMan<FlatDataPack>	wvapack_		= nullptr;
-    ConstRefMan<FlatDataPack>	vdpack_			= nullptr;
+    ConstRefMan<FlatDataPack>	wvapack_;
+    ConstRefMan<FlatDataPack>	vdpack_;
     BitMapMgr*			wvabmpmgr_		= nullptr;
     BitMapMgr*			vdbmpmgr_		= nullptr;
     uiRGBArray*			image_;
@@ -226,7 +226,7 @@ void uiBitMapDisplay::removeDisplay()
     if ( display_ )
 	display_->wantsData().remove( mCB(this,uiBitMapDisplay,reGenerateCB) );
 
-    display_ = 0;
+    display_ = nullptr;
 }
 
 
@@ -360,7 +360,7 @@ Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
     if ( sz.width()<=0 || sz.height()<=0 )
 	return nullptr;
 
-    uiBitMapDisplayTask* dynamictask =
+    auto* dynamictask =
 	new uiBitMapDisplayTask( appearance_, *display_, true, withalpha_ );
     dynamictask->setDataPack( wvapack_.ptr(), true );
     dynamictask->setDataPack( vdpack_.ptr(), false );

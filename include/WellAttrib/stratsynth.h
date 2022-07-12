@@ -239,7 +239,7 @@ private:
 					      int lmsidx) const;
     const Seis::SynthGenDataPack* getSynthGenRes(const SynthGenParams&,
 						 int lmsidx) const;
-    const PreStack::GatherSetDataPack*	getRelevantAngleData(
+    ConstRefMan<PreStack::GatherSetDataPack>	getRelevantAngleData(
 				const Seis::SynthGenDataPack&,int lmsidx) const;
 
     int			nrLayerModels() const;

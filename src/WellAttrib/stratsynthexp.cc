@@ -194,8 +194,6 @@ int StratSynth::Exporter::writePreStackTraces()
     if ( !presd )
 	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
 
-    const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
-    const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
     if ( posdone_ >= postobedone_ )
     {
 	cursdidx_++;
@@ -203,15 +201,16 @@ int StratSynth::Exporter::writePreStackTraces()
 	return MoreToDo();
     }
 
-    if ( !gathers.validIdx(posdone_) )
+    const int nrgathers = presd->nrPositions();
+    if ( posdone_ < 0 || posdone_ >= nrgathers )
 	mErrRetPErr( "Cannot find the gather in the required position" );
 
     const PosInfo::Line2DPos& linepos = (*linepos_)[posdone_];
-    const PreStack::Gather* gather = gathers[posdone_];
+    ConstRefMan<PreStack::Gather> gather = presd->getGather( posdone_ );
     for ( int offsidx=0; offsidx<gather->size(true); offsidx++ )
     {
 	const float offset = gather->getOffset( offsidx );
-	SeisTrc trc( *gsdp.getTrace(posdone_,offsidx) );
+	SeisTrc trc( *presd->preStackPack().getTrace(posdone_,offsidx) );
 	SeisTrcInfo& trcinfo = trc.info();
 	trcinfo.setGeomID( geomid_ ).setTrcNr( linepos.nr_ ).calcCoord();
 	trcinfo.seqnr_ = posdone_+1;

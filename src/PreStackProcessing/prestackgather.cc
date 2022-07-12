@@ -514,31 +514,90 @@ GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */ )
 
 GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
 				      const ObjectSet<Gather>& gathers )
-    : DataPack( sDataPackCategory() )
-    , gathers_( gathers )
+    : DataPack(sDataPackCategory())
+    , gathers_(gathers)
     , arr3d_(*new GatherSetArray3D(gathers_))
 {
+    const OD::String& nm = name();
     for ( auto* gather : gathers_ )
-	gather->setName( name() );
+	gather->setName( nm );
 }
 
 
 GatherSetDataPack::~GatherSetDataPack()
 {
     delete &arr3d_;
-    deepUnRef( gathers_ );
 }
 
 
-const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
+void GatherSetDataPack::setName( const char* nm )
+{
+    DataPack::setName( nm );
+    for ( auto* gather : gathers_ )
+	gather->setName( nm );
+}
+
+
+int GatherSetDataPack::nrGathers() const
+{
+    return gathers_.size();
+}
+
+
+ConstRefMan<PreStack::Gather> GatherSetDataPack::getGather( int idx ) const
+{
+    return gathers_.validIdx(idx) ? gathers_.get( idx ) : nullptr;
+}
+
+
+Interval<float> GatherSetDataPack::offsetRange() const
+{
+    Interval<float> offrg( 0.f, 0.f );
+    if ( !gathers_.isEmpty() )
+    {
+        const PreStack::Gather& gather = *gathers_.first();
+        offrg.set(gather.getOffset(0),gather.getOffset( gather.size(true)-1));
+    }
+    return offrg;
+}
+
+
+float GatherSetDataPack::offsetRangeStep() const
+{
+    float offsetstep = mUdf(float);
+    if ( !gathers_.isEmpty() )
+    {
+        const PreStack::Gather& gather = *gathers_.first();
+        offsetstep = gather.getOffset(1)-gather.getOffset(0);
+    }
+
+    return offsetstep;
+}
+
+
+TrcKey GatherSetDataPack::getTrcKeyByIdx( int idx ) const
+{
+    return gathers_.validIdx(idx) ? gathers_.get( idx )->getTrcKey()
+				  : TrcKey::udf();
+}
+
+
+DataPack::ID GatherSetDataPack::getGatherIDByIdx( int idx ) const
+{
+    return gathers_.validIdx( idx ) ? gathers_.get(idx)->id()
+				    : DataPack::ID::getInvalid();
+}
+
+
+DataPack::ID GatherSetDataPack::getGatherID( const BinID& bid ) const
 {
     for ( const auto* gather : gathers_ )
     {
 	if ( gather->getBinID() == bid )
-	    return gather;
+	    return gather->id();
     }
 
-    return nullptr;
+    return DataPack::ID::getInvalid();
 }
 
 
@@ -650,12 +709,12 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
 }
 
 
-StepInterval<float> GatherSetDataPack::zRange() const
+ZSampling GatherSetDataPack::zRange() const
 {
     if ( gathers_.isEmpty() )
-	return StepInterval<float>::udf();
+	return ZSampling::udf();
 
-    StepInterval<float> zrg = gathers_[0]->zRange();
+    ZSampling zrg = gathers_[0]->zRange();
     for ( int idx=1; idx<gathers_.size(); idx++ )
 	zrg.include( gathers_[idx]->zRange(), false );
 

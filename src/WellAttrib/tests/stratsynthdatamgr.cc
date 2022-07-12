@@ -391,7 +391,8 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
     mDynamicCastGet(const PreStackSyntheticData*,presddp,presd.ptr())
     const PreStack::GatherSetDataPack& presdamps = presddp->preStackPack();
     const PreStack::GatherSetDataPack& presdangles = presddp->angleData();
-    const PreStack::Gather* lastgather = presdamps.getGathers().last();
+    ConstRefMan<PreStack::Gather> lastgather =
+				 presdamps.getGather( presdamps.nrGathers()-1 );
     int lastoffsidx = offsets.size()-1; //TODO: should be const
     const float lastoffs = offsets[lastoffsidx];
     SeisTrcInfo lastgathertrc1info, lastgathertrc2info, lastangletrcinfo;

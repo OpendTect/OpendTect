@@ -16,13 +16,12 @@ ________________________________________________________________________
 #include "prestackanglecomputer.h"
 #include "prestackprop.h"
 #include "multiid.h"
-#include "datapack.h"
+#include "prestackgather.h"
 
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class Gather;
-		     class GatherSetDataPack; class ProcessManager; }
+namespace PreStack { class ProcessManager; }
 
 
 namespace Attrib
@@ -134,11 +133,10 @@ protected:
     const DataHolder*		inputdata_;
     MultiID			velocityid_;
 
-    ObjectSet<PreStack::Gather>    gatherset_;
+    RefObjectSet<PreStack::Gather> gatherset_;
 
 private:
 
-    WeakPtr<PreStack::GatherSetDataPack>	getMemoryGatherSetDP() const;
     void			setGatherIsAngle(PreStack::Gather&);
 };
 

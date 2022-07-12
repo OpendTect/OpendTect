@@ -35,6 +35,7 @@ public:
 
     bool				isOK() const;
     virtual const SeisTrc*		getTrace(int trcnr) const	= 0;
+    virtual TrcKey			getTrcKey(int trcnr) const	= 0;
     virtual int				nrPositions() const		= 0;
     virtual ZSampling			zRange() const			= 0;
 

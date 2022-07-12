@@ -36,14 +36,14 @@ public:
 			~uiBitMapDisplay();
 
     void		update();
-    			//When inputs or settings have changed
+			//When inputs or settings have changed
 
     uiGraphicsItem*	getDisplay();
     void		removeDisplay();
 
     void		setOverlap(float v) { overlap_ = v; }
 			/*!<If overlap is more than 0, a larger dynamic image
- 			    than requested will be made. The result
+			    than requested will be made. The result
 			    is that smaller pan/zoom movements will still
 			    be covered by the dynamic image.
 			    An overlap of 1 means 1 with will be added in each
@@ -70,8 +70,8 @@ private:
     uiWorldRect			getBoundingBox(bool wva) const;
 
     FlatView::Appearance&	appearance_;
-    ConstRefMan<FlatDataPack>	wvapack_	= nullptr;
-    ConstRefMan<FlatDataPack>	vdpack_		= nullptr;
+    ConstRefMan<FlatDataPack>	wvapack_;
+    ConstRefMan<FlatDataPack>	vdpack_;
     uiWorldRect			boundingbox_;
     float			overlap_;
     int				workqueueid_;

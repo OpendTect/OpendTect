@@ -1762,12 +1762,12 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 	sd = SyntheticData::get( sgp, *synthgen.ptr() );
 	if ( sd && sd->isPS() )
 	{
-	    const PreStack::GatherSetDataPack* anglegather =
-			getRelevantAngleData( sd->synthGenDP(), lmsidx );
+	    ConstRefMan<PreStack::GatherSetDataPack> anglegather =
+			    getRelevantAngleData( sd->synthGenDP(), lmsidx );
 	    mDynamicCastGet(const PreStackSyntheticData*,presdc,sd.ptr());
 	    auto* presd = const_cast<PreStackSyntheticData*>( presdc );
 	    if ( anglegather )
-		presd->setAngleData( anglegather->getGathers() );
+		presd->setAngleData( anglegather.ptr() );
 	    else
 		createAngleData( *presd, taskrun );
 	}
@@ -1864,14 +1864,12 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
 				TaskRunner* taskrunner ) const
 {
     const bool isanglestack = sgp.synthtype_ == SynthGenParams::AngleStack;
-    const PreStack::GatherSetDataPack& gatherdp = presd.preStackPack();
-    const ObjectSet<PreStack::Gather>& gatherset = gatherdp.getGathers();
-    if ( gatherset.isEmpty() )
+    const int nrgathers = presd.nrPositions();
+    if ( nrgathers < 1 || !presd.hasAngles() )
 	return nullptr;
 
     const PreStack::GatherSetDataPack& angledp = presd.angleData();
-    const ObjectSet<PreStack::Gather>& anglesset = angledp.getGathers();
-    if ( anglesset.size() != gatherset.size() )
+    if ( angledp.nrGathers() != nrgathers )
 	return nullptr;
 
     PreStack::PropCalc::Setup calcsetup;
@@ -1891,20 +1889,25 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
 
     //TODO: parallel
     PreStack::PropCalc pspropcalc( calcsetup );
-    auto* tbuf = new SeisTrcBuf( true );
-    const ZSampling zrg = gatherdp.zRange();
+    PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
+    const ZSampling zrg = presd.zRange();
     const int nrsamples = zrg.nrSteps() + 1;
     const SamplingData<float> tsampling( zrg );
-    for ( int igath=0; igath<gatherset.size(); igath++ )
+    ConstRefMan<PreStack::Gather> amplgather, anglegather;
+    for ( int igath=0; igath<nrgathers; igath++ )
     {
-	const PreStack::Gather& amplgather = *gatherset.get( igath );
-	pspropcalc.setGather( amplgather );
-	pspropcalc.setAngleData( *anglesset.get(igath) );
+	amplgather = presd.getGather( igath );
+	anglegather = presd.getGather( igath, true );
+	if ( !amplgather || !anglegather )
+	    return nullptr;
+
+	pspropcalc.setGather( *amplgather.ptr() );
+	pspropcalc.setAngleData( *anglegather.ptr() );
 
 	auto* trc = new SeisTrc( nrsamples );
 	SeisTrcInfo& ti = trc->info();
 	ti.sampling = tsampling;
-	ti.setTrcKey( amplgather.getTrcKey() );
+	ti.setTrcKey( amplgather->getTrcKey() );
 	for ( int isamp=0; isamp<nrsamples; isamp++ )
 	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );
 	tbuf->add( trc );
@@ -1913,7 +1916,8 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
     /*TODO: add wavelet reshaping: on stack for isanglestack,
 		on a copy of prestack input for AVO Gradient */
 
-    auto* retdp = new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr,
+    auto* retdp = new SeisTrcBufDataPack( tbuf.release(), Seis::Line,
+				SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
 
     ConstRefMan<SyntheticData> ret;
@@ -2428,7 +2432,8 @@ const Seis::SynthGenDataPack* StratSynth::DataMgr::getSynthGenRes(
 }
 
 
-const PreStack::GatherSetDataPack* StratSynth::DataMgr::getRelevantAngleData(
+ConstRefMan<PreStack::GatherSetDataPack>
+StratSynth::DataMgr::getRelevantAngleData(
 		    const Seis::SynthGenDataPack& synthgendp, int lmsidx ) const
 {
     const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
@@ -2462,6 +2467,9 @@ AttributeSyntheticCreator( const PostStackSyntheticData& sd,
     , sd_(sd)
     , attribdefs_(attribdefs)
 {
+    const DataPack::FullID fid = sd.fullID();
+    if ( !DPM( fid.mgrID() ).isPresent(fid.packID()) )
+	DPM( fid.mgrID() ).add<DataPack>( sd.getPack() );
 }
 
 
@@ -2742,19 +2750,19 @@ public:
 PSAngleDataCreator( PreStackSyntheticData& pssd )
     : ::ParallelTask("Creating Angle Gather" )
     , pssd_(pssd)
-    , seisgathers_(const_cast<const ObjectSet<PreStack::Gather>&>(
-			pssd.preStackPack().getGathers()))
     , refmodels_(const_cast<const ReflectivityModelSet&>(
 			pssd.synthGenDP().getModels()))
 {
     totalnr_ = refmodels_.nrModels();
+    const int nrgathers = pssd.nrPositions();
+    for ( int idx=0; idx<nrgathers; idx++ )
+	seisgathers_.add( pssd.getGather(idx) );
 }
 
 
 ~PSAngleDataCreator()
 {
     deepErase( anglecomputers_ );
-    deleteGatherSets();
 }
 
 uiString uiMessage() const override
@@ -2773,14 +2781,6 @@ od_int64 nrIterations() const override
 { return totalnr_; }
 
 
-void deleteGatherSets()
-{
-    for ( auto* gathersset : anglegathers_ )
-	deepErase( *gathersset );
-    deepErase( anglegathers_ );
-}
-
-
 bool doPrepare( int nrthreads ) override
 {
     msg_ =  tr("Calculating Angle Gathers");
@@ -2789,14 +2789,14 @@ bool doPrepare( int nrthreads ) override
 	return false;
 
     deepErase( anglecomputers_ );
-    deleteGatherSets();
+    anglegathers_.setEmpty();
     for ( int ithread=0; ithread<nrthreads; ithread++ )
     {
 	auto* anglecomputer = new PreStack::ModelBasedAngleComputer;
 	anglecomputer->setRayTracerPars( pssd_.getGenParams().raypars_ );
 	anglecomputer->setFFTSmoother( 10.f, 15.f );
 	anglecomputers_.add( anglecomputer );
-	anglegathers_.add( new ObjectSet<PreStack::Gather> );
+	anglegathers_.add( new RefObjectSet<PreStack::Gather> );
     }
 
     return true;
@@ -2827,11 +2827,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	anglecomputer.setOutputSampling( seisgather.posData() );
 	anglecomputer.setGatherIsNMOCorrected( seisgather.isCorrected() );
 	anglecomputer.setRefModel( *offrefmodel, seisgather.getTrcKey() );
-	PreStack::Gather* anglegather = anglecomputer.computeAngles();
+	RefMan<PreStack::Gather> anglegather = anglecomputer.computeAngles();
 	if ( !anglegather )
 	    return false;
 
-	convertAngleDataToDegrees( *anglegather );
+	convertAngleDataToDegrees( *anglegather.ptr() );
 	TypeSet<float> azimuths;
 	seisgather.getAzimuths( azimuths );
 	anglegather->setAzimuths( azimuths );
@@ -2847,18 +2847,22 @@ bool doFinish( bool success ) override
     deepErase( anglecomputers_ );
     if ( success )
     {
-	ObjectSet<PreStack::Gather> anglegathers;
+	RefObjectSet<PreStack::Gather> anglegathers;
 	for ( auto* gathersset : anglegathers_ )
 	{
 	    anglegathers.append( *gathersset );
 	    gathersset->setEmpty();
 	}
 
-	deepErase( anglegathers_ );
-	pssd_.setAngleData( anglegathers );
+	RefMan<PreStack::GatherSetDataPack> angledp =
+		    new PreStack::GatherSetDataPack( nullptr, anglegathers );
+	const BufferString angledpnm( pssd_.name().buf(), " (Angle Gather)" );
+	angledp->setName( angledpnm );
+
+	pssd_.setAngleData( angledp.ptr() );
     }
-    else
-	deleteGatherSets();
+
+    anglegathers_.setEmpty();
 
     return success;
 }
@@ -2872,9 +2876,9 @@ static void convertAngleDataToDegrees( PreStack::Gather& ag )
 }
 
     PreStackSyntheticData&		pssd_;
-    const ObjectSet<PreStack::Gather>&	seisgathers_;
+    RefObjectSet<const PreStack::Gather> seisgathers_;
     const ReflectivityModelSet&		refmodels_;
-    ObjectSet<ObjectSet<PreStack::Gather> >	anglegathers_;
+    ManagedObjectSet<RefObjectSet<PreStack::Gather> > anglegathers_;
     ObjectSet<PreStack::ModelBasedAngleComputer> anglecomputers_;
     uiString				msg_;
     od_int64				totalnr_;

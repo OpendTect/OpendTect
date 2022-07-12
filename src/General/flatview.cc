@@ -475,13 +475,9 @@ FlatView::Viewer::~Viewer()
     delete defapp_;
     delete cbrcvr_;
 
-    if ( datatransform_ )
-	datatransform_->unRef();
-
+    unRefPtr( datatransform_ );
     for ( int idx=0; idx<ids_.size(); idx++ )
-    {
 	dpm_.unRef( ids_[idx] );
-    }
 
     delete zdinfo_;
 }
@@ -489,12 +485,9 @@ FlatView::Viewer::~Viewer()
 
 bool FlatView::Viewer::setZAxisTransform( ZAxisTransform* zat )
 {
-    if ( datatransform_ )
-	datatransform_->unRef();
-
+    unRefPtr( datatransform_ );
     datatransform_ = zat;
-    if ( datatransform_ )
-	datatransform_->ref();
+    refPtr( datatransform_ );
 
     return true;
 }

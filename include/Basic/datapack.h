@@ -198,7 +198,7 @@ public:
     bool		ref(PackID);
 			//Convenience. Will ref if it is found
     bool		unRef(PackID);
-			//Convenience. Will ref if it is found
+			//Convenience. Will unref if it is found
 
     Notifier<DataPackMgr> newPack;		//!< Passed CallBacker* = Pack
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack

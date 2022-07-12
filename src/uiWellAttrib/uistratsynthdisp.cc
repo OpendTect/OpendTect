@@ -964,7 +964,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 	}
     }
 
-    ConstPtrMan<FlatDataPack> pack2use;
+    ConstRefMan<FlatDataPack> pack2use;
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     const int lmsidx = datamgr_.layerModelSuite().curIdx();
     int curoffsidx = -1;
@@ -1014,7 +1014,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     }
 
     const bool hadpack = selfld.packID().isValid() &&
-					    selfld.packID()!=DataPack::cNoID();
+			 selfld.packID() != DataPack::cNoID();
     selfld.datapackid_ = newpackid;
     if ( dest == FlatView::Viewer::Both )
 	vdselfld_->datapackid_ = newpackid;
@@ -1022,7 +1022,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     if ( newpackid != DataPack::cNoID() )
     {
 	if ( !dpm.isPresent(newpackid) )
-	    dpm.add( const_cast<FlatDataPack*>( pack2use.ptr() ) );
+	    dpm.add<FlatDataPack>( pack2use.ptr() );
 	if ( !vwr_->isAvailable(newpackid) )
 	    vwr_->addPack( newpackid );
 
@@ -1032,8 +1032,6 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     const bool updateview = vwr_->enableChange( false );
     vwr_->usePack( dest, newpackid, !hadpack );
     ctyp = Math::SetBits( ctyp, FlatView::Viewer::BitmapData, true );
-
-    pack2use->unRef();
 
     if ( control_ && sd )
     {
@@ -1233,27 +1231,22 @@ void uiStratSynthDisp::setPSVwrData()
     psvwrwin_->removeGathers();
     const_cast<PreStackSyntheticData*>( presd )->obtainGathers();
 
-    const ObjectSet<PreStack::Gather>& gathers =
-				       presd->preStackPack().getGathers();
-    const ObjectSet<PreStack::Gather>& anglegathers =
-				       presd->angleData().getGathers();
     TypeSet<PreStackView::GatherInfo> gatherinfos;
 
-    const int dispeachgather = gathers.size()/8 + 1;
-    for ( int idx=0; idx<gathers.size(); idx++ )
+    const int nrgathers = presd->nrPositions();
+    const int dispeachgather = nrgathers/8 + 1;
+    for ( int idx=0; idx<nrgathers; idx++ )
     {
-	const auto& gather = *gathers[idx];
-	const auto& anglegather = *anglegathers[idx];
 	gatherinfos += PreStackView::GatherInfo();
 	PreStackView::GatherInfo& newgi = gatherinfos.last();
 
 	newgi.isstored_ = false;
 	newgi.gathernm_ = sd->name();
-	newgi.bid_ = gather.getBinID();
-	newgi.wvadpid_ = gather.id();
-	newgi.vddpid_ = anglegather.id();
+	newgi.bid_ = presd->getTrcKey( idx ).binID();
+	newgi.wvadpid_ = presd->getGatherIDByIdx( idx, false );
+	newgi.vddpid_ = presd->getGatherIDByIdx( idx, true );
 
-	newgi.isselected_ = idx%dispeachgather==0 || idx == gathers.size()-1;
+	newgi.isselected_ = idx%dispeachgather==0 || idx == nrgathers-1;
     }
 
     psvwrwin_->setGathers( gatherinfos );
@@ -1810,15 +1803,10 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
 	{
 	    PreStackView::GatherInfo newginfo = ginfo;
 	    newginfo.gathernm_ = sd->name();
-	    const PreStack::Gather* gather = seisgdp.getGather( newginfo.bid_ );
-	    const PreStack::Gather* anglegather =
-					anglegdp.getGather( newginfo.bid_ );
-	    if ( !gather || !anglegather )
-		continue;
-
-	    newginfo.wvadpid_ = gather->id();
-	    newginfo.vddpid_ = anglegather->id();
-	    newginfos.addIfNew( newginfo );
+	    newginfo.wvadpid_ = seisgdp.getGatherID( newginfo.bid_ );
+	    newginfo.vddpid_ = anglegdp.getGatherID( newginfo.bid_ );
+	    if ( newginfo.wvadpid_.isValid() && newginfo.vddpid_.isValid() )
+		newginfos.addIfNew( newginfo );
 	}
     }
 

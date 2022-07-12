@@ -35,6 +35,7 @@ public:
 
     const SeisTrc*		getTrace(int trcnr) const override;
     int				nrPositions() const override;
+    TrcKey			getTrcKey(int trcnr) const override;
     ZSampling			zRange() const override;
 
     const SeisTrcBufDataPack&	postStackPack() const;
@@ -162,15 +163,18 @@ public:
     bool				isPS() const override  { return true; }
     bool				isNMOCorrected() const;
     bool				hasOffset() const override;
-    const Interval<float>		offsetRange() const;
+    Interval<float>			offsetRange() const;
     float				offsetRangeStep() const;
     SynthGenParams::SynthType		synthType() const override
 					{ return SynthGenParams::PreStack; }
     int					nrPositions() const override;
+    TrcKey				getTrcKey(int trcnr) const override;
+    DataPack::ID			getGatherIDByIdx(int trcnr,
+						      bool angles=false) const;
     ZSampling				zRange() const override;
 
     void				setAngleData(
-					    const ObjectSet<PreStack::Gather>&);
+					    const PreStack::GatherSetDataPack*);
     const SeisTrc*			getTrace(int trcnr) const override
 					{ return getTrace(trcnr,nullptr); }
     const SeisTrc*			getTrace(int trcnr,int* offset) const;
@@ -181,9 +185,12 @@ public:
     PreStack::GatherSetDataPack&	preStackPack();
     const PreStack::GatherSetDataPack&	preStackPack() const;
     const PreStack::GatherSetDataPack&	angleData() const { return *angledp_; }
+    bool			hasAngles() const	{ return angledp_; }
     void			obtainGathers();
 				/*!< Make all gathers available in the
 				     FlatDataPack Mgr */
+
+    ConstRefMan<PreStack::Gather> getGather(int trcnr,bool angles=false) const;
 
     const FlatDataPack*		getTrcDP() const override
 				{ return getTrcDPAtOffset(0); }
@@ -196,7 +203,7 @@ public:
 
 private:
 
-    PreStack::GatherSetDataPack*	angledp_ = nullptr;
+    ConstRefMan<PreStack::GatherSetDataPack> angledp_;
     void				convertAngleDataToDegrees(
 						PreStack::Gather&) const;
     static DataPack::MgrID		groupID();
