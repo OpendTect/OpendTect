@@ -330,6 +330,17 @@ OD::JSON::ValueSet::ValueType OD::JSON::ValueSet::valueType(
 }
 
 
+const BufferString& OD::JSON::ValueSet::key( idx_type idx ) const
+{
+    const Value* val = values_[idx];
+    if ( !val->isKeyed() )
+	return BufferString::empty();
+
+    const KeyedValue& kydval = *static_cast<const KeyedValue*>( val );
+    return kydval.key_;
+}
+
+
 OD::JSON::ValueSet* OD::JSON::ValueSet::top()
 {
     return parent_ ? parent_->top() : this;

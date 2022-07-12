@@ -52,9 +52,13 @@ int mTestMainFnName( int argc, char** argv )
     std::cerr << "Time Taken to read qhash: " << ctr.elapsed() << std::endl;
 
     OD::JSON::Object jsonobj;
-    copy.toJSON( jsonobj );
+    par.fillJSON( jsonobj,false );
     od_ostream strm( "/tmp/jsontest.json" );
     jsonobj.write( strm );
+
+    IOPar fromjson;
+    fromjson.useJSON( jsonobj );
+    fromjson.write( "/tmp/fromjson.par", "par" );
  
     return 0;
 }

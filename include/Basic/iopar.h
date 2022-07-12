@@ -86,9 +86,9 @@ public:
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
-    void		fillJSON(OD::JSON::Object& obj) const;
-			//!< only save the top level objects
-    bool		toJSON(OD::JSON::Object& obj) const;
+    void		fillJSON(OD::JSON::Object& obj,bool simple=true) const;
+			//!< if simple, only save the top level objects
+    bool		useJSON(const OD::JSON::Object& obj);
 
     void		remove(int);
     void		removeWithKey(const char* key);

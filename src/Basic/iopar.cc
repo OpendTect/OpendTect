@@ -1404,41 +1404,6 @@ bool IOPar::read( od_istream& strm, const char* typ, bool chktyp )
 }
 
 
-bool IOPar::toJSON( OD::JSON::Object& jsonobj ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	BufferString key = getKey( idx );
-	char* dotptr = key.find( '.' );
-	if ( !dotptr )
-	{
-	    jsonobj.set( key, getValue(idx) );
-	    continue;
-	}
-
-	*dotptr = '\0';
-	PtrMan<IOPar> subpar = subselect( key );
-	if ( !subpar || !subpar->size() )
-	{
-	    jsonobj.set( getKey(idx), getValue(idx) );
-	    continue;
-	}
-
-	auto* subobj = new OD::JSON::Object;
-	subpar->toJSON( *subobj );
-	jsonobj.set( key, subobj );
-	key.add( "." );
-	idx++;
-	while ( idx<size() && getKey(idx).startsWith(key) )
-	    idx++;
-
-	idx--;
-    }
-
-    return true;
-}
-
-
 bool IOPar::write( const char* fnm, const char* typ ) const
 {
     od_ostream strm( fnm );
@@ -1550,13 +1515,77 @@ int IOPar::odVersion() const
 { return 100*majorversion_ + 10*minorversion_ + patchVersion(); }
 
 
-void IOPar::fillJSON( OD::JSON::Object& obj ) const
+void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 {
+    if ( simple )
+    {
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    auto key = getKey( idx );
+	    auto val = getValue( idx );
+
+	    jsonobj.set( key, val );
+	}
+
+	return;
+    }
+
     for ( int idx=0; idx<size(); idx++ )
     {
-	auto key = getKey( idx );
-	auto val = getValue( idx );
+	BufferString key = getKey( idx );
+	char* dotptr = key.find( '.' );
+	if ( !dotptr )
+	{
+	    jsonobj.set( key, getValue(idx) );
+	    continue;
+	}
 
-	obj.set( key, val );
+	*dotptr = '\0';
+	PtrMan<IOPar> subpar = subselect( key );
+	if ( !subpar || !subpar->size() )
+	{
+	    jsonobj.set( getKey(idx), getValue(idx) );
+	    continue;
+	}
+
+	auto* subobj = new OD::JSON::Object;
+	subpar->fillJSON( *subobj, false );
+	jsonobj.set( key, subobj );
+	key.add( "." );
+	idx++;
+	while ( idx<size() && getKey(idx).startsWith(key) )
+	    idx++;
+
+	idx--;
     }
+}
+
+
+bool IOPar::useJSON( const OD::JSON::Object& jsonobj )
+{
+    for ( int idx=0; idx<jsonobj.size(); idx++ )
+    {
+	const BufferString& key = jsonobj.key( idx );
+	const OD::JSON::ValueSet::ValueType valtype = jsonobj.valueType( idx );
+	if ( valtype == OD::JSON::ValueSet::Data )
+	{
+	    if ( !key.isEmpty() )
+		set( key, jsonobj.getStringValue(idx) );
+
+	    continue;
+	}
+
+	if ( valtype == OD::JSON::ValueSet::SubArray )
+	{
+	    pErrMsg("Json Array elements cannot be transferred to IOPar");
+	    continue;
+	}
+
+	const OD::JSON::Object& subobj = jsonobj.object( idx );
+	IOPar subpar;
+	if ( subpar.useJSON(subobj) )
+	    mergeComp( subpar, key );
+    }
+
+    return !isEmpty();
 }
