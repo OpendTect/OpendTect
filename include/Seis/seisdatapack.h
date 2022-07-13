@@ -30,8 +30,7 @@ mExpClass(Seis) RegularSeisDataPack : public SeisDataPack
 {
 public:
 				RegularSeisDataPack(const char* cat,
-						    const BinDataDesc* bdd=0);
-				~RegularSeisDataPack();
+						   const BinDataDesc* =nullptr);
 
     RegularSeisDataPack*	clone() const;
     RegularSeisDataPack*	getSimilar() const;
@@ -76,6 +75,7 @@ public:
     void			fillTraceData(const TrcKey&,TraceData&) const;
 
 protected:
+				~RegularSeisDataPack();
 
     TrcKeyZSampling		sampling_;
     PosInfo::CubeData*		rgldpckposinfo_;
@@ -90,7 +90,7 @@ mExpClass(Seis) RandomSeisDataPack : public SeisDataPack
 {
 public:
 				RandomSeisDataPack(const char* cat,
-						   const BinDataDesc* bdd=0);
+						   const BinDataDesc* =nullptr);
 
     bool			is2D() const override	{ return false; }
     int				nrTrcs() const override { return path_.size(); }
@@ -112,6 +112,7 @@ public:
 						   const Interval<float>& zrg);
 
 protected:
+				~RandomSeisDataPack();
 
     TrcKeyPath			path_;
     ZSampling			zsamp_;
@@ -142,16 +143,13 @@ public:
 mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
-				~SeisFlatDataPack();
 
-    int				nrTrcs() const
-				{ return source_.nrTrcs(); }
-    TrcKey			getTrcKey( int trcidx ) const
-				{ return source_.getTrcKey(trcidx); }
-    const SeisDataPack&		getSourceDataPack() const
-				{ return source_; }
-    bool			is2D() const
-				{ return source_.is2D(); }
+    int				nrTrcs() const;
+    TrcKey			getTrcKey(int trcidx) const;
+    DataPack::ID		getSourceID() const;
+    int				getSourceGlobalIdx(const TrcKey&) const;
+
+    bool			is2D() const;
 
     virtual bool		isVertical() const			= 0;
     virtual const TrcKeyPath&	getPath() const				= 0;
@@ -166,16 +164,15 @@ public:
     double			getAltDim0Value(int ikey,int i0) const override;
     void			getAuxInfo(int i0,int i1,IOPar&) const override;
 
-    const Scaler*		getScaler() const
-				{ return source_.getScaler(); }
-    const ZDomain::Info&	zDomain() const
-				{ return source_.zDomain(); }
+    const Scaler*		getScaler() const;
+    const ZDomain::Info&	zDomain() const;
     float			nrKBytes() const override;
     RandomLineID		getRandomLineID() const;
 
 protected:
 
 				SeisFlatDataPack(const SeisDataPack&,int comp);
+				~SeisFlatDataPack();
 
     virtual void		setSourceData()				= 0;
     virtual void		setTrcInfoFlds()			= 0;
@@ -184,7 +181,7 @@ protected:
 				 as X1 and X2 posData. Assumes getPath() is
 				 not empty. */
 
-    const SeisDataPack&		source_;
+    ConstRefMan<SeisDataPack>	source_;
     int				comp_;
     const StepInterval<float>	zsamp_;
 
@@ -215,6 +212,7 @@ public:
     const char*			dimName(bool dim0) const override;
 
 protected:
+				~RegularFlatDataPack();
 
     void			setSourceDataFromMultiCubes();
     void			setSourceData() override;
@@ -239,6 +237,7 @@ public:
 						   int component);
 
     bool			isVertical() const override	{ return true; }
+    int				getNearestGlobalIdx(const TrcKey&) const;
     const TrcKeyPath&		getPath() const override   { return path_; }
     Coord3			getCoord(int i0,int i1) const override;
     float			getPosDistance(bool dim0,
@@ -248,6 +247,7 @@ public:
 				{ return dim0 ? "Distance" : "Z"; }
 
 protected:
+				~RandomFlatDataPack();
 
     void			setSourceData() override;
     void			setRegularizedPosData();

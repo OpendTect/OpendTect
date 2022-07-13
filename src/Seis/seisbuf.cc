@@ -592,11 +592,16 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
 {
     const bool bufisours =
 		b.arr2d_ && ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
-    SeisTrcBuf* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
+    auto* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
     if ( buf && bufisours )
 	buf = buf->clone();
     setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
     setName( b.name() );
+}
+
+
+SeisTrcBufDataPack::~SeisTrcBufDataPack()
+{
 }
 
 
@@ -605,7 +610,7 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 {
     Threads::Locker lckr( updateLock() );
 
-    delete arr2d_; arr2d_ = 0;
+    deleteAndZeroPtr( arr2d_ );
     posfld_ = fld;
     gt_ = gt;
     const int tbufsz = tbuf ? tbuf->size() : 0;
@@ -728,15 +733,15 @@ SeisBufReader::SeisBufReader( SeisTrcReader& rdr, SeisTrcBuf& buf )
 
 int SeisBufReader::nextStep()
 {
-    SeisTrc* newtrc = new SeisTrc;
+    auto* newtrc = new SeisTrc;
 
     int res = rdr_.get( newtrc->info() );
-    if ( res > 1 ) return Executor::MoreToDo();
-    if ( res == 0 ) return Executor::Finished();
+    if ( res > 1 ) return MoreToDo();
+    if ( res == 0 ) return Finished();
 
     if ( res<0 || !rdr_.get(*newtrc) )
-    { msg_ = rdr_.errMsg(); return Executor::ErrorOccurred(); }
+    { msg_ = rdr_.errMsg(); return ErrorOccurred(); }
 
     buf_.add( newtrc );
-    return Executor::MoreToDo();
+    return MoreToDo();
 }

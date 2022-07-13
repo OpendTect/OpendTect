@@ -428,10 +428,19 @@ uiEditSampledProbDenFunc2DDataPack( Array2D<float>* a2d,
 {
     setName( "Probability" );
 }
+
 const char* dimName( bool dim0 ) const
 {
     return pdf_.dimName( dim0 ? 0 : 1 );
 }
+
+protected:
+
+~uiEditSampledProbDenFunc2DDataPack()
+{
+}
+
+private:
 
     const ProbDenFunc&	pdf_;
 };
@@ -523,7 +532,9 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 		arr2d->set( idxs[0], idxs[1], data.getND(idxs) );
 	    }
 	}
-	FlatDataPack* dp = new uiEditSampledProbDenFunc2DDataPack(arr2d, pdf_);
+
+	RefMan<FlatDataPack> dp =
+			new uiEditSampledProbDenFunc2DDataPack( arr2d, pdf_ );
 
 	SamplingData<float> sd( andpdf->sampling(0) );
 	StepInterval<double> rg( sd.start,

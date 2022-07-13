@@ -220,8 +220,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     mSetCommState(Working);
 
-    ObjectSet<Gather> gathers;
-    gathers.allowNull( true );
+    RefObjectSet<Gather> gathers;
+    gathers.setNullAllowed();
     TypeSet<BinID> bids;
 
     while ( true )
@@ -254,7 +254,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	const BinID stepout = procman->getInputStepout();
 
 	int nrfound = 0;
-	Gather* sparegather = nullptr;
+	RefMan<Gather> sparegather;
 	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 					   relbid.inl()++ )
 	{
@@ -267,7 +267,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		const BinID inputbid( curbid.inl()+relbid.inl()*step.inl(),
 				      curbid.crl()+relbid.crl()*step.crl() );
 
-		Gather* gather = nullptr;
+		RefMan<Gather> gather;
 		const int bufidx = bids.indexOf( inputbid );
 		if ( bufidx!=-1 )
 		{
@@ -315,7 +315,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    }
 	}
 
-	delete sparegather;
+	sparegather = nullptr;
 
 	if ( !needpsinput )
 	    procman->getProcessor(0)->retainCurBID( curbid );
@@ -380,8 +380,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		    if ( bids[idx].inl()<=obsoleteline )
 		    {
 			bids.removeSingle( idx );
-			DPM( DataPackMgr::FlatID() ).unRef(
-					    gathers.removeSingle(idx)->id() );
+			gathers.removeSingle( idx );
 		    }
 		}
 	    }
@@ -398,8 +397,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		if ( bids[idx].crl()<=obsoletetrace )
 		{
 		    bids.removeSingle( idx );
-		    DPM( DataPackMgr::FlatID() ).unRef(
-					    gathers.removeSingle(idx)->id() );
+		    gathers.removeSingle( idx );
 		}
 	    }
 	}
@@ -411,7 +409,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     mMessage( "Threads closed; Writing finish status" );
 
-    deepUnRef( gathers );
+    gathers.setEmpty();
 
     if ( !comm_ )
     {

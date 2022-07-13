@@ -37,7 +37,6 @@ public:
 				Gather();
 				Gather(const Gather&);
 				Gather(const FlatPosData&);
-				~Gather();
 
     bool			is3D() const { return tk_.is3D(); }
     bool			is2D() const { return tk_.is2D(); }
@@ -125,6 +124,7 @@ public:
 				{ azimuths_ = azimuths; }
 
 protected:
+				~Gather();
 
     MultiID			velocitymid_;
     MultiID			storagemid_;
@@ -173,8 +173,6 @@ public:
 				GatherSetDataPack(const char* ctgery);
 				GatherSetDataPack(const char* ctgery,
 						  const ObjectSet<Gather>&);
-				//!< Gathers becomes mine
-				~GatherSetDataPack();
 
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
@@ -203,6 +201,10 @@ public:
     ZSampling			zRange() const;
 
     static const char*		sDataPackCategory();
+
+protected:
+
+				~GatherSetDataPack();
 
 private:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;

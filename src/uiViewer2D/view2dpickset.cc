@@ -274,8 +274,7 @@ void VW2DPickSet::drawAll()
 			if ( pl.geomID()!=geomid )
 			    continue;
 
-			trcidx = regfdp->getSourceDataPack().getGlobalIdx(
-				pl.trcKey() );
+			trcidx = regfdp->getSourceGlobalIdx( pl.trcKey() );
 		    }
 		    else
 		    {

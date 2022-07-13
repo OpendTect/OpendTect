@@ -751,6 +751,12 @@ uiSSLMFlatViewDataPack()
 const char* dimName( bool dim0 ) const
 { return dim0 ? "Model Nr" : "Depth"; }
 
+protected:
+
+~uiSSLMFlatViewDataPack()
+{
+}
+
 };
 
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(

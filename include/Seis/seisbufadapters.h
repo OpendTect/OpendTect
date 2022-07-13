@@ -98,6 +98,7 @@ public:
 			{ return trcBufArr2D().trcBuf(); }
 
 protected:
+			~SeisTrcBufDataPack();
 
     Seis::GeomType		gt_;
     SeisTrcInfo::Fld		posfld_;

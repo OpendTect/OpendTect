@@ -217,16 +217,12 @@ DataPack::ID PreStackDisplay::preProcess()
 		tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr );
 	    }
 
-	    auto* gather = new PreStack::Gather;
+	    RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	    if ( !gather->readFrom(*ioobj_,*reader_,tk) )
-	    {
-		delete gather;
 		continue;
-	    }
 
 	    DPM( DataPackMgr::FlatID() ).add( gather );
 	    preprocmgr_.setInput( relbid, gather->id() );
-	    DPM( DataPackMgr::FlatID() ).unRef( gather->id() );
 	}
     }
 
@@ -254,7 +250,7 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 
     bid_ = tk.position();
 
-    PtrMan<PreStack::Gather> gather = new PreStack::Gather;
+    RefMan<PreStack::Gather> gather = new PreStack::Gather;
     if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
     {
 	mDefineStaticLocalObject( bool, shown3d, = false );
@@ -311,52 +307,47 @@ bool PreStackDisplay::updateData()
     }
 
     const bool haddata = flatviewer_->hasPack( false );
-    auto* gather = new PreStack::Gather;
+    RefMan<PreStack::Gather> gather = new PreStack::Gather;
 
-	DataPack::ID displayid = DataPack::cNoID();
-	if ( preprocmgr_.nrProcessors() )
-	{
-	    displayid = preProcess();
-	    delete gather;
-	}
+    DataPack::ID displayid = DataPack::cNoID();
+    if ( preprocmgr_.nrProcessors() )
+	displayid = preProcess();
+    else
+    {
+	TrcKey tk;
+	if ( is3DSeis() )
+	    tk.setPosition( bid_ );
 	else
+	    tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
+
+	if ( gather->readFrom(*ioobj_,*reader_,tk) )
 	{
-	    TrcKey tk;
-	    if ( is3DSeis() )
-		tk.setPosition( bid_ );
-	    else
-		tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
-
-	    if ( gather->readFrom(*ioobj_,*reader_,tk) )
-	    {
-		DPM(DataPackMgr::FlatID()).add( gather );
-		displayid = gather->id();
-	    }
-	    else
-		delete gather;
+	    DPM(DataPackMgr::FlatID()).add( gather );
+	    displayid = gather->id();
 	}
+    }
 
-	if ( displayid==DataPack::cNoID() )
-	{
-	    if ( haddata )
-	    {
-		const bool canupdate = flatviewer_->enableChange( false );
-		flatviewer_->setVisible( FlatView::Viewer::VD, false );
-		flatviewer_->enableChange( canupdate );
-		flatviewer_->setPack( FlatView::Viewer::VD, DataPack::cNoID() );
-	    }
-	    else
-		dataChangedCB( nullptr );
-
-	    return false;
-	}
-	else
+    if ( displayid==DataPack::cNoID() )
+    {
+	if ( haddata )
 	{
 	    const bool canupdate = flatviewer_->enableChange( false );
-	    flatviewer_->setVisible( FlatView::Viewer::VD, true );
+	    flatviewer_->setVisible( FlatView::Viewer::VD, false );
 	    flatviewer_->enableChange( canupdate );
-	    flatviewer_->setPack( FlatView::Viewer::VD, displayid, !haddata );
+	    flatviewer_->setPack( FlatView::Viewer::VD, displayid );
 	}
+	else
+	    dataChangedCB( nullptr );
+
+	return false;
+    }
+    else
+    {
+	const bool canupdate = flatviewer_->enableChange( false );
+	flatviewer_->setVisible( FlatView::Viewer::VD, true );
+	flatviewer_->enableChange( canupdate );
+	flatviewer_->setPack( FlatView::Viewer::VD, displayid, !haddata );
+    }
 
     turnOn( true );
     return true;
@@ -719,7 +710,7 @@ void PreStackDisplay::setTraceNr( int trcnr )
 {
     if ( seis2d_ )
     {
-	PtrMan<PreStack::Gather> gather = new PreStack::Gather;
+	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	const TrcKey tk( seis2d_->getGeomID(), trcnr );
 	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
 	{

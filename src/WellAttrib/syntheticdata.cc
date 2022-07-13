@@ -174,10 +174,7 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 	}
 
 	if ( gatherset.size() != nrrefmodels )
-	{
-	    deepErase( gatherset );
 	    return nullptr;
-	}
 
 	auto* dp = new PreStack::GatherSetDataPack( nullptr, gatherset );
 	ret = new PreStackSyntheticData( sgp, *genres.ptr(), *dp );
