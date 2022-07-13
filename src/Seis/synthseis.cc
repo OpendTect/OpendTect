@@ -206,7 +206,7 @@ bool SynthGenBase::setOutSampling( const ZSampling& si )
 }
 
 
-bool SynthGenBase::isInputOK()
+bool SynthGenBase::isInputOK() const
 {
     if ( !wavelet_ )
 	mErrRet(tr("Wavelet required to compute trace range from model(s)"),

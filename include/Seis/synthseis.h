@@ -126,7 +126,7 @@ protected:
 				SynthGenBase();
     virtual			~SynthGenBase();
 
-    bool			isInputOK();
+    bool			isInputOK() const;
 
     bool			dofreq_;
     bool			dosampledtimereflectivities_ = false;
@@ -137,7 +137,7 @@ protected:
     const Wavelet*		wavelet_ = nullptr;
     ZSampling			outputsampling_;
 
-    uiString			errmsg_;
+    mutable uiString		errmsg_;
 
 };
 
