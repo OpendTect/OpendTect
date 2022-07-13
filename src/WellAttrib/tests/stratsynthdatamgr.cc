@@ -379,10 +379,12 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
     mRunStandardTest( lasttrc && lasttrc->info().isSynthetic() &&
 		      lasttrc->info().trcNr() == laymodel.size(),
 			"Last trace info is correct" );
-    const BufferString newnm( "stat 120 offset 0 renamed" );
+    const BufferString orignm( defsd->name() );
+    const BufferString newnm( orignm, " renamed" );
     mRunStandardTestWithError( datamgr.updateSyntheticName( defid, newnm ),
 			      "Renamed synthetic",
 			      datamgr.errMsg().getText() );
+    datamgr.updateSyntheticName( defid, orignm );
 
     ConstRefMan<SyntheticData> presd = datamgr.getDataSet( presdid );
     mRunStandardTest( presd && presd->isPS() &&

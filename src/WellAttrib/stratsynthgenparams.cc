@@ -372,10 +372,10 @@ void SynthGenParams::setWavelet( const char* wvltnm )
 
     wvltnm_.set( wvltnm );
     PtrMan<IOObj> wvltobj = Wavelet::getIOObj( wvltnm_.buf() );
-    if ( !wvltobj )
-	return;
-
-    synthpars_.set( sKey::WaveletID(), wvltobj->key() );
+    if ( wvltobj )
+	synthpars_.set( sKey::WaveletID(), wvltobj->key() );
+    else if ( synthpars_.isPresent(sKey::WaveletID()) )
+	synthpars_.removeWithKey( sKey::WaveletID() );
 }
 
 
