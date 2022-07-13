@@ -90,7 +90,6 @@ public:
 				// Used by managing object
     void			setID( SynthID newid )	{ id_ = newid; }
 
-
 };
 
 

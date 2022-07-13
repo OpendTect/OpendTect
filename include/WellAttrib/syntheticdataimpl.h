@@ -25,7 +25,6 @@ public:
 				PostStackSyntheticData(const SynthGenParams&,
 					       const Seis::SynthGenDataPack&,
 					       SeisTrcBufDataPack&);
-				~PostStackSyntheticData();
 
     DataPack::FullID		fullID() const override;
     bool			isPS() const override	   { return false; }
@@ -47,6 +46,8 @@ public:
 
     static const char*		sDataPackCategory();
 
+protected:
+				~PostStackSyntheticData();
 private:
 
     static DataPack::MgrID	groupID();
@@ -59,15 +60,16 @@ mExpClass(WellAttrib) PostStackSyntheticDataWithInput
 {
 public:
 				PostStackSyntheticDataWithInput(
-				    const SynthGenParams&,
-				    const Seis::SynthGenDataPack&,
-				    SeisTrcBufDataPack&);
-				~PostStackSyntheticDataWithInput();
+						const SynthGenParams&,
+						const Seis::SynthGenDataPack&,
+						SeisTrcBufDataPack&);
 
     void			useGenParams(const SynthGenParams&);
     void			fillGenParams(SynthGenParams&) const;
 
 protected:
+				~PostStackSyntheticDataWithInput();
+
     BufferString		inpsynthnm_;
 };
 
@@ -77,9 +79,9 @@ mExpClass(WellAttrib) InstAttributeSyntheticData
 {
 public:
 				InstAttributeSyntheticData(
-				    const SynthGenParams& sgp,
-				    const Seis::SynthGenDataPack& synthdp,
-				    SeisTrcBufDataPack& sbufdp );
+						const SynthGenParams&,
+						const Seis::SynthGenDataPack&,
+						SeisTrcBufDataPack&);
 
     bool			isAttribute() const override	{ return true; }
     SynthGenParams::SynthType	synthType() const override
@@ -88,7 +90,8 @@ public:
     void			useGenParams(const SynthGenParams&);
     void			fillGenParams(SynthGenParams&) const;
 
-protected:
+private:
+
     Attrib::Instantaneous::OutType	attribtype_;
 };
 
@@ -98,21 +101,22 @@ mExpClass(WellAttrib) PSBasedPostStackSyntheticData
 {
 public:
 				PSBasedPostStackSyntheticData(
-				    const SynthGenParams&,
-				    const Seis::SynthGenDataPack&,
-				    SeisTrcBufDataPack&);
-				~PSBasedPostStackSyntheticData();
+						const SynthGenParams&,
+						const Seis::SynthGenDataPack&,
+						SeisTrcBufDataPack&);
 
     void			useGenParams(const SynthGenParams&);
     void			fillGenParams(SynthGenParams&) const;
 
 protected:
+				~PSBasedPostStackSyntheticData();
+
     Interval<float>		anglerg_;
 };
 
 
 mExpClass(WellAttrib) AVOGradSyntheticData
-		: public PSBasedPostStackSyntheticData
+				: public PSBasedPostStackSyntheticData
 {
 public:
 				AVOGradSyntheticData(
@@ -126,12 +130,11 @@ public:
     bool			isAVOGradient() const override	{ return true; }
     SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::AVOGradient; }
-protected:
 };
 
 
 mExpClass(WellAttrib) AngleStackSyntheticData
-		: public PSBasedPostStackSyntheticData
+				: public PSBasedPostStackSyntheticData
 {
 public:
 				AngleStackSyntheticData(
@@ -145,7 +148,6 @@ public:
     bool			isAngleStack() const override	{ return true; }
     SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::AngleStack; }
-protected:
 };
 
 
@@ -155,7 +157,6 @@ public:
 				PreStackSyntheticData(const SynthGenParams&,
 						const Seis::SynthGenDataPack&,
 						PreStack::GatherSetDataPack&);
-				~PreStackSyntheticData();
 
     DataPack::FullID			fullID() const override;
 
@@ -202,6 +203,7 @@ public:
 						 bool istime,int offsidx) const;
 
 private:
+				~PreStackSyntheticData();
 
     ConstRefMan<PreStack::GatherSetDataPack> angledp_;
     void				convertAngleDataToDegrees(
@@ -224,7 +226,8 @@ public:
     SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::StratProp; }
 
-protected:
+private:
+
     const PropertyRef&		prop_;
 };
 
