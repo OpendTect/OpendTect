@@ -69,15 +69,14 @@ DataPack::FullID DataPack::FullID::getInvalid()
 }
 
 
-mDefineInstanceCreatedNotifierAccess(DataPack)
 static Threads::Atomic<int> curdpidnr( 0 );
+static Threads::Atomic<int> deletedid_( DataPack::ID::getInvalid().asInt() );
 
 DataPack::DataPack( const char* categry )
     : SharedObject("<?>")
     , category_(categry)
     , id_(getNewID())
 {
-    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -86,19 +85,13 @@ DataPack::DataPack( const DataPack& dp )
     , category_( dp.category_ )
     , id_(getNewID())
 {
-    mTriggerInstanceCreatedNotifier();
 }
 
 
 DataPack::~DataPack()
 {
-    if ( manager_ )
-    {
-	mTrackDPMsg( BufferString("[DP]: delete ",id_.asInt(),
-		     BufferString(" '",name(),"'")) );
-    }
-
-    sendDelNotif();
+    if ( manager_ && trackDataPacks() )
+	deletedid_ = id_.asInt();
 }
 
 
@@ -201,6 +194,7 @@ DataPackMgr::DataPackMgr( DataPackMgr::MgrID dpid )
 
 DataPackMgr::~DataPackMgr()
 {
+    detachAllNotifiers();
 #ifdef __debug__
     //Don't do in release mode, as we may have race conditions of sta-tic
     //variables deleting at different times
@@ -242,6 +236,7 @@ bool DataPackMgr::doAdd( const DataPack* constdp )
     RefMan<DataPack> keeper = dp;
     keeper.setNoDelete( true );
     dp->setManager( this );
+    mAttachCB( dp->objectToBeDeleted(), DataPackMgr::packDeleted );
 
     packs_ += dp;
 
@@ -250,6 +245,33 @@ bool DataPackMgr::doAdd( const DataPack* constdp )
 
     newPack.trigger( dp );
     return true;
+}
+
+
+void DataPackMgr::packDeleted( CallBacker* cb )
+{
+    mDynamicCastGet(SharedObject*,shobj,cb)
+    if ( !shobj )
+	return;
+
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	ConstRefMan<DataPack> pack = packs_[idx];
+	pack.setNoDelete(true);
+	if ( pack )
+	    continue;
+
+	if ( trackDataPacks() )
+	{
+	    mTrackDPMsg( BufferString("[DP]: delete ", deletedid_,
+			 BufferString(" '",shobj->name(),"'")) );
+	    deletedid_ = DataPack::ID().getInvalid().asInt();
+	}
+
+	packs_.removeSingle( idx );
+	break;
+    }
 }
 
 

@@ -135,6 +135,17 @@ protected:
 
 
 // PointDataPack
+PointDataPack::PointDataPack( const char* categry )
+    : DataPack( categry )
+{
+}
+
+
+PointDataPack::~PointDataPack()
+{
+}
+
+
 Coord PointDataPack::coord( int idx ) const
 {
     return SI().transform( binID(idx) );
@@ -154,14 +165,13 @@ FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
 
 FlatDataPack::FlatDataPack( const FlatDataPack& fdp )
     : DataPack( fdp )
-    , arr2d_( fdp.arr2d_ ? new Array2DImpl<float>( *fdp.arr2d_ ) : 0 )
+    , arr2d_( fdp.arr2d_ ? new Array2DImpl<float>( *fdp.arr2d_ ) : nullptr )
     , posdata_( *new FlatPosData(fdp.posdata_) )
 { }
 
 
 FlatDataPack::FlatDataPack( const char* cat )
     : DataPack(cat)
-    , arr2d_(0)
     , posdata_(*new FlatPosData)
 {
     // We cannot call init() here: size() does not dispatch virtual here
@@ -171,7 +181,9 @@ FlatDataPack::FlatDataPack( const char* cat )
 
 void FlatDataPack::init()
 {
-    if ( !arr2d_ ) return;
+    if ( !arr2d_ )
+	return;
+
     posdata_.setRange( true, StepInterval<double>(0,size(true)-1,1) );
     posdata_.setRange( false, StepInterval<double>(0,size(false)-1,1) );
 }
@@ -243,8 +255,6 @@ int FlatDataPack::size( bool dim0 ) const
 // MapDataPack
 MapDataPack::MapDataPack( const char* cat, Array2D<float>* arr )
     : FlatDataPack(cat,arr)
-    , isposcoord_(false)
-    , xyrotarr2d_(0)
     , xyrotposdata_(*new FlatPosData)
     , axeslbls_(4,"")
 {
@@ -373,12 +383,13 @@ VolumeDataPack::VolumeDataPack( const char* categry,
 
 VolumeDataPack::VolumeDataPack( const char* cat )
     : DataPack(cat)
-    , arr3d_(0)
 {}
 
 
 VolumeDataPack::~VolumeDataPack()
-{ delete arr3d_; }
+{
+    delete arr3d_;
+}
 
 
 float VolumeDataPack::nrKBytes() const
@@ -426,7 +437,6 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
-    , scaler_(0)
     , rdlid_(RandomLineID::getInvalid())
 {
 }

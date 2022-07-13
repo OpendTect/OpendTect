@@ -46,8 +46,8 @@ public:
 
 protected:
 
-				PointDataPack( const char* categry )
-				    : DataPack( categry )	{}
+				PointDataPack(const char* categry);
+				~PointDataPack();
 
 };
 
@@ -64,7 +64,6 @@ public:
 					     Array2D<float>*);
 				//!< Array2D become mine (of course)
 				FlatDataPack(const FlatDataPack&);
-				~FlatDataPack();
 
     virtual Array2D<float>&	data()			{ return *arr2d_; }
     const Array2D<float>&	data() const
@@ -104,8 +103,9 @@ protected:
 				FlatDataPack(const char* category);
 				//!< For this you have to overload data()
 				//!< and the destructor
+				~FlatDataPack();
 
-    Array2D<float>*		arr2d_;
+    Array2D<float>*		arr2d_ = nullptr;
     FlatPosData&		posdata_;
 
 private:
@@ -120,16 +120,14 @@ private:
 mExpClass(General) MapDataPack : public FlatDataPack
 {
 public:
-				MapDataPack(const char* cat,
-					    Array2D<float>*);
-				~MapDataPack();
+				MapDataPack(const char* cat,Array2D<float>*);
 
     Array2D<float>&		data() override;
     FlatPosData&		posData() override;
     const Array2D<float>&	rawData() const		{ return *arr2d_; }
     const FlatPosData&		rawPosData() const	{ return posdata_; }
     void			setDimNames(const char*,const char*,bool forxy);
-    const char*			dimName( bool dim0 ) const override;
+    const char*			dimName(bool dim0) const override;
 
 				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const override
@@ -148,13 +146,14 @@ public:
 					  bool forxy );
 
 protected:
+				~MapDataPack();
 
     float			getValAtIdx(int,int) const;
     friend class		MapDataPackXYRotator;
 
-    Array2D<float>*		xyrotarr2d_;
+    Array2D<float>*		xyrotarr2d_ = nullptr;
     FlatPosData&		xyrotposdata_;
-    bool			isposcoord_;
+    bool			isposcoord_ = false;
     TypeSet<BufferString>	axeslbls_;
     Threads::Lock		initlock_;
 };
@@ -188,7 +187,7 @@ protected:
 				//!< For this you have to overload data()
 				//!< and the destructor
 
-    Array3D<float>*		arr3d_;
+    Array3D<float>*		arr3d_ = nullptr;
 };
 
 
@@ -198,7 +197,6 @@ protected:
 mExpClass(General) SeisDataPack : public DataPack
 {
 public:
-				~SeisDataPack();
 
     virtual bool		is2D() const				= 0;
     virtual int			nrTrcs() const				= 0;
@@ -261,6 +259,7 @@ public:
 
 protected:
 				SeisDataPack(const char*,const BinDataDesc*);
+				~SeisDataPack();
 
     bool			addArray(int sz0,int sz1,int sz2);
     bool			addArrayNoInit(int sz0,int sz1,int sz2);
@@ -270,7 +269,7 @@ protected:
     TypeSet<float>			refnrs_;
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
-    const Scaler*			scaler_;
+    const Scaler*			scaler_ = nullptr;
     RandomLineID			rdlid_;
 };
 

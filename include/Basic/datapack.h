@@ -11,14 +11,15 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "groupedid.h"
 #include "integerid.h"
 #include "manobjectset.h"
 #include "multiid.h"
+#include "od_iosfwd.h"
 #include "ptrman.h"
 #include "sharedobject.h"
 #include "threadlock.h"
-#include "od_iosfwd.h"
 
 class DataPackMgr;
 
@@ -67,10 +68,6 @@ public:
 
     inline static ID	getID( const FullID& fid )	{ return fid.packID(); }
 
-			DataPack(const char* categry);
-			DataPack(const DataPack&);
-    virtual		~DataPack();
-
     ID			id() const		{ return id_; }
     FullID		fullID( MgrID mgrid ) const
 			{ return FullID(mgrid,id()); }
@@ -88,9 +85,10 @@ public:
 
     Threads::Lock&	updateLock() const	{ return updatelock_; }
 
-			mDeclInstanceCreatedNotifierAccess(DataPack);
-
 protected:
+				DataPack(const char* categry);
+				DataPack(const DataPack&);
+				~DataPack();
 
     void			setManager(const DataPackMgr*);
     const ID			id_;
@@ -105,6 +103,7 @@ protected:
 			{ *const_cast<BufferString*>(&category_) = c; }
 
     friend class	DataPackMgr;
+
 public:
     mDeprecatedDef void		release();
     mDeprecatedDef DataPack*	obtain();
@@ -119,10 +118,9 @@ mExpClass(Basic) BufferDataPack : public DataPack
 {
 public:
 
-			BufferDataPack( char* b=nullptr, od_int64 sz=0,
-					const char* catgry="Buffer" );
+			BufferDataPack(char* b=nullptr,od_int64 sz=0,
+				       const char* catgry="Buffer");
 			BufferDataPack(const BufferDataPack&);
-			~BufferDataPack();
 
     char*		buf()			{ return buf_; }
     char const*		buf() const		{ return buf_; }
@@ -132,6 +130,7 @@ public:
     float		nrKBytes() const override { return sz_*sKb2MbFac(); }
 
 protected:
+			~BufferDataPack();
 
     char*		buf_ = nullptr;
     od_int64		sz_;
@@ -227,11 +226,13 @@ public:
 
     void		getPackIDs(TypeSet<PackID>&) const;
 
-protected:
-    MgrID				id_;
-    mutable WeakPtrSet<DataPack>	packs_;
+private:
 
-    bool				doAdd(const DataPack*);
+    MgrID			id_;
+    mutable WeakPtrSet<DataPack> packs_;
+
+    bool			doAdd(const DataPack*);
+    void			packDeleted(CallBacker*);
 
     static Threads::Lock	mgrlistlock_;
     static ManagedObjectSet<DataPackMgr> mgrs_;
