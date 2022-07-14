@@ -1005,7 +1005,6 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 					    : DataPack::cNoID();
     if ( selfld.packID() == newpackid )
     {
-	pack2use.set( nullptr, !dpm.isPresent(newpackid) );
 	if ( dest == FlatView::Viewer::Both )
 	    vdselfld_->datapackid_ = newpackid;
 
@@ -1022,7 +1021,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     if ( newpackid != DataPack::cNoID() )
     {
 	if ( !dpm.isPresent(newpackid) )
-	    dpm.add<FlatDataPack>( pack2use.ptr() );
+	    dpm.add<FlatDataPack>( pack2use );
 	if ( !vwr_->isAvailable(newpackid) )
 	    vwr_->addPack( newpackid );
 
