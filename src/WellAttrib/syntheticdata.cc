@@ -254,13 +254,13 @@ const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
 }
 
 
-const FlatDataPack* PostStackSyntheticData::getTrcDP() const
+ConstRefMan<FlatDataPack> PostStackSyntheticData::getTrcDP() const
 {
     return &postStackPack();
 }
 
 
-const FlatDataPack* PostStackSyntheticData::getFlattenedTrcDP(
+ConstRefMan<FlatDataPack> PostStackSyntheticData::getFlattenedTrcDP(
 			    const TypeSet<float>& zvals, bool istime ) const
 {
     if ( zvals.isEmpty() )
@@ -288,9 +288,10 @@ const FlatDataPack* PostStackSyntheticData::getFlattenedTrcDP(
 
     auto* dptrcbuf = new SeisTrcBuf( true );
     tbuf.getShifted( zrg, *tvals, true, mUdf(float), *dptrcbuf );
-    auto* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+    ConstRefMan<FlatDataPack> dp =
+	new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
-    dp->setName( name() );
+    dp.getNonConstPtr()->setName( name() );
 
     return dp;
 }
@@ -440,7 +441,8 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
 }
 
 
-const FlatDataPack* PreStackSyntheticData::getTrcDPAtOffset( int offsidx ) const
+ConstRefMan<FlatDataPack> PreStackSyntheticData::getTrcDPAtOffset( int offsidx )
+									   const
 {
     auto* dptrcbuf = new SeisTrcBuf( true );
     const int nrtrcsc = nrPositions();
@@ -457,14 +459,15 @@ const FlatDataPack* PreStackSyntheticData::getTrcDPAtOffset( int offsidx ) const
 	}
     }
 
-    auto* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+    ConstRefMan<FlatDataPack> dp =
+	new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
-    dp->setName( name() );
+    dp.getNonConstPtr()->setName( name() );
     return dp;
 }
 
 
-const FlatDataPack* PreStackSyntheticData::getFlattenedTrcDP(
+ConstRefMan<FlatDataPack> PreStackSyntheticData::getFlattenedTrcDP(
 						const TypeSet<float>& zvals,
 						bool istime, int offsidx ) const
 {
@@ -500,9 +503,11 @@ const FlatDataPack* PreStackSyntheticData::getFlattenedTrcDP(
     auto* dptrcbuf = new SeisTrcBuf( true );
     tbuf->getShifted( zrg, *tvals, true, mUdf(float), *dptrcbuf );
     tbuf = nullptr;
-    auto* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+
+    ConstRefMan<FlatDataPack> dp =
+	new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
-    dp->setName( name() );
+    dp.getNonConstPtr()->setName( name() );
 
     return dp;
 }

@@ -40,8 +40,8 @@ public:
     const SeisTrcBufDataPack&	postStackPack() const;
     SeisTrcBufDataPack&		postStackPack();
 
-    const FlatDataPack*		getTrcDP() const override;
-    const FlatDataPack*		getFlattenedTrcDP(const TypeSet<float>& zvals,
+    ConstRefMan<FlatDataPack>	getTrcDP() const override;
+    ConstRefMan<FlatDataPack>	getFlattenedTrcDP(const TypeSet<float>& zvals,
 						  bool istime) const override;
 
     static const char*		sDataPackCategory();
@@ -193,13 +193,13 @@ public:
 
     ConstRefMan<PreStack::Gather> getGather(int trcnr,bool angles=false) const;
 
-    const FlatDataPack*		getTrcDP() const override
+    ConstRefMan<FlatDataPack>	getTrcDP() const override
 				{ return getTrcDPAtOffset(0); }
-    const FlatDataPack*		getTrcDPAtOffset(int offsidx) const;
-    const FlatDataPack*		getFlattenedTrcDP(const TypeSet<float>& zvals,
+    ConstRefMan<FlatDataPack>	getTrcDPAtOffset(int offsidx) const;
+    ConstRefMan<FlatDataPack>	getFlattenedTrcDP(const TypeSet<float>& zvals,
 						  bool istime) const override
 				{ return getFlattenedTrcDP(zvals,istime,0); }
-    const FlatDataPack*		getFlattenedTrcDP(const TypeSet<float>& zvals,
+    ConstRefMan<FlatDataPack>	getFlattenedTrcDP(const TypeSet<float>& zvals,
 						 bool istime,int offsidx) const;
 
 private:

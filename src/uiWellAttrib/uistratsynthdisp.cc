@@ -184,7 +184,7 @@ void addIfNew( DataPack::ID dpid, int lmsidx, const Strat::Level::ID flatlvlid,
 	if ( *newobj.ptr() == *dpobj )
 	    return;
 
-    dpobjs_.add( newobj );
+    dpobjs_.add( newobj.release() );
 }
 
 
@@ -459,7 +459,7 @@ const SynthSpecificPars* getByID( SyntheticData::SynthID sid ) const
     return mSelf().getByID( sid );
 }
 
-const FlatDataPack* find( SyntheticData::SynthID sid, int lmsidx,
+ConstRefMan<FlatDataPack> find( SyntheticData::SynthID sid, int lmsidx,
 			  const Strat::Level::ID flatlvlid, int offsidx ) const
 {
     const SynthSpecificPars* ent = getByID( sid );

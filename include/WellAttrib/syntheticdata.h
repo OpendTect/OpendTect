@@ -66,10 +66,11 @@ public:
     void				useGenParams(const SynthGenParams&);
     const char*				waveletName() const;
 
-    virtual const FlatDataPack* getTrcDP() const		= 0;
+    virtual ConstRefMan<FlatDataPack>	getTrcDP() const		= 0;
 				//<! display datapack for a FlatViewer only
-    virtual const FlatDataPack* getFlattenedTrcDP(const TypeSet<float>& zvals,
-						  bool istime) const = 0;
+    virtual ConstRefMan<FlatDataPack>	getFlattenedTrcDP(
+						const TypeSet<float>& zvals,
+						bool istime) const = 0;
 				//<! display datapack for a FlatViewer only
 
 protected:
