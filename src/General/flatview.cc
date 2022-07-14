@@ -520,15 +520,15 @@ void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
-    ConstRefMan<FlatDataPack> dp = getPack( iswva );
-    if ( !dp )
+    const WeakPtr<FlatDataPack> datapack = getPack( iswva );
+    if ( !datapack )
     {
-	iswva ? iop.removeWithKey( sKeyWVAData() )
-	      : iop.removeWithKey( sKeyVDData() );
-	iswva ? iop.removeWithKey( sKeyWVAVal() )
-	      : iop.removeWithKey( sKeyVDVal() );
-	    return;
+	iop.removeWithKey( iswva ? sKeyWVAData() : sKeyVDData() );
+	iop.removeWithKey( iswva ? sKeyWVAVal() : sKeyVDVal() );
+	return;
     }
+
+    ConstRefMan<FlatDataPack> dp = datapack.get();
     const Array2D<float>& arr = dp->data();
 
     const char* nm = dp->name();
@@ -567,10 +567,11 @@ int FlatView::Viewer::nrDec() const
 
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
-    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
-    if ( !fdp )
+    const WeakPtr<FlatDataPack> datapack = getPack( false, true );
+    if ( !datapack )
 	return Coord3::udf();
 
+    ConstRefMan<FlatDataPack> fdp = datapack.get();
     const FlatPosData& pd = fdp->posData();
     const IndexInfo ix = pd.indexInfo( true, wp.x );
     const IndexInfo iy = pd.indexInfo( false, wp.y );
@@ -634,20 +635,20 @@ void FlatView::Viewer::addPack( DataPack::ID id )
 }
 
 
-ConstRefMan<FlatDataPack>
-FlatView::Viewer::getPack( bool wva, bool checkother ) const
+WeakPtr<FlatDataPack> FlatView::Viewer::getPack( bool wva,
+						 bool checkother ) const
 {
     Threads::Locker locker( lock_ );
-    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
+    WeakPtr<FlatDataPack> res = wva ? wvapack_ : vdpack_;
     if ( !res && checkother )
-	res = wva ? vdpack_.get() : wvapack_.get();
+	res = wva ? vdpack_ : wvapack_;
 
     return res;
 }
 
 
-ConstRefMan<FlatDataPack>
-FlatView::Viewer::obtainPack( bool wva, bool checkother ) const
+const FlatDataPack* FlatView::Viewer::obtainPack(
+				      bool wva, bool checkother ) const
 {
     Threads::Locker locker( lock_ );
     ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
@@ -655,14 +656,14 @@ FlatView::Viewer::obtainPack( bool wva, bool checkother ) const
 	res = wva ? vdpack_.get() : wvapack_.get();
 
     refPtr( res );
-    dpm_.add( const_cast<FlatDataPack*>(res.ptr()) );
+    dpm_.add<FlatDataPack>( res );
     return res;
 }
 
 
 DataPack::ID FlatView::Viewer::packID( bool wva ) const
 {
-    ConstRefMan<FlatDataPack> dp = getPack( wva );
+    ConstRefMan<FlatDataPack> dp = getPack( wva ).get();
     return dp ? dp->id() : ::DataPack::cNoID();
 }
 
@@ -748,8 +749,8 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
 	    vdpack_ = dpm_.observe<FlatDataPack>( id );
     }
 
-    ConstRefMan<FlatDataPack> fdp = getPack( wva );
-    if ( !fdp )
+    const WeakPtr<FlatDataPack> datapack = getPack( wva );
+    if ( !datapack )
     {
 	if ( ids_.size() == 1 && ids_[0] == id && id == DataPack::cNoID() &&
 	     dest == Both && !category.isEmpty() )
@@ -757,6 +758,7 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
 	return;
     }
 
+    ConstRefMan<FlatDataPack> fdp = datapack.get();
     if ( usedefs )
 	useStoredDefaults( fdp->category() );
 
@@ -858,9 +860,10 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = appearance().ddpars_.wva_.show_;
-    ConstRefMan<FlatDataPack> dp = getPack( wva, true );
-    if ( !dp )
+    const WeakPtr<FlatDataPack> datapack = getPack( wva, true );
+    if ( !datapack )
 	return StepInterval<double>(mUdf(double),mUdf(double),1);
+    ConstRefMan<FlatDataPack> dp = datapack.get();
     return dp->posData().range( forx1 );
 }
 

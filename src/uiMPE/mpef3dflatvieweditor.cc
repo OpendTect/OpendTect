@@ -281,8 +281,10 @@ bool Fault3DFlatViewEditor::getMousePosInfo(
 			const Geom::Point2D<int>& mousepos,
 			IndexInfo& ix, IndexInfo& iy, Coord3& worldpos ) const
 {
-    ConstRefMan<FlatDataPack> dp = editor_->viewer().getPack( false, true );
-    if ( !dp ) return false;
+    ConstRefMan<FlatDataPack> dp =
+				editor_->viewer().getPack( false, true ).get();
+    if ( !dp )
+	return false;
 
     const uiRect datarect( editor_->getMouseArea() );
     if ( !mousepos.isDefined() || datarect.isOutside(mousepos) )

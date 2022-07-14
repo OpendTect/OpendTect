@@ -300,7 +300,7 @@ void uiFlatViewControl::applyProperties( CallBacker* )
 
 void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 {
-    ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true );
+    ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true ).get();
     vwr.storeDefaults( fdp ? fdp->category() : "General" );
 }
 

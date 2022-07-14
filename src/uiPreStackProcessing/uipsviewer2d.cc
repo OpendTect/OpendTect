@@ -71,7 +71,7 @@ uiGatherDisplay::~uiGatherDisplay()
 void uiGatherDisplay::setVDGather( DataPack::ID vdid )
 {
     gatherpainter_->setVDGather( vdid );
-    ConstRefMan<FlatDataPack> dp = viewer_->getPack( false );
+    ConstRefMan<FlatDataPack> dp = viewer_->getPack( false ).get();
     if ( !dp )
 	return;
 
@@ -86,7 +86,7 @@ void uiGatherDisplay::setVDGather( DataPack::ID vdid )
 void uiGatherDisplay::setWVAGather( DataPack::ID wvaid )
 {
     gatherpainter_->setWVAGather( wvaid );
-    ConstRefMan<FlatDataPack> dp = viewer_->getPack( true );
+    ConstRefMan<FlatDataPack> dp = viewer_->getPack( true ).get();
     if ( !dp )
 	return;
 

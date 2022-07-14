@@ -48,13 +48,13 @@ private:
     void				setup();
 
     mutable Threads::Lock		lock_;
-    ConstRefMan<FlatDataPack>		datapack_;
+    WeakPtr<FlatDataPack>		datapack_;
     FlatView::Appearance&		appearance_;
     A2DBitMap*				bmp_ = nullptr;
     A2DBitMapPosSetup*			pos_ = nullptr;
     A2DBitMapInpData*			data_ = nullptr;
     A2DBitMapGenerator*			gen_ = nullptr;
-    bool				wva_;
+    bool				wva_ = false;
 
     Geom::Size2D<int>			sz_;
     Geom::PosRectangle<double>		wr_;

@@ -100,7 +100,7 @@ void FlatViewer::handleChange( unsigned int dt)
 	    }
 	case BitmapData:
 	    {
-		ConstRefMan<FlatDataPack> dp = getPack( false );
+		ConstRefMan<FlatDataPack> dp = getPack( false ).get();
 		if ( !dp )
 		    channels_->turnOn( false );
 		else
@@ -202,7 +202,7 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 
 const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
 {
-    ConstRefMan<FlatDataPack> dp = getPack( false );
+    ConstRefMan<FlatDataPack> dp = getPack( false ).get();
     if ( !dp )
 	return SamplingData<float>( 0, 1 );
 
@@ -229,7 +229,7 @@ void FlatViewer::updateGridLines( bool x1 )
 	x2gridlines_->getMaterial()->setColor( markcolor );
     }
 
-    ConstRefMan<FlatDataPack> dp = getPack( false );
+    ConstRefMan<FlatDataPack> dp = getPack( false ).get();
     PolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
 
     if ( !dp || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
@@ -310,7 +310,7 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
 	return range;
 
     DataClipper clipper;
-    ConstRefMan<FlatDataPack> dp = getPack( wva );
+    ConstRefMan<FlatDataPack> dp = getPack( wva ).get();
     if ( dp )
 	clipper.putData( dp->data() );
     clipper.fullSort();

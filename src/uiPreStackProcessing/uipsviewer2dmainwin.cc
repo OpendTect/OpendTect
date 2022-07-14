@@ -1523,8 +1523,10 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     propChanged.trigger();
     ctabsel_->setCurrent( app_.ddpars_.vd_.ctab_.buf() );
 
-    ConstRefMan<FlatDataPack> vddatapack = vwrs_[actvwridx]->getPack(false);
-    ConstRefMan<FlatDataPack> wvadatapack = vwrs_[actvwridx]->getPack(true);
+    ConstRefMan<FlatDataPack> vddatapack =
+			      vwrs_[actvwridx]->getPack(false).get();
+    ConstRefMan<FlatDataPack> wvadatapack =
+			      vwrs_[actvwridx]->getPack(true).get();
     for( int ivwr=0; ivwr<vwridxs.size(); ivwr++ )
     {
 	const int vwridx = vwridxs[ivwr];

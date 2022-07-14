@@ -559,7 +559,7 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
     if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
 	return;
 
-    ConstRefMan<FlatDataPack> dp = vwr->getPack( !pickinvd_ );
+    ConstRefMan<FlatDataPack> dp = vwr->getPack( !pickinvd_ ).get();
     if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
 	return;
 

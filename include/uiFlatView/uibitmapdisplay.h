@@ -54,14 +54,13 @@ public:
     Interval<float>	getDataRange(bool iswva) const;
     const uiWorldRect&	boundingBox() const;
     void		setBoundingBox(const uiWorldRect&);
-    void		setDataPack(const FlatDataPack*,bool wva);
+    void		setDataPack(const WeakPtr<FlatDataPack>&,bool wva);
     Notifier<uiBitMapDisplay>	rangeUpdated;
 
 private:
 
     void			reGenerateCB(CallBacker*);
     void			dynamicTaskFinishCB(CallBacker*);
-    void			snapshotFinishedCB(CallBacker*);
 
     Task*			createDynamicTask(bool issnapshot);
 
@@ -70,8 +69,8 @@ private:
     uiWorldRect			getBoundingBox(bool wva) const;
 
     FlatView::Appearance&	appearance_;
-    ConstRefMan<FlatDataPack>	wvapack_;
-    ConstRefMan<FlatDataPack>	vdpack_;
+    WeakPtr<FlatDataPack>	wvapack_;
+    WeakPtr<FlatDataPack>	vdpack_;
     uiWorldRect			boundingbox_;
     float			overlap_;
     int				workqueueid_;
@@ -82,4 +81,3 @@ private:
 
     CallBack			finishedcb_;
 };
-

@@ -25,10 +25,11 @@ ________________________________________________________________________
 static bool isVertical( const uiFlatViewer& vwr )
 {
     const bool usewva = !vwr.isVisible( false );
-    ConstRefMan<FlatDataPack> fdp = vwr.getPack( usewva, true );
-    if ( !fdp )
+    const WeakPtr<FlatDataPack> datapack = vwr.getPack( usewva, true );
+    if ( !datapack )
 	return true;
 
+    ConstRefMan<FlatDataPack> fdp = datapack.get();
     FixedString x2dimnm( fdp->dimName(false) );
     FixedString vwrzdomstr( vwr.zDomain().userName().getFullString() );
     return x2dimnm == vwrzdomstr ||
@@ -252,10 +253,11 @@ void AxesDrawer::updateViewRect()
 void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
 {
     const bool usewva = !vwr_.isVisible( false );
-    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
-    if ( !fdp )
+    const WeakPtr<FlatDataPack> datapack = vwr_.getPack( usewva, true );
+    if ( !datapack )
 	return;
 
+    ConstRefMan<FlatDataPack> fdp = datapack.get();
     const float userfac = mCast(float,vwr_.zDomain().userFactor());
     const TypeSet<PlotAnnotation>& xannot =
 	forx1 ? vwr_.appearance().annot_.x1_.auxannot_
@@ -280,7 +282,7 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
 void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
-    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true ).get();
     transformAndSetAuxAnnotation( true );
     transformAndSetAuxAnnotation( false );
     setScaleBarWorld2UI( wr );
@@ -331,10 +333,12 @@ void AxesDrawer::setScaleBarWorld2UI( const uiWorldRect& wr )
     if ( !vwr_.appearance().annot_.showscalebar_ )
 	return;
 
-    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( !vwr_.isVisible(false), true);
-    if ( !fdp )
+    const WeakPtr<FlatDataPack> datapack =
+				vwr_.getPack( !vwr_.isVisible(false), true );
+    if ( !datapack )
 	return;
 
+    ConstRefMan<FlatDataPack> fdp = datapack.get();
     const StepInterval<double> dim0rg1 = fdp->posData().range( true );
     const float startindex = dim0rg1.getfIndex( wr.left() );
     const float stopindex = dim0rg1.getfIndex( wr.right() );

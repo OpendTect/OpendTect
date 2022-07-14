@@ -190,10 +190,11 @@ void uiFlatViewer::setInitialSize( const uiSize& sz )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    ConstRefMan<FlatDataPack> dp = getPack( wva, true );
-    if ( !dp )
+    const WeakPtr<FlatDataPack> datapack = getPack( wva, true );
+    if ( !datapack )
 	return uiWorldRect(0,0,1,1);
 
+    ConstRefMan<FlatDataPack> dp = datapack.get();
     const FlatPosData& pd = dp->posData();
     StepInterval<double> rg0( pd.range(true) );
     StepInterval<double> rg1( pd.range(false) );
@@ -250,7 +251,7 @@ void uiFlatViewer::removePack( ::DataPack::ID dpid )
 
 StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 {
-    ConstRefMan<FlatDataPack> dp = getPack( false, true );
+    ConstRefMan<FlatDataPack> dp = getPack( false, true ).get();
     return dp ? dp->posData().range(forx1) : StepInterval<double>();
 }
 
@@ -313,10 +314,10 @@ void uiFlatViewer::updateCB( CallBacker* cb )
 
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
-    ConstRefMan<FlatDataPack> wvapack = getPack( true );
-    ConstRefMan<FlatDataPack> vdpack = getPack( false );
-    bitmapdisp_->setDataPack( wvapack.ptr(), true );
-    bitmapdisp_->setDataPack( vdpack.ptr(), false );
+    const WeakPtr<FlatDataPack> wvapack = getPack( true );
+    const WeakPtr<FlatDataPack> vdpack = getPack( false );
+    bitmapdisp_->setDataPack( wvapack, true );
+    bitmapdisp_->setDataPack( vdpack, false );
 
     bitmapdisp_->setBoundingBox( boundingBox() );
     bitmapdisp_->update();
@@ -327,7 +328,7 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
-    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true ).get();
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )
@@ -339,8 +340,9 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 
 void uiFlatViewer::setAnnotChoice( int sel )
 {
-    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
-    if ( !fdp ) return;
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true ).get();
+    if ( !fdp )
+	return;
 
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
     BufferStringSet altdim0keys; fdp->getAltDim0Keys( altdim0keys );
@@ -433,6 +435,6 @@ void uiFlatViewer::setSeisGeomidsToViewer(TypeSet<Pos::GeomID>& geomids)
 
 const FlatPosData* uiFlatViewer::getFlatPosData( bool iswva )
 {
-    ConstRefMan<FlatDataPack> fdp = getPack(iswva);
+    ConstRefMan<FlatDataPack> fdp = getPack( iswva ).get();
     return fdp ? &fdp->posData() : nullptr;
 }

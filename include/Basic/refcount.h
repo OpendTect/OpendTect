@@ -237,13 +237,15 @@ public:
 
 			operator bool() const;
     bool		operator!() const;
-    bool		operator==( const WeakPtrBase& r ) const
-				{ return ptr_==r.ptr_; }
+    bool		operator==( const WeakPtrBase& oth ) const
+			{ return ptr_==oth.ptr_; }
+    bool		operator!=( const WeakPtrBase& oth ) const
+			{ return ptr_!=oth.ptr_; }
 
 protected:
 
 			WeakPtrBase();
-	void		set(Referenced*);
+    void		set(Referenced*);
 
     friend class	Counter;
 
@@ -288,7 +290,7 @@ private:
 using ReferencedObject = RefCount::Referenced;
 
 
-/*!Observes a refereence counted object. If you wish to use the pointer,
+/*!Observes a reference counted object. If you wish to use the pointer,
    you have to obtain it using get().
 */
 template <class T>
@@ -296,15 +298,15 @@ mClass(Basic) WeakPtr : public RefCount::WeakPtrBase
 {
 public:
 
-			WeakPtr(RefCount::Referenced* p = 0) { set(p); }
-			WeakPtr(const WeakPtr<T>& p) : WeakPtr<T>( p.ptr_ ) {}
-			WeakPtr(RefMan<T>& p) : WeakPtr<T>(p.ptr()) {}
-			~WeakPtr() { set( 0 ); }
+			WeakPtr( RefCount::Referenced* p =nullptr ) { set(p); }
+			WeakPtr( const WeakPtr<T>& p ) : WeakPtr<T>(p.ptr_) {}
+			WeakPtr( RefMan<T>& p ) : WeakPtr<T>(p.ptr())	{}
+			~WeakPtr() { set( nullptr ); }
 
     inline WeakPtr<T>&	operator=(const WeakPtr<T>& p);
-    RefMan<T>&		operator=(RefMan<T>& p)
-			{ set(p.ptr()); return p; }
-    T*			operator=(T* p)
+    RefMan<T>&		operator=( RefMan<T>& p )
+			{ set( p.ptr() ); return p; }
+    T*			operator=( T* p )
 			{ set(p); return p; }
 
     RefMan<T>		get() const;

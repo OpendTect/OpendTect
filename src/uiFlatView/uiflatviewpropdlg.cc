@@ -393,7 +393,7 @@ uiFVWVAPropTab::~uiFVWVAPropTab()
 
 BufferString uiFVWVAPropTab::dataName() const
 {
-    ConstRefMan<FlatDataPack> dp = vwr_.getPack(true);
+    ConstRefMan<FlatDataPack> dp = vwr_.getPack( true ).get();
     return BufferString( dp ? dp->name().str() : "" );
 }
 
@@ -496,7 +496,7 @@ uiFVVDPropTab::~uiFVVDPropTab()
 
 BufferString uiFVVDPropTab::dataName() const
 {
-    ConstRefMan<FlatDataPack> dp = vwr_.getPack(false);
+    ConstRefMan<FlatDataPack> dp = vwr_.getPack( false ).get();
     return BufferString( dp ? dp->name().str() : "" );
 }
 

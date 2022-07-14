@@ -976,7 +976,7 @@ void uiODViewer2D::usePar( const IOPar& iop )
     {
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
-	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva );
+	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva ).get();
 	if ( regsdp ) setPos( tkzs );
     }
 
@@ -1045,7 +1045,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	marker_->markerstyles_ += MarkerStyle2D();
     }
 
-    ConstRefMan<FlatDataPack> fdp = vwr.getPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = vwr.getPack( false, true ).get();
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
     if ( !seisfdp && !mapdp ) return;

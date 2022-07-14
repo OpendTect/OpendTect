@@ -378,7 +378,7 @@ public:
     bool		enableChange(bool yn);
 			//!< Returns previous state
 
-    ConstRefMan<FlatDataPack> getPack(bool wva,bool checkother=false) const;
+    WeakPtr<FlatDataPack> getPack(bool wva,bool checkother=false) const;
 			/*!<
 			 \param wva if true, wiggle, else variable density
 			 \param checkother if true, the datapack of other
@@ -495,7 +495,7 @@ public:
 			{ setVisible( wva ? WVA : VD, visibility ); }
 
     mDeprecated("Use getPack")
-    ConstRefMan<FlatDataPack> obtainPack(bool wva,bool checkother=false) const;
+    const FlatDataPack*	obtainPack(bool wva,bool checkother=false) const;
 
 };
 

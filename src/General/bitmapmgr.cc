@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 BitMapMgr::BitMapMgr()
     : appearance_(*new FlatView::Appearance)
-    , wva_(false)
     , sz_(mUdf(int),mUdf(int))
     , wr_(mUdf(double),mUdf(double),mUdf(double),mUdf(double))
 {
@@ -37,8 +36,7 @@ void BitMapMgr::init( const FlatDataPack* fdp, const FlatView::Appearance& app,
 {
     clearAll();
 
-    datapack_ = fdp;
-
+    datapack_ = const_cast<FlatDataPack*>( fdp );
     appearance_ = app;
     wva_ = wva;
     setup();
@@ -54,7 +52,7 @@ void BitMapMgr::clearAll()
     deleteAndZeroPtr( data_ );
     deleteAndZeroPtr( gen_ );
 
-    datapack_ = 0;
+    datapack_ = nullptr;
 }
 
 
@@ -62,11 +60,13 @@ void BitMapMgr::setup()
 {
     Threads::Locker locker( lock_ );
 
-    if ( !datapack_ ) return;
+    if ( !datapack_ )
+	return;
 
-    Threads::Locker updlckr( datapack_->updateLock() );
-    const FlatPosData& pd = datapack_->posData();
-    const Array2D<float>& arr = datapack_->data();
+    ConstRefMan<FlatDataPack> datapack = datapack_.get();
+    Threads::Locker updlckr( datapack->updateLock() );
+    const FlatPosData& pd = datapack->posData();
+    const Array2D<float>& arr = datapack->data();
     if ( pd.nrPts(true) < arr.info().getSize(0) )
 	return;
 
@@ -77,15 +77,14 @@ void BitMapMgr::setup()
 
     if ( !wva_ )
     {
-	VDA2DBitMapGenerator* gen = new VDA2DBitMapGenerator( *data_, *pos_ );
+	auto* gen = new VDA2DBitMapGenerator( *data_, *pos_ );
 	gen->linearInterpolate( appearance_.ddpars_.vd_.lininterp_ );
 	gen_ = gen;
     }
     else
     {
 	const FlatView::DataDispPars::WVA& wvapars = appearance_.ddpars_.wva_;
-	WVAA2DBitMapGenerator* wvagen
-			= new WVAA2DBitMapGenerator( *data_, *pos_ );
+	auto* wvagen = new WVAA2DBitMapGenerator( *data_, *pos_ );
 	wvagen->wvapars().drawwiggles_ = wvapars.wigg_.isVisible();
 	wvagen->wvapars().drawrefline_ = wvapars.refline_.isVisible();
 	wvagen->wvapars().filllow_ = wvapars.lowfill_.isVisible();
@@ -97,7 +96,8 @@ void BitMapMgr::setup()
     }
 
     const FlatView::DataDispPars::Common* pars = &appearance_.ddpars_.wva_;
-    if ( !wva_ ) pars = &appearance_.ddpars_.vd_;
+    if ( !wva_ )
+	pars = &appearance_.ddpars_.vd_;
 
     gen_->pars().clipratio_ = pars->mappersetup_.cliprate_;
     gen_->pars().midvalue_ =
@@ -168,8 +168,9 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 	return true;
     }
 
-    Threads::Locker updlckr( datapack_->updateLock() );
-    const FlatPosData& pd = datapack_->posData();
+    ConstRefMan<FlatDataPack> datapack = datapack_.get();
+    Threads::Locker updlckr( datapack->updateLock() );
+    const FlatPosData& pd = datapack->posData();
     pos_->setDimRange( 0, Interval<float>(
 				mCast(float,wr.left()-pd.offset(true)),
 				mCast(float,wr.right()-pd.offset(true))) );
@@ -179,7 +180,7 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
     {
-	delete bmp_; bmp_ = 0;
+	deleteAndZeroPtr( bmp_ );
 	updlckr.unlockNow();
 	return false;
     }
@@ -189,7 +190,7 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     gen_->setBitMap( *bmp_ );
     gen_->setPixSizes( availsz.width(), availsz.height() );
 
-    if ( &datapack_->data() != &data_->data() )
+    if ( &datapack->data() != &data_->data() )
     {
 	pErrMsg("Sanity check failed");
 	return false;
