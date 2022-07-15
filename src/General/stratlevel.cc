@@ -138,9 +138,7 @@ void Strat::LevelSetMgr::createSet()
     if ( !ls )
     {
 	ls = new LevelSet;
-	Repos::Source rsrc = ls->readOldRepos();
-	if ( rsrc != Repos::Temp )
-	    ls->store( rsrc );
+	ls->readOldRepos();
     }
 
     lss_.add( ls );
@@ -640,20 +638,6 @@ Repos::Source Strat::LevelSet::readOldRepos()
 }
 
 
-bool Strat::LevelSet::store( Repos::Source rsrc ) const
-{
-    Repos::FileProvider rfp( "StratLevels" );
-    return writeTo( rfp.fileName(rsrc) );
-}
-
-
-bool Strat::LevelSet::read( Repos::Source rsrc )
-{
-    Repos::FileProvider rfp( "StratLevels" );
-    return readFrom( rfp.fileName(rsrc) );
-}
-
-
 bool Strat::LevelSet::writeTo( const char* fnm ) const
 {
     SafeFileIO sfio( fnm, true );
@@ -723,7 +707,15 @@ Strat::LevelSet* Strat::LevelSet::read( const MultiID& key )
     if ( !ret->readFrom(fp.fullPath()) )
 	deleteAndZeroPtr( ret );
 
+    ret->dbky_ = key;
+
     return ret;
+}
+
+
+bool Strat::LevelSet::write() const
+{
+    return dbky_.isUdf() ? false : write( *this, dbky_ );
 }
 
 

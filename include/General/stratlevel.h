@@ -142,10 +142,9 @@ public:
     CNotifier<LevelSet,Level::ID>	levelAdded;
     CNotifier<LevelSet,Level::ID>	levelToBeRemoved;
 
-    bool		store(Repos::Source) const;
-    bool		read(Repos::Source);
     bool		readFrom(const char*);
     bool		writeTo(const char*) const;
+    bool		write() const;
 
     static void		getStdNames(BufferStringSet&);
     static LevelSet*	createStd(const char*);
@@ -156,6 +155,7 @@ protected:
 
     ObjectSet<Level>	lvls_;
     mutable Threads::Atomic<Level::ID> curlevelid_;
+    MultiID		dbky_;
 
     int			gtIdxOf(const char*,Level::ID) const;
     Level		gtLvl(int) const;
@@ -163,10 +163,10 @@ protected:
     Level::ID		doSet(const Level&,bool* isnew=nullptr);
 
     void		getFromStream(ascistream&,bool);
+    Repos::Source	readOldRepos();
 
 public:
 
-    Repos::Source	readOldRepos();
     friend class	LevelSetMgr;
 
 };

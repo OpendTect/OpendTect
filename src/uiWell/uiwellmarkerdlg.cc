@@ -741,7 +741,7 @@ void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 	const int selidx = selitems[idx];
 	const Strat::Level::ID lvlid = lvls.add( mset[selidx]->name(),
 						 mset[selidx]->color() );
-	lvls.store( Repos::Survey );
+	lvls.write();
 	mset[selidx]->setLevelID( lvlid );
     }
 
