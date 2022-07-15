@@ -38,6 +38,7 @@ public:
     static Pos::GeomID	getGeomID(const IOObj&);
     static IOObj*	getIOObj(Pos::GeomID);
     static IOObj*	createEntry(const char* objname,const char* trnm);
+    virtual bool	isUsable() const { return true; }
 
 };
 

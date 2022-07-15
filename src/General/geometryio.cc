@@ -77,7 +77,7 @@ protected:
 
 	PtrMan<Translator> transl = ioobj->createTranslator();
 	mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
-	if ( !geomtransl )
+	if ( !geomtransl || !geomtransl->isUsable() )
 	    mReturn
 
 	uiString errmsg;
@@ -184,6 +184,13 @@ void GeometryWriter3D::initClass()
 
 
 bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
+			const ObjectSet<IOObj>& objs, TaskRunner* tr ) const
+{
+    GeomFileReader gfr( objs, geometries, false );
+    return TaskRunner::execute( tr, gfr );
+}
+
+bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
@@ -192,8 +199,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 	return false;
 
     const ObjectSet<IOObj>& objs = iodir.getObjs();
-    GeomFileReader gfr( objs, geometries, false );
-    return TaskRunner::execute( tr, gfr );
+    return read( geometries, objs, tr );
 }
 
 

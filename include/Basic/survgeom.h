@@ -219,6 +219,8 @@ public:
 
     virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
 							{ return true; }
+    virtual bool	read(ObjectSet<Geometry>&,const ObjectSet<IOObj>&,
+				    TaskRunner*) const { return true; }
     virtual bool	updateGeometries(ObjectSet<Geometry>&,TaskRunner*) const
 							{ return true; }
 };

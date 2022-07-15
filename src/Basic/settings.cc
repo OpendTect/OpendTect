@@ -81,12 +81,25 @@ static BufferString getFileName( const char* key, const char* dtectusr,
     FilePath fp( dirnm ? dirnm : GetSettingsDir(), "settings" );
     BufferString fname = fp.fullPath();
     if ( !mIsCommon(key) )
-	{ fname += "_"; fname += key; }
+    {
+	fname += "_";
+	fname += key;
+    }
+
     if ( dtectusr && *dtectusr )
-	{ fname += "."; fname += dtectusr; }
+    {
+	fname += ".";
+	fname += dtectusr;
+    }
+
     return fname;
 }
 
+
+bool Settings::settsFileExist( const char* key )
+{
+    return File::exists( getFileName(key,GetSoftwareUser(),GetSettingsDir()) );
+}
 
 Settings& Settings::fetch( const char* key )
 {

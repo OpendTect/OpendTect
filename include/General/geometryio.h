@@ -64,6 +64,9 @@ public:
     static void			initClass();
     bool			read(ObjectSet<Geometry>&,
 				     TaskRunner*) const override;
+    bool			read(ObjectSet<Geometry>&,
+				     const ObjectSet<IOObj>&,
+				     TaskRunner*) const override;
     bool			updateGeometries(ObjectSet<Geometry>&,
 						 TaskRunner*) const override;
 

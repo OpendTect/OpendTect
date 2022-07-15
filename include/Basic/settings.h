@@ -53,6 +53,8 @@ public:
 					      const char* usr_settings_dir);
 				//!< for sysadm purposes
 
+    static bool			settsFileExist(const char* settings_name);
+
 protected:
 
 				Settings( const char* fnm )
