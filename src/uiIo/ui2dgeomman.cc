@@ -42,6 +42,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			       mNoDlgTitle, mODHelpKey(m2DGeomManageDlgHelpID))
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
+    ctxt_.toselect_.allownonuserselectable_ = false;
     createDefaultUI( false, false );
     addManipButton( "delete", tr("Delete this Line"),
 			mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
