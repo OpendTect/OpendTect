@@ -80,13 +80,13 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 	if ( ioobj->isTmp() )
 	    continue;
 
-	int selres = 2;
 	if ( ctxt.trgroup_ )
 	{
-	    selres = ctxt.trgroup_->objSelector( ioobj->group() );
+	    const int selres = ctxt.trgroup_->objSelector( ioobj->group() );
 	    if ( selres == mObjSelUnrelated )
 		continue;
 	}
+
 	if ( ctxt.validIOObj(*ioobj) )
 	{
 	    if ( !ge || ge->matches(ioobj->name()) )
