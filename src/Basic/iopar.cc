@@ -1512,7 +1512,25 @@ void IOPar::dumpPretty( BufferString& res ) const
 
 
 int IOPar::odVersion() const
-{ return 100*majorversion_ + 10*minorversion_ + patchVersion(); }
+{
+    return 100*majorversion_ + 10*minorversion_ + patchVersion();
+}
+
+
+bool IOPar::areSubParsIndexed() const
+{
+    int indexedparsize = 0;
+    for ( int idx=0; idx<1024; idx++ )
+    {
+	PtrMan<IOPar> subpar = subselect( idx );
+	if ( subpar )
+	    indexedparsize += subpar->size();
+	else
+	    break;
+    }
+
+    return indexedparsize == size();
+}
 
 
 void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
@@ -1536,21 +1554,90 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 	char* dotptr = key.find( '.' );
 	if ( !dotptr )
 	{
-	    jsonobj.set( key, getValue(idx) );
+	    FixedString val = getValue( idx );
+	    FileMultiString fms( val );
+	    if ( fms.isEmpty() )
+		continue;
+
+	    bool isbool = true, isint = true, isnum = true;
+	    for ( int idy=0; idy<fms.size(); idy++ )
+	    {
+		if ( !isBoolString(fms[idy]) )
+		    isbool = false;
+
+		if ( !isNumberString(fms[idy],false) )
+		    isnum = isint = false;
+		else if ( !isNumberString(fms[idy],true) )
+		    isint = false;
+	    }
+
+	    if ( fms.size() == 1 )
+	    {
+		if ( isbool )
+		    jsonobj.set( key, toBool(val) );
+		else if ( isint )
+		    jsonobj.set( key, toInt(val) );
+		else if ( isnum )
+		    jsonobj.set( key, toDouble(val) );
+		else
+		{
+		    BufferString str = val;
+		    str.replace( "\"", "\\\"" );
+		    jsonobj.set( key, str );
+		}
+
+		continue;
+	    }
+
+	    // Make JSON Array
+	    OD::JSON::DataType datatype = isbool ? OD::JSON::Boolean
+			: (isnum ? OD::JSON::Number : OD::JSON::String);
+	    OD::JSON::Array* arr = new OD::JSON::Array( datatype );
+	    for ( int idy=0; idy<fms.size(); idy++ )
+	    {
+		if ( isbool )
+		    arr->add( toBool(fms[idy]) );
+		else if ( isint )
+		    arr->add( toInt(fms[idy]) );
+		else if ( isnum )
+		    arr->add( toDouble(fms[idy]) );
+		else
+		    arr->add( fms[idy] );
+	    }
+
+	    jsonobj.set( key, arr );
 	    continue;
 	}
 
 	*dotptr = '\0';
 	PtrMan<IOPar> subpar = subselect( key );
 	if ( !subpar || !subpar->size() )
-	{
-	    jsonobj.set( getKey(idx), getValue(idx) );
 	    continue;
+
+	const bool shouldmakearray = subpar->areSubParsIndexed();
+	if ( shouldmakearray )
+	{
+	    auto* subarray = new OD::JSON::Array( true );
+	    for ( int idy=0; idy<1024; idy++ )
+	    {
+		PtrMan<IOPar> idysubpar = subpar->subselect( idy );
+		if ( !idysubpar )
+		    break;
+
+		auto* idysubobj = new OD::JSON::Object;
+		idysubpar->fillJSON( *idysubobj, false );
+		subarray->add( idysubobj );
+	    }
+
+	    jsonobj.set( key, subarray );
+	}
+	else
+	{
+	    auto* subobj = new OD::JSON::Object;
+	    subpar->fillJSON( *subobj, false );
+	    jsonobj.set( key, subobj );
 	}
 
-	auto* subobj = new OD::JSON::Object;
-	subpar->fillJSON( *subobj, false );
-	jsonobj.set( key, subobj );
 	key.add( "." );
 	idx++;
 	while ( idx<size() && getKey(idx).startsWith(key) )
@@ -1558,6 +1645,42 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 
 	idx--;
     }
+}
+
+
+bool IOPar::useJSON( const char* key, const OD::JSON::Array& jsonarr )
+{
+    const OD::JSON::ValueSet::ValueType valtype = jsonarr.valType();
+    if ( valtype == OD::JSON::ValueSet::Data )
+    {
+	FileMultiString fms;
+	for ( int idx=0; idx<jsonarr.size(); idx++ )
+	    fms.add( jsonarr.getStringValue(idx) );
+
+	set( key, fms );
+	return true;
+    }
+
+    IOPar subpar;
+    for ( int idx=0; idx<jsonarr.size(); idx++ )
+    {
+	const BufferString idxkey = toString( idx );
+	if ( valtype == OD::JSON::ValueSet::SubArray )
+	{
+	    subpar.useJSON( idxkey, jsonarr.array(idx) );
+	    continue;
+	}
+
+	const OD::JSON::Object& subobj = jsonarr.object( idx );
+	IOPar objpar;
+	if ( objpar.useJSON(subobj) )
+	    subpar.mergeComp( objpar, idxkey );
+    }
+
+    if ( subpar.size() )
+	mergeComp( subpar, key );
+
+    return !isEmpty();
 }
 
 
@@ -1577,7 +1700,7 @@ bool IOPar::useJSON( const OD::JSON::Object& jsonobj )
 
 	if ( valtype == OD::JSON::ValueSet::SubArray )
 	{
-	    pErrMsg("Json Array elements cannot be transferred to IOPar");
+	    useJSON( key, jsonobj.array(idx) );
 	    continue;
 	}
 

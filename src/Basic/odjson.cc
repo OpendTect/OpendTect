@@ -925,7 +925,14 @@ BufferString OD::JSON::Array::getStringValue( idx_type idx ) const
     if ( !valArr().validIdx(idx) )
 	return ret;
 
-    ret.set( valArr().strings().get(idx) );
+    DataType datatype = valArr().dataType();
+    if ( datatype == Boolean )
+	ret.set( toString(valArr().bools().get(idx)) );
+    else if ( datatype == Number )
+	ret.set( toString(valArr().vals().get(idx)) );
+    else
+	ret.set( valArr().strings().get(idx) );
+
     return ret;
 }
 

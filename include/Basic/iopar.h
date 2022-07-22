@@ -29,6 +29,7 @@ namespace OD
 {
     namespace JSON
     {
+	class Array;
 	class Object;
     };
 
@@ -88,7 +89,8 @@ public:
 				//!< returns null if value not found
     void		fillJSON(OD::JSON::Object& obj,bool simple=true) const;
 			//!< if simple, only save the top level objects
-    bool		useJSON(const OD::JSON::Object& obj);
+    bool		useJSON(const OD::JSON::Object&);
+    bool		useJSON(const char* key,const OD::JSON::Array&);
 
     void		remove(int);
     void		removeWithKey(const char* key);
@@ -348,6 +350,8 @@ protected:
 
     BufferStringSet&	keys_;
     BufferStringSet&	vals_;
+
+    bool		areSubParsIndexed() const;
 
 };
 

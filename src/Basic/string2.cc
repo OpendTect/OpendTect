@@ -396,10 +396,22 @@ bool yesNoFromString( const char* str )
 }
 
 
+bool isBoolString( const char* str )
+{
+    FixedString fstr( str );
+    return fstr.isEqual("True",CaseInsensitive) ||
+	   fstr.isEqual("False",CaseInsensitive) ||
+	   fstr.isEqual("Yes",CaseInsensitive) ||
+	   fstr.isEqual("No",CaseInsensitive);
+}
+
+
 bool isNumberString( const char* str, bool int_only )
 {
     if ( !str || !*str )
 	return false;
+
+
     bool curisdigit = iswdigit(*str);
     if ( !*(str+1) )
 	return curisdigit;
@@ -458,7 +470,7 @@ bool isNumberString( const char* str, bool int_only )
 	str++;
     }
 
-    return true;
+    return !int_only || !dotseen;
 }
 
 

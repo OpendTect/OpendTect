@@ -112,6 +112,8 @@ mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 	/*!< tells whether a string holds a parseable number */
 mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);
 	/*!< tells whether has printable characters only. */
+mGlobal(Basic) bool isBoolString(const char*);
+	/*!< tells whether a string holds a True/False/Yes/No */
 
 mGlobal(Basic) const char* getNextWord(const char*,char*);
 	/*!< Deprecated: choose between getNextWordElem and getNextNonBlanks. */

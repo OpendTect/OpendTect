@@ -310,6 +310,25 @@ static void printBufStr( const char* pfx, BufferString bs )
 }
 
 
+bool testStringContentType()
+{
+    mRunStandardTest( isNumberString("693.56") == true, "Test number string" )
+    mRunStandardTest( isNumberString("1e4") == true, "Test enumber string" )
+    mRunStandardTest( isNumberString("7.53rs") == false, "Test non-num string" )
+    mRunStandardTest( isNumberString("534976",true) == true, "Test int string" )
+    mRunStandardTest( isNumberString("100010.4",true) == false,
+	    	      "Test non-int string" )
+    mRunStandardTest( isAlphaNumString("hagh4T90PKfr") == true,
+	    	      "Test alpha-num string" )
+    mRunStandardTest( isAlphaNumString("ghgs767#jjk") == false,
+	    	      "Test non-alpha-num string" )
+    mRunStandardTest( isBoolString("No") == true, "Test bool string" )
+    mRunStandardTest( isBoolString("Nay") == false, "Test non-bool string" )
+
+    return true;
+}
+
+
 bool testGetFromString()
 {
     const char* str = "080";
@@ -351,6 +370,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testOccFns()
       || !testLimFToStringFns()
       || !testEmptyStringComparison()
+      || !testStringContentType()
       || !testGetFromString() )
 	return 1;
 
