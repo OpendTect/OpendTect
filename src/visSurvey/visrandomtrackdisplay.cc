@@ -214,7 +214,7 @@ void RandomTrackDisplay::setRandomLineID( RandomLineID rlid )
 
 
 RandomLineID RandomTrackDisplay::getRandomLineID() const
-{ return rl_ ? rl_->ID() : RandomLineID::getInvalid(); }
+{ return rl_ ? rl_->ID() : RandomLineID::udf(); }
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
@@ -519,7 +519,7 @@ void RandomTrackDisplay::removeAllNodes()
     }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	setDataPackID( idx, DataPack::ID::getInvalid(), nullptr );
+	setDataPackID( idx, DataPack::ID::udf(), nullptr );
 
     nodes_.erase();
     updatePanelStripPath();

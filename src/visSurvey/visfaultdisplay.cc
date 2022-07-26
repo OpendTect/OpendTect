@@ -1298,7 +1298,7 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultDisplay::addCache()
 {
-    datapackids_ += DataPack::ID::getInvalid();
+    datapackids_ += DataPack::ID::udf();
 }
 
 void FaultDisplay::removeCache( int attrib )

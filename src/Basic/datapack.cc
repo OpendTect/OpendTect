@@ -57,6 +57,7 @@ DataPack::FullID DataPack::FullID::getFromString( const char* str )
     FullID fid = getInvalid();
     if ( !isValidString(str) )
 	return fid;
+
     fid.fromString( str );
     return fid;
 }
@@ -70,7 +71,7 @@ DataPack::FullID DataPack::FullID::getInvalid()
 
 
 static Threads::Atomic<int> curdpidnr( 0 );
-static Threads::Atomic<int> deletedid_( DataPack::ID::getInvalid().asInt() );
+static Threads::Atomic<int> deletedid_( DataPack::ID::udf().asInt() );
 
 DataPack::DataPack( const char* categry )
     : SharedObject("<?>")
@@ -266,7 +267,7 @@ void DataPackMgr::packDeleted( CallBacker* cb )
 	{
 	    mTrackDPMsg( BufferString("[DP]: delete ", deletedid_,
 			 BufferString(" '",shobj->name(),"'")) );
-	    deletedid_ = DataPack::ID().getInvalid().asInt();
+	    deletedid_ = DataPack::ID().udf().asInt();
 	}
 
 	packs_.removeSingle( idx );

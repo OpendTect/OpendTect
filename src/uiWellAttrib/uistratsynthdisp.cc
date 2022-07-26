@@ -157,7 +157,7 @@ SynthSpecificPars& operator =( const SynthSpecificPars& oth )
 ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::Level::ID flatlvlid,
 			  int offsidx ) const
 {
-    DataPack::ID dpid = DataPack::ID::getInvalid();
+    DataPack::ID dpid = DataPack::ID::udf();
     for ( const auto* dpobj : dpobjs_ )
     {
 	if ( lmsidx == dpobj->curLayerModelIdx() &&
@@ -168,7 +168,7 @@ ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::Level::ID flatlvlid,
 	}
     }
 
-    if ( dpid == DataPack::ID::getInvalid() )
+    if ( dpid == DataPack::ID::udf() )
 	return nullptr;
 
     return DPM( DataPackMgr::FlatID() ).get<FlatDataPack>( dpid );
@@ -663,7 +663,7 @@ bool canDoWiggle() const
 }
 
     Notifier<uiStratSynthDispDSSel> selChange;
-    DataPack::ID datapackid_ = DataPack::ID::getInvalid();
+    DataPack::ID datapackid_ = DataPack::ID::udf();
 
 private:
 

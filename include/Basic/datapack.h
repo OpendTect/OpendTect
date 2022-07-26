@@ -78,8 +78,8 @@ public:
 
     static const char*	sKeyCategory();
     static ID		cNoID()		{ return ID(); }
-    mDeprecated("Use DataPack::ID::getInvalid()")
-    static ID		cUdfID()	{ return DataPack::ID::getInvalid(); }
+    mDeprecated("Use DataPack::ID::udf()")
+    static ID		cUdfID()	{ return DataPack::ID::udf(); }
 
     virtual bool	isOK() const		{ return true; }
 
@@ -218,8 +218,8 @@ public:
     virtual void	dumpInfoFor(PackID,IOPar&) const;
 
     MgrID		id() const		{ return id_; }
-    mDeprecated("Use DataPack::MgrID::getInvalid()")
-    static MgrID	cUdfID()	{return DataPack::MgrID::getInvalid();}
+    mDeprecated("Use DataPack::MgrID::udf()")
+    static MgrID	cUdfID()	{return DataPack::MgrID::udf();}
 
     void		dumpInfo(od_ostream&) const;
     float		nrKBytes() const;

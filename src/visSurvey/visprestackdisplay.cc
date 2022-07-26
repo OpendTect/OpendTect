@@ -184,13 +184,13 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
 DataPack::ID PreStackDisplay::preProcess()
 {
     if ( !ioobj_ || !reader_ )
-	return DataPack::ID::getInvalid();
+	return DataPack::ID::udf();
 
     if ( !preprocmgr_.nrProcessors() || !preprocmgr_.reset() )
-	return DataPack::ID::getInvalid();
+	return DataPack::ID::udf();
 
     if ( !preprocmgr_.prepareWork() )
-	return DataPack::ID::getInvalid();
+	return DataPack::ID::udf();
 
     const BinID stepout = preprocmgr_.getInputStepout();
 
@@ -227,7 +227,7 @@ DataPack::ID PreStackDisplay::preProcess()
     }
 
     if ( !preprocmgr_.process() )
-	return DataPack::ID::getInvalid();
+	return DataPack::ID::udf();
 
     return preprocmgr_.getOutput();
 }

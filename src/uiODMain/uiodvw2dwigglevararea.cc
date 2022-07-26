@@ -262,7 +262,7 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp ) return DataPack::ID::getInvalid();
+    if ( !dp ) return DataPack::ID::udf();
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );

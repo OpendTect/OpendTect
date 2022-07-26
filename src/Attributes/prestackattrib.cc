@@ -415,7 +415,7 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 {
     if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
-	return DataPack::ID::getInvalid();
+	return DataPack::ID::udf();
 
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
@@ -463,7 +463,7 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
     if ( !preprocessor_->process() )
     {
 	errmsg_ = preprocessor_->errMsg();
-	return DataPack::ID::getInvalid();
+	return DataPack::ID::udf();
     }
 
     return preprocessor_->getOutput();
@@ -476,8 +476,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	return false;
 
     const BinID bid = currentbid_+relpos;
-    DataPack::ID curgatherid = DataPack::ID::getInvalid();
-    DataPack::ID curanglegatherid = DataPack::ID::getInvalid();
+    DataPack::ID curgatherid = DataPack::ID::udf();
+    DataPack::ID curanglegatherid = DataPack::ID::udf();
     if ( !getGatherData(bid,curgatherid,curanglegatherid) )
 	return false;
 

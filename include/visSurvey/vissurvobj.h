@@ -279,11 +279,11 @@ public:
 					      TaskRunner*)
 				{ return false; }
     virtual DataPack::ID	getDataPackID(int attrib) const
-				{ return DataPack::ID::getInvalid(); }
+				{ return DataPack::ID::udf(); }
     virtual DataPack::ID	getDisplayedDataPackID(int attrib) const
-				{ return DataPack::ID::getInvalid(); }
+				{ return DataPack::ID::udf(); }
     virtual DataPackMgr::MgrID	getDataPackMgrID() const
-				{ return DataPack::MgrID::getInvalid(); }
+				{ return DataPack::MgrID::udf(); }
 
 				//Volume data
     virtual TrcKeyZSampling	getTrcKeyZSampling( int attrib ) const

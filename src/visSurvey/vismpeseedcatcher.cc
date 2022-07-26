@@ -707,7 +707,7 @@ void MPEClickInfo::clear()
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
     rdltkpath_ = 0;
-    rdlid_.setInvalid();
+    rdlid_.setUdf();
     emvisids_ = -1;
 }
 

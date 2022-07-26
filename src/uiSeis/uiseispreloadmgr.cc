@@ -853,7 +853,7 @@ const char* uiSeisPreLoadedDataSel::selectedCompName() const
 DataPack::ID uiSeisPreLoadedDataSel::selectedDPID() const
 {
     ConstRefMan<DataPack> dp = PLDM().getDP( selkey_ );
-    return dp ? dp->id() : DataPack::ID::getInvalid();
+    return dp ? dp->id() : DataPack::ID::udf();
 }
 
 

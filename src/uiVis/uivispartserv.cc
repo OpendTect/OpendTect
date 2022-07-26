@@ -731,7 +731,7 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( int id,
 DataPack::ID uiVisPartServer::getDataPackID( int id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackID( attrib ) : DataPack::ID::getInvalid();
+    return so ? so->getDataPackID( attrib ) : DataPack::ID::udf();
 }
 
 
@@ -739,14 +739,14 @@ DataPack::ID uiVisPartServer::getDisplayedDataPackID( int id, int attrib )const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDisplayedDataPackID( attrib ) :
-						    DataPack::ID::getInvalid();
+						    DataPack::ID::udf();
 }
 
 
 DataPackMgr::MgrID	uiVisPartServer::getDataPackMgrID( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackMgrID() : DataPack::MgrID::getInvalid();
+    return so ? so->getDataPackMgrID() : DataPack::MgrID::udf();
 }
 
 

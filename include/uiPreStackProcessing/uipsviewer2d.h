@@ -79,7 +79,7 @@ public:
 				~uiViewer2D();
 
     uiGatherDisplay*		addGatherDisplay(DataPack::ID vdid,
-				 DataPack::ID wvaid=DataPack::ID::getInvalid());
+				 DataPack::ID wvaid=DataPack::ID::udf());
     void			addGatherDisplay(uiGatherDisplay*);
     void 			removeGatherDisplay(const uiGatherDisplay*);
     uiGatherDisplay& 		getGatherDisplay(int idx);

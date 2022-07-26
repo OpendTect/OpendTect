@@ -2554,7 +2554,7 @@ DataPack::ID HorizonDisplay::getDisplayedDataPackID( int channel ) const
     const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
     const int curversion = sections_[0]->activeVersion( channel );
     return dpids.validIdx(curversion) ? dpids[curversion] :
-						    DataPack::ID::getInvalid();
+						    DataPack::ID::udf();
 }
 
 

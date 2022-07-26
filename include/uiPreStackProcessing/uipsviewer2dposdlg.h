@@ -30,8 +30,8 @@ mStruct(uiPreStackProcessing) GatherInfo
 {
     			GatherInfo()
 			: isstored_(true), isselected_( false )
-			, vddpid_(DataPack::ID::getInvalid())
-			, wvadpid_(DataPack::ID::getInvalid())
+			, vddpid_(DataPack::ID::udf())
+			, wvadpid_(DataPack::ID::udf())
 			, bid_(mUdf(int),mUdf(int))	{}
     bool		isstored_;
     bool		isselected_;
