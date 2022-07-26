@@ -83,7 +83,6 @@ set( OD_MODULE_SOURCES
 	gason.cpp
 	genc.cc
 	globexpr.cc
-	groupedid.cc
 	iopar.cc
 	initbasic.cc
 	latlong.cc

@@ -740,7 +740,7 @@ DataPack::FullID StorageProvider::getDPID( const Desc* desc ) const
 {
     const Desc* usedesc = desc ? desc : &desc_;
     const MultiID dbky = getDBKey( usedesc );
-    return dbky.isInMemoryID() ? dbky : DataPack::FullID::getInvalid();
+    return dbky.isInMemoryID() ? dbky : DataPack::FullID::udf();
 }
 
 

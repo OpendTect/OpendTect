@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "uihistogramdisplay.h"
+#include "datapack.h"
 
 
 mExpClass(uiTools) uiHistogramSel : public uiGroup

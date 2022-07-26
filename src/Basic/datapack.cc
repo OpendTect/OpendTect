@@ -19,11 +19,11 @@
 
 #include <iostream>
 
-DataPackMgr::MgrID DataPackMgr::BufID()		{ return MgrID::get(1); }
-DataPackMgr::MgrID DataPackMgr::PointID()	{ return MgrID::get(2); }
-DataPackMgr::MgrID DataPackMgr::SeisID()	{ return MgrID::get(3); }
-DataPackMgr::MgrID DataPackMgr::FlatID()	{ return MgrID::get(4); }
-DataPackMgr::MgrID DataPackMgr::SurfID()	{ return MgrID::get(5); }
+DataPackMgrID DataPackMgr::BufID()	{ return DataPackMgrID::get(1); }
+DataPackMgrID DataPackMgr::PointID()	{ return DataPackMgrID::get(2); }
+DataPackMgrID DataPackMgr::SeisID()	{ return DataPackMgrID::get(3); }
+DataPackMgrID DataPackMgr::FlatID()	{ return DataPackMgrID::get(4); }
+DataPackMgrID DataPackMgr::SurfID()	{ return DataPackMgrID::get(5); }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 
@@ -52,26 +52,52 @@ static bool trackDataPacks()
 }
 
 
+void DataPack::FullID::setUdf()
+{
+    mgrid_.setUdf();
+    packid_.setUdf();
+}
+
+
+bool DataPack::FullID::isUdf() const
+{
+    return mgrid_.isUdf() && packid_.isUdf();
+}
+
+
+bool DataPack::FullID::fromString( const char* str )
+{
+    setUdf();
+    MultiID mid;
+    const bool res = mid.fromString( str );
+    if ( !res || mid.isUdf() )
+	return false;
+
+    mgrid_.set( mid.groupID() );
+    packid_.set( mid.objectID() );
+    return true;
+}
+
+
 DataPack::FullID DataPack::FullID::getFromString( const char* str )
 {
-    FullID fid = getInvalid();
-    if ( !isValidString(str) )
-	return fid;
-
+    FullID fid;
     fid.fromString( str );
     return fid;
 }
 
 
-DataPack::FullID DataPack::FullID::getInvalid()
+DataPack::FullID DataPack::FullID::udf()
 {
-    const GroupedID grid = GroupedID::getInvalid();
-    return FullID( grid.groupID(), grid.objID() );
+    FullID fid;
+    fid.mgrid_.setUdf();
+    fid.packid_.setUdf();
+    return fid;
 }
 
 
 static Threads::Atomic<int> curdpidnr( 0 );
-static Threads::Atomic<int> deletedid_( DataPack::ID::udf().asInt() );
+static Threads::Atomic<int> deletedid_( DataPackID::udf().asInt() );
 
 DataPack::DataPack( const char* categry )
     : SharedObject("<?>")
@@ -96,7 +122,7 @@ DataPack::~DataPack()
 }
 
 
-DataPack::ID DataPack::getNewID()
+DataPackID DataPack::getNewID()
 {
     return ID::get( ++curdpidnr );
 }
@@ -116,7 +142,7 @@ void DataPack::setManager( const DataPackMgr* mgr )
 }
 
 
-DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::MgrID dpid, bool crnew )
+DataPackMgr* DataPackMgr::gtDPM( DataPackMgrID dpid, bool crnew )
 {
     Threads::Locker lock( mgrlistlock_ );
 
@@ -134,13 +160,13 @@ DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::MgrID dpid, bool crnew )
 }
 
 
-DataPackMgr& DataPackMgr::DPM( DataPackMgr::MgrID dpid )
+DataPackMgr& DataPackMgr::DPM( DataPackMgrID dpid )
 {
     return *gtDPM( dpid, true );
 }
 
 
-DataPackMgr& DPM( DataPackMgr::MgrID dpid )
+DataPackMgr& DPM( DataPackMgrID dpid )
 {
     return DataPackMgr::DPM( dpid );
 }
@@ -148,7 +174,7 @@ DataPackMgr& DPM( DataPackMgr::MgrID dpid )
 
 DataPackMgr& DPM( const DataPack::FullID& fid )
 {
-    const DataPackMgr::MgrID manid = fid.mgrID();
+    const DataPackMgrID manid = fid.mgrID();
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
@@ -185,7 +211,7 @@ void DataPackMgr::dumpDPMs( od_ostream& strm )
 }
 
 
-DataPackMgr::DataPackMgr( DataPackMgr::MgrID dpid )
+DataPackMgr::DataPackMgr( DataPackMgrID dpid )
     : id_(dpid)
     , newPack(this)
     , packToBeRemoved(this)
@@ -215,7 +241,7 @@ DataPackMgr::~DataPackMgr()
 }
 
 
-const char* DataPackMgr::categoryOf( PackID dpid ) const
+const char* DataPackMgr::categoryOf( DataPackID dpid ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     if ( !pack )
@@ -267,7 +293,7 @@ void DataPackMgr::packDeleted( CallBacker* cb )
 	{
 	    mTrackDPMsg( BufferString("[DP]: delete ", deletedid_,
 			 BufferString(" '",shobj->name(),"'")) );
-	    deletedid_ = DataPack::ID().udf().asInt();
+	    deletedid_ = DataPackID().udf().asInt();
 	}
 
 	packs_.removeSingle( idx );
@@ -302,7 +328,7 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 }
 
 
-void DataPackMgr::dumpInfoFor( PackID dpid, IOPar& iop ) const
+void DataPackMgr::dumpInfoFor( DataPackID dpid, IOPar& iop ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     pack.setNoDelete( true );
@@ -311,7 +337,7 @@ void DataPackMgr::dumpInfoFor( PackID dpid, IOPar& iop ) const
 }
 
 
-RefMan<DataPack> DataPackMgr::getDP( PackID dpid )
+RefMan<DataPack> DataPackMgr::getDP( DataPackID dpid )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -328,7 +354,7 @@ RefMan<DataPack> DataPackMgr::getDP( PackID dpid )
 }
 
 
-ConstRefMan<DataPack> DataPackMgr::getDP( PackID dpid ) const
+ConstRefMan<DataPack> DataPackMgr::getDP( DataPackID dpid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -345,7 +371,7 @@ ConstRefMan<DataPack> DataPackMgr::getDP( PackID dpid ) const
 }
 
 
-void DataPackMgr::getPackIDs( TypeSet<PackID>& ids ) const
+void DataPackMgr::getPackIDs( TypeSet<DataPackID>& ids ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -359,7 +385,7 @@ void DataPackMgr::getPackIDs( TypeSet<PackID>& ids ) const
 }
 
 
-bool DataPackMgr::isPresent( PackID packid ) const
+bool DataPackMgr::isPresent( DataPackID packid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
 
@@ -374,7 +400,7 @@ bool DataPackMgr::isPresent( PackID packid ) const
 }
 
 
-const char* DataPackMgr::nameOf( PackID dpid ) const
+const char* DataPackMgr::nameOf( DataPackID dpid ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     if ( !pack )
@@ -399,7 +425,7 @@ float DataPackMgr::nrKBytes() const
 }
 
 
-float DataPackMgr::nrKBytesOf( PackID dpid ) const
+float DataPackMgr::nrKBytesOf( DataPackID dpid ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     if ( !pack )
@@ -411,7 +437,7 @@ float DataPackMgr::nrKBytesOf( PackID dpid ) const
 
 
 
-WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
+WeakPtr<DataPack> DataPackMgr::observeDP( DataPackID dpid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
     for ( int idx=0; idx<packs_.size(); idx++ )
@@ -426,7 +452,7 @@ WeakPtr<DataPack> DataPackMgr::observeDP( PackID dpid ) const
 }
 
 
-bool DataPackMgr::ref( PackID dpid )
+bool DataPackMgr::ref( DataPackID dpid )
 {
     RefMan<DataPack> pack = getDP( dpid );
     if ( pack )
@@ -435,7 +461,7 @@ bool DataPackMgr::ref( PackID dpid )
 }
 
 
-bool DataPackMgr::unRef( PackID dpid )
+bool DataPackMgr::unRef( DataPackID dpid )
 {
     RefMan<DataPack> pack = getDP( dpid );
     if ( pack )

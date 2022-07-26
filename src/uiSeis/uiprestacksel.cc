@@ -127,16 +127,6 @@ bool uiPreStackSel::commitInput()
 void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 {
     dpfids_ = ids;
-    for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	BufferString mid; mid += ids[0].asMultiID();
-	if ( *mid.buf() == '#' )
-	{
-	    const char* newmid = mid.buf() + 1;
-	    dpfids_[idx].fromString( newmid );
-	}
-    }
-
     if ( !dpfids_.isEmpty() )
 	setInput( dpfids_[0].asMultiID() );
 

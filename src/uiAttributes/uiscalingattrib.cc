@@ -573,7 +573,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	if ( !subseldlg.go() )
 	    return;
 
-	if ( dpfid.groupID()==DataPackMgr::SeisID() )
+	if ( dpfid.mgrID()==DataPackMgr::SeisID() )
 	    cs = subseldlg.subVol();
 	else
 	{

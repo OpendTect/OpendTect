@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 
-#include "groupedid.h"
 #include "integerid.h"
 #include "manobjectset.h"
 #include "multiid.h"
@@ -22,6 +21,19 @@ ________________________________________________________________________
 #include "threadlock.h"
 
 class DataPackMgr;
+
+using DataPackID = IntegerID<od_int32>;
+
+mExpClass(Basic) DataPackMgrID : public IntegerID<od_uint16>
+{
+public:
+			DataPackMgrID()
+			    : IntegerID<od_uint16>()		{}
+			DataPackMgrID( const IntegerID<od_uint16>& oth )
+			    : IntegerID<od_uint16>(oth.asInt()) {}
+    bool		isValid() const override
+			{ return asInt()>=0 && asInt()<=5 && !isUdf(); }
+};
 
 
 /*!
@@ -37,39 +49,63 @@ mExpClass(Basic) DataPack : public SharedObject
 {
 public:
 
-    mExpClass(Basic) FullID : public GroupedID
+    mExpClass(Basic) FullID
     {
     public:
-
-	typedef GroupID		MgrID;
-	typedef ObjID		PackID;
-
 				FullID()		{}
 				FullID( const MultiID& mid )
-				    : FullID(MgrID(mid.groupID()),
-					     PackID(mid.objectID())) {}
-				FullID( MgrID mgrid, PackID packid )
-				    : GroupedID(mgrid,packid) {}
-	bool			isValid() const { return groupID().isValid()
-						      && objID().isValid(); }
+				{
+				    mgrid_.set( mid.groupID() );
+				    packid_.set( mid.objectID() );
+				}
+
+				FullID( DataPackMgrID mgrid, DataPackID packid )
+				    : mgrid_(mgrid), packid_(packid)	{}
+
+	bool			isValid() const
+				{ return mgrid_.isValid() && packid_.isValid();}
+	void			setUdf();
+	bool			isUdf() const;
 	MultiID			asMultiID() const
-				{ return MultiID(mgrID().asInt(),
-							    packID().asInt()); }
+				{ return MultiID(mgrid_.asInt(),
+						 packid_.asInt()); }
+	bool			fromString(const char*);
+	BufferString		toString() const
+				{ return asMultiID().toString(); }
 	static FullID		getFromString(const char*);
-	static FullID		getInvalid();
+	static FullID		udf();
+
+	inline bool		operator==( const FullID& oth ) const
+				{
+				    return mgrid_==oth.mgrid_ &&
+					   packid_==oth.packid_;
+				}
+	inline bool		operator!=( const FullID& oth ) const
+				{ return !(*this==oth); }
 
 				// aliases
-	MgrID			mgrID() const		{ return groupID(); }
-	PackID			packID() const		{ return objID(); }
+	DataPackMgrID		mgrID() const		{ return mgrid_; }
+	DataPackID		packID() const		{ return packid_; }
+
+	DataPackMgrID		mgrid_;
+	DataPackID		packid_;
+
+	// For backward compatibility
+	using PackID = DataPackID;
+
+	mDeprecated("Use udf()")
+	static FullID		getInvalid()	{ return udf(); }
     };
 
-    typedef FullID::PackID	ID;
-    typedef FullID::MgrID	MgrID;
+    // For backward compatibility
+    using ID = DataPackID;
+    using MgrID = DataPackMgrID;
 
-    inline static ID	getID( const FullID& fid )	{ return fid.packID(); }
+    inline static DataPackID	getID( const FullID& fid )
+				{ return fid.packID(); }
 
-    ID			id() const		{ return id_; }
-    FullID		fullID( MgrID mgrid ) const
+    DataPackID		id() const		{ return id_; }
+    FullID		fullID( DataPackMgrID mgrid ) const
 			{ return FullID(mgrid,id()); }
     virtual const char*	category() const	{ return category_.buf(); }
 
@@ -77,9 +113,9 @@ public:
     virtual void	dumpInfo(IOPar&) const;
 
     static const char*	sKeyCategory();
-    static ID		cNoID()		{ return ID(); }
+    static DataPackID	cNoID()		{ return DataPackID(); }
     mDeprecated("Use DataPack::ID::udf()")
-    static ID		cUdfID()	{ return DataPack::ID::udf(); }
+    static DataPackID	cUdfID()	{ return DataPackID::udf(); }
 
     virtual bool	isOK() const		{ return true; }
 
@@ -91,12 +127,12 @@ protected:
 				~DataPack();
 
     void			setManager(const DataPackMgr*);
-    const ID			id_;
+    const DataPackID		id_;
     const BufferString		category_;
     mutable Threads::Lock	updatelock_;
     const DataPackMgr*		manager_ = nullptr;
 
-    static ID		getNewID();	//!< ensures a global data pack ID
+    static DataPackID	getNewID();	//!< ensures a global data pack ID
     static float	sKb2MbFac();	//!< 1 / 1024
 
     void		setCategory( const char* c )
@@ -158,16 +194,18 @@ protected:
 mExpClass(Basic) DataPackMgr : public CallBacker
 {
 public:
+    // For backward compatibility
+    using MgrID = DataPackMgrID;
+    using PackID = DataPackID;
+
 			// You can, but normally should not, construct
 			// a manager. In general, leave it to DPM() - see below.
 
-    typedef DataPack::MgrID	MgrID;
-    typedef DataPack::ID	PackID;
+    inline static DataPackMgrID
+			getID( const DataPack::FullID& fid )
+			{ return fid.mgrID(); }
 
-    inline static MgrID getID( const DataPack::FullID& fid )
-						{ return fid.mgrID(); }
-
-    bool		isPresent(PackID) const;
+    bool		isPresent(DataPackID) const;
     inline bool		isPresent( const DataPack::FullID& fid ) const
 		    { return id() == fid.mgrID() && isPresent(fid.packID()); }
 
@@ -186,49 +224,49 @@ public:
     inline bool		add( ConstRefMan<T>& p ) { return add( (T*)p.ptr() ); }
 
     template <class T>
-    inline RefMan<T>	get(PackID);
+    inline RefMan<T>	get(DataPackID);
     template <class T>
-    inline ConstRefMan<T> get(PackID) const;
+    inline ConstRefMan<T> get(DataPackID) const;
 
     template <class T>
-    inline WeakPtr<T>	observe(PackID) const;
+    inline WeakPtr<T>	observe(DataPackID) const;
 			//!<Dynamic casts to T and returns results
 
-    bool		ref(PackID);
+    bool		ref(DataPackID);
 			//Convenience. Will ref if it is found
-    bool		unRef(PackID);
+    bool		unRef(DataPackID);
 			//Convenience. Will unref if it is found
 
     Notifier<DataPackMgr> newPack;		//!< Passed CallBacker* = Pack
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack
 
 			// Standard mgr IDs take the low integer numbers
-    static MgrID	BufID();	//!< Simple data buffer: 1
-    static MgrID	PointID();	//!< Sets of 'unconnected' points: 2
-    static MgrID	SeisID();	//!< Cube/Block (N1xN2xN3) data: 3
-    static MgrID	FlatID();	//!< Flat (N1xN2) data: 4
-    static MgrID	SurfID();	//!< Surface (triangulated) data: 5
+    static DataPackMgrID BufID();	//!< Simple data buffer: 1
+    static DataPackMgrID PointID();	//!< Sets of 'unconnected' points: 2
+    static DataPackMgrID SeisID();	//!< Cube/Block (N1xN2xN3) data: 3
+    static DataPackMgrID FlatID();	//!< Flat (N1xN2) data: 4
+    static DataPackMgrID SurfID();	//!< Surface (triangulated) data: 5
 
 			// Convenience to get info without any obtain()
-    const char*		nameOf(PackID) const;
+    const char*		nameOf(DataPackID) const;
     static const char*	nameOf(const DataPack::FullID&);
-    const char*		categoryOf(PackID) const;
+    const char*		categoryOf(DataPackID) const;
     static const char*	categoryOf(const DataPack::FullID&);
-    virtual float	nrKBytesOf(PackID) const;
-    virtual void	dumpInfoFor(PackID,IOPar&) const;
+    virtual float	nrKBytesOf(DataPackID) const;
+    virtual void	dumpInfoFor(DataPackID,IOPar&) const;
 
-    MgrID		id() const		{ return id_; }
+    DataPackMgrID		id() const		{ return id_; }
     mDeprecated("Use DataPack::MgrID::udf()")
-    static MgrID	cUdfID()	{return DataPack::MgrID::udf();}
+    static DataPackMgrID	cUdfID()	{ return DataPackMgrID::udf(); }
 
     void		dumpInfo(od_ostream&) const;
     float		nrKBytes() const;
 
-    void		getPackIDs(TypeSet<PackID>&) const;
+    void		getPackIDs(TypeSet<DataPackID>&) const;
 
 private:
 
-    MgrID			id_;
+    DataPackMgrID			id_;
     mutable WeakPtrSet<DataPack> packs_;
 
     bool			doAdd(const DataPack*);
@@ -237,37 +275,37 @@ private:
     static Threads::Lock	mgrlistlock_;
     static ManagedObjectSet<DataPackMgr> mgrs_;
 
-    mDeprecatedDef DataPack*	doObtain(MgrID,bool) const;
-    mDeprecatedDef int		indexOf(MgrID) const;
+    mDeprecatedDef DataPack*	doObtain(DataPackMgrID,bool) const;
+    mDeprecatedDef int		indexOf(DataPackMgrID) const;
 
 public:
 
-			DataPackMgr(MgrID);
+			DataPackMgr(DataPackMgrID);
 			//!< You can, but normally should not, construct
 			//!< a manager. In general, leave it to DPM().
 			~DataPackMgr();
 			//!< Delete a DataPackMgr only when you have
 			//!< created it with the constructor.
 
-    static DataPackMgr& DPM(MgrID);
+    static DataPackMgr& DPM(DataPackMgrID);
     static DataPackMgr& DPM(const DataPack::FullID& fid)
 			{ return DPM(fid.mgrID()); }
-    static DataPackMgr* gtDPM(MgrID,bool);
+    static DataPackMgr* gtDPM(DataPackMgrID,bool);
     static void		dumpDPMs(od_ostream&);
 
-    RefMan<DataPack>	getDP(PackID);
-    ConstRefMan<DataPack> getDP(PackID) const;
-    WeakPtr<DataPack>	observeDP(PackID) const;
+    RefMan<DataPack>	getDP(DataPackID);
+    ConstRefMan<DataPack> getDP(DataPackID) const;
+    WeakPtr<DataPack>	observeDP(DataPackID) const;
 
     mDeprecatedDef DataPack* addAndObtain(DataPack*);
-    mDeprecatedDef DataPack* obtain(PackID);
-    mDeprecatedDef const DataPack* obtain(PackID) const;
-    mDeprecatedDef void release(PackID);
+    mDeprecatedDef DataPack* obtain(DataPackID);
+    mDeprecatedDef const DataPack* obtain(DataPackID) const;
+    mDeprecatedDef void release(DataPackID);
     mDeprecatedDef void release( const DataPack* dp )
 					{ if ( dp ) unRef( dp->id() ); }
     mDeprecatedDef void releaseAll(bool donotify);
     mDeprecated("Use isPresent")
-    bool	haveID( PackID pid ) const { return isPresent(pid); }
+    bool	haveID( DataPackID pid ) const { return isPresent(pid); }
     mDeprecated("Use isPresent")
     bool	haveID( const DataPack::FullID& fid ) const
 			{ return isPresent( fid ); }
@@ -356,14 +394,14 @@ public:
 };
 
 
-mGlobal(Basic) DataPackMgr& DPM(DataPackMgr::MgrID);
+mGlobal(Basic) DataPackMgr& DPM(DataPackMgrID);
 		//!< will create a new mgr if needed
 mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 		//!< will return empty dummy mgr if mgr ID not found
 
 //Implementations
 template <class T> inline
-RefMan<T> DataPackMgr::get( PackID dpid )
+RefMan<T> DataPackMgr::get( DataPackID dpid )
 {
     RefMan<DataPack> pack = getDP( dpid );
     mDynamicCastGet( T*, casted, pack.ptr() );
@@ -371,7 +409,7 @@ RefMan<T> DataPackMgr::get( PackID dpid )
 }
 
 template <class T> inline
-ConstRefMan<T> DataPackMgr::get( PackID dpid ) const
+ConstRefMan<T> DataPackMgr::get( DataPackID dpid ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     mDynamicCastGet( const T*, casted, pack.ptr() );
@@ -380,7 +418,7 @@ ConstRefMan<T> DataPackMgr::get( PackID dpid ) const
 
 
 template <class T> inline
-WeakPtr<T> DataPackMgr::observe( PackID dpid ) const
+WeakPtr<T> DataPackMgr::observe( DataPackID dpid ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     pack.setNoDelete( true );
