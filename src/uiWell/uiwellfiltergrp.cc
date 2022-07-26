@@ -163,11 +163,9 @@ void uiWellFilterGrp::setSelected( const DBKeySet& wellids,
     for ( const auto* wellid : wellids )
 	wellnms.add( IOM().objectName(*wellid) );
 
-    welllist_->setChosen( wellnms );
-    logormnslist_->setChosen( lognms );
-    markerlist_->setChosen( mrkrnms );
-    selChgCB( nullptr );
+    setSelected( wellnms, lognms, mrkrnms );
 }
+
 
 void uiWellFilterGrp::setSelected( const BufferStringSet& wellnms,
 				   const BufferStringSet& lognms,
@@ -199,14 +197,24 @@ void uiWellFilterGrp::setSelected( const BufferStringSet& wellnms,
 }
 
 
+void uiWellFilterGrp::setSelected( const DBKeySet& wellids,
+				   const MnemonicSelection& mns,
+				   const BufferStringSet& mrkrnms )
+{
+    BufferStringSet wellnms;
+    for ( const auto* wellid : wellids )
+	wellnms.add( IOM().objectName(*wellid) );
+
+    setSelected( wellnms, mns, mrkrnms );
+}
+
+
 void uiWellFilterGrp::getSelected( DBKeySet& wellids,
 				   BufferStringSet& lognms,
 				   BufferStringSet& mrkrnms ) const
 {
     BufferStringSet wellnms;
-    welllist_->getChosen( wellnms );
-    logormnslist_->getChosen( lognms );
-    markerlist_->getChosen( mrkrnms );
+    getSelected( wellnms, lognms, mrkrnms );
     wellids.setEmpty();
     for ( const auto* wellnm : wellnms )
     {
@@ -240,6 +248,23 @@ void uiWellFilterGrp::getSelected( BufferStringSet& wellnms,
 	mns.addIfNew( mns_->getByName(*mnnm) );
 
     markerlist_->getChosen( mrkrnms );
+}
+
+
+void uiWellFilterGrp::getSelected( DBKeySet& wellids,
+				   MnemonicSelection& mns,
+				   BufferStringSet& mrkrnms ) const
+{
+    BufferStringSet wellnms;
+    getSelected( wellnms, mns, mrkrnms );
+    wellids.setEmpty();
+    for ( const auto* wellnm : wellnms )
+    {
+	const IOObj* ioobj = Well::findIOObj( *wellnm, nullptr );
+	if ( !ioobj )
+	    continue;
+	wellids += ioobj->key();
+    }
 }
 
 

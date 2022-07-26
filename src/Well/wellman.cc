@@ -10,6 +10,7 @@
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
+#include "mnemonics.h"
 #include "ptrman.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
@@ -619,6 +620,25 @@ void Well::Man::getLogIDs( const MultiID& ky, const BufferStringSet& lognms,
 	    ids += lidx;
     }
 }
+
+
+void Well::Man::getLogIDs( const MultiID& ky, const MnemonicSelection& mns,
+			   TypeSet<int>& ids)
+{
+    if ( !MGR().validID( ky ) )
+	return;
+
+    ConstRefMan<Data> wd = MGR().get( ky, LoadReqs(LogInfos) );
+    if( !wd )
+	return;
+
+    for ( const auto* mn : mns )
+    {
+	const Log* log = wd->logs().getLog( *mn );
+	ids += wd->logs().indexOf( log->name() );
+    }
+}
+
 
 bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 			     bool forceLoad )

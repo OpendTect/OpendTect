@@ -181,6 +181,7 @@ public:
 			MnemonicSelection(const Mnemonic* exclude);
 			MnemonicSelection(const Mnemonic::StdType);
 
+    void		getNames(BufferStringSet&) const;
     const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

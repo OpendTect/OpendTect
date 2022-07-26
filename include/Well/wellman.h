@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class DBKey;
 class IOObj;
+class MnemonicSelection;
 class MultiID;
 class BufferStringSet;
 class UnitOfMeasure;
@@ -115,6 +116,8 @@ public:
     static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
 					bool onlyloaded=false);
     static void		getLogIDs(const MultiID&,const BufferStringSet&,
+				  TypeSet<int>&);
+    static void		getLogIDs(const MultiID&,const MnemonicSelection&,
 				  TypeSet<int>&);
     Coord		getMapLocation(const MultiID&) const;
 

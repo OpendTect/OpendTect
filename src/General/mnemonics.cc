@@ -659,6 +659,13 @@ MnemonicSelection::MnemonicSelection( const Mnemonic::StdType stdtyp )
 }
 
 
+void MnemonicSelection::getNames( BufferStringSet& names ) const
+{
+    for ( const auto* mnc : *this )
+	names.addIfNew( mnc->name() );
+}
+
+
 const Mnemonic* MnemonicSelection::getByName( const char* nm,
 					      bool matchaliases ) const
 {

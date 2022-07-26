@@ -58,6 +58,9 @@ public:
     void			setSelected(const BufferStringSet& wells,
 					    const MnemonicSelection& mns,
 					    const BufferStringSet& mrkrs);
+    void			setSelected(const DBKeySet& wellids,
+					    const MnemonicSelection& mns,
+					    const BufferStringSet& mrkrs);
 
     void			getSelected(DBKeySet& wellids,
 					    BufferStringSet& logs,
@@ -66,6 +69,9 @@ public:
 					    BufferStringSet& logs,
 					    BufferStringSet& mrkrs) const;
     void			getSelected(BufferStringSet& wells,
+					    MnemonicSelection& mns,
+					    BufferStringSet& mrkrs) const;
+    void			getSelected(DBKeySet& wellids,
 					    MnemonicSelection& mns,
 					    BufferStringSet& mrkrs) const;
 
@@ -79,6 +85,7 @@ public:
     void			depthRangeFilter(const Interval<float> depthrg);
     void			logValRangeFilter(const MnemonicSelection& mns,
 				    const TypeSet<Interval<float>>& logvalrg);
+    bool			isLogMode() const	{ return logmode_; }
 
     Notifier<uiWellFilterGrp>	markerSelectionChg;
 
