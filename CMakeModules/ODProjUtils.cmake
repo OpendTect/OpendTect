@@ -113,6 +113,8 @@ macro(OD_SETUP_PROJ)
 
 	install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
 		 DESTINATION data/CRS )
+	install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
+		 DESTINATION data/CRS )
 
     endif( OD_USEPROJ )
 
