@@ -278,6 +278,8 @@ public:
     void		set(const char*,const Interval<T>&);
     template <class T>
     void		set(const char*,const SamplingData<T>&);
+    template <class T>
+    void		set(const char*,const IntegerID<T>&);
 
     void		set(const char*,const BoolTypeSet&);
     void		set(const char*,const TypeSet<od_int16>&);
@@ -389,4 +391,11 @@ bool IOPar::get( const char* key, IntegerID<T>& id ) const
 	id.setUdf();
 
     return res;
+}
+
+
+template <class T>
+void IOPar::set( const char* key, const IntegerID<T>& id )
+{
+    set( key, id.asInt() );
 }
