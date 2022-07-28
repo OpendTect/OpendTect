@@ -89,7 +89,7 @@ public:
     friend class	RefTreeMgr;
 
     bool		addLeavedUnit(const char*,const char*);
-    Strat::LeavedUnitRef* getByLevel(Level::ID) const;
+    Strat::LeavedUnitRef* getByLevel(LevelID) const;
 
 };
 

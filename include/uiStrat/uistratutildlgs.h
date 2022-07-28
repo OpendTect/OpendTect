@@ -164,14 +164,13 @@ public:
 
 			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
 
-    int		lvlid_;
+    Strat::LevelID	lvlid_;
 
 protected:
 
-    Strat::LeavedUnitRef& unit_;
-
-    uiGenInput*		lvllistfld_;
-    TypeSet<int>	ids_;
+    Strat::LeavedUnitRef&	unit_;
+    uiGenInput*			lvllistfld_;
+    TypeSet<Strat::LevelID>	ids_;
 
     bool		acceptOK(CallBacker*);
 };

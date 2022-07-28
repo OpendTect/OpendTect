@@ -61,11 +61,11 @@ public:
     virtual void	setAttrib(const TrcKey&,int attr,int yn,bool undo) = 0;
     virtual bool	isAttrib(const TrcKey&,int attr) const = 0;
 
-    void		setStratLevelID( Strat::Level::ID lvlid )
+    void		setStratLevelID( Strat::LevelID lvlid )
 			{ stratlevelid_ = lvlid; }
     void		setNoLevelID()
-			{ setStratLevelID( Strat::Level::cUndefID() ); }
-    Strat::Level::ID	stratLevelID() const
+			{ setStratLevelID( Strat::LevelID::udf() ); }
+    Strat::LevelID	stratLevelID() const
 			{ return stratlevelid_; }
 
     void		fillPar( IOPar& par ) const override
@@ -85,12 +85,11 @@ public:
 protected:
 			Horizon( EMManager& emm )
 			    : Surface(emm)
-			    , stratlevelid_(Strat::Level::cUndefID())
 			{}
 
     const IOObjContext& getIOObjContext() const override		= 0;
 
-    Strat::Level::ID	stratlevelid_;
+    Strat::LevelID	stratlevelid_;
 };
 
 } // namespace EM

@@ -65,28 +65,26 @@ Strat::Level uiStratLevelSel::selected() const
 BufferString uiStratLevelSel::getLevelName() const
 {
     const Strat::Level lvl( selected() );
-    return lvl.id() == Strat::Level::cUndefID() ? BufferString::empty()
-						: lvl.name();
+    return lvl.id().isValid() ? lvl.name() : BufferString::empty();
 }
 
 
 OD::Color uiStratLevelSel::getColor() const
 {
     const Strat::Level lvl = selected();
-    return lvl.id() == Strat::Level::cUndefID() ? OD::Color::NoColor()
-						: lvl.color();
+    return lvl.id().isValid() ? lvl.color() : OD::Color::NoColor();
 }
 
 
-Strat::Level::ID uiStratLevelSel::getID() const
+Strat::LevelID uiStratLevelSel::getID() const
 {
     return selected().id();
 }
 
 
-void uiStratLevelSel::setID( Strat::Level::ID lvlid )
+void uiStratLevelSel::setID( Strat::LevelID lvlid )
 {
-    if ( lvlid != Strat::Level::cUndefID() )
+    if ( lvlid.isValid() )
 	fld_->setCurrentItem( Strat::LVLS().get(lvlid).name() );
     else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );
@@ -148,7 +146,7 @@ void uiStratLevelSel::extChgCB( CallBacker* )
     const Strat::Level cursel = selected();
     fld_->setEmpty();
     fill();
-    if ( cursel.id() != Strat::Level::cUndefID() )
+    if ( cursel.id().isValid() )
 	fld_->setCurrentItem( cursel.name() );
     else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );

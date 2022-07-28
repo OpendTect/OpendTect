@@ -22,7 +22,7 @@ mExpClass(WellAttrib) Level : public ObjectWithName
 {
 public:
 
-    typedef Strat::Level::ID ID;
+    typedef Strat::LevelID ID;
 
 			Level( ID lvlid )
 			  : id_(lvlid)		{}
@@ -45,7 +45,7 @@ mExpClass(WellAttrib) LevelSet
 {
 public:
 
-    typedef Strat::Level::ID ID;
+    typedef Strat::LevelID ID;
 
 			LevelSet()			{}
 			LevelSet( const LevelSet& oth ) { *this = oth; }

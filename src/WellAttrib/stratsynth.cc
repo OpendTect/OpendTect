@@ -1219,7 +1219,7 @@ void StratSynth::DataMgr::ensureLevels( int lmsidx ) const
     //TODO: parallel
     for ( int ilvl=0; ilvl<lvls.size(); ilvl++ )
     {
-	const Strat::Level::ID id = lvls.getIDByIdx( ilvl );
+	const Strat::LevelID id = lvls.getIDByIdx( ilvl );
 	StratSynth::Level& lvl = lvlset.add( id );
 	const Strat::Level stratlvl = lvls.get( id );
 	for ( int itrc=0; itrc<nrtrcs; itrc++ )
@@ -1231,7 +1231,7 @@ void StratSynth::DataMgr::ensureLevels( int lmsidx ) const
 }
 
 
-void StratSynth::DataMgr::getLevelDepths( Strat::Level::ID id,
+void StratSynth::DataMgr::getLevelDepths( Strat::LevelID id,
 					  TypeSet<float>& depths,
 					  int lmsidx ) const
 {
@@ -1250,7 +1250,7 @@ void StratSynth::DataMgr::getLevelDepths( Strat::Level::ID id,
 
 
 void StratSynth::DataMgr::setPackLevelTimes( SynthID id,
-					     Strat::Level::ID lvlid ) const
+					     Strat::LevelID lvlid ) const
 {
     for ( int ilm=0; ilm<lms_.size(); ilm++ )
     {

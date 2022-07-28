@@ -36,7 +36,7 @@ public:
 
 			Marker(const char* nm=nullptr,float dh=0.f,
 			       OD::Color c=OD::Color());
-			Marker(Strat::Level::ID,float dh);
+			Marker(Strat::LevelID,float dh);
 			Marker(const Marker&);
 			~Marker();
 
@@ -49,21 +49,21 @@ public:
     inline float	dah() const		{ return dah_; }
     inline void		setDah( float v )	{ dah_ = v; }
     OD::Color		color() const;
-    inline Strat::Level::ID levelID() const	{ return levelid_; }
+    inline Strat::LevelID levelID() const	{ return levelid_; }
     Strat::Level	getLevel() const;
 
     static const char*	sKeyDah();
 
     // setName() and setColor() only used as fallback, if not attached to level
     inline void		setColor( OD::Color col )	  { color_ = col; }
-    inline void		setLevelID( Strat::Level::ID id ) { levelid_ = id; }
+    inline void		setLevelID( Strat::LevelID id ) { levelid_ = id; }
     void		setNoLevelID();
 
 protected:
 
     float		dah_;
     OD::Color		color_;
-    Strat::Level::ID	levelid_;
+    Strat::LevelID	levelid_;
 
 };
 
@@ -79,8 +79,10 @@ public:
 
     const Marker*	getByName(const char* nm) const { return gtByName(nm); }
     Marker*		getByName(const char* nm)	{ return gtByName(nm); }
-    const Marker*	getByLvlID(int id) const	{ return gtByLvlID(id);}
-    Marker*		getByLvlID(int id)		{ return gtByLvlID(id);}
+    const Marker*	getByLvlID(Strat::LevelID id) const
+			{ return gtByLvlID(id);}
+    Marker*		getByLvlID(Strat::LevelID id)
+			{ return gtByLvlID(id);}
     int			getIdxAbove(float z,const Well::Track* trck=0) const;
     int			getIdxBelow(float z,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
@@ -110,7 +112,7 @@ protected:
 
     virtual ObjectSet<Marker>& doAdd(Marker*) override;
     Marker*		gtByName(const char*) const;
-    Marker*		gtByLvlID(int) const;
+    Marker*		gtByLvlID(Strat::LevelID) const;
     void		addCopy(const ObjectSet<Marker>&,int,float);
     void		alignOrderingWith(const ObjectSet<Marker>&);
     void		moveBlock(int,int,const TypeSet<int>&);

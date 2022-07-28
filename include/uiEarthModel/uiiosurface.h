@@ -11,16 +11,19 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uiioobjsel.h"
 
 #include "bufstringset.h"
-#include "faulttrace.h"
-#include "trckeysampling.h"
-#include "posinfo2dsurv.h"
 #include "emposid.h"
+#include "faulttrace.h"
+#include "posinfo2dsurv.h"
+#include "stratlevel.h"
+#include "trckeysampling.h"
+
 
 class CtxtIOObj;
 class IODirEntryList;
@@ -122,7 +125,7 @@ public:
 				       const uiSurfaceWrite::Setup& setup);
 
     virtual bool	processInput();
-    int			getStratLevelID() const;
+    Strat::LevelID	getStratLevelID() const;
     void		setColor(const OD::Color&);
     OD::Color		getColor() const;
     bool		replaceInTree()	const;

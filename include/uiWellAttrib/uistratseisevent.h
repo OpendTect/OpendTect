@@ -31,12 +31,12 @@ mExpClass(uiWellAttrib) uiStratLevelHorSel : public uiGroup
 { mODTextTranslationClass(uiStratLevelHorSel);
 public:
 
-			uiStratLevelHorSel(uiParent*,const Strat::Level::ID&);
+			uiStratLevelHorSel(uiParent*,const Strat::LevelID&);
 
     void		set2D(bool);
 
     bool		is2D() const	{ return is2d_; }
-    Strat::Level::ID	levelID() const;
+    Strat::LevelID	levelID() const;
     MultiID		horID() const;
 
     Notifier<uiStratLevelHorSel> levelSel;
@@ -45,7 +45,7 @@ public:
 protected:
 
     bool		is2d_ = false;
-    Strat::Level::ID	lvlid_;
+    Strat::LevelID	lvlid_;
 
     uiStratLevelSel*	lvlsel_;
     uiIOObjSel*		horsel2d_ = nullptr;
@@ -79,7 +79,7 @@ public:
 			    , sellevel_(true)		{}
 
 	mDefSetupMemb(bool,sellevel)
-	mDefSetupMemb(Strat::Level::ID,levelid)
+	mDefSetupMemb(Strat::LevelID,levelid)
 	mDefSetupMemb(bool,withextrwin)
 	mDefSetupMemb(bool,allowlayerbased)
     };
@@ -88,10 +88,10 @@ public:
 			~uiStratSeisEvent();
 
     bool		getFromScreen();
-    void		setLevel(const Strat::Level::ID&);
+    void		setLevel(const Strat::LevelID&);
     void		setLevel(const char* lvlnm);
     void		putToScreen();
-    Strat::Level::ID	levelID() const;
+    Strat::LevelID	levelID() const;
     BufferString	levelName() const;
     bool		snapToEvent() const;
     bool		hasExtrWin() const;

@@ -32,10 +32,10 @@ public:
     Strat::Level	selected() const;
     BufferString	getLevelName() const;
     OD::Color		getColor() const;
-    Strat::Level::ID	getID() const;
+    Strat::LevelID	getID() const;
 
     void		setName(const char*);
-    void		setID(Strat::Level::ID);
+    void		setID(Strat::LevelID);
     void		setToolTip(const uiString&);
 
     Notifier<uiStratLevelSel> selChange;

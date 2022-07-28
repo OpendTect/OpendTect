@@ -96,7 +96,7 @@ public:
     BufferString	lineSet(int) const;
     Pos::GeomID		lineGeomID(int) const;
     StepInterval<int>	lineTrcRanges( int idx ) const;
-    Strat::Level::ID	stratLevelID() const;
+    Strat::LevelID	stratLevelID() const;
     const IOPar*	pars() const;
     int			getParsOffset() const;
 

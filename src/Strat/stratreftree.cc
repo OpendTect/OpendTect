@@ -93,7 +93,7 @@ void RefTree::setToActualTypes()
     while ( it.next() )
     {
 	LeavedUnitRef* un = (LeavedUnitRef*)it.unit();
-	const bool haslvlid = un->levelID() >= 0;
+	const bool haslvlid = un->levelID().isValid();
 	if ( !haslvlid || !un->hasChildren() )
 	    chrefs += un;
     }
@@ -105,7 +105,7 @@ void RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID(),
+	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID().asInt(),
 						un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
@@ -252,10 +252,10 @@ void Strat::RefTree::levelSetChgCB( CallBacker* cb )
     if ( !cb )
 	return;
 
-    mCBCapsuleUnpack(Level::ID,lvlid,cb);
+    mCBCapsuleUnpack(LevelID,lvlid,cb);
     LeavedUnitRef* lur = getByLevel( lvlid );
     if ( lur )
-	lur->setLevelID( Level::cUndefID() );
+	lur->setLevelID( LevelID::udf() );
 }
 
 
@@ -375,7 +375,7 @@ const LeavedUnitRef* RefTree::getLevelSetUnit( const char* lvlnm ) const
 }
 
 
-LeavedUnitRef* RefTree::getByLevel( int lvlid ) const
+LeavedUnitRef* RefTree::getByLevel( LevelID lvlid ) const
 {
     UnitRefIter it( *this, UnitRefIter::LeavedNodes );
     while ( it.next() )

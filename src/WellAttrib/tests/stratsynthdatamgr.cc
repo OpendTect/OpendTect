@@ -72,9 +72,9 @@ static bool loadStdTree()
     lvls_ += new Strat::Level( Strat::LVLS().getByName( "Top_Cretaceous" ) );
     lvls_ += new Strat::Level( Strat::LVLS().getByName( "Top_Jurassic" ) );
     mRunStandardTest( lvls_.size() == 3 &&
-		      lvls_[0]->id() == 4 &&
-		      lvls_[1]->id() == 8 &&
-		      lvls_[2]->id() == 10,
+		      lvls_[0]->id().asInt() == 4 &&
+		      lvls_[1]->id().asInt() == 8 &&
+		      lvls_[2]->id().asInt() == 10,
 		      "Found target levels" )
 
     for ( const auto* lvl : lvls_ )

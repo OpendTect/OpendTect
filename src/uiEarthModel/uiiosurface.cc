@@ -427,9 +427,9 @@ void uiSurfaceWrite::stratLvlChg( CallBacker* )
 }
 
 
-int uiSurfaceWrite::getStratLevelID() const
+Strat::LevelID uiSurfaceWrite::getStratLevelID() const
 {
-    return stratlvlfld_ ? stratlvlfld_->getID() : -1;
+    return stratlvlfld_ ? stratlvlfld_->getID() : Strat::LevelID::udf();
 }
 
 

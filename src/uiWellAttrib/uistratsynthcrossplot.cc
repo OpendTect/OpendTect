@@ -562,7 +562,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 }
 
 
-void uiStratSynthCrossplot::setRefLevel( const Strat::Level::ID& lvlid )
+void uiStratSynthCrossplot::setRefLevel( const Strat::LevelID& lvlid )
 {
     if ( evfld_ )
 	evfld_->setLevel( lvlid );
@@ -603,8 +603,8 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     const Strat::Level lvl = Strat::LVLS().get( evfld_->event().levelID() );
     const Strat::Level downtolevel = Strat::LVLS().get(
 					evfld_->event().downToLevelID() );
-    const Strat::Level* stoplvl = downtolevel.id() == Strat::Level::cUndefID()
-				? nullptr : &downtolevel;
+    const Strat::Level* stoplvl = downtolevel.id().isValid()
+				? &downtolevel : nullptr;
     RefMan<DataPointSet> dps = getData( seisattrs, seqattrs, lvl, extrwin,
 					zstep, stoplvl );
     if ( !dps )

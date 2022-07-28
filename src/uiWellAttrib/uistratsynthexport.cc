@@ -82,7 +82,7 @@ void selItems( CallBacker* )
 	const Strat::LevelSet& lvls = Strat::LVLS();
 	for ( int idx=0; idx<nms_.size(); idx++ )
 	{
-	    const Strat::Level::ID id = lvls.getIDByName( nms_.get(idx).buf() );
+	    const Strat::LevelID id = lvls.getIDByName( nms_.get(idx).buf() );
 	    lb->setColor( idx, lvls.colorOf(id) );
 	}
     }

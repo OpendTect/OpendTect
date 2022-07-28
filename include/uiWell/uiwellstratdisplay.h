@@ -11,8 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uistratdisplay.h"
 #include "uiwelldahdisplay.h"
+
+#include "stratlevel.h"
 
 /*!\brief creates a display of stratigraphy IF levels are linked to markers.*/
 
@@ -44,7 +47,7 @@ protected:
 
     void 			assignTimesToLeavedUnits();
     void 			assignTimesToAllUnits();
-    const Well::Marker* 	getMarkerFromLvlID(int lvlid) const;
+    const Well::Marker*		getMarkerFromLvlID(Strat::LevelID lvlid) const;
     void 			gatherLeavedUnits();
     bool			areLeavedTied(const Strat::LeavedUnitRef&,
 					    const Strat::LeavedUnitRef&) const;
@@ -60,9 +63,9 @@ public:
 				uiWellStratDisplay(uiParent*);
 				~uiWellStratDisplay();
 
-    int				transparency() const  
+    int				transparency() const
     					{ return transparency_; }
-    void			setTransparency(int t) 
+    void			setTransparency(int t)
     					{ transparency_ = t; dataChanged(); }
 
     const StratDispData& 	stratData() const { return data_; }
@@ -72,7 +75,7 @@ protected:
 
     StratDispData		data_;
     uiStratDrawer               drawer_;
-  
+
     int				transparency_;
 
     void			dataChangedCB(CallBacker*)

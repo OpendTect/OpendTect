@@ -429,7 +429,7 @@ Strat::LeafUnitRef* Strat::LeavedUnitRef::getLeaf( const Strat::Lithology& lith)
 }
 
 
-void Strat::LeavedUnitRef::setLevelID( Strat::Level::ID lid )
+void Strat::LeavedUnitRef::setLevelID( Strat::LevelID lid )
 {
     if ( lid != levelid_ )
 	{ levelid_ = lid; notifChange(); }

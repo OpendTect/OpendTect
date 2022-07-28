@@ -472,7 +472,7 @@ void EMManager::levelToBeRemoved( CallBacker* cb )
     if ( !cb )
 	return;
 
-    mCBCapsuleUnpack(Strat::Level::ID,lvlid,cb);
+    mCBCapsuleUnpack(Strat::LevelID,lvlid,cb);
     for ( auto* emobj : objects_ )
     {
 	mDynamicCastGet(EM::Horizon*,hor,emobj)

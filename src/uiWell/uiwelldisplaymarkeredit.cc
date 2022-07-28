@@ -63,8 +63,8 @@ bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
     marker_.setColor( colorfld_->color() );
     if ( stratmrkfld_->isChecked() )
     {
-	Strat::Level::ID lvlid = Strat::LVLS().getIDByName( nm.buf() );
-	if ( lvlid == Strat::Level::cUndefID() )
+	Strat::LevelID lvlid = Strat::LVLS().getIDByName( nm.buf() );
+	if ( !lvlid.isValid() )
 	    lvlid = Strat::eLVLS().add( nm.buf(), colorfld_->color() );
 
 	marker_.setLevelID( lvlid );
@@ -78,16 +78,16 @@ void uiAddEditMrkrDlg::putToScreen()
 {
     namefld_->setText( marker_.name() );
     colorfld_->setColor( marker_.color() );
-    stratmrkfld_->setChecked( marker_.levelID() > 0 );
+    stratmrkfld_->setChecked( marker_.levelID().isValid() );
 }
 
 
 
 uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Edit Markers Dialog"),
-		                 mNoDlgTitle, mODHelpKey(
+				 mNoDlgTitle, mODHelpKey(
 				     mDispEditMarkerDlgHelpID) )
-                                .modal(false))
+				.modal(false))
     , curmrk_(0)
     , hasedited_(false)
     , needsave_(false)

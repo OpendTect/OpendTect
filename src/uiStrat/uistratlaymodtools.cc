@@ -335,7 +335,7 @@ Strat::Level uiStratLayModEditTools::selLevel() const
 }
 
 
-Strat::Level::ID uiStratLayModEditTools::selLevelID() const
+Strat::LevelID uiStratLayModEditTools::selLevelID() const
 {
     return lvlfld_->getID();
 }
@@ -385,7 +385,7 @@ bool uiStratLayModEditTools::dispLith() const
 
 bool uiStratLayModEditTools::showFlattened() const
 {
-    return flattenedtb_->isOn() && selLevelID() != Strat::Level::cUndefID();
+    return flattenedtb_->isOn() && selLevelID().isValid();
 }
 
 

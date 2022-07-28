@@ -26,8 +26,6 @@ namespace Strat
 
 static const char* sLevelExt = "stratlevels";
 static const char* sUndefName = "<Undefined>";
-Level::ID Level::cUndefID()	{ return -1; }
-
 
 const Level& Level::undef()
 {
@@ -38,7 +36,8 @@ const Level& Level::undef()
 
 Level& Level::dummy()
 {
-    static PtrMan<Level> lvl = new Level( nullptr, OD::Color::Black(), -2 );
+    static PtrMan<Level> lvl =
+		new Level( nullptr, OD::Color::Black(), LevelID::udf() );
     return *lvl.ptr();
 }
 
@@ -165,7 +164,7 @@ const Strat::LevelSet& Strat::LVLS()
 
 
 
-Strat::Level::Level( const char* nm, const OD::Color& col, ID newid )
+Strat::Level::Level( const char* nm, const OD::Color& col, LevelID newid )
     : NamedCallBacker(nm)
     , id_(newid)
     , color_(col)
@@ -207,7 +206,7 @@ Strat::Level& Strat::Level::operator =( const Level& oth )
 	return *this;
 
     NamedObject::operator =( oth );
-    const_cast<ID&>( id_ ) = oth.id_;
+    const_cast<LevelID&>( id_ ) = oth.id_;
     color_ = oth.color_;
     pars_ = oth.pars_;
 
@@ -245,12 +244,12 @@ bool Strat::Level::isUndef() const
 }
 
 
-Strat::Level& Strat::Level::setID( ID id )
+Strat::Level& Strat::Level::setID( LevelID id )
 {
     if ( id_ == id )
 	return *this;
 
-    const_cast<ID&>( id_ ) = id;
+    const_cast<LevelID&>( id_ ) = id;
     return *this;
 }
 
@@ -302,7 +301,7 @@ void Strat::Level::usePar( const IOPar& iop )
     iop.get( sKey::Name(), nm );
     setName( nm );
 
-    iop.get( sKey::ID(), const_cast<ID&>(id_) );
+    iop.get( sKey::ID(), const_cast<LevelID&>(id_) );
     iop.get( sKey::Color(), color_ );
 
     pars_.merge( iop );
@@ -393,7 +392,7 @@ void Strat::LevelSet::setEmpty()
 }
 
 
-bool Strat::LevelSet::isPresent( Level::ID id ) const
+bool Strat::LevelSet::isPresent( LevelID id ) const
 {
     return lvls_.validIdx( indexOf(id) );
 }
@@ -405,20 +404,20 @@ bool Strat::LevelSet::isPresent( const char* nm ) const
 }
 
 
-Strat::Level::ID Strat::LevelSet::getIDByName( const char* nm ) const
+Strat::LevelID Strat::LevelSet::getIDByName( const char* nm ) const
 {
     const int idx = indexOf( nm );
-    return lvls_.validIdx(idx) ? lvls_.get(idx)->id() : Level::cUndefID();
+    return lvls_.validIdx(idx) ? lvls_.get(idx)->id() : LevelID::udf();
 }
 
 
-Strat::Level::ID Strat::LevelSet::getIDByIdx( int idx ) const
+Strat::LevelID Strat::LevelSet::getIDByIdx( int idx ) const
 {
-    return lvls_.validIdx(idx) ? lvls_.get(idx)->id() : Level::cUndefID();
+    return lvls_.validIdx(idx) ? lvls_.get(idx)->id() : LevelID::udf();
 }
 
 
-int Strat::LevelSet::indexOf( Level::ID id ) const
+int Strat::LevelSet::indexOf( LevelID id ) const
 {
     return gtIdxOf( 0, id );
 }
@@ -426,13 +425,13 @@ int Strat::LevelSet::indexOf( Level::ID id ) const
 
 int Strat::LevelSet::indexOf( const char* nm ) const
 {
-    return gtIdxOf( nm, Level::cUndefID() );
+    return gtIdxOf( nm, LevelID::udf() );
 }
 
 
-int Strat::LevelSet::gtIdxOf( const char* nm, Level::ID id ) const
+int Strat::LevelSet::gtIdxOf( const char* nm, LevelID id ) const
 {
-    const bool useid = id != Level::cUndefID();
+    const bool useid = id.isValid();
     const bool usenm = nm && *nm;
     if ( !useid && !usenm )
 	return -1;
@@ -448,28 +447,28 @@ int Strat::LevelSet::gtIdxOf( const char* nm, Level::ID id ) const
 }
 
 
-BufferString Strat::LevelSet::nameOf( Level::ID id ) const
+BufferString Strat::LevelSet::nameOf( LevelID id ) const
 {
     const int idx = indexOf( id );
     return lvls_.validIdx(idx) ? lvls_.get(idx)->name() : BufferString::empty();
 }
 
 
-OD::Color Strat::LevelSet::colorOf( Level::ID id ) const
+OD::Color Strat::LevelSet::colorOf( LevelID id ) const
 {
     const int idx = indexOf( id );
     return lvls_.validIdx(idx) ? lvls_.get(idx)->color() : OD::Color();
 }
 
 
-IOPar Strat::LevelSet::parsOf( Level::ID id ) const
+IOPar Strat::LevelSet::parsOf( LevelID id ) const
 {
     const int idx = indexOf( id );
     return lvls_.validIdx(idx) ? lvls_.get(idx)->pars() : IOPar();
 }
 
 
-Strat::Level Strat::LevelSet::get( Level::ID id ) const
+Strat::Level Strat::LevelSet::get( LevelID id ) const
 {
     return gtLvl( indexOf(id) );
 }
@@ -506,7 +505,7 @@ void Strat::LevelSet::getNames( BufferStringSet& nms ) const
 }
 
 
-Strat::Level::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
+Strat::LevelID Strat::LevelSet::doSet( const Strat::Level& lvl,
 					 bool* isnew )
 {
     const int idx = indexOf( lvl.name().buf() );
@@ -520,8 +519,8 @@ Strat::Level::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
     else
     {
 	if ( isnew ) *isnew = true;
-	if ( lvl.id() < curlevelid_ )
-	    const_cast<Level&>( lvl ).setID( ++curlevelid_ );
+	if ( lvl.id().asInt() < curlevelid_ )
+	    const_cast<Level&>( lvl ).setID( LevelID(++curlevelid_) );
 	chglvl = new Level( lvl );
 	lvls_.add( chglvl );
 	levelAdded.trigger( chglvl->id() );
@@ -531,15 +530,15 @@ Strat::Level::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
 }
 
 
-Strat::Level::ID Strat::LevelSet::add( const char* nm, const OD::Color& col )
+Strat::LevelID Strat::LevelSet::add( const char* nm, const OD::Color& col )
 {
-    const Level::ID lvlid = curlevelid_++;
+    const LevelID lvlid( curlevelid_++ );
     Level lvl( nm, col, lvlid );
     return doSet( lvl );
 }
 
 
-void Strat::LevelSet::remove( Level::ID id )
+void Strat::LevelSet::remove( LevelID id )
 {
     if ( !isPresent(id) )
 	return;
@@ -550,7 +549,7 @@ void Strat::LevelSet::remove( Level::ID id )
 }
 
 
-Strat::Level::ID Strat::LevelSet::set( const Level& lvl )
+Strat::LevelID Strat::LevelSet::set( const Level& lvl )
 {
     return doSet( lvl );
 }
@@ -576,7 +575,7 @@ void Strat::LevelSet::getFromStream( ascistream& astrm, bool isold )
 
 	Level lvl( nullptr, OD::Color() );
 	lvl.usePar( iop );
-	if ( !lvl.id() != Level::cUndefID() )
+	if ( lvl.id().isValid() )
 	{
 	    if ( isold )
 	    {
@@ -586,7 +585,7 @@ void Strat::LevelSet::getFromStream( ascistream& astrm, bool isold )
 	    }
 
 	    doSet( lvl );
-	    curlevelid_.setIfLarger( lvl.id()+1 );
+	    curlevelid_.setIfLarger( lvl.id().asInt()+1 );
 	}
     }
 }

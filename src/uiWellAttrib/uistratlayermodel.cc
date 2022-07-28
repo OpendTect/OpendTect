@@ -449,7 +449,7 @@ bool uiStratLayerModel::doLoadGenDesc()
 }
 
 
-Strat::Level::ID uiStratLayerModel::curLevelID() const
+Strat::LevelID uiStratLayerModel::curLevelID() const
 {
     return modtools_->selLevelID();
 }

@@ -173,7 +173,7 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 {
     BufferString lvlnm;
     OD::Color lvlcol;
-    const Strat::Level::ID id = ur.levelID();
+    const Strat::LevelID id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
     lvlcol = lvls.isPresent( id ) ? lvls.colorOf( id ) : OD::Color::Black();
     lvlnm = lvls.isPresent( id ) ? lvls.nameOf( id ) : BufferString::empty();

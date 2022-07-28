@@ -125,8 +125,9 @@ void WellStratUnitGen::gatherLeavedUnits()
 		dispunits_ += &unit;
 	    }
 	    mDynamicCastGet( const Strat::LeavedUnitRef*, lur,ur );
-	    if ( !lur || lur->levelID() < 0)
+	    if ( !lur || !lur->levelID().isValid() )
 		continue;
+
 	    const Well::Marker* mrk = getMarkerFromLvlID( lur->levelID() );
 	    if ( mrk )
 	    {
@@ -154,12 +155,13 @@ void WellStratUnitGen::gatherLeavedUnits()
 
 
 
-const Well::Marker* WellStratUnitGen::getMarkerFromLvlID( int lvlid ) const
+const Well::Marker*
+	WellStratUnitGen::getMarkerFromLvlID( Strat::LevelID lvlid ) const
 {
     for ( int idx=0; idx<markers_.size(); idx++ )
     {
 	const Well::Marker* curmrk = markers_[idx];
-	if ( curmrk && curmrk->levelID() >=0 )
+	if ( curmrk && curmrk->levelID().isValid() )
 	{
 	    if ( lvlid == curmrk->levelID() )
 	    {
@@ -167,7 +169,8 @@ const Well::Marker* WellStratUnitGen::getMarkerFromLvlID( int lvlid ) const
 	    }
 	}
     }
-    return 0;
+
+    return nullptr;
 }
 
 

@@ -422,7 +422,8 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
     NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
 
-    TypeSet<int> lithids; int lvlid = -1;
+    TypeSet<int> lithids;
+    Strat::LevelID lvlid;
     if ( un->isLeaved() )
     {
 	const LeavedUnitRef& lvedun = (LeavedUnitRef&)(*un);
@@ -430,6 +431,7 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
 	    lithids += ((LeafUnitRef&)(lvedun.ref(idx))).lithology();
 	lvlid = lvedun.levelID();
     }
+
     upnode->remove( un );
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
@@ -438,6 +440,7 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
 	lv_->takeItem( lvit );
 	delete lvit;
     }
+
     if ( !upnode->isLeaved() && !upnode->hasChildren() )
     {
 	upnode = replaceUnit( *upnode, true );

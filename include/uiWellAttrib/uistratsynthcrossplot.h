@@ -40,7 +40,7 @@ public:
 						    const StratSynth::DataMgr&);
 				~uiStratSynthCrossplot();
 
-    void			setRefLevel(const Strat::Level::ID&);
+    void			setRefLevel(const Strat::LevelID&);
 
 protected:
 

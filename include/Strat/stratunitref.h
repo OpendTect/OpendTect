@@ -207,8 +207,8 @@ public:
     Type		type() const override		{ return Leaved; }
     bool		hasLeaves() const override	{ return true; }
 
-    Level::ID		levelID() const		{ return levelid_; }
-    void		setLevelID(Level::ID);
+    LevelID		levelID() const		{ return levelid_; }
+    void		setLevelID(LevelID);
 
     int			nrLeaves() const override	{ return refs_.size(); }
     const LeafUnitRef*	firstLeaf() const override
@@ -223,12 +223,15 @@ public:
 
 protected:
 
-    Level::ID		levelid_;
+    LevelID		levelid_;
 
     void		fill( BufferString& bs ) const override
-			    { doFill(bs,levelid_); }
-    void		use( const char* s ) override	{ doUse(s,&levelid_); }
-
+			    { doFill(bs,levelid_.asInt()); }
+    void		use( const char* s ) override
+			{
+			    int lvlid = levelid_.asInt();
+			    doUse( s, &lvlid );
+			}
 };
 
 

@@ -72,7 +72,7 @@ public:
     {
     public:
 			VwrDataPack( DataPack::ID dpid, int lmsidx,
-				     const Strat::Level::ID flatlvlid,
+				     const Strat::LevelID flatlvlid,
 				     int offsidx )
 			    : dpid_(dpid)
 			    , lmsidx_(lmsidx)
@@ -90,14 +90,14 @@ public:
 
 	DataPack::ID	id() const		{ return dpid_; }
 	int		curLayerModelIdx() const { return lmsidx_; }
-	Strat::Level::ID levelID() const	{ return flatlvlid_; }
+	Strat::LevelID levelID() const	{ return flatlvlid_; }
 	int		getOffsIdx() const	{ return offsidx_; }
 
     private:
 
 	const DataPack::ID dpid_;
 	const int	lmsidx_;
-	const Strat::Level::ID flatlvlid_;
+	const Strat::LevelID flatlvlid_;
 	const int	offsidx_;
 
     };
@@ -154,7 +154,7 @@ SynthSpecificPars& operator =( const SynthSpecificPars& oth )
 }
 
 
-ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::Level::ID flatlvlid,
+ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::LevelID flatlvlid,
 			  int offsidx ) const
 {
     DataPack::ID dpid = DataPack::ID::udf();
@@ -175,7 +175,7 @@ ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::Level::ID flatlvlid,
 }
 
 
-void addIfNew( DataPack::ID dpid, int lmsidx, const Strat::Level::ID flatlvlid,
+void addIfNew( DataPack::ID dpid, int lmsidx, const Strat::LevelID flatlvlid,
 	       int offsidx )
 {
     PtrMan<VwrDataPack> newobj = new VwrDataPack( dpid, lmsidx,
@@ -966,16 +966,16 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     const int lmsidx = datamgr_.layerModelSuite().curIdx();
     int curoffsidx = -1;
-    Strat::Level::ID flatlvlid = Strat::Level::cUndefID();
+    Strat::LevelID flatlvlid;
     if ( sd )
     {
 	const bool hascuroffset = sd->hasOffset();
 	if ( hascuroffset )
 	    curoffsidx = sd->synthGenDP().getOffsetIdx( curoffs_ );
 
-	const Strat::Level::ID sellvlid = edtools_.selLevelID();
-	const bool showflattened = sellvlid != Strat::Level::cUndefID() &&
-				   edtools_.showFlattened();
+	const Strat::LevelID sellvlid = edtools_.selLevelID();
+	const bool showflattened =
+			sellvlid.isValid() && edtools_.showFlattened();
 	if ( showflattened )
 	    flatlvlid = sellvlid;
 
@@ -1134,9 +1134,9 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 
     if ( sd )
     {
-	const Strat::Level::ID sellvlid = edtools_.selLevelID();
-	const bool showflattened = sellvlid != Strat::Level::cUndefID() &&
-				   edtools_.showFlattened();
+	const Strat::LevelID sellvlid = edtools_.selLevelID();
+	const bool showflattened =
+		sellvlid.isValid() && edtools_.showFlattened();
 	const int dispeach = dispEach();
 	const StratSynth::LevelSet& lvls = datamgr_.levels();
 	TypeSet<float> sellvldepths;

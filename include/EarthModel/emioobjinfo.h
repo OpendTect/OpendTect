@@ -72,8 +72,8 @@ public:
     // Horizon
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
     inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
-    Strat::Level::ID	levelID() const;
-    static void		getTiedToLevelID(Strat::Level::ID,TypeSet<MultiID>&,
+    Strat::LevelID	levelID() const;
+    static void		getTiedToLevelID(Strat::LevelID,TypeSet<MultiID>&,
 					 bool is2d);
     static bool		sortHorizonsOnZValues(const TypeSet<MultiID>&,
 					      TypeSet<MultiID>&);

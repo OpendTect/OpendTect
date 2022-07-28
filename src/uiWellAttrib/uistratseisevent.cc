@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 
 uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
-					const Strat::Level::ID& deflvlid )
+					const Strat::LevelID& deflvlid )
     : uiGroup(p,"Strat Level With Horizon Group")
     , lvlid_(deflvlid)
     , levelSel(this)
@@ -51,7 +51,7 @@ uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
 
 void uiStratLevelHorSel::initGrp( CallBacker* )
 {
-    if ( lvlid_ != Strat::Level::cUndefID() )
+    if ( lvlid_.isValid() )
     {
 	lvlsel_->setID( lvlid_ );
 	setHorFromLvl();
@@ -69,8 +69,8 @@ void uiStratLevelHorSel::initGrp( CallBacker* )
 
 void uiStratLevelHorSel::setHorFromLvl()
 {
-    const Strat::Level::ID lvlid = levelID();
-    if ( lvlid == Strat::Level::cUndefID() )
+    const Strat::LevelID lvlid = levelID();
+    if ( !lvlid.isValid() )
 	return;
 
     TypeSet<MultiID> dbkys;
@@ -93,7 +93,7 @@ void uiStratLevelHorSel::set2D( bool yn )
 }
 
 
-Strat::Level::ID uiStratLevelHorSel::levelID() const
+Strat::LevelID uiStratLevelHorSel::levelID() const
 {
     return lvlsel_->getID();
 }
@@ -226,7 +226,7 @@ void uiStratSeisEvent::setLevel( const char* lvlnm )
 }
 
 
-void uiStratSeisEvent::setLevel( const Strat::Level::ID& lvlid )
+void uiStratSeisEvent::setLevel( const Strat::LevelID& lvlid )
 {
     setup_.levelid_ = lvlid;
     ev_.setLevelID( lvlid );
@@ -235,7 +235,7 @@ void uiStratSeisEvent::setLevel( const Strat::Level::ID& lvlid )
 }
 
 
-Strat::Level::ID uiStratSeisEvent::levelID() const
+Strat::LevelID uiStratSeisEvent::levelID() const
 {
     return levelfld_ ? levelfld_->getID() : setup_.levelid_;
 }
@@ -350,8 +350,7 @@ void uiStratSeisEvent::putToScreen()
 
 	if ( uptolvlfld_ )
 	{
-	    const bool havelvl =
-				ev_.downToLevelID() != Strat::Level::cUndefID();
+	    const bool havelvl = ev_.downToLevelID().isValid();
 	    uptolvlfld_->setChecked( havelvl );
 	    if ( havelvl )
 		uptolvlfld_->setText( Strat::levelNameOf(ev_.downToLevelID()) );

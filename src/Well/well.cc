@@ -413,7 +413,7 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
     if ( !cb )
 	return;
 
-    mCBCapsuleUnpack(Strat::Level::ID,lvlid,cb);
+    mCBCapsuleUnpack(Strat::LevelID,lvlid,cb);
     Marker* marker = markers().getByLvlID( lvlid );
     if ( marker )
 	marker->setNoLevelID();

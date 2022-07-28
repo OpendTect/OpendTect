@@ -782,7 +782,8 @@ uiSurfaceStratDlg( uiParent* p,  const TypeSet<MultiID>& ids )
 						    uiStrings::sEmptyString() );
 	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
-	int lvlid = -1;
+
+	Strat::LevelID lvlid;
 	par.get( sKey::StratRef(), lvlid );
 	levelsel->setID( lvlid );
     }
@@ -802,7 +803,7 @@ void doCol( CallBacker* )
 
     mDynamicCastGet(uiStratLevelSel*,levelsel,
 	tbl_->getCellGroup(RowCol(cell.row(),2)))
-    const bool havelvl = levelsel && levelsel->getID() >= 0;
+    const bool havelvl = levelsel && levelsel->getID().isValid();
     if ( havelvl )
     {
 	uiMSG().error( tr("Cannot change color of regional marker") );
@@ -838,7 +839,8 @@ bool acceptOK( CallBacker* )
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			tbl_->getCellGroup(RowCol(idx,2)))
-	const int lvlid = levelsel ? levelsel->getID() : -1;
+	const Strat::LevelID lvlid =
+			levelsel ? levelsel->getID() : Strat::LevelID::udf();
 	IOPar displaypar;
 	displaypar.set( sKey::StratRef(), lvlid );
 	displaypar.set( sKey::Color(), col );

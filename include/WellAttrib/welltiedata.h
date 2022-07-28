@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "iopar.h"
 #include "multiid.h"
+#include "stratlevel.h"
 #include "uistring.h"
 #include "welldisp.h"
 #include "welldata.h"
@@ -91,7 +92,7 @@ public:
     OD::Color		color_;
     float		zpos_;
     BufferString	name_;
-    int			id_ = -1;
+    Strat::LevelID	id_;
     int			size_;
 
     bool		operator == ( const Marker& m ) const

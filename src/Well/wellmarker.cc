@@ -23,12 +23,12 @@ Well::Marker::Marker( const char* nm, float dh, OD::Color c )
     : ::NamedObject(nm)
     , dah_(dh)
     , color_(c)
-    , levelid_(Strat::Level::cUndefID())
+    , levelid_(Strat::LevelID::udf())
 {
 }
 
 
-Well::Marker::Marker( Strat::Level::ID lvlid, float dh )
+Well::Marker::Marker( Strat::LevelID lvlid, float dh )
     : ::NamedObject("")
     , dah_(dh)
     , color_(OD::Color::Black())
@@ -64,7 +64,7 @@ Well::Marker& Well::Marker::operator =( const Well::Marker& oth )
 
 OD::Color Well::Marker::color() const
 {
-    if ( levelid_ != Strat::Level::cUndefID() )
+    if ( levelid_.isValid() )
 	return Strat::LVLS().colorOf( levelid_ );
 
     return color_;
@@ -79,7 +79,7 @@ Strat::Level Well::Marker::getLevel() const
 
 void Well::Marker::setNoLevelID()
 {
-    setLevelID( Strat::Level::cUndefID() );
+    setLevelID( Strat::LevelID::udf() );
 }
 
 
@@ -421,16 +421,19 @@ void Well::MarkerSet::mergeOtherWell( const ObjectSet<Well::Marker>& ms1 )
 }
 
 
-Well::Marker* Well::MarkerSet::gtByLvlID( int lvlid ) const
+Well::Marker* Well::MarkerSet::gtByLvlID( Strat::LevelID lvlid ) const
 {
-    if ( lvlid<=0 ) return 0;
+    if ( !lvlid.isValid() )
+	return nullptr;
+
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
 	Well::Marker* mrk = const_cast<Well::Marker*>((*this)[idmrk]);
 	if ( mrk && mrk->levelID() == lvlid )
 	    return mrk;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -485,13 +488,18 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 	if ( !mpar || mpar->isEmpty() )
 	    break;
 
-	BufferString nm; mpar->get( sKey::Name(), nm );
+	BufferString nm;
+	mpar->get( sKey::Name(), nm );
 	if ( nm.isEmpty() || isPresent(nm) )
 	    continue;
 
-	float dpt = 0; mpar->get( sKey::Depth(), dpt );
-	OD::Color col(0,0,0); mpar->get( sKey::Color(), col );
-	int lvlid = -1; mpar->get( sKey::Level(), lvlid );
+	float dpt = 0;
+	mpar->get( sKey::Depth(), dpt );
+	OD::Color col(0,0,0);
+	mpar->get( sKey::Color(), col );
+
+	Strat::LevelID lvlid;
+	mpar->get( sKey::Level(), lvlid );
 
 	Marker* mrk = new Marker( nm, dpt );
 	mrk->setColor( col );

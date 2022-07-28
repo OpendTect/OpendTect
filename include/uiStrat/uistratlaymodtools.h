@@ -75,7 +75,7 @@ public:
     void	setContentNames(const BufferStringSet&);
 
     Strat::Level selLevel() const;
-    Strat::Level::ID selLevelID() const;
+    Strat::LevelID selLevelID() const;
     int		selLevelIdx() const;
     BufferString selLevelName() const;
     OD::Color	selLevelColor() const;

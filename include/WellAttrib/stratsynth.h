@@ -142,9 +142,9 @@ public:
     const TypeSet<ElasticModel>& elasticModels(int lmsidx=-1) const;
     const StratSynth::LevelSet& levels(int lmsidx=-1) const;
 
-    void		getLevelDepths(Strat::Level::ID,TypeSet<float>& zvals,
+    void		getLevelDepths(Strat::LevelID,TypeSet<float>& zvals,
 				       int lmsidx=-1) const;
-    void		setPackLevelTimes(SynthID,Strat::Level::ID) const;
+    void		setPackLevelTimes(SynthID,Strat::LevelID) const;
 
     uiRetVal		errMsg() const		{ return errmsg_; }
     uiRetVal		infoMsg() const		{ return infomsg_; }

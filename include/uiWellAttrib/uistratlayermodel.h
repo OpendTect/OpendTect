@@ -55,7 +55,7 @@ public:
     const Strat::LayerModel&		layerModel() const;
     const StratSynth::DataMgr&		synthDataMgr() const
 					{ return *synthdatamgr_.ptr(); }
-    Strat::Level::ID			curLevelID() const;
+    Strat::LevelID			curLevelID() const;
     MultiID				genDescID() const;
     bool				loadGenDesc(const MultiID&);
     void				setNrToGen(int);

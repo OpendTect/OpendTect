@@ -817,12 +817,18 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 
 	key = IOPar::compKey( basekey, Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
-	    { delete wm; continue; }
+	{
+	    delete wm;
+	    continue;
+	}
+
 	const float val = bs.toFloat();
 	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
 						      : val );
 	key = IOPar::compKey( basekey, sKey::StratRef() );
-	int lvlid = -1; iopar.get( key, lvlid );
+
+	Strat::LevelID lvlid;
+	iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );
 
 	key = IOPar::compKey( basekey, sKey::Color() );

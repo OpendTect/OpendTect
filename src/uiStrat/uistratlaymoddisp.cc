@@ -208,7 +208,7 @@ void uiStratLayerModelDisp::fillLevelDepths()
 	for ( int iseq=0; iseq<laymodel.size(); iseq++ )
 	{
 	    const Strat::LayerSequence& seq = laymodel.sequence( iseq );
-	    if ( lvl.id() == Strat::Level::cUndefID() || seq.isEmpty() )
+	    if ( !lvl.id().isValid() || seq.isEmpty() )
 		dpths += mUdf(float);
 	    else
 		dpths += seqLvlDepth( seq, lvl );
