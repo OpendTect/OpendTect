@@ -26,8 +26,6 @@ mExpClass(WellAttrib) SyntheticData : public SharedObject
 {
 public:
 
-    typedef int SynthID;
-
     static ConstRefMan<SyntheticData>	get(const SynthGenParams&,
 					    Seis::RaySynthGenerator&);
 
@@ -79,7 +77,7 @@ protected:
 					      DataPack&);
 				~SyntheticData();
 
-    SynthID			id_ = -1;
+    SynthID			id_;
     SynthGenParams		sgp_;
     RefMan<DataPack>		datapack_;
     ConstRefMan<Seis::SynthGenDataPack> synthgendp_;
@@ -92,5 +90,3 @@ public:
     void			setID( SynthID newid )	{ id_ = newid; }
 
 };
-
-

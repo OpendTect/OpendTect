@@ -328,9 +328,9 @@ void uiSynthToRealScale::updSynthStats()
     uiTaskRunner trprov( this );
     const BufferString synthnm = synthselfld_->text();
     int lmsidx = -1;
-    const SyntheticData::SynthID sid = stratsynth_.find( synthnm, &lmsidx );
+    const SynthID sid = stratsynth_.find( synthnm, &lmsidx );
     const StratSynth::DataMgr* datamgr = stratsynth_.getProdMgr();
-    if ( sid < 0 || !datamgr->ensureGenerated(sid,&trprov,lmsidx) )
+    if ( !sid.isValid() || !datamgr->ensureGenerated(sid,&trprov,lmsidx) )
 	return;
 
     ConstRefMan<SyntheticData> sd = datamgr->getDataSet( sid, lmsidx );

@@ -57,7 +57,7 @@ protected:
     uiCheckBox*		repludfsfld_	= nullptr;
 
     const StratSynth::DataMgr*	datamgr_;
-    TypeSet<StratSynth::DataMgr::SynthID> selids_;
+    TypeSet<SynthID>	selids_;
     BufferStringSet	sellvls_;
 
     GeomSel		selType() const;

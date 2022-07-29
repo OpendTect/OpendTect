@@ -173,13 +173,13 @@ void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
     for ( int idx=0; idx<synthnmlb_->size(); idx++ )
     {
 	const BufferString dsnm( synthnmlb_->textOfItem(idx) );
-	const SyntheticData::SynthID id = stratsynth_.find( dsnm );
+	const SynthID id = stratsynth_.find( dsnm );
 	const SynthGenParams* sgp = stratsynth_.getGenParams( id );
 	if ( sgp && sgp->isPreStack() && sgp->isCorrected() )
 	    synthnms.add( sgp->name_ );
     }
 
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     stratsynth_.getIDs( ids, StratSynth::DataMgr::OnlyPSBased );
     for ( const auto& id : ids )
     {
@@ -199,13 +199,13 @@ void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
     for ( int idx=0; idx<synthnmlb_->size(); idx++ )
     {
 	const BufferString dsnm( synthnmlb_->textOfItem(idx) );
-	const SyntheticData::SynthID id = stratsynth_.find( dsnm );
+	const SynthID id = stratsynth_.find( dsnm );
 	const SynthGenParams* sgp = stratsynth_.getGenParams( id );
 	if ( sgp && sgp->canBeAttributeInput() )
 	    synthnms.add( sgp->name_ );
     }
 
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     stratsynth_.getIDs( ids, StratSynth::DataMgr::OnlyAttrib );
     for ( const auto& id : ids )
     {
@@ -229,13 +229,13 @@ bool uiSynthParsGrp::prepareSyntheticToBeRemoved()
 	mErrRet( tr("No synthetic selected"), return false );
 
     const BufferString synthtochgnm( synthnmlb_->getText() );
-    const SyntheticData::SynthID sdidtochg = stratsynth_.find( synthtochgnm );
+    const SynthID sdidtochg = stratsynth_.find( synthtochgnm );
     const SynthGenParams* sgptorem = stratsynth_.getGenParams( sdidtochg );
     if ( !sgptorem )
 	mErrRet( tr("Cannot find synthetic data '%1'").arg(synthtochgnm),
 		 return false );
 
-    TypeSet<SyntheticData::SynthID> idswithinput, idstobedisabled;
+    TypeSet<SynthID> idswithinput, idstobedisabled;
     stratsynth_.getIDs( idswithinput, StratSynth::DataMgr::OnlyWithInput );
     for ( const auto& id : idswithinput )
     {
@@ -306,7 +306,7 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
 
     const bool onlynmchanged = namechanged_ && !parschanged_;
     const BufferString synthtochgnm( synthnmlb_->getText() );
-    const SyntheticData::SynthID sdtochgid = stratsynth_.find( synthtochgnm );
+    const SynthID sdtochgid = stratsynth_.find( synthtochgnm );
     const SynthGenParams* sdtochgsgp = stratsynth_.getGenParams( sdtochgid );
     if ( !sdtochgsgp )
     {
@@ -358,8 +358,8 @@ void uiSynthParsGrp::removeSyntheticsCB( CallBacker* )
 	return;
 
     const BufferString synthtoremnm( synthnmlb_->getText() );
-    const SyntheticData::SynthID sdid = stratsynth_.find( synthtoremnm );
-    if ( sdid <= 0 )
+    const SynthID sdid = stratsynth_.find( synthtoremnm );
+    if ( !sdid.isValid() )
 	return;
 
     stratsynth_.removeSynthetic( sdid );
@@ -513,8 +513,8 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
 
     if ( sgp.isAttribute() )
     {
-	const SyntheticData::SynthID inpid = stratsynth_.find( sgp.inpsynthnm_);
-	if ( inpid < 0 )
+	const SynthID inpid = stratsynth_.find( sgp.inpsynthnm_);
+	if ( !inpid.isValid() )
 	    return;
 
 	BufferStringSet attribs;
@@ -531,7 +531,7 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
 	}
 
 	MouseCursorChanger mcchger( MouseCursor::Wait );
-	TypeSet<SyntheticData::SynthID> attribids;
+	TypeSet<SynthID> attribids;
 	if ( !stratsynth_.addInstAttribSynthetics(inpid,attribtypes,attribids) )
 	    mErrRet( stratsynth_.errMsg(), return );
 
@@ -544,8 +544,8 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
     }
     else
     {
-	const SyntheticData::SynthID sdid = stratsynth_.addSynthetic( sgp );
-	if ( sdid < 0 )
+	const SynthID sdid = stratsynth_.addSynthetic( sgp );
+	if ( !sdid.isValid() )
 	    mErrRet( stratsynth_.errMsg(), return )
 
 	const BufferString& newsynthnm = sgp.name_;
@@ -583,11 +583,11 @@ bool uiSynthParsGrp::usePar( const IOPar& par )
 
     initGrp( nullptr );
     const BufferString dsnm = synthnmlb_->getText();
-    const SyntheticData::SynthID id = stratsynth_.find( dsnm );
-    if ( id >0 )
+    const SynthID id = stratsynth_.find( dsnm );
+    if ( id.isValid() )
 	synthSelected.trigger( id );
 
-    return id > 0;
+    return id.isValid();
 }
 
 
@@ -631,7 +631,7 @@ void uiSynthParsGrp::newCB( CallBacker* )
 	return;
 
     const SynthGenParams defsgd = SynthGenParams();
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     stratsynth_.getIDs( ids, StratSynth::DataMgr::NoProps );
     NotifyStopper nsrm( stratsynth_.entryRemoved );
 
@@ -646,7 +646,7 @@ void uiSynthParsGrp::newCB( CallBacker* )
     for ( int idx=ids.size()-1; idx>0; idx-- )
 	stratsynth_.removeSynthetic( ids[idx] );
 
-    const SyntheticData::SynthID handledid = ids[0];
+    const SynthID handledid = ids[0];
     NotifyStopper nsupd( stratsynth_.entryChanged );
     const bool res = stratsynth_.updateSynthetic( handledid, defsgd );
     initGrp( nullptr );
@@ -742,7 +742,7 @@ void uiSynthParsGrp::parsChangedCB( CallBacker* )
 }
 
 
-void uiSynthParsGrp::nameChangedCB( CallBacker* cb )
+void uiSynthParsGrp::nameChangedCB( CallBacker* )
 {
     updatefld_->setSensitive( !synthnmlb_->isEmpty() );
     addnewfld_->setSensitive( true );
@@ -797,9 +797,10 @@ bool uiSynthParsGrp::getFromScreen( SynthGenParams& sgp )
     sgp.usePar( iop );
     if ( iop.isEmpty() )
 	return false;
-    else if ( sgp.needsInput() )
+
+    if ( sgp.needsInput() )
     {
-	if ( !stratsynth_.find(sgp.inpsynthnm_) )
+	if ( !stratsynth_.find(sgp.inpsynthnm_).isValid() )
 	    mErrRet(tr("Problem with Input synthetic data"),return false);
     }
 

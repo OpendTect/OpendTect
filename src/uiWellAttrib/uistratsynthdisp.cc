@@ -102,7 +102,7 @@ public:
 
     };
 
-SynthSpecificPars( SyntheticData::SynthID sid, uiFlatViewer* vwr )
+SynthSpecificPars( SynthID sid, uiFlatViewer* vwr )
     : vwr_(vwr)
     , id_(sid)
 {
@@ -304,7 +304,7 @@ const StepInterval<float>& getOffsetRg() const
 
 void useWVADispPars( const FlatView::DataDispPars::WVA& wvapars )
 {
-    if ( id_ == DataPack::cNoID().asInt() )
+    if ( !id_.isValid() )
 	return;
 
     wvamapper_->setup_ = wvapars.mappersetup_;
@@ -314,7 +314,7 @@ void useWVADispPars( const FlatView::DataDispPars::WVA& wvapars )
 
 void useVDDispPars( const FlatView::DataDispPars::VD& vdpars )
 {
-    if ( id_ == DataPack::cNoID().asInt() )
+    if ( !id_.isValid() )
 	return;
 
     vdmapper_->setup_ = vdpars.mappersetup_;
@@ -408,7 +408,7 @@ void fillDispPars( IOPar& iop ) const
 	iop.mergeComp( disppar, sKeyDispPar() );
 }
 
-    SyntheticData::SynthID	id_;
+    SynthID	id_;
     ManagedObjectSet<VwrDataPack> dpobjs_;
     PtrMan<ColTab::Mapper>	wvamapper_;
     PtrMan<ColTab::Mapper>	vdmapper_;
@@ -433,14 +433,14 @@ class SynthSpecificParsSet : public ManagedObjectSet<SynthSpecificPars>
 {
 public:
 
-SynthSpecificPars* add( SyntheticData::SynthID sid, uiFlatViewer* vwr )
+SynthSpecificPars* add( SynthID sid, uiFlatViewer* vwr )
 {
     auto* ret = new SynthSpecificPars( sid, vwr );
     *this += ret;
     return ret;
 }
 
-int find( SyntheticData::SynthID sid ) const
+int find( SynthID sid ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	if ( get(idx)->id_ == sid )
@@ -448,18 +448,18 @@ int find( SyntheticData::SynthID sid ) const
     return -1;
 }
 
-SynthSpecificPars* getByID( SyntheticData::SynthID sid )
+SynthSpecificPars* getByID( SynthID sid )
 {
     const int idx = find( sid );
     return validIdx(idx) ? get( idx ) : nullptr;
 }
 
-const SynthSpecificPars* getByID( SyntheticData::SynthID sid ) const
+const SynthSpecificPars* getByID( SynthID sid ) const
 {
     return mSelf().getByID( sid );
 }
 
-ConstRefMan<FlatDataPack> find( SyntheticData::SynthID sid, int lmsidx,
+ConstRefMan<FlatDataPack> find( SynthID sid, int lmsidx,
 			  const Strat::Level::ID flatlvlid, int offsidx ) const
 {
     const SynthSpecificPars* ent = getByID( sid );
@@ -469,7 +469,7 @@ ConstRefMan<FlatDataPack> find( SyntheticData::SynthID sid, int lmsidx,
     return ent->find( lmsidx, flatlvlid, offsidx );
 }
 
-void addIfNew( SyntheticData::SynthID sid, DataPack::ID dpid, int lmsidx,
+void addIfNew( SynthID sid, DataPack::ID dpid, int lmsidx,
 	       const Strat::Level::ID flatlvlid, int offsidx )
 {
     SynthSpecificPars* ent = getByID( sid );
@@ -527,16 +527,17 @@ uiStratSynthDispDSSel( uiParent* p, uiStratSynthDisp& synthdisp,
 }
 
 
-void setCurrentItem( const SyntheticData::SynthID id )
+void setCurrentItem( const SynthID id )
 {
-    sel_->setCurrentItem( sel_->getItemIndex(id) );
+    sel_->setCurrentItem( sel_->getItemIndex(id.asInt()) );
 }
+
 
 bool update()
 {
     const BufferString curnm( sel_->text() );
-    const SyntheticData::SynthID previd = datamgr_.find( curnm );
-    bool havesamesel = previd < 0 && isNoneSelected();
+    const SynthID previd = datamgr_.find( curnm );
+    bool havesamesel = !previd.isValid() && isNoneSelected();
     const SynthSpecificParsSet& entries = synthdisp_.entries_;
     if ( !havesamesel )
     {
@@ -555,36 +556,33 @@ bool update()
     sel_->addItem( toUiString("---"), 0 );
     for ( const auto* entry : entries )
     {
-	if ( entry->id_ <=0 )
-	    continue;
-
-	if ( entry->id_ <=0 ||
+	if ( !entry->id_.isValid() ||
 	     (wva_ && (datamgr_.isAttribute(entry->id_) ||
 		       datamgr_.isStratProp(entry->id_))) )
 	    continue;
 
 	const BufferString dsnm( datamgr_.nameOf(entry->id_) );
 	if ( !dsnm.isEmpty() )
-	    sel_->addItem( toUiString(dsnm.str()), entry->id_ );
+	    sel_->addItem( toUiString(dsnm.str()), entry->id_.asInt() );
     }
 
     if ( havesamesel )
     {
-	if ( previd > 0 )
+	if ( previd.isValid() )
 	    setCurrentItem( previd );
 	else
-	    setCurrentItem( 0 );
+	    setCurrentItem( SynthID(0) );
     }
     else
-	setCurrentItem( entries.size() > 1 ? entries.get(1)->id_ : 0 );
+	setCurrentItem( entries.size()>1 ? entries.get(1)->id_ : SynthID(0) );
 
     return !havesamesel;
 }
 
 
-void updateName( SyntheticData::SynthID id, const char* nm )
+void updateName( SynthID id, const char* nm )
 {
-    const int idx = sel_->getItemIndex( id );
+    const int idx = sel_->getItemIndex( id.asInt() );
     if ( idx < 0 || idx >= sel_->size() )
 	return;
 
@@ -605,9 +603,9 @@ bool isNoneSelected() const
 }
 
 
-SyntheticData::SynthID curID() const
+SynthID curID() const
 {
-    return sel_->currentItemID();
+    return SynthID( sel_->currentItemID() );
 }
 
 
@@ -832,7 +830,7 @@ void uiStratSynthDisp::updFlds( bool full )
     {
 	NotifyStopper wvans( wvaselfld_->selChange );
 	NotifyStopper vdns( vdselfld_->selChange );
-	const SyntheticData::SynthID id = entries_.get(1)->id_;
+	const SynthID id = entries_.get(1)->id_;
 	wvaselfld_->setCurrentItem( id );
 	vdselfld_->setCurrentItem( id );
     }
@@ -850,8 +848,8 @@ void uiStratSynthDisp::updateEntries( bool full )
 	    preventries += entries_.removeAndTake( 0 );
     }
 
-    TypeSet<SyntheticData::SynthID> ids;
-    static SyntheticData::SynthID emptyid = 0;
+    TypeSet<SynthID> ids;
+    static SynthID emptyid( 0 );
     ids += emptyid;
     datamgr_.getIDs( ids, StratSynth::DataMgr::NoProps );
     datamgr_.getIDs( ids, StratSynth::DataMgr::OnlyProps );
@@ -924,8 +922,8 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 
     uiStratSynthDispDSSel& selfld = dest == FlatView::Viewer::VD
 				  ? *vdselfld_ : *wvaselfld_;
-    const SyntheticData::SynthID curid = selfld.curID();
-    if ( curid <= 0 )
+    const SynthID curid = selfld.curID();
+    if ( !curid.isValid() )
     {
 	selfld.datapackid_ = DataPack::cNoID();
 	if ( dest == FlatView::Viewer::Both )
@@ -936,7 +934,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     }
 
     ConstRefMan<SyntheticData> sd;
-    if ( curid > 0 )
+    if ( curid.isValid() )
     {
 	enableDispUpdate( false );
 	uiTaskRunner trprov( this );
@@ -1059,12 +1057,11 @@ void uiStratSynthDisp::updateDispPars( FlatView::Viewer::VwrDest dest,
     if ( dest == FlatView::Viewer::None )
 	return;
 
-    const SyntheticData::SynthID wvacurid = wvaselfld_->curID();
-    const SyntheticData::SynthID vdcurid = vdselfld_->curID();
-    const int noID = DataPack::cNoID().asInt();
-    if ( (dest == FlatView::Viewer::WVA && wvacurid == noID) ||
-	 (dest == FlatView::Viewer::VD && vdcurid == noID) ||
-	 (wvacurid == noID && vdcurid == noID) )
+    const SynthID wvacurid = wvaselfld_->curID();
+    const SynthID vdcurid = vdselfld_->curID();
+    if ( (dest == FlatView::Viewer::WVA && !wvacurid.isValid()) ||
+	 (dest == FlatView::Viewer::VD && !vdcurid.isValid()) ||
+	 (!wvacurid.isValid() && !vdcurid.isValid()) )
 	return;
 
     FlatView::DataDispPars& ddpars = vwr_->appearance().ddpars_;
@@ -1129,7 +1126,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
     vwr_->removeAuxDatas( levelaux_ );
     levelaux_.setEmpty();
 
-    TypeSet<SyntheticData::SynthID> validids;
+    TypeSet<SynthID> validids;
     datamgr_.getIDs( validids, DataMgr::NoSubSel, true );
     ConstRefMan<SyntheticData> sd;
     if ( !validids.isEmpty() )
@@ -1217,7 +1214,7 @@ void uiStratSynthDisp::setPSVwrData()
     if ( !psvwrwin_ )
 	return;
 
-    const SyntheticData::SynthID curid = wvaselfld_->isNoneSelected()
+    const SynthID curid = wvaselfld_->isNoneSelected()
 				    ? vdselfld_->curID() : wvaselfld_->curID();
     ConstRefMan<SyntheticData> sd = datamgr_.getDataSet( curid );
     if ( !sd || !sd->isPS() )
@@ -1261,7 +1258,7 @@ void uiStratSynthDisp::handlePSViewDisp( FlatView::Viewer::VwrDest dest )
     if ( !curIsPS(dest) )
 	return;
 
-    const SyntheticData::SynthID synthid =
+    const SynthID synthid =
 	dest == FlatView::Viewer::WVA
 	     ? wvaselfld_->curID()
 	     : (dest == FlatView::Viewer::VD
@@ -1316,7 +1313,7 @@ void uiStratSynthDisp::curModEdChgCB( CallBacker* )
     if ( wvaselfld_->isNoneSelected() && vdselfld_->isNoneSelected() )
 	return;
 
-    const SyntheticData::SynthID synthid = wvaselfld_->isNoneSelected()
+    const SynthID synthid = wvaselfld_->isNoneSelected()
 					 ? vdselfld_->curID()
 					 : wvaselfld_->curID();
     ConstRefMan<SyntheticData> sd = datamgr_.getDataSet( synthid );
@@ -1342,8 +1339,8 @@ void uiStratSynthDisp::canvasResizeCB( CallBacker* )
 void uiStratSynthDisp::dispPropChgCB( CallBacker* )
 {
     const FlatView::DataDispPars& ddpars = vwr_->appearance().ddpars_;
-    const SyntheticData::SynthID wvaid = wvaselfld_->curID();
-    const SyntheticData::SynthID vdid = vdselfld_->curID();
+    const SynthID wvaid = wvaselfld_->curID();
+    const SynthID vdid = vdselfld_->curID();
 
     StratSynth::SynthSpecificPars* wvaent = entries_.getByID( wvaid );
     if ( wvaent )
@@ -1469,8 +1466,8 @@ void uiStratSynthDisp::useDispPars( const IOPar& iop, od_uint32* ctyp )
     for ( int idx=0; idx<sgpset.size(); idx++ )
     {
 	const SynthGenParams* sgp = sgpset.get( idx );
-	const SyntheticData::SynthID sid = datamgr_.find( sgp->name_ );
-	if ( sid < 0 )
+	const SynthID sid = datamgr_.find( sgp->name_ );
+	if ( !sid.isValid() )
 	    continue;
 
 	StratSynth::SynthSpecificPars* ent = entries_.getByID( sid );
@@ -1508,7 +1505,7 @@ bool uiStratSynthDisp::usePar( const IOPar& iop )
     const bool ret = datamgr_.usePar( iop );
     if ( !ret )
     {
-	TypeSet<SyntheticData::SynthID> ids;
+	TypeSet<SynthID> ids;
 	datamgr_.getIDs( ids, StratSynth::DataMgr::NoProps );
 	if ( ids.isEmpty() )
 	{
@@ -1523,7 +1520,7 @@ bool uiStratSynthDisp::usePar( const IOPar& iop )
 
 void uiStratSynthDisp::fillPar( IOPar& iop ) const
 {
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     datamgr_.getIDs( ids, StratSynth::DataMgr::NoProps );
     ManagedObjectSet<IOPar> dispiops;
     dispiops.setNullAllowed();
@@ -1570,7 +1567,7 @@ void uiStratSynthDisp::synthAddedCB( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack(SyntheticData::SynthID,id,cb);
+    mCBCapsuleUnpack(SynthID,id,cb);
     updFlds( false );
     if ( wvaselfld_->curID() == id || vdselfld_->curID() == id )
 	packSelCB( cb );
@@ -1586,7 +1583,7 @@ void uiStratSynthDisp::synthRenamedCB( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack(const TypeSet<SyntheticData::SynthID>&,ids,cb);
+    mCBCapsuleUnpack(const TypeSet<SynthID>&,ids,cb);
     for ( const auto& id : ids )
     {
 	const BufferString newnm = datamgr_.nameOf( id );
@@ -1625,9 +1622,9 @@ void uiStratSynthDisp::synthRemovedCB( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack(const TypeSet<SyntheticData::SynthID>&,ids,cb);
-    const SyntheticData::SynthID prevwvaid = wvaselfld_->curID();
-    const SyntheticData::SynthID prevdid = vdselfld_->curID();
+    mCBCapsuleUnpack(const TypeSet<SynthID>&,ids,cb);
+    const SynthID prevwvaid = wvaselfld_->curID();
+    const SynthID prevdid = vdselfld_->curID();
 
     if ( canupdatedisp_ )
 	updFlds( false );
@@ -1636,7 +1633,7 @@ void uiStratSynthDisp::synthRemovedCB( CallBacker* cb )
     bool vdchanged = false;
     for ( const auto& id : ids )
     {
-	if ( id <= 0 )
+	if ( id.asInt() <= 0 )
 	    continue;
 
 	wvachanged = wvachanged || id == prevwvaid;
@@ -1698,7 +1695,7 @@ void uiStratSynthDisp::newAddedCB( CallBacker* cb )
     }
 
     uiStratSynthDispDSSel* selfld = validwva ? vdselfld_ : wvaselfld_;
-    mCBCapsuleUnpack(SyntheticData::SynthID,id,cb);
+    mCBCapsuleUnpack(SynthID,id,cb);
     selfld->setCurrentItem( id );
     selfld->selChange.trigger();
 }
@@ -1709,7 +1706,7 @@ void uiStratSynthDisp::newSelCB( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack(SyntheticData::SynthID,id,cb);
+    mCBCapsuleUnpack(SynthID,id,cb);
 
     updFlds( true );
     NotifyStopper wvans( wvaselfld_->selChange );
@@ -1777,7 +1774,7 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
     TypeSet<PreStackView::GatherInfo> newginfos;
     for ( const auto* selnm : selgnms )
     {
-	const SyntheticData::SynthID sid = datamgr_.find( selnm->buf() );
+	const SynthID sid = datamgr_.find( selnm->buf() );
 	ConstRefMan<SyntheticData> sd;
 	if ( datamgr_.isPS(sid) )
 	{
@@ -1995,7 +1992,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg += " "; mesg += SI().getXYUnitString();
     }
 
-    TypeSet<SyntheticData::SynthID> validids;
+    TypeSet<SynthID> validids;
     datamgr_.getIDs( validids, DataMgr::NoSubSel, true );
     ConstRefMan<SyntheticData> sd;
     if ( !validids.isEmpty() )

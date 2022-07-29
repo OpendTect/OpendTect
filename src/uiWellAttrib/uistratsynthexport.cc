@@ -280,7 +280,7 @@ void uiStratSynthExport::getSelections()
     selids_.setEmpty();
     if ( poststcksel_ && poststcksel_->isChecked() )
     {
-	TypeSet<StratSynth::DataMgr::SynthID> dsids;
+	TypeSet<SynthID> dsids;
 	datamgr_->getIDs( dsids, StratSynth::DataMgr::NoPS );
 	for ( const auto& idx : poststcksel_->selidxs_ )
 	    selids_.add( dsids[idx] );
@@ -288,7 +288,7 @@ void uiStratSynthExport::getSelections()
 
     if ( prestcksel_ && prestcksel_->isChecked() )
     {
-	TypeSet<StratSynth::DataMgr::SynthID> dsids;
+	TypeSet<SynthID> dsids;
 	datamgr_->getIDs( dsids, StratSynth::DataMgr::OnlyPS );
 	for ( const auto& idx : prestcksel_->selidxs_ )
 	    selids_.add( dsids[idx] );
@@ -302,7 +302,7 @@ void uiStratSynthExport::getSelections()
 
 void uiStratSynthExport::getLevels( ObjectSet<StratSynth::Level>& sslvls ) const
 {
-    TypeSet<StratSynth::DataMgr::SynthID> selids;
+    TypeSet<SynthID> selids;
     datamgr_->getIDs( selids, StratSynth::DataMgr::NoSubSel, true );
     if ( selids.isEmpty() )
 	return;
@@ -401,7 +401,7 @@ bool uiStratSynthExport::createAndWrite2DGeometry( const TypeSet<Coord>& ptlist,
     }
 
     ZSampling zrg = SI().zRange();
-    TypeSet<StratSynth::DataMgr::SynthID> selids;
+    TypeSet<SynthID> selids;
     datamgr_->getIDs( selids, StratSynth::DataMgr::NoSubSel, true );
     if ( !selids.isEmpty() )
     {
@@ -590,7 +590,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     {
 	if ( !useexisting || !sellvls_.isEmpty() )
 	{ //Create at least one to get valid time-depth models
-	    TypeSet<StratSynth::DataMgr::SynthID> ids;
+	    TypeSet<SynthID> ids;
 	    datamgr_->getIDs( ids, StratSynth::DataMgr::NoPS );
 	    if ( ids.isEmpty() )
 		datamgr_->getIDs( ids, StratSynth::DataMgr::OnlyPS );

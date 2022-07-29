@@ -110,7 +110,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     , lm_(dm.layerModel())
 {
     const bool emptymodel = synthmgr_->layerModel().isEmpty();
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     if ( !emptymodel )
 	synthmgr_->getIDs( ids );
     if ( emptymodel || ids.isEmpty() )
@@ -219,7 +219,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	pvds.add( new DataColDef(seqattr->name(),toString(iattr++),uom) );
     }
 
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     synthmgr_->getIDs( ids, StratSynth::DataMgr::NoSubSel, true );
     if ( ids.isEmpty() )
 	mpErrRet("No valid synthetic data found");
@@ -393,7 +393,7 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 
 void uiStratSynthCrossplot::preparePreStackDescs()
 {
-    TypeSet<SyntheticData::SynthID> ids;
+    TypeSet<SynthID> ids;
     synthmgr_->getIDs( ids );
     TypeSet<DataPack::FullID> dpids;
     for ( const auto& id : ids )

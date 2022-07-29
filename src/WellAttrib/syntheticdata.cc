@@ -35,7 +35,7 @@ SyntheticData::~SyntheticData()
 }
 
 
-SyntheticData::SynthID SyntheticData::getNewID()
+SynthID SyntheticData::getNewID()
 {
     return SynthID( ++curdatasetid_ );
 }

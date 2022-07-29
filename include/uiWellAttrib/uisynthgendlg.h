@@ -36,8 +36,8 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    CNotifier<uiSynthParsGrp,int> synthAdded;
-    CNotifier<uiSynthParsGrp,int> synthSelected;
+    CNotifier<uiSynthParsGrp,SynthID> synthAdded;
+    CNotifier<uiSynthParsGrp,SynthID> synthSelected;
 
     static bool		getNewElPropSel(uiParent*,StratSynth::DataMgr&);
 

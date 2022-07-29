@@ -233,12 +233,12 @@ static bool createModel( const PropertyRefSelection& prs,
 
 static bool addGenerators( StratSynth::DataMgr& datamgr,
 			const char* wvltnm,
-			StratSynth::DataMgr::SynthID& defid,
-			StratSynth::DataMgr::SynthID& presdid,
-			StratSynth::DataMgr::SynthID& anglestackid,
-			StratSynth::DataMgr::SynthID& avogradid,
-			TypeSet<StratSynth::DataMgr::SynthID>& instantattribids,
-			TypeSet<StratSynth::DataMgr::SynthID>& propids,
+			SynthID& defid,
+			SynthID& presdid,
+			SynthID& anglestackid,
+			SynthID& avogradid,
+			TypeSet<SynthID>& instantattribids,
+			TypeSet<SynthID>& propids,
 			const TypeSet<float>& offsets )
 {
     // Post-stack
@@ -298,12 +298,12 @@ static bool addGenerators( StratSynth::DataMgr& datamgr,
 
 
 static bool ensureAllGenerated( StratSynth::DataMgr& datamgr,
-		StratSynth::DataMgr::SynthID defid,
-		StratSynth::DataMgr::SynthID presdid,
-		StratSynth::DataMgr::SynthID anglestackid,
-		StratSynth::DataMgr::SynthID avogradid,
-		const TypeSet<StratSynth::DataMgr::SynthID>& instantattribids,
-		const TypeSet<StratSynth::DataMgr::SynthID>& propids )
+		SynthID defid,
+		SynthID presdid,
+		SynthID anglestackid,
+		SynthID avogradid,
+		const TypeSet<SynthID>& instantattribids,
+		const TypeSet<SynthID>& propids )
 {
     mRunStandardTestWithError( datamgr.ensureGenerated( defid ) &&
 	       datamgr.hasValidDataSet(defid),
@@ -321,8 +321,8 @@ static bool ensureAllGenerated( StratSynth::DataMgr& datamgr,
 	       datamgr.hasValidDataSet(avogradid),
 	       "Generate AVO gradient", datamgr.errMsg().getText() );
 
-    TypeSet<StratSynth::DataMgr::SynthID> instantattrs = instantattribids;
-    const StratSynth::DataMgr::SynthID lastattrid = instantattrs.pop();
+    TypeSet<SynthID> instantattrs = instantattribids;
+    const SynthID lastattrid = instantattrs.pop();
     mRunStandardTestWithError(
 		datamgr.ensureInstantAttribsDataSet(instantattrs) &&
 		datamgr.hasValidDataSet( instantattrs.first() ) &&
@@ -343,12 +343,12 @@ static bool ensureAllGenerated( StratSynth::DataMgr& datamgr,
 
 
 static bool testDataMgr( StratSynth::DataMgr& datamgr,
-		StratSynth::DataMgr::SynthID defid,
-		StratSynth::DataMgr::SynthID presdid,
-		StratSynth::DataMgr::SynthID anglestackid,
-		StratSynth::DataMgr::SynthID avogradid,
-		const TypeSet<StratSynth::DataMgr::SynthID>& instantattribids,
-		const TypeSet<StratSynth::DataMgr::SynthID>& propids,
+		SynthID defid,
+		SynthID presdid,
+		SynthID anglestackid,
+		SynthID avogradid,
+		const TypeSet<SynthID>& instantattribids,
+		const TypeSet<SynthID>& propids,
 		const TypeSet<float>& offsets )
 {
     if ( !ensureAllGenerated(datamgr,defid,presdid,anglestackid,avogradid,
@@ -435,7 +435,7 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
 		      mIsEqual(lastoffs,lastangletrcinfo.offset,1e-3f),
 		      "Pre-stack gather/trace info is OK" );
 
-    TypeSet<StratSynth::DataMgr::SynthID> checkids;
+    TypeSet<SynthID> checkids;
     TypeSet<SynthGenParams::SynthType> expectedtypes;
     checkids += anglestackid;
     checkids += avogradid;
@@ -455,7 +455,7 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
 		"Checked derived synthetic data" );
     }
 
-    TypeSet<StratSynth::DataMgr::SynthID> retpropids;
+    TypeSet<SynthID> retpropids;
     datamgr.getIDs( retpropids, StratSynth::DataMgr::OnlyProps, true );
     mRunStandardTest( retpropids == propids, "Generated properties" );
     ConstRefMan<SyntheticData> propsd = datamgr.getDataSet( propids.last() );
@@ -481,8 +481,8 @@ static bool testAllMgrs( const Strat::LayerModelSuite& lms )
     for ( int idx=0; idx<21; idx++ )
 	offsets += 5.f * idx;
 
-    StratSynth::DataMgr::SynthID defid, presdid, anglestackid, avogradid;
-    TypeSet<StratSynth::DataMgr::SynthID> instantattribids, propids;
+    SynthID defid, presdid, anglestackid, avogradid;
+    TypeSet<SynthID> instantattribids, propids;
     if ( !addGenerators(datamgr,syntheticricker.name(),
 			defid,presdid,anglestackid,avogradid,
 			instantattribids,propids,offsets) )

@@ -401,7 +401,7 @@ bool StratSynth::DataMgr::usePar( const IOPar& iop )
 	    continue;
 
 	nrvalidpars++;
-	if ( addSynthetic(*genpars) )
+	if ( addSynthetic(*genpars).isValid() )
 	    nradded++;
 
 	if ( !errmsg_.isOK() )
@@ -503,7 +503,7 @@ const SyntheticData* StratSynth::DataMgr::gtDSByName( const char* nm,
 						      int lmsidx ) const
 {
     const SynthID id = find( nm );
-    return id > 0 ? gtDS( id, lmsidx ) : nullptr;
+    return id.isValid() ? gtDS( id, lmsidx ) : nullptr;
 }
 
 
@@ -525,11 +525,10 @@ bool StratSynth::DataMgr::checkNeedsInput( const SynthGenParams& sgp ) const
 }
 
 
-StratSynth::DataMgr::SynthID StratSynth::DataMgr::addSynthetic(
-						const SynthGenParams& sgp )
+SynthID StratSynth::DataMgr::addSynthetic( const SynthGenParams& sgp )
 {
     if ( !checkNeedsInput(sgp) )
-	return -1;
+	return SynthID::udf();
 
     return addEntry( SyntheticData::getNewID(), sgp );
 }
@@ -578,7 +577,7 @@ bool StratSynth::DataMgr::addPropertySynthetics( TypeSet<SynthID>* retids,
 
 
 bool StratSynth::DataMgr::addInstAttribSynthetics(
-			const StratSynth::DataMgr::SynthID& inpid,
+			const SynthID& inpid,
 			const TypeSet<Attrib::Instantaneous::OutType>& attrdefs,
 			TypeSet<SynthID>& retids )
 {
@@ -599,8 +598,7 @@ bool StratSynth::DataMgr::addInstAttribSynthetics(
 }
 
 
-StratSynth::DataMgr::SynthID StratSynth::DataMgr::addEntry( SynthID id,
-						     const SynthGenParams& sgp )
+SynthID StratSynth::DataMgr::addEntry( SynthID id, const SynthGenParams& sgp )
 {
     if ( genparams_.isPresent(sgp) )
 	return id;
@@ -625,7 +623,7 @@ void StratSynth::DataMgr::setDataSet( const SynthGenParams& sgp,
     SynthID oldid = find( sgp.name_ );
     lmsidx = gtActualLMIdx( lmsidx );
     bool ischgd = true;
-    if ( oldid > 0 )
+    if ( oldid.isValid() )
     {
 	const_cast<SyntheticData*>( sd )->setID( oldid );
 	const int idx = ids_.indexOf( oldid );
@@ -645,7 +643,7 @@ void StratSynth::DataMgr::setDataSet( const SynthGenParams& sgp,
     if ( ischgd )
     {
 	dirtycount_++;
-	if ( oldid > 0 )
+	if ( oldid.isValid() )
 	{
 	    const TypeSet<SynthID> ids( sd->id() );
 	    entryChanged.trigger( ids );
@@ -660,7 +658,7 @@ bool StratSynth::DataMgr::updateSynthetic( SynthID id,
 					   const SynthGenParams& sgp )
 {
     TypeSet<SynthID> handledids;
-    if ( id > 0 )
+    if ( id.isValid() )
     {
 	const int idx = gtIdx( id );
 	if ( genparams_.validIdx(idx) )
@@ -850,9 +848,9 @@ bool StratSynth::DataMgr::disableSynthetic( const TypeSet<SynthID>& ids )
 }
 
 
-StratSynth::DataMgr::SynthID StratSynth::DataMgr::getIDByIdx( int idx ) const
+SynthID StratSynth::DataMgr::getIDByIdx( int idx ) const
 {
-    return ids_.validIdx(idx) ? ids_[idx] : -1;
+    return ids_.validIdx(idx) ? ids_[idx] : SynthID::udf();
 }
 
 
@@ -869,8 +867,7 @@ bool StratSynth::DataMgr::hasValidDataSet( SynthID id, int lmsidx ) const
 }
 
 
-StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const char* dsnm,
-							int* lmsidx ) const
+SynthID StratSynth::DataMgr::find( const char* dsnm, int* lmsidx ) const
 {
     for ( int idx=0; idx<genparams_.size(); idx++ )
     {
@@ -883,7 +880,7 @@ StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const char* dsnm,
     }
 
     if ( !lmsidx || lms_.size() < 2 )
-	return -1;
+	return SynthID::udf();
 
     for ( int ilm=1; ilm<lms_.size(); ilm++ )
     {
@@ -900,11 +897,11 @@ StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const char* dsnm,
 	}
     }
 
-    return -1;
+    return SynthID::udf();
 }
 
 
-StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const PropertyRef& pr,
+SynthID StratSynth::DataMgr::find( const PropertyRef& pr,
 				    bool require_generated, int lmsidx ) const
 {
     const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
@@ -936,11 +933,11 @@ StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const PropertyRef& pr,
 	}
     }
 
-    return -1;
+    return SynthID::udf();
 }
 
 
-StratSynth::DataMgr::SynthID StratSynth::DataMgr::first( bool isps, bool genreq,
+SynthID StratSynth::DataMgr::first( bool isps, bool genreq,
 							 int lmsidx ) const
 {
     const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
@@ -950,7 +947,7 @@ StratSynth::DataMgr::SynthID StratSynth::DataMgr::first( bool isps, bool genreq,
 	    return ids_[idx];
     }
 
-    return -1;
+    return SynthID::udf();
 }
 
 
@@ -1007,7 +1004,7 @@ void StratSynth::DataMgr::getNames( const MultiID& wvltid, BufferStringSet& nms,
 }
 
 
-void StratSynth::DataMgr::getIDs( TypeSet<int>& ids, SubSelType ss,
+void StratSynth::DataMgr::getIDs( TypeSet<SynthID>& ids, SubSelType ss,
 				  bool noempty, int lmsidx ) const
 {
     TypeSet<int> idxs;
@@ -1017,7 +1014,7 @@ void StratSynth::DataMgr::getIDs( TypeSet<int>& ids, SubSelType ss,
 }
 
 
-void StratSynth::DataMgr::getIDs( const MultiID& wvltid, TypeSet<int>& ids,
+void StratSynth::DataMgr::getIDs( const MultiID& wvltid, TypeSet<SynthID>& ids,
 				  bool noempty, int lmsidx ) const
 {
     TypeSet<int> idxs;
@@ -1777,7 +1774,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 	const BufferString inpdsnm( getFinalDataSetName(sgp.inpsynthnm_,
 						    sgp.isStratProp(),lmsidx) );
 	const SynthID inpid = find( inpdsnm );
-	if ( inpid < 1 )
+	if ( !inpid.isValid() )
 	{
 	    errmsg_ = tr("input synthetic data '%1' not present").arg(inpdsnm);
 	    return nullptr;
@@ -1819,7 +1816,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 	if ( ensurePropertyDataSets(taskrun,lmsidx) )
 	{
 	    const SynthID sid = find( sgp.name_ );
-	    if ( sid > 0 )
+	    if ( sid.isValid() )
 		sd = gtDS( sid, lmsidx );
 	}
     }
@@ -2249,7 +2246,7 @@ bool StratSynth::DataMgr::ensurePropertyDataSets( TaskRunner* taskrun,
     TypeSet<SynthID> rawids;
     getIDs( rawids, OnlyZO ); // Fastest
     getIDs( rawids, OnlyPS ); // to slowest
-    SynthID inpid = -1;
+    SynthID inpid;
     for ( const auto& rawid : rawids )
     {
 	if ( hasValidDataSet(rawid,lmsidx) )
@@ -2259,7 +2256,7 @@ bool StratSynth::DataMgr::ensurePropertyDataSets( TaskRunner* taskrun,
 	}
     }
 
-    if ( inpid < 0 )
+    if ( !inpid.isValid() )
     {
 	if ( rawids.isEmpty() )
 	    return false;

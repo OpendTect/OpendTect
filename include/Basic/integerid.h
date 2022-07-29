@@ -94,4 +94,17 @@ using UInt32ID = IntegerID<od_uint32>;
 using UInt64ID = IntegerID<od_uint64>;
 
 // Specific usage
-using RandomLineID = UInt16ID;
+using RandomLineID	= UInt16ID;
+
+mExpClass(Basic) SynthID : public IntegerID<od_int32>
+{
+public:
+using IntegerID::IntegerID;
+
+    bool			isValid() const override { return asInt()>0; }
+    bool			isNone() const		{ return asInt()==0; }
+    static inline SynthID	udf()			{ return SynthID(); }
+
+protected:
+    od_int32			udfVal() const override	{ return -1; }
+};

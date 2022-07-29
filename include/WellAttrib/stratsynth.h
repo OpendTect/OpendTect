@@ -56,9 +56,6 @@ class StratSeqSplitter;
 mExpClass(WellAttrib) DataMgr : public CallBacker
 { mODTextTranslationClass(DataMgr);
 public:
-
-    mUseType( SyntheticData, SynthID );
-
 			DataMgr(const Strat::LayerModelSuite&);
 			DataMgr(const DataMgr&,int calceach);
 			~DataMgr();
