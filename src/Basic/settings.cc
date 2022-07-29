@@ -154,8 +154,7 @@ static void handleLegacyPar( Settings& setts, const char* key,
 	Settings& modernsetts( Settings::fetch(settfnm) );
 	modernsetts.merge( *legacypar );
 	modernsetts.write( false );
-	BufferString rmkey( key ); rmkey += ".*";
-	setts.removeWithKeyPattern( rmkey );
+	setts.removeSubSelection( key );
 	setts.write( false );
     }
     delete legacypar;

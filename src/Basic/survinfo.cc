@@ -1262,9 +1262,10 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     {
 	IOPar par;
 	coordsystem_->fillPar( par );
-	for ( int idx=0; idx<par.size(); idx++ )
-	    astream.put( IOPar::compKey(sKey::CoordSys(),par.getKey(idx)),
-			 par.getValue(idx) );
+	IOParIterator iter( par );
+	BufferString key, val, buf;
+	while ( iter.next(key,val) )
+	    astream.put( IOPar::compKey(sKey::CoordSys(),key), val );
     }
     else
 	astream.putYN( sKeyXYInFt(), xyinfeet_ );

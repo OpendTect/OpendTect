@@ -161,7 +161,7 @@ void OS::CommandExecPars::fillPar( IOPar& iop ) const
 
 void OS::CommandExecPars::removeFromPar( IOPar& iop ) const
 {
-    iop.removeWithKeyPattern( BufferString(sKeyExecPars,".*") );
+    iop.removeSubSelection( sKeyExecPars );
 }
 
 

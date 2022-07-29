@@ -334,7 +334,7 @@ bool SEGY::HdrCalcSet::storeInSettings() const
 	    break;
 	else if ( nm == name() )
 	{
-	    setts.removeWithKeyPattern( BufferString("",iopidx,".*") );
+	    setts.removeSubSelection( iopidx );
 	    break;
 	}
     }

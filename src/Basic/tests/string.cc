@@ -317,11 +317,11 @@ bool testStringContentType()
     mRunStandardTest( isNumberString("7.53rs") == false, "Test non-num string" )
     mRunStandardTest( isNumberString("534976",true) == true, "Test int string" )
     mRunStandardTest( isNumberString("100010.4",true) == false,
-	    	      "Test non-int string" )
+		      "Test non-int string" )
     mRunStandardTest( isAlphaNumString("hagh4T90PKfr") == true,
-	    	      "Test alpha-num string" )
+		      "Test alpha-num string" )
     mRunStandardTest( isAlphaNumString("ghgs767#jjk") == false,
-	    	      "Test non-alpha-num string" )
+		      "Test non-alpha-num string" )
     mRunStandardTest( isBoolString("No") == true, "Test bool string" )
     mRunStandardTest( isBoolString("Nay") == false, "Test non-bool string" )
 

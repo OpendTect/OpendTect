@@ -784,8 +784,10 @@ static bool writeEntries( const char* fnm, const IOPar& iop )
     if ( !strm.isOK() )
 	return false;
 
-    for ( int idx=0; idx<iop.size(); idx++ )
-	strm << iop.getKey(idx) << od_tab << iop.getValue(idx) << od_endl;
+    IOParIterator iter( iop );
+    BufferString key, val;
+    while ( iter.next(key,val) )
+	strm << key << od_tab << val << od_endl;
 
     return strm.isOK();
 }

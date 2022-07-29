@@ -235,8 +235,7 @@ ZDomain::Info::Info( const IOPar& iop )
     : def_(ZDomain::Def::get(iop))
     , pars_(*new IOPar(iop))
 {
-    const BufferString torem( ZDomain::sKey(), "*" );
-    pars_.removeWithKeyPattern( torem.buf() );
+    pars_.removeSubSelection( ZDomain::sKey() );
 }
 
 

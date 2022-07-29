@@ -473,7 +473,7 @@ void Math::Formula::fillPar( IOPar& iop ) const
 	iop.set( sKeyRecStartVals(), recstartvals_ );
 
     mDefValKeybase;
-    iop.removeWithKeyPattern( BufferString(sKey::Input(),".*") );
+    iop.removeSubSelection( sKey::Input() );
     int iinp = 0;
     for ( const auto* id : inps_ )
     {

@@ -961,11 +961,10 @@ void BufferStringSet::usePar( const IOPar& iopar )
     for ( idx_type idx=0; ; idx++ )
     {
 	key.set( idx );
-	const idx_type idxof = iopar.indexOf( key );
-	if ( idxof < 0 )
+	if ( !iopar.isPresent(key) )
 	    break;
 
-	add( iopar.getValue(idx) );
+	add( iopar.find(key) );
     }
 }
 

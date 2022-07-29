@@ -164,7 +164,7 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
 bool uiPosFilterSet::fillPar( IOPar& iop ) const
 {
-    iop.removeWithKeyPattern( IOPar::compKey(sKey::Filter(),"*") );
+    iop.removeSubSelection( sKey::Filter() );
     if ( grps_.isEmpty() ) return true;
 
     iop.set( sKey::Type(), Pos::FilterSet::typeStr() );

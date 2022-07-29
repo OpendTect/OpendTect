@@ -121,7 +121,7 @@ public:
     virtual void	setEmpty();
 
     virtual ValueType	valueType(idx_type) const;
-    const BufferString&	key(idx_type) const;
+    const BufferString& key(idx_type) const;
     inline bool		isPlainData( idx_type i ) const
 			{ return valueType(i) == Data; }
     inline bool		isArrayChild( idx_type i ) const

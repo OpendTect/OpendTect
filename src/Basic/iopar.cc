@@ -25,9 +25,148 @@
 #include "odver.h"
 #include <stdio.h>
 #include <string.h>
+#include <QHash>
+#include <QHashIterator>
+#include <QRegularExpression>
+#include <QString>
 
 
 const int cMaxTypeSetItemsPerLine = 100;
+
+
+class ODHashMapIterator : public QHashIterator<QString,QString>
+{
+public:
+ODHashMapIterator(const ODHashMap& map);
+
+};
+
+
+
+class ODHashMap : public QHash<QString,QString>
+{
+public:
+bool includes( const ODHashMap& oth )
+{
+    ODHashMapIterator iter( oth );
+    while ( iter.hasNext() )
+    {
+	iter.next();
+	if ( !contains(iter.key()) || iter.value()!=value(iter.key()) )
+	   return false;
+    }
+
+    return true;
+}
+
+bool removeWithKeyPattern( const char* pattern )
+{
+    ODHashMapIterator iter( *this );
+    QRegularExpression expr( pattern );
+    bool ret = false;
+    while( iter.hasNext() )
+    {
+	iter.next();
+	if ( iter.key().contains(expr) )
+	{
+	    remove( iter.key() );
+	    ret = true;
+	}
+    }
+
+    return ret;
+}
+
+void addFrom( const ODHashMap& oth )
+{
+    ODHashMapIterator iter( oth );
+    while( iter.hasNext() )
+    {
+	iter.next();
+	if ( !contains(iter.key()) )
+	    insert( iter.key(), iter.value() );
+    }
+}
+
+bool subselect( const char* kystr, ODHashMap& subsel )
+{
+    BufferString subselkey( kystr );
+    if ( !subselkey.last() != '.' )
+	subselkey.add( "." );
+
+    ODHashMapIterator iter( *this );
+    while( iter.hasNext() )
+    {
+	iter.next();
+	if ( !iter.key().startsWith(subselkey.buf()) )
+	    continue;
+
+	QString subkey = iter.key();
+	subkey.remove( 0, subselkey.size() );
+	subsel.insert( subkey, iter.value() );
+    }
+
+    return !subsel.isEmpty();
+}
+
+bool removeSubSelection( const char* kystr )
+{
+    BufferString subselkey( kystr );
+    if ( !subselkey.last() != '.' )
+	subselkey.add( "." );
+
+    ODHashMapIterator iter( *this );
+    bool ret = false;
+    while( iter.hasNext() )
+    {
+	iter.next();
+	if ( !iter.key().startsWith(subselkey.buf()) )
+	    continue;
+
+	ret = true;
+	remove( iter.key() );
+    }
+
+    return ret;
+}
+
+bool mergeComp( const ODHashMap& oth, const char* key )
+{
+    if ( oth.isEmpty() )
+	return false;
+
+    ODHashMapIterator iter( oth );
+    while( iter.hasNext() )
+    {
+	iter.next();
+	QString newkey( key );
+	newkey.append( "." ).append( iter.key() );
+	insert( newkey, iter.value() );
+    }
+
+    return true;
+}
+
+const char* findKeyFor( const char* val )
+{
+    mDeclStaticString( ret );
+    ret = key( val );
+    return ret.str();
+}
+
+const char* getValue( const char* key )
+{
+    mDeclStaticString( ret );
+    ret = value( key );
+    return ret.str();
+}
+
+};
+
+
+ODHashMapIterator::ODHashMapIterator( const ODHashMap& map )
+    : QHashIterator<QString,QString>(map)
+{}
 
 
 IOPar::IOPar( const char* nm )
@@ -35,19 +174,13 @@ IOPar::IOPar( const char* nm )
     , majorversion_(mODMajorVersion)
     , minorversion_(mODMinorVersion)
     , patchversion_(mODPatchVersion)
-    , keys_(*new BufferStringSet)
-    , vals_(*new BufferStringSet)
+    , hashmap_(*new ODHashMap)
 {
 }
 
 
 IOPar::IOPar( ascistream& astream )
-    : NamedObject("")
-    , keys_(*new BufferStringSet)
-    , vals_(*new BufferStringSet)
-    , majorversion_(mODMajorVersion)
-    , minorversion_(mODMinorVersion)
-    , patchversion_(mODPatchVersion)
+    : IOPar("")
 {
     getFrom( astream );
 }
@@ -55,34 +188,28 @@ IOPar::IOPar( ascistream& astream )
 
 IOPar::IOPar( const IOPar& iop )
     : NamedObject(iop.name())
-    , keys_(*new BufferStringSet)
-    , vals_(*new BufferStringSet)
     , majorversion_(iop.majorversion_)
     , minorversion_(iop.minorversion_)
     , patchversion_(iop.patchversion_)
+    , hashmap_(*new ODHashMap(iop.hashmap_))
 {
-    for ( int idx=0; idx<iop.size(); idx++ )
-	add( iop.keys_.get(idx), iop.vals_.get(idx) );
 }
 
 
 IOPar::~IOPar()
 {
-    setEmpty();
-    delete &keys_;
-    delete &vals_;
+    delete &hashmap_;
 }
 
 
 IOPar& IOPar::operator =( const IOPar& iop )
 {
-    if ( this != &iop )
-    {
-	setEmpty();
-	setName( iop.name() );
-	for ( int idx=0; idx<iop.size(); idx++ )
-	    add( iop.keys_.get(idx), iop.vals_.get(idx) );
-    }
+    if ( this == &iop )
+	return *this;
+
+    setEmpty();
+    setName( iop.name() );
+    hashmap_ = iop.hashmap_;
 
     majorversion_ = iop.majorversion_;
     minorversion_ = iop.minorversion_;
@@ -91,160 +218,78 @@ IOPar& IOPar::operator =( const IOPar& iop )
 }
 
 
-bool IOPar::isEqual( const IOPar& iop, bool worder ) const
+bool IOPar::isEqual( const IOPar& iop ) const
 {
-    if ( &iop == this ) return true;
-    const int sz = size();
-    if ( iop.size() != sz ) return false;
+    if ( &iop == this )
+	return true;
 
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( worder )
-	{
-	    if ( iop.keys_.get(idx) != keys_.get(idx)
-	      || iop.vals_.get(idx) != vals_.get(idx) )
-		return false;
-	}
-	else
-	{
-	    StringView res = iop.find( getKey(idx) );
-	    if ( res != getValue(idx) )
-		return false;
-	}
-    }
-
-    return true;
+    return hashmap_ == iop.hashmap_;
 }
 
 
 bool IOPar::includes( const IOPar& oth ) const
 {
-    const int othsz = oth.size();
-    if ( &oth == this || othsz == 0 )
-	return true;
+    return hashmap_.includes( oth.hashmap_ );
+}
 
-    for ( int idx=0; idx<othsz; idx++ )
-    {
-	StringView res = find( oth.getKey(idx) );
-	if ( res != oth.getValue(idx) )
-	    return false;
-    }
 
-    return true;
+bool IOPar::isPresent( const char* keyw ) const
+{
+    return hashmap_.contains( keyw );
 }
 
 
 int IOPar::size() const
 {
-    return keys_.size();
+    return hashmap_.size();
 }
 
 
-int IOPar::indexOf( const char* key ) const
+bool IOPar::isEmpty() const
 {
-    if ( !key || !*key )
-	{ pErrMsg("indexOf empty key requested"); return -1; }
-    return keys_.indexOf( key );
-}
-
-
-StringView IOPar::getKey( int nr ) const
-{
-    return StringView( keys_.validIdx(nr) ? keys_.get(nr).buf() : 0 );
-}
-
-
-StringView IOPar::getValue( int nr ) const
-{
-    return StringView( vals_.validIdx(nr) ? vals_.get(nr).buf() : 0 );
-}
-
-
-bool IOPar::setKey( int nr, const char* s )
-{
-    if ( nr >= size() || !s || !*s )
-	return false;
-
-    keys_.get(nr) = s;
-    return true;
-}
-
-
-void IOPar::setValue( int nr, const char* s )
-{
-    if ( nr < size() )
-	vals_.get(nr) = s;
+    return hashmap_.isEmpty();
 }
 
 
 void IOPar::setEmpty()
 {
-    keys_.setEmpty();
-    vals_.setEmpty();
+    hashmap_.clear();
 }
 
 
-void IOPar::remove( int idx )
+bool IOPar::remove( const char* key )
 {
-    if ( keys_.validIdx(idx) )
-	{ keys_.removeSingle( idx ); vals_.removeSingle( idx ); }
+    return hashmap_.remove( key );
 }
 
 
 void IOPar::removeWithKey( const char* key )
 {
-    if ( !key || !*key ) return;
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( keys_.get(idx) == key )
-	{
-	    remove( idx );
-	    idx--;
-	}
-    }
+    remove( key );
 }
 
 
-void IOPar::removeWithKeyPattern( const char* pattern )
+bool IOPar::removeWithKeyPattern( const char* pattern )
 {
-    const GlobExpr ge( pattern );
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( ge.matches( keys_.get(idx) ) )
-	{
-	    remove( idx );
-	    idx--;
-	}
-    }
-}
-
-
-int IOPar::maxContentSize( bool kys ) const
-{
-    return (kys ? keys_ : vals_).maxLength();
+    return hashmap_.removeWithKeyPattern( pattern );
 }
 
 
 void IOPar::merge( const IOPar& iopar )
 {
-    if ( &iopar == this ) return;
+    if ( &iopar == this )
+	return;
 
-    for ( int idx=0; idx<iopar.size(); idx++ )
-	set( iopar.keys_.get(idx), iopar.vals_.get(idx) );
+    hashmap_.insert( iopar.hashmap_ );
 }
 
 
 void IOPar::addFrom( const IOPar& iopar )
 {
-    if ( &iopar == this ) return;
+    if ( &iopar == this )
+	return;
 
-    for ( int idx=0; idx<iopar.size(); idx++ )
-    {
-	const char* ky = iopar.keys_.get( idx ).str();
-	if ( !isPresent(ky) )
-	    add( ky, iopar.vals_.get(idx) );
-    }
+    hashmap_.addFrom( iopar.hashmap_ );
 }
 
 
@@ -274,54 +319,37 @@ IOPar* IOPar::subselect( int nr ) const
 
 IOPar* IOPar::subselect( const char* kystr ) const
 {
-    StringView key( kystr );
-    if ( key.isEmpty() ) return 0;
+    if ( !kystr || !*kystr )
+	return nullptr;
 
     IOPar* iopar = new IOPar( name() );
-    for ( int idx=0; idx<keys_.size(); idx++ )
+    hashmap_.subselect( kystr, iopar->hashmap_ );
+    if ( iopar->isEmpty() )
     {
-	const char* nm = keys_.get(idx).buf();
-	if ( !key.isStartOf(nm) )
-	    continue;
-
-	nm += key.size();
-	if ( *nm == '.' && *(nm+1) )
-	    iopar->add( nm+1, vals_.get(idx) );
+	delete iopar;
+	return nullptr;
     }
 
     iopar->majorversion_ = majorversion_;
     iopar->minorversion_ = minorversion_;
     iopar->patchversion_ = patchversion_;
-
-    if ( iopar->size() == 0 )
-	{ delete iopar; iopar = nullptr; }
-
     return iopar;
 }
 
 
-void IOPar::removeSubSelection( int nr )
+bool IOPar::removeSubSelection( int nr )
 {
     BufferString s; s+= nr;
     return removeSubSelection( s.buf() );
 }
 
 
-void IOPar::removeSubSelection( const char* kystr )
+bool IOPar::removeSubSelection( const char* kystr )
 {
-    StringView key( kystr );
-    if ( key.isEmpty() ) return;
+    if ( !kystr || !*kystr )
+	return false;
 
-    for ( int idx=0; idx<keys_.size(); idx++ )
-    {
-	const char* nm = keys_.get(idx).buf();
-	if ( !key.isStartOf(nm) )
-	    continue;
-
-	nm += key.size();
-	if ( *nm == '.' && *(nm+1) )
-	    { remove( idx ); idx--; }
-    }
+    return hashmap_.removeSubSelection( kystr );
 }
 
 
@@ -333,61 +361,45 @@ void IOPar::mergeComp( const IOPar& iopar, const char* ky )
 	*ptr = '\0';
 
     const bool havekey = !key.isEmpty();
-    if ( !havekey && &iopar == this ) return;
-
-    BufferString buf;
-    for ( int idx=0; idx<iopar.size(); idx++ )
+    if ( !havekey )
     {
-	buf = key;
-	if ( havekey ) buf += ".";
-	buf += iopar.keys_.get(idx);
-	set( buf, iopar.vals_.get(idx) );
+	if ( &iopar != this )
+	    merge( iopar );
+
+	return;
     }
+
+    hashmap_.mergeComp( iopar.hashmap_, key.buf() );
 }
 
 
-const char* IOPar::findKeyFor( const char* val, int nr ) const
+const char* IOPar::findKeyFor( const char* val ) const
 {
-    if ( !val ) return 0;
+    if ( !val || !*val )
+	return nullptr;
 
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( vals_.get(idx) == val )
-	{
-	    if ( nr )	nr--;
-	    else	return keys_.get(idx).buf();
-	}
-    }
-
-    return 0;
+    return hashmap_.findKeyFor( val );
 }
 
 
 const char* IOPar::find( const char* keyw ) const
 {
-    const int idx = keys_.indexOf( keyw );
-    return vals_.validIdx(idx) ? vals_.get(idx).buf() : 0;
+    return hashmap_.getValue( keyw );
 }
 
 
 void IOPar::set( const char* keyw, const char* val )
 {
-    if ( !keyw ) return;
+    if ( !keyw || !*keyw )
+	return;
 
-    const int idxof = indexOf( keyw );
-    if ( idxof < 0 )
-	add( keyw, val );
-    else
-	vals_.get( idxof ) = val;
+    hashmap_.insert( keyw, val );
 }
 
 
 void IOPar::add( const char* keyw, const char* val )
 {
-    if ( !keyw ) return;
-
-    keys_.add( keyw );
-    vals_.add( val );
+    set( keyw, val );
 }
 
 
@@ -402,21 +414,19 @@ void IOPar::addVal( const char* keyw, const char* valtoadd )
 
 void IOPar::update( const char* keyw, const char* val )
 {
-    if ( !keyw ) return;
+    if ( !keyw || !*keyw )
+	return;
 
-    const int idxof = indexOf( keyw );
-    if ( idxof < 0 )
+    if ( !val || !*val )
     {
-	if ( val && *val )
-	    add( keyw, val );
+	if ( isPresent(keyw) )
+	{
+	    remove( keyw );
+	    return;
+	}
     }
-    else if ( !val || !*val )
-    {
-	keys_.removeSingle( idxof );
-	vals_.removeSingle( idxof );
-    }
-    else
-	vals_.get( idxof ) = val;
+
+    set( keyw, val );
 }
 
 
@@ -1284,8 +1294,12 @@ void IOPar::putTo( ascostream& strm ) const
 {
     if ( !name().isEmpty() )
 	strm.stream() << name() << od_endl;
-    for ( int idx=0; idx<size(); idx++ )
-	strm.put( keys_.get(idx), vals_.get(idx) );
+
+    IOParIterator iter( *this );
+    BufferString key, val;
+    while ( iter.next(key,val) )
+	strm.put( key, val );
+
     strm.newParagraph();
 }
 
@@ -1303,13 +1317,14 @@ void IOPar::putTo( BufferString& str ) const
 
 void IOPar::putParsTo( BufferString& str ) const
 {
-    BufferString buf;
-    for ( int idx=0; idx<size(); idx++ )
+    IOParIterator iter( *this );
+    BufferString key, val, buf;
+    while ( iter.next(key,val) )
     {
 	buf = startsep;
-	buf += keys_.get(idx);
+	buf += key;
 	buf += midsep;
-	buf += vals_.get(idx);
+	buf += val;
 	buf += endsep;
 	str += buf;
     }
@@ -1338,17 +1353,17 @@ void IOPar::getFrom( const char* str )
     mAdvanceSep( ptr, startsep )
     setName( ptrstart );
 
+    BufferString key, val;
     while ( *ptr )
     {
 	ptrstart = ptr; mAdvanceSep( ptr, midsep )
-
-	keys_.add( ptrstart );
+	key = ptrstart;
 
 	ptrstart = ptr; mAdvanceSep( ptr, endsep )
-
-	vals_.add( ptrstart );
+	val = ptrstart;
 
 	ptrstart = ptr; mAdvanceSep( ptr, startsep )
+	add( key, val );
     }
 }
 
@@ -1362,13 +1377,15 @@ void IOPar::getParsFrom( const char* str )
     char* ptr = ptrstart;
     mAdvanceSep( ptr, startsep )
 
+    BufferString key, val;
     while ( *ptr )
     {
-	ptrstart = ptr;	mAdvanceSep( ptr, midsep )
-	keys_.add( ptrstart );
-	ptrstart = ptr;	mAdvanceSep( ptr, endsep )
-	vals_.add( ptrstart );
+	ptrstart = ptr; mAdvanceSep( ptr, midsep )
+	key = ptrstart;
+	ptrstart = ptr; mAdvanceSep( ptr, endsep )
+	val = ptrstart;
 	ptrstart = ptr; mAdvanceSep( ptr, startsep )
+	add( key, val );
     }
 }
 
@@ -1449,48 +1466,51 @@ void IOPar::dumpPretty( BufferString& res ) const
 
     unsigned int maxkeylen = 0;
     bool haveval = false;
-    for ( int idx=0; idx<size(); idx++ )
+    IOParIterator iter( *this );
+    BufferString key, val, buf;
+    while ( iter.next(key,val) )
     {
-	if ( keys_[idx]->size() > maxkeylen )
-	    maxkeylen = keys_[idx]->size();
-	if ( !haveval && !vals_[idx]->isEmpty() )
+	if ( key.size() > maxkeylen )
+	    maxkeylen = key.size();
+	if ( !haveval && !val.isEmpty() )
 	    haveval = true;
     }
-    if ( maxkeylen == 0 ) return;
+
+    if ( maxkeylen == 0 )
+	return;
 
     const int valpos = haveval ? maxkeylen + 3 : 0;
     BufferString valposstr( valpos + 1, true );
     for ( int ispc=0; ispc<valpos; ispc++ )
 	valposstr[ispc] = ' ';
 
-    for ( int idx=0; idx<size(); idx++ )
+    iter.reset();
+    while ( iter.next(key,val) )
     {
-	const BufferString& ky = *keys_[idx];
-	if ( ky == sKeyHdr() )
+	if ( key == sKeyHdr() )
 	{
 	    res += "\n\n* ";
-	    res += vals_.get(idx);
+	    res += val;
 	    res += " *\n\n";
 	    continue;
 	}
-	else if ( ky == sKeySubHdr() )
+	else if ( key == sKeySubHdr() )
 	{
-	    res += "\n  - ";
-	    res += vals_.get(idx);
+	    res += "\n	- ";
+	    res += val;
 	    res += "\n\n";
 	    continue;
 	}
 
 	BufferString keyprint( maxkeylen + 1, true );
-	const int extra = maxkeylen - ky.size();
+	const int extra = maxkeylen - key.size();
 	for ( int ispc=0; ispc<extra; ispc++ )
 	    keyprint[ispc] = ' ';
-	keyprint += ky;
+	keyprint += key;
 	res += keyprint;
 	res += (haveval ? " : " : "");
 
-	BufferString valstr( vals_.get(idx) );
-	char* startptr = valstr.getCStr();
+	char* startptr = val.getCStr();
 	while ( startptr && *startptr )
 	{
 	    char* nlptr = firstOcc( startptr, '\n' );
@@ -1533,28 +1553,30 @@ bool IOPar::areSubParsIndexed() const
 }
 
 
-void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
+void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
+		      const BufferStringSet& vals, const char* subkey,
+		      int& startidx ) const
 {
-    if ( simple )
+    for ( int idx=startidx; idx<keys.size(); idx++ )
     {
-	for ( int idx=0; idx<size(); idx++ )
+	BufferString key = keys.get( idx );
+	char* keystr = key.getCStr();
+	if ( subkey )
 	{
-	    auto key = getKey( idx );
-	    auto val = getValue( idx );
+	    if ( !key.startsWith(subkey) )
+	    {
+		startidx = idx - 1;
+		break;
+	    }
 
-	    jsonobj.set( key, val );
+	    keystr += FixedString(subkey).size();
+	    key = keystr;
 	}
 
-	return;
-    }
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	BufferString key = getKey( idx );
 	char* dotptr = key.find( '.' );
 	if ( !dotptr )
 	{
-	    FixedString val = getValue( idx );
+	    const BufferString& val = vals.get( idx );
 	    FileMultiString fms( val );
 	    if ( fms.isEmpty() )
 		continue;
@@ -1610,23 +1632,52 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 	}
 
 	*dotptr = '\0';
+	bool aresubparsindexed = true;
+	BufferString basekey = compKey( subkey, key );
+	int index=0, count=0;
+	int idy = idx;
+	for ( ; idy<keys.size(); idy++ )
+	{
+	    const BufferString indexkey = compKey( basekey, index );
+	    if ( keys.get(idy).startsWith(indexkey) )
+	    {
+		count++;
+		continue;
+	    }
+
+	    if ( !keys.get(idy).startsWith(basekey) )
+	    {
+		if ( count == 0 )
+		    index--;
+
+		break;
+	    }
+
+	    if ( count == 0 )
+	    {
+		aresubparsindexed = false;
+		break;
+	    }
+
+	    count = 0;
+	    index++;
+	}
+
 	PtrMan<IOPar> subpar = subselect( key );
 	if ( !subpar || !subpar->size() )
 	    continue;
 
-	const bool shouldmakearray = subpar->areSubParsIndexed();
+	const bool shouldmakearray = aresubparsindexed;
 	if ( shouldmakearray )
 	{
+	    const int lastindex = index;
 	    auto* subarray = new OD::JSON::Array( true );
-	    for ( int idy=0; idy<1024; idy++ )
+	    for ( index=0; index<=lastindex; index++ )
 	    {
-		PtrMan<IOPar> idysubpar = subpar->subselect( idy );
-		if ( !idysubpar )
-		    break;
-
-		auto* idysubobj = new OD::JSON::Object;
-		idysubpar->fillJSON( *idysubobj, false );
-		subarray->add( idysubobj );
+		const BufferString indexkey = compKey( basekey, index );
+		auto* indexsubobj = new OD::JSON::Object;
+		fillJSON( *indexsubobj, keys, vals, indexkey, startidx );
+		subarray->add( indexsubobj );
 	    }
 
 	    jsonobj.set( key, subarray );
@@ -1634,17 +1685,41 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 	else
 	{
 	    auto* subobj = new OD::JSON::Object;
-	    subpar->fillJSON( *subobj, false );
+	    basekey.add( "." );
+	    fillJSON( *subobj, keys, vals, basekey, startidx );
 	    jsonobj.set( key, subobj );
 	}
-
-	key.add( "." );
-	idx++;
-	while ( idx<size() && getKey(idx).startsWith(key) )
-	    idx++;
-
-	idx--;
     }
+}
+
+
+void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
+{
+    IOParIterator iter( *this );
+    BufferString key, val, buf;
+    if ( simple )
+    {
+	while ( iter.next(key,val) )
+	    jsonobj.set( key, val );
+
+	return;
+    }
+
+    BufferStringSet keys, vals;
+    while ( iter.next(key,val) )
+    {
+	keys.add( key );
+	vals.add( val );
+    }
+
+    ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
+    if ( !sortedidxs )
+	return;
+
+    keys.useIndexes( sortedidxs );
+    vals.useIndexes( sortedidxs );
+    int startidx = 0;
+    fillJSON( jsonobj, keys, vals, nullptr, startidx );
 }
 
 
@@ -1711,4 +1786,34 @@ bool IOPar::useJSON( const OD::JSON::Object& jsonobj )
     }
 
     return !isEmpty();
+}
+
+
+
+IOParIterator::IOParIterator( const IOPar& iop )
+    : iter_(*new ODHashMapIterator(iop.hashmap_))
+{}
+
+
+IOParIterator::~IOParIterator()
+{
+    delete &iter_;
+}
+
+
+bool IOParIterator::next( BufferString& key, BufferString& val )
+{
+    if ( !iter_.hasNext() )
+	return false;
+
+    iter_.next();
+    key = iter_.key();
+    val = iter_.value();
+    return true;
+}
+
+
+void IOParIterator::reset()
+{
+    iter_.toFront();
 }

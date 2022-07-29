@@ -177,7 +177,7 @@ void handleDisp( CallBacker* )
 bool acceptOK( CallBacker* ) override
 {
     PtrMan<ProbDenFunc> pdf0 = 0;
-    pars_.removeWithKeyPattern( mGetSeisBayesPDFIDKey("*") );
+    pars_.removeSubSelection( SeisBayesClass::sKeyPDFID() );
 
     for ( int idx=0; idx<nrdisp_; idx++ )
     {
@@ -336,8 +336,8 @@ bool rejectOK( CallBacker* cb ) override
 bool acceptOK( CallBacker* ) override
 {
     if ( nrpdfs_ < 1 ) return false;
-    pars_.removeWithKeyPattern( mGetSeisBayesAPProbIDKey("*") );
-    pars_.removeWithKeyPattern( mGetSeisBayesPreScaleKey("*") );
+    pars_.removeSubSelection( SeisBayesClass::sKeyAPProbID() );
+    pars_.removeSubSelection( SeisBayesClass::sKeyPreScale() );
     return getFromScreen( false );
 }
 
@@ -453,7 +453,7 @@ bool rejectOK( CallBacker* cb ) override
 
 bool acceptOK( CallBacker* ) override
 {
-    pars_.removeWithKeyPattern( mGetSeisBayesSeisInpIDKey("*") );
+    pars_.removeSubSelection( SeisBayesClass::sKeySeisInpID() );
     return getFromScreen( false );
 }
 
@@ -576,7 +576,7 @@ bool rejectOK( CallBacker* cb ) override
 
 bool acceptOK( CallBacker* ) override
 {
-    pars_.removeWithKeyPattern( mGetSeisBayesSeisOutIDKey("*") );
+    pars_.removeSubSelection( SeisBayesClass::sKeySeisOutID() );
     return getFromScreen( false );
 }
 

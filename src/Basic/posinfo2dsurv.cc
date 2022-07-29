@@ -134,12 +134,8 @@ PosInfo::Survey2D::~Survey2D()
 void PosInfo::Survey2D::readIdxFiles()
 {
     if ( lsnm_.isEmpty() )
-    {
-	readIdxFile( FilePath(basefp_,sIdxFilename).fullPath(), lsindex_ );
-	if ( lsindex_.size() <= 1 )
-	    return;
-	lsnm_ = lsindex_.getKey(0);
-    }
+	return;
+
     int idxky = lsindex_.indexOf( lsnm_.buf() );
     if ( idxky < 0 )
     {	// selected lsnm_ doesn't exist (anymore): reset to default

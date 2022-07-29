@@ -108,7 +108,7 @@ set( OD_MODULE_SOURCES
 	plugins.cc
 	posinfo.cc
 	posinfo2d.cc
-	posinfo2dsurv.cc
+	#posinfo2dsurv.cc
 	position.cc
 	progressmeter.cc
 	procdescdata.cc

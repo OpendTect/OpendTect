@@ -24,7 +24,7 @@ int mTestMainFnName( int argc, char** argv )
 
     IOPar par;
     par.read( "/tmp/Demo_Machine_Learning_plugin_2020.sess", "Session setup" );
-    std::cerr << "Read " << par.size() << std::endl; 
+    std::cerr << "Read " << par.size() << std::endl;
     IOPar copy;
     Time::Counter ctr; ctr.start();
     for ( int idx=par.size()-1; idx>=0; idx-- )
@@ -38,7 +38,7 @@ int mTestMainFnName( int argc, char** argv )
 	qhash[ par.getKey(idx).str() ] = par.getValue(idx).str();
 
     std::cerr << "Time Taken to create QHash: " << ctr.elapsed() << std::endl;
-    std::cerr << "QHash size: " << qhash.size() << std::endl; 
+    std::cerr << "QHash size: " << qhash.size() << std::endl;
 
     ctr.restart();
     for ( int idx=0; idx<par.size(); idx++ )
@@ -59,6 +59,6 @@ int mTestMainFnName( int argc, char** argv )
     IOPar fromjson;
     fromjson.useJSON( jsonobj );
     fromjson.write( "/tmp/fromjson.par", "par" );
- 
+
     return 0;
 }

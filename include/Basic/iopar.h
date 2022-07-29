@@ -24,6 +24,7 @@ class BufferStringSet;
 class SeparString;
 class ascistream;
 class ascostream;
+class ODHashMap;
 class uiString;
 namespace OD
 {
@@ -71,32 +72,25 @@ public:
 			{ return !isEqual(iop); }
 
     int			size() const;
-    int			indexOf(const char* key) const;
-    inline bool		isPresent( const char* ky ) const
-						{ return indexOf(ky) >= 0; }
+    bool		isPresent(const char* ky) const;
 
-    inline bool		isEmpty() const		{ return size() == 0; }
-    bool		isEqual(const IOPar&,bool need_same_order=false) const;
+    bool		isEmpty() const;
+    bool		isEqual(const IOPar&) const;
     bool		includes(const IOPar&) const;
-    StringView		getKey(int) const;
-    StringView		getValue(int) const;
-    bool		setKey(int,const char*);
-    void		setValue(int,const char*);
-    int			maxContentSize(bool keys_else_values) const;
 
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
-    const char*		findKeyFor(const char*,int nr=0) const;
-				//!< returns null if value not found
+    const char*		findKeyFor(const char*) const;
+			//!< returns null if value not found
     void		fillJSON(OD::JSON::Object& obj,bool simple=true) const;
 			//!< if simple, only save the top level objects
     bool		useJSON(const OD::JSON::Object&);
     bool		useJSON(const char* key,const OD::JSON::Array&);
 
-    void		remove(int);
-    void		removeWithKey(const char* key);
-    void		removeWithKeyPattern(const char* globexpression);
-				//!< removes all entries with key matching
-				//!< this glob expression
+    bool		remove(const char* ky);
+			//!< returns false if ky not found
+    bool		removeWithKeyPattern(const char* globexpression);
+			//!< removes all entries with key matching
+			//!< this glob expression, return false if none found
 
     void		setEmpty();
 			//!< remove all entries (doesn't clear name)
@@ -116,19 +110,19 @@ public:
 			//!< returns iopar with key that start with number.
     IOPar*		subselect( const OD::String& fs ) const
 			{ return subselect( fs.str() ); }
-    void		removeSubSelection(const char* str);
+    bool		removeSubSelection(const char* str);
 			//!< removes with key that start with str.
-    void		removeSubSelection(int);
+    bool		removeSubSelection(int);
 			//!< removes with key that start with number.
-    void		removeSubSelection( const OD::String& fs )
-			{ removeSubSelection( fs.str() ); }
+    bool		removeSubSelection( const OD::String& fs )
+			{ return removeSubSelection( fs.str() ); }
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
 
 // GET functions
 
     const char*		find(const char*) const;
-				//!< returns null if not found
+			//!< returns null if not found
     StringView		operator[]( const char* ky ) const
 			{ return StringView( find(ky) ); }
 
@@ -342,19 +336,42 @@ public:
     static const char*	sKeyHdr()		{ return "->"; }
     static const char*	sKeySubHdr()		{ return "-->"; }
 
+    //mDeprecated		("Use 'remove(const char* key)' instead" )
+    void		removeWithKey(const char* key);
+
 protected:
 
     int			majorversion_;
     int			minorversion_;
     int			patchversion_;
 
-    BufferStringSet&	keys_;
-    BufferStringSet&	vals_;
+    ODHashMap&		hashmap_;
+    friend class	IOParIterator;
 
     bool		areSubParsIndexed() const;
+    void		fillJSON(OD::JSON::Object& obj,
+				 const BufferStringSet& keys,
+				 const BufferStringSet& vals,
+				 const char* subkey,
+				 int& startidx) const;
 
 };
 
+class ODHashMapIterator;
+
+mExpClass(Basic) IOParIterator
+{
+public:
+			IOParIterator(const IOPar&);
+			~IOParIterator();
+
+    bool		next(BufferString& key,BufferString& val);
+    void		reset();
+
+private:
+
+    ODHashMapIterator&	iter_;
+};
 
 template <class T>
 inline bool IOPar::get( const char* k, Interval<T>& i ) const

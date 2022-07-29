@@ -41,7 +41,7 @@ static IOPar* cleanInputPar( const IOPar& iop )
     execpars.usePar( *ret );
     execpars.removeFromPar( *ret );
     ret->removeWithKey( sKey::LogFile() );
-    ret->removeWithKeyPattern( "Program.*");
+    ret->removeSubSelection( "Program");
     ret->removeWithKey( sKey::DataRoot() );
     ret->removeWithKey( sKey::Survey() );
 

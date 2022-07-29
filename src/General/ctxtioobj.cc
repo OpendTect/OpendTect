@@ -140,16 +140,18 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     else if ( !isAllowedTranslator(ioobj.translator(),allowtransls_) )
 	return false;
 
-    for ( int ireq=0; ireq<require_.size(); ireq++ )
+    IOParIterator iter( require_ );
+    BufferString key, val;
+    while ( iter.next(key,val) )
     {
-	FileMultiString fms( require_.getValue(ireq) );
+	FileMultiString fms( val );
 	const int fmssz = fms.size();
-	const char* val = ioobj.pars().find( require_.getKey(ireq) );
-	const bool valisempty = !val || !*val;
+	const char* ioobjval = ioobj.pars().find( key );
+	const bool valisempty = !ioobjval || !*ioobjval;
 
 	if ( fmssz == 0 && valisempty ) continue;
 
-	const FileMultiString valfms( val );
+	const FileMultiString valfms( ioobjval );
 	const int valfmssz = valfms.size();
 	bool isok = false;
 	for ( int ifms=0; ifms<fmssz; ifms++ )
@@ -178,18 +180,16 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     if ( dontallow_.isEmpty() )
 	return true;
 
-    for ( int ipar=0; ipar<ioobj.pars().size(); ipar++ )
+    IOParIterator ioobjpariter( ioobj.pars() );
+    while ( ioobjpariter.next(key,val) )
     {
-	const char* notallowedvals = dontallow_.find(
-					ioobj.pars().getKey( ipar ) );
+	const char* notallowedvals = dontallow_.find( key );
 	if ( !notallowedvals )
 	    continue;
 
 	FileMultiString fms( notallowedvals );
 	const int fmssz = fms.size();
-	const char* val = ioobj.pars().getValue( ipar );
-	const bool valisempty = !val || !*val;
-	if ( valisempty && fmssz < 1 )
+	if ( val.isEmpty() && fmssz < 1 )
 	    return false;
 
 	const FileMultiString valfms( val );
