@@ -555,15 +555,15 @@ int nextStep() override
        return Finished();
 
     const FilePath fp( dl_.fullPath(curidx_) );
-    const EM::FaultID id = toInt( fp.baseName(), mUdf(int) );
-    if ( mIsUdf(id) )
+    const EM::FaultID id( toInt( fp.baseName(), mUdf(int) ) );
+    if ( !id.isValid() )
     {
 	curidx_++;
 	return MoreToDo();
     }
 
     BufferString fltnm( fltset_.name() );
-    fltnm.add( "_" ).add( id );
+    fltnm.add( "_" ).add( id.asInt() );
 
     mDynamicCastGet( EM::Fault3D*, newflt,
 		     EM::EMM().createTempObject(EM::Fault3D::typeStr()) );
@@ -620,7 +620,7 @@ int nextStep() override
 	return ErrorOccurred();
 
     const EM::FaultID id = fltset_.getFaultID( curidx_ );
-    FilePath fp( basedir_, toString(id) );
+    FilePath fp( basedir_, toString(id.asInt()) );
     fp.setExtension( "flt" );
     ConstRefMan<EM::Fault3D> flt = fltset_.getFault3D( id );
     EM::dgbSurfaceWriter wrr( fp.fullPath(), mTranslGroupName(EMFault3D),

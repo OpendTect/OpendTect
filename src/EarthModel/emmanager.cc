@@ -139,7 +139,8 @@ const char* EMManager::objectType( const MultiID& mid ) const
 ObjectID EMManager::createObject( const char* type, const char* name )
 {
     EMObject* object = EMOF().create( type, *this );
-    if ( !object ) return -1;
+    if ( !object )
+	return ObjectID::udf();
 
     CtxtIOObj ctio( object->getIOObjContext() );
     ctio.ctxt_.forread_ = false;
@@ -174,7 +175,7 @@ const EMObject* EMManager::getObject( const ObjectID& id ) const
 
 ObjectID EMManager::getObjectID( const MultiID& mid ) const
 {
-    ObjectID res = -1;
+    ObjectID res;
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	if ( objects_[idx]->multiID()==mid )
@@ -182,7 +183,7 @@ ObjectID EMManager::getObjectID( const MultiID& mid ) const
 	    if ( objects_[idx]->isFullyLoaded() )
 		return objects_[idx]->id();
 
-	    if ( res==-1 )
+	    if ( !res.isValid() )
 		res = objects_[idx]->id(); //Better to return this than nothing
 	}
     }
@@ -237,7 +238,9 @@ EMObject* EMManager::createTempObject( const char* type )
 
 
 ObjectID EMManager::objectID( int idx ) const
-{ return idx>=0 && idx<objects_.size() ? objects_[idx]->id() : -1; }
+{
+    return objects_.validIdx(idx) ? objects_[idx]->id() : ObjectID::udf();
+}
 
 
 Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,

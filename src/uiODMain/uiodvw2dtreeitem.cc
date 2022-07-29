@@ -163,7 +163,6 @@ uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
     : uiTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
-    , objid_(-1)
 {
 }
 
@@ -185,7 +184,7 @@ bool uiODVw2DTreeItem::init()
 }
 
 
-void uiODVw2DTreeItem::addKeyBoardEvent( int id )
+void uiODVw2DTreeItem::addKeyBoardEvent( const EM::ObjectID& emid )
 {
     for(int ivwr = 0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++)
     {
@@ -193,8 +192,9 @@ void uiODVw2DTreeItem::addKeyBoardEvent( int id )
 	mAttachCB(vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
 	    uiODVw2DTreeItem::keyPressedCB);
     }
-    if ( id>=0 )
-	objid_ = id;
+
+    if ( emid.isValid() )
+	emobjid_ = emid;
 }
 
 
@@ -203,8 +203,9 @@ void uiODVw2DTreeItem::keyPressedCB( CallBacker* cb )
     if ( !uitreeviewitem_->isSelected() )
 	return;
 
-    mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
-    if ( !keh || !keh->hasEvent() ) return;
+    mDynamicCastGet(const KeyboardEventHandler*,keh,cb)
+    if ( !keh || !keh->hasEvent() )
+	return;
 
     if ( KeyboardEvent::isSave(keh->event()) )
 	doSave();
@@ -445,40 +446,39 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
 
 void uiODVw2DTreeItem::doSave()
 {
-    if ( objid_ < 0 )
+    if ( !emobjid_.isValid() )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_ );
     bool savewithname = false;
-    if ( !EM::EMM().getMultiID(emid).isUdf() )
-	savewithname = !IOM().get( EM::EMM().getMultiID(emid) );
+    if ( !EM::EMM().getMultiID(emobjid_).isUdf() )
+	savewithname = !IOM().get( EM::EMM().getMultiID(emobjid_) );
     doStoreObject( savewithname );
 
-    if ( MPE::engine().hasTracker(emid) )
+    if ( MPE::engine().hasTracker(emobjid_) )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	if ( mps )
-	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emid) );
+	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emobjid_) );
     }
 }
 
 
 void uiODVw2DTreeItem::doSaveAs()
 {
-    if ( objid_ < 0 )
+    if ( !emobjid_.isValid() )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_ );
     doStoreObject( true );
 
-    if ( MPE::engine().hasTracker(emid) )
+    if ( MPE::engine().hasTracker(emobjid_) )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	if ( mps )
 	{
-	   const MultiID oldmid = applMgr()->EMServer()->getStorageID( emid );
+	   const MultiID oldmid =
+		applMgr()->EMServer()->getStorageID( emobjid_ );
 	   mps->prepareSaveSetupAs( oldmid );
-	   mps->saveSetupAs( EM::EMM().getObject(emid)->multiID() );
+	   mps->saveSetupAs( EM::EMM().getObject(emobjid_)->multiID() );
 	}
     }
 }
@@ -486,27 +486,26 @@ void uiODVw2DTreeItem::doSaveAs()
 
 void uiODVw2DTreeItem::doStoreObject( bool saveas )
 {
-    if ( objid_ < 0 )
+    if ( !emobjid_.isValid() )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_ );
-    applMgr()->EMServer()->storeObject( emid, saveas );
+    applMgr()->EMServer()->storeObject( emobjid_, saveas );
     renameVisObj();
 }
 
 
 void uiODVw2DTreeItem::renameVisObj()
 {
-    if ( objid_ < 0 )
+    if ( !emobjid_.isValid() )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_ );
-    const MultiID midintree = applMgr()->EMServer()->getStorageID( emid );
+    const MultiID midintree = applMgr()->EMServer()->getStorageID( emobjid_ );
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
-    name_ = applMgr()->EMServer()->getUiName( emid );
+    name_ = applMgr()->EMServer()->getUiName( emobjid_ );
     for ( int idx = 0; idx<visobjids.size(); idx++ )
-      applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
+	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
+
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
     applMgr()->visServer()->triggerTreeUpdate();
 }

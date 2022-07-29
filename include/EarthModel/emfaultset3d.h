@@ -16,9 +16,6 @@ ________________________________________________________________________
 namespace EM
 {
 
-typedef int FaultID;
-
-
 /*!
 \brief 3D FaultSet
 */
@@ -55,7 +52,7 @@ protected:
 
     ObjectSet<Fault3D>		faults_;
     TypeSet<FaultID>		ids_;
-    int				curidnr_;
+    int				curidnr_ = 0;
 };
 
 } // namespace EM

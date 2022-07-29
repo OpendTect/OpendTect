@@ -197,7 +197,7 @@ int Write3DHorASCII::nextStep()
 {
     BufferString str;
     const EM::PosID posid = it_->next();
-    if ( posid.objectID()==-1 || counter_ > maxsize_ )
+    if ( !posid.objectID().isValid() || counter_ > maxsize_ )
 	return Executor::Finished();
 
     if ( !setup_.issingle_ )
@@ -559,7 +559,7 @@ bool uiExportHorizon::writeAscii()
 		while ( true )
 		{
 		    const EM::PosID posid = it->next();
-		    if ( posid.objectID()==-1 )
+		    if ( !posid.isValid() )
 			break;
 
 		    const Coord3 crd = hor->getPos( posid );

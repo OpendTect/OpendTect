@@ -237,9 +237,9 @@ bool uiODVw2DPickSetTreeItem::init()
 	if ( picksetidx < 0 )
 	    return false;
 
-	vw2dpickset_ =
-	    VW2DPickSet::create( picksetidx, viewer2D()->viewwin(),
-				 viewer2D()->dataEditor() );
+	vw2dpickset_ = VW2DPickSet::create( viewer2D()->viewwin(),
+					    viewer2D()->dataEditor() );
+	vw2dpickset_->setPickSet( *pickset_ );
 	viewer2D()->dataMgr()->addObject( vw2dpickset_ );
 	displayid_ = vw2dpickset_->id();
     }

@@ -46,9 +46,9 @@ public:
 
     virtual bool		is2D() const		{ return false; }
 
-    void			setTypeStr(const char* type)
-				{ type_ = type; }
-    const char*			getTypeStr() const	{ return type_; }
+    void			setTypeStr( const char* tp )
+				{ type_ = tp; }
+    const char*			getTypeStr() const	{ return type_.buf(); }
 
     virtual bool		isEnabled() const	{ return isenabled_; }
     virtual void		enable(bool yn)		{ isenabled_=yn; }
@@ -76,10 +76,10 @@ protected:
 				EMTracker(EM::EMObject*);
     virtual			~EMTracker();
 
-    bool			isenabled_;
+    bool			isenabled_		= true;
     ObjectSet<SectionTracker>	sectiontrackers_;
     BufferString		errmsg_;
-    const char*			type_;
+    BufferString		type_;
 
     void			setEMObject(EM::EMObject*);
 
@@ -87,7 +87,7 @@ protected:
     static const char*		sectionidStr()	{ return "SectionID"; }
 
 private:
-    EM::EMObject*		emobject_;
+    EM::EMObject*		emobject_		= nullptr;
 };
 
 mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );

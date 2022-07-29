@@ -1191,7 +1191,8 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
 }
 
 
-void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
+void uiODSceneMgr::getLoadedEMIDs( TypeSet<EM::ObjectID>& emids,
+				   const char* type,
 				   int sceneid ) const
 {
     if ( sceneid>=0 )
@@ -1207,7 +1208,8 @@ void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
 }
 
 
-void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
+void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm,
+				  TypeSet<EM::ObjectID>& emids,
 				  const char* type ) const
 {
     for ( int chidx=0; chidx<topitm->nrChildren(); chidx++ )
@@ -1245,7 +1247,8 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
 }
 
 
-void uiODSceneMgr::gtLoadedEMIDs( const Scene* scene, TypeSet<int>& emids,
+void uiODSceneMgr::gtLoadedEMIDs( const Scene* scene,
+				  TypeSet<EM::ObjectID>& emids,
 				  const char* type ) const
 {
     for ( int chidx=0; chidx<scene->itemmanager_->nrChildren(); chidx++ )

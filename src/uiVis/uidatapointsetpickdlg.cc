@@ -422,7 +422,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( !pid.isValid() )
 	    break;
 
 	auxvals[0] = (float) hor3d->getPos( pid ).z;

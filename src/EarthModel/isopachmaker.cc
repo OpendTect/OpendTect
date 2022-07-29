@@ -90,7 +90,7 @@ int IsochronMaker::nextStep()
     {
 	const EM::PosID posid = iter_->next();
 	nrdone_++;
-	if ( posid.objectID() < 0 )
+	if ( !posid.isValid() )
 	    return finishWork();
 
 	if ( posid.sectionID() != sectid1_ )

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "dpsdispmgr.h"
+#include "emposid.h"
 #include "menuhandler.h"
 #include "thread.h"
 
@@ -56,7 +57,7 @@ public:
 
     void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
 
-    CNotifier<uiVisDataPointSetDisplayMgr,int>	treeToBeAdded;
+    CNotifier<uiVisDataPointSetDisplayMgr,EM::ObjectID>	treeToBeAdded;
     mClass(uiVis) DisplayInfo
     {
     public:

@@ -13,7 +13,9 @@ ________________________________________________________________________
 
 
 #include "uiodmainmod.h"
+
 #include "bufstringset.h"
+#include "emposid.h"
 #include "multiid.h"
 #include "timer.h"
 #include "uidialog.h"
@@ -197,7 +199,7 @@ protected:
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
-    int				curemid_;
+    EM::ObjectID		curemid_;
 
     Timer			deseltimer_;
     Timer			editreadytimer_;

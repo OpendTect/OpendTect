@@ -313,7 +313,7 @@ bool uiGMTContourGrp::loadHor()
 
     EM::EMObject* obj = 0;
     EM::ObjectID id = EM::EMM().getObjectID( ioobj->key() );
-    if ( id < 0 || !EM::EMM().getObject(id)->isFullyLoaded() )
+    if ( !id.isValid() || !EM::EMM().getObject(id)->isFullyLoaded() )
     {
 	PtrMan<EM::SurfaceIODataSelection> sel =
 					new EM::SurfaceIODataSelection( sd_ );

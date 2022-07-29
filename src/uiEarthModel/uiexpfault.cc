@@ -253,7 +253,9 @@ bool uiExportFault::writeAscii()
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	EM::ObjectID objid = EM::EMM().getObjectID( midset[idx] );
-	if ( objid < 0 ) continue;
+	if ( !objid.isValid() )
+	    continue;
+
 	RefMan<EM::EMObject> emobj = EM::EMM().getObject(objid);
 	mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj.ptr())
@@ -271,7 +273,7 @@ bool uiExportFault::writeAscii()
 		EM::FaultID fltid = fset->getFaultID( oidx );
 		fltobj = fset->getFault3D( fltid );
 		objnm = fset->name();
-		objnm.add("_").add( fltid );
+		objnm.add("_").add( fltid.asInt() );
 	    }
 
 	    const EM::SectionID sectionid = fltobj->sectionID( 0 );

@@ -232,7 +232,7 @@ static uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,itms[idx])
 	const EM::ObjectID emid = itm && itm->visEMObject() ?
-		     itm->visEMObject()->getObjectID() : -1;
+		     itm->visEMObject()->getObjectID() : EM::ObjectID::udf();
 	if ( mid == EM::EMM().getMultiID(emid) )
 	    return itms[idx];
     }
@@ -319,7 +319,7 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 					  bool dummy )
-    : uiODEarthModelSurfaceTreeItem(0)
+    : uiODEarthModelSurfaceTreeItem(EM::ObjectID::udf())
     , rgba_(rgba)
     , atsections_(atsect)
 {
@@ -1063,7 +1063,7 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& objid )
 
 
 uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
-    : uiODEarthModelSurfaceTreeItem( 0 )
+    : uiODEarthModelSurfaceTreeItem( EM::ObjectID::udf() )
 {
     initMenuItems();
     displayid_=id;

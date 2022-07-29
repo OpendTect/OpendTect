@@ -914,10 +914,10 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 
     PtrMan<EM::EMObjectIterator> iterator = h2d->geometry().createIterator(-1);
     TypeSet<int> pidxs;
-    while( true )
+    while ( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( !pid.isValid() )
 	    break;
 
 	const Coord3 pos = h2d->getPos( pid );
@@ -929,7 +929,8 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 	}
     }
 
-    if ( pidxs.isEmpty() ) return;
+    if ( pidxs.isEmpty() )
+	return;
 
     Geometry::PrimitiveSet* pointsetps =
 		Geometry::IndexedPrimitiveSet::create( true );

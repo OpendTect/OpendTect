@@ -252,7 +252,8 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
 	return;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     if ( emid != fsspainter_->getFaultSSID() )
 	return;
@@ -288,7 +289,8 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 						      : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -426,7 +428,8 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 	return;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -481,7 +484,8 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 	displayedknotid = editor_->getSelPtIdx()[0];
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
 
@@ -563,7 +567,8 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     }
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());

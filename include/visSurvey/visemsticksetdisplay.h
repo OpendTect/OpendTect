@@ -14,18 +14,17 @@ ________________________________________________________________________
 #include "viscoord.h"
 #include "draw.h"
 
-namespace EM 
-{ 
-    class Fault; 
+namespace EM
+{
+    class Fault;
     class FaultStickSet;
-    typedef od_int32 ObjectID; 
 }
 
-namespace visBase 
-{  
-    class MarkerSet; 
+namespace visBase
+{
+    class MarkerSet;
     class EventCatcher;
-    class Transformation; 
+    class Transformation;
     class PolygonSelection;
 }
 
@@ -36,8 +35,8 @@ namespace visSurvey
 {
 class Scene;
 
-mExpClass(visSurvey) StickSetDisplay 
-{ 
+mExpClass(visSurvey) StickSetDisplay
+{
 public:
 				StickSetDisplay(bool);
 				~StickSetDisplay();

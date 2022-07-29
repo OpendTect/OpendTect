@@ -245,9 +245,12 @@ bool uiODVw2DFaultSSTreeItem::init()
     if ( displayid_ < 0 )
     {
 	emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj ) return false;
-	fssview_ = VW2DFaultSS3D::create( emid_, viewer2D()->viewwin(),
-				     viewer2D()->dataEditor() );
+	if ( !emobj )
+	    return false;
+
+	fssview_ = VW2DFaultSS3D::create( viewer2D()->viewwin(),
+					  viewer2D()->dataEditor() );
+	fssview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( fssview_ );
 	displayid_ = fssview_->id();
     }
@@ -257,7 +260,7 @@ bool uiODVw2DFaultSSTreeItem::init()
 			viewer2D()->dataMgr()->getObject(displayid_))
 	if ( !hd )
 	    return false;
-	emid_ = hd->emID();
+	emid_ = hd->getEMObjectID();
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 

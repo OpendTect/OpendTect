@@ -36,17 +36,15 @@ namespace MPE
 mImplFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
 
 EMTracker::EMTracker( EM::EMObject* emo )
-    : isenabled_(true)
-    , emobject_(0)
 {
-    setEMObject(emo);
+    setEMObject( emo );
 }
 
 
 EMTracker::~EMTracker()
 {
     deepErase( sectiontrackers_ );
-    setEMObject(0);
+    setEMObject( nullptr );
 }
 
 
@@ -56,12 +54,15 @@ BufferString EMTracker::objectName() const
 
 
 EM::ObjectID EMTracker::objectID() const
-{ return emobject_ ? emobject_->id() : -1; }
+{
+    return emobject_ ? emobject_->id() : EM::ObjectID::udf();
+}
 
 
 bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )
 {
-    if ( !emobject_ ) return false;
+    if ( !emobject_ )
+	return false;
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {

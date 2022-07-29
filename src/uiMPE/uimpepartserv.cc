@@ -96,7 +96,7 @@ uiMPEPartServer::~uiMPEPartServer()
 		mCB(this,uiMPEPartServer,settingsChangedCB) );
     EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
 
-    trackercurrentobject_ = -1;
+    trackercurrentobject_.setUdf();
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
@@ -277,7 +277,7 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
 
 void uiMPEPartServer::eventChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 )
+    if ( !trackercurrentobject_.isValid() )
 	return;
 
     if ( setupgrp_ )
@@ -287,7 +287,7 @@ void uiMPEPartServer::eventChangedCB( CallBacker* )
 
 void uiMPEPartServer::correlationChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 )
+    if ( !trackercurrentobject_.isValid() )
 	return;
 
     if ( setupgrp_ )
@@ -297,7 +297,7 @@ void uiMPEPartServer::correlationChangedCB( CallBacker* )
 
 void uiMPEPartServer::propertyChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 )
+    if ( !trackercurrentobject_.isValid() )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
@@ -320,7 +320,8 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 
 void uiMPEPartServer::nrHorChangeCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 ) return;
+    if ( !trackercurrentobject_.isValid() )
+	return;
 
     for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- )
     {
@@ -328,7 +329,7 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* )
 	if ( oid == trackercurrentobject_ ) return;
     }
 
-    trackercurrentobject_ = -1;
+    trackercurrentobject_.setUdf();
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
@@ -347,12 +348,13 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
     cleanSetupDependents();
     seedswithoutattribsel_ = false;
 
-    if ( trackercurrentobject_ == -1 ) return;
+    if ( !trackercurrentobject_.isValid() )
+	return;
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
     if ( trackerid == -1 )
     {
-	trackercurrentobject_ = -1;
+	trackercurrentobject_.setUdf();
 	initialundoid_ = mUdf(int);
 	seedhasbeenpicked_ = false;
 	setupbeingupdated_ = false;
@@ -379,7 +381,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
 
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
 
-    trackercurrentobject_ = -1;
+    trackercurrentobject_.setUdf();
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
@@ -411,14 +413,14 @@ void uiMPEPartServer::noTrackingRemoval()
 
     MPE::engine().trackeraddremove.disable();
 
-    if ( (trackercurrentobject_!= -1) && (cursceneid_!=-1) )
+    if ( trackercurrentobject_.isValid() && cursceneid_!=-1 )
 	sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
     if ( trackerid != -1 )
 	MPE::engine().removeTracker( trackerid );
 
-    trackercurrentobject_ = -1;
+    trackercurrentobject_.setUdf();
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
 
@@ -461,7 +463,7 @@ void uiMPEPartServer::cleanSetupDependents()
 EM::ObjectID uiMPEPartServer::getEMObjectID( int trackerid ) const
 {
     const MPE::EMTracker* emt = MPE::engine().getTracker(trackerid);
-    return emt ? emt->objectID() : -1;
+    return emt ? emt->objectID() : EM::ObjectID::udf();
 }
 
 
@@ -490,8 +492,8 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
     if ( yn )
     {
 	activetrackerid_ = trackerid;
-	trackercurrentobject_ =
-	    tracker->emObject() ? tracker->emObject()->id() : -1;
+	trackercurrentobject_ = tracker->emObject() ?
+		tracker->emObject()->id() : EM::ObjectID::udf();
 	fillTrackerSettings( trackerid );
     }
 }
@@ -553,10 +555,10 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid )
 {
-    if ( emid<0 || sid<0 )
+    if ( !emid.isValid() || sid<0 )
 	return false;
 
-    if ( trackercurrentobject_!=-1 && setupgrp_ )
+    if ( trackercurrentobject_.isValid() && setupgrp_ )
     {
 	if ( setupgrp_->mainwin() )
 	{
@@ -590,7 +592,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 					   const char* grpnm )
 {
-    if ( emid<0 || emid!=trackercurrentobject_ || !setupgrp_ )
+    if ( !emid.isValid() || emid!=trackercurrentobject_ || !setupgrp_ )
 	return false;
 
     setupgrp_->showGroupOnTop( grpnm );

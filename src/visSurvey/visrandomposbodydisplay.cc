@@ -92,7 +92,9 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 
 
 EM::ObjectID RandomPosBodyDisplay::getEMID() const
-{ return embody_ ? embody_->id() : -1; }
+{
+    return embody_ ? embody_->id() : EM::ObjectID::udf();
+}
 
 
 bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )

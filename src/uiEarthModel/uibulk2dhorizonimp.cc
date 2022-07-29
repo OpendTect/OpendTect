@@ -373,23 +373,24 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	if ( !ret )
 	    return false;
     }
+
     for ( int idx=0; idx<hornmset.size(); idx++ )
     {
 	hor2ds.setEmpty();
 	BufferString nm = hornmset.get( idx );
 	PtrMan<IOObj> ioobj = IOM().getLocal( nm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
-	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
+	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() )
+				: EM::ObjectID::udf();
 	EM::EMObject* emobj = em.getObject(id);
 	if ( emobj )
 	    emobj->setBurstAlert( true );
-
-	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
 
 	id = em.createObject( EM::Horizon2D::typeStr(), nm );
 	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
 	if ( ioobj )
 	    hor->setMultiID( ioobj->key() );
+
 	hor->setPreferredColor( OD::getRandomColor() );
 	hor->ref();
 	hor->setBurstAlert( true );

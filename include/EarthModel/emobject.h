@@ -47,20 +47,16 @@ mExpClass(EarthModel) EMObjectCallbackData
 {
 public:
 		EMObjectCallbackData()
-		    : pid0( 0, 0, 0 )
-		    , pid1( 0, 0, 0 )
-		    , attrib( -1 )
-		    , flagfor2dviewer( false )
-		    , event( EMObjectCallbackData::Undef )
+		    : event( EMObjectCallbackData::Undef )
 		{}
 
 
 		EMObjectCallbackData( const EMObjectCallbackData& data )
-		    : pid0( data.pid0 )
+		    : event( data.event )
+		    , pid0( data.pid0 )
 		    , pid1( data.pid1 )
 		    , attrib( data.attrib )
 		    , flagfor2dviewer( data.flagfor2dviewer )
-		    , event( data.event )
 		{}
 
 
@@ -70,8 +66,8 @@ public:
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
-    int		attrib; //Used only with AttribChange
-    bool	flagfor2dviewer; //Used only with BurstAlert for 2DViewer
+    int		attrib = -1; //Used only with AttribChange
+    bool	flagfor2dviewer = false;//Used only with BurstAlert for 2DViewer
 };
 
 
@@ -128,7 +124,7 @@ public:
     virtual int		approximateSize() const { return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
-    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(-1,-1,-1); }
+    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(); }
 };
 
 

@@ -53,10 +53,13 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
-    const EM::ObjectID& emID() const			{ return emid_; }
+    void		setEMObjectID(const EM::ObjectID&);
+    const EM::ObjectID& getEMObjectID() const		{ return emid_; }
+
+//    const EM::ObjectID& emID() const			{ return emid_; }
 
 protected:
-			Vw2DEMDataObject(const EM::ObjectID&,uiFlatViewWin*,
+			Vw2DEMDataObject(uiFlatViewWin*,
 				     const ObjectSet<uiFlatViewAuxDataEditor>&);
 
     uiFlatViewWin*	viewerwin_;
@@ -67,53 +70,32 @@ protected:
 };
 
 
-#define _mCreateVw2DDataObj(clss,id,win,editors)                    \
-{                                                               \
-    return (clss*) createInternal(id,win,editors);	\
-}                                                               \
-								\
-private:                                                        \
-    static Vw2DDataObject* createInternal(const EM::ObjectID&,	\
-	    uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&); \
-    clss(const clss&);                                          \
-    clss& operator =(const clss&);                              \
-public:                                                         \
-    static void         initClass();				\
-    static const char*  getStaticClassName();                   \
-								\
-    virtual const char* getClassName() const;                   \
-protected:
+#define mDefStd(clss) \
+public: \
+static void initClass(); \
+static clss* create(uiFlatViewWin*,\
+		    const ObjectSet<uiFlatViewAuxDataEditor>&); \
+~clss(); \
+protected: \
+clss(uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&); \
+private: \
+static Vw2DDataObject* createInternal(uiFlatViewWin*, \
+				const ObjectSet<uiFlatViewAuxDataEditor>&);
 
-#define _mDeclVw2DConstr(clss,oid,win,ed)                       \
-    clss(const EM::ObjectID& oid,uiFlatViewWin* win,		\
-	    const ObjectSet<uiFlatViewAuxDataEditor>& ed);      \
-public:
-
-#define mCreateVw2DDataObj(clss,oid,win,ed)                          \
-    _mCreateVw2DDataObj(clss,oid,win,ed)                             \
-    _mDeclVw2DConstr(clss,oid,win,ed)
-
-
-#define mImplVisVwr2DInitClass( clss)				\
-void clss::initClass()						\
-{                                                               \
-    Vw2DDataManager::factory().addCreator(	\
-	clss::createInternal, #clss );		\
+#define mImplStd(clss) \
+void clss::initClass() \
+{ \
+    Vw2DDataManager::factory().addCreator( clss::createInternal, #clss ); \
+} \
+\
+clss* clss::create( uiFlatViewWin* fvw, \
+		    const ObjectSet<uiFlatViewAuxDataEditor>& eds ) \
+{ \
+    return sCast(clss*,createInternal(fvw,eds)); \
+} \
+\
+Vw2DDataObject* clss::createInternal( \
+	uiFlatViewWin* fvw, const ObjectSet<uiFlatViewAuxDataEditor>& eds ) \
+{ \
+    return new clss( fvw, eds ); \
 }
-
-#define mCreateVw2DFactoryEntryNoInitClass( clss )                  \
-const char* clss::getStaticClassName() { return #clss; }        \
-const char* clss::getClassName() const                          \
-{ return clss::getStaticClassName(); }                          \
-Vw2DDataObject* clss::createInternal(const EM::ObjectID& oid,	\
-	uiFlatViewWin* win,const ObjectSet<uiFlatViewAuxDataEditor>& eds) \
-{                                                               \
-    return new clss(oid,win,eds);	\
-}
-
-
-#define mCreateVw2DFactoryEntry( clss)			\
-mImplVisVwr2DInitClass( clss );					\
-mCreateVw2DFactoryEntryNoInitClass( clss );
-
-

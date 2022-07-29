@@ -389,7 +389,7 @@ bool uiImportHorizon::doScan()
     uiTaskRunner taskrunner( this );
     ZAxisTransform* zatf = nullptr;
     int zatfvoi = -1;
-    const bool needstransform =	
+    const bool needstransform =
 			domsel_->getBoolValue() != impdomsel_->getBoolValue();
     if ( needstransform && transfld_ && transfld_->acceptOK() )
     {
@@ -576,7 +576,7 @@ bool uiImportHorizon::doImport()
     else
     {
 	mDynamicCastGet(ExecutorGroup*,exec,
-			horizon->auxdata.auxDataSaver(-1,true));
+			horizon->auxdata.auxDataSaver(-1,true))
 	mSave(taskrunner);
     }
 
@@ -750,10 +750,10 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     EM::EMManager& em = EM::EMM();
     const MultiID mid = getSelID();
     EM::ObjectID objid = em.getObjectID( mid );
-    if ( objid < 0 )
+    if ( !objid.isValid() )
 	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
 
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
     if ( !horizon )
 	mErrRet( uiStrings::sCantCreateHor() );
 
@@ -775,7 +775,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     if ( !horizon ) mErrRet( tr("Error loading horizon"));
@@ -879,10 +879,10 @@ EM::Horizon3D* uiImpHorFromZMap::createHor() const
     EM::EMManager& em = EM::EMM();
     const MultiID mid = getSelID();
     EM::ObjectID objid = em.getObjectID( mid );
-    if ( objid < 0 )
+    if ( !objid.isValid() )
 	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
 
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
     if ( !horizon )
 	mErrRet( uiStrings::sCantCreateHor() );
 

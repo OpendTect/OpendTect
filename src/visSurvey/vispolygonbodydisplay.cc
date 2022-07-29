@@ -152,7 +152,7 @@ void PolygonBodyDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 
 EM::ObjectID PolygonBodyDisplay::getEMID() const
 {
-    return empolygonsurf_ ? empolygonsurf_->id() : -1;
+    return empolygonsurf_ ? empolygonsurf_->id() : EM::ObjectID::udf();
 }
 
 

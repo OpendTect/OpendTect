@@ -136,15 +136,14 @@ protected:
     TypeSet<Coord3>			alongmovingnodesstart;
     TypeSet<float>			alongmovingnodesfactors;
 
-    int					nrusers;
+    int					nrusers			= 0;
 
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;
     TypeSet<EM::SectionID>		sections;
 
-    bool				snapafterthisedit;
-
-    bool				snapafteredit;
+    bool				snapafterthisedit	= false;
+    bool				snapafteredit		= true;
 };
 
 mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );

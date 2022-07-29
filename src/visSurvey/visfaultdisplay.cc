@@ -197,7 +197,9 @@ void FaultDisplay::setScene( Scene* scene )
 
 
 EM::ObjectID FaultDisplay::getEMObjectID() const
-{ return fault_ ? fault_->id() : -1; }
+{
+    return fault_ ? fault_->id() : EM::ObjectID::udf();
+}
 
 
 #define mSetStickIntersectPointColor( color ) \
@@ -1664,7 +1666,7 @@ void FaultDisplay::updateEditorMarkers()
     while ( true )
     {
 	const EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
+	if ( !pid.isValid() )
 	    break;
 
 	const EM::SectionID sid = pid.sectionID();

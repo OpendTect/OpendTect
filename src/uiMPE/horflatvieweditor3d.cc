@@ -267,7 +267,7 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	    MPE::engine().setActiveTracker( emid_ );
     }
     else
-	MPE::engine().setActiveTracker( -1 );
+	MPE::engine().setActiveTracker( EM::ObjectID::udf() );
 }
 
 

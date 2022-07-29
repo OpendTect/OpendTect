@@ -12,6 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
+#include "integerid.h"
 #include "multiid.h"
 #include "rowcol.h"
 
@@ -19,9 +21,19 @@ ________________________________________________________________________
 namespace EM
 {
 
-typedef od_int32 ObjectID;
-typedef od_int16 SectionID;
-typedef od_int64 SubID;
+mExpClass(EarthModel) ObjectID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline ObjectID	udf()		{ return ObjectID(); }
+
+protected:
+};
+
+
+using FaultID	= ObjectID;
+using SectionID = od_int16;
+using SubID	= od_int64;
 
 /*!
 \brief Is an identifier for each position in the earthmodel.
@@ -29,18 +41,20 @@ typedef od_int64 SubID;
 It has three parts,
 - an ObjectID, which identifies wich object is belongs to.
 - a SectionID, which identifies which section of the object it belongs to.
-- a SubID, which identifies the position on the section. 
+- a SubID, which identifies the position on the section.
 */
 
 mExpClass(EarthModel) PosID
 {
 public:
-    				PosID( ObjectID emobjid=0,
-				       SectionID sectionid=0,
-				       SubID subid=0);
+				PosID(ObjectID emobjid=ObjectID::udf(),
+				      SectionID sectionid=0,
+				      SubID subid=0);
 
     static const PosID&		udf();
+    void			setUdf();
     bool			isUdf() const;
+    bool			isValid() const;
 
     const ObjectID&		objectID() const;
     SectionID			sectionID() const;

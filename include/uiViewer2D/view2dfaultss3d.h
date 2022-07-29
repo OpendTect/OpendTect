@@ -24,11 +24,8 @@ namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 
 mExpClass(uiViewer2D) VW2DFaultSS3D : public Vw2DEMDataObject
 {
+mDefStd(VW2DFaultSS3D)
 public:
-    static VW2DFaultSS3D* create(const EM::ObjectID& id,uiFlatViewWin* win,
-			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
-			    mCreateVw2DDataObj(VW2DFaultSS3D,id,win,ed);
-			~VW2DFaultSS3D();
 
     void		setTrcKeyZSampling(
 				const TrcKeyZSampling&, bool upd=false );
@@ -37,16 +34,17 @@ public:
     void		enablePainting(bool yn);
     void		selected();
 
-    NotifierAccess*     deSelection()			{ return &deselted_; }
+    NotifierAccess*	deSelection()			{ return &deselted_; }
 
 protected:
 
-    void			triggerDeSel();
-    void			setEditors();
+    void		triggerDeSel();
+    void		setEditors();
 
-    bool			knotenabled_;
+    bool		knotenabled_;
+
     MPE::FaultStickSetEditor*   fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;
     Notifier<VW2DFaultSS3D>	deselted_;
-};
 
+};

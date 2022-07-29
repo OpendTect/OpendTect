@@ -119,7 +119,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    emobject->ref();
 	    if ( !TaskRunner::execute( &dlg, *exec ) )
 	    {
-		emid = -1;
+		emid.setUdf();
 		emobject->unRef();
 		if ( scene ) visserv_->removeObject( emod, scene->id() );
 		delete exec;
@@ -532,7 +532,7 @@ bool uiVisEMObject::isOnlyAtSections() const
 EM::ObjectID uiVisEMObject::getObjectID() const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    return emod ? emod->getObjectID() : -1;
+    return emod ? emod->getObjectID() : EM::ObjectID::udf();
 }
 
 

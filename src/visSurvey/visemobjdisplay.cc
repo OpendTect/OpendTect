@@ -250,7 +250,9 @@ void EMObjectDisplay::removeEMStuff()
 
 
 EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
-{ return EM::PosID(-1,-1,-1); }
+{
+    return EM::PosID();
+}
 
 
 bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
@@ -284,7 +286,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 
 EM::ObjectID EMObjectDisplay::getObjectID() const
 {
-    return emobject_ ? emobject_->id() : -1;
+    return emobject_ ? emobject_->id() : EM::ObjectID::udf();
 }
 
 
@@ -774,7 +776,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
-    EM::PosID res(-1,-1,-1);
+    EM::PosID res;
     const int attribidx = posattribs_.indexOf(attrib);
     if ( attribidx<0 )
 	return res;

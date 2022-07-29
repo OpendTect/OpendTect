@@ -64,7 +64,7 @@ EMObject::EMObject( EMManager& emm )
     , zdomain_(&ZDomain::SI())
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
-    id_ = oid++;
+    id_.set( oid++ );
 
     removebypolyposbox_.setEmpty();
 
@@ -84,7 +84,7 @@ EMObject::~EMObject()
     delete &preferredmarkerstyle_;
     delete &posattribmarkerstyle_;
 
-    id_ = -2;	//To check easier if it has been deleted
+    id_.set( -2 );	//To check easier if it has been deleted
 }
 
 
@@ -147,7 +147,7 @@ Geometry::Element* EMObject::sectionGeometry( const SectionID& sec )
 { return sectionGeometryInternal(sec); }
 
 
-Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& sec )
+Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& )
 { return 0; }
 
 
@@ -650,7 +650,7 @@ void EMObject::removeAllUnSeedPos()
     while( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( !pid.isValid() )
 	    break;
 
 	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) &&
@@ -677,7 +677,7 @@ void EMObject::emptyRemovedPolySelectedPosBox()
 bool EMObject::isEmpty() const
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
-    return !iterator || iterator->next().objectID()==-1;
+    return !iterator || !iterator->next().isValid();
 }
 
 
@@ -723,7 +723,7 @@ bool EMObject::usePar( const IOPar& par )
 	    if ( !isDefined(mCast(EM::SectionID,sections[idy]),subids[idy]) )
 		continue;
 	    const PosID pid = PosID( id(),
-		mCast(EM::SectionID,sections[idy]), subids[idy] );
+		sCast(EM::SectionID,sections[idy]), subids[idy] );
 	    setPosAttrib( pid, attrib, true, false );
 	}
     }
@@ -893,7 +893,7 @@ Interval<float> EMObject::getZRange( bool docompute ) const
 	return zrg;
 
     EM::PosID pid = it->next();
-    while ( pid.objectID()!=-1  )
+    while ( pid.isValid() )
     {
 	const double depth = getPos( pid ).z;
 	if ( !mIsUdf(depth) )

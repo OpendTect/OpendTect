@@ -169,7 +169,9 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 
 
 EM::ObjectID MarchingCubesDisplay::getEMID() const
-{ return emsurface_ ? emsurface_->id() : -1; }
+{
+    return emsurface_ ? emsurface_->id() : EM::ObjectID::udf();
+}
 
 
 SurveyObject::AttribFormat MarchingCubesDisplay::getAttributeFormat(int) const

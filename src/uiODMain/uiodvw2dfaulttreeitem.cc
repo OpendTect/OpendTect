@@ -242,8 +242,9 @@ bool uiODVw2DFaultTreeItem::init()
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 
-	faultview_ = VW2DFault::create( emid_, viewer2D()->viewwin(),
-				   viewer2D()->dataEditor() );
+	faultview_ = VW2DFault::create( viewer2D()->viewwin(),
+					viewer2D()->dataEditor() );
+	faultview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( faultview_ );
 	displayid_ = faultview_->id();
     }
@@ -253,7 +254,8 @@ bool uiODVw2DFaultTreeItem::init()
 			viewer2D()->dataMgr()->getObject(displayid_))
 	if ( !hd )
 	    return false;
-	emid_ = hd->emID();
+
+	emid_ = hd->getEMObjectID();
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 

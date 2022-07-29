@@ -1369,8 +1369,10 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
     sd.rg = hrg;
     ExecutorGroup loadergrp( "Loading Fault" );
     for (int idx = 0; idx < faultids.size(); idx++)
-	if (EM::EMM().getObjectID( faultids[idx] ) < 0)
+    {
+	if ( !EM::EMM().getObjectID( faultids[idx] ).isValid() )
 	    loadergrp.add( EM::EMM().objectLoader( faultids[idx], &sel ) );
+    }
 
     if ( !TaskRunner::execute(taskrunner, loadergrp) )
 	mErrRet( uiStrings::phrCannotRead(uiStrings::sFault()) )

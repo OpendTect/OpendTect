@@ -55,14 +55,9 @@ Engine::Engine()
     , actionCalled(this)
     , actionFinished(this)
     , settingsChanged(this)
-    , oneactivetracker_( 0 )
-    , activetracker_( 0 )
-    , undoeventid_(-1)
     , state_(Stopped)
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
-    , rdmlinetkpath_(0)
-    , validator_(0)
 {
     trackers_.allowNull();
     trackermgrs_.allowNull();
@@ -490,7 +485,7 @@ int Engine::addTracker( EM::EMObject* emobj )
     showRefCountInfo( tracker );
     activetracker_ = tracker;
     trackers_ += tracker;
-    trackermgrs_ += 0;
+    trackermgrs_ += nullptr;
     ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
     flatcubescontainer_ += flatcubes;
     trackeraddremove.trigger();
@@ -524,13 +519,13 @@ void Engine::removeTracker( int idx )
 	return;
 
     if ( activetracker_ == tracker )
-	activetracker_ = 0;
+	activetracker_ = nullptr;
 
-    trackers_.replace( idx, 0 );
-    delete trackermgrs_.replace( idx, 0 );
+    trackers_.replace( idx, nullptr );
+    delete trackermgrs_.replace( idx, nullptr );
 
     deepErase( *flatcubescontainer_[idx] );
-    flatcubescontainer_.replace( idx, 0 );
+    flatcubescontainer_.replace( idx, nullptr );
 
     if ( nrTrackersAlive()==0 )
 	activevolume_.setEmpty();
@@ -587,20 +582,27 @@ int Engine::nrTrackersAlive() const
 
 
 int Engine::highestTrackerID() const
-{ return trackers_.size()-1; }
+{
+    return trackers_.size()-1;
+}
 
 
 const EMTracker* Engine::getTracker( int idx ) const
-{ return const_cast<Engine*>(this)->getTracker(idx); }
+{
+    return const_cast<Engine*>(this)->getTracker(idx);
+}
 
 
 EMTracker* Engine::getTracker( int idx )
-{ return idx>=0 && idx<trackers_.size() ? trackers_[idx] : 0; }
+{
+    return idx>=0 && idx<trackers_.size() ? trackers_[idx] : nullptr;
+}
 
 
 int Engine::getTrackerByObject( const EM::ObjectID& oid ) const
 {
-    if ( oid==-1 ) return -1;
+    if ( !oid.isValid() )
+	return -1;
 
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -616,7 +618,8 @@ int Engine::getTrackerByObject( const EM::ObjectID& oid ) const
 
 int Engine::getTrackerByObject( const char* objname ) const
 {
-    if ( !objname || !objname[0] ) return -1;
+    if ( !objname || !objname[0] )
+	return -1;
 
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -637,7 +640,7 @@ void Engine::setActiveTracker( EMTracker* tracker )
 void Engine::setActiveTracker( const EM::ObjectID& objid )
 {
     const int tridx = getTrackerByObject( objid );
-    activetracker_ = trackers_.validIdx(tridx) ? trackers_[tridx] : 0;
+    activetracker_ = trackers_.validIdx(tridx) ? trackers_[tridx] : nullptr;
 }
 
 
@@ -650,7 +653,7 @@ void Engine::setOneActiveTracker( const EMTracker* tracker )
 
 
 void Engine::unsetOneActiveTracker()
-{ oneactivetracker_ = 0; }
+{ oneactivetracker_ = nullptr; }
 
 
 void Engine::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
@@ -891,7 +894,7 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 	return 0;
 
     ObjectSet<TrcKeyZSampling>* flatcbs = new ObjectSet<TrcKeyZSampling>;
-    for ( int flatcsidx = 0; flatcsidx<flatcubes.size(); flatcsidx++ )
+    for ( int flatcsidx=0; flatcsidx<flatcubes.size(); flatcsidx++ )
     {
 	TrcKeyZSampling* cs = new TrcKeyZSampling();
 	cs->setEmpty();
@@ -998,14 +1001,15 @@ void Engine::removeEditor( const EM::ObjectID& objid )
 
 
 const char* Engine::errMsg() const
-{ return errmsg_.str(); }
+{
+    return errmsg_.str();
+}
 
 
 BufferString Engine::setupFileName( const MultiID& mid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    return ioobj.ptr() ? EM::Surface::getSetupFileName(*ioobj)
-		       : BufferString("");
+    return ioobj ? EM::Surface::getSetupFileName(*ioobj) : BufferString();
 }
 
 
@@ -1129,6 +1133,5 @@ void Engine::applClosingCB( CallBacker* )
     for ( int idx=trackers_.size()-1; idx>=0; idx-- )
 	removeTracker( idx );
 }
-
 
 } // namespace MPE

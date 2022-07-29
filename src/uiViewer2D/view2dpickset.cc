@@ -28,16 +28,13 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 
-mCreateVw2DFactoryEntry( VW2DPickSet );
+mImplStd( VW2DPickSet )
 
-VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
+VW2DPickSet::VW2DPickSet( uiFlatViewWin* fvw,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
     , deselected_(this)
 {
-    if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
-	pickset_ = Pick::Mgr().get( picksetidx );
-
     for ( int idx=0; idx<editors.size(); idx++ )
     {
 	editors_ += const_cast<uiFlatViewAuxDataEditor*>(editors[idx]);
@@ -68,6 +65,12 @@ VW2DPickSet::~VW2DPickSet()
 	editors_[ivwr]->removeAuxData( auxids_[ivwr] );
     }
     deepErase( picks_ );
+}
+
+
+void VW2DPickSet::setPickSet( Pick::Set& ps )
+{
+    pickset_ = &ps;
 }
 
 

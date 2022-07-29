@@ -366,7 +366,7 @@ void uiODApplMgr::exportSurveySetup()
 
 void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 {
-    mCBCapsuleUnpack( int, emid, cb );
+    mCBCapsuleUnpack( EM::ObjectID, emid, cb );
     TypeSet<int> sceneids;
     visserv_->getChildIds( -1, sceneids );
     sceneMgr().addEMItem( emid, sceneids[0] );
@@ -770,9 +770,11 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 
     if ( mIsUdf(attrib) )
     {
+	auto* pitm = dCast(uiODEarthModelSurfaceTreeItem*,parent);
+	EM::ObjectID objid = pitm ? pitm->emObjectID() : EM::ObjectID::udf();
 	uiODAttribTreeItem* itm =
-	    new uiODEarthModelSurfaceDataTreeItem(
-		    visserv_->getEventObjId(), 0, typeid(*parent).name() );
+		new uiODEarthModelSurfaceDataTreeItem( objid, nullptr,
+			typeid(*parent).name() );
 	parent->addChild( itm, false );
 	attrib = visserv_->addAttrib( visserv_->getEventObjId() );
 	emattrserv_->setAttribIdx( attrib );
@@ -1409,7 +1411,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	{
 	    const MultiID horid = *storids[idx];
 	    const EM::ObjectID id = emserv_->getObjectID(horid);
-	    if ( id<0 || !emserv_->isFullyLoaded(id) )
+	    if ( !id.isValid() || !emserv_->isFullyLoaded(id) )
 		emserv_->loadSurface( horid );
 
 	    horids += emserv_->getObjectID(horid);
@@ -1443,7 +1445,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
     const int selobjvisid = visserv_->getSelObjectId(); \
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
 				visserv_->getObject(selobjvisid));\
-    const EM::ObjectID emid = emod ? emod->getObjectID() : -1; \
+    const EM::ObjectID emid = emod ? emod->getObjectID() : EM::ObjectID::udf();\
     const int trackerid = mpeserv_->getTrackerID(emid); \
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
 

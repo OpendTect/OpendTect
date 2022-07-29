@@ -24,18 +24,16 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 
-mCreateVw2DFactoryEntry( Vw2DHorizon3D );
+mImplStd( Vw2DHorizon3D )
 
-Vw2DHorizon3D::Vw2DHorizon3D( const EM::ObjectID& oid, uiFlatViewWin* win,
+Vw2DHorizon3D::Vw2DHorizon3D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
-    : Vw2DEMDataObject(oid,win,auxdataedtors)
+    : Vw2DEMDataObject(fvw,auxdataedtors)
     , deselted_(this)
     , vdselspec_(0)
     , wvaselspec_(0)
 {
     horeds_.allowNull();
-    if ( oid >= 0 )
-	setEditors();
 }
 
 

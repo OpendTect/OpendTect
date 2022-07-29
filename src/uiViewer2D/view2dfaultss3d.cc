@@ -23,18 +23,16 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
-mCreateVw2DFactoryEntry( VW2DFaultSS3D );
+mImplStd( VW2DFaultSS3D )
 
-VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
+VW2DFaultSS3D::VW2DFaultSS3D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
-    : Vw2DEMDataObject(oid,win,auxdataeds)
+    : Vw2DEMDataObject(fvw,auxdataeds)
     , deselted_( this )
     , fsseditor_(0)
     , knotenabled_(false)
 {
     fsseds_.allowNull();
-    if ( oid >= 0)
-	setEditors();
 }
 
 

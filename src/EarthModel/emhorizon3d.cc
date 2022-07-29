@@ -525,11 +525,13 @@ void Horizon3D::setArray( const SectionID& sid, const BinID& start,
     while( true )
     {
 	const EM::PosID posid = iterator->next();
-	if ( posid.objectID() == -1 )
+	if ( !posid.isValid() )
 	    break;
+
 	if ( !hasNodeSourceType(posid) )
 	    setNodeSourceType( posid, EMObject::Gridding );
     }
+
     geometry().sectionGeometry(sid)->setArray( start, step, arr, takeover );
 }
 
@@ -1281,7 +1283,7 @@ void Horizon3D::lockAll()
     while ( true )
     {
 	const PosID pid = it->next();
-	if ( pid.objectID()==-1 )
+	if ( !pid.isValid() )
 	    break;
 
 	const Coord3 crd = getPos( pid );
@@ -1665,7 +1667,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
     while ( true )
     {
 	const PosID pid = it->next();
-	if ( pid.objectID()==-1 )
+	if ( !pid.isValid() )
 	    break;
 
 	const Coord3 crd = surface_.getPos( pid );
@@ -1785,6 +1787,5 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 
     return ret;
 }
-
 
 } // namespace EM

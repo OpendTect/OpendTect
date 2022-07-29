@@ -17,41 +17,41 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "iopar.h"
 
+namespace EM
+{
 
-const char* EM::SetPosUndoEvent::savedposstr_ = "Pos";
+const char* SetPosUndoEvent::savedposstr_ = "Pos";
 
-EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
+ObjectID EMUndo::getCurrentEMObjectID( bool forredo ) const
 {
     const int curidx = indexOf( forredo ? currenteventid_ + 1
 					: currenteventid_ );
     if ( !events_.validIdx(curidx) )
-	return -1;
+	return ObjectID::udf();
 
     const UndoEvent* curev = events_[curidx];
     mDynamicCastGet( const EMUndoEvent*, emundoev, curev );
-    return emundoev ? emundoev->getObjectID() : -1;
+    return emundoev ? emundoev->getObjectID() : ObjectID::udf();
 }
 
 
-EM::SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos,
-				      const EM::PosID& posid )
+SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos,
+				      const PosID& posid )
     : posid_(posid)
     , savedpos_(oldpos)
 {}
 
 
-const char* EM::SetPosUndoEvent::getStandardDesc() const
+const char* SetPosUndoEvent::getStandardDesc() const
 { return "Set/Changed position"; }
 
 
-bool EM::SetPosUndoEvent::unDo()
+bool SetPosUndoEvent::unDo()
 {
-    EMManager& manager = EM::EMM();
-
-    if ( !manager.getObject(posid_.objectID()))
+    if ( !EMM().getObject(posid_.objectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(posid_.objectID());
+    EMObject* emobject = EMM().getObject(posid_.objectID());
     if ( !emobject ) return false;
 
     const bool haschecks = emobject->enableGeometryChecks( false );
@@ -69,14 +69,12 @@ bool EM::SetPosUndoEvent::unDo()
 }
 
 
-bool EM::SetPosUndoEvent::reDo()
+bool SetPosUndoEvent::reDo()
 {
-    EMManager& manager = EM::EMM();
-
-    if ( !manager.getObject(posid_.objectID()))
+    if ( !EMM().getObject(posid_.objectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(posid_.objectID());
+    EMObject* emobject = EMM().getObject(posid_.objectID());
     if ( !emobject ) return false;
 
     bool res = false;
@@ -96,8 +94,8 @@ bool EM::SetPosUndoEvent::reDo()
 
 
 //SetAllHor3DPosUndoEvent
-EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
-				EM::SectionID sid, Array2D<float>* oldarr )
+SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( Horizon3D* hor,
+				SectionID sid, Array2D<float>* oldarr )
     : horizon_( hor )
     , oldarr_( oldarr )
     , newarr_( 0 )
@@ -107,8 +105,8 @@ EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
 {}
 
 
-EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
-				EM::SectionID sid, Array2D<float>* oldarr,
+SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( Horizon3D* hor,
+				SectionID sid, Array2D<float>* oldarr,
 				const RowCol& oldorigin )
     : horizon_( hor )
     , oldarr_( oldarr )
@@ -118,18 +116,18 @@ EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
 {}
 
 
-EM::SetAllHor3DPosUndoEvent::~SetAllHor3DPosUndoEvent()
+SetAllHor3DPosUndoEvent::~SetAllHor3DPosUndoEvent()
 {
     delete oldarr_;
     delete newarr_;
 }
 
 
-const char* EM::SetAllHor3DPosUndoEvent::getStandardDesc() const
+const char* SetAllHor3DPosUndoEvent::getStandardDesc() const
 { return "Bulk change"; }
 
 
-bool EM::SetAllHor3DPosUndoEvent::unDo()
+bool SetAllHor3DPosUndoEvent::unDo()
 {
     if ( !EMM().objectExists(horizon_) )
 	return false;
@@ -150,17 +148,19 @@ bool EM::SetAllHor3DPosUndoEvent::unDo()
 }
 
 
-bool EM::SetAllHor3DPosUndoEvent::reDo()
+bool SetAllHor3DPosUndoEvent::reDo()
 {
     return setArray( *newarr_, neworigin_ );
 }
 
 
-EM::ObjectID EM::SetAllHor3DPosUndoEvent::getObjectID() const
-{ return horizon_ ? horizon_->id() : -1; }
+ObjectID SetAllHor3DPosUndoEvent::getObjectID() const
+{
+    return horizon_ ? horizon_->id() : ObjectID::udf();
+}
 
 
-bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
+bool SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 					    const RowCol& origin )
 {
     if ( !EMM().objectExists(horizon_) )
@@ -227,7 +227,7 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
 
 
-EM::SetPosAttribUndoEvent::SetPosAttribUndoEvent( const EM::PosID& pid,
+SetPosAttribUndoEvent::SetPosAttribUndoEvent( const PosID& pid,
 						  int attr, bool yesno )
     : posid_( pid )
     , attrib_( attr )
@@ -235,32 +235,34 @@ EM::SetPosAttribUndoEvent::SetPosAttribUndoEvent( const EM::PosID& pid,
 {}
 
 
-const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
+const char* SetPosAttribUndoEvent::getStandardDesc() const
 { return "Set/Changed position attribute"; }
 
-#define mSetPosAttribUndoEvenUndoRedo( arg ) \
-    EMManager& manager = EM::EMM(); \
- \
-    EMObject* emobject = manager.getObject(posid_.objectID()); \
-    if ( !emobject ) return true; \
- \
-    emobject->setPosAttrib( posid_, attrib_, arg, false ); \
-    return true
 
-bool EM::SetPosAttribUndoEvent::unDo()
+bool SetPosAttribUndoEvent::unDo()
 {
-    mSetPosAttribUndoEvenUndoRedo( !yn_ );
+    EMObject* emobject = EMM().getObject( posid_.objectID() );
+    if ( !emobject )
+	return true;
+
+    emobject->setPosAttrib( posid_, attrib_, !yn_, false );
+    return true;
 }
 
 
-bool EM::SetPosAttribUndoEvent::reDo()
+bool SetPosAttribUndoEvent::reDo()
 {
-    mSetPosAttribUndoEvenUndoRedo( yn_ );
+    EMObject* emobject = EMM().getObject( posid_.objectID() );
+    if ( !emobject )
+	return true;
+
+    emobject->setPosAttrib( posid_, attrib_, yn_, false ); \
+    return true;
 }
 
 
-EM::PosIDChangeEvent::PosIDChangeEvent( const EM::PosID& from,
-					const EM::PosID& to,
+PosIDChangeEvent::PosIDChangeEvent( const PosID& from,
+					const PosID& to,
 					const Coord3& tosprevpos )
     : from_(from)
     , to_(to)
@@ -268,16 +270,16 @@ EM::PosIDChangeEvent::PosIDChangeEvent( const EM::PosID& from,
 { }
 
 
-const char* EM::PosIDChangeEvent::getStandardDesc() const
+const char* PosIDChangeEvent::getStandardDesc() const
 {
     return "Changed posid";
 }
 
 
-bool EM::PosIDChangeEvent::unDo()
+bool PosIDChangeEvent::unDo()
 {
-    EM::EMManager& emm = EM::EMM();
-    EM::EMObject* emobject = emm.getObject(from_.objectID());
+    EMManager& emm = EMM();
+    EMObject* emobject = emm.getObject(from_.objectID());
     if ( !emobject ) return false;
 
     const bool  geomchecks  = emobject->enableGeometryChecks(false);
@@ -290,10 +292,10 @@ bool EM::PosIDChangeEvent::unDo()
 }
 
 
-bool EM::PosIDChangeEvent::reDo()
+bool PosIDChangeEvent::reDo()
 {
-    EM::EMManager& emm = EM::EMM();
-    EM::EMObject* emobject = emm.getObject(from_.objectID());
+    EMManager& emm = EMM();
+    EMObject* emobject = emm.getObject(from_.objectID());
     if ( !emobject ) return false;
 
     const bool  geomchecks  = emobject->enableGeometryChecks(false);
@@ -306,7 +308,7 @@ bool EM::PosIDChangeEvent::reDo()
 }
 
 
-EM::SetPrefColorEvent::SetPrefColorEvent( const EM::ObjectID& objid,
+SetPrefColorEvent::SetPrefColorEvent( const ObjectID& objid,
 					  const OD::Color& oldcol,
 					  const OD::Color& newcol )
     : objectid_(objid)
@@ -315,13 +317,13 @@ EM::SetPrefColorEvent::SetPrefColorEvent( const EM::ObjectID& objid,
 {}
 
 
-const char* EM::SetPrefColorEvent::getStandardDesc() const
+const char* SetPrefColorEvent::getStandardDesc() const
 { return "Color change"; }
 
 
-bool EM::SetPrefColorEvent::unDo()
+bool SetPrefColorEvent::unDo()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
+    EMObject* emobj = EMM().getObject( objectid_ );
     if ( !emobj ) return false;
 
     emobj->setPreferredColor( oldcolor_, false );
@@ -329,11 +331,13 @@ bool EM::SetPrefColorEvent::unDo()
 }
 
 
-bool EM::SetPrefColorEvent::reDo()
+bool SetPrefColorEvent::reDo()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
+    EMObject* emobj = EMM().getObject( objectid_ );
     if ( !emobj ) return false;
 
     emobj->setPreferredColor( newcolor_, false );
     return true;
 }
+
+} // namespace EM

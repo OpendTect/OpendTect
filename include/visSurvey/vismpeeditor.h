@@ -110,17 +110,17 @@ protected:
     int				rightclicknode_;
 
     MPE::ObjectEditor*		emeditor_;
-    MPE::Patch*                 patch_;
+    MPE::Patch*			patch_;
 
     visBase::Material*		nodematerial_;
     visBase::Material*		activenodematerial_;
 
-    ObjectSet<visBase::Dragger>		draggers_;
-    ObjectSet<visBase::MarkerSet>       draggermarkers_;
-    TypeSet<EM::PosID>			posids_;
-    float				markersize_;
-    visBase::MarkerSet*                 patchmarkers_;
-    visBase::PolyLine*			patchline_;
+    ObjectSet<visBase::Dragger>	draggers_;
+    ObjectSet<visBase::MarkerSet> draggermarkers_;
+    TypeSet<EM::PosID>		posids_;
+    float			markersize_;
+    visBase::MarkerSet*		patchmarkers_;
+    visBase::PolyLine*		patchline_;
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
     EM::PosID			activedragger_;
@@ -133,4 +133,3 @@ protected:
 };
 
 } // namespace visSurvey
-

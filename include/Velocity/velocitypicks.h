@@ -40,7 +40,8 @@ mExpClass(Velocity) Pick
 public:
 			Pick(float depth=mUdf(float),
 			     float vel=mUdf(float),
-			     float offset=mUdf(float),EM::ObjectID=-1);
+			     float offset=mUdf(float),
+			     EM::ObjectID=EM::ObjectID::udf());
     bool		operator==(const Pick& b) const;
 
     float		depth_;

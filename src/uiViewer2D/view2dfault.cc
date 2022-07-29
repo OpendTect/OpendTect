@@ -23,19 +23,16 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 
-mCreateVw2DFactoryEntry( VW2DFault );
+mImplStd( VW2DFault )
 
-
-VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* win,
+VW2DFault::VW2DFault( uiFlatViewWin* fvw,
 		    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
-    : Vw2DEMDataObject(oid,win,auxdataeds)
+    : Vw2DEMDataObject(fvw,auxdataeds)
     , deselted_( this )
     , f3deditor_(0)
     , knotenabled_(false)
 {
     faulteds_.allowNull();
-    if ( oid >= 0 )
-	setEditors();
 }
 
 

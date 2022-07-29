@@ -99,7 +99,7 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
     {
 	EM::RowColIterator it( surf, surf.sectionID(idx) );
 	EM::PosID posid = it.next();
-	while ( posid.objectID() != -1 )
+	while ( posid.objectID().isValid() )
 	{
 	    const Coord3 coord = surf.getPos( posid );
 	    const BinID bid( SI().transform(coord) );
@@ -173,7 +173,7 @@ void EMSurfaceProvider::reset()
     delete iterator_; iterator_ = 0;
     if ( surf1_ )
 	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
-    curpos_ = EM::PosID( -1, -1, -1 );
+    curpos_ = EM::PosID::udf();
 }
 
 
@@ -189,7 +189,7 @@ bool EMSurfaceProvider::toNextPos()
 	    curpos_ = iterator_->fromIndex( idx );
 	    curz_ = mUdf(float);
 
-	    if ( curpos_.objectID() == -1 )
+	    if ( !curpos_.isValid() )
 		return false;
 
 	    curzrg_.start = curzrg_.stop =
@@ -222,6 +222,7 @@ bool EMSurfaceProvider::toNextPos()
 		pos = postuple( idx, zsamp );
 	    }
 	} while ( mIsUdf(curz_) ? false : posindexlst_.isPresent(pos) );
+
 	posindexlst_ += pos;
 	if ( posindexlst_.size() > nrsamples_ )
 	    return false;
@@ -229,7 +230,7 @@ bool EMSurfaceProvider::toNextPos()
     else
     {
 	curpos_ = iterator_->next();
-	if ( curpos_.objectID() == -1 )
+	if ( !curpos_.isValid() )
 	    return false;
 
 	curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
@@ -574,7 +575,7 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 	while ( true )
 	{
 	    EM::PosID posid = it.next();
-	    if ( posid.objectID() < 0 )
+	    if ( !posid.isValid() )
 		break;
 
 	    const BinID bid2d = posid.getRowCol();

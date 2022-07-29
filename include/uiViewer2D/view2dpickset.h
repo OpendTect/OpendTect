@@ -23,11 +23,10 @@ namespace Pick { class Set; }
 
 mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
 {
+mDefStd(VW2DPickSet)
 public:
-    static VW2DPickSet* create(int id,uiFlatViewWin* win,
-			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
-			    mCreateVw2DDataObj(VW2DPickSet,id,win,ed);
-			~VW2DPickSet();
+
+    void		setPickSet(Pick::Set&);
 
     void		drawAll();
     void		clearPicks();
@@ -54,5 +53,6 @@ protected:
     ObjectSet<FlatView::AuxData>	picks_;
     ObjectSet<uiFlatViewAuxDataEditor>	editors_;
     ObjectSet<uiFlatViewer>		viewers_;
+
 };
 

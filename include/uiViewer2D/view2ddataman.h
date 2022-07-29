@@ -27,7 +27,7 @@ public:
 
     void			addObject(Vw2DDataObject*);
     void			removeObject(Vw2DDataObject*);
-    void                        removeAll();
+    void			removeAll();
 
     void			getObjects(ObjectSet<Vw2DDataObject>&) const;
 
@@ -41,8 +41,7 @@ public:
 				    const ObjectSet<uiFlatViewAuxDataEditor>&);
     void			fillPar(IOPar&) const;
 
-    mDefineFactory3ParamInClass(Vw2DDataObject,
-		    const EM::ObjectID&,uiFlatViewWin*,
+    mDefineFactory2ParamInClass(Vw2DDataObject,uiFlatViewWin*,
 		    const ObjectSet<uiFlatViewAuxDataEditor>&,factory);
 
     Notifier<Vw2DDataManager>	addRemove;
@@ -51,7 +50,7 @@ public:
 
 protected:
 
-    void                        deSelect(int id);
+    void			deSelect(int id);
 
     ObjectSet<Vw2DDataObject>	objects_;
     int				selectedid_;
@@ -64,4 +63,3 @@ protected:
 public:
     void			getObjectIDs(TypeSet<int>&) const;
 };
-

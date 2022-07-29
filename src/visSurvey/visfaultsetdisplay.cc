@@ -148,7 +148,7 @@ void FaultSetDisplay::setScene( Scene* scene )
 
 EM::ObjectID FaultSetDisplay::getEMObjectID() const
 {
-    return faultset_ ? faultset_->id() : -1;
+    return faultset_ ? faultset_->id() : EM::ObjectID::udf();
 }
 
 
@@ -1216,7 +1216,7 @@ EM::FaultID FaultSetDisplay::getFaultID(
 			const visBase::EventInfo& eventinfo ) const
 {
     if ( !faultset_ )
-	return -1;
+	return EM::FaultID::udf();
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -1233,7 +1233,7 @@ EM::FaultID FaultSetDisplay::getFaultID(
 	}
     }
 
-    return -1;
+    return EM::FaultID::udf();
 }
 
 
@@ -1249,7 +1249,7 @@ void FaultSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     info.add( faultset_->name() );
 
     EM::FaultID selid = getFaultID( eventinfo );
-    info.add( "    ID: " ); info.add( selid );
+    info.add( "    ID: " ); info.add( selid.asInt() );
 }
 
 

@@ -103,8 +103,9 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 	while ( true )
 	{
 	    const EM::PosID pid = iter->next();
-	    if ( pid.objectID() == -1 )
+	    if ( !pid.isValid() )
 		break;
+
 	    if ( !hor_.geometry().isNodeOK(pid) )
 		continue;
 
@@ -208,12 +209,12 @@ int nextStep()
     for ( int idx=0; idx<1000; idx++ )
     {
 	const EM::PosID pid = it_->next();
-	if ( pid.objectID() == -1 )
+	if ( !pid.isValid() )
 	{
 	    fillHorizonArray();
 	    return Finished();
 	}
- 
+
 	const BinID bid = pid.getRowCol();
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
@@ -253,7 +254,7 @@ int nextStep()
 
 void fillHorizonArray()
 {
-    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 ) 
+    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 )
 				: hor_.geometry().addSection( 0, false );
     Geometry::BinIDSurface* geom = hor_.geometry().sectionGeometry( sid );
     geom->setArray( hortks_.start_, hortks_.step_, horarray_, true );

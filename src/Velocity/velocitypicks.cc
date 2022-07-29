@@ -251,7 +251,7 @@ RowCol Picks::find( const BinID& pickbid,const Pick& pick) const
 	do
 	{
 	    const Pick& storedpick = picks_.getRef( arrpos, 0 );
-	    if ( pick.emobjid_==-1 )
+	    if ( !pick.emobjid_.isValid() )
 	    {
 		const int sample = snapper_.nearestIndex(storedpick.depth_);
 		if ( sample==depthsample )
@@ -619,7 +619,7 @@ int Picks::nrHorizons() const { return horizons_.size(); }
 
 EM::ObjectID Picks::getHorizonID( int idx ) const
 {
-    return horizons_[idx] ? horizons_[idx]->id() : -1;
+    return horizons_[idx] ? horizons_[idx]->id() : EM::ObjectID::udf();
 }
 
 
@@ -801,7 +801,7 @@ bool Picks::load( const IOObj* ioobj )
 	const BinID bid = SI().transform( pspick.pos() );
 	const float z = pspick.z();
 	Pick pick = version==1
-	    ? Pick( z, pspick.dir().radius, refoffset_, -1 )
+	    ? Pick( z, pspick.dir().radius, refoffset_ )
 	    : Pick( z, pspick.dir().radius, pspick.dir().theta-1 );
 
 	if ( pspick.hasText() )

@@ -60,7 +60,7 @@ public:
 	    int			stickid_;
 	};
 
-    EM::ObjectID&       getFaultID()			{ return emid_; }
+    EM::FaultID&	getFaultID()			{ return emid_; }
     void		getDisplayedSticks(ObjectSet<StkMarkerInfo>&);
 
     Notifier<Fault3DPainter>	abouttorepaint_;
@@ -117,7 +117,7 @@ protected:
 
     MarkerStyle2D	markerstyle_;
 
-    EM::ObjectID	emid_;
+    EM::FaultID		emid_;
     ObjectSet<Fault3DMarker>    f3dmarkers_;
 
     int			activestickid_;

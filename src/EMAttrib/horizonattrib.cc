@@ -32,13 +32,13 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Horizon)
-    
+
 void Horizon::initClass()
 {
     mAttrStartInitClassWithUpdate
 
     desc->addParam( new StringParam(sKeyHorID()) );
-    
+
     EnumParam* type = new EnumParam( sKeyType() );
     //Note: Ordering must be the same as numbering!
     type->addEnum( outTypeNamesStr(mOutTypeZ) );
@@ -46,7 +46,7 @@ void Horizon::initClass()
     desc->addParam( type );
 
     desc->addParam( new BoolParam( sKeyRelZ(), false, false ) );
-    
+
     StringParam* surfidpar = new StringParam( sKeySurfDataName() );
     surfidpar->setEnabled( false );
     desc->addParam( surfidpar );
@@ -75,7 +75,7 @@ Horizon::Horizon( Desc& dsc )
     , horizon_(0)
     , horizon2dlineid_( mUdf(int) )
     , relz_(false)
-{ 
+{
     BufferString idstr = desc_.getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
 
@@ -143,15 +143,15 @@ void Horizon::prepareForComputeData()
     EM::ObjectID objid = em.getObjectID( horid_ );
     EM::SurfaceIODataSelection sel( sd );
     PtrMan<Executor> loader = 0;
-    if ( objid < 0 )
+    if ( !objid.isValid() )
     {
 	if ( getDesiredVolume() )
 	    sel.rg = getDesiredVolume()->hsamp_;
 
 	loader = em.objectLoader( horid_, &sel );
 	if ( !loader ) mRet
-	
-	loader->execute();	
+
+	loader->execute();
 	objid = em.getObjectID( horid_ );
     }
 

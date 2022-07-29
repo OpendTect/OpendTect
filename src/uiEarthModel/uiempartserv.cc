@@ -488,7 +488,7 @@ BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
 const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject( emid );
-    return emobj ? emobj->getTypeStr() : 0;
+    return emobj ? emobj->getTypeStr() : nullptr;
 }
 
 
@@ -563,13 +563,13 @@ void uiEMPartServer::displayEMObject( const MultiID& mid )
 {
     selemid_ = em_.getObjectID(mid);
 
-    if ( selemid_<0 )
+    if ( !selemid_.isValid() )
     {
 	loadSurface( mid );
 	selemid_ = em_.getObjectID(mid);
     }
 
-    if ( selemid_>=0 )
+    if ( selemid_.isValid() )
     {
 	mDynamicCastGet( EM::Horizon3D*,hor3d,em_.getObject( selemid_ ) )
 	if ( hor3d )
@@ -639,7 +639,7 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
     if ( dlg.go() && dlg.doDisplay() )
     {
 	RefMan<EM::Horizon3D> hor = dlg.getHor3D();
-	selemid_ = hor ? hor->id() : -1;
+	selemid_ = hor ? hor->id() : EM::ObjectID::udf();
 	sendEvent( evDisplayHorizon() );
     }
 }
@@ -1000,7 +1000,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
     mDynamicCastGet(EM::Surface*,surface,object);
     mDynamicCastGet(EM::Body*,body,object);
 
-    PtrMan<Executor> exec = 0;
+    PtrMan<Executor> exec = nullptr;
     MultiID key = object->multiID();
 
     if ( storeas )
@@ -1204,7 +1204,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdataidx,
 	while ( true )
 	{
 	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID()==-1 )
+	    if ( !pid.isValid() )
 		break;
 
 	    auxvals[0] = (float) hor3d->getPos( pid ).z;
@@ -1255,7 +1255,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	while ( true )
 	{
 	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID()==-1 )
+	    if ( !pid.isValid() )
 		break;
 
 	    BinID bid = BinID::fromInt64( pid.subID() );
@@ -1406,7 +1406,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	interp->setColStep( colrg.step*crldist );
 
 	PtrMan< Array2D<float> > arr = hor3d->createArray2D( sid );
-	const float* arrptr = arr ? arr->getData() : 0;
+	const float* arrptr = arr ? arr->getData() : nullptr;
 	if ( arrptr )
 	{
 	    Array2D<bool>* mask = new Array2DImpl<bool>( arr->info() );
@@ -1570,22 +1570,25 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
 	? EMHorizon2DTranslatorGroup::ioContext()
 	: EMHorizon3DTranslatorGroup::ioContext();
     uiIOObjSel* horfld = new uiIOObjSel( &dlg, ctxt );
-    if ( !dlg.go() || !horfld->ioobj() ) return 0;
+    if ( !dlg.go() || !horfld->ioobj() )
+	return nullptr;
 
     const MultiID hormid = horfld->key();
     EM::ObjectID emid = getObjectID( hormid );
-    if ( emid<0 || !isFullyLoaded(emid) )
+    if ( !emid.isValid() || !isFullyLoaded(emid) )
     {
 	if ( !loadSurface( hormid ) )
-	    return 0;
+	    return nullptr;
     }
 
     emid = getObjectID( hormid );
-    if ( emid<0 ) return 0;
+    if ( !emid.isValid() )
+	return nullptr;
 
     EM::EMObject* obj = em_.getObject( emid );
     mDynamicCastGet(EM::Horizon*,hor,obj)
-    if ( !hor ) return 0;
+    if ( !hor )
+	return nullptr;
 
     EM::HorizonZTransform* transform = new EM::HorizonZTransform();
     transform->setHorizon( *hor );
@@ -1633,7 +1636,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     if ( !hor3d ) return;
     hor3d->ref();
 
-    EM::Horizon3D* hor3d2 = 0;
+    EM::Horizon3D* hor3d2 = nullptr;
     if ( selhorids.size() > 1 )
     {
 	hor3d2 = (EM::Horizon3D*)(em_.getObject(selhorids[1]));
@@ -1705,7 +1708,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 { \
     MultiID horid = *selhorids[num]; \
     id = getObjectID(horid); \
-    if ( id<0 || !isFullyLoaded(id) ) \
+    if ( !id.isValid() || !isFullyLoaded(id) ) \
 	loadSurface( horid ); \
     id = getObjectID(horid); \
 }
@@ -1731,7 +1734,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
     mGetObjId(0,id);
     mDynamicCastGet(EM::Horizon2D*,hor2d1,em_.getObject(id));
 
-    EM::Horizon2D* hor2d2 = 0;
+    EM::Horizon2D* hor2d2 = nullptr;
     if ( issecondhor )
     {
 	mGetObjId(1,id);
@@ -1775,11 +1778,11 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 {
     EM::ObjectID id = getObjectID( horid );
-    if ( id<0 || !isFullyLoaded(id) )
+    if ( !id.isValid() || !isFullyLoaded(id) )
 	loadSurface( horid );
 
     id = getObjectID( horid );
-    if ( id < 0 )
+    if ( !id.isValid() )
 	return;
 
     EM::EMObject* obj = em_.getObject( id );

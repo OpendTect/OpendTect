@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-mImplFactory3Param(Vw2DDataObject,const EM::ObjectID&,uiFlatViewWin*,
+mImplFactory2Param(Vw2DDataObject,uiFlatViewWin*,
 	const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
 
 Vw2DDataManager::Vw2DDataManager()
@@ -166,7 +166,7 @@ void Vw2DDataManager::fillPar( IOPar& par ) const
 }
 
 
-void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
+void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* vwwin,
 			    const ObjectSet<uiFlatViewAuxDataEditor>& eds )
 {
     int nrobjects;
@@ -182,8 +182,8 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 	    break;
 	}
 	const char* type = objpar->find( sKey::Type() );
-	RefMan<Vw2DDataObject> obj = factory().create(type, -1 ,win,eds);
-	if ( obj && obj->usePar( *objpar ) && !similarObjectPresent(obj) )
+	RefMan<Vw2DDataObject> obj = factory().create( type, vwwin, eds );
+	if ( obj && obj->usePar(*objpar) && !similarObjectPresent(obj) )
 	    addObject( obj );
     }
 }
@@ -212,35 +212,35 @@ bool Vw2DDataManager::similarObjectPresent( const Vw2DDataObject* dobj ) const
 	{
 	    mDynamicCastGet(const Vw2DHorizon3D*,vw2dhor3dobj,vw2dobj)
 	    if ( vw2dhor3dobj && (hor3dobj==vw2dhor3dobj ||
-				  hor3dobj->emID()==vw2dhor3dobj->emID()) )
+		    hor3dobj->getEMObjectID()==vw2dhor3dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( hor2dobj )
 	{
 	    mDynamicCastGet(const Vw2DHorizon2D*,vw2dhor2dobj,vw2dobj)
 	    if ( vw2dhor2dobj && (hor2dobj==vw2dhor2dobj ||
-				  hor2dobj->emID()==vw2dhor2dobj->emID()) )
+		    hor2dobj->getEMObjectID()==vw2dhor2dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( fss2dobj )
 	{
 	    mDynamicCastGet(const VW2DFaultSS2D*,vw2dfss2dobj,vw2dobj)
 	    if ( vw2dfss2dobj && (fss2dobj==vw2dfss2dobj ||
-				  fss2dobj->emID()==vw2dfss2dobj->emID()) )
+		    fss2dobj->getEMObjectID()==vw2dfss2dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( fss3dobj )
 	{
 	    mDynamicCastGet(const VW2DFaultSS3D*,vw2dfss3dobj,vw2dobj)
 	    if ( vw2dfss3dobj && (fss3dobj==vw2dfss3dobj ||
-				  fss3dobj->emID()==vw2dfss3dobj->emID()) )
+		    fss3dobj->getEMObjectID()==vw2dfss3dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( fltobj )
 	{
 	    mDynamicCastGet(const VW2DFault*,vw2dfltobj,vw2dobj)
 	    if ( vw2dfltobj && (fltobj==vw2dfltobj ||
-				fltobj->emID()==vw2dfltobj->emID()) )
+		    fltobj->getEMObjectID()==vw2dfltobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( pickobj )

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 #include "uistrings.h"
+#include "emposid.h"
 
 class TrcKeyZSampling;
 class uiTreeView;
@@ -41,7 +42,7 @@ public:
     static bool		create(uiTreeItem*,int vwrvisid,int displayid);
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
-    void		addKeyBoardEvent(int id);
+    void		addKeyBoardEvent(const EM::ObjectID&);
 
 protected:
 
@@ -50,7 +51,7 @@ protected:
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
     int			displayid_;
-    int			objid_;
+    EM::ObjectID	emobjid_;
     ZAxisTransform*	datatransform_;
 
     uiODApplMgr*	applMgr();

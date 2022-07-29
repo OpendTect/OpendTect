@@ -240,8 +240,9 @@ int HorizonSorter::nextStep()
 
 	    for ( int idx=0; idx<unsortedkeys_.size(); idx++ )
 	    {
-		EM::ObjectID id = EM::EMM().getObjectID( unsortedkeys_[idx] );
-		if ( id < 0 )
+		const EM::ObjectID id =
+				EM::EMM().getObjectID( unsortedkeys_[idx] );
+		if ( !id.isValid() )
 		    mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 
 		unsortedids_ += id;

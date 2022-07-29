@@ -24,11 +24,8 @@ namespace MPE { class Fault3DFlatViewEditor; class FaultEditor; }
 
 mExpClass(uiViewer2D) VW2DFault : public Vw2DEMDataObject
 {
+mDefStd(VW2DFault)
 public:
-    static VW2DFault*	create( const EM::ObjectID& id, uiFlatViewWin* fvw,
-				const ObjectSet<uiFlatViewAuxDataEditor>& eds )
-			     mCreateVw2DDataObj(VW2DFault,id,fvw,eds);
-			~VW2DFault();
 
     void		setTrcKeyZSampling(
 				const TrcKeyZSampling&,bool upd=false);
@@ -49,4 +46,3 @@ protected:
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;
     Notifier<VW2DFault>		deselted_;
 };
-

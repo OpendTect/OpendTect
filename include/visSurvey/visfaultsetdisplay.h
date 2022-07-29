@@ -170,7 +170,7 @@ protected:
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
-    int				getFaultID(const visBase::EventInfo&) const;
+    EM::FaultID			getFaultID(const visBase::EventInfo&) const;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
 							 int column,

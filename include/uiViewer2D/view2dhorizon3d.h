@@ -21,12 +21,8 @@ namespace MPE { class HorizonFlatViewEditor3D; }
 
 mExpClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
 {
+mDefStd(Vw2DHorizon3D)
 public:
-   static Vw2DHorizon3D* create(const EM::ObjectID& id,uiFlatViewWin* win,
-			   const ObjectSet<uiFlatViewAuxDataEditor>& ed)
-			    mCreateVw2DDataObj(Vw2DHorizon3D,id,win,ed);
-
-			~Vw2DHorizon3D();
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
     void		setTrcKeyZSampling(
@@ -39,7 +35,7 @@ public:
     void		setSeedPicking(bool ison);
     void		setTrackerSetupActive(bool ison );
 
-    void                getHorEditors(
+    void		getHorEditors(
 			  ObjectSet<const MPE::HorizonFlatViewEditor3D>&) const;
 
 
@@ -47,17 +43,16 @@ public:
 
 protected:
 
-    void				triggerDeSel();
-    void				setEditors();
+    void			triggerDeSel();
+    void			setEditors();
 
-    void				checkCB(CallBacker*);
-    void				deSelCB(CallBacker*);
+    void			checkCB(CallBacker*);
+    void			deSelCB(CallBacker*);
 
-    const Attrib::SelSpec*		vdselspec_;
-    const Attrib::SelSpec*		wvaselspec_;
+    const Attrib::SelSpec*	vdselspec_;
+    const Attrib::SelSpec*	wvaselspec_;
 
     ObjectSet<MPE::HorizonFlatViewEditor3D>     horeds_;
     Notifier<Vw2DHorizon3D>		deselted_;
+
 };
-
-

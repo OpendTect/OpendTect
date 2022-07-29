@@ -169,13 +169,13 @@ protected:
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
 
-    const EMTracker*		oneactivetracker_;
-    EMTracker*			activetracker_;
-    int				undoeventid_;
+    const EMTracker*		oneactivetracker_		= nullptr;
+    EMTracker*			activetracker_			= nullptr;
+    int				undoeventid_			= -1;
     DataPackMgr&		dpm_;
-    const TrcKeyPath*		rdmlinetkpath_;
+    const TrcKeyPath*		rdmlinetkpath_			= nullptr;
     RandomLineID		rdlid_;
-    TrackSettingsValidator*	validator_;
+    TrackSettingsValidator*	validator_			= nullptr;
 
     bool			prepareForTrackInVolume(uiString&);
     bool			prepareForRetrack();
@@ -223,7 +223,6 @@ protected:
 
     void			applClosingCB(CallBacker*);
 };
-
 
 mGlobal(MPEEngine) Engine&	engine();
 

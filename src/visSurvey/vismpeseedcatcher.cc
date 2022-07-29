@@ -698,7 +698,7 @@ void MPEClickInfo::clear()
     clickednode_.setUdf();
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
-    clickedemobjid_ = -1;
+    clickedemobjid_.setUdf();
     clickedcs_.init( false);
     attrsel_ = nullptr;
     attrdata_ = nullptr;

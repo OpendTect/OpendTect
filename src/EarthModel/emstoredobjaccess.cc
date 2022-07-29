@@ -44,7 +44,7 @@ public:
 EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
 {
     ObjectID objid = EMM().getObjectID( key_ );
-    return objid < 0 ? 0 : EMM().getObject( objid );
+    return objid.isValid() ? EMM().getObject( objid ) : nullptr;
 }
 
 
@@ -77,8 +77,10 @@ EM::StoredObjAccessData::~StoredObjAccessData()
 {
     if ( obj_ )
 	obj_->unRef();
+
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
+
     delete work_;
     delete rdr_;
 }

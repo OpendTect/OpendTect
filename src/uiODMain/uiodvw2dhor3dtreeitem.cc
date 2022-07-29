@@ -129,7 +129,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 		applMgr()->attrServer()->curDescSet(false) );
-	int emid = -1;
+	EM::ObjectID emid;
 	if ( emids.validIdx(emidx) )
 	    emid = emids[emidx];
 
@@ -365,8 +365,9 @@ bool uiODVw2DHor3DTreeItem::init()
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 
-	horview_ = Vw2DHorizon3D::create( emid_, viewer2D()->viewwin(),
-				      viewer2D()->dataEditor() );
+	horview_ = Vw2DHorizon3D::create( viewer2D()->viewwin(),
+					  viewer2D()->dataEditor() );
+	horview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( horview_ );
 	displayid_ = horview_->id();
     }
@@ -376,7 +377,7 @@ bool uiODVw2DHor3DTreeItem::init()
 		viewer2D()->dataMgr()->getObject(displayid_))
 	if ( !hd )
 	    return false;
-	emid_ = hd->emID();
+	emid_ = hd->getEMObjectID();
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 

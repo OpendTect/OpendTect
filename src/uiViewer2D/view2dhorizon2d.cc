@@ -23,19 +23,18 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
-mCreateVw2DFactoryEntry( Vw2DHorizon2D );
 
-Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
+mImplStd( Vw2DHorizon2D )
+
+Vw2DHorizon2D::Vw2DHorizon2D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
-    : Vw2DEMDataObject(oid,win,auxdataedtors)
+    : Vw2DEMDataObject(fvw,auxdataedtors)
     , geomid_(Survey::GeometryManager::cUndefGeomID())
     , deselted_( this )
     , vdselspec_( 0 )
     , wvaselspec_( 0 )
 {
     horeds_.allowNull();
-    if ( oid >= 0 )
-	setEditors();
 }
 
 

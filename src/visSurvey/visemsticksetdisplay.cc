@@ -110,17 +110,6 @@ else \
 }\
 
 
-#define mGetStickNrAndPos()\
-EM::PosID pid = iter->next();\
-if ( pid.objectID() == -1 )\
-    break;\
-const EM::SectionID sid = pid.sectionID();\
-Geometry::FaultStickSet* fss = faultStickSetGeometry(sid);\
-if ( !fss ) return;\
-const int sticknr = pid.getRowCol().row();\
-const Coord3 pos = fault_->getPos(pid);\
-
-
 void StickSetDisplay::polygonSelectionCB()
 {
     if ( !ownerscene_ || ! ownerscene_->getPolySelection() ) return;
@@ -146,8 +135,18 @@ void StickSetDisplay::polygonSelectionCB()
     PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator( -1 );
     while ( true )
     {
-	mGetStickNrAndPos();
-	if ( donenr.isPresent( sticknr ) )
+	const EM::PosID pid = iter->next();
+	if ( !pid.isValid() )
+	    break;
+
+	const EM::SectionID sid = pid.sectionID();
+	Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
+	if ( !fss )
+	    return;
+
+	const int sticknr = pid.getRowCol().row();
+	const Coord3 pos = fault_->getPos( pid );
+	if ( donenr.isPresent(sticknr) )
 	    continue;
 	else if ( selection->isInside(pos) )
 	    donenr += sticknr;
@@ -213,7 +212,7 @@ void StickSetDisplay::updateStickMarkerSet()
     while ( true )
     {
 	const EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
+	if ( !pid.isValid() )
 	    break;
 
 	const EM::SectionID sid = pid.sectionID();
@@ -221,6 +220,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
 	if ( !fss || fss->isStickHidden(sticknr,mSceneIdx) )
 	    continue;
+
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
 	const MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
@@ -314,7 +314,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	    while ( true )
 	    {
 		const EM::PosID pid = iter->next();
-		if ( pid.objectID() == -1 )
+		if ( !pid.isValid() )
 		    return;
 
 		const int sticknr = pid.getRowCol().row();

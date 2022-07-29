@@ -597,11 +597,14 @@ EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
     if ( locdisp )
     {
 	const int knotid = locdisp->clickedMarkerIndex( eventinfo );
-	return knotid<0 ? EM::PosID::udf() : EM::PosID( 0, 0, knotid );
+	EM::PosID posid;
+	if ( knotid >= 0 )
+	    posid.setSubID( knotid ); // knotid as a subid???
+
+	return posid;
     }
 
     return EM::PosID::udf();
 }
 
-
-}; //namespace
+} // namespace visSurvey

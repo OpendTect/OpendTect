@@ -103,7 +103,7 @@ PosID RowColIterator::next()
 	if ( !cursection_ )
 	{
 	    if ( !initSection() )
-		return PosID(-1,-1,-1);
+		return PosID::udf();
 	}
 	else
 	{
@@ -115,7 +115,7 @@ PosID RowColIterator::next()
 		{
 		    cursection_ = 0;
 		    if ( !nextSection() )
-			return PosID(-1,-1,-1);
+			return PosID::udf();
 		}
 
 		colrg_ = cursection_->colRange( rc_.row() );
@@ -163,7 +163,8 @@ PosID RowColIterator::fromIndex( int idx ) const
 	if ( idx < posids.size() )
 	    return PosID( surf_.id(), sid_, posids[idx] );
     }
-    return PosID( -1, -1, -1 );
+
+    return PosID::udf();
 }
 
 

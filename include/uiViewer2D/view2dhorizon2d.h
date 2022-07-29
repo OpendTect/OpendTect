@@ -27,18 +27,14 @@ namespace MPE { class HorizonFlatViewEditor2D; }
 
 mExpClass(uiViewer2D) Vw2DHorizon2D : public Vw2DEMDataObject
 {
+mDefStd(Vw2DHorizon2D)
 public:
-    static Vw2DHorizon2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
-			       const ObjectSet<uiFlatViewAuxDataEditor>& ed)
-				mCreateVw2DDataObj(Vw2DHorizon2D,id,win,ed);
-
-			~Vw2DHorizon2D();
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
     void		setGeomID(Pos::GeomID);
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
-							    bool upd=false);
+					   bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);
@@ -59,15 +55,14 @@ public:
 
 protected:
 
-    void					triggerDeSel();
-    void					setEditors();
+    void			triggerDeSel();
+    void			setEditors();
 
-    Pos::GeomID					geomid_;
-    const Attrib::SelSpec*			vdselspec_;
-    const Attrib::SelSpec*			wvaselspec_;
+    Pos::GeomID			geomid_;
+    const Attrib::SelSpec*	vdselspec_;
+    const Attrib::SelSpec*	wvaselspec_;
 
     ObjectSet<MPE::HorizonFlatViewEditor2D>	horeds_;
     Notifier<Vw2DHorizon2D>			deselted_;
     const Line2DInterSectionSet*		line2dintersectionset_;
 };
-

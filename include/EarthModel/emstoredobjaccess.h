@@ -34,29 +34,29 @@ mExpClass(EarthModel) StoredObjAccess
 { mODTextTranslationClass(StoredObjAccess)
 public:
 
-		StoredObjAccess();
-		StoredObjAccess(const MultiID&);
-    virtual	~StoredObjAccess();
+			StoredObjAccess();
+			StoredObjAccess(const MultiID&);
+    virtual		~StoredObjAccess();
 
-    void	setLoadHint(const SurfaceIODataSelection&);
-    bool	set(const MultiID&);
+    void		setLoadHint(const SurfaceIODataSelection&);
+    bool		set(const MultiID&);
 
-    bool	isReady(int iobj=-1) const;
-    bool	isError(int iobj=-1) const;
-    float	ratioDone(int iobj=-1) const;
-    uiString	getError(int iobj=-1) const;
+    bool		isReady(int iobj=-1) const;
+    bool		isError(int iobj=-1) const;
+    float		ratioDone(int iobj=-1) const;
+    uiString		getError(int iobj=-1) const;
 
-    bool	finishRead();	//!< may take a long time
-    Executor*	reader();	//!< will 'run' until reading is finished
+    bool		finishRead();	//!< may take a long time
+    Executor*		reader();     //!< will 'run' until reading is finished
 
-    EMObject*	object(int iobj=0); //!< returns null until ready
-    const EMObject* object(int iobj=0) const;
+    EMObject*		object(int iobj=0); //!< returns null until ready
+    const EMObject*	object(int iobj=0) const;
 
-		// Interesting for multi-read only
-    int		size() const		{ return data_.size(); }
-    bool	isEmpty() const		{ return data_.isEmpty(); }
-    bool	add(const MultiID&);
-    void	dismiss(const MultiID&);
+			// Interesting for multi-read only
+    int			size() const		{ return data_.size(); }
+    bool		isEmpty() const		{ return data_.isEmpty(); }
+    bool		add(const MultiID&);
+    void		dismiss(const MultiID&);
 
 protected:
 
@@ -66,8 +66,4 @@ protected:
 
 };
 
-
-
 } // namespace EM
-
-

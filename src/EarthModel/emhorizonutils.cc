@@ -166,7 +166,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( !pid.isValid() )
 	    break;
 
 	if ( pid.sectionID() != sid )
@@ -224,7 +224,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	while ( iterator )
 	{
 	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID()==-1 )
+	    if ( !pid.isValid() )
 		break;
 
 	    if ( pid.sectionID() != sid )

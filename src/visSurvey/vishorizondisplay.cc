@@ -503,7 +503,8 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	closestnodes += EM::PosID( emobject_->id(), sids_[idx], pickedsubid );
     }
 
-    if ( closestnodes.isEmpty() ) return EM::PosID( -1, -1, -1 );
+    if ( closestnodes.isEmpty() )
+	return EM::PosID();
 
     EM::PosID closestnode = closestnodes[0];
     float mindist = mUdf(float);
@@ -1883,8 +1884,8 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 
 
 HorizonDisplay::IntersectionData*
-HorizonDisplay::getOrCreateIntersectionData(
-		ObjectSet<IntersectionData>& pool )
+	HorizonDisplay::getOrCreateIntersectionData(
+				ObjectSet<IntersectionData>& pool )
 {
     IntersectionData* data = nullptr;
     if ( pool.size() )
@@ -1899,6 +1900,7 @@ HorizonDisplay::getOrCreateIntersectionData(
 	data->setDisplayTransformation(transformation_);
 	if ( intersectionlinematerial_ )
 	    data->setMaterial( intersectionlinematerial_ );
+
 	addChild( data->line_->osgNode() );
 	addChild( data->markerset_->osgNode() );
     }
@@ -1992,9 +1994,12 @@ void HorizonDisplay::updateIntersectionLines(
 		    const Interval<float> zrg =
 			objs[objidx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
-		    data->objid_ = vo->id();
-		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
-	    continue;
+		    if ( data )
+		    {
+			data->objid_ = vo->id();
+			traverseLine( trckeypath, trccoords, zrg, sid, *data );
+		    }
+		    continue;
 		}
 		else
 		{

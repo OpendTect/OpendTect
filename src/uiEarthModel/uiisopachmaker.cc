@@ -146,7 +146,7 @@ uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
     : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
 		 mODHelpKey(mIsochronMakerBatchHelpID)) )
 {
-    grp_ = new uiIsochronMakerGrp( this, -1 );
+    grp_ = new uiIsochronMakerGrp( this, EM::ObjectID::udf() );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );

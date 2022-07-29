@@ -160,7 +160,9 @@ void FaultStickSetDisplay::setScene( Scene* scene )
 
 
 EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
-{ return fault_ ? fault_->id() : -1; }
+{
+    return fault_ ? fault_->id() : EM::ObjectID::udf();
+}
 
 
 #define mSetStickIntersectPointColor( color ) \

@@ -216,7 +216,8 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -249,7 +250,8 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 						      : pos.y;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -382,7 +384,8 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -437,7 +440,8 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 	displayedknotid = editor_->getSelPtIdx()[0];
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
 
@@ -545,7 +549,8 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     }
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    if ( !emid.isValid() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());

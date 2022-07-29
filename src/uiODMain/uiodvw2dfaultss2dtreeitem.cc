@@ -268,8 +268,9 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 
-	fssview_ = VW2DFaultSS2D::create( emid_, viewer2D()->viewwin(),
-					 viewer2D()->dataEditor() );
+	fssview_ = VW2DFaultSS2D::create( viewer2D()->viewwin(),
+					  viewer2D()->dataEditor() );
+	fssview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( fssview_ );
 	displayid_ = fssview_->id();
     }
@@ -279,12 +280,14 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 			viewer2D()->dataMgr()->getObject(displayid_))
 	if ( !fd )
 	    return false;
-	emid_ = fd->emID();
+
+	emid_ = fd->getEMObjectID();
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 
 	fssview_ = fd;
     }
+
     emobj->ref();
     mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 

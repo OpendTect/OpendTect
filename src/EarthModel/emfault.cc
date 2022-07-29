@@ -63,7 +63,8 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 
 	    int knotnr = 0;
 
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+					rc.col()+=colrg.step )
 	    {
 		const Coord3 pos = srcfss->getKnot( rc );
 
@@ -83,7 +84,7 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 		}
 		knotnr++;
 	    }
-	    sticknr++; 
+	    sticknr++;
 	}
     }
 }
@@ -103,7 +104,7 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
     while ( true )
     {
 	EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
+	if ( !pid.isValid() )
 	    break;
 
 	const int sticknr = pid.getRowCol().row();
@@ -148,7 +149,7 @@ bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
 	    if ( !fss->isStickSelected(rc.row()) )
 		continue;
 
-	    if ( selidx ) 
+	    if ( selidx )
 	    {
 		selidx--;
 		continue;
@@ -161,7 +162,8 @@ bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
 	    if ( colrg.isUdf() )
 		continue;
 
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+					rc.col()+=colrg.step )
 	    {
 
 		if ( rc.col() == colrg.stop )
@@ -247,7 +249,8 @@ int FaultGeometry::nrStickDoubles( const SectionID& sid, int sticknr,
 
 	    RowCol uprc( sticknr, srccolrg.start);
 	    RowCol downrc( sticknr, srccolrg.stop);
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+					rc.col()+=colrg.step )
 	    {
 		if ( isSameKnot(srcfss->getKnot(uprc), reffss->getKnot(rc)) )
 		    uprc.col() += srccolrg.step;
