@@ -11,14 +11,15 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
+
 #include "flatview.h"
 #include "flatauxdataeditor.h"
 #include "trckeyzsampling.h"
 #include "view2ddata.h"
+#include "pickset.h"
 
 class uiFlatViewer;
 class uiFlatViewAuxDataEditor;
-namespace Pick { class Set; }
 
 
 mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject

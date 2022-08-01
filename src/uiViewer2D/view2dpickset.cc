@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "pickset.h"
 #include "picksettr.h"
 #include "posinfo2dsurv.h"
 #include "seisdatapack.h"
