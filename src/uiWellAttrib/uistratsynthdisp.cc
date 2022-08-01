@@ -460,7 +460,7 @@ const SynthSpecificPars* getByID( SynthID sid ) const
 }
 
 ConstRefMan<FlatDataPack> find( SynthID sid, int lmsidx,
-			  const Strat::Level::ID flatlvlid, int offsidx ) const
+			  const Strat::LevelID flatlvlid, int offsidx ) const
 {
     const SynthSpecificPars* ent = getByID( sid );
     if ( !ent )
@@ -470,7 +470,7 @@ ConstRefMan<FlatDataPack> find( SynthID sid, int lmsidx,
 }
 
 void addIfNew( SynthID sid, DataPack::ID dpid, int lmsidx,
-	       const Strat::Level::ID flatlvlid, int offsidx )
+	       const Strat::LevelID flatlvlid, int offsidx )
 {
     SynthSpecificPars* ent = getByID( sid );
     if ( ent )
