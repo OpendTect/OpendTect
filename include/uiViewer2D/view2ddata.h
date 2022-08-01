@@ -56,7 +56,8 @@ public:
     void		setEMObjectID(const EM::ObjectID&);
     const EM::ObjectID& getEMObjectID() const		{ return emid_; }
 
-//    const EM::ObjectID& emID() const			{ return emid_; }
+    mDeprecated("Use getEMObjectID()")
+    const EM::ObjectID& emID() const		{ return getEMObjectID(); }
 
 protected:
 			Vw2DEMDataObject(uiFlatViewWin*,
