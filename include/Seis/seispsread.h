@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "bufstring.h"
 #include "binid.h"
+#include "posgeomid.h"
 #include "uistring.h"
 
 class IOObj;

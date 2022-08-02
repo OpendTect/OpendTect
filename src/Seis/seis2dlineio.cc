@@ -52,7 +52,7 @@ bool Seis2DLineGetter::get( int trcnr, SeisTrc& trc ) const
 	return false;
 
     auto* tr = const_cast<SeisTrcTranslator*>(ctr);
-    const BinID bid( geomID(), trcnr );
+    const BinID bid( geomID().asInt(), trcnr );
     if ( !tr->goTo(bid) )
 	return false;
 
@@ -67,7 +67,7 @@ bool Seis2DLineGetter::get( int trcnr, TraceData& td, SeisTrcInfo* si) const
 	return false;
 
     auto* tr = const_cast<SeisTrcTranslator*>(ctr);
-    const BinID bid( geomID(), trcnr );
+    const BinID bid( geomID().asInt(), trcnr );
     if ( !tr->goTo(bid) )
 	return false;
 
@@ -153,7 +153,7 @@ bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->fullUserExpr(true) );
     Seis2DDataSet ds( *ioobj );
     const int nrlines = ds.nrLines();
-    TypeSet<int> geomids;
+    TypeSet<Pos::GeomID> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
 	geomids.add( ds.geomID(iln) );
 
@@ -201,20 +201,23 @@ bool SeisTrc2DTranslator::initRead_()
     dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
-    if ( seldata_ && !mIsUdf(seldata_->geomID()) )
+    if ( seldata_ && !seldata_->geomID().isUdf() )
 	geomid_ = seldata_->geomID();
     else
 	geomid_ = dset.geomID(0);
 
     if ( geomid_!=mUdfGeomID && dset.indexOf(geomid_)<0 )
-	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
+    {
+	errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_.asInt());
+	return false;
+    }
 
     StepInterval<int> trcrg; StepInterval<float> zrg;
     dset.getRanges( geomid_, trcrg, zrg );
     insd_.start = zrg.start; insd_.step = zrg.step;
     innrsamples_ = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
-    pinfo_.inlrg.start = geomid_;
-    pinfo_.inlrg.stop = geomid_;
+    pinfo_.inlrg.start = geomid_.asInt();
+    pinfo_.inlrg.stop = pinfo_.inlrg.start;
     pinfo_.inlrg.step = 1;
     pinfo_.crlrg.start = trcrg.start;
     pinfo_.crlrg.stop = trcrg.stop;
@@ -251,7 +254,8 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 	{
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
 	    hasgeometry = dataset_->getRanges( geomid, trcrg, zrg );
-	    linecd.generate( BinID(geomid,trcrg.start),BinID(geomid,trcrg.stop),
+	    linecd.generate( BinID(geomid.asInt(),trcrg.start),
+			     BinID(geomid.asInt(),trcrg.stop),
 			     BinID(1,trcrg.step) );
 	}
 	delete linefetcher;
@@ -260,10 +264,12 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 	for ( int idy=0; idy<linecd.size(); idy++ )
 	{ //There should be only one, but in case...
 	    PosInfo::LineData* linecdy = linecd[idy];
-	    if ( !linecdy ) continue;
-	    PosInfo::LineData* linecdcopy = new PosInfo::LineData( geomid );
+	    if ( !linecdy )
+		continue;
+
+	    auto* linecdcopy = new PosInfo::LineData( geomid.asInt() );
 	    linecdcopy->segments_ = linecdy->segments_;
-	    const int lineidx = rawcd.indexOf( geomid );
+	    const int lineidx = rawcd.indexOf( geomid.asInt() );
 	    if ( lineidx == -1 )
 		rawcd.add( linecdcopy );
 	    else

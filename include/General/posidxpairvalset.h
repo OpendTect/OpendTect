@@ -11,10 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
+#include "posgeomid.h"
 #include "posidxpair.h"
-#include "sets.h"
 #include "ranges.h"
+#include "sets.h"
 #include "od_iosfwd.h"
+
 namespace PosInfo { class CubeData; }
 class TrcKeySampling;
 
@@ -201,7 +204,7 @@ public:
     void		usePar(const IOPar&,const char* key);
 
     			// Fast
-    bool		getFrom(od_istream&,Pos::GeomID=mUdf(Pos::GeomID));
+    bool		getFrom(od_istream&,Pos::GeomID=Pos::GeomID::udf());
 				//!< detects/converts coords if geomid passed
     bool		putTo(od_ostream&) const;
 
@@ -278,7 +281,4 @@ protected:
 
 };
 
-
 } // namespace Pos
-
-

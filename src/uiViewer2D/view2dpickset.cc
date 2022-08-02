@@ -137,7 +137,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	    {
 		if ( regfdp->is2D() )
 		{
-		    const int geomid = vwr2dtkzs.hsamp_.inlRange().start;
+		    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start);
 		    if ( pl.hasTrcKey() &&  pl.geomID()!=geomid )
 			continue;
 		    else
@@ -268,8 +268,7 @@ void VW2DPickSet::drawAll()
 		}
 		else
 		{
-		    const int geomid = vwr2dtkzs.hsamp_.inlRange().start;
-
+		    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start);
 		    int trcidx = -1;
 		    if ( pl.hasTrcKey() )
 		    {

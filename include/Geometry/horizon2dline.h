@@ -29,7 +29,7 @@ mExpClass(Geometry) Horizon2DLine : public RowColSurface
 {
 public:
 			Horizon2DLine();
-			Horizon2DLine(int lineid,const TypeSet<Coord>&,
+			Horizon2DLine(Pos::GeomID lineid,const TypeSet<Coord>&,
 				      int start,int step);
 			Horizon2DLine(const Horizon2DLine&);
 			~Horizon2DLine();
@@ -91,7 +91,7 @@ public:
 protected:
 
     int			colIndex(int rowidx,int colid) const;
-    int			rowIndex(int rowid) const;
+    int			rowIndex(Pos::GeomID rowid) const;
 
     bool		checksupport_;
 

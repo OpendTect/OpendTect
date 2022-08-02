@@ -181,7 +181,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    curbid = curtrcinfo->binID();
 	else
 	{
-	    curbid.row() = Survey::is2DGeom(geomid) ? geomid : 0;
+	    curbid.row() = Survey::is2DGeom(geomid) ? geomid.asInt() : 0;
 	    curbid.trcNr() = curtrcinfo->trcNr();
 	}
     }
@@ -443,7 +443,8 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	if ( is2d_ && possvol == globalcs )
 	{
 	    const Pos::GeomID geomid = provider_->getGeomID();
-	    const int lineid = geomid==Survey::GM().cUndefGeomID() ? 0 : geomid;
+	    const int lineid =
+		geomid==Survey::GM().cUndefGeomID() ? 0 : geomid.asInt();
 	    possvol.hsamp_.setLineRange( StepInterval<int>(lineid,lineid,1) );
 	    possvol.hsamp_.setTrcRange( Interval<int>(0,INT_MAX/3*2) );
 					    //unlikely;still, a limitation.

@@ -31,13 +31,16 @@ uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
-{ return ioobj.key().ID( 1 ); }
+{
+    return Pos::GeomID( ioobj.key().objectID() );
+}
+
 
 IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
 {
     IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
     MultiID mid = ioctxt.getSelKey();
-    mid.setObjectID( geomid );
+    mid.setObjectID( geomid.asInt() );
     return IOM().get( mid );
 }
 
@@ -99,7 +102,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     if ( !data->read(strm,false) )
 	{ delete data; return nullptr; }
 
-    const Pos::GeomID geomid = ioobj.key().ID( 1 );
+    const Pos::GeomID geomid = getGeomID( ioobj );
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
@@ -139,7 +142,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     if ( !geom2d )
 	return false;
 
-    geom2d->setID( ioobj.key().ID(1) );
+    geom2d->setID( getGeomID(ioobj) );
 
     od_ostream strm( ioobj.fullUserExpr() );
     ascostream astream( strm );
@@ -171,7 +174,7 @@ bool dgbSurvGeom2DTranslator::implRename( const IOObj* ioobj, const char* newnm,
     if ( !res )
 	return false;
 
-    Pos::GeomID geomid = ioobj->key().ID(1);
+    const Pos::GeomID geomid = getGeomID( *ioobj );
     RefMan<Survey::Geometry> geom = Survey::GMAdmin().getGeometry( geomid );
     Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( geom2d )

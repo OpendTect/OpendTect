@@ -83,8 +83,7 @@ int nextStep()
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
 
-    const Pos::GeomID geomid = bid.inl();
-
+    const Pos::GeomID geomid( bid.inl() );
     if ( bid.inl() != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl();
@@ -341,7 +340,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	    nr = pos.nr_;
 	}
 
-	BinID bid(geomid,nr);
+	const BinID bid( geomid.asInt(), nr );
 	bidvs->add( bid, crd.z );
 
 	if ( (prevhornm != hornm) || data.isEmpty() )

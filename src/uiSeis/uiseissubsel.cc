@@ -345,7 +345,11 @@ void uiSeis2DSubSel::setSelectedLines( const BufferStringSet& lnms )
 
 int uiSeis2DSubSel::expectedNrSamples() const
 {
-    return getZRange().nrSteps() + 1;
+    TypeSet<Pos::GeomID> geomids;
+    selectedGeomIDs( geomids );
+    const Pos::GeomID geomid = geomids.isEmpty() ? Pos::GeomID::udf()
+						 : geomids.first();
+    return getZRange(geomid).nrSteps() + 1;
 }
 
 
@@ -389,11 +393,11 @@ StepInterval<float> uiSeis2DSubSel::getZRange( Pos::GeomID geomid ) const
 void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs,
 				  Pos::GeomID geomid ) const
 {
-    if ( singlelnmsel_ && geomid==-1 )
+    if ( singlelnmsel_ && geomid.isUdf() )
 	geomid = singlelnmsel_->getInputGeomID();
 
     tkzs.set2DDef();
-    tkzs.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+    tkzs.hsamp_.setGeomID( geomid );
     tkzs.hsamp_.setTrcRange( getTrcRange(geomid) );
     tkzs.zsamp_.setFrom( getZRange(geomid) );
 

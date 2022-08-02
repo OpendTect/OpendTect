@@ -306,8 +306,11 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     EM::SubID bidsq = bid.toInt64();
     mDynamicCastGet(const EM::Horizon2D*,refhor2d,refhorizon_)
     if ( refhor2d )
-	bidsq = BinID( refhor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+    {
+	const int lineidx =
+		refhor2d->geometry().lineIndex( Pos::GeomID(bid.inl()) );
+	bidsq = BinID( lineidx, bid.crl() ).toInt64();
+    }
 
     const double fixedz = userefz_ ? refz_ :
 	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z;
@@ -330,8 +333,11 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 
 	mDynamicCastGet(const EM::Horizon2D*,hor2d,hors_[idy])
 	if ( hor2d )
-	    bidsq = BinID( hor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+	{
+	    const int lineidx =
+		hor2d->geometry().lineIndex( Pos::GeomID(bid.inl()) );
+	    bidsq = BinID( lineidx, bid.crl() ).toInt64();
+	}
 
 	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z;
     }

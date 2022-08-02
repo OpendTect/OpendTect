@@ -243,12 +243,12 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	}
 
 	dlg.getSampling( tkzs, geomid );
-	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	tkzs.hsamp_.setGeomID( geomid );
 	loadgeomids += geomid;
 	tkzss += tkzs;
     }
 
-    PreLoader spl( key, -1, &taskrunner );
+    PreLoader spl( key, Pos::GeomID::udf(), &taskrunner );
     spl.load( tkzss, loadgeomids, dc.userType(), dlg.getScaler() );
 
     fullUpd( 0 );
@@ -594,7 +594,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 	}
 
 	Pos::GeomID geomid0 = geomids.first();
-	tkzs.hsamp_.setLineRange( StepInterval<int>(geomid0,geomid0,1) );
+	tkzs.hsamp_.setGeomID( geomid0 );
 	StepInterval<int> trcrg; StepInterval<float> zrg;
 	if ( !info.getRanges(geomid0,trcrg,zrg) )
 	    return;

@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "undefval.h"
-#include "string2.h"
+#include "bufstring.h"
 
 
 /*!\brief Single integer ID with comparison but no automatic conversion.
@@ -62,8 +62,10 @@ public:
     inline IntType		asInt() const		{ return nr_; }
     inline void			set( IntType i )	{ nr_ = i; }
     inline void			fromString(const char* s,
-					   int defval=mUdf(IntType))
-				{ nr_ = toInt(s, defval); }
+					   IntType defval=mUdf(IntType))
+				{ nr_ = toInt(s,defval); }
+    inline BufferString		toString() const
+				{ return ::toString(asInt()); }
 
     inline virtual bool		operator==( const IntegerID& oth ) const
 				{ return this->nr_ == oth.nr_; }
@@ -81,7 +83,6 @@ protected:
 private:
     IntType			nr_;
 };
-
 
 // For convenience
 using Int8ID = IntegerID<od_int8>;

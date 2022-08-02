@@ -12,9 +12,12 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seistype.h"
-#include "ranges.h"
+
 #include "binid.h"
 #include "bufstring.h"
+#include "posgeomid.h"
+#include "ranges.h"
+
 class LineKey;
 namespace Pos { class Provider; }
 
@@ -153,5 +156,5 @@ inline bool isEmpty( const SelData* sd )
 }
 
 
-} // namespace
+} // namespace Seis
 

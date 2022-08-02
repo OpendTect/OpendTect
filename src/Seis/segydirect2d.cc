@@ -37,9 +37,11 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
     Pos::GeomID geomid = mUdfGeomID;
     BufferString basenm = FilePath(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
-    if ( !capstr ) return geomid;
+    if ( !capstr )
+	return geomid;
+
     capstr++;
-    geomid = toInt( capstr, mUdfGeomID );
+    geomid.set( toInt(capstr,mUdfGeomID.asInt()) );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		     Survey::GM().getGeometry(geomid) );
     return geom2d ? geomid : mUdfGeomID;
@@ -135,7 +137,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 
 	FilePath fp( dl.fullPath(idx) );
 	BufferString newfnm( newnm );
-	newfnm.add( mCapChar ).add( geomid );
+	newfnm.add( mCapChar ).add( geomid.asInt() );
 	fp.setFileName( newfnm );
 	fp.setExtension( sExtSEGDirect, false );
 	if ( !File::rename(dl.fullPath(idx),fp.fullPath()) )
@@ -304,7 +306,7 @@ SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
     : preseldt_(DataCharacteristics::Auto)
     , fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
 {
-    bid_.row() = geomid;
+    bid_.row() = geomid.asInt();
     FilePath fp( fname_ );
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );
@@ -390,7 +392,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     if ( !segydirectobj )
 	return nullptr;
 
-    const Pos::GeomID geomid = ioobj.key().ID( 1 );
+    const Pos::GeomID geomid( ioobj.key().objectID() );
     const OD::String& segydeffnm =
 	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
     SEGY::DirectDef sgydef( segydeffnm );

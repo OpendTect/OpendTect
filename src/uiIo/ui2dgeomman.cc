@@ -59,7 +59,8 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 
 void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     PtrMan<Translator> transl = curioobj_->createTranslator();
     if ( !transl )
@@ -76,9 +77,9 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	    continue;
 
 	const BufferString linenm( ioobj->name() );
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	if ( !geomid )
-	    return;
+	const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	if ( !geomid.isValid() )
+	    continue;
 
 	geomidset += geomid;
     }

@@ -364,7 +364,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
 	const Pos::GeomID gid = readcs.hsamp_.getGeomID();
 	PtrMan<Seis::SelData> sd = new Seis::RangeSelData( readcs );
 
-	sd->setGeomID( readcs.hsamp_.start_.lineNr() );
+	sd->setGeomID( Pos::GeomID(readcs.hsamp_.start_.lineNr()) );
 	PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
 	delete velreader_;
 	velreader_ = new SeisTrcReader( *ioobj, gid, &gt );

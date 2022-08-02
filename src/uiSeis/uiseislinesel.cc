@@ -214,7 +214,7 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 	if ( idxof < 0 )
 	    { pErrMsg("Huh"); continue; }
 
-	mid.setObjectID( geomids_[idxof] );
+	mid.setObjectID( geomids_[idxof].asInt() );
 	lbchoiceio_->keys().add( mid );
     }
 }

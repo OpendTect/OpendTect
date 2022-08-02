@@ -399,13 +399,15 @@ bool RegionPolygonBoundary::usePar( const IOPar& par )
 
 // Region3D
 Region3D::Region3D()
-   : Region()
+   : Region(Survey::default3DGeomID())
 {}
+
 
 Region3D::~Region3D()
 {
     setEmpty();
 }
+
 
 void Region3D::addBoundary( RegionBoundary* bd )
 { boundaries_ += bd; }

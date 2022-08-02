@@ -283,7 +283,8 @@ void uiSeisBrowser::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
     else if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
     {
 	if ( is2D() )
-	    newtrc->info().setGeomID( bid.row() ).setTrcNr( bid.trcNr() );
+	    newtrc->info().setGeomID( Pos::GeomID(bid.row()) )
+			  .setTrcNr( bid.trcNr() );
 	else
 	    newtrc->info().setPos( bid );
 

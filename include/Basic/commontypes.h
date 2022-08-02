@@ -28,10 +28,10 @@ template<class T> class Interval;
 template<class T> class ObjectSet;
 template<class T> class StepInterval;
 
-typedef od_int32	Index_Type;
-typedef od_int64	DirtyCountType;
-typedef od_uint16	PortNr_Type;
-typedef od_int32	PID_Type;
+using Index_Type	= od_int32;
+using DirtyCountType	= od_int64;
+using PortNr_Type	= od_uint16;
+using PID_Type		= od_int32;
 
 enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
 enum Pol2D3D		{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
@@ -76,19 +76,16 @@ inline DataRepType GetDataRepType( bool isfp, bool issigned, int nbytes )
 
 namespace Pos
 {
-
 class IdxPair;
+class GeomID;
 
-typedef ::Index_Type	Index_Type;
-typedef ::Index_Type	Index_Delta_Type;
-typedef OD::GeomSystem	SurvID;
-typedef Index_Type	LineID;
-typedef Index_Type	TraceID;
-typedef Index_Type	GeomID;
-typedef TypeSet<GeomID>	GeomIDSet;
+using Index_Type = ::Index_Type;
+using Index_Delta_Type = ::Index_Type;
+using LineID = Index_Type;
+using TraceID = Index_Type;
 
-typedef double		Ordinate_Type;
-typedef double		Distance_Type;
+using Ordinate_Type = double;
+using Distance_Type = double;
 
 } // namespace Pos
 

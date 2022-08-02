@@ -128,9 +128,10 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     }
 
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
-    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
+    sampling.hsamp_.setGeomID( geomid_ );
 
-    BufferStringSet cnames; cnames.add( "autocorrelation" );
+    BufferStringSet cnames;
+    cnames.add( "autocorrelation" );
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 					d2dh, sampling, SI().zDomain(),&cnames);
     auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);

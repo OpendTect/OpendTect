@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "view2ddata.h"
 
 #include "emposid.h"
+#include "posgeomid.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;

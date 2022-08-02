@@ -517,11 +517,11 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     extender->setExtBoundary( getTrackBox() );
     BinID dir;
     if ( !lineTrackDirection(dir) )
-	extender->setDirection( TrcKeyValue(TrcKey(1,1),mUdf(float)) );
+	extender->setDirection( TrcKeyValue(BinID(1,1),mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
-	extender->setDirection( TrcKeyValue(TrcKey(0,1),mUdf(float)) );
+	extender->setDirection( TrcKeyValue(BinID(0,1),mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
-	extender->setDirection( TrcKeyValue(TrcKey(1,0),mUdf(float)) );
+	extender->setDirection( TrcKeyValue(BinID(1,0),mUdf(float)) );
 
     TypeSet<TrcKey> addedpos;
     TypeSet<TrcKey> addedpossrc;

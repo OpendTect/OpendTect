@@ -94,7 +94,7 @@ public:
     bool		isStored() const;
     bool		isZTransformed() const;
 
-    const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid=-1) const;
+    const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid) const;
 
     static const DescID& cNoAttrib();
     static const DescID& cAttribNotSel();

@@ -516,8 +516,12 @@ BufferString dgbSurfaceReader::lineSet( int idx ) const
 
 
 Pos::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
-{ return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
+{
+    if ( geomids_.validIdx(idx) )
+	return geomids_[idx];
 
+    return Pos::GeomID::udf();
+}
 
 
 void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
@@ -870,13 +874,13 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
-        const bool validrowidx  = linesets_.validIdx(rowindex_) &&
-                                  linenames_.validIdx(rowindex_);
+	const bool validrowidx = linesets_.validIdx(rowindex_) &&
+				 linenames_.validIdx(rowindex_);
 	const bool validids = validrowidx &&
 			linesets_.get(rowindex_)!=sKeyUndefLineSet() &&
 			linenames_.get(rowindex_)!=sKeyUndefLine();
         const bool validgeomids = geomids_.validIdx(rowindex_) &&
-                                  geomids_[rowindex_] > 0;
+				  geomids_[rowindex_].isValid();
 
 	if ( (!validrowidx || !validids) && !validgeomids )
 	{

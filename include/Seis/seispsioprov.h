@@ -11,13 +11,14 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "uistring.h"
-#include "manobjectset.h"
-#include "transl.h"
+
 #include "bufstring.h"
+#include "manobjectset.h"
+#include "posgeomid.h"
 #include "seispsread.h"
 #include "seispswrite.h"
-
+#include "transl.h"
+#include "uistring.h"
 
 class IOObj;
 

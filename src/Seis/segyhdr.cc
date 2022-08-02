@@ -226,10 +226,11 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
 	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step) );
 
 	Interval<float> sprg( 0, 0 );
-	const Survey::Geometry2D& geom2d =
-			Survey::GM().get2D( info->inlrg.start );
+	const Pos::GeomID geomid( info->inlrg.start );
+	const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomid );
 	if ( !geom2d.spnrs().isEmpty() )
 	    sprg.set( geom2d.spnrs().first(), geom2d.spnrs().last() );
+
 	putAt( ++lnr, sDefStartPos, 20, BufferString(sKey::Shotpoint(),":") );
 	txt.set(sprg.start).add("-").add(sprg.stop);
 	putAt( lnr, 21, 32, txt );
@@ -903,12 +904,12 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
 void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
-    ti.coord.x = entryVal( EntryXcdp() );			// 181-184
-    ti.coord.y = entryVal( EntryYcdp() );			// 185-188
-    if ( !is2D() )						// 189-192,193-196
+    ti.coord.x = entryVal( EntryXcdp() );		// 181-184
+    ti.coord.y = entryVal( EntryYcdp() );		// 185-188
+    if ( !is2D() )					// 189-192,193-196
 	ti.setPos( BinID(entryVal(EntryInline()), entryVal(EntryCrossline()) ));
 
-    ti.refnr = sCast( float, entryVal(EntrySP()) );		// 197-200
+    ti.refnr = sCast( float, entryVal(EntrySP()) );	// 197-200
     if ( !isrev0_ )
     {
 	const short scalnr = sCast(short,entryVal(EntrySPscale())); // 201-202

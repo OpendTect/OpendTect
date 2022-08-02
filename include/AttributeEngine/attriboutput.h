@@ -441,7 +441,7 @@ protected:
 				}
 
 	bool			operator > ( PosAndRowIDPair other ) const
-				{ return gid_ > other.gid_
+				{ return gid_.asInt() > other.gid_.asInt()
 				    || (gid_==other.gid_ && tid_>other.tid_)
 				    || (gid_==other.gid_ && tid_==other.tid_
 							 && rid_>other.rid_); }

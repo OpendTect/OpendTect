@@ -102,7 +102,7 @@ void VW2DFaultSS2D::draw()
 	    TypeSet<Coord>& coords = fsseds_[ivwr]->getCoords();
 	    for ( int idx=0; idx<fsseds_[ivwr]->getTrcNos().size(); idx++ )
 		coords += geometry->toCoord(
-			geomid_, fsseds_[ivwr]->getTrcNos()[idx] );
+			geomid_.asInt(), fsseds_[ivwr]->getTrcNos()[idx] );
 
 	    fsseds_[ivwr]->setGeomID( geomid_ );
 	    fsseds_[ivwr]->set2D( true );

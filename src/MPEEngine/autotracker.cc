@@ -64,7 +64,7 @@ bool execute() override
     SectionExtender* ext = sectiontracker_->extender();
     SectionAdjuster* adj = sectiontracker_->adjuster();
 
-    ext->setDirection( TrcKeyValue(TrcKey(0,0)) );
+    ext->setDirection( TrcKeyValue(BinID(0,0)) );
     ext->setStartPosition( srcpos_.tk_ );
     int res;
     while ( (res=ext->nextStep())>0 )

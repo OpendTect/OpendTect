@@ -327,7 +327,7 @@ TrcKey::TrcKey( const BinID& bid )
 
 TrcKey::TrcKey( Pos::GeomID id, Pos::TraceID tid )
     : geomsystem_( OD::Geom2D )
-    , pos_( id, tid )
+    , pos_( id.asInt(), tid )
 {
 }
 
@@ -349,7 +349,7 @@ TrcKey::TrcKey( OD::GeomSystem gs, const Pos::IdxPair& bid )
 TrcKey TrcKey::getSynth( Pos::TraceID tid )
 {
     return TrcKey( OD::GeomSynth,
-		   Pos::IdxPair( gtGeomID(OD::GeomSynth), tid ) );
+		   Pos::IdxPair( gtGeomID(OD::GeomSynth).asInt(), tid ) );
 }
 
 
@@ -391,9 +391,9 @@ Pos::IdxPair TrcKey::idxPair() const
 
 TrcKey& TrcKey::setGeomID( Pos::GeomID geomid )
 {
-    geomsystem_ = geomSystemOf( geomid );
+    geomsystem_ = geomid.geomSystem();
     if ( !is3D() ) //Also for synthetic
-	setLineNr( geomid );
+	setLineNr( geomid.asInt() );
 
     return *this;
 }
@@ -409,7 +409,7 @@ TrcKey& TrcKey::setGeomSystem( OD::GeomSystem gs )
 {
     geomsystem_ = gs;
     if ( isSynthetic() )
-	setGeomID( OD::GeomSynth );
+	setGeomID( Pos::GeomID(OD::GeomSynth) );
 
     return *this;
 }
@@ -500,13 +500,14 @@ const Survey::Geometry& TrcKey::geometry() const
 
 TrcKey TrcKey::getFor( Pos::GeomID gid ) const
 {
-    const OD::GeomSystem gs = geomSystemOf( gid );
+    const OD::GeomSystem gs = gid.geomSystem();
     if ( gs == geomsystem_ )
 	return *this;
-    else if ( isUdf() )
+
+    if ( isUdf() )
 	return TrcKey( gs, Pos::IdxPair::udf() );
 
-    TrcKey tk( geomsystem_, Pos::IdxPair(gid,0) );
+    TrcKey tk( geomsystem_, Pos::IdxPair(gid.asInt(),0) );
     tk.setFrom( getCoord() );
     return tk;
 }

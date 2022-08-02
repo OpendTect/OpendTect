@@ -141,7 +141,7 @@ public:
 					    bool usezrg) const;
 				//!<Returns cUndefGeomID() if none found
 
-    static Pos::GeomID		cUndefGeomID()	{ return mUdf(Pos::GeomID); }
+    static Pos::GeomID		cUndefGeomID()	{ return Pos::GeomID::udf(); }
 
 protected:
 
@@ -236,7 +236,8 @@ public:
     virtual bool	write(Geometry&,uiString&,
 			      const char* crfromstr=0) const { return true; }
     virtual IOObj*	createEntry(const char*) const	{ return 0; }
-    virtual Pos::GeomID createNewGeomID(const char*) const { return 0; }
+    virtual Pos::GeomID createNewGeomID(const char*) const
+			{ return Pos::GeomID::udf(); }
     virtual bool	removeEntry(const char*) const	{ return 0; }
 
 };

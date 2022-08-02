@@ -71,7 +71,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
     }
     else if ( tr && tr->is2D() )
     {
-	const Pos::GeomID gid = CBVSIOMgr::getFileNr( fnm );
+	const Pos::GeomID gid( CBVSIOMgr::getFileNr(fnm) );
 	if ( Survey::is2DGeom(gid) )
 	    tr->setCurGeomID( gid );
     }

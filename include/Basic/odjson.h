@@ -353,7 +353,7 @@ public:
     void		set(const char* ky,const char*);
     void		set( const char* ky, const OD::String& str )
 			{ set( ky, str.str() ); }
-    void        set(const char* ky,const FilePath&);
+    void		set(const char* ky,const FilePath&);
     void		set(const char* ky,const DBKey&);
     void		set(const char* ky,const MultiID&);
     void		set(const char* ky,const uiString&);

@@ -133,7 +133,7 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 
 	*dotptr = '\0';
 	Pos::GeomID geomid = Survey::GM().cUndefGeomID();
-	getFromString( geomid, geomidstr, Survey::GM().cUndefGeomID() );
+	geomid.fromString( geomidstr );
 	if ( geomid != Survey::GM().cUndefGeomID()
 	     && Survey::GM().getGeometry(geomid) )
 	    geomids += geomid;
@@ -186,7 +186,7 @@ void SeisCBVSPSIO::close()
 BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
 {
     FilePath fp( dirnm_ );
-    BufferString fnm( fp.fileName(), "^", toString(geomid) );
+    BufferString fnm( fp.fileName(), "^", toString(geomid.asInt()) );
     fp.add( fnm );
     fp.setExtension( "cbvs", false );
 

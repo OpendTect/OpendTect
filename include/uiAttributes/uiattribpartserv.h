@@ -285,8 +285,8 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    RandomLineID rdlid);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
-					  int geomid, bool isstored,
-					  int steerpol );
+					  const Pos::GeomID& geomid,
+					  bool isstored,int steerpol);
 protected:
     void		snapToValidRandomTraces(TrcKeyPath& path,
 						const Attrib::Desc*);

@@ -21,10 +21,6 @@ ________________________________________________________________________
 namespace Survey
 {
 
-static Pos::GeomID cFirst2DGeomID = 0;
-static Pos::GeomID cSIGeomID = -1;
-static Pos::GeomID cSynthGeomID = -2;
-
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 
@@ -60,22 +56,22 @@ const GeometryManager& GM()
 
 
 bool is2DGeom( Pos::GeomID geomid )
-{ return geomid >= cFirst2DGeomID && isValidGeomID( geomid ); }
+{ return geomid.is2D(); }
 
 bool is3DGeom( Pos::GeomID geomid )
-{ return geomid == cSIGeomID; }
+{ return geomid.is3D(); }
 
 bool isSynthetic( Pos::GeomID geomid )
-{ return geomid == cSynthGeomID; }
+{ return geomid.isSynth(); }
 
 Pos::GeomID default3DGeomID()
-{ return cSIGeomID; }
+{ return Pos::GeomID(OD::Geom3D); }
 
 Pos::GeomID getDefault2DGeomID()
 { return Survey::GM().default2DGeomID(); }
 
 bool isValidGeomID( Pos::GeomID geomid )
-{ return geomid != -999 && !mIsUdf(geomid); }
+{ return geomid.isValid(); }
 
 
 Geometry::Geometry()
@@ -132,7 +128,7 @@ OD::GeomSystem Geometry::getSurvID() const
 
 OD::GeomSystem Geometry::geomSystem() const
 {
-    return geomSystemOf( getID() );
+    return getID().geomSystem();
 }
 
 
@@ -188,7 +184,7 @@ void GeometryManager::ensureSIPresent() const
     if ( !has3d )
     {
 	RefMan<Geometry3D> survicsys = SI().get3DGeometry( false );
-	survicsys->setID( cSIGeomID );
+	survicsys->setID( default3DGeomID() );
 	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );
     }
 }
@@ -247,7 +243,7 @@ Geometry2D& GeometryManager::get2D( Pos::GeomID geomid )
 const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
     if ( mid.nrIDs() == 2 )
-	return getGeometry( mid.ID(1) );
+	return getGeometry( Pos::GeomID(mid.objectID()) );
 
     return nullptr;
 }
@@ -311,7 +307,7 @@ Pos::GeomID Survey::GeometryManager::default2DGeomID() const
 	    return geometry->getID();
     }
 
-    return cFirst2DGeomID;
+    return Pos::GeomID( OD::Geom2D );
 }
 
 

@@ -105,7 +105,8 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	{
 	    od_istream strm( res );
 	    if ( strm.isOK() )
-		bvs.getFrom( strm, OD::Geom3D );
+		bvs.getFrom( strm, Pos::GeomID(OD::Geom3D) );
+
 	    strm.close();
 	    if ( !bvs.isEmpty() )
 	    {

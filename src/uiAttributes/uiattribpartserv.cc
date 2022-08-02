@@ -776,7 +776,7 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
-    PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, Pos::GeomID::udf() );
     if ( !aem || targetspecs_.isEmpty() )
 	return nullptr;
 
@@ -1329,7 +1329,7 @@ RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
     , outputid_(outputid)
     , refnrs_(sampling_.hsamp_.nrTrcs(),mUdf(float))
 {
-    sampling_.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+    sampling_.hsamp_.setGeomID( geomid );
     if ( compnames )
 	compnames_ = *compnames;
 }
@@ -1773,7 +1773,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 
 
 void uiAttribPartServer::filter2DMenuItems(
-	MenuItem& subitem, const Attrib::SelSpec& as, int geomid,
+	MenuItem& subitem, const Attrib::SelSpec& as, const Pos::GeomID& geomid,
 	bool isstored, int steerpol )
 {
     if ( geomid == Survey::GM().cUndefGeomID() )

@@ -29,7 +29,7 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader)
 public:
-			PreLoader(const MultiID&,Pos::GeomID =-1,
+			PreLoader(const MultiID&,Pos::GeomID=Pos::GeomID::udf(),
 				  TaskRunner* =nullptr);
 
     const MultiID&	id() const			{ return mid_; }
@@ -111,22 +111,25 @@ public:
 
     void		add(const DataPack&,const MultiID&);
     void		add(const DataPack&,const MultiID&,Pos::GeomID);
-    void		remove(const MultiID&,Pos::GeomID =-1);
+    void		remove(const MultiID&,Pos::GeomID=Pos::GeomID::udf());
     void		remove(const DataPack::ID&);
 
     template<class T>
     inline ConstRefMan<T>	get(DataPack::ID) const;
     template<class T>
-    inline ConstRefMan<T>	get(const MultiID&,Pos::GeomID =-1) const;
+    inline ConstRefMan<T>	get(const MultiID&,
+				    Pos::GeomID=Pos::GeomID::udf()) const;
 
     ConstRefMan<DataPack>	getDP(DataPack::ID) const;
-    ConstRefMan<DataPack>	getDP(const MultiID&,Pos::GeomID =-1) const;
+    ConstRefMan<DataPack>	getDP(const MultiID&,
+				      Pos::GeomID=Pos::GeomID::udf()) const;
 
     void			getInfo(const MultiID&,Pos::GeomID,
 					BufferString&) const;
 
     void			getIDs(TypeSet<MultiID>&) const;
-    bool			isPresent(const MultiID&,Pos::GeomID =-1) const;
+    bool			isPresent(const MultiID&,
+					  Pos::GeomID=Pos::GeomID::udf()) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
 

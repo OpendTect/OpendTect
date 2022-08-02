@@ -281,9 +281,7 @@ void prepareForTransform( int rowidx, Pos::GeomID geomid,
 {
     Threads::MutexLocker lock( lock_ );
     TrcKeyZSampling cs;
-    cs.hsamp_.start_ = BinID( geomid, colrg.start );
-    cs.hsamp_.step_ = BinID( colrg.step, colrg.step );
-    cs.hsamp_.stop_ = BinID( geomid , colrg.stop );
+    cs.hsamp_.set( geomid, colrg );
 
     int& voiid = volumeofinterestids_[rowidx];
     if ( voiid==-1 && zaxt_->needsVolumeOfInterest() )
@@ -467,7 +465,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 		    linergs.zrgs += TypeSet<Interval<float> >();
 		    const int ridx = linergs.trcrgs.size()-1;
 
-		    linergs.trcrgs[ridx] += ghl->colRange( geomid );
+		    linergs.trcrgs[ridx] += ghl->colRangeForGeomID( geomid );
 		    linergs.zrgs[ridx] += ghl->zRange( geomid );
 		}
 	    }

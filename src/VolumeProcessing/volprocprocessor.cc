@@ -60,7 +60,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
 		|| !linepar->get(sKey::ZRange(),tkzs.zsamp_) )
 	    break;
 
-	tkzs.hsamp_.set( StepInterval<int>(geomid,geomid,1), trcrg );
+	tkzs.hsamp_.set( geomid, trcrg );
 	const BufferString linename = Survey::GM().getName( geomid );
 	strm << "\nProcessing on Line " << linename << od_endl;
 
@@ -110,7 +110,7 @@ bool VolProc::Processor::run( TaskRunner* tskr )
 		|| !linepar->get(sKey::ZRange(),tkzs.zsamp_) )
 	    break;
 
-	tkzs.hsamp_.set( StepInterval<int>(geomid,geomid,1), trcrg );
+	tkzs.hsamp_.set( geomid, trcrg );
 	const BufferString linename = Survey::GM().getName( geomid );
 
 	VolProc::ChainOutput* vco = new VolProc::ChainOutput;

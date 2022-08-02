@@ -195,7 +195,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     if ( mid.isUdf() )
 	return;
 
-    Pos::GeomID geomid = -1;
+    Pos::GeomID geomid;
     iop.get( sKey::GeomID(), geomid );
 
     SeisIOObjInfo info( mid );
@@ -318,7 +318,7 @@ PreLoadDataEntry::PreLoadDataEntry( const DataPack& dp, const MultiID& mid,
 bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
 {
     const bool samemid = mid_ == mid;
-    return geomid==-1 ? samemid : samemid && geomid_==geomid;
+    return geomid.isUdf() ? samemid : samemid && geomid_==geomid;
 }
 
 
@@ -357,7 +357,7 @@ PreLoadDataManager::~PreLoadDataManager()
 
 void PreLoadDataManager::add( const DataPack& dp, const MultiID& mid )
 {
-    add( dp, mid, -1 );
+    add( dp, mid, Pos::GeomID::udf() );
 }
 
 

@@ -965,7 +965,7 @@ bool IOPar::get( const char* keyw, TrcKey& tk ) const
 
     tk.setGeomSystem( gs );
     if ( tk.is2D() )
-	tk.setGeomID( linenr ).setTrcNr( trcnr );
+	tk.setGeomID( Pos::GeomID(linenr) ).setTrcNr( trcnr );
     else if ( tk.is3D() )
 	tk.setLineNr( linenr ).setTrcNr( trcnr );
     else
@@ -976,7 +976,9 @@ bool IOPar::get( const char* keyw, TrcKey& tk ) const
 
 
 void IOPar::set( const char* keyw, const TrcKey& tk )
-{ set( keyw, int(tk.geomSystem()), tk.lineNr(), tk.trcNr() ); }
+{
+   set( keyw, int(tk.geomSystem()), tk.lineNr(), tk.trcNr() );
+}
 
 
 void IOPar::set( const char* keyw, const OD::GeomSystem& gs )
@@ -1099,6 +1101,29 @@ void IOPar::set( const char* keyw, const DBKeySet& keys )
     for ( int idx=0; idx<keys.size(); idx++ )
 	strs.add( keys[idx].toString(false) );
     set( keyw, strs );
+}
+
+
+bool IOPar::get( const char* key, TypeSet<Pos::GeomID>& ids ) const
+{
+    TypeSet<int> intvals;
+    if ( !get(key,intvals) )
+	return false;
+
+    for ( const auto& val : intvals )
+	ids.add( Pos::GeomID(val) );
+
+    return !ids.isEmpty();
+}
+
+
+void IOPar::set( const char* key, const TypeSet<Pos::GeomID>& ids )
+{
+    TypeSet<int> intvals;
+    for ( const auto& id : ids )
+	intvals += id.asInt();
+
+    set( key, intvals );
 }
 
 

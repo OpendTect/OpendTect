@@ -258,7 +258,7 @@ public:
     Array2D<char>*		getChildren(const TrcKey&) const
 				{ return getChildren(); }
     OD::GeomSystem		getSurveyID() const override
-				{ return geomSystemOf(getSurveyGeomID()); }
+				{ return getSurveyGeomID().geomSystem(); }
 
     static OD::Color		sDefaultSelectionColor();
     static OD::Color		sDefaultLockColor();

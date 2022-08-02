@@ -261,7 +261,8 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	case Viewer2DPosDataSel::Line2D :
 	    posdatasel_->geomid_ =
 		Survey::GM().getGeomID( subsel2dfld_->selectedLine() );
-	    subsel2dfld_->getSampling( posdatasel_->tkzs_ );
+	    subsel2dfld_->getSampling( posdatasel_->tkzs_,
+				       posdatasel_->geomid_ );
 	    break;
 	case Viewer2DPosDataSel::InLine:
 	    if ( !sliceselflds_.validIdx(0) ) return false;

@@ -86,7 +86,7 @@ int Seis2DDataSet::indexOf( Pos::GeomID geomid ) const
 
 int Seis2DDataSet::indexOf( const char* linename ) const
 {
-    const int geomid = Survey::GM().getGeomID( linename );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
     return indexOf( geomid );
 }
 

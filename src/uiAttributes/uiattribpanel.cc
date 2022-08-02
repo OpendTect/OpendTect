@@ -108,7 +108,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 	return nullptr;
 
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
-    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
+    sampling.hsamp_.setGeomID( geomid_ );
 
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
 						d2dh, sampling, SI().zDomain());

@@ -30,6 +30,9 @@ public:
 				     float v=mUdf(float) )
 			    : tk_(tk)
 			    , val_(v)					{}
+    inline		TrcKeyValue( const BinID& bid, float v=mUdf(float) )
+			    : tk_(bid)
+			    , val_(v)					{}
 			TrcKeyValue(const BinIDValue&);
 
     // mDeprecated Pos::LineID& lineNr()	{ return tk_.lineNr(); }

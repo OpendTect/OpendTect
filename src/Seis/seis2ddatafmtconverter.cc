@@ -61,7 +61,7 @@ static void convert2DPSData()
 
 	    FilePath newfp( psdir );
 	    const BufferString newfnm( newfp.fileName(), "^",
-				       toString(geomid) );
+				       toString(geomid.asInt()) );
 	    newfp.add( newfnm );
 	    newfp.setExtension( fp.extension(), false );
 	    File::rename( fp.fullPath().buf(), newfp.fullPath().buf() );
@@ -436,9 +436,10 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
 	    BufferString newfn( newfp.fileName() );
 	    newfn.add( mCapChar );
 	    Pos::GeomID geomid;
-	    if ( !iop->get(sKey::GeomID(),geomid) || geomid <= 0 )
+	    if ( !iop->get(sKey::GeomID(),geomid) || !geomid.isValid() )
 		continue;
-	    newfn.add( geomid );
+
+	    newfn.add( geomid.asInt() );
 	    newfp.add( newfn ).setExtension( oldfp.extension(), false );
 
 	    if ( oldfp == newfp )
@@ -481,9 +482,11 @@ bool OD_2DLineSetTo2DDataSetConverter::removeLineSetsAndAddFilesToDelList(
 	    if ( attrname.isEmpty() ) attrname = "Seis";
 	    attrname.clean( BufferString::AllowDots );
 	    BufferString newfile( attrname );
-	    newfile.add(mCapChar)
-		   .add( Survey::GM().getGeomID(ioobjlist[idx]->name(),
-						iop.name()) );
+	    const Pos::GeomID geomid =
+			Survey::GM().getGeomID( ioobjlist[idx]->name(),
+						iop.name() );
+	    newfile.add(mCapChar).add( geomid.asInt() );
+
 	    FilePath newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
 			    attrname, newfile );
 	    newfp.setExtension( oldfp.extension(), false );

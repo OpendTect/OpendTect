@@ -545,7 +545,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 {
     mDeclStaticString( ret );
     FilePath fp( dirnm );
-    BufferString nm( fp.fileName(), "^", toString(geomid) );
+    BufferString nm( fp.fileName(), "^", toString(geomid.asInt()) );
     fp.add( nm );
     fp.setExtension( "sgydef", false );
     ret = fp.fullPath();
@@ -555,8 +555,8 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( unm );
-    return mIsUdfGeomID(geomid) ? 0 : get2DFileName( dirnm, geomid );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( unm );
+    return geomid.isValid() ? get2DFileName( dirnm, geomid ) : nullptr;
 }
 
 

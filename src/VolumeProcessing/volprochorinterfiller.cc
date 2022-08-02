@@ -157,11 +157,18 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     mDynamicCastGet(const EM::Horizon2D*,tophor2d,tophorizon_)
     mDynamicCastGet(const EM::Horizon2D*,bothor2d,bottomhorizon_)
     if ( tophor2d )
-	topsubid = BinID( tophor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+    {
+	const int lineidx =
+		tophor2d->geometry().lineIndex( Pos::GeomID(bid.inl()) );
+	topsubid = BinID( lineidx, bid.crl() ).toInt64();
+    }
+
     if ( bothor2d )
-	botsubid = BinID( bothor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+    {
+	const int lineidx =
+		bothor2d->geometry().lineIndex( Pos::GeomID(bid.inl()) );
+	botsubid = BinID( lineidx, bid.crl() ).toInt64();
+    }
 
     const double topdepth = tophorizon_
 	? tophorizon_->getPos( tophorizon_->sectionID(0), topsubid ).z

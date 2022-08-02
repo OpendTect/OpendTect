@@ -153,7 +153,7 @@ void Seis::SelData::usePar( const IOPar& iop )
     isall_ = !res || !*res || *res == *sKey::None();
 
     iop.get( sKey::GeomID(), geomid_ );
-    if ( geomid_ < 0 )
+    if ( geomid_.asInt() < 0 )
     {
 	res = iop.find( sKey::LineKey() );
 	if ( res && *res )

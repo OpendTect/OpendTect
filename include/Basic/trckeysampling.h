@@ -40,10 +40,12 @@ public:
 
     bool		is2D() const	{ return ::is2D(survid_); }
     Pos::GeomID		getGeomID() const;
+    void		setGeomID(const Pos::GeomID&);
 
     TrcKeySampling&	set(const Interval<int>& linerg,
 			    const Interval<int>& trcnrrg);
 			    //!< steps copied if available
+    TrcKeySampling&	set(const Pos::GeomID&,const Interval<int>& trcnrrg);
     void		get(Interval<int>& linerg,Interval<int>& trcnrrg) const;
 			    //!< steps filled if available
     TrcKeySampling	getLineChunk(int totalchunks,int chunknr) const;

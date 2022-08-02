@@ -10,6 +10,7 @@
 #include "dbkey.h"
 #include "gason.h"
 #include "od_iostream.h"
+#include "posgeomid.h"
 #include "separstr.h"
 #include "stringbuilder.h"
 #include "uistrings.h"
@@ -1268,7 +1269,7 @@ bool OD::JSON::Object::getGeomID( const char* ky, Pos::GeomID& gid ) const
     if ( !isPresent(ky) )
 	return false;
 
-    gid = getIntValue( ky );
+    gid.set( getIntValue(ky) );
     return true;
 }
 

@@ -283,7 +283,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
 	{
 	    const Function* func = velocityfunctions_[idy];
-	    const TrcKey tkfunc( func->getBinID() ); //TODO: Get a SurvID
+	    const TrcKey tkfunc( func->getBinID() );
 	    const float zval = layermodel_ && validlayer ?
 			  layermodel_->getInterpolatedZ( tkfunc, layeridx ) : z;
 	    const float value = func->getVelocity( zval );

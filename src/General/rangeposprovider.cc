@@ -420,7 +420,7 @@ void Pos::RangeProvider2D::setZRange( const StepInterval<float>& zrg, int lidx )
 TrcKey Pos::RangeProvider2D::curTrcKey() const
 {
     const Pos::GeomID gid = curGeomID();
-    if ( mIsUdf(gid) )
+    if ( !gid.isValid() )
 	return TrcKey::udf();
 
     return TrcKey( gid, curNr() );
@@ -429,9 +429,10 @@ TrcKey Pos::RangeProvider2D::curTrcKey() const
 
 Pos::GeomID Pos::RangeProvider2D::curGeomID() const
 {
-    return geomids_.validIdx(curlineidx_)
-	? geomids_[curlineidx_]
-	: mUdf(Pos::GeomID);
+    if ( geomids_.validIdx(curlineidx_) )
+	return geomids_[curlineidx_];
+
+    return Pos::GeomID::udf();
 }
 
 
@@ -680,7 +681,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	{
 	    l2dkey.fromString( str );
 	    if ( !l2dkey.haveLSID() )
-		getFromString( geomid,str.buf(),Survey::GM().cUndefGeomID() );
+		geomid.fromString( str.buf() );
 	    else
 	    {
 		S2DPOS().setCurLineSet( l2dkey.lsID() );

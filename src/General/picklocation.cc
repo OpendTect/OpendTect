@@ -401,9 +401,9 @@ bool Pick::Location::fromString( const char* s )
 
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
     mSkipBlanks(str);
-    const Pos::GeomID geomid = getNextInt( str );
+    const Pos::GeomID geomid( getNextInt(str) );
     const Survey::Geometry* geom = nullptr;
-    if ( !mIsUdf(geomid) )
+    if ( geomid.isValid() )
 	geom = Survey::GM().getGeometry( geomid );
     if ( !geom )
 	geom = &Survey::Geometry::default3D();
@@ -458,7 +458,7 @@ void Pick::Location::toString( BufferString& str, bool forexport,
 
     //actually both calls return the same, but for the clarity
     if ( trckey_.is2D() )
-	str.add( od_tab ).add( trckey_.geomID() );
+	str.add( od_tab ).add( trckey_.geomID().asInt() );
     else
 	str.add( od_tab ).add( trckey_.lineNr() );
 

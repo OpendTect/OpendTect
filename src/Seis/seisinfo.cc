@@ -361,7 +361,7 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
     case RefNr:		return refnr;
     case Pick:		return pick;
     case SeqNr:		return seqnr_;
-    case GeomID:	return geomID();
+    case GeomID:	return double(geomID().asInt());
     default:		return trcNr();
     }
 }

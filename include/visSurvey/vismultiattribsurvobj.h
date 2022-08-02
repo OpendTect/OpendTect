@@ -68,10 +68,10 @@ public:
 					    const TypeSet<Attrib::SelSpec>&);
     void			clearTextures();
     				/*!<Blanks all textures. */
-    
+
     void			enableTextureInterpolation(bool);
     bool			textureInterpolationEnabled() const;
-    
+
     bool 			isAngle(int attrib) const;
     void			setAngleFlag(int attrib,bool yn);
     void			enableAttrib(int attrib,bool yn);
@@ -96,11 +96,12 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    virtual bool                canBDispOn2DViewer() const	{ return true; }
+    virtual bool		canBDispOn2DViewer() const	{ return true; }
     bool			canEnableTextureInterpolation() const
 				{ return channels_; }
     bool			canDisplayInteractively(
-						Pos::GeomID geomid=-1) const;
+						Pos::GeomID geomid) const;
+    bool			canDisplayInteractively() const;
 
     const char*			errMsg() const { return errmsg_.str(); }
 

@@ -36,7 +36,7 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
     char* capstr = basenm.find( mCapChar );
     if ( !capstr ) return geomid;
     capstr++;
-    geomid = toInt( capstr, mUdfGeomID );
+    geomid.fromString( capstr );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		     Survey::GM().getGeometry(geomid) );
     return geom2d ? geomid : mUdfGeomID;
@@ -52,7 +52,7 @@ const OD::String& SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
 
     FilePath fp( ret );
     BufferString fnm = fp.fileName();
-    fnm.add( mCapChar ).add( geomid );
+    fnm.add( mCapChar ).add( geomid.asInt() );
     fp.add( fnm );
     fp.setExtension( sExtCBVS, false );
     ret = fp.fullPath();
@@ -139,7 +139,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 
 	FilePath fp( dl.fullPath(idx) );
 	BufferString newfnm( newnm );
-	newfnm.add( mCapChar ).add( geomid );
+	newfnm.add( mCapChar ).add( geomid.asInt() );
 	fp.setFileName( newfnm );
 	fp.setExtension( sExtCBVS, false );
 	if ( !File::rename(dl.fullPath(idx),fp.fullPath()) )
@@ -356,7 +356,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
     , preseldt_(DataCharacteristics::Auto)
 {
     tr_->set2D( true );
-    bid_.inl() = geomid;
+    bid_.inl() = geomid.asInt();
     FilePath fp( fname_ );
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );

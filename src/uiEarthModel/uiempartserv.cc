@@ -1757,18 +1757,18 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	{
 	    const int trcnr = trcrg.atIndex( trcidx );
 	    const Coord3 pos1 = hor2d1->getPos( 0, geomid, trcnr );
-	    const float z1 = mCast( float, pos1.z );
+	    const float z1 = sCast( float, pos1.z );
 	    float z2 = mUdf(float);
 
 	    if ( issecondhor )
-		z2 = mCast( float, hor2d2->getPos(0,geomid,trcnr).z );
+		z2 = sCast( float, hor2d2->getPos(0,geomid,trcnr).z );
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {
 		Interval<float> zrg( z1, issecondhor ? z2 : z1 );
 		zrgs += zrg;
 		coords += pos1;
-		bids += BinID( geomid, trcnr );
+		bids += BinID( geomid.asInt(), trcnr );
 	    }
 	}
     }
@@ -1803,6 +1803,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 		hor->geometry().sectionGeometry( hor->sectionID(0) );
 	    if ( geom )
 		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
+
 	    if ( mIsUdf(zval) )
 	    {
 		ps.remove(idx);

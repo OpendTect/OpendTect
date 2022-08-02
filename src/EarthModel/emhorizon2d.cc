@@ -217,7 +217,8 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     {
 	const SectionID sid = aliases[idx].sectionID();
 	const RowCol ownrc = aliases[idx].getRowCol();
-	const int colstep = colRange( sid, ownrc.row() ).step;
+	const Pos::GeomID geomid( ownrc.row() );
+	const int colstep = colRange( sid, geomid ).step;
 	const RowCol neighborrc( ownrc.row(),
 		nextcol ? ownrc.col()+colstep : ownrc.col()-colstep );
 

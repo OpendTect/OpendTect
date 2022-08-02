@@ -325,7 +325,7 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
 	float val = float( zrg.start + gen.get() * zrg.width(false) );
 	Pick::Location loc( coords2d_[posidx], val );
 	const BinID& trcpos = trcpos2d_[posidx];
-	const Pos::GeomID gid = trcpos.lineNr();
+	const Pos::GeomID gid( trcpos.lineNr() );
 	loc.setTrcKey( TrcKey( gid, trcpos.trcNr() ) );
 	ps.add( loc );
     }

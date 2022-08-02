@@ -160,7 +160,8 @@ protected:
 
 #define mErrRet(msg) \
 { uiMSG().error(msg); return; }
-void uiFreqTaperDlg::previewPushed(CallBacker*)
+
+void uiFreqTaperDlg::previewPushed( CallBacker* )
 {
     SeisIOObjInfo objinfo( seisid_ );
     if ( !objinfo.isOK() )
@@ -177,8 +178,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     {
 	StepInterval<int> trcrg;
 	objinfo.getRanges( geomid, trcrg, tkzs_->zsamp_ );
-	tkzs_->hsamp_.setLineRange( Interval<int>(geomid,geomid) );
-	tkzs_->hsamp_.setTrcRange( trcrg );
+	tkzs_->hsamp_.set( geomid, trcrg );
     }
     else
 	objinfo.getRanges( *tkzs_ );

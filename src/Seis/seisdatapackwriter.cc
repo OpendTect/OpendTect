@@ -220,7 +220,7 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
 
     // Workaround for v6.2. Not needed in later versions.
     if ( is2d_ )
-	seldata->setGeomID( tks_.start_.lineNr() );
+	seldata->setGeomID( Pos::GeomID(tks_.start_.lineNr()) );
 
     if ( writer_ )
 	writer_->setSelData( seldata );

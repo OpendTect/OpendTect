@@ -334,6 +334,12 @@ void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 }
 
 
+bool MultiTextureSurveyObject::canDisplayInteractively() const
+{
+    return canDisplayInteractively( Pos::GeomID::udf() );
+}
+
+
 bool MultiTextureSurveyObject::canDisplayInteractively(
 						    Pos::GeomID geomid ) const
 {
@@ -342,7 +348,7 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
 	return false;
 
     for ( int attrib=0; attrib<nrAttribs(); attrib++ )
-	if ( !getSelSpec(attrib)->getPreloadDataDesc() )
+	if ( !getSelSpec(attrib)->getPreloadDataDesc(geomid) )
 	    return false;
 
     return true;;

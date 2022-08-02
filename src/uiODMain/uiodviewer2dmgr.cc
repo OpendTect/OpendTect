@@ -658,8 +658,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
 	    initialcentre = uiWorldPoint( double(trcdist), double(samplecrdz) );
 	    newtkzs.hsamp_.init( intpoint2d.line );
-	    newtkzs.hsamp_.setLineRange(
-		    Interval<int>(intpoint2d.line,intpoint2d.line) );
+	    newtkzs.hsamp_.setGeomID( intpoint2d.line );
 	}
 	else if ( menuid == 1 )
 	{

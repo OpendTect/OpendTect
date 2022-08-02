@@ -229,7 +229,7 @@ uiString SeisSingleTraceProc::uiMessage() const
 	uiString ret;
 	const Pos::GeomID geomid = inpsetup_.geomid_;
 	if ( Survey::is2DGeom(geomid) )
-	    { ret = tr("'%1'").arg( toString(geomid) ); }
+	    { ret = tr("'%1'").arg( geomid.toString() ); }
 	else
 	    ret = uiStrings::sTrace(mPlural);
 
@@ -452,7 +452,8 @@ bool SeisSingleTraceProc::writeTrc()
 
 	if ( is2D() )
 	{
-	    wrtr.packetInfo().inlrg.set( currdr.geomID(), currdr.geomID(), 1 );
+	    const int linenr = currdr.geomID().asInt();
+	    wrtr.packetInfo().inlrg.set( linenr, linenr, 1 );
 	    if ( currdr.selData() )
 		wrtr.packetInfo().crlrg = currdr.selData()->crlRange();
 	    else

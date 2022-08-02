@@ -11,9 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
+
 #include "bufstringset.h"
 #include "executor.h"
 #include "geometrymod.h"
+#include "posgeomid.h"
 #include "paralleltask.h"
 #include "threadlock.h"
 
@@ -24,7 +26,7 @@ mExpClass(Geometry) BendPoints
 public:
 			BendPoints();
 
-    Pos::GeomID	geomid_;
+    Pos::GeomID		geomid_;
     TypeSet<int>	idxs_;
 };
 
@@ -59,8 +61,9 @@ public:
     {
 			Point(Pos::GeomID id,int mynr,int linenr)
 			    : line(id),mytrcnr(mynr),linetrcnr(linenr)
-                , mygeomids_(-1)
+			    , mygeomids_(-1)
 			{}
+
 			Point(Pos::GeomID myid,Pos::GeomID lineid,
 			      int mynr,int linenr);
 			Point(const Point&);
@@ -75,7 +78,7 @@ public:
 	bool		isOpposite(const Point&) const;
 
 	Pos::GeomID	line;	// Intersecting line.
-    Pos::GeomID mygeomids_;
+	Pos::GeomID	mygeomids_;
 	int		mytrcnr;
 	int		linetrcnr;
     };

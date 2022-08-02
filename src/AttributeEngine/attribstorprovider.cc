@@ -246,13 +246,14 @@ bool StorageProvider::checkInpAndParsAtStart()
 
 	    if ( foundone )
 	    {
-		storedvolume_.hsamp_.include( BinID(geomid,trcrg.start) );
-		storedvolume_.hsamp_.include( BinID(geomid,trcrg.stop) );
+		const int linenr = geomid.asInt();
+		storedvolume_.hsamp_.include( BinID(linenr,trcrg.start) );
+		storedvolume_.hsamp_.include( BinID(linenr,trcrg.stop) );
 		storedvolume_.zsamp_.include( zrg );
 	    }
 	    else
 	    {
-		storedvolume_.hsamp_.setLineRange(Interval<int>(geomid,geomid));
+		storedvolume_.hsamp_.setGeomID( geomid );
 		storedvolume_.hsamp_.setTrcRange( trcrg );
 		storedvolume_.zsamp_ = zrg;
 		foundone = true;
@@ -366,10 +367,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
 bool StorageProvider::getLine2DStoredVolume()
 {
-    if ( geomid_ == mUdfGeomID && desiredvolume_->hsamp_.is2D() )
+    if ( geomid_.isUdf() && desiredvolume_->hsamp_.is2D() )
 	geomid_ = desiredvolume_->hsamp_.getGeomID();
 
-    if ( geomid_ == mUdfGeomID )
+    if ( geomid_.isUdf() )
 	return true;
 
     Seis2DDataSet* dset = mscprov_->reader().dataSet();
@@ -382,7 +383,7 @@ bool StorageProvider::getLine2DStoredVolume()
 	mErrRet( tr("2D dataset %1 is not available for line %2")
 		.arg(dset->name()).arg(Survey::GM().getName(geomid_)) );
 
-    storedvolume_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
+    storedvolume_.hsamp_.setGeomID( geomid_ );
     storedvolume_.hsamp_.setTrcRange( trcrg );
     storedvolume_.zsamp_ = zrg;
     return true;
@@ -864,7 +865,7 @@ void StorageProvider::adjust2DLineStoredVolume()
 
 Pos::GeomID StorageProvider::getGeomID() const
 {
-    if ( mIsUdf(geomid_) && desc_.is2D() && mscprov_ )
+    if ( geomid_.isUdf() && desc_.is2D() && mscprov_ )
 	return mscprov_->reader().geomID();
 
     return geomid_;

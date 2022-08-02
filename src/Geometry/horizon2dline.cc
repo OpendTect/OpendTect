@@ -23,8 +23,8 @@ Horizon2DLine::Horizon2DLine()
 {}
 
 
-Horizon2DLine::Horizon2DLine( int lineid, const TypeSet<Coord>& path, int start,
-			      int step )
+Horizon2DLine::Horizon2DLine( Pos::GeomID lineid, const TypeSet<Coord>& path,
+			      int start, int step )
 {
     addRow( lineid, path, start, step );
 }

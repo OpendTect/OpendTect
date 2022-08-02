@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "binid.h"
+#include "posgeomid.h"
 
 namespace Survey { class Geometry; }
 
@@ -152,11 +153,3 @@ public:
 
 
 };
-
-
-inline OD::GeomSystem geomSystemOf( Pos::GeomID gid )
-{
-    return gid >= (Pos::GeomID)OD::Geom2D
-	 ? OD::Geom2D
-	 : (gid == (Pos::GeomID)OD::GeomSynth ? OD::GeomSynth : OD::Geom3D);
-}

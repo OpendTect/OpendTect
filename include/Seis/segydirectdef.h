@@ -12,9 +12,11 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "segyfiledata.h"
+
 #include "bufstringset.h"
 #include "executor.h"
 #include "od_iosfwd.h"
+#include "posgeomid.h"
 #include "uistring.h"
 
 class IOObj;

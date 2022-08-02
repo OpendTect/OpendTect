@@ -16,7 +16,8 @@ ________________________________________________________________________
 #define mSetSampling \
 const StepInterval<Pos::TraceID> trcrg = data_.trcNrRange(); \
 sampling_.zsamp_ = data_.zRange(); \
-sampling_.hsamp_.start_.lineNr() = sampling_.hsamp_.stop_.lineNr() = getID(); \
+sampling_.hsamp_.start_.lineNr() = sampling_.hsamp_.stop_.lineNr() \
+				 = getID().asInt(); \
 sampling_.hsamp_.start_.trcNr() = trcrg.start; \
 sampling_.hsamp_.stop_.trcNr() = trcrg.stop; \
 sampling_.hsamp_.step_.trcNr() = trcrg.step

@@ -65,7 +65,17 @@ TrcKeySampling::TrcKeySampling( bool settosi )
 mStopAllowDeprecatedSection
 
 Pos::GeomID TrcKeySampling::getGeomID() const
-{ return is2D() ? start_.lineNr() : survid_; }
+{
+    return Pos::GeomID(is2D() ? start_.lineNr() : survid_);
+}
+
+
+void TrcKeySampling::setGeomID( const Pos::GeomID& geomid )
+{
+    start_.lineNr() = stop_.lineNr() = geomid.asInt();
+    step_.lineNr() = 1;
+}
+
 
 bool TrcKeySampling::init( Pos::GeomID gid )
 {
@@ -92,7 +102,7 @@ void TrcKeySampling::init( bool tosi )
 {
     if ( tosi )
     {
-	init( OD::Geom3D );
+	init( Pos::GeomID(OD::Geom3D) );
     }
     else
     {
@@ -177,6 +187,15 @@ TrcKeySampling& TrcKeySampling::set( const Interval<int>& inlrg,
 {
     setInlRange( inlrg );
     setCrlRange( crlrg );
+    return *this;
+}
+
+
+TrcKeySampling& TrcKeySampling::set( const Pos::GeomID& geomid,
+				     const Interval<int>& trcnrrg )
+{
+    setGeomID( geomid );
+    setTrcRange( trcnrrg );
     return *this;
 }
 
@@ -610,7 +629,7 @@ bool TrcKeySampling::usePar( const IOPar& pars )
     {
 	Pos::GeomID geomid;
 	subpars->get( sKey::GeomID(), geomid );
-	start_.lineNr() = stop_.lineNr() = geomid;
+	start_.lineNr() = stop_.lineNr() = geomid.asInt();
 	step_.lineNr() = 1;
 	survid_ = OD::Geom2D;
     }

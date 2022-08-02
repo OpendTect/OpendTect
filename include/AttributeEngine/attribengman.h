@@ -10,11 +10,13 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "sets.h"
-#include "ranges.h"
-#include "bufstring.h"
+
 #include "attribdescid.h"
 #include "attribsel.h"
+#include "bufstring.h"
+#include "posgeomid.h"
+#include "ranges.h"
+#include "sets.h"
 #include "uistring.h"
 
 class BinIDValueSet;

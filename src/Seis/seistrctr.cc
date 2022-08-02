@@ -393,7 +393,7 @@ bool SeisTrcTranslator::writeBlock()
 	    else
 	    {
 		if ( is_2d )
-		    filltrc->info().setGeomID( binid.row() )
+		    filltrc->info().setGeomID( Pos::GeomID(binid.row()) )
 				   .setTrcNr( binid.trcNr() );
 		else
 		    filltrc->info().setPos( binid );
@@ -599,7 +599,8 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 
     auto* newtrc = new SeisTrc;
     if ( is_2d )
-	newtrc->info().setGeomID( binid.row() ).setTrcNr( binid.trcNr() );
+	newtrc->info().setGeomID( Pos::GeomID(binid.row()) )
+		      .setTrcNr( binid.trcNr() );
     else
 	newtrc->info().setPos( binid );
 
