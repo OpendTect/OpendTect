@@ -40,7 +40,7 @@ public:
     enum Type		{ NodeOnly, Leaved, Leaf };
 			mDeclareEnumUtils(Type)
 
-			UnitRef(NodeUnitRef*,const char* d=0);
+			UnitRef(NodeUnitRef*,const char* d=nullptr);
     virtual		~UnitRef();
 
     virtual Type	type() const		= 0;
@@ -117,7 +117,8 @@ mExpClass(Strat) NodeUnitRef : public UnitRef
 {
 public:
 
-			NodeUnitRef(NodeUnitRef*,const char*,const char* d=0);
+			NodeUnitRef(NodeUnitRef*,const char*,
+				    const char* d=nullptr);
 			~NodeUnitRef();
     void		setEmpty();
 
@@ -146,7 +147,7 @@ public:
 
     virtual int		nrLeaves() const;
     int			level() const override
-			    { return upnode_?upnode_->level()+1:0; }
+			    { return upnode_ ? upnode_->level()+1 : 0; }
 
 protected:
 
@@ -184,7 +185,7 @@ mExpClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
 {
 public:
 			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
-				     const char* d=0 )
+					 const char* d=nullptr )
 			: NodeUnitRef(up,c,d)	{}
 
     bool		hasLeaves() const override	{ return false; }
@@ -200,9 +201,8 @@ mExpClass(Strat) LeavedUnitRef : public NodeUnitRef
 {
 public:
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
-				     const char* d=0 )
-			: NodeUnitRef(up,c,d)
-			, levelid_(-1)			{}
+				       const char* d=nullptr )
+			: NodeUnitRef(up,c,d)	{}
 
     Type		type() const override		{ return Leaved; }
     bool		hasLeaves() const override	{ return true; }
@@ -212,7 +212,8 @@ public:
 
     int			nrLeaves() const override	{ return refs_.size(); }
     const LeafUnitRef*	firstLeaf() const override
-			{ return refs_.isEmpty() ? 0 : refs_[0]->firstLeaf(); }
+			{ return refs_.isEmpty() ? nullptr
+						 : refs_[0]->firstLeaf(); }
 
     LeafUnitRef*	getLeaf(int);
     const LeafUnitRef*	getLeaf( int i ) const
@@ -227,11 +228,7 @@ protected:
 
     void		fill( BufferString& bs ) const override
 			    { doFill(bs,levelid_.asInt()); }
-    void		use( const char* s ) override
-			{
-			    int lvlid = levelid_.asInt();
-			    doUse( s, &lvlid );
-			}
+    void		use(const char*) override;
 };
 
 
@@ -254,7 +251,7 @@ public:
     const Lithology&	getLithology() const;
     OD::Color		dispColor(bool lith_else_upnode) const;
     int			level() const override
-			    { return upnode_?upnode_->level()+1:0; }
+			    { return upnode_ ? upnode_->level()+1 : 0; }
     const LeafUnitRef*	firstLeaf() const override { return this; }
 
 protected:

@@ -17,7 +17,7 @@
 #include "randcolor.h"
 
 mDefineEnumUtils(Strat::UnitRef,Type,"Unit Type")
-{ "Node", "Leaved", "Leaf", 0 };
+{ "Node", "Leaved", "Leaf", nullptr };
 
 
 //class UnitRef
@@ -186,7 +186,7 @@ Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* uc,
 				 const char* d )
     : UnitRef(up,d)
     , code_(uc)
-    , timerg_(mUdf(float),0)
+    , timerg_(mUdf(float),0.f)
 {
 }
 
@@ -326,7 +326,7 @@ Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* unitkey ) const
 	}
 	break;
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -405,7 +405,7 @@ const Strat::LeafUnitRef* Strat::NodeOnlyUnitRef::firstLeaf() const
 	if ( ur )
 	    return ur;
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -425,7 +425,7 @@ Strat::LeafUnitRef* Strat::LeavedUnitRef::getLeaf( const Strat::Lithology& lith)
 	if ( ur->lithology() == lith.id() )
 	    return ur;
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -433,6 +433,14 @@ void Strat::LeavedUnitRef::setLevelID( Strat::LevelID lid )
 {
     if ( lid != levelid_ )
 	{ levelid_ = lid; notifChange(); }
+}
+
+
+void Strat::LeavedUnitRef::use( const char* s )
+{
+    int lvlid = levelid_.asInt();
+    doUse( s, &lvlid );
+    levelid_.set( lvlid );
 }
 
 

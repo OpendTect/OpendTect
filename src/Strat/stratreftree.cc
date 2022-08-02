@@ -77,7 +77,7 @@ bool RefTree::addLeavedUnit( const char* fullcode, const char* dumpstr )
 	return false;
 
     const BufferString newcode( ck.key( ck.nrKeys()-1 ) );
-    NodeUnitRef* parnode = (NodeUnitRef*)par;
+    auto* parnode = (NodeUnitRef*)par;
     UnitRef* newun = new LeavedUnitRef( parnode, newcode );
 
     newun->use( dumpstr );
@@ -105,8 +105,9 @@ void RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID().asInt(),
-						un->description() );
+
+	auto* newun = new LeafUnitRef( par, un->levelID().asInt(),
+				       un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
@@ -115,9 +116,9 @@ void RefTree::setToActualTypes()
 	LeavedUnitRef* un = norefs[idx];
 	if ( un->ref(0).isLeaf() )
 	    continue;
+
 	NodeUnitRef* par = un->upNode();
-	NodeOnlyUnitRef* newun = new NodeOnlyUnitRef( par, un->code(),
-						    un->description() );
+	auto* newun = new NodeOnlyUnitRef( par, un->code(), un->description() );
 	newun->takeChildrenFrom( un );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
@@ -138,7 +139,7 @@ bool RefTree::read( od_istream& strm )
 	if ( keyw == sKeyLith )
 	{
 	    const BufferString nm( astrm.value() );
-	    Lithology* lith = new Lithology(astrm.value());
+	    auto* lith = new Lithology( astrm.value() );
 	    if ( lith->id() < 0 || nm == Lithology::undef().name() )
 		delete lith;
 	    else
@@ -302,7 +303,7 @@ void Strat::RefTree::removeLevelUnit( const Strat::Level& lvl )
 void Strat::RefTree::addLevelUnit( const Strat::Level& lvl )
 {
     Strat::UnitRefIter itr( *this, Strat::UnitRefIter::NodesOnly );
-    const Strat::NodeOnlyUnitRef* belownode = 0;
+    const Strat::NodeOnlyUnitRef* belownode = nullptr;
     while ( itr.next() )
     {
 	if ( itr.unit()->code()=="Below" )
@@ -312,11 +313,9 @@ void Strat::RefTree::addLevelUnit( const Strat::Level& lvl )
 	}
     }
 
-    Strat::NodeOnlyUnitRef* belownoderef =
-	const_cast<Strat::NodeOnlyUnitRef*> (belownode);
-    Strat::LeavedUnitRef* lur =
-	new Strat::LeavedUnitRef( belownoderef, lvl.name(),
-				  BufferString("Below",lvl.name()) );
+    auto* belownoderef = const_cast<Strat::NodeOnlyUnitRef*> (belownode);
+    auto* lur =	new Strat::LeavedUnitRef( belownoderef, lvl.name(),
+					  BufferString("Below",lvl.name()) );
     lur->setLevelID( lvl.id() );
     lur->add( new Strat::LeafUnitRef(lur) );
     belownoderef->add( lur );
@@ -359,10 +358,11 @@ void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
 
 const LeavedUnitRef* RefTree::getLevelSetUnit( const char* lvlnm ) const
 {
-    if ( isEmpty() ) return 0;
+    if ( isEmpty() )
+	return nullptr;
 
     UnitRefIter it( *this, UnitRefIter::LeavedNodes );
-    const LeavedUnitRef* first = 0;
+    const LeavedUnitRef* first = nullptr;
     while ( it.next() )
     {
 	const LeavedUnitRef* lur = (const LeavedUnitRef*)it.unit();
@@ -371,6 +371,7 @@ const LeavedUnitRef* RefTree::getLevelSetUnit( const char* lvlnm ) const
 	else if ( lur->code() == lvlnm )
 	    return lur;
     }
+
     return first;
 }
 
@@ -380,11 +381,12 @@ LeavedUnitRef* RefTree::getByLevel( LevelID lvlid ) const
     UnitRefIter it( *this, UnitRefIter::LeavedNodes );
     while ( it.next() )
     {
-	LeavedUnitRef* lur = (LeavedUnitRef*)it.unit();
+	const LeavedUnitRef* lur = (LeavedUnitRef*)it.unit();
 	if ( lur && lur->levelID() == lvlid )
-	    return lur;
+	    return const_cast<LeavedUnitRef*>( lur );
     }
-    return 0;
+
+    return nullptr;
 }
 
 } // namespace Strat
