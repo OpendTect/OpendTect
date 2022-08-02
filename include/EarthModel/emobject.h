@@ -135,15 +135,16 @@ public:
 mExpClass(EarthModel) PosAttrib
 {
 public:
-			PosAttrib(){}
 
     enum Type		{ PermanentControlNode, TemporaryControlNode,
 			  EdgeControlNode, TerminationNode, SeedNode,
 			  IntersectionNode };
 
+			PosAttrib(Type);
+
     Type		type_;
     TypeSet<PosID>	posids_;
-    bool		locked_;
+    bool		locked_ = false;
 };
 
 
@@ -351,17 +352,17 @@ protected:
 
     TrcKeyZSampling		removebypolyposbox_;
 
-    bool			changed_;
-    bool			fullyloaded_;
-    bool			locked_;
-    int				burstalertcount_;
+    bool			changed_ = false;
+    bool			fullyloaded_ = false;
+    bool			locked_ = false;
+    int				burstalertcount_ = 0;
     Threads::Lock		setposlock_;
-    bool			haslockednodes_;
+    bool			haslockednodes_ = false;
     OD::Color			lockcolor_;
     OD::Color			selectioncolor_;
 
-    bool			insideselremoval_;
-    bool			selremoving_;
+    bool			insideselremoval_ = false;
+    bool			selremoving_ = false;
     const ZDomain::Def*		zdomain_;
 
     static const char*		nrposattrstr();

@@ -37,10 +37,10 @@ public:
 
 protected:
 
-    const Array2D<T>*	arr_;
-    int			xsize_;
-    int			ysize_;
-    bool		hasudfs_;
+    const Array2D<T>*	arr_ = nullptr;
+    int			xsize_ = 0;
+    int			ysize_ = 0;
+    bool		hasudfs_ = true;
 };
 
 

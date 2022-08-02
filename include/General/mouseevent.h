@@ -266,7 +266,7 @@ protected:
     Geom::Point2D<int>		pos_;
     float			scale_;
     float			angle_;
-    State			state_;
+    State			state_ = Started;
 };
 
 

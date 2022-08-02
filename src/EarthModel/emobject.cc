@@ -42,25 +42,24 @@ static const char* sLockColor()			{ return "Lock Color"; }
 static const char* sSelectionColor()		{ return "Selection Color"; }
 
 
+PosAttrib::PosAttrib( Type typ )
+    : type_(typ)
+{}
+
+
+
 EMObject::EMObject( EMManager& emm )
     : manager_(emm)
     , change(this)
-    , id_(-1)
     , storageid_(MultiID::udf())
     , preferredcolor_(*new OD::Color(OD::Color::Green()))
     , lockcolor_(OD::Color::Blue())
     , selectioncolor_(OD::Color::Orange())
-    , changed_(false)
-    , fullyloaded_(false)
-    , locked_(false)
-    , burstalertcount_(0)
-    , selremoving_(false)
     , preferredlinestyle_(*new OD::LineStyle(OD::LineStyle::Solid,3))
     , preferredmarkerstyle_(
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,OD::Color::White()))
     , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
 			    preferredcolor_.complementaryColor()))
-    , haslockednodes_(false)
     , zdomain_(&ZDomain::SI())
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
@@ -418,10 +417,9 @@ void EMObject::addPosAttrib( int attr )
     if ( attribs_.indexOf(attr) < 0 )
     {
 	attribs_ += attr;
-	posattribs_ += new PosAttrib();
-	const int idx = attribs_.indexOf( attr );
-	posattribs_[idx]->type_ = (PosAttrib::Type)attr;
-	posattribs_[idx]->locked_ = false;
+	const int idx = attribs_.indexOf(attr);
+	const PosAttrib::Type typ = (PosAttrib::Type)attr;
+	posattribs_ += new PosAttrib( typ );
     }
 }
 

@@ -48,7 +48,7 @@ public:
     typedef T	(*ValueFunc)();
     void	setValueFunc(ValueFunc valfunc)	{ valfunc_ = valfunc; }
     void	setValue( const T& val )	{ val_ = val; }
-    void	setTarget( T* ptr )		{ ptr_ = ptr; vs_ = 0; }
+    void	setTarget( T* ptr )		{ ptr_ = ptr; vs_ = nullptr; }
     void	setTarget( ValueSeries<T>& vs )	{ ptr_ = vs.arr(); vs_ = &vs; }
     void	setSize( od_int64 sz )		{ sz_ = sz; }
 
@@ -62,11 +62,11 @@ protected:
     int		minThreadSize() const override	{ return mODMemMinThreadSize; }
     bool	setPtr(od_int64 start,od_int64 size);
 
-    ValueSeries<T>*	vs_;
-    T*			ptr_;
-    od_int64		sz_;
-    T			val_;
-    ValueFunc		valfunc_;
+    ValueSeries<T>*	vs_ = nullptr;
+    T*			ptr_ = nullptr;
+    od_int64		sz_ = -1;
+    T			val_ = T();
+    ValueFunc		valfunc_ = nullptr;
 
 private:
 
@@ -94,10 +94,12 @@ public:
 		MemCopier(ValueSeries<T>&,const T*,od_int64 sz);
 		MemCopier(ValueSeries<T>&,const ValueSeries<T>&,od_int64 sz);
 
-    void	setInput( const T* ptr )	{ inptr_ = ptr; invs_ = 0; }
+    void	setInput( const T* ptr )	{ inptr_ = ptr;
+						  invs_ = nullptr; }
     void	setInput( const ValueSeries<T>& vs ) {	inptr_ = vs.arr();
 							invs_ = &vs; }
-    void	setOutput( T* ptr )		{ outptr_ = ptr; outvs_ = 0; }
+    void	setOutput( T* ptr )		{ outptr_ = ptr;
+						  outvs_ = nullptr; }
     void	setOutput( ValueSeries<T>& vs )	{ outptr_ = vs.arr();
 						  outvs_ = &vs; }
     void	setSize(od_int64 sz)		{ sz_ = sz; }
@@ -112,11 +114,11 @@ protected:
     int		minThreadSize() const override	{ return mODMemMinThreadSize; }
     inline bool setPtr(od_int64 start,od_int64 size);
 
-    const T*		inptr_;
-    const ValueSeries<T>* invs_;
-    T*			outptr_;
-    ValueSeries<T>*	outvs_;
-    od_int64		sz_;
+    const T*		inptr_ = nullptr;
+    const ValueSeries<T>* invs_ = nullptr;
+    T*			outptr_ = nullptr;
+    ValueSeries<T>*	outvs_ = nullptr;
+    od_int64		sz_ = 0;
 
 private:
 
@@ -139,11 +141,11 @@ public:
 		MemValReplacer(ValueSeries<T>&,const T& from,const T& to,
 			       od_int64 sz);
 
-    void        setFromValue(const T& val)	{ fromval_ = val; }
-    void        setToValue(const T& val)	{ toval_ = val; }
-    void        setPtr(T* ptr)			{ ptr_ = ptr; vs_ = 0; }
-    void        setPtr(ValueSeries<T>& vs)	{ ptr_ = vs.arr(); vs_ = &vs; }
-    void        setSize(od_int64 sz)		{ sz_ = sz; }
+    void	setFromValue( const T& val )	{ fromval_ = val; }
+    void	setToValue( const T& val )	{ toval_ = val; }
+    void	setPtr( T* ptr )		{ ptr_ = ptr; vs_ = nullptr; }
+    void	setPtr( ValueSeries<T>& vs )	{ ptr_ = vs.arr(); vs_ = &vs; }
+    void	setSize( od_int64 sz )		{ sz_ = sz; }
 
     uiString	uiMessage() const override	{ return tr("Value replacer"); }
     uiString	uiNrDoneText() const override	{ return sPosFinished(); }
@@ -155,7 +157,7 @@ protected:
     int		minThreadSize() const override	{ return mODMemMinThreadSize; }
     bool	setPtr(od_int64 start,od_int64 size);
 
-    ValueSeries<T>*     vs_;
+    ValueSeries<T>*	vs_ = nullptr;
     T*                  ptr_;
     od_int64            sz_;
     T                   toval_;
@@ -176,20 +178,14 @@ namespace OD { mGlobal(Basic) void sysMemCopy(void*,const void*,od_int64); }
 
 template <class T> inline
 MemSetter<T>::MemSetter()
-    : ptr_( 0 )
-    , vs_( 0 )
-    , sz_( -1 )
-    , valfunc_( 0 )
 {}
 
 
 template <class T> inline
 MemSetter<T>::MemSetter( T* ptr, T val, od_int64 sz )
     : ptr_( ptr )
-    , vs_( 0 )
     , val_( val )
     , sz_( sz )
-    , valfunc_( 0 )
 {}
 
 
@@ -199,7 +195,6 @@ MemSetter<T>::MemSetter( ValueSeries<T>& vs, T val, od_int64 sz )
     , vs_( &vs )
     , val_( val )
     , sz_( sz )
-    , valfunc_( 0 )
 {}
 
 
@@ -333,19 +328,19 @@ bool MemSetter<T>::setPtr( od_int64 start, od_int64 size )
 
 template <class T> inline
 MemCopier<T>::MemCopier()
-    : sz_(0), inptr_(0), invs_(0), outptr_(0), outvs_(0)		{}
+{}
 
 template <class T> inline
 MemCopier<T>::MemCopier( T* o, const T* i, od_int64 sz )
-    : sz_(sz), inptr_(i), invs_(0), outptr_(o), outvs_(0)		{}
+    : sz_(sz), inptr_(i), outptr_(o)		{}
 
 template <class T> inline
 MemCopier<T>::MemCopier( ValueSeries<T>& o, const T* i, od_int64 sz )
-    : sz_(sz), inptr_(i), invs_(0), outptr_(o.arr()), outvs_(&o)	{}
+    : sz_(sz), inptr_(i), outptr_(o.arr()), outvs_(&o)	{}
 
 template <class T> inline
 MemCopier<T>::MemCopier( T* o, const ValueSeries<T>& i, od_int64 sz )
-    : sz_(sz), inptr_(i.arr()), invs_(&i), outptr_(o), outvs_(0)	{}
+    : sz_(sz), inptr_(i.arr()), invs_(&i), outptr_(o)	{}
 
 template <class T> inline
 MemCopier<T>::MemCopier( ValueSeries<T>& o, const ValueSeries<T>& i,
@@ -394,10 +389,18 @@ bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 
 
 template <class T> inline
+MemValReplacer<T>::MemValReplacer()
+    : ptr_(nullptr)
+    , fromval_(T())
+    , toval_(T())
+    , sz_(-1)
+{}
+
+
+template <class T> inline
 MemValReplacer<T>::MemValReplacer( T* ptr, const T& fromval, const T& toval,
 				   od_int64 sz )
     : ptr_( ptr )
-    , vs_( 0 )
     , fromval_( fromval )
     , toval_( toval )
     , sz_( sz )

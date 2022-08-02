@@ -197,7 +197,7 @@ protected:
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
 
     visBase::GridLines*			gridlines_;
-    SliceType				orientation_;
+    SliceType				orientation_ = OD::InlineSlice;
 
     RefObjectSet<RegularSeisDataPack>	datapacks_;
     RefObjectSet<RegularSeisDataPack>	transfdatapacks_;
@@ -223,9 +223,9 @@ protected:
 
     struct UpdateStageInfo
     {
-	bool		refreeze_;
+	bool		refreeze_ = true;
 	TrcKeyZSampling oldcs_;
-	SliceType	oldorientation_;
+	SliceType	oldorientation_ = OD::InlineSlice;
     };
     UpdateStageInfo		updatestageinfo_;
     TrcKeyZSampling		startmovepos_;

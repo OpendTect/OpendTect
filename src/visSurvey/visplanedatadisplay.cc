@@ -64,7 +64,6 @@ PlaneDataDisplay::PlaneDataDisplay()
     , dragger_(visBase::DepthTabPlaneDragger::create())
     , gridlines_(visBase::GridLines::create())
     , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
-    , orientation_(OD::InlineSlice)
     , csfromsession_(false)
     , undo_(*new Undo())
     , moving_(this)
@@ -243,6 +242,9 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos  ) const
 
 float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
+    if ( !scene_ )
+	return mUdf(float);
+
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
@@ -251,7 +253,6 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     const TrcKeyZSampling cs = getTrcKeyZSampling(false,true);
 
     BinID inlcrldist( 0, 0 );
-    float zdiff = 0;
 
     inlcrldist.inl() =
 	binid.inl()>=cs.hsamp_.start_.inl() &&
@@ -265,12 +266,13 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     ? 0
 	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
 		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
-    const float zfactor = scene_ ? scene_->getZScale() : s3dgeom_->zScale();
-    zdiff = cs.zsamp_.includes(xytpos.z,false)
-	? 0
-	: (float)(mMIN(fabs(xytpos.z-cs.zsamp_.start),
-	   fabs(xytpos.z-cs.zsamp_.stop))
-	   * zfactor  * scene_->getFixedZStretch() );
+    float zdiff = 0.f;
+    if ( !cs.zsamp_.includes(xytpos.z,false) )
+    {
+	zdiff = (float)(mMIN(fabs(xytpos.z - cs.zsamp_.start),
+			     fabs(xytpos.z - cs.zsamp_.stop) ));
+	zdiff *= getZScale() * scene_->getFixedZStretch();
+    }
 
     const float inldist = s3dgeom_->inlDistance();
     const float crldist = s3dgeom_->crlDistance();
@@ -290,9 +292,11 @@ float PlaneDataDisplay::getZScale() const
 
 float PlaneDataDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZScale():s3dgeom_->zScale();
-    float maxzdist = zfactor * scene_->getFixedZStretch()
-		     * s3dgeom_->zStep() / 2;
+    const float zfactor = getZScale();
+    float maxzdist = zfactor * s3dgeom_->zStep() / 2;
+    if ( scene_ )
+	maxzdist *= scene_->getFixedZStretch();
+
     return orientation_==OD::ZSlice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -1207,13 +1211,13 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
     if ( orientation_ == OD::InlineSlice )
     {
 	origin.y = crldif * crlfactor;
-	scale.y = tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
+	scale.y = (float)tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
     }
 
     if ( orientation_ == OD::ZSlice )
     {
 	origin.x = crldif * crlfactor;
-	scale.x = tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
+	scale.x = (float)tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
     }
 
     channels_->setOrigin( attrib, origin );

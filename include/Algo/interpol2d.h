@@ -143,8 +143,8 @@ public:
 protected:
 
     PolyReg1D<T>	ix0_, ix1_, iy0_, iy1_;
-    T			vm10_, v0m1_, v20_, v02_;
-    T			delxm1_, delym1_, delx2_, dely2_;
+    T			vm10_ = 0., v0m1_ = 0., v20_ = 0., v02_ = 0.;
+    T			delxm1_ = 0., delym1_ = 0., delx2_ = 0., dely2_ = 0.;
     float		xs_;
 
 };
@@ -222,7 +222,10 @@ inline T polyReg2DWithUdf( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 //--- LinearReg2D Implementation
 
 template <class T> inline
-LinearReg2D<T>::LinearReg2D() {}
+LinearReg2D<T>::LinearReg2D()
+{
+    set( (T)0, (T)0, (T)0, (T)0 );
+}
 
 
 template <class T> inline
