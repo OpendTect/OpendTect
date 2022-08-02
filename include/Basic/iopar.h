@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include "integerid.h"
 #include "od_iosfwd.h"
+#include "posgeomid.h"
 #include "samplingdata.h"
 
 class BufferStringSet;
