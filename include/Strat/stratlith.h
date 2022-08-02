@@ -12,23 +12,35 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
+
+#include "color.h"
+#include "integerid.h"
 #include "namedobj.h"
 #include "manobjectset.h"
-#include "color.h"
+
 class BufferStringSet;
 
 
 namespace Strat
 {
 
+mExpClass(Strat) LithologyID : public IntegerID<od_int32>
+{
+public:
+
+    using IntegerID::IntegerID;
+    static inline LithologyID	udf()	  { return LithologyID(); }
+    static inline LithologyID	unsetID() { return LithologyID(-2); }
+};
+
+
 /*!\brief a name and an ID.
 
   The reason we don't manage the ID is that user may have their own IDs. For
   example, it may correspond with a lithology log value.
 
-  ID: -2 -> id is unset. Should call getFreeID to get a valid ID
-  ID: -1 -> Lithology is undefined
-  ID: >=0 Lithology is defined and has a unique ID
+  LithologyID: unsetID() -> id is unset. Should call getFreeID to get a valid ID
+  LithologyID: isValid: Lithology is defined and has a unique ID
 
 */
 
@@ -36,9 +48,8 @@ mExpClass(Strat) Lithology : public ::NamedObject
 {
 public:
 
-    typedef int		ID;
-
-			Lithology(ID id,const char* nm,bool por=false);
+			Lithology(const LithologyID&,const char* nm,
+				  bool por=false);
 			Lithology( const Lithology& l )
 			    : id_(l.id_)	{ *this = l; }
     Lithology&		operator =(const Lithology&);
@@ -46,9 +57,8 @@ public:
 						{ return l.id_ == id_; }
 
     bool		isUdf() const		{ return this == &undef(); }
-    static bool		isUdf( ID id )		{ return id == undef().id_; }
 
-    ID			id() const		{ return id_; }
+    LithologyID		id() const		{ return id_; }
     bool&		porous()		{ return porous_; }
     bool		porous() const		{ return porous_; }
     OD::Color&		color()			{ return color_; }
@@ -58,7 +68,7 @@ public:
 
 protected:
 
-    const ID		id_;
+    const LithologyID	id_;
     bool		porous_;
     OD::Color		color_;
 
@@ -83,20 +93,21 @@ public:
     Lithology&		getLith( int i )	{ return *lths_[i]; }
     const Lithology&	getLith( int i ) const	{ return *lths_[i]; }
 
-    int		indexOf( const char* nm ) const		{ return idxOf(nm,-2);}
-    bool	isPresent(const char* nm) const 	{ return gtLith(nm,-2);}
-    int		indexOf( Lithology::ID id ) const	{ return idxOf(0,id);}
-    bool	isPresent( Lithology::ID id ) const	{ return gtLith(0,id);}
+    int			indexOf(const char* nm) const;
+    bool		isPresent(const char* nm) const;
+    int			indexOf(const LithologyID&) const;
+    bool		isPresent(const LithologyID&) const;
 
-    Lithology*		get( const char* nm )		{ return gtLith(nm,-2);}
-    const Lithology*	get( const char* nm ) const	{ return gtLith(nm,-2);}
-    Lithology*		get( Lithology::ID id )		{ return gtLith(0,id); }
-    const Lithology*	get( Lithology::ID id ) const	{ return gtLith(0,id); }
+    Lithology*		get(const char* nm);
+    const Lithology*	get(const char* nm) const;
+    Lithology*		get(const LithologyID&);
+    const Lithology*	get(const LithologyID&) const;
 
     enum PorSel		{ OnlyPorous, NotPorous, AllPor };
     void		getNames(BufferStringSet&,PorSel ps=AllPor) const;
 
-    Lithology::ID	getFreeID() const;
+    LithologyID		getFreeID() const;
+    static LithologyID	getInitialID();
 
     void		reportAnyChange()		{ anyChange.trigger(); }
     Notifier<LithologySet> anyChange;
@@ -105,10 +116,8 @@ protected:
 
     ManagedObjectSet<Lithology>	lths_;
 
-    int			idxOf(const char*,Lithology::ID) const;
-    Lithology*		gtLith( const char* nm, Lithology::ID id ) const
-			{ const int idx = idxOf(nm,id); return idx < 0 ? 0
-				    : const_cast<Lithology*>(lths_[idx]); }
+    int			idxOf(const char*,const LithologyID&) const;
+    Lithology*		gtLith(const char* nm,const LithologyID&) const;
 
 public:
 
@@ -117,7 +126,7 @@ public:
 				//!< returns err msg, or null on success
 
     const ObjectSet<Lithology>&	lithologies() const	{ return lths_; }
-    ObjectSet<Lithology>&	lithologies()	 	{ return lths_; }
+    ObjectSet<Lithology>&	lithologies()		{ return lths_; }
 
 };
 

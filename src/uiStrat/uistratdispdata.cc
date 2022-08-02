@@ -158,8 +158,9 @@ void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
 	if ( !lref )
 	    continue;
 
-	const int lithidx = lref->lithology();
-	const Strat::Lithology* lith = lithidx >= 0 ? lithos.get( lithidx ) : 0;
+	const Strat::LithologyID lithidx = lref->lithology();
+	const Strat::Lithology* lith = lithidx.isValid() ? lithos.get( lithidx )
+				     : nullptr;
 	if ( lith ) { if ( idx ) lithnm += ", "; lithnm += lith->name(); }
     }
 

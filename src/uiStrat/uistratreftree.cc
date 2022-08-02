@@ -256,9 +256,10 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
     {
 	const LeavedUnitRef& lvdun = (LeavedUnitRef&)(*parun);
 	tmpun.setLevelID( lvdun.levelID() );
-	for ( int iref = 0; iref<lvdun.nrRefs(); iref++ )
+	for ( int iref=0; iref<lvdun.nrRefs(); iref++ )
 	{
-	    int id = ((LeafUnitRef&)(lvdun.ref(iref))).lithology();
+	    const Strat::LithologyID id =
+				((LeafUnitRef&)(lvdun.ref(iref))).lithology();
 	    auto* lur = new LeafUnitRef( &tmpun, id );
 	    tmpun.add( lur );
 	}
@@ -303,13 +304,15 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 
 
 void uiStratRefTree::addLithologies( LeavedUnitRef& un,
-					const TypeSet<int>& ids )
+				     const TypeSet<Strat::LithologyID>& ids )
 {
     uiTreeViewItem* lvit = getLVItFromFullCode( un.fullCode().buf() );
-    if ( !lvit ) return;
+    if ( !lvit )
+	return;
+
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	LeafUnitRef* lur = new LeafUnitRef( &un, ids[idx] );
+	auto* lur = new LeafUnitRef( &un, ids[idx] );
 	un.add( lur );
 	insertUnitInLVIT( lvit, idx, *lur );
     }
@@ -319,7 +322,8 @@ void uiStratRefTree::addLithologies( LeavedUnitRef& un,
 NodeUnitRef* uiStratRefTree::replaceUnit( NodeUnitRef& un, bool byleaved)
 {
     NodeUnitRef* upnode = un.upNode();
-    if ( !upnode ) return 0;
+    if ( !upnode )
+	return nullptr;
 
     NodeUnitRef* newpar = byleaved ?
 	(NodeUnitRef*)new LeavedUnitRef( upnode, un.code(), un.description() ) :
@@ -361,9 +365,10 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 	ObjectSet<LeavedUnitRef> units;
 	dlg.gatherUnits( units );
 
-	TypeSet<int> lithids;
+	TypeSet<Strat::LithologyID> lithids;
 	for ( int idx=0; idx<ldur.nrRefs(); idx++ )
 	    lithids += ((LeafUnitRef&)(ldur.ref(idx))).lithology();
+
 	for ( int idx=0; idx<units.size(); idx++ )
 	{
 	    LeavedUnitRef& ur = *units[idx];
@@ -422,7 +427,7 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
     NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
 
-    TypeSet<int> lithids;
+    TypeSet<Strat::LithologyID> lithids;
     Strat::LevelID lvlid;
     if ( un->isLeaved() )
     {

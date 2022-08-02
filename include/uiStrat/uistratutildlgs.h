@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
+
 #include "uidialog.h"
 #include "uilistbox.h"
 #include "uistring.h"
@@ -25,7 +26,7 @@ class uiCheckBox;
 class uiStratMgr;
 class uiSpinBox;
 class uiTable;
-namespace Strat { class Lithology; }
+
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
@@ -47,7 +48,8 @@ mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
-    const TypeSet<int>& getLithologies() const	{ return lithids_; }
+    const TypeSet<Strat::LithologyID>& getLithologies() const
+			{ return lithids_; }
     static bool		checkWrongChar(char*);
 
 protected:
@@ -62,7 +64,7 @@ protected:
     Strat::NodeUnitRef& unit_;
 
     BufferString	entrancename_;
-    TypeSet<int>	lithids_;
+    TypeSet<Strat::LithologyID> lithids_;
 
     void		getFromScreen();
     void		putToScreen();

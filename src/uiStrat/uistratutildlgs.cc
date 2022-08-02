@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "od_helpids.h"
 #include "randcolor.h"
-#include "stratlevel.h"
-#include "stratlith.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 
@@ -55,15 +53,13 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
-    uiLabeledSpinBox* lblbox1 =
-			new uiLabeledSpinBox( this, tr("Time range (Ma)") );
+    auto* lblbox1 = new uiLabeledSpinBox( this, tr("Time range (Ma)") );
     agestartfld_ = lblbox1->box();
     agestartfld_->setNrDecimals( 3 );
     agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, colfld_ );
 
-    uiLabeledSpinBox* lblbox2 =
-			new uiLabeledSpinBox( this, uiString::emptyString() );
+    auto* lblbox2 = new uiLabeledSpinBox( this, uiString::empty() );
     agestopfld_ = lblbox2->box();
     agestopfld_->setNrDecimals( 3 );
     agestopfld_->setInterval( limitrg );
@@ -71,7 +67,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
     if ( unit_.isLeaved() )
     {
-	uiSeparator* sep = new uiSeparator( this, "HorSep" );
+	auto* sep = new uiSeparator( this, "HorSep" );
 	sep->attach( stretchedBelow, lblbox1 );
 
 	uiListBox::Setup lbsetup( OD::ChooseZeroOrMore, tr("Lithologies") );
@@ -202,7 +198,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
     {
 	mErrRet( tr("Please specify at least one lithology"),
 		 if ( !unitlithfld_->size() )
-		     selLithCB( 0 );
+		     selLithCB( nullptr );
 		 return false; );
     }
 
@@ -342,9 +338,9 @@ void uiStratLithoDlg::newLith( CallBacker* )
     BufferString nm = "<New Lithology>";
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
-    const int lithid = lithos.getFreeID();
+    const Strat::LithologyID lithid = lithos.getFreeID();
     const bool isporous = false;
-    Strat::Lithology* newlith = new Strat::Lithology(lithid,nm.buf(),isporous);
+    auto* newlith = new Strat::Lithology( lithid, nm.buf(), isporous );
     newlith->color() = OD::getRandStdDrawColor();
 
     const char* lithfailedmsg = lithos.add( newlith );

@@ -29,7 +29,7 @@ RefTree::RefTree()
     , unitAdded(this)
     , unitChanged(this)
     , unitToBeDeleted(this)
-    , udfleaf_(*new LeafUnitRef(this,-1,"Undef unit"))
+    , udfleaf_(*new LeafUnitRef(this,LithologyID::udf(),"Undef unit"))
 {
     udfleaf_.setColor( OD::Color::LightGrey() );
     initTree();
@@ -92,7 +92,7 @@ void RefTree::setToActualTypes()
     ObjectSet<LeavedUnitRef> chrefs;
     while ( it.next() )
     {
-	LeavedUnitRef* un = (LeavedUnitRef*)it.unit();
+	auto* un = (LeavedUnitRef*)it.unit();
 	const bool haslvlid = un->levelID().isValid();
 	if ( !haslvlid || !un->hasChildren() )
 	    chrefs += un;
@@ -106,8 +106,8 @@ void RefTree::setToActualTypes()
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
 
-	auto* newun = new LeafUnitRef( par, un->levelID().asInt(),
-				       un->description() );
+	const LithologyID lithid( un->levelID().asInt() );
+	auto* newun = new LeafUnitRef( par, lithid, un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
@@ -140,7 +140,7 @@ bool RefTree::read( od_istream& strm )
 	{
 	    const BufferString nm( astrm.value() );
 	    auto* lith = new Lithology( astrm.value() );
-	    if ( lith->id() < 0 || nm == Lithology::undef().name() )
+	    if ( !lith->id().isValid() || nm == Lithology::undef().name() )
 		delete lith;
 	    else
 		liths_.add( lith );

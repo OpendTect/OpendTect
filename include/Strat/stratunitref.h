@@ -12,10 +12,12 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
+
 #include "compoundkey.h"
-#include "stratlevel.h"
 #include "enums.h"
 #include "iopar.h"
+#include "stratlevel.h"
+#include "stratlith.h"
 
 
 namespace Strat
@@ -238,15 +240,16 @@ mExpClass(Strat) LeafUnitRef : public UnitRef
 {
 public:
 
-			LeafUnitRef(NodeUnitRef*,int lithid=-1,
-				    const char* desc=0);
+			LeafUnitRef(NodeUnitRef*,
+				   const LithologyID& lithid=LithologyID::udf(),
+				   const char* desc=nullptr);
     bool		isUndef() const override;
 
     Type		type() const override		{ return Leaf; }
     bool		hasChildren() const override	{ return false; }
     const OD::String&	code() const override;
-    int			lithology() const	{ return lith_; }
-    void		setLithology(int);
+    LithologyID		lithology() const		{ return lith_; }
+    void		setLithology(const LithologyID&);
 
     const Lithology&	getLithology() const;
     OD::Color		dispColor(bool lith_else_upnode) const;
@@ -256,12 +259,12 @@ public:
 
 protected:
 
-    int			lith_; // Lithology::ID
+    LithologyID		lith_;
 
     void		fill( BufferString& bs ) const override
-			    { doFill(bs,lith_); }
+			    { doFill(bs,lith_.asInt()); }
 
-    void		use( const char* s ) override	{ doUse(s,&lith_); }
+    void		use( const char* s ) override;
 
 
 public:

@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
+
 #include "callback.h"
 #include "ranges.h"
 #include "stratunitref.h"
@@ -40,11 +41,11 @@ public:
     void		setName(const char*);
     const char*		name() const;
 
-    const Strat::RefTree* tree() const 		{ return tree_; }
+    const Strat::RefTree* tree() const		{ return tree_; }
 
     uiTreeView*		treeView()		{ return lv_; }
     const uiTreeView*	treeView() const	{ return lv_; }
-    uiTreeViewItem* 	getLVItFromFullCode(const char*) const;
+    uiTreeViewItem*	getLVItFromFullCode(const char*) const;
     void		expand(bool) const;
     void		makeTreeEditable(bool) const;
     void		handleMenu(uiTreeViewItem*);
@@ -53,7 +54,7 @@ public:
     void		moveUnit(bool);
     bool		canMoveUnit(bool);
 
-    bool		anyChg() const 		{ return anychange_; }
+    bool		anyChg() const		{ return anychange_; }
     void		setNoChg()		{ anychange_ = false; }
 
     void		setEntranceDefaultTimes();
@@ -61,7 +62,7 @@ public:
 
 protected:
 
-    Strat::RefTree* 	tree_;
+    Strat::RefTree*	tree_;
 
     uiTreeView*		lv_;
     bool		anychange_;
@@ -87,16 +88,16 @@ protected:
 			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
     void		addLithologies(Strat::LeavedUnitRef&,
-				       const TypeSet<int>&);
+				       const TypeSet<Strat::LithologyID>&);
 
     void		setNodesDefaultTimes(const Strat::NodeUnitRef&);
-    void 		getAvailableTime(const Strat::NodeUnitRef&,
+    void		getAvailableTime(const Strat::NodeUnitRef&,
 					 Interval<float>&) const;
     void		ensureUnitTimeOK(Strat::NodeUnitRef&);
     int			getChildIdxFromTime(const Strat::NodeUnitRef&,
 					    float) const;
 
-    friend class 	uiStratDispToTree;
+    friend class	uiStratDispToTree;
 };
 
 

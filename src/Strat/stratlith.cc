@@ -57,7 +57,7 @@ const Strat::Lithology& Strat::Lithology::undef()
     mDefineStaticLocalObject( PtrMan<Strat::Lithology>, udf, = nullptr );
     if ( !udf )
     {
-	Strat::Lithology* newudf = new Strat::Lithology( -1, "-", true );
+	auto* newudf = new Strat::Lithology( LithologyID::udf() , "-", true );
 	newudf->color() = OD::Color::LightGrey();
 
 	udf.setIfNull(newudf,true);
@@ -67,23 +67,24 @@ const Strat::Lithology& Strat::Lithology::undef()
 }
 
 
-Strat::Lithology::Lithology( Strat::Lithology::ID li, const char* nm, bool por )
+Strat::Lithology::Lithology( const Strat::LithologyID& li, const char* nm,
+			     bool por )
     : NamedObject(nm)
     , id_(li)
     , porous_(por)
 {
-    if ( id_ >= 0 )
-	color_ = OD::Color::stdDrawColor( id_ );
+    if ( id_.isValid() )
+	color_ = OD::Color::stdDrawColor( id_.asInt() );
 }
 
 
 Strat::Lithology::Lithology( const char* fstr )
-    : id_(-2)
+    : id_(LithologyID::unsetID())
 {
     FileMultiString fms( fstr );
     const int sz = fms.size();
     setName( fms[0] );
-    const_cast<ID&>(id_) = fms.getIValue( 1 );
+    const_cast<LithologyID&>( id_ ).set( fms.getIValue( 1 ) );
     porous_ = *fms[2] == 'P';
     if ( sz > 3 )
 	color_.setStdStr( fms[3] );
@@ -96,7 +97,7 @@ void Strat::Lithology::fill( BufferString& str ) const
 {
     FileMultiString fms;
     fms += name();
-    fms += id();
+    fms += id().asInt();
     fms += porous_ ? "P" : "N";
     fms += color_.getStdStr();
     str = fms.buf();
@@ -111,9 +112,57 @@ Strat::Lithology& Strat::Lithology::operator =( const Strat::Lithology& oth )
 	setName( oth.name() );
 	porous_ = oth.porous_;
 	color_ = oth.color_;
-	const_cast<ID&>(id_) = oth.id_;
+	const_cast<LithologyID&>(id_) = oth.id_;
     }
     return *this;
+}
+
+
+int Strat::LithologySet::indexOf( const char* nm ) const
+{
+    return idxOf( nm, LithologyID::unsetID() );
+}
+
+
+bool Strat::LithologySet::isPresent( const char* nm ) const
+{
+    return gtLith( nm, LithologyID::unsetID() );
+}
+
+
+int Strat::LithologySet::indexOf( const LithologyID& id ) const
+{
+    return idxOf( nullptr, id );
+}
+
+
+bool Strat::LithologySet::isPresent( const LithologyID& id ) const
+{
+    return gtLith( nullptr, id );
+}
+
+
+Strat::Lithology* Strat::LithologySet::get( const char* nm )
+{
+    return gtLith( nm, LithologyID::unsetID() );
+}
+
+
+const Strat::Lithology* Strat::LithologySet::get( const char* nm ) const
+{
+    return gtLith( nm, LithologyID::unsetID() );
+}
+
+
+Strat::Lithology* Strat::LithologySet::get( const LithologyID& id )
+{
+    return gtLith( nullptr, id );
+}
+
+
+const Strat::Lithology* Strat::LithologySet::get( const LithologyID& id ) const
+{
+    return gtLith( nullptr, id );
 }
 
 
@@ -128,8 +177,8 @@ const char* Strat::LithologySet::add( Lithology* lith )
 	return "Lithology name already present";
     }
 
-    if ( lith->id() == -2 )
-	cCast(Lithology::ID&,lith->id_) = getFreeID();
+    if ( !lith->id().isValid() && !lith->id().isUdf() )
+	cCast(LithologyID&,lith->id_) = getFreeID();
 
     lths_ += lith;
     return nullptr;
@@ -148,7 +197,7 @@ void Strat::LithologySet::getNames( BufferStringSet& nms,
 }
 
 
-int Strat::LithologySet::idxOf( const char* nm, Lithology::ID id ) const
+int Strat::LithologySet::idxOf( const char* nm, const LithologyID& id ) const
 {
     const bool havenm = nm && *nm;
     for ( int idx=0; idx<size(); idx++ )
@@ -161,14 +210,22 @@ int Strat::LithologySet::idxOf( const char* nm, Lithology::ID id ) const
 }
 
 
-Strat::Lithology::ID Strat::LithologySet::getFreeID() const
+Strat::Lithology* Strat::LithologySet::gtLith( const char* nm,
+					       const LithologyID& id ) const
 {
-    Lithology::ID id = 0;
+    const int idx = idxOf( nm, id );
+    return lths_.validIdx(idx) ? const_cast<Lithology*>(lths_[idx]) : nullptr;
+}
+
+
+Strat::LithologyID Strat::LithologySet::getFreeID() const
+{
+    int id = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Lithology& lith = *lths_[idx];
-	id = mMAX( id, lith.id() );
+	id = mMAX( id, lith.id().asInt() );
     }
 
-    return ++id;
+    return LithologyID( ++id );
 }

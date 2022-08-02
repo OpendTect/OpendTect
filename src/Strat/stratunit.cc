@@ -6,8 +6,8 @@
 
 
 #include "stratunitref.h"
+
 #include "stratreftree.h"
-#include "stratlith.h"
 #include "stratunitrefiter.h"
 #include "property.h"
 #include "propertyref.h"
@@ -446,9 +446,10 @@ void Strat::LeavedUnitRef::use( const char* s )
 
 //class LeafUnitRef
 
-Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up, int lithidx,
-				 const char* d )
-    : UnitRef(up,d)
+Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up,
+				 const LithologyID& lithidx,
+				 const char* desc )
+    : UnitRef(up,desc)
     , lith_(lithidx)
 {
 }
@@ -489,8 +490,16 @@ const OD::String& Strat::LeafUnitRef::code() const
 }
 
 
-void Strat::LeafUnitRef::setLithology( int lid )
+void Strat::LeafUnitRef::setLithology( const LithologyID& lid )
 {
     if ( lid != lith_ )
 	{ lith_ = lid; notifChange(); }
+}
+
+
+void Strat::LeafUnitRef::use( const char* s )
+{
+    int lithid = lith_.asInt();
+    doUse( s, &lithid );
+    lith_.set( lithid );
 }
