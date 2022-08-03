@@ -417,7 +417,6 @@ void EMObject::addPosAttrib( int attr )
     if ( attribs_.indexOf(attr) < 0 )
     {
 	attribs_ += attr;
-	const int idx = attribs_.indexOf(attr);
 	const PosAttrib::Type typ = (PosAttrib::Type)attr;
 	posattribs_ += new PosAttrib( typ );
     }
