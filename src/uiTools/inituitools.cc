@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
+
 #include "uiarray2dinterpol.h"
 #include "uibatchjobdispatcherlauncher.h"
 #include "uifontsel.h"
-#include "uicrssystem.h"
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uiraytrace1d.h"
@@ -34,10 +34,6 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
-
-#ifndef OD_NO_PROJ
-    Coords::uiProjectionBasedSystem::initClass();
-#endif
 
     uiSettsMgr();
 }

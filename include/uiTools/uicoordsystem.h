@@ -43,7 +43,7 @@ protected:
 				uiCoordSystem(uiParent*,const uiString&);
     RefMan<CoordSystem>	outputsystem_;
     HelpKey			helpkey_;
-    const SurveyInfo*		si_;
+    const SurveyInfo*		si_ = nullptr;
 };
 
 

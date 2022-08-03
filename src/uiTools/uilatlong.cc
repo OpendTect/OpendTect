@@ -10,8 +10,6 @@ ________________________________________________________________________
 
 #include "uilatlonginp.h"
 
-#include "crsproj.h"
-#include "crssystem.h"
 #include "latlong.h"
 #include "od_iostream.h"
 #include "od_helpids.h"

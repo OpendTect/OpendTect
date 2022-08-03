@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
 #include "uiapplserv.h"
 #include "uistring.h"
 
@@ -34,7 +35,6 @@ class uiVelSel;
 class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
-namespace Coords { class uiConvertGeographicPos; }
 namespace PreStack
 { class uiExportMute; class uiImportMute; class uiBatchProcSetup; }
 namespace Vel { class uiImportVelFunc; }
@@ -70,7 +70,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		doOperation(int,int,int);
     void		manPreLoad(int);
     void		posConversion();
-    void		crsPosConversion();
 
     void		processPreStack(bool is2d);
     void		process2D3D(int opt);
@@ -90,27 +89,27 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		posDlgClose(CallBacker*);
     void		showReleaseNotesCB(CallBacker*);
 
-    uiConvertPos*	convposdlg_;
-    uiDataPointSetMan*	mandpsdlg_;
-    uiManPROPS*		manpropsdlg_;
-    ui2DGeomManageDlg*	man2dgeomdlg_;
-    uiProbDenFuncMan*	manpdfdlg_;
-    uiSessionMan*	mansessiondlg_;
-    uiRandomLineMan*	manrldlg_;
-    uiImpPVDS*		impcrossplotdlg_;
-    uiExp2DGeom*	exp2dgeomdlg_;
-    uiImp2DGeom*	imp2dgeomdlg_;
-    uiImpRokDocPDF*	imppdfdlg_;
-    uiExpRokDocPDF*	exppdfdlg_;
-    PreStack::uiImportMute*	impmutedlg_;
-    PreStack::uiExportMute*	expmutedlg_;
-    Vel::uiImportVelFunc*	impvelfunc_;
     uiODApplMgr&	am_;
     uiParent*		par_;
     ObjectSet<uiDataPointSet> uidpsset_;
-    PreStack::uiBatchProcSetup* batchprocps2ddlg_;
-    PreStack::uiBatchProcSetup* batchprocps3ddlg_;
-    Coords::uiConvertGeographicPos*	convgeoposdlg_;
+
+    uiConvertPos*	convposdlg_ = nullptr;
+    uiDataPointSetMan*	mandpsdlg_ = nullptr;
+    uiManPROPS*		manpropsdlg_ = nullptr;
+    ui2DGeomManageDlg*	man2dgeomdlg_ = nullptr;
+    uiProbDenFuncMan*	manpdfdlg_ = nullptr;
+    uiSessionMan*	mansessiondlg_ = nullptr;
+    uiRandomLineMan*	manrldlg_ = nullptr;
+    uiImpPVDS*		impcrossplotdlg_ = nullptr;
+    uiExp2DGeom*	exp2dgeomdlg_ = nullptr;
+    uiImp2DGeom*	imp2dgeomdlg_ = nullptr;
+    uiImpRokDocPDF*	imppdfdlg_ = nullptr;
+    uiExpRokDocPDF*	exppdfdlg_ = nullptr;
+    PreStack::uiImportMute*	impmutedlg_ = nullptr;
+    PreStack::uiExportMute*	expmutedlg_ = nullptr;
+    Vel::uiImportVelFunc*	impvelfunc_ = nullptr;
+    PreStack::uiBatchProcSetup* batchprocps2ddlg_ = nullptr;
+    PreStack::uiBatchProcSetup* batchprocps3ddlg_ = nullptr;
 };
 
 

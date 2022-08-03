@@ -27,7 +27,7 @@ static Threads::Lock systemreposlock;
 static ManagedObjectSet<IOPar> systemrepos;
 
 
-static void reloadRepository(CallBacker*)
+static void reloadRepository( CallBacker* )
 {
     Threads::Locker lock( systemreposlock );
     systemrepos.erase();
@@ -48,9 +48,10 @@ bool CoordSystem::operator==( const CoordSystem& oth ) const
 
 void CoordSystem::initRepository( NotifierAccess* na )
 {
-    reloadRepository( 0 );
+    reloadRepository( nullptr );
 
-    if ( na ) na->notify( mSCB( reloadRepository ) );
+    if ( na )
+	na->notify( mSCB( reloadRepository ) );
     //Don't do remove, as we assume we will be destroyed
     //after NotifierAccess's last call
 }
@@ -209,6 +210,36 @@ Coord CoordSystem::fromString( const char* str ) const
     return Coord( toDouble(xstr,mUdf(double)),
 		  toDouble(ystr,mUdf(double)) );
 }
+
+
+namespace Coords
+{
+    BufferString wgs84dispstr_;
+    CoordSystem* wgs84crsproj_ = nullptr;
+
+    extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); }
+    mExternC(Basic) void SetWGS84( const char* dispstr, CoordSystem* crs )
+    {
+	wgs84dispstr_.set( dispstr );
+	wgs84crsproj_ = crs;
+    }
+}
+
+
+CoordSystem* CoordSystem::getWGS84LLSystem()
+{
+    return wgs84crsproj_;
+}
+
+
+BufferString CoordSystem::sWGS84ProjDispString()
+{
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+	ret.set( wgs84dispstr_ );
+    return ret;
+}
+
 
 
 UnlocatedXY::UnlocatedXY()

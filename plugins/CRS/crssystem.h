@@ -45,7 +45,7 @@ public:
     bool		isProjection() const override		{ return true; }
     bool		isFeet() const override;
     bool		isMeter() const override;
-    bool		isWGS84() const;
+    bool		isWGS84() const override;
     BufferString	getURNString() const override;
 
     bool		setProjection(AuthorityCode);

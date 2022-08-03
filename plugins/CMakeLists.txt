@@ -11,6 +11,7 @@ set( PLUGINS
 
 set( OD_PLUGINS
         CEEMDAttrib
+	CRS
         ExpAttribs
         GLCM
         GMT
@@ -21,6 +22,7 @@ set( OD_PLUGINS
         MATLABLink
         Tut
         uiCEEMDAttrib
+	uiCRS
         uiSEGYTools
         uiMadagascarAttribs
 )

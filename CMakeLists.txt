@@ -75,7 +75,7 @@ include( OD_SetupOD )
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
-	Basic CRS Algo General
+	Basic Algo General
 	Strat Network Batch
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity

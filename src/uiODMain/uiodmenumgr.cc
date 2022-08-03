@@ -1582,7 +1582,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
     case mHostIDInfoItm:	showHostID(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
-    case mCRSPosconvMnuItm:	applMgr().crsPosConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;

@@ -10,17 +10,15 @@ ________________________________________________________________________
 
 #include "uicoordsystem.h"
 
-#include "crsproj.h"
-#include "crssystem.h"
+#include "od_helpids.h"
 #include "survinfo.h"
-#include "uicrssystem.h"
+
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uitoolbutton.h"
 #include "uilineedit.h"
 #include "uispinbox.h"
 #include "uimsg.h"
-#include "od_helpids.h"
 
 namespace Coords
 {
@@ -28,10 +26,24 @@ namespace Coords
 // uiCoordSystem
 mImplFactory1Param( uiCoordSystem, uiParent*, uiCoordSystem::factory );
 
+static uiCoordSystem* noUiCrsFn( uiParent* )	{ return nullptr; }
+using createuiCRSFromUiParentFn = uiCoordSystem*(*)(uiParent*);
+static createuiCRSFromUiParentFn localuicrscreatorfn_ = noUiCrsFn;
+
+mGlobal(Basic) void setGlobal_uiCRS_Fns(createuiCRSFromUiParentFn);
+void setGlobal_uiCRS_Fns( createuiCRSFromUiParentFn uicrsfn )
+{
+    localuicrscreatorfn_ = uicrsfn;
+}
+
+uiCoordSystem* getGeodecticCoordSystemFld( uiParent* p )
+{
+    return (*localuicrscreatorfn_)( p );
+}
+
 
 uiCoordSystem::uiCoordSystem( uiParent* p, const uiString& caption )
     : uiDlgGroup( p, caption )
-    , si_(nullptr)
 {}
 
 
@@ -55,9 +67,9 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 
     uiStringSet names;
     CoordSystem::getSystemNames( orthogonal, projectiononly,
-				    names, coordsystempars_ );
+				 names, coordsystempars_ );
 
-    coordsystemsuis_.allowNull();
+    coordsystemsuis_.setNullAllowed();
 
     for ( int idx=0; idx<coordsystempars_.size(); idx++ )
     {
@@ -118,7 +130,6 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 
 uiCoordSystemSelGrp::~uiCoordSystemSelGrp()
 {
-
 }
 
 
@@ -126,11 +137,11 @@ void uiCoordSystemSelGrp::createGeodeticUI()
 {
     wgs84selfld_ = new uiGenInput( this, tr("Lat-Long System"),
 			BoolInpSpec(true,
-			toUiString(Coords::Projection::sWGS84ProjDispString()),
+			toUiString(Coords::CoordSystem::sWGS84ProjDispString()),
 			uiStrings::sOther()) );
     wgs84selfld_->valuechanged.notify( mCB(this,uiCoordSystemSelGrp,wgs84Sel) );
 
-    auto* uillsys = new uiGeodeticCoordSystem( this );
+    auto* uillsys = getGeodecticCoordSystemFld( this );
     uillsys->attach( alignedBelow, wgs84selfld_ );
     uillsys->display( false );
     coordsystemsuis_ += uillsys;
@@ -164,7 +175,7 @@ bool uiCoordSystemSelGrp::acceptOK()
 
     if ( wgs84selfld_ && wgs84selfld_->getBoolValue() )
     {
-	outputsystem_ = Coords::ProjectionBasedSystem::getWGS84LLSystem();
+	outputsystem_ = Coords::CoordSystem::getWGS84LLSystem();
 	return outputsystem_;
     }
 
@@ -205,8 +216,7 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
     crs.ref();
     if ( wgs84selfld_ )
     {
-	mDynamicCastGet(const Coords::ProjectionBasedSystem*,projsys,&crs)
-	const bool iswgs84 = !projsys || projsys->isWGS84();
+	const bool iswgs84 = !crs.isProjection() || crs.isWGS84();
 	wgs84selfld_->setValue( iswgs84 );
 	if ( !iswgs84 )
 	    coordsystemsuis_[0]->initFields( &crs );
@@ -306,10 +316,8 @@ uiCoordSystemSel::uiCoordSystemSel( uiParent* p,
 	    coordsystem_ = coordsys->clone();
 	else
 	{
-	    mDynamicCastGet(const Coords::ProjectionBasedSystem*,projsys,
-			    coordsys)
-	    if ( projsys )
-		coordsystem_ = projsys->getGeodeticSystem();
+	    if ( coordsys && coordsys->isProjection() )
+		coordsystem_ = coordsys->getGeodeticSystem();
 	}
     }
 
@@ -356,9 +364,8 @@ uiLatLongSystemSel::uiLatLongSystemSel( uiParent* p, const uiString& seltxt,
 
 bool uiLatLongSystemSel::isWGS84() const
 {
-    mDynamicCastGet(const Coords::ProjectionBasedSystem*,projcs,
-		    coordsystem_.ptr())
-    return !projcs || projcs->isWGS84();
+    return !coordsystem_ || !coordsystem_->isProjection() ||
+	    coordsystem_->isWGS84();
 }
 
 } // namespace Coords

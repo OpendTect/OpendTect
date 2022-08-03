@@ -9,7 +9,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
+#include "uicrsmod.h"
+
 #include "uilatlong2coord.h"
 #include "crssystem.h"
 
@@ -26,7 +27,7 @@ namespace Coords
 class CRSInfoList;
 class uiConvertGeographicPos;
 
-mExpClass(uiTools) uiProjectionBasedSystem : public uiCoordSystem
+mExpClass(uiCRS) uiProjectionBasedSystem : public uiCoordSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiCoordSystem,
@@ -67,7 +68,19 @@ protected:
 };
 
 
-mExpClass(uiTools) uiConvertGeographicPos : public uiDialog
+mExpClass(uiCRS) uiGeodeticCoordSystem : public uiProjectionBasedSystem
+{ mODTextTranslationClass(uiGeodeticCoordSystem);
+public:
+			uiGeodeticCoordSystem(uiParent* p)
+			    : uiProjectionBasedSystem(p,false) {}
+			~uiGeodeticCoordSystem() {}
+
+    static uiCoordSystem* getCRSGeodeticFld(uiParent*);
+
+};
+
+
+mExpClass(uiCRS) uiConvertGeographicPos : public uiDialog
 { mODTextTranslationClass(uiConvertGeographicPos);
 
 public:
@@ -99,19 +112,5 @@ private:
     void		convPos();
     void		convFile();
 };
-
-
-mExpClass(uiTools) uiGeodeticCoordSystem : public uiProjectionBasedSystem
-{ mODTextTranslationClass(uiGeodeticCoordSystem);
-public:
-			uiGeodeticCoordSystem(uiParent* p)
-			    : uiProjectionBasedSystem(p,false) {}
-			~uiGeodeticCoordSystem() {}
-
-protected:
-
-};
-
-
 
 } // namespace Coords

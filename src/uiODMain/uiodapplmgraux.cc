@@ -46,7 +46,6 @@ ________________________________________________________________________
 #include "uicoltabman.h"
 #include "uiconvpos.h"
 #include "uicreatelogcubedlg.h"
-#include "uicrssystem.h"
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
 #include "uifontsel.h"
@@ -107,25 +106,8 @@ uiParent* uiODApplService::parent() const
 
 //uiODApplMgrDispatcher
 uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
-    : am_(a), par_(p)
-    , convposdlg_(nullptr)
-    , convgeoposdlg_(nullptr)
-    , mandpsdlg_(nullptr)
-    , manpropsdlg_(nullptr)
-    , man2dgeomdlg_(nullptr)
-    , manpdfdlg_(nullptr)
-    , manrldlg_(nullptr)
-    , mansessiondlg_(nullptr)
-    , impcrossplotdlg_(nullptr)
-    , expmutedlg_(nullptr)
-    , impmutedlg_(nullptr)
-    , imppdfdlg_(nullptr)
-    , exppdfdlg_(nullptr)
-    , impvelfunc_(nullptr)
-    , exp2dgeomdlg_(nullptr)
-    , imp2dgeomdlg_(nullptr)
-    , batchprocps2ddlg_(nullptr)
-    , batchprocps3ddlg_(nullptr)
+    : am_(a)
+    , par_(p)
 {}
 
 
@@ -147,22 +129,21 @@ void uiODApplMgrDispatcher::survChg( bool before )
 
 void uiODApplMgrDispatcher::deleteDlgs()
 {
-    deleteAndZeroPtr( convposdlg_ );
-    deleteAndZeroPtr( convgeoposdlg_ );
-    deleteAndZeroPtr( mandpsdlg_ );
-    deleteAndZeroPtr( manpropsdlg_ );
-    deleteAndZeroPtr( man2dgeomdlg_ );
-    deleteAndZeroPtr( manpdfdlg_ );
-    deleteAndZeroPtr( mansessiondlg_ );
-    deleteAndZeroPtr( impcrossplotdlg_ );
-    deleteAndZeroPtr( impmutedlg_ );
-    deleteAndZeroPtr( imppdfdlg_ );
-    deleteAndZeroPtr( exppdfdlg_ );
-    deleteAndZeroPtr( impvelfunc_ );
-    deleteAndZeroPtr( exp2dgeomdlg_ );
-    deleteAndZeroPtr( imp2dgeomdlg_ );
-    deleteAndZeroPtr( batchprocps2ddlg_ );
-    deleteAndZeroPtr( batchprocps3ddlg_ );
+    closeAndZeroPtr( convposdlg_ );
+    closeAndZeroPtr( mandpsdlg_ );
+    closeAndZeroPtr( manpropsdlg_ );
+    closeAndZeroPtr( man2dgeomdlg_ );
+    closeAndZeroPtr( manpdfdlg_ );
+    closeAndZeroPtr( mansessiondlg_ );
+    closeAndZeroPtr( impcrossplotdlg_ );
+    closeAndZeroPtr( impmutedlg_ );
+    closeAndZeroPtr( imppdfdlg_ );
+    closeAndZeroPtr( exppdfdlg_ );
+    closeAndZeroPtr( impvelfunc_ );
+    closeAndZeroPtr( exp2dgeomdlg_ );
+    closeAndZeroPtr( imp2dgeomdlg_ );
+    closeAndZeroPtr( batchprocps2ddlg_ );
+    closeAndZeroPtr( batchprocps3ddlg_ );
 }
 
 
@@ -509,23 +490,9 @@ void uiODApplMgrDispatcher::posConversion()
 }
 
 
-void uiODApplMgrDispatcher::crsPosConversion()
-{
-    ConstRefMan<Coords::CoordSystem> crs = SI().getCoordSystem();
-    TrcKeyZSampling survtkzs = SI().sampling( true );
-    const Coord centerpos = survtkzs.hsamp_.center().getCoord();
-    if ( !convgeoposdlg_ )
-       convgeoposdlg_ = new Coords::uiConvertGeographicPos( par_, crs,
-							    centerpos );
-
-    convgeoposdlg_->show();
-}
-
-
-
 void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
 {
-    convposdlg_ = 0;
+    convposdlg_ = nullptr;
 }
 
 

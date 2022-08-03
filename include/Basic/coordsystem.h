@@ -33,7 +33,7 @@ public:
 
     bool			operator==(const CoordSystem&) const;
 
-    static void			initRepository(NotifierAccess* = 0);
+    static void			initRepository(NotifierAccess* =nullptr);
 				/*!<To be called from initGeneral with a
 				    pointer to survey change notifier. */
 
@@ -52,7 +52,7 @@ public:
 				//!<Creates subclass with settings
     virtual CoordSystem*	clone() const				= 0;
     virtual CoordSystem*	getGeodeticSystem() const
-    				{ return clone(); }
+				{ return clone(); }
 
     virtual uiString		description() const			= 0;
     virtual BufferString	summary() const				= 0;
@@ -84,12 +84,16 @@ public:
     virtual bool		isFeet() const		{ return false; }
     virtual bool		isMeter() const		{ return false; }
     virtual bool		isGeodetic() const	{ return false; }
+    virtual bool		isWGS84() const		{ return false; }
 
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
     static const char*		sKeyFactoryName();
     static const char*		sKeyUiName();
+
+    static CoordSystem*		getWGS84LLSystem();
+    static BufferString		sWGS84ProjDispString();
 
 protected:
     virtual			~CoordSystem();
@@ -122,7 +126,7 @@ public:
     BufferString summary() const override { return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
-    bool		geographicTransformOK() const override	{ return false; }
+    bool		geographicTransformOK() const override { return false; }
 
     bool		isOK() const override		{ return true; }
     bool		isOrthogonal() const override	{ return true; }

@@ -5,7 +5,7 @@
 -*/
 
 
-#include "moddepmgr.h"
+#include "odplugin.h"
 
 #include "crssystem.h"
 #include "file.h"
@@ -16,8 +16,20 @@
 #include "oddirs.h"
 #include "survinfo.h"
 
+mDefODPluginEarlyLoad(CRS)
+mDefODPluginInfo(CRS)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Coordinate Reference System (base)",
+	"OpendTect",
+	"dGB Earth Sciences (Raman)",
+	"=od",
+	"Coordinate Reference System - base" ));
+    return &retpi;
+}
 
-static uiString* legalText()
+
+static mUnusedVar uiString* legalText()
 {
     uiString* ret = new uiString;
     FilePath fp( mGetSetupFileName("CRS"), "COPYING" );
@@ -32,17 +44,23 @@ static uiString* legalText()
     return ret;
 }
 
+namespace Coords
+{ extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); } }
 
-
-
-mDefModInitFn(CRS)
+mDefODInitPlugin(CRS)
 {
-    mIfNotFirstTime(return);
-    legalInformation().addCreator( legalText, "PROJ" );
     if ( !NeedDataBase() )
-	return;
+	return nullptr;
+
+#ifndef OD_NO_PROJ
+    legalInformation().addCreator( legalText, "PROJ" );
 
     Coords::initCRSDatabase();
     Coords::ProjectionBasedSystem::initClass();
     SI().readSavedCoordSystem();
+    SetWGS84( Coords::Projection::sWGS84ProjDispString(),
+	      Coords::ProjectionBasedSystem::getWGS84LLSystem() );
+#endif
+
+    return nullptr;
 }

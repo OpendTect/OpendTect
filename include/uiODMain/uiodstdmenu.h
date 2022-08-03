@@ -231,7 +231,6 @@ ________________________________________________________________________
 #define mHostIDInfoItm		(mUtilMnu + 18)
 #define mPluginsMnuItm		(mUtilMnu + 20)
 #define mPosconvMnuItm		(mUtilMnu + 25)
-#define mCRSPosconvMnuItm	(mUtilMnu + 26)
 #define mCrDevEnvMnuItm		(mUtilMnu + 30)
 #define mShwLogFileMnuItm	(mUtilMnu + 40)
 #define mInstMgrMnuItem		(mUtilMnu + 50)

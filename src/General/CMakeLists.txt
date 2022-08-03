@@ -4,7 +4,7 @@
 # 	July 1995	A.H. Bril
 #_______________________________________________________________________________
 
-set ( OD_MODULE_DEPS Algo CRS )
+set ( OD_MODULE_DEPS Algo )
 if ( UNIX )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()

@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
+
 using namespace Coords;
 
 static FixedString sKeyEPSG()	{ return FixedString("EPSG"); }
@@ -250,6 +251,12 @@ void uiProjectionBasedSystem::convCB( CallBacker* )
     }
 
     convdlg_->go();
+}
+
+
+uiCoordSystem* uiGeodeticCoordSystem::getCRSGeodeticFld( uiParent* p )
+{
+    return new uiGeodeticCoordSystem( p );
 }
 
 
