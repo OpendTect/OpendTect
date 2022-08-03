@@ -465,7 +465,7 @@ void ConstDataPackRef<T>::releaseNow()
     ptr_ = nullptr;
     if ( dp_ )
     {
-	dp_->release();
+	dp_->unRef();
 	dp_ = nullptr;
     }
 }

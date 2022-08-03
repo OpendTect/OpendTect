@@ -142,6 +142,25 @@ void DataPack::setManager( const DataPackMgr* mgr )
 }
 
 
+void DataPack::release()
+{
+    if ( !manager_ )
+	return;
+
+    const_cast<DataPackMgr*>( manager_ )->unRef( id() );
+}
+
+
+DataPack* DataPack::obtain()
+{
+    if ( !manager_ )
+	return nullptr;
+
+    const_cast<DataPackMgr*>( manager_ )->ref( id() );
+    return this;
+}
+
+
 DataPackMgr* DataPackMgr::gtDPM( DataPackMgrID dpid, bool crnew )
 {
     Threads::Locker lock( mgrlistlock_ );
