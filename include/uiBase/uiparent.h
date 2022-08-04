@@ -107,7 +107,7 @@ public:
     void		setBackgroundColor( const OD::Color& c )
 			    { mIfMO()->setBackgroundColor(c); }
 
-    void		translateText();
+    void		translateText() override;
 
 protected:
 			uiParent(const char* nm,uiParentBody*);

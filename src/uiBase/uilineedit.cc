@@ -36,11 +36,11 @@ public:
 
     virtual		~uiLineEditBody()		{ delete &messenger_; }
 
-    virtual int	nrTxtLines() const		{ return 1; }
+    int			nrTxtLines() const override		{ return 1; }
 
 protected:
 
-    virtual void	contextMenuEvent(QContextMenuEvent*);
+    void		contextMenuEvent(QContextMenuEvent*) override;
 
 private:
 
@@ -71,7 +71,7 @@ void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
 class ODDoubleValidator : public QDoubleValidator
 {
 public:
-virtual void fixup( QString& input ) const
+void fixup( QString& input ) const override
 {
     if ( input.isEmpty() )
 	return;

@@ -41,8 +41,8 @@ protected:
     virtual void	reset() {}
     			/*!<Is called when the wizartd starts again. */
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
+    bool		rejectOK(CallBacker*) override;
 
 private:
 

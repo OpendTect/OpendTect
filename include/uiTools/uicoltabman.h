@@ -72,9 +72,9 @@ protected:
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
     void			flipCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
-    virtual void		reDraw( bool deep )	{ reDrawCB(0); }
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
+    void			reDraw( bool deep ) override	{ reDrawCB(0); }
 
 
     void			refreshColTabList(const char*);

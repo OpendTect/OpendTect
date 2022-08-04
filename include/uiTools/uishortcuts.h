@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        H. Payraudeau
- Date:          06/12/2005
+ Author:	H. Payraudeau
+ Date:		06/12/2005
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,12 @@ class uiLabeledSpinBox;
 mExpClass(uiTools) uiShortcutsDlg : public uiDialog
 { mODTextTranslationClass(uiShortcutsDlg);
 public:
-		    	uiShortcutsDlg(uiParent*,const char* selkey);
-		    	~uiShortcutsDlg();
+			uiShortcutsDlg(uiParent*,const char* selkey);
+			~uiShortcutsDlg();
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     ObjectSet<uiComboBox> stateboxes_;
     ObjectSet<uiComboBox> keyboxes_;

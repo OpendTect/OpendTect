@@ -56,7 +56,7 @@ public:
     void			gatherInfo(bool y2=false) override;
     void			draw() override;
 
-    uiObject*			uiobj()		{ return this; }
+    uiObject*			uiobj() override	{ return this; }
     const NotifierAccess&	mouseMoveNotifier() override
 				{ return mouseMove; }
 

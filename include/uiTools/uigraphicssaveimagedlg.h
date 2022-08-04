@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Satyaki Maitra
- Date:          February 2009
+ Author:	Satyaki Maitra
+ Date:		February 2009
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,10 @@ protected:
   
     void		getSupportedFormats(const char** imagefrmt,
 					    const char** frmtdesc,
-					    BufferString& filters);
-    void		writeToSettings();
+					    BufferString& filters) override;
+    void		writeToSettings() override;
     void		setAspectRatio(CallBacker*);
-    void		setFldVals(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    void		setFldVals(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
 };
 

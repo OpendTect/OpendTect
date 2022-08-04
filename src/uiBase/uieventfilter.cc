@@ -24,7 +24,7 @@ public:
 					    : uif_( uif )
 					{}
 
-    bool				eventFilter(QObject*,QEvent*);
+    bool				eventFilter(QObject*,QEvent*) override;
     static uiEventFilter::EventType	translate(QEvent::Type);
     static QEvent::Type			translate(uiEventFilter::EventType);
 

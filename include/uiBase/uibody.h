@@ -64,7 +64,7 @@ protected:
 			    , handle_(hndle)
 			    {}
 
-    virtual const mQtclass(QWidget*) qwidget_() const
+    const mQtclass(QWidget*) qwidget_() const override
 			   {return dynamic_cast<mQtclass(QWidget*)>( qthing_ );}
 
     T*			qthing_;

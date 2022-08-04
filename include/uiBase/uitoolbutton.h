@@ -55,7 +55,7 @@ public:
     void			setID( int i )		{ id_ = i; }
     int				id() const		{ return id_; }
 
-    void			click();
+    void			click() override;
 
 private:
 

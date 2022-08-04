@@ -105,7 +105,7 @@ public:
 
 protected:
     void		setEnterClose(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     uiGenInputGrp*	group;
 
     mDeprecated		("Use getFValue")

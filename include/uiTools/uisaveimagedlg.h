@@ -113,9 +113,9 @@ public:
 protected:
     void		getSupportedFormats(const char** imgfrmt,
 	    				    const char** frmtdesc,
-					    BufferString& filter);
-    void		setFldVals(CallBacker*);
-    bool		acceptOK(CallBacker*);
+					    BufferString& filter) override;
+    void		setFldVals(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
 };
 
 

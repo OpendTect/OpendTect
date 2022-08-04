@@ -47,14 +47,15 @@ public:
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
 protected:
-    virtual void	wheelEvent(QGraphicsSceneWheelEvent* qevent);
-    virtual void	keyPressEvent(QKeyEvent* qkeyevent);
-    virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    virtual void	mousePressEvent(QGraphicsSceneMouseEvent*);
-    virtual void	mouseReleaseEvent(QGraphicsSceneMouseEvent*);
-    virtual void	mouseDoubleClickEvent(QGraphicsSceneMouseEvent*);
+    void	wheelEvent(QGraphicsSceneWheelEvent* qevent) override;
+    void	keyPressEvent(QKeyEvent* qkeyevent) override;
+    void	mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
+    void	mousePressEvent(QGraphicsSceneMouseEvent*) override;
+    void	mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
+    void	mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) override;
 
-    virtual void	drawBackground(QPainter*,const QRectF&);
+    void	drawBackground(QPainter*,const QRectF&) override;
+
     OD::ButtonState	mousepressedbs_;
 
 private:

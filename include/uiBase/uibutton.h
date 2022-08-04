@@ -67,7 +67,7 @@ protected:
     float		iconscale_;
     static bool		havecommonpbics_;
 
-    virtual void	translateText();
+    void		translateText() override;
     virtual void	setPM(const uiPixmap&);
 
 };
@@ -92,16 +92,16 @@ public:
 				     bool immediate);
 
     void		setDefault(bool yn=true);
-    void		click();
+    void		click() override;
     void		setMenu(uiMenu*);
     void		setFlat(bool);
     bool		isFlat() const;
 
 private:
 
-    void		translateText();
+    void		translateText() override;
     void		updateText();
-    void		updateIconSize();
+    void		updateIconSize() override;
 
     bool		immediate_;
     uiPushButtonBody*	pbbody_;
@@ -120,7 +120,7 @@ public:
     bool		isChecked() const;
     virtual void	setChecked(bool yn=true);
 
-    void		click();
+    void		click() override;
 
 private:
 
@@ -144,7 +144,7 @@ public:
     void		setCheckState(OD::CheckState);
     OD::CheckState	getCheckState() const;
 
-    void		click();
+    void		click() override;
 
 private:
 

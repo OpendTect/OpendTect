@@ -83,7 +83,8 @@ public:
 			 uiToolButton::PopupMode=uiToolButton::MenuButtonPopup);
 			//!<Menu will be owned by uiToolButton
 
-    virtual void	display(bool yn=true,bool s=false,bool m=false);
+    void		display(bool yn=true,bool s=false,
+				bool m=false) override;
 			/*!< you must call this after all buttons are added
 			     s and m are not used. */
 
@@ -91,7 +92,7 @@ public:
 			/*!The actions will be checked/unchecked
 			   as toolbar is displayed/hidden */
 
-    void		translateText();
+    void		translateText() override;
 
     bool		isHidden() const;
     bool		isVisible() const;
@@ -112,12 +113,13 @@ public:
 protected:
 
     void			doInsertMenu(mQtclass(QMenu)*,
-					     mQtclass(QAction)* before);
+					mQtclass(QAction)* before) override;
     void			doInsertAction(mQtclass(QAction)*,
-					       mQtclass(QAction)* before);
-    void			doInsertSeparator(mQtclass(QAction)* before);
-    void			doRemoveAction(mQtclass(QAction)*);
-    void			doClear();
+					mQtclass(QAction)* before) override;
+    void			doInsertSeparator(
+					mQtclass(QAction)* before) override;
+    void			doRemoveAction(mQtclass(QAction)*) override;
+    void			doClear() override;
 
     mDeprecated("Use handleFinalize")
     void			handleFinalise( bool pre )

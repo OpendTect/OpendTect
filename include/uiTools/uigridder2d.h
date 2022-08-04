@@ -26,7 +26,7 @@ public:
     				~uiGridder2DSel();
 
     const Gridder2D*		getSel();
-    const char*			errMsg() const;
+    const char*			errMsg() const override;
 
 protected:
     void			selChangeCB(CallBacker*);
@@ -46,11 +46,11 @@ public:
     			uiInverseDistanceGridder2D(uiParent*,
 					InverseDistanceGridder2D&);
 
-    bool		acceptOK();
-    bool		rejectOK();
-    bool		revertChanges();
+    bool		acceptOK() override;
+    bool		rejectOK() override;
+    bool		revertChanges() override;
 
-    const char*		errMsg() const;
+    const char*		errMsg() const override;
 
 protected:
 

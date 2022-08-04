@@ -32,10 +32,10 @@ public:
     void		construct();
 
 protected:
-    virtual const QWidget*	qwidget_() const { return this; }
-    virtual void		finalize();
+    const QWidget*	qwidget_() const override { return this; }
+    void		finalize() override;
 
-    uiDockWin&			handle_;
+    uiDockWin&		handle_;
 };
 
 

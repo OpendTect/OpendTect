@@ -54,7 +54,7 @@ public:
 			~uiAxisHandler();
 
     void		setCaption(const uiString&) override;
-    uiString		getCaption() const	{ return setup_.caption_; }
+    uiString		getCaption() const override { return setup_.caption_; }
     void		setBorder(const uiBorder&) override;
     void		setIsLog(bool) override;
     void		setBegin(const uiAxisHandler*);
@@ -73,7 +73,7 @@ public:
     void		setAuxAnnot(const TypeSet<PlotAnnotation>& pos)
 						{ auxannots_ = pos; }
 
-    StepInterval<float> range() const		{ return datarg_; }
+    StepInterval<float> range() const override		{ return datarg_; }
     float		annotStart() const	{ return annotstart_; }
     int			pixToEdge(bool withborder=true) const;
     int			pixBefore() const;

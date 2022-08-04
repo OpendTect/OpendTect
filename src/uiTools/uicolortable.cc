@@ -206,7 +206,7 @@ void formatChangedCB( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     doApply();
     scaleChanged.trigger();

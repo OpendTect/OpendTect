@@ -117,7 +117,7 @@ public:
 
     void		toStatusBar(const uiString&,int fldidx=0,int msecs=-1);
 
-    virtual void	reDraw(bool deep);
+    void		reDraw(bool deep) override;
     uiGroup*		topGroup();
 
     void		setShrinkAllowed(bool yn);
@@ -158,8 +158,8 @@ public:
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalized() const;
-    virtual uiMainWin*	mainwin()			{ return this; }
-    mQtclass(QWidget*)		qWidget() const;
+    uiMainWin*		mainwin() override		{ return this; }
+    mQtclass(QWidget*)	qWidget() const;
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 
@@ -179,7 +179,7 @@ public:
 				       mQtclass(QWidget*) forwindow=0,
 				       BufferString* addendum = 0);
 
-    void		translateText();
+    void		translateText() override;
 
 
     bool		grab(const char* filenm,int zoom=1,
@@ -217,7 +217,7 @@ protected:
     virtual bool	closeOK()	{return true;}//!< confirm window close
 
 			uiMainWin(uiString,uiParent*);
-    uiObject*		mainobject();
+    uiObject*		mainobject() override;
 
     void		saveSettings();
     void		readSettings();

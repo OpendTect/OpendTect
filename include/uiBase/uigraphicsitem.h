@@ -168,7 +168,7 @@ public:
 			~uiGraphicsItemGroup();
 			//!<If owner, it deletes all items
 
-    void		setScene(uiGraphicsScene*);
+    void		setScene(uiGraphicsScene*) override;
 
     void		setIsOwner( bool own )	{ owner_ = own; }
     bool		isOwner() const		{ return owner_; }
@@ -181,19 +181,19 @@ public:
     uiGraphicsItem*	getUiItem( int idx )	{ return gtItm(idx); }
     const uiGraphicsItem* getUiItem( int idx ) const	{ return gtItm(idx); }
     bool		isPresent(const uiGraphicsItem&) const;
-    virtual uiGraphicsItem*	findItem(QGraphicsItem*);
+    uiGraphicsItem*	findItem(QGraphicsItem*) override;
 
-    virtual bool	isVisible() const;
-    virtual void	setVisible(bool);
-    virtual uiRect	boundingRect() const;
+    bool		isVisible() const override;
+    void		setVisible(bool) override;
+    uiRect		boundingRect() const override;
     mQtclass(QGraphicsItemGroup*)	qGraphicsItemGroup()
 					{ return qgraphicsitemgrp_; }
 
 protected:
 
-    void				translateText();
+    void				translateText() override;
 
-    mQtclass(QGraphicsItem*)		mkQtObj();
+    mQtclass(QGraphicsItem*)		mkQtObj() override;
 
     bool				owner_;
     bool				isvisible_;

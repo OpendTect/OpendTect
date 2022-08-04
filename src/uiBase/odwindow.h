@@ -66,7 +66,7 @@ public:
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
 
-    virtual QMenu*	createPopupMenu();
+    QMenu*		createPopupMenu() override;
     void		addToolBar(uiToolBar*);
     uiToolBar*		findToolBar(const char*);
     uiToolBar*		removeToolBar(uiToolBar*);
@@ -88,14 +88,14 @@ public:
 
 protected:
 
-    virtual const QWidget*	qwidget_() const { return this; }
-    virtual void	finalize()	{ finalize(false); }
+    const QWidget*	qwidget_() const override { return this; }
+    void		finalize() override	{ finalize(false); }
     virtual void	finalize(bool trigger_finalize_start_stop);
-    void		closeEvent(QCloseEvent*);
-    bool		event(QEvent*);
+    void		closeEvent(QCloseEvent*) override;
+    bool		event(QEvent*) override;
 
-    void		keyPressEvent(QKeyEvent*);
-    void		resizeEvent(QResizeEvent*);
+    void		keyPressEvent(QKeyEvent*) override;
+    void		resizeEvent(QResizeEvent*) override;
 
     void		doShow(bool minimized=false);
     void		doDisplay(bool yn);
@@ -202,10 +202,11 @@ public:
     void		setVSpacing( int spc )	{ dlggrp_->setVSpacing(spc); }
     void		setBorder( int b )	{ dlggrp_->setBorder( b ); }
 
-    virtual void	addChild(uiBaseObject& child);
-    virtual void	manageChld_(uiBaseObject&,uiObjectBody&);
-    virtual void	attachChild(constraintType,uiObject* child,
-				    uiObject* other,int margin,bool reciprocal);
+    void		addChild(uiBaseObject& child) override;
+    void		manageChld_(uiBaseObject&,uiObjectBody&) override;
+    void		attachChild(constraintType,uiObject* child,
+				    uiObject* other,int margin,
+				    bool reciprocal) override;
     void		provideHelp(CallBacker*);
     void		showVideo(CallBacker*);
 
@@ -213,7 +214,7 @@ public:
 
 protected:
 
-    virtual const QWidget* managewidg_() const
+    const QWidget* managewidg_() const override
 			{
 			    if ( !initing_ )
 				return dlggrp_->pbody()->managewidg();
@@ -242,9 +243,9 @@ protected:
 
     void		_done(int);
 
-    virtual void	finalize()	{ finalize(false); }
-    virtual void	finalize(bool);
-    void		closeEvent(QCloseEvent*);
+    void		finalize() override	{ finalize(false); }
+    void		finalize(bool) override;
+    void		closeEvent(QCloseEvent*) override;
     void		applyCB(CallBacker*);
 
 private:

@@ -226,7 +226,7 @@ mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
 {
 public:
     uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
-    int nextStep();
+    int nextStep() override;
 
 protected:
     uiTreeItem* parent_;
@@ -241,11 +241,11 @@ public:
 			uiTreeTopItem(uiTreeView*, bool=false );
 			~uiTreeTopItem();
 
-    virtual bool	addChild(uiTreeItem*,bool below);
-    virtual void	updateSelection(int selectionkey, bool=false );
+    bool		addChild(uiTreeItem*,bool below) override;
+    void		updateSelection(int selectionkey, bool=false ) override;
 			/*!< Does only update the display */
-    virtual void	updateColumnText(int col);
-    bool		isChecked() const		{ return true; }
+    void		updateColumnText(int col) override;
+    bool		isChecked() const override		{ return true; }
 
     void		disabRightClick(bool yn)	{ disabrightclick_=yn; }
     void		disabAnyClick(bool yn)		{ disabanyclick_=yn; }
@@ -253,8 +253,8 @@ public:
 
 protected:
 
-    virtual bool	addChld(uiTreeItem*,bool below,bool downwards);
-    virtual void	removeItem(uiTreeViewItem*);
+    bool		addChld(uiTreeItem*,bool below,bool downwards) override;
+    void		removeItem(uiTreeViewItem*) override;
 
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
@@ -263,8 +263,8 @@ protected:
     void		itemRenamed(CallBacker*);
     void		handleSelectionChanged(bool frmbtclk);
 
-    virtual const char*	parentType() const { return 0; }
-    virtual uiParent*	getUiParent() const;
+    const char*		parentType() const override { return 0; }
+    uiParent*		getUiParent() const override;
 
     uiTreeView*		listview_;
     bool		disabrightclick_;

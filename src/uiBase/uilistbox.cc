@@ -43,7 +43,7 @@ ListBoxPixmapDelegate( QObject* qobj )
 
 
 void paint( QPainter* painter, const QStyleOptionViewItem& option,
-	    const QModelIndex& index ) const
+	    const QModelIndex& index ) const override
 {
     QStyleOptionViewItem myOpt(option);
     myOpt.decorationPosition = QStyleOptionViewItem::Right;
@@ -120,8 +120,8 @@ public:
 			    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-    virtual uiSize	minimumSize() const; //!< \reimp
-    virtual int		nrTxtLines() const
+    uiSize		minimumSize() const override; //!< \reimp
+    int			nrTxtLines() const override
 			{ return prefnrlines_ > 0 ? prefnrlines_
 						  : uiListBox::cDefNrLines(); }
 
@@ -132,10 +132,10 @@ public:
 
 protected:
 
-    void		mousePressEvent(QMouseEvent*);
-    void		mouseMoveEvent(QMouseEvent*);
-    void		mouseReleaseEvent(QMouseEvent*);
-    void		keyPressEvent(QKeyEvent*);
+    void		mousePressEvent(QMouseEvent*) override;
+    void		mouseMoveEvent(QMouseEvent*) override;
+    void		mouseReleaseEvent(QMouseEvent*) override;
+    void		keyPressEvent(QKeyEvent*) override;
 
     int			itemIdxAtEvPos(QMouseEvent&) const;
     void		handleSlideChange(int,bool);

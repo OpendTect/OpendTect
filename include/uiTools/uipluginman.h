@@ -38,7 +38,7 @@ protected:
     uiTextBrowser*	infofld_;
     uiTextBrowser*	licensefld_;
 
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
     void		fillList();
     void		emptyFields();
     void		activateCB(CallBacker*);

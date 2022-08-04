@@ -157,7 +157,7 @@ public:
     uiGraphicsSceneChanger(uiGraphicsScene&,uiGraphicsItem&,bool remove);
     uiGraphicsSceneChanger(uiGraphicsItemGroup&,uiGraphicsItem&,bool remove);
 
-    bool execute();
+    bool execute() override;
 
 protected:
     uiGraphicsScene*		scene_;

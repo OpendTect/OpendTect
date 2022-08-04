@@ -54,7 +54,7 @@ BackgroundDelegate( QObject* qobj )
 }
 
 void paint( QPainter* painter, const QStyleOptionViewItem& option,
-	    const QModelIndex& index) const
+	    const QModelIndex& index) const override
 {
     // Give cells their original background color
     QVariant background = index.data( Qt::BackgroundRole );
@@ -103,7 +103,7 @@ public:
     void		setNrLines(int);
     void		setPrefHeightInRows(int nrrows,int maxheight);
     void		setPrefWidthInChars(int nrchars,int maxwidth);
-    virtual int		nrTxtLines() const;
+    int			nrTxtLines() const override;
 
     QTableWidgetItem*	getItem(const RowCol&,bool createnew=true);
 
@@ -113,7 +113,7 @@ public:
     void		setCellObject(const RowCol&,uiObject*);
     RowCol		getCell(uiObject*);
 
-    virtual void	finalize();
+    void		finalize() override;
 
     int			maxNrOfSelections() const;
     uiTable::SelectionBehavior getSelBehavior() const;
@@ -123,10 +123,10 @@ public:
 
 protected:
 
-    virtual void	contextMenuEvent(QContextMenuEvent*);
-    virtual void	mousePressEvent(QMouseEvent*);
-    virtual void	mouseReleaseEvent(QMouseEvent*);
-    virtual void	keyPressEvent(QKeyEvent*);
+    void		contextMenuEvent(QContextMenuEvent*) override;
+    void		mousePressEvent(QMouseEvent*) override;
+    void		mouseReleaseEvent(QMouseEvent*) override;
+    void		keyPressEvent(QKeyEvent*) override;
 
     void		copy();
     void		paste();

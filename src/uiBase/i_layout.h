@@ -77,17 +77,17 @@ public:
 
     virtual		~i_LayoutMngr();
 
-    virtual void	addItem(mQtclass(QLayoutItem*));
+    void		addItem(mQtclass(QLayoutItem*)) override;
     void		addItem(i_LayoutItem*);
 
-    virtual mQtclass(QSize)	sizeHint() const;
-    virtual mQtclass(QSize)	minimumSize() const;
+    mQtclass(QSize)	sizeHint() const override;
+    mQtclass(QSize)	minimumSize() const override;
 
-    virtual mQtclass(QLayoutItem*) itemAt(int idx) const;
-    virtual mQtclass(QLayoutItem*) takeAt(int idx);
-    virtual int		 count() const;
+    mQtclass(QLayoutItem*) itemAt(int idx) const override;
+    mQtclass(QLayoutItem*) takeAt(int idx) override;
+    int			count() const override;
 
-    virtual void	invalidate();
+    void		invalidate() override;
     virtual void	updatedAlignment(LayoutMode);
     virtual void	initChildLayout(LayoutMode);
 
@@ -118,7 +118,7 @@ public:
 
 private:
 
-    void		setGeometry(const mQtclass(QRect&));
+    void		setGeometry(const mQtclass(QRect&)) override;
 
     inline void		doLayout( LayoutMode m, const mQtclass(QRect&) r ) const
 			{ const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }

@@ -39,7 +39,7 @@ public:
     const uiGroup*	topGroup() const
 			    { return const_cast<uiDockWin*>(this)->topGroup(); }
 
-    virtual uiMainWin*	mainwin();
+    uiMainWin*		mainwin() override;
 
     void		setFloating(bool);
     bool		isFloating() const;
@@ -51,7 +51,7 @@ public:
 protected:
 
     uiDockWinBody*	body_;
-    virtual uiObject*	mainobject();
+    uiObject*		mainobject() override;
 
     uiParent *		parent_;
 };

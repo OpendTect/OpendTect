@@ -331,7 +331,7 @@ void setTimer()
 }
 
 
-bool rejectOK( CallBacker* )
+bool rejectOK( CallBacker* ) override
 {
     paused_ = true;
     inauto_ = false;

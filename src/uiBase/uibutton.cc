@@ -66,7 +66,7 @@ void doNotify()
     uibut_.endCmdRecEvent( refnr );
 }
 
-virtual int nrTxtLines() const
+int nrTxtLines() const override
 {
     return 1;
 }
@@ -110,11 +110,11 @@ uiButtonTemplBody( uiButton& uibut, uiParent* p, const uiString& txt )
 }
 
 
-virtual const QWidget* qwidget_() const
+const QWidget* qwidget_() const override
 { return this; }
 
 
-void keyPressEvent( QKeyEvent* qke )
+void keyPressEvent( QKeyEvent* qke ) override
 {
     if ( qke && qke->key() == Qt::Key_Space )
 	return;
@@ -123,7 +123,7 @@ void keyPressEvent( QKeyEvent* qke )
 }
 
 
-void resizeEvent( QResizeEvent* ev )
+void resizeEvent( QResizeEvent* ev ) override
 {
     uiParent* hpar = uibut_.parent();
     mDynamicCastGet(uiToolBar*,tb,hpar)
@@ -134,7 +134,7 @@ void resizeEvent( QResizeEvent* ev )
 }
 
 
-void customEvent( QEvent* ev )
+void customEvent( QEvent* ev ) override
 {
     mDynamicCastGet(IconUpdateEvent*,iue,ev)
     if ( !iue ) return;
@@ -154,7 +154,7 @@ virtual void fontChange( const QFont& oldFont )
 { uiBody::fontchanged(); }
 
 
-virtual void closeEvent( QCloseEvent* e )
+void closeEvent( QCloseEvent* e ) override
 {
     if ( uiCloseOK() )
 	QAbstractButton::closeEvent(e);
@@ -162,7 +162,7 @@ virtual void closeEvent( QCloseEvent* e )
 
 
 protected:
-virtual uiObject& uiObjHandle()
+uiObject& uiObjHandle() override
 { return handle_; }
 
     uiButton&		handle_;
@@ -191,7 +191,7 @@ ui##nm##Body( uiButton& uibut, const uiPixmap& pm, \
  \
 protected: \
  \
-virtual void notifyHandler( notifyTp tp ) \
+void notifyHandler( notifyTp tp ) override \
 { \
     if ( tp == uiButtonMessenger::reactsto ) \
 	doNotify(); \
@@ -206,7 +206,7 @@ extr; \
 
 mDefButtonBodyClass(PushButton,clicked,,);
 mDefButtonBodyClass(RadioButton,clicked,,);
-mDefButtonBodyClass(CheckBox,toggled,,void nextCheckState());
+mDefButtonBodyClass(CheckBox,toggled,,void nextCheckState() override);
 mDefButtonBodyClass(ToolButton,clicked,setFocusPolicy( Qt::ClickFocus ),);
 
 

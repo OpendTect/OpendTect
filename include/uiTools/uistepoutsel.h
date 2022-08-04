@@ -103,7 +103,7 @@ public:
 
     void		setZVal(int);
     void		setVals(int,int,int);
-    virtual void	setVals(int); //!< similar to 3x setVal
+    void		setVals(int) override; //!< similar to 3x setVal
 
     void                setZInterval(StepInterval<int> zrg); //nr samples
 

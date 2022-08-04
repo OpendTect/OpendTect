@@ -103,10 +103,10 @@ public:
     const i_LayoutItem* layoutItem() const	{ return layoutitem_; }
     i_LayoutItem*	mkLayoutItem(i_LayoutMngr&);
 
-    virtual void	finalize();
-    virtual bool	finalized() const	{ return finalized_; }
+    void		finalize() override;
+    bool		finalized() const override	{ return finalized_; }
 
-    virtual void	fontchanged();
+    void		fontchanged() override;
 
     int			fontHeight() const;
     int			fontWidth(bool max=false) const;

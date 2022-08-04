@@ -28,7 +28,7 @@ public:
 			uiDialBody(uiDial&,uiParent*,const char*);
     virtual		~uiDialBody()		{ delete &messenger_; }
 
-    virtual int	nrTxtLines() const	{ return 1; }
+    int		nrTxtLines() const override	{ return 1; }
 
 private:
 

@@ -81,7 +81,7 @@ public:
     FixedString 		selectedToDomain() const;
 				/*<!Always available. */
 
-    bool			acceptOK();
+    bool			acceptOK() override;
 				/*!<Checks that all input is OK. After that
 				    the getSelection will return something. */
     ZAxisTransform*		getSelection();

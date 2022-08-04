@@ -54,8 +54,8 @@ public:
     void			setMidMouseButtonForDrag(bool);
     bool			hasMidMouseButtonForDrag() const;
 
-    int				width() const;		//!<width of widget
-    int				height() const;		//!<height of widget
+    int				width() const override; //!<width of widget
+    int				height() const override;//!<height of widget
     int				viewWidth() const;	//!<width of viewport
     int				viewHeight() const;	//!<height of viewport
 
@@ -77,8 +77,8 @@ public:
 					    double w,double h);
     uiRect			getViewArea() const;
 
-    void			setBackgroundColor(const OD::Color&);
-    OD::Color			backgroundColor() const;
+    void			setBackgroundColor(const OD::Color&) override;
+    OD::Color			backgroundColor() const override;
     void			setNoBackGround();
     void			rePaint();
     void			enableScrollZoom(bool yn=true);
@@ -120,7 +120,7 @@ public:
 
 protected:
 
-    void			translateText();
+    void			translateText() override;
 
     uiGraphicsViewBody*		body_;
     uiGraphicsViewBody&		mkbody(uiParent*,const char*);

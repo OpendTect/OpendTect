@@ -63,7 +63,7 @@ protected:
     uiListBoxFilter*	filtfld_;
 
     void		filtChg(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 private:
 
@@ -109,7 +109,7 @@ protected:
     uiListBox*		listfld_;
 
     void		selChg(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 
@@ -147,8 +147,8 @@ protected:
     int			choice_;
     const bool		allowcancel_;
 
-    virtual bool	acceptOK(CallBacker*);
-    virtual bool	rejectOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
+    bool		rejectOK(CallBacker*) override;
 
 };
 

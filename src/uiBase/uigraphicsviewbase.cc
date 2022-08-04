@@ -41,7 +41,7 @@ class TouchSceneEventFilter : public QObject
 {
 public:
 
-bool eventFilter(QObject* obj, QEvent* ev )
+bool eventFilter(QObject* obj, QEvent* ev ) override
 {
     if ( ev->type()==QEvent::TouchBegin ||
 	ev->type()==QEvent::TouchUpdate ||
@@ -128,18 +128,18 @@ protected:
 
     uiMouseEventBlockerByGestures&   mouseeventblocker_;
 
-    void			wheelEvent(QWheelEvent*);
-    void			resizeEvent(QResizeEvent*);
-    void			paintEvent(QPaintEvent*);
-    void			mouseMoveEvent(QMouseEvent*);
-    void			mouseReleaseEvent(QMouseEvent*);
-    void			mousePressEvent(QMouseEvent*);
-    void			mouseDoubleClickEvent(QMouseEvent*);
-    void			keyPressEvent(QKeyEvent*);
-    void			keyReleaseEvent(QKeyEvent*);
-    bool			viewportEvent(QEvent*);
-    void			scrollContentsBy (int,int);
-    bool			event(QEvent*);
+    void			wheelEvent(QWheelEvent*) override;
+    void			resizeEvent(QResizeEvent*) override;
+    void			paintEvent(QPaintEvent*) override;
+    void			mouseMoveEvent(QMouseEvent*) override;
+    void			mouseReleaseEvent(QMouseEvent*) override;
+    void			mousePressEvent(QMouseEvent*) override;
+    void			mouseDoubleClickEvent(QMouseEvent*) override;
+    void			keyPressEvent(QKeyEvent*) override;
+    void			keyReleaseEvent(QKeyEvent*) override;
+    bool			viewportEvent(QEvent*) override;
+    void			scrollContentsBy (int,int) override;
+    bool			event(QEvent*) override;
     bool			gestureEvent(QGestureEvent*);
 };
 

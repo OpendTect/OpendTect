@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          21/9/2000
+ Author:	A.H. Bril
+ Date:		21/9/2000
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     const char*			errMsg() const;
 
     static FixedString		sKeyAllowSending()
-    				{ return "Allow sending of issue-reports"; }
+				{ return "Allow sending of issue-reports"; }
 
 protected:
     bool			allowSending() const;
@@ -40,7 +40,7 @@ protected:
     void			copyToClipBoardCB(CallBacker*);
     void			proxySetCB(CallBacker*);
     
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			setButSensitive(bool);
     void			getReport(BufferString&) const;
 

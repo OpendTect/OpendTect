@@ -46,8 +46,8 @@ public:
 
     const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
 
-    bool		finalized() const	{ return finalized_; }
-    virtual void	finalize()		{ finalizeChildren(); }
+    bool		finalized() const override	{ return finalized_; }
+    void		finalize() override		{ finalizeChildren(); }
     void		finalizeChildren();	// body: uiobj.cc
     void		clearChildren();	// body: uiobj.cc
 
@@ -92,21 +92,21 @@ private:
 mExpClass(uiBase) uiCentralWidgetBody : public uiParentBody
 {
 public:
-    virtual			~uiCentralWidgetBody();
+    virtual		~uiCentralWidgetBody();
 
-    uiGroup*			uiCentralWidg() { return centralwidget_; }
-    virtual void		addChild(uiBaseObject&);
-    virtual void		manageChld_(uiBaseObject&,uiObjectBody&);
-    virtual void		attachChild(constraintType,uiObject* child,
-					    uiObject* other,int margin,
-					    bool reciprocal);
+    uiGroup*		uiCentralWidg() { return centralwidget_; }
+    void		addChild(uiBaseObject&) override;
+    void		manageChld_(uiBaseObject&,uiObjectBody&) override;
+    void		attachChild(constraintType,uiObject* child,
+				    uiObject* other,int margin,
+				    bool reciprocal) override;
 
 protected:
-				uiCentralWidgetBody(const char* nm);
+			uiCentralWidgetBody(const char* nm);
 
-    virtual const QWidget*	managewidg_() const;
+    const QWidget*	managewidg_() const override;
 
-    bool			initing_;
-    uiGroup*			centralwidget_;
+    bool		initing_;
+    uiGroup*		centralwidget_;
 };
 

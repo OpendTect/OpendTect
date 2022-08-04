@@ -32,7 +32,7 @@ uiLabelBody( uiLabel& hndle, uiParent* parnt, const uiString& txt )
     : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt.getOriginalString())
 {}
 
-virtual int nrTxtLines() const
+int nrTxtLines() const override
 {
     int nrl = 1;
     BufferString str = text();

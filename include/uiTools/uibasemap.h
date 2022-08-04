@@ -79,7 +79,7 @@ public:
 
     void			setView(const uiWorldRect&);
 
-    virtual void		addObject(BaseMapObject*);
+    void			addObject(BaseMapObject*) override;
     BaseMapObject*		getObject(int id);
     uiBaseMapObject*		getUiObject(int id);
 
@@ -89,7 +89,7 @@ public:
     inline void			setChangeFlag()		{ changed_ = true; }
     void			resetChangeFlag();
 				//!Owned by caller
-    void			removeObject(const BaseMapObject*);
+    void			removeObject(const BaseMapObject*) override;
     void			show(const BaseMapObject&,bool yn);
 
     void			showLabels(bool yn);
@@ -125,7 +125,7 @@ protected:
     uiWorldRect			wr_;
 
     void			reSizeCB(CallBacker*);
-    virtual void		reDraw(bool deep=true);
+    virtual void		reDraw(bool deep=true) override;
     void			updateTransform();
 
 private:

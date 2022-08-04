@@ -118,8 +118,8 @@ protected:
     void		save(CallBacker*);
     void		saveAs(CallBacker*);
     void		dismiss(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
     void		finalizeCB(CallBacker*);
 
     void		fileNmChgd(CallBacker*);

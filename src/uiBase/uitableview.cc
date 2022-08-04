@@ -135,7 +135,7 @@ DoubleItemDelegate(uiTableView::CellType tp)
 {}
 
 
-QString displayText( const QVariant& val, const QLocale& locale ) const
+QString displayText( const QVariant& val, const QLocale& locale ) const override
 {
     bool ok;
     const double dval = val.toDouble( &ok );

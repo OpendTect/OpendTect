@@ -74,13 +74,13 @@ virtual ~uiSimpleInputFld()
 }
 
 
-virtual UserInputObj* element( int idx=0 )
+UserInputObj* element( int idx=0 ) override
 {
     return idx == 0 ? &usrinpobj : 0;
 }
 
 
-virtual uiObject* mainObj()
+uiObject* mainObj() override
 {
     return dynamic_cast<uiObject*>(&usrinpobj);
 }
@@ -123,7 +123,7 @@ uiFileInputFld( uiGenInput* p, const DataInpSpec& spec,
 }
 
 
-virtual void setText( const char* s, int idx )
+void setText( const char* s, int idx ) override
 {
     if ( idx ) return;
     usrinpobj.setText(s);
@@ -141,7 +141,7 @@ uiBoolInpFld( uiGenInput* p, const DataInpSpec& spec,
     : uiSimpleInputFld<uiGenInputBoolFld>(p,spec,sName(spec,0,nm))
 {}
 
-virtual uiObject* mainObj()
+uiObject* mainObj() override
 {
     return usrinpobj.mainObject();
 }
@@ -156,10 +156,10 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="Position Inp Field" );
 
-    virtual uiObject*	mainObj()		{ return flds_[0]; }
+    uiObject*		mainObj() override		{ return flds_[0]; }
 
-    virtual int		nElems() const		{ return posInpSpec().nElems();}
-    virtual UserInputObj* element( int idx )
+    int			nElems() const override { return posInpSpec().nElems();}
+    UserInputObj*	element( int idx ) override
 			{ return idx >= flds_.size() ? 0 : flds_[idx]; }
 
     bool		notifyValueChanged(const CallBack& cb )
@@ -177,7 +177,7 @@ protected:
     virtual const char*	getvalue_(int) const;
     virtual void        setvalue_(const char*,int);
 
-    virtual bool	update_(const DataInpSpec&);
+    bool		update_(const DataInpSpec&) override;
 
     void		addFld(uiParent*,const char*);
 
@@ -313,10 +313,11 @@ public:
 					 const DataInpSpec& dis,
 					 const char* nm="Interval Input Field");
 
-    virtual int		nElems() const		{ return step ? 3 : 2; }
-    virtual UserInputObj* element( int idx=0 )	{ return le(idx); }
+    int			nElems() const override		{ return step ? 3 : 2; }
+    UserInputObj*	element( int idx=0 ) override	{ return le(idx); }
 
-    virtual uiObject*	mainObj()	{ return intvalGrp.mainObject(); }
+    uiObject*		mainObj() override
+			    { return intvalGrp.mainObject(); }
 
 protected:
     uiGroup&		intvalGrp;
@@ -351,7 +352,7 @@ protected:
 			    return idx ? &stop : &start;
 			}
 
-    virtual bool	update_( const DataInpSpec& nw );
+    bool		update_( const DataInpSpec& nw ) override;
 };
 
 template<class T>
@@ -428,12 +429,12 @@ public:
 			uiIntIntervalInpFld(uiGenInput*,const DataInpSpec&,
 				const char* nm="Int Interval Input Field");
 
-    virtual int		nElems() const		{ return step_ ? 3 : 2; }
-    virtual UserInputObj* element(int idx=0);
-    virtual uiObject*	elemObj(int idx=0);
-    virtual void	setReadOnly(bool yn,int idx);
+    int			nElems() const override { return step_ ? 3 : 2; }
+    UserInputObj*	element(int idx=0) override;
+    uiObject*		elemObj(int idx=0) override;
+    void		setReadOnly(bool yn,int idx) override;
 
-    virtual uiObject*	mainObj()	{ return grp_->mainObject(); }
+    uiObject*		mainObj() override	{ return grp_->mainObject(); }
 
 protected:
     uiGroup*		grp_;
@@ -447,7 +448,7 @@ protected:
     int			getIntValue(int idx) const;
     void		setValue(int val,int idx);
 
-    virtual bool	update_(const DataInpSpec&);
+    bool		update_(const DataInpSpec&) override;
     void		updateStartStop();
     void		valChgCB(CallBacker*);
     void		symmCB(CallBacker*);
@@ -643,7 +644,7 @@ uiStrLstInpFld( uiGenInput* p, const DataInpSpec& dis,
 }
 
 
-virtual bool isUndef(int) const
+bool isUndef(int) const override
 { return false; }
 
 
@@ -658,7 +659,7 @@ virtual const char* text(int idx) const
 }
 
 
-virtual void setText( const char* t,int idx )
+void setText( const char* t,int idx ) override
 {
     const EnumDef* enumdef = enumDef();
     if ( enumdef && enumdef->isValidKey(t) )
@@ -672,16 +673,16 @@ virtual void setText( const char* t,int idx )
 }
 
 
-virtual void setReadOnly( bool yn = true, int idx=0 )
+void setReadOnly( bool yn = true, int idx=0 ) override
 {
     if ( !yn )
       { pErrMsg("Stringlist input must be read-only"); }
 }
 
-virtual UserInputObj* element( int idx=0 )
+UserInputObj* element( int idx=0 ) override
 { return &cbb_; }
 
-virtual uiObject* mainObj()
+uiObject* mainObj() override
 { return &cbb_; }
 
 protected:

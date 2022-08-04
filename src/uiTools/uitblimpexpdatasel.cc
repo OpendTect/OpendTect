@@ -444,7 +444,7 @@ protected:
     void			saveFmt(CallBacker*);
 
     bool			commit();
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 
@@ -618,7 +618,7 @@ uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
     butPush.notify( mCB(this,uiTableFmtDescFldsParSel,doDlg) );
 }
 
-BufferString getSummary() const
+BufferString getSummary() const override
 {
     BufferString ret;
     if ( !impsel_.desc().isGood() )

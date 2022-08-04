@@ -124,13 +124,13 @@ public:
 			uiObjectItemViewInfoBar(uiParent*);
 
     void		addItem(uiObjectItem*,uiObjectItem* coupleditm);
-    virtual void	addItem( uiObjectItem* itm, int stretch=1 )
+    void		addItem( uiObjectItem* itm, int stretch=1 ) override
 			{ return uiObjectItemView::addItem(itm,stretch); }
     void		insertItem(uiObjectItem*,uiObjectItem* cplitm,int idx);
-    virtual void	insertItem(uiObjectItem* itm,int pos,int st=1)
+    void		insertItem(uiObjectItem* itm,int pos,int st=1) override
 			{ return uiObjectItemView::insertItem(itm,pos,st); }
 
-    void		removeItem(uiObjectItem* itm);
+    void		removeItem(uiObjectItem* itm) override;
     void		updateItemsPos();
     void		reSizeItems();
 

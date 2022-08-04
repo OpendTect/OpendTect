@@ -38,7 +38,7 @@ public:
 protected:
     i_MdiAreaMessenger& messenger_;
 
-    void		resizeEvent(QResizeEvent*);
+    void		resizeEvent(QResizeEvent*) override;
 };
 
 
@@ -310,7 +310,7 @@ Notifier<ODMdiSubWindow>	windowShown;
 Notifier<ODMdiSubWindow>	windowHidden;
 
 protected:
-void closeEvent( QCloseEvent* ev )
+void closeEvent( QCloseEvent* ev ) override
 {
     const int closedsubwinidx =
 	mdiArea()->subWindowList(QMdiArea::CreationOrder).indexOf( this );
@@ -333,14 +333,14 @@ void closeEvent( QCloseEvent* ev )
 }
 
 
-void showEvent( QShowEvent* ev )
+void showEvent( QShowEvent* ev ) override
 {
     if ( !isMinimized() )
 	windowShown.trigger();
 }
 
 
-void hideEvent( QHideEvent* )
+void hideEvent( QHideEvent* ) override
 {
     windowHidden.trigger();
 }

@@ -129,7 +129,7 @@ public:
 					  //nominmax=true hides min/max fields
 			~uiColorTableGroup();
 
-    virtual OD::Orientation getOrientation() const;
+    OD::Orientation	getOrientation() const override;
 
 private:
     void		init(OD::Orientation,bool nominmax);
@@ -145,7 +145,7 @@ public:
 			uiColorTableToolBar(uiParent*,bool newline=false);
 			~uiColorTableToolBar();
 
-    virtual OD::Orientation getOrientation() const;
+    OD::Orientation	getOrientation() const override;
 
 private:
     void		init();

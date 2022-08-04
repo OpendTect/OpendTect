@@ -27,7 +27,7 @@ public:
 			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();
 
-    virtual bool	execute(Task& t);
+    bool		execute(Task& t) override;
     virtual void	emitErrorMessage(const uiString&,bool) const;
 
     uiString		lastMsg() const	{ return prevmessage_; }
@@ -65,9 +65,9 @@ protected:
     void		updateFields();
     void		onFinalize(CallBacker*);
     void		timerTick(CallBacker*);
-    virtual bool        acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
-    virtual bool        rejectOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
 
     void		init();
 

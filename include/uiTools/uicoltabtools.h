@@ -21,7 +21,7 @@ public:
     void			setOrientation(OD::Orientation);
     void			setFlipped(bool yn);
 
-    bool			handleLongTabletPress();
+    bool			handleLongTabletPress() override;
 
 protected:
 

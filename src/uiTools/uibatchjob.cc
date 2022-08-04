@@ -531,7 +531,7 @@ void hostChgCB( CallBacker* )
     windowspriofld_->display( iswin );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( remhostfld_ && remhostfld_->isChecked() )
     {

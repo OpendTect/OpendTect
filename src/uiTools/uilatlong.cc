@@ -322,7 +322,7 @@ uiLatLong2CoordFileTransDlg( uiParent* p,
     outfld_->attach( alignedBelow, tollfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const BufferString inpfnm = inpfld_->fileName();
     if ( inpfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))

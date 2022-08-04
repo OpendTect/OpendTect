@@ -92,7 +92,7 @@ public:
 
 protected:
 
-    virtual mQtclass(QTextEdit&)	qte();
+    mQtclass(QTextEdit&)	qte() override;
 
 private:
 
@@ -151,9 +151,9 @@ protected:
     bool		forceplaintxt_;
     int			maxlines_;
 
-    virtual int		maxLines() const	{ return maxlines_; }
+    int			maxLines() const override	{ return maxlines_; }
 
-    virtual mQtclass(QTextEdit&) qte();
+    mQtclass(QTextEdit&) qte() override;
 
     void		readTailCB(CallBacker*);
     void		sliderPressedCB(CallBacker*);

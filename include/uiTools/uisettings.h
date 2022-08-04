@@ -96,7 +96,7 @@ protected:
     int			getChgdSettIdx(const char*) const;
     void		grpChg(CallBacker*);
     void		dispNewGrp(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 
@@ -112,7 +112,7 @@ public:
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
     bool		needsRenewal() const	{ return needsrenewal_; }
-    const char*		errMsg() const;
+    const char*		errMsg() const override;
 
 protected:
 			uiSettingsGroup(uiParent*,const uiString& caption,
@@ -146,7 +146,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     ObjectSet<uiSettingsGroup>	grps_;
     Settings&		setts_;
@@ -167,7 +167,7 @@ public:
 				toUiString(sFactoryKeyword()))
 
 			uiGeneralSettingsGroup(uiParent*,Settings&);
-    bool		acceptOK();
+    bool		acceptOK() override;
 
 protected:
 
@@ -196,7 +196,7 @@ public:
 				toUiString(sFactoryKeyword()))
 
 			uiVisSettingsGroup(uiParent*,Settings&);
-    bool		acceptOK();
+    bool		acceptOK() override;
 
 protected:
 

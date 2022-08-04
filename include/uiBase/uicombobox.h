@@ -44,25 +44,25 @@ public:
 			/*!<EnumDef is assumed to remain in mem*/
     virtual		~uiComboBox();
 
-    virtual void	setReadOnly(bool yn=true);
-    virtual bool	isReadOnly() const;
+    void		setReadOnly(bool yn=true) override;
+    bool		isReadOnly() const override;
     void		setEditable(bool yn);
     bool		isEditable() const;
 
     int			size() const;
-    inline bool		isEmpty() const		{ return size() == 0; }
-    void		setEmpty();
+    inline bool		isEmpty() const override	{ return size() == 0; }
+    void		setEmpty() override;
     bool		isPresent(const char*) const;
     int			indexOf(const char*) const;
 
-    const char*		text() const;
-    void		setText(const char*);
+    const char*		text() const override;
+    void		setText(const char*) override;
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
-    virtual void	addItem(const uiString&);
+    void		addItem(const uiString&) override;
     void		addItem( const char* s ) { addItem(toUiString(s)); }
     void		addItem(const uiString&,int id);
     void		addItems(const uiStringSet&);
@@ -99,14 +99,15 @@ public:
 
 protected:
 
-    virtual void	setvalue_( int i )	{ setCurrentItem(i); }
-    virtual int		getvalue_() const	{ return currentItem(); }
+    void	setvalue_( int i ) override	{ setCurrentItem(i); }
+    int		getvalue_() const override	{ return currentItem(); }
 
-    virtual bool	notifyUpdateRequested_(const CallBack&) {return false;}
-    virtual bool	notifyValueChanging_(const CallBack&)	{return false;}
-    virtual bool	notifyValueChanged_( const CallBack& cb )
-			    { selectionChanged.notify(cb); return true; }
-    void		translateText();
+    bool	notifyUpdateRequested_(const CallBack&) override {return false;}
+    bool	notifyValueChanging_(const CallBack&) override	{return false;}
+    bool	notifyValueChanged_( const CallBack& cb ) override
+		    { selectionChanged.notify(cb); return true; }
+
+    void	translateText() override;
 
 private:
 
@@ -125,15 +126,15 @@ private:
 
 public:
 
-    void		setToolTip( const uiString& tt )
+    void		setToolTip( const uiString& tt ) override
 			{ uiObject::setToolTip(tt); }
 
-    virtual bool	update_( const DataInpSpec& spec );
+    bool		update_( const DataInpSpec& spec ) override;
     void		getItemSize(int,int& h,int& w) const;
 
     void		notifyHandler(bool selectionchanged);
 
-    bool		handleLongTabletPress();
+    bool		handleLongTabletPress() override;
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
 };

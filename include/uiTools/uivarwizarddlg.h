@@ -35,7 +35,7 @@ protected:
     Position		pos_;
 
     bool		leave_;
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
 
     friend class	uiVarWizard;
 

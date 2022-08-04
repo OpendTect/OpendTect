@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Satyaki Maitra
- Date:          December 2009
+ Author:	Satyaki Maitra
+ Date:		December 2009
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,12 @@ template <class T> class Array1D;
 mExpClass(uiTools) uiArray1DInterpolSel : public uiDlgGroup
 { mODTextTranslationClass(uiArray1DInterpolSel);
 public:
-    				uiArray1DInterpolSel( uiParent*,bool extrapol,
+				uiArray1DInterpolSel( uiParent*,bool extrapol,
 						      bool holesz);
 				//extrapol enables the UI part for extrapolation
 				//but yet not supported in algo.set it to false
 
-    bool			acceptOK();
+    bool			acceptOK() override;
     Array1DInterpol*		getResult(int);
 				
     void			setDistanceUnit(const uiString&);

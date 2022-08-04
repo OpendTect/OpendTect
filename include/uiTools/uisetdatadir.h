@@ -41,7 +41,7 @@ protected:
     void		rootRemoveCB(CallBacker*);
     bool		writeSettings();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     static void		offerUnzipSurv(uiParent*,const char*);
 

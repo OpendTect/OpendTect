@@ -234,7 +234,7 @@ public:
 
 private:
 
-    void		translateText();
+    void		translateText() override;
 
     OD::ChoiceMode	choicemode_;
     Alignment::HPos	alignment_		= Alignment::Left;

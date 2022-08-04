@@ -61,7 +61,7 @@ public:
 			    setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-    virtual int		nrTxtLines() const
+    int			nrTxtLines() const override
 			{ return prefnrlines_ ? prefnrlines_ : 7; }
 
     uiTreeView&		lvhandle()	{ return lvhandle_; }
@@ -72,11 +72,11 @@ protected:
     QPoint		mousepos_;
     int			prefnrlines_;
 
-    void		resizeEvent(QResizeEvent *);
-    void		keyPressEvent(QKeyEvent*);
+    void		resizeEvent(QResizeEvent *) override;
+    void		keyPressEvent(QKeyEvent*) override;
     bool		moveItem(QKeyEvent*);
-    void		mousePressEvent(QMouseEvent*);
-    void		mouseReleaseEvent(QMouseEvent*);
+    void		mousePressEvent(QMouseEvent*) override;
+    void		mouseReleaseEvent(QMouseEvent*) override;
 
     TypeSet<int>	fixcolwidths_;
 

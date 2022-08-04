@@ -50,7 +50,7 @@ public:
     void		makeRequired(bool yn=true);
 
 private:
-    void		translateText();
+    void		translateText() override;
 
     void		init(const uiString& txt,uiObject* buddy);
     void		updateWidth();

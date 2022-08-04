@@ -52,7 +52,7 @@ ODMessageBox( QWidget* parent )
 }
 
 protected:
-bool event( QEvent* event )
+bool event( QEvent* event ) override
 {
     const bool res = QMessageBox::event( event );
     QTextEdit* textedit = findChild<QTextEdit*>();

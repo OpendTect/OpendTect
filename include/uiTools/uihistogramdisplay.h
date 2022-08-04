@@ -29,7 +29,7 @@ public:
 						   bool withheader=false);
 				~uiHistogramDisplay();
 
-    void			setEmpty();
+    void			setEmpty() override;
     bool			setDataPackID(DataPack::ID,DataPackMgr::MgrID,
 					      int version);
     void			setData(const float*,od_int64 sz);
@@ -67,7 +67,7 @@ protected:
     void			updateAndDraw();
     void			updateHistogram();
     void			setDataDPS(const DataPointSet&,int dpsidx);
-    virtual void		drawData();
+    void			drawData() override;
 
 };
 

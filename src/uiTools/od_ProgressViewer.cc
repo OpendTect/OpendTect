@@ -87,7 +87,7 @@ protected:
     void		helpFn(CallBacker*);
 
     void		handleProcessStatus();
-    bool		closeOK();
+    bool		closeOK() override;
 
     static bool		canTerminate();
 };

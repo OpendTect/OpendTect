@@ -28,7 +28,7 @@ public:
 				this->setObjectName( nm );
 			    }
 
-    virtual const QWidget*	qwidget_() const { return this; }
+    const QWidget*	qwidget_() const override { return this; }
     virtual void	setFont( const QFont& )
 			{
 			    if ( !uifont() ) { pErrMsg("no uifont!"); return; }
@@ -40,13 +40,13 @@ public:
 			    uiBody::fontchanged();
 			}
 
-    virtual void	closeEvent( QCloseEvent *e )
+    void		closeEvent( QCloseEvent *e ) override
 			{
 			    if ( uiCloseOK() )
 				T::closeEvent(e);
 			}
 
 protected:
-    virtual uiObject&	uiObjHandle()		{ return handle_; }
+    uiObject&		uiObjHandle() override		{ return handle_; }
     C&			handle_;
 };

@@ -37,7 +37,7 @@ public:
 
     uiGroup*		group() const		{ return uigrp_; }
 
-    const ObjectSet<uiBaseObject>* childList() const;
+    const ObjectSet<uiBaseObject>* childList() const override;
 
 protected:
 
@@ -90,23 +90,23 @@ public:
 
     //! internal use only. Tells the layout manager it's a toplevel mngr.
     void		setIsMain(bool);
-    virtual uiMainWin*	mainwin()
+    uiMainWin*		mainwin() override
 			{ return mainObject() ? mainObject()->mainwin() :0;}
 
     static uiGroup*	gtDynamicCastToGrp(mQtclass(QWidget*));
 
     void		setChildrenSensitive(bool);
 
-    virtual Notifier<uiBaseObject>& preFinalize()
+    Notifier<uiBaseObject>& preFinalize() override
 				{ return mainObject()->preFinalize(); }
-    virtual Notifier<uiBaseObject>& postFinalize()
+    Notifier<uiBaseObject>& postFinalize() override
 				{ return mainObject()->postFinalize(); }
 
     mDeprecated("Use preFinalize()")
-    virtual Notifier<uiBaseObject>& preFinalise()
+    Notifier<uiBaseObject>& preFinalise() override
 			{ return preFinalize(); }
     mDeprecated("Use postFinalize()")
-    virtual Notifier<uiBaseObject>& postFinalise()
+    Notifier<uiBaseObject>& postFinalise() override
 			{ return postFinalize(); }
 
 protected:
@@ -114,9 +114,9 @@ protected:
     uiGroupObj*		grpobj_;
     uiGroupParentBody*	body_;
 
-    virtual uiObject*	mainobject()			{ return grpobj_; }
-    virtual void	attach_( constraintType, uiObject *oth, int margin=-1,
-				bool reciprocal=true);
+    uiObject*		mainobject() override		{ return grpobj_; }
+    void		attach_( constraintType, uiObject *oth, int margin=-1,
+				bool reciprocal=true) override;
 
     virtual void	reDraw_( bool deep )		{}
 

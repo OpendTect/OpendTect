@@ -35,7 +35,7 @@ public:
 				/*!< Works on complete menubar */
     bool			isSensitive() const;
 
-    mQtclass(QWidget*)		getWidget();
+    mQtclass(QWidget*)		getWidget() override;
     void			clear() { removeAllActions(); }
 
 protected:
@@ -45,12 +45,13 @@ protected:
 				~uiMenuBar();
 
     void			doInsertMenu(mQtclass(QMenu)*,
-				   mQtclass(QAction)* before);
+				   mQtclass(QAction)* before) override;
     void			doInsertAction(mQtclass(QAction)*,
-				     mQtclass(QAction)* before);
-    void			doRemoveAction(mQtclass(QAction)*);
-    void			doInsertSeparator(mQtclass(QAction)* before);
-    void			doClear();
+				     mQtclass(QAction)* before) override;
+    void			doRemoveAction(mQtclass(QAction)*) override;
+    void			doInsertSeparator(
+					mQtclass(QAction)* before) override;
+    void			doClear() override;
 
     mQtclass(QMenuBar)*		qmenubar_;
 };
@@ -102,7 +103,7 @@ public:
     const char*		getIconName() const;
 
     mQtclass(QMenu)*	getQMenu() { return qmenu_; }
-    mQtclass(QWidget*)	getWidget();
+    mQtclass(QWidget*)	getWidget() override;
 
 private:
     friend class	uiAction;
@@ -118,12 +119,12 @@ private:
     bool		dointercept_;
 
     void		doInsertMenu(mQtclass(QMenu)*,
-				   mQtclass(QAction)* before);
+				   mQtclass(QAction)* before) override;
     void		doInsertAction(mQtclass(QAction)*,
-				     mQtclass(QAction)* before);
-    void		doInsertSeparator(mQtclass(QAction)* before);
-    void		doRemoveAction(mQtclass(QAction)*);
-    void		doClear();
+				     mQtclass(QAction)* before) override;
+    void		doInsertSeparator(mQtclass(QAction)* before) override;
+    void		doRemoveAction(mQtclass(QAction)*) override;
+    void		doClear() override;
     void		useStyleSheet();
 
 public:

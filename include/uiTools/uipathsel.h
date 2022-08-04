@@ -20,9 +20,9 @@ public:
     uiPathListEditor(uiParent*, const BufferStringSet&);
 
     void	fillList(int);
-    void	editReq(bool);
-    void	removeReq();
-    void	itemSwitch(bool);
+    void	editReq(bool) override;
+    void	removeReq() override;
+    void	itemSwitch(bool) override;
 
     BufferStringSet	paths_;
 };

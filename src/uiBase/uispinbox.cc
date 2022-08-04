@@ -34,14 +34,14 @@ public:
 			uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
     virtual		~uiSpinBoxBody();
 
-    virtual int		nrTxtLines() const	{ return 1; }
+    int			nrTxtLines() const override	{ return 1; }
     void		setNrDecimals(int);
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
     bool		hadFocusChg() const	{ return hadfocuschg_; }
     bool		isModified() const;
 
-    QValidator::State	validate( QString& input, int& posn ) const
+    QValidator::State	validate( QString& input, int& posn ) const override
 			{
 			    const double val = input.toDouble();
 			    if ( val > maximum() )
@@ -49,14 +49,14 @@ public:
 			    return QDoubleSpinBox::validate( input, posn );
 			}
 
-    virtual double	valueFromText(const QString&) const;
-    virtual QString	textFromValue(double value) const;
+    double		valueFromText(const QString&) const override;
+    QString		textFromValue(double value) const override;
 
     QLineEdit*		getLineEdit() const	{ return lineEdit(); }
 
 protected:
-    virtual void	contextMenuEvent(QContextMenuEvent*);
-    virtual void	focusOutEvent(QFocusEvent*);
+    void		contextMenuEvent(QContextMenuEvent*) override;
+    void		focusOutEvent(QFocusEvent*) override;
 
 
 private:

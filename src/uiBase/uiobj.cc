@@ -362,7 +362,7 @@ public:
 			    : uiobject_( uiobj )
 			{}
 protected:
-    bool		eventFilter(QObject*,QEvent*);
+    bool		eventFilter(QObject*,QEvent*) override;
     uiObject&		uiobject_;
 };
 

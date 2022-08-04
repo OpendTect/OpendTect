@@ -56,7 +56,7 @@ public:
 			uiSliderBody(uiSliderObj&,uiParent*,const char*);
     virtual		~uiSliderBody();
 
-    virtual int		nrTxtLines() const	{ return 1; }
+    virtual int			wnrTxtLines() const	{ return 1; }
 
 private:
 

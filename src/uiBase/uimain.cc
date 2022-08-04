@@ -65,7 +65,7 @@ public:
 			KeyboardEventFilter(KeyboardEventHandler& kbeh)
 			    : kbehandler_(kbeh)				{}
 protected:
-    bool		eventFilter(QObject*,QEvent*);
+    bool		eventFilter(QObject*,QEvent*) override;
 
     KeyboardEventHandler& kbehandler_;
 };
@@ -107,7 +107,7 @@ public:
 			    , islostreleasefixed_(false)
 			{}
 protected:
-    bool		eventFilter(QObject*,QEvent*);
+    bool		eventFilter(QObject*,QEvent*) override;
 
     bool		mousepressed_;
     bool		checklongleft_;

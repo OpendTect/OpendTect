@@ -41,7 +41,7 @@ protected:
     void			markerInserted(CallBacker*);
     void			markerDeleted(CallBacker*);
     void			markerPosChgd(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
 };
 

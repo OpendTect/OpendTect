@@ -35,10 +35,10 @@ protected:
 		~uiCursorManager();
 		uiCursorManager();
 
-    void	setOverrideShape(MouseCursor::Shape,bool replace);
-    void	setOverrideCursor(const MouseCursor&,bool replace);
+    void	setOverrideShape(MouseCursor::Shape,bool replace) override;
+    void	setOverrideCursor(const MouseCursor&,bool replace) override;
     void	setOverrideFile(const char* filenm,
-	    			int hotx,int hoty, bool replace);
-    void	restoreInternal();
+				int hotx,int hoty, bool replace) override;
+    void	restoreInternal() override;
 };
 

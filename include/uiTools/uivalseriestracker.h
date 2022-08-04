@@ -28,8 +28,8 @@ public:
 				bool hideeventtype=false,
 				bool immediateupdate=false);
 
-    bool		acceptOK();
-    bool		rejectOK();
+    bool		acceptOK() override;
+    bool		rejectOK() override;
 protected:
     void			selEventType(CallBacker*);
     void			selAmpThresholdType(CallBacker*);

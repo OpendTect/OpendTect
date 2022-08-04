@@ -64,7 +64,7 @@ public:
     void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
 
 
-    HelpKey	helpKey() const
+    HelpKey	helpKey() const override
 		{
 		    if ( !grp_->helpKey().isEmpty() )
 			return grp_->helpKey();
@@ -73,8 +73,8 @@ public:
 		}
 
 protected:
-    bool	acceptOK(CallBacker*)		{ return grp_->acceptOK(); }
-    bool	rejectOK(CallBacker*)		{ return grp_->rejectOK(); }
+    bool	acceptOK(CallBacker*) override	{ return grp_->acceptOK(); }
+    bool	rejectOK(CallBacker*) override	{ return grp_->rejectOK(); }
 
     uiDlgGroup*	grp_;
 };
@@ -98,7 +98,7 @@ public:
     int			currentGroupID()
     			{ return tabstack_->currentPageId(); }
 
-    HelpKey		helpKey() const;
+    HelpKey		helpKey() const override;
     			/*!<Returns the help id for the current group, or 0 if
 			    no help available for any group, "" if there is
 			    help for one or more groups, but not the currently
@@ -109,8 +109,8 @@ protected:
 
     void			selChange(CallBacker*);
 
-    virtual bool		acceptOK(CallBacker*);
-    virtual bool		rejectOK(CallBacker*);
+    virtual bool		acceptOK(CallBacker*) override;
+    virtual bool		rejectOK(CallBacker*) override;
 
     bool 			canrevert_;
     ObjectSet<uiDlgGroup>	groups_;

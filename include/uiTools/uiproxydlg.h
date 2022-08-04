@@ -39,7 +39,7 @@ protected:
     void		initFromSettings();
     bool		saveInSettings();
     void		useProxyCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiCheckBox*		authenticationfld_;
     uiGenInput*		usernamefld_;
@@ -57,7 +57,7 @@ public:
 
 			uiNetworkUserQuery();
 
-    bool		setFromUser();
+    bool		setFromUser() override;
 
     void		setMainWin(uiMainWin* mw)	{ mainwin_ = mw; }
 

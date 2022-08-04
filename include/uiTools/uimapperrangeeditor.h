@@ -47,10 +47,10 @@ protected:
     uiLineItem*			ctmaxline_;
 
     void 			initPixmaps();
-    void			drawLines();
-    void			drawPixmaps();
-    void			makeSymmetricalIfNeeded(bool);
-    void			useClipRange();
+    void			drawLines() override;
+    void			drawPixmaps() override;
+    void			makeSymmetricalIfNeeded(bool) override;
+    void			useClipRange() override;
 
     void			wheelMoved(CallBacker*);
 };

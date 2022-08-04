@@ -97,7 +97,7 @@ public:
     void		setFocusChangeTrigger(bool);
     bool		focusChangeTrigger() const;
 
-    bool		handleLongTabletPress();
+    bool		handleLongTabletPress() override;
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
     Notifier<uiSpinBox>	valueChanged;
@@ -105,7 +105,7 @@ public:
 
     void		notifyHandler(bool editingfinished);
 
-    void		translateText();
+    void		translateText() override;
 private:
 
     float		oldvalue_;

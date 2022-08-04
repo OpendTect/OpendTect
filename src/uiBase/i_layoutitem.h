@@ -80,7 +80,7 @@ protected:
     const mQtclass(QLayoutItem&)	qlayoutItm() const;
     mQtclass(QLayoutItem*)		takeQlayoutItm();
 
-    virtual const mQtclass(QWidget*)	qwidget_() const;
+    const mQtclass(QWidget*)		qwidget_() const override;
     virtual const mQtclass(QWidget*)	managewidg_() const;
 
     inline i_LayoutMngr&	mngr()			{ return *mngr_; }
@@ -118,10 +118,12 @@ public:
 
     virtual		~i_uiLayoutItem();
 
-    virtual uiSize	minimumSize() const;
+    uiSize		minimumSize() const override;
 
-    virtual uiObject*	  objLayouted()	{ return &uiobjbody_.uiObjHandle(); }
-    virtual uiObjectBody* bodyLayouted(){ return &uiobjbody_; }
+    uiObject*		objLayouted() override
+			{ return &uiobjbody_.uiObjHandle(); }
+
+    uiObjectBody*	bodyLayouted() override		{ return &uiobjbody_; }
 
 
 protected:

@@ -337,7 +337,7 @@ public:
     SelectionBehavior	getSelBehavior() const;
     int			maxNrOfSelections() const;
 
-    bool		handleLongTabletPress();
+    bool		handleLongTabletPress() override;
     bool		needOfVirtualKeyboard() const;
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 

@@ -86,35 +86,35 @@ mClass(General) UserInputObjImpl : public UserInputObj
 {
 public:
 
-    virtual const char*	text() const
+    const char* text() const override
 			{ return Conv::to<const char*>( getvalue_() ); }
-    virtual int		getIntValue() const
+    int		getIntValue() const override
 			    { return Conv::to<int>( getvalue_() ); }
-    virtual od_int64	getInt64Value() const
+    od_int64	getInt64Value() const override
 			    { return Conv::to<od_int64>( getvalue_() ); }
-    virtual double	getDValue() const
+    double	getDValue() const override
 			    { return Conv::to<double>( getvalue_() );}
-    virtual float	getFValue() const
+    float	getFValue() const override
 			    { return Conv::to<float>( getvalue_() ); }
-    virtual bool	getBoolValue() const
+    bool	getBoolValue() const override
 			    { return Conv::to<bool>( getvalue_() ); }
 
-    virtual void	setText( const char* s )
+    void	setText( const char* s ) override
 			    { setvalue_( Conv::to<T>(s) ); }
-    virtual void	setValue( const char* s )
+    void	setValue( const char* s ) override
 			    { setText( s ); }
-    virtual void	setValue( int i )
+    void	setValue( int i ) override
 			    { setvalue_( Conv::to<T>(i) ); }
-    virtual void	setValue( od_int64 i )
+    void	setValue( od_int64 i ) override
 			    { setvalue_( Conv::to<T>(i) ); }
-    virtual void	setValue( double d )
+    void	setValue( double d ) override
 			    { setvalue_( Conv::to<T>(d) ); }
-    virtual void	setValue( float f )
+    void	setValue( float f ) override
 			    { setvalue_( Conv::to<T>(f) ); }
-    virtual void	setValue( bool b )
+    void	setValue( bool b ) override
 			    { setvalue_( Conv::to<T>(b) ); }
 
-    void		setEmpty()
+    void	setEmpty() override
 			    { setvalue_(mUdf(T)); }
 
 protected:

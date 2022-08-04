@@ -96,6 +96,6 @@ protected:
     uiListBox*			mnemlist_;
     MnemonicSelection&		mns_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
 };

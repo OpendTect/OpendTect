@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        B. Bril & H. Huck
- Date:          08/09/06
+ Author:	B. Bril & H. Huck
+ Date:		08/09/06
 ________________________________________________________________________
 
 -*/
@@ -25,20 +25,23 @@ public:
 			uiRGBArray(const char* filename);
     virtual		~uiRGBArray();
 
-    virtual OD::Color	get(int,int) const;
-    virtual bool	set(int,int,const OD::Color&);
+    OD::Color		get(int,int) const override;
+    bool		set(int,int,const OD::Color&) override;
 
-    virtual unsigned char*		getData();
-    virtual const unsigned char*	getData() const;
+    unsigned char*		getData() override;
+    const unsigned char*	getData() const override;
 
-    virtual char	nrComponents() const	{ return withalpha_ ? 4 : 3; }
-    virtual int		getSize(bool xdir) const;
-    virtual bool	setSize(int,int);	//!< destroys whatever is there
+    char		nrComponents() const override
+			{ return withalpha_ ? 4 : 3; }
+
+    int			getSize(bool xdir) const override;
+    bool		setSize(int,int) override;
+				//!< destroys whatever is there
     int			getWidth() const	{ return getSize(true); }
     int			getHeight() const	{ return getSize(false); }
 
     bool		reSize(int,int);	//!< inter/extrapolates
-    void		clear(const OD::Color&);
+    void		clear(const OD::Color&) override;
     void		enableAlpha( bool yn )	{ withalpha_ = yn; }
 
     bool		save(const char* fnm,const char* fmt=0,
@@ -63,6 +66,6 @@ public:
 
 private:
 			uiRGBImageLoader();
-    OD::RGBImage*	loadImage(const char*,uiString&) const;
+    OD::RGBImage*	loadImage(const char*,uiString&) const override;
 };
 

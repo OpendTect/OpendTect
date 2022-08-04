@@ -31,12 +31,12 @@ public:
 					     uiGroupObjBody& obj,
 					     uiGroupParentBody& par );
 
-    virtual int		horAlign(LayoutMode) const;
-    virtual int		center(LayoutMode,bool hor) const;
+    int		horAlign(LayoutMode) const override;
+    int		center(LayoutMode,bool hor) const override;
 
-    virtual void	invalidate();
-    virtual void	updatedAlignment(LayoutMode);
-    virtual void	initChildLayout(LayoutMode);
+    void	invalidate() override;
+    void	updatedAlignment(LayoutMode) override;
+    void	initChildLayout(LayoutMode) override;
 
 protected:
 
@@ -61,28 +61,28 @@ public:
 				uiGroupObjBody(uiGroupObj&,uiParent*,
 					       const char*);
 
-    virtual const QWidget*	qwidget_() const { return this; }
+    const QWidget*		qwidget_() const override { return this; }
 
-    virtual void		reDraw(bool deep);
+    void			reDraw(bool deep) override;
     void			setPrntBody( uiGroupParentBody* pb )
 				{ prntbody_ = pb; }
 
-    virtual int			stretch(bool hor,bool) const;
+    int				stretch(bool hor,bool) const override;
 
     uiGroupParentBody*		prntbody_		= nullptr;
 
     // Hack: Prevents scenewindow movements while trying to rotate
-    virtual void		mouseMoveEvent(QMouseEvent*)	{}
+    void			mouseMoveEvent(QMouseEvent*) override	{}
     virtual void		setFont(const QFont&);
     virtual void		fontChange(const QFont&);
-    virtual void		closeEvent(QCloseEvent*);
+    void			closeEvent(QCloseEvent*) override;
 
 protected:
 
-    virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mgr );
+    i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mgr ) override;
 
-    virtual void		finalize_();
-    virtual uiObject&		uiObjHandle()		{ return handle_; }
+    void		finalize_() override;
+    uiObject&		uiObjHandle() override		{ return handle_; }
 
     uiGroupObj&			handle_;
 };
@@ -139,16 +139,16 @@ protected:
     uiObject*		hcenterobj_		= nullptr;
     uiObject*		halignobj_		= nullptr;
 
-    virtual void	finalize()		{ finalize( false ); }
+    void		finalize() override		{ finalize( false ); }
     virtual void	finalize(bool trigger_finalize_start_stop);
 
-    virtual void	manageChld_( uiBaseObject& o, uiObjectBody& b )
+    void		manageChld_( uiBaseObject& o, uiObjectBody& b ) override
 			    { lomngr_->addItem( b.mkLayoutItem( *lomngr_ ) ); }
 
-    virtual void	attachChild ( constraintType tp,
+    void		attachChild ( constraintType tp,
 				      uiObject* child,
 				      uiObject* other, int margin,
-				      bool reciprocal )
+				      bool reciprocal ) override
 			{
 			    if ( !child  ) return;
 
@@ -157,9 +157,9 @@ protected:
 				reciprocal );
 			}
 
-    virtual const QWidget* qwidget_() const
+    const QWidget*	qwidget_() const override
 			{ return objbody_.qwidget(); }
-    virtual const QWidget* managewidg_() const
+    const QWidget*	managewidg_() const override
 			{ return objbody_.qwidget();}
 
     void		mngrDel( CallBacker* cb )

@@ -45,7 +45,7 @@ protected:
 
     void			choiceSel(CallBacker*);
     void			usrSel(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     void			showMessage(const uiString&);
     void			showList();

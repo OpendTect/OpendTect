@@ -112,36 +112,40 @@ public:
 				    const DataInpSpec& spec,
 				    const char* nm="Bool Input");
 
-    virtual const char*	text() const;
-    virtual void        setText(const char* t);
+    const char*		text() const override;
+    void		setText(const char* t) override;
 
     bool		notifyValueChanged( const CallBack& cb )
 			    { valueChanged.notify(cb); return true; }
 
     Notifier<uiGenInputBoolFld> valueChanged;
 
-    virtual void	setReadOnly(bool ro=true);
-    virtual bool	isReadOnly() const;
+    void		setReadOnly(bool ro=true) override;
+    bool		isReadOnly() const override;
 
-    virtual bool	update_(const DataInpSpec& spec);
+    bool		update_(const DataInpSpec& spec) override;
 
-    virtual void	setToolTip(const uiString&);
+    void		setToolTip(const uiString&) override;
 
 protected:
 
     void		init(uiParent*,const uiString&,const uiString&,bool);
 
-    virtual bool	getvalue_() const			{ return yn_; }
-    virtual void	setvalue_( bool );
+    bool		getvalue_() const override		{ return yn_; }
+    void		setvalue_( bool ) override;
 
-    virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
-    virtual bool	notifyValueChanged_( const CallBack& cb )
+    bool		notifyValueChanging_( const CallBack& ) override
+			    { return false;}
+
+    bool		notifyValueChanged_( const CallBack& cb ) override
 			    { valueChanged.notify(cb); return true; }
-    virtual bool	notifyUpdateRequested_(const CallBack&) { return false;}
+
+    bool		notifyUpdateRequested_(const CallBack&) override
+			    { return false;}
 
     void		selected(CallBacker*);
 
-    virtual uiObject*	mainobject();
+    uiObject*		mainobject() override;
 
     uiString		truetxt_;
     uiString		falsetxt_;
@@ -160,20 +164,21 @@ public:
 					 const char* nm="Int Input");
 			uiGenInputIntFld(uiParent*,const DataInpSpec&,
 					 const char* nm="Int Input");
-    virtual void	setReadOnly(bool);
-    virtual bool	isReadOnly() const;
 
-    virtual bool	update_(const DataInpSpec&);
-    virtual void	setToolTip(const uiString&);
+    void	setReadOnly(bool) override;
+    bool	isReadOnly() const override;
+
+    bool	update_(const DataInpSpec&) override;
+    void	setToolTip(const uiString&) override;
 
 protected:
 
-    virtual int		getvalue_() const;
-    virtual void	setvalue_(int);
+    int		getvalue_() const override;
+    void	setvalue_(int) override;
 
-    virtual bool	notifyValueChanging_(const CallBack&);
-    virtual bool	notifyValueChanged_(const CallBack&);
-    virtual bool	notifyUpdateRequested_(const CallBack&);
+    bool	notifyValueChanging_(const CallBack&) override;
+    bool	notifyValueChanged_(const CallBack&) override;
+    bool	notifyUpdateRequested_(const CallBack&) override;
 };
 
 
@@ -184,20 +189,21 @@ public:
 					 const char* nm="Int Input");
 			uiGenInputInt64Fld(uiParent*,const DataInpSpec&,
 					 const char* nm="Int Input");
-    virtual void	setReadOnly(bool);
-    virtual bool	isReadOnly() const;
 
-    virtual bool	update_(const DataInpSpec&);
-    virtual void	setToolTip(const uiString&);
+    void	setReadOnly(bool) override;
+    bool	isReadOnly() const override;
+
+    bool	update_(const DataInpSpec&) override;
+    void	setToolTip(const uiString&) override;
 
 protected:
 
-    virtual od_int64	getvalue_() const;
-    virtual void	setvalue_(od_int64);
+    od_int64	getvalue_() const override;
+    void	setvalue_(od_int64) override;
 
-    virtual bool	notifyValueChanging_(const CallBack&);
-    virtual bool	notifyValueChanged_(const CallBack&);
-    virtual bool	notifyUpdateRequested_(const CallBack&);
+    bool	notifyValueChanging_(const CallBack&) override;
+    bool	notifyValueChanged_(const CallBack&) override;
+    bool	notifyUpdateRequested_(const CallBack&) override;
 };
 
 #endif

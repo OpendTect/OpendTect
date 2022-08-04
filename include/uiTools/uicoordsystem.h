@@ -34,7 +34,7 @@ public:
     RefMan<CoordSystem>	outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
 
-    virtual HelpKey		helpKey() const { return helpkey_; }
+    HelpKey			helpKey() const override { return helpkey_; }
 
     void			setSurveyInfo( const SurveyInfo* si )
 				{ si_ = si; }
@@ -59,7 +59,7 @@ public:
 
     RefMan<CoordSystem>		outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
-    bool			acceptOK();
+    bool			acceptOK() override;
     void			fillFromSI();
     void			fillFrom(const Coords::CoordSystem&);
 
@@ -96,7 +96,7 @@ protected:
 
     uiCoordSystemSelGrp* coordsysselfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 
@@ -123,7 +123,7 @@ protected:
     bool			orthogonal_;
     bool			projectiononly_;
 
-    BufferString		getSummary() const;
+    BufferString		getSummary() const override;
     void			selCB(CallBacker*);
 
 };

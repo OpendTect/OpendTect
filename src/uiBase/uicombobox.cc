@@ -46,12 +46,12 @@ uiComboBoxBody( uiComboBox& hndle, uiParent* p, const char* nm )
 virtual	~uiComboBoxBody()
 { delete &messenger_; }
 
-virtual int nrTxtLines() const
+virtual int nrTxtLines() const override
 { return 1; }
 
 protected:
 
-virtual void contextMenuEvent(QContextMenuEvent*);
+virtual void contextMenuEvent(QContextMenuEvent*) override;
 
 private:
 

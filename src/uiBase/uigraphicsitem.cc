@@ -41,15 +41,15 @@ ODGraphicsItem()
     : QGraphicsItem()
 {}
 
-QRectF boundingRect() const
+QRectF boundingRect() const override
 { return QRectF(); }
 
 void paint( QPainter* painter, const QStyleOptionGraphicsItem* option,
-	    QWidget* widget )
+	    QWidget* widget ) override
 {
 }
 
-void hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+void hoverEnterEvent( QGraphicsSceneHoverEvent* event ) override
 {
     QList<QGraphicsItem*> itms = childItems();
     for ( int idx=0; idx<itms.size(); idx++ )
@@ -63,7 +63,7 @@ void hoverEnterEvent( QGraphicsSceneHoverEvent* event )
     QGraphicsItem::hoverEnterEvent( event );
 }
 
-void hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+void hoverLeaveEvent( QGraphicsSceneHoverEvent* event ) override
 {
     QList<QGraphicsItem*> itms = childItems();
     for ( int idx=0; idx<itms.size(); idx++ )

@@ -44,8 +44,8 @@ protected:
 
 private:
 
-    virtual bool	hasHelp(const char* arg) const;
-    virtual void	provideHelp(const char* arg) const;
+    bool		hasHelp(const char* arg) const override;
+    void		provideHelp(const char* arg) const override;
 
     BufferString	baseurl_;
     IOPar		keylinks_;
@@ -65,8 +65,10 @@ private:
 				FlareHelpProvider(const char* url);
     static HelpProvider*	createInstance();
 
-    void			provideHelp(const char*) const;
-    bool			hasHelp(const char*) const { return true; }
+    void			provideHelp(const char*) const override;
+    bool			hasHelp(const char*) const override
+				{ return true; }
+
     BufferString		baseurl_;
 
 public:
@@ -90,8 +92,8 @@ public:
 
 private:
     static HelpProvider*	createInstance();
-    bool			hasHelp(const char* arg) const;
-    void			provideHelp(const char* arg) const;
+    bool			hasHelp(const char* arg) const override;
+    void			provideHelp(const char* arg) const override;
 };
 
 
@@ -102,14 +104,14 @@ public:
     static void			init();
     static void			initClass(const char* context,
 					  const char* indexfilename);
-    uiString			description(const char* arg) const;
+    uiString			description(const char* arg) const override;
 
 private:
 				VideoProvider(const char* idxfnm);
 
     static HelpProvider*	createInstance();
-    bool			hasHelp(const char* arg) const;
-    void			provideHelp(const char* arg) const;
+    bool			hasHelp(const char* arg) const override;
+    void			provideHelp(const char* arg) const override;
     int				indexOf(const char* arg) const;
 
     BufferString		indexfilenm_;
@@ -125,6 +127,6 @@ public:
 
 private:
     static HelpProvider*	createInstance();
-    bool			hasHelp(const char* arg) const;
-    void			provideHelp(const char* arg) const;
+    bool			hasHelp(const char* arg) const override;
+    void			provideHelp(const char* arg) const override;
 };

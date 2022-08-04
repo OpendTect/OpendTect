@@ -78,7 +78,7 @@ uiTableExpHandler( uiTable* t, int ml )
 {
 }
 
-bool init()
+bool init() override
 {
     tbl_->clearTable();
     tbl_->setNrRows(0);
@@ -86,7 +86,7 @@ bool init()
     return true;
 }
 
-void finish()
+void finish() override
 {
     if ( rows_.isEmpty() )
 	return;
@@ -108,7 +108,7 @@ void finish()
     tbl_->setColumnStretchable( nrcols_-1, true );
 }
 
-bool putRow( const BufferStringSet& bss, uiString& msg )
+bool putRow( const BufferStringSet& bss, uiString& msg ) override
 {
     if ( rows_.size() >= maxlines_ )
     {

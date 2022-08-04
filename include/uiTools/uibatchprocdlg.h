@@ -35,7 +35,7 @@ protected:
     virtual void		getJobName(BufferString&) const;
     virtual bool		fillPar(IOPar&)		= 0;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			setProgName(const char*);
 
     uiGroup*			pargrp_;

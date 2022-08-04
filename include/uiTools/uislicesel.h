@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        N. Hemstra
- Date:          April 2002
+ Author:	N. Hemstra
+ Date:		April 2002
 ________________________________________________________________________
 
 -*/
@@ -66,9 +66,9 @@ protected:
     void			setBoxValues(uiSpinBox*,
 					     const StepInterval<int>&,int);
 
-    uiLabeledSpinBox*           inl0fld_;
-    uiLabeledSpinBox*           crl0fld_;
-    uiLabeledSpinBox*           z0fld_;
+    uiLabeledSpinBox*		inl0fld_;
+    uiLabeledSpinBox*		crl0fld_;
+    uiLabeledSpinBox*		z0fld_;
     uiSpinBox*			inl1fld_;
     uiSpinBox*			crl1fld_;
     uiSpinBox*			z1fld_;
@@ -109,7 +109,7 @@ protected:
 
     uiSliceSel*			slicesel_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 
@@ -127,7 +127,7 @@ public:
 							   }
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		selectPos2D();
     bool		selectPos3D();
 

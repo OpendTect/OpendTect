@@ -45,8 +45,8 @@ public:
 				uiZSliceInterpolationModel,uiParent*,
 			       "ZSlices",uiStrings::sZSlice(mPlural))
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 			uiZSliceInterpolationModel(uiParent*);

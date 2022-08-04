@@ -45,13 +45,13 @@ public:
 			Array3DWrapper(ArrayND<T>&);
 			~Array3DWrapper();
 
-    void		init();
-    bool		isOK() const;
+    void		init() override;
+    bool		isOK() const override;
 
-    void		set(int,int,int,T);
-    T			get(int,int,int) const;
+    void		set(int,int,int,T) override;
+    T			get(int,int,int) const override;
 
-    const Array3DInfo&	info() const		{ return info_; }
+    const Array3DInfo&	info() const override		{ return info_; }
 
 protected:
 

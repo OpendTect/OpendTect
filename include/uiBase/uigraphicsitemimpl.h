@@ -68,7 +68,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     QGraphicsProxyWidget*	qwidgetitem_;
     uiObject*			obj_;
     uiGroup*			grp_;
@@ -89,7 +89,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     QGraphicsEllipseItem*	qellipseitem_;
 };
 
@@ -117,8 +117,10 @@ public:
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
-    void		setPenStyle(const OD::LineStyle&,bool withalpha=false);
-    void		setPenColor(const OD::Color&,bool withalpha=false);
+    void		setPenStyle(const OD::LineStyle&,
+				    bool withalpha=false) override;
+    void		setPenColor(const OD::Color&,
+				    bool withalpha=false) override;
     void		setLine(const uiPoint& start,const uiPoint& end);
     void		setLine(const uiWorldPoint&,const uiWorldPoint&);
     void		setLine(int x1,int y1,int x2,int y2);
@@ -133,7 +135,7 @@ public:
 
 protected:
 
-    QGraphicsItem*	mkQtObj();
+    QGraphicsItem*	mkQtObj() override;
     QGraphicsLineItem*	qlineitem_;
 };
 
@@ -163,7 +165,7 @@ public:
     uiSize			wantedScreenSize() const;
 
 protected:
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsDynamicImageItem*	item_;
 };
 
@@ -183,7 +185,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsPixmapItem*	qpixmapitem_;
 };
 
@@ -205,7 +207,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsPolyLineItem*	qpolygonitem_;
 };
 
@@ -223,7 +225,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsPathItem*		odgraphicspath_;
 };
 
@@ -246,7 +248,7 @@ public:
 
 protected:
 
-    QGraphicsItem*			mkQtObj();
+    QGraphicsItem*			mkQtObj() override;
     ODGraphicsMultiColorPolyLineItem*	odmulticoloritem_;
     int					penwidth_;
 };
@@ -268,7 +270,7 @@ public:
 
 protected:
 
-    QGraphicsItem*	mkQtObj();
+    QGraphicsItem*	mkQtObj() override;
     QGraphicsRectItem*	qrectitem_;
 };
 
@@ -295,13 +297,13 @@ public:
 
 protected:
 			uiTextItem(QGraphicsItem*);
-    void		translateText();
+    void		translateText() override;
 
     ODGraphicsTextItem*	mkODObj();
     ODGraphicsTextItem*	qtextitem_;
     uiString		text_;
 
-    virtual void	stPos(float,float);
+    void		stPos(float,float) override;
 };
 
 
@@ -333,10 +335,10 @@ public:
 protected:
     Alignment		al_;
     bool		textiscentered_;
-    QGraphicsItem*	mkQtObj();
+    QGraphicsItem*	mkQtObj() override;
     ODGraphicsAdvancedTextItem* qtextitem_;
 
-    virtual void	stPos(float,float);
+    void		stPos(float,float) override;
 };
 
 
@@ -355,12 +357,12 @@ public:
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill(bool);
     void			setFillColor(const OD::Color&,
-							bool withalpha=false);
+					     bool withalpha=false) override;
     const MarkerStyle2D*	getMarkerStyle();
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsMarkerItem*	qmarkeritem_;
 };
 
@@ -376,7 +378,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsPointItem*	qpointitem_;
 };
 
@@ -402,7 +404,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsArrowItem*	qarrowitem_;
 
     uiPoint			tailpos_;
@@ -475,7 +477,7 @@ public:
 
 protected:
 
-    QGraphicsItem*	mkQtObj();
+    QGraphicsItem*	mkQtObj() override;
     QGraphicsPathItem*	qpathitem_;
     QPainterPath*	qppath_;
 
@@ -500,7 +502,7 @@ public:
 
 protected:
 
-    QGraphicsItem*		mkQtObj();
+    QGraphicsItem*		mkQtObj() override;
     ODGraphicsWellSymbolItem*	wellsymitem_;
 
 };

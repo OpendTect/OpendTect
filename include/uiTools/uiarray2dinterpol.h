@@ -32,7 +32,7 @@ public:
 					const Array2DInterpol* oldvals,
 					bool withstep=false);
 
-    bool			acceptOK();
+    bool			acceptOK() override;
     Array2DInterpol*		getResult();
 				//!<\note Becomes caller's
 
@@ -40,7 +40,7 @@ public:
 				//!<A unitstring in [] that tells what the
 				//!<unit is for going from one cell to another
 
-    HelpKey			helpKey() const;
+    HelpKey			helpKey() const override;
     void			fillPar(IOPar&) const;
 
     void			setStep(const BinID&);
@@ -69,7 +69,7 @@ public:
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
 			//*!Dose only work if provided object is of 'your' type.
 
-    bool		acceptOK()					= 0;
+    bool		acceptOK() override				= 0;
     virtual void	setDistanceUnit(const uiString&)		{}
 
     Array2DInterpol*	getResult();
@@ -96,7 +96,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		cornersfirstfld_;
     uiGenInput*		stepsizefld_;
@@ -113,11 +113,11 @@ public:
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
 
-    void			setValuesFrom(const Array2DInterpol&);
-    bool			acceptOK();
-    void			setDistanceUnit(const uiString&);
+    void			setValuesFrom(const Array2DInterpol&) override;
+    bool			acceptOK() override;
+    void			setDistanceUnit(const uiString&) override;
 
-    HelpKey			helpKey() const;
+    HelpKey			helpKey() const override;
 
 protected:
 
@@ -129,7 +129,7 @@ protected:
     int				nrsteps_;
 
     void			doParamDlg(CallBacker*);
-    virtual Array2DInterpol*	createResult() const;
+    Array2DInterpol*		createResult() const override;
 
     friend class		uiInvDistA2DInterpolPars;
 
@@ -145,14 +145,14 @@ public:
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
 
-    bool			acceptOK();
-    void			setDistanceUnit(const uiString&);
-    void			setValuesFrom(const Array2DInterpol&);
+    bool			acceptOK() override;
+    void			setDistanceUnit(const uiString&) override;
+    void			setValuesFrom(const Array2DInterpol&) override;
 
 protected:
 
     void			intCB(CallBacker*);
-    virtual Array2DInterpol*	createResult() const;
+    Array2DInterpol*		createResult() const override;
 
     uiGenInput*			maxdistfld_;
     uiCheckBox*			useneighborfld_;
@@ -167,13 +167,13 @@ public:
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
-    void		      setValuesFrom(const Array2DInterpol&);
+    void		      setValuesFrom(const Array2DInterpol&) override;
 
-    bool			acceptOK();
+    bool			acceptOK() override;
 
 protected:
 
-    virtual Array2DInterpol*	createResult() const;
+    Array2DInterpol*		createResult() const override;
     int				nrsteps_;
     uiGenInput*                 nrstepsfld_;
 };

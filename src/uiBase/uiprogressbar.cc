@@ -28,7 +28,7 @@ public:
 				setHSzPol( uiObject::MedVar );
 			    }
 
-    virtual int	nrTxtLines() const			{ return 1; }
+    int			nrTxtLines() const override		{ return 1; }
 };
 
 

@@ -110,9 +110,9 @@ public:
 				     bool casesensitive=false);
     void		setPlaceholderText(const uiString&);
 
-    virtual void	setReadOnly(bool=true);
-    virtual bool	isReadOnly() const;
-    virtual bool	update_(const DataInpSpec&);
+    void		setReadOnly(bool=true) override;
+    bool		isReadOnly() const override;
+    bool		update_(const DataInpSpec&) override;
 
     void		setPasswordMode();
     void		setValidator(const uiIntValidator&);
@@ -139,7 +139,7 @@ public:
     const char*		selectedText() const;
     void		setSelection(int start,int length);
 
-    bool		handleLongTabletPress();
+    bool		handleLongTabletPress() override;
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
     Notifier<uiLineEdit> editingFinished;
@@ -148,19 +148,19 @@ public:
     Notifier<uiLineEdit> selectionChanged;
 
 
-    virtual const char*	getvalue_() const;
-    virtual void	setvalue_( const char* );
+    const char*		getvalue_() const override;
+    void		setvalue_( const char* ) override;
 
-    void		setToolTip( const uiString& tt )
+    void		setToolTip( const uiString& tt ) override
 			{ uiObject::setToolTip(tt); }
 
 protected:
 
-    virtual bool	notifyValueChanging_( const CallBack& cb )
+    bool	notifyValueChanging_( const CallBack& cb ) override
 			{ textChanged.notify( cb ); return true;}
-    virtual bool	notifyValueChanged_( const CallBack& cb )
+    bool	notifyValueChanged_( const CallBack& cb ) override
 			{ editingFinished.notify( cb ); return true;}
-    virtual bool	notifyUpdateRequested_( const CallBack& cb )
+    bool	notifyUpdateRequested_( const CallBack& cb ) override
 			{ returnPressed.notify( cb ); return true; }
 
 private:

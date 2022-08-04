@@ -89,8 +89,8 @@ private:
     bool		getPythonEnvBinPath(BufferString&) const;
     void		updateIDEfld();
     bool		useScreen();
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		pythonsrcfld_;
     uiFileInput*	internalloc_ = nullptr;

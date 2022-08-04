@@ -119,7 +119,7 @@ protected:
 
     uiButton*		examinebut_;
 
-    virtual void	doSelect(CallBacker*);
+    void		doSelect(CallBacker*) override;
     void		inputChg(CallBacker*);
     void		examineFile(CallBacker*);
     void		isFinalized(CallBacker*);

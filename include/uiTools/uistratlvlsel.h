@@ -34,7 +34,7 @@ public:
     OD::Color		getColor() const;
     Strat::LevelID	getID() const;
 
-    void		setName(const char*);
+    void		setName(const char*) override;
     void		setID(Strat::LevelID);
     void		setToolTip(const uiString&);
 

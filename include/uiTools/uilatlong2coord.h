@@ -29,13 +29,13 @@ public:
 
 			uiUnlocatedXYSystem(uiParent*);
 
-    virtual bool	initFields(const CoordSystem*);
+    bool		initFields(const CoordSystem*) override;
 
 protected:
 
     uiGenInput*		xyunitfld_;
 
-    bool		acceptOK();
+    bool		acceptOK() override;
 
 };
 
@@ -49,7 +49,7 @@ public:
 
 			uiAnchorBasedXYSystem(uiParent*);
 
-    virtual bool	initFields(const CoordSystem*);
+    bool		initFields(const CoordSystem*) override;
 
 protected:
 
@@ -57,7 +57,7 @@ protected:
     uiLatLongInp*	latlngfld_;
     uiGenInput*		xyunitfld_;
 
-    bool		acceptOK();
+    bool		acceptOK() override;
 
 };
 
@@ -84,7 +84,7 @@ protected:
 
     bool		getLL2C();
     void		transfFile(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

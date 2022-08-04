@@ -5,8 +5,8 @@ ________________________________________________________________________
 
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
-Date:          Jan 2010
-RCS:           $Id: uiobjectitemview.h,v 1.1 2010-01-19 13:02:33 cvsbruno Exp
+Date:	       Jan 2010
+RCS:	       $Id: uiobjectitemview.h,v 1.1 2010-01-19 13:02:33 cvsbruno Exp
 $
 ________________________________________________________________________
 
@@ -26,13 +26,13 @@ Objects can be dynamically removed and added from the graphicsview.
 mExpClass(uiTools) uiObjectItemView : public uiGraphicsView
 {
 public:
-			    	uiObjectItemView(uiParent*);
+				uiObjectItemView(uiParent*);
 				~uiObjectItemView(){};
 
-    virtual void 		addItem(uiObjectItem*,int stretch=1);
+    virtual void		addItem(uiObjectItem*,int stretch=1);
     virtual void		insertItem(uiObjectItem*,int pos,int stretch=1);
 
-    virtual void 		removeItem(uiObjectItem*);
+    virtual void		removeItem(uiObjectItem*);
     virtual void		removeAllItems();
 
     int				nrItems() const { return objectitems_.size(); }
@@ -41,8 +41,8 @@ public:
     void			reSizeItem(int idx,const uiSize&);
     static void			reSizeItem(uiObjectItem*,const uiSize&);
 
-    int 			stretchFactor(uiObjectItem*);
-    void 			setStretchFactor(uiObjectItem*,int sf);
+    int				stretchFactor(uiObjectItem*);
+    void			setStretchFactor(uiObjectItem*,int sf);
     
     void			resetViewArea(CallBacker*);
     virtual void		setSceneLayoutPos(uiPoint);
@@ -54,9 +54,9 @@ public:
     void			getItemsFromRect(const uiRect&,
 					       ObjectSet<uiObjectItem>&);
 
-    void			setCursor(const MouseCursor&);
+    void			setCursor(const MouseCursor&) override;
 
-    Notifier<uiObjectItemView> 	viewareareset;
+    Notifier<uiObjectItemView>	viewareareset;
 
 protected:
 
