@@ -209,17 +209,17 @@ public:
 			QEvent::Type removeEventType = QEvent::None);
     void	processDeferredEvents();
 
-    void	setKeyboardModifiers( QInputEvent* );
-    void	resizeEvent( QResizeEvent* );
-    void	moveEvent( QMoveEvent* );
-    void	keyPressEvent( QKeyEvent* );
-    void	keyReleaseEvent( QKeyEvent* );
-    void	mousePressEvent( QMouseEvent* );
-    void	mouseReleaseEvent( QMouseEvent* );
-    void	mouseDoubleClickEvent( QMouseEvent* );
-    void	mouseMoveEvent( QMouseEvent* );
-    void	wheelEvent( QWheelEvent* );
-    void	paintEvent(QPaintEvent *);
+    void	setKeyboardModifiers(QInputEvent*);
+    void	resizeEvent(QResizeEvent*) override;
+    void	moveEvent(QMoveEvent*) override;
+    void	keyPressEvent(QKeyEvent*) override;
+    void	keyReleaseEvent(QKeyEvent*) override;
+    void	mousePressEvent(QMouseEvent*) override;
+    void	mouseReleaseEvent(QMouseEvent*) override;
+    void	mouseDoubleClickEvent(QMouseEvent*) override;
+    void	mouseMoveEvent(QMouseEvent*) override;
+    void	wheelEvent(QWheelEvent*) override;
+    void	paintEvent(QPaintEvent*) override;
 
 
 protected:
@@ -238,28 +238,29 @@ public:
 	    ~GraphicsWindowIndirect();
 
     bool	init();
-    void	getWindowRectangle(int&,int&,int&,int&);
+    void	getWindowRectangle(int&,int&,int&,int&) override;
 
-    void	grabFocus();
-    void	grabFocusIfPointerInWindow();
-    void	raiseWindow();
-    bool	valid() const;
+    void	grabFocus() override;
+    void	grabFocusIfPointerInWindow() override;
+    void	raiseWindow() override;
+    bool	valid() const override;
 
-    void	runOperations();
+    void	runOperations() override;
 
 //    void	bindPBufferToTextureImplementation(GLenum)	{}
-    void	closeImplementation();
-    bool	isRealizedImplementation() const	{ return realized_; }
-    bool	makeCurrentImplementation();
-    bool	realizeImplementation();
-    bool	releaseContextImplementation();
-    void	swapBuffersImplementation();
+    void	closeImplementation() override;
+    bool	isRealizedImplementation() const override
+		{ return realized_; }
+    bool	makeCurrentImplementation() override;
+    bool	realizeImplementation() override;
+    bool	releaseContextImplementation() override;
+    void	swapBuffersImplementation() override;
 
-    void	requestWarpPointer( float x, float y );
+    void	requestWarpPointer(float x,float y) override;
 
     QWidget*	getWidget() { return qwidget_; }
-    void	removeWidget() { qwidget_ = 0; }
-    void	requestRedraw() { qwidget_->update(); }
+    void	removeWidget() { qwidget_ = nullptr; }
+    void	requestRedraw() override { qwidget_->update(); }
 
 protected:
 
@@ -275,7 +276,7 @@ OsgIndirectViewWidget<T>::~OsgIndirectViewWidget()
     {
         gw_->close();
 	gw_->removeWidget();
-        gw_ = 0;
+        gw_ = nullptr;
     }
 }
 

@@ -94,9 +94,9 @@ public:
         : viewerbody_( t )
     {}
 
-    void	operator()(osg::Node*,osg::NodeVisitor*);
+    void	operator()(osg::Node*,osg::NodeVisitor*) override;
 
-    void	detach() { viewerbody_ = 0; }
+    void	detach() { viewerbody_ = nullptr; }
 
 protected:
     TrackBallManipulatorMessenger()
@@ -141,16 +141,18 @@ class uiDirectViewBody : public ui3DViewerBody
 public:
 				uiDirectViewBody(ui3DViewer&,uiParent*);
 
-    const mQtclass(QWidget)*	qwidget_() const;
+    const mQtclass(QWidget)*	qwidget_() const override;
 
 
-    virtual uiSize		minimumSize() const
+    virtual uiSize		minimumSize() const override
 				{ return uiSize(200,200); }
 
 protected:
 
-    osgViewer::GraphicsWindow&	getGraphicsWindow(){return *graphicswin_.get();}
-    osg::GraphicsContext*	getGraphicsContext(){return graphicswin_.get();}
+    osgViewer::GraphicsWindow&	getGraphicsWindow() override
+				{ return *graphicswin_.get(); }
+    osg::GraphicsContext*	getGraphicsContext() override
+				{ return graphicswin_.get(); }
 
     osg::ref_ptr<ODGraphicsWindow>	graphicswin_;
 };

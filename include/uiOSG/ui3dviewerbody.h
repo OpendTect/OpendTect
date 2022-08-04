@@ -178,7 +178,7 @@ protected:
     virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
 
-    uiObject&				uiObjHandle();
+    uiObject&				uiObjHandle() override;
 
     void				requestRedraw();
 

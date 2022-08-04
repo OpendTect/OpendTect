@@ -26,11 +26,12 @@ class SwapCallback : public osg::GraphicsContext::SwapCallback
 {
 public:
     SwapCallback( ui3DViewerBody* body )
-	: scene_( 0 )
+	: scene_( nullptr )
 	, nrleft_( 2 )
 	, body_( body )
     {}
-    void swapBuffersImplementation(osg::GraphicsContext* gc)
+
+    void swapBuffersImplementation(osg::GraphicsContext* gc) override
     {
 	gc->swapBuffersImplementation();
 	if ( scene_ && nrleft_ )

@@ -29,7 +29,7 @@ protected:
     uiSlider*		sliderfld_;
     ObjectSet<ui3DViewer> vwrs_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		sliderMove(CallBacker*);
     void		doFinalize(CallBacker*);
 };

@@ -87,13 +87,13 @@ public:
 
     void			setKeyboardModifiers(QInputEvent*);
 
-    virtual void		keyPressEvent(QKeyEvent*);
-    virtual void		keyReleaseEvent(QKeyEvent*);
-    virtual void		mousePressEvent(QMouseEvent*);
-    virtual void		mouseReleaseEvent(QMouseEvent*);
-    virtual void		mouseDoubleClickEvent(QMouseEvent*);
-    virtual void		mouseMoveEvent(QMouseEvent*);
-    virtual void		wheelEvent(QWheelEvent*);
+    void			keyPressEvent(QKeyEvent*) override;
+    void			keyReleaseEvent(QKeyEvent*) override;
+    void			mousePressEvent(QMouseEvent*) override;
+    void			mouseReleaseEvent(QMouseEvent*) override;
+    void			mouseDoubleClickEvent(QMouseEvent*) override;
+    void			mouseMoveEvent(QMouseEvent*) override;
+    void			wheelEvent(QWheelEvent*) override;
     virtual bool		gestureEvent(QGestureEvent*);
 
 protected:
@@ -134,10 +134,10 @@ protected:
     bool			_forwardKeyEvents;
     qreal			_devicePixelRatio;
 
-    virtual void		resizeEvent(QResizeEvent*);
-    virtual void		moveEvent(QMoveEvent*);
-    virtual void		glDraw();
-    virtual bool		event(QEvent*);
+    void			resizeEvent(QResizeEvent*) override;
+    void			moveEvent(QMoveEvent*) override;
+    void			glDraw() override;
+    bool			event(QEvent*) override;
 };
 
 
@@ -173,34 +173,35 @@ public:
 						 osg::GraphicsContext::Traits*);
     static osg::GraphicsContext::Traits* createTraits(const QGLWidget* widget);
 
-    virtual bool		setWindowRectangleImplementation(int x,int y,
-							int width,int height);
-    virtual void		getWindowRectangle(int& x,int& y,int& width,
-						   int& height);
-    virtual bool		setWindowDecorationImplementation(bool yn);
-    virtual bool		getWindowDecoration() const;
-    virtual void		grabFocus();
-    virtual void		grabFocusIfPointerInWindow();
-    virtual void		raiseWindow();
-    virtual void		setWindowName(const std::string&);
-    virtual std::string		getWindowName();
-    virtual void		useCursor(bool cursoron);
-    virtual void		setCursor(MouseCursor);
+    bool			setWindowRectangleImplementation(int x,int y,
+						int width,int height) override;
+    void			getWindowRectangle(int& x,int& y,int& width,
+						   int& height) override;
+    bool			setWindowDecorationImplementation(
+							bool yn) override;
+    bool			getWindowDecoration() const override;
+    void			grabFocus() override;
+    void			grabFocusIfPointerInWindow() override;
+    void			raiseWindow() override;
+    void			setWindowName(const std::string&) override;
+    std::string			getWindowName() override;
+    void			useCursor(bool cursoron) override;
+    void			setCursor(MouseCursor) override;
     inline bool			getTouchEventsEnabled() const
 				{ return _widget->getTouchEventsEnabled(); }
     virtual void		setTouchEventsEnabled( bool yn )
 				{ _widget->setTouchEventsEnabled(yn); }
 
-    virtual bool		valid() const;
-    virtual bool		realizeImplementation();
-    virtual bool		isRealizedImplementation() const;
-    virtual void		closeImplementation();
-    virtual bool		makeCurrentImplementation();
-    virtual bool		releaseContextImplementation();
-    virtual void		swapBuffersImplementation();
-    virtual void		runOperations();
+    bool			valid() const override;
+    bool			realizeImplementation() override;
+    bool			isRealizedImplementation() const override;
+    void			closeImplementation() override;
+    bool			makeCurrentImplementation() override;
+    bool			releaseContextImplementation() override;
+    void			swapBuffersImplementation() override;
+    void			runOperations() override;
 
-    virtual void		requestWarpPointer(float x,float y);
+    void			requestWarpPointer(float x,float y) override;
 
 protected:
 

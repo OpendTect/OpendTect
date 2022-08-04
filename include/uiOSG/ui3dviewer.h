@@ -90,7 +90,7 @@ public:
     void		setWheelDisplayMode(WheelMode);
     WheelMode		getWheelDisplayMode() const;
 
-    void		setBackgroundColor(const OD::Color&);
+    void		setBackgroundColor(const OD::Color&) override;
     OD::Color		getBackgroundColor() const;
 
     Geom::Size2D<int>	getViewportSizePixels() const;

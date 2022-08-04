@@ -134,7 +134,7 @@ public:
     void init( osgViewer::ViewerBase *viewer );
     void initCallbacks( const NotifierAccess&, const NotifierAccess& );
     void stopTimer();
-    void timerEvent( QTimerEvent *ev  );
+    void timerEvent(QTimerEvent*) override;
 
     static HeartBeat* instance();
 private:
@@ -1012,8 +1012,8 @@ static QtWindowingSystem* getInterface()
 
 
 // Return the number of screens present in the system
-virtual unsigned int getNumScreens(
-		const osg::GraphicsContext::ScreenIdentifier& /*si*/ )
+unsigned int getNumScreens(
+		const osg::GraphicsContext::ScreenIdentifier& /*si*/ ) override
 {
     OSG_WARN << "uiOSG: getNumScreens() not implemented yet." << std::endl;
     return 0;
@@ -1022,16 +1022,16 @@ virtual unsigned int getNumScreens(
 
 // Return the resolution of specified screen
 // (0,0) is returned if screen is unknown
-virtual void getScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
-				osg::GraphicsContext::ScreenSettings& )
+void getScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
+			osg::GraphicsContext::ScreenSettings& ) override
 {
     OSG_WARN << "uiOSG: getScreenSettings() not implemented yet." << std::endl;
 }
 
 
 // Set the resolution for given screen
-virtual bool setScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
-				const osg::GraphicsContext::ScreenSettings& )
+bool setScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
+			const osg::GraphicsContext::ScreenSettings& ) override
 {
     OSG_WARN << "uiOSG: setScreenSettings() not implemented yet." << std::endl;
     return false;
@@ -1039,9 +1039,8 @@ virtual bool setScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
 
 
 // Enumerates available resolutions
-virtual void enumerateScreenSettings(
-		const osg::GraphicsContext::ScreenIdentifier&,
-		osg::GraphicsContext::ScreenSettingsList& )
+void enumerateScreenSettings( const osg::GraphicsContext::ScreenIdentifier&,
+			    osg::GraphicsContext::ScreenSettingsList& ) override
 {
     OSG_WARN << "uiOSG: enumerateScreenSettings() not implemented yet."
 	     << std::endl;
@@ -1049,8 +1048,8 @@ virtual void enumerateScreenSettings(
 
 
 // Create a graphics context with given traits
-virtual osg::GraphicsContext* createGraphicsContext(
-		osg::GraphicsContext::Traits* traits )
+osg::GraphicsContext* createGraphicsContext(
+				osg::GraphicsContext::Traits* traits ) override
 {
     if ( traits->pbuffer )
     {

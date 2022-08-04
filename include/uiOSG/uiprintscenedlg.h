@@ -60,16 +60,16 @@ protected:
 
     uiLabeledComboBox*	scenefld_;
 
-    const char*		getExtension();
-    void		writeToSettings();
+    const char*		getExtension() override;
+    void		writeToSettings() override;
     void		getSupportedFormats(const char** imagefrmt,
 					    const char** frmtdesc,
-					    BufferString& filters);
+					    BufferString& filters) override;
 
     enum		{InvalidImages=0, OnlyMainViewImage, MainAndHudImages };
-    void		setFldVals(CallBacker*);
+    void		setFldVals(CallBacker*) override;
     void		sceneSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     osg::Image*		offScreenRenderViewToImage(osgViewer::View*,
 						   unsigned char transparency);
 			/*! The returned image is not referenced yet. */

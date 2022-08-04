@@ -24,13 +24,13 @@ public:
 				ui3DIndirectViewBody(ui3DViewer&,uiParent*);
 				~ui3DIndirectViewBody();
 
-    const QWidget*              qwidget_() const;
+    const QWidget*              qwidget_() const override;
 
 protected:
-    osgViewer::GraphicsWindow&	getGraphicsWindow();
-    osg::GraphicsContext*       getGraphicsContext();
+    osgViewer::GraphicsWindow&	getGraphicsWindow() override;
+    osg::GraphicsContext*       getGraphicsContext() override;
 
-						
-    GraphicsWindowIndirect*	graphicswin_;    
+
+    GraphicsWindowIndirect*	graphicswin_;
 };
 

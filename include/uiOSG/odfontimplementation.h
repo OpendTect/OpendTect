@@ -25,33 +25,32 @@ public:
     ODFontImplementation(const QFont& font);
     virtual ~ODFontImplementation();
 
-    virtual std::string getFileName() const;
+    std::string getFileName() const override;
 
-    virtual bool supportsMultipleFontResolutions() const { return true; }
+    bool supportsMultipleFontResolutions() const override { return true; }
 
-    virtual osgText::Glyph* getGlyph(const osgText::FontResolution& fontRes,
-				     unsigned int charcode);
+    osgText::Glyph*		getGlyph(const osgText::FontResolution&,
+					 unsigned int charcode) override;
 #if OSG_MIN_VERSION_REQUIRED(3,6,0)
-    virtual osgText::Glyph3D*	getGlyph3D(const osgText::FontResolution&,
-					   unsigned int /*charcode*/)
+    osgText::Glyph3D*		getGlyph3D(const osgText::FontResolution&,
+					   unsigned int /*charcode*/) override
 				{ return nullptr; }
 
-    virtual osg::Vec2		getKerning(const osgText::FontResolution&,
+    osg::Vec2			getKerning(const osgText::FontResolution&,
 					   unsigned int leftcharcode,
 					   unsigned int rightcharcode,
-					   osgText::KerningType kerningType)
+				   osgText::KerningType kerningType) override
 				{ return osg::Vec2(0,0); }
 #else
-    virtual osgText::Glyph3D*	getGlyph3D(unsigned int )
-				{ return 0; }
-    virtual osg::Vec2		getKerning(unsigned int leftcharcode,
+    osgText::Glyph3D*		getGlyph3D( unsigned int ) override
+				{ return nullptr; }
+    osg::Vec2			getKerning(unsigned int leftcharcode,
 					   unsigned int rightcharcode,
-					   osgText::KerningType kerningType)
+				   osgText::KerningType kerningType ) override
 				{ return osg::Vec2(0, 0); }
 #endif
 
-    virtual bool		hasVertical() const
-				{ return true; }
+    bool			hasVertical() const override	{ return true; }
 
 protected:
 
