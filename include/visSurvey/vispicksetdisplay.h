@@ -39,11 +39,11 @@ public:
 				    "PickSetDisplay",
 				    toUiString(sFactoryKeyword()))
 
-    void			setSet(Pick::Set*);
+    void			setSet(Pick::Set*) override;
     bool			isPolygon() const;
 
-    bool			hasColor() const	{ return true; }
-    void			setColor(OD::Color);
+    bool			hasColor() const override	{ return true; }
+    void			setColor(OD::Color) override;
 
     void			displayBody(bool);
     bool			isBodyDisplayed() const;
@@ -51,13 +51,14 @@ public:
     bool			setBodyDisplay();
     visBase::RandomPos2Body*	getDisplayBody() const	{ return bodydisplay_; }
 
-    void			getPickingMessage(BufferString&) const;
+    void			getPickingMessage(BufferString&) const override;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
-    void			setPixelDensity(float);
-    float			getPixelDensity() const;
+    void			setPixelDensity(float) override;
+    float			getPixelDensity() const override;
 
     bool			needLine();
     void			createLine();
@@ -70,19 +71,19 @@ public:
 
     void			redrawAll(int draggeridx=-1);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 				~PickSetDisplay();
 
     void			setPosition(int loc,const Pick::Location&);
     void			setPosition(int idx,const Pick::Location&,
-					    bool add=false);
+					    bool add=false) override;
     Coord3			getPosition(int loc) const;
-    void			removePosition(int idx);
-    void			removeAll();
-    virtual void		redrawMultiSets();
+    void			removePosition(int idx) override;
+    void			removeAll() override;
+    void			redrawMultiSets() override;
 
 
     void			setPolylinePos(int,const Coord3&);
@@ -90,29 +91,30 @@ protected:
 
     ::Quaternion		getDirection(const Pick::Location&) const;
 
-    void			dispChg(CallBacker*);
-    void			locChg(CallBacker*);
+    void			dispChg(CallBacker*) override;
+    void			locChg(CallBacker*) override;
 
     int				clickedMarkerIndex(
-					const visBase::EventInfo&) const;
+				    const visBase::EventInfo&) const override;
     bool			isMarkerClick(
-					const visBase::EventInfo&) const;
+				    const visBase::EventInfo&) const override;
 
     void			otherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,int);
-    virtual void		updateDragger();
+				    const ObjectSet<const SurveyObject>&,
+				    int) override;
+    void			updateDragger() override;
     visBase::MarkerSet*		createOneMarker() const;
 
-    void			turnOnSelectionMode(bool);
+    void			turnOnSelectionMode(bool) override;
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
 					    const visBase::PolygonSelection*);
     bool			updateMarkerAtSection(const SurveyObject*,int);
     void			updateLineAtSection();
 
-    virtual bool		removeSelections(TaskRunner*);
-    virtual bool		draggerNormal() const;
-    virtual void		setDraggerNormal(const Coord3&);
+    bool			removeSelections(TaskRunner*) override;
+    bool			draggerNormal() const override;
+    void			setDraggerNormal(const Coord3&) override;
 
     visBase::MarkerSet*		markerset_;
     bool			needline_;

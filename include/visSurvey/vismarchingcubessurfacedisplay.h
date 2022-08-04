@@ -36,60 +36,68 @@ public:
 				 "MarchingCubesDisplay",
 				 ::toUiString(sFactoryKeyword()) );
 
-    MultiID			getMultiID() const;
-    bool			isInlCrl() const	{ return true; }
+    MultiID			getMultiID() const override;
+    bool			isInlCrl() const override	{ return true; }
 
-    bool			hasColor() const	{ return true; }
-    bool			usesColor() const;
-    OD::Color			getColor() const;
-    void			setColor(OD::Color);
-    bool			allowMaterialEdit() const { return true; }
+    bool			hasColor() const override	{ return true; }
+    bool			usesColor() const override;
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
+    bool			allowMaterialEdit() const  override
+				{ return true; }
 
-    void			useTexture(bool yn,bool trigger);
-    bool			canShowTexture() const;
+    void			useTexture(bool yn,bool trigger) override;
+    bool			canShowTexture() const override;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
 				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getEMID() const;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
 
-    SurveyObject::AttribFormat	getAttributeFormat(int) const;
-    int				nrAttribs() const;
-    bool			canAddAttrib(int) const;
-    bool			canRemoveAttrib() const;
-    bool			canHandleColTabSeqTrans(int) const;
-    const ColTab::MapperSetup*	getColTabMapperSetup(int,int) const;
+    SurveyObject::AttribFormat	getAttributeFormat(int) const override;
+    int				nrAttribs() const override;
+    bool			canAddAttrib(int) const override;
+    bool			canRemoveAttrib() const override;
+    bool			canHandleColTabSeqTrans(int) const override;
+    const ColTab::MapperSetup*	getColTabMapperSetup(int,int) const override;
 
     void			setColTabMapperSetup(int,
-					const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int) const;
-    bool			canSetColTabSequence() const;
+					const ColTab::MapperSetup&,
+					TaskRunner*) override;
+    const ColTab::Sequence*	getColTabSequence(int) const override;
+    bool			canSetColTabSequence() const override;
     void			setColTabSequence(int,const ColTab::Sequence&,
-					TaskRunner*);
-    void			setSelSpec(int,const Attrib::SelSpec&);
+					TaskRunner*) override;
+    void			setSelSpec(int,const Attrib::SelSpec&) override;
     void			setSelSpecs(int attrib,
-					const TypeSet<Attrib::SelSpec>&);
-    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+				    const TypeSet<Attrib::SelSpec>&) override;
+    const Attrib::SelSpec*	getSelSpec(int attrib,
+					   int version=0) const override;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
     void			setDepthAsAttrib(int);
     void			setIsoPatch(int);
-    void			enableAttrib(int attrib,bool yn);
-    bool			isAttribEnabled(int attrib) const;
-    bool			hasSingleColorFallback() const	{ return true; }
+    void			enableAttrib(int attrib,bool yn) override;
+    bool			isAttribEnabled(int attrib) const override;
+    bool			hasSingleColorFallback() const override
+				{ return true; }
 
-    void			getRandomPos(DataPointSet&,TaskRunner*) const;
-    void			setRandomPosData( int attrib,
-					const DataPointSet*, TaskRunner*);
+    void			getRandomPos(DataPointSet&,
+					     TaskRunner*) const override;
+    void			setRandomPosData(int attrib,
+						    const DataPointSet*,
+						    TaskRunner*) override;
 
-    void			setOnlyAtSectionsDisplay(bool yn);
-    bool			displayedOnlyAtSections() const;
+    void			setOnlyAtSectionsDisplay(bool yn) override;
+    bool			displayedOnlyAtSections() const override;
 
-    bool			canRemoveSelection() const	{ return true; }
+    bool			canRemoveSelection() const override
+				{ return true; }
     void			removeSelection(const Selector<Coord3>&,
 						TaskRunner*);
     EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
@@ -99,19 +107,20 @@ public:
 protected:
 
     virtual			~MarchingCubesDisplay();
-    bool			updateVisFromEM(bool onlyshape,TaskRunner*);
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
-    void			materialChangeCB(CallBacker*);
 
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-					IOPar& iop ) const;
+    bool			updateVisFromEM(bool onlyshape,TaskRunner*);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    void			materialChangeCB(CallBacker*) override;
+
     void			getMousePosInfo(const visBase::EventInfo&,
-					Coord3& xyzpos, BufferString& val,
-					BufferString& info) const;
+						IOPar&) const override;
+    void			getMousePosInfo(const visBase::EventInfo&,
+					Coord3& xyzpos,BufferString& val,
+					BufferString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj);
+					int whichobj) override;
     void			updateIntersectionDisplay();
     void			updateSingleColor();
 

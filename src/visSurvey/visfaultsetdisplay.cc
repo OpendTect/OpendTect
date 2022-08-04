@@ -714,16 +714,16 @@ RandomPosExtractor( const ObjectSet<Geometry::ExplFaultStickSurface>& panels,
     , curidx_(0)
 {}
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return curidx_; }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return panels_.size(); }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 { return tr("Nr Surfaces Done"); }
 
-int nextStep()
+int nextStep() override
 {
     if ( curidx_ >= panels_.size() )
 	return Finished();

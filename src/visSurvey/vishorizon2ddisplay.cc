@@ -262,7 +262,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 }
 
 
-od_int64 nrIterations() const { return nriter_; }
+od_int64 nrIterations() const override { return nriter_; }
 
 
 int getNextRow()
@@ -293,7 +293,7 @@ void prepareForTransform( int rowidx, Pos::GeomID geomid,
 }
 
 
-bool doPrepare( int nrthreads )
+bool doPrepare( int nrthreads ) override
 {
     curidx_ = 0;
     nrthreads_ = nrthreads;
@@ -303,13 +303,13 @@ bool doPrepare( int nrthreads )
 }
 
 
-bool doFinish( bool res )
+bool doFinish( bool res ) override
 {
     return res;
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     RowCol rc;
     while ( true )

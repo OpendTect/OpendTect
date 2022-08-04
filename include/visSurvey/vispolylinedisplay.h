@@ -28,18 +28,20 @@ mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 { mODTextTranslationClass(PolyLineDisplay);
 public:
 				PolyLineDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PolyLineDisplay,
 				    "PolyLineDisplay",
 				    toUiString(sFactoryKeyword()));
 
     void			fillPolyLine(const TypeSet<Coord>&);
     void			fillPolyLine(const Coord3&);
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
-    const char*			errMsg() const { return errmsg_.str(); }
-    virtual			void setPixelDensity(float);
+    const char*			errMsg() const override
+				{ return errmsg_.str(); }
+    void			setPixelDensity(float) override;
 
 protected:
 
@@ -47,6 +49,6 @@ protected:
 				~PolyLineDisplay();
     visBase::PolyLine*		polyline_;
 };
-    
+
 };//namespace
 

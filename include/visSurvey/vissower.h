@@ -31,10 +31,10 @@ mExpClass(visSurvey) Sower : public visBase::VisualObjectImpl
 {
 
 public:
-			Sower(const visBase::VisualObjectImpl* =0);
+			Sower(const visBase::VisualObjectImpl* =nullptr);
 			~Sower();
 
-    void		setDisplayTransformation( const mVisTrans* );
+    void		setDisplayTransformation(const mVisTrans*) override;
     void		setEventCatcher(visBase::EventCatcher*);
 
     enum		SowingMode { Lasering=-2, Erasing=-1, Idle=0,
@@ -80,7 +80,7 @@ protected:
     bool		acceptLaser(const visBase::EventInfo&);
     bool		acceptEraser(const visBase::EventInfo&);
 
-    EM::PosID		getMarkerID(const visBase::EventInfo&) const; 
+    EM::PosID		getMarkerID(const visBase::EventInfo&) const;
 
     void		reset();
 

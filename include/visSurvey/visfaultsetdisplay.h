@@ -52,36 +52,42 @@ public:
 				toUiString(sFactoryKeyword()));
 
 
-    MultiID			getMultiID() const;
-    bool			isInlCrl() const	{ return false; }
+    MultiID			getMultiID() const override;
+    bool			isInlCrl() const override { return false; }
 
-    virtual int			nrResolutions() const;
-    virtual void		setResolution(int,TaskRunner*);
+    int				nrResolutions() const override;
+    void			setResolution(int,TaskRunner*) override;
 
-    SurveyObject::AttribFormat	getAttributeFormat(int) const
+    SurveyObject::AttribFormat	getAttributeFormat(int) const override
 				{ return SurveyObject::RandomPos; }
-    void			getRandomPos(DataPointSet&,TaskRunner*) const;
-    void			getRandomPosCache(int,DataPointSet&) const;
+    void			getRandomPos(DataPointSet&,
+					     TaskRunner*) const override;
+    void			getRandomPosCache(int,
+						  DataPointSet&) const override;
     void			setRandomPosData(int,const DataPointSet*,
-						 TaskRunner*);
+						 TaskRunner*) override;
 
-    bool			hasColor() const		{ return true; }
-    bool			usesColor() const;
-    OD::Color			getColor() const;
-    void			setColor(OD::Color);
-    bool			allowMaterialEdit() const	{ return true; }
+    bool			hasColor() const override	{ return true; }
+    bool			usesColor() const override;
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
+    bool			allowMaterialEdit() const override
+				{ return true; }
 
-    void			useTexture( bool yn, bool trigger );
-    bool			canShowTexture() const;
+    void			useTexture(bool yn,bool trigger) override;
+    bool			canShowTexture() const override;
 
     void			setDepthAsAttrib(int);
-    void			enableAttrib(int attrib,bool yn);
-    bool			hasSingleColorFallback() const	{ return true; }
+    void			enableAttrib(int attrib,bool yn) override;
+    bool			hasSingleColorFallback() const override
+				{ return true; }
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
 
     void			triangulateAlg(mFltTriProj);
     mFltTriProj			triangulateAlg() const;
@@ -93,12 +99,13 @@ public:
     bool			setEMObjectID(const EM::ObjectID&);
     EM::ObjectID		getEMObjectID() const;
 
-    void			setScene(Scene*);
+    void			setScene(Scene*) override;
 
-    bool			canRemoveSelection() const	{return false;}
+    bool			canRemoveSelection() const override
+				{ return false; }
 
-    void			setOnlyAtSectionsDisplay(bool);
-    bool			displayedOnlyAtSections() const;
+    void			setOnlyAtSectionsDisplay(bool) override;
+    bool			displayedOnlyAtSections() const override;
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
@@ -111,24 +118,25 @@ public:
     Notifier<FaultSetDisplay>	colorchange;
     Notifier<FaultSetDisplay>	displaymodechange;
 
-    const OD::LineStyle*	lineStyle() const;
-    void			setLineStyle(const OD::LineStyle&);
-    virtual void		getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+    const OD::LineStyle*	lineStyle() const override;
+    void			setLineStyle(const OD::LineStyle&) override;
+    virtual void		getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return MultiTextureSurveyObject
 					::getMousePosInfo(ei,iop); }
    void				getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
-					BufferString& info) const;
+					BufferString& info) const override;
 
-    bool			allowsPicks() const		{return false;}
-    bool			isVerticalPlane() const		{return false;}
-    bool			canBDispOn2DViewer() const	{return false;}
+    bool			allowsPicks() const override	 {return false;}
+    bool			isVerticalPlane() const override {return false;}
+    bool			canBDispOn2DViewer() const override
+				{ return false; }
     int				addDataPack(const DataPointSet&) const ;
     bool			setDataPackID(int attrib,DataPack::ID,
-					      TaskRunner*);
-    DataPack::ID		getDataPackID(int attrib) const;
-    DataPackMgr::MgrID		getDataPackMgrID() const
+					      TaskRunner*) override;
+    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::PointID(); }
 
     void			doOtherObjectsMoved(
@@ -138,38 +146,42 @@ public:
 
     EM::FaultSet3D*		emFaultSet();
     void			matChangeCB(CallBacker*);
-    virtual void		setPixelDensity(float dpi);
-    virtual void		setAttribTransparency(int,unsigned char);
+    void			setPixelDensity(float dpi) override;
+    virtual void		setAttribTransparency(int,
+						      unsigned char) override;
 
-    virtual bool		addAttrib();
-    virtual bool		removeAttrib(int attrib);
-    virtual bool		swapAttribs(int a0,int a1);
+    bool			addAttrib() override;
+    bool			removeAttrib(int attrib) override;
+    bool			swapAttribs(int a0,int a1) override;
 
-    const TypeSet<float>*	getHistogram(int) const;
+    const TypeSet<float>*	getHistogram(int) const override;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
-						     int version) const;
+						 int version) const override;
     void			setColTabMapperSetup(int,
-					const ColTab::MapperSetup&,TaskRunner*);
+					const ColTab::MapperSetup&,
+					TaskRunner*) override;
 
-    bool			canSetColTabSequence() const;
+    bool			canSetColTabSequence() const override;
     void			setColTabSequence(int,const ColTab::Sequence&,
-						  TaskRunner*);
+						  TaskRunner*) override;
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
     const visBase::GeomIndexedShape* getFaultDisplayedPlane(int) const;
 
 protected:
 
     virtual			~FaultSetDisplay();
+
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj);
+				    int whichobj) override;
     EM::FaultID			getFaultID(const visBase::EventInfo&) const;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
@@ -182,13 +194,13 @@ protected:
 
     void			updateSingleColor();
 
-    virtual bool		getCacheValue(int attrib,int version,
-					      const Coord3&,float&) const;
-    virtual void		addCache();
-    virtual void		removeCache(int);
-    virtual void		swapCache(int,int);
-    virtual void		emptyCache(int);
-    virtual bool		hasCache(int) const;
+    bool			getCacheValue(int attrib,int version,
+					  const Coord3&,float&) const override;
+    void			addCache() override;
+    void			removeCache(int) override;
+    void			swapCache(int,int) override;
+    void			emptyCache(int) override;
+    bool			hasCache(int) const override;
 
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);

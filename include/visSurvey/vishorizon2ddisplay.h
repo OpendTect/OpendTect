@@ -37,42 +37,47 @@ public:
 				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
 
-    void			setDisplayTransformation(const mVisTrans*);
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
 
-    void			getMousePosInfo(const visBase::EventInfo& e,
-						IOPar& i ) const
+    void			getMousePosInfo( const visBase::EventInfo& e,
+						 IOPar& i ) const override
 				{ return EMObjectDisplay::getMousePosInfo(e,i);}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						Coord3&,
-						BufferString& val,
-						BufferString& info) const;
-    void			setLineStyle(const OD::LineStyle&);
+					    Coord3&,BufferString& val,
+					    BufferString& info) const override;
+    void			setLineStyle(const OD::LineStyle&) override;
 
-    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
-    EM::SectionID		getSectionID(int visid) const;
-    TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
+    bool			setEMObject(const EM::ObjectID&,
+					    TaskRunner*) override;
+    EM::SectionID		getSectionID(int visid) const override;
+    TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
     const OD::Color		getLineColor() const;
 
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj );
-    virtual void		setPixelDensity(float);
+				    int whichobj) override;
+    void			setPixelDensity(float) override;
     void			initSelectionDisplay(bool erase);
     void			updateSelectionsHor2D();
     void			clearSelectionsHor2D();
 
-    Coord3			getTranslation() const;
-    void			setTranslation(const Coord3&);
+    Coord3			getTranslation() const override;
+    void			setTranslation(const Coord3&) override;
 
 protected:
     friend			class Horizon2DDisplayUpdater;
 				~Horizon2DDisplay();
-    void			removeSectionDisplay(const EM::SectionID&);
-    bool			addSection(const EM::SectionID&,TaskRunner*);
+
+    void			removeSectionDisplay(
+						const EM::SectionID&) override;
+    bool			addSection(const EM::SectionID&,
+					   TaskRunner*) override;
 
     struct LineRanges
     {
@@ -84,11 +89,11 @@ protected:
 					     const LineRanges& );
     void			updateSection(int idx,const LineRanges* lr=0);
 
-    void			emChangeCB(CallBacker*);
+    void			emChangeCB(CallBacker*) override;
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj );
+				    int whichobj) override;
     void			updateLinesOnSections(
 					const ObjectSet<const Seis2DDisplay>&);
     void			updateSeedsOnSections(
@@ -97,8 +102,9 @@ protected:
     void			zAxisTransformChg(CallBacker*);
     void			removeVolumesOfInterest();
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+
     bool			calcLine2DIntersections(
 						const TypeSet<Pos::GeomID>&,
 						    Line2DInterSectionSet&);

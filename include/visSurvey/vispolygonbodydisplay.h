@@ -51,69 +51,75 @@ public:
 				    visSurvey::SurveyObject,PolygonBodyDisplay,
 				    "PolygonBodyDisplay",
 				     toUiString(sFactoryKeyword()));
-    MultiID			getMultiID() const;
-    bool			isInlCrl() const	{ return false; }
 
-    OD::Color			getColor() const;
-    void			setColor(OD::Color);
-    bool			hasColor() const	  { return true; }
-    bool			allowMaterialEdit() const { return true; }
+    MultiID			getMultiID() const override;
+    bool			isInlCrl() const override { return false; }
 
-    const OD::LineStyle*	lineStyle() const;
-    void			setLineStyle(const OD::LineStyle&);
-    void			showManipulator(bool);
-    bool			isManipulatorShown() const;
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
+    bool			hasColor() const override	{ return true; }
+    bool			allowMaterialEdit() const override
+				{ return true; }
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    const OD::LineStyle*	lineStyle() const override;
+    void			setLineStyle(const OD::LineStyle&) override;
+    void			showManipulator(bool) override;
+    bool			isManipulatorShown() const override;
 
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
+
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
 
     void			display(bool polygons,bool body);
     bool			arePolygonsDisplayed() const;
     bool			isBodyDisplayed() const;
-    void			setOnlyAtSectionsDisplay(bool yn);
-    bool			displayedOnlyAtSections() const;
+    void			setOnlyAtSectionsDisplay(bool yn) override;
+    bool			displayedOnlyAtSections() const override;
 
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
     void			touchAll(bool,bool updatemarker=false);
     EM::PolygonBody*		getEMPolygonBody() const
-    				{ return empolygonsurf_; }
-    bool			canRemoveSelection() const	{ return true; }
-    bool			removeSelections(TaskRunner*);
+				{ return empolygonsurf_; }
+    bool			canRemoveSelection() const override
+				{ return true; }
+    bool			removeSelections(TaskRunner*) override;
 
-    const char*			errMsg() const { return errmsg_.str(); }
-    virtual void		setPixelDensity(float);
+    const char*			errMsg() const override { return errmsg_.str();}
+    void			setPixelDensity(float) override;
 
-    void			setMarkerStyle(const MarkerStyle3D&);
-    const MarkerStyle3D*	markerStyle() const;
+    void			setMarkerStyle(const MarkerStyle3D&) override;
+    const MarkerStyle3D*	markerStyle() const override;
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 
     virtual			~PolygonBodyDisplay();
+
     void			otherObjectsMoved(
-	    			    const ObjectSet<const SurveyObject>&,
-				    int whichobj);
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj) override;
 
     void			updatePolygonDisplay();
     void			updateSingleColor();
     void			updateManipulator();
 
     static const char*		sKeyEMPolygonSurfID()
-    				{ return "EMPolygonsurface ID"; }
+				{ return "EMPolygonsurface ID"; }
 
-    bool			isPicking() const;
+    bool			isPicking() const override;
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
 
-    void 			updateNearestPolygonMarker();
+    void			updateNearestPolygonMarker();
     void			setNewIntersectingPolygon(const Coord3& normal,
-	    						  const Coord3& pt);
+							  const Coord3& pt);
 				/*<Given a plane3(nomal, pt), calculate the
 				   intersections of known polygons with the
 				   intersection line between plane3 and polygon

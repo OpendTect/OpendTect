@@ -65,44 +65,49 @@ public:
 				/*!<\returns a number that is unique for
 				     this rtd, and is present in its name. */
 
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const override { return true; }
 
-    int				nrResolutions() const	{ return 3; }
-    void			setResolution(int,TaskRunner*);
+    int				nrResolutions() const override	{ return 3; }
+    void			setResolution(int,TaskRunner*) override ;
 
-    bool			hasPosModeManipulator() const	{ return true; }
-    void			showManipulator(bool yn);
-    bool			isManipulatorShown() const;
-    bool			isManipulated() const;
-    bool			canResetManipulation() const { return true; }
-    void			resetManipulation();
-    void			acceptManipulation();
-    BufferString		getManipulationString() const;
+    bool			hasPosModeManipulator() const override
+				{ return true; }
+    void			showManipulator(bool yn) override;
+    bool			isManipulatorShown() const override;
+    bool			isManipulated() const override;
+    bool			canResetManipulation() const  override
+				{ return true; }
+    void			resetManipulation() override;
+    void			acceptManipulation() override;
+    BufferString		getManipulationString() const override;
 
-    bool			canDuplicate() const		{ return true; }
-    SurveyObject*		duplicate(TaskRunner*) const;
-    MultiID			getMultiID() const;
+    bool			canDuplicate() const override	{ return true; }
+    SurveyObject*		duplicate(TaskRunner*) const override;
+    MultiID			getMultiID() const override;
 
-    bool			allowMaterialEdit() const { return true; }
+    bool			allowMaterialEdit() const override
+				{ return true; }
 
-    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
 
     TypeSet<BinID>*		getPath()		{ return &trcspath_; }
 				//!<BinID-based coding: inner nodes single
-    void			getDataTraceBids(TypeSet<BinID>&) const;
+    void			getDataTraceBids(
+						TypeSet<BinID>&) const override;
     void			getDataTraceBids(TrcKeyPath&) const;
 				//!<Segment-based coding: inner nodes doubled
 
     void			getTraceKeyPath(TrcKeyPath&,
-						TypeSet<Coord>*) const;
-    Interval<float>		getDataTraceRange() const;
+						TypeSet<Coord>*) const override;
+    Interval<float>		getDataTraceRange() const override;
     TypeSet<Coord>		getTrueCoords() const;
 
     bool			setDataPackID(int attrib,DataPack::ID,
-						TaskRunner*);
-    DataPack::ID		getDataPackID(int attrib) const;
-    DataPack::ID		getDisplayedDataPackID(int attrib) const;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const
+						TaskRunner*) override;
+    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPack::ID		getDisplayedDataPackID(
+						int attrib) const override;
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
     bool			canAddNode(int nodenr) const;
@@ -129,34 +134,40 @@ public:
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
 
-    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const;
+    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const override;
     void			setDepthInterval(const Interval<float>&);
     Interval<float>		getDepthInterval() const;
 
-    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
+    const MouseCursor*		getMouseCursor() const override
+				{ return &mousecursor_; }
 
     void			getMousePosInfo(const visBase::EventInfo&,
-						IOPar&) const;
+						IOPar&) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&, BufferString&,
-						BufferString&) const;
+						BufferString&) const override;
 
     int				getSelNodeIdx() const	{ return selnodeidx_; }
 				//!<knotidx>=0, panelidx<0
 
-    virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
-    NotifierAccess*		getManipulationNotifier() {return &nodemoving_;}
+    virtual NotifierAccess*	getMovementNotifier() override
+				{ return &moving_; }
+    NotifierAccess*		getManipulationNotifier() override
+				{ return &nodemoving_; }
 
     int				getClosestPanelIdx(const Coord&) const;
-    Coord3			getNormal(const Coord3&) const;
-    virtual float		calcDist(const Coord3&) const;
-    virtual bool		allowsPicks() const		{ return true; }
+    Coord3			getNormal(const Coord3&) const override;
+    float			calcDist(const Coord3&) const override;
+    bool			allowsPicks() const override
+				{ return true; }
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    bool			canBDispOn2DViewer() const	{ return true; }
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    bool			canBDispOn2DViewer() const override
+				{ return true; }
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
     visBase::TexturePanelStrip* getTexturePanelStrip() const
 				{ return panelstrip_; }
     BufferString		getRandomLineName() const;
@@ -165,19 +176,21 @@ public:
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
     void			setPolyLineMode(bool yn);
     bool			createFromPolyLine();
-    void			setColor(OD::Color);
+    void			setColor(OD::Color) override;
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
-    virtual void		annotateNextUpdateStage(bool yn);
-    virtual void		setPixelDensity(float);
+    void			annotateNextUpdateStage(bool yn) override;
+    void			setPixelDensity(float) override;
     const TrcKeyPath*		getTrcKeyPath()
 				{ return &trckeypath_; }
 
@@ -189,13 +202,14 @@ protected:
 				~RandomTrackDisplay();
 
     bool			getCacheValue(int attrib,int version,
-					      const Coord3&,float&) const;
+					      const Coord3&,
+					      float&) const override;
 
-    void			addCache();
-    void			removeCache(int);
-    void			swapCache(int,int);
-    void			emptyCache(int);
-    bool			hasCache(int) const;
+    void			addCache() override;
+    void			removeCache(int) override;
+    void			swapCache(int,int) override;
+    void			emptyCache(int) override;
+    bool			hasCache(int) const override;
 
     void			getDataTraceBids(TrcKeyPath&,
 						 TypeSet<int>* segments) const;
@@ -224,7 +238,7 @@ protected:
     void			setPanelStripZRange(const Interval<float>&);
     float			appliedZRangeStep() const;
     void			draggerMoveFinished(CallBacker*);
-    void			updateMouseCursorCB(CallBacker*);
+    void			updateMouseCursorCB(CallBacker*) override;
 
     int				nrgeomchangecbs_ = 0;
     TypeSet<int>*		premovingselids_ = nullptr;
@@ -292,7 +306,7 @@ protected:
     int				getClosestPanelIdx(const Coord&,
 						   double* fracptr) const;
     void			mouseCB(CallBacker*);
-    bool			isPicking() const;
+    bool			isPicking() const override;
     void			removePickPos(int polyidx);
 
     void			addNodeInternal(const BinID&);

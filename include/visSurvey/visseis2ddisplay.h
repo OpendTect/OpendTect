@@ -46,7 +46,7 @@ public:
 
     void			setGeomID(Pos::GeomID geomid);
     BufferString		getLineName() const;
-    Pos::GeomID			getGeomID() const	   { return geomid_; }
+    Pos::GeomID			getGeomID() const override   { return geomid_; }
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
@@ -56,30 +56,33 @@ public:
     StepInterval<float>		getZRange(bool displayspace,int att=-1) const;
 
     void			getTraceKeyPath(TrcKeyPath&,
-						TypeSet<Coord>*) const;
-    Interval<float>		getDataTraceRange() const;
+						TypeSet<Coord>*) const override;
+    Interval<float>		getDataTraceRange() const override;
 
     void			setTraceNrRange(const Interval<int>&);
     Interval<int>		getTraceNrRange() const;
     const StepInterval<int>&	getMaxTraceNrRange() const;
 
     bool			setDataPackID(int attrib,DataPack::ID,
-					      TaskRunner*);
-    DataPack::ID		getDataPackID(int attrib) const;
-    DataPack::ID		getDisplayedDataPackID(int attrib) const;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const
+					      TaskRunner*) override;
+    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPack::ID		getDisplayedDataPackID(
+						int attrib) const override;
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
-    bool			allowsPicks() const		{ return true; }
-    bool			allowMaterialEdit() const	{ return true; }
-    bool			hasColor() const		{ return true; }
-    OD::Color			getColor() const;
-    void			setColor(OD::Color);
-    const OD::LineStyle*	lineStyle() const;
-    void			setLineStyle(const OD::LineStyle&);
+    bool			allowsPicks() const override	{ return true; }
+    bool			allowMaterialEdit() const override
+				{ return true; }
+    bool			hasColor() const override	{ return true; }
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
+    const OD::LineStyle*	lineStyle() const override;
+    void			setLineStyle(const OD::LineStyle&) override;
 
-    void			enableAttrib(int attrib,bool yn);
-    bool			hasSingleColorFallback() const	{ return true; }
+    void			enableAttrib(int attrib,bool yn) override;
+    bool			hasSingleColorFallback() const override
+				{ return true; }
 
     void			showPanel(bool yn);
     bool			isPanelShown() const;
@@ -88,33 +91,37 @@ public:
     void			showLineName(bool yn);
     bool			isLineNameShown() const;
 
-    bool			canDuplicate() const		{ return true; }
-    SurveyObject*		duplicate(TaskRunner*) const;
+    bool			canDuplicate() const override	{ return true; }
+    SurveyObject*		duplicate(TaskRunner*) const override;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
-    void			setPixelDensity(float);
-    float			getPixelDensity() const {return pixeldensity_;}
+    void			setPixelDensity(float) override;
+    float			getPixelDensity() const override
+				{ return pixeldensity_; }
 
-    float			calcDist(const Coord3&) const;
+    float			calcDist(const Coord3&) const override;
 
-    int				nrResolutions() const;
-    void			setResolution(int,TaskRunner*);
+    int				nrResolutions() const override;
+    void			setResolution(int,TaskRunner*) override;
 
-    TrcKeyZSampling		getTrcKeyZSampling( int attrib=-1 ) const
+    TrcKeyZSampling		getTrcKeyZSampling(
+						int attrib=-1 ) const override
 				{ return getTrcKeyZSampling( false, attrib ); }
     TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
 						   int attrib=-1) const;
-    Pol2D3D			getAllowedDataType() const	{return Only2D;}
-    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
+    Pol2D3D			getAllowedDataType() const override
+				{ return Only2D; }
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
-						BufferString&) const;
+						BufferString&) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
-						IOPar&) const;
-    void			getObjectInfo(BufferString&) const;
-    void			snapToTracePos(Coord3&) const;
+						IOPar&) const override;
+    void			getObjectInfo(BufferString&) const override;
+    void			snapToTracePos(Coord3&) const override;
     int				getNearestTraceNr(const Coord3&) const;
 
     Coord3			getNearestSubPos(const Coord3& pos,
@@ -130,30 +137,31 @@ public:
 					TypeSet<Coord3>& projectedcoords);
 
     Coord			getCoord(int trcnr) const;
-    virtual Coord3		getNormal( const Coord3& c ) const
+    Coord3			getNormal( const Coord3& c ) const override
 				{ return SurveyObject::getNormal( c ); }
     Coord			getNormal(int trcnr) const;
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
     void			clearTexture(int);
 
-    virtual void		setAnnotColor(OD::Color);
-    virtual OD::Color		getAnnotColor() const;
+    void			setAnnotColor(OD::Color) override;
+    OD::Color			getAnnotColor() const override;
 
-    NotifierAccess*		getMovementNotifier()
+    NotifierAccess*		getMovementNotifier() override
 				{ return &geomchanged_; }
-    NotifierAccess*		getManipulationNotifier()
+    NotifierAccess*		getManipulationNotifier() override
 				{ return &geomidchanged_; }
 
     static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
     static Seis2DDisplay*	getSeis2DDisplay(Pos::GeomID);
 
-    virtual void		annotateNextUpdateStage(bool yn);
+    void			annotateNextUpdateStage(bool yn) override;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
     visBase::TexturePanelStrip* getTexturePanelStrip() const
 				{ return panelstrip_; }
 
@@ -163,13 +171,14 @@ public:
 protected:
 				~Seis2DDisplay();
 
-    virtual void		addCache();
-    void			removeCache(int);
-    void			swapCache(int,int);
-    void			emptyCache(int);
-    bool			hasCache(int) const;
+    void			addCache() override;
+    void			removeCache(int) override;
+    void			swapCache(int,int) override;
+    void			emptyCache(int) override;
+    bool			hasCache(int) const override;
     bool			getCacheValue(int attrib,int version,
-					      const Coord3&,float&) const;
+					      const Coord3&,
+					      float&) const override;
 
     const Interval<int>		getSampleRange() const;
 
@@ -245,7 +254,8 @@ protected:
 
 public:
 // old stuff, only here to keep other code compiling
-    MultiID			getMultiID() const	{ return datasetid_; }
+    MultiID			getMultiID() const override
+				{ return datasetid_; }
 };
 
 } // namespace visSurvey

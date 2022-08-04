@@ -36,15 +36,15 @@ public:
 			, endtkz_( endtkz )
 		    {}
 
-    const char* getStandardDesc() const
+    const char* getStandardDesc() const override
     { return "Move plane data"; }
 
 
-    bool unDo()
+    bool unDo() override
     { return pdd_->updatePlanePos( starttkz_ ); }
 
 
-    bool reDo()
+    bool reDo() override
     { return pdd_->updatePlanePos( endtkz_ ); }
 
 private:
@@ -55,7 +55,7 @@ private:
 
 
 mDefineEnumUtils(PlaneDataDisplay,SliceType,"Orientation")
-{ "Inline", "Crossline", "Z-slice", 0 };
+{ "Inline", "Crossline", "Z-slice", nullptr };
 
 
 //PlaneDataDisplay

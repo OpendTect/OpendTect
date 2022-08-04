@@ -133,10 +133,12 @@ public:
     static MPEClickCatcher*	create()
 				mCreateDataObj(MPEClickCatcher);
 
-    void			setSceneEventCatcher(visBase::EventCatcher*);
-    void			setDisplayTransformation(const mVisTrans*);
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
+    void			setDisplayTransformation(
+					const mVisTrans*) override;
 
-    const mVisTrans*		getDisplayTransformation() const;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     Notifier<MPEClickCatcher>	click;
     Notifier<MPEClickCatcher>	endSowing;

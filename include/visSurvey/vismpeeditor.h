@@ -48,32 +48,32 @@ public:
     void		setEditor( MPE::ObjectEditor* );
     void		setPatch(MPE::Patch* patch) { patch_ = patch; }
     MPE::ObjectEditor*	getMPEEditor() { return emeditor_; }
-    void		setSceneEventCatcher( visBase::EventCatcher* );
+    void		setSceneEventCatcher(visBase::EventCatcher*) override;
 
-    void		setDisplayTransformation( const mVisTrans* );
-    const mVisTrans*	getDisplayTransformation() const
-    			{ return transformation_;}
+    void		setDisplayTransformation(const mVisTrans*) override;
+    const mVisTrans*	getDisplayTransformation() const override
+			{ return transformation_;}
 
     void		setMarkerSize(float);
     void		turnOnMarker(EM::PosID,bool on);
     bool		allMarkersDisplayed() const;
 
     Notifier<MPEEditor>		nodeRightClick;
-    				/*!<\ the clicked position can be retrieved
+				/*!<\ the clicked position can be retrieved
 				      with getNodePosID(getRightClickNode) */
     int				getRightClickNode() const;
     EM::PosID			getNodePosID(int idx) const;
 
     bool			mouseClick( const EM::PosID&, bool shift,
 					    bool alt, bool ctrl );
-    				/*!<Notify the object that someone
+				/*!<Notify the object that someone
 				    has clicked on the object that's being
 				    edited. Clicks on the editor's draggers
 				    themselves are handled by clickCB.
 				    Returns true when click is handled. */
 
     bool			clickCB( CallBacker* );
-    				/*!<Since the event should be handled
+				/*!<Since the event should be handled
 				    with this object before the main object,
 				    the main object has to pass eventcatcher
 				    calls here manually.
@@ -94,7 +94,7 @@ public:
     const MarkerStyle3D*	markerStyle() const;
 
 protected:
-    				~MPEEditor();
+				~MPEEditor();
 
     void			changeNumNodes( CallBacker* );
     void			nodeMovement( CallBacker* );

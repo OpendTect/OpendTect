@@ -32,89 +32,96 @@ namespace visSurvey
 
 
 mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl
-    					      , public SurveyObject
+					      , public SurveyObject
 {
 public:
-    bool			turnOn(bool yn);
-    bool			isOn() const;
+    bool			turnOn(bool yn) override;
+    bool			isOn() const override;
     bool			isShown() const;
-    				//!<Returns true if displayed, i.e. it is
+				//!<Returns true if displayed, i.e. it is
 				//!<on, and has at least one enabled attribute.
 
-    virtual int			nrResolutions() const			= 0;
-    virtual void		setResolution(int,TaskRunner*)		= 0;
-    int				getResolution() const;
+    int				nrResolutions() const override		= 0;
+    void			setResolution(int,TaskRunner*) override	= 0;
+    int				getResolution() const override;
 
-    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
-    visBase::TextureChannel2RGBA* getChannels2RGBA();
-    visBase::TextureChannels*	getChannels() const { return channels_; }
+    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*)
+								      override;
+    visBase::TextureChannel2RGBA* getChannels2RGBA() override;
+    visBase::TextureChannels*	getChannels() const override {return channels_;}
 
-    bool			canHaveMultipleAttribs() const;
-    bool			canAddAttrib(int nrattribstoadd=1) const;
-    bool			canRemoveAttrib() const;
-    int				nrAttribs() const;
-    bool			addAttrib();
-    bool			removeAttrib(int attrib);
-    bool			swapAttribs(int attrib0,int attrib1);
-    void			setAttribTransparency(int,unsigned char);
-    unsigned char		getAttribTransparency(int) const;
-    virtual void		allowShading(bool);
+    bool			canHaveMultipleAttribs() const override;
+    bool			canAddAttrib(int nrattribstoadd=1)
+								const override;
+    bool			canRemoveAttrib() const override;
+    int				nrAttribs() const override;
+    bool			addAttrib() override;
+    bool			removeAttrib(int attrib) override;
+    bool			swapAttribs(int attrib0,int attrib1) override;
+    void			setAttribTransparency(int,
+						      unsigned char) override;
+    unsigned char		getAttribTransparency(int) const override;
+    void			allowShading(bool) override;
 
-    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+    const Attrib::SelSpec*	getSelSpec(int attrib,
+					   int version=0) const override;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
 
-    void			setSelSpec(int,const Attrib::SelSpec&);
+    void			setSelSpec(int,const Attrib::SelSpec&) override;
     void			setSelSpecs(int attrib,
-					    const TypeSet<Attrib::SelSpec>&);
+				    const TypeSet<Attrib::SelSpec>&) override;
     void			clearTextures();
-    				/*!<Blanks all textures. */
+				/*!<Blanks all textures. */
 
-    void			enableTextureInterpolation(bool);
-    bool			textureInterpolationEnabled() const;
+    void			enableTextureInterpolation(bool) override;
+    bool			textureInterpolationEnabled() const override;
 
-    bool 			isAngle(int attrib) const;
-    void			setAngleFlag(int attrib,bool yn);
-    void			enableAttrib(int attrib,bool yn);
-    bool			isAttribEnabled(int attrib) const;
-    const TypeSet<float>*	getHistogram(int) const;
+    bool			isAngle(int attrib) const override;
+    void			setAngleFlag(int attrib,bool yn) override;
+    void			enableAttrib(int attrib,bool yn) override;
+    bool			isAttribEnabled(int attrib) const override;
+    const TypeSet<float>*	getHistogram(int) const override;
     int				getColTabID(int) const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
-	    					     int version) const;
+						 int version) const override;
     const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
     void			setColTabMapperSetup(int,
-	    				const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int) const;
-    bool			canSetColTabSequence() const;
+					const ColTab::MapperSetup&,
+					TaskRunner*) override;
+    const ColTab::Sequence*	getColTabSequence(int) const override;
+    bool			canSetColTabSequence() const override;
     void			setColTabSequence(int,const ColTab::Sequence&,
-	    					  TaskRunner*);
+						  TaskRunner*) override;
 
-    bool			canHaveMultipleTextures() const { return true; }
-    int				nrTextures(int attrib) const;
-    void			selectTexture(int attrib, int texture );
-    int				selectedTexture(int attrib) const;
+    bool			canHaveMultipleTextures() const override
+				{ return true; }
+    int				nrTextures(int attrib) const override;
+    void			selectTexture(int attrib,int texture) override;
+    int				selectedTexture(int attrib) const override;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-    virtual bool		canBDispOn2DViewer() const	{ return true; }
-    bool			canEnableTextureInterpolation() const
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    bool			canBDispOn2DViewer() const override
+				{ return true; }
+    bool			canEnableTextureInterpolation() const override
 				{ return channels_; }
     bool			canDisplayInteractively(
 						Pos::GeomID geomid) const;
     bool			canDisplayInteractively() const;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
 
 protected:
 
-    				MultiTextureSurveyObject();
+				MultiTextureSurveyObject();
 				~MultiTextureSurveyObject();
     void			getValueString(const Coord3&,
-	    				       BufferString&) const;
-    				//!<Coord is in ztransformed space
+					       BufferString&) const;
+				//!<Coord is in ztransformed space
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const = 0;
-    				//!<Coord is in attribute space
+				//!<Coord is in attribute space
 
     void			updateMainSwitch();
     virtual void		addCache()				= 0;

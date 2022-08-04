@@ -56,7 +56,7 @@ public:
 				    "VolumeDisplay",
 				    toUiString(sFactoryKeyword()));
 
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const override { return true; }
 
     static int			cInLine()		{ return 2; }
     static int			cCrossLine()		{ return 1; }
@@ -105,42 +105,52 @@ public:
     void			setSeedsID(const visBase::MarchingCubesSurface*,
 					   MultiID);
 
-    bool                        turnOn(bool yn);
-    bool                        isOn() const;
-    bool			hasPosModeManipulator() const	{ return true; }
-    void			showManipulator(bool yn);
-    bool			isManipulatorShown() const;
-    bool			isManipulated() const;
-    bool			canResetManipulation() const;
-    void			resetManipulation();
-    void			acceptManipulation();
-    NotifierAccess*		getMovementNotifier() { return &boxMoving; }
-    NotifierAccess*		getManipulationNotifier() { return &boxMoving; }
-    BufferString		getManipulationString() const;
+    bool                        turnOn(bool yn) override;
+    bool                        isOn() const override;
+    bool			hasPosModeManipulator() const override
+				{ return true; }
+    void			showManipulator(bool yn) override;
+    bool			isManipulatorShown() const override;
+    bool			isManipulated() const override;
+    bool			canResetManipulation() const override;
+    void			resetManipulation() override;
+    void			acceptManipulation() override;
+    NotifierAccess*		getMovementNotifier()  override
+				{ return &boxMoving; }
+    NotifierAccess*		getManipulationNotifier()  override
+				{ return &boxMoving; }
+    BufferString		getManipulationString() const override;
 
-    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
-    const Attrib::SelSpec*	    getSelSpec(int attrib,int version=0) const;
-    const TypeSet<float>*	getHistogram(int attrib) const;
-    void			setSelSpec(int attrib,const Attrib::SelSpec&);
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
+    const Attrib::SelSpec*	    getSelSpec(int attrib,
+					       int version=0) const override;
+    const TypeSet<float>*	getHistogram(int attrib) const override;
+    void			setSelSpec(int attrib,
+					   const Attrib::SelSpec&) override;
     void			setSelSpecs(int attrib,
-					  const TypeSet<Attrib::SelSpec>&);
+					  const TypeSet<Attrib::SelSpec>&)
+								override;
 
-    bool			canHaveMultipleAttribs() const { return true; }
-    int				nrAttribs() const;
-    bool			canAddAttrib(int nrattribstoadd=1) const;
-    bool			addAttrib();
-    bool			canRemoveAttrib() const;
-    bool			removeAttrib(int attrib);
-    bool			swapAttribs(int attrib0,int attrib1);
-    void			enableAttrib(int attrib,bool yn);
-    bool			isAttribEnabled(int attrib) const;
-    void			setAttribTransparency(int attrib,unsigned char);
-    unsigned char		getAttribTransparency(int attrib) const;
+    bool			canHaveMultipleAttribs() const override
+				{ return true; }
+    int				nrAttribs() const override;
+    bool			canAddAttrib(
+					int nrattribstoadd=1) const override;
+    bool			addAttrib() override;
+    bool			canRemoveAttrib() const override;
+    bool			removeAttrib(int attrib) override;
+    bool			swapAttribs(int attrib0,int attrib1) override;
+    void			enableAttrib(int attrib,bool yn) override;
+    bool			isAttribEnabled(int attrib) const override;
+    void			setAttribTransparency(int attrib,
+						      unsigned char) override;
+    unsigned char		getAttribTransparency(
+						int attrib) const override;
 
-    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
+    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*) override;
 
-    visBase::TextureChannel2RGBA*	getChannels2RGBA();
+    visBase::TextureChannel2RGBA*	getChannels2RGBA() override;
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
@@ -151,7 +161,7 @@ public:
 
     float			getValue(int attrib,const Coord3&) const;
 
-    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const;
+    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const override;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						   bool displayspace,
 						   int attrib) const;
@@ -159,60 +169,67 @@ public:
 						bool dragmode=false);
     bool			setDataVolume(int attrib,
 					      const RegularSeisDataPack*,
-					      TaskRunner*);
-    const RegularSeisDataPack*	getCacheVolume(int attrib) const;
+					      TaskRunner*) override;
+    const RegularSeisDataPack*	getCacheVolume(int attrib) const override;
     bool			setDataPackID(int attrib,DataPack::ID,
-					      TaskRunner*);
-    DataPack::ID		getDataPackID(int attrib) const;
-    virtual DataPackMgr::MgrID	   getDataPackMgrID() const
+					      TaskRunner*) override;
+    DataPack::ID		getDataPackID(int attrib) const override;
+    virtual DataPackMgr::MgrID	   getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
-						Coord3&,BufferString& val,
-						BufferString& info) const;
-    void			getObjectInfo(BufferString&) const;
+					    Coord3&,BufferString& val,
+					    BufferString& info) const override;
+    void			getObjectInfo(BufferString&) const override;
     void			getTreeObjectInfo(uiString&) const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
-						     int version=0) const;
+						 int version=0) const override;
     void			setColTabMapperSetup(int attrib,
-					const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int attrib) const;
+					const ColTab::MapperSetup&,
+					TaskRunner*) override;
+    const ColTab::Sequence*	getColTabSequence(int attrib) const override;
     void			setColTabSequence(int attrib,
-					const ColTab::Sequence&,TaskRunner*);
-    bool			canSetColTabSequence() const;
+					const ColTab::Sequence&,
+					TaskRunner*) override;
+    bool			canSetColTabSequence() const override;
 
-    void			setMaterial(visBase::Material*);
-    bool			allowMaterialEdit() const	{ return true; }
-    virtual bool		allowsPicks() const;
-    bool			canDuplicate() const	{ return usesShading();}
-    visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
+    void			setMaterial(visBase::Material*) override;
+    bool			allowMaterialEdit() const override
+				{ return true; }
+    bool			allowsPicks() const override;
+    bool			canDuplicate() const override
+				{ return usesShading();}
+    visSurvey::SurveyObject*	duplicate(TaskRunner*) const override;
 
     static bool			canUseVolRenShading();
-    void			allowShading(bool yn);
+    void			allowShading(bool yn) override;
     bool			usesShading() const;
 
-    void			getChildren(TypeSet<int>&) const;
+    void			getChildren(TypeSet<int>&) const override;
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
-    void			setRightHandSystem(bool yn);
+    void			setRightHandSystem(bool yn) override;
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
-    const char*			errMsg() const { return errmsg_.str(); }
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    const char*			errMsg() const  override
+				{ return errmsg_.str(); }
 
     bool			writeVolume(int attrib,const char* fnm) const;
 
-    void			setDisplayTransformation(const mVisTrans*);
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
 
-    bool			canEnableTextureInterpolation() const;
-    bool			textureInterpolationEnabled() const;
-    void			enableTextureInterpolation(bool);
+    bool			canEnableTextureInterpolation() const override;
+    bool			textureInterpolationEnabled() const override;
+    void			enableTextureInterpolation(bool) override;
 
     static const char*		sKeyVolDepthKey()	{ return "VolDepthKey";}
     static const char*		sKeyVolPlaneKey()	{ return "VolPlaneKey";}
@@ -228,11 +245,12 @@ protected:
     void			materialChange(CallBacker*);
     void			updateIsoSurfColor();
     bool			pickable() const { return true; }
-    bool			rightClickable() const { return true; }
-    bool			selectable() const { return true; }
-    bool			isSelected() const;
-    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
-    void			setScene(Scene*);
+    bool			rightClickable() const override { return true; }
+    bool			selectable() const override { return true; }
+    bool			isSelected() const override;
+    const MouseCursor*		getMouseCursor() const override
+				{ return &mousecursor_; }
+    void			setScene(Scene*) override;
     void			updateAttribEnabling();
     void			getObjectInfoText(uiString& info,
 						  bool compact) const;
@@ -274,8 +292,9 @@ protected:
 
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool updateic,bool updatez);
-    void			updateMouseCursorCB(CallBacker*);
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			updateMouseCursorCB(CallBacker*) override;
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
 
     ZAxisTransform*		datatransform_;
     ZAxisTransformer*		datatransformer_;

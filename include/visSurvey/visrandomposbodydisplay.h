@@ -27,7 +27,7 @@ class Scene;
 /*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
 mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
-			      public visSurvey::SurveyObject
+					    public visSurvey::SurveyObject
 { mODTextTranslationClass(RandomPosBodyDisplay);
 public:
 				RandomPosBodyDisplay();
@@ -36,16 +36,18 @@ public:
 				 "RandomPosBodyDisplay",
 				 toUiString(sFactoryKeyword()));
 
-    MultiID			getMultiID() const;
-    bool			isInlCrl() const	{ return false; }
+    MultiID			getMultiID() const override;
+    bool			isInlCrl() const override	{ return false;}
 
-    bool			hasColor() const	{ return true; }
-    OD::Color			getColor() const;
-    void			setColor(OD::Color);
-    bool			allowMaterialEdit() const { return true; }
+    bool			hasColor() const override	{ return true; }
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
+    bool			allowMaterialEdit() const  override
+				{ return true; }
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     bool			setVisBody(visBase::RandomPos2Body*);
 				//!<Creates an EMObject for it.
@@ -53,7 +55,7 @@ public:
     EM::ObjectID		getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
 
 protected:
 
@@ -61,8 +63,8 @@ protected:
     virtual			~RandomPosBodyDisplay();
 
     bool			updateVisFromEM();
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
     const mVisTrans*		transform_;
     visBase::RandomPos2Body*	displaybody_;

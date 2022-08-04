@@ -68,12 +68,15 @@ mExpClass(visSurvey) EMObjectDisplay : public visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
 {
 public:
-    const mVisTrans*		getDisplayTransformation() const;
-    void			setDisplayTransformation(const mVisTrans*);
-    void			setSceneEventCatcher( visBase::EventCatcher* );
-    virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
+    const mVisTrans*		getDisplayTransformation() const override;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
+    virtual bool		setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override
 				{ return false; }
-    const ZAxisTransform*	getZAxisTransform() const
+    const ZAxisTransform*	getZAxisTransform() const override
 				{ return zaxistransform_; }
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
@@ -88,33 +91,33 @@ public:
 				/*!<\returns wether a position attribute (as
 				     defined in EM::EMObject) to be marked
 				     with a marker. */
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
 
-    MultiID			getMultiID() const;
+    MultiID			getMultiID() const override;
     BufferStringSet		displayedSections() const;
 
-    virtual void		setOnlyAtSectionsDisplay(bool yn);
-    virtual bool		displayedOnlyAtSections() const;
+    void			setOnlyAtSectionsDisplay(bool yn) override;
+    bool			displayedOnlyAtSections() const override;
 
-    virtual void		turnOnSelectionMode(bool);
-    bool			allowMaterialEdit() const { return true; }
-    const OD::LineStyle*	lineStyle() const;
-    void			setLineStyle(const OD::LineStyle&);
+    void			turnOnSelectionMode(bool) override;
+    bool			allowMaterialEdit() const override
+				{ return true; }
+    const OD::LineStyle*	lineStyle() const override;
+    void			setLineStyle(const OD::LineStyle&) override;
 
-    bool			hasColor() const;
-    void			setColor(OD::Color);
-    OD::Color			getColor() const;
+    bool			hasColor() const override;
+    void			setColor(OD::Color) override;
+    OD::Color			getColor() const override;
 
-    bool			allowsPicks() const	{ return true; }
+    bool			allowsPicks() const override	{ return true; }
 
-    void			getObjectInfo(BufferString&) const;
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+    void			getObjectInfo(BufferString&) const override;
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
-    virtual void		getMousePosInfo(const visBase::EventInfo&,
-						Coord3&,
-						BufferString& val,
-						BufferString& info) const;
+    void			getMousePosInfo(const visBase::EventInfo&,
+					    Coord3&,BufferString& val,
+					    BufferString& info) const override;
     MPEEditor*			getEditor();
     void			enableEditing(bool yn);
     bool			isEditingEnabled() const;
@@ -126,26 +129,30 @@ public:
 					 const TypeSet<int>& path,
 					 const Coord3& clickeddisplaypos) const;
 
-    virtual bool		canRemoveSelection() const	{ return true; }
-    virtual bool		removeSelections(TaskRunner*);
-    virtual void		clearSelections();
+    bool			canRemoveSelection() const override
+				{ return true; }
+    bool			removeSelections(TaskRunner*) override;
+    void			clearSelections() override;
     virtual void		updateAuxData()			{}
 
-    virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*);
-    virtual visBase::TextureChannel2RGBA* getChannels2RGBA();
+    bool			setChannels2RGBA(
+					visBase::TextureChannel2RGBA*) override;
+    visBase::TextureChannel2RGBA* getChannels2RGBA() override;
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    NotifierAccess*		getMovementNotifier()	{ return &hasmoved; }
+    NotifierAccess*		getMovementNotifier() override
+				{ return &hasmoved; }
     Notifier<EMObjectDisplay>	changedisplay;
 
-    void			lock(bool yn);
-    NotifierAccess*		getLockNotifier()	{ return &locknotifier;}
+    void			lock(bool yn) override;
+    NotifierAccess*		getLockNotifier() override
+				{ return &locknotifier; }
     virtual void		doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj )	=0;
-    virtual void		setPixelDensity(float dpi);
+    void			setPixelDensity(float dpi) override;
     const visBase::MarkerSet*	getSeedMarkerSet() const;
 
     virtual bool		getOnlyAtSectionsDisplay() const

@@ -98,18 +98,18 @@ PointSetDisplayUpdater( visBase::PointSet& pointset, DataPointSet& dps,
     pointset_.getMaterial()->clear();
 }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return nrdone_; }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return data_.size(); }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 { return tr("Points done"); }
 
 protected :
 
-int nextStep()
+int nextStep() override
 {
     if ( nrdone_ >= data_.size() )
     {
@@ -193,9 +193,9 @@ PointSetColorUpdater( visBase::PointSet& ps, DataPointSet& dps,
     , dpsdispprop_(dispprop)
 {}
 
-od_int64 nrIterations() const { return data_.size(); }
+od_int64 nrIterations() const override { return data_.size(); }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {

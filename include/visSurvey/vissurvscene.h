@@ -77,8 +77,8 @@ public:
     static Scene*		create()
 				mCreateDataObj(Scene);
 
-    virtual void		removeAll();
-    virtual void		addObject(visBase::DataObject*);
+    void			removeAll() override;
+    void			addObject(visBase::DataObject*) override;
 				/*!< If the object is a visSurvey::SurveyObject
 				     it will ask if it's an inlcrl-object or
 				     not. If it's not an
@@ -86,16 +86,16 @@ public:
 				     displaydomain
 				*/
 
-    virtual int			size() const;
-    virtual int			getFirstIdx(const DataObject*) const;
-    virtual int			getFirstIdx(int did) const
+    int				size() const override;
+    int				getFirstIdx(const DataObject*) const override;
+    int				getFirstIdx( int did ) const override
 				{ return visBase::Scene::getFirstIdx(did); }
-    visBase::DataObject*	getObject(int);
+    visBase::DataObject*	getObject(int) override;
     const visBase::DataObject*	getObject(int) const;
 
     void			addUTMObject(visBase::VisualObject*);
     void			addInlCrlZObject(visBase::DataObject*);
-    virtual void		removeObject(int idx);
+    void			removeObject(int idx) override;
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const { return tkzs_; }
@@ -168,7 +168,7 @@ public:
     ZAxisTransform*		getZAxisTransform();
     const ZAxisTransform*	getZAxisTransform() const;
 
-    bool			isRightHandSystem() const;
+    bool			isRightHandSystem() const override;
 
     void			setZDomainInfo(const ZDomain::Info&);
     const ZDomain::Info&	zDomainInfo() const;

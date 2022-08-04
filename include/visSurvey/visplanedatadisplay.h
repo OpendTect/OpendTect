@@ -52,74 +52,82 @@ public:
 				    PlaneDataDisplay, "PlaneDataDisplay",
 				     ::toUiString(sFactoryKeyword()));
 
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const override	{ return true; }
 
     void			setOrientation(SliceType);
     SliceType			getOrientation() const { return orientation_; }
 
-    bool			hasPosModeManipulator() const	{ return true; }
-    void			showManipulator(bool);
-    bool			isManipulatorShown() const;
-    bool			isManipulated() const;
-    bool			canResetManipulation() const	{ return true; }
-    void			resetManipulation();
-    void			acceptManipulation();
-    BufferString		getManipulationString() const;
-    NotifierAccess*		getManipulationNotifier();
-    NotifierAccess*		getMovementNotifier()
+    bool			hasPosModeManipulator() const override
+				{ return true; }
+    void			showManipulator(bool) override;
+    bool			isManipulatorShown() const override;
+    bool			isManipulated() const override;
+    bool			canResetManipulation() const override
+				{ return true; }
+    void			resetManipulation() override;
+    void			acceptManipulation() override;
+    BufferString		getManipulationString() const override;
+    NotifierAccess*		getManipulationNotifier() override;
+    NotifierAccess*		getMovementNotifier() override
 				{ return &movefinished_; }
     NotifierAccess*		getDataChangedNotifier()
 				{ return &datachanged_; }
 
-    bool			allowMaterialEdit() const	{ return true; }
+    bool			allowMaterialEdit() const override
+				{ return true; }
 
-    int				nrResolutions() const;
-    void			setResolution(int,TaskRunner*);
+    int				nrResolutions() const override;
+    void			setResolution(int,TaskRunner*) override;
 
-    SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
+    SurveyObject::AttribFormat	getAttributeFormat(
+						int attrib=-1) const override;
 
-    TrcKeyZSampling		getTrcKeyZSampling(int attrib=-1) const;
+    TrcKeyZSampling		getTrcKeyZSampling(
+					int attrib=-1) const override;
     void			getTraceKeyPath(TrcKeyPath&,
-                                                TypeSet<Coord>*) const;
+                                                TypeSet<Coord>*) const override;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
     TrcKeyZSampling		getDataPackSampling(int attrib=0) const;
-    Interval<float>		getDataTraceRange() const;
-    void			getRandomPos(DataPointSet&,TaskRunner* =0)const;
+    Interval<float>		getDataTraceRange() const override;
+    void			getRandomPos(DataPointSet&,
+					TaskRunner* =nullptr) const override;
     void			setRandomPosData(int attrib,
 						 const DataPointSet*,
-						 TaskRunner*);
+						 TaskRunner*) override;
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
     bool			setDataPackID(int attrib,DataPack::ID,
-					      TaskRunner*);
-    DataPack::ID		getDataPackID(int attrib) const;
-    DataPack::ID		getDisplayedDataPackID(int attrib) const;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const
+					      TaskRunner*) override;
+    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPack::ID		getDisplayedDataPackID(
+					      int attrib) const override;
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 
-    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
+    const MouseCursor*		getMouseCursor() const override
+				{ return &mousecursor_; }
 
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return MultiTextureSurveyObject
 						::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
-						Coord3&,
-						BufferString& val,
-						BufferString& info) const;
-    void			getObjectInfo(BufferString&) const;
+					    Coord3&,BufferString& val,
+					    BufferString& info) const override;
+    void			getObjectInfo(BufferString&) const override;
 
-    virtual float		calcDist(const Coord3&) const;
-    virtual float		maxDist() const;
-    virtual Coord3		getNormal(const Coord3&) const;
-    virtual bool		allowsPicks() const		{ return true; }
+    float			calcDist(const Coord3&) const override;
+    float			maxDist() const override;
+    Coord3			getNormal(const Coord3&) const override;
+    bool			allowsPicks() const override	{ return true; }
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
     void			setTranslationDragKeys(bool depth,int keys);
 				/*!<\param depth specifies wheter the depth or
@@ -133,24 +141,25 @@ public:
 						 the plane setting should be
 						 returned.
 				    \returns	combination of OD::ButtonState*/
-    bool			isVerticalPlane() const;
+    bool			isVerticalPlane() const override;
 
-    virtual bool		canDuplicate() const	{ return true; }
-    virtual SurveyObject*	duplicate(TaskRunner*) const;
+    bool			canDuplicate() const override	{ return true; }
+    SurveyObject*		duplicate(TaskRunner*) const override;
 
-    virtual void		annotateNextUpdateStage(bool yn);
+    void			annotateNextUpdateStage(bool yn) override;
 
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    void			setDisplayTransformation(const mVisTrans*);
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
     const visBase::TextureRectangle* getTextureRectangle() const
 				{ return texturerect_;  }
     float			getZScale() const;
-    const mVisTrans*		getDisplayTransformation() const
+    const mVisTrans*		getDisplayTransformation() const override
 				{ return displaytrans_; }
     bool			updatePlanePos(const TrcKeyZSampling&);
     Undo&			undo();
@@ -166,8 +175,9 @@ protected:
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =0);
     void			updateMainSwitch();
-    void			setScene(Scene*);
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setScene(Scene*) override;
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 					     bool resetz=false);
@@ -179,15 +189,16 @@ protected:
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const TrcKeyZSampling&);
     void			dataTransformCB(CallBacker*);
-    void			updateMouseCursorCB(CallBacker*);
+    void			updateMouseCursorCB(CallBacker*) override;
 
     bool			getCacheValue(int attrib,int version,
-					      const Coord3&,float&) const;
-    void			addCache();
-    void			removeCache(int);
-    void			swapCache(int,int);
-    void			emptyCache(int);
-    bool			hasCache(int) const;
+					      const Coord3&,
+					      float&) const override;
+    void			addCache() override;
+    void			removeCache(int) override;
+    void			swapCache(int,int) override;
+    void			emptyCache(int) override;
+    bool			hasCache(int) const override;
 
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
     void			updateTexShiftAndGrowth();

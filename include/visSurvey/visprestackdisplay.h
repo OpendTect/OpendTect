@@ -45,10 +45,10 @@ public:
 				    "PreStackDisplay",
 				    toUiString(sFactoryKeyword()) );
 
-    void			allowShading(bool yn);
-    void			setMultiID(const MultiID& mid);
+    void			allowShading(bool yn) override;
+    void			setMultiID(const MultiID&);
     BufferString		getObjectName() const;
-    bool			isInlCrl() const	{ return true; }
+    bool			isInlCrl() const override	{ return true; }
     bool			isOrientationInline() const;
     const Coord			getBaseDirection() const;
     StepInterval<int>		getTraceRange(const BinID&,
@@ -58,7 +58,7 @@ public:
     DataPack::ID		preProcess();
 
     bool			is3DSeis() const;
-    virtual DataPack::ID	getDataPackID(int i=0) const;
+    DataPack::ID		getDataPackID(int i=0) const override;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
@@ -72,10 +72,12 @@ public:
     PlaneDataDisplay*		getSectionDisplay();
 
     Notifier<PreStackDisplay>	draggermoving;
-    NotifierAccess*		getMovementNotifier() { return &draggermoving;}
+    NotifierAccess*		getMovementNotifier() override
+				{ return &draggermoving; }
     const BinID			draggerPosition() const	{ return draggerpos_; }
 
-    bool			hasPosModeManipulator() const	{ return true; }
+    bool			hasPosModeManipulator() const override
+				{ return true; }
 
 				//2D case
     const Seis2DDisplay*	getSeis2DDisplay() const;
@@ -94,23 +96,23 @@ public:
     float                       getWidth() { return width_; }
     void			setWidth(float width);
     BinID			getBinID() const { return bid_; }
-    virtual MultiID		getMultiID() const { return mid_; }
+    MultiID			getMultiID() const override { return mid_; }
 
-    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
-    virtual void		getMousePosInfo( const visBase::EventInfo& ei,
-						 IOPar& iop ) const
+    const MouseCursor*		getMouseCursor() const override
+				{ return &mousecursor_; }
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ SurveyObject::getMousePosInfo(ei,iop); }
-    virtual void		getMousePosInfo(const visBase::EventInfo&,
-						Coord3&,
-						BufferString& val,
-						BufferString& info) const;
+    void			getMousePosInfo(const visBase::EventInfo&,
+					    Coord3&,BufferString& val,
+					    BufferString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj );
+					int whichobj ) override;
 
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
     bool			updateDisplay() { return updateData(); }
 
     static const char*		sKeyParent()	{ return "Parent"; }
@@ -121,9 +123,12 @@ public:
 
 protected:
 				~PreStackDisplay();
-    void			setDisplayTransformation(const mVisTrans*);
-    void			setSceneEventCatcher(visBase::EventCatcher*);
-    void			updateMouseCursorCB(CallBacker*);
+
+    void			setDisplayTransformation(
+					const mVisTrans*) override;
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
+    void			updateMouseCursorCB(CallBacker*) override;
     void			dataChangedCB(CallBacker*);
     void			sectionMovedCB(CallBacker*);
     void			seis2DMovedCB(CallBacker*);

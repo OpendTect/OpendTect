@@ -78,11 +78,11 @@ public:
 			    , lock_(Threads::Lock::SmallWork)
 			{}
 
-    od_int64		nrIterations() const	{ return path_.size(); }
+    od_int64		nrIterations() const override	{ return path_.size(); }
 
 protected:
 
-    bool		doWork(od_int64 start,od_int64 stop,int thread);
+    bool		doWork(od_int64 start,od_int64 stop,int) override;
 
     const EM::Horizon3D&	hor_;
     const TrcKeyPath&		path_;
@@ -140,11 +140,11 @@ public:
 
 		~HorizonPathIntersector()	{ delete [] positions_; }
 
-    od_int64	nrIterations() const		{ return path_.size(); }
+    od_int64	nrIterations() const override		{ return path_.size(); }
 
-    bool	doPrepare(int nrthreads);
-    bool	doWork(od_int64 start,od_int64 stop,int thread);
-    bool	doFinish(bool success);
+    bool	doPrepare(int nrthreads) override;
+    bool	doWork(od_int64 start,od_int64 stop,int thread) override;
+    bool	doFinish(bool success) override;
 
 protected:
 
@@ -876,11 +876,11 @@ ZValSetter( BinIDValueSet& bivs, int zcol, ZAxisTransform* zat )
 }
 
 
-od_int64 nrIterations() const	{ return hs_.totalNr(); }
+od_int64 nrIterations() const override	{ return hs_.totalNr(); }
 
 protected:
 
-bool doWork( od_int64 start, od_int64 stop, int thread )
+bool doWork( od_int64 start, od_int64 stop, int thread ) override
 {
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {

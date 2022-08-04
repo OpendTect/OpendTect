@@ -31,7 +31,7 @@ namespace visSurvey
 {
 
 mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
-		       public SurveyObject
+				      public SurveyObject
 {
 public:
 				PSEventDisplay();
@@ -40,7 +40,7 @@ public:
 				    "PSEventDisplay",
 				     ::toUiString(sFactoryKeyword()) );
 
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const override { return true; }
 
     void			setEventManager(PreStack::EventManager*);
     void			setHorizonID(int);
@@ -55,13 +55,14 @@ public:
     const ColTab::MapperSetup&	getColTabMapper() const;
     void			setColTabSequence(const ColTab::Sequence&,
 						  bool update=true);
-    virtual const ColTab::Sequence* getColTabSequence(int ch=0) const;
-    virtual void		setColTabSequence(int,const ColTab::Sequence&,
-						  TaskRunner*);
-    virtual bool		canSetColTabSequence() const { return true; }
-    virtual int			nrAttribs() const { return 1; }
-    virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
-    virtual void		setPixelDensity(float);
+    const ColTab::Sequence*	getColTabSequence(int ch=0) const override;
+    void			setColTabSequence(int,const ColTab::Sequence&,
+						  TaskRunner*) override;
+    bool			canSetColTabSequence() const override
+				{ return true; }
+    int				nrAttribs() const override { return 1; }
+    const ColTab::MapperSetup* getColTabMapperSetup(int,int) const override;
+    void			setPixelDensity(float) override;
 
     enum DisplayMode		{ ZeroOffset, FullOnSections,
 				  ZeroOffsetOnSections, FullOnGathers };
@@ -69,26 +70,29 @@ public:
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
 
-    void			setLineStyle(const OD::LineStyle&);
+    void			setLineStyle(const OD::LineStyle&) override;
     OD::LineStyle		getLineStyle() const;
 
-    void			setMarkerStyle(const MarkerStyle3D&);
-    const MarkerStyle3D*	markerStyle() const;
-    virtual bool		hasColor() const { return true; }
-    virtual OD::Color		getColor() const;
-    const char**		markerColorNames()const;
-    const char**		displayModeNames()const;
+    void			setMarkerStyle(const MarkerStyle3D&) override;
+    const MarkerStyle3D*	markerStyle() const override;
+    bool			hasColor() const  override { return true; }
+    OD::Color			getColor() const override;
+    const char**		markerColorNames() const;
+    const char**		displayModeNames() const;
     bool			hasParents() const;
     bool			supportsDisplay() const;
 
 protected:
     void			clearAll();
 				~PSEventDisplay();
-    void			otherObjectsMoved( const ObjectSet<
-					const SurveyObject>&, int whichobj );
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			otherObjectsMoved(
+					const ObjectSet<const SurveyObject>&,
+					int whichobj) override;
+
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     //bool			filterBinID(const BinID&) const;
 				/*!<\returns true if the binid should not be

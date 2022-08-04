@@ -54,38 +54,42 @@ public:
 				    toUiString(sFactoryKeyword()))
 
 
-    MultiID			getMultiID() const;
-    bool			isInlCrl() const	{ return false; }
+    MultiID			getMultiID() const override;
+    bool			isInlCrl() const override { return false; }
 
-    bool			hasColor() const		{ return true; }
-    OD::Color			getColor() const;
-    void			setColor(OD::Color);
-    bool			allowMaterialEdit() const	{ return true; }
+    bool			hasColor() const override	{ return true; }
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
+    bool			allowMaterialEdit() const override
+				{ return true; }
 
-    const OD::LineStyle*	lineStyle() const;
-    void			setLineStyle(const OD::LineStyle&);
-    const MarkerStyle3D*	markerStyle() const;
-    void			setMarkerStyle(const MarkerStyle3D&);
-    bool			hasSpecificMarkerColor() const	{ return true; }
+    const OD::LineStyle*	lineStyle() const override;
+    void			setLineStyle(const OD::LineStyle&) override;
+    const MarkerStyle3D*	markerStyle() const override;
+    void			setMarkerStyle(const MarkerStyle3D&) override;
+    bool			hasSpecificMarkerColor() const override
+				{ return true; }
 
     void			hideAllKnots(bool yn);
     bool			areAllKnotsHidden() const;
 
-    void			showManipulator(bool);
-    bool			isManipulatorShown() const;
-    virtual void		enableEditor(bool yn);
+    void			showManipulator(bool) override;
+    bool			isManipulatorShown() const override;
+    void			enableEditor(bool yn) override;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
 
     bool			setEMObjectID(const EM::ObjectID&);
     EM::ObjectID		getEMObjectID() const;
 
-    void			setScene(Scene*);
+    void			setScene(Scene*) override;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
 
     void			updateSticks(bool activeonly=false);
     void			updateEditPids();
@@ -96,28 +100,29 @@ public:
     Notifier<FaultStickSetDisplay> colorchange;
     Notifier<FaultStickSetDisplay> displaymodechange;
 
-    bool			removeSelections(TaskRunner*);
-    bool			canRemoveSelection() const	{ return true; }
+    bool			removeSelections(TaskRunner*) override;
+    bool			canRemoveSelection() const override
+				{ return true; }
 
-    void			setOnlyAtSectionsDisplay(bool yn);
-    bool			displayedOnlyAtSections() const;
+    void			setOnlyAtSectionsDisplay(bool yn) override;
+    bool			displayedOnlyAtSections() const override;
 
     void			setStickSelectMode(bool yn);
-    void			turnOnSelectionMode(bool);
+    void			turnOnSelectionMode(bool) override;
     bool			isInStickSelectMode() const;
 
-    bool			allowsPicks() const		{ return true; }
+    bool			allowsPicks() const override	{ return true; }
 
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
-					BufferString& info) const;
+					BufferString& info) const override;
 
-    virtual void		setPixelDensity(float dpi);
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			setPixelDensity(float dpi) override;
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
     const MarkerStyle3D*	getPreferedMarkerStyle() const;
     void			setPreferedMarkerStyle(const MarkerStyle3D&);
@@ -127,7 +132,7 @@ protected:
 
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj);
+					int whichobj) override;
 
     void			setActiveStick(const EM::PosID&);
 
@@ -135,7 +140,7 @@ protected:
     static const char*		sKeyDisplayOnlyAtSections();
 
 
-    bool			isPicking() const;
+    bool			isPicking() const override;
     void			mouseCB(CallBacker*);
     void			draggingStartedCB(CallBacker*);
     void			stickSelectCB(CallBacker*);

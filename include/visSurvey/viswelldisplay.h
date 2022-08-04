@@ -61,7 +61,7 @@ public:
 				    toUiString(sFactoryKeyword()) )
 
     bool			setMultiID(const MultiID&);
-    MultiID			getMultiID() const	{ return wellid_; }
+    MultiID			getMultiID() const override { return wellid_; }
 
     //track
     void			fillTrackParams(visBase::Well::TrackParams&);
@@ -87,10 +87,10 @@ public:
     void			fillLogParams(visBase::Well::LogParams&,
 						visBase::Well::Side side);
 
-    const OD::LineStyle*	lineStyle() const;
-    void			setLineStyle(const OD::LineStyle&);
-    bool			hasColor() const	{ return true; }
-    OD::Color			getColor() const;
+    const OD::LineStyle*	lineStyle() const override;
+    void			setLineStyle(const OD::LineStyle&) override;
+    bool			hasColor() const override	{ return true; }
+    OD::Color			getColor() const override;
     void			setLogData(visBase::Well::LogParams&,bool);
     void			setLogDisplay(visBase::Well::Side);
     void			calcClippedRange(float,Interval<float>&,int);
@@ -110,26 +110,29 @@ public:
     bool			logNameShown() const;
     void			showLogName(bool);
 
-    void			setResolution(int res,TaskRunner*);
-    int				getResolution() const;
-    int				nrResolutions() const;
-    BufferString		getResolutionName(int res) const;
+    void			setResolution(int res,TaskRunner*) override;
+    int				getResolution() const override;
+    int				nrResolutions() const override;
+    BufferString		getResolutionName(int res) const override;
 
-    const mVisTrans*		getDisplayTransformation() const;
-    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const override;
+    void			setDisplayTransformation(
+					const mVisTrans*) override;
     void			setDisplayTransformForPicks(const mVisTrans*);
 
-    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
     void			addPick(Coord3);
 				//only used for user-made wells
     void			addKnownPos();
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
-						Coord3&,BufferString& val,
-						BufferString& info) const;
-    NotifierAccess*		getManipulationNotifier() { return &changed_; }
+					    Coord3&,BufferString& val,
+					    BufferString& info) const override;
+    NotifierAccess*		getManipulationNotifier() override
+				{ return &changed_; }
     bool			hasChanged() const	{ return needsave_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
     void			setChanged( bool yn )	{ needsave_ = yn; }
@@ -139,15 +142,17 @@ public:
     RefMan<Well::Data>		getWD(const Well::LoadReqs&) const;
     bool			needsConversionToTime() const;
 
-    bool			allowsPicks() const	{ return true; }
+    bool			allowsPicks() const override	{ return true; }
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
-    virtual void		setPixelDensity(float);
-    const char*			errMsg() const { return errmsg_.str(); }
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    void			setPixelDensity(float) override;
+    const char*			errMsg() const  override
+				{ return errmsg_.str(); }
     const visBase::Well*	getWell() const { return well_; }
 
 protected:

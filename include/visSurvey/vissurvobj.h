@@ -295,11 +295,12 @@ public:
 					      TaskRunner*)
 				{ return false; }
     virtual const RegularSeisDataPack* getCacheVolume(int attr) const
-				{ return 0; }
+				{ return nullptr; }
 
 				//Trace-data
     virtual void		getTraceKeyPath(TrcKeyPath&,
-						TypeSet<Coord>* = 0) const {}
+						TypeSet<Coord>* = nullptr) const
+				{}
 				/*!<If Coordinates are different from the
 				    trckeys, they can be delivered in the
 				    TypeSet<Coord>* */

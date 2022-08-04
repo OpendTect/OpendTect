@@ -50,8 +50,8 @@ public:
 			visSurvey::SurveyObject,MPEDisplay,
 			     "MPEDisplay", ::toUiString(sFactoryKeyword()));
 
-    bool            isInlCrl() const	{ return true; }
-    bool            isOn() const;
+    bool            isInlCrl() const override	{ return true; }
+    bool            isOn() const override;
 
     void            showBoxDragger(bool);
     bool            isBoxDraggerShown() const;
@@ -74,45 +74,49 @@ public:
     void            updateBoxSpace();
     void            freezeBoxPosition(bool yn);
 
-    TrcKeyZSampling	getTrcKeyZSampling(int attrib=-1) const;
+    TrcKeyZSampling	getTrcKeyZSampling(int attrib=-1) const override;
 
-    void            setSelSpec(int,const Attrib::SelSpec&);
+    void            setSelSpec(int,const Attrib::SelSpec&) override;
     const char*		getSelSpecUserRef() const;
                     /*!<\returns the userRef, "None" if
                      selspec.id==NoAttrib, or a zeropointer
                      if selspec.id==notsel */
-    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
+    const Attrib::SelSpec*	getSelSpec(int attrib,
+					   int version=0) const override;
 
-    const ColTab::MapperSetup*  getColTabMapperSetup(int, int version=0) const;
-    void            setColTabMapperSetup(int,
-                    const ColTab::MapperSetup&,TaskRunner*);
+    const ColTab::MapperSetup*  getColTabMapperSetup(int,
+						int version=0) const override;
+    void            setColTabMapperSetup(int,const ColTab::MapperSetup&,
+					 TaskRunner*) override;
 
-    const ColTab::Sequence*    getColTabSequence(int) const;
-    bool            canSetColTabSequence() const;
+    const ColTab::Sequence*    getColTabSequence(int) const override;
+    bool            canSetColTabSequence() const override;
     void            setColTabSequence(int,const ColTab::Sequence&,
-	                              TaskRunner*);
+	                              TaskRunner*) override;
 
-    const MouseCursor*	 getMouseCursor() const { return &mousecursor_; }
+    const MouseCursor*	 getMouseCursor() const override
+			{ return &mousecursor_; }
 
     void	    getMousePosInfo( const visBase::EventInfo& ei,
-				     IOPar& iop ) const
-		    { return SurveyObject::getMousePosInfo(ei,iop);}
-    void            getMousePosInfo(const visBase::EventInfo&, Coord3&,
-	                          BufferString& val, BufferString& info) const;
-    void	    getObjectInfo(BufferString&) const;
+				     IOPar& iop ) const override
+		    { return SurveyObject::getMousePosInfo(ei,iop); }
+    void            getMousePosInfo(const visBase::EventInfo&,
+				    Coord3&,BufferString& val,
+				    BufferString& info) const override;
+    void	    getObjectInfo(BufferString&) const override;
 
     void            updateSeedOnlyPropagation(bool);
     void            updateMPEActiveVolume();
     void            removeSelectionInPolygon(const Selector<Coord3>&,
 					     TaskRunner*);
 
-    virtual float	calcDist(const Coord3&) const;
-    virtual float       maxDist() const;
+    float		calcDist(const Coord3&) const override;
+    float		maxDist() const override;
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar( const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar( const IOPar&) override;
 
-    NotifierAccess*	getMovementNotifier();
+    NotifierAccess*	getMovementNotifier() override;
 
     Notifier<MPEDisplay>	boxDraggerStatusChange;
     Notifier<MPEDisplay>	planeOrientationChange;
@@ -125,33 +129,34 @@ public:
     float		getValue(const Coord3&) const;
 
     void		removeChild(int displayid);
-    void		getChildren(TypeSet<int>&) const;
+    void		getChildren(TypeSet<int>&) const override;
 
-    bool		setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool		setZAxisTransform(ZAxisTransform*,TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
-    void		setRightHandSystem(bool yn);
+    void		setRightHandSystem(bool yn) override;
 
     bool		setDataVolume(int attrib,const RegularSeisDataPack*,
-				      TaskRunner*);
+				      TaskRunner*) override;
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
 
-    const RegularSeisDataPack*	getCacheVolume(int attrib) const;
-    bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
-    DataPack::ID	getDataPackID(int attrib) const;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const
+    const RegularSeisDataPack*	getCacheVolume(int attrib) const override;
+    bool		setDataPackID(int attrib,DataPack::ID,
+				      TaskRunner*) override;
+    DataPack::ID	getDataPackID(int attrib) const override;
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
                                 { return DataPackMgr::SeisID(); }
 
-    virtual bool        allowsPicks() const;
-    void		allowShading(bool yn );
-    bool		hasPosModeManipulator() const		{ return true; }
-    void		showManipulator(bool yn);
-    bool		isManipulated() const;
-    bool		canResetManipulation() const;
-    void		resetManipulation();
-    void		acceptManipulation();
-    BufferString	getManipulationString() const;
-    NotifierAccess*	getManipulationNotifier();
+    bool	        allowsPicks() const override;
+    void		allowShading(bool yn) override;
+    bool		hasPosModeManipulator() const override	{ return true; }
+    void		showManipulator(bool yn) override;
+    bool		isManipulated() const override;
+    bool		canResetManipulation() const override;
+    void		resetManipulation() override;
+    void		acceptManipulation() override;
+    BufferString	getManipulationString() const override;
+    NotifierAccess*	getManipulationNotifier() override;
 
     static int		cInLine()	{ return 0; }
     static int		cCrossLine()	{ return 1; }
@@ -159,19 +164,19 @@ public:
 
     // texture channel-related methods
 
-    SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
+    SurveyObject::AttribFormat getAttributeFormat(int attrib=-1) const override;
 
-    bool		canAddAttrib(int nrattribstoadd=1) const;
-    bool                canRemoveAttrib() const;
-    int                 nrAttribs() const;
-    bool                addAttrib();
-    bool                removeAttrib(int attrib);
-    void		enableAttrib(int attrib,bool yn);
-    bool		isAttribEnabled(int attrib) const;
+    bool		canAddAttrib(int nrattribstoadd=1) const override;
+    bool                canRemoveAttrib() const override;
+    int                 nrAttribs() const override;
+    bool                addAttrib() override;
+    bool                removeAttrib(int attrib) override;
+    void		enableAttrib(int attrib,bool yn) override;
+    bool		isAttribEnabled(int attrib) const override;
 
-    const char*		errMsg() const { return errmsg_.str(); }
+    const char*		errMsg() const override { return errmsg_.str(); }
 
-    void		setDisplayTransformation(const mVisTrans*);
+    void		setDisplayTransformation(const mVisTrans*) override;
 
 
 protected:
@@ -182,7 +187,7 @@ protected:
     void		setSliceDimension(int slice,int dim);
     void		alignSliceToSurvey(visBase::OrthogonalSlice&);
 
-    void		setSceneEventCatcher(visBase::EventCatcher*);
+    void		setSceneEventCatcher(visBase::EventCatcher*) override;
 
     // callback from boxdragger
     void		boxDraggerFinishCB(CallBacker*);
@@ -194,20 +199,20 @@ protected:
     TrcKeyZSampling	getTrcKeyZSampling(bool manippos,bool display,
 					int attrib) const;
 
-    void		triggerSel();
-    void		triggerDeSel();
+    void		triggerSel() override;
+    void		triggerDeSel() override;
 
     bool		pickable() const	{ return true; }
-    bool		rightClickable() const	{ return false; }
-    bool		selectable() const	{ return false; }  // check!
-    bool		isSelected() const;
+    bool		rightClickable() const override	{ return false; }
+    bool		selectable() const override { return false; }  // check!
+    bool		isSelected() const override;
 
     void		turnOnSlice(bool);
     void		updateRanges(bool updateic,bool updatez);
 
     // callback from user
     void		mouseClickCB(CallBacker*);
-    void		updateMouseCursorCB(CallBacker*);
+    void		updateMouseCursorCB(CallBacker*) override;
 
     // other callbacks
     void		dataTransformCB(CallBacker*);

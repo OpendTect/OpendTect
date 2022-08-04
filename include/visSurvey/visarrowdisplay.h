@@ -27,9 +27,9 @@ mExpClass(visSurvey) ArrowDisplay : public visSurvey::LocationDisplay
 public:
     static ArrowDisplay*	create()
 				mCreateDataObj(ArrowDisplay);
-    				~ArrowDisplay();
+				~ArrowDisplay();
 
-    void			setScene(visSurvey::Scene*);
+    void			setScene(visSurvey::Scene*) override;
 
     enum Type			{ Top, Bottom, Double };
     void			setType(Type);
@@ -38,23 +38,24 @@ public:
     void			setLineWidth( int );
     int				getLineWidth() const;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
 protected:
 
     virtual void		setPosition(int,const Pick::Location&,
-					    bool add=false);
-    virtual void		removePosition(int);
+					    bool add=false) override;
+    virtual void		removePosition(int) override;
 
-    virtual int			clickedMarkerIndex(
-					const visBase::EventInfo& evi)const;
+    int				clickedMarkerIndex(const visBase::EventInfo&)
+								const override;
 
     void			zScaleCB(CallBacker*);
-    void			dispChg(CallBacker*);
-    
+    void			dispChg(CallBacker*) override;
+
     visBase::VisualObject*	createLocation() const;
-    bool			hasDirection() const { return true; }
+    bool			hasDirection() const override { return true; }
 
     void			updateLineIndices(visBase::Lines*) const;
 

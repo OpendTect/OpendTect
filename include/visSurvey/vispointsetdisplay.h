@@ -41,31 +41,34 @@ public:
 
     void			setDispProp(const DataPointSetDisplayProp*);
     const DataPointSetDisplayProp* dispProp() const	{ return dpsdispprop_; }
-    bool			hasColor() const	{ return true; }
+    bool			hasColor() const override { return true; }
 
     void			update(TaskRunner*);
     Executor*			getUpdater();
     void			updateColors();
     bool			setDataPack(DataPack::ID);
     const DataPointSet*		getDataPack() const	{ return data_; }
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
     const visBase::PointSet*	getPointSet() const	{ return pointset_; }
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override { return errmsg_.str();}
 
-    bool			removeSelections(TaskRunner*);
-    bool			selectable() const		{ return true; }
-    bool			canRemoveSelection() const	{ return true; }
-    bool			allowMaterialEdit() const	{ return false;}
-    virtual void		setPixelDensity(float);
+    bool			removeSelections(TaskRunner*) override;
+    bool			selectable() const override	{ return true; }
+    bool			canRemoveSelection() const override
+				{ return true; }
+    bool			allowMaterialEdit() const override
+				{ return false;}
+    void			setPixelDensity(float) override;
 
-    virtual void		getMousePosInfo(const visBase::EventInfo&,
+    void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3& xyzpos,
 					    BufferString& val,
-					    BufferString& info) const;
+					    BufferString& info) const override;
     void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
+						IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
 
 protected:

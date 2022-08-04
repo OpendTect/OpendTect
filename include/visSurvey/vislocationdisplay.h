@@ -41,60 +41,68 @@ mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
 public:
     virtual void		setSet(Pick::Set*); // once!
     void			setSetMgr(Pick::SetMgr*);
-    				/*!<Only used for notifications. */
+				/*!<Only used for notifications. */
     RefMan<Pick::Set>		getSet();
     ConstRefMan<Pick::Set>	getSet() const;
 
-    MultiID			getMultiID() const	{ return storedmid_; }
+    MultiID			getMultiID() const override
+				{ return storedmid_; }
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const char*			errMsg() const override
+				{ return errmsg_.str(); }
 
-    void			fullRedraw(CallBacker* =0);
+    void			fullRedraw(CallBacker* =nullptr);
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
-    virtual void		setOnlyAtSectionsDisplay(bool);
-    virtual bool		displayedOnlyAtSections() const;
+    void			setOnlyAtSectionsDisplay(bool) override;
+    bool			displayedOnlyAtSections() const override;
     void			allowDoubleClick( bool yn )
 						    { allowdoubleclicks_ = yn; }
 
-    virtual BufferString	getManipulationString() const;
-    void			getObjectInfo(BufferString&) const;
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+    BufferString		getManipulationString() const override;
+    void			getObjectInfo(BufferString&) const override;
+    void			getMousePosInfo( const visBase::EventInfo& ei,
+						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
-    virtual void		getMousePosInfo(const visBase::EventInfo&,
+    void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
-						BufferString&) const;
-    virtual bool		hasColor() const	{ return true; }
-    virtual OD::Color		getColor() const;
-    virtual void		setColor(OD::Color);
+						BufferString&) const override;
+    bool			hasColor() const override	{ return true; }
+    OD::Color			getColor() const override;
+    void			setColor(OD::Color) override;
 
-    virtual bool		allowsPicks() const	{ return true; }
-    virtual bool		isPicking() const;
-    virtual void		otherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,int);
-    virtual NotifierAccess*	getManipulationNotifier() { return &manip_; }
-    virtual void		setDisplayTransformation(const mVisTrans*);
-    virtual const mVisTrans*	getDisplayTransformation() const;
-    void			setRightHandSystem(bool yn);
-    virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    virtual void		turnOnSelectionMode(bool)		{}
+    bool			allowsPicks() const override	{ return true; }
+    bool			isPicking() const override;
+    void			otherObjectsMoved(
+					const ObjectSet<const SurveyObject>&,
+					int) override;
+    NotifierAccess*		getManipulationNotifier() override
+				{ return &manip_; }
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
+    void			setRightHandSystem(bool yn) override;
+    void			setSceneEventCatcher(
+					visBase::EventCatcher*) override;
+    void			turnOnSelectionMode(bool) override	{}
 
     int				getPickIdx(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
     SeedPainter*		getPainter()		{ return painter_; }
-    bool			isPainting() const;
+    bool			isPainting() const override;
 
-    bool			canRemoveSelection() const	{ return true; }
+    bool			canRemoveSelection() const override
+				{ return true; }
     void			removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*);
+						TaskRunner*);
 
-    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,
+						  TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
     Coord3			convertCoords(const Coord3&,bool disptoworld);
 
@@ -115,10 +123,10 @@ protected:
     virtual void		updateDragger() {}
     virtual void		setDraggerNormal(const Coord3&) {}
     virtual bool		draggerNormal() const {return true;}
-    virtual bool		removeSelections(TaskRunner*);
+    bool			removeSelections(TaskRunner*) override;
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
-    void			triggerDeSel();
+    void			triggerDeSel() override;
 
     virtual			~LocationDisplay();
 

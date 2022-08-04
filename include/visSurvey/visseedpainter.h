@@ -41,7 +41,8 @@ public:
     void		setSet(Pick::Set*);
     void		setSetMgr(Pick::SetMgr*);
 
-    void		setDisplayTransformation( const mVisTrans* );
+
+    void		setDisplayTransformation(const mVisTrans*) override;
     void		setEventCatcher( visBase::EventCatcher* );
 
     bool		isActive() const	{ return active_; }
@@ -65,12 +66,12 @@ protected:
 
     void		drawLine(const visBase::EventInfo&);
     void		drawLineOnRandLine(const RandomTrackDisplay*,
-	    				   const visBase::EventInfo&);
+					   const visBase::EventInfo&);
     void		drawLineOn2DLine(const Seis2DDisplay*,
-	    				 const visBase::EventInfo&);
+					 const visBase::EventInfo&);
 
     void		paintSeeds(const visBase::EventInfo& curev,
-	    			   const visBase::EventInfo& prevev);
+				   const visBase::EventInfo& prevev);
     void		paintSeedsOnInlCrl(const visBase::EventInfo& curev,
 				      const visBase::EventInfo& prevev,
 				      const TrcKeyZSampling& tkzs,bool isinl);
@@ -78,17 +79,17 @@ protected:
 				      const visBase::EventInfo& prevev,
 				      const TrcKeyZSampling& tkzs);
     void		paintSeedsOnRandLine(const RandomTrackDisplay*,
-	    				const visBase::EventInfo& curev,
+					const visBase::EventInfo& curev,
 					const visBase::EventInfo& prevev);
     void		paintSeedsOn2DLine(const Seis2DDisplay*,
-	    				const visBase::EventInfo& curev,
+					const visBase::EventInfo& curev,
 					const visBase::EventInfo& prevev);
 
     void		eraseSeeds(const visBase::EventInfo& curev);
     void		eraseSeedsOnRandLine(const RandomTrackDisplay*,
-	    				     const visBase::EventInfo& curev);
+					     const visBase::EventInfo& curev);
     void		eraseSeedsOn2DLine(const Seis2DDisplay*,
-	    				   const visBase::EventInfo& curev);
+					   const visBase::EventInfo& curev);
 
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			transformation_;
