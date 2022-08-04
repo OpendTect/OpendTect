@@ -53,8 +53,8 @@ public:
     static TextureChannels*	create()
 				mCreateDataObj(TextureChannels);
 
-    virtual bool		turnOn(bool yn);
-    virtual bool		isOn() const;
+    bool			turnOn(bool yn) override;
+    bool			isOn() const override;
 
     int				nrChannels() const;
     int				addChannel();

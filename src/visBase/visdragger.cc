@@ -38,7 +38,7 @@ public:
     {}
 
     using		osgManipulator::DraggerCallback::receive;
-    bool		receive(const osgManipulator::MotionCommand&);
+    bool		receive(const osgManipulator::MotionCommand&) override;
 
 protected:
 
@@ -228,7 +228,7 @@ void Dragger::setDefaultRotation()
 
 bool Dragger::defaultRotation() const
 {
-    return rotation_== Coord3(0,1,0) && mIsEqual(rotangle_,-M_PI_2,1e-5); 
+    return rotation_== Coord3(0,1,0) && mIsEqual(rotangle_,-M_PI_2,1e-5);
 }
 
 

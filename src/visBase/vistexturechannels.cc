@@ -563,9 +563,9 @@ class TextureChannels::TextureCallbackHandler :
 {
 public:
     TextureCallbackHandler()						{}
-    virtual void startWorkInProgress() const
+    virtual void startWorkInProgress() const override
 			{ MouseCursorManager::setOverride(MouseCursor::Wait); }
-    virtual void stopWorkInProgress() const
+    virtual void stopWorkInProgress() const override
 			{ MouseCursorManager::restoreOverride(); }
 };
 

@@ -45,10 +45,10 @@ public:
 			 set separately.
 			 */
 
-    void 		setLineWidth(int);
+    void		setLineWidth(int);
     const OD::LineStyle& lineStyle() const		{ return linestyle_; }
 
-    void		setPixelDensity(float);
+    void		setPixelDensity(float) override;
     osg::LineStipple*	getLineStipple() { return linestippleattrib_; }
 
 
@@ -60,7 +60,7 @@ protected:
     float			pointsize_;
     float			pixeldensity_;
 
-    osg::Point* 		pointsizeattrib_;
+    osg::Point*		pointsizeattrib_;
     osg::LineStipple*		linestippleattrib_;
     osg::LineWidth*		linewidthattrib_;
 };

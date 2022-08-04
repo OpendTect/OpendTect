@@ -41,7 +41,7 @@ public:
     void			setDim(int);
 
     void			getSliceInfo(int&,Interval<float>&) const;
-    int 			getSliceNr(int dim=-1) const;	// -1 : curdim_
+    int			getSliceNr(int dim=-1) const;	// -1 : curdim_
     void			setSliceNr(int nr,int dim=-1);	// -1 : curdim_
 
     float			getPosition() const;
@@ -55,8 +55,9 @@ public:
     Notifier<OrthogonalSlice>	motion;
     NotifierAccess&		dragFinished();
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     void			setTextureChannels(TextureChannels*);
     TextureChannels*		getTextureChannels();
@@ -65,13 +66,13 @@ protected:
 				~OrthogonalSlice();
 
     void			draggerMovementCB(CallBacker*);
-    
+
     DepthTabPlaneDragger*	dragger_;
     TextureRectangle*		slice_;
 
     int				xdatasz_, ydatasz_, zdatasz_;
-    int 			curdim_;
-    int 			slicenr_[3];
+    int			curdim_;
+    int			slicenr_[3];
 
     static const char*		dimstr();
     static const char*		slicestr();
@@ -79,4 +80,4 @@ protected:
 
 
 };
-	
+

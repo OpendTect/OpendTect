@@ -31,7 +31,7 @@ public:
 			    hasudfs_ = hasudfs;
 			}
 
-    inline RT		getValue(PT,PT) const;
+    inline RT		getValue(PT,PT) const override;
     inline RT		getValue( const PT* p ) const
 			{ return getValue(p[0],p[1]); }
 

@@ -40,8 +40,8 @@ public:
     Notifier<DraggerBase>	finished;
     Notifier<DraggerBase>	changed;
 
-    virtual void		setDisplayTransformation( const mVisTrans* );
-    const mVisTrans*		getDisplayTransformation() const;
+    void		setDisplayTransformation(const mVisTrans*) override;
+    const mVisTrans*	getDisplayTransformation() const override;
 
     void			setSpaceLimits(const Interval<float>& x,
 					       const Interval<float>& y,
@@ -50,7 +50,7 @@ public:
 protected:
     friend			class DraggerCallbackHandler;
 				DraggerBase();
-    				~DraggerBase();
+				~DraggerBase();
 
     virtual  void		notifyStart() = 0;
     virtual  void		notifyStop() = 0;
@@ -77,10 +77,10 @@ mExpClass(visBase) Dragger : public DraggerBase
 {
 public:
     static Dragger*		create()
-    				mCreateDataObj(Dragger);
+				mCreateDataObj(Dragger);
 
     enum Type			{ Translate1D, Translate2D, Translate3D,
-    				  Scale3D };
+				  Scale3D };
     void			setDraggerType(Type);
 
     void			setPos(const Coord3&);
@@ -97,21 +97,24 @@ public:
     bool			defaultRotation() const;
 
     void			setOwnShape(DataObject*,bool activeshape);
-    				/*!< Sets a shape on the dragger. */
-    bool			selectable() const;
+				/*!< Sets a shape on the dragger. */
+    bool			selectable() const override;
 
-    NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
-    const TypeSet<int>*		rightClickedPath() const;
+    NotifierAccess*		rightClicked() override
+				{ return &rightclicknotifier_; }
+    const TypeSet<int>*		rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const;
     void			updateDragger( bool active );
-    void			setDisplayTransformation( const mVisTrans* );
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
 
 protected:
-    				~Dragger();
-    void			triggerRightClick(const EventInfo* eventinfo);
-    virtual  void		notifyStart();
-    virtual  void		notifyStop();
-    virtual  void		notifyMove();
+				~Dragger();
+    void			triggerRightClick(
+					const EventInfo* eventinfo) override;
+    void			notifyStart() override;
+    void			notifyStop() override;
+    void			notifyMove() override;
     osg::MatrixTransform*	createDefaultDraggerGeometry();
     osg::MatrixTransform*	createTranslateDefaultGeometry();
     void			setScaleAndTranslation(bool move=false);

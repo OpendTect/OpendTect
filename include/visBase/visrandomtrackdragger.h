@@ -38,7 +38,7 @@ mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
 
 public:
     static RandomTrackDragger*	create()
-    				mCreateDataObj(RandomTrackDragger);
+				mCreateDataObj(RandomTrackDragger);
 
     int				nrKnots() const;
     Coord			getKnot(int) const;
@@ -54,12 +54,13 @@ public:
     Interval<float>		getDepthRange() const;
     void			setDepthRange(const Interval<float>&);
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     void			setLimits(const Coord3& start,
-	    				  const Coord3& stop,
-					  const Coord3& step); 
+					  const Coord3& stop,
+					  const Coord3& step);
 
     void			updateZLimit( const Interval<float>& zborder );
 
@@ -73,18 +74,20 @@ public:
     CNotifier<RandomTrackDragger,int> motion;	//!<knotidx>=0, panelidx<0
     Notifier<RandomTrackDragger> movefinished;
 
-    NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
-    const TypeSet<int>*		rightClickedPath() const;
+    NotifierAccess*		rightClicked() override
+				{ return &rightclicknotifier_; }
+    const TypeSet<int>*		rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const;
 
 protected:
-    				~RandomTrackDragger();
+				~RandomTrackDragger();
 
     void			startCB(CallBacker*);
     void			moveCB(CallBacker*);
     void			finishCB(CallBacker*);
 
-    void			triggerRightClick(const EventInfo* eventinfo);
+    void			triggerRightClick(
+					const EventInfo* eventinfo) override;
 
     void			doSetKnot(int,const Coord&);
 

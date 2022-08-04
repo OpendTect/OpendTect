@@ -40,14 +40,14 @@ public:
     unsigned int		getMode() {return mode_; }
 
 protected:
-    				~PolygonOffset();
+				~PolygonOffset();
 
     osg::PolygonOffset*		offset_;
     unsigned int		mode_;
 
 private:
-    void			applyAttribute(
-				osg::StateSet*, osg::StateAttribute*);
+    void			applyAttribute(osg::StateSet*,
+					       osg::StateAttribute*) override;
 
 };
 

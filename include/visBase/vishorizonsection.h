@@ -54,8 +54,9 @@ mExpClass(visBase) HorizonSection : public VisualObjectImpl
 public:
     static HorizonSection*	create() mCreateDataObj(HorizonSection);
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     ZAxisTransform*		getZAxisTransform() { return zaxistransform_; }
 

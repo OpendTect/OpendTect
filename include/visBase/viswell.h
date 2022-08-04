@@ -173,10 +173,12 @@ public:
     void			setTrackProperties(OD::Color&,int);
     void			setLogFillColorTab(const LogParams&,Side);
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
-    void			setPixelDensity(float);
-    float			getPixelDensity() const { return pixeldensity_;}
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
+    void			setPixelDensity(float) override;
+    float			getPixelDensity() const override
+				{ return pixeldensity_;}
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
     void			setLogData(const TypeSet<Coord3Value>& crdvals,
@@ -184,8 +186,8 @@ public:
 					const LogParams& lp, bool isFilled );
     void			setLogTubeDisplay(Side side,bool yn);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar& par);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar& par) override;
     int				markersize_;
 
     static const char*		linestylestr();

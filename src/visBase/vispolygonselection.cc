@@ -35,8 +35,10 @@ class SelectionCallBack : public osg::NodeCallback
 {
 public:
 		    SelectionCallBack( PolygonSelection* sel )
-			:polysel_(sel) {}
-		    void operator() ( osg::Node* node, osg::NodeVisitor* nv )
+			: polysel_(sel) {}
+
+		    void operator() ( osg::Node* node,
+				      osg::NodeVisitor* nv ) override
 		    {
 			if ( nv )
 			{
@@ -45,7 +47,7 @@ public:
 			}
 		    }
 protected:
-    		    ~SelectionCallBack(){}
+		    ~SelectionCallBack(){}
 		    RefMan<PolygonSelection> polysel_;
 };
 

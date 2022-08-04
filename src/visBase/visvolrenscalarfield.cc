@@ -486,9 +486,9 @@ VolumeDataResizer(const ValueSeries<float>& in,const TrcKeyZSampling& intkzs,
     totalnr_ = worktkzs_.hsamp_.totalNr();
 }
 
-od_int64 nrIterations() const		{ return totalnr_; }
+od_int64 nrIterations() const override		{ return totalnr_; }
 
-bool doWork( od_int64 start, od_int64 stop, int threadidx )
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 {
     // TODO: sysMemCopy if possible & trilinear interpolation if necessary
 

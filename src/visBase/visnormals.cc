@@ -28,11 +28,11 @@ class DoTransformation: public ParallelTask
 public:
     DoTransformation(Normals* p, const od_int64 size, const mVisTrans* oldtrans,
 		     const mVisTrans* newtrans);
-    od_int64	totalNr() const { return totalnrcoords_; }
+    od_int64	totalNr() const override { return totalnrcoords_; }
 
 protected:
-    bool	doWork(od_int64 start, od_int64 stop, int);
-    od_int64	nrIterations() const { return totalnrcoords_; }
+    bool	doWork(od_int64 start, od_int64 stop, int) override;
+    od_int64	nrIterations() const override { return totalnrcoords_; }
 
 private:
     Normals* normals_;
@@ -303,7 +303,7 @@ void NormalListAdapter::remove( const TypeSet<int>& idxs )
     for ( int idx=idxs.size()-1; idx>=0; idx-- )
     {
 	if ( idxs[idx]<normals_.nrNormals() )
-    	    normals_.removeNormal( idxs[idx] );
+	    normals_.removeNormal( idxs[idx] );
     }
 }
 

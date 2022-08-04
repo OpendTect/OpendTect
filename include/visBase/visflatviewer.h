@@ -32,7 +32,7 @@ public:
 
     Notifier<FlatViewer>       dataChanged;
     Notifier<FlatViewer>       dispParsChanged;
-    void		       handleChange(unsigned int);
+    void		       handleChange(od_uint32) override;
     void	               setPosition(const Coord3& c00,
 					   const Coord3& c01,
 	                                   const Coord3& c10,
@@ -40,9 +40,9 @@ public:
     void		       turnOnGridLines(bool offsetlines,bool zlines);
     void		       allowShading(bool yn);
     void		       replaceChannels(TextureChannels*);
-    			       /*!<Replaces internal texture. The new texture
+			       /*!<Replaces internal texture. The new texture
 				  will not be added to the scene. */
-    Interval<float>	       getDataRange(bool iswva) const;
+    Interval<float>	       getDataRange(bool iswva) const override;
     const SamplingData<float>  getDefaultGridSampling(bool x1) const;
 
     int			       nrResolutions() const		{ return 3; }
@@ -50,26 +50,30 @@ public:
     int			       getResolution() const	{ return resolution_; }
     BufferString	       getResolutionName(int) const;
 
-    FlatView::AuxData*	       createAuxData(const char* nm) const { return 0;}
+    FlatView::AuxData*	       createAuxData( const char* ) const override
+			       { return nullptr;}
 
-    int			       nrAuxData() const { return 0; }
-    FlatView::AuxData*	       getAuxData(int idx) { return 0; }
-    const FlatView::AuxData*   getAuxData(int idx) const { return 0; }
-    void		       addAuxData(FlatView::AuxData* a) {}
-    FlatView::AuxData*	       removeAuxData(FlatView::AuxData* a) { return a;}
-    FlatView::AuxData*	       removeAuxData(int idx) { return 0; }
-    void		       setDisplayTransformation(const mVisTrans*);
-    virtual void	       setPixelDensity(float);
+    int			       nrAuxData() const override { return 0; }
+    FlatView::AuxData*	       getAuxData(int idx) override { return nullptr; }
+    const FlatView::AuxData*   getAuxData( int idx ) const override
+				{ return nullptr; }
+    void		       addAuxData( FlatView::AuxData* ) override {}
+    FlatView::AuxData*	       removeAuxData(FlatView::AuxData* a) override
+			       { return a;}
+    FlatView::AuxData*	       removeAuxData(int) override { return nullptr; }
+    void		       setDisplayTransformation(
+						const mVisTrans*) override;
+    void		      setPixelDensity(float) override;
 
 
 protected:
-    			       ~FlatViewer();
-    
+			       ~FlatViewer();
+
     void		       updateGridLines(bool x1);
     TextureChannels*	       channels_;
     ColTabTextureChannel2RGBA* channel2rgba_;
     RefMan<TextureRectangle>   rectangle_;
-    PolyLine*	    	       x1gridlines_;
+    PolyLine*		       x1gridlines_;
     PolyLine*		       x2gridlines_;
     Material*		       gridlinematerial_;
 

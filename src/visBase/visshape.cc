@@ -89,6 +89,7 @@ mDefSetGetItem( Shape, Material, material_,
     addNodeState( material_ ) )
 
 
+
 void Shape::setMaterialBinding( int nv )
 {
     pErrMsg("Not Implemented" );
@@ -174,7 +175,7 @@ public:
 	: vtxshape_( vtxshape )
     {}
 
-    virtual void requestRedraw() const		{ vtxshape_.forceRedraw(); }
+    void requestRedraw() const override		{ vtxshape_.forceRedraw(); }
 
 protected:
     VertexShape&		vtxshape_;
@@ -188,7 +189,7 @@ public:
 	: vtxshape_( vtxshape )
     {}
 
-    virtual void	operator()(osg::Node*,osg::NodeVisitor*);
+    void		operator()(osg::Node*,osg::NodeVisitor*) override;
     void		updateTexture();
 
 protected:
@@ -742,8 +743,8 @@ void VertexShape::removePrimitiveSetFromScene( const osg::PrimitiveSet* ps )
 }
 
 #define mImplOsgFuncs \
-osg::PrimitiveSet* getPrimitiveSet() { return element_.get(); } \
-void setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp ) \
+osg::PrimitiveSet* getPrimitiveSet() override { return element_.get(); } \
+void setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp ) override \
 { \
     Geometry::PrimitiveSet::setPrimitiveType( tp ); \
     element_->setMode( getGLEnum( getPrimitiveType() )); \
@@ -759,27 +760,28 @@ public:
 			    : element_( new T ) {}
 
 			mImplOsgFuncs
-    virtual void	setEmpty()
+    void		setEmpty() override
 			{ element_->erase(element_->begin(),element_->end()); }
-    virtual void	append( int idx ) { element_->push_back( idx ); }
-    virtual int		pop() { return 0; }
-    virtual int		set(int,int) { return 0; }
+    void		append( int idx ) override
+			{ element_->push_back( idx ); }
+    int			pop() override { return 0; }
+    int			set(int,int) override { return 0; }
 
-    void set(const int* ptr, int num)
+    void set( const int* ptr, int num ) override
     {
 	element_->clear();
 	element_->reserve( num );
 	for ( int idx=0; idx<num; idx++, ptr++ )
 	    element_->push_back( *ptr );
     }
-    void append(const int* ptr, int num)
+    void append( const int* ptr, int num ) override
     {
 	element_->reserve( size() +num );
 	for ( int idx=0; idx<num; idx++, ptr++ )
 	    element_->push_back( *ptr );
     }
 
-    virtual int get(int idx) const
+    int get( int idx ) const override
     {
 	if ( idx >= size())
 	    return 0;
@@ -787,12 +789,12 @@ public:
 	    return element_->at( idx );
     }
 
-    virtual int	size() const
+    int	size() const override
     {
 	return element_->size();
     }
 
-    virtual int	indexOf(const int idx)
+    int	indexOf( const int idx ) override
     {
 	typename T::const_iterator res = std::find(
 	    element_->begin(), element_->end(), idx );
@@ -814,25 +816,26 @@ public:
 
 			mImplOsgFuncs
 
-    int			size() const	   { return element_->getCount();}
-    int			get(int idx) const { return element_->getFirst()+idx;}
+    int			size() const override   { return element_->getCount();}
+    int			get(int idx) const override
+			{ return element_->getFirst()+idx;}
 
-    void		setRange( const Interval<int>& rg )
+    void		setRange( const Interval<int>& rg ) override
     {
 	element_->setFirst( rg.start );
 	element_->setCount( rg.width(false)+1 );
     }
 
-    Interval<int>	getRange() const
+    Interval<int>	getRange() const override
     {
 	const int first = element_->getFirst();
 	return Interval<int>( first, first+element_->getCount()-1 );
     }
 
-    int			indexOf(const int) { return -1; }
-    void		append( int ){};
-    void		append(const int* ptr, int num){};
-    void		setEmpty(){};
+    int			indexOf( const int ) override	{ return -1; }
+    void		append( int ) override				{};
+    void		append(const int* ptr, int num) override	{};
+    void		setEmpty() override				{};
 
     osg::ref_ptr<osg::DrawArrays> element_;
 };

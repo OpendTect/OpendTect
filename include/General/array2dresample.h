@@ -80,13 +80,13 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
 
-    inline od_int64	nrIterations() const;
+    inline od_int64	nrIterations() const override;
     void		setInterpolate(bool yn) { interpolate_ = yn; }
 
 private:
     inline void		updateScale(const Geom::PosRectangle<float>*);
-    inline bool		doWork(od_int64,od_int64, int );
-    uiString		uiNrDoneText() const
+    inline bool		doWork(od_int64,od_int64,int) override;
+    uiString		uiNrDoneText() const override
 			{ return tr("Data columns resampled"); }
 
     const Array2D<T>*		from_;
@@ -168,7 +168,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, TT* to,
 	int sz0, int sz1, bool fromhasudfs,
 	const Geom::PosRectangle<float>* rectinfromptr)
 {
-    toptr_ = to; 
+    toptr_ = to;
     to_ = 0;
     tovs_ = 0;
 
@@ -192,7 +192,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, ValueSeries<TT>& to,
     }
     else
     {
-	toptr_ = 0; 
+	toptr_ = 0;
 	tovs_ = &to;
 	to_ = 0;
     }

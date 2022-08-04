@@ -31,10 +31,11 @@ mExpClass(visBase) GridLines : public VisualObjectImpl
 {
 public:
     static GridLines*		create()
-    				mCreateDataObj(GridLines);
-    				~GridLines();
+				mCreateDataObj(GridLines);
+				~GridLines();
 
-    void			setDisplayTransformation(const mVisTrans*);
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
 
     void			setLineStyle(const OD::LineStyle&);
     void			getLineStyle(OD::LineStyle&) const;
@@ -51,7 +52,7 @@ public:
     bool			areCrosslinesShown() const;
     void			showZlines(bool);
     bool			areZlinesShown() const;
-    virtual void		setPixelDensity(float);
+    void			setPixelDensity(float) override;
 
 protected:
 

@@ -61,8 +61,8 @@ public:
     void			allowShading(bool yn);
     bool			usesShading() const;
 
-    bool			turnOn(bool);
-    bool			isOn() const;
+    bool			turnOn(bool) override;
+    bool			isOn() const override;
 
     void			setTexVolumeTransform(const Coord3& trans,
 				    const Coord3& rotvec,double rotangle,
@@ -88,11 +88,11 @@ public:
 
     TrcKeyZSampling		getMultiAttribTrcKeyZSampling() const;
 
-    void			setRightHandSystem(bool);
-    bool			isRightHandSystem() const;
+    void			setRightHandSystem(bool) override;
+    bool			isRightHandSystem() const override;
 
 protected:
-    				~VolumeRenderScalarField();
+				~VolumeRenderScalarField();
 
     void			makeIndices(int attr,bool doset,TaskRunner*);
 				// doset argument obsolete now

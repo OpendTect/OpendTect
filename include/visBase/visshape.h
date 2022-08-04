@@ -37,23 +37,15 @@ class TextureChannels;
 class TextureCoords;
 
 
-#undef mDeclSetGetItem
-#define mDeclSetGetItem( ownclass, clssname, variable ) \
-protected: \
-    clssname*		   gt##clssname() const; \
-public: \
-    inline clssname*	   get##clssname()	 { return gt##clssname(); } \
-    inline const clssname* get##clssname() const { return gt##clssname(); } \
-    void		   set##clssname(clssname*)
-
-
 mExpClass(visBase) Shape : public VisualObject
 {
 public:
 
-    mDeclSetGetItem( Shape,	Material, material_ );
+    inline const Material*	getMaterial() const	{ return material_; }
+    inline Material*		getMaterial() override	{ return material_; }
+    void			setMaterial(Material*) override;
 
-    void			setMaterialBinding( int );
+    void			setMaterialBinding(int);
     static int			cOverallMaterialBinding()	{ return 0; }
     static int			cPerVertexMaterialBinding()	{ return 2; }
 
@@ -68,9 +60,11 @@ public:
 
 protected:
 				Shape();
-    virtual			~Shape();
-    
+				~Shape();
+
     Material*			material_;
+
+    Material*			gtMaterial() const;
 
     static const char*		sKeyOnOff();
     static const char*		sKeyTexture();
@@ -78,13 +72,22 @@ protected:
 };
 
 
+#undef mDeclSetGetItem
+#define mDeclSetGetItem( ownclass, clssname, variable ) \
+protected: \
+    clssname*		   gt##clssname() const; \
+public: \
+    inline clssname*	   get##clssname()	 { return gt##clssname(); } \
+    inline const clssname* get##clssname() const { return gt##clssname(); } \
+    void		   set##clssname(clssname*)
+
 mExpClass(visBase) VertexShape : public Shape
 {
     class TextureCallbackHandler;
     class NodeCallbackHandler;
 
 public:
-    
+
     static VertexShape* create()
 			mCreateDataObj(VertexShape);
 
@@ -107,11 +110,11 @@ public:
 
     virtual void	setDisplayTransformation( const mVisTrans* ) override;
 			/*!<\note The transformation is forwarded to the
-			     the coordinates, if you change coordinates, 
+			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.	*/
     const mVisTrans*	getDisplayTransformation() const override;
 			/*!<\note Direcly relayed to the coordinates */
-    
+
     void		dirtyCoordinates();
 
     void		addPrimitiveSet(Geometry::PrimitiveSet*);
@@ -152,7 +155,7 @@ protected:
 			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
 				     bool creategeode );
 			~VertexShape();
-    
+
     void		setupOsgNode();
 
     virtual void	addPrimitiveSetToScene(osg::PrimitiveSet*);
@@ -194,14 +197,14 @@ protected:
 };
 
 #undef mDeclSetGetItem
-    
-    
-    
+
+
+
 class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {
-    Geometry::PrimitiveSet* doCreate( bool, bool );
+    Geometry::PrimitiveSet* doCreate(bool,bool) override;
 };
-    
+
 
 
 }

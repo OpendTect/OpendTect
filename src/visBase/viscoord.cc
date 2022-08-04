@@ -28,13 +28,13 @@ public:
 			const Coord3* inpositions = 0,
 			TypeSet<Coord3>* outpositions= 0,int startidx=0,
 			bool scenespace = false);
-    od_int64	totalNr() const { return totalnrcoords_; }
+    od_int64	totalNr() const override { return totalnrcoords_; }
     void	setWithSingleCoord(const Coord3 coord)
 		{singlecoord_ = coord;setwithsinglecoord_ = true;}
 
 protected:
-    bool	doWork(od_int64 start, od_int64 stop, int);
-    od_int64	nrIterations() const { return totalnrcoords_; }
+    bool	doWork(od_int64 start,od_int64 stop,int) override;
+    od_int64	nrIterations() const override { return totalnrcoords_; }
 
 private:
     Coordinates*		coordinates_;
@@ -49,7 +49,7 @@ private:
 
 
 SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p, const od_int64 size,
-    					  const Coord3* inpositions,
+					  const Coord3* inpositions,
 					  TypeSet<Coord3>* outpositions,
 					  int startidx,
 					  bool scenespace )

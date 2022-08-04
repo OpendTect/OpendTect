@@ -78,8 +78,9 @@ public:
 						Interval<float>& y,
 						Interval<float>& z ) const;
 
-    void			setDisplayTransformation( const mVisTrans* );
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     void			showDraggerBorder(bool yn=true);
     bool			isDraggerBorderShown() const;

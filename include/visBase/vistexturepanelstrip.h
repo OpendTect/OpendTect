@@ -83,8 +83,9 @@ public:
     void			smoothNormals(bool yn=true);
     bool			areNormalsSmoothed() const;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
     int				getNrTextures() const;
     const unsigned char*	getTextureData() const;
     mStruct(visBase) TextureDataInfo

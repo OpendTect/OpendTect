@@ -41,7 +41,8 @@ class PlaneDragCBHandler : public osgManipulator::DraggerCallback
 				PlaneDragCBHandler(RandomTrackDragger&);
 
     using			osgManipulator::DraggerCallback::receive;
-    virtual bool		receive(const osgManipulator::MotionCommand&);
+    bool			receive(const osgManipulator::MotionCommand&)
+								      override;
 
     enum DragMode		{ Scale1D, Trans1D, Trans2D, Rotate, Ignore };
 

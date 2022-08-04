@@ -64,15 +64,15 @@ mExpClass(visBase) TextureCoordListAdapter : public Coord3List
 public:
 			TextureCoordListAdapter(TextureCoords&);
 
-    int			nextID(int previd) const;
-    Coord3		get(int id) const;
-    bool		isDefined(int id) const;
-    void		set(int id,const Coord3&);
-    int			add(const Coord3&);
-    void		remove(int id);
-    int			size() const	{ return texturecoords_.size(); }
-    void		addValue(int,const Coord3&);
-    void		remove(const TypeSet<int>&);
+    int			nextID(int previd) const override;
+    Coord3		get(int id) const override;
+    bool		isDefined(int id) const override;
+    void		set(int id,const Coord3&) override;
+    int			add(const Coord3&) override;
+    void		remove(int id) override;
+    int			size() const override { return texturecoords_.size(); }
+    void		addValue(int,const Coord3&) override;
+    void		remove(const TypeSet<int>&) override;
     TextureCoords*	getTextureCoords() { return &texturecoords_; }
 
 protected:

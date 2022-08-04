@@ -50,13 +50,13 @@ public:
     friend		class CoordinatesBuilder;
     friend		class CoordListAdapter;
 
-    void		setDisplayTransformation(const mVisTrans*);
+    void		setDisplayTransformation(const mVisTrans*) override;
 			/*!<\note All existing
 			     coords will be recalculated back from the old
 			     transformation and transformed by the new one.
 			*/
 
-    const mVisTrans*	getDisplayTransformation() const;
+    const mVisTrans*	getDisplayTransformation() const override;
 
     void		copyFrom(const Coordinates&);
 
@@ -112,17 +112,17 @@ mExpClass(visBase) CoinFloatVertexAttribList : public FloatVertexAttribList
 public:
 			CoinFloatVertexAttribList(Coordinates&,Normals*);
 
-    virtual int		size() const;
-    virtual bool	setSize(int,bool cpdata);
+    int			size() const override;
+    bool		setSize(int,bool cpdata) override;
 
-    virtual void	setCoord(int,const float*);
-    virtual void	getCoord(int,float*) const;
+    void		setCoord(int,const float*) override;
+    void		getCoord(int,float*) const override;
 
-    virtual void	setNormal(int,const float*);
-    virtual void	getNormal(int,float*) const;
+    void		setNormal(int,const float*) override;
+    void		getNormal(int,float*) const override;
 
-    virtual void	setTCoord(int,const float*);
-    virtual void	getTCoord(int,float*) const;
+    void		setTCoord(int,const float*) override;
+    void		getTCoord(int,float*) const override;
 
 protected:
 			~CoinFloatVertexAttribList();
@@ -140,15 +140,15 @@ mExpClass(visBase) CoordListAdapter : public Coord3List
 public:
 		CoordListAdapter(Coordinates&);
 
-    int		nextID(int) const;
-    int		add(const Coord3&);
-    Coord3	get(int) const;
-    void	set(int,const Coord3&);
-    void	remove(int);
-    bool	isDefined(int) const;
-    void	addValue(int,const Coord3&);
-    int		size() const			{ return coords_.size(); }
-    void	remove(const TypeSet<int>&);
+    int		nextID(int) const override;
+    int		add(const Coord3&) override;
+    Coord3	get(int) const override;
+    void	set(int,const Coord3&) override;
+    void	remove(int) override;
+    bool	isDefined(int) const override;
+    void	addValue(int,const Coord3&) override;
+    int		size() const override		{ return coords_.size(); }
+    void	remove(const TypeSet<int>&) override;
 
     Coordinates*    getCoordinates() { return &coords_; }
 

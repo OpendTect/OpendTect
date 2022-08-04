@@ -18,7 +18,7 @@ namespace osgGeo { class RGBALayerProcess; }
 
 
 namespace visBase
-{ 
+{
 
 /*!Converts texture channels with RGBA information to ... RGBA.
 Does also handle enable/disable of the channels. */
@@ -44,14 +44,14 @@ public:
     void			applyUndefPerChannel(bool);
     bool			isUndefPerChannel() const;
 
-    int				maxNrChannels() const	{ return 4; }
-    int				minNrChannels() const	{ return 4; }
+    int				maxNrChannels() const override	{ return 4; }
+    int				minNrChannels() const override	{ return 4; }
 
 protected:
 
 				~RGBATextureChannel2RGBA();
 
-    void			notifyChannelInsert(int ch);
+    void			notifyChannelInsert(int ch) override;
 
     BoolTypeSet			enabled_;
     unsigned char		proctransparency_;

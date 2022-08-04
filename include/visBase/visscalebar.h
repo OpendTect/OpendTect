@@ -44,7 +44,8 @@ public:
     void			setColor(OD::Color c);
     Coord3			getPos() const { return pos_; }
 
-    void			setDisplayTransformation(const mVisTrans*);
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
 
 protected:
 				~ScaleBar();

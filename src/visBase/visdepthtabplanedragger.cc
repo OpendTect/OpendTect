@@ -44,8 +44,8 @@ public:
 	, dodragcontrol_(false)
     {}
 
-    using			osgManipulator::DraggerCallback::receive;
-    virtual bool		receive(const osgManipulator::MotionCommand&);
+    using		osgManipulator::DraggerCallback::receive;
+    bool		receive(const osgManipulator::MotionCommand&) override;
 
 protected:
 

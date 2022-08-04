@@ -54,8 +54,8 @@ public:
     void		setAll(const Coord3& coord,int nmsz);
 			//!<set all normals as coord.
 
-    void		setDisplayTransformation(const mVisTrans* nt);
-    const mVisTrans*	getDisplayTransformation() const
+    void		setDisplayTransformation(const mVisTrans*) override;
+    const mVisTrans*	getDisplayTransformation() const override
 			{ return transformation_; }
 
     osg::Array*		osgArray() { return osgnormals_; }
@@ -82,18 +82,22 @@ public:
 		    : normals_( n )
 		{ normals_.ref(); }
 
-    int		nextID(int previd) const{ return normals_.nextID(previd); }
+    int		nextID(int previd) const override
+		{ return normals_.nextID(previd); }
 
-    int		add(const Coord3& n )	{ return normals_.addNormal(n); }
-    void	set(int idx,const Coord3& n)	{ normals_.setNormal(idx,n); }
-    void	remove(int idx)		{ normals_.removeNormal(idx); }
-    Coord3	get(int idx) const	{ return normals_.getNormal(idx); }
-    void	addValue(int idx, const Coord3& n)
+    int		add( const Coord3& n ) override
+		{ return normals_.addNormal(n); }
+    void	set( int idx,const Coord3& n ) override
+		{ normals_.setNormal(idx,n); }
+    void	remove( int idx ) override	{ normals_.removeNormal(idx); }
+    Coord3	get( int idx ) const override
+		{ return normals_.getNormal(idx); }
+    void	addValue( int idx, const Coord3& n ) override
 		{ normals_.addNormalValue(idx,n ); }
-    bool	isDefined(int idx) const
+    bool	isDefined( int idx ) const override
 		{ return normals_.getNormal(idx).isDefined(); }
-    void	remove(const TypeSet<int>&);
-    int		size() const		{ return normals_.nrNormals(); }
+    void	remove(const TypeSet<int>&) override;
+    int		size() const override		{ return normals_.nrNormals(); }
 
     Normals*	getNormals() { return &normals_; }
 

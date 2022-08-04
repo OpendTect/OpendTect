@@ -26,7 +26,7 @@ public:
 		ThumbWheelMessenger( ThumbWheel* t )
 		    : visthumbwheel_( t )
 		{}
-    void	operator() (osg::Node* node, osg::NodeVisitor* nv )
+    void	operator()(osg::Node* node, osg::NodeVisitor* nv ) override
 		{
 		    if ( visthumbwheel_ && nv )
 		    {
@@ -37,13 +37,12 @@ public:
 				    thnv->getDeltaAngle(), visthumbwheel_ );
 		    }
 		}
-    void	detach() { visthumbwheel_ = 0; }
+    void	detach() { visthumbwheel_ = nullptr; }
 
 protected:
 		ThumbWheelMessenger()
-		{
+		{}
 
-		}
     ThumbWheel*	visthumbwheel_;
 };
 

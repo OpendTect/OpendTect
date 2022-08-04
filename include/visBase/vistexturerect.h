@@ -77,8 +77,9 @@ public:
     void			swapTextureAxes(bool yn=true);
     bool			areTextureAxesSwapped() const;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     // deprecated
     void			getTextureCoordinates(TypeSet<Coord3>&) const;

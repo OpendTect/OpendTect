@@ -41,16 +41,17 @@ public:
     static GeomIndexedShape*	create()
 				mCreateDataObj(GeomIndexedShape);
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     void			setSurface(Geometry::IndexedShape*,
-					   TaskRunner* = 0);
+					   TaskRunner* =nullptr);
 				//!<Does not become mine, should remain
 				//!<in memory
 
     bool			touch(bool forall,bool createnew=true,
-				      TaskRunner* =0);
+				      TaskRunner* =nullptr);
 
     void			setRenderMode(RenderMode);
 
@@ -71,7 +72,7 @@ public:
     void			setAttribData(const DataPointSet&,
 					TaskRunner*);
 
-    void			setMaterial(Material*);
+    void			setMaterial(Material*) override;
     void			updateMaterialFrom(const Material*);
 
     enum			GeomShapeType{ Triangle, PolyLine, PolyLine3D };
@@ -87,7 +88,7 @@ public:
     void			addNodeState(visBase::NodeState*);
 
     void			setTextureChannels(TextureChannels*);
-    virtual void	        setPixelDensity(float);
+    virtual void	        setPixelDensity(float) override;
 
     VertexShape*		getVertexShape() const { return vtexshape_; }
 

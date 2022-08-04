@@ -55,11 +55,13 @@ public:
     void			showDraggerBorder(bool yn=true);
     bool			isDraggerBorderShown() const;
 
-    bool			selectable() const { return selectable_; }
+    bool			selectable() const override
+				{ return selectable_; }
     void			setSelectable(bool yn) { selectable_ = yn; }
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     void			setPlaneTransDragKeys(bool depth,int keys);
 				/*!<\param depth tells whether the setting

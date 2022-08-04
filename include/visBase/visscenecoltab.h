@@ -34,23 +34,23 @@ public:
     enum Pos		{ Left, Right, Top, Bottom };
     void		setPos( Pos pos );
     Pos			getPos() const	    { return pos_; }
-    
+
     void		setWindowSize(int winx, int winy);
 
     void		setOrientation(bool horizontal);
     bool		getOrientation() const { return horizontal_; }
 
-    void		setAnnotFont(const FontData&); 
-       
+    void		setAnnotFont(const FontData&);
+
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
     void		setLegendColor(const OD::Color&);
 
-    bool		turnOn(bool);
+    bool		turnOn(bool) override;
     void		setSize(int w,int h);
     Geom::Size2D<int>	getSize();
 
-    virtual void	setPixelDensity(float dpi);
+    void		setPixelDensity(float dpi) override;
 
     const ColTab::Sequence& getColTabSequence() const { return sequence_; }
     bool		isSeqFlipped() const { return flipseq_; }

@@ -35,28 +35,30 @@ enum RenderMode { RenderBackSide=-1, RenderBothSides, RenderFrontSide };
 mExpClass(visBase) VisualObject : public DataObject
 {
 public:
-    virtual void		setMaterial( Material* )		= 0;
+    virtual void		setMaterial(Material*)			= 0;
     virtual Material*		getMaterial()				= 0;
 
     virtual bool		getBoundingBox(Coord3& min,Coord3& max) const;
-    virtual void		setSceneEventCatcher( EventCatcher* )	{}
+    virtual void		setSceneEventCatcher(EventCatcher*)	{}
 
     void			setSelectable(bool yn)	{ isselectable=yn; }
-    bool			selectable() const 	{ return isselectable; }
-    NotifierAccess*		selection() 		{ return &selnotifier; }
-    NotifierAccess*		deSelection() 		{return &deselnotifier;}
-    virtual NotifierAccess*	rightClicked()		{ return &rightClick; }
+    bool			selectable() const override
+				{ return isselectable; }
+    NotifierAccess*		selection() override	{ return &selnotifier; }
+    NotifierAccess*		deSelection() override	{return &deselnotifier;}
+    NotifierAccess	*	rightClicked() override	{ return &rightClick; }
+    const TypeSet<int>*		rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const{return rcevinfo;}
-    const TypeSet<int>*		rightClickedPath() const;
 
 protected:
-    void			triggerSel()
-    				{ if (isselectable) selnotifier.trigger(); }
-    void			triggerDeSel()
-    				{ if (isselectable) deselnotifier.trigger(); }
-    void			triggerRightClick(const EventInfo*);
 				VisualObject(bool selectable=false);
 				~VisualObject();
+
+    void			triggerSel() override
+				{ if (isselectable) selnotifier.trigger(); }
+    void			triggerDeSel() override
+				{ if (isselectable) deselnotifier.trigger(); }
+    void			triggerRightClick(const EventInfo*) override;
 
 private:
     bool			isselectable;
@@ -71,11 +73,13 @@ mExpClass(visBase) VisualObjectImpl : public VisualObject
 {
 public:
 
-    void		setRightHandSystem(bool yn) { righthandsystem_=yn; }
-    bool		isRightHandSystem() const { return righthandsystem_; }
+    void		setRightHandSystem( bool yn ) override
+			{ righthandsystem_=yn; }
+    bool		isRightHandSystem() const override
+			{ return righthandsystem_; }
 
     void		setLockable();
-    			/*!<Will enable lock functionality.
+			/*!<Will enable lock functionality.
 			   \note Must be done before giving away the SoNode with
 			   getInventorNode() to take effect */
     void		readLock();
@@ -85,9 +89,9 @@ public:
     void		writeUnLock();
     bool		tryWriteLock();
 
-    void		setMaterial(Material*);
+    void		setMaterial(Material*) override;
     const Material*	getMaterial() const { return material_; }
-    Material*		getMaterial();
+    Material*		getMaterial() override;
 
     static const char*	sKeyMaterialID(); //Remove
     static const char*	sKeyMaterial();

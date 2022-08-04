@@ -46,14 +46,14 @@ public:
 							char res);
 			~HorizonTileResolutionTesselator();
 
-    od_int64		nrIterations() const { return nrtiles_; }
-    uiString		uiMessage() const
+    od_int64		nrIterations() const override { return nrtiles_; }
+    uiString		uiMessage() const override
 			{ return tr("Tessellating horizon"); }
-    uiString		uiNrDoneText() const
+    uiString		uiNrDoneText() const override
 			{ return tr("Parts completed"); }
 
-    bool		doPrepare(int);
-    bool		doWork(od_int64,od_int64,int);
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
 
     bool		getTileCoordinates(int,TypeSet<Coord3>&) const;
     bool		getTileNormals(int,TypeSet<Coord3>&) const;
@@ -78,13 +78,14 @@ public:
     ~HorizonTileRenderPreparer()
     { delete [] permutation_; }
 
-    od_int64 nrIterations() const { return nrtiles_; }
-    od_int64 totalNr() const { return nrtiles_ * 2; }
-    uiString uiMessage() const { return tr("Updating Horizon Display"); }
-    uiString uiNrDoneText() const { return tr("Parts completed"); }
+    od_int64 nrIterations() const override { return nrtiles_; }
+    od_int64 totalNr() const override { return nrtiles_ * 2; }
+    uiString uiMessage() const override
+			 { return tr("Updating Horizon Display"); }
+    uiString uiNrDoneText() const override { return tr("Parts completed"); }
 
-    bool doPrepare( int );
-    bool doWork( od_int64, od_int64, int );
+    bool doPrepare(int) override;
+    bool doWork(od_int64,od_int64,int) override;
 
     od_int64*			permutation_;
     HorizonSectionTile**	hrsectiontiles_;
@@ -102,9 +103,9 @@ public:
 class TileTesselator : public SequentialTask
 {
 public:
-    TileTesselator( HorizonSectionTile* tile, char res );
+				TileTesselator(HorizonSectionTile*,char res);
 
-    int	nextStep();
+    int				nextStep() override;
     HorizonSectionTile*		tile_;
     char			res_;
     bool			doglue_;
@@ -119,16 +120,18 @@ public:
 
     ~HorizonSectionTilePosSetup();
 
-    od_int64	nrIterations() const;
-    uiString	uiMessage() const { return tr("Creating Horizon Display"); }
-    uiString	uiNrDoneText() const { return tr("Parts completed"); }
+    od_int64	nrIterations() const override;
+    uiString	uiMessage() const override
+		{ return tr("Creating Horizon Display"); }
+    uiString	uiNrDoneText() const override
+		{ return tr("Parts completed"); }
     void	setTesselationResolution(char res);
 
 
 protected:
 
-    bool		doWork(od_int64,od_int64,int);
-    bool		doFinish(bool);
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
 
     int					nrcrdspertileside_;
     char				resolution_;
@@ -145,9 +148,9 @@ protected:
 class TileGlueTesselator : public SequentialTask
 {
 public:
-    TileGlueTesselator( HorizonSectionTile* tile );
+				TileGlueTesselator(HorizonSectionTile*);
 
-    int	nextStep();
+    int				nextStep() override;
     HorizonSectionTile*		tile_;
 };
 

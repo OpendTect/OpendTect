@@ -71,9 +71,9 @@ public:
     void			setID(int nid);
     static int			getID(const osg::Node*);
 
-    virtual BufferString	getName() const;
-    virtual const OD::String&	name() const;
-    virtual void		setName(const char*);
+    BufferString		getName() const override;
+    const OD::String&		name() const override;
+    void			setName(const char*) override;
     uiString			uiName() const;
     void			setUiName(const uiString&);
     mDeprecated("Use setUiName") void setName( const uiString& uistr )
@@ -85,9 +85,8 @@ public:
     void			enableTraversal(unsigned int mask,bool yn=true);
     bool			isTraversalEnabled(unsigned int mask) const;
 
-    inline SoNode*		getInventorNode()	{return 0;}
-    inline const SoNode*	getInventorNode() const
-				{ return 0; }
+    inline SoNode*		getInventorNode()	{ return nullptr; }
+    inline const SoNode*	getInventorNode() const	{ return nullptr; }
 
     virtual bool		turnOn(bool yn);
     virtual bool		isOn() const;
@@ -110,10 +109,10 @@ public:
 				     SelectionManager.	*/
 
     virtual bool		isSelected() const;
-    virtual NotifierAccess*	selection()		{ return 0; }
-    virtual NotifierAccess*	deSelection()		{ return 0; }
-    virtual NotifierAccess*	rightClicked()		{ return 0; }
-    virtual const TypeSet<int>*	rightClickedPath() const{ return 0; }
+    virtual NotifierAccess*	selection()		{ return nullptr; }
+    virtual NotifierAccess*	deSelection()		{ return nullptr; }
+    virtual NotifierAccess*	rightClicked()		{ return nullptr; }
+    virtual const TypeSet<int>*	rightClickedPath() const{ return nullptr; }
 
     virtual void		setDisplayTransformation(const mVisTrans*);
 				/*!< All positions going from the outside
@@ -124,7 +123,8 @@ public:
 				     outside the vis without loosing precision
 				     in the vis.
 				 */
-    virtual const mVisTrans*	getDisplayTransformation() const { return 0; }
+    virtual const mVisTrans*	getDisplayTransformation() const
+				{ return nullptr; }
 				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     with this transform. This enables us
@@ -152,7 +152,7 @@ public:
 
     void			setParent(DataObjectGroup* g) { parent_ = g; }
 
-    template <class T> T*	addNodeState(T* ns)
+    template <class T> T*	addNodeState( T* ns )
 				{ doAddNodeState(ns); return ns; }
     NodeState*			removeNodeState(NodeState*);
     NodeState*			getNodeState( int idx );
@@ -178,7 +178,8 @@ protected:
 				/*!<Is called everytime object is selected.*/
     virtual void		triggerDeSel()				{}
 				/*!<Is called everytime object is deselected.*/
-    virtual void		triggerRightClick(const EventInfo* =0)	{}
+    virtual void		triggerRightClick(const EventInfo* =nullptr)
+				{}
 
 				DataObject();
 

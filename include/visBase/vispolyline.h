@@ -35,24 +35,24 @@ mExpClass(visBase) PolyLine : public VertexShape
 {
 public:
     static PolyLine*	create()
-    			mCreateDataObj(PolyLine);
+			mCreateDataObj(PolyLine);
 
-    int 		size() const;
+    int		size() const;
     void		addPoint( const Coord3& pos );
     Coord3		getPoint( int ) const;
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
     void		removeAllPoints();
-    void		setLineStyle(const OD::LineStyle&);
+    void		setLineStyle(const OD::LineStyle&) override;
     const OD::LineStyle& lineStyle() const;
 
-    void		setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+    void		setDisplayTransformation(const mVisTrans*) override;
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
 
 protected:
-    					~PolyLine();
+					~PolyLine();
     DrawStyle*				drawstyle_;
     Geometry::RangePrimitiveSet*	coordrange_;
 };
@@ -65,21 +65,23 @@ public:
     static PolyLine3D*	create()
 			mCreateDataObj(PolyLine3D);
 
-    void		setLineStyle(const OD::LineStyle&);
+    void		setLineStyle(const OD::LineStyle&) override;
     const OD::LineStyle& lineStyle() const;
     void		setResolution(int);
     int			getResolution() const;
-    void		addPrimitiveSetToScene(osg::PrimitiveSet*);
-    void		removePrimitiveSetFromScene(const osg::PrimitiveSet*);
-    void		touchPrimitiveSet(int);
-    void		setCoordinates(Coordinates*);
-    void		setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+    void		addPrimitiveSetToScene(osg::PrimitiveSet*) override;
+    void		removePrimitiveSetFromScene(
+					const osg::PrimitiveSet*) override;
+    void		touchPrimitiveSet(int) override;
+    void		setCoordinates(Coordinates*) override;
+    void		setDisplayTransformation(const mVisTrans*) override;
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
 
-    void		setPixelDensity(float);
-    float		getPixelDensity() const 	{ return pixeldensity_;}
+    void		setPixelDensity(float) override;
+    float		getPixelDensity() const override
+			{ return pixeldensity_; }
 
 protected:
     void			updateRadius();

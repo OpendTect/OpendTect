@@ -35,14 +35,14 @@ namespace visBase
 class BoxDraggerCallbackHandler: public osgManipulator::DraggerCallback
 {
 
-public: 
+public:
 				BoxDraggerCallbackHandler( BoxDragger& dragger )
 				    : dragger_( dragger )
 				    , dodragcontrol_(false)
 				{}
 
-    using			osgManipulator::DraggerCallback::receive;
-    virtual bool		receive(const osgManipulator::MotionCommand&);
+    using		osgManipulator::DraggerCallback::receive;
+    bool		receive(const osgManipulator::MotionCommand&) override;
 
 protected:
 
@@ -348,8 +348,8 @@ BoxDragger::BoxDragger()
     osg::ref_ptr<osg::CullFace> cullface = new osg::CullFace;
     cullface->setMode( osg::CullFace::FRONT );
     geode->getStateSet()->setAttributeAndModes( cullface,
-	    					osg::StateAttribute::ON );
-     
+						osg::StateAttribute::ON );
+
     osgboxdragger_->getOrCreateStateSet()->setAttributeAndModes(
 	new osg::Material(),
 	osg::StateAttribute::PROTECTED|osg::StateAttribute::ON);
@@ -531,7 +531,7 @@ bool BoxDragger::isDraggerBorderShown() const
 	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
 	{
 	    mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, dragger,
-		    	     tpd->getDragger(idy) );
+			     tpd->getDragger(idy) );
 	    if ( dragger )
 		return dragger->getTranslate2DDragger()->getColor()[3];
 	}

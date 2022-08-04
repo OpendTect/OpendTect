@@ -160,8 +160,9 @@ namespace Values
 mExpClass(visBase) OneFrameCullDisabler : public osg::NodeCallback
 {
 public:
-				OneFrameCullDisabler(osg::Node*);
-    virtual void		operator()(osg::Node*,osg::NodeVisitor*);
+			OneFrameCullDisabler(osg::Node*);
+
+    void		operator()(osg::Node*,osg::NodeVisitor*) override;
 };
 
 #define mAttachOneFrameCullDisabler( osgnode ) \

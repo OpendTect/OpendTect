@@ -36,23 +36,23 @@ public:
 static MappedTextureDataSetImpl* create()
 mCreateDataObj( MappedTextureDataSetImpl );
 
-int nrChannels() const
+int nrChannels() const override
 { return 0; } //{ return tc_->channels.getNum(); }
 
 
-bool addChannel()
+bool addChannel() override
 { return true; }
 
 
-bool enableNotify( bool yn )
+bool enableNotify( bool yn ) override
 { return true; } //{ return tc_->channels.enableNotify( yn ); }
 
 
-void setNrChannels( int nr )
+void setNrChannels( int nr ) override
 {} //{ tc_->channels.setNum( nr ); }
 
 
-void touch()
+void touch() override
 {} //{ tc_->touch(); }
 
 
@@ -136,7 +136,7 @@ void TextureChannel2RGBA::getChannelName( int idx, uiString& res ) const
 }
 
 
-const osg::Image* TextureChannel2RGBA::createRGBA() const 
+const osg::Image* TextureChannel2RGBA::createRGBA() const
 {
      return laytex_ ? laytex_->getCompositeTextureImage() : 0;
 }
@@ -347,7 +347,7 @@ void ColTabTextureChannel2RGBA::setSequence( int ch,
 {
     if ( !coltabs_.validIdx(ch) || *coltabs_[ch]==seq )
 	return;
-    
+
     *coltabs_[ch] = seq;
 
     if ( laytex_ )
@@ -359,7 +359,7 @@ void ColTabTextureChannel2RGBA::setSequence( int ch,
 	{
 	    const OD::Color& udfcol = getSequence(ch)->undefColor();
 	    laytex_->getProcess(ch)->setNewUndefColor(
-		    				Conv::to<osg::Vec4f>(udfcol) );
+						Conv::to<osg::Vec4f>(udfcol) );
 	}
     }
 }

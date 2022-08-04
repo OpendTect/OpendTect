@@ -53,7 +53,7 @@ public:
     const Coordinates*	getCoordinates()  const  { return coords_; }
     Normals*		getNormals();
 
-    void		setMaterial(visBase::Material*);
+    void		setMaterial(visBase::Material*) override;
 			//!<If material is null, markers will be single color
 
     void		setMarkersSingleColor(const OD::Color& singlecolor);
@@ -101,11 +101,12 @@ public:
 			    same part of the marker always faces the camera. */
     bool		facesCamera() const;
 
-    void		setDisplayTransformation( const mVisTrans* );
-    const mVisTrans*	getDisplayTransformation() const;
+    void		setDisplayTransformation(const mVisTrans*) override;
+    const mVisTrans*	getDisplayTransformation() const override;
 
-    void		setPixelDensity(float);
-    float		getPixelDensity() const { return pixeldensity_; }
+    void		setPixelDensity(float) override;
+    float		getPixelDensity() const override
+			{ return pixeldensity_; }
 
     void		removeMarker(int idx);
 
@@ -132,7 +133,7 @@ public:
     void		removePolygonOffsetNodeState();
 
 protected:
-    void		materialChangeCB(CallBacker*);
+    void		materialChangeCB(CallBacker*) override;
 				~MarkerSet();
 
     RefMan<Coordinates>		coords_;

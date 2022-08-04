@@ -17,10 +17,10 @@ ________________________________________________________________________
 
 
 namespace visBase
-{ 
+{
 
-/*! Implementation of TextureChannel2VolData that feeds the 8-bit values from 
- the texture channel(s) into a volume data object. 
+/*! Implementation of TextureChannel2VolData that feeds the 8-bit values from
+ the texture channel(s) into a volume data object.
 */
 
 mExpClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
@@ -29,26 +29,27 @@ public:
     static TextureChannel2VolData*	create()
 			mCreateDataObj(TextureChannel2VolData);
 
-    const osg::Image*	createRGBA() const		{ return 0; }
-    bool		canSetSequence() const	{ return true; }
-    void		setSequence(int channel,const ColTab::Sequence&);
-    const ColTab::Sequence* getSequence(int channel) const;
+    const osg::Image*	createRGBA() const override	{ return nullptr; }
+    bool		canSetSequence() const override	{ return true; }
+    void		setSequence(int channel,
+				    const ColTab::Sequence&) override;
+    const ColTab::Sequence* getSequence(int channel) const override;
 
-    void		setEnabled(int ch, bool yn);
-    bool		isEnabled(int ch) const;
+    void		setEnabled(int ch, bool yn) override;
+    bool		isEnabled(int ch) const override;
 
-    bool		canUseShading() const	{ return false; }
-    bool		usesShading() const	{ return false; }
-    int			maxNrChannels() const	{ return 1; }
-    int			minNrChannels() const	{ return 1; }
+    bool		canUseShading() const override	{ return false; }
+    bool		usesShading() const override	{ return false; }
+    int			maxNrChannels() const override	{ return 1; }
+    int			minNrChannels() const override	{ return 1; }
 
-    MappedTextureDataSet* createMappedDataSet() const;
+    MappedTextureDataSet* createMappedDataSet() const override;
 
 protected:
-    			~TextureChannel2VolData();
+			~TextureChannel2VolData();
 
-    void		setChannels(TextureChannels*);
-    void		notifyChannelChange();
+    void		setChannels(TextureChannels*) override;
+    void		notifyChannelChange() override;
     void		update();
     void		makeColorTables();
 

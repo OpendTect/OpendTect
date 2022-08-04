@@ -141,7 +141,8 @@ public:
 				   od_int64 sz,T nrsteps,
 				   const float* unmapped,
 				   T* mappedvals,int mappedvalspacing=1,
-				   T* mappedundef=0,int mappedundefspacing=1);
+				   T* mappedundef=nullptr,
+				   int mappedundefspacing=1);
 			/*!<separateundef will set every second value to
 			    0 or mUndefColIdx depending on if the value
 			    is undef or not. Mapped pointer should thus
@@ -150,18 +151,21 @@ public:
 				   od_int64 sz,T nrsteps,
 				   const ValueSeries<float>& unmapped,
 				   T* mappedvals, int mappedvalspacing=1,
-				   T* mappedundef=0,int mappedundefspacing=1);
+				   T* mappedundef=nullptr,
+				   int mappedundefspacing=1);
 			/*!<separateundef will set every second value to
 			    0 or mUndefColIdx depending on if the value
 			    is undef or not. Mapped pointer should thus
 			    have space for 2*sz */
 			~MapperTask();
-    od_int64		nrIterations() const;
+
+    od_int64		nrIterations() const override;
     const unsigned int*	getHistogram() const	{ return histogram_; }
 
 private:
-    bool			doWork(od_int64 start,od_int64 stop,int);
-    uiString			uiNrDoneText() const
+    bool			doWork(od_int64 start,od_int64 stop,
+				       int) override;
+    uiString			uiNrDoneText() const override
 				{ return tr("Data values mapped"); }
 
     const ColTab::Mapper&	mapper_;
@@ -188,7 +192,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
     , totalsz_( sz )
     , nrsteps_( nrsteps )
     , unmapped_( unmapped )
-    , unmappedvs_( 0 )
+    , unmappedvs_( nullptr )
     , mappedvals_( mappedvals )
     , mappedudfs_( mappedudfs )
     , mappedvalsspacing_( mappedvalsspacing )
@@ -209,7 +213,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
     , totalsz_( sz )
     , nrsteps_( nrsteps )
     , unmapped_( unmapped.arr() )
-    , unmappedvs_( unmapped.arr() ? 0 : &unmapped )
+    , unmappedvs_( unmapped.arr() ? nullptr : &unmapped )
     , mappedvals_( mappedvals )
     , mappedudfs_( mappedudfs )
     , mappedvalsspacing_( mappedvalsspacing )
@@ -240,7 +244,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     OD::memZero( histogram, (mUndefColIdx+1)*sizeof(unsigned int) );
 
     T* valresult = mappedvals_+start*mappedvalsspacing_;
-    T* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : 0;
+    T* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : nullptr;
     const float* inp = unmapped_+start;
 
     const ValueSeries<float>* unmappedvs = unmappedvs_;

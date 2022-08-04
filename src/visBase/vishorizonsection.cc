@@ -37,11 +37,11 @@ public:
     TileCoordinatesUpdator(HorizonSection* hrsecion, const od_int64 size,
 		         const Transformation* trans, bool transback= false);
 
-    od_int64	totalNr() const { return totaltiles_; }
+    od_int64	totalNr() const override { return totaltiles_; }
 
 protected:
-    bool	doWork(od_int64 start, od_int64 stop, int);
-    od_int64	nrIterations() const { return totaltiles_; }
+    bool	doWork(od_int64 start,od_int64 stop,int) override;
+    od_int64	nrIterations() const override { return totaltiles_; }
 
 private:
     void	updateCoordinates(HorizonSectionTile*);
@@ -115,7 +115,7 @@ public:
 	: horsection_( section )
     {}
 
-    virtual void requestRedraw() const		{ horsection_.forceRedraw(); }
+    void requestRedraw() const override	{ horsection_.forceRedraw(); }
 
 protected:
     HorizonSection&		horsection_;
@@ -126,7 +126,7 @@ class HorizonSection::NodeCallbackHandler : public osg::NodeCallback
 {
 public:
     NodeCallbackHandler( HorizonSection* section );
-    virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+    void operator()(osg::Node* node, osg::NodeVisitor* nv) override;
 
 protected:
     const osg::Vec3 getProjectionDirection( const osgUtil::CullVisitor* );
@@ -442,7 +442,7 @@ void HorizonSection::configSizeParameters()
 
 
 void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
-       				 TaskRunner* tr )
+				 TaskRunner* tr )
 {
     if ( !surf ) return;
 
@@ -581,7 +581,7 @@ HorizonSectionUpdater( HorTilesCreatorAndUpdator& upd,
     , updater_(upd)
 {}
 
-bool execute()
+bool execute() override
 { updater_.updateTiles( &gpids_, 0 ); return true; }
 
     TypeSet<GeomPosID> gpids_;

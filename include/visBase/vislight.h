@@ -41,7 +41,7 @@ public:
     bool		isOn() const	{ return ison_; }
 
     void		setAmbient(float);
-    			/*!< 0 = nada, 1 = full light */
+			/*!< 0 = nada, 1 = full light */
     float		getAmbient() const;
 
     void		setDiffuse(float);
@@ -55,7 +55,7 @@ public:
 
     void		fillPar( IOPar& ) const;
     bool		usePar( const IOPar& );
- 
+
 
 protected:
 				~Light();
@@ -72,8 +72,8 @@ protected:
     static const char*	sKeyLightNum();
     static const char*	sKeyDirection();
 private:
-    void			applyAttribute(
-				osg::StateSet*,osg::StateAttribute*);
+    void			applyAttribute(osg::StateSet*,
+					       osg::StateAttribute*) override;
 };
 
 

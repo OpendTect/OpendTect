@@ -30,17 +30,17 @@ mExpClass(visBase) ImageRect : public VisualObjectImpl
 public:
     static ImageRect*	create()
 			mCreateDataObj( ImageRect );
-    
+
     void		setPick(const Pick::Location&);
 
     void		setCenterPos(const Coord3&);
     void		setCornerPos(const Coord3& tl,const Coord3& br);
 
     void		setRGBImage(const OD::RGBImage&);
-    void		setDisplayTransformation(const mVisTrans*);
-  
+    void		setDisplayTransformation(const mVisTrans*) override;
+
 protected:
-    			    ~ImageRect();
+			    ~ImageRect();
 
     const mVisTrans*		trans_;
     int				layerid_;

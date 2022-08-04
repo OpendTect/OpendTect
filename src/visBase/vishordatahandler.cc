@@ -129,11 +129,11 @@ DataPointSetFiller( BinIDValueSet& bivs, const HorizonSection& section,
 }
 
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 { return section_.geometry_->nrKnots(); }
 
 protected:
-bool doWork( od_int64 start, od_int64 stop, int threadidx )
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 {
     mAllocVarLenArr( float, vals, bivs_.nrVals() );
     for ( int idx=0; idx<bivs_.nrVals(); idx++ )

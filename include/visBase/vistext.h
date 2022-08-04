@@ -55,7 +55,7 @@ public:
     void			updateFontSize(float pixeldensity);
 
     void			setText(const uiString&);
-    const uiString&		getText() const 	{ return text_; }
+    const uiString&		getText() const	{ return text_; }
 
     void			setColor(const OD::Color&);
     OD::Color			getColor() const;
@@ -66,7 +66,7 @@ public:
     osg::Drawable&		getDrawable();
     const osg::Drawable&	getDrawable() const;
 
-    void			setDisplayTransformation( const mVisTrans*);
+    void			setDisplayTransformation(const mVisTrans*);
     void			setCharacterSizeMode( CharacterSizeMode );
     void			setAxisAlignment( AxisAlignment );
 
@@ -82,7 +82,7 @@ protected:
 mExpClass(visBase) OsgFontCreator
 {
 public:
-    virtual			~OsgFontCreator() 			{}
+    virtual			~OsgFontCreator()			{}
     static osgText::Font*	create(const FontData&);
 protected:
     static void			setCreator(OsgFontCreator*);
@@ -106,9 +106,11 @@ public:
     const Text*			text(int idx=0) const;
     Text*			text(int idx=0);
 
-    void			setDisplayTransformation(const mVisTrans*);
-    void			setPixelDensity(float);
-    float			getPixelDensity() const { return pixeldensity_;}
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    void			setPixelDensity(float) override;
+    float			getPixelDensity() const override
+				{ return pixeldensity_;}
 
 protected:
     void			translationChangeCB(CallBacker*);

@@ -76,13 +76,13 @@ public:
     void		setScaleFactor(int dim,int scale);
 
     void		setText(int dim,const uiString&);
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
-    void		setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*	getDisplayTransformation() const
+    void		setDisplayTransformation(const mVisTrans*) override;
+    const mVisTrans*	getDisplayTransformation() const override
 			{ return displaytrans_; }
-    virtual void	setPixelDensity(float);
+    virtual void	setPixelDensity(float) override;
     const Text2*	getAnnotTexts() const { return axisannot_; }
 
 

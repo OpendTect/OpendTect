@@ -29,8 +29,9 @@ public:
     static TopBotImage*		create()
 				mCreateDataObj(TopBotImage);
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
     void			setPos(const Coord3& tl,const Coord3& br);
     const Coord3&		topLeft() const	    { return pos0_; }
     const Coord3&		bottomRight() const { return pos1_; }
@@ -48,8 +49,8 @@ public:
 						   TypeSet<Coord>& texcoords,
 						   TypeSet<int>& ps ) const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 				~TopBotImage();

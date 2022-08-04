@@ -25,7 +25,7 @@ mExpClass(visBase) Axes : public DataObject
 {
 public:
     static Axes*		create()
-    				mCreateDataObj(Axes);
+				mCreateDataObj(Axes);
     void			setRadius(float);
     float			getRadius() const;
     void			setLength(float);
@@ -37,10 +37,10 @@ public:
     void			setAnnotationFont(const FontData&);
     void			setPrimaryCamera(visBase::Camera*);
 
-    virtual void		setPixelDensity(float dpi);
+    void			setPixelDensity(float dpi) override;
 
 protected:
-    				~Axes();
+				~Axes();
 
     osgGeo::AxesNode*		axesnode_;
     // TODO: rename to primarycamera_

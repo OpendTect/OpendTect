@@ -41,7 +41,7 @@ public:
     static Scene*	create()
 			mCreateDataObj(Scene);
 
-    void		addObject(DataObject*);
+    void		addObject(DataObject*) override;
 
     void		setBackgroundColor(const OD::Color&);
     OD::Color		getBackgroundColor() const;

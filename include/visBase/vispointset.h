@@ -37,7 +37,7 @@ public:
     void		removeAllPoints();
     int			size() const ;
 
-    void		setDisplayTransformation( const mVisTrans* );
+    void		setDisplayTransformation(const mVisTrans*) override;
 			/*!<The transformation is forwarded to the
 			    the coordinates, if you change coordinates,
 			    you will have to setTransformation again.  */

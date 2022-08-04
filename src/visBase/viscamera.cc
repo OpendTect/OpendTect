@@ -28,14 +28,14 @@ public:
         : camera_( cam )
     {}
 
-    virtual void operator () (osg::RenderInfo& renderInfo) const
+    void operator () (osg::RenderInfo& renderInfo) const override
     {
         camera_.triggerDrawCallBack( this, renderInfo );
     }
 
     //Just to avoid warning
-    virtual void operator () (const osg::Camera&) const
-    { }
+    void operator () (const osg::Camera&) const override
+    {}
 
 private:
     visBase::Camera&	camera_;

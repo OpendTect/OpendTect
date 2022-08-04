@@ -52,12 +52,12 @@ public:
     bool			singleSelection() const;
     bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
-	    				 bool displayspace=false) const;
+					 bool displayspace=false) const;
 
     char			includesRange(const Coord3& start,
-	    				      const Coord3& stop,
+					      const Coord3& stop,
 					      bool displayspace ) const;
-    				/*!< 0: projected box fully outside polygon
+				/*!< 0: projected box fully outside polygon
 				     1: projected box partially outside polygon
 				     2: projected box fully inside polygon
 				     3: all box points behind projection plane
@@ -112,18 +112,18 @@ public:
 				PolygonCoord3Selector(const PolygonSelection&);
 				~PolygonCoord3Selector();
 
-    Selector<Coord3>*		clone() const;
-    const char*			selectorType() const;
-    bool			isOK() const;
+    Selector<Coord3>*		clone() const override;
+    const char*			selectorType() const override;
+    bool			isOK() const override;
     bool			hasPolygon() const;
-    bool			includes(const Coord3&) const;
-    bool			canDoRange() const	{ return true; }
+    bool			includes(const Coord3&) const override;
+    bool			canDoRange() const override	{ return true; }
     char			includesRange(const Coord3& start,
-	    				      const Coord3& stop) const;
+					     const Coord3& stop) const override;
     void			copySelection(const PolygonSelection&);
 
 protected:
-    bool			isEq(const Selector<Coord3>&) const;
+    bool			isEq(const Selector<Coord3>&) const override;
 
     const PolygonSelection&	vissel_;
 };

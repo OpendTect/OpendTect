@@ -115,7 +115,8 @@ public:
 		}
 
     using	osgGA::GUIEventHandler::handle;
-    bool	handle(const osgGA::GUIEventAdapter&,osgGA::GUIActionAdapter&);
+    bool	handle(const osgGA::GUIEventAdapter&,
+		       osgGA::GUIActionAdapter&) override;
 
     void	initKeyMap();
 

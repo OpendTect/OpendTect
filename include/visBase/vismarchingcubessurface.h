@@ -34,24 +34,24 @@ public:
 					mCreateDataObj(MarchingCubesSurface);
 
     bool				setSurface(::MarchingCubesSurface&,
-	    					   TaskRunner*);
+						   TaskRunner*);
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
 
-    void				setRightHandSystem(bool);
+    void				setRightHandSystem(bool) override;
 
     void				setScales(const SamplingData<float>&,
-	    					  const SamplingData<float>&,
+						  const SamplingData<float>&,
 						  const SamplingData<float>&);
     const SamplingData<float>		getScale(int dim) const;
 
     bool			touch(bool forall,TaskRunner* =0);
     void			setRenderMode( RenderMode );
-					
-    				//For body section display only. 
+
+				//For body section display only.
     char			enabledSection() const;
     void			enableSection(char);
-    				/*!< -1: display the whole isosurface.
+				/*!< -1: display the whole isosurface.
 				      0: display section along inline.
 				      1: display section along crline.
 				      2: display section along z. */
@@ -60,14 +60,15 @@ public:
     void			setBoxBoundary(float x,float y,float z);
 
     GeomIndexedShape*		getShape()		{ return shape_; }
-    virtual void		setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    virtual void		setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
     void			getTransformCoord(Coord3&);
 
 
 
 protected:
-    					~MarchingCubesSurface();
+					~MarchingCubesSurface();
     void				updateHints();
     void				updateDisplayRange();
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
@@ -85,4 +86,4 @@ protected:
 };
 
 };
-	
+

@@ -42,13 +42,14 @@ public:
     bool			setPoints(const TypeSet<Coord3>& pts);
     const TypeSet<Coord3>&	getPoints() const { return picks_; }
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setDisplayTransformation(
+						const mVisTrans*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
 
     void			setRenderMode(RenderMode);
 
 protected:
-    				~RandomPos2Body();
+				~RandomPos2Body();
 
     TypeSet<Coord3>		picks_;
     VertexShape*		vtxshape_;

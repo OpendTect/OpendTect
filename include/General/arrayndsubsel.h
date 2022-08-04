@@ -21,21 +21,20 @@ template <class T>
 mClass(General) Array2DSubSelection : public Array2D<T>
 {
 public:
-    		Array2DSubSelection( int start0, int start1,
-				     int sz0, int sz1,
-				     Array2D<T>& data );
+		Array2DSubSelection(int start0,int start1,int sz0,int sz1,
+				    Array2D<T>& data);
 		/*!<\param start0	position of the subselection in data.
 		    \param start1	position of the subselection in data.
 		    \param sz0		size of the subselection.
 		    \param sz1		size of the subselection.
 		    \param data		The array in which the subselection
-		    			is done. */
+					is done. */
 
-    T		get( int, int ) const;
-    void	set( int, int, T );
-    bool	isOK() const;
+    T		get(int,int) const override;
+    void	set(int,int,T) override;
+    bool	isOK() const override;
 
-    const Array2DInfo&	info() const;
+    const Array2DInfo&	info() const override;
 
 protected:
 
@@ -53,9 +52,9 @@ template <class T>
 mClass(General) Array3DSubSelection : public Array3D<T>
 {
 public:
-    		Array3DSubSelection( int start0, int start1, int start2,
-				     int sz0, int sz1, int sz2,
-				     Array3D<T>& data );
+		Array3DSubSelection(int start0,int start1,int start2,
+				    int sz0,int sz1,int sz2,
+				    Array3D<T>& data );
 		/*!<\param start0	position of the subselection in data.
 		    \param start1	position of the subselection in data.
 		    \param start2	position of the subselection in data.
@@ -63,13 +62,13 @@ public:
 		    \param sz1		size of the subselection.
 		    \param sz2		size of the subselection.
 		    \param data		The array in which the subselection
-		    			is done. */
+					is done. */
 
-    T		get( int, int, int ) const;
-    void	set( int, int, int, T );
-    bool	isOK() const;
+    T		get(int,int,int) const override;
+    void	set(int,int,int,T) override;
+    bool	isOK() const override;
 
-    const Array3DInfo&	info() const;
+    const Array3DInfo&	info() const override;
 
 protected:
 
@@ -85,8 +84,8 @@ protected:
 
 
 template <class T>
-Array2DSubSelection<T>::Array2DSubSelection( int s0, int s1, 
-					     int sz0, int sz1, 
+Array2DSubSelection<T>::Array2DSubSelection( int s0, int s1,
+					     int sz0, int sz1,
 					     Array2D<T>& data )
     : src_( data )
 {
@@ -198,6 +197,3 @@ bool Array3DSubSelection<T>::isOK() const
 template <class T>
 const Array3DInfo& Array3DSubSelection<T>::info() const
 { return info_; }
-
-
-
