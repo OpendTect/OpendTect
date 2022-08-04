@@ -41,7 +41,7 @@ public:
     bool		isBasic() const override	{ return true; }
 };
 
-extern "C" {
+extern "C++" {
     mGlobal(uiWell) uiWellDisplayServer& GetWellDisplayServer(bool set=false,
 					    uiWellDisplayServer* wds = nullptr);
 }

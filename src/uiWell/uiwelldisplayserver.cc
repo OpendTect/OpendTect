@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uiwelllogtoolsgrp.h"
 
 
-mExternC(uiWell) uiWellDisplayServer& GetWellDisplayServer( bool set,
+mExternCPP(uiWell) uiWellDisplayServer& GetWellDisplayServer( bool set,
 						    uiWellDisplayServer* wds )
 {
     static PtrMan<uiWellDisplayServer> welldispsvr_ = new uiODWellDisplayServer;
