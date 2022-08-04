@@ -419,7 +419,7 @@ void Strat::LayerModelSuite::addModel( const char* dsc, const uiString& uidsc )
     if ( size() > 1 )
     {
 	newmod->setElasticPropSel( baseModel().elasticPropSel() );
-	newmod->propertyRefs() == baseModel().propertyRefs();
+	newmod->propertyRefs() = baseModel().propertyRefs();
     }
 }
 

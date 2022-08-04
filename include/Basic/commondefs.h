@@ -198,6 +198,7 @@ inline T& getNonConst( const T& t )
 #define mStruct( module )		mExpStruct( module )
 #define mExtern( module )		extern mExp( module )
 #define mExternC( module)		extern "C" mExp( module )
+#define mExternCPP( module)		extern "C++" mExp( module )
 
 #define mExportInst( mod, tp )		Extern_##mod tp mExp(mod)
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)

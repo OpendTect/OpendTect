@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-mExternC(uiTools) uiFunctionDisplayServer& GetFunctionDisplayServer( bool set,
-						uiFunctionDisplayServer* fds )
+mExternCPP(uiTools) uiFunctionDisplayServer&
+GetFunctionDisplayServer( bool set, uiFunctionDisplayServer* fds )
 {
     static PtrMan<uiFunctionDisplayServer> funcdispsvr_ =
 						new uiODFunctionDisplayServer;

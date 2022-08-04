@@ -43,7 +43,7 @@ public:
     bool		isBasic() const override	{ return true; }
 };
 
-extern "C" {
+extern "C++" {
     mGlobal(uiTools) uiFunctionDisplayServer& GetFunctionDisplayServer(
 					bool set=false,
 					uiFunctionDisplayServer* fds = nullptr);

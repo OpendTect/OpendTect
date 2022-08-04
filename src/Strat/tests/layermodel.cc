@@ -65,9 +65,8 @@ class TestLayer
 {
 public:
 
-			TestLayer( const LeafUnitRef& ref )
-			    : ref_(&ref)
-			    , vals_(make_unique<TestLayerValue[]>(8))
+			TestLayer( const LeafUnitRef& )
+			    : vals_(make_unique<TestLayerValue[]>(8))
 			{
 			    layeralloc_++;
 			    // vals_ += new TestLayerValue( 0.f );
@@ -80,7 +79,6 @@ public:
 
 private:
 
-    const LeafUnitRef*	ref_;
     unique_ptr<TestLayerValue [], default_delete<TestLayerValue []> > vals_;
 //    ObjectSet<TestLayerValue> vals_;
 };

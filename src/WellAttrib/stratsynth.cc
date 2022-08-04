@@ -1957,7 +1957,7 @@ uiString uiMessage() const override
 }
 
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 {
     return tr("Models done");
 }

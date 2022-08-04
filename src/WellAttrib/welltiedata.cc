@@ -96,7 +96,7 @@ float Data::cDefSeisSr()
     return 0.001;
 }
 
-static const int welltieseqnr = 0;
+
 
 Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)

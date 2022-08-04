@@ -99,8 +99,6 @@ private:
     uiUnitSel*		unitfld_ = nullptr;
     bool		fixedunits_ = false;
     uiToolButton*	recbut_ = nullptr;
-    uiToolButton*	openbut_;
-    uiToolButton*	savebut_;
 
     Setup		setup_;
     TypeSet<double>	recvals_;

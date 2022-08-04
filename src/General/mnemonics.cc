@@ -186,9 +186,8 @@ float Mnemonic::getMatchValue( const char* nm ) const
     if ( nmstr.isEmpty() )
 	return 0.f;
 
-    const BufferString& nmx = name();
-    if ( name().matches(nm, CaseInsensitive) )
-	return 1;
+    if ( name().matches(nm,CaseInsensitive) )
+	return 1.f;
 
     BufferStringSet nms( name(), logtypename_ );
     nms.add( aliases_, false );
@@ -198,7 +197,7 @@ float Mnemonic::getMatchValue( const char* nm ) const
 	    continue;
 
 	if ( findnm->isEqual(nmstr) )
-	    return 1;
+	    return 1.f;
 
 	BufferString gexpr( findnm->buf() );
 	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
@@ -213,7 +212,7 @@ float Mnemonic::getMatchValue( const char* nm ) const
 	}
     }
 
-    return 0;
+    return 0.f;
 }
 
 
