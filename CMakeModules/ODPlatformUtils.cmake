@@ -191,6 +191,9 @@ if(WIN32)
     endif()
     set ( CMAKE_CXX_FLAGS "/wd4714 ${CMAKE_CXX_FLAGS}" ) # _forceinline function not inlined
     set ( CMAKE_CXX_FLAGS "/wd4589 ${CMAKE_CXX_FLAGS}" ) # ignore initializer for abstract base classes
+    if ( MSVC_VERSION VERSION_GREATER 1923 ) #Adding this flag if VS version is greater than 17 on win64 platform
+	set ( CMAKE_CXX_FLAGS  "/wd4723 ${CMAKE_CXX_FLAGS}" ) # potential divide by 0
+    endif()
 
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
