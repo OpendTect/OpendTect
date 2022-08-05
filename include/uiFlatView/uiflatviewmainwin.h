@@ -41,15 +41,16 @@ public:
 
     			uiFlatViewMainWin(uiParent*,const Setup&);
 
-    virtual void	start()				{ show(); }
-    virtual void	setWinTitle( const uiString& t ){ setCaption(t); }
+    void		start() override	{ show(); }
+    void		setWinTitle( const uiString& t ) override
+			    { setCaption(t); }
 
-    void		addControl(uiFlatViewControl*);
+    void		addControl(uiFlatViewControl*) override;
     void		displayInfo(CallBacker*);
-    void		setInitialSize(int w,int h);
+    void		setInitialSize(int w,int h) override;
 
-    virtual uiMainWin*	dockParent()	{ return this; }
-    virtual uiParent*	viewerParent()	{ return this; }
+    uiMainWin*		dockParent() override	{ return this; }
+    uiParent*		viewerParent() override { return this; }
 
 };
 

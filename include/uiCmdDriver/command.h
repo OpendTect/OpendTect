@@ -127,7 +127,7 @@ public: \
 			{} \
 \
     static const char*	keyWord()			{ return #cmdkey; } \
-    virtual const char* name() const			{ return keyWord(); }
+    const char*		name() const override		{ return keyWord(); }
 
 #define mStartDeclCmdClassNoAct(mod,cmdkey,parentclass) \
 \
@@ -141,30 +141,30 @@ public: \
 
 #define mStartDeclCmdClassNoEntry(mod,cmdkey,parentclass) \
     mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
-    virtual bool	act(const char* parstr);
+    bool		act(const char* parstr) override;
 
 #define mStartDeclCmdClass( mod,cmdkey,parentclass) \
     mStartDeclCmdClassNoAct(mod,cmdkey,parentclass) \
-    virtual bool	act(const char* parstr);
+    bool		act(const char* parstr) override;
 
 #define mEndDeclCmdClass \
 };
 
 
 mStartDeclCmdClassNoActNoEntry( uiCmdDriver, UiObject, Command )
-    virtual bool	isOpenQDlgCommand() const	{ return false; }
-    virtual bool	isLocalEnvCommand() const	{ return true; }
-    virtual bool	isUiObjChangeCommand() const	{ return true; }
+    bool	isOpenQDlgCommand() const override	{ return false; }
+    bool	isLocalEnvCommand() const override	{ return true; }
+    bool	isUiObjChangeCommand() const override	{ return true; }
 mEndDeclCmdClass
 
 mStartDeclCmdClassNoActNoEntry( uiCmdDriver,UiObjQuestion, Command )
-    virtual bool	isOpenQDlgCommand() const	{ return false; }
-    virtual bool	isLocalEnvCommand() const	{ return true; }
-    virtual bool	isVisualCommand() const		{ return false; }
+    bool	isOpenQDlgCommand() const override	{ return false; }
+    bool	isLocalEnvCommand() const override	{ return true; }
+    bool	isVisualCommand() const override	{ return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClassNoActNoEntry( uiCmdDriver,Stealth, Command )
-    virtual bool	isVisualCommand() const		{ return false; }
+    bool	isVisualCommand() const override	{ return false; }
 mEndDeclCmdClass
 
 
@@ -195,7 +195,7 @@ public:
 			CloseActivator(const uiMainWin& uimw)
 			    : actmainwin_( const_cast<uiMainWin&>(uimw) )
 			{}
-    void		actCB(CallBacker* cb)
+    void		actCB(CallBacker* cb) override
 			{ actmainwin_.close(); }
 protected:
     uiMainWin&		actmainwin_;
@@ -208,7 +208,7 @@ public:
 			CloseQDlgActivator(int retval)
 			    : actretval_( retval )
 			{}
-    void		actCB(CallBacker* cb)
+    void		actCB(CallBacker* cb) override
 			{ uiMainWin::closeActiveModalQDlg(actretval_); }
 protected:
     int			actretval_;

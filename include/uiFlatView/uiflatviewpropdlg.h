@@ -55,8 +55,8 @@ protected:
 
     void		finalizeCB(CallBacker*);
     void		titleChgCB(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
 
     CallBack		applycb_;
     void		doApply(CallBacker*);

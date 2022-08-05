@@ -50,7 +50,7 @@ public:
 
     void                setNewView(Geom::Point2D<double> mousepos,
 				   Geom::Size2D<double> size,
-				   uiFlatViewer* vwr=0);
+				   uiFlatViewer* vwr=0) override;
 
     uiToolBar*		getToolBar(int idx) { return toolbars_[idx]; }
 
@@ -75,21 +75,21 @@ protected:
     ObjectSet<FlatView::AuxData> zoomboxes_;
     MFVCViewManager	viewmgr_;
 
-    bool		handleUserClick(int vwridx);
+    bool		handleUserClick(int vwridx) override;
     bool		iszoomcoupled_;
     bool		drawzoomboxes_;
 
     uiFlatViewer*	activevwr_;
-    void		updateZoomManager();
+    void		updateZoomManager() override;
 			//!< Should be called after the viewer is zoomed in/out.
 
-    void		rubBandCB(CallBacker*);
-    void		parsCB(CallBacker*);
+    void		rubBandCB(CallBacker*) override;
+    void		parsCB(CallBacker*) override;
     void		setZoomAreasCB(CallBacker*);
     void		setZoomBoxesCB(CallBacker*);
     void		removeAnnotationsCB(CallBacker*);
-    void		vwrAdded(CallBacker*);
+    void		vwrAdded(CallBacker*) override;
     void		zoomCB(CallBacker*) override;
-    void		wheelMoveCB(CallBacker*);
-    void		pinchZoomCB(CallBacker*);
+    void		wheelMoveCB(CallBacker*) override;
+    void		pinchZoomCB(CallBacker*) override;
 };

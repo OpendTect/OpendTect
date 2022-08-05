@@ -64,11 +64,12 @@ public: \
 			    : parentclass(cmddrv) \
 			{ \
 			    name_ = keyWord(); \
-			    *name_.getCStr() = mCast(char,tolower(*name_.buf())); \
+			    *name_.getCStr() = mCast(char, \
+						     tolower(*name_.buf())); \
 			} \
 \
     static const char*	keyWord()			{ return #funkey; } \
-    virtual const char* name() const			{ return name_; } \
+    const char*		name() const override		{ return name_; } \
 protected: \
     BufferString	name_;
 
@@ -77,8 +78,8 @@ protected: \
 \
     mStartDeclFunClassNoEval(funkey,parentclass) \
 public: \
-    virtual bool        eval(const BufferStringSet& args, \
-			     BufferString& res) const; \
+    bool		eval(const BufferStringSet& args, \
+			     BufferString& res) const override; \
 \
     static Function*	createInstance(const CmdDriver& cmddrv) \
 			{ return new funkey##Func(cmddrv); } \

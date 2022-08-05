@@ -102,7 +102,7 @@ void setupBMPMgrs()
 }
 
 
-bool execute()
+bool execute() override
 {
     image_->setSize( sz_.width(), sz_.height() );
 

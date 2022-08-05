@@ -53,7 +53,7 @@ protected:
     void		finalizeDoneCB(CallBacker*);
     void		unitChgCB(CallBacker*);
     void		applyCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -157,14 +157,14 @@ protected:
 
     const Setup		setup_;
 
-    virtual void	finalPrepare();
+    void		finalPrepare() override;
     void		clearToolBar();
     void		updatePosButtonStates();
     void		updateZoomLevel(float x1start,float x2start,
 					float x1pospercm,float x2pospercm);
     void		updateZoomLevel(float x1pospercm,float x2pospercm);
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
-    void		setViewToCustomZoomLevel(uiFlatViewer&);
+    void		setViewToCustomZoomLevel(uiFlatViewer&) override;
     void		zoomApplyCB(CallBacker*);
 
     virtual void	coltabChg(CallBacker*);
@@ -175,24 +175,24 @@ protected:
     void		editModeCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
-    void		handDragStarted(CallBacker*);
-    void		handDragging(CallBacker*);
-    void		handDragged(CallBacker*);
+    void		handDragStarted(CallBacker*) override;
+    void		handDragging(CallBacker*) override;
+    void		handDragged(CallBacker*) override;
     void		aspectRatioCB(CallBacker*);
-    void		keyPressCB(CallBacker*);
+    void		keyPressCB(CallBacker*) override;
     void		homeZoomOptSelCB(CallBacker*);
     void		fitToScreenCB(CallBacker*);
     void		displayScaleBarCB(CallBacker*);
     void		displayColTabCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
-    virtual void	vwrAdded(CallBacker*)	{}
+    void		vwrAdded(CallBacker*) override	{}
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
     virtual void	pinchZoomCB(CallBacker*);
     virtual void	cancelZoomCB(CallBacker*);
     virtual void	gotoHomeZoomCB(CallBacker*);
 
-    virtual bool	handleUserClick(int vwridx);
+    bool		handleUserClick(int vwridx) override;
 
     uiMenuHandler&	menu_;
     MenuItem		propertiesmnuitem_;

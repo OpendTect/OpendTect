@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Jaap Glas
- Date:          February 2009
+ Author:	Jaap Glas
+ Date:		February 2009
  ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ mStartDeclCmdClass( uiCmdDriver, Input, UiObjectCmd )		mEndDeclCmdClass
 			    , actbuf_(txt), acttxt_(txt ? actbuf_.buf() : 0) \
 			    , actenter_(enter) \
 			{} \
-	void		actCB(CallBacker*); \
+	void		actCB(CallBacker*) override; \
     protected: \
 	objclass&	actobj_; \
 	BufferString	actbuf_; \
@@ -57,7 +57,7 @@ mExpClass(uiCmdDriver) SpinActivator: public Activator
 {
 public:
 			SpinActivator(const uiSpinBox&,int nrsteps);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiSpinBox&		actspin_;
     int			actsteps_;
@@ -70,7 +70,7 @@ mExpClass(uiCmdDriver) SliderActivator: public Activator
 {
 public:
 			SliderActivator(const uiSlider&,float fraction);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiSlider&		actslider_;
     float		actfrac_;

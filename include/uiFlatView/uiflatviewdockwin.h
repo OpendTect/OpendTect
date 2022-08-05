@@ -35,10 +35,10 @@ public:
     			uiFlatViewDockWin(uiParent*,const Setup&);
     			~uiFlatViewDockWin();
 
-    virtual void	start()				{ display(true); }
-    virtual void	setWinTitle(const uiString& t)	{ setDockName(t); }
-    virtual uiMainWin*	dockParent()			{ return mainwin(); }
-    virtual uiParent*	viewerParent()			{ return this; }
+    void	start() override			{ display(true); }
+    void	setWinTitle(const uiString& t) override { setDockName(t); }
+    uiMainWin*	dockParent() override			{ return mainwin(); }
+    uiParent*	viewerParent() override			{ return this; }
 
 };
 

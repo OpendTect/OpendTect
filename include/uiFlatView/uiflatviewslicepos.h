@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Helene Huck
- Date:          April 2009
+ Author:	Helene Huck
+ Date:		April 2009
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,14 @@ public:
 
 protected:
 
-    SliceDir		getOrientation() const	{ return curorientation_; }
-    void		setBoxRanges();
-    void		setPosBoxValue();
-    void		setStepBoxValue();
-    void		slicePosChg(CallBacker*);
-    void		sliceStepChg(CallBacker*);
+    SliceDir		getOrientation() const override
+			    { return curorientation_; }
+
+    void		setBoxRanges() override;
+    void		setPosBoxValue() override;
+    void		setStepBoxValue() override;
+    void		slicePosChg(CallBacker*) override;
+    void		sliceStepChg(CallBacker*) override;
 
     TrcKeyZSampling	limitscs_;
     SliceDir		curorientation_;

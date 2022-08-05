@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Jaap Glas
- Date:          February 2009
+ Author:	Jaap Glas
+ Date:		February 2009
  ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ mStartDeclCmdClassNoActNoEntry( uiCmdDriver,Tree, UiObjectCmd )
 protected:
 
     bool		parTreeSelPre(const uiTreeView&,
-	    			FileMultiString& treepath,
+				FileMultiString& treepath,
 				ObjectSet<const uiTreeViewItem>& nodesfound,
 				FileMultiString& curpath,bool multisel) const;
 
@@ -39,7 +39,7 @@ public:
 			TreeActivator(const uiTreeView&,const uiTreeViewItem&,
 				      const BufferStringSet& clicktags,
 				      int column=0);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiTreeView&		actlview_;
     uiTreeViewItem&	actitem_;
@@ -56,22 +56,22 @@ mStartDeclCmdClass( uiCmdDriver, TreeButton, TreeCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, TreeExpand, TreeCmd )		mEndDeclCmdClass
 
 mStartDeclCmdClassNoActNoEntry( uiCmdDriver,TreeQuestion, TreeCmd )
-    virtual bool	isUiObjChangeCommand() const	{ return false; }
-    virtual bool	isVisualCommand() const		{ return false; }
+    bool	isUiObjChangeCommand() const override	{ return false; }
+    bool	isVisualCommand() const override	{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( uiCmdDriver, NrTreeItems, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, NrTreeItems, TreeQuestionCmd ) mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, NrTreeCols, TreeQuestionCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, IsTreeItemOn, TreeQuestionCmd )mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, IsTreeItemExpanded, TreeQuestionCmd )
     mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, IsTreeButtonOn,TreeQuestionCmd)mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, CurTreePath, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTreePath, TreeQuestionCmd ) mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, CurTreeCol, TreeQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, CurTreeItem, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, CurTreeItem, TreeQuestionCmd ) mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, GetTreeCol, TreeQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GetTreeItem, TreeQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GetTreePath, TreeQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTreeItem, TreeQuestionCmd ) mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, GetTreePath, TreeQuestionCmd ) mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver,NrTreeMenuItems,TreeQuestionCmd)mEndDeclCmdClass
 mStartDeclCmdClass(uiCmdDriver,IsTreeMenuItemOn,TreeQuestionCmd)mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver,GetTreeMenuItem,TreeQuestionCmd)mEndDeclCmdClass
@@ -79,13 +79,13 @@ mStartDeclCmdClass( uiCmdDriver,GetTreeMenuItem,TreeQuestionCmd)mEndDeclCmdClass
 
 mStartDeclComposerClassWithInit( uiCmdDriver, Tree, CmdComposer, uiTreeView )
 public:
-    virtual void		updateInternalState();
+    void			updateInternalState() override;
 
 protected:
     void			reInit();	
     void			storeTreeState();
     void			addToTreeState(const uiTreeView&,
-                                               const uiTreeViewItem* root=0);
+					       const uiTreeViewItem* root=0);
     void			labelStoredStateOld();
     void			labelStoredStateNew();
 

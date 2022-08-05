@@ -31,9 +31,9 @@ mExpClass(uiFlatView) uiAuxDataDisplay : public AuxData, public CallBacker
 public:
 				~uiAuxDataDisplay();
 
-    AuxData*			clone() const;
+    AuxData*			clone() const override;
     void			setViewer( uiFlatViewer* fv ) { viewer_ = fv; }
-    void			touch() 	{ updateCB(0); }
+    void			touch() override	{ updateCB(0); }
 
     uiGraphicsItemGroup*	getDisplay();
     void			removeDisplay();

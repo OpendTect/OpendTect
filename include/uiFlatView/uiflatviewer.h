@@ -38,7 +38,7 @@ public:
     void		setInitialSize(const uiSize&);
 
     int			getAnnotChoices(BufferStringSet&) const;
-    void		setAnnotChoice(int);
+    void		setAnnotChoice(int) override;
 
     MouseEventHandler&	getMouseEventHandler();
     uiGraphicsView&	rgbCanvas()			{ return *view_; }
@@ -75,17 +75,17 @@ public:
     bool		updatesBitmapsOnResize() const
 			{ return updatebitmapsonresize_; }
 
-    void		handleChange(unsigned int);
+    void		handleChange(unsigned int) override;
     void		setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
 
-    FlatView::AuxData*		createAuxData(const char* nm) const;
-    int				nrAuxData() const;
-    FlatView::AuxData*		getAuxData(int idx);
-    const FlatView::AuxData*	getAuxData(int idx) const;
-    void			addAuxData(FlatView::AuxData* a);
-    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a);
-    FlatView::AuxData*		removeAuxData(int idx);
-    void			reGenerate(FlatView::AuxData&);
+    FlatView::AuxData*		createAuxData(const char* nm) const override;
+    int				nrAuxData() const override;
+    FlatView::AuxData*		getAuxData(int idx) override;
+    const FlatView::AuxData*	getAuxData(int idx) const override;
+    void			addAuxData(FlatView::AuxData* a) override;
+    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a) override;
+    FlatView::AuxData*		removeAuxData(int idx) override;
+    void			reGenerate(FlatView::AuxData&) override;
 
     AxesDrawer&			getAxesDrawer()		{ return axesdrawer_; }
 

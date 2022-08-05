@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Jaap Glas
- Date:          February 2009
+ Author:	Jaap Glas
+ Date:		February 2009
  ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ protected:
     enum		TableTag { RowTag=0,RowHead,CellTag,ColHead,ColTag };
 
     bool		parTableSelPre(const char* prefix,TableTag,
-	    			const uiTable*,const BufferString& itemstr,
+				const uiTable*,const BufferString& itemstr,
 				int itemnr,TypeSet<RowCol>& itemrcs,
 				bool ambicheck);
 
@@ -35,14 +35,14 @@ protected:
 mEndDeclCmdClass
 
 
-mStartDeclCmdClass( uiCmdDriver, TableClick, TableCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( uiCmdDriver, TableClick, TableCmd ) mEndDeclCmdClass
 
 mExpClass(uiCmdDriver) TableActivator: public Activator
 {
 public:
-    			TableActivator(const uiTable&,const RowCol&,
+			TableActivator(const uiTable&,const RowCol&,
 				       const BufferStringSet& clicktags);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiTable&		acttable_;
     RowCol		actrc_;
@@ -56,9 +56,9 @@ mStartDeclCmdClass( uiCmdDriver, TableFill, TableCmd )	mEndDeclCmdClass
 mExpClass(uiCmdDriver) TableFillActivator: public Activator
 {
 public:
-    			TableFillActivator(const uiTable&,const RowCol&,
+			TableFillActivator(const uiTable&,const RowCol&,
 					   const char* txt);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiTable&		acttable_;
     RowCol		actrc_;
@@ -71,9 +71,9 @@ mStartDeclCmdClass( uiCmdDriver, TableSelect, TableCmd )	mEndDeclCmdClass
 mExpClass(uiCmdDriver) TableSelectActivator: public Activator
 {
 public:
-    			TableSelectActivator(const uiTable&,
+			TableSelectActivator(const uiTable&,
 					     const TypeSet<RowCol>&);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiTable&		acttable_;
 
@@ -82,8 +82,8 @@ protected:
 
 
 mStartDeclCmdClassNoActNoEntry( uiCmdDriver,TableQuestion, TableCmd )
-    virtual bool	isUiObjChangeCommand() const	{ return false; }
-    virtual bool	isVisualCommand() const		{ return false; }
+    bool	isUiObjChangeCommand() const override	{ return false; }
+    bool	isVisualCommand() const override	{ return false; }
 mEndDeclCmdClass
 
 
@@ -117,7 +117,7 @@ mStartDeclCmdClass( uiCmdDriver, GetTableMenuItem, TableQuestionCmd )
 mExpClass(uiCmdDriver) TableState
 {
 public:
-    			TableState(const uiTable* uitable=0)
+			TableState(const uiTable* uitable=0)
 			    : table_( uitable )			{};
 
     bool		headInsert(const RowCol&);
@@ -143,7 +143,7 @@ protected:
 
 mStartDeclComposerClassWithInit( uiCmdDriver, Table, CmdComposer, uiTable )
 public:
-    virtual void	updateInternalState();
+    void		updateInternalState() override;
     static void		getExecPrefix(CmdRecEvent&,const RowCol&);
 
 protected:

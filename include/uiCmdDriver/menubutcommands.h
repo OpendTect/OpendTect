@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Jaap Glas
- Date:          February 2009
+ Author:	Jaap Glas
+ Date:		February 2009
  ________________________________________________________________________
 
 -*/
@@ -24,14 +24,14 @@ namespace CmdDrive
 {
 
 mStartDeclCmdClass( uiCmdDriver, Menu, UiObjectCmd )
-    bool        isLocalEnvCommand() const       	{ return false; }    
+    bool	isLocalEnvCommand() const override	 { return false; }
 mEndDeclCmdClass
 
 mExpClass(uiCmdDriver) MenuActivator : public Activator
 {
 public:	
 		MenuActivator(const uiAction&);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     uiAction&	actmnuitm_;
@@ -39,7 +39,7 @@ protected:
 
 
 mStartDeclCmdClass( uiCmdDriver, Button, UiObjectCmd )
-    bool        isOpenQDlgCommand() const       	{ return true; }
+    bool	isOpenQDlgCommand() const override		{ return true; }
 
 protected:
     bool	actQDlgButton(const char* parstr);
@@ -49,7 +49,7 @@ mExpClass(uiCmdDriver) ButtonActivator : public Activator
 {
 public:	
 		ButtonActivator(const uiButton&);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     uiButton&	actbut_;
@@ -65,7 +65,7 @@ mExpClass(uiCmdDriver) MdiAreaCloseActivator : public Activator
 {
 public:	
 		MdiAreaCloseActivator(const uiMdiArea&,const char* winname);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     uiMdiAreaWindow*	actwindow_;
@@ -73,7 +73,7 @@ protected:
 
 
 mStartDeclCmdClass( uiCmdDriver, Show, Command )
-    bool        isOpenQDlgCommand() const       	{ return false; }
+    bool	isOpenQDlgCommand() const override	 { return false; }
 
 protected:
     bool	actShowCurWin(const char* parstr);
@@ -83,7 +83,7 @@ mExpClass(uiCmdDriver) ShowActivator : public Activator
 {
 public:	
 		ShowActivator(const uiMainWin&,int minnormax);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     uiMainWin&	actmainwin_;
@@ -96,7 +96,7 @@ mExpClass(uiCmdDriver) MdiAreaShowActivator : public Activator
 public:	
 		MdiAreaShowActivator(const uiMdiArea&,const char* winname,
 				     int minnormax);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     uiMdiAreaWindow*	actwindow_;
@@ -110,7 +110,7 @@ mExpClass(uiCmdDriver) TabActivator : public Activator
 {
 public:
 		TabActivator(const uiTabBar&,int tabidx);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     uiTabBar&	acttabbar_;
@@ -126,25 +126,25 @@ mStartDeclCmdClassNoAct( uiCmdDriver,Cancel, OkCancelCmd )	mEndDeclCmdClass
 
 
 mStartDeclCmdClass( uiCmdDriver, NrMenuItems, UiObjQuestionCmd )
-    bool        isLocalEnvCommand() const               { return false; }
+    bool	isLocalEnvCommand() const override	 { return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, IsMenuItemOn, UiObjQuestionCmd )
-    bool        isLocalEnvCommand() const               { return false; }
+    bool	isLocalEnvCommand() const override	 { return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, GetMenuItem, UiObjQuestionCmd )
-    bool        isLocalEnvCommand() const               { return false; }
+    bool	isLocalEnvCommand() const override	 { return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, IsButtonOn, UiObjQuestionCmd )		
-    bool        isOpenQDlgCommand() const       	{ return true; }
+    bool	isOpenQDlgCommand() const override	 { return true; }
 protected:
     bool	actQDlgButton(const char* parstr);
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, GetButton, UiObjQuestionCmd )		
-    bool        isOpenQDlgCommand() const       	{ return true; }
+    bool	isOpenQDlgCommand() const override	 { return true; }
 protected:
     bool	actQDlgButton(const char* parstr);
 mEndDeclCmdClass
@@ -163,7 +163,7 @@ mStartDeclCmdClass( uiCmdDriver, GetTab, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
 mStartDeclCmdClass( uiCmdDriver, IsShown, UiObjQuestionCmd )
-    bool        isLocalEnvCommand() const               { return false; }
+    bool	isLocalEnvCommand() const override	 { return false; }
 protected:
     bool	actIsCurWinShown(const char* parstr);
 mEndDeclCmdClass

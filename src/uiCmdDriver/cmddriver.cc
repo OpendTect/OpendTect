@@ -43,7 +43,7 @@ class ModalStatusActivator: public Activator
 public:
 		ModalStatusActivator( ModalStatus& ms )
 		    : modalstat_( ms )			{}
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     ModalStatus& modalstat_;
@@ -493,7 +493,7 @@ class SetCursorActivator: public Activator
 public:
 		SetCursorActivator( const MouseCursor::Shape& shape )
 		    : actshape_( shape )			{}
-    void	actCB( CallBacker* cb )
+    void	actCB( CallBacker* cb ) override
 		{ uiCursorManager::setPriorityCursor( actshape_ ); }
 protected:
     MouseCursor::Shape actshape_;
@@ -503,7 +503,7 @@ protected:
 class UnsetCursorActivator: public Activator
 {
 public:
-    void	actCB( CallBacker* cb )
+    void	actCB( CallBacker* cb ) override
 		{ uiCursorManager::unsetPriorityCursor(); }
 };
 
@@ -1187,7 +1187,7 @@ class DisplayToggleActivator: public Activator
 public:
 		DisplayToggleActivator( uiObject& dummy )
 		    : actdummy_( dummy )			{}
-    void	actCB( CallBacker* cb )
+    void	actCB( CallBacker* cb ) override
 		{ actdummy_.display( !actdummy_.isDisplayed() ); }
 protected:
     uiObject&	actdummy_;

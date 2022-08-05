@@ -29,7 +29,7 @@ public:
 		    GraphicsViewMenuActivator(const uiGraphicsViewBase& obj)
 			: actobj_( const_cast<uiGraphicsViewBase&>(obj) )
 		    {}
-    void	    actCB(CallBacker*);
+    void	    actCB(CallBacker*) override;
 
 protected:
     uiGraphicsViewBase&   actobj_;

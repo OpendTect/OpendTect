@@ -27,7 +27,7 @@ mExpClass(uiCmdDriver) SnapshotActivator: public Activator
 {
 public:
 		SnapshotActivator(const uiMainWin&,const char* filenm,int zoom);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 protected:
     uiMainWin&	 actgrabwin_;
     BufferString actfilenm_;
@@ -42,7 +42,7 @@ mExpClass(uiCmdDriver) SetColorActivator: public Activator
 {
 public:
 		SetColorActivator(const OD::Color&);
-    void	actCB(CallBacker*);
+    void	actCB(CallBacker*) override;
 
 protected:
     OD::Color	color_;

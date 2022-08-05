@@ -27,7 +27,7 @@ mExpClass(uiCmdDriver) ComboActivator: public Activator
 {
 public:
 			ComboActivator(const uiComboBox&,int itmidx);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiComboBox&		actcombox_;
     int			actitmidx_;
@@ -43,7 +43,7 @@ mExpClass(uiCmdDriver) ListActivator: public Activator
 public:
 			ListActivator(const uiListBox&,int itmidx,
 				      const BufferStringSet& clicktags);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiListBox&		actlist_;
     int			actitmidx_;
@@ -58,7 +58,7 @@ mExpClass(uiCmdDriver) ListSelectActivator: public Activator
 public:
 			ListSelectActivator(const uiListBox&,
 					    const TypeSet<int>& selset);
-    void		actCB(CallBacker*);
+    void		actCB(CallBacker*) override;
 protected:
     uiListBox&		actlist_;
     TypeSet<int>	actselset_;
@@ -100,7 +100,7 @@ mEndDeclComposerClass
 
 mStartDeclComposerClassWithInit( uiCmdDriver, List, CmdComposer, uiListBoxObj )
 public:
-    virtual void	updateInternalState();
+    void		updateInternalState() override;
 
 protected:
     void		reInit();

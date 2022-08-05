@@ -28,11 +28,11 @@ public:
 			~AxesDrawer();
 
     int			altdim0_	= -1;
-    void		updateScene();
-    void		setZValue(int z);
+    void		updateScene() override;
+    void		setZValue(int z) override;
     void		updateViewRect();
     uiRect		getViewRect(bool withextraborders=true) const;
-    void		setWorldCoords(const uiWorldRect&);
+    void		setWorldCoords(const uiWorldRect&) override;
     void		setExtraBorder(const uiBorder&);
     uiBorder		getAnnotBorder(bool withextraborders=true) const;
 

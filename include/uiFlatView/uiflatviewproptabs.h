@@ -84,7 +84,7 @@ protected:
     virtual void	handleFieldDisplay(bool)	= 0;
 
     void		putCommonToScreen();
-    bool		acceptOK();
+    bool		acceptOK() override;
     void		doSetData(bool);
 
 };
@@ -100,15 +100,15 @@ public:
 			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
 			~uiFVWVAPropTab();
 
-    virtual void	putToScreen();
-    bool		acceptOK();
-    virtual void	setData()		{ doSetData(true); }
+    void		putToScreen() override;
+    bool		acceptOK() override;
+    void		setData() override		{ doSetData(true); }
 
 protected:
 
     FlatView::DataDispPars::WVA& pars_;
-    virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
-    virtual BufferString	 dataName() const;
+    FlatView::DataDispPars::Common& commonPars() override { return pars_; }
+    BufferString	 dataName() const override;
 
     uiGenInput*		overlapfld_;
     uiGenInput*		reflinefld_;
@@ -118,7 +118,7 @@ protected:
     uiColorInput*       leftcolsel_;
     uiColorInput*       rightcolsel_;
 
-    virtual void	handleFieldDisplay(bool);
+    void		handleFieldDisplay(bool) override;
     void		dispSel(CallBacker*);
     void		reflineSel(CallBacker*);
     void		dispChgCB(CallBacker*);
@@ -135,21 +135,21 @@ public:
 			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
 			~uiFVVDPropTab();
 
-    virtual void	putToScreen();
-    virtual bool	acceptOK();
-    virtual void	setData()		{ doSetData(false); }
+    void		putToScreen() override;
+    bool		acceptOK() override;
+    void		setData() override		{ doSetData(false); }
 
 protected:
 
     FlatView::DataDispPars::VD&		pars_;
     ColTab::Sequence			ctab_;
-    virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
-    virtual BufferString		dataName() const;
+    FlatView::DataDispPars::Common& commonPars() override { return pars_; }
+    BufferString			dataName() const override;
 
     uiColorTableGroup*	uicoltab_;
     uiLabel*		uicoltablbl_;
 
-    virtual void	handleFieldDisplay(bool);
+    void		handleFieldDisplay(bool) override;
     void		dispSel(CallBacker*);
     void		dispChgCB(CallBacker*);
 };
@@ -167,8 +167,8 @@ public:
 					 const BufferStringSet* annots);
 			~uiFVAnnotPropTab();
 
-    virtual void	putToScreen();
-    virtual bool	acceptOK();
+    void		putToScreen() override;
+    bool		acceptOK() override;
 
     int			getSelAnnot() const	{ return x1_->getSelAnnot(); }
     void		setSelAnnot( int i )	{ x1_->setSelAnnot( i ); }

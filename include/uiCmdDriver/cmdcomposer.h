@@ -40,9 +40,9 @@ class callerclass##Classifier : public Classifier \
 public: \
 \
     static const char*	className()	{ return #callerclass; } \
-    const char*		name() const	{ return className(); } \
+    const char*		name() const override	{ return className(); } \
 \
-    bool		approved(const CallBacker* caller) const \
+    bool		approved(const CallBacker* caller) const override \
 			{ return dynamic_cast<const callerclass*>(caller); } \
 };
 
@@ -124,14 +124,14 @@ public: \
 			{ init(); } \
 \
     static const char*	keyWord()			{ return #cmdkey; } \
-    virtual const char* name()				{ return keyWord(); } \
+    const char*		name() override			{ return keyWord(); } \
 
 #define mStartDeclComposerClass(mod,cmdkey,parentclass,callerclass) \
 \
     mStartDeclComposerClassNoAccept(mod,cmdkey,parentclass) \
     mDeclClassifierClass(callerclass) \
 \
-    virtual bool	accept(const CmdRecEvent&); \
+    bool		accept(const CmdRecEvent&) override; \
 \
     static CmdComposer*	createInstance(CmdRecorder& cmdrec) \
 			{ return new cmdkey##CmdComposer(cmdrec); } \
@@ -142,7 +142,7 @@ public: \
 
 #define mStartDeclComposerClassWithInit(mod,cmdkey,parentclass,callerclass) \
     mStartDeclComposerClass(mod,cmdkey,parentclass,callerclass) \
-    virtual void	init();
+    void		init() override;
 
 #define mEndDeclComposerClass \
 };

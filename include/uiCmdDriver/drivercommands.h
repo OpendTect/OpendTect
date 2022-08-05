@@ -30,15 +30,15 @@ mStartDeclCmdClass( uiCmdDriver, Wait, StealthCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, WinAssert, StealthCmd )	mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, Pause, Command )
-    bool	isOpenQDlgCommand() const 	{ return false; }
+    bool	isOpenQDlgCommand() const override	{ return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, Guide, Command )
-    bool	isOpenQDlgCommand() const 	{ return false; }
+    bool	isOpenQDlgCommand() const override	{ return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, Window, StealthCmd )
-    bool	isOpenQDlgCommand() const 	{ return false; }
+    bool	isOpenQDlgCommand() const override	{ return false; }
 mEndDeclCmdClass
 
 mStartDeclCmdClass( uiCmdDriver, If, StealthCmd )		mEndDeclCmdClass

@@ -22,13 +22,14 @@ public:
 			ODAbstractTableModel( TableModel& mdl )
 			    : model_(mdl)		{}
 
-    Qt::ItemFlags	flags(const QModelIndex&) const;
-    int			rowCount(const QModelIndex&) const;
-    int			columnCount(const QModelIndex&) const;
-    QVariant		data(const QModelIndex&,int role) const;
+    Qt::ItemFlags	flags(const QModelIndex&) const override;
+    int			rowCount(const QModelIndex&) const override;
+    int			columnCount(const QModelIndex&) const override;
+    QVariant		data(const QModelIndex&,int role) const override;
     QVariant		headerData(int rowcol,Qt::Orientation orientation,
-				   int role=Qt::DisplayRole) const;
-    bool		setData(const QModelIndex&,const QVariant&,int role);
+				   int role=Qt::DisplayRole) const override;
+    bool		setData(const QModelIndex&,const QVariant&,
+				int role) override;
     void		beginReset();
     void		endReset();
 
