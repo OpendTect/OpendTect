@@ -11,17 +11,13 @@
 #include "odimage.h"
 
 ImageResizer::ImageResizer( const OD::RGBImage& input, OD::RGBImage& output )
-    : lanczossize_( 2 )
-    , input_( input )
-    , inputowner_( false )
-    , inputimage_( 0 )
-    , output_( output )
-    , outputimage_( 0 )
+    : input_(input)
+    , output_(output)
 {
     inputimage_ = input_.getData();
     if ( !inputimage_ )
     {
-	unsigned char* buf = new unsigned char[input_.bufferSize()];
+	auto* buf = new unsigned char[input_.bufferSize()];
 	inputimage_ = buf;
 	inputowner_ = true;
 	input_.fill( buf );
@@ -54,7 +50,7 @@ ImageResizer::~ImageResizer()
 
 
 od_int64 ImageResizer::nrIterations() const
-{ return outputsize_[0]*outputsize_[1]; }
+{ return od_int64(outputsize_[0])*outputsize_[1]; }
 
 
 bool ImageResizer::doPrepare(int)
