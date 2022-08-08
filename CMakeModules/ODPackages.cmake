@@ -28,10 +28,14 @@ macro( OD_ADD_PACKAGES_TARGET )
 	set( INCLUDE_ODHDF5 "NO" )
     endif()
 
+    if ( "${MAIN_GIT_BRANCH}" STREQUAL "main" )
+	set( OpendTect_INST_DIR "0.0.0" )
+    else()
+	set( OpendTect_INST_DIR ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
+    endif()
+
     add_custom_target( packages  ${CMAKE_COMMAND} 
-	    -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR} 
-	    -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR} 
-	    -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH} 
+	    -DOpendTect_INST_DIR=${OpendTect_INST_DIR}
 	    -DOpendTect_FULL_VERSION=${OpendTect_FULL_VERSION}
 	    "-DOD_THIRD_PARTY_FILES=\"${OD_THIRD_PARTY_FILES}\""
 	    "-DOD_QTPLUGINS=\"${OD_QTPLUGINS}\""

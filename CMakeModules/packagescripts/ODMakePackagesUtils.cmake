@@ -387,7 +387,8 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	file( MAKE_DIRECTORY ${PACKAGE_DIR} )
     endif()
 
-    set( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
+    #Store OpendTect_INST_DIR in another variable to handle installation directory on MAC platform
+    set( REL_DIR "${OpendTect_INST_DIR}" )
     set( FULLVER_NAME "${OpendTect_FULL_VERSION}" )
     if( APPLE )
 	set( REL_DIR "OpendTect\ ${REL_DIR}.app/Contents" )
