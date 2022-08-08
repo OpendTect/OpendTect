@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "interpollayermodel.h"
 #include "posfilterstd.h"
 #include "raytrace1d.h"
+#include "reflcalc1d.h"
 #include "statrand.h"
 #include "checksum.h"
 #include "windowfunction.h"
@@ -41,11 +42,21 @@ mDefModInitFn(Algo)
 
     Fourier::CC::initClass();
 
+    AICalc1D::initClass();
     VrmsRayTracer1D::initClass();
     ZSliceInterpolationModel::initClass();
 
+    FactoryBase& reflfact = ReflCalc1D::factory();
+    BufferString defnm = reflfact.getDefaultName();
+    if ( defnm.isEmpty() )
+    {
+	const int defidx = reflfact.getNames().indexOf(
+			   AICalc1D::sFactoryKeyword() );
+	reflfact.setDefaultName( defidx );
+    }
+
     FactoryBase& rtfact = RayTracer1D::factory();
-    const BufferString defnm = rtfact.getDefaultName();
+    defnm = rtfact.getDefaultName();
     if ( defnm.isEmpty() )
     {
 	const int defidx = rtfact.getNames().indexOf(

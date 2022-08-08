@@ -84,6 +84,7 @@ list ( APPEND OD_MODULE_SOURCES
 	propertyref.cc
 	rangeposprovider.cc
 	raytracerrunner.cc
+	reflcalcrunner.cc
 	rockphysics.cc
 	serverprogtool.cc
 	simpletimedepthmodel.cc

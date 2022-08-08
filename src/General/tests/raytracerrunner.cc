@@ -10,9 +10,11 @@
 #include "ailayer.h"
 #include "moddepmgr.h"
 #include "raytracerrunner.h"
+#include "reflcalcrunner.h"
 
 #define mDefTimeEps 1e-6f
 #define mDefDepthEps 1e-2f
+#define mDefEpsVal 1e-3f
 
 #define mTestVal(computedval,expectedval,eps) \
     if ( !mIsEqual(computedval,expectedval,eps) ) \
@@ -48,20 +50,39 @@ static TypeSet<float> getOffsets()
 }
 
 
-static bool doRun( const TypeSet<ElasticModel>& emodels, bool parallel )
+static TypeSet<float> getAngles()
+{
+    TypeSet<float> angles;
+    angles += 5.f;
+    angles += 10.f;
+    angles += 15.f;
+    angles += 20.f;
+    angles += 25.f;
+    angles += 30.f;
+    return angles;
+}
+
+
+static bool doRun( bool raytracer, const TypeSet<ElasticModel>& emodels,
+		   bool parallel )
 {
     const bool singlemod = emodels.size() == 1;
-    const TypeSet<float> offsets = getOffsets();
+    const TypeSet<float> xaxisvals = raytracer ? getOffsets() : getAngles();
 
-    IOPar raypar;
-    raypar.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
-    raypar.set( RayTracer1D::sKeyOffset(), offsets );
-    raypar.setYN( RayTracerRunner::sKeyParallel(), parallel );
+    IOPar iop;
+    iop.set( sKey::Type(), raytracer ? VrmsRayTracer1D::sFactoryKeyword()
+				     : AICalc1D::sFactoryKeyword() );
+    iop.set( raytracer ? RayTracer1D::sKeyOffset()
+		       : ReflCalc1D::sKeyAngle(), xaxisvals );
+    if ( !raytracer )
+	iop.setYN( ReflCalc1D::sKeyAngleInDegrees(), true );
+    iop.setYN( RayTracerRunner::sKeyParallel(), parallel );
 
     uiString msg;
-    ConstRefMan<ReflectivityModelSet> refmodels =
-			RayTracerRunner::getRefModels( emodels, raypar, msg );
-    mRunStandardTestWithError( refmodels.ptr(), "Execute raytracer runner",
+    ConstRefMan<ReflectivityModelSet> refmodels = raytracer
+		    ? RayTracerRunner::getRefModels( emodels, iop, msg )
+		    : ReflCalcRunner::getRefModels( emodels, iop, msg );
+    mRunStandardTestWithError( refmodels.ptr(), "Execute runner",
 			       toString(msg) );
 
     const int modidx = singlemod ? 0 : cNrModels-1;
@@ -71,10 +92,12 @@ static bool doRun( const TypeSet<ElasticModel>& emodels, bool parallel )
     const ElasticModel& emdl = singlemod ? emodels.first()
 					 : emodels[cNrModels-1];
     const int nrlayers = emdl.size();
+    const int nrd2t = raytracer ? 6 : 1;
     const int modsz = nrlayers + 1;
     mRunStandardTest( refmodel->isOK() && refmodel->modelSize() == modsz &&
-		      refmodel->size() == 6 && refmodel->get( 5 ),
-		      "Test raytracerrunner output" );
+		      refmodel->size() == nrd2t &&
+		      ((raytracer && refmodel->get(5)) || (!raytracer) ),
+		      "Test runner output" );
 
     const TimeDepthModel& tdmodel = refmodel->getDefaultModel();
     mTestVal( tdmodel.getDepth( 1 ), 48.f, mDefDepthEps );
@@ -87,8 +110,22 @@ static bool doRun( const TypeSet<ElasticModel>& emodels, bool parallel )
     mTestVal( tdmodel.getTime( 4 ), 0.843f, mDefTimeEps );
 
     mRunStandardTest( refmodel->nrRefModels() == 6 &&
-		      refmodel->isSpikeDefined(5,3),
+		      refmodel->isSpikeDefined(5,2),
 		      "Has defined reflectivities" );
+    if ( raytracer )
+    {
+	mTestVal( refmodel->getReflectivities(5)->arr()[2].real(),
+		  0.152156904f, mDefEpsVal );
+    }
+    else
+    {
+	mTestVal( refmodel->getReflectivities(0)->arr()[0].real(),
+		  0.0892531872f, mDefEpsVal );
+	mTestVal( refmodel->getReflectivities(0)->arr()[1].real(),
+		  0.125730994f, mDefEpsVal );
+	mTestVal( refmodel->getReflectivities(0)->arr()[2].real(),
+		  0.185185185f, mDefEpsVal );
+    }
 
     Interval<float> twtrg;
     refmodels->getTWTrange( twtrg, true );
@@ -96,13 +133,13 @@ static bool doRun( const TypeSet<ElasticModel>& emodels, bool parallel )
     mRunStandardTest( twtrg.isEqual(exptwtrg,mDefTimeEps),
 			"TWT range is correct" );
 
-    mRunStandardTest( true, "Offset-based ReflectivityModel values" );
+    mRunStandardTest( true, "ReflectivityModel values" );
 
     return true;
 }
 
 
-static bool runRayTracerRunner( int nr, bool parallel )
+static bool setupAndApplyRunner( bool raytracer, int nr, bool parallel )
 {
     TypeSet<ElasticModel> emodels;
     for ( int idx=0; idx<nr; idx++ )
@@ -111,17 +148,17 @@ static bool runRayTracerRunner( int nr, bool parallel )
     if ( nr > 1 )
     {
 	ElasticModel emdl;
-	emdl += AILayer( 48.f, 2000.f, 2500.f );
 	// Single layer model
-
+	emdl += AILayer( 48.f, 2000.f, 2500.f );
 	emodels += emdl;
-	emdl += AILayer( 48.f, 2000.f, 2500.f );
-	emdl += AILayer( 48.f, 2000.f, 2500.f );
+
 	// Model with the identical layers: May get merged
+	emdl += AILayer( 48.f, 2000.f, 2500.f );
+	emdl += AILayer( 48.f, 2000.f, 2500.f );
 	emodels += emdl;
     }
 
-    return doRun( emodels, parallel );
+    return doRun( raytracer, emodels, parallel );
 }
 
 
@@ -131,10 +168,14 @@ int mTestMainFnName( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded("General");
 
-    if ( !runRayTracerRunner(1,false) ||
-	 !runRayTracerRunner(1,true) ||
-	 !runRayTracerRunner(cNrModels,false) ||
-	 !runRayTracerRunner(cNrModels,true) )
+    if ( !setupAndApplyRunner(false,1,false) ||
+	 !setupAndApplyRunner(false,1,true) ||
+	 !setupAndApplyRunner(false,cNrModels,false) ||
+	 !setupAndApplyRunner(false,cNrModels,true) ||
+	 !setupAndApplyRunner(true,1,false) ||
+	 !setupAndApplyRunner(true,1,true) ||
+	 !setupAndApplyRunner(true,cNrModels,false) ||
+	 !setupAndApplyRunner(true,cNrModels,true) )
 	return 1;
 
     return 0;

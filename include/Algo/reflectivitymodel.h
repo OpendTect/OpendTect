@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "timedepthmodel.h"
 
 class RayTracer1D;
+class ReflCalc1D;
 class ReflectivityModelBase;
 template <class T> class RefObjectSet;
 
@@ -118,6 +119,7 @@ private:
     int			nroffs_;
 
     friend class RayTracer1D;
+    friend class ReflCalc1D;
 
 };
 
@@ -142,7 +144,7 @@ public:
 			OffsetReflectivityModel(const ElasticModel&,
 				const OffsetReflectivityModel::Setup&,
 				const TypeSet<float>* axisvals =nullptr,
-				float* velmax =nullptr );
+				float* velmax =nullptr);
 
     bool		isOffsetDomain() const override { return true; }
 };

@@ -65,6 +65,7 @@ set( OD_MODULE_SOURCES
 	positionlist.cc
 	probdenfunc.cc
 	raytrace1d.cc
+	reflcalc1d.cc
 	reflectivitymodel.cc
 	reflectivitysampler.cc
 	resizeimage.cc

@@ -9,6 +9,7 @@
 
 #include "ailayer.h"
 #include "raytrace1d.h"
+#include "reflcalc1d.h"
 
 #define mDefTimeEps 1e-6f
 #define mDefDepthEps 1e-2f
@@ -103,6 +104,49 @@ static bool testRefRayTracer()
     RayTracer1D::Setup rtsu;
     rtsu.doreflectivity( true );
     return testRayTracer( rtsu );
+}
+
+
+static bool testAICalc()
+{
+    const ElasticModel emdl = getEModel();
+
+    AICalc1D aicalc;
+    aicalc.setModel( emdl );
+    mRunStandardTest( aicalc.execute(), "AICalc1D execution" );
+    mTestVal(aicalc.getDepth(0),48.f,mDefDepthEps);
+    mTestVal(aicalc.getDepth(1),568.f,mDefDepthEps);
+    mTestVal(aicalc.getDepth(2),953.f,mDefDepthEps);
+    mTestVal(aicalc.getDepth(3),1303.f,mDefDepthEps);
+    mTestVal(aicalc.getTime(0),0.048f,mDefTimeEps);
+    mTestVal(aicalc.getTime(1),0.448f,mDefTimeEps);
+    mTestVal(aicalc.getTime(2),0.668f,mDefTimeEps);
+    mTestVal(aicalc.getTime(3),0.843f,mDefTimeEps);
+
+    ConstRefMan<AngleReflectivityModel> retmodels = aicalc.getRefModel();
+    mRunStandardTest( retmodels, "Retrieve output model from AICalc1D" );
+
+    const TimeDepthModelSet& tdmodelset = *retmodels.ptr();
+    const TimeDepthModel& tdmodelz0 = tdmodelset.getDefaultModel();
+    mTestVal(tdmodelz0.getDepth(1),48.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getDepth(2),568.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getDepth(3),953.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getDepth(4),1303.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getTime(1),0.048f,mDefTimeEps);
+    mTestVal(tdmodelz0.getTime(2),0.448f,mDefTimeEps);
+    mTestVal(tdmodelz0.getTime(3),0.668f,mDefTimeEps);
+    mTestVal(tdmodelz0.getTime(4),0.843f,mDefTimeEps);
+
+    const TimeDepthModel* tdmodeloff2 = tdmodelset.get( 0 );
+    mRunStandardTest( retmodels, "Retrieve offset trace from AICalc1D" );
+
+    mTestVal(tdmodeloff2->getDepth(1),48.f,mDefDepthEps);
+    mTestVal(tdmodeloff2->getDepth(2),568.f,mDefDepthEps);
+    mTestVal(tdmodeloff2->getDepth(3),953.f,mDefDepthEps);
+    mTestVal(tdmodeloff2->getDepth(4),1303.f,mDefDepthEps);
+
+    mRunStandardTest( true, "AICalc1D values" );
+    return true;
 }
 
 
@@ -293,7 +337,7 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     if ( !testBaseRayTracer() || !testRefRayTracer() ||
-	 !testTDModelSet() ||
+	 !testAICalc() || !testTDModelSet() ||
 	 !testOffRefModelSet(false,false) ||
 	 !testOffRefModelSet(false,true) ||
 	 !testOffRefModelSet(true,false) ||

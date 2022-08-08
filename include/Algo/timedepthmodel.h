@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class ElasticModel;
 class RayTracer1D;
+class ReflCalc1D;
 class Scaler;
 class TimeDepthModelSet;
 class VelocityDesc;
@@ -85,6 +86,7 @@ private:
     bool		owndepths_ = true;
 
     friend class RayTracer1D;
+    friend class ReflCalc1D;
     friend class TimeDepthModelSet;
 
 public:
@@ -169,6 +171,7 @@ private:
    TimeDepthModelSet&	operator =(const TimeDepthModelSet&) = delete;
 
    friend class RayTracer1D;
+   friend class ReflCalc1D;
 };
 
 
