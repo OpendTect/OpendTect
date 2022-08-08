@@ -44,7 +44,7 @@ public:
 				uiWellPartServer(uiApplService&);
 				~uiWellPartServer();
 
-    const char*			name() const		{ return "Wells"; }
+    const char*			name() const override	{ return "Wells"; }
 
 				// Services
     void			importTrack();

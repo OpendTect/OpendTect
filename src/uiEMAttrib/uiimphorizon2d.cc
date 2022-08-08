@@ -65,19 +65,19 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 }
 
 
-uiString uiMessage() const
+uiString uiMessage() const override
 { return tr("Horizon Import"); }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return bvalset_ ? bvalset_->totalSize() : 0; }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 { return tr("Positions written:"); }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return nrdone_; }
 
-int nextStep()
+int nextStep() override
 {
     if ( !bvalset_ ) return Executor::ErrorOccurred();
     if ( !bvalset_->next(pos_) ) return Executor::Finished();

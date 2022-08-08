@@ -34,9 +34,9 @@ public:
 
 protected:
 
-    bool		fillPar(IOPar& iop);
-    bool		prepareProcessing();
-    void		getJobName(BufferString& jobnm) const;
+    bool		fillPar(IOPar& iop) override;
+    bool		prepareProcessing() override;
+    void		getJobName(BufferString& jobnm) const override;
     void		setupSelCB(CallBacker*);
 
     uiProcSel*		chainsel_;

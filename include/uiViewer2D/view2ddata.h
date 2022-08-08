@@ -50,8 +50,8 @@ mExpClass(uiViewer2D) Vw2DEMDataObject : public Vw2DDataObject
 {
 public:
 
-    virtual bool	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
     void		setEMObjectID(const EM::ObjectID&);
     const EM::ObjectID& getEMObjectID() const		{ return emid_; }

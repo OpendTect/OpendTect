@@ -532,7 +532,7 @@ uiReadMarkerFile( uiParent* p )
     delete &fd_;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     fnm_ = fnmfld_->fileName();
     if ( File::isEmpty(fnm_) )

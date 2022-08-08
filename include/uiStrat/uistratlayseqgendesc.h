@@ -67,7 +67,7 @@ protected:
     virtual const uiParent* getUiParent() const		= 0;
 
 private:
-    virtual const Strat::LayerSequenceGenDesc* editedDesc() const
+    const Strat::LayerSequenceGenDesc* editedDesc() const
 			{ return nullptr; }
 
 };
@@ -77,7 +77,7 @@ private:
 #define mDefuiLayerSequenceGenDescFns(clss,typstr) \
 public: \
     static const char*	typeStr()			{ return typstr; } \
-    virtual const char* factoryKeyword() const		{ return typeStr(); } \
+    const char*		factoryKeyword() const override { return typeStr(); } \
     const uiParent*	getUiParent() const override	{ return parent(); } \
     static uiLayerSequenceGenDesc* create( uiParent* p, \
 					   Strat::LayerSequenceGenDesc& gd ) \

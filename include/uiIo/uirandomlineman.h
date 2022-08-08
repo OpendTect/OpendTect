@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    void			mkFileInfo();
+    void			mkFileInfo() override;
 
 };
 

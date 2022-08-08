@@ -24,9 +24,9 @@ public:
 
 			uiRandPosFiltGroup(uiParent*,const Setup&);
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
     static uiPosFiltGroup* create( uiParent* p, const Setup& s )
     			{ return new uiRandPosFiltGroup(p,s); }
@@ -47,9 +47,9 @@ public:
 
 			uiSubsampPosFiltGroup(uiParent*,const Setup&);
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
     static uiPosFiltGroup* create( uiParent* p, const Setup& s )
     			{ return new uiSubsampPosFiltGroup(p,s); }

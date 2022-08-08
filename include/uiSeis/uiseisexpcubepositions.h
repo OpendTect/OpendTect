@@ -27,10 +27,10 @@ public:
 			~uiSeisExpCubePositionsDlg();
 
     void		setInput(const MultiID&);
-    virtual void	show();
+    void		show() override;
 
 private:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		getPositions(const MultiID&,PosInfo::CubeData&) const;
     bool		doExport(const PosInfo::CubeData&,
 				 const char* filenm) const;

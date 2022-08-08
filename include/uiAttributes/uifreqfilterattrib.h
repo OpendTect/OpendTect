@@ -29,7 +29,7 @@ public:
 
 			uiFreqFilterAttrib(uiParent*,bool);
 
-    void		getEvalParams(TypeSet<EvalParam>&) const;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:
 
@@ -49,13 +49,13 @@ protected:
     void		typeSel(CallBacker*);
     void		isfftSel(CallBacker*);
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
 
-    virtual bool        areUIParsOK();
+    bool		areUIParsOK() override;
 
     			mDeclReqAttribUIFns
 };

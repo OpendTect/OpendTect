@@ -50,7 +50,7 @@ protected:
     bool		fillSeisPar();
     void		fillParamsPar(IOPar&);
     bool		fillPar();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		typeChg( CallBacker* );
 };
 

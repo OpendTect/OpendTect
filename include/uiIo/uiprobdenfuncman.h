@@ -29,7 +29,7 @@ protected:
     void			browsePush(CallBacker*);
     void			genPush(CallBacker*);
 
-    void			mkFileInfo();
+    void			mkFileInfo() override;
 
 };
 

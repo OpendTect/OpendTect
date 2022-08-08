@@ -38,7 +38,7 @@ protected:
 						  bool is2d);
     static uiStepDialog*	createInstance(uiParent*, Step*,bool is2d);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			updateFlds(CallBacker*);
 
     LateralSmoother*		smoother_;

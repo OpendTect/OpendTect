@@ -64,7 +64,7 @@ protected:
     void			setColRange(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 

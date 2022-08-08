@@ -33,7 +33,7 @@ public:
 protected:
     TrimStatics*	processor_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     static uiDialog*	create(uiParent*,Processor*);
 
     void		fillTable();

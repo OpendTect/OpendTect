@@ -35,8 +35,8 @@ public:
     void		selected();
     MultiID		pickSetID() const;
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
 
@@ -44,7 +44,7 @@ protected:
     void		pickRemoveCB(CallBacker*);
     void		dataChangedCB(CallBacker*);
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
-    void		triggerDeSel();
+    void		triggerDeSel() override;
 
     RefMan<Pick::Set>		pickset_;
     bool			isselected_;

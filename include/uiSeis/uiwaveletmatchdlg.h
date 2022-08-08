@@ -31,7 +31,7 @@ protected:
 
     void		inpSelCB(CallBacker*);
     void		filterSzCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		calcFilter();
 
     uiFuncDispBase*	wvlt0disp_;

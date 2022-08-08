@@ -24,10 +24,10 @@ public:
 			uiSimpleTimeDepthTransform(uiParent*,bool t2d);
 			~uiSimpleTimeDepthTransform();
 
-    ZAxisTransform*	getSelection();
-    bool		canBeField() const	{ return true; }
+    ZAxisTransform*	getSelection() override;
+    bool		canBeField() const override	{ return true; }
 
-    bool		acceptOK();
+    bool		acceptOK() override;
 
     static void 	initClass();
 

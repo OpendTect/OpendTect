@@ -38,7 +38,7 @@ protected:
     TypeSet<MultiID>	crwellids_;
     const UnitOfMeasure* zun_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     void		rdFilePush(CallBacker*);
     bool		getWellCreateData(int,const char*,uiSMWCData&);

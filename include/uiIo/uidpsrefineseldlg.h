@@ -3,9 +3,9 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
- Author:        Satyaki Maitra
- Date:          June 2011
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Satyaki Maitra
+ Date:		June 2011
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 
 				uiDPSRefineSelDlg(uiDataPointSetCrossPlotter&);
 				Math::Expression* mathObject() { 
-                                return mathobj_; }
+				return mathobj_; }
 
 protected:
 
@@ -38,9 +38,9 @@ protected:
 
     void			checkMathExpr(CallBacker*);
     void			parsePush(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
-    uiDataPointSetCrossPlotter&	plotter_;
+    uiDataPointSetCrossPlotter& plotter_;
     BufferString		mathexprstring_;
     BufferStringSet		colnms_;
     Math::Expression*		mathobj_;

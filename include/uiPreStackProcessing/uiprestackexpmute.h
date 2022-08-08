@@ -26,7 +26,7 @@ mExpClass(uiPreStackProcessing) uiExportMute : public uiDialog
 { mODTextTranslationClass(uiExportMute);
 public:
 			uiExportMute(uiParent*);
-		    	~uiExportMute();
+			~uiExportMute();
 
 protected:
 
@@ -37,9 +37,9 @@ protected:
 
     CtxtIOObj&		ctio_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		coordTypChngCB(CallBacker*);
-    bool		writeAscii();    
+    bool		writeAscii();
 };
 
 } //namespace PreStack

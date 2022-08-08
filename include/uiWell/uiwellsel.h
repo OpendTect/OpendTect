@@ -52,7 +52,7 @@ public:
 protected:
 
     void		doDlg(CallBacker*);
-    BufferString	getSummary() const;
+    BufferString	getSummary() const override;
 
     TypeSet<MultiID>	selids_;
     IOPar&		iopar_;

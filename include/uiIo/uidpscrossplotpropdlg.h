@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Jun 2008
+ Author:	Bert
+ Date:		Jun 2008
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,12 @@ protected:
     uiDPSCPScalingTab*			scaletab_;
     uiDPSCPStatsTab*			statstab_;
     uiDPSUserDefTab*			userdeftab_;
-    uiDPSCPDisplayPropTab* 		dispproptab_;
-    uiDPSDensPlotSetTab* 		densplottab_;
+    uiDPSCPDisplayPropTab*		dispproptab_;
+    uiDPSDensPlotSetTab*		densplottab_;
     uiDPSCPBackdropTab*			bdroptab_;    
 
     void				doApply(CallBacker*);
-    bool				acceptOK(CallBacker*);
+    bool				acceptOK(CallBacker*) override;
 
 };
 

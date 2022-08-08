@@ -67,7 +67,7 @@ protected:
     uiGenInput*		impdomsel_			= nullptr;
     uiT2DConvSel*	transfld_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		descChg(CallBacker*);
     void		inputChgd(CallBacker*);
     void		addAttribCB(CallBacker*);
@@ -116,7 +116,7 @@ protected:
     uiUnitSel*			unitfld_;
     uiIOObjSel*			outputfld_;
 
-    virtual bool		acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			inputChgd(CallBacker*);
     EM::Horizon3D*		createHor() const;
 };

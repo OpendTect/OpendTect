@@ -37,9 +37,9 @@ public:
 			DahObjUndoEvent(float dah,float val,
 					Well::DahObj&,bool isadd);
 
-    const char*         getStandardDesc() const;
-    bool                unDo();
-    bool                reDo();
+    const char*		getStandardDesc() const override;
+    bool		unDo() override;
+    bool		reDo() override;
 
 protected:
 
@@ -62,16 +62,18 @@ public:
 			DriftCurve() : DahObj("Drift Curve") {}
 
 	void		add( float dh, float val )  { dah_ += dh; val_ += val; }
-	float		value( int idx ) const      { return val_[idx]; }
-	bool		insertAtDah(float dh,float v);
+	float		value( int idx ) const override    { return val_[idx]; }
+	bool		insertAtDah(float dh,float v) override;
 
 	int		indexOfCurrentPoint(float dah,float val) const;
 
     protected:
 	TypeSet<float>	val_;
 
-	void		removeAux(int idx)	{ val_.removeSingle( idx ); }
-	void		eraseAux()		{ val_.erase(); }
+	void		removeAux(int idx) override
+			    { val_.removeSingle( idx ); }
+
+	void		eraseAux() override		{ val_.erase(); }
     };
 
 protected:
@@ -120,8 +122,8 @@ protected:
     void			mouseMovedCB(CallBacker*);
     void			setInfoMsg(CallBacker*);
 
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
     void			reSizeCB(CallBacker*);
 };
 

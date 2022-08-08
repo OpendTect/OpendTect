@@ -46,7 +46,7 @@ protected:
     uiTableImpDataSel*  dataselfld_;
     uiGenInput*		udftreatfld_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void                descChg(CallBacker*);
     void		setSel(CallBacker*);
     void		addHor(CallBacker*);

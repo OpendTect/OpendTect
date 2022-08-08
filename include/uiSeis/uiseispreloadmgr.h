@@ -81,7 +81,7 @@ protected:
     void		finalizeDoneCB(CallBacker*);
     void		updateScaleFld();
     void		updateEstUsage();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     Scaler*		scaler_;
     Stats::RandGen&	gen_;

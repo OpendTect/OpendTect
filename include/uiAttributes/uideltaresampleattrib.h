@@ -30,11 +30,11 @@ protected:
     uiAttrSel*		deltacubefld_;
     uiGenInput*		periodfld_;
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
 
     			mDeclReqAttribUIFns
 };

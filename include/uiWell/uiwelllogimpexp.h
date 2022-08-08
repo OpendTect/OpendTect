@@ -49,7 +49,7 @@ protected:
     uiGenInput*		lognmfld_;
     uiListBox*		logsfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		lasSel(CallBacker*);
 };
 
@@ -81,7 +81,7 @@ protected:
     void		writeLogs(od_ostream&,const Well::Data&);
 
     void		typeSel(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     uiString		getDlgTitle( const ObjectSet<Well::Data>& wds,
 				     const BufferStringSet& lognms );
 

@@ -34,9 +34,9 @@ public:
 			uiSpecDecompAttrib(uiParent*,bool);
 			~uiSpecDecompAttrib();
 
-    void		getEvalParams(TypeSet<EvalParam>&) const;
-    int			getOutputIdx(float) const;
-    float		getOutputValue(int) const;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
+    int			getOutputIdx(float) const override;
+    float		getOutputValue(int) const override;
 protected:
 
     uiImagAttrSel*	inpfld_;
@@ -46,13 +46,13 @@ protected:
     uiLabeledSpinBox*	stepfld_;
     uiGenInput*		waveletfld_;
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
+    bool		setOutput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
+    bool		getOutput(Attrib::Desc&) override;
 
     void		inputSel(CallBacker*);
     void		typeSel(CallBacker*);
@@ -99,9 +99,9 @@ public:
 				    : uiAttribPanel( p )		{}
 
 protected:
-    virtual const char*		getProcName();
-    virtual const char*		getPackName();
-    virtual const char*		getPanelName();
+    const char*		getProcName() override;
+    const char*		getPackName() override;
+    const char*		getPanelName() override;
 
 };
 

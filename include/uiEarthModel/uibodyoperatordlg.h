@@ -38,7 +38,7 @@ public:
 protected:
 
     void		finalizeCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		itemClick(CallBacker*);
     void		bodySel(CallBacker*);
     void		oprSel(CallBacker*);
@@ -89,7 +89,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     const IOObj*	getIfMCSurfaceObj() const;
 			/* For bodies made in older version
 			   Translator group name : MarchingCubesSurface */

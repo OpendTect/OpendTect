@@ -35,7 +35,7 @@ protected:
 
     void		inputChangeCB(CallBacker*);
     bool		fillPar();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiVelSel*		input_;
     uiPosSubSel*	possubsel_;

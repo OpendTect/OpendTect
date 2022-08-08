@@ -326,7 +326,7 @@ uiDataPackReplacerDlg( uiParent* p,
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     int inpfldidx = 0;
     if ( !attrset_ && !attrdspar_ )

@@ -23,7 +23,7 @@ public:
     ~uiPolygonZChanger();
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		changeZvalCB(CallBacker*);
     bool		applyZChanges(EM::PolygonZChanger&);
 

@@ -58,7 +58,7 @@ protected:
     void		exportCoordSysChgCB(CallBacker*);
     FixedString		getZDomain() const;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     bool		writeAscii();
     bool		isbulk_;

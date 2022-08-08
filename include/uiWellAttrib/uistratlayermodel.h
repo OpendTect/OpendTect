@@ -100,7 +100,7 @@ protected:
     bool			doGenModels(bool full=false);
     IOPar			getSynthPars() const;
     bool			updateDispEach(const Strat::LayerModel&);
-    bool			closeOK();
+    bool			closeOK() override;
 
     void			fillWorkBenchPars(IOPar&) const;
 

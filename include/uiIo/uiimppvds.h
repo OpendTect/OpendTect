@@ -39,7 +39,7 @@ protected:
     uiIOObjSel*		outfld_;
 
     void		inputChgd(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     bool		getData(od_istream&,Table::FormatDesc&,DataPointSet&);
     bool		writeData(const DataPointSet&,const IOObj&);

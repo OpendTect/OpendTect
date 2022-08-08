@@ -47,7 +47,7 @@ protected:
     void		stackSel(CallBacker*);
     void		selButPush(CallBacker*);
     void		moveButPush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		setToolButtonProperty();
 
     BufferStringSet     allvolsnames_;

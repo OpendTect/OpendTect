@@ -117,7 +117,7 @@ protected:
     TrcKeyZSampling&	tkzs_;
 
     void		doDlg(CallBacker*);
-    BufferString	getSummary() const;
+    BufferString	getSummary() const override;
     void		setCSToAll() const;
     void		setProvFromCS();
     void		mkNewProv(bool updsumm=true);
@@ -138,7 +138,7 @@ public:
     void		getSampling(TrcKeyZSampling&,const IOPar* =0) const;
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiPosProvider*	selfld_;
 };

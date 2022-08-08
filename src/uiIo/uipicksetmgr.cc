@@ -208,7 +208,7 @@ void setInputSets( const BufferStringSet& nms )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     nrsel = selfld->nrChosen();
     if ( nrsel < 2 )

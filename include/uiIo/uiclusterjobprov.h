@@ -51,7 +51,7 @@ protected:
     uiGenInput*		instdirfld_;
 
     void		nrJobsCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     bool		createJobScripts(const char*,const char*);
     const char*		getOutPutIDKey() const;
@@ -66,8 +66,8 @@ mExpClass(uiIo) SimpleClusterProgDef : public ClusterProgDef
 public:
 			SimpleClusterProgDef() {}
 
-    bool		isSuitedFor(const char*) const;
-    bool		canHandle(const JobSpec&) const;
+    bool		isSuitedFor(const char*) const override;
+    bool		canHandle(const JobSpec&) const override;
 };
 }
 
@@ -85,11 +85,11 @@ public:
 				       "Cluster Processing",
 				       tr("Cluster Processing"));
 
-    virtual bool	go(uiParent*,Batch::ID* =nullptr);
+    bool	go(uiParent*,Batch::ID* =nullptr) override;
 
 protected:
 
-    virtual Batch::JobDispatcher&	gtDsptchr();
+    Batch::JobDispatcher&		gtDsptchr() override;
     Batch::ClusterJobDispatcher&	jd_;
 
 };

@@ -69,9 +69,9 @@ protected:
     BufferStringSet	seloutnms_;
 
 
-    void		getJobName(BufferString& jobnm) const;
-    bool		prepareProcessing();
-    bool		fillPar(IOPar&);
+    void		getJobName(BufferString& jobnm) const override;
+    bool		prepareProcessing() override;
+    bool		fillPar(IOPar&) override;
     Attrib::DescSet*	getFromToDoFld(TypeSet<Attrib::DescID>&,int&);
     void		attrSel(CallBacker*);
     void		psSelCB(CallBacker*);

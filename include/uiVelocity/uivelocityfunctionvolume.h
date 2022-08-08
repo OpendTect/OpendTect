@@ -32,8 +32,8 @@ public:
     			uiVolumeFunction(uiParent*,VolumeFunctionSource*);
     			~uiVolumeFunction();
 
-    FunctionSource*	getSource();
-    bool		acceptOK();
+    FunctionSource*	getSource() override;
+    bool		acceptOK() override;
 
 protected:
     static uiFunctionSettings*	create(uiParent*,FunctionSource*);

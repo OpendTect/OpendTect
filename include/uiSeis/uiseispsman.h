@@ -46,8 +46,8 @@ protected:
 
     bool		is2d_;
 
-    void		ownSelChg();
-    void		mkFileInfo();
+    void		ownSelChg() override;
+    void		mkFileInfo() override;
     const BrowserDef*	getBrowserDef() const;
 
     void		copyPush(CallBacker*);

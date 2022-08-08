@@ -50,7 +50,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 
     protected:
 
-    BufferString	getSummary() const;
+    BufferString	getSummary() const override;
     void		doDlg(CallBacker*);
     void		prepareDlg();
 

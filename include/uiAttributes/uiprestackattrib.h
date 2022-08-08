@@ -34,9 +34,9 @@ public:
 			uiPreStackAttrib(uiParent*,bool);
 			~uiPreStackAttrib();
 
-    void                getEvalParams(TypeSet<EvalParam>&) const;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
 
-    void	setDataPackInp(const TypeSet<DataPack::FullID>&);
+    void	setDataPackInp(const TypeSet<DataPack::FullID>&) override;
 
 protected:
 
@@ -60,9 +60,9 @@ protected:
 
     bool		usedatapackasinput_;
 
-    bool		setParameters(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
     bool		setAngleParameters(const Attrib::Desc&);
-    bool		getParameters(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
     bool		getAngleParameters(Attrib::Desc&);
 
     Stats::Type		getStatEnumfromString(const char* stattypename);
@@ -75,7 +75,7 @@ protected:
     void		gatherTypSel(CallBacker*);
     void		gatherUnitSel(CallBacker*);
 
-    bool		setInput(const Desc&);
+    bool		setInput(const Desc&) override;
 
 			mDeclReqAttribUIFns
 };

@@ -32,8 +32,8 @@ protected:
 
     void		manLineGeom(CallBacker*);
     void		lineRemoveCB(CallBacker*);
-    void		ownSelChg();
-    void		mkFileInfo();
+    void		ownSelChg() override;
+    void		mkFileInfo() override;
 };
 
 
@@ -56,7 +56,7 @@ protected:
     void		lineSel(CallBacker*);
     void		setTrcSPNrCB(CallBacker*);
     void		fillTable(const Survey::Geometry2D&);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiTable*		table_;
     uiGenInput*		rgfld_;

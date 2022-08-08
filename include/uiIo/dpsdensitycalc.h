@@ -34,14 +34,15 @@ public:
 						 ArrayND<float>&,
 				 CalcAreaType areatype=DPSDensityCalcND::All);
 
-    od_int64			nrIterations() const;
-    od_int64			nrDone() const		{ return nrdone_; }
-    uiString			uiNrDoneText() const;
+    od_int64			nrIterations() const override;
+    od_int64			nrDone() const override { return nrdone_; }
+    uiString			uiNrDoneText() const override;
 
     void			setGroup(int grp)	{ grp_ = grp; }
     bool			getPositions(TypeSet<int>&,int);
     bool			setFreqValue(const int*);
-    bool			doWork(od_int64 start,od_int64 stop,int);
+    bool			doWork(od_int64 start,
+				       od_int64 stop,int) override;
 
 protected:
     const DataPointSet&			dps_;

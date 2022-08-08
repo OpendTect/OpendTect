@@ -103,7 +103,7 @@ public:
     uiEditGaussianProbDenFunc* pdffld_;
     uiIOObjSel*		outfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

@@ -50,12 +50,12 @@ mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin
 public:
 			~uiViewer2DMainWin();
 
-    virtual void	start()		{ show(); }
-    virtual void	setWinTitle(const uiString& t)
+    void		start() override		{ show(); }
+    void		setWinTitle(const uiString& t) override
 				    { setCaption(t); }
 
-    virtual uiMainWin*	dockParent()	{ return this; }
-    virtual uiParent*	viewerParent()	{ return this; }
+    uiMainWin*		dockParent() override	{ return this; }
+    uiParent*		viewerParent() override { return this; }
     uiViewer2DControl*	control()	{ return control_; }
     virtual void	getGatherNames(BufferStringSet&) const		= 0;
     virtual bool	is2D() const	{ return false; }
@@ -91,7 +91,7 @@ protected:
     bool		hasangledata_;
 
     void		removeAllGathers();
-    void		reSizeItems();
+    void		reSizeItems() override;
     virtual void	setGatherInfo(uiGatherDisplayInfoHeader*,
 				      const GatherInfo&)	{}
     virtual void	setGather(const GatherInfo&)	{}
@@ -217,12 +217,12 @@ protected:
     PreStackView::uiPSMultiPropDlg* pspropdlg_;
     bool			isstored_;
 
-    void		doPropertiesDialog(int vieweridx);
+    void		doPropertiesDialog(int vieweridx) override;
 
-    void		applyProperties(CallBacker*);
+    void		applyProperties(CallBacker*) override;
     void		gatherPosCB(CallBacker*);
     void		gatherDataCB(CallBacker*);
-    void		coltabChg(CallBacker*);
+    void		coltabChg(CallBacker*) override;
     void		updateColTabCB(CallBacker*);
     void		propertiesDlgCB(CallBacker*);
 };

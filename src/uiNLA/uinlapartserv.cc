@@ -217,7 +217,7 @@ void valrgChg( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !statsfld_ ) return true;
     dobal_ = dobalfld->getBoolValue();
@@ -339,7 +339,7 @@ void selChg( CallBacker* sender )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     usrsels.erase();
     for ( int idx=0; idx<optflds.size(); idx++ )

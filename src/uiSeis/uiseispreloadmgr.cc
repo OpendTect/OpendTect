@@ -310,7 +310,7 @@ void dsSel( CallBacker* )
     lnmsfld_->chooseAll();
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !ioObj() )
     {

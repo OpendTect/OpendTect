@@ -69,7 +69,7 @@ protected:
     void		getFromScreen();
     void		putToScreen();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		selLithCB(CallBacker*);
 };
 
@@ -124,7 +124,7 @@ protected :
 				    : uiTable(p,s,"Subdivide unit table")
 				{}
 	protected:
-	virtual void		popupMenu(CallBacker*);
+	void			popupMenu(CallBacker*) override;
     };
 
 
@@ -136,7 +136,7 @@ protected :
 
     void			addUnitToTable(int,const Strat::LeavedUnitRef&);
     void			mouseClick(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			resetUnits(CallBacker*);
 };
 
@@ -174,7 +174,7 @@ protected:
     uiGenInput*			lvllistfld_;
     TypeSet<Strat::LevelID>	ids_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 

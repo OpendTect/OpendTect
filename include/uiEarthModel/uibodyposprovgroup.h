@@ -29,9 +29,9 @@ public:
     static void			initClass();
     static uiPosProvGroup*	create(uiParent*,const uiPosProvGroup::Setup&);
 
-    virtual void		usePar(const IOPar&);
-    virtual bool		fillPar(IOPar&) const;
-    void			getSummary(BufferString&) const;
+    void			usePar(const IOPar&) override;
+    bool			fillPar(IOPar&) const override;
+    void			getSummary(BufferString&) const override;
 
     bool			getID(MultiID&) const;
 

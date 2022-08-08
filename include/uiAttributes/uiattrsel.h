@@ -160,7 +160,7 @@ protected:
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);
     void		objInserted(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -203,8 +203,8 @@ public:
     void		setGeomID( Pos::GeomID id )	{ geomid_ = id; }
     Pos::GeomID		getGeomID() const		{ return geomid_; }
 
-    virtual void	getHistory(const IOPar&);
-    virtual void	processInput();
+    void		getHistory(const IOPar&) override;
+    void		processInput() override;
 
     const char*		errMsg()		{ return errmsg_.str(); }
     bool		getRanges(TrcKeyZSampling&) const;
@@ -234,7 +234,7 @@ protected:
     void		updateInput();
     void		update2D();
     void		doSel(CallBacker*);
-    virtual const char*	userNameFromKey(const char*) const;
+    const char*		userNameFromKey(const char*) const override;
 
     static uiString	cDefLabel();
 };

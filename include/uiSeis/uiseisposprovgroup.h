@@ -26,9 +26,9 @@ public:
 			uiSeisPosProvGroup(uiParent*,
 					    const uiPosProvGroup::Setup&);
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
 			{ return new uiSeisPosProvGroup(p,s); }

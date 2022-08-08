@@ -94,7 +94,7 @@ protected:
     void			sliderMove(CallBacker*);
     void			doFinalize(CallBacker*);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     Attrib::Desc*		seldesc_;
     Attrib::DescSet*		attrset_;

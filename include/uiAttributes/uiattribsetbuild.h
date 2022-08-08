@@ -63,11 +63,11 @@ protected:
     void		fillAvailable();
     bool		doAttrSetIO(bool);
 
-    virtual void	defSelChg();
-    virtual void	editReq(bool);
-    virtual void	removeReq();
-    virtual bool	ioReq(bool);
-    virtual const char*	avFromDef(const char*) const;
+    void		defSelChg() override;
+    void		editReq(bool) override;
+    void		removeReq() override;
+    bool		ioReq(bool) override;
+    const char*		avFromDef(const char*) const override;
 
 };
 

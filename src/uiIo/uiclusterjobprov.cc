@@ -108,13 +108,13 @@ ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* scriptdir,
     }
 }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 { return curidx_; }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 { return tr("Nr jobs created"); }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 { return jobprov_.nrJobs(); }
 
 
@@ -160,7 +160,7 @@ bool writeScriptFile( const char* scrfnm, const char* desc )
 }
 
 
-int nextStep()
+int nextStep() override
 {
     if ( curidx_ >= totalNr() )
 	return Finished();

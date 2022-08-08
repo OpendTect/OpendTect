@@ -29,7 +29,7 @@ public:
 			uiSeisBayesClass(uiParent*,bool is2d);
 			~uiSeisBayesClass();
 
-    virtual void	raiseCurrent();
+    void		raiseCurrent() override;
 
 protected:
 
@@ -40,8 +40,8 @@ protected:
     uiSeisBayesSeisInp*	inpseisdlg_;
     uiSeisBayesOut*	outdlg_;
 
-    virtual void	doPart();
-    virtual void	closeDown();
+    void		doPart() override;
+    void		closeDown() override;
 
     void		getInpPDFs();
     void		inpPDFsGot(CallBacker*);

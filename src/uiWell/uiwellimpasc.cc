@@ -287,7 +287,7 @@ static void setWellInfo( BufferString& infostr, const char* fldtxt )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     Well::Info& info = uwia_->wd_.info();
 

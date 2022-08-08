@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Satyaki Maitra
- Date:          August 2011
+ Author:	Satyaki Maitra
+ Date:		August 2011
 ________________________________________________________________________
 
 -*/
@@ -37,12 +37,12 @@ public:
 
    void				setColid(int masterid,int slaveid);
 
-   enum	MatchPolicy		{ Exact, Nearest, NoMatch };
+   enum MatchPolicy		{ Exact, Nearest, NoMatch };
    void				setMatchPolicy( MatchPolicy pol )
 				{ matchpol_ = pol; }
    MatchPolicy			matchPolicy() const	{ return matchpol_; }
 
-   enum	ReplacePolicy		{ No, Yes, Average };
+   enum ReplacePolicy		{ No, Yes, Average };
    void				setReplacePolicy( ReplacePolicy pol )
 				{ replacepol_ = pol; }
 
@@ -54,12 +54,12 @@ public:
    const TypeSet<int>&		secondaryColIDs() const;
    const MultiID&		newDPSID() const	{ return newdpsid_; }
 
-   float 			maxAllowedHorDist() const
+   float			maxAllowedHorDist() const
 				{ return maxhordist_; }
    void				setMaxAllowedHorDist( float maxdist )
 				{ maxhordist_ = maxdist; }
 
-   float			maxAllowedZDist() const	{ return maxz_; }
+   float			maxAllowedZDist() const { return maxz_; }
    void				setMaxAllowedZDist( float maxz )
 				{ maxz_ = maxz; }
 
@@ -103,11 +103,16 @@ public:
 				DPSMerger(const DPSMergerProp&);
 
     void			addNewCols(const BufferStringSet&);
-    od_int64			nrDone() const		{ return rowdone_; }
-    od_int64			totalNr() const		{return sdps_->size();}
-    uiString			uiNrDoneText() const
+    od_int64			nrDone() const override
+				{ return rowdone_; }
+
+    od_int64			totalNr() const override
+				{ return sdps_->size(); }
+
+    uiString			uiNrDoneText() const override
 				{return uiStrings::phrJoinStrings(
 				uiStrings::sPosition(mPlural),tr("processed"));}
+
     RefMan<DataPointSet>	getNewDPS()		{ return newdps_; }
 
 protected:
@@ -115,15 +120,15 @@ protected:
     RefMan<DataPointSet>	mdps_;
     RefMan<DataPointSet>	sdps_;
     RefMan<DataPointSet>	newdps_;
-    int 			rowdone_;
+    int				rowdone_;
 
-    int 			nextStep();
+    int				nextStep() override;
 
-    int 			getSecondaryColID(int mcolid);
+    int				getSecondaryColID(int mcolid);
     mDeprecated("Use getSecondaryColID")
-    int 			getSlaveColID(int mcolid);
-    DataPointSet::DataRow 	getDataRow(int,int);
-    DataPointSet::DataRow 	getNewDataRow(int);
+    int				getSlaveColID(int mcolid);
+    DataPointSet::DataRow	getDataRow(int,int);
+    DataPointSet::DataRow	getNewDataRow(int);
     int				findMatchingMrowID(int);
 };
 
@@ -152,7 +157,7 @@ protected:
     void			setTable();
     BufferStringSet		checkForNewColumns() const;
     void			checkForSameColNms(BufferStringSet&) const;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			attribChangedCB(CallBacker*);
     void			matchPolChangedCB(CallBacker*);
 };

@@ -20,9 +20,9 @@ class SeisMMProgDef : public MMProgDef
 { mODTextTranslationClass(SeisMMProgDef)
 public:
 			SeisMMProgDef() : MMProgDef("od_SeisMMBatch")	{}
-    virtual bool	isSuitedFor(const char*) const;
-    virtual bool	canHandle(const JobSpec&) const;
-    virtual bool	canResume(const JobSpec&) const;
+    bool		isSuitedFor(const char*) const override;
+    bool		canHandle(const JobSpec&) const override;
+    bool		canResume(const JobSpec&) const override;
     static uiString	sSeisMMProcDesc()
 				{ return tr("Distributed Computing Client"); }
 };

@@ -127,8 +127,8 @@ protected:
     bool		setRelation();
     bool		doApply();
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
+    bool		rejectOK(CallBacker*) override;
     void		updatePar(CallBacker*);
     void		sipCB(CallBacker*);
     void		doFinalize(CallBacker*);
@@ -153,17 +153,19 @@ mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 public:
 			uiCopySurveySIP();
 
-    virtual const char*	usrText() const	{ return "Copy from other survey"; }
-    virtual uiDialog*	dialog(uiParent*);
-    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    const char* usrText() const override
+			    { return "Copy from other survey"; }
+    uiDialog*	dialog(uiParent*) override;
+    bool	getInfo(uiDialog*,
+				TrcKeyZSampling&,Coord crd[3]) override;
 
-    virtual void	fillLogPars(IOPar&) const;
+    void	fillLogPars(IOPar&) const override;
 
-    virtual TDInfo	tdInfo() const		{ return tdinf_; }
-    virtual bool	xyInFeet() const	{ return inft_; }
-    virtual const char*	iconName() const	{ return "copyobj"; }
+    TDInfo	tdInfo() const override		{ return tdinf_; }
+    bool	xyInFeet() const override	{ return inft_; }
+    const char* iconName() const override	{ return "copyobj"; }
 
-    IOPar*		getCoordSystemPars() const;
+    IOPar*		getCoordSystemPars() const override;
 
 protected:
 
@@ -183,17 +185,18 @@ mExpClass(uiIo) uiSurveyFileSIP : public uiSurvInfoProvider
 public:
 			uiSurveyFileSIP();
 
-    virtual const char* usrText() const;
-    virtual uiDialog*	dialog(uiParent*);
-    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    const char* usrText() const override;
+    uiDialog*	dialog(uiParent*) override;
+    bool	getInfo(uiDialog*,
+				TrcKeyZSampling&,Coord crd[3]) override;
 
-    virtual void	fillLogPars(IOPar&) const;
+    void	fillLogPars(IOPar&) const override;
 
-    virtual TDInfo	tdInfo() const		{ return tdinf_; }
-    virtual bool	xyInFeet() const	{ return inft_; }
-    virtual const char* iconName() const	{ return "ascii"; }
+    TDInfo	tdInfo() const override		{ return tdinf_; }
+    bool	xyInFeet() const override	{ return inft_; }
+    const char* iconName() const override	{ return "ascii"; }
 
-    virtual IOPar*	getCoordSystemPars() const;
+    IOPar*	getCoordSystemPars() const override;
 
 protected:
 

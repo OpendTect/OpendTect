@@ -41,8 +41,8 @@ protected:
     uiFuncDispBase*		waveletdisplay_;
     uiLabel*			wvnamdisp_;
     void			addButtons();
-    void			mkFileInfo();
-    void			ownSelChg();
+    void			mkFileInfo() override;
+    void			ownSelChg() override;
     void			dispWavelet(const Wavelet*);
 
     void			closeDlg(CallBacker*);

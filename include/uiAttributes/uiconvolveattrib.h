@@ -27,7 +27,7 @@ public:
 			uiConvolveAttrib(uiParent*,bool);
 			~uiConvolveAttrib();
 
-    virtual void	getEvalParams(TypeSet<EvalParam>&) const;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:
 
@@ -38,13 +38,13 @@ protected:
     uiGenInput*         outpfld_;
     uiIOObjSel*         waveletfld_;
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
+    bool		setOutput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
+    bool		getOutput(Attrib::Desc&) override;
 
     void		kernelSel(CallBacker*);
 

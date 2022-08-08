@@ -62,6 +62,6 @@ protected:
     uiGenInput*			trcnrfld_;
     const Geometry::RandomLine*	rdlgeom_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 

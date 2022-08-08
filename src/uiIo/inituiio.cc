@@ -48,7 +48,7 @@ mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 			Batch::JobSpec&,"Multi-Machine",
 			tr("Distributed Computing"));
 
-    virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
+    Batch::JobDispatcher&		gtDsptchr() override { return jd_; }
     Batch::MMJobDispatcher		jd_;
 
 };

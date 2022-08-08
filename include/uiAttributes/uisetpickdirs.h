@@ -52,7 +52,7 @@ protected:
 
     void			dirinpSel(CallBacker*);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     bool			getAndCheckAttribSelection(DataPointSet&);
     bool			extractDipOrAngl(DataPointSet&);
     void			createSteeringDesc(int,const Attrib::DescID&);

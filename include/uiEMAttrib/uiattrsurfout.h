@@ -37,13 +37,13 @@ public:
    void			fillGridPar(IOPar&) const;
 protected:
 
-    bool		prepareProcessing();
-    bool		fillPar(IOPar&);
-    void		attribSel(CallBacker*);
+    bool		prepareProcessing() override;
+    bool		fillPar(IOPar&) override;
+    void		attribSel(CallBacker*) override;
     void		objSelCB(CallBacker*);
     void		fillUdfSelCB(CallBacker*);
     void		settingsCB(CallBacker*);
-    void		getJobName(BufferString&) const;
+    void		getJobName(BufferString&) const override;
 
     uiGenInput*		attrnmfld_;
     uiIOObjSel*		objfld_;

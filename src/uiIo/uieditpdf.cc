@@ -429,7 +429,7 @@ uiEditSampledProbDenFunc2DDataPack( Array2D<float>* a2d,
     setName( "Probability" );
 }
 
-const char* dimName( bool dim0 ) const
+const char* dimName( bool dim0 ) const override
 {
     return pdf_.dimName( dim0 ? 0 : 1 );
 }

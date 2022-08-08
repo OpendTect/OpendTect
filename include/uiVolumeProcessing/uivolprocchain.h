@@ -49,7 +49,7 @@ protected:
 
     static const char*		sKeySettingKey();
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     bool			doSave();
     bool			doSaveAs();
     void			updateList();

@@ -118,11 +118,11 @@ Write3DHorASCII( od_ostream&, int sectionidx, int sidx,
 		 const UnitOfMeasure*,const Coords::CoordSystem*,
 		 const Setup&);
 
-    int				nextStep();
-    const char*			message() const		{ return msg_; }
-    const char*			nrDoneText() const;
-    od_int64			nrDone() const;
-    od_int64			totalNr() const;
+    int				nextStep() override;
+    const char*			message() const override	{ return msg_; }
+    const char*			nrDoneText() const override;
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
 protected:
     od_ostream&			stream_;

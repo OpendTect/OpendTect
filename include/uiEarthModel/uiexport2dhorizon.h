@@ -47,7 +47,7 @@ protected:
 
     ObjectSet<SurfaceInfo>	hinfos_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		horChg(CallBacker*);
     bool		doExport();
     void		writeHeader(od_ostream&);

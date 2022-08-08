@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          April 2001
+ Author:	A.H. Bril
+ Date:		April 2001
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
 
     void		setInput(const IOObj&);
     void		setInput(const MultiID&);
-    virtual void	setEmpty();
+    void		setEmpty() override;
 
     MultiID		key(bool noerr=false) const;
     const IOObj*	ioobj(bool noerr=false) const;
@@ -80,7 +80,8 @@ public:
     void		setHelpKey(const HelpKey& helpkey) { helpkey_=helpkey; }
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
-    virtual void	processInput(); //!< Match user typing with existing
+    void		processInput() override;
+					//!< Match user typing with existing
 					//!< IOObjs, then set item accordingly
     virtual bool	existingTyped() const
 					{ return existingUsrName(getInput()); }
@@ -88,9 +89,9 @@ public:
 					//!< not an existing IOObj name
 
     virtual MultiID	validKey() const; //!< no side-effects
-    virtual uiObject*	endObj(bool left);
+    uiObject*		endObj(bool left) override;
 
-    static IOObjContext	getWriteIOObjCtxt(IOObjContext);
+    static IOObjContext getWriteIOObjCtxt(IOObjContext);
 
 protected:
 
@@ -110,8 +111,8 @@ protected:
     void		optCheckCB(CallBacker*);
     void		initRead();
 
-    virtual const char*	userNameFromKey(const char*) const;
-    virtual void	objSel();
+    const char*		userNameFromKey(const char*) const override;
+    void		objSel() override;
     virtual void	commitSucceeded()			{}
 
     virtual void	fillDefault();

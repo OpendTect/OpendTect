@@ -35,12 +35,12 @@ public:
 					    const uiPosProvGroup::Setup&);
 			~uiRangePosProvGroup();
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
-    virtual bool	hasRandomSampling() const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
+    bool		hasRandomSampling() const override;
 
-    void		setExtractionDefaults();
+    void		setExtractionDefaults() override;
 
     void		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
@@ -74,11 +74,11 @@ public:
 					   const uiPosProvGroup::Setup&);
 			~uiPolyPosProvGroup();
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    void		setExtractionDefaults();
+    void		setExtractionDefaults() override;
 
     bool		getID(MultiID&) const;
     void		getZRange(StepInterval<float>&) const;
@@ -112,9 +112,9 @@ public:
 					   bool onlypointset=true);
 			~uiTablePosProvGroup();
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
     bool		getID(MultiID&) const;
     bool		getFileName(BufferString&) const;

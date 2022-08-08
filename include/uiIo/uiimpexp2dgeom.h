@@ -30,7 +30,7 @@ public:
     bool			fillGeom(Survey::Geometry2D&);
 
 protected:
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     od_istream*			getStrm() const;
     bool			fillGeom(ObjectSet<Survey::Geometry2D>&);
     void			fileSelCB(CallBacker*);
@@ -56,7 +56,7 @@ public:
 
 protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			createUI();
     void			setList( CallBacker* );
 

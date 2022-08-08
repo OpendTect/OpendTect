@@ -201,7 +201,7 @@ public:
 
 protected:
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiComboBox*		vpfld_;
     uiComboBox*		vsfld_ = nullptr;

@@ -28,11 +28,11 @@ public:
 					   const uiPosProvGroup::Setup&);
 			~uiWellPosProvGroup();
 
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
 
-    void		setExtractionDefaults();
+    void		setExtractionDefaults() override;
 
     bool		getIDs(TypeSet<MultiID>&) const;
     void		getZRange(StepInterval<float>&) const;

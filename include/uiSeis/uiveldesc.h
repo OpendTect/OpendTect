@@ -74,7 +74,7 @@ public:
 
 protected:
 
-   bool			acceptOK(CallBacker*);
+   bool			acceptOK(CallBacker*) override;
    void			volSelChange(CallBacker*);
    bool			scanAvgVel(const IOObj&, const VelocityDesc&);
 
@@ -108,7 +108,7 @@ public:
 
 protected:
 
-    void			fillDefault();
+    void			fillDefault() override;
 
     void			selectionDoneCB(CallBacker*);
     void			updateEditButton();
@@ -122,15 +122,15 @@ protected:
 mExpClass(uiSeis) uiVelModelZAxisTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiVelModelZAxisTransform);
 public:
-    void			enableTargetSampling();
-    bool			acceptOK();
+    void			enableTargetSampling() override;
+    bool			acceptOK() override;
 
-    ZAxisTransform*		getSelection();
+    ZAxisTransform*		getSelection() override;
 
     const char*			selName() const;
     const MultiID&		selID() const { return selkey_; }
 
-    bool			canBeField() const { return true; }
+    bool			canBeField() const override { return true; }
 protected:
 				uiVelModelZAxisTransform(uiParent*,bool);
 				~uiVelModelZAxisTransform();

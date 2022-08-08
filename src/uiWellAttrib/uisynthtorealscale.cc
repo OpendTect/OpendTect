@@ -405,10 +405,10 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     delete seldata_;
 }
 
-uiString uiMessage() const	{ return msg_; }
-uiString uiNrDoneText() const	{ return tr("Traces handled"); }
-od_int64 nrDone() const		{ return nrdone_; }
-od_int64 totalNr() const	{ return totalnr_; }
+uiString uiMessage() const override	{ return msg_; }
+uiString uiNrDoneText() const override	{ return tr("Traces handled"); }
+od_int64 nrDone() const override	{ return nrdone_; }
+od_int64 totalNr() const override	{ return totalnr_; }
 
 bool getNextPos3D()
 {
@@ -473,7 +473,7 @@ int getTrc2D()
     return MoreToDo();
 }
 
-int nextStep()
+int nextStep() override
 {
     const int res = dlg_.is2d_ ? getTrc2D() : getTrc3D();
     if ( res <= 0 )

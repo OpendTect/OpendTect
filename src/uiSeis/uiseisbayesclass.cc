@@ -174,7 +174,7 @@ void handleDisp( CallBacker* )
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     PtrMan<ProbDenFunc> pdf0 = 0;
     pars_.removeWithKeyPattern( mGetSeisBayesPDFIDKey("*") );
@@ -325,7 +325,7 @@ void updDisp( CallBacker* )
     }
 }
 
-bool rejectOK( CallBacker* cb )
+bool rejectOK( CallBacker* cb ) override
 {
     if ( nrpdfs_ < 1 ) return true;
     bool rv = uiVarWizardDlg::rejectOK( cb );
@@ -333,7 +333,7 @@ bool rejectOK( CallBacker* cb )
     return rv;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( nrpdfs_ < 1 ) return false;
     pars_.removeWithKeyPattern( mGetSeisBayesAPProbIDKey("*") );
@@ -444,14 +444,14 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     }
 }
 
-bool rejectOK( CallBacker* cb )
+bool rejectOK( CallBacker* cb ) override
 {
     bool rv = uiVarWizardDlg::rejectOK( cb );
     getFromScreen( true );
     return rv;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     pars_.removeWithKeyPattern( mGetSeisBayesSeisInpIDKey("*") );
     return getFromScreen( false );
@@ -567,14 +567,14 @@ void addOut( const char* nm, bool ispdf )
 }
 
 
-bool rejectOK( CallBacker* cb )
+bool rejectOK( CallBacker* cb ) override
 {
     bool rv = uiVarWizardDlg::rejectOK( cb );
     getFromScreen( true );
     return rv;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     pars_.removeWithKeyPattern( mGetSeisBayesSeisOutIDKey("*") );
     return getFromScreen( false );

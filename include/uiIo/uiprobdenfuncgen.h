@@ -46,7 +46,7 @@ protected:
     void		initDlg(CallBacker*);
     void		choiceSel(CallBacker*);
     void		nrDimsChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

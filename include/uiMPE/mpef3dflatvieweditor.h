@@ -37,10 +37,10 @@ public:
     void		setMouseEventHandler(MouseEventHandler*);
     void		updateActStkContainer();
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
     void		setPath(const TrcKeyPath&);
     void		setFlatPosData(const FlatPosData*);
-    void		drawFault();
+    void		drawFault() override;
     void		enableLine(bool);
     void		enableKnots(bool);
     void		setRandomLineID(RandomLineID rdlid);

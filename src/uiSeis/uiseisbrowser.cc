@@ -459,7 +459,7 @@ uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
 				     .setName("Crossline",1) );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     pos_ = posfld_->getBinID();
     if ( !SI().isReasonable(pos_) )
@@ -690,14 +690,15 @@ bool init()
     return true;
 }
 
-    od_int64		totalNr() const		{ return totalnr_; }
-    od_int64		nrDone() const          { return nrdone_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces done"); }
+    od_int64		totalNr() const override	{ return totalnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			    { return tr("Traces done"); }
 
 protected:
 
-int nextStep()
+int nextStep() override
 {
     if ( nrdone_ == 0 && !init() )
 	return ErrorOccurred();

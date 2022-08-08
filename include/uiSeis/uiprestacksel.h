@@ -37,7 +37,7 @@ protected:
     const TypeSet<DataPack::FullID>& dpfids_;
     MultiID		selid_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 

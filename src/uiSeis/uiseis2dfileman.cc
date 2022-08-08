@@ -356,7 +356,7 @@ void optSel( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     FixedString outnm = outfld_->text();
     if ( outnm.isEmpty() )

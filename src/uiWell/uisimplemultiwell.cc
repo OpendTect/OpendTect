@@ -210,7 +210,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )

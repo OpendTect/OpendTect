@@ -78,7 +78,7 @@ protected:
 
     void		setScaleFld(CallBacker*);
     void		goPush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     bool		getEvent();
     bool		getHorData(TaskRunner&);

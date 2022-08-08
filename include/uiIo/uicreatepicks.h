@@ -79,7 +79,7 @@ protected:
 
     bool		aspolygon_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     virtual void	addStdFields(uiObject* lastobj=0);
     bool		iszvalreq_;
     float		zval_;
@@ -103,7 +103,7 @@ protected:
     uiPosFilterSetSel*	posfiltfld_;
     DataPointSet*	dps_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		posProvChgCB(CallBacker*);
 };
 
@@ -131,7 +131,7 @@ protected:
 
     BufferStringSet	linenms_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		mkRandPars();
 
     void		geomSel(CallBacker*);

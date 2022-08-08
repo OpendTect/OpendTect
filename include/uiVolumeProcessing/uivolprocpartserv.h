@@ -28,7 +28,7 @@ public:
 			uiVolProcPartServer(uiApplService&);
 			~uiVolProcPartServer();
 
-    const char*		name() const			{ return "VolProc"; }
+    const char*		name() const override		{ return "VolProc"; }
 
     void		doVolProc(const MultiID*,const char* steptype=0,
 				  bool is2d=false);

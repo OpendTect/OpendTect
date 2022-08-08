@@ -57,7 +57,7 @@ public:
 			uiAttribPartServer(uiApplService&);
 			~uiAttribPartServer();
 
-    const char*		name() const			{ return "Attributes"; }
+    const char*		name() const override		{ return "Attributes"; }
 
     static int		evDirectShowAttr();
 			//!< User requested direct redisplay of curAttrDesc()

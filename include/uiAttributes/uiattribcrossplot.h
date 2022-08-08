@@ -65,7 +65,7 @@ protected:
     void				attrChecked(CallBacker*);
     void				attrChanged(CallBacker*);
 
-    bool				acceptOK(CallBacker*);
+    bool				acceptOK(CallBacker*) override;
 };
 
 

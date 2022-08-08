@@ -42,8 +42,8 @@ public:
 protected:
 
     virtual void	attribSel(CallBacker*)		=0;
-    virtual bool	prepareProcessing();
-    virtual bool	fillPar(IOPar&);
+    bool		prepareProcessing() override;
+    bool		fillPar(IOPar&) override;
     bool		addNLA(Attrib::DescID&);
     void		fillOutPar(IOPar&,const char* outtyp,
 				   const char* idlbl,const MultiID& outid);

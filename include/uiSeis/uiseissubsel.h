@@ -81,7 +81,7 @@ public:
 			uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
 			    : uiSeisSubSel(p,ss)		{}
 
-    void		setInput(const IOObj&);
+    void		setInput(const IOObj&) override;
 
 };
 
@@ -93,10 +93,10 @@ public:
 			uiSeis2DSubSel(uiParent*,const Seis::SelSetup&);
 			~uiSeis2DSubSel();
 
-    virtual void	clear();
-    bool		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-    void		setInput(const IOObj&);
+    void		clear() override;
+    bool		fillPar(IOPar&) const override;
+    void		usePar(const IOPar&) override;
+    void		setInput(const IOObj&) override;
     void		setInputLines(const TypeSet<Pos::GeomID>&);
 
     bool		isSingLine() const;
@@ -107,8 +107,8 @@ public:
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
 
-    int			expectedNrSamples() const;
-    int			expectedNrTraces() const;
+    int			expectedNrSamples() const override;
+    int			expectedNrTraces() const override;
 
     void		getSampling(TrcKeyZSampling&,Pos::GeomID) const;
     StepInterval<int>	getTrcRange(Pos::GeomID) const;

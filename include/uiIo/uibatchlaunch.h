@@ -31,8 +31,8 @@ public:
 		mToUiStringTodo(sFactoryKeyword()))
 
 			uiProcSettings(uiParent*,Settings&);
-    bool		acceptOK();
-    HelpKey		helpKey() const;
+    bool		acceptOK() override;
+    HelpKey		helpKey() const override;
 
 protected:
 
@@ -69,7 +69,7 @@ protected:
     void			launcherSel(CallBacker*);
     void			viewFile(CallBacker*);
     void			rmFile(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     bool			canRun() const;
     void			setButSens();

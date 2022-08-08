@@ -26,7 +26,7 @@ public:
 			~uiStratSimpleLayerModelDisp();
 
     bool		isPerModelDisplay() const override	{ return true; }
-    void		handleModelChange();
+    void		handleModelChange() override;
 
 protected:
 

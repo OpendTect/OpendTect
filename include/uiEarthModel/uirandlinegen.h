@@ -56,7 +56,7 @@ protected:
     void		largestOnlyChg(CallBacker*);
     void		isrelChg(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 public:
     static uiString	sSpecGenPar();
@@ -86,7 +86,7 @@ protected:
     uiGenInput*		sidefld_;
     uiCheckBox*		dispfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 
@@ -112,7 +112,7 @@ protected:
     uiSelZRange*	zrgfld_;
     uiCheckBox*		dispfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

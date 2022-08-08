@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    virtual BufferString	getSummary() const;
+    BufferString		getSummary() const override;
     void			butPushCB(CallBacker*);
 
     MultiID			hormid_;

@@ -128,7 +128,7 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 
 protected:
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     return apply();
 }
@@ -1101,7 +1101,7 @@ uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
 
 protected:
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     return anglegrp_->acceptOK();
 }

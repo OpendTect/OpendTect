@@ -217,7 +217,7 @@ public: \
     static void initClass(); \
     static void enableClass(bool yn); \
     static void removeClass(); \
-    virtual const char* attribName() const; \
+    const char* attribName() const override; \
     static int factoryID() { return factoryid_; }
 
 

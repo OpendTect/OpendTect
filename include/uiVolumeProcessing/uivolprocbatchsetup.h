@@ -56,7 +56,7 @@ protected:
 
     void		setupSelCB(CallBacker*);
     void		editPushCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 } // namespace VolProc
@@ -69,10 +69,10 @@ class VolMMProgDef : public MMProgDef
 {
 public:
 			VolMMProgDef() : MMProgDef( "od_SeisMMBatch" )	{}
-    virtual bool	isSuitedFor(const char*) const;
-    virtual bool	canHandle(const JobSpec&) const;
+    bool		isSuitedFor(const char*) const override;
+    bool		canHandle(const JobSpec&) const override;
     static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }
-    bool		canResume(const JobSpec&) const;
+    bool		canResume(const JobSpec&) const override;
 };
 
 class VolClusterProgDef : public ClusterProgDef
@@ -80,8 +80,8 @@ class VolClusterProgDef : public ClusterProgDef
 public:
 			VolClusterProgDef() {}
 
-    virtual bool	isSuitedFor(const char*) const;
-    virtual bool	canHandle(const JobSpec&) const;
+    bool		isSuitedFor(const char*) const override;
+    bool		canHandle(const JobSpec&) const override;
     static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }
 };
 

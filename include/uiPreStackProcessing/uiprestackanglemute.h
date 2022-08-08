@@ -71,7 +71,7 @@ public:
 
 protected :
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		createAngleCompFields();
     bool		isSmoothTypeMovingAverage();
     bool		isSmoothTypeFFTFilter();
@@ -109,7 +109,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     static uiDialog*	create(uiParent*,Processor*);
 
     void		createPushedCB(CallBacker*);

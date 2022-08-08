@@ -489,7 +489,7 @@ float getTD() const
 
 #define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     track_.setEmpty();
     const BufferString fnm = wtinfld_->fileName();
@@ -1467,7 +1467,7 @@ uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !d2tgrp->getD2T(wd_,cksh_) )
     {

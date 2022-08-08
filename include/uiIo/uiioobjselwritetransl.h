@@ -64,8 +64,8 @@ public:
 //! For subclasses of uiIOObjTranslatorWriteOpts
 
 #define mDecluiIOObjTranslatorWriteOptsStdFns(clssnm) \
-    virtual void	use(const IOPar&); \
-    virtual bool	fill(IOPar&) const; \
+    void		use(const IOPar&) override; \
+    bool		fill(IOPar&) const override; \
  \
     static uiIOObjTranslatorWriteOpts* create( uiParent* p ) \
 			{ return new clssnm(p); } \

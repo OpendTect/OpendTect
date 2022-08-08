@@ -80,8 +80,8 @@ protected:
 
     void			dataChangedCB(CallBacker*)
 				{ dataChanged(); }
-    void			gatherInfo();
-    void			draw();
+    void			gatherInfo() override;
+    void			draw() override;
 };
 
 

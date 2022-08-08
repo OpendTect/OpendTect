@@ -98,8 +98,8 @@ public:
 
 protected:
 
-    virtual void	doPutToScreen();
-    virtual void	doGetFromScreen();
+    void		doPutToScreen() override;
+    void		doGetFromScreen() override;
 
     uiCheckBox*		dispabovefld_;
     uiCheckBox*		dispbelowfld_;
@@ -132,8 +132,8 @@ public:
 
 protected:
 
-    virtual void	doPutToScreen();
-    virtual void	doGetFromScreen();
+    void		doPutToScreen() override;
+    void		doGetFromScreen() override;
     void		markerFldsChged(CallBacker*);
     void		setMarkerNmColSel(CallBacker*);
     void		getSelNames();
@@ -176,8 +176,8 @@ public:
 
 protected:
 
-    void		doPutToScreen();
-    void		doGetFromScreen();
+    void		doPutToScreen() override;
+    void		doGetFromScreen() override;
     void		isFilledSel(CallBacker*);
     void		setSeismicSel();
     void		setTubeSel();

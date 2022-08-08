@@ -74,9 +74,9 @@ protected:
 
     void			setWellToolButtonProperties();
     void			setLogToolButtonProperties();
-    void			ownSelChg();
+    void			ownSelChg() override;
     void			getCurrentWells();
-    void			mkFileInfo();
+    void			mkFileInfo() override;
     void			writeLogs();
     void			writeLog(const MultiID&,
 					 Well::Data&,const Well::Log&);

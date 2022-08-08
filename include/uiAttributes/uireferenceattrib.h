@@ -30,13 +30,13 @@ protected:
     uiGenInput*		outpfld3d_	= nullptr;
     uiGenInput*		outpfld2d_	= nullptr;
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
+    bool		setOutput(const Attrib::Desc&) override;
 
-    bool		getOutput(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
-    bool		getParameters(Attrib::Desc&);
+    bool		getOutput(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
+    bool		getParameters(Attrib::Desc&) override;
 
 			mDeclReqAttribUIFns
 };

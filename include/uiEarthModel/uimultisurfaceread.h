@@ -51,7 +51,7 @@ public:
 protected:
 
     void		statusMsg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiMultiSurfaceRead*	surfacefld_;
 };

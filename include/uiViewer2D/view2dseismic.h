@@ -20,11 +20,11 @@ public:
 			VW2DSeis();
 			~VW2DSeis(){}
 
-    NotifierAccess*	deSelection()	{ return &deselted_; }
+    NotifierAccess*	deSelection() override	{ return &deselted_; }
 
 protected:
 
-    void		triggerDeSel();
+    void		triggerDeSel() override;
 
     Notifier<VW2DSeis>	deselted_;
 };

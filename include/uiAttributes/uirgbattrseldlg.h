@@ -29,7 +29,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiAttrSel*		rfld_;
     uiAttrSel*		gfld_;

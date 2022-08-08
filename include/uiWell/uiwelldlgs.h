@@ -92,8 +92,8 @@ protected:
     void		updNow(CallBacker*);
     bool		updNow();
     void		readNew(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
     void		exportCB(CallBacker*);
     void		updateXpos(CallBacker*);
     void		updateYpos(CallBacker*);
@@ -145,8 +145,8 @@ protected:
     bool		updateDtpointTime(int row);
     bool		updateDtpoint(int row,float oldval);
     void		readNew(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
     void		expData(CallBacker*);
     void		getModel(Well::D2TModel&);
     void		correctD2TModelIfInvalid();
@@ -186,7 +186,7 @@ protected:
     BufferString	wellname_;
     BufferStringSet*	nms_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     const BufferStringSet& mkWellNms();
 };
 
@@ -210,7 +210,7 @@ protected:
     uiTable*					uominfotbl_;
 
     void		initDlg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     void		fillTable(const BufferStringSet& wellnms);
     bool		setUoMValues();
@@ -236,7 +236,7 @@ protected:
     uiTable*					mneminfotbl_;
 
     void		initDlg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     void		fillTable(const BufferStringSet&);
     bool		setMnemonics();
@@ -258,8 +258,8 @@ protected:
 
     void	displayTable(int currwellidx);
 
-    bool	acceptOK(CallBacker*);
-    bool	rejectOK(CallBacker*);
+    bool	acceptOK(CallBacker*) override;
+    bool	rejectOK(CallBacker*) override;
     void	initDlg(CallBacker*);
     void	wellChangedCB(CallBacker*);
     void	changeModeCB(CallBacker*);
@@ -335,7 +335,7 @@ public:
 protected:
 
     void		inpSelCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiWellSel*		inpwellfld_;
     uiGenInput*		replvelfld_;
@@ -359,7 +359,7 @@ public:
 protected:
 
     void		inpSelCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiWellSel*		infld_;
     uiWellSel*		outfld_;

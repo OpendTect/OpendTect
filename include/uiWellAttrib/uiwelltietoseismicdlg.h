@@ -55,8 +55,8 @@ public:
 
     const WellTie::Setup&	welltieSetup() const;
 
-    void			fillPar(IOPar&) const;
-    void			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    void			usePar(const IOPar&) override;
 
     static const char*		sKeyWinPar()	{ return "Well Tie Window"; }
 

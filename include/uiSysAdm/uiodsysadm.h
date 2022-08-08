@@ -71,7 +71,7 @@ protected:
 
     TaskEntry*		getCurTaskEntry();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		setInitial(CallBacker*);
     void		grpChg(CallBacker*);
     void		taskChg(CallBacker*);

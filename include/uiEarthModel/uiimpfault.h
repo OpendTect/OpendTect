@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          May 2002
+ Author:	Nanne Hemstra
+ Date:		May 2002
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ protected:
     bool		checkInpFlds();
     bool		handleAscii();
     bool		handleLMKAscii();
-    virtual bool	acceptOK(CallBacker*) { return false; }
+    bool		acceptOK(CallBacker*) override { return false; }
     virtual bool	getFromAscIO(od_istream&,EM::Fault&);
     EM::Fault*		createFault() const;
 
@@ -64,9 +64,9 @@ protected:
     static const char*	sKeyAutoStickSel();
     static const char*	sKeyInlCrlSep();
     static const char*	sKeySlopeThres();
-    static const char*  sKeyGeometric();
-    static const char*  sKeyIndexed();
-    static const char*  sKeyFileOrder();
+    static const char*	sKeyGeometric();
+    static const char*	sKeyIndexed();
+    static const char*	sKeyFileOrder();
 };
 
 
@@ -74,9 +74,9 @@ protected:
 mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
 {
 public:
-    			uiImportFault3D(uiParent*,const char* type);
+			uiImportFault3D(uiParent*,const char* type);
 protected:
-    bool		acceptOK(CallBacker*);			
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -85,12 +85,12 @@ protected:
 mExpClass(uiEarthModel) uiImportFaultStickSet2D : public uiImportFault
 {
 public:
-    			uiImportFaultStickSet2D(uiParent*,const char* type);
+			uiImportFaultStickSet2D(uiParent*,const char* type);
 
 protected:
 
-    bool		acceptOK(CallBacker*);
-    bool		getFromAscIO(od_istream&,EM::Fault&);
+    bool		acceptOK(CallBacker*) override;
+    bool		getFromAscIO(od_istream&,EM::Fault&) override;
 
 };
 

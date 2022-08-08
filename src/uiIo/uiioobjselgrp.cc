@@ -273,34 +273,34 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
 }
 
 
-MultiID currentID() const
+MultiID currentID() const override
 {
     return selgrp_->currentID();
 }
 
 
-void getChosenIDs( TypeSet<MultiID>& mids ) const
+void getChosenIDs( TypeSet<MultiID>& mids ) const override
 {
     selgrp_->getChosen( mids );
 }
 
 
-void getChosenNames( BufferStringSet& nms ) const
+void getChosenNames( BufferStringSet& nms ) const override
 {
     selgrp_->getChosen( nms );
 }
 
-const char* defExt() const
+const char* defExt() const override
 {
     return selgrp_->ctio_.ctxt_.trgroup_->defExtension();
 }
 
-const BufferStringSet names() const
+const BufferStringSet names() const override
 {
     return selgrp_->dataset_.getIOObjNms();
 }
 
-void chgsOccurred()
+void chgsOccurred() override
 {
     selgrp_->fullUpdate( selgrp_->listfld_->currentItem() );
 }
@@ -311,7 +311,7 @@ void selChg( CallBacker* )
 	manipgrp_->selChg();
 }
 
-void relocStart( const char* msg )
+void relocStart( const char* msg ) override
 {
     selgrp_->triggerStatusMsg( msg );
 }

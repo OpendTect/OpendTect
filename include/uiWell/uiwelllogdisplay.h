@@ -37,7 +37,7 @@ public:
 	void		setLog(const Well::Log*);
 	const Well::Log* log() const;
 
-	void		getInfoForDah(float,BufferString&) const;
+	void		getInfoForDah(float,BufferString&) const override;
 
 	Well::DisplayProperties::Log disp_;
 
@@ -67,10 +67,10 @@ protected:
 
     Setup		setup_;
 
-    void		gatherDataInfo(bool);
-    void		draw();
+    void		gatherDataInfo(bool) override;
+    void		draw() override;
 
-    void		drawCurve(bool);
+    void		drawCurve(bool) override;
     void		drawSeismicCurve(bool);
     void		drawFilledCurve(bool);
 

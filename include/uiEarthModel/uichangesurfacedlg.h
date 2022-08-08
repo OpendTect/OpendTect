@@ -42,7 +42,7 @@ protected:
     EM::Horizon*		horizon_;
     bool			is2d_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     bool			readHorizon();
     bool			doProcessing();
     bool			doProcessing2D();
@@ -71,10 +71,10 @@ protected:
     uiGenInput*			medianfld_;
     uiStepOutSel*		stepoutfld_;
 
-    Executor*			getWorker(Array2D<float>&,
-	    				  const StepInterval<int>&,
-					  const StepInterval<int>&);
-    virtual const char*		undoText() const { return "filtering"; }
+    Executor*		getWorker(Array2D<float>&,
+				  const StepInterval<int>&,
+				  const StepInterval<int>&) override;
+    const char*		undoText() const override { return "filtering"; }
 
 };
 

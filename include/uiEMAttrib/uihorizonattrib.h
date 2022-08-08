@@ -41,10 +41,10 @@ protected:
     BufferStringSet	surfdatanms_;
     int			nrouttypes_;
 
-    virtual bool	setParameters(const Attrib::Desc&);
-    virtual bool	setInput(const Attrib::Desc&);
-    virtual bool	getParameters(Attrib::Desc&);
-    virtual bool	getInput(Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
 
     void		horSel(CallBacker*);
     void		typeSel(CallBacker*);

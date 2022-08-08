@@ -38,7 +38,7 @@ public:
 			uiNLAPartServer(uiApplService&);
     virtual		~uiNLAPartServer();
 
-    const char*		name() const			= 0;
+    const char*		name() const override			= 0;
     virtual MultiID	modelId() const			= 0;
     virtual void	reset()				= 0;
     virtual bool	isClassification() const	= 0;

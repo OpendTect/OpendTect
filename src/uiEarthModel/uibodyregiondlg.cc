@@ -81,11 +81,17 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 }
 
 
-~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
-od_int64 nrIterations() const   { return tkzs_.nrInl()*tkzs_.nrCrl(); }
-uiString uiMessage() const	{ return tr("Extracting body from horizons"); }
+~BodyExtractorFromHorizons()		{ deepUnRef( hors_ ); }
+od_int64 nrIterations() const override	{ return tkzs_.nrInl()*tkzs_.nrCrl(); }
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+
+uiString uiMessage() const override
+{
+    return tr("Extracting body from horizons");
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
     const int crlsz = tkzs_.nrCrl();
     if ( !crlsz ) return true;
@@ -234,10 +240,16 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     deepUnRef( flts_ );
 }
 
-od_int64 nrIterations() const	{ return tkzs_.nrZ(); }
-uiString uiMessage() const	{ return tr("Extracting implicit body"); }
+od_int64 nrIterations() const override	{ return tkzs_.nrZ(); }
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+
+uiString uiMessage() const override
+{
+    return tr("Extracting implicit body");
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
     const int lastinlidx = tkzs_.nrInl()-1;
     const int lastcrlidx = tkzs_.nrCrl()-1;

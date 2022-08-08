@@ -54,7 +54,7 @@ protected:
     uiGenInput*		srfld_;
     uiGenInput*		peakamplfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -70,7 +70,7 @@ public:
 	StepInterval<float> samppos_;
 	int 		size_;
 	const float*    samples_;
-	float 		getValue(float) const;
+	float		getValue(float) const override;
 	float 		getIntValue(float) const;
 	virtual float 	getValue( const float* p ) const
 	    		{ return getValue(*p); }
@@ -104,7 +104,7 @@ protected:
     void 		reloadWvlts();
     void 		reloadFunctions();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void 		centerChged(CallBacker*);
     void		funcSelChg(CallBacker*);
     void 		reloadAll(CallBacker*);

@@ -99,6 +99,6 @@ protected:
     void		vwLog(CallBacker*);
     void		viewOutputCB(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 

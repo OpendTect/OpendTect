@@ -39,7 +39,7 @@ public:
 				uiPickPartServer(uiApplService&);
 				~uiPickPartServer();
 
-    const char*			name() const		{ return "Picks"; }
+    const char*			name() const override	{ return "Picks"; }
 
 				// Services
     void			managePickSets();

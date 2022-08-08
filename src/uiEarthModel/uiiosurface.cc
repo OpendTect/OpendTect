@@ -864,7 +864,7 @@ public:
 	}
     }
 
-    bool acceptOK( CallBacker* )
+    bool acceptOK( CallBacker* ) override
     {
 	for ( int idx=0; idx<fltpar_.optids_.size(); idx++ )
 	{

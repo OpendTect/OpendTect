@@ -1393,7 +1393,7 @@ const char* fileName() const
 { return dotfld_->fileName(); }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const BufferString fnm = fileName();
     if ( File::exists(fnm) && File::isExecutable(fnm) )

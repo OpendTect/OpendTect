@@ -138,7 +138,7 @@ void updateFlds( CallBacker* )
 }
 
 
-bool acceptOK()
+bool acceptOK() override
 {
     for ( int idx=0; idx<3; idx++ )
     {
@@ -253,7 +253,7 @@ void updateFields()
 }
 
 
-bool acceptOK()
+bool acceptOK() override
 {
     uiDataPointSetCrossPlotter::Setup& ps = plotter_.setup();
     if ( y1_ )
@@ -721,7 +721,7 @@ void setFlds( CallBacker* )
 }
 
 
-bool acceptOK()
+bool acceptOK() override
 {
     plotter_.userdefy1str_ = inpfld_->text();
     drawlinebut_->setOn( false );
@@ -833,7 +833,7 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     }
 }
 
-bool acceptOK()
+bool acceptOK() override
 {
     if ( sizefld_->getIntValue() <= 0 )
     {
@@ -937,7 +937,7 @@ void nrYBinsChgd( CallBacker* )
 }
 
 
-bool acceptOK()
+bool acceptOK() override
 {
     const OD::Pair<int,int> nrbins( nrbinsxfld_->getIntValue(),
 				    nrbinsyfld_->getIntValue() );

@@ -37,7 +37,7 @@ protected:
     uiBuildPROPS*	buildfld_;
     uiGenInput*		srcfld_;
 
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
 
 };
 
@@ -62,7 +62,7 @@ public:
 					    const char* lbltxt=nullptr);
 
     bool		structureChanged() const	{ return structchg_; }
-    bool		acceptOK();
+    bool		acceptOK() override;
 
 protected:
 
@@ -89,7 +89,7 @@ public:
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 
@@ -101,6 +101,6 @@ public:
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 

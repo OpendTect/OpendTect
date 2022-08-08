@@ -58,7 +58,7 @@ public:
 			uiEMPartServer(uiApplService&);
 			~uiEMPartServer();
 
-    const char*		name() const			{ return "EarthModel"; }
+    const char*		name() const override		{ return "EarthModel"; }
 
 			// Services
     bool		import3DHorGeom(bool bulk=false);

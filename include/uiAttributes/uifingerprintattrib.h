@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        H. Payraudeau
- Date:          February 2006
+ Author:	H. Payraudeau
+ Date:		February 2006
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,8 @@ public:
 
 protected:
 
-    uiTable*            table_;
-    uiButtonGroup*      refgrp_;
+    uiTable*		table_;
+    uiButtonGroup*	refgrp_;
     uiRadioButton*	refposbut_;
     uiRadioButton*	picksetbut_;
     uiToolButton*	getposbut_;
@@ -59,32 +59,32 @@ protected:
     ObjectSet<uiAttrSel> attribflds_;
 
     uiFPAdvancedDlg*	advanceddlg_;
-    calcFingParsObject*	calcobj_;
+    calcFingParsObject* calcobj_;
 
     void		insertRowCB(CallBacker*);
     void		deleteRowCB(CallBacker*);
     void		initTable(int);
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
 
     BinIDValueSet*	createValuesBinIDSet(uiString&) const;
     BinID		get2DRefPos() const;
 
     PickRetriever*	pickretriever_;
-    void                getPosPush(CallBacker*);
+    void		getPosPush(CallBacker*);
     void		pickRetrieved(CallBacker*);
 
-    void                calcPush(CallBacker*);
-    void                getAdvancedPush(CallBacker*);
+    void		calcPush(CallBacker*);
+    void		getAdvancedPush(CallBacker*);
     void		refSel(CallBacker*);
 
-    virtual bool	areUIParsOK();
+    bool		areUIParsOK() override;
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 

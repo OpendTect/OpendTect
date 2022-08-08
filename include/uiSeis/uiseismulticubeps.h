@@ -56,6 +56,6 @@ protected:
     void		selChg(CallBacker*);
     void		addCube(CallBacker*);
     void		rmCube(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 

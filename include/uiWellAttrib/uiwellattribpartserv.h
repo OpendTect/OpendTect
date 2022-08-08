@@ -40,7 +40,7 @@ public:
     void			setNLAModel(const NLAModel*);
     const NLAModel*		getNLAModel()		{ return nlamodel_;}
 
-    const char*			name() const		{ return "Wells"; }
+    const char*			name() const override	{ return "Wells"; }
 
     				// Services
     bool			createAttribLog(const MultiID&);

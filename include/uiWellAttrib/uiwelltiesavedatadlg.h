@@ -47,7 +47,7 @@ protected :
     uiIOObjSel*			estimatedwvltsel_;
     Server&			dataserver_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     bool			saveLogs();
     bool			saveWvlt(bool isestimated=true);
     void			changeLogUIOutput(CallBacker*);

@@ -36,7 +36,7 @@ public:
     void			setCurrentAttribDescSet(const Attrib::DescSet*);
     const Attrib::DescSet* 	getCurAttrDescSet(bool is2d) const;
 
-    const char*			name() const		{ return "MPE";}
+    const char*			name() const override		{ return "MPE";}
 
     int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;

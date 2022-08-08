@@ -25,10 +25,10 @@ public:
 			uiWellT2DTransform(uiParent*);
 			~uiWellT2DTransform();
 
-    ZAxisTransform*	getSelection();
-    bool		canBeField() const	{ return true; }
+    ZAxisTransform*	getSelection() override;
+    bool		canBeField() const override	{ return true; }
 
-    bool		acceptOK();
+    bool		acceptOK() override;
 
     static void 	initClass();
 

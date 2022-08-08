@@ -126,10 +126,10 @@ protected:
     uiCheckBox*		zistimefld_;
     uiGenInput*		sampfld_;
 
-    virtual void	updateDisplayFlds();
-    virtual void	putToScreen();
-    virtual void	getFromScreen(CallBacker*);
-    virtual void	onFinalize(CallBacker*);
+    void	updateDisplayFlds() override;
+    void	putToScreen() override;
+    void	getFromScreen(CallBacker*) override;
+    void	onFinalize(CallBacker*) override;
 };
 
 

@@ -57,7 +57,7 @@ protected:
     void			attribChangeCB(CallBacker*);
     void			calcAttrib(CallBacker*);
     void			shiftCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     uiAttrSel*			attrinpfld_		= nullptr;
     uiGenInput*			rangeinpfld_;

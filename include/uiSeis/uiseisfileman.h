@@ -59,9 +59,9 @@ protected:
     void		showSEGYHeader(CallBacker*);
     void		extrFrom3D(CallBacker*);
 
-    virtual void	mkFileInfo();
-    virtual void	ownSelChg();
-    od_int64		getFileSize(const char*,int&) const;
+    void		mkFileInfo() override;
+    void		ownSelChg() override;
+    od_int64		getFileSize(const char*,int&) const override;
     void		setToolButtonProperties();
     const BrowserDef*	getBrowserDef() const;
 

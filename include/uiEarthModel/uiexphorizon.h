@@ -50,7 +50,7 @@ protected:
     BufferString	gfname_;
     BufferString	gfcomment_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		typChg(CallBacker*);
     void		addZChg(CallBacker*);
     void		attrSel(CallBacker*);

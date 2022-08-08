@@ -63,7 +63,7 @@ protected:
 					TypeSet<TypeSet<Attrib::DescID> >&,
 					TypeSet<TypeSet<int> >&);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     Attrib::Desc*		seldesc_;
     Attrib::DescID		srcid_;

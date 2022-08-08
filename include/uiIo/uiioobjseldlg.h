@@ -64,9 +64,9 @@ public:
 						{ selgrp_->getChosen( nms ); }
     void		chooseAll( bool yn=true ) { selgrp_->chooseAll( yn ); }
 
-    const IOObj*	ioObj() const;
+    const IOObj*	ioObj() const override;
 
-    uiIOObjSelGrp*	selGrp()		{ return selgrp_; }
+    uiIOObjSelGrp*	selGrp() override		{ return selgrp_; }
     bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
 
@@ -75,7 +75,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*)
+    bool		acceptOK(CallBacker*) override
 			{ return selgrp_->updateCtxtIOObj(); }
     void		statusMsgCB(CallBacker*);
 

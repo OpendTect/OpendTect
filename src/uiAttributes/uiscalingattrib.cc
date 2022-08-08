@@ -471,7 +471,7 @@ void createSelFields( DataType type )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !nrtrcfld_->dataInpSpec()->isInsideLimits() )
     {

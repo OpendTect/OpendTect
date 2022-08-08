@@ -44,7 +44,7 @@ public:
 			uiSeisPartServer(uiApplService&);
 			~uiSeisPartServer();
 
-    const char*		name() const			{ return "Seismics"; }
+    const char*		name() const override		{ return "Seismics"; }
 
     bool		importSeis(int opt);
     bool		exportSeis(int opt);

@@ -35,7 +35,7 @@ protected:
 
     void		rockPhysReq(CallBacker*);
     void		inpSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

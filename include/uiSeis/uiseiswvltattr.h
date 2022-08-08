@@ -54,7 +54,7 @@ public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
 protected:
 
-    void			act(CallBacker*);
+    void			act(CallBacker*) override;
 };
 
 
@@ -83,7 +83,7 @@ protected:
     void			setFreqData();
     void			setTimeData();
 
-    void			act(CallBacker*);
+    void			act(CallBacker*) override;
     void			typeChoice(CallBacker*);
 };
 

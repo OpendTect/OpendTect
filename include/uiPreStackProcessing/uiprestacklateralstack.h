@@ -28,7 +28,7 @@ public:
 			uiLateralStack(uiParent*,LateralStack*);
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     static uiDialog*	create(uiParent*,Processor*);
 
     LateralStack*	processor_;

@@ -560,7 +560,7 @@ uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     for ( int idx=0; idx<form_.maxRecShift(); idx++ )
     {

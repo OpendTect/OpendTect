@@ -33,7 +33,7 @@ protected:
     uiCreateLogCubeOutputSel*	outputgrp_;
 
     MultiID			key_;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 

@@ -40,7 +40,7 @@ protected:
     uiIOObjSel*		wvltfld_;
 
     void		inputChgd(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -57,7 +57,7 @@ protected:
     uiGenInput*		addzfld_;
 
     void		inputChgd(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -76,6 +76,6 @@ protected:
     uiGenInput*		scalefld_;
 
     void		inputChgd(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 

@@ -238,7 +238,7 @@ protected :
     uiFreqTaperDlg*	freqtaperdlg_;
     FreqTaperSetup	freqsetup_;
 
-    void		winfuncseldlgCB(CallBacker*);
+    void		winfuncseldlgCB(CallBacker*) override;
     void		windowClosed(CallBacker*);
     void		setSelFreqs(CallBacker*);
 };

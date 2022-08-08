@@ -30,10 +30,10 @@ public:
 					 Table::FormatDesc& fd);
 			~Horizon2DScanner();
 
-    virtual uiString	uiMessage() const;
-    virtual od_int64	totalNr() const;
-    virtual od_int64	nrDone() const;
-    virtual uiString	uiNrDoneText() const;
+    uiString		uiMessage() const override;
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
 
     bool		getLineNames(BufferStringSet&) const;
     BinIDValueSet*	getVals()			{ return bvalset_; }
@@ -46,7 +46,7 @@ public:
     bool		hasGaps();
 
 protected:
-    virtual int		nextStep();
+    int			nextStep() override;
 
     void		init();
 

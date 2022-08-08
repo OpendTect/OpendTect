@@ -48,37 +48,39 @@ public:
 				uiHorizonSetupGroup(uiParent*,const char*);
 				~uiHorizonSetupGroup();
 
-    void			setSectionTracker(SectionTracker*);
+    void			setSectionTracker(SectionTracker*) override;
 
-    void			setMode(EMSeedPicker::TrackMode);
-    EMSeedPicker::TrackMode	getMode() const;
-    void			setTrackingMethod(EventTracker::CompareMethod);
-    EventTracker::CompareMethod	getTrackingMethod() const;
-    void			setSeedPos(const TrcKeyValue&);
-    void			setColor(const OD::Color&);
+    void			setMode(EMSeedPicker::TrackMode) override;
+    EMSeedPicker::TrackMode	getMode() const override;
+    void			setTrackingMethod(
+					EventTracker::CompareMethod) override;
+    EventTracker::CompareMethod getTrackingMethod() const override;
+    void			setSeedPos(const TrcKeyValue&) override;
+    void			setColor(const OD::Color&) override;
     const OD::Color&		getColor() override;
-    int				getLineWidth() const;
-    void			setLineWidth(int);
-    void			setMarkerStyle(const MarkerStyle3D&);
-    const MarkerStyle3D&	getMarkerStyle();
+    int				getLineWidth() const override;
+    void			setLineWidth(int) override;
+    void			setMarkerStyle(const MarkerStyle3D&) override;
+    const MarkerStyle3D&	getMarkerStyle() override;
 
-    NotifierAccess*		modeChangeNotifier()
+    NotifierAccess*		modeChangeNotifier() override
 				{ return &modeChanged_; }
-    NotifierAccess*		propertyChangeNotifier()
+    NotifierAccess*		propertyChangeNotifier() override
 				{ return &propertyChanged_; }
-    NotifierAccess*		eventChangeNotifier();
-    NotifierAccess*		correlationChangeNotifier();
+    NotifierAccess*		eventChangeNotifier() override;
+    NotifierAccess*		correlationChangeNotifier() override;
     NotifierAccess*		varianceChangeNotifier()
 				{ return &varianceChanged_; }
 
-    virtual bool		commitToTracker() const
+    bool			commitToTracker() const override
 				{ bool b; return commitToTracker(b); }
-    bool			commitToTracker(bool& fieldchange) const;
+    bool			commitToTracker(
+					bool& fieldchange) const override;
 
     void			enableTracking(bool);
-    void			showGroupOnTop(const char* grpnm);
+    void			showGroupOnTop(const char* grpnm) override;
 
-    virtual void		setMPEPartServer(uiMPEPartServer*);
+    void			setMPEPartServer(uiMPEPartServer*) override;
 
 protected:
 

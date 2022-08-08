@@ -32,7 +32,7 @@ public:
 
     const char*		getType() const			{ return "SurveyBox"; }
 
-    void		update();
+    void		update() override;
     void		setSurveyInfo(const SurveyInfo*);
 
     void		showLabels(bool yn);
@@ -65,7 +65,7 @@ public:
 
     const char*		getType() const			{ return "NorthArrow"; }
 
-    void		update();
+    void		update() override;
     void		setSurveyInfo(const SurveyInfo*);
     void		setPixelPos(int x,int y);
 
@@ -100,6 +100,6 @@ protected:
 
     const SurveyInfo*	survinfo_;
 
-    virtual void	reDraw(bool deep=true);
+    void		reDraw(bool deep=true) override;
 };
 

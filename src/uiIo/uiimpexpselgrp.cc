@@ -513,7 +513,7 @@ uiSGSelDlg( uiParent* p, bool forread )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     bool ret = true;
     if ( forread_ )

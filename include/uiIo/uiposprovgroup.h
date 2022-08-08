@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2008
+ Author:	Bert
+ Date:		Feb 2008
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 			    , withrandom_(false)
 			 { if ( is_2d ) tkzs_.set2DDef(); }
 
-	virtual	~Setup()				{}
+	virtual ~Setup()				{}
 	Setup& cs(TrcKeyZSampling d) { tkzs_ = d; return *this; }
 	//!<For legacy compliance
 	mDefSetupMemb(bool,withstep)
@@ -50,7 +50,12 @@ public:
     virtual bool	hasRandomSampling() const	{ return false; }
     Notifier<uiPosProvGroup>	posProvGroupChg;
 
-    mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,const Setup&,factory)
+    static::Factory2Param<uiPosProvGroup,uiParent*,const Setup&>& factory();
+
+    uiString		factoryDisplayName() const override
+			{ return ::toUiString( factoryKeyword() ); }
+
+    const char*		factoryKeyword() const override { return nullptr; }
 
 };
 

@@ -838,7 +838,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     propgrp->attach( centeredRightOf, unfld_ );
 }
 
-bool rejectOK( CallBacker* )
+bool rejectOK( CallBacker* ) override
 {
     if ( inpun_ != edun_ )
 	delete edun_;
@@ -846,7 +846,7 @@ bool rejectOK( CallBacker* )
     return true;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     for ( int idx=0; idx<workprops_.size(); idx++ )
     {

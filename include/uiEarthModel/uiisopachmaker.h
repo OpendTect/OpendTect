@@ -61,7 +61,7 @@ public:
 protected:
     bool		prepareProcessing();
     bool		fillPar();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiIsochronMakerGrp*		grp_;
     uiBatchJobDispatcherSel*	batchfld_;
@@ -80,7 +80,7 @@ public:
     const DataPointSet&	getDPS()		{ return *dps_; }
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		doWork();
 
     uiIsochronMakerGrp* grp_;

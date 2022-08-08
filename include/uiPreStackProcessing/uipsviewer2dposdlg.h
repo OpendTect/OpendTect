@@ -59,13 +59,14 @@ public:
 						    bool issynthetic=false);
 
     const TrcKeyZSampling&		cubeSampling();
-    void			setTrcKeyZSampling(const TrcKeyZSampling&);
-    void			setStep(int);
-    int				step() const;
 
-    void			enableZDisplay(bool);
-    void			getSelGatherInfos(TypeSet<GatherInfo>&);
-    void			setSelGatherInfos(const TypeSet<GatherInfo>&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
+    void		setStep(int);
+    int			step() const;
+
+    void		enableZDisplay(bool);
+    void		getSelGatherInfos(TypeSet<GatherInfo>&);
+    void		setSelGatherInfos(const TypeSet<GatherInfo>&);
 
 protected:
     uiLabeledSpinBox* 		stepfld_;
@@ -112,7 +113,7 @@ protected:
 
     uiGatherPosSliceSel*	sliceselfld_;
     bool			is2d_;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 
@@ -131,7 +132,7 @@ protected:
     BufferStringSet&		selgathers_;
 
     void 			selButPush(CallBacker*);
-    bool 			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 }; //namespace

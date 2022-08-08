@@ -41,10 +41,10 @@ class SectionTracker;
 mExpClass(uiMPE) uiTrackSettingsValidator : public TrackSettingsValidator
 { mODTextTranslationClass(uiTrackSettingsValidator)
 public:
-    bool	checkInVolumeTrackMode() const;
-    bool	checkActiveTracker() const;
-    bool	checkStoredData(Attrib::SelSpec&,MultiID&) const;
-    bool	checkPreloadedData(const MultiID&) const;
+    bool	checkInVolumeTrackMode() const override;
+    bool	checkActiveTracker() const override;
+    bool	checkStoredData(Attrib::SelSpec&,MultiID&) const override;
+    bool	checkPreloadedData(const MultiID&) const override;
 };
 
 /*! Interface to track-setup groups. Implementations can be retrieved through

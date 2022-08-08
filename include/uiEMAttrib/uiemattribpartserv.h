@@ -44,7 +44,7 @@ public:
 				uiEMAttribPartServer(uiApplService&);
 				~uiEMAttribPartServer();
 
-    const char*			name() const		{ return "EMAttribs"; }
+    const char*			name() const override	{ return "EMAttribs"; }
 
     static int			evCalcShiftAttribute()		{ return 0; }
     static int			evHorizonShift()		{ return 1; }

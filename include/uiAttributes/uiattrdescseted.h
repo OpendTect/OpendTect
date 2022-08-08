@@ -163,8 +163,8 @@ protected:
     void			removeNotUsedAttr();
     //bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
 
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
 
     void			newList(int);
     void			updateFields(bool settype=true);

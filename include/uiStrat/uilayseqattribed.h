@@ -75,7 +75,7 @@ protected:
     void		slSel(CallBacker*);
     void		transfSel(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

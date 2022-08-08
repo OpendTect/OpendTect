@@ -50,7 +50,7 @@ uiImpTimeDepthTable( uiParent* p, SimpleTimeDepthModel& mdl )
 
 protected:
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const BufferString fnm( filefld_->fileName() );
     if ( fnm.isEmpty() || !fmtfld_->commit() )
@@ -239,7 +239,7 @@ void timeTypeChngCB( CallBacker* )
 
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     TypeSet<float> times;
     TypeSet<float> depths;

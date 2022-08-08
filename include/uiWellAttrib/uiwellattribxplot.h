@@ -38,7 +38,7 @@ protected:
     uiWellLogExtractGrp*		wellextractgrp_;
     DataPointSetDisplayMgr* 		dpsdispmgr_;
 
-    bool				acceptOK(CallBacker*);
+    bool				acceptOK(CallBacker*) override;
 };
 
 

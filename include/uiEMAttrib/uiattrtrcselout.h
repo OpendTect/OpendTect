@@ -41,10 +41,10 @@ public:
 
 protected:
 
-    bool		prepareProcessing();
-    bool		fillPar(IOPar&);
+    bool		prepareProcessing() override;
+    bool		fillPar(IOPar&) override;
     void		objSel(CallBacker*);
-    void		attribSel(CallBacker*);
+    void		attribSel(CallBacker*) override;
     void		interpSel(CallBacker*);
     void		extraWidthSel(CallBacker*);
     void		cubeBoundsSel(CallBacker*);
@@ -67,7 +67,7 @@ protected:
     void		createMainHorFld(uiParent*);
     void		createCubeBoundsFlds(uiParent*);
     void		createOutputFld(uiParent*);
-    void		getJobName(BufferString&) const;
+    void		getJobName(BufferString&) const override;
 
     uiString		createAddWidthLabel();
 

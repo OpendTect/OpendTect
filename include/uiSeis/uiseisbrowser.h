@@ -121,7 +121,7 @@ protected:
     void		rightArrowPush(CallBacker*);
     void		leftArrowPush(CallBacker*);
     void		switchViewTypePush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		dispTracesPush(CallBacker*);
     void		trcbufViewerClosed(CallBacker*);
     void		trcselectionChanged(CallBacker*);

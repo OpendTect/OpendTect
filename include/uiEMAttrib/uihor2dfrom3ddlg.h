@@ -36,7 +36,7 @@ protected:
 
     bool			checkOutNames(BufferStringSet&) const;
     bool			checkFlds();
-    bool			acceptOK( CallBacker* );
+    bool			acceptOK(CallBacker*) override;
 
 };
 

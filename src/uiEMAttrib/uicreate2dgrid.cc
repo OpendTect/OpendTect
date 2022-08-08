@@ -81,7 +81,7 @@ void setBaseLine( const Grid2D::Line* baseline )
     graphitem_.addChild( item ); \
 }
 
-void update()
+void update() override
 {
     graphitem_.removeAll( true );
     lines_.erase();

@@ -25,7 +25,7 @@ public:
 protected:
 
     void		init();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     void		inpChangedCB(CallBacker*);
 

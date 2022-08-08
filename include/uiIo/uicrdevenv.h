@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          Jan 2004
+ Author:	A.H. Lammertink
+ Date:		Jan 2004
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,6 @@ protected:
     uiGenInput*		workdirfld;
     uiFileInput*	basedirfld;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 

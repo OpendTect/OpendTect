@@ -97,8 +97,8 @@ protected:
     bool		cursurvremoved_;
     bool		freshsurveyselected_;
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
+    bool		rejectOK(CallBacker*) override;
     void		newButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
@@ -142,7 +142,7 @@ public:
 
     void		setSurveyNameFld(BufferString,bool);
     bool		isOK();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     ObjectSet<uiSurvInfoProvider> sips_;
     int			sipidx_;

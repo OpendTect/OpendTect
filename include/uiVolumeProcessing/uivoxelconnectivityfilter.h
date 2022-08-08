@@ -32,7 +32,7 @@ protected:
 				uiVoxelConnectivityFilter(uiParent*,
 					    VoxelConnectivityFilter*,bool is2d);
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     void		updateFieldsCB(CallBacker*);
 

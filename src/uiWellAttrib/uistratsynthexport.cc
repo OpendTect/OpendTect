@@ -106,7 +106,7 @@ void selItems( CallBacker* )
     }
 }
 
-virtual BufferString getSummary() const
+BufferString getSummary() const override
 {
     BufferString ret;
     const int sz = nms_.size();

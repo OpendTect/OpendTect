@@ -248,7 +248,7 @@ void dirChg( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     bool isudf = false;
     if ( calcSP() )

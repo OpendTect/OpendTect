@@ -124,7 +124,7 @@ public:
 			uiSurfaceWrite(uiParent*,
 				       const uiSurfaceWrite::Setup& setup);
 
-    virtual bool	processInput();
+    bool		processInput() override;
     Strat::LevelID	getStratLevelID() const;
     void		setColor(const OD::Color&);
     OD::Color		getColor() const;
@@ -134,7 +134,7 @@ public:
 
 protected:
     void		stratLvlChg(CallBacker*);
-    void		ioDataSelChg(CallBacker*);
+    void		ioDataSelChg(CallBacker*) override;
 
     uiCheckBox*		displayfld_;
     uiColorInput*       colbut_;
@@ -168,14 +168,14 @@ public:
 
 			uiSurfaceRead(uiParent*,const Setup&);
 
-    virtual bool	processInput();
+    bool		processInput() override;
     void		setIOObj(const MultiID&);
 
     Notifier<uiIOSurface> inpChange;
 
 protected:
 
-    void		inpChanged()	{ inpChange.trigger(); }
+    void		inpChanged() override	{ inpChange.trigger(); }
 
 };
 
@@ -193,7 +193,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    BufferString		getSummary() const;
+    BufferString		getSummary() const override;
 
 protected:
 
@@ -219,7 +219,7 @@ public:
 
     void			setSelectedFaults(const TypeSet<MultiID>&,
 					const TypeSet<FaultTrace::Act>* =0);
-    BufferString		getSummary() const;
+    BufferString		getSummary() const override;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 
     void			setEmpty();

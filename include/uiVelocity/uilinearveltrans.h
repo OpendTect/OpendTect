@@ -26,16 +26,16 @@ public:
 			uiLinearVelTransform(uiParent*,bool t2d);
 			~uiLinearVelTransform();
 
-    ZAxisTransform*	getSelection();
+    ZAxisTransform*	getSelection() override;
 
-    FixedString	toDomain() const;
-    FixedString	fromDomain() const;
-    bool		canBeField() const			{ return true; }
+    FixedString toDomain() const override;
+    FixedString fromDomain() const override;
+    bool		canBeField() const override	{ return true; }
 
 protected:
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
-    bool			acceptOK();
+    bool			acceptOK() override;
     void			velChangedCB(CallBacker*);
 
     uiGenInput*			velfld_;

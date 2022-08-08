@@ -112,7 +112,7 @@ protected:
     TypeSet<int>	selidxs_;
     bool		ismultisel_;
 
-    BufferString	getSummary() const;
+    BufferString	getSummary() const override;
 
     virtual void	selPush(CallBacker*);
     virtual void	clearAll();
@@ -153,19 +153,19 @@ public:
 				 bool withz=false,bool withstep=false);
 			~uiSeis2DMultiLineSel();
 
-    bool		isAll() const;
+    bool		isAll() const override;
 
     void		getZRanges(TypeSet<StepInterval<float> >&) const;
     void		getTrcRanges(TypeSet<StepInterval<int> >&) const;
     StepInterval<float> getZRange(Pos::GeomID) const;
     StepInterval<int>	getTrcRange(Pos::GeomID) const;
 
-    void		setInput(const MultiID&);
-    void		setInput(const BufferStringSet& lnms);
-    void		setInput(const TypeSet<Pos::GeomID>& geomid);
+    void		setInput(const MultiID&) override;
+    void		setInput(const BufferStringSet& lnms) override;
+    void		setInput(const TypeSet<Pos::GeomID>& geomid) override;
 
     void		setSelLines(const BufferStringSet&);
-    void		setAll(bool);
+    void		setAll(bool) override;
     void		setZRanges(const TypeSet<StepInterval<float> >&);
     void		setTrcRanges(const TypeSet<StepInterval<int> >&);
     void		setSingleLine(bool);
@@ -185,9 +185,9 @@ protected:
     bool		withstep_;
     bool		withz_;
 
-    void		clearAll();
+    void		clearAll() override;
     void		initRanges(const MultiID* datasetid=0);
 
-    void		selPush(CallBacker*);
+    void		selPush(CallBacker*) override;
 };
 

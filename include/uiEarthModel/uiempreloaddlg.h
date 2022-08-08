@@ -43,8 +43,8 @@ protected:
     void		add3DPushCB(CallBacker*);
     void		add2DPushCB(CallBacker*);
     bool		loadHorizon(bool);
-    void		unloadPushCB(CallBacker*);
-    void		selCB(CallBacker*);
+    void		unloadPushCB(CallBacker*) override;
+    void		selCB(CallBacker*) override;
     void		openPushCB(CallBacker*);
     void		savePushCB(CallBacker*);
     void		loadSavedHorizon(const TypeSet<MultiID>&);

@@ -38,7 +38,7 @@ protected:
     CtxtIOObj&		ctio_;
 
     void		srchDir(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 

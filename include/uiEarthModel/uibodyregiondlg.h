@@ -32,7 +32,7 @@ public:
     MultiID			getBodyMid() const;
 
 protected:
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			addSurfaceCB(CallBacker*);
     void			removeSurfaceCB(CallBacker*);
     void			addSurfaceTableEntry(const IOObj&,

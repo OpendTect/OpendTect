@@ -28,7 +28,7 @@ public:
 			uiAGC(uiParent*,AGC*);
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     static uiDialog*	create(uiParent*,Processor*);
 
     AGC*		processor_;

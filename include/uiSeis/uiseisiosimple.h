@@ -71,7 +71,7 @@ protected:
     void		havesdSel(CallBacker*);
     void		haveoffsSel(CallBacker*);
     void		initFlds(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		positionInFileSelChg(CallBacker*);
 
     static SeisIOSimple::Data&	data2d();

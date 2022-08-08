@@ -22,7 +22,7 @@ public:
 				uiWellInserter();
 				~uiWellInserter();
 
-    virtual uiToolButtonSetup*	getButtonSetup() const;
+    uiToolButtonSetup*		getButtonSetup() const override;
     static uiIOObjInserter*	create()
 				{ return new uiWellInserter; }
 

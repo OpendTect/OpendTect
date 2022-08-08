@@ -609,7 +609,7 @@ protected:
     void		zRgChanged(CallBacker*);
     void		applyZRgToAllCB(CallBacker*);
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 

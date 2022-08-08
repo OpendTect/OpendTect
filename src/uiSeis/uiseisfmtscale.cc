@@ -98,7 +98,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     data_.stor_ = stortypfld_->getIntValue();
     data_.sclr_ = scalefld_->getScaler();
@@ -136,7 +136,7 @@ void doDlg( CallBacker* )
     dlg.go();
 }
 
-BufferString getSummary() const
+BufferString getSummary() const override
 {
     const char* nms[] = { "Auto",
 	  "8bit [-,+]", "8bit [0,+]",

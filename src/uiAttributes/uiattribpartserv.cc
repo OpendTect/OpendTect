@@ -1050,10 +1050,10 @@ DPSOutputCreator( ObjectSet<DataPointSet>& dpss, int firstcol,
 , totalnr_(dpss.size())
 {}
 
-od_int64 nrIterations() const		{ return nriter_; }
-od_int64 totalNr() const		{ return totalnr_; }
+od_int64 nrIterations() const override		{ return nriter_; }
+od_int64 totalNr() const override		{ return totalnr_; }
 
-bool doWork( od_int64 start, od_int64 stop, int threadidx )
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 {
     bool res = true;
     for ( od_int64 idx=start; idx<=stop; idx++, addToNrDone(1) )
@@ -1334,9 +1334,9 @@ RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
 	compnames_ = *compnames;
 }
 
-od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
+od_int64 nrIterations() const override	{ return input_.trcinfoset_.size(); }
 
-bool doPrepare( int nrthreads )
+bool doPrepare( int nrthreads ) override
 {
     if ( input_.trcinfoset_.isEmpty() || !sampling_.is2D() )
 	return false;
@@ -1354,7 +1354,7 @@ bool doPrepare( int nrthreads )
     return true;
 }
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
     if ( !outputdp_ ) return false;
     const StepInterval<float>& zrg = sampling_.zsamp_;
@@ -1398,7 +1398,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-bool doFinish( bool success )
+bool doFinish( bool success ) override
 {
     outputdp_->setRefNrs( refnrs_ );
     outputdp_->setZDomain( ZDomain::Info(zdef_) );

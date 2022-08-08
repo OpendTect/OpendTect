@@ -185,7 +185,7 @@ bool copySurv()
     return true;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !inpsurveyfld_->getFullSurveyPath( inpdirnm_ ) ||
 	 !newsurveyfld_->getFullSurveyPath( newdirnm_) )

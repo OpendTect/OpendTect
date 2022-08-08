@@ -29,8 +29,8 @@ protected:
 
     uiIOObjSel*		setupfld_;
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		getParameters(Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		getParameters(Attrib::Desc&) override;
 
 			mDeclReqAttribUIFns
 };

@@ -76,8 +76,8 @@ private:
     uiButton*		addbut_;
 
     bool		retFullFailGoOnMsg();
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
+    bool		acceptOK(CallBacker*) override;
 
     void		initWin(CallBacker*);
     void		doCycle(CallBacker*);

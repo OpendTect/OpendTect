@@ -229,7 +229,7 @@ int nrTrcs()
 LineKey lineKey() const
 { return LineKey( linesfld_ ? linesfld_->box()->text() : "", attribnm_ ); }
 
-bool acceptOK(CallBacker*)
+bool acceptOK(CallBacker*) override
 {
     if ( nrtrcfld_->getIntValue()< 1 )
     {

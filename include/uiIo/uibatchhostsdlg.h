@@ -47,7 +47,7 @@ protected:
 
     void		fillTable();
     void		advbutCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     void		initUI(CallBacker*);
     void		changedCB(CallBacker*);

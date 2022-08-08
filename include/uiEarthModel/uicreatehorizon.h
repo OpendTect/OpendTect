@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		zfld_;
     uiSurfaceWrite*	outfld_;

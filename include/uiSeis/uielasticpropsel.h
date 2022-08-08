@@ -126,8 +126,8 @@ protected:
     void                        openPropSelCB(CallBacker*) { openPropSel(); }
     bool			savePropSel();
     void                        savePropSelCB(CallBacker*) { savePropSel(); }
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
     void			elasticPropSelectionChanged(CallBacker*);
     bool			screenSelectionChanged();
     void			screenSelectionChanged(CallBacker*);

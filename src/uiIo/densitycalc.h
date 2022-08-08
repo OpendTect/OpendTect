@@ -30,10 +30,12 @@ public:
 				OD::Pair<int,int> nrbins);
 			~DensityCalc();
 
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return tr("Points done"); }
-    od_int64		nrIterations() const	{ return totalnr_; }
-    bool		doWork(od_int64 start,od_int64 stop,int);
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiNrDoneText() const override
+			    { return tr("Points done"); }
+
+    od_int64		nrIterations() const override	{ return totalnr_; }
+    bool		doWork(od_int64 start,od_int64 stop,int) override;
 
     int			maxValue() const	{ return maxval_; }
     const Array2D<int>& getDensityData() const	{ return *densitydata_; }

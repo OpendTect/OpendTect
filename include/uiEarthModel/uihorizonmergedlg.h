@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiHorizon3DSel*	horselfld_;
     uiGenInput*		duplicatefld_;

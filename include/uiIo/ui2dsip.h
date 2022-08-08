@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H.Bril
- Date:          Oct 2004
+ Author:	A.H.Bril
+ Date:		Oct 2004
 ________________________________________________________________________
 
 -*/
@@ -21,14 +21,15 @@ public:
 			ui2DSurvInfoProvider();
 			~ui2DSurvInfoProvider();
 
-    virtual const char*	usrText() const		{ return "Set for 2D only"; }
-    virtual uiDialog*	dialog(uiParent*);
-    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    const char* usrText() const override	{ return "Set for 2D only"; }
+    uiDialog*	dialog(uiParent*) override;
+    bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]) override;
 
-    virtual void	fillLogPars(IOPar&) const;
+    void	fillLogPars(IOPar&) const override;
 
-    virtual bool	xyInFeet() const	{ return xyft_; }
-    virtual const char*	iconName() const   { return "seismicline2dcollection"; }
+    bool	xyInFeet() const override	{ return xyft_; }
+    const char* iconName() const override
+		    { return "seismicline2dcollection"; }
 
 protected:
 
@@ -43,18 +44,18 @@ public:
 				uiNavSurvInfoProvider();
     virtual			~uiNavSurvInfoProvider();
 
-    virtual const char*		usrText() const;
-    virtual uiDialog*		dialog(uiParent*);
-    virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
-					Coord crd[3]);
-    virtual const char*		iconName() const;
+    const char*		usrText() const override;
+    uiDialog*		dialog(uiParent*) override;
+    bool		getInfo(uiDialog*,TrcKeyZSampling&,
+					Coord crd[3]) override;
+    const char*		iconName() const override;
 
-    virtual void		fillLogPars(IOPar&) const;
-    virtual IOPar*		getImportPars() const;
-    virtual void		startImport(uiParent*,const IOPar&);
-    virtual const char*		importAskQuestion() const;
+    void		fillLogPars(IOPar&) const override;
+    IOPar*		getImportPars() const override;
+    void		startImport(uiParent*,const IOPar&) override;
+    const char*		importAskQuestion() const override;
 
-    virtual IOPar*		getCoordSystemPars() const;
+    IOPar*		getCoordSystemPars() const override;
 
 protected:
     RefMan<Coords::CoordSystem>		coordsystem_;

@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        N. Hemstra
- Date:          May 2005
+ Author:	N. Hemstra
+ Date:		May 2005
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
 
 			uiSimilarityAttrib(uiParent*,bool);
 
-    void		getEvalParams(TypeSet<EvalParam>&) const;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:
 
@@ -43,19 +43,19 @@ protected:
     uiGenInput*		outpdipfld_;
     uiGenInput*		dooutpstatsfld_;
 
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
+    bool		setOutput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
+    bool		getOutput(Attrib::Desc&) override;
 
     void		extSel(CallBacker*);
     void		outSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 
     mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
     { mODTextTranslationClass(uiSimiSteeringSel) 
@@ -63,14 +63,14 @@ protected:
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
 					  bool is2d);
 	   
-	    bool	willSteer() const;	
+	    bool	willSteer() const override;
 	    bool	wantBrowseDip() const;
 	    int		browseDipIdxInList() const;
-				                                             
-	    Notifier<uiSimiSteeringSel>	typeSelected;
 
-	protected:                                                              
-	    void	typeSel(CallBacker*);
+	    Notifier<uiSimiSteeringSel> typeSelected;
+
+	protected:
+	    void	typeSel(CallBacker*) override;
     };
 
     uiSimiSteeringSel*	steerfld_;

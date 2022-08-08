@@ -52,7 +52,7 @@ protected:
     Coords::uiCoordSystemSel* coordsysselfld_;
     uiPickPartServer*	serv_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		inputChgd(CallBacker*);
     void		formatSel(CallBacker*);
     bool		checkInpFlds();

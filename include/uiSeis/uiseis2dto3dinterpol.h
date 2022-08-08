@@ -45,5 +45,5 @@ protected:
     bool		fillSeisPar();
 
     virtual bool	fillPar();
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };

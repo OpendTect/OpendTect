@@ -762,7 +762,7 @@ void selTypeChanged( CallBacker* )
 					 seltypefld_->getBoolValue())), 0 );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     DataPointSet::Pos pos;
     const bool isreasonable =
@@ -1464,7 +1464,7 @@ void outTypChg( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     istab_ = tabfld_->getBoolValue();
     if ( istab_ )

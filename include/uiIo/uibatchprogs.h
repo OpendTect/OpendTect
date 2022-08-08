@@ -40,7 +40,7 @@ protected:
 
     void		progSel(CallBacker*);
     void		exButPush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		filenmUpd(CallBacker*);
 };
 

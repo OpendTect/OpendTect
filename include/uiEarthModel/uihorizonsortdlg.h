@@ -39,7 +39,7 @@ public:
 
 protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			getSelectedHorizons(TypeSet<MultiID>&) const;
     void			updateRelationTree(const TypeSet<MultiID>&);
     bool			sortFromRelationTree(const TypeSet<MultiID>&);

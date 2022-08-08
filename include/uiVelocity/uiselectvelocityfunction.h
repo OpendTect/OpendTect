@@ -71,7 +71,7 @@ public:
 				    : uiGroup( p, nm ) {}
 
     virtual FunctionSource*	getSource() 	= 0;
-    virtual bool		acceptOK() 	= 0;
+    virtual bool		acceptOK()	= 0;
 };
 
 
@@ -84,7 +84,7 @@ public:
     FunctionSource*		getSource();
 public:
     void			typeSelChangeCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     uiGenInput*				typesel_;
     ObjectSet<uiFunctionSettings>	settingldgs_;
@@ -98,7 +98,7 @@ public:
 						FunctionSource* );
     bool			isOK() const { return dlggrp_; }
 public:
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     uiFunctionSettings*		dlggrp_;
 };

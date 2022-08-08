@@ -25,7 +25,7 @@ protected:
 
     const bool		is2d_;
 
-    virtual bool	initWork(bool);
+    bool		initWork(bool) override;
 
 };
 

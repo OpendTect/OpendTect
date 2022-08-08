@@ -27,7 +27,7 @@ namespace Vel
 mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
 { mODTextTranslationClass(uiImportVelFunc);
 public:
-    			uiImportVelFunc(uiParent*);
+			uiImportVelFunc(uiParent*);
 			~uiImportVelFunc();
 
 protected:
@@ -36,15 +36,15 @@ protected:
     uiVelocityDesc*	typefld_;
     uiIOObjSel*		outfld_;
 
-    CtxtIOObj&          ctio_;
+    CtxtIOObj&		ctio_;
 
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
     void		velTypeChangeCB(CallBacker*);
-    void                formatSel(CallBacker*);
+    void		formatSel(CallBacker*);
 
-    virtual bool	acceptOK(CallBacker*);    
+    bool		acceptOK(CallBacker*) override;
 
 };
 

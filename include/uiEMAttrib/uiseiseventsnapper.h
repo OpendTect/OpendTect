@@ -42,7 +42,7 @@ protected:
     uiGenInput*		gatefld_;
     bool		is2d_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		readHorizon();
 
     EM::Horizon*	horizon_;

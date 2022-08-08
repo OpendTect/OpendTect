@@ -68,16 +68,16 @@ public:
     				ui2DGridLinesFromInlCrl(uiParent*,
 							const TrcKeySampling&);
 
-    bool			fillPar(IOPar&) const;
-    void			updateRange();
+    bool			fillPar(IOPar&) const override;
+    void			updateRange() override;
     void			getLineNames(BufferStringSet&) const;
 
 protected:
 
-    bool			computeGrid();
+    bool			computeGrid() override;
     void			paramsChgCB(CallBacker*);
     void			getNrLinesLabelTexts(BufferString&,
-	    					     BufferString&) const;
+						 BufferString&) const override;
     void			modeChg(CallBacker*);
 
     uiGenInput*			inlmodefld_;
@@ -97,18 +97,20 @@ public:
 						const Geometry::RandomLine*);
     				~ui2DGridLinesFromRandLine();
 
-    const Grid2D::Line*		getBaseLine() const	{ return baseline_; }
-    bool			fillPar(IOPar&) const;
+    const Grid2D::Line*		getBaseLine() const override
+				    { return baseline_; }
+
+    bool			fillPar(IOPar&) const override;
     void			getLineNames(BufferStringSet&) const;
     bool			hasLine() const;
     void			processInput();
 
 protected:
 
-    bool			computeGrid();
+    bool			computeGrid() override;
     void			paramsChgCB(CallBacker*);
     void			getNrLinesLabelTexts(BufferString&,
-	    					     BufferString&) const;
+						 BufferString&) const override;
 
     uiIOObjSel*			rdlfld_;
     uiGenInput*			pardistfld_;
@@ -168,7 +170,7 @@ protected:
     bool			checkInput(IOPar&) const;
 
     int				checkLineNames() const;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 

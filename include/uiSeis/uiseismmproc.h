@@ -39,14 +39,14 @@ protected:
     uiGenInput*		inlperjobfld_;
     uiCheckBox*		saveasdeffld_;
 
-    virtual bool	initWork(bool);
-    virtual bool	prepareCurrentJob();
-    virtual Executor*	getPostProcessor() const;
-    virtual bool	removeTmpProcFiles();
-    virtual bool	needConfirmEarlyStop() const;
-    virtual bool	haveTmpProcFiles() const;
+    bool	initWork(bool) override;
+    bool	prepareCurrentJob() override;
+    Executor*	getPostProcessor() const override;
+    bool	removeTmpProcFiles() override;
+    bool	needConfirmEarlyStop() const override;
+    bool	haveTmpProcFiles() const override;
 
-    bool		isRestart() const	{ return !tmpstordirfld_; }
+    bool	isRestart() const	{ return !tmpstordirfld_; }
 
 };
 

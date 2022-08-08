@@ -33,7 +33,7 @@ protected:
 
     void		readFile(od_istream&);
     void		write(uiStringSet&);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
@@ -55,7 +55,7 @@ public:
 
 private:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		lasSel(CallBacker*);
     void		nameSelChg(CallBacker*);
 
@@ -75,7 +75,7 @@ public:
 			~uiBulkMarkerImport();
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		readFile(od_istream&,BufferStringSet&,
 				 ObjectSet<Well::MarkerSet>&);
 
@@ -93,7 +93,7 @@ public:
 			~uiBulkD2TModelImport();
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		readFile(od_istream&,
 				 ObjectSet<D2TModelData>&);
 
@@ -115,7 +115,7 @@ protected:
     void		reset();
     void		fileCB(CallBacker*);
     void		applyCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		readFile();
     void		fillTable();
 

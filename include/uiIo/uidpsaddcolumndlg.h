@@ -34,7 +34,7 @@ public:
     void			parsePush(CallBacker*);
     void			updateDisplay();
     const char*			newAttribName() const;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     Math::Expression*		mathObject()		{ return mathobj_; }
     const TypeSet<int>&		usedColIDs() const	{ return usedcolids_; }

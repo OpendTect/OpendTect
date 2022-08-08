@@ -53,7 +53,7 @@ protected:
     void		createFields();
     void		extendLine(TypeSet<Coord>&);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		previewPush(CallBacker*);
 
 };

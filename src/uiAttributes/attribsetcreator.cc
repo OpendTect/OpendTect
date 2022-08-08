@@ -150,7 +150,7 @@ void cubeSel( CallBacker* cb )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     for ( int isel=0; isel<sels.size(); isel++ )
     {

@@ -34,7 +34,7 @@ public:
 			uiGapDeconAttrib(uiParent*,bool);
 			~uiGapDeconAttrib();
 
-    void		getEvalParams(TypeSet<EvalParam>&) const;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
     static const char*	sKeyOnInlineYN();
     static const char*	sKeyLineName();
 
@@ -55,11 +55,11 @@ protected:
     IOPar		par_;
     uiGDPositionDlg*	positiondlg_;
     GapDeconACorrView*	acorrview_;
-    bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
+    bool		setParameters(const Attrib::Desc&) override;
+    bool		setInput(const Attrib::Desc&) override;
 
-    bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
 
     void		finalizeCB(CallBacker*);
     void                examPush(CallBacker*);

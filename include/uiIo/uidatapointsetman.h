@@ -27,7 +27,7 @@ protected:
 
     void			mergePush(CallBacker*);
 
-    void			mkFileInfo();
+    void			mkFileInfo() override;
 public:
 
     static uiString		sSelDataSetEmpty();

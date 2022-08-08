@@ -30,7 +30,7 @@ protected:
     uiGenInput*		lnmsfld_;
     uiFileInput*	outfld_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     void		seisSel(CallBacker*);
 };

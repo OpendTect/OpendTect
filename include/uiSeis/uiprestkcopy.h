@@ -62,7 +62,7 @@ protected:
     uiPreStackOutputGroup* outgrp_;
 
     void		objSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

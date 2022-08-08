@@ -46,7 +46,7 @@ protected:
     uiSurfaceWrite*	iogrp_;
     const EM::Surface&	surface_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -60,7 +60,7 @@ public:
 
 protected:
     uiSurfaceRead*	iogrp_;
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -78,7 +78,7 @@ protected:
 
     bool		dooverwrite_;
     bool		checkIfAlreadyPresent(const char*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 
@@ -97,7 +97,7 @@ protected:
     CtxtIOObj&		ctio_;
 
     CtxtIOObj*		mkCtxtIOObj(const IOObj&);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 
@@ -113,7 +113,7 @@ protected:
     uiListBox*		surflist_;
     uiIOObjSel*		outfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		inpSelCB(CallBacker*);
 
 };

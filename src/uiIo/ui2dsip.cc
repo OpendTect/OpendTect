@@ -95,7 +95,7 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const float grdsp = grdspfld_->getFValue();
     if ( mIsUdf(grdsp) )
@@ -251,7 +251,7 @@ bool fillGeom2D( ObjectSet<Survey::Geometry2D>& geoms )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     fname_ = fnmfld_->fileName();
     if ( !File::exists(fname_) || File::isEmpty(fname_) )

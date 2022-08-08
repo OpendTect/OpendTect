@@ -44,7 +44,7 @@ protected:
     AttribLogCreator::Setup	datasetup_;
 
     bool			inputsOK(Well::Data&);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			init(CallBacker*);
     void			selDone(CallBacker*);
 };

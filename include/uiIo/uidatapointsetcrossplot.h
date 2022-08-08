@@ -102,7 +102,7 @@ public:
 				AxisData(uiDataPointSetCrossPlotter&,
 					 uiRect::Side);
 
-	void			stop();
+	void			stop() override;
 	void			setCol(DataPointSet::ColID);
 
 	void			newColID();

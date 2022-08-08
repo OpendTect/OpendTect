@@ -43,7 +43,7 @@ protected:
     Interval<float>	horzrg_;
     Pos::EMSurfaceProvider3D& pp_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     BufferString	getHorNm(EM::ObjectID);
 
     bool		doWork(const IOObj&,const IOObj&,float);

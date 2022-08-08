@@ -38,7 +38,7 @@ protected:
     uiSeisSubSel*	subsel_;
     uiIOObjSel*		mutedeffld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };
 
 

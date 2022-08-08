@@ -94,10 +94,10 @@ ClusterJobSubmitter( ObjectSet<ClusterJobInfo>& jobs, const char* cmd )
     }
 }
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 { return jobstodo_.size(); }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {

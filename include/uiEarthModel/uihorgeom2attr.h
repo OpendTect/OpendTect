@@ -37,7 +37,7 @@ protected:
 
     BufferStringSet&	getItems(const EM::Horizon3D&);
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 
@@ -63,7 +63,7 @@ protected:
     uiGenInput*		msfld_;
     uiHorSaveFieldGrp*	savefldgrp_;
 
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 
 };

@@ -60,7 +60,7 @@ protected:
     void			mouseClick(CallBacker*);
     void			doStrat(CallBacker*);
     void			rdFile(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			stratLvlChg(CallBacker*);
     void			unitChangedCB(CallBacker*);
     void			updateFromLevel(int,uiStratLevelSel*);
@@ -72,7 +72,7 @@ protected:
     void			exportCB(CallBacker*);
     bool			getKey(MultiID&) const;
     void			updateDisplayCB(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK(CallBacker*) override;
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);
     float			getOldMarkerVal(Well::Marker*) const;
 

@@ -479,7 +479,7 @@ void nrCB( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( doread_ )
     {
@@ -748,7 +748,7 @@ uiSSLMFlatViewDataPack()
 {}
 
 
-const char* dimName( bool dim0 ) const
+const char* dimName( bool dim0 ) const override
 { return dim0 ? "Model Nr" : "Depth"; }
 
 protected:

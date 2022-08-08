@@ -52,7 +52,7 @@ protected:
     bool		multiinpcube_;
     bool		is2d_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

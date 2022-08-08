@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     bool			interpolate3D(const IOPar&);
     bool			interpolate2D();
@@ -50,7 +50,7 @@ protected:
     uiIOObjSel*			inputhorsel_;
     uiHor3DInterpolSel*		interpolhor3dsel_;
     uiArray1DInterpolSel*	interpol1dsel_;
-    uiHorSaveFieldGrp*          savefldgrp_;
+    uiHorSaveFieldGrp*		savefldgrp_;
 
     EM::Horizon*		horizon_;
 };
@@ -116,11 +116,13 @@ public:
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
 
-    virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    bool			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    virtual bool		canHandleFaults() const { return true; }
-    const char*			factoryKeyword() const;
+    bool			canHandleFaults() const override
+				{ return true; }
+
+    const char*			factoryKeyword() const override;
 
 protected:
 
@@ -144,11 +146,13 @@ public:
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
 
-    virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    bool			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    virtual bool		canHandleFaults() const { return true; }
-    const char*			factoryKeyword() const;
+    bool			canHandleFaults() const override
+				{ return true; }
+
+    const char*			factoryKeyword() const override;
 
 protected:
 
@@ -168,11 +172,13 @@ public:
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
 
-    virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    bool			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    virtual bool		canHandleFaults() const { return false; }
-    const char*			factoryKeyword() const;
+    bool			canHandleFaults() const override
+				{ return false; }
+
+    const char*			factoryKeyword() const override;
 
 protected:
 
@@ -191,11 +197,13 @@ public:
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
 
-    virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    bool			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    virtual bool		canHandleFaults() const { return true; }
-    const char*			factoryKeyword() const;
+    bool			canHandleFaults() const override
+				{ return true; }
+
+    const char*			factoryKeyword() const override;
 
     uiGenInput*			tensionfld_;
     uiGenInput*			radiusfld_;

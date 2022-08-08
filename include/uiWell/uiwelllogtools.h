@@ -100,7 +100,7 @@ protected:
     void			applyPushedCB(CallBacker*);
     void			acceptOK(CallBacker*);
     void			rejectOK(CallBacker*);
-    bool			closeOK();
+    bool			closeOK() override;
 };
 
 
@@ -114,7 +114,7 @@ protected:
 
     uiMultiWellLogSel*	welllogselfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		winClosed(CallBacker*);
     int			checkMaxLogsToDisplay();
 };
@@ -134,7 +134,7 @@ public:
 protected:
     void		fillTable();
     void		valChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		rowDelCB(CallBacker*);
     void		rowInsertCB(CallBacker*);
 

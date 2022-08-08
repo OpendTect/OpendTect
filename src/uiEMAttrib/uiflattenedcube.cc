@@ -127,12 +127,12 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
 {
 }
 
-uiString uiMessage() const	{ return msg_; }
-uiString uiNrDoneText() const	{ return tr("Traces written"); }
-od_int64 nrDone() const		{ return nrdone_; }
-od_int64 totalNr() const	{ return totnr_; }
+uiString uiMessage() const override	{ return msg_; }
+uiString uiNrDoneText() const override	{ return tr("Traces written"); }
+od_int64 nrDone() const override	{ return nrdone_; }
+od_int64 totalNr() const override	{ return totnr_; }
 
-int nextStep()
+int nextStep() override
 {
     if ( !rdr_.get(intrc_) )
     {

@@ -80,7 +80,7 @@ protected:
 
     uiEditProbDenFunc*	edfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

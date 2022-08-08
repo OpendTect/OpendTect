@@ -489,7 +489,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     new uiLabel( this, su.lbltxt_, colfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     BufferString nm( nmfld_->text() );
     nm.clean( BufferString::NoSpecialChars );
@@ -534,7 +534,7 @@ void fillList( int newcur )
     setItems( nms, newcur );
 }
 
-void editReq( bool isadd )
+void editReq( bool isadd ) override
 {
     Strat::ContentSet& conts = Strat::eRT().contents();
     Strat::Content* newcont = isadd ? new Strat::Content( "" ) : 0;
@@ -561,7 +561,7 @@ void editReq( bool isadd )
     }
 }
 
-void removeReq()
+void removeReq() override
 {
     Strat::ContentSet& conts = Strat::eRT().contents();
     const int selidx = currentItem();
@@ -572,7 +572,7 @@ void removeReq()
     fillList( selidx );
 }
 
-void itemSwitch( bool up )
+void itemSwitch( bool up ) override
 {
     Strat::ContentSet& conts = Strat::eRT().contents();
     const int selidx = currentItem();

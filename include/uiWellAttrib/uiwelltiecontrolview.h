@@ -56,16 +56,16 @@ protected:
     uiToolBar* editToolBar() override { return toolbar_; }
 
     bool		checkIfInside(double,double);
-    bool		handleUserClick(int vwridx);
+    bool		handleUserClick(int vwridx) override;
 
-    void                applyProperties(CallBacker*);
+    void		applyProperties(CallBacker*) override;
     void		viewChangedCB(CallBacker*);
-    void		keyPressCB(CallBacker*);
+    void		keyPressCB(CallBacker*) override;
     void		loadHorizons(CallBacker*);
     void		dispHorMrks(CallBacker*);
-    void		rubBandCB(CallBacker*);
+    void		rubBandCB(CallBacker*) override;
     void		reDrawNeeded(CallBacker*);
-    void		wheelMoveCB(CallBacker*);
+    void		wheelMoveCB(CallBacker*) override;
 
     friend class	uiTieWin;
 };

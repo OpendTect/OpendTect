@@ -68,8 +68,8 @@ public:
 			uiSeisSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiSeisSel();
 
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    void		usePar(const IOPar&) override;
 
     inline Seis::GeomType geomType() const { return seissetup_.geom_; }
     inline bool		is2D() const	{ return Seis::is2D(seissetup_.geom_); }
@@ -77,9 +77,9 @@ public:
 
     void		setCompNr(int);
     int			compNr() const	{ return compnr_; }
-    virtual void	processInput();
-    virtual bool	existingTyped() const;
-    virtual void	updateInput();
+    void		processInput() override;
+    bool		existingTyped() const override;
+    void		updateInput() override;
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
 
@@ -92,12 +92,12 @@ protected:
     uiCheckBox*		othdombox_;
 
     Setup		mkSetup(const Setup&,bool forread);
-    virtual void	fillDefault();
-    virtual void	newSelection(uiIOObjRetDlg*);
-    virtual void	commitSucceeded();
-    virtual const char*	userNameFromKey(const char*) const;
+    void		fillDefault() override;
+    void		newSelection(uiIOObjRetDlg*) override;
+    void		commitSucceeded() override;
+    const char*		userNameFromKey(const char*) const override;
     virtual const char* compNameFromKey(const char*) const;
-    virtual uiIOObjRetDlg* mkDlg();
+    uiIOObjRetDlg*	mkDlg() override;
     void		mkOthDomBox();
 
     virtual const char* getDefaultKey(Seis::GeomType) const;
@@ -144,7 +144,7 @@ public:
 
 protected:
 
-    virtual const char*		getDefaultKey(Seis::GeomType gt) const;
+    const char*		getDefaultKey(Seis::GeomType gt) const override;
 
 };
 

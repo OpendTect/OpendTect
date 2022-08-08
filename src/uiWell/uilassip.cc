@@ -80,7 +80,7 @@ void lasSel( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     return true;
 }

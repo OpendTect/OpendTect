@@ -33,7 +33,7 @@ protected:
     bool			prepareProcessing();
     void			dirChangeCB(CallBacker*);
     void			objSelCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     uiGenInput*			directionsel_;
 

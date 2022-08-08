@@ -76,7 +76,7 @@ protected:
     void		initFields(const Attrib::DescSet&);
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     int			selType() const;
 
     void		createSelectionButtons(ZDomain::Info&);

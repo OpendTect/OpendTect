@@ -34,12 +34,12 @@ public:
     void		enablePainting(bool yn);
     void		selected();
 
-    NotifierAccess*	deSelection()			{ return &deselted_; }
+    NotifierAccess*	deSelection() override		{ return &deselted_; }
 
 protected:
 
-    void		triggerDeSel();
-    void		setEditors();
+    void		triggerDeSel() override;
+    void		setEditors() override;
 
     bool		knotenabled_;
 
