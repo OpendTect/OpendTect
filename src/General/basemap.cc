@@ -11,7 +11,7 @@
 
 
 
-BaseMapObject::BaseMapObject( const char* nm )
+BasemapObject::BasemapObject( const char* nm )
     : NamedCallBacker(nm)
     , changed(this)
     , leftClicked(this)
@@ -21,48 +21,48 @@ BaseMapObject::BaseMapObject( const char* nm )
     , nameChanged(this)
     , depth_(0)
 {
-    mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
-    id_ = treeitmid++;
+    mDefineStaticLocalObject( Threads::Atomic<int>, bmobjid, (1000) );
+    id_.set( bmobjid++ );
 }
 
 
-BaseMapObject::~BaseMapObject()
+BasemapObject::~BasemapObject()
 {
 }
 
 
-void BaseMapObject::setDepth( int val )
+void BasemapObject::setDepth( int val )
 {
     depth_ = val;
     zvalueChanged.trigger();
 }
 
 
-int BaseMapObject::nrShapes() const
+int BasemapObject::nrShapes() const
 { return 0; }
 
-const char* BaseMapObject::getShapeName( int ) const
+const char* BasemapObject::getShapeName( int ) const
 { return 0; }
 
-void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
+void BasemapObject::getPoints( int, TypeSet<Coord>& ) const
 {}
 
-bool BaseMapObject::getBoundingBox( BoundingBox& ) const
+bool BasemapObject::getBoundingBox( BoundingBox& ) const
 { return false; }
 
-Alignment BaseMapObject::getAlignment( int ) const
+Alignment BasemapObject::getAlignment( int ) const
 { return Alignment(); }
 
-FontData BaseMapObject::getFont( int ) const
+FontData BasemapObject::getFont( int ) const
 { return FontData(); }
 
-Coord BaseMapObject::getTextOffset( int ) const
+Coord BasemapObject::getTextOffset( int ) const
 { return Coord(0., 0.); }
 
-Coord BaseMapObject::getTextPos(int shapeidx) const
+Coord BasemapObject::getTextPos(int shapeidx) const
 { return Coord::udf(); }
 
-OD::Color BaseMapObject::getColor() const
+OD::Color BasemapObject::getColor() const
 {
     if ( getFillColor(0) != OD::Color::NoColor() )
 	return getFillColor( 0 );
@@ -74,19 +74,19 @@ OD::Color BaseMapObject::getColor() const
 }
 
 
-const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
+const OD::RGBImage* BasemapObject::createImage( Coord& origin,Coord& p11 ) const
 {
     return nullptr;
 }
 
 
-const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
+const OD::RGBImage* BasemapObject::createPreview( int approxdiagonal ) const
 {
     return nullptr;
 }
 
 
-bool BaseMapObject::fillPar( IOPar& par ) const
+bool BasemapObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name() );
     par.set( sKey::Type(), getType() );
@@ -95,7 +95,7 @@ bool BaseMapObject::fillPar( IOPar& par ) const
 }
 
 
-bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
+bool BasemapObject::usePar( const IOPar& par, TaskRunner* )
 {
     BufferString nm, type;
     if ( par.get(sKey::Name(),nm) )
@@ -112,16 +112,16 @@ bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
 
 
 
-BaseMapMarkers::BaseMapMarkers()
-    : BaseMapObject( 0 )
+BasemapMarkers::BasemapMarkers()
+    : BasemapObject( nullptr )
 {}
 
 
-BaseMapMarkers::~BaseMapMarkers()
+BasemapMarkers::~BasemapMarkers()
 { }
 
 
-void BaseMapMarkers::setMarkerStyle( int, const MarkerStyle2D& ms )
+void BasemapMarkers::setMarkerStyle( int, const MarkerStyle2D& ms )
 {
     if ( markerstyle_==ms )
 	return;
@@ -130,11 +130,11 @@ void BaseMapMarkers::setMarkerStyle( int, const MarkerStyle2D& ms )
 }
 
 
-void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res) const
+void BasemapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res) const
 {
     res = positions_;
 }
 
 
-void BaseMapMarkers::updateGeometry()
+void BasemapMarkers::updateGeometry()
 { changed.trigger(); }

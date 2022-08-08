@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "fontdata.h"
 #include "survinfo.h"
 
-uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
+uiBasemapObject::uiBasemapObject( BasemapObject* bmo )
     : bmobject_( bmo )
     , graphitem_(*new uiGraphicsItem)
     , labelitem_(*new uiGraphicsItem)
@@ -30,9 +30,9 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 {
     if ( bmobject_ )
     {
-	mAttachCB( bmobject_->changed, uiBaseMapObject::changedCB );
-	mAttachCB( bmobject_->stylechanged, uiBaseMapObject::changedStyleCB );
-	mAttachCB( bmobject_->zvalueChanged, uiBaseMapObject::changedZValueCB );
+	mAttachCB( bmobject_->changed, uiBasemapObject::changedCB );
+	mAttachCB( bmobject_->stylechanged, uiBasemapObject::changedStyleCB );
+	mAttachCB( bmobject_->zvalueChanged, uiBasemapObject::changedZValueCB );
 
 	graphitem_.setZValue( bmobject_->getDepth() );
 	labelitem_.setZValue( bmobject_->getDepth()-1 );
@@ -42,7 +42,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 }
 
 
-uiBaseMapObject::~uiBaseMapObject()
+uiBasemapObject::~uiBasemapObject()
 {
     detachAllNotifiers();
     delete &graphitem_;
@@ -50,17 +50,17 @@ uiBaseMapObject::~uiBaseMapObject()
 }
 
 
-BaseMapObject* uiBaseMapObject::getObject()
+BasemapObject* uiBasemapObject::getObject()
 { return bmobject_; }
 
 
-const char* uiBaseMapObject::name() const
+const char* uiBasemapObject::name() const
 {
     return bmobject_ ? bmobject_->name().buf() : nullptr;
 }
 
 
-void uiBaseMapObject::show( bool yn )
+void uiBasemapObject::show( bool yn )
 {
     graphitem_.setVisible( yn );
     if ( showlabels_ )
@@ -68,13 +68,13 @@ void uiBaseMapObject::show( bool yn )
 }
 
 
-bool uiBaseMapObject::isShown() const
+bool uiBasemapObject::isShown() const
 {
     return graphitem_.isVisible();
 }
 
 
-void uiBaseMapObject::showLabels( bool yn )
+void uiBasemapObject::showLabels( bool yn )
 {
     showlabels_ = yn;
     if ( isShown() )
@@ -82,14 +82,14 @@ void uiBaseMapObject::showLabels( bool yn )
 }
 
 
-void uiBaseMapObject::leftClickCB( CallBacker* cb )
+void uiBasemapObject::leftClickCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const MouseEvent&,ev,cb);
     if ( bmobject_ )
 	bmobject_->leftClicked.trigger( ev );
 }
 
-void uiBaseMapObject::rightClickCB( CallBacker* cb )
+void uiBasemapObject::rightClickCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const MouseEvent&,ev,cb);
     if ( bmobject_ )
@@ -97,21 +97,21 @@ void uiBaseMapObject::rightClickCB( CallBacker* cb )
 }
 
 
-void uiBaseMapObject::changedCB( CallBacker* )
+void uiBasemapObject::changedCB( CallBacker* )
 {
     changed_ = true;
     update();
 }
 
 
-void uiBaseMapObject::changedStyleCB( CallBacker* )
+void uiBasemapObject::changedStyleCB( CallBacker* )
 {
     changed_ = true;
     updateStyle();
 }
 
 
-void uiBaseMapObject::changedZValueCB( CallBacker* )
+void uiBasemapObject::changedZValueCB( CallBacker* )
 {
     changed_ = true;
     graphitem_.setZValue( bmobject_->getDepth() );
@@ -119,27 +119,27 @@ void uiBaseMapObject::changedZValueCB( CallBacker* )
 }
 
 
-void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
+void uiBasemapObject::setTransform( const uiWorld2Ui* w2ui )
 {
     transform_ = w2ui;
 }
 
 
-void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
+void uiBasemapObject::addToGraphItem( uiGraphicsItem& itm )
 {
     graphitem_.addChild( &itm );
-    mAttachCB( itm.leftClicked, uiBaseMapObject::leftClickCB );
-    mAttachCB( itm.rightClicked, uiBaseMapObject::rightClickCB );
+    mAttachCB( itm.leftClicked, uiBasemapObject::leftClickCB );
+    mAttachCB( itm.rightClicked, uiBasemapObject::rightClickCB );
 }
 
 
-void uiBaseMapObject::addLabel( uiGraphicsItem& itm )
+void uiBasemapObject::addLabel( uiGraphicsItem& itm )
 {
     labelitem_.addChild( &itm );
 }
 
 
-void uiBaseMapObject::getMousePosInfo( Coord3& crd, TrcKey& tk, float& val,
+void uiBasemapObject::getMousePosInfo( Coord3& crd, TrcKey& tk, float& val,
 				       BufferString& info ) const
 {
     if ( bmobject_ )
@@ -147,7 +147,7 @@ void uiBaseMapObject::getMousePosInfo( Coord3& crd, TrcKey& tk, float& val,
 }
 
 
-void uiBaseMapObject::update()
+void uiBasemapObject::update()
 {
     if ( !bmobject_ ) return;
 
@@ -335,7 +335,7 @@ void uiBaseMapObject::update()
 }
 
 
-void uiBaseMapObject::updateStyle()
+void uiBasemapObject::updateStyle()
 {
     if ( !bmobject_ ) return;
 
@@ -384,8 +384,8 @@ void uiBaseMapObject::updateStyle()
 
 
 
-// uiBaseMap
-uiBaseMap::uiBaseMap( uiParent* p )
+// uiBasemap
+uiBasemap::uiBasemap( uiParent* p )
     : uiGroup(p,"Basemap")
     , view_(*new uiGraphicsView(this,"Basemap"))
     , w2ui_(*new uiWorld2Ui)
@@ -396,11 +396,11 @@ uiBaseMap::uiBaseMap( uiParent* p )
     , centerworlditem_(false)
 {
     view_.scene().addItem( &worlditem_ );
-    mAttachCB( view_.reSize, uiBaseMap::reSizeCB );
+    mAttachCB( view_.reSize, uiBasemap::reSizeCB );
 }
 
 
-uiBaseMap::~uiBaseMap()
+uiBasemap::~uiBasemap()
 {
     detachAllNotifiers();
     deepErase( objects_ );
@@ -410,20 +410,20 @@ uiBaseMap::~uiBaseMap()
 }
 
 
-void uiBaseMap::reSizeCB( CallBacker* )
+void uiBasemap::reSizeCB( CallBacker* )
 {
     updateTransform();
 }
 
 
-void uiBaseMap::setView( const uiWorldRect& wr )
+void uiBasemap::setView( const uiWorldRect& wr )
 {
     wr_ = wr;
     updateTransform();
 }
 
 
-void uiBaseMap::updateTransform()
+void uiBasemap::updateTransform()
 {
     const uiRect viewrect( 0, 0, (int)view_.scene().width(),
 				 (int)view_.scene().height() );
@@ -481,12 +481,12 @@ void uiBaseMap::updateTransform()
 }
 
 
-void uiBaseMap::addObject( BaseMapObject* obj )
+void uiBasemap::addObject( BasemapObject* obj )
 {
     const int index = indexOf( obj );
     if ( index==-1 )
     {
-	uiBaseMapObject* uiobj = new uiBaseMapObject( obj );
+	uiBasemapObject* uiobj = new uiBasemapObject( obj );
 	addObject( uiobj );
     }
     else
@@ -494,13 +494,14 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 }
 
 
-BaseMapObject* uiBaseMap::getObject( int id )
+BasemapObject* uiBasemap::getObject( BasemapObjectID id )
 {
-    if ( id<0 ) return nullptr;
+    if ( !id.isValid() )
+	return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	BaseMapObject* bmo = objects_[idx]->getObject();
+	BasemapObject* bmo = objects_[idx]->getObject();
 	if ( bmo && bmo->ID()==id )
 	    return bmo;
     }
@@ -509,13 +510,14 @@ BaseMapObject* uiBaseMap::getObject( int id )
 }
 
 
-uiBaseMapObject* uiBaseMap::getUiObject( int id )
+uiBasemapObject* uiBasemap::getUiObject( BasemapObjectID id )
 {
-    if ( id<0 ) return nullptr;
+    if ( !id.isValid() )
+	return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	BaseMapObject* bmo = objects_[idx]->getObject();
+	BasemapObject* bmo = objects_[idx]->getObject();
 	if ( bmo && bmo->ID()==id )
 	    return objects_[idx];
     }
@@ -524,7 +526,7 @@ uiBaseMapObject* uiBaseMap::getUiObject( int id )
 }
 
 
-bool uiBaseMap::hasChanged()
+bool uiBasemap::hasChanged()
 {
     if ( changed_ ) return true;
 
@@ -535,7 +537,7 @@ bool uiBaseMap::hasChanged()
 }
 
 
-void uiBaseMap::resetChangeFlag()
+void uiBasemap::resetChangeFlag()
 {
     changed_ = false;
 
@@ -544,7 +546,7 @@ void uiBaseMap::resetChangeFlag()
 }
 
 
-void uiBaseMap::addObject( uiBaseMapObject* uiobj )
+void uiBasemap::addObject( uiBasemapObject* uiobj )
 {
     if ( !uiobj ) return;
 
@@ -557,7 +559,7 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
 }
 
 
-void uiBaseMap::show( const BaseMapObject& obj, bool yn )
+void uiBasemap::show( const BasemapObject& obj, bool yn )
 {
     const int objidx = indexOf( &obj );
     if ( !objects_.validIdx(objidx) ) return;
@@ -566,18 +568,18 @@ void uiBaseMap::show( const BaseMapObject& obj, bool yn )
 }
 
 
-void uiBaseMap::showLabels( bool yn )
+void uiBasemap::showLabels( bool yn )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
 	objects_[idx]->showLabels( yn );
 }
 
 
-bool uiBaseMap::labelsShown() const
+bool uiBasemap::labelsShown() const
 { return !objects_.isEmpty() && objects_[0]->labelsShown(); }
 
 
-int uiBaseMap::indexOf( const BaseMapObject* obj ) const
+int uiBasemap::indexOf( const BasemapObject* obj ) const
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -591,7 +593,7 @@ int uiBaseMap::indexOf( const BaseMapObject* obj ) const
 }
 
 
-void uiBaseMap::removeObject( const BaseMapObject* obj )
+void uiBasemap::removeObject( const BasemapObject* obj )
 {
     const int index = obj ? indexOf( obj ) : -1;
     if ( index==-1 )
@@ -603,15 +605,15 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 }
 
 
-void uiBaseMap::reDraw( bool )
+void uiBasemap::reDraw( bool )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
 	objects_[idx]->update();
 }
 
 
-const uiBaseMapObject*
-	uiBaseMap::uiObjectAt( const Geom::Point2D<float>& pt ) const
+const uiBasemapObject*
+	uiBasemap::uiObjectAt( const Geom::Point2D<float>& pt ) const
 {
     const uiGraphicsItem* itm = view_.scene().itemAt( pt );
     if ( !itm ) return nullptr;
@@ -632,14 +634,14 @@ const uiBaseMapObject*
 }
 
 
-const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
+const char* uiBasemap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 {
-    const uiBaseMapObject* uibmobj = uiObjectAt( pt );
+    const uiBasemapObject* uibmobj = uiObjectAt( pt );
     return uibmobj ? uibmobj->name() : nullptr;
 }
 
 
-void uiBaseMap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
+void uiBasemap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
 				 float& val, BufferString& info ) const
 {
     nm.setEmpty();
@@ -652,7 +654,7 @@ void uiBaseMap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
     crd3.setFrom( getWorld2Ui().transform<double,double>(pt,true) );
     crd3.z = mUdf(double);
 
-    const uiBaseMapObject* uibmobj = uiObjectAt( ev.getFPos() );
+    const uiBasemapObject* uibmobj = uiObjectAt( ev.getFPos() );
     if ( uibmobj )
     {
 	nm = uibmobj->name();
@@ -661,9 +663,9 @@ void uiBaseMap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
 }
 
 
-uiGraphicsScene& uiBaseMap::scene()
+uiGraphicsScene& uiBasemap::scene()
 { return view_.scene(); }
 
 
-void uiBaseMap::centerWorldItem( bool yn )
+void uiBasemap::centerWorldItem( bool yn )
 { centerworlditem_ = yn; }

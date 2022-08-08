@@ -22,8 +22,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 
-uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
-    : uiBaseMapObject(bmo)
+uiSurveyBoxObject::uiSurveyBoxObject( BasemapObject* bmo )
+    : uiBasemapObject(bmo)
     , ls_(OD::LineStyle::Solid,3,OD::Color::Red())
     , showlabels_(true)
     , asworkarea_(false)
@@ -140,8 +140,8 @@ void uiSurveyBoxObject::update()
 
 
 // uiNorthArrowObject
-uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
-    : uiBaseMapObject(bmo)
+uiNorthArrowObject::uiNorthArrowObject( BasemapObject* bmo, bool withangle )
+    : uiBasemapObject(bmo)
     , angleline_(nullptr)
     , anglelabel_(nullptr)
 {
@@ -245,7 +245,7 @@ void uiNorthArrowObject::update()
 
 // uiSurveyMap
 uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
-    : uiBaseMap(p)
+    : uiBasemap(p)
     , survbox_(nullptr)
     , title_(nullptr)
     , survinfo_(nullptr)
@@ -313,5 +313,5 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 
 void uiSurveyMap::reDraw( bool deep )
 {
-    uiBaseMap::reDraw( deep );
+    uiBasemap::reDraw( deep );
 }

@@ -24,10 +24,10 @@ class uiTextItem;
 class SurveyInfo;
 
 
-mExpClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
+mExpClass(uiIo) uiSurveyBoxObject : public uiBasemapObject
 {
 public:
-			uiSurveyBoxObject(BaseMapObject*);
+			uiSurveyBoxObject(BasemapObject*);
 			~uiSurveyBoxObject();
 
     const char*		getType() const			{ return "SurveyBox"; }
@@ -58,10 +58,10 @@ protected:
 };
 
 
-mExpClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
+mExpClass(uiIo) uiNorthArrowObject : public uiBasemapObject
 {
 public:
-    			uiNorthArrowObject(BaseMapObject*,bool);
+			uiNorthArrowObject(BasemapObject*,bool);
 
     const char*		getType() const			{ return "NorthArrow"; }
 
@@ -83,7 +83,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiSurveyMap : public uiBaseMap
+mExpClass(uiIo) uiSurveyMap : public uiBasemap
 {
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);
@@ -102,4 +102,3 @@ protected:
 
     void		reDraw(bool deep=true) override;
 };
-

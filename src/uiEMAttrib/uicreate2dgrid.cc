@@ -50,11 +50,11 @@ ________________________________________________________________________
 
 
 
-class uiGrid2DMapObject : public uiBaseMapObject
+class uiGrid2DMapObject : public uiBasemapObject
 {
 public:
 uiGrid2DMapObject()
-    : uiBaseMapObject(0)
+    : uiBasemapObject(0)
     , grid_(0),baseline_(0)
 {}
 

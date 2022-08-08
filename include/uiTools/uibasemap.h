@@ -21,13 +21,13 @@ class uiGraphicsScene;
 class uiGraphicsView;
 class uiWorld2Ui;
 
-mExpClass(uiTools) uiBaseMapObject : public CallBacker
+mExpClass(uiTools) uiBasemapObject : public CallBacker
 {
 public:
-				uiBaseMapObject(BaseMapObject*);
-    virtual			~uiBaseMapObject();
+				uiBasemapObject(BasemapObject*);
+    virtual			~uiBasemapObject();
 
-    BaseMapObject*		getObject();
+    BasemapObject*		getObject();
 
     bool			hasChanged() const	{ return changed_; }
     void			resetChangeFlag() { changed_ = false; }
@@ -49,7 +49,7 @@ public:
     virtual void		getMousePosInfo(Coord3&,TrcKey&,float& val,
 						BufferString& info) const;
 protected:
-    friend			class uiBaseMap;
+    friend			class uiBasemap;
 
     void			changedCB(CallBacker*);
     void			changedStyleCB(CallBacker*);
@@ -64,40 +64,40 @@ protected:
     const uiWorld2Ui*		transform_;
 
     bool			changed_;
-    BaseMapObject*		bmobject_;
+    BasemapObject*		bmobject_;
 
 private:
     void			addLabel(uiGraphicsItem&);
 };
 
 
-mExpClass(uiTools) uiBaseMap : public BaseMap, public uiGroup
+mExpClass(uiTools) uiBasemap : public uiGroup
 {
 public:
-				uiBaseMap(uiParent*);
-    virtual			~uiBaseMap();
+				uiBasemap(uiParent*);
+    virtual			~uiBasemap();
 
     void			setView(const uiWorldRect&);
 
-    void			addObject(BaseMapObject*) override;
-    BaseMapObject*		getObject(int id);
-    uiBaseMapObject*		getUiObject(int id);
+    void			addObject(BasemapObject*);
+    BasemapObject*		getObject(BasemapObjectID);
+    uiBasemapObject*		getUiObject(BasemapObjectID);
 
-    ObjectSet<uiBaseMapObject>& getObjects()		{ return objects_; }
+    ObjectSet<uiBasemapObject>& getObjects()		{ return objects_; }
 
     bool			hasChanged();
     inline void			setChangeFlag()		{ changed_ = true; }
     void			resetChangeFlag();
 				//!Owned by caller
-    void			removeObject(const BaseMapObject*) override;
-    void			show(const BaseMapObject&,bool yn);
+    void			removeObject(const BasemapObject*);
+    void			show(const BasemapObject&,bool yn);
 
     void			showLabels(bool yn);
     bool			labelsShown() const;
 
-    void			addObject(uiBaseMapObject*);
+    void			addObject(uiBasemapObject*);
 
-    const uiBaseMapObject*	uiObjectAt(const Geom::Point2D<float>&) const;
+    const uiBasemapObject*	uiObjectAt(const Geom::Point2D<float>&) const;
     const char*			nameOfItemAt(const Geom::Point2D<float>&) const;
     void			getMousePosInfo(BufferString& name,Coord3&,
 						TrcKey&,float& val,
@@ -109,16 +109,16 @@ public:
     uiGraphicsScene&		scene();
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
 
-    CNotifier<uiBaseMap,int>	objectAdded;
-    CNotifier<uiBaseMap,int>	objectRemoved;
+    CNotifier<uiBasemap,BasemapObjectID>	objectAdded;
+    CNotifier<uiBasemap,BasemapObjectID>	objectRemoved;
 
 protected:
 
-    int				indexOf(const BaseMapObject*) const;
+    int				indexOf(const BasemapObject*) const;
 
     uiGraphicsView&		view_;
     uiGraphicsItem&		worlditem_;
-    ObjectSet<uiBaseMapObject>	objects_;
+    ObjectSet<uiBasemapObject>	objects_;
     bool			changed_;
     bool			centerworlditem_;
 
@@ -131,4 +131,3 @@ protected:
 private:
     uiWorld2Ui&			w2ui_;
 };
-

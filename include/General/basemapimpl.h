@@ -16,11 +16,11 @@ ________________________________________________________________________
 
 /*!Object that draws markers on a basemap */
 
-mExpClass(General) BaseMapMarkers : public BaseMapObject
+mExpClass(General) BasemapMarkers : public BasemapObject
 {
 public:
-				BaseMapMarkers();
-				~BaseMapMarkers();
+				BasemapMarkers();
+				~BasemapMarkers();
 
     void			setMarkerStyle(int,
 					       const MarkerStyle2D&) override;

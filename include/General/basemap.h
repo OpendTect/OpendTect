@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "draw.h"
 #include "fontdata.h"
+#include "integerid.h"
 #include "namedobj.h"
 #include "threadlock.h"
 
@@ -25,17 +26,24 @@ template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
 
+mExpClass(Basic) BasemapObjectID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline BasemapObjectID udf()		{ return BasemapObjectID(); }
+};
 
-mExpClass(General) BaseMapObject : public NamedCallBacker
+
+mExpClass(General) BasemapObject : public NamedCallBacker
 {
 public:
 
     typedef Geom::PosRectangle<double>	BoundingBox;
 
-				BaseMapObject(const char* nm);
-				~BaseMapObject();
+				BasemapObject(const char* nm);
+				~BasemapObject();
 
-    int				ID() const		{ return id_; }
+    BasemapObjectID		ID() const		{ return id_; }
 
     Threads::Lock		lock_;
     virtual void		updateGeometry()			{}
@@ -102,31 +110,15 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&,TaskRunner* taskr=0);
 
-    CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
-    CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
-    Notifier<BaseMapObject>			changed;
-    Notifier<BaseMapObject>			stylechanged;
-    Notifier<BaseMapObject>			zvalueChanged;
-    CNotifier<BaseMapObject,BufferString>	nameChanged;
+    CNotifier<BasemapObject,const MouseEvent&>	leftClicked;
+    CNotifier<BasemapObject,const MouseEvent&>	rightClicked;
+    Notifier<BasemapObject>			changed;
+    Notifier<BasemapObject>			stylechanged;
+    Notifier<BasemapObject>			zvalueChanged;
+    CNotifier<BasemapObject,BufferString>	nameChanged;
 
 protected:
     int				depth_;
-    int				id_;
+    BasemapObjectID		id_;
     BufferString		typenm_;
 };
-
-
-/*!Base class for a Basemap. */
-mExpClass(General) BaseMap
-{
-public:
-
-    virtual void		addObject(BaseMapObject*)		= 0;
-				/*!<Object maintained by caller. Adding an
-				    existing will trigger update */
-
-    virtual void		removeObject(const BaseMapObject*)	= 0;
-
-};
-
-
