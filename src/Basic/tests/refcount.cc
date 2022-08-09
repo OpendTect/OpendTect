@@ -53,7 +53,8 @@ private:
 #define mRunTest( voiddo, test, delstatus, rc ) \
 deleted = false; \
 voiddo; \
-if ( !(test) || delstatus!=deleted || (rc>=0 && rc!=refclass->nrRefs() )) \
+if ( (refclass && !(test)) || delstatus!=deleted || \
+     (rc>=0 && rc!=refclass->nrRefs() )) \
 { \
     errStream() << "[FAIL] Test " << #voiddo << " " << #test << od_endl; \
     return false; \
@@ -108,7 +109,7 @@ bool testRefCount()
     mRunTest( refclass->unRef(), true, false, 1 );
     mRunTest( refclass->unRefNoDelete(), true, false, 0 );
     mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( unRefAndZeroPtr( refclass ), refclass==0, true,
+    mRunTest( unRefAndZeroPtr( refclass ), refclass==nullptr, true,
 	      RefCount::Counter::cInvalidRefCount() );
 
     //Test null pointers
@@ -131,13 +132,13 @@ bool testRefCount()
 bool testWeakPtr()
 {
     bool deleted = false;
-    ReferencedClass* refclass = new ReferencedClass( &deleted );
+    auto* refclass = new ReferencedClass( &deleted );
 
     //This will cause a prog-error, but should still be
     //handled properly
     const bool oldstatus = DBG::setCrashOnProgError( false );
     WeakPtr<ReferencedClass> obsptr = refclass;
-    mRunStandardTest( obsptr.get().ptr()==0,
+    mRunStandardTest( obsptr.get().ptr()==nullptr,
 		      "Setting unreffed class should give NULL");
     DBG::setCrashOnProgError( oldstatus );
 
@@ -146,7 +147,7 @@ bool testWeakPtr()
 
     mRunStandardTest( obsptr.get().ptr(), "WeakPtr is set" );
 
-    refman1 = 0;
+    refman1 = nullptr;
 
     mRunStandardTest( !obsptr.get().ptr(),
 		      "WeakPtr is is unset on last unref" );
@@ -157,7 +158,7 @@ bool testWeakPtr()
     RefMan<ReferencedClass> refman2 = new ReferencedClass( &deleted );
     obsptr = refman2;
 
-    refman1 = 0;
+    refman1 = nullptr;
     mRunStandardTest( obsptr.get().ptr(), "WeakPtr updates to new object." );
 
     return true;
@@ -191,7 +192,7 @@ bool testRefObjectSet()
     {
 	bool deleted1 = false, deleted2 = false;
 	RefObjectSet<ReferencedClass> ref_os;
-	ReferencedClass* referenced = new ReferencedClass( &deleted1 );
+	auto* referenced = new ReferencedClass( &deleted1 );
 	ref_os += referenced;
 	ref_os += new ReferencedClass( &deleted2 );
 
