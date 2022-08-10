@@ -285,6 +285,7 @@ class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
 public:
 ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
+    , messenger_(*new i_tableViewMessenger(this,&hndl))
 {
     frozenview_ = new QTableView( this );
     helper_ = new FrozenColumnsHelper( this, frozenview_ );
@@ -295,6 +296,7 @@ ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
 {
     delete helper_;
     delete frozenview_;
+    delete &messenger_;
 }
 
 
@@ -369,6 +371,15 @@ void setSortEnabled( bool yn )
     frozenview_->setSortingEnabled( yn );
 }
 
+
+void setCurrentCell( const RowCol& rc )
+{
+    notifcell_ = rc;
+    setCurrentIndex( QModelIndex(model()->index(rc.row(), rc.col())) );
+}
+
+    RowCol		notifcell_;
+
 protected:
 
 void keyPressEvent( QKeyEvent* ev ) override
@@ -435,16 +446,20 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
     return current;
 }
 
-    QTableView*		frozenview_;
-    int			nrfrozencols_	= 1;
+    QTableView*			frozenview_;
+    int				nrfrozencols_	= 1;
     FrozenColumnsHelper*	helper_;
+    i_tableViewMessenger&	messenger_;
+
 };
 
 
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
+    , doubleClicked(this)
 {
     columndelegates_.setNullAllowed( true );
+    mAttachCB(this->doubleClicked,uiTableView::doubleClickedCB);
 }
 
 
@@ -638,6 +653,12 @@ bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
 }
 
 
+void uiTableView::selectAll()
+{
+    odtableview_->selectAll();
+}
+
+
 void uiTableView::setColumnValueType( int col, CellType tp )
 {
     ODStyledItemDelegate* coldelegate = getColumnDelegate( col, tp );
@@ -680,4 +701,37 @@ ODStyledItemDelegate* uiTableView::createColumnDelegate( int col, CellType tp )
 void uiTableView::setColumnWidth( int col, int wdth )
 {
     odtableview_->setColumnWidth( col, wdth );
+}
+
+
+const RowCol& uiTableView::currentCell() const
+{
+    return odtableview_->notifcell_;
+}
+
+
+void uiTableView::setCurrentCell( const RowCol& rc )
+{
+    return odtableview_->setCurrentCell( rc );
+}
+
+
+uiTableView::CellType uiTableView::getCellType( int col ) const
+{
+    if ( columndelegates_.validIdx(col) && columndelegates_[col] )
+	return columndelegates_[col]->cellType();
+
+    return uiTableView::Other;
+}
+
+
+void uiTableView::doubleClickedCB( CallBacker* cb )
+{
+    NotifyStopper ns( doubleClicked );
+    const int row = currentCell().row();
+    const int col = currentCell().col();
+    if ( getCellType(col) == uiTableView::Color )
+	ns.enableNotification();
+    else
+	odtableview_->edit( odtableview_->model()->index(row,col) );
 }

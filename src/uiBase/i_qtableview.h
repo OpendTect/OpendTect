@@ -13,6 +13,8 @@ ________________________________________________________________________
  https://doc.qt.io/qt-5/qtwidgets-itemviews-frozencolumn-example.html
 -*/
 
+#include <uitableview.h>
+
 #include <QTableView>
 #include <QScrollBar>
 #include <QHeaderView>
@@ -81,5 +83,58 @@ void rowResized( int row, int oldheight, int newheight )
 }
 
 };
+
+
+class i_tableViewMessenger : public QObject
+{
+    Q_OBJECT
+    friend class ODTableView;
+
+protected:
+i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
+    : sender_(sndr)
+    , receiver_(rcvr )
+{
+    connect( sndr, SIGNAL(doubleClicked(const QModelIndex&)),
+	     this, SLOT(doubleClicked(const QModelIndex&)),
+	     Qt::QueuedConnection );
+}
+
+    virtual		~i_tableViewMessenger() {}
+
+private:
+
+    uiTableView*	receiver_;
+    QTableView*		sender_;
+
+private slots:
+
+#define mTriggerBody( notifier, row, col, triggerstatement ) \
+{ \
+    BufferString msg = #notifier; \
+    msg += " "; msg += row;  \
+    msg += " "; msg += col; \
+    const int refnr = receiver_->beginCmdRecEvent( msg ); \
+    triggerstatement; \
+    receiver_->endCmdRecEvent( refnr, msg ); \
+}
+
+#define mTrigger( notifier, row, col ) \
+    mTriggerBody( notifier, row, col, receiver_->notifier.trigger(*receiver_) )
+
+void doubleClicked( const QModelIndex& index )
+{
+    const int row = index.row();
+    const int col = index.column();
+    receiver_->setCurrentCell( RowCol(row,col) );
+    mTrigger( doubleClicked, row, col );
+}
+
+#undef mTrigger
+#undef mTriggerBody
+
+};
+
+QT_END_NAMESPACE
 
 #endif

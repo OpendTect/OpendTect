@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class DBKey;
 class IOObj;
+class Mnemonic;
 class MnemonicSelection;
 class MultiID;
 class BufferStringSet;
@@ -126,6 +127,8 @@ public:
     bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
 					//!< Returns empty set if all succeeded
     static void		dumpMgrInfo(IOPar&);
+
+    const Mnemonic*	getMnemonicOfLog(const char* lognm) const;
 
     static const UnitOfMeasure*	surveyDepthStorageUnit();
     static const UnitOfMeasure*	surveyDepthDisplayUnit();

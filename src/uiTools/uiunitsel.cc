@@ -98,7 +98,7 @@ void uiUnitSel::init()
 	MnemonicSelection mns = setup_.mn_ &&
 				setup_.mn_->stdType() != Mnemonic::Other
 			      ? MnemonicSelection( setup_.mn_->stdType() )
-			      : MnemonicSelection( nullptr );
+			      : MnemonicSelection( setup_.ptype_ );
 
 	BufferStringSet mnsnames;
 	for ( const auto* mn : mns )

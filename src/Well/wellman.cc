@@ -133,7 +133,7 @@ BufferString Well::LoadReqs::toString() const
 }
 
 
-Well::Man* Well::Man::mgr_ = 0;
+Well::Man* Well::Man::mgr_ = nullptr;
 
 Well::Man& Well::MGR()
 {
@@ -798,6 +798,23 @@ bool Well::Man::writeAndRegister( const MultiID& key ,
     }
 
     return res;
+}
+
+
+const Mnemonic* Well::Man::getMnemonicOfLog( const char* lognm ) const
+{
+    for ( int idx=0; idx<wells_.size(); idx++ )
+    {
+	ConstRefMan<Data> wd = wells_[idx];
+	if ( !wd.ptr() )
+	    continue;
+
+	const Mnemonic* mn = wd->logs().getMnemonicOfLog( lognm );
+	if ( mn )
+	    return mn;
+    }
+
+    return nullptr;
 }
 
 

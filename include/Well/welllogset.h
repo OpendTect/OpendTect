@@ -88,6 +88,7 @@ public:
 				    const PropertyRef* altpr=nullptr,
 				    BoolTypeSet* isalt=nullptr) const;
 
+    const Mnemonic*	getMnemonicOfLog(const char* nm) const;
 
     Notifier<LogSet>	logAdded;
     Notifier<LogSet>	logRemoved;
@@ -106,7 +107,8 @@ protected:
 
     Log*		gtLog( const char* nm ) const
 			{ const int idx = indexOf(nm);
-			    return idx < 0 ? 0 : const_cast<Log*>(logs_[idx]); }
+			    return idx < 0 ? nullptr
+					   : const_cast<Log*>(logs_[idx]); }
 
 private:
 			LogSet(const LogSet&)		= delete;

@@ -369,6 +369,16 @@ void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
 }
 
 
+const Mnemonic* Well::LogSet::getMnemonicOfLog( const char* nm ) const
+{
+    const Well::Log* log = getLog( nm );
+    if ( !log )
+	return nullptr;
+
+    return log->mnemonic();
+}
+
+
 // ---- Well::Log
 
 

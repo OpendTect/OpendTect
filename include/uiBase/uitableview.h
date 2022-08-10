@@ -24,6 +24,7 @@ class QVariant;
 
 mExpClass(uiBase) uiTableView : public uiObject
 {
+    friend class		i_tableViewMessenger;
 public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
@@ -58,9 +59,16 @@ public:
     bool			getSelectedRows(TypeSet<int>&) const;
     bool			getSelectedColumns(TypeSet<int>&) const;
     bool			getSelectedCells(TypeSet<RowCol>&) const;
+    void			selectAll();
+    const RowCol&		currentCell() const;
+    void			setCurrentCell(const RowCol&);
 
     void			setColumnValueType(int col,CellType);
     void			setColumnWidth(int col,int width );
+
+    CellType			getCellType(int col) const;
+
+    Notifier<uiTableView>	doubleClicked;
 
 protected:
 
@@ -75,4 +83,6 @@ protected:
     ObjectSet<ODStyledItemDelegate>	columndelegates_;
 
     virtual ODStyledItemDelegate*	createColumnDelegate(int col,CellType);
+
+    void			doubleClickedCB(CallBacker*);
 };
