@@ -40,7 +40,7 @@ public:
     bool		displayDataFromDataPack(DataPack::ID,
 					    const Attrib::SelSpec&,
 					    const FlatView::DataDispPars::VD&);
-    bool		displayDataFromOther(int visid);
+    bool		displayDataFromOther(VisID visid);
 
     static uiString	sAddEmptyPlane();
     static uiString	sAddAndSelectData();
@@ -49,7 +49,8 @@ public:
     static uiString	sAddAtWellLocation();
 
 protected:
-			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
+			uiODPlaneDataTreeItem(VisID displayid,
+					      OD::SliceType,Type);
 
     uiString		createDisplayName() const;
 
@@ -100,14 +101,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODInlineParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODInlineTreeItem(int displayid,Type);
+			uiODInlineTreeItem(VisID displayid,Type);
 			~uiODInlineTreeItem();
 
 protected:
@@ -137,14 +138,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODCrosslineParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODCrosslineTreeItem(int displayid,Type);
+			uiODCrosslineTreeItem(VisID displayid,Type);
 			~uiODCrosslineTreeItem();
 
 protected:
@@ -174,14 +175,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODZsliceParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODZsliceTreeItem(int displayid,Type);
+			uiODZsliceTreeItem(VisID displayid,Type);
 			~uiODZsliceTreeItem();
 
 protected:

@@ -80,7 +80,7 @@ protected:
 
     typedef mStruct(uiVis) InitInfo
     {
-	int		sceneid_;
+	SceneID		sceneid_;
 
 	float		azimuth_;  // user degrees
 	float		dip_;  // degrees

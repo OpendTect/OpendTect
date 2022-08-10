@@ -88,7 +88,6 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	, nlaserv_(0)
 	, attribSetChg(this)
 	, getOtherFormatData(this)
-	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
 	, visdpsdispmgr_(0)
 	, mousecursorexchange_( *new MouseCursorExchange )
@@ -367,8 +366,8 @@ void uiODApplMgr::exportSurveySetup()
 void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 {
     mCBCapsuleUnpack( EM::ObjectID, emid, cb );
-    TypeSet<int> sceneids;
-    visserv_->getChildIds( -1, sceneids );
+    TypeSet<SceneID> sceneids;
+    visserv_->getSceneIds( sceneids );
     sceneMgr().addEMItem( emid, sceneids[0] );
 }
 
@@ -538,8 +537,8 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
-    const int sceneid = sceneMgr().addScene( true, ztrans, snm );
-    if ( sceneid!=-1 )
+    const SceneID sceneid = sceneMgr().addScene( true, ztrans, snm );
+    if ( sceneid.isValid() )
     {
 	const float zscale = ztrans->zScale();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
@@ -595,7 +594,7 @@ bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 {
-    const int sceneid = sceneMgr().askSelectScene();
+    const SceneID sceneid = sceneMgr().askSelectScene();
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
     const float velocity =
 	scene ? scene->getFixedZStretch() * scene->getZScale() : 0;
@@ -607,9 +606,10 @@ bool uiODApplMgr::pickSetsStored() const
 { return pickserv_->pickSetsStored(); }
 
 
-bool uiODApplMgr::getNewData( int visid, int attrib )
+bool uiODApplMgr::getNewData( VisID visid, int attrib )
 {
-    if ( visid<0 ) return false;
+    if ( !visid.isValid() )
+	return false;
 
     const TypeSet<Attrib::SelSpec>* as = visserv_->getSelSpecs( visid, attrib );
     if ( !as || as->isEmpty() )
@@ -733,7 +733,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    otherformatvisid_ = visid;
 	    otherformatattrib_ = attrib;
 	    getOtherFormatData.trigger();
-	    otherformatvisid_ = -1;
+	    otherformatvisid_.setUdf();
 	    otherformatattrib_ = -1;
 	    res = true;
 	    break;
@@ -844,7 +844,7 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 }
 
 
-bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
+bool uiODApplMgr::calcRandomPosAttrib( VisID visid, int attrib )
 {
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as )
@@ -915,7 +915,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 }
 
 
-bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
+bool uiODApplMgr::evaluateAttribute( VisID visid, int attrib )
 {
     uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, attrib );
@@ -953,7 +953,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 }
 
 
-bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
+bool uiODApplMgr::evaluate2DAttribute( VisID visid, int attrib )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(visid))
@@ -1027,10 +1027,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
 	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
-	const int sceneid = mpeserv_->getCurSceneID();
-	const int sdid = sceneMgr().addEMItem( emid, sceneid );
-	if ( sdid==-1 )
+	const SceneID sceneid = mpeserv_->getCurSceneID();
+	const VisID sdid = sceneMgr().addEMItem( emid, sceneid );
+	if ( !sdid.isValid() )
 	    return false;
+
 	const EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( EM::Horizon3D::typeStr()==emobj->getTypeStr() )
 	    viewer2DMgr().addNewTrackingHorizon3D( emid, sceneid );
@@ -1045,14 +1046,14 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const int trackerid = mpeserv_->activeTrackerID();
 	const EM::ObjectID emid = mpeserv_->getEMObjectID( trackerid );
 
-	TypeSet<int> sceneids;
-	visserv_->getChildIds( -1, sceneids );
+	TypeSet<SceneID> sceneids;
+	visserv_->getSceneIds( sceneids );
 
-	TypeSet<int> hordisplayids;
+	TypeSet<VisID> hordisplayids;
 	visserv_->findObject( typeid(visSurvey::HorizonDisplay),
 			      hordisplayids );
 
-	TypeSet<int> hor2ddisplayids;
+	TypeSet<VisID> hor2ddisplayids;
 	visserv_->findObject( typeid(visSurvey::Horizon2DDisplay),
 			      hor2ddisplayids );
 
@@ -1131,8 +1132,9 @@ bool uiODApplMgr::handleWellServEv( int evid )
     }
     else if ( evid == uiWellPartServer::evDisplayWell() )
     {
-	const int sceneid = sceneMgr().askSelectScene();
-	if ( sceneid<0 ) return false;
+	const SceneID sceneid = sceneMgr().askSelectScene();
+	if ( !sceneid.isValid() )
+	    return false;
 
 	const TypeSet<MultiID>& wellids = wellserv_->createdWellIDs();
 	for ( int idx=0; idx<wellids.size(); idx++ )
@@ -1174,8 +1176,9 @@ bool uiODApplMgr::handleEMServEv( int evid )
 {
     if ( evid == uiEMPartServer::evDisplayHorizon() )
     {
-	const int sceneid = sceneMgr().askSelectScene();
-	if ( sceneid<0 ) return false;
+	const SceneID sceneid = sceneMgr().askSelectScene();
+	if ( !sceneid.isValid() )
+	    return false;
 
 	const EM::ObjectID emid = emserv_->selEMID();
 	sceneMgr().addEMItem( emid, sceneid );
@@ -1186,27 +1189,27 @@ bool uiODApplMgr::handleEMServEv( int evid )
     {
 	const EM::ObjectID emid = emserv_->selEMID();
 
-	TypeSet<int> sceneids;
-	visserv_->getChildIds( -1, sceneids );
+	TypeSet<SceneID> sceneids;
+	visserv_->getSceneIds( sceneids );
 
-	TypeSet<int> emdisplayids;
+	TypeSet<VisID> emdisplayids;
 
-	TypeSet<int> hordisplayids;
+	TypeSet<VisID> hordisplayids;
 	visserv_->findObject( typeid(visSurvey::HorizonDisplay),
 			      hordisplayids );
 	emdisplayids.append( hordisplayids );
 
-	TypeSet<int> hor2ddisplayids;
+	TypeSet<VisID> hor2ddisplayids;
 	visserv_->findObject( typeid(visSurvey::Horizon2DDisplay),
 			      hor2ddisplayids );
 	emdisplayids.append( hor2ddisplayids );
 
-	TypeSet<int> faultdisplayids;
+	TypeSet<VisID> faultdisplayids;
 	visserv_->findObject( typeid(visSurvey::FaultDisplay),
 			      faultdisplayids );
 	emdisplayids.append( faultdisplayids );
 
-	TypeSet<int> faultstickdisplay;
+	TypeSet<VisID> faultstickdisplay;
 	visserv_->findObject( typeid(visSurvey::FaultStickSetDisplay),
 			      faultstickdisplay );
 	emdisplayids.append( faultstickdisplay );
@@ -1251,9 +1254,9 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 bool uiODApplMgr::handleEMAttribServEv( int evid )
 {
-    const int visid = visserv_->getEventObjId();
+    const VisID visid = visserv_->getEventObjId();
     const int attribidx = emattrserv_->attribIdx();
-    const int shiftvisid = emattrserv_->getShiftedObjectVisID();
+    const VisID shiftvisid = emattrserv_->getShiftedObjectVisID();
 
     if ( evid == uiEMAttribPartServer::evCalcShiftAttribute() )
     {
@@ -1375,8 +1378,9 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     }
     else if ( evid == uiEMAttribPartServer::evDisplayEMObject() )
     {
-	const int sceneid = sceneMgr().askSelectScene();
-	if ( sceneid<0 ) return false;
+	const SceneID sceneid = sceneMgr().askSelectScene();
+	if ( !sceneid.isValid() )
+	    return false;
 
 	const TypeSet<EM::ObjectID>& emobjids = emattrserv_->getEMObjIDs();
 	for ( int idx=0; idx<emobjids.size(); idx++ )
@@ -1442,7 +1446,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 
 
 #define mGetSelTracker( tracker ) \
-    const int selobjvisid = visserv_->getSelObjectId(); \
+    const VisID selobjvisid = visserv_->getSelObjectId(); \
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
 				visserv_->getObject(selobjvisid));\
     const EM::ObjectID emid = emod ? emod->getObjectID() : EM::ObjectID::udf();\
@@ -1451,7 +1455,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 
 bool uiODApplMgr::handleVisServEv( int evid )
 {
-    const int visid = visserv_->getEventObjId();
+    const VisID visid = visserv_->getEventObjId();
     visserv_->unlockEvent();
 
     if ( evid == uiVisPartServer::evUpdateTree() )
@@ -1528,7 +1532,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 }
 
 
-void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
+void uiODApplMgr::addMPEParentPath( VisID visid, const TrcKey& tk )
 {
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
     if ( !hd ) return;
@@ -1554,7 +1558,7 @@ void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
     for ( int idx=0; idx<bends.size(); idx++ )
 	rl->addNode( trcs[bends[idx]].position() );
 
-    const int rlvisid =
+    const VisID rlvisid =
 	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
     viewer2DMgr().displayIn2DViewer( rlvisid, 0, false );
     visserv_->setSelObjectId( visid );
@@ -1696,7 +1700,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 bool uiODApplMgr::handleAttribServEv( int evid )
 {
-    const int visid = visserv_->getEventObjId();
+    const VisID visid = visserv_->getEventObjId();
     const int attrib = visserv_->getSelAttribNr();
     if ( evid==uiAttribPartServer::evDirectShowAttr() )
     {
@@ -1837,7 +1841,7 @@ bool uiODApplMgr::handleVolProcServEv( int evid )
 bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    const int visid = visserv_->getEventObjId();
+    const VisID visid = visserv_->getEventObjId();
     const int attrib = visserv_->getSelAttribNr();
     const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
     BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
@@ -1864,12 +1868,12 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
     if ( wellserv_->getPreviewIds().size()>0 )
 	cleanPreview();
 
-    TypeSet<int> plids;
-    TypeSet<int> sceneids;
+    TypeSet<VisID> plids;
+    TypeSet<SceneID> sceneids;
     visSurvey::PolyLineDisplay* pl = new visSurvey::PolyLineDisplay;
     pl->fillPolyLine( coords );
     mDynamicCastGet(visBase::DataObject*,doobj,pl);
-    visserv_->getChildIds( -1, sceneids );
+    visserv_->getSceneIds( sceneids );
 
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
@@ -1877,15 +1881,15 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 	plids.addIfNew( doobj->id() );
     }
 
-    wellserv_->setPreviewIds(plids);
+    wellserv_->setPreviewIds( plids );
 }
 
 
 void uiODApplMgr::cleanPreview()
 {
-    TypeSet<int> sceneids;
-    visserv_->getChildIds( -1, sceneids );
-    TypeSet<int>& previds = wellserv_->getPreviewIds();
+    TypeSet<SceneID> sceneids;
+    visserv_->getSceneIds( sceneids );
+    TypeSet<VisID>& previds = wellserv_->getPreviewIds();
     if ( previds.size() == 0 ) return;
     for ( int idx=0; idx<sceneids.size(); idx++ )
 	visserv_->removeObject( previds[0],sceneids[idx] );
@@ -1896,7 +1900,7 @@ void uiODApplMgr::cleanPreview()
 
 void uiODApplMgr::storeEMObject()
 {
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
 	return;
 
@@ -1910,7 +1914,7 @@ void uiODApplMgr::storeEMObject()
     const bool saveas = mid.isUdf() || !ioobj;
     emserv_->storeObject( emid, saveas );
 
-    TypeSet<int> ids;
+    TypeSet<VisID> ids;
     mid = emserv_->getStorageID( emid );
     visserv_->findObject( mid, ids );
 
@@ -1976,26 +1980,26 @@ void uiODApplMgr::openCrossPlot( CallBacker* )
 { dispatcher_.openXPlot(); }
 void uiODApplMgr::setZStretch()
 { attrvishandler_.setZStretch(); }
-bool uiODApplMgr::selectAttrib( int id, int attrib )
+bool uiODApplMgr::selectAttrib( VisID id, int attrib )
 { return attrvishandler_.selectAttrib( id, attrib ); }
-void uiODApplMgr::setHistogram( int visid, int attrib )
+void uiODApplMgr::setHistogram( VisID visid, int attrib )
 { attrvishandler_.setHistogram(visid,attrib); }
 void uiODApplMgr::colMapperChg( CallBacker* )
 { attrvishandler_.colMapperChg(); }
-void uiODApplMgr::setRandomPosData( int visid, int attrib,
+void uiODApplMgr::setRandomPosData( VisID visid, int attrib,
 				const DataPointSet& data )
 { attrvishandler_.setRandomPosData(visid,attrib,data); }
 void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
-void uiODApplMgr::updateColorTable( int visid, int attrib )
+void uiODApplMgr::updateColorTable( VisID visid, int attrib )
 { attrvishandler_.updateColorTable( visid, attrib ); }
 void uiODApplMgr::colSeqChg( CallBacker* )
 { attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
 NotifierAccess* uiODApplMgr::colorTableSeqChange()
 { return attrvishandler_.colorTableSeqChange(); }
-void uiODApplMgr::useDefColTab( int visid, int attrib )
+void uiODApplMgr::useDefColTab( VisID visid, int attrib )
 { attrvishandler_.useDefColTab(visid,attrib); }
-void uiODApplMgr::saveDefColTab( int visid, int attrib )
+void uiODApplMgr::saveDefColTab( VisID visid, int attrib )
 { attrvishandler_.saveDefColTab(visid,attrib); }
 
 void uiODApplMgr::processPreStack( bool is2d )

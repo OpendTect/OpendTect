@@ -42,15 +42,15 @@ mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODWellParentTreeItem(); }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODWellTreeItem)
 public:
-			uiODWellTreeItem( int );
-			uiODWellTreeItem( const MultiID& mid );
+			uiODWellTreeItem(VisID);
+			uiODWellTreeItem(const MultiID&);
 			~uiODWellTreeItem();
 
 protected:

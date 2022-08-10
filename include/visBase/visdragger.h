@@ -102,7 +102,7 @@ public:
 
     NotifierAccess*		rightClicked() override
 				{ return &rightclicknotifier_; }
-    const TypeSet<int>*		rightClickedPath() const override;
+    const TypeSet<VisID>*	rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const;
     void			updateDragger( bool active );
     void			setDisplayTransformation(

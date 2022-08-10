@@ -47,20 +47,20 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODHorizonParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 { mODTextTranslationClass(uiODHorizonTreeItem)
 public:
-			uiODHorizonTreeItem(int visid,bool rgba,
+			uiODHorizonTreeItem(VisID visid,bool rgba,
 					    bool atsect,bool dummy);
 			uiODHorizonTreeItem(const EM::ObjectID&,
 					    bool rgba,bool atsect);
 			~uiODHorizonTreeItem();
 
-    virtual int		reloadEMObject();	// Return new display id.
+    virtual VisID	reloadEMObject();	// Return new display id.
 
 protected:
     bool		init();
@@ -134,14 +134,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODHorizon2DParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 { mODTextTranslationClass(uiODHorizon2DTreeItem)
 public:
-			uiODHorizon2DTreeItem(int visid,bool dummy);
+			uiODHorizon2DTreeItem(VisID visid,bool dummy);
 			uiODHorizon2DTreeItem(const EM::ObjectID&);
 			~uiODHorizon2DTreeItem();
 

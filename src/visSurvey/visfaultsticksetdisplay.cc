@@ -597,7 +597,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
 	{
-	    const int visid = eventinfo.pickedobjids[idx];
+	    const VisID visid = eventinfo.pickedobjids[idx];
 	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 
 	    mDynamicCast(Seis2DDisplay*,s2dd,dataobj);
@@ -897,7 +897,7 @@ bool FaultStickSetDisplay::removeSelections( TaskRunner* taskr )
 
 void FaultStickSetDisplay::otherObjectsMoved(
 				const ObjectSet<const SurveyObject>& objs,
-				int whichobj )
+				VisID whichobj )
 {
     if ( !displayonlyatsections_ )
 	return;

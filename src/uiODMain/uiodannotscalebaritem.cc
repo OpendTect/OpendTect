@@ -157,7 +157,7 @@ const char* ScaleBarSubItem::parentType() const
 { return typeid(ScaleBarParentItem).name(); }
 
 
-ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
+ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, VisID displayid )
     : uiODAnnotSubItem(pck,displayid)
     , propmnuitem_(m3Dots(uiStrings::sProperties()))
 {
@@ -167,7 +167,7 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
 
 bool ScaleBarSubItem::init()
 {
-    if (  displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	visSurvey::ScaleBarDisplay* ad = visSurvey::ScaleBarDisplay::create();
 	visserv_->addObject( ad, sceneID(), true );
@@ -202,7 +202,7 @@ void ScaleBarSubItem::fillStoragePar( IOPar& par ) const
 void ScaleBarSubItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAnnotSubItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || menu->menuID()!=displayID().asInt() )
 	return;
 
     mAddMenuOrTBItem(istb,menu,menu,&propmnuitem_,true,false );
@@ -214,7 +214,7 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
     uiODAnnotSubItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() )
+    if ( menu->isHandled() || menu->menuID()!=displayID().asInt() )
 	return;
 
     if ( mnuid==propmnuitem_.id )

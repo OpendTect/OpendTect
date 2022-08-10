@@ -618,7 +618,7 @@ void Scene::objectMoved( CallBacker* cb )
 {
     Threads::Locker locker( updatelock_ );
     ObjectSet<const SurveyObject> activeobjects;
-    int movedid = -1;
+    VisID movedid;
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
@@ -660,7 +660,7 @@ void Scene::objectMoved( CallBacker* cb )
 
 void Scene::selChangeCB( CallBacker* cber )
 {
-    mCBCapsuleUnpack( int, selid, cber );
+    mCBCapsuleUnpack( VisID, selid, cber );
 
     for ( int idx=size()-1; idx>=0; idx-- )
     {
@@ -670,15 +670,15 @@ void Scene::selChangeCB( CallBacker* cber )
     }
 
     // reset if new selection via tree/scene/spacebar is not a posmodemanipobj
-    posmodemanipdeselobjid_ = -1;
+    posmodemanipdeselobjid_.setUdf();
 }
 
 
 void Scene::togglePosModeManipObjSel()
 {
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
 
-    TypeSet<int> movableposmodemanipobjids;
+    TypeSet<VisID> movableposmodemanipobjids;
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
@@ -694,7 +694,7 @@ void Scene::togglePosModeManipObjSel()
 	if ( canmoveposmodemanip && so->isManipulatorShown() )
 	{
 	    visBase::DM().selMan().select( posmodemanipdeselobjid_ );
-	    posmodemanipdeselobjid_ = -1;
+	    posmodemanipdeselobjid_.setUdf();
 	    return;
 	}
 
@@ -704,7 +704,7 @@ void Scene::togglePosModeManipObjSel()
 
     if ( movableposmodemanipobjids.isEmpty() )
     {
-	posmodemanipdeselobjid_ = -1;
+	posmodemanipdeselobjid_.setUdf();
 	return;
     }
 
@@ -721,9 +721,9 @@ void Scene::togglePosModeManipObjSel()
 }
 
 
-void Scene::selectPosModeManipObj( int selid )
+void Scene::selectPosModeManipObj( VisID selid )
 {
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.isPresent(selid) )
 	return;
 
@@ -734,7 +734,7 @@ void Scene::selectPosModeManipObj( int selid )
 	{
 	    if ( canmoveposmodemanip )
 	    {
-		if ( posmodemanipdeselobjid_ < 0 )
+		if ( !posmodemanipdeselobjid_.isValid() )
 		{
 		    hoveredposmodemanipobjids_ -= selid;
 		    hoveredposmodemanipobjids_ += selid;
@@ -797,7 +797,7 @@ void Scene::mouseCB( CallBacker* cb )
     xytmousepos_ = Coord3::udf();
     mousetrckey_.setUdf();
 
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     for ( int idx=0; idx<selectedids.size(); idx++ )
     {
 	const visBase::DataObject* dataobj =
@@ -903,7 +903,7 @@ void Scene::mouseCursorCB( CallBacker* cb )
 
     if ( !mousecursor_ || mousecursor_->shape_==MouseCursor::NotSet )
     {
-	const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+	const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
 	for ( int idx=size()-1; idx>=0; idx-- )
 	{
 	    const visBase::DataObject* dataobj = getObject( idx );
@@ -1002,7 +1002,7 @@ const ZAxisTransform* Scene::getZAxisTransform() const
 { return datatransform_; }
 
 
-void Scene::setMarkerPos( const TrcKeyValue& trkv, int sceneid )
+void Scene::setMarkerPos( const TrcKeyValue& trkv, SceneID sceneid )
 {
     Coord3 displaypos( Survey::GM().toCoord( trkv.tk_ ), trkv.val_ );
     if ( sceneid==id() )
@@ -1152,16 +1152,14 @@ void Scene::fillPar( IOPar& par ) const
 	IOPar childpar;
 	nrchilds++;
 
-	mDynamicCastGet( const visBase::DataObject*, dobj, survobj );
-	const int objid = dobj ? dobj->id() : -1;
-
+	mDynamicCastGet(const visBase::DataObject*,dobj,survobj)
+	const VisID objid = dobj ? dobj->id() : VisID::udf();
 	childpar.set( sKeyChildID(), objid );
 	survobj->fillPar( childpar );
 	par.mergeComp(childpar, childkey.buf() );
     }
 
     par.set( sKeyNrChild(), nrchilds );
-
 }
 
 
@@ -1214,7 +1212,8 @@ bool Scene::usePar( const IOPar& par )
 	{
 	    setTrcKeyZSampling( cs );
 	    setZScale( zscale );
-	    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info( par );
+	    delete zdomaininfo_;
+	    zdomaininfo_ = new ZDomain::Info( par );
 	}
     }
 
@@ -1227,11 +1226,9 @@ bool Scene::usePar( const IOPar& par )
 	BufferString key( childfix(), idx );
 	PtrMan<IOPar> chldpar = par.subselect( key.buf() );
 
-	int sessionobjid = -1;
-	if ( chldpar->get( sKeyChildID(), sessionobjid ) )
-	{
+	int sessionobjid;
+	if ( chldpar->get(sKeyChildID(),sessionobjid) )
 	    childids += sessionobjid;
-	}
     }
 
     sort( childids );
@@ -1245,7 +1242,8 @@ bool Scene::usePar( const IOPar& par )
 	if ( !chldpar->get( sKey::Type(), surobjtype ) )
 	    continue;
 
-	if ( visBase::DM().getObject(childids[chld]) )
+	const VisID visid( childids[chld] );
+	if ( visBase::DM().getObject(visid) )
 	{
 	    pErrMsg("Hmmm");
 		continue;
@@ -1267,8 +1265,8 @@ bool Scene::usePar( const IOPar& par )
 	    continue;
 	}
 
-	dobj->setID( childids[chld] );
-	if ( !survobj->usePar( *chldpar ) )
+	dobj->setID( visid );
+	if ( !survobj->usePar(*chldpar) )
 	{
 	    survobj->doUnRef();
 	    continue;
@@ -1336,15 +1334,21 @@ bool Scene::usePar( const IOPar& par )
 int Scene::getImageFromPar( const IOPar& par, const char* key,
 			    visBase::TopBotImage*& image )
 {
-    int imgid;
+    VisID imgid;
     if ( par.get(key,imgid) )
     {
-        RefMan<DataObject> dataobj = visBase::DM().getObject( imgid );
-        if ( !dataobj ) return 0;
-        mDynamicCastGet(visBase::TopBotImage*,im,dataobj.ptr())
-        if ( !im ) return -1;
-	int objidx = getFirstIdx( image );
-	if ( objidx>=0 ) removeObject( objidx );
+	RefMan<DataObject> dataobj = visBase::DM().getObject( imgid );
+	if ( !dataobj )
+	    return 0;
+
+	mDynamicCastGet(visBase::TopBotImage*,im,dataobj.ptr())
+	if ( !im )
+	    return -1;
+
+	const int objidx = getFirstIdx( image );
+	if ( objidx>=0 )
+	    removeObject( objidx );
+
 	image = im;
     }
 
@@ -1451,7 +1455,7 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 	utm2disptransform_->transform( p2 );
 	tempzstretchtrans_->transform( p2 );
 
-	if ( mCast(bool,top) == (outerside == s3dgeom->isRightHandSystem()) )
+	if ( sCast(bool,top) == (outerside == s3dgeom->isRightHandSystem()) )
 	    std::swap( p1, p2 );
 
 	const Plane3 plane( p0, p1, p2 );

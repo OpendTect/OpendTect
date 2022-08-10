@@ -62,7 +62,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , activetrackerid_(-1)
     , eventattrselspec_( 0 )
     , temptrackerid_(-1)
-    , cursceneid_(-1)
     , trackercurrentobject_(-1)
     , initialundoid_(mUdf(int))
     , seedhasbeenpicked_(false)
@@ -167,7 +166,8 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 }
 
 
-bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
+bool uiMPEPartServer::addTracker( const char* trackertype,
+				  SceneID addedtosceneid)
 {
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;
@@ -187,7 +187,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( !tracker ) return false;
 
     activetrackerid_ = trackerid;
-    if ( (addedtosceneid!=-1) &&
+    if ( addedtosceneid.isValid() &&
 	 !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
     {
 	pErrMsg("Could not create tracker" );
@@ -413,7 +413,7 @@ void uiMPEPartServer::noTrackingRemoval()
 
     MPE::engine().trackeraddremove.disable();
 
-    if ( trackercurrentobject_.isValid() && cursceneid_!=-1 )
+    if ( trackercurrentobject_.isValid() && cursceneid_.isValid() )
 	sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
@@ -424,7 +424,7 @@ void uiMPEPartServer::noTrackingRemoval()
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
 
-    if ( cursceneid_ == -1 )
+    if ( !cursceneid_.isValid() )
 	setupbeingupdated_ = false;
 
     MPE::engine().trackeraddremove.enable();
@@ -948,7 +948,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	simichangenotifier->notify(
 			mCB(this,uiMPEPartServer,correlationChangedCB));
 
-    if ( cursceneid_ != -1 )
+    if ( cursceneid_.isValid() )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
 
     seedpicker->seedToBeAddedRemoved.notify(

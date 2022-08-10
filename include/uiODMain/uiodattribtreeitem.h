@@ -23,10 +23,10 @@ public:
 			uiODAttribTreeItem(const char* parenttype);
     virtual		~uiODAttribTreeItem();
 
-    static uiString	createDisplayName( int visid, int attrib );
-    static void		createSelMenu(MenuItem&,int visid,int attrib,
-	    			      int sceneid);
-    static bool		handleSelMenu(int mnuid,int visid,int attrib);
+    static uiString	createDisplayName(VisID visid,int attrib);
+    static void		createSelMenu(MenuItem&,VisID visid,int attrib,
+				      SceneID sceneid);
+    static bool		handleSelMenu(int mnuid,VisID visid,int attrib);
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
     static uiString	sKeyUseColSettingsMenuTxt();
@@ -44,5 +44,3 @@ protected:
     MenuItem		colsettingsmnuitem_;
     MenuItem		usecolsettingsmnuitem_;
 };
-
-

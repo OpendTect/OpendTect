@@ -35,7 +35,7 @@ ___________________________________________________________________
 
 
 bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
-				  int displayid )
+				  VisID displayid )
 {
     const uiTreeFactorySet* tfs = ODMainWin()->sceneMgr().treeItemFactorySet();
     if ( !tfs )
@@ -69,7 +69,6 @@ static const int cRemoveIdx = -1000;
 
 uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(uiString::emptyString())
-    , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
     , addmnuitem_(uiStrings::sAdd(),cAddIdx)
     , addattribmnuitem_(uiStrings::sAttribute(), cAttribIdx)
@@ -105,13 +104,13 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	tb->handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
     }
 
-    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
+    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }
 
 
 int uiODDisplayTreeItem::selectionKey() const
 {
-    return displayid_;
+    return displayid_.asInt();
 }
 
 
@@ -181,6 +180,12 @@ bool uiODDisplayTreeItem::init()
     tb->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
     return true;
+}
+
+
+bool uiODDisplayTreeItem::isDisplayID( int mnuid ) const
+{
+    return mnuid == displayid_.asInt();
 }
 
 
@@ -355,7 +360,7 @@ uiString uiODDisplayTreeItem::getLockMenuText() const
 void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
 {
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+    if ( !tb || !isDisplayID(tb->menuID()) || !isSelected() )
 	return;
 
     const bool enab = !visserv_->isLocked(displayid_) &&
@@ -370,7 +375,7 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu || menu->menuID() != displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     createMenu( menu, false );
@@ -449,7 +454,8 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( !menu || menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1)
+    if ( !menu || menu->isHandled() ||
+	 !isDisplayID(menu->menuID()) || mnuid==-1)
 	return;
 
     if ( mnuid==lockmnuitem_.id )
@@ -463,8 +469,8 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==duplicatemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	int newid =visserv_->duplicateObject(displayid_,sceneID());
-	if ( newid!=-1 )
+	const VisID newid =visserv_->duplicateObject(displayid_,sceneID());
+	if ( newid.isValid() )
 	    uiODDisplayTreeItem::create( this, applMgr(), newid );
     }
     else if ( mnuid==removemnuitem_.id )
@@ -486,11 +492,12 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 
-	const int attrib = visserv_->addAttrib( menu->menuID() );
+	const VisID visid( menu->menuID() );
+	const int attrib = visserv_->addAttrib( visid );
 	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttrib(),
 				false, 0 );
-	visserv_->setSelSpec( menu->menuID(), attrib, spec );
-	visserv_->enableInterpolation( menu->menuID(), true );
+	visserv_->setSelSpec( visid, attrib, spec );
+	visserv_->enableInterpolation( visid, true );
 
 	VolProc::uiDataTreeItem* newitem =
 	    new VolProc::uiDataTreeItem( typeid(*this).name() );
@@ -534,7 +541,7 @@ void uiODDisplayTreeItem::deleteObject()
 	return;
     }
 
-    const int sceneid = sceneID(); // Don't change this order!
+    const SceneID sceneid = sceneID(); // Don't change this order!
     if ( !uiIOObj(*ioobj).removeImpl(true,true) )
 	return;
 
@@ -547,7 +554,7 @@ void uiODDisplayTreeItem::handleAddAttrib()
 {
     uiODDataTreeItem* newitem = addAttribItem();
     newitem->select();
-    const int id = newitem->displayID();
+    const VisID id = newitem->displayID();
     const int attrib = newitem->attribNr();
     const bool selok = applMgr()->selectAttrib( id, attrib );
     if ( selok && !visserv_->calcManipulatedAttribs(id) )

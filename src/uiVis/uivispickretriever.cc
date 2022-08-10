@@ -23,7 +23,7 @@ uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
     , status_( Idle )
     , pickedgeomid_(Survey::GeometryManager::cUndefGeomID())
-    , finished_( this )    
+    , finished_( this )
 {
     resetPickedPos();
 }
@@ -36,13 +36,15 @@ uiVisPickRetriever::~uiVisPickRetriever()
 }
 
 
-bool uiVisPickRetriever::enable(  const TypeSet<int>* scenes )
+bool uiVisPickRetriever::enable(  const TypeSet<SceneID>* scenes )
 {
     if ( status_ == Waiting ) return false;
 
     status_ = Waiting;
-    if ( scenes ) allowedscenes_ = *scenes;
-    else allowedscenes_.erase();
+    if ( scenes )
+	allowedscenes_ = *scenes;
+    else
+	allowedscenes_.erase();
 
     visserv_->setWorkMode( uiVisPartServer::Pick );
     MouseCursorManager::setOverride( MouseCursor::Cross );
@@ -77,7 +79,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     if ( eventinfo.type!=visBase::MouseClick )
 	return;
 
-    visSurvey::Scene* scene = 0;
+    visSurvey::Scene* scene = nullptr;
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	if ( &scenes_[idx]->eventCatcher()==caller )
@@ -125,7 +127,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	if ( res )
 	    pickedtrcnr_ = pos2d.nr_;
     }
-    
+
     MouseCursorManager::restoreOverride();
     finished_.trigger();
 
@@ -151,7 +153,7 @@ void uiVisPickRetriever::resetPickedPos()
     pickedgeomid_ = Survey::GeometryManager::cUndefGeomID();
     pickedtrcnr_ = mUdf(int);
     pickedpos_ = Coord3::udf();
-    pickedscene_ = -1;
+    pickedscene_.setUdf();
     pickedobjids_.erase();
 }
 
@@ -164,17 +166,17 @@ const ZAxisTransform* uiVisPickRetriever::getZAxisTransform() const
 	    return scenes_[idx]->getZAxisTransform();
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-int uiVisPickRetriever::unTransformedSceneID() const
+SceneID uiVisPickRetriever::unTransformedSceneID() const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	if ( scenes_[idx] && !scenes_[idx]->getZAxisTransform() ) 
+	if ( scenes_[idx] && !scenes_[idx]->getZAxisTransform() )
 	    return scenes_[idx]->id();
     }
 
-    return -1;
+    return SceneID::udf();
 }

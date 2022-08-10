@@ -32,7 +32,7 @@ const char* uiHorizonShiftDialog::sDefaultAttribName()
 
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const EM::ObjectID& emid,
-					    int visid,
+					    VisID visid,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )

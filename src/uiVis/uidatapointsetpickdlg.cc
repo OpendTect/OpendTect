@@ -39,7 +39,7 @@ ________________________________________________________________________
 #include "posvecdatasettr.h"
 
 
-uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
+uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, SceneID sceneid )
     : uiDialog(p,Setup(tr("DataPointSet picking"),mNoDlgTitle,
 			mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
@@ -89,10 +89,15 @@ uiDataPointSetPickDlg::~uiDataPointSetPickDlg()
 
 
 void uiDataPointSetPickDlg::winCloseCB( CallBacker* )
-{ cleanUp(); }
+{
+    cleanUp();
+}
 
-void uiDataPointSetPickDlg::objSelCB( CallBacker* cb )
-{ tb_->turnOn( pickbutid_, false ); }
+
+void uiDataPointSetPickDlg::objSelCB( CallBacker* )
+{
+    tb_->turnOn( pickbutid_, false );
+}
 
 
 void uiDataPointSetPickDlg::cleanUp()
@@ -116,11 +121,10 @@ void uiDataPointSetPickDlg::cleanUp()
 }
 
 
-static MultiID getMultiID( int sceneid )
+static MultiID getMultiID( SceneID sceneid )
 {
     // Create dummy multiid, I don't want to save these picks
-    BufferString mid( "9999.", sceneid );
-    return MultiID( mid.buf() );
+    return MultiID( 9999, sceneid.asInt() );
 }
 
 
@@ -362,7 +366,7 @@ bool uiDataPointSetPickDlg::acceptOK( CallBacker* )
 
 
 // uiEMDataPointSetPickDlg
-uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
+uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, SceneID sceneid,
 						  EM::ObjectID emid )
     : uiDataPointSetPickDlg(p,sceneid)
     , emid_(emid)

@@ -545,7 +545,7 @@ static const int defelevval = 0;
 public:
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 		  const StepInterval<float>& intv, const OD::LineStyle& ls,
-		  int sceneid )
+		  SceneID sceneid )
     : uiDialog(p,Setup(tr("Contour Display Options"),mNoDlgTitle,
 			mODHelpKey(mContourParsDlgHelpID) )
 		.modal(false).nrstatusflds(1))

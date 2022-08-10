@@ -23,7 +23,7 @@ public:
 				uiODPSEventsParentTreeItem();
 				~uiODPSEventsParentTreeItem();
 
-    int				sceneID() const;
+    SceneID			sceneID() const;
 
     static CNotifier<uiODPSEventsParentTreeItem,uiMenu*>& showMenuNotifier();
 
@@ -42,7 +42,7 @@ mExpClass(uiODMain) uiODPSEventsTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const   { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODPSEventsParentTreeItem;}
-    uiTreeItem*		create(int visid,uiTreeItem*) const
+    uiTreeItem*		create(VisID visid,uiTreeItem*) const
 			{ return new uiODPSEventsParentTreeItem; }
 };
 
@@ -81,4 +81,3 @@ protected:
     int				coloridx_;
     int				dispidx_;
 };
-

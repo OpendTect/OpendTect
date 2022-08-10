@@ -22,7 +22,7 @@ ________________________________________________________________________
 mExpClass(General) PickRetriever : public SharedObject
 {
 public:
-    virtual bool		enable(const TypeSet<int>* allowedsc)	= 0;
+    virtual bool		enable(const TypeSet<SceneID>* allowedsc)= 0;
     				/*!<Sets the object in a state where it's
 				    retrieving picks.
 				    \note if allowedsc is empty or null,
@@ -37,8 +37,8 @@ public:
     virtual const Coord3&	getPos() const				= 0;
     virtual Pos::GeomID		getGeomID() const			= 0;
     virtual int			getTrcNr() const			= 0;
-    virtual int			getSceneID() const			= 0;
-    virtual const TypeSet<int>&	getPickedObjIDs() const			= 0;
+    virtual SceneID		getSceneID() const			= 0;
+    virtual const TypeSet<VisID>& getPickedObjIDs() const		= 0;
 
     static PickRetriever*	getInstance();
     				/*!<Main access function. */
@@ -47,7 +47,7 @@ public:
     				/*!<Should normally only be called from
 				    application initiation. */
     OD::ButtonState		buttonstate_;
-    virtual int			unTransformedSceneID() const		= 0;
+    virtual SceneID		unTransformedSceneID() const		= 0;
     virtual const ZAxisTransform* getZAxisTransform() const		= 0;
 
 protected:

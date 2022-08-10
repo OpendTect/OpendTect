@@ -166,7 +166,7 @@ public:
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
-				    int whichobj)
+				    VisID whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
     EM::Fault3D*		emFault();
@@ -196,7 +196,7 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj) override;
+				    VisID whichobj) override;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
 							 int column,
@@ -229,7 +229,7 @@ protected:
 
     void			setActiveStick(const EM::PosID&);
     void			updateActiveStickMarker();
-    void			updateHorizonIntersections( int whichobj,
+    void			updateHorizonIntersections(VisID whichobj,
 					const ObjectSet<const SurveyObject>&);
     void			updateEditorMarkers();
 
@@ -264,7 +264,7 @@ protected:
 
     ObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
-    TypeSet<int>			horintersectids_;
+    TypeSet<VisID>			horintersectids_;
     bool				displayintersections_;
     bool				displayhorintersections_;
 

@@ -106,7 +106,7 @@ bool DataObjectGroup::isRightHandSystem() const
 }
 
 
-void DataObjectGroup::addObject( int nid )
+void DataObjectGroup::addObject( VisID nid )
 {
     mDynamicCastGet(DataObject*,no,DM().getObject(nid));
     if ( !no )
@@ -130,7 +130,7 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
 }
 
 
-int DataObjectGroup::getFirstIdx( int nid ) const
+int DataObjectGroup::getFirstIdx( VisID nid ) const
 {
     const DataObject* sceneobj =
 	(const DataObject*) DM().getObject(nid);

@@ -47,7 +47,7 @@ public:
     NotifierAccess*		selection() override	{ return &selnotifier; }
     NotifierAccess*		deSelection() override	{return &deselnotifier;}
     NotifierAccess	*	rightClicked() override	{ return &rightClick; }
-    const TypeSet<int>*		rightClickedPath() const override;
+    const TypeSet<VisID>*	rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const{return rcevinfo;}
 
 protected:

@@ -350,7 +350,7 @@ bool SurveyObject::isAnyAttribEnabled() const
 
 
 void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
-					    int objid, int inplanedragkeys,
+					    VisID objid, int inplanedragkeys,
 					    MouseCursor& mousecursor )
 {
     mousecursor.shape_ = MouseCursor::NotSet;

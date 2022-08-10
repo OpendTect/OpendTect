@@ -43,7 +43,6 @@ Scene::Scene()
     : polygonoffset_( new PolygonOffset )
     , light_( new Light )
     , events_( *EventCatcher::create() )
-    , mousedownid_( -1 )
     , blockmousesel_( false )
     , nameChanged(this)
     , contextIsUp( this )
@@ -251,7 +250,7 @@ void Scene::mousePickCB( CallBacker* cb )
     if ( events_.isHandled() )
     {
 	if ( eventinfo.type==MouseClick )
-	    mousedownid_ = -1;
+	    mousedownid_.setUdf();
 	return;
     }
 
@@ -261,7 +260,7 @@ void Scene::mousePickCB( CallBacker* cb )
 	if ( ti && ti->maxPostPressDist()<5 )
 	    events_.setHandled();
 	else
-	    mousedownid_ = -1;
+	    mousedownid_.setUdf();
 
 	return;
     }
@@ -271,7 +270,7 @@ void Scene::mousePickCB( CallBacker* cb )
 
     if ( eventinfo.pressed )
     {
-	mousedownid_ = -1;
+	mousedownid_.setUdf();
 
 	const int sz = eventinfo.pickedobjids.size();
 	for ( int idx=0; idx<sz; idx++ )
@@ -291,7 +290,7 @@ void Scene::mousePickCB( CallBacker* cb )
     else
     {
 	const int sz = eventinfo.pickedobjids.size();
-	if ( !sz && mousedownid_==-1 )
+	if ( !sz && !mousedownid_.isValid() )
 	{
 	    if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
 		 !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&

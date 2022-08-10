@@ -897,7 +897,7 @@ Coord3 ui3DViewerBody::getCameraPosition() const
 }
 
 
-void ui3DViewerBody::setSceneID( int sceneid )
+void ui3DViewerBody::setSceneID( SceneID sceneid )
 {
     if ( scene_ )
     {
@@ -1748,12 +1748,16 @@ bool ui3DViewer::getReversedMouseWheelDirection() const
 { return osgbody_->getReversedMouseWheelDirection(); }
 
 
-void ui3DViewer::setSceneID( int sceneid )
-{ osgbody_->setSceneID( sceneid ); }
+void ui3DViewer::setSceneID( SceneID sceneid )
+{
+    osgbody_->setSceneID( sceneid );
+}
 
 
-int ui3DViewer::sceneID() const
-{ return osgbody_->getScene() ? osgbody_->getScene()->id() : -1; }
+SceneID ui3DViewer::sceneID() const
+{
+    return osgbody_->getScene() ? osgbody_->getScene()->id() : SceneID::udf();
+}
 
 
 void ui3DViewer::setViewMode( bool yn )
@@ -1848,8 +1852,9 @@ void ui3DViewer::fillPar( IOPar& par ) const
 
 bool ui3DViewer::usePar( const IOPar& par )
 {
-    int sceneid;
-    if ( !par.get(sKeySceneID(),sceneid) ) return false;
+    SceneID sceneid;
+    if ( !par.get(sKeySceneID(),sceneid) )
+	return false;
 
     setSceneID( sceneid );
     if ( !getScene() ) return false;

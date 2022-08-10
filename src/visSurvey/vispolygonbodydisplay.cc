@@ -571,10 +571,9 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
-	const int visid = eventinfo.pickedobjids[idx];
+	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-
-	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane, dataobj );
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,plane,dataobj)
 	if ( plane )
 	{
 	    mouseplanecs = plane->getTrcKeyZSampling();
@@ -884,7 +883,7 @@ bool PolygonBodyDisplay::displayedOnlyAtSections() const
 
 
 void PolygonBodyDisplay::otherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, int whichobj )
+	const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     if ( !explicitintersections_ ) return;
 

@@ -149,23 +149,24 @@ void uiODDataTreeItem::keyPressCB( CallBacker* cb )
 
 bool uiODDataTreeItem::shouldSelect( int selid ) const
 {
-    return selid!=-1 && selid==displayID() &&
+    const VisID visid( selid );
+    return visid.isValid() && visid==displayID() &&
 	   visserv_->getSelAttribNr()==attribNr();
 }
 
 
-int uiODDataTreeItem::sceneID() const
+SceneID uiODDataTreeItem::sceneID() const
 {
     int sceneid=-1;
     getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
-    return sceneid;
+    return SceneID(sceneid);
 }
 
 
-int uiODDataTreeItem::displayID() const
+VisID uiODDataTreeItem::displayID() const
 {
     mDynamicCastGet( uiODDisplayTreeItem*, odti, parent_ );
-    return odti ? odti->displayID() : -1;
+    return odti ? odti->displayID() : VisID::udf();
 }
 
 
@@ -180,7 +181,7 @@ int uiODDataTreeItem::attribNr() const
 void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
 {
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayID() || !isSelected() )
+    if ( !tb || tb->menuID() != displayID().asInt() || !isSelected() )
 	return;
 
     createMenu( tb, true );
@@ -375,7 +376,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==statisticsitem_.id || mnuid==amplspectrumitem_.id
 	      || mnuid==fkspectrumitem_.id )
     {
-	const int visid = displayID();
+	const VisID visid = displayID();
 	const int attribid = attribNr();
 	DataPack::ID dpid = visserv_->getDataPackID( visid, attribid );
 	const DataPackMgr::MgrID dmid = visserv_->getDataPackMgrID( visid );
@@ -448,7 +449,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 void uiODDataTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
-    applMgr()->updateColorTable( -1, -1 );
+    applMgr()->updateColorTable( VisID::udf(), -1 );
 }
 
 

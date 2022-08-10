@@ -33,7 +33,7 @@ public:
 
     virtual void		show(bool yn)		{}
     virtual bool		select();
-    int				displayID() const;
+    VisID			displayID() const;
     int				attribNr() const;
 
     static int			cPixmapWidth()		{ return 16; }
@@ -62,7 +62,7 @@ protected:
 
     uiODApplMgr*		applMgr() const;
     uiVisPartServer*		visserv_;
-    int				sceneID() const;
+    SceneID			sceneID() const;
     bool			isSelectable() const	{ return true; }
     bool			isExpandable() const	{ return false; }
     const char*			parentType() const	{ return parenttype_; }

@@ -37,7 +37,7 @@ public:
 				OD3DViewer(ui3DViewer&,uiParent*);
 				~OD3DViewer();
 
-    void			setSceneID(int);
+    void			setSceneID(VisID);
     visBase::Scene*		getScene();
     const visBase::Scene*	getScene() const;
 

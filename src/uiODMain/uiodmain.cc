@@ -425,12 +425,12 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 
 static bool hasSceneItems( uiVisPartServer* visserv )
 {
-    TypeSet<int> sceneids;
-    visserv->getChildIds( -1, sceneids );
+    TypeSet<SceneID> sceneids;
+    visserv->getSceneIds( sceneids );
     if ( sceneids.isEmpty() ) return false;
 
     int nrchildren = 0;
-    TypeSet<int> visids;
+    TypeSet<VisID> visids;
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	visserv->getChildIds( sceneids[0], visids );
@@ -1013,6 +1013,6 @@ void uiPluginInitMgr::tbChgCB( CallBacker* )
 
 void uiPluginInitMgr::treeAddCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,sceneid,cb);
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
     treeAdded( sceneid );
 }

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
+#include "integerid.h"
 #include "uiapplserv.h"
 #include "uistring.h"
 
@@ -121,26 +122,27 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 
 			uiODApplMgrAttrVisHandler( uiODApplMgr& a, uiParent* p )
 			    : am_(a), par_(p)		{}
+
     void		survChg(bool);
     void		saveNLA(CallBacker*);
     bool		editNLA(bool);
     bool		uvqNLA(bool);
-    void		createHorOutput(int,bool);
+    void		createHorOutput(int tp,bool);
     void		createVol(bool is2d,bool multiattrib);
     void		doXPlot();
     void		crossPlot();
     void		setZStretch();
-    bool		selectAttrib(int,int);
-    void		setHistogram(int,int);
+    bool		selectAttrib(VisID,int);
+    void		setHistogram(VisID,int);
     void		colMapperChg();
-    void		setRandomPosData(int visid,int attrib,
+    void		setRandomPosData(VisID visid,int attrib,
 					const DataPointSet&);
     void		pageUpDownPressed(bool);
-    void		updateColorTable(int,int);
+    void		updateColorTable(VisID,int);
     void		colSeqChg();
     NotifierAccess*	colorTableSeqChange();
-    void		useDefColTab(int,int);
-    void		saveDefColTab(int,int);
+    void		useDefColTab(VisID,int);
+    void		saveDefColTab(VisID,int);
 
     uiODApplMgr&	am_;
     uiParent*		par_;

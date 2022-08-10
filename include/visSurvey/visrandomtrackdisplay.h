@@ -241,7 +241,7 @@ protected:
     void			updateMouseCursorCB(CallBacker*) override;
 
     int				nrgeomchangecbs_ = 0;
-    TypeSet<int>*		premovingselids_ = nullptr;
+    TypeSet<VisID>*		premovingselids_ = nullptr;
     bool			geomnodejustmoved_ = false;
 
     Geometry::RandomLine*	rl_ = nullptr;

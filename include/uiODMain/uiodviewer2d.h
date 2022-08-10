@@ -48,7 +48,7 @@ namespace ZDomain	{ class Def; }
 mExpClass(uiODMain) uiODViewer2D : public CallBacker
 { mODTextTranslationClass(uiODViewer2D);
 public:
-				uiODViewer2D(uiODMain&,int visid);
+				uiODViewer2D(uiODMain&,VisID visid);
 				~uiODViewer2D();
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
@@ -129,10 +129,10 @@ public:
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
     const ZDomain::Def&		zDomain() const;
-    int				getSyncSceneID() const;
+    SceneID			getSyncSceneID() const;
 
     int				id_; /*!<Unique identifier */
-    int				visid_; /*!<ID from 3D visualization */
+    VisID			visid_; /*!<ID from 3D visualization */
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
@@ -231,7 +231,7 @@ protected:
     uiODMain&			appl_;
     RandomLineID		rdmlineid_;
     int				voiidx_;
-    int				syncsceneid_;
+    SceneID			syncsceneid_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;

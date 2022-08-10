@@ -138,7 +138,7 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     BufferStringSet displayedattribs;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	const int id = ((uiOD2DLineTreeItem*)children_[idx])->displayID();
+	const VisID id = ((uiOD2DLineTreeItem*)children_[idx])->displayID();
 	const int nrattribs = applMgr()->visServer()->getNrAttribs( id );
 	for ( int adx=0; adx<nrattribs; adx++ )
 	{
@@ -245,7 +245,8 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
 	    setMoreObjectsToDoHint( idx>0 );
-	    addChild( new uiOD2DLineTreeItem(geomids[idx],-1,rgba), false );
+	    addChild( new uiOD2DLineTreeItem(geomids[idx],VisID::udf(),rgba),
+		      false );
 	}
 
 	if ( action==0 || geomids.isEmpty() ) return true;
@@ -470,8 +471,8 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 
 
 // Line2DTreeItemFactory
-uiTreeItem*
-    Line2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
+uiTreeItem* Line2DTreeItemFactory::createForVis( VisID visid,
+						 uiTreeItem* treeitem ) const
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    ODMainWin()->applMgr().visServer()->getObject(visid))
@@ -491,7 +492,7 @@ uiTreeItem*
 }
 
 
-uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid,
+uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, VisID displayid,
 					bool rgba )
     : geomid_(geomid)
     , linenmitm_(tr("Show Linename"))
@@ -524,7 +525,7 @@ const char* uiOD2DLineTreeItem::parentType() const
 bool uiOD2DLineTreeItem::init()
 {
     bool newdisplay = false;
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	mDynamicCastGet(uiODLine2DParentTreeItem*,parentitm,parent_)
 	if ( !parentitm ) return false;
@@ -625,7 +626,7 @@ void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODDisplayTreeItem::createMenu( menu, istb );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !menu || menu->menuID() != displayID() || !s2d ) return;
+    if ( !menu || isDisplayID(menu->menuID()) || !s2d ) return;
 
     mAddMenuOrTBItem( istb, nullptr, &displaymnuitem_, &linenmitm_,
 		      true, s2d->isLineNameShown() )
@@ -647,7 +648,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !s2d || menu->menuID() != displayID() )
+    if ( !s2d || !isDisplayID(menu->menuID()) )
 	return;
 
     if ( mnuid==linenmitm_.id )
@@ -777,8 +778,9 @@ void uiOD2DLineTreeItem::addAttrib( const Attrib::SelSpec& myas,
 
 void uiOD2DLineTreeItem::getNewData( CallBacker* )
 {
-    const int visid = applMgr()->otherFormatVisID();
-    if ( visid != displayid_ ) return;
+    const VisID visid = applMgr()->otherFormatVisID();
+    if ( visid != displayid_ )
+	return;
 
     const int attribnr = applMgr()->otherFormatAttrib();
 

@@ -768,7 +768,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
-    int eventid = -1;
+    VisID eventid;
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
@@ -783,7 +783,7 @@ void WellDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.pressed )
     {
 	mousepressid_ = eventid;
-	mousepressposition_ = eventid == -1
+	mousepressposition_ = !eventid.isValid()
 			    ? Coord3::udf() : eventinfo.displaypickedpos;
 	mEventReturn
     }
@@ -805,7 +805,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 void WellDisplay::removePick( const visBase::EventInfo& evinfo )
 {
-    if ( mousepressid_ == -1 )
+    if ( !mousepressid_.isValid() )
 	mEventReturn
 
     if ( !evinfo.pickedobjids.isPresent(markerset_->id()) )
@@ -826,7 +826,7 @@ void WellDisplay::removePick( const visBase::EventInfo& evinfo )
 }
 
 
-void WellDisplay::addPick( const visBase::EventInfo& eventinfo, int eventid )
+void WellDisplay::addPick( const visBase::EventInfo& eventinfo, VisID eventid )
 {
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;

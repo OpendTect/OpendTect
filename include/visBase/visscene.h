@@ -91,7 +91,7 @@ protected:
 
 private:
 
-    int			mousedownid_;
+    VisID		mousedownid_;
     int			updatequeueid_;
     int			fixedidx_;
 

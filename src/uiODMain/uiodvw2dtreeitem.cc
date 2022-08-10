@@ -500,7 +500,7 @@ void uiODVw2DTreeItem::renameVisObj()
 	return;
 
     const MultiID midintree = applMgr()->EMServer()->getStorageID( emobjid_ );
-    TypeSet<int> visobjids;
+    TypeSet<VisID> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
     name_ = applMgr()->EMServer()->getUiName( emobjid_ );
     for ( int idx = 0; idx<visobjids.size(); idx++ )

@@ -106,7 +106,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,cb);
     if ( !menu ) return;
 
-    const int displayid = menu->menuID();
+    const VisID displayid( menu->menuID() );
     visBase::DataObject* dataobj = visserv_.getObject( displayid );
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
     if ( !display )
@@ -115,7 +115,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     bool dispcorrect = false;
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
     {
-	const TypeSet<int> visids = displayinfos_[idx]->visids_;
+	const TypeSet<VisID> visids = displayinfos_[idx]->visids_;
 	for ( int idy=0; idy<visids.size(); idy++ )
 	{
 	    if ( visids[idy] == displayid )
@@ -239,7 +239,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( !menu ) return;
 
-    const int displayid = menu->menuID();
+    const VisID displayid( menu->menuID() );
     visBase::DataObject* dataobj = visserv_.getObject( displayid );
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
     if ( !display )
@@ -248,7 +248,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     bool dispcorrect = false;
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
     {
-	const TypeSet<int> visids = displayinfos_[idx]->visids_;
+	const TypeSet<VisID> visids = displayinfos_[idx]->visids_;
 	for ( int idy=0; idy<visids.size(); idy++ )
 	{
 	    if ( visids[idy] == displayid )
@@ -327,8 +327,9 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 void uiVisDataPointSetDisplayMgr::lock()
 {
     lock_.lock();
-    visserv_.getChildIds( -1, allsceneids_ );
-    availableviewers_ = allsceneids_;
+    visserv_.getSceneIds( allsceneids_ );
+    for ( const auto& id : allsceneids_ )
+	availableviewers_ += id.asInt();
 }
 
 
@@ -350,10 +351,10 @@ const char* uiVisDataPointSetDisplayMgr::getViewerName( int parentidx ) const
 }
 
 
-static visSurvey::PointSetDisplay* getPSD( uiVisPartServer& vps, int visid )
+static visSurvey::PointSetDisplay* getPSD( uiVisPartServer& vps, VisID visid )
 {
-    if ( visid < 0 )
-	return 0;
+    if ( !visid.isValid() )
+	return nullptr;
 
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,vps.getObject(visid))
     return display;
@@ -364,7 +365,7 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 {
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
     {
-	const TypeSet<int>& visids = displayinfos_[idx]->visids_;
+	const TypeSet<VisID>& visids = displayinfos_[idx]->visids_;
 	for ( int visidx=0; visidx<visids.size(); visidx++ )
 	{
 	    visSurvey::PointSetDisplay* psd = getPSD( visserv_, visids[visidx]);
@@ -378,7 +379,7 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 }
 
 
-int uiVisDataPointSetDisplayMgr::getDisplayID( int visid ) const
+int uiVisDataPointSetDisplayMgr::getDisplayID( VisID visid ) const
 {
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
     {
@@ -418,7 +419,7 @@ int uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<int>& parents,
 	if ( !scene )
 	    continue;
 
-	visserv_.addObject( display, parents[idx], true );
+	visserv_.addObject( display, VisID(parents[idx]), true );
 	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
 	uiTaskRunner taskrunner( visserv_.appserv().parent() );
@@ -483,7 +484,7 @@ bool uiVisDataPointSetDisplayMgr::addDisplays( const TypeSet<int>& parents,
 	    if ( !scene )
 		continue;
 
-	    visserv_.addObject( display, parents[idx], true );
+	    visserv_.addObject( display, VisID(parents[idx]), true );
 	    display->setDispProp( dispprop_ );
 	    display->setDataPack( dps.id() );
 	    dispupdatergrp.add( display->getUpdater() );
@@ -517,7 +518,7 @@ void uiVisDataPointSetDisplayMgr::turnOn( DispID id, bool yn )
     DisplayInfo& displayinfo = *displayinfos_[idx];
     for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
     {
-	const int displayid = displayinfo.visids_[idy];
+	const VisID displayid = displayinfo.visids_[idy];
 	RefMan<visBase::DataObject> displayptr = visserv_.getObject(displayid);
 	if ( !displayptr )
 	    continue;
@@ -546,19 +547,19 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 	return;
 
     DisplayInfo& displayinfo = *displayinfos_[idx];
-    TypeSet<int> wantedscenes;
+    TypeSet<SceneID> wantedscenes;
     for ( int idy=0; idy<parents.size(); idy++ )
-	wantedscenes += parents[idy];
+	wantedscenes += SceneID(parents[idy]);
 
-    TypeSet<int> scenestoremove = displayinfo.sceneids_;
+    TypeSet<SceneID> scenestoremove = displayinfo.sceneids_;
     scenestoremove.createDifference( wantedscenes );
 
-    TypeSet<int> scenestoadd = wantedscenes;
+    TypeSet<SceneID> scenestoadd = wantedscenes;
     scenestoadd.createDifference( displayinfo.sceneids_ );
 
     for ( int idy=0; idy<scenestoremove.size(); idy++ )
     {
-	const int sceneid = scenestoremove[idx];
+	const SceneID sceneid = scenestoremove[idx];
 	const int index = displayinfo.sceneids_.indexOf( sceneid );
 	RefMan<visBase::DataObject> sceneptr =
 		visserv_.getObject( allsceneids_[idx] );
@@ -579,9 +580,8 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 
     for ( int idy=0; idy<scenestoadd.size(); idy++ )
     {
-	const int sceneid = scenestoadd[idy];
-	RefMan<visBase::DataObject> sceneptr =
-		visserv_.getObject( sceneid );
+	const SceneID sceneid = scenestoadd[idy];
+	RefMan<visBase::DataObject> sceneptr = visserv_.getObject( sceneid );
 	if ( !sceneptr )
 	    continue;
 
@@ -594,7 +594,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 	if ( !scene )
 	    continue;
 
-	visserv_.addObject( display, parents[idx], true );
+	visserv_.addObject( display, SceneID(parents[idx]), true );
 
 	displayinfo.sceneids_ += sceneid;
 	displayinfo.visids_ += display->id();
@@ -602,7 +602,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 
     for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
     {
-	const int displayid = displayinfo.visids_[idy];
+	const VisID displayid = displayinfo.visids_[idy];
 	RefMan<visBase::DataObject> displayptr = visserv_.getObject(displayid);
 	if ( !displayptr )
 	    continue;
@@ -629,7 +629,7 @@ void uiVisDataPointSetDisplayMgr::updateColorsOnly( DispID id )
     DisplayInfo& displayinfo = *displayinfos_[idx];
     for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
     {
-	const int displayid = displayinfo.visids_[idy];
+	const VisID displayid = displayinfo.visids_[idy];
 	RefMan<visBase::DataObject> displayptr = visserv_.getObject(displayid);
 	if ( !displayptr )
 	    continue;
@@ -663,7 +663,7 @@ void uiVisDataPointSetDisplayMgr::removeDisplayAtIndex( int dispidx )
     DisplayInfo& displayinfo = *displayinfos_[dispidx];
     for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
     {
-	const int sceneid = displayinfo.sceneids_[idy];
+	const SceneID sceneid = displayinfo.sceneids_[idy];
 	RefMan<visBase::DataObject> sceneptr = visserv_.getObject( sceneid );
 	if ( !sceneptr )
 	    continue;

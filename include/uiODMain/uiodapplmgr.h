@@ -157,7 +157,7 @@ public:
     void			selectFault(MultiID&);
     void			selectPolygonSurface(MultiID&);
     void			selectStickSet(MultiID&);
-    bool			selectAttrib(int id,int attrib);
+    bool			selectAttrib(VisID id,int attrib);
 
     // PickSets
     bool			storePickSets();
@@ -173,18 +173,18 @@ public:
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
 				{ return visdpsdispmgr_; }
     inline uiODViewer2DMgr&	viewer2DMgr()	{ return appl_.viewer2DMgr(); }
-    bool			getNewData(int visid,int attrib);
-    bool			evaluateAttribute(int visid,int attrib);
-    bool			evaluate2DAttribute(int visid, int attrib);
+    bool			getNewData(VisID visid,int attrib);
+    bool			evaluateAttribute(VisID visid,int attrib);
+    bool			evaluate2DAttribute(VisID visid, int attrib);
     void			pageUpDownPressed(bool up);
     void			resetServers();
-    void			updateColorTable(int visid,int attrib);
-    void			saveDefColTab(int visid,int attrib);
+    void			updateColorTable(VisID visid,int attrib);
+    void			saveDefColTab(VisID visid,int attrib);
     bool			getDefaultDescID(Attrib::DescID&,
 						 bool is2d=false) const;
     void			calcShiftAttribute(int attrib,
 						   const Attrib::SelSpec&);
-    bool			calcRandomPosAttrib(int visid,int attrib);
+    bool			calcRandomPosAttrib(VisID visid,int attrib);
     bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);
@@ -206,7 +206,7 @@ public:
     void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
-    void			addMPEParentPath(int visid,const TrcKey&);
+    void			addMPEParentPath(VisID visid,const TrcKey&);
 
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);
@@ -224,11 +224,11 @@ public:
 				    needs data. The visid and attribidx is
 				    retrieved by otherFormatVisID and
 				    otherFormatAttrib. */
-    int				otherFormatVisID() const
+    VisID			otherFormatVisID() const
 				    { return otherformatvisid_; }
     int				otherFormatAttrib() const
 				    { return otherformatattrib_; }
-    void			useDefColTab(int visid,int attrib);
+    void			useDefColTab(VisID visid,int attrib);
     bool			isRestoringSession() const;
     static void			showReleaseNotes(bool isonline);
 
@@ -291,12 +291,12 @@ protected:
     void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
-    void			setHistogram(int visid,int attrib);
+    void			setHistogram(VisID visid,int attrib);
     void			storeEMObject();
 
     void			manStrat();
 
-    void			setRandomPosData(int visid,int attrib,
+    void			setRandomPosData(VisID visid,int attrib,
 						const DataPointSet&);
     void			process2D3D(int opt); /*!<opt=0: create 2D grid,
 							  1:3D->2D, 2:2D->3D */
@@ -305,7 +305,7 @@ protected:
 
     inline uiODSceneMgr&	sceneMgr()	{ return appl_.sceneMgr(); }
 
-    int				otherformatvisid_;
+    VisID			otherformatvisid_;
     int				otherformatattrib_;
 
     uiVisDataPointSetDisplayMgr* visdpsdispmgr_;

@@ -120,7 +120,7 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
 
 
 bool Sower::activate( const OD::Color& color,
-		    const visBase::EventInfo& eventinfo, int underlyingobjid,
+		    const visBase::EventInfo& eventinfo, VisID underlyingobjid,
 		    const TrcKeySampling* workrg )
 {
     if ( mode_ != Idle )
@@ -488,7 +488,7 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
 
 	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
 	{
-	    const int visid = eventinfo.pickedobjids[idx];
+	    const VisID visid = eventinfo.pickedobjids[idx];
 	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 	    mDynamicCastGet( const visBase::MarkerSet*, markerset, dataobj );
 	    if ( markerset )

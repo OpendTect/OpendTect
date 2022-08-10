@@ -88,7 +88,7 @@ protected:
 
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj) override;
+					VisID whichobj) override;
 
     void			setDisplayTransformation(
 						const mVisTrans*) override;
@@ -107,7 +107,7 @@ protected:
     //TypeSet<TrcKeySampling>	sectionranges_;
     struct ParentAttachedObject
     {
-					ParentAttachedObject(int);
+					ParentAttachedObject(VisID);
 					~ParentAttachedObject();
 	visBase::DataObjectGroup*	objectgroup_;
 	visBase::PolyLine3D*		lines_;
@@ -116,7 +116,7 @@ protected:
 	ObjectSet<PreStack::EventSet>	eventsets_;
 	TrcKeySampling			tks_;
 
-	const int			parentid_;
+	const VisID			parentid_;
     };
 
     void				updateDisplay();

@@ -68,7 +68,7 @@ static void initSelSpec( Attrib::SelSpec& as )
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
-uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
+uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
     : appl_(appl)
     , visid_(visid)
     , vdselspec_(*new Attrib::SelSpec)
@@ -101,15 +101,15 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 
     setWinTitle( true );
 
-    if ( visid_>=0 )
+    if ( visid_.isValid() )
 	syncsceneid_ = appl_.applMgr().visServer()->getSceneID( visid_ );
     else
     {
-	TypeSet<int> sceneids;
+	TypeSet<SceneID> sceneids;
 	appl_.applMgr().visServer()->getSceneIds( sceneids );
 	for ( int iscn=0; iscn<sceneids.size(); iscn++ )
 	{
-	    const int sceneid = sceneids[iscn];
+	    const SceneID sceneid = sceneids[iscn];
 	    const ZAxisTransform* scntransform =
 		appl_.applMgr().visServer()->getZAxisTransform( sceneid );
 	    const ZDomain::Info* scnzdomaininfo =
@@ -160,7 +160,7 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-int uiODViewer2D::getSyncSceneID() const
+SceneID uiODViewer2D::getSyncSceneID() const
 {
     return syncsceneid_;
 }
@@ -887,7 +887,7 @@ void uiODViewer2D::handleToolClick( CallBacker* cb )
 }
 
 
-void uiODViewer2D::removeSelected( CallBacker* cb )
+void uiODViewer2D::removeSelected( CallBacker* )
 {
     if ( !viewstdcontrol_->editToolBar() ||
 	 !viewstdcontrol_->editToolBar()->isOn(polyseltbid_) )

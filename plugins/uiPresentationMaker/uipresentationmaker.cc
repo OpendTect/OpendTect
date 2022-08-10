@@ -364,7 +364,7 @@ void uiPresentationMakerDlg::settingsCB( CallBacker* )
 static void createSlideName( BufferString& slidename )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const int visid = visserv->getSelObjectId();
+    const VisID visid = visserv->getSelObjectId();
     visserv->getObjectInfo( visid, slidename );
     if ( slidename.isEmpty() )
 	slidename = toString( visserv->getUiObjectName(visid) );

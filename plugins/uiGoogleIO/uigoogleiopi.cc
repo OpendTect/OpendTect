@@ -221,7 +221,7 @@ void uiGoogleIOMgr::exportManLines( CallBacker* )
 
 void uiGoogleIOMgr::export2DSeisLine( CallBacker* )
 {
-    const int displayid = ln2duitmhandler_.getDisplayID();
+    const VisID displayid = ln2duitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2dd,
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !s2dd )
@@ -254,9 +254,9 @@ void uiGoogleIOMgr::expManRandomLine( CallBacker* cb )
 }
 
 
-void uiGoogleIOMgr::exportPointPolygon( CallBacker* cb )
+void uiGoogleIOMgr::exportPointPolygon( CallBacker* )
 {
-    const int displayid = psmnuitmhandler_.getDisplayID();
+    const VisID displayid = psmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !psd || !psd->getSet() )
@@ -267,9 +267,9 @@ void uiGoogleIOMgr::exportPointPolygon( CallBacker* cb )
 }
 
 
-void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
+void uiGoogleIOMgr::exportRandLine( CallBacker* )
 {
-    const int displayid = rlmnuitmhandler_.getDisplayID();
+    const VisID displayid = rlmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !rtd )
@@ -296,9 +296,9 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 }
 
 
-void uiGoogleIOMgr::exportWell( CallBacker* cb )
+void uiGoogleIOMgr::exportWell( CallBacker* )
 {
-    const int displayid = wlmnuitmhandler_.getDisplayID();
+    const VisID displayid = wlmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::WellDisplay*,wld,
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !wld )

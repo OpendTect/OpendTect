@@ -40,7 +40,7 @@ public:
 
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODPickSetParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 
 };
 
@@ -48,7 +48,7 @@ public:
 mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPickSetTreeItem)
 public:
-    			uiODPickSetTreeItem(int dispid,Pick::Set&);
+			uiODPickSetTreeItem(VisID dispid,Pick::Set&);
     virtual		~uiODPickSetTreeItem();
 
     virtual bool	actModeWhenSelected() const;
@@ -111,7 +111,7 @@ public:
 
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODPolygonParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 
 };
 
@@ -119,7 +119,7 @@ public:
 mExpClass(uiODMain) uiODPolygonTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPolygonTreeItem)
 public:
-			uiODPolygonTreeItem(int dispid,Pick::Set&);
+			uiODPolygonTreeItem(VisID dispid,Pick::Set&);
     virtual		~uiODPolygonTreeItem();
 
     virtual bool	actModeWhenSelected() const;

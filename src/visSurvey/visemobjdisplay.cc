@@ -498,11 +498,11 @@ bool EMObjectDisplay::isEditingEnabled() const
 { return editor_ && editor_->isOn(); }
 
 
-EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<int>* path ) const
+EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<VisID>* path ) const
 {
     for ( int idx=0; path && idx<path->size(); idx++ )
     {
-	const EM::SectionID sectionid = getSectionID((*path)[idx]);
+	const EM::SectionID sectionid = getSectionID( (*path)[idx] );
 	if ( sectionid!=-1 ) return sectionid;
     }
 
@@ -774,7 +774,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 
 
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
-    const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
+    const TypeSet<VisID>& path, const Coord3& clickeddisplaypos ) const
 {
     EM::PosID res;
     const int attribidx = posattribs_.indexOf(attrib);

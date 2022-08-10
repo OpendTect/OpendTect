@@ -132,7 +132,7 @@ protected:
 
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj) override;
+					VisID whichobj) override;
 
     void			setActiveStick(const EM::PosID&);
 

@@ -19,28 +19,29 @@ class uiMenuHandler;
 mExpClass(uiODMain) uiODSceneTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODSceneTreeItem);
 public:
-			uiODSceneTreeItem(const uiString&,int);
+			uiODSceneTreeItem(const uiString&,VisID);
 			~uiODSceneTreeItem();
 
-    void		updateColumnText(int);
+    void		updateColumnText(int) override;
 
 protected:
 
-    virtual bool	init();
+    virtual bool	init() override;
     void		createMenu(MenuHandler*,bool istb);
-    bool		showSubMenu();
+    bool		showSubMenu() override;
 
-    bool		isSelectable() const		{ return false; }
-    bool		isExpandable() const		{ return false; }
-    const char*		parentType() const
+    bool		isSelectable() const override	{ return false; }
+    bool		isExpandable() const override	{ return false; }
+    const char*		parentType() const override
 			{ return typeid(uiODTreeTop).name(); }
-    int			selectionKey() const		{ return displayid_; }
+    int			selectionKey() const override
+			{ return displayid_.asInt(); }
 
     void		createMenuCB(CallBacker*);
     void		addToToolBarCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
-    int			displayid_;
+    VisID		displayid_;
 
     uiMenuHandler*	menu_;
     MenuItem		propitem_;

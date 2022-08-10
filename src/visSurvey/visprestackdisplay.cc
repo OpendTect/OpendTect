@@ -640,7 +640,7 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     if ( !section_ ) return;
     section_->ref();
 
-    if ( section_->id() > id() )
+    if ( section_->id().asInt() > id().asInt() )
     {
 	pErrMsg("The display restore order is wrong. The section id has to be \
 		  lower than PreStack id so that it can be restored earlier \
@@ -762,7 +762,7 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     seis2d_ = s2d;
     seis2d_->ref();
 
-    if ( seis2d_->id() > id() )
+    if ( seis2d_->id().asInt() > id().asInt() )
     {
 	pErrMsg("The display restore order is wrong. The Seis2d display id \
 		has to be lower than PreStack id so that it can be restored \
@@ -818,12 +818,12 @@ BufferString PreStackDisplay::lineName() const
 
 
 void PreStackDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>&
-					 , int whichobj )
+					 , VisID whichobj )
 {
     if ( !section_ && ! seis2d_ )
 	return;
 
-    if ( whichobj == -1 )
+    if ( !whichobj.isValid() )
     {
 	if ( section_ )
 	    turnOn( section_->isShown() );
@@ -1039,7 +1039,7 @@ bool PreStackDisplay::usePar( const IOPar& par )
 		return false;
     }
 
-    visBase::DataObject* parent = visBase::DM().getObject( parentid );
+    visBase::DataObject* parent = visBase::DM().getObject( VisID(parentid) );
     if ( !parent ) return false;
 
     MultiID mid;

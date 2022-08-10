@@ -101,7 +101,7 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int) override;
+				    VisID) override;
     void			updateDragger() override;
     visBase::MarkerSet*		createOneMarker() const;
 

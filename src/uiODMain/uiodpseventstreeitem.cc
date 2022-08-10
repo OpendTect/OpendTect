@@ -98,12 +98,13 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 }
 
 
-int uiODPSEventsParentTreeItem::sceneID() const
+SceneID uiODPSEventsParentTreeItem::sceneID() const
 {
     int sceneid;
     if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
-	return -1;
-    return sceneid;
+	return SceneID::udf();
+
+    return SceneID(sceneid);
 }
 
 
@@ -187,7 +188,7 @@ bool uiODPSEventsTreeItem::init()
 void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( istb || !eventdisplay_ || !menu || menu->menuID()!=displayID() )
+    if ( istb || !eventdisplay_ || !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
@@ -206,7 +207,7 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
     if ( !eventdisplay_ || menu->isHandled()
-	|| menu->menuID()!=displayID() || menuid==-1 )
+	|| !isDisplayID(menu->menuID()) || menuid==-1 )
 	return;
 
     if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
@@ -260,7 +261,7 @@ void uiODPSEventsTreeItem::updateDisplay()
 }
 
 
-bool uiODPSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
+bool uiODPSEventsTreeItem::anyButtonClick( uiTreeViewItem* )
 {
     applMgr()->updateColorTable( displayid_, 0 );
     displayMiniColTab();
@@ -268,7 +269,7 @@ bool uiODPSEventsTreeItem::anyButtonClick( uiTreeViewItem* lvm )
 }
 
 
-void uiODPSEventsTreeItem::coltabChangeCB( CallBacker* cb )
+void uiODPSEventsTreeItem::coltabChangeCB( CallBacker* )
 {
     displayMiniColTab();
 }

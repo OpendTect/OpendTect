@@ -12,8 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "callback.h"
 #include "factory.h"
+#include "integerid.h"
 #include "sets.h"
 #include <typeinfo>
 
@@ -34,13 +36,13 @@ public:
 
     const char*		errMsg() const;
 
-    void		getIDs(const std::type_info&,TypeSet<int>&) const;
-    int			highestID() const;
+    void		getIDs(const std::type_info&,TypeSet<VisID>&) const;
+    VisID		highestID() const;
 
-    DataObject*		getObject(int id);
-    const DataObject*	getObject(int id) const;
-    int			getID(const osg::Node*) const;
-			//!<Returns -1 if not found
+    DataObject*		getObject(VisID);
+    const DataObject*	getObject(VisID) const;
+    VisID		getID(const osg::Node*) const;
+			//!<Returns VisID::udf() if not found
 
     int			nrObjects() const;
     DataObject*		getIndexedObject(int idx);

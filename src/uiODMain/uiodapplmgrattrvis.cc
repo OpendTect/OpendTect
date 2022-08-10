@@ -127,11 +127,13 @@ void uiODApplMgrAttrVisHandler::setZStretch()
 }
 
 
-bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
+bool uiODApplMgrAttrVisHandler::selectAttrib( VisID id, int attrib )
 {
     if ( am_.appl_.isRestoringSession() ) return false;
 
-    if ( id < 0 ) return false;
+    if ( !id.isValid() )
+	return false;
+
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
 
@@ -156,14 +158,14 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::setHistogram( int visid, int attrib )
+void uiODApplMgrAttrVisHandler::setHistogram( VisID visid, int attrib )
 {
     am_.appl_.colTabEd().setHistogram(
 	    	am_.visserv_->getHistogram(visid,attrib) );
 }
 
 
-void uiODApplMgrAttrVisHandler::setRandomPosData( int visid, int attrib,
+void uiODApplMgrAttrVisHandler::setRandomPosData( VisID visid, int attrib,
 						 const DataPointSet& data )
 {
     DataPack::ID cacheid = am_.visserv_->getDataPackID( visid, attrib );
@@ -176,7 +178,7 @@ void uiODApplMgrAttrVisHandler::setRandomPosData( int visid, int attrib,
 
 void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 {
-    const int visid = am_.visserv_->getEventObjId();
+    const VisID visid = am_.visserv_->getEventObjId();
     const int attrib = am_.visserv_->getSelAttribNr();
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
 	return;
@@ -192,7 +194,7 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 }
 
 
-void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
+void uiODApplMgrAttrVisHandler::updateColorTable( VisID visid, int attrib  )
 {
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
     {
@@ -220,7 +222,8 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
 {
     mDynamicCastGet(const visBase::DataObject*,dataobj,
 		    am_.appl_.colTabEd().getSurvObj())
-    const int visid = dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
+    const VisID visid =
+		dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
     int attrib = dataobj
 	? am_.appl_.colTabEd().getChannel() : am_.visserv_->getSelAttribNr();
     if ( attrib == -1 ) attrib = 0;
@@ -248,7 +251,8 @@ void uiODApplMgrAttrVisHandler::colSeqChg()
 {
     mDynamicCastGet(const visBase::DataObject*,dataobj,
 		    am_.appl_.colTabEd().getSurvObj())
-    const int visid = dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
+    const VisID visid =
+		dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
     int attrib = dataobj
 	? am_.appl_.colTabEd().getChannel()
 	: am_.visserv_->getSelAttribNr();
@@ -267,7 +271,7 @@ NotifierAccess* uiODApplMgrAttrVisHandler::colorTableSeqChange()
 }
 
 
-void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
+void uiODApplMgrAttrVisHandler::useDefColTab( VisID visid, int attrib )
 {
     if ( am_.appl_.isRestoringSession() ) return;
 
@@ -315,7 +319,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
+void uiODApplMgrAttrVisHandler::saveDefColTab( VisID visid, int attrib )
 {
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec(visid,attrib);
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );

@@ -265,8 +265,8 @@ bool uiDirLightDlg::updateSceneSelector()
 
 void uiDirLightDlg::updateInitInfo()
 {
-    TypeSet<int> newsceneids;
-    visserv_->getChildIds( -1, newsceneids );
+    TypeSet<SceneID> newsceneids;
+    visserv_->getSceneIds( newsceneids );
 
     // remove info for scene(s) removed
     for (int idx=initinfo_.size()-1; idx>=0; idx--)
@@ -742,7 +742,7 @@ void uiDirLightDlg::showPolarDiagramCB( CallBacker* )
 
 uiDirLightDlg::InitInfo::InitInfo()
 {
-    sceneid_ = 0;
+    sceneid_.setUdf();
     directlighton_ = false;
     reset();
 }

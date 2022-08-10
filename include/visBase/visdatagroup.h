@@ -35,12 +35,12 @@ public:
 
     virtual int			size() const;
     virtual void		addObject(DataObject*);
-    void			addObject(int id);
+    void			addObject(VisID);
 				/*!< Calls addObject( DataObject* ) */
 
     virtual void		insertObject(int idx,DataObject*);
 
-    virtual int			getFirstIdx(int id) const;
+    virtual int			getFirstIdx(VisID) const;
 				/*!<\returns	the first index (there might be
 						many instances) of the id in
 						the group, or -1 if not found

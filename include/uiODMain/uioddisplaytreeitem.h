@@ -23,7 +23,7 @@ mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODDisplayTreeItem)
 public:
 
-    static bool		create(uiTreeItem*,uiODApplMgr*,int displayid);
+    static bool		create(uiTreeItem*,uiODApplMgr*,VisID displayid);
 			//!< Creates an instance (if possible)
 			//!< and adds it to the tree
 
@@ -36,7 +36,8 @@ public:
     void		updateCheckStatus();
     void		show(bool);
 
-    int			displayID() const		{ return displayid_; }
+    VisID		displayID() const		{ return displayid_; }
+    bool		isDisplayID(int) const;
 
     uiODDataTreeItem*	addAttribItem();
     void		prepareForShutdown();
@@ -76,7 +77,7 @@ protected:
     virtual void	deleteObject();
 
     uiVisPartServer*	visserv_;
-    int			displayid_;
+    VisID		displayid_;
 
     MenuItem		addmnuitem_;
     MenuItem		displaymnuitem_;

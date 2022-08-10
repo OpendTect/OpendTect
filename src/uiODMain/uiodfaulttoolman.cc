@@ -413,7 +413,7 @@ void uiODFaultToolMan::displayModeChg( CallBacker* )
 void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 {
     deseltimer_.stop();
-    mCBCapsuleUnpack( int, selid, cber );
+    mCBCapsuleUnpack( VisID, selid, cber );
     visBase::DataObject* dataobj = visBase::DM().getObject( selid );
     mDynamicCast( visSurvey::FaultStickSetDisplay*, curfssd_, dataobj );
     mDynamicCast( visSurvey::FaultDisplay*, curfltd_, dataobj );
@@ -463,7 +463,7 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 
 void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
 {
-    mCBCapsuleUnpack( int, selid, cber );
+    mCBCapsuleUnpack( VisID, selid, cber );
     visBase::DataObject* dataobj = visBase::DM().getObject( selid );
     mDynamicCastGet( visSurvey::FaultStickSetDisplay*, oldfssd, dataobj );
     mDynamicCastGet( visSurvey::FaultDisplay*, oldfltd, dataobj );
@@ -498,7 +498,7 @@ void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* )
 struct DisplayCacheObj
 {
     MultiID mid_;
-    int sceneid_;
+    SceneID sceneid_;
     bool isdisplayed_;
 };
 
@@ -893,7 +893,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 }
 
 
-void uiODFaultToolMan::colorModeChg( CallBacker* cb )
+void uiODFaultToolMan::colorModeChg( CallBacker* )
 {
     const bool userdef = !randomColor() && !inheritColor() && !currentColor();
 
@@ -1119,10 +1119,10 @@ void uiODFaultToolMan::afterTransferUpdate()
 \
     MultiID destmid = objsel->validKey(); \
 \
-    const int curid = curfltd_ ? curfltd_->id() : \
-				 ( curfssd_ ? curfssd_->id() : -1 ); \
+    const VisID curid = curfltd_ ? curfltd_->id() : \
+				 ( curfssd_ ? curfssd_->id() : VisID::udf() ); \
 \
-    const int sceneid = appl_.applMgr().visServer()->getSceneID( curid );
+    const SceneID sceneid = appl_.applMgr().visServer()->getSceneID( curid );
 
 
 void uiODFaultToolMan::displayUpdate()
@@ -1147,7 +1147,7 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 
     mGetDisplayVars( objsel, destmid, curid, sceneid );
 
-    if ( destmid.isUdf() || curid<0 || sceneid<0 )
+    if ( destmid.isUdf() || !curid.isValid() || !sceneid.isValid() )
 	return false;
 
     for ( int idx=0; idx<displaycache_.size(); idx++ )
@@ -1163,7 +1163,7 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
     displaycache_[0]->sceneid_ = sceneid;
     displaycache_[0]->isdisplayed_ = false;
 
-    TypeSet<int> destids;
+    TypeSet<VisID> destids;
     appl_.applMgr().visServer()->findObject( destmid, destids );
 
     for ( int idx=0; idx<destids.size(); idx++ )

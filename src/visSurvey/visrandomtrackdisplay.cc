@@ -62,7 +62,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     datapacks_.setNullAllowed();
     transfdatapacks_.setNullAllowed();
 
-    TypeSet<int> randomlines;
+    TypeSet<VisID> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
     int highestnamenr = 0;
     for ( int idx=0; idx<randomlines.size(); idx++ )
@@ -1170,7 +1170,7 @@ void RandomTrackDisplay::geomNodeMoveCB( CallBacker* cb )
 	    {
 		delete premovingselids_;
 		premovingselids_ =
-			new TypeSet<int>( visBase::DM().selMan().selected() );
+			new TypeSet<VisID>( visBase::DM().selMan().selected() );
 		select();
 	    }
 
@@ -1636,12 +1636,12 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
 
 void RandomTrackDisplay::updateMouseCursorCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
     const visBase::Dragger* nodedragger = 0;
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
-	const int visid = eventinfo.pickedobjids[idx];
+	const VisID visid = eventinfo.pickedobjids[idx];
 	const visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 	mDynamicCast( const visBase::Dragger*, nodedragger, dataobj );
 	if ( nodedragger )
@@ -1896,12 +1896,12 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 {
     const int sz = evi.pickedobjids.size();
     bool validpicksurface = false;
-    int eventid = -1;
+    VisID eventid;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
 	    visBase::DM().getObject( evi.pickedobjids[idx] );
-	if ( eventid==-1 && pickedobj->isPickable() )
+	if ( !eventid.isValid() && pickedobj->isPickable() )
 	{
 	    eventid = evi.pickedobjids[idx];
 	    if ( validpicksurface )
@@ -1919,7 +1919,7 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 	validpicksurface = tbi || hd ||
 		(pdd && pdd->getOrientation() == OD::ZSlice);
 
-	if ( eventid!=-1 )
+	if ( eventid.isValid() )
 	    break;
     }
 

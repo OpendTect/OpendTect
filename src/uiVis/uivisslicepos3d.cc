@@ -34,7 +34,7 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p, uiVisPartServer* server )
 }
 
 
-void uiSlicePos3DDisp::setDisplay( int dispid )
+void uiSlicePos3DDisp::setDisplay( VisID dispid )
 {
     CallBack movecb( mCB(this,uiSlicePos3DDisp,updatePos) );
     CallBack manipcb( mCB(this,uiSlicePos3DDisp,updatePos) );
@@ -73,9 +73,9 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
 }
 
 
-int uiSlicePos3DDisp::getDisplayID() const
+VisID uiSlicePos3DDisp::getDisplayID() const
 {
-    return curpdd_ ? curpdd_->id() : curvol_ ? curvol_->id() : -1;
+    return curpdd_ ? curpdd_->id() : curvol_ ? curvol_->id() : VisID::udf();
 }
 
 

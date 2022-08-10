@@ -965,9 +965,9 @@ bool FaultSetDisplay::canDisplayHorizonIntersections() const
 
 
 static int getValidIntersectionObjectIdx( bool horizonintersection,
-			const ObjectSet<const SurveyObject>& objs, int objid )
+			const ObjectSet<const SurveyObject>& objs, VisID objid )
 {
-    for ( int idx=0; objid>=0 && idx<objs.size(); idx++ )
+    for ( int idx=0; objid.isValid() && idx<objs.size(); idx++ )
     {
 	if ( horizonintersection )
 	{
@@ -990,7 +990,7 @@ static int getValidIntersectionObjectIdx( bool horizonintersection,
 }
 
 
-void FaultSetDisplay::updateHorizonIntersections( int whichobj,
+void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
 	const ObjectSet<const SurveyObject>& objs )
 {
     if ( !faultset_ )
@@ -1079,13 +1079,13 @@ void FaultSetDisplay::updateHorizonIntersections( int whichobj,
 
 
 void FaultSetDisplay::otherObjectsMoved(
-		    const ObjectSet<const SurveyObject>& objs, int whichobj )
+		    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     updateHorizonIntersections( whichobj, objs );
 
     if ( explicitintersections_.isEmpty() ) return;
 
-    const bool doall = whichobj==-1 || whichobj==id();
+    const bool doall = !whichobj.isValid() || whichobj==id();
     const int onlyidx = getValidIntersectionObjectIdx( false, objs, whichobj );
     if ( !doall && onlyidx<0 )
 	return;
@@ -1220,12 +1220,13 @@ EM::FaultID FaultSetDisplay::getFaultID(
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
-	const int visid = eventinfo.pickedobjids[idx];
+	const VisID visid = eventinfo.pickedobjids[idx];
 	for ( int fidx=0; fidx<paneldisplays_.size(); fidx++ )
 	{
 	    if ( paneldisplays_[fidx]->id() == visid )
 		return faultset_->getFaultID( fidx );
 	}
+
 	for ( int fidx=0; fidx<intersectiondisplays_.size(); fidx++ )
 	{
 	    if ( intersectiondisplays_[fidx]->id() == visid )

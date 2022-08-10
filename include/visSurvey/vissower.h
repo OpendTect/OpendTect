@@ -65,10 +65,11 @@ public:
     bool		accept(const visBase::EventInfo&);
 
     bool		activate(const OD::Color&,const visBase::EventInfo&,
-				 int underlyingobjid=-1,
+				 VisID underlyingobjid=VisID::udf(),
 				 const TrcKeySampling* workrange=0);
     Notifier<Sower>	sowingend;
     Notifier<Sower>	sowing;
+
 protected:
 
     bool		isInWorkRange(const visBase::EventInfo&) const ;
@@ -91,7 +92,7 @@ protected:
     bool				linelost_;
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
-    int					underlyingobjid_;
+    VisID				underlyingobjid_;
     TrcKeySampling*			workrange_;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;

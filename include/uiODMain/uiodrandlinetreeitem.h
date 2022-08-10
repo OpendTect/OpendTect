@@ -56,7 +56,7 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
     			{ return new uiODRandomLineParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
@@ -65,7 +65,7 @@ mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
 public:
     enum Type		{ Empty, Select, Default, RGBA };
 
-			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty,
+			uiODRandomLineTreeItem(VisID displayid,Type tp=Empty,
 				    RandomLineID id=RandomLineID::udf());
 			~uiODRandomLineTreeItem();
 

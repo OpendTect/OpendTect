@@ -75,7 +75,7 @@ public:
     bool			isPicking() const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int) override;
+					VisID) override;
     NotifierAccess*		getManipulationNotifier() override
 				{ return &manip_; }
     void			setDisplayTransformation(
@@ -125,7 +125,7 @@ protected:
     virtual bool		draggerNormal() const {return true;}
     bool			removeSelections(TaskRunner*) override;
 
-    virtual int			isDirMarkerClick(const TypeSet<int>&) const;
+    virtual int			isDirMarkerClick(const TypeSet<VisID>&) const;
     void			triggerDeSel() override;
 
     virtual			~LocationDisplay();
@@ -156,8 +156,8 @@ protected:
     TypeSet<int>		invalidpicks_;
 
     bool			showall_		= true;
-    int				mousepressid_		= -1;
-    int				pickedsobjid_		= -1;
+    VisID			mousepressid_;
+    VisID			pickedsobjid_;
 				//!< Picked SurveyObject ID
     int				voiidx_			= -1;
     bool			ctrldown_		= false;

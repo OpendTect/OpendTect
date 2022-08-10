@@ -482,7 +482,7 @@ void MPEEditor::cleanPatch()
 }
 
 
-EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
+EM::PosID MPEEditor::mouseClickDragger( const TypeSet<VisID>& path ) const
 {
     if ( path.isEmpty() )
 	return EM::PosID::udf();

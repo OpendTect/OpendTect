@@ -701,7 +701,7 @@ void RandomTrackDragger::triggerRightClick( const EventInfo* eventinfo )
 }
 
 
-const TypeSet<int>* RandomTrackDragger::rightClickedPath() const
+const TypeSet<VisID>* RandomTrackDragger::rightClickedPath() const
 { return rightclickeventinfo_ ? &rightclickeventinfo_->pickedobjids : 0; }
 
 
@@ -823,7 +823,7 @@ Coord RandomTrackDragger::getKnot( int knotidx ) const
 }
 
 
-int RandomTrackDragger::getKnotIdx( const TypeSet<int>& pickpath ) const
+int RandomTrackDragger::getKnotIdx( const TypeSet<VisID>& pickpath ) const
 {
     for ( int idx=0; idx<draggers_.size(); idx++ )
     {

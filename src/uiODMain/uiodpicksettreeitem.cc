@@ -84,7 +84,7 @@ void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
 {
     if ( !ps ) return;
 
-    uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
+    auto* item = new uiODPickSetTreeItem( VisID::udf(), *ps );
     addChild( item, false );
     item->setChecked( true );
 }
@@ -226,7 +226,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 
 uiTreeItem*
-    uiODPickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODPickSetTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -238,7 +238,7 @@ uiTreeItem*
 }
 
 
-uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
+uiODPickSetTreeItem::uiODPickSetTreeItem( VisID did, Pick::Set& ps )
     : uiODDisplayTreeItem()
     , set_(&ps)
     , storemnuitem_(uiStrings::sSave())
@@ -316,7 +316,7 @@ void uiODPickSetTreeItem::setChg( CallBacker* cb )
 
 bool uiODPickSetTreeItem::init()
 {
-    if ( displayid_ == -1 )
+    if ( !displayid_.isValid() )
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
@@ -345,7 +345,7 @@ bool uiODPickSetTreeItem::init()
 void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
@@ -387,7 +387,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 	    visserv_->getObject(displayid_));
 
-    if ( menu->menuID()!=displayID() )
+    if ( !isDisplayID(menu->menuID()) )
 	return;
 
     if ( mnuid==storemnuitem_.id )
@@ -585,7 +585,7 @@ void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
 {
     if ( !ps ) return;
 
-    uiODDisplayTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
+    uiODDisplayTreeItem* item = new uiODPolygonTreeItem( VisID::udf(), *ps );
     addChild( item, false );
 }
 
@@ -696,7 +696,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
 
 uiTreeItem*
-    uiODPolygonTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODPolygonTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -709,7 +709,7 @@ uiTreeItem*
 
 
 // uiODPolygonTreeItem
-uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
+uiODPolygonTreeItem::uiODPolygonTreeItem( VisID did, Pick::Set& ps )
     : uiODDisplayTreeItem()
     , set_(&ps)
     , storemnuitem_(uiStrings::sSave())
@@ -811,7 +811,7 @@ bool uiODPolygonTreeItem::doubleClick( uiTreeViewItem* item )
 
 bool uiODPolygonTreeItem::init()
 {
-    if ( displayid_ == -1 )
+    if ( !displayid_.isValid() )
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
@@ -840,7 +840,7 @@ bool uiODPolygonTreeItem::init()
 void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || isDisplayID(menu->menuID()) )
 	return;
 
     if ( istb )
@@ -888,7 +888,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 	    visserv_->getObject(displayid_));
 
-    if ( menu->menuID()!=displayID() )
+    if ( !isDisplayID(menu->menuID()) )
 	return;
 
     bool handled = true;

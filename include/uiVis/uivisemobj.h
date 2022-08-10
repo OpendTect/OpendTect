@@ -30,15 +30,16 @@ class uiVisPartServer;
 mExpClass(uiVis) uiVisEMObject : public CallBacker
 { mODTextTranslationClass(uiVisEMObject)
 public:
-			uiVisEMObject(uiParent*,int displayid,
+			uiVisEMObject(uiParent*,VisID displayid,
 				      uiVisPartServer* );
-			uiVisEMObject(uiParent*,const EM::ObjectID&,int sceneid,
+			uiVisEMObject(uiParent*,const EM::ObjectID&,
+				      SceneID sceneid,
 				      uiVisPartServer*);
 			~uiVisEMObject();
     bool		isOK() const;
 
-    static const char*	getObjectType(int displayid);
-    int			id() const { return displayid_; }
+    static const char*	getObjectType(VisID displayid);
+    VisID		id() const { return displayid_; }
     EM::ObjectID	getObjectID() const;
 
     float		getShift() const;
@@ -48,7 +49,7 @@ public:
 
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
-    EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
+    EM::SectionID	getSectionID(const TypeSet<VisID>* pickedpath) const;
 
     void		checkTrackingStatus();
 			/*!< Checks if there is a tracker for this object and
@@ -70,7 +71,7 @@ protected:
     uiParent*		uiparent_;
     uiVisPartServer*	visserv_;
 
-    int			displayid_;
+    VisID		displayid_;
 
     MenuItem		singlecolmnuitem_;
     MenuItem		seedsmenuitem_;

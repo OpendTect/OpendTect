@@ -81,7 +81,7 @@ bool uiODVolrenParentTreeItem::canAddVolumeToScene()
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet( uiODDisplayTreeItem*, itm, getChild(idx) );
-	const int displayid = itm ? itm->displayID() : -1;
+	const VisID displayid = itm ? itm->displayID() : VisID::udf();
 	mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		    ODMainWin()->applMgr().visServer()->getObject(displayid) );
 
@@ -112,7 +112,8 @@ bool uiODVolrenParentTreeItem::showSubMenu()
     if ( mnuid==mAddIdx || mnuid==mAddCBIdx )
     {
 	if ( canAddVolumeToScene() )
-	    addChild( new uiODVolrenTreeItem(-1,mnuid==mAddCBIdx), false );
+	    addChild( new uiODVolrenTreeItem(VisID::udf(),mnuid==mAddCBIdx),
+		      false );
     }
 
     handleStandardItems( mnuid );
@@ -126,7 +127,7 @@ const char* uiODVolrenParentTreeItem::iconName() const
 
 
 uiTreeItem*
-    uiODVolrenTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODVolrenTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid) );
@@ -146,7 +147,7 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 
 
-uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid, bool rgba )
+uiODVolrenTreeItem::uiODVolrenTreeItem( VisID displayid, bool rgba )
     : uiODDisplayTreeItem()
     , positionmnuitem_(m3Dots(tr("Position")))
     , rgba_(rgba)
@@ -180,7 +181,7 @@ const char* uiODVolrenTreeItem::parentType() const
 bool uiODVolrenTreeItem::init()
 {
     visSurvey::VolumeDisplay* voldisp;
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	voldisp = new visSurvey::VolumeDisplay;
 	visserv_->addObject( voldisp, sceneID(), true );
@@ -244,7 +245,8 @@ uiODDataTreeItem*
 void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() ) return;
+    if ( !menu || !isDisplayID(menu->menuID()) )
+	return;
 
     const bool islocked = visserv_->isLocked( displayID() );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
@@ -258,7 +260,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     MenuHandler* menu = dynamic_cast<MenuHandler*>(caller);
     if ( !menu || mnuid==-1 || menu->isHandled() ||
-	 menu->menuID() != displayID() )
+	 !isDisplayID(menu->menuID()) )
 	return;
 
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
@@ -383,7 +385,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addisosurfacemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	const int surfobjid = vd->addIsoSurface( 0, false );
+	const VisID surfobjid = vd->addIsoSurface( 0, false );
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
@@ -423,7 +425,7 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
 }
 
 
-uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
+uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( VisID displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings())
     , convertisotobodymnuitem_(tr("Convert to Geobody"))
 { displayid_ = displayid; }
@@ -432,24 +434,25 @@ uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
 uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 {
     detachAllNotifiers();
-    mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
-		     visserv_->getObject(getParentDisplayID()));
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
+		    visserv_->getObject(getParentDisplayID()))
 
-    if ( !vd ) return;
+    if ( !vd )
+	return;
 
     if ( displayid_==vd->volRenID() )
 	vd->showVolRen(false);
     else
 	vd->removeChild( displayid_ );
 
-    visserv_->getUiSlicePos()->setDisplay( -1 );
+    visserv_->getUiSlicePos()->setDisplay( VisID::udf() );
 }
 
 
-int uiODVolrenSubTreeItem::getParentDisplayID() const
+VisID uiODVolrenSubTreeItem::getParentDisplayID() const
 {
     mDynamicCastGet( uiODDataTreeItem*, datatreeitem, parent_ );
-    return datatreeitem ? datatreeitem->displayID() : -1;
+    return datatreeitem ? datatreeitem->displayID() : VisID::udf();
 }
 
 
@@ -474,7 +477,8 @@ const char* uiODVolrenSubTreeItem::parentType() const
 
 bool uiODVolrenSubTreeItem::init()
 {
-    if ( displayid_==-1 ) return false;
+    if ( !displayid_.isValid() )
+	return false;
 
 //    mDynamicCastGet(visBase::VolrenDisplay*,volren,
 //		    visserv_->getObject(displayid_));
@@ -543,7 +547,8 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 void uiODVolrenSubTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb ) return;
+    if ( !menu || !isDisplayID(menu->menuID()) || istb )
+	return;
 
     if ( !isIsoSurface() )
     {
@@ -563,7 +568,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     MenuHandler* menu = dynamic_cast<MenuHandler*>(caller);
     if ( !menu || mnuid==-1 || menu->isHandled() ||
-	 menu->menuID() != displayID() )
+	 !isDisplayID(menu->menuID()) )
 	return;
 
     if ( mnuid==resetisosurfacemnuitem_.id )
@@ -615,7 +620,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
+void uiODVolrenSubTreeItem::posChangeCB( CallBacker* )
 {
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 		    visserv_->getObject(getParentDisplayID()));
@@ -632,7 +637,7 @@ void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
 }
 
 
-void uiODVolrenSubTreeItem::selChgCB( CallBacker* cb )
+void uiODVolrenSubTreeItem::selChgCB( CallBacker* )
 {
     visserv_->getUiSlicePos()->setDisplay( getParentDisplayID() );
 }

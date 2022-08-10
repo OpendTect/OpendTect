@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 #include "callback.h"
+#include "integerid.h"
 #include "sets.h"
 
 class SoSelection;
@@ -48,34 +49,33 @@ public:
     void			setAllowMultiple(bool yn);
     bool			allowMultiple() const { return allowmultiple_; }
 
-    void			select(int id,bool keepoldsel=false)
+    void			select(VisID id,bool keepoldsel=false)
 				{ select( id, keepoldsel, true ); }
-    void			deSelect(int id)  { deSelect( id, true ); }
-    void			deSelectAll()	  { deSelectAll( true ); }
-    void			updateSel(int id) { updateSel( id, true ); }
+    void			deSelect( VisID id )	{ deSelect( id, true); }
+    void			deSelectAll()		{ deSelectAll( true ); }
+    void			updateSel( VisID id )	{ updateSel( id, true);}
 
-    const TypeSet<int>&		selected() const  { return selectedids_; }
+    const TypeSet<VisID>&	selected() const  { return selectedids_; }
 
-    CNotifier<SelectionManager,int>	selnotifier;
-    CNotifier<SelectionManager,int>	deselnotifier;
-    CNotifier<SelectionManager,int>	updateselnotifier;
+    CNotifier<SelectionManager,VisID>	selnotifier;
+    CNotifier<SelectionManager,VisID>	deselnotifier;
+    CNotifier<SelectionManager,VisID>	updateselnotifier;
 
     				// for implementing pick-based reselection
-    CNotifier<SelectionManager,int>	reselnotifier;
+    CNotifier<SelectionManager,VisID>	reselnotifier;
 
     void			fillPar(IOPar&,TypeSet<int>&) const {}
     void			usePar(const IOPar&) {}
 
 protected:
-    void			select(int id,bool keep,bool lock);
-    void			deSelect(int id,bool lock);
+    void			select(VisID,bool keep,bool lock);
+    void			deSelect(VisID,bool lock);
     void			deSelectAll(bool lock);
-    void			updateSel(int id,bool lock);
+    void			updateSel(VisID,bool lock);
 
-    TypeSet<int>		selectedids_;
+    TypeSet<VisID>		selectedids_;
     bool			allowmultiple_;
     Threads::Mutex&		mutex_;
 };
 
 } // namespace visBase
-

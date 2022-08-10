@@ -37,10 +37,10 @@ public:
     void		setMapView(bool yn);
     bool		isMapView() const;
 
-    void		setSceneID(int);
+    void		setSceneID(SceneID);
     visBase::Scene*	getScene();
     const visBase::Scene* getScene() const;
-    int			sceneID() const;
+    SceneID		sceneID() const;
 
     void		setViewMode(bool);
     bool		isViewMode() const;
@@ -131,6 +131,4 @@ private:
     ui3DViewerBody*	osgbody_;
 
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
-
 };
-

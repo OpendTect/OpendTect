@@ -107,7 +107,7 @@ bool rejectOK( CallBacker* )
 }
 
 
-int getDisplayID() const
+VisID getDisplayID() const
 { return rtd_->id(); }
 
 
@@ -131,8 +131,8 @@ static uiODRandomLineTreeItem::Type getType( int mnuid )
 
 
 // Tree Items
-uiTreeItem*
-    uiODRandomLineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+uiTreeItem* uiODRandomLineTreeItemFactory::createForVis( VisID visid,
+							 uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -189,14 +189,14 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 
     if ( mnuid==0 )
     {
-	auto* itm = new uiODRandomLineTreeItem(-1, getType(mnuid) );
+	auto* itm = new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid) );
 	addChild( itm, false );
 	itm->displayDefaultData();
     }
     else if ( mnuid==1 )
     {
 	uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem(-1, getType(mnuid) );
+		new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid) );
 	addChild( itm, false );
     }
     else if ( mnuid==2 || mnuid==3 )
@@ -248,11 +248,11 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
     if ( !rl )
 	return false;
 
-    uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem( -1, getType(mnuid), rl->ID() );
+    auto* itm = new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid),
+					    rl->ID() );
     addChild( itm, false );
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()))
     if ( !rtd )
 	return false;
 
@@ -304,7 +304,7 @@ void uiODRandomLineParentTreeItem::genFromTable()
 
     if ( dlg.go() )
     {
-	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( VisID::udf());
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
@@ -345,7 +345,7 @@ void uiODRandomLineParentTreeItem::genFromPicks()
 	return;
 
     ODMainWin()->applMgr().visServer()->setViewMode( false );
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( VisID::udf() );
     addChild( itm, false );
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
@@ -360,8 +360,8 @@ void uiODRandomLineParentTreeItem::genFromPicks()
 
 void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 {
-    const int id = rdlpolylinedlg_->getDisplayID();
-    mDynamicCastGet(uiODRandomLineTreeItem*,itm,findChild(id))
+    const VisID id = rdlpolylinedlg_->getDisplayID();
+    mDynamicCastGet(uiODRandomLineTreeItem*,itm,findChild(id.asInt()))
     if ( !rdlpolylinedlg_->uiResult() )
     {
 	removeChild( itm );
@@ -386,7 +386,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 }
 
 
-uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp,
+uiODRandomLineTreeItem::uiODRandomLineTreeItem( VisID id, Type tp,
 						RandomLineID rlid )
     : type_(tp)
     , rlid_(rlid)
@@ -409,7 +409,7 @@ uiODRandomLineTreeItem::~uiODRandomLineTreeItem()
 bool uiODRandomLineTreeItem::init()
 {
     visSurvey::RandomTrackDisplay* rtd = 0;
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	rtd = new visSurvey::RandomTrackDisplay;
 	if ( type_ == RGBA )
@@ -493,7 +493,7 @@ bool uiODRandomLineTreeItem::displayDefaultData()
 void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     mAddMenuOrTBItem( istb, 0, menu, &create2dgridmnuitem_, true, false );
@@ -550,7 +550,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
@@ -686,5 +686,5 @@ void uiODRandomLineTreeItem::editNodes()
 
 void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
 {
-    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
+    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }

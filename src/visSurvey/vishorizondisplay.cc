@@ -1689,7 +1689,7 @@ const visBase::HorizonSection* HorizonDisplay::getHorizonSection(
 }
 
 
-EM::SectionID HorizonDisplay::getSectionID( int visid ) const
+EM::SectionID HorizonDisplay::getSectionID( VisID visid ) const
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
@@ -1913,7 +1913,7 @@ HorizonDisplay::IntersectionData*
 { if ( obj && obj->id() == objid ) { objidx = idx; return true;}  }
 
 bool HorizonDisplay::isValidIntersectionObject(
-    const ObjectSet<const SurveyObject>&objs, int& objidx, int objid ) const
+    const ObjectSet<const SurveyObject>&objs, int& objidx, VisID objid ) const
 {
     for ( int idx=0; idx<objs.size(); idx++ )
     {
@@ -1935,13 +1935,13 @@ bool HorizonDisplay::isValidIntersectionObject(
 
 
 void HorizonDisplay::updateIntersectionLines(
-	    const ObjectSet<const SurveyObject>& objs, int whichobj )
+	    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
     if ( !horizon ) return;
 
     int objidx = -1;
-    const bool doall = whichobj==-1 || whichobj==id();
+    const bool doall = !whichobj.isValid() || whichobj==id();
     if ( !doall && !isValidIntersectionObject(objs,objidx,whichobj) )
 	return;
 
@@ -2054,12 +2054,12 @@ void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 
 
 void HorizonDisplay::updateSectionSeeds(
-	    const ObjectSet<const SurveyObject>& objs, int movedobj )
+	    const ObjectSet<const SurveyObject>& objs, VisID movedobj )
 {
     if ( !isOn() )
 	return;
 
-    bool refresh = movedobj==-1 || movedobj==id();
+    bool refresh = !movedobj.isValid() || movedobj==id();
     TypeSet<int> verticalsections;
 
     for ( int idx=0; idx<objs.size(); idx++ )
@@ -2435,14 +2435,14 @@ void HorizonDisplay::clearSelections()
 
 
 void HorizonDisplay::doOtherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, int whichobj )
+	const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     otherObjectsMoved( objs, whichobj );
 }
 
 
 void HorizonDisplay::otherObjectsMoved(
-	    const ObjectSet<const SurveyObject>& objs, int whichobj )
+	    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     updateIntersectionLines( objs, whichobj );
     updateSectionSeeds( objs, whichobj );
@@ -2520,8 +2520,10 @@ bool HorizonDisplay::usePar( const IOPar& par )
 	    setIntersectLineMaterial( 0 );
 	else
 	{
-	    DataObject* mat = visBase::DM().getObject( intersectlinematid );
-	    if ( !mat ) return 0;
+	    auto* mat = visBase::DM().getObject( VisID(intersectlinematid) );
+	    if ( !mat )
+		return 0;
+
 	    if ( typeid(*mat) != typeid(visBase::Material) ) return -1;
 
 	    setIntersectLineMaterial( (visBase::Material*)mat );
@@ -2571,7 +2573,7 @@ const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 
 HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 {
-    TypeSet<int> ids;
+    TypeSet<VisID> ids;
     visBase::DM().getIDs( typeid(visSurvey::HorizonDisplay), ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
@@ -2601,7 +2603,6 @@ HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
     , markerset_( visBase::MarkerSet::create() )
     , voiid_(-2)
     , zaxistransform_(0)
-    , objid_(0)
 {
     line_->ref();
     markerset_->ref();

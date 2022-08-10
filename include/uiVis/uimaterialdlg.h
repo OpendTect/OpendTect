@@ -116,7 +116,7 @@ public:
 						visSurvey::SurveyObject*);
 				~uiPropertiesDlg();
 
-    static CNotifier<uiPropertiesDlg,int>& closeNotifier();
+    static CNotifier<uiPropertiesDlg,VisID>& closeNotifier();
 
 protected:
     void			dlgClosed(CallBacker*);

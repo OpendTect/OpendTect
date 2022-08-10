@@ -120,7 +120,7 @@ protected:
 					BufferString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj) override;
+					VisID whichobj) override;
     void			updateIntersectionDisplay();
     void			updateSingleColor();
 
@@ -149,7 +149,7 @@ protected:
 	visBase::GeomIndexedShape*		visshape_;
 	Geometry::ExplicitIndexedShape*		shape_;
 
-	int					planeid_;
+	VisID					planeid_;
 	char					planeorientation_;
 	float					planepos_;
 

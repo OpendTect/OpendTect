@@ -88,7 +88,7 @@ public:
 
     int				size() const override;
     int				getFirstIdx(const DataObject*) const override;
-    int				getFirstIdx( int did ) const override
+    int				getFirstIdx( VisID did ) const override
 				{ return visBase::Scene::getFirstIdx(did); }
     visBase::DataObject*	getObject(int) override;
     const visBase::DataObject*	getObject(int) const;
@@ -183,7 +183,8 @@ public:
 
     void			setAnnotColor(const OD::Color&);
     const OD::Color		getAnnotColor() const;
-    void			setMarkerPos(const TrcKeyValue&,int sceneid);
+    void			setMarkerPos(const TrcKeyValue&,
+					     SceneID sceneid);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
     const OD::Color&		getMarkerColor() const;
@@ -212,8 +213,8 @@ protected:
     void			togglePosModeManipObjSel();
     void			selChangeCB(CallBacker*);
 
-    TypeSet<int>		hoveredposmodemanipobjids_;
-    int				posmodemanipdeselobjid_ = -1;
+    TypeSet<VisID>		hoveredposmodemanipobjids_;
+    VisID			posmodemanipdeselobjid_;
     bool			spacebarwaspressed_ = false;
 
     RefMan<visBase::Transformation>	tempzstretchtrans_;
@@ -279,9 +280,7 @@ public:
 
     void			setMoreObjectsToDoHint(bool yn);
     bool			getMoreObjectsToDoHint() const;
-    void			selectPosModeManipObj(int selid);
+    void			selectPosModeManipObj(VisID selid);
 };
 
 } // namespace visSurvey
-
-

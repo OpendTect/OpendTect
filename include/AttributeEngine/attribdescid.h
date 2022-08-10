@@ -39,15 +39,6 @@ public:
     inline bool		isValid() const		{ return id_ >= 0; }
     inline bool		isUnselInvalid() const	{ return id_ < -2; }
 
-    /*
-    inline bool		operator <(int id) const
-			{ return id_ < id; }
-    inline bool		operator >(int id) const
-			{ return id_ > id; }
-    inline bool		operator >=(int id) const
-			{ return id_ >= id; }
-			*/
-
     inline bool		operator ==( const DescID& id ) const
 			{ return id.id_ == id_ && isstored_ == id.isstored_; }
     inline bool		operator !=( const DescID& id ) const
@@ -58,7 +49,7 @@ public:
     int			asInt() const		{ return id_; }
     int&		asInt()			{ return id_; }
     bool		isStored() const	{ return isstored_; }
-    void                setStored( bool yn )    { isstored_ = yn; }
+    void		setStored( bool yn )	{ isstored_ = yn; }
 
 protected:
 

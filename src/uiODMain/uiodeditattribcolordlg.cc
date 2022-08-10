@@ -48,7 +48,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
-	const int did = item->displayID();
+	const VisID did = item->displayID();
 	const int anr = item->attribNr();
 	colseq = visserv->getColTabSequence( did, anr );
 	if ( !colseq ) continue;
@@ -83,7 +83,7 @@ void uiODEditAttribColorDlg::seqChg( CallBacker* )
 	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
-	const int did = item->displayID();
+	const VisID did = item->displayID();
 	const int anr = item->attribNr();
 	const ColTab::Sequence* colseq = visserv->getColTabSequence( did, anr );
 	if ( colseq && *colseq!=newcolseq && visserv->canSetColTabSequence(did))
@@ -105,7 +105,7 @@ void uiODEditAttribColorDlg::mapperChg( CallBacker* )
 	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
-	const int did = item->displayID();
+	const VisID did = item->displayID();
 	const int anr = item->attribNr();
 	const ColTab::MapperSetup* colmapsetup =
 	    visserv->getColTabMapperSetup( did, anr );

@@ -114,7 +114,7 @@ public:
 
     void			setSelSpec(int,const Attrib::SelSpec&) override;
     void			setSelSpecs(int attrib,
-				       const TypeSet<Attrib::SelSpec>&) override;
+				    const TypeSet<Attrib::SelSpec>&) override;
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>&);
@@ -129,7 +129,7 @@ public:
     bool			hasColor() const override	{ return true; }
     bool			usesColor() const override;
 
-    EM::SectionID		getSectionID(int visid) const override;
+    EM::SectionID		getSectionID(VisID visid) const override;
 
     void			getRandomPos(DataPointSet&,
 						TaskRunner*) const override;
@@ -208,7 +208,7 @@ public:
 
     void			doOtherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj) override;
+					VisID whichobj) override;
     void			setPixelDensity(float) override;
 
     void			setSectionDisplayRestore(bool);
@@ -243,13 +243,13 @@ private:
     int				getChannelIndex(const char* nm) const;
     void			updateIntersectionLines(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj );
+				    VisID whichobj );
     void			updateSectionSeeds(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj );
+				    VisID whichobj );
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj) override;
+				    VisID whichobj) override;
     void			updateSingleColor();
 
     void			calculateLockedPoints();
@@ -287,7 +287,7 @@ private:
 	visBase::MarkerSet*		markerset_;
 	ZAxisTransform*			zaxistransform_;
 	int				voiid_;
-	int				objid_;
+	VisID				objid_;
     };
 
     IntersectionData*		getOrCreateIntersectionData(
@@ -307,7 +307,7 @@ private:
 
     bool			isValidIntersectionObject(
 				   const ObjectSet<const SurveyObject>&,
-				   int& objidx,int objid) const;
+				   int& objidx,VisID objid) const;
 				/*!<Check if the active object is one of
 				planedata, z-slice, 2dline,..., if it is
 				get the the idx in the stored object

@@ -136,7 +136,7 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 }
 
 
-EM::SectionID Horizon2DDisplay::getSectionID(int visid) const
+EM::SectionID Horizon2DDisplay::getSectionID( VisID visid ) const
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
     {
@@ -760,11 +760,11 @@ void Horizon2DDisplay::updateSeedsOnSections(
 
 
 void Horizon2DDisplay::otherObjectsMoved(
-		    const ObjectSet<const SurveyObject>& objs, int movedobj )
+		    const ObjectSet<const SurveyObject>& objs, VisID movedobj )
 {
     if ( burstalertison_ ) return;
 
-    bool refresh = movedobj==-1 || movedobj==id();
+    bool refresh = !movedobj.isValid() || movedobj==id();
     ObjectSet<const Seis2DDisplay> seis2dlist;
 
     for ( int idx=0; idx<objs.size(); idx++ )
@@ -844,7 +844,7 @@ bool Horizon2DDisplay::usePar( const IOPar& par )
 
 
 void Horizon2DDisplay::doOtherObjectsMoved(
-	            const ObjectSet<const SurveyObject>& objs, int whichobj )
+		    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     otherObjectsMoved( objs, whichobj );
 }

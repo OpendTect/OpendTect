@@ -49,7 +49,7 @@ const QWidget* OD3DViewer::qwidget_() const
 }
 
 
-void OD3DViewer::setSceneID( int sceneid )
+void OD3DViewer::setSceneID( SceneID sceneid )
 {
 }
 

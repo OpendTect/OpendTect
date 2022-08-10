@@ -131,7 +131,7 @@ void uiTutMgr::doHor( CallBacker* )
 
 void uiTutMgr::doWells( CallBacker* )
 {
-    const int displayid = wellmnuitmhandler_.getDisplayID();
+    const VisID displayid = wellmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
 			appl().applMgr().visServer()->getObject(displayid))
     if ( !wd )

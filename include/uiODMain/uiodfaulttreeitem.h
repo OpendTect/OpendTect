@@ -43,14 +43,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODFaultParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultTreeItem)
 public:
-			uiODFaultTreeItem(int,bool dummy);
+			uiODFaultTreeItem(VisID,bool dummy);
 			uiODFaultTreeItem(const EM::ObjectID&);
 			~uiODFaultTreeItem();
 
@@ -113,14 +113,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODFaultStickSetParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultStickSetTreeItem)
 public:
-			uiODFaultStickSetTreeItem(int,bool dummy);
+			uiODFaultStickSetTreeItem(VisID,bool dummy);
 			uiODFaultStickSetTreeItem(const EM::ObjectID&);
 			~uiODFaultStickSetTreeItem();
 

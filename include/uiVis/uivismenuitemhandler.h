@@ -35,7 +35,7 @@ public:
 				const uiString& mnutext,const CallBack& cb,
 				const char* parenttext=0,int placement=-1);
 
-    int		getDisplayID() const;
+    VisID	getDisplayID() const;
     		/*!<Does only give a valid answer if called from cb. */
 
 protected:
@@ -61,7 +61,7 @@ public:
     void	addWhenPickSet(bool);
     void	addWhenPolygon(bool);
 
-    int		getDisplayID() const;
+    VisID	getDisplayID() const;
 		/*!<Does only give a valid answer if called from cb. */
 protected:
     bool		shouldAddMenu() const;

@@ -32,9 +32,9 @@ ________________________________________________________________________
 
 
 // uiPropertiesDlg
-CNotifier<uiPropertiesDlg,int>& uiPropertiesDlg::closeNotifier()
+CNotifier<uiPropertiesDlg,VisID>& uiPropertiesDlg::closeNotifier()
 {
-    static CNotifier<uiPropertiesDlg,int> notif( nullptr );
+    static CNotifier<uiPropertiesDlg,VisID> notif( nullptr );
     return notif;
 }
 

@@ -55,7 +55,7 @@ protected:
     uiVisPartServer*		visserv_;
 
     visSurvey::MPEClickCatcher*	clickcatcher_;
-    int				clickablesceneid_;
+    SceneID			clickablesceneid_;
 
     void			mouseEventCB(CallBacker*);
     void			keyEventCB(CallBacker*);

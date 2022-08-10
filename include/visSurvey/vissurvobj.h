@@ -106,7 +106,7 @@ public:
 
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj ) {}
+				    VisID whichobj) {}
 				/*!< If other objects are moved, removed or
 				     added in the scene, this function is
 				     called. \note that it only notifies on
@@ -119,7 +119,7 @@ public:
     virtual Coord3		getTranslation() const
 				{ return Coord3(0,0,0); }
 
-    virtual void		getChildren( TypeSet<int>& ) const	{}
+    virtual void		getChildren(TypeSet<VisID>&) const	{}
 
     virtual bool		canDuplicate() const	{ return false;}
     virtual SurveyObject*	duplicate(TaskRunner*) const	{ return 0; }
@@ -322,7 +322,7 @@ public:
     virtual void		setScene(Scene* scn);
     virtual const Scene*	getScene() const	{ return scene_; }
     virtual Scene*		getScene()		{ return scene_; }
-    virtual int			getSceneID() const	{ return scene_->id(); }
+    virtual SceneID		getSceneID() const	{ return scene_->id(); }
 
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
 				{return false;}
@@ -390,7 +390,7 @@ protected:
 				~SurveyObject();
 
     void			initAdaptiveMouseCursor(CallBacker* eventcb,
-						int objid,int inplanedragkeys,
+						VisID objid,int inplanedragkeys,
 						MouseCursor&);
 
     static int			cValNameOffset()	{ return 12; }
@@ -411,4 +411,3 @@ protected:
 };
 
 } // namespace visSurvey
-

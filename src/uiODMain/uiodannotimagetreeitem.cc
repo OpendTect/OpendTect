@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
-ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
+ImageSubItem::ImageSubItem( Pick::Set& pck, VisID displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( m3Dots(tr("Select image")) )
 {
@@ -34,12 +34,12 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
 bool ImageSubItem::init()
 {
     visSurvey::ImageDisplay* id = 0;
-    if (  displayid_==-1 )
+    if (  !displayid_.isValid() )
     {
 	id = visSurvey::ImageDisplay::create();
 	visserv_->addObject( id, sceneID(), true );
 	displayid_ = id->id();
-    id->setUiName( name_ );
+	id->setUiName( name_ );
     }
     else
     {
@@ -85,7 +85,7 @@ void ImageSubItem::fillStoragePar( IOPar& par ) const
 
 void ImageSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || menu->menuID()!=displayID().asInt() )
 	return;
 
     uiODAnnotSubItem::createMenu( menu, istb );
@@ -97,7 +97,7 @@ void ImageSubItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() )
+    if ( menu->isHandled() || menu->menuID()!=displayID().asInt() )
 	return;
 
     uiODAnnotSubItem::handleMenuCB( cb );
@@ -109,7 +109,7 @@ void ImageSubItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void ImageSubItem::retrieveFileName( CallBacker* cb )
+void ImageSubItem::retrieveFileName( CallBacker* )
 {
     selectFileName();
 }

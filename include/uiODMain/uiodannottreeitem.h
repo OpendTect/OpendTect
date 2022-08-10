@@ -22,7 +22,7 @@ public:
 			uiODAnnotParentTreeItem();
 			~uiODAnnotParentTreeItem();
 
-    int			sceneID() const;
+    SceneID		sceneID() const;
 
 protected:
     bool		init();
@@ -38,7 +38,7 @@ public:
     static const char*	getName()
 			{ return typeid(uiODAnnotTreeItemFactory).name();}
     uiTreeItem*		create() const { return new uiODAnnotParentTreeItem; }
-    uiTreeItem*		create(int,uiTreeItem*) const;
+    uiTreeItem*		create(VisID,uiTreeItem*) const;
 };
 
 
@@ -57,15 +57,15 @@ protected:
     virtual bool		showSubMenu();
     virtual int			defScale() const 		{ return -1; }
 
-    virtual uiTreeItem*		createSubItem(int,Pick::Set&)	= 0;
+    virtual uiTreeItem*		createSubItem(VisID,Pick::Set&)	= 0;
     virtual const char*		managerName() const		= 0;
     virtual const char*		oldSelKey() const		= 0;
 
 
 
    void				setRemovedCB(CallBacker*);
-   void				addPickSet(Pick::Set* ps);
-   void				removePickSet(Pick::Set* ps);
+   void				addPickSet(Pick::Set*);
+   void				removePickSet(Pick::Set*);
 
    uiString			typestr_;
 };
@@ -85,7 +85,7 @@ public:
     RefMan<Pick::Set>	getSet() { return set_; }
 
 protected:
-			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
+			uiODAnnotSubItem(Pick::Set&,VisID displayid);
 			//!<Pickset becomes mine, if it's not in the mgr
     virtual		~uiODAnnotSubItem();
     void		prepareForShutdown();
@@ -123,7 +123,7 @@ protected:
 mExpClass(uiODMain) ScaleBarSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ScaleBarSubItem);
 public:
-			ScaleBarSubItem(Pick::Set&,int displayid=-1);
+			ScaleBarSubItem(Pick::Set&,VisID displayid);
     bool		init();
     static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
 
@@ -147,7 +147,7 @@ mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ArrowSubItem);
 public:
 
-			ArrowSubItem(Pick::Set& pck,int displayid=-1);
+			ArrowSubItem(Pick::Set& pck,VisID displayid);
     bool		init();
 
     static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
@@ -176,7 +176,7 @@ protected:
 mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ImageSubItem)
 public:
-			ImageSubItem(Pick::Set&,int displayid=-1);
+			ImageSubItem(Pick::Set&,VisID displayid);
     bool		init();
     static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
 
@@ -212,7 +212,7 @@ public: \
 		 type##ParentItem::setRemovedCB ); \
 		} \
 protected: \
-    uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
+    uiTreeItem*	createSubItem(VisID di,Pick::Set& pck) \
 		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
     const char* oldSelKey() const { return typestr.getFullString().buf(); } \

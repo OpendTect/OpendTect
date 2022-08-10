@@ -256,8 +256,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.dragging )
 	updateDragger();
 
-    int eventid = -1;
-    pickedsobjid_ = -1;
+    VisID eventid;
+    pickedsobjid_.setUdf();
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
@@ -272,7 +272,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	if ( so && so->allowsPicks() )
 	    pickedsobjid_ = eventid;
 
-	if ( pickedsobjid_ != -1 )
+	if ( pickedsobjid_.isValid() )
 	    break;
     }
 
@@ -379,7 +379,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	 !OD::leftMouseButton( eventinfo.buttonstate_ ) )
 	return;
 
-    if ( eventid == -1 )
+    if ( !eventid.isValid() )
 	return;
 
     if ( waitsforpositionid_!=-1 || waitsfordirectionid_!=-1 )
@@ -387,7 +387,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	setPickable( true );
 	waitsforpositionid_ = -1;
 	waitsfordirectionid_ = -1;
-	mousepressid_ = -1;
+	mousepressid_.setUdf();
     }
     else if ( eventinfo.pressed )
     {
@@ -476,7 +476,7 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 {
     const int sz = evi.pickedobjids.size();
     bool validpicksurface = false;
-    int eventid = -1;
+    VisID eventid;
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -485,7 +485,7 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 	if ( pickedobj == this )
 	    continue;
 
-	if ( eventid==-1 && pickedobj->isPickable() )
+	if ( !eventid.isValid() && pickedobj->isPickable() )
 	{
 	    eventid = evi.pickedobjids[idx];
 	    if ( validpicksurface )
@@ -497,7 +497,7 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 	{
 	    validpicksurface = true;
 	    normal = so->getNormal( evi.displaypickedpos );
-	    if ( eventid!=-1 )
+	    if ( eventid.isValid() )
 		break;
 	}
     }
@@ -513,8 +513,9 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 	    return false;
     }
 
-    mDynamicCastGet( SurveyObject*,so, visBase::DM().getObject(eventid))
-    if ( so ) so->snapToTracePos( newpos );
+    mDynamicCastGet(SurveyObject*,so,visBase::DM().getObject(eventid))
+    if ( so )
+	so->snapToTracePos( newpos );
 
     return true;
 }
@@ -882,7 +883,7 @@ void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 
 void LocationDisplay::otherObjectsMoved(
-			const ObjectSet<const SurveyObject>& objs, int )
+			const ObjectSet<const SurveyObject>& objs, VisID )
 {
     if ( showall_ && invalidpicks_.isEmpty() ) return;
 
@@ -1013,7 +1014,7 @@ bool LocationDisplay::isMarkerClick(const visBase::EventInfo& evi) const
 }
 
 
-int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
+int LocationDisplay::isDirMarkerClick( const TypeSet<VisID>& ) const
 { return -1; }
 
 
@@ -1034,7 +1035,7 @@ const SurveyObject* LocationDisplay::getPickedSurveyObject() const
 }
 
 
-bool LocationDisplay::removeSelections( TaskRunner* taskr )
+bool LocationDisplay::removeSelections( TaskRunner* )
 {
     if ( set_->isReadOnly() )
 	return false;

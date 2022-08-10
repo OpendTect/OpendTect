@@ -128,7 +128,7 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
     if ( uivisemobj_ )
 	return true;
 
-    if ( displayid_!=-1 )
+    if ( displayid_.isValid() )
     {
 	uivisemobj_ = new uiVisEMObject( ODMainWin(), displayid_, visserv_ );
 	if ( !uivisemobj_->isOK() )
@@ -146,7 +146,7 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
     }
 
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emd,visserv_->getObject(displayid_));
+		    emd,visserv_->getObject(displayid_))
     if ( emd )
     {
 	emd->selection()->notify(
@@ -224,7 +224,7 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -281,7 +281,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-int uiODEarthModelSurfaceTreeItem::reloadEMObject()
+VisID uiODEarthModelSurfaceTreeItem::reloadEMObject()
 {
     uiEMPartServer* ems = applMgr()->EMServer();
     const MultiID mid = ems->getStorageID( emid_ );
@@ -290,7 +290,7 @@ int uiODEarthModelSurfaceTreeItem::reloadEMObject()
     delete uivisemobj_; uivisemobj_ = 0;
 
     if ( !ems->loadSurface(mid) )
-	return -1;
+	return VisID::udf();
 
     const EM::IOObjInfo eminfo( mid );
     timelastmodified_ = eminfo.timeLastModified( true );
@@ -306,14 +306,20 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
     mDynamicCastGet(uiMenuHandler*,uimenu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
     EM::SectionID sectionid = -1;
     if ( uivisemobj_->nrSections()==1 )
 	sectionid = uivisemobj_->getSectionID(0);
     else if ( uimenu && uimenu->getPath() )
-	sectionid = uivisemobj_->getSectionID( uimenu->getPath() );
+    {
+	TypeSet<VisID> ids;
+	for ( const auto& id : *uimenu->getPath() )
+	    ids += VisID( id );
+
+	sectionid = uivisemobj_->getSectionID( &ids );
+    }
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
@@ -603,7 +609,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    const int visid = displayID();
+    const VisID visid = displayID();
     const int attribnr = attribNr();
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -745,7 +751,7 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
 void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
 						const DataPointSet& vals )
 {
-    const int visid = displayID();
+    const VisID visid = displayID();
     const int attribnr = attribNr();
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     TypeSet<Attrib::SelSpec> specs;

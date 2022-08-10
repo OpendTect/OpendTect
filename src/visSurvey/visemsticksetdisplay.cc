@@ -289,7 +289,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	const Coord3 selectpos = eventinfo.worldpickedpos;
-	const int visid = eventinfo.pickedobjids[idx];
+	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 	mDynamicCastGet( visBase::MarkerSet*, markerset, dataobj );
 

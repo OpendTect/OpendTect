@@ -41,73 +41,73 @@ namespace visSurvey
 
 */
 
-mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl,
-		    public visSurvey::SurveyObject
+mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl
+				, public visSurvey::SurveyObject
 {
 public:
-		    MPEDisplay();
-		    mDefaultFactoryInstantiation(
-			visSurvey::SurveyObject,MPEDisplay,
-			     "MPEDisplay", ::toUiString(sFactoryKeyword()));
+			MPEDisplay();
+			mDefaultFactoryInstantiation(
+			    visSurvey::SurveyObject,MPEDisplay,
+				 "MPEDisplay", ::toUiString(sFactoryKeyword()));
 
-    bool            isInlCrl() const override	{ return true; }
-    bool            isOn() const override;
+    bool		isInlCrl() const override	{ return true; }
+    bool		isOn() const override;
 
-    void            showBoxDragger(bool);
-    bool            isBoxDraggerShown() const;
+    void		showBoxDragger(bool);
+    bool		isBoxDraggerShown() const;
 
-    void            showDragger(bool yn);
-    bool            isDraggerShown() const;
+    void		showDragger(bool yn);
+    bool		isDraggerShown() const;
 
-    void	    enablePicking(bool);
-    bool	    isPickingEnabled() const;
+    void		enablePicking(bool);
+    bool		isPickingEnabled() const;
 
-    void            setDraggerTransparency(float);
-    float           getDraggerTransparency() const;
+    void		setDraggerTransparency(float);
+    float		getDraggerTransparency() const;
 
-    void            setPlaneOrientation(int orient);
-    int		    getPlaneOrientation() const;
+    void		setPlaneOrientation(int orient);
+    int			getPlaneOrientation() const;
 
-    bool	    getPlanePosition(TrcKeyZSampling&) const;
-    void            moveMPEPlane(int nrsteps);
+    bool		getPlanePosition(TrcKeyZSampling&) const;
+    void		moveMPEPlane(int nrsteps);
 
-    void            updateBoxSpace();
-    void            freezeBoxPosition(bool yn);
+    void		updateBoxSpace();
+    void		freezeBoxPosition(bool yn);
 
     TrcKeyZSampling	getTrcKeyZSampling(int attrib=-1) const override;
 
-    void            setSelSpec(int,const Attrib::SelSpec&) override;
+    void		setSelSpec(int,const Attrib::SelSpec&) override;
     const char*		getSelSpecUserRef() const;
-                    /*!<\returns the userRef, "None" if
-                     selspec.id==NoAttrib, or a zeropointer
-                     if selspec.id==notsel */
+			/*!<\returns the userRef, "None" if
+			selspec.id==NoAttrib, or a zeropointer
+			if selspec.id==notsel */
     const Attrib::SelSpec*	getSelSpec(int attrib,
 					   int version=0) const override;
 
     const ColTab::MapperSetup*  getColTabMapperSetup(int,
 						int version=0) const override;
-    void            setColTabMapperSetup(int,const ColTab::MapperSetup&,
+    void		setColTabMapperSetup(int,const ColTab::MapperSetup&,
 					 TaskRunner*) override;
 
-    const ColTab::Sequence*    getColTabSequence(int) const override;
-    bool            canSetColTabSequence() const override;
-    void            setColTabSequence(int,const ColTab::Sequence&,
-	                              TaskRunner*) override;
+    const ColTab::Sequence* getColTabSequence(int) const override;
+    bool		canSetColTabSequence() const override;
+    void		setColTabSequence(int,const ColTab::Sequence&,
+					  TaskRunner*) override;
 
     const MouseCursor*	 getMouseCursor() const override
 			{ return &mousecursor_; }
 
-    void	    getMousePosInfo( const visBase::EventInfo& ei,
-				     IOPar& iop ) const override
-		    { return SurveyObject::getMousePosInfo(ei,iop); }
-    void            getMousePosInfo(const visBase::EventInfo&,
-				    Coord3&,BufferString& val,
-				    BufferString& info) const override;
-    void	    getObjectInfo(BufferString&) const override;
+    void		getMousePosInfo( const visBase::EventInfo& ei,
+					 IOPar& iop ) const override
+			{ return SurveyObject::getMousePosInfo(ei,iop); }
+    void		getMousePosInfo(const visBase::EventInfo&,
+					Coord3&,BufferString& val,
+					BufferString& info) const override;
+    void		getObjectInfo(BufferString&) const override;
 
-    void            updateSeedOnlyPropagation(bool);
-    void            updateMPEActiveVolume();
-    void            removeSelectionInPolygon(const Selector<Coord3>&,
+    void		updateSeedOnlyPropagation(bool);
+    void		updateMPEActiveVolume();
+    void		removeSelectionInPolygon(const Selector<Coord3>&,
 					     TaskRunner*);
 
     float		calcDist(const Coord3&) const override;
@@ -122,14 +122,14 @@ public:
     Notifier<MPEDisplay>	planeOrientationChange;
 
     // methods for volume-based display
-    int			addSlice(int dim, bool show);
+    VisID		addSlice(int dim, bool show);
     visBase::OrthogonalSlice*	getSlice(int index);
     void		updateSlice();
     float		slicePosition(visBase::OrthogonalSlice*) const;
     float		getValue(const Coord3&) const;
 
-    void		removeChild(int displayid);
-    void		getChildren(TypeSet<int>&) const override;
+    void		removeChild(VisID displayid);
+    void		getChildren(TypeSet<VisID>&) const override;
 
     bool		setZAxisTransform(ZAxisTransform*,TaskRunner*) override;
     const ZAxisTransform*	getZAxisTransform() const override;
@@ -145,9 +145,9 @@ public:
 				      TaskRunner*) override;
     DataPack::ID	getDataPackID(int attrib) const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
-                                { return DataPackMgr::SeisID(); }
+			{ return DataPackMgr::SeisID(); }
 
-    bool	        allowsPicks() const override;
+    bool		allowsPicks() const override;
     void		allowShading(bool yn) override;
     bool		hasPosModeManipulator() const override	{ return true; }
     void		showManipulator(bool yn) override;
@@ -167,10 +167,10 @@ public:
     SurveyObject::AttribFormat getAttributeFormat(int attrib=-1) const override;
 
     bool		canAddAttrib(int nrattribstoadd=1) const override;
-    bool                canRemoveAttrib() const override;
-    int                 nrAttribs() const override;
-    bool                addAttrib() override;
-    bool                removeAttrib(int attrib) override;
+    bool		canRemoveAttrib() const override;
+    int			nrAttribs() const override;
+    bool		addAttrib() override;
+    bool		removeAttrib(int attrib) override;
     void		enableAttrib(int attrib,bool yn) override;
     bool		isAttribEnabled(int attrib) const override;
 
@@ -276,5 +276,4 @@ protected:
 
 };
 
-}; // namespace visSurvey
-
+} // namespace visSurvey

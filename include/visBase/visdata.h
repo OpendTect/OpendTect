@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 -*/
+#include "visbasemod.h"
 
 #include "visdataman.h"
 #include "sharedobject.h"
@@ -66,10 +67,10 @@ public:
 
     virtual bool		isOK() const		{ return true; }
 
-    int				id() const		{ return id_; }
+    VisID			id() const		{ return id_; }
 
-    void			setID(int nid);
-    static int			getID(const osg::Node*);
+    void			setID(VisID newid);
+    static VisID		getID(const osg::Node*);
 
     BufferString		getName() const override;
     const OD::String&		name() const override;
@@ -112,7 +113,7 @@ public:
     virtual NotifierAccess*	selection()		{ return nullptr; }
     virtual NotifierAccess*	deSelection()		{ return nullptr; }
     virtual NotifierAccess*	rightClicked()		{ return nullptr; }
-    virtual const TypeSet<int>*	rightClickedPath() const{ return nullptr; }
+    virtual const TypeSet<VisID>* rightClickedPath() const{ return nullptr; }
 
     virtual void		setDisplayTransformation(const mVisTrans*);
 				/*!< All positions going from the outside
@@ -202,7 +203,7 @@ private:
     ObjectSet<NodeState>		nodestates_;
     osg::Node*				osgnode_;
     osg::Switch*			osgoffswitch_;
-    int					id_;
+    VisID				id_;
     bool				ison_;
     uiString				uiname_;
     unsigned int			enabledmask_;

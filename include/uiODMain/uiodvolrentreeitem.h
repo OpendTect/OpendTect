@@ -36,14 +36,15 @@ public:
     const char*		name() const   { return getName(); }
     static const char*	getName();
     uiTreeItem*		create() const { return new uiODVolrenParentTreeItem; }
-    uiTreeItem*		createForVis(int,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODVolrenTreeItem)
 public:
-			uiODVolrenTreeItem(int displayid_=-1,bool rgba=false);
+			uiODVolrenTreeItem(VisID displayid=VisID::udf(),
+					   bool rgba=false);
     bool		showSubMenu();
 
 protected:
@@ -66,14 +67,15 @@ mExpClass(uiODMain) uiODVolrenAttribTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODVolrenAttribTreeItem);
 public:
 			uiODVolrenAttribTreeItem(const char* parenttype);
+
 protected:
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     bool		hasTransparencyMenu() const;
 
-    MenuItem            statisticsmnuitem_;
-    MenuItem            amplspectrummnuitem_;
+    MenuItem		statisticsmnuitem_;
+    MenuItem		amplspectrummnuitem_;
     MenuItem		addmnuitem_;
     MenuItem		addisosurfacemnuitem_;
 };
@@ -83,7 +85,7 @@ protected:
 mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODVolrenSubTreeItem);
 public:
-			uiODVolrenSubTreeItem(int displayid);
+			uiODVolrenSubTreeItem(VisID displayid);
 
     bool		isIsoSurface() const;
     void		updateColumnText(int col);
@@ -91,7 +93,7 @@ public:
 protected:
 			~uiODVolrenSubTreeItem();
 
-    int			getParentDisplayID() const;
+    VisID		getParentDisplayID() const;
     int			getParentAttribNr() const;
 
     virtual void	createMenu(MenuHandler*,bool istb);

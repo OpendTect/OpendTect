@@ -41,7 +41,8 @@ public:
     int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
-    bool			addTracker(const char* trackertype,int sceneid);
+    bool			addTracker(const char* trackertype,
+					   SceneID sceneid);
     int				addTracker(const EM::ObjectID&,
 					   const Coord3& pos);
 				/*!<Creates a new tracker for the object and
@@ -53,7 +54,7 @@ public:
 					   pos, otherwise, it will be expanded
 					   to include pos. */
     EM::ObjectID		getEMObjectID(int trackerid) const;
-    int				getCurSceneID() const { return cursceneid_; }
+    SceneID			getCurSceneID() const { return cursceneid_; }
 
     bool			canAddSeed(int trackerid) const;
 
@@ -135,7 +136,7 @@ protected:
     const Attrib::SelSpec*	eventattrselspec_;
     int				activetrackerid_;
     int				temptrackerid_;
-    int				cursceneid_;
+    SceneID			cursceneid_;
 
 				//2D interaction
     Pos::GeomID 		geomid_;

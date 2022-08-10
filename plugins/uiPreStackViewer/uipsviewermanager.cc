@@ -87,7 +87,8 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet( uiMenuHandler*, menu, cb );
 
-    RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
+    RefMan<visBase::DataObject> dataobj =
+		visserv_->getObject( VisID(menu->menuID()) );
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
@@ -178,13 +179,13 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() )
 	return;
 
-    int sceneid = getSceneID( menu->menuID() );
-    if ( sceneid==-1 )
+    const SceneID sceneid = getSceneID( VisID(menu->menuID()) );
+    if ( !sceneid.isValid() )
 	return;
 
     const int mnuidx = selectpsdatamenuitem_.itemIndex( mnuid );
-
-    RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
+    RefMan<visBase::DataObject> dataobj =
+			visserv_->getObject( VisID(menu->menuID()) );
     mDynamicCastGet(visSurvey::PreStackDisplay*,psv,dataobj.ptr())
     if ( mnuidx < 0 && !psv )
 	return;
@@ -265,16 +266,16 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 }
 
 
-int uiViewer3DMgr::getSceneID( int mnid )
+SceneID uiViewer3DMgr::getSceneID( VisID visid ) const
 {
-    int sceneid = -1;
-    TypeSet<int> sceneids;
-    visserv_->getChildIds( -1, sceneids );
+    SceneID sceneid;
+    TypeSet<SceneID> sceneids;
+    visserv_->getSceneIds( sceneids );
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
-	TypeSet<int> scenechildren;
+	TypeSet<VisID> scenechildren;
 	visserv_->getChildIds( sceneids[idx], scenechildren );
-	if ( scenechildren.isPresent(mnid) )
+	if ( scenechildren.isPresent(visid) )
 	{
 	    sceneid = sceneids[idx];
 	    break;
@@ -288,7 +289,7 @@ int uiViewer3DMgr::getSceneID( int mnid )
 #define mErrReturn(msg) { uiMSG().error(msg); return false; }
 
 bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
-				 int sceneid, int mnuidx )
+				 SceneID sceneid, int mnuidx )
 {
     if ( !menu )
 	return false;
@@ -300,7 +301,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	mErrReturn( tr("No object selected") )
 
     RefMan<visBase::DataObject> dataobj =
-	visserv_->getObject( menu->menuID() );
+	visserv_->getObject( VisID(menu->menuID()) );
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
@@ -594,7 +595,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 {
     deepErase( viewers2d_ );
 
-    TypeSet<int> vispsviewids;
+    TypeSet<VisID> vispsviewids;
     visserv_->findObject( typeid(visSurvey::PreStackDisplay), vispsviewids );
 
     for ( int idx=0; idx<vispsviewids.size(); idx++ )

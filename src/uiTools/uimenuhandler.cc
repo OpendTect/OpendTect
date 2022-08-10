@@ -63,7 +63,8 @@ bool uiMenuHandler::executeMenuInternal()
 
 bool uiMenuHandler::executeMenu( int menutype, const TypeSet<int>* path )
 {
-    menutype_ = menutype; path_ = path;
+    menutype_ = menutype;
+    path_ = path;
     return executeMenuInternal();
 }
 
@@ -140,7 +141,7 @@ uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
     : MenuHandler(-1)
     , uiparent_(uiparent)
 {
-    tb_ = new uiToolBar( uiparent_, uiStrings::phrJoinStrings(tr("Item"), 
+    tb_ = new uiToolBar( uiparent_, uiStrings::phrJoinStrings(tr("Item"),
 			 uiStrings::sTools()), uiToolBar::Top, true );
     tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
     handleEmpty();

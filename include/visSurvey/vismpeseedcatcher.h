@@ -58,10 +58,10 @@ public:
     void			setPickedNode(const TrcKey&);
 
     const Coord3&		getPos() const;
-    int				getObjID() const;
+    VisID			getObjID() const;
     EM::ObjectID		getEMObjID() const; // avail when clicked on hor
-    int				getEMVisID() const { return emvisids_; }
-                    // avail when clicked on hor
+    VisID			getEMVisID() const { return emvisids_; }
+				// avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
@@ -83,8 +83,8 @@ protected:
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
     void			setEMObjID(EM::ObjectID);
-    void			setEMVisID(int);
-    void			setObjID(int);
+    void			setEMVisID(VisID);
+    void			setObjID(VisID);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjDataPackID(DataPack::ID);
     void			setObjData(const RegularSeisDataPack*);
@@ -105,13 +105,13 @@ protected:
     Coord3				clickedpos_;
 
     EM::ObjectID			clickedemobjid_;
-    int					clickedobjid_;
+    VisID				clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
     Attrib::SelSpec			attrsel_;
     const TrcKeyPath*			rdltkpath_;
     RandomLineID			rdlid_;
-    int					emvisids_ = -1;
+    VisID				emvisids_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID				geomid_;
@@ -146,10 +146,10 @@ public:
 
     const MPEClickInfo&		info() const;
     MPEClickInfo&		info();
-    const visBase::EventInfo*   visInfo() const { return cureventinfo_; }
+    const visBase::EventInfo*	visInfo() const { return cureventinfo_; }
 
     void			setTrackerType(const char*);
-    static bool			isClickable(const char* trackertype,int visid);
+    static bool			isClickable(const char* trackertype,VisID);
 
     void			setEditor(MPEEditor*);
     const MPEEditor*		getEditor() const	{ return editor_; }
@@ -186,4 +186,3 @@ protected:
 };
 
 } // namespace visSurvey
-

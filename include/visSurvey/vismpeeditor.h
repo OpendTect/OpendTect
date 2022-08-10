@@ -80,7 +80,7 @@ public:
 				    \returns wether the main object should
 				    continue to process the event.
 				*/
-    EM::PosID			mouseClickDragger(const TypeSet<int>&) const;
+    EM::PosID			mouseClickDragger(const TypeSet<VisID>&) const;
 
     bool			isDragging() const	{ return isdragging_; }
     EM::PosID			getActiveDragger() const;
@@ -96,15 +96,15 @@ public:
 protected:
 				~MPEEditor();
 
-    void			changeNumNodes( CallBacker* );
-    void			nodeMovement( CallBacker* );
-    void			dragStart( CallBacker* );
-    void			dragMotion( CallBacker* );
-    void			dragStop( CallBacker* );
-    void			updateNodePos( int, const Coord3& );
-    void			removeDragger( int );
-    void			addDragger( const EM::PosID& );
-    void			setActiveDragger( const EM::PosID& );
+    void			changeNumNodes(CallBacker*);
+    void			nodeMovement(CallBacker*);
+    void			dragStart(CallBacker*);
+    void			dragMotion(CallBacker*);
+    void			dragStop(CallBacker*);
+    void			updateNodePos(int,const Coord3&);
+    void			removeDragger(int);
+    void			addDragger(const EM::PosID&);
+    void			setActiveDragger(const EM::PosID&);
     void			setupPatchDisplay();
 
     int				rightclicknode_;

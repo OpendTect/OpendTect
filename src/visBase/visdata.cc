@@ -57,14 +57,14 @@ const OD::String& visBase::DataObject::name() const
 BufferString visBase::DataObject::getName() const
 {
     return uiname_.isEmpty() ? NamedCallBacker::getName()
-                             : BufferString( uiname_.getFullString() );
+			     : BufferString( uiname_.getFullString() );
 }
 
 
 uiString visBase::DataObject::uiName() const
 {
     return uiname_.isEmpty() ? toUiString( NamedCallBacker::getName() )
-                             : uiname_;
+			     : uiname_;
 }
 
 
@@ -87,8 +87,7 @@ void visBase::DataObject::setName( const char* nm )
 
 
 DataObject::DataObject()
-    : id_( -1 )
-    , enabledmask_( cAllTraversalMask() )
+    : enabledmask_( cAllTraversalMask() )
     , osgnode_( 0 )
     , osgoffswitch_( 0 )
     , ison_( true )
@@ -165,24 +164,24 @@ osg::StateSet* DataObject::getStateSet()
 }
 
 
-void DataObject::setID( int nid )
+void DataObject::setID( VisID newid )
 {
-    id_ = nid;
+    id_ = newid;
     updateOsgNodeData();
 }
 
 std::string idstr( sKey::ID() );
 
-int DataObject::getID( const osg::Node* node )
+VisID DataObject::getID( const osg::Node* node )
 {
     if ( node )
     {
 	int objid;
-	if ( node->getUserValue(idstr, objid) && objid>=0 )
-	    return objid;
+	if ( node->getUserValue(idstr,objid) && objid>=0 )
+	    return VisID(objid);
     }
 
-    return -1;
+    return VisID::udf();
 }
 
 
@@ -292,7 +291,7 @@ void DataObject::updateOsgNodeData()
     if ( osgnode_ )
     {
 	osgnode_->setName( name_ );
-	osgnode_->setUserValue( idstr, id() );
+	osgnode_->setUserValue( idstr, id().asInt() );
     }
 
     updateNodemask();

@@ -42,9 +42,9 @@ public:
     bool	hasDisplays() const
 		{ return displayinfos_.size()>0; }
     DispID	getDisplayID(const DataPointSet&) const;
-    DispID	getDisplayID(int visid) const;
+    DispID	getDisplayID(VisID visid) const;
 
-    DispID	addDisplay(const TypeSet<int>& parents, const DataPointSet&);
+    DispID	addDisplay(const TypeSet<int>& parents,const DataPointSet&);
     bool	addDisplays(const TypeSet<int>& parents,
 			    const ObjectSet<DataPointSet>&,TypeSet<DispID>&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
@@ -61,13 +61,13 @@ public:
     mClass(uiVis) DisplayInfo
     {
     public:
-	TypeSet<int>		sceneids_;
-	TypeSet<int>		visids_; //linked with scenes_
+	TypeSet<SceneID>	sceneids_;
+	TypeSet<VisID>		visids_; //linked with scenes_
     };
 
 protected:
 
-    TypeSet<int>		allsceneids_;
+    TypeSet<SceneID>		allsceneids_;
 
     MenuItem			createbodymnuitem_;
     MenuItem			storepsmnuitem_;

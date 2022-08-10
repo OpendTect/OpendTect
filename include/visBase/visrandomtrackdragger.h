@@ -76,7 +76,7 @@ public:
 
     NotifierAccess*		rightClicked() override
 				{ return &rightclicknotifier_; }
-    const TypeSet<int>*		rightClickedPath() const override;
+    const TypeSet<VisID>*	rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const;
 
 protected:
@@ -167,10 +167,9 @@ protected:
     static const char*		sKeyDraggerScale() { return "subDraggerScale"; }
 
 public:
-    int				getKnotIdx(const TypeSet<int>& pickpath) const;
+    int				getKnotIdx(const TypeSet<VisID>& pckpath) const;
     void			handleEvents(bool yn);
     bool			isHandlingEvents() const;
 };
 
 } // namespace visBase
-

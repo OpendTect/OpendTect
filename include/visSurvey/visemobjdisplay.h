@@ -122,11 +122,11 @@ public:
     void			enableEditing(bool yn);
     bool			isEditingEnabled() const;
 
-    virtual EM::SectionID	getSectionID(int visid) const		= 0;
-    EM::SectionID		getSectionID(const TypeSet<int>* path) const;
+    virtual EM::SectionID	getSectionID(VisID visid) const		= 0;
+    EM::SectionID		getSectionID(const TypeSet<VisID>* path) const;
 
     EM::PosID			getPosAttribPosID(int attrib,
-					 const TypeSet<int>& path,
+					 const TypeSet<VisID>& path,
 					 const Coord3& clickeddisplaypos) const;
 
     bool			canRemoveSelection() const override
@@ -151,7 +151,7 @@ public:
 				{ return &locknotifier; }
     virtual void		doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj )	=0;
+				    VisID whichobj )	=0;
     void			setPixelDensity(float dpi) override;
     const visBase::MarkerSet*	getSeedMarkerSet() const;
 

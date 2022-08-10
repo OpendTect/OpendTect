@@ -1160,7 +1160,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 						const char* linenmptr )
 {
     FixedString linenm = linenmptr;
-    TypeSet<int> ids;
+    TypeSet<VisID> ids;
     visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
@@ -1177,7 +1177,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 
 Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( Pos::GeomID geomid )
 {
-    TypeSet<int> ids;
+    TypeSet<VisID> ids;
     visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), ids );
     for ( int idx=0; idx<ids.size(); idx++ )
     {

@@ -139,8 +139,8 @@ bool uiODViewer2DMgr::isItemPresent( const uiTreeItem* item ) const
 
 void uiODViewer2DMgr::setupCurInterpItem( uiODViewer2D* vwr2d )
 {
-    const int visselobjid = visServ().getCurInterObjID();
-    if ( visselobjid<0 )
+    const VisID visselobjid = visServ().getCurInterObjID();
+    if ( !visselobjid.isValid() )
 	return;
 
     ConstRefMan<visBase::DataObject> dataobj = visServ().getObject(visselobjid);
@@ -226,7 +226,7 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
 					const FlatView::DataDispPars::VD& pars,
 					bool dowva )
 {
-    uiODViewer2D* vwr2d = &addViewer2D( -1 );
+    uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &as, dowva );
     vwr2d->setSelSpec( &as, !dowva );
     vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
@@ -272,7 +272,7 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     if ( dpid==DataPack::cNoID() )
 	return -1;
 
-    uiODViewer2D* vwr2d = &addViewer2D( -1 );
+    uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     const Attrib::SelSpec& as = posdatasel.selspec_;
     vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
     const Geometry::RandomLine* rdmline =
@@ -297,12 +297,12 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 }
 
 
-void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
+void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid, bool dowva )
 {
     const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
     if ( !id.isValid() ) return;
 
-    uiODViewer2D* vwr2d = find2DViewer( visid, true );
+    uiODViewer2D* vwr2d = find2DViewer( visid );
     const bool isnewvwr = !vwr2d;
     if ( !vwr2d )
     {
@@ -687,7 +687,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 				      const TrcKeyZSampling& newsampling,
 				      const uiWorldPoint& initialcentre )
 {
-    uiODViewer2D* vwr2d = &addViewer2D( -1 );
+    uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &curvwr2d.selSpec(true), true );
     vwr2d->setSelSpec( &curvwr2d.selSpec(false), false );
     vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
@@ -779,7 +779,7 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 }
 
 
-uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
+uiODViewer2D& uiODViewer2DMgr::addViewer2D( VisID visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
     mAttachCB( vwr->dataMgr()->dataObjAdded, uiODViewer2DMgr::viewObjAdded );
@@ -804,7 +804,13 @@ uiODViewer2D* uiODViewer2DMgr::getParent2DViewer( int vwr2dobjid )
 	}
     }
 
-    return 0;
+    return nullptr;
+}
+
+
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( VisID id )
+{
+    return find2DViewer( id.asInt(), true );
 }
 
 
@@ -812,13 +818,13 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	const int vwrid = byvisid ? viewers2d_[idx]->visid_
+	const int vwrid = byvisid ? viewers2d_[idx]->visid_.asInt()
 				  : viewers2d_[idx]->id_;
 	if ( vwrid == id )
 	    return viewers2d_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1132,11 +1138,17 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 }
 
 
+void uiODViewer2DMgr::remove2DViewer( VisID visid )
+{
+    remove2DViewer( visid.asInt(), true );
+}
+
+
 void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	const int vwrid = byvisid ? viewers2d_[idx]->visid_
+	const int vwrid = byvisid ? viewers2d_[idx]->visid_.asInt()
 				  : viewers2d_[idx]->id_;
 	if ( vwrid != id )
 	    continue;
@@ -1197,7 +1209,10 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    if ( !idx ) continue;
 	    break;
 	}
-	int visid; bool wva; int attrid;
+
+	VisID visid;
+	bool wva;
+	int attrid;
 	if ( vwrpar->get( sKeyVisID(), visid ) &&
 		vwrpar->get( sKeyAttrID(), attrid ) &&
 		    vwrpar->getYN( sKeyWVA(), wva ) )
@@ -1205,7 +1220,7 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    const int nrattribs = visServ().getNrAttribs( visid );
 	    const int attrnr = nrattribs-1;
 	    displayIn2DViewer( visid, attrnr, wva );
-	    uiODViewer2D* curvwr = find2DViewer( visid, true );
+	    uiODViewer2D* curvwr = find2DViewer( visid );
 	    if ( curvwr ) curvwr->usePar( *vwrpar );
 	}
     }
@@ -1250,11 +1265,12 @@ void uiODViewer2DMgr::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid )
 {
-    addNewTrackingHorizon3D( emid, -1 );
+    addNewTrackingHorizon3D( emid, VisID::udf() );
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid,
+						SceneID sceneid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTrackingHorizon3D( emid );
@@ -1298,11 +1314,12 @@ void uiODViewer2DMgr::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid )
 {
-    addNewTrackingHorizon2D( emid, -1 );
+    addNewTrackingHorizon2D( emid, VisID::udf() );
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid,
+						SceneID sceneid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTrackingHorizon2D( emid );
@@ -1346,11 +1363,11 @@ void uiODViewer2DMgr::addFaults( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid )
 {
-    addNewTempFault( emid, -1 );
+    addNewTempFault( emid, VisID::udf() );
 }
 
 
-void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid, SceneID sceneid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTempFault( emid );
@@ -1395,11 +1412,11 @@ void uiODViewer2DMgr::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
 {
-    addNewTempFaultSS( emid, -1 );
+    addNewTempFaultSS( emid, VisID::udf() );
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid, SceneID sceneid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTempFaultSS( emid );
@@ -1443,11 +1460,11 @@ void uiODViewer2DMgr::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid )
 {
-    addNewTempFaultSS2D( emid, -1 );
+    addNewTempFaultSS2D( emid, VisID::udf() );
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid, SceneID sceneid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTempFaultSS2D( emid );

@@ -134,7 +134,7 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
     mCheckTracker( typ, Horizon3D, legalclick, true );
 
 
-bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
+bool MPEClickCatcher::isClickable( const char* trackertype, VisID visid )
 {
     visBase::DataObject* dataobj = visBase::DM().getObject( visid );
     if ( !dataobj )
@@ -216,10 +216,11 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
-	const int visid = eventinfo.pickedobjids[idx];
+	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 	if ( !dataobj )
 	    continue;
+
 	info().setObjID( visid );
 
 	mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, dataobj );
@@ -383,7 +384,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     bool legalclickclosest = false;
     float mindisttoseis2d = mUdf(float);
 
-    TypeSet<int> seis2dinscene;
+    TypeSet<VisID> seis2dinscene;
     visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), seis2dinscene );
 
     for ( int idx=0; idx<seis2dinscene.size(); idx++ )
@@ -464,7 +465,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     const BinID nodebid = SI().transform( nodepos );
     info().setNode( sequentSowing() ? TrcKey::udf() : TrcKey(nodebid) );
 
-    TypeSet<int> planesinscene;
+    TypeSet<VisID> planesinscene;
     visBase::DM().getIDs( typeid(visSurvey::PlaneDataDisplay), planesinscene );
 
     for ( int idx=0; idx<planesinscene.size(); idx++ )
@@ -505,7 +506,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	}
     }
 
-    TypeSet<int> rtdids;
+    TypeSet<VisID> rtdids;
     visBase::DM().getIDs( typeid(visSurvey::RandomTrackDisplay), rtdids );
     for ( int idx=0; idx<rtdids.size(); idx++ )
     {
@@ -648,7 +649,7 @@ const Coord3& MPEClickInfo::getPos() const
 { return clickedpos_; }
 
 
-int MPEClickInfo::getObjID() const
+VisID MPEClickInfo::getObjID() const
 { return clickedobjid_; }
 
 
@@ -697,7 +698,7 @@ void MPEClickInfo::clear()
     altclicked_ = false;
     clickednode_.setUdf();
     clickedpos_ = Coord3::udf();
-    clickedobjid_ = -1;
+    clickedobjid_.setUdf();
     clickedemobjid_.setUdf();
     clickedcs_.init( false);
     attrsel_ = nullptr;
@@ -708,7 +709,7 @@ void MPEClickInfo::clear()
     doubleclicked_ = false;
     rdltkpath_ = 0;
     rdlid_.setUdf();
-    emvisids_ = -1;
+    emvisids_.setUdf();
 }
 
 
@@ -744,7 +745,7 @@ void MPEClickInfo::setPos(const Coord3& pos )
 { clickedpos_ = pos; }
 
 
-void MPEClickInfo::setObjID( int visid )
+void MPEClickInfo::setObjID( VisID visid )
 { clickedobjid_ = visid; }
 
 
@@ -752,7 +753,7 @@ void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
 { clickedemobjid_ = emobjid; }
 
 
-void MPEClickInfo::setEMVisID( int visid )
+void MPEClickInfo::setEMVisID( VisID visid )
 { emvisids_ = visid; }
 
 

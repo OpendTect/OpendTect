@@ -163,7 +163,7 @@ VolumeDisplay::~VolumeDisplay()
 
     deepErase( attribs_ );
 
-    TypeSet<int> children;
+    TypeSet<VisID> children;
     getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
 	removeChild( children[idx] );
@@ -314,7 +314,7 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 }
 
 
-void VolumeDisplay::getChildren( TypeSet<int>&res ) const
+void VolumeDisplay::getChildren( TypeSet<VisID>&res ) const
 {
     res.erase();
     for ( int idx=0; idx<slices_.size(); idx++ )
@@ -401,7 +401,7 @@ void VolumeDisplay::draggerFinishCB( CallBacker* )
 }
 
 
-int VolumeDisplay::addSlice( int dim )
+VisID VolumeDisplay::addSlice( int dim )
 {
     visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
     slice->ref();
@@ -432,7 +432,7 @@ int VolumeDisplay::addSlice( int dim )
 }
 
 
-void VolumeDisplay::removeChild( int displayid )
+void VolumeDisplay::removeChild( VisID displayid )
 {
 /*
     if ( volren_ && displayid==volren_->id() )
@@ -502,7 +502,7 @@ float VolumeDisplay::defaultIsoValue() const
 }
 
 
-int VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
+VisID VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
 {
     mVisMCSurf* isosurface = mVisMCSurf::create();
     isosurface->ref();
@@ -527,9 +527,9 @@ int VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
 }
 
 
-int VolumeDisplay::volRenID() const
+VisID VolumeDisplay::volRenID() const
 {
-    return -1;
+    return VisID::udf();
 //    return volren_ ? volren_->id() : -1;
 }
 
@@ -1297,7 +1297,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
 {
     VolumeDisplay* vd = new VolumeDisplay;
 
-    TypeSet<int> children;
+    TypeSet<VisID> children;
     vd->getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
 	vd->removeChild( children[idx] );
@@ -1305,7 +1305,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
     vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), taskr );
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
-	const int sliceid = vd->addSlice( slices_[idx]->getDim() );
+	const VisID sliceid = vd->addSlice( slices_[idx]->getDim() );
 	mDynamicCastGet(visBase::OrthogonalSlice*,slice,
 			visBase::DM().getObject(sliceid))
 	slice->setSliceNr( slices_[idx]->getSliceNr() );
@@ -1489,7 +1489,7 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	    return false;
     }
 
-    int volid;
+    VisID volid;
     if ( par.get(sKeyVolumeID(),volid) )
     {
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject( volid );
@@ -1520,7 +1520,7 @@ bool VolumeDisplay::usePar( const IOPar& par )
     for ( int idx=0; idx<nrslices; idx++ )
     {
 	BufferString str( sKeySlice(), idx );
-	int sliceid;
+	VisID sliceid;
 	par.get( str, sliceid );
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject(sliceid);
 	if ( !dataobj ) return 0;

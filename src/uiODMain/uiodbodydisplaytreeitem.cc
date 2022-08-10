@@ -206,7 +206,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
     deepUnRef( objs );
 }
 
-uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
+uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( VisID visid,
 							  uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
@@ -256,9 +256,8 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
 }
 
 
-uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
+uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( VisID id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_(-1)
     mCommonInit
 {
     displayid_ = id;
@@ -294,7 +293,7 @@ uiODDataTreeItem* uiODBodyDisplayTreeItem::createAttribItem(
 
 bool uiODBodyDisplayTreeItem::init()
 {
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	EM::EMObject* object = EM::EMM().getObject( emid_ );
 	mDynamicCastGet( EM::PolygonBody*, emplg, object );
@@ -485,7 +484,7 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
 void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    if ( !menu || menu->menuID()!=displayID().asInt() || istb )
 	return;
 
     if ( !mcd_ && !plg_ && !rpb_ )
@@ -527,7 +526,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || menu->menuID()!=displayID().asInt() || mnuid==-1 )
 	return;
 
     if ( mnuid==saveasmnuitem_.id || mnuid==savemnuitem_.id )

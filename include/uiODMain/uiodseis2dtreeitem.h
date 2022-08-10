@@ -53,14 +53,15 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODLine2DParentTreeItem; }
-    uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiOD2DLineTreeItem)
 public:
-			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1,
+			uiOD2DLineTreeItem(Pos::GeomID,
+					   VisID displayid=VisID::udf(),
 					   bool rgba=false);
 
     bool		displayDefaultData();

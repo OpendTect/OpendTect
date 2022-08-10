@@ -60,10 +60,11 @@ protected:
 					const visSurvey::PreStackDisplay&);
     uiFlatViewMainWin*	create2DViewer(const uiString&,DataPack::ID dpid);
 
-    int			getSceneID(int mnid);
+    SceneID		getSceneID(VisID) const;
     static void		getSeis2DTitle(int trnr,const char*,uiString&);
     static void		getSeis3DTitle(const BinID&,const char*,uiString&);
-    bool		add3DViewer(const uiMenuHandler*,int scnid,int mnuidx);
+    bool		add3DViewer(const uiMenuHandler*,VisID scnid,
+				    int mnuidx);
     void		removeViewWin(DataPack::ID dpid);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);

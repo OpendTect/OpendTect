@@ -63,12 +63,13 @@ bool uiODAnnotParentTreeItem::rightClick( uiTreeViewItem* itm )
 }
 
 
-int uiODAnnotParentTreeItem::sceneID() const
+SceneID uiODAnnotParentTreeItem::sceneID() const
 {
     int sceneid;
     if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
-	return -1;
-    return sceneid;
+	return SceneID::udf();
+
+    return SceneID(sceneid);
 }
 
 
@@ -91,7 +92,7 @@ const char* uiODAnnotParentTreeItem::parentType() const
 
 // TreeItemFactory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
+uiTreeItem* uiODAnnotTreeItemFactory::create( VisID visid,
 					      uiTreeItem* treeitem ) const
 {
     visBase::DataObject* dataobj =
@@ -101,7 +102,7 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
     mDynamicCastGet(visSurvey::LocationDisplay*,ld, dataobj );
     if ( !ld ) return 0;
 
-    if ( treeitem->findChild( visid ) )
+    if ( treeitem->findChild(visid.asInt()) )
 	return 0;
 
     const MultiID mid = ld->getMultiID();
@@ -164,7 +165,7 @@ void uiODAnnotTreeItem::addPickSet( Pick::Set* ps )
 {
     if ( !ps ) return;
 
-    uiTreeItem* item = createSubItem( -1, *ps );
+    uiTreeItem* item = createSubItem( VisID::udf(), *ps );
     addChild( item, true );
 }
 
@@ -179,7 +180,7 @@ void uiODAnnotTreeItem::removePickSet( Pick::Set* ps )
 	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[idx])
 	    if ( !itm ) continue;
 
-	const int displayid = itm->displayID();
+	const VisID displayid = itm->displayID();
 	mDynamicCastGet(visSurvey::LocationDisplay*,ld,
 	    visserv->getObject(displayid));
 	if ( !ld ) continue;
@@ -265,7 +266,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
-	    uiTreeItem* item = createSubItem( -1, *set );
+	    uiTreeItem* item = createSubItem( VisID::udf(), *set );
 	    addChild( item, true );
 	    break;
 	}
@@ -318,7 +319,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
 // SubItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
+uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, VisID displayid )
     : set_( &set )
     , defscale_(mCast(float,set.disp_.pixsize_))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
@@ -371,7 +372,7 @@ bool uiODAnnotSubItem::init()
 
 void uiODAnnotSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
@@ -392,7 +393,7 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) )
 	return;
 
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,

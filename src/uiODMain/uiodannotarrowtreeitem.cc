@@ -50,7 +50,7 @@ const char* ArrowSubItem::parentType() const
 { return typeid(ArrowParentItem).name(); }
 
 
-ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
+ArrowSubItem::ArrowSubItem( Pick::Set& pck, VisID displayid )
     : uiODAnnotSubItem( pck, displayid )
     , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
@@ -62,7 +62,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
 
 bool ArrowSubItem::init()
 {
-    if (  displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	visSurvey::ArrowDisplay* ad = visSurvey::ArrowDisplay::create();
 	visserv_->addObject( ad, sceneID(), true );
@@ -135,7 +135,7 @@ void ArrowSubItem::fillStoragePar( IOPar& par ) const
 void ArrowSubItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAnnotSubItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || menu->menuID()!=displayID().asInt() )
 	return;
 
     mAddMenuOrTBItem(istb,menu,menu,&propmnuitem_,true,false );
@@ -147,7 +147,7 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
     uiODAnnotSubItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() )
+    if ( menu->isHandled() || menu->menuID()!=displayID().asInt() )
 	return;
 
     if ( mnuid==propmnuitem_.id )

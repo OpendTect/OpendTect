@@ -49,18 +49,18 @@ const char* DataManager::errMsg() const
 { return errmsg_.str(); }
 
 
-int DataManager::highestID() const
+VisID DataManager::highestID() const
 {
     int max = 0;
 
     const int nrobjects = objects_.size();
     for ( int idx=0; idx<nrobjects; idx++ )
     {
-	if ( objects_[idx]->id()>max )
-	    max = objects_[idx]->id();
+	if ( objects_[idx]->id().asInt()>max )
+	    max = objects_[idx]->id().asInt();
     }
 
-    return max;
+    return VisID(max);
 }
 
 
@@ -82,12 +82,12 @@ int DataManager::highestID() const
     }
 
 
-DataObject* DataManager::getObject( int id )
+DataObject* DataManager::getObject( VisID id )
 {
-    mSmartLinearSearch( id<objects_[idx]->id(),
+    mSmartLinearSearch( id.asInt() < objects_[idx]->id().asInt(),
 			objects_[idx]->id()==id,
 			return objects_[idx] );
-    return 0;
+    return nullptr;
 }
 
 
@@ -104,11 +104,11 @@ bool DataManager::usePar( const IOPar& par )
 
 
 
-const DataObject* DataManager::getObject( int id ) const
+const DataObject* DataManager::getObject( VisID id ) const
 { return const_cast<DataManager*>(this)->getObject(id); }
 
 
-int DataManager::getID( const osg::Node* node ) const
+VisID DataManager::getID( const osg::Node* node ) const
 {
     if ( node )
     {
@@ -117,7 +117,7 @@ int DataManager::getID( const osg::Node* node ) const
 			    return objects_[idx]->id() );
     }
 
-    return -1;
+    return VisID::udf();
 }
 
 
@@ -126,13 +126,12 @@ void DataManager::addObject( DataObject* obj )
     if ( objects_.indexOf(obj)==-1 )
     {
 	objects_ += obj;
-	obj->setID(freeid_++);
+	obj->setID( VisID(freeid_++) );
     }
 }
 
 
-void DataManager::getIDs( const std::type_info& ti,
-			  TypeSet<int>& res) const
+void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 {
     res.erase();
 
@@ -148,7 +147,7 @@ void DataManager::getIDs( const std::type_info& ti,
 
 void DataManager::removeObject( DataObject* dobj )
 {
-    mSmartLinearSearch( dobj->id()<objects_[idx]->id(),
+    mSmartLinearSearch( dobj->id().asInt() < objects_[idx]->id().asInt(),
 			objects_[idx]==dobj,
 			objects_.removeSingle(idx); return );
 }
@@ -165,5 +164,4 @@ DataObject* DataManager::getIndexedObject( int idx )
 const DataObject* DataManager::getIndexedObject( int idx ) const
 { return const_cast<DataManager*>(this)->getIndexedObject(idx); }
 
-
-}; //namespace
+} // namespace visBase

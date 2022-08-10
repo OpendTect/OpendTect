@@ -267,8 +267,8 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
 	SI().getPars().set(
 	    IOPar::compKey("Z Scale",scene->zDomainInfo().key()), zstretch );
 
-    const int id = sceneids_.indexOf( scene->id() );
-    zstretches_[id] = zstretch;
+    const int idx = sceneids_.indexOf( scene->id() );
+    zstretches_[idx] = zstretch;
 }
 
 
@@ -286,9 +286,9 @@ void uiZStretchDlg::sliderMove( CallBacker* )
     const float slval = sliderfld_->getFValue()/uifactor;
 
     visSurvey::Scene* scene =  getSelectedScene();
-    const int id = sceneids_.indexOf( scene->id() );
+    const int idx = sceneids_.indexOf( scene->id() );
     if ( scene )
-	zstretches_[id] = slval;
+	zstretches_[idx] = slval;
 
     if ( stretchall )
 	setOneZStretchToAllScenes( slval, true );

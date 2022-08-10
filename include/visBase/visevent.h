@@ -71,7 +71,7 @@ public:
     OD::KeyboardKey		key_;
     				//!< Only set if type == Keyboard
 
-    TypeSet<int>		pickedobjids;
+    TypeSet<VisID>		pickedobjids;
 
     Coord3			displaypickedpos;	// display space
     Coord3			localpickedpos; 	// object space

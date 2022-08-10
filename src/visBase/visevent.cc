@@ -221,8 +221,8 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 	osg::NodePath::const_reverse_iterator it = nodepath.rbegin();
 	for ( ; it!=nodepath.rend(); it++ )
 	{
-	    const int objid = DataObject::getID( *it );
-	    if ( objid>=0 )
+	    const VisID objid = DataObject::getID( *it );
+	    if ( objid.isValid() )
 		eventinfo.pickedobjids += objid;
 	}
 

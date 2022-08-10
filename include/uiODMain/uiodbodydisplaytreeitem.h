@@ -47,14 +47,14 @@ public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
     			{ return new uiODBodyDisplayParentTreeItem; }
-    virtual uiTreeItem*	createForVis(int visid,uiTreeItem*) const;
+    virtual uiTreeItem*	createForVis(VisID visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODBodyDisplayTreeItem)
 public:
-			uiODBodyDisplayTreeItem(int,bool dummy);
+			uiODBodyDisplayTreeItem(VisID,bool dummy);
 			uiODBodyDisplayTreeItem(const EM::ObjectID&);
 			~uiODBodyDisplayTreeItem();
 

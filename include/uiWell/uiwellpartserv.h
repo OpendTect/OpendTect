@@ -11,8 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uiapplserv.h"
 #include "bufstringset.h"
+#include "integerid.h"
 #include "multiid.h"
 #include "uistring.h"
 
@@ -79,9 +81,9 @@ public:
     void			closePropDlg(const MultiID&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
-    void			setPreviewIds( const TypeSet<int>& ids )
+    void			setPreviewIds( const TypeSet<VisID>& ids )
 				{ previewids_ = ids; }
-    TypeSet<int>&		getPreviewIds()	{ return previewids_; }
+    TypeSet<VisID>&		getPreviewIds()	{ return previewids_; }
 
     void			createSimpleWells()	{ simpImp(0); }
     const TypeSet<MultiID>&	createdWellIDs()	{ return crwellids_; }
@@ -115,7 +117,7 @@ protected:
     uiBulkD2TModelImport*	impbulkd2tdlg_		= nullptr;
     uiWellMan*			manwelldlg_		= nullptr;
     uiWellMgrInfoDlg*		wellmgrinfodlg_		= nullptr;
-    TypeSet<int>		previewids_;
+    TypeSet<VisID>		previewids_;
 
     TypeSet<MultiID>		crwellids_; // for uiSimpleMultiWellCreate
 

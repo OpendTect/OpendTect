@@ -62,19 +62,19 @@ public:
     static int			cCrossLine()		{ return 1; }
     static int			cTimeSlice()		{ return 0; }
 
-    int				addSlice(int dim);
+    VisID			addSlice(int dim);
 				/*!\note return with removeChild(displayid). */
     void			showVolRen(bool yn);
     bool			isVolRenShown() const;
-    int				volRenID() const;
+    VisID			volRenID() const;
 
-    int				addIsoSurface(TaskRunner* = 0,
-					      bool updateisosurface = true);
+    VisID			addIsoSurface(TaskRunner* =nullptr,
+					      bool updateisosurface=true);
 				/*!\note return with removeChild(displayid). */
-    void			removeChild(int displayid);
+    void			removeChild(VisID displayid);
 
     visBase::MarchingCubesSurface* getIsoSurface(int idx);
-    void			updateIsoSurface(int,TaskRunner* = 0);
+    void			updateIsoSurface(int,TaskRunner* =nullptr);
     int				getNrIsoSurfaces();
     int				getIsoSurfaceIdx(
 				    const visBase::MarchingCubesSurface*) const;
@@ -84,7 +84,7 @@ public:
 				/*<Set isovalue and do update. */
     void			setIsoValue(
 				    const visBase::MarchingCubesSurface*,
-				    float,TaskRunner* =0);
+				    float,TaskRunner* =nullptr);
 
 				/*<Seed based settings. set only, no update. */
     char			isFullMode(
@@ -105,8 +105,8 @@ public:
     void			setSeedsID(const visBase::MarchingCubesSurface*,
 					   MultiID);
 
-    bool                        turnOn(bool yn) override;
-    bool                        isOn() const override;
+    bool			turnOn(bool yn) override;
+    bool			isOn() const override;
     bool			hasPosModeManipulator() const override
 				{ return true; }
     void			showManipulator(bool yn) override;
@@ -148,7 +148,8 @@ public:
     unsigned char		getAttribTransparency(
 						int attrib) const override;
 
-    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*) override;
+    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*)
+								override;
 
     visBase::TextureChannel2RGBA*	getChannels2RGBA() override;
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
@@ -209,7 +210,7 @@ public:
     void			allowShading(bool yn) override;
     bool			usesShading() const;
 
-    void			getChildren(TypeSet<int>&) const override;
+    void			getChildren(TypeSet<VisID>&) const override;
 
     bool			setZAxisTransform(ZAxisTransform*,
 						  TaskRunner*) override;
@@ -342,5 +343,3 @@ protected:
 };
 
 } // namespace visSurvey
-
-

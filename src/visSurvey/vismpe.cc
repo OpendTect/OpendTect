@@ -88,7 +88,7 @@ MPEDisplay::~MPEDisplay()
     detachAllNotifiers();
     setSceneEventCatcher( 0 );
 
-    TypeSet<int> children;
+    TypeSet<VisID> children;
     getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
 	removeChild( children[idx] );
@@ -999,7 +999,7 @@ void MPEDisplay::setSliceDimension( int sliceidx, int dim )
 }
 
 
-int MPEDisplay::addSlice( int dim, bool show )
+VisID MPEDisplay::addSlice( int dim, bool show )
 {
     visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
     slice->ref();
@@ -1065,7 +1065,7 @@ void MPEDisplay::allowShading( bool yn )
 }
 
 
-void MPEDisplay::removeChild( int displayid )
+void MPEDisplay::removeChild( VisID displayid )
 {
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
@@ -1081,7 +1081,7 @@ void MPEDisplay::removeChild( int displayid )
 }
 
 
-void MPEDisplay::getChildren( TypeSet<int>&res ) const
+void MPEDisplay::getChildren( TypeSet<VisID>&res ) const
 {
     res.erase();
     for ( int idx=0; idx<slices_.size(); idx++ )

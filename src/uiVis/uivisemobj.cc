@@ -47,7 +47,7 @@ ________________________________________________________________________
 #include "vishorizonsectiondef.h"
 
 
-uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
+uiVisEMObject::uiVisEMObject( uiParent* uip, VisID newid, uiVisPartServer* vps )
     : displayid_(newid)
     , visserv_(vps)
     , uiparent_(uip)
@@ -154,9 +154,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 #define mRefUnrefRet { emod->ref(); emod->unRef(); return; }
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
-			      int sceneid, uiVisPartServer* vps )
-    : displayid_(-1)
-    , visserv_( vps )
+			      SceneID sceneid, uiVisPartServer* vps )
+    : visserv_( vps )
     , uiparent_( uip )
 {
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
@@ -255,7 +254,7 @@ void uiVisEMObject::setUpConnections()
 }
 
 
-const char* uiVisEMObject::getObjectType( int id )
+const char* uiVisEMObject::getObjectType( VisID id )
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
     if ( !obj ) return 0;
@@ -299,7 +298,7 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 }
 
 
-EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
+EM::SectionID uiVisEMObject::getSectionID( const TypeSet<VisID>* path ) const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
     return path && emod ? emod->getSectionID( path ) : -1;
@@ -324,7 +323,7 @@ float uiVisEMObject::getShift() const
 void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayid_ )
+    if ( menu->menuID() != displayid_.asInt() )
 	return;
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
@@ -431,7 +430,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,caller);
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod || mnuid==-1 || !menu ||
-	 menu->isHandled() || menu->menuID()!=displayid_ )
+	 menu->isHandled() || menu->menuID()!=displayid_.asInt() )
 	return;
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
@@ -538,8 +537,8 @@ EM::ObjectID uiVisEMObject::getObjectID() const
 
 visSurvey::EMObjectDisplay* uiVisEMObject::getDisplay()
 {
-    mDynamicCastGet( visSurvey::EMObjectDisplay*, emod,
-		     visserv_->getObject(displayid_));
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+		    visserv_->getObject(displayid_))
     return emod;
 }
 

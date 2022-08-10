@@ -33,8 +33,8 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     butidx_ = appl.menuMgr().viewTB()->addButton( "measure",
 	tr("Display Distance"), mCB(this,MeasureToolMan,buttonClicked), true );
 
-    TypeSet<int> sceneids;
-    appl.applMgr().visServer()->getChildIds( -1, sceneids );
+    TypeSet<SceneID> sceneids;
+    appl.applMgr().visServer()->getSceneIds( sceneids );
     for ( int ids=0; ids<sceneids.size(); ids++ )
 	addScene( sceneids[ids] );
 
@@ -57,7 +57,7 @@ MeasureToolMan::~MeasureToolMan()
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	const int sceneid = sceneids_[idx];
+	const SceneID sceneid = sceneids_[idx];
 	appl_.applMgr().visServer()->removeObject( displayobjs_[idx], sceneid );
 	displayobjs_[idx]->unRef();
     }
@@ -66,7 +66,7 @@ MeasureToolMan::~MeasureToolMan()
 
 void MeasureToolMan::objSelected( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,sel,cb);
+    mCBCapsuleUnpack(VisID,sel,cb);
     bool isownsel = false;
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
 	if ( displayobjs_[idx]->id() == sel )
@@ -145,22 +145,21 @@ void MeasureToolMan::buttonClicked( CallBacker* cb )
 }
 
 
-static MultiID getMultiID( int sceneid )
+static MultiID getMultiID( SceneID sceneid )
 {
     // Create dummy multiid, I don't want to save these picks
-    BufferString mid( "9999.", sceneid );
-    return MultiID( mid.buf() );
+    return MultiID( 9999, sceneid.asInt() );
 }
 
 
 void MeasureToolMan::sceneAdded( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,sceneid,cb);
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
     addScene( sceneid );
 }
 
 
-void MeasureToolMan::addScene( int sceneid )
+void MeasureToolMan::addScene( SceneID sceneid )
 {
     visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay();
     psd->allowDoubleClick( false );
@@ -181,7 +180,7 @@ void MeasureToolMan::addScene( int sceneid )
 
 void MeasureToolMan::sceneClosed( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,sceneid,cb);
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( sceneidx<0 || sceneidx>=displayobjs_.size() )
 	return;
@@ -192,9 +191,9 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
 }
 
 
-int MeasureToolMan::getActiveSceneID() const
+SceneID MeasureToolMan::getActiveSceneID() const
 {
-    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    const SceneID sceneid = appl_.sceneMgr().getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( sceneidx>=0 )
 	return sceneid;
@@ -202,7 +201,7 @@ int MeasureToolMan::getActiveSceneID() const
     if ( sceneids_.size() == 1 )
 	return sceneids_[0];
 
-    return -1;
+    return SceneID::udf();
 }
 
 
@@ -216,7 +215,7 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 
 void MeasureToolMan::update()
 {
-    const int sceneid = getActiveSceneID();
+    const SceneID sceneid = getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( !displayobjs_.validIdx(sceneidx) ) return;
 
@@ -230,7 +229,7 @@ void MeasureToolMan::sceneChanged( CallBacker* )
     const bool ison = appl_.menuMgr().viewTB()->isOn( butidx_ );
     if ( !ison ) return;
 
-    const int sceneid = getActiveSceneID();
+    const SceneID sceneid = getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
     if ( !displayobjs_.validIdx(sceneidx) ) return;
 

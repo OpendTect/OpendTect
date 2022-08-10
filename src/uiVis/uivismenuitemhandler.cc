@@ -23,14 +23,15 @@ uiVisMenuItemHandler::uiVisMenuItemHandler(const char* classnm,
 {}
 
 
-int uiVisMenuItemHandler::getDisplayID() const
-{ return menuhandler_.menuID(); }
+VisID uiVisMenuItemHandler::getDisplayID() const
+{
+    return VisID(menuhandler_.menuID());
+}
 
 
 bool uiVisMenuItemHandler::shouldAddMenu() const
 {
-    RefMan<visBase::DataObject> dataobj =
-		visserv_.getObject( menuhandler_.menuID() );
+    RefMan<visBase::DataObject> dataobj = visserv_.getObject( getDisplayID() );
     mDynamicCastGet(visSurvey::SurveyObject*,survobj,dataobj.ptr())
     if ( !survobj )
 	return false;
@@ -57,14 +58,15 @@ void uiPickSetPolygonMenuItemHandler::addWhenPolygon( bool yn )
 { addwhenpolygon_ = yn; }
 
 
-int uiPickSetPolygonMenuItemHandler::getDisplayID() const
-{ return menuhandler_.menuID(); }
+VisID uiPickSetPolygonMenuItemHandler::getDisplayID() const
+{
+    return VisID(menuhandler_.menuID());
+}
 
 
 bool uiPickSetPolygonMenuItemHandler::shouldAddMenu() const
 {
-    RefMan<visBase::DataObject> dataobj =
-		visserv_.getObject( menuhandler_.menuID() );
+    RefMan<visBase::DataObject> dataobj = visserv_.getObject( getDisplayID() );
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,dataobj.ptr())
     if ( !psd )
 	return false;

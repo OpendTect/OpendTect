@@ -190,7 +190,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
+uiTreeItem* uiODFaultTreeItemFactory::createForVis(
+					VisID visid, uiTreeItem*) const
 {
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -230,9 +231,8 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 }
 
 
-uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
+uiODFaultTreeItem::uiODFaultTreeItem( VisID id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_(-1)
     , faultdisplay_(0)
     mCommonInit
 {
@@ -302,7 +302,7 @@ uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
 
 bool uiODFaultTreeItem::init()
 {
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	visSurvey::FaultDisplay* fd = new visSurvey::FaultDisplay;
 	displayid_ = fd->id();
@@ -356,7 +356,7 @@ void uiODFaultTreeItem::prepareForShutdown()
 void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
@@ -398,7 +398,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
     if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
@@ -562,7 +562,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 
 
 uiTreeItem*
-uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+uiODFaultStickSetTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -596,9 +596,8 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
 }
 
 
-uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
+uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( VisID id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_(-1)
     mCommonInit
 {
     displayid_ = id;
@@ -619,7 +618,7 @@ uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 
 bool uiODFaultStickSetTreeItem::init()
 {
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	visSurvey::FaultStickSetDisplay* fd =
 				    new visSurvey::FaultStickSetDisplay;
@@ -717,7 +716,7 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
 void uiODFaultStickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    if ( !menu || !isDisplayID(menu->menuID()) || istb )
 	return;
 
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
@@ -741,7 +740,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
@@ -847,7 +846,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    const int visid = displayID();
+    const VisID visid = displayID();
     const int attribnr = attribNr();
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -914,7 +913,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODFaultSurfaceDataTreeItem::setDataPointSet( const DataPointSet& vals )
 {
-    const int visid = displayID();
+    const VisID visid = displayID();
     const int attribnr = attribNr();
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";

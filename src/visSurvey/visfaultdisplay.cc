@@ -835,10 +835,10 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
-	const int visid = eventinfo.pickedobjids[idx];
+	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 
-	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane, dataobj );
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,plane,dataobj)
 	if ( plane )
 	{
 	    mouseplanecs = plane->getTrcKeyZSampling();
@@ -846,7 +846,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    break;
 	}
 
-	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rdl, dataobj );
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdl,dataobj)
 	if ( rdl )
 	{
 	    mouseplanecs = rdl->getTrcKeyZSampling(-1);
@@ -1398,9 +1398,9 @@ bool FaultDisplay::canDisplayHorizonIntersections() const
 
 
 static int getValidIntersectionObjectIdx( bool horizonintersection,
-			const ObjectSet<const SurveyObject>& objs, int objid )
+			const ObjectSet<const SurveyObject>& objs, VisID objid )
 {
-    for ( int idx=0; objid>=0 && idx<objs.size(); idx++ )
+    for ( int idx=0; objid.isValid() && idx<objs.size(); idx++ )
     {
 	if ( horizonintersection )
 	{
@@ -1423,19 +1423,19 @@ static int getValidIntersectionObjectIdx( bool horizonintersection,
 }
 
 
-void FaultDisplay::updateHorizonIntersections( int whichobj,
+void FaultDisplay::updateHorizonIntersections( VisID whichobj,
 	const ObjectSet<const SurveyObject>& objs )
 {
     if ( !fault_ )
 	return;
 
-    const bool doall = whichobj==-1 || whichobj==id();
+    const bool doall = !whichobj.isValid() || whichobj==id();
     const int onlyidx = getValidIntersectionObjectIdx( true, objs, whichobj );
     if ( !doall && onlyidx<0 )
 	return;
 
     ObjectSet<HorizonDisplay> activehordisps;
-    TypeSet<int> activehorids;
+    TypeSet<VisID> activehorids;
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	if ( !doall && idx!=onlyidx )
@@ -1454,9 +1454,10 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
     for ( int idx=horintersections_.size()-1; idx>=0; idx-- )
     {
 
-	if ( whichobj>=0 && horintersectids_[idx]!=whichobj )
+	if ( whichobj.isValid() && horintersectids_[idx]!=whichobj )
 	    continue;
-	if ( whichobj<0 && activehorids.isPresent(horintersectids_[idx]) )
+	if ( !whichobj.isValid() &&
+		activehorids.isPresent(horintersectids_[idx]) )
 	    continue;
 
 	horintersections_[idx]->turnOn( false );
@@ -1512,13 +1513,13 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 
 
 void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
-				      int whichobj )
+				      VisID whichobj )
 {
     updateHorizonIntersections( whichobj, objs );
 
     if ( !explicitintersections_ ) return;
 
-    const bool doall = whichobj==-1 || whichobj==id();
+    const bool doall = !whichobj.isValid() || whichobj==id();
     const int onlyidx = getValidIntersectionObjectIdx( false, objs, whichobj );
     if ( !doall && onlyidx<0 )
 	return;

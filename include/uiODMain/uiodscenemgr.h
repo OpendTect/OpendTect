@@ -48,14 +48,14 @@ public:
 
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
-    int				addScene(bool maximized,ZAxisTransform* =0,
+    SceneID			addScene(bool maximized,ZAxisTransform* =0,
 				    const uiString& nm=uiString::emptyString());
 				//!<Returns scene id
-    void			setSceneName(int sceneid,const uiString&);
-    uiString			getSceneName(int sceneid) const;
-    CNotifier<uiODSceneMgr,int>	sceneClosed;
-    CNotifier<uiODSceneMgr,int>	treeToBeAdded;
-    CNotifier<uiODSceneMgr,int> treeAdded;
+    void			setSceneName(SceneID sceneid,const uiString&);
+    uiString			getSceneName(SceneID sceneid) const;
+    CNotifier<uiODSceneMgr,SceneID> sceneClosed;
+    CNotifier<uiODSceneMgr,SceneID> treeToBeAdded;
+    CNotifier<uiODSceneMgr,SceneID> treeAdded;
     Notifier<uiODSceneMgr>	scenesHidden;
     Notifier<uiODSceneMgr>	scenesShown;
 
@@ -106,69 +106,76 @@ public:
     void			vWheelMoved(CallBacker*);
     void			dWheelMoved(CallBacker*);
 
-    int				askSelectScene() const; // returns sceneid
-    const ui3DViewer*		get3DViewer(int sceneid) const;
-    ui3DViewer*			get3DViewer(int sceneid);
+    SceneID			askSelectScene() const; // returns sceneid
+    const ui3DViewer*		get3DViewer(SceneID sceneid) const;
+    ui3DViewer*			get3DViewer(SceneID sceneid);
     void			get3DViewers(ObjectSet<ui3DViewer>&);
     void			getSceneNames(uiStringSet&,int& act) const;
     void			setActiveScene(int idx);
     void			getActiveSceneName(BufferString&) const;
-    int				getActiveSceneID() const;
+    SceneID			getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
 
     uiODTreeTop*		getTreeItemMgr(const uiTreeView*) const;
-    uiODTreeTop*		getTreeItemMgr(int sceneid) const;
+    uiODTreeTop*		getTreeItemMgr(SceneID sceneid) const;
 
-    void			displayIn2DViewer(int visid,int attribid,
+    void			displayIn2DViewer(VisID visid,int attribid,
 						  bool wva);
-    void			remove2DViewer(int visid);
+    void			remove2DViewer(VisID visid);
 
     void			updateTrees();
     void			rebuildTrees();
-    void			setItemInfo(int visid);
+    void			setItemInfo(VisID visid);
     void			updateSelectedTreeItem();
-    void			updateItemToolbar(int visid);
-    int				getIDFromName(const char*) const;
-    void			disabRightClick( bool yn );
-    void			disabTrees( bool yn );
+    void			updateItemToolbar(VisID visid);
+    VisID			getIDFromName(const char*) const;
+    void			disabRightClick(bool yn);
+    void			disabTrees(bool yn);
 
     void			getLoadedPickSetIDs(TypeSet<MultiID>&,bool poly,
-						    int scnid=-1) const;
+					SceneID sceneid=SceneID::udf()) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
-					       const char* emtypestr=0,
-					       int sceneid=-1) const;
-				// if sceneid==-1, then all scenes
-    int				addEMItem(const EM::ObjectID&,int sceneid=-1);
-    int				addPickSetItem(const MultiID&,int sceneid=-1);
-    int				addPickSetItem(Pick::Set&,int sceneid=-1);
-    int				addRandomLineItem(RandomLineID,int sceneid=-1);
-    int				addWellItem(const MultiID&,int sceneid=-1);
-    int				add2DLineItem(Pos::GeomID,int sceneid=-1);
-    int				add2DLineItem(const MultiID&,int sceneid=-1);
-    int				add2DLineItem(Pos::GeomID,int sceneid,
+					const char* emtypestr=0,
+					SceneID sceneid=SceneID::udf()) const;
+				// if sceneid==udf, then all scenes
+    VisID			addEMItem(const EM::ObjectID&,
+					  SceneID sceneid=SceneID::udf());
+    VisID			addPickSetItem(const MultiID&,
+						SceneID sceneid=SceneID::udf());
+    VisID			addPickSetItem(Pick::Set&,
+						SceneID sceneid=SceneID::udf());
+    VisID			addRandomLineItem(RandomLineID,
+						SceneID sceneid=SceneID::udf());
+    VisID			addWellItem(const MultiID&,
+						SceneID sceneid=SceneID::udf());
+    VisID			add2DLineItem(Pos::GeomID,
+						SceneID sceneid=SceneID::udf());
+    VisID			add2DLineItem(const MultiID&,
+						SceneID sceneid=SceneID::udf());
+    VisID			add2DLineItem(Pos::GeomID,SceneID sceneid,
 					      bool withdata);
-    int				addInlCrlItem(OD::SliceType,int nr,
-					      int sceneid=-1);
-    int				addZSliceItem(const TrcKeyZSampling&,
-					      int sceneid=-1);
-    int				addZSliceItem(const TrcKeyZSampling&,
+    VisID			addInlCrlItem(OD::SliceType,int nr,
+					      SceneID sceneid=SceneID::udf());
+    VisID			addZSliceItem(const TrcKeyZSampling&,
+					      SceneID sceneid=SceneID::udf());
+    VisID			addZSliceItem(const TrcKeyZSampling&,
 					      const Attrib::SelSpec&,
-					      int sceneid=-1);
-    int				addZSliceItem(DataPack::ID,
+					      SceneID sceneid=SceneID::udf());
+    VisID			addZSliceItem(DataPack::ID,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
-					      int sceneid=-1);
-    int				addDisplayTreeItem(uiODDisplayTreeItem*,
-						   int sceneid=-1);
+					      SceneID sceneid=SceneID::udf());
+    VisID			addDisplayTreeItem(uiODDisplayTreeItem*,
+						SceneID sceneid=SceneID::udf());
 
-    void			removeTreeItem(int displayid);
-    uiTreeItem*			findItem(int displayid);
+    void			removeTreeItem(VisID displayid);
+    uiTreeItem*			findItem(VisID displayid);
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
     void			findItems(const char*,ObjectSet<uiTreeItem>&,
-	    				  int sceneid);
+					  SceneID sceneid);
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
-    uiTreeView*			getTree(int sceneid);
+    uiTreeView*			getTree(SceneID sceneid);
     void			showTree(bool yn);
     bool			treeShown() const;
 
@@ -199,7 +206,7 @@ protected:
     uiTreeFactorySet*		tifs_;
     uiWindowGrabber*		wingrabber_;
 
-    inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
+    inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
     mExpClass(uiODMain) Scene
@@ -220,8 +227,8 @@ protected:
     void			removeScene(Scene& scene);
     void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
-    Scene*			getScene(int sceneid);
-    const Scene*		getScene(int sceneid) const;
+    Scene*			getScene(SceneID sceneid);
+    const Scene*		getScene(SceneID sceneid) const;
     void			newSceneUpdated(CallBacker*);
     void			gtLoadedEMIDs(const Scene*,
 					      TypeSet<EM::ObjectID>&,
@@ -241,7 +248,7 @@ protected:
 
     friend class		uiODMain;
 
-    void			resetStatusBar(int id=-1);
+    void			resetStatusBar(VisID id=VisID::udf());
     void			showIfMinimized(CallBacker*);
 };
 
@@ -254,7 +261,7 @@ public:
 				       uiKeyBindingSettingsGroup,
 				       uiParent*,Settings&,
 				       "Mouse interaction",
-		       mToUiStringTodo(sFactoryKeyword()));
+				mToUiStringTodo(sFactoryKeyword()));
 
     uiKeyBindingSettingsGroup(uiParent*,Settings&);
 

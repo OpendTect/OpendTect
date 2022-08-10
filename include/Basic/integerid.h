@@ -100,12 +100,20 @@ using RandomLineID	= UInt16ID;
 mExpClass(Basic) SynthID : public IntegerID<od_int32>
 {
 public:
-using IntegerID::IntegerID;
+    using IntegerID::IntegerID;
 
-    bool			isValid() const override { return asInt()>0; }
+    bool			isValid() const override
+				{ return asInt()>0 && !isUdf(); }
     bool			isNone() const		{ return asInt()==0; }
     static inline SynthID	udf()			{ return SynthID(); }
-
-protected:
-    od_int32			udfVal() const override	{ return -1; }
 };
+
+
+mExpClass(Basic) VisID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline VisID		udf()			{ return VisID(); }
+};
+
+using SceneID = VisID;

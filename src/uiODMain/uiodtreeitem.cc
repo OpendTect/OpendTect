@@ -36,7 +36,7 @@ uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {
-    setProperty<int>( sceneidkey(), sovwr->sceneID() );
+    setProperty<int>( sceneidkey(), sovwr->sceneID().asInt() );
     setPropertyPtr( viewerptr(), sovwr );
     setPropertyPtr( applmgrstr(), am );
 
@@ -51,17 +51,17 @@ uiODTreeTop::~uiODTreeTop()
 }
 
 
-int uiODTreeTop::sceneID() const
+SceneID uiODTreeTop::sceneID() const
 {
-    int sceneid=-1;
+    int sceneid = -1;
     getProperty<int>( sceneidkey(), sceneid );
-    return sceneid;
+    return SceneID(sceneid);
 }
 
 
 bool uiODTreeTop::selectWithKey( int selkey )
 {
-    applMgr()->visServer()->setSelObjectId(selkey);
+    applMgr()->visServer()->setSelObjectId( VisID(selkey) );
     return true;
 }
 
@@ -74,16 +74,16 @@ uiODApplMgr* uiODTreeTop::applMgr()
 }
 
 
-TypeSet<int> uiODTreeTop::getDisplayIds( int& selectedid, bool usechecked )
+TypeSet<VisID> uiODTreeTop::getDisplayIds( VisID& selectedid, bool usechecked )
 {
-    TypeSet<int> dispids;
+    TypeSet<VisID> dispids;
     loopOverChildrenIds( dispids, selectedid, usechecked, children_ );
     return dispids;
 }
 
 
-void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
-				       bool usechecked,
+void uiODTreeTop::loopOverChildrenIds( TypeSet<VisID>& dispids,
+				VisID& selectedid, bool usechecked,
 				    const ObjectSet<uiTreeItem>& childrenlist )
 {
     for ( int idx=0; idx<childrenlist.size(); idx++ )
@@ -124,7 +124,7 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 
     if ( !select() ) return false;
 
-    applMgr()->updateColorTable( -1, -1 );
+    applMgr()->updateColorTable( VisID::udf(), -1 );
     return true;
 }
 
@@ -154,11 +154,11 @@ ui3DViewer* uiODTreeItem::viewer()
 }
 
 
-int uiODTreeItem::sceneID() const
+SceneID uiODTreeItem::sceneID() const
 {
-    int sceneid=-1;
+    int sceneid = -1;
     getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
-    return sceneid;
+    return SceneID(sceneid);
 }
 
 
@@ -350,7 +350,7 @@ void uiODParentTreeItem::checkCB( CallBacker* )
 
 
 // uiODSceneTreeItem
-uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, int id )
+uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, VisID id )
     : uiODTreeItem(nm)
     , displayid_(id)
     , menu_(0)
@@ -416,7 +416,7 @@ void uiODSceneTreeItem::createMenuCB( CallBacker* cb )
 void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
 {
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayid_ || !isSelected() )
+    if ( !tb || tb->menuID() != displayid_.asInt() || !isSelected() )
 	return;
 
     createMenu( tb, true );

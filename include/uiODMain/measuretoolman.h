@@ -10,7 +10,10 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
+
 #include "callback.h"
+#include "integerid.h"
 #include "uistring.h"
 
 class uiMeasureDlg;
@@ -29,7 +32,7 @@ protected:
 
     void		objSelected(CallBacker*);
     void		buttonClicked(CallBacker*);
-    void		addScene(int);
+    void		addScene(SceneID);
     void		sceneAdded(CallBacker*);
     void		sceneClosed(CallBacker*);
     void		sceneChanged(CallBacker*);
@@ -41,12 +44,12 @@ protected:
     void		manageDlg(bool);
     void		surveyChanged(CallBacker*);
     void		update();
-    int			getActiveSceneID() const;
+    SceneID		getActiveSceneID() const;
 
     uiODMain&		appl_;
 
     Pick::SetMgr&	picksetmgr_;
-    TypeSet<int>	sceneids_;
+    TypeSet<SceneID>	sceneids_;
     ObjectSet<visSurvey::PickSetDisplay>	displayobjs_;
 
     uiMeasureDlg*	measuredlg_;

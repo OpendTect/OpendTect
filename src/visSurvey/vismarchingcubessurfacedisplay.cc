@@ -794,13 +794,13 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 
 
 void MarchingCubesDisplay::otherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, int whichobj )
+	const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     if ( !emsurface_ || !displaysurface_ )
 	return;
 
     ObjectSet<const PlaneDataDisplay> activeplanes;
-    TypeSet<int> activepids;
+    TypeSet<VisID> activepids;
 
     for ( int idx=0; idx<objs.size(); idx++ )
     {
@@ -814,9 +814,9 @@ void MarchingCubesDisplay::otherObjectsMoved(
 
     for ( int idx=intsinfo_.size()-1; idx>=0; idx-- )
     {
-	const int ipid = intsinfo_[idx]->planeid_;
-	if ( (whichobj>=0 && ipid!=whichobj) ||
-	     (whichobj<0 && activepids.isPresent(ipid)) )
+	const VisID ipid = intsinfo_[idx]->planeid_;
+	if ( (whichobj.isValid() && ipid!=whichobj) ||
+	     (!whichobj.isValid() && activepids.isPresent(ipid)) )
 	    continue;
 
 	removeChild( intsinfo_[idx]->visshape_->osgNode() );
@@ -936,7 +936,7 @@ bool MarchingCubesDisplay::isAttribEnabled( int attrib ) const
 
 MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 {
-    planeid_ = -1;
+    planeid_.setUdf();
     planeorientation_ = -1;
     planepos_ = mUdf(float);
     computed_ = false;
@@ -966,12 +966,10 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 }
 
 
-
 MarchingCubesDisplay::PlaneIntersectInfo::~PlaneIntersectInfo()
 {
     visshape_->unRef();
     delete shape_;
 }
 
-
-}; // namespace visSurvey
+} // namespace visSurvey

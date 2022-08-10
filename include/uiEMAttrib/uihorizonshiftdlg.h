@@ -28,7 +28,7 @@ mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
 { mODTextTranslationClass(uiHorizonShiftDialog);
 public:
 			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
-					     int visid,
+					     VisID visid,
 					     const Attrib::DescSet&,
 					     float initialshift,
 					     bool cancalcattrib);
@@ -41,7 +41,7 @@ public:
     int				curShiftIdx() const;
     bool			doStore() const;
     const EM::ObjectID&		emID() const		{ return emid_; }
-    const int&			visID() const		{ return visid_; }
+    VisID			visID() const		{ return visid_; }
 
     const char*			getAttribName() const;
     const char*			getAttribBaseName() const;
@@ -70,6 +70,6 @@ protected:
     StepInterval<float>		calcshiftrg_;
     EM::Horizon*		horizon_		= nullptr;
     EM::ObjectID		emid_;
-    int				visid_;
+    VisID			visid_;
 };
 

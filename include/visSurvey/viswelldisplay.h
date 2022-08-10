@@ -169,7 +169,7 @@ protected:
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
     void			removePick(const visBase::EventInfo&);
-    void			addPick(const visBase::EventInfo&,int);
+    void			addPick(const visBase::EventInfo&,VisID);
 
     Well::DisplayProperties*	dispprop_		= nullptr;
 
@@ -189,7 +189,7 @@ protected:
     Notifier<WellDisplay>	changed_;
 
     int				logsnumber_		= 0;
-    int				mousepressid_		= -1;
+    VisID			mousepressid_;
     bool			needsave_		= false;
     bool			onelogdisplayed_	= false;
     bool			picksallowed_		= false;
@@ -201,5 +201,3 @@ protected:
 };
 
 } // namespace visSurvey
-
-

@@ -50,7 +50,7 @@ public:
 
     bool			setEMObject(const EM::ObjectID&,
 					    TaskRunner*) override;
-    EM::SectionID		getSectionID(int visid) const override;
+    EM::SectionID		getSectionID(VisID visid) const override;
     TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
     bool			setZAxisTransform(ZAxisTransform*,
@@ -61,7 +61,7 @@ public:
     const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj) override;
+				    VisID whichobj) override;
     void			setPixelDensity(float) override;
     void			initSelectionDisplay(bool erase);
     void			updateSelectionsHor2D();
@@ -93,7 +93,7 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj) override;
+				    VisID whichobj) override;
     void			updateLinesOnSections(
 					const ObjectSet<const Seis2DDisplay>&);
     void			updateSeedsOnSections(

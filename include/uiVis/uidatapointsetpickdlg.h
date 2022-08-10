@@ -29,7 +29,7 @@ public:
     virtual		~uiDataPointSetPickDlg();
 
 protected:
-			uiDataPointSetPickDlg(uiParent*,int sceneid);
+			uiDataPointSetPickDlg(uiParent*,SceneID sceneid);
 
     void		initPickSet();
     void		updateDPS();
@@ -50,7 +50,7 @@ protected:
     void		winCloseCB(CallBacker*);
     void		objSelCB(CallBacker*);
 
-    int			sceneid_;
+    VisID		sceneid_;
     uiTable*		table_;
     uiToolBar*		tb_;
     DataPointSet&	dps_;
@@ -67,7 +67,7 @@ mExpClass(uiVis) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
 {
 mODTextTranslationClass(uiEMDataPointSetPickDlg)
 public:
-			uiEMDataPointSetPickDlg(uiParent*,int sceneid,
+			uiEMDataPointSetPickDlg(uiParent*,SceneID sceneid,
 						EM::ObjectID);
 			~uiEMDataPointSetPickDlg();
 

@@ -66,7 +66,7 @@ public:
 				{ descset_ = ads; }
 
     void			showHorShiftDlg(const EM::ObjectID&,
-						int visid,
+						VisID visid,
 						const BoolTypeSet& attrenabled,
 						float initialshift,
 						bool canaddattrib);
@@ -81,7 +81,7 @@ public:
     float			getShift() const;
     void			setAttribID( Attrib::DescID id )
 				{ attribid_ = id; }
-    int				getShiftedObjectVisID() const;
+    VisID			getShiftedObjectVisID() const;
     void			setAttribIdx(int);
     Attrib::DescID		attribID() const	{ return attribid_; }
     int				attribIdx() const	{ return attribidx_; }

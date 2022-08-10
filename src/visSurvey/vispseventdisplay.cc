@@ -174,13 +174,16 @@ void PSEventDisplay::setColTabMapper( const ColTab::MapperSetup& n,
 const ColTab::MapperSetup& PSEventDisplay::getColTabMapper() const
 { return ctabmapper_.setup_; }
 
+
 const ColTab::MapperSetup* PSEventDisplay::getColTabMapperSetup(
-						int visid, int attr ) const
+						int attr, int version ) const
 { return &ctabmapper_.setup_; }
 
+
 void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
-					TaskRunner* tr )
+					TaskRunner* )
 { setColTabSequence( n, true ); }
+
 
 void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )
 {
@@ -281,13 +284,12 @@ void PSEventDisplay::updateDisplay()
 
 
 void PSEventDisplay::otherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, int whichid )
+	const ObjectSet<const SurveyObject>& objs, VisID whichid )
 {
-    TypeSet<int> newparentsid;
+    TypeSet<VisID> newparentsid;
     for ( int idx=objs.size()-1; idx>=0; idx-- )
     {
-	int objid = -1;
-
+	VisID objid;
 	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,objs[idx]);
 	if ( gather )
 	    objid = gather->id();
@@ -298,10 +300,10 @@ void PSEventDisplay::otherObjectsMoved(
 		objid = pdd->id();
 	}
 
-	if ( objid==-1 )
+	if ( !objid.isValid() )
 	    continue;
 
-	if ( whichid!=-1 )
+	if ( whichid.isValid() )
 	{
 	    if ( objid==whichid )
 	    {
@@ -316,7 +318,7 @@ void PSEventDisplay::otherObjectsMoved(
     }
 
     ObjectSet<ParentAttachedObject> toremove;
-    if ( whichid==-1 )
+    if ( !whichid.isValid() )
        toremove = parentattached_;
 
     for ( int idx=0; idx<newparentsid.size(); idx++ )
@@ -743,9 +745,10 @@ bool PSEventDisplay::supportsDisplay() const
     {
 	const ParentAttachedObject* pao = parentattached_[idx];
 	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,
-			visBase::DM().getObject( pao->parentid_ ) );
+			visBase::DM().getObject(pao->parentid_))
 	if ( !pdd )
 	    continue;
+
 	const TrcKeyZSampling pddrg = pdd->getTrcKeyZSampling();
 	issuported = pddrg.hsamp_.includes(eventrg);
     }
@@ -777,7 +780,7 @@ void PSEventDisplay::retriveParents()
 	if ( gather || (pdd && pdd->isOn() &&
 	     pdd->getOrientation()!=OD::ZSlice) )
 	{
-	    const int parentid = scene_->getObject(idx)->id();
+	    const VisID parentid = scene_->getObject(idx)->id();
 	    if ( parentattached_.isEmpty() )
 	    {
 		mCreatPao
@@ -797,7 +800,7 @@ void PSEventDisplay::retriveParents()
 }
 
 
-PSEventDisplay::ParentAttachedObject::ParentAttachedObject( int parent )
+PSEventDisplay::ParentAttachedObject::ParentAttachedObject( VisID parent )
     : parentid_( parent )
     , objectgroup_( visBase::DataObjectGroup::create() )
     , lines_( 0 )
@@ -830,4 +833,4 @@ void PSEventDisplay::setPixelDensity( float dpi )
 
 }
 
-} // namespace
+} // namespace visSurvey

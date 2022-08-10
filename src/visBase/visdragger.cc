@@ -325,7 +325,7 @@ void Dragger::triggerRightClick( const EventInfo* eventinfo )
 }
 
 
-const TypeSet<int>* Dragger::rightClickedPath() const
+const TypeSet<VisID>* Dragger::rightClickedPath() const
 { return rightclickeventinfo_ ? &rightclickeventinfo_->pickedobjids : 0; }
 
 

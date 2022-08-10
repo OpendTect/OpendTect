@@ -141,5 +141,3 @@ protected:
     TypeSet<int>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_;
 };
-
-

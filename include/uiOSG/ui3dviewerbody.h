@@ -65,7 +65,7 @@ public:
 
     void			viewAll(bool animate);
 
-    void			setSceneID(int);
+    void			setSceneID(SceneID);
     visBase::Scene*		getScene()		{ return scene_; }
     const visBase::Scene*	getScene() const	{ return scene_; }
 

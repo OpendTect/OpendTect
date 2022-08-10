@@ -606,7 +606,7 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 
 
 void PickSetDisplay::otherObjectsMoved(
-			const ObjectSet<const SurveyObject>& objs, int )
+			const ObjectSet<const SurveyObject>& objs, VisID )
 {
     mCheckReadyOnly(set_)
 

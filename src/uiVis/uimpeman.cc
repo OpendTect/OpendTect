@@ -107,7 +107,6 @@ void hideCB( CallBacker* )
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
     , clickcatcher_(0)
-    , clickablesceneid_(-1)
     , visserv_(ps)
     , seedpickwason_(false)
     , oldactivevol_(false)
@@ -423,7 +422,7 @@ void uiMPEMan::restrictCurrentHorizon()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     if ( !hor3d ) return;
 
-    TypeSet<int> visids;
+    TypeSet<VisID> visids;
     visserv_->findObject( typeid(visSurvey::HorizonDisplay), visids );
     for ( int idx=0; idx<visids.size(); idx++ )
     {
@@ -439,14 +438,14 @@ void uiMPEMan::deleteVisObjects()
 {
     if ( clickcatcher_ )
     {
-	if ( clickablesceneid_>=0 )
+	if ( clickablesceneid_.isValid() )
 	    visserv_->removeObject( clickcatcher_->id(), clickablesceneid_ );
 
 	clickcatcher_->click.remove( mCB(this,uiMPEMan,seedClick) );
 	clickcatcher_->setEditor( 0 );
 	clickcatcher_->unRef();
 	clickcatcher_ = 0;
-	clickablesceneid_ = -1;
+	clickablesceneid_.setUdf();
     }
 }
 
@@ -508,8 +507,8 @@ void uiMPEMan::seedClick( CallBacker* )
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 
-    const int clickedobject = clickcatcher_->info().getObjID();
-    if ( clickedobject == -1 )
+    const VisID clickedobject = clickcatcher_->info().getObjID();
+    if ( !clickedobject.isValid() )
 	mSeedClickReturn();
 
     const EM::ObjectID emobjid = clickcatcher_->info().getEMObjID();
@@ -517,8 +516,9 @@ void uiMPEMan::seedClick( CallBacker* )
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
     {
-	const int emvisid = clickcatcher_->info().getEMVisID();
-	visBase::DM().selMan().select( emvisid >= 0 ? emvisid : clickedobject );
+	const VisID emvisid = clickcatcher_->info().getEMVisID();
+	visBase::DM().selMan().select(
+				emvisid.isValid() ? emvisid : clickedobject );
 	mSeedClickReturn();
     }
 
@@ -956,7 +956,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 
     if ( !clickcatcher_ && create )
     {
-	TypeSet<int> catcherids;
+	TypeSet<VisID> catcherids;
 	visserv_->findObject( typeid(visSurvey::MPEClickCatcher),
 			     catcherids );
 	if ( catcherids.size() )
@@ -975,7 +975,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 	mAttachCB( clickcatcher_->sowing, uiMPEMan::sowingModeCB );
     }
 
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size() != 1 )
 	return;
 
@@ -983,8 +983,8 @@ void uiMPEMan::updateClickCatcher( bool create )
 		    surface,visserv_->getObject(selectedids[0]));
     clickcatcher_->setEditor( surface ? surface->getEditor() : 0 );
 
-    const int newsceneid = visserv_->getSceneID( selectedids[0] );
-    if ( newsceneid<0 || newsceneid == clickablesceneid_ )
+    const SceneID newsceneid = visserv_->getSceneID( selectedids[0] );
+    if ( !newsceneid.isValid() || newsceneid == clickablesceneid_ )
 	return;
 
     visserv_->removeObject( clickcatcher_->id(), clickablesceneid_ );
@@ -1160,7 +1160,7 @@ void uiMPEMan::updatePatchDisplay()
 
 MPE::EMTracker* uiMPEMan::getSelectedTracker()
 {
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
 	return 0;
 
@@ -1179,7 +1179,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 
 visSurvey::EMObjectDisplay* uiMPEMan::getSelectedEMDisplay()
 {
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size() != 1 )
 	return 0;
 

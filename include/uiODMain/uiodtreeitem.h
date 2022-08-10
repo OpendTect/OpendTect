@@ -29,7 +29,7 @@ public:
     virtual		~uiODTreeItem();
     bool		anyButtonClick(uiTreeViewItem*);
 
-    int			sceneID() const;
+    SceneID		sceneID() const;
 
 protected:
 			uiODTreeItem(const uiString&);
@@ -60,10 +60,10 @@ public:
     static const char*	viewerptr();
     static const char*	applmgrstr();
 
-    int			sceneID() const;
+    SceneID		sceneID() const;
     bool		selectWithKey(int selkey);
-    TypeSet<int>	getDisplayIds(int&, bool);
-    void		loopOverChildrenIds(TypeSet<int>&,int&,bool,
+    TypeSet<VisID>	getDisplayIds(VisID&, bool);
+    void		loopOverChildrenIds(TypeSet<VisID>&,VisID&,bool,
 	    				    const ObjectSet<uiTreeItem>&);
 
 protected:
@@ -104,7 +104,7 @@ mExpClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
 mODTextTranslationClass(uiODTreeItemFactory)
 public:
 
-    virtual uiTreeItem* createForVis(int visid,uiTreeItem*) const
+    virtual uiTreeItem* createForVis(VisID visid,uiTreeItem*) const
 				{ return 0; }
 
 };

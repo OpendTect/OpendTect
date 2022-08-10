@@ -108,7 +108,7 @@ public:
 					    BufferString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					int whichobj ) override;
+					VisID whichobj ) override;
 
 
     void			fillPar(IOPar&) const override;

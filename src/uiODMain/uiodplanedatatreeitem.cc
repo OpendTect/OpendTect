@@ -96,7 +96,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     const int mnuid = mnu.exec(); \
     if ( mnuid==0 || mnuid==1 || mnuid==3 ) \
     { \
-	treeitm* newitm = new treeitm(-1,getType(mnuid));\
+	treeitm* newitm = new treeitm(VisID::udf(),getType(mnuid));\
 	addChild( newitm, false ); \
     } \
     else if ( mnuid==2 ) \
@@ -108,7 +108,8 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 	{ \
 	    ConstRefMan<Well::Data> wd = Well::MGR().get( wellids[idx] ); \
 	    if ( !wd ) continue; \
-	    treeitm* itm = new treeitm( -1, uiODPlaneDataTreeItem::Empty ); \
+	    treeitm* itm = new treeitm( VisID::udf(),\
+					uiODPlaneDataTreeItem::Empty ); \
 	    setMoreObjectsToDoHint( idx<wellids.size()-1 ); \
 	    addChild( itm, false ); \
 	    itm->setAtWellLocation( *wd ); \
@@ -119,9 +120,10 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     return true
 
 
-uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
-    : orient_(o)
-    , type_(t)
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( VisID did, OD::SliceType slicetp,
+						Type tp )
+    : orient_(slicetp)
+    , type_(tp)
     , positiondlg_(0)
     , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
     , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
@@ -152,14 +154,14 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
     visserv_->getUiSlicePos()->positionChg.remove(
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
-    visserv_->getUiSlicePos()->setDisplay( -1 );
+    visserv_->getUiSlicePos()->setDisplay( VisID::udf() );
     delete positiondlg_;
 }
 
 
 bool uiODPlaneDataTreeItem::init()
 {
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	RefMan<visSurvey::PlaneDataDisplay> pdd =
 	    new visSurvey::PlaneDataDisplay;
@@ -324,7 +326,7 @@ bool uiODPlaneDataTreeItem::displayDataFromDataPack( DataPack::ID dpid,
 }
 
 
-bool uiODPlaneDataTreeItem::displayDataFromOther( int visid )
+bool uiODPlaneDataTreeItem::displayDataFromOther( VisID visid )
 {
     const int nrattribs = visserv_->getNrAttribs( visid );
     while ( nrattribs > visserv_->getNrAttribs(displayid_) )
@@ -420,7 +422,7 @@ static void snapToTkzs( const TrcKeyZSampling& tkzs, TrcKey& tk, float& z )
 void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
 {
     uiODDisplayTreeItem::createMenu( mh,istb );
-    if ( !mh || mh->menuID() != displayID() )
+    if ( !mh || !isDisplayID(mh->menuID()) )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
@@ -476,7 +478,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -524,19 +526,19 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     uiODPlaneDataTreeItem* itm = 0;
     if ( mnuid == addinlitem_.id )
     {
-	itm = new uiODInlineTreeItem( -1, Empty );
+	itm = new uiODInlineTreeItem( VisID::udf(), Empty );
 	newtkzs.hsamp_.setLineRange(
 			Interval<int>(csttk.lineNr(),csttk.lineNr()) );
     }
     else if ( mnuid == addcrlitem_.id )
     {
-	itm = new uiODCrosslineTreeItem( -1, Empty );
+	itm = new uiODCrosslineTreeItem( VisID::udf(), Empty );
 	newtkzs.hsamp_.setTrcRange(
 			Interval<int>(csttk.trcNr(),csttk.trcNr()) );
     }
     else if ( mnuid == addzitem_.id )
     {
-	itm = new uiODZsliceTreeItem( -1, Empty );
+	itm = new uiODZsliceTreeItem( VisID::udf(), Empty );
 	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
     }
 
@@ -670,7 +672,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 
 // In-line items
 uiTreeItem*
-    uiODInlineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODInlineTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -720,7 +722,7 @@ bool uiODInlineParentTreeItem::showSubMenu()
 }
 
 
-uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
+uiODInlineTreeItem::uiODInlineTreeItem( VisID id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::InlineSlice, tp )
 {}
 
@@ -731,7 +733,7 @@ uiODInlineTreeItem::~uiODInlineTreeItem()
 
 // Cross-line items
 uiTreeItem*
-    uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODCrosslineTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -780,7 +782,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 }
 
 
-uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
+uiODCrosslineTreeItem::uiODCrosslineTreeItem( VisID id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
 {}
 
@@ -791,7 +793,7 @@ uiODCrosslineTreeItem::~uiODCrosslineTreeItem()
 
 // Z-slice items
 uiTreeItem*
-    uiODZsliceTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODZsliceTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -840,7 +842,7 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 }
 
 
-uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
+uiODZsliceTreeItem::uiODZsliceTreeItem( VisID id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }

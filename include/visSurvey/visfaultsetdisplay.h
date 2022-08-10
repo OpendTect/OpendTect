@@ -141,7 +141,7 @@ public:
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
-				    int whichobj)
+				    VisID whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
     EM::FaultSet3D*		emFaultSet();
@@ -181,7 +181,7 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    int whichobj) override;
+				    VisID whichobj) override;
     EM::FaultID			getFaultID(const visBase::EventInfo&) const;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
@@ -206,7 +206,7 @@ protected:
     void			emChangeCB(CallBacker*);
     void			dataTransformCB(CallBacker*);
 
-    void			updateHorizonIntersections( int whichobj,
+    void			updateHorizonIntersections(VisID whichobj,
 					const ObjectSet<const SurveyObject>&);
 
     Coord3			disp2world(const Coord3& displaypos) const;

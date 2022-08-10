@@ -206,7 +206,7 @@ StepInterval<float> uiEMAttribPartServer::shiftRange() const
 
 
 void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
-					    int visid,
+					    VisID visid,
 					    const BoolTypeSet& attrenabled,
 					    float initialshift,
 					    bool canaddattrib)
@@ -346,7 +346,7 @@ void uiEMAttribPartServer::horShifted( CallBacker* )
 }
 
 
-int uiEMAttribPartServer::getShiftedObjectVisID() const
+VisID uiEMAttribPartServer::getShiftedObjectVisID() const
 {
-    return horshiftdlg_ ? horshiftdlg_->visID() : -1;
+    return horshiftdlg_ ? horshiftdlg_->visID() : VisID::udf();
 }

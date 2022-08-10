@@ -39,7 +39,7 @@ protected:
     uiCheckBox*		savefld_;
     uiButton*		vwallbut_;
 
-    TypeSet<int>	sceneids_;
+    TypeSet<SceneID>	sceneids_;
     TypeSet<float>	zstretches_;
     TypeSet<float>	initzstretches_;
 
@@ -71,6 +71,4 @@ protected:
 			//!< will be removed after 6.0
     void		setZStretch(float,bool permanent);
 			//!< will be removed after 6.0
-
 };
-

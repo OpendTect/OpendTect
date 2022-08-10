@@ -198,7 +198,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 
 uiTreeItem*
-    uiODWellTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+    uiODWellTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -206,7 +206,7 @@ uiTreeItem*
 }
 
 
-uiODWellTreeItem::uiODWellTreeItem( int did )
+uiODWellTreeItem::uiODWellTreeItem( VisID did )
 {
     displayid_ = did;
     initMenuItems();
@@ -264,7 +264,7 @@ bool uiODWellTreeItem::init()
     mDynamicCastGet(visSurvey::Scene*,scene,
 			visserv_->getObject(sceneID()));
 
-    if ( displayid_==-1 )
+    if ( !displayid_.isValid() )
     {
 	auto* wd = new visSurvey::WellDisplay;
 	wd->setScene( scene );
@@ -314,7 +314,7 @@ bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
 void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     if ( istb )
@@ -369,7 +369,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_))

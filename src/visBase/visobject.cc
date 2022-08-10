@@ -296,7 +296,7 @@ bool VisualObject::getBoundingBox( Coord3& minpos, Coord3& maxpos ) const
 }
 
 
-const TypeSet<int>* VisualObject::rightClickedPath() const
+const TypeSet<VisID>* VisualObject::rightClickedPath() const
 {
     return rcevinfo ? &rcevinfo->pickedobjids : 0;
 }

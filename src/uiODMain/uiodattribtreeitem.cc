@@ -107,8 +107,8 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
 }
 
 
-void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
-					int sceneid )
+void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, VisID visid, int attrib,
+					SceneID sceneid )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
@@ -199,7 +199,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
+bool uiODAttribTreeItem::handleSelMenu( int mnuid, VisID visid, int attrib )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid==-1 || visserv->isLocked(visid) )
@@ -254,7 +254,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 }
 
 
-uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
+uiString uiODAttribTreeItem::createDisplayName( VisID visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
