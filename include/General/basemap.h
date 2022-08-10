@@ -26,7 +26,7 @@ template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
 
-mExpClass(Basic) BasemapObjectID : public IntegerID<od_int32>
+mExpClass(General) BasemapObjectID : public IntegerID<od_int32>
 {
 public:
     using IntegerID::IntegerID;
