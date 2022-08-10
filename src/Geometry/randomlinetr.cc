@@ -191,8 +191,10 @@ const char* dgbRandomLineSetTranslator::write(
     else
     {
 	astrm.put( sKeyNrLines, nrlines );
-	for ( int idx=0; idx<rdls.pars().size(); idx++ )
-	    astrm.put( rdls.pars().getKey(idx), rdls.pars().getValue(idx) );
+	IOParIterator iter( rdls.pars() );
+	BufferString key, val;
+	while ( iter.next(key,val) )
+	    astrm.put( key, val );
     }
     astrm.newParagraph();
 

@@ -239,6 +239,15 @@ bool IOPar::isPresent( const char* keyw ) const
 }
 
 
+void IOPar::getKeys( BufferStringSet& keys ) const
+{
+    keys.setEmpty();
+    const QList<QString> qkeys = hashmap_.keys();
+    for ( auto qkey : qkeys )
+	keys.add( BufferString(qkey) );
+}
+
+
 int IOPar::size() const
 {
     return hashmap_.size();
@@ -257,21 +266,26 @@ void IOPar::setEmpty()
 }
 
 
-bool IOPar::remove( const char* key )
+bool IOPar::removeWithKey( const char* key )
 {
     return hashmap_.remove( key );
-}
-
-
-void IOPar::removeWithKey( const char* key )
-{
-    remove( key );
 }
 
 
 bool IOPar::removeWithKeyPattern( const char* pattern )
 {
     return hashmap_.removeWithKeyPattern( pattern );
+}
+
+
+bool IOPar::replaceKey( const char* oldkey, const char* newkey )
+{
+    if ( !hasKey(oldkey) )
+	return false;
+
+    set( newkey, find(oldkey) );
+    removeWithKey( oldkey );
+    return true;
 }
 
 
@@ -421,7 +435,7 @@ void IOPar::update( const char* keyw, const char* val )
     {
 	if ( isPresent(keyw) )
 	{
-	    remove( keyw );
+	    removeWithKey( keyw );
 	    return;
 	}
     }
@@ -1297,8 +1311,19 @@ void IOPar::putTo( ascostream& strm ) const
 
     IOParIterator iter( *this );
     BufferString key, val;
+    BufferStringSet keys, vals;
     while ( iter.next(key,val) )
-	strm.put( key, val );
+    {
+	keys.add( key );
+	vals.add( val );
+    }
+
+    ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
+    if ( !sortedidxs )
+	return;
+
+    for ( int idx=0; idx<keys.size(); idx++ )
+	strm.put( keys.get(sortedidxs[idx]), vals.get(sortedidxs[idx]) );
 
     strm.newParagraph();
 }
@@ -1555,19 +1580,16 @@ bool IOPar::areSubParsIndexed() const
 
 void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 		      const BufferStringSet& vals, const char* subkey,
-		      int& startidx ) const
+		      int& idx ) const
 {
-    for ( int idx=startidx; idx<keys.size(); idx++ )
+    while ( idx < keys.size() )
     {
 	BufferString key = keys.get( idx );
 	char* keystr = key.getCStr();
 	if ( subkey )
 	{
 	    if ( !key.startsWith(subkey) )
-	    {
-		startidx = idx - 1;
-		break;
-	    }
+		return;
 
 	    keystr += FixedString(subkey).size();
 	    key = keystr;
@@ -1579,7 +1601,10 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	    const BufferString& val = vals.get( idx );
 	    FileMultiString fms( val );
 	    if ( fms.isEmpty() )
+	    {
+		idx++;
 		continue;
+	    }
 
 	    bool isbool = true, isint = true, isnum = true;
 	    for ( int idy=0; idy<fms.size(); idy++ )
@@ -1608,6 +1633,7 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 		    jsonobj.set( key, str );
 		}
 
+		idx++;
 		continue;
 	    }
 
@@ -1628,17 +1654,20 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	    }
 
 	    jsonobj.set( key, arr );
+	    idx++;
 	    continue;
 	}
 
 	*dotptr = '\0';
 	bool aresubparsindexed = true;
-	BufferString basekey = compKey( subkey, key );
+	BufferString basekey = subkey;
+	basekey.add( key );
 	int index=0, count=0;
 	int idy = idx;
 	for ( ; idy<keys.size(); idy++ )
 	{
-	    const BufferString indexkey = compKey( basekey, index );
+	    BufferString indexkey = compKey( basekey, index );
+	    indexkey.add( "." );
 	    if ( keys.get(idy).startsWith(indexkey) )
 	    {
 		count++;
@@ -1663,10 +1692,6 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	    index++;
 	}
 
-	PtrMan<IOPar> subpar = subselect( key );
-	if ( !subpar || !subpar->size() )
-	    continue;
-
 	const bool shouldmakearray = aresubparsindexed;
 	if ( shouldmakearray )
 	{
@@ -1674,9 +1699,10 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	    auto* subarray = new OD::JSON::Array( true );
 	    for ( index=0; index<=lastindex; index++ )
 	    {
-		const BufferString indexkey = compKey( basekey, index );
+		BufferString indexkey = compKey( basekey, index );
+		indexkey.add( "." );
 		auto* indexsubobj = new OD::JSON::Object;
-		fillJSON( *indexsubobj, keys, vals, indexkey, startidx );
+		fillJSON( *indexsubobj, keys, vals, indexkey, idx );
 		subarray->add( indexsubobj );
 	    }
 
@@ -1686,7 +1712,7 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	{
 	    auto* subobj = new OD::JSON::Object;
 	    basekey.add( "." );
-	    fillJSON( *subobj, keys, vals, basekey, startidx );
+	    fillJSON( *subobj, keys, vals, basekey, idx );
 	    jsonobj.set( key, subobj );
 	}
     }
@@ -1696,7 +1722,7 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 {
     IOParIterator iter( *this );
-    BufferString key, val, buf;
+    BufferString key, val;
     if ( simple )
     {
 	while ( iter.next(key,val) )
@@ -1768,7 +1794,14 @@ bool IOPar::useJSON( const OD::JSON::Object& jsonobj )
 	if ( valtype == OD::JSON::ValueSet::Data )
 	{
 	    if ( !key.isEmpty() )
-		set( key, jsonobj.getStringValue(idx) );
+	    {
+		BufferString str = jsonobj.getStringValue( idx );
+		str.replace( "\\\"", "\"" );
+		if ( isBoolString(str) )
+		    setYN( key, toBool(str) );
+		else
+		    set( key, str );
+	    }
 
 	    continue;
 	}

@@ -579,13 +579,13 @@ uiString MadStream::errMsg() const
 
 bool MadStream::putHeader( od_ostream& strm )
 {
-    if (!headerpars_) mErrBoolRet(tr("Header parameters not found"));
+    if (!headerpars_)
+	mErrBoolRet(tr("Header parameters not found"));
 
-    for ( int idx=0; idx<headerpars_->size(); idx++ )
-    {
-	strm << "\t" << headerpars_->getKey(idx);
-	strm << "=" << headerpars_->getValue(idx) << od_endl;
-    }
+    IOParIterator iter( *headerpars_ );
+    BufferString key, val;
+    while ( iter.next(key,val) )
+	strm << "\t" << key << "=" << val << od_endl;
 
     strm << sKeyRSFEndOfHeader;
     return true;

@@ -15,6 +15,8 @@
 #include "stringbuilder.h"
 #include "uistrings.h"
 
+#include <QJsonDocument>
+
 #include <string.h>
 
 #ifdef __debug__
@@ -218,9 +220,9 @@ OD::JSON::ValArr::ValArr( const ValArr& oth )
 
 BufferString OD::JSON::ValArr::dumpJSon() const
 {
-    StringBuilder sb;
-    dumpJSon( sb );
-    return sb.result();
+    BufferString ret;
+    dumpJSon( ret );
+    return ret;
 }
 
 
@@ -422,22 +424,9 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 	case Boolean:	ret.set( val->boolVal() ? "true" : "false" );  break;
 	case Number:	ret.set( val->val() );  break;
 	default:	{ pErrMsg("Huh"); }
-	case String:
-    {
-        ret.set( val->str() );
-#ifdef __debug__
-# ifdef __win__
-	const FilePath fp( ret );
-	if ( !fp.isURI() && fp.exists() && fp.isAbsolute() )
-	{
-	    pErrMsg( "Should not use getStringValue for a filepath" );
-	    DBG::forceCrash( false );
-	}
-# endif
-#endif
-        break;
+	case String:	ret.set( val->str() ); break;
     }
-    }
+
     return ret;
 }
 
@@ -699,19 +688,24 @@ uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz )
 }
 
 
-BufferString OD::JSON::ValueSet::dumpJSon() const
+BufferString OD::JSON::ValueSet::dumpJSon( bool pretty ) const
 {
-    StringBuilder sb;
-    dumpJSon( sb );
-    return sb.result();
+    BufferString ret;
+    dumpJSon( ret, pretty );
+    return ret;
 }
 
 
-void OD::JSON::ValueSet::dumpJSon( BufferString& bs ) const
+void OD::JSON::ValueSet::dumpJSon( BufferString& bs, bool pretty ) const
 {
     StringBuilder sb;
     dumpJSon( sb );
     bs = sb.result();
+    if ( pretty )
+    {
+	QJsonDocument qjsondoc = QJsonDocument::fromJson( bs.str() );
+	bs = qjsondoc.toJson( QJsonDocument::Indented ).constData();
+    }
 }
 
 
@@ -784,18 +778,27 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::read( od_istream& strm, uiRetVal& uirv )
 }
 
 
-uiRetVal OD::JSON::ValueSet::write( od_ostream& strm )
+uiRetVal OD::JSON::ValueSet::write( od_ostream& strm, bool pretty )
 {
-    StringBuilder sb;
-    dumpJSon( sb );
+    BufferString jsonstr;
+    dumpJSon( jsonstr, pretty );
     uiRetVal uirv;
-    if ( !strm.add(sb.result()).isOK() )
+    if ( jsonstr.isEmpty() )
+	return uirv;
+
+    if ( !strm.add(jsonstr.str()).isOK() )
     {
 	uirv.set( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
 	strm.addErrMsgTo( uirv );
     }
 
     return uirv;
+}
+
+
+uiRetVal OD::JSON::ValueSet::writePretty( od_ostream& strm )
+{
+    return write( strm, true );
 }
 
 
@@ -1261,16 +1264,18 @@ double OD::JSON::Object::getDoubleValue( const char* ky ) const
 
 BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 {
-    const BufferString ret = ValueSet::getStringValue( indexOf(ky) );
-#ifdef __debug__
-# ifdef __win__
+    BufferString ret = ValueSet::getStringValue( indexOf(ky) );
+#ifdef __win__
     const FilePath fp( ret );
     if ( !fp.isURI() && fp.exists() && fp.isAbsolute() )
     {
+# ifdef __debug__
 	pErrMsg( "Should not use getStringValue for a filepath" );
 	DBG::forceCrash( false );
-    }
+# else
+	return getFilePath(idx).fullPath();
 # endif
+    }
 #endif
     return ret;
 }

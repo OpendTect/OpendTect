@@ -106,7 +106,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     if ( iop.isEmpty() )
 	return false;
 
-    BufferString nm( iop.getKey(0) );
+    BufferString nm( iop.find(sKey::Name()) );
     if ( nm.isEmpty() )
 	return false;
 
@@ -197,7 +197,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 
     unit.setEmpty();
     iop.get( sKey::Unit(), unit );
-    const BufferString mnemonicnm( iop.getValue(0) );
+    const BufferString mnemonicnm( iop.find(Mnemonic::sKeyMnemonic()) );
     const Mnemonic* mn = mnemonicnm.startsWith( "Distance" )
 		       ? &Mnemonic::distance()
 		       : MNC().getByName( mnemonicnm, false );
@@ -222,8 +222,10 @@ static void setIOPWithNLs( IOPar& iop, const char* ky, const char* val )
 void RockPhysics::Formula::fillPar( IOPar& iop ) const
 {
     iop.setEmpty();
+    iop.set( sKey::Name(), name() );
     const Mnemonic* mn = outputMnemonic();
-    iop.set( name(), mn ? mn->name() : Mnemonic::undef().name() );
+    iop.set( Mnemonic::sKeyMnemonic(),
+	     mn ? mn->name() : Mnemonic::undef().name() );
     setIOPWithNLs( iop, sKey::Desc(), description() );
     iop.set( sKeyDef, text() );
     const UnitOfMeasure* uom = outputFormUnit();
@@ -517,7 +519,15 @@ void RockPhysics::FormulaSet::readFrom( ascistream& astrm )
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	IOPar iop; iop.getFrom(astrm);
+	const BufferString nm = astrm.keyWord();
+	const BufferString mn = astrm.value();
+	IOPar iop;
+	iop.getFrom(astrm);
+	if ( !iop.hasKey(sKey::Name()) )
+	{
+	    iop.set( sKey::Name(), nm );
+	    iop.set( Mnemonic::sKeyMnemonic(), mn );
+	}
 
 	RockPhysics::Formula* fm = RockPhysics::Formula::get( iop );
 	if ( fm )

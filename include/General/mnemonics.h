@@ -134,6 +134,7 @@ protected:
 
     friend class		MnemonicSet;
     void			usePar(const IOPar&);
+    void			fromString(const char*);
     void			fillPar(IOPar&) const;
 
 };

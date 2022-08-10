@@ -61,9 +61,11 @@ void DescSetMan::setDescSet( DescSet* newads )
 
 void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 {
-    for ( int ikey=0; ikey<selhist.size(); ikey++ )
+    IOParIterator iter( selhist );
+    BufferString key, val;
+    while ( iter.next(key,val) )
     {
-	const int id = selhist.getValue(ikey).toInt();
+	const int id = val.toInt();
 	if ( id < 0 ) continue;
 
 	const Desc* desc = ads_->getDesc( DescID(id,false) );
@@ -75,10 +77,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 	}
 
 	if ( !keep )
-	{
-	    selhist.remove( ikey );
-	    ikey--;
-	}
+	    selhist.removeWithKey( key );
     }
 }
 

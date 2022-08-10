@@ -262,10 +262,12 @@ bool IOObj::put( ascostream& astream ) const
     if ( !putTo( astream ) )
 	return false;
 
-    for ( int idx=0; idx<pars_.size(); idx++ )
+    IOParIterator iter( pars_ );
+    BufferString key, val;
+    while ( iter.next(key,val) )
     {
 	astream.stream() << '#';
-	astream.put( pars_.getKey(idx), pars_.getValue(idx) );
+	astream.put( key, val );
     }
 
     astream.newParagraph();

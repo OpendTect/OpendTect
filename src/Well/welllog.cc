@@ -345,15 +345,13 @@ void Well::LogSet::defaultLogUsePar( const IOPar& iop )
     if ( !defpar )
 	return;
 
-    for ( int idx=0; idx<defpar->size(); idx++ )
+    IOParIterator iter( *defpar );
+    BufferString mnem, deflognm;
+    while ( iter.next(mnem,deflognm) )
     {
-	const Mnemonic* currmnem =
-		    MNC().getByName( defpar->getKey(idx).str(), false );
-	if ( !currmnem )
-	    continue;
-
-	const BufferString deflognm( defpar->getValue(idx).str() );
-	setDefaultMnemLog( *currmnem, deflognm );
+	const Mnemonic* currmnem = MNC().getByName( mnem, false );
+	if ( currmnem )
+	    setDefaultMnemLog( *currmnem, deflognm );
     }
 }
 

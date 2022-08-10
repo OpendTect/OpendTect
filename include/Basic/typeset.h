@@ -263,7 +263,7 @@ inline void copy( OD::ValVec<T,IT>& to, const OD::ValVec<S,IT>& from )
 
 //! Get sort indexes. Must have operator > defined for elements
 template <class T, class IT> inline
-typename OD::ValVec<T,IT>::idx_type* getSortIndexes( OD::ValVec<T,IT>& vv,
+typename OD::ValVec<T,IT>::idx_type* getSortIndexes( const OD::ValVec<T,IT>& vv,
 						     bool ascending=true )
 {
     typedef typename OD::ValVec<T,IT>::idx_type idx_type;

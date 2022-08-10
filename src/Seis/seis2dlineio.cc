@@ -126,7 +126,6 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
-    PosInfo::POS2DAdmin().renameLineSet( oldname, ioobj->name() );
     implSetReadOnly( ioobj, isro );
 
     return Translator::implRename( ioobj, newnm, cb );

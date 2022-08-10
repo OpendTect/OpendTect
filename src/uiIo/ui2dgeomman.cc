@@ -167,20 +167,6 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	const Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
 	IOM().permRemove( ioobj->key() );
 	Survey::GMAdmin().removeGeometry( geomid );
-	const StringView crfromstr = ioobj->pars().find( sKey::CrFrom() );
-	if ( !crfromstr.isEmpty() )
-	{
-	    PosInfo::Line2DKey l2dkey;
-	    l2dkey.fromString( crfromstr );
-	    if ( l2dkey.isOK() )
-	    {
-		PosInfo::Survey2D& old2dadmin = PosInfo::POS2DAdmin();
-		if ( old2dadmin.curLineSetID() != l2dkey.lsID() )
-		    old2dadmin.setCurLineSet( l2dkey.lsID() );
-
-		old2dadmin.removeLine( l2dkey.lineID() );
-	    }
-	}
     }
 
     chgr.restore();

@@ -423,13 +423,14 @@ static void addContentStop( BufferString& httpstr )
 }
 static void addPars( BufferString& httpstr, const IOPar& postvars )
 {
-    for ( int idx=0; idx<postvars.size(); idx++ )
+    IOParIterator iter( postvars );
+    BufferString key, val;
+    while ( iter.next(key,val) )
     {
-	addContentStart( httpstr, postvars.getKey(idx) );
-	httpstr.add( sHttpNewline )
-		.add( postvars.getValue(idx).str() )
-		.add( sHttpNewline );
+	addContentStart( httpstr, key );
+	httpstr.add( sHttpNewline ).add( val ).add( sHttpNewline );
     }
+
     addContentStop( httpstr );
 }
 

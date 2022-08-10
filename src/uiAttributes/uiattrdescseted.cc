@@ -1120,9 +1120,10 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
 	if ( !subpar ) continue;
 
-	for ( int idy=0; idy<subpar->size(); idy++ )
+	IOParIterator iter( *subpar );
+	BufferString key, attrfnm;
+	while ( iter.next(key,attrfnm) )
 	{
-	    BufferString attrfnm = subpar->getValue( idy );
 	    if ( !FilePath(attrfnm).isAbsolute() )
 	    {
 		fp.setFileName( attrfnm );
@@ -1131,7 +1132,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 
 	    if ( !File::exists(attrfnm) ) continue;
 
-	    attribnames.add( subpar->getKey(idy) );
+	    attribnames.add( key );
 	    attribfiles.add( attrfnm );
 	}
     }

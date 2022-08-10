@@ -9,56 +9,35 @@
 
 #include "testprog.h"
 
+#include "file.h"
+#include "filepath.h"
 #include "iopar.h"
-#include "timefun.h"
-#include <iostream>
 #include "odjson.h"
-#include <QHash>
+#include "timefun.h"
+
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    // Main idea is to test things that are so basic they don't
-    // really fit anywhere else.
+    FilePath fp( __FILE__ );
+    fp.setExtension( "par" );
+    if ( !File::exists(fp.fullPath()) )
+    {
+	errStream() << "Input file not found\n";
+	return 1;
+    }
 
-    IOPar par;
-    par.read( "/tmp/Demo_Machine_Learning_plugin_2020.sess", "Session setup" );
-    std::cerr << "Read " << par.size() << std::endl;
-    IOPar copy;
-    Time::Counter ctr; ctr.start();
-    for ( int idx=par.size()-1; idx>=0; idx-- )
-	copy.set( par.getKey(idx), par.getValue(idx) );
-
-    std::cerr << "Time Taken to create copy: " << ctr.elapsed() << std::endl;
-    QHash<QString,QString> qhash;
-    ctr.restart();
-
-    for ( int idx=par.size()-1; idx>=0; idx-- )
-	qhash[ par.getKey(idx).str() ] = par.getValue(idx).str();
-
-    std::cerr << "Time Taken to create QHash: " << ctr.elapsed() << std::endl;
-    std::cerr << "QHash size: " << qhash.size() << std::endl;
-
-    ctr.restart();
-    for ( int idx=0; idx<par.size(); idx++ )
-	FixedString val = copy.find( par.getKey(idx) );
-
-    std::cerr << "Time Taken to read copy: " << ctr.elapsed() << std::endl;
-    ctr.restart();
-    for ( int idx=0; idx<par.size(); idx++ )
-	QString val = qhash[ par.getKey(idx).str() ];
-
-    std::cerr << "Time Taken to read qhash: " << ctr.elapsed() << std::endl;
+    IOPar inpar;
+    inpar.read( fp.fullPath(), "Parameters" );
+    mRunStandardTest( inpar.size()==285, "Read IOPar from file" );
 
     OD::JSON::Object jsonobj;
-    par.fillJSON( jsonobj,false );
-    od_ostream strm( "/tmp/jsontest.json" );
-    jsonobj.write( strm );
+    inpar.fillJSON( jsonobj, false );
 
-    IOPar fromjson;
-    fromjson.useJSON( jsonobj );
-    fromjson.write( "/tmp/fromjson.par", "par" );
+    IOPar outpar( inpar.name() );
+    outpar.useJSON( jsonobj );
+    mRunStandardTest( outpar.isEqual(inpar), "Retrieve IOPar from JSON" );
 
     return 0;
 }

@@ -266,24 +266,22 @@ bool VolumeReader::usePar( const IOPar& par )
     par.get( sKey::Component(), components_ );
     compscalers_.allowNull( true );
     PtrMan<IOPar> scalerpar = par.subselect( sKey::Scale() );
-    if ( scalerpar.ptr() )
+    if ( scalerpar )
     {
-	for ( int idx=0; idx<scalerpar->size(); idx++ )
+	IOParIterator iter( *scalerpar );
+	BufferString compidxstr, scalerstr;
+	while ( iter.next(compidxstr,scalerstr) )
 	{
-	    const BufferString compidxstr( scalerpar->getKey(idx) );
 	    const int compidx = compidxstr.toInt();
-	    BufferString scalerstr;
-	    if ( !scalerpar->get(compidxstr,scalerstr) || scalerstr.isEmpty() )
+	    if ( scalerstr.isEmpty() )
 		continue;
 
 	    Scaler* scaler = Scaler::get( scalerstr );
-	    if ( !scaler ) continue;
+	    if ( !scaler )
+		continue;
 
-	    for ( int idy=0; idy<=compidx; idy++ )
-	    {
-		if ( !compscalers_.validIdx(idy) )
-		    compscalers_ += 0;
-	    }
+	    while ( compscalers_.size() <= compidx )
+		compscalers_ += nullptr;
 
 	    delete compscalers_.replace( compidx, scaler );
 	}

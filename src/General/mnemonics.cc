@@ -265,7 +265,14 @@ bool Mnemonic::isCompatibleWith( const Mnemonic* oth ) const
 void Mnemonic::usePar( const IOPar& iop )
 {
     aliases_.erase();
-    FileMultiString fms( iop.find(name()) );
+    fromString( iop.find(name()) );
+}
+
+
+void Mnemonic::fromString( const char* str )
+{
+    aliases_.erase();
+    FileMultiString fms( str );
     const int sz = fms.size();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -607,15 +614,17 @@ void MnemonicSet::readFrom( ascistream& astrm )
     while ( !atEndOfSection(astrm.next()) )
     {
 	IOPar iop; iop.getFrom( astrm );
-	for ( int idx=0; idx<iop.size(); idx++ )
+	IOParIterator iter( iop );
+	BufferString key, val;
+	while ( iter.next(key,val) )
 	{
-	    const BufferString mnemonicnm( iop.getKey(idx) );
+	    const BufferString mnemonicnm( key );
 	    if ( getByName(mnemonicnm,false) )
 		continue;
 
 	    auto* mnc = new Mnemonic( mnemonicnm, Mnemonic::Other );
-	    mnc->usePar( iop );
-	    add( mnc );
+	    mnc->fromString( val );
+	    add( mnc );	
 	}
     }
 }

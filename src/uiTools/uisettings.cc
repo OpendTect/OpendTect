@@ -606,7 +606,7 @@ void uiSettings::getChanges()
 	workpar->set( kybuf, valbuf );
     }
 
-    if ( !orgPar().isEqual(*workpar,true) )
+    if ( !orgPar().isEqual(*workpar) )
     {
 	if ( !alreadyinset )
 	    chgdsetts_ += workpar;
@@ -644,14 +644,16 @@ void uiSettings::grpChg( CallBacker* )
 void uiSettings::dispNewGrp( CallBacker* )
 {
     BufferStringSet keys, vals;
-    for ( int idx=0; idx<cursetts_->size(); idx++ )
+    IOParIterator iter( *cursetts_ );
+    BufferString key, val;
+    while ( iter.next(key,val) )
     {
-	keys.add( cursetts_->getKey(idx) );
-	vals.add( cursetts_->getValue(idx) );
+	keys.add( key );
+	vals.add( val );
     }
-    int* idxs = keys.getSortIndexes();
+
+    ArrPtrMan<int> idxs = keys.getSortIndexes();
     keys.useIndexes(idxs); vals.useIndexes(idxs);
-    delete [] idxs;
 
     const int sz = keys.size();
     tbl_->clearTable();
@@ -1097,7 +1099,7 @@ void uiPythonSettings::getChanges()
 	workpar = new IOPar;
 
     fillPar( *workpar );
-    if ( !curSetts().isEqual(*workpar,true) )
+    if ( !curSetts().isEqual(*workpar) )
     {
 	if ( !alreadyedited )
 	    chgdsetts_ = workpar;

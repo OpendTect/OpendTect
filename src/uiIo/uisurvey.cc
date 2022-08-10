@@ -1257,30 +1257,27 @@ void uiSurvey::selChange( CallBacker* )
 }
 
 
+
 static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
 {
     if ( rmname )
 	par.setName( "" );
 
-    int keyidx = par.indexOf( sKey::Version() );
-    if ( keyidx>=0 ) par.setKey( keyidx, "OpendTect Version" );
-    keyidx = par.indexOf( sKey::CrAt() );
-    if ( keyidx>=0 )
+    par.replaceKey( sKey::Version(), "OpendTect Version" );
+    par.replaceKey( sKey::CrBy(), "Created by" );
+    par.replaceKey( sKey::CrFrom(), "Created from" );
+    FixedString timestr = par.find( sKey::CrAt() );
+    if ( !timestr.isEmpty() )
     {
-	par.setKey( keyidx, "Created at" );
-	const StringView timestr = par.getValue( keyidx );
-	par.setValue( keyidx, Time::getLocalDateTimeFromString(timestr) );
+	par.set( "Created at", Time::getLocalDateTimeFromString(timestr) );
+	par.removeWithKey( sKey::CrAt().str() );
     }
-    keyidx = par.indexOf( sKey::CrBy() );
-    if ( keyidx>=0 ) par.setKey( keyidx, "Created by" );
-    keyidx = par.indexOf( sKey::CrFrom() );
-    if ( keyidx>=0 ) par.setKey( keyidx, "Created from" );
-    keyidx = par.indexOf( sKey::ModAt() );
-    if ( keyidx>=0 )
+
+    timestr = par.find( sKey::ModAt() );
+    if ( !timestr.isEmpty() )
     {
-	par.setKey( keyidx, "Last Modified at" );
-	const StringView timestr = par.getValue( keyidx );
-	par.setValue( keyidx, Time::getLocalDateTimeFromString(timestr) );
+	par.set( "Last Modified at", Time::getLocalDateTimeFromString(timestr));
+	par.removeWithKey( sKey::ModAt().str() );
     }
 
     par.dumpPretty( txt );

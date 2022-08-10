@@ -272,12 +272,7 @@ bool uiStratAmpCalc::fillPar()
     if ( !clonedset ) return false;
 
     clonedset->fillPar( attrpar );
-    for ( int idx=0; idx<attrpar.size(); idx++ )
-    {
-	const char* nm = attrpar.getKey( idx );
-	iop.add( IOPar::compKey(Attrib::SeisTrcStorOutput::attribkey(),nm),
-		   attrpar .getValue(idx) );
-    }
+    iop.mergeComp( attrpar, Attrib::SeisTrcStorOutput::attribkey() );
 
     const Attrib::Desc* desc = clonedset->getDesc( targetid );
     if ( desc && desc->is2D() )

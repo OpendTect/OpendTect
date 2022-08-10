@@ -663,16 +663,22 @@ Strat::Layer* uiStratLayerModelDisp::usrPointedLayer( int& layidx ) const
 }
 
 
+static uiString getKeyValStr( const char* key, const char* val )
+{
+    return toUiString( "%1: %2" ).arg( key ).arg( val );
+}
+
+
 void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
 {
     const int selseq = usrPointedModelNr();
     if ( selseq<0 || selseq>=layerModel().size() )
 	return;
 
-    IOPar statusbarmsg;
+    uiString statusbarmsg;
     BufferString modelnrstr( 16, true );
     od_sprintf( modelnrstr.getCStr(), modelnrstr.bufSize(), "%5d", selseq+1 );
-    statusbarmsg.set( "Model Number", modelnrstr );
+    statusbarmsg.append( getKeyValStr("Model Number",modelnrstr) );
 
     int layidx;
     const Strat::Layer* lay = usrPointedLayer( layidx );
@@ -696,7 +702,7 @@ void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
     BufferString depthstr( 16, true );
     od_sprintf( depthstr.getCStr(), depthstr.bufSize(), "%6.0f", depth );
     depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
-    statusbarmsg.set( "Depth", depthstr );
+    statusbarmsg.append( getKeyValStr("Depth",depthstr) );
 
     const Strat::LayerSequence& seq = layerModel().sequence( selseq );
     const int disppropidx = tools_.selPropIdx()+1;
@@ -705,22 +711,17 @@ void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
 	const PropertyRef& pr = *seq.propertyRefs()[disppropidx];
 	BufferString valstr( getLayerPropValue(*lay,pr,disppropidx) );
 	valstr.addSpace().add( pr.disp_.getUnitLbl() );
-	statusbarmsg.set( pr.name(), valstr );
-	statusbarmsg.set( "Layer", lay->name() );
+	statusbarmsg.append( getKeyValStr(pr.name(),valstr) );
+	statusbarmsg.append( getKeyValStr("Layer",lay->name()) );
 	if ( !lay->lithology().isUdf() )
-	    statusbarmsg.set( "Lithology", lay->lithology().name() );
+	    statusbarmsg.append(
+		    getKeyValStr("Lithology",lay->lithology().name()) );
 	if ( !lay->content().isUnspecified() )
-	    statusbarmsg.set( "Content", lay->content().name() );
+	    statusbarmsg.append(
+		    getKeyValStr("Content",lay->content().name()) );
     }
 
-    uiString msg;
-    for ( int idx=0; idx<statusbarmsg.size(); idx++ )
-    {
-	msg.append( toUiString("%1 : %2 ;").arg(statusbarmsg.getKey(idx))
-					   .arg(statusbarmsg.getValue(idx)) );
-    }
-
-    infoChanged.trigger( &msg, this );
+    infoChanged.trigger( &statusbarmsg, this );
 }
 
 

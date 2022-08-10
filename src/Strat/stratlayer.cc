@@ -339,8 +339,8 @@ void Strat::Layer::setValue( int ival, const IOPar& iop,
 {
     mEnsureEnoughVals();
 
-    if ( iop.size() == 1 && iop.getKey(0) == sKey::Value() )
-	setValue( ival, toFloat(iop.getValue(0)) );
+    if ( iop.size() == 1 && iop.hasKey(sKey::Value()) )
+	setValue( ival, toFloat(iop.find(sKey::Value())) );
     else
 	setLV( ival, new FormulaLayerValue(iop,*this,prs,ival) );
 }

@@ -149,13 +149,14 @@ public:
 
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
-    void		dumpJSon(BufferString&) const;
+    void		dumpJSon(BufferString&,bool pretty=false) const;
     void		dumpJSon(StringBuilder&) const;
-    BufferString	dumpJSon() const;
+    BufferString	dumpJSon(bool pretty=false) const;
 
     uiRetVal		read(od_istream&);
     static ValueSet*	read(od_istream&,uiRetVal&);
-    uiRetVal		write(od_ostream&);
+    uiRetVal		write(od_ostream&,bool pretty=false);
+    uiRetVal		writePretty(od_ostream&);
 
 protected:
 

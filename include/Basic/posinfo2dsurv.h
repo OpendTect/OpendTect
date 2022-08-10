@@ -100,11 +100,6 @@ public:
     void		setCurLineSet(const char*) const;
 
     bool		getGeometry(Line2DData&) const; //!< using lineName()
-    bool		setGeometry(const Line2DData&);
-
-    void		removeLine(const char*);
-    void		removeLineSet(const char*);
-    void		renameLineSet(const char*,const char*);
 
     // using ids
     const char*		getLineSet(IdxType lsid) const;
@@ -123,10 +118,6 @@ public:
     bool		getGeometry(const Line2DKey&,Line2DData&) const;
 			//!< thread safe
 
-    void		renameLine(const char*oldnm,const char*newnm);
-    void		removeLine(IdxType lid);
-    void		removeLineSet(IdxType lsid);
-
     Line2DKey		getLine2DKey(const char* lsnm,const char* linenm) const;
     const char*		getLSFileNm(const char* lsnm) const;
     const char*		getLineFileNm(const char* lsnm,const char* lnm) const;
@@ -136,7 +127,6 @@ public:
 
 protected:
 
-    IdxType		getNewID(IOPar&);
     void		updateMaxID(IdxType,IOPar&);
 
 private:
@@ -156,10 +146,6 @@ private:
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
     void		getIDs(const IOPar&,TypeSet<IdxType>&) const;
-    BufferString	getNewStorageName(const char*,const FilePath&,
-					  const IOPar&) const;
-    int			getLineSetIdx(IdxType lsid) const;
-    int			getLineIdx(IdxType lineid) const;
 
     mGlobal(Basic) friend const Survey2D& ::S2DPOS();
 

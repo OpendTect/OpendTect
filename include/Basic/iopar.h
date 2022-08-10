@@ -79,6 +79,7 @@ public:
     bool		includes(const IOPar&) const;
 
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
+    void		getKeys(BufferStringSet&) const;
     const char*		findKeyFor(const char*) const;
 			//!< returns null if value not found
     void		fillJSON(OD::JSON::Object& obj,bool simple=true) const;
@@ -86,11 +87,14 @@ public:
     bool		useJSON(const OD::JSON::Object&);
     bool		useJSON(const char* key,const OD::JSON::Array&);
 
-    bool		remove(const char* ky);
+    bool		remove(int)			= delete;
+    bool		removeWithKey(const char* key);
 			//!< returns false if ky not found
     bool		removeWithKeyPattern(const char* globexpression);
 			//!< removes all entries with key matching
 			//!< this glob expression, return false if none found
+    bool		replaceKey(const char* oldkey,const char* newkey);
+			//!< returns false if oldkey was not found
 
     void		setEmpty();
 			//!< remove all entries (doesn't clear name)
@@ -335,9 +339,6 @@ public:
     static const char*	sKeyDumpPretty()	{ return "_pretty"; }
     static const char*	sKeyHdr()		{ return "->"; }
     static const char*	sKeySubHdr()		{ return "-->"; }
-
-    //mDeprecated		("Use 'remove(const char* key)' instead" )
-    void		removeWithKey(const char* key);
 
 protected:
 

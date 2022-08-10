@@ -478,12 +478,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     IOPar attrpar( "Attribute Descriptions" );
     clonedset->fillPar( attrpar );
-    for ( int idx=0; idx<attrpar.size(); idx++ )
-    {
-	const char* nm = attrpar.getKey(idx);
-	iop.add( IOPar::compKey(Attrib::SeisTrcStorOutput::attribkey(),nm),
-		 attrpar.getValue(idx) );
-    }
+    iop.mergeComp( attrpar, Attrib::SeisTrcStorOutput::attribkey() );
 
     const BufferString keybase = IOPar::compKey(Attrib::Output::outputstr(),0);
     const BufferString attribkey =

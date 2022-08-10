@@ -442,27 +442,25 @@ bool VolProc::Chain::usePar( const IOPar& par )
     const BufferString outscalerstr(
 				IOPar::compKey(sKey::Output(),sKey::Scale()) );
     PtrMan<IOPar> scalerpar = par.subselect( outscalerstr );
-    if ( scalerpar.ptr() )
+    if ( !scalerpar )
+	return true;
+
+    IOParIterator iter( *scalerpar );
+    BufferString compidxstr, scalerstr;
+    while ( iter.next(compidxstr,scalerstr) )
     {
-	for ( int idx=0; idx<scalerpar->size(); idx++ )
-	{
-	    const BufferString compidxstr( scalerpar->getKey(idx) );
-	    const int compidx = compidxstr.toInt();
-	    BufferString scalerstr;
-	    if ( !scalerpar->get(compidxstr,scalerstr) || scalerstr.isEmpty() )
-		continue;
+	const int compidx = compidxstr.toInt();
+	if ( scalerstr.isEmpty() )
+	    continue;
 
-	    Scaler* scaler = Scaler::get( scalerstr );
-	    if ( !scaler ) continue;
+	Scaler* scaler = Scaler::get( scalerstr );
+	if ( !scaler )
+	    continue;
 
-	    for ( int idy=0; idy<=compidx; idy++ )
-	    {
-		if ( !outcompscalers_.validIdx(idy) )
-		    outcompscalers_ += 0;
-	    }
+	while ( outcompscalers_.size() <= compidx )
+	    outcompscalers_ += nullptr;
 
-	    delete outcompscalers_.replace( compidx, scaler );
-	}
+	delete outcompscalers_.replace( compidx, scaler );
     }
 
     return true;

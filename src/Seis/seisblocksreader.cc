@@ -448,16 +448,17 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 
 bool Seis::Blocks::Reader::getOffsetSectionData( const IOPar& iop )
 {
-    for ( int idx=0; idx<iop.size(); idx++ )
+    IOParIterator iter( iop );
+    BufferString kw, val;
+    while ( iter.next(kw,val) )
     {
-	BufferString kw( iop.getKey(idx) );
 	char* ptr = kw.find( '.' );
 	if ( !ptr )
 	    continue;
 
 	*ptr++ = '\0';
 	const HGlobIdx globidx( (IdxType)toInt(kw), (IdxType)toInt(ptr) );
-	const od_stream_Pos pos = toInt64( iop.getValue(idx) );
+	const od_stream_Pos pos = toInt64( val );
 	offstbl_[globidx] = pos;
     }
 

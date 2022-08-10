@@ -63,8 +63,10 @@ static void getRecentDataRoots( BufferStringSet& dirs )
     if ( !dr )
 	return;
 
-    for ( int idx=0; idx<dr->size(); idx++ )
-	dirs.add( dr->getValue(idx) );
+    IOParIterator iter( *dr );
+    BufferString key, val;
+    while ( iter.next(key,val) )
+	dirs.add( val );
 }
 
 

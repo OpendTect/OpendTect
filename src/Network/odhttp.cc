@@ -345,10 +345,11 @@ void HttpRequest::fillRequest( QNetworkRequest& req ) const
     if ( payload_ )
 	req.setHeader( QNetworkRequest::ContentLengthHeader,payload_->size());
 
-    for ( int idx=0; idx<rawheaders_.size(); idx++ )
+    IOParIterator iter( rawheaders_ );
+    BufferString key, val;
+    while ( iter.next(key,val) )
     {
-	req.setRawHeader( rawheaders_.getKey(idx).buf(),
-			 rawheaders_.getValue(idx).buf() );
+	req.setRawHeader( key.buf(), val.buf() );
     }
 }
 

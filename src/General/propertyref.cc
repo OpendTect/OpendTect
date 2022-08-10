@@ -304,15 +304,7 @@ PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
 {
     Mnemonic::StdType st = Mnemonic::undef().stdType();
     BufferString propnm;
-    if ( iop.isPresent(sKey::Name()) )
-	iop.get( sKey::Name(), propnm );
-    else
-    { //Old format
-	propnm = iop.getKey( 0 );
-	const BufferString stdtypstr( iop.getValue(0) );
-	Mnemonic::parseEnumStdType( stdtypstr, st );
-    }
-
+    iop.get( sKey::Name(), propnm );
     if ( propnm.isEmpty() )
 	return nullptr;
 
@@ -709,8 +701,12 @@ void PropertyRefSet::readFrom( ascistream& astrm, Repos::Source src )
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	IOPar iop; iop.getFrom(astrm);
-	const BufferString propnm( iop.getKey(0) );
+	const BufferString propnm( astrm.keyWord() );
+	IOPar iop;
+	iop.getFrom(astrm);
+	if ( !iop.hasKey(sKey::Name()) )
+	    iop.set( sKey::Name(), propnm );
+
 	if ( getByName(propnm,false) )
 	    continue;
 
