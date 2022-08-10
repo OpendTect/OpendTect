@@ -15,51 +15,55 @@ ________________________________________________________________________
 #include "factory.h"
 #include "emposid.h"
 
-class Vw2DDataObject;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mExpClass(uiViewer2D) Vw2DDataManager : public CallBacker
+namespace View2D
+{
+
+class DataObject;
+
+mExpClass(uiViewer2D) DataManager : public CallBacker
 {
 public:
-				Vw2DDataManager();
-				~Vw2DDataManager();
+				DataManager();
+				~DataManager();
 
-    void			addObject(Vw2DDataObject*);
-    void			removeObject(Vw2DDataObject*);
+    void			addObject(DataObject*);
+    void			removeObject(DataObject*);
     void			removeAll();
 
-    void			getObjects(ObjectSet<Vw2DDataObject>&) const;
+    void			getObjects(ObjectSet<DataObject>&) const;
+    void			getObjectIDs(TypeSet<int>&) const;
 
-    const Vw2DDataObject*	getObject(int id) const;
-    Vw2DDataObject*		getObject(int id);
+    const DataObject*		getObject(int id) const;
+    DataObject*			getObject(int id);
 
-    void			setSelected(Vw2DDataObject*);
+    void			setSelected(DataObject*);
     int				selectedID()	{ return selectedid_; }
 
     void			usePar(const IOPar&,uiFlatViewWin*,
 				    const ObjectSet<uiFlatViewAuxDataEditor>&);
     void			fillPar(IOPar&) const;
 
-    mDefineFactory2ParamInClass(Vw2DDataObject,uiFlatViewWin*,
+    mDefineFactory2ParamInClass(DataObject,uiFlatViewWin*,
 		    const ObjectSet<uiFlatViewAuxDataEditor>&,factory);
 
-    Notifier<Vw2DDataManager>	addRemove;
-    CNotifier<Vw2DDataManager,int> dataObjAdded;
-    CNotifier<Vw2DDataManager,int> dataObjToBeRemoved;
+    Notifier<DataManager>	addRemove;
+    CNotifier<DataManager,int> dataObjAdded;
+    CNotifier<DataManager,int> dataObjToBeRemoved;
 
 protected:
 
     void			deSelect(int id);
 
-    ObjectSet<Vw2DDataObject>	objects_;
+    ObjectSet<DataObject>	objects_;
     int				selectedid_;
     int				freeid_;
 
     static const char*		sKeyNrObjects()	{ return "Nr objects"; }
 
-    bool			similarObjectPresent(
-					const Vw2DDataObject*) const;
-public:
-    void			getObjectIDs(TypeSet<int>&) const;
+    bool			similarObjectPresent(const DataObject*) const;
 };
+
+} // namespace View2D

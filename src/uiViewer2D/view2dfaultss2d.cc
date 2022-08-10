@@ -23,13 +23,15 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
+namespace View2D
+{
 
-mImplStd( VW2DFaultSS2D )
+mImplStd( FaultSS2D )
 
-VW2DFaultSS2D::VW2DFaultSS2D( uiFlatViewWin* fvw,
+FaultSS2D::FaultSS2D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
-    : Vw2DEMDataObject(fvw,auxdataeds)
-    , deselted_( this )
+    : EMDataObject(fvw,auxdataeds)
+    , deselected_( this )
     , fsseditor_(0)
     , knotenabled_(false)
 {
@@ -37,7 +39,7 @@ VW2DFaultSS2D::VW2DFaultSS2D( uiFlatViewWin* fvw,
 }
 
 
-void VW2DFaultSS2D::setEditors()
+void FaultSS2D::setEditors()
 {
     deepErase( fsseds_ );
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
@@ -64,7 +66,7 @@ void VW2DFaultSS2D::setEditors()
 }
 
 
-VW2DFaultSS2D::~VW2DFaultSS2D()
+FaultSS2D::~FaultSS2D()
 {
     deepErase(fsseds_);
     if ( fsseditor_ )
@@ -75,7 +77,7 @@ VW2DFaultSS2D::~VW2DFaultSS2D()
 }
 
 
-void VW2DFaultSS2D::draw()
+void FaultSS2D::draw()
 {
     const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
     if ( !geometry ) return;
@@ -112,7 +114,7 @@ void VW2DFaultSS2D::draw()
 }
 
 
-void VW2DFaultSS2D::enablePainting( bool yn )
+void FaultSS2D::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -125,7 +127,7 @@ void VW2DFaultSS2D::enablePainting( bool yn )
 }
 
 
-void VW2DFaultSS2D::selected()
+void FaultSS2D::selected()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -145,7 +147,7 @@ void VW2DFaultSS2D::selected()
 }
 
 
-void VW2DFaultSS2D::triggerDeSel()
+void FaultSS2D::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -157,5 +159,7 @@ void VW2DFaultSS2D::triggerDeSel()
     }
 
     knotenabled_ = false;
-    deselted_.trigger();
+    deselected_.trigger();
 }
+
+} // namespace View2D

@@ -82,7 +82,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
 
-    dummyview_ = new VW2DSeis();
+    dummyview_ = new View2D::Seismic();
     viewer2D()->dataMgr()->addObject( dummyview_ );
     displayid_ = dummyview_->id();
 

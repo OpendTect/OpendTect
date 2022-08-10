@@ -242,7 +242,7 @@ bool uiODVw2DFaultTreeItem::init()
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 
-	faultview_ = VW2DFault::create( viewer2D()->viewwin(),
+	faultview_ = View2D::Fault::create( viewer2D()->viewwin(),
 					viewer2D()->dataEditor() );
 	faultview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( faultview_ );
@@ -250,8 +250,8 @@ bool uiODVw2DFaultTreeItem::init()
     }
     else
     {
-	mDynamicCastGet(VW2DFault*,hd,
-			viewer2D()->dataMgr()->getObject(displayid_))
+	mDynamicCastGet(View2D::Fault*,hd,
+			viewer2D()->getObject(displayid_))
 	if ( !hd )
 	    return false;
 
@@ -467,6 +467,6 @@ void uiODVw2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 uiTreeItem* uiODVw2DFaultTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
-    mDynamicCastGet(const VW2DFault*,obj,vwr2d.dataMgr()->getObject(id));
+    mDynamicCastGet(const View2D::Fault*,obj,vwr2d.getObject(id));
     return obj ? new uiODVw2DFaultTreeItem(id,true) : 0;
 }

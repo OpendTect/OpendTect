@@ -22,13 +22,15 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
+namespace View2D
+{
 
-mImplStd( VW2DFault )
+mImplStd( Fault )
 
-VW2DFault::VW2DFault( uiFlatViewWin* fvw,
+Fault::Fault( uiFlatViewWin* fvw,
 		    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
-    : Vw2DEMDataObject(fvw,auxdataeds)
-    , deselted_( this )
+    : EMDataObject(fvw,auxdataeds)
+    , deselected_( this )
     , f3deditor_(0)
     , knotenabled_(false)
 {
@@ -36,7 +38,7 @@ VW2DFault::VW2DFault( uiFlatViewWin* fvw,
 }
 
 
-void VW2DFault::setEditors()
+void Fault::setEditors()
 {
     deepErase( faulteds_ );
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
@@ -68,7 +70,7 @@ void VW2DFault::setEditors()
 }
 
 
-VW2DFault::~VW2DFault()
+Fault::~Fault()
 {
     deepErase(faulteds_);
     if ( f3deditor_ )
@@ -79,14 +81,14 @@ VW2DFault::~VW2DFault()
 }
 
 
-void VW2DFault::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
+void Fault::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
 }
 
 
-void VW2DFault::draw()
+void Fault::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -114,7 +116,7 @@ void VW2DFault::draw()
 }
 
 
-void VW2DFault::enablePainting( bool yn )
+void Fault::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -127,7 +129,7 @@ void VW2DFault::enablePainting( bool yn )
 }
 
 
-void VW2DFault::selected()
+void Fault::selected()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -147,7 +149,7 @@ void VW2DFault::selected()
 }
 
 
-void VW2DFault::triggerDeSel()
+void Fault::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -159,5 +161,7 @@ void VW2DFault::triggerDeSel()
     }
 
     knotenabled_ = false;
-    deselted_.trigger();
+    deselected_.trigger();
 }
+
+} // namespace View2D

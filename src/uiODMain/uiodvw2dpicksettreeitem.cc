@@ -237,7 +237,7 @@ bool uiODVw2DPickSetTreeItem::init()
 	if ( picksetidx < 0 )
 	    return false;
 
-	vw2dpickset_ = VW2DPickSet::create( viewer2D()->viewwin(),
+	vw2dpickset_ = View2D::PickSet::create( viewer2D()->viewwin(),
 					    viewer2D()->dataEditor() );
 	vw2dpickset_->setPickSet( *pickset_ );
 	viewer2D()->dataMgr()->addObject( vw2dpickset_ );
@@ -245,8 +245,8 @@ bool uiODVw2DPickSetTreeItem::init()
     }
     else
     {
-	mDynamicCastGet(VW2DPickSet*,pickdisplay,
-			viewer2D()->dataMgr()->getObject(displayid_))
+	mDynamicCastGet(View2D::PickSet*,pickdisplay,
+			viewer2D()->getObject(displayid_))
 	if ( !pickdisplay )
 	    return false;
 
@@ -413,6 +413,6 @@ void uiODVw2DPickSetTreeItem::keyPressedCB( CallBacker* cb )
 uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
-    mDynamicCastGet(const VW2DPickSet*,obj,vwr2d.dataMgr()->getObject(id));
+    mDynamicCastGet(const View2D::PickSet*,obj,vwr2d.getObject(id));
     return obj ? new uiODVw2DPickSetTreeItem(id,false) : 0;
 }

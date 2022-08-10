@@ -10,14 +10,18 @@ ________________________________________________________________________
 
 #include "view2dseismic.h"
 
+namespace View2D
+{
 
-VW2DSeis::VW2DSeis()
-    : Vw2DDataObject()
-    , deselted_( this )
+Seismic::Seismic()
+    : DataObject()
+    , deselected_( this )
 {}
 
 
-void VW2DSeis::triggerDeSel()
+void Seismic::triggerDeSel()
 {
-    deselted_.trigger();
+    deselected_.trigger();
 }
+
+} // namespace View2D

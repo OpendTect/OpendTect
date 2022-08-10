@@ -76,11 +76,10 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
     , viewwin_(nullptr)
     , slicepos_(nullptr)
     , viewstdcontrol_(nullptr)
-    , datamgr_(new Vw2DDataManager)
+    , datamgr_(new View2D::DataManager)
     , tifs_(0)
     , treetp_(0)
     , polyseltbid_(-1)
-    , rdmlineid_(mUdf(int))
     , voiidx_(-1)
     , basetxt_(tr("2D Viewer - "))
     , initialcentre_(uiWorldPoint::udf())
@@ -97,7 +96,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
     , datatransform_(0)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
-    id_ = vwrid++;
+    id_.set( vwrid++ );
 
     setWinTitle( true );
 
@@ -157,6 +156,25 @@ uiODViewer2D::~uiODViewer2D()
     }
     delete marker_;
     delete viewwin();
+}
+
+
+const View2D::DataObject* uiODViewer2D::getObject( int id ) const
+{
+    return datamgr_ ? datamgr_->getObject( id ) : nullptr;
+}
+
+
+View2D::DataObject* uiODViewer2D::getObject(int id)
+{
+    return datamgr_ ? datamgr_->getObject( id ) : nullptr;
+}
+
+
+void uiODViewer2D::getObjects( ObjectSet<View2D::DataObject>& objs )const
+{
+    if ( datamgr_ )
+	datamgr_->getObjects( objs );
 }
 
 
@@ -1004,8 +1022,8 @@ void uiODViewer2D::rebuildTree()
     if ( !treetp_ )
 	return;
 
-    ObjectSet<Vw2DDataObject> objs;
-    dataMgr()->getObjects( objs );
+    ObjectSet<View2D::DataObject> objs;
+    getObjects( objs );
     for ( int iobj=0; iobj<objs.size(); iobj++ )
     {
 	const uiODVw2DTreeItem* childitem =

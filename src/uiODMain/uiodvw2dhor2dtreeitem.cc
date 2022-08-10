@@ -346,7 +346,7 @@ bool uiODVw2DHor2DTreeItem::init()
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
 
-	horview_ = Vw2DHorizon2D::create( viewer2D()->viewwin(),
+	horview_ = View2D::Horizon2D::create( viewer2D()->viewwin(),
 					  viewer2D()->dataEditor() );
 	horview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( horview_ );
@@ -354,8 +354,8 @@ bool uiODVw2DHor2DTreeItem::init()
     }
     else
     {
-	mDynamicCastGet(Vw2DHorizon2D*,hd,
-			    viewer2D()->dataMgr()->getObject(displayid_))
+	mDynamicCastGet(View2D::Horizon2D*,hd,
+			    viewer2D()->getObject(displayid_))
 	if ( !hd )
 	    return false;
 	emid_ = hd->getEMObjectID();
@@ -640,6 +640,6 @@ void uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
-    mDynamicCastGet(const Vw2DHorizon2D*,obj,vwr2d.dataMgr()->getObject(id));
+    mDynamicCastGet(const View2D::Horizon2D*,obj,vwr2d.getObject(id));
     return obj ? new uiODVw2DHor2DTreeItem(id,true) : 0;
 }

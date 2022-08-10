@@ -26,7 +26,7 @@ class uiODViewer2D;
 class uiTreeFactorySet;
 class MouseEventHandler;
 class TrcKeyZSampling;
-class Vw2DDataObject;
+class DataObject;
 namespace Attrib	{ class SelSpec; }
 
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
@@ -51,16 +51,17 @@ public:
     uiODViewer2D*		getParent2DViewer(int vw2dobjid);
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
     uiODViewer2D*		find2DViewer(VisID);
+    uiODViewer2D*		find2DViewer(Viewer2DID);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
-    int				displayIn2DViewer(DataPack::ID,
+    Viewer2DID			displayIn2DViewer(DataPack::ID,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      bool wva);
-    int				displayIn2DViewer(
+    Viewer2DID			displayIn2DViewer(
 					Viewer2DPosDataSel&,bool wva,
 					float initialx1pospercm=mUdf(float),
 					float initialx2pospercm=mUdf(float));
@@ -68,6 +69,7 @@ public:
 						  bool wva);
     void			remove2DViewer(int id,bool byvisid);
     void			remove2DViewer(VisID);
+    void			remove2DViewer(Viewer2DID);
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }

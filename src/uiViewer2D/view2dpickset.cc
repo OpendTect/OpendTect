@@ -26,12 +26,14 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
+namespace View2D
+{
 
-mImplStd( VW2DPickSet )
+mImplStd( PickSet )
 
-VW2DPickSet::VW2DPickSet( uiFlatViewWin* fvw,
-			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
-    : Vw2DDataObject()
+PickSet::PickSet( uiFlatViewWin* fvw,
+		  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
+    : DataObject()
     , deselected_(this)
 {
     for ( int idx=0; idx<editors.size(); idx++ )
@@ -41,21 +43,21 @@ VW2DPickSet::VW2DPickSet( uiFlatViewWin* fvw,
 	picks_ += viewers_[idx]->createAuxData( "Picks" );
 
 	viewers_[idx]->addAuxData( picks_[idx] );
-	mAttachCB( viewers_[idx]->dataChanged, VW2DPickSet::dataChangedCB );
+	mAttachCB( viewers_[idx]->dataChanged, PickSet::dataChangedCB );
 
 	auxids_ += editors_[idx]->addAuxData( picks_[idx], true );
 	editors_[idx]->enableEdit( auxids_[idx], true, true, true );
 	editors_[idx]->enablePolySel( auxids_[idx], true );
-	mAttachCB( editors_[idx]->removeSelected, VW2DPickSet::pickRemoveCB );
-	mAttachCB( editors_[idx]->movementFinished, VW2DPickSet::pickAddChgCB );
+	mAttachCB( editors_[idx]->removeSelected, PickSet::pickRemoveCB );
+	mAttachCB( editors_[idx]->movementFinished, PickSet::pickAddChgCB );
     }
 
-    mAttachCB( Pick::Mgr().setChanged, VW2DPickSet::dataChangedCB );
-    mAttachCB( Pick::Mgr().locationChanged, VW2DPickSet::dataChangedCB );
+    mAttachCB( Pick::Mgr().setChanged, PickSet::dataChangedCB );
+    mAttachCB( Pick::Mgr().locationChanged, PickSet::dataChangedCB );
 }
 
 
-VW2DPickSet::~VW2DPickSet()
+PickSet::~PickSet()
 {
     detachAllNotifiers();
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
@@ -67,13 +69,13 @@ VW2DPickSet::~VW2DPickSet()
 }
 
 
-void VW2DPickSet::setPickSet( Pick::Set& ps )
+void PickSet::setPickSet( Pick::Set& ps )
 {
     pickset_ = &ps;
 }
 
 
-void VW2DPickSet::pickAddChgCB( CallBacker* cb )
+void PickSet::pickAddChgCB( CallBacker* cb )
 {
     mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,cb);
     if ( !editor || editor->getSelPtIdx().size() || editor->isSelActive() ||
@@ -110,7 +112,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 }
 
 
-void VW2DPickSet::pickRemoveCB( CallBacker* cb )
+void PickSet::pickRemoveCB( CallBacker* cb )
 {
     mCBCapsuleGet(bool,caps,cb);
     mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,caps->caller);
@@ -187,7 +189,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 }
 
 
-MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
+MarkerStyle2D PickSet::get2DMarkers( const Pick::Set& ps ) const
 {
     MarkerStyle2D style( MarkerStyle2D::Square, ps.disp_.pixsize_,
 			 ps.disp_.color_ );
@@ -222,7 +224,7 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 }
 
 
-void VW2DPickSet::drawAll()
+void PickSet::drawAll()
 {
     ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true ).get();
     if ( !fdp || !pickset_ ) return;
@@ -337,7 +339,7 @@ void VW2DPickSet::drawAll()
 }
 
 
-void VW2DPickSet::clearPicks()
+void PickSet::clearPicks()
 {
     if ( !pickset_ )
 	return;
@@ -347,7 +349,7 @@ void VW2DPickSet::clearPicks()
 }
 
 
-void VW2DPickSet::enablePainting( bool yn )
+void PickSet::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
@@ -357,36 +359,36 @@ void VW2DPickSet::enablePainting( bool yn )
 }
 
 
-void VW2DPickSet::dataChangedCB( CallBacker* )
+void PickSet::dataChangedCB( CallBacker* )
 {
     drawAll();
 }
 
 
-void VW2DPickSet::selected()
+void PickSet::selected()
 {
    isselected_ = true;
 }
 
 
-void VW2DPickSet::triggerDeSel()
+void PickSet::triggerDeSel()
 {
     isselected_ = false;
     deselected_.trigger();
 }
 
 
-bool VW2DPickSet::fillPar( IOPar& iop ) const
+bool PickSet::fillPar( IOPar& iop ) const
 {
-    Vw2DDataObject::fillPar( iop );
+    DataObject::fillPar( iop );
     iop.set( sKeyMID(), pickSetID() );
     return true;
 }
 
 
-bool VW2DPickSet::usePar( const IOPar& iop )
+bool PickSet::usePar( const IOPar& iop )
 {
-    Vw2DDataObject::usePar( iop );
+    DataObject::usePar( iop );
     MultiID mid;
     iop.get( sKeyMID(), mid );
 
@@ -406,7 +408,9 @@ bool VW2DPickSet::usePar( const IOPar& iop )
 }
 
 
-MultiID VW2DPickSet::pickSetID() const
+MultiID PickSet::pickSetID() const
 {
     return pickset_ ? Pick::Mgr().get( *pickset_ ) : MultiID::udf();
 }
+
+} // namespace View2D

@@ -24,10 +24,12 @@ namespace Attrib { class SelSpec; }
 namespace FlatView { class AuxDataEditor; }
 namespace MPE { class HorizonFlatViewEditor2D; }
 
-
-mExpClass(uiViewer2D) Vw2DHorizon2D : public Vw2DEMDataObject
+namespace View2D
 {
-mDefStd(Vw2DHorizon2D)
+
+mExpClass(uiViewer2D) Horizon2D : public EMDataObject
+{
+mDefStd(Horizon2D)
 public:
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
@@ -45,13 +47,13 @@ public:
     void		setLine2DInterSectionSet(const Line2DInterSectionSet*
 							ln2dintersectionset)
 			{ line2dintersectionset_ = ln2dintersectionset; }
-    const Line2DInterSectionSet* getLine2DInterSectionSet()
+    const Line2DInterSectionSet* getLine2DInterSectionSet() const
 					    { return line2dintersectionset_; }
 
     void		getHorEditors(
 			  ObjectSet<const MPE::HorizonFlatViewEditor2D>&) const;
 
-    NotifierAccess*	deSelection() override		{ return &deselted_; }
+    NotifierAccess*	deSelection() override		{ return &deselected_; }
 
 protected:
 
@@ -63,6 +65,8 @@ protected:
     const Attrib::SelSpec*	wvaselspec_;
 
     ObjectSet<MPE::HorizonFlatViewEditor2D>	horeds_;
-    Notifier<Vw2DHorizon2D>			deselted_;
-    const Line2DInterSectionSet*		line2dintersectionset_;
+    Notifier<Horizon2D>			deselected_;
+    const Line2DInterSectionSet*	line2dintersectionset_;
 };
+
+} // namespace View2D

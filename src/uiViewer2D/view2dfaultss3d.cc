@@ -23,12 +23,15 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
-mImplStd( VW2DFaultSS3D )
+namespace View2D
+{
 
-VW2DFaultSS3D::VW2DFaultSS3D( uiFlatViewWin* fvw,
+mImplStd( FaultSS3D )
+
+FaultSS3D::FaultSS3D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
-    : Vw2DEMDataObject(fvw,auxdataeds)
-    , deselted_( this )
+    : EMDataObject(fvw,auxdataeds)
+    , deselected_( this )
     , fsseditor_(0)
     , knotenabled_(false)
 {
@@ -36,7 +39,7 @@ VW2DFaultSS3D::VW2DFaultSS3D( uiFlatViewWin* fvw,
 }
 
 
-void VW2DFaultSS3D::setEditors()
+void FaultSS3D::setEditors()
 {
     deepErase( fsseds_ );
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
@@ -65,7 +68,7 @@ void VW2DFaultSS3D::setEditors()
 }
 
 
-VW2DFaultSS3D::~VW2DFaultSS3D()
+FaultSS3D::~FaultSS3D()
 {
     deepErase(fsseds_);
     if ( fsseditor_ )
@@ -76,14 +79,14 @@ VW2DFaultSS3D::~VW2DFaultSS3D()
 }
 
 
-void VW2DFaultSS3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
+void FaultSS3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
 }
 
 
-void VW2DFaultSS3D::draw()
+void FaultSS3D::draw()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -111,7 +114,7 @@ void VW2DFaultSS3D::draw()
 }
 
 
-void VW2DFaultSS3D::enablePainting( bool yn )
+void FaultSS3D::enablePainting( bool yn )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -124,7 +127,7 @@ void VW2DFaultSS3D::enablePainting( bool yn )
 }
 
 
-void VW2DFaultSS3D::selected()
+void FaultSS3D::selected()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -144,7 +147,7 @@ void VW2DFaultSS3D::selected()
 }
 
 
-void VW2DFaultSS3D::triggerDeSel()
+void FaultSS3D::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -156,5 +159,7 @@ void VW2DFaultSS3D::triggerDeSel()
     }
 
     knotenabled_ = false;
-    deselted_.trigger();
+    deselected_.trigger();
 }
+
+} // namespace View2D

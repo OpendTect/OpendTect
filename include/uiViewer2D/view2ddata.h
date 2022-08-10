@@ -18,7 +18,10 @@ ________________________________________________________________________
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mExpClass(uiViewer2D) Vw2DDataObject : public SharedObject
+namespace View2D
+{
+
+mExpClass(uiViewer2D) DataObject : public SharedObject
 {
 public:
 
@@ -35,18 +38,18 @@ public:
     static const char*		sKeyMID()		{ return "ID"; }
 
 protected:
-				Vw2DDataObject();
-    virtual			~Vw2DDataObject();
+				DataObject();
+    virtual			~DataObject();
 
     virtual void		triggerDeSel()			{}
 
     int				id_;
 
-    friend class		Vw2DDataManager;
+    friend class		DataManager;
 };
 
 
-mExpClass(uiViewer2D) Vw2DEMDataObject : public Vw2DDataObject
+mExpClass(uiViewer2D) EMDataObject : public DataObject
 {
 public:
 
@@ -60,7 +63,7 @@ public:
     const EM::ObjectID& emID() const		{ return getEMObjectID(); }
 
 protected:
-			Vw2DEMDataObject(uiFlatViewWin*,
+			EMDataObject(uiFlatViewWin*,
 				     const ObjectSet<uiFlatViewAuxDataEditor>&);
 
     uiFlatViewWin*	viewerwin_;
@@ -69,6 +72,8 @@ protected:
 
     const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeditors_;
 };
+
+} // namespace View2D
 
 
 #define mDefStd(clss) \
@@ -80,13 +85,13 @@ static clss* create(uiFlatViewWin*,\
 protected: \
 clss(uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&); \
 private: \
-static Vw2DDataObject* createInternal(uiFlatViewWin*, \
+static DataObject* createInternal(uiFlatViewWin*, \
 				const ObjectSet<uiFlatViewAuxDataEditor>&);
 
 #define mImplStd(clss) \
 void clss::initClass() \
 { \
-    Vw2DDataManager::factory().addCreator( clss::createInternal, #clss ); \
+    DataManager::factory().addCreator( clss::createInternal, #clss ); \
 } \
 \
 clss* clss::create( uiFlatViewWin* fvw, \
@@ -95,7 +100,7 @@ clss* clss::create( uiFlatViewWin* fvw, \
     return sCast(clss*,createInternal(fvw,eds)); \
 } \
 \
-Vw2DDataObject* clss::createInternal( \
+DataObject* clss::createInternal( \
 	uiFlatViewWin* fvw, const ObjectSet<uiFlatViewAuxDataEditor>& eds ) \
 { \
     return new clss( fvw, eds ); \

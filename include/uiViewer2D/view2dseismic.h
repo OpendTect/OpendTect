@@ -13,20 +13,22 @@ ________________________________________________________________________
 #include "uiviewer2dmod.h"
 #include "view2ddata.h"
 
+namespace View2D
+{
 
-mExpClass(uiViewer2D) VW2DSeis : public Vw2DDataObject
+mExpClass(uiViewer2D) Seismic : public DataObject
 {
 public:
-			VW2DSeis();
-			~VW2DSeis(){}
+			Seismic();
+			~Seismic(){}
 
-    NotifierAccess*	deSelection() override	{ return &deselted_; }
+    NotifierAccess*	deSelection() override	{ return &deselected_; }
 
 protected:
 
     void		triggerDeSel() override;
 
-    Notifier<VW2DSeis>	deselted_;
+    Notifier<Seismic>	deselected_;
 };
 
-
+} // namespace View2D

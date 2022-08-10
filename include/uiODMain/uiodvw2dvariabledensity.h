@@ -17,18 +17,18 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 class uiMenuHandler;
-class VW2DSeis;
-namespace ColTab { class Sequence; };
+namespace ColTab { class Sequence; }
+namespace View2D { class Seismic; }
 
 
 mExpClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVW2DVariableDensityTreeItem);
 public:
-    				uiODVW2DVariableDensityTreeItem();
+				uiODVW2DVariableDensityTreeItem();
 				~uiODVW2DVariableDensityTreeItem();
 
-    bool                	select();
-    bool                        showSubMenu();
+    bool			select();
+    bool			showSubMenu();
 
 protected:
 
@@ -38,13 +38,13 @@ protected:
     void			displayMiniCtab(const ColTab::Sequence*);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    bool			isSelectable() const            { return true; }
+    bool			isSelectable() const	{ return true; }
 
-    VW2DSeis*			dummyview_;
+    View2D::Seismic*		dummyview_;
     uiMenuHandler*		menu_;
     MenuItem			selattrmnuitem_;
     bool			coltabinitialized_;
-   
+
     void			createSelMenu(MenuItem&);
     bool    			handleSelMenu(int mnuid);
 
@@ -70,7 +70,5 @@ public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODVW2DVariableDensityTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
-
-

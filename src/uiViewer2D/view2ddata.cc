@@ -18,7 +18,10 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "iopar.h"
 
-Vw2DDataObject::Vw2DDataObject()
+namespace View2D
+{
+
+DataObject::DataObject()
     : id_( -1 )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vw2dobjid, (0) );
@@ -26,11 +29,11 @@ Vw2DDataObject::Vw2DDataObject()
 }
 
 
-Vw2DDataObject::~Vw2DDataObject()
+DataObject::~DataObject()
 {}
 
 
-bool Vw2DDataObject::fillPar( IOPar& par ) const
+bool DataObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), getClassName() );
     par.set( sKey::Name(), name() );
@@ -39,7 +42,7 @@ bool Vw2DDataObject::fillPar( IOPar& par ) const
 }
 
 
-bool Vw2DDataObject::usePar( const IOPar& par )
+bool DataObject::usePar( const IOPar& par )
 {
     const FixedString nm = par.find( sKey::Name() );
     if ( !nm.isEmpty() )
@@ -49,15 +52,15 @@ bool Vw2DDataObject::usePar( const IOPar& par )
 }
 
 
-Vw2DEMDataObject::Vw2DEMDataObject( uiFlatViewWin* win,
+EMDataObject::EMDataObject( uiFlatViewWin* win,
 			     const ObjectSet<uiFlatViewAuxDataEditor>& eds )
-    : Vw2DDataObject()
+    : DataObject()
     , viewerwin_(win)
     , auxdataeditors_(eds)
 {}
 
 
-void Vw2DEMDataObject::setEMObjectID( const EM::ObjectID& emid )
+void EMDataObject::setEMObjectID( const EM::ObjectID& emid )
 {
     emid_ = emid;
     if ( emid_.isValid() )
@@ -65,17 +68,17 @@ void Vw2DEMDataObject::setEMObjectID( const EM::ObjectID& emid )
 }
 
 
-bool Vw2DEMDataObject::fillPar( IOPar& par ) const
+bool EMDataObject::fillPar( IOPar& par ) const
 {
-    Vw2DDataObject::fillPar( par );
+    DataObject::fillPar( par );
     par.set( sKeyMID(), EM::EMM().getMultiID( emid_ ) );
     return true;
 }
 
 
-bool Vw2DEMDataObject::usePar( const IOPar& par )
+bool EMDataObject::usePar( const IOPar& par )
 {
-    if ( !Vw2DDataObject::usePar( par ) )
+    if ( !DataObject::usePar( par ) )
 	return false;
 
     MultiID mid;
@@ -93,3 +96,5 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
 
     return false;
 }
+
+} // namespace View2D

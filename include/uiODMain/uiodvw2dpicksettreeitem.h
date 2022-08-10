@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "pickset.h"
 
-class VW2DPickSet;
 
 namespace Pick { class Set; class SetMgr; }
+namespace View2D { class PickSet; }
 
 
 
@@ -66,11 +66,11 @@ public:
 			uiODVw2DPickSetTreeItem(int id,bool dummy);
 			~uiODVw2DPickSetTreeItem();
 
-    bool		showSubMenu();
-    bool		select();
-    const MultiID&	pickMultiID() const;
-    const VW2DPickSet*	vw2DObject() const	{ return vw2dpickset_; }
-    void		keyPressedCB(CallBacker*);
+    bool			showSubMenu();
+    bool			select();
+    const MultiID&		pickMultiID() const;
+    const View2D::PickSet*	vw2DObject() const	{ return vw2dpickset_; }
+    void			keyPressedCB(CallBacker*);
 
 protected:
 
@@ -87,5 +87,5 @@ protected:
 
     Pick::SetMgr&	picksetmgr_;
     RefMan<Pick::Set>	pickset_;
-    VW2DPickSet*	vw2dpickset_		= nullptr;
+    View2D::PickSet*	vw2dpickset_		= nullptr;
 };

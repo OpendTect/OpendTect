@@ -18,10 +18,12 @@ class TrcKeyZSampling;
 namespace Attrib { class SelSpec; }
 namespace MPE { class HorizonFlatViewEditor3D; }
 
-
-mExpClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
+namespace View2D
 {
-mDefStd(Vw2DHorizon3D)
+
+mExpClass(uiViewer2D) Horizon3D : public EMDataObject
+{
+mDefStd(Horizon3D)
 public:
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
@@ -38,8 +40,7 @@ public:
     void		getHorEditors(
 			  ObjectSet<const MPE::HorizonFlatViewEditor3D>&) const;
 
-
-    NotifierAccess*	deSelection() override		{ return &deselted_; }
+    NotifierAccess*	deSelection() override		{ return &deselected_; }
 
 protected:
 
@@ -53,6 +54,8 @@ protected:
     const Attrib::SelSpec*	wvaselspec_;
 
     ObjectSet<MPE::HorizonFlatViewEditor3D>     horeds_;
-    Notifier<Vw2DHorizon3D>		deselted_;
+    Notifier<Horizon3D>		deselected_;
 
 };
+
+} // namespace View2D

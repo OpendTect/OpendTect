@@ -34,11 +34,12 @@ class uiTreeFactorySet;
 class MouseCursorExchange;
 class RegularFlatDataPack;
 class TaskRunner;
-class Vw2DDataManager;
+class DataManager;
 class ZAxisTransform;
 
 namespace Attrib	{ class SelSpec; }
 namespace FlatView	{ class AuxData; }
+namespace View2D	{ class DataManager; class DataObject; }
 namespace ZDomain	{ class Def; }
 
 /*!
@@ -53,6 +54,9 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
 
+    Viewer2DID			ID() const	{ return id_; }
+    VisID			visID() const	{ return visid_; }
+
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
@@ -60,8 +64,12 @@ public:
     uiParent*			viewerParent();
     uiFlatViewWin*		viewwin()		{ return viewwin_; }
     const uiFlatViewWin*	viewwin() const		{ return viewwin_; }
-    Vw2DDataManager*		dataMgr()		{ return datamgr_; }
-    const Vw2DDataManager*	dataMgr() const		{ return datamgr_; }
+    View2D::DataManager*	dataMgr()		{ return datamgr_; }
+    const View2D::DataManager*	dataMgr() const		{ return datamgr_; }
+
+    const View2D::DataObject*	getObject(int id) const;
+    View2D::DataObject*		getObject(int id);
+    void			getObjects(ObjectSet<View2D::DataObject>&)const;
 
     uiODVw2DTreeTop*		treeTop()		{ return treetp_; }
 
@@ -130,9 +138,6 @@ public:
 				{ return slicepos_; }
     const ZDomain::Def&		zDomain() const;
     SceneID			getSyncSceneID() const;
-
-    int				id_; /*!<Unique identifier */
-    VisID			visid_; /*!<ID from 3D visualization */
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
@@ -212,6 +217,9 @@ public:
 
 protected:
 
+    Viewer2DID			id_; /*!<Unique identifier */
+    VisID			visid_; /*!<ID from 3D visualization */
+
     uiSlicePos2DView*				slicepos_;
     uiFlatViewStdControl*			viewstdcontrol_;
     ObjectSet<uiFlatViewAuxDataEditor>		auxdataeditors_;
@@ -219,7 +227,7 @@ protected:
     Attrib::SelSpec&		wvaselspec_;
     Attrib::SelSpec&		vdselspec_;
 
-    Vw2DDataManager*		datamgr_;
+    View2D::DataManager*	datamgr_;
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;
     uiFlatViewWin*		viewwin_;
@@ -268,4 +276,3 @@ protected:
     void			mouseCursorCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
 };
-

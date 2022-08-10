@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 class uiMenuHandler;
-class VW2DSeis;
+namespace View2D { class Seismic; }
 
 
 mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
@@ -27,21 +27,21 @@ public:
 				~uiODVW2DWiggleVarAreaTreeItem();
 
     bool			select();
-    bool                        showSubMenu();
+    bool			showSubMenu();
 
 protected:
-	
+
     bool			init();
     const char*			iconName() const;
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    bool                        isSelectable() const            { return true; }
-    
-    VW2DSeis*			dummyview_;
-    uiMenuHandler*              menu_;
-    MenuItem                    selattrmnuitem_;
+    bool			isSelectable() const	{ return true; }
 
-    void                        createSelMenu(MenuItem&);
+    View2D::Seismic*		dummyview_;
+    uiMenuHandler*		menu_;
+    MenuItem			selattrmnuitem_;
+
+    void			createSelMenu(MenuItem&);
     bool			handleSelMenu(int mnuid);
 
     DataPack::ID		createDataPack(Attrib::SelSpec&,
@@ -52,8 +52,8 @@ protected:
     void			checkCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
     void			dataTransformCB(CallBacker*);
-    void                        createMenuCB(CallBacker*);
-    void                        handleMenuCB(CallBacker*);
+    void			createMenuCB(CallBacker*);
+    void			handleMenuCB(CallBacker*);
 };
 
 
@@ -64,7 +64,5 @@ public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODVW2DWiggleVarAreaTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
-
-

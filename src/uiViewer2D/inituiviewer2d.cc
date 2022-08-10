@@ -21,10 +21,10 @@ mDefModInitFn(uiViewer2D)
 {
     mIfNotFirstTime( return );
 
-    VW2DFaultSS2D::initClass();
-    VW2DFaultSS3D::initClass();
-    VW2DFault::initClass();
-    Vw2DHorizon2D::initClass();
-    Vw2DHorizon3D::initClass();
-    VW2DPickSet::initClass();
+    View2D::FaultSS2D::initClass();
+    View2D::FaultSS3D::initClass();
+    View2D::Fault::initClass();
+    View2D::Horizon2D::initClass();
+    View2D::Horizon3D::initClass();
+    View2D::PickSet::initClass();
 }

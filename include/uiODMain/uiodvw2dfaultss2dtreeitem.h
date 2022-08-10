@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-class VW2DFaultSS2D;
+namespace View2D { class FaultSS2D; }
 class uiODViewer2D;
 
 
@@ -67,10 +67,10 @@ public:
 			uiODVw2DFaultSS2DTreeItem(int dispid,bool dummy);
 			~uiODVw2DFaultSS2DTreeItem();
 
-    bool		showSubMenu();
-    bool		select();
-    EM::ObjectID	emObjectID() const	{ return emid_; }
-    const VW2DFaultSS2D* vw2DObject() const	{ return fssview_; }
+    bool			showSubMenu();
+    bool			select();
+    EM::ObjectID		emObjectID() const	{ return emid_; }
+    const View2D::FaultSS2D*	vw2DObject() const	{ return fssview_; }
 
 protected:
 
@@ -89,5 +89,5 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    VW2DFaultSS2D*	fssview_;
+    View2D::FaultSS2D*	fssview_;
 };

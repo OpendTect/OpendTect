@@ -117,3 +117,11 @@ public:
 };
 
 using SceneID = VisID;
+
+
+mExpClass(Basic) Viewer2DID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline Viewer2DID	udf()			{ return Viewer2DID(); }
+};

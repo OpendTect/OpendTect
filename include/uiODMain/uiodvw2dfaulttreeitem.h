@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "uiodvw2dtreeitem.h"
 #include "emposid.h"
 
-class VW2DFault;
 class uiODViewer2D;
+namespace View2D { class Fault; }
 
 
 mExpClass(uiODMain) uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
@@ -62,10 +62,10 @@ public:
     			uiODVw2DFaultTreeItem(int dispid,bool dummy);
 			~uiODVw2DFaultTreeItem();
 
-    bool		showSubMenu();
-    bool		select();
-    EM::ObjectID	emObjectID() const	{ return emid_; }
-    const VW2DFault*	vw2DObject() const	{ return faultview_; }
+    bool			showSubMenu();
+    bool			select();
+    EM::ObjectID		emObjectID() const	{ return emid_; }
+    const View2D::Fault*	vw2DObject() const	{ return faultview_; }
 
 protected:
 
@@ -85,5 +85,5 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    VW2DFault*		faultview_;
+    View2D::Fault*	faultview_;
 };

@@ -21,10 +21,12 @@ class uiFlatViewAuxDataEditor;
 
 namespace MPE { class Fault3DFlatViewEditor; class FaultEditor; }
 
-
-mExpClass(uiViewer2D) VW2DFault : public Vw2DEMDataObject
+namespace View2D
 {
-mDefStd(VW2DFault)
+
+mExpClass(uiViewer2D) Fault : public EMDataObject
+{
+mDefStd(Fault)
 public:
 
     void		setTrcKeyZSampling(
@@ -34,7 +36,7 @@ public:
     void		enablePainting(bool yn);
     void		selected();
 
-    NotifierAccess*	deSelection() override		{ return &deselted_; }
+    NotifierAccess*	deSelection() override		{ return &deselected_; }
 
 protected:
 
@@ -44,5 +46,7 @@ protected:
     bool		knotenabled_;
     MPE::FaultEditor*	f3deditor_;
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;
-    Notifier<VW2DFault>		deselted_;
+    Notifier<Fault>		deselected_;
 };
+
+} // namespace View2D

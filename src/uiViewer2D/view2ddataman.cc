@@ -24,11 +24,13 @@ ________________________________________________________________________
 #include "uiflatviewwin.h"
 #include "emposid.h"
 
+namespace View2D
+{
 
-mImplFactory2Param(Vw2DDataObject,uiFlatViewWin*,
-	const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
+mImplFactory2Param(DataObject,uiFlatViewWin*,
+	const ObjectSet<uiFlatViewAuxDataEditor>&,DataManager::factory);
 
-Vw2DDataManager::Vw2DDataManager()
+DataManager::DataManager()
     : selectedid_( -1 )
     , freeid_( 0 )
     , addRemove( this )
@@ -37,13 +39,13 @@ Vw2DDataManager::Vw2DDataManager()
 {}
 
 
-Vw2DDataManager::~Vw2DDataManager()
+DataManager::~DataManager()
 {
     removeAll();
 }
 
 
-void Vw2DDataManager::addObject( Vw2DDataObject* obj )
+void DataManager::addObject( DataObject* obj )
 {
     if ( objects_.isPresent(obj) ) return;
 
@@ -60,7 +62,7 @@ void Vw2DDataManager::addObject( Vw2DDataObject* obj )
 }
 
 
-void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
+void DataManager::removeObject( DataObject* dobj )
 {
     if ( !objects_.isPresent(dobj) ) return;
 
@@ -75,7 +77,7 @@ void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 }
 
 
-void Vw2DDataManager::removeAll()
+void DataManager::removeAll()
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
 	dataObjToBeRemoved.trigger( objects_[idx]->id() );
@@ -88,7 +90,7 @@ void Vw2DDataManager::removeAll()
 }
 
 
-Vw2DDataObject* Vw2DDataManager::getObject( int id )
+DataObject* DataManager::getObject( int id )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -99,7 +101,7 @@ Vw2DDataObject* Vw2DDataManager::getObject( int id )
 }
 
 
-void Vw2DDataManager::setSelected( Vw2DDataObject* sobj )
+void DataManager::setSelected( DataObject* sobj )
 {
     if ( !sobj )
     {
@@ -122,9 +124,9 @@ void Vw2DDataManager::setSelected( Vw2DDataObject* sobj )
 }
 
 
-void Vw2DDataManager::deSelect( int id )
+void DataManager::deSelect( int id )
 {
-    Vw2DDataObject* dataobj = getObject( id );
+    DataObject* dataobj = getObject( id );
     if( dataobj )
 	dataobj->triggerDeSel();
 
@@ -133,9 +135,9 @@ void Vw2DDataManager::deSelect( int id )
 }
 
 
-void Vw2DDataManager::getObjectIDs( TypeSet<int>& objids ) const
+void DataManager::getObjectIDs( TypeSet<int>& objids ) const
 {
-    ObjectSet<Vw2DDataObject> vw2dobjs;
+    ObjectSet<DataObject> vw2dobjs;
     getObjects( vw2dobjs );
     objids.setSize( vw2dobjs.size(), -1 );
     for ( int idx=0; idx<vw2dobjs.size(); idx++ )
@@ -143,22 +145,22 @@ void Vw2DDataManager::getObjectIDs( TypeSet<int>& objids ) const
 }
 
 
-void Vw2DDataManager::getObjects( ObjectSet<Vw2DDataObject>& objs ) const
+void DataManager::getObjects( ObjectSet<DataObject>& objs ) const
 {
     objs.copy( objects_ );
 }
 
 
-const Vw2DDataObject* Vw2DDataManager::getObject( int id ) const
-{ return const_cast<Vw2DDataManager*>(this)->getObject(id); }
+const DataObject* DataManager::getObject( int id ) const
+{ return const_cast<DataManager*>(this)->getObject(id); }
 
 
-void Vw2DDataManager::fillPar( IOPar& par ) const
+void DataManager::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	IOPar dataobjpar;
-	const Vw2DDataObject& dataobj = *objects_[idx];
+	const DataObject& dataobj = *objects_[idx];
 	dataobj.fillPar( dataobjpar );
 	par.mergeComp( dataobjpar, toString( dataobj.id() ) );
     }
@@ -166,7 +168,7 @@ void Vw2DDataManager::fillPar( IOPar& par ) const
 }
 
 
-void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* vwwin,
+void DataManager::usePar( const IOPar& iop, uiFlatViewWin* vwwin,
 			    const ObjectSet<uiFlatViewAuxDataEditor>& eds )
 {
     int nrobjects;
@@ -182,70 +184,70 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* vwwin,
 	    break;
 	}
 	const char* type = objpar->find( sKey::Type() );
-	RefMan<Vw2DDataObject> obj = factory().create( type, vwwin, eds );
+	RefMan<DataObject> obj = factory().create( type, vwwin, eds );
 	if ( obj && obj->usePar(*objpar) && !similarObjectPresent(obj) )
 	    addObject( obj );
     }
 }
 
 
-bool Vw2DDataManager::similarObjectPresent( const Vw2DDataObject* dobj ) const
+bool DataManager::similarObjectPresent( const DataObject* dobj ) const
 {
-    mDynamicCastGet(const VW2DSeis*,seisobj,dobj)
-    mDynamicCastGet(const Vw2DHorizon3D*,hor3dobj,dobj)
-    mDynamicCastGet(const Vw2DHorizon2D*,hor2dobj,dobj)
-    mDynamicCastGet(const VW2DFaultSS2D*,fss2dobj,dobj)
-    mDynamicCastGet(const VW2DFaultSS3D*,fss3dobj,dobj)
-    mDynamicCastGet(const VW2DFault*,fltobj,dobj)
-    mDynamicCastGet(const VW2DPickSet*,pickobj,dobj)
+    mDynamicCastGet(const Seismic*,seisobj,dobj)
+    mDynamicCastGet(const Horizon3D*,hor3dobj,dobj)
+    mDynamicCastGet(const Horizon2D*,hor2dobj,dobj)
+    mDynamicCastGet(const FaultSS2D*,fss2dobj,dobj)
+    mDynamicCastGet(const FaultSS3D*,fss3dobj,dobj)
+    mDynamicCastGet(const Fault*,fltobj,dobj)
+    mDynamicCastGet(const PickSet*,pickobj,dobj)
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	const Vw2DDataObject* vw2dobj = objects_[idx];
+	const DataObject* vw2dobj = objects_[idx];
 	if ( seisobj )
 	{
-	    mDynamicCastGet(const VW2DSeis*,vw2seisobj,vw2dobj)
+	    mDynamicCastGet(const Seismic*,vw2seisobj,vw2dobj)
 	    if ( vw2seisobj )
 		return true;
 	}
 	else if ( hor3dobj )
 	{
-	    mDynamicCastGet(const Vw2DHorizon3D*,vw2dhor3dobj,vw2dobj)
+	    mDynamicCastGet(const Horizon3D*,vw2dhor3dobj,vw2dobj)
 	    if ( vw2dhor3dobj && (hor3dobj==vw2dhor3dobj ||
 		    hor3dobj->getEMObjectID()==vw2dhor3dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( hor2dobj )
 	{
-	    mDynamicCastGet(const Vw2DHorizon2D*,vw2dhor2dobj,vw2dobj)
+	    mDynamicCastGet(const Horizon2D*,vw2dhor2dobj,vw2dobj)
 	    if ( vw2dhor2dobj && (hor2dobj==vw2dhor2dobj ||
 		    hor2dobj->getEMObjectID()==vw2dhor2dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( fss2dobj )
 	{
-	    mDynamicCastGet(const VW2DFaultSS2D*,vw2dfss2dobj,vw2dobj)
+	    mDynamicCastGet(const FaultSS2D*,vw2dfss2dobj,vw2dobj)
 	    if ( vw2dfss2dobj && (fss2dobj==vw2dfss2dobj ||
 		    fss2dobj->getEMObjectID()==vw2dfss2dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( fss3dobj )
 	{
-	    mDynamicCastGet(const VW2DFaultSS3D*,vw2dfss3dobj,vw2dobj)
+	    mDynamicCastGet(const FaultSS3D*,vw2dfss3dobj,vw2dobj)
 	    if ( vw2dfss3dobj && (fss3dobj==vw2dfss3dobj ||
 		    fss3dobj->getEMObjectID()==vw2dfss3dobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( fltobj )
 	{
-	    mDynamicCastGet(const VW2DFault*,vw2dfltobj,vw2dobj)
+	    mDynamicCastGet(const Fault*,vw2dfltobj,vw2dobj)
 	    if ( vw2dfltobj && (fltobj==vw2dfltobj ||
 		    fltobj->getEMObjectID()==vw2dfltobj->getEMObjectID()) )
 		return true;
 	}
 	else if ( pickobj )
 	{
-	    mDynamicCastGet(const VW2DPickSet*,vw2dpickobj,vw2dobj)
+	    mDynamicCastGet(const PickSet*,vw2dpickobj,vw2dobj)
 	    if ( vw2dpickobj &&
 		 (pickobj==vw2dpickobj ||
 		  pickobj->pickSetID()==vw2dpickobj->pickSetID()) )
@@ -255,3 +257,5 @@ bool Vw2DDataManager::similarObjectPresent( const Vw2DDataObject* dobj ) const
 
     return false;
 }
+
+} // namespace View2D

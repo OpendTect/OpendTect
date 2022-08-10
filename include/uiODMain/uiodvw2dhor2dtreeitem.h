@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiodvw2dtreeitem.h"
 #include "emposid.h"
 
-class Vw2DHorizon2D;
+namespace View2D { class Horizon2D; }
 
 mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DHor2DParentTreeItem);
@@ -62,10 +62,10 @@ public:
     			uiODVw2DHor2DTreeItem(int dispid,bool dummy);
 			~uiODVw2DHor2DTreeItem();
 
-    bool		showSubMenu();
-    bool		select();
-    EM::ObjectID	emObjectID() const	{ return emid_; }
-    const Vw2DHorizon2D* vw2DObject() const	{ return horview_; }
+    bool			showSubMenu();
+    bool			select();
+    EM::ObjectID		emObjectID() const	{ return emid_; }
+    const View2D::Horizon2D*	vw2DObject() const	{ return horview_; }
 
 protected:
 
@@ -86,6 +86,6 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    Vw2DHorizon2D*	horview_;
+    View2D::Horizon2D*	horview_;
     bool		trackerefed_;
 };

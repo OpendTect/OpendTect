@@ -23,14 +23,16 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 
+namespace View2D
+{
 
-mImplStd( Vw2DHorizon2D )
+mImplStd( Horizon2D )
 
-Vw2DHorizon2D::Vw2DHorizon2D( uiFlatViewWin* fvw,
+Horizon2D::Horizon2D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
-    : Vw2DEMDataObject(fvw,auxdataedtors)
+    : EMDataObject(fvw,auxdataedtors)
     , geomid_(Survey::GeometryManager::cUndefGeomID())
-    , deselted_( this )
+    , deselected_( this )
     , vdselspec_( 0 )
     , wvaselspec_( 0 )
 {
@@ -38,7 +40,7 @@ Vw2DHorizon2D::Vw2DHorizon2D( uiFlatViewWin* fvw,
 }
 
 
-void Vw2DHorizon2D::setEditors()
+void Horizon2D::setEditors()
 {
     deepErase( horeds_ );
 
@@ -64,20 +66,20 @@ void Vw2DHorizon2D::setEditors()
 }
 
 
-Vw2DHorizon2D::~Vw2DHorizon2D()
+Horizon2D::~Horizon2D()
 {
     deepErase(horeds_);
 }
 
 
-void Vw2DHorizon2D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
+void Horizon2D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
 }
 
 
-void Vw2DHorizon2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
+void Horizon2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -97,13 +99,13 @@ void Vw2DHorizon2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 }
 
 
-void Vw2DHorizon2D::setGeomID( Pos::GeomID geomid )
+void Horizon2D::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
 }
 
 
-void Vw2DHorizon2D::draw()
+void Horizon2D::draw()
 {
     bool trackerenbed = false;
     if (  MPE::engine().getTrackerByObject(emid_) != -1 )
@@ -139,7 +141,7 @@ void Vw2DHorizon2D::draw()
 }
 
 
-void Vw2DHorizon2D::enablePainting( bool yn )
+void Horizon2D::enablePainting( bool yn )
 {
     for ( int idx=0; idx<horeds_.size(); idx++ )
     {
@@ -154,7 +156,7 @@ void Vw2DHorizon2D::enablePainting( bool yn )
 }
 
 
-void Vw2DHorizon2D::selected( bool enabled )
+void Horizon2D::selected( bool enabled )
 {
     bool trackerenbed = false;
     if (  MPE::engine().getTrackerByObject(emid_) != -1 )
@@ -181,7 +183,7 @@ void Vw2DHorizon2D::selected( bool enabled )
 }
 
 
-void Vw2DHorizon2D::setSeedPicking( bool ison )
+void Horizon2D::setSeedPicking( bool ison )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -191,7 +193,7 @@ void Vw2DHorizon2D::setSeedPicking( bool ison )
 }
 
 
-void Vw2DHorizon2D::setTrackerSetupActive( bool ison )
+void Horizon2D::setTrackerSetupActive( bool ison )
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -201,7 +203,7 @@ void Vw2DHorizon2D::setTrackerSetupActive( bool ison )
 }
 
 
-void Vw2DHorizon2D::triggerDeSel()
+void Horizon2D::triggerDeSel()
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -212,11 +214,11 @@ void Vw2DHorizon2D::triggerDeSel()
 	}
     }
 
-    deselted_.trigger();
+    deselected_.trigger();
 }
 
 
-void Vw2DHorizon2D::getHorEditors(
+void Horizon2D::getHorEditors(
 		    ObjectSet<const MPE::HorizonFlatViewEditor2D>& eds ) const
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
@@ -225,3 +227,5 @@ void Vw2DHorizon2D::getHorEditors(
 	    eds += horeds_[ivwr];
     }
 }
+
+} // namespace View2D

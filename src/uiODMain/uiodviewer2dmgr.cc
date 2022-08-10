@@ -221,7 +221,7 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 }
 
 
-int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
 					const Attrib::SelSpec& as,
 					const FlatView::DataDispPars::VD& pars,
 					bool dowva )
@@ -237,11 +237,11 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false; ddp.vd_ = pars;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
     attachNotifiersAndSetAuxData( vwr2d );
-    return vwr2d->id_;
+    return vwr2d->ID();
 }
 
 
-int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					bool dowva,
 					float initialx1pospercm,
 					float initialx2pospercm )
@@ -260,7 +260,7 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
 
 	if ( !rdmline )
-	    return -1;
+	    return Viewer2DID::udf();
 
 	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
 	dpid = attrserv->createRdmTrcsOutput(
@@ -270,7 +270,7 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
 
     if ( dpid==DataPack::cNoID() )
-	return -1;
+	return Viewer2DID::udf();
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     const Attrib::SelSpec& as = posdatasel.selspec_;
@@ -293,7 +293,7 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     if ( geom2dids_.size() > 0 )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
-    return vwr2d->id_;
+    return vwr2d->ID();
 }
 
 
@@ -795,8 +795,8 @@ uiODViewer2D* uiODViewer2DMgr::getParent2DViewer( int vwr2dobjid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	ObjectSet<Vw2DDataObject> vw2dobjs;
-	viewers2d_[idx]->dataMgr()->getObjects( vw2dobjs );
+	ObjectSet<View2D::DataObject> vw2dobjs;
+	viewers2d_[idx]->getObjects( vw2dobjs );
 	for ( int objidx=0; objidx<vw2dobjs.size(); objidx++ )
 	{
 	    if ( vw2dobjs[objidx]->id()==vwr2dobjid )
@@ -814,12 +814,18 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( VisID id )
 }
 
 
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( Viewer2DID id )
+{
+    return find2DViewer( id.asInt(), false );
+}
+
+
 uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	const int vwrid = byvisid ? viewers2d_[idx]->visid_.asInt()
-				  : viewers2d_[idx]->id_;
+	const int vwrid = byvisid ? viewers2d_[idx]->visID().asInt()
+				  : viewers2d_[idx]->ID().asInt();
 	if ( vwrid == id )
 	    return viewers2d_[idx];
     }
@@ -1134,7 +1140,13 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 {
     mDynamicCastGet( uiODViewer2D*, vwr2d, cb );
     if ( vwr2d )
-	remove2DViewer( vwr2d->id_, false );
+	remove2DViewer( vwr2d->ID() );
+}
+
+
+void uiODViewer2DMgr::remove2DViewer( Viewer2DID id )
+{
+    remove2DViewer( id.asInt(), true );
 }
 
 
@@ -1148,8 +1160,8 @@ void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	const int vwrid = byvisid ? viewers2d_[idx]->visid_.asInt()
-				  : viewers2d_[idx]->id_;
+	const int vwrid = byvisid ? viewers2d_[idx]->visID().asInt()
+				  : viewers2d_[idx]->ID().asInt();
 	if ( vwrid != id )
 	    continue;
 
@@ -1186,7 +1198,7 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 	if ( !vwr2d.viewwin() ) continue;
 
 	IOPar vwrpar;
-	vwrpar.set( sKeyVisID(), viewers2d_[idx]->visid_ );
+	vwrpar.set( sKeyVisID(), viewers2d_[idx]->visID() );
 	bool wva = vwr2d.viewwin()->viewer().appearance().ddpars_.wva_.show_;
 	vwrpar.setYN( sKeyWVA(), wva );
 	vwrpar.set( sKeyAttrID(), vwr2d.selSpec(wva).id().asInt() );

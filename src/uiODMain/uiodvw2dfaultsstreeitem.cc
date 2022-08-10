@@ -248,7 +248,7 @@ bool uiODVw2DFaultSSTreeItem::init()
 	if ( !emobj )
 	    return false;
 
-	fssview_ = VW2DFaultSS3D::create( viewer2D()->viewwin(),
+	fssview_ = View2D::FaultSS3D::create( viewer2D()->viewwin(),
 					  viewer2D()->dataEditor() );
 	fssview_->setEMObjectID( emid_ );
 	viewer2D()->dataMgr()->addObject( fssview_ );
@@ -256,8 +256,8 @@ bool uiODVw2DFaultSSTreeItem::init()
     }
     else
     {
-	mDynamicCastGet(VW2DFaultSS3D*,hd,
-			viewer2D()->dataMgr()->getObject(displayid_))
+	mDynamicCastGet(View2D::FaultSS3D*,hd,
+			viewer2D()->getObject(displayid_))
 	if ( !hd )
 	    return false;
 	emid_ = hd->getEMObjectID();
@@ -475,6 +475,6 @@ void uiODVw2DFaultSSTreeItem::emobjAbtToDelCB( CallBacker* cb )
 uiTreeItem* uiODVw2DFaultSSTreeItemFactory::createForVis(
 				const uiODViewer2D& vwr2d, int id ) const
 {
-    mDynamicCastGet(const VW2DFaultSS3D*,obj,vwr2d.dataMgr()->getObject(id));
+    mDynamicCastGet(const View2D::FaultSS3D*,obj,vwr2d.getObject(id));
     return obj ? new uiODVw2DFaultSSTreeItem(id,true) : 0;
 }

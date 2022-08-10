@@ -21,10 +21,12 @@ class uiFlatViewAuxDataEditor;
 
 namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 
-
-mExpClass(uiViewer2D) VW2DFaultSS2D : public Vw2DEMDataObject
+namespace View2D
 {
-mDefStd(VW2DFaultSS2D)
+
+mExpClass(uiViewer2D) FaultSS2D : public EMDataObject
+{
+mDefStd(FaultSS2D)
 public:
     void		setGeomID( Pos::GeomID geomid )
 			{ geomid_ = geomid; }
@@ -33,7 +35,7 @@ public:
     void		enablePainting(bool yn);
     void		selected();
 
-    NotifierAccess*	deSelection() override		{ return &deselted_; }
+    NotifierAccess*	deSelection() override		{ return &deselected_; }
 
 protected:
 
@@ -45,6 +47,8 @@ protected:
 
     MPE::FaultStickSetEditor*	fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;
-    Notifier<VW2DFaultSS2D>	deselted_;
+    Notifier<FaultSS2D>	deselected_;
 
 };
+
+} // namespace View2D

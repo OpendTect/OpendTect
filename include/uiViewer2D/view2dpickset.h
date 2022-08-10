@@ -21,10 +21,12 @@ ________________________________________________________________________
 class uiFlatViewer;
 class uiFlatViewAuxDataEditor;
 
-
-mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
+namespace View2D
 {
-mDefStd(VW2DPickSet)
+
+mExpClass(uiViewer2D) PickSet : public DataObject
+{
+mDefStd(PickSet)
 public:
 
     void		setPickSet(Pick::Set&);
@@ -46,14 +48,14 @@ protected:
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel() override;
 
-    RefMan<Pick::Set>		pickset_;
-    bool			isselected_;
-    Notifier<VW2DPickSet>	deselected_;
-    TypeSet<int>		auxids_;
+    RefMan<Pick::Set>	pickset_;
+    bool		isselected_;
+    Notifier<PickSet>	deselected_;
+    TypeSet<int>	auxids_;
 
     ObjectSet<FlatView::AuxData>	picks_;
     ObjectSet<uiFlatViewAuxDataEditor>	editors_;
     ObjectSet<uiFlatViewer>		viewers_;
-
 };
 
+} // namespace View2D

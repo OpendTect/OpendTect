@@ -74,7 +74,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
     mAttachCB( checkStatusChange(), uiODVW2DVariableDensityTreeItem::checkCB );
 
-    dummyview_ = new VW2DSeis();
+    dummyview_ = new View2D::Seismic();
     viewer2D()->dataMgr()->addObject( dummyview_ );
     displayid_ = dummyview_->id();
     mAttachCB( dummyview_->deSelection(),
