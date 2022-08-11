@@ -1273,7 +1273,7 @@ BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 	pErrMsg( "Should not use getStringValue for a filepath" );
 	DBG::forceCrash( false );
 # else
-	return getFilePath(idx).fullPath();
+	return getFilePath(ky).fullPath();
 # endif
     }
 #endif
