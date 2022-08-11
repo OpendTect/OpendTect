@@ -1266,7 +1266,7 @@ static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
     par.replaceKey( sKey::Version(), "OpendTect Version" );
     par.replaceKey( sKey::CrBy(), "Created by" );
     par.replaceKey( sKey::CrFrom(), "Created from" );
-    FixedString timestr = par.find( sKey::CrAt() );
+    StringView timestr = par.find( sKey::CrAt() );
     if ( !timestr.isEmpty() )
     {
 	par.set( "Created at", Time::getLocalDateTimeFromString(timestr) );

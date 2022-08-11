@@ -398,7 +398,7 @@ bool yesNoFromString( const char* str )
 
 bool isBoolString( const char* str )
 {
-    FixedString fstr( str );
+    StringView fstr( str );
     return fstr.isEqual("True",CaseInsensitive) ||
 	   fstr.isEqual("False",CaseInsensitive) ||
 	   fstr.isEqual("Yes",CaseInsensitive) ||

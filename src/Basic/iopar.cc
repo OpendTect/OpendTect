@@ -1591,7 +1591,7 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	    if ( !key.startsWith(subkey) )
 		return;
 
-	    keystr += FixedString(subkey).size();
+	    keystr += StringView(subkey).size();
 	    key = keystr;
 	}
 

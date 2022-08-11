@@ -307,7 +307,7 @@ bool PosInfo::Survey2D::hasLineSet( const char* lsnm ) const
 
 bool PosInfo::Survey2D::hasLineSet( mIdxTyp lsid ) const
 {
-    FixedString lsnm = getLineSet( lsid );
+    StringView lsnm = getLineSet( lsid );
     return !lsnm.isEmpty();
 }
 
