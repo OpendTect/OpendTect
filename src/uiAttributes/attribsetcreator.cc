@@ -287,7 +287,7 @@ static void addGate( BufferString& defstr, const char* extdesc )
 
 Desc* AttributeSetCreator::getDesc( const char* extdesc )
 {
-    const FixedString fsextdesc( extdesc );
+    const StringView fsextdesc( extdesc );
     if ( fsextdesc.isEmpty() )
 	return 0;
 

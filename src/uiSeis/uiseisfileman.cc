@@ -145,7 +145,7 @@ int uiSeisFileMan::addBrowser( uiSeisFileMan::BrowserDef* bd )
 }
 
 
-#define mIsOfTranslName(nm) (FixedString(curioobj_->translator()) == nm)
+#define mIsOfTranslName(nm) (StringView(curioobj_->translator()) == nm)
 #define mIsOfTranslType(typ) \
 	mIsOfTranslName(typ##SeisTrcTranslator::translKey())
 
@@ -317,7 +317,7 @@ void uiSeisFileMan::mkFileInfo()
     if ( !curioobj_->pars().isEmpty() )
     {
 	const IOPar& pars = curioobj_->pars();
-	FixedString parstr = pars.find( "Type" );
+	StringView parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nType: " ).add( parstr );
 
@@ -407,7 +407,7 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    FilePath filepath = dl.fullPath( idx );
-	    FixedString ext = filepath.extension();
+	    StringView ext = filepath.extension();
 	    if ( ext != "cbvs" )
 		continue;
 

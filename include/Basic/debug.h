@@ -86,8 +86,8 @@ public:
 
     void		setSendAppl( const char* a )    { sendappl_ = a; }
 
-    static FixedString	sSenderAppl();		//None
-    static FixedString	sUiSenderAppl();	//od_uiReportIssue
+    static StringView	sSenderAppl();		//None
+    static StringView	sUiSenderAppl();	//od_uiReportIssue
 
 private:
 					CrashDumper();

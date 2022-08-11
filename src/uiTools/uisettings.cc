@@ -55,8 +55,8 @@ static const char* sKeyCommon = "<general>";
 
 
 namespace sKey {
-    inline FixedString PythonIDE()	{ return "PythonIDE"; }
-    inline FixedString PythonTerm()	{ return "PythonTerm"; }
+    inline StringView PythonIDE()	{ return "PythonIDE"; }
+    inline StringView PythonTerm()	{ return "PythonTerm"; }
 };
 
 
@@ -496,7 +496,7 @@ static void getGrps( BufferStringSet& grps )
 	if ( !underscoreptr || !*underscoreptr )
 	    continue;
 	underscoreptr += 1;
-	if ( FixedString(underscoreptr).contains(pythonstr) )
+	if ( StringView(underscoreptr).contains(pythonstr) )
 	    continue;
 	grps.add( underscoreptr );
     }
@@ -507,7 +507,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(mToUiStringTodo(nm),
 				     tr("Set User Settings value"),
 				     mODHelpKey(mSettingsHelpID)) )
-	, issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
+	, issurvdefs_(StringView(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
 {
     setCurSetts();

@@ -261,7 +261,7 @@ SynthGenerator* SynthGenerator::createInstance( const IOPar* iop )
     const Factory<SynthGenerator>& synthgenfact = factory();
     if ( !synthgenfact.hasName(typekey) && !synthgenfact.isEmpty() )
     {
-	const FixedString defnm = synthgenfact.getDefaultName();
+	const StringView defnm = synthgenfact.getDefaultName();
 	typekey.set( defnm.isEmpty() ? synthgenfact.getNames().last()->buf()
 				     : defnm.buf() );
     }

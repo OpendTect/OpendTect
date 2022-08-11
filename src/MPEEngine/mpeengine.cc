@@ -695,7 +695,7 @@ bool Engine::pickingOnSameData( const Attrib::SelSpec& oldss,
 				const Attrib::SelSpec& newss,
 				uiString& error ) const
 {
-    const FixedString defstr = oldss.defString();
+    const StringView defstr = oldss.defString();
     const bool match = defstr == newss.defString();
     if ( match ) return true;
 

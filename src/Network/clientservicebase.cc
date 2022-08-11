@@ -458,20 +458,20 @@ uiRetVal BatchServiceClientMgr::doHandleRequest( const OD::JSON::Object&
     const Network::Service::ID servid = mCast(Network::Service::ID,
 					reqobj->getIntValue(sKey::ID()) );
 
-    if ( reqtype == FixedString(sKey::Status()) )
+    if ( reqtype == StringView(sKey::Status()) )
     {
 	const BufferString status = reqobj->getStringValue( sKey::Status() );
 	od_cout() << "Heartbeat [status]: " << status << od_endl;
     }
-    else if ( reqtype == FixedString(sKeyDoWork()) )
+    else if ( reqtype == StringView(sKeyDoWork()) )
 	batchHasStarted.trigger( servid );
-    else if ( reqtype == FixedString(sKeyPaused()) )
+    else if ( reqtype == StringView(sKeyPaused()) )
 	batchPaused.trigger( servid );
-    else if ( reqtype == FixedString(sKeyResumed()) )
+    else if ( reqtype == StringView(sKeyResumed()) )
 	batchResumed.trigger( servid );
-    else if ( reqtype == FixedString(sKeyKilled()) )
+    else if ( reqtype == StringView(sKeyKilled()) )
 	batchKilled.trigger( servid );
-    else if ( reqtype == FixedString(sKeyFinished()) )
+    else if ( reqtype == StringView(sKeyFinished()) )
 	batchFinished.trigger( servid );
     else
 	od_cout() << "Heartbeat: " << reqtype << od_endl;

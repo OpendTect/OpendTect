@@ -50,7 +50,7 @@ mImplButtonStateFunc( altKeyboardButton, AltButton );
 
 OD::ButtonState OD::stateOf( const char* nmstr )
 {
-    FixedString nm( nmstr );
+    StringView nm( nmstr );
 
     if ( nm.isEmpty() ) return OD::NoButton;
 

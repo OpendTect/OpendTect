@@ -488,7 +488,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 {
     BufferStringSet userrefset;
     for ( int idx=0; idx<table_->nrRows(); idx++ )
-	if ( !FixedString(attribflds_[idx]->getInput()).isEmpty() )
+	if ( !StringView(attribflds_[idx]->getInput()).isEmpty() )
 	    userrefset.add( attribflds_[idx]->getInput() );
 
     advanceddlg_ = new uiFPAdvancedDlg( this, calcobj_, userrefset );

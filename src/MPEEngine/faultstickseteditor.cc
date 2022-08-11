@@ -165,7 +165,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 	if ( !pickedmid || !mid || *pickedmid!=*mid )
 	    return mUdf(float);
 
-	const FixedString nm( fssg.pickedName(sid,sticknr) );
+	const StringView nm( fssg.pickedName(sid,sticknr) );
 	if ( (pickednm || nm) && ( nm != pickednm ) )
 	   return mUdf(float);
     }

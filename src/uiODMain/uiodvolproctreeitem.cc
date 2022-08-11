@@ -136,7 +136,7 @@ bool uiDataTreeItem::selectSetup()
 {
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
 
-    FixedString parenttype = parentType();
+    StringView parenttype = parentType();
     const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
     IOObjContext ioctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
 				: VolProcessingTranslatorGroup::ioContext();

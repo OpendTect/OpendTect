@@ -136,7 +136,7 @@ static const char* extractHostName( const char* str, BufferString& hnm )
 	if ( *(ptr+1) == '/' && *(ptr+2) == '/' )
 	{
 	    inp.add( "\nlooks like a URL. Not supported (yet)" );
-	    ErrMsg( inp ); rest += FixedString(str).size();
+	    ErrMsg( inp ); rest += StringView(str).size();
 	}
 	else
 	{
@@ -280,7 +280,7 @@ StreamData StreamProvider::createCmdIStream( const OS::MachineCommand& mc,
     usablemc.args().fill( qargs );
 
     QProcess* process = new QProcess;
-    if ( !FixedString(workdir).isEmpty() )
+    if ( !StringView(workdir).isEmpty() )
     {
 	const QString qworkdir( workdir );
 	process->setWorkingDirectory( qworkdir );
@@ -313,7 +313,7 @@ StreamData StreamProvider::createCmdOStream( const OS::MachineCommand& mc,
     usablemc.args().fill( qargs );
 
     QProcess* process = new QProcess;
-    if ( !FixedString(workdir).isEmpty() )
+    if ( !StringView(workdir).isEmpty() )
     {
 	const QString qworkdir( workdir );
 	process->setWorkingDirectory( qworkdir );

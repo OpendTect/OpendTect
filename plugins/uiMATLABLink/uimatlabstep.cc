@@ -151,10 +151,10 @@ bool uiMatlabStep::readTable( BufferStringSet& names,
     vals.erase();
     for ( int idx=0; idx<partable_->nrRows(); idx++ )
     {
-	const FixedString nmtxt = partable_->text( RowCol(idx,0) );
+	const StringView nmtxt = partable_->text( RowCol(idx,0) );
 	names.add( nmtxt );
 
-	const FixedString valtxt = partable_->text( RowCol(idx,1) );
+	const StringView valtxt = partable_->text( RowCol(idx,1) );
 	if ( valtxt.isEmpty() )
 	{
 	    const char* parnm = partable_->text( RowCol(idx,0) );
@@ -196,7 +196,7 @@ bool uiMatlabStep::acceptOK( CallBacker* cb )
 
 FilePath uiMatlabStep::getSODefaultDir()
 {
-    FixedString matlabdir( GetEnvVar( "MATLAB_BUILDDIR" ) );
+    StringView matlabdir( GetEnvVar( "MATLAB_BUILDDIR" ) );
     if ( matlabdir.isEmpty() )
 	matlabdir = GetEnvVar( "MATLAB_DIR" );
 

@@ -47,7 +47,7 @@ TranslatorGroup::TranslatorGroup( const char* clssnm )
 
 int defaultSelector( const char* m, const char* typ )
 {
-    FixedString mytyp( m );
+    StringView mytyp( m );
     return mytyp==typ ? mObjSelMatch : mObjSelUnrelated;
 }
 
@@ -109,8 +109,8 @@ public:
     const IOObjContext& ioCtxt() const override		{ return ctxt; }
     int objSelector( const char* ) const override
 	{ return mObjSelUnrelated; }
-    FixedString groupName() const override
-	{ return FixedString::empty(); }
+    StringView groupName() const override
+	{ return StringView::empty(); }
     uiString typeName(int) const override
 	{ return uiString::emptyString(); }
 
@@ -133,7 +133,7 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
 
     if ( iserr )
     {
-	const FixedString fsspace = firstOcc( nm, ' ' );
+	const StringView fsspace = firstOcc( nm, ' ' );
 	if ( fsspace.startsWith(" directory",CaseInsensitive) )
 	    return 0;
     }
@@ -233,7 +233,7 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 
 bool TranslatorGroup::hasConnType( const char* c ) const
 {
-    FixedString ct( c );
+    StringView ct( c );
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
 	if ( ct == templs_[idx]->connType() )

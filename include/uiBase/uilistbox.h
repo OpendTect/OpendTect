@@ -141,7 +141,7 @@ public:
     void		setEmpty();
     void		removeItem(int);
     void		removeItem(const char*);
-    void		removeItem( const FixedString& fs )
+    void		removeItem( const StringView& fs )
 						{ removeItem( fs.str() ); }
     void		setAllowDuplicates(bool yn);
     void		addItem(const uiString&,bool marked=false,int id=-1);
@@ -178,7 +178,7 @@ public:
     const char*		getText() const	 { return textOfItem(currentItem()); }
     void		setCurrentItem(int);
     void		setCurrentItem(const char*);	//!< First match
-    void		setCurrentItem( const FixedString& fs )
+    void		setCurrentItem( const StringView& fs )
 						{ setCurrentItem( fs.str() ); }
     void		setItemSelectable(int,bool);
 

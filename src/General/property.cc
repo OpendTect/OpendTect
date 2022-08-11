@@ -335,7 +335,7 @@ static const ValueProperty& xposProp()
 }
 
 
-static const FixedString sKeyMathForm( "Formula: " );
+static const StringView sKeyMathForm( "Formula: " );
 
 const Math::SpecVarSet& MathProperty::getSpecVars()
 {
@@ -483,7 +483,7 @@ void MathProperty::setDef( const char* defstr )
     inps_.erase();
     form_.clearInputDefs();
 
-    if ( !FixedString(defstr).startsWith(sKeyMathForm) )
+    if ( !StringView(defstr).startsWith(sKeyMathForm) )
 	{ setPreV5Def( defstr ); return; }
 
     defstr += sKeyMathForm.size();

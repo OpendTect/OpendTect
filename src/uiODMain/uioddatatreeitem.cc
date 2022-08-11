@@ -382,14 +382,14 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPackMgr::MgrID dmid = visserv_->getDataPackMgrID( visid );
 	const int version = visserv_->selectedTexture( visid, attribid );
 	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attribid );
-	const FixedString dpname = DPM(dmid).nameOf( dpid );
+	const StringView dpname = DPM(dmid).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
 	{
 	    TypeSet<DataPackMgr::PackID> packids;
 	    DPM(dmid).getPackIDs( packids );
 	    for ( const auto& packid : packids )
 	    {
-		const FixedString tmpnm = DPM(dmid).nameOf( packid );
+		const StringView tmpnm = DPM(dmid).nameOf( packid );
 		if ( tmpnm == as->userRef() )
 		{
 		    dpid = packid;

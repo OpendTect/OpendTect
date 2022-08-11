@@ -110,7 +110,7 @@ void uiScaler::setInput( const Scaler& sc )
 {
     ynfld->setChecked( !sc.isEmpty() );
 
-    const FixedString typ = sc.type();
+    const StringView typ = sc.type();
     int typnr = 0;
     if ( typ == sLinScaler )
     {
@@ -176,7 +176,7 @@ void uiScaler::fillPar( IOPar& iop ) const
 
 void uiScaler::usePar( const IOPar& iop )
 {
-    const FixedString res = iop.find( sKey::Scale() );
+    const StringView res = iop.find( sKey::Scale() );
     if ( res.isEmpty() )
 	return;
 

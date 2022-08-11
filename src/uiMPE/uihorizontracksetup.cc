@@ -66,7 +66,7 @@ void uiBaseHorizonSetupGroup::initClass()
 
 uiSetupGroup* uiBaseHorizonSetupGroup::create( uiParent* p, const char* typestr)
 {
-    const FixedString type( typestr );
+    const StringView type( typestr );
     if ( type != EM::Horizon3D::typeStr() && type != EM::Horizon2D::typeStr() )
 	return 0;
 
@@ -85,7 +85,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , trackmgr_(nullptr)
     , sectiontracker_(nullptr)
     , horadj_(nullptr)
-    , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
+    , is2d_(StringView(typestr)==EM::Horizon2D::typeStr())
     , modeChanged_(this)
     , varianceChanged_(this)
     , propertyChanged_(this)

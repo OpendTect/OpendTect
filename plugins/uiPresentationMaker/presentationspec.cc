@@ -287,7 +287,7 @@ void PresentationSpec::setTitle( const char* title )
 
 void PresentationSpec::setSlideTitle( int idx, const char* title )
 {
-    const FixedString fs = title;
+    const StringView fs = title;
     if ( slides_.validIdx(idx) && !fs.isEmpty() )
 	slides_[idx]->setTitle( title );
 }

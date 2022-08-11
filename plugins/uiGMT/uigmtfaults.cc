@@ -194,7 +194,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	horfld_->setInput( horid );
     }
 
-    FixedString lskey = iop.find( ODGMT::sKeyLineStyle() );
+    StringView lskey = iop.find( ODGMT::sKeyLineStyle() );
     OD::LineStyle ls;
     ls.fromString( lskey.str() );
     linestfld_->setStyle( ls );

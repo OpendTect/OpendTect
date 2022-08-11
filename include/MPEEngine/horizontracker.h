@@ -59,8 +59,8 @@ public:
     const char*			errMsg() const { return errmsg_.str(); }
     const EM::Horizon&		horizon() const { return horizon_; }
 
-    static FixedString		sNrHorizons()	{ return "Nr Horizons"; }
-    static FixedString		sKeyHorizonID()	{ return "Horizon ID"; }
+    static StringView		sNrHorizons()	{ return "Nr Horizons"; }
+    static StringView		sKeyHorizonID()	{ return "Horizon ID"; }
 
     struct			TrackTarget
     {

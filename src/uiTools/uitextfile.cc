@@ -288,7 +288,7 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
     if ( caption().isEmpty() )
 	setCaption( toUiString(fnm) );
 
-    captionisfilename_ = FixedString(caption().getFullString()) == fnm;
+    captionisfilename_ = StringView(caption().getFullString()) == fnm;
 
     editor_ = new uiTextFile( this, fnm, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );
@@ -323,7 +323,7 @@ void uiTextFileDlg::finalizeCB(CallBacker *)
     if ( !cancelbut || !uiButton::haveCommonPBIcons() )
 	return;
 
-    if ( FixedString(setup().canceltext_.getOriginalString()) ==
+    if ( StringView(setup().canceltext_.getOriginalString()) ==
 		uiStrings::sReload().getOriginalString() )
 	cancelbut->setIcon( "reload" );
 }

@@ -585,8 +585,8 @@ char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 	return '\0';
 
     int bracketidx = (int) (bracketptr - beginsymbols);
-    char* lastptr = firstptr + FixedString(firstptr).size() - 1;
-    if ( bracketidx>=FixedString(endsymbols).size()
+    char* lastptr = firstptr + StringView(firstptr).size() - 1;
+    if ( bracketidx>=StringView(endsymbols).size()
 	    || *lastptr!=endsymbols[bracketidx] )
 	return '\0';
 

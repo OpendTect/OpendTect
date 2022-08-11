@@ -1341,7 +1341,7 @@ void uiListBox::setCurrentItem( const char* txt )
     {
 	const char* ptr = textOfItem( idx );
 	mSkipBlanks(ptr);
-	if ( FixedString(ptr) == txt )
+	if ( StringView(ptr) == txt )
 	{
 	    setCurrentItem( idx );
 	    return;
@@ -1378,7 +1378,7 @@ void uiListBox::setCurrentItem( int idx )
 
 int uiListBox::indexOf( const char* txt ) const
 {
-    const FixedString str( txt );
+    const StringView str( txt );
     for ( int idx=0; idx<size(); idx++ )
 	if ( str == textOfItem(idx) )
 	    return idx;

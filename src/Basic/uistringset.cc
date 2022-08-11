@@ -220,12 +220,12 @@ uiString uiStringSet::cat( SeparType septyp, AppendType apptyp ) const
 
 uiString uiStringSet::cat( const char* sepstr ) const
 {
-    const FixedString sep( sepstr );
-    if ( sep == FixedString("\n") )
+    const StringView sep( sepstr );
+    if ( sep == StringView("\n") )
 	return cat( uiString::NoSep, uiString::OnNewLine );
-    else if ( sep == FixedString("\t") )
+    else if ( sep == StringView("\t") )
 	return cat( uiString::Tab, uiString::OnSameLine );
-    else if ( sep == FixedString(" ") )
+    else if ( sep == StringView(" ") )
 	return cat( uiString::Space, uiString::OnSameLine );
 
     uiString result;

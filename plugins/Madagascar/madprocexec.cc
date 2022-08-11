@@ -142,7 +142,7 @@ bool ODMad::ProcExec::init()
 	    return !system( cmd.buf() );
 	}
 
-	if ( FixedString(comm) == od_stream::sStdIO() )
+	if ( StringView(comm) == od_stream::sStdIO() )
 	    procstream_ = new od_ostream( od_stream::sStdIO() );
 	else
 	    procstream_ = getOStreamFromCmd( comm, procfptr_ );

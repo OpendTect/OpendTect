@@ -307,7 +307,7 @@ void uiObjFileMan::getTimeStamp( const char* fname,
 void uiObjFileMan::getTimeLastModified( const char* fname,
 					BufferString& timestamp )
 {
-    const FixedString ftimestamp = File::timeLastModified( fname );
+    const StringView ftimestamp = File::timeLastModified( fname );
     if ( timestamp.isEmpty() || Time::isEarlier(timestamp,ftimestamp) )
 	timestamp = ftimestamp;
 

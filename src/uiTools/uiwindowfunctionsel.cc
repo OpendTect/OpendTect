@@ -60,7 +60,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	    }
 	    else
 		varinpfld = new uiGenInput(this,varname,FloatInpSpec(v));
-	    if ( FixedString(su.winname_) == winfunc->name() )
+	    if ( StringView(su.winname_) == winfunc->name() )
 		varinpfld->setValue( su.winparam_ * 100 );
 
 	    varinpfld->attach( alignedBelow, windowtypefld_ );

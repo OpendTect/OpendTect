@@ -84,7 +84,7 @@ void SqlDB::BugTextTableEntry::setReporter( BufferString& reporter )
 
 void SqlDB::BugTextTableEntry::addToHistory( const char* fldnmptr )
 {
-    FixedString fldnm( fldnmptr );
+    StringView fldnm( fldnmptr );
     for ( int idx=0; idx<btthistoryset_.size(); idx++ )
     {
 	BufferString fieldnm = btthistoryset_[idx]->fieldnm_;

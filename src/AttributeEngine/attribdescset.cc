@@ -389,7 +389,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 void DescSet::handleStorageOldFormat( IOPar& descpar )
 {
-    FixedString typestr = descpar.find( "Type" );
+    StringView typestr = descpar.find( "Type" );
     if ( typestr.isEmpty() || typestr!="Stored" )
 	return;
 
@@ -580,7 +580,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     const bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
-	FixedString type = descpar.find( sKey::DataType() );
+	StringView type = descpar.find( sKey::DataType() );
 	if ( type=="Dip" )
 	    dsc->setNrOutputs( Seis::Dip, 2 );
 	else
@@ -650,7 +650,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
 	    uiString err;
-	    FixedString dscerr = dsc.errMsg();
+	    StringView dscerr = dsc.errMsg();
 	    const bool storagenotfound = dscerr==DescSet::storedIDErrStr();
 	    if ( storagenotfound && dsc.isStoredInMem() )
 		continue;
@@ -837,7 +837,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( sKey::Input(), idx );
-		if ( FixedString(descpar->find(inputstr))=="-1" )
+		if ( StringView(descpar->find(inputstr))=="-1" )
 		{
 		    const char* newkey =
 			IOPar::compKey(toString(id),inputstr);
@@ -865,7 +865,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  uiStringSet* errmsgs )
 {
-    FixedString steeringtype = steeringpar.find( sKey::Type() );
+    StringView steeringtype = steeringpar.find( sKey::Type() );
     BufferString steeringdef = steeringtype.str();
     if ( steeringtype == "ConstantSteering" )
     {

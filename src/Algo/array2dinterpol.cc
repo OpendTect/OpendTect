@@ -755,7 +755,7 @@ bool Array2DInterpol::usePar( const IOPar& par )
     par.get( sKeyNrCells(), nrcells_ );
     par.get( sKeyMaxHoleSz(), maxholesize_ );
 
-    FixedString trendstr = par.find( PolyTrend::sKeyOrder() );
+    StringView trendstr = par.find( PolyTrend::sKeyOrder() );
     if ( !trendstr.isEmpty() )
 	setTrendOrder( PolyTrend::OrderDef().parse(trendstr) );
 

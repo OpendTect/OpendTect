@@ -120,7 +120,7 @@ const char* FileSpec::fileName( int fidx ) const
 const char* FileSpec::absFileName( int fidx ) const
 {
     const char* fnm = fileName( fidx );
-    if ( FixedString(fnm).startsWith( "${" ) )
+    if ( StringView(fnm).startsWith( "${" ) )
 	return fnm;
 
     FilePath fp( fnm );

@@ -190,7 +190,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
     if ( !ed )
 	setCtrlStyle( uiDialog::CloseOnly );
 
-    const FixedString typ( pdf.getTypeStr() );
+    const StringView typ( pdf.getTypeStr() );
     if ( typ.startsWith("Sampled") )
 	edfld_ = new uiEditSampledProbDenFunc( this, pdf, ed );
     else if ( typ.startsWith("Gaussian") )
@@ -1043,7 +1043,7 @@ bool uiEditGaussianProbDenFunc::commitChanges()
 
     for ( int idim=0; idim<nmflds_.size(); idim++ )
     {
-	const FixedString nm = nmflds_[idim]->text();
+	const StringView nm = nmflds_[idim]->text();
 	const float exp = expflds_[idim]->getFValue();
 	const float stdev = stdflds_[idim]->getFValue();
 	const UnitOfMeasure* uom = unflds_[idim]->getUnit();

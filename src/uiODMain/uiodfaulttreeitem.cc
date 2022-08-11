@@ -916,7 +916,7 @@ void uiODFaultSurfaceDataTreeItem::setDataPointSet( const DataPointSet& vals )
     const VisID visid = displayID();
     const int attribnr = attribNr();
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
+    StringView attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
     visserv->setSelSpec( visid, attribnr,
 	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
     visserv->setRandomPosData( visid, attribnr, &vals );

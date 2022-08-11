@@ -18,18 +18,18 @@ ________________________________________________________________________
 
 #include <osgGeo/TrackballManipulator>
 
-FixedString KeyBindings::sSettingsKey() {return "dTect.MouseControls.Default";}
+StringView KeyBindings::sSettingsKey() {return "dTect.MouseControls.Default";}
 
-FixedString KeyBindings::sName()    { return "Name"; }
-FixedString KeyBindings::sRotate()  { return "Rotate"; }
-FixedString KeyBindings::sPan()	    { return "Pan"; }
-FixedString KeyBindings::sZoom()    { return "Zoom"; }
-FixedString KeyBindings::sControl() { return "Control"; }
-FixedString KeyBindings::sShift()   { return "Shift"; }
-FixedString KeyBindings::sLeft()    { return "Left"; }
-FixedString KeyBindings::sRight()   { return "Right"; }
-FixedString KeyBindings::sMiddle()  { return "Middle"; }
-FixedString KeyBindings::sNone()    { return "None"; }
+StringView KeyBindings::sName()    { return "Name"; }
+StringView KeyBindings::sRotate()  { return "Rotate"; }
+StringView KeyBindings::sPan()	    { return "Pan"; }
+StringView KeyBindings::sZoom()    { return "Zoom"; }
+StringView KeyBindings::sControl() { return "Control"; }
+StringView KeyBindings::sShift()   { return "Shift"; }
+StringView KeyBindings::sLeft()    { return "Left"; }
+StringView KeyBindings::sRight()   { return "Right"; }
+StringView KeyBindings::sMiddle()  { return "Middle"; }
+StringView KeyBindings::sNone()    { return "None"; }
 
 
 KeyBindMan::KeyBindMan()

@@ -86,7 +86,7 @@ bool FilePath::operator != ( const char* fnm ) const
 
 static bool isServerPath( const char* path )
 {
-    const FixedString pathstr = path;
+    const StringView pathstr = path;
     return pathstr.size()>1 && path[0]=='\\' && path[1]=='\\';
 }
 

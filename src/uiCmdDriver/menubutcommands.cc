@@ -473,8 +473,8 @@ static int getOkCancelRetVal( bool ok )
     if ( uiMainWin::activeModalType() != uiMainWin::Message )
 	return ok ? 1 : 0;
 
-    const FixedString buttxt1( uiMainWin::activeModalQDlgButTxt(1) );
-    const FixedString buttxt2( uiMainWin::activeModalQDlgButTxt(2) );
+    const StringView buttxt1( uiMainWin::activeModalQDlgButTxt(1) );
+    const StringView buttxt2( uiMainWin::activeModalQDlgButTxt(2) );
 
     const int butnr = ok || buttxt1.isEmpty() ? 0 : buttxt2.isEmpty() ? 1 : 2;
 

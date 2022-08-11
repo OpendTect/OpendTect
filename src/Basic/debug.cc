@@ -677,15 +677,15 @@ CrashDumper& CrashDumper::getInstance()
 
 
 //!Obsolete since we don't do non-ui
-FixedString CrashDumper::sSenderAppl()
-{ return FixedString(""); }
+StringView CrashDumper::sSenderAppl()
+{ return StringView(""); }
 
-FixedString CrashDumper::sUiSenderAppl()
+StringView CrashDumper::sUiSenderAppl()
 {
 #ifdef __win__
-    return FixedString( "od_uiReportIssue.exe" );
+    return StringView( "od_uiReportIssue.exe" );
 #else
-    return FixedString( "od_uiReportIssue" );
+    return StringView( "od_uiReportIssue" );
 #endif
 }
 

@@ -242,7 +242,7 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 }
 
 
-FixedString MarchingCubesSurface::typeStr()
+StringView MarchingCubesSurface::typeStr()
 { return "MC"; }
 
 

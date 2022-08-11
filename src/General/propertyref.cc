@@ -233,7 +233,7 @@ bool PropertyRef::matches( const char* nm, bool matchaliases ) const
 
 bool PropertyRef::isKnownAs( const char* nm ) const
 {
-    const FixedString nmstr( nm );
+    const StringView nmstr( nm );
     if ( nmstr.isEmpty() )
 	return false;
 
@@ -388,7 +388,7 @@ void PropertyRef::usePar( const IOPar& iop )
 	    disp_.defval_ = new MathProperty( *this, fms[1] );
     }
 
-    const FixedString def = iop.find( sKeyDefinition );
+    const StringView def = iop.find( sKeyDefinition );
     if ( !def.isEmpty() )
 	mathdef_ = new MathProperty( *this, def );
 }

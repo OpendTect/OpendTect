@@ -37,7 +37,7 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     uiString fldtext;
     if ( setup_.fldtext_.isEmpty() )
     {
-	const FixedString zunit = setup_.ist2d_
+	const StringView zunit = setup_.ist2d_
 	    ? sKey::Depth()
 	    : sKey::Time();
 

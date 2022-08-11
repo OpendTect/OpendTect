@@ -115,7 +115,7 @@ public:
     bool		usePar(const IOPar&);
     void		savePropertySettings() const;
 
-    static FixedString	sKeyBindingSettingsKey();
+    static StringView	sKeyBindingSettingsKey();
 
 private:
 

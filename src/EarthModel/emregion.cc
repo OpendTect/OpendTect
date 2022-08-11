@@ -488,7 +488,7 @@ void Region3D::fillPar( IOPar& par ) const
 
 static RegionBoundary* createBoundary( const char* tp )
 {
-    const FixedString type( tp );
+    const StringView type( tp );
     if ( type==sKey::Inline() ) return new RegionInlBoundary;
     if ( type==sKey::Crossline() ) return new RegionCrlBoundary;
     if ( type==sKey::ZSlice() ) return new RegionZBoundary;

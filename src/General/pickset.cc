@@ -51,7 +51,7 @@ static ObjectSet<SetMgr>& setMgrs()
 SetMgr& SetMgr::getMgr( const char* nm )
 {
     ObjectSet<SetMgr>& mgrs = setMgrs();
-    const FixedString nmstr = nm;
+    const StringView nmstr = nm;
     if ( nmstr.isEmpty() )
 	return *mgrs[0];
 
@@ -843,7 +843,7 @@ bool Set::is2D() const
 
 bool Set::isPolygon() const
 {
-    const FixedString typ = pars_.find( sKey::Type() );
+    const StringView typ = pars_.find( sKey::Type() );
     return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
 			 : typ == sKey::Polygon();
 }

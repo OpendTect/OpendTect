@@ -450,7 +450,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
 bool Picks::useIOObjPar( const IOPar& par )
 {
-    FixedString res = par.find( sKey::Type() );
+    StringView res = par.find( sKey::Type() );
     if ( res != sKeyVelocityPicks() )
 	return false;
 
@@ -486,7 +486,7 @@ bool Picks::usePar( const IOPar& par )
     if ( !par.getYN( sKeyIsTime(), zit_ ) )
 	return false;
 
-    const FixedString typestr = par.find( sKeyPickType() );
+    const StringView typestr = par.find( sKeyPickType() );
     if ( typestr )
     {
 	if ( !parseEnumPickType(typestr,picktype_ ) )

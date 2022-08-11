@@ -34,7 +34,7 @@ RayTracerRunner::RayTracerRunner( const char* rt1dfactkeywd )
     const BufferStringSet& factnms = rt1dfact.getNames();
     if ( !factnms.isEmpty() )
     {
-	const FixedString defnm( rt1dfact.getDefaultName() );
+	const StringView defnm( rt1dfact.getDefaultName() );
 	if ( !defnm.isEmpty() )
 	    raypar_.set( sKey::Type(), defnm.str() );
     }

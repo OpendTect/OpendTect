@@ -58,7 +58,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     {
 	Seis2DTo3D* proc = 0;
 
-	const FixedString tempdir = pars().find(sKey::TmpStor());
+	const StringView tempdir = pars().find(sKey::TmpStor());
 	if ( !tempdir.isEmpty() )
 	{
 	    if ( !File::exists(tempdir) )
@@ -69,7 +69,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable.")
 	}
 
-	const FixedString selspec = pars().find(
+	const StringView selspec = pars().find(
 					"Output.Subsel.In-line range" );
 	if ( !selspec.isEmpty() )
 	{
@@ -126,7 +126,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( !proc->init(pars()) )
 	    mRetJobErr("Invalid set of input parameters")
 
-	const FixedString partnm = proc->useNearestOnly() ?
+	const StringView partnm = proc->useNearestOnly() ?
 						    "traces" : "subcubes";
 
 	mSetCommState(Working);
@@ -218,7 +218,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     {
 	Seis2DTo3DInterPol* proc = 0;
 
-	const FixedString tempdir = pars().find(sKey::TmpStor());
+	const StringView tempdir = pars().find(sKey::TmpStor());
 	if ( !tempdir.isEmpty() )
 	{
 	    if ( !File::exists(tempdir) )
@@ -229,7 +229,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable")
 	}
 
-	const FixedString selspec = pars().find(
+	const StringView selspec = pars().find(
 					    "Output.Subsel.In-line range" );
 	if ( !selspec.isEmpty() )
 	{

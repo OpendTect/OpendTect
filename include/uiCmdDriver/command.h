@@ -509,7 +509,7 @@ protected:
 
 #define mMatchMouseTag( tag, mousetagptr, clicktags ) \
 \
-    if ( FixedString(mousetagptr).startsWith(tag) ) \
+    if ( StringView(mousetagptr).startsWith(tag) ) \
     { \
 	clicktags.add( tag ); \
 	mousetagptr += strlen( tag ); \
@@ -566,7 +566,7 @@ protected:
 	StringProcessor strproc( valstr ); \
 	const char* quote = strproc.convertToDouble() ? "" : "\""; \
 	mLogStrm << " -->> " << identnm << (isarg ? "'" : "") \
-		 << (FixedString(identnm).isEmpty() ? "" : " = " ) \
+		 << (StringView(identnm).isEmpty() ? "" : " = " ) \
 		 << quote << valstr << quote << od_endl; \
     }
 

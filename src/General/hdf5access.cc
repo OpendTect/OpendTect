@@ -50,7 +50,7 @@ BufferString HDF5::DataSetKey::fullDataSetName() const
 
 bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
 {
-    const bool rootgrpreq = !reqnm || !*reqnm || FixedString(reqnm) == "/";
+    const bool rootgrpreq = !reqnm || !*reqnm || StringView(reqnm) == "/";
     const bool haverootgrp = grpnm_.isEmpty() || grpnm_ == "/";
     if ( rootgrpreq || haverootgrp )
 	return rootgrpreq == haverootgrp;
@@ -61,7 +61,7 @@ bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
     if ( *grpnm == '/' )
 	grpnm++;
 
-    return FixedString(grpnm) == FixedString(reqnm);
+    return StringView(grpnm) == StringView(reqnm);
 }
 
 
@@ -152,7 +152,7 @@ bool HDF5::Access::isEnabled( const char* typ )
       || !Settings::common().isTrue(sSettingsEnabKey()) )
 	return false;
 
-    if ( FixedString(typ).isEmpty() )
+    if ( StringView(typ).isEmpty() )
 	return true;
 
     const BufferString settky( sSettingsEnabKey(), ".", typ );

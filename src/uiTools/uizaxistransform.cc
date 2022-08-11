@@ -177,7 +177,7 @@ ZAxisTransform* uiZAxisTransformSel::getSelection()
 }
 
 
-FixedString uiZAxisTransformSel::selectedToDomain() const
+StringView uiZAxisTransformSel::selectedToDomain() const
 {
     const int idx = mGetSel;
     if ( transflds_.validIdx(idx) )

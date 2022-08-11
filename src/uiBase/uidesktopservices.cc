@@ -99,7 +99,7 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
     /* TODO MACENABLE Should work:
     const char* urlstr = mQUrlCStr( qurl );
     CFURLRef urlref = CFURLCreateWithBytes ( NULL, (UInt8*)urlstr,
-		    FixedString(urlstr).size(), kCFStringEncodingASCII, NULL );
+		    StringView(urlstr).size(), kCFStringEncodingASCII, NULL );
     LSOpenCFURLRef( urlref, 0 );
     CFRelease( urlref );
     return true;

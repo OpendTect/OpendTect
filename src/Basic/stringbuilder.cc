@@ -42,13 +42,13 @@ StringBuilder& StringBuilder::operator =( const StringBuilder& oth )
 
 bool StringBuilder::operator ==( const StringBuilder& oth ) const
 {
-    return FixedString(buf_) == FixedString(oth.buf_);
+    return StringView(buf_) == StringView(oth.buf_);
 }
 
 
 bool StringBuilder::operator !=( const StringBuilder& oth ) const
 {
-    return FixedString(buf_) != FixedString(oth.buf_);
+    return StringView(buf_) != StringView(oth.buf_);
 }
 
 

@@ -223,7 +223,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    inlines += str.getIValue(idx);
     }
 
-    FixedString inlstr = par.find( sKeyInlPrefix() );
+    StringView inlstr = par.find( sKeyInlPrefix() );
     failedlines_.setEmpty();
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
@@ -255,7 +255,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    crosslines += str.getIValue(idx);
     }
 
-    FixedString crlstr = par.find( sKeyCrlPrefix() );
+    StringView crlstr = par.find( sKeyCrlPrefix() );
     for ( int idx=0; idx<crosslines.size(); idx++ )
     {
 	TrcKeyZSampling cs = bbox;
@@ -304,7 +304,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
     if ( par.find(sKeyOverWrite()) )
 	par.getYN( sKeyOverWrite(), dooverwrite );
 
-    FixedString parstr = par.find( sKeyInlPrefix() );
+    StringView parstr = par.find( sKeyInlPrefix() );
     for ( int idx=0; idx<grid.size(true); idx++ )
     {
 	const Grid2D::Line* line = grid.getLine( idx, true );
@@ -323,7 +323,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	add( new SeisRandLineTo2D(input,output,geomid,1,*rdl) );
     }
 
-    FixedString perstr = par.find( sKeyCrlPrefix() );
+    StringView perstr = par.find( sKeyCrlPrefix() );
     for ( int idx=0; idx<grid.size(false); idx++ )
     {
 	const Grid2D::Line* line = grid.getLine( idx, false );

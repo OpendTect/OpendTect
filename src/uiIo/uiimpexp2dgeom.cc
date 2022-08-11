@@ -39,7 +39,7 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
     , linenm_(lnm)
     , geomfd_(0)
 {
-    const FixedString linenm( lnm );
+    const StringView linenm( lnm );
     const bool lineknown = !linenm.isEmpty();
     if ( lineknown )
     {
@@ -88,7 +88,7 @@ void uiImp2DGeom::fileSelCB( CallBacker* )
     if ( !linefld_ )
 	return;
 
-    const FixedString fnm = fnmfld_->fileName();
+    const StringView fnm = fnmfld_->fileName();
     FilePath fnmfp( fnm );
     linefld_->setInputText( fnmfp.baseName() );
 }
@@ -104,7 +104,7 @@ void uiImp2DGeom::singmultCB( CallBacker* )
 
 bool uiImp2DGeom::acceptOK( CallBacker* )
 {
-    const FixedString inpfnm = fnmfld_->fileName();
+    const StringView inpfnm = fnmfld_->fileName();
     if ( File::isEmpty(inpfnm) )
     {
 	uiMSG().error( uiStrings::sInvInpFile() );

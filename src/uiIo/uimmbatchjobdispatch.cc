@@ -44,7 +44,7 @@ ________________________________________________________________________
 bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
 						IOPar& jobpars )
 {
-    const FixedString arg1( argv[1] );
+    const StringView arg1( argv[1] );
     if ( argc < 2 )
     {
 	od_cout() << "Usage: " << argv[0] << " parfile" << od_endl;

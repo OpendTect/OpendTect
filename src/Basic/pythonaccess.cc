@@ -444,7 +444,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 
     const bool testscriptout = scriptexpectedout && *scriptexpectedout;
     res = doscript ?  (testscriptout ? laststdout_ ==
-				       FixedString(scriptexpectedout)
+				       StringView(scriptexpectedout)
 				     : res)
 		   : laststderr_.isEmpty();
     if ( !res && !force_external )
@@ -624,7 +624,7 @@ BufferString OD::PythonAccess::getDataTypeStr( OD::DataRepType typ )
 OD::DataRepType OD::PythonAccess::getDataType( const char* str )
 {
     DataRepType ret = AutoDataRep;
-    const FixedString typestr( str );
+    const StringView typestr( str );
     if ( typestr == "float32" )
 	ret = F32;
     else if ( typestr == "float64" )
@@ -1457,7 +1457,7 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
     BufferString laststdout, laststderr;
     bool res = execute( mc, laststdout, &laststderr );
 #ifdef __unix__
-    if ( !res && FixedString(mc.program()) == FixedString("pip") )
+    if ( !res && StringView(mc.program()) == StringView("pip") )
     {
 	mc.setProgram( "pip3" );
 	res = execute( mc, laststdout, &laststderr );
@@ -1657,7 +1657,7 @@ static const float nvidiavers[] = {
 
 static bool cudaCapable( const char* glstr, BufferString* maxcudaversionstr )
 {
-    const FixedString openglstr( glstr );
+    const StringView openglstr( glstr );
     if ( !openglstr.contains(sKeyNvidia()) )
 	return false;
 

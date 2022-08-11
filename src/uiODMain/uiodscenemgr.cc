@@ -1260,7 +1260,7 @@ VisID uiODSceneMgr::addEMItem( const EM::ObjectID& emid, SceneID sceneid )
     RefMan<EM::EMObject> obj = EM::EMM().getObject( emid );
     if ( !obj ) return VisID::udf();
 
-    FixedString type = obj->getTypeStr();
+    StringView type = obj->getTypeStr();
     uiODDisplayTreeItem* itm;
     if ( type==EM::Horizon3D::typeStr() )
 	itm = new uiODHorizonTreeItem(emid,false,false);

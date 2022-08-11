@@ -130,7 +130,7 @@ bool testLineEndings()
 
 bool testPipeInput()
 {
-    FixedString message = "OpendTect rules";
+    StringView message = "OpendTect rules";
     OS::MachineCommand mc( "echo" );
     mc.addArg( "OpendTect" ).addArg( "rules" );
     {
@@ -195,7 +195,7 @@ bool testPipeInput()
 
 bool testPipeOutput()
 {
-    FixedString message = "OpendTect rules";
+    StringView message = "OpendTect rules";
     int num = 54637;
     BufferString originpstr( message );
     originpstr.add( " " ).add( num );

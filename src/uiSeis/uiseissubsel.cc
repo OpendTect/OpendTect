@@ -281,7 +281,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	return multilnmsel_->fillPar( iopar );
     }
 
-    const FixedString sellinenm( singlelnmsel_->getInput() );
+    const StringView sellinenm( singlelnmsel_->getInput() );
     if ( sellinenm.isEmpty() )
     {
 	uiMSG().error( tr("Please select the line") );

@@ -112,7 +112,7 @@ inline bool ChangeTracker::set( const char*& val, const char*& newval )
     if ( !ret ) { setChanged(true); return true; }
     if ( !val ) return false;
 
-    ret = FixedString(val)!=newval;
+    ret = StringView(val)!=newval;
     setChanged( ret );
     return ret;
 }

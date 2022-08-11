@@ -260,7 +260,7 @@ int uiMarkerDlg::getNrRows() const
 {
     for ( int idx=table_->nrRows()-1; idx>=0; idx-- )
     {
-	const FixedString txt = table_->text( RowCol(idx,cNameCol) );
+	const StringView txt = table_->text( RowCol(idx,cNameCol) );
 	if ( !txt.isEmpty() )
 	    return idx+1;
     }

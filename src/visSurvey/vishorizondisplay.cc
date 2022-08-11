@@ -912,7 +912,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	return;
 
     Attrib::SelSpec& as = (*as_[channel])[0];
-    const bool attribwasdepth = FixedString(as.userRef())==sKeyZValues();
+    const bool attribwasdepth = StringView(as.userRef())==sKeyZValues();
     as.set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );
     if ( !attribwasdepth )
     {
@@ -1112,7 +1112,7 @@ bool HorizonDisplay::hasStoredAttrib( int channel ) const
 {
     const Attrib::SelSpec* selspec = getSelSpec( channel );
     return selspec->id()==Attrib::SelSpec::cOtherAttrib() &&
-		!FixedString(selspec->userRef()).isEmpty();
+		!StringView(selspec->userRef()).isEmpty();
 }
 
 
@@ -1447,7 +1447,7 @@ OD::Color HorizonDisplay::singleColor() const
 int HorizonDisplay::getChannelIndex( const char* nm ) const
 {
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	if ( FixedString(getSelSpec(idx)->userRef()) == nm )
+	if ( StringView(getSelSpec(idx)->userRef()) == nm )
 	    return idx;
 
     return -1;

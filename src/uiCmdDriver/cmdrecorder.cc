@@ -207,14 +207,14 @@ static void takeSimilarObjs( ObjectSet<const CallBacker>& objects,
 	const BufferString objkey = CmdComposer::factoryKey( newobj );
 	bool yn = srckey && objkey==srckey;
 
-	if ( FixedString(srckey) == "UILINEEDIT" )
+	if ( StringView(srckey) == "UILINEEDIT" )
 	    yn = yn || objkey=="UISPINBOX" || objkey=="UICOMBOBOX";
 
-	if ( FixedString(srckey) == "UILABEL" )
+	if ( StringView(srckey) == "UILABEL" )
 	    yn = yn || dynamic_cast<const uiLabel*>(newobj);
-	if ( FixedString(srckey) == "UIGROUPOBJ" )
+	if ( StringView(srckey) == "UIGROUPOBJ" )
 	    yn = yn || dynamic_cast<const uiGroupObj*>(newobj);
-	if ( FixedString(srckey) == "UISEPARATOR" )
+	if ( StringView(srckey) == "UISEPARATOR" )
 	    yn = yn || dynamic_cast<const uiSeparator*>(newobj);
 
 	if ( tofront!=yn && toback!=yn )

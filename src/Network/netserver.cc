@@ -242,7 +242,7 @@ bool Network::Authority::portIsFree( uiString* errmsg ) const
 
 void Network::Authority::fromString( const char* str, bool resolveipv6 )
 {
-    FixedString hoststr( str );
+    StringView hoststr( str );
     if ( hoststr.contains('@') )
     {
 	const SeparString usersep( hoststr, '@' );
@@ -721,7 +721,7 @@ int Network::Server::write( int id, const IOPar& par )
 int Network::Server::write( int id, const char* str )
 {
     Socket* socket = getSocket( id );
-    return socket ? socket->write( FixedString(str) ) : 0;
+    return socket ? socket->write( StringView(str) ) : 0;
 }
 
 

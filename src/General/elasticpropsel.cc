@@ -429,7 +429,7 @@ bool ElasticPropertyRef::isOK( const PropertyRefSelection* prs ) const
 	if ( formula_->isConst(iinp) || formula_->isSpec(iinp) )
 	    continue;
 
-	const FixedString inpdef( formula_->inputDef(iinp) );
+	const StringView inpdef( formula_->inputDef(iinp) );
 	if ( inpdef.isEmpty() || (prs && !prs->getByName(inpdef,false)) )
 	    return false;
     }
@@ -555,7 +555,7 @@ void ElasticPropertyRef::setFormNameFromRepos( ElasticFormula& eform )
     Math::getRelevant( *outmn, allrpforms, rpforms, &inpmns );
     for ( const auto* rpform : rpforms )
     {
-	if ( FixedString(rpform->text()) == eform.text() )
+	if ( StringView(rpform->text()) == eform.text() )
 	{
 	    eform.setName( rpform->name() );
 	    return;

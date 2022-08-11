@@ -59,7 +59,7 @@ const char* GMTFault::userRef() const
 
 bool GMTFault::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name() );
+    StringView str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size(), 1 );

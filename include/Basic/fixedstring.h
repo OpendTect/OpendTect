@@ -17,30 +17,30 @@ ________________________________________________________________________
 /*!\brief OD::String that holds an existing text string.
 
 The string is assumed to be owned by someone else or be static. In any case, it
-is assumed be be alive and well for the lifetime of the FixedString.
+is assumed be be alive and well for the lifetime of the StringView.
 
-The FixedString is a light-weight, shallow adapter; it never changes the
+The StringView is a light-weight, shallow adapter; it never changes the
 underlying string.
 
 */
 
-mExpClass(Basic) FixedString : public OD::String
+mExpClass(Basic) StringView : public OD::String
 {
 public:
 
-    inline		FixedString( const char* p = nullptr )
+    inline		StringView( const char* p = nullptr )
 			    : str_(p)		{}
-    inline FixedString&	operator=( const FixedString& fs )
+    inline StringView&	operator=( const StringView& fs )
 						{ str_ = fs.str_; return *this;}
-    inline FixedString&	operator=( const char* p )
+    inline StringView&	operator=( const char* p )
 						{ str_ = p; return *this; }
-    FixedString&	operator=(const OD::String&);
+    StringView&	operator=(const OD::String&);
 				//!< Not impl - on purpose: too dangerous
     inline		operator const char*() const	{ return buf(); }
 
-    inline bool		operator==( const FixedString& fs ) const
+    inline bool		operator==( const StringView& fs ) const
 						{ return isEqual(fs.str_);}
-    inline bool		operator!=( const FixedString& fs ) const
+    inline bool		operator!=( const StringView& fs ) const
 						{ return !isEqual(fs.str_);}
     inline bool		operator==( const char* s ) const
 						{ return isEqual(s);}
@@ -59,7 +59,7 @@ public:
     inline char		firstChar() const override
 						{ return str_ ? *str_ : '\0'; }
 
-    static const FixedString& empty();
+    static const StringView& empty();
 
 
 protected:
@@ -78,14 +78,14 @@ namespace Values
 {
 
 template<>
-mClass(Basic) Undef<FixedString>
+mClass(Basic) Undef<StringView>
 {
 public:
 
-    static FixedString	val()				{ return FixedString();}
+    static StringView	val()				{ return StringView();}
     static bool		hasUdf()			{ return true; }
-    static bool		isUdf( const FixedString& s )	{ return s.isEmpty(); }
-    static void		setUdf( FixedString& s )	{ s = FixedString(); }
+    static bool		isUdf( const StringView& s )	{ return s.isEmpty(); }
+    static void		setUdf( StringView& s )	{ s = StringView(); }
 
 };
 
@@ -94,10 +94,10 @@ public:
 
 #ifndef __win__
 
-// Avoid silent conversion general OD::String -> FixedString as it is dangerous.
-void OD_Undef_FixedString_eq_bs_finder();
-inline FixedString& FixedString::operator=(const OD::String&)
-{ OD_Undef_FixedString_eq_bs_finder(); return *this; }
+// Avoid silent conversion general OD::String -> StringView as it is dangerous.
+void OD_Undef_StringView_eq_bs_finder();
+inline StringView& StringView::operator=(const OD::String&)
+{ OD_Undef_StringView_eq_bs_finder(); return *this; }
 
 #endif
 

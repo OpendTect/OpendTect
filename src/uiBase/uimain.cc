@@ -299,7 +299,7 @@ static void initQApplication()
 
 static const char* getStyleFromSettings()
 {
-    FixedString lookpref = Settings::common().find( "dTect.LookStyle" );
+    StringView lookpref = Settings::common().find( "dTect.LookStyle" );
     if ( lookpref.isEmpty() )
 	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
 
@@ -825,7 +825,7 @@ bool uiMain::directRendering()
 	dorender.trimBlanks();
 	if ( !dorender.isEmpty() )
 	{
-	    directrendering = dorender == FixedString("Yes")
+	    directrendering = dorender == StringView("Yes")
 			    ? 1
 			    : -1;
 	}

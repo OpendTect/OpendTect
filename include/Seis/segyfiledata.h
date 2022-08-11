@@ -81,7 +81,7 @@ public:
 
 			//Auxdata
     int			nrFiles() const;
-    FixedString		fileName(int) const;
+    StringView		fileName(int) const;
     bool		isEmpty() const			{ return totalsz_<2; }
     od_int64		size() const			{ return totalsz_; }
     bool		isRev0() const			{ return isrev0_; }

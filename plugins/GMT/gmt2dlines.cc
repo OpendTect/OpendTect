@@ -66,7 +66,7 @@ const char* GMT2DLines::userRef() const
 
 bool GMT2DLines::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name() );
+    StringView str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size(), 1 );
@@ -78,7 +78,7 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 
 bool GMT2DLines::doExecute( od_ostream& strm, const char* fnm )
 {
-    FixedString namestr = find( sKey::Name() );
+    StringView namestr = find( sKey::Name() );
     strm << "Posting 2D Lines " << namestr << " ...  ";
 
     TypeSet<Pos::GeomID> geomids;
@@ -250,7 +250,7 @@ const char* GMTRandLines::userRef() const
 
 bool GMTRandLines::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name() );
+    StringView str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size(), 1 );

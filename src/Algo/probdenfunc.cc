@@ -125,7 +125,7 @@ void ProbDenFunc::copyFrom( const ProbDenFunc& oth )
 
 bool ProbDenFunc::isEqual( const ProbDenFunc& oth ) const
 {
-    if ( FixedString(getTypeStr()) != oth.getTypeStr() ||
+    if ( StringView(getTypeStr()) != oth.getTypeStr() ||
 	 name() != oth.name() )
 	return false;
 

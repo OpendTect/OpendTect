@@ -48,7 +48,7 @@ ReflCalc1D* ReflCalc1D::createInstance( const IOPar& par,
     const Factory<ReflCalc1D>& reflfact = factory();
     if ( !reflfact.hasName(typekey) && !reflfact.isEmpty() )
     {
-	const FixedString defnm = reflfact.getDefaultName();
+	const StringView defnm = reflfact.getDefaultName();
 	typekey.set( defnm.isEmpty() ? reflfact.getNames().first()->buf()
 				     : defnm.buf() );
     }

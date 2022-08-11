@@ -297,8 +297,8 @@ static bool testEmptyStringComparison()
 {
     BufferString bfstr;
     mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
-    FixedString fxdstr;
-    mRunStandardTest( fxdstr=="", "Empty string comparison - FixedString");
+    StringView fxdstr;
+    mRunStandardTest( fxdstr=="", "Empty string comparison - StringView");
 
     return true;
 }
@@ -364,7 +364,7 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !quiet_ )
     {
-	FixedString str( 0 );
+	StringView str( 0 );
 	od_cout() << "Should be empty: '" << str << "'" << od_endl;
 	BufferString str4point9( 4.9f );
 	printBufStr( "4.9 string", str4point9 );

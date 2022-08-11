@@ -464,7 +464,7 @@ void FaultDisplay::useTexture( bool yn, bool trigger )
 void FaultDisplay::setDepthAsAttrib( int attrib )
 {
     const bool attribwasdepth = getSelSpec(attrib) &&
-		    FixedString(getSelSpec(attrib)->userRef())==sKeyZValues();
+		    StringView(getSelSpec(attrib)->userRef())==sKeyZValues();
 
     const Attrib::SelSpec as( sKeyZValues(), Attrib::SelSpec::cNoAttrib(),
 			      false, "" );

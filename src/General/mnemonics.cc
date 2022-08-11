@@ -182,7 +182,7 @@ bool Mnemonic::operator !=( const Mnemonic& oth ) const
 
 float Mnemonic::getMatchValue( const char* nm ) const
 {
-    const FixedString nmstr( nm );
+    const StringView nmstr( nm );
     if ( nmstr.isEmpty() )
 	return 0.f;
 
@@ -224,7 +224,7 @@ bool Mnemonic::matches( const char* nm, bool matchaliases ) const
 
 bool Mnemonic::isKnownAs( const char* nm ) const
 {
-    const FixedString nmstr( nm );
+    const StringView nmstr( nm );
     if ( nmstr.isEmpty() )
 	return false;
 
@@ -290,7 +290,7 @@ void Mnemonic::usePar( const IOPar& iop )
 						fms.getFValue(10) );
 	else
 	{
-	    const FixedString fmsstr = fms[idx];
+	    const StringView fmsstr = fms[idx];
 	    if ( !fmsstr.isEmpty() )
 		aliases_.add( fmsstr );
 	}

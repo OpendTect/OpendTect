@@ -155,7 +155,7 @@ bool Well::DisplayProperties::operator ==( const DisplayProperties& oth ) const
     if ( &oth == this )
 	return true;
 
-    if ( FixedString(subjectName()) != oth.subjectName() ||
+    if ( StringView(subjectName()) != oth.subjectName() ||
 	 track_ != oth.track_ ||
 	 markers_ != oth.markers_ ||
 	 displaystrat_ != oth.displaystrat_ ||
@@ -180,7 +180,7 @@ bool Well::DisplayProperties::operator !=( const DisplayProperties& oth ) const
 
 bool Well::DisplayProperties::is2D() const
 {
-    return FixedString(subjectName()) == sKey2DDispProp();
+    return StringView(subjectName()) == sKey2DDispProp();
 }
 
 
@@ -200,7 +200,7 @@ bool Well::DisplayProperties::BasicProps::operator ==(
 						const BasicProps& oth ) const
 {
     return size_ == oth.size_ && color_ == oth.color_ &&
-	   FixedString(subjectName()) == oth.subjectName();
+	   StringView(subjectName()) == oth.subjectName();
 }
 
 
@@ -303,7 +303,7 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& par )
     trackpar->getYN( sKeyTrackNmIsBelow, dispbelow_ );
     trackpar->getYN( sKeyTrackDynamicNmSize, nmsizedynamic_ );
 
-    const FixedString fontdata = trackpar->find( sKeyTrackNmFont );
+    const StringView fontdata = trackpar->find( sKeyTrackNmFont );
     if ( fontdata )
 	font_.getFrom( fontdata );
     else
@@ -457,7 +457,7 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
 	unselmarkernms_.add( unselmarkernames, false );
     mrkspar->getYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
 
-    const FixedString fontdata =
+    const StringView fontdata =
 	mrkspar->find( sKeyMarkerNmFont );
     if ( fontdata )
 	font_.getFrom( fontdata );

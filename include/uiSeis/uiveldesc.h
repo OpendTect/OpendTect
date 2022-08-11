@@ -135,7 +135,7 @@ protected:
 				uiVelModelZAxisTransform(uiParent*,bool);
 				~uiVelModelZAxisTransform();
 
-    FixedString			getZDomain() const;
+    StringView			getZDomain() const;
     void			finalizeCB(CallBacker*);
     void			setZRangeCB(CallBacker*);
 

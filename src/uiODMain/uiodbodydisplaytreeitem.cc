@@ -158,7 +158,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	oids += objs[idx]->id();
-	const FixedString stype = objs[idx]->getTypeStr();
+	const StringView stype = objs[idx]->getTypeStr();
 	if ( stype != EM::MarchingCubesSurface::typeStr() &&
 	     stype != "MarchingCubesSurface" )
 	    continue;

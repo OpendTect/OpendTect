@@ -79,7 +79,7 @@ void uiRayTracerSel::initGrpCB( CallBacker* )
 void uiRayTracerSel::setDefault()
 {
     FactoryBase& uirtfact = uiRayTracer1D::factory();
-    if ( !FixedString(uirtfact.getDefaultName()).isEmpty() )
+    if ( !StringView(uirtfact.getDefaultName()).isEmpty() )
 	return;
 
     const int defidx = uirtfact.getNames().indexOf(
@@ -158,7 +158,7 @@ bool uiRayTracerSel::setCurrentType( const char* typestr )
 
     for ( int grpidx=0; grpidx<grps_.size(); grpidx++ )
     {
-	if ( FixedString(grps_[grpidx]->factoryKeyword()) == typestr )
+	if ( StringView(grps_[grpidx]->factoryKeyword()) == typestr )
 	{
 	    raytracerselfld_->setCurrentItem( grpidx );
 	    selRayTraceCB( nullptr );

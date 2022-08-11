@@ -66,7 +66,7 @@ void BinDataDesc::set( const char* s )
     if ( !s || !*s ) return;
 
     FileMultiString fms( s );
-    FixedString res = fms[0];
+    StringView res = fms[0];
     isint_ = *res != 'F' && *res != 'f';
     res = fms[1];
     issigned_ = *res == 'S' || *res == 's';

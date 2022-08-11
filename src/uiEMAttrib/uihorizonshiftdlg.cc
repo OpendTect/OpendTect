@@ -232,7 +232,7 @@ const char* uiHorizonShiftDialog::getAttribName() const
 
 const char* uiHorizonShiftDialog::getAttribBaseName() const
 {
-    FixedString res;
+    StringView res;
     if ( storefld_->isChecked() )
        res = namefld_->text();
 
@@ -247,7 +247,7 @@ bool uiHorizonShiftDialog::acceptOK( CallBacker* )
 {
     if ( storefld_ && storefld_->isChecked() )
     {
-	const FixedString nm = namefld_->text();
+	const StringView nm = namefld_->text();
 	if ( nm.isEmpty() || nm==sDefaultAttribName() )
 	{
 	    uiMSG().error(tr("No basename defined"));

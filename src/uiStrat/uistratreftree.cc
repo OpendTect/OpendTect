@@ -193,7 +193,7 @@ void uiStratRefTree::rClickCB( CallBacker* )
 
 void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 {
-    if ( FixedString(lvit->text()) == RefTree::sKeyNoCode() )
+    if ( StringView(lvit->text()) == RefTree::sKeyNoCode() )
 	{ updateUnitProperties( lvit ); return; }
 
     uiMenu mnu( lv_->parent(), uiStrings::sAction() );

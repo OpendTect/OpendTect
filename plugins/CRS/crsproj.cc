@@ -15,7 +15,7 @@
 
 #include "iopar.h"
 
-static FixedString sKeyEPSG()		{ return FixedString("EPSG"); }
+static StringView sKeyEPSG()		{ return StringView("EPSG"); }
 
 Coords::AuthorityCode Coords::AuthorityCode::sWGS84AuthCode()
 { return Coords::AuthorityCode(sKeyEPSG(),4326); }
@@ -428,8 +428,8 @@ int indexOf( const Coords::AuthorityCode& authcode ) const
     for ( int idx=0; idx<sz_; idx++ )
     {
 	if ( infos_[idx] &&
-		FixedString(authcode.authority()) == infos_[idx]->auth_name &&
-		FixedString(authcode.code()) == infos_[idx]->code )
+		StringView(authcode.authority()) == infos_[idx]->auth_name &&
+		StringView(authcode.code()) == infos_[idx]->code )
 	    return idx;
     }
 

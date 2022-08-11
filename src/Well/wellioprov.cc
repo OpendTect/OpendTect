@@ -24,7 +24,7 @@ const WellDataIOProvider* WellDataIOProviderFactory::provider(
 {
     if ( provs_.isEmpty() )
 	return 0;
-    else if ( !typ || !*typ || FixedString(typ) == "dGB" )
+    else if ( !typ || !*typ || StringView(typ) == "dGB" )
 	return provs_[0];
 
     for ( int idx=0; idx<provs_.size(); idx++ )

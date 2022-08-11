@@ -56,7 +56,7 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 mExpClass(General) TranslatorGroup : public ReferencedObject
 {
 public:
-    virtual FixedString		groupName() const = 0;
+    virtual StringView		groupName() const = 0;
     virtual uiString		typeName(int num=1) const = 0;
     virtual Translator*		make(const char*,bool usrnm) const;
     const Translator*		getTemplate(const char*,bool usrnm) const;
@@ -207,9 +207,9 @@ public: \
     static int selector(const char*); \
     static void initClass() { theInst(); } \
     static const IOObjContext& ioContext(); \
-    static FixedString sGroupName(); \
+    static StringView sGroupName(); \
     static uiString sTypeName(int num=1); \
-    FixedString groupName() const override { return sGroupName(); } \
+    StringView groupName() const override { return sGroupName(); } \
     uiString typeName(int num=1) const override\
     { return sTypeName(num); } \
     const IOObjContext& ioCtxt() const override { return ioContext(); } \
@@ -250,7 +250,7 @@ mImplTranslatorInitClass(spec, clss, usrnm )
 
   //! In the source file of a TranslatorGroup class
 #define defineTranslatorGroup(clss,groupname) \
-FixedString clss##TranslatorGroup::sGroupName() \
+StringView clss##TranslatorGroup::sGroupName() \
 { return groupname; } \
 TranslatorGroup& clss##TranslatorGroup::theInst() \
 mImplTranslatorGroupTheInst( clss )

@@ -56,13 +56,13 @@ protected:
 
     void		addZChg(CallBacker*);
     void		exportCoordSysChgCB(CallBacker*);
-    FixedString		getZDomain() const;
+    StringView		getZDomain() const;
 
     bool		acceptOK(CallBacker*) override;
 
     bool		writeAscii();
     bool		isbulk_;
     uiString		dispstr_;
-    FixedString		typ_;
+    StringView		typ_;
 };
 

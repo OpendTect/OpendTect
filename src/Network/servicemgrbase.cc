@@ -441,8 +441,8 @@ uiRetVal ServiceMgrBase::handleActionRequestInThread( const packetData& pdata )
 
 bool ServiceMgrBase::canParseAction( const char* action, uiRetVal& uirv )
 {
-    if ( FixedString(action) == sKeyStatusEv() ||
-	 FixedString(action) == sKeyCloseEv() )
+    if ( StringView(action) == sKeyStatusEv() ||
+	 StringView(action) == sKeyCloseEv() )
 	return true;
 
     return false;
@@ -459,7 +459,7 @@ bool ServiceMgrBase::canParseRequest( const OD::JSON::Object& request,
 
 uiRetVal ServiceMgrBase::doHandleAction( const char* action )
 {
-    if ( FixedString(action) == sKeyCloseEv() )
+    if ( StringView(action) == sKeyCloseEv() )
 	closeApp();
     return uiRetVal::OK();
 }

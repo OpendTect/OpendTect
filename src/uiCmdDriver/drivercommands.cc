@@ -764,7 +764,7 @@ bool ReturnCmd::act( const char* parstr )
     if ( parstr && *parstr )
     {
 	const char* identnm = identifierMan().getValue( "_returnvar" );
-	if ( !identnm || FixedString(identnm)=="_dummyvar" )
+	if ( !identnm || StringView(identnm)=="_dummyvar" )
 	{
 	    mParseErrStrm << "Procedure did not define parameter to assign "
 			  << "a return value" << od_endl;

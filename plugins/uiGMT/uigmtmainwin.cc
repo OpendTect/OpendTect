@@ -295,7 +295,7 @@ void uiGMTMainWin::selChg( CallBacker* )
 	return;
     }
 
-    const FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName() );
+    const StringView tabname = pars_[selidx]->find( ODGMT::sKeyGroupName() );
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
     {
 	if ( tabname == overlaygrps_[idx]->name().buf() )
@@ -494,7 +494,7 @@ bool uiGMTMainWin::fillPar()
 
 bool uiGMTMainWin::usePar( const IOPar& par )
 {
-    FixedString fnm = par.find( sKey::FileName() );
+    StringView fnm = par.find( sKey::FileName() );
     if ( fnm )
 	filefld_->setFileName( fnm );
 

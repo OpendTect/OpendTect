@@ -73,7 +73,7 @@ public:
 		  the string being preceded by an integer */
 		if ( readsize > sizeof(int) )
 		    strptr += sizeof(int);
-		const FixedString writestr( strptr );
+		const StringView writestr( strptr );
 		if ( writestr.startsWith(Network::Server::sKeyKillword()) )
 		{
 		    socket->disconnectFromHost();

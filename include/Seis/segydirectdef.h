@@ -44,7 +44,7 @@ public:
 			//Functions to read/query
     bool		readFromFile(const char*);
     const IOPar*	segyPars() const;
-    FixedString		fileName(int idx) const;
+    StringView		fileName(int idx) const;
     FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
     FileDataSet::TrcIdx	findOcc(const Seis::PosKey&,int occ) const;
 			//!< will not look at offset

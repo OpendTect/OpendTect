@@ -70,7 +70,7 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
 
 void uiListBoxFilter::setFilter( const char* newfilt )
 {
-    setText( FixedString(newfilt).isEmpty() ? "*" : newfilt );
+    setText( StringView(newfilt).isEmpty() ? "*" : newfilt );
     setItems( availitems_ );
 }
 

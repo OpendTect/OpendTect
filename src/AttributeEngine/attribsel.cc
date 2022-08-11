@@ -343,7 +343,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
-	FixedString res = ioobj.pars().find( sKey::Type() );
+	StringView res = ioobj.pars().find( sKey::Type() );
 	if ( res && ( (!steerdata && res==sKey::Steering() )
 		 || ( steerdata && res!=sKey::Steering() ) ) )
 	    continue;

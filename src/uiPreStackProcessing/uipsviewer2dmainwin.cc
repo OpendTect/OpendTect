@@ -1556,7 +1556,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
 	{
 	    const DataPack::ID& id = vwr.availablePacks()[idx];
-	    const FixedString datanm( dpm.nameOf(id) );
+	    const StringView datanm( dpm.nameOf(id) );
 	    const bool wva = wvadatapack && wvadatapack->name() == datanm &&
 			     app_.ddpars_.wva_.show_ ;
 	    const bool vd = vddatapack && vddatapack->name() == datanm &&

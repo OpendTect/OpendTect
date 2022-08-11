@@ -339,27 +339,27 @@ void uiFontList::update( Settings& settings )
 
 void uiFontList::addOldGuess( const IOPar& fontpar, const char* ky )
 {
-    const FixedString fontkey = ky;
+    const StringView fontkey = ky;
 
     if ( fontkey == FontData::key(FontData::Graphics2D) )
     {
-	const FixedString res = fontpar.find( "Graphics medium" );
+	const StringView res = fontpar.find( "Graphics medium" );
 	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
     }
     else if ( fontkey == FontData::key(FontData::Graphics3D) )
     {
-	const FixedString res =
+	const StringView res =
 		Settings::common().find( "dTect.Scene.Annotation font" );
 	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
     }
     else if ( fontkey == FontData::key(FontData::Graphics2DSmall) )
     {
-	const FixedString res = fontpar.find( "Graphics small" );
+	const StringView res = fontpar.find( "Graphics small" );
 	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
     }
     else if ( fontkey == FontData::key(FontData::Graphics2DLarge) )
     {
-	const FixedString res = fontpar.find( "Graphics large" );
+	const StringView res = fontpar.find( "Graphics large" );
 	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
     }
 }

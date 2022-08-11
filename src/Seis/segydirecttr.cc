@@ -111,7 +111,7 @@ int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
 SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
 					const SEGY::DirectDef& def, int filenr )
 {
-    const FixedString filename = def.fileName( filenr );
+    const StringView filename = def.fileName( filenr );
     if ( !filename )
 	return nullptr;
 

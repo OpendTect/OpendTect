@@ -848,7 +848,7 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
     {
 	if ( singlehorfld_->getBoolValue() )
 	{
-	    const FixedString objtype
+	    const StringView objtype
 			= EM::EMM().objectType( surfacelist_[currow] );
 	    if ( objtype == sKey::Horizon() )
 		singlehoradded_ = false;

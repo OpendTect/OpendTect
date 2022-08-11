@@ -212,8 +212,8 @@ bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* anm ) const
 {
     const char* grp = grpnms_.get( grpidx );
 
-    const FixedString grpnm( grp );
-    const FixedString attrnm( anm );
+    const StringView grpnm( grp );
+    const StringView attrnm( anm );
     if ( *grpnm == '<' )
 	return attrnm == "Similarity";
     else if ( grpnm == "Basic" )

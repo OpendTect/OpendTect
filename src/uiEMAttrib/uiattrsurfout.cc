@@ -140,7 +140,7 @@ void uiAttrSurfaceOut::getJobName( BufferString& jobnm ) const
     if ( ioobj )
 	jobnm.add( ioobj->name() );
 
-    const FixedString attrnm = attrnmfld_->text();
+    const StringView attrnm = attrnmfld_->text();
     if ( !attrnm.isEmpty() )
 	jobnm.add( " ").add( attrnm.buf() );
 }
@@ -151,7 +151,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
     const IOObj* ioobj = objfld_->ioobj();
     if ( !ioobj ) return false;
 
-    const FixedString attrnm = attrnmfld_->text();
+    const StringView attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
 	uiMSG().error( tr("Please provide output attribute name") );

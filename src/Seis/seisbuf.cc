@@ -632,7 +632,7 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 
 bool SeisTrcBufDataPack::dimValuesInInt( const char* keystr ) const
 {
-    FixedString key( keystr );
+    StringView key( keystr );
     return key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) ||
 	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) ||
 	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl);

@@ -438,7 +438,7 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 			       bool below, bool downwards )
 {
     if ( !useParentType() ||
-	 FixedString(newitem->parentType()) == typeid(*this).name() )
+	 StringView(newitem->parentType()) == typeid(*this).name() )
     {
 	mEnabSelChg( false )
 	children_ += newitem;
@@ -704,7 +704,7 @@ void uiTreeFactorySet::remove( const char* nm )
     int index = -1;
     for ( int idx=0; idx<factories_.size(); idx++ )
     {
-	if ( FixedString(nm) == factories_[idx]->name() )
+	if ( StringView(nm) == factories_[idx]->name() )
 	    { index = idx; break; }
     }
 

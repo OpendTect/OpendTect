@@ -426,7 +426,7 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 
 static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
 {
-    const FixedString attrnm( attrnmptr );
+    const StringView attrnm( attrnmptr );
     const BufferString basefnm( fulluserexp );
     BufferString fnm;
     for ( int idx=0, gap=0; gap<=100; idx++ )

@@ -380,7 +380,7 @@ public: \
     static void			initClass(); \
     static EMObject*		create(EM::EMManager&); \
     static clss*		create(const char* nm); \
-    static FixedString		typeStr(); \
+    static StringView		typeStr(); \
     const char*			getTypeStr() const override; \
     void			setNewName() override; \
 protected: \
@@ -411,7 +411,7 @@ clss* clss::create( const char* nm ) \
     return newobj; \
 } \
 \
-FixedString clss::typeStr() { return typenm; } \
+StringView clss::typeStr() { return typenm; } \
 const char* clss::getTypeStr() const { return typeStr(); } \
 void clss::setNewName() \
 {\

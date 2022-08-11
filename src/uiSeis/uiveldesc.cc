@@ -503,7 +503,7 @@ bool uiVelModelZAxisTransform::acceptOK()
 }
 
 
-FixedString uiVelModelZAxisTransform::getZDomain() const
+StringView uiVelModelZAxisTransform::getZDomain() const
 {
     return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
 }

@@ -28,8 +28,8 @@ public:
 
     ZAxisTransform*	getSelection() override;
 
-    FixedString toDomain() const override;
-    FixedString fromDomain() const override;
+    StringView toDomain() const override;
+    StringView fromDomain() const override;
     bool		canBeField() const override	{ return true; }
 
 protected:

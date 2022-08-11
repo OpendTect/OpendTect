@@ -122,7 +122,7 @@ bool LatLong::parseDMSString( const BufferString& llstr, bool lat )
     secstr.remove( '\'' );
     float secs = toFloat( secstr );
 
-    const FixedString NESW = ss[3];
+    const StringView NESW = ss[3];
     if ( NESW.size()==1 && degs>0 && (NESW[0]=='S' || NESW[0]=='W') )
 	degs *= -1;
 
@@ -153,7 +153,7 @@ bool LatLong::setFromString( const char* str, bool lat )
     if ( lastchar=='N' || lastchar=='E' || hasSW )
 	lastchar = '\0';
 
-    const FixedString nrstr = llstr.find( '.' );
+    const StringView nrstr = llstr.find( '.' );
     const int trailsz = nrstr.size();
     const int sz = llstr.size() - trailsz; // size of string before .
     if ( sz < 5 ) // Size never larger than 4 when in degrees

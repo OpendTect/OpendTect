@@ -110,11 +110,11 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
 		if ( lfi.depthcolnr_<0 &&
-			FixedString(wordbuf).startsWith("dept",CaseInsensitive))
+			StringView(wordbuf).startsWith("dept",CaseInsensitive))
 		    lfi.depthcolnr_ = colnr;
 		else
 		{
-		    if ( colnr == 1 && ( FixedString(wordbuf)=="in:"
+		    if ( colnr == 1 && ( StringView(wordbuf)=="in:"
 				    || iswdigit(wordbuf[0]) || wordbuf[0] == '+'
 				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
 			mErrRet( "Invalid LAS-like file" )

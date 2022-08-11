@@ -32,8 +32,8 @@ public:
     virtual bool		getTargetSampling(StepInterval<float>&) const;
 
     virtual ZAxisTransform*	getSelection()			= 0;
-    virtual FixedString 	toDomain() const		= 0;
-    virtual FixedString 	fromDomain() const		= 0;
+    virtual StringView 	toDomain() const		= 0;
+    virtual StringView 	fromDomain() const		= 0;
     virtual bool		canBeField() const		= 0;
 				/*!Returns true if it can be in one line,
 				   i.e. as a part of a field. If true,
@@ -78,7 +78,7 @@ public:
     int				nrTransforms() const;
 
     NotifierAccess*		selectionDone();
-    FixedString 		selectedToDomain() const;
+    StringView 		selectedToDomain() const;
 				/*<!Always available. */
 
     bool			acceptOK() override;

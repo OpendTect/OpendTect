@@ -198,7 +198,7 @@ DescID uiSteeringSel::descID()
 
     if ( type==3 )
     {
-	const FixedString attribnm = "ConstantSteering";
+	const StringView attribnm = "ConstantSteering";
 	for ( int idx=0; idx<descset_->size(); idx++ )
 	{
 	    const DescID descid = descset_->getID( idx );

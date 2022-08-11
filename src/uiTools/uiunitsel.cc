@@ -398,7 +398,7 @@ uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
 	return mToUiStringTodo(sDispNone);
     else if ( setup_.mode_ == Setup::SymbolsOnly )
     {
-	const FixedString symb( un->symbol() );
+	const StringView symb( un->symbol() );
 	return mToUiStringTodo( symb.isEmpty() ? sDispNone : symb.str() );
     }
     else if ( setup_.mode_ == Setup::NamesOnly )

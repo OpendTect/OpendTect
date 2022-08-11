@@ -163,7 +163,7 @@ public:
 				//!<The full string of the text will be used
     const uiAction*		findAction(int id) const;
     const uiAction*		findAction(const uiMenu*) const;
-    const uiAction*		findAction( const FixedString& fs ) const
+    const uiAction*		findAction( const StringView& fs ) const
 					{ return findAction(fs.str()); }
     int				getID(const uiAction*) const;
     int				getID(const mQtclass(QAction)*) const;

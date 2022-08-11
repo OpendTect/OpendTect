@@ -12,17 +12,17 @@
 #include <string.h>
 
 
-static FixedString emptyfixedstring( "" );
+static StringView emptyfixedstring( "" );
 
 const OD::String& OD::String::empty()
 { return emptyfixedstring; }
-const FixedString& FixedString::empty()
+const StringView& StringView::empty()
 { return emptyfixedstring; }
 
 
-bool FixedString::operator==( const BufferString& s ) const
+bool StringView::operator==( const BufferString& s ) const
 { return isEqual(s.str()); }
-bool FixedString::operator!=( const BufferString& s ) const
+bool StringView::operator!=( const BufferString& s ) const
 { return !isEqual(s.str()); }
 
 
@@ -157,7 +157,7 @@ unsigned int OD::String::getLevenshteinDist( const char* s,
 					     bool casesens ) const
 {
     const unsigned int len1 = size();
-    const unsigned int len2 = FixedString(s).size();
+    const unsigned int len2 = StringView(s).size();
     if ( len1 == 0 ) return len2;
     if ( len2 == 0 ) return len1;
     const char* s1 = str();

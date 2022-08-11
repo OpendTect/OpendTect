@@ -718,7 +718,7 @@ void uiExportHorizon::addZChg( CallBacker* )
     const bool displayunit = !isgf && zfld_->getIntValue()!=1;
     if ( displayunit )
     {
-	const FixedString zdomainstr = getZDomain();
+	const StringView zdomainstr = getZDomain();
 	if ( zdomainstr == ZDomain::sKeyDepth() )
 	{
 	    unitsel_->setPropType( Mnemonic::Dist );
@@ -735,9 +735,9 @@ void uiExportHorizon::addZChg( CallBacker* )
 }
 
 
-FixedString uiExportHorizon::getZDomain() const
+StringView uiExportHorizon::getZDomain() const
 {
-    FixedString zdomain = ZDomain::SI().key();
+    StringView zdomain = ZDomain::SI().key();
 
     if ( typfld_->getIntValue()==3 || zfld_->getIntValue()==2 )
     {
@@ -770,7 +770,7 @@ void uiExportHorizon::settingsCB( CallBacker* )
 
     while ( dlg.go() )
     {
-	FixedString nm = namefld->text();
+	StringView nm = namefld->text();
 	if ( nm.isEmpty() )
 	{
 	    uiMSG().error( tr("No name selected") );

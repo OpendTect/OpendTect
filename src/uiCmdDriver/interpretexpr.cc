@@ -314,7 +314,7 @@ const char* ExprInterpreter::interpretCompositeExpr( const char* parstr,
 	parstr = parnext;
 	mSkipBlanks( parnext );
 
-	const FixedString fsparnext( parnext );
+	const StringView fsparnext( parnext );
 	     mMatchOperator( "||", parnext, Or )
 	else mMatchOperator( "&&", parnext, And )
 	else mMatchOperator( "==", parnext, Equal )

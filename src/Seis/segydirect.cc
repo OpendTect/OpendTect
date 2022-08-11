@@ -276,7 +276,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !strm.isOK() )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 
-	FixedString int32typestr = hdriop.find( sKeyInt32DataChar() );
+	StringView int32typestr = hdriop.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
 	int32type.set( int32typestr );
 	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
@@ -315,7 +315,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-FixedString SEGY::DirectDef::fileName( int idx ) const
+StringView SEGY::DirectDef::fileName( int idx ) const
 {
     if ( !fds_ )
 	return sKey::EmptyString();
@@ -579,7 +579,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     FileSpec::makePathsRelative( iop );
     if ( is2d && !iop.get(sKey::GeomID(),geomid_) )
     {
-	const FixedString linename = iop.find( sKey::LineName() );
+	const StringView linename = iop.find( sKey::LineName() );
 	if ( linename )
 	    geomid_ = Survey::GM().getGeomID( linename );
     }

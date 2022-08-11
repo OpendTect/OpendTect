@@ -261,7 +261,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
 }
 
 
-FixedString SEGY::FileDataSet::fileName( int idx ) const
+StringView SEGY::FileDataSet::fileName( int idx ) const
 {
     if ( !filenames_.validIdx(idx) )
 	return sKey::EmptyString();

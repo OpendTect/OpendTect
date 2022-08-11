@@ -128,7 +128,7 @@ const float Convolve::prewitt2D[] =
 void Convolve::updateDesc( Desc& desc )
 {
     const ValParam* kernel = desc.getValParam( kernelStr() );
-    const FixedString ktyp( kernel->getStringValue(0) );
+    const StringView ktyp( kernel->getStringValue(0) );
     const bool isprewitt = ktyp == kernelTypeStr(mKernelFunctionPrewitt);
     const bool iswavelet = ktyp == kernelTypeStr(mKernelFunctionWavelet);
     const bool needsz = !(isprewitt || iswavelet);

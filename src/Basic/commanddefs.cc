@@ -137,7 +137,7 @@ void CommandDefs::addApplication( const char* appnm,
     if ( __iswin__ )
     {
 	prognames_.add( appnm );
-	if ( FixedString(appnm).startsWith("cmd",CaseInsensitive) )
+	if ( StringView(appnm).startsWith("cmd",CaseInsensitive) )
 	{
 	    if ( !args )
 		args = new BufferStringSet();

@@ -236,7 +236,7 @@ const char* CBVSReader::check( od_istream& strm )
     if ( !strm.isOK() ) mErrRet;
 
     msg = "File is not in CBVS format";
-    if ( FixedString(buf)!="dGB" ) mErrRet;
+    if ( StringView(buf)!="dGB" ) mErrRet;
 
     char plf; strm.getBin( &plf, 1 );
     if ( plf > 2 ) mErrRet;
@@ -378,7 +378,7 @@ bool CBVSReader::readTrailer()
     strm_.setReadPosition( -3, od_stream::End );
     char buf[40];
     strm_.getBin( buf, 3 ); buf[3] = '\0';
-    if ( FixedString(buf)!="BGd" ) mErrRet("Missing required file trailer")
+    if ( StringView(buf)!="BGd" ) mErrRet("Missing required file trailer")
 
     strm_.setReadPosition( -4-integersize, od_stream::End );
     strm_.getBin( buf, integersize );

@@ -682,7 +682,7 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
 
     BufferString formatstr;
     DataCharacteristics dc; info.getDataChar( dc );
-    const FixedString usertypestr =
+    const StringView usertypestr =
 	DataCharacteristics::toString( dc.userType() );
     if ( usertypestr.size() > 4 )
 	formatstr.set( usertypestr.buf()+4 );

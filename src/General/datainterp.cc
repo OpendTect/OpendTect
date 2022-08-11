@@ -112,7 +112,7 @@ void DataCharacteristics::set( const char* s )
     FileMultiString fms( s );
     const int sz = fms.size();
     if ( sz > 3 )
-	fmt_ = FixedString(fms[1]).startsWith("ibm",CaseInsensitive)
+	fmt_ = StringView(fms[1]).startsWith("ibm",CaseInsensitive)
 	     ? DataCharacteristics::Ibm : DataCharacteristics::Ieee;
     if ( sz > 4 )
 	littleendian_ = toBool( fms[4], true );

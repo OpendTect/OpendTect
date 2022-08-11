@@ -340,7 +340,7 @@ static unsigned char getCompFromStrPart( const char* str )
 
 void Color::setStdStr( const char* str )
 {
-    FixedString inp( str );
+    StringView inp( str );
     if ( inp.isEmpty() )
 	return;
 

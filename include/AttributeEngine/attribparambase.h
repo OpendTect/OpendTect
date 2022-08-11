@@ -53,7 +53,7 @@ public:
     void			setRequired(bool yn=true) { required_=yn; }
     bool			isGroup() const		  { return isgroup_; }
 
-    FixedString			getKey() const		  { return key_.buf(); }
+    StringView			getKey() const		  { return key_.buf(); }
 
 				/*!Set all values from one composite string.*/
     virtual bool		setCompositeValue(const char*)

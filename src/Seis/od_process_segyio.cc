@@ -291,7 +291,7 @@ mLoad1Module("Seis")
 bool BatchProgram::doWork( od_ostream& strm )
 {
     const IOPar& iop = pars();
-    const FixedString task = iop.find( SEGY::IO::sKeyTask() );
+    const StringView task = iop.find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();
     const bool isexport = task == SEGY::IO::sKeyExport();
     const bool ispsindex = task == SEGY::IO::sKeyIndexPS();

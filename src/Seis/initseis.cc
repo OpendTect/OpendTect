@@ -96,7 +96,7 @@ mDefModInitFn(Seis)
     Seis::ODSeqOut::initClass();
 
     FactoryBase& synthgenfact = Seis::SynthGenerator::factory();
-    if ( FixedString(synthgenfact.getDefaultName()).isEmpty() )
+    if ( StringView(synthgenfact.getDefaultName()).isEmpty() )
     {
 	const int defidx = synthgenfact.getNames().indexOf(
 		Seis::SynthGeneratorBasic::sFactoryKeyword() );

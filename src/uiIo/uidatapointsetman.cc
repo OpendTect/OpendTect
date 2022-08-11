@@ -85,7 +85,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     if ( !seldlg.go() )
 	return;
 
-    const FixedString primarynm( dps->name() );
+    const StringView primarynm( dps->name() );
     if ( primarynm == seldlg.ioObj()->name() )
 	return uiMSG().error( tr("Cannot merge same crossplots.") );
 

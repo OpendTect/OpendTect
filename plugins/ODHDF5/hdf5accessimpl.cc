@@ -149,7 +149,7 @@ H5::Group* HDF5::AccessImpl::selectGroup( const char* grpnm ) const
     {
 	if ( atGroup(grpnm) )
 	    return &group_;
-	else if ( FixedString(grpnm) != "/" &&
+	else if ( StringView(grpnm) != "/" &&
 	  !H5Lexists(acc_.file_->getId(),grpnm,H5P_DEFAULT) )
 	    return nullptr;
     }
@@ -221,7 +221,7 @@ H5::Group* HDF5::AccessImpl::stGrpScope( const DataSetKey* dsky ) const
 H5::DataSet* HDF5::AccessImpl::stDSScope( const DataSetKey& dsky )
 {
     if ( !haveGroup() || BufferString(dsky.groupName()) !=
-				FixedString( group_.getObjName().c_str() ) )
+				StringView( group_.getObjName().c_str() ) )
     {
 	H5::Group* grp = stGrpScope( &dsky );
 	if ( !grp )

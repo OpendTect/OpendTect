@@ -94,7 +94,7 @@ bool VelocityDesc::usePar( const IOPar& par )
     if ( !par.getYN( sKeyIsVelocity(), isvel ) || !isvel )
 	return false;
 
-    const FixedString typestr = par.find( sKeyVelocityType() );
+    const StringView typestr = par.find( sKeyVelocityType() );
     if ( typestr.isEmpty() )
     {
 	BufferString arr;

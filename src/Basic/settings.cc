@@ -19,7 +19,7 @@
 static const char* sKeyDeflt = "Default settings";
 static const char* sKeyCommon = "Common";
 #define mGetKey(key) (key && *key ? key : sKeyCommon)
-#define mIsCommon(key) (!key || !*key || FixedString(key)==sKeyCommon)
+#define mIsCommon(key) (!key || !*key || StringView(key)==sKeyCommon)
 
 class SettingsManager
 {
@@ -263,7 +263,7 @@ mExternC(Basic) const char* GetSettingsDataDir()
 
 bool SetSettingsDataDir( const char* dataroot, uiRetVal& uirv )
 {
-    const FixedString curdataroot = GetSettingsDataDir();
+    const StringView curdataroot = GetSettingsDataDir();
     if ( !curdataroot.isEmpty() && curdataroot == dataroot )
 	return true;
 

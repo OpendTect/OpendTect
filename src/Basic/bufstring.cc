@@ -646,7 +646,7 @@ idx_type BufferStringSet::nearestMatch( const char* s,
 	s = "";
 
     TypeSet<idx_type> candidates;
-    if ( FixedString(s).size() > 1 )
+    if ( StringView(s).size() > 1 )
     {
 	for ( idx_type idx=0; idx<sz; idx++ )
 	    if ( get(idx).startsWith(s,cs) )
@@ -799,7 +799,7 @@ BufferStringSet& BufferStringSet::addWordsFrom( const char* inp )
     if ( !*inp )
 	return *this;
 
-    const auto bufsz = FixedString( inp ).size() + 1;
+    const auto bufsz = StringView( inp ).size() + 1;
     char* buf = new char [bufsz];
 
     while ( true )
@@ -1026,7 +1026,7 @@ BufferString BufferStringSet::cat( const char* sepstr ) const
 
 void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
 {
-    const size_type sepstrsz = FixedString(sepstr).size();
+    const size_type sepstrsz = StringView(sepstr).size();
     if ( sepstrsz < 1 )
 	{ add( inpstr ); return; }
 

@@ -250,7 +250,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 
     for ( int idx=0; idx<nrelems; idx++ )
     {
-	FixedString typestring = fms[curfmsidx];
+	StringView typestring = fms[curfmsidx];
 	const char typc = typestring.isEmpty() ? 0 : *typestring.str();
 	const int typ = typc == 'P' ? 2 : (typc == 'K' ? 1 : 0);
 	curfmsidx++;

@@ -113,7 +113,7 @@ SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 	const char* txt = multifld_->text();
 	mSkipBlanks(txt);
 	if ( *txt == '0' )
-	    spec.zeropad_ = FixedString(txt).size();
+	    spec.zeropad_ = StringView(txt).size();
 	if ( spec.zeropad_ == 1 ) spec.zeropad_ = 0;
     }
     return spec;

@@ -281,7 +281,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* impasc )
 
 static void setWellInfo( BufferString& infostr, const char* fldtxt )
 {
-    const FixedString fldstr = fldtxt;
+    const StringView fldstr = fldtxt;
     if ( !fldstr.isEmpty() )
 	infostr = fldstr;
 }

@@ -107,7 +107,7 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 	}
 	else
 	{
-	    FixedString res = iop.find( getKey(idx) );
+	    StringView res = iop.find( getKey(idx) );
 	    if ( res != getValue(idx) )
 		return false;
 	}
@@ -125,7 +125,7 @@ bool IOPar::includes( const IOPar& oth ) const
 
     for ( int idx=0; idx<othsz; idx++ )
     {
-	FixedString res = find( oth.getKey(idx) );
+	StringView res = find( oth.getKey(idx) );
 	if ( res != oth.getValue(idx) )
 	    return false;
     }
@@ -148,15 +148,15 @@ int IOPar::indexOf( const char* key ) const
 }
 
 
-FixedString IOPar::getKey( int nr ) const
+StringView IOPar::getKey( int nr ) const
 {
-    return FixedString( keys_.validIdx(nr) ? keys_.get(nr).buf() : 0 );
+    return StringView( keys_.validIdx(nr) ? keys_.get(nr).buf() : 0 );
 }
 
 
-FixedString IOPar::getValue( int nr ) const
+StringView IOPar::getValue( int nr ) const
 {
-    return FixedString( vals_.validIdx(nr) ? vals_.get(nr).buf() : 0 );
+    return StringView( vals_.validIdx(nr) ? vals_.get(nr).buf() : 0 );
 }
 
 
@@ -274,7 +274,7 @@ IOPar* IOPar::subselect( int nr ) const
 
 IOPar* IOPar::subselect( const char* kystr ) const
 {
-    FixedString key( kystr );
+    StringView key( kystr );
     if ( key.isEmpty() ) return 0;
 
     IOPar* iopar = new IOPar( name() );
@@ -309,7 +309,7 @@ void IOPar::removeSubSelection( int nr )
 
 void IOPar::removeSubSelection( const char* kystr )
 {
-    FixedString key( kystr );
+    StringView key( kystr );
     if ( key.isEmpty() ) return;
 
     for ( int idx=0; idx<keys_.size(); idx++ )
@@ -720,7 +720,7 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 	    fms += toString( val );
 	}
 
-	FixedString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
+	StringView newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
 	iop.set( newkey, fms );
 	keyidx++;
     }
@@ -751,7 +751,7 @@ template <class T>
 static bool iopget_scaled( const IOPar& iop, const char* keyw,
 			   T** vptrs, int nrvals, T sc, bool setudf )
 {
-    FixedString fs = iop.find( keyw );
+    StringView fs = iop.find( keyw );
     bool havedata = false;
     if ( setudf || !fs.isEmpty() )
     {
@@ -1416,7 +1416,7 @@ bool IOPar::write( od_ostream& strm, const char* typ ) const
     if ( !strm.isOK() )
 	return false;
 
-    if ( typ && FixedString(typ)==sKeyDumpPretty() )
+    if ( typ && StringView(typ)==sKeyDumpPretty() )
 	dumpPretty( strm );
     else
     {

@@ -15,7 +15,7 @@
 LineKey::LineKey( const char* lnm, const char* attrnm )
     : BufferString(lnm)
 {
-    const FixedString attribname( attrnm );
+    const StringView attribname( attrnm );
     if ( !attribname.isEmpty() )
     { *this += "|"; *this += attrnm; }
 }

@@ -1040,7 +1040,7 @@ void uiWellMan::mkFileInfo()
 	const Well::Info& info = curwd->info();
 	const Well::Track& track = curwd->track();
 
-	FixedString colonstr( ": " );
+	StringView colonstr( ": " );
 	const BufferString posstr(
 		info.surfacecoord_.toPrettyString(SI().nrXYDecimals()), " - ",
 		SI().transform(info.surfacecoord_).toString() );

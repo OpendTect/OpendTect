@@ -175,7 +175,7 @@ VolProc::Step* VolProc::Chain::getStepFromName( const char* nm )
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
-	const FixedString usrnm = steps_[idx]->userName();
+	const StringView usrnm = steps_[idx]->userName();
 	if ( usrnm == nm )
 	    return steps_[idx];
     }

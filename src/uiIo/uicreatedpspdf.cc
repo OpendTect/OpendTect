@@ -133,7 +133,7 @@ void uiCreateDPSPDF::createDefaultUI()
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
     int nrattribs = dps_.nrCols();
-    if ( FixedString(dps_.colName(0)) == sKey::MD() )
+    if ( StringView(dps_.colName(0)) == sKey::MD() )
 	nrattribs--;
 
     for ( int idx=1; idx<=2; idx++ )

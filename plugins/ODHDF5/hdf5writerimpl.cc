@@ -434,8 +434,8 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, H5::H5Object& h5obj,
     {
 	for ( int idx=0; idx<iop.size(); idx++ )
 	{
-	    const FixedString ky( iop.getKey(idx) );
-	    const FixedString val( iop.getValue(idx) );
+	    const StringView ky( iop.getKey(idx) );
+	    const StringView val( iop.getValue(idx) );
 	    setAttribute( ky.str(), val.str(), h5obj );
 	}
     }

@@ -553,7 +553,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     , contourintv_(intv)
     , propertyChanged(this)
     , intervalChanged(this)
-    , iszval_(FixedString(uiContourTreeItem::sKeyZValue()) == attrnm)
+    , iszval_(StringView(uiContourTreeItem::sKeyZValue()) == attrnm)
 {
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
 

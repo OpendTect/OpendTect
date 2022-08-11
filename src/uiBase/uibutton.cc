@@ -592,7 +592,7 @@ void uiCheckBox::click()
 
 uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 {
-    const FixedString nm( name_.getFullString() );
+    const StringView nm( name_.getFullString() );
     const bool istoolbut = nm == tooltip_.getFullString();
     if ( forcetb || istoggle_ || istoolbut )
 	return new uiToolButton( p, *this );

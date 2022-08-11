@@ -161,7 +161,7 @@ inline void set( bool& _to, const char* const& s )
     { _to = yesNoFromString(s); }
 
 template <>
-inline void set( bool& _to, const FixedString& s )
+inline void set( bool& _to, const StringView& s )
     { _to = yesNoFromString(s.str()); }
 
 template <>
@@ -186,7 +186,7 @@ inline void set( bool& _to, const double& d )
 
 #define mConvDeclFromStrToSimpleType(type) \
 template <> mGlobal(Basic) void set(type&,const char* const&); \
-template <> mGlobal(Basic) void set(type&,const FixedString&); \
+template <> mGlobal(Basic) void set(type&,const StringView&); \
 template <> mGlobal(Basic) void set(type&,const BufferString&)
 
 mConvDeclFromStrToSimpleType(short);
@@ -217,7 +217,7 @@ namespace Conv \
 	else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
     } \
-    template <> void set( type& _to, const FixedString& s ) \
+    template <> void set( type& _to, const StringView& s ) \
     { \
 	if ( s.isEmpty() ) { return; } \
     \

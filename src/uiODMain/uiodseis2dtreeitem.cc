@@ -267,7 +267,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx])
-	    const FixedString topattrnm = itm->nrChildren()<=0 ? "" :
+	    const StringView topattrnm = itm->nrChildren()<=0 ? "" :
 		itm->getChild(itm->nrChildren()-1)->name().getOriginalString();
 	    if ( topattrnm != sKeyRightClick() )
 		itm->addAttribItem();
@@ -280,14 +280,14 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( replaceattritm_ && replaceattritm_->findAction(mnuid) )
     {
 	const uiAction* itm = replaceattritm_->findAction( mnuid );
-	FixedString attrnm = itm->text().getOriginalString();
+	StringView attrnm = itm->text().getOriginalString();
 	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	selectLoadAttribute( displayedgeomids, attrnm );
     }
     else if ( removeattritm_ && removeattritm_->findAction(mnuid) )
     {
 	const uiAction* itm = removeattritm_->findAction( mnuid );
-	FixedString attrnm = itm->text().getOriginalString();
+	StringView attrnm = itm->text().getOriginalString();
 	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -301,7 +301,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	const uiAction* itm = dispattritm_->findAction( mnuid );
 	const bool disp = itm;
 	if ( !itm ) itm = hideattritm_->findAction( mnuid );
-	const FixedString attrnm = itm->text().getOriginalString();
+	const StringView attrnm = itm->text().getOriginalString();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	for ( int idx=0; idx<set.size(); idx++ )
@@ -310,7 +310,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( editcoltabitm_ && editcoltabitm_->findAction(mnuid) )
     {
 	const uiAction* itm = editcoltabitm_->findAction( mnuid );
-	const FixedString attrnm = itm->text().getOriginalString();
+	const StringView attrnm = itm->text().getOriginalString();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	if ( set.size() )
@@ -920,7 +920,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     storeditm_.removeItems();
     for ( int idx=0; idx<datasets.size(); idx++ )
     {
-	const FixedString nm = datasets.get(idx).buf();
+	const StringView nm = datasets.get(idx).buf();
 	MenuItem* item = new MenuItem( toUiString(nm) );
 	const SeisIOObjInfo si( nm, Seis::Line );
 	const MultiID mid = si.ioObj() ? si.ioObj()->key() : MultiID::udf();
@@ -949,7 +949,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
     {
-	FixedString nm = steerdatanames.get(idx).buf();
+	StringView nm = steerdatanames.get(idx).buf();
 	MenuItem* item = new MenuItem(mToUiStringTodo(nm));
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
@@ -973,7 +973,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false )
 	    for ( int idx=0; idx<zattribnms.size(); idx++ )
 	    {
-		FixedString nm = zattribnms.get(idx).buf();
+		StringView nm = zattribnms.get(idx).buf();
 		MenuItem* item = new MenuItem( toUiString(nm) );
 		const bool docheck = isstored && nm==as.userRef();
 		if ( docheck ) docheckparent=true;
@@ -1124,7 +1124,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     {
 	attrserv->setTargetSelSpecs( as );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-	const FixedString zdomainkey = as[0].zDomainKey();
+	const StringView zdomainkey = as[0].zDomainKey();
 	const bool alreadytransformed =
 		scene && zdomainkey==scene->zDomainKey();
 	const TrcKeyZSampling tkzs =

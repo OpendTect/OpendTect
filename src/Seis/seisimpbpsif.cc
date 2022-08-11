@@ -132,7 +132,7 @@ bool SeisImpBPSIF::readFileHeader()
 	    *attrstr++ = '\0';
 	    char* subnrstr = ln.getCStr() + 9;
 	    removeTrailingBlanks( subnrstr );
-	    const FixedString fssubnrstr = FixedString(subnrstr);
+	    const StringView fssubnrstr = StringView(subnrstr);
 	    if ( fssubnrstr == "0" || fssubnrstr == "1" || fssubnrstr == "2" )
 		continue; // coordinates
 

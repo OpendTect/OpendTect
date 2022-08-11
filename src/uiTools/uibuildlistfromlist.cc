@@ -69,7 +69,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     }
     else
     {
-	int butsz = FixedString(itmtyp).size() + 8;
+	int butsz = StringView(itmtyp).size() + 8;
 	if ( butsz < 20 ) butsz = 20;
 
 #undef mDefBut

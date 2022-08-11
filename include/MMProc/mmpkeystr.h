@@ -13,26 +13,26 @@
 
 namespace MMPStr
 {
-    inline FixedString sMMPClient()		{ return "mmpclient"; }
-    inline FixedString sMMPServer()		{ return "mmpserver"; }
-    inline FixedString sDataRoot()		{ return "dataroot"; }
-    inline FixedString sDefaultDataRoot()	{ return "defdataroot"; }
-    inline FixedString sError()			{ return "error"; }
-    inline FixedString sSetDataRoot()		{ return "dataroot_set"; }
-    inline FixedString sGetDataRoot()		{ return "dataroot_get"; }
-    inline FixedString sCheckDataRoot()		{ return "dataroot_chk"; }
-    inline FixedString sLogFile()		{ return "logfile"; }
-    inline FixedString sGetLogFile()		{ return "logfile_get"; }
-    inline FixedString sODVersion()		{ return "odversion"; }
-    inline FixedString sODPlatform()		{ return "odplatform"; }
-    inline FixedString sOK()			{ return "ok"; }
-    inline FixedString sStartJob()		{ return "startjob"; }
-    inline FixedString sStatus()		{ return "status"; }
+    inline StringView sMMPClient()		{ return "mmpclient"; }
+    inline StringView sMMPServer()		{ return "mmpserver"; }
+    inline StringView sDataRoot()		{ return "dataroot"; }
+    inline StringView sDefaultDataRoot()	{ return "defdataroot"; }
+    inline StringView sError()			{ return "error"; }
+    inline StringView sSetDataRoot()		{ return "dataroot_set"; }
+    inline StringView sGetDataRoot()		{ return "dataroot_get"; }
+    inline StringView sCheckDataRoot()		{ return "dataroot_chk"; }
+    inline StringView sLogFile()		{ return "logfile"; }
+    inline StringView sGetLogFile()		{ return "logfile_get"; }
+    inline StringView sODVersion()		{ return "odversion"; }
+    inline StringView sODPlatform()		{ return "odplatform"; }
+    inline StringView sOK()			{ return "ok"; }
+    inline StringView sStartJob()		{ return "startjob"; }
+    inline StringView sStatus()		{ return "status"; }
 
-    inline FixedString sProcName()		{ return "proc_name"; }
-    inline FixedString sParFile()		{ return "par_file"; }
-    inline FixedString sHostName()		{ return "host_name"; }
-    inline FixedString sPortName()		{ return "port_name"; }
-    inline FixedString sJobID()			{ return "job_id"; }
+    inline StringView sProcName()		{ return "proc_name"; }
+    inline StringView sParFile()		{ return "par_file"; }
+    inline StringView sHostName()		{ return "host_name"; }
+    inline StringView sPortName()		{ return "port_name"; }
+    inline StringView sJobID()			{ return "job_id"; }
 
 };

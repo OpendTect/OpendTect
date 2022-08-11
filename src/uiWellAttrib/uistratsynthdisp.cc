@@ -1914,7 +1914,7 @@ void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
 
 void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
-    FixedString valstr = pars.find( sKey::TraceNr() );
+    StringView valstr = pars.find( sKey::TraceNr() );
     if ( valstr.isEmpty() )
 	return;
 
@@ -1959,10 +1959,10 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
-    FixedString vdstr = pars.find( "Variable density data" );
-    FixedString wvastr = pars.find( "Wiggle/VA data" );
-    FixedString vdvalstr = pars.find( "VD Value" );
-    FixedString wvavalstr = pars.find( "WVA Value" );
+    StringView vdstr = pars.find( "Variable density data" );
+    StringView wvastr = pars.find( "Wiggle/VA data" );
+    StringView vdvalstr = pars.find( "VD Value" );
+    StringView wvavalstr = pars.find( "WVA Value" );
     const bool issame = vdstr && wvastr && vdstr==wvastr;
     if ( vdvalstr )
     {

@@ -1159,7 +1159,7 @@ OD::Color Seis2DDisplay::getAnnotColor() const
 Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 						const char* linenmptr )
 {
-    FixedString linenm = linenmptr;
+    StringView linenm = linenmptr;
     TypeSet<VisID> ids;
     visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), ids );
 

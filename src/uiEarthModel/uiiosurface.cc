@@ -55,7 +55,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     , forread_(forread)
     , objfld_(0)
 {
-    const FixedString typ( tp );
+    const StringView typ( tp );
     if ( typ == EMHorizon2DTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMHorizon2D);
     else if ( typ == EMHorizon3DTranslatorGroup::sGroupName() )

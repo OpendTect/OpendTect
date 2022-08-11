@@ -95,7 +95,7 @@ mGlobal(EarthModel) bool OD_Get_Body_Conversion_Status()
 	if ( ioobj.group()=="MarchingCubesSurface" )
 	    return true;
 
-	const FixedString translt( ioobj.translator() );
+	const StringView translt( ioobj.translator() );
 	if ( translt=="MCBody" || translt=="PolygonBody" ||
 	     translt=="RandomPosBody" )
 	    return true;
@@ -120,7 +120,7 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	IOObj& ioobj = const_cast<IOObj&>(*ioobjs[idx]);
-	const FixedString translt( ioobj.translator() );
+	const StringView translt( ioobj.translator() );
 	IOPar& iopar = ioobj.pars();
 	BufferString objtype;
 	iopar.get( sKey::Type(), objtype );

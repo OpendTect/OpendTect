@@ -746,7 +746,7 @@ void uiAttrSel::updateInput()
 
 const char* uiAttrSel::userNameFromKey( const char* txt ) const
 {
-    const FixedString txtstr = txt;
+    const StringView txtstr = txt;
     if ( txtstr.isEmpty() )
 	return "";
 

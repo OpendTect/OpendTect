@@ -146,7 +146,7 @@ void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 bool uiFrequencyAttrib::areUIParsOK()
 {
-    if ( FixedString(winfld->windowName()) == "CosTaper" )
+    if ( StringView(winfld->windowName()) == "CosTaper" )
     {
 	float paramval = winfld->windowParamValue();
 	if ( paramval<0 || paramval>1  )

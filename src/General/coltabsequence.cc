@@ -511,7 +511,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
-    FixedString seqnm = iopar.find( sKey::Name() );
+    StringView seqnm = iopar.find( sKey::Name() );
     if ( !seqnm )
 	return false;
 

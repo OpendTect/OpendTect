@@ -36,19 +36,19 @@ public:
     BufferString		pan_;
 
 
-    static FixedString		sName();
-    static FixedString		sRotate();
-    static FixedString		sPan();
-    static FixedString		sZoom();
+    static StringView		sName();
+    static StringView		sRotate();
+    static StringView		sPan();
+    static StringView		sZoom();
 
-    static FixedString		sControl();
-    static FixedString		sShift();
-    static FixedString		sRight();
-    static FixedString		sLeft();
-    static FixedString		sMiddle();
-    static FixedString		sNone();
+    static StringView		sControl();
+    static StringView		sShift();
+    static StringView		sRight();
+    static StringView		sLeft();
+    static StringView		sMiddle();
+    static StringView		sNone();
 
-    static FixedString		sSettingsKey();
+    static StringView		sSettingsKey();
 };
 
 

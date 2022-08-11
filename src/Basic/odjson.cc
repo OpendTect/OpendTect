@@ -130,7 +130,7 @@ void setValue( const char* cstr )
 
     if ( !cstr )
 	cstr = "";
-    const int len = FixedString(cstr).size();
+    const int len = StringView(cstr).size();
     char* contstr = new char[len + 1];
 #ifdef __win__
     strcpy_s( contstr, len+1, cstr );

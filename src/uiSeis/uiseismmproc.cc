@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 {
-    FixedString prognm = pnm;
+    StringView prognm = pnm;
     return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib )
 	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM )
 	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::TwoDto3D );
@@ -43,7 +43,7 @@ bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
     if ( !isSuitedFor(js.prognm_) )
 	return false;
 
-    FixedString outtyp = js.pars_.find(
+    StringView outtyp = js.pars_.find(
 		IOPar::compKey(sKey::Output(),sKey::Type()) );
     return outtyp != sKey::Surface();
 }
@@ -134,7 +134,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
 
-    FixedString res = jobpars_.find( sKey::Target() );
+    StringView res = jobpars_.find( sKey::Target() );
     uiString captn = tr("Processing");
     if ( !res.isEmpty() )
 	captn.append(" '%1'").arg(res);
@@ -216,7 +216,7 @@ bool uiSeisMMProc::initWork( bool retry )
 	    jobpars_.set( sKey::TmpStor(), tmpstordir );
 	}
 
-	const FixedString progname = jobpars_.find( "Program.Name" );
+	const StringView progname = jobpars_.find( "Program.Name" );
 	jobprov_ = new SeisJobExecProv( progname, jobpars_ );
 	if (jobprov_->errMsg().isSet())
 	    { errmsg_ = jobprov_->errMsg(); return false; }

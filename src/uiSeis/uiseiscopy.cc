@@ -112,7 +112,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     IOPar& outpars = outioobj->pars();
     outpars.addFrom( inioobj->pars() );
     const bool issteer =
-	FixedString(sKey::Steering()) == outpars.find( sKey::Type() );
+	StringView(sKey::Steering()) == outpars.find( sKey::Type() );
     const int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
     if ( issteer && compnr>-1 )
 	outpars.set( sKey::Type(), sKey::Attribute() );

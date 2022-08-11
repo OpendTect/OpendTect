@@ -60,7 +60,7 @@ public:
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
-    void		setCurrentItem( const FixedString& fs )
+    void		setCurrentItem( const StringView& fs )
 						{ setCurrentItem( fs.str() ); }
     void		addItem(const uiString&) override;
     void		addItem( const char* s ) { addItem(toUiString(s)); }

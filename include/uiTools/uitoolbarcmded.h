@@ -25,11 +25,11 @@ class uiToolButton;
 class CommandDefs;
 
 namespace sKey {
-    inline FixedString ExeName()	{ return "ExeName"; }
-    inline FixedString Command()	{ return "Command"; }
-    inline FixedString Arguments()	{ return "Arguments"; }
-    inline FixedString ToolTip()	{ return "ToolTip"; }
-    inline FixedString IconFile()	{ return "IconFile"; }
+    inline StringView ExeName()	{ return "ExeName"; }
+    inline StringView Command()	{ return "Command"; }
+    inline StringView Arguments()	{ return "Arguments"; }
+    inline StringView ToolTip()	{ return "ToolTip"; }
+    inline StringView IconFile()	{ return "IconFile"; }
 };
 
 

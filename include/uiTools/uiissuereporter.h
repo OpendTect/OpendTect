@@ -30,7 +30,7 @@ public:
     System::IssueReporter&	reporter() { return reporter_; }
     const char*			errMsg() const;
 
-    static FixedString		sKeyAllowSending()
+    static StringView		sKeyAllowSending()
 				{ return "Allow sending of issue-reports"; }
 
 protected:

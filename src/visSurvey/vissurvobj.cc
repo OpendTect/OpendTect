@@ -108,7 +108,7 @@ bool SurveyObject::alreadyTransformed( int attrib ) const
     const Attrib::SelSpec* as = getSelSpec( attrib );
     if ( !as ) return false;
 
-    const FixedString zdomainkey = as->zDomainKey();
+    const StringView zdomainkey = as->zDomainKey();
     return scene_ && zdomainkey == scene_->zDomainKey();
 }
 
@@ -219,7 +219,7 @@ bool SurveyObject::usePar( const IOPar& par )
     if ( par.get(sKeyTC2RGBA(),tc2rgbatype) )
     {
 	if ( !getChannels2RGBA() ||
-	     FixedString(tc2rgbatype) != getChannels2RGBA()->getClassName() )
+	     StringView(tc2rgbatype) != getChannels2RGBA()->getClassName() )
 	{
 	    mDynamicCastGet( visBase::TextureChannel2RGBA*, tc2rgba,
 		    visBase::DataManager::factory().create(tc2rgbatype) )

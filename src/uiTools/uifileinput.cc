@@ -202,7 +202,7 @@ void uiFileInput::fnmEntered( CallBacker* )
 	return;
 
     FilePath fp( fileName() );
-    const FixedString ext = fp.extension();
+    const StringView ext = fp.extension();
     if ( !ext.isEmpty() )
 	return;
 
@@ -290,7 +290,7 @@ void uiFileInput::doSelect( CallBacker* )
 	if ( !forread_ && !defaultext_.isEmpty() && !isdir )
 	{
 	    FilePath fp( newfname );
-	    const FixedString ext = fp.extension();
+	    const StringView ext = fp.extension();
 	    if ( ext.isEmpty() )
 	    {
 		BufferString selext = getExtFromFilter( selfltr_ );

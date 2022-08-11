@@ -75,7 +75,7 @@ static const char* sKeyHomePos()	{ return "Home position"; }
 static const char* sKeyCameraRotation() { return "Camera Rotation"; }
 static const char* sKeyWheelDisplayMode() { return "Wheel Display Mode"; }
 
-FixedString ui3DViewer::sKeyBindingSettingsKey()
+StringView ui3DViewer::sKeyBindingSettingsKey()
 {
     return KeyBindings::sSettingsKey();
 }
@@ -1359,7 +1359,7 @@ void HomePosManager::getNames( BufferStringSet& nms ) const
     nms.erase();
     for ( int idx=0; idx<homepos_.size(); idx++ )
     {
-	FixedString parnm = homepos_[idx]->find( sKey::Name() );
+	StringView parnm = homepos_[idx]->find( sKey::Name() );
 	nms.add( parnm );
     }
 }

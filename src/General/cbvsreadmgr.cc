@@ -36,7 +36,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const TrcKeyZSampling* cs,
 {
     bool foundone = false;
 
-    if ( !fnm || FixedString(fnm)==StreamProvider::sStdIO() )
+    if ( !fnm || StringView(fnm)==StreamProvider::sStdIO() )
     {
 	addReader( new od_istream( std::cin ), cs, glob_info_only,
                    forceusecbvsinfo );

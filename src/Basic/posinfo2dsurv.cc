@@ -283,7 +283,7 @@ mIdxTyp PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
     if ( !lsnmstr || !*lsnmstr )
 	return Line2DKey::udf().lsID();
 
-    FixedString lsnm = lsnmstr;
+    StringView lsnm = lsnmstr;
 
     for ( int idx=0; idx<lsindex_.size(); idx++ )
     {
@@ -298,7 +298,7 @@ mIdxTyp PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
 
 mIdxTyp PosInfo::Survey2D::getLineID( const char* lnm ) const
 {
-    FixedString linenm( lnm );
+    StringView linenm( lnm );
     if ( linenm.isEmpty() )
 	return Line2DKey::udf().lineID();
 
@@ -607,7 +607,7 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
     bool isascii = cWriteAscii;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( FixedString(astrm.keyWord())==sKeyStor )
+	if ( StringView(astrm.keyWord())==sKeyStor )
 	    isascii = *astrm.value() != 'B';
     }
     if ( !l2dd.read(sfio.istrm(),isascii) )
@@ -887,7 +887,7 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     ascistream astrm( sfio.istrm() ); // read header
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( FixedString(astrm.keyWord()) == sKeyTrcDist )
+	if ( StringView(astrm.keyWord()) == sKeyTrcDist )
 	{
 	    FileMultiString statsstr(astrm.value());
 	    max = statsstr.getFValue(0);

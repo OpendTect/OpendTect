@@ -462,7 +462,7 @@ DataColDef& DataPointSet::gtColDef( DataPointSet::ColID cid ) const
 
 DataPointSet::ColID DataPointSet::indexOf( const char* nmstr ) const
 {
-    FixedString nm( nmstr );
+    StringView nm( nmstr );
     if ( nm.isEmpty() )
 	return -1;
 

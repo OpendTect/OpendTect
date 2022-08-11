@@ -27,7 +27,7 @@ Scaler* Scaler::get( const char* str )
 	return 0;
 
     FileMultiString fs( str );
-    FixedString typ = fs[0];
+    StringView typ = fs[0];
     Scaler* scaler = 0;
     if ( typ == sLinScaler )
 	scaler = new LinScaler;

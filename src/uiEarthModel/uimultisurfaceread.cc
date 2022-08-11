@@ -87,7 +87,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
-    const FixedString type( typ );
+    const StringView type( typ );
     if ( type == EMHorizon2DTranslatorGroup::sGroupName() ||
 	 type == EMFaultStickSetTranslatorGroup::sGroupName() ||
 	 type == EMFault3DTranslatorGroup::sGroupName() )

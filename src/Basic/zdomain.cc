@@ -72,14 +72,14 @@ bool ZDomain::isSI( const IOPar& iop )
 
 bool ZDomain::isDepth( const IOPar& iop )
 {
-    FixedString domstr = iop.find( sKey() );
+    StringView domstr = iop.find( sKey() );
     return !domstr.isEmpty() ? domstr==sKeyDepth() : !::SI().zIsTime();
 }
 
 
 bool ZDomain::isTime( const IOPar& iop )
 {
-    FixedString domstr = iop.find( sKey() );
+    StringView domstr = iop.find( sKey() );
     return domstr.isEmpty() ? ::SI().zIsTime() : domstr==sKeyTime();
 }
 

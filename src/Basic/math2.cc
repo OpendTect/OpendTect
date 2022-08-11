@@ -172,7 +172,7 @@ int Math::NrSignificantDecimals( double val )
     const char* str = resstr.buf();
     const char* ptrdot = firstOcc( str, '.' );
     if ( !ptrdot ) return 0;
-    int ret = FixedString(str).size();
+    int ret = StringView(str).size();
     const char* ptrend = str + ret;
     while ( ptrend-- > ptrdot )
     {

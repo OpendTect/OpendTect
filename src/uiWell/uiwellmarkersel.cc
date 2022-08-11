@@ -258,7 +258,7 @@ uiRetVal uiWellMarkerSel::isOK() const
     if ( getMkType(true) == End || (botfld_ && getMkType(false) == Start) )
 	uirv.add( tr("Invalid markers selection") );
     if ( !setup_.single_ && !setup_.allowsame_ &&
-	 FixedString(getText(true)) == FixedString(getText(false)) )
+	 StringView(getText(true)) == StringView(getText(false)) )
 	uirv.add( tr("Start and stop markers need to be different") );
 
     return uirv;

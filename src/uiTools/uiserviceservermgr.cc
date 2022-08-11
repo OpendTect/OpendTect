@@ -40,8 +40,8 @@ uiServiceServerMgr::~uiServiceServerMgr()
 
 bool uiServiceServerMgr::canParseAction( const char* action, uiRetVal& uirv )
 {
-    if ( FixedString(action) == sKeyRaiseEv() ||
-        FixedString(action) == sKeyClientAppCloseEv() )
+    if ( StringView(action) == sKeyRaiseEv() ||
+        StringView(action) == sKeyClientAppCloseEv() )
 	return true;
 
     return ServiceServerMgr::canParseAction( action, uirv );
@@ -57,12 +57,12 @@ bool uiServiceServerMgr::canParseRequest( const OD::JSON::Object& request,
 
 uiRetVal uiServiceServerMgr::doHandleAction( const char* action )
 {
-    if ( FixedString(action) == sKeyRaiseEv() )
+    if ( StringView(action) == sKeyRaiseEv() )
     {
 	uiMain::instance().topLevel()->showAndActivate();
 	return uiRetVal::OK();
     }
-    else if ( FixedString(action) == sKeyClientAppCloseEv() )
+    else if ( StringView(action) == sKeyClientAppCloseEv() )
     {
         setUnregistered();
         return uiRetVal::OK();

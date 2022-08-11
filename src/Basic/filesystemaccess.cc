@@ -43,7 +43,7 @@ ________________________________________________________________________
 mImplFactory( OD::FileSystemAccess, OD::FileSystemAccess::factory );
 
 static const char* sProtSep = FilePath::uriProtocolSeparator();
-static const int cProtSepLen = FixedString(sProtSep).size();
+static const int cProtSepLen = StringView(sProtSep).size();
 
 #define mLocalFileSystemNotInited	0
 #define mLocalFileSystemIniting		1
@@ -620,7 +620,7 @@ BufferString FileSystemAccess::iconForProtocol( const char* prot )
 
 BufferString FileSystemAccess::withProtocol( const char* fnm, const char* prot )
 {
-    if ( FixedString(prot) == LocalFileSystemAccess::sFactoryKeyword() )
+    if ( StringView(prot) == LocalFileSystemAccess::sFactoryKeyword() )
 	prot = 0;
 
     if ( !fnm || !*fnm )

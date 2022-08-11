@@ -67,7 +67,7 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 	     desc.type_!=VelocityDesc::Avg ) )
 	return;
 
-    FixedString oldoutputtype =
+    StringView oldoutputtype =
 	outputveltype_->box()->textOfItem(outputveltype_->box()->currentItem());
 
     TypeSet<VelocityDesc::Type> types;
@@ -135,7 +135,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 	return false;
     }
 
-    const FixedString outputtype =
+    const StringView outputtype =
 	outputveltype_->box()->textOfItem( outputvelidx );
 
     VelocityDesc outputdesc;

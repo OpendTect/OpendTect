@@ -56,7 +56,7 @@ static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
 class IOStreamProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const override
-		{ return FixedString(typ)==StreamConn::sType(); }
+		{ return StringView(typ)==StreamConn::sType(); }
     IOObj*	make( const char* nm,
 		      const MultiID& ky, bool fd ) const override
 		{ return new IOStream(nm,ky.toString(),fd); }

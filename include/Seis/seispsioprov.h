@@ -80,7 +80,7 @@ public:
     virtual SeisPSWriter*	get2DWriter(const IOObj&,Pos::GeomID) const;
     virtual SeisPSWriter*	get2DWriter(const IOObj&,const char*) const;
 
-    FixedString			type() const		{ return type_.buf(); }
+    StringView			type() const		{ return type_.buf(); }
     virtual bool		fetchGeomIDs(const IOObj&,
 					     TypeSet<Pos::GeomID>&) const;
     virtual bool		fetchLineNames(const IOObj&,

@@ -124,10 +124,10 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
 
 Batch::JobSpec::ProcType Batch::JobSpec::procTypeFor( const char* odpnm )
 {
-    if ( !odpnm || !*odpnm || !FixedString(odpnm).startsWith("od_process_") )
+    if ( !odpnm || !*odpnm || !StringView(odpnm).startsWith("od_process_") )
 	return NonODBase;
 
-    const FixedString pnm( odpnm + 11 );
+    const StringView pnm( odpnm + 11 );
 #   define mRetForName(typ,str) \
     if ( pnm == #str ) return typ
 

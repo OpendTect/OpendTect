@@ -490,7 +490,7 @@ void uiPresentationMakerDlg::removeCB( CallBacker* )
 
 void uiPresentationMakerDlg::createCB( CallBacker* )
 {
-    const FixedString title = titlefld_->text();
+    const StringView title = titlefld_->text();
     if ( title.isEmpty() )
     {
 	uiMSG().error( tr("Please provide a title") );

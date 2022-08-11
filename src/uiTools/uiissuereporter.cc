@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 #include "fstream"
 
-static FixedString sKeyAskBeforeSending()
+static StringView sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }
 
 

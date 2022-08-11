@@ -267,7 +267,7 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 
 #define mSetDataPointSet(nm) \
     const bool attribselchange = \
-		FixedString(selspecs_.first().userRef())!=nm; \
+		StringView(selspecs_.first().userRef())!=nm; \
     selspecs_.first().set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     DataPointSet* data = new DataPointSet(false,true); \
     DPM( DataPackMgr::PointID() ).add( data ); \

@@ -47,7 +47,7 @@ public:
 			{
 			    if ( *s == 'W' ) return Words;
 			    if ( *s == 'Q' ) return QWord;
-			    if ( FixedString(s)=="FileRead" )
+			    if ( StringView(s)=="FileRead" )
 				return FileRead;
 			    else
 				return FileWrite;

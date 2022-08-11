@@ -130,7 +130,7 @@ bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
     if ( !withmathop_ || (withmathop_ && !mathobj_) )
 	return true;
 
-    const FixedString attrnm = newAttribName();
+    const StringView attrnm = newAttribName();
     if ( attrnm.isEmpty() )
     {
 	uiMSG().error( tr("Please provide a Column name") );

@@ -61,7 +61,7 @@ static BufferString getDefTempStorDir()
 
 static BufferString getExecScript( const char* instdir )
 {
-    FixedString instdirstr = instdir;
+    StringView instdirstr = instdir;
     if ( instdirstr == GetSoftwareDir(false) )
 	return GetExecScript(0);
 
@@ -315,7 +315,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( mIsUdf(nrinlperjob) || nrinlperjob < 1 )
 	mErrRet( tr("Please specify number of inlines per job"))
 
-    FixedString cmd = cmdfld_->text();
+    StringView cmd = cmdfld_->text();
     if ( cmd.isEmpty() )
 	mErrRet(tr("Please enter a valid command for submitting jobs"))
 
@@ -402,7 +402,7 @@ bool uiClusterJobProv::createJobScripts( const char* dataroot,
 
 const char* uiClusterJobProv::getOutPutIDKey() const
 {
-    FixedString res = iopar_.find( sKeySeisOutIDKey() );
+    StringView res = iopar_.find( sKeySeisOutIDKey() );
     if ( !res )
 	res = sKeyOutputID();
 
@@ -440,7 +440,7 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
 
 bool Batch::SimpleClusterProgDef::isSuitedFor( const char* pnm ) const
 {
-    FixedString prognm = pnm;
+    StringView prognm = pnm;
     return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib )
 	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM );
 }
@@ -451,7 +451,7 @@ bool Batch::SimpleClusterProgDef::canHandle( const JobSpec& js ) const
     if ( !isSuitedFor(js.prognm_) )
 	return false;
 
-    FixedString outtyp = js.pars_.find(
+    StringView outtyp = js.pars_.find(
 		IOPar::compKey(sKey::Output(),sKey::Type()) );
     return outtyp != sKey::Surface();
 }

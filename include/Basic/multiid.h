@@ -76,7 +76,7 @@ private:
 public:
 // Obsolete stuff
 			MultiID(int id)				= delete;
-			MultiID(const FixedString&)		= delete;
+			MultiID(const StringView&)		= delete;
 
     void		setEmpty()				= delete;
     bool		isEmpty() const				= delete;
@@ -84,7 +84,7 @@ public:
     inline bool		operator ==(const char*) const		= delete;
     inline bool		operator !=(const char*) const		= delete;
     inline MultiID&	operator =(const CompoundKey&)		= delete;
-    inline MultiID&	operator =(const FixedString&)		= delete;
+    inline MultiID&	operator =(const StringView&)		= delete;
     inline MultiID&	operator =(const char*)			= delete;
     MultiID&		operator +=(const char*)		= delete;
 

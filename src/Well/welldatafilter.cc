@@ -518,7 +518,7 @@ Interval<float> WellDataFilter::getDepthRangeFromMarkers(
 					bool vertical ) const
 {
     Interval<float> markerrg = Interval<float>::udf();
-    if ( FixedString(topnm) == Well::ZRangeSelector::sKeyDataStart() )
+    if ( StringView(topnm) == Well::ZRangeSelector::sKeyDataStart() )
 	markerrg.start = vertical ? wd->track().zRange().start
 				  : wd->track().dahRange().start;
     else
@@ -532,7 +532,7 @@ Interval<float> WellDataFilter::getDepthRangeFromMarkers(
 	}
     }
 
-    if ( FixedString(botnm) == Well::ZRangeSelector::sKeyDataEnd() )
+    if ( StringView(botnm) == Well::ZRangeSelector::sKeyDataEnd() )
 	markerrg.stop = vertical ? wd->track().zRange().stop
 				 : wd->track().dahRange().stop;
     else

@@ -114,8 +114,8 @@ static const char* sKeyFileOrder()	{ return "File order"; }
 
 
 #define mGet( tp, fss, f3d, fset ) \
-    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
-    (FixedString(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? fset : f3d)
+    StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
+    (StringView(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? fset : f3d)
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D), \

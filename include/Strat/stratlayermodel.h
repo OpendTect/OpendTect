@@ -73,7 +73,7 @@ public:
 					bool mathpreserve=false) const;
 
     static const char*		sKeyNrSeqs()	{ return "Nr Sequences"; }
-    static FixedString		defSVelStr()	{ return "DefaultSVel"; }
+    static StringView		defSVelStr()	{ return "DefaultSVel"; }
 
 protected:
 

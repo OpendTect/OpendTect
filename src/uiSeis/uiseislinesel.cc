@@ -931,7 +931,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
 	if ( !linepar->get(sKey::GeomID(),geomid) )
 	{
-	    FixedString lnm = linepar->find( sKey::Name() );
+	    StringView lnm = linepar->find( sKey::Name() );
 	    geomid = Survey::GM().getGeomID( lsetname, lnm );
 	}
 

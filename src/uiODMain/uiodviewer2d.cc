@@ -338,11 +338,11 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 	if ( ids.isPresent(packid) )
 	    { vwr.usePack( FlatView::Viewer::WVA, packid, isnew ); continue; }
 
-	const FixedString newpackname = dpm.nameOf(packid);
+	const StringView newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    const FixedString packname = dpm.nameOf(ids[idx]);
+	    const StringView packname = dpm.nameOf(ids[idx]);
 	    if ( packname == newpackname )
 	    {
 		if ( ids[idx] == vwr.packID(!wva) )
@@ -687,7 +687,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
     if ( !seisdp || !(comp<seisdp->nrComponents()) )
 	return dpid;
 
-    const FixedString zdomainkey( seisdp->zDomain().key() );
+    const StringView zdomainkey( seisdp->zDomain().key() );
     const bool alreadytransformed =
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( datatransform_ && !alreadytransformed )
@@ -1101,7 +1101,7 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     Coord3 mousepos( Coord3::udf() );
     mCBCapsuleUnpack(IOPar,pars,cb);
 
-    FixedString valstr = pars.find( "X" );
+    StringView valstr = pars.find( "X" );
     if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
     if ( !valstr.isEmpty() ) mousepos.x = valstr.toDouble();
     valstr = pars.find( "Y" );

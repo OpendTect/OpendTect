@@ -29,229 +29,229 @@ to this namespace.
 
 namespace sKey
 {
-    inline FixedString All()		{ return "All"; }
-    inline FixedString Ascii()		{ return "Ascii"; }
-    inline FixedString Alignment()	{ return "Alignment"; }
-    inline FixedString Attribute()	{ return "Attribute"; }
-    inline FixedString Attribute2D()	{ return "Attribute2D"; }
-    inline FixedString Attributes()	{ return "Attributes"; }
-    inline FixedString Average()	{ return "Average"; }
-    inline FixedString Azimuth()	{ return "Azimuth"; }
-    inline FixedString Binary()		{ return "Binary"; }
-    inline FixedString Body()		{ return "Body"; }
-    inline FixedString Category()	{ return "Category"; }
-    inline FixedString Chain()		{ return "Chain"; }
-    inline FixedString Color()		{ return "Color"; }
-    inline FixedString Component()	{ return "Component"; }
-    inline FixedString Components()	{ return "Components"; }
-    inline FixedString Content()	{ return "Content"; }
-    inline FixedString CoordSys()	{ return "Coordinate System"; }
-    inline FixedString CrlRange()	{ return "Cross-line range"; }
-    inline FixedString Crossline()	{ return "Cross-line"; }
-    inline FixedString Cube()		{ return "Cube"; }
-    inline FixedString Data()		{ return "Data"; }
-    inline FixedString DataRoot()	{ return "Data Root"; }
-    inline FixedString DataSet()	{ return "DataSet"; }
-    inline FixedString DataStorage()	{ return "Data storage"; }
-    inline FixedString DataType()	{ return "DataType"; }
-    inline FixedString Date()		{ return "Date"; }
-    inline FixedString DateTime()	{ return "Date/Time"; }
-    inline FixedString Default()	{ return "Default"; }
-    inline FixedString DefaultDataRoot(){ return "Default Data Root"; }
-    inline FixedString Depth()		{ return "Depth"; }
-    inline FixedString DepthRange()	{ return "Depth Range"; }
-    inline FixedString Desc()		{ return "Description"; }
-    inline FixedString Distribution()	{ return "Distribution"; }
-    inline FixedString EmptyString()	{ return ""; }
-    inline FixedString Err()		{ return "Err"; }
-    inline FixedString Factor()		{ return "Factor"; }
-    inline FixedString Fault()		{ return "Fault"; }
-    inline FixedString FaultStick()	{ return "FaultStick"; }
-    inline FixedString FileName()	{ return "File name"; }
-    inline FixedString Filter()		{ return "Filter"; }
-    inline FixedString FirstCrl()	{ return "First Cross-line"; }
-    inline FixedString FirstInl()	{ return "First In-line"; }
-    inline FixedString FirstTrc()	{ return "First Trace"; }
-    inline FixedString FirstZ()		{ return "First Z"; }
-    inline FixedString FloatUdf()	{ return "1e30"; }
-    inline FixedString Font()		{ return "Font"; }
-    inline FixedString Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
-    inline FixedString GeomID()		{ return "GeomID"; }
-    inline FixedString GeomIDs()	{ return "GeomIDs"; }
-    inline FixedString GeomSystem()	{ return "GeomSystem"; }
-    inline FixedString Geometry()	{ return "Geometry"; }
-    inline FixedString Histogram()	{ return "Histogram"; }
-    inline FixedString Horizon()	{ return "Horizon"; }
-    inline FixedString Horizon2D()	{ return "Horizon2D"; }
-    inline FixedString ID()		{ return "ID"; }
-    inline FixedString IDs()		{ return "IDs"; }
-    inline FixedString IOSelection()	{ return "I/O Selection"; }
-    inline FixedString InlRange()	{ return "In-line range"; }
-    inline FixedString Inline()		{ return "In-line"; }
-    inline FixedString Input()		{ return "Input"; }
-    inline FixedString Is2D()		{ return "Is2D"; }
-    inline FixedString Keys()		{ return "Keys"; }
-    inline FixedString LastCrl()	{ return "Last Cross-line"; }
-    inline FixedString LastInl()	{ return "Last In-line"; }
-    inline FixedString LastTrc()	{ return "Last Trace"; }
-    inline FixedString LastZ()		{ return "Last Z"; }
-    inline FixedString Level()		{ return "Level"; }
-    inline FixedString Line()		{ return "Line"; }
-    inline FixedString LineKey()	{ return "Line key"; }
-    inline FixedString LineName()	{ return "Line name"; }
-    inline FixedString LineNames()	{ return "Line names"; }
-    inline FixedString LineStyle()	{ return "Line Style"; }
-    inline FixedString Lines()		{ return "Lines"; }
-    inline FixedString Local()		{ return "Local"; }
-    inline FixedString Log()		{ return "Log"; }
-    inline FixedString LogFile()	{ return "Log file"; }
-    inline FixedString Logs()		{ return "Logs"; }
-    inline FixedString MD(int n=1)	{ return n<2 ? "MD" : "MDs"; }
-    inline FixedString Marker()		{ return "Marker"; }
-    inline FixedString Markers()	{ return "Markers"; }
-    inline FixedString MarkerStyle()	{ return "Marker Style"; }
-    inline FixedString Maximum()	{ return "Maximum"; }
-    inline FixedString Median()		{ return "Median"; }
-    inline FixedString Minimum()	{ return "Minimum"; }
-    inline FixedString Mnemonics()	{ return "Mnemonics"; }
-    inline FixedString Mode()		{ return "Mode"; }
-    inline FixedString Model()		{ return "Model"; }
-    inline FixedString Models()		{ return "Models"; }
-    inline FixedString Name()		{ return "Name"; }
-    inline FixedString Names()		{ return "Names"; }
-    inline FixedString NewLine()	{ return "\n"; }
-    inline FixedString No()		{ return "No"; }
-    inline FixedString None()		{ return "None"; }
-    inline FixedString NrFaults()	{ return "Nr Faults";}
-    inline FixedString NrGeoms()	{ return "Nr Geometries";}
-    inline FixedString NrItems()	{ return "Nr Items";}
-    inline FixedString NrValues()	{ return "Nr Values"; }
-    inline FixedString Object()		{ return "Object"; }
-    inline FixedString Offset()		{ return "Offset"; }
-    inline FixedString OffsetRange()	{ return "Offset Range"; }
-    inline FixedString Ok()		{ return "Ok"; }
-    inline FixedString Order()		{ return "Order"; }
-    inline FixedString Output()		{ return "Output"; }
-    inline FixedString OutputID()	{ return "output_id"; }
-    inline FixedString Pars()		{ return "Parameters"; }
-    inline FixedString PickSet()	{ return "PickSet"; }
-    inline FixedString Polygon()	{ return "Polygon"; }
-    inline FixedString Position()	{ return "Position"; }
-    inline FixedString PreStackSeis()	{ return "PreStack Seismic"; }
-    inline FixedString Property()	{ return "Property"; }
-    inline FixedString Python()		{ return "Python"; }
-    inline FixedString Quiet()		{ return "quiet"; }
-    inline FixedString RMS()		{ return "RMS"; }
-    inline FixedString Random()		{ return "Random"; }
-    inline FixedString RandomLine()	{ return "RandomLine"; }
-    inline FixedString Range()		{ return "Range"; }
-    inline FixedString Region()		{ return "Region"; }
-    inline FixedString Sampling()	{ return "Sampling"; }
-    inline FixedString Scale()		{ return "Scale"; }
-    inline FixedString Scaling()	{ return "Scaling"; }
-    inline FixedString SeisCubePositions() { return "Seismic Cube Positions"; }
-    inline FixedString SeisID()		{ return "SeisID"; }
-    inline FixedString Selection()	{ return "Selection"; }
-    inline FixedString SelectionStatus(){ return "Selection status"; }
-    inline FixedString Series()		{ return "Series"; }
-    inline FixedString Server()		{ return "Server"; }
-    inline FixedString ServerNm()	{ return "Server_Name"; }
-    inline FixedString Setup()		{ return "Setup"; }
-    inline FixedString Shape()		{ return "Shape"; }
-    inline FixedString Shortcuts()	{ return "Shortcuts"; }
-    inline FixedString Shotpoint()	{ return "Shotpoint"; }
-    inline FixedString Size()		{ return "Size"; }
-    inline FixedString SliceType()	{ return "SliceType"; }
-    inline FixedString Source()		{ return "Source"; }
-    inline FixedString SpaceString()	{ return " "; }
-    inline FixedString StackOrder()	{ return "Stack order"; }
-    inline FixedString Stats()		{ return "Stats"; }
-    inline FixedString Status()		{ return "Status"; }
-    inline FixedString StdDev()		{ return "StdDev"; }
-    inline FixedString Steering()	{ return "Steering"; }
-    inline FixedString StepCrl()	{ return "Step Cross-line"; }
-    inline FixedString StepInl()	{ return "Step In-line"; }
-    inline FixedString StepOut()	{ return "Stepout"; }
-    inline FixedString StepOutCrl()	{ return "Stepout Cross-line"; }
-    inline FixedString StepOutInl()	{ return "Stepout In-line"; }
-    inline FixedString StepTrc()	{ return "Step Trace"; }
-    inline FixedString StepZ()		{ return "Step Z"; }
-    inline FixedString Stored()		{ return "Stored"; }
-    inline FixedString StratRef()	{ return "Strat Level"; }
-    inline FixedString Subsample()	{ return "Subsample"; }
-    inline FixedString Subsel()		{ return "Subsel"; }
-    inline FixedString Sum()		{ return "Sum"; }
-    inline FixedString Surface()	{ return "Surface"; }
-    inline FixedString Survey()		{ return "Survey"; }
-    inline FixedString SurveyID()	{ return "Survey ID"; }
-    inline FixedString TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
-    inline FixedString TVDSS()		{ return "TVDSS"; }
-    inline FixedString TWT()		{ return "TWT"; }
-    inline FixedString Table()		{ return "Table"; }
-    inline FixedString Target()		{ return "Target"; }
-    inline FixedString Targets()	{ return "Targets"; }
-    inline FixedString TermEm()		{ return "Terminal Emulator"; }
-    inline FixedString Thickness()	{ return "Thickness"; }
-    inline FixedString ThreeD()		{ return "3D"; }
-    inline FixedString Time()		{ return "Time"; }
-    inline FixedString TimeRange()	{ return "Time Range"; }
-    inline FixedString Title()		{ return "Title"; }
-    inline FixedString TmpStor()	{ return "Temporary storage location"; }
-    inline FixedString TraceKey()	{ return "Trace key"; }
-    inline FixedString TraceNr()	{ return "Trace number"; }
-    inline FixedString Transparency()	{ return "Transparency"; }
-    inline FixedString TrcRange()	{ return "Trace Range"; }
-    inline FixedString TwoD()		{ return "2D"; }
-    inline FixedString Type()		{ return "Type"; }
-    inline FixedString Types()		{ return "Types"; }
-    inline FixedString Undef()		{ return "Undefined"; }
-    inline FixedString Unit()		{ return "Unit"; }
-    inline FixedString Units()		{ return "Units"; }
-    inline FixedString User()		{ return "User"; }
-    inline FixedString Value()		{ return "Value"; }
-    inline FixedString ValueRange()	{ return "Value Range"; }
-    inline FixedString Values()		{ return "Values"; }
-    inline FixedString Variance()	{ return "Variance"; }
-    inline FixedString Version()	{ return "Version"; }
-    inline FixedString Volume()		{ return "Volume"; }
-    inline FixedString WaveletID()	{ return "Wavelet ID"; }
-    inline FixedString Weight()		{ return "Weight"; }
-    inline FixedString Well()		{ return "Well"; }
-    inline FixedString X()		{ return "X"; }
-    inline FixedString XCoord()		{ return "X-Coord"; }
-    inline FixedString XCoords()	{ return "X-Coords"; }
-    inline FixedString XOffset()	{ return "X Offset"; }
-    inline FixedString XRange()		{ return "X range"; }
-    inline FixedString Y()		{ return "Y"; }
-    inline FixedString Y2()		{ return "Y2"; }
-    inline FixedString YCoord()		{ return "Y-Coord"; }
-    inline FixedString YCoords()	{ return "Y-Coords"; }
-    inline FixedString YOffset()	{ return "Y Offset"; }
-    inline FixedString YRange()		{ return "Y range"; }
-    inline FixedString Yes()		{ return "Yes"; }
-    inline FixedString Z()		{ return "Z"; }
-    inline FixedString ZCoord()		{ return "Z-Coord"; }
-    inline FixedString ZDomain()	{ return "Z Domain"; }
-    inline FixedString ZRange()		{ return "Z range"; }
-    inline FixedString ZSlice()		{ return "Z-slice"; }
-    inline FixedString ZStep()		{ return "Z step"; }
-    inline FixedString ZUnit()		{ return "Z-Unit"; }
-    inline FixedString ZValue()		{ return "Z value"; }
+    inline StringView All()		{ return "All"; }
+    inline StringView Ascii()		{ return "Ascii"; }
+    inline StringView Alignment()	{ return "Alignment"; }
+    inline StringView Attribute()	{ return "Attribute"; }
+    inline StringView Attribute2D()	{ return "Attribute2D"; }
+    inline StringView Attributes()	{ return "Attributes"; }
+    inline StringView Average()	{ return "Average"; }
+    inline StringView Azimuth()	{ return "Azimuth"; }
+    inline StringView Binary()		{ return "Binary"; }
+    inline StringView Body()		{ return "Body"; }
+    inline StringView Category()	{ return "Category"; }
+    inline StringView Chain()		{ return "Chain"; }
+    inline StringView Color()		{ return "Color"; }
+    inline StringView Component()	{ return "Component"; }
+    inline StringView Components()	{ return "Components"; }
+    inline StringView Content()	{ return "Content"; }
+    inline StringView CoordSys()	{ return "Coordinate System"; }
+    inline StringView CrlRange()	{ return "Cross-line range"; }
+    inline StringView Crossline()	{ return "Cross-line"; }
+    inline StringView Cube()		{ return "Cube"; }
+    inline StringView Data()		{ return "Data"; }
+    inline StringView DataRoot()	{ return "Data Root"; }
+    inline StringView DataSet()	{ return "DataSet"; }
+    inline StringView DataStorage()	{ return "Data storage"; }
+    inline StringView DataType()	{ return "DataType"; }
+    inline StringView Date()		{ return "Date"; }
+    inline StringView DateTime()	{ return "Date/Time"; }
+    inline StringView Default()	{ return "Default"; }
+    inline StringView DefaultDataRoot(){ return "Default Data Root"; }
+    inline StringView Depth()		{ return "Depth"; }
+    inline StringView DepthRange()	{ return "Depth Range"; }
+    inline StringView Desc()		{ return "Description"; }
+    inline StringView Distribution()	{ return "Distribution"; }
+    inline StringView EmptyString()	{ return ""; }
+    inline StringView Err()		{ return "Err"; }
+    inline StringView Factor()		{ return "Factor"; }
+    inline StringView Fault()		{ return "Fault"; }
+    inline StringView FaultStick()	{ return "FaultStick"; }
+    inline StringView FileName()	{ return "File name"; }
+    inline StringView Filter()		{ return "Filter"; }
+    inline StringView FirstCrl()	{ return "First Cross-line"; }
+    inline StringView FirstInl()	{ return "First In-line"; }
+    inline StringView FirstTrc()	{ return "First Trace"; }
+    inline StringView FirstZ()		{ return "First Z"; }
+    inline StringView FloatUdf()	{ return "1e30"; }
+    inline StringView Font()		{ return "Font"; }
+    inline StringView Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
+    inline StringView GeomID()		{ return "GeomID"; }
+    inline StringView GeomIDs()	{ return "GeomIDs"; }
+    inline StringView GeomSystem()	{ return "GeomSystem"; }
+    inline StringView Geometry()	{ return "Geometry"; }
+    inline StringView Histogram()	{ return "Histogram"; }
+    inline StringView Horizon()	{ return "Horizon"; }
+    inline StringView Horizon2D()	{ return "Horizon2D"; }
+    inline StringView ID()		{ return "ID"; }
+    inline StringView IDs()		{ return "IDs"; }
+    inline StringView IOSelection()	{ return "I/O Selection"; }
+    inline StringView InlRange()	{ return "In-line range"; }
+    inline StringView Inline()		{ return "In-line"; }
+    inline StringView Input()		{ return "Input"; }
+    inline StringView Is2D()		{ return "Is2D"; }
+    inline StringView Keys()		{ return "Keys"; }
+    inline StringView LastCrl()	{ return "Last Cross-line"; }
+    inline StringView LastInl()	{ return "Last In-line"; }
+    inline StringView LastTrc()	{ return "Last Trace"; }
+    inline StringView LastZ()		{ return "Last Z"; }
+    inline StringView Level()		{ return "Level"; }
+    inline StringView Line()		{ return "Line"; }
+    inline StringView LineKey()	{ return "Line key"; }
+    inline StringView LineName()	{ return "Line name"; }
+    inline StringView LineNames()	{ return "Line names"; }
+    inline StringView LineStyle()	{ return "Line Style"; }
+    inline StringView Lines()		{ return "Lines"; }
+    inline StringView Local()		{ return "Local"; }
+    inline StringView Log()		{ return "Log"; }
+    inline StringView LogFile()	{ return "Log file"; }
+    inline StringView Logs()		{ return "Logs"; }
+    inline StringView MD(int n=1)	{ return n<2 ? "MD" : "MDs"; }
+    inline StringView Marker()		{ return "Marker"; }
+    inline StringView Markers()	{ return "Markers"; }
+    inline StringView MarkerStyle()	{ return "Marker Style"; }
+    inline StringView Maximum()	{ return "Maximum"; }
+    inline StringView Median()		{ return "Median"; }
+    inline StringView Minimum()	{ return "Minimum"; }
+    inline StringView Mnemonics()	{ return "Mnemonics"; }
+    inline StringView Mode()		{ return "Mode"; }
+    inline StringView Model()		{ return "Model"; }
+    inline StringView Models()		{ return "Models"; }
+    inline StringView Name()		{ return "Name"; }
+    inline StringView Names()		{ return "Names"; }
+    inline StringView NewLine()	{ return "\n"; }
+    inline StringView No()		{ return "No"; }
+    inline StringView None()		{ return "None"; }
+    inline StringView NrFaults()	{ return "Nr Faults";}
+    inline StringView NrGeoms()	{ return "Nr Geometries";}
+    inline StringView NrItems()	{ return "Nr Items";}
+    inline StringView NrValues()	{ return "Nr Values"; }
+    inline StringView Object()		{ return "Object"; }
+    inline StringView Offset()		{ return "Offset"; }
+    inline StringView OffsetRange()	{ return "Offset Range"; }
+    inline StringView Ok()		{ return "Ok"; }
+    inline StringView Order()		{ return "Order"; }
+    inline StringView Output()		{ return "Output"; }
+    inline StringView OutputID()	{ return "output_id"; }
+    inline StringView Pars()		{ return "Parameters"; }
+    inline StringView PickSet()	{ return "PickSet"; }
+    inline StringView Polygon()	{ return "Polygon"; }
+    inline StringView Position()	{ return "Position"; }
+    inline StringView PreStackSeis()	{ return "PreStack Seismic"; }
+    inline StringView Property()	{ return "Property"; }
+    inline StringView Python()		{ return "Python"; }
+    inline StringView Quiet()		{ return "quiet"; }
+    inline StringView RMS()		{ return "RMS"; }
+    inline StringView Random()		{ return "Random"; }
+    inline StringView RandomLine()	{ return "RandomLine"; }
+    inline StringView Range()		{ return "Range"; }
+    inline StringView Region()		{ return "Region"; }
+    inline StringView Sampling()	{ return "Sampling"; }
+    inline StringView Scale()		{ return "Scale"; }
+    inline StringView Scaling()	{ return "Scaling"; }
+    inline StringView SeisCubePositions() { return "Seismic Cube Positions"; }
+    inline StringView SeisID()		{ return "SeisID"; }
+    inline StringView Selection()	{ return "Selection"; }
+    inline StringView SelectionStatus(){ return "Selection status"; }
+    inline StringView Series()		{ return "Series"; }
+    inline StringView Server()		{ return "Server"; }
+    inline StringView ServerNm()	{ return "Server_Name"; }
+    inline StringView Setup()		{ return "Setup"; }
+    inline StringView Shape()		{ return "Shape"; }
+    inline StringView Shortcuts()	{ return "Shortcuts"; }
+    inline StringView Shotpoint()	{ return "Shotpoint"; }
+    inline StringView Size()		{ return "Size"; }
+    inline StringView SliceType()	{ return "SliceType"; }
+    inline StringView Source()		{ return "Source"; }
+    inline StringView SpaceString()	{ return " "; }
+    inline StringView StackOrder()	{ return "Stack order"; }
+    inline StringView Stats()		{ return "Stats"; }
+    inline StringView Status()		{ return "Status"; }
+    inline StringView StdDev()		{ return "StdDev"; }
+    inline StringView Steering()	{ return "Steering"; }
+    inline StringView StepCrl()	{ return "Step Cross-line"; }
+    inline StringView StepInl()	{ return "Step In-line"; }
+    inline StringView StepOut()	{ return "Stepout"; }
+    inline StringView StepOutCrl()	{ return "Stepout Cross-line"; }
+    inline StringView StepOutInl()	{ return "Stepout In-line"; }
+    inline StringView StepTrc()	{ return "Step Trace"; }
+    inline StringView StepZ()		{ return "Step Z"; }
+    inline StringView Stored()		{ return "Stored"; }
+    inline StringView StratRef()	{ return "Strat Level"; }
+    inline StringView Subsample()	{ return "Subsample"; }
+    inline StringView Subsel()		{ return "Subsel"; }
+    inline StringView Sum()		{ return "Sum"; }
+    inline StringView Surface()	{ return "Surface"; }
+    inline StringView Survey()		{ return "Survey"; }
+    inline StringView SurveyID()	{ return "Survey ID"; }
+    inline StringView TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
+    inline StringView TVDSS()		{ return "TVDSS"; }
+    inline StringView TWT()		{ return "TWT"; }
+    inline StringView Table()		{ return "Table"; }
+    inline StringView Target()		{ return "Target"; }
+    inline StringView Targets()	{ return "Targets"; }
+    inline StringView TermEm()		{ return "Terminal Emulator"; }
+    inline StringView Thickness()	{ return "Thickness"; }
+    inline StringView ThreeD()		{ return "3D"; }
+    inline StringView Time()		{ return "Time"; }
+    inline StringView TimeRange()	{ return "Time Range"; }
+    inline StringView Title()		{ return "Title"; }
+    inline StringView TmpStor()	{ return "Temporary storage location"; }
+    inline StringView TraceKey()	{ return "Trace key"; }
+    inline StringView TraceNr()	{ return "Trace number"; }
+    inline StringView Transparency()	{ return "Transparency"; }
+    inline StringView TrcRange()	{ return "Trace Range"; }
+    inline StringView TwoD()		{ return "2D"; }
+    inline StringView Type()		{ return "Type"; }
+    inline StringView Types()		{ return "Types"; }
+    inline StringView Undef()		{ return "Undefined"; }
+    inline StringView Unit()		{ return "Unit"; }
+    inline StringView Units()		{ return "Units"; }
+    inline StringView User()		{ return "User"; }
+    inline StringView Value()		{ return "Value"; }
+    inline StringView ValueRange()	{ return "Value Range"; }
+    inline StringView Values()		{ return "Values"; }
+    inline StringView Variance()	{ return "Variance"; }
+    inline StringView Version()	{ return "Version"; }
+    inline StringView Volume()		{ return "Volume"; }
+    inline StringView WaveletID()	{ return "Wavelet ID"; }
+    inline StringView Weight()		{ return "Weight"; }
+    inline StringView Well()		{ return "Well"; }
+    inline StringView X()		{ return "X"; }
+    inline StringView XCoord()		{ return "X-Coord"; }
+    inline StringView XCoords()	{ return "X-Coords"; }
+    inline StringView XOffset()	{ return "X Offset"; }
+    inline StringView XRange()		{ return "X range"; }
+    inline StringView Y()		{ return "Y"; }
+    inline StringView Y2()		{ return "Y2"; }
+    inline StringView YCoord()		{ return "Y-Coord"; }
+    inline StringView YCoords()	{ return "Y-Coords"; }
+    inline StringView YOffset()	{ return "Y Offset"; }
+    inline StringView YRange()		{ return "Y range"; }
+    inline StringView Yes()		{ return "Yes"; }
+    inline StringView Z()		{ return "Z"; }
+    inline StringView ZCoord()		{ return "Z-Coord"; }
+    inline StringView ZDomain()	{ return "Z Domain"; }
+    inline StringView ZRange()		{ return "Z range"; }
+    inline StringView ZSlice()		{ return "Z-slice"; }
+    inline StringView ZStep()		{ return "Z step"; }
+    inline StringView ZUnit()		{ return "Z-Unit"; }
+    inline StringView ZValue()		{ return "Z value"; }
 
-    inline FixedString DepthUnit()	{ return "Depth-Unit"; }
+    inline StringView DepthUnit()	{ return "Depth-Unit"; }
     //<!To be used only when two different Z unit are stored
-    inline FixedString TimeUnit()	{ return "Time-Unit"; }
+    inline StringView TimeUnit()	{ return "Time-Unit"; }
     //<!To be used only when two different Z unit are stored
 
     // History of objects
-    inline FixedString CrBy()		{ return "Created.By"; }
-    inline FixedString CrAt()		{ return "Created.At"; }
-    inline FixedString CrFrom()		{ return "Created.From"; }
-    inline FixedString CrInfo()		{ return "Created.Info"; }
-    inline FixedString ModBy()		{ return "Modified.By"; }
-    inline FixedString ModAt()		{ return "Modified.At"; }
+    inline StringView CrBy()		{ return "Created.By"; }
+    inline StringView CrAt()		{ return "Created.At"; }
+    inline StringView CrFrom()		{ return "Created.From"; }
+    inline StringView CrInfo()		{ return "Created.Info"; }
+    inline StringView ModBy()		{ return "Modified.By"; }
+    inline StringView ModAt()		{ return "Modified.At"; }
 
     // Not used?
-    inline FixedString CrFtPolygonDir() { return "FaultPolygonPath"; }
-    inline FixedString StrFtPolygon()   { return "FaultPolygons"; }
+    inline StringView CrFtPolygonDir() { return "FaultPolygonPath"; }
+    inline StringView StrFtPolygon()   { return "FaultPolygons"; }
 };

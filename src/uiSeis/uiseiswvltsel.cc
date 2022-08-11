@@ -93,7 +93,7 @@ void uiSeisWaveletSel::initFlds( CallBacker* )
 
 void uiSeisWaveletSel::setInput( const char* nm )
 {
-    const FixedString nmstr = nm;
+    const StringView nmstr = nm;
     if ( nmstr.isEmpty() )
 	return;
 

@@ -142,7 +142,7 @@ void uiHorizonInterpolDlg::selChangeCB( CallBacker* )
 
 bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 {
-    FixedString method = par.find( HorizonGridder::sKeyMethod() );
+    StringView method = par.find( HorizonGridder::sKeyMethod() );
     if ( method.isNull() )
 	mErrRet( toUiString("Huh? No methods found in the paramaters") )
 

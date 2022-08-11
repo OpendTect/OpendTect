@@ -305,7 +305,7 @@ protected:
 #define mGetStringFromDesc( __desc, var, varstring ) \
 {\
     var = __desc.getValParam(varstring)->getStringValue(0); \
-    if ( FixedString(var).isEmpty() )\
+    if ( StringView(var).isEmpty() )\
 	var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
 

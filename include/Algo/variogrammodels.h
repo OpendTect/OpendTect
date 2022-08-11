@@ -17,7 +17,7 @@ ________________________________________________________________________
 inline void getVariogramModel( const char* typestr, float nugget, float sill,
 			      float range, int size, float* in, float* out )
 {
-    const FixedString type( typestr );
+    const StringView type( typestr );
     if ( type=="exponential" )
     {
 	for ( int idx=0; idx<size; idx++ )

@@ -206,7 +206,7 @@ void Well::transformZIfNeeded( Coord3& crd ) const
 {
     if ( !zaxistransform_ ) return;
 
-    const FixedString ztransformkey( zaxistransform_->toZDomainKey() );
+    const StringView ztransformkey( zaxistransform_->toZDomainKey() );
     if ( ztransformkey == ZDomain::sKeyDepth() )
     {
 	if ( SI().depthsInFeet() )

@@ -74,14 +74,14 @@ static bool fnmIsURI( const char*& fnm )
 	return false;
 
     const char* protsep = FilePath::uriProtocolSeparator();
-    const FixedString uri( fnm );
+    const StringView uri( fnm );
     const char* ptrprotsep = uri.find( protsep );
     if ( ptrprotsep )
     {
 	if ( uri.startsWith( "file://", CaseInsensitive ) )
 	    fnm += 7;
 	else if ( ptrprotsep == fnm )
-	    fnm += FixedString(protsep).size();
+	    fnm += StringView(protsep).size();
 	else
 	{
 	    for ( const char* ptr=fnm; ptr!=ptrprotsep; ptr++ )
@@ -840,7 +840,7 @@ const char* timeCreated( const char* fnm, const char* fmt )
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     ret = fsa.timeCreated( fnm );
 
-    const FixedString fmtstr = fmt;
+    const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
     {
 
@@ -862,7 +862,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     ret = fsa.timeLastModified( fnm );
 
-    const FixedString fmtstr = fmt;
+    const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
     {
 	QDateTime qdt =

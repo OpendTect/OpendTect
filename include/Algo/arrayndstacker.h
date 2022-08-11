@@ -103,7 +103,7 @@ protected:
     const ObjectSet<ArrT>&	inp_;
     ArrT&		out_;
     bool		normalize_;
-    FixedString		msg_;
+    StringView		msg_;
 
 };
 

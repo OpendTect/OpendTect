@@ -51,7 +51,7 @@ void uiFlatViewWin::setDarkBG( bool yn )
 
 void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
-    FixedString valstr = pars.find( sKey::Position() );
+    StringView valstr = pars.find( sKey::Position() );
     mesg.setEmpty();
     if ( valstr && *valstr )
 	mesg.add( valstr ).addTab();
@@ -103,10 +103,10 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
-    FixedString vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
-    FixedString wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
-    FixedString vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
-    FixedString wvavalstr = pars.find( FlatView::Viewer::sKeyWVAVal() );
+    StringView vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
+    StringView wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
+    StringView vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
+    StringView wvavalstr = pars.find( FlatView::Viewer::sKeyWVAVal() );
     const bool issame = vdstr && wvastr && vdstr==wvastr;
     if ( vdvalstr )
     {

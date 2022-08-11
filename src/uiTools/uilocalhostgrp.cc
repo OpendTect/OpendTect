@@ -44,7 +44,7 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
     hostaddrfld_->setReadOnly();
     hostaddrfld_->attach( alignedBelow, withoverride ? hostnmoverrulefld_
 								: hostnmfld_ );
-    const FixedString domainnm = System::localDomainName();
+    const StringView domainnm = System::localDomainName();
     if ( !domainnm.isEmpty() )
     {
 	auto* domainfld = new uiGenInput( this, tr("Domain name") );

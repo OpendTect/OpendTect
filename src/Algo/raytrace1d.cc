@@ -73,7 +73,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par,
     const Factory<RayTracer1D>& rt1dfact = factory();
     if ( !rt1dfact.hasName(typekey) && !rt1dfact.isEmpty() )
     {
-	const FixedString defnm = rt1dfact.getDefaultName();
+	const StringView defnm = rt1dfact.getDefaultName();
 	typekey.set( defnm.isEmpty() ? rt1dfact.getNames().first()->buf()
 				     : defnm.buf() );
     }

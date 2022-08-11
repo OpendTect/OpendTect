@@ -46,8 +46,8 @@ public:
     inline void		setEmpty()		{ rep_.setEmpty(); }
 
     int			size() const;
-    FixedString		operator[](int) const;		//!< Output unescaped
-    FixedString		from(int) const;		//!< Output escaped
+    StringView		operator[](int) const;		//!< Output unescaped
+    StringView		from(int) const;		//!< Output escaped
 
     od_int16		getI16Value(int) const;
     od_uint16		getUI16Value(int) const;

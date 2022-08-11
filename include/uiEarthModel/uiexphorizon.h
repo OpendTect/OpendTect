@@ -62,7 +62,7 @@ protected:
 
     bool		isbulk_;
 
-    FixedString		getZDomain() const;
+    StringView		getZDomain() const;
 };
 
 

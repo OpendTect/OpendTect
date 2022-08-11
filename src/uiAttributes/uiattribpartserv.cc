@@ -1784,12 +1784,12 @@ void uiAttribPartServer::filter2DMenuItems(
 	childitemnms.add( subitem.getItem(idx)->text.getFullString() );
 
     subitem.removeItems();
-    FixedString linenm( Survey::GM().getName(geomid) );
+    StringView linenm( Survey::GM().getName(geomid) );
     BufferStringSet attribnms;
     uiSeisPartServer::get2DStoredAttribs( linenm, attribnms, steerpol );
     for ( int idx=0; idx<childitemnms.size(); idx++ )
     {
-	FixedString childnm( childitemnms.get(idx).buf() );
+	StringView childnm( childitemnms.get(idx).buf() );
 	if ( isstored )
 	{
 	    if ( attribnms.isPresent(childnm) )

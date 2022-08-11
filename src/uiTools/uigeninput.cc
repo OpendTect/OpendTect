@@ -44,7 +44,7 @@ uiGenInputFieldIdx( int fidx, int sidx )
 
 static const char* sName( const DataInpSpec& spec, int idx, const char* def )
 {
-    const FixedString specnm = spec.name(idx);
+    const StringView specnm = spec.name(idx);
     return specnm.isEmpty() ? def : spec.name(idx);
 }
 
@@ -104,7 +104,7 @@ uiTextInputFld( uiGenInput* p, const DataInpSpec& spec,
 		const char* nm="Text Input Field" )
     : uiSimpleInputFld<uiLineEdit>(p,spec,sName(spec,0,nm))
 {
-    const FixedString spectxt = spec.text();
+    const StringView spectxt = spec.text();
     setText( spectxt.buf(), 0 );
 }
 

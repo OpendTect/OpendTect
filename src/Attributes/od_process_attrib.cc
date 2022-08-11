@@ -176,7 +176,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 		    break;
 
-		const FixedString linename = Survey::GM().getName( geomid );
+		const StringView linename = Survey::GM().getName( geomid );
 		if ( linename.isEmpty() )
 		    break;
 
@@ -218,7 +218,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 		break;
 
-	    const FixedString linename = Survey::GM().getName( geomid );
+	    const StringView linename = Survey::GM().getName( geomid );
 	    if ( linename.isEmpty() )
 		break;
 

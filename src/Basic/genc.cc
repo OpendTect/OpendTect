@@ -184,7 +184,7 @@ void* operator new[]( std::size_t sz )
 namespace Conv { \
     template <> void set( type& _to, const char* const& s ) \
 	{ _to = sCast(type,fn(s)); } \
-    template <> void set( type& _to, const FixedString& s ) \
+    template <> void set( type& _to, const StringView& s ) \
 	{ if ( !s.isEmpty() ) { _to = sCast(type,fn(s.str())); } } \
     template <> void set( type& _to, const BufferString& s ) \
 	{ if ( !s.isEmpty() ) { _to = sCast(type,fn(s.str())); } } \
@@ -660,7 +660,7 @@ mExtern(Basic) bool GetEnvVarDirList( const char* env, BufferStringSet& ret,
     const SeparString allpathssep( allpaths, mEnvVarDirSep );
     for ( int idx=0; idx<allpathssep.size(); idx++ )
     {
-	const FixedString curpath( allpathssep[idx] );
+	const StringView curpath( allpathssep[idx] );
 	if ( !checkdirs ||
 	     (File::exists(curpath) && File::isDirectory(curpath)) )
 	{

@@ -21,7 +21,7 @@ mImplFactory( ZAxisTransform, ZAxisTransform::factory );
 
 ZAxisTransform* ZAxisTransform::create( const IOPar& par )
 {
-    const FixedString str = par.find( sKey::Name() );
+    const StringView str = par.find( sKey::Name() );
     if ( !str )
 	return 0;
 

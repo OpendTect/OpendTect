@@ -65,7 +65,7 @@ BufferString CmdComposer::factoryKey( const CallBacker* caller,
 BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
 					    const char* keyword )
 {
-    FixedString classifiername = classifier->name();
+    StringView classifiername = classifier->name();
     classifiers.insertAt( classifier, 0 );
     for ( int idx=classifiers.size()-1; idx>0; idx-- )
     {
@@ -206,7 +206,7 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 
 bool CmdComposer::traceSrcWin( CmdRecEvent& ev ) const
 {
-    FixedString evidstr( ev.idstr_ );
+    StringView evidstr( ev.idstr_ );
     for ( int idx=0; idx<eventlist_.size(); idx++ )
     {
 	if ( eventlist_[idx]->idstr_==evidstr )

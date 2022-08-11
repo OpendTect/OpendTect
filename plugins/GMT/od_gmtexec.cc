@@ -54,7 +54,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	PtrMan<GMTPar> par = GMTPF().create( *iop, workdir );
 	if ( idx == 0 )
 	{
-	    FixedString bmres( par ? par->find(ODGMT::sKeyGroupName()) : 0 );
+	    StringView bmres( par ? par->find(ODGMT::sKeyGroupName()) : 0 );
 	    if ( bmres.isEmpty() )
 		mErrFatalRet("Basemap parameters missing")
 	}

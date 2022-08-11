@@ -101,7 +101,7 @@ void uiInterpolationLayerModel::setModel( const InterpolationLayerModel* mdl )
 {
     if ( !mdl ) return;
 
-    const FixedString mdlnm = mdl->factoryKeyword();
+    const StringView mdlnm = mdl->factoryKeyword();
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
 	if ( mdlnm != grps_[idx]->factoryKeyword() )

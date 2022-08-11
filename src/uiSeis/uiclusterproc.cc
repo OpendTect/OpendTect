@@ -135,11 +135,11 @@ ClusterProc( const IOPar& pars )
 
 bool init()
 {
-    FixedString res = pars_.find( sKey::Survey() );
+    StringView res = pars_.find( sKey::Survey() );
     if ( !res.isEmpty() && SI().getDirName() != res )
 	IOMan::setSurvey( res.str() );
 
-    FixedString scriptdir = pars_.find( "Script dir" );
+    StringView scriptdir = pars_.find( "Script dir" );
     if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir.str()) )
 	return false;
 
@@ -152,7 +152,7 @@ bool init()
 	if ( !iop.read(fp.fullPath(),sKey::Pars()) )
 	    continue;
 
-	FixedString desc = iop.find( sKey::Desc() );
+	StringView desc = iop.find( sKey::Desc() );
 	fp.setExtension( ".log" );
 	jobs_ += new ClusterJobInfo( fp.fullPath(), desc.str() );
     }
@@ -195,7 +195,7 @@ void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg)
 
 bool submitJobs( TaskRunner* tr )
 {
-    FixedString submitcmd = pars_.find( "Command" );
+    StringView submitcmd = pars_.find( "Command" );
     if ( submitcmd.isEmpty() )
 	return false;
 
@@ -334,7 +334,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 	IOM().permRemove( tempid );
     }
 
-    FixedString tmpdir = pars.find( sKey::TmpStor() );
+    StringView tmpdir = pars.find( sKey::TmpStor() );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )
 	File::removeDir( tmpdir.str() );
 

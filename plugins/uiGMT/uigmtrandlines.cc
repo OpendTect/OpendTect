@@ -146,12 +146,12 @@ bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 bool uiGMTRandLinesGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    FixedString nm = par.find( sKey::Name() );
+    StringView nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
     linenms_.erase();
     par.get( ODGMT::sKeyLineNames(), linenms_ );
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
+    StringView lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )
     {
 	OD::LineStyle ls; ls.fromString( lskey.str() );

@@ -56,9 +56,9 @@ bool init( InterpolationLayerModel& layermodel )
 
     if ( params_.zselection_ == Well::ZRangeSelector::Markers )
     {
-	if ( FixedString(params_.topMarker()) !=
+	if ( StringView(params_.topMarker()) !=
 				Well::ZRangeSelector::sKeyDataStart() ||
-	     FixedString(params_.botMarker()) !=
+	     StringView(params_.botMarker()) !=
 				Well::ZRangeSelector::sKeyDataEnd() )
 	    lreqs.add( Well::Mrkrs );
     }
@@ -69,10 +69,10 @@ bool init( InterpolationLayerModel& layermodel )
 
     if ( lreqs.includes(Well::Mrkrs) )
     {
-	if ( (FixedString(params_.topMarker()) !=
+	if ( (StringView(params_.topMarker()) !=
 		Well::ZRangeSelector::sKeyDataStart() &&
 		!wd->markers().getByName(params_.topMarker())) ||
-	     (FixedString(params_.sKeyBotMrk()) !=
+	     (StringView(params_.sKeyBotMrk()) !=
 	        Well::ZRangeSelector::sKeyDataEnd() &&
 		!wd->markers().getByName(params_.botMarker())) )
 	    return false;
@@ -276,21 +276,21 @@ void WellLogInterpolator::setGridder( const char* nm, float radius )
 {
     delete gridder_;
 
-    if ( FixedString(nm) == RadialBasisFunctionGridder2D::sFactoryKeyword() )
+    if ( StringView(nm) == RadialBasisFunctionGridder2D::sFactoryKeyword() )
     {
 	gridder_ = new RadialBasisFunctionGridder2D();
 	trendorder_ = PolyTrend::Order0;
 	return;
     }
 
-    if ( FixedString(nm) ==  TriangulatedGridder2D::sFactoryKeyword() )
+    if ( StringView(nm) ==  TriangulatedGridder2D::sFactoryKeyword() )
     {
 	gridder_ = new TriangulatedGridder2D();
 	trendorder_ = PolyTrend::None;
 	return;
     }
 
-    if ( FixedString(nm) == InverseDistanceGridder2D::sFactoryKeyword() )
+    if ( StringView(nm) == InverseDistanceGridder2D::sFactoryKeyword() )
     {
 	InverseDistanceGridder2D* invgrid = new InverseDistanceGridder2D();
 	gridder_ = invgrid;

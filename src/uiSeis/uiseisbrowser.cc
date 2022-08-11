@@ -186,7 +186,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	tr_ = CBVSSeisTrcTranslator::make( fnm, false,
 					   Seis::is2D(su.geom_), &emsg );
 
-	const FixedString datatype = ds.dataType();
+	const StringView datatype = ds.dataType();
 	if ( datatype == sKey::Steering() )
 	    compnr_ = 1;
     }

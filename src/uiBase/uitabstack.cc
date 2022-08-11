@@ -143,7 +143,7 @@ void uiTabStack::setCurrentPage( const char* grpnm )
 {
     for ( int idx=0; grpnm && idx<size(); idx++ )
     {
-	if ( FixedString(page(idx)->name()) == grpnm )
+	if ( StringView(page(idx)->name()) == grpnm )
 	{
 	    setCurrentPage( idx );
 	    return;

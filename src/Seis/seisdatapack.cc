@@ -627,7 +627,7 @@ bool SeisFlatDataPack::is2D() const
 
 bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 {
-    const FixedString key( keystr );
+    const StringView key( keystr );
     return key==mKeyInl || key==mKeyCrl || key==mKeyTrcNr ||
 	   key==sKey::Series();
 }

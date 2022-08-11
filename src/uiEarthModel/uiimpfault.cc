@@ -36,7 +36,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 #define mGet( tp, fss, f3d ) \
-    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
+    StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
@@ -167,7 +167,7 @@ void uiImportFault::stickSel( CallBacker* )
     if ( !stickselfld_ ) return;
 
     const bool showthresfld
-	= FixedString(stickselfld_->text()) == sKeySlopeThres();
+	= StringView(stickselfld_->text()) == sKeySlopeThres();
     const bool stickseldisplayed = stickselfld_->attachObj()->isDisplayed();
     thresholdfld_->display( stickseldisplayed && showthresfld );
 }
@@ -282,16 +282,16 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
 
     EM::FSStoFault3DConverter::Setup convsu;
     convsu.sortsticks_ = sortsticksfld_ &&
-			FixedString(sortsticksfld_->text()) == sKeyGeometric();
-    if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeyInlCrlSep() )
+			StringView(sortsticksfld_->text()) == sKeyGeometric();
+    if ( stickselfld_ && StringView(stickselfld_->text()) == sKeyInlCrlSep() )
 	convsu.useinlcrlslopesep_ = true;
-    if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeySlopeThres() )
+    if ( stickselfld_ && StringView(stickselfld_->text()) == sKeySlopeThres() )
 	convsu.stickslopethres_ = thresholdfld_->getDValue();
 
     EM::EMObject* emobj = EM::FaultStickSet::create( EM::EMM() );
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
     const bool sortsticks = sortsticksfld_ &&
-			FixedString( sortsticksfld_->text() ) == sKeyIndexed();
+			StringView( sortsticksfld_->text() ) == sKeyIndexed();
     bool res = ascio.get( strm, *interfss, sortsticks, false );
     if ( res )
     {
@@ -310,7 +310,7 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
 
 bool uiImportFault::checkInpFlds()
 {
-    FixedString fnm = infld_->fileName();
+    StringView fnm = infld_->fileName();
     if ( fnm.isEmpty() )
 	mErrRet( tr("Please select the input file") )
     else if ( !File::exists(fnm) )

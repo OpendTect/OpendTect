@@ -327,7 +327,7 @@ void uiAngleCompAdvParsDlg::smoothTypeSel( CallBacker* )
 void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 {
     const bool ismovingavg = isSmoothTypeMovingAverage();
-    FixedString smoothwindow = smoothwindowfld_->text();
+    StringView smoothwindow = smoothwindowfld_->text();
     const bool iscostaper = smoothwindow==CosTaperWindow::sName();
     smoothwinparamfld_->display( ismovingavg && iscostaper );
     smoothwinparamlbl_->display( ismovingavg && iscostaper );

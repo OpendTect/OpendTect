@@ -265,7 +265,7 @@ const char* Coord3::toString() const
 
 bool Coord3::fromString( const char* str )
 {
-    FixedString fs( str );
+    StringView fs( str );
     if ( fs.isEmpty() ) return false;
 
     const char* endptr = str + fs.size();

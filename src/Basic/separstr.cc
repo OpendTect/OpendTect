@@ -157,7 +157,7 @@ int SeparString::size() const
 }
 
 
-FixedString SeparString::operator[]( int elemnr ) const
+StringView SeparString::operator[]( int elemnr ) const
 {
     if ( elemnr < 0 )
 	return sKey::EmptyString();
@@ -181,7 +181,7 @@ FixedString SeparString::operator[]( int elemnr ) const
 }
 
 
-FixedString SeparString::from( int idx ) const
+StringView SeparString::from( int idx ) const
 {
     const char* ptr = rep_.result();
     for ( ; idx!=0; idx-- )
@@ -251,7 +251,7 @@ int SeparString::indexOf( const char* string ) const
     while ( *startptr )
     {
 	const char* nextsep = findSeparator( startptr );
-	FixedString elemstr = getUnescaped( startptr, nextsep );
+	StringView elemstr = getUnescaped( startptr, nextsep );
 
 	if ( elemstr == string )
 	    return elemnr;

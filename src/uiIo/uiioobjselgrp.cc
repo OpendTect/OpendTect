@@ -1077,7 +1077,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	if ( ctio_.ioobj_ )
 	    nmfld_->setText( ctio_.ioobj_->name() );
 
-	FixedString presetnm = nmfld_->text();
+	StringView presetnm = nmfld_->text();
 	if ( !presetnm.isEmpty() && listfld_->isPresent(presetnm) )
 	{
 	    listfld_->setCurrentItem( presetnm );

@@ -150,7 +150,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
     if ( !geomtransl )
 	return false;
 
-    const FixedString crfromstr( createfromstr );
+    const StringView crfromstr( createfromstr );
     if ( !crfromstr.isEmpty() )
     {
 	ioobj->pars().set( sKey::CrFrom(), crfromstr );

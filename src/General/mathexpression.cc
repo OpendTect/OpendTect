@@ -557,7 +557,7 @@ bool Math::Expression::setInput( int inp, Math::Expression* obj )
 
 	for ( int idx=0; idx<obj->nrVariables(); idx++ )
 	{
-	    FixedString str = obj->fullVariableExpression(idx);
+	    StringView str = obj->fullVariableExpression(idx);
 
 	    bool found=false;
 
@@ -1097,7 +1097,7 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
     { \
 	workstr[len-1] = '\0'; \
 	PtrMan<Math::Expression> inp = \
-		parse( str + FixedString( #nm "(" ).size() ); \
+		parse( str + StringView( #nm "(" ).size() ); \
 	if ( !inp ) return true; \
 	ret = new Math::Expression##clss; \
 	ret->setInput( 0, inp.release() ); \
@@ -1125,7 +1125,7 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
     if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
     { \
 	workstr[len-1] = '\0'; \
-	const int fnnameskipsz = FixedString( #nm ).size() + 1; \
+	const int fnnameskipsz = StringView( #nm ).size() + 1; \
 	char* ptrcomma = findLooseComma( str+fnnameskipsz ); \
 	if ( !ptrcomma ) \
 	    mErrRet( #nm " function takes 2 arguments" ) \
@@ -1273,7 +1273,7 @@ bool Math::ExpressionParser::findVariable( char* str, int len,
 Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 {
     errmsg_.setEmpty();
-    if ( FixedString(inpstr).isEmpty() )
+    if ( StringView(inpstr).isEmpty() )
 	return 0;
 
     BufferString workstr( inpstr );

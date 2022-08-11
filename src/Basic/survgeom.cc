@@ -254,7 +254,7 @@ const Geometry* GeometryManager::getGeometry( const char* nm ) const
     if ( IsExiting() )
 	return nullptr;
 
-    const FixedString namestr( nm );
+    const StringView namestr( nm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( namestr == geometries_[idx]->getName() )
 	    return geometries_[idx];
@@ -268,7 +268,7 @@ Pos::GeomID GeometryManager::getGeomID( const char* lnnm ) const
     if ( IsExiting() )
 	return cUndefGeomID();
 
-    const FixedString reqln( lnnm );
+    const StringView reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
 	if ( geometries_[idx]->is2D() && reqln==geometries_[idx]->getName() )

@@ -177,12 +177,12 @@ bool RefTree::read( od_istream& strm )
 	addLeavedUnit( astrm.keyWord(), astrm.value() );
     setToActualTypes();
 
-    const int propsforlen = FixedString(sKeyPropsFor()).size();
+    const int propsforlen = StringView(sKeyPropsFor()).size();
     while ( !atEndOfSection( astrm.next() ) )
     {
 	IOPar iop; iop.getFrom( astrm );
 	const char* iopnm = iop.name().buf();
-	if ( *iopnm != 'P' || FixedString(iopnm).size() < propsforlen )
+	if ( *iopnm != 'P' || StringView(iopnm).size() < propsforlen )
 	    break;
 
 	BufferString unnm( iopnm + propsforlen );

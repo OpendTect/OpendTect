@@ -183,7 +183,7 @@ void Network::RequestPacket::setPayload( void* ptr, od_int32 size )
 
 void Network::RequestPacket::setStringPayload( const char* str )
 {
-    const int sz = FixedString( str ).size();
+    const int sz = StringView( str ).size();
     if ( sz < 1 )
 	setPayload( 0, 0 );
     else

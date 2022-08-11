@@ -282,7 +282,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 	uiString fldtxt = tr("For '%1'").arg(toUiString(IOM().nameOf(id)));
 
 	float scl = 1;
-	FixedString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
+	StringView res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
 	if ( !res.isEmpty() )
 	    scl = res.toFloat();
 	uiGenInput* fld = new uiGenInput( this, fldtxt, FloatInpSpec(scl) );

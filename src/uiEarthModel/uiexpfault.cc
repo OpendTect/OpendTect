@@ -48,8 +48,8 @@ ________________________________________________________________________
     isbulk ? mPlural : 1 \
 
 #define mGet( tp, fss, f3d, fset ) \
-    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
-    (FixedString(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? fset : f3d)
+    StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
+    (StringView(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? fset : f3d)
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D), \
@@ -398,9 +398,9 @@ bool uiExportFault::writeAscii()
 }
 
 
-FixedString uiExportFault::getZDomain() const
+StringView uiExportFault::getZDomain() const
 {
-    FixedString zdomain = ZDomain::SI().key();
+    StringView zdomain = ZDomain::SI().key();
     if ( zfld_->getIntValue()==2 )
 	zdomain = transfld_->selectedToDomain();
 
@@ -415,7 +415,7 @@ void uiExportFault::addZChg( CallBacker* )
     const bool displayunit = zfld_->getIntValue()!=1;
     if ( displayunit )
     {
-	const FixedString zdomainstr = getZDomain();
+	const StringView zdomainstr = getZDomain();
 	if ( zdomainstr == ZDomain::sKeyDepth() )
 	{
 	    zunitsel_->setPropType( Mnemonic::Dist );

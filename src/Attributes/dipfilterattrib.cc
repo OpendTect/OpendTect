@@ -86,7 +86,7 @@ void DipFilter::updateDesc( Desc& desc )
     desc.setParamEnabled( maxaziStr(), filterazi );
 
     const ValParam* type = desc.getValParam( typeStr() );
-    const FixedString typstr( type->getStringValue(0) );
+    const StringView typstr( type->getStringValue(0) );
     if ( typstr == filterTypeNamesStr(mFilterTypeLowPass) )
     {
 	desc.setParamEnabled( minvelStr(), false );

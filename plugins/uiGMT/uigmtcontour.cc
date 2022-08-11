@@ -404,7 +404,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     linefld_->setChecked( drawcontour );
     if ( drawcontour )
     {
-	FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
+	StringView lskey = par.find( ODGMT::sKeyLineStyle() );
 	OD::LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }

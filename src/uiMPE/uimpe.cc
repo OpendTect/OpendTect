@@ -99,7 +99,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     uiButtonGroup* grp =
 	new uiButtonGroup( &dlg, "Pre-load options", OD::Vertical );
     grp->attach( alignedBelow, lbl2 );
-    const FixedString usertypestr =
+    const StringView usertypestr =
 		DataCharacteristics::toString( dc.userType() );
     uiString txt1 = tr("Pre-load Full Volume");
     if ( usertypestr.size() > 4 )

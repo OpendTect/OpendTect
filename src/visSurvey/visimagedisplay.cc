@@ -108,7 +108,7 @@ void ImageDisplay::setScene( visSurvey::Scene* scene )
 
 visBase::VisualObject* ImageDisplay::createLocation() const
 {
-    const FixedString fnm = getFileName();
+    const StringView fnm = getFileName();
     if ( fnm.isEmpty() )
 	const_cast<ImageDisplay*>(this)->needFileName.trigger();
 

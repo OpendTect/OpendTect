@@ -136,7 +136,7 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
 
 bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 {
-    FixedString nm = par.find( sKey::Name() );
+    StringView nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
     TypeSet<Pos::GeomID> geomids;
@@ -145,7 +145,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 	mErrRet( tr("No 2D lines found ") );
 
     lineselfld_->setSelGeomIDs( geomids );
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
+    StringView lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )
     {
 	OD::LineStyle ls; ls.fromString( lskey.str() );

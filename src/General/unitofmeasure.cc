@@ -388,7 +388,7 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 
 const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 {
-    const FixedString fsnm( nm );
+    const StringView fsnm( nm );
     if ( fsnm.isEmpty() )
 	return 0;
 
@@ -462,7 +462,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::get( PropType typ,
 const UnitOfMeasure* UnitOfMeasureRepository::findBest(
 	const ObjectSet<const UnitOfMeasure>& uns, const char* nm ) const
 {
-    const FixedString fsnm( nm );
+    const StringView fsnm( nm );
     if ( fsnm.isEmpty() )
 	return 0;
 
@@ -481,7 +481,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::findBest(
     }
     for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( FixedString(uns[idx]->symbol()).isEqual(nm,CaseInsensitive) )
+	if ( StringView(uns[idx]->symbol()).isEqual(nm,CaseInsensitive) )
 	    return uns[idx];
     }
 
@@ -532,7 +532,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
 const UnitOfMeasure* UnitOfMeasureRepository::getCurDefaultFor(
 		const char* ky ) const
 {
-    const FixedString res = UnitOfMeasure::currentDefaults().find( ky );
+    const StringView res = UnitOfMeasure::currentDefaults().find( ky );
     return res.isEmpty() ? nullptr : get( res );
 }
 

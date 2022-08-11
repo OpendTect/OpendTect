@@ -55,7 +55,7 @@ const char* GMTContour::userRef() const
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name(), find(sKey::Name()) );
-    FixedString attrnm = find( ODGMT::sKeyAttribName() );
+    StringView attrnm = find( ODGMT::sKeyAttribName() );
     BufferString str = "\""; str += attrnm;
     if ( attrnm == ODGMT::sKeyZVals() )
 	str += SI().getZUnitString();
@@ -124,7 +124,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     hor->ref();
     exec.erase();
 
-    FixedString attribnm = find( ODGMT::sKeyAttribName() );
+    StringView attribnm = find( ODGMT::sKeyAttribName() );
     const bool isz = attribnm == ODGMT::sKeyZVals();
     if ( !isz )
     {
@@ -243,7 +243,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     if ( drawcontour )
     {
 	strm << "Drawing contours ...  ";
-	FixedString lskey = find( ODGMT::sKeyLineStyle() );
+	StringView lskey = find( ODGMT::sKeyLineStyle() );
 	OD::LineStyle ls; ls.fromString( lskey.str() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );

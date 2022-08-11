@@ -295,7 +295,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
     for ( auto* data : data_ )
     {
 	const PluginInfo* piinf = data->info_;
-	if ( piinf && piinf->dispname_ && FixedString(piinf->dispname_)==nm)
+	if ( piinf && piinf->dispname_ && StringView(piinf->dispname_)==nm)
 	    return data;
     }
     return 0;
@@ -402,7 +402,7 @@ void PluginManager::openALOEntries()
 	data.sla_ = new SharedLibAccess( getFileName(data) );
 	if ( !data.sla_->isOK() )
 	{
-	    const FixedString errmsg( data.sla_->errMsg() );
+	    const StringView errmsg( data.sla_->errMsg() );
 	    if ( !errmsg.isEmpty() )
 		ErrMsg( errmsg );
 

@@ -185,7 +185,7 @@ Sampled1DProbDenFunc* get1DPDF()
 	    sd.step = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyXNoBins) )
 	    nr = astrm.getIValue();
-	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstXBin) )
+	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstXBin) )
 	    { cols_are_0 = true; break; }
     }
 
@@ -249,9 +249,9 @@ Sampled2DProbDenFunc* get2DPDF()
 	    sd1.step = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyYNoBins) )
 	    nr1 = astrm.getIValue();
-	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstXBin) )
+	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstXBin) )
 	    { cols_are_0 = true; break; }
-	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstYBin) )
+	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstYBin) )
 	    { cols_are_0 = false; break; }
     }
     if ( nr0 < 0 || nr1 < 0 )

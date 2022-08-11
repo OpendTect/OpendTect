@@ -208,7 +208,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	txt.addNewLine();
 	txt.append( tr("File size: %1").arg(File::getFileSizeString(fname)) );
 	txt.addNewLine();
-	FixedString timestr( File::timeLastModified(fname) );
+	StringView timestr( File::timeLastModified(fname) );
 	if ( !timestr.isEmpty() )
 	{
 	    txt.addNewLine();
@@ -358,7 +358,7 @@ void optSel( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool acceptOK( CallBacker* ) override
 {
-    FixedString outnm = outfld_->text();
+    StringView outnm = outfld_->text();
     if ( outnm.isEmpty() )
 	mErrRet( tr("Please enter a name for the merged line") );
 

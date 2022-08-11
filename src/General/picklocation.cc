@@ -382,7 +382,7 @@ bool Pick::Location::fromString( const char* s )
 
     // Sometimes, we have a direction
     mSkipBlanks(str);
-    const FixedString data( str );
+    const StringView data( str );
     if ( data.count( '\t' ) > 1 )
     { // Read the direction too before any trace key information
 	Coord3 dirread;

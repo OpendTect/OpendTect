@@ -34,7 +34,7 @@ ReflCalcRunner::ReflCalcRunner( const char* refl1dfactkeywd )
     const BufferStringSet& factnms = refl1dfact.getNames();
     if ( !factnms.isEmpty() )
     {
-	const FixedString defnm( refl1dfact.getDefaultName() );
+	const StringView defnm( refl1dfact.getDefaultName() );
 	if ( !defnm.isEmpty() )
 	    reflpar_.set( sKey::Type(), defnm.str() );
     }

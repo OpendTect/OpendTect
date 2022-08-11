@@ -28,8 +28,8 @@ public:
 			mDefEmptyTranslatorGroupConstructor(EMBody)
 
     const char*		defExtension() const override	{ return "body"; }
-    static FixedString	sKeyExtension()			{ return "body"; }
-    static FixedString	sKeyUserWord()			{ return "od"; }
+    static StringView	sKeyExtension()			{ return "body"; }
+    static StringView	sKeyUserWord()			{ return "od"; }
 };
 
 

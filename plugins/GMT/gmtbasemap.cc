@@ -66,7 +66,7 @@ GMTPar* GMTBaseMap::createInstance( const IOPar& iop, const char* workdir )
 bool GMTBaseMap::doExecute( od_ostream& strm, const char* fnm )
 {
     strm << "Creating the Basemap ...  ";
-    FixedString maptitle = find( ODGMT::sKeyMapTitle() );
+    StringView maptitle = find( ODGMT::sKeyMapTitle() );
     Interval<float> lblintv;
     if ( !get(ODGMT::sKeyLabelIntv(),lblintv) )
 	mErrStrmRet("Incomplete data for basemap creation")
@@ -234,7 +234,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar* par = parset[idx];
-	FixedString namestr = par->find( sKey::Name() );
+	StringView namestr = par->find( sKey::Name() );
 	if ( namestr.isEmpty() )
 	    continue;
 
@@ -242,7 +242,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	BufferString symbstr, penstr;
 	bool usewellsymbol = false;
 	par->getYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbol );
-	FixedString shapestr = par->find( ODGMT::sKeyShape() );
+	StringView shapestr = par->find( ODGMT::sKeyShape() );
 	if ( !usewellsymbol && !shapestr ) continue;
 	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.str() );
 	symbstr = ODGMT::sShapeKeys()[(int)shape];

@@ -430,7 +430,7 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    FilePath filepath = dl.fullPath( idx );
-	    FixedString ext = filepath.extension();
+	    StringView ext = filepath.extension();
 	    if ( ext != "cbvs" )
 		continue;
 
@@ -692,7 +692,7 @@ void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 bool SeisIOObjInfo::isCompatibleType( const char* typestr1,
 				      const char* typestr2 )
 {
-    const FixedString typ1( typestr1 ); const FixedString typ2( typestr2 );
+    const StringView typ1( typestr1 ); const StringView typ2( typestr2 );
     if ( typ1 == typ2 )
 	return true;
 
@@ -966,7 +966,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 
 	if ( o2d.steerpol_ != 2 )
 	{
-	    const FixedString dt = ioobj->pars().find( sKey::Type() );
+	    const StringView dt = ioobj->pars().find( sKey::Type() );
 	    const bool issteering = dt==sKey::Steering();
 	    const bool wantsteering = o2d.steerpol_ == 1;
 	    if ( issteering != wantsteering )
@@ -1119,7 +1119,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
     if ( !ioobj_->pars().isEmpty() )
     {
 	const IOPar& pars = ioobj_->pars();
-	FixedString parstr = pars.find( sKey::Type() );
+	StringView parstr = pars.find( sKey::Type() );
 	if ( !parstr.isEmpty() )
 	    inf.addKeyValue( uiStrings::sType(), parstr );
 

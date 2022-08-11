@@ -59,7 +59,7 @@ static bool mUnusedVar findLibraryPath( const char* libnm, FilePath& ret )
       if ( *syslibnm == '\t' )
 	  syslibnm++;
 
-      if ( FixedString(syslibnm) != libnm )
+      if ( StringView(syslibnm) != libnm )
 	  continue;
 
       cmdoutlines_x64.add( cmdoutsep[3] );

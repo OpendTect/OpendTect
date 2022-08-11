@@ -92,7 +92,7 @@ static DescID hasDesc( const char* attrnm, const char* usrref,
 	const Desc* desc = ds.desc( idx );
 	if ( !desc ) continue;
 
-	const FixedString usrrefstr = desc->userRef();
+	const StringView usrrefstr = desc->userRef();
 	if ( desc->attribName()!=attrnm || usrrefstr!=usrref )
 	    continue;
 

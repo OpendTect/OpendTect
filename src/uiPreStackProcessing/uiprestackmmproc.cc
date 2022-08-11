@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 bool Batch::PreStackMMProgDef::isSuitedFor( const char* pnm ) const
 {
-    FixedString prognm = pnm;
+    StringView prognm = pnm;
     return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::PreStack );
 }
 

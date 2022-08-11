@@ -150,7 +150,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
 
     nrdone_ = 0;
     char rowstr[10], colstr[10], valstr[20];
-    FixedString fsrowstr( rowstr ), fscolstr( colstr ), fsvalstr( valstr );
+    StringView fsrowstr( rowstr ), fscolstr( colstr ), fsvalstr( valstr );
     for ( int ridx=0; ridx<nrrows_; ridx++ )
     {
 	if ( !*sd.iStrm() )

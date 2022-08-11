@@ -1077,7 +1077,7 @@ bool PlaneDataDisplay::usePar( const IOPar& par )
 	return false;
 
     SliceType orientation = OD::InlineSlice;
-    FixedString orstr = par.find( sKeyOrientation() );
+    StringView orstr = par.find( sKeyOrientation() );
     if ( !parseEnumSliceType(orstr,orientation) && orstr == "Timeslice" )
 	orientation = OD::ZSlice;	// Backward compatibilty with 4.0
 

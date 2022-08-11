@@ -375,7 +375,7 @@ void Seis::Blocks::Reader::readInfoFile( od_istream& strm )
 	{
 	    IOPar* iop = new IOPar;
 	    iop->getFrom( astrm );
-	    iop->setName( sectnm.str() + FixedString(sKeySectionPre()).size() );
+	    iop->setName( sectnm.str() + StringView(sKeySectionPre()).size() );
 	    auxiops_ += iop;
 	}
 	if ( failed )

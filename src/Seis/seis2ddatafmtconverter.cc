@@ -39,7 +39,7 @@ static void convert2DPSData()
     {
 	const IOObj* psobj = olddel[idx]->ioobj_;
 	if ( !psobj ) continue;
-	const FixedString psdir = psobj->fullUserExpr( true );
+	const StringView psdir = psobj->fullUserExpr( true );
 	if ( psdir.isEmpty() || !File::isDirectory(psdir) )
 	    continue;
 
@@ -367,7 +367,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	ctio.ctxt_.toselect_.require_.set( ZDomain::sKey(), zdomain );
     }
 
-    FixedString attribnm = iop.find( sKey::Attribute() );
+    StringView attribnm = iop.find( sKey::Attribute() );
     if ( attribnm.isEmpty() ) attribnm = "Seis";
     ctio.ctxt_.setName( attribnm );
     if ( ctio.fillObj() == 0 ) return BufferString::empty();
@@ -384,7 +384,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	iop.set( sKey::Attribute(), nm.buf() );
     }
 
-    const FixedString survdefattr( getSurvDefAttrName() );
+    const StringView survdefattr( getSurvDefAttrName() );
     const bool issurvdefset = SI().pars().find( IOPar::compKey(sKey::Default(),
 				SeisTrc2DTranslatorGroup::sKeyDefault()) );
     if ( !issurvdefset && ctio.ioobj_ && survdefattr == attribnm )

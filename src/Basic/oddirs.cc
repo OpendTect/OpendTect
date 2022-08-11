@@ -215,7 +215,7 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 
 mExternC(Basic) const char* GetPythonScript( const char* nm )
 {
-    const FixedString fnm( nm );
+    const StringView fnm( nm );
     if ( fnm.isEmpty() )
 	return nullptr;
 

@@ -150,7 +150,7 @@ const char* WebsiteHelp::sKeyCommProjects()	{ return "commprojects"; }
 
 void WebsiteHelp::provideHelp( const char* arg ) const
 {
-    const FixedString argstr = arg;
+    const StringView argstr = arg;
     BufferString url;
     if ( argstr == sKeyAttribMatrix() )
 	url = "https://www.dgbes.com/index.php/software/attributes-table";
@@ -172,7 +172,7 @@ void WebsiteHelp::provideHelp( const char* arg ) const
 
 bool WebsiteHelp::hasHelp( const char* arg ) const
 {
-    const FixedString argstr = arg;
+    const StringView argstr = arg;
     return  argstr == sKeyAttribMatrix() ||
 	    argstr == sKeySupport();
 }
@@ -283,7 +283,7 @@ void ReleaseNotesProvider::provideHelp( const char* arg ) const
 {
     BufferString url;
     bool online = false;
-    const FixedString argstr( arg );
+    const StringView argstr( arg );
     if ( argstr.isEmpty() )
     {
 	BufferString relnotesfnm( "Release_Notes_" );
@@ -318,6 +318,6 @@ void ReleaseNotesProvider::provideHelp( const char* arg ) const
 
 bool ReleaseNotesProvider::hasHelp( const char* arg ) const
 {
-    const FixedString argstr( arg );
+    const StringView argstr( arg );
     return  argstr == sKeyFactoryName();
 }

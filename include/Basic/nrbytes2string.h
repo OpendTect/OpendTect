@@ -33,13 +33,13 @@ public:
 			 unit is needed.
 			 */
 
-    FixedString		getString(od_uint64 number,int nrdecimals=2,
+    StringView		getString(od_uint64 number,int nrdecimals=2,
 				  bool withunit=true) const;
 			/*!<Use string before doing anything else, as it will be
 			    overwritten at next call from same thread. */
 
-    FixedString		getUnitString() const;
-    static FixedString	toString(Unit);
+    StringView		getUnitString() const;
+    static StringView	toString(Unit);
 
 protected:
 

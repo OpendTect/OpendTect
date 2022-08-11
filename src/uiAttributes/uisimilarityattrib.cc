@@ -143,7 +143,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
 void uiSimilarityAttrib::extSel( CallBacker* )
 {
-    const FixedString ext = extfld_->text();
+    const StringView ext = extfld_->text();
 
     const bool iscube = ext == extstrs3d[3];
     const bool iscross = ext == extstrs3d[4];
@@ -217,7 +217,7 @@ bool uiSimilarityAttrib::setInput( const Attrib::Desc& desc )
 bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
 {
     const int selattr = desc.selectedOutput();
-    const FixedString ext = extfld_->text();
+    const StringView ext = extfld_->text();
     const bool mirrorext = ext == extstrs3d[1] || ext == extstrs3d[2];
     dooutpstatsfld_->setValue( selattr<5 );
 
@@ -241,7 +241,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != Similarity::attribName() )
 	return false;
 
-    const FixedString ext = extfld_->text();
+    const StringView ext = extfld_->text();
     if ( ext == extstrs3d[3] || ext == extstrs3d[4]
 	 || ext == extstrs3d[5] || ext == extstrs3d[6] )
     {	mSetBinID( Similarity::stepoutStr(), stepoutfld_->getBinID() ); }
@@ -291,7 +291,7 @@ bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
     else
     {
 	selattr = outpstatsfld_->getIntValue();
-	const FixedString ext = extfld_->text();
+	const StringView ext = extfld_->text();
 	if (selattr && (ext == extstrs3d[1] || ext == extstrs3d[2]))
 	    selattr += 2;
     }
@@ -305,7 +305,7 @@ void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Similarity::gateStr() );
 
-    const FixedString ext = extfld_->text();
+    const StringView ext = extfld_->text();
     if ( ext == extstrs3d[3] || ext == extstrs3d[4]
       || ext == extstrs3d[5] || ext == extstrs3d[6] )
 	params += EvalParam( stepoutstr(), Similarity::stepoutStr() );

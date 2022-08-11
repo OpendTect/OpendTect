@@ -578,7 +578,7 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 
 IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 {
-    const FixedString fsobjnm( objname );
+    const StringView fsobjnm( objname );
     if ( fsobjnm.isEmpty() )
 	return nullptr;
 
@@ -998,7 +998,7 @@ bool IOMan::implRename( const MultiID& key, const char* newname,
 	    fp.setFileName( deffp.fileName() );
 	    chiostrm.fileSpec().setFileName( fp.fullPath() );
 
-	    const bool newfnm = FixedString(chiostrm.fileSpec().fileName())
+	    const bool newfnm = StringView(chiostrm.fileSpec().fileName())
 					    != iostrm->fileSpec().fileName();
 	    if ( newfnm && !doReloc(key, trans,*iostrm,chiostrm) )
 	    {
@@ -1112,7 +1112,7 @@ IOObj* IOMan::get( const char* objname, const char* tgname ) const
     for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )
     {
 	const TranslatorGroup& tgrp = *TranslatorGroup::groups()[itype];
-	if ( tgname && FixedString(tgname) != tgrp.groupName() )
+	if ( tgname && StringView(tgname) != tgrp.groupName() )
 	    continue;
 
 	IODir iodir( tgrp.ioCtxt().getSelKey() );
@@ -1155,7 +1155,7 @@ int IOMan::levelOf( const char* dirnm ) const
     Threads::Locker lock( lock_ );
     if ( !dirnm ) return 0;
 
-    int lendir = FixedString(dirnm).size();
+    int lendir = StringView(dirnm).size();
     int lenrootdir = rootdir_.size();
     if ( lendir <= lenrootdir ) return 0;
 

@@ -325,7 +325,7 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d,
 
 	if ( preferredsel < 0 )
 	{
-	    if ( FixedString(sip.usrText()).contains("etrel") )
+	    if ( StringView(sip.usrText()).contains("etrel") )
 		preferredsel = idx;
 	    else if ( iswellsip && havewell && !have3d && !have2d )
 		preferredsel = idx;
@@ -353,7 +353,7 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d,
     int maxlen = 0;
     for ( int idx=0; idx<sipfld_->size(); idx++ )
     {
-	const int len = FixedString( sipfld_->textOfItem(idx) ).size();
+	const int len = StringView( sipfld_->textOfItem(idx) ).size();
 	if ( len > maxlen ) maxlen = len;
     }
     sipfld_->setPrefWidthInChar( maxlen + 5 );
@@ -1268,7 +1268,7 @@ static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
     if ( keyidx>=0 )
     {
 	par.setKey( keyidx, "Created at" );
-	const FixedString timestr = par.getValue( keyidx );
+	const StringView timestr = par.getValue( keyidx );
 	par.setValue( keyidx, Time::getLocalDateTimeFromString(timestr) );
     }
     keyidx = par.indexOf( sKey::CrBy() );
@@ -1279,7 +1279,7 @@ static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
     if ( keyidx>=0 )
     {
 	par.setKey( keyidx, "Last Modified at" );
-	const FixedString timestr = par.getValue( keyidx );
+	const StringView timestr = par.getValue( keyidx );
 	par.setValue( keyidx, Time::getLocalDateTimeFromString(timestr) );
     }
 

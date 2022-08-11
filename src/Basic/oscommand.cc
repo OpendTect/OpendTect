@@ -522,11 +522,11 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 void OS::MachineCommand::addShellIfNeeded()
 {
 #ifdef __win__
-    if ( prognm_ == FixedString("cmd") && args_.size() > 0 &&
-	 *args_.first() == FixedString("/c") )
+    if ( prognm_ == StringView("cmd") && args_.size() > 0 &&
+	 *args_.first() == StringView("/c") )
 #else
-    if ( prognm_ == FixedString("/bin/sh") && args_.size() > 0 &&
-	 *args_.first() == FixedString("-c") )
+    if ( prognm_ == StringView("/bin/sh") && args_.size() > 0 &&
+	 *args_.first() == StringView("-c") )
 #endif
 	return;
 
@@ -720,7 +720,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( machcmd_.isBad() )
 	{ errmsg_ = toUiString("Command is invalid"); return false; }
 
-    if ( FixedString(machcmd_.program()).contains("python") )
+    if ( StringView(machcmd_.program()).contains("python") )
     {
 	const FilePath pythfp( machcmd_.program() );
 	if ( pythfp.nrLevels() < 2 ||
@@ -850,7 +850,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	{ errmsg_ = tr("Command is empty"); return false; }
 
 #ifdef __win__
-    if ( FixedString(mc.program()) == GetIsolateScript() &&
+    if ( StringView(mc.program()) == GetIsolateScript() &&
 	 pars.workingdir_.isEmpty() )
     {
 	CommandExecPars& parsedit = const_cast<CommandExecPars&>( pars );

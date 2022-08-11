@@ -113,7 +113,7 @@ void uiSynthSeisSel::initGrpCB( CallBacker* )
 void uiSynthSeisSel::setDefault()
 {
     FactoryBase& uisynthseisfact = uiSynthSeis::factory();
-    if ( !FixedString(uisynthseisfact.getDefaultName()).isEmpty() )
+    if ( !StringView(uisynthseisfact.getDefaultName()).isEmpty() )
 	return;
 
     const int defidx = uisynthseisfact.getNames().indexOf(
@@ -293,7 +293,7 @@ bool uiSynthSeisSel::setCurrentType( const char* typestr )
 
     for ( int grpidx=0; grpidx<grps_.size(); grpidx++ )
     {
-	if ( FixedString(grps_[grpidx]->factoryKeyword()) == typestr )
+	if ( StringView(grps_[grpidx]->factoryKeyword()) == typestr )
 	{
 	    synthseisselfld_->setCurrentItem( grpidx );
 	    selSynthSeisCB( nullptr );

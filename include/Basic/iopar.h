@@ -77,8 +77,8 @@ public:
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		isEqual(const IOPar&,bool need_same_order=false) const;
     bool		includes(const IOPar&) const;
-    FixedString		getKey(int) const;
-    FixedString		getValue(int) const;
+    StringView		getKey(int) const;
+    StringView		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
     int			maxContentSize(bool keys_else_values) const;
@@ -126,8 +126,8 @@ public:
 
     const char*		find(const char*) const;
 				//!< returns null if not found
-    FixedString		operator[]( const char* ky ) const
-			{ return FixedString( find(ky) ); }
+    StringView		operator[]( const char* ky ) const
+			{ return StringView( find(ky) ); }
 
 			// Functions for getting 1,2,3 and 4 of the same type
 #define mIOParDeclFns(type) \

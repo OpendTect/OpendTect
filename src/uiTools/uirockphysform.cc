@@ -278,7 +278,7 @@ const Mnemonic& uiRockPhysForm::getMnemonic() const
 
 void uiRockPhysForm::nameSel( CallBacker* )
 {
-    const FixedString txt = nmfld_->text();
+    const StringView txt = nmfld_->text();
     if ( txt.isEmpty() )
 	return;
 
@@ -362,7 +362,7 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
 
 bool uiRockPhysForm::getFormulaInfo( Math::Formula& form ) const
 {
-    const FixedString txt = nmfld_->text();
+    const StringView txt = nmfld_->text();
     if ( txt.isEmpty() )
 	{ uiMSG().error( tr("No formula name selected") ); return false; }
 

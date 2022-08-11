@@ -571,7 +571,7 @@ void TrcKeySampling::expand( int nrlines, int nrtrcs )
 static bool getRange( const IOPar& par, const char* key, int& start_,
 		      int& stop_, int& step_ )
 {
-    FixedString parval = par[key];
+    StringView parval = par[key];
     if ( !parval )
 	return false;
 

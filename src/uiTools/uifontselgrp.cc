@@ -99,7 +99,7 @@ bool uiFontSelGrp::fillPar( IOPar& par ) const
 
 bool uiFontSelGrp::usePar( const IOPar& par )
 {
-    const FixedString fontstr = par.find( sKey::Font() );
+    const StringView fontstr = par.find( sKey::Font() );
     if ( fontstr )
 	fontdata_.getFrom( fontstr );
 

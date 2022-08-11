@@ -56,7 +56,7 @@ public:
 						{ return assignTo(b.buf_); }
     inline BufferString& operator=( const char* s )
 						{ return assignTo(s); }
-    inline BufferString& operator=( const FixedString& s )
+    inline BufferString& operator=( const StringView& s )
 						{ return assignTo(s.str()); }
     inline BufferString& operator=( const OD::String& s )
 						{ return assignTo(s.str()); }
@@ -72,8 +72,8 @@ public:
     inline bool		operator!=(const char*) const;
     inline bool		operator==(const OD::String&) const;
     inline bool		operator!=(const OD::String&) const;
-    inline bool		operator==(const FixedString&) const;
-    inline bool		operator!=(const FixedString&) const;
+    inline bool		operator==(const StringView&) const;
+    inline bool		operator!=(const StringView&) const;
 
     inline char*	getCStr()
     { return const_cast<char*>(const_cast<BufferString*>(this)->gtBuf()); }
@@ -212,9 +212,9 @@ inline bool BufferString::operator==( const char* s ) const
 { return isEqual( s ); }
 inline bool BufferString::operator!=( const char* s ) const
 { return !isEqual( s ); }
-inline bool BufferString::operator==( const FixedString& s ) const
+inline bool BufferString::operator==( const StringView& s ) const
 { return isEqual( s.str() ); }
-inline bool BufferString::operator!=( const FixedString& s ) const
+inline bool BufferString::operator!=( const StringView& s ) const
 { return !isEqual( s.str() ); }
 inline bool BufferString::operator==( const OD::String& s ) const
 { return isEqual( s.str() ); }

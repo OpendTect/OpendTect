@@ -55,7 +55,7 @@ uiIcon::~uiIcon()
 
 void uiIcon::setIdentifier( const char* iconnm )
 {
-    const FixedString iconstr = iconnm;
+    const StringView iconstr = iconnm;
     if ( iconstr == None() )
     {
 	if ( !qicon_.isNull() )

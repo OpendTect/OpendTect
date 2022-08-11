@@ -457,8 +457,8 @@ void uiMathFormula::initFlds( CallBacker* )
 
 void uiMathFormula::formSetCB( CallBacker* )
 {
-    const FixedString formtxt = form_.text();
-    const bool changed = FixedString(exprfld_->text()) != formtxt;
+    const StringView formtxt = form_.text();
+    const bool changed = StringView(exprfld_->text()) != formtxt;
     if ( !changed )
 	return;
 

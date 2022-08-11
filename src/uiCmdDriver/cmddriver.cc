@@ -325,7 +325,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	    if ( backward ) actidxstack.removeSingle( 0 ); \
 	    if ( backward ) flowstack.removeSingle( 0 ); \
 	} \
-	if ( FixedString(#cmd) == "Else" ) \
+	if ( StringView(#cmd) == "Else" ) \
 	    flowstack[0] = ElseTag; \
     }
 

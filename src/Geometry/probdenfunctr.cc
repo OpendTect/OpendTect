@@ -152,7 +152,7 @@ ProbDenFunc* odProbDenFuncTranslator::readInfo( od_istream& strm )
 {
     ascistream astrm( strm );
     IOPar par( astrm );
-    FixedString type = par.find( sKey::Type() );
+    StringView type = par.find( sKey::Type() );
     if ( type.isEmpty() )
 	return nullptr;
 

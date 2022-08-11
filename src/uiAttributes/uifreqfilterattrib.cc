@@ -157,7 +157,7 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
 
     if ( tap )
     {
-	const bool costaper = FixedString(tap->windowName()) == "CosTaper";
+	const bool costaper = StringView(tap->windowName()) == "CosTaper";
 	Interval<float> frg( freqfld_->freqRange() );
 	if ( costaper )
 	{
@@ -247,7 +247,7 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( taper )
     {
 	Interval<float> freqresvar = taper->freqValues();
-	const bool istaper = FixedString(winflds_[1]->windowName())=="CosTaper";
+	const bool istaper = StringView(winflds_[1]->windowName())=="CosTaper";
 	freqresvar.start = istaper ? (freqresvar.start) : freqrg.start;
 	freqresvar.stop = istaper ? (freqresvar.stop) : freqrg.stop;
 	mSetFloat( FreqFilter::freqf1Str(), freqresvar.start );
@@ -289,7 +289,7 @@ void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 bool uiFreqFilterAttrib::areUIParsOK()
 {
     const bool isfft = isfftfld_->getBoolValue();
-    if ( isfft && FixedString(winflds_[0]->windowName())=="CosTaper" )
+    if ( isfft && StringView(winflds_[0]->windowName())=="CosTaper" )
     {
 	float paramval = winflds_[0]->windowParamValue();
 	if ( paramval<0 || paramval>1  )

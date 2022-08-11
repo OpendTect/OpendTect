@@ -196,7 +196,7 @@ int uiComboBox::currentItem() const
 
 int uiComboBox::indexOf( const char* str ) const
 {
-    const FixedString inputstr( str );
+    const StringView inputstr( str );
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( inputstr == textOfItem(idx) )
@@ -346,7 +346,7 @@ void uiComboBox::setCurrentItem( const char* txt )
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( FixedString(textOfItem(idx)) == txt )
+	if ( StringView(textOfItem(idx)) == txt )
 	    { body_->setCurrentIndex( idx ); return; }
     }
 }

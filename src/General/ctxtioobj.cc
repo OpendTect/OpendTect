@@ -454,7 +454,7 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
     BufferString keystr( ctxt_.trgroup_->getSurveyDefaultKey(0) );
 
-    const FixedString typestr = ctxt_.toselect_.require_.find( sKey::Type() );
+    const StringView typestr = ctxt_.toselect_.require_.find( sKey::Type() );
     if ( !typestr.isEmpty() )
 	    keystr = IOPar::compKey( keystr, typestr );
 

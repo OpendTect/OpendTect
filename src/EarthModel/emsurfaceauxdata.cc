@@ -383,7 +383,7 @@ BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
 BufferString SurfaceAuxData::getFileName( const char* fulluserexp,
 					  const char* attrnmptr)
 {
-    FixedString attrnm( attrnmptr );
+    StringView attrnm( attrnmptr );
     const BufferString basefnm( fulluserexp );
     BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )

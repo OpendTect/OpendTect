@@ -31,7 +31,7 @@ ________________________________________________________________________
 
 using namespace Coords;
 
-static FixedString sKeyEPSG()	{ return FixedString("EPSG"); }
+static StringView sKeyEPSG()	{ return StringView("EPSG"); }
 
 static AuthorityCode cDefProjID()
 { return AuthorityCode(sKeyEPSG(),32631); }

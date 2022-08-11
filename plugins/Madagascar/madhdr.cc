@@ -202,7 +202,7 @@ void RSFHeader::setFSampling( int dim, const SamplingData<float>& sampdata )
 
 const char* RSFHeader::getDataSource() const
 {
-    FixedString fs = find( sKeyIn );
+    StringView fs = find( sKeyIn );
     return fs.str();
 }
 
@@ -230,7 +230,7 @@ void RSFHeader::setDataFormat( Format fmt )
 
 const char* RSFHeader::getTrcHeaderFile() const
 {
-    FixedString fs = find( sKeyTrcHeader );
+    StringView fs = find( sKeyTrcHeader );
     return fs.str();
 }
 
@@ -243,7 +243,7 @@ void RSFHeader::setTrcHeaderFile( const char* trchdrfle )
 
 const char* RSFHeader::getODVersion() const
 {
-    FixedString fs = find( sKeyODVer );
+    StringView fs = find( sKeyODVer );
     return fs.str();
 }
 

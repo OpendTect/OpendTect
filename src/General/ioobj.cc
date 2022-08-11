@@ -44,7 +44,7 @@ static ObjectSet<const IOObjProducer>& getProducers()
 class IOXProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const override
-		{ return FixedString(typ)==XConn::sType(); }
+		{ return StringView(typ)==XConn::sType(); }
     IOObj*	make( const char* nm,
 		      const MultiID& ky, bool fd ) const override
 		{ return new IOX(nm,ky.toString(),fd); }

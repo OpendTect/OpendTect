@@ -225,7 +225,7 @@ void uiAction::setMenu( uiMenu* menu )
 	qaction_->setMenu( menu_->getQMenu() );
 	if ( iconfile_.isEmpty() )
 	{
-	    const FixedString menuicon( menu_->getIconName() );
+	    const StringView menuicon( menu_->getIconName() );
 	    if ( !menuicon.isEmpty() )
 		setIcon( menuicon.buf() );
 	}

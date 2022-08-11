@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "od_stream.h"
 class SeparString;
 class CompoundKey;
-class FixedString;
+class StringView;
 
 
 /*!\brief OD class for stream read */
@@ -75,7 +75,7 @@ public:
 
     od_istream&		getC(char*,int sz,int maxnrchar);
     od_istream&		get(char*) = delete;
-    od_istream&		get(FixedString&) = delete;
+    od_istream&		get(StringView&) = delete;
     od_istream&		get(void*) = delete;
 
     bool		getWord(BufferString&,bool allowgotonextline=true);

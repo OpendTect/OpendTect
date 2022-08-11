@@ -168,7 +168,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
 	{
 	    if ( !selwellstbl_->isRowSelected(idx)
-		|| FixedString(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
+		|| StringView(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
 		continue;
 
 	    wellsbox_->addItem(toUiString(selwellstbl_->text(RowCol(idx,0))) );
@@ -289,7 +289,7 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
     mDynamicCastGet(uiToolButton*,but,cb)
     if ( !selwellstbl_->isRowSelected( index ) ) return;
 
-    if ( FixedString(selwellstbl_->text(RowCol(index,0))).isEmpty() )
+    if ( StringView(selwellstbl_->text(RowCol(index,0))).isEmpty() )
 	return;
 
     mDynamicCastGet(uiComboBox*,box,
@@ -305,7 +305,7 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
 	selwellstbl_->setCurrentCell( RowCol(index-1,0) );
     }
     else if ( but == movedownward_ && index<selwellstbl_->nrRows()
-	      && !FixedString(selwellstbl_->text(RowCol(index+1,0))).isEmpty() )
+	      && !StringView(selwellstbl_->text(RowCol(index+1,0))).isEmpty() )
     {
 	mInsertRow( index+2, text.buf(), value );
 	selwellstbl_->removeRow( index );
@@ -328,7 +328,7 @@ int uiWellSelGrp::getFirstEmptyRow()
 {
     for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
-	if ( FixedString(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
+	if ( StringView(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
 	    return idx;
     }
 

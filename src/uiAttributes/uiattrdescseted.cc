@@ -906,7 +906,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 	 firstOcc(newnm,'#') )
        mErrRetFalse(tr("Attribute name may not contain '!', '#', ';' or ':'."));
 
-    const FixedString fsnewnm( newnm );
+    const StringView fsnewnm( newnm );
     if ( fsnewnm.size() < 2 )
 	mErrRetFalse( tr("Please enter a name of at least 2 characters.") );
 

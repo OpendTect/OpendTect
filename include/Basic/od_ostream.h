@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "od_stream.h"
 
 class CompoundKey;
-class FixedString;
+class StringView;
 class MultiID;
 class SeparString;
 class uiString;

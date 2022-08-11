@@ -36,7 +36,7 @@ bool uiVisMenuItemHandler::shouldAddMenu() const
     if ( !survobj )
 	return false;
 
-    return FixedString(classnm_) == survobj->factoryKeyword();
+    return StringView(classnm_) == survobj->factoryKeyword();
 }
 
 

@@ -139,7 +139,7 @@ uiRetVal ServiceServerMgr::sendRequest( const char* reqkey,
 {
     if ( !auth && !canReceiveRequests() )
     {
-	if ( FixedString(reqkey) != sKeyRegister() )
+	if ( StringView(reqkey) != sKeyRegister() )
 	    return uiRetVal::OK();
     }
 

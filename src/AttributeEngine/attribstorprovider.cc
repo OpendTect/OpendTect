@@ -97,7 +97,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	    return;
 	}
 
-	FixedString datatype = rdr.dataSet()->dataType();
+	StringView datatype = rdr.dataSet()->dataType();
 	const bool issteering = datatype == sKey::Steering();
 	SeisTrcTranslator* transl = rdr.seisTranslator();
 	if ( !transl )

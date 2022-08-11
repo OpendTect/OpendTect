@@ -290,7 +290,7 @@ inline int PacketFiller::sizeFor( const BufferString& str )
 { return sizeFor( (const OD::String&) str ); }
 
 template <>
-inline int PacketFiller::sizeFor( const FixedString& str )
+inline int PacketFiller::sizeFor( const StringView& str )
 { return sizeFor( (const OD::String&) str ); }
 
 template <>
@@ -304,7 +304,7 @@ inline int PacketFiller::sizeFor( const BufferStringSet& bss )
 
 inline int PacketFiller::sizeFor( const char* str )
 {
-    return sizeFor( FixedString(str) );
+    return sizeFor( StringView(str) );
 }
 
 
@@ -365,7 +365,7 @@ inline const PacketFiller& PacketFiller::put( const BufferString& str ) const
 { return put( (const OD::String&) str ); }
 
 template <>
-inline const PacketFiller& PacketFiller::put( const FixedString& str ) const
+inline const PacketFiller& PacketFiller::put( const StringView& str ) const
 { return put( (const OD::String&) str ); }
 
 template <>
@@ -379,7 +379,7 @@ inline const PacketFiller& PacketFiller::put( const BufferStringSet& bss ) const
 }
 
 inline const PacketFiller& PacketFiller::put( const char* str ) const
-{ return put( FixedString(str) ); }
+{ return put( StringView(str) ); }
 
 inline const PacketFiller& PacketFiller::putBytes( const void* ptr,
 						   int sz ) const

@@ -100,13 +100,13 @@ bool testFilePath( const char* inputpath,
     mRunStandardTest( path.fileName()==filename,
 	    BufferString( inputpath, " detects filename" ) );
 
-    mRunStandardTest( FixedString(path.domain())==domain,
+    mRunStandardTest( StringView(path.domain())==domain,
 	    BufferString( inputpath, " detects domain" ) );
 
-    mRunStandardTest( FixedString(path.extension())==extension,
+    mRunStandardTest( StringView(path.extension())==extension,
 	    BufferString( inputpath, " detects extension" ) );
 
-    mRunStandardTest( FixedString(path.postfix())==postfix,
+    mRunStandardTest( StringView(path.postfix())==postfix,
 	    BufferString( inputpath, " detects postfix" ) );
 
     mRunStandardTest( path.nrLevels()==nrlevels,

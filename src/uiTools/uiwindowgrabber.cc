@@ -200,7 +200,7 @@ const char* uiWindowGrabDlg::getExtension() const
 
     if ( ifmt < 0 )
     {
-	const FixedString selectedfilter = fileinputfld_->selectedFilter();
+	const StringView selectedfilter = fileinputfld_->selectedFilter();
 	for ( ifmt=0; filters[ifmt]; ifmt++ )
 	{
 	    if ( selectedfilter == filters[ifmt] )

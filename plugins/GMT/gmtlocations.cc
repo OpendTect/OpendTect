@@ -40,7 +40,7 @@ const char* GMTWellSymbol::sKeyDefFileName()	{ return "Def File Name"; }
 
 bool GMTWellSymbol::usePar( const IOPar& par )
 {
-    FixedString namestr = par.find( sKey::Name() );
+    StringView namestr = par.find( sKey::Name() );
     if ( !namestr )
 	return false;
 
@@ -150,7 +150,7 @@ const char* GMTLocations::userRef() const
 
 bool GMTLocations::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name() );
+    StringView str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     str = find( ODGMT::sKeyShape() );
     par.set( ODGMT::sKeyShape(), str );
@@ -251,7 +251,7 @@ const char* GMTPolyline::userRef() const
 
 bool GMTPolyline::fillLegendPar( IOPar& par ) const
 {
-    FixedString str = find( sKey::Name() );
+    StringView str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Polygon" );
     par.set( sKey::Size(), 1 );
@@ -361,7 +361,7 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name(), find(sKey::Name()) );
 
-    FixedString str = find( sKey::Color() );
+    StringView str = find( sKey::Color() );
     par.set( sKey::Color(), str );
     str = find( sKey::Size() );
     par.set( sKey::Size(), str );

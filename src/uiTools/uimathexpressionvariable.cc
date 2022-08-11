@@ -304,7 +304,7 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 	varnm = linekey.lineName(); subnm = linekey.attrName();
     }
 
-    bool isfound = FixedString(inpfld_->text()) == varnm;
+    bool isfound = StringView(inpfld_->text()) == varnm;
     if ( !exact && !isfound )
     {
 	BufferStringSet avnms; inpfld_->getItems( avnms );

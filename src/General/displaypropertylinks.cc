@@ -179,7 +179,7 @@ int DisplayLinkManager::getDisplayPropertyLinkID( int idx ) const
 
 int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 {
-    FixedString lnktype = lnk->type();
+    StringView lnktype = lnk->type();
     Threads::Locker lckr( lock_ );
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
     {

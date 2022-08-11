@@ -90,13 +90,13 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 }
 
 
-FixedString uiLinearVelTransform::toDomain() const
+StringView uiLinearVelTransform::toDomain() const
 {
     return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
 }
 
 
-FixedString uiLinearVelTransform::fromDomain() const
+StringView uiLinearVelTransform::fromDomain() const
 {
     return t2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth();
 }

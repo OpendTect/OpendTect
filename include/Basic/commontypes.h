@@ -20,7 +20,7 @@ class Coord3;
 class TrcKey;
 class IdxPair;
 class MultiID;
-class FixedString;
+class StringView;
 class BufferString;
 namespace OD { class String; }
 template<class T> class TypeSet;

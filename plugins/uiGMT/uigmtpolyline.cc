@@ -105,10 +105,10 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 bool uiGMTPolylineGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    FixedString nm = par.find( sKey::Name() );
+    StringView nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
+    StringView lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( !lskey.isEmpty() )
     {
 	OD::LineStyle ls; ls.fromString( lskey.str() );

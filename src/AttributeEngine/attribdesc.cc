@@ -722,7 +722,7 @@ void Desc::getKeysVals( const char* ds, BufferStringSet& keys,
     if ( defstr.isEmpty() )
 	return;
 
-    const FixedString onlyneedkey( targetky );
+    const StringView onlyneedkey( targetky );
     const bool havetarget = !onlyneedkey.isEmpty();
     char* still2scan = defstr.getCStr();
     while ( *still2scan )

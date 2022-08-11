@@ -30,13 +30,13 @@ uiTime2DepthZTransformBase::~uiTime2DepthZTransformBase()
 }
 
 
-FixedString uiTime2DepthZTransformBase::toDomain() const
+StringView uiTime2DepthZTransformBase::toDomain() const
 {
     return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
 }
 
 
-FixedString uiTime2DepthZTransformBase::fromDomain() const
+StringView uiTime2DepthZTransformBase::fromDomain() const
 {
     return t2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth();
 }

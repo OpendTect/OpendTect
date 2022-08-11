@@ -118,7 +118,7 @@ static void cleanupMantissa( char* ptrdot, char* ptrend )
     if ( ptrend )
 	ptrend--;
     else
-	ptrend = ptrdot + FixedString(ptrdot).size() - 1;
+	ptrend = ptrdot + StringView(ptrdot).size() - 1;
 
     while ( ptrend > ptrdot && *ptrend == '0' )
     {
@@ -155,7 +155,7 @@ static int findUglyRoundOff( char* str, bool isdouble )
     {
 	ptrend = firstOcc( ptrdot, 'E' );
 	if ( !ptrend )
-	    ptrend = ptrdot + FixedString(ptrdot).size();
+	    ptrend = ptrdot + StringView(ptrdot).size();
     }
 
     char* decstartptr = ptrdot + 1;
@@ -231,7 +231,7 @@ static void finalCleanupNumberString( char* str )
     // Remove trailing '0's in mantissa
     char* ptrend = firstOcc( str, 'e' );
     if ( !ptrend )
-	ptrend = str + FixedString(str).size() - 1;
+	ptrend = str + StringView(str).size() - 1;
     if ( ptrexp )
     {
 	char* ptrlast = ptrexp-1;
@@ -821,7 +821,7 @@ const char* getAreaString( float area, bool parensonunit, char* str, int sz )
 const char* getAreaString( float area, bool xyinfeet, int precision,
 			   bool parensonunit, char* str, int sz )
 {
-    FixedString unit;
+    StringView unit;
     double val = area;
     if ( area > 10. )
     {
@@ -938,7 +938,7 @@ const char* toStringPrecise( double d )
 template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )
 {
-    FixedString simptostr = toString(val);
+    StringView simptostr = toString(val);
     const int simpsz = simptostr.size();
     if ( maxtxtwdth < 1 || simpsz <= maxtxtwdth )
 	return simptostr;
@@ -958,7 +958,7 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
     {
 	char* ptrend = firstOcc( ptrdot, 'e' );
 	if ( !ptrend )
-	    ptrend = ptrdot + FixedString(ptrdot).size();
+	    ptrend = ptrdot + StringView(ptrdot).size();
 	const int nrcharsav = int(ptrend - ptrdot);
 	if ( nrcharsav >= simpsz - maxtxtwdth )
 	{
@@ -1153,7 +1153,7 @@ void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
 }
 
 
-FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
+StringView NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
 					     bool withunit ) const
 {
     if ( nrdecimals>5 ) nrdecimals = 5;
@@ -1184,18 +1184,18 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     if ( withunit )
 	ret.add( " " ).add( getUnitString() );
 
-    return FixedString( ret.str() );
+    return StringView( ret.str() );
 }
 
 
 
-FixedString NrBytesToStringCreator::getUnitString() const
+StringView NrBytesToStringCreator::getUnitString() const
 {
     return toString( unit_ );
 }
 
 
-FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit )
+StringView NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit )
 {
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
     return units[ int(unit) ];

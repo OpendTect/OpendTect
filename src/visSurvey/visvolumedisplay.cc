@@ -1531,11 +1531,11 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	slices_ += os;
 	addChild( os->osgNode() );
 	// set correct dimensions ...
-	if ( os->name() == FixedString(sKeyInline()) )
+	if ( os->name() == StringView(sKeyInline()) )
 	    os->setDim( cInLine() );
-	else if ( os->name() == FixedString(sKeyCrossLine()) )
+	else if ( os->name() == StringView(sKeyCrossLine()) )
 	    os->setDim( cCrossLine() );
-	else if ( os->name() == FixedString(sKeyTime()) )
+	else if ( os->name() == StringView(sKeyTime()) )
 	    os->setDim( cTimeSlice() );
     }
 

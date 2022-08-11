@@ -279,7 +279,7 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
     }
     dataselfld_->setSensitive( nrattrib );
 
-    const FixedString fnm = inpfld_->fileName();
+    const StringView fnm = inpfld_->fileName();
     scanbut_->setSensitive( !fnm.isEmpty() && nrattrib );
     if ( !scanner_ )
     {
@@ -853,7 +853,7 @@ static void getCoordinates( const EM::ZMapImporter& importer,
 
 void uiImpHorFromZMap::inputChgd( CallBacker* )
 {
-    const FixedString horfnm = inpfld_->fileName();
+    const StringView horfnm = inpfld_->fileName();
     if ( horfnm.isEmpty() )
 	return;
 
@@ -895,7 +895,7 @@ EM::Horizon3D* uiImpHorFromZMap::createHor() const
 
 bool uiImpHorFromZMap::acceptOK( CallBacker* )
 {
-    const FixedString horfnm = inpfld_->fileName();
+    const StringView horfnm = inpfld_->fileName();
     if ( !File::exists(horfnm) )
     {
 	uiMSG().error( tr("Can not read input file.") );
