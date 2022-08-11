@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 
 #include "gendefs.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 /*!
 \brief is used for defining key strings that are 'global'.

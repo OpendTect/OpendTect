@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 #include "dbkey.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "integerid.h"
 #include "od_iosfwd.h"
 #include "posgeomid.h"

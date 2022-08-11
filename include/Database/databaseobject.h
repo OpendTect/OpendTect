@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "databasemod.h"
 #include "sets.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "sqlquery.h"
 #include "convert.h"
 

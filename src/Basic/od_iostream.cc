@@ -13,7 +13,7 @@
 #include "filepath.h"
 #include "filesystemaccess.h"
 #include "fixedstreambuf.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "iopar.h"
 #include "perthreadrepos.h"
 #include "separstr.h"

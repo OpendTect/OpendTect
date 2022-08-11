@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "separstr.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "staticsdesc.h"
 #include "survinfo.h"
 #include "uistrings.h"

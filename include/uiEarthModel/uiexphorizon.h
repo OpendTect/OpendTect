@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 class uiFileInput;
 class uiGenInput;

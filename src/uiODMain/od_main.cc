@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "odver.h"
 #include "msgh.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "uimain.h"
 
 #ifdef __mac__

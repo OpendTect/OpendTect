@@ -12,7 +12,7 @@
 #include "debug.h"
 #include "file.h"
 #include "filepath.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "genc.h"
 #include "iostrm.h"
 #include "iopar.h"

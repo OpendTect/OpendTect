@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "uistring.h"
 
 #define mPlural 2

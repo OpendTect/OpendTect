@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "msgh.h"
 #include "uistring.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 #include <iostream>
 #include <signal.h>

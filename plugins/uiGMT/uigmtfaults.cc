@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "gmtpar.h"
 #include "ioman.h"
 #include "iopar.h"

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "stringbuilder.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "convert.h"
 
 class BufferStringSet;

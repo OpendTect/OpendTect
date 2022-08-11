@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "factory.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "uidlggroup.h"
 
 class ZAxisTransform;

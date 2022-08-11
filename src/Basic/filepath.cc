@@ -9,7 +9,7 @@
 
 #include "envvars.h"
 #include "file.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "genc.h"
 #include "msgh.h"
 #include "oddirs.h"

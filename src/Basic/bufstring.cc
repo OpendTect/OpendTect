@@ -7,7 +7,7 @@
 
 #include "bufstring.h"
 #include "bufstringset.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "globexpr.h"
 #include "iopar.h"
 #include "odmemory.h"

@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "string2.h"
 
 class QString;

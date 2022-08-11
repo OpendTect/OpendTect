@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
 
-#include "fixedstring.h"
+#include "stringview.h"
 #include "keystrs.h"
 #include "settings.h"
 #include "thread.h"

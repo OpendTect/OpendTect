@@ -8,7 +8,7 @@
 #include "gendefs.h"
 #include "displaypropertylinks.h"
 #include "ptrman.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 mImplFactory1Param(DisplayPropertyLink,ObjectSet<DisplayPropertyHolder>&,
 		   DisplayPropertyLink::factory);

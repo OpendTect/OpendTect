@@ -9,7 +9,7 @@
  *
  * -*/
 
-#include "fixedstring.h"
+#include "stringview.h"
 
 namespace MMPStr
 {

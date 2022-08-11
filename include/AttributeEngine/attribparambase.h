@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "bufstring.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 class DataInpSpec;
 class BufferStringSet;

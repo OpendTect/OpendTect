@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "separstr.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 const char* StaticsDesc::sKeyHorizon()	{ return "Statics Horizon"; }
 const char* StaticsDesc::sKeyVelocity()	{ return "Statics Velocity"; }

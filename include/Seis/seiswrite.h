@@ -26,7 +26,7 @@ output cube's setup and extent.
 
 #include "seismod.h"
 #include "seisstor.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "linekey.h"
 #include "uistring.h"
 class SeisTrc;

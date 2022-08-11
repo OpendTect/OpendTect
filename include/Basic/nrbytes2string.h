@@ -10,7 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "fixedstring.h"
+#include "stringview.h"
 
 
 

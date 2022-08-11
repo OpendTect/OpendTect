@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "winutils.h"
 #include "oscommand.h"
-#include "fixedstring.h"
+#include "stringview.h"
 #include "uistrings.h"
 #include "ziparchiveinfo.h"
 
