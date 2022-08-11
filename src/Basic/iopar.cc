@@ -112,7 +112,7 @@ bool subselect( const char* kystr, ODHashMap& subsel )
 bool removeSubSelection( const char* kystr )
 {
     BufferString subselkey( kystr );
-    if ( !subselkey.last() != '.' )
+    if ( subselkey.last() != '.' )
 	subselkey.add( "." );
 
     ODHashMapIterator iter( *this );
