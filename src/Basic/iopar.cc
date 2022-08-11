@@ -91,7 +91,7 @@ void addFrom( const ODHashMap& oth )
 bool subselect( const char* kystr, ODHashMap& subsel )
 {
     BufferString subselkey( kystr );
-    if ( !subselkey.last() != '.' )
+    if ( subselkey.last() != '.' )
 	subselkey.add( "." );
 
     ODHashMapIterator iter( *this );
