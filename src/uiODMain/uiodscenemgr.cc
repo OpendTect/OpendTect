@@ -1415,7 +1415,7 @@ VisID uiODSceneMgr::addZSliceItem( const TrcKeyZSampling& tkzs,
 }
 
 
-VisID uiODSceneMgr::addZSliceItem( DataPack::ID dpid,
+VisID uiODSceneMgr::addZSliceItem( DataPackID dpid,
 				 const Attrib::SelSpec& sp,
 				 const FlatView::DataDispPars::VD& ddp,
 				 SceneID sceneid )

@@ -496,7 +496,7 @@ bool Horizon2DDisplay::shouldDisplayIntersections(
     for ( int idx=0; idx<seisdisp.nrAttribs(); idx++ )
     {
 	const bool hasattribenable = seisdisp.isAttribEnabled(idx);
-	const DataPack::ID dpid = seisdisp.getDataPackID(idx);
+	const DataPackID dpid = seisdisp.getDataPackID(idx);
 
 	if ( hasattribenable && dpid.isValid() )
 	    return true;

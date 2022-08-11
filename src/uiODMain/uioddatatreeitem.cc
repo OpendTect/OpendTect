@@ -243,7 +243,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
-    const DataPack::ID dpid =
+    const DataPackID dpid =
 	visserv_->getDisplayedDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid.isValid() && dpid!=DataPack::cNoID();
     const bool isvert = visserv_->isVerticalDisp( displayID() );
@@ -378,7 +378,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const VisID visid = displayID();
 	const int attribid = attribNr();
-	DataPack::ID dpid = visserv_->getDataPackID( visid, attribid );
+	DataPackID dpid = visserv_->getDataPackID( visid, attribid );
 	const DataPackMgr::MgrID dmid = visserv_->getDataPackMgrID( visid );
 	const int version = visserv_->selectedTexture( visid, attribid );
 	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attribid );

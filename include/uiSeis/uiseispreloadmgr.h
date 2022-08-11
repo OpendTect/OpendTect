@@ -110,7 +110,7 @@ public:
 
     const MultiID&		selectedKey() const;
     const char*			selectedName() const;
-    DataPack::ID		selectedDPID() const;
+    DataPackID		selectedDPID() const;
     int				selectedCompNr() const;
     const char*			selectedCompName() const;
 

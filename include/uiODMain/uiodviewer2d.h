@@ -24,7 +24,7 @@ class uiFlatViewStdControl;
 class uiFlatViewWin;
 class uiMainWin;
 class uiODMain;
-class uiODVw2DTreeTop;
+class uiODView2DTreeTop;
 class uiParent;
 class uiSlicePos2DView;
 class uiToolBar;
@@ -57,7 +57,7 @@ public:
     Viewer2DID			ID() const	{ return id_; }
     VisID			visID() const	{ return visid_; }
 
-    virtual void		setUpView(DataPack::ID,bool wva);
+    virtual void		setUpView(DataPackID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
 
@@ -67,11 +67,11 @@ public:
     View2D::DataManager*	dataMgr()		{ return datamgr_; }
     const View2D::DataManager*	dataMgr() const		{ return datamgr_; }
 
-    const View2D::DataObject*	getObject(int id) const;
-    View2D::DataObject*		getObject(int id);
+    const View2D::DataObject*	getObject(Vis2DID) const;
+    View2D::DataObject*		getObject(Vis2DID);
     void			getObjects(ObjectSet<View2D::DataObject>&)const;
 
-    uiODVw2DTreeTop*		treeTop()		{ return treetp_; }
+    uiODView2DTreeTop*		treeTop()		{ return treetp_; }
 
     const uiTreeFactorySet*	uiTreeItemFactorySet() const { return tifs_; }
     bool			isItemPresent(const uiTreeItem*) const;
@@ -83,26 +83,26 @@ public:
 				{ return wva ? wvaselspec_ : vdselspec_; }
     const Attrib::SelSpec&	selSpec( bool wva ) const
 				{ return wva ? wvaselspec_ : vdselspec_; }
-    DataPack::ID		getDataPackID(bool wva) const;
-				/*!<Returns DataPack::ID of specified display if
-				it has a valid one. Returns DataPack::ID of
+    DataPackID			getDataPackID(bool wva) const;
+				/*!<Returns DataPackID of specified display if
+				it has a valid one. Returns DataPackID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
-    DataPack::ID		createDataPack(bool wva) const
+    DataPackID			createDataPack(bool wva) const
 				{ return createDataPack(selSpec(wva)); }
-    DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
+    DataPackID			createDataPack(const Attrib::SelSpec&) const;
 				/*!< Creates RegularFlatDataPack by getting
 				TrcKeyZSampling from slicepos_. Uses the
 				existing TrcKeyZSampling, if there is no
 				slicepos_. Also transforms data if the 2D Viewer
 				hasZAxisTransform(). */
-    DataPack::ID		createFlatDataPack(DataPack::ID,int comp) const;
+    DataPackID			createFlatDataPack(DataPackID,int comp) const;
 				/*!< Creates a FlatDataPack from SeisDataPack.
 				Either a transformed or a non-transformed
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
-    DataPack::ID		createMapDataPack(const RegularFlatDataPack&);
+    DataPackID			createMapDataPack(const RegularFlatDataPack&);
     bool			useStoredDispPars(bool wva);
     bool			isVertical() const	{ return isvertical_; }
 
@@ -154,11 +154,11 @@ public:
     Notifier<uiODViewer2D>	dataChanged;
     Notifier<uiODViewer2D>	posChanged;
 
-    void			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
+    void			getVwr2DObjIDs(TypeSet<Vis2DID>&) const;
 
     //Horizon 3D
     void			getHor3DVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>& vw2dids) const;
+						 TypeSet<Vis2DID>&) const;
     void			removeHorizon3D(EM::ObjectID emid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
@@ -168,7 +168,7 @@ public:
 
     //Horizon2D
     void			getHor2DVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>& vw2dids) const;
+						 TypeSet<Vis2DID>&) const;
     void			removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
@@ -178,7 +178,7 @@ public:
 
     //Fault
     void			getFaultVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>& vw2dids) const;
+						 TypeSet<Vis2DID>&) const;
     void			removeFault(EM::ObjectID emid);
     void			getLoadedFaults(
 					TypeSet<EM::ObjectID>&) const;
@@ -188,7 +188,7 @@ public:
 
     //FaultStickSet
     void			getFaultSSVwr2DIDs(EM::ObjectID emid,
-						   TypeSet<int>& vw2dids) const;
+						   TypeSet<Vis2DID>&) const;
     void			removeFaultSS(EM::ObjectID emid);
     void			getLoadedFaultSSs(
 					TypeSet<EM::ObjectID>&) const;
@@ -203,13 +203,13 @@ public:
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID emid);
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
-						TypeSet<int>& vw2ds) const;
+						TypeSet<Vis2DID>&) const;
     void			setupNewTempFaultSS2D(EM::ObjectID emid);
 
 
     //PickSets
     void			getPickSetVwr2DIDs(const MultiID& mid,
-						   TypeSet<int>& vw2ids ) const;
+						   TypeSet<Vis2DID>&) const;
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			addPickSets(const TypeSet<MultiID>&);
@@ -229,7 +229,7 @@ protected:
 
     View2D::DataManager*	datamgr_;
     uiTreeFactorySet*		tifs_;
-    uiODVw2DTreeTop*		treetp_;
+    uiODView2DTreeTop*		treetp_;
     uiFlatViewWin*		viewwin_;
     MouseCursorExchange*	mousecursorexchange_;
     FlatView::AuxData*		marker_;
@@ -251,14 +251,14 @@ protected:
     bool			ispolyselect_;
     bool			isvertical_;
 
-    DataPack::ID		createDataPackForTransformedZSlice(
+    DataPackID			createDataPackForTransformedZSlice(
 						const Attrib::SelSpec&) const;
 
     virtual void		createViewWin(bool isvert,bool needslicepos);
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
-    void			setDataPack(DataPack::ID,bool wva,bool isnew);
+    void			setDataPack(DataPackID,bool wva,bool isnew);
     void			adjustOthrDisp(bool wva,bool isnew);
     void			removeAvailablePacks();
     void			rebuildTree();

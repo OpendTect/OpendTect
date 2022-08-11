@@ -519,7 +519,7 @@ void RandomTrackDisplay::removeAllNodes()
     }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	setDataPackID( idx, DataPack::ID::udf(), nullptr );
+	setDataPackID( idx, DataPackID::udf(), nullptr );
 
     nodes_.erase();
     updatePanelStripPath();
@@ -644,7 +644,7 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 }
 
 
-bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+bool RandomTrackDisplay::setDataPackID( int attrib, DataPackID dpid,
 					TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
@@ -664,7 +664,7 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 }
 
 
-DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
+DataPackID RandomTrackDisplay::getDataPackID( int attrib ) const
 {
     return datapacks_.validIdx(attrib) && datapacks_[attrib]
 	? datapacks_[attrib]->id()
@@ -672,7 +672,7 @@ DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
 }
 
 
-DataPack::ID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
+DataPackID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -799,7 +799,7 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    const DataPackID dpid = getDisplayedDataPackID( attrib );
     auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp )
 	return;
@@ -856,7 +856,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 				int attrib, TaskRunner* taskr )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDataPackID( attrib );
+    const DataPackID dpid = getDataPackID( attrib );
     ConstRefMan<RandomSeisDataPack> randsdp =
 				    dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
@@ -1554,7 +1554,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 					const Coord3& pos,float& val ) const
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    const DataPackID dpid = getDisplayedDataPackID( attrib );
     ConstRefMan<RandomSeisDataPack> randsdp =
 				    dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )

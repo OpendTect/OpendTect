@@ -33,7 +33,7 @@ public:
     static const char*		sAttribName()	{ return "Random"; }
 
     bool			setTargetSelSpec(const Attrib::SelSpec&);
-    DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID,
+    DataPackID		createAttrib(const CubeSampling&,DataPackID,
 	    				     TaskRunner*);
     const Attrib::DataCubes*	createAttrib(const CubeSampling&,
 	    				     const Attrib::DataCubes*);
@@ -41,7 +41,7 @@ public:
 	    				     TaskRunner*);
     bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&,
 	    				     TaskRunner*);
-    DataPack::ID		createAttrib(const CubeSampling&,
+    DataPackID		createAttrib(const CubeSampling&,
 	    				     const LineKey&,TaskRunner*);
 
     bool			isIndexes() const;

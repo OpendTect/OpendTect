@@ -37,7 +37,7 @@ public:
     bool		displayDefaultData();
     bool		displayGuidance();
     bool		displayDataFromDesc(const Attrib::DescID&,bool stored);
-    bool		displayDataFromDataPack(DataPack::ID,
+    bool		displayDataFromDataPack(DataPackID,
 					    const Attrib::SelSpec&,
 					    const FlatView::DataDispPars::VD&);
     bool		displayDataFromOther(VisID visid);

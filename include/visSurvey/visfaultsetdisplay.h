@@ -133,9 +133,9 @@ public:
     bool			canBDispOn2DViewer() const override
 				{ return false; }
     int				addDataPack(const DataPointSet&) const ;
-    bool			setDataPackID(int attrib,DataPack::ID,
+    bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPackID		getDataPackID(int attrib) const override;
     DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::PointID(); }
 
@@ -235,7 +235,7 @@ protected:
 
     Coord3				mousepos_;
 
-    TypeSet<DataPack::ID>		datapackids_;
+    TypeSet<DataPackID>		datapackids_;
 
     OD::Color				nontexturecol_;
 

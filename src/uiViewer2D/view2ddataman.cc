@@ -31,11 +31,10 @@ mImplFactory2Param(DataObject,uiFlatViewWin*,
 	const ObjectSet<uiFlatViewAuxDataEditor>&,DataManager::factory);
 
 DataManager::DataManager()
-    : selectedid_( -1 )
-    , freeid_( 0 )
-    , addRemove( this )
+    : addRemove( this )
     , dataObjAdded( this )
     , dataObjToBeRemoved( this )
+    , freeid_( 0 )
 {}
 
 
@@ -53,7 +52,7 @@ void DataManager::addObject( DataObject* obj )
     freeid_++;
     obj->ref();
 
-    if ( selectedid_ != -1 )
+    if ( selectedid_.isValid() )
 	deSelect( selectedid_ );
 
     selectedid_ = obj->id();
@@ -70,7 +69,7 @@ void DataManager::removeObject( DataObject* dobj )
     objects_ -= dobj;
 
     if ( dobj->id() == selectedid_ )
-	selectedid_ = -1;
+	selectedid_.setUdf();
 
     dobj->unRef();
     addRemove.trigger();
@@ -83,14 +82,14 @@ void DataManager::removeAll()
 	dataObjToBeRemoved.trigger( objects_[idx]->id() );
 
     deepUnRef( objects_ );
-    selectedid_ = -1;
+    selectedid_.setUdf();
     freeid_ = 0;
 
     addRemove.trigger();
 }
 
 
-DataObject* DataManager::getObject( int id )
+DataObject* DataManager::getObject( Vis2DID id )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -98,6 +97,12 @@ DataObject* DataManager::getObject( int id )
     }
 
     return 0;
+}
+
+
+const DataObject* DataManager::getObject( Vis2DID id ) const
+{
+    return const_cast<DataManager*>(this)->getObject(id);
 }
 
 
@@ -124,22 +129,22 @@ void DataManager::setSelected( DataObject* sobj )
 }
 
 
-void DataManager::deSelect( int id )
+void DataManager::deSelect( Vis2DID id )
 {
     DataObject* dataobj = getObject( id );
     if( dataobj )
 	dataobj->triggerDeSel();
 
     if ( selectedid_ == id )
-	selectedid_ = -1;
+	selectedid_.setUdf();
 }
 
 
-void DataManager::getObjectIDs( TypeSet<int>& objids ) const
+void DataManager::getObjectIDs( TypeSet<Vis2DID>& objids ) const
 {
     ObjectSet<DataObject> vw2dobjs;
     getObjects( vw2dobjs );
-    objids.setSize( vw2dobjs.size(), -1 );
+    objids.setSize( vw2dobjs.size(), Vis2DID::udf() );
     for ( int idx=0; idx<vw2dobjs.size(); idx++ )
 	objids[idx] = vw2dobjs[idx]->id();
 }
@@ -151,10 +156,6 @@ void DataManager::getObjects( ObjectSet<DataObject>& objs ) const
 }
 
 
-const DataObject* DataManager::getObject( int id ) const
-{ return const_cast<DataManager*>(this)->getObject(id); }
-
-
 void DataManager::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
@@ -162,8 +163,9 @@ void DataManager::fillPar( IOPar& par ) const
 	IOPar dataobjpar;
 	const DataObject& dataobj = *objects_[idx];
 	dataobj.fillPar( dataobjpar );
-	par.mergeComp( dataobjpar, toString( dataobj.id() ) );
+	par.mergeComp( dataobjpar, toString(dataobj.id().asInt()) );
     }
+
     par.set( sKeyNrObjects(), objects_.size() );
 }
 

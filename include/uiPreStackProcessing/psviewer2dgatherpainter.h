@@ -31,8 +31,8 @@ public:
     				Viewer2DGatherPainter(FlatView::Viewer&);
     				~Viewer2DGatherPainter();
 
-    void			setVDGather(DataPack::ID);
-    void			setWVAGather(DataPack::ID);
+    void			setVDGather(DataPackID);
+    void			setWVAGather(DataPackID);
     void			setColorTableClipRate(float);
     float			colorTableClipRate() const;
 

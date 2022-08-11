@@ -161,7 +161,7 @@ public:
     VisID			addZSliceItem(const TrcKeyZSampling&,
 					      const Attrib::SelSpec&,
 					      SceneID sceneid=SceneID::udf());
-    VisID			addZSliceItem(DataPack::ID,
+    VisID			addZSliceItem(DataPackID,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      SceneID sceneid=SceneID::udf());

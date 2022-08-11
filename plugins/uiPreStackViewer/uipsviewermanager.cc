@@ -423,7 +423,7 @@ uiViewer3DPositionDlg*
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
 uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
-						DataPack::ID dpid )
+						DataPackID dpid )
 {
     uiFlatViewMainWin* viewwin = new uiFlatViewMainWin(
 	ODMainWin(), uiFlatViewMainWin::Setup(title) );
@@ -553,7 +553,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	visSurvey::PreStackDisplay* psv = viewers3d_[idx];
 	visBase::Scene* scene = psv->getScene();
 
-	DataPack::ID dpid = psv->getDataPackID();
+	DataPackID dpid = psv->getDataPackID();
 	const visSurvey::PlaneDataDisplay* pdd = psv->getSectionDisplay();
 	const visSurvey::Seis2DDisplay*    s2d = psv->getSeis2DDisplay();
 	if ( pdd && (!scene || scene->getFirstIdx( pdd )==-1 ) )
@@ -581,7 +581,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::removeViewWin( DataPack::ID dpid )
+void uiViewer3DMgr::removeViewWin( DataPackID dpid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
@@ -656,7 +656,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	    continue;
 
 	RefMan<PreStack::Gather> gather = new PreStack::Gather;
-	DataPack::ID dpid;
+	DataPackID dpid;
 	TrcKey tk;
 	if ( is3d )
 	    tk.setPosition( bid );

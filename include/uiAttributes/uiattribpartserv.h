@@ -116,7 +116,7 @@ public:
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
 			    { return targetspecs_; }
 
-    DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
+    DataPackID	createOutput(const TrcKeyZSampling&,DataPackID);
     ConstRefMan<RegularSeisDataPack>	createOutput(const TrcKeyZSampling&,
 				 const RegularSeisDataPack* prevslcs=nullptr);
     bool		createOutput(DataPointSet&,int firstcol =0,
@@ -129,10 +129,10 @@ public:
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     const TypeSet<BinID>& trueknotspos,
 				     const TypeSet<BinID>& snappedpos);
-    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+    DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TrcKeyPath& path,
 					    TrcKeyPath& trueknotspos);
-    static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
+    static DataPackID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,
 				    const BufferStringSet* compnames=nullptr);
@@ -275,14 +275,14 @@ private:
 
     static uiAttribPartServer*	theinst_;
 
-    DataPack::ID		create2DOutput(const TrcKeyZSampling&,
+    DataPackID		create2DOutput(const TrcKeyZSampling&,
 					       const Pos::GeomID&,TaskRunner&);
 				//!< Use createOutput() instead.
 public:
 
     static uiAttribPartServer*	getInst();
 
-    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+    DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    RandomLineID rdlid);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
 					  const Pos::GeomID& geomid,
@@ -293,7 +293,7 @@ protected:
 
 public:
     mDeprecated("Use TrcKeyPath")
-    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+    DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>& path,
 					    TypeSet<BinID>& trueknotspos);
 };

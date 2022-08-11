@@ -30,7 +30,7 @@ public:
 				~uiHistogramDisplay();
 
     void			setEmpty() override;
-    bool			setDataPackID(DataPack::ID,DataPackMgr::MgrID,
+    bool			setDataPackID(DataPackID,DataPackMgr::MgrID,
 					      int version);
     void			setData(const float*,od_int64 sz);
     void			setData(const Array2D<float>*);

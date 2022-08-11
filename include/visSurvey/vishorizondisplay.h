@@ -117,9 +117,9 @@ public:
 				    const TypeSet<Attrib::SelSpec>&) override;
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
-					const TypeSet<DataPack::ID>&);
-    DataPack::ID		getDataPackID(int attrib) const override;
-    DataPack::ID		getDisplayedDataPackID(
+					const TypeSet<DataPackID>&);
+    DataPackID		getDataPackID(int attrib) const override;
+    DataPackID		getDisplayedDataPackID(
 						int attrib )const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::FlatID(); }
@@ -336,7 +336,7 @@ private:
     bool				displayintersectionlines_;
 
     ObjectSet<TypeSet<Attrib::SelSpec> > as_;
-    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
+    ObjectSet<TypeSet<DataPackID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;

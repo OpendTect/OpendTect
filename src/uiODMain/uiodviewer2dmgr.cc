@@ -70,19 +70,19 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     , vw2dObjToBeRemoved(this)
 {
     // for relevant 2D datapack
-    tifs2d_->addFactory( new uiODVW2DWiggleVarAreaTreeItemFactory, 1000 );
-    tifs2d_->addFactory( new uiODVW2DVariableDensityTreeItemFactory, 2000 );
-    tifs2d_->addFactory( new uiODVw2DHor2DTreeItemFactory, 3000 );
-    tifs2d_->addFactory( new uiODVw2DFaultSS2DTreeItemFactory, 4000 );
-    tifs2d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 5000 );
+    tifs2d_->addFactory( new uiODView2DWiggleVarAreaTreeItemFactory, 1000 );
+    tifs2d_->addFactory( new uiODView2DVariableDensityTreeItemFactory, 2000 );
+    tifs2d_->addFactory( new uiODView2DHor2DTreeItemFactory, 3000 );
+    tifs2d_->addFactory( new uiODView2DFaultSS2DTreeItemFactory, 4000 );
+    tifs2d_->addFactory( new uiODView2DPickSetTreeItemFactory, 5000 );
 
     // for relevant 3D datapack
-    tifs3d_->addFactory( new uiODVW2DWiggleVarAreaTreeItemFactory, 1500 );
-    tifs3d_->addFactory( new uiODVW2DVariableDensityTreeItemFactory, 2500 );
-    tifs3d_->addFactory( new uiODVw2DHor3DTreeItemFactory, 3500 );
-    tifs3d_->addFactory( new uiODVw2DFaultTreeItemFactory, 4500 );
-    tifs3d_->addFactory( new uiODVw2DFaultSSTreeItemFactory, 5500 );
-    tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
+    tifs3d_->addFactory( new uiODView2DWiggleVarAreaTreeItemFactory, 1500 );
+    tifs3d_->addFactory( new uiODView2DVariableDensityTreeItemFactory, 2500 );
+    tifs3d_->addFactory( new uiODView2DHor3DTreeItemFactory, 3500 );
+    tifs3d_->addFactory( new uiODView2DFaultTreeItemFactory, 4500 );
+    tifs3d_->addFactory( new uiODView2DFaultSSTreeItemFactory, 5500 );
+    tifs3d_->addFactory( new uiODView2DPickSetTreeItemFactory, 6500 );
 
     mAttachCB(IOM().surveyChanged,uiODViewer2DMgr::surveyChangedCB);
     mAttachCB(IOM().applicationClosing,uiODViewer2DMgr::applClosing);
@@ -221,7 +221,7 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 }
 
 
-Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					const Attrib::SelSpec& as,
 					const FlatView::DataDispPars::VD& pars,
 					bool dowva )
@@ -246,7 +246,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
-    DataPack::ID dpid = DataPack::cNoID();
+    DataPackID dpid = DataPack::cNoID();
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
@@ -299,7 +299,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 
 void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid, bool dowva )
 {
-    const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
+    const DataPackID id = visServ().getDisplayedDataPackID( visid, attribid );
     if ( !id.isValid() ) return;
 
     uiODViewer2D* vwr2d = find2DViewer( visid );
@@ -326,7 +326,7 @@ void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid, bool dowva )
     if ( isnewvwr ) vwr2d->setSelSpec( as, !dowva );
 
     const int version = visServ().currentVersion( visid, attribid );
-    const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
+    const DataPackID dpid = vwr2d->createFlatDataPack( id, version );
     vwr2d->setUpView( dpid, dowva );
     vwr2d->setWinTitle( true );
 
@@ -791,7 +791,8 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( VisID visid )
 }
 
 
-uiODViewer2D* uiODViewer2DMgr::getParent2DViewer( int vwr2dobjid )
+uiODViewer2D* uiODViewer2DMgr::getParent2DViewer(
+					Vis2DID vwr2dobjid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
@@ -1239,7 +1240,7 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 }
 
 
-void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
+void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getVwr2DObjIDs( vw2dobjids );
@@ -1247,7 +1248,7 @@ void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
 
 
 void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
-					TypeSet<int>& vw2dobjids ) const
+					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getHor3DVwr2DIDs( emid, vw2dobjids );
@@ -1296,7 +1297,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid,
 
 
 void uiODViewer2DMgr::getHor2DVwr2DIDs( EM::ObjectID emid,
-					TypeSet<int>& vw2dobjids ) const
+					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getHor2DVwr2DIDs( emid, vw2dobjids );
@@ -1345,7 +1346,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid,
 
 
 void uiODViewer2DMgr::getFaultVwr2DIDs( EM::ObjectID emid,
-					TypeSet<int>& vw2dobjids) const
+					TypeSet<Vis2DID>& vw2dobjids) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getFaultVwr2DIDs( emid, vw2dobjids );
@@ -1393,7 +1394,7 @@ void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid, SceneID sceneid )
 
 
 void uiODViewer2DMgr::getFaultSSVwr2DIDs( EM::ObjectID emid,
-					TypeSet<int>& vw2dobjids ) const
+					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getFaultSSVwr2DIDs( emid, vw2dobjids );
@@ -1442,7 +1443,7 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid, SceneID sceneid )
 
 
 void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
-					TypeSet<int>& vw2dobjids ) const
+					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getFaultSS2DVwr2DIDs( emid, vw2dobjids );
@@ -1491,7 +1492,7 @@ void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid, SceneID sceneid )
 
 
 void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
-					  TypeSet<int>& vw2dobjids ) const
+					  TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getPickSetVwr2DIDs( mid, vw2dobjids );

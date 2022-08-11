@@ -119,7 +119,7 @@ uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx)
 
 
 void uiMultiMapperRangeEditWin::setDataPackID(
-		int idx, DataPack::ID dpid, int version )
+		int idx, DataPackID dpid, int version )
 {
     if ( !mapperrgeditors_.validIdx(idx) )
 	return;

@@ -94,7 +94,7 @@ public:
 
     void		updateCSIfNeeded(TrcKeyZSampling&) const override;
     void		setAngleComp(PreStack::AngleComputer*);
-    void		setAngleData(DataPack::ID);
+    void		setAngleData(DataPackID);
 
 protected:
 
@@ -114,9 +114,9 @@ protected:
     void		prepPriorToBoundsCalc() override;
     void		setSmootheningPar();
     float		getXscaler(bool isoffset, bool isindegrees) const;
-    DataPack::ID	getPreProcessedID(const BinID& relbid);
-    bool		getGatherData(const BinID& bid,DataPack::ID& gatherid,
-				      DataPack::ID& angglegid);
+    DataPackID	getPreProcessedID(const BinID& relbid);
+    bool		getGatherData(const BinID& bid,DataPackID& gatherid,
+				      DataPackID& angglegid);
 
     MultiID			psid_;
     IOObj*			psioobj_ = nullptr;
@@ -126,7 +126,7 @@ protected:
     PreStack::PropCalc*		propcalc_ = nullptr;
     PreStack::PropCalc::Setup	setup_;
     RefMan<PreStack::AngleComputer>	anglecomp_ = nullptr;
-    DataPack::ID		anglegsdpid_ = DataPack::FullID::PackID(-1);
+    DataPackID		anglegsdpid_ = DataPack::FullID::PackID(-1);
 
     MultiID			preprocid_;
     int				dataidx_;

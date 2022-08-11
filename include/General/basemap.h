@@ -24,16 +24,25 @@ class MouseEvent;
 class TaskRunner;
 template <class T> class ODPolygon;
 
-/*!Object that can be painted in a basemap. */
+/*!\brief Unique ID for a basemap. */
+mExpClass(General) BasemapID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline BasemapID		udf()	{ return BasemapID(); }
+};
 
+
+/*!\brief Unique ID for a basemap object. */
 mExpClass(General) BasemapObjectID : public IntegerID<od_int32>
 {
 public:
     using IntegerID::IntegerID;
-    static inline BasemapObjectID udf()		{ return BasemapObjectID(); }
+    static inline BasemapObjectID	udf()	{ return BasemapObjectID(); }
 };
 
 
+/*!\brief Object that can be painted in a basemap. */
 mExpClass(General) BasemapObject : public NamedCallBacker
 {
 public:

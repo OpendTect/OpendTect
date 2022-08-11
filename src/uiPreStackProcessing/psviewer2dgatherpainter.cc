@@ -36,7 +36,7 @@ BinID Viewer2DGatherPainter::getBinID() const
 					  : BinID(-1,-1); }
 
 
-void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
+void Viewer2DGatherPainter::setVDGather( DataPackID vdid )
 {
     if ( inputvdgather_ && inputvdgather_->id()==vdid )
 	return;
@@ -62,7 +62,7 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 
 
 
-void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
+void Viewer2DGatherPainter::setWVAGather( DataPackID wvaid )
 {
     if ( !wvaid.isValid() &&inputwvagather_ && inputwvagather_->id()==wvaid )
 	return;

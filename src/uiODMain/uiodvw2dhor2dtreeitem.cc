@@ -40,18 +40,18 @@ ________________________________________________________________________
 
 #define mNewIdx		10
 
-uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
-    : uiODVw2DTreeItem( tr("2D Horizon") )
+uiODView2DHor2DParentTreeItem::uiODView2DHor2DParentTreeItem()
+    : uiODView2DTreeItem( tr("2D Horizon") )
 {
 }
 
 
-uiODVw2DHor2DParentTreeItem::~uiODVw2DHor2DParentTreeItem()
+uiODView2DHor2DParentTreeItem::~uiODView2DHor2DParentTreeItem()
 {
 }
 
 
-void uiODVw2DHor2DParentTreeItem::getNonLoadedTrackedHor2Ds(
+void uiODView2DHor2DParentTreeItem::getNonLoadedTrackedHor2Ds(
 	TypeSet<EM::ObjectID>& emids )
 {
     const int nrtracker = MPE::engine().nrTrackersAlive();
@@ -73,7 +73,7 @@ void uiODVw2DHor2DParentTreeItem::getNonLoadedTrackedHor2Ds(
 }
 
 
-bool uiODVw2DHor2DParentTreeItem::showSubMenu()
+bool uiODView2DHor2DParentTreeItem::showSubMenu()
 {
     const bool cantrack = !viewer2D()->hasZAxisTransform();
 
@@ -111,7 +111,7 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 }
 
 
-bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
+bool uiODView2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
@@ -167,12 +167,13 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
-void uiODVw2DHor2DParentTreeItem::getHor2DVwr2DIDs(
-	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+void uiODView2DHor2DParentTreeItem::getHor2DVwr2DIDs(
+	EM::ObjectID emid, TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
+	mDynamicCastGet(const uiODView2DHor2DTreeItem*,
+			hor2dtreeitm,getChild(idx))
 	if ( !hor2dtreeitm || hor2dtreeitm->emObjectID() != emid )
 	    continue;
 
@@ -181,12 +182,13 @@ void uiODVw2DHor2DParentTreeItem::getHor2DVwr2DIDs(
 }
 
 
-void uiODVw2DHor2DParentTreeItem::getLoadedHorizon2Ds(
+void uiODView2DHor2DParentTreeItem::getLoadedHorizon2Ds(
 	TypeSet<EM::ObjectID>& emids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
+	mDynamicCastGet(const uiODView2DHor2DTreeItem*,
+			hor2dtreeitm,getChild(idx))
 	if ( !hor2dtreeitm )
 	    continue;
 	emids.addIfNew( hor2dtreeitm->emObjectID() );
@@ -194,11 +196,11 @@ void uiODVw2DHor2DParentTreeItem::getLoadedHorizon2Ds(
 }
 
 
-void uiODVw2DHor2DParentTreeItem::removeHorizon2D( EM::ObjectID emid )
+void uiODView2DHor2DParentTreeItem::removeHorizon2D( EM::ObjectID emid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
+	mDynamicCastGet(uiODView2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
 	if ( !hor2dtreeitm || emid!=hor2dtreeitm->emObjectID() )
 	    continue;
 	removeChild( hor2dtreeitm );
@@ -206,7 +208,7 @@ void uiODVw2DHor2DParentTreeItem::removeHorizon2D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DHor2DParentTreeItem::addHorizon2Ds(
+void uiODView2DHor2DParentTreeItem::addHorizon2Ds(
 	const TypeSet<EM::ObjectID>& emids )
 {
     TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
@@ -235,14 +237,14 @@ void uiODVw2DHor2DParentTreeItem::addHorizon2Ds(
 	    applMgr()->mpeServer()->enableTracking( trackeridx, true );
 	}
 
-	uiODVw2DHor2DTreeItem* childitem =
-	    new uiODVw2DHor2DTreeItem( emidstobeloaded[idx] );
+	uiODView2DHor2DTreeItem* childitem =
+	    new uiODView2DHor2DTreeItem( emidstobeloaded[idx] );
 	addChld( childitem, false, false );
     }
 }
 
 
-void uiODVw2DHor2DParentTreeItem::setupTrackingHorizon2D( EM::ObjectID emid )
+void uiODView2DHor2DParentTreeItem::setupTrackingHorizon2D( EM::ObjectID emid )
 {
     TypeSet<EM::ObjectID> emidsloaded;
     getLoadedHorizon2Ds( emidsloaded );
@@ -251,7 +253,7 @@ void uiODVw2DHor2DParentTreeItem::setupTrackingHorizon2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
+	mDynamicCastGet(uiODView2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
 	if ( hor2dtreeitm && emid==hor2dtreeitm->emObjectID() )
 	{
 	    if ( viewer2D() && viewer2D()->viewControl() )
@@ -263,14 +265,14 @@ void uiODVw2DHor2DParentTreeItem::setupTrackingHorizon2D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DHor2DParentTreeItem::addNewTrackingHorizon2D( EM::ObjectID emid )
+void uiODView2DHor2DParentTreeItem::addNewTrackingHorizon2D( EM::ObjectID emid )
 {
     TypeSet<EM::ObjectID> emidsloaded;
     getLoadedHorizon2Ds( emidsloaded );
     if ( emidsloaded.isPresent(emid) )
 	return;
 
-    uiODVw2DHor2DTreeItem* hortreeitem = new uiODVw2DHor2DTreeItem( emid );
+    uiODView2DHor2DTreeItem* hortreeitem = new uiODView2DHor2DTreeItem( emid );
     const int trackid = applMgr()->mpeServer()->getTrackerID( emid );
     if ( trackid>=0 )
 	MPE::engine().getEditor( emid, true );
@@ -283,17 +285,17 @@ void uiODVw2DHor2DParentTreeItem::addNewTrackingHorizon2D( EM::ObjectID emid )
 }
 
 
-const char* uiODVw2DHor2DParentTreeItem::iconName() const
+const char* uiODView2DHor2DParentTreeItem::iconName() const
 { return "tree-horizon2d"; }
 
 
-bool uiODVw2DHor2DParentTreeItem::init()
-{ return uiODVw2DTreeItem::init(); }
+bool uiODView2DHor2DParentTreeItem::init()
+{ return uiODView2DTreeItem::init(); }
 
 
 
-uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(uiString::emptyString())
+uiODView2DHor2DTreeItem::uiODView2DHor2DTreeItem( const EM::ObjectID& emid )
+    : uiODView2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , horview_(0)
     , trackerefed_(false)
@@ -303,9 +305,8 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
 }
 
 
-uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int id, bool )
-    : uiODVw2DTreeItem(uiString::emptyString())
-    , emid_(-1)
+uiODView2DHor2DTreeItem::uiODView2DHor2DTreeItem( Vis2DID id, bool )
+    : uiODView2DTreeItem(uiString::emptyString())
     , horview_(0)
     , trackerefed_(false)
 {
@@ -314,14 +315,14 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int id, bool )
 
 
 
-uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
+uiODView2DHor2DTreeItem::~uiODView2DHor2DTreeItem()
 {
      detachAllNotifiers();
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,uiODVw2DHor2DTreeItem,emobjChangeCB) );
+	emobj->change.remove( mCB(this,uiODView2DHor2DTreeItem,emobjChangeCB) );
 
 	EM::ObjectID emid = emobj->id();
 	if ( MPE::engine().hasTracker(emid) )
@@ -336,12 +337,12 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 }
 
 
-bool uiODVw2DHor2DTreeItem::init()
+bool uiODView2DHor2DTreeItem::init()
 {
     const Line2DInterSectionSet* intersectionset =
 			ODMainWin()->viewer2DMgr().getLine2DInterSectionSet();
-    EM::EMObject* emobj = 0;
-    if ( displayid_ < 0 )
+    EM::EMObject* emobj = nullptr;
+    if ( !displayid_.isValid() )
     {
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
@@ -367,23 +368,23 @@ bool uiODVw2DHor2DTreeItem::init()
     }
 
      if ( emobj )
-	mAttachCB( emobj->change, uiODVw2DHor2DTreeItem::emobjChangeCB );
+	mAttachCB( emobj->change, uiODView2DHor2DTreeItem::emobjChangeCB );
 
     displayMiniCtab();
 
     name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
-    checkStatusChange()->notify( mCB(this,uiODVw2DHor2DTreeItem,checkCB) );
+    checkStatusChange()->notify( mCB(this,uiODView2DHor2DTreeItem,checkCB) );
 
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	mAttachCB( vwr.rgbCanvas().scene().getMouseEventHandler().buttonPressed,
-	    uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB );
+	    uiODView2DHor2DTreeItem::mouseReleaseInVwrCB );
 
 	mAttachCB( vwr.rgbCanvas().scene().getMouseEventHandler().buttonPressed,
-	uiODVw2DHor2DTreeItem::mousePressInVwrCB );
+	uiODView2DHor2DTreeItem::mousePressInVwrCB );
     }
 
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
@@ -398,13 +399,13 @@ bool uiODVw2DHor2DTreeItem::init()
 
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
-	mAttachCB( deselnotify, uiODVw2DHor2DTreeItem::deSelCB );
-    uiODVw2DTreeItem::addKeyBoardEvent( emid_ );
+	mAttachCB( deselnotify, uiODView2DHor2DTreeItem::deSelCB );
+    uiODView2DTreeItem::addKeyBoardEvent( emid_ );
     return true;
 }
 
 
-void uiODVw2DHor2DTreeItem::displayMiniCtab()
+void uiODView2DHor2DTreeItem::displayMiniCtab()
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;
@@ -415,7 +416,7 @@ void uiODVw2DHor2DTreeItem::displayMiniCtab()
 }
 
 
-void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
+void uiODView2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
 				cbdata, caller, cb );
@@ -448,7 +449,7 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 #define mSaveID		3
 #define mSaveAsID	4
 
-bool uiODVw2DHor2DTreeItem::showSubMenu()
+bool uiODView2DHor2DTreeItem::showSubMenu()
 {
     uiEMPartServer* ems = applMgr()->EMServer();
     uiMPEPartServer* mps = applMgr()->mpeServer();
@@ -489,7 +490,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	OD::LineStyle ls = emobj->preferredLineStyle();
 	ls.color_ = emobj->preferredColor();
 	uiSelLineStyle* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
-	lsfld->changed.notify( mCB(this,uiODVw2DHor2DTreeItem,propChgCB) );
+	lsfld->changed.notify( mCB(this,uiODView2DHor2DTreeItem,propChgCB) );
 	dlg.go();
     }
     else if ( mnuid == mSaveID )
@@ -537,7 +538,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 }
 
 
-void uiODVw2DHor2DTreeItem::propChgCB( CallBacker* cb )
+void uiODView2DHor2DTreeItem::propChgCB( CallBacker* cb )
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;
@@ -559,7 +560,7 @@ void uiODVw2DHor2DTreeItem::propChgCB( CallBacker* cb )
 }
 
 
-bool uiODVw2DHor2DTreeItem::select()
+bool uiODView2DHor2DTreeItem::select()
 {
     if ( uitreeviewitem_->treeView() )
 	uitreeviewitem_->treeView()->deselectAll();
@@ -579,7 +580,7 @@ bool uiODVw2DHor2DTreeItem::select()
 }
 
 
-void uiODVw2DHor2DTreeItem::deSelCB( CallBacker* )
+void uiODView2DHor2DTreeItem::deSelCB( CallBacker* )
 {
     const int trackeridx =
 	MPE::engine().getTrackerByObject( emid_ );
@@ -589,14 +590,14 @@ void uiODVw2DHor2DTreeItem::deSelCB( CallBacker* )
 }
 
 
-void uiODVw2DHor2DTreeItem::checkCB( CallBacker* )
+void uiODView2DHor2DTreeItem::checkCB( CallBacker* )
 {
     if ( horview_ )
 	horview_->enablePainting( isChecked() );
 }
 
 
-void uiODVw2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
+void uiODView2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 					   bool wva )
 {
     if ( horview_ )
@@ -604,7 +605,7 @@ void uiODVw2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 }
 
 
-void uiODVw2DHor2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
+void uiODView2DHor2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
     if ( emid != emid_ ) return;
@@ -621,7 +622,7 @@ void uiODVw2DHor2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 }
 
 
-void uiODVw2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
+void uiODView2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
 {
     if ( !uitreeviewitem_->isSelected() || !horview_ )
 	return;
@@ -632,14 +633,14 @@ void uiODVw2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
 }
 
 
-void uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
+void uiODView2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 {
 }
 
 
-uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis(
-				    const uiODViewer2D& vwr2d, int id ) const
+uiTreeItem* uiODView2DHor2DTreeItemFactory::createForVis(
+				const uiODViewer2D& vwr2d, Vis2DID id ) const
 {
     mDynamicCastGet(const View2D::Horizon2D*,obj,vwr2d.getObject(id));
-    return obj ? new uiODVw2DHor2DTreeItem(id,true) : 0;
+    return obj ? new uiODView2DHor2DTreeItem(id,true) : nullptr;
 }

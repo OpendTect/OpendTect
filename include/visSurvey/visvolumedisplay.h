@@ -172,9 +172,9 @@ public:
 					      const RegularSeisDataPack*,
 					      TaskRunner*) override;
     const RegularSeisDataPack*	getCacheVolume(int attrib) const override;
-    bool			setDataPackID(int attrib,DataPack::ID,
+    bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPackID		getDataPackID(int attrib) const override;
     virtual DataPackMgr::MgrID	   getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 

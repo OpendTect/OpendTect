@@ -732,18 +732,18 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( VisID id,
 }
 
 
-DataPack::ID uiVisPartServer::getDataPackID( VisID id, int attrib ) const
+DataPackID uiVisPartServer::getDataPackID( VisID id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackID( attrib ) : DataPack::ID::udf();
+    return so ? so->getDataPackID( attrib ) : DataPackID::udf();
 }
 
 
-DataPack::ID uiVisPartServer::getDisplayedDataPackID( VisID id, int attrib)const
+DataPackID uiVisPartServer::getDisplayedDataPackID( VisID id, int attrib)const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDisplayedDataPackID( attrib ) :
-						    DataPack::ID::udf();
+						    DataPackID::udf();
 }
 
 
@@ -762,7 +762,7 @@ int uiVisPartServer::currentVersion( VisID id, int attrib ) const
 }
 
 
-bool uiVisPartServer::setDataPackID( VisID id, int attrib, DataPack::ID dpid )
+bool uiVisPartServer::setDataPackID( VisID id, int attrib, DataPackID dpid )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
@@ -2334,7 +2334,7 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 	const int dpidx = attribid==-1 ? idx : attribid;
 	const int statsidx = attribid==-1 ? idx : 0;
 
-	const DataPack::ID dpid = getDataPackID( visid, dpidx );
+	const DataPackID dpid = getDataPackID( visid, dpidx );
 	if ( !dpid.isValid() )
 	    continue;
 

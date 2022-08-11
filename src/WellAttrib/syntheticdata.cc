@@ -375,7 +375,7 @@ ConstRefMan<PreStack::Gather> PreStackSyntheticData::getGather( int trcnr,
 }
 
 
-DataPack::ID PreStackSyntheticData::getGatherIDByIdx( int trcnr,
+DataPackID PreStackSyntheticData::getGatherIDByIdx( int trcnr,
 						      bool angles ) const
 {
     ConstRefMan<PreStack::Gather> gather = getGather( trcnr, angles );

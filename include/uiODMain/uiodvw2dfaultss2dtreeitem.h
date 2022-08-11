@@ -19,11 +19,12 @@ namespace View2D { class FaultSS2D; }
 class uiODViewer2D;
 
 
-mExpClass(uiODMain) uiODVw2DFaultSS2DParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultSS2DParentTreeItem)
+mExpClass(uiODMain) uiODView2DFaultSS2DParentTreeItem
+					: public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DFaultSS2DParentTreeItem)
 public:
-				uiODVw2DFaultSS2DParentTreeItem();
-				~uiODVw2DFaultSS2DParentTreeItem();
+				uiODView2DFaultSS2DParentTreeItem();
+				~uiODView2DFaultSS2DParentTreeItem();
 
     bool			showSubMenu();
 
@@ -33,12 +34,12 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
     void			tempObjAddedCB(CallBacker*);
 
 public:
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
-						     TypeSet<int>& vids ) const;
+						     TypeSet<Vis2DID>&) const;
     void			getLoadedFaultSS2Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			removeFaultSS2D(EM::ObjectID);
@@ -49,23 +50,23 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItemFactory
-				: public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODView2DFaultSS2DTreeItemFactory
+				: public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-			{ return new uiODVw2DFaultSS2DParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DFaultSS2DParentTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID visid) const;
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultSS2DTreeItem)
+mExpClass(uiODMain) uiODView2DFaultSS2DTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DFaultSS2DTreeItem)
 public:
-    			uiODVw2DFaultSS2DTreeItem(const EM::ObjectID&);
-			uiODVw2DFaultSS2DTreeItem(int dispid,bool dummy);
-			~uiODVw2DFaultSS2DTreeItem();
+			uiODView2DFaultSS2DTreeItem(const EM::ObjectID&);
+			uiODView2DFaultSS2DTreeItem(Vis2DID dispid,bool dummy);
+			~uiODView2DFaultSS2DTreeItem();
 
     bool			showSubMenu();
     bool			select();
@@ -75,8 +76,7 @@ public:
 protected:
 
     bool		init();
-    const char*		parentType() const
-			{return typeid(uiODVw2DFaultSS2DParentTreeItem).name();}
+    const char*		parentType() const;
     bool		isSelectable() const			{ return true; }
 
     void		deSelCB(CallBacker*);

@@ -73,9 +73,9 @@ public:
     const Gather*	getGather() const               { return gather_; }
 
     bool		hasAngleData() const		{ return angledata_; }
-    void		setGather(DataPack::ID);
+    void		setGather(DataPackID);
     void		setGather(const PreStack::Gather&);
-    void		setAngleData(DataPack::ID);
+    void		setAngleData(DataPackID);
     void		setAngleData(const PreStack::Gather&);
 			/*!< Only used if AngleA0 or AngleCoeff. If not set,
 			     offset values from traces will be assumed to

@@ -361,18 +361,18 @@ public:
     bool		hasZAxisTransform() const
 			{ return datatransform_; }
 
-    void		addPack(::DataPack::ID);
+    void		addPack(::DataPackID);
 			/*!< Adds to list and obtains the DataPack, but does not
 			 use for WVA or VD. DataPack gets released in the
 			 destructor of this class. */
     enum		VwrDest { WVA, VD, Both, None };
     static VwrDest	getDest(bool dowva,bool dovd);
 
-    void		usePack(VwrDest,::DataPack::ID,bool usedefs=true);
+    void		usePack(VwrDest,::DataPackID,bool usedefs=true);
 			//!< Does not add new packs, just selects from added
-    virtual void	removePack(::DataPack::ID);
+    virtual void	removePack(::DataPackID);
 			//!< Releases DataPack after removing from the list.
-    void		setPack(VwrDest,::DataPack::ID,bool usedefs=true);
+    void		setPack(VwrDest,::DataPackID,bool usedefs=true);
 			//!< add + use the datapack on either wva or vd or both
     void		clearAllPacks();
     bool		enableChange(bool yn);
@@ -386,10 +386,10 @@ public:
 			 if the specified display has no datapack. */
     bool		hasPack( bool wva ) const
 			{ return packID(wva)!=DataPack::cNoID(); }
-    DataPack::ID	packID(bool wva) const;
+    DataPackID	packID(bool wva) const;
 
-    const TypeSet< ::DataPack::ID>&	availablePacks() const	{ return ids_; }
-    bool		isAvailable( ::DataPack::ID id ) const
+    const TypeSet< ::DataPackID>&	availablePacks() const	{ return ids_; }
+    bool		isAvailable( ::DataPackID id ) const
 			{ return ids_.isPresent(id); }
 
     virtual bool	isVertical() const		{ return true; }
@@ -463,7 +463,7 @@ public:
 
 protected:
 
-    TypeSet< ::DataPack::ID>	ids_;
+    TypeSet< ::DataPackID>	ids_;
     Appearance*			defapp_ = nullptr;
     DataPackMgr&		dpm_;
     ZAxisTransform*		datatransform_ = nullptr;
@@ -485,10 +485,10 @@ private:
 
 public:
     mDeprecated("Use VwrDest enum")
-    void		usePack( bool wva, ::DataPack::ID id, bool usedefs=true)
+    void		usePack( bool wva, ::DataPackID id, bool usedefs=true)
 			{ usePack( wva ? WVA : VD, id, usedefs ); }
     mDeprecated("Use VwrDest enum")
-    void		setPack( bool wva, ::DataPack::ID id, bool usedefs=true)
+    void		setPack( bool wva, ::DataPackID id, bool usedefs=true)
 			{ setPack( wva ? WVA : VD, id, usedefs ); }
     mDeprecated("Use VwrDest enum")
     void		setVisible( bool wva, bool visibility )

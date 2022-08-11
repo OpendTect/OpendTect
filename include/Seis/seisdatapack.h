@@ -59,7 +59,7 @@ public:
 
     void			dumpInfo(IOPar&) const override;
 
-    static DataPack::ID		createDataPackForZSlice(const BinIDValueSet*,
+    static DataPackID		createDataPackForZSlice(const BinIDValueSet*,
 						const TrcKeyZSampling&,
 						const ZDomain::Info&,
 					    const BufferStringSet* nms=nullptr);
@@ -107,7 +107,7 @@ public:
 
     bool			addComponent(const char* nm) override;
 
-    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
+    static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 						   const TrcKeyPath& path,
 						   const Interval<float>& zrg);
 
@@ -118,16 +118,16 @@ protected:
     ZSampling			zsamp_;
 
 public:
-    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
+    static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 						   RandomLineID rdmlineid,
 						   const Interval<float>& zrg);
 
-    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
+    static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 					       RandomLineID rdmlineid,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
 
-    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
+    static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 					       const TrcKeyPath& path,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
@@ -146,7 +146,7 @@ public:
 
     int				nrTrcs() const;
     TrcKey			getTrcKey(int trcidx) const;
-    DataPack::ID		getSourceID() const;
+    DataPackID		getSourceID() const;
     int				getSourceGlobalIdx(const TrcKey&) const;
 
     bool			is2D() const;

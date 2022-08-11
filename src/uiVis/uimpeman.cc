@@ -586,7 +586,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		const bool res = uiMSG().askContinue( msg );
 		if ( res )
 		{
-		    DataPack::ID datapackid =
+		    DataPackID datapackid =
 				clickcatcher_->info().getObjDataPackID();
 		    if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
 			engine.setAttribData( *clickedas, datapackid );
@@ -639,7 +639,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	engine.setActive2DLine( geomid );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
-	DataPack::ID datapackid = clickcatcher_->info().getObjDataPackID();
+	DataPackID datapackid = clickcatcher_->info().getObjDataPackID();
 
 	if ( h2dsp )
 	    h2dsp->setSelSpec( clickedas );
@@ -683,7 +683,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( clickedas )
 	    {
-		DataPack::ID datapackid =
+		DataPackID datapackid =
 				clickcatcher_->info().getObjDataPackID();
 		if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
 		    engine.setAttribData( *clickedas, datapackid );

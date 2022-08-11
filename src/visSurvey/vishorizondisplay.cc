@@ -319,7 +319,7 @@ HorizonDisplay::HorizonDisplay()
     userrefs_ += attrnms;
     shifts_ += new TypeSet<float>;
     enabled_ += true;
-    dispdatapackids_ += new TypeSet<DataPack::ID>;
+    dispdatapackids_ += new TypeSet<DataPackID>;
 
     material_->setAmbience( 0.7 );
 
@@ -360,7 +360,7 @@ HorizonDisplay::~HorizonDisplay()
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
     {
-	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
+	const TypeSet<DataPackID>& dpids = *dispdatapackids_[idx];
 	for ( int idy=dpids.size()-1; idy>=0; idy-- )
 	    dpm.unRef( dpids[idy] );
     }
@@ -707,7 +707,7 @@ bool HorizonDisplay::addAttrib()
     userrefs_ += attrnms;
     enabled_ += true;
     shifts_ += new TypeSet<float>;
-    dispdatapackids_ += new TypeSet<DataPack::ID>;
+    dispdatapackids_ += new TypeSet<DataPackID>;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
 
@@ -739,7 +739,7 @@ bool HorizonDisplay::removeAttrib( int channel )
     enabled_.removeSingle( channel );
     delete shifts_.removeSingle( channel );
 
-    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
+    const TypeSet<DataPackID>& dpids = *dispdatapackids_[channel];
     for ( int idy=dpids.size()-1; idy>=0; idy-- )
 	DPM(DataPackMgr::FlatID()).unRef( dpids[idy] );
     delete dispdatapackids_.removeSingle( channel );
@@ -1081,7 +1081,7 @@ void HorizonDisplay::createDisplayDataPacks(
 
     const int nrversions = cache->nrVals()-shift;
 
-    TypeSet<DataPack::ID> dpids;
+    TypeSet<DataPackID> dpids;
     const char* catnm = "Horizon Data";
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-line").add("Cross-line");
@@ -2535,9 +2535,9 @@ bool HorizonDisplay::usePar( const IOPar& par )
 
 
 void HorizonDisplay::setDisplayDataPackIDs( int attrib,
-				const TypeSet<DataPack::ID>& newdpids )
+				const TypeSet<DataPackID>& newdpids )
 {
-    TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    TypeSet<DataPackID>& dpids = *dispdatapackids_[attrib];
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
 	DPM(DataPackMgr::FlatID()).unRef( dpids[idx] );
 
@@ -2547,21 +2547,21 @@ void HorizonDisplay::setDisplayDataPackIDs( int attrib,
 }
 
 
-DataPack::ID HorizonDisplay::getDataPackID( int channel ) const
+DataPackID HorizonDisplay::getDataPackID( int channel ) const
 {
     return getDisplayedDataPackID( channel );
 }
 
 
-DataPack::ID HorizonDisplay::getDisplayedDataPackID( int channel ) const
+DataPackID HorizonDisplay::getDisplayedDataPackID( int channel ) const
 {
     if ( sections_.isEmpty() || !dispdatapackids_.validIdx(channel) )
 	return DataPack::cNoID();
 
-    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
+    const TypeSet<DataPackID>& dpids = *dispdatapackids_[channel];
     const int curversion = sections_[0]->activeVersion( channel );
     return dpids.validIdx(curversion) ? dpids[curversion] :
-						    DataPack::ID::udf();
+						    DataPackID::udf();
 }
 
 

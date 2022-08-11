@@ -114,10 +114,10 @@ public:
 				     this attrib, given that the activearea
 				     should be tracked. */
     int				getCacheIndexOf(const Attrib::SelSpec&) const;
-    DataPack::ID		getAttribCacheID(const Attrib::SelSpec&) const;
+    DataPackID		getAttribCacheID(const Attrib::SelSpec&) const;
     bool			hasAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
-					       DataPack::ID);
+					       DataPackID);
     bool			cacheIncludes(const Attrib::SelSpec&,
 					      const TrcKeyZSampling&);
     void			swapCacheAndItsBackup();
@@ -132,7 +132,7 @@ public:
 							 int idx,bool);
 				/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
-    DataPack::ID		getSeedPosDataPack(const TrcKey&,float z,
+    DataPackID		getSeedPosDataPack(const TrcKey&,float z,
 					int nrtrcs,
 					const StepInterval<float>& zrg) const;
 
@@ -197,9 +197,9 @@ protected:
 	Pos::GeomID		geomid_;
     };
 
-    TypeSet<DataPack::ID>	attribcachedatapackids_;
+    TypeSet<DataPackID>		attribcachedatapackids_;
     ObjectSet<CacheSpecs>	attribcachespecs_;
-    TypeSet<DataPack::ID>	attribbkpcachedatapackids_;
+    TypeSet<DataPackID>		attribbkpcachedatapackids_;
     ObjectSet<CacheSpecs>	attribbackupcachespecs_;
 
     mStruct(MPEEngine) FlatCubeInfo

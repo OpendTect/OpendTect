@@ -91,7 +91,7 @@ protected:
 private:
 
     DataPackMgr&	dpm_;
-    DataPack::ID	datapackid_;
+    DataPackID	datapackid_;
 
     bool		track(const TrcKey&,const TrcKey&,float&) const;
     void		setHorizonPick(const TrcKey&,float val);

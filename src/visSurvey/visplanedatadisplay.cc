@@ -645,7 +645,7 @@ Interval<float> PlaneDataDisplay::getDataTraceRange() const
 TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 {
     const DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    const DataPack::ID dpid = getDataPackID( attrib );
+    const DataPackID dpid = getDataPackID( attrib );
     ConstRefMan<RegularSeisDataPack> regsdp =
 				     dpm.get<RegularSeisDataPack>( dpid );
     const TrcKeyZSampling tkzs =
@@ -768,7 +768,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 }
 
 
-bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+bool PlaneDataDisplay::setDataPackID( int attrib, DataPackID dpid,
 				      TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
@@ -789,7 +789,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 }
 
 
-DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
+DataPackID PlaneDataDisplay::getDataPackID( int attrib ) const
 {
     return datapacks_.validIdx(attrib) && datapacks_[attrib]
 		? datapacks_[attrib]->id()
@@ -797,7 +797,7 @@ DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 }
 
 
-DataPack::ID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
+DataPackID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -817,7 +817,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 	return;
 
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
-    const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
+    const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
 	bivset, tkzs, datatransform_->toZDomainInfo(), userrefs_[attrib] );
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
@@ -832,7 +832,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    const DataPackID dpid = getDisplayedDataPackID( attrib );
     ConstRefMan<RegularSeisDataPack> regsdp =
 				     dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp )
@@ -896,7 +896,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDataPackID( attrib );
+    const DataPackID dpid = getDataPackID( attrib );
     ConstRefMan<RegularSeisDataPack> regsdp =
 				     dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
@@ -970,7 +970,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& val ) const
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    const DataPackID dpid = getDisplayedDataPackID( attrib );
     ConstRefMan<RegularSeisDataPack> regsdp =
 				     dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )

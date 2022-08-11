@@ -88,7 +88,7 @@ public:
 					 Pos::GeomID);
 
     bool		equals(const MultiID&,Pos::GeomID) const;
-    DataPack::ID	dpID() const;
+    DataPackID	dpID() const;
 
     ConstRefMan<DataPack> getDP() const;
     RefMan<DataPack>	getDP();
@@ -112,15 +112,15 @@ public:
     void		add(const DataPack&,const MultiID&);
     void		add(const DataPack&,const MultiID&,Pos::GeomID);
     void		remove(const MultiID&,Pos::GeomID=Pos::GeomID::udf());
-    void		remove(const DataPack::ID&);
+    void		remove(const DataPackID&);
 
     template<class T>
-    inline ConstRefMan<T>	get(DataPack::ID) const;
+    inline ConstRefMan<T>	get(DataPackID) const;
     template<class T>
     inline ConstRefMan<T>	get(const MultiID&,
 				    Pos::GeomID=Pos::GeomID::udf()) const;
 
-    ConstRefMan<DataPack>	getDP(DataPack::ID) const;
+    ConstRefMan<DataPack>	getDP(DataPackID) const;
     ConstRefMan<DataPack>	getDP(const MultiID&,
 				      Pos::GeomID=Pos::GeomID::udf()) const;
 
@@ -159,7 +159,7 @@ PreLoadDataManager::get( const MultiID& mid, Pos::GeomID gid ) const
 }
 
 template <class T> inline ConstRefMan<T>
-PreLoadDataManager::get( DataPack::ID dpid ) const
+PreLoadDataManager::get( DataPackID dpid ) const
 {
     auto dp = getDP( dpid );
     mDynamicCastGet( const T*, casted, dp.ptr() );

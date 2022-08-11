@@ -235,7 +235,7 @@ uiWorldRect uiFlatViewer::boundingBox() const
 }
 
 
-void uiFlatViewer::removePack( ::DataPack::ID dpid )
+void uiFlatViewer::removePack( ::DataPackID dpid )
 {
     if ( dpid == packID(true) )
 	bitmapdisp_->setDataPack( nullptr, true );

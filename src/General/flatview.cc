@@ -627,7 +627,7 @@ FlatView::Appearance& FlatView::Viewer::appearance()
 }
 
 
-void FlatView::Viewer::addPack( DataPack::ID id )
+void FlatView::Viewer::addPack( DataPackID id )
 {
     if ( ids_.isPresent(id) ) return;
     ids_ += id;
@@ -661,7 +661,7 @@ const FlatDataPack* FlatView::Viewer::obtainPack(
 }
 
 
-DataPack::ID FlatView::Viewer::packID( bool wva ) const
+DataPackID FlatView::Viewer::packID( bool wva ) const
 {
     ConstRefMan<FlatDataPack> dp = getPack( wva ).get();
     return dp ? dp->id() : ::DataPack::cNoID();
@@ -675,7 +675,7 @@ void FlatView::Viewer::clearAllPacks()
 }
 
 
-void FlatView::Viewer::removePack( DataPack::ID id )
+void FlatView::Viewer::removePack( DataPackID id )
 {
     const int idx = ids_.indexOf( id );
     if ( idx < 0 )
@@ -699,7 +699,7 @@ bool FlatView::Viewer::enableChange( bool yn )
 }
 
 
-void FlatView::Viewer::setPack( VwrDest dest, ::DataPack::ID id, bool usedefs )
+void FlatView::Viewer::setPack( VwrDest dest, ::DataPackID id, bool usedefs )
 {
     if ( dest == None )
 	return;
@@ -709,15 +709,15 @@ void FlatView::Viewer::setPack( VwrDest dest, ::DataPack::ID id, bool usedefs )
 }
 
 
-void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
+void FlatView::Viewer::usePack( VwrDest dest, DataPackID id, bool usedefs )
 {
     if ( dest == None )
 	return;
 
     const bool wva = dest == WVA || dest == Both;
     const bool vd = dest == VD || dest == Both;
-    DataPack::ID curwvaid = DataPack::ID::udf();
-    DataPack::ID curvdid = DataPack::ID::udf();
+    DataPackID curwvaid = DataPackID::udf();
+    DataPackID curvdid = DataPackID::udf();
     if ( wva )
 	curwvaid = packID( true );
     if ( vd )

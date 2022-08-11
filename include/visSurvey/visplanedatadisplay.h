@@ -98,10 +98,10 @@ public:
 						 TaskRunner*) override;
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
-    bool			setDataPackID(int attrib,DataPack::ID,
+    bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPack::ID		getDataPackID(int attrib) const override;
-    DataPack::ID		getDisplayedDataPackID(
+    DataPackID		getDataPackID(int attrib) const override;
+    DataPackID		getDisplayedDataPackID(
 					      int attrib) const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
@@ -213,7 +213,7 @@ protected:
     RefObjectSet<RegularSeisDataPack>	datapacks_;
     RefObjectSet<RegularSeisDataPack>	transfdatapacks_;
 
-    ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
+    ObjectSet< TypeSet<DataPackID> >	displaycache_;
     ObjectSet<BinIDValueSet>		rposcache_;
 
     TrcKeyZSampling			csfromsession_;

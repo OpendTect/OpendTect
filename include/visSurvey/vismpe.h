@@ -141,9 +141,9 @@ public:
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
 
     const RegularSeisDataPack*	getCacheVolume(int attrib) const override;
-    bool		setDataPackID(int attrib,DataPack::ID,
+    bool		setDataPackID(int attrib,DataPackID,
 				      TaskRunner*) override;
-    DataPack::ID	getDataPackID(int attrib) const override;
+    DataPackID	getDataPackID(int attrib) const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 			{ return DataPackMgr::SeisID(); }
 
@@ -236,7 +236,7 @@ protected:
     // data for volume-based display
     visBase::Transformation*	voltrans_;
     ObjectSet<visBase::OrthogonalSlice>	slices_;
-    DataPack::ID		cacheid_;
+    DataPackID		cacheid_;
     const RegularSeisDataPack*  volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;

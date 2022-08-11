@@ -26,7 +26,7 @@ class uiTable;
 mExpClass(uiIo) DPSMergerProp
 { mODTextTranslationClass(DPSMergerProp);
 public:
-    typedef DataPack::ID	PackID;
+    typedef DataPackID	PackID;
 
 				DPSMergerProp( const MultiID& id, PackID mid,
 					       PackID sid )

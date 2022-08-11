@@ -1166,7 +1166,7 @@ void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    DataPack::ID dpid = getDataPackID( attrib );
+    DataPackID dpid = getDataPackID( attrib );
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     auto dps = dpman.get<DataPointSet>( dpid );
     if ( dps )
@@ -1300,7 +1300,7 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultDisplay::addCache()
 {
-    datapackids_ += DataPack::ID::udf();
+    datapackids_ += DataPackID::udf();
 }
 
 void FaultDisplay::removeCache( int attrib )
@@ -1943,7 +1943,7 @@ void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-DataPack::ID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
+DataPackID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 {
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     DataPointSet* newdpset = new DataPointSet( dpset );
@@ -1953,7 +1953,7 @@ DataPack::ID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 }
 
 
-bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+bool FaultDisplay::setDataPackID( int attrib, DataPackID dpid,
 				  TaskRunner* taskr )
 {
     if ( !datapackids_.validIdx(attrib) )
@@ -1964,14 +1964,14 @@ bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !datapack )
 	return false;
 
-    DataPack::ID oldid = datapackids_[attrib];
+    DataPackID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
     dpman.unRef( oldid );
     return true;
 }
 
 
-DataPack::ID FaultDisplay::getDataPackID( int attrib ) const
+DataPackID FaultDisplay::getDataPackID( int attrib ) const
 {
     return datapackids_[attrib];
 }

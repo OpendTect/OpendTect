@@ -100,7 +100,7 @@ protected:
     PreStack::Gather*	getAngleGather(const PreStack::Gather& gather,
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
-    DataPack::ID	getPreProcessedID(const GatherInfo&);
+    DataPackID	getPreProcessedID(const GatherInfo&);
     void		setGatherforPreProc(const BinID& relbid,
 					    const GatherInfo&);
 
@@ -163,7 +163,7 @@ protected:
     void		setUpNewSlicePositions();
     void		setUpNewIDs();
     void		convAngleDataToDegrees(PreStack::Gather&) const;
-    DataPack::ID	getAngleData(DataPack::ID gatherid);
+    DataPackID	getAngleData(DataPackID gatherid);
     void		posDlgChgCB(CallBacker*) override;
     void		posSlcChgCB(CallBacker*);
 };

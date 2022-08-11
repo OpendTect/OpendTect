@@ -743,7 +743,7 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 }
 
 
-DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
+DataPackID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 {
     const int idx = getCacheIndexOf(as);
     return attribcachedatapackids_.validIdx(idx)
@@ -753,13 +753,13 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
-    const DataPack::ID dpid = getAttribCacheID( as );
+    const DataPackID dpid = getAttribCacheID( as );
     return dpm_.isPresent( dpid );
 }
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as,
-			    DataPack::ID cacheid )
+			    DataPackID cacheid )
 {
     auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
     if ( regfdp )
@@ -818,7 +818,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 
 void Engine::swapCacheAndItsBackup()
 {
-    const TypeSet<DataPack::ID> tempcachedatapackids = attribcachedatapackids_;
+    const TypeSet<DataPackID> tempcachedatapackids = attribcachedatapackids_;
     const ObjectSet<CacheSpecs> tempcachespecs = attribcachespecs_;
     attribcachedatapackids_ = attribbkpcachedatapackids_;
     attribcachespecs_ = attribbackupcachespecs_;
@@ -905,14 +905,14 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 }
 
 
-DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
+DataPackID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 					const StepInterval<float>& zintv ) const
 {
     TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
     if ( specs.isEmpty() ) return DataPack::cNoID();
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    const DataPack::ID pldpid = getAttribCacheID( specs[0] );
+    const DataPackID pldpid = getAttribCacheID( specs[0] );
     auto sdp = dpm.get<SeisDataPack>( pldpid );
     if ( !sdp ) return DataPack::cNoID();
 

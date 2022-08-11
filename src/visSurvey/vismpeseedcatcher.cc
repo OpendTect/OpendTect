@@ -248,7 +248,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	mCheckRdlDisplay( trackertype_, dataobj, rtd, legalclick0 )
 	if ( rtd )
 	{
-	    DataPack::ID datapackid = DataPack::cNoID();
+	    DataPackID datapackid = DataPack::cNoID();
 	    int attrib = rtd->nrAttribs();
 	    while ( attrib )
 	    {
@@ -281,7 +281,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setLegalClick( legalclick1 );
 
-	    DataPack::ID datapackid = DataPack::cNoID();
+	    DataPackID datapackid = DataPack::cNoID();
 	    int attrib = pdd->nrAttribs();
 	    while ( attrib )
 	    {
@@ -331,7 +331,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     const Coord3 worldpickedpos )
 {
-    DataPack::ID datapackid = DataPack::cNoID();
+    DataPackID datapackid = DataPack::cNoID();
     int attrib = seis2ddisp->nrAttribs();
     while ( attrib )
     {
@@ -487,7 +487,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setObjID( pdd->id() );
 	    info().setObjCS( cs );
 
-	    DataPack::ID datapackid = DataPack::cNoID();
+	    DataPackID datapackid = DataPack::cNoID();
 	    int attrib = pdd->nrAttribs();
 	    while ( attrib )
 	    {
@@ -519,7 +519,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	info().setLegalClick( legalclick );
 	info().setObjID( rtd->id() );
 
-	DataPack::ID datapackid = DataPack::cNoID();
+	DataPackID datapackid = DataPack::cNoID();
 	int attrib = rtd->nrAttribs();
 	while ( attrib )
 	{
@@ -661,7 +661,7 @@ const TrcKeyZSampling& MPEClickInfo::getObjCS() const
 { return clickedcs_; }
 
 
-DataPack::ID MPEClickInfo::getObjDataPackID() const
+DataPackID MPEClickInfo::getObjDataPackID() const
 { return datapackid_; }
 
 
@@ -761,7 +761,7 @@ void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )
 { clickedcs_ = cs; }
 
 
-void MPEClickInfo::setObjDataPackID( DataPack::ID datapackid )
+void MPEClickInfo::setObjDataPackID( DataPackID datapackid )
 { datapackid_ = datapackid; }
 
 

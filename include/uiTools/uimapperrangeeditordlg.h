@@ -29,7 +29,7 @@ public:
 					~uiMultiMapperRangeEditWin();
 
     uiMapperRangeEditor*		getuiMapperRangeEditor(int);
-    void				setDataPackID(int nr,DataPack::ID,
+    void				setDataPackID(int nr,DataPackID,
 						      int version=0);
     void				setColTabMapperSetup(int,
 						const ColTab::MapperSetup&);
@@ -54,7 +54,7 @@ protected:
     const ColTab::MapperSetup*		activectbmapper_;
     const ColTab::Sequence*		activectbseq_;
     DataPackMgr&			dpm_;
-    TypeSet<DataPack::ID>		datapackids_;
+    TypeSet<DataPackID>		datapackids_;
     ObjectSet<uiStatsDisplay>		statsdisplays_;
 
     void				mouseMoveCB(CallBacker*);

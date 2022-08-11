@@ -30,14 +30,14 @@ mStruct(uiPreStackProcessing) GatherInfo
 {
     			GatherInfo()
 			: isstored_(true), isselected_( false )
-			, vddpid_(DataPack::ID::udf())
-			, wvadpid_(DataPack::ID::udf())
+			, vddpid_(DataPackID::udf())
+			, wvadpid_(DataPackID::udf())
 			, bid_(mUdf(int),mUdf(int))	{}
     bool		isstored_;
     bool		isselected_;
     MultiID		mid_;
-    DataPack::ID	vddpid_;
-    DataPack::ID	wvadpid_;
+    DataPackID	vddpid_;
+    DataPackID	wvadpid_;
     BufferString	gathernm_;
     BinID		bid_;
 bool operator==( const GatherInfo& info ) const

@@ -15,7 +15,7 @@ _______________________________________________________________________
 
 
 void uiSeisAmplSpectrum::setDataPackID(
-		DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
+		DataPackID dpid, DataPackMgr::MgrID dmid, int version )
 {
     uiAmplSpectrum::setDataPackID( dpid, dmid, version );
 

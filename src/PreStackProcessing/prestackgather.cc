@@ -582,14 +582,14 @@ TrcKey GatherSetDataPack::getTrcKeyByIdx( int idx ) const
 }
 
 
-DataPack::ID GatherSetDataPack::getGatherIDByIdx( int idx ) const
+DataPackID GatherSetDataPack::getGatherIDByIdx( int idx ) const
 {
     return gathers_.validIdx( idx ) ? gathers_.get(idx)->id()
-				    : DataPack::ID::udf();
+				    : DataPackID::udf();
 }
 
 
-DataPack::ID GatherSetDataPack::getGatherID( const BinID& bid ) const
+DataPackID GatherSetDataPack::getGatherID( const BinID& bid ) const
 {
     for ( const auto* gather : gathers_ )
     {
@@ -597,7 +597,7 @@ DataPack::ID GatherSetDataPack::getGatherID( const BinID& bid ) const
 	    return gather->id();
     }
 
-    return DataPack::ID::udf();
+    return DataPackID::udf();
 }
 
 

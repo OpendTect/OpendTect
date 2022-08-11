@@ -18,21 +18,20 @@ class uiODViewer2D;
 namespace View2D { class Fault; }
 
 
-mExpClass(uiODMain) uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultParentTreeItem);
+mExpClass(uiODMain) uiODView2DFaultParentTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DFaultParentTreeItem);
 public:
-    				uiODVw2DFaultParentTreeItem();
-				~uiODVw2DFaultParentTreeItem();
+				uiODView2DFaultParentTreeItem();
+				~uiODView2DFaultParentTreeItem();
 
     bool			showSubMenu();
     void			getFaultVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>& vw2dids ) const;
-    void			getLoadedFaults(
-					TypeSet<EM::ObjectID>& emids) const;
+						 TypeSet<Vis2DID>&) const;
+    void			getLoadedFaults(TypeSet<EM::ObjectID>&) const;
     void			removeFault(EM::ObjectID);
     void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID emid);
-    void			setupNewTempFault(EM::ObjectID emid);
+    void			addNewTempFault(EM::ObjectID);
+    void			setupNewTempFault(EM::ObjectID);
 
 protected:
 
@@ -40,27 +39,27 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultTreeItemFactory
-				: public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODView2DFaultTreeItemFactory
+				: public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODVw2DFaultParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DFaultParentTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultTreeItem);
+mExpClass(uiODMain) uiODView2DFaultTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DFaultTreeItem)
 public:
-    			uiODVw2DFaultTreeItem(const EM::ObjectID&);
-    			uiODVw2DFaultTreeItem(int dispid,bool dummy);
-			~uiODVw2DFaultTreeItem();
+			uiODView2DFaultTreeItem(const EM::ObjectID&);
+			uiODView2DFaultTreeItem(Vis2DID,bool dummy);
+			~uiODView2DFaultTreeItem();
 
     bool			showSubMenu();
     bool			select();
@@ -71,7 +70,7 @@ protected:
 
     bool		init();
     const char*		parentType() const
-			{ return typeid(uiODVw2DFaultParentTreeItem).name(); }
+			{ return typeid(uiODView2DFaultParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
     void		updateCS(const TrcKeyZSampling&,bool upd);

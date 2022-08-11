@@ -353,7 +353,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==statisticsmnuitem_.id )
     {
-	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
+	const DataPackID dpid = visserv->getDataPackID( displayID(),
 							  attribNr() );
 	const DataPackMgr::MgrID dmid = visserv->getDataPackMgrID(displayID());
 	const int version = visserv->selectedTexture( displayID(), attribNr() );
@@ -369,7 +369,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==amplspectrummnuitem_.id )
     {
-	const DataPack::ID dpid = visserv->getDataPackID(
+	const DataPackID dpid = visserv->getDataPackID(
 					displayID(), attribNr() );
 	const DataPackMgr::MgrID dmid =
 		visserv->getDataPackMgrID( displayID() );

@@ -85,7 +85,7 @@ public:
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
     void			setAttribData(const Attrib::SelSpec&,
-					      DataPack::ID);
+					      DataPackID);
 
     static int			evCreate2DSelSpec();
     Pos::GeomID 		getGeomID() const;

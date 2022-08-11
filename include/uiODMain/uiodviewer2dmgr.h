@@ -48,8 +48,7 @@ public:
 	bool			isValid() const		{ return auxposidx_>=0;}
     };
 
-    uiODViewer2D*		getParent2DViewer(int vw2dobjid);
-    uiODViewer2D*		find2DViewer(int id,bool byvisid);
+    uiODViewer2D*		getParent2DViewer(Vis2DID);
     uiODViewer2D*		find2DViewer(VisID);
     uiODViewer2D*		find2DViewer(Viewer2DID);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
@@ -57,7 +56,7 @@ public:
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
-    Viewer2DID			displayIn2DViewer(DataPack::ID,
+    Viewer2DID			displayIn2DViewer(DataPackID,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      bool wva);
@@ -67,7 +66,6 @@ public:
 					float initialx2pospercm=mUdf(float));
     void			displayIn2DViewer(VisID visid,int attribid,
 						  bool wva);
-    void			remove2DViewer(int id,bool byvisid);
     void			remove2DViewer(VisID);
     void			remove2DViewer(Viewer2DID);
 
@@ -75,42 +73,42 @@ public:
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
 
     //3D Horizons
-    void			getHor3DVwr2DIDs( EM::ObjectID emid,
-						  TypeSet<int>& vw2dids) const;
-    void			removeHorizon3D(EM::ObjectID emid);
+    void			getHor3DVwr2DIDs(EM::ObjectID,
+						 TypeSet<Vis2DID>&) const;
+    void			removeHorizon3D(EM::ObjectID);
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID mid);
+    void			addNewTrackingHorizon3D(EM::ObjectID);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     // 2D Horizons
-    void			getHor2DVwr2DIDs( EM::ObjectID emid,
-						  TypeSet<int>& vw2dids) const;
-    void			removeHorizon2D(EM::ObjectID emid);
+    void			getHor2DVwr2DIDs(EM::ObjectID,
+						 TypeSet<Vis2DID>&) const;
+    void			removeHorizon2D(EM::ObjectID);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID mid);
+    void			addNewTrackingHorizon2D(EM::ObjectID);
 
     //Faults
-    void			removeFault(EM::ObjectID emid);
+    void			removeFault(EM::ObjectID);
     void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID mid);
+    void			addNewTempFault(EM::ObjectID);
     void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
     void			getFaultVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>&) const;
+						 TypeSet<Vis2DID>&) const;
 
     //FaultStickSet
-    void			getFaultSSVwr2DIDs( EM::ObjectID emid,
-						    TypeSet<int>& vw2ids) const;
-    void			removeFaultSS(EM::ObjectID emid);
+    void			getFaultSSVwr2DIDs(EM::ObjectID,
+						   TypeSet<Vis2DID>&) const;
+    void			removeFaultSS(EM::ObjectID);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS(EM::ObjectID mid);
+    void			addNewTempFaultSS(EM::ObjectID);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
 
     //PickSets
     void			getPickSetVwr2DIDs(const MultiID& mid,
-						   TypeSet<int>& vw2ids) const;
+						   TypeSet<Vis2DID>&) const;
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			addPickSets(const TypeSet<MultiID>&);
@@ -135,6 +133,8 @@ protected:
 				~uiODViewer2DMgr();
 
     uiODViewer2D&		addViewer2D(VisID visid);
+    void			remove2DViewer(int id,bool byvisid);
+
     ObjectSet<uiODViewer2D>	viewers2d_;
     Line2DInterSectionSet*	l2dintersections_;
     SelectedAuxAnnot		selauxannot_;
@@ -145,8 +145,8 @@ protected:
 
     uiODMain&			appl_;
 
-    inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
-    inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
+    inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
+    inline uiVisPartServer&	visServ()	{return *applMgr().visServer();}
 
     void			viewObjAdded(CallBacker*);
     void			viewObjToBeRemoved(CallBacker*);
@@ -157,6 +157,7 @@ protected:
     void			mouseClickedCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
 
+    uiODViewer2D*		find2DViewer(int id,bool byvisid);
     void			create2DViewer(const uiODViewer2D& curvwr2d,
 					       const TrcKeyZSampling& newtkzs,
 					       const uiWorldPoint& initcentr);
@@ -198,7 +199,7 @@ public:
     void			getLoadedFaultSS2Ds(
 					 TypeSet<EM::ObjectID>&) const;
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
-						    TypeSet<int>& vw2ids) const;
+						    TypeSet<Vis2DID>&) const;
 
     void			addNewTrackingHorizon3D(EM::ObjectID,SceneID);
     void			addNewTrackingHorizon2D(EM::ObjectID,SceneID);
@@ -206,7 +207,7 @@ public:
     void			addNewTempFaultSS(EM::ObjectID,SceneID);
     void			addNewTempFaultSS2D(EM::ObjectID,SceneID);
 
-    void			getVwr2DObjIDs(TypeSet<int>& vw2ids) const;
+    void			getVwr2DObjIDs(TypeSet<Vis2DID>&) const;
 
     void			getVWR2DDataGeomIDs(const uiODViewer2D*,
 						   TypeSet<Pos::GeomID>&) const;
@@ -215,4 +216,3 @@ public:
     void			cleanup();
     void			setupCurInterpItem(uiODViewer2D*);
 };
-

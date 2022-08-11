@@ -37,17 +37,17 @@ ________________________________________________________________________
 #include "view2dfaultss2d.h"
 
 
-uiODVw2DFaultSS2DParentTreeItem::uiODVw2DFaultSS2DParentTreeItem()
-    : uiODVw2DTreeItem( uiStrings::sFaultStickSet() )
+uiODView2DFaultSS2DParentTreeItem::uiODView2DFaultSS2DParentTreeItem()
+    : uiODView2DTreeItem( uiStrings::sFaultStickSet() )
 {}
 
 
-uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
+uiODView2DFaultSS2DParentTreeItem::~uiODView2DFaultSS2DParentTreeItem()
 {
 }
 
 
-bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
+bool uiODView2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.addMenu( createAddMenu() );
@@ -57,7 +57,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 }
 
 
-bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
+bool uiODView2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
@@ -100,20 +100,20 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
-const char* uiODVw2DFaultSS2DParentTreeItem::iconName() const
+const char* uiODView2DFaultSS2DParentTreeItem::iconName() const
 { return "tree-fltss"; }
 
 
-bool uiODVw2DFaultSS2DParentTreeItem::init()
-{ return uiODVw2DTreeItem::init(); }
+bool uiODView2DFaultSS2DParentTreeItem::init()
+{ return uiODView2DTreeItem::init(); }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::getFaultSS2DVwr2DIDs(
-	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+void uiODView2DFaultSS2DParentTreeItem::getFaultSS2DVwr2DIDs(
+	EM::ObjectID emid, TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DFaultSS2DTreeItem*,faultssitem,
+	mDynamicCastGet(const uiODView2DFaultSS2DTreeItem*,faultssitem,
 			getChild(idx))
 	if ( !faultssitem || faultssitem->emObjectID() != emid )
 	    continue;
@@ -123,24 +123,26 @@ void uiODVw2DFaultSS2DParentTreeItem::getFaultSS2DVwr2DIDs(
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::getLoadedFaultSS2Ds(
+void uiODView2DFaultSS2DParentTreeItem::getLoadedFaultSS2Ds(
 	TypeSet<EM::ObjectID>& emids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DFaultSS2DTreeItem*,fss2ditm,getChild(idx))
+	mDynamicCastGet(const uiODView2DFaultSS2DTreeItem*,fss2ditm,
+			getChild(idx))
 	if ( !fss2ditm )
 	    continue;
+
 	emids.addIfNew( fss2ditm->emObjectID() );
     }
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::removeFaultSS2D( EM::ObjectID emid )
+void uiODView2DFaultSS2DParentTreeItem::removeFaultSS2D( EM::ObjectID emid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DTreeItem*,faultitem,getChild(idx))
+	mDynamicCastGet(uiODView2DFaultSS2DTreeItem*,faultitem,getChild(idx))
 	if ( !faultitem || emid!=faultitem->emObjectID() )
 	    continue;
 	removeChild( faultitem );
@@ -148,7 +150,7 @@ void uiODVw2DFaultSS2DParentTreeItem::removeFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
+void uiODView2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 					const TypeSet<EM::ObjectID>& emids )
 {
     TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
@@ -167,8 +169,8 @@ void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 
 	MPE::ObjectEditor* editor =
 	    MPE::engine().getEditor( emobj->id(), false );
-	uiODVw2DFaultSS2DTreeItem* childitem =
-	    new uiODVw2DFaultSS2DTreeItem( emidstobeloaded[idx] );
+	uiODView2DFaultSS2DTreeItem* childitem =
+	    new uiODView2DFaultSS2DTreeItem( emidstobeloaded[idx] );
 	addChld( childitem, false, false );
 	if ( editor )
 	    editor->addUser();
@@ -176,7 +178,8 @@ void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( EM::ObjectID emid )
+void uiODView2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D(
+							EM::ObjectID emid )
 {
     TypeSet<EM::ObjectID> emidsloaded;
     getLoadedFaultSS2Ds( emidsloaded );
@@ -186,7 +189,7 @@ void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( EM::ObjectID emid )
     bool hasfss2d = false;
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DTreeItem*,fss2dtreeitm,getChild(idx))
+	mDynamicCastGet(uiODView2DFaultSS2DTreeItem*,fss2dtreeitm,getChild(idx))
 	if ( !fss2dtreeitm || emid!=fss2dtreeitm->emObjectID() )
 	    continue;
 
@@ -199,14 +202,14 @@ void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( EM::ObjectID emid )
+void uiODView2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( EM::ObjectID emid )
 {
     TypeSet<EM::ObjectID> emidsloaded;
     getLoadedFaultSS2Ds( emidsloaded );
     if ( emidsloaded.isPresent(emid) )
 	return;
 
-    uiODVw2DFaultSS2DTreeItem* fss2ditem = new uiODVw2DFaultSS2DTreeItem( emid);
+    auto* fss2ditem = new uiODView2DFaultSS2DTreeItem( emid);
     addChld( fss2ditem,false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
 	viewer2D()->viewControl()->setEditMode( true );
@@ -214,7 +217,7 @@ void uiODVw2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
+void uiODView2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
 
@@ -225,21 +228,22 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     if ( findChild(applMgr()->EMServer()->getUiName(emid).getFullString()) )
 	return;
 
-    addChld( new uiODVw2DFaultSS2DTreeItem(emid),false,false);
+    addChld( new uiODView2DFaultSS2DTreeItem(emid),false,false);
 }
 
 
 
-uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(uiString::emptyString())
+uiODView2DFaultSS2DTreeItem::uiODView2DFaultSS2DTreeItem(
+						const EM::ObjectID& emid )
+    : uiODView2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , fssview_(0)
 {
 }
 
 
-uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
-    : uiODVw2DTreeItem(uiString::emptyString())
+uiODView2DFaultSS2DTreeItem::uiODView2DFaultSS2DTreeItem( Vis2DID id, bool )
+    : uiODView2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , fssview_(0)
 {
@@ -247,7 +251,7 @@ uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
 }
 
 
-uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
+uiODView2DFaultSS2DTreeItem::~uiODView2DFaultSS2DTreeItem()
 {
     detachAllNotifiers();
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -259,11 +263,11 @@ uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
 }
 
 
-bool uiODVw2DFaultSS2DTreeItem::init()
+bool uiODView2DFaultSS2DTreeItem::init()
 {
     uitreeviewitem_->setCheckable(true);
     EM::EMObject* emobj = 0;
-    if ( displayid_ < 0 )
+    if ( !displayid_.isValid() )
     {
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
@@ -289,32 +293,32 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     }
 
     emobj->ref();
-    mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
+    mAttachCB( emobj->change, uiODView2DFaultSS2DTreeItem::emobjChangeCB );
 
     name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setChecked( true );
-    mAttachCB( checkStatusChange(), uiODVw2DFaultSS2DTreeItem::checkCB );
+    mAttachCB( checkStatusChange(), uiODView2DFaultSS2DTreeItem::checkCB );
 
     displayMiniCtab();
 
     if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
 	fssview_->setGeomID( viewer2D()->geomID() );
 
-    mAttachCB( fssview_->deSelection(), uiODVw2DFaultSS2DTreeItem::deSelCB );
+    mAttachCB( fssview_->deSelection(), uiODView2DFaultSS2DTreeItem::deSelCB );
 
     fssview_->draw();
 
     if ( viewer2D() && viewer2D()->viewControl() )
 	mAttachCB( viewer2D()->viewControl()->editPushed(),
-		   uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
+		   uiODView2DFaultSS2DTreeItem::enableKnotsCB );
 
-    uiODVw2DTreeItem::addKeyBoardEvent( emid_ );
+    uiODView2DTreeItem::addKeyBoardEvent( emid_ );
 
     return true;
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
+void uiODView2DFaultSS2DTreeItem::displayMiniCtab()
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;
@@ -325,7 +329,7 @@ void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
+void uiODView2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
 				cbdata, caller, cb );
@@ -346,14 +350,14 @@ void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::enableKnotsCB( CallBacker* )
+void uiODView2DFaultSS2DTreeItem::enableKnotsCB( CallBacker* )
 {
     if ( fssview_ && viewer2D()->dataMgr()->selectedID() == fssview_->id() )
 	fssview_->selected();
 }
 
 
-bool uiODVw2DFaultSS2DTreeItem::select()
+bool uiODView2DFaultSS2DTreeItem::select()
 {
     if ( uitreeviewitem_->treeView() )
 	uitreeviewitem_->treeView()->deselectAll();
@@ -372,7 +376,7 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 #define mSaveID		1
 #define mSaveAsID	2
 
-bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
+bool uiODView2DFaultSS2DTreeItem::showSubMenu()
 {
     uiEMPartServer* ems = applMgr()->EMServer();
     const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -401,7 +405,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	OD::LineStyle ls = emobj->preferredLineStyle();
 	ls.color_ = emobj->preferredColor();
 	uiSelLineStyle* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
-	lsfld->changed.notify( mCB(this,uiODVw2DFaultSS2DTreeItem,propChgCB) );
+	lsfld->changed.notify( mCB(this,uiODView2DFaultSS2DTreeItem,propChgCB));
 	dlg.go();
     }
     else if ( mnuid==mSaveID || mnuid==mSaveAsID )
@@ -433,7 +437,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::propChgCB( CallBacker* cb )
+void uiODView2DFaultSS2DTreeItem::propChgCB( CallBacker* cb )
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;
@@ -455,20 +459,20 @@ void uiODVw2DFaultSS2DTreeItem::propChgCB( CallBacker* cb )
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::deSelCB( CallBacker* )
+void uiODView2DFaultSS2DTreeItem::deSelCB( CallBacker* )
 {
     //TODO handle on/off MOUSEEVENT
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::checkCB( CallBacker* )
+void uiODView2DFaultSS2DTreeItem::checkCB( CallBacker* )
 {
     if ( fssview_ )
 	fssview_->enablePainting( isChecked() );
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
+void uiODView2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
     if ( emid != emid_ ) return;
@@ -481,9 +485,15 @@ void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 }
 
 
-uiTreeItem* uiODVw2DFaultSS2DTreeItemFactory::createForVis(
-				const uiODViewer2D& vwr2d, int id ) const
+const char* uiODView2DFaultSS2DTreeItem::parentType() const
+{
+    return typeid(uiODView2DFaultSS2DParentTreeItem).name();
+}
+
+
+uiTreeItem* uiODView2DFaultSS2DTreeItemFactory::createForVis(
+				const uiODViewer2D& vwr2d, Vis2DID id ) const
 {
     mDynamicCastGet(const View2D::FaultSS2D*,obj,vwr2d.getObject(id));
-    return obj ? new uiODVw2DFaultSS2DTreeItem(id,true) : 0;
+    return obj ? new uiODView2DFaultSS2DTreeItem(id,true) : 0;
 }

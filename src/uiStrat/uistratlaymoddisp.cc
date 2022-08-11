@@ -224,8 +224,8 @@ uiFlatViewer* uiStratLayerModelDisp::getViewerClone( uiParent* p ) const
     vwr->setInitialSize( initialSize() );
     vwr->setStretch( 2, 2 );
     vwr->appearance() = vwr_.appearance();
-    const DataPack::ID wvaid = vwr_.packID( true );
-    const DataPack::ID vdid = vwr_.packID( false );
+    const DataPackID wvaid = vwr_.packID( true );
+    const DataPackID vdid = vwr_.packID( false );
     if ( wvaid == vdid )
 	vwr->setPack( FlatView::Viewer::Both, wvaid, false );
     else

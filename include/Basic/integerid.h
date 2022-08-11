@@ -125,3 +125,11 @@ public:
     using IntegerID::IntegerID;
     static inline Viewer2DID	udf()			{ return Viewer2DID(); }
 };
+
+
+mExpClass(Basic) Vis2DID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline Vis2DID	udf()			{ return Vis2DID(); }
+};

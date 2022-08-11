@@ -61,10 +61,11 @@ bool testDataPack()
 	mRunStandardTest( !deleted && dpc->hasManager(), "Manager set" );
 	mRunStandardTest( !deleted && dpc->nrRefs()==1, "Nr users after add" );
 
-	DataPack::ID id = dpc->id();
+	DataPackID id = dpc->id();
 
 	WeakPtr<DataPack> wptr = dpm.observeDP( id );
-	mRunStandardTest( !deleted && dpc->nrRefs()==1, "Nr users after observe" );
+	mRunStandardTest( !deleted && dpc->nrRefs()==1,
+			  "Nr users after observe" );
 
 	WeakPtr<DataPackClass2> dpc2obs = dpm.observe<DataPackClass2>( id );
 	mRunStandardTest( !deleted && dpc->nrRefs()==1,

@@ -734,8 +734,8 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 }
 
 
-DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
-					       DataPack::ID cacheid )
+DataPackID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
+					       DataPackID cacheid )
 {
     if ( tkzs.is2D() )
     {
@@ -1079,7 +1079,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 }
 
 
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 						      RandomLineID rdlid )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
@@ -1188,7 +1188,7 @@ void uiAttribPartServer::snapToValidRandomTraces( TrcKeyPath& path,
 }
 
 
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 			    TypeSet<BinID>& path, TypeSet<BinID>& trueknotspos )
 {
     TrcKeyPath tkpath, tktrueknotspos;
@@ -1201,7 +1201,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 }
 
 
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
 {
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
@@ -1322,7 +1322,7 @@ RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
 				 Pos::GeomID geomid,
 				 const ZDomain::Def& zdef,
 				 const BufferStringSet* compnames,
-				 DataPack::ID& outputid )
+				 DataPackID& outputid )
     : input_(input)
     , sampling_(input.getTrcKeyZSampling())
     , zdef_(zdef)
@@ -1416,11 +1416,11 @@ protected:
     const ZDomain::Def&			zdef_;
     BufferStringSet			compnames_;
     RegularSeisDataPack*		outputdp_	= nullptr;
-    DataPack::ID&			outputid_;
+    DataPackID&			outputid_;
     TypeSet<float>			refnrs_;
 };
 
-DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
+DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
 {
@@ -1461,13 +1461,13 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 }
 
 
-DataPack::ID uiAttribPartServer::createDataPackFor2D(
+DataPackID uiAttribPartServer::createDataPackFor2D(
 					const Attrib::Data2DHolder& input,
 					const TrcKeyZSampling& outputsampling,
 					const ZDomain::Def& zdef,
 					const BufferStringSet* compnames )
 {
-    DataPack::ID outputid = DataPack::cNoID();
+    DataPackID outputid = DataPack::cNoID();
     RegularSeisDataPackCreatorFor2D datapackcreator(
 		input, outputsampling.hsamp_.getGeomID(), zdef,
 		compnames, outputid );

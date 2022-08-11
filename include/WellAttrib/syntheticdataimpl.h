@@ -170,7 +170,7 @@ public:
 					{ return SynthGenParams::PreStack; }
     int					nrPositions() const override;
     TrcKey				getTrcKey(int trcnr) const override;
-    DataPack::ID			getGatherIDByIdx(int trcnr,
+    DataPackID			getGatherIDByIdx(int trcnr,
 						      bool angles=false) const;
     ZSampling				zRange() const override;
 

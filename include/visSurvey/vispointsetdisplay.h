@@ -46,7 +46,7 @@ public:
     void			update(TaskRunner*);
     Executor*			getUpdater();
     void			updateColors();
-    bool			setDataPack(DataPack::ID);
+    bool			setDataPack(DataPackID);
     const DataPointSet*		getDataPack() const	{ return data_; }
     void			setDisplayTransformation(
 						const mVisTrans*) override;

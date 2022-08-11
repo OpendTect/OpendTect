@@ -35,8 +35,8 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 
 
-uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
-    : uiODVw2DTreeItem( tr("VD") )
+uiODView2DVariableDensityTreeItem::uiODView2DVariableDensityTreeItem()
+    : uiODView2DTreeItem( tr("VD") )
     , dummyview_(0)
     , menu_(0)
     , coltabinitialized_(false)
@@ -44,7 +44,7 @@ uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
 {}
 
 
-uiODVW2DVariableDensityTreeItem::~uiODVW2DVariableDensityTreeItem()
+uiODView2DVariableDensityTreeItem::~uiODView2DVariableDensityTreeItem()
 {
     detachAllNotifiers();
     if ( menu_ )
@@ -55,30 +55,31 @@ uiODVW2DVariableDensityTreeItem::~uiODVW2DVariableDensityTreeItem()
 }
 
 
-const char* uiODVW2DVariableDensityTreeItem::iconName() const
+const char* uiODView2DVariableDensityTreeItem::iconName() const
 { return "tree-vd"; }
 
 
-bool uiODVW2DVariableDensityTreeItem::init()
+bool uiODView2DVariableDensityTreeItem::init()
 {
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    mAttachCB( vwr.dataChanged,uiODVW2DVariableDensityTreeItem::dataChangedCB );
+    mAttachCB( vwr.dataChanged,
+	       uiODView2DVariableDensityTreeItem::dataChangedCB );
     mAttachCB( vwr.dispParsChanged,
-	       uiODVW2DVariableDensityTreeItem::dataChangedCB );
+	       uiODView2DVariableDensityTreeItem::dataChangedCB );
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( true );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
-    mAttachCB( checkStatusChange(), uiODVW2DVariableDensityTreeItem::checkCB );
+    mAttachCB( checkStatusChange(), uiODView2DVariableDensityTreeItem::checkCB);
 
     dummyview_ = new View2D::Seismic();
     viewer2D()->dataMgr()->addObject( dummyview_ );
     displayid_ = dummyview_->id();
     mAttachCB( dummyview_->deSelection(),
-	       uiODVW2DVariableDensityTreeItem::deSelectCB );
+	       uiODView2DVariableDensityTreeItem::deSelectCB );
 
     if ( vwr.hasPack(false) )
     {
@@ -89,16 +90,16 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	displayMiniCtab( &seq );
     }
 
-    return uiODVw2DTreeItem::init();
+    return uiODView2DTreeItem::init();
 }
 
 
-void uiODVW2DVariableDensityTreeItem::initColTab()
+void uiODView2DVariableDensityTreeItem::initColTab()
 {
     if ( coltabinitialized_ ) return;
 
     mAttachCB( viewer2D()->viewControl()->colTabEd()->colTabChgd,
-	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
+	       uiODView2DVariableDensityTreeItem::colTabChgCB );
 
     if ( uitreeviewitem_->treeView() &&
 	 uitreeviewitem_->treeView()->nrSelected() > 0 )
@@ -109,7 +110,7 @@ void uiODVW2DVariableDensityTreeItem::initColTab()
 }
 
 
-bool uiODVW2DVariableDensityTreeItem::select()
+bool uiODView2DVariableDensityTreeItem::select()
 {
     if ( !uitreeviewitem_->isSelected() )
 	return false;
@@ -123,13 +124,13 @@ bool uiODVW2DVariableDensityTreeItem::select()
 }
 
 
-void uiODVW2DVariableDensityTreeItem::deSelectCB( CallBacker* )
+void uiODView2DVariableDensityTreeItem::deSelectCB( CallBacker* )
 {
     viewer2D()->viewControl()->colTabEd()->setSensitive( false );
 }
 
 
-void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
+void uiODView2DVariableDensityTreeItem::checkCB( CallBacker* )
 {
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::VD;
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
@@ -137,7 +138,7 @@ void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
+void uiODView2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 {
     if ( !dummyview_ || viewer2D()->dataMgr()->selectedID() != dummyview_->id())
 	return;
@@ -155,7 +156,7 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
+void uiODView2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 {
     if ( !viewer2D()->viewwin()->nrViewers() || !viewer2D()->viewControl() )
 	return;
@@ -175,12 +176,12 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
+void uiODView2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
 {
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
-	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	const TypeSet<DataPackID> ids = vwr.availablePacks();
 	for ( int idx=0; idx<ids.size(); idx++ )
 	    if ( ids[idx]!=vwr.packID(false) && ids[idx]!=vwr.packID(true) )
 		vwr.removePack( ids[idx] );
@@ -189,13 +190,13 @@ void uiODVW2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
     Attrib::SelSpec& selspec = viewer2D()->selSpec( false );
     if ( selspec.isZTransformed() ) return;
 
-    const DataPack::ID dpid = createDataPack( selspec );
+    const DataPackID dpid = createDataPack( selspec );
     if ( dpid != DataPack::cNoID() )
 	viewer2D()->setUpView( dpid, false );
 }
 
 
-void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
+void uiODView2DVariableDensityTreeItem::displayMiniCtab(
 						const ColTab::Sequence* seq )
 {
     if ( !seq )
@@ -208,22 +209,22 @@ void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
 }
 
 
-bool uiODVW2DVariableDensityTreeItem::showSubMenu()
+bool uiODView2DVariableDensityTreeItem::showSubMenu()
 {
     if ( !menu_ )
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
 	menu_->ref();
 	mAttachCB( menu_->createnotifier,
-		   uiODVW2DVariableDensityTreeItem::createMenuCB );
+		   uiODView2DVariableDensityTreeItem::createMenuCB );
 	mAttachCB( menu_->handlenotifier,
-		   uiODVW2DVariableDensityTreeItem::handleMenuCB );
+		   uiODView2DVariableDensityTreeItem::handleMenuCB );
     }
     return menu_->executeMenu(uiMenuHandler::fromTree());
 }
 
 
-void uiODVW2DVariableDensityTreeItem::createMenuCB( CallBacker* cb )
+void uiODView2DVariableDensityTreeItem::createMenuCB( CallBacker* cb )
 {
     selattrmnuitem_.removeItems();
     createSelMenu( selattrmnuitem_ );
@@ -234,7 +235,7 @@ void uiODVW2DVariableDensityTreeItem::createMenuCB( CallBacker* cb )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::handleMenuCB( CallBacker* cb )
+void uiODView2DVariableDensityTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
@@ -246,7 +247,7 @@ void uiODVW2DVariableDensityTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
+void uiODView2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
@@ -275,7 +276,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 }
 
 
-bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
+bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 {
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
@@ -294,7 +295,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     if ( !stored && !attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	return false;
 
-    const DataPack::ID dpid =
+    const DataPackID dpid =
 	createDataPack( selas, attrbnm.buf(), steering, stored );
     if ( dpid == DataPack::cNoID() ) return false;
 
@@ -322,7 +323,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 }
 
 
-DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
+DataPackID uiODView2DVariableDensityTreeItem::createDataPack(
 			Attrib::SelSpec& selas, const BufferString& attrbnm,
 			const bool steering, const bool stored )
 {
@@ -348,8 +349,8 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
 	    selas.set( attrbnm, attribid, false, 0 );
 	    selas.set2DFlag();
 
-	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
-								       true );
+	    const Attrib::DescSet* ds =
+			Attrib::DSHolder().getDescSet( true, true );
 	    if ( !ds ) return DataPack::cNoID();
 
 	    selas.setRefFromID( *ds );
@@ -367,7 +368,7 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
     }
     else if ( randfdp )
     {
-	const DataPack::ID dpid =
+	const DataPackID dpid =
 	    attrserv->createRdmTrcsOutput( randfdp->zRange(),
 					   randfdp->getRandomLineID() );
 	return viewer2D()->createFlatDataPack( dpid, 0 );
@@ -377,8 +378,8 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
 }
 
 
-uiTreeItem* uiODVW2DVariableDensityTreeItemFactory::createForVis(
-					const uiODViewer2D&,int id )const
+uiTreeItem* uiODView2DVariableDensityTreeItemFactory::createForVis(
+					const uiODViewer2D&, Vis2DID) const
 {
-    return 0;
+    return nullptr;
 }

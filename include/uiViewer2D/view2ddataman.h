@@ -34,13 +34,13 @@ public:
     void			removeAll();
 
     void			getObjects(ObjectSet<DataObject>&) const;
-    void			getObjectIDs(TypeSet<int>&) const;
+    void			getObjectIDs(TypeSet<Vis2DID>&) const;
 
-    const DataObject*		getObject(int id) const;
-    DataObject*			getObject(int id);
+    const DataObject*		getObject(Vis2DID) const;
+    DataObject*			getObject(Vis2DID);
 
     void			setSelected(DataObject*);
-    int				selectedID()	{ return selectedid_; }
+    Vis2DID			selectedID()	{ return selectedid_; }
 
     void			usePar(const IOPar&,uiFlatViewWin*,
 				    const ObjectSet<uiFlatViewAuxDataEditor>&);
@@ -50,15 +50,15 @@ public:
 		    const ObjectSet<uiFlatViewAuxDataEditor>&,factory);
 
     Notifier<DataManager>	addRemove;
-    CNotifier<DataManager,int> dataObjAdded;
-    CNotifier<DataManager,int> dataObjToBeRemoved;
+    CNotifier<DataManager,Vis2DID> dataObjAdded;
+    CNotifier<DataManager,Vis2DID> dataObjToBeRemoved;
 
 protected:
 
-    void			deSelect(int id);
+    void			deSelect(Vis2DID);
 
     ObjectSet<DataObject>	objects_;
-    int				selectedid_;
+    Vis2DID			selectedid_;
     int				freeid_;
 
     static const char*		sKeyNrObjects()	{ return "Nr objects"; }

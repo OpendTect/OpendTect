@@ -187,8 +187,8 @@ public:
     float			offsetRangeStep() const;
 
     TrcKey			getTrcKeyByIdx(int idx) const;
-    DataPack::ID		getGatherIDByIdx(int idx) const;
-    DataPack::ID		getGatherID(const BinID&) const;
+    DataPackID		getGatherIDByIdx(int idx) const;
+    DataPackID		getGatherID(const BinID&) const;
 
     const Array3D<float>&	data() const		{ return arr3d_; }
 

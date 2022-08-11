@@ -317,7 +317,7 @@ void RegularSeisDataPack::dumpInfo( IOPar& par ) const
 }
 
 
-DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
+DataPackID RegularSeisDataPack::createDataPackForZSlice(
 						const BinIDValueSet* bivset,
 						const TrcKeyZSampling& tkzs,
 						const ZDomain::Info& zinfo,
@@ -442,14 +442,14 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 }
 
 
-DataPack::ID RandomSeisDataPack::createDataPackFrom(
+DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					RandomLineID rdmlineid,
 					const Interval<float>& zrange )
 { return createDataPackFrom( regsdp, rdmlineid, zrange, 0 ); }
 
 
-DataPack::ID RandomSeisDataPack::createDataPackFrom(
+DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					RandomLineID rdmlineid,
 					const Interval<float>& zrange,
@@ -518,14 +518,14 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 }
 
 
-DataPack::ID RandomSeisDataPack::createDataPackFrom(
+DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					const TrcKeyPath& path,
 					const Interval<float>& zrange )
 { return createDataPackFrom( regsdp, path, zrange, 0 ); }
 
 
-DataPack::ID RandomSeisDataPack::createDataPackFrom(
+DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					const TrcKeyPath& path,
 					const Interval<float>& zrange,
@@ -607,7 +607,7 @@ TrcKey SeisFlatDataPack::getTrcKey( int trcidx ) const
 }
 
 
-DataPack::ID SeisFlatDataPack::getSourceID() const
+DataPackID SeisFlatDataPack::getSourceID() const
 {
     return source_->id();
 }

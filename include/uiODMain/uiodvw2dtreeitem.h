@@ -25,11 +25,11 @@ class ZAxisTransform;
 namespace Attrib { class SelSpec; }
 
 
-mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
-{ mODTextTranslationClass(uiODVw2DTreeItem)
+mExpClass(uiODMain) uiODView2DTreeItem : public uiTreeItem
+{ mODTextTranslationClass(uiODView2DTreeItem)
 public:
-			uiODVw2DTreeItem(const uiString&);
-			~uiODVw2DTreeItem();
+			uiODView2DTreeItem(const uiString&);
+			~uiODView2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);
 
@@ -39,9 +39,9 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static bool		create(uiTreeItem*,int vwrvisid,int displayid);
-    static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
-    const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
+    static bool		create(uiTreeItem*,VisID,Vis2DID);
+    static bool		create(uiTreeItem*,const uiODViewer2D&,Vis2DID);
+    const uiODView2DTreeItem* getView2DItem(Vis2DID) const;
     void		addKeyBoardEvent(const EM::ObjectID&);
 
 protected:
@@ -50,7 +50,7 @@ protected:
     virtual const char*	iconName() const		{ return 0; }
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
-    int			displayid_;
+    Vis2DID		displayid_;
     EM::ObjectID	emobjid_;
     ZAxisTransform*	datatransform_;
 
@@ -85,21 +85,20 @@ private:
 };
 
 
-mExpClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
+mExpClass(uiODMain) uiODView2DTreeItemFactory : public uiTreeItemFactory
 {
 public:
-    virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
-			{ return 0; }
+    virtual uiTreeItem* createForVis(const uiODViewer2D&,Vis2DID) const = 0;
 };
 
 
 
-mExpClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
+mExpClass(uiODMain) uiODView2DTreeTop : public uiTreeTopItem
 {
 public:
-				uiODVw2DTreeTop(uiTreeView*,uiODApplMgr*,
+				uiODView2DTreeTop(uiTreeView*,uiODApplMgr*,
 					uiODViewer2D*,uiTreeFactorySet*);
-				~uiODVw2DTreeTop();
+				~uiODView2DTreeTop();
 
     static const char*		viewer2dptr();
     static const char*		applmgrstr();
@@ -108,7 +107,7 @@ public:
 
     void			updSampling(const TrcKeyZSampling&,bool);
     void			updSelSpec(const Attrib::SelSpec*,bool wva);
-    const uiODVw2DTreeItem*	getVW2DItem(int displayid) const;
+    const uiODView2DTreeItem*	getView2DItem(Vis2DID) const;
 
 protected:
 

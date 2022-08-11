@@ -322,7 +322,7 @@ bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
 }
 
 
-DataPack::ID PreLoadDataEntry::dpID() const
+DataPackID PreLoadDataEntry::dpID() const
 {
     return dp_ ? dp_->id() : DataPack::cNoID();
 }
@@ -384,7 +384,7 @@ void PreLoadDataManager::remove( const MultiID& mid, Pos::GeomID geomid )
 }
 
 
-void PreLoadDataManager::remove( const DataPack::ID& dpid )
+void PreLoadDataManager::remove( const DataPackID& dpid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
@@ -405,7 +405,7 @@ void PreLoadDataManager::surveyChangeCB( CallBacker* )
 }
 
 
-ConstRefMan<DataPack> PreLoadDataManager::getDP( DataPack::ID dpid ) const
+ConstRefMan<DataPack> PreLoadDataManager::getDP( DataPackID dpid ) const
 {
     for ( const auto* entry : entries_ )
 	if ( entry->dpID() == dpid )

@@ -64,7 +64,7 @@ bool Processor::wantsInput( const BinID& bid ) const
     return outputinterest_[offset];
 }
 
-void Processor::setInput( const BinID& relbid, DataPack::ID id )
+void Processor::setInput( const BinID& relbid, DataPackID id )
 {
     auto input = DPM(DataPackMgr::FlatID()).get<Gather>( id );
 
@@ -110,7 +110,7 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 }
 
 
-DataPack::ID Processor::getOutput( const BinID& relbid ) const
+DataPackID Processor::getOutput( const BinID& relbid ) const
 {
     const Gather* res = outputs_[getRelBidOffset(relbid,outputstepout_)];
     return res ? res->id() : DataPack::cNoID();
@@ -238,7 +238,7 @@ bool ProcessManager::wantsInput( const BinID& relbid ) const
 }
 
 
-void ProcessManager::setInput( const BinID& relbid, DataPack::ID id )
+void ProcessManager::setInput( const BinID& relbid, DataPackID id )
 {
     if ( processors_.size() )
 	processors_[0]->setInput( relbid, id );
@@ -296,7 +296,7 @@ bool ProcessManager::process()
 }
 
 
-DataPack::ID ProcessManager::getOutput() const
+DataPackID ProcessManager::getOutput() const
 {
     return processors_.size()
 	? processors_[processors_.size()-1]->getOutput(BinID(0,0))

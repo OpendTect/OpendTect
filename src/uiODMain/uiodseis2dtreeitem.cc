@@ -791,7 +791,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
     const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
     const TypeSet<Attrib::SelSpec>& as = *s2d->getSelSpecs( attribnr );
 
-    DataPack::ID dpid = DataPack::cNoID();
+    DataPackID dpid = DataPack::cNoID();
     if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
@@ -1140,7 +1140,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	DPM( DataPackMgr::SeisID() ).add( rsdp );
     }
 
-    const DataPack::ID dpid = rsdp ? rsdp->id() : DataPack::cNoID();
+    const DataPackID dpid = rsdp ? rsdp->id() : DataPack::cNoID();
     if ( dpid == DataPack::cNoID() )
 	return false;
 
@@ -1170,7 +1170,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 	return;
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
-    const DataPack::ID dpid = applMgr()->attrServer()->createOutput(
+    const DataPackID dpid = applMgr()->attrServer()->createOutput(
 						s2d->getTrcKeyZSampling(false),
 							    DataPack::cNoID() );
     if ( dpid == DataPack::cNoID() )

@@ -70,7 +70,7 @@ public:
 
     bool		setTargetSelSpec(const Attrib::SelSpec&) override;
 
-    DataPack::ID	createAttrib(const TrcKeyZSampling&,DataPack::ID,
+    DataPackID	createAttrib(const TrcKeyZSampling&,DataPackID,
 				     TaskRunner*) override;
     bool		createAttrib( ObjectSet<BinIDValueSet>& o,
 				      TaskRunner* trans ) override
@@ -79,7 +79,7 @@ public:
 				      TaskRunner* trans ) override
 			{ return Attrib::ExtAttribCalc::createAttrib(b,
 								tb,trans); }
-    DataPack::ID	createAttrib(const TrcKeyZSampling&,
+    DataPackID	createAttrib(const TrcKeyZSampling&,
 				      const LineKey&,TaskRunner*) override;
 
 protected:

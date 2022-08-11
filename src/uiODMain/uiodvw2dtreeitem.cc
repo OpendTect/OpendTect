@@ -37,36 +37,36 @@ ________________________________________________________________________
 #define mRemoveIdx	10
 #define mRemoveInAllIdx	11
 
-const char* uiODVw2DTreeTop::viewer2dptr()		{ return "Viewer2D"; }
-const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
+const char* uiODView2DTreeTop::viewer2dptr()		{ return "Viewer2D"; }
+const char* uiODView2DTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
-uiODVw2DTreeTop::uiODVw2DTreeTop( uiTreeView* lv, uiODApplMgr* am,
+uiODView2DTreeTop::uiODView2DTreeTop( uiTreeView* lv, uiODApplMgr* am,
 				  uiODViewer2D* vw2d, uiTreeFactorySet* tfs )
     : uiTreeTopItem( lv, true )
     , tfs_( tfs )
 {
     setPropertyPtr( applmgrstr(), am );
     setPropertyPtr( viewer2dptr(), vw2d );
-    mAttachCB( tfs_->addnotifier, uiODVw2DTreeTop::addFactoryCB );
-    mAttachCB( tfs_->removenotifier, uiODVw2DTreeTop::addFactoryCB );
+    mAttachCB( tfs_->addnotifier, uiODView2DTreeTop::addFactoryCB );
+    mAttachCB( tfs_->removenotifier, uiODView2DTreeTop::addFactoryCB );
 }
 
 
-uiODVw2DTreeTop::~uiODVw2DTreeTop()
+uiODView2DTreeTop::~uiODView2DTreeTop()
 {
     detachAllNotifiers();
 }
 
 
-bool uiODVw2DTreeTop::selectWithKey( int selkey )
+bool uiODView2DTreeTop::selectWithKey( int selkey )
 {
     //TODO send object manager signal about selection
     return true;
 }
 
 
-uiODApplMgr* uiODVw2DTreeTop::applMgr()
+uiODApplMgr* uiODView2DTreeTop::applMgr()
 {
     void* res = 0;
     getPropertyPtr( applmgrstr(), res );
@@ -74,7 +74,7 @@ uiODApplMgr* uiODVw2DTreeTop::applMgr()
 }
 
 
-uiODViewer2D* uiODVw2DTreeTop::viewer2D()
+uiODViewer2D* uiODView2DTreeTop::viewer2D()
 {
     void* res = 0;
     getPropertyPtr( viewer2dptr(), res );
@@ -82,11 +82,11 @@ uiODViewer2D* uiODVw2DTreeTop::viewer2D()
 }
 
 
-bool uiODVw2DTreeTop::setZAxisTransform( ZAxisTransform* zat )
+bool uiODView2DTreeTop::setZAxisTransform( ZAxisTransform* zat )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
+	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
 	itm->setZAxisTransform( zat );
     }
 
@@ -94,27 +94,27 @@ bool uiODVw2DTreeTop::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void uiODVw2DTreeTop::updSampling( const TrcKeyZSampling& cs, bool update )
+void uiODView2DTreeTop::updSampling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
+	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
 	if ( itm ) itm->updSampling( cs, update );
     }
 }
 
 
-void uiODVw2DTreeTop::updSelSpec( const Attrib::SelSpec* selspec, bool wva )
+void uiODView2DTreeTop::updSelSpec( const Attrib::SelSpec* selspec, bool wva )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
+	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
 	if ( itm ) itm->updSelSpec( selspec, wva );
     }
 }
 
 
-void uiODVw2DTreeTop::addFactoryCB( CallBacker* cb )
+void uiODView2DTreeTop::addFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,factidx,cb);
     const int newplaceidx = tfs_->getPlacementIdx( factidx );
@@ -145,7 +145,7 @@ void uiODVw2DTreeTop::addFactoryCB( CallBacker* cb )
 }
 
 
-void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
+void uiODView2DTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs_->getFactory(idx)->create();
@@ -159,15 +159,14 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 #define mHideAllItemsMenuID 102
 #define mRemoveAllItemsMenuID 103
 
-uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
+uiODView2DTreeItem::uiODView2DTreeItem( const uiString& nm )
     : uiTreeItem( nm )
-    , displayid_(-1)
     , datatransform_(0)
 {
 }
 
 
-uiODVw2DTreeItem::~uiODVw2DTreeItem()
+uiODView2DTreeItem::~uiODView2DTreeItem()
 {
     detachAllNotifiers();
     if ( datatransform_ )
@@ -175,7 +174,7 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
 }
 
 
-bool uiODVw2DTreeItem::init()
+bool uiODView2DTreeItem::init()
 {
     const char* iconnm = iconName();
     if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
@@ -184,13 +183,13 @@ bool uiODVw2DTreeItem::init()
 }
 
 
-void uiODVw2DTreeItem::addKeyBoardEvent( const EM::ObjectID& emid )
+void uiODView2DTreeItem::addKeyBoardEvent( const EM::ObjectID& emid )
 {
     for(int ivwr = 0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++)
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
 	mAttachCB(vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
-	    uiODVw2DTreeItem::keyPressedCB);
+	    uiODView2DTreeItem::keyPressedCB);
     }
 
     if ( emid.isValid() )
@@ -198,7 +197,7 @@ void uiODVw2DTreeItem::addKeyBoardEvent( const EM::ObjectID& emid )
 }
 
 
-void uiODVw2DTreeItem::keyPressedCB( CallBacker* cb )
+void uiODView2DTreeItem::keyPressedCB( CallBacker* cb )
 {
     if ( !uitreeviewitem_->isSelected() )
 	return;
@@ -214,12 +213,12 @@ void uiODVw2DTreeItem::keyPressedCB( CallBacker* cb )
 }
 
 
-bool uiODVw2DTreeItem::setZAxisTransform( ZAxisTransform* zat )
+bool uiODView2DTreeItem::setZAxisTransform( ZAxisTransform* zat )
 {
     if ( datatransform_ )
     {
 	mDetachCB( datatransform_->changeNotifier(),
-		   uiODVw2DTreeItem::dataTransformCB );
+		   uiODView2DTreeItem::dataTransformCB );
 	datatransform_->unRef();
     }
 
@@ -228,14 +227,14 @@ bool uiODVw2DTreeItem::setZAxisTransform( ZAxisTransform* zat )
     {
 	datatransform_->ref();
 	mAttachCB( datatransform_->changeNotifier(),
-		   uiODVw2DTreeItem::dataTransformCB );
+		   uiODView2DTreeItem::dataTransformCB );
     }
 
     return true;
 }
 
 
-void uiODVw2DTreeItem::insertStdSubMenu( uiMenu& menu )
+void uiODView2DTreeItem::insertStdSubMenu( uiMenu& menu )
 {
     if ( children_.size() > 1 )
     {
@@ -250,7 +249,7 @@ void uiODVw2DTreeItem::insertStdSubMenu( uiMenu& menu )
 }
 
 
-bool uiODVw2DTreeItem::handleStdSubMenu( int menuid )
+bool uiODView2DTreeItem::handleStdSubMenu( int menuid )
 {
     if ( menuid == mShowAllItemsMenuID )
 	showAllChildren();
@@ -262,7 +261,7 @@ bool uiODVw2DTreeItem::handleStdSubMenu( int menuid )
 }
 
 
-void uiODVw2DTreeItem::addAction( uiMenu& mnu, uiString txt, int id,
+void uiODView2DTreeItem::addAction( uiMenu& mnu, uiString txt, int id,
 				  const char* icon, bool enab )
 {
     uiAction* action = new uiAction( txt );
@@ -272,7 +271,7 @@ void uiODVw2DTreeItem::addAction( uiMenu& mnu, uiString txt, int id,
 }
 
 
-uiMenu* uiODVw2DTreeItem::createAddMenu()
+uiMenu* uiODView2DTreeItem::createAddMenu()
 {
     uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
     addAction( *addmenu, m3Dots(tr("Only in this 2D Viewer")), mAddIdx );
@@ -283,13 +282,13 @@ uiMenu* uiODVw2DTreeItem::createAddMenu()
 }
 
 
-bool uiODVw2DTreeItem::isAddItem( int id, bool addall ) const
+bool uiODView2DTreeItem::isAddItem( int id, bool addall ) const
 {
     return addall ? id==mAddInAllIdx : id==mAddIdx;
 }
 
 
-uiMenu* uiODVw2DTreeItem::createRemoveMenu()
+uiMenu* uiODView2DTreeItem::createRemoveMenu()
 {
     uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
     addAction( *removemenu, m3Dots(tr("Only from this 2D Viewer")), mRemoveIdx);
@@ -300,21 +299,21 @@ uiMenu* uiODVw2DTreeItem::createRemoveMenu()
 }
 
 
-bool uiODVw2DTreeItem::isRemoveItem( int id, bool removeall ) const
+bool uiODView2DTreeItem::isRemoveItem( int id, bool removeall ) const
 {
     return removeall ? id==mRemoveInAllIdx : id==mRemoveIdx;
 }
 
 
-int uiODVw2DTreeItem::getNewItemID() const
+int uiODView2DTreeItem::getNewItemID() const
 { return mAddInAllIdx+1; }
 
 
-void uiODVw2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
+void uiODView2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
+	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
 	if ( itm ) itm->updSampling( cs, update );
     }
 
@@ -322,11 +321,11 @@ void uiODVw2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
 }
 
 
-void uiODVw2DTreeItem::updSelSpec(const Attrib::SelSpec* selspec, bool wva )
+void uiODView2DTreeItem::updSelSpec(const Attrib::SelSpec* selspec, bool wva )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
+	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
 	if ( itm ) itm->updSelSpec( selspec, wva );
     }
 
@@ -334,21 +333,21 @@ void uiODVw2DTreeItem::updSelSpec(const Attrib::SelSpec* selspec, bool wva )
 }
 
 
-void uiODVw2DTreeItem::showAllChildren()
+void uiODView2DTreeItem::showAllChildren()
 {
     for ( int idx=children_.size()-1; idx>=0; idx-- )
 	children_[idx]->setChecked( true, true );
 }
 
 
-void uiODVw2DTreeItem::hideAllChildren()
+void uiODView2DTreeItem::hideAllChildren()
 {
     for ( int idx=children_.size()-1; idx>=0; idx-- )
 	children_[idx]->setChecked( false, true );
 }
 
 
-void uiODVw2DTreeItem::removeAllChildren()
+void uiODView2DTreeItem::removeAllChildren()
 {
     const uiString msg = tr("All %1 items will be removed from the tree."
 			    "\n\nDo you want to continue?").arg(name());
@@ -359,33 +358,35 @@ void uiODVw2DTreeItem::removeAllChildren()
 }
 
 
-uiODApplMgr* uiODVw2DTreeItem::applMgr()
+uiODApplMgr* uiODView2DTreeItem::applMgr()
 {
     void* res = 0;
-    getPropertyPtr( uiODVw2DTreeTop::applmgrstr(), res );
+    getPropertyPtr( uiODView2DTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
 
 
-uiODViewer2D* uiODVw2DTreeItem::viewer2D()
+uiODViewer2D* uiODView2DTreeItem::viewer2D()
 {
     void* res = 0;
-    getPropertyPtr( uiODVw2DTreeTop::viewer2dptr(), res );
+    getPropertyPtr( uiODView2DTreeTop::viewer2dptr(), res );
     return reinterpret_cast<uiODViewer2D*>( res );
 }
 
 
-bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int visid, int displayid )
+bool uiODView2DTreeItem::create( uiTreeItem* treeitem, VisID visid,
+				Vis2DID vis2did )
 {
-    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer(visid,true);
+    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer( visid );
     if ( !vwr2d ) return false;
 
-    return create( treeitem, *vwr2d, displayid );
+    return create( treeitem, *vwr2d, vis2did );
 }
 
 
-bool uiODVw2DTreeItem::create(
-		uiTreeItem* treeitem, const uiODViewer2D& vwr2d, int displayid )
+bool uiODView2DTreeItem::create( uiTreeItem* treeitem,
+				const uiODViewer2D& vwr2d,
+				Vis2DID vis2did )
 {
     const uiTreeFactorySet* tfs = vwr2d.uiTreeItemFactorySet();
     if ( !tfs )
@@ -393,11 +394,11 @@ bool uiODVw2DTreeItem::create(
 
     for ( int idx=0; idx<tfs->nrFactories(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DTreeItemFactory*,itmcreater,
+	mDynamicCastGet(const uiODView2DTreeItemFactory*,itmcreater,
 			tfs->getFactory(idx))
 	if ( !itmcreater ) continue;
 
-	uiTreeItem* res = itmcreater->createForVis( vwr2d, displayid );
+	uiTreeItem* res = itmcreater->createForVis( vwr2d, vis2did );
 	if ( res )
 	{
 	    if ( treeitem->addChild( res, false ) )
@@ -408,15 +409,15 @@ bool uiODVw2DTreeItem::create(
 }
 
 
-const uiODVw2DTreeItem* uiODVw2DTreeItem::getVW2DItem( int displayid ) const
+const uiODView2DTreeItem* uiODView2DTreeItem::getView2DItem( Vis2DID id ) const
 {
-    if ( displayid_ == displayid )
+    if ( displayid_ == id )
 	return this;
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DTreeItem*,vw2ditem,children_[idx]);
-	const uiODVw2DTreeItem* chliditem = vw2ditem->getVW2DItem( displayid );
+	mDynamicCastGet(const uiODView2DTreeItem*,vw2ditem,children_[idx]);
+	const uiODView2DTreeItem* chliditem = vw2ditem->getView2DItem( id );
 	if ( chliditem )
 	    return chliditem;
     }
@@ -425,26 +426,26 @@ const uiODVw2DTreeItem* uiODVw2DTreeItem::getVW2DItem( int displayid ) const
 }
 
 
-const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
+const uiODView2DTreeItem* uiODView2DTreeTop::getView2DItem( Vis2DID id ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	const uiTreeItem* childitm = getChild( idx );
-	mDynamicCastGet(const uiODVw2DTreeItem*,vw2dtreeitm,childitm)
+	mDynamicCastGet(const uiODView2DTreeItem*,vw2dtreeitm,childitm)
 	if ( !vw2dtreeitm )
 	    continue;
 
-	const uiODVw2DTreeItem* childvw2ditm =
-	    vw2dtreeitm->getVW2DItem( displayid );
+	const uiODView2DTreeItem* childvw2ditm =
+					vw2dtreeitm->getView2DItem( id );
 	if ( childvw2ditm )
 	    return childvw2ditm;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-void uiODVw2DTreeItem::doSave()
+void uiODView2DTreeItem::doSave()
 {
     if ( !emobjid_.isValid() )
 	return;
@@ -463,7 +464,7 @@ void uiODVw2DTreeItem::doSave()
 }
 
 
-void uiODVw2DTreeItem::doSaveAs()
+void uiODView2DTreeItem::doSaveAs()
 {
     if ( !emobjid_.isValid() )
 	return;
@@ -484,7 +485,7 @@ void uiODVw2DTreeItem::doSaveAs()
 }
 
 
-void uiODVw2DTreeItem::doStoreObject( bool saveas )
+void uiODView2DTreeItem::doStoreObject( bool saveas )
 {
     if ( !emobjid_.isValid() )
 	return;
@@ -494,7 +495,7 @@ void uiODVw2DTreeItem::doStoreObject( bool saveas )
 }
 
 
-void uiODVw2DTreeItem::renameVisObj()
+void uiODView2DTreeItem::renameVisObj()
 {
     if ( !emobjid_.isValid() )
 	return;

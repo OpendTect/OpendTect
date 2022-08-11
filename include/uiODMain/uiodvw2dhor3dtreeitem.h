@@ -18,15 +18,15 @@ namespace View2D { class Horizon3D; }
 class uiODViewer2D;
 
 
-mExpClass(uiODMain) uiODVw2DHor3DParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DHor3DParentTreeItem);
+mExpClass(uiODMain) uiODView2DHor3DParentTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DHor3DParentTreeItem);
 public:
-    				uiODVw2DHor3DParentTreeItem();
-				~uiODVw2DHor3DParentTreeItem();
+				uiODView2DHor3DParentTreeItem();
+				~uiODView2DHor3DParentTreeItem();
 
     bool			showSubMenu();
     void			getHor3DVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>& vw2dids) const;
+					TypeSet<Vis2DID>&) const;
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			removeHorizon3D(EM::ObjectID emid);
@@ -39,7 +39,7 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
     void			getNonLoadedTrackedHor3Ds(
 					TypeSet<EM::ObjectID>&);
 public:
@@ -47,23 +47,23 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory
-    : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODView2DHor3DTreeItemFactory
+    : public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-			{ return new uiODVw2DHor3DParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DHor3DParentTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DHor3DTreeItem)
+mExpClass(uiODMain) uiODView2DHor3DTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DHor3DTreeItem)
 public:
-    			uiODVw2DHor3DTreeItem(const EM::ObjectID&);
-    			uiODVw2DHor3DTreeItem(int id,bool dummy);
-			~uiODVw2DHor3DTreeItem();
+			uiODView2DHor3DTreeItem(const EM::ObjectID&);
+			uiODView2DHor3DTreeItem(Vis2DID id,bool dummy);
+			~uiODView2DHor3DTreeItem();
 
     bool			select();
     bool			showSubMenu();
@@ -74,7 +74,7 @@ protected:
 
     bool		init();
     const char*		parentType() const
-    			{ return typeid(uiODVw2DHor3DParentTreeItem).name(); }
+			{ return typeid(uiODView2DHor3DParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
 

@@ -284,7 +284,7 @@ void PSAttrib::setSmootheningPar()
 }
 
 
-void PSAttrib::setAngleData( DataPack::ID angledpid )
+void PSAttrib::setAngleData( DataPackID angledpid )
 {
     anglegsdpid_ = angledpid;
 }
@@ -360,8 +360,8 @@ static bool getTrcKey( const SeisPSReader& rdr, const BinID& bid, TrcKey& tk  )
 }
 
 
-bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
-			      DataPack::ID& curanglegatherid )
+bool PSAttrib::getGatherData( const BinID& bid, DataPackID& curgatherid,
+			      DataPackID& curanglegatherid )
 {
     if ( !gatherset_.isEmpty() )
     {
@@ -412,14 +412,14 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 }
 
 
-DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
+DataPackID PSAttrib::getPreProcessedID( const BinID& relpos )
 {
     if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
-    TypeSet<DataPack::ID> gatheridstoberemoved;
+    TypeSet<DataPackID> gatheridstoberemoved;
     const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
@@ -463,7 +463,7 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
     if ( !preprocessor_->process() )
     {
 	errmsg_ = preprocessor_->errMsg();
-	return DataPack::ID::udf();
+	return DataPackID::udf();
     }
 
     return preprocessor_->getOutput();
@@ -476,8 +476,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	return false;
 
     const BinID bid = currentbid_+relpos;
-    DataPack::ID curgatherid = DataPack::ID::udf();
-    DataPack::ID curanglegatherid = DataPack::ID::udf();
+    DataPackID curgatherid = DataPackID::udf();
+    DataPackID curanglegatherid = DataPackID::udf();
     if ( !getGatherData(bid,curgatherid,curanglegatherid) )
 	return false;
 
@@ -504,7 +504,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	const DataPack::FullID fid( psid_ );
 	const DataPack::MgrID mgrid = fid.mgrID();
-	const DataPack::ID presdid = fid.packID();
+	const DataPackID presdid = fid.packID();
 	ConstRefMan<PreStack::GatherSetDataPack> presd =
 		     DPM( mgrid ).get<PreStack::GatherSetDataPack>( presdid );
 	if ( !presd )

@@ -71,7 +71,7 @@ public:
     class VwrDataPack
     {
     public:
-			VwrDataPack( DataPack::ID dpid, int lmsidx,
+			VwrDataPack( DataPackID dpid, int lmsidx,
 				     const Strat::LevelID flatlvlid,
 				     int offsidx )
 			    : dpid_(dpid)
@@ -88,14 +88,14 @@ public:
 				 offsidx_ == oth.offsidx_;
 			}
 
-	DataPack::ID	id() const		{ return dpid_; }
+	DataPackID	id() const		{ return dpid_; }
 	int		curLayerModelIdx() const { return lmsidx_; }
 	Strat::LevelID levelID() const	{ return flatlvlid_; }
 	int		getOffsIdx() const	{ return offsidx_; }
 
     private:
 
-	const DataPack::ID dpid_;
+	const DataPackID dpid_;
 	const int	lmsidx_;
 	const Strat::LevelID flatlvlid_;
 	const int	offsidx_;
@@ -157,7 +157,7 @@ SynthSpecificPars& operator =( const SynthSpecificPars& oth )
 ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::LevelID flatlvlid,
 			  int offsidx ) const
 {
-    DataPack::ID dpid = DataPack::ID::udf();
+    DataPackID dpid = DataPackID::udf();
     for ( const auto* dpobj : dpobjs_ )
     {
 	if ( lmsidx == dpobj->curLayerModelIdx() &&
@@ -168,14 +168,14 @@ ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::LevelID flatlvlid,
 	}
     }
 
-    if ( dpid == DataPack::ID::udf() )
+    if ( dpid == DataPackID::udf() )
 	return nullptr;
 
     return DPM( DataPackMgr::FlatID() ).get<FlatDataPack>( dpid );
 }
 
 
-void addIfNew( DataPack::ID dpid, int lmsidx, const Strat::LevelID flatlvlid,
+void addIfNew( DataPackID dpid, int lmsidx, const Strat::LevelID flatlvlid,
 	       int offsidx )
 {
     PtrMan<VwrDataPack> newobj = new VwrDataPack( dpid, lmsidx,
@@ -469,7 +469,7 @@ ConstRefMan<FlatDataPack> find( SynthID sid, int lmsidx,
     return ent->find( lmsidx, flatlvlid, offsidx );
 }
 
-void addIfNew( SynthID sid, DataPack::ID dpid, int lmsidx,
+void addIfNew( SynthID sid, DataPackID dpid, int lmsidx,
 	       const Strat::LevelID flatlvlid, int offsidx )
 {
     SynthSpecificPars* ent = getByID( sid );
@@ -642,7 +642,7 @@ const char* seqName() const
 }
 
 
-DataPack::ID packID() const
+DataPackID packID() const
 {
     return datapackid_;
 }
@@ -661,7 +661,7 @@ bool canDoWiggle() const
 }
 
     Notifier<uiStratSynthDispDSSel> selChange;
-    DataPack::ID datapackid_ = DataPack::ID::udf();
+    DataPackID datapackid_ = DataPackID::udf();
 
 private:
 
@@ -999,7 +999,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 	}
     }
 
-    const DataPack::ID newpackid = pack2use ? pack2use->id()
+    const DataPackID newpackid = pack2use ? pack2use->id()
 					    : DataPack::cNoID();
     if ( selfld.packID() == newpackid )
     {
@@ -1601,7 +1601,7 @@ void uiStratSynthDisp::synthRenamedCB( CallBacker* cb )
 	DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
 	for ( const auto* dpobj : disppars->dpobjs_ )
 	{
-	    const DataPack::ID dpid = dpobj->id();
+	    const DataPackID dpid = dpobj->id();
 	    if ( !dpm.isPresent(dpid) )
 		continue;
 
@@ -1879,8 +1879,8 @@ uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
     vwr->setInitialSize( initialsz_ );
     vwr->setStretch( 2, 2 );
     vwr->appearance() = vwr_->appearance();
-    const DataPack::ID wvaid = vwr_->packID(true);
-    const DataPack::ID vdid = vwr_->packID(false);
+    const DataPackID wvaid = vwr_->packID(true);
+    const DataPackID vdid = vwr_->packID(false);
     if ( wvaid == vdid )
 	vwr->setPack( FlatView::Viewer::Both, vwr_->packID(true), false );
     else

@@ -27,8 +27,8 @@ public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
 
-    int				id() const		{ return id_; }
-    void			setID(int nid)		{ id_ = nid; }
+    Vis2DID			id() const		{ return id_; }
+    void			setID( Vis2DID id )	{ id_ = id; }
 
     virtual NotifierAccess*	deSelection()		{ return 0; }
 
@@ -43,7 +43,7 @@ protected:
 
     virtual void		triggerDeSel()			{}
 
-    int				id_;
+    Vis2DID			id_;
 
     friend class		DataManager;
 };

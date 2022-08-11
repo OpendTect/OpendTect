@@ -63,7 +63,7 @@ public:
     VisID			getEMVisID() const { return emvisids_; }
 				// avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
-    DataPack::ID		getObjDataPackID() const;
+    DataPackID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
@@ -86,7 +86,7 @@ protected:
     void			setEMVisID(VisID);
     void			setObjID(VisID);
     void			setObjCS(const TrcKeyZSampling&);
-    void			setObjDataPackID(DataPack::ID);
+    void			setObjDataPackID(DataPackID);
     void			setObjData(const RegularSeisDataPack*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
 
@@ -116,7 +116,7 @@ protected:
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID				geomid_;
     BufferString			linename_;
-    DataPack::ID			datapackid_;
+    DataPackID			datapackid_;
 
     void			setObjTKPath(const TrcKeyPath*);
     void			setObjRandomLineID(RandomLineID);

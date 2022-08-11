@@ -115,7 +115,7 @@ void uiStatsDisplay::setDataName( const char* nm )
 
 
 bool uiStatsDisplay::setDataPackID(
-	DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
+	DataPackID dpid, DataPackMgr::MgrID dmid, int version )
 {
     if ( !histgramdisp_ || (histgramdisp_ &&
 		!histgramdisp_->setDataPackID(dpid,dmid,version)) )

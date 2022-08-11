@@ -196,9 +196,9 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPack::ID
+DataPackID
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
-					DataPack::ID dpid,
+					DataPackID dpid,
 					TaskRunner* taskrunner )
 {
     if ( !chain_ || !chain_->nrSteps() )
@@ -237,11 +237,11 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 }
 
 
-DataPack::ID
+DataPackID
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 					const LineKey& lk, TaskRunner* taskr )
 {
-    return createAttrib( tkzs, DataPack::ID(-1), taskr );
+    return createAttrib( tkzs, DataPackID(-1), taskr );
 }
 
 } // namespace VolProc

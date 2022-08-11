@@ -181,16 +181,16 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
 }
 
 
-DataPack::ID PreStackDisplay::preProcess()
+DataPackID PreStackDisplay::preProcess()
 {
     if ( !ioobj_ || !reader_ )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     if ( !preprocmgr_.nrProcessors() || !preprocmgr_.reset() )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     if ( !preprocmgr_.prepareWork() )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     const BinID stepout = preprocmgr_.getInputStepout();
 
@@ -227,7 +227,7 @@ DataPack::ID PreStackDisplay::preProcess()
     }
 
     if ( !preprocmgr_.process() )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     return preprocmgr_.getOutput();
 }
@@ -309,7 +309,7 @@ bool PreStackDisplay::updateData()
     const bool haddata = flatviewer_->hasPack( false );
     RefMan<PreStack::Gather> gather = new PreStack::Gather;
 
-    DataPack::ID displayid = DataPack::cNoID();
+    DataPackID displayid = DataPack::cNoID();
     if ( preprocmgr_.nrProcessors() )
 	displayid = preProcess();
     else
@@ -694,7 +694,7 @@ const visSurvey::Seis2DDisplay* PreStackDisplay::getSeis2DDisplay() const
 { return seis2d_; }
 
 
-DataPack::ID PreStackDisplay::getDataPackID(int) const
+DataPackID PreStackDisplay::getDataPackID(int) const
 {
     return flatviewer_->packID( false );
 }

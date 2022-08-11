@@ -16,21 +16,21 @@ ________________________________________________________________________
 
 namespace View2D { class Horizon2D; }
 
-mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DHor2DParentTreeItem);
+mExpClass(uiODMain) uiODView2DHor2DParentTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DHor2DParentTreeItem);
 public:
-				uiODVw2DHor2DParentTreeItem();
-				~uiODVw2DHor2DParentTreeItem();
+				uiODView2DHor2DParentTreeItem();
+				~uiODView2DHor2DParentTreeItem();
 
     bool			showSubMenu();
-    void			getHor2DVwr2DIDs(EM::ObjectID emid,
-						 TypeSet<int>& vw2dids ) const;
+    void			getHor2DVwr2DIDs(EM::ObjectID,
+						 TypeSet<Vis2DID>&) const;
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
-    void			removeHorizon2D(EM::ObjectID emid);
+    void			removeHorizon2D(EM::ObjectID);
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID emid);
-    void			setupTrackingHorizon2D(EM::ObjectID emid);
+    void			addNewTrackingHorizon2D(EM::ObjectID);
+    void			setupTrackingHorizon2D(EM::ObjectID);
 
 protected:
 
@@ -38,29 +38,29 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(
 					TypeSet<EM::ObjectID>&);
 };
 
 
 mExpClass(uiODMain)
-uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
+uiODView2DHor2DTreeItemFactory : public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const 	{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODVw2DHor2DParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DHor2DParentTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor2DTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DHor2DTreeItem)
+mExpClass(uiODMain) uiODView2DHor2DTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DHor2DTreeItem)
 public:
-    			uiODVw2DHor2DTreeItem(const EM::ObjectID&);
-    			uiODVw2DHor2DTreeItem(int dispid,bool dummy);
-			~uiODVw2DHor2DTreeItem();
+			uiODView2DHor2DTreeItem(const EM::ObjectID&);
+			uiODView2DHor2DTreeItem(Vis2DID,bool dummy);
+			~uiODView2DHor2DTreeItem();
 
     bool			showSubMenu();
     bool			select();
@@ -71,7 +71,7 @@ protected:
 
     bool		init();
     const char*		parentType() const
-			{ return typeid(uiODVw2DHor2DParentTreeItem).name(); }
+			{ return typeid(uiODView2DHor2DParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
     void		updateSelSpec(const Attrib::SelSpec*,bool wva);

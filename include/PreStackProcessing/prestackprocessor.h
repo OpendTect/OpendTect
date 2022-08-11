@@ -35,12 +35,12 @@ public:
 
     virtual const BinID&	getInputStepout() const;
     virtual bool		wantsInput(const BinID& relbid) const;
-    void			setInput(const BinID& relbid,DataPack::ID);
+    void			setInput(const BinID& relbid,DataPackID);
 
     const BinID&		getOutputStepout() const;
     virtual bool		setOutputInterest(const BinID& relbid,bool);
     bool			getOutputInterest(const BinID& relbid) const;
-    DataPack::ID		getOutput(const BinID& relbid) const;
+    DataPackID		getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
     virtual uiString		errMsg() const
@@ -117,7 +117,7 @@ protected:
 
 	  const BinID inputbid( relbid*BinID(SI().inlStep(),SI().crlStep()) );
 
-	  const DataPack::ID dpid = getDataPackFromSomewhere( inputbid );
+	  const DataPackID dpid = getDataPackFromSomewhere( inputbid );
 	  if ( dpid==DataPack::cNoID() )
 	      return error;
 
@@ -128,7 +128,7 @@ protected:
   if ( !processmanager.process() )
       return error;
 
-  DataPack::ID result = processmanager.getOutput();
+  DataPackID result = processmanager.getOutput();
   \endcode
 */
 
@@ -163,11 +163,11 @@ public:
 				//!<Only after prepareWork
     virtual bool		wantsInput(const BinID& relbid) const;
 				//!<Only after prepareWork
-    void			setInput(const BinID& relbid,DataPack::ID);
+    void			setInput(const BinID& relbid,DataPackID);
 
     bool			process();
 
-    DataPack::ID		getOutput() const;
+    DataPackID		getOutput() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

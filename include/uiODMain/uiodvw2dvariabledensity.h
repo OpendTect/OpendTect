@@ -21,11 +21,12 @@ namespace ColTab { class Sequence; }
 namespace View2D { class Seismic; }
 
 
-mExpClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVW2DVariableDensityTreeItem);
+mExpClass(uiODMain) uiODView2DVariableDensityTreeItem
+				: public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DVariableDensityTreeItem);
 public:
-				uiODVW2DVariableDensityTreeItem();
-				~uiODVW2DVariableDensityTreeItem();
+				uiODView2DVariableDensityTreeItem();
+				~uiODView2DVariableDensityTreeItem();
 
     bool			select();
     bool			showSubMenu();
@@ -37,7 +38,7 @@ protected:
     void			initColTab();
     void			displayMiniCtab(const ColTab::Sequence*);
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
     bool			isSelectable() const	{ return true; }
 
     View2D::Seismic*		dummyview_;
@@ -48,7 +49,7 @@ protected:
     void			createSelMenu(MenuItem&);
     bool    			handleSelMenu(int mnuid);
 
-    DataPack::ID		createDataPack(Attrib::SelSpec&,
+    DataPackID			createDataPack(Attrib::SelSpec&,
 					       const BufferString& attribnm="",
 					       const bool steering=false,
 					       const bool stored=false);
@@ -63,12 +64,12 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory
-				: public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODView2DVariableDensityTreeItemFactory
+				: public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-			{ return new uiODVW2DVariableDensityTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DVariableDensityTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
 };

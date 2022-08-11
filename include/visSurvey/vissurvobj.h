@@ -275,13 +275,13 @@ public:
     virtual void		getObjectInfo(BufferString&) const	{}
 
 				// Data via DataPacks
-    virtual bool		setDataPackID(int attrib,DataPack::ID,
+    virtual bool		setDataPackID(int attrib,DataPackID,
 					      TaskRunner*)
 				{ return false; }
-    virtual DataPack::ID	getDataPackID(int attrib) const
-				{ return DataPack::ID::udf(); }
-    virtual DataPack::ID	getDisplayedDataPackID(int attrib) const
-				{ return DataPack::ID::udf(); }
+    virtual DataPackID	getDataPackID(int attrib) const
+				{ return DataPackID::udf(); }
+    virtual DataPackID	getDisplayedDataPackID(int attrib) const
+				{ return DataPackID::udf(); }
     virtual DataPackMgr::MgrID	getDataPackMgrID() const
 				{ return DataPack::MgrID::udf(); }
 

@@ -20,11 +20,11 @@ class uiMenuHandler;
 namespace View2D { class Seismic; }
 
 
-mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVW2DWiggleVarAreaTreeItem);
+mExpClass(uiODMain) uiODView2DWiggleVarAreaTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DWiggleVarAreaTreeItem);
 public:
-    				uiODVW2DWiggleVarAreaTreeItem();
-				~uiODVW2DWiggleVarAreaTreeItem();
+				uiODView2DWiggleVarAreaTreeItem();
+				~uiODView2DWiggleVarAreaTreeItem();
 
     bool			select();
     bool			showSubMenu();
@@ -34,7 +34,7 @@ protected:
     bool			init();
     const char*			iconName() const;
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
     bool			isSelectable() const	{ return true; }
 
     View2D::Seismic*		dummyview_;
@@ -44,7 +44,7 @@ protected:
     void			createSelMenu(MenuItem&);
     bool			handleSelMenu(int mnuid);
 
-    DataPack::ID		createDataPack(Attrib::SelSpec&,
+    DataPackID			createDataPack(Attrib::SelSpec&,
 					       const BufferString& attribnm="",
 					       const bool steering=false,
 					       const bool stored=false);
@@ -57,12 +57,12 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItemFactory
-				: public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODView2DWiggleVarAreaTreeItemFactory
+				: public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-			{ return new uiODVW2DWiggleVarAreaTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DWiggleVarAreaTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
 };

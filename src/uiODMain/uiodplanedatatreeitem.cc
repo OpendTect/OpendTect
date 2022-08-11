@@ -312,7 +312,7 @@ bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid,
 }
 
 
-bool uiODPlaneDataTreeItem::displayDataFromDataPack( DataPack::ID dpid,
+bool uiODPlaneDataTreeItem::displayDataFromDataPack( DataPackID dpid,
 					 const Attrib::SelSpec& as,
 					 const FlatView::DataDispPars::VD& ddp )
 {

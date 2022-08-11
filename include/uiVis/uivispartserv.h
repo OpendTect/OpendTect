@@ -170,9 +170,9 @@ public:
     bool		setCubeData(VisID,int attrib,
 				    const RegularSeisDataPack*);
 			/*!< data becomes mine */
-    bool		setDataPackID(VisID,int attrib,DataPack::ID);
-    DataPack::ID	getDataPackID(VisID,int attrib) const;
-    DataPack::ID	getDisplayedDataPackID(VisID,int attrib) const;
+    bool		setDataPackID(VisID,int attrib,DataPackID);
+    DataPackID	getDataPackID(VisID,int attrib) const;
+    DataPackID	getDisplayedDataPackID(VisID,int attrib) const;
     DataPackMgr::MgrID	getDataPackMgrID(VisID) const;
     int			currentVersion(VisID,int attrib) const;
 

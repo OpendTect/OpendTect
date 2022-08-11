@@ -756,10 +756,10 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 }
 
 
-DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
+DataPackID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 {
     if ( !preprocmgr_->prepareWork() )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
@@ -789,7 +789,7 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
     if ( !preprocmgr_->process() )
     {
 	uiMSG().error( preprocmgr_->errMsg() );
-	return DataPack::ID::udf();
+	return DataPackID::udf();
     }
 
     return preprocmgr_->getOutput();
@@ -1042,14 +1042,14 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 
 
-DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
+DataPackID uiStoredViewer2DMainWin::getAngleData( DataPackID gatherid )
 {
     if ( !hasangledata_ || !angleparams_ )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( gatherid );
     if ( !gather )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     PreStack::VelocityBasedAngleComputer velangcomp;
     velangcomp.setMultiID( angleparams_->velvolmid_ );
@@ -1061,7 +1061,7 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
     velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
     auto angledata = velangcomp.computeAngles();
     if ( !angledata )
-	return DataPack::ID::udf();
+	return DataPackID::udf();
 
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );
@@ -1222,23 +1222,23 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     if ( gather->readFrom(mid,tk) )
     {
-	DataPack::ID ppgatherid = DataPack::ID::udf();
+	DataPackID ppgatherid = DataPackID::udf();
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	    ppgatherid = getPreProcessedID( gatherinfo );
 
-	const DataPack::ID gatherid = ppgatherid.isValid() ? ppgatherid
+	const DataPackID gatherid = ppgatherid.isValid() ? ppgatherid
 							    : gather->id();
-	const DataPack::ID anglegatherid = getAngleData( gatherid );
+	const DataPackID anglegatherid = getAngleData( gatherid );
 	gd->setVDGather( hasangledata_ ? anglegatherid : gatherid );
 	gd->setWVAGather( hasangledata_ ? gatherid :
-						DataPack::ID::udf() );
+						DataPackID::udf() );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
 	DPM(DataPackMgr::FlatID()).unRef( anglegatherid );
     }
     else
-	gd->setVDGather( DataPack::ID::udf() );
+	gd->setVDGather( DataPackID::udf() );
 
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, gatherinfo );
@@ -1380,15 +1380,15 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 
     if ( !vdgather && !wvagather  )
     {
-	gd->setVDGather( DataPack::ID::udf() );
-	gd->setWVAGather( DataPack::ID::udf() );
+	gd->setVDGather( DataPackID::udf() );
+	gd->setWVAGather( DataPackID::udf() );
 	return;
     }
 
     if ( !posdlg_ )
 	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
 				        : vdgather->zRange(), false );
-    DataPack::ID ppgatherid = DataPack::ID::udf();
+    DataPackID ppgatherid = DataPackID::udf();
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgatherid = getPreProcessedID( ginfo );
 
@@ -1397,7 +1397,7 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 			  : ginfo.vddpid_ );
     gd->setWVAGather( ginfo.vddpid_.isValid() ?
 			    ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_
-				       : DataPack::ID::udf() );
+				       : DataPackID::udf() );
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
@@ -1555,7 +1555,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	const DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
 	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
 	{
-	    const DataPack::ID& id = vwr.availablePacks()[idx];
+	    const DataPackID& id = vwr.availablePacks()[idx];
 	    const StringView datanm( dpm.nameOf(id) );
 	    const bool wva = wvadatapack && wvadatapack->name() == datanm &&
 			     app_.ddpars_.wva_.show_ ;

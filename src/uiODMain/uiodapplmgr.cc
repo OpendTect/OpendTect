@@ -640,7 +640,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
     if ( selspecchanged )
 	visserv_->setSelSpecs( visid, attrib, myas );
 
-    const DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
+    const DataPackID cacheid = visserv_->getDataPackID( visid, attrib );
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid,attrib) )
     {
@@ -665,7 +665,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
-		const DataPack::ID dpid =
+		const DataPackID dpid =
 		    calc->createAttrib( cs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
 		{
@@ -682,7 +682,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 	    }
 
 	    attrserv_->setTargetSelSpecs( myas );
-	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
+	    const DataPackID newid = attrserv_->createOutput( cs, cacheid );
 
 	    if ( newid == DataPack::cNoID() )
 	    {
@@ -715,7 +715,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		break;
 	    }
 
-	    const DataPack::ID newid = attrserv_->createRdmTrcsOutput(
+	    const DataPackID newid = attrserv_->createRdmTrcsOutput(
 		    zrg, rdmtdisp->getRandomLineID() );
 	    res = true;
 	    if ( !newid.isValid() )
@@ -895,7 +895,7 @@ bool uiODApplMgr::calcRandomPosAttrib( VisID visid, int attrib )
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
     {
-	const DataPack::ID id = fd->addDataPack( *data );
+	const DataPackID id = fd->addDataPack( *data );
 	fd->setDataPackID( attrib, id, nullptr );
 	fd->setRandomPosData( attrib, data.ptr(), 0 );
 	if ( visServer()->getSelAttribNr() == attrib )
@@ -922,7 +922,7 @@ bool uiODApplMgr::evaluateAttribute( VisID visid, int attrib )
     if ( format == uiVisPartServer::Cube )
     {
 	const TrcKeyZSampling cs = visserv_->getTrcKeyZSampling( visid );
-	DataPack::ID packid  = attrserv_->createOutput( cs, DataPack::cNoID() );
+	DataPackID packid  = attrserv_->createOutput( cs, DataPack::cNoID() );
 	visserv_->setDataPackID( visid, attrib, packid );
     }
     else if ( format==uiVisPartServer::Traces )
@@ -932,7 +932,7 @@ bool uiODApplMgr::evaluateAttribute( VisID visid, int attrib )
 	visserv_->getDataTraceBids( visid, bids );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			visserv_->getObject(visid) );
-	const DataPack::ID dpid = attrserv_->createRdmTrcsOutput(
+	const DataPackID dpid = attrserv_->createRdmTrcsOutput(
 		zrg, rdmtdisp->getRandomLineID() );
 	visserv_->setDataPackID( visid, attrib, dpid );
     }
@@ -959,7 +959,7 @@ bool uiODApplMgr::evaluate2DAttribute( VisID visid, int attrib )
 		    visserv_->getObject(visid))
     if ( !s2d ) return false;
 
-    const DataPack::ID dpid = attrserv_->createOutput(
+    const DataPackID dpid = attrserv_->createOutput(
 						s2d->getTrcKeyZSampling(false),
 						      DataPack::cNoID() );
     if ( dpid == DataPack::cNoID() )

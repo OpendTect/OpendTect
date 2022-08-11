@@ -55,10 +55,10 @@ public:
 					      bool oncurrentline=true) const;
 
 				//for 3D only at present
-    DataPack::ID		preProcess();
+    DataPackID		preProcess();
 
     bool			is3DSeis() const;
-    DataPack::ID		getDataPackID(int i=0) const override;
+    DataPackID		getDataPackID(int i=0) const override;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }

@@ -146,7 +146,7 @@ void uiPreviewGroup::updateViewer()
     zintv.scale( 1.f/SI().zDomain().userFactor() );
     zintv.step = SI().zStep();
 
-    const DataPack::ID dpid =
+    const DataPackID dpid =
 	MPE::engine().getSeedPosDataPack( tk, z, nrtrcs_, zintv );
 
     const bool canupdate = vwr_->enableChange( false );

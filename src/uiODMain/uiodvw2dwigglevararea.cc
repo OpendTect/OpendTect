@@ -31,29 +31,29 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 
 
-uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
-    : uiODVw2DTreeItem( tr("Wiggle") )
+uiODView2DWiggleVarAreaTreeItem::uiODView2DWiggleVarAreaTreeItem()
+    : uiODView2DTreeItem( tr("Wiggle") )
     , dummyview_(0)
     , menu_(0)
     , selattrmnuitem_(uiStrings::sSelAttrib())
 {}
 
 
-uiODVW2DWiggleVarAreaTreeItem::~uiODVW2DWiggleVarAreaTreeItem()
+uiODView2DWiggleVarAreaTreeItem::~uiODView2DWiggleVarAreaTreeItem()
 {
     if ( viewer2D()->viewwin()->nrViewers() )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
 	vwr.dataChanged.remove(
-		mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
+		mCB(this,uiODView2DWiggleVarAreaTreeItem,dataChangedCB) );
     }
 
     if ( menu_ )
     {
 	menu_->createnotifier.remove(
-		mCB(this,uiODVW2DWiggleVarAreaTreeItem,createMenuCB) );
+		mCB(this,uiODView2DWiggleVarAreaTreeItem,createMenuCB) );
 	menu_->handlenotifier.remove(
-		mCB(this,uiODVW2DWiggleVarAreaTreeItem,handleMenuCB) );
+		mCB(this,uiODView2DWiggleVarAreaTreeItem,handleMenuCB) );
 	menu_->unRef();
     }
 
@@ -62,35 +62,35 @@ uiODVW2DWiggleVarAreaTreeItem::~uiODVW2DWiggleVarAreaTreeItem()
 }
 
 
-const char* uiODVW2DWiggleVarAreaTreeItem::iconName() const
+const char* uiODView2DWiggleVarAreaTreeItem::iconName() const
 { return "tree-wva"; }
 
 
-bool uiODVW2DWiggleVarAreaTreeItem::init()
+bool uiODView2DWiggleVarAreaTreeItem::init()
 {
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     vwr.dataChanged.notify(
-	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
+	    mCB(this,uiODView2DWiggleVarAreaTreeItem,dataChangedCB) );
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( true );
     uitreeviewitem_->setChecked( ddp.wva_.show_ );
 
     checkStatusChange()->notify(
-	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
+	    mCB(this,uiODView2DWiggleVarAreaTreeItem,checkCB) );
 
     dummyview_ = new View2D::Seismic();
     viewer2D()->dataMgr()->addObject( dummyview_ );
     displayid_ = dummyview_->id();
 
-    return uiODVw2DTreeItem::init();
+    return uiODView2DTreeItem::init();
 }
 
 
-bool uiODVW2DWiggleVarAreaTreeItem::select()
+bool uiODView2DWiggleVarAreaTreeItem::select()
 {
     if ( !uitreeviewitem_->isSelected() )
 	return false;
@@ -102,7 +102,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
 }
 
 
-void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
+void uiODView2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 {
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::WVA;
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
@@ -110,7 +110,7 @@ void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 }
 
 
-void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
+void uiODView2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 {
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return;
@@ -122,12 +122,12 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 }
 
 
-void uiODVW2DWiggleVarAreaTreeItem::dataTransformCB( CallBacker* )
+void uiODView2DWiggleVarAreaTreeItem::dataTransformCB( CallBacker* )
 {
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
-	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	const TypeSet<DataPackID> ids = vwr.availablePacks();
 	for ( int idx=0; idx<ids.size(); idx++ )
 	    if ( ids[idx]!=vwr.packID(false) && ids[idx]!=vwr.packID(true) )
 		vwr.removePack( ids[idx] );
@@ -136,28 +136,28 @@ void uiODVW2DWiggleVarAreaTreeItem::dataTransformCB( CallBacker* )
     Attrib::SelSpec& selspec = viewer2D()->selSpec( true );
     if ( selspec.isZTransformed() ) return;
 
-    const DataPack::ID dpid = createDataPack( selspec );
+    const DataPackID dpid = createDataPack( selspec );
     if ( dpid != DataPack::cNoID() )
 	viewer2D()->setUpView( dpid, true );
 }
 
 
-bool uiODVW2DWiggleVarAreaTreeItem::showSubMenu()
+bool uiODView2DWiggleVarAreaTreeItem::showSubMenu()
 {
     if ( !menu_ )
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
 	menu_->ref();
 	menu_->createnotifier.notify(
-		mCB(this,uiODVW2DWiggleVarAreaTreeItem,createMenuCB) );
+		mCB(this,uiODView2DWiggleVarAreaTreeItem,createMenuCB) );
 	menu_->handlenotifier.notify(
-		mCB(this,uiODVW2DWiggleVarAreaTreeItem,handleMenuCB) );
+		mCB(this,uiODView2DWiggleVarAreaTreeItem,handleMenuCB) );
     }
     return menu_->executeMenu(uiMenuHandler::fromTree());
 }
 
 
-void uiODVW2DWiggleVarAreaTreeItem::createMenuCB( CallBacker* cb )
+void uiODView2DWiggleVarAreaTreeItem::createMenuCB( CallBacker* cb )
 {
     selattrmnuitem_.removeItems();
     createSelMenu( selattrmnuitem_ );
@@ -168,7 +168,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createMenuCB( CallBacker* cb )
 }
 
 
-void uiODVW2DWiggleVarAreaTreeItem::handleMenuCB( CallBacker* cb )
+void uiODView2DWiggleVarAreaTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
@@ -180,7 +180,7 @@ void uiODVW2DWiggleVarAreaTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
+void uiODView2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
@@ -211,7 +211,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 }
 
 
-bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
+bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 {
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
@@ -230,7 +230,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
     if ( !stored && !attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	return false;
 
-    const DataPack::ID dpid =
+    const DataPackID dpid =
 	createDataPack( selas, attrbnm.buf(), steering, stored );
     if ( dpid == DataPack::cNoID() ) return false;
 
@@ -256,13 +256,13 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 }
 
 
-DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
+DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
 			Attrib::SelSpec& selas, const BufferString& attrbnm,
 			const bool steering, const bool stored )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp ) return DataPack::ID::udf();
+    if ( !dp ) return DataPackID::udf();
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
@@ -299,7 +299,7 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
     }
     else if ( randfdp )
     {
-	const DataPack::ID dpid =
+	const DataPackID dpid =
 	    attrserv->createRdmTrcsOutput( randfdp->zRange(),
 					   randfdp->getRandomLineID() );
 	return viewer2D()->createFlatDataPack( dpid, 0 );
@@ -309,8 +309,8 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
 }
 
 
-uiTreeItem* uiODVW2DWiggleVarAreaTreeItemFactory::createForVis(
-					    const uiODViewer2D&, int id ) const
+uiTreeItem* uiODView2DWiggleVarAreaTreeItemFactory::createForVis(
+					const uiODViewer2D&, Vis2DID id ) const
 {
     return 0;
 }

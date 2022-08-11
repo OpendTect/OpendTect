@@ -159,13 +159,13 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-const View2D::DataObject* uiODViewer2D::getObject( int id ) const
+const View2D::DataObject* uiODViewer2D::getObject( Vis2DID id ) const
 {
     return datamgr_ ? datamgr_->getObject( id ) : nullptr;
 }
 
 
-View2D::DataObject* uiODViewer2D::getObject(int id)
+View2D::DataObject* uiODViewer2D::getObject(Vis2DID id)
 {
     return datamgr_ ? datamgr_->getObject( id ) : nullptr;
 }
@@ -246,7 +246,7 @@ void uiODViewer2D::setUpAux()
 }
 
 
-void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
+void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     ConstRefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
@@ -318,7 +318,7 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
     if ( !slicepos_ ) return;
     const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     const bool newcs = ( cs != tkzs_ );
-    const DataPack::ID othrdpid = newcs ? createDataPack(!wva)
+    const DataPackID othrdpid = newcs ? createDataPack(!wva)
 					: getDataPackID(!wva);
     if ( newcs && (othrdpid != DataPack::cNoID()) )
     { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
@@ -326,7 +326,7 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
 }
 
 
-void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
+void uiODViewer2D::setDataPack( DataPackID packid, bool wva, bool isnew )
 {
     if ( packid == DataPack::cNoID() ) return;
 
@@ -334,7 +334,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	const TypeSet<DataPackID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
 	    { vwr.usePack( FlatView::Viewer::WVA, packid, isnew ); continue; }
 
@@ -501,7 +501,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     lv->addColumns( labels );
     lv->setFixedColumnWidth( uiODViewer2DMgr::cColorColumn(), 40 );
 
-    treetp_ = new uiODVw2DTreeTop( lv, &appl_.applMgr(), this, tifs_ );
+    treetp_ = new uiODView2DTreeTop( lv, &appl_.applMgr(), this, tifs_ );
     mAttachCB( treetp_->getTreeView()->selectionChanged,
 	       uiODViewer2D::itmSelectionChangedCB );
 
@@ -644,21 +644,21 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 }
 
 
-DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
+DataPackID uiODViewer2D::getDataPackID( bool wva ) const
 {
     const uiFlatViewer& vwr = viewwin()->viewer(0);
     if ( vwr.hasPack(wva) )
 	return vwr.packID(wva);
     else if ( wvaselspec_ == vdselspec_ )
     {
-	const DataPack::ID dpid = vwr.packID(!wva);
+	const DataPackID dpid = vwr.packID(!wva);
 	if ( dpid != DataPack::cNoID() ) return dpid;
     }
     return createDataPack( wva );
 }
 
 
-DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
+DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
     TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
     if ( !tkzs.isFlat() ) return DataPack::cNoID();
@@ -674,13 +674,13 @@ DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
-    const DataPack::ID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
+    const DataPackID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
     return createFlatDataPack( dpid, 0 );
 }
 
 
-DataPack::ID uiODViewer2D::createFlatDataPack(
-				DataPack::ID dpid, int comp ) const
+DataPackID uiODViewer2D::createFlatDataPack(
+				DataPackID dpid, int comp ) const
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
@@ -712,7 +712,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 }
 
 
-DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
+DataPackID uiODViewer2D::createDataPackForTransformedZSlice(
 					const Attrib::SelSpec& selspec ) const
 {
     if ( !hasZAxisTransform() || selspec.isZTransformed() )
@@ -739,13 +739,13 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     if ( !attrserv->createOutput(*data,firstcol) )
 	return DataPack::cNoID();
 
-    const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
+    const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
 	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
     return createFlatDataPack( dpid, 0 );
 }
 
 
-DataPack::ID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
+DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
 {
     const TrcKeyZSampling& tkzs = rsdp.sampling();
     StepInterval<double> inlrg, crlrg;
@@ -811,12 +811,12 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
     BufferString seltxt( curitem->text() );
     ObjectSet<uiTreeItem> treeitms;
     treetp_->findChildren( seltxt, treeitms );
-    uiODVw2DHor2DTreeItem* hor2dtreeitm = 0;
-    uiODVw2DHor3DTreeItem* hor3dtreeitm = 0;
+    uiODView2DHor2DTreeItem* hor2dtreeitm = 0;
+    uiODView2DHor3DTreeItem* hor3dtreeitm = 0;
     for ( int idx=0; idx<treeitms.size(); idx++ )
     {
-	mDynamicCast(uiODVw2DHor2DTreeItem*,hor2dtreeitm,treeitms[idx])
-	mDynamicCast(uiODVw2DHor3DTreeItem*,hor3dtreeitm,treeitms[idx])
+	mDynamicCast(uiODView2DHor2DTreeItem*,hor2dtreeitm,treeitms[idx])
+	mDynamicCast(uiODView2DHor3DTreeItem*,hor3dtreeitm,treeitms[idx])
 	if ( hor2dtreeitm || hor3dtreeitm )
 	    break;
     }
@@ -849,12 +849,12 @@ void uiODViewer2D::trackSetupCB( CallBacker* )
     BufferString seltxt( curitem->text() );
     ObjectSet<uiTreeItem> treeitms;
     treetp_->findChildren( seltxt, treeitms );
-    uiODVw2DHor3DTreeItem* hortreeitm = 0;
-    uiODVw2DHor2DTreeItem* hor2dtreeitm = 0;
+    uiODView2DHor3DTreeItem* hortreeitm = 0;
+    uiODView2DHor2DTreeItem* hor2dtreeitm = 0;
     for ( int idx=0; idx<treeitms.size(); idx++ )
     {
-	mDynamicCast( uiODVw2DHor3DTreeItem*,hortreeitm,treeitms[idx])
-	mDynamicCast( uiODVw2DHor2DTreeItem*,hor2dtreeitm,treeitms[idx])
+	mDynamicCast( uiODView2DHor3DTreeItem*,hortreeitm,treeitms[idx])
+	mDynamicCast( uiODView2DHor2DTreeItem*,hor2dtreeitm,treeitms[idx])
 	if ( hortreeitm || hor2dtreeitm )
 	    break;
     }
@@ -1026,10 +1026,10 @@ void uiODViewer2D::rebuildTree()
     getObjects( objs );
     for ( int iobj=0; iobj<objs.size(); iobj++ )
     {
-	const uiODVw2DTreeItem* childitem =
-	    treetp_->getVW2DItem( objs[iobj]->id() );
+	const uiODView2DTreeItem* childitem =
+	    treetp_->getView2DItem( objs[iobj]->id() );
 	if ( !childitem )
-	    uiODVw2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
+	    uiODView2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
     }
 }
 
@@ -1148,22 +1148,22 @@ bool uiODViewer2D::isItemPresent( const uiTreeItem* item ) const
 }
 
 
-void uiODViewer2D::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
+void uiODViewer2D::getVwr2DObjIDs( TypeSet<Vis2DID>& vw2dobjids ) const
 {
-    TypeSet<int> vw2dids;
+    TypeSet<Vis2DID> vw2dids;
     datamgr_->getObjectIDs( vw2dids );
     vw2dobjids.append( vw2dids );
 }
 
 
 void uiODViewer2D::getHor3DVwr2DIDs( EM::ObjectID emid,
-				     TypeSet<int>& vw2dobjids ) const
+				     TypeSet<Vis2DID>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	    hor3dpitem->getHor3DVwr2DIDs( emid, vw2dobjids );
@@ -1177,7 +1177,7 @@ void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	    hor3dpitem->removeHorizon3D( emid );
@@ -1191,7 +1191,7 @@ void uiODViewer2D::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	    hor3dpitem->getLoadedHorizon3Ds( emids );
@@ -1205,7 +1205,7 @@ void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	    hor3dpitem->addHorizon3Ds( emids );
@@ -1219,7 +1219,7 @@ void uiODViewer2D::setupTrackingHorizon3D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	{
@@ -1238,7 +1238,7 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	{
@@ -1252,13 +1252,13 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 
 
 void uiODViewer2D::getHor2DVwr2DIDs( EM::ObjectID emid,
-				     TypeSet<int>& vw2dobjids ) const
+				     TypeSet<Vis2DID>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor3dpitem,
+	mDynamicCastGet(uiODView2DHor2DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
 	    hor3dpitem->getHor2DVwr2DIDs( emid, vw2dobjids );
@@ -1272,7 +1272,7 @@ void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+	mDynamicCastGet(uiODView2DHor2DParentTreeItem*,hor2dpitem,
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	    hor2dpitem->removeHorizon2D( emid );
@@ -1286,7 +1286,7 @@ void uiODViewer2D::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+	mDynamicCastGet(uiODView2DHor2DParentTreeItem*,hor2dpitem,
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	    hor2dpitem->getLoadedHorizon2Ds( emids );
@@ -1300,7 +1300,7 @@ void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+	mDynamicCastGet(uiODView2DHor2DParentTreeItem*,hor2dpitem,
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	    hor2dpitem->addHorizon2Ds( emids );
@@ -1314,7 +1314,7 @@ void uiODViewer2D::setupTrackingHorizon2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+	mDynamicCastGet(uiODView2DHor2DParentTreeItem*,hor2dpitem,
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	{
@@ -1333,7 +1333,7 @@ void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+	mDynamicCastGet(uiODView2DHor2DParentTreeItem*,hor2dpitem,
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	    hor2dpitem->addNewTrackingHorizon2D( emid );
@@ -1342,13 +1342,13 @@ void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
 
 
 void uiODViewer2D::getFaultVwr2DIDs( EM::ObjectID emid,
-				     TypeSet<int>& vw2dobjids ) const
+				     TypeSet<Vis2DID>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->getFaultVwr2DIDs( emid, vw2dobjids );
@@ -1362,7 +1362,7 @@ void uiODViewer2D::removeFault( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->removeFault( emid );
@@ -1376,7 +1376,7 @@ void uiODViewer2D::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->getLoadedFaults( emids );
@@ -1390,7 +1390,7 @@ void uiODViewer2D::addFaults( const TypeSet<EM::ObjectID>& emids )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addFaults( emids );
@@ -1404,7 +1404,7 @@ void uiODViewer2D::setupNewTempFault( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	{
@@ -1423,7 +1423,7 @@ void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addNewTempFault( emid );
@@ -1432,13 +1432,13 @@ void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 
 
 void uiODViewer2D::getFaultSSVwr2DIDs( EM::ObjectID emid,
-				     TypeSet<int>& vw2dobjids ) const
+				     TypeSet<Vis2DID>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultsspitem,
+	mDynamicCastGet(uiODView2DFaultSSParentTreeItem*,faultsspitem,
 			treetp_->getChild(idx))
 	if ( faultsspitem )
 	    faultsspitem->getFaultSSVwr2DIDs( emid, vw2dobjids );
@@ -1452,7 +1452,7 @@ void uiODViewer2D::removeFaultSS( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSSParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->removeFaultSS( emid );
@@ -1466,7 +1466,7 @@ void uiODViewer2D::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSSParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->getLoadedFaultSSs( emids );
@@ -1480,7 +1480,7 @@ void uiODViewer2D::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSSParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addFaultSSs( emids );
@@ -1494,7 +1494,7 @@ void uiODViewer2D::setupNewTempFaultSS( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,fltsspitem,
+	mDynamicCastGet(uiODView2DFaultSSParentTreeItem*,fltsspitem,
 			treetp_->getChild(idx))
 	if ( fltsspitem )
 	{
@@ -1514,7 +1514,7 @@ void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSSParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addNewTempFaultSS( emid );
@@ -1523,13 +1523,13 @@ void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 
 
 void uiODViewer2D::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
-				     TypeSet<int>& vw2dobjids ) const
+				     TypeSet<Vis2DID>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,faultsspitem,
+	mDynamicCastGet(uiODView2DFaultSS2DParentTreeItem*,faultsspitem,
 			treetp_->getChild(idx))
 	if ( faultsspitem )
 	    faultsspitem->getFaultSS2DVwr2DIDs( emid, vw2dobjids );
@@ -1543,7 +1543,7 @@ void uiODViewer2D::removeFaultSS2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSS2DParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->removeFaultSS2D( emid );
@@ -1557,7 +1557,7 @@ void uiODViewer2D::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSS2DParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->getLoadedFaultSS2Ds( emids );
@@ -1571,7 +1571,7 @@ void uiODViewer2D::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSS2DParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addFaultSS2Ds( emids );
@@ -1585,7 +1585,7 @@ void uiODViewer2D::setupNewTempFaultSS2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,fltsspitem,
+	mDynamicCastGet(uiODView2DFaultSS2DParentTreeItem*,fltsspitem,
 			treetp_->getChild(idx))
 	if ( fltsspitem )
 	{
@@ -1604,7 +1604,7 @@ void uiODViewer2D::addNewTempFaultSS2D( EM::ObjectID emid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,faultpitem,
+	mDynamicCastGet(uiODView2DFaultSS2DParentTreeItem*,faultpitem,
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addNewTempFaultSS2D( emid );
@@ -1614,13 +1614,13 @@ void uiODViewer2D::addNewTempFaultSS2D( EM::ObjectID emid )
 
 
 void uiODViewer2D::getPickSetVwr2DIDs( const MultiID& mid,
-				       TypeSet<int>& vw2dobjids ) const
+				       TypeSet<Vis2DID>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickpitem,
+	mDynamicCastGet(uiODView2DPickSetParentTreeItem*,pickpitem,
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	    pickpitem->getPickSetVwr2DIDs( mid, vw2dobjids );
@@ -1634,7 +1634,7 @@ void uiODViewer2D::removePickSet( const MultiID& mid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
+	mDynamicCastGet(uiODView2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
 	    pickitem->removePickSet( mid );
@@ -1648,7 +1648,7 @@ void uiODViewer2D::getLoadedPickSets( TypeSet<MultiID>& mids ) const
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
+	mDynamicCastGet(uiODView2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
 	    pickitem->getLoadedPickSets( mids );
@@ -1662,7 +1662,7 @@ void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
+	mDynamicCastGet(uiODView2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
 	    pickitem->addPickSets( mids );
@@ -1676,7 +1676,7 @@ void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
 
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickpitem,
+	mDynamicCastGet(uiODView2DPickSetParentTreeItem*,pickpitem,
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	{

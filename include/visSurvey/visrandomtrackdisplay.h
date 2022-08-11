@@ -102,10 +102,10 @@ public:
     Interval<float>		getDataTraceRange() const override;
     TypeSet<Coord>		getTrueCoords() const;
 
-    bool			setDataPackID(int attrib,DataPack::ID,
+    bool			setDataPackID(int attrib,DataPackID,
 						TaskRunner*) override;
-    DataPack::ID		getDataPackID(int attrib) const override;
-    DataPack::ID		getDisplayedDataPackID(
+    DataPackID		getDataPackID(int attrib) const override;
+    DataPackID		getDisplayedDataPackID(
 						int attrib) const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }

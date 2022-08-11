@@ -850,10 +850,10 @@ const char* uiSeisPreLoadedDataSel::selectedCompName() const
 }
 
 
-DataPack::ID uiSeisPreLoadedDataSel::selectedDPID() const
+DataPackID uiSeisPreLoadedDataSel::selectedDPID() const
 {
     ConstRefMan<DataPack> dp = PLDM().getDP( selkey_ );
-    return dp ? dp->id() : DataPack::ID::udf();
+    return dp ? dp->id() : DataPackID::udf();
 }
 
 

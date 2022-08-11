@@ -58,14 +58,14 @@ protected:
 
     uiStoredViewer2DMainWin*	createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
-    uiFlatViewMainWin*	create2DViewer(const uiString&,DataPack::ID dpid);
+    uiFlatViewMainWin*	create2DViewer(const uiString&,DataPackID dpid);
 
     SceneID		getSceneID(VisID) const;
     static void		getSeis2DTitle(int trnr,const char*,uiString&);
     static void		getSeis3DTitle(const BinID&,const char*,uiString&);
     bool		add3DViewer(const uiMenuHandler*,VisID scnid,
 				    int mnuidx);
-    void		removeViewWin(DataPack::ID dpid);
+    void		removeViewWin(DataPackID dpid);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,

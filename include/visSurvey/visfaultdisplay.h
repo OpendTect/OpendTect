@@ -157,10 +157,10 @@ public:
     bool			isVerticalPlane() const override {return false;}
     bool			canBDispOn2DViewer() const override
 				{ return false; }
-    DataPack::ID		addDataPack(const DataPointSet&) const ;
-    bool			setDataPackID(int attrib,DataPack::ID,
+    DataPackID		addDataPack(const DataPointSet&) const ;
+    bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPack::ID		getDataPackID(int attrib) const override;
+    DataPackID		getDataPackID(int attrib) const override;
     DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::SurfID(); }
 
@@ -276,7 +276,7 @@ protected:
 
     Coord3				mousepos_;
 
-    TypeSet<DataPack::ID>		datapackids_;
+    TypeSet<DataPackID>		datapackids_;
 
     OD::Color				nontexturecol_;
 

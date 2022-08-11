@@ -22,10 +22,9 @@ namespace View2D
 {
 
 DataObject::DataObject()
-    : id_( -1 )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vw2dobjid, (0) );
-    id_ = vw2dobjid++;
+    id_.set( vw2dobjid++ );
 }
 
 

@@ -358,7 +358,7 @@ const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
 
 
-bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+bool Seis2DDisplay::setDataPackID( int attrib, DataPackID dpid,
 				   TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
@@ -377,7 +377,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 }
 
 
-DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
+DataPackID Seis2DDisplay::getDataPackID( int attrib ) const
 {
     return datapacks_.validIdx(attrib) && datapacks_[attrib]
 	? datapacks_[attrib]->id()
@@ -385,7 +385,7 @@ DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 }
 
 
-DataPack::ID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
+DataPackID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -420,7 +420,7 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
 void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    const DataPackID dpid = getDisplayedDataPackID( attrib );
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp )
 	return;
@@ -492,7 +492,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDataPackID( attrib );
+    const DataPackID dpid = getDataPackID( attrib );
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
@@ -882,7 +882,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    const DataPackID dpid = getDisplayedDataPackID( attrib );
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;

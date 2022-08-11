@@ -32,28 +32,28 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 
 
-uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
-    : uiODVw2DTreeItem( uiStrings::sPointSet() )
+uiODView2DPickSetParentTreeItem::uiODView2DPickSetParentTreeItem()
+    : uiODView2DTreeItem( uiStrings::sPointSet() )
     , picksetmgr_(Pick::Mgr())
 {
 }
 
 
-uiODVw2DPickSetParentTreeItem::~uiODVw2DPickSetParentTreeItem()
+uiODView2DPickSetParentTreeItem::~uiODView2DPickSetParentTreeItem()
 {
 }
 
 
-const char* uiODVw2DPickSetParentTreeItem::iconName() const
+const char* uiODView2DPickSetParentTreeItem::iconName() const
 { return "tree-pickset"; }
 
 
-bool uiODVw2DPickSetParentTreeItem::init()
-{ return uiODVw2DTreeItem::init(); }
+bool uiODView2DPickSetParentTreeItem::init()
+{ return uiODView2DTreeItem::init(); }
 
 
 
-bool uiODVw2DPickSetParentTreeItem::showSubMenu()
+bool uiODView2DPickSetParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
@@ -63,7 +63,7 @@ bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 }
 
 
-bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
+bool uiODView2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
     handleStdSubMenu( menuid );
 
@@ -89,7 +89,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 	const MultiID& newpickmid = picksetmgr_.get( *newps );
 	for ( int idx=0; idx<nrChildren(); idx++ )
 	{
-	    mDynamicCastGet(uiODVw2DPickSetTreeItem*,picktreeitem,
+	    mDynamicCastGet(uiODView2DPickSetTreeItem*,picktreeitem,
 			    getChild(idx))
 	    if ( picktreeitem && picktreeitem->pickMultiID() == newpickmid )
 	    {
@@ -105,12 +105,12 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 }
 
 
-void uiODVw2DPickSetParentTreeItem::getPickSetVwr2DIDs(
-	const MultiID& mid, TypeSet<int>& vw2dobjids ) const
+void uiODView2DPickSetParentTreeItem::getPickSetVwr2DIDs(
+	const MultiID& mid, TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DPickSetTreeItem*,picktreeitem,
+	mDynamicCastGet(const uiODView2DPickSetTreeItem*,picktreeitem,
 			getChild(idx))
 	if ( !picktreeitem || picktreeitem->pickMultiID() != mid )
 	    continue;
@@ -120,11 +120,11 @@ void uiODVw2DPickSetParentTreeItem::getPickSetVwr2DIDs(
 }
 
 
-void uiODVw2DPickSetParentTreeItem::removePickSet( const MultiID& mid )
+void uiODView2DPickSetParentTreeItem::removePickSet( const MultiID& mid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetTreeItem*,pickitm,getChild(idx))
+	mDynamicCastGet(uiODView2DPickSetTreeItem*,pickitm,getChild(idx))
 	if ( !pickitm || mid!=pickitm->pickMultiID() )
 	    continue;
 
@@ -133,12 +133,12 @@ void uiODVw2DPickSetParentTreeItem::removePickSet( const MultiID& mid )
 }
 
 
-void uiODVw2DPickSetParentTreeItem::getLoadedPickSets(
+void uiODView2DPickSetParentTreeItem::getLoadedPickSets(
 	TypeSet<MultiID>& picks ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODVw2DPickSetTreeItem*,pickitm,getChild(idx))
+	mDynamicCastGet(const uiODView2DPickSetTreeItem*,pickitm,getChild(idx))
 	if ( !pickitm )
 	    continue;
 
@@ -147,7 +147,7 @@ void uiODVw2DPickSetParentTreeItem::getLoadedPickSets(
 }
 
 
-void uiODVw2DPickSetParentTreeItem::setupNewPickSet(
+void uiODView2DPickSetParentTreeItem::setupNewPickSet(
 	const MultiID& pickid )
 {
     TypeSet<MultiID> pickidsloaded;
@@ -157,7 +157,7 @@ void uiODVw2DPickSetParentTreeItem::setupNewPickSet(
 
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODVw2DPickSetTreeItem*,picktreeitm,getChild(idx))
+	mDynamicCastGet(uiODView2DPickSetTreeItem*,picktreeitm,getChild(idx))
 	if ( picktreeitm && pickid==picktreeitm->pickMultiID() )
 	{
 	    if ( viewer2D() && viewer2D()->viewControl() )
@@ -169,7 +169,7 @@ void uiODVw2DPickSetParentTreeItem::setupNewPickSet(
 }
 
 
-void uiODVw2DPickSetParentTreeItem::addPickSets(
+void uiODView2DPickSetParentTreeItem::addPickSets(
 	const TypeSet<MultiID>& pickids )
 {
     TypeSet<MultiID> pickidstobeloaded, pickidsloaded;
@@ -189,39 +189,39 @@ void uiODVw2DPickSetParentTreeItem::addPickSets(
 	if ( findChild(ps->name()) )
 	    continue;
 
-	uiODVw2DPickSetTreeItem* childitm =
-	    new uiODVw2DPickSetTreeItem( picksetidx );
+	uiODView2DPickSetTreeItem* childitm =
+	    new uiODView2DPickSetTreeItem( picksetidx );
 	addChld( childitm, false, false);
     }
 }
 
 
-uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
-    : uiODVw2DTreeItem(uiString::emptyString())
+uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( int picksetid )
+    : uiODView2DTreeItem(uiString::emptyString())
     , picksetmgr_(Pick::Mgr())
     , pickset_(Pick::Mgr().get(picksetid))
 {
     mAttachCB( picksetmgr_.setToBeRemoved,
-	       uiODVw2DPickSetTreeItem::removePickSetCB );
+	       uiODView2DPickSetTreeItem::removePickSetCB );
     mAttachCB( picksetmgr_.setDispChanged,
-	       uiODVw2DPickSetTreeItem::displayChangedCB );
+	       uiODView2DPickSetTreeItem::displayChangedCB );
 }
 
 
-uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int id, bool )
-    : uiODVw2DTreeItem(uiString::emptyString())
+uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( Vis2DID id, bool )
+    : uiODView2DTreeItem(uiString::emptyString())
     , picksetmgr_(Pick::Mgr())
     , pickset_(applMgr()->pickServer()->createEmptySet(false))
 {
     displayid_ = id;
     mAttachCB( picksetmgr_.setToBeRemoved,
-	       uiODVw2DPickSetTreeItem::removePickSetCB );
+	       uiODView2DPickSetTreeItem::removePickSetCB );
     mAttachCB( picksetmgr_.setDispChanged,
-	       uiODVw2DPickSetTreeItem::displayChangedCB );
+	       uiODView2DPickSetTreeItem::displayChangedCB );
 }
 
 
-uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
+uiODView2DPickSetTreeItem::~uiODView2DPickSetTreeItem()
 {
     detachAllNotifiers();
     if ( vw2dpickset_ )
@@ -229,10 +229,10 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 }
 
 
-bool uiODVw2DPickSetTreeItem::init()
+bool uiODView2DPickSetTreeItem::init()
 {
     const int picksetidx = picksetmgr_.indexOf( pickset_->name() );
-    if ( displayid_ < 0 )
+    if ( !displayid_.isValid() )
     {
 	if ( picksetidx < 0 )
 	    return false;
@@ -258,27 +258,27 @@ bool uiODVw2DPickSetTreeItem::init()
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     displayMiniCtab();
-    mAttachCB( checkStatusChange(), uiODVw2DPickSetTreeItem::checkCB );
+    mAttachCB( checkStatusChange(), uiODView2DPickSetTreeItem::checkCB );
     vw2dpickset_->drawAll();
 
     for ( int ivwr = 0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
 	mAttachCB(vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
-	    uiODVw2DPickSetTreeItem::keyPressedCB);
+	    uiODView2DPickSetTreeItem::keyPressedCB);
     }
 
     return true;
 }
 
 
-const MultiID& uiODVw2DPickSetTreeItem::pickMultiID() const
+const MultiID& uiODView2DPickSetTreeItem::pickMultiID() const
 {
     return picksetmgr_.get( *pickset_ );
 }
 
 
-void uiODVw2DPickSetTreeItem::displayChangedCB( CallBacker* )
+void uiODView2DPickSetTreeItem::displayChangedCB( CallBacker* )
 {
     if ( vw2dpickset_ )
 	vw2dpickset_->drawAll();
@@ -286,7 +286,7 @@ void uiODVw2DPickSetTreeItem::displayChangedCB( CallBacker* )
 }
 
 
-void uiODVw2DPickSetTreeItem::displayMiniCtab()
+void uiODView2DPickSetTreeItem::displayMiniCtab()
 {
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
@@ -294,7 +294,7 @@ void uiODVw2DPickSetTreeItem::displayMiniCtab()
 }
 
 
-bool uiODVw2DPickSetTreeItem::select()
+bool uiODView2DPickSetTreeItem::select()
 {
     if ( uitreeviewitem_->treeView() )
 	uitreeviewitem_->treeView()->deselectAll();
@@ -314,7 +314,7 @@ bool uiODVw2DPickSetTreeItem::select()
 #define mRemoveID	3
 #define mDirectionID	4
 
-bool uiODVw2DPickSetTreeItem::showSubMenu()
+bool uiODView2DPickSetTreeItem::showSubMenu()
 {
     const int setidx = Pick::Mgr().indexOf( *pickset_ );
     const bool haschanged = setidx < 0 || Pick::Mgr().isChanged(setidx);
@@ -368,7 +368,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 }
 
 
-void uiODVw2DPickSetTreeItem::removePickSetCB( CallBacker* cb )
+void uiODView2DPickSetTreeItem::removePickSetCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
     if ( ps != pickset_ )
@@ -381,20 +381,20 @@ void uiODVw2DPickSetTreeItem::removePickSetCB( CallBacker* cb )
 }
 
 
-void uiODVw2DPickSetTreeItem::deSelCB( CallBacker* )
+void uiODView2DPickSetTreeItem::deSelCB( CallBacker* )
 {
     //TODO handle on/off MOUSEEVENT
 }
 
 
-void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
+void uiODView2DPickSetTreeItem::checkCB( CallBacker* )
 {
     if ( vw2dpickset_ )
 	vw2dpickset_->enablePainting( isChecked() );
 }
 
 
-void uiODVw2DPickSetTreeItem::keyPressedCB( CallBacker* cb )
+void uiODView2DPickSetTreeItem::keyPressedCB( CallBacker* cb )
 {
     if ( !uitreeviewitem_->isSelected() )
 	return;
@@ -410,9 +410,9 @@ void uiODVw2DPickSetTreeItem::keyPressedCB( CallBacker* cb )
 }
 
 
-uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis(
-				    const uiODViewer2D& vwr2d, int id ) const
+uiTreeItem* uiODView2DPickSetTreeItemFactory::createForVis(
+				const uiODViewer2D& vwr2d, Vis2DID id ) const
 {
     mDynamicCastGet(const View2D::PickSet*,obj,vwr2d.getObject(id));
-    return obj ? new uiODVw2DPickSetTreeItem(id,false) : 0;
+    return obj ? new uiODView2DPickSetTreeItem(id,false) : nullptr;
 }

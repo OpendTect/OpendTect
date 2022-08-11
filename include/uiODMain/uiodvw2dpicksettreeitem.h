@@ -21,15 +21,15 @@ namespace View2D { class PickSet; }
 
 
 
-mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DPickSetParentTreeItem)
+mExpClass(uiODMain) uiODView2DPickSetParentTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DPickSetParentTreeItem)
 public:
-				uiODVw2DPickSetParentTreeItem();
-				~uiODVw2DPickSetParentTreeItem();
+				uiODView2DPickSetParentTreeItem();
+				~uiODView2DPickSetParentTreeItem();
 
     bool			showSubMenu();
     void			getPickSetVwr2DIDs(const MultiID& mid,
-						   TypeSet<int>& vw2ids) const;
+						   TypeSet<Vis2DID>&) const;
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			removePickSet(const MultiID&);
     void			addPickSets(const TypeSet<MultiID>&);
@@ -40,7 +40,7 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODView2DTreeTop).name(); }
     Pick::SetMgr&		picksetmgr_;
 
 public:
@@ -49,22 +49,22 @@ public:
 
 
 mExpClass(uiODMain)
-uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
+uiODView2DPickSetTreeItemFactory : public uiODView2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-			{ return new uiODVw2DPickSetParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+			{ return new uiODView2DPickSetParentTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
 };
 
 
-mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DPickSetTreeItem)
+mExpClass(uiODMain) uiODView2DPickSetTreeItem : public uiODView2DTreeItem
+{ mODTextTranslationClass(uiODView2DPickSetTreeItem)
 public:
-			uiODVw2DPickSetTreeItem(int picksetid);
-			uiODVw2DPickSetTreeItem(int id,bool dummy);
-			~uiODVw2DPickSetTreeItem();
+			uiODView2DPickSetTreeItem(int picksetid);
+			uiODView2DPickSetTreeItem(Vis2DID id,bool dummy);
+			~uiODView2DPickSetTreeItem();
 
     bool			showSubMenu();
     bool			select();
@@ -76,7 +76,7 @@ protected:
 
     bool		init();
     const char*		parentType() const
-			{ return typeid(uiODVw2DPickSetParentTreeItem).name(); }
+			{return typeid(uiODView2DPickSetParentTreeItem).name();}
     bool		isSelectable() const			{ return true; }
 
     void		deSelCB(CallBacker*);

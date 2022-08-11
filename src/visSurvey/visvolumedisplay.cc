@@ -1093,7 +1093,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( int attrib ) const
 { return getTrcKeyZSampling(true,false,attrib); }
 
 
-bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+bool VolumeDisplay::setDataPackID( int attrib, DataPackID dpid,
 				   TaskRunner* taskr )
 {
     if ( !attribs_.validIdx(attrib) )
@@ -1183,9 +1183,9 @@ const RegularSeisDataPack* VolumeDisplay::getCacheVolume( int attrib ) const
 }
 
 
-DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
+DataPackID VolumeDisplay::getDataPackID( int attrib ) const
 {
-    DataPack::ID dpid = DataPack::cNoID();
+    DataPackID dpid = DataPack::cNoID();
     if ( attribs_.validIdx(attrib) && attribs_[attrib]->cache_ )
 	dpid = attribs_[attrib]->cache_->id();
 

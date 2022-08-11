@@ -114,7 +114,7 @@ public:
 
     static const char*	sKeyCategory();
     static DataPackID	cNoID()		{ return DataPackID(); }
-    mDeprecated("Use DataPack::ID::udf()")
+    mDeprecated("Use DataPackID::udf()")
     static DataPackID	cUdfID()	{ return DataPackID::udf(); }
 
     virtual bool	isOK() const		{ return true; }

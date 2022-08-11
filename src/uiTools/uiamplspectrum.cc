@@ -122,7 +122,7 @@ uiAmplSpectrum::~uiAmplSpectrum()
 
 
 void uiAmplSpectrum::setDataPackID(
-		DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
+		DataPackID dpid, DataPackMgr::MgrID dmid, int version )
 {
     auto datapack = DPM(dmid).getDP( dpid );
     if ( datapack )

@@ -68,7 +68,7 @@ uiGatherDisplay::~uiGatherDisplay()
     delete gatherpainter_;
 }
 
-void uiGatherDisplay::setVDGather( DataPack::ID vdid )
+void uiGatherDisplay::setVDGather( DataPackID vdid )
 {
     gatherpainter_->setVDGather( vdid );
     ConstRefMan<FlatDataPack> dp = viewer_->getPack( false ).get();
@@ -83,7 +83,7 @@ void uiGatherDisplay::setVDGather( DataPack::ID vdid )
 }
 
 
-void uiGatherDisplay::setWVAGather( DataPack::ID wvaid )
+void uiGatherDisplay::setWVAGather( DataPackID wvaid )
 {
     gatherpainter_->setWVAGather( wvaid );
     ConstRefMan<FlatDataPack> dp = viewer_->getPack( true ).get();
@@ -224,8 +224,8 @@ void uiViewer2D::enableScrollBars( bool yn )
 }
 
 
-uiGatherDisplay* uiViewer2D::addGatherDisplay( DataPack::ID vdid,
-					       DataPack::ID wvaid )
+uiGatherDisplay* uiViewer2D::addGatherDisplay( DataPackID vdid,
+					       DataPackID wvaid )
 {
     uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
     gatherdisp->setVDGather( vdid );

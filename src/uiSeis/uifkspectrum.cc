@@ -187,7 +187,7 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 
 
 void uiFKSpectrum::setDataPackID(
-	DataPack::ID dpid, DataPackMgr::MgrID dmid, int version )
+	DataPackID dpid, DataPackMgr::MgrID dmid, int version )
 {
     ConstRefMan<DataPack> datapack = DPM(dmid).getDP( dpid );
     setCaption( !datapack ? tr("No data")

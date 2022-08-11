@@ -755,7 +755,7 @@ void MPEDisplay::resetManipulation()
 }
 
 
-bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+bool MPEDisplay::setDataPackID( int attrib, DataPackID dpid,
 				   TaskRunner* tr )
 {
     if ( attrib != 0 || dpid == DataPack::cNoID() ) return false;
@@ -780,7 +780,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
     if ( !cdp )
 	return false;
 
-    DataPack::ID attrib_dpid = cdp->id();
+    DataPackID attrib_dpid = cdp->id();
     DPM( DataPackMgr::SeisID() ).ref( attrib_dpid );
 
     //transform data if necessary.
@@ -933,7 +933,7 @@ const RegularSeisDataPack* MPEDisplay::getCacheVolume( int attrib ) const
 }
 
 
-DataPack::ID MPEDisplay::getDataPackID( int attrib ) const
+DataPackID MPEDisplay::getDataPackID( int attrib ) const
 {
     return ( !attrib ) ? cacheid_ : DataPack::cNoID();
 }

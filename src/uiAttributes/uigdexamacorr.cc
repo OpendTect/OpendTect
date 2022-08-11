@@ -132,7 +132,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 
     BufferStringSet cnames;
     cnames.add( "autocorrelation" );
-    const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
+    const DataPackID outputid = uiAttribPartServer::createDataPackFor2D(
 					d2dh, sampling, SI().zDomain(),&cnames);
     auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
     if ( !regsdp ) return;

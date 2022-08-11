@@ -35,8 +35,8 @@ public:
 
     virtual void                setPosition(const BinID&,
 					    const Interval<double>* zrg=0);
-    void			setVDGather(DataPack::ID);
-    void			setWVAGather(DataPack::ID);
+    void			setVDGather(DataPackID);
+    void			setWVAGather(DataPackID);
 
     void                        displayAnnotation(bool yn);
     bool                        displaysAnnotation() const;
@@ -78,8 +78,8 @@ public:
 				uiViewer2D(uiParent*);
 				~uiViewer2D();
 
-    uiGatherDisplay*		addGatherDisplay(DataPack::ID vdid,
-				 DataPack::ID wvaid=DataPack::ID::udf());
+    uiGatherDisplay*		addGatherDisplay(DataPackID vdid,
+				 DataPackID wvaid=DataPackID::udf());
     void			addGatherDisplay(uiGatherDisplay*);
     void 			removeGatherDisplay(const uiGatherDisplay*);
     uiGatherDisplay& 		getGatherDisplay(int idx);

@@ -110,7 +110,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
     sampling.hsamp_.setGeomID( geomid_ );
 
-    const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
+    const DataPackID outputid = uiAttribPartServer::createDataPackFor2D(
 						d2dh, sampling, SI().zDomain());
     auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
     return regsdp ? new RegularFlatDataPack(*regsdp,-1) : nullptr;

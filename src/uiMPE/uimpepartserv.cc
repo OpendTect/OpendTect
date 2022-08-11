@@ -634,7 +634,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 
 
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
-				     DataPack::ID datapackid )
+				     DataPackID datapackid )
 {
     MPE::engine().setAttribData( spec, datapackid );
 }
