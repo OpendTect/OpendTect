@@ -1029,7 +1029,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	if ( merge )
 	{
 	    destf3d->geometry().copySelectedSticksTo(
-			    tmpfss->geometry(), tmpfss->sectionID(0), false );
+			    tmpfss->geometry(), false );
 	}
 	destfault->geometry().removeSelectedSticks( displayAfterwards() );
     }
@@ -1047,14 +1047,14 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     const bool adddestfsstohist = displayAfterwards() && destfss!=tmpfss;
     srcfault->geometry().copySelectedSticksTo( destfss->geometry(),
-				    destfss->sectionID(0), adddestfsstohist );
+				adddestfsstohist );
     if ( destf3d )
     {
 	EM::FSStoFault3DConverter::Setup setup;
 	setup.addtohistory_ = displayAfterwards();
 	if ( destf3d->isEmpty() )
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Auto;
-	else if ( destf3d->geometry().areSticksVertical(destf3d->sectionID(0)))
+	else if ( destf3d->geometry().areSticksVertical() )
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Vertical;
 	else
 	    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Horizontal;

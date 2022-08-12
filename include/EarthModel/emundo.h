@@ -47,7 +47,7 @@ public:
 mExpClass(EarthModel) SetPosUndoEvent : public EMUndoEvent
 {
 public:
-			SetPosUndoEvent(const Coord3& oldpos,const EM::PosID&);
+			SetPosUndoEvent(const Coord3& oldpos,const PosID&);
 
     const char*		getStandardDesc() const override;
     bool		unDo() override;
@@ -56,7 +56,7 @@ public:
 			{ return posid_.objectID(); }
 
 protected:
-    EM::PosID		posid_;
+    PosID		posid_;
     Coord3		savedpos_;
 
     static const char*	savedposstr_;
@@ -70,9 +70,16 @@ protected:
 mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public EMUndoEvent
 {
 public:
-			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+			SetAllHor3DPosUndoEvent(Horizon3D*,
 				    Array2D<float>*);
-			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+			SetAllHor3DPosUndoEvent(Horizon3D*,
+				    Array2D<float>*,const RowCol& oldorigin);
+
+    mDeprecated("Use without SectionID")
+			SetAllHor3DPosUndoEvent(Horizon3D*,SectionID,
+				    Array2D<float>*);
+    mDeprecated("Use without SectionID")
+			SetAllHor3DPosUndoEvent(Horizon3D*,SectionID,
 				    Array2D<float>*,const RowCol& oldorigin);
 
     const char*		getStandardDesc() const override;
@@ -84,8 +91,8 @@ protected:
     bool		setArray(const Array2D<float>&, const RowCol& origin);
 			~SetAllHor3DPosUndoEvent();
 
-    EM::Horizon3D*	horizon_;
-    EM::SectionID	sid_;
+    Horizon3D*		horizon_;
+    SectionID		sid_		= SectionID::def();
     RowCol		oldorigin_;
     RowCol		neworigin_;
     Array2D<float>*	oldarr_;
@@ -100,7 +107,7 @@ protected:
 mExpClass(EarthModel) SetPosAttribUndoEvent : public EMUndoEvent
 {
 public:
-			SetPosAttribUndoEvent(const EM::PosID&,int attrib,
+			SetPosAttribUndoEvent(const PosID&,int attrib,
 					      bool yn );
 
     const char*		getStandardDesc() const override;
@@ -110,7 +117,7 @@ public:
 			{ return posid_.objectID(); }
 
 protected:
-    EM::PosID		posid_;
+    PosID		posid_;
     bool		yn_;
     int			attrib_;
 };
@@ -123,8 +130,8 @@ protected:
 mExpClass(EarthModel) PosIDChangeEvent : public EMUndoEvent
 {
 public:
-			PosIDChangeEvent(const EM::PosID& from,
-					 const EM::PosID& to,
+			PosIDChangeEvent(const PosID& from,
+					 const PosID& to,
 					 const Coord3& tosprevpos);
 
     const char*		getStandardDesc() const override;
@@ -133,8 +140,8 @@ public:
     ObjectID		getObjectID() const override { return to_.objectID(); }
 
 protected:
-    const EM::PosID	from_;
-    const EM::PosID	to_;
+    const PosID		from_;
+    const PosID		to_;
     Coord3		savedpos_;
 };
 
@@ -146,7 +153,7 @@ protected:
 mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
 {
 public:
-			SetPrefColorEvent(const EM::ObjectID&,
+			SetPrefColorEvent(const ObjectID&,
 					  const OD::Color& oldcol,
 					  const OD::Color& newcol);
     const char*		getStandardDesc() const override;
@@ -155,7 +162,7 @@ public:
     ObjectID		getObjectID() const override { return objectid_; }
 
 protected:
-    const EM::ObjectID	objectid_;
+    const ObjectID	objectid_;
     const OD::Color	oldcolor_;
     const OD::Color	newcolor_;
 };

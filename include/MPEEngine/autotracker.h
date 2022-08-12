@@ -31,8 +31,6 @@ namespace MPE
 {
 
 class SectionTracker;
-class SectionAdjuster;
-class SectionExtender;
 class EMTracker;
 
 /*!
@@ -90,4 +88,3 @@ protected:
 };
 
 } // namespace MPE
-

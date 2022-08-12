@@ -45,7 +45,7 @@ protected:
     EM::Horizon3D*		getHorizon();
     const EM::Horizon3D*	getHorizon() const;
 
-    SectionTracker*		createSectionTracker(EM::SectionID) override;
+    SectionTracker*		createSectionTracker() override;
     Horizon3DSeedPicker*	seedpicker_;
 };
 

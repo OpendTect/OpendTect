@@ -89,7 +89,6 @@ protected:
 	{
 	    FlatView::AuxData*	marker_;
 	    int			markerid_;
-	    EM::SectionID	sectionid_;
 	};
 
     void			cleanAuxInfoContainer();

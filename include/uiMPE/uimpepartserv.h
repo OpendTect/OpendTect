@@ -61,13 +61,11 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    bool			showSetupDlg(const EM::ObjectID&,
-					     const EM::SectionID&);
+    bool			showSetupDlg(const EM::ObjectID&);
 				/*!<\returns false if cancel was pressed. */
     bool			showSetupGroupOnTop(const EM::ObjectID&,
 						    const char* grpnm);
-    void			useSavedSetupDlg(const EM::ObjectID&,
-						 const EM::SectionID&);
+    void			useSavedSetupDlg(const EM::ObjectID&);
     MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
 
     int				activeTrackerID() const;
@@ -119,6 +117,15 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+// Deprecated public functions
+    mDeprecated("Use without SectionID")
+    bool			showSetupDlg(const EM::ObjectID& objid,
+					     const EM::SectionID&)
+				{ return showSetupDlg(objid); }
+    mDeprecated("Use without SectionID")
+    void			useSavedSetupDlg(const EM::ObjectID& objid,
+						 const EM::SectionID&)
+				{ useSavedSetupDlg(objid); }
 protected:
     void			activeVolumeChange(CallBacker*);
     void			loadEMObjectCB(CallBacker*);
@@ -126,7 +133,6 @@ protected:
 						MPE::EMTracker&);
     bool			initSetupDlg(EM::EMObject*& emobj,
 					     MPE::EMTracker*& tracker,
-					     const EM::SectionID& sid,
 					     bool freshdlg=false);
 
     const Attrib::DescSet*	attrset3d_;

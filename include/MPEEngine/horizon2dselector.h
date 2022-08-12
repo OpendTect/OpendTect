@@ -23,8 +23,11 @@ namespace MPE
 mExpClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
 {
 public:
-    				Horizon2DSelector(const EM::Horizon2D&,
-						  const EM::SectionID&);
+				Horizon2DSelector(const EM::Horizon2D&);
+    mDeprecated("Use without SectionID")
+				Horizon2DSelector(const EM::Horizon2D& hor2d,
+						  const EM::SectionID&)
+				    : Horizon2DSelector(hor2d)	{}
     int				nextStep() override;
 
 protected:
@@ -32,4 +35,3 @@ protected:
 };
 
 } // namespace MPE
-

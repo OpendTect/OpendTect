@@ -68,9 +68,8 @@ public:
 
     StepInterval<int>		geometryRowRange() const;
     StepInterval<int>		geometryColRange() const;
-    visBase::HorizonSection*	getHorizonSection(const EM::SectionID&);
-    const visBase::HorizonSection*
-				getHorizonSection(const EM::SectionID&) const;
+    visBase::HorizonSection*	getHorizonSection();
+    const visBase::HorizonSection* getHorizonSection() const;
     TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
     void			useTexture(bool yn,bool trigger=false) override;
@@ -225,6 +224,15 @@ public:
     void			updateAuxData() override;
     bool			canBeRemoved() const override;
 
+// Deprecated public functions
+    mDeprecated("Use without SectionID")
+    visBase::HorizonSection*	getHorizonSection(const EM::SectionID&)
+				{ return getHorizonSection(); }
+    mDeprecated("Use without SectionID")
+    const visBase::HorizonSection*
+				getHorizonSection(const EM::SectionID&) const
+				{ return getHorizonSection(); }
+
 private:
 				~HorizonDisplay();
 
@@ -297,12 +305,10 @@ private:
     void			traverseLine(const TrcKeyPath&,
 					     const TypeSet<Coord>&,
 					     const Interval<float>& zrg,
-					     EM::SectionID,
 					     IntersectionData&) const;
 				/*!<List of coordinates may be empty, coords
 				    will then be fetched from trckeys. */
     void			drawHorizonOnZSlice(const TrcKeyZSampling&,
-					     const EM::SectionID&,
 					     IntersectionData&) const;
 
     bool			isValidIntersectionObject(

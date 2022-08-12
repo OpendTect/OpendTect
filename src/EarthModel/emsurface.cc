@@ -212,24 +212,8 @@ Surface::Surface( EMManager& man)
 Surface::~Surface()
 {}
 
-void Surface::removeAll() {}
-
-int Surface::nrSections() const
-{ return geometry().nrSections(); }
-
-SectionID Surface::sectionID( int idx ) const
-{ return geometry().sectionID(idx); }
-
-BufferString Surface::sectionName( const SectionID& sid ) const
-{ return geometry().sectionName(sid); }
-
-bool Surface::canSetSectionName() const { return true; }
-
-bool Surface::setSectionName( const SectionID& sid, const char* nm, bool hist )
-{ return geometry().setSectionName(sid,nm,hist); }
-
-bool Surface::removeSection( SectionID sid, bool hist )
-{ return geometry().removeSection( sid, hist ); }
+void Surface::removeAll()
+{}
 
 bool Surface::isAtEdge( const PosID& posid ) const
 { return geometry().isAtEdge(posid); }
@@ -237,16 +221,20 @@ bool Surface::isAtEdge( const PosID& posid ) const
 bool Surface::isLoaded() const
 { return geometry().isLoaded(); }
 
-Executor* Surface::saver() { return geometry().saver(); }
+Executor* Surface::saver()
+{ return geometry().saver(); }
 
-Executor* Surface::loader() { return geometry().loader(); }
+Executor* Surface::loader()
+{ return geometry().loader(); }
 
-Geometry::Element* Surface::sectionGeometryInternal( const SectionID& sid )
-{ return geometry().sectionGeometry(sid); }
+Geometry::Element* Surface::geometryElementInternal()
+{ return geometry().geometryElement(); }
 
-EMObjectIterator* Surface::createIterator( const SectionID& sid,
-					   const TrcKeyZSampling* cs ) const
-{ return geometry().createIterator( sid, cs ); }
+Geometry::Element* Surface::sectionGeometryInternal( const SectionID& )
+{ return geometryElementInternal(); }
+
+EMObjectIterator* Surface::createIterator(  const TrcKeyZSampling* tkzs ) const
+{ return geometry().createIterator( tkzs ); }
 
 bool Surface::enableGeometryChecks( bool nv )
 { return geometry().enableChecks( nv ); }
@@ -260,7 +248,7 @@ const SurfaceGeometry& Surface::geometry() const
 
 void Surface::apply( const Pos::Filter& pf )
 {
-    PtrMan<EM::EMObjectIterator>iterator = createIterator( -1 );
+    PtrMan<EM::EMObjectIterator>iterator = createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();

@@ -41,12 +41,10 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
     , msg_(tr("Creating Isochron"))
     , dataidx_(dataidx)
     , dps_(dps)
-    , sectid1_(hor1.sectionID(0))
-    , sectid2_(hor2.sectionID(0))
     , inmsec_(false)
     , sidcolidx_(mUdf(int))
 {
-    iter_ = hor1.createIterator( sectid1_ );
+    iter_ = hor1.createIterator();
     totnr_ = iter_->approximateSize();
 
     if ( dps_ )
@@ -80,12 +78,12 @@ int IsochronMaker::nextStep()
 	    vals[idx] = mUdf(float);
 
 	const int nrfixedcols = dps_->nrFixedCols();
-	vals[sidcolidx_+nrfixedcols] = sectid1_;
+	vals[sidcolidx_+nrfixedcols] = EM::SectionID::def().asInt();
 	startsourceidx = nrfixedcols + (sidcolidx_ ? 0 : 1);
     }
 
     const Geometry::BinIDSurface* hor2geom =
-			hor2_.geometry().sectionGeometry( sectid2_ );
+			hor2_.geometry().geometryElement();
     for ( int idx=0; idx<sBlockSize; idx++ )
     {
 	const EM::PosID posid = iter_->next();
@@ -93,11 +91,8 @@ int IsochronMaker::nextStep()
 	if ( !posid.isValid() )
 	    return finishWork();
 
-	if ( posid.sectionID() != sectid1_ )
-	    continue;
-
 	const EM::SubID subid = posid.subID();
-	const Coord3 pos1( hor1_.getPos( sectid1_, subid ) );
+	const Coord3 pos1( hor1_.getPos( subid ) );
 	const float z1 = float( pos1.z );
 	if ( mIsUdf(z1) )
 	{
@@ -106,7 +101,7 @@ int IsochronMaker::nextStep()
 	    continue;
 	}
 
-	float z2 = float( hor2_.getPos(sectid2_,subid).z );
+	float z2 = float( hor2_.getPos(subid).z );
 	if ( mIsUdf(z2) )
 	{
 	    const BinID bid = BinID::fromInt64( subid );

@@ -104,21 +104,16 @@ void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
 bool Fault3DPainter::addPolyLine()
 {
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
-
-    mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
+    mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr())
     if ( !emf3d ) return false;
 
-    for ( int sidx=0; sidx<emf3d->nrSections(); sidx++ )
-    {
-	const EM::SectionID sid = emf3d->sectionID( sidx );
-	Fault3DMarker* f3dsectionmarker = new Fault3DMarker;
-	f3dmarkers_ += f3dsectionmarker;
+    Fault3DMarker* f3dsectionmarker = new Fault3DMarker;
+    f3dmarkers_ += f3dsectionmarker;
 
-	bool stickpained = paintSticks(*emf3d,sid,f3dsectionmarker);
-	bool intersecpainted = paintIntersection(*emf3d,sid,f3dsectionmarker);
-	if ( !stickpained && !intersecpainted )
-	     return false;
-    }
+    bool stickpained = paintSticks( *emf3d, f3dsectionmarker );
+    bool intersecpainted = paintIntersection( *emf3d, f3dsectionmarker );
+    if ( !stickpained && !intersecpainted )
+	 return false;
 
     return true;
 }
@@ -130,12 +125,9 @@ void Fault3DPainter::paint()
 }
 
 
-bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
-				 Fault3DMarker* f3dmaker )
+bool Fault3DPainter::paintSticks( EM::Fault3D& f3d, Fault3DMarker* f3dmaker )
 {
-    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     f3d.sectionGeometry(sid) );
-
+    mDynamicCastGet(Geometry::FaultStickSurface*,fss,f3d.geometryElement())
     if ( !fss || fss->isEmpty() )
 	return false;
 
@@ -160,7 +152,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	    stickauxdata->markerstyles_.erase();
 	stickauxdata->enabled_ = linenabled_;
 
-	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal(sid,rc.row());
+	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal( rc.row() );
 
 	if ( !path_ )
 	{
@@ -314,12 +306,11 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 
 
 bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
-					const EM::SectionID& sid,
 					Fault3DMarker* f3dmaker )
 {
     PtrMan<Geometry::IndexedShape> faultsurf =
 		    new Geometry::ExplFaultStickSurface(
-			f3d.geometry().sectionGeometry(sid), SI().zScale() );
+			f3d.geometry().geometryElement(), SI().zScale() );
     faultsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
     if ( !faultsurf->update(true,0) )
 	return false;
@@ -544,7 +535,7 @@ void Fault3DPainter::enableKnots( bool yn )
 }
 
 
-void Fault3DPainter::setActiveStick( EM::PosID& pid )
+void Fault3DPainter::setActiveStick( const EM::PosID& pid )
 {
     if ( pid.objectID() != emid_ ) return;
 

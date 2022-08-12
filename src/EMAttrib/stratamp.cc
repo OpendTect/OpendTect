@@ -167,7 +167,6 @@ int StratAmpCalc::init( const IOPar& pars )
 	dataidx_ = addtohor->auxdata.addAuxData( attribnm );
 
     posid_.setObjectID( addtohor->id() );
-    posid_.setSectionID( addtohor->sectionID(0) );
     if ( outfold_ )
     {
 	BufferString foldnm = attribnm;
@@ -177,7 +176,6 @@ int StratAmpCalc::init( const IOPar& pars )
 	    dataidxfold_ = addtohor->auxdata.addAuxData( foldnm );
 
 	posidfold_.setObjectID( addtohor->id() );
-	posidfold_.setSectionID( addtohor->sectionID(0) );
     }
 
     return dataidx_;
@@ -227,9 +225,8 @@ int StratAmpCalc::nextStep()
 
     const BinID bid = trc->info().binID();
     const EM::SubID subid = bid.toInt64();
-    float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
-    float z2 = !bothorizon_ ? z1
-	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
+    float z1 = tophorizon_->getZ( bid );
+    float z2 = !bothorizon_ ? z1 : bothorizon_->getZ( bid );
     if ( mIsUdf(z1) || mIsUdf(z2) )
 	return Executor::MoreToDo();
 

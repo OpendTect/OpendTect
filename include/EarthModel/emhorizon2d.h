@@ -34,9 +34,10 @@ mExpClass(EarthModel) Horizon2DGeometry : public HorizonGeometry
 {
 public:
 				Horizon2DGeometry(Surface&);
-    Geometry::Horizon2DLine*	sectionGeometry(const SectionID&) override;
-    const Geometry::Horizon2DLine* sectionGeometry(
-					    const SectionID&) const override;
+				~Horizon2DGeometry();
+
+    Geometry::Horizon2DLine*	geometryElement() override;
+    const Geometry::Horizon2DLine* geometryElement() const override;
 
     int				nrLines() const;
 
@@ -84,13 +85,24 @@ public:
 
     int				getConnectedPos(const PosID& posid,
 					    TypeSet<PosID>* res) const override;
-    StepInterval<int>		colRange(const SectionID&,
-					 Pos::GeomID geomid) const;
-
     StepInterval<int>		colRange(Pos::GeomID geomid) const;
 
+// Deprecated public functions
+    mDeprecated("Use geometryElement()")
+    Geometry::Horizon2DLine*	sectionGeometry(const SectionID&) override
+				{ return geometryElement(); }
+    mDeprecated("Use geometryElement() const")
+    const Geometry::Horizon2DLine* sectionGeometry(
+					const SectionID&) const override
+				{ return geometryElement(); }
+    mDeprecated("Use colRange() without SectionID")
+    StepInterval<int>		colRange(const SectionID&,
+					 Pos::GeomID geomid) const
+				{ return colRange(geomid); }
+
+
 protected:
-    Geometry::Horizon2DLine*	createSectionGeometry() const override;
+    Geometry::Horizon2DLine*	createGeometryElement() const override;
 
     bool			doAddLine(Pos::GeomID geomid,
 					  const StepInterval<int>& trcrg,
@@ -131,16 +143,14 @@ public:
 
     bool			unSetPos(const EM::PosID&,
 					 bool addtohist) override;
-    bool			unSetPos(const EM::SectionID&,const EM::SubID&,
+    bool			unSetPos(const EM::SubID&,
 					 bool addtohist) override;
     Coord3			getPos(const EM::PosID&) const override;
-    Coord3			getPos(const EM::SectionID&,
-				       const EM::SubID&) const override;
+    Coord3			getPos(const EM::SubID&) const override;
     TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
-    Coord3			getPosition(EM::SectionID,int lidx,
-					    int trcnr) const;
+    Coord3			getPosition(int lidx,int trcnr) const;
 
-    Coord3			getPos(EM::SectionID,Pos::GeomID,int trc) const;
+    Coord3			getPos(Pos::GeomID,int trc) const;
     void			setNodeSourceType(const TrcKey&,
 					NodeSourceType) override;
     bool			isNodeSourceType(const PosID&,
@@ -148,12 +158,12 @@ public:
     bool			isNodeSourceType(const TrcKey&,
 					NodeSourceType)const override;
 
-    bool			setPos(EM::SectionID,Pos::GeomID geomid,
+    bool			setPos(Pos::GeomID geomid,
 				       int trcnr,float z,bool addtohist);
 
     bool			setPos(const EM::PosID&,const Coord3&,
 					bool addtohist) override;
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
+    bool			setPos(const EM::SubID&,
 				       const Coord3&,bool addtohist) override;
 
     Horizon2DGeometry&		geometry() override	{ return geometry_; }
@@ -165,20 +175,48 @@ public:
 
     bool			setArray1D(const Array1D<float>&,
 					   const StepInterval<int>& trcrg,
-					   SectionID sid,Pos::GeomID geomid,
+					   Pos::GeomID geomid,
 					   bool onlyfillundefs);
-    bool			setArray1D(const Array1D<float>&,SectionID sid,
+    bool			setArray1D(const Array1D<float>&,
 					   Pos::GeomID geomid,
 					   bool onlyfillundefs );
-
-    Array1D<float>*		createArray1D(SectionID,
-					      Pos::GeomID geomid,
+    Array1D<float>*		createArray1D(Pos::GeomID geomid,
 					      const ZAxisTransform* =0) const;
 
     OD::GeomSystem		getSurveyID() const override;
     uiString			getUserTypeStr() const override
 				    { return userTypeStr(); }
     static uiString		userTypeStr() { return tr("2D Horizon"); }
+
+    EMObjectIterator*	createIterator(
+				const TrcKeyZSampling* =nullptr) const override;
+
+// Deprecated public functions
+    mDeprecated("Use without SectionID")
+    Coord3			getPosition(EM::SectionID,int lidx,
+					    int trcnr) const
+				{ return getPosition(lidx,trcnr); }
+    mDeprecated("Use without SectionID")
+    Coord3			getPos(EM::SectionID,Pos::GeomID geomid,
+					int trc) const
+				{ return getPos(geomid,trc); }
+    mDeprecated("Use without SectionID")
+    bool			setArray1D(const Array1D<float>& arr,
+					   const StepInterval<int>& trcrg,
+					   SectionID sid,Pos::GeomID geomid,
+					   bool onlyfillundefs)
+				{ return setArray1D(arr,trcrg,geomid,
+						    onlyfillundefs); }
+    mDeprecated("Use without SectionID")
+    bool			setArray1D(const Array1D<float>& arr,
+					   SectionID sid,Pos::GeomID geomid,
+					   bool onlyfillundefs)
+				{ return setArray1D(arr,geomid,onlyfillundefs);}
+    mDeprecated("Use without SectionID")
+    Array1D<float>*		createArray1D(SectionID,
+					      Pos::GeomID geomid,
+					      const ZAxisTransform* zt=0) const
+				{ return createArray1D(geomid,zt); }
 
 protected:
 
@@ -196,4 +234,3 @@ protected:
 };
 
 } // namespace EM
-

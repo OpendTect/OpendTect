@@ -651,8 +651,7 @@ public:
 	    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
 	    if ( !fss ) continue;
 
-	    EM::SectionID sid = fss->sectionID(0);
-	    const int nrsticks = fss->geometry().nrSticks( sid );
+	    const int nrsticks = fss->geometry().nrSticks();
 
 	    bool fssvalid = false;
 	    for ( int gidx=0; gidx<geomids.size(); gidx++ )
@@ -661,15 +660,15 @@ public:
 		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 		{
 		    const Geometry::FaultStickSet* fltgeom =
-			fss->geometry().sectionGeometry( sid );
+			fss->geometry().geometryElement();
 		    if ( !fltgeom ) continue;
 
 		    const int sticknr = fltgeom->rowRange().atIndex( stickidx );
-		    if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
+		    if ( !fss->geometry().pickedOn2DLine(sticknr) )
 			continue;
 
 		    if ( geomids[gidx] ==
-				fss->geometry().pickedGeomID(sid,sticknr))
+				fss->geometry().pickedGeomID(sticknr))
 		    { fssvalid = true; break; }
 		}
 	    }

@@ -273,7 +273,7 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	RefMan<EM::Fault3D> flt3d =
 		faultset_->getFault3D( faultset_->getFaultID(idx) );
 	mDynamicCastGet(Geometry::FaultStickSurface*,fss,
-			flt3d->sectionGeometry(flt3d->sectionID(0)));
+			flt3d->geometryElement())
 
 	paneldisplays_[idx]->setSurface( explicitpanels_[idx] );
 	explicitpanels_[idx]->setSurface( fss );
@@ -1033,7 +1033,7 @@ void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     faultset_->sectionGeometry( faultset_->sectionID(0)) );
+		     faultset_->geometryElement())
 
     for ( int idx=0; idx<activehordisps.size(); idx++ )
     {

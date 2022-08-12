@@ -52,13 +52,13 @@ public:
     void			setStickMarkerStyle(const MarkerStyle3D&);
 
 protected:
-    Geometry::FaultStickSet*	faultStickSetGeometry(int);
+    Geometry::FaultStickSet*	faultStickSetGeometry();
     void			stickSelectionCB(CallBacker*,
 						 const Survey::Geometry3D*);
     void			setCurScene( visSurvey::Scene* scene )
 					   { ownerscene_ = scene; }
     const visSurvey::Scene*	getCurScene() { return ownerscene_; }
-    bool			matchMarker(int,int,const Coord3,const Coord3,
+    bool			matchMarker(int,const Coord3,const Coord3,
 					    const Coord3);
     EM::Fault*			fault_;
     const mVisTrans*		displaytransform_;
@@ -76,13 +76,10 @@ protected:
     struct StickIntersectPoint
     {
 	Coord3			pos_;
-	int			sid_;
 	int			sticknr_;
     };
     ObjectSet<StickIntersectPoint>  stickintersectpoints_;
 
 };
 
-};
-
-
+} // namespace visSurvey

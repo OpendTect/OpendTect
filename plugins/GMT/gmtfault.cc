@@ -110,9 +110,8 @@ bool GMTFault::doExecute( od_ostream& strm, const char* fnm )
 	if ( !fault3d )
 	    continue;
 
-	EM::SectionID fltsid = fault3d->sectionID( 0 );
 	Geometry::FaultStickSurface* fsssurf =
-				fault3d->geometry().sectionGeometry(fltsid);
+				fault3d->geometry().geometryElement();
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf =
 	    new Geometry::ExplFaultStickSurface( fsssurf,
 				  mCast(float,SI().zDomain().userFactor()) );
@@ -146,8 +145,7 @@ bool GMTFault::doExecute( od_ostream& strm, const char* fnm )
 	    if ( !clist )
 		continue;
 
-	    Geometry::IndexedGeometry* idxgeom =
-						idxdshape->getGeometry()[0];
+	    Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
 	    if ( !idxgeom )
 		continue;
 
@@ -156,7 +154,7 @@ bool GMTFault::doExecute( od_ostream& strm, const char* fnm )
 	    if ( sz == 0 )
 	    {
 		uiString msg = tr("Selected ZSlice and %1 are not intersected")
-                             .arg(fault3d->name());
+				.arg(fault3d->name());
 		strm << '\t' << msg << '\n';
 		continue;
 	    }
@@ -234,7 +232,7 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 	return false;
 
     Geometry::BinIDSurface* bidsurface =
-			    horizon3d->geometry().sectionGeometry( 0 );
+			    horizon3d->geometry().geometryElement();
     if ( !bidsurface )
 	return false;
 

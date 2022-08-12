@@ -419,10 +419,9 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 
     float auxvals[3];
-    const EM::SectionID sid = hor3d->sectionID( 0 );
     tks_ = hor3d->range();
-    auxvals[1] = sid;
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
+    auxvals[1] = EM::SectionID::def().asInt();
+    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();

@@ -28,7 +28,7 @@ namespace Pos { class Provider; }
 namespace EM
 {
 
-class Surface;
+class Horizon;
 
 /*!
 \brief Group of utilities for horizons: here are all functions required in
@@ -40,9 +40,9 @@ mExpClass(EarthModel) HorizonUtils
 public:
 			HorizonUtils()		{}
 
-    static float 	getZ(const RowCol&,const Surface*);
-    static float 	getMissingZ(const RowCol&,const Surface*,int);
-    static Surface* 	getSurface(const MultiID&);
+    static float	getZ(const RowCol&,const Horizon*);
+    static float	getMissingZ(const RowCol&,const Horizon*,int);
+    static Horizon*	getHorizon(const MultiID&);
     static void 	getPositions(od_ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
     static void 	getExactCoords(od_ostream&,const MultiID&,
@@ -58,7 +58,7 @@ public:
 				       DataPointSet*,const TrcKeySampling&,
 				       const Interval<float>& extraz,
 				       Pos::GeomID);
-    static bool		getZInterval(int idi,int idc,Surface*,Surface*,
+    static bool		getZInterval(int idi,int idc,Horizon*,Horizon*,
 	    			     float& topz,float& botz,int nrinterpsamp,
 				     int mainhoridx,float& lastzinterval,
 				     float extrawidth);
@@ -66,7 +66,7 @@ public:
     static bool		SolveIntersect(float& topz,float& botz,int nrinterpsamp,
 	    			       int is1main,float extrawidth,
 				       bool is1interp,bool is2interp);
-    static void 	addSurfaceData(const MultiID&,const BufferStringSet&,
+    static void		addHorizonData(const MultiID&,const BufferStringSet&,
 				       const ObjectSet<BinIDValueSet>&);
 
 protected:
@@ -77,8 +77,9 @@ protected:
 mExpClass( EarthModel ) HorizonSelInfo
 {
 public:
-			HorizonSelInfo( const MultiID& key )
-			    : key_(key), emobjid_(-1)	    {}
+			HorizonSelInfo(const MultiID&);
+			~HorizonSelInfo();
+
     BufferString	name_;
     MultiID		key_;
     ObjectID		emobjid_;
@@ -87,6 +88,4 @@ public:
     static void		getAll(ObjectSet<HorizonSelInfo>&,bool is2d);
 };
 
-
 } // namespace EM
-

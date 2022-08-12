@@ -47,7 +47,7 @@ public:
 protected:
     int				totnr_;
     od_int64			nrdone_;
-    uiString		        msg_;
+    uiString			msg_;
 
     int				sidcolidx_;
     int				dataidx_;
@@ -55,7 +55,5 @@ protected:
     const EM::Horizon3D&	hor2_;
     DataPointSet*		dps_;
     EM::EMObjectIterator*	iter_;
-    const EM::SectionID		sectid1_;
-    const EM::SectionID		sectid2_;
     bool			inmsec_;
 };

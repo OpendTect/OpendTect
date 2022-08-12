@@ -419,7 +419,6 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
     if ( betweenhors )
     {
-	EM::SectionID sid = horizon1->sectionID( 0 );
 	EM::EMObject* emobjdoublehor =
 	    EM::EMM().loadIfNotFullyLoaded( surf2mid, &dlg );
 
@@ -434,17 +433,15 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	    return false;
 	}
 
-	EM::SectionID sid2 = horizon2->sectionID( 0 );
 	BinIDValueSet& bvs = tsd.binidValueSet();
 	bvs.allowDuplicateBinIDs( true );
-	horizon1->geometry().fillBinIDValueSet( sid, bvs, prov );
-	horizon2->geometry().fillBinIDValueSet( sid2, bvs, prov );
+	horizon1->geometry().fillBinIDValueSet( bvs, prov );
+	horizon2->geometry().fillBinIDValueSet( bvs, prov );
 	emobjdoublehor->unRef();
     }
     else
     {
-	EM::SectionID sid = horizon1->sectionID( 0 );
-	horizon1->geometry().fillBinIDValueSet( sid,tsd.binidValueSet(),prov );
+	horizon1->geometry().fillBinIDValueSet( tsd.binidValueSet(), prov );
     }
 
     emobjsinglehor->unRef();

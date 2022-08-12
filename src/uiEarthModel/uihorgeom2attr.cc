@@ -97,23 +97,20 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 
     mGetZFac( 1000 );
 
-    for ( EM::SectionID isect=0; isect<hor_.nrSections(); isect++ )
+    EM::EMObjectIterator* iter = hor_.createIterator();
+    while ( true )
     {
-	EM::EMObjectIterator* iter = hor_.createIterator( isect );
-	while ( true )
-	{
-	    const EM::PosID pid = iter->next();
-	    if ( !pid.isValid() )
-		break;
+	const EM::PosID pid = iter->next();
+	if ( !pid.isValid() )
+	    break;
 
-	    if ( !hor_.geometry().isNodeOK(pid) )
-		continue;
+	if ( !hor_.geometry().isNodeOK(pid) )
+	    continue;
 
-	    const float zval = (float) ( hor_.getPos(pid).z * zfac );
-	    hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
-	}
-	delete iter;
+	const float zval = (float) ( hor_.getPos(pid).z * zfac );
+	hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
     }
+    delete iter;
 
     PtrMan<Executor> saver = hor_.auxdata.auxDataSaver( auxidx, true );
     if ( !saver )
@@ -254,9 +251,7 @@ int nextStep() override
 
 void fillHorizonArray()
 {
-    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 )
-				: hor_.geometry().addSection( 0, false );
-    Geometry::BinIDSurface* geom = hor_.geometry().sectionGeometry( sid );
+    Geometry::BinIDSurface* geom = hor_.geometry().geometryElement();
     geom->setArray( hortks_.start_, hortks_.step_, horarray_, true );
     horarray_ = 0;
     hor_.enableGeometryChecks( true );

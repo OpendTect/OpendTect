@@ -26,14 +26,12 @@ namespace EM
 class Hor2DTo3DSectionData
 {
 public:
-Hor2DTo3DSectionData( EM::SectionID sid,
-		      const BinID& minbid, const BinID& maxbid,
+Hor2DTo3DSectionData( const BinID& minbid, const BinID& maxbid,
 		      const BinID& step )
     : arr_( getSz(minbid.inl(),maxbid.inl(),step.inl()),
 	    getSz(minbid.crl(),maxbid.crl(),step.crl()) )
     , count_( getSz(minbid.inl(),maxbid.inl(),step.inl()),
 	      getSz(minbid.crl(),maxbid.crl(),step.crl()) )
-    , sid_(sid)
 {
     inlsz_ = count_.info().getSize( 0 );
     crlsz_ = count_.info().getSize( 1 );
@@ -79,7 +77,7 @@ void add( const BinID& bid, float z )
 
     Array2DImpl<int>	count_;
     Array2DImpl<float>	arr_;
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     EM::SectionID	sid_;
     int			inlsz_;
     int			crlsz_;
@@ -129,51 +127,46 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 
 void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 {
-    for ( int isect=0; isect<hor2d_.nrSections(); isect++ )
+    BinID minbid( mUdf(int), 0 ), maxbid;
+    for ( EM::RowColIterator iter(hor2d_); ; )
     {
-	const EM::SectionID sid( hor2d_.sectionID(isect) );
+	const EM::PosID posid = iter.next();
+	if ( !posid.isValid() )
+	    break;
 
-	BinID minbid( mUdf(int), 0 ), maxbid;
-	for ( EM::RowColIterator iter(hor2d_,sid); ; )
+	const Coord coord = hor2d_.getPos( posid );
+	const BinID bid = SI().transform( coord );
+	if ( mIsUdf(minbid.inl()) )
+	    minbid = maxbid = bid;
+	else
 	{
-	    const EM::PosID posid = iter.next();
-	    if ( !posid.isValid() )
-		break;
-
-	    const Coord coord = hor2d_.getPos( posid );
-	    const BinID bid = SI().transform( coord );
-	    if ( mIsUdf(minbid.inl()) )
-		minbid = maxbid = bid;
-	    else
-	    {
-		if ( minbid.inl() > bid.inl() ) minbid.inl() = bid.inl();
-		if ( minbid.crl() > bid.crl() ) minbid.crl() = bid.crl();
-		if ( maxbid.inl() < bid.inl() ) maxbid.inl() = bid.inl();
-		if ( maxbid.crl() < bid.crl() ) maxbid.crl() = bid.crl();
-	    }
+	    if ( minbid.inl() > bid.inl() ) minbid.inl() = bid.inl();
+	    if ( minbid.crl() > bid.crl() ) minbid.crl() = bid.crl();
+	    if ( maxbid.inl() < bid.inl() ) maxbid.inl() = bid.inl();
+	    if ( maxbid.crl() < bid.crl() ) maxbid.crl() = bid.crl();
 	}
-
-	if ( mIsUdf(minbid.inl()) || minbid == maxbid )
-	    continue;
-
-	if ( curinterp_ &&
-	     (minbid.inl()==maxbid.inl() || minbid.crl()==maxbid.crl()) )
-	{
-	    int extendedsize = 1;
-	    mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
-	    if ( inv && !mIsUdf(inv->getNrSteps()) )
-		extendedsize = inv->getNrSteps();
-
-	    minbid.inl() -= extendedsize;
-	    if ( minbid.inl()<0 ) minbid.inl() = 0;
-	    minbid.crl() -= extendedsize;
-	    if ( minbid.crl()<0 ) minbid.crl() = 0;
-	    maxbid.inl() += extendedsize;
-	    maxbid.crl() += extendedsize;
-	}
-
-	sd_ += new Hor2DTo3DSectionData( sid, minbid, maxbid, hs.step_ );
     }
+
+    if ( mIsUdf(minbid.inl()) || minbid == maxbid )
+	return;
+
+    if ( curinterp_ &&
+	 (minbid.inl()==maxbid.inl() || minbid.crl()==maxbid.crl()) )
+    {
+	int extendedsize = 1;
+	mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
+	if ( inv && !mIsUdf(inv->getNrSteps()) )
+	    extendedsize = inv->getNrSteps();
+
+	minbid.inl() -= extendedsize;
+	if ( minbid.inl()<0 ) minbid.inl() = 0;
+	minbid.crl() -= extendedsize;
+	if ( minbid.crl()<0 ) minbid.crl() = 0;
+	maxbid.inl() += extendedsize;
+	maxbid.crl() += extendedsize;
+    }
+
+    sd_ += new Hor2DTo3DSectionData( minbid, maxbid, hs.step_ );
 }
 
 
@@ -183,7 +176,7 @@ void Hor2DTo3D::fillSections()
     {
 	Coord lastpos = Coord::udf();
 	Hor2DTo3DSectionData& sd = *sd_[isd];
-	for ( EM::RowColIterator iter(hor2d_,sd.sid_); ; )
+	for ( EM::RowColIterator iter(hor2d_); ; )
 	{
 	    const EM::PosID posid = iter.next();
 	    if ( !posid.isValid() )
@@ -245,8 +238,7 @@ int Hor2DTo3D::nextStep()
 
     const bool geowaschecked = hor3d_.enableGeometryChecks( false );
 
-    SectionID sid = hor3d_.geometry().addSection( "", false );
-    hor3d_.geometry().sectionGeometry(sid)->
+    hor3d_.geometry().geometryElement()->
 				expandWithUdf( sd.hs_.start_, sd.hs_.stop_ );
 
     for ( int inlidx=0; inlidx<sd.inlsz_; inlidx++ )
@@ -256,19 +248,19 @@ int Hor2DTo3D::nextStep()
 	    const BinID bid( sd.hs_.inlRange().atIndex(inlidx),
 			     sd.hs_.crlRange().atIndex(crlidx) );
 	    const Coord3 pos( SI().transform(bid), sd.arr_.get(inlidx,crlidx) );
-
 	    if ( pos.isDefined() )
-		hor3d_.setPos( sid, bid.toInt64(), pos, false );
+		hor3d_.setPos( bid.toInt64(), pos, false );
 	}
     }
 
-    hor3d_.geometry().sectionGeometry(sid)->trimUndefParts();
+    hor3d_.geometry().geometryElement()->trimUndefParts();
     hor3d_.enableGeometryChecks( geowaschecked );
 
     cursectnr_++;
     if ( cursectnr_ >= sd_.size() )
 	return Executor::Finished();
-    else if ( curinterp_ )
+
+    if ( curinterp_ )
     {
 	curinterp_->setArray( sd_[cursectnr_]->arr_ );
     }
@@ -276,4 +268,4 @@ int Hor2DTo3D::nextStep()
     return Executor::MoreToDo();
 }
 
-} // namespace OD
+} // namespace EM

@@ -1445,14 +1445,6 @@ bool uiODApplMgr::handlePickServEv( int evid )
 }
 
 
-#define mGetSelTracker( tracker ) \
-    const VisID selobjvisid = visserv_->getSelObjectId(); \
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
-				visserv_->getObject(selobjvisid));\
-    const EM::ObjectID emid = emod ? emod->getObjectID() : EM::ObjectID::udf();\
-    const int trackerid = mpeserv_->getTrackerID(emid); \
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-
 bool uiODApplMgr::handleVisServEv( int evid )
 {
     const VisID visid = visserv_->getEventObjId();
@@ -1490,11 +1482,12 @@ bool uiODApplMgr::handleVisServEv( int evid )
     }
     else if ( evid == uiVisPartServer::evShowMPESetupDlg() )
     {
-	mGetSelTracker( tracker );
-	const MPE::EMSeedPicker* seedpicker = tracker ?
-					      tracker->getSeedPicker(false) : 0;
-	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
-	mpeserv_->showSetupDlg( emid, sid );
+	const VisID selobjvisid = visserv_->getSelObjectId();
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+				visserv_->getObject(selobjvisid))
+	const EM::ObjectID emid =
+		emod ? emod->getObjectID() : EM::ObjectID::udf();
+	mpeserv_->showSetupDlg( emid );
     }
     else if ( evid == uiVisPartServer::evShowSetupGroupOnTop() )
     {
@@ -1508,7 +1501,13 @@ bool uiODApplMgr::handleVisServEv( int evid )
     }
     else if ( evid == uiVisPartServer::evDisableSelTracker() )
     {
-	mGetSelTracker( tracker );
+	const VisID selobjvisid = visserv_->getSelObjectId();
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+				visserv_->getObject(selobjvisid))
+	const EM::ObjectID emid =
+			emod ? emod->getObjectID() : EM::ObjectID::udf();
+	const int trackerid = mpeserv_->getTrackerID(emid);
+	MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
 	if ( tracker )
 	    tracker->enable( false );
     }

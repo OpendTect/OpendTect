@@ -38,6 +38,15 @@ ________________________________________________________________________
 namespace EM
 {
 
+HorizonSelInfo::HorizonSelInfo( const MultiID& key )
+    : key_(key)
+{}
+
+
+HorizonSelInfo::~HorizonSelInfo()
+{}
+
+
 void HorizonSelInfo::getAll( ObjectSet<HorizonSelInfo>& set, bool is2d )
 {
     IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
@@ -61,23 +70,13 @@ void HorizonSelInfo::getAll( ObjectSet<HorizonSelInfo>& set, bool is2d )
 }
 
 
-float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
+float HorizonUtils::getZ( const RowCol& rc, const Horizon* horizon )
 {
-    const SubID subid = rc.toInt64();
-
-    float bottomz=-mUdf(float);
-    for ( int idx=surface->nrSections()-1; idx>=0; idx-- )
-    {
-	const EM::SectionID sid = surface->sectionID( idx );
-	const float valz = (float) surface->getPos( sid, subid ).z;
-	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
-    }
-
-    return bottomz;
+    return horizon ? horizon->getZ( TrcKey(rc) ) : mUdf(float);
 }
 
 
-float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
+float HorizonUtils::getMissingZ( const RowCol& rc, const Horizon* horizon,
 				 int nrptinterp )
 {
     int dist = 1;
@@ -96,25 +95,25 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
 	if ( firstinlz == -mUdf(float) )
 	{
 	    RowCol rowcol(rc.row()-dist, rc.col() );
-	    firstinlz = getZ( rowcol, surface );
+	    firstinlz = getZ( rowcol, horizon );
 	    if ( firstinlz > -mUdf(float) ) distfirstinlz = dist;
 	}
 	if ( secondinlz == -mUdf(float) )
 	{
 	    RowCol rowcol( rc.row()+dist, rc.col() );
-	    secondinlz = getZ( rowcol, surface );
+	    secondinlz = getZ( rowcol, horizon );
 	    if ( secondinlz > -mUdf(float) ) distsecondinlz = dist;
 	}
 	if ( firstcrlz == -mUdf(float) )
 	{
 	    RowCol rowcol( rc.row(), rc.col()-dist );
-	    firstcrlz = getZ( rowcol, surface );
+	    firstcrlz = getZ( rowcol, horizon );
 	    if ( firstcrlz > -mUdf(float) ) distfirstcrlz = dist;
 	}
 	if ( secondcrlz == -mUdf(float) )
 	{
 	    RowCol rowcol( rc.row(), rc.col()+dist );
-	    secondcrlz = getZ( rowcol, surface );
+	    secondcrlz = getZ( rowcol, horizon );
 	    if ( secondcrlz > -mUdf(float) ) distsecondcrlz = dist;
 	}
 
@@ -140,43 +139,37 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
 }
 
 
-Surface* HorizonUtils::getSurface( const MultiID& id )
+Horizon* HorizonUtils::getHorizon( const MultiID& id )
 {
     EMManager& em = EMM();
     const ObjectID objid = em.getObjectID(id);
     EMObject* obj = em.getObject( objid );
-    mDynamicCastGet(Surface*,surface,obj)
-    return surface;
+    mDynamicCastGet(Horizon*,horizon,obj)
+    return horizon;
 }
 
 
 void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 				 ObjectSet<BinIDValueSet>& data )
 {
-    Surface* surface = getSurface(id);
-    if ( !surface ) return;
+    Horizon* horizon = getHorizon(id);
+    if ( !horizon ) return;
 
-    strm << "\nFetching surface positions ...\n" ;
+    strm << "\nFetching horizon positions ...\n" ;
     TextStreamProgressMeter pm( strm );
     deepErase( data );
 
-    PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
-    SectionID sid = -1;
-    BinIDValueSet* res = 0;
+    PtrMan<EMObjectIterator> iterator = horizon->createIterator();
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
 	if ( !pid.isValid() )
 	    break;
 
-	if ( pid.sectionID() != sid )
-	{
-	    res = new BinIDValueSet( 1, false );
-	    data += res;
-	    sid = pid.sectionID();
-	}
+	auto* res = new BinIDValueSet( 1, false );
+	data += res;
 
-	const Coord3 crd = surface->getPos( pid );
+	const Coord3 crd = horizon->getPos( pid );
 	const BinID bid = SI().transform(crd);
 	res->add( bid, (float) crd.z );
 	++pm;
@@ -191,12 +184,12 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 			   Pos::GeomID geomid, const TrcKeySampling& hsamp,
 			   ObjectSet<DataPointSet>& data )
 {
-    Surface* surface = getSurface(id);
-    if ( !surface ) return;
+    Horizon* horizon = getHorizon(id);
+    if ( !horizon ) return;
 
-    mDynamicCastGet(Horizon2D*,hor2d,surface);
+    mDynamicCastGet(Horizon2D*,hor2d,horizon);
 
-    strm << "\nFetching surface positions ...\n" ;
+    strm << "\nFetching horizon positions ...\n" ;
     TextStreamProgressMeter pm( strm );
     deepErase( data );
 
@@ -207,10 +200,9 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	BufferStringSet nms;
 	res = new DataPointSet( pts, nms, true );
 	data += res;
-	SectionID sid = 0; 		//multiple sections not used here
 	for ( int idx=hsamp.start_.crl(); idx<=hsamp.stop_.crl(); idx++ )
 	{
-	    Coord3 coords = hor2d->getPos( sid, geomid, idx);
+	    Coord3 coords = hor2d->getCoord( TrcKey(geomid,idx) );
 	    DataPointSet::Pos newpos( coords );
 	    DataPointSet::DataRow dtrow( newpos );
 	    res->addRow( dtrow );
@@ -218,25 +210,19 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
     }
     else
     {
-	PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
-	SectionID sid = -1;
-	//multiple sections not used!!
+	PtrMan<EMObjectIterator> iterator = horizon->createIterator();
 	while ( iterator )
 	{
 	    const EM::PosID pid = iterator->next();
 	    if ( !pid.isValid() )
 		break;
 
-	    if ( pid.sectionID() != sid )
-	    {
-		TypeSet<DataPointSet::DataRow> pts;
-		BufferStringSet nms;
-		res = new DataPointSet( pts, nms, true );
-		data += res;
-		sid = pid.sectionID();
-	    }
+	    TypeSet<DataPointSet::DataRow> pts;
+	    BufferStringSet nms;
+	    res = new DataPointSet( pts, nms, true );
+	    data += res;
 
-	    const Coord3 crd = surface->getPos( pid );
+	    const Coord3 crd = horizon->getPos( pid );
 	    DataPointSet::Pos newpos( crd );
 	    DataPointSet::DataRow dtrow( newpos );
 	    res->addRow( dtrow );
@@ -260,17 +246,17 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 				       float extrawidth,
 				       Pos::Provider* provider )
 {
-    Surface* surface1 = getSurface(*(midset[0]));
-    if ( !surface1 ) return;
+    Horizon* horizon1 = getHorizon(*(midset[0]));
+    if ( !horizon1 ) return;
 
-    Surface* surface2 = 0;
+    Horizon* horizon2 = 0;
     if ( midset.size() == 2 )
     {
-	surface2 = getSurface(*(midset[1]));
-	if ( !surface2 ) return;
+	horizon2 = getHorizon(*(midset[1]));
+	if ( !horizon2 ) return;
     }
 
-    strm << "\nFetching surface positions ...\n" ;
+    strm << "\nFetching horizon positions ...\n" ;
     TextStreamProgressMeter pm( strm );
 
     if ( mIsUdf(nrinterpsamp) )
@@ -284,7 +270,7 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 	for ( int idc=hs.start_.crl();idc<=hs.stop_.crl();idc+=SI().crlStep() )
 	{
 	    lastzinter = meanzinter;
-	    if ( !getZInterval( idi, idc, surface1, surface2, topz, botz,
+	    if ( !getZInterval( idi, idc, horizon1, horizon2, topz, botz,
 				nrinterpsamp, mainhoridx, lastzinter,
 				extrawidth ) )
 		continue;
@@ -296,8 +282,8 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 		    continue;
 	    }
 
-	    vals[0] = ( surface2 && botz<topz ? botz : topz ) + extraz.start;
-	    vals[1] = ( surface2 && botz>topz ? botz : topz ) + extraz.stop;
+	    vals[0] = ( horizon2 && botz<topz ? botz : topz ) + extraz.start;
+	    vals[1] = ( horizon2 && botz>topz ? botz : topz ) + extraz.stop;
 	    wantedposbivs.add( bid, vals );
 	    nrpos = mCast( int, wantedposbivs.totalSize() );
 	    meanzinter = ( meanzinter*( nrpos -1 ) + lastzinter) / nrpos;
@@ -308,35 +294,35 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 
 
 bool HorizonUtils::getZInterval( int idi, int idc,
-				 Surface* surface1, Surface* surface2,
+				 Horizon* horizon1, Horizon* horizon2,
 				 float& topz, float& botz,
 				 int nrinterpsamp, int mainhoridx,
 				 float& lastzinterval, float extrawidth )
 {
-    topz = getZ( RowCol(idi,idc), surface1 );
-    botz = surface2 ? getZ( RowCol(idi,idc), surface2 ) : 0;
+    topz = getZ( RowCol(idi,idc), horizon1 );
+    botz = horizon2 ? getZ( RowCol(idi,idc), horizon2 ) : 0;
 
     bool is1interp, is2interp;
     is1interp = is2interp = false;
-    bool is1main = ( surface2 && mainhoridx==1 ) ? true : false;
+    bool is1main = ( horizon2 && mainhoridx==1 ) ? true : false;
 
     if ( fabs(topz) != mUdf(float) && fabs(botz) != mUdf(float) )
 	lastzinterval = botz - topz;
 
     if ( topz == -mUdf(float) && nrinterpsamp )
     {
-	topz = getMissingZ( RowCol(idi,idc), surface1, nrinterpsamp );
+	topz = getMissingZ( RowCol(idi,idc), horizon1, nrinterpsamp );
 	is1interp = true;
     }
     if ( botz == -mUdf(float) && nrinterpsamp)
     {
-	botz = getMissingZ( RowCol(idi,idc), surface2, nrinterpsamp );
+	botz = getMissingZ( RowCol(idi,idc), horizon2, nrinterpsamp );
 	is2interp = true;
     }
 
     if ( topz == -mUdf(float) || botz == -mUdf(float) )
     {
-	if ( !surface2 || mIsZero(extrawidth,0.01)
+	if ( !horizon2 || mIsZero(extrawidth,0.01)
 	     || ( extrawidth && topz == -mUdf(float) && is1main )
 	     || ( extrawidth && botz == -mUdf(float) && !is1main ) )
 	    return false;
@@ -350,7 +336,7 @@ bool HorizonUtils::getZInterval( int idi, int idc,
     bool isintersect = ( lastzinterval >= 0 && ( botz - topz ) < 0 ) ||
 		       ( lastzinterval <= 0 && ( botz - topz ) > 0 );
 
-    if ( surface2 && isintersect )
+    if ( horizon2 && isintersect )
 	return SolveIntersect( topz, botz, nrinterpsamp, is1main, extrawidth,
 			       is1interp, is2interp );
 
@@ -374,7 +360,7 @@ bool HorizonUtils::SolveIntersect( float& topz, float& botz, int nrinterpsamp,
 }
 
 
-void HorizonUtils::addSurfaceData( const MultiID& id,
+void HorizonUtils::addHorizonData( const MultiID& id,
 				   const BufferStringSet& attrnms,
 				   const ObjectSet<BinIDValueSet>& data )
 {
@@ -390,19 +376,15 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 
     for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
     {
-	const SectionID sectionid = horizon->sectionID( sectionidx );
 	const BinIDValueSet& bivs = *data[sectionidx];
-
-	PosID posid( objid, sectionid );
+	PosID posid( objid );
 	BinIDValueSet::SPos pos;
 	BinID bid; TypeSet<float> vals;
 	while ( bivs.next(pos) )
 	{
 	    bivs.get( pos, bid, vals );
-	    const SubID subid = RowCol(bid.inl(),bid.crl()).toInt64();
-	    posid.setSubID( subid );
 	    for ( int validx=1; validx<vals.size(); validx++ )
-		horizon->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
+		horizon->auxdata.setAuxDataVal( validx-1, bid, vals[validx] );
 	}
     }
 }
@@ -411,7 +393,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 #define mIsEmptyErr( cond, surfid )\
     if ( cond )\
     {\
-	strm << "\n Cannot get Positions for surface ID"<<surfid<<" \n";\
+	strm << "\n Cannot get Positions for horizon ID"<<surfid<<" \n";\
 	return;\
     }
 

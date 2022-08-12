@@ -33,6 +33,9 @@ EM::SectionID.
 mExpClass(MPEEngine) SectionAdjuster : public SequentialTask
 {
 public:
+    virtual			~SectionAdjuster();
+
+    mDeprecatedObs
     EM::SectionID		sectionID() const;
 
     virtual void		reset() {}
@@ -74,17 +77,17 @@ public:
     void			setSeedId(int);
 
 protected:
-				SectionAdjuster(EM::SectionID sid=-1);
+				SectionAdjuster();
+
     TypeSet<TrcKey>		tks_;
     TypeSet<TrcKey>		tksrc_;
     BufferString		errmsg_;
-    EM::SectionID		sectionid_;
-    float			thresholdval_;
-    bool			removeonfailure_;
+    float			thresholdval_		= 0.5f;
+    bool			removeonfailure_	= true;
 
-    TrcKey			seedtk_;
-    bool			setundo_;
-    int				seedid_;
+    TrcKey			seedtk_			= TrcKey::udf();
+    bool			setundo_		= true;
+    int				seedid_			= 0;
 
     static const char*		sKeyAdjuster();
     static const char*		sKeyThreshold();
@@ -92,4 +95,3 @@ protected:
 };
 
 } // namespace MPE
-

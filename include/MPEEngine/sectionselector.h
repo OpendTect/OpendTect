@@ -29,10 +29,6 @@ namespace MPE
 mExpClass(MPEEngine) SectionSourceSelector : public SequentialTask
 {
 public:
-    				SectionSourceSelector(
-					const EM::SectionID& sid = -1);
-
-    EM::SectionID		sectionID() const;
     virtual void		reset();
 
     int				nextStep() override;
@@ -43,11 +39,13 @@ public:
 
     const TypeSet<TrcKey>&	selectedPositions() const;
 
+    mDeprecatedObs
+    EM::SectionID		sectionID() const;
 protected:
-    EM::SectionID		sectionid_;
+				SectionSourceSelector();
+
     TypeSet<TrcKey>		selpos_;
     BufferString		errmsg_;
 };
 
 } // namespace MPE
-

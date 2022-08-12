@@ -37,11 +37,12 @@ public:
     RefMan<Fault3D>		getFault3D(FaultID);
     ConstRefMan<Fault3D>	getFault3D(FaultID) const;
 
-    int				nrSections() const override	{ return 1; }
-    SectionID			sectionID(int) const override	{ return 0; }
-
     Executor*			loader() override;
     virtual Executor*		saver() override;
+
+    EMObjectIterator*		createIterator(
+				 const TrcKeyZSampling* =nullptr) const override
+				{ return nullptr; }
 
 protected:
 

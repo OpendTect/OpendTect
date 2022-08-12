@@ -47,7 +47,7 @@ public:
     void		enableLine(bool);
     void		enableKnots(bool);
 
-    void		setActiveStick(EM::PosID&);
+    void		setActiveStick(const EM::PosID&);
     int			getActiveStickId()	{ return activestickid_; }
     void		setMarkerLineStyle(const OD::LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*);

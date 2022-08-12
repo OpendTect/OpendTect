@@ -30,109 +30,6 @@ ________________________________________________________________________
 
 namespace EM {
 
-
-class SurfaceSectionUndoEvent : public UndoEvent
-{
-public:
-			SurfaceSectionUndoEvent( bool add,
-				ObjectID, const SectionID&,
-				const char* name );
-    const char*		getStandardDesc() const override;
-    bool		unDo() override;
-    bool		reDo() override;
-    void                fillPar(IOPar&) const;
-    bool                usePar(const IOPar&);
-
-protected:
-    bool				action(bool add) const;
-
-    bool				add_;
-    ObjectID				object_;
-    SectionID				sid_;
-    BufferString			name_;
-
-    static const char*		addKey();
-    static const char*		objKey();
-    static const char*		sectionKey();
-    static const char*		nameKey();
-};
-
-
-SurfaceSectionUndoEvent::SurfaceSectionUndoEvent(
-	bool doadd, ObjectID oid,
-        const SectionID& sectionid, const char* nm)
-    : object_( oid )
-    , sid_( sectionid )
-    , name_( nm )
-    , add_( doadd )
-{}
-
-
-const char* SurfaceSectionUndoEvent::getStandardDesc() const
-{
-    return "Modified surface section";
-}
-
-
-bool SurfaceSectionUndoEvent::unDo()
-{
-    return action( !add_ );
-}
-
-
-bool SurfaceSectionUndoEvent::reDo()
-{
-    return action( add_ );
-}
-
-
-const char* SurfaceSectionUndoEvent::addKey() { return "Add"; }
-const char* SurfaceSectionUndoEvent::objKey() { return "Object"; }
-const char* SurfaceSectionUndoEvent::sectionKey() { return "Section"; }
-const char* SurfaceSectionUndoEvent::nameKey() { return "Name"; }
-
-
-void SurfaceSectionUndoEvent::fillPar( IOPar& iopar ) const
-{
-    iopar.setYN( addKey(), add_ );
-    iopar.set( objKey(), object_ );
-    iopar.set( sectionKey(), (int) sid_ );
-    if ( add_ ) iopar.set( nameKey(), name_ );
-}
-
-
-bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
-{
-    int tmpsection = mUdf(int);
-    bool res = iopar.getYN( addKey(), add_ ) && iopar.get( objKey(), object_ )
-	    && iopar.get( sectionKey(), tmpsection );
-    if ( res )
-    {
-	if ( add_ )
-	    res = iopar.get( nameKey(), name_ );
-
-	if ( res )
-	    sid_ = mCast( EM::SectionID, tmpsection );
-    }
-
-    return res;
-}
-
-
-bool SurfaceSectionUndoEvent::action( bool doadd ) const
-{
-    EMManager& manager = EMM();
-    EMObject* objectptr = manager.getObject(object_);
-    Surface* emsurface = dynamic_cast<Surface*>(objectptr);
-
-    if ( doadd )
-	return emsurface->geometry().addSection( name_.buf(), sid_, false );
-
-    emsurface->geometry().removeSection( sid_, false );
-    return true;
-}
-
-
 // ***** SurfaceGeometry *****
 
 SurfaceGeometry::SurfaceGeometry( Surface& surf )
@@ -152,8 +49,6 @@ SurfaceGeometry::~SurfaceGeometry()
 
 void SurfaceGeometry::removeAll()
 {
-    while ( nrSections() )
-	removeSection( sectionID(0), false );
 }
 
 
@@ -176,8 +71,7 @@ void SurfaceGeometry::removeEmptySections()
     const int nrsections = nrSections();
     for ( int sidx=0; sidx<nrsections; sidx++ )
     {
-	const SectionID sid = sectionID( sidx );
-	const Geometry::ParametricSurface* psurf = sectionGeometry( sid );
+	const Geometry::ParametricSurface* psurf = geometryElement();
 	if ( !psurf ) return;
 
 	bool isundef = true;
@@ -201,78 +95,57 @@ void SurfaceGeometry::removeEmptySections()
 
 int SurfaceGeometry::nrSections() const
 {
-    return sids_.size();
+    return 1;
 }
 
 
 SectionID SurfaceGeometry::sectionID( int idx ) const
 {
-    return sids_[idx];
+    return SectionID::def();
 }
 
 
 SectionID SurfaceGeometry::sectionID( const char* nm ) const
 {
-    for ( int idx=0; idx<sectionnames_.size(); idx++ )
-	if ( sectionnames_.get(idx) == nm ) return sids_[idx];
-    return -1;
+    return SectionID::def();
 }
 
 
 const char* SurfaceGeometry::sectionName( const SectionID& sid ) const
 {
-    int idx = sids_.indexOf(sid);
-    const char* res = idx!=-1 ? sectionnames_[idx]->buf() : 0;
-    return  res && *res ? res : 0;
+    return "Section";
 }
 
 
 bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
 				      bool addtoundo )
 {
-    const int idx = sids_.indexOf(sid);
-    if ( !nm || !*nm || idx<0 )
-	return false;
-
-    sectionnames_.get(idx) = nm;
-
-    if ( addtoundo )
-	{ pErrMsg("Section namechange undo not implemented" ); }
-
-    changed_ = true;
     return true;
 }
 
 
 bool SurfaceGeometry::hasSection( const SectionID& sid ) const
-{ return sectionIndex(sid)!=-1; }
+{ return true; }
 
 int SurfaceGeometry::sectionIndex( const SectionID& sid ) const
-{ return sids_.indexOf(sid); }
+{ return 0; }
 
 
 SectionID SurfaceGeometry::addSection( const char* nm, bool addtoundo )
 {
-    SectionID res = 0;
-    while ( sids_.indexOf(res)!=-1 ) res++;
-
-    return addSection( nm, res, addtoundo );
+    return SectionID::udf();
 }
 
 
 SectionID SurfaceGeometry::addSection( const char* nm, const SectionID& sid,
 				       bool addtoundo )
 {
-    Geometry::Element* newsurf = createSectionGeometry();
-    return newsurf ? addSectionInternal( newsurf, nm, sid, addtoundo ) : -1;
+    return SectionID::udf();
 }
 
 
 bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 {
-    int idx=sids_.indexOf(sid);
-    if ( idx==-1 ) return false;
-
     for ( int attr=0; attr<surface_.nrPosAttribs(); attr++ )
     {
 	const TypeSet<PosID>* attrset = surface_.getPosAttribList( attr );
@@ -286,23 +159,11 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     }
 
     //Keep the section in mem until everyone is notified
-    ConstPtrMan<Geometry::Element> removedelem = sections_[idx];
-    sections_.removeSingle( idx );
-    sids_.removeSingle( idx );
-    sectionnames_.removeSingle( idx );
+    deepErase( sections_ );
 
     if ( addtoundo )
     {
-	pErrMsg("Undo not implemented for remove section");
 	EMM().undo(surface_.id()).removeAllBeforeCurrentEvent();
-	/*
-
-	BufferString name = *sectionnames_[idx];
-	UndoEvent* undo =
-	    new SurfaceSectionUndoEvent( false, surface_.id(),
-					    sid, name );
-	EMM().undo().addEvent( undo, 0, 0 );
-	*/
     }
 
     EMObjectCallbackData cbdata;
@@ -318,38 +179,43 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 
 SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
 {
-    int sectionidx = sids_.indexOf(sid);
-    if ( sectionidx==-1 ) return -1;
+    return SectionID::udf();
+}
 
-    Geometry::Element* newsurf = sections_[sectionidx]->clone();
-    const SectionID res = addSectionInternal( newsurf, 0, -1, true );
 
-    return res;
+Geometry::Element* SurfaceGeometry::geometryElement()
+{
+    if ( sections_.isEmpty() )
+	sections_ += createGeometryElement();
+
+    return sections_.first();
+}
+
+
+const Geometry::Element* SurfaceGeometry::geometryElement() const
+{
+    return cCast(SurfaceGeometry*,this)->geometryElement();
 }
 
 
 const Geometry::Element*
-    SurfaceGeometry::sectionGeometry( const SectionID& sid ) const
+	SurfaceGeometry::sectionGeometry( const SectionID& ) const
 {
-    const int idx = sids_.indexOf( sid );
-    return idx==-1 ? 0 : sections_[idx];
+    return geometryElement();
 }
 
 
-Geometry::Element*
-    SurfaceGeometry::sectionGeometry( const SectionID& sid )
+Geometry::Element* SurfaceGeometry::sectionGeometry( const SectionID& )
 {
-    const int idx = sids_.indexOf( sid );
-    return idx==-1 ? 0 : sections_[idx];
+    return geometryElement();
 }
 
 
-bool SurfaceGeometry::isAtEdge(EM::PosID const&) const
+bool SurfaceGeometry::isAtEdge( EM::PosID const& ) const
 { return false; }
 
 
-int SurfaceGeometry::getConnectedPos( const PosID& posid,
-				      TypeSet<PosID>* res) const
+int SurfaceGeometry::getConnectedPos( const PosID&, TypeSet<PosID>* ) const
 {
     return 0;
 }
@@ -359,10 +225,7 @@ int SurfaceGeometry::getConnectedPos( const PosID& posid,
 bool SurfaceGeometry::findClosestNodes( TopList<float,PosID>& toplist,
 				    const Coord3& pos) const
 {
-    const int nrsections = nrSections();
-    for ( int idx=0; idx<nrsections; idx++ )
-	findClosestNodes( sectionID(idx), toplist, pos, t2dfunc );
-
+    findClosestNodes( toplist, pos, t2dfunc );
     return toplist.size();
 }
 
@@ -795,10 +658,9 @@ defname = false; \
 for ( int idy=0; idy<nrnodealiases; idy++ ) \
 { \
     const PosID& nodealias = nodealiases[idy]; \
-    const SectionID sid = nodealias.sectionID(); \
     const RowCol noderc(nodealias.subID()); \
     const RowCol neighborrc( noderc.row() rowdiff, noderc.col() coldiff ); \
-    coordname = surface_.getPos(sid, neighborrc.toInt64()); \
+    coordname = surface_.getPos( neighborrc.toInt64()); \
     defname = coordname.isDefined(); \
     if ( defname ) \
     { \
@@ -889,7 +751,7 @@ int SurfaceGeometry::findPos( const Interval<float>& x,
     int sum = 0;
     const int nrsections = nrSections();
     for ( int idx=0; idx<nrsections; idx++ )
-	sum += findPos( sectionID(idx), x, y, z, res );
+	sum += findPos( x, y, z, res );
 
     return sum;
 }
@@ -1037,56 +899,19 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 }
 
 
-bool SurfaceGeometry::usePar( const IOPar& par )
+bool SurfaceGeometry::usePar( const IOPar& )
 { return true; }
 
 
-void SurfaceGeometry::fillPar( IOPar& par ) const
-{ }
-
-
-EMObjectIterator* SurfaceGeometry::createIterator( const SectionID&,
-						  const TrcKeyZSampling* ) const
-{ return 0; }
+void SurfaceGeometry::fillPar( IOPar& ) const
+{}
 
 
 SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
 				   const char* nm, const SectionID& wantedsid,
 				   bool addtoundo )
 {
-    if ( !surf ) return -1;
-
-    SectionID sid = wantedsid;
-    if ( sid==-1 )
-    {
-	sid = 0;
-	while ( sids_.isPresent(sid) ) sid++;
-    }
-
-    BufferString name;
-    if ( nm && *nm ) name = nm;
-    else { name = "["; name += sid + 1; name += "]"; }
-
-    sids_ += sid;
-    sectionnames_.add( name );
-    sections_ += surf;
-
-    if ( addtoundo )
-    {
-	pErrMsg("Undo not implemented for add section");
-	EMM().undo(surface_.id()).removeAllBeforeCurrentEvent();
-    }
-
-    enableChecks( isChecksEnabled() );
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::SectionChange;
-    cbdata.pid0 = PosID( surface_.id(), sid, 0 );
-    surface_.change.enable( true );
-    surface_.change.trigger(cbdata);
-
-    changed_ = true;
-    return sid;
+    return SectionID::udf();
 }
 
 
@@ -1099,107 +924,64 @@ RowColSurfaceGeometry::~RowColSurfaceGeometry()
 {}
 
 
-Geometry::RowColSurface*
-RowColSurfaceGeometry::sectionGeometry( const SectionID& sid )
+Geometry::RowColSurface* RowColSurfaceGeometry::geometryElement()
 {
-    Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
-    return reinterpret_cast<Geometry::RowColSurface*>( res );
+    return sCast(Geometry::RowColSurface*,SurfaceGeometry::geometryElement());
 }
 
-const Geometry::RowColSurface*
-RowColSurfaceGeometry::sectionGeometry( const SectionID& sid ) const
+const Geometry::RowColSurface* RowColSurfaceGeometry::geometryElement() const
 {
-    return const_cast<RowColSurfaceGeometry*>(this)->sectionGeometry( sid );
+    return sCast(const Geometry::RowColSurface*,
+		 SurfaceGeometry::geometryElement());
 }
 
 
-StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& sid ) const
+StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& ) const
 {
-    if ( sid == -1 )
-	return rowRange();
-
-    const Geometry::RowColSurface* elem = sectionGeometry( sid );
-    return elem->rowRange();
+    const Geometry::RowColSurface* elem = geometryElement();
+    return elem ? elem->rowRange() : StepInterval<int>::udf();
 }
 
 
 StepInterval<int> RowColSurfaceGeometry::rowRange() const
 {
-    StepInterval<int> res = StepInterval<int>::udf();
-    bool isset = false;
-    for ( int idx=0; idx<nrSections(); idx++ )
-    {
-	Geometry::RowColSurface* surf =
-	    (Geometry::RowColSurface*) sections_[idx];
-	if( !surf ) continue;
-	const StepInterval<int> sectionrg = surf->rowRange();
-	if ( sectionrg.start>sectionrg.stop )
-	    continue;
+    auto* surf = geometryElement();
+    if ( !surf )
+	return StepInterval<int>::udf();
 
-	if ( !isset ) { res = sectionrg; isset=true; }
-	else res.include( sectionrg );
-    }
+    const StepInterval<int> sectionrg = surf->rowRange();
+    if ( sectionrg.start>sectionrg.stop )
+	return StepInterval<int>::udf();
 
-    return res;
-}
-
-
-StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID& sid,
-						   int row ) const
-{
-    if ( sid == -1 )
-	return colRange();
-
-    const Geometry::RowColSurface* elem = sectionGeometry( sid );
-    return row<0 ? elem->colRange() : elem->colRange( row );
+    return sectionrg;
 }
 
 
 StepInterval<int> RowColSurfaceGeometry::colRange() const
 {
-    StepInterval<int> res = StepInterval<int>::udf();
-    bool isset = false;
-    for ( int idx=0; idx<nrSections(); idx++ )
-    {
-	Geometry::RowColSurface* surf =
-			(Geometry::RowColSurface*) sections_[idx];
-	if ( !surf ) continue;
-	StepInterval<int> sectionrg = surf->colRange();
-	if ( sectionrg.start>sectionrg.stop )
-	    continue;
+    auto* surf = geometryElement();
+    if ( !surf )
+	return StepInterval<int>::udf();
 
-	if ( !isset ) { res = sectionrg; isset=true; }
-	else res.include( sectionrg );
-    }
+    StepInterval<int> sectionrg = surf->colRange();
+    if ( sectionrg.start>sectionrg.stop )
+	return StepInterval<int>::udf();
 
-    return res;
+    return sectionrg;
 }
 
 
 StepInterval<int> RowColSurfaceGeometry::colRange( int row ) const
 {
-    StepInterval<int> res(0,0,1);
-    bool isset = false;
-    for ( int idx=0; idx<nrSections(); idx++ )
-    {
-	Geometry::RowColSurface* surf =
-	    (Geometry::RowColSurface*) sections_[idx];
-	StepInterval<int> sectionrg = surf->colRange( row );
-	if ( sectionrg.start>sectionrg.stop )
-	    continue;
-
-	if ( !isset ) { res = sectionrg; isset=true; }
-	else res.include( sectionrg );
-    }
-
-    return res;
+    const Geometry::RowColSurface* elem = geometryElement();
+    return row<0 ? elem->colRange() : elem->colRange( row );
 }
 
 
 EMObjectIterator* RowColSurfaceGeometry::createIterator(
-			const SectionID& sid, const TrcKeyZSampling* cs ) const
+			const TrcKeyZSampling* tkzs ) const
 {
-    return new RowColIterator( surface_, sid, cs );
+    return new RowColIterator( surface_, tkzs );
 }
 
-}; //namespace
+} // namespace EM

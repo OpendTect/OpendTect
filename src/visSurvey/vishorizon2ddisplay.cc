@@ -107,12 +107,9 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 				       BufferString& info) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, mousepos, val, info );
-    const EM::SectionID sid =
-		    EMObjectDisplay::getSectionID( &eventinfo.pickedobjids );
-    if ( sid<0 ) return;
 
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-		     emobject_->sectionGeometry(sid));
+		     emobject_->geometryElement())
     if ( !rcs ) return;
 
     const StepInterval<int> rowrg = rcs->rowRange();
@@ -122,7 +119,7 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 	const StepInterval<int> colrg = rcs->colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
-	    const Coord3 pos = emobject_->getPos( sid, rc.toInt64() );
+	    const Coord3 pos = emobject_->getPos( rc.toInt64() );
 	    if ( pos.sqDistTo(mousepos) < mDefEps )
 	    {
 		mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
@@ -145,12 +142,12 @@ EM::SectionID Horizon2DDisplay::getSectionID( VisID visid ) const
 	    return sids_[idx];
     }
 
-    return -1;
+    return EM::SectionID::udf();
 }
 
 
 const visBase::PolyLine3D* Horizon2DDisplay::getLine(
-	const EM::SectionID& sid ) const
+					const EM::SectionID& sid ) const
 {
     for ( int idx=0; idx<sids_.size(); idx++ )
 	if ( sids_[idx]==sid ) return lines_[idx];
@@ -458,7 +455,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
 	    {
 		const Geometry::Horizon2DLine* ghl =
-		    emgeo.sectionGeometry( h2d->sectionID(idy) );
+		    emgeo.geometryElement();
 		if ( ghl )
 		{
 		    linergs.trcrgs += TypeSet<Interval<int> >();
@@ -472,9 +469,8 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	}
     }
 
-    const EM::SectionID sid = emobject_->sectionID( idx );
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
-		    emobject_->sectionGeometry(sid));
+		    emobject_->geometryElement())
     const LineRanges* lrgs = redo ? &linergs : lineranges;
     visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
 
@@ -569,8 +565,8 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( !trcrg.width() || !sp0.isDefined() || !sp1.isDefined() )
 		    continue;
 
-		const Coord hp0 = h2d->getPos( 0, geomid, trcrg.start );
-		const Coord hp1 = h2d->getPos( 0, geomid, trcrg.stop );
+		const Coord hp0 = h2d->getPos( geomid, trcrg.start );
+		const Coord hp1 = h2d->getPos( geomid, trcrg.stop );
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 
@@ -659,7 +655,7 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	{
 	    const int trcnr =
 		lngid != seisgid ? intpoint.linetrcnr : intpoint.mytrcnr;
-	    const Coord3 crd = hor2d->getPos( sids_[idy], lngid, trcnr );
+	    const Coord3 crd = hor2d->getPos( lngid, trcnr );
 	    if ( crd.isDefined() )
 		intsectpnts += crd;
 	}
@@ -905,12 +901,10 @@ void Horizon2DDisplay::updateSelectionsHor2D()
     if ( !selections_ )
 	return;
 
-    const EM::SectionID sid = h2d->sectionID( 0 );
-
-    const Geometry::Element* ge = h2d->geometry().sectionGeometry( sid );
+    const Geometry::Element* ge = h2d->geometry().geometryElement();
     if ( !ge ) return;
 
-    PtrMan<EM::EMObjectIterator> iterator = h2d->geometry().createIterator(-1);
+    PtrMan<EM::EMObjectIterator> iterator = h2d->createIterator();
     TypeSet<int> pidxs;
     while ( true )
     {

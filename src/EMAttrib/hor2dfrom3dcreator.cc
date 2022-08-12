@@ -88,11 +88,9 @@ int Hor2DFrom3DCreator::nextStep()
 	return Finished();
 
     const PosInfo::Line2DPos& posinfo = geom2d_->data().positions()[nrdone_];
-    BinID bid = SI().transform( posinfo.coord_ );
-    EM::SubID subid = bid.toInt64();
-    const Coord3 pos3d = hor3d_.getPos( hor3d_.sectionID(0), subid );
-    hor2d_.setPos( hor2d_.sectionID(0), geomid_, posinfo.nr_,
-			(float) pos3d.z,false);
+    const BinID bid = SI().transform( posinfo.coord_ );
+    const float horz = hor3d_.getZ( bid );
+    hor2d_.setPos( geomid_, posinfo.nr_, horz,false);
     nrdone_++;
     return MoreToDo();
 }

@@ -152,8 +152,7 @@ Write3DHorASCII::Write3DHorASCII( od_ostream& stream, const int sectionidx,
     , coordsys_(crs)
     , setup_(su)
 {
-    const EM::SectionID sectionid = hor->sectionID( sectionidx );
-    it_ = hor->createIterator( sectionid );
+    it_ = hor->createIterator();
     maxsize_ = it_->maximumSize();
 }
 
@@ -552,10 +551,7 @@ bool uiExportHorizon::writeAscii()
 	    bool first = true;
 	    for ( int sidx=0; sidx<sections.size(); sidx++ )
 	    {
-		const EM::SectionID sectionid = hor->sectionID(
-						    sections[sidx] );
-		PtrMan<EM::EMObjectIterator> it = hor->createIterator(
-								sectionid );
+		PtrMan<EM::EMObjectIterator> it = hor->createIterator();
 		while ( true )
 		{
 		    const EM::PosID posid = it->next();
@@ -579,7 +575,6 @@ bool uiExportHorizon::writeAscii()
 			bbox.zsamp_.include( (float) crd.z );
 		    }
 		}
-
 	    }
 
 	    if ( !first && zatf->needsVolumeOfInterest() )

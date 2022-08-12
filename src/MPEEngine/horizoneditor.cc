@@ -37,9 +37,9 @@ void HorizonEditor::initClass()
 { MPE::EditorFactory().addCreator( create, EM::Horizon3D::typeStr() ); }
 
 
-Geometry::ElementEditor* HorizonEditor::createEditor( const EM::SectionID& sid )
+Geometry::ElementEditor* HorizonEditor::createEditor()
 {
-    const Geometry::Element* ge = emObject().sectionGeometry( sid );
+    const Geometry::Element* ge = emObject().geometryElement();
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::BinIDSurface*,surface,ge);
@@ -72,9 +72,9 @@ void Horizon2DEditor::initClass()
 { MPE::EditorFactory().addCreator( create, EM::Horizon2D::typeStr() ); }
 
 
-Geometry::ElementEditor* Horizon2DEditor::createEditor(const EM::SectionID& sid)
+Geometry::ElementEditor* Horizon2DEditor::createEditor()
 {
-    const Geometry::Element* ge = emObject().sectionGeometry( sid );
+    const Geometry::Element* ge = emObject().geometryElement();
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::BinIDSurface*,surface,ge);

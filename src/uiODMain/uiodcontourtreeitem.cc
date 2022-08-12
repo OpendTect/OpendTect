@@ -1318,18 +1318,17 @@ Array2D<float>* uiContourTreeItem::getDataSet(
     if ( !hor )
 	return nullptr;
 
-    EM::SectionID sid = hor->sectionID( 0 );
     if ( attrnm_ == uiContourTreeItem::sKeyZValue() )
     {
-	Array2D<float>* arr=hor->geometry().sectionGeometry(sid)->getArray();
+	Array2D<float>* arr=hor->geometry().geometryElement()->getArray();
 	if ( hordisp->getZAxisTransform() )
-	    arr = hor->createArray2D( sid, hordisp->getZAxisTransform() );
+	    arr = hor->createArray2D( hordisp->getZAxisTransform() );
 
 	return arr;
     }
 
     const int dataid=applMgr()->EMServer()->loadAuxData( hor->id(),attrnm_);
-    Array2D<float>* arr = hor->auxdata.createArray2D( dataid, sid );
+    Array2D<float>* arr = hor->auxdata.createArray2D( dataid );
     return arr;
 }
 

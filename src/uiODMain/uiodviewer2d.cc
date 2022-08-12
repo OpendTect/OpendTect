@@ -868,7 +868,7 @@ void uiODViewer2D::trackSetupCB( CallBacker* )
     if ( !emobj )
 	return;
 
-    appl_.applMgr().mpeServer()->showSetupDlg(emobj->id(),emobj->sectionID(0));
+    appl_.applMgr().mpeServer()->showSetupDlg( emobj->id() );
 }
 
 

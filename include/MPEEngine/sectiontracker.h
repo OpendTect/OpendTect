@@ -37,14 +37,12 @@ mExpClass(MPEEngine) SectionTracker
 {
 public:
 				SectionTracker(EM::EMObject&,
-					       const EM::SectionID&,
 					       SectionSourceSelector* = 0,
 					       SectionExtender* = 0,
 					       SectionAdjuster* = 0);
     virtual			~SectionTracker();
 
     EM::EMObject&		emObject()		{ return emobject_; }
-    EM::SectionID		sectionID() const;
     virtual bool		init();
 
     void			reset();
@@ -81,12 +79,23 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    mDeprecated("Use without SectionID")
+				SectionTracker(EM::EMObject& emobj,
+					       const EM::SectionID&,
+					       SectionSourceSelector* sss= 0,
+					       SectionExtender* se= 0,
+					       SectionAdjuster* sa= 0)
+				    : SectionTracker(emobj,sss,se,sa)	{}
+
+    mDeprecatedObs
+    EM::SectionID		sectionID() const;
+
 protected:
 
     void			getLockedSeeds(TypeSet<EM::SubID>& lockedseeds);
 
     EM::EMObject&		emobject_;
-    EM::SectionID		sid_;
+    EM::SectionID		sid_		= EM::SectionID::def();
 
     BufferString		errmsg_;
     bool			useadjuster_;

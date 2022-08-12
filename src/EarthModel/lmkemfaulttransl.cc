@@ -237,13 +237,13 @@ int lmkEMFault3DReader::nextStep()
 	    return ErrorOccurred();
 
 	newnode.row()++; newnode.col() = 0;
-	fault.geometry().insertStick( 0, newnode.row(), newnode.col(), pos,
+	fault.geometry().insertStick( newnode.row(), newnode.col(), pos,
 			Coord3(0,1,0), false );
     }
     else
     {
 	const EM::SubID subid( newnode.toInt64() );
-	fault.geometry().insertKnot( 0, subid, pos, false );
+	fault.geometry().insertKnot( subid, pos, false );
     }
 
     lastnode = newnode;

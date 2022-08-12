@@ -20,11 +20,9 @@ namespace EM
 {
 
 EMObjectPosSelector::EMObjectPosSelector( const EMObject& emobj,
-				const SectionID& secid,
 				const ObjectSet<const Selector<Coord3> >& sel )
     : ParallelTask()
     , emobj_(emobj)
-    , sectionid_(secid)
     , selectors_(sel)
     , startrow_(-1)
     , nrrows_(-1)
@@ -45,7 +43,7 @@ bool EMObjectPosSelector::doPrepare( int nrthreads )
     //TODO this is temporary extraction way of z values
     //this will get replaced by well though class structue
 
-    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    const Geometry::Element* ge = emobj_.geometryElement();
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf || !surf->getArray() )
 	return false;
@@ -119,7 +117,7 @@ bool EMObjectPosSelector::doWork( od_int64, od_int64, int threadid )
 void EMObjectPosSelector::processBlock( const RowCol& start,
 					const RowCol& stop )
 {
-    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    const Geometry::Element* ge = emobj_.geometryElement();
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf ) return;
 
@@ -201,7 +199,7 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 						  const RowCol& stop,
 						  Coord3& up, Coord3& down )
 {
-    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    const Geometry::Element* ge = emobj_.geometryElement();
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf ) return;
 
@@ -234,7 +232,8 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 
     for ( int row=start.row(); row<=stop.row(); row+=rowstep )
     {
-	int idx = nrcols_*(row-startrow_)/rowstep+(start.col()-startcol_)/colstep;
+	int idx = nrcols_*(row-startrow_) /
+				rowstep+(start.col()-startcol_)/colstep;
 	for ( int col=start.col(); col<=stop.col(); col+=colstep, idx++ )
 	{
 	    const float val = zvals_[idx];
@@ -250,16 +249,18 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 
 
 void EMObjectPosSelector::makeListGrow( const RowCol& start,
-    					     const RowCol& stop, int selresult )
+					const RowCol& stop, int selresult )
 {
-    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    const Geometry::Element* ge = emobj_.geometryElement();
     if ( !ge ) return;
 
      mDynamicCastGet(const Geometry::RowColSurface*,surf,ge);
      if ( !surf ) return;
 
-    const StepInterval<int> rowrg( start.row(), stop.row(), surf->rowRange().step );
-    const StepInterval<int> colrg( start.col(), stop.col(), surf->colRange().step );
+    const StepInterval<int> rowrg( start.row(), stop.row(),
+				   surf->rowRange().step );
+    const StepInterval<int> colrg( start.col(), stop.col(),
+				   surf->colRange().step );
 
     TypeSet<EM::SubID> ids;
 
@@ -274,8 +275,7 @@ void EMObjectPosSelector::makeListGrow( const RowCol& start,
     {
 	if ( selresult != 2 )     // not all inside
 	{
-	    const Coord3 crd =
-		emobj_.getPos( sectionid_, bid.toInt64() );
+	    const Coord3 crd = emobj_.getPos( bid.toInt64() );
 	    if ( !crd.isDefined() ) continue;
 
 	    bool found = false;

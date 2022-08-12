@@ -28,7 +28,7 @@ HorizonZTransformer::HorizonZTransformer( const ZAxisTransform& zat,
     , nrdone_(0)
     , outputhor_(0)
 {
-    iter_ = tarhor_.createIterator( -1 );
+    iter_ = tarhor_.createIterator();
     totalnr_ = iter_->maximumSize();
 }
 
@@ -69,8 +69,7 @@ int HorizonZTransformer::nextStep()
     if ( isforward_ && !mIsUdf(newz) )
 	newz += refz_;
 
-    outputhor_->setPos( posid.sectionID(), posid.subID(),
-			Coord3(0,0,newz), false );
+    outputhor_->setPos( posid.subID(), Coord3(0,0,newz), false );
     nrdone_++;
     return Executor::MoreToDo();
 }

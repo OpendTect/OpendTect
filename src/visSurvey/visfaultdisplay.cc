@@ -321,7 +321,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     }
 
     mDynamicCastGet(Geometry::FaultStickSurface*,fss,
-		    fault_->sectionGeometry(fault_->sectionID(0)));
+		    fault_->geometryElement())
 
     paneldisplay_->setSurface( explicitpanels_ );
     explicitpanels_->setSurface( fss );
@@ -370,7 +370,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 }
 
 
-bool FaultDisplay::removeSelections( TaskRunner* taskr )
+bool FaultDisplay::removeSelections( TaskRunner* )
 {
     if ( !fault_ )
 	return false;
@@ -549,10 +549,9 @@ void FaultDisplay::updateStickDisplay()
 	bool dodisplay = areSticksDisplayed() && isDisplayingSticksUseful();
 
 	EM::Fault3D* fault3d = emFault();
-	if ( arePanelsDisplayedInFull() && fault3d && fault3d->nrSections() )
+	if ( arePanelsDisplayedInFull() && fault3d )
 	{
-	    const EM::SectionID sid = fault3d->sectionID( 0 );
-	    if ( fault3d->geometry().nrSticks(sid) == 1 )
+	    if ( fault3d->geometry().nrSticks() == 1 )
 		dodisplay = true;
 	}
 
@@ -889,9 +888,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     if ( pid.isUdf() && !viseditor_->isDragging() )
     {
-	EM::Fault3D* fault3d = emFault();
-	EM::SectionID sid = fault3d->sectionID(0);
-	EM::PosID npid = faulteditor_->getNearstStick( sid, pos, &editnormal );
+	EM::PosID npid = faulteditor_->getNearstStick( pos, &editnormal );
 	if ( !npid.isUdf() )
 	{
 	    setActiveStick( npid );
@@ -924,10 +921,10 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		EM::Fault3D* fault3d = emFault();
 		if ( !fault3d ) return;
 		EM::Fault3DGeometry& f3dg = fault3d->geometry();
-		if ( f3dg.nrKnots(pid.sectionID(),rmstick)==1 )
-		    res = f3dg.removeStick( pid.sectionID(), rmstick, true );
+		if ( f3dg.nrKnots(rmstick)==1 )
+		    res = f3dg.removeStick( rmstick, true );
 		else
-		    res = f3dg.removeKnot( pid.sectionID(), pid.subID(), true );
+		    res = f3dg.removeKnot( pid.subID(), true );
 
 		if ( res && !viseditor_->sower().moreToSow() )
 		{
@@ -963,8 +960,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    ? mUdf(int)
 	    : insertpid.getRowCol().row();
 
-	if ( fault_->geometry().insertStick( insertpid.sectionID(),
-	       insertstick, 0, pos, editnormal, true ) )
+	if ( fault_->geometry().insertStick(insertstick,0,pos,editnormal,true) )
 	{
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
@@ -981,8 +977,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     }
     else
     {
-	if ( fault_->geometry().insertKnot( insertpid.sectionID(),
-		insertpid.subID(), pos, true ) )
+	if ( fault_->geometry().insertKnot(insertpid.subID(),pos,true) )
 	{
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
@@ -1033,7 +1028,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	if ( fault3d && fault3d->nrSections() )
 	{
 	    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-			     fault3d->sectionGeometry(fault3d->sectionID(0)) )
+			     fault3d->geometryElement())
 
 	    if ( explicitpanels_ )
 		explicitpanels_->setSurface( fss );
@@ -1086,7 +1081,7 @@ void FaultDisplay::updateActiveStickMarker()
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     fault_->sectionGeometry( fault_->sectionID(0)) );
+		     fault_->geometryElement())
 
     const StepInterval<int> rowrg = fss->rowRange();
     if ( rowrg.isUdf() || !rowrg.includes(activestick_,false) )
@@ -1467,16 +1462,15 @@ void FaultDisplay::updateHorizonIntersections( VisID whichobj,
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     fault_->sectionGeometry( fault_->sectionID(0)) );
+		     fault_->geometryElement())
 
     for ( int idx=0; idx<activehordisps.size(); idx++ )
     {
 	if ( horintersectids_.isPresent(activehorids[idx]) )
 	    continue;
 
-	EM::SectionID sid = activehordisps[idx]->getSectionIDs()[0];
 	Geometry::BinIDSurface* surf =
-	    activehordisps[idx]->getHorizonSection(sid)->getSurface();
+	    activehordisps[idx]->getHorizonSection()->getSurface();
 
 	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
 	line->ref();
@@ -1663,22 +1657,20 @@ void FaultDisplay::updateEditorMarkers()
     if ( !fault_ || !viseditor_ || !areSticksDisplayed() )
 	return;
 
-    PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator(-1);
+    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iter->next();
 	if ( !pid.isValid() )
 	    break;
 
-	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
 	EM::Fault3D* fault3d = emFault();
 	if ( fault3d )
 	{
 	    if ( StickSetDisplay::markerStyle() && viseditor_ )
 		viseditor_->setMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
-	    Geometry::FaultStickSet* fs =
-		fault3d->geometry().sectionGeometry(sid);
+	    Geometry::FaultStickSet* fs = fault3d->geometry().geometryElement();
 	    viseditor_->turnOnMarker(pid,!fs->isStickHidden(sticknr,mSceneIdx));
 	}
     }
@@ -1824,9 +1816,8 @@ void FaultDisplay::updateStickHiding()
 
     for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
     {
-	EM::SectionID sid = fault_->sectionID( sidx );
 	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-			 fault_->sectionGeometry( sid ) );
+			 fault_->geometryElement())
 	if ( !fss || fss->isEmpty() )
 	    continue;
 
@@ -1850,7 +1841,6 @@ void FaultDisplay::updateStickHiding()
 	    for (  int idx=0; idx<intersectpoints.size(); idx++ )
 	    {
 		StickIntersectPoint* sip = new StickIntersectPoint();
-		sip->sid_ = sid;
 		sip->sticknr_ = rc.row();
 		sip->pos_ = intersectpoints[idx];
 		if ( displaytransform_ )
@@ -1868,21 +1858,17 @@ bool FaultDisplay::onSection( int sticknr )
     if ( !fault_ )
 	return false;
 
-    for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
-    {
-	EM::SectionID sid = fault_->sectionID( sidx );
-	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-			 fault_->sectionGeometry( sid ) );
-	if ( !fss || fss->isEmpty() )
-	    continue;
+    mDynamicCastGet(Geometry::FaultStickSurface*,fss,
+		     fault_->geometryElement())
+    if ( !fss || fss->isEmpty() )
+	return false;
 
-	TypeSet<Coord3> intersectpoints;
-	if ( coincidesWithPlane(*fss,sticknr,intersectpoints) )
-	    return true;
+    TypeSet<Coord3> intersectpoints;
+    if ( coincidesWithPlane(*fss,sticknr,intersectpoints) )
+	return true;
 
-	if ( coincidesWith2DLine(*fss,sticknr) )
-	    return true;
-    }
+    if ( coincidesWith2DLine(*fss,sticknr) )
+	return true;
 
     return false;
 }

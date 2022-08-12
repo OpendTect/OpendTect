@@ -56,14 +56,14 @@ void Horizon2DTracker::initClass()
 
 #define mErrRet(msg) { errmsg = msg; return false; }
 
-SectionTracker* Horizon2DTracker::createSectionTracker( EM::SectionID sid )
+SectionTracker* Horizon2DTracker::createSectionTracker()
 {
     if ( !getHorizon2D() ) return 0;
 
-    return new SectionTracker( *emObject(), sid,
-	    new Horizon2DSelector(*getHorizon2D(),sid),
-	    ExtenderFactory().create( getTypeStr(),getHorizon2D(),sid),
-	    new HorizonAdjuster(*getHorizon2D(),sid) );
+    return new SectionTracker( *emObject(),
+	    new Horizon2DSelector(*getHorizon2D()),
+	    ExtenderFactory().create( getTypeStr(),getHorizon2D()),
+	    new HorizonAdjuster(*getHorizon2D()) );
 }
 
 

@@ -316,8 +316,6 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !seedpicker )
 	return;
 
-    seedpicker->setSectionID( emobj->sectionID(0) );
-
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
@@ -376,7 +374,6 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     if ( !seedpicker )
 	return;
 
-    seedpicker->setSectionID( emobj->sectionID(0) );
     const MouseEvent& mouseevent = mehandler_->event();
 
     if ( !dbl && editor_ )
@@ -493,7 +490,6 @@ EMSeedPicker* HorizonFlatViewEditor3D::getEMSeedPicker() const
     EMSeedPicker* picker = tracker->getSeedPicker( true );
     if ( !picker ) return 0;
 
-    picker->setSectionID( emobj->sectionID(0) );
     return picker;
 }
 
@@ -625,7 +621,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
     if ( !emobj ) return false;
 
     const MPE::SectionTracker* sectiontracker =
-	tracker.getSectionTracker(emobj->sectionID(0), true);
+	tracker.getSectionTracker(true);
 
     const Attrib::SelSpec* trackedatsel = sectiontracker
 			? sectiontracker->adjuster()->getAttributeSel(0)
@@ -710,10 +706,9 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 
     for ( int idx=0; idx<emobj->nrSections(); idx++ )
     {
-	if ( emobj->isDefined(emobj->sectionID(idx),bid.toInt64()) )
+	if ( emobj->isDefined(bid.toInt64()) )
 	{
 	    pid.setObjectID( emobj->id() );
-	    pid.setSectionID( emobj->sectionID(idx) );
 	    pid.setSubID( bid.toInt64() );
 	    return true;
 	}
@@ -870,7 +865,6 @@ void HorizonFlatViewEditor3D::fillAuxInfoContainer()
 	markeridinfo->markerid_ = editor_->addAuxData(
 					disphormrkinfos[idx]->marker_, true );
 	markeridinfo->marker_ = disphormrkinfos[idx]->marker_;
-	markeridinfo->sectionid_ = disphormrkinfos[idx]->sectionid_;
 	editor_->enableEdit( markeridinfo->markerid_, false, false, false );
 	editor_->enablePolySel( markeridinfo->markerid_, mehandler_ );
 
@@ -903,15 +897,9 @@ FlatView::AuxData* HorizonFlatViewEditor3D::getAuxData( int markid )
 }
 
 
-EM::SectionID HorizonFlatViewEditor3D::getSectionID( int markid )
+EM::SectionID HorizonFlatViewEditor3D::getSectionID( int )
 {
-    for ( int idx=0; idx<markeridinfos_.size(); idx++ )
-    {
-	if ( markeridinfos_[idx]->markerid_ == markid )
-	    return markeridinfos_[idx]->sectionid_;
-    }
-
-    return -1;
+    return EM::SectionID::def();
 }
 
 
@@ -993,7 +981,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 	    bid = rdlpath[ix.nearest_].position();
 	}
 
-	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
+	EM::PosID posid( emid_, bid );
 	pointselections_ += posid;
     }
 

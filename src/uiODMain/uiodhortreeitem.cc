@@ -609,7 +609,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller)
     mDynamicCastGet(uiMenuHandler*,uimenu,caller)
-    if ( menu->isHandled() || isDisplayID(menu->menuID()) || mnuid==-1 )
+    if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
      if ( mnuid == fillholesmnuitem_.id || mnuid == snapeventmnuitem_.id ||
@@ -680,7 +680,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 
-	visBase::HorizonSection* section = hd->getHorizonSection( 0 );
+	visBase::HorizonSection* section = hd->getHorizonSection();
 	if ( !section )
 	    return;
 

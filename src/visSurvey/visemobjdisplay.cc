@@ -179,7 +179,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
-    bool onobject = getSectionID(&eventinfo.pickedobjids)!=-1;
+    bool onobject = !eventinfo.pickedobjids.isEmpty();
 
     if ( !onobject && editor_ )
 	onobject = eventinfo.pickedobjids.isPresent( editor_->id() );
@@ -212,7 +212,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     else if ( keycb )
     {
 	const RowCol closestrc = closestnode.getRowCol();
-	BufferString str = "Section: "; str += closestnode.sectionID();
+	BufferString str = "Section: "; str += closestnode.sectionID().asInt();
 	str += " ("; str += closestrc.row();
 	str += ","; str += closestrc.col(); str += ",";
 	const Coord3 pos = emobject_->getPos( closestnode );
@@ -500,13 +500,7 @@ bool EMObjectDisplay::isEditingEnabled() const
 
 EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<VisID>* path ) const
 {
-    for ( int idx=0; path && idx<path->size(); idx++ )
-    {
-	const EM::SectionID sectionid = getSectionID( (*path)[idx] );
-	if ( sectionid!=-1 ) return sectionid;
-    }
-
-    return -1;
+    return EM::SectionID::def();
 }
 
 
@@ -634,14 +628,10 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     info = emobject_->getTypeStr(); info += ": ";
     info += name();
 
-    const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
-
-    if ( sid==-1 || emobject_->nrSections()==1 )
+    if ( emobject_->nrSections()==1 )
 	return;
 
-    BufferString sectionname = emobject_->sectionName(sid);
-    if ( sectionname.isEmpty() ) sectionname = sid;
-    info += ", Section: "; info += sectionname;
+    info += ", Section: 0";
 }
 
 

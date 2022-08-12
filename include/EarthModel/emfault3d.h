@@ -37,35 +37,73 @@ public:
 			Fault3DGeometry(Surface&);
 			~Fault3DGeometry();
 
-    int			nrSticks(const SectionID&) const;
-    int			nrKnots(const SectionID&,int sticknr) const;
+    int			nrSticks() const;
+    int			nrKnots(int sticknr) const;
 
-    bool		insertStick(const SectionID&,int sticknr,int firstcol,
+    bool		insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory) override;
-    bool		removeStick(const SectionID&,int sticknr,
+    bool		removeStick(int sticknr,
 				    bool addtohistory) override;
-    bool		insertKnot(const SectionID&,const SubID&,
+    bool		insertKnot(const SubID&,
 			       const Coord3& pos,bool addtohistory) override;
-    bool		removeKnot(const SectionID&,const SubID&,
+    bool		removeKnot(const SubID&,
 				   bool addtohistory) override;
-    
-    bool		areSticksVertical(const SectionID&) const;
+
+    bool		areSticksVertical() const;
     bool		areEditPlanesMostlyCrossline() const;
 
-    Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&) override;
-    const Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&) const override;
+    Geometry::FaultStickSurface*	geometryElement() override;
+    const Geometry::FaultStickSurface*	geometryElement() const override;
 
-    EMObjectIterator*	createIterator(const SectionID&,
-				   const TrcKeyZSampling* =0) const override;
+    EMObjectIterator*	createIterator(
+				const TrcKeyZSampling* =nullptr) const override;
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
+// Deprecated public functions
+    mDeprecated("Use geometryElement()")
+    Geometry::FaultStickSurface*
+			sectionGeometry(const SectionID&) override
+			{ return geometryElement(); }
+    mDeprecated("Use geometryElement() const")
+    const Geometry::FaultStickSurface*
+			sectionGeometry(const SectionID&) const override
+			{ return geometryElement(); }
+
+    mDeprecated("Use without SectionID")
+    int			nrSticks(const SectionID&) const
+			{ return nrSticks(); }
+    mDeprecated("Use without SectionID")
+    int			nrKnots(const SectionID&,int sticknr) const
+			{ return nrKnots(sticknr); }
+
+    mDeprecated("Use without SectionID")
+    bool		insertStick(const SectionID&,int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    bool addtohistory) override
+			{ return insertStick(sticknr,firstcol,pos,
+					     editnormal,addtohistory); }
+    mDeprecated("Use without SectionID")
+    bool		removeStick(const SectionID&,int sticknr,
+				    bool addtohistory) override
+			{ return removeStick(sticknr,addtohistory); }
+    mDeprecated("Use without SectionID")
+    bool		insertKnot(const SectionID&,const SubID& subid,
+			       const Coord3& pos,bool addtohistory) override
+			{ return insertKnot(subid,pos,addtohistory); }
+    mDeprecated("Use without SectionID")
+    bool		removeKnot(const SectionID&,const SubID& subid,
+				   bool addtohistory) override
+			{ return removeKnot(subid,addtohistory); }
+    mDeprecated("Use without SectionID")
+    bool		areSticksVertical(const SectionID&) const
+			{ return areSticksVertical(); }
+
+
 protected:
-    Geometry::FaultStickSurface*	createSectionGeometry() const override;
+    Geometry::FaultStickSurface*	createGeometryElement() const override;
 };
 
 
@@ -83,6 +121,9 @@ public:
 
     FaultAuxData*		auxData();
     const FaultAuxData*		auxData() const;
+
+    EMObjectIterator*	createIterator(
+				const TrcKeyZSampling* =nullptr) const override;
 
 protected:
 
@@ -108,7 +149,7 @@ public:
     static Table::FormatDesc*	getDesc(bool is2d);
 
     bool			get(od_istream&,EM::Fault&,
-				    bool sortsticks=false, 
+				    bool sortsticks=false,
 				    bool is2d=false) const;
 protected:
     bool			isXY() const;
@@ -119,10 +160,11 @@ protected:
 \brief Class to hold Fault-stick coordinates and compute the normal.
 */
 
-mExpClass(EarthModel)	FaultStick
+mExpClass(EarthModel) FaultStick
 {
 public:
-			FaultStick(int idx)	: stickidx_(idx)	{}
+			FaultStick(int stickidx);
+			~FaultStick();
 
     Coord3		getNormal(bool is2d) const;
 
@@ -132,5 +174,3 @@ public:
 };
 
 } // namespace EM
-
-

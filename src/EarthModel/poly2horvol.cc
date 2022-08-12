@@ -80,7 +80,6 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     if ( !zvals.isEmpty() )
 	avgz /= sCast(float,zvals.size());
 
-    const int nrsect = hor_->nrSections();
     TrcKeySamplingIterator iter( tks );
     BinID bid; float totth = 0;
     while ( iter.next(bid) )
@@ -88,31 +87,25 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	if ( !poly.isInside(mPolyLoc(bid),true,1e-6) )
 	    continue;
 
-	const EM::SubID subid = bid.toInt64();
 	const Coord pos( tks.toCoord(bid) );
-
-	for ( int isect=0; isect<nrsect; isect++ )
-	{
-	    const EM::SectionID sid = hor_->sectionID( isect );
-	    float horz = (float) hor_->getPos( sid, subid ).z;
-	    if ( mIsUdf(horz) && bid.inl()!=tks.stop_.inl() &&
-		 bid.crl()!=tks.stop_.crl() )
-	    { //The very last edges should exclude.
-		horz = (float) hor_->geometry().sectionGeometry(sid)
-		    ->computePosition( pos ).z;
-	    }
-
-	    if ( mIsUdf(horz) )
-		continue;
-
-	    float polyz = grdr.getValue( pos );
-	    if ( mIsUdf(polyz) )
-		polyz = avgz;
-
-	    const float th = upw ? polyz - horz : horz - polyz;
-	    if ( useneg || th > 0 )
-		{ totth += th; break; }
+	float horz = hor_->getZ( bid );
+	if ( mIsUdf(horz) && bid.inl()!=tks.stop_.inl() &&
+	     bid.crl()!=tks.stop_.crl() )
+	{ //The very last edges should exclude.
+	    horz = (float)hor_->geometry().geometryElement()->
+						computePosition( pos ).z;
 	}
+
+	if ( mIsUdf(horz) )
+	    continue;
+
+	float polyz = grdr.getValue( pos );
+	if ( mIsUdf(polyz) )
+	    polyz = avgz;
+
+	const float th = upw ? polyz - horz : horz - polyz;
+	if ( useneg || th > 0 )
+	    { totth += th; break; }
     }
 
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;

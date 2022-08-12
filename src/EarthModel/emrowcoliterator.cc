@@ -19,37 +19,25 @@ ________________________________________________________________________
 namespace EM
 {
 
-RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
-				const TrcKeyZSampling* cs	)
-    : surf_( surf )
-    , sid_( sectionid )
-    , cursection_( 0 )
-    , allsids_( sectionid==-1 )
-    , csbound_( cs )
-    , rowcolbounded_( false )
-{
-    if ( allsids_ )
-	sid_ = surf_.sectionID(0);
 
+RowColIterator::RowColIterator( const Surface& surf,
+				const TrcKeyZSampling* tkzs )
+    : surf_(surf)
+    , csbound_(tkzs)
+    , rowcolbounded_(false)
+{
     fillPosIDs();
 }
 
 
-RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
+RowColIterator::RowColIterator( const Surface& surf,
 				const StepInterval<int> rowbnd,
 				const StepInterval<int> colbnd )
-    : surf_( surf )
-    , sid_( sectionid )
-    , cursection_( 0 )
-    , allsids_( sectionid==-1 )
-    , csbound_( 0 )
-    , rowcolbounded_( true )
-    , rowbound_( rowbnd )
-    , colbound_( colbnd )
+    : surf_(surf)
+    , rowbound_(rowbnd)
+    , colbound_(colbnd)
+    , rowcolbounded_(true)
 {
-    if ( allsids_ )
-	sid_ = surf_.sectionID(0);
-
     fillPosIDs();
 }
 
@@ -65,34 +53,14 @@ void RowColIterator::fillPosIDs()
     if ( !posids_.isEmpty() )
 	posids_.setEmpty();
 
-    if ( allsids_ )
-    {
-	for ( int ids=0; ids<surf_.nrSections(); ids++ )
-	{
-	    TypeSet<GeomPosID>* posids = new TypeSet<GeomPosID>;
-	    posids_ += posids;
+    TypeSet<GeomPosID>* posids = new TypeSet<GeomPosID>;
+    posids_ += posids;
 
-	    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-			     surf_.sectionGeometry( surf_.sectionID( ids ) ) );
-	    if ( !rcs ) return;
+    mDynamicCastGet(const Geometry::RowColSurface*,rcs,
+		    surf_.geometryElement())
+    if ( !rcs ) return;
 
-	    rcs->getPosIDs( *posids );
-	}
-    }
-    else
-    {
-	int idx = surf_.sectionIndex( sid_ );
-	while ( posids_.size()<idx+1 )
-	{
-	    TypeSet<GeomPosID>* posids = new TypeSet<GeomPosID>;
-	    posids_ += posids;
-	}
-	mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-			 surf_.sectionGeometry( sid_ ) );
-	if ( !rcs ) return;
-
-	rcs->getPosIDs( *posids_[idx] );
-    }
+    rcs->getPosIDs( *posids );
 }
 
 
@@ -114,8 +82,7 @@ PosID RowColIterator::next()
 		if ( !rowrg_.includes(rc_.row(),true) )
 		{
 		    cursection_ = 0;
-		    if ( !nextSection() )
-			return PosID::udf();
+		    return PosID::udf();
 		}
 
 		colrg_ = cursection_->colRange( rc_.row() );
@@ -130,38 +97,27 @@ PosID RowColIterator::next()
 	if ( !csbound_ )
 	    break;
 
-	pos_ = surf_.getPos( sid_, rc_.toInt64() );
+	pos_ = surf_.getPos( rc_.toInt64() );
 	bid_ = SI().transform( pos_ );
 
 	if ( csbound_->hsamp_.includes(bid_) &&
-             csbound_->zsamp_.includes(pos_.z,false) )
+	     csbound_->zsamp_.includes(pos_.z,false) )
 	    break;
     }
 
-    return PosID( surf_.id(), sid_, rc_.toInt64() );
+    return PosID( surf_.id(), rc_ );
 }
 
 
 PosID RowColIterator::fromIndex( int idx ) const
 {
-    if ( allsids_ )
+    for ( int ids=0; ids<posids_.size(); ids++ )
     {
-	for ( int ids=0; ids<posids_.size(); ids++ )
-	{
-	    const TypeSet<GeomPosID>& posids = *posids_[ids];
-	    if ( idx > posids.size() )
-		idx -= posids.size();
-	    else
-		return PosID( surf_.id(), surf_.sectionID( ids ),
-			      posids[idx] );
-	}
-    }
-    else
-    {
-	const int sectIdx = surf_.sectionIndex( sid_ );
-	const TypeSet<GeomPosID>& posids = *posids_[sectIdx];
-	if ( idx < posids.size() )
-	    return PosID( surf_.id(), sid_, posids[idx] );
+	const TypeSet<GeomPosID>& posids = *posids_[ids];
+	if ( idx > posids.size() )
+	    idx -= posids.size();
+	else
+	    return PosID( surf_.id(), posids[idx] );
     }
 
     return PosID::udf();
@@ -170,42 +126,22 @@ PosID RowColIterator::fromIndex( int idx ) const
 
 int RowColIterator::maxIndex() const
 {
-    if ( allsids_ )
+    int sum = 0;
+    for ( int idx=0; idx<posids_.size(); idx++ )
     {
-	int sum = 0;
-	for ( int idx=0; idx<posids_.size(); idx++ )
-	{
-	    const TypeSet<GeomPosID>& posids = *posids_[idx];
-	    sum += posids.size();
-	}
-	return sum;
+	const TypeSet<GeomPosID>& posids = *posids_[idx];
+	sum += posids.size();
     }
-    const int sectIdx = surf_.sectionIndex( sid_ );
-    const TypeSet<GeomPosID>& posids = *posids_[sectIdx];
-    return posids.size();
+    return sum;
 }
 
 
 int RowColIterator::maximumSize() const
 {
-    if ( allsids_ )
-    {
-	int sum = 0;
-	for ( int idx=0; idx<surf_.nrSections(); idx++ )
-	    sum += maximumSize( surf_.sectionID(idx) );
-
-	return sum;
-    }
-
-    return maximumSize( sid_ );
-}
-
-
-int RowColIterator::maximumSize( const SectionID& cursid ) const
-{
-    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-		     surf_.sectionGeometry(cursid) );
-    if ( !rcs ) return 0;
+    mDynamicCastGet(const Geometry::RowColSurface*,rcs,
+		    surf_.geometryElement())
+    if ( !rcs )
+	return 0;
 
     StepInterval<int> rowrg = rcs->rowRange();
     if ( rowcolbounded_ )
@@ -226,10 +162,10 @@ int RowColIterator::maximumSize( const SectionID& cursid ) const
 
 bool RowColIterator::initSection()
 {
-    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-		     surf_.sectionGeometry(sid_) );
+    mDynamicCastGet(const Geometry::RowColSurface*,rcs,
+		    surf_.geometryElement())
     if ( !rcs )
-	return nextSection();
+	return false;
 
     cursection_ = rcs;
 
@@ -249,28 +185,6 @@ bool RowColIterator::initSection()
     rc_.row() = rowrg_.start;
     rc_.col() = colrg_.start;
     return true;
-}
-
-
-bool RowColIterator::nextSection()
-{
-    if ( !allsids_ ) return false;
-
-    cursection_ = 0;
-    int idx=0;
-    for ( ; idx<surf_.nrSections(); idx++ )
-    {
-	if ( surf_.sectionID(idx)==sid_ )
-	    break;
-    }
-
-    if ( idx<surf_.nrSections()-1 )
-    {
-	sid_ = surf_.sectionID(++idx);
-	return initSection();
-    }
-
-    return false;
 }
 
 } // namespace EM

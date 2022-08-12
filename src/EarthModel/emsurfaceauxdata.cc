@@ -165,7 +165,7 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
     if ( !auxdatanames_.validIdx(dataidx) )
 	return mUdf(float);
 
-    const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
+    const int sectionidx = 0;
     if ( !auxdata_.validIdx(sectionidx) || !auxdata_[sectionidx] )
 	return mUdf(float);
 
@@ -180,11 +180,17 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 
 float SurfaceAuxData::getAuxDataVal( int dataidx, const TrcKey& tk ) const
 {
+    return getAuxDataVal( dataidx, tk.position() );
+}
+
+
+float SurfaceAuxData::getAuxDataVal( int dataidx, const BinID& bid ) const
+{
     if ( !auxdatanames_.validIdx(dataidx) ||
 	 !auxdata_.validIdx(0) || !auxdata_[0] )
 	return mUdf(float);
 
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( tk.position() );
+    const BinIDValueSet::SPos pos = auxdata_[0]->find( bid );
     if ( !pos.isValid() )
 	return mUdf(float);
 
@@ -239,16 +245,22 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 }
 
 
-void SurfaceAuxData::setAuxDataVal( int dataidx, const TrcKey& tk, float val )
+void SurfaceAuxData::setAuxDataVal( int dataidx, const BinID& bid, float val )
 {
     if ( auxdata_.isEmpty() || !auxdatanames_.validIdx(dataidx) )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( tk.position() );
+    const BinIDValueSet::SPos pos = auxdata_[0]->find( bid );
     if ( pos.isValid() )
 	auxdata_[0]->getVals( pos )[dataidx] = val;
 
     changed_ = true;
+}
+
+
+void SurfaceAuxData::setAuxDataVal( int dataidx, const TrcKey& tk, float val )
+{
+    setAuxDataVal( dataidx, tk.position(), val );
 }
 
 
@@ -413,7 +425,7 @@ bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
 BufferString SurfaceAuxData::getFileName( const char* attrnm ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
-    return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm ) 
+    return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm )
 		 : BufferString::empty();
 }
 
@@ -425,15 +437,15 @@ bool SurfaceAuxData::removeFile( const char* attrnm ) const
 }
 
 
-Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
+Array2D<float>* SurfaceAuxData::createArray2D( int dataidx ) const
 {
-    if ( horizon_.geometry().sectionGeometry( sid )->isEmpty() )
+    if ( horizon_.geometry().geometryElement()->isEmpty() )
 	return nullptr;
 
-    const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
-    const StepInterval<int> colrg = horizon_.geometry().colRange( sid, -1 );
+    const StepInterval<int> rowrg = horizon_.geometry().rowRange();
+    const StepInterval<int> colrg = horizon_.geometry().colRange( -1 );
 
-    PosID posid( horizon_.id(), sid );
+    PosID posid( horizon_.id() );
     Array2DImpl<float>* arr =
 	new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
@@ -456,15 +468,14 @@ void SurfaceAuxData::init( int dataidx, float val )
 
 void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 {
-    const SectionID sid = horizon_.sectionID( 0 );
     const Geometry::RowColSurface* rcgeom =
-	horizon_.geometry().sectionGeometry( sid );
+	horizon_.geometry().geometryElement();
     if ( !rcgeom || rcgeom->isEmpty() )
 	return;
 
     const StepInterval<int> rowrg = rcgeom->rowRange();
     const StepInterval<int> colrg = rcgeom->colRange();
-    PosID posid( horizon_.id(), sid );
+    PosID posid( horizon_.id() );
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
@@ -482,7 +493,7 @@ void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 }
 
 
-void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
+void SurfaceAuxData::setArray2D( int dataidx,
 				 const Array2D<float>& arr2d,
 				 const TrcKeySampling* arrtks )
 {
@@ -492,14 +503,14 @@ void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
     else
     {
 	const Geometry::RowColSurface* rcgeom =
-		horizon_.geometry().sectionGeometry( sid );
+		horizon_.geometry().geometryElement();
 	if ( !rcgeom || rcgeom->isEmpty() )
 	    return;
 
 	tks.set( rcgeom->rowRange(), rcgeom->colRange() );
     }
 
-    PosID posid( horizon_.id(), sid );
+    PosID posid( horizon_.id() );
     for ( od_int64 gidx=0; gidx<tks.totalNr(); gidx++ )
     {
 	const TrcKey tk = tks.trcKeyAt( gidx );

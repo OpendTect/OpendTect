@@ -43,10 +43,9 @@ void PolygonBodyEditor::initClass()
 }
 
 
-Geometry::ElementEditor* PolygonBodyEditor::createEditor(
-						const EM::SectionID& sid )
+Geometry::ElementEditor* PolygonBodyEditor::createEditor()
 {
-    const Geometry::Element* ge = emObject().sectionGeometry( sid );
+    const Geometry::Element* ge = emObject().geometryElement();
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
@@ -95,15 +94,13 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 			? sowingpivot_ : mousepos;
 
     int polygon;
-    EM::SectionID sid;
-    const float mindist = getNearestPolygon( polygon, sid, pos, zfactor );
+    const float mindist = getNearestPolygon( polygon, pos, zfactor );
     if ( mIsUdf(mindist) )
     {
 	if ( !emObject().nrSections() )
 	    return;
 
-	sid = emObject().sectionID( 0 );
-	const Geometry::Element* ge = emObject().sectionGeometry( sid );
+	const Geometry::Element* ge = emObject().geometryElement();
 	if ( !ge ) return;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
@@ -114,7 +111,6 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	    return;
 
 	insertpid.setObjectID( emObject().id() );
-	insertpid.setSectionID( sid );
 	insertpid.setSubID( RowCol(0,0).toInt64() );
 	return;
     }
@@ -124,8 +120,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	if ( !emObject().nrSections() )
 	    return;
 
-	sid = emObject().sectionID( 0 );
-	const Geometry::Element* ge = emObject().sectionGeometry( sid );
+	const Geometry::Element* ge = emObject().geometryElement();
 	if ( !ge ) return;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
@@ -136,7 +131,6 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	    return;
 
 	insertpid.setObjectID( emObject().id() );
-	insertpid.setSectionID( sid );
 	const int newpolygon = mindist>0
 	    ? polygon+rowrange.step
 	    : polygon==rowrange.start ? polygon-rowrange.step : polygon;
@@ -145,7 +139,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	return;
     }
 
-    getPidsOnPolygon( nearestpid0, nearestpid1, insertpid, polygon, sid,
+    getPidsOnPolygon( nearestpid0, nearestpid1, insertpid, polygon,
 		      pos, zfactor );
 }
 
@@ -159,8 +153,7 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
     bool change = false;
     for ( int sectidx=polygonsurf->nrSections()-1; sectidx>=0; sectidx--)
     {
-	const EM::SectionID currentsid = polygonsurf->sectionID( sectidx );
-	const Geometry::Element* ge = polygonsurf->sectionGeometry(currentsid);
+	const Geometry::Element* ge = polygonsurf->geometryElement();
 	if ( !ge ) continue;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
@@ -187,9 +180,9 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 		    continue;
 
 		EM::PolygonBodyGeometry& fg = polygonsurf->geometry();
-		const bool res = fg.nrKnots( currentsid,curpolygon)==1
-		   ? fg.removePolygon( currentsid, curpolygon, true )
-		   : fg.removeKnot( currentsid, rc.toInt64(), true );
+		const bool res = fg.nrKnots(curpolygon)==1
+		   ? fg.removePolygon(curpolygon, true )
+		   : fg.removeKnot( rc.toInt64(), true );
 
 		if ( res ) change = true;
 	    }
@@ -206,7 +199,7 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 }
 
 
-float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
+float PolygonBodyEditor::getNearestPolygon( int& polygon,
 	const Coord3& mousepos, float zfactor ) const
 {
     if ( !mousepos.isDefined() )
@@ -217,8 +210,7 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 
     for ( int sectionidx=emObject().nrSections()-1; sectionidx>=0; sectionidx--)
     {
-	const EM::SectionID currentsid = emObject().sectionID( sectionidx );
-	const Geometry::Element* ge = emObject().sectionGeometry( currentsid );
+	const Geometry::Element* ge = emObject().geometryElement();
 	if ( !ge ) continue;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
@@ -269,7 +261,6 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
     if ( selsectionidx==-1 )
 	return mUdf(float);
 
-    sid = emObject().sectionID( selsectionidx );
     polygon = selpolygon;
 
     return mindist;
@@ -297,7 +288,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	 !SI().zRange( true ).includes(mpos.z,false) )
 	return false;
 
-    const Geometry::Element* ge = emObject().sectionGeometry(pid.sectionID());
+    const Geometry::Element* ge = emObject().geometryElement();
     mDynamicCastGet( const Geometry::PolygonSurface*, surface, ge );
     if ( !surface ) return false;
 
@@ -361,14 +352,14 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 
 void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	EM::PosID& nearestpid1, EM::PosID& insertpid, int polygon,
-	const EM::SectionID& sid, const Coord3& mousepos, float zfactor ) const
+	const Coord3& mousepos, float zfactor ) const
 {
     nearestpid0 = EM::PosID::udf();
     nearestpid1 = EM::PosID::udf();
     insertpid = EM::PosID::udf();
     if ( !mousepos.isDefined() ) return;
 
-    const Geometry::Element* ge = emObject().sectionGeometry( sid );
+    const Geometry::Element* ge = emObject().geometryElement();
     mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
     if ( !surface ) return;
 
@@ -410,7 +401,6 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	return;
 
     nearestpid0.setObjectID( emObject().id() );
-    nearestpid0.setSectionID( sid );
     nearestpid0.setSubID( RowCol(polygon,knots[nearknotidx]).toInt64() );
     if ( knots.size()<=2 )
     {

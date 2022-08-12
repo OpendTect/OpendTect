@@ -31,8 +31,12 @@ mExpClass(EarthModel) EMObjectPosSelector : public ParallelTask
 {
 public:
 			EMObjectPosSelector(const EMObject& emobj,
-				const SectionID& secid,
 				const ObjectSet<const Selector<Coord3> >&);
+    mDeprecated("Use without SectionID")
+			EMObjectPosSelector(const EMObject& emobj,
+				const SectionID& secid,
+				const ObjectSet<const Selector<Coord3> >& pos)
+			    : EMObjectPosSelector(emobj,pos)		{}
 			~EMObjectPosSelector();
 
     const TypeSet<EM::SubID>& getSelected() const	{ return poslist_; }
@@ -54,7 +58,7 @@ protected:
     const ObjectSet<const Selector<Coord3> >&	selectors_;
 
     const EMObject&		emobj_;
-    const SectionID&		sectionid_;
+    const SectionID		sectionid_		= EM::SectionID::def();
     int				startrow_;
     int				nrrows_;
     int				startcol_;

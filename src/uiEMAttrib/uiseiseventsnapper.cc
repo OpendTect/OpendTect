@@ -125,7 +125,6 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
-	const EM::SectionID sid = horizon_->sectionID( idx );
 	if ( !is2d_ )
 	{
 	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
@@ -137,7 +136,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 		return false;
 
 	    BinIDValueSet bivs( 1, false );
-	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
+	    hor3d->geometry().fillBinIDValueSet( bivs );
 
 	    SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
@@ -153,7 +152,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    {
 		BinID bid; float z;
 		bivs.get( pos, bid, z );
-		newhor3d->setPos( sid, bid.toInt64(), Coord3(0,0,z),
+		newhor3d->setPos( bid.toInt64(), Coord3(0,0,z),
 				  false );
 	    }
 

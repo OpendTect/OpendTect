@@ -30,12 +30,10 @@ const char* SectionTracker::useadjusterstr = "Use adjuster";
 const char* SectionTracker::seedonlypropstr = "Seed only propagation";
 
 SectionTracker::SectionTracker( EM::EMObject& emobj,
-				const EM::SectionID& sectionid,
 				SectionSourceSelector* sel,
 				SectionExtender* ext,
 				SectionAdjuster* adj )
     : emobject_( emobj )
-    , sid_( sectionid )
     , selector_(sel)
     , extender_(ext)
     , adjuster_(adj)
@@ -59,10 +57,11 @@ SectionTracker::~SectionTracker()
 
 
 EM::SectionID SectionTracker::sectionID() const
-{ return sid_; }
+{ return EM::SectionID::def(); }
 
 
-bool SectionTracker::init() { return true; }
+bool SectionTracker::init()
+{ return true; }
 
 
 void SectionTracker::reset()
@@ -87,8 +86,7 @@ void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
     {
 	const Coord3 seedpos = emobject_.getPos( (*seedlist)[idx] );
 	const BinID seedbid = SI().transform( seedpos );
-	if ( (*seedlist)[idx].sectionID()==sid_ &&
-	     engine().activeVolume().hsamp_.includes(seedbid) )
+	if ( engine().activeVolume().hsamp_.includes(seedbid) )
 	{
 	    lockedseeds += (*seedlist)[idx].subID();
 	}

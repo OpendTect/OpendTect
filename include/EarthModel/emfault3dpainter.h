@@ -44,11 +44,12 @@ public:
 
     void		setPath(const TrcKeyPath&);
     void		setFlatPosData(const FlatPosData*);
+    void		setRandomLineID(RandomLineID);
 
     void		enableLine(bool);
     void		enableKnots(bool);
 
-    void		setActiveStick(EM::PosID&);
+    void		setActiveStick(const EM::PosID&);
     int			getActiveStickId() const      { return activestickid_; }
     void		setMarkerLineStyle(const OD::LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*) const;
@@ -84,16 +85,14 @@ protected:
 	    ObjectSet<FlatView::AuxData>	intsecmarker_;
 	};
 
-    bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
-				    Fault3DMarker*);
+    bool		paintSticks(EM::Fault3D&,Fault3DMarker*);
     bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
 	    				  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
     bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
 	    				  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
-    bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
-	    				  Fault3DMarker*);
+    bool		paintIntersection(EM::Fault3D&,Fault3DMarker*);
     bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
 	    				Geometry::ExplPlaneIntersection*,
 					TypeSet<Coord3>&);
@@ -126,8 +125,12 @@ protected:
     RandomLineID	rdlid_;
     bool		paintenable_;
 
-public:
-    void		setRandomLineID(RandomLineID rdlid);
+    bool		paintSticks( EM::Fault3D& flt, const EM::SectionID&,
+				    Fault3DMarker* fm )
+			{ return paintSticks( flt, fm ); }
+    bool		paintIntersection( EM::Fault3D& f, const EM::SectionID&,
+					  Fault3DMarker* fm )
+			{ return paintIntersection( f, fm ); }
 };
 
 } //namespace EM

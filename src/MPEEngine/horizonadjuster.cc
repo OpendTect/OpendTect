@@ -27,8 +27,8 @@ ___________________________________________________________________
 namespace MPE
 {
 
-HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
-    : SectionAdjuster(sid)
+HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor )
+    : SectionAdjuster()
     , horizon_(hor)
     , attribsel_(0)
     , datapackid_(DataPack::cNoID())

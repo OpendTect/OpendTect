@@ -1179,14 +1179,14 @@ void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 
 void uiODViewer2DMgr::viewObjAdded( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,vw2dobjid,cb);
+    mCBCapsuleUnpack(Vis2DID,vw2dobjid,cb);
     vw2dObjAdded.trigger( vw2dobjid );
 }
 
 
 void uiODViewer2DMgr::viewObjToBeRemoved( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,vw2dobjid,cb);
+    mCBCapsuleUnpack(Vis2DID,vw2dobjid,cb);
     vw2dObjToBeRemoved.trigger( vw2dobjid );
 }
 

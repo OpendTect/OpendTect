@@ -93,8 +93,7 @@ EM::PosID Patch::seedNode( int idx ) const
 
     const TrcKey tck = seeds_[idx].tk_;
 
-    return EM::PosID( emobj->id(), emobj->sectionID(0),
-		      tck.position().toInt64() );
+    return EM::PosID( emobj->id(), tck.position() );
 }
 
 
@@ -112,8 +111,7 @@ Coord3 Patch::seedCoord( int idx ) const
     {
 	const TrcKey tck = seeds_[idx].tk_;
 	const EM::PosID pid =
-	    EM::PosID( emobj->id(), emobj->sectionID(0),
-		       tck.position().toInt64() );
+	    EM::PosID( emobj->id(), tck.position() );
 	pos = emobj->getPos( pid );
     }
     else
@@ -121,7 +119,7 @@ Coord3 Patch::seedCoord( int idx ) const
 	if ( hor2d )
 	{
 	    const TrcKey tck = seeds_[idx].tk_;
-	    pos = hor2d->getPos(emobj->sectionID(0), tck.geomID(), tck.trcNr());
+	    pos = hor2d->getPos( tck.geomID(), tck.trcNr());
 	}
     }
     pos.z = seeds_[idx].val_;
@@ -179,8 +177,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
     int idx = 0;
     if ( !is2d )
     {
-	const EM::PosID pid = EM::PosID( emobj->id(), emobj->sectionID(0),
-					 seedtckv.tk_.position().toInt64() );
+	const EM::PosID pid = EM::PosID( emobj->id(), seedtckv.tk_.position() );
 	if ( !seedpicker_->lineTrackDirection(dir) )
 	{
 	    idx = findClosestSeedRdmIdx( pid );
@@ -355,7 +352,7 @@ EMSeedPicker::EMSeedPicker( EMTracker& tracker )
     , patch_(0)
     , patchundo_( *new Undo() )
 {
-    sectionid_ = tracker.emObject() ? tracker.emObject()->sectionID(0) : -1;
+    sectionid_ = EM::SectionID::def();
 }
 
 
@@ -424,7 +421,7 @@ void EMSeedPicker::setSelSpec( const Attrib::SelSpec* as )
 
     selspec_ = as ? *as : Attrib::SelSpec();
 
-    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    SectionTracker* sectracker = tracker_.getSectionTracker( true );
     mDynamicCastGet(HorizonAdjuster*,adjuster,
 		    sectracker?sectracker->adjuster():0);
     if ( adjuster )

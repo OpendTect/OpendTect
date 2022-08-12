@@ -32,14 +32,7 @@ mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
 public:
 
     const char*			type() const override	{ return typeStr(); }
-    int				nrSections() const override	{ return 1; }
-    SectionID			sectionID(int) const override	{ return 0; }
-    bool			canSetSectionName() const override
-								{ return false;}
 
-    Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
-    const Geometry::Element*	sectionGeometry(const SectionID&) const
-								  { return 0; }
     Executor*			loader() override;
     Executor*			saver() override;
     virtual Executor*		saver(const IOObj*);
@@ -91,4 +84,3 @@ protected:
 };
 
 } // namespace EM
-

@@ -16,9 +16,24 @@ const char* PosID::sectionStr() { return  "Patch"; }
 const char* PosID::subidStr() { return  "Sub ID"; }
 
 
+PosID::PosID( const ObjectID& id, const RowCol& rc )
+    : emobjid_(id)
+    , sectionid_(SectionID::def())
+    , subid_(rc.toInt64())
+{}
+
+
+PosID::PosID( const ObjectID& id, SubID subid )
+    : emobjid_(id)
+    , sectionid_(SectionID::def())
+    , subid_(subid)
+{}
+
+
 const PosID& PosID::udf()
 {
-    mDefineStaticLocalObject( PosID, undef, ( ObjectID::udf(), -1, -1 ) );
+    mDefineStaticLocalObject( PosID, undef,
+	( ObjectID::udf(), SectionID::udf(), mUdf(SubID) ) );
     return undef;
 }
 
@@ -37,7 +52,7 @@ bool PosID::isUdf() const
 
 bool PosID::isValid() const
 {
-    return objectID().isValid() && sectionID()>=0 && subID()>=0;
+    return emobjid_.isValid() && sectionid_.isValid() && !mIsUdf(subid_);
 }
 
 

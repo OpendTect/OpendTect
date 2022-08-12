@@ -671,36 +671,34 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    emhorizons_.replace( horidx, hor );
 	}
 
-	const EM::SectionID sid = emhorizons_[horidx]->sectionID( 0 );
-
 	const BinID horstep = emhorizons_[horidx]->geometry().loadedStep();
 	BinID previnl( bidv.inl()-horstep.inl(), bidv.crl() );
 	BinID nextinl( bidv.inl()+horstep.inl(), bidv.crl() );
-	if ( !emhorizons_[horidx]->isDefined(sid,previnl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(previnl.toInt64() ) )
 	    previnl = bidv;
-	if ( !emhorizons_[horidx]->isDefined(sid,nextinl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(nextinl.toInt64() ) )
 	    nextinl = bidv;
 
 	if ( previnl==nextinl )
 	    return false;
 
 	const float inldiff = (float)
-	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
+	    (emhorizons_[horidx]->getPos(nextinl.toInt64() ).z -
+	     emhorizons_[horidx]->getPos(previnl.toInt64() ).z);
 
 	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.crl() );
 	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.crl() );
-	if ( !emhorizons_[horidx]->isDefined(sid,prevcrl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(prevcrl.toInt64() ) )
 	    prevcrl = bidv;
-	if ( !emhorizons_[horidx]->isDefined(sid,nextcrl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(nextcrl.toInt64() ) )
 	    nextcrl = bidv;
 
 	if ( prevcrl==nextcrl )
 	    return false;
 
 	const float crldiff = (float)
-	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z);
+	    (emhorizons_[horidx]->getPos(nextcrl.toInt64() ).z -
+	     emhorizons_[horidx]->getPos(prevcrl.toInt64() ).z);
 
 	inldip = inldiff/((nextinl.inl()-previnl.inl())*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl()-prevcrl.crl())*SI().crlDistance() );

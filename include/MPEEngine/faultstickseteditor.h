@@ -54,20 +54,20 @@ public:
 						Pos::GeomID pickedgeomid,
 						const Coord3* normal) const;
 protected:
-    float		distToStick(int sticknr,const EM::SectionID& sid,
+    float		distToStick(int sticknr,
 				    const MultiID* pickedmid,
 				    const char* pickednm,
 				    Pos::GeomID pickedgeomid,const Coord3& pos,
 				    const Coord3* posnorm) const;
-    bool		getNearestStick(int& sticknr,EM::SectionID& sid,
+    bool		getNearestStick(int& sticknr,
 				const MultiID* pickedmid,
 				const char* pickednm,
 				Pos::GeomID pickedgeomid,const Coord3& pos,
 				const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
-				const EM::SectionID&,const Coord3& pos) const;
+				const Coord3& pos) const;
 
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
+    Geometry::ElementEditor*	createEditor() override;
     Coord3			scalevector_;
     Coord			xtrans_;
     Coord			ytrans_;
@@ -85,4 +85,3 @@ protected:
 };
 
 } // namespace MPE
-

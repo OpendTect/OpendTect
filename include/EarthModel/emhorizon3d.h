@@ -36,17 +36,12 @@ class SurfaceAuxData;
 */
 
 mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
-{ mODTextTranslationClass(Horizon3DGeometry);
+{ mODTextTranslationClass(Horizon3DGeometry)
 public:
 				Horizon3DGeometry(Surface&);
 
-    const Geometry::BinIDSurface* sectionGeometry(
-					const SectionID&) const override;
-    Geometry::BinIDSurface*	sectionGeometry(const SectionID&) override;
-
-    bool			removeSection(const SectionID&,
-					      bool hist) override;
-    SectionID			cloneSection(const SectionID&) override;
+    const Geometry::BinIDSurface* geometryElement() const override;
+    Geometry::BinIDSurface*	geometryElement() override;
 
     bool			isFullResolution() const override;
     RowCol			loadedStep() const;
@@ -66,20 +61,48 @@ public:
     int				getConnectedPos(const PosID&,
 						TypeSet<PosID>*) const override;
 
-    bool			getBoundingPolygon(const SectionID&,
-						   Pick::Set&) const;
-    void			getDataPointSet( const SectionID&,
-						  DataPointSet&,
-						  float shift=0.0) const;
-    void			fillBinIDValueSet(const SectionID&,
-						 BinIDValueSet&,
+    bool			getBoundingPolygon(Pick::Set&) const;
+    void			getDataPointSet(DataPointSet&,
+						float shift=0.0) const;
+    void			fillBinIDValueSet(BinIDValueSet&,
 						 Pos::Provider3D* prov=0) const;
+    EMObjectIterator*		createIterator(
+				    const TrcKeyZSampling* =0) const override;
 
-    EMObjectIterator*		createIterator(const EM::SectionID&,
-				   const TrcKeyZSampling* =0) const override;
+// Deprecated public functions
+    mDeprecated("Use geometryElement() const")
+    const Geometry::BinIDSurface* sectionGeometry(
+					const SectionID&) const override
+				{ return geometryElement(); }
+    mDeprecated("Use geometryElement()")
+    Geometry::BinIDSurface*	sectionGeometry(const SectionID&) override
+				{ return geometryElement(); }
+
+    mDeprecatedObs
+    bool			removeSection(const SectionID&,
+					      bool hist) override
+				{ return false; }
+    mDeprecatedObs
+    SectionID			cloneSection(const SectionID&) override
+				{ return SectionID::udf(); }
+
+    mDeprecated("Use without SectionID")
+    bool			getBoundingPolygon(const SectionID&,
+						   Pick::Set& ps) const
+				{ return getBoundingPolygon(ps); }
+    mDeprecated("Use without SectionID")
+    void			getDataPointSet( const SectionID&,
+						  DataPointSet& dps,
+						  float shift=0.0) const
+				{ getDataPointSet(dps,shift); }
+    mDeprecated("Use without SectionID")
+    void			fillBinIDValueSet(const SectionID&,
+						 BinIDValueSet& bvs,
+						 Pos::Provider3D* prov=0) const
+				{ fillBinIDValueSet(bvs,prov); }
 protected:
 
-    Geometry::BinIDSurface*	createSectionGeometry() const override;
+    Geometry::BinIDSurface*	createGeometryElement() const override;
 
     RowCol			loadedstep_;
     RowCol			step_;
@@ -102,10 +125,15 @@ public:
     bool			setZ(const TrcKey&,float z,
 				     bool addtohist) override;
 				//!< Fast: writes to the first section
+    float			getZ(const BinID&) const;
+				//!< Fast: reads from the first section
+    bool			setZ(const BinID&,float z,bool addtohist);
+				//!< Fast: writes to the first section
+
     bool			setZAndNodeSourceType(const TrcKey&,
 					float z,bool addtohist,
 					NodeSourceType type=Auto) override;
-
+				//!< Shortcut for setZ and setNodeSourceType
     void			setNodeSourceType(const TrcKey&,
 						  NodeSourceType) override;
     void			setNodeSourceType(const PosID&,NodeSourceType);
@@ -135,13 +163,12 @@ public:
     Horizon3DGeometry&		geometry() override;
     const Horizon3DGeometry&	geometry() const override;
 
-    virtual void		setArray(const SectionID&,const BinID& start,
+    virtual void		setArray(const BinID& start,
 					const BinID& step, Array2D<float>* arr,
 					bool takeover);
     static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
-    Array2D<float>*		createArray2D(SectionID,
-					      const ZAxisTransform* zt=0) const;
-    bool			setArray2D(const Array2D<float>&,SectionID,
+    Array2D<float>*		createArray2D(const ZAxisTransform* zt=0) const;
+    bool			setArray2D(const Array2D<float>&,
 					   bool onlyfillundefs,
 					   const char* histdesc,bool trimundef);
 				/*!< Returns true on succes.  If histdesc
@@ -206,9 +233,26 @@ public:
 
     bool			setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory) override;
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
+    bool			setPos(const EM::SubID&,
 				   const Coord3&,bool addtohistory) override;
     void			apply(const Pos::Filter&) override;
+
+// Deprecated public functions
+    mDeprecated("Use without SectionID")
+    virtual void		setArray(const SectionID&,const BinID& start,
+					const BinID& step, Array2D<float>* arr,
+					bool takeover)
+				{ setArray(start,step,arr,takeover); }
+    mDeprecated("Use without SectionID")
+    Array2D<float>*		createArray2D(SectionID,
+					      const ZAxisTransform* zt=0) const
+				{ return createArray2D(zt); }
+    mDeprecated("Use without SectionID")
+    bool			setArray2D(const Array2D<float>& arr,SectionID,
+					   bool onlyfillundefs,
+					   const char* histdesc,bool trimundef)
+				{ return setArray2D(arr,onlyfillundefs,
+						    histdesc,trimundef); }
 
 protected:
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
@@ -251,10 +295,6 @@ protected:
     bool			arrayinited_;
 
 public:
-    /*mDeprecated*/ float	getZ(const BinID&) const;
-				//!< Fast: reads from the first section
-    /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
-				//!< Fast: writes to the first section
     Array2D<char>*		getChildren(const TrcKey&) const
 				{ return getChildren(); }
     OD::GeomSystem		getSurveyID() const override
@@ -270,15 +310,15 @@ mExpClass(EarthModel) ChildFinder : public SequentialTask
 friend class FindTask;
 friend class Horizon3D;
 protected:
-			ChildFinder(const TrcKeySampling& tks,
-				    const Array2D<od_int64>& parents,
-				    Array2D<char>& children );
-			~ChildFinder();
+				ChildFinder(const TrcKeySampling& tks,
+					    const Array2D<od_int64>& parents,
+					    Array2D<char>& children );
+				~ChildFinder();
 
 
-    void		addTask(od_int64);
-    void		taskFinished(CallBacker*);
-    int			nextStep() override;
+    void			addTask(od_int64);
+    void			taskFinished(CallBacker*);
+    int				nextStep() override;
 
     Threads::WorkManager&	twm_;
     int				queueid_;
@@ -294,4 +334,3 @@ protected:
 };
 
 } // namespace EM
-

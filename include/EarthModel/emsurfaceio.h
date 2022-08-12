@@ -63,14 +63,6 @@ public:
     bool		isOK() const;
     void		setGeometry();
 
-    int			nrSections() const;
-    EM::SectionID	sectionID(int) const;
-    BufferString	sectionName(int) const;
-    void		selSections(const TypeSet<EM::SectionID>&);
-			/*!< The given sectionIDs will be loaded. If
-			     this function is not called, all avaliable
-			     sections will be loaded. */
-
     const char*		dbInfo() const;
     int			nrAuxVals() const;
     const char*		auxDataName(int) const;
@@ -132,6 +124,19 @@ public:
     static const char*	sKeyUndefLineSet();
     static const char*	sKeyUndefLine();
 
+// Deprecated public functions
+    mDeprecatedObs
+    int			nrSections() const;
+    mDeprecatedObs
+    EM::SectionID	sectionID(int) const;
+    mDeprecatedObs
+    BufferString	sectionName(int) const;
+    mDeprecatedObs
+    void		selSections(const TypeSet<EM::SectionID>&);
+			/*!< The given sectionIDs will be loaded. If
+			     this function is not called, all avaliable
+			     sections will be loaded. */
+
 protected:
 
     bool		isBinary() const;
@@ -154,16 +159,13 @@ protected:
     bool		prepareRowRead(od_istream&);
     int			currentRow() const;
     void		goToNextRow();
-    void		createSection( const SectionID& );
+    void		createArray();
 
     StreamConn*		conn_;
 
-    BufferStringSet	sectionnames_;
     BufferStringSet	linenames_;
     BufferStringSet	linesets_;
     TypeSet<Pos::GeomID>	geomids_;
-    TypeSet<EM::SectionID> sectionids_;
-    TypeSet<EM::SectionID> sectionsel_;
     bool		fullyread_;
 
     BufferStringSet	auxdatanames_;
@@ -173,7 +175,7 @@ protected:
 
     const IOPar*	par_;
 
-    uiString	        msg_;
+    uiString		msg_;
     bool		error_;
     int			nrdone_;
 
@@ -183,6 +185,8 @@ protected:
     int			sectionsread_;
     int			sectionindex_;
     int			oldsectionindex_;
+    TypeSet<int>		sectionids_;
+
     int			firstrow_;
     int			nrrows_;
     int			rowindex_;

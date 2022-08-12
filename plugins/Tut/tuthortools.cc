@@ -55,7 +55,7 @@ od_int64 Tut::HorTool::totalNr() const
 }
 
 
-void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg, 
+void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg,
 				const StepInterval<int>& crlrg )
 {
     hs_.set( inlrg, crlrg );
@@ -91,23 +91,16 @@ int Tut::ThicknessCalculator::nextStep()
     if ( !iter_->next(bid) )
 	return Executor::Finished();
 
-    int nrsect = horizon1_->nrSections();
-    if ( horizon2_->nrSections() < nrsect ) nrsect = horizon2_->nrSections();
+    const EM::SubID subid = bid.toInt64();
+    const float z1 = (float) horizon1_->getPos( subid ).z;
+    const float z2 = (float) horizon2_->getPos( subid ).z;
 
-    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
-    {
-	const EM::SubID subid = bid.toInt64();
-	const float z1 = (float) horizon1_->getPos( isect, subid ).z;
-	const float z2 = (float) horizon2_->getPos( isect, subid ).z;
-		        
-	float val = mUdf(float);
-	if ( !mIsUdf(z1) && !mIsUdf(z2) )
-	    val = fabs( z2 - z1 ) * usrfac_;
+    float val = mUdf(float);
+    if ( !mIsUdf(z1) && !mIsUdf(z2) )
+	val = fabs( z2 - z1 ) * usrfac_;
 
-	posid_.setSubID( subid );
-	posid_.setSectionID( isect );
-	horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
-    }
+    posid_.setSubID( subid );
+    horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
 
     nrdone_++;
     return Executor::MoreToDo();
@@ -133,30 +126,26 @@ int Tut::HorSmoother::nextStep()
     if ( !iter_->next(bid) )
 	return Executor::Finished();
 
-    const int nrsect = horizon1_->nrSections();
     const int rad = weak_ ? 1 : 2;
-    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
+    float sum = 0; int count = 0;
+    for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
     {
-	float sum = 0; int count = 0;
-	for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
+	for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
 	{
-	    for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
-	    {
-		const BinID binid = BinID( bid.inl() +inloffs *hs_.step_.inl(),
-					   bid.crl() +crloffs *hs_.step_.crl());
-		const EM::SubID subid = binid.toInt64();
-		const float z = (float) horizon1_->getPos( isect, subid ).z;
-		if ( mIsUdf(z) ) continue;
-		sum += z; count++;
-	    }
+	    const BinID binid = BinID( bid.inl() +inloffs *hs_.step_.inl(),
+				       bid.crl() +crloffs *hs_.step_.crl());
+	    const EM::SubID subid = binid.toInt64();
+	    const float z = (float) horizon1_->getPos( subid ).z;
+	    if ( mIsUdf(z) ) continue;
+	    sum += z; count++;
 	}
-	float val = count ? sum / count : mUdf(float);
-
-	subid_ = bid.toInt64();
-	Coord3 pos = horizon1_->getPos( isect, subid_ );
-	pos.z = val;
-	horizon1_->setPos( isect, subid_, pos, false );
     }
+    float val = count ? sum / count : mUdf(float);
+
+    subid_ = bid.toInt64();
+    Coord3 pos = horizon1_->getPos( subid_ );
+    pos.z = val;
+    horizon1_->setPos( subid_, pos, false );
 
     nrdone_++;
     return Executor::MoreToDo();

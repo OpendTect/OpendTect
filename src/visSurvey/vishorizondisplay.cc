@@ -99,7 +99,6 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 	return true;
 
     const TrcKeySampling tks = hor_.getTrackingSampling();
-    const EM::SectionID sid = hor_.sectionID( 0 );
 
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
@@ -110,7 +109,7 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 	const od_int64 gidx = tks.globalIdx( tk );
 	if ( gidx>=0 && lockednodes->getData()[gidx] != '0' )
 	{
-	    const Coord3 pos = hor_.getPos( sid, tk.binID(). toInt64() );
+	    const Coord3 pos = hor_.getPos( tk.binID(). toInt64() );
 	    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
 	    indexes_ += points_.addPoint( pos );
 	}
@@ -128,10 +127,9 @@ public:
 				       const TrcKeyPath& path,
 				       const TypeSet<Coord>& crds,
 				       const Interval<float>& zrg,
-				       EM::SectionID sid,
 				       HorizonDisplay::IntersectionData& res)
 		    : hd_(hd), path_(path), crds_(crds)
-		    , zrg_(zrg), sid_(sid), res_(res)
+		    , zrg_(zrg), res_(res)
 		    , hor_(0), seedposids_(0), onthesamegrid_(false)
 		    , pathgeom_(0), horgeom_(0)
 		{
@@ -155,7 +153,6 @@ protected:
     const TrcKeyPath&			path_;
     const TypeSet<Coord>&		crds_;
     const Interval<float>&		zrg_;
-    EM::SectionID			sid_;
     HorizonDisplay::IntersectionData&	res_;
     const EM::Horizon3D*		hor_;
     const TypeSet<EM::PosID>*		seedposids_;
@@ -219,7 +216,7 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    if ( hd_.showsPosAttrib(EM::PosAttrib::SeedNode) &&
 		 seedposids_ && !mIsUdf(horsubid) &&
-		 seedposids_->isPresent(EM::PosID(hor_->id(),sid_,horsubid)) )
+		 seedposids_->isPresent(EM::PosID(hor_->id(),horsubid)) )
 	    {
 		horsubid = mUdf(EM::SubID);
 	    }
@@ -228,7 +225,7 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 	    {
 		//As zrg is in the non-transformed z-domain, we have to do the
 		//comparison there.
-		const Coord3 horpos = hor_->getPos( sid_, horsubid );
+		const Coord3 horpos = hor_->getPos( horsubid );
 		Coord3 displayhorpos = horpos;
 		if ( horpos.isDefined() && hd_.zaxistransform_ )
 		{
@@ -498,9 +495,9 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
     TypeSet<EM::PosID> closestnodes;
     for ( int idx=sids_.size()-1; idx>=0; idx-- )
     {
-	if ( !emobject_->isDefined( sids_[idx], pickedsubid ) )
+	if ( !emobject_->isDefined(pickedsubid) )
 	    continue;
-	closestnodes += EM::PosID( emobject_->id(), sids_[idx], pickedsubid );
+	closestnodes += EM::PosID( emobject_->id(), pickedbid );
     }
 
     if ( closestnodes.isEmpty() )
@@ -957,12 +954,11 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 }
 
 
-void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* trans ) const
+void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* taskr ) const
 {
     //data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getDataPositions( data, getTranslation().z,
-					  sids_[idx], trans );
+	sections_[idx]->getDataPositions( data, getTranslation().z, 0, taskr );
 
     data.dataChanged();
 }
@@ -1014,7 +1010,7 @@ bool HorizonDisplay::usesColor() const
 
 
 void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
-				       TaskRunner* trans )
+				       TaskRunner* taskr )
 {
     if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
        return;
@@ -1029,16 +1025,16 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     }
 
     locker_->lock();
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setTextureData( channel, data, sids_[idx], trans );
+    auto* section = sections_.first();
+    section->setTextureData( channel, data, 0, taskr );
     locker_->unLock();
 
     //We should really scale here, and then update sections. This
     //works for single sections though.
-    if ( sections_[0]->getColTabMapperSetup(channel) )
+    if ( section->getColTabMapperSetup(channel) )
     {
 	coltabmappersetups_[channel] =
-	    *sections_[0]->getColTabMapperSetup( channel );
+	    *section->getColTabMapperSetup( channel );
 	coltabmappersetups_[channel].triggerRangeChange();
     }
 
@@ -1205,7 +1201,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, trans );
+    surf->setSurface( horizon->geometry().geometryElement(), true, trans );
     if ( !emobject_->isEmpty() && trans && !trans->execResult() )
     {
 	surf->unRef();
@@ -1357,11 +1353,9 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;
-	const EM::SectionID sid = cbdata.pid0.sectionID();
-	const int idx = sids_.indexOf( sid );
 	locker_->lock();
-	if ( idx>=0 && idx<sections_.size() )
-	    sections_[idx]->inValidateCache(-1);
+	if ( !sections_.isEmpty() )
+	    sections_.first()->inValidateCache(-1);
 	locker_->unLock();
     }
    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
@@ -1469,7 +1463,7 @@ void HorizonDisplay::updateAuxData()
 
     float auxvals[3];
     auxvals[0] = mUdf(float);
-    auxvals[1] = hor3d->sectionID( 0 );
+    auxvals[1] = EM::SectionID::def().asInt();
     for ( int idx=0; idx<auxdata[0]->nrVals(); idx++ )
     {
 	const char* auxdatanm = hor3d->auxdata.auxDataName( idx );
@@ -1639,10 +1633,10 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	TypeSet<Coord3> positions;
 	for ( int idx=sids_.size()-1; idx>=0; idx-- )
 	{
-	    if ( !emobject_->isDefined( sids_[idx], bidid ) )
+	    if ( !emobject_->isDefined( bidid ) )
 		continue;
 
-	    positions += emobject_->getPos( sids_[idx], bidid );
+	    positions += emobject_->getPos( bidid );
 	}
 
 	float mindist = mUdf(float);
@@ -1669,35 +1663,21 @@ float HorizonDisplay::maxDist() const
 }
 
 
-visBase::HorizonSection* HorizonDisplay::getHorizonSection(
-					const EM::SectionID& sid )
+visBase::HorizonSection* HorizonDisplay::getHorizonSection()
 {
-    for ( int idx=0; idx<sids_.size(); idx++ )
-    {
-	if ( sids_[idx]==sid )
-	    return sections_[idx];
-    }
-
-    return nullptr;
+    return sections_.isEmpty() ? nullptr : sections_.first();
 }
 
 
-const visBase::HorizonSection* HorizonDisplay::getHorizonSection(
-					const EM::SectionID& sid ) const
+const visBase::HorizonSection* HorizonDisplay::getHorizonSection() const
 {
-    return const_cast<HorizonDisplay*>(this)->getHorizonSection( sid );
+    return const_cast<HorizonDisplay*>(this)->getHorizonSection();
 }
 
 
 EM::SectionID HorizonDisplay::getSectionID( VisID visid ) const
 {
-    for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	if ( sections_[idx]->id()==visid )
-		return sids_[idx];
-    }
-
-    return -1;
+    return EM::SectionID::def();
 }
 
 
@@ -1708,13 +1688,10 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     EMObjectDisplay::getMousePosInfo( eventinfo, pos, val, info );
     if ( !emobject_ || !showsTexture() ) return;
 
-    const EM::SectionID sid =
-	EMObjectDisplay::getSectionID(&eventinfo.pickedobjids);
-
-    const int sectionidx = sids_.indexOf( sid );
-    if ( sectionidx<0 || sectionidx>=sections_.size() )
+    if ( sections_.isEmpty() )
 	return;
 
+    const visBase::HorizonSection* section = sections_.first();
     const BinID bid( SI().transform(pos) );
 
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
@@ -1723,11 +1700,11 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( selspec->id().isUnselInvalid() )
 	    continue;
 
-	if ( !sections_[sectionidx]->getChannels2RGBA()->isEnabled(idx) ||
-	      sections_[sectionidx]->getTransparency(idx)==255 )
+	if ( !section->getChannels2RGBA()->isEnabled(idx) ||
+	      section->getTransparency(idx)==255 )
 	    continue;
 
-	const BinIDValueSet* bidvalset = sections_[sectionidx]->getCache( idx );
+	const BinIDValueSet* bidvalset = section->getCache( idx );
 	if ( !bidvalset || bidvalset->nrVals()<2 )
 	    continue;
 
@@ -1744,9 +1721,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
-	    if ( !sections_[sectionidx]->getCache(idy) ||
+	    if ( !section->getCache(idy) ||
 		 !isAttribEnabled(idy) ||
-		 sections_[sectionidx]->getTransparency(idy)==255 )
+		 section->getTransparency(idy)==255 )
 		continue;
 
 		islowest = false;
@@ -1811,10 +1788,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 				   const TypeSet<Coord>& crds,
 				   const Interval<float>& zrg,
-				   EM::SectionID sid,
 				   HorizonDisplay::IntersectionData& res ) const
 {
-    HorizonPathIntersector hpi( *this, path, crds, zrg, sid, res );
+    HorizonPathIntersector hpi( *this, path, crds, zrg, res );
     hpi.execute();
 }
 
@@ -1834,7 +1810,6 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 
 
 void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
-			const EM::SectionID&  sid,
 			HorizonDisplay::IntersectionData& res ) const
 {
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
@@ -1843,16 +1818,14 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     const float zshift = (float)getTranslation().z;
 
     const Geometry::BinIDSurface* geom =
-	horizon->geometry().sectionGeometry( sid );
+	horizon->geometry().geometryElement();
 
     const Array2D<float>* field = geom->getArray();
     if ( !field ) return;
 
     ConstPtrMan<Array2D<float> > myfield;
     if ( zaxistransform_ )
-    {
-	myfield = field = horizon->createArray2D( sid, zaxistransform_ );
-    }
+	myfield = field = horizon->createArray2D( zaxistransform_ );
 
     IsoContourTracer ictracer( *field );
     ictracer.setSampling( geom->rowRange(), geom->colRange() );
@@ -1988,7 +1961,6 @@ void HorizonDisplay::updateIntersectionLines(
 	    for ( int sectionidx=0; sectionidx<horizon->nrSections();
 		  sectionidx++ )
 	    {
-		const EM::SectionID sid = horizon->sectionID(sectionidx);
 		if ( trckeypath.size() )
 		{
 		    const Interval<float> zrg =
@@ -1997,7 +1969,7 @@ void HorizonDisplay::updateIntersectionLines(
 		    if ( data )
 		    {
 			data->objid_ = vo->id();
-			traverseLine( trckeypath, trccoords, zrg, sid, *data );
+			traverseLine( trckeypath, trccoords, zrg, *data );
 		    }
 		    continue;
 		}
@@ -2007,7 +1979,7 @@ void HorizonDisplay::updateIntersectionLines(
 		    {
 			data = getOrCreateIntersectionData( lines );
 			data->objid_ = vo->id();
-			drawHorizonOnZSlice( trzs, sid, *data );
+			drawHorizonOnZSlice( trzs, *data );
 		    }
 		}
 	    }
@@ -2261,7 +2233,6 @@ void HorizonDisplay::selectChildren()
     initSelectionDisplay( true );
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
-    const EM::SectionID sid = hor3d->sectionID( 0 );
     TypeSet<int> pidxs;
     for ( od_int64 gidx=0; gidx<children->info().getTotalSz(); gidx++ )
     {
@@ -2269,7 +2240,7 @@ void HorizonDisplay::selectChildren()
 	    continue;
 
 	const TrcKey tk = tks.trcKeyAt( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.position().toInt64() );
+	const Coord3 pos = hor3d->getPos( tk.position().toInt64() );
 	if ( pos.isUdf() )
 	    continue;
 
@@ -2343,7 +2314,6 @@ void HorizonDisplay::calculateLockedPoints()
     }
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
-    const EM::SectionID sid = hor3d->sectionID( 0 );
     TypeSet<int> pidxs;
     for ( od_int64 gidx=0; gidx<locked->info().getTotalSz(); gidx++ )
     {
@@ -2351,7 +2321,7 @@ void HorizonDisplay::calculateLockedPoints()
 	    continue;
 
 	const TrcKey tk = tks.trcKeyAt( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.position().toInt64() );
+	const Coord3 pos = hor3d->getPos( tk.position().toInt64() );
 	const int pidx = lockedpts_->addPoint( pos );
 	pidxs += pidx;
     }
@@ -2393,10 +2363,9 @@ void HorizonDisplay::updateSelections()
 
     initSelectionDisplay( !ctrldown_ );
 
-    const EM::SectionID sid = hor3d->sectionID(0);
     ObjectSet<const Selector<Coord3> > selectors;
     selectors += sel;
-    EM::EMObjectPosSelector posselector( *hor3d, sid, selectors );
+    EM::EMObjectPosSelector posselector( *hor3d, selectors );
     posselector.execute();
 
     TypeSet<int> pidxs;
@@ -2406,7 +2375,7 @@ void HorizonDisplay::updateSelections()
 
     for ( int idx=0; idx<selids.size(); idx++ )
     {
-	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
+	const Coord3 pos = hor3d->getPos( selids[idx] );
 	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );

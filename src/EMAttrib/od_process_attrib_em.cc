@@ -303,7 +303,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	const int dataid =
 	    horizon->auxdata.auxDataIndex( attribrefs.get(idx).buf() );
 	PtrMan< Array2D<float> > attrarr =
-	    horizon->auxdata.createArray2D( dataid, horizon->sectionID(0) );
+	    horizon->auxdata.createArray2D( dataid );
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
 	TextStreamProgressMeter runner( strm );
@@ -311,8 +311,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	arr2dint->setArray( *attrarr );
 	arr2dint->execute();
 	runner.setFinished();
-	horizon->auxdata.setArray2D( dataid, horizon->sectionID(0),
-				     *attrarr );
+	horizon->auxdata.setArray2D( dataid, *attrarr );
     }
 }
 
@@ -467,7 +466,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( !process(strm,proc,false,attribrefs) )
 	    return false;
 
-	HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
+	HorizonUtils::addHorizonData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );

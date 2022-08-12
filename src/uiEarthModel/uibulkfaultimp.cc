@@ -302,7 +302,6 @@ static void updateFaultStickSet( EM::Fault* flt,
 
     for ( int idx=0; idx<sticks.size(); idx++ )
     {
-	const EM::SectionID sid = flt->sectionID( 0 );
 	EM::FaultStick* stick = sticks[idx];
 	if ( stick->crds_.isEmpty() )
 	    continue;
@@ -310,18 +309,18 @@ static void updateFaultStickSet( EM::Fault* flt,
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,emfss,flt)
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
-	    emfss->geometry().insertStick( sid, sticknr, 0,
+	    emfss->geometry().insertStick( sticknr, 0,
 		    stick->crds_[0], stick->getNormal(true), geomid, false );
 
 	}
 	else
-	    flt->geometry().insertStick( sid, sticknr, 0,
+	    flt->geometry().insertStick( sticknr, 0,
 			stick->crds_[0], stick->getNormal(false), false );
 
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( stick->stickidx_, crdidx );
-	    flt->geometry().insertKnot( sid, rc.toInt64(),
+	    flt->geometry().insertKnot( rc.toInt64(),
 				       stick->crds_[crdidx], false );
 	}
 	sticknr++;

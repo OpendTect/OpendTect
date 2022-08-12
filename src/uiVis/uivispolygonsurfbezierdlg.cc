@@ -27,7 +27,7 @@ uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
 
     bezierfld_ = new uiGenInput( this, tr("Number of inserts") );
     if ( plg->getEMPolygonBody() )
-	surf_ = plg->getEMPolygonBody()->geometry().sectionGeometry(0);
+	surf_ = plg->getEMPolygonBody()->geometry().geometryElement();
     bezierfld_->setValue( surf_ ? surf_->getBezierCurveSmoothness() : 0 );
 
     applybut_ = new uiPushButton( this, tr("Update Now"), true );

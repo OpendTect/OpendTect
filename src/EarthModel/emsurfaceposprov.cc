@@ -97,7 +97,7 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
     bool veryfirst = true;
     for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
-	EM::RowColIterator it( surf, surf.sectionID(idx) );
+	EM::RowColIterator it( surf );
 	EM::PosID posid = it.next();
 	while ( posid.objectID().isValid() )
 	{
@@ -172,7 +172,7 @@ void EMSurfaceProvider::reset()
 {
     delete iterator_; iterator_ = 0;
     if ( surf1_ )
-	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
+	iterator_ = new EM::RowColIterator( *surf1_ );
     curpos_ = EM::PosID::udf();
 }
 
@@ -198,8 +198,7 @@ bool EMSurfaceProvider::toNextPos()
 	    if ( surf2_ )
 	    {
 		const float stop =
-		(float) surf2_->getPos( surf2_->sectionID(0),
-					curpos_.subID()).z;
+		(float) surf2_->getPos( curpos_.subID()).z;
 		if ( !mIsUdf(stop) )
 		    curzrg_.stop = stop;
 	    }
@@ -237,7 +236,7 @@ bool EMSurfaceProvider::toNextPos()
 	if ( surf2_ )
 	{
 	    const float stop =
-	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+	    (float) surf2_->getPos( curpos_.subID()).z;
 	    if ( !mIsUdf(stop) )
 		curzrg_.stop = stop;
 	}
@@ -294,7 +293,7 @@ float EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return (float) surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
+    return (float) surf1_->getPos( bid.toInt64() ).z;
 }
 
 
@@ -571,7 +570,7 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 
     for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
-	EM::RowColIterator it( surf, surf.sectionID(idx) );
+	EM::RowColIterator it( surf );
 	while ( true )
 	{
 	    EM::PosID posid = it.next();

@@ -289,14 +289,11 @@ bool RandomPosBody::addPos( const Coord3& np )
 
 
 Coord3 RandomPosBody::getPos( const PosID& posid ) const
-{ return getPos( posid.sectionID(), posid.subID() ); }
+{ return getPos( posid.subID() ); }
 
 
-Coord3 RandomPosBody::getPos( const SectionID& sid, const SubID& subid ) const
+Coord3 RandomPosBody::getPos( const SubID& subid ) const
 {
-    if ( sid!=sectionID(0) )
-	return Coord3::udf();
-
     const int posidx = ids_.indexOf( subid );
     return posidx==-1 ? Coord3::udf() : locations_[posidx];
 }
@@ -304,13 +301,13 @@ Coord3 RandomPosBody::getPos( const SectionID& sid, const SubID& subid ) const
 
 bool RandomPosBody::setPos( const PosID& posid, const Coord3& pos,
 			    bool addtohistory )
-{ return setPos( posid.sectionID(), posid.subID(), pos, addtohistory ); }
+{ return setPos( posid.subID(), pos, addtohistory ); }
 
 
-bool RandomPosBody::setPos( const SectionID& sid, const SubID& sub,
+bool RandomPosBody::setPos( const SubID& sub,
 			    const Coord3& pos, bool addtohistory )
 {
-    if ( sid!=sectionID(0) || sub<0 )
+    if ( sub<0 )
 	return false;
 
     if ( sub==ids_.size() )

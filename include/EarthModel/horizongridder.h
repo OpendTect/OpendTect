@@ -48,13 +48,25 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
     static uiRetVal	executeGridding(HorizonGridder*,EM::Horizon3D*,
-					const EM::SectionID&, const BinID& step,
-					TaskRunner* tr=0);
+					const BinID& step,
+					TaskRunner* t=0);
     static uiRetVal	executeGridding(HorizonGridder*,EM::Horizon3D*,
+				const BinID& step,
+				const Interval<int>* polyinlrg,
+				const Interval<int>* polycrlrg,
+				TaskRunner* t = 0);
+
+    static uiRetVal	executeGridding(HorizonGridder* g,EM::Horizon3D* h,
+					const EM::SectionID&, const BinID& step,
+					TaskRunner* t=0)
+			{ return executeGridding(g,h,step,t); }
+    static uiRetVal	executeGridding(HorizonGridder* g,EM::Horizon3D* h,
 				const EM::SectionID&,const BinID& step,
 				const Interval<int>* polyinlrg,
 				const Interval<int>* polycrlrg,
-				TaskRunner* tr = 0);
+				TaskRunner* t = 0)
+			{ return executeGridding(g,h,step,polyinlrg,polycrlrg,
+						 t); }
 
 
 protected:

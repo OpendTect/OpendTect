@@ -276,23 +276,19 @@ mDefParallelCalcBody(
     datarow.data_.setSize( 1, mUdf(float) );
 ,
     const float shift = intv_.atIndex( idx );
-    for ( int sididx=0; sididx<h3dgm_.nrSections(); sididx++ )
+    const auto* sectgeom = h3dgm_.geometryElement();
+    datarow.data_[0] = EM::SectionID::def().asInt();
+    const int nrknots = sectgeom->nrKnots();
+    for ( int knidx=0; knidx<nrknots; knidx++ )
     {
-	const EM::SectionID sid = h3dgm_.sectionID(sididx);
-	const auto* sectgeom = h3dgm_.sectionGeometry(sid);
-	datarow.data_[0] = sid;
-	const int nrknots = sectgeom->nrKnots();
-	for ( int knidx=0; knidx<nrknots; knidx++ )
-	{
-	    const BinID bid = sectgeom->getKnotRowCol(knidx);
-	    const float realz = (float) ( sectgeom->getKnot( bid, false ).z );
-	    if ( mIsUdf(realz) )
-		continue;
+	const BinID bid = sectgeom->getKnotRowCol(knidx);
+	const float realz = (float) ( sectgeom->getKnot( bid, false ).z );
+	if ( mIsUdf(realz) )
+	    continue;
 
-	    datarow.pos_.binid_ = bid;
-	    datarow.pos_.z_ = realz+shift;
-	    dpsset_[idx]->addRow( datarow );
-	}
+	datarow.pos_.binid_ = bid;
+	datarow.pos_.z_ = realz+shift;
+	dpsset_[idx]->addRow( datarow );
     }
 ,)
 

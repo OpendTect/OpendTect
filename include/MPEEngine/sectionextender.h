@@ -36,8 +36,7 @@ EM::SectionID.
 mExpClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
-				SectionExtender(EM::SectionID si=-1);
-    EM::SectionID		sectionID() const;
+    virtual			~SectionExtender();
 
     virtual void		reset();
     virtual void		setDirection(const TrcKeyValue&);
@@ -68,7 +67,12 @@ public:
 
     void			setUndo(bool yn)	{ setundo_ = yn; }
 
+    mDeprecatedObs
+    EM::SectionID		sectionID() const;
+
 protected:
+				SectionExtender();
+
     void			addTarget(const TrcKey& target,
 					  const TrcKey& src);
     virtual float		getDepth(const TrcKey& src,
@@ -79,18 +83,16 @@ protected:
     TypeSet<TrcKey>		addedpossrc_;
     TypeSet<TrcKey>		startpos_;
 
-    const TypeSet<TrcKey>*	excludedpos_;
+    const TypeSet<TrcKey>*	excludedpos_	= nullptr;
 
     TrcKeyZSampling		extboundary_;
 
-    const EM::SectionID		sid_;
     BufferString		errmsg;
-    bool			setundo_;
+    bool			setundo_	= true;
 };
 
 
-mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      EM::SectionID, ExtenderFactory );
+mDefineFactory1Param( MPEEngine, SectionExtender, EM::EMObject*,
+		      ExtenderFactory );
 
 } // namespace MPE
-

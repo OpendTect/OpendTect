@@ -47,7 +47,6 @@ public:
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
-    void		removeSection(const SectionID&);
 
     bool		validIdx(int idx) const;
     int			nrAuxData() const;
@@ -74,10 +73,12 @@ public:
     void		removeAuxData(int dataidx);
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
     float		getAuxDataVal(int dataidx,const TrcKey&) const;
+    float		getAuxDataVal(int dataidx,const BinID&) const;
     void		setAuxDataVal(int dataidx,const PosID& posid,float val);
     void		setAuxDataVal(int dataidx,const PosID& posid,float val,
 				      bool onlynewpos);
     void		setAuxDataVal(int dataidx,const TrcKey&,float val);
+    void		setAuxDataVal(int dataidx,const BinID&,float val);
 
     void		setAuxDataShift(int,float);
     float		auxDataShift(int) const;
@@ -97,8 +98,8 @@ public:
 			     float val=mUdf(float));
 			/*!<dataidx==-1: init all*/
 
-    Array2D<float>*	createArray2D(int dataidx,SectionID) const;
-    void		setArray2D(int dataidx,SectionID,const Array2D<float>&,
+    Array2D<float>*	createArray2D(int dataidx) const;
+    void		setArray2D(int dataidx,const Array2D<float>&,
 				   const TrcKeySampling* tks=nullptr);
 			/*!tks=nullptr assumes that array has same origin
 			   as horizon*/
@@ -114,6 +115,19 @@ public:
     AuxDataType		getAuxDataType(int dataidx) const;
 
     void		applyPosFilter(const Pos::Filter&,int dataidx=-1);
+
+// Deprecated public functions
+
+    mDeprecated("Use without SectionID")
+    Array2D<float>*	createArray2D(int dataidx,SectionID) const
+			{ return createArray2D(dataidx); }
+    mDeprecated("Use without SectionID")
+    void		setArray2D(int dataidx,SectionID,
+				   const Array2D<float>& arr,
+				   const TrcKeySampling* tks=nullptr)
+			{ setArray2D(dataidx,arr,tks); }
+//    mDeprecatedObs
+    void		removeSection(const SectionID&);
 
 protected:
     Horizon3D&		horizon_;

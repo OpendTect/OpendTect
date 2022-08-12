@@ -50,14 +50,11 @@ public:
 	mStruct(EarthModel) Marker3D
 	{
 				Marker3D()
-				    : marker_(0)
-				    , sectionid_(-1)
 				{}
 				~Marker3D()
 				{ delete marker_; }
 
-	    FlatView::AuxData*	marker_;
-	    EM::SectionID	sectionid_;
+	    FlatView::AuxData*	marker_ = nullptr;
 	};
 
     void		getDisplayedHor(ObjectSet<Marker3D>&);
@@ -72,7 +69,7 @@ protected:
     bool		addPolyLine();
     void		removePolyLine();
 
-    void		generateNewMarker(const Horizon3D&,const SectionID&,
+    void		generateNewMarker(const Horizon3D&,
 					  SectionMarker3DLine&,Marker3D*&);
     mDeprecatedDef
     bool		addDataToMarker(const BinID&,const Coord3&,
@@ -86,8 +83,11 @@ protected:
     void		horChangeCB(CallBacker*);
     void		paintCB(CallBacker*);
     void		changePolyLineColor();
-    void		changePolyLinePosition( const EM::PosID& pid );
-    Marker3D*		create3DMarker(const EM::SectionID&);
+    void		changePolyLinePosition(const EM::PosID&);
+    Marker3D*		create3DMarker();
+    mDeprecated("Use create3DMarker without SectionID")
+    Marker3D*		create3DMarker( const EM::SectionID& )
+			{ return create3DMarker(); }
     void		updateSelectionColor();
 
 

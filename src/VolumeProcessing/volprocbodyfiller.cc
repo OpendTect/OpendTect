@@ -332,8 +332,7 @@ Task* BodyFiller::createTask()
     if ( !plg )
 	return 0;
 
-    const EM::SectionID sid = plg->sectionID( 0 );
-    const Geometry::PolygonSurface* surf = plg->geometry().sectionGeometry(sid);
+    const Geometry::PolygonSurface* surf = plg->geometry().geometryElement();
     if ( surf->nrPolygons()==1 )
 	surf->getCubicBezierCurve( 0, plgknots_, SI().zScale() );
     else

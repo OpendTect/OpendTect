@@ -79,14 +79,9 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
     astream.putHeader( sKeyFileType() );
     par.putTo( astream );
 
-    int nrnodes = 0;
-    for ( int idx=0; idx<surf.nrSections(); idx++ )
-    {
-	SectionID sectionid = surf.sectionID(idx);
-	const Geometry::BinIDSurface* meshsurf =
-			surf.geometry().sectionGeometry(sectionid);
-	nrnodes += meshsurf->nrKnots();
-    }
+    const Geometry::BinIDSurface* meshsurf =
+				surf.geometry().geometryElement();
+    const int nrnodes = meshsurf->nrKnots();
 
     chunksize_ = nrnodes/100 + 1;
     if ( chunksize_ < 100 )
@@ -141,9 +136,8 @@ int dgbSurfDataWriter::nextStep()
 		    mErrRetWrite(tr("Error in writing data information"))
 	    }
 
-	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
 	    const Geometry::BinIDSurface* meshsurf =
-				surf_.geometry().sectionGeometry( sectionid );
+				surf_.geometry().geometryElement();
 	    if ( !meshsurf ) continue;
 
 	    const int nrnodes = meshsurf->nrKnots();
@@ -159,7 +153,6 @@ int dgbSurfDataWriter::nextStep()
 		const RowCol emrc( bid.inl(), bid.crl() );
 		const SubID subid = emrc.toInt64();
 		posid.setSubID( subid );
-		posid.setSectionID( sectionid );
 		const float auxval =
 		    surf_.auxdata.getAuxDataVal( dataidx_, posid );
 		if ( mIsUdf(auxval) )
@@ -176,7 +169,8 @@ int dgbSurfDataWriter::nextStep()
 	    if ( subids_.isEmpty() )
 		return Finished();
 
-	    if ( !writeInt(sectionid) || !writeInt(subids_.size()) )
+	    if ( !writeInt(SectionID::def().asInt()) ||
+		 !writeInt(subids_.size()) )
 		mErrRetWrite(tr("Error in writing data information"))
 	}
 
@@ -260,7 +254,10 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 {
     stream_ = new od_istream( filename );
     if ( !stream_ || !stream_->isOK() )
-	{ delete stream_; stream_ = 0; return; }
+    {
+	deleteAndNullPtr( stream_ );
+	return;
+    }
 
     ascistream astream( *stream_ );
     if ( !astream.isOfFileType(dgbSurfDataWriter::sKeyFileType()) )

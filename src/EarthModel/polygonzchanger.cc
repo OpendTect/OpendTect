@@ -56,8 +56,7 @@ uiRetVal EM::PolygonZChanger::doWork( TaskRunner& trprov )
     if ( !hor )
 	return uiretval.add( uiStrings::sNoValidData() );
 
-    const Geometry::BinIDSurface* geom =
-		    hor->geometry().sectionGeometry( hor->sectionID(0) );
+    const Geometry::BinIDSurface* geom = hor->geometry().geometryElement();
     for ( int idy=0; idy<ps_->size(); idy++ )
     {
 	const BinID bid = ps_->get(idy).binID();

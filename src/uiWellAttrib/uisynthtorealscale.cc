@@ -290,7 +290,7 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;
     horizon_ = hor;
-    horiter_ = horizon_->createIterator( horizon_->sectionID(0) );
+    horiter_ = horizon_->createIterator();
     return true;
 }
 

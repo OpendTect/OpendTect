@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include "welltrack.h"
 
 
-WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr, 
+WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr,
 						const Well::D2TModel* d2t )
     : track_(tr)
-    , d2t_(d2t)  
+    , d2t_(d2t)
 {}
 
 
@@ -45,7 +45,7 @@ float WellHorIntersectFinder::findZIntersection() const
     zstart = mMAX( SI().zRange(true).start, zstart );
     zstop = mMIN( SI().zRange(true).stop, zstop );
 
-    float zval = zstart; 
+    float zval = zstart;
     bool isabove = true;
     bool firstvalidzfound = false;
 
@@ -55,7 +55,7 @@ float WellHorIntersectFinder::findZIntersection() const
 	const Coord3& crd = track_.getPos( dah );
 	const float horz = intersectPosHor( crd );
 
-	if ( mIsUdf( horz ) ) 
+	if ( mIsUdf( horz ) )
 	{
 	    zval += zstep;
 	    continue;
@@ -76,16 +76,16 @@ float WellHorIntersectFinder::findZIntersection() const
 }
 
 
-float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const 
+float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 {
     const BinID& bid = SI().transform( pos );
-    if ( !SI().isInside( bid, true ) ) 
-       return mUdf( float );	
+    if ( !SI().isInside( bid, true ) )
+       return mUdf( float );
 
     if ( hor3d_ )
     {
 	const EM::SubID subid = bid.toInt64();
-	const Coord3& horpos = hor3d_->getPos( hor3d_->sectionID(0), subid ); 
+	const Coord3& horpos = hor3d_->getPos( subid );
 	const BinID horbid = SI().transform( horpos );
 	if ( bid == horbid )
 	    return (float)horpos.z;

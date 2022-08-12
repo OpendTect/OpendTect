@@ -196,9 +196,8 @@ bool uiMPEPartServer::addTracker( const char* trackertype,
 	return false;
     }
 
-    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
     trackercurrentobject_ = emobj->id();
-    if ( !initSetupDlg(emobj,tracker,sid,true) )
+    if ( !initSetupDlg(emobj,tracker,true) )
 	return false;
 
     initialundoid_ = EM::EMM().undo(emobj->id()).currentEventID();
@@ -508,16 +507,15 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
     EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
     if ( !emobj || !seedpicker ) return;
 
-    EM::SectionID sid = emobj->sectionID( 0 );
-    MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
+    MPE::SectionTracker* sectracker = tracker->getSectionTracker( true );
     if ( !sectracker ) return;
 
     setupgrp_->setSectionTracker( sectracker );
     setupgrp_->setMode( seedpicker->getTrackMode() );
     setupgrp_->setColor( emobj->preferredColor() );
     setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
-    setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
-						EM::EMObject::sSeedNode()) );
+    setupgrp_->setMarkerStyle(
+		emobj->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()) );
 
     TypeSet<TrcKey> seeds;
     seedpicker->getSeeds( seeds );
@@ -552,10 +550,9 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 { return eventattrselspec_; }
 
 
-bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
-				    const EM::SectionID& sid )
+bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid )
 {
-    if ( !emid.isValid() || sid<0 )
+    if ( !emid.isValid() )
 	return false;
 
     if ( trackercurrentobject_.isValid() && setupgrp_ )
@@ -578,12 +575,12 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj ) return false;
 
-    if ( !initSetupDlg(emobj,tracker,sid) )
+    if ( !initSetupDlg(emobj,tracker) )
 	return false;
 
     if ( setupgrp_ ) setupgrp_->commitToTracker();
 
-    tracker->applySetupAsDefault( sid );
+    tracker->applySetupAsDefault();
 
     return true;
 }
@@ -619,8 +616,7 @@ uiString uiMPEPartServer::sNoAskGoOnStr()
     ( setupavailable ? sYesAskGoOnStr() : sNoAskGoOnStr() )\
 
 
-void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
-					const EM::SectionID& sid )
+void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid )
 {
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
@@ -629,7 +625,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 	return;
 
     readSetup( emobj->multiID() );
-    showSetupDlg( emid, sid );
+    showSetupDlg( emid );
 }
 
 
@@ -765,9 +761,8 @@ void uiMPEPartServer::loadTrackSetupCB( CallBacker* )
     const EM::EMObject* emobj = EM::EMM().getObject( emtracker->objectID() );
     if ( !emobj ) return;
 
-    const EM::SectionID sid = emobj->sectionID(0);
     const MPE::SectionTracker* sectracker =
-			       emtracker->getSectionTracker( sid, false );
+				emtracker->getSectionTracker( false );
 
     if ( sectracker && !sectracker->hasInitializedSetup() )
 	readSetup( emobj->multiID() );
@@ -813,8 +808,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
     const EM::EMObject* emobj = EM::EMM().getObject( tracker.objectID() );
     for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
     {
-	const EM::SectionID sid = emobj->sectionID( sidx );
-	MPE::SectionTracker* st = tracker.getSectionTracker( sid, false );
+	MPE::SectionTracker* st = tracker.getSectionTracker( false );
 	if ( !st || !st->adjuster() ) continue;
 
 	for ( int asidx=0; asidx<st->adjuster()->getNrAttributes(); asidx++ )
@@ -879,10 +873,10 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 
 bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				    MPE::EMTracker*& tracker,
-				    const EM::SectionID& sid,
 				    bool freshdlg )
 {
-    if ( !emobj || !tracker || sid<0 ) return false;
+    if ( !emobj || !tracker )
+	return false;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker ) return false;
@@ -911,7 +905,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     }
 
     setupgrp_->setMPEPartServer( this );
-    MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
+    MPE::SectionTracker* sectracker = tracker->getSectionTracker( true );
     if ( !sectracker ) return false;
 
     if ( freshdlg )

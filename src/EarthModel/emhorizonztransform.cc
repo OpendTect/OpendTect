@@ -209,7 +209,7 @@ void HorizonZTransform::calculateHorizonRange()
 {
     if ( !horizon_ ) return;
 
-    PtrMan<EMObjectIterator> iterator = horizon_->createIterator( -1, 0 );
+    PtrMan<EMObjectIterator> iterator = horizon_->createIterator();
     if ( !iterator ) return;
 
     bool isset = false;
@@ -285,24 +285,17 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	}
     }
 
-    EM::PosID pid = horizon_->geometry().getPosID( hortrckey );
-    for ( int idx=horizon_->nrSections()-1; idx>=0; idx--)
+    float depth = horizon_->getZ( hortrckey );
+    if ( mIsUdf( depth ) && hor3d )
     {
-	const SectionID sid = horizon_->sectionID( idx );
-	pid.setSectionID( sid );
-
-	float depth = (float) horizon_->getPos( pid ).z;
-	if ( mIsUdf( depth ) && hor3d )
-	{
-	    const BinID bid = hortrckey.position();
-	    const Geometry::BinIDSurface* geom =
-		hor3d->geometry().sectionGeometry(sid);
-	    depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z;
-	}
-
-	if ( !mIsUdf(depth) )
-	    depths += depth;
+	const BinID bid = hortrckey.position();
+	const Geometry::BinIDSurface* geom =
+		    hor3d->geometry().geometryElement();
+	depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z;
     }
+
+    if ( !mIsUdf(depth) )
+	depths += depth;
 
     if ( depths.size()>1 )
 	sort_array( depths.arr(), depths.size() );

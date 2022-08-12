@@ -29,33 +29,42 @@ namespace EM
 mExpClass(EarthModel) RowColIterator : public EMObjectIterator
 {
 public:
-    			RowColIterator(const Surface&,const SectionID&,
-				       const TrcKeyZSampling* =0);
-    			RowColIterator(const Surface&,const SectionID&,
+			RowColIterator(const Surface&,
+					const TrcKeyZSampling* =nullptr);
+			RowColIterator(const Surface&,
 				       const StepInterval<int> rowbnd,
 				       const StepInterval<int> colbnd);
+    mDeprecated("Use without SectionID")
+			RowColIterator(const Surface& s,const SectionID&,
+				       const TrcKeyZSampling* t=0)
+			    : RowColIterator(s,t)		{}
+    mDeprecated("Use without SectionID")
+			RowColIterator(const Surface& s,const SectionID&,
+				       const StepInterval<int> rowbnd,
+				       const StepInterval<int> colbnd)
+			    : RowColIterator(s,rowbnd,colbnd)		{}
 			~RowColIterator();
 
     PosID		next() override;
     PosID		fromIndex( int idx ) const;
     int			maxIndex() const;
     int			maximumSize() const override;
-    int			maximumSize(const SectionID&) const;
+
+    mDeprecated("Use without SectionID")
+    int			maximumSize(const SectionID&) const
+			{ return maximumSize(); }
 
 protected:
     bool		initSection();
-    bool		nextSection();
     void		fillPosIDs();
 
+    const Surface&			surf_;
     RowCol				rc_;
-    SectionID				sid_;
-    const Geometry::RowColSurface*	cursection_;
+    const Geometry::RowColSurface*	cursection_	= nullptr;
     StepInterval<int>			rowrg_;
     StepInterval<int>			colrg_;
-    bool				allsids_;
-    const Surface&			surf_;
 
-    const TrcKeyZSampling*			csbound_;
+    const TrcKeyZSampling*		csbound_	= nullptr;
     const StepInterval<int>		rowbound_;
     const StepInterval<int>		colbound_;
     const bool				rowcolbounded_;
@@ -66,5 +75,3 @@ protected:
 };
 
 } // namespace EM
-
-

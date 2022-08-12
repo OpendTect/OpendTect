@@ -31,8 +31,18 @@ protected:
 };
 
 
+mExpClass(EarthModel) SectionID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline SectionID	def()		{ return SectionID(0); }
+    static inline SectionID	udf()		{ return SectionID(); }
+
+protected:
+};
+
+
 using FaultID	= ObjectID;
-using SectionID = od_int16;
 using SubID	= od_int64;
 
 /*!
@@ -47,9 +57,11 @@ It has three parts,
 mExpClass(EarthModel) PosID
 {
 public:
-				PosID(ObjectID emobjid=ObjectID::udf(),
-				      SectionID sectionid=0,
-				      SubID subid=0);
+				PosID(const ObjectID& emobjid=ObjectID::udf(),
+				    const SectionID& sectionid=SectionID::udf(),
+				    SubID subid=0);
+				PosID(const ObjectID&,const RowCol&);
+				PosID(const ObjectID&,SubID);
 
     static const PosID&		udf();
     void			setUdf();
@@ -57,10 +69,10 @@ public:
     bool			isValid() const;
 
     const ObjectID&		objectID() const;
-    SectionID			sectionID() const;
+    const SectionID&		sectionID() const;
     SubID			subID() const;
     void			setObjectID(const ObjectID&);
-    void			setSectionID(SectionID);
+    void			setSectionID(const SectionID&);
     void			setSubID(SubID);
     RowCol			getRowCol() const;
 
@@ -82,7 +94,8 @@ protected:
 };
 
 
-inline PosID::PosID( ObjectID emobj, SectionID section, SubID subid )
+inline PosID::PosID( const ObjectID& emobj, const SectionID& section,
+		     SubID subid )
     : emobjid_(emobj)
     , sectionid_(section)
     , subid_(subid)
@@ -99,7 +112,7 @@ inline bool PosID::operator!=(const PosID& b) const
 inline const ObjectID& PosID::objectID() const
 { return emobjid_; }
 
-inline SectionID PosID::sectionID() const
+inline const SectionID& PosID::sectionID() const
 { return sectionid_; }
 
 inline SubID PosID::subID() const
@@ -108,13 +121,10 @@ inline SubID PosID::subID() const
 inline void PosID::setObjectID( const ObjectID& id )
 { emobjid_ = id; }
 
-inline void PosID::setSectionID( SectionID id )
+inline void PosID::setSectionID( const SectionID& id )
 { sectionid_ = id; }
 
 inline void PosID::setSubID( SubID id )
 { subid_ = id; }
 
-
 } // namespace EM
-
-

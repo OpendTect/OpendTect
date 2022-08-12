@@ -110,8 +110,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
 }
 
 
-HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
-    const EM::SectionID& sid )
+HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker()
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
     seedauxdata->enabled_ = seedenabled_;
@@ -122,7 +121,6 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
 
     Marker3D* markerseed = new Marker3D;
     markerseed->marker_ = seedauxdata;
-    markerseed->sectionid_ = sid;
     return markerseed;
 }
 
@@ -136,60 +134,26 @@ bool HorizonPainter3D::addPolyLine()
     if ( !hor3d ) return false;
 
     nrseeds_ = 0;
-    for ( int ids=0; ids<hor3d->nrSections(); ids++ )
+    SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
+    markerline_ += secmarkerln;
+
+    markerseeds_ = create3DMarker();
+    bool newmarker = true;
+    bool coorddefined = true;
+
+    Marker3D* marker = 0;
+    BinID bid;
+
+    if ( path_ )
     {
-	EM::SectionID sid = hor3d->sectionID( ids );
-	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
-	markerline_ += secmarkerln;
-
-	markerseeds_ = create3DMarker( sid );
-	bool newmarker = true;
-	bool coorddefined = true;
-
-	Marker3D* marker = 0;
-	BinID bid;
-
-	if ( path_ )
+	for ( int idx = 0; idx<path_->size(); idx++ )
 	{
-	    for ( int idx = 0; idx<path_->size(); idx++ )
-	    {
-		bid = (*path_)[idx].position();
-		const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
-		EM::PosID posid( id_, sid, bid.toInt64() );
-
-		if ( !crd.isDefined() )
-		{
-		    coorddefined = false;
-		    continue;
-		}
-		else if ( !coorddefined )
-		{
-		    coorddefined = true;
-		    newmarker = true;
-		}
-
-		if ( newmarker )
-		    generateNewMarker( *hor3d, sid, *secmarkerln, marker );
-
-		addDataToMarker( bid, crd, posid, *hor3d, *marker,
-		    newmarker, idx );
-		newmarker = false;
-
-	    }
-	    continue;
-	}
-
-	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-	while ( iter.next(bid) )
-	{
-	    int inlfromcs = bid.inl();
-	    const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
-	    EM::PosID posid( id_, sid, bid.toInt64() );
-
+	    bid = (*path_)[idx].position();
+	    const Coord3 crd = hor3d->getPos( bid.toInt64() );
+	    EM::PosID posid( id_, bid );
 	    if ( !crd.isDefined() )
 	    {
 		coorddefined = false;
-		bid.inl() = inlfromcs;
 		continue;
 	    }
 	    else if ( !coorddefined )
@@ -199,13 +163,41 @@ bool HorizonPainter3D::addPolyLine()
 	    }
 
 	    if ( newmarker )
-		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
+		generateNewMarker( *hor3d, *secmarkerln, marker );
 
-	    if ( addDataToMarker(bid,crd,posid,*hor3d,*marker,newmarker) )
-		nrseeds_++;
-
+	    addDataToMarker( bid, crd, posid, *hor3d, *marker,
+		newmarker, idx );
 	    newmarker = false;
+
 	}
+    }
+
+    TrcKeySamplingIterator iter( tkzs_.hsamp_ );
+    while ( iter.next(bid) )
+    {
+	int inlfromcs = bid.inl();
+	const Coord3 crd = hor3d->getPos( bid.toInt64() );
+	EM::PosID posid( id_, bid );
+
+	if ( !crd.isDefined() )
+	{
+	    coorddefined = false;
+	    bid.inl() = inlfromcs;
+	    continue;
+	}
+	else if ( !coorddefined )
+	{
+	    coorddefined = true;
+	    newmarker = true;
+	}
+
+	if ( newmarker )
+	    generateNewMarker( *hor3d, *secmarkerln, marker );
+
+	if ( addDataToMarker(bid,crd,posid,*hor3d,*marker,newmarker) )
+	    nrseeds_++;
+
+	newmarker = false;
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -273,7 +265,6 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
 
 
 void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
-					  const EM::SectionID& sid,
 					  SectionMarker3DLine& secmarkerln,
 					  Marker3D*& marker )
 {
@@ -291,7 +282,6 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
     marker = new Marker3D;
     secmarkerln += marker;
     marker->marker_ = auxdata;
-    marker->sectionid_ = sid;
 }
 
 
@@ -388,22 +378,20 @@ void HorizonPainter3D::changePolyLineColor()
 
 void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject( id_ ));
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(id_))
     if ( !hor3d ) return;
 
-    if ( id_ != pid.objectID() ) return;
+    if ( id_ != pid.objectID() )
+	return;
 
     const BinID binid = BinID::fromInt64( pid.subID() );
     const TrcKey trckey( binid );
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
-	if ( hor3d->sectionID(idx) != pid.sectionID() )
-	    continue;
-
 	SectionMarker3DLine* secmarkerlines = markerline_[idx];
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
 	{
-	    Coord3 crd = hor3d->getPos( hor3d->sectionID(idx), pid.subID() );
+	    Coord3 crd = hor3d->getPos( pid.subID() );
 	    FlatView::AuxData* auxdata = (*secmarkerlines)[markidx]->marker_;
 	    for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
 	    {
@@ -531,7 +519,7 @@ void HorizonPainter3D::displaySelections(
 
     removeSelections();
 
-    selectionpoints_ = create3DMarker( 0 );
+    selectionpoints_ = create3DMarker();
 
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {

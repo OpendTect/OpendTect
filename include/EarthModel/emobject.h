@@ -168,18 +168,19 @@ public:
     mDeprecatedDef uiString	uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
-    virtual int			nrSections() const			= 0;
-    virtual SectionID		sectionID(int) const			= 0;
-    virtual BufferString	sectionName(const SectionID&) const;
-    virtual bool		canSetSectionName() const;
-    virtual bool		setSectionName(const SectionID&,const char*,
+    int				nrSections() const	{ return 1; }
+    SectionID			sectionID(int) const
+				{ return SectionID::def(); }
+    BufferString		sectionName(const SectionID&) const;
+    bool			canSetSectionName() const;
+    bool			setSectionName(const SectionID&,const char*,
 					       bool addtohistory);
-    virtual int			sectionIndex(const SectionID&) const;
-    virtual bool		removeSection(SectionID,bool hist )
-					{ return false; }
+    int				sectionIndex(const SectionID&) const;
+    bool			removeSection(SectionID,bool hist )
+				{ return false; }
 
-    const Geometry::Element*	sectionGeometry(const SectionID&) const;
-    Geometry::Element*		sectionGeometry(const SectionID&);
+    const Geometry::Element*	geometryElement() const;
+    Geometry::Element*		geometryElement();
 
     const OD::Color&		preferredColor() const;
     void			setPreferredColor(const OD::Color&,
@@ -190,18 +191,15 @@ public:
     bool			hasBurstAlert() const;
 
     virtual Coord3		getPos(const EM::PosID&) const;
-    virtual Coord3		getPos(const EM::SectionID&,
-				       const EM::SubID&) const;
+    virtual Coord3		getPos(const EM::SubID&) const;
     virtual bool		isDefined(const EM::PosID&) const;
-    virtual bool		isDefined(const EM::SectionID&,
-					  const EM::SubID&) const;
+    virtual bool		isDefined(const EM::SubID&) const;
     virtual bool		setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory);
-    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
+    virtual bool		setPos(const EM::SubID&,
 				       const Coord3&,bool addtohistory);
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
-    virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
-					 bool addtohistory);
+    virtual bool		unSetPos(const EM::SubID&,bool addtohistory);
     virtual void		setNodeSourceType(const TrcKey&,
 						  NodeSourceType){};
     virtual bool		isNodeSourceType(const PosID&,
@@ -247,11 +245,8 @@ public:
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* =0) const
-				{ return 0; }
-				/*!< creates an iterator. If the sectionid is
-				     -1, all sections will be traversed. */
+    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling*) const
+				{ return nullptr; }
 
     virtual int			nrPosAttribs() const;
     virtual int			posAttrib(int idx) const;
@@ -275,8 +270,7 @@ public:
 					       TaskRunner*);
     void			removeSelected(const TypeSet<EM::SubID>&);
 
-    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
-						   const EM::SectionID&);
+    void			removeListOfSubIDs(const TypeSet<EM::SubID>&);
     void			removeAllUnSeedPos();
     const TrcKeyZSampling		getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
@@ -324,12 +318,47 @@ public:
     void			setZInDepth();
     void			setZInTime();
 
+// Deprecated public functions
+    mDeprecated("Use geometryElement() const")
+    const Geometry::Element*	sectionGeometry(const SectionID&) const;
+    mDeprecated("Use geometryElement()")
+    Geometry::Element*		sectionGeometry(const SectionID&);
+
+    mDeprecated("Use removeListOfSubIDs without SectionID")
+    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
+						   const EM::SectionID&);
+    mDeprecated("Use createIterator(const TrcKeyZSampling*)")
+    EMObjectIterator*		createIterator(const EM::SectionID&,
+					       const TrcKeyZSampling* t=0) const
+				{ return createIterator(t); }
+				/*!< creates an iterator. If the sectionid is
+				     -1, all sections will be traversed. */
+
+    mDeprecated("Use without SectionID")
+    Coord3			getPos(const EM::SectionID&,
+				       const EM::SubID& subid) const
+				{ return getPos(subid); }
+    mDeprecated("Use without SectionID")
+    bool			isDefined(const EM::SectionID&,
+					  const EM::SubID& subid) const
+				{ return isDefined(subid); }
+    mDeprecated("Use without SectionID")
+    bool			setPos(const EM::SectionID&,
+					const EM::SubID& subid,
+					const Coord3& crd,bool addtohistory)
+				{ return setPos(subid,crd,addtohistory); }
+    mDeprecated("Use without SectionID")
+    bool			unSetPos(const EM::SectionID&,
+					const EM::SubID& subid,
+					bool addtohistory)
+				{ return unSetPos(subid,addtohistory); }
 
 protected:
 				~EMObject();
 				EMObject( EMManager& );
 				//!<must be called after creation
-    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
+    virtual Geometry::Element*	geometryElementInternal() { return nullptr; }
+
     virtual void		prepareForDelete() const;
     void			prepareForDelete() override;
     void			posIDChangeCB(CallBacker*);
@@ -369,6 +398,11 @@ protected:
     static const char*		posattrprefixstr();
     static const char*		posattrsectionstr();
     static const char*		posattrposidstr();
+
+// Deprecated protected functions
+    mDeprecated("Use geometryElementInternal()")
+    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&)
+				{ return nullptr; }
 };
 
 } // namespace EM

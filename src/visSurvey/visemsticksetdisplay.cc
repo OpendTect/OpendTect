@@ -77,16 +77,14 @@ const mVisTrans* StickSetDisplay::getDisplayTransformation() const
 {  return displaytransform_; }
 
 
-Geometry::FaultStickSet* StickSetDisplay::faultStickSetGeometry( int id )
+Geometry::FaultStickSet* StickSetDisplay::faultStickSetGeometry()
 {
     if ( !fault_ )
 	return nullptr;
 
     EM::FaultGeometry* fgeometry = &fault_->geometry();
-    mDynamicCastGet( Geometry::FaultStickSet*,fss,
-	fgeometry->sectionGeometry((EM::SectionID)id) );
-
-    return fss ? fss : nullptr;
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,fgeometry->geometryElement())
+    return fss;
 }
 
 
@@ -124,7 +122,7 @@ void StickSetDisplay::polygonSelectionCB()
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sip->sid_ );
+	Geometry::FaultStickSet* fss = faultStickSetGeometry();
 	if ( !fss ) continue;
 
 	if ( !donenr.isPresent(sip->sticknr_) )
@@ -132,15 +130,14 @@ void StickSetDisplay::polygonSelectionCB()
 	mSetKnotSelectStatus( fss, sip->sticknr_, sip->pos_ );
     }
 
-    PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator( -1 );
+    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iter->next();
 	if ( !pid.isValid() )
 	    break;
 
-	const EM::SectionID sid = pid.sectionID();
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
+	Geometry::FaultStickSet* fss = faultStickSetGeometry();
 	if ( !fss )
 	    return;
 
@@ -187,7 +184,7 @@ void StickSetDisplay::updateStickMarkerSet()
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sip->sid_ );
+	Geometry::FaultStickSet* fss = faultStickSetGeometry();
 	if ( !fss ) continue;
 
 	int groupidx = 0;
@@ -208,16 +205,15 @@ void StickSetDisplay::updateStickMarkerSet()
 	 (!showmanipulator_||!stickselectmode_) )
 	return;
 
-    PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator(-1);
+    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iter->next();
 	if ( !pid.isValid() )
 	    break;
 
-	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
+	Geometry::FaultStickSet* fss = faultStickSetGeometry();
 	if ( !fss || fss->isStickHidden(sticknr,mSceneIdx) )
 	    continue;
 
@@ -243,11 +239,11 @@ void StickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 }
 
 
-bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
-    const Coord3 pos, const Coord3 eps )
+bool StickSetDisplay::matchMarker( int sticknr, const Coord3 mousepos,
+				   const Coord3 pos, const Coord3 eps )
 {
     if ( !mousepos.isSameAs(pos,eps) ) return false;
-    Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
+    Geometry::FaultStickSet* fss = faultStickSetGeometry();
     if ( fss )
     {
 	if ( ctrldown_ )
@@ -305,12 +301,10 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	    for ( int sipidx=0; sipidx<stickintersectpoints_.size(); sipidx++ )
 	    {
 		const StickIntersectPoint* sip = stickintersectpoints_[sipidx];
-		matchMarker(
-		    sip->sid_,sip->sticknr_,markerpos,sip->pos_,eps );
+		matchMarker( sip->sticknr_,markerpos,sip->pos_,eps );
 	    }
 
-	    PtrMan<EM::EMObjectIterator> iter =
-					fault_->geometry().createIterator(-1);
+	    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator();
 	    while ( true )
 	    {
 		const EM::PosID pid = iter->next();
@@ -318,8 +312,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 		    return;
 
 		const int sticknr = pid.getRowCol().row();
-		matchMarker( pid.sectionID(), sticknr, markerpos,
-		    fault_->getPos(pid),eps );
+		matchMarker( sticknr, markerpos, fault_->getPos(pid),eps );
 	    }
 	}
     }

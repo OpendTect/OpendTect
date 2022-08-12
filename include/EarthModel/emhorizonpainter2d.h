@@ -47,15 +47,13 @@ public:
 
 	mStruct(EarthModel)	Marker2D
 	{
-	    			Marker2D()
+				Marker2D()
 				    : marker_(0)
-				    , sectionid_(-1)
 				{}
 				~Marker2D()
 				{ delete marker_; }
 
 	    FlatView::AuxData*	marker_;
-	    EM::SectionID	sectionid_;
 	};
 
     void		getDisplayedHor(ObjectSet<Marker2D>&);
@@ -78,8 +76,11 @@ protected:
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
-    void		updateIntersectionMarkers(int sid);
-    Marker2D*		create2DMarker(const EM::SectionID&,float,float);
+    void		updateIntersectionMarkers();
+    Marker2D*		create2DMarker(float x,float z);
+    mDeprecated("Use create2DMarker without SectionID")
+    Marker2D*		create2DMarker(const EM::SectionID&,float x,float z)
+			{ return create2DMarker( x, z ); }
     bool		calcLine2DIntersections();
 
 
@@ -106,10 +107,9 @@ protected:
     Marker2D*		  selectionpoints_;
 
 private:
-    Marker2D*		create2DMarker(const EM::SectionID&);
+    Marker2D*		create2DMarker();
     void		updateSelectionColor();
 
 };
 
 } // namespace EM
-

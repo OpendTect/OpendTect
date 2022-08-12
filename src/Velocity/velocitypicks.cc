@@ -296,11 +296,8 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	Pick pick = velpick;
 	RefMan<EM::Horizon3D> hor = getHorizon( velpick.emobjid_ );
 	if ( hor )
-	{
-	    pick.depth_ = (float) hor->getPos( hor->sectionID(0),
-				       pickbid.toInt64() ).z;
-	}
-	else if ( mIsUdf( pick.depth_ ) )
+	    pick.depth_ = hor->getZ( pickbid );
+	else if ( mIsUdf(pick.depth_) )
 	    return RowCol(-1,-1);
 	else
 	{
@@ -573,7 +570,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
 	const float depth =
-	    (float) hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
+	    (float) hor->getPos( bid.toInt64() ).z;
 
 	if ( mIsUdf(depth) )
 	    continue;
@@ -668,8 +665,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 	ConstRefMan<EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
 	if ( !hor ) continue;
 
-	const EM::SectionID sid = hor->sectionID( 0 );
-	if ( hor->isDefined( sid, bid.toInt64() ) )
+	if ( hor->isDefined( bid.toInt64() ) )
 	    defined = true;
 	else
 	    undefined = true;
@@ -738,8 +734,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	const Coord coord = SI().transform(bid);
 
 	float* vals = res.getVals( pos );
-	vals[0] =
-	    (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
+	vals[0] = horizon->getZ( bid );
 
 	float weightsum = 0;
 	float weightvalsum = 0;

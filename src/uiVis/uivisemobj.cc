@@ -279,29 +279,20 @@ void uiVisEMObject::setDepthAsAttrib( int attrib )
 int uiVisEMObject::nrSections() const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( !emod ) return 0;
-
-    EM::ObjectID emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    return emobj ? emobj->nrSections() : 0;
+    return emod ? 1 : 0;
 }
 
 
 EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 {
-    const visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( !emod ) return -1;
-
-    EM::ObjectID emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    return emobj ? emobj->sectionID( idx ) : -1;
+    return EM::SectionID::def();
 }
 
 
 EM::SectionID uiVisEMObject::getSectionID( const TypeSet<VisID>* path ) const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    return path && emod ? emod->getSectionID( path ) : -1;
+    return path && emod ? EM::SectionID::def() : EM::SectionID::udf();
 }
 
 

@@ -114,19 +114,15 @@ void EMObject::setMultiID( const MultiID& mid )
 }
 
 
-int EMObject::sectionIndex( const SectionID& sid ) const
+int EMObject::sectionIndex( const SectionID& ) const
 {
-    for ( int idx=0; idx<nrSections(); idx++ )
-	if ( sectionID(idx) == sid )
-	    return idx;
-
-    return -1;
+    return 0;
 }
 
 
 BufferString EMObject::sectionName( const SectionID& sid ) const
 {
-    return BufferString( toString(sid) );
+    return BufferString( toString(sid.asInt()) );
 }
 
 
@@ -138,16 +134,20 @@ bool EMObject::setSectionName( const SectionID&, const char*, bool )
 { return false; }
 
 
-const Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) const
-{ return const_cast<EMObject*>(this)->sectionGeometryInternal(sec); }
+const Geometry::Element* EMObject::geometryElement() const
+{ return const_cast<EMObject*>(this)->geometryElementInternal(); }
 
 
-Geometry::Element* EMObject::sectionGeometry( const SectionID& sec )
-{ return sectionGeometryInternal(sec); }
+Geometry::Element* EMObject::geometryElement()
+{ return geometryElementInternal(); }
 
 
-Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& )
-{ return 0; }
+const Geometry::Element* EMObject::sectionGeometry( const SectionID& ) const
+{ return const_cast<EMObject*>(this)->geometryElementInternal(); }
+
+
+Geometry::Element* EMObject::sectionGeometry( const SectionID& )
+{ return geometryElementInternal(); }
 
 
 Coord3 EMObject::getPos( const PosID& pid ) const
@@ -155,14 +155,13 @@ Coord3 EMObject::getPos( const PosID& pid ) const
     if ( pid.objectID() != id() )
 	return  Coord3::udf();
 
-    return getPos( pid.sectionID(), pid.subID() );
+    return getPos( pid.subID() );
 }
 
 
-Coord3 EMObject::getPos( const EM::SectionID& sid,
-			 const EM::SubID& subid ) const
+Coord3 EMObject::getPos( const EM::SubID& subid ) const
 {
-    const Geometry::Element* element = sectionGeometry( sid );
+    const Geometry::Element* element = geometryElement();
     return element ? element->getPosition( subid ) : Coord3::udf();
 }
 
@@ -174,16 +173,15 @@ bool EMObject::setPos( const PosID& pid, const Coord3& newpos, bool addtoundo )
     if ( pid.objectID()!=id() )
 	mRetErr(uiString::emptyString());
 
-    return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
+    return setPos( pid.subID(), newpos, addtoundo );
 }
 
 
-bool EMObject::setPos( const SectionID& sid, const SubID& subid,
-		       const Coord3& newpos, bool addtoundo )
+bool EMObject::setPos( const SubID& subid, const Coord3& newpos, bool addtoundo)
 {
     Threads::Locker locker( setposlock_ );
 
-    Geometry::Element* element = sectionGeometryInternal( sid );
+    Geometry::Element* element = geometryElement();
     if ( !element ) mRetErr( uiString::emptyString() );
 
     Coord3 oldpos = Coord3::udf();
@@ -193,7 +191,7 @@ bool EMObject::setPos( const SectionID& sid, const SubID& subid,
     if ( !element->setPosition(subid,newpos) )
 	 mRetErr( element->errMsg() );
 
-    const PosID pid (id(), sid, subid );
+    const PosID pid (id(), subid );
 
     if ( !newpos.isDefined() )
     {
@@ -344,10 +342,9 @@ bool EMObject::unSetPos(const PosID& pid, bool addtoundo )
 }
 
 
-bool EMObject::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
-			 bool addtoundo )
+bool EMObject::unSetPos( const EM::SubID& subid, bool addtoundo )
 {
-    return setPos( sid, subid, Coord3::udf(), addtoundo );
+    return setPos( subid, Coord3::udf(), addtoundo );
 }
 
 
@@ -399,15 +396,14 @@ bool EMObject::isDefined( const PosID& pid ) const
     if ( pid.objectID()!=id() )
 	return  false;
 
-    return isDefined( pid.sectionID(), pid.subID() );
+    return isDefined( pid.subID() );
 }
 
 
 
-bool EMObject::isDefined( const EM::SectionID& sid,
-			  const EM::SubID& subid ) const
+bool EMObject::isDefined(  const EM::SubID& subid ) const
 {
-    const Geometry::Element* element = sectionGeometry( sid );
+    const Geometry::Element* element = geometryElement();
     return element && element->isDefined( subid );
 }
 
@@ -572,7 +568,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     {
 	ObjectSet<const Selector<Coord3> > selectors;
 	selectors += &selector;
-	EMObjectPosSelector posselector( *this, sectionID(idx), selectors );
+	EMObjectPosSelector posselector( *this, selectors );
 	posselector.executeParallel( tr );
 
 	const TypeSet<EM::SubID>& list = posselector.getSelected();
@@ -587,8 +583,8 @@ void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
 {
     for ( int idx = 0; idx<nrSections(); idx++ )
     {
-	Geometry::Element* ge = sectionGeometry(sectionID(idx));
-	if ( !ge ) continue;
+	Geometry::Element* ge = geometryElement();
+	if ( !ge ) return;
 
 	mDynamicCastGet( const Geometry::RowColSurface*, surface, ge );
 	if ( !surface ) continue;
@@ -599,9 +595,9 @@ void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
 
 	for ( int sididx=0; sididx<subids.size(); sididx++ )
 	{
-	    unSetPos( sectionID(idx), subids[sididx], true );
+	    unSetPos( subids[sididx], true );
 	    BinID bid = BinID::fromInt64( subids[sididx] );
-	    const Coord3 pos = getPos( sectionID(idx), subids[sididx] );
+	    const Coord3 pos = getPos( subids[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hsamp_.start_ =
@@ -626,14 +622,13 @@ void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
 }
 
 
-void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
-				   const EM::SectionID& sectionid )
+void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids )
 {
     for ( int sididx = 0; sididx < subids.size(); sididx++ )
     {
 	if ( sididx == 0 )
 	    setBurstAlert( true );
-	unSetPos( sectionid, subids[sididx], true );
+	unSetPos( subids[sididx], true );
 	if ( sididx == subids.size()-1 )
 	    setBurstAlert( false );
     }
@@ -643,7 +638,7 @@ void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
 void EMObject::removeAllUnSeedPos()
 {
     setBurstAlert( true );
-    PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
+    PtrMan<EMObjectIterator> iterator = createIterator( nullptr );
     while( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -673,7 +668,7 @@ void EMObject::emptyRemovedPolySelectedPosBox()
 
 bool EMObject::isEmpty() const
 {
-    PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
+    PtrMan<EM::EMObjectIterator> iterator = createIterator( nullptr );
     return !iterator || !iterator->next().isValid();
 }
 
@@ -686,7 +681,7 @@ uiString EMObject::errMsg() const
 
 bool EMObject::usePar( const IOPar& par )
 {
-   useDisplayPars( par );
+    useDisplayPars( par );
 
     for ( int idx=0; idx<nrPosAttribs(); idx++ )
 	removePosAttribList( posAttrib(idx), false );
@@ -717,10 +712,10 @@ bool EMObject::usePar( const IOPar& par )
 	const int minsz = mMIN( sections.size(), subids.size() );
 	for ( int idy=0; idy<minsz; idy++ )
 	{
-	    if ( !isDefined(mCast(EM::SectionID,sections[idy]),subids[idy]) )
+	    if ( !isDefined(subids[idy]) )
 		continue;
-	    const PosID pid = PosID( id(),
-		sCast(EM::SectionID,sections[idy]), subids[idy] );
+
+	    const PosID pid = PosID( id(), subids[idy] );
 	    setPosAttrib( pid, attrib, true, false );
 	}
     }
@@ -744,20 +739,12 @@ void EMObject::fillPar( IOPar& par ) const
 	attribkey += keyid++;
 	par.set( attribkey.buf(), attrib );
 
-	TypeSet<int> attrpatches;
 	TypeSet<SubID> subids;
 	for ( int idy=0; idy<pids->size(); idy++ )
-	{
-	    attrpatches += (*pids)[idy].sectionID();
 	    subids += (*pids)[idy].subID();
-	}
 
-	BufferString patchkey = attribkey;
-	patchkey += posattrsectionstr();
 	BufferString subidkey = attribkey;
 	subidkey += posattrposidstr();
-
-	par.set( patchkey.buf(), attrpatches );
 	par.set( subidkey.buf(), subids );
     }
 
@@ -885,7 +872,7 @@ Interval<float> EMObject::getZRange( bool docompute ) const
     if ( !zrg.isUdf() || !docompute )
 	return zrg;
 
-    PtrMan<EMObjectIterator> it = createIterator( -1, nullptr );
+    PtrMan<EMObjectIterator> it = createIterator( nullptr );
     if ( !it )
 	return zrg;
 

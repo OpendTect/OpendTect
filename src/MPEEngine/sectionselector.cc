@@ -14,12 +14,8 @@ ___________________________________________________________________
 namespace MPE
 {
 
-SectionSourceSelector::SectionSourceSelector( const EM::SectionID& sid )
-    : sectionid_( sid )
+SectionSourceSelector::SectionSourceSelector()
 {}
-
-
-EM::SectionID SectionSourceSelector::sectionID() const { return sectionid_; }
 
 void SectionSourceSelector::reset() { selpos_.erase(); }
 

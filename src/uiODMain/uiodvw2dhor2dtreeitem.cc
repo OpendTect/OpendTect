@@ -507,15 +507,13 @@ bool uiODView2DHor2DTreeItem::showSubMenu()
 	    return false;
 
 	MPE::engine().setActiveTracker( emid_ );
-	const EM::SectionID sid = emobj->sectionID( 0 );
-	mps->useSavedSetupDlg( emid_, sid );
+	mps->useSavedSetupDlg( emid_ );
 	if ( viewer2D() && viewer2D()->viewControl() )
 	    viewer2D()->viewControl()->setEditMode( true );
     }
     else if ( mnuid == mSettsID )
     {
-	const EM::SectionID sid = emobj->sectionID( 0 );
-	mps->showSetupDlg( emid_, sid );
+	mps->showSetupDlg( emid_ );
     }
     else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {

@@ -251,8 +251,8 @@ bool SurfaceLimitedFiller::prepareComp( int )
 	else
 	{
 	    mDynamicCastGet( EM::Fault3D*, newft, emobj.ptr() );
-	    faults_ += newft ? newft->geometry().sectionGeometry(0) : 0;
-	    hors_ += 0;
+	    faults_ += newft ? newft->geometry().geometryElement() : nullptr;
+	    hors_ += nullptr;
 	}
     }
 
@@ -312,13 +312,12 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	bidsq = BinID( lineidx, bid.crl() ).toInt64();
     }
 
-    const double fixedz = userefz_ ? refz_ :
-	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z;
+    const double fixedz = userefz_ ? refz_ : refhorizon_->getPos( bidsq ).z;
 
     double val0 = fixedstartval_;
     if ( !usestartval_ )
     {
-	EM::PosID pid(starthorizon_->id(), starthorizon_->sectionID(0), bidsq);
+	EM::PosID pid( starthorizon_->id(), bidsq );
 	val0 = starthorizon_->auxdata.getAuxDataVal( startauxidx_, pid );
     }
 
@@ -339,7 +338,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    bidsq = BinID( lineidx, bid.crl() ).toInt64();
 	}
 
-	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z;
+	horz += hors_[idy]->getPos(bidsq).z;
     }
 
     double topz = mUdf(double);
@@ -365,7 +364,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     double gradient = fixedgradient_; //gradvertical_==true case done
     if ( !usegradient_ )
     {
-	EM::PosID pid( gradhorizon_->id(), gradhorizon_->sectionID(0), bidsq );
+	EM::PosID pid( gradhorizon_->id(), bidsq );
 	gradient = gradhorizon_->auxdata.getAuxDataVal( gradauxidx_, pid );
     }
     else if ( usebottomval_ )

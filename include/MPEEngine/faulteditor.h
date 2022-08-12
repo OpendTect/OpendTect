@@ -48,9 +48,12 @@ public:
 				    const Coord3* posnormal=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
-    const EM::PosID		getNearstStick(EM::SectionID& sid,
+    const EM::PosID		getNearstStick(const Coord3& pos,
+					       const Coord3* posnormal) const;
+    const EM::PosID		getNearstStick(EM::SectionID&,
 					       const Coord3& pos,
-					       const Coord3* posnormal)const;
+					       const Coord3* posnormal) const
+				{ return getNearstStick(pos,posnormal); }
 
 protected:
     float		distToStick(const Geometry::FaultStickSurface&,
@@ -62,14 +65,14 @@ protected:
     int			getSecondKnotNr(const Geometry::FaultStickSurface&,
 				    int sticknr,const Coord3& mousepos) const;
 
-    float		getNearestStick(int& stick,EM::SectionID& sid,
+    float		getNearestStick(int& stick,
 			    const Coord3& pos,const Coord3* posnormal) const;
-    bool		getInsertStick(int& stick,EM::SectionID& sid,
+    bool		getInsertStick(int& stick,
 			    const Coord3& pos,const Coord3* posnormal) const;
     void		getPidsOnStick( EM::PosID& insertpid,int stick,
-			    const EM::SectionID&,const Coord3& pos) const;
+			    const Coord3& pos) const;
 
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
+    Geometry::ElementEditor*	createEditor() override;
     Coord3			scalevector_;
     int				sceneidx_;
 
@@ -81,6 +84,4 @@ protected:
     TypeSet<Coord3>		sowinghistory_;
 };
 
-
 }  // namespace MPE
-

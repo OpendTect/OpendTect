@@ -103,9 +103,11 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
     {
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
-	    mDefStickKey("Picked name",linekey,secids[secididx],stickidx);
+	    mDefStickKey("Picked name",linekey,secids[secididx].asInt(),
+			 stickidx);
 	    surfacepara_->get( linekey.buf(), linename );
-	    mDefStickKey("Picked MultiID",lsetkey,secids[secididx],stickidx);
+	    mDefStickKey("Picked MultiID",lsetkey,secids[secididx].asInt(),
+			 stickidx);
 	    MultiID lsid;
 	    surfacepara_->get( lsetkey.buf(), lsid );
 	    IOObj* lsioobj = IOM().get(lsid);
@@ -113,7 +115,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 
 	    Pos::GeomID geomid = Survey::GM().getGeomID( lsioobj->name(),
 						 linename.buf() );
-	    mDefStickKey("GeomID",geomstr,secids[secididx],stickidx);
+	    mDefStickKey("GeomID",geomstr,secids[secididx].asInt(),stickidx);
 	    surfacepara_->set( geomstr, geomid );
 	}
     }
@@ -121,7 +123,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 
 
 void OD_2DEMDataConverter_FromOD4ToOD5::writeToFile( const char* fullpath,
-                                                     int pos )
+						     int pos )
 {
     FilePath fp( fullpath );
     od_ostream ostrm( fp, true );

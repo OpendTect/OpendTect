@@ -201,8 +201,8 @@ EM::SurfaceIODataSelection uiHorSaveFieldGrp::getSelection( bool isnew ) const
 
     mDynamicCastGet(Pos::RangeProvider3D*,rgprov3d,prov3d);
     if ( rgprov3d )
-	outsdsel.rg = rgprov3d->sampling().hsamp_; 
-    
+	outsdsel.rg = rgprov3d->sampling().hsamp_;
+
     return outsdsel;
 }
 
@@ -214,7 +214,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
     const bool savenew = savefld_->getBoolValue();
     if ( !newhorizon_ && savenew && !createNewHorizon() )
 	return false;
-    
+
     const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
     PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
 				    : horizon_->geometry().saver( &sdsel );
@@ -296,17 +296,16 @@ void uiHorSaveFieldGrp::setHorRange( const Interval<int>& newinlrg,
 				     const Interval<int>& newcrlrg )
 {
     EM::Horizon* hor = overwriteHorizon() ? horizon_ : newhorizon_;
-    if ( !hor || !hor->geometry().nrSections() )
+    if ( !hor )
 	return;
 
-    const EM::SectionID sid = hor->geometry().sectionID( 0 );
-    mDynamicCastGet( Geometry::ParametricSurface*, surf,
-	    hor->sectionGeometry( sid ) );
+    mDynamicCastGet(Geometry::ParametricSurface*,surf,
+		    hor->geometryElement())
     if ( !surf )
 	return;
 
-    StepInterval<int> rowrg = hor->geometry().rowRange( sid );
-    StepInterval<int> colrg = hor->geometry().colRange( sid, -1 );
+    StepInterval<int> rowrg = hor->geometry().rowRange();
+    StepInterval<int> colrg = hor->geometry().colRange( -1 );
 
     while ( colrg.start-colrg.step >= newcrlrg.start )
     {

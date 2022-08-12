@@ -35,18 +35,20 @@ Horizon2DGeometry::Horizon2DGeometry( Surface& surface )
 {}
 
 
-Geometry::Horizon2DLine*
-	Horizon2DGeometry::sectionGeometry( const SectionID& sid )
+Horizon2DGeometry::~Horizon2DGeometry()
+{}
+
+
+Geometry::Horizon2DLine* Horizon2DGeometry::geometryElement()
 {
-    return (Geometry::Horizon2DLine*)SurfaceGeometry::sectionGeometry( sid );
+    return sCast(Geometry::Horizon2DLine*,SurfaceGeometry::geometryElement());
 }
 
 
-const Geometry::Horizon2DLine*
-	Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
+const Geometry::Horizon2DLine* Horizon2DGeometry::geometryElement() const
 {
-    return (const Geometry::Horizon2DLine*)
-	SurfaceGeometry::sectionGeometry( sid );
+    return sCast(const Geometry::Horizon2DLine*,
+		 SurfaceGeometry::geometryElement());
 }
 
 
@@ -56,14 +58,14 @@ OD::GeomSystem Horizon2D::getSurveyID() const
 
 int Horizon2DGeometry::nrLines() const
 {
-    const Geometry::Horizon2DLine* hor2dline = sectionGeometry( SectionID(0) );
+    const Geometry::Horizon2DLine* hor2dline = geometryElement();
     return hor2dline ? hor2dline->nrLines() : 0;
 }
 
 
 int Horizon2DGeometry::lineIndex( Pos::GeomID geomid ) const
 {
-    const Geometry::Horizon2DLine* hor2dline = sectionGeometry( SectionID(0) );
+    const Geometry::Horizon2DLine* hor2dline = geometryElement();
     return hor2dline ? hor2dline->getRowIndex( geomid ) : -1;
 }
 
@@ -82,14 +84,14 @@ const char* Horizon2DGeometry::lineName( int lidx ) const
 
 Pos::GeomID Horizon2DGeometry::geomID( int lineidx ) const
 {
-    const Geometry::Horizon2DLine* hor2dline = sectionGeometry( SectionID(0) );
+    const Geometry::Horizon2DLine* hor2dline = geometryElement();
     return hor2dline ? hor2dline->geomID( lineidx ) : mUdfGeomID;
 }
 
 
 void Horizon2DGeometry::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
-    const Geometry::Horizon2DLine* hor2dline = sectionGeometry( SectionID(0) );
+    const Geometry::Horizon2DLine* hor2dline = geometryElement();
     if ( hor2dline )
 	hor2dline->getGeomIDs( geomids );
 }
@@ -97,8 +99,7 @@ void Horizon2DGeometry::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 
 bool Horizon2DGeometry::hasLine( Pos::GeomID geomid ) const
 {
-    const EM::SectionID sid = surface_.sectionID( 0 );
-    const Geometry::Horizon2DLine* hor2dline = sectionGeometry( sid );
+    const Geometry::Horizon2DLine* hor2dline = geometryElement();
     return hor2dline ? hor2dline->hasLine( geomid ) : false;
 }
 
@@ -114,8 +115,7 @@ PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
     if ( lineidx < 0 )
 	return PosID::udf();
 
-    return PosID( surface_.id(), sectionID(0),
-		  RowCol(lineidx,trckey.trcNr()).toInt64() );
+    return PosID( surface_.id(), RowCol(lineidx,trckey.trcNr()) );
 }
 
 
@@ -200,7 +200,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 
 void Horizon2DGeometry::removeLine( Pos::GeomID geomid )
 {
-    Geometry::Horizon2DLine* h2dline = sectionGeometry( SectionID(0) );
+    Geometry::Horizon2DLine* h2dline = geometryElement();
     h2dline->removeRow( geomid );
 }
 
@@ -215,16 +215,15 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     const int nraliases = aliases.size();
     for ( int idx=0; idx<nraliases; idx++ )
     {
-	const SectionID sid = aliases[idx].sectionID();
 	const RowCol ownrc = aliases[idx].getRowCol();
 	const Pos::GeomID geomid( ownrc.row() );
-	const int colstep = colRange( sid, geomid ).step;
+	const int colstep = colRange( geomid ).step;
 	const RowCol neighborrc( ownrc.row(),
 		nextcol ? ownrc.col()+colstep : ownrc.col()-colstep );
 
-	if ( surface_.isDefined( sid, neighborrc.toInt64() ) ||
+	if ( surface_.isDefined( neighborrc.toInt64() ) ||
 	     (!retundef && idx==nraliases-1) )
-	    return PosID( surface_.id(), sid, neighborrc.toInt64() );
+	    return PosID( surface_.id(),  neighborrc );
     }
 
     return PosID::udf();
@@ -259,28 +258,24 @@ bool Horizon2DGeometry::isAtEdge( const PosID& pid ) const
 }
 
 
-Geometry::Horizon2DLine* Horizon2DGeometry::createSectionGeometry() const
-{ return new Geometry::Horizon2DLine; }
-
-
-StepInterval<int> Horizon2DGeometry::colRange( const SectionID& sid,
-					       Pos::GeomID geomid ) const
+Geometry::Horizon2DLine* Horizon2DGeometry::createGeometryElement() const
 {
-    const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(sid) );
-    return geom ? geom->colRangeForGeomID( geomid ) : StepInterval<int>(0,0,0);
+    return new Geometry::Horizon2DLine;
 }
 
 
 StepInterval<int> Horizon2DGeometry::colRange( Pos::GeomID geomid) const
 {
-    return colRange( SectionID(0), geomid );
+    const Geometry::Horizon2DLine* geom = geometryElement();
+    return geom ? geom->colRangeForGeomID( geomid ) : StepInterval<int>(0,0,0);
 }
 
 
 void Horizon2DGeometry::fillPar( IOPar& iopar ) const
 {
-    const Geometry::Horizon2DLine* cgeom = sectionGeometry( sectionID(0) );
-    if ( !cgeom ) return;
+    const Geometry::Horizon2DLine* cgeom = geometryElement();
+    if ( !cgeom )
+	return;
 
     PtrMan<Geometry::Horizon2DLine> geom = cgeom->clone();
     geom->trimUndefParts();
@@ -383,7 +378,6 @@ Horizon2D::Horizon2D( EMManager& emm )
     , nodesource_( 0 )
     , trackingsampling_(0,0,0)
 {
-    geometry_.addSection( "", false );
 }
 
 
@@ -416,7 +410,7 @@ float Horizon2D::getZ( const TrcKey& tk ) const
 
 bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
-    return setPos( sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist );
+    return setPos( tk.geomID(), tk.trcNr(), z, addtohist );
 }
 
 
@@ -426,8 +420,7 @@ bool Horizon2D::setZAndNodeSourceType( const TrcKey& tk, float z,
     if ( !nodesource_ )
 	initNodeSourceArray(tk);
 
-    const bool retval = setPos(
-	sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist );
+    const bool retval = setPos( tk.geomID(), tk.trcNr(), z, addtohist );
     const NodeSourceType tp = !mIsUdf(z) ? type : None;
     setNodeSourceType( tk, tp );
     return retval;
@@ -470,8 +463,7 @@ bool Horizon2D::hasZ( const TrcKey& tk ) const
 
 Coord3 Horizon2D::getCoord( const TrcKey& tk ) const
 {
-    const Geometry::Horizon2DLine* line =
-		geometry().sectionGeometry( SectionID(0) );
+    const Geometry::Horizon2DLine* line = geometry().geometryElement();
     const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
     if ( rowidx < 0 )
 	return Coord3::udf();
@@ -486,7 +478,7 @@ void Horizon2D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
     if ( lineidx<0 ) return;
 
     const BinID bid( lineidx, tk.trcNr() );
-    const PosID pid( id(), sectionID(0), bid.toInt64() );
+    const PosID pid( id(), bid );
     setPosAttrib( pid, attr, yn, addtohist );
 }
 
@@ -497,18 +489,15 @@ bool Horizon2D::isAttrib( const TrcKey& tk, int attr ) const
     if ( lineidx<0 ) return false;
 
     const BinID bid( lineidx, tk.trcNr() );
-    const PosID pid( id(), sectionID(0), bid.toInt64() );
+    const PosID pid( id(), bid );
     return isPosAttrib( pid, attr );
 }
 
 
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
-    const int sectionidx = nr;
-
-    const EM::SectionID sectionid = sectionID( sectionidx );
     const Geometry::Horizon2DLine* line =
-	geometry().sectionGeometry( sectionid );
+	geometry().geometryElement();
 
     if ( !line )
 	return allow_udf ? mUdf(float) : 0;
@@ -568,12 +557,13 @@ void Horizon2D::removeSelected( const Selector<Coord3>& selector,
     removebypolyposbox_.setEmpty();
     insideselremoval_ = true;
 
-    const Geometry::Element* ge = sectionGeometry( sectionID(0) );
-    if ( !ge ) return;
+    const Geometry::Element* ge = geometryElement();
+    if ( !ge )
+	return;
 
     TypeSet<EM::SubID> removallist;
 
-    PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
+    PtrMan<EM::EMObjectIterator> iterator = createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -585,7 +575,7 @@ void Horizon2D::removeSelected( const Selector<Coord3>& selector,
 	    removallist += pid.subID();
     }
 
-    removeListOfSubIDs( removallist, sectionID(0) );
+    removeListOfSubIDs( removallist );
     insideselremoval_ = false;
 }
 
@@ -598,19 +588,17 @@ bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )
 }
 
 
-bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
-			  bool addtoundo )
+bool Horizon2D::unSetPos( const EM::SubID& subid, bool addtoundo )
 {
-    Coord3 pos = getPos( sid, subid );
+    Coord3 pos = getPos( subid );
     pos.z = mUdf(float);
-    return EMObject::setPos( sid, subid, pos, addtoundo );
+    return EMObject::setPos( subid, pos, addtoundo );
 }
 
 
-Coord3 Horizon2D::getPos( EM::SectionID sid, Pos::GeomID geomid,
-			  int trcnr ) const
+Coord3 Horizon2D::getPos( Pos::GeomID geomid, int trcnr ) const
 {
-    const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
+    const Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
 	return Coord3::udf();
 
@@ -627,17 +615,17 @@ bool Horizon2D::setPos( const EM::PosID& posid, const Coord3& pos,
 }
 
 
-bool Horizon2D::setPos( const EM::SectionID& sid, const EM::SubID& subid,
+bool Horizon2D::setPos( const EM::SubID& subid,
 			const Coord3& pos, bool addtohistory )
 {
-    return EMObject::setPos( sid, subid, pos, addtohistory );
+    return EMObject::setPos( subid, pos, addtohistory );
 }
 
 
-bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
+bool Horizon2D::setPos( Pos::GeomID geomid, int trcnr,
 			float z, bool addtohistory )
 {
-  Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
+  Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
 	return 0;
 
@@ -645,49 +633,49 @@ bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
     if ( mIsUdf(lineidx) || lineidx<0 ) return false;
 
     EM::SubID subid = BinID( lineidx, trcnr ).toInt64();
-    Coord3 newpos = EMObject::getPos( sid, subid );
+    Coord3 newpos = EMObject::getPos( subid );
     newpos.z = z;
 
-    return EMObject::setPos( sid, subid, newpos, addtohistory );
+    return EMObject::setPos( subid, newpos, addtohistory );
 }
 
 
 Coord3 Horizon2D::getPos( const EM::PosID& pid ) const
 { return EMObject::getPos(pid); }
 
-Coord3 Horizon2D::getPos( const EM::SectionID& sid, const EM::SubID& sub ) const
-{ return EMObject::getPos(sid,sub); }
+Coord3 Horizon2D::getPos( const EM::SubID& sub ) const
+{ return EMObject::getPos(sub); }
 
 
-Coord3 Horizon2D::getPosition( EM::SectionID sid, int lineidx, int trcnr ) const
+Coord3 Horizon2D::getPosition( int lineidx, int trcnr ) const
 {
-    return getPos( sid, RowCol(lineidx,trcnr).toInt64() );
+    return getPos( RowCol(lineidx,trcnr).toInt64() );
 }
 
 
 TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 {
     TypeSet<Coord3> crds;
-    crds += getPos( sectionID(0), RowCol(lineidx,trcnr).toInt64() );
+    crds += getPos( RowCol(lineidx,trcnr).toInt64() );
     return crds;
 }
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
-			    SectionID sid, Pos::GeomID geomid,
+			    Pos::GeomID geomid,
 			    bool onlyfillundefs )
 {
     const StepInterval<int> trcrg = geometry_.colRange( geomid );
-    return setArray1D( arr, trcrg, sid, geomid, onlyfillundefs );
+    return setArray1D( arr, trcrg, geomid, onlyfillundefs );
 }
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
 			    const StepInterval<int>& trcrg,
-			    SectionID sid, Pos::GeomID geomid,
+			    Pos::GeomID geomid,
 			    bool onlyfillundefs )
 {
-    Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
+    Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom )
 	return false;
 
@@ -729,10 +717,10 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 }
 
 
-Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
+Array1D<float>* Horizon2D::createArray1D( Pos::GeomID geomid,
 					  const ZAxisTransform* trans ) const
 {
-    const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
+    const Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
 	return 0;
 
@@ -761,9 +749,19 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
 
 
 const IOObjContext& Horizon2D::getIOObjContext() const
-{ return EMHorizon2DTranslatorGroup::ioContext(); }
+{
+    return EMHorizon2DTranslatorGroup::ioContext();
+}
 
 
+EMObjectIterator* Horizon2D::createIterator( const TrcKeyZSampling* ) const
+{
+    return nullptr;
+}
+
+
+
+// Horizon2DAscIO
 Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );

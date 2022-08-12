@@ -100,9 +100,8 @@ bool FaultStickPainter::addPolyLine()
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     for ( int sidx=0; sidx<emfss->nrSections(); sidx++ )
     {
-	const EM::SectionID sid = emfss->sectionID( sidx );
 	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-			emfss->sectionGeometry(sid));
+			emfss->geometryElement())
 	if ( fss->isEmpty() )
 	    continue;
 
@@ -131,15 +130,15 @@ bool FaultStickPainter::addPolyLine()
 		stickauxdata->markerstyles_.erase();
 	    stickauxdata->enabled_ = linenabled_;
 
-	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row()) )
+	    if ( emfss->geometry().pickedOn2DLine(rc.row()) )
 	    {
 		const Pos::GeomID geomid =
-			    emfss->geometry().pickedGeomID( sid, rc.row() );
+			    emfss->geometry().pickedGeomID( rc.row() );
 
 		if ( !is2d_ || geomid != geomid_ )
 		    continue;
 	    }
-	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row()) )
+	    else if ( emfss->geometry().pickedOnPlane(rc.row()) )
 	    {
 		if ( tkzs_.isEmpty() && !path_ ) continue;
 	    }
@@ -163,7 +162,7 @@ bool FaultStickPainter::addPolyLine()
 			    Geometry::RandomLine::getNormal(knots,trckey), 0.f);
 			const Coord3 nzednor = editnormal.normalize();
 			const Coord3 stkednor =
-			    emfss->geometry().getEditPlaneNormal(sid,rc.row());
+			    emfss->geometry().getEditPlaneNormal(rc.row());
 			const bool equinormal =
 			    mIsEqual(nzednor.x,stkednor.x,.001) &&
 			    mIsEqual(nzednor.y,stkednor.y,.001) &&
@@ -204,7 +203,7 @@ bool FaultStickPainter::addPolyLine()
 
 		const Coord3 nzednor = editnormal.normalize();
 		const Coord3 stkednor =
-			emfss->geometry().getEditPlaneNormal(sid,rc.row());
+			emfss->geometry().getEditPlaneNormal( rc.row() );
 
 		const bool equinormal =
 		    mIsEqual(nzednor.x,stkednor.x,.001) &&
@@ -455,7 +454,7 @@ bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
 }
 
 
-void FaultStickPainter::setActiveStick( EM::PosID& pid )
+void FaultStickPainter::setActiveStick( const EM::PosID& pid )
 {
     if ( pid.objectID() != emid_ ||
 	 pid.getRowCol().row() == activestickid_ ||

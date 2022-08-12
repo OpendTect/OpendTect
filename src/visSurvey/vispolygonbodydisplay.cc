@@ -297,7 +297,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
 
     mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
-	    empolygonsurf_->sectionGeometry(empolygonsurf_->sectionID(0)) );
+	    empolygonsurf_->geometryElement())
 
     explicitbody_->setPolygonSurface( polygonsurface );
     bodydisplay_->setSurface( explicitbody_ );
@@ -417,10 +417,9 @@ void PolygonBodyDisplay::updatePolygonDisplay()
     if ( !polygondisplay_ )
 	return;
 
-    const EM::SectionID sid = empolygonsurf_->sectionID( 0 );
     const bool dodisplay = displaypolygons_ ||
 	(isBodyDisplayed() && isManipulatorShown()) ||
-	(isBodyDisplayed() && empolygonsurf_->geometry().nrPolygons(sid)==1);
+	(isBodyDisplayed() && empolygonsurf_->geometry().nrPolygons()==1);
 
     polygondisplay_->turnOn( dodisplay );
 }
@@ -622,11 +621,11 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    {
 		const int removepolygon = pid.getRowCol().row();
 		const bool res = empolygonsurf_->geometry().nrKnots(
-			pid.sectionID(),removepolygon)==1  ?
+			removepolygon)==1  ?
 		    empolygonsurf_->geometry().removePolygon(
-			    pid.sectionID(), removepolygon, true )
+			    removepolygon, true )
 		    : empolygonsurf_->geometry().removeKnot(
-			    pid.sectionID(), pid.subID(), true );
+			    pid.subID(), true );
 
 		polygonsurfeditor_->setLastClicked( EM::PosID::udf() );
 
@@ -668,7 +667,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    editnormal = Coord3( SI().transform(BinID(0,1))-
 		    SI().transform(BinID(0,0)), 0 );
 
-	if ( empolygonsurf_->geometry().insertPolygon( insertpid.sectionID(),
+	if ( empolygonsurf_->geometry().insertPolygon(
 	       insertpid.getRowCol().row(), 0, pos, editnormal, true ) )
 	{
 	    polygonsurfeditor_->setLastClicked( insertpid );
@@ -684,8 +683,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     }
     else
     {
-	if ( empolygonsurf_->geometry().insertKnot( insertpid.sectionID(),
-		insertpid.subID(), pos, true ) )
+	if ( empolygonsurf_->geometry().insertKnot(insertpid.subID(),pos,true) )
 	{
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
@@ -735,7 +733,7 @@ void PolygonBodyDisplay::updateNearestPolygonMarker()
     else
     {
 	mDynamicCastGet( Geometry::PolygonSurface*, plgs,
-	    empolygonsurf_->sectionGeometry(empolygonsurf_->sectionID(0)));
+	    empolygonsurf_->geometryElement())
 
 	const StepInterval<int> rowrg = plgs->rowRange();
 	if ( rowrg.isUdf() || !rowrg.includes(nearestpolygon_,false) )
@@ -963,8 +961,7 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
 	return;
 
     EM::PolygonBodyGeometry& geo = empolygonsurf_->geometry();
-    const EM::SectionID sid = geo.sectionID( 0 );
-    const int nrplgs = geo.nrPolygons(sid);
+    const int nrplgs = geo.nrPolygons();
     if ( !nrplgs )
 	return;
 
@@ -977,15 +974,15 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
     for ( int plg=0; plg<nrplgs; plg++ )
     {
 	TypeSet<Coord3> knots;
-	if ( geo.sectionGeometry(sid) )
-	    geo.sectionGeometry(sid)->getCubicBezierCurve(
-						plg, knots, (float) scale.z );
+	if ( geo.geometryElement() )
+	    geo.geometryElement()->getCubicBezierCurve( plg, knots,
+							(float) scale.z );
 
 	const int nrknots = knots.size();
 	if ( !nrknots )
 	    continue;
 
-	const Coord3 plgnormal = geo.getPolygonNormal( sid, plg ).normalize();
+	const Coord3 plgnormal = geo.getPolygonNormal( plg ).normalize();
 	const Plane3 plgplane( plgnormal, knots[0].scaleBy(scale), false );
 	Line3 intersectionline;
 	if ( !newplane.intersectWith(plgplane,intersectionline) )
@@ -1006,9 +1003,9 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
     for ( int pt=0; pt<intersections.size(); pt++ )
     {
 	if ( pt==0 )
-	    geo.insertPolygon( sid, nrplgs, 0, intersections[0], normal, true );
+	    geo.insertPolygon( nrplgs, 0, intersections[0], normal, true );
         else
-	    geo.insertKnot( sid, RowCol(nrplgs,pt).toInt64(),
+	    geo.insertKnot( RowCol(nrplgs,pt).toInt64(),
 			    intersections[pt], true );
     }
 }
@@ -1024,5 +1021,4 @@ void PolygonBodyDisplay::setPixelDensity( float dpi )
     if ( nearestpolygonmarker_ ) nearestpolygonmarker_->setPixelDensity( dpi );
 }
 
-
-}; // namespace visSurvey
+} // namespace visSurvey

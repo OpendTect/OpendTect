@@ -124,8 +124,8 @@ public:
     const Line2DInterSectionSet* getLine2DInterSectionSet()
 						{ return l2dintersections_; }
 
-    CNotifier<uiODViewer2DMgr,int>  vw2dObjAdded;
-    CNotifier<uiODViewer2DMgr,int>  vw2dObjToBeRemoved;
+    CNotifier<uiODViewer2DMgr,Vis2DID>	vw2dObjAdded;
+    CNotifier<uiODViewer2DMgr,Vis2DID>	vw2dObjToBeRemoved;
 
 protected:
 

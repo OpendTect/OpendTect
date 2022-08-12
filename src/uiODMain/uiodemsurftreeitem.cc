@@ -190,7 +190,7 @@ void uiODEarthModelSurfaceTreeItem::keyPressCB( CallBacker* cb )
 	if ( !uivisemobj_ || !hastracker )
 	    return;
 
-	mps->showSetupDlg( emid_, uivisemobj_->getSectionID(0) );
+	mps->showSetupDlg( emid_ );
 	if ( cbcaps )
 	    cbcaps->data.setKey( 0 );
     }
@@ -309,18 +309,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
-    EM::SectionID sectionid = -1;
-    if ( uivisemobj_->nrSections()==1 )
-	sectionid = uivisemobj_->getSectionID(0);
-    else if ( uimenu && uimenu->getPath() )
-    {
-	TypeSet<VisID> ids;
-	for ( const auto& id : *uimenu->getPath() )
-	    ids += VisID( id );
-
-	sectionid = uivisemobj_->getSectionID( &ids );
-    }
-
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
@@ -353,7 +341,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==starttrackmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( sectionid < 0 ) return;
 
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
@@ -362,7 +349,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	    uimenu ? uimenu->getPickedPos() : Coord3::udf();
 	if ( mps->addTracker(emid_,pickedpos) != -1 )
 	{
-	    mps->useSavedSetupDlg( emid_, sectionid );
+	    mps->useSavedSetupDlg( emid_ );
 	    uivisemobj_->checkTrackingStatus();
 	    addAuxDataItems();
 	    applMgr()->visServer()->triggerTreeUpdate();
@@ -375,7 +362,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesetupmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mps->showSetupDlg( emid_, sectionid );
+	mps->showSetupDlg( emid_ );
     }
     else if ( mnuid==reloadmnuitem_.id )
     {

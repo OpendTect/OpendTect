@@ -54,13 +54,12 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	if ( setup_.sectionnr_ >= 0 && setup_.sectionnr_ != isect )
 	    continue;
 
-	const EM::SectionID sid = hor_.sectionID( isect );
-	const Array2D<float>* arr = geom_.sectionGeometry(sid)->getArray();
+	const Array2D<float>* arr = geom_.geometryElement()->getArray();
 	if ( !arr )
 	    continue;
 
-	const StepInterval<int> inlrg = geom_.rowRange(sid);
-	const StepInterval<int> crlrg = geom_.colRange(sid,-1);
+	const StepInterval<int> inlrg = geom_.rowRange();
+	const StepInterval<int> crlrg = geom_.colRange( -1 );
 	IsoContourTracer ict( *arr );
 	ict.setSampling( inlrg, crlrg );
 	ict.selectPolyROI( setup_.selpoly_ );

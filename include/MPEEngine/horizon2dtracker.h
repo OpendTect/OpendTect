@@ -45,7 +45,7 @@ protected:
     EM::Horizon2D*		getHorizon2D();
     const EM::Horizon2D*	getHorizon2D() const;
 
-    SectionTracker*		createSectionTracker(EM::SectionID) override;
+    SectionTracker*		createSectionTracker() override;
     Horizon2DSeedPicker*	seedpicker_;
 };
 

@@ -32,7 +32,7 @@ class SectionExtender;
 mExpClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Horizon&,EM::SectionID);
+			HorizonAdjuster(EM::Horizon&);
 			~HorizonAdjuster();
 
     void		reset() override;
@@ -81,6 +81,10 @@ public:
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
+
+    mDeprecated("Use without SectionID")
+			HorizonAdjuster(EM::Horizon& hor,EM::SectionID)
+			    : HorizonAdjuster(hor)			{}
 
 protected:
 

@@ -45,16 +45,14 @@ protected:
 					    const Coord3&) override;
     bool			setPosition( const Coord3& c ) override
 				{ return ObjectEditor::setPosition(c); }
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&) override;
+    Geometry::ElementEditor*	createEditor() override;
     float			getNearestPolygon(int& polygon,
-						  EM::SectionID& sid,
 						  const Coord3&,
 						  float zfactor) const;
     void			getPidsOnPolygon(EM::PosID& nearestpid0,
-						 EM::PosID& nearestpid1, 
+						 EM::PosID& nearestpid1,
 						 EM::PosID& insertpid,
 						 int polygon,
-						 const EM::SectionID&,
 						 const Coord3&,
 						 float zfactor) const;
 
@@ -62,6 +60,4 @@ protected:
     mutable TypeSet<Coord3>	sowinghistory_;
 };
 
-
-};  // namespace MPE
-
+}  // namespace MPE

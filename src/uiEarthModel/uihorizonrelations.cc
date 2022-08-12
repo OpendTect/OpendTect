@@ -230,13 +230,13 @@ bool acceptOK( CallBacker* ) override
 		return false;
 
 	    Array2D<float>* arr2d;
-	    arr2d = hor3d->createArray2D( emobj->sectionID(0) );
+	    arr2d = hor3d->createArray2D();
 	    BinID start( hor3d->geometry().rowRange().start,
 			 hor3d->geometry().colRange().start );
 	    BinID step( hor3d->geometry().step().row(),
 			hor3d->geometry().step().col() );
 	    outhor3d->setMultiID( outmid );
-	    outhor3d->geometry().sectionGeometry(EM::SectionID(0))->setArray(
+	    outhor3d->geometry().geometryElement()->setArray(
 		    start, step, arr2d, true );
 	}
 	else
@@ -249,9 +249,9 @@ bool acceptOK( CallBacker* ) override
 	    {
 		const Pos::GeomID geomid = hor2d->geometry().geomID( idx );
 		PtrMan< Array1D<float> > arr1d;
-		arr1d = hor2d->createArray1D( emobj->sectionID(0), geomid );
+		arr1d = hor2d->createArray1D( geomid );
 		outhor2d->geometry().addLine( geomid );
-		outhor2d->setArray1D(*arr1d,emobj->sectionID(0),geomid,false);
+		outhor2d->setArray1D(*arr1d,geomid,false);
 	    }
 	}
     }

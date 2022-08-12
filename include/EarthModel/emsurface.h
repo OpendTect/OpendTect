@@ -31,14 +31,6 @@ of one or more segments or patches, so they can overlap.
 mExpClass(EarthModel) Surface : public EMObject
 {
 public:
-    int				nrSections() const override;
-    EM::SectionID		sectionID(int) const override;
-    BufferString		sectionName(const SectionID&) const override;
-    bool			canSetSectionName() const override;
-    bool			setSectionName(const SectionID&,const char*,
-					       bool addtohistory) override;
-    bool			removeSection(SectionID,bool hist) override;
-
     virtual void		removeAll();
 
     bool			isAtEdge(const EM::PosID&) const override;
@@ -53,8 +45,8 @@ public:
     bool			usePar(const IOPar&) override;
     void			fillPar(IOPar&) const override;
 
-    EMObjectIterator*		createIterator(const SectionID&,
-				   const TrcKeyZSampling* =0) const override;
+    EMObjectIterator*	createIterator(
+				const TrcKeyZSampling* =nullptr) const override;
 
     bool			enableGeometryChecks(bool) override;
     bool			isGeometryChecksEnabled() const override;
@@ -76,6 +68,9 @@ protected:
 				Surface(EMManager&);
 				~Surface();
 
+    Geometry::Element*	geometryElementInternal() override;
+
+    mDeprecated("Use geometryElementInternal()")
     Geometry::Element*	sectionGeometryInternal(const SectionID&) override;
 
     BufferString	dbinfo;

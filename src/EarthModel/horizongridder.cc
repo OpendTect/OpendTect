@@ -328,22 +328,20 @@ bool ContinuousCurvatureHor3DGridder::setArray2D( Array2D<float>& arr,
 
 uiRetVal HorizonGridder::executeGridding(
 	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
-	const EM::SectionID& sid,
 	const BinID& gridstep, TaskRunner* taskrunner)
 {
-    return HorizonGridder::executeGridding( interpolator, hor3d, sid, gridstep,
+    return HorizonGridder::executeGridding( interpolator, hor3d, gridstep,
 	0, 0, taskrunner );
 }
 
 uiRetVal HorizonGridder::executeGridding(
 	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
-	const EM::SectionID& sid,
 	const BinID& gridstep,
 	const Interval<int>* polyinlrg,
 	const Interval<int>* polycrlrg,
 	TaskRunner* taskrunner)
 {
-    StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
+    StepInterval<int> rowrg = hor3d->geometry().rowRange();
     rowrg.step = gridstep.inl();
     StepInterval<int> colrg = hor3d->geometry().colRange();
     colrg.step = gridstep.crl();
@@ -364,18 +362,15 @@ uiRetVal HorizonGridder::executeGridding(
 	new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
     if ( !arr->isOK() )
 	return uiRetVal(
-	    od_static_tr("executeGridding",
-			 "Not enough horizon data for section %1")
-			     .arg(sid+1) );
+	    od_static_tr("executeGridding","Not enough horizon data") );
 
     arr->setAll( mUdf(float) );
 
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
+    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
     if ( !iterator )
 	return uiRetVal(
 	    od_static_tr("executeGridding",
-			 "Internal: Cannot create Horizon iterator "
-			 "for section %1").arg(sid+1) );
+			 "Internal: Cannot create Horizon iterator") );
 
     while( true )
     {
@@ -394,17 +389,13 @@ uiRetVal HorizonGridder::executeGridding(
 
     if ( !interpolator->setArray2D(*arr,taskrunner) )
 	return uiRetVal(
-	    od_static_tr("executeGridding",
-			 "Cannot setup interpolation on section %1")
-			     .arg(sid+1) );
+	    od_static_tr("executeGridding","Cannot setup interpolation") );
 
     mDynamicCastGet(Task*,task,interpolator);
     if ( !task || !TaskRunner::execute(taskrunner,*task) )
 	return uiRetVal(
-		od_static_tr("executeGridding","Cannot interpolate section %1")
-			    .arg(sid+1) );
+		od_static_tr("executeGridding","Cannot interpolate") );
 
-    hor3d->setArray( sid, hs.start_, hs.step_, arr, true );
+    hor3d->setArray( hs.start_, hs.step_, arr, true );
     return uiRetVal::OK();
 }
-

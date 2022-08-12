@@ -121,42 +121,36 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	return false;
 
     uiTaskRunner dlg( this );
-    for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
+    PtrMan<Array2D<float> > arr = hor3d->createArray2D();
+    if ( !arr )
     {
-	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
-	PtrMan<Array2D<float> > arr = hor3d->createArray2D( sid );
-	if ( !arr )
-	{
-	    uiString msg =
-		tr("Cannot create 2D array for section %1").arg(sid);
-	    ErrMsg( msg.getFullString() );
-	    continue;
-	}
+	uiString msg = tr("Cannot create 2D array");
+	ErrMsg( msg.getFullString() );
+	return false;
+    }
 
-	const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-	const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
-	PtrMan<Executor> worker = getWorker( *arr, rowrg, colrg );
-	if ( !worker )
-	    return false;
+    const StepInterval<int> rowrg = hor3d->geometry().rowRange();
+    const StepInterval<int> colrg = hor3d->geometry().colRange( -1 );
+    PtrMan<Executor> worker = getWorker( *arr, rowrg, colrg );
+    if ( !worker )
+	return false;
 
-	if ( !TaskRunner::execute(&dlg,*worker) )
-	    return false;
+    if ( !TaskRunner::execute(&dlg,*worker) )
+	return false;
 
-	const EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );
-	if ( hor3d != usedhor3d )
-	{
-	    const BinID start( rowrg.start, colrg.start );
-	    const BinID step( rowrg.step, colrg.step );
-	    usedhor3d->geometry().sectionGeometry(usedsid)->setArray(
-						start, step, arr, false );
-	}
-	else
-	{
-	    const char* undodesc = usedhor3d==hor3d ? undoText() : nullptr;
-	    const bool res = usedhor3d->setArray2D( *arr, usedsid,
-					fillUdfsOnly(), undodesc, false );
-	    change = res;
-	}
+    if ( hor3d != usedhor3d )
+    {
+	const BinID start( rowrg.start, colrg.start );
+	const BinID step( rowrg.step, colrg.step );
+	usedhor3d->geometry().geometryElement()->setArray(
+					    start, step, arr, false );
+    }
+    else
+    {
+	const char* undodesc = usedhor3d==hor3d ? undoText() : nullptr;
+	const bool res = usedhor3d->setArray2D( *arr,
+				    fillUdfsOnly(), undodesc, false );
+	change = res;
     }
 
     if ( change )

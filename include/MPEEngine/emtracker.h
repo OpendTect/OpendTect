@@ -59,18 +59,30 @@ public:
     void			getNeededAttribs(
 					TypeSet<Attrib::SelSpec>&) const;
 
-    virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
+    virtual SectionTracker*	createSectionTracker() = 0;
     SectionTracker*		cloneSectionTracker();
-    SectionTracker*		getSectionTracker(EM::SectionID,
-	    					  bool create=false);
+    SectionTracker*		getSectionTracker(bool create=false);
     virtual EMSeedPicker*	getSeedPicker(bool createifnotpresent=true)
-				{ return 0; }
-    void 			applySetupAsDefault(const EM::SectionID);
+				{ return nullptr; }
+    void			applySetupAsDefault();
 
     const char*			errMsg() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+
+// Deprecated public functions
+    mDeprecated("Use without SectionID")
+    SectionTracker*		createSectionTracker(EM::SectionID)
+				{ return createSectionTracker(); }
+    mDeprecated("Use without SectionID")
+    SectionTracker*		getSectionTracker(EM::SectionID,
+						  bool create=false)
+				{ return getSectionTracker(create); }
+    mDeprecated("Use without SectionID")
+    void			applySetupAsDefault(const EM::SectionID)
+				{ applySetupAsDefault(); }
+
 
 protected:
 				EMTracker(EM::EMObject*);

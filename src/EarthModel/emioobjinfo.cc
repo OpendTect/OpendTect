@@ -116,20 +116,14 @@ if ( !reader_ ) return false;
 
 bool IOObjInfo::getSectionIDs( TypeSet<SectionID>& secids ) const
 {
-    mGetReaderRet
-
-    for ( int idx=0; idx<reader_->nrSections(); idx++ )
-	secids += reader_->sectionID(idx);
+    secids += EM::SectionID::def();
     return true;
 }
 
 
 bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
 {
-    mGetReaderRet
-
-    for ( int idx=0; idx<reader_->nrSections(); idx++ )
-	secnames.add( reader_->sectionName(idx) );
+    secnames.add( "[0]" );
     return true;
 }
 

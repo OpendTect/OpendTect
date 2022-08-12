@@ -63,7 +63,6 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     , nrdone_(0)
     , hs_(hs)
     , inl_(0)
-    , sectionidx_(-1)
     , nrattribs_(-1)
 {
     if ( bvss_.isEmpty() || attribnames.isEmpty() )
@@ -93,15 +92,10 @@ int nextStep() override
 {
     if ( nrattribs_ < 0 ) return ErrorOccurred();
 
-    if ( sectionidx_ == -1 || inl_ > inlrg_.stop )
+    if ( !nrdone_ )
     {
-	sectionidx_++;
-	if ( sectionidx_ >= horizon_.geometry().nrSections() )
-	    return Finished();
-
-	const SectionID sectionid = horizon_.geometry().sectionID(sectionidx_);
 	const Geometry::BinIDSurface* rcgeom =
-	    horizon_.geometry().sectionGeometry( sectionid );
+		horizon_.geometry().geometryElement();
 	if ( !rcgeom ) return ErrorOccurred();
 
 	inlrg_ = rcgeom->rowRange();
@@ -109,8 +103,8 @@ int nextStep() override
 	inl_ = inlrg_.start;
     }
 
-    PosID posid( horizon_.id(), horizon_.geometry().sectionID(sectionidx_) );
-    const BinIDValueSet& bvs = *bvss_[sectionidx_];
+    PosID posid( horizon_.id() );
+    const BinIDValueSet& bvs = *bvss_[0];
     for ( int crl=crlrg_.start; crl<=crlrg_.stop; crl+=crlrg_.step )
     {
 	const BinID bid( inl_, crl );
@@ -156,7 +150,6 @@ protected:
     int				inl_;
     StepInterval<int>		inlrg_;
     StepInterval<int>		crlrg_;
-    int				sectionidx_;
 
     int				totalnr_;
     int				nrdone_;
@@ -267,8 +260,7 @@ void fillHorizonArray()
 {
     for ( int sidx=0; sidx<horarrays_.size(); sidx++ )
     {
-	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
-	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
+	Geometry::BinIDSurface* geom = horizon_.geometry().geometryElement();
 	geom->setArray( hs_.start_, hs_.step_, horarrays_[sidx], true );
     }
 
@@ -307,7 +299,6 @@ Horizon3D::Horizon3D( EMManager& man )
     , nodesource_(nullptr)
     , arrayinited_(false)
 {
-    geometry_.addSection( "", false );
 }
 
 
@@ -336,9 +327,7 @@ void Horizon3D::fillPar( IOPar& par ) const
 
 bool Horizon3D::usePar( const IOPar& par )
 {
-    return Surface::usePar( par ) &&
-	auxdata.usePar( par ) &&
-	Horizon::usePar( par );
+    return Surface::usePar(par) && auxdata.usePar(par) && Horizon::usePar(par);
 }
 
 
@@ -426,24 +415,23 @@ bool Horizon3D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
     if ( !nodesource_ || !trackingsamp_.includes(tk) )
 	return false;
 
-    return
-	nodesource_->getData()[trackingsamp_.globalIdx(tk)] == sCast(char,type);
+    const od_int64 gidx = trackingsamp_.globalIdx( tk );
+    return nodesource_->getData()[gidx] == sCast(char,type);
 }
 
 
 bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
-    return setPos(
-	sectionID(0), tk.binID().toInt64(), Coord3(0,0,z), addtohist );
+    return setPos( tk.binID().toInt64(), Coord3(0,0,z), addtohist );
 }
 
 
 float Horizon3D::getZ( const TrcKey& tk ) const
-{ return (float) getPos( sectionID(0), tk.position().toInt64() ).z; }
+{ return (float) getPos( tk.position().toInt64() ).z; }
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 {
-    return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z),
+    return setPos( bid.toInt64(), Coord3(0,0,z),
 	addtohist );
 }
 
@@ -451,7 +439,6 @@ bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 bool Horizon3D::setZAndNodeSourceType( const TrcKey& tk, float z,
     bool addtohist, NodeSourceType type )
 {
-    const SectionID sid = sectionID( 0 );
     if ( !arrayinited_ )
     {
 	mDynamicCastGet( const Survey::Geometry3D*,geom3d,
@@ -465,8 +452,8 @@ bool Horizon3D::setZAndNodeSourceType( const TrcKey& tk, float z,
 
     const Coord3 newpos = Coord3( 0, 0, z );
     if ( isNodeLocked(tk) ) return false;
-    const bool retval = EMObject::setPos(
-	sid, tk.binID().toInt64(), newpos, addtohist );
+    const bool retval =
+	EMObject::setPos( tk.binID().toInt64(), newpos, addtohist );
     const NodeSourceType tp = newpos.isDefined() ? type : None;
     setNodeSourceType( tk, tp );
     return retval;
@@ -474,25 +461,25 @@ bool Horizon3D::setZAndNodeSourceType( const TrcKey& tk, float z,
 
 
 float Horizon3D::getZ( const BinID& bid ) const
-{ return (float) getPos( sectionID(0), bid.toInt64() ).z; }
+{ return (float) getPos( bid.toInt64() ).z; }
 
 bool Horizon3D::hasZ( const TrcKey& tk ) const
-{ return isDefined( sectionID(0), tk.position().toInt64() ); }
+{ return isDefined( tk.position().toInt64() ); }
 
 Coord3 Horizon3D::getCoord( const TrcKey& tk ) const
-{ return getPos( sectionID(0), tk.position().toInt64() ); }
+{ return getPos( tk.position().toInt64() ); }
 
 
 void Horizon3D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
 {
-    const PosID pid( id(), sectionID(0), tk.position().toInt64() );
+    const PosID pid( id(), tk.position() );
     setPosAttrib( pid, attr, yn, addtohist );
 }
 
 
 bool Horizon3D::isAttrib( const TrcKey& tk, int attr ) const
 {
-    const PosID pid( id(), sectionID(0), tk.position().toInt64() );
+    const PosID pid( id(), tk.position() );
     return isPosAttrib( pid, attr );
 }
 
@@ -505,8 +492,7 @@ float Horizon3D::getZValue( const Coord& crd, bool allow_udf, int nr ) const
     if ( !mIsUdf(zval) || allow_udf )
 	return zval;
 
-    const EM::SectionID sid = sectionID( nr );
-    const Geometry::BinIDSurface* geom = geometry().sectionGeometry( sid );
+    const Geometry::BinIDSurface* geom = geometry().geometryElement();
     if ( !geom )
 	return zval;
 
@@ -515,10 +501,10 @@ float Horizon3D::getZValue( const Coord& crd, bool allow_udf, int nr ) const
 }
 
 
-void Horizon3D::setArray( const SectionID& sid, const BinID& start,
+void Horizon3D::setArray( const BinID& start,
     const BinID& step, Array2D<float>* arr, bool takeover )
 {
-    PtrMan<EM::EMObjectIterator> iterator = createIterator( sid );
+    PtrMan<EM::EMObjectIterator> iterator = createIterator();
     if ( !iterator )
 	return;
 
@@ -532,15 +518,14 @@ void Horizon3D::setArray( const SectionID& sid, const BinID& start,
 	    setNodeSourceType( posid, EMObject::Gridding );
     }
 
-    geometry().sectionGeometry(sid)->setArray( start, step, arr, takeover );
+    geometry().geometryElement()->setArray( start, step, arr, takeover );
 }
 
 
 TrcKeySampling Horizon3D::range() const
 {
     TrcKeySampling hs;
-    const SectionID sid = -1;
-    hs.set( geometry().rowRange(sid), geometry().colRange(sid,-1) );
+    hs.set( geometry().rowRange(), geometry().colRange() );
     return hs;
 }
 
@@ -558,9 +543,9 @@ Interval<float> Horizon3D::getZRange() const
 
 
 Array2D<float>* Horizon3D::createArray2D(
-		SectionID sid, const ZAxisTransform* zaxistransform ) const
+		const ZAxisTransform* zaxistransform ) const
 {
-    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    const Geometry::BinIDSurface* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
 	return 0;
 
@@ -602,8 +587,7 @@ bool Horizon3D::setArray2D( Array2D<float>* array, const BinID& start,
 {
     removeAll();
 
-    const SectionID sid = geometry().addSection( 0, false );
-    Geometry::BinIDSurface* geom = geometry().sectionGeometry( sid );
+    Geometry::BinIDSurface* geom = geometry().geometryElement();
     if ( !geom ) return false;
 
     geom->setArray( start, step, array, takeover );
@@ -611,11 +595,11 @@ bool Horizon3D::setArray2D( Array2D<float>* array, const BinID& start,
 }
 
 
-bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
+bool Horizon3D::setArray2D( const Array2D<float>& arr,
 			    bool onlyfillundefs, const char* undodesc,
 			    bool trimundefs )
 {
-    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    const Geometry::BinIDSurface* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
 	return 0;
 
@@ -624,14 +608,14 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 
     const RowCol startrc( rowrg.start, colrg.start );
     const RowCol stoprc( rowrg.stop, colrg.stop );
-    geometry().sectionGeometry( sid )->expandWithUdf( startrc, stoprc );
+    geometry().geometryElement()->expandWithUdf( startrc, stoprc );
 
     int poscount = 0;
-    geometry().sectionGeometry( sid )->blockCallBacks( true, false );
+    geometry().geometryElement()->blockCallBacks( true, false );
     const bool didcheck = geometry().enableChecks( false );
     setBurstAlert( true );
 
-    Array2D<float>* oldarr = undodesc ? createArray2D( sid, 0 ) : 0;
+    Array2D<float>* oldarr = undodesc ? createArray2D( 0 ) : 0;
 
     const int arrnrrows = arr.info().getSize( 0 );
     const int arrnrcols = arr.info().getSize( 1 );
@@ -641,7 +625,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    const RowCol rc( row, col );
-	    Coord3 pos = getPos( sid, rc.toInt64() );
+	    Coord3 pos = getPos( rc.toInt64() );
 	    if ( pos.isDefined() && onlyfillundefs )
 		continue;
 
@@ -657,25 +641,25 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 		continue;
 
 	    pos.z = val;
-	    setPos( sid, rc.toInt64(), pos, false );
+	    setPos( rc.toInt64(), pos, false );
 
 	    if ( ++poscount >= 10000 )
 	    {
-		geometry().sectionGeometry( sid )->blockCallBacks( true, true );
+		geometry().geometryElement()->blockCallBacks( true, true );
 		poscount = 0;
 	    }
 	}
     }
 
     setBurstAlert(false);
-    geometry().sectionGeometry( sid )->blockCallBacks( false, true );
+    geometry().geometryElement()->blockCallBacks( false, true );
     geometry().enableChecks( didcheck );
     if ( trimundefs )
-	geometry().sectionGeometry( sid )->trimUndefParts();
+	geometry().geometryElement()->trimUndefParts();
 
     if ( oldarr )
     {
-	UndoEvent* undo = new  SetAllHor3DPosUndoEvent( this, sid, oldarr );
+	UndoEvent* undo = new  SetAllHor3DPosUndoEvent( this, oldarr );
 	EMM().undo(id()).addEvent( undo, undodesc );
     }
 
@@ -729,7 +713,7 @@ void Horizon3D::initTrackingAuxData( float val )
 
 void Horizon3D::initTrackingArrays()
 {
-     const bool haspcd = readNodeArrays();
+    const bool haspcd = readNodeArrays();
     if ( !haspcd )
     {
 	updateTrackingSampling();
@@ -759,8 +743,7 @@ void Horizon3D::updateTrackingSampling()
 TrcKeySampling Horizon3D::getSectionTrckeySampling() const
 {
     TrcKeySampling tks;
-    const SectionID sid = sectionID( 0 );
-    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    const Geometry::BinIDSurface* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
 	return tks;
 
@@ -1209,7 +1192,7 @@ void Horizon3D::deleteChildren()
 
     const int prevevid = EM::EMM().undo(id()).currentEventID();
 
-    Geometry::Element* ge = sectionGeometry( sectionID(0) );
+    Geometry::Element* ge = geometryElement();
     setBurstAlert( true );
     if ( ge ) ge->blockCallBacks( true, false );
     const od_int64 totalnr = trackingsamp_.totalNr();
@@ -1277,7 +1260,7 @@ void Horizon3D::lockAll()
 {
     if ( !lockednodes_ ) return;
 
-    PtrMan<EMObjectIterator> it = createIterator( sectionID(0) );
+    PtrMan<EMObjectIterator> it = createIterator();
     if ( !it ) return;
 
     while ( true )
@@ -1334,11 +1317,11 @@ const OD::Color& Horizon3D::getParentColor() const
 
 bool Horizon3D::setPos( const PosID& pid,const Coord3& crd,bool addtoundo )
 {
-    return setPos( pid.sectionID(), pid.subID(), crd, addtoundo );
+    return setPos( pid.subID(), crd, addtoundo );
 }
 
 
-bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
+bool Horizon3D::setPos( const SubID& subid,
 			const Coord3& crd, bool addtoundo )
 {
     const BinID bid = BinID::fromInt64( subid );
@@ -1357,7 +1340,7 @@ bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
 	initNodeArraysSize( inlrg, trcrg );
     }
 
-    return EMObject::setPos( sid, subid, crd, addtoundo );
+    return EMObject::setPos( subid, crd, addtoundo );
 }
 
 
@@ -1377,18 +1360,16 @@ Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
 {}
 
 
-const Geometry::BinIDSurface*
-    Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
+const Geometry::BinIDSurface* Horizon3DGeometry::geometryElement() const
 {
-    return (const Geometry::BinIDSurface*)
-				    SurfaceGeometry::sectionGeometry(sid);
+    return sCast(const Geometry::BinIDSurface*,
+		 SurfaceGeometry::geometryElement());
 }
 
 
-Geometry::BinIDSurface*
-    Horizon3DGeometry::sectionGeometry( const SectionID& sid )
+Geometry::BinIDSurface* Horizon3DGeometry::geometryElement()
 {
-    return (Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
+    return sCast(Geometry::BinIDSurface*,SurfaceGeometry::geometryElement());
 }
 
 
@@ -1416,31 +1397,12 @@ void Horizon3DGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
 	loadedstep_.row() = abs( loadedstep.row() );
 	loadedstep_.col() = abs( loadedstep.col() );
     }
-
-    if ( nrSections() )
-	{ pErrMsg("Hey, this can only be done without sections."); }
 }
 
 
 bool Horizon3DGeometry::isFullResolution() const
 {
     return loadedstep_ == step_;
-}
-
-
-bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtoundo )
-{
-    if ( !sids_.isPresent(sid) ) return false;
-
-    ((Horizon3D&) surface_).auxdata.removeSection( sid );
-    return SurfaceGeometry::removeSection( sid, addtoundo );
-}
-
-
-SectionID Horizon3DGeometry::cloneSection( const SectionID& sid )
-{
-    const SectionID res = SurfaceGeometry::cloneSection(sid);
-    return res;
 }
 
 
@@ -1462,7 +1424,6 @@ bool Horizon3DGeometry::isChecksEnabled() const
 }
 
 
-
 PosID Horizon3DGeometry::getPosID( const TrcKey& trckey ) const
 {
     mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
@@ -1470,7 +1431,7 @@ PosID Horizon3DGeometry::getPosID( const TrcKey& trckey ) const
     if ( trckey.geomSystem() != hor->getSurveyID() )
 	return PosID::udf();
 
-    return PosID( surface_.id(), sectionID(0), trckey.position().toInt64() );
+    return PosID( surface_.id(), trckey.position() );
 }
 
 
@@ -1486,7 +1447,7 @@ TrcKey Horizon3DGeometry::getTrcKey( const PosID& pid ) const
 
 bool Horizon3DGeometry::isNodeOK( const PosID& pid ) const
 {
-    const Geometry::BinIDSurface* surf = sectionGeometry( pid.sectionID() );
+    const Geometry::BinIDSurface* surf = geometryElement();
     return surf ? surf->hasSupport( pid.getRowCol() ) : false;
 }
 
@@ -1522,18 +1483,15 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
     {
 	const RowCol ownrc = aliases[idx].getRowCol();
 	const RowCol neigborrc = ownrc+diff;
-	if ( surface_.isDefined(aliases[idx].sectionID(),
-	     neigborrc.toInt64()) )
+	if ( surface_.isDefined(neigborrc.toInt64()) )
 	{
-	    return PosID( surface_.id(), aliases[idx].sectionID(),
-			  neigborrc.toInt64() );
+	    return PosID( surface_.id(), neigborrc );
 	}
     }
 
     const RowCol ownrc = posid.getRowCol();
     const RowCol neigborrc = ownrc+diff;
-
-    return PosID( surface_.id(), posid.sectionID(), neigborrc.toInt64());
+    return PosID( surface_.id(), neigborrc );
 }
 
 
@@ -1556,40 +1514,37 @@ int Horizon3DGeometry::getConnectedPos( const PosID& posid,
 }
 
 
-Geometry::BinIDSurface* Horizon3DGeometry::createSectionGeometry() const
+Geometry::BinIDSurface* Horizon3DGeometry::createGeometryElement() const
 {
     Geometry::BinIDSurface* res = new Geometry::BinIDSurface( loadedstep_ );
     res->checkSupport( checksupport_ );
-
     return res;
 }
 
 
-void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
-					 DataPointSet& dps, float shift ) const
+void Horizon3DGeometry::getDataPointSet( DataPointSet& dps, float shift ) const
 {
     BinIDValueSet& bidvalset = dps.bivSet();
     bidvalset.setNrVals( 1 );
-    const int nrknots = sectionGeometry(sid)->nrKnots();
+    const int nrknots = geometryElement()->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	const RowCol bid = sectionGeometry( sid )->getKnotRowCol( idx );
-	Coord3 coord = sectionGeometry( sid )->getKnot( bid, false );
+	const RowCol bid = geometryElement()->getKnotRowCol( idx );
+	Coord3 coord = geometryElement()->getKnot( bid, false );
 	bidvalset.add( bid, (float) coord.z + shift );
     }
     dps.dataChanged();
 }
 
 
-bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
-					    Pick::Set& set ) const
+bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
 {
     set.setEmpty();
-    const Geometry::BinIDSurface* surf = sectionGeometry( sid );
+    const Geometry::BinIDSurface* surf = geometryElement();
     if ( !surf ) return false;
 
-    StepInterval<int> rowrg = rowRange( sid );
-    StepInterval<int> colrg = colRange( sid, rowrg.start );
+    StepInterval<int> rowrg = rowRange();
+    StepInterval<int> colrg = colRange( rowrg.start );
     SubID subid; PosID posid;
     bool nodefound = false;
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
@@ -1597,7 +1552,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    subid = RowCol( row, col ).toInt64();
-	    posid = PosID( surface_.id(), sid, subid );
+	    posid = PosID( surface_.id(), subid );
 	    if ( isNodeOK(posid) && isAtEdge(posid) )
 	    {
 		nodefound = true;
@@ -1657,11 +1612,10 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 }
 
 
-void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
-					   BinIDValueSet& bivs,
+void Horizon3DGeometry::fillBinIDValueSet( BinIDValueSet& bivs,
 					   Pos::Provider3D* prov ) const
 {
-    PtrMan<EMObjectIterator> it = createIterator( sid );
+    PtrMan<EMObjectIterator> it = createIterator();
     if ( !it ) return;
 
     while ( true )
@@ -1683,14 +1637,14 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 
 
 EMObjectIterator* Horizon3DGeometry::createIterator(
-			const SectionID& sid, const TrcKeyZSampling* cs) const
+			const TrcKeyZSampling* tkzs ) const
 {
-    if ( !cs )
-	return new RowColIterator( surface_, sid, cs );
+    if ( !tkzs )
+	return new RowColIterator( surface_, tkzs );
 
-    const StepInterval<int> rowrg = cs->hsamp_.inlRange();
-    const StepInterval<int> colrg = cs->hsamp_.crlRange();
-    return new RowColIterator( surface_, sid, rowrg, colrg );
+    const StepInterval<int> rowrg = tkzs->hsamp_.inlRange();
+    const StepInterval<int> colrg = tkzs->hsamp_.crlRange();
+    return new RowColIterator( surface_, rowrg, colrg );
 }
 
 
@@ -1699,6 +1653,7 @@ const char* Horizon3DAscIO::sKeyFormatStr()
 
 const char* Horizon3DAscIO::sKeyAttribFormatStr()
 { return "Horizon3DAttributes"; }
+
 
 Table::FormatDesc* Horizon3DAscIO::getDesc()
 {

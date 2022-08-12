@@ -83,15 +83,14 @@ protected:
 
     const Geometry::FaultStickSet* curfssg_;
 
-    bool			readSection(const SectionID&);
-    bool			readSectionForImport(const SectionID&);
+    bool			readSection();
+    bool			readSectionForImport();
     bool			preferHorPicked() const;
     void			selectSticks( bool selhorpicked );
     void			geometricSort(double zscale,bool forimport);
     void			untwistSticks(double zscale);
     void			resolveUdfNormals();
-    bool			writeSection(const SectionID&) const;
+    bool			writeSection() const;
 };
 
 } // namespace EM
-
