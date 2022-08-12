@@ -765,7 +765,9 @@ mStopAllowDeprecatedSection
     const float* times = zisdepth ? tmparr : zin;
 
     // Get boundary pairs
-    float d[2], t[2], vt[2];
+    float d[2]{mUdf(float),mUdf(float)};
+    float t[2]{mUdf(float),mUdf(float)};
+    float vt[2]{mUdf(float),mUdf(float)};
     for ( int idx=0; idx<2; idx++ )
     {
 	if ( zisdepth )
