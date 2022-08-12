@@ -111,10 +111,17 @@ macro(OD_SETUP_PROJ)
 	    list( APPEND OD_MODULE_EXTERNAL_LIBS "${PROJ_LIBRARIES}" )
 	endif()
 
-	install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
-		 DESTINATION data/CRS )
-	install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
-		 DESTINATION data/CRS )
+	if ( APPLE )
+	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+		     DESTINATION Contents/Resources/data/CRS )
+	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
+		     DESTINATION Contents/Resources/data/CRS )
+	else()
+	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+		     DESTINATION data/CRS )
+	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
+		     DESTINATION data/CRS )
+	endif()
 
     endif( OD_USEPROJ )
 
