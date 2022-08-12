@@ -231,14 +231,13 @@ void StickSetDisplay::updateStickMarkerSet()
 }
 
 
-void StickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
-    Coord3& pos,BufferString& val,
-    BufferString& info) const
+void StickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+    Coord3& pos, BufferString& val, BufferString& info ) const
 {
     info = ""; val = "";
     if ( !fault_ ) return;
 
-    info = faultstickset_ ? "FaultStickSet" : "Fault: ";
+    info = faultstickset_ ? "FaultStickSet: " : "Fault: ";
     info.add( fault_->name() );
 }
 
