@@ -504,7 +504,6 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
     ObjectSet<const Mnemonic> possiblemnemonics;
     if ( nm && *nm )
     {
-	TypeSet<OD::Pair<const Mnemonic*,float>> mnemmatchvals;
 	for ( const auto* mnc : *this )
 	    if (mnc->matches(nm, matchaliases))
 		return mnc;
@@ -723,23 +722,9 @@ bool MnemonicSelection::usePar( const IOPar& iop )
 void MnemonicSelection::getAll( const BufferStringSet& mnnms,
 				MnemonicSelection& ret )
 {
-    MnemonicSelection mnrefsel;
     const MnemonicSelection allmns( nullptr );
     for ( const auto* mnnm : mnnms )
-	mnrefsel.add( allmns.getByName(mnnm->buf(),false) );
-
-    for ( const auto* mn : allmns )
-    {
-	for ( const auto* mnref : mnrefsel )
-	{
-	    if ( mn == mnref )
-	    {
-		ret.add( mn );
-		mnrefsel -= mn;
-		break;
-	    }
-	}
-    }
+	ret.add( allmns.getByName(mnnm->buf(),false) );
 }
 
 

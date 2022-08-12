@@ -302,11 +302,15 @@ const BufferStringSet PropertyRef::aliases() const
 
 PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
 {
-    Mnemonic::StdType st = Mnemonic::undef().stdType();
     BufferString propnm;
     iop.get( sKey::Name(), propnm );
     if ( propnm.isEmpty() )
 	return nullptr;
+
+    Mnemonic::StdType st = Mnemonic::undef().stdType();
+    const BufferString stdtypstr = iop.find( propnm );
+    if ( !stdtypstr.isEmpty() )
+	Mnemonic::parseEnumStdType( stdtypstr, st );
 
     BufferString mn;
     iop.get( Mnemonic::sKeyMnemonic(), mn );
