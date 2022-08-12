@@ -66,11 +66,11 @@ public:
     const char*			type() const		{ return sType(); }
     static Array2DInterpol*	create();
 
-    uiString			infoMsg() const;
+    uiString			infoMsg() const override;
 
     void			setTension(float);
-    bool			usePar(const IOPar&);
-    bool			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&) override;
+    bool			fillPar(IOPar&) const override;
     float			getTension() const { return tension_; }
 
 private:
@@ -94,10 +94,10 @@ public:
     static Array2DInterpol*	create();
 
     void			setRadius(float);
-    uiString			infoMsg() const;
+    uiString			infoMsg() const override;
 
-    bool			usePar(const IOPar&);
-    bool			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&) override;
+    bool			fillPar(IOPar&) const override;
     float			getRadius() const { return radius_; }
 
 private:

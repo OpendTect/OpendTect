@@ -38,24 +38,24 @@ public:
 			TutOpCalculator();
 			~TutOpCalculator();
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
     static const char*	sKeyTypeIndex()		{ return "Type Index"; }
 
 private:
 
-    virtual bool	needsInput() const	{ return true; }
-    virtual bool	needsFullVolume() const { return false; }
+    bool		needsInput() const override	{ return true; }
+    bool		needsFullVolume() const override { return false; }
 
     bool		prepareWork();
-    Task*		createTask();
+    Task*		createTask() override;
 
     void		setStepParameters();
 			//Replaced by virtual functions after 6.2
 
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const
+				const StepInterval<int>&) const override
 			{ return 0; }
 
     BinID		shift_;

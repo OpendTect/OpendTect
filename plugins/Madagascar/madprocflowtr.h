@@ -18,7 +18,7 @@ mExpClass(Madagascar) ODMadProcFlowTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(ODMadProcFlow)
 
-    const char*		defExtension() const		{ return "mpf"; }
+    const char*		defExtension() const override	{ return "mpf"; }
 };
 
 

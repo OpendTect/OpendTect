@@ -22,8 +22,8 @@ public:
 			GMT2DLines( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir) {}
 
-    virtual const char* userRef() const;
-    bool		fillLegendPar(IOPar&) const;
+    const char*		userRef() const override;
+    bool		fillLegendPar(IOPar&) const override;
 
     static void		postText(const Coord&,int fontsz,float angle,
 				 const char* justify,const char* txt,
@@ -47,8 +47,8 @@ public:
 			GMTRandLines( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir) {}
 
-    virtual const char* userRef() const;
-    bool		fillLegendPar(IOPar&) const;
+    const char*		userRef() const override;
+    bool		fillLegendPar(IOPar&) const override;
 
 protected:
 

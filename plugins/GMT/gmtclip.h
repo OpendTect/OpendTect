@@ -24,9 +24,9 @@ public:
 			GMTClip( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir) {}
 
-    virtual const char* userRef() const;
+    const char*		userRef() const override;
     bool		isStart() const;
-    bool		fillLegendPar(IOPar&) const;
+    bool		fillLegendPar(IOPar&) const override;
 
 protected:
 

@@ -18,7 +18,7 @@ mExpClass(GMT) ODGMTProcFlowTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(ODGMTProcFlow)
 
-    const char*		defExtension() const		{ return "gmf"; }
+    const char*		defExtension() const override	{ return "gmf"; }
 };
 
 

@@ -266,8 +266,8 @@ public:
     uiKeyBindingSettingsGroup(uiParent*,Settings&);
 
 private:
-    bool		acceptOK();
-    virtual HelpKey	helpKey() const;
+    bool		acceptOK() override;
+    HelpKey		helpKey() const override;
 
     uiGenInput*		keybindingfld_;
     uiGenInput*		wheeldirectionfld_;

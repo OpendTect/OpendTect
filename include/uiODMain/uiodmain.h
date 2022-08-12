@@ -139,7 +139,7 @@ private:
     void		checkUpdateAvailable();
     void		updateStatusCB(CallBacker*);
     uiString		getProgramString() const;
-    void		translateText();
+    void		translateText() override;
 
 public:
 

@@ -22,7 +22,7 @@ public:
 			GMTBaseMap( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir) {}
 
-    virtual const char* userRef() const			{ return 0; }
+    const char*		userRef() const override		{ return 0; }
 
 protected:
 
@@ -42,7 +42,7 @@ public:
 			GMTLegend( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir)	{}
 
-    virtual const char* userRef() const			{ return 0; }
+    const char*		userRef() const override		{ return 0; }
 
 protected:
 
@@ -62,7 +62,7 @@ public:
 			GMTCommand( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir) {}
 
-    virtual const char* userRef() const;
+    const char*		userRef() const override;
 
 protected:
 

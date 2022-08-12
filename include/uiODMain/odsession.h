@@ -83,7 +83,7 @@ mExpClass(uiODMain) ODSessionTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODSession)
 public:
 			mDefEmptyTranslatorGroupConstructor(ODSession)
-    const char*		defExtension() const		{ return "sess"; }
+    const char*		defExtension() const override	{ return "sess"; }
 };
 
 
@@ -112,11 +112,11 @@ mExpClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
 public:
 			mDefEmptyTranslatorConstructor(dgb,ODSession)
 
-    const char*		read(ODSession&,Conn&);
+    const char*		read(ODSession&,Conn&) override;
 			//!< returns err msg or null on success
-    const char*		write( const ODSession&,Conn&);
+    const char*		write( const ODSession&,Conn&) override;
 			//!< returns err msg or null on success
-    const char*		warningMsg() const	{ return warningmsg; }
+    const char*		warningMsg() const override	{ return warningmsg; }
 
     BufferString	warningmsg;
 

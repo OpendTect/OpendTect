@@ -39,7 +39,7 @@ private:
 				uiTutOpCalculator(uiParent*,TutOpCalculator*);
     static uiStepDialog*	createInstance(uiParent*,Step*,bool);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			typeSel(CallBacker*);
 
     TutOpCalculator*		opcalc_;

@@ -29,7 +29,8 @@ mExpClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
 public:
 				mDefEmptyTranslatorGroupConstructor(EMStickSet)
 
-    const char*			defExtension() const { return "stickset"; }
+    const char*			defExtension() const override
+    				{ return "stickset"; }
 
     static const char*		keyword;
 };

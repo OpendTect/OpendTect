@@ -102,8 +102,8 @@ public:
 				toUiString(sFactoryKeyword()))
 
 			uiHorizonSettings(uiParent*,Settings&);
-    bool		acceptOK();
-    HelpKey		helpKey() const;
+    bool		acceptOK() override;
+    HelpKey		helpKey() const override;
 
 protected:
 
