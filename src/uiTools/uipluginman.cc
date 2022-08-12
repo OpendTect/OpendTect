@@ -170,10 +170,23 @@ void uiPluginMan::fillList()
     pluginview_->setEmpty();
 
     const ObjectSet<PluginManager::Data>& lst = PIM().getData();
-    PluginProduct* notloaded = new PluginProduct( "Not loaded" );
+    auto* notloaded = new PluginProduct( "Not loaded" );
     ObjectSet<PluginProduct> productlist;
     productlist.add( new PluginProduct("OpendTect") );
+    productlist.add( new PluginProduct("OpendTect Pro") );
     productlist[0]->iconnm_ = "opendtect";
+
+    BufferStringSet productnms;
+    for ( auto* pmdata : lst )
+    {
+	if ( pmdata->info_ && pmdata->isloaded_ )
+	    productnms.add( pmdata->info_->productname_ );
+    }
+
+    productnms.sort();
+    for ( auto* nm : productnms )
+	getProductIndex( productlist, nm->buf(), true );
+
     for ( int idx=0; idx<lst.size(); idx++ )
     {
 	const PluginManager::Data& data = *lst[idx];
