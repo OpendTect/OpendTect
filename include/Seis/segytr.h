@@ -65,9 +65,6 @@ public:
     bool		implRemove( const IOObj*, bool ) const override
 			{ return true; }
 
-    bool		implManagesObjects( const IOObj* ) const override
-			{ return true; }
-
     void		cleanUp() override;
 
     void		setIs2D(bool yn) override;

@@ -40,8 +40,6 @@ public:
     bool		implRemove() const override;
     bool		implSetReadOnly(bool) const override;
     bool		implRename(const char*) override;
-    bool		implManagesObjects() const override
-			    { return false; }
 
     bool		isMultiConn() const	{ return isMulti(); }
     int			curConnIdx() const	{ return curfidx_; }

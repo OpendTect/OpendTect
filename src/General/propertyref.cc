@@ -704,6 +704,8 @@ void PropertyRefSet::readFrom( ascistream& astrm, Repos::Source src )
 	const BufferString propnm( astrm.keyWord() );
 	IOPar iop;
 	iop.getFrom(astrm);
+	BufferStringSet keys;
+	iop.getKeys( keys );
 	if ( !iop.hasKey(sKey::Name()) )
 	    iop.set( sKey::Name(), propnm );
 

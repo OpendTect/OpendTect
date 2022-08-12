@@ -81,7 +81,6 @@ public:
     virtual bool		implExists(bool forread) const	= 0;
     virtual bool		implReadOnly() const		{ return true; }
     virtual bool		implRemove() const		{ return false;}
-    virtual bool		implManagesObjects() const	{ return false;}
     virtual bool		implRename(const char*)		{ return false;}
     virtual bool		implSetReadOnly(bool) const	{ return false;}
 

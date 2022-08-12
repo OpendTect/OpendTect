@@ -29,7 +29,6 @@ public:
     const char*		dirName() const override;
 
     bool		implExists(bool) const override;
-    bool		implManagesObjects() const override	{ return true; }
 
     const char*		connType() const override;
     Conn*		getConn(bool) const override;

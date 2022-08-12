@@ -28,7 +28,6 @@ public:
     bool	implExists(bool) const override { return !isbad_; }
     bool	implReadOnly() const override	{ return false; }
     bool	implRemove() const override	{ return false; }
-    bool	implManagesObjects() const override	{ return true; }
     bool	implRename(const char*) override	{ return false; }
     bool	implSetReadOnly(bool) const override	{ return false; }
 

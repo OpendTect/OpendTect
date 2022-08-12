@@ -191,8 +191,6 @@ public:
     static uiString		sBadConnection();
     uiString			sSelObjectIsWrongType();
 
-    virtual bool		implManagesObjects(const IOObj*) const
-				{ return false; }
 };
 
 
