@@ -33,8 +33,7 @@ if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
 endif()
 
 if ( APPLE )
-    set( SYSTEMLIBS libfontconfig.1.dylib libfreetype.6.dylib
-		    libpng16.16.dylib libproj.14.dylib )
+    set( SYSTEMLIBS libfontconfig.1.dylib libfreetype.6.dylib libpng16.16.dylib )
     set( OPENSSLLIBS libcrypto.1.1.dylib libssl.1.1.dylib )
 endif()
 
