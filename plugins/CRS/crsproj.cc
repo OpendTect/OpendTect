@@ -154,7 +154,7 @@ public:
     bool		isLatLong() const override;
     bool		isMeter() const override;
 
-    Coords::AuthorityCode	getGeodeticAuthCode() const;
+    Coords::AuthorityCode	getGeodeticAuthCode() const override;
 
     BufferString	getProjDispString() const override;
     BufferString	getGeodeticProjDispString() const override;

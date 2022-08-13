@@ -28,7 +28,7 @@ public:
 
 private:
 
-    const char*		fileName() const	{ return gtFileName(); }
+    const char*		fileName() const override { return gtFileName(); }
     void		openFile(const char*,uiRetVal&,bool) override;
     void		closeFile() override		{ doCloseFile(*this); }
 

@@ -39,7 +39,7 @@ public:
 			uiProjectionBasedSystem(uiParent*,bool orthogonal);
 			~uiProjectionBasedSystem();
 
-    virtual bool	initFields(const CoordSystem*);
+    bool		initFields(const CoordSystem*) override;
 
 protected:
 
@@ -55,7 +55,7 @@ protected:
     TypeSet<int>		dispidxs_;
 				// Indexes of ids_/names_ displayed in ListBox.
 
-    bool		acceptOK();
+    bool		acceptOK() override;
     void		createGUI();
     void		fetchList();
     void		fillList();

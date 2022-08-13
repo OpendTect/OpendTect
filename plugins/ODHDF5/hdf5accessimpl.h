@@ -87,8 +87,8 @@ public:
     mDefaultFactoryInstantiation( AccessProvider, AccessProviderImpl,
 			"OD", toUiString("OD") );
 
-    virtual Reader*	getReader() const;
-    virtual Writer*	getWriter() const;
+    Reader*		getReader() const override;
+    Writer*		getWriter() const override;
 
     static void		initHDF5(); //!< class initClass()
 

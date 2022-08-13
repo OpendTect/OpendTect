@@ -45,8 +45,8 @@ public:
     static const char*	usetfpanelStr()		{ return "usetfpanel"; }
     static const char*	transMethodNamesStr(int);
     static const char*	transOutputNamesStr(int);
-    void		getCompNames( BufferStringSet& nms ) const;
-    bool		prepPriorToOutputSetup();
+    void		getCompNames(BufferStringSet& nms) const override;
+    bool		prepPriorToOutputSetup() override;
 
 protected:
 			~CEEMD();
@@ -72,13 +72,13 @@ protected:
 			// use synthetic trace in ceemdtestprogram.h
     bool		usetestdata_;
     bool		usetfpanel_; // if panel is pressed use 0 to Nyquist
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int zintv);
+    bool		getInputOutput(int input,TypeSet<int>&) const override;
+    bool		getInputData(const BinID&,int zintv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-			    int z0,int nrsamples,int threadid) const;
-    const Interval<float>* reqZMargin(int input,int output) const
-			   {return &gate_;}
-    const Interval<int>* desZSampMargin(int input,int output) const
+			    int z0,int nrsamples,int threadid) const override;
+    const Interval<float>* reqZMargin(int input,int output) const override
+			   { return &gate_; }
+    const Interval<int>* desZSampMargin(int input,int output) const override
 			 { return &dessampgate_; }
 
     Interval<float>	gate_;
