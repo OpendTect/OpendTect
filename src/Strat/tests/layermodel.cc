@@ -51,6 +51,7 @@ public:
 	: val_(v)
     {
 	layervalalloc_++;
+	val_ += 0.f;
     }
     ~TestLayerValue()
     {

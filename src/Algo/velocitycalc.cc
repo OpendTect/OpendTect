@@ -118,7 +118,7 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
 	float* res )
 {
     const double t0_2 = t0*t0;
-    const double v2 = Vrms*Vrms;
+    const double v2 = (double)Vrms * (double)Vrms;
 
     if ( mIsUdf(effectiveanisotropy) )
 	effectiveanisotropy = 0;
