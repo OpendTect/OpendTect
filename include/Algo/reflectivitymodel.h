@@ -187,6 +187,10 @@ public:
 
     bool		isAngleDomain() const override	{ return true; }
 
+    static const char* sKeyMeanRhob();
+    static const char* sKeyMeanVp();
+    static const char* sKeyMeanVs();
+
 private:
     double		azimuth_;
     double		a0_;

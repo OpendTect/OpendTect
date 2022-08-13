@@ -14,6 +14,14 @@
 #include "typeset.h"
 
 
+const char* AngleReflectivityModel::sKeyMeanRhob() 
+{ return "Mean density"; }
+const char* AngleReflectivityModel::sKeyMeanVp()
+{ return "Mean Vp"; }
+const char* AngleReflectivityModel::sKeyMeanVs()
+{ return "Mean Vs"; }
+
+
 // ReflectivityModelTrace
 
 ReflectivityModelTrace::ReflectivityModelTrace( int nrspikes )
@@ -275,7 +283,10 @@ OffsetReflectivityModel::OffsetReflectivityModel(
 void AngleReflectivityModel::Setup::fillPar( IOPar& iop ) const
 {
     ReflectivityModelBase::Setup::fillPar( iop );
-    //TODO
+    iop.set( sKey::Azimuth(), azimuth_ );
+    iop.set( sKeyMeanRhob(), d0_ );
+    iop.set( sKeyMeanVp(), a0_ );
+    iop.set( sKeyMeanVs(), b0_ );
 }
 
 
@@ -283,7 +294,12 @@ bool AngleReflectivityModel::Setup::usePar( const IOPar& iop )
 {
     if ( !ReflectivityModelBase::Setup::usePar(iop) )
 	return false;
-    //TODO
+
+    iop.get(sKey::Azimuth(), azimuth_);
+    iop.get( sKeyMeanRhob(), d0_ );
+    iop.get( sKeyMeanVp(), a0_ );
+    iop.get( sKeyMeanVs(), b0_ );
+
     return true;
 }
 
