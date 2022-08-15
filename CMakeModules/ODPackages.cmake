@@ -61,12 +61,12 @@ endmacro()
 
 macro( OD_ADD_SIGNLIBRARIES_TARGET )
     if ( WIN32 )
-	set( SIGNSCRIPTPATH "${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/sign_binaries_win64.cmd" )
 	set( EXECPLFDIR "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
 	file( TO_NATIVE_PATH "${EXECPLFDIR}" EXECPLFDIR )
-	add_custom_target( signlibraries "${SIGNSCRIPTPATH}" "${EXECPLFDIR}"
-			   USES_TERMINAL
-			   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../"
+	add_custom_target( signlibraries "${SIGN_SCRIPT_LOCATION}" "${EXECPLFDIR}"
 			   COMMENT "Signing DLLs and EXEs" )
+    elseif ( APPLE )
+	add_custom_target( signlibraries "${SIGN_SCRIPT_LOCATION}" "${CMAKE_INSTALL_PREFIX}"
+			   COMMENT "Signing Libraries and EXEs" )
     endif()
 endmacro()
