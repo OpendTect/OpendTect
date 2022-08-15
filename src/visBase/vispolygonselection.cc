@@ -407,4 +407,4 @@ bool PolygonCoord3Selector::isEq( const Selector<Coord3>& comp ) const
 }
 
 
-}; // namespace visBase
+} // namespace visBase

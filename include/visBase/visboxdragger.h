@@ -110,5 +110,4 @@ protected:
     bool				useindepthtransforresize_;
 };
 
-};
-
+} // namespace visBase

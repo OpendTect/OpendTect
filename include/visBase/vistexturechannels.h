@@ -140,6 +140,4 @@ public:
     StepInterval<float>		getEnvelopeRange(unsigned char dim) const;
 };
 
-
-}; // Namespace
-
+} // namespace visBase

@@ -43,12 +43,10 @@ public:
 protected:
     void		removeInline( int lineidx );
 
-    TypeSet<int>			inlines_;	
+    TypeSet<int>			inlines_;
     ObjectSet<ObjectSet<DataHolder> >	inlinedata_;
     ObjectSet<TypeSet<int> >		crossliness_;
     DataHolder*		gtDataHolder(const BinID&) const;
 };
 
-}; //Namespace
-
-
+} // namespace Attrib

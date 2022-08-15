@@ -106,5 +106,5 @@ private:
     Camera*		camera_;
 };
 
-}
+} // namespace visBase
 

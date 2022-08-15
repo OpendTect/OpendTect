@@ -59,5 +59,5 @@ mStartDeclCmdClass( uiCmdDriver, Return, StealthCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, Call, StealthCmd )		mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, End, StealthCmd )		mEndDeclCmdClass
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 

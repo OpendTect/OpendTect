@@ -105,4 +105,4 @@ void DescSetMan::fillHist()
     }
 }
 
-}; // namespace Attrib
+} // namespace Attrib

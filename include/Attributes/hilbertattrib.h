@@ -54,5 +54,5 @@ protected:
     const float*		hilbfilter_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

@@ -117,5 +117,5 @@ protected:
     enum Status        { Nada, StorageOpened, Ready } status_ = Nada;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

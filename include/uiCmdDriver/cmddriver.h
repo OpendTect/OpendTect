@@ -329,6 +329,6 @@ public:
 };
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 
 

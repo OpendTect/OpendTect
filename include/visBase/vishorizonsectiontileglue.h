@@ -61,5 +61,4 @@ protected:
     void			setNrTexCoordLayers(int);
 };
 
-}
-
+} // namespace visBase

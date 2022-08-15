@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include <QEventLoop>
 #include <QTcpSocket>
 
-using namespace Network;
-
 #ifdef __win__
 # include <iphlpapi.h>
 # pragma comment( lib, "iphlpapi" )
@@ -695,4 +693,4 @@ bool isPortFree( PortNr_Type port, uiString* errmsg )
 #undef FREE
 #endif
 
-}; //Network
+} // namespace Network

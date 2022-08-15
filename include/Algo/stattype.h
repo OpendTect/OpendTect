@@ -53,6 +53,6 @@ inline UpscaleType upscaleTypeFor( Type st )
 }
 
 
-}; // namespace Stats
+} // namespace Stats
 
 

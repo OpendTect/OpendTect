@@ -361,4 +361,4 @@ void uiCmdDriverMgr::runScriptCB( CallBacker* )
 }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

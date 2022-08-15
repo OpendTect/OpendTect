@@ -19,24 +19,23 @@ ________________________________________________________________________
 class SoNode;
 class BufferString;
 
-namespace visBase { class DataObject; class EventInfo; }
-
-namespace osg { class Switch; class Node; }
+namespace osg { class Node; class StateSet; class Switch; }
 namespace osgViewer { class CompositeViewer; }
 
 
 #define mVisTrans visBase::Transformation
 
-namespace osg { class Switch; class StateSet; }
 namespace visBase
 {
 
-class Transformation;
-class SelectionManager;
 class DataManager;
-class Scene;
+class DataObject;
 class DataObjectGroup;
+class EventInfo;
 class NodeState;
+class Scene;
+class SelectionManager;
+class Transformation;
 
 
 // OSG traversal bitmasks defined by OpendTect
@@ -211,7 +210,7 @@ private:
     static osgViewer::CompositeViewer*	commonviewer_;
 };
 
-};
+} // namespace visBase
 
 #define mCreateDataObj(clss)					\
 {								\

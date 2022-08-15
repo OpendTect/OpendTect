@@ -579,4 +579,4 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 }
 
 
-}; // namespace visSurvey
+} // namespace visSurvey

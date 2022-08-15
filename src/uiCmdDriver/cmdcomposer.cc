@@ -345,4 +345,4 @@ void CmdComposer::testCB(CallBacker*)
 { uiMSG().about(tr("CmdComposer test-callback handler")); }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

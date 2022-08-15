@@ -132,5 +132,5 @@ mLockerClassImpl( visBase, VisualReadLockLocker, VisualObjectImpl,
 		  readLock(), readUnLock(), tryReadLock() )
 mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
-};
 
+} // namespace visBase

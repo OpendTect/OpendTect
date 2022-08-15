@@ -299,5 +299,5 @@ namespace Attrib
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0};
 
-}; // namespace Attrib
+} // namespace Attrib
 

@@ -622,4 +622,4 @@ void DepthTabPlaneDragger::setDragCtrlSpacing( const StepInterval<float>& x,
 }
 
 
-}; // namespace visBase
+} // namespace visBase

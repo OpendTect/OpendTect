@@ -280,5 +280,5 @@ inline const NodeUnitRef* UnitRef::topNode() const
 { return upnode_ ? upnode_->topNode() : (NodeUnitRef*)this; }
 
 
-}; // namespace Strat
+} // namespace Strat
 

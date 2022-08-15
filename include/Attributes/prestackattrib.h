@@ -140,5 +140,5 @@ private:
     void			setGatherIsAngle(PreStack::Gather&);
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

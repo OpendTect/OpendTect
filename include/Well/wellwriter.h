@@ -74,7 +74,7 @@ private:
 };
 
 
-}; // namespace Well
+} // namespace Well
 
 
 mExpClass(Well) MultiWellWriter : public Executor

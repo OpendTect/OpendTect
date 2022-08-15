@@ -127,4 +127,4 @@ void DrawStyle::setPixelDensity( float dpi )
 	setPointSize( getPointSize() );
 }
 
-}; // namespace visBase
+} // namespace visBase

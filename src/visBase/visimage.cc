@@ -158,7 +158,4 @@ Color RGBImage::get(int idx, int idy ) const
     return res;
 }
 
-
-
-
-}; // namespace visBase
+} // namespace visBase

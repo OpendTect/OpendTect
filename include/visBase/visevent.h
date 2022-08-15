@@ -131,6 +131,4 @@ protected:
     Timer*			eventreleasetimer_;
 };
 
-}; // Namespace
-
-
+} // namespace visBase

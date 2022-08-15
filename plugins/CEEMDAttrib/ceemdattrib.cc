@@ -332,4 +332,4 @@ void CEEMD::getFirstAndLastOutEnabled( int& first, int& last ) const
 	}
 }
 
-}; // namespace Attrib
+} // namespace Attrib

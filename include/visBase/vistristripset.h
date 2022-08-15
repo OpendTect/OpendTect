@@ -23,6 +23,5 @@ public:
     static TriangleStripSet*	create()
 				mCreateDataObj( TriangleStripSet );
 };
-};
 
-
+} // namespace visBase

@@ -530,4 +530,4 @@ const OD::Color& Dragger::getArrowColor() const
 { return arrowcolor_; }
 
 
-}; // namespace visBase
+} // namespace visBase

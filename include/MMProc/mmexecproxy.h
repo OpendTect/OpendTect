@@ -41,6 +41,6 @@ protected:
 };
 
 
-}; // namespace MMProc
+} // namespace MMProc
 
 

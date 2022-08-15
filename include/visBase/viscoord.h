@@ -158,5 +158,5 @@ protected:
 
 };
 
-};
+} // namespace visBase
 

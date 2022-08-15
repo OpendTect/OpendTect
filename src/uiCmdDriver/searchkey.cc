@@ -236,4 +236,4 @@ const BufferString* WildcardManager::wildcardStr( int idx ) const
 { return idx<0 || idx>=wildcardstrings_.size() ? 0 : wildcardstrings_[idx]; }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

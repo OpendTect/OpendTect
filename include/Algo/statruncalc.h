@@ -918,5 +918,5 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 
 #undef mRunCalc_ChkEmpty
 
-}; // namespace Stats
+} // namespace Stats
 

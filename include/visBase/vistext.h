@@ -121,6 +121,4 @@ protected:
     const mVisTrans*		displaytransform_;
 };
 
-
-}; // Namespace
-
+} // namespace visBase

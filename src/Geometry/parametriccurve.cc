@@ -46,7 +46,7 @@ class CurveSqDistanceFunction : public FloatMathFunction
 public:
     			CurveSqDistanceFunction( const ParametricCurve& pc,
 						 const Coord3& ppos )
-			   : curve( pc ) 
+			   : curve( pc )
 			   , pos( ppos )
 		       {}
 
@@ -82,7 +82,7 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start), 
+    const Interval<float> limits( mCast(float,prange.start),
 					    mCast(float,prange.stop) );
     ExtremeFinder1D finder( mfunc, false, 20, eps,
 	    		    Interval<float>(mMAX(p-prange.step,prange.start),
@@ -120,7 +120,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start), 
+    const Interval<float> limits( mCast(float,prange.start),
 						mCast(float,prange.stop) );
     for ( int idx=0; idx<20; idx++ )
     {
@@ -162,4 +162,4 @@ void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids, bool remudf ) const
 }
 
 
-}; //Namespace
+} // namespace Geometry

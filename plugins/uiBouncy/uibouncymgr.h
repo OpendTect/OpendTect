@@ -57,5 +57,5 @@ protected:
 
 };
 
-}; // namespace
+} // namespace
 

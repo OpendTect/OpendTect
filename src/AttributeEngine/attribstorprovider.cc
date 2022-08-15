@@ -1025,4 +1025,4 @@ BinID StorageProvider::getElementStepoutStoredSpecial() const
 }
 
 
-}; // namespace Attrib
+} // namespace Attrib

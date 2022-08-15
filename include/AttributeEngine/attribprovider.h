@@ -409,7 +409,7 @@ public:
 mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
 #define mAttrDefCreateInstance(clss) \

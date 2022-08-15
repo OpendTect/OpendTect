@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "wellmarker.h"
 #include "welltrack.h"
 
-using namespace Well;
+namespace Well
+{
 
 // WellDataFilter
 WellDataFilter::WellDataFilter( const ObjectSet<Well::Data>& wds )
@@ -574,3 +575,5 @@ void WellDataFilter::getWellsOfType( const OD::WellType wt,
 	    wellnms.add( wd->name() );
     }
 }
+
+} // namespace Well

@@ -125,6 +125,6 @@ protected:
 			      || selcols_.isPresent(colnr_); }
 };
 
-}; // namespace Table
+} // namespace Table
 
 

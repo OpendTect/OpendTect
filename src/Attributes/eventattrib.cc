@@ -450,4 +450,4 @@ bool Event::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-}; // namespace Attrib
+} // namespace Attrib

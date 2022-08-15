@@ -11,7 +11,7 @@ ___________________________________________________________________
 
 #include "geeditor.h"
 
-namespace Geometry 
+namespace Geometry
 {
 
 
@@ -80,4 +80,4 @@ bool ElementEditor::setDirection( GeomPosID, const Coord3& )
 
 
 
-}; //Namespace
+} // namespace Geometry

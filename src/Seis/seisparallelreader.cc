@@ -326,7 +326,7 @@ protected:
 
 };
 
-}; // namespace Seis
+} // namespace Seis
 
 
 

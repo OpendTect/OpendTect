@@ -161,4 +161,4 @@ void Element::triggerNrPosCh()
     ischanged_ = true;
 }
 
-}; //Namespace
+} // namespace Geometry

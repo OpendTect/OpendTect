@@ -135,4 +135,4 @@ bool CanvasMenuCmdComposer::accept( const CmdRecEvent& ev )
 }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

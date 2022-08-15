@@ -81,5 +81,5 @@ private:
     float			calcEnvWeighted(int,int,bool isphase) const;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

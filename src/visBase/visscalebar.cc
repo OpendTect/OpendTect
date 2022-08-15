@@ -26,6 +26,7 @@ mCreateFactoryEntry( visBase::ScaleBar );
 
 namespace visBase
 {
+
 ScaleBar::ScaleBar()
     : visBase::VisualObjectImpl(true)
     , displaytrans_(0)
@@ -193,4 +194,4 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 	displaytrans_->ref();
 }
 
-}
+} // namespace visBase

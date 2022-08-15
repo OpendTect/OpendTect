@@ -160,4 +160,4 @@ void Camera::getLookAtMatrix( Coord3& eye, Coord3& center, Coord3& up ) const
 }
 
 
-}; // namespace visBase
+} // namespace visBase

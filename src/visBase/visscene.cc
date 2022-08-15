@@ -360,4 +360,4 @@ void Scene::fillOffsetPar( IOPar& par ) const
     par.mergeComp( offsetpar, sKeyOffset() );
 }
 
-}; // namespace visBase
+} // namespace visBase

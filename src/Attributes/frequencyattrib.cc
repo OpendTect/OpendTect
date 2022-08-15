@@ -415,4 +415,4 @@ bool Frequency::checkInpAndParsAtStart()
 	return window_ && window_->isOK() && Provider::checkInpAndParsAtStart();
 }
 
-}; // namespace Attrib
+} // namespace Attrib

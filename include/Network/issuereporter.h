@@ -49,13 +49,9 @@ protected:
     BufferString		path_;
     uiString			errmsg_;
     BufferString		report_;
-    BufferString                crashreportpath_;
+    BufferString		crashreportpath_;
     uiString			message_;
     bool			isbinary_;
 };
 
-
-
-
-} //Namespace
-
+} // namespace System

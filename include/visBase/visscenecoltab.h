@@ -76,6 +76,4 @@ protected:
     int			fontsize_;
 };
 
-} // class visBase
-
-
+} // namespace visBase

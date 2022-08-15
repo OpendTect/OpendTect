@@ -759,4 +759,4 @@ void uiViewer3DMgr::surveyToBeChangedCB( CallBacker* )
     deepUnRef( viewers3d_ );
 }
 
-}; // Namespace
+} // namespace PreStackView

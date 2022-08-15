@@ -265,6 +265,6 @@ public:
 			}
 };
 
-}; // namespace Table
+} // namespace Table
 
 

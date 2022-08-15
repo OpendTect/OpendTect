@@ -159,4 +159,4 @@ void ValParam::fillDefStr( BufferString& res ) const
     res += val;
 }
 
-}; // namespace Attrib
+} // namespace Attrib

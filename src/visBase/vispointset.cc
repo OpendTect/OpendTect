@@ -97,5 +97,4 @@ void PointSet::clear()
     getMaterial()->clear();
 }
 
-};
-// namespace visBase
+} // namespace visBase

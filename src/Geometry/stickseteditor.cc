@@ -13,7 +13,7 @@ ___________________________________________________________________
 
 #include "faultstickset.h"
 
-namespace Geometry 
+namespace Geometry
 {
 
 
@@ -44,7 +44,7 @@ Coord3 StickSetEditor::translation2DNormal( GeomPosID gpid ) const
 
 void StickSetEditor::addedKnots(CallBacker*)
 { editpositionchange.trigger(); }
-    
 
-    
-}; //Namespace
+
+
+} // namespace Geometry

@@ -169,4 +169,4 @@ void DataObjectGroup::removeAll()
 	removeObject( 0 );
 }
 
-}; // namespace visBase
+} // namespace visBase

@@ -19,7 +19,8 @@ class MnemonicSelection;
 template <class T> class Array2D;
 
 
-namespace Well {
+namespace Well
+{
 
 mExpClass(Well) WellDataFilter
 {
@@ -98,4 +99,4 @@ private:
     const ObjectSet<Well::Data>&	allwds_;
 };
 
-}; // namespace Well
+} // namespace Well

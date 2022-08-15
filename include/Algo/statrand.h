@@ -157,6 +157,6 @@ inline void Stats::RandGen::subselect( ODSET& ods, od_int64 targetsz ) const
     removeRange( ods, (size_type)targetsz, sz-1 );
 }
 
-}; // namespace Stats
+} // namespace Stats
 
 

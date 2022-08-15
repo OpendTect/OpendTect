@@ -360,4 +360,4 @@ void OsgFontCreator::setCreator( OsgFontCreator* cr)
 }
 
 
-}; // namespace visBase
+} // namespace visBase

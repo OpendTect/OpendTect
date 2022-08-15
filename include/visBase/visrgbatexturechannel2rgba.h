@@ -61,7 +61,4 @@ protected:
     osgGeo::RGBALayerProcess*	proc_;
 };
 
-
-}; //namespace
-
-
+} // namespace visBase

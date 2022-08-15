@@ -18,10 +18,8 @@ ________________________________________________________________________
 #include "viscoord.h"
 
 
-
 namespace visBase
 {
-
 
 mExpClass(visBase) TextureCoords : public DataObject
 {
@@ -81,5 +79,4 @@ protected:
     TextureCoords&	texturecoords_;
 };
 
-}; //namespace
-
+} // namespace visBase

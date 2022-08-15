@@ -50,5 +50,5 @@ protected:
 };
 
 
-}; // namespace visBase
+} // namespace visBase
 

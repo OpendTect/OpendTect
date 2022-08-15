@@ -315,4 +315,4 @@ bool QFileDlgCmdComposer::accept( const CmdRecEvent& ev )
 }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

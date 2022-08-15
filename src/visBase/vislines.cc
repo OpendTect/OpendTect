@@ -19,4 +19,4 @@ Lines::Lines()
     : VertexShape(Geometry::PrimitiveSet::Lines,true)
 {}
 
-} // namspace visBase
+} // namespace visBase

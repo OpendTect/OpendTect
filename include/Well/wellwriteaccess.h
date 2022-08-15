@@ -56,6 +56,6 @@ protected:
 
 };
 
-}; // namespace Well
+} // namespace Well
 
 

@@ -97,6 +97,6 @@ protected:
     int			imagidx_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 

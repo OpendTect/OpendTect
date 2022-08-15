@@ -529,4 +529,4 @@ inline void PacketInterpreter::getBytes( void* ptr, int nrbytes ) const
 inline bool PacketInterpreter::atEndOfPkt() const
 { return curpos_ >= pkt_.payloadSize(); }
 
-}; //Namespace Network
+} // namespace Network

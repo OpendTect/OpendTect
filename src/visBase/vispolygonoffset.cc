@@ -64,4 +64,4 @@ void PolygonOffset::setMode( unsigned int modevalue )
     mode_ =  modevalue;
 }
 
-}; //namespace
+} // namespace visBase

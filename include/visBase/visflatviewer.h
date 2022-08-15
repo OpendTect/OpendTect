@@ -81,6 +81,4 @@ protected:
     Coord3		       c00_, c01_, c10_, c11_;
 };
 
-}; // Namespace
-
-
+} // namespace visBase

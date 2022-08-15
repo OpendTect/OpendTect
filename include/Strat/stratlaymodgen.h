@@ -53,5 +53,5 @@ private:
 };
 
 
-}; // namespace Strat
+} // namespace Strat
 

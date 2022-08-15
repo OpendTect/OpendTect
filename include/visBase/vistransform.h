@@ -124,5 +124,5 @@ private:
     osg::Quat&		curso_;
 };
 
-}
+} // namespace visBase
 

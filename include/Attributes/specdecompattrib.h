@@ -113,6 +113,6 @@ protected:
     const DataHolder*			imdata_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 

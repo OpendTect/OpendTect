@@ -485,4 +485,4 @@ void Material::clear()
 }
 
 
-}; // namespace visBase
+} // namespace visBase

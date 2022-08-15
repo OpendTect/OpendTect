@@ -412,4 +412,4 @@ void ExplPolygonSurface::updateGeometries()
     }
 }
 
-}; // namespace Geometry
+} // namespace Geometry

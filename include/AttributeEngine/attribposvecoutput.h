@@ -59,5 +59,5 @@ protected:
     int				nextStep() override;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

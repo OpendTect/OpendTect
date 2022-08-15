@@ -37,7 +37,7 @@ protected:
 
 };
 
-}; // namespace MPE
+} // namespace MPE
 
 
 typedef MPE::Setup MPESetup;

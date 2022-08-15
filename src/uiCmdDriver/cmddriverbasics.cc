@@ -810,4 +810,4 @@ const ObjectSet<uiBaseObject>* UIEntity::childList() const
 { return uiobj_ ? uiobj_->childList() : 0; }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

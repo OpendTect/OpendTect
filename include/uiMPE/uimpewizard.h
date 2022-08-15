@@ -121,5 +121,5 @@ protected:
 private:
 };
 
-}; // namespace MPE
+} // namespace MPE
 

@@ -681,4 +681,4 @@ void EventCatcher::releaseEventsCB( CallBacker* )
 }
 
 
-}; // namespace visBase
+} // namespace visBase

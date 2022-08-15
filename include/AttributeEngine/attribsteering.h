@@ -21,6 +21,4 @@ mGlobal(AttributeEngine) BinID getSteeringPosition( int );
 mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
 
 
-}; //Namespace
-
-
+} // namespace Attrib

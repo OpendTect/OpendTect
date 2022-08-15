@@ -189,4 +189,4 @@ const Interval<float>* Shift::desZMargin( int inp, int ) const
     return &desinterval_;
 }
 
-}; // namespace Attrib
+} // namespace Attrib

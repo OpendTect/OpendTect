@@ -301,4 +301,4 @@ const TypeSet<VisID>* VisualObject::rightClickedPath() const
     return rcevinfo ? &rcevinfo->pickedobjids : 0;
 }
 
-}; //namespace
+} // namespace visBase

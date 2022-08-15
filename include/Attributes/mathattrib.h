@@ -62,5 +62,5 @@ private:
 
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

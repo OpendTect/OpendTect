@@ -111,5 +111,5 @@ protected:
 };
 
 
-}; // namespace Strat
+} // namespace Strat
 

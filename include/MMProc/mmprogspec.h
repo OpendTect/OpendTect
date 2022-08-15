@@ -66,6 +66,6 @@ protected:
 mGlobal(MMProc) ObjectSet<ProgSpec>& PRSPS();
 
 
-}; // namespace MMProc
+} // namespace MMProc
 
 

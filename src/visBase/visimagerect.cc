@@ -115,4 +115,4 @@ void ImageRect::setRGBImage( const OD::RGBImage& rgbimg )
 }
 
 
-}; // namespace visBase
+} // namespace visBase

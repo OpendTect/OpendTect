@@ -91,5 +91,5 @@ protected:
     Stats::RandomGenerator* gen_ = nullptr;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

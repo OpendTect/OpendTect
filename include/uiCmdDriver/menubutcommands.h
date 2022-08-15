@@ -184,5 +184,5 @@ mStartDeclComposerClass( uiCmdDriver, QMsgBoxBut, CmdComposer, uiMainWin )
 mEndDeclComposerClass
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 

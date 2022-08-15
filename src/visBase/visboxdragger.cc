@@ -595,5 +595,4 @@ void BoxDragger::setDragCtrlSpacing( const StepInterval<float>& x,
     dragctrlspacing_[2] = z;
 }
 
-
-}; // namespace visBase
+} // namespace visBase

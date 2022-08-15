@@ -131,5 +131,5 @@ protected:
     StepInterval<float>		dragctrlspacing_[3];
 };
 
-};
+} // namespace visBase
 

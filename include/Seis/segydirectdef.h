@@ -24,7 +24,8 @@ namespace Seis { class PosIndexer; }
 namespace PosInfo { class CubeData; class Line2DData; }
 
 
-namespace SEGY {
+namespace SEGY
+{
 
 class FileSpec;
 class Scanner;
@@ -136,6 +137,4 @@ protected:
 
 };
 
-
-}; //Namespace
-
+} // namespace SEGY

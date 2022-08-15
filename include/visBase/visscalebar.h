@@ -65,5 +65,4 @@ protected:
     Pick::Location&		firstloc_;
 };
 
-} //visBase
-
+} // namespace visBase

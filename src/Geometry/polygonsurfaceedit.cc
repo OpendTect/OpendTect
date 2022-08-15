@@ -13,7 +13,7 @@ ___________________________________________________________________
 
 #include "polygonsurface.h"
 
-namespace Geometry 
+namespace Geometry
 {
 
 
@@ -37,7 +37,7 @@ bool PolygonSurfEditor::mayTranslate2D( GeomPosID gpid ) const
 
 Coord3 PolygonSurfEditor::translation2DNormal( GeomPosID gpid ) const
 {
-    const PolygonSurface& plg = 
+    const PolygonSurface& plg =
 			reinterpret_cast<const PolygonSurface&>( element );
     const int plgnr = RowCol::fromInt64(gpid).row();
     return plg.getPolygonNormal( plgnr );
@@ -47,5 +47,5 @@ void PolygonSurfEditor::addedKnots(CallBacker*)
 { editpositionchange.trigger(); }
 
 
-    
-}; //Namespace
+
+} // namespace Geometry

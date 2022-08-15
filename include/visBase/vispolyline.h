@@ -90,7 +90,4 @@ protected:
     float			pixeldensity_;
 };
 
-
-}; // Namespace
-
-
+} // namespace visBase

@@ -65,7 +65,4 @@ private:
 
 };
 
-
-};
-
-
+} // namespace visBase

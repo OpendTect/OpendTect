@@ -715,7 +715,7 @@ bool putBodyRow( const BufferStringSet& bss, uiString& msg )
 
 };
 
-}; // namespace Table
+} // namespace Table
 
 Table::AscIO::~AscIO()
 {

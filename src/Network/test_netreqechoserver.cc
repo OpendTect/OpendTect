@@ -179,7 +179,7 @@ public:
     ManagedObjectSet<RequestConnection> conns_;
 };
 
-} //Namespace
+} // namespace Network
 
 
 int mTestMainFnName(int argc, char** argv)

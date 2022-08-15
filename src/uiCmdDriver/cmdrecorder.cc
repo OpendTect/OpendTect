@@ -812,4 +812,4 @@ void CmdRecorder::flush()
 }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

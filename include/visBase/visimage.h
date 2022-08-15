@@ -67,5 +67,5 @@ protected:
     SbImage*	image_;
 };
 
-};
+} // namespace visBase
 

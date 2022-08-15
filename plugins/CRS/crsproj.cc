@@ -173,7 +173,8 @@ protected:
     PJ*			proj_		= nullptr;
     PJ*			llproj_		= nullptr;
 };
-} // Namespace
+
+} // namespace Coords
 
 
 static Coord convertCoordFromPJToPJ( const Coord& pos, PJ* from, PJ* to )

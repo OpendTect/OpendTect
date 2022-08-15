@@ -71,6 +71,6 @@ protected:
 };
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 
 

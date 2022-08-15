@@ -827,5 +827,5 @@ protected:
     mActInGUIThread( acttyp, constructorcall, false )
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 

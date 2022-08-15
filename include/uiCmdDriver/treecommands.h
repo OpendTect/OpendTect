@@ -109,5 +109,5 @@ protected:
 
 mEndDeclComposerClass
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 

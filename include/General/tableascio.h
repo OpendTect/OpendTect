@@ -156,6 +156,6 @@ protected:
 };
 
 
-}; // namespace Table
+} // namespace Table
 
 

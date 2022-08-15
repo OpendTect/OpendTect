@@ -590,4 +590,4 @@ bool Processor::isHidingDataAvailabilityError() const
 }
 
 
-}; // namespace Attrib
+} // namespace Attrib

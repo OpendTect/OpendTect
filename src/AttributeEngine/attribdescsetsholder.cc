@@ -131,4 +131,4 @@ void DescSetsHolder::replaceStoredAttribSet( DescSet* ads )
     }
 }
 
-}; // namespace Attrib
+} // namespace Attrib

@@ -78,6 +78,4 @@ protected:
     static const char*		slicestr();
 };
 
-
-};
-
+} // namespace visBase

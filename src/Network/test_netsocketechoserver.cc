@@ -118,7 +118,7 @@ public:
     bool			close_ = false;
 };
 
-} //Namespace
+} // namespace Network
 
 
 int mTestMainFnName(int argc, char** argv)

@@ -85,5 +85,5 @@ protected:
     const mVisTrans*			transform_;
 };
 
-};
+} // namespace visBase
 

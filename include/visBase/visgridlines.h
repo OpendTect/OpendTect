@@ -87,5 +87,4 @@ protected:
     static const char*		sKeyZShown();
 };
 
-} // Namespace visBase
-
+} // namespace visBase

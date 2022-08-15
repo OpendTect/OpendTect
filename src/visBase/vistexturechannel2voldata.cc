@@ -321,4 +321,4 @@ void TextureChannel2VolData::makeColorTables()
 */
 }
 
-}; // namespace visBase
+} // namespace visBase

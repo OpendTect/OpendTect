@@ -207,5 +207,5 @@ class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 
 
 
-}
+} // namespace visBase
 

@@ -128,6 +128,6 @@ protected:
     const PolygonSelection&	vissel_;
 };
 
-};
+} // namespace visBase
 
 

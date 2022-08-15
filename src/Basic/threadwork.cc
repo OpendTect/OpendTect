@@ -118,7 +118,7 @@ private:
     long		spacefiller_[24];
 };
 
-}; // Namespace
+} // namespace Threads
 
 
 Threads::WorkThread::WorkThread( WorkManager& man )

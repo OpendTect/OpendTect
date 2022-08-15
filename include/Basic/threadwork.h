@@ -25,6 +25,7 @@ typedef bool (CallBacker::*TaskFunction)(void);
 
 namespace Threads
 {
+
 class Thread;
 class ConditionVar;
 class WorkThread;
@@ -222,7 +223,7 @@ private:
 #define mWMT(obj,clss,fn) ::Threads::Work( obj, mSTFN(clss,fn) )
 
 
-}; // Namespace
+} // namespace Threads
 
 inline Threads::Work::Work()
     : obj_( 0 ), cbf_( 0 ), tf_( 0 ), stf_( 0 )				{}

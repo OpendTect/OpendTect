@@ -168,7 +168,4 @@ private:
 
 };
 
-
-}; //Namespace
-
-
+} // namespace Network

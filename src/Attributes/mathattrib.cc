@@ -41,7 +41,7 @@ const Math::SpecVarSet& Attrib::Mathematics::getSpecVars()
 namespace Attrib
 {
 mAttrDefCreateInstance(Mathematics)
-}; // namespace Attrib
+} // namespace Attrib
 
 
 void Attrib::Mathematics::initClass()

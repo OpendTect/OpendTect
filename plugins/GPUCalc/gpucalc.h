@@ -82,6 +82,6 @@ protected:
 mGlobal(GPUCalc) GPUManager& manager();
 
 
-}; // namespace
+} // namespace
 
 

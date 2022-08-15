@@ -107,5 +107,5 @@ protected:
     Normals&	normals_;
 };
 
-};
+} // namespace visBase
 

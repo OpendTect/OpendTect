@@ -131,5 +131,5 @@ protected:
     bool					useosgnormal_;
 };
 
-};
+} // namespace visBase
 

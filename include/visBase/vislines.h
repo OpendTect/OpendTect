@@ -25,5 +25,4 @@ public:
 				mCreateDataObj(Lines);
 };
 
-} //namspace visBase
-
+} //namespace visBase

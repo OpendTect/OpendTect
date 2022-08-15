@@ -343,4 +343,4 @@ const char* IdentifierManager::lastLinkedIdentStr() const
 { return lastlinkedidentstr_.unescapedStr(); }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

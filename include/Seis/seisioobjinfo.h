@@ -88,7 +88,7 @@ private:
 
 };
 
-}; // namespace Seis
+} // namespace Seis
 
 /*!\brief Info on IOObj for seismics */
 

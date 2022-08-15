@@ -115,5 +115,5 @@ public:
 					       int& pixsize) const;
 };
 
-};
+} // namespace visBase
 

@@ -223,4 +223,4 @@ const mVisTrans* RandomPosBodyDisplay::getDisplayTransformation() const
 { return transform_; }
 
 
-}; // namespace visSurvey
+} // namespace visSurvey

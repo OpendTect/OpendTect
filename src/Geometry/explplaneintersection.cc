@@ -655,4 +655,4 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
 
 
 
-}; // namespace Geometry
+} // namespace Geometry

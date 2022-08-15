@@ -136,5 +136,4 @@ protected:
     ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
 };
 
-} //namespace
-
+} // namespace visBase

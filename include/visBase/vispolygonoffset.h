@@ -51,5 +51,5 @@ private:
 
 };
 
-};
+} // namespace visBase
 

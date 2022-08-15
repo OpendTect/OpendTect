@@ -457,7 +457,7 @@ void uiSEGYFilePars::setBytesSwapped( bool full, bool data )
 //--- class for building the file opts UI ----
 
 class uiSEGYByteSpec : public uiGroup
-{ mODTextTranslationClass(uiSEGYByteSpec);
+{ mODTextTranslationClass(uiSEGYByteSpec)
 public:
 
 uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,

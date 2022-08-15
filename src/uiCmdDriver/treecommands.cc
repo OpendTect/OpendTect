@@ -1184,4 +1184,4 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
 }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

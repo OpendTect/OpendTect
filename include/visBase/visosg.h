@@ -100,7 +100,8 @@ namespace Conv
     { _to.set( mOsgColValD(col.r()), mOsgColValD(col.g()),
 	       mOsgColValD(col.b()), 1.0-mOsgColValD(col.t()) ); }
 
-} //Namespace conv
+} // namespace conv
+
 
 namespace Values
 {
@@ -147,7 +148,7 @@ namespace Values
 	static void		setUdf( osg::Vec4d& i )	{}
     };
 
-} //Namespace Values
+} // namespace Values
 
 
 /*! The OneFrameCullDisabler may be used to break an OpenSceneGraph

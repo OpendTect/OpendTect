@@ -47,5 +47,5 @@ mStartDeclComposerClass( uiCmdDriver,CanvasMenu,CmdComposer,uiGraphicsViewBase )
 mEndDeclComposerClass
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 

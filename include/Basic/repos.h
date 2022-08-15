@@ -120,5 +120,5 @@ protected:
 };
 
 
-}; // namespace Repos
+} // namespace Repos
 

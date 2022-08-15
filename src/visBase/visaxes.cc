@@ -126,4 +126,4 @@ void Axes::setPrimaryCamera( visBase::Camera* camera )
 void Axes::setMasterCamera( visBase::Camera* camera )
 { setPrimaryCamera( camera ); }
 
-} //namespace visBase
+} // namespace visBase

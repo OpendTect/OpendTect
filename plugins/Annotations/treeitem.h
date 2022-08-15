@@ -259,5 +259,5 @@ mDefineParentItem(Image,"Image",1000);
 mDefineParentItem(ScaleBar,"ScaleBar",1000);
 
 
-}; // namespace Annotations
+} // namespace Annotations
 

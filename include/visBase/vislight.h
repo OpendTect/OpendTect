@@ -17,10 +17,7 @@ ________________________________________________________________________
 #include "visosg.h"
 
 
-namespace osg
-{
-    class Light;
- }
+namespace osg { class Light; }
 
 namespace visBase
 {
@@ -76,6 +73,4 @@ private:
 					       osg::StateAttribute*) override;
 };
 
-
-} //visBase
-
+} // namespace visBase

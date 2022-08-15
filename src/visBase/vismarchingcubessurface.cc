@@ -213,4 +213,4 @@ const SamplingData<float> MarchingCubesSurface::getScale( int dim ) const
 }
 
 
-}; // namespace visBase
+} // namespace visBase

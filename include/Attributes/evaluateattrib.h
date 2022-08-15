@@ -52,6 +52,6 @@ protected:
     ObjectSet<const DataHolder> inputdata_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 

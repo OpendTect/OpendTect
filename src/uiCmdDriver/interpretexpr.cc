@@ -514,4 +514,4 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
 }
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive

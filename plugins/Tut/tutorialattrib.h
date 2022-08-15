@@ -78,5 +78,5 @@ protected:
     const DataHolder*   	steeringdata_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

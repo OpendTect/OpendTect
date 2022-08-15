@@ -117,5 +117,5 @@ protected:
 
 
 
-}; // namespace visSurvey
+} // namespace visSurvey
 

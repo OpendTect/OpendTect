@@ -24,7 +24,8 @@ static float mDefaultPixelDensity = 96.f;
 static float mDefaultPixelDensity = 72.f;
 #endif
 
-using namespace visBase;
+namespace visBase
+{
 
 const void* DataObject::visualizationthread_ = nullptr;
 osgViewer::CompositeViewer* DataObject::commonviewer_ = nullptr;
@@ -376,3 +377,5 @@ void DataObject::requestSingleRedraw()
         commonviewer_->getView(0)->requestRedraw();
     }
 }
+
+} // namespace visBase

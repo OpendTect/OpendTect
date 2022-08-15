@@ -136,5 +136,5 @@ mGlobal(Well) float	getDefaultVelocity();
 			//!< ( eg. replacement velocity for wells ).
 
 
-}; // namespace Well
+} // namespace Well
 

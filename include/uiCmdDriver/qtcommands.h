@@ -52,5 +52,5 @@ mStartDeclComposerClass( uiCmdDriver, QFileDlg,CmdComposer,uiMainWin )
     mEndDeclComposerClass
 
 
-}; // namespace CmdDrive
+} // namespace CmdDrive
 

@@ -1522,4 +1522,4 @@ bool RandomTrackDragger::isHandlingEvents() const
 }
 
 
-}; // namespace visBase
+} // namespace visBase

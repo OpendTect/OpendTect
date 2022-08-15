@@ -115,5 +115,5 @@ protected:
     TypeSet<Trend>	trends_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 

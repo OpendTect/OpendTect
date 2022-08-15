@@ -65,6 +65,6 @@ protected:
     osg::LineWidth*		linewidthattrib_;
 };
 
-};
+} // namespace visBase
 
 

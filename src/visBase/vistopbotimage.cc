@@ -273,4 +273,4 @@ bool TopBotImage::usePar( const IOPar& iopar )
     return true;
 }
 
-} //namespace visBase
+} // namespace visBase
