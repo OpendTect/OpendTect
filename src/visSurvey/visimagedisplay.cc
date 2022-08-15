@@ -100,7 +100,7 @@ void ImageDisplay::setSet( Pick::Set* set )
 
 
 void ImageDisplay::setScene( visSurvey::Scene* scene )
-{   
+{
     visSurvey::SurveyObject::setScene( scene );
     updateCoords();
 }
@@ -192,4 +192,4 @@ void ImageDisplay::updateCoords(CallBacker*)
     }
 }
 
-} //namespace visSurvey
+} // namespace visSurvey

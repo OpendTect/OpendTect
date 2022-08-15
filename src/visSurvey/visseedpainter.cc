@@ -986,5 +986,4 @@ bool SeedPainter::acceptTablet( const visBase::EventInfo& eventinfo )
     return acceptMouse( eventinfo );
 }
 
-
-}; //namespace
+} // namespace visSurvey

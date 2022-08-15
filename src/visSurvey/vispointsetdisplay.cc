@@ -315,4 +315,4 @@ void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	val.add( data_->value(dpsdispprop_->dpsColID(),rid) );
 }
 
-} //namespace visSurvey
+} // namespace visSurvey

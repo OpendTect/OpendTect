@@ -13,7 +13,7 @@
 
 namespace visSurvey
 {
-    
+
 PolyLineDisplay::PolyLineDisplay()
     : VisualObjectImpl(true)
 {
@@ -53,8 +53,8 @@ void PolyLineDisplay::setPixelDensity( float dpi )
 
     if ( polyline_ )
 	polyline_->setPixelDensity( dpi );
-    
+
 }
 
 
-}//namespace
+} // namespace visSurvey
