@@ -22,6 +22,7 @@ SET(OD_MODULE_SOURCES
 	uiexpfault.cc
 	uiexphorizon.cc
 	uiexport2dhorizon.cc
+	uifaultsetcopy.cc
 	uihorauxdatasel.cc
 	uihorinterpol.cc
 	uihor3dfrom2ddlg.cc
