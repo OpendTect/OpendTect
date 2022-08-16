@@ -213,17 +213,20 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     const QVariant qvar = index.data( Qt::DisplayRole );
     const int enumidx = enumdef_->indexOf( qvar.toInt() );
     const char* iconfnm = enumdef_->getIconFileForIndex( enumidx );
+    Qt::Alignment textalignment = Qt::AlignCenter;
     if ( iconfnm && *iconfnm )
     {
 	uiIcon icon( iconfnm );
-	icon.qicon().paint( painter, rect, Qt::AlignCenter );
+	QRect iconrect = rect;
+	iconrect.setWidth( rect.height() );
+	rect.adjust( rect.height()+sXPosPadding, 0, 0, 0 );
+	textalignment = Qt::AlignLeft;
+	icon.qicon().paint( painter, iconrect, Qt::AlignCenter );
     }
-    else
-    {
-	uiString label = enumdef_->getUiStringForIndex( enumidx );
-	QString labeltxt;
-	painter->drawText( rect, Qt::AlignCenter, label.fillQString(labeltxt) );
-    }
+
+    uiString label = enumdef_->getUiStringForIndex( enumidx );
+    QString labeltxt;
+    painter->drawText( rect, textalignment, label.fillQString(labeltxt) );
 }
 
 
@@ -727,11 +730,4 @@ uiTableView::CellType uiTableView::getCellType( int col ) const
 
 void uiTableView::doubleClickedCB( CallBacker* cb )
 {
-    NotifyStopper ns( doubleClicked );
-    const int row = currentCell().row();
-    const int col = currentCell().col();
-    if ( getCellType(col) == uiTableView::Color )
-	ns.enableNotification();
-    else
-	odtableview_->edit( odtableview_->model()->index(row,col) );
 }
