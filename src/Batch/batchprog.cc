@@ -185,8 +185,13 @@ bool BatchProgram::parseArguments()
     const bool simplebatch = clparser_->hasKey( sKeySimpleBatch() );
     if ( parfilnm.isEmpty() && !simplebatch )
     {
-	errorMsg( tr("%1: No existing parameter file name specified")
-		 .arg(clparser_->getExecutableName()) );
+	BufferString cmdargs;
+	for ( int idx=0; idx<clparser_->nrArgs(); idx++ )
+	    cmdargs.add( clparser_->getArg(idx) ).add( " " );
+
+	errorMsg( tr("%1: No existing parameter file name specified\n"
+		      "Arguments are: %2").arg(clparser_->getExecutableName())
+			.arg(cmdargs) );
 	return false;
     }
 
