@@ -1,10 +1,13 @@
-#(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to define base package variables
-# Author:       Nageswara
-# Date:         August 2012
-#RCS:           $Id$
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
+# CMake script to define base package variables
+#
 
-#OpenDtect libraries
+#OpendTect libraries
 set( LIBLIST @OD_CORE_MODULE_NAMES_od@ )
 set( PLUGINS @OD_PLUGINS@ )
 set( EXCLUDE_PLUGINS Hello uiHello Tut uiTut uiDPSDemo uiQtApp

@@ -1,3 +1,9 @@
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 find_package( Git QUIET )
 if ( Git_FOUND )

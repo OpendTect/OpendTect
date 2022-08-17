@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile: 	ui- based on EarthModel
-# 	May 2002	Nanne Hemstra
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS uiStrat EarthModel )
 SET(OD_MODULE_SOURCES
@@ -44,4 +45,5 @@ SET(OD_MODULE_SOURCES
 	uisurfaceposprov.cc
 	uisurfacesel.cc
 )
+
 OD_INIT_MODULE()

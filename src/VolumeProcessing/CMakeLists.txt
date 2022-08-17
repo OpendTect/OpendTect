@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	VMB::VelocityFunction
-# 	2008		Kris
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set( OD_MODULE_DEPS Velocity Well )
 set( OD_TEST_PROGS volprocchain.cc )
@@ -19,12 +20,13 @@ set( OD_MODULE_SOURCES
 	volprocprocessor.cc
 	volprocsmoother.cc
 	volprocstatscomputer.cc
+	volprocstep.cc
 	volprocsurfacelimitedfiller.cc
 	volproctrans.cc
-	volprocstep.cc
 	volprocvolreader.cc
 	voxelconnectivityfilter.cc
 	wellloginterpolator.cc
 )
 set( OD_MODULE_BATCHPROGS od_process_volume.cc )
+
 OD_INIT_MODULE()

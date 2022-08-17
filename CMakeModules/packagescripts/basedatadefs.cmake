@@ -1,7 +1,11 @@
-#(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to define basedata package variables
-# Author:       Nageswara
-# Date:         September 2012
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
+# CMake script to define basedata package variables
+#
 
 SET( LIBLIST omf ColTabs MouseControls BatchPrograms
 	     FileFormats UnitsOfMeasure Properties odSettings welldispSettings

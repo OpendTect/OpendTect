@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	ui- based on vis stuff.
-# 	July 2002	Nanne Hemstra
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS uiOSG uiMPE )
 set(OD_MODULE_SOURCES
@@ -22,6 +23,7 @@ set(OD_MODULE_SOURCES
 	uisurvtopbotimg.cc
 	uiviscoltabed.cc
 	uivisdatapointsetdisplaymgr.cc
+	uivisdirlightdlg.cc
 	uivisemobj.cc
 	uivisisosurface.cc
 	uivismenuitemhandler.cc
@@ -31,7 +33,6 @@ set(OD_MODULE_SOURCES
 	uivispolygonsurfbezierdlg.cc
 	uivisslicepos3d.cc
 	uiviszstretchdlg.cc
-	uivisdirlightdlg.cc
 )
 
 OD_INIT_MODULE()

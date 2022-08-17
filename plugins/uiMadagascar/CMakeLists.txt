@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Madagascar (UI)
-# 	March 2012	Nageswara
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS uiODMain Madagascar)
 SET(OD_IS_PLUGIN yes)
@@ -10,9 +11,11 @@ SET(OD_MODULE_SOURCES
 	uimadagascarmain.cc
 	uimadbldcmd.cc
 	uimadiosel.cc
-	uimadpi.cc)
+	uimadpi.cc
+)
 
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+
 OD_INIT_MODULE()
 
 

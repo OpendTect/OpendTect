@@ -1,19 +1,20 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	ui - Volume Processing
-# 	Jul 2000	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )
 set(OD_MODULE_SOURCES
 	inituivolumeprocessing.cc
 	uivelocitygridder.cc
 	uivolprocattrib.cc
-	uivolprocchain.cc
 	uivolprocbatchsetup.cc
+	uivolprocbodyfiller.cc
+	uivolprocchain.cc
 	uivolprochorinterfiller.cc
 	uivolproclateralsmoother.cc
-	uivolprocbodyfiller.cc
 	uivolprocpartserv.cc
 	uivolprocsmoother.cc
 	uivolprocsurfacelimitedfiller.cc

@@ -1,7 +1,11 @@
-#(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to define gmt package variables
-# Author:       Nageswara
-# Date:         August 2012
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
+# CMake script to define GMT package variables
+#
 
 SET( LIBLIST GMT uiGMT )
 SET( EXECLIST od_gmtexec )

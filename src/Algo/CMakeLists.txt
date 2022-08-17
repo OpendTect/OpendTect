@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Algorithms
-# 	July 1995	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS Basic )
 
@@ -26,8 +27,8 @@ set( OD_NIGHTLY_TEST_PROGS
 set( OD_MODULE_SOURCES
 	ailayer.cc
 	array1dinterpol.cc
-	array2dinterpol.cc
 	array2dconverter.cc
+	array2dinterpol.cc
 	arrayndalgo.cc
 	bendpointfinder.cc
 	bendpoints2coords.cc
@@ -41,9 +42,9 @@ set( OD_MODULE_SOURCES
 	dataclipper.cc
 	delaunay.cc
 	delaunay3d.cc
-	extremefinder.cc
 	dippca.cc
 	dragcontroller.cc
+	extremefinder.cc
 	fftfilter.cc
 	fourier.cc
 	fourierinterpol.cc
@@ -53,7 +54,6 @@ set( OD_MODULE_SOURCES
 	hilberttransform.cc
 	histequalizer.cc
 	houghtransform.cc
-	initalgo.cc
 	interpollayermodel.cc
 	isocontourtracer.cc
 	linear.cc
@@ -89,6 +89,7 @@ set( OD_MODULE_SOURCES
 	zaxistransform.cc
 	zaxistransformer.cc
 	zoeppritzcoeff.cc
+	initalgo.cc
 )
 
 OD_INIT_MODULE()

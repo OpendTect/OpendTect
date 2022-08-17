@@ -1,18 +1,26 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	ui - Strat
-# 	Jun 2007	Bert
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS uiIo Strat )
 set(OD_MODULE_SOURCES
-	uistratreftree.cc uistrattreewin.cc uistratutildlgs.cc
-	uistratdisplay.cc uistratdispdata.cc
-	uistratlvllist.cc uistratselunits.cc
-	uistrateditlayer.cc
-	uistratlaymodtools.cc uistratlayseqgendesc.cc uistratlaymoddisp.cc
-	uistratlayseqattrsetbuild.cc uilayseqattribed.cc
 	inituistrat.cc
+	uistratdisplay.cc
+	uistrateditlayer.cc
+	uistratlaymodtools.cc
+	uistratlayseqattrsetbuild.cc
+	uistratlvllist.cc
+	uistratreftree.cc
+	uilayseqattribed.cc
+	uistratdispdata.cc
+	uistratlaymoddisp.cc
+	uistratlayseqgendesc.cc
+	uistratselunits.cc
+	uistrattreewin.cc
+	uistratutildlgs.cc
 )
 
 OD_INIT_MODULE()

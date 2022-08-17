@@ -1,14 +1,16 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile :	uiCRS
-#	May 2017	Raman
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set( OD_MODULE_DEPS uiTools CRS )
 set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES 
-	    uicrssystem.cc
-	    uicrspi.cc )
+	uicrssystem.cc
+	uicrspi.cc
+)
 
 if ( NOT OD_NO_PROJ )
     set ( OD_PLUGIN_ALO_EXEC

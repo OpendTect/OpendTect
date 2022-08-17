@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Experimental Attributes
-# 	March 2012	Nageswara
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS ExpAttribs uiODMain)
 SET(OD_IS_PLUGIN yes)
@@ -15,4 +16,5 @@ SET(OD_MODULE_SOURCES
 	uiintegratedtrace.cc
 )
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+
 OD_INIT_MODULE()

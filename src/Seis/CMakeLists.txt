@@ -1,13 +1,14 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	General utilities
-# 	July 1995	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS Geometry MMProc )
 
-set ( OD_TEST_PROGS seisbuf.cc )
-set ( OD_BATCH_TEST_PROGS
+set( OD_TEST_PROGS seisbuf.cc )
+set( OD_BATCH_TEST_PROGS
 	synthseis.cc
 )
 
@@ -86,9 +87,10 @@ SET(OD_MODULE_SOURCES
 )
 
 SET(OD_MODULE_BATCHPROGS
-	    od_copy_seis.cc
-	    od_process_2dto3d.cc
-	    od_process_time2depth.cc
-	    od_process_segyio.cc
+	od_copy_seis.cc
+	od_process_2dto3d.cc
+	od_process_time2depth.cc
+	od_process_segyio.cc
 )
+
 OD_INIT_MODULE()

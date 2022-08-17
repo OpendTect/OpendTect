@@ -1,7 +1,11 @@
-#(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to define od packages
-# Author:       Nageswara
-# Date:         May 2013
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
+# CMake script to define od packages
+#
 
 set( BASEPACKAGES basedatadefs )
 set( PACKAGELIST basedefs develdefs )

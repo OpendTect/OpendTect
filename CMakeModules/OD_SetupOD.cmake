@@ -1,3 +1,10 @@
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
+
 SET( OD_CORE_SUBSYSTEM "od" )
 
 SET( INCLUDES

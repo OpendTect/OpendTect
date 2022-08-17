@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	uiEMAttrib
-# 	October 2004	N. Hemstra
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
 set(OD_MODULE_SOURCES
@@ -21,4 +22,5 @@ set(OD_MODULE_SOURCES
 	horizon2dscanner.cc
 	inituiemattrib.cc
 )
+
 OD_INIT_MODULE()

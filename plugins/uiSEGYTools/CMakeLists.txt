@@ -1,13 +1,13 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile :	SEG-Y tools
-#	Jan 2021	Wayne Mogg
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS uiIo uiSeis uiWellAttrib)
 set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES
-    uisegytoolspi.cc
     segyhdrkeydata.cc
     segyuiscandata.cc
     uisegycommon.cc
@@ -24,17 +24,19 @@ set(OD_MODULE_SOURCES
     uisegyread.cc
     uisegyreaddlg.cc
     uisegyreadfinisher.cc
-    uisegyresortdlg.cc
-    uisegyscandlg.cc
     uisegyreadstarter.cc
     uisegyreadstartinfo.cc
+    uisegyresortdlg.cc
+    uisegyscandlg.cc
     uisegysip.cc
     uisegysipclassic.cc
     uisegytrchdrvalplot.cc
     uisegywriteopts.cc
     uiwellimpsegyvsp.cc
+    uisegytoolspi.cc
 )
 
 set( OD_PLUGIN_ALO_EXEC ${OD_SURVEY_EXECS} ${DGB_SEGY_EXECS} )
 set( OD_MODULE_PROGS od_SEGYExaminer.cc )
+
 OD_INIT_MODULE()

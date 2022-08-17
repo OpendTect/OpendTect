@@ -1,7 +1,11 @@
-#(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to build a release
-# Author:       K. Tingdahl
-# Date:		August 2012		
+#________________________________________________________________________
+#
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
+# CMake script to build a release
+#
 
 if ( "${OpendTect_DIR}" STREQUAL "" )
     set( OpendTect_DIR "${SOURCE_DIR}" )

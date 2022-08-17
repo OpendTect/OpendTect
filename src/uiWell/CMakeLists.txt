@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	uiWell
-# 	Jul 2000	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS uiStrat Well)
 set(OD_MODULE_SOURCES
@@ -14,24 +15,24 @@ set(OD_MODULE_SOURCES
 	uimultiwelllogsel.cc
 	uisimplemultiwell.cc
 	uiwelldahdisplay.cc
-	uiwelldispprop.cc
-	uiwelldisppropdlg.cc
 	uiwelldisplay.cc
-	uiwelldisplayserver.cc
 	uiwelldisplaycontrol.cc
 	uiwelldisplaymarkeredit.cc
+	uiwelldisplayserver.cc
+	uiwelldispprop.cc
+	uiwelldisppropdlg.cc
 	uiwelldlgs.cc
 	uiwellfiltergrp.cc
 	uiwellimpasc.cc
 	uiwellinserter.cc
 	uiwelllogcalc.cc
-	uiwelllogimpexp.cc
 	uiwelllogdisplay.cc
+	uiwelllogimpexp.cc
 	uiwelllogtools.cc
 	uiwelllogtoolsgrp.cc
 	uiwellman.cc
-	uiwellmarkersel.cc
 	uiwellmarkerdlg.cc
+	uiwellmarkersel.cc
 	uiwellpartserv.cc
 	uiwellposprov.cc
 	uiwellpropertyrefsel.cc
@@ -42,4 +43,5 @@ set(OD_MODULE_SOURCES
 	uiwellwriteopts.cc
 	uizrangeselect.cc
 )
+
 OD_INIT_MODULE()

@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Prestack stuff
-# 	2008		K. Tingdahl
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS Velocity)
 SET(OD_BATCH_TEST_PROGS
@@ -35,4 +36,5 @@ SET(OD_MODULE_SOURCES
 	semblancealgo.cc
 )
 SET(OD_MODULE_BATCHPROGS od_process_prestack.cc )
+
 OD_INIT_MODULE()

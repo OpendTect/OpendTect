@@ -1,16 +1,17 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile :	Plugin 'CEEMD -  Complete Ensemble Empirical Mode Decomposition user interface'
-#	Nov 2012	Paul de Groot
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012/04/17 11:29:00 cvsraman Exp $
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiAttributes CEEMDAttrib)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	uiceemdattrib.cc
-	uiceemdattribpi.cc)
-
+	uiceemdattribpi.cc
+)
 
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 

@@ -1,16 +1,17 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Well
-# 	Aug 2003	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS General)
 SET(OD_MODULE_SOURCES
 	initwell.cc
 	directionalsurvey.cc
 	laswriter.cc
-	wellascio.cc
 	well.cc
+	wellascio.cc
 	welld2tmodel.cc
 	welldatafilter.cc
 	welldisp.cc

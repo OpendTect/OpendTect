@@ -1,8 +1,9 @@
-#_______________________CMake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile :	Basic
-#	July 1995	Bert
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set( OD_USEQT Core )
 set( OD_USEBREAKPAD Yes )
@@ -57,19 +58,19 @@ set( OD_MODULE_SOURCES
 	applicationdata.cc
 	arrayndinfo.cc
 	arrayndslice.cc
-	ascstream.cc
 	ascbinstream.cc
+	ascstream.cc
 	bindatadesc.cc
 	bufstring.cc
 	callback.cc
 	color.cc
-	compoundkey.cc
 	commanddefs.cc
 	commandlaunchmgr.cc
 	commandlineparser.cc
+	compoundkey.cc
 	coordsystem.cc
-	dateinfo.cc
 	datapack.cc
+	dateinfo.cc
 	dbkey.cc
 	debug.cc
 	dirlist.cc
@@ -85,7 +86,6 @@ set( OD_MODULE_SOURCES
 	genc.cc
 	globexpr.cc
 	iopar.cc
-	initbasic.cc
 	latlong.cc
 	legal.cc
 	math2.cc
@@ -94,9 +94,9 @@ set( OD_MODULE_SOURCES
 	multiid.cc
 	namedmonitoredobject.cc
 	namedobj.cc
-	odcommonenums.cc
 	objdisposer.cc
 	od_iostream.cc
+	odcommonenums.cc
 	oddirs.cc
 	odimage.cc
 	odinst.cc
@@ -110,8 +110,8 @@ set( OD_MODULE_SOURCES
 	posinfo2d.cc
 	posinfo2dsurv.cc
 	position.cc
-	progressmeter.cc
 	procdescdata.cc
+	progressmeter.cc
 	pythonaccess.cc
 	qstreambuf.cc
 	refcount.cc
@@ -132,9 +132,9 @@ set( OD_MODULE_SOURCES
 	survgeom2d.cc
 	survinfo.cc
 	task.cc
+	texttranslator.cc
 	thread.cc
 	threadwork.cc
-	texttranslator.cc
 	timefun.cc
 	timer.cc
 	trckeyzsampling.cc
@@ -143,6 +143,7 @@ set( OD_MODULE_SOURCES
 	uistringset.cc
 	winutils.cc
 	zdomain.cc
+	initbasic.cc
 )
 
 if ( ITTNOTIFY_FOUND )

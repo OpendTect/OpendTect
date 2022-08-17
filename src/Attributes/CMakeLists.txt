@@ -1,12 +1,12 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Attribute classes
-# 	May 2005	Helene Payraudeau
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS AttributeEngine PreStackProcessing)
 set(OD_MODULE_SOURCES
-	initattributes.cc
 	convolveattrib.cc
 	deltaresampleattrib.cc
 	dipfilterattrib.cc
@@ -33,6 +33,7 @@ set(OD_MODULE_SOURCES
 	specdecompattrib.cc
 	textureattrib.cc
 	volstatsattrib.cc
+	initattributes.cc
 )
 
 set(OD_MODULE_BATCHPROGS od_process_attrib.cc  )

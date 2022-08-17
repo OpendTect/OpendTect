@@ -1,7 +1,8 @@
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : Kristofer
-# DATE     : Nov 2015
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
 #
 # Takes a library or pdb - file and generates a .sym file in the 
 # location where minidump_stacktrace wants it.

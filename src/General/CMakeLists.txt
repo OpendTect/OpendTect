@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	General utilities
-# 	July 1995	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set ( OD_MODULE_DEPS Algo )
 if ( UNIX )
@@ -27,10 +28,10 @@ list ( APPEND OD_MODULE_SOURCES
 	bidvsetarrayadapter.cc
 	bitmap2rgb.cc
 	bitmapmgr.cc
-	conn.cc
 	cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
 	cbvswriter.cc cbvswritemgr.cc
 	coltabindex.cc coltabmapper.cc coltabsequence.cc
+	conn.cc
 	ctxtioobj.cc
 	databuf.cc
 	datainpspec.cc
@@ -44,17 +45,16 @@ list ( APPEND OD_MODULE_SOURCES
 	flatview.cc
 	fontdata.cc
 	generalinfo.cc
-	giswriter.cc
 	geojson.cc
 	geojsonwriter.cc
-	googlexmlwriter.cc
 	geom2dascio.cc
 	geometryio.cc
+	giswriter.cc
+	googlexmlwriter.cc
 	grid2d.cc
 	hdf5access.cc
 	helpview.cc
 	ibmformat.cc
-	initgeneral.cc
 	iodir.cc
 	iodirentry.cc
 	ioman.cc
@@ -75,9 +75,9 @@ list ( APPEND OD_MODULE_SOURCES
 	picklocation.cc
 	pickretriever.cc
 	pickset.cc
-	posimpexppars.cc
 	posidxpairdataset.cc
 	posidxpairvalset.cc
+	posimpexppars.cc
 	posinfodetector.cc
 	posvecdataset.cc
 	property.cc
@@ -102,6 +102,7 @@ list ( APPEND OD_MODULE_SOURCES
 	ziparchiveinfo.cc
 	ziphandler.cc
 	ziputils.cc
+	initgeneral.cc
 )
 
 set (OD_USEQT Core) # for the ziphandler.cc only

@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile :	CRS
-#	May 2017	Raman
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 if ( NOT OD_NO_PROJ )
     set( OD_USEPROJ Yes )
@@ -12,9 +13,10 @@ endif()
 set( OD_MODULE_DEPS Basic )
 set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES 
-	    crspi.cc
-	    crsproj.cc
-	    crssystem.cc )
+	crspi.cc
+	crsproj.cc
+	crssystem.cc
+)
 
 if ( NOT OD_NO_PROJ )
     set( OD_TEST_PROGS crs.cc )

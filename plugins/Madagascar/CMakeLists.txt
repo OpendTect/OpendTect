@@ -1,17 +1,21 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Madagascar batch-level
-# 	March 2012	Nageswara
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS AttributeEngine)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
-	madio.cc
 	maddefs.cc
+	madio.cc
+	madpi.cc
 	madproc.cc
-	madprocflow.cc
 	madprocexec.cc
-	madpi.cc madstream.cc)
+	madprocflow.cc
+	madstream.cc
+)
 SET( OD_MODULE_BATCHPROGS od_madexec.cc )
+
 OD_INIT_MODULE()

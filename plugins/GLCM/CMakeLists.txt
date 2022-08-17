@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	GLCM plugin
-# 	Jan 2012	C.G. Eichkitz
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS AttributeEngine)
 SET(OD_MODULE_NAME GLCM)
@@ -12,4 +13,5 @@ SET(OD_MODULE_SOURCES
 	GLCM_pi.cc
 )
 SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
+
 OD_INIT_MODULE()

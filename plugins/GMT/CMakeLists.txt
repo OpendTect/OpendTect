@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	GMT plugin
-# 	Feb 2012	Nageswara
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS EarthModel Seis Well)
 SET(OD_IS_PLUGIN yes)
@@ -18,7 +19,9 @@ SET(OD_MODULE_SOURCES
 	gmt2dlines.cc
 	initgmt.cc
 	gmtprocflow.cc
-	gmtpi.cc)
-SET ( OD_MODULE_BATCHPROGS od_gmtexec.cc )
-SET ( OD_PLUGIN_ALO_EXEC od_gmtexec )
+	gmtpi.cc
+)
+SET( OD_MODULE_BATCHPROGS od_gmtexec.cc )
+SET( OD_PLUGIN_ALO_EXEC od_gmtexec )
+
 OD_INIT_MODULE()

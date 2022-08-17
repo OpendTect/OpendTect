@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Network utilities
-# 	July 1995	Bert
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 if ( UNIX )
     configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/backend-server/upload.sh.in

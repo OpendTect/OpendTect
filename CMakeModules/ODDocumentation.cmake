@@ -1,8 +1,9 @@
-#_______________________Pmake__________________________________________________
+#________________________________________________________________________
 #
-#	CopyRight:	dGB Beheer B.V.
-# 	Jan 2012	K. Tingdahl
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 

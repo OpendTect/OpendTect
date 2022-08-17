@@ -1,23 +1,24 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	VMB::VelocityFunction
-# 	2008		Kris
-#_______________________________________________________________________________
-
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 SET(OD_MODULE_DEPS AttributeEngine EarthModel )
 SET(OD_MODULE_SOURCES
-		initvelocity.cc
-		velocityfunction.cc
-		velocityfunctioninterval.cc
-		velocityfunctiongrid.cc
-		velocityfunctionvolume.cc
-		velocityfunctionascio.cc
-		velocityfunctionstored.cc
-		velocitypicks.cc
-		velocitypicksundo.cc
-		velocityvolumeconversion.cc
-     )
+	initvelocity.cc
+	velocityfunction.cc
+	velocityfunctioninterval.cc
+	velocityfunctiongrid.cc
+	velocityfunctionvolume.cc
+	velocityfunctionascio.cc
+	velocityfunctionstored.cc
+	velocitypicks.cc
+	velocitypicksundo.cc
+	velocityvolumeconversion.cc
+)
 
 SET(OD_MODULE_BATCHPROGS od_process_velocityconv.cc )
+
 OD_INIT_MODULE()

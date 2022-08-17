@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	Coin/Ui
-# 	Feb 2002	Arend Lammertink
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set(OD_MODULE_DEPS visSurvey uiTools )
 set(OD_USEQT OpenGL)
@@ -24,4 +25,5 @@ SET(OD_MODULE_SOURCES
 )
 
 SET(OD_MODULE_PROGS od_osgfileviewer.cc )
+
 OD_INIT_MODULE()

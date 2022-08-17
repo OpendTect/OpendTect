@@ -1,8 +1,9 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile : 	uiIo - OpendTect specific tools on top of uiBase/Tools
-# 	Jul 2000	A.H. Bril
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 
 set( OD_MODULE_DEPS uiTools uiFlatView Geometry )
 set( OD_MODULE_SOURCES

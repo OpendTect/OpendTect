@@ -1,13 +1,15 @@
-#_______________________Pmake___________________________________________________
+#________________________________________________________________________
 #
-#	Makefile :	COLOP (UI)
-#	Sep 2019	Khushnood
-#_______________________________________________________________________________
+# Copyright:    dGB Beheer B.V.
+# License:      https://dgbes.com/index.php/licensing
+#________________________________________________________________________
+#
 if( WIN32 )
     SET(OD_MODULE_DEPS uiODMain)
     SET(OD_IS_PLUGIN yes)
     SET(OD_MODULE_SOURCES
-	    uicoloppi.cc)
+	uicoloppi.cc
+    )
 
     SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
     OD_INIT_MODULE()
