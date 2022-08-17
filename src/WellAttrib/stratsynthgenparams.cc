@@ -410,7 +410,7 @@ static BufferStringSet fillSynthSeisKeys()
     return rmkeys;
 }
 
-}
+} // namespace Strat
 
 void SynthGenParams::cleanRayPar( const IOPar& iop, IOPar& raypar )
 {
