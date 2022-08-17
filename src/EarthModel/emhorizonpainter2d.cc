@@ -507,4 +507,4 @@ void HorizonPainter2D::updateSelectionColor()
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
-}; //namespace EM
+} // namespace EM

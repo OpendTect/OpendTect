@@ -93,5 +93,4 @@ protected:
     Coord3			getNormal(const Coord3* mousepos=0) const;
 };
 
-}; //namespace MPE
-
+} // namespace MPE

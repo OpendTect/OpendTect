@@ -96,7 +96,7 @@ void uiProcSel::editPushCB( CallBacker* )
 				  .arg(uiStrings::sPreStack().toLower())
 				  .arg(uiStrings::sProcessing().toLower());
 
-    uiDialog dlg( this, uiDialog::Setup( title, mNoDlgTitle, 
+    uiDialog dlg( this, uiDialog::Setup( title, mNoDlgTitle,
                                         mODHelpKey(mPreStackProcSelHelpID) ) );
     dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );
@@ -130,4 +130,4 @@ void uiProcSel::editPushCB( CallBacker* )
 }
 
 
-}; //namespace
+} // namespace PreStack

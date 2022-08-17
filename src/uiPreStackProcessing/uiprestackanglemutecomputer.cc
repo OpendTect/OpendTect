@@ -29,8 +29,8 @@ namespace PreStack
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Angle Mute Computer"),
-				    mNoDlgTitle,
-                                    mODHelpKey(mAngleMuteComputerHelpID) ) )
+				mNoDlgTitle,
+				mODHelpKey(mAngleMuteComputerHelpID) ) )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer)
 {
@@ -85,4 +85,4 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     return true;
 }
 
-}; //namespace
+} // namespace PreStack

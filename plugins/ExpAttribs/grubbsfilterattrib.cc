@@ -23,8 +23,8 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mAttrDefCreateInstance(GrubbsFilter)    
-    
+mAttrDefCreateInstance(GrubbsFilter)
+
 void GrubbsFilter::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -92,7 +92,7 @@ bool GrubbsFilter::getTrcPos()
     centertrcidx_ = 0;
     for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl(); bid.inl()++ )
     {
-	for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl(); 
+	for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl();
 	      bid.crl()++ )
 	{
 	    if ( !bid.inl() && !bid.crl() )
@@ -114,12 +114,12 @@ bool GrubbsFilter::getInputData( const BinID& relpos, int zintv )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
-	const DataHolder* data = 
+	const DataHolder* data =
 		    inputs_[0]->getData( relpos+trcpos_[idx]*bidstep, zintv );
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
     }
-    
+
     dataidx_ = getDataIndex( 0 );
 
     return true;
@@ -155,7 +155,7 @@ static void checkTopBotUndefs( Array1D<float>& inpvals )
 }
 
 
-bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos, 
+bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 				int z0, int nrsamples, int threadid ) const
 {
     if ( inputdata_.isEmpty() ) return false;
@@ -173,7 +173,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-    
+
 	Array1DImpl<float> vals( samplegate.width() );
 
 	for ( int trcidx=0; trcidx<nrtraces; trcidx++ )
@@ -195,7 +195,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 		    }
 		}
 
-		if ( zidx == samplegate.stop || idx == 0 ) 
+		if ( zidx == samplegate.stop || idx == 0 )
 		    rc += traceval;
 	    }
 	}
@@ -215,15 +215,15 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	float newval = traceval;
 	if ( type_ == GrubbsFilter::GrubbsValue )
 	    newval = grubbsval;
-	else if ( grubbsval > cogrubbsval_ ) 
+	else if ( grubbsval > cogrubbsval_ )
 	{
-	    switch ( type_ ) 
-	    { 
-		case GrubbsFilter::Average:	newval = (float) rc.average(); 
+	    switch ( type_ )
+	    {
+		case GrubbsFilter::Average:	newval = (float) rc.average();
 		    break;
-		case GrubbsFilter::Median:	newval = rc.median(); 
+		case GrubbsFilter::Median:	newval = rc.median();
 		    break;
-		case GrubbsFilter::Threshold: 
+		case GrubbsFilter::Threshold:
 		    newval = (float)((cogrubbsval_ * stdev)+rc.average());
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
@@ -272,7 +272,7 @@ void GrubbsFilter::prepPriorToBoundsCalc()
      if ( truestep == 0 )
        	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ; 
+    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ;
     bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, gate_.start, false )
@@ -288,4 +288,4 @@ const Interval<float>* GrubbsFilter::desZMargin( int inp, int ) const
 }
 
 
-}; //namespace
+} // namespace Attrib

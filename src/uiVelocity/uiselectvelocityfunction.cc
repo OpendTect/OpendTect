@@ -238,4 +238,4 @@ bool uiEditFunction::acceptOK(CallBacker*)
 }
 
 
-}; //namespace
+} // namespace Vel

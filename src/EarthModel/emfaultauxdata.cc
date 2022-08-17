@@ -509,4 +509,4 @@ bool FaultAuxData::loadData( int sdidx )
 }
 
 
-}; //namespace
+} // namespace EM

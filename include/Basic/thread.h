@@ -323,5 +323,4 @@ mGlobal(Basic) void setCurrentThreadProcessorAffinity( int cpu );
 mGlobal(Basic) void sleep(double seconds);
 
 
-} //namespace
-
+} // namespace Threads

@@ -115,4 +115,4 @@ FunctionSource* uiStoredFunction::getSource()
 { return source_; }
 
 
-}; //namespace
+} // namespace Vel

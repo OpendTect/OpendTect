@@ -1629,4 +1629,4 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
     ctabsel_->setToolTip( tooltipstr );
 }
 
-}; //namespace
+} // namespace PreStackView

@@ -94,4 +94,4 @@ bool	getHostIDs( BufferStringSet& hostids,
     return true;
 }
 
-} //namespace OD
+} // namespace OD

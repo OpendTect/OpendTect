@@ -72,4 +72,4 @@ bool uiEventImport::acceptOK( CallBacker* )
     return TaskRunner::execute( &taskrunner, writer );
 }
 
-}; //namespace
+} // namespace PreStack

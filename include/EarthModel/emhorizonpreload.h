@@ -49,5 +49,4 @@ protected:
 
 mGlobal(EarthModel) HorizonPreLoader& HPreL();
 
-} //namespace EM
-
+} // namespace EM

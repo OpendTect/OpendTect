@@ -112,12 +112,12 @@ int getSteeringIndex( const BinID& bid )
 	map = new int[(2*MAXRADIUS+1)*(2*MAXRADIUS+1)];
 	fillSteeringMap();
     }
-    
+
     if ( Math::Abs(bid.inl()) > MAXRADIUS || Math::Abs(bid.crl()) > MAXRADIUS )
 	return 0;
-    
+
     return mapAt(bid.inl(), bid.crl());
 }
 
 
-}; //namespace
+} // namespace Attrib

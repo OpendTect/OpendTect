@@ -94,4 +94,5 @@ protected:
 
     int				twm_queueid_;
 };
-} //namespace
+
+} // namespace Threads

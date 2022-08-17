@@ -229,4 +229,4 @@ bool uiPreviewGroup::calcNewWindow()
     return true;
 }
 
-} //namespace MPE
+} // namespace MPE

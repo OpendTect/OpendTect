@@ -96,5 +96,4 @@ protected:
 				        const char* parenttype );
 };
 
-}; //namespace
-
+} // namespace ExternalAttrib

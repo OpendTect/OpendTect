@@ -35,6 +35,4 @@ protected:
     uiLabel*			poslbl_;
 };
 
-
-}; //namespace
-
+} // namespace PreStackView

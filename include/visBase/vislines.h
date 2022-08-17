@@ -25,4 +25,4 @@ public:
 				mCreateDataObj(Lines);
 };
 
-} //namespace visBase
+} // namespace visBase

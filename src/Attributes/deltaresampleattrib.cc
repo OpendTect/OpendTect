@@ -19,19 +19,19 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(DeltaResample)
-    
+
 void DeltaResample::initClass()
 {
     mAttrStartInitClass
-	
+
     FloatParam* period = new FloatParam( periodStr() );
     desc->addParam( period );
-    
+
     desc->addInput( InputSpec("Ref cube",true) );
     desc->addInput( InputSpec("Delta cube",true) );
-    
+
     desc->setNrOutputs( Seis::UnknowData, 1 );
 
     desc->setLocality( Desc::SingleTrace );
@@ -68,7 +68,7 @@ const Interval<int>* DeltaResample::desZSampMargin(int,int) const
 }
 
 
-bool DeltaResample::computeData( const DataHolder& output, const BinID& relpos, 
+bool DeltaResample::computeData( const DataHolder& output, const BinID& relpos,
 			      int z0, int nrsamples, int threadid ) const
 {
     ValueSeriesInterpolator<float> interp( refcubedata_->nrsamples_ - 1 );
@@ -89,4 +89,4 @@ bool DeltaResample::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-}; //namespace
+} // namespace Attrib

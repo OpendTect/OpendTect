@@ -67,7 +67,4 @@ protected:
 };
 
 
-
-}; //namespace
-
-
+} // namespace PreStack

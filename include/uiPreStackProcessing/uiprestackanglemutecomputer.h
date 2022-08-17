@@ -41,6 +41,4 @@ protected:
     bool		acceptOK(CallBacker*) override;
 };
 
-
-}; //namespace
-
+} // namespace PreStack

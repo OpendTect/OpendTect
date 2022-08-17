@@ -290,7 +290,7 @@ static void add_attr_iop( H5::H5Object& loc, const H5std_string attr_name,
     iop->set( attr_name.c_str(), valstr.c_str() );
 }
 
-} //namespace HDF5
+} // namespace HDF5
 
 void HDF5::ReaderImpl::gtAttribNames( const H5::H5Object& h5obj,
 				      BufferStringSet& nms ) const

@@ -234,4 +234,4 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
     return true;
 }
 
-} //namespace MPE
+} // namespace MPE

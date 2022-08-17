@@ -36,6 +36,4 @@ protected:
     uiGenInput*		iscrossfld_;
 };
 
-
-}; //namespace
-
+} // namespace PreStack

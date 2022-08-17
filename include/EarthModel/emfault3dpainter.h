@@ -133,5 +133,4 @@ protected:
 			{ return paintIntersection( f, fm ); }
 };
 
-} //namespace EM
-
+} // namespace EM

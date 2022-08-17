@@ -50,5 +50,4 @@ protected:
     visBase::PolyLine*		polyline_;
 };
 
-};//namespace
-
+} // namespace visSurvey

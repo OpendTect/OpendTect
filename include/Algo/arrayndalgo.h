@@ -2045,7 +2045,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     return true;
 }
 
-}; //namespace ArrayMath
+} // namespace ArrayMath
 
 
 

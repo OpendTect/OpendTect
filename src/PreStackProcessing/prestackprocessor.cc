@@ -419,4 +419,4 @@ void Processor::freeArray( ObjectSet<Gather>& arr )
 }
 
 
-}; //namespace
+} // namespace PreStack

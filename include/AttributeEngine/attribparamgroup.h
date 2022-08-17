@@ -269,5 +269,4 @@ void ParamGroup<PT>::fillDefStr( BufferString& res ) const
 			}
 
 
-}//namespace
-
+} // namespace Attrib

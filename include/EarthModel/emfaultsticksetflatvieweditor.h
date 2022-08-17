@@ -38,5 +38,4 @@ protected:
     TrcKeyZSampling	tkzs_;
 };
 
-} //namespace EM
-
+} // namespace EM

@@ -76,4 +76,4 @@ FunctionSource* uiVolumeFunction::getSource()
 { return source_; }
 
 
-}; //namespace
+} // namespace Vel

@@ -50,13 +50,13 @@ public:
 			//!<Will run automaticly at first nextStep
     bool		getPositions(BinIDValueSet&) const;
 			//!<Only after first nextStep, or prepareWork
-			
+
     bool		getBoundingBox(Interval<int>& inlrg,
 				       Interval<int>& crlrg ) const;
 			//!<Only after first nextStep, or prepareWork
     static bool		readSamplingData(const IOObj&,SamplingData<int>& inl,
 					SamplingData<int>& crl);
-			
+
     uiString		uiMessage() const override
 			{ return tr("Loading events"); }
 
@@ -94,7 +94,7 @@ protected:
     const BinIDValueSet*			bidsel_;
     const TrcKeySampling*				horsel_;
 
-    ObjectSet<EventPatchReader>			patchreaders_;	
+    ObjectSet<EventPatchReader>			patchreaders_;
 
     uiString					errmsg_;
     bool					trigger_;
@@ -162,6 +162,4 @@ protected:
     IOObj*			to_;
 };
 
-
-}; //namespace
-
+} // namespace PreStack

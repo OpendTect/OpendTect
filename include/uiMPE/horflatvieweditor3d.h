@@ -122,6 +122,4 @@ protected:
     bool			pickinvd_;
 };
 
-} //namespace MPE
-
-
+} // namespace MPE

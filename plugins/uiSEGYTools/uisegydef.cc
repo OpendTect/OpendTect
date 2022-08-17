@@ -600,7 +600,7 @@ bool getVals()
     uiCheckBox*			issmallfld_;
     Notifier<uiSEGYByteSpec>	checked;
 
-}; // end class uiSEGYByteSpec
+}; // class uiSEGYByteSpec
 
 
 //--- uiSEGYFileOpts ----

@@ -42,6 +42,4 @@ protected:
     bool		writeAscii();
 };
 
-} //namespace PreStack
-
-
+} // namespace PreStack

@@ -293,7 +293,7 @@ BufferString& GetIsolateScript()
     return *ret.ptr();
 }
 
-} //namespace OS
+} // namespace OS
 
 
 void OS::MachineCommand::setIsolationScript( const char* fnm )

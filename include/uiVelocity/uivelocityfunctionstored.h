@@ -19,6 +19,7 @@ class uiIOObjSel;
 
 namespace Vel
 {
+
 class StoredFunctionSource;
 
 mExpClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
@@ -42,6 +43,4 @@ protected:
     StoredFunctionSource*	source_;
 };
 
-
-}; //namespace
-
+} // namespace Vel

@@ -42,6 +42,4 @@ protected:
     VolumeFunctionSource*	source_;
 };
 
-
-}; //namespace
-
+} // namespace Vel

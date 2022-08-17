@@ -22,7 +22,7 @@ mGlobal(uiTools) float getGUIDefaultVelocity();
 			//!< otherwise 2000. Its purpose is to get nice values
 			//!< of velocity when initializing velocity fields
 
-}; //namespace
+} // namespace Vel
 
 
 
@@ -38,5 +38,3 @@ public:
     float		getInternalVelocity() const;
 
 };
-
-

@@ -559,4 +559,4 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
     return Coord( -direction.y, direction.x );
 }
 
-} //namespace EM
+} // namespace EM

@@ -49,6 +49,4 @@ protected:
     bool				applyall_;
 };
 
-
-}; //namespace
-
+} // namespace PreStackView

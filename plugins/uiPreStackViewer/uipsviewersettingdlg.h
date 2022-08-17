@@ -2,7 +2,7 @@
 
 /*+
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2007
@@ -17,11 +17,11 @@ class uiCheckBox;
 namespace PreStack { class ProcessManager; }
 namespace visSurvey { class PreStackDisplay; }
 
-namespace PreStackView 
-{ 
+namespace PreStackView
+{
     class uiViewer3DMgr;
     class uiViewer3DScalingTab;
-    class uiViewer3DAppearanceTab; 
+    class uiViewer3DAppearanceTab;
     class uiViewer3DShapeTab;
     class uiViewer3DPreProcTab;
     class uiViewer3DEventsTab;
@@ -46,5 +46,4 @@ protected:
 };
 
 
-}; //namespace 
-
+} // namespace PreStackView

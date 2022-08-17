@@ -718,4 +718,4 @@ void RandomLineManager::remove( RandomLine* rl )
     lines_.removeSingle( rlidx );
 }
 
-} //namespace Geometry
+} // namespace Geometry

@@ -42,6 +42,4 @@ protected:
     uiGenInput*			gradientfld_;
 };
 
-}; //namespace
-
-
+} // namespace Vel

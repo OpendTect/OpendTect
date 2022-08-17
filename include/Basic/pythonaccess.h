@@ -20,7 +20,8 @@ class FilePath;
 class ServiceMgrBase;
 class uiPythonSettings;
 class uiString;
-namespace OS {
+namespace OS
+{
     class CommandExecPars;
     class CommandLauncher;
     class MachineCommand;
@@ -200,6 +201,4 @@ namespace OD
     mGlobal(Basic) uiRetVal pythonRemoveDir(const char* path,
 						    bool waitforfin=false);
 
-} //namespace OD
-
-
+} // namespace OD

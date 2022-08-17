@@ -10,30 +10,41 @@ ________________________________________________________________________
 -*/
 
 #include "uiprestackprocessingmod.h"
+
 #include "uipsviewer2dposdlg.h"
 #include "uiobjectitemviewwin.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uistring.h"
 
+#include "flatview.h"
 #include "multiid.h"
 #include "trckeyzsampling.h"
-#include "flatview.h"
 
 
-class uiSlicePos2DView;
 class uiColorTableSel;
+class uiSlicePos2DView;
 
-namespace PreStack { class Gather; class MuteDef; class ProcessManager;
-		     class VelocityBasedAngleComputer; class AngleCompParams; }
+namespace PreStack
+{
+class AngleCompParams;
+class Gather;
+class MuteDef;
+class ProcessManager;
+class VelocityBasedAngleComputer;
+}
+
+
 namespace PreStackView
 {
-    class uiViewer2D;
-    class uiViewer2DControl;
-    class uiViewer2DPosDlg;
-    class uiGatherDisplay;
-    class uiGatherDisplayInfoHeader;
-    class uiPSMultiPropDlg;
+
+class uiViewer2D;
+class uiViewer2DControl;
+class uiViewer2DPosDlg;
+class uiGatherDisplay;
+class uiGatherDisplayInfoHeader;
+class uiPSMultiPropDlg;
+
 
 mExpClass(uiPreStackProcessing) PSViewAppearance : public FlatView::Appearance
 {
@@ -227,6 +238,4 @@ protected:
     void		propertiesDlgCB(CallBacker*);
 };
 
-
-}; //namespace
-
+} // namespace PreStackView

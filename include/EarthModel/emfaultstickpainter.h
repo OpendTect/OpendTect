@@ -127,4 +127,4 @@ protected:
     RandomLineID	rdlid_;
 };
 
-} //namespace EM
+} // namespace EM

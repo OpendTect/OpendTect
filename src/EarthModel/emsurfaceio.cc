@@ -2110,4 +2110,4 @@ bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
     return strm.isOK();
 }
 
-}; //namespace
+} // namespace EM

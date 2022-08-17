@@ -18,9 +18,9 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(MadAGC)
-    
+
 void MadAGC::initClass()
 {
     mAttrStartInitClass
@@ -80,7 +80,7 @@ const BinID* MadAGC::reqStepout(int input,int output) const
 { return &reqstepout_; }
 
 
-bool MadAGC::computeData( const DataHolder& output, const BinID& relpos, 
+bool MadAGC::computeData( const DataHolder& output, const BinID& relpos,
 			      int z0, int nrsamples, int threadid ) const
 {
     //TODO: connect with Madagascar sfagc
@@ -88,4 +88,4 @@ bool MadAGC::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-}; //namespace
+} // namespace Attrib

@@ -90,5 +90,4 @@ bool uiViewer3DPreProcTab::apply()
     return true;
 }
 
-
-}; //namespace
+} // namespace PreStackView

@@ -527,4 +527,4 @@ bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
     return true;
 }
 
-} //namespace
+} // namespace PreStackView

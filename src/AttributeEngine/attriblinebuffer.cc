@@ -119,7 +119,7 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
 }
 
 
-void DataHolderLineBuffer::removeBefore( const BinID& bid, 
+void DataHolderLineBuffer::removeBefore( const BinID& bid,
 					const BinID& direction )
 {
     removeWithOp( < );
@@ -143,4 +143,4 @@ void DataHolderLineBuffer::removeInline( int lineidx )
 }
 
 
-}; //namespace
+} // namespace Attrib

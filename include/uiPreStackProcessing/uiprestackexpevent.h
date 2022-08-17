@@ -21,7 +21,6 @@ class uiFileInput;
 namespace PreStack
 {
 
-
 mExpClass(uiPreStackProcessing) uiEventExport : public uiDialog
 { mODTextTranslationClass(uiEventExport);
 public:
@@ -36,5 +35,4 @@ protected:
 };
 
 
-}; //namespace
-
+} // namespace PreStack

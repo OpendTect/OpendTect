@@ -91,6 +91,4 @@ protected:
 mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
 		      uiPSPD );
 
-
-}; //namespace
-
+} // namespace PreStack

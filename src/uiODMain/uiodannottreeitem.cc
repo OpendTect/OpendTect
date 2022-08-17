@@ -41,10 +41,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-//namespace Annotations
-//{
-
-
 uiODAnnotParentTreeItem::uiODAnnotParentTreeItem()
     : uiTreeItem( tr("Annotations") )
 {}

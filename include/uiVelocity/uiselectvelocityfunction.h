@@ -23,6 +23,7 @@ class uiPushButton;
 
 namespace Vel
 {
+
 class FunctionSource;
 
 
@@ -103,6 +104,4 @@ public:
     uiFunctionSettings*		dlggrp_;
 };
 
-}; //namespace
-
-
+} // namespace Vel

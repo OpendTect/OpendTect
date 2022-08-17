@@ -121,4 +121,4 @@ protected:
 mGlobal(CRS) void		initCRSDatabase();
 mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
 
-}; //namespace
+} // namespace Coords

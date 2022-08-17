@@ -242,7 +242,7 @@ public:
 
 };
 
-} //namespace Survey
+} // namespace Survey
 
 
 #define mUdfGeomID		Survey::GeometryManager::cUndefGeomID()

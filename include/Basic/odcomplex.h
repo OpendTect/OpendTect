@@ -50,7 +50,7 @@ public:
 };
 
 
-};//namespace Values
+} // namespace Values
 
 
 mGlobal(Basic) bool isUdfImpl(float_complex);

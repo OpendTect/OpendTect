@@ -185,4 +185,4 @@ uiString TutOpCalculatorTask::uiMessage() const
     return tr("Computing Tutorial Operations");
 }
 
-}//namespace
+} // namespace VolProc

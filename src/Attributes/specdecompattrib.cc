@@ -451,4 +451,4 @@ bool SpecDecomp::areAllOutputsEnabled() const
 }
 
 
-}//namespace
+} // namespace Attrib

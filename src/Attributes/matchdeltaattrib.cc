@@ -19,19 +19,19 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(MatchDelta)
-    
+
 void MatchDelta::initClass()
 {
     mAttrStartInitClass
-	
+
     FloatParam* maxshift = new FloatParam( maxshiftStr() );
     desc->addParam( maxshift );
-    
+
     desc->addInput( InputSpec("Ref cube",true) );
     desc->addInput( InputSpec("Match cube",true) );
-    
+
     desc->setNrOutputs( Seis::UnknowData, 2 );
 
     desc->setLocality( Desc::SingleTrace );
@@ -196,7 +196,7 @@ void MatchDelta::fillOutput( const DataHolder& output,
 }
 
 
-bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos, 
+bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
 			      int z0, int nrsamples, int threadid ) const
 {
     poss_.erase(); deltas_.erase();
@@ -205,4 +205,4 @@ bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-}; //namespace
+} // namespace Attrib

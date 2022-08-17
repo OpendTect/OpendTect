@@ -238,5 +238,4 @@ bool uiViewer3DPositionDlg::rejectOK( CallBacker* )
     return true;
 }
 
-
-}; //namespace
+} // namespace PreStack

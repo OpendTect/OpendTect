@@ -123,6 +123,4 @@ protected:
     uiGenInput*		topfld_;
 };
 
-
-}; //namespace
-
+} // namespace PreStack

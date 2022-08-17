@@ -521,7 +521,7 @@ bool IsUserAnAdmin()
     return isadmin;
 }
 
-} //namespace WinUtils
+} // namespace WinUtils
 
 
 unsigned int getWinVersion()

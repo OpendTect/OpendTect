@@ -20,6 +20,7 @@ class DateInfo;
 
 namespace SqlDB
 {
+
 class DatabaseTable;
 class Access;
 
@@ -231,7 +232,4 @@ const char* DatabaseColumn<T>::dataString( const T& val ) const
     return toString( val );
 }
 
-
-} //namespace
-
-
+} // namespace SqlDB

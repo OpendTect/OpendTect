@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 PosVecOutputGen::PosVecOutputGen( const DescSet& as,
 				  const BufferStringSet& in,
 				  const ObjectSet<BinIDValueSet>& b,
@@ -100,4 +100,4 @@ int PosVecOutputGen::nextStep()
     return res;
 }
 
-};//namespace
+} // namespace Attrib

@@ -47,49 +47,49 @@ void FingerPrint::initClass()
 
     BinIDParam* refpos = new BinIDParam( refposStr() );
     desc->addParam( refpos );
-    
+
     FloatParam* refposz = new FloatParam( refposzStr() );
     desc->addParam( refposz );
 
     StringParam* reflineset = new StringParam( reflinesetStr() );
     desc->addParam( reflineset );
-    
+
     StringParam* ref2dline = new StringParam( ref2dlineStr() );
     desc->addParam( ref2dline );
-    
+
     FloatParam value( valStr() );
-    ParamGroup<FloatParam>* valueset = 
+    ParamGroup<FloatParam>* valueset =
 				new ParamGroup<FloatParam>(0,valStr(),value);
     desc->addParam( valueset );
 
     FloatGateParam range( rangeStr() );
-    ParamGroup<FloatGateParam>* rangeset = 
+    ParamGroup<FloatGateParam>* rangeset =
 			    new ParamGroup<FloatGateParam>(0,rangeStr(),range);
     desc->addParam( rangeset );
-    
+
     IntParam weight( weightStr() );
-    ParamGroup<IntParam>* weightset = 
+    ParamGroup<IntParam>* weightset =
 				new ParamGroup<IntParam>(0,weightStr(),weight);
     desc->addParam( weightset );
-    
+
     IntParam* statstype = new IntParam( statstypeStr() );
     statstype->setDefaultValue( 0 );
     desc->addParam( statstype );
-    
+
     StringParam* valpickset = new StringParam( valpicksetStr() );
     desc->addParam( valpickset );
-    
+
     IntParam* valreftype = new IntParam( valreftypeStr() );
     valreftype->setDefaultValue(2);
     desc->addParam( valreftype );
-    
+
     StringParam* rgpickset = new StringParam( rgpicksetStr() );
     desc->addParam( rgpickset );
-    
+
     IntParam* rgreftype = new IntParam( rgreftypeStr() );
     rgreftype->setDefaultValue(2);
     desc->addParam( rgreftype );
-    
+
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -119,11 +119,11 @@ void FingerPrint::updateDesc( Desc& desc )
     desc.setParamEnabled( refposzStr(), type == 1 );
     desc.setParamEnabled( valpicksetStr(), type == 2 );
     desc.setParamEnabled( statstypeStr(), type == 2 );
-    
+
     const bool is2d = desc.descSet() ? desc.descSet()->is2D() : false;
     desc.setParamEnabled( reflinesetStr(), type == 1 && is2d );
     desc.setParamEnabled( ref2dlineStr(), type == 1 && is2d );
-    
+
     int rgtype = desc.getValParam(rgreftypeStr())->getIntValue();
     desc.setParamEnabled( rgpicksetStr(), rgtype == 1 );
 }
@@ -163,7 +163,7 @@ FingerPrint::FingerPrint( Desc& dsc )
 	    nrtimes--;
 	}
     }
-    
+
     scaleVector( refvector_, ranges_, scaledref_ );
 }
 
@@ -196,7 +196,7 @@ bool FingerPrint::usesTracePosition() const
 }
 
 
-bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos, 
+bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
 			       int z0, int nrsamples, int threadid ) const
 {
     if ( inputdata_.isEmpty() || !outputinterest_[0] ||
@@ -229,4 +229,4 @@ bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-}; //namespace
+} // namespace Attrib

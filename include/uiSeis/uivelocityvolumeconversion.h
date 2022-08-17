@@ -44,7 +44,4 @@ protected:
     uiBatchJobDispatcherSel*	batchfld_;
 };
 
-}; //namespace
-
-
-
+} // namespace Vel

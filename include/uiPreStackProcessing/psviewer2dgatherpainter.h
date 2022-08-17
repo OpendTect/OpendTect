@@ -50,6 +50,4 @@ protected:
     ConstRefMan<PreStack::Gather>	inputvdgather_;
 };
 
-
-}; //namespace
-
+} // namespace PreStackView

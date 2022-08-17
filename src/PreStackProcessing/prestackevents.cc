@@ -961,4 +961,4 @@ bool SetEventUndo::removeEvent()
 }
 
 
-}; //namespace
+} // namespace PreStack

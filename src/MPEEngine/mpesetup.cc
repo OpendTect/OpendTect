@@ -42,7 +42,7 @@ void Setup::fillPar( IOPar& par ) const
 }
 
 
-}; //namespace MPE
+} // namespace MPE
 
 
 
@@ -54,7 +54,7 @@ uiString MPESetupTranslatorGroup::sTypeName(int num)
 { return tr("Tracking setup",0,num ); }
 
 
-// MPESetupTranslator ---------------------------------------------------- 
+// MPESetupTranslator ----------------------------------------------------
 
 
 bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
@@ -69,7 +69,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	err = "Cannot open "; err += ioobj->fullUserExpr(true); 
+	err = "Cannot open "; err += ioobj->fullUserExpr(true);
 	return false;
     }
 
@@ -92,7 +92,7 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	err = "Cannot open "; err += ioobj->fullUserExpr(false); 
+	err = "Cannot open "; err += ioobj->fullUserExpr(false);
 	return false;
     }
 

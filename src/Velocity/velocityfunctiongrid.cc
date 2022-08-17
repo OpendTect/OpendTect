@@ -705,4 +705,4 @@ bool GriddedSource::usePar( const IOPar& par )
 }
 
 
-}; //namespace
+} // namespace Vel

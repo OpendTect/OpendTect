@@ -478,7 +478,7 @@ Export_Basic void programmerErrMsg( const char* inpmsg, const char* cname,
 }
 
 
-} //namespace OD
+} // namespace OD
 
 
 

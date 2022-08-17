@@ -23,6 +23,7 @@ namespace Table { class FormatDesc; }
 
 namespace PreStack
 {
+
 mExpClass(uiPreStackProcessing) uiImportMute : public uiDialog
 { mODTextTranslationClass(uiImportMute);
 public:
@@ -30,7 +31,7 @@ public:
 		    	~uiImportMute();
 
 protected:
-    
+
     uiFileInput*	inpfld_;
     uiGenInput*		inpfilehaveposfld_;
     uiGenInput*		posdatainfld_;
@@ -38,17 +39,16 @@ protected:
     uiIOObjSel*		outfld_;
 
     CtxtIOObj&		ctio_;
-    
+
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
     bool		haveInpPosData() const;
-    
+
     void 		formatSel(CallBacker*);
     void		changePrefPosInfo(CallBacker*);
 
     bool		acceptOK(CallBacker*) override;
 };
 
-
-}; //namespace Prestack
+} // namespace PreStack

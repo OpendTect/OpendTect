@@ -13,7 +13,6 @@
 namespace PreStackView
 {
 
-
 Viewer2DGatherPainter::Viewer2DGatherPainter( FlatView::Viewer& v )
     : inputwvagather_( 0 )
     , inputvdgather_( 0 )
@@ -84,5 +83,4 @@ void Viewer2DGatherPainter::setWVAGather( DataPackID wvaid )
     }
 }
 
-
-}; //namespace
+} // namespace PreStackView

@@ -41,7 +41,7 @@ namespace OD
     const char* PythonAccess::sKeyActivatePath() { return "activatefnm"; }
     static const char* sKeyPythonPathEnvStr()	{ return "PYTHONPATH"; }
 
-} //namespace OD
+} // namespace OD
 
 BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
@@ -359,7 +359,7 @@ BufferString& GetPythonActivatorExe()
     return *ret.ptr();
 }
 
-} //namespace OD
+} // namespace OD
 
 
 void OD::PythonAccess::setPythonActivator( const char* fnm )

@@ -32,7 +32,7 @@ bool PickSetEvent::unDo()
 }
 
 
-    
+
 bool PickSetEvent::reDo()
 {
     const RowCol pos = picks_.find( bid_, oldpick_.depth_ );
@@ -68,7 +68,7 @@ bool PickAddEvent::unDo()
     return true;
 }
 
-    
+
 bool PickAddEvent::reDo()
 {
     picks_.set( newbid_, newpick_, false );
@@ -100,7 +100,7 @@ bool PickRemoveEvent::reDo()
     return true;
 }
 
-    
+
 bool PickRemoveEvent::unDo()
 {
     picks_.set( oldbid_, oldpick_, false );
@@ -112,4 +112,4 @@ const char* PickRemoveEvent::getStandardDesc() const
 { return "removed Velocity pick"; }
 
 
-};//namespace
+} // namespace Vel

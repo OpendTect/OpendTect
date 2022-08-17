@@ -421,4 +421,4 @@ inline double ParallelCalc<float_complex>::variance() const
     return mUdf(double);
 }
 
-} //namespace Stats
+} // namespace Stats

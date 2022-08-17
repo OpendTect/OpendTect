@@ -244,4 +244,4 @@ void StatsCalculatorTask::prepareWork()
 }
 
 
-}//namespace
+} // namespace VolProc

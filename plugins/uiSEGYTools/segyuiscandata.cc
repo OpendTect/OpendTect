@@ -543,7 +543,7 @@ virtual int nextStep()
     const OffsetCalculator& offscalc_;
     od_int64		nrdone_, totalnr_;
 
-}; // end class FullUIScanner
+}; // class FullUIScanner
 
 } // namespace SEGY
 

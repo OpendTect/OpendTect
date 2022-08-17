@@ -135,5 +135,4 @@ protected:
     bool			acceptOK(CallBacker*) override;
 };
 
-}; //namespace
-
+} // namespace PreStackView

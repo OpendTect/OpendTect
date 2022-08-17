@@ -27,5 +27,5 @@ mGlobal(General) const char*	getLmUtilFilePath(uiString* errmsg);
 
 mGlobal(General) bool	getHostIDs( BufferStringSet& hostids,
 				    BufferString& errmsg );
-} //namespace OD
+} // namespace OD
 

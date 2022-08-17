@@ -106,4 +106,4 @@ ProviderFactory& PF()
     return *factory;
 }
 
-}; //namespace
+} // namespace Attrib

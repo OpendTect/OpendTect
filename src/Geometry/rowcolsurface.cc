@@ -124,4 +124,4 @@ bool RowColSurface::setPosition( GeomPosID pid, const Coord3& pos )
 bool RowColSurface::isDefined( GeomPosID pid ) const
 { return isKnotDefined( RowCol::fromInt64(pid) ); }
 
-}; //namespace
+} // namespace Geometry

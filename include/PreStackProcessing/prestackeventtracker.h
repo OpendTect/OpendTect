@@ -34,7 +34,7 @@ public:
 			mDefineFactoryInClass(EventTracker,factory);
     virtual void	reInit();
 			//!<Should be called after each survey change
-			
+
     virtual void	setMute(bool inner,MuteDef*,OD::PtrPolicy);
     virtual bool	setMute(bool inner,const MultiID&);
 
@@ -49,7 +49,7 @@ public:
     static const char*	sKeyInnerMute() { return "Inner mute"; }
     static const char*	sKeyOuterMute() { return "Outer mute"; }
 
-protected:			
+protected:
     				EventTracker();
     void			removeMutes();
 
@@ -64,6 +64,4 @@ protected:
     uiString			errmsg_;
 };
 
-
-}; //namespace
-
+} // namespace PreStack

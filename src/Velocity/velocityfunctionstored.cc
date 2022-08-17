@@ -317,4 +317,4 @@ StepInterval<float> StoredFunction::getAvailableZ() const
     return desiredrg_;
 }
 
-}; //namespace
+} // namespace Vel

@@ -93,4 +93,4 @@ bool uiEventExport::acceptOK( CallBacker* )
     return true;
 }
 
-}; //namespace
+} // namespace PreStack

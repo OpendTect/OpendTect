@@ -1195,7 +1195,7 @@ static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
     return true;
 }
 
-}; //namespace Seis
+} // namespace Seis
 
 #define cTrcChunkSz	1000
 

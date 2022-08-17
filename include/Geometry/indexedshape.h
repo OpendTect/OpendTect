@@ -252,5 +252,5 @@ public:
 };
 
 
-}; //namespace
+} // namespace Geometry
 

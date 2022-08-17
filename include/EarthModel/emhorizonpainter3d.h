@@ -111,4 +111,4 @@ protected:
     TrcKeySampling	updatesamplings_;
 };
 
-} //namespace EM
+} // namespace EM

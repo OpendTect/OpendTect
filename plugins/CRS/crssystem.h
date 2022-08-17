@@ -71,5 +71,4 @@ private:
 
 };
 
-
-}; //namespace
+} // namespace Coords

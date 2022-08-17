@@ -267,4 +267,4 @@ void uiRandomTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-}; //namespace
+} // namespace ExternalAttrib

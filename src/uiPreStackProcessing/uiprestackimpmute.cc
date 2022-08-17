@@ -154,4 +154,4 @@ bool uiImportMute::haveInpPosData() const
     return inpfilehaveposfld_->getBoolValue();
 }
 
-};// namespace PreStack
+} // namespace PreStack

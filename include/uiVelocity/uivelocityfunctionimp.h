@@ -31,7 +31,7 @@ public:
 			~uiImportVelFunc();
 
 protected:
-	
+
     uiFileInput*	inpfld_;
     uiVelocityDesc*	typefld_;
     uiIOObjSel*		outfld_;
@@ -48,7 +48,4 @@ protected:
 
 };
 
-
-} //namespace Vel
-
-
+} // namespace Vel

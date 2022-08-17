@@ -48,6 +48,4 @@ protected:
     const bool		is2d_;
 };
 
-}; //namespace
-
-
+} // namespace PreStack

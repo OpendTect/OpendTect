@@ -48,5 +48,4 @@ public:
     virtual bool	usePar(const IOPar&) 	{ return true; }
 };
 
-}; //namespace
-
+} // namespace PreStack

@@ -276,7 +276,7 @@ AtomicPointer<T>& AtomicPointer<T>::operator=(const AtomicPointer<T>& ptr)
     return operator=( sCast(T*,ptr) );
 }
 
-} //namespace Threads
+} // namespace Threads
 
 
 typedef Threads::Atomic<DirtyCountType>     DirtyCounter;
