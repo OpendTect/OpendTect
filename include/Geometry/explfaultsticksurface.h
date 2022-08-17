@@ -147,5 +147,5 @@ public:
 					    TaskRunner*);
 };
 
-};
+} // namespace Geometry
 

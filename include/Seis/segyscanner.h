@@ -98,5 +98,4 @@ protected:
     uiString Openff()	{ return tr("Opening first file"); }
 };
 
-} // namespace
-
+} // namespace SEGY

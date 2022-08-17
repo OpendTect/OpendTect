@@ -104,5 +104,4 @@ public:
 			    : Access("QMYSQL",dbtype)	{}
 };
 
-} // namespace
-
+} // namespace SqlDB

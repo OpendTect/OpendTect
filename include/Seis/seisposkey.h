@@ -108,8 +108,7 @@ inline bool PosKey::operator ==( const PosKey& pk ) const
     if ( mIsUdf(pk.offset_) )
 	return mIsUdf( offset_ );
 
-    return mIsEqual(offset_,pk.offset_,1e-4); }
+    return mIsEqual(offset_,pk.offset_,1e-4);
+}
 
-};
-
-
+} // namespace Seis

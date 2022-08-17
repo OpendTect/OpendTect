@@ -65,5 +65,3 @@ protected:
     const double	cosanglexinl_, sinanglexinl_;
 };
 
-
-

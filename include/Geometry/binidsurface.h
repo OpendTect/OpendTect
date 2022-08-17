@@ -77,5 +77,3 @@ protected:
 };
 
 } // namespace Geometry
-
-

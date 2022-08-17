@@ -60,5 +60,5 @@ public:
 	    PlaneElementEditor( Element& elem, const Coord3& normal )
 		: ElementEditorImpl( elem,  Coord3::udf(), normal ) {}
 };
-};
 
+} // namespace Geometry

@@ -63,7 +63,7 @@ namespace ODInst
     mGlobal(Basic) BufferString		getInstallerPlfDir();
 
 
-} // namespace
+} // namespace ODInst
 
 #ifdef __mac__
 #define mInstallerDirNm "OpendTect Installer.app"

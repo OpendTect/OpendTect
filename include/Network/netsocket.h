@@ -137,5 +137,4 @@ private:
     const Threads::ThreadID	thread_;
 };
 
-
 } // namespace Network

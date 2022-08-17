@@ -184,7 +184,4 @@ protected:
     BufferStringSet	cols_;
 };
 
-
-
-} // namespace
-
+} // namespace SqlDB

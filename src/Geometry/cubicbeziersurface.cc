@@ -990,4 +990,4 @@ int CubicBezierSurface::nrRows() const
 int CubicBezierSurface::nrCols() const
 { return positions ? positions->info().getSize(colDim()) : 0; }
 
-};
+} // namespace Geometry

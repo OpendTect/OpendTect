@@ -399,4 +399,4 @@ bool DatabaseTable::insertRow( Access& access,const BufferStringSet& cols,
     return false;
 }
 
-} //namespace
+} // namespace SqlDB

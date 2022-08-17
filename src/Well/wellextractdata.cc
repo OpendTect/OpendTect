@@ -63,7 +63,7 @@ const char* LogDataExtracter::sKeyLogNm()   { return
 mDefineEnumUtils(ZRangeSelector,ZSelection,"Type of selection")
 { "Markers", "Depth range", "Time range", nullptr };
 
-}
+} // namespace Well
 
 static const char* sKeyDAHColName()	{ return "<MD>"; }
 

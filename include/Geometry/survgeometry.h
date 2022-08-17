@@ -27,4 +27,3 @@ public:
 			     visits the survey box. */
 
 };
-

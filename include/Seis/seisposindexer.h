@@ -164,7 +164,4 @@ protected:
 
 };
 
-
-
-} // namespace
-
+} // namespace Seis

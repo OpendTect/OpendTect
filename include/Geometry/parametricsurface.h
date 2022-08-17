@@ -104,5 +104,4 @@ protected:
     RowCol	step_;
 };
 
-};
-
+} // namespace Geometry

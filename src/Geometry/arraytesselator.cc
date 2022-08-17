@@ -163,4 +163,4 @@ const TypeSet<int>& ArrayTesselator::arrayIndexes( char s ) const
     return s==2 ? stripcis_ : (s==0 ? pointcis_ : linecis_);
 }
 
-};
+} // namespace Geometry

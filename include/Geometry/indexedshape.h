@@ -251,6 +251,4 @@ public:
     void		removeFromGeometries(int geoidx);
 };
 
-
 } // namespace Geometry
-

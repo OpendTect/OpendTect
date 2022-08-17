@@ -179,7 +179,7 @@ inline iT nrBlocks( iT totalsamples, iT basesize, iT overlapsize )
 namespace Taper
 {
     enum Type { Cosine, Linear };
-};
+} // namespace Taper
 
 /*!
 Taper an indexable array from 1 to taperfactor. If lowpos is less

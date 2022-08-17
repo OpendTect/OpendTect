@@ -20,15 +20,8 @@
 class od_ostream;
 class FilePath;
 
-namespace OD {
-    namespace JSON {
-	class Object;
-    };
-};
-
-namespace OS {
-    class CommandLauncher;
-};
+namespace OD { namespace JSON { class Object; } }
+namespace OS { class CommandLauncher; }
 
 
 /*\brief
@@ -120,4 +113,4 @@ private:
 
 };
 
-};
+} // namespace Network

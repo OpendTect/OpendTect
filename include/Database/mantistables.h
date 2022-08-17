@@ -146,5 +146,4 @@ protected:
     ObjectSet<BugHistoryTableEntry> historyset_;
 };
 
-} // namespace
-
+} // namespace SqlDB

@@ -107,6 +107,4 @@ protected:
 
 };
 
-
-} // namespace
-
+} // namespace SEGY

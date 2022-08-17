@@ -112,5 +112,5 @@ protected:
     float		directioninfluence;
 };
 
-};
+} // namespace Geometry
 

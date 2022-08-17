@@ -92,7 +92,8 @@ namespace Network
     mGlobal(Network) od_int64	getFileSize(const char*);
     mGlobal(Network) bool	getContent(const char*,BufferString&);
 
-}
+} // namespace Network
+
 
 //!>Provides file download facility
 mExpClass(Network) FileDownloader : public SequentialTask

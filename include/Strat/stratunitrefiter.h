@@ -59,5 +59,4 @@ protected:
 
 };
 
-} // namespace
-
+} // namespace Strat

@@ -67,5 +67,3 @@ mGlobal(MMProc) ObjectSet<ProgSpec>& PRSPS();
 
 
 } // namespace MMProc
-
-

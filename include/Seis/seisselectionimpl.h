@@ -186,5 +186,4 @@ protected:
 };
 
 
-} // namespace
-
+} // namespace Seis

@@ -107,5 +107,5 @@ inline Coord3 cubicDeCasteljauTangent( const Coord3* p, char i0, char di,
     return interpolpos1-interpolpos0;
 }
 
-};
+} // namespace Geometry
 

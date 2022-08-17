@@ -60,5 +60,4 @@ protected:
 
 };
 
-
 } // namespace Batch

@@ -80,5 +80,5 @@ protected:
     TypeSet<PlaneIntersection>			pis_;
 };
 
-};
+} // namespace Geometry
 

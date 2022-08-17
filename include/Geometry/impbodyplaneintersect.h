@@ -48,7 +48,4 @@ protected:
     float			inlcrlz_;
 };
 
-
-};
-
-
+} // namespace Geometry

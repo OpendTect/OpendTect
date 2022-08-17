@@ -155,11 +155,10 @@ bool TextTranslatorLanguage::load()
 }
 
 
-namespace TextTranslation {
-
+namespace TextTranslation
+{
 static Threads::Lock mgrlock_( Threads::Lock::SmallWork );
-
-};
+} // namespace TextTranslation
 
 
 // TextTranslateMgr

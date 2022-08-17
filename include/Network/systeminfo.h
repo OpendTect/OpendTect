@@ -70,5 +70,5 @@ namespace System
     mGlobal(Network) const char*	productName();
 					//!<return OS, distribution, etc.
     mGlobal(Network) const char*	kernelVersion();
-}
 
+} // namespace System

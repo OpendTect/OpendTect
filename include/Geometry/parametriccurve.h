@@ -67,5 +67,4 @@ public:
     virtual StepInterval<int>	parameterRange() const			= 0;
 };
 
-};
-
+} // namespace Geometry

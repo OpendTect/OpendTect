@@ -96,7 +96,4 @@ protected:
     int						nrdone_;
 };
 
-
-};
-
-
+} // namespace Geometry

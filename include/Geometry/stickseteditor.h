@@ -31,5 +31,4 @@ protected:
     void	addedKnots(CallBacker*);
 };
 
-};
-
+} // namespace Geometry

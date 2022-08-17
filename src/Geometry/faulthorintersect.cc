@@ -543,4 +543,4 @@ int BulkFaultBinIDSurfaceIntersector::nextStep()
     return MoreToDo();
 }
 
-};
+} // namespace Geometry

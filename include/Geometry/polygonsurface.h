@@ -91,5 +91,4 @@ protected:
     int				beziernrpts_;
 };
 
-};
-
+} // namespace Geometry

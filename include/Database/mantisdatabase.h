@@ -193,5 +193,4 @@ protected:
 };
 
 
-} // namespace
-
+} // namespace SqlDB

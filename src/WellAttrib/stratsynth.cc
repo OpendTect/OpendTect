@@ -1459,7 +1459,7 @@ static float cMaximumVpWaterVel()
 
     ObjectSet<ElasticPropGen>	elpgens_;
 
-};
+}; // class ElasticModelCreator
 
 
 class ElasticModelAdjuster : public ::ParallelTask
@@ -1605,7 +1605,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
     uiString			infomsg_;
     uiString			errmsg_;
     bool			checksvel_;
-};
+}; // class ElasticModelAdjuster
 
 } // namespace StratSynth
 
@@ -2028,7 +2028,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
     const od_int64		totalnr_;
     uiString			msg_;
 
-};
+}; // class StratSeqSplitter
 
 
 mClass(WellAttrib) PropertyDataSetsCreator : public ParallelTask
@@ -2230,7 +2230,7 @@ bool doFinish( bool success ) override
     const od_int64			totalnr_;
     uiString				msg_;
 
-};
+}; // class PropertyDataSetsCreator
 
 } // namespace StratSynth
 
@@ -2633,7 +2633,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     Attrib::DescSet*			descset_ = nullptr;
     TrcKeyZSampling			tkzs_;
     uiString				msg_;
-};
+}; // class AttributeSyntheticCreator
 
 } // namespace StratSynth
 
@@ -2880,9 +2880,10 @@ static void convertAngleDataToDegrees( PreStack::Gather& ag )
     uiString				msg_;
     od_int64				totalnr_;
 
-};
+}; // class PSAngleDataCreator
 
 } // namespace StratSynth
+
 
 void StratSynth::DataMgr::createAngleData( PreStackSyntheticData& pssd,
 					   TaskRunner* taskrun ) const

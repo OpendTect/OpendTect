@@ -116,6 +116,4 @@ protected:
     TypeSet<Pos::GeomID> geomids_;
 };
 
-
-} // namespace
-
+} // namespace Pos

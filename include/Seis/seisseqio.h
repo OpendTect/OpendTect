@@ -154,7 +154,4 @@ public:
 
 };
 
-
 } // namespace Seis
-
-

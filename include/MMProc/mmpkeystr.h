@@ -35,4 +35,4 @@ namespace MMPStr
     inline StringView sPortName()		{ return "port_name"; }
     inline StringView sJobID()			{ return "job_id"; }
 
-};
+} // namespace MMPStr

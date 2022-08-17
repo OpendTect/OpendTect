@@ -1315,4 +1315,4 @@ bool MPEDisplay::isPickingEnabled() const
     return !slices_.isEmpty() && slices_[0]->isPickingEnabled();
 }
 
-} // namespace vissurvey
+} // namespace visSurvey

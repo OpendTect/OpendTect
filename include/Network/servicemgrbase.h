@@ -13,13 +13,14 @@
 
 #include "ptrman.h"
 
-namespace Network {
+namespace Network
+{
     class RequestConnection;
     class RequestPacket;
     class RequestServer;
-};
+}
 
-namespace OD { namespace JSON { class Object; }; };
+namespace OD { namespace JSON { class Object; } }
 
 
 /*!\brief Base class for OpendTect Service Manager and external services/apps */

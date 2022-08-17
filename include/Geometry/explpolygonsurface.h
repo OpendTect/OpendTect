@@ -84,5 +84,5 @@ protected:
     IndexedGeometry*		polygondisplay_;
 };
 
-};
+} // namespace Geometry
 

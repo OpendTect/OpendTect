@@ -42,4 +42,3 @@ mGlobal(MMProc) const ObjectSet<MMProc::AssetMgr>& ASMGRS();
 
 
 } // namespace MMProc
-

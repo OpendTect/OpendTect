@@ -135,5 +135,4 @@ protected:
     const Line2DInterSectionSet*	line2dintersectionset_;
 };
 
-} // namepace MPE
-
+} // namespace MPE

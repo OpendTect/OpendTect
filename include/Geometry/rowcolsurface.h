@@ -46,5 +46,4 @@ public:
     bool			isDefined(GeomPosID pid) const override;
 };
 
-};
-
+} // namespace Geometry

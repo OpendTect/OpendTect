@@ -60,5 +60,4 @@ protected:
     Geometry::Element&	element;
 };
 
-};
-
+} // namespace Geometry

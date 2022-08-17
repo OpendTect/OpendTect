@@ -54,4 +54,4 @@ bool ElementEditorImpl::mayTranslate3D( GeomPosID ) const
 void ElementEditorImpl::addedKnots(CallBacker*)
 { editpositionchange.trigger(); }
 
-};
+} // namespace Geometry

@@ -87,5 +87,5 @@ protected:
 
 };
 
-} // namespace
+} // namespace SEGY
 

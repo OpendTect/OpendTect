@@ -160,6 +160,4 @@ protected:
     Seis::PosIndexer*		indexer_;
 };
 
-} // namespace
-
-
+} // namespace SEGY

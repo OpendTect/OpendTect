@@ -40,7 +40,4 @@ protected:
 
 };
 
-
 } // namespace MMProc
-
-

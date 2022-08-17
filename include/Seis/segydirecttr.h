@@ -50,7 +50,7 @@ protected:
 
 };
 
-}
+} // namespace SEGY
 
 
 /*!\brief reads from 3D PS data store reader based on SEG-Y files */

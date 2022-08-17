@@ -106,6 +106,4 @@ public:
 
 };
 
-
-} // namespace
-
+} // namespace Pos

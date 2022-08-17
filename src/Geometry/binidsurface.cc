@@ -652,4 +652,4 @@ int BinIDSurface::nrCols() const
 { return depths_ ? depths_->info().getSize(colDim()) : 0; }
 
 
-};
+} // namespace Geometry

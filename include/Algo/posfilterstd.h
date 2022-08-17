@@ -170,5 +170,4 @@ public:
 
 };
 
-} // namespace
-
+} // namespace Pos

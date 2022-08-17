@@ -72,7 +72,7 @@ protected:
 
 };
 
-} // namespace
+} // namespace OD
 
 
 #define mPlf(ptyp) OD::Platform(OD::Platform::ptyp)

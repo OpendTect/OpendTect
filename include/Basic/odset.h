@@ -48,7 +48,7 @@ public:
     static inline od_int64	maxIdx64()	{ return 9223372036854775807LL;}
 };
 
-} // namespace
+} // namespace OD
 
 
 

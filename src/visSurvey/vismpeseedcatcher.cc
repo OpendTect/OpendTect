@@ -796,4 +796,4 @@ void MPEClickInfo::setObjRandomLineID( RandomLineID rdlid )
 RandomLineID MPEClickInfo::getObjRandomLineID() const
 { return rdlid_; }
 
-} // namespce visSurvey
+} // namespace visSurvey
