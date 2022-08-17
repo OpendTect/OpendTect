@@ -70,6 +70,8 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	CREATE_DEVELPACKAGES()
     elseif( ${PACK} STREQUAL "classdoc" )
 	CREATE_DOCPACKAGES( classdoc )
+	execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}"
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     endif()
 
     if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
@@ -78,8 +80,12 @@ foreach ( PACKAGE ${PACKAGELIST} )
 
     if( ${PACK} STREQUAL "doc" )
 	CREATE_DOCPACKAGES( doc )
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK}
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     elseif( ${PACK} STREQUAL "dgbdoc" )
 	CREATE_DOCPACKAGES( dgbdoc )
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK}
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     else()
 	CREATE_PACKAGE( ${PACK} )
     endif()
