@@ -149,6 +149,3 @@ bool is_open()
 
 
 } // namespace std
-
-
-#endif
