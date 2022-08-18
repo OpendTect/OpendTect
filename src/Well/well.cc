@@ -85,6 +85,14 @@ mDefineEnumUtils(Well::Info, InfoType, "Info type")
 };
 
 
+template <>
+void EnumDefImpl<Well::Info::InfoType>::init()
+{
+    fillUiStrings();
+    setUiStringForIndex( 0, uiString::empty() );
+}
+
+
 int Well::Info::legacyLogWidthFactor()
 {
    const int inlnr = SI().inlRange( true ).nrSteps() + 1;
