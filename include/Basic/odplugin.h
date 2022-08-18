@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Apr 2011
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -33,5 +32,3 @@ extern "C" {
 #define mDefODPluginEarlyLoad(pinm) \
     mExternC(pinm) int Get##pinm##PluginType(); \
     mExternC(pinm) int Get##pinm##PluginType() { return PI_AUTO_INIT_EARLY; }
-
-

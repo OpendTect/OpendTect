@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		12-3-1996
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -126,5 +125,3 @@ inline bool DateInfo::operator >=( const DateInfo& di ) const
 
 inline int operator -( const DateInfo& di1, const DateInfo& di2 )
 { return di1.days1900_ - di2.days1900_; }
-
-

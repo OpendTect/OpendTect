@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		Jan 2006
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -106,5 +104,3 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 {
     return set( StepInterval<X>( sd.start, sd.atIndex(nr-1), sd.step ), y );
 }
-
-

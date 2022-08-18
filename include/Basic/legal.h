@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		Mar 2006
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -50,4 +48,3 @@ mGlobal(Basic) uiString gplV3Text();
 
 mGlobal(Basic) uiString lgplV3Text();
 //!<Gnu Lesser Public License Text. Includes GPL text
-

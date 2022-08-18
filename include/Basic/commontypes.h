@@ -1,14 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert/Salil
- Date:		Oct 2013
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "commondefs.h"
 #include "plftypes.h"
@@ -98,4 +96,3 @@ inline bool isSynthetic( OD::GeomSystem gs )   { return gs==OD::GeomSynth; }
 inline void set2D( OD::GeomSystem& gs ) { gs = OD::Geom2D; }
 inline void set3D( OD::GeomSystem& gs ) { gs = OD::Geom3D; }
 inline void setSynthetic( OD::GeomSystem& gs ) { gs = OD::GeomSynth; }
-

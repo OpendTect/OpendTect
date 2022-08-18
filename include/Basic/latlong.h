@@ -1,12 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		2008
- Contents:	Geographics lat/long <-> Coord transform (an estimate)
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -96,5 +93,3 @@ protected:
     double		lngdist_;
     double		scalefac_;
 };
-
-

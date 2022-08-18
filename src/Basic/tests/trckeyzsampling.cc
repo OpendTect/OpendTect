@@ -1,10 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Raman K Singh
- * DATE     : April 2013
- * FUNCTION : Test various functions of TrcKeySampling and TrcKeyZSampling.
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "testprog.h"
 

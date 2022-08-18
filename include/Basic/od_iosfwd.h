@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Sep 2013
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -21,5 +20,3 @@ typedef od_int64	od_stream_Pos;
 #define od_space	' '
 #define od_tab		'\t'
 #define od_newline	'\n'
-
-

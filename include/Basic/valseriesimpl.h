@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril & Kris Tingdahl
- Date:          Mar 2005
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -493,4 +491,3 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 }
 
 #undef mChunkSize
-

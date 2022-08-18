@@ -2,13 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		Aug 2003
- Contents:	Plugins
-
-
- For making your own plugins, no need to include this file. Use odplugin.h.
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -37,6 +32,8 @@ mGlobal(Basic) int LoadPlugin(const char* libnm);
 
   Note: there are macros making most of the below stuff not interesting.
   See header file odplugin.h.
+
+  For making your own plugins, no need to include this file. Use odplugin.h.
 
   For shared libs to be in any way useful, an init function
   must be called. The name of that function should predictable.
@@ -161,5 +158,3 @@ private:
 };
 
 mGlobal(Basic) PluginManager& PIM();
-
-

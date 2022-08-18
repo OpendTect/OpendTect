@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Sep 1995
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
  This file contains general defines that are so basic they can (read: MUST)
@@ -15,13 +13,13 @@ ________________________________________________________________________
  undefval.h includes plftypes.h which includes plfdefs.h. Thus, every single
  source file in OD is dep on:
 
- plfdefs.h
- plftypes.h
- undefval.h
- commondefs.h
- commontypes.h
- errmsg.h
- gendefs.h
+- plfdefs.h
+- plftypes.h
+- undefval.h
+- commondefs.h
+- commontypes.h
+- errmsg.h
+- gendefs.h
 
 -*/
 

@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		23-10-1996
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -199,4 +197,3 @@ void SamplingData<T>::scale( T scl )
 template <class T> inline
 bool SamplingData<T>::isUdf() const
 { return mIsUdf(start) || mIsUdf(step); }
-

@@ -1,17 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Lammertink
- Date:		09-10-2003
- Contents:	Utilities for win32 support
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-
 -*/
-
 
 #include "basicmod.h"
 #include "gendefs.h"
@@ -402,4 +397,3 @@ http://msdn.microsoft.com/library/default.asp?
 */
 
 #endif /* __win__ */
-

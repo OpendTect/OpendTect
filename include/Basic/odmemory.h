@@ -1,13 +1,12 @@
 #pragma once
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	K. Tingdahl
- Date:		Jan 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "commondefs.h"
 #include "paralleltask.h"
@@ -492,5 +491,3 @@ inline void memValueSet( T* arr, T val , od_int64 sz, TaskRunner* taskrun )
 }
 
 } // namespace OD
-
-

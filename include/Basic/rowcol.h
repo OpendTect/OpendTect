@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		12-8-1997
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -135,6 +133,3 @@ inline bool RowCol::fromString( const char* str )
 {
     return Pos::IdxPair::parseUsrStr( str, "", "/", "" );
 }
-
-
-

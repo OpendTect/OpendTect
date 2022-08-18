@@ -1,15 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		19-10-1995
- Contents:	Error handler
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "basicmod.h"
 #include "callback.h"
@@ -43,6 +40,3 @@ public:
 
 mGlobal(Basic) void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.
-
-
-

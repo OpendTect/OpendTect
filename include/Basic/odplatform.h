@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          May 2010
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -77,5 +75,3 @@ protected:
 
 #define mPlf(ptyp) OD::Platform(OD::Platform::ptyp)
 #define mPlfShortName(ptyp) mPlf(ptyp).shortName()
-
-

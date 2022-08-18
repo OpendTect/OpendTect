@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; No license.
- Author:	A.H.Bril
- Date:		June 2006
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
  This header file is intended for programmers who want to use their code for
@@ -15,7 +14,6 @@ ________________________________________________________________________
  becomes active.
 
 -*/
-
 
 /* If you do not use OpendTect stuff here, you need a way to figure out whether
    you are in the C++ world and add something like:
@@ -94,4 +92,3 @@ struct PluginInfo
 };
 
 /* } -- for the extern "C" */
-

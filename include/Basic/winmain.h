@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Ranojay Sen
- Date:          March 2009
-_______________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
 -*/
-
 
 #include <windows.h>
 
@@ -20,4 +17,3 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     return main( __argc, __argv ); // __argc and __argv defined in windows.h;
 }
-

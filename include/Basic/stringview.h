@@ -1,13 +1,12 @@
 #pragma once
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kristofer
- Date:		April 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "basicmod.h"
 #include "odstring.h"
@@ -100,5 +99,3 @@ inline StringView& StringView::operator=(const OD::String&)
 { OD_Undef_StringView_eq_bs_finder(); return *this; }
 
 #endif
-
-

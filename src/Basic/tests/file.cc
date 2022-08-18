@@ -1,10 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 2013
- * FUNCTION :
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "file.h"
 #include "testprog.h"
@@ -162,7 +163,8 @@ bool testFilePathParsing()
 	return false;
     }
 
-    if ( !testFilePath( "https://dgbes.amazon.com/surveys/F3 Demo/Seismics/median_filtered.cbvs",
+    if ( !testFilePath(
+       "https://dgbes.amazon.com/surveys/F3 Demo/Seismics/median_filtered.cbvs",
 			"median_filtered.cbvs",	//filename
 			"dgbes.amazon.com",	//domain
 			"cbvs",		//extension
