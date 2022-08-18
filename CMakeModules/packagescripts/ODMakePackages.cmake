@@ -41,9 +41,6 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	    message( FATAL_ERROR "Configuration file not found for package ${PACKAGE}" )
 	endif()
     endif()
-    if( NOT DEFINED OpendTect_VERSION_MAJOR )
-	message( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
-    endif()
 
     if( NOT DEFINED OD_PLFSUBDIR )
 	message( FATAL_ERROR "OD_PLFSUBDIR not defined" )
@@ -69,6 +66,8 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	CREATE_DEVELPACKAGES()
     elseif( ${PACK} STREQUAL "classdoc" )
 	CREATE_DOCPACKAGES( classdoc )
+	execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}"
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     endif()
 
     if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
@@ -77,8 +76,12 @@ foreach ( PACKAGE ${PACKAGELIST} )
 
     if( ${PACK} STREQUAL "doc" )
 	CREATE_DOCPACKAGES( doc )
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK}
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     elseif( ${PACK} STREQUAL "dgbdoc" )
 	CREATE_DOCPACKAGES( dgbdoc )
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK}
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     else()
 	CREATE_PACKAGE( ${PACK} )
     endif()

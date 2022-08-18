@@ -6,12 +6,12 @@
 
 macro( OD_CREATE_PACKAGE_DEFINITION )
     GET_OD_BASE_EXECUTABLES()
-    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in
-		    ${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/develdefs.cmake
+    configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in"
+		    "${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/develdefs.cmake"
 		    @ONLY )
 
-    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/basedefs.cmake.in
-		    ${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/basedefs.cmake
+    configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/basedefs.cmake.in"
+		    "${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/basedefs.cmake"
 		    @ONLY )
 
 endmacro()
@@ -19,7 +19,7 @@ endmacro()
 
 macro( OD_ADD_PACKAGES_TARGET )
     if ( NOT DEFINED PACKAGE_DIR )
-	set( PACKAGE_DIR ${CMAKE_SOURCE_DIR}/packages )
+	set( PACKAGE_DIR "${CMAKE_SOURCE_DIR}/packages" )
     endif()
     FIND_OD_PLUGIN( "ODHDF5" )
     if ( ODHDF5_FOUND )
@@ -28,10 +28,14 @@ macro( OD_ADD_PACKAGES_TARGET )
 	set( INCLUDE_ODHDF5 "NO" )
     endif()
 
-    add_custom_target( packages  ${CMAKE_COMMAND} 
-	    -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR} 
-	    -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR} 
-	    -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH} 
+    if ( "${MAIN_GIT_BRANCH}" STREQUAL "main" )
+	set( OpendTect_INST_DIR "0.0.0" )
+    else()
+	set( OpendTect_INST_DIR ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
+    endif()
+
+    add_custom_target( packages ${CMAKE_COMMAND} 
+	    -DOpendTect_INST_DIR=${OpendTect_INST_DIR}
 	    -DOpendTect_FULL_VERSION=${OpendTect_FULL_VERSION}
 	    "-DOD_THIRD_PARTY_FILES=\"${OD_THIRD_PARTY_FILES}\""
 	    "-DOD_QTPLUGINS=\"${OD_QTPLUGINS}\""
@@ -48,19 +52,23 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DBREAKPAD_DIR=${BREAKPAD_DIR}
 	    -DPACKAGE_DIR=${PACKAGE_DIR}
 	    -DBUILD_DOCUMENTATION=${BUILD_DOCUMENTATION}
+	    -DCLASSDOC_SCRIPT_LOCATION=${CLASSDOC_SCRIPT_LOCATION}
+	    -DUSERDOC_SCRIPT_LOCATION=${USERDOC_SCRIPT_LOCATION}
 	    -DBUILD_USERDOC=${BUILD_USERDOC}
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
-	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
+	    -P "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake" 
 	    COMMENT "Creating packages" ) 
 endmacro()
 
 
 macro( OD_ADD_SIGNLIBRARIES_TARGET )
     if ( WIN32 )
-	    set( SIGNSCRIPTPATH "${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/sign_binaries_win64.cmd" )
-	    set( EXECPLFDIR "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
-	    file( TO_NATIVE_PATH ${EXECPLFDIR}  EXECPLFDIR )
-	    add_custom_target( signlibraries ${SIGNSCRIPTPATH} ${EXECPLFDIR}
-			       COMMENT "Signing DLLs and EXEs" )
+	set( EXECPLFDIR "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
+	file( TO_NATIVE_PATH "${EXECPLFDIR}" EXECPLFDIR )
+	add_custom_target( signlibraries "${SIGN_SCRIPT_LOCATION}" "${EXECPLFDIR}"
+			   COMMENT "Signing DLLs and EXEs" )
+    elseif ( APPLE )
+	add_custom_target( signlibraries "${SIGN_SCRIPT_LOCATION}" "${CMAKE_INSTALL_PREFIX}"
+			   COMMENT "Signing Libraries and EXEs" )
     endif()
 endmacro()

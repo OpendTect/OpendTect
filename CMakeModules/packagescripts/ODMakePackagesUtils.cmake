@@ -16,7 +16,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		     DESTINATION "${COPYTOLIBDIR}/../" )
 	    endif()
 	endif()
-	
+
 	file(COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 	     DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
 	     FILES_MATCHING PATTERN lmutil* )
@@ -89,7 +89,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     unset( PYTHONDIR )
 
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
-#Install lm 
+#Install lm
 	foreach( SPECFILE ${SPECFILES} )
 	     file( COPY ${COPYFROMDATADIR}/${SPECFILE}
 		   DESTINATION ${COPYTODATADIR} )
@@ -212,7 +212,7 @@ macro( COPY_THIRDPARTYLIBS )
 			if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
 			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
 			endif()
-			
+
 			file( COPY ${COPYFROMLIBDIR}/${LIB}
 			      DESTINATION ${COPYTOLIBDIR}/systemlibs )
 			continue()
@@ -389,7 +389,8 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	file( MAKE_DIRECTORY ${PACKAGE_DIR} )
     endif()
 
-    set( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
+    #Store OpendTect_INST_DIR in another variable to handle installation directory on MAC platform
+    set( REL_DIR "${OpendTect_INST_DIR}" )
     set( FULLVER_NAME "${OpendTect_FULL_VERSION}" )
     if( APPLE )
 	set( REL_DIR "OpendTect\ ${REL_DIR}.app/Contents" )
@@ -572,14 +573,14 @@ macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS
-				 OUTPUT_VARIABLE OUTVAR 
+				 OUTPUT_VARIABLE OUTVAR
 				 ERROR_VARIABLE ERRVAR )
     else()
 	execute_process( COMMAND zip -r -q -u -y
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS
-				 OUTPUT_VARIABLE OUTVAR 
+				 OUTPUT_VARIABLE OUTVAR
 				 ERROR_VARIABLE ERRVAR )
     endif()
 
