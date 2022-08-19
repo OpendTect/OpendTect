@@ -1,9 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : Mar 2004
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "stratlevel.h"
 
@@ -729,4 +731,3 @@ bool Strat::LevelSet::write( const LevelSet& ls, const MultiID& key )
 
     return ls.writeTo( fp.fullPath() );
 }
-

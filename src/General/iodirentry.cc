@@ -1,11 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : April 2001
- * FUNCTION : IODir entries for selectors
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
 -*/
-
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"

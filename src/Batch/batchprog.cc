@@ -1,10 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Bert
- * DATE     : 14-9-1998
- * FUNCTION : Batch Program 'driver'
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "batchprog.h"
 

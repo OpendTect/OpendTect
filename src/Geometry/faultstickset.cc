@@ -1,9 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : J.C. Glas
- * DATE     : November 2008
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "faultstickset.h"
 

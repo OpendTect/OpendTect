@@ -1,9 +1,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Apr 2017
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -456,4 +455,3 @@ void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
     defdims.inl() = maxinl - mininl + 1;
     defdims.crl() = maxcrl - mincrl + 1;
 }
-

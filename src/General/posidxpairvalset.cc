@@ -1,9 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : 21-6-1996
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "posidxpairvalset.h"
 #include "posidxpairvalue.h"
@@ -1587,4 +1589,3 @@ void BinIDValueSet::setIs2D( bool yn )
 
 bool BinIDValueSet::is2D() const
 { return is2d_; }
-

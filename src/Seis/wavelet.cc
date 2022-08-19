@@ -1,10 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : 23-3-1996
- * FUNCTION : Wavelet
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "wavelet.h"
 #include "waveletio.h"

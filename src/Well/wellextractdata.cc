@@ -1,9 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : May 2004
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "wellextractdata.h"
 
@@ -1366,4 +1368,3 @@ int Well::LogSampler::nrZSamples() const
 {
     return data_ ? data_->info().getSize(1) : 0;
 }
-

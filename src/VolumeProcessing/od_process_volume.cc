@@ -1,9 +1,11 @@
-    /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Y.C. Liu / Bert
- * DATE     : April 2007 / Feb 2016
--*/
+/*+
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "batchprog.h"
 
