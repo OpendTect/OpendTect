@@ -1,12 +1,9 @@
-#ifndef i_qlistbox_h
-#define i_qlistbox_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          16/05/2000
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -113,5 +110,3 @@ void itemChanged( QListWidgetItem* itm )
 };
 
 QT_END_NAMESPACE
-
-#endif

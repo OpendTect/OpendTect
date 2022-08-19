@@ -1,12 +1,9 @@
-#ifndef i_qcombobox_h
-#define i_qcombobox_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          25/05/2000
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -67,5 +64,3 @@ void editTextChanged( const QString& )
 };
 
 QT_END_NAMESPACE
-
-#endif

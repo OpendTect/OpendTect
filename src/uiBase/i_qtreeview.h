@@ -1,12 +1,9 @@
-#ifndef i_qtreeview_h
-#define i_qtreeview_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          31/01/2002
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -188,5 +185,3 @@ void itemEntered( QTreeWidgetItem* item, int col )
 };
 
 QT_END_NAMESPACE
-
-#endif

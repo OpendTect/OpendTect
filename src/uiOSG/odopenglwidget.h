@@ -2,10 +2,8 @@
 /*+
 ________________________________________________________________________
 
- Copyright:	dGB Beheer B.V.
- License:	https://dgbes.com/index.php/licensing
- Author:	Nanne Hemstra
- Date:		September 2021
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -62,4 +60,3 @@ protected:
     double		scalex_		= 1;
     double		scaley_		= 1;
 };
-

@@ -1,14 +1,13 @@
-// No multiple inclusion protection!
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          Mar 2001
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
+
+// No multiple inclusion protection!
 
 #ifndef mTheType
 #error To include __FILE__, set mTheType

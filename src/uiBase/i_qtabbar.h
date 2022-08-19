@@ -1,12 +1,9 @@
-#ifndef i_qtabbar_h
-#define i_qtabbar_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          14/02/2003
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -64,5 +61,3 @@ private slots:
 };
 
 QT_END_NAMESPACE
-
-#endif
