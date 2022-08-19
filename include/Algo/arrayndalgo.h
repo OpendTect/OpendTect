@@ -1,15 +1,12 @@
 #pragma once
-
-/*@+
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-
-@$*/
+-*/
 
 #include "algomod.h"
 #include "arrayndimpl.h"
@@ -2594,4 +2591,3 @@ private:
 
     const od_int64		totalnr_;
 };
-

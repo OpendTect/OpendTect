@@ -1,15 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kris Tingdahl
- Date:		12-4-1999
- Contents:	Periodic value interpolation and so forth
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "simpnumer.h"
 #include "idxable.h"
@@ -222,4 +219,3 @@ inline void interpolateXPeriodicReg( const T& idxabl, int sz, float pos,
 }
 
 } // namespace IdxAble
-

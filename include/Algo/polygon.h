@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	J.C. Glas
- Date:		Dec 2006
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -811,4 +809,3 @@ void ODPolygon<T>::keepBendPoints( float eps )
     if ( closed_ && poly_.size()>1 && poly_.first() != poly_.last() )
 	poly_ += poly_.first();
 }
-

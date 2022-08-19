@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Raman K Singh
- Date:          Mar 2013
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "array2dinterpolimpl.h"
 #include "contcurvinterpol.h"
@@ -171,4 +168,3 @@ public:
     bool		usePar(const IOPar&) override;
 
 };
-

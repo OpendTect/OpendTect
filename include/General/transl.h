@@ -1,22 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		21-10-1995
- Contents:	Translators
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-A translator is an object specific for a certain storage mechanism coupled with
-specific details about how to interpret/write a certain format.
-
-A Translator is member of a group, e.g. the Wavelet Translator group.
-Translator groups have a description of IOObj context needed to select an
-object of that type.
-
-*/
+-*/
 
 #include "generalmod.h"
 #include "callback.h"
@@ -27,6 +17,16 @@ object of that type.
 #include "objectset.h"
 #include "streamconn.h"
 #include "uistring.h"
+
+/*
+  A translator is an object specific for a certain storage mechanism coupled
+  with specific details about how to interpret/write a certain format.
+
+  A Translator is member of a group, e.g. the Wavelet Translator group.
+  Translator groups have a description of IOObj context needed to select an
+  object of that type.
+*/
+
 
 class Translator;
 

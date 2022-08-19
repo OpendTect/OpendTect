@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          Feb 2007
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -77,5 +76,3 @@ protected:
     inline StepInterval<double>& rg( bool forx1 )
 				{ return forx1 ? x1rg_ : x2rg_; }
 };
-
-

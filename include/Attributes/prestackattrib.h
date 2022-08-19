@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	B.Bril & H.Huck
- Date:		14-01-2008
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "attributesmod.h"
 #include "attribprovider.h"
@@ -141,4 +138,3 @@ private:
 };
 
 } // namespace Attrib
-

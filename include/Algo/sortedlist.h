@@ -1,12 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kris
- Date:		19-4-2000
- Contents:	Array sorting
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -223,5 +220,3 @@ void SortedList<T>::removeRange( size_type p1, size_type p2 )
 {
     vec_.remove( p1, p2 );
 }
-
-

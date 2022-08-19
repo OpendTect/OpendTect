@@ -1,16 +1,14 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		5-12-1995
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- Include this file in any executable program you make.
-
 -*/
+
+// Include this file in any executable program you make.
 
 #include "debug.h"
 #include "genc.h"

@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nageswara
- Date:		06-03-2020
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "generalmod.h"
 
@@ -28,4 +25,3 @@ mGlobal(General) const char*	getLmUtilFilePath(uiString* errmsg);
 mGlobal(General) bool	getHostIDs( BufferStringSet& hostids,
 				    BufferString& errmsg );
 } // namespace OD
-

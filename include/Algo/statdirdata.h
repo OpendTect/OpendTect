@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
- Date:          Mar 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -161,4 +160,3 @@ inline void DirectionalData::init( int nrsect, int nrparts )
 }
 
 } // namespace Stats
-

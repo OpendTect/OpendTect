@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
- Date:		Dec 2003
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -214,4 +212,3 @@ mGlobal(General) BufferString getStdFileName(
 //!< example: getStdFileName("North Sea","Levels")
 
 } // namespace Strat
-

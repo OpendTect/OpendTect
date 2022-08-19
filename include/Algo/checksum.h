@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	K. Tingdahl
- Date:		Jan 2015
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -22,5 +20,3 @@ int last checksum in the prevsum argument.
 mGlobal(Algo) od_uint64 checksum64(const unsigned char*,od_uint64 arrsize,
 				   od_uint64 prevsum=0);
 mGlobal(Algo) void initChecksum();
-
-

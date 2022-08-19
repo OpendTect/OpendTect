@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Nov 2010
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -218,4 +216,3 @@ inline const Interval<float> validImpRange()
 	    validDensityRange().start*validVelocityRange().start,
 	    validDensityRange().stop*validVelocityRange().stop );
 }
-

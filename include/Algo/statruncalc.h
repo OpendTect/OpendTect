@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
- Date:          10-12-1999 / Sep 2006
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -919,4 +918,3 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 #undef mRunCalc_ChkEmpty
 
 } // namespace Stats
-

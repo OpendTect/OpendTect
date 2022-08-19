@@ -1,11 +1,9 @@
 #pragma once
-                                                                                
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
- Author:        Raman K Singh
- Date:          July 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/

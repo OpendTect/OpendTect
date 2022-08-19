@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Jan 2011
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -15,5 +14,3 @@ ________________________________________________________________________
 mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceGenDesc,od,"sgd")
 mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceAttribSet,od,"lsa")
 mDeclEmptyTranslatorBundle(Strat,StratLayerModels,od,"slm")
-
-

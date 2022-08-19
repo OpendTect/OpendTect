@@ -1,17 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		14-9-1998
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- Batch programs should include this header, and define a BatchProgram::go().
- If program args are needed outside this method, BP() can be accessed.
-
-*/
+-*/
 
 #include "batchmod.h"
 
@@ -31,6 +26,12 @@ ________________________________________________________________________
 #  include "winmain.h"
 # endif
 #endif
+
+/*
+  Batch programs should include this header, and define a BatchProgram::go().
+  If program args are needed outside this method, BP() can be accessed.
+*/
+
 
 class BatchServiceServerMgr;
 class CommandLineParser;

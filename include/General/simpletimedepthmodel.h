@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Raman Singh
- Date:		Jan 2021
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "generalmod.h"
 #include "factory.h"
@@ -153,5 +150,3 @@ mExpClass(General) SimpleTimeDepthAscIO : public Table::AscIO
 
     bool			get(od_istream&,SimpleTimeDepthModel&) const;
 };
-
-

@@ -1,15 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kris (separated by Bert)
- Date:		Apr 2010
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-
-*/
+-*/
 
 #include "math2.h"
 
@@ -133,5 +130,3 @@ bool makeLine( const T& start, const T& stop, const T& step, TypeSet<T>& output)
 
     return true;
 }
-
-

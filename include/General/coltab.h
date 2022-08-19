@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Sep 2007
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "generalmod.h"
 #include "color.h"
@@ -29,4 +26,3 @@ namespace ColTab
 						      bool histeq=false);
     mGlobal(General) bool	    defHistEq();
 }
-

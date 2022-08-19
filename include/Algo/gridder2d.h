@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Y.C.Liu & K. Tingdahl
- Date:		January 2008
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "algomod.h"
 #include "arrayndalgo.h"
@@ -242,4 +239,3 @@ protected:
     bool		setWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>* usedpoints=0) const;
 };
-

@@ -1,14 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A. Huck
- Date:		Dec 2013
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "algomod.h"
 #include "arrayndimpl.h"
@@ -50,5 +48,3 @@ protected:
 			/*!<\param maxdph Maximum allowed phase difference
 			  between consecutive frequencies, in radians */
 };
-
-

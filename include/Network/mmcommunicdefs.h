@@ -1,17 +1,14 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Lammertink
- Date:		Dec 2002
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-Defines for MM job communication status tags and codes
+-*/
 
-*/
-
+// Defines for MM job communication status tags and codes
 
 #define mPID_TAG	'P'
 #define mPROC_STATUS	'S'
@@ -41,5 +38,3 @@ Defines for MM job communication status tags and codes
 #define mRSP_STOP	'S'
 #define mRSP_PAUSE	'P'
 #define mRSP_UNDEF	'U'
-
-

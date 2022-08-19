@@ -1,16 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bo Zhang/Yuancheng Liu
- Date:          July 2012
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-
 -*/
-
 
 #include "algomod.h"
 #include "factory.h"
@@ -96,5 +92,3 @@ protected:
     ObjectSet< ObjectSet<VPos> > components_;
     TypeSet<int>		sortedindex_;
 };
-
-

@@ -1,14 +1,10 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Ding Zheng
- Date:          Apr 2015
- RCS:           $Id: array2dinterpolimpl.h 38585 2015-03-20 10:24:32Z kristofer.tingdahl@dgbes.com $
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
-
 
 -*/
 
@@ -121,5 +117,3 @@ private:
     ArrPtrMan<BriggsData>   briggs_;
 
 };
-
-

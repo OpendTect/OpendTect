@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -375,4 +373,3 @@ protected:
     mGetFloatIntervalFromDesc( desc_, var, varstring )
 #define mGetDouble( var, varstring ) \
     mGetDoubleFromDesc( desc_, var, varstring )
-

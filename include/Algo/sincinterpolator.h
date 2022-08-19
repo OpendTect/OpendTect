@@ -1,16 +1,23 @@
 #pragma once
+/*+
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "algomod.h"
+
 #include "arrayndimpl.h"
 #include "mathfunc.h"
 #include "objectset.h"
 #include "thread.h"
 
-class KaiserWindow;
-
-/*!
-\brief A manager used for constructing the table necessary for Sinc
+/*!\brief A manager used for constructing the table necessary for Sinc
  interpolations.
+
  The manager creates one table per design and provides its as necessary
  A table contains shifted, stretched KaiserWindow functions in both directions
 */
@@ -85,6 +92,7 @@ protected:
 
 /*!
 \brief A sinc interpolator for bandlimited uniformly-sampled functions y(x).
+
  * Interpolators can be designed for any two of three parameters: maximum
  * error (emax), maximum frequency (fmax) and maximum length (lmax). The
  * parameter not specified is computed when an interpolator is designed.
@@ -658,4 +666,3 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 
     return mCast(RT,out);
 }
-

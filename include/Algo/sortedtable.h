@@ -1,12 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		19-4-2000
- Contents:	Array sorting
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -205,5 +202,3 @@ void SortedPointers<T>::erase()
     vals_.erase();
     ids_.erase();
 }
-
-

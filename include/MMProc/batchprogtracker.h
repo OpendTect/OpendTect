@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
- _________________________________________________________________________
+________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Prajjaval Singh
- Date:		June 2022
- ________________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
- -*/
-
+-*/
 
 #include "mmprocmod.h"
 #include "netservice.h"

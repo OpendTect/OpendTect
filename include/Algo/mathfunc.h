@@ -1,16 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		17-11-1999
- Contents:	Mathematical Functions
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "algomod.h"
 #include "interpol1d.h"
@@ -532,4 +528,3 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
 				     (float) x1, v1,
 				     (float) x2, v2, (float) x );
 }
-

@@ -1,23 +1,21 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert
- Date:		Mar 2009
- Contents:	Angle functions
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- Converting degrees, radians and user degrees to one another.
- Users (or rather: geologists) have North=0, and then clockwise to E=90,
- S=180s and W=270.
-
-*/
+-*/
 
 #include "gendefs.h"
 #include <math.h>
 
+/*
+  Converting degrees, radians and user degrees to one another.
+  Users (or rather: geologists) have North=0, and then clockwise to E=90,
+  S=180s and W=270.
+*/
 
 namespace Angle
 {
@@ -93,4 +91,3 @@ inline T convert( Type inptyp, T val, Type outtyp )
 }
 
 } // namespace Angle
-

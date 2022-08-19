@@ -1,15 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril & Kris Tingdahl
- Date:		12-4-1999
- Contents:	'Simple' numerical functions
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "algomod.h"
 #include "typeset.h"
@@ -445,4 +442,3 @@ inline bool is8BitesData( const T* vals, od_int64 sz,
     }
     return true;
 }
-

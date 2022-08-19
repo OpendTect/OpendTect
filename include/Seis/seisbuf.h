@@ -1,15 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		29-1-98
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
-
+-*/
 
 #include "seismod.h"
 #include "seisinfo.h"
@@ -132,5 +129,3 @@ protected:
     uiString		msg_;
 
 };
-
-

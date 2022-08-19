@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		Jan 2005 / Dec 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -154,4 +152,3 @@ T AxisLayout<T>::findEnd( T datastop ) const
     T wdth = nrsteps * worksd.step;
     return sd_.start + (rev ? -wdth : wdth);
 }
-

@@ -1,14 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	K. Tingdahl
- Date:		9-3-1999
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "mathfunc.h"
 #include "interpol2d.h"
@@ -109,4 +107,3 @@ RT Array2DFunc<RT,PT,T>::getValue( PT x, PT y ) const
 	    arr_->get( ix0+2, iy0+1 ),
 	    xrelpos, yrelpos );
 }
-

@@ -1,12 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          23-10-1996
- RCS:           $Id: mpeengine.h 38753 2015-04-11 21:19:18Z nanne.hemstra@dgbes.com $
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -227,4 +224,3 @@ protected:
 mGlobal(MPEEngine) Engine&	engine();
 
 } // namespace MPE
-

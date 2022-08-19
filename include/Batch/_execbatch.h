@@ -1,20 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Lammertink
- Date:		30-10-2003
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- The implementation of Execute_batch should be in the executable on
- windows, but can be in a .so on *nix.
- In order not to pollute batchprog.h, I've placed the implementation
- into a separate file, which is included trough batchprog.h on win32
- and included in batchprog.cc on *nix.
-
-*/
+-*/
 
 #include "commandlineparser.h"
 #include "envvars.h"
@@ -30,6 +22,13 @@ ________________________________________________________________________
 # include "sys/resource.h"
 #endif
 
+/*
+  The implementation of Execute_batch should be in the executable on
+  windows, but can be in a .so on *nix.
+  In order not to pollute batchprog.h, I've placed the implementation
+  into a separate file, which is included trough batchprog.h on win32
+  and included in batchprog.cc on *nix.
+*/
 
 #ifdef __win__
 static void setBatchPriority( int argc, char** argv, float priority )

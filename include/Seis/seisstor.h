@@ -1,17 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		20-1-98
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-Trace storage objects handle seismic data storage.
-
 -*/
-
 
 #include "seismod.h"
 #include "seisinfo.h"
@@ -135,5 +130,3 @@ protected:
     SeisTrcTranslator*	strl() const;
 
 };
-
-

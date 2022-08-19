@@ -1,17 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra
- Date:		October 2014
- RCS:		$Id: emregion.h 38690 2015-03-30 18:00:30Z nanne.hemstra@dgbes.com $
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
-
 
 #include "earthmodelmod.h"
 #include "namedobj.h"
@@ -225,4 +220,3 @@ protected:
 };
 
 } // namespace EM
-

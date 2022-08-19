@@ -1,14 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	K. Tingdahl
- Date:		Jan 2011
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "algomod.h"
 #include "odcomplex.h"
@@ -59,4 +57,3 @@ protected:
 /*! Aki-Richard approx !*/
 mGlobal(Algo) float_complex getFastCoeff(float p, const ElasticLayer& el_layer1,
 					    const ElasticLayer& el_layer2 );
-

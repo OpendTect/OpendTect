@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	K. Tingdahl
- Date:		Sep 2013
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -58,4 +56,3 @@ mGlobal(General) bool GetZDomainTag(const IOObj&,BufferString&);
 
 /*! Removes zdomain information from an IOObj. */
 mGlobal(General) bool RemoveZDomainTag(IOObj&);
-
