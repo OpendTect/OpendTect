@@ -57,15 +57,27 @@ ZAxisTransform::~ZAxisTransform()
 
 
 int ZAxisTransform::addVolumeOfInterest( const TrcKeyZSampling&, bool )
-{ return -1; }
+{
+    return -1;
+}
 
 void ZAxisTransform::setVolumeOfInterest( int, const TrcKeyZSampling&, bool )
 {}
 
-void ZAxisTransform::removeVolumeOfInterest( int ) {}
+void ZAxisTransform::removeVolumeOfInterest( int )
+{}
 
 bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
-{ return !needsVolumeOfInterest(); }
+{
+    return !needsVolumeOfInterest();
+}
+
+
+bool ZAxisTransform::isReferenceHorizon( const MultiID& horid,
+					 float& refz ) const
+{
+    return false;
+}
 
 
 float ZAxisTransform::transformTrc( const TrcKey& trckey, float z ) const

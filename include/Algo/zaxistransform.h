@@ -58,6 +58,9 @@ public:
     virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
 
     virtual bool		canTransformSurv(OD::GeomSystem) const	= 0;
+    virtual bool		isReferenceHorizon(const MultiID& horid,
+						   float& refz) const;
+				/*!<\refz is in 'to' domain */
 
 				//Generic 2D and 3D
     virtual void		transformTrc(const TrcKey&,

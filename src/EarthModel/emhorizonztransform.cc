@@ -68,6 +68,17 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 }
 
 
+bool HorizonZTransform::isReferenceHorizon( const MultiID& horid,
+					    float& refz ) const
+{
+    if ( !horizon_ || horizon_->multiID() != horid )
+	return false;
+
+    refz = 0.f;
+    return true;
+}
+
+
 void HorizonZTransform::transformTrc( const TrcKey& trckey,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
