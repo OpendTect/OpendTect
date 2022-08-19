@@ -1,8 +1,11 @@
 #pragma once
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Bert
- * DATE     : June 2007
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
 -*/
 
 #include "uigroup.h"
@@ -61,4 +64,3 @@ protected:
     void		setGroupProgs(const BufferString*);
 
 };
-

@@ -1,8 +1,11 @@
 #pragma once
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:       Rahul Gogia
- Date:	       June 2019
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
 -*/
 
 #include "uiexpattribsmod.h"

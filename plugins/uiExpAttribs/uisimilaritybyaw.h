@@ -1,12 +1,11 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Haibin Di
- Date:          August 2013
- ________________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
 -*/
 
 #include "uiexpattribsmod.h"
@@ -46,4 +45,3 @@ protected:
     uiStepOutSel*	stepoutfld_;
     uiGenInput*		attributefld_;
 };
-

@@ -1,8 +1,11 @@
 #pragma once
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : R.K. Singh
- * DATE     : Mar 2007
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
 -*/
 
 #include "tutmod.h"
@@ -82,4 +85,3 @@ protected:
 };
 
 } // namespace
-

@@ -1,13 +1,14 @@
 #pragma once
-
-/*@+
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
+-*/
+
+/*
 DeConvolve wavelet=
 
 Performs a deconvolution in fourier domain with the specified wavelet.
@@ -20,7 +21,7 @@ Output:
 0	Real data
 1	Imag data
 
-@$*/
+*/
 
 #include "attribcalc.h"
 #include "task.h"
