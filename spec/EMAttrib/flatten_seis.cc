@@ -1,14 +1,11 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra
- Date:		Januari 2007
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
-
 
 #include "batchprog.h"
 
@@ -147,4 +144,3 @@ mLoad1Module("EMAttrib")
     exec.execute( &strm );
     return true;
 }
-

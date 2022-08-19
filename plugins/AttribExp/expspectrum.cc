@@ -1,9 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "expspectrum.h"
 #include "attribprovider.h"
@@ -134,5 +136,3 @@ bool TraceSpectrumAttrib::Task::Input::set(const BinID& pos,
     reattrib = inp[0]->attrib2component( attrib[0] );
     return realtrc;
 }
-
-

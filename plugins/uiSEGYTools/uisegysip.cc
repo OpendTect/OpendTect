@@ -1,9 +1,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
- Date:          Feb 2004 / Sep 2015
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -106,4 +105,3 @@ const uiString uiSEGYSurvInfoProvider::importAskUiQuestion() const
     return uiStrings::phrImport(
 			      tr("the SEG-Y data used for survey setup now?"));
 }
-

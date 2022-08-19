@@ -1,9 +1,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.
- Author:	Raman Singh
- Date:		August 2008
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/

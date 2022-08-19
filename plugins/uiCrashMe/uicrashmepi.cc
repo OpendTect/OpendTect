@@ -1,7 +1,10 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Raman Singh
- * DATE     : Jan 2020
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
 -*/
 
 #include "odplugin.h"
@@ -77,4 +80,3 @@ mDefODInitPlugin(uiCrashMe)
 
     return nullptr;
 }
-

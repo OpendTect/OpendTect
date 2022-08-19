@@ -1,14 +1,14 @@
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
- Date:          Sep 2008
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
 
 #include "uisegydef.h"
+
 #include "segythdef.h"
 #include "seistrctr.h"
 #include "ptrman.h"

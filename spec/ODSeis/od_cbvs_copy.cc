@@ -1,9 +1,11 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : 2000
--*/
+________________________________________________________________________
 
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -97,4 +99,3 @@ int mProgMainFnName( int argc, char** argv )
     std::cerr << nrwr << " traces written." << std::endl;
     return nrwr ? 0 : 1;
 }
-
