@@ -1,14 +1,14 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# $Id: od_exec 32691 2013-12-09 08:26:16Z kristofer.tingdahl@dgbes.com $
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 # starts a console program with textural user interaction
 # has to be done from a script because we don't know whether xterm will be in
 # the executable path
-#_______________________________________________________________________________
-
+#
 
 set SCRIPTDIR = `dirname "$0"`
 set DTECT_APPL = `dirname "${SCRIPTDIR}"`

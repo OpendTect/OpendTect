@@ -1,8 +1,9 @@
 #!/bin/sh
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : Kristofer
-# DATE     : Nov 2015
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 
 if [ $# -lt 4 ]; then

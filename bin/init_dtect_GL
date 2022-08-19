@@ -1,9 +1,13 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# OpenTect environment initialisation script 
-#_______________________________________________________________________________
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# OpenTect environment initialization script 
+#
+
 if ( ${binsubdir} != lux64 ) then
     exit 0
 endif

@@ -1,7 +1,14 @@
 #!/bin/bash
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
 # od_external.sh
 # Removes pre-existing OpendTect environment
 # if any before executing a command
+#
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: command [ARGS]"

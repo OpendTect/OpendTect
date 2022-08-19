@@ -1,12 +1,12 @@
 #!/bin/csh
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# $Id$
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 # Script copies sources and libs into a development directory
 #
-#_______________________________________________________________________________
 
 if (  $#argv < 2 ) then
     echo "Usage : $0 OpendTect_directory existing_target_directory"
