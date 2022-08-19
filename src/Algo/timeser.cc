@@ -1,15 +1,14 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Dave Hale / A.H. Bril
- * DATE     : 24-3-1996
- * FUNCTION : Time series manipulation
+________________________________________________________________________
 
- Only AntiAlias and ReSample are Bert's, the rest is Dave's (albeit with
- another interface).
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
 -*/
 
-
+// AntiAlias and ReSample are Bert's, the rest is based on Dave Hale's code.
+// (albeit with another interface).
 
 #include "timeser.h"
 #include "threadlock.h"

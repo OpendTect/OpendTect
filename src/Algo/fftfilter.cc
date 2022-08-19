@@ -1,12 +1,11 @@
-/*
+/*+
 ________________________________________________________________________
 
-(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-Author:        Bruno
-Date:          October 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
