@@ -1,4 +1,4 @@
-Opendtect 6.6 release info
+Opendtect 7.0 release info
 
 Build platforms/distributions:
 
@@ -19,4 +19,3 @@ OpenSource packages/versions used:
 Qt: 5.15.2
 OpenSceneGraph: 3.6.5
 HDF5 (optional): 1.12.0
-
