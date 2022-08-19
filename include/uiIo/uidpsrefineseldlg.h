@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
- Author:	Satyaki Maitra
- Date:		June 2011
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -50,4 +48,3 @@ protected:
     uiPushButton*		setbut_;
     uiTable*			vartable_;
 };
-

@@ -1,13 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
-(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-Author:        Bruno
-Date:          Oct 2011
-RCS:           $Id: uiwellwelltiecheckshotedit.h,v 1.1 2009-01-19 13:02:33 cvsbruno Exp
-$
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -128,4 +124,3 @@ protected:
 };
 
 } // namespace WellTie
-

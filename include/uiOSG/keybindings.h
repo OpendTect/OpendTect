@@ -1,14 +1,12 @@
 #pragma once
-
 /*+
- ________________________________________________________________________
-
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	N. Hemstra
- Date:		Dec 2002
 ________________________________________________________________________
 
-*/
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
 
 #include "uiosgmod.h"
 #include "bufstringset.h"
@@ -97,4 +95,3 @@ protected:
 
     osg::ref_ptr<osgGeo::TrackballManipulator> manipulator_;
 };
-

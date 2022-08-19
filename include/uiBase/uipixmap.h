@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          08/12/1999
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -98,4 +96,3 @@ mGlobal(uiBase) void getImageFormatDescs(BufferStringSet& descs,bool forread,
 					bool withprintformats=false);
 mGlobal(uiBase) void getImageFileFilter(BufferString& filter,bool forread,
 					bool withprintformats=false);
-

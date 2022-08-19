@@ -1,13 +1,10 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kristofer Tingdahl
- Date:		24-01-2003
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
-
 
 -*/
 
@@ -85,5 +82,3 @@ protected:
     bool			closeOK();
     uiVisColTabEd*		coltabed_;
 };
-
-

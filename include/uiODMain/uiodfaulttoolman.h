@@ -1,16 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Jaap Glas
- Date:		December 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-
 -*/
-
 
 #include "uiodmainmod.h"
 
@@ -229,5 +225,3 @@ protected:
     static uiString		sKeyMergeWithExisting();
     static uiString		sKeyReplaceExisting();
 };
-
-

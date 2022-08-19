@@ -1,15 +1,13 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          January 2005
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-
 -*/
+
 #include "uiodmainmod.h"
 
 #include "uioddisplaytreeitem.h"
@@ -225,5 +223,3 @@ protected: \
 mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000,"tree-arrows");
 mDefineParentItem(Image,mToUiStringTodo("Image"),1000,"tree-image");
 mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000,"tree-scalebar");
-
-

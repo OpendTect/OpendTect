@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
- Author:        Satyaki Maitra
- Date:          June 2011
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -37,4 +36,3 @@ protected:
     void				changeColCB(CallBacker*);
     void				calcSelectedness(CallBacker*);
 };
-

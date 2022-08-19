@@ -1,13 +1,12 @@
 #pragma once
-/*
+/*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	K. Tingdahl
- Date:		9-3-1999
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
-*/
+-*/
 
 #include "uivismod.h"
 #include "uidlggroup.h"
@@ -32,4 +31,3 @@ protected:
     const int				initialscrollstate_;
     const int				initialpanstate_;
 };
-

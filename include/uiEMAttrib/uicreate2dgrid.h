@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
- Author:	Nanne Hemstra
- Date:		December 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "uiemattribmod.h"
 #include "uidialog.h"
@@ -172,5 +169,3 @@ protected:
     int				checkLineNames() const;
     bool			acceptOK(CallBacker*) override;
 };
-
-

@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kristofer Tingdahl
- Date:		March 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 // this header file is the set of const definitions used in the files related to
 // horizonsection. don't include it in somewhere else in od.
@@ -39,4 +36,3 @@ enum	GeometryType{ Triangle = 0, Line,Point, WireFrame };
 #   define LEFTBOTTOMTILE 6
 #   define BOTTOMTILE 7
 #   define RIGHTBOTTOMTILE 8
-

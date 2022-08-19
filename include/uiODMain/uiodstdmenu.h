@@ -1,15 +1,12 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril
- Date:		Dec 2003
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 /*
    These are the menu IDs of standard menu items in OpendTect.
@@ -267,4 +264,3 @@ ________________________________________________________________________
 #define mShortcutsMnuItm	(mHelpMnuBase + 10)
 #define mLegalMnuItm		(mHelpMnuBase + 11)
 #define mReleaseNotesItm	(mHelpMnuBase + 12)
-

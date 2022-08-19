@@ -2,9 +2,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2013
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -22,5 +21,3 @@ mGlobal(uiTools) bool uiSurvey_UnzipFile(uiParent*,const char* zipfnm=0,
 mGlobal(uiTools) bool uiSurvey_ZipDirectory(uiParent*,const char* survdirnm=0,
 					 const char* zipfnm=0);
 // Returns true if zip file successfully created
-
-

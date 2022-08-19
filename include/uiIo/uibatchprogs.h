@@ -2,13 +2,11 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
- Date:          Apr 2003
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "uiiomod.h"
 #include "uidialog.h"
@@ -43,5 +41,3 @@ protected:
     bool		acceptOK(CallBacker*) override;
     void		filenmUpd(CallBacker*);
 };
-
-

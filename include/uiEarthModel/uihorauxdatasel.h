@@ -1,10 +1,9 @@
 #pragma once
 /*+
-___________________________________________________________________________
+________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Yuancheng Liu
- Date:          April 2010
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -57,5 +56,3 @@ protected:
     int			nrhorswithdata_;
     uiHorizonAuxDataDlg* dlg_; 
 };
-
-

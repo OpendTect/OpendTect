@@ -1,14 +1,13 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Wayne Mogg
- Date:		April 2020
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
+
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "uicompoundparsel.h"
@@ -49,4 +48,3 @@ protected:
 
     BufferStringSet	paths_;
 };
-

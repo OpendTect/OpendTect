@@ -1,14 +1,12 @@
 #pragma once
-
-/*
+/*+
 ________________________________________________________________________
 
-(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-Author:        Satyaki Maitra
-Date:          September 2007
-______________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
-*/
+-*/
 
 #include "uiseismod.h"
 #include "uiflatviewmainwin.h"
@@ -63,4 +61,3 @@ protected:
     uiGenInput*			maxfld_;
     uiToolButton*		maxsetbut_;
 };
-

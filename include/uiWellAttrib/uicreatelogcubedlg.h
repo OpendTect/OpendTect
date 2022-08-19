@@ -1,14 +1,12 @@
 #pragma once
 /*+
- ________________________________________________________________________
+________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          July 2011
- _______________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
 -*/
-
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
@@ -61,4 +59,3 @@ protected:
     uiCheckBox*			savewllnmfld_;
 
 };
-

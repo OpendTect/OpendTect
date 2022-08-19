@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Helene Huck
- Date:          September 2007
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -56,5 +54,3 @@ protected:
     void		curSetChgCB(CallBacker*);
     void		extChgCB(CallBacker*);
 };
-
-

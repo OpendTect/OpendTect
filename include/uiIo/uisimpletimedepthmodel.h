@@ -1,11 +1,9 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Raman Singh
- Date:          Jan 2021
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -42,4 +40,3 @@ protected:
     uiIOObjSel* 		selfld_;
     SimpleTimeDepthTransform*	transform_;
 };
-
