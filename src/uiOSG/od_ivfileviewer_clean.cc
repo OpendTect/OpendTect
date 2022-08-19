@@ -1,7 +1,10 @@
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Kristofer Tingdahl
- * DATE     : May 2000
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
 -*/
 
 #ifdef USESOODCLASSES

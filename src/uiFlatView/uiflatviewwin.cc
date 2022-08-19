@@ -1,12 +1,12 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        H. Huck
- Date:          Sep 2006
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
+
 #define mNrXYDec 2
 
 #include "uiflatviewmainwin.h"

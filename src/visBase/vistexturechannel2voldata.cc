@@ -1,13 +1,11 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Karthika
- * DATE     : Nov 2009
-___________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
 -*/
-
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"

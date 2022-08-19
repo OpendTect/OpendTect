@@ -1,13 +1,11 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : Jun 2008
-___________________________________________________________________
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
 
 -*/
-
 
 #include "vistexturechannels.h"
 
@@ -25,14 +23,11 @@ ___________________________________________________________________
 #define mNrColors	255
 
 
-
-
 mCreateFactoryEntry( visBase::TextureChannels );
 
 
 namespace visBase
 {
-
 
 class ChannelInfo : public CallBacker
 {

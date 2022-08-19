@@ -1,13 +1,11 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra
- Date:		August 2020
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "uiwellinserter.h"
 
@@ -62,4 +60,3 @@ void uiWellInserter::initClass()
     const Translator& transl = mWellTranslInstance;
     factory().addCreator( create, transl.getDisplayName() );
 }
-

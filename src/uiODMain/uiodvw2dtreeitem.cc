@@ -1,9 +1,8 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
- Author:	Umesh Sinha
- Date:		Apr 2010
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/

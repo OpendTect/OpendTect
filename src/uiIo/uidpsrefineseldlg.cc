@@ -1,13 +1,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
- Author:        Satyaki Maitra
- Date:          August 2009
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
-
 
 #include "uidpsrefineseldlg.h"
 

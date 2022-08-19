@@ -1,9 +1,8 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A. Huck & H. Huck
- Date:		Sep 2011
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
