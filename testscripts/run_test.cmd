@@ -1,8 +1,8 @@
 @ECHO OFF
-REM 
-REM Copyright (C) 2012 : dGB Beheer B. V.
-REM $Id$
-REM
+REM ________________________________________________________________________
+REM Copyright:	(C) 1995-2022 dGB Beheer B.V.
+REM License:	https://dgbes.com/licensing
+REM ________________________________________________________________________
 
 setlocal
 set args=

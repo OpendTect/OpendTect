@@ -1,7 +1,9 @@
 #!/bin/csh -f
+#________________________________________________________________________
 #
-# Copyright (C): dGB Beheer B. V.
-# $Id$
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 # Wrapper script to run a test
 #

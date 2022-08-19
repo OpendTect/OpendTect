@@ -1,3 +1,10 @@
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
+
 include ( "CMakeModules/ODExternals.cmake" )
 
 DEFINE_GIT_EXTERNAL( odpy https://github.com/OpendTect/odpy.git main )

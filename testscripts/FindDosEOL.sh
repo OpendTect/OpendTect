@@ -1,6 +1,9 @@
 #!/bin/sh
+#________________________________________________________________________
 #
-# Copyright (C): dGB Beheer B. V.
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 # FindDosEOL.sh - finds files with DOS end-of-lines.
 #
