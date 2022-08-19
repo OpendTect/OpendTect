@@ -1,8 +1,12 @@
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
 # Sets up CMake variables for projects who link against OpendTect
 #
-# Copyright (C): dGB Beheer B.V. 1995-@YEAR@
-#
-#
+
 #Set OpendTect version
 set( OpendTect_VERSION_MAJOR @OpendTect_VERSION_MAJOR@ )
 set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )

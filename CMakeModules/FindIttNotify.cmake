@@ -1,3 +1,9 @@
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
 # Locate Intel User defined Synchronization API
 # This module defines
 # ITTNOTIFY_LIBRARY
@@ -6,9 +12,6 @@
 #
 # $ITTNOTIFY_DIR is an environment variable that would
 # correspond to the installation directory of the ITTNOTIFY Tools
-#
-# Created by Kristofer Tingdahl, Copyright dGB Beheer B. V. 
-#
 #
 
 find_path(ITTNOTIFY_INCLUDE_DIR ittnotify.h

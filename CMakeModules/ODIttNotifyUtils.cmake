@@ -1,7 +1,7 @@
 #________________________________________________________________________
 #
-# Copyright:    dGB Beheer B.V.
-# License:      https://dgbes.com/index.php/licensing
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
 #________________________________________________________________________
 #
 
