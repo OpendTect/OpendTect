@@ -1,9 +1,12 @@
 #!/bin/csh -f
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 # MATLAB environment
 #
-
-
 # Preconditions: bindir and MATLAB_DIR should be healthy. 
 #		 Link library should be present 
 

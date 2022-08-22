@@ -1,8 +1,12 @@
 #!/bin/bash
-# CopyRight:    Copyright(C): dGB Beheer B. V. 2013
-# Description:  Script to launch installer
-# Author:       Nageswara
-# Date:         May 2013
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# Script to launch installer
+#
 
 PLFNAME=`uname`
 if [[ "${PLFNAME}" = "Darwin" ]]; then

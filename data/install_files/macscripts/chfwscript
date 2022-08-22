@@ -1,6 +1,13 @@
 #!/bin/csh -f
+#________________________________________________________________________
+#
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# Changing the dependency path of the libraries on MAC platform.
+#
 
-#Changing the dependency path of the libraries on MAC platform.
 if ( $#argv < 1 ) then
    echo "Usage : $0 Library name to change the dependency"
    exit 1

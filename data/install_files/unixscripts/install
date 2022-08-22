@@ -1,11 +1,11 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# $Id: install 31404 2013-09-04 11:17:48Z nageswara.rao@dgbes.com $
+# Copyright:    (C) 1995-2022 dGB Beheer B.V.
+# License:      https://dgbes.com/licensing
+#________________________________________________________________________
 #
 # Installs the OpendTect application and optional extra software
-#_______________________________________________________________________________
 
 if ( ! -e ./mk_datadir ) then
     echo "Please run the install script from the OpendTect installation directory"
