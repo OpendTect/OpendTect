@@ -42,12 +42,9 @@ static bool enableClassic()
 
 mDefODPluginInfo(uiSEGY)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"SEG-Y support (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
-	"Support for the SEG-Y I/O in the OpendTect main application" ))
+	"Support for the SEG-Y I/O in the OpendTect main application" );
     return &retpi;
 }
 

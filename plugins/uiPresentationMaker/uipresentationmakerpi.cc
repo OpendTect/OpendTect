@@ -19,12 +19,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Presentation Maker (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
-	"Create PowerPoint presentations from OpendTect" ))
+	"Create PowerPoint presentations from OpendTect" );
     return &retpi;
 }
 

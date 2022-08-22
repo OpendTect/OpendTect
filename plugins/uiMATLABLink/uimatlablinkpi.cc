@@ -15,13 +15,10 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiMATLABLink)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"MATLAB link (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
 	"A link to MATLAB."
-	    "\nThis is the User interface of the link." ))
+	    "\nThis is the User interface of the link." );
     return &retpi;
 }
 

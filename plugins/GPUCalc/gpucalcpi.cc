@@ -14,12 +14,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(GPUCalc)
 mDefODPluginInfo(GPUCalc)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Graphics card based calculations (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Kristofer Tingdahl)",
-	"=od",
-	"Graphics card based calculations" ))
+	"Graphics card based calculations" );
     return &retpi;
 }
 

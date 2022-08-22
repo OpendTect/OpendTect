@@ -15,13 +15,10 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(GMT)
 mDefODPluginInfo(GMT)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    static PluginInfo retpi(
 	"GMT Link (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman)",
-	"=od",
 	"A link to the GMT mapping tool"
-	    "\nSee https://www.generic-mapping-tools.org for info on GMT" ))
+	    "\nSee https://www.generic-mapping-tools.org for info on GMT" );
     return &retpi;
 }
 

@@ -17,12 +17,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiQtApp)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"QT Application plugin (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Bert)",
-	"=od",
-	"Example of how to call a Qt something from a plugin." ))
+	"Example of how to call a Qt something from a plugin." );
     return &retpi;
 }
 

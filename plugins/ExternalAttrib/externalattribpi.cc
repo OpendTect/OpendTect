@@ -14,12 +14,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(ExternalAttrib)
 mDefODPluginInfo(ExternalAttrib)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"External attribute example plugin (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Kristofer Tingdahl)",
-	"=od",
-	"Defining an external plugin with random numbers between 0 and 1." ))
+	"Defining an external plugin with random numbers between 0 and 1." );
     return &retpi;
 }
 

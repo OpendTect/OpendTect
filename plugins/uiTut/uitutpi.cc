@@ -36,13 +36,10 @@ static const int cTutIdx = -1100;
 
 mDefODPluginInfo(uiTut)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Tutorial plugin (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman/Bert)",
-	"=od",
 	"User Interface for some simple plugin development basics.\n"
-	"Can be loaded into od_main only." ))
+	"Can be loaded into od_main only." );
     return &retpi;
 }
 

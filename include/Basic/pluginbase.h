@@ -82,6 +82,17 @@ struct PluginInfo
 	, lictype_(GPL)
     {}
 
+    // For OpenSource plugins developed by dGB
+    PluginInfo( const char* dispname, const char* text )
+	: dispname_(dispname)
+	, productname_("OpendTect")
+	, creator_("dGB Earth Sciences")
+	, version_("=od")
+	, text_(text)
+	, licmsg_("")
+	, lictype_(GPL)
+    {}
+
     const char*	dispname_;
     const char*	productname_;
     const char*	creator_;

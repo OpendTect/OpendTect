@@ -21,12 +21,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Coordinate Reference System (base)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman)",
-	"=od",
-	"Coordinate Reference System - base" ));
+	"Coordinate Reference System - base" );
     return &retpi;
 }
 

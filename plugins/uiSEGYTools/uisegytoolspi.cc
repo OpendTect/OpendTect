@@ -18,12 +18,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiSEGYTools)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"SEG-Y support tools (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Wayne Mogg)",
-	"=od",
-	"Implementation of the SEG-Y format handlers" ))
+	"Implementation of the SEG-Y format handlers" );
     return &retpi;
 }
 

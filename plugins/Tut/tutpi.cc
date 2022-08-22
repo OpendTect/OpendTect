@@ -16,13 +16,10 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(Tut)
 mDefODPluginInfo(Tut)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Tutorial plugin (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman/Bert)",
-	"=od",
 	"Back-end for the plugin that shows simple plugin development basics.\n"
-	"This non-UI part can also be loaded into od_process_attrib." ))
+	"This non-UI part can also be loaded into od_process_attrib." );
     return &retpi;
 }
 

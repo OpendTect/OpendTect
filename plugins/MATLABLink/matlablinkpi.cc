@@ -14,12 +14,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(MATLABLink)
 mDefODPluginInfo(MATLABLink)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"MATLAB (Base)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
-	"MATLAB" ))
+	"MATLAB" );
     return &retpi;
 }
 

@@ -38,12 +38,9 @@ mDefODPluginInfo(uiDPSDemo)
 	*commenttxt += ").";
     }
 
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"DataPointSet demo (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Bert)",
-	"=od",
-	commenttxt->buf() ));
+	commenttxt->buf() );
     return &retpi;
 }
 

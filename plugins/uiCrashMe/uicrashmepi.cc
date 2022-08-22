@@ -18,13 +18,10 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiCrashMe)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    static PluginInfo retpi(
 	"The Crash Plugin (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman)",
-	"=od",
 	"This is meant for developers to force a crash.\n"
-	"Yeah, seriously! All it does is CRASH!") );
+	"Yeah, seriously! All it does is CRASH!" );
     return &retpi;
 }
 

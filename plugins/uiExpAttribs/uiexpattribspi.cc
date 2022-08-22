@@ -19,12 +19,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiExpAttribs)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    static PluginInfo retpi(
 	"Experimental Attributes (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
-	"User Interface for Experimental Attributes plugin" ));
+	"User Interface for Experimental Attributes plugin" );
     return &retpi;
 }
 

@@ -21,13 +21,10 @@ mGlobal(Basic) void setGlobal_uiCRS_Fns(createuiCRSFromUiParentFn);
 
 mDefODPluginInfo(uiCRS)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    static PluginInfo retpi(
 	"Coordinate Reference System (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman)",
-	"=od",
 	"User interface for providing a library of Coordinate Reference Systems"
-	    " that can be set at Survey level" ));
+	    " that can be set at Survey level" );
     return &retpi;
 }
 

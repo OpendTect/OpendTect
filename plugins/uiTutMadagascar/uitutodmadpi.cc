@@ -17,12 +17,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiTutMadagascar)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Madagascar Tutorial plugin (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Helene)",
-	"=od",
-	"User Interface for Madagascar tutorial plugin." ))
+	"User Interface for Madagascar tutorial plugin." );
     return &retpi;
 }
 

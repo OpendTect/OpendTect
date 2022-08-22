@@ -13,12 +13,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(MadagascarAttribs)
 mDefODPluginInfo(MadagascarAttribs)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
+    static PluginInfo retpi(
 	"Madagascar Attributes (Base)",
-	"OpendTect",
-	"dGB Earth Sciences - Helene Huck",
-	"=od",
-	"Transforming Madagascar routines into OpendTect attributes." ))
+	"Transforming Madagascar routines into OpendTect attributes." );
     return &retpi;
 }
 

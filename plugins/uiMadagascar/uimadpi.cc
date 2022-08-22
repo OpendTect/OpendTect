@@ -25,14 +25,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiMadagascar)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Madagascar Link (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman Singh)",
-	"=od",
-	"User Interface for the link to the Madagascar system."
-	    "\nSee http://opendtect.org/links/madagascar.html"
-	    " for info on Madagascar." ))
+	"User Interface for the link to the Madagascar system.");
     return &retpi;
 }
 

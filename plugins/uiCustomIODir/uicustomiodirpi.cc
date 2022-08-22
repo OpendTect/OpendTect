@@ -24,12 +24,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiCustomIODir)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
       "Custom Data directory usage (GUI)",
-      "OpendTect",
-      "dGB Earth Sciences",
-      "=od",
-      "Test of Custom Data directory usage." ));
+      "Test of Custom Data directory usage." );
     return &retpi;
 }
 

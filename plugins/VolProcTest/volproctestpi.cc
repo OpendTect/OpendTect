@@ -15,12 +15,9 @@ ________________________________________________________________________
 
 mDefODPluginEarlyLoad(VolProcTest)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Volume Processing Reader (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Yuancheng)",
-	"=od",
-	"Volume Processing Reader test" ))
+	"Volume Processing Reader test" );
     return &retpi;
 }
 

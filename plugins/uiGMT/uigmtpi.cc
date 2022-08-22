@@ -40,13 +40,10 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiGMT)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"GMT Link (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Raman)",
-	"=od",
 	"User Interface for the link to the GMT mapping tool."
-	    "\nSee https://www.generic-mapping-tools.org for info on GMT" ))
+	    "\nSee https://www.generic-mapping-tools.org for info on GMT" );
     return &retpi;
 }
 

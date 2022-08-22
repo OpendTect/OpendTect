@@ -22,12 +22,9 @@ mDefODPluginInfo(ODHDF5)
     infostr.set( "HDF5 plugin" ).addNewLine(2)
 	   .add( "Using HDF5 version: " ).add( version );
 
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"HDF5 Support (Base)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
-	infostr.buf() ))
+	infostr.buf() );
     return &retpi;
 }
 

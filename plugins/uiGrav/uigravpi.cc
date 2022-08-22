@@ -20,12 +20,9 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiGrav)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Gravity calculation (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Bert)",
-	"=od",
-	"Calculates gravity between horizons" ))
+	"Calculates gravity between horizons" );
     return &retpi;
 }
 

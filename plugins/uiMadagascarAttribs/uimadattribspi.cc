@@ -13,13 +13,10 @@ ________________________________________________________________________
 
 mDefODPluginInfo(uiMadagascarAttribs)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Madagascar Attributes (GUI)",
-	"OpendTect",
-	"dGB Earth Sciences (Helene)",
-	"=od",
 	"User Interface for Transforming Madagascar routines "
-	"into OpendTect attributes." ))
+	"into OpendTect attributes." );
     return &retpi;
 }
 

@@ -15,12 +15,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(CEEMDAttrib)
 mDefODPluginInfo(CEEMDAttrib)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"CEEMD (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Paul de Groot)",
-	"=od",
-	"CEEMD - Complete Ensemble Empirical Mode Decomposition Attribute" ))
+	"CEEMD - Complete Ensemble Empirical Mode Decomposition Attribute" );
     return &retpi;
 }
 

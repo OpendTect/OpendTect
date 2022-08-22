@@ -21,12 +21,9 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi, (
+    static PluginInfo retpi(
 	"Experimental Attributes (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Nanne)",
-	"=od",
-	"Experimental Attributes" ))
+	"Experimental Attributes" );
     return &retpi;
 }
 
