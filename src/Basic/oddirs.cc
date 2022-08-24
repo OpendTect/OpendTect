@@ -69,6 +69,17 @@ const char* SurveyInfo::surveyFileName()
 
 void SurveyInfo::setSurveyName( const char* newnm )
 {
+    if ( !cur_survey_name.isEmpty() )
+    {
+	if ( sExportToDir == GetDataDir() ||
+		FilePath(sExportToDir).isSubDirOf(FilePath(GetDataDir())) )
+	    sExportToDir.setEmpty();
+
+	if ( sImportFromDir == GetDataDir() ||
+		FilePath(sImportFromDir).isSubDirOf(FilePath(GetDataDir())) )
+	    sImportFromDir.setEmpty();
+    }
+
     cur_survey_name = newnm;
     cur_survey_name.trimBlanks();
 }
