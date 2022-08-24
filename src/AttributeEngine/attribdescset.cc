@@ -351,12 +351,12 @@ void DescSet::fillPar( IOPar& par ) const
 	if ( dsc.isStored() || dsc.nrInputs()>0 )
 	{
 	    const MultiID storeid( dsc.getStoredID(true) );
-	    if ( storeid.isInMemoryID() )
-		continue;
-
-	    PtrMan<IOObj> ioobj = IOM().get( storeid );
-	    if ( !ioobj )
-		continue;
+	    if ( storeid.isDatabaseID() )
+	    {
+		PtrMan<IOObj> ioobj = IOM().get( storeid );
+		if ( !ioobj )
+		    continue;
+	    }
 	}
 
 	apar.set( definitionStr(), defstr );
