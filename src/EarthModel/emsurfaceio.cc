@@ -1490,12 +1490,15 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     writtencolrange_ = Interval<int>( INT_MAX, INT_MIN );
     zrange_ = Interval<float>(Interval<float>::udf());
     nrdone_ = 0;
+    sectionindex_ = 0;
+    oldsectionindex_= -1;
     writeonlyz_ = false;
     nrrows_ = 0;
     shift_ = 0;
     writingfinished_ = false;
     geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
 							&surface_.geometry() );
+
     surface_.ref();
     setNrDoneText( Task::uiStdNrDoneText() );
     par_->set( dgbSurfaceReader::sKeyDBInfo(), surface_.dbInfo() );
@@ -1819,6 +1822,7 @@ int dgbSurfaceWriter::nextStep()
 	    return ErrorOccurred();
 	}
 
+	sectionindex_++;
 	strm.flush();
 	if ( !strm.isOK() )
 	{
@@ -1935,6 +1939,7 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 
     if ( !nrrows_ )
     {
+	sectionindex_++;
 	nrdone_++;
 	return MoreToDo();
     }
@@ -1955,6 +1960,7 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 	}
     }
 
+    oldsectionindex_ = sectionindex_;
     const BufferString sectionname = "[0]";
     par_->set( dgbSurfaceReader::sSectionNameKey(0).buf(), sectionname );
     return true;
