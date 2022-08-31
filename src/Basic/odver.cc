@@ -115,13 +115,41 @@ const char* GetMSVCVersionStr()
 # elif ( _MSC_VER < 1920 )
     ret = "Visual Studio 2017 - MSVC 15.0";
 # elif ( _MSC_VER < 1930 )
-    ret = "Visual Studio 2019 - MSVC 16.2";
-# elif ( _MSC_VER < 1940 )
-    ret = "Visual Studio 2019 - MSVC 16.3";
-# elif ( _MSC_VER < 1950 )
-    ret = "Visual Studio 2019 - MSVC 16.4";
-# elif ( _MSC_VER < 1960 )
-    ret = "Visual Studio 2019 - MSVC 16.5";
+#    if ( _MSC_VER == 1920 )
+        ret = "Visual Studio 2019 - MSVC 16.0";
+#    elif ( _MSC_VER == 1921 )
+        ret = "Visual Studio 2019 - MSVC 16.1";
+#    elif ( _MSC_VER == 1922 )
+        ret = "Visual Studio 2019 - MSVC 16.2";
+#    elif ( _MSC_VER == 1923 )
+        ret = "Visual Studio 2019 - MSVC 16.3";
+#    elif ( _MSC_VER == 1924 )
+        ret = "Visual Studio 2019 - MSVC 16.4";
+#    elif ( _MSC_VER == 1925 )
+        ret = "Visual Studio 2019 - MSVC 16.5";
+#    elif ( _MSC_VER == 1926 )
+        ret = "Visual Studio 2019 - MSVC 16.6";
+#    elif ( _MSC_VER == 1927 )
+        ret = "Visual Studio 2019 - MSVC 16.7";
+#    elif ( _MSC_VER == 1928 )
+        ret = "Visual Studio 2019 - MSVC 16.9";
+#    else
+        ret = "Visual Studio 2019 - MSVC 16.11";
+#    endif
+# elif ( _MSC_VER < 1945 )
+#    if ( _MSC_VER == 1930 )
+        ret = "Visual Studio 2022 - MSVC 17.0";
+#    elif ( _MSC_VER == 1931 )
+        ret = "Visual Studio 2022 - MSVC 17.1";
+#    elif ( _MSC_VER == 1932 )
+        ret = "Visual Studio 2022 - MSVC 17.2";
+#    elif ( _MSC_VER == 1933 )
+        ret = "Visual Studio 2022 - MSVC 17.3";
+#    elif ( _MSC_VER == 1934 )
+        ret = "Visual Studio 2022 - MSVC 17.4";
+#    else
+        ret = "Visual Studio 2022 - MSVC 17.X";
+#    endif
 # else
     ret = "CHANGE GetMSVCVersionStr() macro to support newer version";
 # endif
