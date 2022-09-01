@@ -430,8 +430,8 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
     mChkSize();
 
     mDefSGAndPicks;
-    double acorr1 = 0, acorr2 = 0, ccorr = 0;
-    int count = 0;
+    double acorr1 = 0., acorr2 = 0., ccorr = 0.;
+    od_uint32 count = 0;
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {
 	mSetVals;
@@ -442,7 +442,9 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 	count++;
     }
 
-    if ( !count || mIsZero(acorr1+acorr2,mDefEpsF) )
+    if ( acorr1+acorr2 < mDefEpsF )
+	return mUdf(double);
+    if ( count == 0 )
 	return mUdf(double);
 
     return ccorr / Math::Sqrt( acorr1 * acorr2 );
