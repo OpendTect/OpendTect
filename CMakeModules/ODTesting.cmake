@@ -26,7 +26,7 @@ macro ( OD_SETUP_TEST_FILTER )
 
     configure_file (
 	${OpendTect_DIR}/CMakeModules/templates/CTestCustom.cmake.in
-	${CMAKE_SOURCE_DIR}/CTestCustom.cmake @ONLY )
+	${CMAKE_BINARY_DIR}/CTestCustom.cmake @ONLY )
 endmacro()
 
 macro( ADD_RUNTIME_PATHS )
