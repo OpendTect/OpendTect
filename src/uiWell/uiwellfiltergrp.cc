@@ -33,6 +33,7 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     const bool hor = orient_ == OD::Horizontal;
     const IOObjContext ctxt = mIOObjContext( Well );
     uiIOObjSelGrp::Setup suw( OD::ChooseZeroOrMore );
+    suw.withinserters(false);
     uiIOObjSelGrp* welllistselgrp = new uiIOObjSelGrp( this, ctxt, suw );
     welllistselgrp->displayManipGroup( false, true );
     welllist_ = welllistselgrp->getListField();
