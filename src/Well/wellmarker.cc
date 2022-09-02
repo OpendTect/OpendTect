@@ -222,6 +222,12 @@ void Well::MarkerSet::addSameWell( const ObjectSet<Well::Marker>& ms )
 }
 
 
+bool Well::MarkerSet::addSameWell( const Marker& marker )
+{
+    return insertNew( new Marker(marker) );
+}
+
+
 void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 				 const TypeSet<int>& idxs )
 {

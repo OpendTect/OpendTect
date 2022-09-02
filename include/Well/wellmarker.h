@@ -30,7 +30,6 @@ class Track;
 mExpClass(Well) Marker : public ::NamedObject
 {
 public:
-
 			Marker(const char* nm=nullptr,float dh=0.f,
 			       OD::Color c=OD::Color());
 			Marker(Strat::LevelID,float dh);
@@ -40,7 +39,7 @@ public:
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
 			{ return m.name() == name(); }
-    bool                operator > ( const Marker& wm ) const
+    bool		operator > ( const Marker& wm ) const
 			{ return dah_ > wm.dah_; }
 
     inline float	dah() const		{ return dah_; }
@@ -89,6 +88,7 @@ public:
     void		sortByDAH();
     bool		insertNew(Well::Marker*); //becomes mine
     void		addSameWell(const ObjectSet<Marker>&);
+    bool		addSameWell(const Marker&);
     void		mergeOtherWell(const ObjectSet<Marker>&);
     virtual void	append( const ObjectSet<Marker>& ms ) override
 							{ mergeOtherWell(ms); }
@@ -177,7 +177,5 @@ public:
 			{ return const_cast<MarkerSet&>(markers_); }
 
 };
-
-
 
 } // namespace Well
