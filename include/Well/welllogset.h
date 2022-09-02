@@ -38,6 +38,10 @@ public:
     int			size() const		{ return logs_.size(); }
     Log&		getLog( int idx )	{ return *logs_[idx]; }
     const Log&		getLog( int idx ) const { return *logs_[idx]; }
+    Log&		first()			{ return *logs_.first(); }
+    const Log&		first() const		{ return *logs_.first(); }
+    Log&		last()			{ return *logs_.last(); }
+    const Log&		last() const		{ return *logs_.last(); }
     int			indexOf(const char*) const;
     bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
@@ -71,12 +75,12 @@ public:
     bool		validIdx(int idx) const { return logs_.validIdx(idx); }
 
     bool		isEmpty() const		{ return size() == 0; }
-    void		setEmpty();
+    void		setEmpty(bool withdelete=true);
     void		defaultLogUsePar(const IOPar&);
-			//-> to be used only in Well::Reader/Writer class. 
+			//-> to be used only in Well::Reader/Writer class.
 			//-> Use access functions above instead.
     void		defaultLogFillPar(IOPar&) const;
-			//-> to be used only in Well::Reader/Writer class. 
+			//-> to be used only in Well::Reader/Writer class.
 			//-> Use access functions above instead.
 
     void		getAllAvailMnems(MnemonicSelection&) const;

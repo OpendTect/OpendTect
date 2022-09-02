@@ -41,7 +41,7 @@ Well::LogSet::LogSet()
 Well::LogSet::~LogSet()
 {
     NotifyStopper ns( logRemoved );
-    setEmpty();
+    setEmpty( true );
 }
 
 
@@ -159,10 +159,15 @@ Well::Log* Well::LogSet::remove( int logidx )
 }
 
 
-void Well::LogSet::setEmpty()
+void Well::LogSet::setEmpty( bool withdelete )
 {
-    deepErase( logs_ );
-    logRemoved.trigger();
+    if ( withdelete )
+    {
+	deepErase( logs_ );
+	logRemoved.trigger();
+    }
+    else
+	logs_.erase();
 }
 
 
