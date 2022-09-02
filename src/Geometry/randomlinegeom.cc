@@ -26,9 +26,6 @@ RandomLine::RandomLine( const char* nm )
     , nameChanged(this)
     , nodeChanged(this)
     , zrangeChanged(this)
-    , lset_(0)
-    , mid_(MultiID::udf())
-    , locked_(false)
 {
     assign( zrange_, SI().zRange(true) );
 
@@ -46,6 +43,18 @@ RandomLine::~RandomLine()
 }
 
 
+int RandomLine::nrNodes() const
+{
+    return nodes_.size();
+}
+
+
+bool RandomLine::isEmpty() const
+{
+    return nodes_.isEmpty();
+}
+
+
 void RandomLine::setMultiID( const MultiID& mid )
 {
     mid_ = mid;
@@ -56,19 +65,13 @@ void RandomLine::setMultiID( const MultiID& mid )
 
 int RandomLine::addNode( const BinID& bid )
 {
-    nodes_ += bid;
-    const int nodeidx = nodes_.size()-1;
-    ChangeData cd( ChangeData::Added, nodeidx );
-    nodeChanged.trigger( cd );
-    return nodeidx;
+    return addNode( SI().transform(bid) );
 }
 
 
 void RandomLine::insertNode( int idx, const BinID& bid )
 {
-    nodes_.insert( idx, bid );
-    ChangeData cd( ChangeData::Inserted, idx );
-    nodeChanged.trigger( cd );
+    insertNode( idx, SI().transform(bid) );
 }
 
 
@@ -81,9 +84,7 @@ void RandomLine::setName( const char* nm )
 
 void RandomLine::setNodePosition( int idx, const BinID& bid, bool moving )
 {
-    nodes_[idx] = bid;
-    ChangeData cd( moving ? ChangeData::Moving : ChangeData::Moved, idx );
-    nodeChanged.trigger( cd );
+    setNodePosition( idx, SI().transform(bid), moving );
 }
 
 
@@ -114,26 +115,119 @@ void RandomLine::removeNode( int idx )
 
 
 void RandomLine::removeNode( const BinID& bid )
-{ removeNode( nodes_.indexOf(bid) ); }
+{
+    const int idx = nodeIndex( bid );
+    if ( nodes_.validIdx(idx) )
+	removeNode( idx );
+}
+
 
 int RandomLine::nodeIndex( const BinID& bid ) const
-{ return nodes_.indexOf( bid ); }
+{
+    for ( int idx=0; idx<nodes_.size(); idx++ )
+    {
+	if ( bid == nodePosition(idx) )
+	    return idx;
+    }
 
-int RandomLine::nrNodes() const
-{ return nodes_.size(); }
+    return -1;
+}
 
-const BinID& RandomLine::nodePosition( int idx ) const
-{ return nodes_[idx]; }
+
+BinID RandomLine::nodePosition( int idx ) const
+{
+    return SI().transform( nodes_[idx] );
+}
+
 
 void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
-{ bids = nodes_; }
+{
+    bids.setEmpty();
+    for ( auto& crd : nodes_ )
+	bids += SI().transform( crd );
+}
 
-void RandomLine::allNodePositions( TrcKeyPath& tks ) const
+
+void RandomLine::allNodePositions( TypeSet<TrcKey>& tks ) const
 {
     tks.setEmpty();
-    for ( const auto& node : nodes_ )
-	tks += TrcKey( node );
+    for ( auto& crd : nodes_ )
+	tks += TrcKey( SI().transform(crd) );
 }
+
+
+int RandomLine::addNode( const Coord& crd )
+{
+    nodes_ += crd;
+    const int nodeidx = nodes_.size()-1;
+    ChangeData cd( ChangeData::Added, nodeidx );
+    nodeChanged.trigger( cd );
+    return nodeidx;
+}
+
+
+void RandomLine::insertNode( int idx, const Coord& crd )
+{
+    nodes_.insert( idx, crd );
+    ChangeData cd( ChangeData::Inserted, idx );
+    nodeChanged.trigger( cd );
+}
+
+
+void RandomLine::setNodePosition( int idx, const Coord& crd, bool moving )
+{
+    nodes_[idx] = crd;
+    ChangeData cd( moving ? ChangeData::Moving : ChangeData::Moved, idx );
+    nodeChanged.trigger( cd );
+}
+
+
+void RandomLine::setNodePositions( const TypeSet<Coord>& crds )
+{
+    nodes_ = crds;
+    ChangeData cd( ChangeData::Moved, -1 );
+    nodeChanged.trigger( cd );
+}
+
+
+const Coord& RandomLine::nodeCoord( int idx ) const
+{
+    return nodes_[idx];
+}
+
+
+int RandomLine::nearestNode( const Coord& crd, double& dist ) const
+{
+    int nidx = -1;
+    dist = mUdf(double);
+    for ( int idx=0; idx<nodes_.size(); idx++ )
+    {
+	double curdist = nodes_[idx].sqHorDistTo( crd );
+	if ( curdist < dist )
+	{
+	    dist = curdist;
+	    nidx = idx;
+	}
+    }
+
+    if ( !mIsUdf(dist) )
+	dist = Math::Sqrt( dist );
+    return nidx;
+}
+
+
+void RandomLine::allNodePositions( TypeSet<Coord>& crds ) const
+{
+    crds = nodes_;
+}
+
+
+void RandomLine::setZRange( const Interval<float>& zrg )
+{
+    zrange_ = zrg;
+    zrangeChanged.trigger();
+}
+
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
@@ -145,8 +239,8 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 
     zrange_.limitTo( cs.zsamp_ );
     const TrcKeySampling& hs = cs.hsamp_;
-    const bool startin = hs.includes( nodes_[0] );
-    const bool stopin = hs.includes( nodes_[1] );
+    const bool startin = hs.includes( nodePosition(0) );
+    const bool stopin = hs.includes( nodePosition(1) );
     if ( startin && stopin )
 	return;
 
@@ -159,7 +253,7 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     svert[2] = geom->transform( hs.stop_ );
     svert[3] = geom->transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
-    Line2 line( geom->transform(nodes_[0]), geom->transform(nodes_[1]) );
+    Line2 line( nodes_[0], nodes_[1] );
     TypeSet<Coord> points;
     for ( int idx=0; idx<4; idx++ )
     {
@@ -172,17 +266,16 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     if ( !points.size() )
 	nodes_.erase();
     else if ( points.size() == 1 )
-	nodes_[startin ? 1 : 0] = geom->transform( points[0] );
-    else if ( geom->transform(nodes_[0]).distTo(points[0])
-	    < geom->transform(nodes_[0]).distTo(points[1]) )
+	nodes_[startin ? 1 : 0] = points[0];
+    else if ( nodes_[0].distTo(points[0]) < nodes_[0].distTo(points[1]) )
     {
-	nodes_[0] = geom->transform( points[0] );
-	nodes_[1] = geom->transform( points[1] );
+	nodes_[0] = points[0];
+	nodes_[1] = points[1];
     }
     else
     {
-	nodes_[0] = geom->transform( points[1] );
-	nodes_[1] = geom->transform( points[0] );
+	nodes_[0] = points[1];
+	nodes_[1] = points[0];
     }
 }
 
