@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
 #include "uicolor.h"
+#include "uifaultsetcopy.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"

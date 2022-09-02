@@ -34,7 +34,7 @@ mExpClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
 { mODTextTranslationClass(uiWriteSurfaceDlg)
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
-				          float shift);
+					  float shift);
 
     void		getSelection(EM::SurfaceIODataSelection&);
     bool		replaceInTree() const;
@@ -96,22 +96,5 @@ protected:
 
     CtxtIOObj*		mkCtxtIOObj(const IOObj&);
     bool		acceptOK(CallBacker*) override;
-
-};
-
-
-mExpClass(uiEarthModel) uiCopyFaultSet : public uiDialog
-{ mODTextTranslationClass(uiCopyFaultSet)
-public:
-			uiCopyFaultSet(uiParent*,const IOObj&);
-
-protected:
-
-    uiIOObjSel*		inpfld_;
-    uiListBox*		surflist_;
-    uiIOObjSel*		outfld_;
-
-    bool		acceptOK(CallBacker*) override;
-    void		inpSelCB(CallBacker*);
 
 };

@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 
 #include "ctxtioobj.h"
-#include "dirlist.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
@@ -24,7 +23,6 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -32,7 +30,6 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uitaskrunner.h"
@@ -296,92 +293,6 @@ bool uiCopySurface::acceptOK( CallBacker* )
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
     if ( File::exists(oldsetupname) )
 	File::copy( oldsetupname, newsetupname );
-
-    return true;
-}
-
-
-
-uiCopyFaultSet::uiCopyFaultSet( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sFaultSet()),mNoDlgTitle,
-		       mTODOHelpKey))
-{
-    IOObjContext ctxt = mIOObjContext(EMFaultSet3D);
-    inpfld_ = new uiIOObjSel( this, ctxt,
-			      uiStrings::phrInput(uiStrings::sFaultSet()) );
-    inpfld_->setInput( ioobj );
-    inpfld_->selectionDone.notify( mCB(this,uiCopyFaultSet,inpSelCB) );
-
-    surflist_ = new uiListBox( this, uiListBox::Setup(OD::ChooseAtLeastOne,
-			    uiStrings::phrSelect(uiStrings::sFault(mPlural))) );
-    surflist_->attach( alignedBelow, inpfld_ );
-
-    ctxt.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctxt,
-			      uiStrings::phrOutput(uiStrings::sFaultSet()) );
-    outfld_->attach( alignedBelow, surflist_ );
-
-    postFinalize().notify( mCB(this,uiCopyFaultSet,inpSelCB) );
-}
-
-
-void uiCopyFaultSet::inpSelCB( CallBacker* )
-{
-    const IOObj* selobj = inpfld_->ioobj( true );
-    if ( !selobj )
-	return;
-
-    surflist_->setEmpty();
-    DirList dl( selobj->fullUserExpr(), File::FilesInDir, "*.flt" );
-    if ( dl.isEmpty() )
-	return;
-
-    BufferStringSet idstrs;
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const FilePath fp = dl.fullPath( idx );
-	idstrs.add( fp.baseName() );
-    }
-
-    surflist_->addItems( idstrs );
-}
-
-
-bool uiCopyFaultSet::acceptOK( CallBacker* )
-{
-    const IOObj* inpobj = inpfld_->ioobj();
-    if ( !inpobj )
-	return false;
-
-    BufferStringSet selflts;
-    surflist_->getChosen( selflts );
-    if ( selflts.isEmpty() )
-	return false;
-
-    const IOObj* outobj = outfld_->ioobj();
-    if ( !outobj )
-	return false;
-
-    const BufferString inpdirnm = inpobj->fullUserExpr();
-    const BufferString outdirnm = outobj->fullUserExpr();
-    if ( !File::isDirectory(outdirnm) )
-	File::createDir( outdirnm );
-
-    BufferString errmsg;
-    for ( int idx=0; idx<selflts.size(); idx++ )
-    {
-	FilePath inpfp( inpdirnm, selflts.get(idx) );
-	inpfp.setExtension( ".flt" );
-	FilePath outfp( outdirnm, toString(idx+1) );
-	outfp.setExtension( ".flt" );
-	if ( !File::copy(inpfp.fullPath(),outfp.fullPath(),&errmsg) )
-	{
-	    uiMSG().error( toUiString("%1: %2")
-		    .arg(uiStrings::phrCannotCopy(uiStrings::sFault()))
-		    .arg(toUiString(errmsg)) );
-	    return false;
-	}
-    }
 
     return true;
 }

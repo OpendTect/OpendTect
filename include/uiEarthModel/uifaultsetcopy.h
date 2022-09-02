@@ -12,8 +12,11 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
+class IOObj;
 class uiIOObjSel;
 class uiIOObjSelGrp;
+class uiListBox;
+
 
 mExpClass(uiEarthModel) uiFault2FaultSet : public uiDialog
 {
@@ -30,5 +33,22 @@ protected:
 
     uiIOObjSelGrp*	infld_;
     uiIOObjSel*		outfld_;
+
+};
+
+
+mExpClass(uiEarthModel) uiCopyFaultSet : public uiDialog
+{ mODTextTranslationClass(uiCopyFaultSet)
+public:
+			uiCopyFaultSet(uiParent*,const IOObj&);
+
+protected:
+
+    uiIOObjSel*		inpfld_;
+    uiListBox*		surflist_;
+    uiIOObjSel*		outfld_;
+
+    bool		acceptOK(CallBacker*) override;
+    void		inpSelCB(CallBacker*);
 
 };
