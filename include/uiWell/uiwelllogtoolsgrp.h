@@ -10,20 +10,22 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uigroup.h"
-#include "uiwelllogtools.h"
+
+class WellLogToolData;
+class uiWellLogDisplay;
 
 
 mExpClass(uiWell) uiWellLogToolWinGrp : public uiGroup
 { mODTextTranslationClass(uiWellLogToolWinGrp)
 public:
 				uiWellLogToolWinGrp(uiParent*,
-				const ObjectSet<uiWellLogToolWin::LogData>&);
+					const ObjectSet<WellLogToolData>&);
     virtual			~uiWellLogToolWinGrp();
 
     virtual void		displayLogs() = 0;
 
 protected:
-    const ObjectSet<uiWellLogToolWin::LogData>& logdatas_;
+    const ObjectSet<WellLogToolData>& logdatas_;
 };
 
 
@@ -31,7 +33,7 @@ mExpClass(uiWell) uiODWellLogToolWinGrp : public uiWellLogToolWinGrp
 { mODTextTranslationClass(uiODWellLogToolWinGrp)
 public:
 			uiODWellLogToolWinGrp(uiParent*,
-				const ObjectSet<uiWellLogToolWin::LogData>&);
+				const ObjectSet<WellLogToolData>&);
 			~uiODWellLogToolWinGrp();
 
     void		displayLogs() override;

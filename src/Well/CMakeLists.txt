@@ -24,6 +24,7 @@ SET(OD_MODULE_SOURCES
 	wellmarker.cc
 	wellposprovider.cc
 	wellreader.cc
+	wellselection.cc
 	wellt2dtransform.cc
 	welltrack.cc
 	welltransl.cc

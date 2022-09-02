@@ -328,7 +328,8 @@ void Well::Data::setCheckShotModel( D2TModel* d )
 
 void Well::Data::setEmpty()
 {
-    setD2TModel( 0 ); setCheckShotModel( 0 );
+    setD2TModel( nullptr );
+    setCheckShotModel( nullptr );
     track_.setEmpty();
     logs_.setEmpty();
     markers_.setEmpty();
