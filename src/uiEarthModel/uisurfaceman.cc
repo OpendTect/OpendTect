@@ -152,9 +152,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     {
 	man2dbut_ = addManipButton( "man2d",
 	  uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
-                                mCB(this,uiSurfaceMan,man2dCB) );
+				mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
+
     if ( type_ == Hor3D )
     {
 	mergehorbut_ = addManipButton( "mergehorizons",
@@ -162,6 +163,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 				    uiStrings::s3D(), uiStrings::sHorizon(2))),
 		mCB(this,uiSurfaceMan,merge3dCB) );
     }
+
     if ( type_ == Hor3D || type_ == AnyHor )
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon Data"),
@@ -187,14 +189,17 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	extrabutgrp_->attach( ensureBelow, attribfld_ );
 	setPrefWidth( 50 );
     }
+
     if ( type_==Hor3D || type_==Hor2D )
     {
 	new uiPushButton( extrabutgrp_, tr("Relations"),
 		mCB(this,uiSurfaceMan,setRelations), false );
     }
+
     if ( type_==Flt3D )
     {
     }
+
     if ( type_==Body )
     {
 	applybodybut_ = addManipButton( "set_union",
@@ -210,12 +215,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					tr("Switch inside/outside value"),
 					mCB(this,uiSurfaceMan,switchValCB) );
     }
+
     if ( type_ == FltSet )
     {
 	manselsetbut_ = addManipButton( "man_flt",
 			    uiStrings::phrManage(uiStrings::sFault(mPlural)),
 			    mCB(this,uiSurfaceMan,manFltSetCB) );
-    manselsetbut_->setSensitive( false );
+	manselsetbut_->setSensitive( false );
     }
 
     mTriggerInstanceCreatedNotifier();

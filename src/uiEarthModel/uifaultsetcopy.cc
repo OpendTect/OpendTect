@@ -11,11 +11,15 @@ ________________________________________________________________________
 
 #include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
+#include "uimsg.h"
+#include "uitaskrunner.h"
 
 #include "ctxtioobj.h"
 #include "emfault3d.h"
 #include "emfaultset3d.h"
+#include "emmanager.h"
 #include "emsurfacetr.h"
+#include "executor.h"
 
 
 uiFault2FaultSet::uiFault2FaultSet( uiParent* p )
@@ -51,5 +55,54 @@ MultiID uiFault2FaultSet::key() const
 
 bool uiFault2FaultSet::acceptOK( CallBacker* )
 {
-    return false;
+    const int nrinp = infld_->nrChosen();
+    if ( nrinp==0 )
+    {
+	uiMSG().error( tr("Please select at least one fault") );
+	return false;
+    }
+
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
+    const EM::ObjectID oid = EM::EMM().createObject(
+				EM::FaultSet3D::typeStr(), outioobj->name() );
+    RefMan<EM::FaultSet3D> fltset;
+    mDynamicCast(EM::FaultSet3D*,fltset,EM::EMM().getObject(oid))
+
+    uiTaskRunner taskrunner( this );
+    TypeSet<MultiID> inputids;
+
+    infld_->getChosen( inputids );
+    PtrMan<Executor> fltloader = EM::EMM().objectLoader( inputids );
+    if ( fltloader && !TaskRunner::execute(&taskrunner,*fltloader) )
+    {
+	uiMSG().error( fltloader->uiMessage() );
+	return false;
+    }
+
+    for ( int idx=0; idx<inputids.size(); idx++ )
+    {
+	const EM::ObjectID objid = EM::EMM().getObjectID( inputids[idx] );
+	RefMan<EM::EMObject> emobj = EM::EMM().getObject( objid );
+	mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
+	if ( !f3d )
+	    continue;
+
+	fltset->addFault( f3d );
+    }
+
+    PtrMan<Executor> saver = fltset->saver();
+    if ( saver && !TaskRunner::execute(&taskrunner,*saver) )
+    {
+	uiMSG().error( saver->uiMessage() );
+	return false;
+    }
+
+    const uiString msg = tr("Faults successfully written to FaultSet.\n"
+			    "Do you want to copy more faults?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				    tr("No, close window") );
+    return !ret;
 }

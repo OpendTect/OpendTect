@@ -165,7 +165,7 @@ void uiBulkFaultImport::init()
 		.add( sKeyIndexed() ).add( sKeyFileOrder() );
     sortsticksfld_ = new uiGenInput( this, tr("Stick sorting"),
 				     StringListInpSpec(sticksortopt) );
-	sortsticksfld_->attach( alignedBelow, inpfld_ );
+    sortsticksfld_->attach( alignedBelow, inpfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 		mODHelpKey(mTableImpDataSelwellsHelpID) );
@@ -329,7 +329,7 @@ static void updateFaultStickSet( EM::Fault* flt,
 void uiBulkFaultImport::inpChangedCB( CallBacker* )
 {
     if ( fltsetnmfld_ )
-		fltsetnmfld_->setInput( MultiID(inpfld_->baseName()) );
+	fltsetnmfld_->setInput( MultiID(inpfld_->baseName()) );
 }
 
 
@@ -364,9 +364,9 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	const IOObj* ioobj = fltsetnmfld_->ioobj();
 	if ( !ioobj )
 	    return false;
-	EM::ObjectID oid = EM::EMM().createObject( EM::FaultSet3D::typeStr(),
-								ioobj->name() );
-	mDynamicCast( EM::FaultSet3D*, fltset, EM::EMM().getObject( oid ) );
+	EM::ObjectID oid = EM::EMM().createObject(
+				EM::FaultSet3D::typeStr(), ioobj->name() );
+	mDynamicCast(EM::FaultSet3D*,fltset,EM::EMM().getObject(oid))
 	if (isfltset_ && !fltset )
 	    return false;
     }
