@@ -32,23 +32,33 @@ public:
 
     RandomLineID	ID() const		{ return id_; }
 
+    int			nrNodes() const;
+    int			size() const		{ return nrNodes(); }
+    void		removeNode(int);
+    bool		isEmpty() const ;
+    void		limitTo(const TrcKeyZSampling&); // nrNodes should be 2
+
+    // BinID based functions
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
     void		setName(const char*) override;
     void		setNodePosition(int idx,const BinID&,bool moving=false);
     void		setNodePositions(const TypeSet<BinID>&);
-    void		removeNode(int);
     void		removeNode(const BinID&);
-    bool		isEmpty() const		{ return nodes_.isEmpty(); }
-    void		limitTo(const TrcKeyZSampling&); // nrNodes should be 2
-
     int			nodeIndex(const BinID&) const;
-    int			nrNodes() const;
-    const BinID&	nodePosition(int) const;
-    void		allNodePositions(TrcKeyPath&) const;
+    BinID		nodePosition(int) const;
+    void		allNodePositions(TypeSet<TrcKey>&) const;
 
-    void		setZRange( const Interval<float>& rg )
-			{ zrange_ = rg; zrangeChanged.trigger(); }
+    // Coord based functions
+    int			addNode(const Coord&);
+    void		insertNode(int,const Coord&);
+    void		setNodePosition(int idx,const Coord&,bool moving=false);
+    void		setNodePositions(const TypeSet<Coord>&);
+    const Coord&	nodeCoord(int idx) const;
+    int			nearestNode(const Coord&,double& distance) const;
+    void		allNodePositions(TypeSet<Coord>&) const;
+
+    void		setZRange(const Interval<float>&);
     Interval<float>	zRange() const		{ return zrange_; }
 
     void		setMultiID(const MultiID&);
@@ -80,11 +90,11 @@ public:
 protected:
     virtual		~RandomLine();
 
-    TypeSet<BinID>	nodes_;
+    TypeSet<Coord>	nodes_;
     Interval<float>	zrange_;
-    MultiID		mid_;
-    RandomLineSet*	lset_;
-    bool		locked_;
+    MultiID		mid_			= MultiID::udf();
+    RandomLineSet*	lset_			= nullptr;
+    bool		locked_			= false;
 
     friend class	RandomLineSet;
 
