@@ -47,7 +47,7 @@ uiODWellDisplayServer::~uiODWellDisplayServer()
 {}
 
 
-uiDialog* uiODWellDisplayServer::createMultiWellDisplay( uiParent* p,
+uiMainWin* uiODWellDisplayServer::createMultiWellDisplay( uiParent* p,
 							 const DBKeySet& wells,
 						 const BufferStringSet& loglst )
 {
@@ -94,7 +94,17 @@ uiDialog* uiODWellDisplayServer::createMultiWellDisplay( uiParent* p,
 
 
 uiWellLogToolWinGrp* uiODWellDisplayServer::createWellLogToolGrp(uiParent* p,
-			    const ObjectSet<uiWellLogToolWin::LogData>& logs)
+			    const ObjectSet<WellLogToolData>& logs)
 {
     return new uiODWellLogToolWinGrp( p, logs );
 }
+
+
+// uiLogDisplayGrp
+uiLogDisplayGrp::uiLogDisplayGrp( uiParent* p, const char* nm )
+    : uiGroup(p,nm)
+{}
+
+
+uiLogDisplayGrp::~uiLogDisplayGrp()
+{}

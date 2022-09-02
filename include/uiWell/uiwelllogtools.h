@@ -9,11 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uidialog.h"
+
 #include "bufstringset.h"
-#include "multiid.h"
 #include "uistring.h"
+#include "wellselection.h"
 
 class uiCheckBox;
 class uiComboBox;
@@ -27,45 +27,43 @@ class uiButton;
 class uiSpinBox;
 class uiTable;
 class uiWellLogDisplay;
-
+class uiWellLogToolWinGrp;
 
 namespace Well
-{ class Data; class Log; class LogSet; class D2TModel; class Track; }
+{
+    class D2TModel;
+    class Data;
+    class Log;
+    class LogSet;
+    class Track;
+}
 
-class uiWellLogToolWinGrp;
+
+mExpClass(uiWell) WellLogToolData : public Well::SubSelData
+{
+public:
+			WellLogToolData(const Well::SelInfo&);
+			~WellLogToolData();
+
+    const ObjectSet<const Well::Log> inpLogs() const  { return inplogs_; }
+
+protected:
+    void			init();
+
+    ObjectSet<const Well::Log>	inplogs_;
+};
+
 
 mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
 { mODTextTranslationClass(uiWellLogToolWin)
 public:
-
-    mStruct(uiWell) LogData
-    {
-				LogData(Well::Data&);
-				~LogData();
-
-	MultiID			wellid_;
-	BufferString		wellname_;
-	Interval<float>		dahrg_;
-
-	int			setSelectedLogs(BufferStringSet&);
-	Well::LogSet&		logs() const		{ return logs_; }
-	const Well::D2TModel*	d2t();
-	const Well::Track*	track();
-
-	const ObjectSet<const Well::Log> inpLogs() const  { return inplogs_; }
-
-    protected:
-
-	RefMan<Well::Data>		wd_;
-	Well::LogSet&			logs_;
-	ObjectSet<const Well::Log>	inplogs_;
-    };
-
-				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&,
-						 bool withedit=true);
+				uiWellLogToolWin(uiParent*,
+						ObjectSet<WellLogToolData>&,
+						bool withedit=true);
 				~uiWellLogToolWin();
 
-    void			getLogDatas(ObjectSet<LogData>& lds) const
+    void			getLogDatas(
+					ObjectSet<WellLogToolData>& lds) const
 				{ lds = logdatas_; }
 
 protected:
@@ -85,7 +83,7 @@ protected:
     Interval<float>		zdisplayrg_;
     uiWellLogToolWinGrp*	logdisp_;
 
-    ObjectSet<LogData>		logdatas_;
+    ObjectSet<WellLogToolData>		logdatas_;
     bool			closeok_ = true;
 
     uiGroup*			createEditGroup();
