@@ -158,20 +158,20 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
     if ( but == toselect_ )
     {
 	volsbox_->getChosen( selnms );
-	for ( int idx=0; idx<selnms.size(); idx++ )
+	for ( const auto* selnm : selnms )
 	{
-	    selvolsbox_->addItem( toUiString(selnms.get( idx )) );
-	    volsbox_->removeItem( selnms.get( idx ) );
+	    selvolsbox_->addItem( toUiString(*selnm) );
+	    volsbox_->removeItem( selnm->buf() );
 	}
 
     }
     else if ( but == fromselect_ )
     {
 	selvolsbox_->getChosen( selnms );
-	for ( int idx=0; idx<selnms.size(); idx++ )
+	for ( const auto* selnm : selnms )
 	{
-	    volsbox_->addItem( toUiString(selnms.get( idx )) );
-	    selvolsbox_->removeItem( selnms.get( idx ) );
+	    volsbox_->addItem( toUiString(*selnm) );
+	    selvolsbox_->removeItem( selnm->buf() );
 	}
     }
 
@@ -209,7 +209,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	return false;
     }
 
-    BufferString storage = "";
+    BufferString storage;
     const char* storagekey = sKey::DataStorage();
     bool altstormsgdone = false;
     for ( int idx=0; idx<nrobjs; idx++ )

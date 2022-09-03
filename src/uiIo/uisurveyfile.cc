@@ -53,7 +53,7 @@ bool uiSurveyFile::newFile()
 
     uiTaskRunner uitr( parent_ );
     PtrMan<SurveyFile> newsurvey = new SurveyFile( openfile_fp.fullPath(),
-						   surveyname );
+						   surveyname.buf() );
     if ( !newsurvey->mount(true, &uitr).isOK() )
     {
 	uiMSG().errorWithDetails( newsurvey->errMsg() );

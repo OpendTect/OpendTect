@@ -106,7 +106,7 @@ void WellLog::prepareForComputeData()
 				    ? uiStrings::sTrack()
 				    : !haslog ? uiStrings::sWellLog()
 					      : tr("time-depth model") );
-	    if ( wd->name() )
+	    if ( !wd->name().isEmpty() )
 		errmsg_.append( " for well ").append( wd->name() );
 
 	    return;

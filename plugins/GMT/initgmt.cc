@@ -85,7 +85,7 @@ static void extractVersionString( const BufferString& inp )
 	recnr = nrrecords-1; //Fallback: last record
 	for ( int idx=0; idx<nrrecords-1; idx++ )
 	{
-	    if ( versionstr[idx].contains(tofind) )
+	    if ( versionstr[idx].contains(tofind.buf()) )
 	    {
 		recnr = idx+1;
 		break;

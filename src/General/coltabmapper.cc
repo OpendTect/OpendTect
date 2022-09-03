@@ -208,18 +208,18 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 
 bool ColTab::MapperSetup::usePar( const IOPar& par )
 {
-    const char* typestr = par.find( sKey::Type() );
+    const BufferString typestr = par.find( sKey::Type() );
     if ( !TypeDef().parse( typestr, type_ ) )
 	return false;
 
-    if ( par.find(sKeyStarWidth()) )
+    if ( par.hasKey(sKeyStarWidth()) )
     {
 	float start, width;
 	par.get( sKeyStarWidth(), start, width );
 	range_.start = start;
 	range_.stop = start + width;
     }
-    else if ( par.find(sKeyRange()) )
+    else if ( par.hasKey(sKeyRange()) )
 	par.get( sKeyRange(), range_ );
     else
 	return false;

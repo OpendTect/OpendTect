@@ -329,7 +329,7 @@ static const char* GetSoftwareDataDir( bool acceptnone )
 {
     FilePath basedir = GetSoftwareDir( acceptnone );
     if ( basedir.isEmpty() )
-	return 0;
+	return nullptr;
 
 #ifdef __mac__
     basedir.add( "Resources" );

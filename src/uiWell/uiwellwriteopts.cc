@@ -33,10 +33,11 @@ uiODWellWriteOpts::uiODWellWriteOpts( uiParent* p )
 
 void uiODWellWriteOpts::use( const IOPar& iop )
 {
-    const char* res = iop.find( Well::odWriter::sKeyLogStorage() );
+    const BufferString res = iop.find( Well::odWriter::sKeyLogStorage() );
     bool binwr = defbinwrite_;
-    if ( res && *res )
-	binwr = *res != 'A';
+    if ( !res.isEmpty() )
+	binwr = res.firstChar() != 'A';
+
     wrlogbinfld_->setValue( binwr );
 }
 

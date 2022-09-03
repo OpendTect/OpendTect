@@ -416,8 +416,8 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 
 	logtrcs[ilog]->info().sampling = sampling;
 	welldata_[iwll]->trcs_ += new SeisTrcBuf( true );
-	logispresent += logset_ ? logset_->getLog(lognms.get(ilog))
-				: wd->logs().getLog( lognms.get(ilog) );
+	logispresent += logset_ ? logset_->getLog( lognms.get(ilog).buf() )
+				: wd->logs().getLog( lognms.get(ilog).buf() );
     }
 
     StepInterval<float> logzrg( logsamp->zRange().start, logsamp->zRange().stop,

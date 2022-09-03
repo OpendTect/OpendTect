@@ -419,8 +419,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	for ( int idlog=0; idlog<ld.inpLogs().size(); idlog++ )
 	{
 	    const Well::Log& inplog = *ld.inpLogs().get( idlog );
-	    *ld.logs().getLog(inplog.name()) = inplog;
-	    Well::Log* outplog = ld.logs().getLog( inplog.name() );
+	    *ld.logs().getLog(inplog.name().buf()) = inplog;
+	    Well::Log* outplog = ld.logs().getLog( inplog.name().buf() );
 	    const int sz = inplog.size();
 	    if ( sz< 2 )
 		continue;
@@ -622,7 +622,7 @@ bool uiWellLogToolWin::saveLogs()
 		return false;
 	    }
 
-	    auto* outplog = new Well::Log( *ls.getLog(*lognm) );
+	    auto* outplog = new Well::Log( *ls.getLog(lognm->buf()) );
 	    if ( !overwrite )
 		outplog->setName( newnm );
 

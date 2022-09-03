@@ -294,9 +294,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 
 void SeisCBVSPSIO::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::DataStorage() );
-    if ( res && *res )
-	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
+    DataCharacteristics::getUserTypeFromPar( iopar, reqdtype_ );
 }
 
 

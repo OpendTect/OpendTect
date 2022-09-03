@@ -79,7 +79,7 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
     if ( !lsioobj )
         return false;
 
-    BufferString fnm( outfld_->fileName() );
+    const BufferString fnm( outfld_->fileName() );
     if ( fnm.isEmpty() )
     {
         uiMSG().error( tr("Please enter the output file name") );
@@ -93,8 +93,8 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
 
-    BufferString lsnm( lsioobj->name() );
-    S2DPOS().setCurLineSet( lsnm );
+    const BufferString lsnm( lsioobj->name() );
+    S2DPOS().setCurLineSet( lsnm.buf() );
 
     BufferStringSet lnms;
     if ( lnmsfld_->isChecked() )

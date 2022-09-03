@@ -582,7 +582,7 @@ void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
 {
     TypeSet<MultiID> mids;
     for ( int idx=0; idx<idstrs.size(); idx++ )
-	mids += MultiID( idstrs.get(idx) );
+	mids += MultiID( idstrs.get(idx).buf() );
 
     setSelWellIDs( mids );
 }

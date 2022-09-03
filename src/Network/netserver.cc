@@ -392,7 +392,7 @@ void Network::Authority::setHostAddress( const char* host, bool resolveipv6 )
     hostnm.replace( '[', ' ' ).replace( ']', ' ' );
     hostnm.trimBlanks();
 
-    qhost_ = hostnm;
+    qhost_ = hostnm.buf();
     if ( hostnm.isEmpty() )
 	qhostaddr_.setAddress( QHostAddress::Null );
     else

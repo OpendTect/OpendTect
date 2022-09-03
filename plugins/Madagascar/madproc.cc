@@ -20,7 +20,8 @@ ________________________________________________________________________
 bool ODMad::Proc::progExists( const char* prog )
 {
     const BufferString rsfroot = GetEnvVar( "RSFROOT" );
-    if ( !rsfroot || !*rsfroot ) return false;
+    if ( rsfroot.isEmpty() )
+	return false;
 
     FilePath fp( rsfroot, "bin", prog );
 #if __win__
@@ -199,11 +200,11 @@ void ODMad::Proc::fillPar( IOPar& par ) const
 
 bool ODMad::Proc::usePar( const IOPar& par )
 {
-    const char* cmd = par.find( sKeyCommand() );
-    if ( !cmd || !*cmd )
+    const BufferString cmd = par.find( sKeyCommand() );
+    if ( cmd.isEmpty() )
 	return false;
 
-    const char* auxcmd = par.find( sKeyAuxCommand() );
+    const BufferString auxcmd = par.find( sKeyAuxCommand() );
     makeProc( cmd, auxcmd );
     return true;
 }

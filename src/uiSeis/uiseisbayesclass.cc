@@ -133,18 +133,24 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	    addbuts_ += addbut;
 	}
 
-	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	const bool haveid = id && *id;
-	if ( haveid || idx )
+	MultiID mid;
+	pars_.get( mGetSeisBayesPDFIDKey(idx), mid );
+	if ( !mid.isUdf() || idx )
 	{
-	    fld->setInput( MultiID(id) );
-	    if ( haveid ) nrdisp_ = idx+1;
+	    fld->setInput( mid );
+	    if ( !mid.isUdf() )
+		nrdisp_ = idx+1;
 	}
 
 	flds_ += fld;
     }
 
-    postFinalize().notify( mCB(this,uiSeisBayesPDFInp,handleDisp) );
+    mAttachCB(postFinalize(), uiSeisBayesPDFInp::handleDisp );
+}
+
+~uiSeisBayesPDFInp()
+{
+    detachAllNotifiers();
 }
 
 void butPush( CallBacker* cb )
@@ -243,16 +249,18 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
 			 ,tr("- Scaling")), tr("[2] Normalization/Scaling"),
 			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
-    , is2d_(*pars[sKey::Type()] == '2')
-    , prenormfld_(0)
+    , is2d_(pars[sKey::Type()].firstChar() == '2')
+    , prenormfld_(nullptr)
     , nrpdfs_(0)
 {
     const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDisp) );
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
-	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	if ( !id || !*id ) break;
+	const BufferString id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
+	if ( id.isEmpty() )
+	    break;
+
 	nrpdfs_++;
     }
 
@@ -277,20 +285,23 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     uiGenInput* alobj = useglobfld_;
     for ( int idx=0; idx<nrpdfs_; idx++ )
     {
-	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	uiString fldtxt = tr("For '%1'").arg(toUiString(IOM().nameOf(id)));
+	const BufferString id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
+	uiString fldtxt = tr("For '%1'").
+				    arg(toUiString(IOM().nameOf(id.buf())));
 
 	float scl = 1;
-	StringView res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
+	BufferString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
 	if ( !res.isEmpty() )
 	    scl = res.toFloat();
+
 	uiGenInput* fld = new uiGenInput( this, fldtxt, FloatInpSpec(scl) );
 	fld->attach( alignedBelow, alobj );
 	sclflds_ += fld;
 
 	uiIOObjSel* os = new uiIOObjSel( this, ctxt, fldtxt );
-	res = pars_.find( mGetSeisBayesAPProbIDKey(idx) );
-	os->setInput( MultiID(res.buf()) );
+	MultiID mid;
+	pars_.get( mGetSeisBayesAPProbIDKey(idx), mid );
+	os->setInput( mid );
 	os->attach( alignedBelow, alobj );
 	apflds_ += os;
 	if ( !res.isEmpty() )
@@ -413,8 +424,8 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 					tr("[3] Specify Seismic input"),
 					mODHelpKey(mSeisBayesSeisInpHelpID) ),
 					pars,Middle)
-    , lsfld_(0)
-    , is2d_(*pars[sKey::Type()] == '2')
+    , lsfld_(nullptr)
+    , is2d_(pars[sKey::Type()].firstChar() == '2')
 {
     uiString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
@@ -434,10 +445,12 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 	{
 	    su.seltxt_ = tr("Input for '%1'").arg( pdf->dimName(idx) );
 	    uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
-	    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idx) );
-	    fld->setInput( MultiID(id) );
+	    MultiID mid;
+	    pars_.get( mGetSeisBayesSeisInpIDKey(idx), mid );
+	    fld->setInput( mid );
 	    if ( idx )
 		fld->attach( alignedBelow, flds3d_[idx-1] );
+
 	    flds3d_ += fld;
 	}
     }
@@ -505,7 +518,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 					tr("[4] Select and specify output"),
 					mODHelpKey(mSeisBayesOutHelpID) ),
 					pars,DoWork)
-    , is2d_(*pars[sKey::Type()] == '2')
+    , is2d_(pars[sKey::Type()].firstChar() == '2')
     , haveclass_(true)
 {
     if ( is2d_ ) { new uiLabel( this, tr("2D not implemented") ); return; }
@@ -517,9 +530,11 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
-	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	if ( !id || !*id ) break;
-	addOut( IOM().nameOf(id), true );
+	const BufferString id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
+	if ( id.isEmpty() )
+	    break;
+
+	addOut( IOM().nameOf(id.buf()), true );
     }
     if ( flds3d_.size() < 2 )
 	haveclass_ = false;
@@ -533,9 +548,11 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
     Seis::SelSetup sss( is2d_, false ); sss.fornewentry(true).onlyrange(false);
     subselfld_ = uiSeisSubSel::get( this, sss );
     subselfld_->attach( alignedBelow, flds3d_[ flds3d_.size()-1 ] );
-    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(0) );
-    if ( id && *id )
-	subselfld_->setInput( MultiID(id) );
+    MultiID mid;
+    pars_.get( mGetSeisBayesSeisInpIDKey(0), mid );
+    if ( !mid.isUdf() )
+	subselfld_->setInput( mid);
+
     subselfld_->usePar( pars_ );
 }
 
@@ -556,12 +573,15 @@ void addOut( const char* nm, bool ispdf )
 	curidx += 2;
 
     uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
-    const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(curidx) );
-    fld->setInput( MultiID(id) );
+    MultiID mid;
+    pars_.get( mGetSeisBayesSeisOutIDKey(curidx), mid );
+    fld->setInput( mid );
     if ( fld->ctxtIOObj(true).ioobj_ )
 	fld->setChecked( true );
+
     if ( nrflds > 0 )
 	fld->attach( alignedBelow, flds3d_[nrflds-1] );
+
     flds3d_ += fld;
 }
 

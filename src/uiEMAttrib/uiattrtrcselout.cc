@@ -384,7 +384,8 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     const Desc* desc = ads_->getDesc( attrfld_->attribID() );
     if ( desc && desc->isStored() )
     {
-	PtrMan<IOObj> inioobj = IOM().get( MultiID(desc->getStoredID()) );
+	PtrMan<IOObj> inioobj = IOM().get(
+					MultiID(desc->getStoredID().buf()) );
 	if ( inioobj )
 	{
 	    const IOPar& pars = inioobj->pars();
@@ -551,7 +552,8 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    LineKey lk( desc->getStoredID(true) );
 	    if ( !lk.isEmpty() )
 	    {
-		PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+		PtrMan<IOObj> ioobj = IOM().get(
+					    MultiID(lk.lineName().buf()) );
 		if ( ioobj )
 		    seissubselfld_->setInput( *ioobj );
 	    }

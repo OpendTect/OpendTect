@@ -381,7 +381,7 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, mIdxTyp lsid ) const
 	return getLines( nms, 0 );
 
     BufferString lsnm = getLineSet( lsid );
-    getLines( nms, lsnm );
+    getLines( nms, lsnm.buf() );
 }
 
 

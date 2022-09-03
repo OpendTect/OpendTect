@@ -1116,7 +1116,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 	if ( ioobj )
 	    PickSetTranslator::retrieve( *newps, ioobj, true, bs );
 
-	if ( !newps->name() || !*newps->name() )
+	if ( newps->name().isEmpty() )
 	    newps->setName( getName() );
 
 	newps->disp_.markertype_ = markertype;

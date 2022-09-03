@@ -220,7 +220,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
-	    usernm = IOM().nameOf( usernm );
+	    usernm = IOM().nameOf( usernm.buf() );
     }
     else
     {
@@ -241,9 +241,9 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    const LineKey& lkey,
 					    uiString& errmsg )
 {
-    const StringView typestr =
+    const BufferString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
-    if ( typestr==sKey::Cube() )
+    if ( typestr.isEqual(sKey::Cube()) )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( tkzs_,
 				    Survey::GM().getGeomID(lkey.lineName()) );
@@ -1092,7 +1092,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const LineKey lk( storeddesc->getValParam(
 			StorageProvider::keyStr())->getStringValue(0) );
-    const MultiID key( lk.lineName() );
+    const MultiID key( lk.lineName().buf() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
 

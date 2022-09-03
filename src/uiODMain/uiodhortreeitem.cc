@@ -535,7 +535,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const bool hastracker = MPE::engine().getTrackerByObject(emid_) >= 0;
     MenuItem* trackmnu = menu->findItem(
-	    uiStrings::sTracking().getFullString() );
+	    uiStrings::sTracking().getFullString().buf() );
     if ( hastracker && trackmnu )
     {
 	const Coord3& crd = uimenu->getPickedPos();

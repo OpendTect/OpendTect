@@ -69,16 +69,16 @@ void Property::fillPar( IOPar& iop ) const
 
 void Property::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Value() );
-    if ( res && *res )
+    const BufferString res = iop.find( sKey::Value() );
+    if ( !res.isEmpty() )
 	setDef( res );
 }
 
 
 Property* Property::get( const IOPar& iop )
 {
-    const char* nm = iop.find( sKey::Name() );
-    if ( !nm || !*nm )
+    const BufferString nm = iop.find( sKey::Name() );
+    if ( nm.isEmpty() )
 	return nullptr;
 
     const PropertyRef* ref = PropertyRef::thickness().name() == nm
@@ -86,11 +86,12 @@ Property* Property::get( const IOPar& iop )
 			   : PROPS().getByName( nm, false );
     if ( !ref )
 	ref = PROPS().getByName( nm, true );
+
     if ( !ref )
 	return nullptr;
 
-    const char* typ = iop.find( sKey::Type() );
-    if ( !typ || !*typ )
+    BufferString typ = iop.find( sKey::Type() );
+    if ( typ.isEmpty() )
 	typ = ValueProperty::typeStr();
 
     Property* prop = factory().create( typ, *ref );
@@ -511,7 +512,7 @@ void MathProperty::setPreV5Def( const char* inpstr )
 	const PropertyRef& pr = idx<0 ? PropertyRef::thickness()
 				      : *props.get( idx );
 	const OD::String& propnm = pr.name();
-	if ( !defstr.contains(propnm) )
+	if ( !defstr.contains(propnm.buf()) )
 	    continue;
 
 	prs.add( &pr );
@@ -519,7 +520,7 @@ void MathProperty::setPreV5Def( const char* inpstr )
 	BufferString varnm( "v_", prs.size(), "_" );
 	varnm.add( cleanpropnm );
 
-	defstr.replace( propnm, varnm );
+	defstr.replace( propnm.buf(), varnm );
     }
 
     form_.setText( defstr );

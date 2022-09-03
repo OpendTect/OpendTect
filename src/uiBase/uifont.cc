@@ -242,11 +242,11 @@ uiFont& uiFontList::gtFont( const char* ky, const FontData* fd, const QFont* qf)
 	}
     }
 
-    if ( !fd )
+    if ( !fd && !fonts_.isEmpty() )
 	return *fonts_[0];
     else
     {
-	uiFont* nwFont = new uiFont( ky, *fd );
+	uiFont* nwFont = fd ? new uiFont( ky, *fd ) : new uiFont(ky);
 	fonts_ += nwFont;
 	return *nwFont;
     }
@@ -300,9 +300,10 @@ void uiFontList::use( const Settings& settings )
     int ikey=0;
     while ( const char* ky = FontData::defaultKeys()[ikey++] )
     {
-	const char* res = fontpar ? fontpar->find(ky) : 0;
-	if ( res && *res )
-	    add( ky, FontData(res) );
+	const BufferString res = fontpar && fontpar->hasKey(ky) ?
+				    fontpar->find(ky) : BufferString::empty();
+	if ( !res.isEmpty() )
+	    add( ky, FontData(res.buf()) );
 	else if ( fontpar && strcmp(ky,"Fixed width") )
 	    { addOldGuess( *fontpar, ky ); haveguessed = true; }
 	else
@@ -342,24 +343,28 @@ void uiFontList::addOldGuess( const IOPar& fontpar, const char* ky )
 
     if ( fontkey == FontData::key(FontData::Graphics2D) )
     {
-	const StringView res = fontpar.find( "Graphics medium" );
-	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+	const BufferString res = fontpar.find( "Graphics medium" );
+	if ( !res.isEmpty() )
+	    add( ky, FontData(res.buf()) );
     }
     else if ( fontkey == FontData::key(FontData::Graphics3D) )
     {
-	const StringView res =
+	const BufferString res =
 		Settings::common().find( "dTect.Scene.Annotation font" );
-	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+	if ( !res.isEmpty() )
+	    add( ky, FontData(res.buf()) );
     }
     else if ( fontkey == FontData::key(FontData::Graphics2DSmall) )
     {
-	const StringView res = fontpar.find( "Graphics small" );
-	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+	const BufferString res = fontpar.find( "Graphics small" );
+	if ( !res.isEmpty() )
+	    add( ky, FontData(res.buf()) );
     }
     else if ( fontkey == FontData::key(FontData::Graphics2DLarge) )
     {
-	const StringView res = fontpar.find( "Graphics large" );
-	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+	const BufferString res = fontpar.find( "Graphics large" );
+	if ( !res.isEmpty() )
+	    add( ky, FontData(res.buf()) );
     }
 }
 

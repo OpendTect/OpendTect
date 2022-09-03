@@ -96,7 +96,7 @@ bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 
 bool SeisTrcTranslator::isPS( const IOObj& ioobj, bool internal_only )
 {
-    const bool trok = *ioobj.group() == 'P' || *(ioobj.group()+3) == 'P';
+    const bool trok = *ioobj.group() == 'P' || *(ioobj.group().str()+3) == 'P';
     return trok || internal_only ? trok
 	: ioobj.pars().isTrue( sKeyIsPS() ) || Seis::isPSGeom( ioobj.pars() );
 }

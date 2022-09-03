@@ -189,8 +189,8 @@ void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* inpkey )
     Geom::Point2D<T> pt; iop.get( IOPar::compKey(key,"Undef"), pt.x, pt.y );
     poly.setUdf( pt );
 
-    if (   !iop.find( IOPar::compKey(key,"Data.X") )
-	|| !iop.find( IOPar::compKey(key,"Data.Y") ) )
+    if ( !iop.hasKey( IOPar::compKey(key,"Data.X") )
+			|| !iop.hasKey( IOPar::compKey(key,"Data.Y") ) )
 	return;
 
     poly.setEmpty(); TypeSet<T> tsx, tsy;

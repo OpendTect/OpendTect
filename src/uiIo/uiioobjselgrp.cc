@@ -476,7 +476,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     fullUpdate( -1 );
 
     if ( ctio_.ioobj_ )
-	listfld_->setCurrentItem( ctio_.ioobj_->name() );
+	listfld_->setCurrentItem( ctio_.ioobj_->name().buf() );
 }
 
 
@@ -838,10 +838,12 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 {
     if ( !isMultiChoice() )
     {
-	const char* res = iop.find( sKey::ID() );
-	if ( !res || !*res ) return;
+	MultiID mid;
+	iop.get( sKey::ID(), mid );
+	if ( mid.isUdf() )
+	    return;
 
-	const int selidx = dataset_.indexOfMID( MultiID(res) );
+	const int selidx = dataset_.indexOfMID( mid );
 	if ( selidx >= 0 )
 	    setCurrent( selidx );
     }
@@ -1054,7 +1056,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 
     dataset_.add( ioobj->key(), false );
     fillListBox();
-    listfld_->setCurrentItem( ioobj->name() );
+    listfld_->setCurrentItem( ioobj->name().buf() );
     if ( nmfld_ && ioobj->name() != seltxt )
 	nmfld_->setText( ioobj->name() );
 

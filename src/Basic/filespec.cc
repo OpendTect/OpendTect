@@ -244,15 +244,17 @@ bool FileSpec::usePar( const IOPar& iop )
     bool havemultifnames = false;
     if ( !iop.get(sKey::FileName(),fnm) )
     {
-	const char* res = iop.find( IOPar::compKey(sKey::FileName(),0) );
-	if ( !res || !*res )
+	const BufferString res = iop.find(
+					IOPar::compKey(sKey::FileName(),0) );
+	if ( res.isEmpty() )
 	    return false;
+
 	fnm = res;
     }
 
     fnames_.setEmpty();
     fnames_.add( fnm );
-    havemultifnames = iop.find( IOPar::compKey(sKey::FileName(),1) );
+    havemultifnames = iop.hasKey( IOPar::compKey(sKey::FileName(),1) );
 
     if ( !havemultifnames )
 	getMultiFromString( iop.find(sKeyFileNrs()) );
@@ -260,9 +262,11 @@ bool FileSpec::usePar( const IOPar& iop )
     {
 	for ( int ifile=1; ; ifile++ )
 	{
-	    const char* res = iop.find( IOPar::compKey(sKey::FileName(),ifile));
-	    if ( !res || !*res )
+	    const BufferString res =
+			    iop.find( IOPar::compKey(sKey::FileName(),ifile));
+	    if ( res.isEmpty() )
 		break;
+
 	    fnames_.add( res );
 	}
     }

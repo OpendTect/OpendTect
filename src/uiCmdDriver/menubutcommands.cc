@@ -104,7 +104,7 @@ bool GetMenuItemCmd::act( const char* parstr )
     mGetMenuBar( mnubar );
     mGetMenuInfo( menupath, false, *mnubar, menuinfo );
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -217,7 +217,7 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     mGetButtonMenu( objsfound[0], butmenu );
     mGetMenuInfo( menupath, false, *butmenu, menuinfo );
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -344,7 +344,7 @@ void ButtonActivator::actCB( CallBacker* cb )
     while ( true ) \
     { \
 	mGetAmpFilteredStr( buttxt, curWin()->activeModalQDlgButTxt(butidx) ); \
-	if ( !buttxt || !*buttxt ) \
+	if ( buttxt.isEmpty() ) \
 	    break; \
 \
 	buttexts.add( buttxt ); \
@@ -445,7 +445,7 @@ bool GetButtonCmd::act( const char* parstr )
 	uibut ? const_cast<uiButton*>(uibut)->text().getFullString().str() : 0);
     mGetColorString( uicolinp->color(), uicolinp, colorstr );
     mParForm( answer, form, text, colorstr );
-    mParEscIdentPost( identname, answer, parnext, form!=Colour );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
     return true;
 }
 
@@ -462,7 +462,7 @@ bool GetButtonCmd::actQDlgButton( const char* parstr )
     const char* text = buttexts.get( butsfound[0] );
     wildcardMan().check( mSearchKey(keys[0]), text );
     mParForm( answer, form, text, "255`255`255`255" );
-    mParEscIdentPost( identname, answer, parnext, form!=Colour );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
     return true;
 }
 
@@ -740,7 +740,7 @@ bool IsShownCmd::actIsCurWinShown( const char* parstr )
     mParTail( partail );
 
     mGetShowStatus( answer, curWin(), minnormmax );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -767,7 +767,7 @@ bool IsShownCmd::act( const char* parstr )
 
     mGetShowStatus(answer, mdiarea->getWindow(subwinnames[0].getFullString()),
 		   minnormmax);
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -876,7 +876,7 @@ bool CurTabCmd::act( const char* parstr )
     mCountTabs( uitabbar, curtabidx, count );
     mParForm( answer, form, uitabbar->textOfTab(curtabidx).getFullString(),
 	      count );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -901,7 +901,7 @@ bool GetTabCmd::act( const char* parstr )
     mCountTabs( uitabbar, tabidxs[0], count );
     mParForm( answer, form, uitabbar->textOfTab(tabidxs[0]).getFullString(),
 	      count );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 

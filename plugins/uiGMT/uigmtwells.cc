@@ -148,7 +148,8 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     bool postlabel = false;
     par.getYN( ODGMT::sKeyPostLabel(), postlabel );
     lebelfld_->setChecked( postlabel );
-    lebelalignfld_->setCurrentItem( par.find(ODGMT::sKeyLabelAlignment()) );
+    lebelalignfld_->setCurrentItem(
+				par.find(ODGMT::sKeyLabelAlignment()).buf() );
     int fontsize = 10;
     par.get( ODGMT::sKeyFontSize(), fontsize );
     labelfontszfld_->setValue( fontsize );

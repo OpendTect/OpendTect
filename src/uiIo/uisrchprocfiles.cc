@@ -65,11 +65,11 @@ const char* uiSrchProcFiles::fileName() const
 void uiSrchProcFiles::srchDir( CallBacker* )
 {
     objfld->commitInput();
-    BufferString key;
+    MultiID mid;
     if ( ctio_.ioobj_ )
-	key = ctio_.ioobj_->key().toString();
+	mid = ctio_.ioobj_->key();
 
-    if ( key.isEmpty() )
+    if ( mid.isUdf() )
 	return;
 
     uiMsgMainWinSetter msgwinsetter( this );
@@ -85,12 +85,14 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     BufferStringSet fnms;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	IOPar iop; const BufferString fnm( dl.fullPath(idx) );
+	IOPar iop;
+	const BufferString fnm( dl.fullPath(idx) );
 	if ( !iop.read(fnm,sKey::Pars(),true) )
 	    continue;
 
-	const char* res = iop.find( iopkey_ );
-	if ( res && key == res )
+	MultiID dlkey;
+	iop.get( iopkey_, dlkey );
+	if ( dlkey.isEqualTo(mid.toString()) )
 	    fnms.add( fnm );
     }
 

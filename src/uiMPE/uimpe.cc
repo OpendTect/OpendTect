@@ -60,7 +60,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 	desc = ads ? ads->getDesc( as.id() ) : 0;
     }
 
-    key = desc ? MultiID(desc->getStoredID(false)) : MultiID::udf();
+    key = desc ? MultiID( desc->getStoredID(false).buf() ) : MultiID::udf();
     if ( key.isUdf() )
     {
 	uiMSG().error(

@@ -29,12 +29,11 @@ public:
 
     inline		StringView( const char* p = nullptr )
 			    : str_(p)		{}
+
     inline StringView&	operator=( const StringView& fs )
 						{ str_ = fs.str_; return *this;}
     inline StringView&	operator=( const char* p )
 						{ str_ = p; return *this; }
-    StringView&	operator=(const OD::String&);
-				//!< Not impl - on purpose: too dangerous
     inline		operator const char*() const	{ return buf(); }
 
     inline bool		operator==( const StringView& fs ) const
@@ -68,7 +67,10 @@ protected:
     inline const char*	gtStr() const override
 			{ return !str_ || !*str_ ? nullptr : str_; }
 
-    const char*	str_;
+    const char* str_;
+
+    StringView(const OD::String&)		= delete;
+    StringView & operator=(const OD::String&)	= delete;
 
 };
 
@@ -84,18 +86,9 @@ public:
     static StringView	val()				{ return StringView();}
     static bool		hasUdf()			{ return true; }
     static bool		isUdf( const StringView& s )	{ return s.isEmpty(); }
-    static void		setUdf( StringView& s )	{ s = StringView(); }
+    static void		setUdf( StringView& s ) { s = StringView(); }
 
 };
 
 }
 
-
-#ifndef __win__
-
-// Avoid silent conversion general OD::String -> StringView as it is dangerous.
-void OD_Undef_StringView_eq_bs_finder();
-inline StringView& StringView::operator=(const OD::String&)
-{ OD_Undef_StringView_eq_bs_finder(); return *this; }
-
-#endif

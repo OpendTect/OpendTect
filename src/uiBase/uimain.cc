@@ -298,28 +298,28 @@ static void initQApplication()
 
 static const char* getStyleFromSettings()
 {
-    StringView lookpref = Settings::common().find( "dTect.LookStyle" );
+    BufferString lookpref = Settings::common().find( "dTect.LookStyle" );
     if ( lookpref.isEmpty() )
 	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
 
 #ifndef QT_NO_STYLE_CDE
-    if ( lookpref == "CDE" )
+    if ( lookpref.isEqual("CDE") )
 	return "cde";
 #endif
 #ifndef QT_NO_STYLE_MOTIF
-    else if ( lookpref == "Motif" )
+    else if ( lookpref.isEqual("Motif") )
 	return "motif";
 #endif
 #ifndef QT_NO_STYLE_WINDOWS
-    else if ( lookpref == "Windows" )
+    else if ( lookpref.isEqual("Windows") )
 	return "windows";
 #endif
 #ifndef QT_NO_STYLE_PLASTIQUE
-    else if ( lookpref == "Plastique" )
+    else if ( lookpref.isEqual("Plastique") )
 	return "plastique";
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
-    else if ( lookpref == "Cleanlooks" )
+    else if ( lookpref.isEqual("Cleanlooks") )
 	return "cleanlooks";
 #endif
 

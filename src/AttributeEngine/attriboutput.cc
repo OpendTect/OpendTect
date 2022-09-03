@@ -321,14 +321,15 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 	return false;
     }
 
-    const char* storid = outppar->find( seisidkey() );
-    if ( !setStorageID( storid ) )
+    MultiID stormid;
+    outppar->get( seisidkey(), stormid );
+    if ( !setStorageID(stormid) )
     {
-	errmsg_ = tr("Could not find output ID: %1").arg( storid );
+	errmsg_ = tr("Could not find output ID: %1").arg( stormid.toString() );
         return false;
     }
 
-    SeparString sepstr( storid, '|' );
+    SeparString sepstr( stormid.toString(), '|' );
 
     if ( sepstr[1] && *sepstr[1] )
 	attribname_ = sepstr[1];
@@ -337,8 +338,8 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 	datatype_ += sepstr[2];
 
     outppar->get( sKey::Names(), outpnames_ );
-    const char* res = outppar->find( scalekey() );
-    if ( res )
+    const BufferString res = outppar->find( scalekey() );
+    if ( !res.isEmpty() )
     {
 	scaler_ = Scaler::get( res );
 	if ( scaler_ && scaler_->isEmpty() )
@@ -482,7 +483,7 @@ bool SeisTrcStorOutput::writeTrc()
 	return true;
 
     SeisTrc* usetrc = trc_;
-    PtrMan<SeisTrc> tmptrc = 0;
+    PtrMan<SeisTrc> tmptrc = nullptr;
     if ( growtrctosi_ )
     {
 	tmptrc = trc_->getExtendedTo( SI().zRange(true), true );

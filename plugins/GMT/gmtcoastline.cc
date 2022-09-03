@@ -40,7 +40,7 @@ GMTPar* GMTCoastline::createInstance( const IOPar& iop, const char* workdir )
 const char* GMTCoastline::userRef() const
 {
     BufferString* str = new BufferString( "Coastline: " );
-    const char* res = find( ODGMT::sKeyResolution() );
+    const BufferString res = find( ODGMT::sKeyResolution() );
     *str += res; *str += " resolution";
     return str->buf();
 }
@@ -49,7 +49,7 @@ const char* GMTCoastline::userRef() const
 bool GMTCoastline::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name(), "Coastline" );
-    const char* str = find( ODGMT::sKeyLineStyle() );
+    const BufferString str = find( ODGMT::sKeyLineStyle() );
     par.set( ODGMT::sKeyLineStyle(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
     return true;

@@ -56,7 +56,7 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
     }
 
     if ( lb_.isPresent(cursel) )
-	lb_.setCurrentItem( cursel );
+	lb_.setCurrentItem( cursel.buf() );
     else if ( !lb_.isEmpty() )
 	lb_.setCurrentItem( 0 );
 

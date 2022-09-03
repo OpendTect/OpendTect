@@ -66,8 +66,9 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 {
     seisoutkey_ = outputKey( iopar_ );
 
-    StringView res = iopar_.find( seisoutkey_ );
-    IOObj* outioobj = IOM().get( MultiID(res.buf()) );
+    MultiID mid;
+    iopar_.get( seisoutkey_, mid );
+    IOObj* outioobj = IOM().get( mid );
     if ( !outioobj )
 	errmsg_ = tr("Cannot find specified output seismic ID");
     else
@@ -126,11 +127,11 @@ void SeisJobExecProv::preparePreSet( IOPar& iop, const char* reallskey ) const
 
 bool SeisJobExecProv::isRestart( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::TmpStor() );
-    if ( !res )
-	return iop.find( sKeyProcIs2D );
+    const BufferString res = iop.find( sKey::TmpStor() );
+    if ( res.isEmpty() )
+	return iop.hasKey( sKeyProcIs2D );
 
-    return File::isDirectory(res);
+    return File::isDirectory( res );
 }
 
 
@@ -138,8 +139,8 @@ bool SeisJobExecProv::isRestart( const IOPar& iop )
 
 JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 {
-    const char* tmpstordir = iopar_.find( sKey::TmpStor() );
-    if ( !tmpstordir )
+    BufferString tmpstordir = iopar_.find( sKey::TmpStor() );
+    if ( tmpstordir.isEmpty() )
     {
 	iopar_.set( sKey::TmpStor(), getDefTempStorDir() );
 	tmpstordir = iopar_.find( sKey::TmpStor() );

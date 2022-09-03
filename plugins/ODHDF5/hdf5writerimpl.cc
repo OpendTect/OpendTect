@@ -413,7 +413,7 @@ void HDF5::WriterImpl::setAttribute( const char* attrnm, type val, \
 				     const DataSetKey* dsky ) \
 { \
     const BufferString resstr( res ); \
-    setAttribute( attrnm, resstr, dsky ); \
+    setAttribute( attrnm, resstr.buf(), dsky ); \
 }
 mSetNumAttr(attrnm,od_int16,res)
 mSetNumAttr(attrnm,od_uint16,res)

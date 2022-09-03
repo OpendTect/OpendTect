@@ -213,11 +213,11 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	if ( !multiidpar )
 	    continue;
 
-	const char* id = multiidpar->find( sKey::ID() );
-	if ( !id || !*id )
+	MultiID mid;
+	multiidpar->get( sKey::ID(), mid );
+	if ( mid.isUdf() )
 	    continue;
 
-	const MultiID mid( id );
 	selmids += mid;
     }
 

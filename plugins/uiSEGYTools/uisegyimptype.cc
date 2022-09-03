@@ -154,6 +154,7 @@ void uiSEGYImpType::usePar( const IOPar& iop )
     BufferString res = iop.find( sKeyImpTyp );
     if ( res.isEmpty() || res == sKey::All() )
 	res = iop.find( sKey::Geometry() );
+
     if ( res.isEmpty() )
 	return;
 

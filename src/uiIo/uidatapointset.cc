@@ -1509,7 +1509,8 @@ bool uiDataPointSet::doSave()
     if ( dps_.nrActive() < 1 ) return true;
 
     uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type()) );
-    if ( !uidpss.go() ) return false;
+    if ( !uidpss.go() )
+	return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet savedps( dps_ );

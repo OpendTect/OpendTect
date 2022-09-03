@@ -68,12 +68,12 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
     }
     strm.close();
 
-    const char* res = jobpars.find( sKey::DataRoot() );
-    if ( res && *res && SI().getDataDirName() != res )
+    BufferString res = jobpars.find( sKey::DataRoot() );
+    if ( !res.isEmpty() && SI().getDataDirName() != res )
 	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
 
     res = jobpars.find( sKey::Survey() );
-    if ( res && *res && SI().getDirName() != res && !IOMan::setSurvey(res) )
+    if ( !res.isEmpty() && SI().getDirName() != res && !IOMan::setSurvey(res) )
 	return false;
 
     PIM().loadAuto( false );

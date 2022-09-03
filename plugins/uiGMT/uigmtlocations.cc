@@ -88,8 +88,9 @@ bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 bool uiGMTLocationsGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    const char* nm = par.find( sKey::Name() );
-    if ( nm && *nm ) namefld_->setText( nm );
+    const BufferString nm = par.find( sKey::Name() );
+    if ( !nm.isEmpty() )
+	namefld_->setText( nm );
 
     return symbfld_->usePar( par );
 }

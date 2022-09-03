@@ -264,15 +264,14 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     BufferString dir = dir_.fullPath( FilePath::Unix );
     BufferString fromprefix = fromprefix_.fullPath( FilePath::Unix );
     BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
-
-    const char* tail = dir.find( fromprefix );
-    if ( !tail )
+    BufferString tail = dir.find( fromprefix.buf() );
+    if ( tail.isEmpty() )
     {
 	fromprefix.toLower();
-	tail = dir.find( fromprefix );
+	tail = dir.find( fromprefix.buf() );
     }
 
-    if ( !tail )
+    if ( tail.isEmpty() )
 	return FilePath(toprefix_);
 
     tail += fromprefix.size();
@@ -370,7 +369,8 @@ void HostData::usePar( const IOPar& par )
 
     res.setEmpty();
     par.get( OD::Platform::sPlatform(), res );
-    if ( !res.isEmpty() ) platform_.set( res, true );
+    if ( !res.isEmpty() )
+	platform_.set( res.buf(), true );
 
     res.setEmpty();
     par.get( sKey::DataRoot(), res );

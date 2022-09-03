@@ -155,7 +155,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 	    if ( Desc::getParamString(defstring_,Desc::sKeyOutput(),compstr) )
 		getFromString( compnr, compstr, 0 );
 
-	    id_ = ds.getStoredID( MultiID(midstr), compnr );
+	    id_ = ds.getStoredID( MultiID(midstr.buf()), compnr );
 	    if ( id_ != DescID::undef() )
 		setRefFromID( ds );
 	}
@@ -190,7 +190,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
     {
 	if ( desc->isStored() )
 	{
-	    MultiID mid( desc->getStoredID(false) );
+	    const MultiID mid( desc->getStoredID(false).buf() );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
@@ -259,7 +259,7 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
     if ( !desc )
 	return 0;
 
-    const MultiID mid( desc->getStoredID() );
+    const MultiID mid( desc->getStoredID().buf() );
     auto sdp = Seis::PLDM().get<SeisDataPack>( mid, geomid );
 
     return sdp ? &sdp->getDataDesc() : 0;
@@ -304,7 +304,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    BufferString nm( *nlamod->design().outputs_[idx] );
 	    if ( IOObj::isKey(nm) )
-		nm = IOM().nameOf( nm );
+		nm = IOM().nameOf( nm.buf() );
+
 	    nlaoutnms_.add( nm );
 	}
     }
@@ -342,11 +343,11 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
-	StringView res = ioobj.pars().find( sKey::Type() );
-	if ( res && ( (!steerdata && res==sKey::Steering() )
-		 || ( steerdata && res!=sKey::Steering() ) ) )
+	const BufferString res = ioobj.pars().find( sKey::Type() );
+	if ( !res.isEmpty() && ( (!steerdata && res.isEqual(sKey::Steering()) )
+		 || ( steerdata && !res.isEqual(sKey::Steering()) ) ) )
 	    continue;
-	else if ( !res && steerdata )
+	else if ( res.isEmpty() && steerdata )
 	    continue;
 
 	const char* ioobjnm = ioobj.name().buf();
@@ -359,7 +360,8 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	    {
 		BufferStringSet attrnms;
 		SelInfo::getAttrNames( ioobj.key(), attrnms, steerdata, true );
-		if ( attrnms.isEmpty() ) continue;
+		if ( attrnms.isEmpty() )
+		    continue;
 	    }
 	    else
 	    {

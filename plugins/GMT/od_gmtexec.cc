@@ -32,12 +32,12 @@ mLoad2Modules("MPEEngine","Well")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    const char* psfilenm = pars().find( sKey::FileName() );
+    const BufferString psfilenm = pars().find( sKey::FileName() );
     const BufferString workdir( GetProcFileName(nullptr) );
     if ( workdir.size() > 255 )
 	mErrStrmRet("Error: Current working directory path length too big")
 
-    if ( !psfilenm || !*psfilenm )
+    if ( psfilenm.isEmpty() )
 	mErrStrmRet("Output PS file missing")
 
     FilePath tmpfp( psfilenm );
@@ -53,7 +53,10 @@ bool BatchProgram::doWork( od_ostream& strm )
 	PtrMan<GMTPar> par = GMTPF().create( *iop, workdir );
 	if ( idx == 0 )
 	{
-	    StringView bmres( par ? par->find(ODGMT::sKeyGroupName()) : 0 );
+	    BufferString bmres;
+	    if ( par )
+		bmres = par->findKeyFor( ODGMT::sKeyGroupName() );
+
 	    if ( bmres.isEmpty() )
 		mErrFatalRet("Basemap parameters missing")
 	}

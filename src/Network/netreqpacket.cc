@@ -24,8 +24,8 @@ static const char* sKeySizeLimit = "Network.Limit Packet Size";
 
 od_int32 Network::RequestPacket::systemSizeLimit()
 {
-    const char* res = Settings::common().find( sKeySizeLimit );
-    return toInt( res );
+    const BufferString res = Settings::common().find( sKeySizeLimit );
+    return res.toInt();
 }
 
 void Network::RequestPacket::setSystemSizeLimit( od_int32 val )

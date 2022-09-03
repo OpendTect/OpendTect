@@ -401,9 +401,9 @@ bool uiClusterJobProv::createJobScripts( const char* dataroot,
 
 const char* uiClusterJobProv::getOutPutIDKey() const
 {
-    StringView res = iopar_.find( sKeySeisOutIDKey() );
-    if ( !res )
-	res = sKeyOutputID();
+    const BufferString res = iopar_.find( sKeySeisOutIDKey() );
+    if ( res.isEmpty() )
+	return sKeyOutputID();
 
     return res;
 }
@@ -450,9 +450,9 @@ bool Batch::SimpleClusterProgDef::canHandle( const JobSpec& js ) const
     if ( !isSuitedFor(js.prognm_) )
 	return false;
 
-    StringView outtyp = js.pars_.find(
+    const BufferString outtyp = js.pars_.find(
 		IOPar::compKey(sKey::Output(),sKey::Type()) );
-    return outtyp != sKey::Surface();
+    return !outtyp.isEqual( sKey::Surface() );
 }
 
 

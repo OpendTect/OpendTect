@@ -189,7 +189,7 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
 	    curattrnm = attrnm;
     }
 
-    if ( curattrnm )
+    if ( !curattrnm.isEmpty() )
 	attrfld_->setText( curattrnm );
 }
 

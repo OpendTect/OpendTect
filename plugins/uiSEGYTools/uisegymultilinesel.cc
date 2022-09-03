@@ -140,7 +140,7 @@ void uiSEGYMultiLineSel::initTable()
 	    else
 	    {
 		prevpart = filenm;
-		char* str = prevpart.find( nmpart );
+		char* str = prevpart.find( nmpart.buf() );
 		if ( str )
 		{
 		    filenm = str + nmpart.size();

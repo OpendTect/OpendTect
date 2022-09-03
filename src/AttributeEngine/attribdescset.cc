@@ -350,7 +350,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 	if ( dsc.isStored() || dsc.nrInputs()>0 )
 	{
-	    const MultiID storeid( dsc.getStoredID(true) );
+	    const MultiID storeid( dsc.getStoredID(true).buf() );
 	    if ( storeid.isDatabaseID() )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( storeid );
@@ -391,12 +391,14 @@ void DescSet::fillPar( IOPar& par ) const
 
 void DescSet::handleStorageOldFormat( IOPar& descpar )
 {
-    StringView typestr = descpar.find( "Type" );
-    if ( typestr.isEmpty() || typestr!="Stored" )
+    const BufferString typestr = descpar.find( "Type" );
+    if ( typestr.isEmpty() || !typestr.isEqual("Stored") )
 	return;
 
-    const char* olddef = descpar.find( definitionStr() );
-    if ( !olddef ) return;
+    BufferString olddef = descpar.find( definitionStr() );
+    if ( olddef.isEmpty() )
+	return;
+
     BufferString newdef = StorageProvider::attribName();
     newdef += " ";
     newdef += Attrib::StorageProvider::keyStr();
@@ -551,7 +553,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     BufferString userref = descpar.find( userRefStr() );
     if ( dsc->isStored() )
     {
-	const MultiID key( dsc->getStoredID() );
+	const MultiID key( dsc->getStoredID().buf() );
 	PtrMan<IOObj> ioobj = IOM().get( key );
 	if ( ioobj )
 	{
@@ -582,8 +584,8 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     const bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
-	StringView type = descpar.find( sKey::DataType() );
-	if ( type=="Dip" )
+	const BufferString type = descpar.find( sKey::DataType() );
+	if ( type.isEqual("Dip") )
 	    dsc->setNrOutputs( Seis::Dip, 2 );
 	else
 	    dsc->changeOutputDataType( selout, Seis::dataTypeOf(type) );
@@ -664,8 +666,9 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 		bool found = true;
 		while ( found )
 		{
-		    CompoundKey compkey =
-			tmpcpypar.findKeyFor( toString( ids_[idx].asInt() ) );
+		    const BufferString compstr(
+			tmpcpypar.findKeyFor(toString(ids_[idx].asInt())) );
+		    CompoundKey compkey( compstr.buf() );
 		    found = !compkey.isEmpty();
 		    if ( found )
 		    {
@@ -675,16 +678,18 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			    CompoundKey usrrefkey(compkey.key(0));
 			    usrrefkey += userRefStr();
 			    copypar.get( usrrefkey.buf(), depattribnm );
-			    if ( depattribnm.find( "FullSteering")
-				 || depattribnm.find( "CentralSteering") )
+			    if ( depattribnm.contains("FullSteering")
+				 || depattribnm.contains("CentralSteering") )
 			    {
 				depattribnm.setEmpty();
 				bool foundsecondorder = true;
 				while ( foundsecondorder )
 				{
-				    const CompoundKey compkey2 =
+				    const BufferString compkey2str(
 					tmpcpypar.findKeyFor(
-						toString(compkey.key(0)) );
+					    toString(compkey.key(0))) );
+				    const CompoundKey compkey2(
+							compkey2str.buf() );
 				    foundsecondorder = !compkey2.isEmpty();
 				    if ( foundsecondorder )
 				    {
@@ -740,11 +745,12 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 
 bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 {
-    const char* typestr = par.find( sKey::Type() );
-    if ( typestr )
+    const BufferString typestr = par.find( sKey::Type() );
+    if ( !typestr.isEmpty() )
     {
-	is2d_ = *typestr == '2';
-	couldbeanydim_ = *typestr == 'A';
+	const BufferString firstchar( typestr.firstChar() );
+	is2d_ = firstchar.isEqual("2");
+	couldbeanydim_ = firstchar.isEqual("A");
     }
 
     removeAll( false );
@@ -828,8 +834,8 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	const IOPar* steeringpar = descpar->subselect( "Steering" );
 	if ( steeringpar )
 	{
-	    const char* defstring = descpar->find( definitionStr() );
-	    if ( !defstring )
+	    const BufferString defstring = descpar->find( definitionStr() );
+	    if ( defstring.isEmpty() )
 		mHandleParseErr(tr("No attribute definition string specified"));
 	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
 				     steeringdescid) )
@@ -839,7 +845,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( sKey::Input(), idx );
-		if ( StringView(descpar->find(inputstr))=="-1" )
+		if ( descpar->find(inputstr).isEqual("-1") )
 		{
 		    const char* newkey =
 			IOPar::compKey(toString(id),inputstr);
@@ -867,9 +873,9 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  uiStringSet* errmsgs )
 {
-    StringView steeringtype = steeringpar.find( sKey::Type() );
-    BufferString steeringdef = steeringtype.str();
-    if ( steeringtype == "ConstantSteering" )
+    const BufferString steeringtype = steeringpar.find( sKey::Type() );
+    BufferString steeringdef( steeringtype );
+    if ( steeringtype.isEqual("ConstantSteering") )
     {
 	steeringdef += " ";
 	steeringdef += "dip=";
@@ -887,8 +893,8 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	if ( phaselock )
 	{
 	    steeringdef += " aperture=";
-	    const char* aperture = steeringpar.find("Aperture");
-	    steeringdef += aperture ? aperture : "-5,5";
+	    const BufferString aperture = steeringpar.find("Aperture");
+	    steeringdef += aperture.isEmpty() ? "-5,5" : aperture;
 	}
     }
 
@@ -912,17 +918,17 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     stdesc->setSteering(true);
     stdesc->setHidden(true);
 
-    const char* inldipstr = steeringpar.find("InlDipID");
-    if ( inldipstr )
+    const BufferString inldipstr = steeringpar.find("InlDipID");
+    if ( !inldipstr.isEmpty() )
     {
-	DescID inldipid( toInt(inldipstr), false );
+	DescID inldipid( inldipstr.toInt(), false );
 	stdesc->setInput( 0, getDesc(inldipid) );
     }
 
-    const char* crldipstr = steeringpar.find("CrlDipID");
-    if ( crldipstr )
+    const BufferString crldipstr = steeringpar.find("CrlDipID");
+    if ( !crldipstr.isEmpty() )
     {
-	DescID crldipid( toInt(crldipstr), false );
+	DescID crldipid( crldipstr.toInt(), false );
 	stdesc->setInput( 1, getDesc(crldipid) );
     }
 
@@ -1212,9 +1218,17 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	if ( storedid.isEmpty() ) continue;
 
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
-	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
-	const bool issteer = res && *res == 'S';
-	if ( !usesteering && issteer ) continue;
+	BufferString res;
+	if ( ioobj )
+	    res = ioobj->pars().find( "Type" );
+
+	BufferString firstchar;
+	if ( !res.isEmpty() )
+	    firstchar = res[0];
+
+	const bool issteer = firstchar.isEqual("S");
+	if ( !usesteering && issteer )
+	    continue;
 
 	if ( (dsc.is2D() == is2D()) ) //TODO backward compatibility with 2.4
 	    return const_cast<Desc*>( &dsc );
@@ -1242,7 +1256,7 @@ void DescSet::getStoredNames( BufferStringSet& nms ) const
 	if ( !dsc->isStored() )
 	    continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(dsc->getStoredID()) );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(dsc->getStoredID().buf()) );
 	if ( !ioobj )
 	{
 	    BufferString usrref = dsc->userRef();

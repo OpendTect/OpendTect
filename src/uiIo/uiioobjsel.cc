@@ -412,11 +412,12 @@ bool uiIOObjSel::fillPar( IOPar& iopar, const char* bky ) const
 
 void uiIOObjSel::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::ID() );
-    if ( res && *res )
+    MultiID mid;
+    iopar.get( sKey::ID(), mid );
+    if ( !mid.isUdf() )
     {
-	workctio_.setObj( MultiID(res) );
-	setInput( MultiID(res) );
+	workctio_.setObj( mid );
+	setInput( mid );
     }
 }
 

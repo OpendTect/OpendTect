@@ -649,7 +649,7 @@ void CrashDumper::sendDump( const char* filename )
 #endif
 
     const OS::CommandExecPars pars( OS::RunInBG );
-    std::cout << machcomm.toString(&pars) << std::endl;
+    std::cout << machcomm.toString(&pars).buf() << std::endl;
 
     machcomm.execute( pars );
 }

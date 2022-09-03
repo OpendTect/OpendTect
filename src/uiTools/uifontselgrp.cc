@@ -98,8 +98,8 @@ bool uiFontSelGrp::fillPar( IOPar& par ) const
 
 bool uiFontSelGrp::usePar( const IOPar& par )
 {
-    const StringView fontstr = par.find( sKey::Font() );
-    if ( fontstr )
+    const BufferString fontstr = par.find( sKey::Font() );
+    if ( !fontstr.isEmpty() )
 	fontdata_.getFrom( fontstr );
 
     if ( fontdata_.pointSize()==0 )

@@ -149,18 +149,16 @@ bool mergeComp( const ODHashMap& oth, const char* key )
     return true;
 }
 
-const char* findKeyFor( const char* val )
+BufferString findKeyFor( const char* val )
 {
-    mDeclStaticString( ret );
-    ret = key( val );
-    return ret.str();
+    const BufferString ret = key( val );
+    return ret;
 }
 
-const char* getValue( const char* key )
+BufferString getValue( const char* key )
 {
-    mDeclStaticString( ret );
-    ret = value( key );
-    return ret.str();
+    const BufferString ret = value( key );
+    return ret;
 }
 
 };
@@ -389,16 +387,16 @@ void IOPar::mergeComp( const IOPar& iopar, const char* ky )
 }
 
 
-const char* IOPar::findKeyFor( const char* val ) const
+BufferString IOPar::findKeyFor( const char* val ) const
 {
     if ( !val || !*val )
-	return nullptr;
+	return BufferString::empty();
 
     return hashmap_.findKeyFor( val );
 }
 
 
-const char* IOPar::find( const char* keyw ) const
+BufferString IOPar::find( const char* keyw ) const
 {
     return hashmap_.getValue( keyw );
 }
@@ -578,11 +576,15 @@ mDefAdd3Val(double)	mDefAdd4Val(double)
     mSkipBlanks(pval)
 
 #define mGetStartAllowEmptyOn(iop,pval) \
-    const char* pval = iop.find( keyw ); \
+    BufferString val = iop.find( keyw ); \
+    const char* pval = val.buf(); \
     mGetStart(pval)
 
 #define mGetStartAllowEmpty(pval) \
-    const char* pval = find( keyw ); \
+    BufferString retval = find( keyw ); \
+    if ( retval.isEmpty() ) \
+	return false; \
+    const char* pval = retval.buf(); \
     mGetStart(pval)
 
 #define mGetStartNotEmptyOn(iop,pval) \
@@ -718,8 +720,10 @@ static bool iopget_typeset( const IOPar& iop, const char* keyw, TypeSet<T>& res)
 	}
 
 	keyidx++;
-	pval = iop.find( IOPar::compKey(keyw,keyidx) );
+	const BufferString findval = iop.find( IOPar::compKey(keyw, keyidx) );
+	pval = findval.str();
     }
+
     return true;
 }
 
@@ -777,19 +781,19 @@ template <class T>
 static bool iopget_scaled( const IOPar& iop, const char* keyw,
 			   T** vptrs, int nrvals, T sc, bool setudf )
 {
-    StringView fs = iop.find( keyw );
+    BufferString retfind = iop.find( keyw );
     bool havedata = false;
-    if ( setudf || !fs.isEmpty() )
+    if ( setudf || !retfind.isEmpty() )
     {
-	FileMultiString fms = fs;
+	FileMultiString fms = retfind;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    fs = fms[idx];
+	    retfind = fms[idx];
 	    T& f( *(vptrs[idx]) );
-	    if ( !fs.isEmpty() )
+	    if ( !retfind.isEmpty() )
 	    {
 		havedata = true;
-		Conv::udfset( f, fs );
+		Conv::udfset( f, retfind );
 		if ( !mIsUdf(f) ) f *= sc;
 	    }
 	    else if ( setudf )
@@ -798,7 +802,6 @@ static bool iopget_scaled( const IOPar& iop, const char* keyw,
     }
     return havedata;
 }
-
 
 bool IOPar::getScaled( const char* keyw, float& f, float sc, bool udf ) const
 {

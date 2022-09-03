@@ -595,8 +595,10 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
     corrs_.erase();
     for ( int idx=0; ; idx++ )
     {
-	const char* res = par.find( IOPar::compKey(sKeyCorr,idx) );
-	if ( !res ) break;
+	const BufferString res = par.find( IOPar::compKey(sKeyCorr,idx) );
+	if ( res.isEmpty() )
+	    break;
+
 	FileMultiString fms( res );
 	Corr corr;
 	corr.idx0_ = fms.getIValue( 0 );

@@ -221,7 +221,7 @@ bool SurveyObject::usePar( const IOPar& par )
     if ( par.get(sKeyTC2RGBA(),tc2rgbatype) )
     {
 	if ( !getChannels2RGBA() ||
-	     StringView(tc2rgbatype) != getChannels2RGBA()->getClassName() )
+	     !tc2rgbatype.isEqual(getChannels2RGBA()->getClassName()) )
 	{
 	    mDynamicCastGet( visBase::TextureChannel2RGBA*, tc2rgba,
 		    visBase::DataManager::factory().create(tc2rgbatype) )

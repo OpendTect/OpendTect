@@ -92,7 +92,8 @@ bool VelocityDesc::usePar( const IOPar& par )
     if ( !par.getYN( sKeyIsVelocity(), isvel ) || !isvel )
 	return false;
 
-    const StringView typestr = par.find( sKeyVelocityType() );
+    par.get( sKeyVelocityUnit(), velunit_ );
+    const BufferString typestr = par.find( sKeyVelocityType() );
     if ( typestr.isEmpty() )
     {
 	BufferString arr;
@@ -108,12 +109,10 @@ bool VelocityDesc::usePar( const IOPar& par )
 
 	statics_.velattrib_.setEmpty();
 	statics_.vel_ = mUdf(float);
-
 	return true;
     }
 
-    par.get( sKeyVelocityUnit(), velunit_ );
-    if ( !parseEnumType( typestr, type_ ) )
+    if ( !parseEnumType(typestr,type_) )
 	return false;
 
     if ( type_==RMS && !statics_.usePar( par ) )

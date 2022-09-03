@@ -30,7 +30,7 @@ static bool isVertical( const uiFlatViewer& vwr )
 
     ConstRefMan<FlatDataPack> fdp = datapack.get();
     StringView x2dimnm( fdp->dimName(false) );
-    StringView vwrzdomstr( vwr.zDomain().userName().getFullString() );
+    StringView vwrzdomstr( vwr.zDomain().userName().getFullString().buf() );
     return x2dimnm == vwrzdomstr ||
 	   stringStartsWithCI("Time",x2dimnm.buf()) ||
 	   stringStartsWithCI("TWT",x2dimnm.buf()) ||

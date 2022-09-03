@@ -1191,7 +1191,7 @@ bool Scene::usePar( const IOPar& par )
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
-	const char* nm = transpar->find( sKey::Name() );
+	const BufferString nm = transpar->find( sKey::Name() );
 	RefMan<ZAxisTransform> transform =
 	    ZAxisTransform::factory().create( nm );
 	if ( transform && transform->usePar( *transpar ) )

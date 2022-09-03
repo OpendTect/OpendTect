@@ -62,13 +62,15 @@ bool uiPreStackMMProc::initWork( bool retry )
 	mErrRet(tr("No 2D Prestack Processing available") )
     }
 
-    const char* inpidstr = jobpars_.find(
-	    			PreStack::ProcessManager::sKeyInputData() );
-    if ( !inpidstr || !*inpidstr )
+    MultiID inpmid;
+    jobpars_.get( PreStack::ProcessManager::sKeyInputData(), inpmid );
+    if ( inpmid.isUdf() )
 	mErrRet(tr("Key for input data store missing in job specification") )
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpidstr) );
+
+    PtrMan<IOObj> ioobj = IOM().get( inpmid );
     if ( !ioobj )
-	mErrRet(tr("Cannot find data store with ID: %1").arg(inpidstr)) 
+	mErrRet(tr("Cannot find data store with ID: %1").
+							arg(inpmid.toString()))
 
     PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
     if ( !rdr )
@@ -84,6 +86,7 @@ bool uiPreStackMMProc::initWork( bool retry )
 	if ( curbid.inl() != previnl && jobhs.includes(curbid) )
 	    { inlnrs += curbid.inl(); previnl = curbid.inl(); }
     }
+
     if ( inlnrs.isEmpty() )
 	mErrRet(tr("Selected area not present in data store"))
 

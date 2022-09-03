@@ -58,7 +58,7 @@ public:
 static bool testCmdWithCallback()
 {
     BufferString hello( "Hello Test with Callback" );
-    const OS::MachineCommand machcomm1( "echo", hello );
+    const OS::MachineCommand machcomm1( "echo", hello.buf() );
     const OS::MachineCommand machcomm2( "echo", hello, ">&2" );
     if ( __iswin__ )
 	hello.quote( '\"' );

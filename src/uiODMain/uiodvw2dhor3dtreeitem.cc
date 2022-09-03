@@ -239,7 +239,7 @@ void uiODView2DHor3DParentTreeItem::addHorizon3Ds(
 	if ( hastracker )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( emid );
-	    if ( !emobj || findChild(emobj->name()) )
+	    if ( !emobj || findChild(emobj->name().buf()) )
 		continue;
 
 	    MPE::engine().getEditor( emid, true );

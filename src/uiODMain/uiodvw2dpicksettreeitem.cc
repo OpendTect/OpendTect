@@ -185,7 +185,7 @@ void uiODView2DPickSetParentTreeItem::addPickSets(
 	    continue;
 
 	ConstRefMan<Pick::Set> ps = picksetmgr_.get( picksetidx );
-	if ( findChild(ps->name()) )
+	if ( findChild(ps->name().buf()) )
 	    continue;
 
 	uiODView2DPickSetTreeItem* childitm =
@@ -230,7 +230,7 @@ uiODView2DPickSetTreeItem::~uiODView2DPickSetTreeItem()
 
 bool uiODView2DPickSetTreeItem::init()
 {
-    const int picksetidx = picksetmgr_.indexOf( pickset_->name() );
+    const int picksetidx = picksetmgr_.indexOf( pickset_->name().buf() );
     if ( !displayid_.isValid() )
     {
 	if ( picksetidx < 0 )

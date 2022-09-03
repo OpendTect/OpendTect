@@ -133,7 +133,7 @@ int StratAmpCalc::init( const IOPar& pars )
     {
 	const LineKey lk( targetdesc->getValParam(
 			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-	const MultiID key( lk.lineName() );
+	const MultiID key( lk.lineName().buf() );
 	const BufferString attrnm = lk.attrName();
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	if ( !seisobj )

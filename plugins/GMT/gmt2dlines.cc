@@ -57,7 +57,7 @@ GMTPar* GMT2DLines::createInstance( const IOPar& iop, const char* workdir )
 const char* GMT2DLines::userRef() const
 {
     BufferString* str = new BufferString( "2D Lines: " );
-    const char* nm = find( sKey::Name() );
+    const BufferString nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -65,7 +65,7 @@ const char* GMT2DLines::userRef() const
 
 bool GMT2DLines::fillLegendPar( IOPar& par ) const
 {
-    StringView str = find( sKey::Name() );
+    BufferString str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size(), 1 );
@@ -77,7 +77,7 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 
 bool GMT2DLines::doExecute( od_ostream& strm, const char* fnm )
 {
-    StringView namestr = find( sKey::Name() );
+    const BufferString namestr = find( sKey::Name() );
     strm << "Posting 2D Lines " << namestr << " ...  ";
 
     TypeSet<Pos::GeomID> geomids;
@@ -241,7 +241,7 @@ GMTPar* GMTRandLines::createInstance( const IOPar& iop, const char* workdir )
 const char* GMTRandLines::userRef() const
 {
     BufferString* str = new BufferString( "Random Lines: " );
-    const char* nm = find( sKey::Name() );
+    const BufferString nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -249,7 +249,7 @@ const char* GMTRandLines::userRef() const
 
 bool GMTRandLines::fillLegendPar( IOPar& par ) const
 {
-    StringView str = find( sKey::Name() );
+    BufferString str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size(), 1 );

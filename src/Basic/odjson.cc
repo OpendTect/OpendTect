@@ -42,10 +42,10 @@ public:
     union Contents
     {
 	Contents() { val_ = 0; }
-	NumberType val_;
-	bool bool_;
-	char* str_;
-	ValueSet* vset_;
+	NumberType  val_;
+	bool	    bool_;
+	char*	    str_;
+	ValueSet*   vset_;
     };
     Contents		cont_;
     int			type_ = Number;
@@ -420,7 +420,10 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 
     const Value* val = values_[idx];
     if ( val->isValSet() )
-	{ pErrMsg(gtvalnotplaindatastr); return ret; }
+    {
+	pErrMsg(gtvalnotplaindatastr);
+	return ret;
+    }
 
     switch ( DataType(val->type_) )
     {
@@ -1072,7 +1075,7 @@ OD::JSON::Array& OD::JSON::Array::set( const FilePath& fp )
 #ifdef __win__
     val.replace( "\\", "/" );
 #endif
-    return set( BufferStringSet(val) );
+    return set( BufferStringSet(val.buf()) );
 }
 
 OD::JSON::Array& OD::JSON::Array::set( bool val )
@@ -1385,13 +1388,15 @@ void OD::JSON::Object::set( const char* ky, const FilePath& fp )
 
 void OD::JSON::Object::set( const char* ky, const DBKey& id )
 {
-    setVal( ky, id.toString(false) );
+    const BufferString idstr = id.toString( false );
+    setVal( ky, idstr.buf() );
 }
 
 
 void OD::JSON::Object::set( const char* ky, const MultiID& id )
 {
-    setVal( ky, id.toString() );
+    const BufferString idstr = id.toString();
+    setVal( ky, idstr.buf() );
 }
 
 
@@ -1399,7 +1404,7 @@ void OD::JSON::Object::set( const char* ky, const uiString& str )
 {
     BufferString bs;
     str.fillUTF8String( bs );
-    setVal( ky, bs );
+    setVal( ky, bs.buf() );
 }
 
 

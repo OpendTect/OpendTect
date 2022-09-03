@@ -510,7 +510,7 @@ bool fillPar( IOPar& iop ) const
 void usePar( const IOPar& iop )
 {
     he_.usePar( iop, key_ );
-    if ( he_.isUdf() || (isselbox_ && !iop.find(key_)) )
+    if ( he_.isUdf() || (isselbox_ && !iop.hasKey(key_)) )
     {
 	if ( isselbox_ )
 	    isselbox_->setChecked( false );
@@ -1040,11 +1040,10 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 
     if ( havecoordsinhdrfld_ )
     {
-	const char* res = iop.find( FileReadOpts::sKeyCoordOpt() );
-	const int coordopt = res && *res ? toInt(res) : mCoordOptVal;
+	const BufferString res = iop.find( FileReadOpts::sKeyCoordOpt() );
+	const int coordopt = res.isEmpty() ? mCoordOptVal : res.toInt();
 	havecoordsinhdrfld_->setValue( coordopt < 1 || coordopt > 2 );
 	readcoordsfld_->setValue( coordopt == 1 );
-
 	Coord crd( coordsstartfld_->getCoord() );
 	iop.get( FileReadOpts::sKeyCoordStart(), crd );
 	coordsstartfld_->setValue( crd );
@@ -1053,7 +1052,11 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	coordsstepfld_->setValue( crd );
 	BufferString fnm( coordsfnmfld_->fileName() );
 	if ( !coordsspecfnmbox_->isChecked() )
-	    { fnm = "ext="; fnm.add( coordsextfld_->text() ); }
+	{
+	    fnm = "ext=";
+	    fnm.add( coordsextfld_->text() );
+	}
+
 	iop.get( FileReadOpts::sKeyCoordFileName(), fnm );
 	const bool isext = fnm.startsWith( "ext=" );
 	coordsspecfnmbox_->setChecked( !isext );
@@ -1063,7 +1066,7 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	    coordsfnmfld_->setFileName( fnm );
     }
 
-    crdChk(0);
+    crdChk( nullptr );
 }
 
 

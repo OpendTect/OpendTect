@@ -103,7 +103,9 @@ static const char* getSurvDefAttrName()
     mDefineStaticLocalObject( BufferString, ret,
 	   = SI().getPars().find(IOPar::compKey(sKey::Default(),
 			SeisTrcTranslatorGroup::sKeyDefaultAttrib())) );
-    if ( ret.isEmpty() ) ret = "Seis";
+    if ( ret.isEmpty() )
+	ret = "Seis";
+
     return ret.buf();
 }
 
@@ -359,7 +361,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 
     CtxtIOObj ctio( iocontext );
     ctio.ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
-    if ( iop.find(sKey::DataType()) )
+    if ( iop.hasKey(sKey::DataType()) )
     {
 	BufferString datatype, zdomain;
 	iop.get( sKey::DataType(), datatype );
@@ -368,10 +370,14 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	ctio.ctxt_.toselect_.require_.set( ZDomain::sKey(), zdomain );
     }
 
-    StringView attribnm = iop.find( sKey::Attribute() );
-    if ( attribnm.isEmpty() ) attribnm = "Seis";
+    BufferString attribnm = iop.find( sKey::Attribute() );
+    if ( attribnm.isEmpty() )
+	attribnm = "Seis";
+
     ctio.ctxt_.setName( attribnm );
-    if ( ctio.fillObj() == 0 ) return BufferString::empty();
+    if ( ctio.fillObj() == 0 )
+	return BufferString::empty();
+
     IOObj* ioobj = ctio.ioobj_;
     if ( ioobj->group() != mTranslGroupName(SeisTrc2D) )
     {
@@ -379,14 +385,17 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	nm.add( "[2D]" );
 	ctio.setObj( 0 );
 	ctio.ctxt_.setName( nm );
-	if ( ctio.fillObj() == 0 ) return BufferString::empty();
+	if ( ctio.fillObj() == 0 )
+	    return BufferString::empty();
+
 	FilePath fp( ctio.ioobj_->fullUserExpr() );
 	nm = fp.fileName();
 	iop.set( sKey::Attribute(), nm.buf() );
     }
 
     const StringView survdefattr( getSurvDefAttrName() );
-    const bool issurvdefset = SI().pars().find( IOPar::compKey(sKey::Default(),
+    const bool issurvdefset = SI().pars().hasKey(
+				IOPar::compKey(sKey::Default(),
 				SeisTrc2DTranslatorGroup::sKeyDefault()) );
     if ( !issurvdefset && ctio.ioobj_ && survdefattr == attribnm )
 	ctio.ioobj_->setSurveyDefault();

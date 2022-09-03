@@ -158,7 +158,7 @@ void uiToolBarCommandEditor::updateCmdList( const CommandDefs& commands )
 	BufferString current = exeselfld_->text();
 	exeselfld_->setEmpty();
 	exeselfld_->addItems( uinames );
-	exeselfld_->setCurrentItem( current );
+	exeselfld_->setCurrentItem( current.buf() );
 	exeSelChgCB( nullptr );
     }
 }

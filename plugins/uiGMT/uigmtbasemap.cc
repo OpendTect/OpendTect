@@ -263,7 +263,7 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 
 bool uiGMTBaseMapGrp::usePar( const IOPar& par )
 {
-    const char* maptitle = par.find( ODGMT::sKeyMapTitle() );
+    const BufferString maptitle = par.find( ODGMT::sKeyMapTitle() );
     titlefld_->setText( maptitle );
 
     Interval<int> xrg, yrg;

@@ -84,7 +84,7 @@ uiHorizonAttrib::~uiHorizonAttrib()
 
 bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( StringView(desc.attribName())!=Horizon::attribName() )
+    if ( !desc.attribName().isEqual(Horizon::attribName()) )
 	return false;
 
     mIfGetMultiID(Horizon::sKeyHorID(),horid,horfld_->setInput(horid))
@@ -115,7 +115,7 @@ bool uiHorizonAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( StringView(desc.attribName())!=Horizon::attribName() )
+    if ( !desc.attribName().isEqual(Horizon::attribName()) )
 	return false;
 
     if ( !horfld_->ioobj(true) )

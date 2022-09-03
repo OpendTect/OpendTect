@@ -207,7 +207,7 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 	for ( int lidx=0; lidx<alllognms.size(); lidx++ )
 	{
 	    const BufferString& lognm = alllognms.get( lidx );
-	    const Well::Log* log = wd->logs().getLog( lognm );
+	    const Well::Log* log = wd->logs().getLog( lognm.buf() );
 	    if ( !log )
 		continue;
 

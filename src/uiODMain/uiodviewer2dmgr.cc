@@ -898,10 +898,10 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
     if ( !wvadesc && !vddesc )
 	return;
 
-    const MultiID wvaid( wvadesc ? wvadesc->getStoredID(true)
-				 : vddesc->getStoredID(true) );
-    const MultiID vdmid( vddesc ? vddesc->getStoredID(true)
-				: wvadesc->getStoredID(true) );
+    const MultiID wvaid( wvadesc ? wvadesc->getStoredID(true).buf()
+				 : vddesc->getStoredID(true).buf() );
+    const MultiID vdmid( vddesc ? vddesc->getStoredID(true).buf()
+				: wvadesc->getStoredID(true).buf() );
     const SeisIOObjInfo wvasi( wvaid );
     const SeisIOObjInfo vdsi( vdmid );
     BufferStringSet wvalnms, vdlnms;

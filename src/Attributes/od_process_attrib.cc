@@ -59,9 +59,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-    Attrib::Processor* proc = 0;
-    const char* tempdir = pars().find(sKey::TmpStor());
-    if ( tempdir && *tempdir )
+    Attrib::Processor* proc = nullptr;
+    const BufferString tempdir = pars().find(sKey::TmpStor());
+    if ( !tempdir.isEmpty() )
     {
 	if ( !File::exists(tempdir) )
 	    mRetFileProb(sKey::TmpStor(),tempdir,"does not exist")
@@ -71,8 +71,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable")
     }
 
-    const char* selspec = pars().find( "Output.1.In-line range" );
-    if ( selspec && *selspec )
+    const BufferString selspec = pars().find( "Output.1.In-line range" );
+    if ( !selspec.isEmpty() )
     {
 	FileMultiString fms( selspec );
 	const int lnr = fms.getIValue( 0 );
@@ -83,19 +83,20 @@ bool BatchProgram::doWork( od_ostream& strm )
     strm << od_newline;
     strm << "Preparing processing";
 
-    const char* seisid = pars().find( "Output.0.Seismic.ID" );
-    if ( !seisid )
-	seisid = pars().find( "Output.1.Seismic ID" );
+    MultiID outmid;
+    pars().get( "Output.0.Seismic.ID", outmid );
+    if ( outmid.isUdf() )
+	pars().get( "Output.1.Seismic ID", outmid );
 
-    if ( !seisid )
+    if ( outmid.isUdf() )
 	strm << " ..." << od_newline;
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( seisid );
+	PtrMan<IOObj> ioobj = IOM().get( outmid );
 	if ( !ioobj )
 	{
 	    BufferString msg( "Cannot find output Seismic Object with ID '" );
-	    msg += seisid; msg += "' ..."; mRetHostErr( msg );
+	    msg += outmid.toString().buf(); msg += "' ..."; mRetHostErr( msg );
 	}
 
 	FilePath fp( ioobj->fullUserExpr(false) );
@@ -121,10 +122,11 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     Attrib::DescSet attribset( false );
-    const char* setid = pars().find("Attribute Set");
-    if ( setid && *setid )
+    MultiID attribmid;
+    pars().get( "Attribute Set", attribmid );
+    if ( !attribmid.isUdf() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( setid );
+	PtrMan<IOObj> ioobj = IOM().get( attribmid );
 	if ( !ioobj )
 	    mRetHostErr( "Cannot find provided attrib set ID" )
 	uiString msg;
@@ -187,8 +189,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	}
     }
 
-    const char* attrtypstr = pars().find( "Attributes.Type" );
-    const bool is2d = attrtypstr && *attrtypstr == '2';
+    const BufferString attrtypstr = pars().find( "Attributes.Type" );
+    const bool is2d = attrtypstr.isEqual("2");
 
     //processing dataset on a single machine
     if ( alllinenames.isEmpty() && is2d )
@@ -339,7 +341,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mDestroyWorkers
     }
 
-    PtrMan<IOObj> ioobj = IOM().get( seisid );
+    PtrMan<IOObj> ioobj = IOM().get( outmid );
     BufferString finishmsg( "\nFinished processing" );
     if ( ioobj )
     {

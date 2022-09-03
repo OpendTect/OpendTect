@@ -345,7 +345,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj->pars().find( sKey::Type() ) )
+    if ( !ioobj->pars().hasKey(sKey::Type()) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
@@ -506,7 +506,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	mRetErr( uiStrings::sSaveBodyFail() );
 
     PtrMan<IOObj> ioobj = IOM().get( outputfld_->key() );
-    if ( !ioobj->pars().find(sKey::Type()) )
+    if ( !ioobj->pars().hasKey(sKey::Type()) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges(*ioobj) )

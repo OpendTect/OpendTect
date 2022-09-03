@@ -516,7 +516,9 @@ static BufferString waveletScaleStr( const MultiID& id )
 {
     BufferString ret;
     IOObj* ioobj = IOM().get( id );
-    if ( !ioobj ) return ret;
+    if ( !ioobj )
+	return ret;
+
     ret = ioobj->pars().find( sKeyScaled );
     delete ioobj;
     return ret;

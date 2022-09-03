@@ -550,7 +550,7 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
     if  ( !wd ) return;
 
     const Well::LogSet& logs = wd->logs();
-    const Well::Log* wl = logs.getLog( lognm );
+    const Well::Log* wl = logs.getLog( lognm.buf() );
     if ( !wl )
 	return; // the log was removed since popup of the window ... unlikely
 

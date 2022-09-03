@@ -1053,7 +1053,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	return false;
 
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj->pars().find( sKey::Type() ) )
+    if ( !ioobj->pars().hasKey( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )

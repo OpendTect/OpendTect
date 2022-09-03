@@ -183,7 +183,7 @@ bool uiBatchTime2DepthSetup::fillPar()
 
     IOPar ztranspar;
     trans->fillPar( ztranspar );
-    if ( !ztranspar.find( sKey::Name() ) )
+    if ( !ztranspar.hasKey( sKey::Name() ) )
     {
 	pErrMsg("No name is set");
     }

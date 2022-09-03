@@ -386,6 +386,6 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     Desc* inpdesc = Attrib::PF().createDescCopy( StorageProvider::attribName());
     Attrib::ValParam* param =
 	inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
-    param->setValue( inpdpfid.toString() );
+    param->setValue( inpdpfid.asMultiID() );
     return inpdesc;
 }

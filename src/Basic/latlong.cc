@@ -152,7 +152,7 @@ bool LatLong::setFromString( const char* str, bool lat )
     if ( lastchar=='N' || lastchar=='E' || hasSW )
 	lastchar = '\0';
 
-    const StringView nrstr = llstr.find( '.' );
+    const BufferString nrstr = llstr.find( '.' );
     const int trailsz = nrstr.size();
     const int sz = llstr.size() - trailsz; // size of string before .
     if ( sz < 5 ) // Size never larger than 4 when in degrees

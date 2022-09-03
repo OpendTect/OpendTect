@@ -375,8 +375,8 @@ template <class ENUM> inline
 bool EnumDefImpl<ENUM>::parse( const IOPar& par, const char* key,
 			       ENUM& res ) const
 {
-    const char* val = par.find( key );
-    return parse( val, res );
+    const BufferString val = par.find( key );
+    return parse( val.buf(), res );
 }
 
 

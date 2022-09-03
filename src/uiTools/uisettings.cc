@@ -495,7 +495,7 @@ static void getGrps( BufferStringSet& grps )
 	if ( !underscoreptr || !*underscoreptr )
 	    continue;
 	underscoreptr += 1;
-	if ( StringView(underscoreptr).contains(pythonstr) )
+	if ( StringView(underscoreptr).contains(pythonstr.buf()) )
 	    continue;
 	grps.add( underscoreptr );
     }

@@ -74,7 +74,7 @@ private:
 public:
 // Obsolete stuff
 			MultiID(int id)				= delete;
-			MultiID(const StringView&)		= delete;
+			MultiID(const OD::String&)		= delete;
 
     void		setEmpty()				= delete;
     bool		isEmpty() const				= delete;

@@ -449,8 +449,8 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
 bool Picks::useIOObjPar( const IOPar& par )
 {
-    StringView res = par.find( sKey::Type() );
-    if ( res != sKeyVelocityPicks() )
+    const BufferString res = par.find( sKey::Type() );
+    if ( !res.isEqual(sKeyVelocityPicks()) )
 	return false;
 
     par.get( sKeyGatherID(), gatherid_ );
@@ -485,26 +485,23 @@ bool Picks::usePar( const IOPar& par )
     if ( !par.getYN( sKeyIsTime(), zit_ ) )
 	return false;
 
-    const StringView typestr = par.find( sKeyPickType() );
-    if ( typestr )
+    const BufferString typestr = par.find( sKeyPickType() );
+    if ( !typestr.isEmpty() )
     {
 	if ( !parseEnumPickType(typestr,picktype_ ) )
 	    return false;
     }
     else
-    {
 	picktype_ = zit_ ? RMS : RMO;
-    }
 
     if ( !par.get( sKeyRefOffset(), refoffset_ ) )
 	return false;
 
-    if ( !smoother_ ) smoother_ = new Smoother1D<float>;
+    if ( !smoother_ )
+	smoother_ = new Smoother1D<float>;
+
     if ( !smoother_->usePar( par ) )
-    {
-	delete smoother_;
-	smoother_ = 0;
-    }
+	deleteAndNullPtr( smoother_ );
 
     removeHorizons();
 
@@ -514,7 +511,6 @@ bool Picks::usePar( const IOPar& par )
     {
 	BufferString key = sKeyHorizonPrefix();
 	key += idx;
-
 	MultiID mid;
 	if ( !par.get( key.buf(), mid ) )
 	    continue;

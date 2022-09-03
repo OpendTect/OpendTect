@@ -348,7 +348,7 @@ bool dgbEMSurfaceTranslator::prepRead()
     }
 
     sd_.nrfltsticks_ = reader_->rowInterval().width()+1;
-    reader_->setReadOnlyZ(  readOnlyZ() );
+    reader_->setReadOnlyZ( readOnlyZ() );
 
     return true;
 }

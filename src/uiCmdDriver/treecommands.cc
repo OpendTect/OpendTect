@@ -595,7 +595,7 @@ bool CurTreeColCmd::act( const char* parstr )
     const int curcolidx = uilview->currentColumn();
     mParForm( answer, form, uilview->getColumnText(curcolidx).getFullString(),
 	      curcolidx+1 );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -620,7 +620,7 @@ bool CurTreeItemCmd::act( const char* parstr )
     mParForm( answer, form, curitm ? curitm->text() : "",
 			    countTreeItems(*uilview, curitm, false) );
 
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -671,7 +671,7 @@ bool GetTreeColCmd::act( const char* parstr )
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
     mParForm( answer, form, uilview->getColumnText(columns[0]).getFullString(),
 	      columns[0]+1 );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -697,7 +697,7 @@ bool GetTreeItemCmd::act( const char* parstr )
 
     const int count = countTreeItems( *uilview, nodesfound[0], false );
     mParForm( answer, form, nodesfound[0]->text(columns[0]), count );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -787,7 +787,7 @@ bool GetTreeMenuItemCmd::act( const char* parstr )
 
     const MenuInfo menuinfo = interceptedMenuInfo();
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 

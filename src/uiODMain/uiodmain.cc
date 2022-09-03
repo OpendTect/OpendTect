@@ -339,7 +339,7 @@ bool uiODMain::ensureGoodSurveySetup()
     int res = 0;
     if ( !IOMan::validSurveySetup(errmsg) )
     {
-	std::cerr << errmsg << std::endl;
+	std::cerr << errmsg.buf() << std::endl;
 	uiMSG().error( toUiString(errmsg) );
 	return false;
     }

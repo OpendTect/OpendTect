@@ -1913,7 +1913,7 @@ void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
 
 void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
-    StringView valstr = pars.find( sKey::TraceNr() );
+    BufferString valstr = pars.find( sKey::TraceNr() );
     if ( valstr.isEmpty() )
 	return;
 
@@ -1957,13 +1957,12 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     mesg.addSpace();
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
-
-    StringView vdstr = pars.find( "Variable density data" );
-    StringView wvastr = pars.find( "Wiggle/VA data" );
-    StringView vdvalstr = pars.find( "VD Value" );
-    StringView wvavalstr = pars.find( "WVA Value" );
-    const bool issame = vdstr && wvastr && vdstr==wvastr;
-    if ( vdvalstr )
+    BufferString vdstr = pars.find( "Variable density data" );
+    BufferString wvastr = pars.find( "Wiggle/VA data" );
+    BufferString vdvalstr = pars.find( "VD Value" );
+    BufferString wvavalstr = pars.find( "WVA Value" );
+    const bool issame = !vdstr.isEmpty() && !wvastr.isEmpty() && vdstr==wvastr;
+    if ( !vdvalstr.isEmpty() )
     {
 	mAddSep();
 	if ( issame )
@@ -1975,7 +1974,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
 
-    if ( wvavalstr && !issame )
+    if ( !wvavalstr.isEmpty() && !issame )
     {
 	mAddSep();
 	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);

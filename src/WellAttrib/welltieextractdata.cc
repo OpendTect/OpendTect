@@ -66,7 +66,7 @@ bool SeismicExtractor::collectTracesAroundPath()
     if ( seisid2D )
     {
 	const Survey::Geometry* geom = linenm_.isEmpty() ? 0
-			: Survey::GM().getGeometry( linenm_ );
+			: Survey::GM().getGeometry( linenm_.buf() );
 	if ( !geom )
 	    mErrRet( tr("2D Line Geometry not found") );
 

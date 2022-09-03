@@ -93,6 +93,7 @@ protected:
     virtual const char*	gtStr() const			= 0;
 			//!<\return null if empty
 
+    inline		operator bool () const = delete;
 };
 
 

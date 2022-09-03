@@ -117,7 +117,8 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	{
 	    BufferString psnm = crdesc.design.inputs_.get( iinp );
 	    if ( IOObj::isKey(psnm) )
-		psnm = IOM().nameOf( psnm );
+		psnm = IOM().nameOf( psnm.buf() );
+
 	    vds.add( new DataColDef(psnm) );
 	}
     }

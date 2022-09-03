@@ -66,9 +66,11 @@ bool DataInpSpec::usePar( const IOPar& par )
     for ( int idx=0; idx<nElems(); idx++ )
     {
 	PtrMan<IOPar> subpar = par.subselect( toString(idx) );
-	if ( !subpar ) return false;
-	const char* valptr = subpar->find( valuestr );
-	if ( !valptr || !*valptr )
+	if ( !subpar )
+	    return false;
+
+	const BufferString valptr = subpar->find( valuestr );
+	if ( valptr.isEmpty() )
 	    return false;
 
 	values.add( valptr );

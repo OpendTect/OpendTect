@@ -287,9 +287,10 @@ void SEGY::HdrCalcSet::getStoredNames( BufferStringSet& nms )
     Settings& setts = Settings::fetch( sKeySettsFile() );
     for ( int idx=0; ; idx++ )
     {
-	const char* nm = setts.find( mKeyName(idx) );
-	if ( !nm || !*nm )
+	const BufferString nm = setts.find( mKeyName(idx) );
+	if ( nm.isEmpty() )
 	    break;
+
 	nms.add( nm );
     }
 }
@@ -306,10 +307,16 @@ void SEGY::HdrCalcSet::getFromSettings( const char* reqnm )
 	const BufferString nm( setts.find( mKeyName(idx) ) );
 	if ( nm.isEmpty() )
 	    break;
+
 	if ( nm == reqnm )
-	    { iopidx = idx; break; }
+	{
+	    iopidx = idx;
+	    break;
+	}
     }
-    if ( iopidx < 0 ) return;
+
+    if ( iopidx < 0 )
+	return;
 
     for ( int idx=0; ; idx++ )
     {

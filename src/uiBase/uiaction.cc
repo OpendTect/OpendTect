@@ -343,6 +343,12 @@ int uiAction::beginCmdRecEvent( const char* msg )
 }
 
 
+int uiAction::beginCmdRecEvent( const BufferString& msg )
+{
+    return beginCmdRecEvent( msg.buf() );
+}
+
+
 void uiAction::endCmdRecEvent( int refnr, const char* msg )
 {
     if ( !cmdrecorders_.isEmpty() )
@@ -493,7 +499,7 @@ const uiAction* uiActionContainer::findAction( const char* itmtxt ) const
 
 const uiAction* uiActionContainer::findAction( const uiString& itmtxt ) const
 {
-    return findAction( itmtxt.getString() );
+    return findAction( itmtxt.getString().buf() );
 }
 
 

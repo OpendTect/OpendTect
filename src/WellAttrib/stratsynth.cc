@@ -677,12 +677,12 @@ bool StratSynth::DataMgr::updateSynthetic( SynthID id,
 	    for ( const auto& inpid : inpids )
 	    {
 		const SynthGenParams& inpsgp = *getGenParams( inpid );
-		if ( !inpsgp.name_.contains(inpnmlbl) &&
-		      inpsgp.inpsynthnm_ != oldnm )
+		if ( !inpsgp.name_.contains(inpnmlbl.buf()) &&
+						inpsgp.inpsynthnm_ != oldnm )
 		    continue;
 
 		SynthGenParams newsgp = inpsgp;
-		newsgp.name_.replace( inpnmlbl, newinpnmlbl );
+		newsgp.name_.replace( inpnmlbl.buf(), newinpnmlbl.buf() );
 		if ( newsgp.inpsynthnm_ == oldnm ||
 		     newsgp.inpsynthnm_ == SynthGenParams::sKeyInvalidInputPS())
 		    newsgp.inpsynthnm_ = newnm;
@@ -731,7 +731,7 @@ bool StratSynth::DataMgr::updateWavelet( const MultiID& oldwvltid,
     for ( const auto& idx : idxs )
     {
 	SynthGenParams sgp( genparams_[idx] );
-	BufferStringSet synthnms( sgp.name_ );
+	BufferStringSet synthnms( sgp.name_.buf() );
 	sgp.setWavelet( wvltnm );
 	sgp.createName( sgp.name_ );
 	synthnms.add( sgp.name_ );
@@ -771,11 +771,11 @@ bool StratSynth::DataMgr::updateSyntheticName( SynthID id, const char* newnm )
     for ( const auto& inpid : inpids )
     {
 	const SynthGenParams& sgp = *getGenParams( inpid );
-	if ( !sgp.name_.contains(inpnmlbl) && sgp.inpsynthnm_ != oldnm )
+	if ( !sgp.name_.contains(inpnmlbl.buf()) && sgp.inpsynthnm_ != oldnm )
 	    continue;
 
 	auto& newsgp = const_cast<SynthGenParams&>( sgp );
-	newsgp.name_.replace( inpnmlbl, newinpnmlbl );
+	newsgp.name_.replace( inpnmlbl.buf(), newinpnmlbl.buf() );
 	if ( sgp.inpsynthnm_ == oldnm ||
 	     sgp.inpsynthnm_ == SynthGenParams::sKeyInvalidInputPS() )
 	    newsgp.inpsynthnm_ = newnm;

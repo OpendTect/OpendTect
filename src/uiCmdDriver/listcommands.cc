@@ -93,7 +93,7 @@ bool CurComboItemCmd::act( const char* parstr )
     mDynamicCastGet( const uiComboBox*, uicombox, objsfound[0] );
     const int curidx = uicombox->currentItem();
     mParForm( answer, form, uicombox->textOfItem(curidx), curidx+1 );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -111,7 +111,7 @@ bool GetComboItemCmd::act( const char* parstr )
     mDynamicCastGet( const uiComboBox*, uicombox, objsfound[0] );
     mParListSelPre( "item", uicombox, itemstr, itemnr, itemidxs, true );
     mParForm( answer, form, uicombox->textOfItem(itemidxs[0]), itemidxs[0]+1 );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -482,7 +482,7 @@ bool CurListItemCmd::act( const char* parstr )
     mGetColorString( uilist->getColor(curidx), curidx>=0, colorstr );
     mParForm( answer, form, text, curidx+1 );
     mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname, answer, parnext, form!=Colour );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
     return true;
 }
 
@@ -505,7 +505,7 @@ bool GetListItemCmd::act( const char* parstr )
     mGetColorString( uilist->getColor(itemidxs[0]), true, colorstr );
     mParForm( answer, form, text, itemidxs[0]+1 );
     mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname, answer, parnext, form!=Colour );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
     return true;
 }
 
@@ -579,7 +579,7 @@ bool GetListMenuItemCmd::act( const char* parstr )
 
     const MenuInfo menuinfo = interceptedMenuInfo();
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 

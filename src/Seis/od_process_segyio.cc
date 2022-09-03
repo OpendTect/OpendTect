@@ -115,7 +115,15 @@ static bool doImport( od_ostream& strm, const IOPar& iop, Seis::GeomType gt )
 	return false;
     }
 
-    PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
+    MultiID mid;
+    outpar->get( sKey::ID(), mid );
+    if ( mid.isUdf() )
+    {
+	strm << "MultiiD is not undefined" << od_endl;
+	return false;
+    }
+
+    PtrMan<IOObj> outioobj = IOM().get( mid );
     if ( !outioobj )
     {
 	strm << "Output object spec is not OK" << od_endl;
@@ -177,7 +185,15 @@ static bool doExport( od_ostream& strm, const IOPar& iop,
 	return false;
     }
 
-    PtrMan<IOObj> inioobj = IOM().get( inppar->find(sKey::ID()) );
+    MultiID mid;
+    inppar->get( sKey::ID(), mid );
+    if ( mid.isUdf() )
+    {
+	strm << "MultiiD is not undefined" << od_endl;
+	return false;
+    }
+
+    PtrMan<IOObj> inioobj = IOM().get( mid );
     if ( !inioobj )
     {
 	strm << "Input seismics is not OK" << od_endl;
@@ -293,11 +309,11 @@ mLoad1Module("Seis")
 bool BatchProgram::doWork( od_ostream& strm )
 {
     const IOPar& iop = pars();
-    const StringView task = iop.find( SEGY::IO::sKeyTask() );
-    const bool isimport = task == SEGY::IO::sKeyImport();
-    const bool isexport = task == SEGY::IO::sKeyExport();
-    const bool ispsindex = task == SEGY::IO::sKeyIndexPS();
-    const bool isvolindex = task == SEGY::IO::sKeyIndex3DVol();
+    const BufferString task = iop.find( SEGY::IO::sKeyTask() );
+    const bool isimport = task.isEqual( SEGY::IO::sKeyImport() );
+    const bool isexport = task.isEqual( SEGY::IO::sKeyExport() );
+    const bool ispsindex = task.isEqual( SEGY::IO::sKeyIndexPS() );
+    const bool isvolindex = task.isEqual( SEGY::IO::sKeyIndex3DVol() );
 
     Seis::GeomType gt;
     if ( !Seis::getFromPar(iop,gt) )

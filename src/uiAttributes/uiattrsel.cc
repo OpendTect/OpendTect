@@ -802,7 +802,7 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
     if ( !desc ) return false;
 
-    const MultiID mid( desc->getStoredID(true) );
+    const MultiID mid( desc->getStoredID(true).buf() );
     return SeisTrcTranslator::getRanges( mid, cs,
 					 desc->is2D() ? getInput() : 0 );
 }
@@ -851,13 +851,13 @@ void uiAttrSel::processInput()
     if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs_ );
-	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
-							: inp.buf();
+	const BufferString nodenm = IOObj::isKey( inp ) ?
+				IOM().nameOf( inp.buf() ) : inp.buf();
 	for ( int idx=0; idx<outnms.size(); idx++ )
 	{
 	    const BufferString& outstr = *outnms[idx];
-	    const char* desnm = IOObj::isKey(outstr) ? IOM().nameOf(outstr)
-						     : outstr.buf();
+	    const char* desnm = IOObj::isKey( outstr ) ?
+				IOM().nameOf( outstr.buf() ) : outstr.buf();
 	    if ( nodenm == desnm )
 		{ attrdata_.outputnr_ = idx; break; }
 	}

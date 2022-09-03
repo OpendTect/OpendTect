@@ -191,7 +191,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     }
     else if ( mnuid==mEmptyIdx )
     {
-	if ( !applMgr()->pickServer()->createEmptySet(false) )
+	if ( !applMgr()->pickServer()->createEmptySet(false) ||
+							    psm.size() == 0 )
 	    return false;
 
 	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
@@ -529,7 +530,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 void uiODPickSetTreeItem::askSaveCB( CallBacker* )
 {
     const bool ischanged = Pick::Mgr().isChanged(
-				Pick::Mgr().indexOf(set_.ptr()->name()) );
+			Pick::Mgr().indexOf(set_.ptr()->name().buf()) );
     if ( !ischanged )
 	return;
 
@@ -735,24 +736,24 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( VisID did, Pick::Set& ps )
 
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
-    Pick::Mgr().removeCBs( this );
     detachAllNotifiers();
+    Pick::Mgr().removeCBs( this );
 }
 
 
 void uiODPolygonTreeItem::askSaveCB( CallBacker* )
 {
     const bool ischanged = Pick::Mgr().isChanged(
-				Pick::Mgr().indexOf(set_.ptr()->name()) );
+			    Pick::Mgr().indexOf(set_.ptr()->name().buf()) );
     if ( !ischanged )
 	return;
 
     const uiString obj = toUiString("%1 ").arg( set_->name().buf() );
     NotSavedPrompter::NSP().addObject( obj,
 				       mCB(this,uiODPolygonTreeItem,saveCB),
-				       false, 0 );
+				       false, nullptr );
     Threads::WorkManager::twm().addWork(
-	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+	    Threads::Work(*new uiTreeItemRemover(parent_,this),true), nullptr,
 			   NotSavedPrompter::NSP().queueID(), false );
 }
 

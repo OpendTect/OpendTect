@@ -29,7 +29,7 @@ uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 						DescSet* attrset )
     : is2d_(attrset->is2D())
     , attrset_(attrset)
-    , iopar_(0)
+    , iopar_(nullptr)
     , parent_(parent)
     , noofseis_(0)
     , noofsteer_(0)
@@ -77,9 +77,12 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
     for ( int idx=0; idx<iopar.size(); idx++ )
     {
 	IOPar* descpar = iopar.subselect( idx );
-	if ( !descpar ) continue;
-	const char* defstring = descpar->find( "Definition" );
-	if ( !defstring ) continue;
+	if ( !descpar )
+	    continue;
+
+	if ( !descpar->hasKey("Definition") )
+	    continue;
+
 	BufferString useref;
 	descpar->get( "UserRef", useref );
 	int inpidx=0;
@@ -87,8 +90,12 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	{
 	    const char* key = IOPar::compKey( sKey::Input(), inpidx );
 	    int descidx=-1;
-	    if ( !descpar->get(key,descidx) ) break;
-	    if ( descidx < 0 ) continue;
+	    if ( !descpar->get(key,descidx) )
+		break;
+
+	    if ( descidx < 0 )
+		continue;
+
 	    DescID descid( descidx, false );
 	    for ( int stridx=0; stridx<storedids_.size(); stridx++ )
 	    {
@@ -108,13 +115,15 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
     for ( int idx=0; idx<iopar.size(); idx++ )
     {
 	IOPar* descpar = iopar.subselect( idx );
-	if ( !descpar ) continue;
-	const char* defstring = descpar->find(
+	if ( !descpar || !descpar->hasKey(Attrib::DescSet::definitionStr()) )
+	    continue;
+
+	const BufferString defstring = descpar->find(
 					Attrib::DescSet::definitionStr() );
-	if ( !defstring ) continue;
 	BufferString attribnm;
 	Attrib::Desc::getAttribName( defstring, attribnm );
-	if ( attribnm != "Storage" ) continue;
+	if ( attribnm != "Storage" )
+	    continue;
 
 	const int len = strlen(defstring);
 	int spacepos = 0; int equalpos = 0;
@@ -137,7 +146,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	    storagestr[spacepos-equalpos] = 0;
 	    if ( storageidstr.addIfNew(storagestr) )
 	    {
-		const char* storedref = descpar->find(
+		const BufferString storedref = descpar->find(
 						Attrib::DescSet::userRefStr() );
 		storedids_ += StoredEntry( DescID(idx,false),
 					   LineKey(storagestr), storedref );
@@ -185,7 +194,7 @@ static bool hasSpace( const char* txt )
 
 static void setDefinitionKey( IOPar& par, const char* key )
 {
-    const char* defstring = par.find( "Definition" );
+    const BufferString defstring = par.find( "Definition" );
     BufferString defstr( defstring );
     char* maindefstr = defstr.find( "id=" );
     if ( !maindefstr )
@@ -216,17 +225,17 @@ void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
 int uiStoredAttribReplacer::getOutPut( int descid )
 {
     IOPar* descpar = iopar_->subselect( descid );
-    if ( !descpar ) return -1;
+    if ( !descpar )
+	return -1;
 
-    const char* defstring = descpar->find( "Definition" );
-    BufferString defstr( defstring );
-
+    BufferString defstr = descpar->find( "Definition" );
     char* outputptr = defstr.find( "output=" );
     outputptr +=7;
     BufferString outputstr( outputptr );
     char* spaceptr = outputstr.find( ' ' );
     if ( spaceptr )
 	*spaceptr ='\0';
+
     return outputstr.toInt();
 }
 

@@ -50,16 +50,22 @@ void EnumDefImpl<DataCharacteristics::UserType>::init()
 
 bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )
 {
-    const char* res = iop.find( sKey::DataStorage() );
-    if ( !res || !isdigit(*res) )
+    const BufferString res = iop.find( sKey::DataStorage() );
+    if ( res.isEmpty() )
 	return false;
-    ut = UserType( *res - '0' );
+
+    BufferString firstchar( res[0] );
+    if ( !firstchar.isNumber(true) )
+	return false;
+
+    ut = UserType( firstchar.toInt() - '0' );
     return true;
 }
 
 
 void DataCharacteristics::putUserTypeToPar( IOPar& iop, UserType ut )
 {
+    const BufferString utstr = toString(ut);
     iop.set( sKey::DataStorage(), toString(ut) );
 }
 
@@ -743,8 +749,8 @@ template <> DataInterpreter<type>* \
 DataInterpreter<type>::create( const IOPar& par,  const char* key, \
 			       bool alsoifequal ) \
 { \
-    const char* dc = par.find( key ); \
-    return dc ? create( dc, alsoifequal ) : 0; \
+    const BufferString dc = par.find( key ); \
+    return dc.isEmpty() ? nullptr : create( dc.buf(), alsoifequal ); \
 }
 
 

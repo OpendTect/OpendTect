@@ -570,18 +570,18 @@ void CBVSSeisTrcTranslator::blockDumped( int nrtrcs )
 void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
+    DataCharacteristics::UserType usrtyp;
+    if ( DataCharacteristics::getUserTypeFromPar(iopar,usrtyp) )
+	preseldatatype_ = int( usrtyp );
 
-    const char* res = iopar.find( sKey::DataStorage() );
-    if ( res && *res )
-	preseldatatype_ = (DataCharacteristics::UserType)(*res-'0');
-
-    res = iopar.find( sKeyOptDir() );
-    if ( res && *res )
+    const BufferString res = iopar.find( sKeyOptDir() );
+    if ( !res.isEmpty() )
     {
-	brickspec_.setStd( *res == 'H' );
-	if ( *res == 'H' && *res && *(res+1) == '`' )
+	const char* operstr = res.str();
+	brickspec_.setStd( *operstr == 'H' );
+	if ( *operstr == 'H' && *operstr && *(operstr +1) == '`' )
 	{
-	    FileMultiString fms( res + 2 );
+	    FileMultiString fms( operstr + 2 );
 	    const int sz = fms.size();
 	    int tmp = fms.getIValue( 0 );
 	    if ( tmp > 0 )

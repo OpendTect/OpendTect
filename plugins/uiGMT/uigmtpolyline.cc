@@ -104,13 +104,14 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 bool uiGMTPolylineGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    StringView nm = par.find( sKey::Name() );
-    if ( nm ) namefld_->setText( nm );
+    const BufferString nm = par.find( sKey::Name() );
+    if ( !nm.isEmpty() )
+	namefld_->setText( nm );
 
-    StringView lskey = par.find( ODGMT::sKeyLineStyle() );
+    const BufferString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( !lskey.isEmpty() )
     {
-	OD::LineStyle ls; ls.fromString( lskey.str() );
+	OD::LineStyle ls; ls.fromString( lskey );
 	lsfld_->setStyle( ls );
     }
 

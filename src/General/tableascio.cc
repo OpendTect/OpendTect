@@ -76,7 +76,8 @@ void FileFormatRepository::addFromFile( const char* fnm,
 
 const char* FileFormatRepository::grpNm( int idx ) const
 {
-    return (*entries_[idx]->iopar_)[sKeyGroup];
+    const BufferString grp = (*entries_[idx]->iopar_)[sKeyGroup];
+    return grp;
 }
 
 
@@ -127,10 +128,11 @@ void FileFormatRepository::set( const char* grp, const char* nm,
 {
     const int idx = gtIdx( grp, nm );
     if ( idx >= 0 )
-	{ delete entries_.removeSingle( idx );  }
-    if ( !iop ) return;
+	delete entries_.removeSingle( idx );
+    if ( !iop )
+	return;
 
-    if ( iop->find(sKey::Name()) )
+    if ( iop->hasKey(sKey::Name()) )
 	iop->removeWithKey(sKey::Name());
     iop->setName( nm );
     iop->set( sKeyGroup, grp );
@@ -221,8 +223,8 @@ void TargetInfo::usePar( const IOPar& iopar )
     const char* nm = name();
     if ( forms_.size() > 1 )
     {
-	const char* res = iopar.find( IOPar::compKey(nm,"Form") );
-	if ( res )
+	const BufferString res = iopar.find( IOPar::compKey(nm,"Form") );
+	if ( !res.isEmpty() )
 	    selection_.form_ = formNr( res );
     }
     if ( selection_.form_ < 0 ) selection_.form_ = 0;
@@ -233,8 +235,8 @@ void TargetInfo::usePar( const IOPar& iopar )
     if ( crspar )
 	selection_.coordsys_ = Coords::CoordSystem::createSystem( *crspar );
 
-    const char* res = iopar.find( IOPar::compKey("Selection",nm) );
-    if ( !res || !*res )
+    BufferString res = iopar.find( IOPar::compKey("Selection",nm) );
+    if ( res.isEmpty() )
     {
 	const int nrspecs = form( selection_.form_ ).specs_.size();
 	for ( int idx=0; idx<nrspecs; idx++ )
@@ -412,15 +414,15 @@ void FormatDesc::usePar( const IOPar& iopar )
 {
     iopar.get( sKeyHdrSize, nrhdrlines_ );
 
-    const char* res = iopar.find( sKeyHdrToken );
-    if ( res && *res )
+    BufferString res = iopar.find( sKeyHdrToken );
+    if ( !res.isEmpty() )
     {
 	FileMultiString fms( res );
 	eohtokencol_ = fms.getIValue( 0 ); eohtoken_ = fms[1];
     }
 
     res = iopar.find( sKeyBodyEndToken );
-    if ( res && *res )
+    if ( !res.isEmpty() )
 	eobtoken_ = res;
 
     IOPar* subpar = iopar.subselect( sKeyHdr );

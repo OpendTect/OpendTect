@@ -875,13 +875,15 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 {
     const char* attrstr = attrtypefld_->attr();
     BufferString attrnm = uiAF().attrNameOf( attrstr );
-    if ( !attrnm ) attrnm = attrstr;
+    if ( attrnm.isEmpty() )
+	attrnm = attrstr;
 
     uiAttrDescEd* ret = 0;
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds_[idx];
-	if ( !de ) continue;
+	if ( !de )
+	    continue;
 
 	if ( attrnm == de->attribName() )
 	    return de;

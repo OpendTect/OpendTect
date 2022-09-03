@@ -265,7 +265,7 @@ void IODir::update()
 
 void IODir::reRead()
 {
-    IODir rdiodir( dirname_ );
+    IODir rdiodir( dirname_.buf() );
     if ( rdiodir.isok_ && rdiodir.main() && rdiodir.size() > 1 )
     {
 	deepErase( objs_ );

@@ -143,7 +143,7 @@ int uiSeisFileMan::addBrowser( uiSeisFileMan::BrowserDef* bd )
 }
 
 
-#define mIsOfTranslName(nm) (StringView(curioobj_->translator()) == nm)
+#define mIsOfTranslName(nm) (curioobj_->translator().isEqual(nm))
 #define mIsOfTranslType(typ) \
 	mIsOfTranslName(typ##SeisTrcTranslator::translKey())
 
@@ -315,13 +315,14 @@ void uiSeisFileMan::mkFileInfo()
     if ( !curioobj_->pars().isEmpty() )
     {
 	const IOPar& pars = curioobj_->pars();
-	StringView parstr = pars.find( "Type" );
+	BufferString parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nType: " ).add( parstr );
 
 	parstr = pars.find( "Optimized direction" );
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nOptimized direction: " ).add( parstr );
+
 	if ( pars.isTrue("Is Velocity") )
 	{
 	    Interval<float> topvavg, botvavg;

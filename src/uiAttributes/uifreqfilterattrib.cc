@@ -110,8 +110,8 @@ void uiFreqFilterAttrib::selectionDoneCB( CallBacker* cb )
 
     const Attrib::DescSet& attrset = inpfld_->getAttrSet();
     const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
-    const MultiID multiid = inpdesc ? MultiID(inpdesc->getStoredID(true))
-				    : MultiID::udf();
+    const MultiID multiid = inpdesc ?
+		MultiID( inpdesc->getStoredID(true).buf() ) : MultiID::udf();
     freqtapersel->setMultiID( multiid );
 }
 

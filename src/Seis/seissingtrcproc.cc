@@ -205,7 +205,7 @@ void SeisSingleTraceProc::setResampler( SeisResampler* r )
 void SeisSingleTraceProc::setProcPars( const IOPar& iop, bool is2d )
 {
     Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
-    const int nulltrcpol = toInt( iop.find("Null trace policy") );
+    const int nulltrcpol = iop.find("Null trace policy").toInt();
     const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
     TrcKeyZSampling tks;
     if ( tks.usePar(iop) )

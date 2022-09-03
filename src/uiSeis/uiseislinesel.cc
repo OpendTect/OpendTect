@@ -640,7 +640,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     if ( withz )
     {
 	zrgfld_ = new uiSelZRange( this, withstep,
-			BufferString("Z range",SI().getZUnitString()) );
+			BufferString("Z range",SI().getZUnitString()).buf());
 	zrgfld_->setRangeLimits( SI().zRange(false) );
 	zrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,zRgChanged) );
@@ -930,7 +930,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
 	if ( !linepar->get(sKey::GeomID(),geomid) )
 	{
-	    StringView lnm = linepar->find( sKey::Name() );
+	    const BufferString lnm = linepar->find( sKey::Name() );
 	    geomid = Survey::GM().getGeomID( lsetname, lnm );
 	}
 

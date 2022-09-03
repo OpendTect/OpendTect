@@ -220,15 +220,14 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    inlines += str.getIValue(idx);
     }
 
-    StringView inlstr = par.find( sKeyInlPrefix() );
+    const BufferString inlstr = par.find( sKeyInlPrefix() );
     failedlines_.setEmpty();
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	TrcKeyZSampling cs = bbox;
 	cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() = inlines[idx];
-	BufferString linenm( inlstr.str() );
-	linenm.add( inlines[idx] );
-
+	BufferString linenm;
+	linenm.add( inlstr ).add( inlines[idx] );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
 	if ( geomid == mUdfGeomID )
 	    continue;
@@ -252,13 +251,13 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    crosslines += str.getIValue(idx);
     }
 
-    StringView crlstr = par.find( sKeyCrlPrefix() );
+    const BufferString crlstr = par.find( sKeyCrlPrefix() );
     for ( int idx=0; idx<crosslines.size(); idx++ )
     {
 	TrcKeyZSampling cs = bbox;
 	cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() = crosslines[idx];
-	BufferString linenm( crlstr.str() );
-	linenm.add( crosslines[idx] );
+	BufferString linenm;
+	linenm.add( crlstr ).add( crosslines[idx] );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
 	if ( geomid == mUdfGeomID )
 	    continue;
@@ -298,18 +297,18 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
     BufferString attribname;
     par.get( sKey::Attribute(), attribname );
     bool dooverwrite = false;
-    if ( par.find(sKeyOverWrite()) )
+    if ( par.hasKey(sKeyOverWrite()) )
 	par.getYN( sKeyOverWrite(), dooverwrite );
 
-    StringView parstr = par.find( sKeyInlPrefix() );
+    const BufferString parstr = par.find( sKeyInlPrefix() );
     for ( int idx=0; idx<grid.size(true); idx++ )
     {
 	const Grid2D::Line* line = grid.getLine( idx, true );
 	if ( !line )
 	    continue;
 
-	BufferString linenm( parstr.str() );
-	linenm.add( idx );
+	BufferString linenm;
+	linenm.add( parstr ).add( idx );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
 	if ( geomid == mUdfGeomID )
 	    continue;
@@ -320,15 +319,15 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	add( new SeisRandLineTo2D(input,output,geomid,1,*rdl) );
     }
 
-    StringView perstr = par.find( sKeyCrlPrefix() );
+    const BufferString perstr = par.find( sKeyCrlPrefix() );
     for ( int idx=0; idx<grid.size(false); idx++ )
     {
 	const Grid2D::Line* line = grid.getLine( idx, false );
 	if ( !line )
 	    continue;
 
-	BufferString linenm( perstr.str() );
-	linenm.add( idx );
+	BufferString linenm;
+	linenm.add( perstr ).add( idx );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
 	if ( geomid == mUdfGeomID )
 	    continue;
@@ -392,14 +391,13 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
     TypeSet<Pos::GeomID> geomids;
     Seis2DDataSet ds( *dsioobj );
     ds.getGeomIDs( geomids );
-    BufferStringSet horids;
-
+    TypeSet<MultiID> horids;
     par.get( Horizon2DGridCreator::sKeyInputIDs(), horids );
     EM::EMManager& em = EM::EMM();
-    for ( int idx=0; idx<horids.size(); idx++ )
+    for ( const auto& mid : horids )
     {
-	MultiID mid( horids.get(idx) );
-	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, taskrunner );
+	RefMan<EM::EMObject> emobj =
+				em.loadIfNotFullyLoaded( mid, taskrunner );
 
 	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobj.ptr());
 	if ( !horizon3d ) continue;

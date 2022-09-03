@@ -157,7 +157,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 		      mCB(this,uiSetDataDir,rootRemoveCB) );
     sortgrp->attach( rightOf, dirlistfld_ );
 
-    dirlistfld_->setCurrentItem( curdatadir_ );
+    dirlistfld_->setCurrentItem( curdatadir_.buf() );
     mAttachCB( dirlistfld_->selectionChanged, uiSetDataDir::rootSelCB );
 }
 
@@ -174,7 +174,7 @@ void uiSetDataDir::updateListFld()
     dirlistfld_->setEmpty();
     dirlistfld_->addItems( dirlist_ );
 
-    dirlistfld_->setCurrentItem( curtext );
+    dirlistfld_->setCurrentItem( curtext.buf() );
 }
 
 

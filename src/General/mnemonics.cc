@@ -190,7 +190,7 @@ float Mnemonic::getMatchValue( const char* nm ) const
     if ( name().matches(nm,CaseInsensitive) )
 	return 1.f;
 
-    BufferStringSet nms( name(), logtypename_ );
+    BufferStringSet nms( name().buf(), logtypename_.buf() );
     nms.add( aliases_, false );
     for ( const auto* findnm : nms )
     {
@@ -232,7 +232,7 @@ bool Mnemonic::isKnownAs( const char* nm ) const
     if ( name().matches(nm,CaseInsensitive) )
 	return true;
 
-    BufferStringSet nms( name(), logtypename_ );
+    BufferStringSet nms( name().buf(), logtypename_.buf() );
     nms.add( aliases_, false );
     for ( const auto* findnm : nms )
     {

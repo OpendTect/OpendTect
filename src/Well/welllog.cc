@@ -61,7 +61,7 @@ void Well::LogSet::getNames( BufferStringSet& nms, bool onlyloaded ) const
 void Well::LogSet::add( Well::Log* wl )
 {
     if ( !wl ) return;
-    Well::Log* log = getLog( wl->name() );
+    Well::Log* log = getLog( wl->name().buf() );
     if ( !log )
     {
 	logs_ += wl;
@@ -321,7 +321,7 @@ const Well::Log* Well::LogSet::getDefaultLog( const Mnemonic& mnem ) const
     for ( const auto* deflog : defaultlogs_ )
     {
 	if ( &deflog->first == &mnem )
-	    return getLog( deflog->second );
+	    return getLog( deflog->second.buf() );
     }
 
     return nullptr;

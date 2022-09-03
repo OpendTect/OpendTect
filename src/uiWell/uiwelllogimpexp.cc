@@ -238,7 +238,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     Well::Writer wtr( wmid, *wd );
     for ( const auto* lognm : lognms )
     {
-	if ( !wtr.putLog(*wd->logs().getLog(*lognm)) )
+	if ( !wtr.putLog(*wd->logs().getLog(lognm->buf())) )
 	{
 	    errmsg.addMoreInfo( tr("lognm"), true );
 	    failed = true;

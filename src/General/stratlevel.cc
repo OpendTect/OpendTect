@@ -668,8 +668,10 @@ BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
     FilePath fp( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Strat",1) );
     if ( basenm )
 	fp.add( basenm );
-    if ( nm && *nm )
+
+    if ( !nm.isEmpty()	)
 	fp.setExtension( nm );
+
     return fp.fullPath();
 }
 

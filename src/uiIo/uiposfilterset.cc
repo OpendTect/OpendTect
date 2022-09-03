@@ -135,10 +135,13 @@ void uiPosFilterSet::usePar( const IOPar& iop )
     {
 	PtrMan<IOPar> subiop =
 		iop.subselect(IOPar::compKey(sKey::Filter(),ipar));
-	if ( !subiop || !subiop->size() ) break;
-	const char* typ = subiop->find( sKey::Type() );
-	if ( !typ ) continue;
+	if ( !subiop || !subiop->size() )
+	    break;
 
+	if ( !subiop->hasKey(sKey::Type()) )
+	    continue;
+
+	const BufferString typ = subiop->find( sKey::Type() );
 	for ( int igrp=0; igrp<grps_.size(); igrp++ )
 	{
 	    if ( grps_[igrp]->name() == typ )

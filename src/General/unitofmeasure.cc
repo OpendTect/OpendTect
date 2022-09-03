@@ -534,7 +534,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
 const UnitOfMeasure* UnitOfMeasureRepository::getCurDefaultFor(
 		const char* ky ) const
 {
-    const StringView res = UnitOfMeasure::currentDefaults().find( ky );
+    const BufferString res = UnitOfMeasure::currentDefaults().find( ky );
     return res.isEmpty() ? nullptr : get( res );
 }
 

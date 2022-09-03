@@ -153,14 +153,14 @@ void uiWellMarkerSel::setMarkerColors( const TypeSet<OD::Color>& cols )
 
 void uiWellMarkerSel::setMarkers( uiComboBox& cb, const BufferStringSet& nms )
 {
-    BufferString cur( cb.text() );
+    const BufferString cur( cb.text() );
     NotifyStopper ns( cb.selectionChanged );
     cb.setEmpty();
     cb.addItems( nms );
     if ( cur.isEmpty() )
 	cb.setCurrentItem( 0 );
     else
-	cb.setCurrentItem( cur );
+	cb.setCurrentItem( cur.buf() );
 }
 
 
@@ -234,17 +234,18 @@ void uiWellMarkerSel::usePar( const IOPar& iop )
 {
     if ( !botfld_ )
     {
-	const char* res = iop.find( sKey::Marker() );
-	if ( res && *res )
+	const BufferString res = iop.find( sKey::Marker() );
+	if ( !res.isEmpty() )
 	    setInput( res, true );
     }
     else
     {
-	const char* res = iop.find( Well::ExtractParams::sKeyTopMrk() );
-	if ( res && *res )
+	BufferString res = iop.find( Well::ExtractParams::sKeyTopMrk() );
+	if ( !res.isEmpty() )
 	    setInput( res, true );
+
 	res = iop.find( Well::ExtractParams::sKeyBotMrk() );
-	if ( res && *res )
+	if ( !res.isEmpty() )
 	    setInput( res, false );
     }
 }

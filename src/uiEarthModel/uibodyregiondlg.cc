@@ -1004,7 +1004,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj->pars().find( sKey::Type() ) )
+    if ( !ioobj->pars().hasKey( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )

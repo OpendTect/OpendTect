@@ -129,7 +129,7 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
     const Well::Track& track = wd->track();
     const Well::D2TModel* d2t = wd->d2TModel();
     Interval<float> mdrg;
-    if ( wd->logs().getLog(log.name()) )
+    if ( wd->logs().getLog(log.name().buf()) )
     {
 	BufferStringSet lognms; lognms.add( log.name() );
 	mdrg = params_.calcFrom( *wd, lognms );
@@ -582,7 +582,8 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     if ( !Step::usePar(pars) )
 	return false;
 
-    const bool hassamplepol = pars.find( Well::ExtractParams::sKeySamplePol() );
+    const bool hassamplepol = pars.hasKey(
+					Well::ExtractParams::sKeySamplePol() );
     const Stats::UpscaleType samppol = params_.samppol_;
     params_.usePar( pars );
     if ( !hassamplepol )

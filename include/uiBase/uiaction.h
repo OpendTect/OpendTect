@@ -132,6 +132,7 @@ public:
     static void         addCmdRecorder(const CallBack&);
     static void         removeCmdRecorder(const CallBack&);
     int  /* refnr */    beginCmdRecEvent(const char* msg=0);
+    int  /* refnr */	beginCmdRecEvent(const BufferString& msg);
     void                endCmdRecEvent(int refnr,const char* msg=0);
 };
 

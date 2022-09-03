@@ -65,7 +65,7 @@ GMTPar* GMTBaseMap::createInstance( const IOPar& iop, const char* workdir )
 bool GMTBaseMap::doExecute( od_ostream& strm, const char* fnm )
 {
     strm << "Creating the Basemap ...  ";
-    StringView maptitle = find( ODGMT::sKeyMapTitle() );
+    const BufferString maptitle = find( ODGMT::sKeyMapTitle() );
     Interval<float> lblintv;
     if ( !get(ODGMT::sKeyLabelIntv(),lblintv) )
 	mErrStrmRet("Incomplete data for basemap creation")
@@ -163,9 +163,10 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<100; idx++ )
     {
 	IOPar* par = subselect( idx );
-	if ( !par ) break;
+	if ( !par )
+	    break;
 
-	if ( par->find(ODGMT::sKeyPostColorBar()) )
+	if ( par->hasKey(ODGMT::sKeyPostColorBar()) )
 	    parwithcolorbar = idx;
 
 	parset += par;
@@ -233,7 +234,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar* par = parset[idx];
-	StringView namestr = par->find( sKey::Name() );
+	const BufferString namestr = par->find( sKey::Name() );
 	if ( namestr.isEmpty() )
 	    continue;
 
@@ -241,15 +242,18 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	BufferString symbstr, penstr;
 	bool usewellsymbol = false;
 	par->getYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbol );
-	StringView shapestr = par->find( ODGMT::sKeyShape() );
-	if ( !usewellsymbol && !shapestr ) continue;
-	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.str() );
+	const BufferString shapestr = par->find( ODGMT::sKeyShape() );
+	if ( !usewellsymbol && shapestr.isEmpty() )
+	    continue;
+
+	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.buf() );
 	symbstr = ODGMT::sShapeKeys()[(int)shape];
 	par->get( sKey::Size(), sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
 	{
-	    const char* lsstr = par->find( ODGMT::sKeyLineStyle() );
-	    if ( !lsstr ) continue;
+	    const BufferString lsstr = par->find( ODGMT::sKeyLineStyle() );
+	    if ( lsstr.isEmpty() )
+		continue;
 
 	    OD::LineStyle ls;
 	    ls.fromString( lsstr );
@@ -279,7 +283,8 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	{
 	    BufferString symbolname;
 	    par->get( ODGMT::sKeyWellSymbolName(), symbolname );
-	    BufferString deffilenm = GMTWSR().get( symbolname )->deffilenm_;
+	    const BufferString deffilenm =
+				GMTWSR().get( symbolname.buf() )->deffilenm_;
 	    legendstring += "k"; legendstring += deffilenm;
 	    par->get( sKey::Size(), sz );
 	}
@@ -335,7 +340,7 @@ GMTPar* GMTCommand::createInstance( const IOPar& iop, const char* workdir )
 const char* GMTCommand::userRef() const
 {
     BufferString* str = new BufferString( "GMT Command: " );
-    const char* res = find( ODGMT::sKeyCustomComm() );
+    const BufferString res = find( ODGMT::sKeyCustomComm() );
     *str += res;
     *( str->getCStr() + 25 ) = '\0';
     return str->buf();
@@ -420,8 +425,8 @@ static bool setFromSingleStringRep( const char* inp, OS::MachineCommand& mc )
 bool GMTCommand::doExecute( od_ostream& strm, const char* fnm )
 {
     strm << "Executing custom command" << od_endl;
-    const char* res = find( ODGMT::sKeyCustomComm() );
-    if ( !res || !*res )
+    const BufferString res = find( ODGMT::sKeyCustomComm() );
+    if ( res.isEmpty() )
 	mErrStrmRet("No command to execute")
 
     strm << res << od_endl;

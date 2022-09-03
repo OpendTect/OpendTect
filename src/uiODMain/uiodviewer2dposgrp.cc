@@ -233,7 +233,7 @@ IOObj* uiODViewer2DPosGrp::get2DObj()
     if ( !desc ) desc = ads.getFirstStored();
     if ( !desc ) return 0;
 
-    const MultiID stored2did( desc->getStoredID(true) );
+    const MultiID stored2did( desc->getStoredID(true).buf() );
     return IOM().get( stored2did );
 }
 

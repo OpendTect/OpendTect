@@ -134,8 +134,6 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
 
     IOPar& outpar = procflow_.output();
     outfld_->fillPar( outpar );
-    BufferString inptyp( inpar.find(sKey::Type()) );
-    BufferString outptyp( outpar.find(sKey::Type()) );
 }
 
 #undef mErrRet

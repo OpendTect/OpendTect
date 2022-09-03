@@ -303,7 +303,7 @@ void uiIOObjSelWriteTranslator::resetPars()
 void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
 {
     if ( selfld_ )
-	selfld_->setCurrentItem( ioobj.translator() );
+	selfld_->setCurrentItem( ioobj.translator().buf() );
 
     uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
     if ( fld )

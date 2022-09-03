@@ -151,7 +151,7 @@ bool uiGMTCoastlineGrp::usePar( const IOPar& par )
     int utmzone;
     par.get( ODGMT::sKeyUTMZone(), utmzone );
     utmfld_->setValue( utmzone );
-    resolutionfld_->setCurrentItem( par.find(ODGMT::sKeyResolution()) );
+    resolutionfld_->setCurrentItem( par.find(ODGMT::sKeyResolution()).buf() );
     OD::LineStyle ls; BufferString lsstr;
     par.get( ODGMT::sKeyLineStyle(), lsstr );
     ls.fromString( lsstr ); lsfld_->setStyle( ls );
