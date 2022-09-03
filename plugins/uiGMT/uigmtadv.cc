@@ -62,7 +62,7 @@ bool uiGMTAdvGrp::fillPar( IOPar& par ) const
 
 bool uiGMTAdvGrp::usePar( const IOPar& par )
 {
-    const char* comm = par.find( ODGMT::sKeyCustomComm() );
+    const BufferString comm = par.find( ODGMT::sKeyCustomComm() );
     inpfld_->setvalue_( comm );
     return true;
 }

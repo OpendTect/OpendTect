@@ -73,7 +73,7 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
 	for ( int idx=0; idx<sup.items_.size(); idx++ )
 	    listfld_->addItem( mToUiStringTodo(sup.items_.get(idx)) );
 	if ( !sup.deflt_.isEmpty() )
-	    listfld_->setCurrentItem( sup.deflt_ );
+	    listfld_->setCurrentItem( sup.deflt_.buf() );
 	else
 	    listfld_->setCurrentItem( 0 );
 	listfld_->selectionChanged.notify( mCB(this,uiGetObjectName,selChg) );

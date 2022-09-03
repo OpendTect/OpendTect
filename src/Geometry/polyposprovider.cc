@@ -159,11 +159,12 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr,
 						    BufferString* nm )
 {
-    const char* res = iop.find( mGetPolyKey("ID") );
+    MultiID polyid;
+    iop.get( mGetPolyKey("ID"), polyid );
     ODPolygon<float>* ret = 0;
-    if ( res && *res )
+    if ( !polyid.isUdf() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( res );
+	PtrMan<IOObj> ioobj = IOM().get( polyid );
 	if ( ioobj )
 	{
 	    BufferString msg;

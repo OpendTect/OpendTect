@@ -51,40 +51,54 @@ void uiFlatViewWin::setDarkBG( bool yn )
 
 void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
-    StringView valstr = pars.find( sKey::Position() );
+    BufferString valstr = pars.find( sKey::Position() );
     mesg.setEmpty();
-    if ( valstr && *valstr )
+    if ( !valstr.isEmpty() )
 	mesg.add( valstr ).addTab();
     else
     {
 	valstr = pars.find( sKey::TraceNr() );
-	if ( valstr && *valstr )
+	if ( !!valstr.isEmpty() )
 	    mesg.add("TrcNr=").add( valstr );
 	else
 	{
 	    valstr = pars.find( "Inline" );
-	    if ( !valstr ) valstr = pars.find( "In-line" );
-	    if ( valstr && *valstr )
+	    if ( valstr.isEmpty() )
+		valstr = pars.find( "In-line" );
+
+	    if ( !valstr.isEmpty() )
 		mesg.add( valstr );
+
 	    valstr = pars.find( "Crossline" );
-	    if ( !valstr ) valstr = pars.find( "Cross-line" );
-	    if ( valstr && *valstr )
+	    if ( valstr.isEmpty() )
+		valstr = pars.find( "Cross-line" );
+
+	    if ( !valstr.isEmpty() )
 		mesg.add( "/" ).add( valstr );
 	}
     }
 
     Coord3 crd( Coord3::udf() );
     valstr = pars.find( "X" );
-    if ( !valstr ) valstr = pars.find( "X-coordinate" );
-    if ( valstr && *valstr ) crd.x = toDouble( valstr );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "X-coordinate" );
+
+    if ( !valstr.isEmpty() )
+	crd.x = toDouble( valstr );
 
     valstr = pars.find( "Y" );
-    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-    if ( valstr && *valstr ) crd.y = toDouble( valstr );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Y-coordinate" );
+
+    if ( !valstr.isEmpty() )
+	crd.y = toDouble( valstr );
 
     valstr = pars.find( "Z" );
-    if ( !valstr ) valstr = pars.find( "Z-Coord" );
-    if ( valstr && *valstr ) crd.z = toDouble( valstr );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Z-Coord" );
+
+    if ( !valstr.isEmpty() )
+	crd.z = toDouble( valstr );
 
     if ( !crd.coord().isUdf() )
     {
@@ -103,28 +117,33 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
-    StringView vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
-    StringView wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
-    StringView vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
-    StringView wvavalstr = pars.find( FlatView::Viewer::sKeyWVAVal() );
-    const bool issame = vdstr && wvastr && vdstr==wvastr;
-    if ( vdvalstr )
+    BufferString vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
+    BufferString wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
+    const BufferString vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
+    const BufferString wvavalstr =
+				pars.find( FlatView::Viewer::sKeyWVAVal() );
+    const bool issame = vdstr.isEqual( wvastr );
+    if ( vdvalstr.str() )
     {
 	mAddSep();
-	if ( issame )
-	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
-	else
-	    { if ( !vdstr || !*vdstr ) vdstr = FlatView::Viewer::sKeyVDVal(); }
-	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
+	if ( issame && vdstr.isEmpty() )
+		vdstr = wvastr;
+	else if ( !issame && vdstr.isEmpty() )
+	    vdstr = FlatView::Viewer::sKeyVDVal();
+
+	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr.buf();
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
-    if ( wvavalstr && !issame )
+
+    if ( wvavalstr.str() && !issame )
     {
 	mAddSep();
-	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
+	float val = wvavalstr.str() ? wvavalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr.buf();
-	if ( !wvastr || !*wvastr ) wvastr = FlatView::Viewer::sKeyWVAVal();
+	if ( wvastr.isEmpty() )
+	    wvastr = FlatView::Viewer::sKeyWVAVal();
+
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 
@@ -136,12 +155,16 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     }
 
     valstr = pars.find( sKey::Azimuth() );
-    if ( valstr && valstr!="0" )
+    if ( valstr.str() && valstr!="0" )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 
     valstr = pars.find( "Ref/SP number" );
-    if ( valstr && *valstr )
-	{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
+    if ( !valstr.isEmpty() )
+    {
+	mAddSep();
+	mesg += "Ref/SP=";
+	mesg += valstr;
+    }
 }
 
 

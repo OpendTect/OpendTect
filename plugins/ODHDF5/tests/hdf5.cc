@@ -551,7 +551,7 @@ static bool testEdit()
     mRunStandardTest( rdr->hasAttribute("Empty attribute 3"),
 		      "Has top level attribute to set empty" )
     rdr = nullptr;
-    wrr->setAttribute( "Empty attribute 3", BufferString::empty() );
+    wrr->setAttribute( "Empty attribute 3", "" );
     wrr->removeAttribute( "Attrib to be deleted" );
 
     HDF5::DataSetKey dsky( "", "ShortArr" );

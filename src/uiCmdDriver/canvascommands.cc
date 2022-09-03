@@ -103,7 +103,7 @@ bool GetCanvasMenuItemCmd::act( const char* parstr )
 
     const MenuInfo menuinfo = interceptedMenuInfo();
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 

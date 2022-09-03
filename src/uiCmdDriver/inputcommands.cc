@@ -139,7 +139,7 @@ bool GetInputCmd::act( const char* parstr )
 	filepath = uifileinp->defaultSelectionDir();
 
     mParForm( answer, form, inptxt, filepath );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -235,7 +235,7 @@ bool GetSpinCmd::act( const char* parstr )
     mParExtraForm( answer, form, Value, uispin->getFValue() );
     mParExtraForm( answer, form, Minimum, uispin->minFValue() );
     mParExtraForm( answer, form, Maximum, uispin->maxFValue() );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -313,7 +313,7 @@ bool GetSliderCmd::act( const char* parstr )
     mParExtraForm( answer, form, Value, uislider->getFValue() );
     mParExtraForm( answer, form, Minimum, uislider->minValue() );
     mParExtraForm( answer, form, Maximum, uislider->maxValue() );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 

@@ -460,12 +460,16 @@ void uiTablePosProvGroup::selChg( CallBacker* )
 
 void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
-    const char* idres = iop.find( mGetTableKey("ID") );
-    const char* fnmres = iop.find( mGetTableKey(sKey::FileName()) );
-    const bool isfnm = fnmres && *fnmres;
+    const BufferString fnmres = iop.find( mGetTableKey(sKey::FileName()) );
+    const bool isfnm = !fnmres.isEmpty();
     selfld_->setValue( !isfnm );
-    if ( idres ) psfld_->setInput( MultiID(idres) );
-    if ( fnmres ) tffld_->setInput( fnmres );
+    MultiID tableid;
+    iop.get( mGetTableKey("ID"), tableid );
+    if ( !tableid.isUdf())
+	psfld_->setInput( tableid );
+
+    if ( isfnm )
+	tffld_->setInput( fnmres );
 }
 
 

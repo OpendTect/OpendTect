@@ -295,7 +295,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( VisID visid, int attrib )
 	IOPar iop;
 	if ( seisobj.getDisplayPars( iop ) )
     	{
-    	    const char* ctname = iop.find( sKey::Name() );
+	    const BufferString ctname = iop.find( sKey::Name() );
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
 	}

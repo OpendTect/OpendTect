@@ -180,7 +180,7 @@ void uiIOSelect::updateFromEntries()
     }
 
     if ( curitnr >= 0 && inp_->size() )
-	inp_->setCurrentItem( curusrnm );
+	inp_->setCurrentItem( curusrnm.buf() );
 
     if ( keepmytxt_ )
 	inp_->setText( curusrnm );
@@ -205,7 +205,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
-	if ( !iopar.find( IOPar::compKey(sKey::IOSelection(),lastidx+1)) )
+	if ( !iopar.hasKey( IOPar::compKey(sKey::IOSelection(),lastidx+1)) )
 	    break;
     }
 
@@ -214,7 +214,8 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     for ( int idx=0; idx<nrentries; idx++ )
     {
 	const char* key = entries_.get( idx ).buf();
-	if ( iopar.findKeyFor(key) ) continue;
+	if ( iopar.hasKey(key) )
+	    continue;
 
 	lastidx++;
 	iopar.set( IOPar::compKey(sKey::IOSelection(),lastidx), key );
@@ -509,6 +510,10 @@ bool uiIOFileSelect::fillPar( IOPar& iopar ) const
 
 void uiIOFileSelect::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( "File name" );
-    if ( res ) setInput( res );
+    const BufferString key( "File name" );
+    if ( iopar.hasKey(key) )
+    {
+	const BufferString res = iopar.find( key );
+	setInput( res );
+    }
 }

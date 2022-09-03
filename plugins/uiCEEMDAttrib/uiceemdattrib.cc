@@ -113,7 +113,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 
 bool uiCEEMDAttrib::getParameters( Desc& desc )
 {
-    if ( StringView(desc.attribName())!=CEEMD::attribName() )
+    if ( !desc.attribName().isEqual(CEEMD::attribName()) )
 	return false;
 
     BufferStringSet strs( methodStr );
@@ -166,7 +166,7 @@ bool uiCEEMDAttrib::getInput( Attrib::Desc& desc )
 
 bool uiCEEMDAttrib::setParameters( const Desc& desc )
 {
-    if ( StringView(desc.attribName())!=CEEMD::attribName() )
+    if ( !desc.attribName().isEqual(CEEMD::attribName()) )
 	return false;
 
     mIfGetEnum( CEEMD::emdmethodStr(), method,

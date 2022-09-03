@@ -788,7 +788,7 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     {
 	if ( targetdesc->isStored() && !isnla )
 	{
-	    const MultiID mid( targetdesc->getStoredID() );
+	    const MultiID mid( targetdesc->getStoredID().buf() );
 	    preloadeddatapack = Seis::PLDM().get<RegularSeisDataPack>( mid );
 	}
 
@@ -963,7 +963,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     if ( targetdesc && targetdesc->isStored() )
     {
-	const MultiID mid( targetdesc->getStoredID() );
+	const MultiID mid( targetdesc->getStoredID().buf() );
 	ConstRefMan<RegularSeisDataPack> sdp =
 				Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
@@ -1092,7 +1092,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 
     if ( targetdesc )
     {
-	const MultiID mid( targetdesc->getStoredID() );
+	const MultiID mid( targetdesc->getStoredID().buf() );
 	ConstRefMan<RegularSeisDataPack> sdp =
 			Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
@@ -1208,7 +1208,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? nullptr
 			   : attrds->getDesc(targetspecs_[0].id());
 
-    const MultiID mid( targetdesc->getStoredID() );
+    const MultiID mid( targetdesc->getStoredID().buf() );
     ConstRefMan<RegularSeisDataPack> sdp =
 				Seis::PLDM().get<RegularSeisDataPack>( mid );
     if ( sdp )
@@ -1430,7 +1430,7 @@ DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	const Desc* targetdesc = curds->getDesc( targetID(true) );
 	if ( targetdesc )
 	{
-	    const MultiID mid( targetdesc->getStoredID() );
+	    const MultiID mid( targetdesc->getStoredID().buf() );
 	    ConstRefMan<RegularSeisDataPack> regsdp =
 			Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
 	    if ( regsdp )
@@ -1819,7 +1819,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	    if ( !desc )
 		continue;
 
-	    MultiID mid( desc->getStoredID(true) );
+	    MultiID mid( desc->getStoredID(true).buf() );
 	    PtrMan<IOObj> seisobj = IOM().get( mid );
 	    if ( !seisobj || attribnms.isPresent(seisobj->name()) )
 	    {

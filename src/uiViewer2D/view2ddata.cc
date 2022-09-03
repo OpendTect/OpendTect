@@ -41,7 +41,7 @@ bool DataObject::fillPar( IOPar& par ) const
 
 bool DataObject::usePar( const IOPar& par )
 {
-    const StringView nm = par.find( sKey::Name() );
+    const BufferString nm = par.find( sKey::Name() );
     if ( !nm.isEmpty() )
 	setName( nm );
 

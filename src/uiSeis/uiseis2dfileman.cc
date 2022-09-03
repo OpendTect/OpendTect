@@ -204,7 +204,8 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	txt.addNewLine();
 	txt.append( tr("File name: %1").arg(fp.fileName()) );
 	txt.addNewLine();
-	txt.append( tr("File size: %1").arg(File::getFileSizeString(fname)) );
+	txt.append( tr("File size: %1").arg(
+				    File::getFileSizeString(fname.buf())) );
 	txt.addNewLine();
 	StringView timestr( File::timeLastModified(fname) );
 	if ( !timestr.isEmpty() )
@@ -265,8 +266,8 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 						     uiStrings::sAdd() );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
-    ln1fld_->setCurrentItem( sellns.get(0) );
-    ln2fld_->setCurrentItem( sellns.get(1) );
+    ln1fld_->setCurrentItem( sellns.get(0).buf() );
+    ln2fld_->setCurrentItem( sellns.get(1).buf() );
     mAttachCB( ln1fld_->selectionChanged,
 				    uiSeis2DFileManMergeDlg::fillData2MergeCB );
     mAttachCB( ln2fld_->selectionChanged,

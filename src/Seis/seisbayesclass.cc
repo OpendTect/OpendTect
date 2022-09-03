@@ -52,8 +52,15 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 {
     aprdrs_.allowNull( true );
 
-    const char* res = pars_.find( sKey::Type() );
-    is2d_ = res && *res == '2';
+    const BufferString res = pars_.find( sKey::Type() );
+    if ( res.isEmpty() )
+	is2d_ = false;
+    else
+    {
+	const BufferString firstchar( res[0] );
+	is2d_ = firstchar.isEqual( "2" );
+    }
+
     if ( is2d_ )
     { msg_ = tr("2D not implemented"); return; }
 
@@ -90,11 +97,12 @@ bool SeisBayesClass::getPDFs()
 {
     for ( int ipdf=0; ; ipdf++ )
     {
-	const char* id = pars_.find( mGetSeisBayesPDFIDKey(ipdf) );
-	if ( !id || !*id )
+	MultiID mid;
+	pars_.get( mGetSeisBayesPDFIDKey(ipdf), mid );
+	if ( mid.isUdf() )
 	    break;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find object for %1 PDF in data store")
@@ -125,20 +133,27 @@ bool SeisBayesClass::getPDFs()
 	pdf->getIndexTableFor( pdf0, *idxs );
 	pdfxtbls_ += idxs;
 
-	const char* res = pars_.find( mGetSeisBayesPreScaleKey(ipdf) );
+	BufferString res = pars_.find( mGetSeisBayesPreScaleKey(ipdf) );
 	float scl = 1;
-	if ( res && *res ) scl = toFloat( res );
-	if ( scl < 0 ) scl = -scl;
-	if ( scl == 0 ) scl = 1;
+	if ( !res.isEmpty() )
+	    scl = res.toFloat();
+
+	if ( scl < 0 )
+	    scl = -scl;
+
+	if ( scl == 0 )
+	    scl = 1;
+
 	prescales_ += scl;
 
 	aptrcs_.add( new SeisTrc );
 	res = pars_.find( mGetSeisBayesAPProbIDKey(ipdf) );
-	SeisTrcReader* rdr = 0;
-	if ( res && *res )
+	SeisTrcReader* rdr = nullptr;
+	if ( !res.isEmpty() )
 	{
 	    rdr = getReader( res, false, ipdf );
-	    if ( !rdr ) return false;
+	    if ( !rdr )
+		return false;
 	}
 	aprdrs_ += rdr;
     }
@@ -208,8 +223,8 @@ bool SeisBayesClass::getReaders()
     {
 	inptrcs_.add( new SeisTrc );
 
-	const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idim) );
-	if ( !id || !*id )
+	const BufferString id = pars_.find( mGetSeisBayesSeisInpIDKey(idim) );
+	if ( id.isEmpty() )
 	{
 	    msg_ = tr("Cannot find %1  input cube (for %2) in parameters")
 		 .arg(idim).arg( pdf0.dimName(idim) );
@@ -228,27 +243,31 @@ bool SeisBayesClass::getReaders()
 
 bool SeisBayesClass::getWriters()
 {
-    if ( nrpdfs_ < 1 ) return false;
+    if ( nrpdfs_ < 1 )
+	return false;
 
     const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
     wrrs_.allowNull( true ); bool haveoutput = false;
     for ( int ipdf=0; ipdf<nrpdfs_+3; ipdf++ )
     {
 	outtrcs_.add( new SeisTrc );
-
-	const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(ipdf) );
-	if ( !id || !*id )
-	    { wrrs_ += 0; continue; }
+	MultiID mid;
+	pars_.get( mGetSeisBayesSeisOutIDKey(ipdf), mid );
+	if ( mid.isUdf() )
+	{
+	    wrrs_ += 0;
+	    continue;
+	}
 	else
 	    haveoutput = true;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find output cube for %1"
 		      "\nID found is %2)")
 		 .arg( pdfnames_.get( ipdf ) )
-		 .arg( id );
+		 .arg( mid );
 	    return false;
 	}
 

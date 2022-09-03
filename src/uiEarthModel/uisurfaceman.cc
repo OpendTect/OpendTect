@@ -467,7 +467,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
 	for ( int ida=0; ida<attrnms.size(); ida++ )
-	    fad.removeData( attrnms.get(ida) );
+	    fad.removeData( attrnms.get(ida).buf() );
     }
     else
     {
@@ -497,7 +497,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     if ( curioobj_->group()==EMFault3DTranslatorGroup::sGroupName() )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
-	fad.setDataName( attribnm, newnm );
+	fad.setDataName( attribnm.buf(), newnm );
 
 	selChg( this );
 	return;
@@ -702,7 +702,7 @@ void uiSurfaceMan::mkFileInfo()
 
 	const Interval<float>& zrange = eminfo.getZRange();
 	const UnitOfMeasure* zunit = UoMR().get(eminfo.getZUnitLabel());
-	addZRangeTxt( txt, zrange, zunit );
+	    addZRangeTxt( txt, zrange, zunit );
     }
 
     txt += getFileInfo();

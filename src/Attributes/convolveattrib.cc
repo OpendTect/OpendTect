@@ -294,9 +294,11 @@ Convolve::Convolve( Desc& ds )
     {
 	BufferString wavidstr;
 	mGetString( wavidstr, waveletStr() );
-	IOObj* ioobj = IOM().get( MultiID(wavidstr) );
+	const MultiID wvltid( wavidstr.buf() );
+	PtrMan<IOObj> ioobj = IOM().get( wvltid );
 	wavelet_ = Wavelet::get( ioobj );
-	if ( !wavelet_ ) return;
+	if ( !wavelet_ )
+	    return;
 
 	int wvletmididx = wavelet_->centerSample();
 	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );

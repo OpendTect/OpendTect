@@ -845,9 +845,9 @@ bool Set::is2D() const
 
 bool Set::isPolygon() const
 {
-    const StringView typ = pars_.find( sKey::Type() );
+    const BufferString typ = pars_.find( sKey::Type() );
     return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
-			 : typ == sKey::Polygon();
+			 : typ.isEqual( sKey::Polygon() );
 }
 
 

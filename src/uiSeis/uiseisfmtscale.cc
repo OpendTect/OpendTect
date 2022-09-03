@@ -224,16 +224,30 @@ bool uiSeisFmtScale::extendTrcToSI() const
 
 void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 {
-    const char* res = ioobj.pars().find( "Type" );
-    setSteering( res && *res == 'S' );
-    if ( !compfld_ ) return;
+    BufferString res = ioobj.pars().find( sKey::Type() );
+    if ( !res.isEmpty() )
+    {
+	const BufferString firstchar( res[0] );
+	setSteering( firstchar.isEqual("S") );
+    }
+    else
+	setSteering( false );
 
-    res = ioobj.pars().find( sKey::DataStorage() );
-    if ( res )
-	compfld_->data_.stor_ = (int)(*res - '0');
+    if ( !compfld_ )
+	return;
+
+    DataCharacteristics::UserType usrtyp;
+    if ( DataCharacteristics::getUserTypeFromPar(ioobj.pars(),usrtyp) )
+	compfld_->data_.stor_ = int(usrtyp);
 
     res = ioobj.pars().find( "Optimized direction" );
-    compfld_->data_.optim_ = res && *res == 'H';
+    if ( !res.isEmpty() )
+    {
+	const BufferString dirfirstchar( res[0] );
+	compfld_->data_.optim_ = dirfirstchar.isEqual( "H" );
+    }
+    else
+	compfld_->data_.optim_ = false;
 
     compfld_->updateSummary();
 }

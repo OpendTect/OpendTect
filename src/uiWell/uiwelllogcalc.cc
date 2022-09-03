@@ -238,7 +238,7 @@ void uiWellLogCalc::getAllLogs()
 	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )
 	    {
 		const Well::Log& wl = wd->logs().getLog( ilog );
-		if ( !superwls_.getLog(wl.name()) )
+		if ( !superwls_.getLog(wl.name().buf()) )
 		    superwls_.add( new Well::Log(wl) );
 	    }
 	}
@@ -429,7 +429,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     const BufferString newnm = nmfld_ ? nmfld_->text() : "";
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
-    if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
+    if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm.buf()) )
     {
 	const bool ret = uiMSG().askOverwrite(
 			tr("A log with this name already exists."

@@ -57,7 +57,7 @@ static const char* allsegyfmtoptions[] = {
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
     IOStream* iostrm;
-    const BufferString seisdirky( mIOObjContext(SeisTrc).getSelKey() );
+    const MultiID seisdirky( mIOObjContext(SeisTrc).getSelKey() );
     if ( tmp )
     {
 	MultiID idstr( seisdirky );
@@ -67,7 +67,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     else
     {
 	iostrm = new IOStream( usrStr() );
-	iostrm->acquireNewKeyIn( MultiID(seisdirky) );
+	iostrm->acquireNewKeyIn( seisdirky );
     }
 
     iostrm->fileSpec() = *this;
@@ -123,8 +123,8 @@ bool SEGY::FilePars::usePar( const IOPar& iop )
 {
     const bool foundns = iop.get( sKeyNrSamples(), ns_ );
     const bool foundbs = iop.get( sKeyByteSwap(), byteswap_ );
-    const char* fmtstr = iop.find( sKeyNumberFormat() );
-    const bool foundnf = fmtstr && *fmtstr;
+    const BufferString fmtstr = iop.find( sKeyNumberFormat() );
+    const bool foundnf = !fmtstr.isEmpty();
     if ( foundnf )
 	fmt_ = fmtOf( fmtstr, forread_ );
 

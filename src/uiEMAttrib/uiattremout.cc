@@ -105,7 +105,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     // Component selection for stored data done in uiAttrSel
     {
 	BufferStringSet compnms;
-	const MultiID key( seldesc->getStoredID() );
+	const MultiID key( seldesc->getStoredID().buf() );
 	SeisIOObjInfo::getCompNames( key, compnms );
 	if ( compnms.size()>1 )
 	{

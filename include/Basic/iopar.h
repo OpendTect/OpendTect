@@ -78,8 +78,8 @@ public:
 
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
     void		getKeys(BufferStringSet&) const;
-    const char*		findKeyFor(const char*) const;
-			//!< returns null if value not found
+    BufferString	findKeyFor(const char*) const;
+			//!< returns empty if value not found
     void		fillJSON(OD::JSON::Object& obj,bool simple=true) const;
 			//!< if simple, only save the top level objects
     bool		useJSON(const OD::JSON::Object&);
@@ -122,12 +122,10 @@ public:
 			//!< merge entries, where IOPar's entries get a prefix
 
 // GET functions
-
-    const char*		find(const char*) const;
-			//!< returns null if not found
-    StringView		operator[]( const char* ky ) const
-			{ return StringView( find(ky) ); }
-
+    BufferString	find(const char*) const;
+			//empty if not found
+    BufferString	operator[]( const char* ky ) const
+			{ return find( ky ); }
 			// Functions for getting 1,2,3 and 4 of the same type
 #define mIOParDeclFns(type) \
     bool		get(const char*,type&) const; \

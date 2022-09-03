@@ -190,7 +190,7 @@ bool uiStringData::fillQString( QString& res,
 {
 #ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
-    if ( !originalstring_ || !*originalstring_ )
+    if ( originalstring_.isEmpty() )
         return true;
 
     bool translationres = false;
@@ -234,11 +234,11 @@ bool uiStringData::fillQString( QString& res,
     else
     {
 	translationres = true;
-	res = originalstring_;
+	res = originalstring_.buf();
     }
 
     if ( res.isEmpty() )
-	res = originalstring_;
+	res = originalstring_.buf();
 
     if ( tolower_ )
 	res = res.toLower();

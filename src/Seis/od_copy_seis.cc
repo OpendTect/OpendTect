@@ -31,7 +31,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<IOObj> inioobj = IOM().get( inpar->find(sKey::ID()) );
+    MultiID inpmid;
+    inpar->get( sKey::ID(), inpmid );
+    if ( inpmid.isUdf() )
+    {
+	strm << "Input MultiID is not undefined" << od_endl;
+	return false;
+    }
+
+    PtrMan<IOObj> inioobj = IOM().get( inpmid );
     if ( !inioobj )
     {
 	strm << "Input object spec is not OK" << od_endl;
@@ -58,7 +66,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
+    MultiID outmid;
+    outpar->get( sKey::ID(), outmid );
+    if ( outmid.isUdf() )
+    {
+	strm << "Output MultiID is not undefined" << od_endl;
+	return false;
+    }
+
+    PtrMan<IOObj> outioobj = IOM().get( outmid );
     if ( !outioobj )
     {
 	strm << "Output object spec is not OK" << od_endl;

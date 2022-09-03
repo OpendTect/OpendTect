@@ -672,6 +672,7 @@ void uiSurvey::updateSurveyNames()
     BufferString basedir = dataroot_;
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
+
     DirList dl( basedir, File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -1001,7 +1002,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 	uiMSG().warning( tr("Could not write updated survey info") );
 
     updateSurvList();
-    dirfld_->setCurrentItem( dlg.newdirnm_ );
+    dirfld_->setCurrentItem( dlg.newdirnm_.buf() );
     putToScreen();
 }
 
@@ -1265,7 +1266,7 @@ static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
     par.replaceKey( sKey::Version(), "OpendTect Version" );
     par.replaceKey( sKey::CrBy(), "Created by" );
     par.replaceKey( sKey::CrFrom(), "Created from" );
-    StringView timestr = par.find( sKey::CrAt() );
+    BufferString timestr = par.find( sKey::CrAt() );
     if ( !timestr.isEmpty() )
     {
 	par.set( "Created at", Time::getLocalDateTimeFromString(timestr) );

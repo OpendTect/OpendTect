@@ -204,10 +204,10 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 
 bool CmdComposer::traceSrcWin( CmdRecEvent& ev ) const
 {
-    StringView evidstr( ev.idstr_ );
+    const BufferString evidstr( ev.idstr_ );
     for ( int idx=0; idx<eventlist_.size(); idx++ )
     {
-	if ( eventlist_[idx]->idstr_==evidstr )
+	if (evidstr.isEqual(eventlist_[idx]->idstr_) )
 	{
 	    ev.object_ = eventlist_[idx]->object_;
 	    ev.mnuitm_ = eventlist_[idx]->mnuitm_;

@@ -200,7 +200,7 @@ int Horizon2DScanner::nextStep()
 	    return Executor::MoreToDo();
 
 	mDynamicCastGet(const Survey::Geometry2D*,linegeom,
-			Survey::GM().getGeometry(linenm))
+			Survey::GM().getGeometry(linenm.buf()))
 
 	if ( !linegeom )
 	{

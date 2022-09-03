@@ -573,15 +573,17 @@ void TrcKeySampling::expand( int nrlines, int nrtrcs )
 static bool getRange( const IOPar& par, const char* key, int& start_,
 		      int& stop_, int& step_ )
 {
-    StringView parval = par[key];
-    if ( !parval )
+    BufferString parval = par[key];
+    if ( parval.isEmpty() )
 	return false;
 
     FileMultiString fms( parval );
     if ( fms.size() > 0 )
 	start_ = fms.getIValue( 0 );
+
     if ( fms.size() > 1 )
 	stop_ = fms.getIValue( 1 );
+
     if ( fms.size() > 2 )
 	step_ = fms.getIValue( 2 );
 

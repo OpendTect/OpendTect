@@ -160,7 +160,7 @@ void uiODView2DFaultParentTreeItem::addFaults(
     {
 	const EM::ObjectID emid = emidstobeloaded[idx];
 	const EM::EMObject* emobj = EM::EMM().getObject( emid );
-	if ( !emobj || findChild(emobj->name()) )
+	if ( !emobj || findChild(emobj->name().buf()) )
 	    continue;
 
 	MPE::ObjectEditor* editor = MPE::engine().getEditor( emobj->id(),false);

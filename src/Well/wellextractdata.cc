@@ -369,14 +369,14 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
 
     for ( ; mIsUdf(dahrg.start) && ilog<lognms.size(); ilog++ )
     {
-	const Log* log = wd->logs().getLog( lognms.get( ilog ) );
+	const Log* log = wd->logs().getLog( lognms.get(ilog).buf() );
 	if ( !log || log->isEmpty() )  continue;
 
 	dahrg = log->dahRange();
     }
     for ( ; ilog<lognms.size(); ilog++ )
     {
-	const Log* log = wd->logs().getLog( lognms.get( ilog ) );
+	const Log* log = wd->logs().getLog( lognms.get(ilog).buf() );
 	if ( !log || log->isEmpty() )  continue;
 
 	Interval<float> newdahrg = log->dahRange();

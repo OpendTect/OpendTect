@@ -145,14 +145,13 @@ static bool getScriptForScons( BufferString& str )
 
 void MadStream::initRead( IOPar* par )
 {
-    BufferString inptyp( par->find(sKey::Type()) );
+    const BufferString inptyp( par->find(sKey::Type()) );
     if ( inptyp == "None" || inptyp == "SU" )
 	return;
 
     if ( inptyp == "Madagascar" )
     {
-	const char* filenm = par->find( sKey::FileName() );
-
+	const BufferString filenm = par->find( sKey::FileName() );
 	BufferString inpstr( filenm );
 	bool scons = false;
 	par->getYN( sKeyScons, scons );
@@ -165,7 +164,7 @@ void MadStream::initRead( IOPar* par )
 	else
 	    inpstr = "@";
 	inpstr += fp.add("bin").add("sfdd").fullPath();
-	if ( filenm && *filenm )
+	if ( !filenm.isEmpty() )
 	    inpstr += " < \""; inpstr += filenm; inpstr += "\"";
 
 	inpstr += " form=ascii_float out=stdout";
@@ -176,8 +175,9 @@ void MadStream::initRead( IOPar* par )
 	fillHeaderParsFromStream();
 	if (!headerpars_) mErrRet(tr("Error reading RSF header"));;
 
-	BufferString insrc( headerpars_->find(sKeyIn) );
-	if ( insrc == "" || insrc == sKeyStdIn ) return;
+	const BufferString insrc( headerpars_->find(sKeyIn) );
+	if ( insrc.isEmpty() || insrc == sKeyStdIn )
+	    return;
 
         deleteAndZeroPtr( istrm_ );
 
@@ -228,7 +228,7 @@ void MadStream::initRead( IOPar* par )
 
 void MadStream::initWrite( IOPar* par )
 {
-    BufferString outptyp( par->find(sKey::Type()) );
+    const BufferString outptyp( par->find(sKey::Type()) );
     const Seis::GeomType gt = Seis::geomTypeOf( outptyp );
     is2d_ = Seis::is2D( gt );
     isps_ = Seis::isPS( gt );
@@ -276,10 +276,11 @@ BufferString MadStream::getPosFileName( bool forread ) const
 	posfnm = pars_.find( sKeyPosFileName );
 	if ( !posfnm.isEmpty() && File::exists(posfnm) )
 	    return posfnm;
+
 	else posfnm.setEmpty();
     }
 
-    BufferString typ =
+    const BufferString typ =
 	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
 				    sKey::Type()) );
     if ( typ == sKeyMadagascar )

@@ -193,8 +193,10 @@ bool Seis::getFromCLP( const CommandLineParser& clp, Seis::GeomType& gt )
 
 bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
 {
-    const char* res = iop.find( sKey::Geometry() );
-    if ( !res || !*res ) return false;
+    const BufferString res = iop.find( sKey::Geometry() );
+    if ( res.isEmpty() )
+	return false;
+
     gt = geomTypeOf( res );
     return true;
 }

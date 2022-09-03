@@ -225,7 +225,7 @@ void uiDispEditMarkerDlg::addNewMrkrList()
 	tmplist_ += mrk;
 	fillMarkerList(0);
 	if ( mrklist_->isPresent( mrk->name() ) )
-	    mrklist_->setCurrentItem( mrk->name() );
+	    mrklist_->setCurrentItem( mrk->name().buf() );
     }
     else
 	delete mrk;
@@ -262,7 +262,7 @@ void uiDispEditMarkerDlg::editMrkrList()
 	edmrk->setLevelID( mrk->levelID() );
     }
 
-    mrklist_->setCurrentItem( mrk->name() );
+    mrklist_->setCurrentItem( mrk->name().buf() );
     hasedited_ = true;
 
     delete mrk;

@@ -55,9 +55,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     if ( typestr == Seis2DTo3D::getCreatorFormat() || typestr.isEmpty() )
     {
-	Seis2DTo3D* proc = 0;
-
-	const StringView tempdir = pars().find(sKey::TmpStor());
+	Seis2DTo3D* proc = nullptr;
+	const BufferString tempdir = pars().find(sKey::TmpStor());
 	if ( !tempdir.isEmpty() )
 	{
 	    if ( !File::exists(tempdir) )
@@ -68,7 +67,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable.")
 	}
 
-	const StringView selspec = pars().find(
+	const BufferString selspec = pars().find(
 					"Output.Subsel.In-line range" );
 	if ( !selspec.isEmpty() )
 	{
@@ -80,18 +79,18 @@ bool BatchProgram::doWork( od_ostream& strm )
 	strm << od_newline;
 
 	strm << "Preparing processing";
-	const char* seisid = pars().find(
-					SeisJobExecProv::sKeySeisOutIDKey() );
-	if ( !seisid )
+	MultiID outmid;
+	pars().get( SeisJobExecProv::sKeySeisOutIDKey(), outmid );
+	if ( outmid.isUdf() )
 	    strm << " ..." << od_newline;
 	else
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( seisid );
+	    PtrMan<IOObj> ioobj = IOM().get( outmid );
 	    if ( !ioobj )
 	    {
 		BufferString msg(
 			    "Cannot find output Seismic Object with ID '" );
-		msg += seisid; msg += "' ..."; mRetHostErr( msg );
+		msg += outmid.toString(); msg += "' ..."; mRetHostErr( msg );
 	    }
 
 	    FilePath fp( ioobj->fullUserExpr(false) );
@@ -202,7 +201,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	mDestroyWorkers
 
-	PtrMan<IOObj> ioobj = IOM().get( seisid );
+	PtrMan<IOObj> ioobj = IOM().get( outmid );
 	if ( ioobj )
 	{
 	    FilePath fp( ioobj->fullUserExpr() );
@@ -215,9 +214,9 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
     else
     {
-	Seis2DTo3DInterPol* proc = 0;
+	Seis2DTo3DInterPol* proc = nullptr;
 
-	const StringView tempdir = pars().find(sKey::TmpStor());
+	const BufferString tempdir = pars().find( sKey::TmpStor() );
 	if ( !tempdir.isEmpty() )
 	{
 	    if ( !File::exists(tempdir) )
@@ -228,7 +227,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		mRetFileProb(sKey::TmpStor(),tempdir,"is not writeable")
 	}
 
-	const StringView selspec = pars().find(
+	const BufferString selspec = pars().find(
 					    "Output.Subsel.In-line range" );
 	if ( !selspec.isEmpty() )
 	{
@@ -240,18 +239,18 @@ bool BatchProgram::doWork( od_ostream& strm )
 	strm << od_newline;
 
 	strm << "Preparing processing";
-	const char* seisid = pars().find(
-					SeisJobExecProv::sKeySeisOutIDKey() );
-	if ( !seisid )
+	MultiID outmid;
+	pars().get( SeisJobExecProv::sKeySeisOutIDKey(), outmid );
+	if ( outmid.isUdf() )
 	    strm << " ..." << od_newline;
 	else
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( seisid );
+	    PtrMan<IOObj> ioobj = IOM().get( outmid );
 	    if ( !ioobj )
 	    {
 		BufferString msg(
 			    "Cannot find output Seismic Object with ID '" );
-		msg += seisid; msg += "' ..."; mRetHostErr( msg );
+		msg += outmid.toString(); msg += "' ..."; mRetHostErr( msg );
 	    }
 
 	    FilePath fp( ioobj->fullUserExpr(false) );
@@ -370,7 +369,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	mDestroyWorkers
 
-	PtrMan<IOObj> ioobj = IOM().get( seisid );
+	PtrMan<IOObj> ioobj = IOM().get( outmid );
 	if ( ioobj )
 	{
 	    FilePath fp( ioobj->fullUserExpr() );

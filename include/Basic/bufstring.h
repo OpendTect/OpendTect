@@ -61,8 +61,6 @@ public:
     template <class T>
     inline BufferString& operator=(const T&);
 
-    inline		operator const char*() const	{ return buf(); }
-
     inline bool		operator==(const BufferString&) const;
     inline bool		operator!=(const BufferString&) const;
     inline bool		operator==(const char*) const;
@@ -165,17 +163,12 @@ public:
 							{ return add(s.str()); }
     template <class T>
     inline BufferString& operator+=( const T& t )	{ return add( t ); }
-
 };
 
-
-#ifndef __win__
 
 // Avoid silent conversion to BufferString from any type.
 inline bool operator==(const char*,const BufferString&)		= delete;
 inline bool operator!=(const char*,const BufferString&)		= delete;
-
-#endif
 
 
 #define mBufferStringSimpConstrInitList \
@@ -284,3 +277,22 @@ protected:
     BufferString	second_;
 
 };
+
+
+//For compilation purposes, should not be used
+namespace Values
+{
+
+template<>
+mClass(Basic) Undef<BufferString>
+{
+public:
+
+    static BufferString val() { return BufferString(); }
+    static bool		hasUdf() { return true; }
+    static bool		isUdf(const BufferString& s) { return s.isEmpty(); }
+    static void		setUdf(BufferString& s) { s = BufferString(); }
+
+};
+
+}

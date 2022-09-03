@@ -151,22 +151,22 @@ ProbDenFunc* odProbDenFuncTranslator::readInfo( od_istream& strm )
 {
     ascistream astrm( strm );
     IOPar par( astrm );
-    StringView type = par.find( sKey::Type() );
+    const BufferString type = par.find( sKey::Type() );
     if ( type.isEmpty() )
 	return nullptr;
 
     ProbDenFunc* pdf = nullptr;
-    if ( type == Sampled1DProbDenFunc::typeStr() )
+    if ( type.isEqual(Sampled1DProbDenFunc::typeStr()) )
 	pdf = new Sampled1DProbDenFunc();
-    else if ( type == Sampled2DProbDenFunc::typeStr() )
+    else if ( type.isEqual(Sampled2DProbDenFunc::typeStr()) )
 	pdf = new Sampled2DProbDenFunc();
-    else if ( type == SampledNDProbDenFunc::typeStr() )
+    else if ( type.isEqual(SampledNDProbDenFunc::typeStr()) )
 	pdf = new SampledNDProbDenFunc();
-    else if ( type == Gaussian1DProbDenFunc::typeStr() )
+    else if ( type.isEqual(Gaussian1DProbDenFunc::typeStr()) )
 	pdf = new Gaussian1DProbDenFunc();
-    else if ( type == Gaussian2DProbDenFunc::typeStr() )
+    else if ( type.isEqual(Gaussian2DProbDenFunc::typeStr()) )
 	pdf = new Gaussian2DProbDenFunc();
-    else if ( type == GaussianNDProbDenFunc::typeStr() )
+    else if ( type.isEqual(GaussianNDProbDenFunc::typeStr()) )
 	pdf = new GaussianNDProbDenFunc();
 
     if ( !pdf )

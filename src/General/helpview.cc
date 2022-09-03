@@ -58,7 +58,7 @@ bool HelpKey::operator==( const HelpKey& oth ) const
 
 bool HelpKey::isEmpty() const
 {
-    return !providername_ || !*providername_;
+    return providername_.isEmpty();
 }
 
 

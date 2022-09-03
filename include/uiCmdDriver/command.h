@@ -564,7 +564,7 @@ protected:
 	StringProcessor strproc( valstr ); \
 	const char* quote = strproc.convertToDouble() ? "" : "\""; \
 	mLogStrm << " -->> " << identnm << (isarg ? "'" : "") \
-		 << (StringView(identnm).isEmpty() ? "" : " = " ) \
+		 << (BufferString(identnm).isEmpty() ? "" : " = " ) \
 		 << quote << valstr << quote << od_endl; \
     }
 

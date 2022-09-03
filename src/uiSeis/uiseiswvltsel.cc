@@ -112,7 +112,7 @@ void uiSeisWaveletSel::setInput( const MultiID& mid )
     if ( !ioobj )
 	return;
 
-    setInput( ioobj->name() );
+    setInput( ioobj->name().buf() );
 }
 
 
@@ -204,11 +204,12 @@ void uiSeisWaveletSel::rebuildList()
     int newidx = nms_.indexOf( curwvlt.buf() );
     if ( curwvlt.isEmpty() || newidx < 0 )
     {
-	const char* res = SI().pars().find(
-		IOPar::compKey(sKey::Default(),ctxt.trgroup_->groupName()) );
-	if ( res && *res )
+	MultiID mid;
+	SI().pars().get(
+	    IOPar::compKey(sKey::Default(),ctxt.trgroup_->groupName()), mid );
+	if ( mid.isUdf() )
 	{
-	    ConstPtrMan<IOObj> ioobj = IOM().get( MultiID(res) );
+	    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
 		curwvlt = ioobj->name();

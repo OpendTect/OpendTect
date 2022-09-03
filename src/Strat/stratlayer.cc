@@ -58,9 +58,9 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 {
     const_cast<Math::Formula&>(form_).usePar( iop );
 
-    const char* res = iop.find( sKeyXPos );
-    if ( res )
-	setXPos( toFloat(res) );
+    const BufferString res = iop.find( sKeyXPos );
+    if ( !res.isEmpty() )
+	setXPos( res.toFloat() );
 
     useForm( prs, outpridx );
 }
@@ -342,7 +342,7 @@ void Strat::Layer::setValue( int ival, const IOPar& iop,
     mEnsureEnoughVals();
 
     if ( iop.size() == 1 && iop.hasKey(sKey::Value()) )
-	setValue( ival, toFloat(iop.find(sKey::Value())) );
+	setValue( ival, iop.find(sKey::Value()).toFloat() );
     else
 	setLV( ival, new FormulaLayerValue(iop,*this,prs,ival) );
 }

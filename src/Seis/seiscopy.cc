@@ -35,10 +35,10 @@ static int getVelType( const IOPar& iop )
     if ( !iop.isTrue(VelocityDesc::sKeyIsVelocity()) )
 	return mNoVelocity;
 
-    const StringView typestr = iop.find( VelocityDesc::sKeyVelocityType() );
-    if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::RMS] )
+    const BufferString typestr = iop.find( VelocityDesc::sKeyVelocityType() );
+    if ( typestr.isEqual(VelocityDesc::TypeNames()[VelocityDesc::RMS]) )
 	return mVelocityRMS;
-    else if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::Avg] )
+    else if ( typestr.isEqual(VelocityDesc::TypeNames()[VelocityDesc::Avg]) )
 	return mVelocityAvg;
 
     return mVelocityIntv;
@@ -255,7 +255,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 	seldatas_.add( sd );
     }
 
-    StringView scalestr = par.find( sKey::Scale() );
+    const BufferString scalestr = par.find( sKey::Scale() );
     if ( !scalestr.isEmpty() )
 	scaler_ = Scaler::get( scalestr );
 

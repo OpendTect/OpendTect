@@ -383,9 +383,9 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 bool uiGMTContourGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    const char* attribname = par.find( ODGMT::sKeyAttribName() );
-    if ( attribname && *attribname )
-	attribfld_->setCurrentItem( attribname );
+    const BufferString attribname = par.find( ODGMT::sKeyAttribName() );
+    if ( !attribname.isEmpty() )
+	attribfld_->setCurrentItem( attribname.buf() );
 
     PtrMan<IOPar> subpar = par.subselect( sKey::Selection() );
     if ( !subpar )
@@ -402,15 +402,16 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     linefld_->setChecked( drawcontour );
     if ( drawcontour )
     {
-	StringView lskey = par.find( ODGMT::sKeyLineStyle() );
-	OD::LineStyle ls; ls.fromString( lskey.str() );
+	const BufferString lskey = par.find( ODGMT::sKeyLineStyle() );
+	OD::LineStyle ls; ls.fromString( lskey );
 	lsfld_->setStyle( ls );
     }
 
     fillfld_->setChecked( dofill );
     if ( dofill )
     {
-	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq()) );
+	const BufferString colseq( par.find(ODGMT::sKeyColSeq()) );
+	colseqfld_->setCurrentItem( colseq.buf() );
 	bool doflip = false;
 	par.getYN( ODGMT::sKeyFlipColTab(), doflip );
 	flipfld_->setChecked( doflip );

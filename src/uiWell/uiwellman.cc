@@ -673,7 +673,7 @@ void uiWellMan::logUOMPush( CallBacker* )
 	{
 	    BufferString& curlognm = lognms.get(idx);
 	    rdr.getLog( curlognm );
-	    auto* curlog = new Well::Log( *wd.logs().getLog(curlognm) );
+	    auto* curlog = new Well::Log( *wd.logs().getLog(curlognm.buf()) );
 	    sellogs->addIfNew( curlog );
 	}
 
@@ -731,7 +731,7 @@ void uiWellMan::logMnemPush( CallBacker* )
 	{
 	    BufferString& curlognm = lognms.get(idx);
 	    rdr.getLog( curlognm );
-	    auto* curlog = new Well::Log( *wd.logs().getLog(curlognm) );
+	    auto* curlog = new Well::Log( *wd.logs().getLog(curlognm.buf()) );
 	    sellogs->addIfNew( curlog );
 	}
 
@@ -830,7 +830,7 @@ void uiWellMan::moveLogsPush( CallBacker* cb )
     const Well::Log& log2 = wls.getLog( newlogidx );
     Well::Writer wwr( curmultiids_[0], *curwds_[0] );
     wwr.swapLogs( log1, log2 );
-    const BufferStringSet lognms( log1.name(), log2.name() );
+    const BufferStringSet lognms( log1.name().buf(), log2.name().buf() );
     wellLogsChgd( lognms );
     logsfld_->setCurrentItem( newlogidx );
 }
@@ -883,7 +883,7 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
 	    const int idx = wd->logs().indexOf( *lognm );
 	    delete wd->logs().remove( idx );
 	    wd->logs().add( new Well::Log(*curwds_[idwell]->logs()
-							   .getLog(*lognm)) );
+						    .getLog(lognm->buf())) );
 	}
 
 	while ( curwds_[idwell]->logs().size() )
@@ -953,7 +953,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 	for ( int idrem=0; idrem<logs2rem.size(); idrem++ )
 	{
 	    BufferString logname( logs2rem.get( idrem ) );
-	    const Well::Log* log = wls.getLog( logname );
+	    const Well::Log* log = wls.getLog( logname.buf() );
 	    if ( log )
 		delete wls.remove( wls.indexOf( logname ) );
 	}

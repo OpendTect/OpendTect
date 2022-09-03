@@ -61,8 +61,9 @@ const ZDomain::Def& ZDomain::Depth()
 
 bool ZDomain::isSI( const IOPar& iop )
 {
-    const char* domstr = iop.find( sKey() );
-    if ( !domstr || !*domstr ) return true;
+    const BufferString domstr = iop.find( sKey() );
+    if ( domstr.isEmpty() )
+	return true;
 
     const Def& def = Def::get( domstr );
     return def.isSI();
@@ -71,15 +72,16 @@ bool ZDomain::isSI( const IOPar& iop )
 
 bool ZDomain::isDepth( const IOPar& iop )
 {
-    StringView domstr = iop.find( sKey() );
-    return !domstr.isEmpty() ? domstr==sKeyDepth() : !::SI().zIsTime();
+    const BufferString domstr = iop.find( sKey() );
+    return !domstr.isEmpty() ? domstr.isEqual( sKeyDepth() ) :
+							    !::SI().zIsTime();
 }
 
 
 bool ZDomain::isTime( const IOPar& iop )
 {
-    StringView domstr = iop.find( sKey() );
-    return domstr.isEmpty() ? ::SI().zIsTime() : domstr==sKeyTime();
+    const BufferString domstr = iop.find( sKey() );
+    return domstr.isEmpty() ? ::SI().zIsTime() : domstr.isEqual( sKeyTime() );
 }
 
 
@@ -253,11 +255,13 @@ bool ZDomain::Info::hasID() const
 
 const char* ZDomain::Info::getID() const
 {
-    const char* res = pars_.find( sKey::ID() );
-    if ( !res || !*res )
+    BufferString res = pars_.find( sKey::ID() );
+    if ( res.isEmpty() )
 	res = pars_.find( IOPar::compKey(sKey(),sKey::ID()) );
-    if ( !res || !*res )
+
+    if ( res.isEmpty() )
 	res = pars_.find( "ZDomain ID" );
+
     return res;
 }
 

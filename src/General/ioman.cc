@@ -497,9 +497,13 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
     }
     delete refioobj;
 
-    IODir* newdir = dirkey.isUdf() ? new IODir(rootdir_) : new IODir(dirkey);
+    IODir* newdir = dirkey.isUdf() ? new IODir( rootdir_.buf() ) :
+					    new IODir( dirkey );
     if ( !newdir || newdir->isBad() )
+    {
+	delete newdir;
 	return false;
+    }
 
     bool needtrigger = dirptr_;
     if ( dirptr_ )
@@ -1428,7 +1432,7 @@ IODir* IOMan::getDir( const char* trlgrpnm ) const
 	if ( !fp.exists() )
 	    continue;
 
-	IODir* iodir = new IODir( fp.fullPath() );
+	IODir* iodir = new IODir( fp.fullPath().buf() );
 	if ( iodir->hasObjectsWithGroup(trlgrpnm) )
 	    return iodir;
 
@@ -1447,7 +1451,7 @@ IODir* IOMan::getDir( IOObjContext::StdSelType seltype ) const
 	return nullptr;
 
     const FilePath fp( rootDir(), dd->dirnm_ );
-    return fp.exists() ? new IODir( fp.fullPath() ) : nullptr;
+    return fp.exists() ? new IODir( fp.fullPath().buf() ) : nullptr;
 }
 
 
@@ -1462,7 +1466,7 @@ IODir* IOMan::getDir( const MultiID& mid ) const
 	if ( mid.groupID() == dd->groupID() )
 	{
 	    const FilePath fp( rootDir(), dd->dirnm_ );
-	    return fp.exists() ? new IODir( fp.fullPath() ) : nullptr;
+	    return fp.exists() ? new IODir( fp.fullPath().buf() ) : nullptr;
 	}
     }
 

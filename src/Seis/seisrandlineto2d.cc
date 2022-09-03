@@ -244,12 +244,18 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
     if ( !outpobj_ )
 	mNotOKRet("Error: Output cannot be found")
 
-    const char* attrnm = par.find( SeisRandLineTo2DGrid::sKeyOutpAttrib() );
-    outpattrib_ = attrnm && *attrnm ? attrnm : LineKey::sKeyDefAttrib();
-    const char* parpref = par.find( SeisRandLineTo2DGrid::sKeyParPrefix() );
-    parprefix_ = parpref && *parpref ? parpref : "Parallel";
-    const char* perpref = par.find( SeisRandLineTo2DGrid::sKeyPerpPrefix() );
-    perprefix_ = perpref && *perpref ? perpref : "Perpendicular";
+    const BufferString attrnm =
+			    par.find( SeisRandLineTo2DGrid::sKeyOutpAttrib() );
+    outpattrib_ = attrnm.isEmpty() ? BufferString( LineKey::sKeyDefAttrib() )
+								    : attrnm;
+
+    const BufferString parpref =
+	par.find( SeisRandLineTo2DGrid::sKeyParPrefix() );
+    parprefix_ = parpref.isEmpty() ? "Parallel" : parpref;
+
+    const BufferString perpref =
+			par.find( SeisRandLineTo2DGrid::sKeyPerpPrefix() );
+    perprefix_ = perpref.isEmpty() ? "Perpendicular" : perpref;
 
     if ( !par.get(SeisRandLineTo2DGrid::sKeyGridSpacing(),gridspacing_) )
 	mNotOKRet("Error: Grid spacing not specified")

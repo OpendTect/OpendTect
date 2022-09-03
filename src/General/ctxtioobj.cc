@@ -148,10 +148,9 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     {
 	FileMultiString fms( val );
 	const int fmssz = fms.size();
-	const char* ioobjval = ioobj.pars().find( key );
-	const bool valisempty = !ioobjval || !*ioobjval;
-
-	if ( fmssz == 0 && valisempty ) continue;
+	const BufferString ioobjval = ioobj.pars().find( key );
+	if ( fmssz == 0 && ioobjval.isEmpty() )
+	    continue;
 
 	const FileMultiString valfms( ioobjval );
 	const int valfmssz = valfms.size();
@@ -160,9 +159,9 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 	{
 	    const BufferString fmsstr( fms[ifms] );
 	    const bool fmsstrisempty = fmsstr.isEmpty();
-	    if ( fmsstrisempty && valisempty )
+	    if ( fmsstrisempty && ioobjval.isEmpty() )
 		isok = true;
-	    else if ( fmsstrisempty != valisempty )
+	    else if ( fmsstrisempty != ioobjval.isEmpty() )
 		continue;
 	    else
 	    {
@@ -176,7 +175,9 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 	    if ( isok )
 		break;
 	}
-	if ( !isok ) return false;
+
+	if ( !isok )
+	    return false;
     }
 
     if ( dontallow_.isEmpty() )
@@ -185,8 +186,8 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     IOParIterator ioobjpariter( ioobj.pars() );
     while ( ioobjpariter.next(key,val) )
     {
-	const char* notallowedvals = dontallow_.find( key );
-	if ( !notallowedvals )
+	const BufferString notallowedvals = dontallow_.find( key );
+	if ( notallowedvals.isEmpty() )
 	    continue;
 
 	FileMultiString fms( notallowedvals );
@@ -456,7 +457,7 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
     BufferString keystr( ctxt_.trgroup_->getSurveyDefaultKey(0) );
 
-    const StringView typestr = ctxt_.toselect_.require_.find( sKey::Type() );
+    const BufferString typestr = ctxt_.toselect_.require_.find( sKey::Type() );
     if ( !typestr.isEmpty() )
 	    keystr = IOPar::compKey( keystr, typestr );
 
@@ -466,9 +467,10 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
 void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 {
-    const char* kystr = SI().pars().find( parky );
-    if ( kystr && *kystr )
-	setObj( IOM().get(MultiID(kystr)) );
+    MultiID mid;
+    SI().pars().get( parky, mid );
+    if ( !mid.isUdf() )
+	setObj( IOM().get(mid) );
 
     if ( !ioobj_ && oone2 )
 	fillIfOnlyOne();

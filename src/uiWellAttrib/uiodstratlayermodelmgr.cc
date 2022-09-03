@@ -77,9 +77,8 @@ void uiStratLayerModelManager::startCB( CallBacker* cb )
 	{ pErrMsg("Pre-condition not met"); return; }
 
     uiParent* par = tb ? tb->parent() : uiMain::instance().topLevel();
-    const char* settres = Settings::common().find(
+    BufferString modnm = Settings::common().find(
 				uiStratLayerModel::sKeyModeler2Use());
-    BufferString modnm( settres );
     int defmodnr = -1;
     bool givechoice = kys.size() > 1;
     if ( modnm.isEmpty() )

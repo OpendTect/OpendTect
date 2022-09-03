@@ -47,14 +47,19 @@ ODMad::ProcFlow::~ProcFlow()
 
 ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
-    if ( !res || !*res || *res == *sKey::None() )
+    const BufferString res = iop.find( sKey::Type() );
+    if ( res.isEmpty() )
 	return ODMad::ProcFlow::None;
 
-    if ( *res == *ODMad::sKeyMadagascar() || *res == 'm' )
+    const BufferString firstchar( res[0] );
+    if ( firstchar.isEqual(BufferString(*sKey::None())) )
+	return ODMad::ProcFlow::None;
+
+    if ( firstchar.isEqual(
+		    BufferString(*ODMad::sKeyMadagascar(),CaseInsensitive)) )
 	return ODMad::ProcFlow::Madagascar;
 
-    if ( *res == 'S' || *res == 's' )
+    if ( firstchar.isEqual("S",CaseInsensitive) )
 	return ODMad::ProcFlow::SU;
 
     Seis::GeomType gt = Seis::geomTypeOf( res );

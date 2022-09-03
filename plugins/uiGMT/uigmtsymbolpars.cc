@@ -74,8 +74,8 @@ void uiGMTSymbolPars::fillShapes()
 	const int size = GMTWSR().size();
 	for ( int idx=0; idx<size; idx++ )
 	{
-	    BufferString iconfilenm = GMTWSR().get( idx )->iconfilenm_;
-	    BufferString nm = GMTWSR().get( idx )->name();
+	    const BufferString iconfilenm = GMTWSR().get( idx )->iconfilenm_;
+	    const BufferString nm = GMTWSR().get( idx )->name();
 	    shapefld_->insertItem( uiPixmap(iconfilenm), nm.buf(), idx );
 	}
     }
@@ -125,12 +125,12 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     {
 	BufferString wellname;
 	par.get( ODGMT::sKeyWellSymbolName(), wellname );
-	shapefld_->setCurrentItem( wellname );
+	shapefld_->setCurrentItem( wellname.buf() );
     }
     else
     {
 	ODGMT::Shape shp;
-	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape() ), shp ) )
+	if ( ODGMT::parseEnumShape(par.find(ODGMT::sKeyShape()),shp) )
 	    shapefld_->setCurrentItem( shp );
 
 	OD::Color col;

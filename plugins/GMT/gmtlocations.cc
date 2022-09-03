@@ -39,8 +39,8 @@ const char* GMTWellSymbol::sKeyDefFileName()	{ return "Def File Name"; }
 
 bool GMTWellSymbol::usePar( const IOPar& par )
 {
-    StringView namestr = par.find( sKey::Name() );
-    if ( !namestr )
+    const BufferString namestr = par.find( sKey::Name() );
+    if ( namestr.isEmpty() )
 	return false;
 
     setName( namestr );
@@ -141,7 +141,7 @@ GMTPar* GMTLocations::createInstance( const IOPar& iop, const char* workdir )
 const char* GMTLocations::userRef() const
 {
     BufferString* str = new BufferString( "Locations: " );
-    const char* nm = find( sKey::Name() );
+    const BufferString nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -149,7 +149,7 @@ const char* GMTLocations::userRef() const
 
 bool GMTLocations::fillLegendPar( IOPar& par ) const
 {
-    StringView str = find( sKey::Name() );
+    BufferString str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     str = find( ODGMT::sKeyShape() );
     par.set( ODGMT::sKeyShape(), str );
@@ -242,7 +242,7 @@ GMTPar* GMTPolyline::createInstance( const IOPar& iop, const char* workdir )
 const char* GMTPolyline::userRef() const
 {
     BufferString* str = new BufferString( "Polyline: " );
-    const char* nm = find( sKey::Name() );
+    const BufferString nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -250,7 +250,7 @@ const char* GMTPolyline::userRef() const
 
 bool GMTPolyline::fillLegendPar( IOPar& par ) const
 {
-    StringView str = find( sKey::Name() );
+    BufferString str = find( sKey::Name() );
     par.set( sKey::Name(), str );
     par.set( ODGMT::sKeyShape(), "Polygon" );
     par.set( sKey::Size(), 1 );
@@ -280,7 +280,7 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
 	mErrStrmRet( errmsg )
 
     OD::LineStyle ls;
-    const char* lsstr = find( ODGMT::sKeyLineStyle() );
+    const BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     bool dofill;
     getYN( ODGMT::sKeyFill(), dofill );
@@ -360,7 +360,7 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name(), find(sKey::Name()) );
 
-    StringView str = find( sKey::Color() );
+    BufferString str = find( sKey::Color() );
     par.set( sKey::Color(), str );
     str = find( sKey::Size() );
     par.set( sKey::Size(), str );
@@ -413,7 +413,8 @@ bool GMTWells::doExecute( od_ostream& strm, const char* fnm )
     {
 	BufferString wellsymbolnm;
 	get( ODGMT::sKeyWellSymbolName(), wellsymbolnm );
-	BufferString deffilenm = GMTWSR().get( wellsymbolnm )->deffilenm_;
+	const BufferString deffilenm =
+			    GMTWSR().get( wellsymbolnm.buf() )->deffilenm_;
 	sstr.add( "k" ).add( deffilenm );
     }
     else

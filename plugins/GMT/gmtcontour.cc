@@ -45,7 +45,7 @@ GMTPar* GMTContour::createInstance( const IOPar& iop, const char* workdir )
 const char* GMTContour::userRef() const
 {
     BufferString* str = new BufferString( "Contour: " );
-    const char* nm = find( sKey::Name() );
+    const BufferString nm = find( sKey::Name() );
     *str += nm;
     return str->buf();
 }
@@ -54,7 +54,7 @@ const char* GMTContour::userRef() const
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name(), find(sKey::Name()) );
-    StringView attrnm = find( ODGMT::sKeyAttribName() );
+    const BufferString attrnm = find( ODGMT::sKeyAttribName() );
     BufferString str = "\""; str += attrnm;
     if ( attrnm == ODGMT::sKeyZVals() )
 	str += SI().getZUnitString();
@@ -92,7 +92,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyDrawContour(), drawcontour );
     getYN( ODGMT::sKeyFill(), dofill );
 
-    const char* hornm = find( sKey::Name() );
+    const BufferString hornm = find( sKey::Name() );
     strm << "Loading horizon " << hornm << " ...  ";
     strm.flush();
     EM::SurfaceIOData sd;
@@ -123,8 +123,8 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     hor->ref();
     exec.erase();
 
-    StringView attribnm = find( ODGMT::sKeyAttribName() );
-    const bool isz = attribnm == ODGMT::sKeyZVals();
+    const BufferString attribnm = find( ODGMT::sKeyAttribName() );
+    const bool isz = attribnm.isEqual( ODGMT::sKeyZVals() );
     if ( !isz )
     {
 	strm << "Loading Horizon Data \"" << attribnm << "\" ... ";
@@ -241,8 +241,8 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     if ( drawcontour )
     {
 	strm << "Drawing contours ...  ";
-	StringView lskey = find( ODGMT::sKeyLineStyle() );
-	OD::LineStyle ls; ls.fromString( lskey.str() );
+	const BufferString lskey = find( ODGMT::sKeyLineStyle() );
+	OD::LineStyle ls; ls.fromString( lskey.buf() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
 	BufferString colstr; mGetColorString( ls.color_, colstr );
@@ -279,11 +279,13 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 {
     StepInterval<float> rg;
     get( ODGMT::sKeyDataRange(), rg );
-    const char* seqname = find( ODGMT::sKeyColSeq() );
-    if ( !seqname || !*seqname ) return false;
+    const BufferString seqname = find( ODGMT::sKeyColSeq() );
+    if ( seqname.isEmpty() )
+	return false;
 
     ColTab::Sequence seq;
-    if ( !ColTab::SM().get(seqname,seq) ) return false;
+    if ( !ColTab::SM().get(seqname,seq) )
+	return false;
 
     bool doflip = false;
     getYN( ODGMT::sKeyFlipColTab(), doflip );

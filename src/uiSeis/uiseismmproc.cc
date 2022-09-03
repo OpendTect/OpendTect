@@ -42,9 +42,9 @@ bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
     if ( !isSuitedFor(js.prognm_) )
 	return false;
 
-    StringView outtyp = js.pars_.find(
+    const BufferString outtyp = js.pars_.find(
 		IOPar::compKey(sKey::Output(),sKey::Type()) );
-    return outtyp != sKey::Surface();
+    return !outtyp.isEqual( sKey::Surface() );
 }
 
 bool Batch::SeisMMProgDef::canResume( const Batch::JobSpec& js ) const
@@ -101,12 +101,13 @@ static int defltNrInlPerJob( const IOPar& inputpar )
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop, mODHelpKey(mSeisMMProcHelpID) )
     , parfnm_(iop.find(sKey::FileName()))
-    , tmpstordirfld_(0), inlperjobfld_(0)
-    , jobprov_(0)
-    , outioobjinfo_(0)
+    , tmpstordirfld_(nullptr)
+    , inlperjobfld_(nullptr)
+    , jobprov_(nullptr)
+    , outioobjinfo_(nullptr)
     , lsfileemitted_(false)
     , is2d_(false)
-    , saveasdeffld_(0)
+    , saveasdeffld_(nullptr)
 {
     setOkText( uiStrings::sClose() );
     setCancelText( uiString::emptyString() );
@@ -115,17 +116,17 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	mRetInvJobSpec(tr("Invalid job specification file pass."
 			  "\nMissing 'File name' key."))
 
-    const char* idres = jobpars_.find( SeisJobExecProv::outputKey(jobpars_) );
-    if ( !idres )
+    MultiID outid;
+    jobpars_.get( SeisJobExecProv::outputKey(jobpars_), outid );
+    if ( outid.isUdf() )
 	mRetInvJobSpec(tr("Cannot find the output ID in the job specification."
 			  "\nThis may mean the job is not fit for "
 			  "Multi-Job/Machine execution") )
 
-    const MultiID outid( idres );
     outioobjinfo_ = new uiSeisIOObjInfo( outid );
     if ( !outioobjinfo_->isOK() )
 	mRetInvJobSpec(tr("Cannot find output cube (%1) in object management.")
-		     .arg(idres));
+		     .arg(outid.toString()));
 
     nrinlperjob_ = defltNrInlPerJob( jobpars_ );
 
@@ -133,10 +134,11 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
 
-    StringView res = jobpars_.find( sKey::Target() );
+    const BufferString res = jobpars_.find( sKey::Target() );
     uiString captn = tr("Processing");
     if ( !res.isEmpty() )
 	captn.append(" '%1'").arg(res);
+
     basecaption_ = captn;
 
     if ( !is2d_ )
@@ -215,7 +217,7 @@ bool uiSeisMMProc::initWork( bool retry )
 	    jobpars_.set( sKey::TmpStor(), tmpstordir );
 	}
 
-	const StringView progname = jobpars_.find( "Program.Name" );
+	const BufferString progname = jobpars_.find( "Program.Name" );
 	jobprov_ = new SeisJobExecProv( progname, jobpars_ );
 	if (jobprov_->errMsg().isSet())
 	    { errmsg_ = jobprov_->errMsg(); return false; }

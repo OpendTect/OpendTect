@@ -460,9 +460,11 @@ void ColTab::Sequence::flipTransparency()
 static float getfromPar( const IOPar& iopar, OD::Color& col, const char* key,
 			 float* px=0 )
 {
-    const char* res = iopar.find( key );
-    if ( px ) *px = mUdf(float);
-    if ( !res || !*res )
+    const BufferString res = iopar.find( key );
+    if ( px )
+	*px = mUdf(float);
+
+    if ( res.isEmpty() )
 	return false;
 
     if ( !px )
@@ -513,8 +515,8 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
-    StringView seqnm = iopar.find( sKey::Name() );
-    if ( !seqnm )
+    const BufferString seqnm = iopar.find( sKey::Name() );
+    if ( seqnm.isEmpty() )
 	return false;
 
     setName( seqnm );
@@ -605,7 +607,7 @@ void ColTab::SeqMgr::refresh()
 
 void ColTab::SeqMgr::readColTabs()
 {
-    IOPar* iop = 0;
+    IOPar* iop = nullptr;
     BufferString fnm = mGetSetupFileName("ColTabs");
     od_istream strm( mGetSetupFileName("ColTabs") );
     if ( strm.isOK() )

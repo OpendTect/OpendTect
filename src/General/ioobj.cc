@@ -328,7 +328,8 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
     IOPar* dpar = SI().pars().subselect( sKey::Default() );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
-	ret = dpar->findKeyFor( ky.toString() );
+	ret = dpar->hasKey( ky.toString() );
+
     delete dpar;
     return ret;
 }

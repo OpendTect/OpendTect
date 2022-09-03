@@ -257,7 +257,7 @@ bool BatchProgram::parseArguments()
     }
 
     BufferString res = iopar_->find( sKey::LogFile() );
-    if ( !res )
+    if ( res.isEmpty() )
 	iopar_->set( sKey::LogFile(), od_stream::sStdIO() );
 
 #define mSetDataRootVar(str) \
@@ -268,7 +268,8 @@ bool BatchProgram::parseArguments()
 	mSetDataRootVar( res );
 	iopar_->set( sKey::DataRoot(), res );
     }
-    else if ( iopar_->get(sKey::DataRoot(),res) && File::isDirectory(res) )
+    else if ( iopar_->get(sKey::DataRoot(),res) &&
+						    File::isDirectory(res) )
 	mSetDataRootVar( res );
 
     if ( simplebatch && clparser_->getVal(sKeySurveyDir(),res) )
@@ -303,7 +304,8 @@ bool BatchProgram::initComm()
 bool BatchProgram::initLogging()
 {
     BufferString res = pars().find( sKey::LogFile() );
-    if ( res == "stdout" ) res.setEmpty();
+    if ( res.isEqual("stdout") )
+	res.setEmpty();
 
     if ( strmismine_ )
 	delete strm_;
@@ -314,7 +316,7 @@ bool BatchProgram::initLogging()
     const bool hasviewprogress = true;
 #endif
 
-    if ( hasviewprogress && res && res=="window" )
+    if ( hasviewprogress && res.isEqual("window") )
     {
 	OS::MachineCommand mc(
 	    FilePath(GetExecPlfDir()).add("od_ProgressViewer").fullPath() );
@@ -332,7 +334,7 @@ bool BatchProgram::initLogging()
 	}
     }
 
-    if ( res != "window" )
+    if ( !res.isEqual("window") )
     {
 	if ( !res.isEmpty() )
 	{

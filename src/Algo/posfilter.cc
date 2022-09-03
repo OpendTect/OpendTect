@@ -46,13 +46,16 @@ bool Pos::Filter3D::includes( const Coord& c, float z ) const
 
 Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 {
-    StringView typ = iop.find(sKey::Type());
-    if ( !typ ) return 0;
+    const BufferString typ = iop.find(sKey::Type());
+    if ( typ.isEmpty() )
+	return nullptr;
+
     Pos::Filter3D* filt = typ!=Pos::FilterSet::typeStr()
 			? factory().create( typ )
 			: (Pos::Filter3D*)new Pos::FilterSet3D;
     if ( filt )
 	filt->usePar( iop );
+
     return filt;
 }
 
@@ -69,13 +72,16 @@ int Pos::Filter2D::nrLines() const
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 {
-    StringView typ = iop.find(sKey::Type());
-    if ( !typ ) return 0;
+    const BufferString typ = iop.find(sKey::Type());
+    if ( typ.isEmpty() )
+	return nullptr;
+
     Pos::Filter2D* filt = typ!=Pos::FilterSet::typeStr()
 			? factory().create( typ )
 			: (Pos::Filter2D*)new Pos::FilterSet2D;
     if ( filt )
 	filt->usePar( iop );
+
     return filt;
 }
 
@@ -452,6 +458,7 @@ Pos::Provider3D* Pos::Provider3D::make( const IOPar& iop )
     Pos::Provider3D* prov = factory().create( iop.find(sKey::Type()) );
     if ( prov )
 	prov->usePar( iop );
+
     return prov;
 }
 
@@ -461,5 +468,6 @@ Pos::Provider2D* Pos::Provider2D::make( const IOPar& iop )
     Pos::Provider2D* prov = factory().create( iop.find(sKey::Type()) );
     if ( prov )
 	prov->usePar( iop );
+
     return prov;
 }

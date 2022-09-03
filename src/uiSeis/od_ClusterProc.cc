@@ -68,8 +68,8 @@ int mProgMainFnName( int argc, char** argv )
 	return 1;
     }
 
-    const char* res = iop.find( sKey::Survey() );
-    if ( res && *res && SI().getDirName() != res )
+    const BufferString res = iop.find( sKey::Survey() );
+    if ( !res.isEmpty() && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 
     PIM().loadAuto( false );

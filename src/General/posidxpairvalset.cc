@@ -1220,9 +1220,15 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* ky )
 {
     DataRow dr( 0, 0, nrvals_ );
     FileMultiString fms;
-    BufferString key; if ( ky && *ky ) { key = ky; key += ".Setup"; }
-    const char* res = iop.find( key );
-    if ( res && *res )
+    BufferString key;
+    if ( ky && *ky )
+    {
+	key = ky;
+	key += ".Setup";
+    }
+
+    BufferString res = iop.find( key );
+    if ( !res.isEmpty() )
     {
 	setEmpty();
 	fms = res;
@@ -1236,10 +1242,14 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* ky )
 	    { key = ky; key += "."; }
 	else
 	    key = "";
+
 	key += ifrst;
+	if ( !iop.hasKey(key) )
+	    return;
+
 	res = iop.find( key );
-	if ( !res ) return;
-	if ( !*res ) continue;
+	if ( res.isEmpty() )
+	    continue;
 
 	fms = res;
 	dr.first = fms.getIValue( 0 );

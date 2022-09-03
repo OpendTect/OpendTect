@@ -141,8 +141,8 @@ void uiHorizonInterpolDlg::selChangeCB( CallBacker* )
 
 bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 {
-    StringView method = par.find( HorizonGridder::sKeyMethod() );
-    if ( method.isNull() )
+    const BufferString method = par.find( HorizonGridder::sKeyMethod() );
+    if ( method.isEmpty() )
 	mErrRet( toUiString("Huh? No methods found in the paramaters") )
 
     PtrMan<HorizonGridder> interpolator =

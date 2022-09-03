@@ -381,7 +381,7 @@ void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
     if ( createdset_->is2D() )
 	key2d.second().set( "Steering" );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    keypar->setValue( key2d.getCompString() );
+    keypar->setValue( key2d.getCompString().buf() );
 
     BufferString userref = steerfld_->ioobj(true)->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";

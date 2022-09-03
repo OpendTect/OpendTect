@@ -73,16 +73,16 @@ static bool fnmIsURI( const char*& fnm )
 
     const char* protsep = FilePath::uriProtocolSeparator();
     const StringView uri( fnm );
-    const char* ptrprotsep = uri.find( protsep );
-    if ( ptrprotsep )
+    const BufferString ptrprotsep = uri.find( protsep );
+    if ( !ptrprotsep.isEmpty() )
     {
 	if ( uri.startsWith( "file://", CaseInsensitive ) )
 	    fnm += 7;
-	else if ( ptrprotsep == fnm )
+	else if ( ptrprotsep.isEqual(fnm) )
 	    fnm += StringView(protsep).size();
 	else
 	{
-	    for ( const char* ptr=fnm; ptr!=ptrprotsep; ptr++ )
+	    for ( const char* ptr=fnm; BufferString(ptr)!=ptrprotsep; ptr++ )
 	    {
 		if ( !isalnum(*ptr) || (ptr == fnm && isdigit(*ptr)) )
 		    return false;

@@ -228,8 +228,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		    mSetObjFld( LineKey(IOM().nameOf( linenm.buf() ),
 				todofld_->getInput()) )
 
-		PtrMan<IOObj> ioobj =
-			IOM().get( MultiID(firststoreddsc->getStoredID(true)) );
+		PtrMan<IOObj> ioobj = IOM().get(
+		    MultiID(firststoreddsc->getStoredID(true).buf()) );
 		if ( ioobj )
 		    transffld_->setInput( *ioobj );
 	    }

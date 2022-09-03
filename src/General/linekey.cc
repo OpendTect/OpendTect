@@ -72,12 +72,13 @@ void LineKey::fillPar( IOPar& iop, bool iopnm ) const
 
 bool LineKey::usePar( const IOPar& iop, bool iopnm )
 {
-    const char* res = iop.find( iopnm ? sKey::Attribute() : sKey::LineKey() );
-    if ( (!iopnm && !res) || (iopnm && iop.name().isEmpty() ) )
+    const BufferString res = iop.find(
+			    iopnm ? sKey::Attribute() : sKey::LineKey() );
+    if ( (!iopnm && res.isEmpty()) || (iopnm && iop.name().isEmpty() ) )
 	return false;
 
     if ( !iopnm )
-	*this = res;
+	*this = res.buf();
     else
 	*this = LineKey( iop.name(), res );
 

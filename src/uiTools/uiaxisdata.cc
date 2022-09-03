@@ -102,9 +102,10 @@ uiAxisData::AutoScalePars::AutoScalePars()
 {
     if ( defclipratio_ == -1 )
     {
-	const char* res = Settings::common().find( "AxisData.Clip Ratio" );
-	const float val = (float) ( res && *res ? toFloat( res )
-			    : GetEnvVarDVal( "OD_DEFAULT_AXIS_CLIPRATIO", 0 ) );
+	const BufferString res =
+			    Settings::common().find( "AxisData.Clip Ratio" );
+	const float val = (float) ( !res.isEmpty() ? res.toFloat()
+			: GetEnvVarDVal( "OD_DEFAULT_AXIS_CLIPRATIO", 0 ) );
 	defclipratio_ = val < 0 || val >= 1 ? 0 : val;
     }
     clipratio_ = defclipratio_;

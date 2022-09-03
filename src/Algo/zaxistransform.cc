@@ -23,19 +23,19 @@ mImplFactory( ZAxisTransform, ZAxisTransform::factory );
 
 ZAxisTransform* ZAxisTransform::create( const IOPar& par )
 {
-    const StringView str = par.find( sKey::Name() );
-    if ( !str )
-	return 0;
+    const BufferString str = par.find( sKey::Name() );
+    if ( str.isEmpty() )
+	return nullptr;
 
     ZAxisTransform* res = factory().create( str );
     if ( !res )
-	return 0;
+	return nullptr;
 
     res->ref();
     if ( !res->usePar( par ) )
     {
 	res->unRef();
-	return 0;
+	return nullptr;
     }
 
     return res;
@@ -229,14 +229,15 @@ float ZAxisTransform::toZScale() const
 
 bool ZAxisTransform::usePar( const IOPar& par )
 {
-    const char* res = par.find( sKey::ID() );
-    if ( !res || !*res )
+    BufferString res = par.find( sKey::ID() );
+    if ( res.isEmpty() )
 	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID()) );
-    if ( !res || !*res )
+
+    if ( res.isEmpty() )
 	res = par.find( "ZDomain ID" );
 
-    fromzdomaininfo_.setID( res );
-    tozdomaininfo_.setID( res );
+    fromzdomaininfo_.setID( res.buf() );
+    tozdomaininfo_.setID( res.buf() );
     return true;
 }
 

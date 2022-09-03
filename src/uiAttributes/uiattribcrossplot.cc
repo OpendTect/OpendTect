@@ -184,7 +184,7 @@ MultiID uiAttribCrossPlot::getSelectedID() const
 	    return psid;
 	}
 
-	MultiID mid( desc->getStoredID(true) );
+	MultiID mid( desc->getStoredID(true).buf() );
 	return mid;
     }
 }

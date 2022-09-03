@@ -193,9 +193,9 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	horfld_->setInput( horid );
     }
 
-    StringView lskey = iop.find( ODGMT::sKeyLineStyle() );
+    const BufferString lskey = iop.find( ODGMT::sKeyLineStyle() );
     OD::LineStyle ls;
-    ls.fromString( lskey.str() );
+    ls.fromString( lskey.buf() );
     linestfld_->setStyle( ls );
 
     bool usecoloryn = false;

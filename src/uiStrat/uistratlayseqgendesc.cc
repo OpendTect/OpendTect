@@ -59,7 +59,7 @@ void uiStratLayerContent::set( const Strat::Content& c )
     if ( c.isUnspecified() )
 	fld_->setCurrentItem( 0 );
     else
-	fld_->setCurrentItem( c.name() );
+	fld_->setCurrentItem( c.name().buf() );
 }
 
 

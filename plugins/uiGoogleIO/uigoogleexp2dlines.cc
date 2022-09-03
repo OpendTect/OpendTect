@@ -163,7 +163,7 @@ void uiGISExport2DSeis::getCoordsForLine( RefObjectSet<const Pick::Set>& picks,
 	    return;
     }
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-						Survey::GM().getGeometry(lnm));
+					Survey::GM().getGeometry(lnm.buf()));
     if ( !geom2d || geom2d->isEmpty() )
 	return;
 

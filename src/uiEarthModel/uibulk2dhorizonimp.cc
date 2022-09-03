@@ -312,7 +312,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	else
 	    hornmset.addIfNew(hornm);
 
-	if ( linenm )
+	if ( !linenm.isEmpty() )
 	    linenmset.addIfNew(linenm);
 
 	trnrset.add(trnr);

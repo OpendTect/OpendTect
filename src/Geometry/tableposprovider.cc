@@ -81,10 +81,11 @@ bool Pos::TableProvider3D::includes( const BinID& bid, float z ) const
 
 void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 {
-    const char* res = iop.find( mGetTableKey("ID") );
-    if ( res && *res )
+    MultiID mid;
+    iop.get( mGetTableKey("ID"), mid );
+    if ( !mid.isUdf() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( res );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( ioobj )
 	{
 	    RefMan<Pick::Set> ps = new Pick::Set;
@@ -102,10 +103,10 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 
     if ( bvs.isEmpty() )
     {
-	res = iop.find( mGetTableKey(sKey::FileName()) );
-	if ( res && *res )
+	const BufferString filenm = iop.find( mGetTableKey(sKey::FileName()) );
+	if ( !filenm.isEmpty() )
 	{
-	    od_istream strm( res );
+	    od_istream strm( filenm );
 	    if ( strm.isOK() )
 		bvs.getFrom( strm, Pos::GeomID(OD::Geom3D) );
 

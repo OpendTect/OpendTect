@@ -84,8 +84,14 @@ void ODMad::FileSpec::fillPar( IOPar& iop ) const
 
 bool ODMad::FileSpec::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
-    forread_ = !res || (*res != 'w' && *res != 'W');
+    const BufferString res = iop.find( sKey::Type() );
+    if ( res.isEmpty() )
+	forread_ = true;
+    else
+    {
+	const BufferString firstchar( res[0] );
+	forread_ = !firstchar.isEqual( "W", CaseInsensitive );
+    }
 
     BufferString fnm = fnm_, maskfnm = maskfnm_;
     iop.get( sKey::FileName(), fnm );

@@ -84,7 +84,7 @@ Strat::LevelID uiStratLevelSel::getID() const
 void uiStratLevelSel::setID( Strat::LevelID lvlid )
 {
     if ( lvlid.isValid() )
-	fld_->setCurrentItem( Strat::LVLS().get(lvlid).name() );
+	fld_->setCurrentItem( Strat::LVLS().get(lvlid).name().buf() );
     else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );
 }
@@ -146,7 +146,7 @@ void uiStratLevelSel::extChgCB( CallBacker* )
     fld_->setEmpty();
     fill();
     if ( cursel.id().isValid() )
-	fld_->setCurrentItem( cursel.name() );
+	fld_->setCurrentItem( cursel.name().buf() );
     else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );
 }

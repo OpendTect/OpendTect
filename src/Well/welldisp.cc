@@ -305,8 +305,8 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& par )
     trackpar->getYN( sKeyTrackNmIsBelow, dispbelow_ );
     trackpar->getYN( sKeyTrackDynamicNmSize, nmsizedynamic_ );
 
-    const StringView fontdata = trackpar->find( sKeyTrackNmFont );
-    if ( fontdata )
+    const BufferString fontdata = trackpar->find( sKeyTrackNmFont );
+    if ( !fontdata.isEmpty() )
 	font_.getFrom( fontdata );
     else
     {
@@ -459,9 +459,8 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
 	unselmarkernms_.add( unselmarkernames, false );
     mrkspar->getYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
 
-    const StringView fontdata =
-	mrkspar->find( sKeyMarkerNmFont );
-    if ( fontdata )
+    const BufferString fontdata = mrkspar->find( sKeyMarkerNmFont );
+    if ( !fontdata.isEmpty() )
 	font_.getFrom( fontdata );
     else
     {
@@ -750,7 +749,7 @@ void Well::DisplayProperties::Log::setTo( const Data* wd, const Log& oth,
 					  bool forceIfMissing  )
 {
     if ( forceIfMissing || oth.name_== sKey::None() ||
-	 wd->logs().getLog(oth.name_) )
+				    wd->logs().getLog(oth.name_.buf()) )
 	*this = oth;
 }
 

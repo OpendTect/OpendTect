@@ -334,7 +334,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
 void uiStratLithoDlg::newLith( CallBacker* )
 {
-    BufferString nm = "<New Lithology>";
+    const BufferString nm = "<New Lithology>";
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     const Strat::LithologyID lithid = lithos.getFreeID();
@@ -349,7 +349,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     anychg_ = true;
     prevlith_ = nullptr;
     lithos.reportAnyChange();
-    selfld_->setCurrentItem( nm );
+    selfld_->setCurrentItem( nm.buf() );
 }
 
 

@@ -99,8 +99,14 @@ void uiSeisTransfer::setInput( const IOObj& ioobj )
 {
     selfld->setInput( ioobj );
 
-    const char* res = ioobj.pars().find( sKey::Type() );
-    setSteering( res && *res == 'S' );
+    const BufferString res = ioobj.pars().find( sKey::Type() );
+    if ( !res.isEmpty() )
+    {
+	const BufferString firstchar( res[0] );
+	setSteering( firstchar.isEqual("S") );
+    }
+    else
+	setSteering( false );
 }
 
 

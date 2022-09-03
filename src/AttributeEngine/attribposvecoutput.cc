@@ -83,7 +83,8 @@ int PosVecOutputGen::nextStep()
 		BufferString ref = inps_.get( refidx );
 		BufferString nm = ref;
 		if ( IOObj::isKey(ref) )
-		    nm = IOM().nameOf( ref );
+		    nm = IOM().nameOf( ref.buf() );
+
 		pvds->add( new DataColDef(nm,ref) );
 	    }
 

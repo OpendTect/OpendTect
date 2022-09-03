@@ -163,7 +163,7 @@ void uiODView2DFaultSS2DParentTreeItem::addFaultSS2Ds(
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
 	const EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
-	if ( !emobj || findChild(emobj->name()) )
+	if ( !emobj || findChild(emobj->name().buf()) )
 	    continue;
 
 	MPE::ObjectEditor* editor =
@@ -224,7 +224,8 @@ void uiODView2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
-    if ( findChild(applMgr()->EMServer()->getUiName(emid).getFullString()) )
+    if ( findChild(applMgr()->EMServer()->getUiName(emid).
+						    getFullString().buf()) )
 	return;
 
     addChld( new uiODView2DFaultSS2DTreeItem(emid),false,false);

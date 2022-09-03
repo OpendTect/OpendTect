@@ -284,7 +284,7 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 
     BufferString rayparstr;
     params_.raypar_.putParsTo( rayparstr );
-    mSetString( Attrib::PSAttrib::rayTracerParamStr(), rayparstr );
+    mSetString( Attrib::PSAttrib::rayTracerParamStr(), rayparstr.buf() );
 
     int smoothtype;
     const IOPar& smpar = params_.smoothingpar_;
@@ -298,7 +298,7 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 	mSetFloat( Attrib::PSAttrib::angleFiltLength(), winlength )
 	BufferString winfunc;
 	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
-	mSetString( Attrib::PSAttrib::angleFiltFunction(), winfunc )
+	mSetString( Attrib::PSAttrib::angleFiltFunction(), winfunc.buf() )
 	if ( winfunc == CosTaperWindow::sName() )
 	{
 	    float winparam;

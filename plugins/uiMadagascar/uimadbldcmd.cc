@@ -327,8 +327,8 @@ void uiMadagascarBldCmd::setProgName( const char* pnm )
 		groupfld_->setCurrentItem( def->group_->buf() );
 	}
     }
-    progfld_->setCurrentItem( prognm );
-    groupChg( 0 );
+    progfld_->setCurrentItem( prognm.buf() );
+    groupChg( nullptr );
 }
 
 
@@ -389,7 +389,7 @@ void uiMadagascarBldCmd::groupChg( CallBacker* c )
     else
     {
 	setInput( getDef(prognm) );
-	progfld_->setCurrentItem( prognm );
+	progfld_->setCurrentItem( prognm.buf() );
     }
 }
 

@@ -124,7 +124,7 @@ void uiMnemonicsSel::setMnemonic( const Mnemonic& mn )
     if ( curmn && curmn == &mn )
 	return;
 
-    cb_->setCurrentItem( mn.name() );
+    cb_->setCurrentItem( mn.name().buf() );
 }
 
 

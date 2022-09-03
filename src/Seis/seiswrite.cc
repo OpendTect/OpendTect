@@ -322,8 +322,9 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 	if ( !conn )
 	{
 	    errmsg_ = tr("Cannot create output stream");
-	    if ( ioobj_ && StringView(ioobj_->translator()) == "Blocks" )
+	    if ( ioobj_ && ioobj_->translator().isEqual("Blocks") )
 		errmsg_ = uiStrings::phrNotImplInThisVersion( "7.X" );
+
 	    return false;
 	}
 	if ( !conn || !start3DWrite(conn,trc) )

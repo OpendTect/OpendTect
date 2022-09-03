@@ -85,10 +85,14 @@ Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
 						const Strat::RefTree& rt )
 {
     Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type()) );
-    if ( !ret ) return nullptr;
+    if ( !ret )
+	return nullptr;
+
     if ( ret->usePar(iop,rt) )
 	return ret;
-    delete ret; return nullptr;
+
+    delete ret;
+    return nullptr;
 }
 
 
@@ -478,8 +482,8 @@ void Strat::SingleLayerGenerator::updateUsedProps(
 bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 {
     unit_ = nullptr;
-    const char* res = iop.find( sKey::Unit() );
-    if ( res && *res )
+    BufferString res = iop.find( sKey::Unit() );
+    if ( !res.isEmpty() )
     {
 	const UnitRef* ur = rt.find( res );
 	if ( ur && ur->isLeaf() )
@@ -487,7 +491,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
     }
 
     res = iop.find( sKey::Content() );
-    if ( res && *res )
+    if ( !res.isEmpty() )
     {
 	content_ = rt.contents().getByName( res );
 	if ( !content_ ) content_ = &Content::unspecified();

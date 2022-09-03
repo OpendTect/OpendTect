@@ -48,16 +48,16 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     bool douse = false;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
 
-    const char* id =
-	is2d_ ? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
-	      : SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
+    MultiID mid;
+    is2d_ ? SI().pars().get( uiAttribDescSetEd::sKeyAuto2DAttrSetID, mid )
+	      : SI().pars().get( uiAttribDescSetEd::sKeyAuto3DAttrSetID, mid );
 
     usefld_ = new uiGenInput( this, tr("Enable auto-load Attribute Set"),
 			      BoolInpSpec(true) );
     usefld_->setValue( douse );
     usefld_->valuechanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 
-    ctio_.setObj( id );
+    ctio_.setObj( mid );
     ctio_.ctxt_.forread_ = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, usefld_ );

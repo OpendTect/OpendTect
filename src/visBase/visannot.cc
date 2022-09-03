@@ -604,9 +604,10 @@ bool Annotation::usePar( const IOPar& par )
 	key = textprefixstr();
 	key += idx;
 
-	const char* text = par.find( key );
-	if ( !text ) return -1;
+	if ( par.hasKey(key) )
+	    return -1;
 
+	const BufferString text = par.find( key );
 	setText( idx, toUiString(text) );
     }
 

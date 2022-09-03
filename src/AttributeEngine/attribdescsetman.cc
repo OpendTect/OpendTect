@@ -97,7 +97,8 @@ void DescSetMan::fillHist()
 	if ( !ad || ad->isHidden() || ad->isStored() ) continue;
 
 	const BufferString key( "", attribids[idx].asInt() );
-	if ( inpselhist_.findKeyFor(key) ) continue;
+	if ( inpselhist_.hasKey(key) )
+	    continue;
 
 	nr++;
 	inpselhist_.set( IOPar::compKey(sKey::IOSelection(),nr), key );

@@ -637,8 +637,9 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 	loadEntries(GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1) );
     }
 
-    const char* res = sEnvVarEntries().find( env );
-    if ( !res ) res = GetOSEnvVar( env );
+    BufferString res = sEnvVarEntries().find( env );
+    if ( res.isEmpty() )
+	res = GetOSEnvVar( env );
 
     mDeclStaticString( retbuf );
 
@@ -767,7 +768,7 @@ mExtern(Basic) const char* GetEnvVarDirListWoOD( const char* ky,
 	    FilePath pathdirfp( pathdir->buf() );
 	    pathdirfp.makeCanonical();
 	    if ( pathdirfp == odinstfp || pathdirfp.isSubDirOf(odinstfp) ||
-		 pathdir->contains(instdir) )
+		 pathdir->contains(instdir.buf()) )
 		continue;
 	    if ( filter && pathdir->contains(filter) )
 		continue;

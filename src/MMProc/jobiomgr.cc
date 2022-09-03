@@ -455,8 +455,8 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     newiop.set( sKey::LogFile(), remotelogfp.fullPath(machpathstyle) );
 
     const FilePath remdata = remotemachine.prefixFilePath( HostData::Data );
-    const char* tmpstor = iop.find( sKey::TmpStor() );
-    if ( tmpstor )
+    const BufferString tmpstor = iop.find( sKey::TmpStor() );
+    if ( !tmpstor.isEmpty() )
     {
 	const FilePath path( tmpstor );
 	FilePath remotetmpdir( remdata.nrLevels() ? remdata.fullPath()
@@ -509,8 +509,8 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     IOPar newiop( iop );
     newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
 
-    const char* tmpstor = iop.find( sKey::TmpStor() );
-    if ( tmpstor )
+    const BufferString tmpstor = iop.find( sKey::TmpStor() );
+    if ( !tmpstor.isEmpty() )
     {
 	const FilePath remotetmpdir =
 		machine.convPath( HostData::Data, tmpstor );
@@ -574,8 +574,8 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
     newiop.set( sKey::LogFile(), remotelogfp.fullPath(machpathstyle) );
 
     const FilePath remdata = remotemachine.prefixFilePath( HostData::Data );
-    const char* tmpstor = iop.find( sKey::TmpStor() );
-    if ( tmpstor )
+    const BufferString tmpstor = iop.find( sKey::TmpStor() );
+    if ( !tmpstor.isEmpty() )
     {
 	const FilePath path( tmpstor );
 	FilePath remotetmpdir( remdata.nrLevels() ? remdata.fullPath()
@@ -630,8 +630,8 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
     IOPar newiop( iop );
     newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
 
-    const char* tmpstor = iop.find( sKey::TmpStor() );
-    if ( tmpstor )
+    const BufferString tmpstor = iop.find( sKey::TmpStor() );
+    if ( !tmpstor.isEmpty() )
     {
 	const FilePath remotetmpdir =
 		machine.convPath( HostData::Data, tmpstor );

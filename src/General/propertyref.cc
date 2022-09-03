@@ -242,7 +242,7 @@ bool PropertyRef::isKnownAs( const char* nm ) const
     if ( name().matches(nm,CaseInsensitive) )
 	return true;
 
-    BufferStringSet nms( name() );
+    BufferStringSet nms( name().buf() );
     nms.add( aliases(), false );
     for ( const auto* findnm : nms )
     {
@@ -316,7 +316,7 @@ PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
 
     BufferString mn;
     iop.get( Mnemonic::sKeyMnemonic(), mn );
-    BufferStringSet hintnms( propnm );
+    BufferStringSet hintnms( propnm.buf() );
     BufferString aliasnms;
     if ( iop.get(sKeyAliases,aliasnms) && !aliasnms.isEmpty() )
     {
@@ -386,7 +386,7 @@ void PropertyRef::usePar( const IOPar& iop )
 	    disp_.defval_ = new MathProperty( *this, fms[1] );
     }
 
-    const StringView def = iop.find( sKeyDefinition );
+    const BufferString def = iop.find( sKeyDefinition );
     if ( !def.isEmpty() )
 	mathdef_ = new MathProperty( *this, def );
 }

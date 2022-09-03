@@ -475,7 +475,7 @@ void uiFullSynthSeisSel::doMan( uiComboBox* cbfld, const BufferStringSet& nms )
 
     cbfld->addItems( nms );
     if ( nms.isPresent(curnm) )
-	cbfld->setCurrentItem( curnm );
+	cbfld->setCurrentItem( curnm.buf() );
 
     cbfld->setSensitive( nms.get(0) != SynthGenParams::sKeyInvalidInputPS() ||
 			 nms.size() > 1 );
@@ -507,7 +507,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	uiComboBox* psbox = psselfld_->box();
 	if ( psbox->isPresent(genparams.inpsynthnm_) )
 	{
-	    psbox->setCurrentItem( genparams.inpsynthnm_ );
+	    psbox->setCurrentItem( genparams.inpsynthnm_.buf() );
 	    psbox->setSensitive( genparams.inpsynthnm_ !=
 				 SynthGenParams::sKeyInvalidInputPS() ||
 				 psbox->size() > 1 );
@@ -517,7 +517,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	else
 	{
 	    psbox->addItem( genparams.inpsynthnm_ );
-	    psbox->setCurrentItem( genparams.inpsynthnm_ );
+	    psbox->setCurrentItem( genparams.inpsynthnm_.buf() );
 	    psbox->setSensitive( genparams.inpsynthnm_ !=
 				 SynthGenParams::sKeyInvalidInputPS() ||
 				 psbox->size() > 1 );
@@ -533,7 +533,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	uiComboBox* inpbox = inpselfld_->box();
 	if ( inpbox->isPresent(genparams.inpsynthnm_) )
 	{
-	    inpbox->setCurrentItem( genparams.inpsynthnm_ );
+	    inpbox->setCurrentItem( genparams.inpsynthnm_.buf() );
 	    inpbox->setSensitive( genparams.inpsynthnm_ !=
 				  SynthGenParams::sKeyInvalidInputPS() ||
 				  inpbox->size() > 1 );
@@ -543,7 +543,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	else
 	{
 	    inpbox->addItem( genparams.inpsynthnm_ );
-	    inpbox->setCurrentItem( genparams.inpsynthnm_ );
+	    inpbox->setCurrentItem( genparams.inpsynthnm_.buf() );
 	    inpbox->setSensitive( genparams.inpsynthnm_ !=
 				  SynthGenParams::sKeyInvalidInputPS() ||
 				  inpbox->size() > 1 );

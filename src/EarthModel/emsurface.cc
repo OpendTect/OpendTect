@@ -149,7 +149,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
     IOPar* sectionpar = iopar.subselect(sSections);
     if ( sectionpar ) sections.usePar( *sectionpar );
 
-    if ( iopar.find(Horizon2DGeometry::sKeyNrLines()) )
+    if ( iopar.hasKey(Horizon2DGeometry::sKeyNrLines()) )
     {
 	int nrlines = 0;
 	iopar.get( Horizon2DGeometry::sKeyNrLines(), nrlines );

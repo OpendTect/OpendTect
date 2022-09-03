@@ -131,7 +131,7 @@ void uiMathExpressionVariable::updateInpNms( bool sub )
     inpfld->setEmpty();
     const BufferStringSet nms = getInputNms( curmn_, sub );
     inpfld->addItems( nms );
-    inpfld->setCurrentItem( curseltxt );
+    inpfld->setCurrentItem( curseltxt.buf() );
     if ( sub )
 	inpfld->display( !nms.isEmpty() && !isConst() && isActive() );
 }
@@ -222,7 +222,7 @@ void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
     else if ( isSpec() )
     {
 	inplbl_->setText(tr("'%1' filled with").arg(varnm_));
-	inpfld_->setCurrentItem( specvars_.dispName(specidx_) );
+	inpfld_->setCurrentItem( specvars_.dispName(specidx_).buf() );
 	inpChg( nullptr );
 	issens = false;
 	if ( unfld_ && specvars_.hasUnits(specidx_) )
@@ -332,11 +332,11 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     }
 
     if ( isfound )
-	inpfld_->setCurrentItem( varnm );
+	inpfld_->setCurrentItem( varnm.buf() );
 
     inpChg( nullptr );
     if ( subinpfld_ )
-	subinpfld_->setCurrentItem( subnm );
+	subinpfld_->setCurrentItem( subnm.buf() );
 }
 
 

@@ -33,7 +33,7 @@ LASWriter::LASWriter( const Well::Data& wd, const BufferStringSet& lognms,
 
     for ( int idx=0; idx<lognms_.size(); idx++ )
     {
-	const Well::Log* log = wd_->logs().getLog( lognms_.get(idx) );
+	const Well::Log* log = wd_->logs().getLog( lognms_.get(idx).buf() );
 	logs_.add( new Well::Log(*log) );
     }
 

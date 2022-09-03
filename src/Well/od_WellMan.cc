@@ -124,12 +124,13 @@ void WellServerTool::getWellInfo()
     if ( !wd_ )	return;
 
     set( sKey::ID(), wd_->multiID() );
-    set( sKey::Name(), wd_->name() );
+    set( sKey::Name(), wd_->name().buf() );
 
     const Info& inf = wd_->info();
     const BufferString uwi = inf.uwid_;
     if ( !uwi.isEmpty() )
-	set( Info::sKeyUwid(), uwi );
+	set( Info::sKeyUwid(), uwi.buf() );
+
     const OD::WellType wt = inf.welltype_;
     if ( wt != OD::UnknownWellType )
 	set( sKey::Type(), OD::toString(wt) );
@@ -216,8 +217,8 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
     }
 
     const auto sz = wl->size();
-    set( sKey::Well(), wd_->name() );
-    set( sKey::Name(), wl->name() );
+    set( sKey::Well(), wd_->name().buf() );
+    set( sKey::Name(), wl->name().buf() );
     set( sKey::Size(), wl->size() );
     const auto* uom = wl->unitOfMeasure();
     set( sKey::Unit(), uom ? uom->symbol() : "" );
@@ -300,7 +301,7 @@ void WellServerTool::readLogs( const DBKey& wellid,
 	if ( trck )
 	    tvdarr[zidx] = trck->getPos( md ).z;
     }
-    set( sKey::Well(), wd_->name() );
+    set( sKey::Well(), wd_->name().buf() );
     set( sKey::Size(), sampler.nrZSamples() );
     set( sKey::Logs(), sellognms.size() );
     set( sKey::Names(), outlognames );

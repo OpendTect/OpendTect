@@ -79,16 +79,21 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 
     for ( int idx=0; ; idx++ )
     {
-	const char* res = iop.find( IOPar::compKey(sKey::Property(),idx) );
-	if ( !res || !*res ) break;
+	const BufferString res =
+			iop.find( IOPar::compKey(sKey::Property(),idx) );
+	if ( res.isEmpty() )
+	    break;
 
 	const PropertyRef* pr = PROPS().getByName( res, false );
 	if ( !pr && Strat::Layer::thicknessRef().name() == res )
 	    pr = &Strat::Layer::thicknessRef();
+
 	if ( !pr )
 	    continue;
+
 	BufferString nm; mDoIOPar( get, sKey::Name(), nm );
-	if ( nm.isEmpty() || attr(nm) ) continue;
+	if ( nm.isEmpty() || attr(nm.buf()) )
+	    continue;
 
 	auto* lsa = new LaySeqAttrib( *this, *pr, nm );
 	mDoIOPar( getYN, LaySeqAttrib::sKeyIsLocal(), lsa->islocal_ );
@@ -98,6 +103,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	    mDoIOPar( get, LaySeqAttrib::sKeyUnits(), lsa->units_ );
 	    mDoIOPar( get, LaySeqAttrib::sKeyLithos(), lsa->liths_ );
 	}
+
 	const char* ky = IOPar::compKey( LaySeqAttrib::sKeyTransform(), idx );
 	const FileMultiString fms( iop.find(ky) );
 	const int sz = fms.size();
@@ -146,12 +152,12 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
     if ( attr_.islocal_ )
     {
 	statupscl_ = (Stats::UpscaleType)Stats::UpscaleTypeDef()
-					.convert( desc.stat_ );
+					.convert( desc.stat_.buf() );
 	stattype_ = Stats::typeFor( statupscl_ );
     }
     else
     {
-	stattype_ = (Stats::Type)Stats::TypeDef().convert( desc.stat_ );
+	stattype_ = (Stats::Type)Stats::TypeDef().convert( desc.stat_.buf() );
 	statupscl_ = Stats::upscaleTypeFor( stattype_ );
     }
 

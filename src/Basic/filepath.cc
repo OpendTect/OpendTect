@@ -382,9 +382,11 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
     BufferString res = dirUpTo( lvls_.size() );
     if ( cleanup )
 	res = mkCleanPath( res, f );
+
     if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 1 )
 	res.add( dirSep(Windows) );
-    if ( postfix_ )
+
+    if ( !postfix_.isEmpty() )
 	res.add( postfix_ );
     return res;
 }

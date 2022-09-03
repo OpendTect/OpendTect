@@ -84,7 +84,7 @@ ________________________________________________________________________
     Attrib::ValParam* param = desc.getValParam( str ); \
     BufferString oldval = param->getStringValue(); \
     if ( chtr_.set(oldval,newval.toString()) ) \
-	param->setValue( newval.toString() ); \
+	param->setValue( newval ); \
 }
 
 // Get macros

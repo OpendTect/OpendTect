@@ -746,7 +746,7 @@ bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
     bool logadded = false;
     if ( currlogset.isPresent(newlognm) )
     {
-	Well::Log& currlog = *currlogset.getLog( newlognm );
+	Well::Log& currlog = *currlogset.getLog( newlognm.buf() );
 	currlogcopy = currlog;
 	currlog = log;
 	delete &log;
@@ -759,10 +759,10 @@ bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
     }
 
     Well::Writer wtr( key, *wd );
-    if ( !wtr.putLog(*currlogset.getLog(newlognm)) )
+    if ( !wtr.putLog(*currlogset.getLog(newlognm.buf())) )
     {
 	if ( currlogcopy.isLoaded() )
-	    *currlogset.getLog(newlognm) = currlogcopy;
+	    *currlogset.getLog(newlognm.buf()) = currlogcopy;
 	else if ( logadded )
 	{
 	    NotifyStopper rmns( currlogset.logRemoved );

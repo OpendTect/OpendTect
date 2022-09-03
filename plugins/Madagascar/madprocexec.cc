@@ -217,7 +217,7 @@ const char* ODMad::ProcExec::getProcString()
 	if ( outtyp == ODMad::ProcFlow::Madagascar )
 	    ret = procflow.output().find( sKey::FileName() );
 	else if ( outtyp == ODMad::ProcFlow::None )
-	    return 0;
+	    return nullptr;
 	else
 	{
 	    pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );

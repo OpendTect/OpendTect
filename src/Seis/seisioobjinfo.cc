@@ -968,7 +968,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 
 	if ( o2d.steerpol_ != 2 )
 	{
-	    const StringView dt = ioobj->pars().find( sKey::Type() );
+	    const BufferString dt = ioobj->pars().find( sKey::Type() );
 	    const bool issteering = dt==sKey::Steering();
 	    const bool wantsteering = o2d.steerpol_ == 1;
 	    if ( issteering != wantsteering )
@@ -1121,7 +1121,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
     if ( !ioobj_->pars().isEmpty() )
     {
 	const IOPar& pars = ioobj_->pars();
-	StringView parstr = pars.find( sKey::Type() );
+	BufferString parstr = pars.find( sKey::Type() );
 	if ( !parstr.isEmpty() )
 	    inf.addKeyValue( uiStrings::sType(), parstr );
 

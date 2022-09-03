@@ -788,7 +788,8 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	wva ? ddp.wva_.mappersetup_ : ddp.vd_.mappersetup_ = mapper;
-	if ( !wva ) ddp.vd_.ctab_ = iop.find( sKey::Name() );
+	if ( !wva )
+	    ddp.vd_.ctab_ = iop.find( sKey::Name() );
     }
 
     return true;
@@ -1100,14 +1101,24 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     Coord3 mousepos( Coord3::udf() );
     mCBCapsuleUnpack(IOPar,pars,cb);
 
-    StringView valstr = pars.find( "X" );
-    if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
-    if ( !valstr.isEmpty() ) mousepos.x = valstr.toDouble();
+    BufferString valstr = pars.find( "X" );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "X-coordinate" );
+
+    if ( !valstr.isEmpty() )
+	mousepos.x = valstr.toDouble();
+
     valstr = pars.find( "Y" );
-    if ( valstr.isEmpty() ) valstr = pars.find( "Y-coordinate" );
-    if ( !valstr.isEmpty() ) mousepos.y = valstr.toDouble();
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Y-coordinate" );
+
+    if ( !valstr.isEmpty() )
+	mousepos.y = valstr.toDouble();
+
     valstr = pars.find( "Z" );
-    if ( valstr.isEmpty() ) valstr = pars.find( "Z-Coord" );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Z-Coord" );
+
     if ( !valstr.isEmpty() )
     {
 	mousepos.z = valstr.toFloat() / zDomain().userFactor();

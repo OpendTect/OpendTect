@@ -784,7 +784,7 @@ od_istream& od_istream::get( CompoundKey& ck )
     return *this;
 }
 
-mImplStrmAddFn(const MultiID&,t.toString())
+mImplStrmAddFn(const MultiID&,t.toString().buf())
 
 
 od_istrstream::od_istrstream( const char* str )

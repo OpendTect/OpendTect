@@ -230,7 +230,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
     TypeSet<int> lineids; bool is2d = false;
 
     const bool haslinenames = !linenames_.isEmpty();
-    if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
+    if ( par_->hasKey(Horizon2DGeometry::sKeyNrLines()) )
     {
 	is2d = true;
 	int nrlines = 0;
@@ -360,7 +360,9 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
-    if ( res < 0 ) return false;
+    if ( res < 0 )
+	return false;
+
     const bool is2d = res;
     setLinesTrcRngs( trcranges );
 

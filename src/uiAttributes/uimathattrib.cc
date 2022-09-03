@@ -332,7 +332,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 					    StorageProvider::attribName() );
 		Attrib::ValParam* param =
 		    inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
-		param->setValue( inpdpfid.toString() );
+		param->setValue( inpdpfid.asMultiID() );
 		if ( desc.descSet() )
 		    desc.descSet()->addDesc( inpdesc );
 	    }

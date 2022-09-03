@@ -68,11 +68,11 @@ void uiElasticPropSelGrp::uiSelInpGrp::initGrp( CallBacker* )
 
 void uiElasticPropSelGrp::uiSelInpGrp::fillList()
 {
-    BufferString seltxt = inpfld_->text();
+    const BufferString seltxt = inpfld_->text();
     inpfld_->setEmpty();
     inpfld_->addItems( propnms_ );
     inpfld_->addItem( tr("Constant") );
-    inpfld_->setCurrentItem( seltxt );
+    inpfld_->setCurrentItem( seltxt.buf() );
 }
 
 
@@ -287,7 +287,7 @@ void uiElasticPropSelGrp::getFromScreen()
 	for ( int iinp=0; iinp<inpgrps_.size(); iinp++ )
 	{
 	    const BufferString inptxt( inpgrps_[iinp]->textOfVariable() );
-	    if ( inptxt && inptxt != eform.inputDef(iinp) )
+	    if ( inptxt != eform.inputDef(iinp) )
 		eform.setInputDef( iinp, inptxt );
 		//TODO: Add missing UoM field
 	}
@@ -313,7 +313,7 @@ void uiElasticPropSelGrp::putToScreen()
     {
 	const BufferString formnm( eform->name() );
 	if ( !formnm.isEmpty() && mathbox->isPresent(formnm) )
-	    mathbox->setCurrentItem( formnm );
+	    mathbox->setCurrentItem( formnm.buf() );
 	else
 	    mathbox->setCurrentItem( mathbox->size()-1 );
     }
@@ -322,7 +322,7 @@ void uiElasticPropSelGrp::putToScreen()
 
     storenamefld_->setText( elpropref_.name() );
     if ( elpropref_.ref() )
-	singleinpfld_->box()->setCurrentItem( elpropref_.ref()->name() );
+	singleinpfld_->box()->setCurrentItem( elpropref_.ref()->name().buf() );
     else if ( eform )
     {
 	formfld_->setText( expr );

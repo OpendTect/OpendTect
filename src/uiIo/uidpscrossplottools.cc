@@ -263,7 +263,7 @@ void SelectionGrp::usePar( const IOPar& par )
 	int posidx = 0;
 	BufferString positionstr = IOPar::compKey( sKeyPos, posidx );
 
-	if ( par.find( IOPar::compKey(rectstr,positionstr)) )
+	if ( par.hasKey( IOPar::compKey(rectstr,positionstr)) )
 	{
 	    TypeSet<float> ptslt, ptsrb;
 
@@ -287,12 +287,12 @@ void SelectionGrp::usePar( const IOPar& par )
 
 	    selareas_ += selarea;
 	}
-	else if ( par.find(IOPar::compKey(polygonstr,positionstr)) )
+	else if ( par.hasKey(IOPar::compKey(polygonstr,positionstr)) )
 	{
 	    ODPolygon<double> worldpoly, altworldpoly;
 
 	    bool hasalt = false;
-	    while ( par.find(IOPar::compKey(polygonstr.buf(),
+	    while ( par.hasKey(IOPar::compKey(polygonstr.buf(),
 					    positionstr.buf())) )
 	    {
 		TypeSet<double> pt;

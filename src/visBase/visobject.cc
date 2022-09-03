@@ -231,7 +231,7 @@ bool VisualObjectImpl::usePar( const IOPar& iopar )
     if ( iopar.getYN(sKeyIsOn(),isonsw) )
 	turnOn( isonsw );
 
-    const StringView nm = iopar.find( sKey::Name() );
+    const BufferString nm = iopar.find( sKey::Name() );
 
     if ( !nm.isEmpty() )
 	setName( nm );

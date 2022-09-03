@@ -225,11 +225,12 @@ bool uiSeisPartServer::exportSeis( int opt )
 
 MultiID uiSeisPartServer::getDefault2DDataID() const
 {
-    BufferString key( IOPar::compKey(sKey::Default(),
+    const BufferString key( IOPar::compKey(sKey::Default(),
 		      SeisTrc2DTranslatorGroup::sKeyDefault()) );
-    BufferString midstr( SI().pars().find(key) );
-    if ( !midstr.isEmpty() )
-	return MultiID( midstr.buf() );
+    MultiID mid;
+    SI().pars().get( key, mid );
+    if ( !mid.isUdf() )
+	return mid;
 
     const IOObjContext ctxt( SeisTrc2DTranslatorGroup::ioContext() );
     const IODir iodir ( ctxt.getSelKey() );
@@ -278,11 +279,12 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
     if ( is2d )
 	return getDefault2DDataID();
 
-    BufferString key( IOPar::compKey(sKey::Default(),
+    const BufferString key( IOPar::compKey(sKey::Default(),
 		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
-    BufferString midstr( SI().pars().find(key) );
-    if ( !midstr.isEmpty() )
-	return MultiID( midstr.buf() );
+    MultiID mid;
+    SI().pars().get( key, mid );
+    if ( !mid.isUdf() )
+	return mid;
 
     const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     const IODir iodir ( ctxt.getSelKey() );

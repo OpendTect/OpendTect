@@ -127,13 +127,15 @@ int uiTabStack::size() const
 void uiTabStack::setCurrentPage( int id )
 {
     tabbar_->setCurrentTab( id );
-    tabSel(0);
+    tabSel( nullptr );
 }
 
 
 void uiTabStack::setCurrentPage( uiGroup* grp )
 {
-    if( !grp ) return;
+    if( !grp )
+	return;
+
     setCurrentPage( indexOf(grp) );
 }
 
@@ -142,7 +144,7 @@ void uiTabStack::setCurrentPage( const char* grpnm )
 {
     for ( int idx=0; grpnm && idx<size(); idx++ )
     {
-	if ( StringView(page(idx)->name()) == grpnm )
+	if ( page(idx)->name().isEqual(grpnm) )
 	{
 	    setCurrentPage( idx );
 	    return;

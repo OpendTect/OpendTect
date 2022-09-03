@@ -147,7 +147,7 @@ bool uiSaveDataDlg::saveLogs()
 	if ( savetolog )
 	    lognm.addSpace().add( outputgrp_->getPostFix() );
 
-	if ( data.wd_->logs().getLog(lognm) )
+	if ( data.wd_->logs().getLog(lognm.buf()) )
 	{
 	    const uiString localmsg = tr( "Log: '%1' already exists" )
 					  .arg( lognm );

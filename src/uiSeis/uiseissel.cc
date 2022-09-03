@@ -182,8 +182,10 @@ const char* uiSeisSelDlg::getDataType()
 	return steerpol_ == uiSeisSel::Setup::NoSteering
 			  ? 0 : sKey::Steering().str();
     const IOObj* ioobj = ioObj();
-    if ( !ioobj ) return 0;
-    const char* res = ioobj->pars().find( sKey::Type() );
+    if ( !ioobj )
+	return nullptr;
+
+    const BufferString res = ioobj->pars().find( sKey::Type() );
     return res;
 }
 

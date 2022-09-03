@@ -721,7 +721,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
     {
 	info += isleft ? ", Left: " : ", Right: ";
 	info += lognm;
-	const Well::Log* log = wd->logs().getLog( lognm );
+	const Well::Log* log = wd->logs().getLog( lognm.buf() );
 	if (log)
 	{
 	    if ( val.size() ) val += " / ";

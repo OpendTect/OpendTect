@@ -303,7 +303,7 @@ protected:
 #define mGetStringFromDesc( __desc, var, varstring ) \
 {\
     var = __desc.getValParam(varstring)->getStringValue(0); \
-    if ( StringView(var).isEmpty() )\
+    if ( BufferString(var).isEmpty() )\
 	var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
 

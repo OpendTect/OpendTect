@@ -161,7 +161,7 @@ bool Smoother3D<T>::usePar( const IOPar& par )
     if ( !par.get(sKeyWinSize(), sz0, sz1, sz2 ) )
 	return false;
 
-    const char* wn = par.find( sKeyWinFunc() );
+    const BufferString wn = par.find( sKeyWinFunc() );
     float var = mUdf(float);
     par.get( sKeyWinParam(), var );
 

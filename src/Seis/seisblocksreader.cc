@@ -409,9 +409,7 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     iop.get( sKey::ZRange(), zgeom_ );
     iop.getYN( sKeyDepthInFeet(), depthinfeet_ );
 
-    const char* res = iop.find( sKey::DataStorage() );
-    if ( res && isdigit(*res) )
-	fprep_ = DataCharacteristics::UserType( *res - '0' );
+    DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
     interp_ = DataInterp::create( DataCharacteristics(fprep_), true );
     Scaler* scl = Scaler::get( iop.find(sKey::Scale()) );
     mDynamicCast( LinScaler*, scaler_, scl );

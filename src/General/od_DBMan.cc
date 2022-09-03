@@ -69,9 +69,10 @@ void DBManServerTool::listSurveys()
 	    = getKeyedArgStr( CommandLineParser::sDataRootArg(), false );
     if ( dataroot.isEmpty() )
 	dataroot = GetBaseDataDir();
+
     BufferStringSet dirnms;
     SurveyDiskLocation::listSurveys( dirnms, dataroot );
-    set( sKey::DataRoot(), dataroot );
+    set( sKey::DataRoot(), dataroot.buf() );
     if ( !dirnms.isEmpty() )
     {
 	set( sKey::Size(), dirnms.size() );
@@ -86,7 +87,7 @@ void DBManServerTool::listObjs()
 {
     const BufferString trgrpnm = getKeyedArgStr( sListCmd );
     const bool alltrlgrps = clp().hasKey( sAllCmd );
-    const PtrMan<IODir> dbdir = IOM().getDir( trgrpnm );
+    const PtrMan<IODir> dbdir = IOM().getDir( trgrpnm.buf() );
     BufferStringSet nms, types, trls, trlgrps;
     DBKeySet ids;
     bool havetype = false;
@@ -164,7 +165,7 @@ void DBManServerTool::checkExists()
     }
     else
     {
-	PtrMan<IODir> dbdir = IOM().getDir( trlgrpnm );
+	PtrMan<IODir> dbdir = IOM().getDir( trlgrpnm.buf() );
 	if ( !dbdir )
 	{
 	    respondError( "No database directory for object found" );
@@ -207,14 +208,16 @@ void DBManServerTool::provideInfo()
 void DBManServerTool::provideInfo( const IOObj& ioobj, bool all )
 {
     set( sKey::ID(), DBKey(ioobj.key()) );
-    set( sKey::Name(), ioobj.name() );
-    set( sKey::Format(), ioobj.translator() );
+    set( sKey::Name(), ioobj.name().buf() );
+    set( sKey::Format(), ioobj.translator().buf() );
     if ( all )
-	set( ServerProgTool::sKeyTransGrp(), ioobj.group() );
+	set( ServerProgTool::sKeyTransGrp(), ioobj.group().buf() );
+
     BufferString typ;
     if ( ioobj.pars().get(sKey::Type(),typ) && !typ.isEmpty() )
-	set( sKey::Type(), typ );
-    set( sKey::FileName(), ioobj.mainFileName() );
+	set( sKey::Type(), typ.buf() );
+
+    set( sKey::FileName(), ioobj.mainFileName().buf() );
 }
 
 
@@ -238,7 +241,7 @@ void DBManServerTool::createObj()
 	return;
     }
 
-    const PtrMan<IODir> dbdir = IOM().getDir( MultiID(args.get(1)) );
+    const PtrMan<IODir> dbdir = IOM().getDir( MultiID(args.get(1).buf()) );
     if ( !dbdir )
     {
 	respondError( "Invalid DBDir ID specified" );
@@ -268,7 +271,7 @@ void DBManServerTool::createObj()
     }
 
     set( sKey::ID(), DBKey(iostrm.key()) );
-    set( sKey::FileName(), iostrm.mainFileName() );
+    set( sKey::FileName(), iostrm.mainFileName().buf() );
     respondInfo( true );
 }
 

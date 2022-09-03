@@ -66,7 +66,7 @@ void HDF5::ReaderImpl::listObjs( const H5Dir& dir, BufferStringSet& nms,
 	{
 	    const std::string nmstr = dir.getObjnameByIdx( iobj );
 	    const BufferString nm( nmstr.c_str() );
-	    const H5O_type_t h5objtyp = dir.childObjType( nm );
+	    const H5O_type_t h5objtyp = dir.childObjType( nm.buf() );
 	    if ( (wantgroups  && h5objtyp != H5O_TYPE_GROUP)
 	      || (!wantgroups && h5objtyp != H5O_TYPE_DATASET) )
 		continue;

@@ -156,7 +156,7 @@ bool Smoother1D<T>::usePar( const IOPar& par )
     if ( !par.get(sKeyWinLen(), sz ) )
 	return false;
 
-    const char* wn = par.find( sKeyWinFunc() );
+    const BufferString wn = par.find( sKeyWinFunc() );
     float var = mUdf(float);
     par.get( sKeyWinParam(), var );
 

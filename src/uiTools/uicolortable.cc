@@ -314,7 +314,7 @@ void uiColorTableSel::update()
 }
 
 void uiColorTableSel::setCurrent( const ColTab::Sequence& seq )
-{ setCurrentItem( seq.name() ); }
+{ setCurrentItem( seq.name().buf() ); }
 
 void uiColorTableSel::setCurrent( const char* nm )
 { setCurrentItem( nm ); }

@@ -490,8 +490,8 @@ bool uiStratLayModEditTools::usePar( const IOPar& par, bool notif )
 {
     setSelProp( par.find(sKeyDisplayedProp()), notif );
     setSelContent( par.find(sKeySelectedContent()), notif );
-    const char* res = par.find( sKeySelectedLevel() );
-    if ( res && *res )
+    const BufferString res = par.find( sKeySelectedLevel() );
+    if ( !res.isEmpty() )
 	lvlfld_->setName( res );
 
     int decimation;

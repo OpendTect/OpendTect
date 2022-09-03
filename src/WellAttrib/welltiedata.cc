@@ -240,7 +240,7 @@ void Data::computeExtractionRange()
     if ( !wd_ )
 	return;
 
-    const Well::Log* velplog = wd_->logs().getLog( setup_.vellognm_ );
+    const Well::Log* velplog = wd_->logs().getLog( setup_.vellognm_.buf() );
     const Well::Track& track = wd_->track();
     const Well::D2TModel* d2t = wd_->d2TModel();
     if ( !velplog || !d2t || track.isEmpty() )

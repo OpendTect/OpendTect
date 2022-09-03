@@ -713,7 +713,7 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 
     const bool addedok = addToLogSet( newlog, needjustinfo );
     Log* wl = const_cast<LogSet&>(data().logs()).
-						    getLog( newlog->name() );
+						getLog( newlog->name().buf() );
     if ( addedok && udfranges )
     {
 	Writer wrr( data().multiID(), data() );

@@ -675,7 +675,7 @@ BufferString Desc::getStoredID( bool recursive ) const
 BufferString Desc::getStoredType( bool recursive ) const
 {
     BufferString typestr;
-    const MultiID key( getStoredID(recursive) );
+    const MultiID key( getStoredID(recursive).buf() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( ioobj )
 	ioobj->pars().get( sKey::Type(), typestr );

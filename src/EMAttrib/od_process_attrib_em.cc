@@ -68,11 +68,12 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 
     const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
     const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes(), 0 ) );
-    const char* res = iopar.find( IOPar::compKey( tmpoutstr.buf(),
+    const BufferString res = iopar.find( IOPar::compKey( tmpoutstr.buf(),
 						  tmpattribstr.buf() ) );
-    if ( !res )
+    if ( res.isEmpty() )
 	mErrRet( "No target attribute found" )
-    DescID outid( toInt( res ), false );
+
+    DescID outid( res.toInt(), false );
     if ( !initialset.getDesc(outid) )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -83,19 +84,20 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 			 BufferString& errmsg, BufferString& objidstr )
 {
-    const char* objid = iopar.find( str );
-    if ( !objid && claimmissing )
+    MultiID objid;
+    iopar.get( str, objid );
+    if ( objid.isUdf() && claimmissing )
     {
 	errmsg = "No "; errmsg += str;
 	errmsg += " defined in parameter file";
 	return false;
     }
-    else if ( objid )
+    else if ( !objid.isUdf() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( objid );
 	if ( !ioobj )
 	{
-	    errmsg = "Cannot find object for '"; errmsg += objid;
+	    errmsg = "Cannot find object for '"; errmsg += objid.toString();
 	    errmsg += "' ...";
 	    return false;
 	}

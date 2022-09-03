@@ -536,7 +536,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     if ( !isinpindp )
     {
 	LineKey lk( inpdesccp->getStoredID(true) );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName().buf()) );
 	if ( !ioobj )
 	    return uiMSG().error( tr("Select a valid input") );
 

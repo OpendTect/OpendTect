@@ -474,7 +474,7 @@ uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
     viewwin->init( mid, is2d ? BinID(0,psv.traceNr()) : psv.getBinID(),
 		   is2d ? true : psv.isOrientationInline(),
-		   trcrg, is2d ? psv.lineName() : 0 );
+		   trcrg, is2d ? psv.lineName().buf() : nullptr );
     viewwin->setDarkBG( false );
     viewwin->setAppearance( psv.flatViewer()->appearance() );
     viewwin->seldatacalled_.notify( mCB(this,uiViewer3DMgr,viewer2DSelDataCB) );

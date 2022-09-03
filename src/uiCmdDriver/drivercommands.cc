@@ -99,7 +99,7 @@ bool IsWindowCmd::act( const char* parstr )
     }
 
     mParTail( partail );
-    mParIdentPost( identname, answer, parnext );
+    mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;
 }
 
@@ -374,7 +374,7 @@ bool AssignCmd::act( const char* parstr )
     mParIdentInit( parstr, parnext, identname, false );
     mParExpr( false, identname, parnext, partail, valstr, false );
     mParTail( partail );
-    identifierMan().set( identname, valstr );
+    identifierMan().set( identname.buf(), valstr.buf() );
     return true;
 }
 
@@ -544,7 +544,7 @@ bool ForCmd::act( const char* parstr )
     {
 	mParExpr( false, identname, fromexpr, pardummy, fromstr, false );
 	mNumCheck( "Start expression", fromstr, fromnum );
-	identifierMan().set( identname, fromstr );
+	identifierMan().set( identname.buf(), fromstr.buf() );
     }
     else
     {
@@ -561,7 +561,7 @@ bool ForCmd::act( const char* parstr )
 	double oldval;
 	identifierMan().getDouble( identname, oldval );
 	step -= oldval;
-	identifierMan().set( identname, newstr );
+	identifierMan().set( identname.buf(), newstr.buf() );
     }
 
     if ( !toexpr.isEmpty() )
@@ -772,7 +772,7 @@ bool ReturnCmd::act( const char* parstr )
 
 	mParExpr( false, identnm, parstr, partail, valstr, false );
 	mParTail( partail );
-	identifierMan().set( identnm, valstr );
+	identifierMan().set( identnm, valstr.buf() );
     }
 
     identifierMan().raiseScopeLevel( false );

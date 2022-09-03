@@ -127,13 +127,22 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 
 void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 {
-    if ( !surf1fld_ ) return;
+    if ( !surf1fld_ )
+	return;
 
-    surf1fld_->setInput( MultiID(iop.find(mGetSurfKey(id1))) );
-    const char* res = iop.find( mGetSurfKey(id2) );
-    const bool issing = !res || !*res;
+    MultiID mids1;
+    iop.get( mGetSurfKey(id1), mids1 );
+    if( mids1.isUdf() )
+	return;
+
+    surf1fld_->setInput( mids1 );
+
+    MultiID mids2;
+    iop.get ( mGetSurfKey(id2), mids2 );
+    const bool issing = mids2.isUdf();
     if ( !issing )
-	surf2fld_->setInput( MultiID(res) );
+	surf2fld_->setInput( mids2 );
+
     issingfld_->setValue( issing );
 
     if ( zstepfld_ )

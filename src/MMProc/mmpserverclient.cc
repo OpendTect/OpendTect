@@ -161,7 +161,7 @@ bool MMPServerClient::checkServer( const Authority& auth )
 	errorNotice.trigger();
 	return false;
     }
-    svr_platform_ = OD::Platform( plfname, false );
+    svr_platform_ = OD::Platform( plfname.buf(), false );
 
     return true;
 }

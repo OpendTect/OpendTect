@@ -133,7 +133,7 @@ void ServiceMgrBase::init( bool islocal, bool assignport,Network::SpecAddr spec)
     {
 	Network::RequestServer* server = islocal
 	    ? new Network::RequestServer(
-		    Network::Authority::getAppServerName("odservice"))
+		    Network::Authority::getAppServerName("odservice").buf())
 	    : new Network::RequestServer( portid, spec );
 	useServer( server, islocal );
     }

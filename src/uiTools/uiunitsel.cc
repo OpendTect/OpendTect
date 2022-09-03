@@ -104,7 +104,7 @@ void uiUnitSel::init()
 	mnfld_->addItems( mnsnames );
 	if ( setup_.mn_ )
 	{
-	    mnfld_->setCurrentItem( setup_.mn_->name() );
+	    mnfld_->setCurrentItem( setup_.mn_->name().buf() );
 	    if ( propfld_ )
 		mnfld_->attach( rightOf, propfld_ );
 	}
@@ -254,7 +254,7 @@ void uiUnitSel::setMnemFld( const Mnemonic* mn )
     if ( mnfld_ )
     {
 	NotifyStopper nst( mnfld_->selectionChanged );
-	mnfld_->setCurrentItem( mn->name() );
+	mnfld_->setCurrentItem( mn->name().buf() );
 	setup_.mn_ = mn;
     }
 
@@ -375,8 +375,8 @@ void uiUnitSel::fillPar( IOPar& iop, const char* altkey ) const
 
 bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 {
-    const char* res = iop.find( altkey ? altkey : tblKey() );
-    if ( res && *res )
+    const BufferString res = iop.find( altkey ? altkey : tblKey() );
+    if ( !res.isEmpty() )
     {
 	const UnitOfMeasure* un = UoMR().get( res );
 	if ( setup_.ptype_ == Mnemonic::Other

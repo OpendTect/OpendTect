@@ -134,12 +134,12 @@ ClusterProc( const IOPar& pars )
 
 bool init()
 {
-    StringView res = pars_.find( sKey::Survey() );
-    if ( !res.isEmpty() && SI().getDirName() != res )
-	IOMan::setSurvey( res.str() );
+    const BufferString res = pars_.find( sKey::Survey() );
+    if ( !res.isEmpty() && SI().getDirName().isEqual(res) )
+	IOMan::setSurvey( res );
 
-    StringView scriptdir = pars_.find( "Script dir" );
-    if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir.str()) )
+    const BufferString scriptdir = pars_.find( "Script dir" );
+    if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )
 	return false;
 
     DirList scriptfiles( scriptdir, File::FilesInDir, "*.scr" );
@@ -151,9 +151,9 @@ bool init()
 	if ( !iop.read(fp.fullPath(),sKey::Pars()) )
 	    continue;
 
-	StringView desc = iop.find( sKey::Desc() );
+	const BufferString desc = iop.find( sKey::Desc() );
 	fp.setExtension( ".log" );
-	jobs_ += new ClusterJobInfo( fp.fullPath(), desc.str() );
+	jobs_ += new ClusterJobInfo( fp.fullPath(), desc );
     }
 
     return true;
@@ -194,11 +194,11 @@ void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg)
 
 bool submitJobs( TaskRunner* tr )
 {
-    StringView submitcmd = pars_.find( "Command" );
+    const BufferString submitcmd = pars_.find( "Command" );
     if ( submitcmd.isEmpty() )
 	return false;
 
-    ClusterJobSubmitter jobsubmitter( jobs_, submitcmd.str() );
+    ClusterJobSubmitter jobsubmitter( jobs_, submitcmd );
     if ( !TaskRunner::execute( tr, jobsubmitter ) )
 	return false;
 
@@ -207,7 +207,7 @@ bool submitJobs( TaskRunner* tr )
 
 protected:
 
-    const IOPar&		pars_;
+    const IOPar&			pars_;
     ManagedObjectSet<ClusterJobInfo>	jobs_;
 };
 
@@ -333,9 +333,9 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 	IOM().permRemove( tempid );
     }
 
-    StringView tmpdir = pars.find( sKey::TmpStor() );
-    if ( tmpdir && File::isDirectory(tmpdir.str()) )
-	File::removeDir( tmpdir.str() );
+    const BufferString tmpdir = pars.find( sKey::TmpStor() );
+    if ( !tmpdir.isEmpty() && File::isDirectory(tmpdir) )
+	File::removeDir( tmpdir );
 
     return true;
 }

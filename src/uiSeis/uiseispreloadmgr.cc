@@ -654,7 +654,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     IOPar pars;
     if ( info.getDisplayPars(pars) )
     {
-	const char* seqnm = pars.find( sKey::Name() );
+	const BufferString seqnm = pars.find( sKey::Name() );
 	seq = ColTab::Sequence( seqnm );
 	ms.usePar( pars );
     }
@@ -879,7 +879,7 @@ void uiSeisPreLoadedDataSel::updateCB( CallBacker* )
     nmfld_->addItem( OD::String::empty() );
     nmfld_->addItems( names_ );
     if ( !curselnm.isEmpty() && names_.isPresent(curselnm) )
-	nmfld_->setCurrentItem( curselnm );
+	nmfld_->setCurrentItem( curselnm.buf() );
     else
     {
 	selkey_.setUdf();

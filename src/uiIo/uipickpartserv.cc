@@ -367,7 +367,7 @@ bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
     for ( int iln=0; iln<selectlines_.size(); iln++ )
     {
 	const Survey::Geometry* geom =
-	    Survey::GM().getGeometry( selectlines_.get(iln) );
+	    Survey::GM().getGeometry( selectlines_.get(iln).buf() );
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
 	if ( !geom2d )
 	    continue;
@@ -404,7 +404,7 @@ bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
 
 void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 {
-    const int setidx = psmgr_.indexOf( pickset.name() );
+    const int setidx = psmgr_.indexOf( pickset.name().buf() );
     const bool isnew = setidx < 0;
     RefMan<Pick::Set> ps = isnew ? 0 : psmgr_.get( setidx );
     if ( ps )

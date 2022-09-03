@@ -2258,7 +2258,7 @@ void uiWellDefMnemLogDlg::Tables::defLogChangedCB( CallBacker* cb )
     changedmn_ = const_cast<Mnemonic*>( availmnems_.get(currow) );
     const int curritem = deflogsflds_.get(currow)->currentItem();
     const BufferString lognm( deflogsflds_.get(currow)->textOfItem(curritem) );
-    changedlog_ = wd_->logs().getLog( lognm );
+    changedlog_ = wd_->logs().getLog( lognm.buf() );
 }
 
 
@@ -2274,7 +2274,7 @@ void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
 	else
 	    deflognm = sNone();
 
-	deflogsflds_.get(row)->setCurrentItem( deflognm );
+	deflogsflds_.get(row)->setCurrentItem( deflognm.buf() );
 	row++;
     }
 }

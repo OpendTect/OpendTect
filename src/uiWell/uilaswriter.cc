@@ -128,7 +128,7 @@ void uiLASWriter::logSelCB( CallBacker* )
     logsfld_->getChosen( lognms );
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* log = wd_->logs().getLog( lognms.get(idx) );
+	const Well::Log* log = wd_->logs().getLog( lognms.get(idx).buf() );
 	if ( !log )
 	    continue;
 

@@ -286,7 +286,8 @@ void MenuItemHandler::createMenuCB(CallBacker*)
 {
     if ( doadd_ && shouldAddMenu() )
     {
-	MenuItemHolder* parentitem = menuhandler_.findItem( parenttext_ );
+	MenuItemHolder* parentitem = menuhandler_.findItem(
+							parenttext_.buf() );
 	if ( !parentitem ) parentitem = &menuhandler_;
 
 	mAddMenuItem( parentitem, &menuitem_, isenabled_&&shouldBeEnabled(),

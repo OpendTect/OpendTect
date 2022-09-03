@@ -93,9 +93,9 @@ void uiPickSetMan::mkFileInfo()
 	if ( !txt.isEmpty() )
 	    ErrMsg( txt );
 
-	StringView typ = curioobj_->pars().find( sKey::Type() );
-	const bool ispoly = typ==sKey::Polygon();
-	const bool havetype = typ && *typ;
+	const BufferString typ = curioobj_->pars().find( sKey::Type() );
+	const bool ispoly = typ.isEqual( sKey::Polygon() );
+	const bool havetype = !typ.isEmpty();
 	if ( havetype )
 	    txt.add( "Type: " ).add( typ );
 

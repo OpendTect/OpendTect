@@ -313,9 +313,9 @@ bool ODInst::autoInstTypeIsFixed()
 ODInst::AutoInstType ODInst::getAutoInstType()
 {
     mDeclEnvVarVal;
-    const char* res = envvarval && *envvarval ? envvarval
-			: userSettings().find( sKeyAutoInst() );
-    return res && *res ? parseEnumAutoInstType( res ) : ODInst::InformOnly;
+    const BufferString res = envvarval && *envvarval ?
+	    BufferString( envvarval ) : userSettings().find( sKeyAutoInst() );
+    return res.isEmpty() ? ODInst::InformOnly : parseEnumAutoInstType( res );
 }
 
 

@@ -221,7 +221,7 @@ void uiMadIOSelDlg::selChg( CallBacker* )
 void uiMadIOSelDlg::usePar( const IOPar& iop )
 {
     bool istypselected = false;
-    if ( !iop.find(sKey::Type()) )
+    if ( !iop.hasKey(sKey::Type()) )
 	typfld_->setValue( 0 );
     else
 	istypselected = true;
@@ -353,19 +353,21 @@ void uiMadIOSel::usePar( const IOPar& iop )
 
 void uiMadIOSel::useParIfNeeded( const IOPar& iop )
 {
-    if ( iop_.find(sKey::Type()) ) return;
+    if ( iop_.hasKey(sKey::Type()) )
+	return;
 
-    BufferString typ( iop.find(sKey::Type()) );
-    if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) ) return;
+    const BufferString typ( iop.find(sKey::Type()) );
+    if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) )
+	return;
 
-    BufferString idval( iop.find(sKey::ID()) );
-    if ( !idval.isEmpty() && !iop_.find(sKey::ID()) )
+    const BufferString idval( iop.find(sKey::ID()) );
+    if ( !idval.isEmpty() && !iop_.hasKey(sKey::ID()) )
 	iop_.set( sKey::ID(), idval );
 
     iop_.set( sKey::Type(), typ );
     const char* lkey = IOPar::compKey( sKey::Subsel(), sKey::LineKey() );
-    BufferString lnm( iop.find(lkey) );
-    if ( !lnm.isEmpty() && !iop_.find(lkey) )
+    const BufferString lnm( iop.find(lkey) );
+    if ( !lnm.isEmpty() && !iop_.hasKey(lkey) )
 	iop_.set( lkey, lnm );
 
     updateSummary();
@@ -384,7 +386,7 @@ BufferString uiMadIOSel::getSummary() const
 {
     BufferString ret( "-" );
 
-    if ( !iop_.find(sKey::Type()) )
+    if ( !iop_.hasKey(sKey::Type()) )
 	return ret;
 
     ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop_ );
@@ -393,7 +395,7 @@ BufferString uiMadIOSel::getSummary() const
     else if ( iot == ODMad::ProcFlow::Madagascar )
 	ret = iop_.find( sKey::FileName() );
     else
-	ret = IOM().nameOf( iop_.find("ID") );
+	ret = IOM().nameOf( iop_.find("ID").buf() );
 
     return ret;
 }

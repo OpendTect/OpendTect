@@ -44,11 +44,13 @@ int GMTParFactory::add( const char* nm, GMTParCreateFunc fn )
 
 GMTPar* GMTParFactory::create( const IOPar& iop, const char* workdir ) const
 {
-    const char* grpname = iop.find( ODGMT::sKeyGroupName() );
-    if ( !grpname || !*grpname ) return 0;
+    const BufferString grpname = iop.find( ODGMT::sKeyGroupName() );
+    if ( grpname.isEmpty() )
+	return nullptr;
 
     Entry* entry = getEntry( grpname );
-    if ( !entry ) return 0;
+    if ( !entry )
+	return nullptr;
 
     GMTPar* grp = entry->crfn_( iop, workdir );
     return grp;

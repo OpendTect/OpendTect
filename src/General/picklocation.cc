@@ -254,15 +254,25 @@ bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 
 bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 {
-    if ( !text_ || !*text_ )
-	{ if ( val ) val->setEmpty(); return false; }
+    if ( text_->isEmpty() )
+    {
+	if ( val )
+	    val->setEmpty();
+
+	return false;
+    }
 
     SeparString sepstr( *text_, '\'' );
     const int strsz = sepstr.size();
     for ( int idx=0; idx<strsz; idx+=2 )
     {
 	if ( sepstr[idx] == key )
-	    { if ( val ) *val = sepstr[idx+1]; return true; }
+	{
+	    if ( val )
+		*val = sepstr[idx+1];
+
+	    return true;
+	}
     }
 
     return false;
@@ -421,9 +431,9 @@ void Pick::Location::toString( BufferString& str, bool forexport,
 				   const Coords::CoordSystem* expcrs ) const
 {
     str.setEmpty();
-    if ( text_ && *text_ )
+    if ( text_ && !text_->isEmpty() )
     {
-	BufferString txt( *text_ );
+	BufferString txt( text_ );
 	txt.replace( newlinechar, pipechar );
 	str.set( "\"" ).add( txt ).add( "\"\t" );
     }

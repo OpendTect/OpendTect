@@ -116,7 +116,8 @@ void uiODWellLogToolWinGrp::displayLogs()
 
 	for ( const auto* lognm : lognms )
 	{
-	    const Well::Log* log = logdatas_[idx]->logs().getLog( *lognm );
+	    const Well::Log* log = logdatas_[idx]->logs().getLog(
+								lognm->buf() );
 	    outplogs += cCast(Well::Log*,log);
 	}
 

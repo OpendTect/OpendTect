@@ -117,7 +117,7 @@ void RemCommHandler::startJobCB( CallBacker* cb )
     if ( stderrstrm )
     {
 	stderrstrm->getAll( stderrstr );
-	if ( !stderrstr )
+	if ( !stderrstr.isEmpty() )
 	    uirv.add( toUiString(stderrstr) );
     }
 

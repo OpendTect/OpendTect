@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 class DBKeySet;
 class DBKey;
-class MultiID;
 class SeparString;
 class StringBuilder;
 namespace Gason { struct JsonNode; }
@@ -309,7 +308,7 @@ public:
 					    { return gtObjectByKeys( bskey ); }
 
     od_int64	getIntValue( idx_type idx ) const override
-			{ return ValueSet::getIntValue( idx ); }
+		{ return ValueSet::getIntValue( idx ); }
     bool	getBoolValue( idx_type idx ) const override
 		{ return ValueSet::getBoolValue( idx ); }
     double	getDoubleValue( idx_type idx ) const override
@@ -318,6 +317,7 @@ public:
 		{ return ValueSet::getStringValue( idx ); }
     FilePath	getFilePath( idx_type idx ) const override
 		{ return ValueSet::getFilePath( idx ); }
+
 
     bool		getBoolValue(const char*) const;
     od_int64		getIntValue(const char*) const;

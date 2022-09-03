@@ -1358,7 +1358,7 @@ void HomePosManager::getNames( BufferStringSet& nms ) const
     nms.erase();
     for ( int idx=0; idx<homepos_.size(); idx++ )
     {
-	StringView parnm = homepos_[idx]->find( sKey::Name() );
+	const BufferString parnm = homepos_[idx]->find( sKey::Name() );
 	nms.add( parnm );
     }
 }

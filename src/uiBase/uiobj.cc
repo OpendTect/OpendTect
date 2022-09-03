@@ -113,6 +113,12 @@ int uiBaseObject::beginCmdRecEvent( const char* msg )
 }
 
 
+int uiBaseObject::beginCmdRecEvent( const BufferString& msg )
+{
+    return beginCmdRecEvent( msg.buf() );
+}
+
+
 int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 {
     if ( cmdrecorders_.isEmpty() ||

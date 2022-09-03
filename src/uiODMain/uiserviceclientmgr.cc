@@ -143,7 +143,8 @@ uiRetVal uiServiceClientMgr::logsChanged( const OD::JSON::Object& jsonobj )
 	return uirv;
     }
 
-    const MultiID wellid( jsonobj.getStringValue( sKey::ID() ) );
+    const BufferString wellidstr( jsonobj.getStringValue(sKey::ID()) );
+    const MultiID wellid( wellidstr.buf() );
     if ( Well::MGR().validID(wellid) )
     {
 	if ( Well::MGR().isLoaded(wellid) )

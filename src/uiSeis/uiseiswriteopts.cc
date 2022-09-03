@@ -38,14 +38,18 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
 
 void uiCBVSVolOpts::use( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::DataStorage() );
-    const int stortyp = res && *res ? int(*res - '0')
-				    : int(DataCharacteristics::F32);
+    BufferString res = iop.find( sKey::DataStorage() );
+    BufferString firstchar(res[0]);
+    const int stortyp = res.isEmpty() ? int(DataCharacteristics::F32)
+	: firstchar.add( "- '0'" ).toInt();
     stortypfld_->setValue( stortyp );
 
     res = iop.find( CBVSSeisTrcTranslator::sKeyOptDir() );
-    if ( res && *res )
-	optimdirfld_->setChecked( *res == 'H' );
+    firstchar = res[0];
+    if ( !res.isEmpty() )
+    {
+	optimdirfld_->setChecked( firstchar.isEqual("H") );
+    }
 }
 
 
@@ -77,9 +81,10 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
 
 void uiCBVSPS3DOpts::use( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::DataStorage() );
-    const int stortyp = res && *res ? int(*res - '0')
-				    : int(DataCharacteristics::F32);
+    const BufferString res = iop.find( sKey::DataStorage() );
+    const char* charstrs = res.str();
+    const int stortyp = charstrs && *charstrs ? int(*charstrs - '0')
+	: int(DataCharacteristics::F32);
     stortypfld_->setValue( stortyp );
 }
 

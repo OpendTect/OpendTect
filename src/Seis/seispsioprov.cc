@@ -120,7 +120,7 @@ SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj,
 
 void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
 {
-    if ( ioobj.pars().find(SeisPSIOProvider::sKeyCubeID) )
+    if ( ioobj.pars().hasKey(SeisPSIOProvider::sKeyCubeID) )
 	return;
 
     IODir iodir( ioobj.key() );

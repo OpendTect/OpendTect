@@ -164,7 +164,7 @@ void uiODView2DFaultSSParentTreeItem::addFaultSSs(
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
 	const EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
-	if ( !emobj || findChild(emobj->name()) )
+	if ( !emobj || findChild(emobj->name().buf()) )
 	    continue;
 
 	MPE::ObjectEditor* editor =

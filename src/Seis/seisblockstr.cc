@@ -24,7 +24,7 @@ ________________________________________________________________________
 BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
 						  const char* s2 )
     : SeisTrcTranslator(s1,s2)
-    , rdr_(0)
+    , rdr_(nullptr)
     , preselfprep_(DataCharacteristics::Auto)
 {
 }
@@ -203,7 +203,5 @@ BufferStringSet BlocksSeisTrcTranslator::auxExtensions() const
 void BlocksSeisTrcTranslator::usePar( const IOPar& iop )
 {
     SeisTrcTranslator::usePar( iop );
-    const char* res = iop.find( sKey::DataStorage() );
-    if ( res && isdigit(*res) )
-	preselfprep_ = DataCharacteristics::UserType( *res - '0' );
+    DataCharacteristics::getUserTypeFromPar( iop, preselfprep_ );
 }

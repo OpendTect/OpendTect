@@ -1166,7 +1166,7 @@ void uiListBox::sortItems( bool asc )
 
     delete [] sortidxs;
     if ( !cur.isEmpty() )
-	setCurrentItem( cur );
+	setCurrentItem( cur.buf() );
 }
 
 
@@ -1638,7 +1638,7 @@ void uiListBox::setChosen( const BufferStringSet& nms )
     if ( isMultiChoice() )
 	setCheckedItems( nms );
     else if ( !nms.isEmpty() )
-	setCurrentItem( nms.get(0) );
+	setCurrentItem( nms.get(0).buf() );
 }
 
 
