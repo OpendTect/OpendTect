@@ -18,7 +18,7 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 		- [Qt Install](#qt-install)
 		- [OpenSceneGraph Build](#openscenegraph-build)
 		- [Proj Build](#proj-build)
-		- [Sqlite Install](#sqlite-build)
+		- [Sqlite Install](#sqlite-install)
 		- [HDF5 Install](#hdf5-install)
  	- [Windows](#windows)
  	- [MacOS](#macos)
