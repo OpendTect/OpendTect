@@ -61,7 +61,6 @@ WellLogToolData::~WellLogToolData()
 
 void WellLogToolData::init()
 {
-    Well::MGR().reloadLogs( wd_->multiID() );
     for ( int idx=0; idx<logs().size(); idx++ )
     {
 	const Well::Log& log = logs().getLog( idx );
