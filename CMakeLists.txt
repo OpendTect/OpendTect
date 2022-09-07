@@ -116,7 +116,7 @@ if ( WIN32 OR APPLE )
     OD_ADD_SIGNLIBRARIES_TARGET()
 endif()
 
-set( PLUGIN_DIR ""  CACHE PATH "Path to eventual extra plugins" )
+set( PLUGIN_DIR "" CACHE PATH "Path to eventual extra plugins" )
 if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
     include ( ${PLUGIN_DIR}/CMakeLists.txt )
 endif()
@@ -151,8 +151,5 @@ endif()
 
 if ( OD_BINARY_DEBUG_BASEDIR AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
    set( OD_BINARY_DEBUG_BASEDIR "${OD_BINARY_DEBUG_BASEDIR}" CACHE PATH "Binary
-project in Debug mode" INTERNAL )
+	project in Debug mode" INTERNAL )
 endif()
-#Avoid warnings if specified on command line
-set ( DUMMY ${ISTAG} ${BRANCH} ${CMAKE_PDB_OUTPUT_DIRECTORY} ${OD_RUN_LMSTRIP}
-	    ${COINDIR} ${BUILD_dGBPDF3D} ${PDF3D_ROOT} ${HDF5_ROOT} )
