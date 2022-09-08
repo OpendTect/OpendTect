@@ -946,8 +946,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( zcol==-1 )
 	zcol = 2;
 
-    ZValSetter setter( bivs, zcol, zaxistransform_ );
-    setter.execute();
+    ZValSetter zvalssetter( bivs, zcol, zaxistransform_ );
+    zvalssetter.execute();
 
     setRandomPosData( channel, &positions, 0 );
 }

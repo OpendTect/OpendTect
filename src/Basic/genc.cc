@@ -169,9 +169,9 @@ void* operator new[]( std::size_t sz )
 	   to ensure memory is allocated */
 	const od_int64 step = sysconf( _SC_PAGESIZE ) - 2;
 	const od_int64 nriterations = mCast(od_int64,mCast(float,sz)/step);
-	MemPageMemorySetter setter( nriterations, (unsigned char*)p, step );
-	setter.setReport( false );
-	setter.execute();
+	MemPageMemorySetter memsetter( nriterations, (unsigned char*)p, step );
+	memsetter.setReport( false );
+	memsetter.execute();
     }
     else
 # endif

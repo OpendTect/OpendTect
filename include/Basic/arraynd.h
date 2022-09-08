@@ -444,8 +444,8 @@ void ArrayND<T>::setAll( T val )
 	    stor->setAll( val );
 	else
 	{
-	    MemSetter<T> setter( *stor, val, info().getTotalSz() );
-	    setter.execute();
+	    MemSetter<T> memsetter( *stor, val, info().getTotalSz() );
+	    memsetter.execute();
 	}
 
 	return;
