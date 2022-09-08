@@ -127,14 +127,14 @@ protected:
 template <class T> inline
 void ValueSeries<T>::getValues( ValueSeries<T>& to, od_int64 nrvals ) const
 {
-    ValueSeriesGetAll<T> setter( *this, to, nrvals );
-    setter.execute();
+    ValueSeriesGetAll<T> memsetter( *this, to, nrvals );
+    memsetter.execute();
 }
 
 
 template <class T> inline
 void ValueSeries<T>::getValues( T* to, od_int64 nrvals ) const
 {
-    ValueSeriesGetAll<T> setter( *this, to, nrvals );
-    setter.execute();
+    ValueSeriesGetAll<T> memsetter( *this, to, nrvals );
+    memsetter.execute();
 }

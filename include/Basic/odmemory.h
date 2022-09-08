@@ -485,9 +485,9 @@ inline void memValueSet( T* arr, T val , od_int64 sz, TaskRunner* taskrun )
 	return;
     }
 
-    MemSetter<T> msetter( arr, val, sz );
-    taskrun ? taskrun->execute( msetter )
-	    : msetter.execute();
+    MemSetter<T> memsetter( arr, val, sz );
+    taskrun ? taskrun->execute( memsetter )
+	    : memsetter.execute();
 }
 
 } // namespace OD

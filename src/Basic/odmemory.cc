@@ -115,8 +115,8 @@ void OD::memSet( void* data, char setto, od_int64 sz )
 	sysMemSet( data, (int)setto, (size_t)sz );
     else
     {
-	MemSetter<char> msetter( (char*)data, setto, (size_t)sz );
-	msetter.execute();
+	MemSetter<char> memsetter( (char*)data, setto, (size_t)sz );
+	memsetter.execute();
     }
 }
 
