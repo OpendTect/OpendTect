@@ -1955,7 +1955,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    if ( trckeypath.isEmpty() && trzs.isEmpty() )
 		return;
 
-	    IntersectionData* data = 0;
+	    IntersectionData* data = nullptr;
 
 	    for ( int sectionidx=0; sectionidx<horizon->nrSections();
 		  sectionidx++ )
@@ -1977,6 +1977,9 @@ void HorizonDisplay::updateIntersectionLines(
 		    if ( mIsZero(trzs.zsamp_.width(),1e-5) )
 		    {
 			data = getOrCreateIntersectionData( lines );
+			if ( !data )
+			    continue;
+
 			data->objid_ = vo->id();
 			drawHorizonOnZSlice( trzs, *data );
 		    }
