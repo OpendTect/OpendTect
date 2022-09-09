@@ -152,17 +152,15 @@ void OD::PythonAccess::updatePythonPath() const
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( sKeyPythonPathEnvStr(), pystartpath_, true );
+#ifdef __odpy_dir__
     FilePath pythonmodsfp;
     if ( isDeveloperBuild() )
-    {
-	pythonmodsfp.set( __FILE__ );
-	pythonmodsfp.set( pythonmodsfp.dirUpTo( pythonmodsfp.nrLevels()-4 ) )
-		    .add( "external" ).add( "odpy" );
-    }
+	pythonmodsfp.set( __odpy_dir__ );
     else
-	pythonmodsfp.set( GetSoftwareDir(true) ).add( "bin" ).add( "python");
+	pythonmodsfp.set( GetSoftwareDir(true) ).add( "bin" ).add( "python" );
     if ( pythonmodsfp.exists() )
 	PythA().addBasePath( pythonmodsfp );
+#endif
 
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
