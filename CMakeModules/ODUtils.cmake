@@ -458,7 +458,7 @@ endmacro( OD_INSTALL_PROGRAM )
 
 function( od_get_library_filename LIBNM OD_LIBFNM )
     if( WIN32 )
-	set( LIBFNM "${LIBNM}.${OD_STATIC_EXTENSION}" )
+	set( LIBFNM "${LIBNM}${OD_STATIC_EXTENSION}" )
     elseif( APPLE )
 	set( LIBFNM "${CMAKE_FIND_LIBRARY_PREFIXES}${LIBNM}.${CMAKE_FIND_LIBRARY_SUFFIXES}" )
     else()
