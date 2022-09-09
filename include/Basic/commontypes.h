@@ -43,7 +43,7 @@ enum SnapDir
     { SnapDownward=-1, SnapNearest=0, SnapUpward=1 };
 
 enum DataRepType
-    { AutoDataRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
+    { AutoDataRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64, UI64 };
 
 template <class T> DataRepType GetDataRepType() { return AutoDataRep; }
 #   define mDefDataRepTypeGetFn( ctyp, drtyp ) \
@@ -57,7 +57,7 @@ mDefDataRepTypeGetFn( od_uint32, UI32 )
 mDefDataRepTypeGetFn( od_int64, SI64 )
 mDefDataRepTypeGetFn( float, F32 )
 mDefDataRepTypeGetFn( double, F64 )
-mDefDataRepTypeGetFn( od_uint64, SI64 ) //!< pray
+mDefDataRepTypeGetFn( od_uint64, UI64 )
 
 inline DataRepType GetDataRepType( bool isfp, bool issigned, int nbytes )
 {
@@ -66,7 +66,7 @@ inline DataRepType GetDataRepType( bool isfp, bool issigned, int nbytes )
     if ( issigned )
 	return nbytes<2 ? SI8 : (nbytes>4 ? SI64 : (nbytes==2 ? SI16 : SI32));
     else
-	return nbytes<2 ? UI8 : (nbytes>4 ? SI64 : (nbytes==2 ? UI16 : UI32));
+	return nbytes<2 ? UI8 : (nbytes>4 ? UI64 : (nbytes==2 ? UI16 : UI32));
 }
 
 } // namespace OD
