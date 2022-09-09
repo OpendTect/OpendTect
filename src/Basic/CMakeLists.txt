@@ -14,6 +14,10 @@ if ( UNIX )
 	add_definitions("-DmMEM_DEBUGGER")
     endif()
 endif( UNIX )
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/odpy" AND
+     IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
+    add_definitions( -D__odpy_dir__="${CMAKE_SOURCE_DIR}/external/odpy" )
+endif()
 
 set( QT_MOC_HEADERS
 	qtimercomm.h
