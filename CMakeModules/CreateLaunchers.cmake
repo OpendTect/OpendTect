@@ -52,7 +52,7 @@ if(POLICY CMP0053)
     cmake_policy(SET CMP0053 NEW)
 endif()
 
-include(CleanDirectoryList)
+include( "${OpendTect_DIR}/CMakeModules/CleanDirectoryList.cmake" )
 
 # We must run the following at "include" time, not at function call time,
 # to find the path to this module rather than the path to a calling list file
