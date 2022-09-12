@@ -58,6 +58,8 @@ public:
     bool			getSelectedColumns(TypeSet<int>&) const;
     bool			getSelectedCells(TypeSet<RowCol>&) const;
     void			selectAll();
+    void			setSelectedCells(const TypeSet<RowCol>&);
+    void			removeSelection(const TypeSet<RowCol>&);
     const RowCol&		currentCell() const;
     void			setCurrentCell(const RowCol&);
 
