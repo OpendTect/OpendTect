@@ -186,6 +186,7 @@ double DataCharacteristics::getLimitValue( bool max ) const
 	case UI32:	return mGetLimitVal( od_uint32, max );
 	case F32:	return mGetLimitVal( float, max );
 	case SI64:	return mGetLimitVal( od_int64, max );
+	case UI64:	return mGetLimitVal( od_uint64, max );
 	case F64:	return mGetLimitVal( double, max );
 	default:	return mGetLimitVal( od_int32, max );
     }
