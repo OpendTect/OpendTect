@@ -654,6 +654,33 @@ bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
 }
 
 
+void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs )
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    for ( const auto& rc : rcs )
+    {
+	const QModelIndex idx = tablemodel_->getAbstractModel()
+					   ->index( rc.row(), rc.col() );
+	selmdl->select( idx, QItemSelectionModel::Select );
+    }
+}
+
+
+void uiTableView::removeSelection( const TypeSet<RowCol>& rcs )
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    if ( !selmdl->hasSelection() )
+	return;
+
+    for ( const auto& rc : rcs )
+    {
+	const QModelIndex idx = tablemodel_->getAbstractModel()
+					   ->index( rc.row(), rc.col() );
+	selmdl->select( idx, QItemSelectionModel::Deselect );
+    }
+}
+
+
 void uiTableView::selectAll()
 {
     odtableview_->selectAll();
