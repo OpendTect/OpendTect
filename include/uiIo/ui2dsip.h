@@ -20,7 +20,7 @@ public:
 			ui2DSurvInfoProvider();
 			~ui2DSurvInfoProvider();
 
-    const char* usrText() const override	{ return "Set for 2D only"; }
+    const char* usrText() const override	{ return "Enter X/Y ranges"; }
     uiDialog*	dialog(uiParent*) override;
     bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]) override;
 
