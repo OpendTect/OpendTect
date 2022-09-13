@@ -22,14 +22,16 @@
 #					  Core, Sql, Network, Gui
 # OD_USEOSG				: Dependency on OSG is enabled if set.
 # OD_USEZLIB				: Dependency on ZLib is enabled if set.
+# OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
+# OD_LINKCRYPTO				: Dependency on OpenSSL::Crypto is enabled if set.
+# OD_LINKPROJ				: Dependency on proj is enabled if set
+# OD_LINKSQLITE				: Dependency on sqlite is enabled if set
+# OD_USEHDF5				: Dependency on HDF5 is enabled if set.
 # OD_USEBREAKPAD			: Runtime availability on breakpad is enabled if set
 # OD_USEOPENSSL				: Runtime availability on OpenSSL::SSL is enabled if set.
 # OD_USECRYPTO				: Runtime availability on OpenSSL::Crypto is enabled if set.
+# OD_USEPROJ				: Runtime availability on proj is enabled if set
 # OD_USESQLITE				: Runtime availability on sqlite is enabled if set
-# OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
-# OD_LINKCRYPTO				: Dependency on OpenSSL::Crypto is enabled if set.
-# OD_LINKSQLITE				: Dependency on sqlite is enabled if set
-# OD_USEHDF5				: Dependency on HDF5 is enabled if set.
 # OD_IS_PLUGIN				: Tells if this is a plugin (if set)
 # OD_PLUGINMODULES			: A list of eventual sub-modules of
 #					  a plugin. Each submodule must have an
@@ -73,13 +75,16 @@ list( APPEND SETUPNMS
        INSTQT
        USEOSG
        USEZLIB
+       LINKOPENSSL
+       LINKCRYPTO
+       LINKPROJ
+       LINKSQLITE
+       USEHDF5
        USEBREAKPAD
        USEOPENSSL
        USECRYPTO
-       LINKOPENSSL
-       LINKCRYPTO
        USEPROJ
-       USEHDF5
+       USESQLITE
 )
 
 
@@ -144,12 +149,12 @@ if( OD_MODULE_DEPS )
     endforeach()
 endif()
 
-if(OD_USEOSG)
+if( OD_USEOSG )
     OD_SETUP_OSG()
 endif()
 
 #Add Qt-stuff
-if(OD_USEQT OR OD_INSTQT)
+if( OD_USEQT OR OD_INSTQT )
    OD_SETUP_QT()
 endif()
 
@@ -174,9 +179,9 @@ if( OD_USECRYPTO OR OD_LINKCRYPTO )
     OD_SETUP_CRYPTO()
 endif()
 
-if( OD_USEPROJ )
+if( OD_USEPROJ OR OD_LINKPROJ )
     OD_SETUP_PROJ()
-endif(OD_USEPROJ)
+endif()
 
 if( OD_USEHDF5 )
     OD_SETUP_HDF5()
@@ -710,13 +715,12 @@ include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
 
 if ( WIN32 AND (OD_${OD_MODULE_NAME}_EXTERNAL_LIBS OR
-	       OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS ))
+	        OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS ))
     list ( APPEND EXTLIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS} )
     list ( APPEND EXTLIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS} )
     list ( LENGTH EXTLIBS EXTLIBS_SIZE )
 
-    if ( NOT ${EXTLIBS_SIZE} EQUAL -1 AND (OD_IS_PLUGIN OR
-	    ((DEFINED LIBSQLITE) AND (EXISTS "${LIBSQLITE}"))) )
+    if ( NOT ${EXTLIBS_SIZE} EQUAL -1 AND OD_IS_PLUGIN )
 	get_filename_component( QTDIR "${QT_DIR}/../../../" REALPATH )
 	foreach( LIBNM ${EXTLIBS} )
 	    if ( "${LIBNM}" MATCHES ".*Qt${QT_VERSION_MAJOR}.*" OR
@@ -728,9 +732,9 @@ if ( WIN32 AND (OD_${OD_MODULE_NAME}_EXTERNAL_LIBS OR
 		OD_READ_TARGETINFO( ${LIBNM} )
 		set( LIBNM ${SOURCEFILE} )
 	    else()
-		guess_runtime_library_dirs( LIBSQLDLLPATH "${LIBNM}" )
-		get_filename_component( LIBSQLITENAME ${LIBNM} NAME_WE )
-		set( LIBNM "${LIBSQLDLLPATH}/${LIBSQLITENAME}.dll" )
+		guess_runtime_library_dirs( LIBDLLPATH "${LIBNM}" )
+		get_filename_component( LIBDLLNAME ${LIBNM} NAME_WE )
+		set( LIBNM "${LIBDLLPATH}/${LIBDLLNAME}.dll" )
 	    endif()
 	    if ( EXISTS "${LIBNM}" )
 		get_filename_component( LIBFILEEXT ${LIBNM} EXT )
