@@ -591,9 +591,16 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 	{
 	    id = getFreeID();
 	}
-	else if ( findAction( id ) )
+	else
 	{
-	    pErrMsg("Duplicate menu id found.");
+	    const uiAction* prevaction = findAction( id );
+	    if ( prevaction )
+	    {
+		uiString txt = toUiString( "Duplicate menu id found. "
+					   "'%1' and '%2'" )
+			.arg(action->text()).arg(prevaction->text());
+		pErrMsg( txt.getFullString() );
+	    }
 	}
     }
 
