@@ -1368,6 +1368,8 @@ bool uiAttribDescSetEd::is2D() const
 }
 
 
+static const char* sKeyDotPath()	{ return "Dot path"; }
+
 class uiWhereIsDotDlg : public uiDialog
 { mODTextTranslationClass(uiWhereIsDotDlg)
 public:
@@ -1381,7 +1383,7 @@ uiWhereIsDotDlg( uiParent* p )
     uiLabel* lbl = new uiLabel( this, txt );
 
     BufferString pathfromsetts;
-    Settings::common().get( "Dot path", pathfromsetts );
+    Settings::common().get( sKeyDotPath(), pathfromsetts );
 
     dotfld_ = new uiFileInput( this, tr("Dot executable"),
 			       pathfromsetts.buf() );
@@ -1406,7 +1408,7 @@ bool acceptOK( CallBacker* ) override
 	    if ( !res ) return false;
 	}
 
-	Settings::common().set( "Dot path", fnm.buf() );
+	Settings::common().set( sKeyDotPath(), fnm.buf() );
 	Settings::common().write();
 	return true;
     }
@@ -1419,8 +1421,28 @@ bool acceptOK( CallBacker* ) override
 };
 
 
+static bool initDotPath( BufferString& dotpath )
+{
+    if ( !__islinux__ )
+	return false;
+
+    Settings::common().get( sKeyDotPath(), dotpath );
+    if ( !dotpath.isEmpty() )
+	return true;
+
+    dotpath = "/usr/bin/dot";
+    if ( !File::exists(dotpath) )
+	return false;
+
+    Settings::common().set( sKeyDotPath(), dotpath.buf() );
+    return Settings::common().write();
+}
+
+
 void uiAttribDescSetEd::dotPathCB( CallBacker* )
 {
+    BufferString dotpath;
+    initDotPath( dotpath );
     uiWhereIsDotDlg dlg( this );
     dlg.go();
 }
@@ -1428,11 +1450,11 @@ void uiAttribDescSetEd::dotPathCB( CallBacker* )
 
 void uiAttribDescSetEd::exportToDotCB( CallBacker* )
 {
-    if ( !attrset_ || attrlistfld_->isEmpty() ) return;
+    if ( !attrset_ || attrlistfld_->isEmpty() )
+	return;
 
     BufferString dotpath;
-    Settings::common().get( "Dot path", dotpath );
-    if ( dotpath.isEmpty() )
+    if ( !initDotPath(dotpath) )
     {
 	uiWhereIsDotDlg dlg( this );
 	if ( !dlg.go() ) return;
