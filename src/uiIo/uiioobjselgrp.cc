@@ -41,7 +41,15 @@ ________________________________________________________________________
 
 static const char* NoIconNm = "empty";
 
-//EntryData Class
+static bool requireIcon()
+{
+    mDefineStaticLocalObject(const bool, icsel,
+	= Settings::common().isTrue("Ui.Icons.ObjSel"));
+    return icsel;
+}
+
+
+// EntryData
 EntryData::EntryData( const MultiID& mid )
 {
     mid_ = mid;
@@ -57,6 +65,10 @@ EntryData::EntryData( const MultiID& mid, const BufferString& objnm,
     icnnm_ = icnnm;
     isdef_ = isdef;
 }
+
+
+EntryData::~EntryData()
+{}
 
 
 void EntryData::setIconName(const BufferString& iconnm )
@@ -77,21 +89,32 @@ void EntryData::setObjName( const BufferString& objnm )
 }
 
 
-//EntryDataSet Class
+// EntryDataSet
+EntryDataSet::EntryDataSet()
+{}
+
+
+EntryDataSet::~EntryDataSet()
+{}
+
+
 EntryDataSet& EntryDataSet::add( const MultiID& mid, bool isdef )
 {
     if ( mid.isUdf() || livemids_.isPresent(mid) )
 	return *this;
 
-    PtrMan<IOObj> ioobj = IOM().get(mid);
+    PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	return *this;
 
     const BufferString& nm = ioobj->name();
     BufferString icnnm = NoIconNm;
-    PtrMan<Translator> transl = ioobj->createTranslator();
-    if ( transl )
-	icnnm = transl->iconName();
+    if ( requireIcon() )
+    {
+	PtrMan<Translator> transl = ioobj->createTranslator();
+	if ( transl )
+	    icnnm = transl->iconName();
+    }
 
     auto* data = new EntryData( mid, nm, nm, icnnm, isdef );
     *this += data;
@@ -109,7 +132,16 @@ EntryDataSet& EntryDataSet::add( const MultiID& mid, const BufferString& objnm,
     if ( mid.isUdf() || livemids_.isPresent(mid) )
 	return *this;
 
-    EntryData* data = new EntryData( mid, objnm, dispnm, NoIconNm, isdef );
+    BufferString icnnm = NoIconNm;
+    if ( requireIcon() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<Translator> transl = ioobj ? ioobj->createTranslator() : nullptr;
+	if ( transl )
+	    icnnm = transl->iconName();
+    }
+
+    EntryData* data = new EntryData( mid, objnm, dispnm, icnnm, isdef );
     *this += data;
     livemids_.add(mid);
     if (isdef)
@@ -245,18 +277,8 @@ EntryData* EntryDataSet::getDataFor(const MultiID& mid)
 }
 
 
-
-#define mObjTypeName ctio_.ctxt_.objectTypeName()
-
-static bool requireIcon()
-{
-    mDefineStaticLocalObject(const bool, icsel,
-	= Settings::common().isTrue("Ui.Icons.ObjSel"));
-    return icsel;
-}
-
+// uiIOObjSelGrpManipSubj
 static const char* dGBToDispStorageStr()    { return "OpendTect";  }
-
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
 { mODTextTranslationClass(uiIOObjSelGrpManipSubj);
@@ -318,9 +340,11 @@ void relocStart( const char* msg ) override
     uiIOObjSelGrp*	selgrp_;
     uiIOObjManipGroup*	manipgrp_;
 
-};
+}; // class uiIOObjSelGrpManipSubj
 
 
+
+// uiIOObjSelGrp
 #define muiIOObjSelGrpConstructorCommons \
       uiGroup(p) \
     , ctio_(*new CtxtIOObj(c)) \
@@ -442,7 +466,8 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     listfld_->setHSzPol( uiObject::Wide );
     if ( isMultiChoice() )
     {
-	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, mObjTypeName );
+	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_,
+					     ctio_.ctxt_.objectTypeName() );
 	lbchoiceio_->readDone.notify( mCB(this,uiIOObjSelGrp,readChoiceDone) );
 	lbchoiceio_->storeRequested.notify(
 				mCB(this,uiIOObjSelGrp,writeChoiceReq) );
@@ -458,7 +483,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 void uiIOObjSelGrp::mkWriteFlds()
 {
     uiGroup* wrgrp = new uiGroup( this, "Write group" );
-    wrtrselfld_ = 0;
+    wrtrselfld_ = nullptr;
     if ( setup_.withwriteopts_ )
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_,
@@ -491,13 +516,13 @@ void uiIOObjSelGrp::mkWriteFlds()
 
 void uiIOObjSelGrp::mkManipulators()
 {
-    manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
-    manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
+    manipgrpsubj_ = new uiIOObjSelGrpManipSubj( this );
+    manipgrpsubj_->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj_,
 						     setup_.allowreloc_,
 						     setup_.allowremove_ );
     if ( setup_.allowsetdefault_ )
     {
-	mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
+	mkdefbut_ = manipgrpsubj_->manipgrp_->addButton(
 	    "makedefault", uiStrings::phrSetAs(uiStrings::sDefault()),
 	    mCB(this,uiIOObjSelGrp,makeDefaultCB) );
     }
@@ -551,10 +576,10 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     detachAllNotifiers();
     deepErase( inserters_ );
-    if ( manipgrpsubj )
+    if ( manipgrpsubj_ )
     {
-	delete manipgrpsubj->manipgrp_;
-	delete manipgrpsubj;
+	delete manipgrpsubj_->manipgrp_;
+	delete manipgrpsubj_;
     }
     delete ctio_.ioobj_;
     delete &ctio_;
@@ -659,7 +684,7 @@ void uiIOObjSelGrp::setChosen( const TypeSet<MultiID>& mids )
 	    listfld_->setChosen( selidx, true );
     }
 
-    selChg( 0 );
+    selChg( nullptr );
 }
 
 
@@ -667,6 +692,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 {
     const int curitm = listfld_->currentItem();
     const int sz = listfld_->size();
+    const char* objtypenm = ctio_.ctxt_.objectTypeName();
     if ( ctio_.ctxt_.forread_ )
     {
 	if ( isMultiChoice() )
@@ -674,18 +700,19 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 
 	if ( curitm < 0 )
 	{
-	    ctio_.setObj( 0 );
+	    ctio_.setObj( nullptr );
 	    if ( sz > 0 )
 		uiMSG().error(tr("Please select the %1 "
-				 "or press Cancel").arg(mObjTypeName));
+				 "or press Cancel").arg(objtypenm));
 	    return false;
 	}
+
 	PtrMan<IOObj> ioobj = getIOObj( curitm );
 	if ( !ioobj )
 	{
 	    uiMSG().error(tr("Internal error: "
 			     "Cannot retrieve %1 details from data store")
-			.arg(mObjTypeName));
+			.arg(objtypenm));
 	    // TODO: Check if setting to root is OK
 	    IOM().toRoot();
 	    fullUpdate( -1 );
@@ -722,12 +749,12 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	    bool allok = true;
 	    if ( ioobj->implReadOnly() )
 	    {
-		uiMSG().error(tr("Chosen %1 is read-only").arg(mObjTypeName));
+		uiMSG().error(tr("Chosen %1 is read-only").arg(objtypenm));
 		allok = false;
 	    }
 	    else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
 		allok = uiMSG().askOverwrite(
-		tr("Overwrite existing %1?").arg(mObjTypeName));
+		tr("Overwrite existing %1?").arg(objtypenm));
 
 	    if ( !allok )
 		{ asked2overwrite_ = false; return false; }
@@ -757,7 +784,8 @@ void uiIOObjSelGrp::setDefTranslator( const Translator* trl )
 
 void uiIOObjSelGrp::setContext( const IOObjContext& c )
 {
-    ctio_.ctxt_ = c; ctio_.setObj( 0 );
+    ctio_.ctxt_ = c;
+    ctio_.setObj( nullptr );
     fullUpdate( -1 );
 }
 
@@ -770,14 +798,14 @@ const IOObjContext& uiIOObjSelGrp::getContext() const
 
 uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
 {
-    return manipgrpsubj ? manipgrpsubj->grp_ : 0;
+    return manipgrpsubj_ ? manipgrpsubj_->grp_ : nullptr;
 }
 
 
 void uiIOObjSelGrp::displayManipGroup( bool yn, bool shrink )
 {
-    if ( manipgrpsubj && manipgrpsubj->grp_ )
-	manipgrpsubj->grp_->display( yn, shrink );
+    if ( manipgrpsubj_ && manipgrpsubj_->grp_ )
+	manipgrpsubj_->grp_->display( yn, shrink );
 }
 
 
@@ -890,7 +918,7 @@ void uiIOObjSelGrp::updateEntry( const MultiID& mid, const BufferString& objnm,
     ed->setIconName( icnnm );
     ed->setObjName( objnm );
     dataset_.updateMID( mid, ed );
-    setCurrent(0);
+    setCurrent( 0 );
     chngs.add( objnm );
     itemChanged.trigger( chngs );
 }
@@ -1020,7 +1048,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     if ( !ioobj )
     {
 	uiMSG().error( uiStrings::phrCannotCreate(
-				tr("%1 with this name").arg(mObjTypeName) ));
+		tr("%1 with this name").arg(ctio_.ctxt_.objectTypeName())) );
 	return false;
     }
 
@@ -1072,7 +1100,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 {
     if ( !ctio_.ctxt_.forread_ )
     {
-	PtrMan<IOObj> ioobj = 0;
+	PtrMan<IOObj> ioobj = nullptr;
 	if ( ctio_.ioobj_ )
 	    nmfld_->setText( ctio_.ioobj_->name() );
 
@@ -1172,8 +1200,8 @@ void uiIOObjSelGrp::nameAvCB( CallBacker* )
 
 void uiIOObjSelGrp::delPress( CallBacker* )
 {
-    if ( manipgrpsubj && manipgrpsubj->manipgrp_ )
-	manipgrpsubj->manipgrp_->triggerButton( uiManipButGrp::Remove );
+    if ( manipgrpsubj_ && manipgrpsubj_->manipgrp_ )
+	manipgrpsubj_->manipgrp_->triggerButton( uiManipButGrp::Remove );
 }
 
 
