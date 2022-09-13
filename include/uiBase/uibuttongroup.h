@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 mFDQtclass(QButtonGroup)
 class uiButton;
+class i_ButtonGroupMessenger;
 
 /*\brief Group managing buttons, and their position.
 
@@ -45,11 +46,13 @@ public:
 			//!< Only use if you need ID. Then, set 0 as parent
 			//!< when constructing the button.
 
+    Notifier<uiButtonGroup> valueChanged;
+
 protected:
 
     mQtclass(QButtonGroup*)	qbuttongrp_;
     ObjectSet<uiButton>		uibuts_;
     OD::Orientation		orientation_;
     bool			newrowcol_;
-
+    i_ButtonGroupMessenger*	msgr_;
 };

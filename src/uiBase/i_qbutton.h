@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 
 #include <QAbstractButton>
+#include <QButtonGroup>
 
 /*! Help class, because templates can not use signals/slots
     Relays QT button signals to the notifyHandler of a uiButton object.
@@ -51,6 +53,33 @@ public slots:
     void pressed()	{ receiver_.notifyHandler(uiButtonMessenger::pressed); }
     void released()	{ receiver_.notifyHandler(uiButtonMessenger::released);}
 
+};
+
+
+class i_ButtonGroupMessenger : public QObject
+{
+
+    Q_OBJECT
+    friend class	uiButtonGroup;
+
+public:
+
+i_ButtonGroupMessenger( QButtonGroup& sndr, uiButtonGroup& receiver )
+    : receiver_(receiver)
+    , sender_(sndr)
+{
+    connect( &sender_, SIGNAL(buttonClicked(QAbstractButton*)),
+	    this, SLOT(clicked()) );
+}
+
+private:
+
+    uiButtonGroup&	receiver_;
+    QButtonGroup&	sender_;
+
+public slots:
+
+    void clicked()      { receiver_.valueChanged.trigger(); }
 };
 
 QT_END_NAMESPACE
