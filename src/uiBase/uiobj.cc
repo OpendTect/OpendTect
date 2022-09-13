@@ -697,7 +697,7 @@ int uiObject::prefVNrPics() const
 
 void uiObject::setPrefHeight( int h )
 {
-    objBody()->setPrefHeight( h );
+    objBody()->setPrefHeight( h+4 ); // +4 for top/bottom border
 }
 
 
