@@ -1853,7 +1853,12 @@ void uiListBox::resizeHeightToContents( int minh, int maxh )
     if ( minh < 0 ) minh = sMinHeight;
     if ( maxh < 0 ) maxh = sMaxHeight;
 
-    int prefheight = nritems * lb_->body().fontHeight();
+    int iconheight = 0;
+    QListWidgetItem* item0 = lb_->body().item(0);
+    if ( item0 && !item0->icon().isNull() )
+	iconheight = lb_->body().iconSize().height() + 2;
+
+    int prefheight = nritems * mMAX(lb_->body().fontHeight(),iconheight);
     if ( prefheight < minh )
 	prefheight = minh;
     else if ( prefheight > maxh )
