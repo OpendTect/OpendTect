@@ -16,6 +16,7 @@ ________________________________________________________________________
 class BufferStringSet;
 class SurveyInfo;
 class uiButton;
+class uiButtonGroup;
 class uiCheckList;
 class uiDataRootSel;
 class uiGenInput;
@@ -161,21 +162,16 @@ private:
     const BufferString	dataroot_;
     SurveyInfo&		survinfo_;
     uiGenInput*		survnmfld_;
-    uiGenInput*		zistimefld_;
+    uiButtonGroup*	zistimefld_;
     uiGenInput*		zinfeetfld_;
-    uiCheckList*	pol2dfld_;
     uiListBox*		sipfld_;
 
     BufferString	sipName() const;
     BufferString	survName() const;
-    bool		has3D() const;
-    bool		has2D() const;
-    bool		hasWells() const;
+    bool		isDepth() const;
     bool		isTime() const;
     bool		isInFeet() const;
-    void		fillSipsFld(bool have2d,bool have3d,bool havewells);
-    OD::Pol2D3D		pol2D3D() const;
-    void		pol2dChg(CallBacker*);
+    void		fillSipsFld();
     void		zdomainChg(CallBacker*);
 
 };
