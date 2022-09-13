@@ -47,55 +47,56 @@ public:
 			EntryData(const MultiID&,const BufferString& objnm,
 				    const BufferString& dispnm,
 				    const BufferString& icnnm,bool isdef);
-			~EntryData() {}
+			~EntryData();
+
     void		setIconName(const BufferString&);
     void		setDisplayName(const BufferString&);
     void		setObjName(const BufferString&);
     void		setIsDef(bool isdef) { isdef_ = isdef; }
 
-    MultiID		getMID() const { return mid_; }
-    BufferString	getDispNm() const { return dispnm_; }
-    BufferString	getObjNm() const { return objnm_; }
-    BufferString	getIcnNm() const { return icnnm_; }
-    bool		isDef() const { return isdef_; }
+    MultiID		getMID() const		{ return mid_; }
+    BufferString	getDispNm() const	{ return dispnm_; }
+    BufferString	getObjNm() const	{ return objnm_; }
+    BufferString	getIcnNm() const	{ return icnnm_; }
+    bool		isDef() const		{ return isdef_; }
 
 protected:
-    MultiID		mid_ = MultiID::udf();
-    BufferString	icnnm_ = "empty";
-    BufferString	dispnm_ = "NONE";
-    BufferString	objnm_ = "NONE";
-    bool		isdef_ = false;
+    MultiID		mid_		= MultiID::udf();
+    BufferString	icnnm_		= "empty";
+    BufferString	dispnm_		= "NONE";
+    BufferString	objnm_		= "NONE";
+    bool		isdef_		= false;
 };
 
 
 mExpClass(uiIo) EntryDataSet : public ManagedObjectSet<EntryData>
 {
 public:
-			    EntryDataSet() {}
-			    ~EntryDataSet() {}
+			EntryDataSet();
+			~EntryDataSet();
 
-    const EntryData*	    getDataFor(const MultiID&) const;
-    EntryData*		    getDataFor(const MultiID&);
-    EntryDataSet&	    add(const MultiID&,bool isdef=false);
-    EntryDataSet&	    add(const MultiID&,const BufferString&,
+    const EntryData*	getDataFor(const MultiID&) const;
+    EntryData*		getDataFor(const MultiID&);
+    EntryDataSet&	add(const MultiID&,bool isdef=false);
+    EntryDataSet&	add(const MultiID&,const BufferString&,
 				const BufferString&,bool isdef = false);
-    EntryDataSet&	    removeMID(const MultiID&);
-    EntryDataSet&	    updateMID(const MultiID&, EntryData*);
+    EntryDataSet&	removeMID(const MultiID&);
+    EntryDataSet&	updateMID(const MultiID&, EntryData*);
 
-    TypeSet<MultiID>	    getIOObjIds(bool reread=false) const;
-    TypeSet<int>	    getDefaultIdxs(bool reread=false) const;
-    BufferStringSet	    getIOObjNms() const;
-    BufferStringSet	    getDispNms() const;
-    BufferStringSet	    getIconNms() const;
-    int			    indexOfMID(const MultiID& mid) const;
-    int			    indexOfNm(const BufferString&,bool isdispnm) const;
+    TypeSet<MultiID>	getIOObjIds(bool reread=false) const;
+    TypeSet<int>	getDefaultIdxs(bool reread=false) const;
+    BufferStringSet	getIOObjNms() const;
+    BufferStringSet	getDispNms() const;
+    BufferStringSet	getIconNms() const;
+    int			indexOfMID(const MultiID& mid) const;
+    int			indexOfNm(const BufferString&,bool isdispnm) const;
 
-    void		    erase() override;
+    void		erase() override;
 
 protected:
 
-    mutable TypeSet<MultiID>	    livemids_;
-    mutable TypeSet<int>	    defaultidxs_;
+    mutable TypeSet<MultiID>	livemids_;
+    mutable TypeSet<int>	defaultidxs_;
 };
 
 
@@ -202,27 +203,28 @@ public:
     void		addEntry(const MultiID&);
     void		removeEntry(const MultiID&);
     void		updateEntry(const MultiID&,const BufferString& objnm,
-			  const BufferString& dispnm,const BufferString& icnnm);
+				    const BufferString& dispnm,
+				    const BufferString& icnnm);
 
 protected:
 
-    CtxtIOObj&		ctio_;
-    Setup		setup_;
-    EntryDataSet	dataset_;
-    BufferString	surveydefaultsubsel_;
-    bool		asked2overwrite_ = false;
+    CtxtIOObj&			ctio_;
+    Setup			setup_;
+    EntryDataSet		dataset_;
+    BufferString		surveydefaultsubsel_;
+    bool			asked2overwrite_		= false;
 
-    uiListBox*		listfld_;
-    uiGenInput*		nmfld_ = nullptr;
-    uiGenInput*		filtfld_;
-    uiIOObjSelGrpManipSubj* manipgrpsubj = nullptr;
-    uiIOObjSelWriteTranslator* wrtrselfld_ = nullptr;
-    uiToolButton*	mkdefbut_ = nullptr;
-    uiListBoxChoiceIO*	lbchoiceio_;
-    ObjectSet<uiButton> insertbuts_;
-    ObjectSet<uiIOObjInserter> inserters_;
-    uiGroup*		topgrp_;
-    uiComboBox*		ctxtfiltfld_ = nullptr;
+    uiListBox*			listfld_;
+    uiGenInput*			nmfld_				= nullptr;
+    uiGenInput*			filtfld_;
+    uiIOObjSelGrpManipSubj*	manipgrpsubj_		= nullptr;
+    uiIOObjSelWriteTranslator*	wrtrselfld_		= nullptr;
+    uiToolButton*		mkdefbut_			= nullptr;
+    uiListBoxChoiceIO*		lbchoiceio_;
+    ObjectSet<uiButton>		insertbuts_;
+    ObjectSet<uiIOObjInserter>	inserters_;
+    uiGroup*			topgrp_;
+    uiComboBox*			ctxtfiltfld_			= nullptr;
 
     void		fillListBox();
     void		addEntryToListBox(const MultiID&);
