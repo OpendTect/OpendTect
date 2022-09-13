@@ -36,7 +36,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 
     filtfld_ = new uiListBoxFilter( *selfld_ );
     filtfld_->setItems( setup_.items_ );
-    selfld_->resizeWidthToContents();
+    selfld_->resizeToContents();
 
     if ( setup_.current_ < 1 )
 	selfld_->setCurrentItem( 0 );
