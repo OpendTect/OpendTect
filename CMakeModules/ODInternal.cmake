@@ -31,6 +31,9 @@ get_buildinsrc( BUILDINSRC )
 if ( NOT ${BUILDINSRC} )
     if ( UNIX )
 	if ( APPLE )
+	    if ( NOT EXISTS "${CMAKE_BINARY_DIR}/Contents/Resources" )
+		file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Contents/Resources" )
+	    endif()
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 			    ${CMAKE_SOURCE_DIR}/relinfo
 			    ${CMAKE_BINARY_DIR}/Contents/Resources/relinfo )
