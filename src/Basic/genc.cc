@@ -887,9 +887,18 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
     return true;
 }
 
+static BufferString execnmoverrule;
+extern "C" { mGlobal(Basic) void SetExecutableNameOverrule(const char*); }
+mExternC(Basic) void SetExecutableNameOverrule( const char* execnm )
+{
+    mDefineStaticLocalObject(Threads::Mutex, mutex, )
+    Threads::MutexLocker lock(mutex);
+    execnmoverrule = execnm;
+}
+
 static BufferString executablepathoverrule;
 extern "C" { mGlobal(Basic) void SetExecutablePathOverrule(const char*); }
-mExternC(Basic) void SetExecutablePathOverrule(const char* dirnm)
+mExternC(Basic) void SetExecutablePathOverrule( const char* dirnm )
 {
     mDefineStaticLocalObject(Threads::Mutex, mutex, )
     Threads::MutexLocker lock(mutex);
@@ -960,6 +969,9 @@ mExternC(Basic) const char* GetExecutableName( void )
 
     if ( res.isEmpty() )
     {
+	if ( !execnmoverrule.isEmpty() )
+	    return execnmoverrule.buf();
+
 	FilePath fpargv0 = argv_[0];
 	if ( !fpargv0.isAbsolute() )
 	    fpargv0 = FilePath( initialdir_, argv_[0] );
@@ -980,7 +992,7 @@ mExternC(Basic) void sleepSeconds( double secs )
 
 
 mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
-				  bool needdatabase )
+				  bool needdatabase, const char* bindinglibnm )
 {
     if ( AreProgramArgsSet() )
 	return true;
@@ -992,19 +1004,38 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
 	return false;
     }
 
-    executablepathoverrule.set( odbindir )
-			  .add( FilePath::dirSep(FilePath::Local) );
-    BufferString libnm( 256, false );
-    SharedLibAccess::getLibName( "Basic", libnm.getCStr(), libnm.bufSize() );
-    executablepathoverrule.add( libnm );
-
-    if ( !File::exists(executablepathoverrule) )
+    BufferString executablepath;
+    if ( bindinglibnm && *bindinglibnm )
     {
-	std::cerr << "Err: Cannot find Basic library in: '";
-	std::cerr << odbindir << "'" << std::endl;
-	return false;
+	const StringView bindingfp( bindinglibnm );
+	const char* lastsep = bindingfp.findLast(
+					FilePath::dirSep(FilePath::Local) );
+	BufferString bindingfnm( lastsep+1 );
+	const BufferString bindingexecutablepath( odbindir,
+					    FilePath::dirSep(FilePath::Local),
+					    bindingfnm.buf() );
+	if ( File::exists(bindingexecutablepath.buf()) )
+	    executablepath = bindingexecutablepath;
+
+	bindingfnm.replace( '.', '\0' ); //Shortest baseName
+	SetExecutableNameOverrule( bindingfnm.buf() );
     }
 
+    if ( executablepath.isEmpty() )
+    {
+	BufferString libnm( 256, false );
+	SharedLibAccess::getLibName( "Basic", libnm.getCStr(), libnm.bufSize());
+	executablepath.set( odbindir ).add( FilePath::dirSep(FilePath::Local) )
+		      .add( libnm );
+	if ( !File::exists(executablepath.buf()) )
+	{
+	    std::cerr << "Err: Cannot find Basic library in: '";
+	    std::cerr << odbindir << "'" << std::endl;
+	    return false;
+	}
+    }
+
+    executablepathoverrule.set( executablepath.str() );
     const int newargc = argc+1;
     char** newargv = new char*[newargc];
     newargv[0] = (char*)(executablepathoverrule.str());
