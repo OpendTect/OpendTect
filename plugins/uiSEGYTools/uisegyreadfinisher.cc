@@ -501,20 +501,7 @@ bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
     uiString errmsg =
 	    tr("Internal: Cannot create line geometry in database");
     geomid = Survey::GM().getGeomID( lnm );
-    if ( isnew && !doimp )
-    {
-	PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
-			    SEGYDirectSurvGeom2DTranslator::translKey() );
-	if ( !geomobj )
-	    mErrRet( errmsg );
-
-	geomobj->pars().set(
-		    SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
-		    outscanfld_->key(true) );
-	IOM().commitChanges( *geomobj );
-	geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
-    }
-    else if ( isnew )
+    if ( isnew )
 	geomid = Geom2DImpHandler::getGeomID( lnm );
 
     if ( geomid == mUdfGeomID )
