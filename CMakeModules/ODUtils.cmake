@@ -460,7 +460,7 @@ function( od_get_library_filename LIBNM OD_LIBFNM )
     if( WIN32 )
 	set( LIBFNM "${LIBNM}${OD_STATIC_EXTENSION}" )
     elseif( APPLE )
-	set( LIBFNM "${CMAKE_FIND_LIBRARY_PREFIXES}${LIBNM}.${CMAKE_FIND_LIBRARY_SUFFIXES}" )
+	set( LIBFNM "${CMAKE_FIND_LIBRARY_PREFIXES}${LIBNM}${CMAKE_FIND_LIBRARY_SUFFIXES}" )
     else()
 	set( LIBFNM "lib${LIBNM}.${SHLIB_EXTENSION}" )
     endif()
@@ -540,6 +540,67 @@ function( add_fontconfig OUTPUT_LIST INPUT_LIST )
 
     set( ${OUTPUT_LIST} ${LIBLIST} PARENT_SCOPE )
 endfunction(add_fontconfig)
+
+macro( testprops tgt )
+    set(props
+        DEBUG_OUTPUT_NAME
+        DEBUG_POSTFIX
+        RELEASE_OUTPUT_NAME
+        LABELS
+        COMPILE_FLAGS
+        LINK_FLAGS
+        VERSION
+        SOVERSION
+        ARCHIVE_OUTPUT_DIRECTORY_DEBUG
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG
+        ARCHIVE_OUTPUT_DIRECTORY_RELEASE
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE
+        ARCHIVE_OUTPUT_DIRECTORY
+        LIBRARY_OUTPUT_DIRECTORY
+        RUNTIME_OUTPUT_DIRECTORY
+        LOCATION
+        LOCATION_DEBUG
+        LOCATION_RELEASE
+        IMPORT_CHECK_TARGETS
+        IMPORT_CHECK_FILES_FOR_${tgt}
+        IMPORTED_CONFIGURATIONS
+        IMPORTED_IMPLIB
+        IMPORTED_IMPLIB_DEBUG
+        IMPORTED_IMPLIB_RELEASE
+        IMPORTED_LIBNAME
+        IMPORTED_LIBNAME_DEBUG
+        IMPORTED_LIBNAME_RELEASE
+        IMPORTED_LOCATION
+        IMPORTED_LOCATION_DEBUG
+        IMPORTED_LOCATION_RELEASE
+        IMPORTED_LINK_DEPENDENT_LIBRARIES
+        IMPORTED_LINK_DEPENDENT_LIBRARIES_DEBUG
+        IMPORTED_LINK_DEPENDENT_LIBRARIES_RELEASE
+        IMPORTED_LINK_INTERFACE_LIBRARIES
+        IMPORTED_LINK_INTERFACE_LIBRARIES_DEBUG
+        IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE
+        IMPORTED_SONAME
+        IMPORTED_SONAME_DEBUG
+        IMPORTED_SONAME_RELEASE
+        IMPORTED_TARGETS
+        INTERFACE_INCLUDE_DIRECTORIES
+    )
+
+    foreach(p ${props})
+        get_property(v TARGET ${tgt} PROPERTY ${p})
+        get_property(d TARGET ${tgt} PROPERTY ${p} DEFINED)
+        get_property(s TARGET ${tgt} PROPERTY ${p} SET)
+        if( s )
+            message( STATUS "tgt='${tgt}' p='${p}'" )
+            message( STATUS "  value='${v}'" )
+            message( STATUS "  defined='${d}'" )
+            message( STATUS "  set='${s}'" )
+            message( STATUS "" )
+        endif()
+    endforeach()
+endmacro()
 
 
 # Used compile_commands.json for include-what-you-use
