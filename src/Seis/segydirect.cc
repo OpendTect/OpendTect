@@ -7,28 +7,29 @@
 #include "segydirectdef.h"
 
 #include "ascstream.h"
-#include "datainterp.h"
 #include "datachar.h"
+#include "datainterp.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "idxable.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "od_iostream.h"
 #include "offsetazimuth.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "segyfiledata.h"
 #include "segyscanner.h"
-#include "seispsioprov.h"
 #include "seisposindexer.h"
+#include "seispsioprov.h"
 #include "strmoper.h"
 #include "strmprov.h"
-#include "od_iostream.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
-#include "genc.h"
 #include "uistrings.h"
-#include "envvars.h"
 
 static const int cCurVersion = 3;
 
@@ -689,6 +690,27 @@ int SEGY::FileIndexer::nextStep()
 	{
 	    msg_ = tr("Cannot complete file output");
 	    return ErrorOccurred();
+	}
+
+	if ( is2d_ )
+	{
+	    auto* geom = Survey::GMAdmin().getGeometry( geomid_ );
+	    auto* geom2d = geom ? geom->as2D() : nullptr;
+	    if ( !geom2d )
+	    {
+		msg_ = tr("Cannot find line Geometry in the survey database");
+		return ErrorOccurred();
+	    }
+
+	    if ( geom2d->isEmpty() )
+	    {
+		const BufferString linename = geom2d->getName();
+		geom2d->dataAdmin() = directdef_->lineData();
+		geom2d->dataAdmin().setLineName( linename );
+		geom2d->touch();
+		if ( !Survey::GMAdmin().write(*geom2d,msg_) )
+		    return ErrorOccurred();
+	    }
 	}
 
 	if ( !is2d_ && !isvol_ )
