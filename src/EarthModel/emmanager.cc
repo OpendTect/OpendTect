@@ -64,6 +64,7 @@ EMManager::EMManager()
 
 EMManager::~EMManager()
 {
+    detachAllNotifiers();
     setEmpty();
     delete &undo_;
 }
