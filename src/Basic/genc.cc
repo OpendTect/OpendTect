@@ -1036,6 +1036,9 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
     }
 
     executablepathoverrule.set( executablepath.str() );
+#ifdef __win__
+    SetDllDirectoryA( odbindir );
+#endif
     const int newargc = argc+1;
     char** newargv = new char*[newargc];
     newargv[0] = (char*)(executablepathoverrule.str());
