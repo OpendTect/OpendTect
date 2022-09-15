@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "segybatchio.h"
+#include "ui2dgeomman.h"
 #include "uigeninput.h"
 #include "uisegydef.h"
 #include "uiseissel.h"
@@ -185,19 +186,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	{
 	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
 	    if ( geomid == mUdfGeomID )
-	    {
-		PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
-				SEGYDirectSurvGeom2DTranslator::translKey() );
-		if ( !geomobj )
-		    mErrRet(uiStrings::phrCannotCreate(
-                            tr("geometry entry for 2D line")),toUiString(lnm))
-
-		geomobj->pars().set(
-			SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
-			outfld_->key(true) );
-		IOM().commitChanges( *geomobj );
-		geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
-	    }
+		geomid = Geom2DImpHandler::getGeomID( lnm );
 
 	    js.pars_.set( sKey::GeomID(), geomid );
 	}
