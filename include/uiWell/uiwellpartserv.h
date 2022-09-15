@@ -32,6 +32,7 @@ class uiWellDispPropDlg;
 class uiWellImportAsc;
 class uiWellMan;
 class uiWellMgrInfoDlg;
+class uiWellExportFacility;
 
 /*!
 \ingroup uiWell
@@ -56,7 +57,6 @@ public:
     void			bulkImportD2TModel();
     void			bulkImportDirectional();
     void			showWellMgrInfo();
-
     void			exportWellData();
     void			exportLogToLAS();
 
@@ -115,6 +115,7 @@ protected:
     uiBulkD2TModelImport*	impbulkd2tdlg_		= nullptr;
     uiWellMan*			manwelldlg_		= nullptr;
     uiWellMgrInfoDlg*		wellmgrinfodlg_		= nullptr;
+    uiWellExportFacility*	wellexpdlg_		= nullptr;
     TypeSet<VisID>		previewids_;
 
     TypeSet<MultiID>		crwellids_; // for uiSimpleMultiWellCreate

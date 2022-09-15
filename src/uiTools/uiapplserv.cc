@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 
 uiApplService::uiApplService( const char* nm )
-    : NamedObject(nm)				{}
+    : NamedObject(nm)
+{}
 
 
 uiApplPartServer::uiApplPartServer( uiApplService& a )

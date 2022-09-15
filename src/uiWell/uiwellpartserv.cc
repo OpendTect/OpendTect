@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uisimplemultiwell.h"
 #include "uitoolbutton.h"
 #include "uiwellrdmlinedlg.h"
+#include "uiwelldataexport.h"
 #include "uiwelldisplay.h"
 #include "uiwelldisppropdlg.h"
 #include "uiwelldlgs.h"
@@ -107,6 +108,7 @@ void uiWellPartServer::cleanup()
     deleteAndZeroPtr( impbulkmrkrdlg_ );
     deleteAndZeroPtr( impbulkd2tdlg_ );
     deleteAndZeroPtr( rdmlinedlg_ );
+    deleteAndZeroPtr( wellexpdlg_ );
     deepErase( wellpropdlgs_ );
     deepErase( wellpropcaches_ );
     deleteAndZeroPtr( wellmgrinfodlg_ );
@@ -159,6 +161,15 @@ void uiWellPartServer::bulkImportDirectional()
 }
 
 
+void uiWellPartServer::exportWellData()
+{
+    if ( !wellexpdlg_ )
+	wellexpdlg_ = new uiWellExportFacility( parent(), *this );
+
+    wellexpdlg_->show();
+}
+
+
 void uiWellPartServer::importTrack()
 {
     if ( uiwellimpdlg_ )
@@ -172,12 +183,6 @@ void uiWellPartServer::importTrack()
     uiwellimpdlg_->importReady.notify(
 		mCB(this,uiWellPartServer,importReadyCB) );
     uiwellimpdlg_->show();
-}
-
-
-void uiWellPartServer::exportWellData()
-{
-    pErrMsg("Not yet implemented");
 }
 
 

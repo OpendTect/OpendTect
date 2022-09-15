@@ -42,6 +42,7 @@ set(OD_MODULE_SOURCES
 	uiwellt2dconv.cc
 	uiwellwriteopts.cc
 	uizrangeselect.cc
+	uiwelldataexport.cc
 )
 
 OD_INIT_MODULE()

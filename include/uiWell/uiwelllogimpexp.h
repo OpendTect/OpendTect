@@ -38,14 +38,14 @@ protected:
 
     uiFileInput*	lasfld_;
     uiGenInput*		intvfld_;
-    uiGenInput*		intvunfld_;
+    uiGenInput*		intvunfld_	    = nullptr;
     uiGenInput*		istvdfld_;
     uiGenInput*		udffld_;
     uiLabel*		unitlbl_;
     uiWellSel*		wellfld_;
-    uiTable*		logstable_;
+    uiTable*		logstable_	    = nullptr;
     uiGenInput*		lognmfld_;
-    uiListBox*		logsfld_;
+    uiListBox*		logsfld_	    = nullptr;
 
     bool		acceptOK(CallBacker*) override;
     void		lasSel(CallBacker*);
