@@ -1603,8 +1603,6 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// * All cubes - between []
 	attrserv_->getPossibleOutputs( nlaserv_->is2DEvent(),
 				      nlaserv_->inputNames() );
-	if ( nlaserv_->inputNames().size() == 0 )
-	    { uiMSG().error( tr("No usable input") ); return false; }
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput() )
     {
