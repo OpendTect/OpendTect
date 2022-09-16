@@ -220,30 +220,29 @@ float FlatDataPack::nrKBytes() const
 }
 
 
-void FlatDataPack::dumpInfo( IOPar& iop ) const
+void FlatDataPack::dumpInfo( StringPairSet& infoset ) const
 {
-    DataPack::dumpInfo( iop );
-    iop.set( sKey::Type(), "Flat" );
+    DataPack::dumpInfo( infoset );
+    infoset.add( sKey::Type(), "Flat" );
     const int sz0 = size(true); const int sz1 = size(false);
     for ( int idim=0; idim<2; idim++ )
     {
 	const bool isdim0 = idim == 0;
 	FileMultiString fms( dimName( isdim0 ) ); fms += size( isdim0 );
-	iop.set( IOPar::compKey("Dimension",idim), fms );
+	infoset.add( IOPar::compKey("Dimension",idim), fms );
     }
 
     const FlatPosData& pd = posData();
-    iop.set( "Positions.Dim0", pd.range(true).start, pd.range(true).stop,
-			       pd.range(true).step );
-    iop.set( "Positions.Dim1", pd.range(false).start, pd.range(false).stop,
-			       pd.range(false).step );
-    iop.setYN( "Positions.Irregular", pd.isIrregular() );
-    if ( sz0 < 1 || sz1 < 1 ) return;
+    infoset.add( "Positions.Dim0", toUserString(pd.range(true),6) );
+    infoset.add( "Positions.Dim1", toUserString(pd.range(false),6) );
+    infoset.add( "Positions.Irregular", toString(pd.isIrregular()) );
+    if ( sz0 < 1 || sz1 < 1 )
+	return;
 
     Coord3 c( getCoord(0,0) );
-    iop.set( "Coord(0,0)", c.x, c.y, c.z );
+    infoset.add( "Coord(0,0)", c.toPrettyString() );
     c = getCoord( sz0-1, sz1-1 );
-    iop.set( "Coord(sz0-1,sz1-1)", c.x, c.y, c.z );
+    infoset.add( "Coord(sz0-1,sz1-1)", c.toPrettyString() );
 }
 
 
@@ -426,10 +425,12 @@ double VolumeDataPack::getPos(char dim,int idx) const
 { return idx; }
 
 
-void VolumeDataPack::dumpInfo( IOPar& par ) const
+void VolumeDataPack::dumpInfo( StringPairSet& infoset ) const
 {
-    DataPack::dumpInfo( par );
-    par.set( "Dimensions", size(0), size(1), size(2) );
+    DataPack::dumpInfo( infoset );
+    BufferString dimstr( size(0) );
+    dimstr.add( " X " ).add( size(1) ).add( " X " ).add( size(2) );
+    infoset.add( "Dimensions", dimstr );
 }
 
 
@@ -678,20 +679,20 @@ float SeisDataPack::nrKBytes() const
 }
 
 
-void SeisDataPack::dumpInfo( IOPar& iop ) const
+void SeisDataPack::dumpInfo( StringPairSet& infoset ) const
 {
-    DataPack::dumpInfo( iop );
+    DataPack::dumpInfo( infoset );
 
     const DataCharacteristics dc( desc_ );
     const DataCharacteristics::UserType tp = dc.userType();
     const BufferString fmtstr = DataCharacteristics::getUserTypeString( tp );
-    iop.set( "Loaded as", fmtstr.buf()+4 );
+    infoset.add( "Loaded as", fmtstr.buf()+4 );
 
     if ( scaler_ )
     {
 	BufferString info( 256, false );
 	scaler_->put( info.getCStr(), info.bufSize() );
-	iop.set( sKey::Scale(), info.buf() );
+	infoset.add( sKey::Scale(), info.buf() );
     }
 }
 

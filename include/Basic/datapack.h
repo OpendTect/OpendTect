@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 
 class DataPackMgr;
+class StringPairSet;
 
 using DataPackID = IntegerID<od_int32>;
 
@@ -108,7 +109,7 @@ public:
     virtual const char*	category() const	{ return category_.buf(); }
 
     virtual float	nrKBytes() const	= 0;
-    virtual void	dumpInfo(IOPar&) const;
+    virtual void	dumpInfo(StringPairSet&) const;
 
     static const char*	sKeyCategory();
     static DataPackID	cNoID()		{ return DataPackID(); }
@@ -251,7 +252,7 @@ public:
     const char*		categoryOf(DataPackID) const;
     static const char*	categoryOf(const DataPack::FullID&);
     virtual float	nrKBytesOf(DataPackID) const;
-    virtual void	dumpInfoFor(DataPackID,IOPar&) const;
+    virtual void	dumpInfoFor(DataPackID,StringPairSet&) const;
 
     DataPackMgrID		id() const		{ return id_; }
     mDeprecated("Use DataPack::MgrID::udf()")

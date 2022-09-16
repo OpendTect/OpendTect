@@ -292,26 +292,22 @@ bool RegularSeisDataPack::addComponentNoInit( const char* nm )
 }
 
 
-void RegularSeisDataPack::dumpInfo( IOPar& par ) const
+void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
 {
-    SeisDataPack::dumpInfo( par );
+    SeisDataPack::dumpInfo( infoset );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
     {
-	par.set( sKey::TrcRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
-				   tks.step_.trcNr() );
+	infoset.add( sKey::TrcRange(), toUserString(tks.trcRange()) );
     }
     else
     {
-	par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
-				   tks.step_.lineNr() );
-	par.set( sKey::CrlRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
-				   tks.step_.trcNr() );
+	infoset.add( sKey::InlRange(), toUserString(tks.lineRange()) );
+	infoset.add( sKey::CrlRange(), toUserString(tks.trcRange()) );
     }
 
-    par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
-			     sampling_.zsamp_.step );
+    infoset.add( sKey::ZRange(), toUserString(sampling_.zsamp_,6) );
 }
 
 

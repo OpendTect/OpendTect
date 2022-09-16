@@ -2711,9 +2711,9 @@ uiWellMgrInfoDlg::~uiWellMgrInfoDlg()
 
 void uiWellMgrInfoDlg::refresh( CallBacker* )
 {
-    IOPar iopar;
-    Well::MGR().dumpMgrInfo( iopar );
+    StringPairSet infoset;
+    Well::MGR().dumpMgrInfo( infoset );
     BufferString text;
-    iopar.dumpPretty( text );
+    infoset.dumpPretty( text );
     browser_->setText( text );
 }

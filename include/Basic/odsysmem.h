@@ -11,8 +11,12 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
+class StringPairSet;
 namespace OD
 {
     mGlobal(Basic) void	getSystemMemory(od_int64& total,od_int64& free);
+    mGlobal(Basic) void	dumpMemInfo(StringPairSet&);
+
+    mDeprecated ("Use the StringPairSet version instead")
     mGlobal(Basic) void	dumpMemInfo(IOPar&);
 }

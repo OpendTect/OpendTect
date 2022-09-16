@@ -314,9 +314,9 @@ uiPickSetMgrInfoDlg::~uiPickSetMgrInfoDlg()
 
 void uiPickSetMgrInfoDlg::refresh( CallBacker* )
 {
-    IOPar iopar;
-    Pick::SetMgr::dumpMgrInfo( iopar );
+    StringPairSet infoset;
+    Pick::SetMgr::dumpMgrInfo( infoset );
     BufferString text;
-    iopar.dumpPretty( text );
+    infoset.dumpPretty( text );
     browser_->setText( text );
 }

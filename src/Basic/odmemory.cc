@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "odsysmem.h"
 
+#include "bufstringset.h"
 #include "envvars.h"
 #include "odmemory.h"
 #include "nrbytes2string.h"
@@ -133,7 +134,7 @@ void OD::memZero( void* data, od_int64 sz )
 }
 
 
-void OD::dumpMemInfo( IOPar& res )
+void OD::dumpMemInfo( StringPairSet& res )
 {
     od_int64 total, free;
     getSystemMemory( total, free );
@@ -141,11 +142,21 @@ void OD::dumpMemInfo( IOPar& res )
 
     converter.setUnitFrom( total );
 
-    res.set( "Total memory", converter.getString(total) );
-    res.set( "Free memory", converter.getString( free ) );
+    res.setEmpty();
+    res.add( "Total memory", converter.getString(total) );
+    res.add( "Free memory", converter.getString( free ) );
 #ifdef __lux__
-    res.set( "Available swap space", converter.getString(swapfree) );
+    res.add( "Available swap space", converter.getString(swapfree) );
 #endif
+}
+
+
+void OD::dumpMemInfo( IOPar& res )
+{
+    StringPairSet meminfo;
+    dumpMemInfo( meminfo );
+    for ( const auto* entry : meminfo )
+	res.add( entry->first(), entry->second() );
 }
 
 

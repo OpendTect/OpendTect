@@ -116,7 +116,7 @@ public:
     bool		readDisplayPars(const MultiID&,IOPar&) const;
     bool		writeDisplayPars(const MultiID&,const IOPar&) const;
 
-    static void		dumpMgrInfo(IOPar&);
+    static void		dumpMgrInfo(StringPairSet&);
 
 			SetMgr( const char* nm );
 			//!< creates an unmanaged SetMgr

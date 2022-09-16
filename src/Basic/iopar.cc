@@ -1496,12 +1496,16 @@ void IOPar::dumpPretty( BufferString& res ) const
 
     unsigned int maxkeylen = 0;
     bool haveval = false;
-    IOParIterator iter( *this );
-    BufferString key, val, buf;
-    while ( iter.next(key,val) )
+    BufferStringSet keys, vals;
+    getKeys( keys );
+    for ( int idx=0; idx<keys.size(); idx++ )
     {
+	const BufferString& key = keys.get( idx );
 	if ( key.size() > maxkeylen )
 	    maxkeylen = key.size();
+
+	const BufferString val = find( key );
+	vals.add( val );
 	if ( !haveval && !val.isEmpty() )
 	    haveval = true;
     }
@@ -1514,9 +1518,14 @@ void IOPar::dumpPretty( BufferString& res ) const
     for ( int ispc=0; ispc<valpos; ispc++ )
 	valposstr[ispc] = ' ';
 
-    iter.reset();
-    while ( iter.next(key,val) )
+    ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
+    if ( !sortedidxs )
+	return;
+
+    for ( int idx=0; idx<keys.size(); idx++ )
     {
+	const BufferString& key = keys.get( sortedidxs[idx] );
+	BufferString val = vals.get( sortedidxs[idx] );
 	if ( key == sKeyHdr() )
 	{
 	    res += "\n\n* ";
@@ -1556,6 +1565,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 		res += valposstr;
 	    }
 	}
+
 	res += "\n";
     }
 }

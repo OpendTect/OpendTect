@@ -9,13 +9,14 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "bufstringset.h"
-#include "stringview.h"
 #include "globexpr.h"
 #include "iopar.h"
+#include "od_ostream.h"
 #include "odmemory.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
 #include "string2.h"
+#include "stringview.h"
 #include "uistring.h"
 
 #ifndef OD_NO_QT
@@ -1101,6 +1102,13 @@ const BufferString* find( const BufferStringSet& bss, const char* nm )
 
 
 // StringPair
+StringPair::StringPair( const StringPair& oth )
+    : first_(oth.first_)
+    , second_(oth.second_)
+{
+}
+
+
 StringPair::StringPair( const char* compstr )
 {
     SeparString sepstr( compstr, separator() );
@@ -1129,4 +1137,132 @@ const OD::String& StringPair::getCompString( bool withwhitespace ) const
 	ret.add( second() );
     }
     return ret;
+}
+
+
+// StringPairSet
+
+StringPairSet& StringPairSet::add( const char* first, const char* second )
+{
+    entries_.add( new StringPair(first,second) );
+    return *this;
+}
+
+
+StringPairSet& StringPairSet::add( const char* first, int num )
+{
+    return add( first, toString(num) );
+}
+
+
+StringPairSet& StringPairSet::add( const char* first, const OD::String& second )
+{
+    entries_.add( new StringPair(first,second.buf()) );
+    return *this;
+}
+
+
+StringPairSet& StringPairSet::add( const OD::String& first,
+				   const OD::String& second )
+{
+    entries_.add( new StringPair(first.buf(),second.buf()) );
+    return *this;
+}
+
+
+StringPairSet& StringPairSet::add( const StringPair& entry )
+{
+    entries_.add( new StringPair(entry) );
+    return *this;
+}
+
+
+StringPairSet& StringPairSet::add( const StringPairSet& oth )
+{
+    entries_.append( oth.entries_ );
+    return *this;
+}
+
+
+bool StringPairSet::remove( const char* first )
+{
+    const int idx = indexOf( first );
+    if ( idx < 0 )
+	return false;
+
+    removeSingle( idx );
+    return true;
+}
+
+
+int StringPairSet::indexOf( const char* first ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( get(idx).first() == first )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+void StringPairSet::dumpPretty( od_ostream& strm ) const
+{
+    BufferString res;
+    dumpPretty( res );
+    strm << res.buf() << od_endl;
+}
+
+
+void StringPairSet::dumpPretty( BufferString& res ) const
+{
+    unsigned int maxlabellen = 0;
+    bool haveval = false;
+    for ( const auto* entry : *this )
+    {
+	if ( entry->first().size() > maxlabellen )
+	    maxlabellen = entry->first().size();
+	if ( !haveval && !entry->second().isEmpty() )
+	    haveval = true;
+    }
+
+    if ( maxlabellen == 0 )
+	return;
+
+    const int valpos = haveval ? maxlabellen + 3 : 0;
+    BufferString valposstr( valpos + 1, true );
+    for ( int ispc=0; ispc<valpos; ispc++ )
+	valposstr[ispc] = ' ';
+
+    for ( const auto* entry : *this )
+    {
+	const BufferString& label = entry->first();
+	BufferString val = entry->second();
+	BufferString labelprint( maxlabellen + 1, true );
+	const int extra = maxlabellen - label.size();
+	for ( int ispc=0; ispc<extra; ispc++ )
+	    labelprint[ispc] = ' ';
+	labelprint += label;
+	res += labelprint;
+	res += (haveval ? " : " : "");
+
+	char* startptr = val.getCStr();
+	while ( startptr && *startptr )
+	{
+	    char* nlptr = firstOcc( startptr, '\n' );
+	    if ( nlptr )
+		*nlptr = '\0';
+	    res += startptr;
+	    if ( !nlptr ) break;
+
+	    startptr = nlptr + 1;
+	    if ( *startptr )
+	    {
+		res += "\n";
+		res += valposstr;
+	    }
+	}
+	res += "\n";
+    }
 }

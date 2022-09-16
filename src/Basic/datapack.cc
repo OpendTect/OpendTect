@@ -340,21 +340,21 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 	if ( !pack )
 	    continue;
 
-	IOPar iop;
-	pack->dumpInfo( iop );
-	if ( !iop.isEmpty() )
-	    iop.putTo( astrm );
+	StringPairSet infoset;
+	pack->dumpInfo( infoset );
+	if ( !infoset.isEmpty() )
+	    infoset.dumpPretty( astrm.stream() );
 
     }
 }
 
 
-void DataPackMgr::dumpInfoFor( DataPackID dpid, IOPar& iop ) const
+void DataPackMgr::dumpInfoFor( DataPackID dpid, StringPairSet& infoset ) const
 {
     ConstRefMan<DataPack> pack = getDP( dpid );
     pack.setNoDelete( true );
     if ( pack )
-	pack->dumpInfo( iop );
+	pack->dumpInfo( infoset );
 }
 
 
@@ -492,15 +492,15 @@ bool DataPackMgr::unRef( DataPackID dpid )
 }
 
 
-void DataPack::dumpInfo( IOPar& iop ) const
+void DataPack::dumpInfo( StringPairSet& infoset ) const
 {
-    iop.set( sKeyCategory(), category() );
-    iop.set( sKey::Name(), name() );
-    iop.set( "Pack.ID", id_.asInt() );
-    iop.set( "Nr users", nrRefs() > 0 ? nrRefs()-1 : nrRefs() );
+    infoset.add( sKeyCategory(), category() );
+    infoset.add( sKey::Name(), name() );
+    infoset.add( "Pack.ID", id_.toString() );
+    infoset.add( "Nr users", nrRefs() > 0 ? nrRefs()-1 : nrRefs() );
 		// Omitting the reference coming from this function call
     const od_int64 nrkb = static_cast<od_int64>( nrKBytes()+0.5f );
-    iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
+    infoset.add( "Memory consumption", File::getFileSizeString(nrkb) );
 }
 
 

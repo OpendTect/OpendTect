@@ -343,30 +343,29 @@ bool SetMgr::writeDisplayPars( const MultiID& mid, const IOPar& par ) const
 }
 
 
-void SetMgr::dumpMgrInfo( IOPar& res )
+void SetMgr::dumpMgrInfo( StringPairSet& infoset )
 {
     const ObjectSet<SetMgr> mgrs = setMgrs();
-    res.set( "Nr of Managers", mgrs.size() );
+    infoset.add( "Nr of Managers", mgrs.size() );
     for ( int idx=0; idx<mgrs.size(); idx++ )
     {
-	IOPar par;
 	const SetMgr* setmgr = mgrs[idx];
-	par.set( "Manager Name", setmgr->name() );
+	infoset.add( IOPar::compKey(toString(idx+1),"Manager Name"),
+		     setmgr->name() );
 	const int nrsets = setmgr->size();
-	par.set( "Nr sets", nrsets );
+	infoset.add( IOPar::compKey(toString(idx+1),"Nr sets"), nrsets );
 
 	for ( int ids=0; ids<nrsets; ids++ )
 	{
-	    IOPar setpar;
 	    ConstRefMan<Set> ps = setmgr->get( ids );
-	    setpar.set( "PointSet ID", setmgr->id(ids) );
-	    setpar.set( "PointSet Name", ps->name() );
-	    setpar.set( "PointSet Size", ps->size() );
-	    setpar.set( "PointSet References", ps->nrRefs()-1 );
-	    par.mergeComp( setpar, toString(ids+1) );
+	    BufferString setkey = IOPar::compKey( toString(idx+1), ids );
+	    infoset.add( IOPar::compKey(setkey,"PointSet ID"),
+		    	 setmgr->id(ids).toString() );
+	    infoset.add( IOPar::compKey(setkey,"PointSet Name"), ps->name() );
+	    infoset.add( IOPar::compKey(setkey,"PointSet Size"), ps->size() );
+	    infoset.add( IOPar::compKey(setkey,"PointSet References"),
+		         ps->nrRefs()-1 );
 	}
-
-	res.mergeComp( par, toString(idx+1) );
     }
 }
 

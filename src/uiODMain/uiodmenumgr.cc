@@ -1606,10 +1606,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	uiDataPackMonitor::launchFrom( &appl_, 10 );
     } break;
     case mDisplayMemoryMnuItm: {
-	IOPar iopar;
-	OD::dumpMemInfo( iopar );
+	StringPairSet meminfo;
+	OD::dumpMemInfo( meminfo );
 	BufferString text;
-	iopar.dumpPretty( text );
+	meminfo.dumpPretty( text );
 	uiDialog dlg( &appl_,
 	     uiDialog::Setup(tr("Memory Information"),mNoDlgTitle,mNoHelpKey) );
 	auto* browser = new uiTextBrowser( &dlg );

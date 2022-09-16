@@ -92,7 +92,7 @@ public:
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const {}
 
     float			nrKBytes() const override;
-    void			dumpInfo(IOPar&) const override;
+    void			dumpInfo(StringPairSet&) const override;
 
     virtual int			size(bool dim0) const;
 
@@ -172,7 +172,7 @@ public:
     virtual double		getPos(char dim,int idx) const;
     int				size(char dim) const;
     float			nrKBytes() const override;
-    void			dumpInfo(IOPar&) const override;
+    void			dumpInfo(StringPairSet&) const override;
 
 
 protected:
@@ -248,7 +248,7 @@ public:
 				//<! Will remove incompatible arrays if any
 
     float			nrKBytes() const override;
-    void			dumpInfo(IOPar&) const override;
+    void			dumpInfo(StringPairSet&) const override;
     void			setRandomLineID(RandomLineID);
     RandomLineID		getRandomLineID() const;
 

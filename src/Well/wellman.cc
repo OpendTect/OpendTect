@@ -820,19 +820,22 @@ const Mnemonic* Well::Man::getMnemonicOfLog( const char* lognm ) const
 }
 
 
-void Well::Man::dumpMgrInfo( IOPar& res )
+void Well::Man::dumpMgrInfo( StringPairSet& infoset )
 {
     auto& wells = MGR().wells();
-    res.set( "Number of Wells", wells.size() );
+    infoset.add( "Number of Wells", wells.size() );
     for ( int idx=0; idx<wells.size(); idx++ )
     {
-	IOPar wpar;
 	ConstRefMan<Data> wd = wells[idx];
 	if ( wd )
 	{
-	    wpar.set( "References", wd->nrRefs()-1 );
-	    wpar.set( "Load State", wd->loadState().toString() );
-	    wpar.set( "Markers", wd->markers().size() );
+	    const BufferString wellname = wd->info().name();
+	    infoset.add( IOPar::compKey(wellname,"References"),
+			 wd->nrRefs()-1 );
+	    infoset.add( IOPar::compKey(wellname,"Load State"),
+			 wd->loadState().toString() );
+	    infoset.add( IOPar::compKey(wellname,"Markers"),
+		    	 wd->markers().size() );
 	    const LogSet& ls = wd->logs();
 	    int nlogswithdata = 0;
 	    for (int il=0; il<ls.size(); il++)
@@ -841,10 +844,10 @@ void Well::Man::dumpMgrInfo( IOPar& res )
 		if ( log.isLoaded() )
 		    nlogswithdata++;
 	    }
-	    wpar.set( "Logs available", ls.size() );
-	    wpar.set( "Logs with Info", ls.size() );
-	    wpar.set( "Logs with data", nlogswithdata );
-	    res.mergeComp( wpar, wd->info().name() );
+	    infoset.add( IOPar::compKey(wellname,"Logs available"), ls.size() );
+	    infoset.add( IOPar::compKey(wellname,"Logs with Info"), ls.size() );
+	    infoset.add( IOPar::compKey(wellname,"Logs with data"),
+		    	 nlogswithdata );
 	}
     }
 }

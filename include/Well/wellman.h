@@ -15,12 +15,13 @@ ________________________________________________________________________
 #include <bitset>
 #include "refcount.h"
 
+class BufferStringSet;
 class DBKey;
 class IOObj;
 class Mnemonic;
 class MnemonicSelection;
 class MultiID;
-class BufferStringSet;
+class StringPairSet;
 class UnitOfMeasure;
 
 namespace Well
@@ -123,7 +124,7 @@ public:
 					//!< Log becomes mine
     bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
 					//!< Returns empty set if all succeeded
-    static void		dumpMgrInfo(IOPar&);
+    static void		dumpMgrInfo(StringPairSet&);
 
     const Mnemonic*	getMnemonicOfLog(const char* lognm) const;
 
