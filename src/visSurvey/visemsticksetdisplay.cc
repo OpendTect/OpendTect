@@ -364,4 +364,16 @@ void StickSetDisplay::setStickMarkerStyle( const MarkerStyle3D& mkstyle )
     mForceDrawMarkerSet();
 }
 
+
+bool StickSetDisplay::areAllKnotsHidden() const
+{
+    return hideallknots_;
+}
+
+
+void StickSetDisplay::hideAllKnots( bool yn )
+{
+    hideallknots_ = yn;
+}
+
 } // namespace visSurvey

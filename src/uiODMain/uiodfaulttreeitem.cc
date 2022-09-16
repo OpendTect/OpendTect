@@ -209,7 +209,9 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(
 
 #define mCommonInit2 \
     displayplanemnuitem_.checkable = true; \
+    displayplanemnuitem_.iconfnm = "tree-flt"; \
     displaystickmnuitem_.checkable = true; \
+    displaystickmnuitem_.iconfnm = "tree-fltss"; \
     displayintersectionmnuitem_.checkable = true; \
     displayintersecthorizonmnuitem_.checkable = true; \
     singlecolmnuitem_.checkable = true; \
@@ -363,6 +365,11 @@ void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( !fd )
 	return;
 
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &displayplanemnuitem_,
+		      true, faultdisplay_->arePanelsDisplayed() );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &displaystickmnuitem_,
+		      true, faultdisplay_->areSticksDisplayed() );
+
     if ( !istb )
     {
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_,
@@ -371,10 +378,6 @@ void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
 		      faultdisplay_->canDisplayHorizonIntersections(),
 		      faultdisplay_->areHorizonIntersectionsDisplayed() );
-	mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
-		      faultdisplay_->arePanelsDisplayed() );
-	mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
-		      faultdisplay_->areSticksDisplayed() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
 
 	mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
@@ -427,6 +430,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( stickchecked || planechecked, !planechecked );
+	select();
     }
     else if ( mnuid==displaystickmnuitem_.id )
     {
@@ -434,6 +438,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
+	select();
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
@@ -796,7 +801,15 @@ uiODFaultSurfaceDataTreeItem::~uiODFaultSurfaceDataTreeItem()
 void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
+    if ( istb )
+	return;
+
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+    const bool islocked = visserv->isLocked( displayID() );
+
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
+		  as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
     bool enablefaultdata = false;
 #ifdef __debug__
@@ -805,17 +818,12 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( !enablefaultdata )
     {
 	mResetMenuItem( &loadsurfacedatamnuitem_ );
-	mResetMenuItem( &depthattribmnuitem_ );
 	mResetMenuItem( &savesurfacedatamnuitem_ );
 	mResetMenuItem( &algomnuitem_ );
 	return;
     }
 
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    const bool islocked = visserv->isLocked( displayID() );
-    mDynamicCastGet( visSurvey::FaultDisplay*, fd,
-	    visserv->getObject(displayID()) );
+    mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv->getObject(displayID()))
     BufferStringSet nmlist;
     if ( fd && fd->emFault() && fd->emFault()->auxData() )
 	fd->emFault()->auxData()->getAuxDataList( nmlist );
@@ -825,9 +833,6 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 	    false && !islocked && nrsurfdata>0, false );
-
-    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
     const bool enabsave = changed_ ||
 	    (as && as->id()!=Attrib::SelSpec::cNoAttrib() &&

@@ -1256,10 +1256,6 @@ void FaultStickSetDisplay::setPixelDensity( float dpi )
 }
 
 
-bool FaultStickSetDisplay::areAllKnotsHidden() const
-{ return hideallknots_; }
-
-
 void FaultStickSetDisplay::hideAllKnots( bool yn )
 {
     if ( hideallknots_ != yn )

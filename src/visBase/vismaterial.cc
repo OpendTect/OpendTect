@@ -235,11 +235,11 @@ void Material::setTransparencies( float n, const Interval<int>& range )
 
 float Material::getTransparency( int idx ) const
 {
-   if ( !osgcolorarray_ )
-       return color_.tF();
+    if ( !osgcolorarray_ )
+	return color_.tF();
 
-   osg::Vec4Array* colarr = mGetOsgVec4Arr( osgcolorarray_ );
-   return idx < colarr->size() ? (1.0f-(*colarr)[idx].a()) : 0.0f;
+    osg::Vec4Array* colarr = mGetOsgVec4Arr( osgcolorarray_ );
+    return idx < colarr->size() ? (1.0f-(*colarr)[idx].a()) : 0.0f;
 }
 
 
