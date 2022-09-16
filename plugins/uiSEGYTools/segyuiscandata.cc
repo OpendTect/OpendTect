@@ -386,7 +386,8 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     trcnrdef_ = readopts.trcnrdef_;
     psoffssrc_ = readopts.psdef_;
     psoffsdef_ = readopts.offsdef_;
-    coordsys_.release()->usePar( iop );
+    if ( coordsys_ )
+	coordsys_.getNonConstPtr()->usePar( iop );
 }
 
 
