@@ -34,6 +34,7 @@ if ( NOT OD_NO_PROJ )
 	  ${DGB_ML_EXECS}
 	  od_process_attrib_hc
 	  od_synthrock_extractexamples
+	  odpybind
     )
 endif()
 

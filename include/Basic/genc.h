@@ -111,11 +111,13 @@ inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
 mGlobal(Basic) bool SetBindings(const char* odbindir,int argc,char** argv,
-			bool needdatabase);
+			bool needdatabase,const char* bindinglibfnm =nullptr);
 /*!< Sets the Basic library, one must provide a valid path to the folder
    containing the OpendTect binaries. Additional arguments can be provided,
    for instance to set the dataroot and survey:
    --dataroot "C:\\surveys" --survey F3_Demo
+   \param bindinglibfnm Full path to the binding library. The library
+   shortest file basename will be used to set the application name
 */
 mGlobal(Basic) bool InitBindings(const char** moddeps,bool forgui=false);
 /*!< Initialized the basic modules, and auto-loads plugins if needed,
