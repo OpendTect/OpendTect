@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class LinScaler;
+class RegularSeisDataPack;
 class SeisPacketInfo;
 class SeisTrc;
 class SeisTrcBuf;
@@ -177,6 +178,7 @@ public:
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&);
     virtual bool	readData(TraceData* extbuf=nullptr) { return false; }
+    virtual bool	readDataPack(RegularSeisDataPack&)  { return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	write(const SeisTrc&);
 			// overrule if you don't need sorting/buffering
