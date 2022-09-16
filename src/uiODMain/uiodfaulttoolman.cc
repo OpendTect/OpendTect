@@ -432,9 +432,6 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	    mAttachCBIfNotAttached( EM::EMM().undo(emobj->id()).undoredochange,
 		uiODFaultToolMan::updateToolbarCB );
 	}
-	editSelectToggleCB( 0 );
-	if ( areSticksAccessible() )
-	    appl_.applMgr().visServer()->setViewMode( false );
 
 	appl_.applMgr().visServer()->setCurInterObjID( selid );
 	processOutputName();
@@ -595,7 +592,10 @@ bool uiODFaultToolMan::areSticksAccessible() const
     if ( curfssd_ )
 	return !curfssd_->areAllKnotsHidden();
 
-    return curfltd_ && curfltd_->areSticksDisplayed();
+    if ( curfltd_ )
+	return !curfltd_->areAllKnotsHidden();
+
+    return false;
 }
 
 
@@ -604,8 +604,8 @@ void uiODFaultToolMan::enableStickAccess( bool yn )
     if ( curfssd_ && curfssd_->areAllKnotsHidden()==yn )
 	curfssd_->hideAllKnots( !yn );
 
-    if ( curfltd_ && curfltd_->areSticksDisplayed()!=yn )
-	curfltd_->display( yn, !yn || curfltd_->arePanelsDisplayed() );
+    if ( curfltd_ && curfltd_->areAllKnotsHidden()==yn )
+	curfltd_->hideAllKnots( !yn );
 }
 
 
@@ -620,9 +620,6 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
     {
 	if ( cb )
 	    enableStickAccess( false );
-
-	if ( areSticksAccessible() )
-	    toolbar_->turnOn( selectmode_ ? selbutidx_ : editbutidx_, true );
     }
     else
     {

@@ -67,8 +67,7 @@ public:
     bool			hasSpecificMarkerColor() const override
 				{ return true; }
 
-    void			hideAllKnots(bool yn);
-    bool			areAllKnotsHidden() const;
+    void			hideAllKnots(bool yn) override;
 
     void			showManipulator(bool) override;
     bool			isManipulatorShown() const override;

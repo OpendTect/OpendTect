@@ -42,12 +42,15 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
     void			polygonSelectionCB();
     void			updateStickMarkerSet();
-    void	    		getMousePosInfo(const visBase::EventInfo&,
+    void			getMousePosInfo(const visBase::EventInfo&,
 					       Coord3& xyzpos,BufferString& val,
 					       BufferString& info) const;
     const MarkerStyle3D*	markerStyle() const;
     void			setMarkerStyle(const MarkerStyle3D&);
     void			setStickMarkerStyle(const MarkerStyle3D&);
+
+    bool			areAllKnotsHidden() const;
+    virtual void		hideAllKnots(bool);
 
 protected:
     Geometry::FaultStickSet*	faultStickSetGeometry();

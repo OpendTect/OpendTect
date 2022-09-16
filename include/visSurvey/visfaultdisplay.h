@@ -106,6 +106,8 @@ public:
     bool			arePanelsDisplayed() const;
     bool			arePanelsDisplayedInFull() const;
 
+    void			hideAllKnots(bool yn) override;
+
     bool			setEMObjectID(const EM::ObjectID&);
     EM::ObjectID		getEMObjectID() const;
 

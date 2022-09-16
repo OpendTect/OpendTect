@@ -409,12 +409,14 @@ void FaultDisplay::updateSingleColor()
 
     channels_->turnOn( !usesinglecolor );
 
+    const float transparency = getMaterial()->getTransparency();
     const OD::Color prevcol = getMaterial()->getColor();
     const OD::Color newcol = usesinglecolor ? nontexturecol_.darker(0.3)
 					: OD::Color::White();
     if ( newcol != prevcol )
     {
 	getMaterial()->setColor( newcol );
+	getMaterial()->setTransparency( transparency );
 	colorchange.trigger();
     }
     else if ( !usesinglecolor )			// To update color column in
@@ -642,16 +644,26 @@ void FaultDisplay::display( bool sticks, bool panels )
 
 
 bool FaultDisplay::areSticksDisplayed() const
-{ return displaysticks_; }
+{
+    return displaysticks_;
+}
 
 
 bool FaultDisplay::arePanelsDisplayed() const
-{ return displaypanels_; }
+{
+    return displaypanels_;
+}
 
 
 bool FaultDisplay::arePanelsDisplayedInFull() const
 {
     return paneldisplay_ ? paneldisplay_->isOn() : false;
+}
+
+
+void FaultDisplay::hideAllKnots( bool yn )
+{
+    hideallknots_ = yn;
 }
 
 
