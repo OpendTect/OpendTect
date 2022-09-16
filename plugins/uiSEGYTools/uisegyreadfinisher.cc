@@ -512,7 +512,6 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
 				    Pos::GeomID& geomid ) const
 {
-    const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
     uiString errmsg =
 	    tr("Internal: Cannot create line geometry in database");
     geomid = Survey::GM().getGeomID( lnm );
