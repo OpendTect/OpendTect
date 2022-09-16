@@ -1239,3 +1239,51 @@ const char* cformat( char specifier, od_uint16 width, od_uint16 precision,
     ret.add( specifier );
     return ret;
 }
+
+
+BufferString toUserString( const Interval<int>& intv )
+{
+    BufferString ret;
+    ret = intv.start;
+    ret.add( " - " ).add( intv.stop );
+    if ( intv.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<int>*,sintv,&intv);
+	if ( sintv )
+	    ret.add( " - " ).add( sintv->step );
+    }
+
+    return ret;
+}
+
+
+BufferString toUserString( const Interval<float>& intv, int precision )
+{
+    BufferString ret;
+    ret = toString(intv.start,'g',precision);
+    ret.add( " - " ).add( toString(intv.stop,'g',precision) );
+    if ( intv.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<float>*,sintv,&intv);
+	if ( sintv )
+	    ret.add( " - " ).add( toString(sintv->step,'g',precision) );
+    }
+
+    return ret;
+}
+
+
+BufferString toUserString( const Interval<double>& intv, int precision )
+{
+    BufferString ret;
+    ret = toString(intv.start,'g',precision);
+    ret.add( " - " ).add( toString(intv.stop,'g',precision) );
+    if ( intv.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<double>*,sintv,&intv);
+	if ( sintv )
+	    ret.add( " - " ).add( toString(sintv->step,'g',precision) );
+    }
+
+    return ret;
+}

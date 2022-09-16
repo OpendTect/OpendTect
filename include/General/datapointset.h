@@ -230,7 +230,7 @@ public:
     // DataPack interface impl
     bool		simpleCoords() const override	{ return minimal_; }
     float		nrKBytes() const override;
-    void		dumpInfo(IOPar&) const override;
+    void		dumpInfo(StringPairSet&) const override;
 
 
 protected:

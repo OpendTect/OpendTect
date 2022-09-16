@@ -258,6 +258,7 @@ public:
 
 			StringPair(const char* str1, const char* str2)
 			    : first_(str1), second_(str2) {}
+			StringPair(const StringPair&);
 			StringPair(const char* compstr);
 
     static char		separator() { return '|'; }

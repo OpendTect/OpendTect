@@ -1122,7 +1122,7 @@ void uiSurvey::copyInfoToClipboard()
 {
     BufferString txt;
     txt.add( "> Survey Information <\n" );
-    infopars_.dumpPretty( txt );
+    infoset_.dumpPretty( txt );
     txt.addNewLine(2);
 
     const SurveyInfo& si = *cursurvinfo_;
@@ -1371,22 +1371,22 @@ void uiSurvey::putToScreen()
     const float usrang = Math::degFromNorth( si.angleXInl() );
     orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
 
-    infopars_.setEmpty();
-    infopars_.set( sKey::Name(), cursurvinfo_->name() );
-    infopars_.set( "In-line range", inlinfo );
-    infopars_.set( "Cross-line range", crlinfo );
-    infopars_.set( zkey, zinfo );
-    infopars_.set( "Inl/Crl bin size", bininfo );
-    infopars_.set( "CRS", crsinfo );
-    infopars_.set( "Area", areainfo );
-    infopars_.set( "Survey type", survtypeinfo );
-    infopars_.set( "In-line orientation", orientinfo );
-    infopars_.set( "Location", locinfo );
+    infoset_.setEmpty();
+    infoset_.add( sKey::Name(), cursurvinfo_->name() );
+    infoset_.add( "In-line range", inlinfo );
+    infoset_.add( "Cross-line range", crlinfo );
+    infoset_.add( zkey, zinfo );
+    infoset_.add( "Inl/Crl bin size", bininfo );
+    infoset_.add( "CRS", crsinfo );
+    infoset_.add( "Area", areainfo );
+    infoset_.add( "Survey type", survtypeinfo );
+    infoset_.add( "In-line orientation", orientinfo );
+    infoset_.add( "Location", locinfo );
 
     BufferString infostr;
-    IOPar ip = infopars_;
-    ip.removeWithKey( sKey::Name() );
-    ip.dumpPretty( infostr );
+    StringPairSet infoset = infoset_;
+    infoset.remove( sKey::Name() );
+    infoset.dumpPretty( infostr );
     infofld_->setText( infostr );
 }
 

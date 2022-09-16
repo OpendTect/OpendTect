@@ -87,9 +87,10 @@ void System::IssueReporter::fillBasicReport( const char* filename )
     unfilteredreport.add( "\nMAC Address Hash: ");
     unfilteredreport.add( System::macAddressHash() );
 
-    IOPar dumppar; OD::dumpMemInfo( dumppar );
+    StringPairSet meminfo;
+    OD::dumpMemInfo( meminfo );
     BufferString dumpmemstr;
-    dumppar.dumpPretty( dumpmemstr );
+    meminfo.dumpPretty( dumpmemstr );
     unfilteredreport.add( "\n" ).add( dumpmemstr );
 
     unfilteredreport.add( "Nr. of Processors : " );

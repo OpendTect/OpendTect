@@ -687,17 +687,17 @@ bool DataPointSet::getRange( TrcKeyZSampling& tkzs ) const
 }
 
 
-void DataPointSet::dumpInfo( IOPar& iop ) const
+void DataPointSet::dumpInfo( StringPairSet& infoset ) const
 {
     BufferString typstr( "PointSet (" );
     typstr += is2d_ ? "2D" : "3D";
     typstr += minimal_ ? ",minimal)" : ")";
-    iop.set( sKey::Type(), typstr );
-    iop.set( "Number of rows", bivSet().totalSize() );
+    infoset.add( sKey::Type(), typstr );
+    infoset.add( "Number of rows", bivSet().totalSize() );
     const int nrcols = nrCols();
-    iop.set( "Number of cols", nrcols );
+    infoset.add( "Number of cols", nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
-	iop.set( IOPar::compKey("Col",idx), colName(idx) );
+	infoset.add( IOPar::compKey("Col",idx), colName(idx) );
 }
 
 

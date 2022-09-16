@@ -89,7 +89,7 @@ protected:
     uiTextEdit*		infofld_;
     uiTextEdit*		notesfld_;
     uiTextEdit*		logfld_;
-    IOPar		infopars_;
+    StringPairSet	infoset_;
 
     bool		parschanged_; //!< of initial survey only
     bool		cursurvremoved_;

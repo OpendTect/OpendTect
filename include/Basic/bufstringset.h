@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "manobjectset.h"
 class GlobExpr;
+class od_ostream;
 class uiString;
 class uiStringSet;
 class QString;
@@ -164,3 +165,40 @@ mDeprecated("Use sort")
 mGlobal(Basic) void sort(BufferStringSet&);
 mDeprecated("Use getStringSet()")
 mGlobal(Basic) const BufferString* find(const BufferStringSet&,const char*);
+
+
+mExpClass(Basic) StringPairSet
+{ mIsContainer( StringPairSet, ManagedObjectSet<StringPair>, entries_ )
+public:
+
+			StringPairSet()		{}
+    virtual		~StringPairSet()	{}
+
+    inline int		size() const		{ return entries_.size(); }
+    inline bool		isEmpty() const		{ return entries_.isEmpty(); }
+    inline void		setEmpty()		{ entries_.setEmpty(); }
+    bool		validIdx( int i ) const
+						{ return entries_.validIdx(i); }
+
+    StringPair&	get( int idx )	{ return *entries_.get(idx); }
+    const StringPair&	get( int idx ) const { return *entries_.get(idx); }
+
+    StringPairSet&	add(const char*,const char*);
+    StringPairSet&	add(const char*,int);
+    StringPairSet&	add(const char*,const OD::String&);
+    StringPairSet&	add(const OD::String&,const OD::String&);
+    StringPairSet&	add(const StringPair&);
+    StringPairSet&	add(const StringPairSet&);
+
+    bool		remove(const char* first);
+    void		removeSingle( int i ) { entries_.removeSingle(i); }
+
+    int			indexOf(const char* first) const;
+    			//!< first match
+    inline bool		isPresent(const char* first) const
+						{ return indexOf(first) >= 0; }
+
+    void		dumpPretty(od_ostream&) const;
+    void		dumpPretty(BufferString&) const;
+};
+

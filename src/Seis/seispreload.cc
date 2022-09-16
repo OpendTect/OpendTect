@@ -436,10 +436,11 @@ void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
     if ( !dp )
 	return;
 
-    IOPar par; dp->dumpInfo( par );
-    par.removeWithKey( DataPack::sKeyCategory() );
-    par.removeWithKey( "Pack.ID" );
-    par.dumpPretty( info );
+    StringPairSet infoset;
+    dp->dumpInfo( infoset );
+    infoset.remove( DataPack::sKeyCategory() );
+    infoset.remove( "Pack.ID" );
+    infoset.dumpPretty( info );
 }
 
 

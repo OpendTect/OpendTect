@@ -54,7 +54,7 @@ public:
     TrcKey			getTrcKey(int globaltrcidx) const override;
     int				getGlobalIdx(const TrcKey&) const override;
 
-    void			dumpInfo(IOPar&) const override;
+    void			dumpInfo(StringPairSet&) const override;
 
     static DataPackID		createDataPackForZSlice(const BinIDValueSet*,
 						const TrcKeyZSampling&,
