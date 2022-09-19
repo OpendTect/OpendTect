@@ -15,7 +15,7 @@ foreach( DOCFILE ${DOCUMENTATION_FILES} )
 endforeach()
 
 
-# OD_BUILD_DOCUMENTATION - Make target "doc" to make documentation
+# OD_BUILD_DOCUMENTATION - Make target "doc" to make the class documentation
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
@@ -80,42 +80,41 @@ if ( WIN32 )
     option( BUILD_USERDOC "Build user documentation" OFF )
 endif()
 
-if ( BUILD_USERDOC )
-    if ( WIN32 )
-        set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
-	set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
-	find_program( MADCAP_FLARE_EXEC madbuild.exe
+# OD_BUILD_USERDOCUMENTATION - Make target "userdoc" to make software documentation
+macro( OD_BUILD_USERDOCUMENTATION )
+    set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
+    set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
+    find_program( MADCAP_FLARE_EXEC madbuild.exe
 		  PATHS
-			"C:/Program Files/MadCap Software/"
-			"D:/Program Files/MadCap Software/"
-			"E:/Program Files/MadCap Software/"
+		    "C:/Program Files/MadCap Software/"
+		    "D:/Program Files/MadCap Software/"
+		    "E:/Program Files/MadCap Software/"
 		  PATH_SUFFIXES
-			"MadCap Flare 16/Flare.app"
-			"MadCap Flare 17/Flare.app"
-			"MadCap Flare 18/Flare.app"
-			"MadCap Flare 19/Flare.app"
+		    "MadCap Flare 16/Flare.app"
+		    "MadCap Flare 17/Flare.app"
+		    "MadCap Flare 18/Flare.app"
+		    "MadCap Flare 19/Flare.app"
 		  DOC "Madcap Flare Executable"
              	  NO_DEFAULT_PATH )
 
-	if ( NOT EXISTS ${MADCAP_FLARE_EXEC} )
-	    message ( FATAL_ERROR "Madcap flare executable not found" )
-	endif()
+    if ( NOT EXISTS "${MADCAP_FLARE_EXEC}" )
+	message ( FATAL_ERROR "Madcap flare executable not found" )
+    endif()
 
-	if ( NOT EXISTS ${USERDOC_PROJECT} )
-	    message ( FATAL_ERROR "Cannot find ${USERDOC_PROJECT}" )
-	endif()
+    if ( NOT EXISTS "${USERDOC_PROJECT}" )
+	message ( FATAL_ERROR "Cannot find ${USERDOC_PROJECT}" )
+    endif()
 
-	set ( USER $ENV{USERNAME} )
-	get_filename_component ( USERDOC_PROJECT_DIR ${USERDOC_PROJECT} PATH )
-	get_filename_component ( USERDOC_NAME ${USERDOC_PROJECT} NAME_WE )
+    set ( USER $ENV{USERNAME} )
+    get_filename_component( USERDOC_PROJECT_DIR "${USERDOC_PROJECT}" PATH )
+    get_filename_component( USERDOC_NAME "${USERDOC_PROJECT}" NAME_WE )
 
-	set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
+    set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
 
-	add_custom_target( "userdoc" "${MADCAP_FLARE_EXEC}"
-			    -project "${USERDOC_PROJECT}"
-			    -target ${USERDOC_TARGET}
-			    COMMENT "Building user documentation" )
-	install( DIRECTORY ${USERDOC_OUTPUT_DIR}/ DESTINATION ${MISC_INSTALL_PREFIX}/doc/${USERDOC_NAME} )
-    endif( WIN32 )
+    add_custom_target( "userdoc" "${MADCAP_FLARE_EXEC}"
+			-project "${USERDOC_PROJECT}"
+			-target "${USERDOC_TARGET}"
+			COMMENT "Building user documentation" )
+    install( DIRECTORY "${USERDOC_OUTPUT_DIR}/" DESTINATION "${MISC_INSTALL_PREFIX}/doc/${USERDOC_NAME}" )
 
-endif( BUILD_USERDOC )
+endmacro( OD_BUILD_USERDOCUMENTATION )
