@@ -248,21 +248,21 @@ ZDomain::Info::~Info()
 
 bool ZDomain::Info::hasID() const
 {
-    const char* res = getID();
-    return res && *res;
+    return !getID().isUdf();
 }
 
 
-const char* ZDomain::Info::getID() const
+const MultiID ZDomain::Info::getID() const
 {
-    BufferString res = pars_.find( sKey::ID() );
-    if ( res.isEmpty() )
-	res = pars_.find( IOPar::compKey(sKey(),sKey::ID()) );
+    MultiID mid;
+    pars_.get( sKey::ID(), mid );
+    if ( mid.isUdf() )
+	pars_.get( IOPar::compKey(sKey(),sKey::ID()), mid );
 
-    if ( res.isEmpty() )
-	res = pars_.find( "ZDomain ID" );
+    if ( mid.isUdf() )
+	pars_.get( "ZDomain ID", mid );
 
-    return res;
+    return mid;
 }
 
 
@@ -284,9 +284,9 @@ bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
     if ( &inf.def_ != &def_ )
 	return false;
 
-    BufferString myid( getID() );
-    const char* iopid = inf.getID();
-    if ( myid.isEmpty() || !iopid )
+    MultiID myid( getID() );
+    const MultiID iopid = inf.getID();
+    if ( myid.isUdf() || iopid.isUdf() )
 	return true;
 
     return myid == iopid;

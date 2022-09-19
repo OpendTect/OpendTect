@@ -199,7 +199,7 @@ bool SimpleTimeDepthTransform::usePar( const IOPar& par )
 	return false;
     }
 
-    if ( !setID(MultiID(tozdomaininfo_.getID() ) ) )
+    if ( !setID(tozdomaininfo_.getID()) )
 	return false;
 
     return true;

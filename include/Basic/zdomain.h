@@ -98,8 +98,7 @@ public:
     IOPar&		pars_;
 
     bool		hasID() const;
-    const char*		getID() const;
-    void		setID(const char*);
+    const MultiID	getID() const;
     void		setID(const MultiID&);
 
     bool		isCompatibleWith(const IOPar&) const;
@@ -114,6 +113,8 @@ public:
     uiString		getLabel() const	{ return def_.getLabel(); }
     int			userFactor() const	{ return def_.userFactor(); }
 
+    mDeprecated("Use MultiID Overloaded function")
+    void		setID(const char*);
 };
 
 mGlobal(Basic) const char*	sKey();

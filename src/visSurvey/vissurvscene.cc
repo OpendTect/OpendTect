@@ -282,7 +282,7 @@ const char* Scene::zDomainUnitStr( bool withparens ) const
 int Scene::zDomainUserFactor() const
 { return zdomaininfo_->userFactor(); }
 
-const char* Scene::zDomainID() const
+const MultiID Scene::zDomainID() const
 { return zdomaininfo_->getID(); }
 
 
