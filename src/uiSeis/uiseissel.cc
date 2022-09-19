@@ -142,7 +142,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 					  "Compfld" );
 	compfld_->box()->setHSzPol( uiObject::WideVar );
 	compfld_->attach( alignedBelow, topgrp );
-	entrySel(0);
+	if ( selgrp_->getCtxtIOObj().ioobj_ )
+	    entrySel( nullptr );
     }
 }
 
@@ -207,10 +208,10 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
     uiIOObjSelDlg::usePar( iopar );
 
     if ( compfld_ )
-	entrySel( nullptr );
-
-    if ( compfld_ )
     {
+	if ( selgrp_->getCtxtIOObj().ioobj_ )
+	    entrySel( nullptr );
+
 	int selcompnr = mUdf(int);
 	if ( iopar.get(sKey::Component(),selcompnr) && !mIsUdf(selcompnr) )
 	{
