@@ -59,6 +59,9 @@ protected:
 
     int nextStep() override
     {
+	if ( totalNr() == 0 )
+	    return Finished();
+
 	const IOObj* ioobj = objs_[int(nrdone_)];
 	const Pos::GeomID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
 	bool doupdate = false;
