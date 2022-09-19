@@ -176,7 +176,7 @@ public:
     uiString			zDomainUserName() const;
     const char*			zDomainUnitStr(bool withparens=false) const;
     int				zDomainUserFactor() const;
-    const char*			zDomainID() const;
+    const MultiID		zDomainID() const;
 
     void			setAnnotColor(const OD::Color&);
     const OD::Color		getAnnotColor() const;

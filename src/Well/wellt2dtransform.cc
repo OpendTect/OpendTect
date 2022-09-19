@@ -186,7 +186,7 @@ bool WellT2DTransform::usePar( const IOPar& par )
     if ( !tozdomaininfo_.hasID() )
 	{ errmsg_ = tr("Z Transform: No ID for Well provided"); return false; }
 
-    if ( !setWellID(MultiID(tozdomaininfo_.getID() ) ) )
+    if ( !setWellID(tozdomaininfo_.getID()) )
 	return false;
 
     return true;

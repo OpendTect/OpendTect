@@ -241,15 +241,16 @@ float ZAxisTransform::toZScale() const
 
 bool ZAxisTransform::usePar( const IOPar& par )
 {
-    BufferString res = par.find( sKey::ID() );
-    if ( res.isEmpty() )
-	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID()) );
+    MultiID mid;
+    par.get( sKey::ID(), mid );
+    if ( mid.isUdf() )
+	par.get( IOPar::compKey(ZDomain::sKey(),sKey::ID()), mid );
 
-    if ( res.isEmpty() )
-	res = par.find( "ZDomain ID" );
+    if ( mid.isUdf() )
+	par.get( "ZDomain ID", mid );
 
-    fromzdomaininfo_.setID( res.buf() );
-    tozdomaininfo_.setID( res.buf() );
+    fromzdomaininfo_.setID( mid );
+    tozdomaininfo_.setID( mid );
     return true;
 }
 
