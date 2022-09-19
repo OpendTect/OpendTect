@@ -28,15 +28,6 @@ ________________________________________________________________________
 # include "winutils.h"
 #endif
 
-static void showProgrDoc()
-{
-    const FilePath fp( mGetProgrammerDocDir(),
-			__iswin__ ? "windows.html" : "unix.html" );
-    uiDesktopServices::openUrl( fp.fullPath() );
-}
-
-#undef mHelpFile
-
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 			const char* workdirnm )
@@ -163,9 +154,9 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(workdirnm)) )
 
     const uiString docmsg =
-      tr( "Do you want to take a look at the developers documentation?");
+	tr( "Do you want to take a look at the developers documentation?");
     if ( uiMSG().askGoOn(docmsg) )
-	showProgrDoc();
+	HelpProvider::provideHelp( HelpKey("dev",0) );
 
 #ifdef __win__
     char shortpath[1024];
@@ -173,7 +164,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     workdirnm = shortpath;
 #endif
 
-    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env.csh";
+    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat"
+				      : "od_cr_dev_env.csh";
     FilePath fp( swdir, "bin", scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );
     mc.addArg( swdir );
