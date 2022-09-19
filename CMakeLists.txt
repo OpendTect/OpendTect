@@ -109,7 +109,7 @@ if ( WIN32 OR APPLE )
     OD_ADD_SIGNLIBRARIES_TARGET()
 endif()
 
-set( PLUGIN_DIR ""  CACHE PATH "Path to eventual extra plugins" )
+set( PLUGIN_DIR "" CACHE PATH "Path to eventual extra plugins" )
 if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
     include ( ${PLUGIN_DIR}/CMakeLists.txt )
 endif()
@@ -140,6 +140,9 @@ OD_SETUP_TEST_FILTER()
 
 if( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()
+endif()
+if( BUILD_USERDOC )
+    OD_BUILD_USERDOCUMENTATION()
 endif()
 
 if ( OD_BINARY_DEBUG_BASEDIR AND NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
