@@ -214,7 +214,7 @@ void uiWavelet::drawWavelet()
     const int wvltsz = wvlt_->size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
     OD::memCopy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
-    FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
+    RefMan<FlatDataPack> dp = new FlatDataPack( "Wavelet", fva2d );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );
 
