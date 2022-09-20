@@ -11,6 +11,9 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uigroup.h"
 
+// These classes are still under development. We don't guarantee binary
+// compatibility.
+
 class WellLogToolData;
 class uiWellLogDisplay;
 
@@ -23,6 +26,7 @@ public:
     virtual			~uiWellLogToolWinGrp();
 
     virtual void		displayLogs() = 0;
+    virtual void		displayMarkers(const BufferStringSet& mrknms) {}
 
 protected:
     const ObjectSet<WellLogToolData>& logdatas_;
