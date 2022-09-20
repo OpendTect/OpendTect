@@ -1116,25 +1116,39 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
 	FilePath fp( dirnm, attrdl.get(idx), "index" );
-	IOPar iopar("AttributeSet Table");
-	iopar.read( fp.fullPath(), sKey::Pars(), false );
-	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
-	if ( !subpar ) continue;
+	od_istream strm( fp.fullPath() );
+	ascistream astream( strm, true );
 
-	IOParIterator iter( *subpar );
-	BufferString key, attrfnm;
-	while ( iter.next(key,attrfnm) )
+	if ( atEndOfSection(astream) )
+	    astream.next();
+
+	const char* typeprefix = is2d ? "2D" : "3D";
+	while ( !atEndOfSection(astream) )
 	{
+	    const char* attribsetnm = astream.keyWord();
+	    if ( !StringView(attribsetnm).startsWith(typeprefix) )
+	    {
+		astream.next();
+		continue;
+	    }
+
+	    const BufferString attrsetnm( attribsetnm + 3 );
+	    BufferString attrfnm = astream.value();
 	    if ( !FilePath(attrfnm).isAbsolute() )
 	    {
 		fp.setFileName( attrfnm );
 		attrfnm = fp.fullPath();
 	    }
 
-	    if ( !File::exists(attrfnm) ) continue;
+	    if ( !File::exists(attrfnm) )
+	    {
+		astream.next();
+		continue;
+	    }
 
-	    attribnames.add( key );
+	    attribnames.add( attrsetnm );
 	    attribfiles.add( attrfnm );
+	    astream.next();
 	}
     }
 }
