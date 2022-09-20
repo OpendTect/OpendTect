@@ -186,3 +186,6 @@ mGlobal(Basic) const char* cformat(char specifier,od_uint16 width=0,
 				   const char* flags=nullptr);
 	/*!<Creates a format string for printing:
 	    %[flags][width][.precision][length]specifier */
+
+mGlobal(Basic) const char* getDimensionString(int sz1,int sz2,int sz3=0);
+	/*!< Returns a "sz1 X sz2[ X sz3]" string. sz3 is used when non-zero */
