@@ -1287,3 +1287,15 @@ BufferString toUserString( const Interval<double>& intv, int precision )
 
     return ret;
 }
+
+
+const char* getDimensionString( int sz1, int sz2, int sz3 )
+{
+    mDeclStaticString( ret );
+    ret = sz1; 
+    ret.add( " X " ).add( sz2 );
+    if ( sz3 > 0 )
+	ret.add( " X " ).add( sz3 );
+
+    return ret;
+}
