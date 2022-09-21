@@ -18,7 +18,7 @@ endforeach()
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
-    set( OD_DOXYGEN_LOGO ${PROJECT_BINARY_DIR}/doc/Programmer/images/logo.png )
+    set( OD_DOXYGEN_LOGO ${CMAKE_SOURCE_DIR}/doc/Programmer/images/logo.png )
 
     if ( NOT EXISTS "${OD_DOXYGEN_PATH}" )
 	file(MAKE_DIRECTORY "${OD_DOXYGEN_PATH}" )
