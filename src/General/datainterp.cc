@@ -54,11 +54,11 @@ bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )
     if ( res.isEmpty() )
 	return false;
 
-    BufferString firstchar( res[0] );
+    const BufferString firstchar( res[0] );
     if ( !firstchar.isNumber(true) )
 	return false;
 
-    ut = UserType( firstchar.toInt() - '0' );
+    ut = UserType( firstchar.toInt() );
     return true;
 }
 
