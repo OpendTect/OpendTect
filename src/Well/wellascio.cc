@@ -37,6 +37,16 @@ static bool convToDah( const Well::Track& trck, float& val,
 namespace Well
 {
 
+TrackAscIO::TrackAscIO( const Table::FormatDesc& fd, od_istream& strm )
+    : Table::AscIO(fd)
+    , strm_(strm)
+{}
+
+
+TrackAscIO::~TrackAscIO()
+{}
+
+
 Table::FormatDesc* TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
@@ -305,6 +315,15 @@ Table::TargetInfo* gtDepthTI( bool withuns )
 }
 
 
+// MarkerSetAscIO
+MarkerSetAscIO::MarkerSetAscIO( const Table::FormatDesc& fd )
+    : Table::AscIO(fd)		{}
+
+
+MarkerSetAscIO::~MarkerSetAscIO()
+{}
+
+
 Table::FormatDesc* MarkerSetAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "MarkerSet" );
@@ -371,6 +390,16 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 
     return true;
 }
+
+
+// D2TModelAscIO
+D2TModelAscIO::D2TModelAscIO( const Table::FormatDesc& fd )
+    : Table::AscIO(fd)
+{}
+
+
+D2TModelAscIO::~D2TModelAscIO()
+{}
 
 
 Table::FormatDesc* D2TModelAscIO::getDesc( bool withunitfld )
@@ -468,6 +497,10 @@ BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
 {}
 
 
+BulkTrackAscIO::~BulkTrackAscIO()
+{}
+
+
 Table::FormatDesc* BulkTrackAscIO::getDesc()
 {
     auto* fd = new Table::FormatDesc( "BulkWellTrack" );
@@ -525,6 +558,10 @@ BulkMarkerAscIO::BulkMarkerAscIO( const Table::FormatDesc& fd,
 {}
 
 
+BulkMarkerAscIO::~BulkMarkerAscIO()
+{}
+
+
 Table::FormatDesc* BulkMarkerAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkMarkerSet" );
@@ -561,7 +598,7 @@ BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
 
 
 BulkD2TModelAscIO::~BulkD2TModelAscIO()
-{ }
+{}
 
 
 Table::FormatDesc* BulkD2TModelAscIO::getDesc()
@@ -639,6 +676,10 @@ DirectionalAscIO::DirectionalAscIO( const Table::FormatDesc& fd,
 				    od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
+{}
+
+
+DirectionalAscIO::~DirectionalAscIO()
 {}
 
 
@@ -720,6 +761,10 @@ BulkDirectionalAscIO::BulkDirectionalAscIO( const Table::FormatDesc& fd,
 					    od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
+{}
+
+
+BulkDirectionalAscIO::~BulkDirectionalAscIO()
 {}
 
 

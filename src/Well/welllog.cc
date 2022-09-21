@@ -9,7 +9,9 @@ ________________________________________________________________________
 
 #include "wellextractdata.h"
 #include "welllog.h"
+#include "welllogdisp.h"
 #include "welllogset.h"
+
 #include "bufstringset.h"
 #include "iopar.h"
 #include "idxable.h"
@@ -388,7 +390,21 @@ const Mnemonic* Well::LogSet::getMnemonicOfLog( const char* nm ) const
 
 // ---- Well::Log
 
+Well::Log::Log( const char* nm )
+    : DahObj(nm)
+    , range_(mUdf(float),-mUdf(float))
+{}
 
+
+Well::Log::Log( const Log& oth )
+    : DahObj("")
+{
+    *this = oth;
+}
+
+
+Well::Log::~Log()
+{}
 
 
 Well::Log& Well::Log::operator =( const Well::Log& oth )
@@ -838,20 +854,48 @@ Well::Log* Well::Log::sampleLog( const StepInterval<float>& dahrg ) const
 }
 
 
-Well::Log* Well::Log::createSampledLog(const StepInterval<float>& dahrg,
-				 const float val)
+Well::Log* Well::Log::createSampledLog( const StepInterval<float>& dahrg,
+					float val)
 {
     Well::Log* wl = new Well::Log;
     StepInterval<float> outdahrg( dahrg );
     outdahrg.sort();
     outdahrg.stop = Math::Floor( outdahrg.stop/outdahrg.step ) * outdahrg.step;
-    outdahrg.start = Math::Floor( outdahrg.start/outdahrg.step )
-								* outdahrg.step;
+    outdahrg.start =
+		Math::Floor( outdahrg.start/outdahrg.step ) * outdahrg.step;
     const int nr = outdahrg.nrSteps() + 1;
-    for (int idx = 0; idx < nr; idx++)
+    for (int idx=0; idx<nr; idx++ )
     {
-	const float dah = outdahrg.atIndex(idx);
-	wl->addValue(dah, val);
+	const float dah = outdahrg.atIndex( idx );
+	wl->addValue( dah, val );
     }
+
     return wl;
+}
+
+
+// LogDisplayPars
+Well::LogDisplayPars::LogDisplayPars( const char* nm )
+    : name_(nm)
+{
+    range_.setUdf();
+}
+
+
+Well::LogDisplayPars::~LogDisplayPars()
+{}
+
+
+// LogDisplayParSet
+Well::LogDisplayParSet::LogDisplayParSet()
+{
+    leftlogpar_ = new LogDisplayPars( "None" );
+    rightlogpar_ = new LogDisplayPars( "None" );
+}
+
+
+Well::LogDisplayParSet::~LogDisplayParSet()
+{
+    delete leftlogpar_;
+    delete rightlogpar_;
 }

@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "bufstring.h"
-class IOObj;
 
+class IOObj;
 
 namespace Well
 {
@@ -21,6 +21,7 @@ namespace Well
 mExpClass(Well) odIO
 {
 public:
+    virtual		~odIO();
 
     const OD::String&	baseName() const	{ return basenm_; }
 

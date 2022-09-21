@@ -247,6 +247,10 @@ Well::ZRangeSelector::ZRangeSelector( const ZRangeSelector& p )
 }
 
 
+Well::ZRangeSelector::~ZRangeSelector()
+{}
+
+
 void Well::ZRangeSelector::setEmpty()
 {
     topmrkr_ = sKeyDataStart();
@@ -494,6 +498,10 @@ Well::ExtractParams::ExtractParams( const ExtractParams& ep )
 }
 
 
+Well::ExtractParams::~ExtractParams()
+{}
+
+
 void Well::ExtractParams::setEmpty()
 {
     ZRangeSelector::setEmpty();
@@ -544,6 +552,10 @@ Well::TrackSampler::TrackSampler( const TypeSet<MultiID>& i,
 	, dahcolnr_(-1)
 {
 }
+
+
+Well::TrackSampler::~TrackSampler()
+{}
 
 
 void Well::TrackSampler::usePar( const IOPar& pars )
@@ -743,6 +755,10 @@ Well::LogDataExtracter::LogDataExtracter( const TypeSet<MultiID>& i,
 	, zistime_(ztm)
 {
 }
+
+
+Well::LogDataExtracter::~LogDataExtracter()
+{}
 
 
 void Well::LogDataExtracter::usePar( const IOPar& pars )
@@ -1070,6 +1086,10 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Track& t,
     tracklimits_.start = zstart;
     tracklimits_.stop = zstop;
 }
+
+
+Well::SimpleTrackSampler::~SimpleTrackSampler()
+{}
 
 
 int Well::SimpleTrackSampler::nextStep()

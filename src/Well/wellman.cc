@@ -51,6 +51,10 @@ Well::LoadReqs::LoadReqs( SubObjType typ1, SubObjType typ2, SubObjType typ3 )
 }
 
 
+Well::LoadReqs::~LoadReqs()
+{}
+
+
 Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
 {
     if ( typ != D2T || SI().zIsTime() )
@@ -147,6 +151,9 @@ Well::Man& Well::MGR()
 
 const UnitOfMeasure* Well::Man::depthstorageunit_ = nullptr;
 const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
+
+Well::Man::Man()
+{}
 
 
 Well::Man::~Man()

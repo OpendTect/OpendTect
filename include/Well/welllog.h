@@ -40,13 +40,10 @@ namespace Well
 mExpClass(Well) Log : public DahObj
 {
 public:
+			Log(const char* nm=nullptr);
+			Log(const Log&);
+			~Log();
 
-			Log( const char* nm=nullptr )
-			: DahObj(nm)
-			, range_(mUdf(float),-mUdf(float))
-			{}
-			Log( const Log& oth )
-			: DahObj("")			{ *this = oth; }
     Log&		operator =(const Log&);
 
     bool		isLoaded() const;
@@ -90,7 +87,7 @@ public:
     Log*		upScaleLog(const StepInterval<float>&) const;
     Log*		sampleLog(const StepInterval<float>&) const;
     static Log*		createSampledLog(const StepInterval<float>&,
-					 const float val = mUdf(float));
+					 float val=mUdf(float));
 
     static const char*	sKeyMnemLbl();
     static const char*	sKeyUnitLbl();

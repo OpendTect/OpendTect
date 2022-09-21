@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "gendefs.h"
-class BufferStringSet;
 
+class BufferStringSet;
 
 namespace Well
 {
@@ -24,8 +24,7 @@ mExpClass(Well) WriteAccess
 {
 public:
 
-			WriteAccess( const Data& d ) : wd_(d)	{}
-    virtual		~WriteAccess()				{}
+    virtual		~WriteAccess();
 
     virtual bool	put() const			= 0; //!< Just write all
 
@@ -48,9 +47,9 @@ public:
     virtual bool	canSwapLogs()			{ return false; }
 
 protected:
+			WriteAccess(const Data&);
 
     const Data&		wd_;
-
 };
 
 } // namespace Well

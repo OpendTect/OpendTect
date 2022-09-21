@@ -26,6 +26,22 @@ const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
 
 
+Well::D2TModel::D2TModel( const char* nm )
+    : DahObj(nm)
+{}
+
+
+Well::D2TModel::D2TModel( const D2TModel& d2t )
+    : DahObj("")
+{
+    *this = d2t;
+}
+
+
+Well::D2TModel::~D2TModel()
+{}
+
+
 Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 {
     if ( &d2t != this )

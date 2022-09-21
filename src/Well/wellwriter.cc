@@ -154,6 +154,10 @@ Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
 }
 
 
+Well::odWriter::~odWriter()
+{}
+
+
 void Well::odWriter::init()
 {
     binwrlogs_ = true;
@@ -655,6 +659,10 @@ MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds,
 }
 
 
+MultiWellWriter::~MultiWellWriter()
+{}
+
+
 od_int64 MultiWellWriter::totalNr() const
 { return nrwells_; }
 
@@ -718,3 +726,13 @@ bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
 
     return true;
 }
+
+
+// Well::WriteAccess
+Well::WriteAccess::WriteAccess( const Data& wd )
+    : wd_(wd)
+{}
+
+
+Well::WriteAccess::~WriteAccess()
+{}

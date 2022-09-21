@@ -11,7 +11,9 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "wellwriteaccess.h"
 #include "wellio.h"
+
 #include "od_iosfwd.h"
+
 class IOObj;
 class DataBuffer;
 class ascostream;
@@ -31,6 +33,7 @@ public:
 
 			odWriter(const IOObj&,const Data&,uiString& errmsg);
 			odWriter(const char* fnm,const Data&,uiString& errmsg);
+    virtual		~odWriter();
 
     bool		put() const override;
 
@@ -86,6 +89,5 @@ private:
     uiString		startWriteStr() const;
 
 };
-
 
 } // namespace Well

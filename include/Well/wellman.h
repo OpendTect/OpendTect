@@ -45,6 +45,8 @@ public:
 			LoadReqs(SubObjType);
 			LoadReqs(SubObjType,SubObjType);
 			LoadReqs(SubObjType,SubObjType,SubObjType);
+			~LoadReqs();
+
     static LoadReqs	All();
     static LoadReqs	AllNoLogs();
     bool		operator ==( const LoadReqs& oth ) const
@@ -133,7 +135,8 @@ public:
 
 protected:
 
-			Man()				{}
+			Man();
+
     static Man*		mgr_;
     mGlobal(Well) friend Man&	MGR();
 

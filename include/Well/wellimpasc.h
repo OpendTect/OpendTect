@@ -37,24 +37,25 @@ mExpClass(Well) LASImporter
 { mODTextTranslationClass(LASImporter)
 public:
 
-			LASImporter( Data& d ) : wd_(&d), useconvs_(false)   {}
-			LASImporter()	       : wd_(0), useconvs_(false)   {}
+			LASImporter(Data&);
+			LASImporter();
 			~LASImporter();
 
     mExpClass(Well) FileInfo
     { mODTextTranslationClass(FileInfo)
     public:
-			~FileInfo()		{}
+			FileInfo();
+			~FileInfo();
 
 	int		size() const		{ return lognms_.size(); }
 
 	BufferStringSet	logcurves_;
 	BufferStringSet	logunits_;
 	BufferStringSet	lognms_;
-	Interval<float>	zrg_ = Interval<float>::udf();
-	bool		revz_ = false;
-	int		depthcolnr_ = -1;
-	float		undefval_ = -999.25f;
+	Interval<float>	zrg_			= Interval<float>::udf();
+	bool		revz_			= false;
+	int		depthcolnr_		= -1;
+	float		undefval_		= -999.25f;
 	BufferString	zunitstr_;
 
 			//!< only info; not used by getLogs
@@ -67,12 +68,12 @@ public:
 	BufferString	country_;
 	BufferString	srvc_;
 	BufferString	uwi_;
-	Coord		loc_ = Coord::udf();
-	double		kbelev_ = mUdf(double);
-	double		glelev_ = mUdf(double);
+	Coord		loc_			= Coord::udf();
+	double		kbelev_			= mUdf(double);
+	double		glelev_			= mUdf(double);
     };
 
-    void		setData( Data& wd )	    { wd_ = &wd; }
+    void		setData( Data& wd )	{ wd_ = &wd; }
     void		copyInfo(const FileInfo&,bool& changed);
     void		adjustTrack(const Interval<float>& zrg,bool istvdss,
 				    bool& changed);
@@ -96,7 +97,7 @@ protected:
 
     mutable BufferStringSet	unitmeasstrs_;
     mutable ObjectSet<const UnitOfMeasure>	convs_;
-    bool		useconvs_;
+    bool		useconvs_			= false;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
     static void		parseLocation(const char*,const char*,Coord&);
@@ -113,10 +114,9 @@ protected:
 mExpClass(Well) TrackAscIO : public Table::AscIO
 { mODTextTranslationClass(TrackAscIO)
 public:
-				TrackAscIO( const Table::FormatDesc& fd,
-					   od_istream& strm )
-				    : Table::AscIO(fd)
-				    , strm_(strm)	{}
+				TrackAscIO(const Table::FormatDesc&,
+					   od_istream&);
+				~TrackAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			getData(Data&,float kbelev=mUdf(float),
@@ -144,8 +144,8 @@ protected:
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
 { mODTextTranslationClass(D2TModelAscIO)
     public:
-				D2TModelAscIO( const Table::FormatDesc& fd )
-				: Table::AscIO(fd)		{}
+				D2TModelAscIO(const Table::FormatDesc&);
+				~D2TModelAscIO();
 
     static Table::FormatDesc*	getDesc(bool withunitfld);
     static void			updateDesc(Table::FormatDesc&,bool withunitfld);
@@ -163,8 +163,8 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
 { mODTextTranslationClass(MarkerSetAscIO)
 public:
-				MarkerSetAscIO( const Table::FormatDesc& fd )
-				: Table::AscIO(fd)		{}
+				MarkerSetAscIO(const Table::FormatDesc&);
+				~MarkerSetAscIO();
 
     static Table::FormatDesc*	getDesc();
 
@@ -182,6 +182,7 @@ mExpClass(Well) BulkTrackAscIO : public Table::AscIO
 public:
 				BulkTrackAscIO(const Table::FormatDesc&,
 					       od_istream&);
+				~BulkTrackAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,Coord3& crd,float& md,
@@ -202,7 +203,9 @@ protected:
 mExpClass(Well) BulkMarkerAscIO : public Table::AscIO
 { mODTextTranslationClass(BulkMarkerAscIO)
 public:
-			BulkMarkerAscIO(const Table::FormatDesc&,od_istream&);
+				BulkMarkerAscIO(const Table::FormatDesc&,
+						od_istream&);
+				~BulkMarkerAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,
@@ -248,6 +251,7 @@ mExpClass(Well) DirectionalAscIO : public Table::AscIO
 public:
 				DirectionalAscIO(const Table::FormatDesc&,
 						 od_istream&);
+				~DirectionalAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			getData(Data&,float kb) const;
@@ -265,6 +269,7 @@ mExpClass(Well) BulkDirectionalAscIO : public Table::AscIO
 public:
 				BulkDirectionalAscIO(const Table::FormatDesc&,
 						     od_istream&);
+				~BulkDirectionalAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,double& md,

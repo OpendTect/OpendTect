@@ -520,6 +520,17 @@ void Well::Data::reloadLogNames( CallBacker* )
 }
 
 
+// Well::Info
+Well::Info::Info( const char* nm )
+    : NamedCallBacker(nm)
+    , replvel_(Well::getDefaultVelocity())
+{}
+
+
+Well::Info::~Info()
+{}
+
+
 bool Well::Info::isLoaded() const
 {
     return surfacecoord_ != Coord() ||

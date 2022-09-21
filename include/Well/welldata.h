@@ -42,12 +42,8 @@ mExpClass(Well) Info : public NamedCallBacker
 { mODTextTranslationClass(Well::Info)
 public:
 
-			Info( const char* nm )
-			    : NamedCallBacker(nm)
-			    , replvel_(Well::getDefaultVelocity())
-			    , groundelev_(mUdf(float))
-			    , welltype_(OD::UnknownWellType)
-			{}
+			Info(const char* nm);
+			~Info();
 
     enum InfoType	{ None, Name, UWID, WellType, TD, KB, GroundElev,
 			  SurfCoord, SurfBinID, Operator, Field, County, State,
@@ -72,11 +68,11 @@ public:
     BufferString	province_;
     BufferString	country_;
     BufferString	source_; //!< filename for OD storage
-    OD::WellType	welltype_;
+    OD::WellType	welltype_		= OD::UnknownWellType;
 
     Coord		surfacecoord_;
     float		replvel_;
-    float		groundelev_;
+    float		groundelev_		= mUdf(float);
 
     static const char*	sKeyDepthUnit();
     static const char*	sKeyUwid();

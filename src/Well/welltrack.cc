@@ -18,6 +18,23 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 
+Well::Track::Track( const char* nm )
+    : DahObj(nm)
+    , zistime_(false)
+{}
+
+
+Well::Track::Track( const Track& t )
+    : DahObj("")
+{
+    *this = t;
+}
+
+
+Well::Track::~Track()
+{}
+
+
 Well::Track& Well::Track::operator =( const Track& t )
 {
     if ( &t != this )

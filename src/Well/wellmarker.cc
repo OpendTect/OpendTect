@@ -85,6 +85,14 @@ void Well::Marker::setNoLevelID()
 }
 
 
+// Well::MarkerSet
+Well::MarkerSet::MarkerSet()
+{}
+
+
+Well::MarkerSet::~MarkerSet()
+{}
+
 
 void Well::MarkerSet::fillWithAll( TaskRunner* tr )
 {
@@ -517,6 +525,8 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 }
 
 
+
+// Well::MarkerRange
 Well::MarkerRange::MarkerRange( const Well::MarkerSet& ms,
 				const Interval<int>& rg )
     : markers_(ms)
@@ -531,6 +541,10 @@ Well::MarkerRange::MarkerRange( const Well::MarkerSet& ms,
 {
     init( Interval<int>(ms.indexOf(m1),ms.indexOf(m2)) );
 }
+
+
+Well::MarkerRange::~MarkerRange()
+{}
 
 
 void Well::MarkerRange::init( const Interval<int>& rg )
@@ -605,6 +619,22 @@ Well::MarkerSet* Well::MarkerRange::getResultSet() const
 	*ret += new Well::Marker( *markers_[idx] );
     return ret;
 }
+
+
+// Well::MarkerChgRange
+Well::MarkerChgRange::MarkerChgRange( MarkerSet& ms, const Interval<int>& idxrg)
+    : MarkerRange(ms,idxrg)
+{}
+
+
+Well::MarkerChgRange::MarkerChgRange( MarkerSet& ms, const char* m1,
+				const char* m2 )
+    : MarkerRange(ms,m1,m2)
+{}
+
+
+Well::MarkerChgRange::~MarkerChgRange()
+{}
 
 
 void Well::MarkerChgRange::setThickness( float newth )

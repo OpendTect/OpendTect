@@ -13,11 +13,26 @@ ________________________________________________________________________
 #include "welltransl.h"
 
 
+// WellDataIOProvider
+WellDataIOProvider::WellDataIOProvider( const char* tp )
+    : type_(tp)
+{}
+
+
+WellDataIOProvider::~WellDataIOProvider()
+{}
+
+
+// WellDataIOProviderFactory
 WellDataIOProviderFactory& WDIOPF()
 {
     mDefineStaticLocalObject( WellDataIOProviderFactory, theinst, );
     return theinst;
 }
+
+
+WellDataIOProviderFactory::~WellDataIOProviderFactory()
+{}
 
 
 const WellDataIOProvider* WellDataIOProviderFactory::provider(

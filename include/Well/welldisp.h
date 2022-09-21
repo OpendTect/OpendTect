@@ -38,7 +38,6 @@ public:
 
 			DisplayProperties(const char* subj = sKey3DDispProp());
 			DisplayProperties(const DisplayProperties&);
-
     virtual		~DisplayProperties();
 
     DisplayProperties&	operator =(const DisplayProperties&);
