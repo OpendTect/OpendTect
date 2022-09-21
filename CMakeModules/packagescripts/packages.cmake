@@ -9,14 +9,10 @@
 
 set( BASEPACKAGES basedatadefs )
 set( PACKAGELIST basedefs develdefs )
-if ( WIN32 )
-    if ( "${BUILD_USERDOC}" STREQUAL "YES" AND EXISTS ${USERDOC_PROJECT} )
-	set( PACKAGELIST ${PACKAGELIST} doc )
-    endif()
+if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
+    list( APPEND PACKAGELIST doc )
 endif()
 
-if ( UNIX )
-    if ( "${BUILD_DOCUMENTATION}" STREQUAL "ON" )
-	set( PACKAGELIST ${PACKAGELIST} classdoc )
-    endif()
+if ( BUILD_DOCUMENTATION )
+    list( APPEND PACKAGELIST classdoc )
 endif()
