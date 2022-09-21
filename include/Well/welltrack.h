@@ -26,10 +26,10 @@ mExpClass(Well) Track : public DahObj
 {
 public:
 
-			Track( const char* nm=0 )
-			: DahObj(nm), zistime_(false) {}
-			Track( const Track& t )
-			: DahObj("")		{ *this = t; }
+			Track(const char* nm=nullptr);
+			Track(const Track&);
+    virtual		~Track();
+
     Track&		operator =(const Track&);
 
     bool		isEmpty() const;
@@ -109,6 +109,5 @@ public:
 			//!< return if changed
 
 };
-
 
 } // namespace Well

@@ -34,7 +34,7 @@ public:
 			       OD::Color c=OD::Color());
 			Marker(Strat::LevelID,float dh);
 			Marker(const Marker&);
-			~Marker();
+    virtual		~Marker();
 
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
@@ -70,7 +70,9 @@ mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
 public:
 
-			MarkerSet()			{}
+			MarkerSet();
+    virtual		~MarkerSet();
+
     void		fillWithAll(TaskRunner* tr=0);
 
     const Marker*	getByName(const char* nm) const { return gtByName(nm); }
@@ -128,6 +130,7 @@ public:
 			    const Interval<int>& idxrg=Interval<int>(-1,-1));
 			MarkerRange(const MarkerSet&,
 				const char*,const char*);
+    virtual		~MarkerRange();
 
     inline int		size() const		{ return rg_.width(false) + 1; }
     bool		isValid() const;
@@ -162,20 +165,17 @@ protected:
 mExpClass(Well) MarkerChgRange : public MarkerRange
 {
 public:
-
-			MarkerChgRange( MarkerSet& ms,
-			    const Interval<int>& idxrg=Interval<int>(-1,-1) )
-			    : MarkerRange(ms,idxrg)	{}
-			MarkerChgRange( MarkerSet& ms, const char* m1,
-							const char* m2 )
-			    : MarkerRange(ms,m1,m2)	{}
+			MarkerChgRange(MarkerSet&,
+			    const Interval<int>& idxrg=Interval<int>(-1,-1));
+			MarkerChgRange(MarkerSet&,const char* m1,
+						  const char* m2);
+			~MarkerChgRange();
 
     void		setThickness(float);
     void		remove();
 
     inline MarkerSet&	getMarkers()
 			{ return const_cast<MarkerSet&>(markers_); }
-
 };
 
 } // namespace Well

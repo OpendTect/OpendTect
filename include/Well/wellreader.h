@@ -10,16 +10,17 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "executor.h"
-#include "ranges.h"
+
 #include "bufstring.h"
 #include "manobjectset.h"
+#include "ranges.h"
 #include "uistring.h"
 #include "wellman.h"
-class IOObj;
+
 class BufferStringSet;
 class DBKeySet;
+class IOObj;
 class SurveyChanger;
-
 
 namespace Well
 {
@@ -37,6 +38,7 @@ public:
 			Reader(const MultiID&,Data&);
 			Reader(const IOObj&,Data&);
 			~Reader();
+
     bool		isUsable() const	{ return ra_; }
 
     bool		get() const;		//!< Just read all

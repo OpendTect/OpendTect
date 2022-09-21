@@ -24,6 +24,29 @@ ________________________________________________________________________
 
 #include <math.h>
 
+Well::LASImporter::FileInfo::FileInfo()
+{}
+
+
+Well::LASImporter::FileInfo::~FileInfo()
+{}
+
+
+Well::LASImporter::LASImporter( Data& d )
+    : wd_(&d)
+{}
+
+
+Well::LASImporter::LASImporter()
+    : wd_(nullptr)
+{}
+
+
+Well::LASImporter::~LASImporter()
+{
+    unitmeasstrs_.erase();
+}
+
 
 const char* Well::LASImporter::fileFilter()
 {
@@ -40,12 +63,6 @@ static bool convToDah( const Well::Track& trck, float& val,
 {
     val = trck.getDahForTVD( val, prevdah );
     return !mIsUdf(val);
-}
-
-
-Well::LASImporter::~LASImporter()
-{
-    unitmeasstrs_.erase();
 }
 
 

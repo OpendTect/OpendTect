@@ -27,8 +27,7 @@ mExpClass(Well) ReadAccess
 {
 public:
 
-			ReadAccess( Data& d ) : wd_(d)	{}
-    virtual		~ReadAccess()			{}
+    virtual		~ReadAccess();
 
     virtual bool	getInfo() const			= 0;
     virtual bool	getTrack() const		= 0;
@@ -47,6 +46,7 @@ public:
     const Data&		data() const			{ return wd_; }
 
 protected:
+			ReadAccess(Data&);
 
     Data&		wd_;
 

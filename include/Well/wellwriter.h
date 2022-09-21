@@ -9,10 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "executor.h"
 #include "wellman.h"
+
 class IOObj;
 
 namespace Well
@@ -79,8 +81,9 @@ mExpClass(Well) MultiWellWriter : public Executor
 public:
     typedef Well::LoadReqs	StoreReqs;
 
-	    MultiWellWriter(const ObjectSet<Well::Data>&,
-			    const ObjectSet<StoreReqs>& reqs);
+			MultiWellWriter(const ObjectSet<Well::Data>&,
+					const ObjectSet<StoreReqs>& reqs);
+			~MultiWellWriter();
 
     int			nextStep() override;
     od_int64		totalNr() const override;

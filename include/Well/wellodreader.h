@@ -11,9 +11,11 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "wellreadaccess.h"
 #include "wellio.h"
-#include "sets.h"
-#include "ranges.h"
+
 #include "od_iosfwd.h"
+#include "ranges.h"
+#include "sets.h"
+
 class BufferStringSet;
 class IOObj;
 
@@ -32,6 +34,7 @@ public:
 
 			odReader(const IOObj&,Data&,uiString& errmsg);
 			odReader(const char* fnm,Data&,uiString& errmsg);
+    virtual		~odReader();
 
     bool		get() const override		{ return true; }
 

@@ -16,7 +16,7 @@ class DataPointSet;
 class BufferStringSet;
 class WellDataIOProvider;
 
-namespace Well { class Data; };
+namespace Well { class Data; }
 
 /*!\brief Well TranslatorGroup */
 

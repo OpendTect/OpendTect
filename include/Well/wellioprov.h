@@ -10,10 +10,11 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 
+#include "bufstring.h"
 #include "manobjectset.h"
 #include "wellreadaccess.h"
 #include "wellwriteaccess.h"
-#include "bufstring.h"
+
 class IOObj;
 namespace Well { class Data; }
 
@@ -24,7 +25,7 @@ mExpClass(Well) WellDataIOProvider
 {
 public:
 
-    virtual			~WellDataIOProvider()	{}
+    virtual			~WellDataIOProvider();
 
     virtual bool		canWrite() const	{ return false; }
 
@@ -40,8 +41,7 @@ public:
 
 protected:
 
-				WellDataIOProvider( const char* t )
-				    : type_(t)			{}
+				WellDataIOProvider(const char* type);
 
     const BufferString		type_;
 
@@ -51,6 +51,7 @@ protected:
 mExpClass(Well) WellDataIOProviderFactory
 {
 public:
+				~WellDataIOProviderFactory();
 
     int				add( WellDataIOProvider* prov )
 				{ provs_ += prov; return provs_.size() - 1; }

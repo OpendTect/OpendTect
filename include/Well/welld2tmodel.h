@@ -31,10 +31,10 @@ mExpClass(Well) D2TModel : public DahObj
 { mODTextTranslationClass(D2TModel);
 public:
 
-			D2TModel( const char* nm= 0 )
-			: DahObj(nm)	{}
-			D2TModel( const D2TModel& d2t )
-			: DahObj("")	{ *this = d2t; }
+			D2TModel(const char* nm=nullptr);
+			D2TModel(const D2TModel&);
+    virtual		~D2TModel();
+
     D2TModel&		operator =(const D2TModel&);
     bool		operator ==(const D2TModel&) const;
     bool		operator !=(const D2TModel&) const;

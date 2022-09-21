@@ -11,10 +11,11 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "executor.h"
 #include "paralleltask.h"
+
 #include "bufstringset.h"
+#include "enums.h"
 #include "position.h"
 #include "ranges.h"
-#include "enums.h"
 #include "stattype.h"
 #include "survinfo.h"
 #include "uistrings.h"
@@ -22,20 +23,20 @@ ________________________________________________________________________
 
 class DataPointSet;
 class IODirEntryList;
-class IOObj;
 class IODir;
+class IOObj;
 template <class T> class Array2DImpl;
 
 
 namespace Well
 {
-class Log;
-class Info;
 class D2TModel;
-class Track;
+class Info;
+class Log;
+class LogSet;
 class Marker;
 class MarkerSet;
-class LogSet;
+class Track;
 
 /*!
 \brief Parameters (zrg, sampling method) to extract well data.
@@ -46,8 +47,7 @@ mExpClass(Well) ZRangeSelector
 public :
 			ZRangeSelector() { setEmpty(); }
 			ZRangeSelector(const ZRangeSelector&);
-    virtual		~ZRangeSelector() {}
-
+    virtual		~ZRangeSelector();
 
     enum		ZSelection { Markers, Depths, Times };
 			mDeclareEnumUtils(ZSelection);
@@ -120,6 +120,7 @@ mExpClass(Well) ExtractParams : public ZRangeSelector
 public:
 			ExtractParams() { setEmpty(); }
 			ExtractParams(const ExtractParams&);
+			~ExtractParams();
 
     void		usePar(const IOPar&) override;
     void		fillPar(IOPar&) const override;
@@ -205,6 +206,7 @@ public:
 			TrackSampler(const TypeSet<MultiID>& ioobjids,
 				     ObjectSet<DataPointSet>&,
 				     bool zvalsintime);
+			~TrackSampler();
 
     float		locradius_;
     bool		for2d_;
@@ -268,6 +270,7 @@ public:
 			LogDataExtracter(const TypeSet<MultiID>& ioobjids,
 					 ObjectSet<DataPointSet>&,
 					 bool zvalsintime);
+			~LogDataExtracter();
 
     BufferString	lognm_;
     Stats::UpscaleType	samppol_;
@@ -318,6 +321,7 @@ public:
 			SimpleTrackSampler(const Track&, const D2TModel*,
 					   bool extrapolate_ = false,
 					   bool stayinsidesurvey = false);
+			~SimpleTrackSampler();
 
     void		setSampling(const StepInterval<float>& intv)
 			{ extrintv_ = intv; } //In time if d2TModel is provided

@@ -56,6 +56,14 @@ const char* Well::odIO::sExtDefaults()	{ return ".defs"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
+Well::ReadAccess::ReadAccess( Well::Data& wd )
+    : wd_(wd)
+{}
+
+
+Well::ReadAccess::~ReadAccess()
+{}
+
 
 bool Well::ReadAccess::addToLogSet( Log* newlog, bool needjustinfo ) const
 {
@@ -291,6 +299,10 @@ Well::odIO::odIO( const char* f, uiString& errmsg )
 }
 
 
+Well::odIO::~odIO()
+{}
+
+
 const char* Well::odIO::getFileName( const char* ext, int nr ) const
 {
     return mkFileName( basenm_, ext, nr );
@@ -387,6 +399,10 @@ Well::odReader::odReader( const IOObj& ioobj, Data& w, uiString& errmsg )
     wd_.info().setName( ioobj.name() );
     wd_.setMultiID( ioobj.key() );
 }
+
+
+Well::odReader::~odReader()
+{}
 
 
 bool Well::odReader::getInfo() const
