@@ -30,12 +30,13 @@ public:
     inline			BinID()				{}
     inline			BinID(IdxType i,IdxType x);
     inline			BinID(const Pos::IdxPair&);
-    				//!< To make BinID from RowCol, should disappear
+    inline			BinID(const BinID&);
 
     inline const BinID&		operator+=(const BinIDAbsDelta&);
     inline const BinID&		operator-=(const BinIDAbsDelta&);
     inline BinID	 	operator+(const BinIDAbsDelta&) const;
     inline BinID	 	operator-(const BinIDAbsDelta&) const;
+    inline BinID&		operator=(const BinID&);
 
     				// BinIDRelDelta operator:
     inline BinIDAbsDelta	operator*(const Pos::Index_Type_Pair&) const;
@@ -69,17 +70,29 @@ inline BinID::BinID( const Pos::IdxPair& p )
 }
 
 
+BinID::BinID( const BinID& bid )
+    : Pos::IdxPair(bid.inl(),bid.crl())
+{
+}
+
+
 inline const BinID& BinID::operator+=( const BinIDAbsDelta& bid )
-	{ inl() += bid.inl(); crl() += bid.crl(); return *this; }
+{ inl() += bid.inl(); crl() += bid.crl(); return *this; }
+
 inline const BinID& BinID::operator-=( const BinIDAbsDelta& bid )
-	{ inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
+{ inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
+
 inline BinID BinID::operator+( const BinIDAbsDelta& bid ) const
-	{ return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
+{ return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
+
 inline BinID BinID::operator-( const BinIDAbsDelta& bid ) const
 { return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
 
 inline BinID BinID::operator-() const
 { return BinID( -inl(), -crl() ); }
+
+BinID& BinID::operator=( const BinID& bid )
+{ inl() = bid.inl(); crl() = bid.crl(); return *this; }
 
 inline BinIDAbsDelta BinID::operator*( const Pos::Index_Type_Pair& ip ) const
 { return BinID( first*ip.first, second*ip.second ); }
@@ -91,7 +104,7 @@ inline BinID BinID::operator*( int factor ) const
 { return BinID( inl()*factor, crl()*factor ); }
 
 inline BinID BinID::operator/( int denominator ) const
-	{ return BinID( inl()/denominator, crl()/denominator ); }
+{ return BinID( inl()/denominator, crl()/denominator ); }
 
 
 inline BinID BinID::fromInt64( od_int64 i64 )
