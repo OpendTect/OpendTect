@@ -49,8 +49,14 @@ MultiTextureSurveyObject::MultiTextureSurveyObject()
     channels_->enableTextureInterpolation( enabletextureinterp_ );
 
     getMaterial()->setColor( OD::Color::White() );
-    material_->setAmbience( 0.8 );
-    material_->setDiffIntensity( 0.8 );
+    float ambience = 0.8f;
+    float diffuseintensity = 0.8f;
+    Settings::common().get( SettingsAccess::sKeyDefaultAmbientReflectivity(),
+			    ambience );
+    Settings::common().get( SettingsAccess::sKeyDefaultDiffuseReflectivity(),
+			    diffuseintensity );
+    material_->setAmbience( ambience );
+    material_->setDiffIntensity( diffuseintensity );
 }
 
 

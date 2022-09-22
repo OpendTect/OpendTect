@@ -54,8 +54,8 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , StickSetDisplay( true )
     , colorchange(this)
     , displaymodechange(this)
-    , viseditor_(0)
-    , fsseditor_(0)
+    , viseditor_(nullptr)
+    , fsseditor_(nullptr)
     , activesticknr_( mUdf(int) )
     , sticks_(visBase::Lines::create())
     , activestick_(visBase::Lines::create())
@@ -89,10 +89,10 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 	knotmarkersets_ += markerset;
     }
 
-    activestick_->setPickable( false );
+    activestick_->setPickable( true );
     activestick_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
 				   false );
-    sticks_->setPickable( false );
+    sticks_->setPickable( true );
     sticks_->enableTraversal( visBase::cDraggerIntersecTraversalMask(), false );
     setCurScene( scene_ );
 }
@@ -101,7 +101,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 FaultStickSetDisplay::~FaultStickSetDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
+    setSceneEventCatcher( nullptr );
     showManipulator( false );
 
     if ( viseditor_ )
@@ -115,7 +115,7 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 	fault_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
 
     }
-    fsseditor_ = 0;
+    fsseditor_ = nullptr;
 
     sticks_->removeNodeState( stickdrawstyle_ );
     stickdrawstyle_->unRef();
@@ -177,22 +177,22 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	fault_->unRef();
     }
 
-    fault_ = 0;
+    fault_ = nullptr;
     if ( fsseditor_ )
     {
-	fsseditor_->setEditIDs( 0 );
+	fsseditor_->setEditIDs( nullptr );
 	fsseditor_->unRef();
     }
-    fsseditor_ = 0;
+    fsseditor_ = nullptr;
     if ( viseditor_ )
-	viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
+	viseditor_->setEditor( nullptr );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return false;
 
-    fault_ = (EM::Fault*) emfss;
+    fault_ = sCast(EM::Fault*,emfss);
     fault_->change.notify( mCB(this,FaultStickSetDisplay,emChangeCB) );
     fault_->ref();
 
@@ -216,6 +216,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	mAttachCB( viseditor_->draggingStarted,
 		   FaultStickSetDisplay::draggingStartedCB );
     }
+
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     fsseditor_ = fsseditor;
@@ -257,6 +258,12 @@ void FaultStickSetDisplay::setColor( OD::Color nc )
 	getMaterial()->setColor( nc );
 
     colorchange.trigger();
+}
+
+
+NotifierAccess* FaultStickSetDisplay::materialChange()
+{
+    return &getMaterial()->change;
 }
 
 
@@ -407,7 +414,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    if ( fss->isStickHidden(rc.row(),mSceneIdx) )
 		continue;
 
-	    Seis2DDisplay* s2dd = 0;
+	    Seis2DDisplay* s2dd = nullptr;
 	    const EM::FaultStickSet* emfss = emFaultStickSet();
 	    if ( emfss->geometry().pickedOn2DLine(rc.row()) )
 	    {
@@ -533,7 +540,10 @@ void FaultStickSetDisplay::sowingFinishedCB( CallBacker* )
 void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
-	return stickSelectCB( cb );
+    {
+	stickSelectCB( cb );
+	return;
+    }
 
     if ( !fault_ || !fsseditor_ || !viseditor_ || !viseditor_->isOn() ||
 	 !isOn() || eventcatcher_->isHandled() || !isSelected() )
@@ -565,14 +575,14 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
-    PlaneDataDisplay* plane = 0;
-    Seis2DDisplay* s2dd = 0;
-    RandomTrackDisplay* rdtd = 0;
-    HorizonDisplay* hordisp = 0;
-    const MultiID* pickedmid = 0;
+    PlaneDataDisplay* plane = nullptr;
+    Seis2DDisplay* s2dd = nullptr;
+    RandomTrackDisplay* rdtd = nullptr;
+    HorizonDisplay* hordisp = nullptr;
+    const MultiID* pickedmid = nullptr;
     Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
-    const char* pickednm = 0;
-    PtrMan<Coord3> normal = 0;
+    const char* pickednm = nullptr;
+    PtrMan<Coord3> normal = nullptr;
     ConstPtrMan<MultiID> horid;
     BufferString horshiftname;
     Coord3 pos;
@@ -801,7 +811,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		pos = s2dd->getNearestSubPos( pos, true );
 
 	    HorizonDisplay* hordisp = mid ?
-			HorizonDisplay::getHorizonDisplay( *mid ) : 0;
+			HorizonDisplay::getHorizonDisplay( *mid ) : nullptr;
 	    if ( hordisp )
 	    {
 		if ( displaytransform_ )
@@ -855,9 +865,6 @@ void FaultStickSetDisplay::updateManipulator()
 
     if ( viseditor_ )
 	viseditor_->turnOn( show && !stickselectmode_ );
-
-    if ( scene_ )
-	scene_->blockMouseSelection( show );
 }
 
 
@@ -1251,7 +1258,7 @@ void FaultStickSetDisplay::setPixelDensity( float dpi )
     if ( activestick_ )
 	activestick_ ->setPixelDensity( dpi );
 
-    for ( int idx =0; idx<knotmarkersets_.size(); idx++ )
+    for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
 	knotmarkersets_[idx]->setPixelDensity( dpi );
 }
 
@@ -1272,25 +1279,23 @@ const MarkerStyle3D* FaultStickSetDisplay::getPreferedMarkerStyle() const
     if ( fault_ )
 	return &fault_->getPosAttrMarkerStyle( 0 );
 
-    return 0;
+    return nullptr;
 }
 
 
-void FaultStickSetDisplay::setPreferedMarkerStyle(
-    const MarkerStyle3D& mkstyle )
+void FaultStickSetDisplay::setPreferedMarkerStyle( const MarkerStyle3D& ms )
 {
     // for stickset we do use fixed color for dragger, polygon, and selection.
     // So to guarantee this here we set a fixed color.
 
-    MarkerStyle3D sstmkstyle = mkstyle;
-    sstmkstyle.color_ = OD::Color::Yellow();
+    MarkerStyle3D myms = ms;
+    myms.color_ = OD::Color::Yellow();
 
-    viseditor_->setMarkerStyle( sstmkstyle );
-    setStickMarkerStyle( sstmkstyle );
+    viseditor_->setMarkerStyle( myms );
+    setStickMarkerStyle( myms );
 
     if ( fault_ )
-	fault_->setPosAttrMarkerStyle( 0, sstmkstyle );
+	fault_->setPosAttrMarkerStyle( 0, myms );
 }
-
 
 } // namespace visSurvey

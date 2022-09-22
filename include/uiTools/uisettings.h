@@ -16,8 +16,9 @@ ________________________________________________________________________
 
 class Settings;
 class uiComboBox;
-class uiLabeledComboBox;
 class uiGenInput;
+class uiLabeledComboBox;
+class uiMaterialGroup;
 class uiTable;
 
 
@@ -193,6 +194,8 @@ public:
 				toUiString(sFactoryKeyword()))
 
 			uiVisSettingsGroup(uiParent*,Settings&);
+			~uiVisSettingsGroup();
+
     bool		acceptOK() override;
 
 protected:
@@ -204,6 +207,7 @@ protected:
     uiGenInput*		usevolshadersfld_;
     uiGenInput*		enablemipmappingfld_;
     uiLabeledComboBox*	anisotropicpowerfld_;
+    uiMaterialGroup*	matgrp_;
 
 			//0=standard, 1=higher, 2=highest, 3=system default
     int			textureresindex_;

@@ -775,6 +775,8 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
+    uiMsgMainWinSetter mwsetter( sCast(uiMainWin*,parent()) );
+
     PtrMan<EngineMan> aem = createEngMan( &tkzs, Pos::GeomID::udf() );
     if ( !aem || targetspecs_.isEmpty() )
 	return nullptr;

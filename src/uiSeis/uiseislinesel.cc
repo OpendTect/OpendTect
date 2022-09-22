@@ -117,6 +117,7 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
     listfld_->setHSzPol( uiObject::MedVar );
     filtfld_ = new uiListBoxFilter( *listfld_ );
     filtfld_->setItems( lnms_ );
+    listfld_->resizeToContents();
     if ( isMultiChoice(cm) )
     {
 	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, "Geometry" );

@@ -180,7 +180,11 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 
 	Array1DImpl<float> angles( zsizeintime );
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
-	    angles.set( zidx, asin(sinanglevals.getValue( zidx*deftimestep )) );
+	{
+	    const float sinval = sinanglevals.getValue( zidx*deftimestep );
+	    const float asinval = Math::ASin( sinval );
+	    angles.set( zidx, asinval );
+	}
 
 	filter.apply( angles );
 	PointBasedMathFunction sinanglevalsindepth(PointBasedMathFunction::Poly,
@@ -200,8 +204,9 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
-	    const float depth = mCast( float, zrange.atIndex(zidx) );
-	    arr1doutput[zidx] = asin( sinanglevalsindepth.getValue( depth ) );
+	    const float depth = sCast( float, zrange.atIndex(zidx) );
+	    arr1doutput[zidx] =
+		Math::ASin( sinanglevalsindepth.getValue(depth) );
 	}
 
 	arr1doutput = arr1doutput + zsize;

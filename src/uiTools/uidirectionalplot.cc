@@ -574,7 +574,7 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
     if ( r > radius_ )
 	return;
 
-    double azimuthrad = acos( relpos.x/r );
+    double azimuthrad = Math::ACos( relpos.x/r );
     if ( relpos.y > 0 )
 	azimuthrad = 2*M_PI - azimuthrad;
     const double azimuth =

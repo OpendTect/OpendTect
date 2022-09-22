@@ -408,16 +408,7 @@ int WellDisplay::nrResolutions() const
 
 BufferString WellDisplay::getResolutionName( int res ) const
 {
-    if ( res == mAutoRes )
-	return "Auto";
-
-    const int val = mNINT32( Math::PowerOf( 2, float(res-1) ) );
-    if ( val==1 )
-	return "Full";
-    if ( val==2 )
-	return "Half";
-
-    return BufferString( "1 / ", val );
+    return uiStrings::sResolutionValue(res).getFullString();
 }
 
 

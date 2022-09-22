@@ -59,7 +59,7 @@ public:
     void			setColor(OD::Color) override;
     bool			allowMaterialEdit() const override
 				{ return true; }
-
+    NotifierAccess*		materialChange();
     const OD::LineStyle*	lineStyle() const override;
     void			setLineStyle(const OD::LineStyle&) override;
     const MarkerStyle3D*	markerStyle() const override;
