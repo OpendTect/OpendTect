@@ -1523,6 +1523,7 @@ BufferString uiContourTreeItem::selectAttribute( uiParent* p,
     uiListBox::Setup su( OD::ChooseOnlyOne, toUiString(eminfo.name()),
 			 uiListBox::AboveMid );
     auto* attrlb = new uiListBox( &dlg, su );
+    attrlb->setHSzPol( uiObject::Wide );
     attrlb->addItems( attrnms );
     return dlg.go() ? attrlb->getText() : nullptr;
 }

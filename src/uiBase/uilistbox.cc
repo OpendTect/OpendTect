@@ -950,7 +950,8 @@ void uiListBox::addItemNoUpdate( const uiString& text, bool mark, int id )
     lb_->body().addItem( text, mark, id );
     const int newidx = size() - 1;
     initNewItem( newidx );
-    setMarked( newidx, mark );
+    if ( mark )
+	setMarked( newidx, mark );
 }
 
 
