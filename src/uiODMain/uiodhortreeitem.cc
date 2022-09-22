@@ -642,8 +642,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	emattrserv->snapHorizon( emid_, false );
     else if ( mnuid==flatcubemnuitem_.id )
     {
-	uiWriteFlattenedCube dlg( getUiParent(), emid_ );
-	dlg.go();
+	emattrserv->createHorizonOutput( uiEMAttribPartServer::FlattenSingle,
+					 hor3d->multiID() );
     }
     else if ( mnuid==isochronmnuitem_.id )
     {

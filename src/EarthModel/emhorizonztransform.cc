@@ -30,7 +30,6 @@ static const ZDomain::Def& getZDom()
 HorizonZTransform::HorizonZTransform()
     : ZAxisTransform(ZDomain::SI(),getZDom())
     , horizon_( 0 )
-    , horchanged_( false )
     , change_( this )
 {}
 
@@ -79,6 +78,12 @@ bool HorizonZTransform::isReferenceHorizon( const MultiID& horid,
 }
 
 
+void HorizonZTransform::setFlatZValue( float flatzval )
+{
+    flatzval_ = flatzval;
+}
+
+
 void HorizonZTransform::transformTrc( const TrcKey& trckey,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
@@ -99,7 +104,8 @@ void HorizonZTransform::transformTrc( const TrcKey& trckey,
     }
 
     float top, bottom;
-    if ( !getTopBottom( trckey, top, bottom ) )
+    const bool hastopbot = getTopBottom( trckey, top, bottom );
+    if ( !hastopbot )
     {
 	for ( int idx=sz-1; idx>=0; idx-- )
 	    res[idx] = mUdf(float);
@@ -110,9 +116,7 @@ void HorizonZTransform::transformTrc( const TrcKey& trckey,
     for ( int idx=sz-1; idx>=0; idx-- )
     {
 	const float depth = sd.atIndex( idx );
-	if ( depth<top ) res[idx] = depth-top;
-	else if ( depth>bottom ) res[idx] = depth-bottom;
-	else res[idx] = 0;
+	res[idx] = depth - top + flatzval_;
     }
 }
 
@@ -127,29 +131,31 @@ void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 	return;
 
     float top, bottom;
-    if ( !getTopBottom( trckey, top, bottom ) )
+    const bool hastopbot = getTopBottom( trckey, top, bottom );
+    if ( !hastopbot )
 	return;
 
     for ( int idx=sz-1; idx>=0; idx-- )
     {
 	const float depth = sd.atIndex( idx );
-	if ( depth<=0 ) res[idx] = depth+top;
-	else res[idx] = depth+bottom;
+	res[idx] = depth + top - flatzval_;
     }
 }
 
 
 Interval<float> HorizonZTransform::getZInterval( bool from ) const
 {
-    if ( from ) return SI().zRange(true);
+    if ( from )
+	return SI().zRange(true);
 
     if ( horchanged_ )
 	const_cast<HorizonZTransform*>(this)->calculateHorizonRange();
 
-    if ( horchanged_ ) return SI().zRange(true);
+    if ( horchanged_ )
+	return SI().zRange(true);
 
-    Interval<float> intv( SI().zRange(true).start-depthrange_.stop,
-			  SI().zRange(true).stop-depthrange_.start );
+    Interval<float> intv( SI().zRange(true).start-depthrange_.stop+flatzval_,
+			  SI().zRange(true).stop-depthrange_.start+flatzval_ );
     const float step = SI().zRange(true).step;
     float idx = intv.start / step;
     intv.start = Math::Floor(idx) * step;
@@ -217,10 +223,12 @@ void HorizonZTransform::horChangeCB(CallBacker*)
 
 void HorizonZTransform::calculateHorizonRange()
 {
-    if ( !horizon_ ) return;
+    if ( !horizon_ )
+	return;
 
     PtrMan<EMObjectIterator> iterator = horizon_->createIterator();
-    if ( !iterator ) return;
+    if ( !iterator )
+	return;
 
     bool isset = false;
 

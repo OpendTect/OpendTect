@@ -137,8 +137,7 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
     seisreader_->setSelData( sd.clone() );
     if ( !seisreader_->prepareWork() )
     {
-	delete seisreader_;
-	seisreader_ = 0;
+	deleteAndZeroPtr( seisreader_ );
 	return;
     }
 
@@ -147,8 +146,7 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 	seisreadertdmodel_->setSelData( sd.clone() );
 	if ( !seisreadertdmodel_->prepareWork() )
 	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
+	    deleteAndZeroPtr( seisreadertdmodel_ );
 	    return;
 	}
     }
@@ -157,6 +155,12 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 					: *new Seis::RangeSelData(true) );
     sd.setGeomID( geomid );
     seiswriter_->setSelData( sd.clone() );
+}
+
+
+void SeisZAxisStretcher::setUdfVal( float val )
+{
+    udfval_ = val;
 }
 
 
@@ -406,7 +410,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 
 	    ValueSeriesInterpolator<float>* interpol =
 		new ValueSeriesInterpolator<float>( intrc.interpolator() );
-	    interpol->udfval_ = mUdf(float);
+	    interpol->udfval_ = udfval_;
 	    intrc.setInterpolator( interpol );
 
 	    reSample( *intrcfunc, *sampler, outputptr, outtrc->size() );

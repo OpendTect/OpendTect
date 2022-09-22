@@ -62,7 +62,8 @@ bool uiODApplMgrAttrVisHandler::uvqNLA( bool is2d )
 void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 {
     am_.emattrserv_->setDescSet( am_.attrserv_->curDescSet(is2d) );
-    MultiID nlaid; const NLAModel* nlamdl = 0;
+    MultiID nlaid;
+    const NLAModel* nlamdl = nullptr;
     if ( am_.nlaserv_ )
     {
 	am_.nlaserv_->set2DEvent( is2d );
@@ -71,10 +72,7 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
     }
     am_.emattrserv_->setNLA( nlamdl, nlaid );
 
-    uiEMAttribPartServer::HorOutType type =
-	  tp==0 ? uiEMAttribPartServer::OnHor :
-	( tp==1 ? uiEMAttribPartServer::AroundHor :
-		  uiEMAttribPartServer::BetweenHors );
+    const auto type = sCast(uiEMAttribPartServer::HorOutType,tp);
     am_.emattrserv_->createHorizonOutput( type );
 }
 

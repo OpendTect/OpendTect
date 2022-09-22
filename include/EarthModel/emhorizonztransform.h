@@ -33,6 +33,8 @@ public:
 
 			HorizonZTransform();
     void		setHorizon(const Horizon&);
+    void		setFlatZValue(float);
+
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
 				  int sz,float* res) const override;
     void		transformTrcBack(const TrcKey&,
@@ -62,7 +64,8 @@ protected:
 
     const Horizon*	horizon_;
     Interval<float>	depthrange_;
-    bool		horchanged_;
+    float		flatzval_		= 0.f;
+    bool		horchanged_		= false;
     Notifier<HorizonZTransform> change_;
 
 };

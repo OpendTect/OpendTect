@@ -26,6 +26,7 @@ class TaskRunner;
 class uiAttrSurfaceOut;
 class uiAttrTrcSelOut;
 class uiCreate2DGrid;
+class uiFlatUnflatCube;
 class uiHorizonShiftDialog;
 class uiImportHorizon2D;
 class uiSeisEventSnapper;
@@ -52,8 +53,10 @@ public:
     static int			evShiftDlgClosedOK()		{ return 5; }
     static int			evDisplayEMObject()		{ return 6; }
 
-    enum HorOutType		{ OnHor, AroundHor, BetweenHors };
+    enum HorOutType		{ OnHor, AroundHor, BetweenHors,
+				  FlattenSingle };
     void			createHorizonOutput(HorOutType);
+    void			createHorizonOutput(HorOutType,const MultiID&);
 
     void			snapHorizon(const EM::ObjectID&,bool is2d);
     void			computeStratAmp();
@@ -101,6 +104,7 @@ protected:
     uiHorizonShiftDialog*	horshiftdlg_		= nullptr;
     uiSeisEventSnapper*		uiseisevsnapdlg_	= nullptr;
     uiImportHorizon2D*		uiimphor2ddlg_		= nullptr;
+    uiFlatUnflatCube*		flattendlg_		= nullptr;
     TypeSet<EM::ObjectID>	emobjids_;
 
     float			initialshift_;

@@ -181,6 +181,7 @@ ________________________________________________________________________
 #define mCreateSurf3DMnuItm	(mUseHorMnu + 4)
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
+#define mFlattenSingleMnuItm	(mUseHorMnu + 7)
 #define mStartBatchJobMnuItm	(mProcMnu + 50)
 
 
