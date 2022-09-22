@@ -74,7 +74,7 @@ void FileFormatRepository::addFromFile( const char* fnm,
 }
 
 
-const char* FileFormatRepository::grpNm( int idx ) const
+BufferString FileFormatRepository::grpNm( int idx ) const
 {
     const BufferString grp = (*entries_[idx]->iopar_)[sKeyGroup];
     return grp;

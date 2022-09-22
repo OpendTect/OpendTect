@@ -122,7 +122,7 @@ protected:
     BufferString	zdomainkey_;	// 2D only
 
     void		entrySel(CallBacker*);
-    const char*		getDataType();
+    BufferString	getDataType();
     void		getComponentNames(BufferStringSet&) const;
 private:
     static uiString	gtSelTxt(const uiSeisSel::Setup& setup,bool forread);

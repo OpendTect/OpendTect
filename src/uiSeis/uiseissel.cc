@@ -177,16 +177,16 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 }
 
 
-const char* uiSeisSelDlg::getDataType()
+BufferString uiSeisSelDlg::getDataType()
 {
+    BufferString res;
     if ( steerpol_ )
 	return steerpol_ == uiSeisSel::Setup::NoSteering
-			  ? 0 : sKey::Steering().str();
+			  ? res : BufferString( sKey::Steering() );
     const IOObj* ioobj = ioObj();
-    if ( !ioobj )
-	return nullptr;
+    if ( ioobj )
+	res = ioobj->pars().find( sKey::Type() );
 
-    const BufferString res = ioobj->pars().find( sKey::Type() );
     return res;
 }
 

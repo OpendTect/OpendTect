@@ -88,7 +88,8 @@ SeisTrcTranslator::~SeisTrcTranslator()
 
 bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 {
-    const bool trok = *ioobj.group() == '2';
+    const OD::String& grpnm = ioobj.group();
+    const bool trok = !grpnm.isEmpty() && grpnm[0] == '2';
     return trok || internal_only ? trok
 	: ioobj.pars().isTrue( sKeyIs2D() ) || Seis::is2DGeom( ioobj.pars() );
 }
@@ -96,7 +97,9 @@ bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 
 bool SeisTrcTranslator::isPS( const IOObj& ioobj, bool internal_only )
 {
-    const bool trok = *ioobj.group() == 'P' || *(ioobj.group().str()+3) == 'P';
+    const OD::String& grpnm = ioobj.group();
+    const bool trok = (!grpnm.isEmpty() && grpnm[0] == 'P') ||
+				(grpnm.size()>3 && grpnm[3] == 'P');
     return trok || internal_only ? trok
 	: ioobj.pars().isTrue( sKeyIsPS() ) || Seis::isPSGeom( ioobj.pars() );
 }
