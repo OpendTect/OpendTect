@@ -549,7 +549,8 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     fileopts_.forread_ = forread;
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
-    inpcd_ = inpcds_[0]; outcd_ = outcds_[0];
+    inpcd_ = inpcds_[0];
+    outcd_ = outcds_[0];
     if ( mIsEqual(outsd_.start,insd_.start,mDefEps)
       && mIsEqual(outsd_.step,insd_.step,mDefEps) )
 	useinpsd_ = true;
@@ -666,6 +667,9 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 		  .arg( maxnrconsecutivebadtrcs );
 	mPosErrRet(str);
     }
+
+    if ( !inpcd_ )
+	return false;
 
     sConn().iStream().ignore( innrsamples_*mBPS(inpcd_) );
     if ( !readTraceHeadBuffer() )

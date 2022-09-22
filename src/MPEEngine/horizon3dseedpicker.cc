@@ -590,7 +590,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
     mGetHorizon( hor3d, false )
 
     BinID dir;
-    const TrcKeyPath* rdlpath = 0;
+    const TrcKeyPath* rdlpath = nullptr;
     RandomLineID rdlid;
     if ( !lineTrackDirection(dir) )
     {
@@ -659,7 +659,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    TrcKey tk;
 	    Coord3 interpos;
 	    const double frac = (double) idx / diff;
-	    if ( !nodes.isEmpty() )
+	    if ( rdlpath && !nodes.isEmpty() )
 	    {
 		const int startidx =
 		    Geometry::RandomLine::getNearestPathPosIdx(

@@ -90,7 +90,13 @@ public:
     inline void		erase( const T& t )
 			{
 			    for ( IT i=size()-1; i!=-1; i-- )
-				{ if ( v_[i] == t ) { remove(i); return; } }
+			    {
+				if ( v_[i] == t )
+				{
+				    remove(i);
+				    return;
+				}
+			    }
 			}
     inline void		remove( IT i )
 			{
@@ -99,12 +105,22 @@ public:
 			}
     inline void		remove( IT i1, IT i2 )
 			{
-			    if ( i1 == i2 ) { remove( i1 ); return; }
-			    if ( i1 > i2 ) std::swap( i1, i2 );
-			    const IT sz = size();
-			    if ( i1 >= sz ) return;
+			    if ( i1 == i2 )
+			    {
+				remove( i1 );
+				return;
+			    }
 
-			    if ( i2 >= sz-1 ) i2 = sz-1;
+			    if ( i1 > i2 )
+				std::swap( i1, i2 );
+
+			    const IT sz = size();
+			    if ( i1 >= sz )
+				return;
+
+			    if ( i2 >= sz-1 )
+				i2 = sz-1;
+
 			    v_.erase( v_.begin()+i1, v_.begin()+i2+1 );
 			}
     inline void		swapElems( IT i, IT j )
@@ -127,7 +143,10 @@ public:
 	    if ( v_[vidx] == aft )
 		{ aftidx = vidx; if ( tidx != -1 ) break; }
 	}
-	if ( tidx == -1 || aftidx == -1 || tidx == aftidx ) return;
+
+	if ( tidx == -1 || aftidx == -1 || tidx == aftidx )
+	    return;
+
 	if ( aftidx > tidx )
 	    for ( IT vidx=tidx; vidx<aftidx; vidx++ )
 		swapElems( vidx, vidx+1 );
@@ -138,10 +157,14 @@ public:
 
     void moveToStart( const T& t )
     {
-	if ( size() < 2 ) return;
+	if ( size() < 2 )
+	    return;
+
 	IT tidx = -1;
 	for ( IT vidx=size()-1; vidx!=-1; vidx-- )
-	    if ( v_[vidx] == t ) { tidx = vidx; break; }
+	    if ( v_[vidx] == t )
+	    { tidx = vidx; break; }
+
 	for ( IT vidx=tidx; vidx>0; vidx-- )
 	    swapElems( vidx, vidx-1 );
     }

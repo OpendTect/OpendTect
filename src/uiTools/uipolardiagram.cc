@@ -17,32 +17,30 @@ ________________________________________________________________________
 uiPolarDiagram::uiPolarDiagram( uiParent* p )
     : uiGraphicsView(p,"Polar diagram")
     , valueChanged(this)
-    , pointeritm_(0)
+    , pointeritm_(nullptr)
     , center_(uiPoint(5, 5))
     , radius_(1)
     , azimuth_(0)
     , dip_(90)
 {
-    disableScrollZoom();
     setPrefWidth( 250 );
     setPrefHeight( 250 );
-    getMouseEventHandler().buttonPressed.notify(
-	    mCB(this,uiPolarDiagram,mouseEventCB) );
-    getMouseEventHandler().movement.notify(
-	    mCB(this,uiPolarDiagram,mouseEventCB) );
-    reSize.notify( mCB(this,uiPolarDiagram,reSizedCB) );
+
+    disableScrollZoom();
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+
+    mAttachCB( getMouseEventHandler().buttonPressed,
+	       uiPolarDiagram::mouseEventCB );
+    mAttachCB( getMouseEventHandler().movement,
+		uiPolarDiagram::mouseEventCB );
+    mAttachCB( reSize, uiPolarDiagram::reSizedCB );
 }
 
 
 uiPolarDiagram::~uiPolarDiagram()
 {
-    getMouseEventHandler().buttonPressed.remove(
-	    mCB(this,uiPolarDiagram,mouseEventCB) );
-    getMouseEventHandler().movement.remove(
-	    mCB(this,uiPolarDiagram,mouseEventCB) );
-    reSize.remove( mCB(this,uiPolarDiagram,reSizedCB) );
+    detachAllNotifiers();
 
     delete pointeritm_;
     deepErase( circleitms_ );
@@ -80,22 +78,22 @@ void uiPolarDiagram::drawCircles()
 
 #define mAddDipLabel(text)	\
 	{	\
-        uiTextItem* ti = scene().addItem( new uiTextItem( text ) );	\
+	uiTextItem* ti = scene().addItem( new uiTextItem( text ) );	\
 	ti->setTextColor( maroon );	\
 	diptextitms_ += ti;	\
 	}
 
 	uiCircleItem* ci = scene().addItem(
 		new uiCircleItem( center_, radius_ ) );
-        circleitms_ += ci;
+	circleitms_ += ci;
 	mAddDipLabel( toUiString("0") );
 
 	ci = scene().addItem( new uiCircleItem( center_, radius_*2/3 ) );
-        circleitms_ += ci;
+	circleitms_ += ci;
 	mAddDipLabel( toUiString("30") );
 
-        ci = scene().addItem( new uiCircleItem( center_, radius_*1/3 ) );
-        circleitms_ += ci;
+	ci = scene().addItem( new uiCircleItem( center_, radius_*1/3 ) );
+	circleitms_ += ci;
 	mAddDipLabel( toUiString("60") );
 
 	mAddDipLabel( toUiString("90") );
@@ -118,7 +116,7 @@ void uiPolarDiagram::drawSegments()
 		Angle::Deg, (float) angle, Angle::Rad );
 	int x = (int) (radius_ * cos( angle_rad ));
 	int y = (int) (radius_ * sin( angle_rad ));
-        // y-axis direction on the canvas is the opposite of that in geometry
+	// y-axis direction on the canvas is the opposite of that in geometry
 	y = -y;
 
 	if ( create )
@@ -151,13 +149,13 @@ void uiPolarDiagram::drawSegments()
     {
 	// create E and N text items
 #ifdef mShowEast
-        uiTextItem* tiE = scene().addItem( new uiTextItem( tr("E") ) );
+	uiTextItem* tiE = scene().addItem( new uiTextItem( tr("E") ) );
 	tiE->setTextColor( OD::Color( 0, 0, 255 ) );
-        azimuthtextitms_ += tiE;
+	azimuthtextitms_ += tiE;
 #endif
-        uiTextItem* tiN = scene().addItem( new uiTextItem( tr("N") ) );
+	uiTextItem* tiN = scene().addItem( new uiTextItem( tr("N") ) );
 	tiN->setTextColor( OD::Color( 0, 0, 255 ) );
-        azimuthtextitms_ += tiN;
+	azimuthtextitms_ += tiN;
     }
 
 #ifdef mShowEast
@@ -189,7 +187,7 @@ void uiPolarDiagram::mouseEventCB( CallBacker* )
 
     const MouseEvent& ev = getMouseEventHandler().event();
     if ( !(ev.buttonState() & OD::LeftButton) )
-        return;
+	return;
 
     const bool isctrl = ev.ctrlStatus();
     const bool isoth = ev.shiftStatus() || ev.altStatus();
@@ -202,12 +200,15 @@ void uiPolarDiagram::mouseEventCB( CallBacker* )
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
     // Formula: x = r cos(azimuth)
-    float r = (float) Math::Sqrt( (float)
-                                  (relpos.x*relpos.x + relpos.y*relpos.y) );
-    if ( r > radius_ ) return;
-    float azimuthrad = acos( relpos.x/r );
+    const float r = Math::Sqrt(
+			sCast(float,(relpos.x*relpos.x + relpos.y*relpos.y)) );
+    if ( r > radius_ )
+	return;
+
+    float azimuthrad = Math::ACos( relpos.x/r );
     if ( relpos.y > 0 )
-	azimuthrad = (float) ( 2*M_PI - azimuthrad );
+	azimuthrad = sCast(float, 2*M_PIf - azimuthrad );
+
     azimuth_ = Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
 
     // Outermost circle - dip = 0, center - dip = 90 degrees
@@ -227,9 +228,10 @@ void uiPolarDiagram::reSizedCB( CallBacker* )
 void uiPolarDiagram::setValues(float azimuth, float dip)
 {
     if ( azimuth >= 0 && azimuth <= 360 )
-        azimuth_ = azimuth;
+	azimuth_ = azimuth;
+
     if ( dip >= 0 && dip <= 90 )
-        dip_ = dip;
+	dip_ = dip;
 
     updatePointer();
 }
@@ -252,5 +254,5 @@ void uiPolarDiagram::updatePointer()
     int y = (int) (r * sin( azimuthrad ));
     if ( pointeritm_ )
       pointeritm_->setPos( mCast(float,center_.x+x), mCast(float,center_.y-y) );
-        // y-axis direction on the canvas is the opposite of that in geometry
+	// y-axis direction on the canvas is the opposite of that in geometry
 }

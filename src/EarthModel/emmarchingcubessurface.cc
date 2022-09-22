@@ -496,4 +496,14 @@ void MarchingCubesSurface::setCrlSampling( const SamplingData<int>& s )
 void MarchingCubesSurface::setZSampling( const SamplingData<float>& s )
 { zsampling_ = s; }
 
+
+void MarchingCubesSurface::setSampling( const TrcKeyZSampling& tkzs )
+{
+    setInlSampling( SamplingData<int>(tkzs.hsamp_.start_.inl(),
+				      tkzs.hsamp_.step_.inl()) );
+    setCrlSampling( SamplingData<int>(tkzs.hsamp_.start_.crl(),
+				      tkzs.hsamp_.step_.crl()) );
+    setZSampling( SamplingData<float>(tkzs.zsamp_.start,tkzs.zsamp_.step) );
+}
+
 } // namespace EM

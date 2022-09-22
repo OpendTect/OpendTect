@@ -224,8 +224,8 @@ void SceneColTab::updateSequence()
 
 void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
-    Interval<float> rg = ms.range_;
-    if ( rg==rg_ && flipseq_==ms.flipseq_ )
+    const Interval<float> rg = ms.range_;
+    if ( rg.isUdf() || (rg==rg_ && flipseq_==ms.flipseq_) )
 	return;
 
     rg_ = rg;

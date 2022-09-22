@@ -32,9 +32,9 @@ ________________________________________________________________________
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,uiDialog::Setup(tr("Light options"),
 				 tr("Set light options"),
-                                 mODHelpKey(mDirLightDlgHelpID) ).modal(false))
+				mODHelpKey(mDirLightDlgHelpID) ).modal(false))
     , visserv_(visserv)
-    , pd_(0)
+    , pd_(nullptr)
     , pddlg_(new uiDialog(this, uiDialog::Setup(tr("Polar diagram"),
 		    tr("Set azimuth and dip"), mNoHelpKey).modal(false)))
 {
@@ -45,8 +45,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     scenefld_->attach( hCentered );
 
     switchfld_ = new uiGenInput( this, tr("Turn directional light"),
-				 BoolInpSpec(false, tr("On"),
-                                             tr("Off")));
+				 BoolInpSpec(false,tr("On"),tr("Off")) );
     switchfld_->attach( alignedBelow, scenefld_ );
     switchfld_->valuechanged.notify( mCB(this,uiDirLightDlg,onOffChg) );
     uiSeparator* sep1 = new uiSeparator( this, "HSep" );
@@ -128,7 +127,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 	initinfo = initinfo_[ 0 ];
     }
 
-    azimuthfld_->dial()->setValue( ( int ) initinfo.azimuth_ );
+    azimuthfld_->dial()->setValue( sCast(int,initinfo.azimuth_) );
     azimuthfld_->dial()->valueChanged.notify( chgCB );
     dipfld_->setValue( initinfo.dip_ );
     dipfld_->valueChanged.notify( chgCB );
@@ -233,7 +232,7 @@ bool uiDirLightDlg::updateSceneSelector()
 
     if ( !initinfo_.size() )
     {
-        scenefld_->label()->setText( tr("No scene!") );
+	scenefld_->label()->setText( tr("No scene!") );
 	return false;
     }
 
@@ -329,7 +328,7 @@ void uiDirLightDlg::saveInitInfo()
 	const bool dosave = saveall || idx==scenefld_->box()->currentItem()-1;
 	if ( !dosave ) continue;
 
-        initinfo_[idx].azimuth_ = mCast(float, azimuthfld_->dial()->getValue());
+	initinfo_[idx].azimuth_ = mCast(float, azimuthfld_->dial()->getValue());
 	initinfo_[idx].dip_ = dipfld_->getFValue();
 	initinfo_[ idx ].dirintensity_ = dirintensityfld_->getFValue();
 	initinfo_[ idx ].cameraintensity_ =
@@ -364,61 +363,60 @@ void uiDirLightDlg::resetWidgets()
 // Set the values of the widgets from the scene.
 void uiDirLightDlg::setWidgets( bool resetinitinfo )
 {
-    bool updateall = initinfo_.size() > 0
-		     && scenefld_->box()->currentItem() == 0;
-
-    bool anySceneDone = false;
+    const bool updateall = scenefld_->box()->currentItem() == 0;
+    bool anyscenedone = false;
 
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {
 	const bool doupd = updateall || idx==scenefld_->box()->currentItem()-1;
-	if ( !doupd ) continue;
+	if ( !doupd )
+	    continue;
 
 	// diffuse intensity
 	cameradirintensityfld_->setValue( getCameraLightIntensity(idx) );
-        if ( resetinitinfo )
+	if ( resetinitinfo )
 	    initinfo_[idx].cameraintensity_ =
 		cameradirintensityfld_->getFValue();
 
 	// ambient intensity
 	cameraambintensityfld_->setValue( getCameraAmbientIntensity( idx ) );
-        if ( resetinitinfo )
+	if ( resetinitinfo )
 	    initinfo_[idx].ambintensity_ =
 		cameraambintensityfld_->getFValue();
 
 	// directional light
-        visBase::Light* dl = getDirLight( idx );
-        if ( !dl )
-        {
+	visBase::Light* dl = getDirLight( idx );
+	if ( !dl )
+	{
 	    if ( resetinitinfo )
-	        initinfo_[idx].reset( false );
+		initinfo_[idx].reset( false );
 	    continue;
-        }
+	}
 
-        float x = dl->direction( 0 );
-        float y mUnusedVar = dl->direction( 1 );
-        float z = dl->direction( 2 );
-        float dip = Angle::convert( Angle::Rad, asin( z ), Angle::Deg );
+	const float x = dl->direction( 0 );
+	const float y mUnusedVar = dl->direction( 1 );
+	const float z = dl->direction( 2 );
+	float dip = Angle::convert( Angle::Rad, Math::ASin( z ), Angle::Deg );
 	dip += 180;  // offset for observed deviation
-        float azimuth = Angle::convert( Angle::Rad, acos( x / cos( dip ) ),
-		Angle::UsrDeg );
+	const float azimuth =
+	    Angle::convert( Angle::Rad, Math::ACos(x/cos(dip)), Angle::UsrDeg );
 
 	if ( pd_ )
 	    pd_->setValues( azimuth, dip );
 
-        if ( resetinitinfo )
-        {
+	if ( resetinitinfo )
+	{
 	    initinfo_[idx].azimuth_ = azimuth;
 	    initinfo_[idx].dip_ = dip;
 	    initinfo_[idx].dirintensity_ = dl->getDiffuse() * 100;
 	}
 
-	if ( !anySceneDone )
+	if ( !anyscenedone )
 	{
-	    azimuthfld_->dial()->setValue( (int)azimuth );
+	    azimuthfld_->dial()->setValue( int(azimuth) );
 	    dipfld_->setValue( dip );
 	    dirintensityfld_->setValue( dl->getDiffuse() * 100 );
-	    anySceneDone = true;
+	    anyscenedone = true;
 	}
     }
 }
@@ -536,7 +534,7 @@ void uiDirLightDlg::setCameraLightIntensity()
 void uiDirLightDlg::showWidgets( bool showAll )
 {
     if ( scenefld_ )
-        scenefld_->display( showAll );
+	scenefld_->display( showAll );
     azimuthfld_->setSensitive( showAll );
     dipfld_->setSensitive( showAll );
     dirintensityfld_->setSensitive( showAll );
@@ -549,7 +547,7 @@ void uiDirLightDlg::showWidgets( bool showAll )
 
 void uiDirLightDlg::validateInput()
 {
-    const float az = mCast( float, azimuthfld_->dial()->getValue() );
+    const float az = sCast( float, azimuthfld_->dial()->getValue() );
     if ( az<0 || az>360 )
 	azimuthfld_->dial()->setValue( mInitAzimuth );
 
@@ -583,14 +581,14 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
     if ( initinfo_.size() > 0 )
     {
 	azimuthfld_->processInput();
-        dipfld_->processInput();
+	dipfld_->processInput();
 	dirintensityfld_->processInput();
-        cameradirintensityfld_->processInput();
-        cameraambintensityfld_->processInput();
+	cameradirintensityfld_->processInput();
+	cameraambintensityfld_->processInput();
 
 	setDirLight();
 	setCameraLightIntensity();
-        saveInitInfo();
+	saveInitInfo();
     }
 
     const bool forall = initinfo_.size() && !scenefld_->box()->currentItem();
@@ -674,7 +672,7 @@ void uiDirLightDlg::setlightSwitch()
 }
 
 
-void uiDirLightDlg::fieldChangedCB( CallBacker* c )
+void uiDirLightDlg::fieldChangedCB( CallBacker* )
 {
     if ( !pd_ )
 	setDirLight();
@@ -682,9 +680,9 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* c )
     // do the work only if this is not called by setValue of polarDiagramCB
     else if ( !pd_->hasFocus() )
     {
-	pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()),
+	pd_->setValues( sCast(float,azimuthfld_->dial()->getValue()),
 		dipfld_->getFValue() );
-        setDirLight();
+	setDirLight();
     }
 }
 
@@ -693,7 +691,7 @@ void uiDirLightDlg::polarDiagramCB( CallBacker* )
 {
     float azimuth, dip;
     pd_->getValues( &azimuth, &dip );
-    azimuthfld_->dial()->setValue( (int)azimuth );
+    azimuthfld_->dial()->setValue( sCast(int,azimuth) );
     dipfld_->setValue( dip );
     setDirLight();
 }
@@ -710,7 +708,7 @@ void uiDirLightDlg::nrScenesChangedCB( CallBacker* )
     if ( updateSceneSelector() )
     {
 	setWidgets( true );
-        showWidgets( true );
+	showWidgets( true );
     }
     else
 	showWidgets( false );

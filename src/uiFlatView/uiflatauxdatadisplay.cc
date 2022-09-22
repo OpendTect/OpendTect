@@ -265,20 +265,22 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* )
 
 	FlatView::Point modnamepos = sCast(FlatView::Point,poly_[listpos]);
 
-	Interval<float> vwrxrg;
-	vwrxrg.start = sCast(float,curview.topLeft().x);
-	vwrxrg.stop = sCast(float,curview.bottomRight().x);
-	Interval<float> vwryrg;
-	vwryrg.start = sCast(float,curview.topLeft().y);
-	vwryrg.stop = sCast(float,curview.bottomRight().y);
+	uiGraphicsItem* itmatlistpos = display_->getUiItem( listpos );
+	if ( itmatlistpos )
+	{
+	    Interval<float> vwrxrg;
+	    vwrxrg.start = sCast(float,curview.topLeft().x);
+	    vwrxrg.stop = sCast(float,curview.bottomRight().x);
+	    Interval<float> vwryrg;
+	    vwryrg.start = sCast(float,curview.topLeft().y);
+	    vwryrg.stop = sCast(float,curview.bottomRight().y);
 
-	Geom::Point2D<double> pt(display_->getUiItem(listpos)->getPos().x,
-				 display_->getUiItem(listpos)->getPos().y);
-
-	const bool isitminxview = vwrxrg.includes(pt.x,true);
-	const bool isitminyview = vwryrg.includes(pt.y,true);
-	if ( isitminxview || isitminyview  )
-	    modnamepos = curview.moveInside( modnamepos );
+	    Geom::Point2D<float> pt = itmatlistpos->getPos();
+	    const bool isitminxview = vwrxrg.includes(pt.x,true);
+	    const bool isitminyview = vwryrg.includes(pt.y,true);
+	    if ( isitminxview || isitminyview  )
+		modnamepos = curview.moveInside( modnamepos );
+	}
 
 	nameitem_->setPos( modnamepos );
     }
