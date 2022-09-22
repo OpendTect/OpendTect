@@ -98,7 +98,7 @@ static void convertSeis2DTranslators()
 }
 
 
-static const char* getSurvDefAttrName()
+static const BufferString getSurvDefAttrName()
 {
     mDefineStaticLocalObject( BufferString, ret,
 	   = SI().getPars().find(IOPar::compKey(sKey::Default(),
@@ -106,7 +106,7 @@ static const char* getSurvDefAttrName()
     if ( ret.isEmpty() )
 	ret = "Seis";
 
-    return ret.buf();
+    return ret;
 }
 
 
@@ -393,7 +393,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	iop.set( sKey::Attribute(), nm.buf() );
     }
 
-    const StringView survdefattr( getSurvDefAttrName() );
+    const StringView survdefattr( getSurvDefAttrName().buf() );
     const bool issurvdefset = SI().pars().hasKey(
 				IOPar::compKey(sKey::Default(),
 				SeisTrc2DTranslatorGroup::sKeyDefault()) );

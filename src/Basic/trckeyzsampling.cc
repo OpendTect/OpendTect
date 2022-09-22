@@ -573,7 +573,7 @@ void TrcKeySampling::expand( int nrlines, int nrtrcs )
 static bool getRange( const IOPar& par, const char* key, int& start_,
 		      int& stop_, int& step_ )
 {
-    BufferString parval = par[key];
+    const BufferString parval = par[key];
     if ( parval.isEmpty() )
 	return false;
 

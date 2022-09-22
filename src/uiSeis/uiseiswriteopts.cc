@@ -41,13 +41,13 @@ void uiCBVSVolOpts::use( const IOPar& iop )
     BufferString res = iop.find( sKey::DataStorage() );
     BufferString firstchar(res[0]);
     const int stortyp = res.isEmpty() ? int(DataCharacteristics::F32)
-	: firstchar.add( "- '0'" ).toInt();
+						    : firstchar.toInt();
     stortypfld_->setValue( stortyp );
 
     res = iop.find( CBVSSeisTrcTranslator::sKeyOptDir() );
-    firstchar = res[0];
     if ( !res.isEmpty() )
     {
+	firstchar = res[0];
 	optimdirfld_->setChecked( firstchar.isEqual("H") );
     }
 }

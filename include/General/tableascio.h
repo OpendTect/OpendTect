@@ -134,7 +134,7 @@ protected:
 
 			FileFormatRepository();
     void		addFromFile(const char*,Repos::Source);
-    const char*		grpNm(int) const;
+    BufferString	grpNm(int) const;
     int			gtIdx(const char*,const char*) const;
 
     struct Entry

@@ -190,7 +190,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     const BufferString attrtypstr = pars().find( "Attributes.Type" );
-    const bool is2d = attrtypstr.isEqual("2");
+    const bool is2d = attrtypstr.firstChar() == '2';
 
     //processing dataset on a single machine
     if ( alllinenames.isEmpty() && is2d )

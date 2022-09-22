@@ -119,7 +119,7 @@ static bool doImport( od_ostream& strm, const IOPar& iop, Seis::GeomType gt )
     outpar->get( sKey::ID(), mid );
     if ( mid.isUdf() )
     {
-	strm << "MultiiD is not undefined" << od_endl;
+	strm << "MultiID is not defined" << od_endl;
 	return false;
     }
 
@@ -189,7 +189,7 @@ static bool doExport( od_ostream& strm, const IOPar& iop,
     inppar->get( sKey::ID(), mid );
     if ( mid.isUdf() )
     {
-	strm << "MultiiD is not undefined" << od_endl;
+	strm << "MultiID is not defined" << od_endl;
 	return false;
     }
 
