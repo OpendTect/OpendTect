@@ -42,9 +42,12 @@ public:
     void		setGeomID(Pos::GeomID);
     uiString		uiMessage() const override
 			{ return tr("Stretching data"); }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces done"); }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }
+    void		setUdfVal(float val);
 
 protected:
 
@@ -54,9 +57,12 @@ protected:
     bool		doWork(od_int64,od_int64,int) override;
     od_int64		nrIterations() const override	{ return totalnr_; }
 
-    bool				getInputTrace(SeisTrc&,TrcKey&);
-    bool				getModelTrace(SeisTrc&,TrcKey&);
-    bool				loadTransformChunk(int firstinl);
+    bool		getInputTrace(SeisTrc&,TrcKey&);
+    bool		getModelTrace(SeisTrc&,TrcKey&);
+    bool		loadTransformChunk(int firstinl);
+    bool		doZStretch(SeisTrc& intrc,SeisTrc& outtrc,
+				   const TrcKey&,const SamplingData<float>&);
+
 
     SeisTrcReader*			seisreader_;
     Threads::ConditionVar		readerlock_;
@@ -81,5 +87,6 @@ protected:
     int					totalnr_;
     bool				isvint_;
     bool				isvrms_;
+    float				udfval_		= mUdf(float);
 
 };

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uicreate2dgrid.h"
+#include "uiflatunflatcube.h"
 #include "uihorizonshiftdlg.h"
 #include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
@@ -51,6 +52,7 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
     delete surfattr3ddlg_;
     delete crgriddlg_;
     delete stratampdlg_;
+    delete flattendlg_;
 }
 
 
@@ -83,7 +85,30 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
 
 void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 {
-    if ( !descset_ ) return;
+    createHorizonOutput( type, MultiID::udf() );
+}
+
+
+void uiEMAttribPartServer::createHorizonOutput( HorOutType type,
+						const MultiID& key )
+{
+    if ( type==FlattenSingle )
+    {
+	if ( !flattendlg_ )
+	{
+	    flattendlg_ = new uiFlatUnflatCube( parent() );
+	    flattendlg_->setModal( false );
+	}
+
+	if ( !key.isUdf() )
+	    flattendlg_->setHorizon( key );
+
+	flattendlg_->show();
+	return;
+    }
+
+    if ( !descset_ )
+	return;
 
     if ( type==OnHor )
     {
