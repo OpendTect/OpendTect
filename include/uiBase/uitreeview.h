@@ -37,6 +37,7 @@ public:
     bool		isEmpty() const override;
     void		setEmpty();
     void		setNrLines(int);
+    void		resizeHeightToContents(int minh=-1,int maxh=-1);
 
     bool		rootDecorated() const;
     void		setRootDecorated(bool yn);
@@ -85,7 +86,7 @@ public:
     void		getSelectedItems(ObjectSet<uiTreeViewItem>&) const;
     void		removeSelectedItems();
 
-    int			nrItems() const;
+    int			nrItems(bool recursive=false) const;
     void		setCurrentItem(uiTreeViewItem*,int column=0);
     uiTreeViewItem*	currentItem() const;
     int			currentColumn() const;

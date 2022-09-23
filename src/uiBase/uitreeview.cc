@@ -375,6 +375,40 @@ void uiTreeView::setNrLines( int prefNrLines )
 { body_->setNrLines(prefNrLines); }
 
 
+
+//static int sMinWidth = 300;
+//static int sMaxWidth = 600;
+
+static int sMinHeight = 150;
+static int sMaxHeight = 400;
+void uiTreeView::resizeHeightToContents( int minh, int maxh )
+{
+    const int nritems = nrItems( true );
+    if ( nritems==0 )
+	return;
+
+    if ( minh < 0 ) minh = sMinHeight;
+    if ( maxh < 0 ) maxh = sMaxHeight;
+
+    int itemheight = 0;
+    auto* uiitm = firstItem();
+    auto* qitm = uiitm ? uiitm->qItem() : nullptr;
+    if ( qitm )
+    {
+	QRect qrect = body_->visualItemRect( qitm );
+	itemheight = qrect.height();
+    }
+
+    int prefheight = nritems * mMAX(body_->fontHeight(),itemheight);
+    if ( prefheight < minh )
+	prefheight = minh;
+    else if ( prefheight > maxh )
+	prefheight = maxh;
+
+    setPrefHeight( prefheight );
+}
+
+
 bool uiTreeView::rootDecorated() const
 { return body_->rootIsDecorated(); }
 
@@ -645,8 +679,21 @@ uiTreeViewItem* uiTreeView::lastItem() const
 { return getItem( nrItems()-1 ); }
 
 
-int uiTreeView::nrItems() const
-{ return body_->topLevelItemCount(); }
+int uiTreeView::nrItems( bool recursive ) const
+{
+    if ( !recursive )
+	return body_->topLevelItemCount();
+
+    int nr = 0;
+    QTreeWidgetItemIterator iter( body_ );
+    while ( *iter )
+    {
+	nr++;
+	++iter;
+    }
+
+    return nr;
+}
 
 
 uiTreeViewItem* uiTreeView::findItem( const char* text, int column,
