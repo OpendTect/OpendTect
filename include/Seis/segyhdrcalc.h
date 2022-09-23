@@ -28,8 +28,8 @@ mExpClass(Seis) HdrCalc
 { mODTextTranslationClass(HdrCalc);
 public:
 
-			HdrCalc( const HdrEntry& he, const char* def )
-			    : he_(he), def_(def)	{}
+			HdrCalc(const HdrEntry& he, const char* def);
+			~HdrCalc();
 
     const HdrEntry&	he_;	//!< intended target
     BufferString	def_;	//!< user-defined math formula

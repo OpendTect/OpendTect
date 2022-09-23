@@ -37,7 +37,8 @@ public:
 mExpClass(Seis) Seis2DLinePutter
 { mODTextTranslationClass(Seis2DLinePutter);
 public:
-    virtual		~Seis2DLinePutter()	{}
+			Seis2DLinePutter();
+    virtual		~Seis2DLinePutter();
 
     virtual bool	put(const SeisTrc&)	= 0;
     //!< Return fase on success, err msg on failure
@@ -56,7 +57,7 @@ public:
 mExpClass(Seis) Seis2DLineGetter : public Executor
 { mODTextTranslationClass(Seis2DLineGetter);
 public:
-    virtual		~Seis2DLineGetter()	{}
+    virtual		~Seis2DLineGetter();
 
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override
@@ -89,7 +90,7 @@ mExpClass(Seis) Seis2DLineIOProvider
 { mODTextTranslationClass(Seis2DLineIOProvider);
 public:
 
-    virtual		~Seis2DLineIOProvider()			{}
+    virtual		~Seis2DLineIOProvider();
 
     virtual bool	isEmpty(const IOObj&,Pos::GeomID) const		= 0;
     virtual bool	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
@@ -112,8 +113,7 @@ public:
 
 protected:
 
-			Seis2DLineIOProvider( const char* t )
-			: type_(t)				{}
+			Seis2DLineIOProvider(const char*);
 
     const BufferString	type_;
 };
@@ -129,8 +129,8 @@ mGlobal(Seis) ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(TwoDSeisTrcTranslator); isTranslator(TwoD,SeisTrc)
 public:
-			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
-			: SeisTrcTranslator(s1,s2)	{}
+			TwoDSeisTrcTranslator( const char* s1, const char* s2 );
+			~TwoDSeisTrcTranslator();
 
     const char*		defExtension() const override	{ return "2ds"; }
     bool		implRemove(const IOObj*,bool) const override;
@@ -147,9 +147,8 @@ mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(TwoDDataSeisTrcTranslator);
   isTranslator(TwoDData,SeisTrc)
 public:
-			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
-			: SeisTrcTranslator(s1,s2)	{}
-
+			TwoDDataSeisTrcTranslator(const char*,const char*);
+			~TwoDDataSeisTrcTranslator();
 };
 
 
@@ -157,8 +156,8 @@ public:
 mExpClass(Seis) SeisTrc2DTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(SeisTrc2DTranslator);
 public:
-			SeisTrc2DTranslator(const char* s1,const char* s2)
-			    : SeisTrcTranslator(s1,s2)		{}
+			SeisTrc2DTranslator(const char* s1,const char* s2);
+			~SeisTrc2DTranslator();
 
     bool		initRead_() override;	//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&) override { return false; }
@@ -184,8 +183,8 @@ mExpClass(Seis) CBVSSeisTrc2DTranslator : public SeisTrc2DTranslator
 { mODTextTranslationClass(CBVSSeisTrc2DTranslator);
   isTranslator(CBVS,SeisTrc2D)
 public:
-			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
-			: SeisTrc2DTranslator(s1,s2)	{ setIs2D(true); }
+			CBVSSeisTrc2DTranslator(const char* s1,const char* s2);
+			~CBVSSeisTrc2DTranslator();
 
     bool		isUserSelectable(bool) const override { return true; }
 };
@@ -196,8 +195,8 @@ mExpClass(Seis) SEGYDirectSeisTrc2DTranslator : public SeisTrc2DTranslator
   isTranslator(SEGYDirect,SeisTrc2D)
 public:
 			SEGYDirectSeisTrc2DTranslator(const char* s1,
-						      const char* s2)
-			: SeisTrc2DTranslator(s1,s2)	{ setIs2D(true); }
+						      const char* s2);
+			~SEGYDirectSeisTrc2DTranslator();
 
     bool		isUserSelectable(bool fr) const override { return fr; }
     const char*		iconName() const override	{ return "segy"; }

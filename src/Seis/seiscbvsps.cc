@@ -44,6 +44,10 @@ SeisPS2DReader::SeisPS2DReader( Pos::GeomID geomid )
 {}
 
 
+SeisPS2DReader::~SeisPS2DReader()
+{}
+
+
 SeisTrc* SeisPS2DReader::getTrc( int trcnr, int nr ) const
 {
     SeisTrc* ret = getTrace( BinID(0,trcnr), nr );
@@ -763,6 +767,10 @@ SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, const char* lnm )
     if ( !dirNmOK(false) ) return;
     mRemCacheIfExists();
 }
+
+
+SeisCBVSPS2DWriter::~SeisCBVSPS2DWriter()
+{}
 
 
 bool SeisCBVSPS2DWriter::ensureTr( const SeisTrc& trc )

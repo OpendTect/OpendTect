@@ -40,6 +40,10 @@ Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
 {}
 
 
+Seis2DLineGetter::~Seis2DLineGetter()
+{}
+
+
 Pos::GeomID Seis2DLineGetter::geomID() const
 {
     return translator() ? translator()->curGeomID()
@@ -105,6 +109,15 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 }
 
 
+TwoDSeisTrcTranslator::TwoDSeisTrcTranslator( const char* s1, const char* s2 )
+    : SeisTrcTranslator(s1,s2)
+{}
+
+
+TwoDSeisTrcTranslator::~TwoDSeisTrcTranslator()
+{}
+
+
 bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( !ioobj ) return true;
@@ -146,6 +159,25 @@ bool TwoDSeisTrcTranslator::initRead_()
 
     return true;
 }
+
+
+TwoDDataSeisTrcTranslator::TwoDDataSeisTrcTranslator(const char* s1,
+						     const char* s2)
+    : SeisTrcTranslator(s1,s2)
+{}
+
+
+TwoDDataSeisTrcTranslator::~TwoDDataSeisTrcTranslator()
+{}
+
+
+SeisTrc2DTranslator::SeisTrc2DTranslator(const char* s1,const char* s2)
+    : SeisTrcTranslator(s1,s2)
+{}
+
+
+SeisTrc2DTranslator::~SeisTrc2DTranslator()
+{}
 
 
 bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj, bool ) const
@@ -648,3 +680,43 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
 	}
     }
 }
+
+
+Seis2DLineIOProvider::Seis2DLineIOProvider( const char* t )
+    : type_(t)
+{}
+
+
+Seis2DLineIOProvider::~Seis2DLineIOProvider()
+{}
+
+
+Seis2DLinePutter::Seis2DLinePutter()
+{}
+
+
+Seis2DLinePutter::~Seis2DLinePutter()
+{}
+
+
+CBVSSeisTrc2DTranslator::CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
+    : SeisTrc2DTranslator(s1,s2)
+{
+    setIs2D(true);
+}
+
+
+CBVSSeisTrc2DTranslator::~CBVSSeisTrc2DTranslator()
+{}
+
+
+SEGYDirectSeisTrc2DTranslator::SEGYDirectSeisTrc2DTranslator(const char* s1,
+							     const char* s2)
+    : SeisTrc2DTranslator(s1,s2)
+{
+    setIs2D(true);
+}
+
+
+SEGYDirectSeisTrc2DTranslator::~SEGYDirectSeisTrc2DTranslator()
+{}

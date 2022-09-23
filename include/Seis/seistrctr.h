@@ -100,12 +100,12 @@ public:
     mExpClass(Seis) ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
+    public:
+			~ComponentData();
 
     protected:
-			ComponentData( const char* nm="Seismic Data" )
-			: BasicComponentInfo(nm)	{}
-			ComponentData( const ComponentData& cd )
-			: BasicComponentInfo(cd)	{}
+			ComponentData( const char* nm="Seismic Data" );
+			ComponentData( const ComponentData& cd );
 			ComponentData(const SeisTrc&,int icomp=0,
 				      const char* nm="Seismic Data");
 	void		operator=(const ComponentData&);
@@ -126,6 +126,7 @@ public:
 	friend class	SeisTrcTranslator;
 
     public:
+			    ~TargetComponentData();
 
 	int			destidx;
 	const ComponentData&	org;
@@ -133,8 +134,7 @@ public:
     protected:
 
 			    TargetComponentData( const ComponentData& c,
-						 int idx )
-			    : ComponentData(c), org(c), destidx(idx)	{}
+						 int idx );
 
 	void		operator=(const TargetComponentData&);
 			    //!< Protection against assignment.

@@ -10,6 +10,14 @@ ________________________________________________________________________
 #include "seisreaderset.h"
 
 
+SeisTrcReaderSet::SeisTrcReaderSet()
+{}
+
+
+SeisTrcReaderSet::~SeisTrcReaderSet()
+{}
+
+
 bool SeisTrcReaderSet::is2D() const
 {
     return isEmpty() || (*this)[0]->is2D();

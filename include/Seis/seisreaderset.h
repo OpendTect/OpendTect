@@ -23,6 +23,8 @@ are returned.
 mExpClass(Seis) SeisTrcReaderSet : public ManagedObjectSet<SeisTrcReader>
 {
 public:
+			SeisTrcReaderSet();
+			~SeisTrcReaderSet();
 
     bool		is2D() const; //!< determined by first reader
 

@@ -24,6 +24,7 @@ mExpClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
 public:
 
 			SeisCBVS2DLineIOProvider();
+			~SeisCBVS2DLineIOProvider();
 
     bool		isEmpty(const IOObj&,Pos::GeomID) const override;
 

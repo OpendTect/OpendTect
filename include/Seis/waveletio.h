@@ -37,6 +37,7 @@ mExpClass(Seis) dgbWaveletTranslator : public WaveletTranslator
 {			     isTranslator(dgb,Wavelet)
 public:
 			mDefEmptyTranslatorConstructor(dgb,Wavelet)
+			~dgbWaveletTranslator();
 
     bool		read(Wavelet*,Conn&) override;
     bool		write(const Wavelet*,Conn&) override;
@@ -47,8 +48,8 @@ public:
 mExpClass(Seis) WaveletAscIO : public Table::AscIO
 { mODTextTranslationClass(WaveletAscIO);
 public:
-				WaveletAscIO( const Table::FormatDesc& fd )
-				    : Table::AscIO(fd)		{}
+				WaveletAscIO( const Table::FormatDesc& fd );
+				~WaveletAscIO();
 
     static Table::FormatDesc*	getDesc();
 

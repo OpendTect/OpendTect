@@ -61,7 +61,7 @@ mExpClass(Seis) SeisPSIOProvider
 { mODTextTranslationClass(SeisPSIOProvider);
 public:
 
-    virtual			~SeisPSIOProvider()	{}
+    virtual			~SeisPSIOProvider();
 
     virtual bool		canHandle( bool forread, bool for2d ) const
 				{ return false; }
@@ -112,8 +112,7 @@ public:
 
 protected:
 
-				SeisPSIOProvider( const char* t )
-				    : type_(t)			{}
+				SeisPSIOProvider( const char* t );
 
     BufferString		type_;
 
@@ -175,6 +174,7 @@ mExpClass(Seis) SeisPS3DTranslator : public Translator
 { mODTextTranslationClass(SeisPS3DTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
+			~SeisPS3DTranslator();
 
     bool		implRemove(const IOObj*,bool) const override;
     bool		implRename(const IOObj*,const char*) const override;
@@ -185,6 +185,7 @@ mExpClass(Seis) CBVSSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(CBVS,SeisPS3D)
 public:
 			mDefEmptyTranslatorConstructor(CBVS,SeisPS3D)
+			~CBVSSeisPS3DTranslator();
 
     bool		implRemove(const IOObj*,bool) const override;
 };
@@ -201,6 +202,7 @@ mExpClass(Seis) SeisPS2DTranslator : public Translator
 { mODTextTranslationClass(SeisPS2DTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(SeisPS2D)
+			~SeisPS2DTranslator();
 };
 
 
@@ -208,6 +210,7 @@ mExpClass(Seis) CBVSSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(CBVS,SeisPS2D)
 public:
 			mDefEmptyTranslatorConstructor(CBVS,SeisPS2D)
+			~CBVSSeisPS2DTranslator();
 
     bool		implRemove(const IOObj*,bool) const override;
 };

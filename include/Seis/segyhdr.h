@@ -40,7 +40,7 @@ class Hdrdef;
 mExpClass(Seis) TxtHeader
 {
 public:
-		TxtHeader() : revision_(1) { clearText(); }
+		TxtHeader();
 		TxtHeader(int rev);	//!< rev only relevant when writing
 		~TxtHeader();
 

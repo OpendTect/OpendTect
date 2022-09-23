@@ -21,14 +21,14 @@ namespace Seis
 
   start, stop end step are for either first key (Inline or Trace Number) or
   second key (Crossline or aux trace number).
- 
+
  */
 
 mExpClass(Seis) Bounds
 {
 public:
-
-    virtual		~Bounds()			{}
+			Bounds();
+    virtual		~Bounds();
 
     virtual bool	is2D() const			{ return false; }
     int			expectedNrTraces() const;
@@ -72,6 +72,8 @@ mExpClass(Seis) Bounds2D : public Bounds
 public:
 
 			Bounds2D();
+			~Bounds2D();
+
     bool		is2D() const override			{ return true; }
 
     int			start( bool firstrg = true ) const override

@@ -26,6 +26,25 @@ ________________________________________________________________________
 #include "od_iostream.h"
 
 
+SeisTrcBuf::SeisTrcBuf( bool ownr )
+    : owner_(ownr)
+{}
+
+
+SeisTrcBuf::SeisTrcBuf( const SeisTrcBuf& b )
+    : owner_(b.owner_)
+{
+    b.copyInto( *this );
+}
+
+
+SeisTrcBuf::~SeisTrcBuf()
+{
+    if ( owner_ )
+	deepErase();
+}
+
+
 void SeisTrcBuf::deepErase()
 {
     ::deepErase(trcs_);
@@ -731,6 +750,10 @@ SeisBufReader::SeisBufReader( SeisTrcReader& rdr, SeisTrcBuf& buf )
     if ( rdr.selData() && !rdr.selData()->isAll() )
 	totnr_ = rdr.selData()->expectedNrTraces( rdr.is2D() );
 }
+
+
+SeisBufReader::~SeisBufReader()
+{}
 
 
 int SeisBufReader::nextStep()

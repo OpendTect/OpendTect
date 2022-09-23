@@ -27,7 +27,8 @@ public:
 
     typedef od_int64	FileIdxType;
 
-    virtual		~PosKeyList()			{}
+			PosKeyList();
+    virtual		~PosKeyList();
     virtual od_int64	size() const			= 0;
     virtual bool	key(od_int64,PosKey&) const	= 0;
 

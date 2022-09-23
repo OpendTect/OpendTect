@@ -278,3 +278,7 @@ bool MultiCubeSeisPSReader::getGather( const BinID& bid, SeisTrcBuf& buf ) const
 void MultiCubeSeisPSReader::usePar( const IOPar& iop )
 {
 }
+
+
+MultiCubeSeisPS3DTranslator::~MultiCubeSeisPS3DTranslator()
+{}

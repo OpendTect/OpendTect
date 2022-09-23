@@ -28,7 +28,7 @@ public:
 				SeisDataPackFromDPS(const DataPointSet&,
 					RegularSeisDataPack&,
 					const BufferStringSet& columns);
-				~SeisDataPackFromDPS()	{}
+				~SeisDataPackFromDPS();
 protected:
 
     bool			doWork(od_int64 start,od_int64 stop,

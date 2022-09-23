@@ -568,6 +568,15 @@ float Wavelet::getValue( float z ) const
 }
 
 
+WaveletValueSeries::WaveletValueSeries( const Wavelet& wv )
+    :wv_(const_cast<Wavelet&>(wv))
+{}
+
+
+WaveletValueSeries::~WaveletValueSeries()
+{}
+
+
 float WaveletValueSeries::value( od_int64 idx ) const
 { return wv_.get((int) idx ); }
 
@@ -590,6 +599,10 @@ mDefSimpleTranslatorioContext(Wavelet,Seis)
 static const char* sLength	= "Length";
 static const char* sIndex	= "Index First Sample";
 static const char* sSampRate	= "Sample Rate";
+
+
+dgbWaveletTranslator::~dgbWaveletTranslator()
+{}
 
 
 bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
@@ -647,6 +660,15 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
 
     return astream.isOK();
 }
+
+
+WaveletAscIO::WaveletAscIO( const Table::FormatDesc& fd )
+    : Table::AscIO(fd)
+{}
+
+
+WaveletAscIO::~WaveletAscIO()
+{}
 
 
 Table::FormatDesc* WaveletAscIO::getDesc()
@@ -716,3 +738,12 @@ bool WaveletAscIO::put( od_ostream& ) const
     errmsg_ = tr("TODO: WaveletAscIO::put not implemented");
     return false;
 }
+
+
+WaveletFunction::WaveletFunction(const Wavelet& wv)
+    : wv_(wv)
+{}
+
+
+WaveletFunction::~WaveletFunction()
+{}

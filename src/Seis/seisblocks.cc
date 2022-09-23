@@ -37,6 +37,10 @@ Seis::Blocks::HGeom::HGeom( const HGeom& oth )
 }
 
 
+Seis::Blocks::HGeom::~HGeom()
+{}
+
+
 void Seis::Blocks::HGeom::putMapInfo( IOPar& iop ) const
 {
     b2c_.fillPar( iop );
@@ -244,6 +248,18 @@ Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Z( const ZGeom& zg,
 {
     return IdxType( zg.nearestIndex( z ) % zdim );
 }
+
+
+Seis::Blocks::Block::Block( const GlobIdx& gidx, const HLocIdx& s,
+			    const Dimensions& d )
+    : globidx_(gidx)
+    , start_(s)
+    , dims_(d)
+{}
+
+
+Seis::Blocks::Block::~Block()
+{}
 
 
 int Seis::Blocks::Block::startInl4GlobIdx( const HGeom& hg,
@@ -455,3 +471,15 @@ void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
     defdims.inl() = maxinl - mininl + 1;
     defdims.crl() = maxcrl - mincrl + 1;
 }
+
+
+Seis::Blocks::Column::Column( const HGlobIdx& gidx, const Dimensions& d,
+			      int nc )
+    : globidx_(gidx)
+    , dims_(d)
+    , nrcomps_(nc)
+{}
+
+
+Seis::Blocks::Column::~Column()
+{}

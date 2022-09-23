@@ -47,6 +47,7 @@ namespace Blocks
     public:
 			HGeom(const Survey::Geometry3D&);
 			HGeom(const HGeom&);
+			~HGeom();
 	inline int	idx4Inl(int) const;
 	inline int	idx4Crl(int) const;
 	inline int	idx4Z(float) const;
@@ -108,8 +109,7 @@ mDefSeisBlockTripletClass(Dimensions,SzType);
 mExpClass(Seis) Block
 {
 public:
-
-			~Block()		{}
+			~Block();
 
     const GlobIdx&	globIdx() const		{ return globidx_; }
     const HLocIdx&	start() const		{ return start_; }
@@ -136,8 +136,7 @@ public:
 protected:
 
 			Block( const GlobIdx& gidx, const HLocIdx& s,
-			       const Dimensions& d )
-			    : globidx_(gidx), start_(s), dims_(d)   {}
+			       const Dimensions& d );
 
     const GlobIdx	globidx_;
     const HLocIdx	start_;
@@ -152,7 +151,7 @@ mExpClass(Seis) Column
 {
 public:
 
-    virtual		~Column()					{}
+    virtual		~Column();
 
     const HGlobIdx&	globIdx() const		{ return globidx_; }
     const Dimensions&	dims() const		{ return dims_; }
@@ -161,8 +160,7 @@ public:
 protected:
 
 			Column( const HGlobIdx& gidx, const Dimensions& d,
-				int nc )
-			    : globidx_(gidx), dims_(d), nrcomps_(nc)	{}
+				int nc );
 
     const HGlobIdx	globidx_;
     const Dimensions	dims_;

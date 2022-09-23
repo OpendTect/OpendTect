@@ -67,6 +67,15 @@ static BufferString getUsrInfo()
 
 BufferString SeisPacketInfo::defaultusrinfo;
 
+SeisPacketInfo::SeisPacketInfo()
+{
+    clear();
+}
+
+
+SeisPacketInfo::~SeisPacketInfo()
+{}
+
 
 void SeisPacketInfo::initClass()
 { defaultusrinfo = getUsrInfo(); }
@@ -608,6 +617,14 @@ void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
 }
 
 
+Seis::Bounds::Bounds()
+{}
+
+
+Seis::Bounds::~Bounds()
+{}
+
+
 int Seis::Bounds::expectedNrTraces() const
 {
     int rg0 = start(true); int rg1 = stop(true); int delta = step(true);
@@ -692,6 +709,10 @@ Seis::Bounds2D::Bounds2D()
     mincoord_ = SI().minCoord( false );
     maxcoord_ = SI().maxCoord( false );
 }
+
+
+Seis::Bounds2D::~Bounds2D()
+{}
 
 
 IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )

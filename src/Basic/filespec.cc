@@ -36,6 +36,10 @@ FileSpec::FileSpec( const IOPar& iop )
 }
 
 
+FileSpec::~FileSpec()
+{}
+
+
 int FileSpec::nrFiles() const
 {
     const int nrfnms = fnames_.size();

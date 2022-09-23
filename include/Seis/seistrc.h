@@ -32,13 +32,10 @@ mExpClass(Seis) SeisTrc
 public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
-					   = DataCharacteristics() )
-			: intpol_(0)
-						{ data_.addComponent(ns,dc); }
-			SeisTrc( const SeisTrc& t )
-			: intpol_(0)
-						{ *this = t; }
+					   = DataCharacteristics() );
+			SeisTrc( const SeisTrc& t );
 			~SeisTrc();
+
     SeisTrc&		operator =(const SeisTrc& t);
     inline bool		isEmpty() const		{ return data_.isEmpty(); }
 
@@ -139,9 +136,8 @@ mExpClass(Seis) SeisTrcValueSeries : public ValueSeries<float>
 {
 public:
 
-		SeisTrcValueSeries( const SeisTrc& t, int c )
-		    : trc_(const_cast<SeisTrc&>(t))
-		    , icomp_(c)			{}
+		SeisTrcValueSeries( const SeisTrc& t, int c );
+		~SeisTrcValueSeries();
 
     void	setComponent( int idx )			{ icomp_ = idx; }
     float	value( od_int64 idx ) const override;
@@ -173,8 +169,8 @@ mExpClass(Seis) SeisTrcFunction : public FloatMathFunction
 {
 public:
 
-		SeisTrcFunction(const SeisTrc& trc, int icomp)
-		    : trc_(trc), icomp_(icomp)			{}
+		SeisTrcFunction(const SeisTrc& trc, int icomp);
+		~SeisTrcFunction();
 
     float	getValue( float z ) const override
 		{ return trc_.getValue(z,icomp_); }

@@ -38,11 +38,10 @@ public:
 
 			HdrEntry( const char* desc, const char* nm,
 				  BytePos bp=udfBP(), bool issmall=false,
-				  DataType dt=SInt )
-			    : bytepos_(bp), issmall_(issmall), type_(dt)
-			    , desc_(desc), name_(nm)	{}
-			HdrEntry( const HdrEntry& oth )
-							{ *this = oth; }
+				  DataType dt=SInt );
+			HdrEntry( const HdrEntry& oth );
+			~HdrEntry();
+
     HdrEntry&		operator =(const HdrEntry&);
 
     const char*		description() const;
@@ -82,7 +81,7 @@ protected:
 mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
-			~HdrDef()		{ deepErase( *this ); }
+			~HdrDef();
 
 			HdrDef(bool binhead);
     bool		isBin() const		{ return isbin_; }

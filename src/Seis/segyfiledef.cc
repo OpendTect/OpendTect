@@ -53,6 +53,19 @@ static const char* allsegyfmtoptions[] = {
 	0
 };
 
+SEGY::FileSpec::FileSpec( const char* fnm )
+    : ::FileSpec(fnm)
+{}
+
+
+SEGY::FileSpec::FileSpec( const IOPar& iop )
+    : ::FileSpec(iop)
+{}
+
+
+SEGY::FileSpec::~FileSpec()
+{}
+
 
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
@@ -86,6 +99,16 @@ void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
 	iostrm->fileSpec().fillPar( iop );
 }
 
+
+SEGY::FilePars::FilePars( bool forread )
+    : fmt_(forread?0:1)
+    , forread_(forread)
+    , coordsys_(SI().getCoordSystem())
+{}
+
+
+SEGY::FilePars::~FilePars()
+{}
 
 
 const char** SEGY::FilePars::getFmts( bool fr )
@@ -189,6 +212,10 @@ SEGY::FileReadOpts::FileReadOpts( Seis::GeomType gt )
     setGeomType( gt );
     thdef_.fromSettings();
 }
+
+
+SEGY::FileReadOpts::~FileReadOpts()
+{}
 
 
 void SEGY::FileReadOpts::setGeomType( Seis::GeomType gt )
@@ -371,6 +398,20 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool isrev0 ) const
 	}
     }
 }
+
+
+SEGY::OffsetCalculator::OffsetCalculator()
+    : type_(FileReadOpts::InFile)
+    , def_(0.f,1.f)
+    , is2d_(false)
+    , coordscale_(1.0f)
+{
+    reset();
+}
+
+
+SEGY::OffsetCalculator::~OffsetCalculator()
+{}
 
 
 void SEGY::OffsetCalculator::set( const SEGY::FileReadOpts& opts )

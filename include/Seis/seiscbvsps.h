@@ -190,6 +190,8 @@ public:
 
 			SeisCBVSPS2DWriter(const char* dirnm,Pos::GeomID);
 			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
+			~SeisCBVSPS2DWriter();
+
     uiString		errMsg() const override
 			{ return SeisCBVSPSIO::errMsg(); }
 

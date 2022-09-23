@@ -38,6 +38,7 @@ public:
 protected:
 				VelocityStretcher(const ZDomain::Def& from,
 						  const ZDomain::Def& to);
+				~VelocityStretcher();
 };
 
 
@@ -139,7 +140,7 @@ public:
     bool		usePar(const IOPar&) override;
 
 protected:
-			~Depth2TimeStretcher()				{}
+			~Depth2TimeStretcher();
 
     RefMan<Time2DepthStretcher>		stretcher_;
 };
@@ -197,6 +198,7 @@ protected:
 				LinearVelTransform(const ZDomain::Def& from,
 						   const ZDomain::Def& to,
 						   float v0, float dv);
+				~LinearVelTransform();
     void			transformT2D(const SamplingData<float>&,
 					     int sz,float* res) const;
     void			transformD2T(const SamplingData<float>&,
@@ -215,6 +217,7 @@ public:
 				  "LinearT2D", tr("Linear velocity") );
 
 				LinearT2DTransform(float v0=0, float dv=0);
+				~LinearT2DTransform();
 
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
@@ -238,6 +241,7 @@ public:
 				  "LinearD2T", tr("Linear velocity") );
 
 				LinearD2TTransform(float v0=0, float dv=0);
+				~LinearD2TTransform();
 
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,

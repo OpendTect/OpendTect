@@ -44,6 +44,10 @@ SeisDataPackFromDPS::SeisDataPackFromDPS( const DataPointSet& dps,
 }
 
 
+SeisDataPackFromDPS::~SeisDataPackFromDPS()
+{}
+
+
 od_int64 SeisDataPackFromDPS::nrIterations() const
 {
     return dps_.size();

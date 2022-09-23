@@ -658,3 +658,27 @@ bool Seis::ODSeqOut::put( const SeisTrc& trc )
     }
     return true;
 }
+
+
+Seis::SeqIO::SeqIO()
+{}
+
+
+Seis::SeqIO::~SeqIO()
+{}
+
+
+Seis::SeqInp::SeqInp()
+{}
+
+
+Seis::SeqInp::~SeqInp()
+{}
+
+
+Seis::SeqOut::SeqOut()
+{}
+
+
+Seis::SeqOut::~SeqOut()
+{}

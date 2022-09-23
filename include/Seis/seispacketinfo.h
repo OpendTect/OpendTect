@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
- 
+
 #include "seismod.h"
 #include "bufstring.h"
 #include "ranges.h"
@@ -23,8 +23,9 @@ mExpClass(Seis) SeisPacketInfo
 {
 public:
     static void		initClass();
-    
-			SeisPacketInfo()	{ clear(); }
+
+			SeisPacketInfo();
+			~SeisPacketInfo();
 
     BufferString	usrinfo;
     BufferString	stdinfo;

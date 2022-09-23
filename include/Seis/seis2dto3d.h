@@ -172,12 +172,14 @@ protected:
 mExpClass(Seis) SeisScaler
 { mODTextTranslationClass(SeisScaler);
 public:
+			SeisScaler();
 			SeisScaler(const SeisTrcBuf&);
+			~SeisScaler();
 
     void		scaleTrace(SeisTrc&);
 
 protected:
 
-    float		avgmaxval_;
-    float		avgminval_;
+    float		avgmaxval_ = 0.f;
+    float		avgminval_ = 0.f;
 };
