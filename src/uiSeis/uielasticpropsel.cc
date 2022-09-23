@@ -185,7 +185,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     storenamesep_ = new uiSeparator( this, "sep" );
     storenamesep_->attach( stretchedBelow, inpgrps_[inpgrps_.size()-1]  );
 
-    storenamefld_ = new uiGenInput( this, tr("Quantity name:") );
+    storenamefld_ = new uiGenInput( this, tr("Quantity name") );
     storenamefld_->attach( alignedBelow, inpgrps_[inpgrps_.size()-1] );
     storenamefld_->attach( ensureBelow, storenamesep_ );
 
