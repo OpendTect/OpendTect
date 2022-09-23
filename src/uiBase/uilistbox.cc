@@ -97,6 +97,15 @@ public:
 			{ itemmarked_[idx] = yn; }
     bool		validItemIndex(int idx)
 			{ return itemstrings_.validIdx( idx ); }
+    int			itemHeight() const
+			{
+			    if ( items_.isEmpty() )
+				return 0;
+
+			    auto* qitm = items_.first();
+			    QRect qrect = visualItemRect( qitm );
+			    return qrect.height();
+			}
 
     void		updateText(int idx);
 
@@ -1868,12 +1877,15 @@ void uiListBox::resizeHeightToContents( int minh, int maxh )
     if ( minh < 0 ) minh = sMinHeight;
     if ( maxh < 0 ) maxh = sMaxHeight;
 
-    int iconheight = 0;
-    QListWidgetItem* item0 = lb_->body().item(0);
-    if ( item0 && !item0->icon().isNull() )
-	iconheight = lb_->body().iconSize().height() + 2;
+    int itemheight = 0;
+    QListWidgetItem* qitm = lb_->body().item(0);
+    if ( qitm )
+    {
+	QRect qrect = lb_->body().visualItemRect( qitm );
+	itemheight = qrect.height();
+    }
 
-    int prefheight = nritems * mMAX(lb_->body().fontHeight(),iconheight);
+    int prefheight = nritems * mMAX(lb_->body().fontHeight(),itemheight);
     if ( prefheight < minh )
 	prefheight = minh;
     else if ( prefheight > maxh )
