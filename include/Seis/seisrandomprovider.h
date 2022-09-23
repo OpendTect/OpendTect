@@ -26,8 +26,8 @@ class SeisTrcReader;
 mExpClass(Seis) SeisRandomProvider : public CallBacker
 {
 public:
-    					SeisRandomProvider(const MultiID& mid);
-   					~SeisRandomProvider();
+					SeisRandomProvider(const MultiID&);
+					~SeisRandomProvider();
 
 
     void				requestTrace(const BinID&);
@@ -41,46 +41,13 @@ protected:
     void				triggerWork();
     void				readFinished(CallBacker*);
 
-    bool				isreading_;
+    bool				isreading_ = false;
 
     Threads::ConditionVar		lock_;
 
-    SeisTrcReader*			reader_;
-    SeisTrcTranslator*			translator_;
+    SeisTrcReader*			reader_ = nullptr;
+    SeisTrcTranslator*			translator_ = nullptr;
 
     SeisTrc				curtrace_;
     BinIDValueSet			wantedbids_;
-};
-
-
-
-mExpClass(Seis) SeisRandomRepository : public CallBacker
-{
-public:
-    				SeisRandomRepository( const MultiID& mid );
-				~SeisRandomRepository();
-
-    void			addInterest(const BinID&);
-    void			removeInterest(const BinID);
-
-    const SeisTrc*		getTrace(const BinID&) const;
-    Notifier<SeisRandomRepository>	traceAvailable;
-    const BinID&		newTraceBid() const { return newtracebid_; }
-
-protected:
-
-	struct TraceHolder : public ReferencedObject
-	{
-				TraceHolder() : trc_( 0 ) {}
-
-	    SeisTrc*		trc_;
-	protected:
-				~TraceHolder();
-	};
-
-    void				incomingTrace( CallBacker* );
-
-
-    MultiDimStorage<TraceHolder*>	storage_;
-    BinID				newtracebid_;
 };

@@ -15,11 +15,8 @@ ________________________________________________________________________
 #include "seistrctr.h"
 
 SeisRandomProvider::SeisRandomProvider( const MultiID& mid )
-    : reader_( 0 )
-    , translator_( 0 )
-    , wantedbids_( 0, false )
-    , isreading_( false )
-    , traceAvailable( this )
+    : wantedbids_(0,false)
+    , traceAvailable(this)
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
