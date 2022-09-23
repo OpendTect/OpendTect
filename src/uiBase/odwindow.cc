@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
-#include "envvars.h"
 #include "filepath.h"
 #include "keyboardevent.h"
 #include "oddirs.h"
