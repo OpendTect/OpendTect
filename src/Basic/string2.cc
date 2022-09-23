@@ -18,6 +18,7 @@
 #include "bufstringset.h"
 
 #include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <string.h>
 
@@ -888,6 +889,28 @@ const char* toString( od_int64 i )
 
 const char* toString( od_uint64 i )
 { return getStringFromUInt64(i, 0); }
+
+const char* toHexString( od_uint32 i, bool padded )
+{
+    mDeclStaticString( retstr );
+    if ( padded )
+	retstr.set( "0x" );
+    else
+	retstr.setEmpty();
+
+    std::stringstream stream;
+    stream << std::hex << i;
+    const std::string hexstr( stream.str() );
+    if ( padded )
+    {
+	const int len = hexstr.size();
+	for ( int idx=0; idx<8-len; idx++ )
+	    retstr.add( "0" );
+    }
+
+    retstr.add( hexstr.c_str() );
+    return retstr.buf();
+}
 
 const char* toString( float f )
 { return getStringFromFPNumber( f, false ); }
