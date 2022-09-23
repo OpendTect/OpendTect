@@ -29,22 +29,9 @@ mExpClass(Seis) SelSetup
 {
 public:
 
-		SelSetup( Seis::GeomType gt )
-		    : is2d_(Seis::is2D(gt))
-		    , isps_(Seis::isPS(gt))
-		    , onlyrange_(true)
-		    , fornewentry_(false)
-		    , multiline_(false)			//!< 2D only
-		    , withoutz_(false)
-		    , withstep_(true)			{}
-		SelSetup( bool is_2d, bool is_ps=false )
-		    : is2d_(is_2d)
-		    , isps_(is_ps)
-		    , onlyrange_(true)
-		    , fornewentry_(false)
-		    , multiline_(false)			//!< 2D only
-		    , withoutz_(false)
-		    , withstep_(true)			{}
+		SelSetup( Seis::GeomType gt );
+		SelSetup( bool is_2d, bool is_ps=false );
+		~SelSetup();
 
     mDefSetupClssMemb(SelSetup,bool,is2d)
     mDefSetupClssMemb(SelSetup,bool,isps)

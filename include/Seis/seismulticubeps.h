@@ -66,6 +66,7 @@ mExpClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
 			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
+			~MultiCubeSeisPS3DTranslator();
 
     virtual bool	isUserSelectable( bool fr ) const override
 			{ return fr; }

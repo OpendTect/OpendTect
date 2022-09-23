@@ -34,10 +34,9 @@ mExpClass(Seis) FileSpec : public ::FileSpec
 {
 public:
 
-			FileSpec( const char* fnm=0 )
-			    : ::FileSpec(fnm)		{}
-			FileSpec( const IOPar& iop )
-			    : ::FileSpec(iop)		{}
+			FileSpec( const char* fnm=0 );
+			FileSpec( const IOPar& iop );
+			~FileSpec();
 
     IOObj*		getIOObj(bool temporary) const;
 
@@ -51,10 +50,9 @@ public:
 mExpClass(Seis) FilePars
 {
 public:
-			FilePars( bool forread=true )
-			    : fmt_(forread?0:1)
-			    , forread_(forread)
-			    , coordsys_(SI().getCoordSystem()) {}
+			FilePars( bool forread=true );
+
+			~FilePars();
 
     int			ns_ = 0;
     int			fmt_;
@@ -100,6 +98,7 @@ mExpClass(Seis) FileReadOpts
 public:
 
 			FileReadOpts(Seis::GeomType gt=Seis::Vol);
+			~FileReadOpts();
 
     Seis::GeomType	geomType() const	{ return geom_; }
     void		setGeomType(Seis::GeomType);
@@ -160,11 +159,9 @@ protected:
 mExpClass(Seis) OffsetCalculator
 {
 public:
-			OffsetCalculator()
-			    : type_(FileReadOpts::InFile)
-			    , def_(0.f,1.f)
-			    , is2d_(false)
-			    , coordscale_(1.0f)		{ reset(); }
+			OffsetCalculator();
+			~OffsetCalculator();
+
     void		set(const FileReadOpts&);
 
     void		reset();

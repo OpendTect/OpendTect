@@ -27,11 +27,10 @@ mExpClass(Seis) SeisTrcBuf
 { mODTextTranslationClass(SeisTrcBuf);
 public:
 
-			SeisTrcBuf( bool ownr )
-				: owner_(ownr)	{}
-			SeisTrcBuf( const SeisTrcBuf& b )
-				: owner_(b.owner_) { b.copyInto( *this ); }
-    virtual		~SeisTrcBuf()		{ if ( owner_ ) deepErase(); }
+			SeisTrcBuf( bool ownr );
+			SeisTrcBuf( const SeisTrcBuf& b );
+    virtual		~SeisTrcBuf();
+
     inline void		setIsOwner( bool yn )	{ owner_ = yn; }
     inline bool		isOwner() const		{ return owner_; }
 
@@ -112,6 +111,7 @@ mExpClass(Seis) SeisBufReader : public Executor
 { mODTextTranslationClass(SeisBufReader);
 public:
 			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
+			~SeisBufReader();
 
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override

@@ -21,8 +21,8 @@ class Scaler;
 mExpClass(Seis) SeisTrcPropCalc
 {
 public:
-		SeisTrcPropCalc( const SeisTrc& t, int ic=0 )
-		: trc(t), curcomp(ic)		{}
+		SeisTrcPropCalc( const SeisTrc& t, int ic=0 );
+    virtual	~SeisTrcPropCalc();
 
     void	setComponent( int i )		{ curcomp = i; }
 
@@ -52,8 +52,8 @@ protected:
 mExpClass(Seis) SeisTrcPropChg : public SeisTrcPropCalc
 {
 public:
-		SeisTrcPropChg( SeisTrc& t, int ic=-1 )
-		: SeisTrcPropCalc(t,ic)		{}
+		SeisTrcPropChg( SeisTrc& t, int ic=-1 );
+		~SeisTrcPropChg();
 
     void	stack(const SeisTrc&,bool alongref=false,float wght=1);
     void	scale(float fac,float shft=0);

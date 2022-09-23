@@ -42,12 +42,38 @@ const char* SeisTrcTranslator::sKeySIWrite()
 					{ return "Enforce SurveyInfo Write"; }
 
 
+SeisTrcTranslator::ComponentData::ComponentData( const char* nm )
+    : BasicComponentInfo(nm)
+{}
+
+
+SeisTrcTranslator::ComponentData::ComponentData( const ComponentData& cd )
+    : BasicComponentInfo(cd)
+{}
+
+
 SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 						 const char* nm )
 	: BasicComponentInfo(nm)
 {
     datachar = trc.data().getInterpreter(icomp)->dataChar();
 }
+
+
+SeisTrcTranslator::ComponentData::~ComponentData()
+{}
+
+
+SeisTrcTranslator::TargetComponentData::TargetComponentData(
+					    const ComponentData& c, int idx )
+    : ComponentData(c)
+    , org(c)
+    , destidx(idx)
+{}
+
+
+SeisTrcTranslator::TargetComponentData::~TargetComponentData()
+{}
 
 
 const char*

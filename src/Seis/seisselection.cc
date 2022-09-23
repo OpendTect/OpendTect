@@ -28,6 +28,31 @@ ________________________________________________________________________
 #define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
 static const char* sKeyBinIDSel = "BinID selection";
 
+Seis::SelSetup::SelSetup( Seis::GeomType gt )
+    : is2d_(Seis::is2D(gt))
+    , isps_(Seis::isPS(gt))
+    , onlyrange_(true)
+    , fornewentry_(false)
+    , multiline_(false)			//!< 2D only
+    , withoutz_(false)
+    , withstep_(true)
+{}
+
+
+Seis::SelSetup::SelSetup( bool is_2d, bool is_ps )
+    : is2d_(is_2d)
+    , isps_(is_ps)
+    , onlyrange_(true)
+    , fornewentry_(false)
+    , multiline_(false)			//!< 2D only
+    , withoutz_(false)
+    , withstep_(true)
+{}
+
+
+Seis::SelSetup::~SelSetup()
+{}
+
 
 Seis::SelData::SelData()
     : isall_(false)

@@ -31,6 +31,26 @@ const char* TrcHeaderDef::sPickByte()	{ return "Pick byte"; }
 }
 
 
+SEGY::HdrEntry::HdrEntry( const char* desc, const char* nm, BytePos bp,
+			  bool issmall, DataType dt )
+    : bytepos_(bp)
+    , issmall_(issmall)
+    , type_(dt)
+    , desc_(desc)
+    , name_(nm)
+{}
+
+
+SEGY::HdrEntry::HdrEntry( const HdrEntry& oth )
+{
+    *this = oth;
+}
+
+
+SEGY::HdrEntry::~HdrEntry()
+{}
+
+
 SEGY::HdrEntry& SEGY::HdrEntry::operator =( const SEGY::HdrEntry& he )
 {
     if ( this != &he )
@@ -401,6 +421,12 @@ SEGY::HdrDef::HdrDef( bool binhead )
 	entry.bytepos_ = bytnr;
 	bytnr += mCast( SEGY::HdrEntry::BytePos, entry.byteSize() );
     }
+}
+
+
+SEGY::HdrDef::~HdrDef()
+{
+    deepErase( *this );
 }
 
 

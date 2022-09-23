@@ -25,6 +25,10 @@ SeisEventSnapper::SeisEventSnapper( const Interval<float>& gate	)
 }
 
 
+SeisEventSnapper::~SeisEventSnapper()
+{}
+
+
 float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 {
     SeisTrcValueSeries valseries( trc, 0 );

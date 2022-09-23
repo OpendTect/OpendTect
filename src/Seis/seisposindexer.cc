@@ -15,6 +15,13 @@ ________________________________________________________________________
 
 static const int cMaxReasonableNrSegs = 100000;
 
+Seis::PosKeyList::PosKeyList()
+{}
+
+
+Seis::PosKeyList::~PosKeyList()
+{}
+
 
 Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
 			      bool excludeunreasonable )

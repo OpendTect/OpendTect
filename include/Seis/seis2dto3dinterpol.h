@@ -32,7 +32,7 @@ mExpClass(Seis) Seis2DTo3DInterPol : public Executor
 public:
     mDefineFactoryInClass(Seis2DTo3DInterPol,factory);
 			Seis2DTo3DInterPol();
-			~Seis2DTo3DInterPol();
+			virtual ~Seis2DTo3DInterPol();
 
     const char*		message() const override
 			{ return errmsg_ ? "interpolating"

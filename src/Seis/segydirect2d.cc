@@ -68,6 +68,10 @@ SEGYDirect2DLineIOProvider::SEGYDirect2DLineIOProvider()
 }
 
 
+SEGYDirect2DLineIOProvider::~SEGYDirect2DLineIOProvider()
+{}
+
+
 bool SEGYDirect2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {
@@ -382,6 +386,17 @@ bool SEGYDirect2DLinePutter::close()
 
 const char* SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID()
 { return "SEGY Direct ID"; }
+
+
+SEGYDirectSurvGeom2DTranslator::SEGYDirectSurvGeom2DTranslator(const char* s1,
+							       const char* s2)
+    : SurvGeom2DTranslator(s1,s2)
+{}
+
+
+SEGYDirectSurvGeom2DTranslator::~SEGYDirectSurvGeom2DTranslator()
+{}
+
 
 Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
 				const IOObj& ioobj, uiString& errmsg ) const

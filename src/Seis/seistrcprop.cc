@@ -52,6 +52,16 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
     mtrc().set( idx, val / (wght + 1.f), icomp ); \
 }
 
+
+SeisTrcPropChg::SeisTrcPropChg( SeisTrc& t, int ic )
+    : SeisTrcPropCalc(t,ic)
+{}
+
+
+SeisTrcPropChg::~SeisTrcPropChg()
+{}
+
+
 void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 {
     mChkSize();
@@ -334,6 +344,17 @@ mEndCompLoop
 
 #undef mChkSize
 #define mChkSize() const int sz = trc.size(); if ( sz < 1 ) return 0
+
+
+SeisTrcPropCalc::SeisTrcPropCalc( const SeisTrc& t, int ic )
+    : trc(t)
+    , curcomp(ic)
+{}
+
+
+SeisTrcPropCalc::~SeisTrcPropCalc()
+{}
+
 
 float SeisTrcPropCalc::getFreq( float z ) const
 {

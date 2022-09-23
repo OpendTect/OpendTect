@@ -33,7 +33,7 @@ mExpClass(Seis) DirectReader
 { mODTextTranslationClass(DirectReader);
 public:
 
-					DirectReader()		{}
+					DirectReader();
     virtual				~DirectReader();
 
     virtual DirectDef*			getDef()		= 0;
@@ -119,6 +119,7 @@ mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
   isTranslator(SEGYDirect,SeisPS3D)
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
+			~SEGYDirectSeisPS3DTranslator();
 
     bool		isUserSelectable( bool fr ) const override
 			{ return fr; }
@@ -138,6 +139,7 @@ mExpClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
   isTranslator(SEGYDirect,SeisPS2D)
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
+			~SEGYDirectSeisPS2DTranslator();
 
     bool		isUserSelectable( bool fr ) const override
 			{ return fr; }
@@ -153,6 +155,7 @@ public:
 
 			SEGYDirectSeisTrcTranslator(const char*,const char*);
 			~SEGYDirectSeisTrcTranslator();
+
     const char*		defExtension() const override	{ return "sgydef"; }
 
     bool		readInfo(SeisTrcInfo&) override;

@@ -682,9 +682,12 @@ void SeisInterpol::setUpData()
     cl.calculateRange( 0.1, rg );\
     max = rg.stop; min = rg.start;\
 
+
+SeisScaler::SeisScaler()
+{}
+
+
 SeisScaler::SeisScaler( const SeisTrcBuf& trcs )
-    : avgmaxval_(0)
-    , avgminval_(0)
 {
     for ( int idtrc=0; idtrc<trcs.size(); idtrc++ )
     {
@@ -695,6 +698,10 @@ SeisScaler::SeisScaler( const SeisTrcBuf& trcs )
 	avgminval_ += minval / trcs.size();
     }
 }
+
+
+SeisScaler::~SeisScaler()
+{}
 
 
 void SeisScaler::scaleTrace( SeisTrc& trc )

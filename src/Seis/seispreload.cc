@@ -40,6 +40,10 @@ PreLoader::PreLoader( const MultiID& mid, Pos::GeomID geomid, TaskRunner* trn )
 {}
 
 
+PreLoader::~PreLoader()
+{}
+
+
 IOObj* PreLoader::getIOObj() const
 {
     IOObj* ret = IOM().get( mid_ );
@@ -316,6 +320,10 @@ PreLoadDataEntry::PreLoadDataEntry( const DataPack& dp, const MultiID& mid,
 	name_.add( geom->getName() );
     }
 }
+
+
+PreLoadDataEntry::~PreLoadDataEntry()
+{}
 
 
 bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const

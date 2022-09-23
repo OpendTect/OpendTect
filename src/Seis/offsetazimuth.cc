@@ -12,12 +12,18 @@ ________________________________________________________________________
 
 
 #define mAzimuthFactor	0.012295862	//2PI/511
-#define mAzimuthUndef	511		
-#define mAzimuthMask	511		
+#define mAzimuthUndef	511
+#define mAzimuthMask	511
 #define mOffsetFactor	0.1f		//Decimeters
 #define mOffsetMax      4194302
 #define mOffsetMin      -4194302	//Decimeters
 #define mOffsetUndef    4194303
+
+
+OffsetAzimuth::OffsetAzimuth()
+    : offsetazi_( 0 )
+{}
+
 
 OffsetAzimuth::OffsetAzimuth( float off, float azi )
     : offsetazi_( 0 )
@@ -25,6 +31,10 @@ OffsetAzimuth::OffsetAzimuth( float off, float azi )
     setOffset( off );
     setAzimuth( azi );
 }
+
+
+OffsetAzimuth::~OffsetAzimuth()
+{}
 
 
 bool OffsetAzimuth::operator==( const OffsetAzimuth& b ) const
@@ -66,7 +76,7 @@ bool OffsetAzimuth::isOffsetUndef() const
     const int offset_10 = offsetazi_>>9;
     return offset_10==mOffsetUndef;
 }
-	
+
 
 bool OffsetAzimuth::isAzimuthUndef() const
 {
@@ -97,7 +107,7 @@ void OffsetAzimuth::setOffset( float off )
 
     offsetazi_ = ioffset+iazimuth;
 }
-    
+
 
 void OffsetAzimuth::setAzimuth( float azi )
 {
@@ -107,7 +117,7 @@ void OffsetAzimuth::setAzimuth( float azi )
 	offsetazi_ += mAzimuthUndef;
 	return;
     }
-	
+
     const float twopi = M_PI * 2;
     while ( azi<0 ) azi += twopi;
     while ( azi>=twopi ) azi -= twopi;

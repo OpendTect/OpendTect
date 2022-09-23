@@ -105,8 +105,8 @@ mExpClass(Seis) WaveletValueSeries : public ValueSeries<float>
 { mODTextTranslationClass(WaveletValueSeries);
 public:
 
-			WaveletValueSeries( const Wavelet& wv )
-			    :wv_(const_cast<Wavelet&>(wv)) {}
+			WaveletValueSeries( const Wavelet& wv );
+			~WaveletValueSeries();
 
     float		value( od_int64 idx ) const override;
     bool		writable() const override		{ return true; }
@@ -132,9 +132,8 @@ protected:
 mExpClass(Seis) WaveletFunction : public FloatMathFunction
 { mODTextTranslationClass(WaveletFunction);
 public:
-		WaveletFunction(const Wavelet& wv)
-		    : wv_(wv)
-		{}
+		WaveletFunction(const Wavelet& wv);
+		~WaveletFunction();
 
     float	getValue( float z ) const override { return wv_.getValue(z); }
     float	getValue( const float* p ) const { return getValue(*p); }

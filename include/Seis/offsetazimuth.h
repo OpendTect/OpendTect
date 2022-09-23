@@ -23,8 +23,10 @@ circle).
 mExpClass(Seis) OffsetAzimuth
 {
 public:
-			OffsetAzimuth() : offsetazi_( 0 ) 		{}
+			OffsetAzimuth();
 			OffsetAzimuth(float off,float azi);
+			~OffsetAzimuth();
+
     bool		operator==(const OffsetAzimuth&) const;
     bool		operator!=(const OffsetAzimuth&) const;
 

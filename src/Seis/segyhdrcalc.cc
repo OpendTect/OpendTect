@@ -15,6 +15,16 @@ ________________________________________________________________________
 #include "settings.h"
 
 
+SEGY::HdrCalc::HdrCalc( const HdrEntry& he, const char* def )
+    : he_(he)
+    , def_(def)
+{}
+
+
+SEGY::HdrCalc::~HdrCalc()
+{}
+
+
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
     : hdef_(hd)
     , trcidxhe_("Trace index (sequence) number in file","INDEXNR")

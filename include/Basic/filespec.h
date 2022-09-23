@@ -27,6 +27,7 @@ public:
 
 			FileSpec(const char* fnm=0);
 			FileSpec(const IOPar&);
+			virtual ~FileSpec();
 
     BufferStringSet	fnames_;
     StepInterval<int>	nrs_;

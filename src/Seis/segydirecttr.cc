@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "uistrings.h"
 
+SEGY::DirectReader::DirectReader()
+{}
+
 
 SEGY::DirectReader::~DirectReader()
 {
@@ -730,3 +733,11 @@ bool SEGYDirectSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
     cd = def_->cubeData();
     return true;
 }
+
+
+SEGYDirectSeisPS3DTranslator::~SEGYDirectSeisPS3DTranslator()
+{}
+
+
+SEGYDirectSeisPS2DTranslator::~SEGYDirectSeisPS2DTranslator()
+{}

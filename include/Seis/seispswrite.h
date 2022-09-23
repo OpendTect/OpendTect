@@ -31,8 +31,8 @@ class BufferStringSet;
 mExpClass(Seis) SeisPSWriter
 {
 public:
-
-    virtual		~SeisPSWriter()			{}
+			SeisPSWriter();
+    virtual		~SeisPSWriter();
 
     virtual void	usePar(const IOPar&)		{}
     virtual bool	fullSortingRequired() const	{ return true; }

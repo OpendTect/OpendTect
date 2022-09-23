@@ -24,6 +24,7 @@ mExpClass(Seis) SEGYDirect2DLineIOProvider : public Seis2DLineIOProvider
 public:
 
 			SEGYDirect2DLineIOProvider();
+			~SEGYDirect2DLineIOProvider();
 
     bool		isEmpty(const IOObj&,Pos::GeomID) const override;
 
@@ -104,9 +105,8 @@ mExpClass(Seis) SEGYDirectSurvGeom2DTranslator : public SurvGeom2DTranslator
 {
 			isTranslator(SEGYDirect,SurvGeom2D);
 public:
-			SEGYDirectSurvGeom2DTranslator(const char* s1,
-						       const char* s2)
-			    : SurvGeom2DTranslator(s1,s2)	{}
+			SEGYDirectSurvGeom2DTranslator(const char*,const char*);
+			~SEGYDirectSurvGeom2DTranslator();
 
     Survey::Geometry*	readGeometry(const IOObj&,uiString&) const override;
     bool		writeGeometry(IOObj&,Survey::Geometry&,

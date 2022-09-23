@@ -22,6 +22,7 @@ mExpClass(Seis) SeisEventSnapper : public Executor
 {
 public:
 				SeisEventSnapper( const Interval<float>& gate);
+				~SeisEventSnapper();
 
     void			setEvent( VSEvent::Type tp )
     				{ eventtype_ = tp; }

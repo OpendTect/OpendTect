@@ -42,6 +42,10 @@ VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
 }
 
 
+VelocityStretcher::~VelocityStretcher()
+{}
+
+
 Time2DepthStretcher::Time2DepthStretcher()
     : VelocityStretcher(ZDomain::Time(),ZDomain::Depth())
     , velreader_( 0 )
@@ -689,6 +693,10 @@ Depth2TimeStretcher::Depth2TimeStretcher()
 }
 
 
+Depth2TimeStretcher::~Depth2TimeStretcher()
+{}
+
+
 bool Depth2TimeStretcher::setVelData( const MultiID& mid )
 { return stretcher_->setVelData( mid ); }
 
@@ -941,6 +949,9 @@ LinearVelTransform::LinearVelTransform(const ZDomain::Def& from,
 {}
 
 
+LinearVelTransform::~LinearVelTransform()
+{}
+
 
 bool LinearVelTransform::usePar( const IOPar& par )
 {
@@ -997,6 +1008,10 @@ LinearT2DTransform::LinearT2DTransform( float startvel, float dv )
 {}
 
 
+LinearT2DTransform::~LinearT2DTransform()
+{}
+
+
 void LinearT2DTransform::transformTrc( const TrcKey&,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
@@ -1048,6 +1063,10 @@ float LinearT2DTransform::getGoodZStep() const
 //LinearD2TTransform
 LinearD2TTransform::LinearD2TTransform( float startvel, float dv )
     : LinearVelTransform(ZDomain::Depth(),ZDomain::Time(), startvel, dv)
+{}
+
+
+LinearD2TTransform::~LinearD2TTransform()
 {}
 
 

@@ -19,6 +19,19 @@ ________________________________________________________________________
 
 const float SeisTrc::snapdist = Seis::cDefSampleSnapDist();
 
+SeisTrc::SeisTrc( int ns, const DataCharacteristics& dc )
+    : intpol_(0)
+{
+    data_.addComponent(ns,dc);
+}
+
+
+SeisTrc::SeisTrc( const SeisTrc& t )
+    : intpol_(0)
+{
+    *this = t;
+}
+
 
 SeisTrc::~SeisTrc()
 {
@@ -406,6 +419,16 @@ void SeisTrc::reverse( int icomp )
 }
 
 
+SeisTrcValueSeries::SeisTrcValueSeries( const SeisTrc& t, int c )
+    : trc_(const_cast<SeisTrc&>(t))
+    , icomp_(c)
+{}
+
+
+SeisTrcValueSeries::~SeisTrcValueSeries()
+{}
+
+
 float SeisTrcValueSeries::value( od_int64 idx ) const
 { return trc_.get((int) idx,icomp_); }
 
@@ -450,3 +473,13 @@ bool SeisTrcValueSeries::copytoArray( Array1D<float>& seistrcarr )
 
 const float* SeisTrcValueSeries::arr() const
 { return const_cast<SeisTrcValueSeries*>( this )->arr(); }
+
+
+SeisTrcFunction::SeisTrcFunction(const SeisTrc& trc, int icomp)
+    : trc_(trc)
+    , icomp_(icomp)
+{}
+
+
+SeisTrcFunction::~SeisTrcFunction()
+{}

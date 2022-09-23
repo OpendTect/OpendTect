@@ -35,6 +35,16 @@ Pos::GeomID SeisPS3DReader::geomID() const
     return Survey::default3DGeomID();
 }
 
+
+SeisPSIOProvider::SeisPSIOProvider( const char* t )
+    : type_(t)
+{}
+
+
+SeisPSIOProvider::~SeisPSIOProvider()
+{}
+
+
 SeisPS3DReader*	SeisPSIOProvider::get3DReader( const IOObj& ioobj,
 						int inl ) const
 { return make3DReader( ioobj.fullUserExpr(true), inl ); }
@@ -244,6 +254,14 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 }
 
 
+SeisPSReader::SeisPSReader()
+{}
+
+
+SeisPSReader::~SeisPSReader()
+{}
+
+
 SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 {
     SeisTrcBuf buf( true );
@@ -262,6 +280,10 @@ StepInterval<float> SeisPSReader::getZRange() const
 
 mDefSimpleTranslatorioContext(SeisPS3D,Seis)
 mDefSimpleTranslatorioContext(SeisPS2D,Seis)
+
+
+SeisPS3DTranslator::~SeisPS3DTranslator()
+{}
 
 
 bool SeisPS3DTranslator::implRemove( const IOObj* ioobj, bool ) const
@@ -301,6 +323,10 @@ bool SeisPS3DTranslator::implRename( const IOObj* ioobj,
 }
 
 
+CBVSSeisPS3DTranslator::~CBVSSeisPS3DTranslator()
+{}
+
+
 bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 {
     if ( !ioobj )
@@ -314,6 +340,10 @@ bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 
     return !File::exists(fnm);
 }
+
+
+CBVSSeisPS2DTranslator::~CBVSSeisPS2DTranslator()
+{}
 
 
 bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj, bool ) const
@@ -547,3 +577,23 @@ bool SeisPSCubeSeisTrcTranslator::skip( int nr )
     }
     return true;
 }
+
+
+SeisPS2DTranslator::~SeisPS2DTranslator()
+{}
+
+
+SeisPS3DReader::SeisPS3DReader()
+{}
+
+
+SeisPS3DReader::~SeisPS3DReader()
+{}
+
+
+SeisPSWriter::SeisPSWriter()
+{}
+
+
+SeisPSWriter::~SeisPSWriter()
+{}

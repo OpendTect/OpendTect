@@ -68,6 +68,10 @@ SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
 }
 
 
+SeisCBVS2DLineIOProvider::~SeisCBVS2DLineIOProvider()
+{}
+
+
 bool SeisCBVS2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {

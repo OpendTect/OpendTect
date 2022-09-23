@@ -31,8 +31,8 @@ namespace PosInfo { class CubeData; class Line2DData; }
 mExpClass(Seis) SeisPSReader
 {
 public:
-
-    virtual		~SeisPSReader()					{}
+			SeisPSReader();
+    virtual		~SeisPSReader();
     virtual bool	is3D() const					= 0;
     virtual bool	is2D() const					= 0;
     virtual Pos::GeomID geomID() const					= 0;
@@ -55,7 +55,8 @@ public:
 mExpClass(Seis) SeisPS3DReader : public SeisPSReader
 {
 public:
-
+			SeisPS3DReader();
+			~SeisPS3DReader();
     bool		is3D() const override	{ return true; }
     bool		is2D() const override	{ return false; }
     Pos::GeomID		geomID() const override;
@@ -72,6 +73,7 @@ mExpClass(Seis) SeisPS2DReader : public SeisPSReader
 public:
 			SeisPS2DReader(const char* lnm);
 			SeisPS2DReader(Pos::GeomID);
+			~SeisPS2DReader();
 
     bool		is3D() const override	{ return false; }
     bool		is2D() const override	{ return true; }

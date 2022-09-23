@@ -28,6 +28,7 @@ mExpClass(Seis) PreLoader
 public:
 			PreLoader(const MultiID&,Pos::GeomID=Pos::GeomID::udf(),
 				  TaskRunner* =nullptr);
+			~PreLoader();
 
     const MultiID&	id() const			{ return mid_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
@@ -83,6 +84,7 @@ mExpClass(Seis) PreLoadDataEntry
 public:
 			PreLoadDataEntry(const DataPack&,const MultiID&,
 					 Pos::GeomID);
+			~PreLoadDataEntry();
 
     bool		equals(const MultiID&,Pos::GeomID) const;
     DataPackID	dpID() const;

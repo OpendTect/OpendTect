@@ -58,6 +58,7 @@ mExpClass(Seis) SeisRandomRepository : public CallBacker
 {
 public:
     				SeisRandomRepository( const MultiID& mid );
+				~SeisRandomRepository();
 
     void			addInterest(const BinID&);
     void			removeInterest(const BinID);

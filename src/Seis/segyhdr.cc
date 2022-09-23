@@ -94,6 +94,13 @@ static const char* sSeparatorLine()
 }
 
 
+SEGY::TxtHeader::TxtHeader()
+    : revision_(1)
+{
+    clearText();
+}
+
+
 SEGY::TxtHeader::TxtHeader( int rev )
     : revision_(rev)
 {

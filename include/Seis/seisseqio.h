@@ -32,6 +32,8 @@ class Bounds;
 mExpClass(Seis) SeqIO
 { mODTextTranslationClass(SeqIO);
 public:
+			SeqIO();
+    virtual		~SeqIO();
 
     virtual const char* type() const			= 0;
     virtual Seis::GeomType geomType() const		= 0;
@@ -53,6 +55,8 @@ protected:
 mExpClass(Seis) SeqInp : public SeqIO
 { mODTextTranslationClass(SeqInp);
 public:
+			SeqInp();
+			~SeqInp();
 
     virtual bool	get(SeisTrc&) const		= 0;
 
@@ -71,11 +75,11 @@ protected:
 
 
 /*!\brief OpendTect-internal Seismic Sequential input
- 
+
   Set the reader via usePar or explicitly. The idea is to either provide
   a PreStackReader or a SeisTrcReader. If both present, SeisTrcReader will
   be used.
- 
+
  */
 
 
@@ -118,6 +122,8 @@ protected:
 mExpClass(Seis) SeqOut : public SeqIO
 { mODTextTranslationClass(SeqOut);
 public:
+			SeqOut();
+			~SeqOut();
 
     virtual bool	put(const SeisTrc&)		= 0;
 
@@ -133,7 +139,7 @@ public:
 /*!\brief Seismic Sequential output via SeistrcWriter
 
   The wrr_ will be deleted on destruction.
- 
+
  */
 
 mExpClass(Seis) ODSeqOut : public SeqOut
