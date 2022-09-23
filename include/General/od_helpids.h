@@ -44,7 +44,6 @@ ________________________________________________________________________
 #define		mmcmddriverimpsHelpID				0x00004003
 #define		mODApplMgraddTimeDepthSceneHelpID		0x00004004
 #define		mODApplMgrDispatchersetAutoUpdatePolHelpID	0x00004005
-#define		mHandleDLSiteFailHelpID				0x00004006
 #define		mProxyDlgHelpID					0x00004007
 #define		mExp2DGeomHelpID				0x00004008
 #define		mLatLong2CoordFileTransDlgHelpID		0x00004009
