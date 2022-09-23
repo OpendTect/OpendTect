@@ -348,14 +348,7 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d,
     sipfld_->addItem( tr("Enter by hand") ); // always last
     sipfld_->setIcon( sipfld_->size()-1, "manualenter" );
     sipfld_->setCurrentItem( preferredsel < 0 ? 0 : preferredsel );
-
-    int maxlen = 0;
-    for ( int idx=0; idx<sipfld_->size(); idx++ )
-    {
-	const int len = StringView( sipfld_->textOfItem(idx) ).size();
-	if ( len > maxlen ) maxlen = len;
-    }
-    sipfld_->setPrefWidthInChar( maxlen + 5 );
+    sipfld_->resizeToContents();
 }
 
 

@@ -250,6 +250,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow, bool is2d )
     uiLabel* availablelabel = new uiLabel( flowgrp, tr("Available steps") );
     factorylist_ = new uiListBox( flowgrp, "Processing methods" );
     factorylist_->addItems( uinames );
+    factorylist_->resizeHeightToContents();
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
