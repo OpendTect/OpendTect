@@ -121,7 +121,7 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 
 	const int sticknr = pid.getRowCol().row();
 	mDynamicCastGet(Geometry::FaultStickSet*,fss,geometryElement())
-	if ( !doublesref || nrStickDoubles(sticknr,doublesref) )
+	if ( !doublesref || nrStickDoubles(sticknr,doublesref)>0 )
 	    fss->selectStick( sticknr, select );
     }
 }
