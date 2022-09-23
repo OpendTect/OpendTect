@@ -39,7 +39,28 @@ uiString HelpProvider::description( const HelpKey& key )
     if ( !provider )
 	return uiString::emptyString();
 
-    return provider->description( key.argument_ );
+    if ( !key.argument_.isNumber(true) )
+	return provider->description( key.argument_ );
+
+#ifdef __debug__
+    static bool shwhid = true;
+#else
+    static bool shwhid = GetEnvVarYN( "DTECT_SHOW_HELP" );
+#endif
+    if ( shwhid )
+    {
+	BufferString argstr( key.argument_ );
+	const int id = key.argument_.toInt();
+	if ( id >= 0 )
+	{
+	    const od_uint32 uid = sCast(od_uint32,id);
+	    argstr.set( toHexString(uid) );
+	}
+
+	return provider->description( argstr.buf() );
+    }
+
+    return od_static_tr( "HelpProvider", "Help on this window" );
 }
 
 
