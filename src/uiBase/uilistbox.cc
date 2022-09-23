@@ -286,8 +286,8 @@ uiSize uiListBoxBody::minimumSize() const
 
 int uiListBoxBody::itemIdxAtEvPos( QMouseEvent& ev ) const
 {
-    const QListWidgetItem* itm = itemAt( ev.pos() );
-    return itm ? row( itm ) : -1;
+    const QListWidgetItem* qitm = itemAt( ev.pos() );
+    return qitm ? row( qitm ) : -1;
 }
 
 
@@ -828,12 +828,12 @@ void uiListBox::menuCB( CallBacker* )
 }
 
 
-void uiListBox::handleCheckChange( QListWidgetItem* itm )
+void uiListBox::handleCheckChange( QListWidgetItem* qitm )
 {
-    mDynamicCastGet(uiListBoxItem*,lbitm,itm)
+    mDynamicCastGet(uiListBoxItem*,lbitm,qitm)
     if ( !lbitm ) return;
 
-    const bool ischecked = itm->checkState() == 2;
+    const bool ischecked = qitm->checkState() == 2;
     if ( lbitm->ischecked_ == ischecked )
 	return;
 
@@ -1042,8 +1042,8 @@ void uiListBox::displayItem( int index, bool yn )
     if ( index < 0 || index >= size() )
 	return;
 
-    QListWidgetItem* itm = lb_->body().item( index );
-    itm->setHidden( !yn );
+    QListWidgetItem* qitm = lb_->body().item( index );
+    qitm->setHidden( !yn );
 }
 
 
@@ -1052,8 +1052,8 @@ void uiListBox::setItemSelectable( int index, bool yn )
     if ( index < 0 || index >= size() )
 	return;
 
-    QListWidgetItem* itm = lb_->body().item( index );
-    Qt::ItemFlags flags = itm->flags();
+    QListWidgetItem* qitm = lb_->body().item( index );
+    Qt::ItemFlags flags = qitm->flags();
     bool issel = flags.testFlag( Qt::ItemIsEnabled );
     if ( issel == yn )
 	return;
@@ -1063,7 +1063,7 @@ void uiListBox::setItemSelectable( int index, bool yn )
     else
 	flags ^= Qt::ItemIsEnabled;
 
-    itm->setFlags( flags );
+    qitm->setFlags( flags );
 }
 
 
@@ -1104,27 +1104,41 @@ void uiListBox::setIcon( int index, const char* iconnm )
 void uiListBox::setColor( int index, const OD::Color& col )
 {
     QColor qcol( col.r(), col.g(), col.b() );
-    QListWidgetItem* itm = lb_->body().item( index );
-    if ( itm )
-	itm->setBackground( qcol );
+    QListWidgetItem* qitm = lb_->body().item( index );
+    if ( qitm )
+	qitm->setBackground( qcol );
 }
 
 
 void uiListBox::setDefaultColor( int index )
 {
-    QListWidgetItem* itm = lb_->body().item( index );
-    if ( itm )
-	itm->setBackground( QBrush() );
+    QListWidgetItem* qitm = lb_->body().item( index );
+    if ( qitm )
+	qitm->setBackground( QBrush() );
+}
+
+
+void uiListBox::setBold( int index, bool yn )
+{
+    QListWidgetItem* qitm = lb_->body().item( index );
+    if ( !qitm )
+	return;
+
+
+    QFont qfont = qitm->font();
+    qfont.setStyleName("");
+    qfont.setBold( yn );
+    qitm->setFont( qfont );
 }
 
 
 OD::Color uiListBox::getColor( int index ) const
 {
-    QListWidgetItem* itm = lb_->body().item( index );
-    if ( !itm )
+    QListWidgetItem* qitm = lb_->body().item( index );
+    if ( !qitm )
 	return OD::Color(255,255,255);
 
-    const QColor qcol = itm->background().color();
+    const QColor qcol = qitm->background().color();
     return OD::Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
