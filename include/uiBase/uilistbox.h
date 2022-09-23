@@ -162,6 +162,7 @@ public:
     void		setColor(int,const OD::Color&);
     void		setDefaultColor(int);
     OD::Color		getColor(int) const;
+    void		setBold(int,bool);
 
     void		sortItems(bool asc=true);
 
