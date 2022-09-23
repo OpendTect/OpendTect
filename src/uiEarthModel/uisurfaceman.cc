@@ -599,7 +599,7 @@ static void addZRangeTxt( BufferString& txt, const Interval<float>& zrange,
 
     txt += "Z range";
     BufferString zunitsym;
-    if ( zunit )
+    if ( !zunit )
 	zunitsym = SI().getZUnitString();
     else
     {
