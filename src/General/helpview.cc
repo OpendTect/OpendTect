@@ -7,6 +7,8 @@
 
 
 #include "helpview.h"
+
+#include "envvars.h"
 #include "keystrs.h"
 #include "separstr.h"
 
