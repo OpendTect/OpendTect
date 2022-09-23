@@ -1129,19 +1129,10 @@ uiObject* uiDialogBody::createChildren()
     const HelpKey helpkey = dlg.helpKey();
     if ( !helpkey.isEmpty() )
     {
-	mDefineStaticLocalObject( bool, shwhid,
-				  = GetEnvVarYN("DTECT_SHOW_HELP") );
-#ifdef __debug__
-	shwhid = true;
-#endif
-
 	helpbut_ = uiButton::getStd( butgrp, OD::Help,
 				mCB(this,uiDialogBody,provideHelp), true,
 				uiString::emptyString() );
-	if ( shwhid )
-	    helpbut_->setToolTip( HelpProvider::description(helpkey) );
-	else
-	    helpbut_->setToolTip( tr("Help on this window") );
+	helpbut_->setToolTip( HelpProvider::description(helpkey) );
     }
 
     const HelpKey videokey = videoKey(0);
@@ -1151,13 +1142,10 @@ uiObject* uiDialogBody::createChildren()
 	videobut_ = uiButton::getStd( butgrp, OD::Video, cb, true,
 				uiString::emptyString() );
 	if ( videokeys_.size()==1 )
-	{
-	    uiString tt = HelpProvider::description( videokey );
-	    videobut_->setToolTip( tt );
-	}
+	    videobut_->setToolTip( HelpProvider::description( videokey ) );
 	else
 	{
-	    uiMenu* menu = new uiMenu();
+	    auto* menu = new uiMenu();
 	    for ( int idx=0; idx<videokeys_.size(); idx++ )
 	    {
 		const HelpKey& curkey = videokeys_[idx];

@@ -34,6 +34,7 @@ mGlobal(Basic) const char* toString(od_int32);
 mGlobal(Basic) const char* toString(od_uint32);
 mGlobal(Basic) const char* toString(od_int64);
 mGlobal(Basic) const char* toString(od_uint64);
+mGlobal(Basic) const char* toHexString(od_uint32,bool padded=true);
 mGlobal(Basic) const char* toString(float);
 mGlobal(Basic) const char* toString(float,int nrdec);
 mGlobal(Basic) const char* toString(float,char format,int precision);
