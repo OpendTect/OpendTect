@@ -19,6 +19,9 @@ mExpClass(visBase) Lines : public VertexShape
 public:
     static Lines*		create()
 				mCreateDataObj(Lines);
+
+protected:
+				~Lines();
 };
 
 } // namespace visBase
