@@ -27,6 +27,10 @@ DrawStyle::DrawStyle()
 {}
 
 
+DrawStyle::~DrawStyle()
+{}
+
+
 void DrawStyle::setDrawStyle( Style s )
 {
     pErrMsg( "Set drawstyle");

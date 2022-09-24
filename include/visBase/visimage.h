@@ -44,24 +44,4 @@ protected:
 
 };
 
-
-mExpClass(visBase) RGBImage : public OD::RGBImage
-{
-public:
-    		RGBImage();
-    		RGBImage(SbImage*);
-
-    bool	hasAlpha() const;
-    char	nrComponents() const;
-    bool	setSize(int,int);
-    int		getSize(bool xdir) const;
-    Color	get(int,int) const;
-    bool	set(int,int,const Color&);
-
-    void	fill(unsigned char*) const;
-protected:
-
-    SbImage*	image_;
-};
-
 } // namespace visBase

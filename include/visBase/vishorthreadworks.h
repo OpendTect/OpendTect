@@ -40,7 +40,7 @@ influence current displayed horizon in the secne.
 note: the class doesn't do anything with texture.
 */
 
-mExpClass(visBase) HorizonTileResolutionTesselator: public ParallelTask
+mExpClass(visBase) HorizonTileResolutionTesselator : public ParallelTask
 { mODTextTranslationClass(HorizonTileResolutionTesselator);
 public:
 			HorizonTileResolutionTesselator(const HorizonSection*,

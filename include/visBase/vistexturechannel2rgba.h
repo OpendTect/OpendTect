@@ -65,6 +65,7 @@ public:
 
 protected:
 				TextureChannel2RGBA();
+				~TextureChannel2RGBA();
 
     TextureChannels*		channels_;
     osgGeo::LayeredTexture*	laytex_;

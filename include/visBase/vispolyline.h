@@ -34,7 +34,7 @@ public:
     static PolyLine*	create()
 			mCreateDataObj(PolyLine);
 
-    int		size() const;
+    int			size() const;
     void		addPoint( const Coord3& pos );
     Coord3		getPoint( int ) const;
     void		setPoint( int, const Coord3& );
@@ -50,6 +50,7 @@ public:
 
 protected:
 					~PolyLine();
+
     DrawStyle*				drawstyle_;
     Geometry::RangePrimitiveSet*	coordrange_;
 };
@@ -81,6 +82,8 @@ public:
 			{ return pixeldensity_; }
 
 protected:
+				~PolyLine3D();
+
     void			updateRadius();
     osgGeo::PolyLineNode*	osgpoly_;
     OD::LineStyle		lst_;

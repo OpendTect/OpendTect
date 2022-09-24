@@ -159,6 +159,7 @@ mExpClass(visBase) OneFrameCullDisabler : public osg::NodeCallback
 {
 public:
 			OneFrameCullDisabler(osg::Node*);
+			~OneFrameCullDisabler();
 
     void		operator()(osg::Node*,osg::NodeVisitor*) override;
 };

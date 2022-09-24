@@ -92,6 +92,10 @@ TextureChannel2RGBA::TextureChannel2RGBA()
 {}
 
 
+TextureChannel2RGBA::~TextureChannel2RGBA()
+{}
+
+
 MappedTextureDataSet* TextureChannel2RGBA::createMappedDataSet() const
 { return MappedTextureDataSetImpl::create(); }
 

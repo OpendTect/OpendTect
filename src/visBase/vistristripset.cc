@@ -18,4 +18,8 @@ TriangleStripSet::TriangleStripSet()
     : VertexShape( Geometry::PrimitiveSet::TriangleStrip, true )
 {}
 
+
+TriangleStripSet::~TriangleStripSet()
+{}
+
 } // namespace visBase

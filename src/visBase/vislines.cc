@@ -18,4 +18,8 @@ Lines::Lines()
     : VertexShape(Geometry::PrimitiveSet::Lines,true)
 {}
 
+
+Lines::~Lines()
+{}
+
 } // namespace visBase

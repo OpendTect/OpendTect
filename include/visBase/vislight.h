@@ -24,10 +24,11 @@ Class for all lights. More options are available in osg, but only what we
  currently need is implemented.
 
 */
-mExpClass( visBase ) Light : public NodeState
+mExpClass(visBase) Light : public NodeState
 {
 public:
 			Light();
+
     void		setLightNum(int);
     int			getLightNum() const;
 
@@ -52,22 +53,24 @@ public:
 
 
 protected:
-				~Light();
-    void			updateLights();
-    void			initLight();
-    bool			ison_;
-    float			ambient_;
-    float			diffuse_;
-    osg::Light*			light_;
+			~Light();
+
+    void		updateLights();
+    void		initLight();
+    bool		ison_;
+    float		ambient_;
+    float		diffuse_;
+    osg::Light*		light_;
 
     static const char*	sKeyIsOn();
     static const char*	sKeyAmbient();
     static const char*	sKeyDiffuse();
     static const char*	sKeyLightNum();
     static const char*	sKeyDirection();
+
 private:
-    void			applyAttribute(osg::StateSet*,
-					       osg::StateAttribute*) override;
+    void		applyAttribute(osg::StateSet*,
+				       osg::StateAttribute*) override;
 };
 
 } // namespace visBase

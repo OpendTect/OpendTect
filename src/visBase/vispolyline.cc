@@ -126,6 +126,11 @@ PolyLine3D::PolyLine3D()
 }
 
 
+PolyLine3D::~PolyLine3D()
+{
+}
+
+
 void PolyLine3D::setLineStyle( const OD::LineStyle& lst )
 {
     lst_ = lst;

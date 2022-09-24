@@ -51,16 +51,17 @@ public:
 
 
 protected:
+			~DrawStyle();
 
-    void			updateLineStyle();
+    void		updateLineStyle();
 
-    OD::LineStyle		linestyle_;
-    float			pointsize_;
-    float			pixeldensity_;
+    OD::LineStyle	linestyle_;
+    float		pointsize_;
+    float		pixeldensity_;
 
     osg::Point*		pointsizeattrib_;
-    osg::LineStipple*		linestippleattrib_;
-    osg::LineWidth*		linewidthattrib_;
+    osg::LineStipple*	linestippleattrib_;
+    osg::LineWidth*	linewidthattrib_;
 };
 
 } // namespace visBase
