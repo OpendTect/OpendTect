@@ -405,6 +405,16 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID(
 #define mDefL2DKeyStr( l2dkeystr, sticknr ) \
 	mDefStickInfoStr( "GeomID", l2dkeystr, sticknr )
 
+//Following macros are for backward compatibility
+#define mGetOlderEditNormalStr( editnormalstr, sticknr ) \
+    editnormalstr = "Edit normal of section 0 sticknr "; \
+    editnormalstr.add( sticknr );
+#define mGetOlderLineSetStr( linesetstr, sticknr ) \
+    linesetstr = "Line set of section 0 sticknr "; \
+    linesetstr.add( sticknr );
+#define mGetOlderLineNameStr( linenamestr, sticknr ) \
+    linenamestr = "Line name of section 0 sticknr "; \
+    linenamestr.add( sticknr )
 
 
 void FaultStickSetGeometry::fillPar( IOPar& par ) const
@@ -451,8 +461,12 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
     for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
     {
 	mDefEditNormalStr( editnormstr, sticknr );
+	if ( !par.hasKey(editnormstr.buf()) )
+	    mGetOlderEditNormalStr( editnormstr, sticknr );
+
 	Coord3 editnormal( Coord3::udf() );
 	par.get( editnormstr.buf(), editnormal );
+
 	fss->addEditPlaneNormal( editnormal );
 
 	stickinfo_.insertAt( new StickInfo, 0 );
@@ -478,14 +492,24 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	}
 
 	mDefPickedMultiIDStr( pickedmidstr, sticknr );
-	mDefLineSetStr( linesetstr, sticknr );
-	if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid))
-	    par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );
-	mDefPickedNameStr( pickednmstr, sticknr );
-	mDefLineNameStr( linenamestr, sticknr );
+	if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid) )
+	{
+	    mDefLineSetStr( linesetstr, sticknr );
+	    if ( !par.hasKey(linesetstr.buf()) )
+		mGetOlderLineSetStr(linesetstr,sticknr);
 
+	    par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );
+	}
+
+	mDefPickedNameStr( pickednmstr, sticknr );
 	if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
+	{
+	    mDefLineNameStr( linenamestr, sticknr );
+	    if ( !par.hasKey(linenamestr.buf()) )
+		mGetOlderLineNameStr( linenamestr, sticknr );
+
 	    par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
+	}
 
 	PtrMan<IOObj> pickedioobj = IOM().get( stickinfo_[0]->pickedmid );
 	if ( pickedioobj )
