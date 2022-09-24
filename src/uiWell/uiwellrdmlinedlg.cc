@@ -248,8 +248,9 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
     const bool onlytop = onlytopfld_ ? onlytopfld_->getBoolValue() : false;
     for ( int idx=0; idx<selwellsids_.size(); idx++ )
     {
-	const Well::Data* wd = Well::MGR().get( selwellsids_[idx] );
-	if ( !wd || wd->track().isEmpty() ) return;
+	ConstRefMan<Well::Data> wd = Well::MGR().get( selwellsids_[idx] );
+	if ( !wd || wd->track().isEmpty() )
+	    return;
 
 	if ( onlytop )
 	    coords += wd->track().pos(0).coord();
