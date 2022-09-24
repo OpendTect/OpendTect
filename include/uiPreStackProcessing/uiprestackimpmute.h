@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiFileInput;
-class CtxtIOObj;
 class uiIOObjSel;
 class uiGenInput;
 class uiTableImpDataSel;
@@ -35,8 +34,6 @@ protected:
     uiGenInput*		posdatainfld_;
     uiGenInput*		inlcrlfld_;
     uiIOObjSel*		outfld_;
-
-    CtxtIOObj&		ctio_;
 
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;

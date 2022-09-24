@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "binidvalset.h"
-#include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
@@ -85,14 +84,12 @@ class uiFPAdvancedDlg: public uiDialog
     ObjectSet<uiSpinBox>	wgtflds_;
 
     calcFingParsObject&		calcobj_;
-    CtxtIOObj&			ctio_;
     uiString			errmsg_;
 };
 
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mFingerPrintAttribHelpID) )
-    , ctio_(*mMkCtxtIOObj(PickSet))
     , refposfld_(0)
     , linefld_(0)
 {
@@ -137,7 +134,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	linefld_->attach( alignedBelow, refposfld_ );
     }
 
-    picksetfld_ = new uiIOObjSel( this, ctio_,
+    const IOObjContext ctxt = mIOObjContext( PickSet );
+    picksetfld_ = new uiIOObjSel( this, ctxt,
 			mJoinUiStrs(sPointSet(),sFile().toLower()) );
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
@@ -191,8 +189,6 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 uiFingerPrintAttrib::~uiFingerPrintAttrib()
 {
     detachAllNotifiers();
-    delete ctio_.ioobj_;
-    delete &ctio_;
 }
 
 
@@ -648,8 +644,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup(tr("FingerPrint attribute advanced options"),
 				   tr("Specify advanced options"),
-                                   mODHelpKey(mFPAdvancedDlgHelpID) ) )
-    , ctio_(*mMkCtxtIOObj(PickSet))
+				   mODHelpKey(mFPAdvancedDlgHelpID) ) )
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );
@@ -662,8 +657,8 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     autobut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     rangesgrp_->selectButton( calcobj_.getRgRefType() );
 
-    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPointSet(),
-							   sFile().toLower()) );
+    const IOObjContext ctxt = mIOObjContext( PickSet );
+    picksetfld_ = new uiIOObjSel( this, ctxt );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
     picksetfld_->setInput( calcobj_.getRgRefPick() );
     picksetfld_->display( true );
@@ -682,8 +677,6 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
 uiFPAdvancedDlg::~uiFPAdvancedDlg()
 {
-    delete ctio_.ioobj_;
-    delete &ctio_;
 }
 
 

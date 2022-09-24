@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "uistring.h"
 
-class CtxtIOObj;
 class Wavelet;
 class uiCheckBox;
 class uiLabeledComboBox;

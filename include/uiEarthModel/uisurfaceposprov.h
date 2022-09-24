@@ -10,13 +10,13 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
-class CtxtIOObj;
+
 class uiGenInput;
 class uiIOObjSel;
-class uiSpinBox;
+class uiLabel;
 class uiLabeledSpinBox;
 class uiSelZRange;
-class uiLabel;
+class uiSpinBox;
 
 /*! \brief UI for SurfacePosProvider */
 
@@ -38,17 +38,15 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio1_;
-    CtxtIOObj&		ctio2_;
     const float		zfac_;
 
-    uiIOObjSel*		surf1fld_;
-    uiIOObjSel*		surf2fld_;
-    uiGenInput*		issingfld_;
-    uiLabeledSpinBox*	zstepfld_;
-    uiSelZRange*	extrazfld_;
-    uiGenInput*		samplingfld_;
-    uiGenInput*		nrsamplesfld_;
+    uiIOObjSel*		surf1fld_		= nullptr;
+    uiIOObjSel*		surf2fld_		= nullptr;
+    uiGenInput*		issingfld_		= nullptr;
+    uiLabeledSpinBox*	zstepfld_		= nullptr;
+    uiSelZRange*	extrazfld_		= nullptr;
+    uiGenInput*		samplingfld_		= nullptr;
+    uiGenInput*		nrsamplesfld_		= nullptr;
 
     void		selChg(CallBacker*);
     void		samplingCB(CallBacker*);

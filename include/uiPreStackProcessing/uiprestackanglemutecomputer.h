@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
-class CtxtIOObj;
 class uiIOObjSel;
 class uiSeisSubSel;
 class uiVelSel;
@@ -28,9 +27,8 @@ public:
 			~uiAngleMuteComputer();
 protected:
 
-    CtxtIOObj&		outctio_;
 
-    uiAngleCompGrp*		anglecompgrp_;
+    uiAngleCompGrp*	anglecompgrp_;
     AngleMuteComputer*	processor_;
     uiSeisSubSel*	subsel_;
     uiIOObjSel*		mutedeffld_;

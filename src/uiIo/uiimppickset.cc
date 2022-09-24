@@ -77,10 +77,10 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread_ = !import_;
+
     uiString label = import_
 	? uiStrings::phrOutput( sPicksetPolygon() )
 	: uiStrings::phrInput( sPicksetPolygon() );
-
     uiIOObjSel::Setup ioobjsetup( label );
     ioobjsetup.withinserters(false).withwriteopts(false);
     objfld_ = new uiIOObjSel( this, ctxt, ioobjsetup );
@@ -307,7 +307,7 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( !import_ && filenm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() )
 
-    if ( !objfld_->commitInput() )
+    if ( !objfld_->ioobj() )
 	return false;
 
     if ( import_ )

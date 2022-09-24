@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uicoordsystem.h"
 
-class CtxtIOObj;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
@@ -31,9 +30,7 @@ protected:
     uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
     uiFileInput*	outfld_;
-    Coords::uiCoordSystemSel*	    coordsysselfld_;
-
-    CtxtIOObj&		ctio_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
     bool		acceptOK(CallBacker*) override;
     void		coordTypChngCB(CallBacker*);

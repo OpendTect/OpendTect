@@ -15,7 +15,6 @@ ________________________________________________________________________
 namespace Attrib { class DescSet; };
 
 class NLAModel;
-class CtxtIOObj;
 class uiAttrSel;
 class uiGenInput;
 class DataPointSet;

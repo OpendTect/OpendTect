@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "volprochorinterfiller.h"
 
 class uiIOObjSel;
-class CtxtIOObj;
-
 
 namespace VolProc
 {
@@ -39,8 +37,6 @@ protected:
     void			updateFlds(CallBacker*);
 
     HorInterFiller*		horinterfiller_;
-    CtxtIOObj*			topctio_;
-    CtxtIOObj*			bottomctio_;
 
     uiGenInput*			usetophorfld_;
     uiIOObjSel*			tophorfld_;

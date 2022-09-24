@@ -11,17 +11,15 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uiposprovgroup.h"
 
-class CtxtIOObj;
 class TrcKeyZSampling;
 class uiGenInput;
+class uiIOFileSelect;
 class uiIOObjSel;
 class uiPosSubSel;
 class uiSelSteps;
 class uiSelHRange;
 class uiSelZRange;
 class uiSelNrRange;
-class uiIOFileSelect;
-
 
 /*! \brief UI for RangePosProvider */
 
@@ -89,13 +87,11 @@ protected:
 
     void		inoutCB(CallBacker*);
 
-    CtxtIOObj&		ctio_;
-
     uiIOObjSel*		polyfld_;
     uiSelSteps*		stepfld_;
     uiSelZRange*	zrgfld_;
-    uiGenInput*     inoutfld_;
-    uiPosSubSel*    bboxfld_;
+    uiGenInput*		inoutfld_;
+    uiPosSubSel*	bboxfld_;
 
 };
 
@@ -123,12 +119,9 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio_;
-
     uiGenInput*		selfld_;
     uiIOObjSel*		psfld_;
     uiIOFileSelect*	tffld_;
 
     void		selChg(CallBacker*);
-
 };

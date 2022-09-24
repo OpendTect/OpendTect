@@ -32,23 +32,16 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
-	: uiGroup(p,"Create Isochron")
-	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
-	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
-	, baseemobj_(0)
-	, horid_(horid)
-	, basesel_(0)
-	, msecsfld_(0)
+    : uiGroup(p,"Create Isochron")
+    , horid_(horid)
 {
+    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+    ctxt.forread_ = true;
     baseemobj_ = EM::EMM().getObject( horid_ );
     if ( !baseemobj_ )
-    {
-	basectio_.ctxt_.forread_ = true;
-	basesel_ = new uiIOObjSel( this, basectio_, uiStrings::sHorizon() );
-    }
+	basesel_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
 
-    ctio_.ctxt_.forread_ = true;
-    horsel_ = new uiIOObjSel( this, ctio_, tr("Calculate to") );
+    horsel_ = new uiIOObjSel( this, ctxt, tr("Calculate to") );
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
@@ -86,8 +79,6 @@ BufferString uiIsochronMakerGrp::getHorNm( EM::ObjectID horid )
 
 uiIsochronMakerGrp::~uiIsochronMakerGrp()
 {
-    delete ctio_.ioobj_; delete &ctio_;
-    delete basectio_.ioobj_; delete &basectio_;
 }
 
 
@@ -100,11 +91,11 @@ void uiIsochronMakerGrp::toHorSel( CallBacker* )
 
 bool uiIsochronMakerGrp::chkInputFlds()
 {
-    if ( basesel_ && !basesel_->commitInput() )
+    if ( basesel_ && !basesel_->ioobj() )
 	return false;
 
-    horsel_->commitInput();
-    if ( !horsel_->ioobj() ) return false;
+    if ( !horsel_->ioobj() )
+	return false;
 
     BufferString attrnm =  attrnmfld_->text();
     if ( attrnm.isEmpty() )
@@ -121,9 +112,9 @@ bool uiIsochronMakerGrp::chkInputFlds()
 
 bool uiIsochronMakerGrp::fillPar( IOPar& par )
 {
-    par.set( IsochronMaker::sKeyHorizonID(), basesel_ ? basesel_->ioobj()->key()
+    par.set( IsochronMaker::sKeyHorizonID(), basesel_ ? basesel_->key()
 						      : baseemobj_->multiID() );
-    par.set( IsochronMaker::sKeyCalculateToHorID(), horsel_->ioobj()->key() );
+    par.set( IsochronMaker::sKeyCalculateToHorID(), horsel_->key() );
     par.set( IsochronMaker::sKeyAttribName(), attrnmfld_->text() );
     if ( msecsfld_ )
 	par.setYN( IsochronMaker::sKeyOutputInMilliSecYN(),

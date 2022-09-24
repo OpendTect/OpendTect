@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiselsurvranges.h"
 #include "uimsg.h"
 
-#include "ctxtioobj.h"
 #include "file.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -268,12 +267,12 @@ void uiRangePosProvGroup::samplingCB( CallBacker* )
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , ctio_(*mMkCtxtIOObj(PickSet))
     , stepfld_(nullptr)
     , zrgfld_(nullptr)
 {
-    ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    polyfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    PickSetTranslator::fillConstraints( ctxt, true );
+    polyfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPolygon() );
 
     uiGroup* attachobj = polyfld_;
     if ( su.withstep_ )
@@ -308,7 +307,6 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
 uiPolyPosProvGroup::~uiPolyPosProvGroup()
 {
-    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -356,7 +354,7 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Polygon() );
-    if ( !polyfld_->commitInput() || !polyfld_->fillPar(iop,sKey::Polygon()) )
+    if ( !polyfld_->ioobj() || !polyfld_->fillPar(iop,sKey::Polygon()) )
 	mErrRet(uiStrings::phrSelect(uiStrings::sPolygon()))
 
     const BinID stps(
@@ -395,10 +393,8 @@ void uiPolyPosProvGroup::setExtractionDefaults()
 
 bool uiPolyPosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !polyfld_->commitInput() || !ctio_.ioobj_ )
-	return false;
-    ky = ctio_.ioobj_->key();
-    return true;
+    ky = polyfld_->key();
+    return !ky.isUdf();
 }
 
 
@@ -417,7 +413,6 @@ void uiPolyPosProvGroup::initClass()
 uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 		const uiPosProvGroup::Setup& su, bool onlypointset )
     : uiPosProvGroup(p,su)
-    , ctio_(*mMkCtxtIOObj(PickSet))
 {
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
@@ -427,7 +422,9 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 						  uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
 
-    psfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPointSet() );
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    PickSetTranslator::fillConstraints( ctxt, false );
+    psfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPointSet() );
     psfld_->attach( alignedBelow, selfld_ );
     tffld_ = new uiIOFileSelect( this, toUiString(sKey::FileName()), true,
 				 GetDataDir(), true );
@@ -444,8 +441,6 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 
 uiTablePosProvGroup::~uiTablePosProvGroup()
 {
-    delete ctio_.ioobj_;
-    delete &ctio_;
 }
 
 
@@ -455,6 +450,7 @@ void uiTablePosProvGroup::selChg( CallBacker* )
     psfld_->display( isps );
     tffld_->display( !isps );
 }
+
 
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
 
@@ -504,10 +500,11 @@ void uiTablePosProvGroup::getSummary( BufferString& txt ) const
 
 bool uiTablePosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !selfld_->getBoolValue() || !psfld_->commitInput() )
+    if ( !selfld_->getBoolValue() )
 	return false;
-    ky = ctio_.ioobj_->key();
-    return true;
+
+    ky = psfld_->key();
+    return !ky.isUdf();
 }
 
 

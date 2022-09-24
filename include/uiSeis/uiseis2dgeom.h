@@ -12,16 +12,15 @@ ________________________________________________________________________
 #include "uidialog.h"
 class IOObj;
 class uiSeisSel;
-class CtxtIOObj;
 class uiGenInput;
 class uiFileInput;
 
 
 mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
-{ mODTextTranslationClass(uiSeisDump2DGeom);
+{ mODTextTranslationClass(uiSeisDump2DGeom)
 public:
-
-                        uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);
+			uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=nullptr);
+			~uiSeisDump2DGeom();
 
 protected:
 

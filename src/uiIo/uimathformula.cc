@@ -34,17 +34,12 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 				const uiMathFormula::Setup& su )
     : uiGroup(p,"Math Formula")
     , form_(form)
-    , ctio_(*mMkCtxtIOObj(MathFormula))
     , setup_(su)
     , inpSet(this)
     , subInpSet(this)
     , formMnSet(this)
     , formUnitSet(this)
 {
-    const bool wantio = !setup_.stortype_.isEmpty();
-    if ( wantio )
-	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), setup_.stortype_ );
-
     uiMathExpression::Setup mesu( setup_.label_ );
     mesu.withsetbut( true ).fnsbelow( false ).specvars( &form_.specVars() );
     exprfld_ = new uiMathExpression( this, mesu );
@@ -94,6 +89,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	mAttachCB( unitfld_->selChange, uiMathFormula::formUnitSetCB );
     }
 
+    const bool wantio = !setup_.stortype_.isEmpty();
     uiButtonGroup* bgrp = nullptr;
     if ( wantio || form_.inputsAreSeries() )
 	bgrp = new uiButtonGroup( this, "tool buts", OD::Horizontal );
@@ -123,8 +119,6 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 uiMathFormula::~uiMathFormula()
 {
     detachAllNotifiers();
-    delete ctio_.ioobj_;
-    delete &ctio_;
     delete mnsel_;
 }
 
@@ -593,18 +587,30 @@ void uiMathFormula::recButPush( CallBacker* )
 
 BufferString uiMathFormula::getIOFileName( bool forread )
 {
+    IOObjContext ctxt = mIOObjContext( MathFormula );
+    const bool wantio = !setup_.stortype_.isEmpty();
+    if ( wantio )
+	ctxt.toselect_.require_.set( sKey::Type(), setup_.stortype_ );
+
+
     BufferString fnm;
-    ctio_.ctxt_.forread_ = forread;
-    uiIOObjSelDlg dlg( this, ctio_ );
+    ctxt.forread_ = forread;
+    uiIOObjSelDlg dlg( this, ctxt );
     if ( !dlg.go() )
 	return fnm;
 
-    fnm = dlg.ioObj()->fullUserExpr( forread );
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj )
+	return fnm;
+
+    fnm = ioobj->fullUserExpr( forread );
     const bool doesexist = File::exists( fnm );
     if ( forread && !doesexist )
-	{ uiMSG().error(uiStrings::sFileDoesntExist()); fnm.setEmpty(); }
+    {
+	uiMSG().error(uiStrings::sFileDoesntExist());
+	fnm.setEmpty();
+    }
 
-    ctio_.setObj( dlg.ioObj()->clone() );
     return fnm;
 }
 

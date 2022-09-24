@@ -50,9 +50,9 @@ ________________________________________________________________________
     StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
     (StringView(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? fset : f3d)
 
-#define mGetCtio(tp) \
-    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D), \
-	*mMkCtxtIOObj(EMFaultSet3D) )
+#define mGetCtxt(tp) \
+    mGet( tp, mIOObjContext(EMFaultStickSet), mIOObjContext(EMFault3D), \
+	mIOObjContext(EMFaultSet3D) )
 
 #define mGetTitle(tp) \
     mGet( tp, uiStrings::phrExport( uiStrings::sFaultStickSet(mGetObjNr) ), \
@@ -69,11 +69,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
 				 mODHelpKey(mExportFaultHelpID),mTODOHelpKey)))
-    , bulkinfld_(nullptr)
-    , infld_(nullptr)
-    , linenmfld_(nullptr)
-    , coordsysselfld_(nullptr)
-    , ctio_(mGetCtio(typ))
     , isbulk_(isbulk)
     , typ_(typ)
 {
@@ -85,15 +80,16 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     mAttachCB( coordfld_->valuechanged, uiExportFault::exportCoordSysChgCB );
 
+    IOObjContext ctxt = mGetCtxt( typ );
     uiIOObjSelGrp::Setup su; su.choicemode_ = OD::ChooseAtLeastOne;
     if ( !isbulk_ )
     {
-	infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
+	infld_ = new uiIOObjSel( this, ctxt, mGetLbl(typ) );
 	coordfld_->attach( alignedBelow, infld_ );
     }
     else
     {
-	bulkinfld_ = new uiIOObjSelGrp( this, ctio_, mGetLbl(typ), su );
+	bulkinfld_ = new uiIOObjSelGrp( this, ctxt, mGetLbl(typ), su );
 	coordfld_->attach( alignedBelow, bulkinfld_ );
     }
 
@@ -157,7 +153,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 
 uiExportFault::~uiExportFault()
 {
-    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -196,8 +191,10 @@ bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 {
     if ( !isbulk_ )
     {
-	const IOObj* ioobj = ctio_.ioobj_;
-	if ( !ioobj ) return false;
+	const IOObj* ioobj = infld_->ioobj( false );
+	if ( !ioobj )
+	    return false;
+
 	MultiID mid = ioobj->key();
 	midset.add(mid);
     }
@@ -215,9 +212,8 @@ bool uiExportFault::writeAscii()
     TypeSet<MultiID> midset;
     if ( !getInputMIDs(midset) )
 	mErrRet(tr("Cannot find object in database"))
+
     const BufferString fname = outfld_->fileName();
-
-
     od_ostream ostrm( fname );
     if ( !ostrm.isOK() )
 	return false;
@@ -443,10 +439,9 @@ bool uiExportFault::acceptOK( CallBacker* )
     }
 
     BufferStringSet fltnms;
-    bool isobjsel(true);
-
+    bool isobjsel = true;
     if ( !isbulk_ )
-	isobjsel = infld_->commitInput();
+	isobjsel = infld_->ioobj( false );
     else
     {
 	bulkinfld_->getChosen(fltnms);
@@ -459,8 +454,8 @@ bool uiExportFault::acceptOK( CallBacker* )
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() )
 
-    if ( File::exists(outfnm)
-      && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))
+    if ( File::exists(outfnm) &&
+	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	return false;
 
     if ( !writeAscii() )

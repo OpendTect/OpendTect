@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 
-#include "ctxtioobj.h"
 #include "trckeysampling.h"
 #include "oddirs.h"
 #include "od_istream.h"
@@ -34,7 +33,6 @@ namespace PreStack
 uiImportMute::uiImportMute( uiParent* p )
     : uiDialog( p,uiDialog::Setup(tr("Import Mute Function"),mNoDlgTitle,
 				  mODHelpKey(mPreStackImportMuteHelpID)) )
-    , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -55,8 +53,9 @@ uiImportMute::uiImportMute( uiParent* p )
 		      mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
-    ctio_.ctxt_.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
+    IOObjContext ctxt = mIOObjContext( MuteDef );
+    ctxt.forread_ = false;
+    outfld_ = new uiIOObjSel( this, ctxt, tr("Mute Definition") );
     outfld_->attach( alignedBelow, dataselfld_ );
 
     postFinalize().notify( mCB(this,uiImportMute,formatSel) );
@@ -65,7 +64,6 @@ uiImportMute::uiImportMute( uiParent* p )
 
 uiImportMute::~uiImportMute()
 {
-    delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
@@ -123,16 +121,16 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())))
     }
 
-    if ( !outfld_->commitInput() )
-	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
-				    : uiStrings::sEmptyString() )
+    const IOObj* ioobj = outfld_->ioobj();
+    if ( !ioobj )
+	return false;
 
    PtrMan<MuteDefTranslator> trans =
-	    (MuteDefTranslator*)ctio_.ioobj_->createTranslator();
+			sCast(MuteDefTranslator*,ioobj->createTranslator());
     if ( !trans ) return false;
 
     uiString str;
-    const bool retval = trans->store( mutedef, ctio_.ioobj_, str );
+    const bool retval = trans->store( mutedef, ioobj, str );
     if ( !retval )
     {
 	if ( str.isSet() )

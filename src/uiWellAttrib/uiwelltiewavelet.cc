@@ -31,10 +31,9 @@ namespace WellTie
 
 #define mErrRet(msg,act) { uiMSG().error(msg); act; }
 uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
-	: uiGroup(p)
-	, wvltctio_(*mMkCtxtIOObj(Wavelet))
-	, activeWvltChged(this)
-	, wvltset_(wvs)
+    : uiGroup(p)
+    , activeWvltChgd(this)
+    , wvltset_(wvs)
 {
     createWaveletFields( this );
     for ( int idx=0; idx<wvs.size(); idx++ )
@@ -84,7 +83,7 @@ void uiWaveletView::activeWvltChanged( CallBacker* )
     uiwvlts_[0]->setAsActive( isinitactive );
     uiwvlts_[1]->setAsActive( !isinitactive );
     CBCapsule<bool> caps( isinitactive, this );
-    activeWvltChged.trigger( &caps );
+    activeWvltChgd.trigger( &caps );
 }
 
 

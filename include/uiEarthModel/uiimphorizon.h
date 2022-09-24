@@ -14,7 +14,6 @@ ________________________________________________________________________
 class Array2DInterpol;
 class BinIDValueSet;
 class BufferStringSet;
-class CtxtIOObj;
 class HorizonScanner;
 
 class uiCheckBox;
@@ -86,7 +85,6 @@ protected:
     EM::Horizon3D*	createHor() const;
     EM::Horizon3D*	loadHor();
 
-    CtxtIOObj&		ctio_;
     Table::FormatDesc&	fd_;
     HorizonScanner*	scanner_			= nullptr;
     bool		isgeom_;

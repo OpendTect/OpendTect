@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uibuildlistfromlist.h"
 #include "propertyref.h"
 
-class CtxtIOObj;
 namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 
 
@@ -43,7 +42,6 @@ protected:
     const bool			setismine_;
     const Strat::RefTree&	reftree_;
     PropertyRefSelection	props_;
-    CtxtIOObj&			ctio_;
     const SetTypeSel		typesel_;
     bool			anychg_;
 

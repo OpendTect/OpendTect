@@ -12,14 +12,12 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "uigroup.h"
-#include "emposid.h"
+#include "emobject.h"
 
 class uiBatchJobDispatcherSel;
 class uiIOObjSel;
 class uiGenInput;
-class CtxtIOObj;
 class DataPointSet;
-namespace EM { class EMObject; }
 
 
 /*! \brief Create isochron as attribute of horizon */
@@ -37,14 +35,12 @@ public:
     const char*		attrName() const;
 
 protected:
-    uiIOObjSel*		basesel_;
+    uiIOObjSel*		basesel_		= nullptr;
     uiIOObjSel*		horsel_;
     uiGenInput*		attrnmfld_;
-    uiGenInput*		msecsfld_;
-    CtxtIOObj&		basectio_;
-    CtxtIOObj&		ctio_;
+    uiGenInput*		msecsfld_		= nullptr;
     EM::ObjectID	horid_;
-    EM::EMObject*	baseemobj_;
+    RefMan<EM::EMObject> baseemobj_;
 
     void		toHorSel(CallBacker*);
 };

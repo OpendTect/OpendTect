@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "multiid.h"
 
-class CtxtIOObj;
 class uiAttrSel;
 class uiTable;
 class uiLabel;
@@ -53,7 +52,6 @@ protected:
     uiLabel*		manlbl_;
     uiSeis2DLineSel*	linefld_;
    
-    CtxtIOObj&		ctio_;
     ObjectSet<uiAttrSel> attribflds_;
 
     uiFPAdvancedDlg*	advanceddlg_;

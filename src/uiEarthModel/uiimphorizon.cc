@@ -71,7 +71,6 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
 				 mODHelpKey(mImportHorAttribHelpID) )
 				 .modal(false))
-    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
     , fd_(*EM::Horizon3DAscIO::getDesc())
     , importReady(this)
@@ -84,7 +83,6 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	enableSaveButton( tr("Display after import") );
 
     setDeleteOnClose( false );
-    ctio_.ctxt_.forread_ = !isgeom_;
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFile );
@@ -157,7 +155,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );
 
-    outputfld_ = new uiIOObjSel( this, ctio_ );
+    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+    ctxt.forread_ = !isgeom_;
+    outputfld_ = new uiIOObjSel( this, ctxt );
     outputfld_->setLabelText( isgeom_
 			     ? uiStrings::phrOutput( uiStrings::sHorizon() )
 			     : tr("Add to Horizon") );
@@ -201,7 +201,6 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 uiImportHorizon::~uiImportHorizon()
 {
-    delete ctio_.ioobj_; delete &ctio_;
     delete interpol_;
 }
 
@@ -471,7 +470,7 @@ void uiImportHorizon::fillUdfSel( CallBacker* )
 
 MultiID uiImportHorizon::getSelID() const
 {
-    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID::udf();
+    return outputfld_->key( true );
 }
 
 
@@ -653,7 +652,7 @@ bool uiImportHorizon::checkInpFlds()
     if ( !outpnm || !*outpnm )
 	mErrRet( tr("Please select output horizon") )
 
-    if ( !outputfld_->commitInput() )
+    if ( !outputfld_->ioobj() )
 	return false;
 
     const EM::IOObjInfo ioobjinfo( outputfld_->key() );
@@ -768,7 +767,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 {
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
-    emobj->setMultiID( ctio_.ioobj_->key() );
+    emobj->setMultiID( outputfld_->key(true) );
     Executor* loader = emobj->loader();
     if ( !loader ) mErrRet( uiStrings::sCantReadHor());
 

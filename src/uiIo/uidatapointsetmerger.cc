@@ -197,7 +197,6 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
                                  mODHelpKey(mDataPointSetMergerHelpID) ) )
     , mdps_(mdps)
     , sdps_(sdps)
-    , ctio_(PosVecDataSetTranslatorGroup::ioContext())
 {
     setPrefHeight( 500 );
     DPM( DataPackMgr::PointID() ).add( mdps_ );
@@ -274,9 +273,10 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 			BoolInpSpec(true,tr("Replace if possible"),tr("Keep")));
     overwritefld_->attach( alignedBelow, rlcbox );
 
-    ctio_.ctxt_.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(
-						    uiStrings::sCrossPlot()) );
+    IOObjContext ctxt = mIOObjContext( PosVecDataSet );
+    ctxt.forread_ = false;
+    outfld_ = new uiIOObjSel( this, ctxt,
+			      uiStrings::phrOutput(uiStrings::sCrossPlot()) );
     outfld_->attach( alignedBelow, overwritefld_ );
 
     matchPolChangedCB( 0 );

@@ -37,8 +37,8 @@ ________________________________________________________________________
 #define mGet( tp, fss, f3d ) \
     StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
 
-#define mGetCtio(tp) \
-    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
+#define mGetCtxt(tp) \
+    mGet( tp, mIOObjContext(EMFaultStickSet), mIOObjContext(EMFault3D) )
 
 #define mGetHelpKey(tp) \
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
@@ -51,7 +51,6 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
 					: tr("Import FaultStickSet")),
 			     tr("Import Fault") ),
 		mNoDlgTitle,mGetHelpKey(type)).modal(false))
-    , ctio_(mGetCtio(type))
     , isfss_(mGet(type,true,false))
     , fd_(0)
     , type_(type)
@@ -123,9 +122,10 @@ void uiImportFault::createUI()
     else
 	dataselfld_->attach( alignedBelow, infld_ );
 
-    ctio_.ctxt_.forread_ = false;
+    IOObjContext ctxt = mGetCtxt( type_ );
+    ctxt.forread_ = false;
     uiString labl( tr("Output %1").arg(type_));
-    outfld_ = new uiIOObjSel( this, ctio_, labl );
+    outfld_ = new uiIOObjSel( this, ctxt, labl );
     outfld_->attach( alignedBelow, dataselfld_ );
     typeSel( 0 );
     stickSel( 0 );
@@ -135,7 +135,6 @@ void uiImportFault::createUI()
 uiImportFault::~uiImportFault()
 {
     detachAllNotifiers();
-    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -315,7 +314,7 @@ bool uiImportFault::checkInpFlds()
     else if ( !File::exists(fnm) )
 	mErrRet( tr("Input file does not exist") )
 
-    if( !isfss_ )
+    if ( !isfss_ )
     {
 	if ( typefld_->getIntValue() == 1 )
 	{
@@ -326,9 +325,8 @@ bool uiImportFault::checkInpFlds()
 	}
     }
 
-    if ( !outfld_->commitInput() )
-	mErrRet( (outfld_->isEmpty() ? uiStrings::phrSelect(
-		  uiStrings::sOutput()) : uiStrings::sEmptyString()) )
+    if ( !outfld_->ioobj() )
+	return false;
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -339,7 +337,7 @@ bool uiImportFault::checkInpFlds()
 
 MultiID uiImportFault::getSelID() const
 {
-    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID::udf();
+    return outfld_->key( false );
 }
 
 
@@ -380,6 +378,8 @@ bool uiImportFaultStickSet2D::getFromAscIO( od_istream& strm, EM::Fault& flt )
 
 bool uiImportFaultStickSet2D::acceptOK( CallBacker* )
 {
-    if ( !checkInpFlds() ) return false;
+    if ( !checkInpFlds() )
+	return false;
+
     return handleAscii();
 }

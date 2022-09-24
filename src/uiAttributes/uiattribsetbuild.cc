@@ -51,7 +51,6 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 	    .withtitles(true), "DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
-    , ctio_(*mMkCtxtIOObj(AttribDescSet))
     , uipsattrdesced_(0)
     , anychg_(false)
 {
@@ -62,9 +61,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 
 uiAttribDescSetBuild::~uiAttribDescSetBuild()
 {
-    delete ctio_.ioobj_;
     delete &descset_;
-    delete &ctio_;
 }
 
 
@@ -259,8 +256,9 @@ bool uiAttribDescSetBuild::ioReq( bool forsave )
 
 bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 {
-    ctio_.ctxt_.forread_ = forread;
-    uiIOObjSelDlg dlg( this, ctio_ );
+    IOObjContext ctxt = mIOObjContext( AttribDescSet );
+    ctxt.forread_ = forread;
+    uiIOObjSelDlg dlg( this, ctxt );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 

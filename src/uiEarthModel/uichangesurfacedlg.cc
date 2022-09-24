@@ -162,7 +162,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 
 bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 {
-    if ( inputfld_ && !inputfld_->commitInput() )
+    if ( inputfld_ && !inputfld_->ioobj(true) )
     {
 	uiMSG().error( uiStrings::phrSelect(mJoinUiStrs(
 				sInput().toLower(),sHorizon().toLower())) );

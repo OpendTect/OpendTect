@@ -353,9 +353,7 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
     , wellserv_(ws)
     , previewbutton_(0)
     , dispfld_(0)
-    , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
-    outctio_.ctxt_.forread_ = false;
     selgrp_ = new uiWellSelGrp( this );
 
     createFields();
@@ -365,7 +363,6 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
 
 uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
 {
-    delete outctio_.ioobj_; delete &outctio_;
 }
 
 
@@ -380,7 +377,9 @@ void uiWell2RandomLineDlg::createFields()
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, extendfld_ );
 
-    outfld_ = new uiIOObjSel( this, outctio_,
+    IOObjContext ctxt = mIOObjContext( RandomLineSet );
+    ctxt.forread_ = false;
+    outfld_ = new uiIOObjSel( this, ctxt,
 			     uiStrings::phrOutput( uiStrings::sRandomLine() ) );
     if ( wellserv_ )
     {
@@ -467,12 +466,9 @@ void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 
 bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 {
-    if ( !outfld_->commitInput() || !outctio_.ioobj_ )
-    {
-	if ( outfld_->isEmpty() )
-	    uiMSG().error( tr("Please specify the output") );
+    const IOObj* ioobj = outfld_->ioobj();
+    if ( !ioobj )
 	return false;
-    }
 
     TypeSet<Coord> wellcoord; getCoordinates( wellcoord );
     if ( wellcoord.size() < 2 )
@@ -496,7 +492,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
     BufferString msg;
-    const bool res = RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg);
+    const bool res = RandomLineSetTranslator::store( outrls, ioobj, msg );
     if ( !res )
 	uiMSG().error(mToUiStringTodo(msg));
 
@@ -506,5 +502,5 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 
 MultiID uiWell2RandomLineDlg::getRandLineID() const
 {
-    return outctio_.ioobj_ ? outctio_.ioobj_->key() : MultiID::udf();
+    return outfld_->key( true );
 }

@@ -84,7 +84,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( pargrp_, "Quantity to output", attrdata );
+	todofld_ = new uiAttrSel( pargrp_, "Select Attribute", attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
@@ -320,7 +320,7 @@ bool uiAttrVolOut::prepareProcessing()
 	sel_.outputnr_ = todofld_->outputNr();
 	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
 	{
-	    uiMSG().error( tr("Please select the output quantity") );
+	    uiMSG().error( tr("Please select attribute to calculate") );
 	    return false;
 	}
 
