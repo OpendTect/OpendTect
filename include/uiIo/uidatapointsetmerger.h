@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "bufstringset.h"
-#include "ctxtioobj.h"
 #include "datapointset.h"
 #include "executor.h"
 
@@ -141,7 +140,6 @@ protected:
 
     RefMan<DataPointSet>	mdps_;
     RefMan<DataPointSet>	sdps_;
-    CtxtIOObj			ctio_;
 
     uiTable*			tbl_;
     uiComboBox*			matchpolfld_;

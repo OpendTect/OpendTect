@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
-class CtxtIOObj;
 class IOObj;
 class uiGenInput;
 class uiIOObjSel;

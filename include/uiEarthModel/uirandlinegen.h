@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
-class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiCheckBox;
@@ -33,10 +32,6 @@ public:
     bool		dispOnCreation();
 
 protected:
-
-    CtxtIOObj&		horctio_;
-    CtxtIOObj&		polyctio_;
-    CtxtIOObj&		rlsctio_;
 
     uiIOObjSel*		infld_;
     uiIOObjSel*		polyfld_;
@@ -75,9 +70,6 @@ public:
 
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
-
     uiIOObjSel*		infld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		distfld_;
@@ -101,9 +93,6 @@ public:
     bool		dispOnCreation();
 
 protected:
-
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
 
     uiIOObjSel*		infld_;
     uiIOObjSel*		outfld_;

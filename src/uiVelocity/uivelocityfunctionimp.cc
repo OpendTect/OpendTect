@@ -38,7 +38,6 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 				  mNoDlgTitle,
 				  mODHelpKey(mImportVelFuncHelpID) )
 			    .modal(false))
-    , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {
     setVideoKey( mODVideoKey(mImportVelFuncHelpID) );
@@ -64,8 +63,9 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     sep = new uiSeparator( this, "H sep" );
     sep->attach( alignedBelow, dataselfld_ );
 
-    ctio_.ctxt_.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctio_,
+    IOObjContext ctxt = StoredFunctionSource::ioContext();
+    ctxt.forread_ = false;
+    outfld_ = new uiIOObjSel( this, ctxt,
 			      uiStrings::phrOutput( uiStrings::sVelocity() ) );
     outfld_->attach( alignedBelow, dataselfld_ );
     outfld_->attach( ensureBelow, sep );
@@ -76,7 +76,6 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 
 uiImportVelFunc::~uiImportVelFunc()
 {
-    delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
@@ -130,13 +129,14 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !success )
 	mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())) );
 
-    if ( !outfld_->commitInput() )
+    const IOObj* ioobj = outfld_->ioobj();
+    if ( !ioobj )
 	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
 				    : uiStrings::sEmptyString() )
 
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
     functions->setData( bidvalset, desc, true ); //set ZisT
-    if ( !functions->store( ctio_.ioobj_->key() ) )
+    if ( !functions->store( ioobj->key() ) )
 	mErrRet( tr("Cannot store velocity functions") );
 
     uiString msg = tr("Velocity Function successfully imported."

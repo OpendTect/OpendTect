@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiprestackprocessingmod.h"
 #include "uibatchprocdlg.h"
 
-class CtxtIOObj;
 class uiSeisSel;
 class uiPosSubSel;
 class uiBatchJobDispatcherSel;

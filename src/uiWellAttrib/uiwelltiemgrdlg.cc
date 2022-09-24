@@ -210,6 +210,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 {
     const IOObj* wellobj = wellfld_->ioobj(true);
     if ( !wellobj ) return;
+
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
 
@@ -458,11 +459,10 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 
 bool uiTieWinMGRDlg::initSetup()
 {
-    if ( !wellfld_->commitInput() )
+    if ( !wellfld_->ioobj() )
 	mErrRet(uiStrings::phrSelect(tr("a valid well")))
 
-    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj_->key();
-
+    const MultiID wellid = wellfld_->key();
     Well::LoadReqs lreqs(Well::Trck, Well::Mrkrs, Well::LogInfos);
     wd_ = Well::MGR().get( wellid, lreqs );
     if ( !wd_ )

@@ -49,25 +49,12 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
 		   !ky.isUdf() ? tr("Edit/Create MultiCube Prestack data store")
 			     : tr("Create MultiCube Prestack data store"),
 		   mNoDlgTitle, mODHelpKey(mSeisMultiCubePSHelpID) ))
-	, ctio_(*mMkCtxtIOObj(SeisPS3D))
-	, cubefld_(0)
-	, curselidx_(-1)
-	, outfld_(0)
-	, offsfld_(0)
-	, compfld_(0)
 {
-    ctio_.ctxt_.forread_ = false;
-    ctio_.ctxt_.fixTranslator( "MultiCube" );
-    if ( !ky.isUdf() )
-	ctio_.setObj( ky );
-    else
-	ctio_.setObj( nullptr );
-
     fillEntries();
     if ( entries_.isEmpty() )
     {
 	new uiLabel( this, tr("No cubes found.\n\n"
-                     "Please import 3D seismic data."));
+			      "Please import 3D seismic data.") );
 	return;
     }
 
@@ -114,34 +101,38 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
     offsfld_->attach( alignedBelow, bgrp );
     offsfld_->attach( ensureBelow, sep );
 
-    ctio_.ctxt_.toselect_.allownonuserselectable_ = true;
-    outfld_ = new uiIOObjSel( this, ctio_, uiStrings::sOutpDataStore() );
+    IOObjContext ctxt = mIOObjContext( SeisPS3D );
+    ctxt.forread_ = false;
+    ctxt.fixTranslator( "MultiCube" );
+    ctxt.toselect_.allownonuserselectable_ = true;
+    outfld_ = new uiIOObjSel( this, ctxt, uiStrings::sOutpDataStore() );
     outfld_->attach( alignedBelow, offsfld_ );
 
-    if ( ctio_.ioobj_ )
+    if ( !ky.isUdf() )
+    {
+	outfld_->setInput( ky );
 	afterPopup.notify( mCB(this,uiSeisMultiCubePS,setInitial) );
+    }
 }
 
 
 uiSeisMultiCubePS::~uiSeisMultiCubePS()
 {
-    delete ctio_.ioobj_;
     deepErase( entries_ );
     deepErase( selentries_ );
-    delete &ctio_;
 }
 
 
 const IOObj* uiSeisMultiCubePS::createdIOObj() const
 {
-    return ctio_.ioobj_;
+    return outfld_->ioobj( true );
 }
 
 
 void uiSeisMultiCubePS::fillEntries()
 {
-    const IODir iodir( ctio_.ctxt_.getSelKey() );
     PtrMan<IOObjContext> ctxt = Seis::getIOObjContext( Seis::Vol, true );
+    const IODir iodir( ctxt->getSelKey() );
     const IODirEntryList del( iodir, *ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
@@ -166,14 +157,15 @@ void uiSeisMultiCubePS::recordEntryData()
 }
 
 
-void uiSeisMultiCubePS::setInitial( CallBacker* cb )
+void uiSeisMultiCubePS::setInitial( CallBacker* )
 {
-    if ( !ctio_.ioobj_ )
+    const IOObj* outioobj = outfld_->ioobj( true );
+    if ( !outioobj )
 	return;
 
     uiString emsg;
     ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
-    if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj_->fullUserExpr(false),
+    if ( !MultiCubeSeisPSReader::readData(outioobj->fullUserExpr(false),
 		keys,offs,comps,emsg) )
 	{ uiMSG().error( emsg ); return; }
 
@@ -182,7 +174,8 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 	IOObj* ioobj = IOM().get( *keys[idx] );
 	if ( !ioobj )
 	    continue;
-	uiSeisMultiCubePSEntry* entry = new uiSeisMultiCubePSEntry( ioobj );
+
+	auto* entry = new uiSeisMultiCubePSEntry( ioobj );
 	entry->comp_ = comps[idx];
 	selentries_ += entry;
     }
@@ -209,10 +202,10 @@ void uiSeisMultiCubePS::inputChg( CallBacker* )
 }
 
 
-void uiSeisMultiCubePS::selChg( CallBacker* cb )
+void uiSeisMultiCubePS::selChg( CallBacker* )
 {
     const int selidx = selfld_->currentItem();
-    if ( selidx < 0 || selidx >= selentries_.size() )
+    if ( selidx<0 || selidx>=selentries_.size() )
 	return;
 
     const uiSeisMultiCubePSEntry& se = *selentries_[selidx];
@@ -332,10 +325,9 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	return true;
 
     recordEntryData();
-    if ( !outfld_->commitInput() )
-	mErrRet((outfld_->isEmpty()
-	       ? uiStrings::phrSpecify(uiStrings::phrOutput(uiStrings::sName()))
-	       : uiString::emptyString()))
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
 
     SamplingData<float> offset( offsfld_->getFValue(0),
 				offsfld_->getFValue(1) );
@@ -356,7 +348,7 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 
     uiString emsg;
     const bool ret = MultiCubeSeisPSReader::writeData(
-		ctio_.ioobj_->fullUserExpr(false), keys, offs, comps, emsg );
+		outioobj->fullUserExpr(false), keys, offs, comps, emsg );
     deepErase( keys );
     if ( !ret )
 	mErrRet(emsg)

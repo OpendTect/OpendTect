@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 namespace EM { class Horizon; }
 
-class CtxtIOObj;
 class IOObj;
 class uiGenInput;
 class uiHorSaveFieldGrp;

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uibuildlistfromlist.h"
 #include "datapack.h"
 
-class CtxtIOObj;
 namespace Attrib { class DescSet; }
 class uiPreStackAttrib;
 
@@ -49,7 +48,6 @@ protected:
 
     Attrib::DescSet&	descset_;
     const Setup		attrsetup_;
-    CtxtIOObj&		ctio_;
     TypeSet<DataPack::FullID> dpfids_;
     TypeSet<DataPack::FullID> psdpfids_;
     bool		anychg_;

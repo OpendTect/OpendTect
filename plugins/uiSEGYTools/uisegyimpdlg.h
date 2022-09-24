@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uisegyreaddlg.h"
 #include "uistring.h"
+
 class uiSeisSel;
-class CtxtIOObj;
 class uiCheckBox;
 class uiSeisTransfer;
 class uiBatchJobDispatcherSel;

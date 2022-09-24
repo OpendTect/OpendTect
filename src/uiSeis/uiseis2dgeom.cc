@@ -54,6 +54,10 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 }
 
 
+uiSeisDump2DGeom::~uiSeisDump2DGeom()
+{}
+
+
 static void getLineNames( const IOObj& ioobj, BufferStringSet& lnms )
 {
     uiSeisIOObjInfo oinf( ioobj );

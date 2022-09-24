@@ -316,7 +316,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     if ( outputfld_->isEmpty() )
 	mRetErr(tr("Select an output name"))
 
-    if ( !outputfld_->commitInput() )
+    if ( !outputfld_->ioobj(true) )
 	return false;
 
     RefMan<EM::MarchingCubesSurface> emcs =

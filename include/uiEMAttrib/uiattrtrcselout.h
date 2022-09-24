@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "uiattremout.h"
 
-class CtxtIOObj;
 class TrcKeySampling;
 class NLAModel;
 class uiGenInput;
@@ -69,29 +68,22 @@ protected:
 
     uiString		createAddWidthLabel();
 
-    CtxtIOObj&		ctio_;
-    CtxtIOObj&		ctio2_;
-
     uiIOObjSel*		objfld_;
-    uiIOObjSel*		obj2fld_;
-    uiGenInput*		gatefld_;
-    uiGenInput*		extraztopfld_;
-    uiGenInput*		extrazbotfld_;
+    uiIOObjSel*		obj2fld_		= nullptr;
+    uiGenInput*		gatefld_		= nullptr;
+    uiGenInput*		extraztopfld_		= nullptr;
+    uiGenInput*		extrazbotfld_		= nullptr;
     uiSeisSubSel*	seissubselfld_;
     uiGenInput*		outsidevalfld_;
-    uiGenInput*		interpfld_;
-    uiGenInput*		nrsampfld_;
-    uiGenInput*		mainhorfld_;
-    uiGenInput*		widthfld_;
-    uiGenInput*		addwidthfld_;
+    uiGenInput*		interpfld_		= nullptr;
+    uiGenInput*		nrsampfld_		= nullptr;
+    uiGenInput*		mainhorfld_		= nullptr;
+    uiGenInput*		widthfld_		= nullptr;
+    uiGenInput*		addwidthfld_		= nullptr;
     uiGenInput*		setcubeboundsfld_;
     uiGenInput*		cubeboundsfld_;
     uiSeisSel*		outpfld_;
-    uiDialog*		xparsdlg_;
+    uiDialog*		xparsdlg_		= nullptr;
     bool		usesinglehor_;
-
-private:
-
-    CtxtIOObj&		mkCtxtIOObjHor(bool);
-
+    bool		is2d_;
 };

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistring.h"
 
-class CtxtIOObj;
 class uiIOSelect;
 class uiListBox;
 class uiSeisSel;

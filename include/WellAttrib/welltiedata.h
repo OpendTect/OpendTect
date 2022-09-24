@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "welltiesetup.h"
 
 
-class CtxtIOObj;
 class PostStackSyntheticData;
 class PreStackSyntheticData;
 class ReflectivityModelBase;

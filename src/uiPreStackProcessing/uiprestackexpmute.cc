@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
-#include "ctxtioobj.h"
 #include "file.h"
 #include "mathfunc.h"
 #include "oddirs.h"
@@ -32,11 +31,11 @@ uiExportMute::uiExportMute( uiParent* p )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("Mute Function") ),
 				 mNoDlgTitle,
 				 mODHelpKey(mPreStackExportMuteHelpID) ))
-    , ctio_(*mMkCtxtIOObj(MuteDef))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
-    infld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
+    const IOObjContext ctxt = mIOObjContext( MuteDef );
+    infld_ = new uiIOObjSel( this, ctxt, tr("Mute Definition") );
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
@@ -60,7 +59,6 @@ uiExportMute::uiExportMute( uiParent* p )
 
 uiExportMute::~uiExportMute()
 {
-    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -75,16 +73,17 @@ void uiExportMute::coordTypChngCB( CallBacker* )
 
 bool uiExportMute::writeAscii()
 {
-    if ( !infld_->ioobj() )
+    const IOObj* ioobj = infld_->ioobj();
+    if ( !ioobj )
 	return false;
 
     PtrMan<MuteDefTranslator> trans =
-	(MuteDefTranslator*)ctio_.ioobj_->createTranslator();
+			sCast(MuteDefTranslator*,ioobj->createTranslator());
     if ( !trans ) return false;
 
     MuteDef mutedef;
     uiString errstr;
-    const bool retval = trans->retrieve( mutedef, ctio_.ioobj_, errstr );
+    const bool retval = trans->retrieve( mutedef, ioobj, errstr );
     if ( !retval ) mErrRet( errstr );
 
     const BufferString fname = outfld_->fileName();
@@ -139,7 +138,7 @@ bool uiExportMute::acceptOK( CallBacker* )
 
     if ( File::exists(outfnm)
 	&& !uiMSG().askContinue(
-		uiStrings::phrExistsContinue( uiStrings::sOutputFile(), false )))
+		uiStrings::phrExistsContinue(uiStrings::sOutputFile(),false)) )
 	return false;
 
     if ( writeAscii() )

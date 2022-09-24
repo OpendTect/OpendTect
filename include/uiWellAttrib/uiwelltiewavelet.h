@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistring.h"
 
-class CtxtIOObj;
 class Wavelet;
 class uiFlatViewer;
 class uiFunctionDisplay;
@@ -37,13 +36,12 @@ public:
     void			setActiveWavelet(bool initial);
     bool			isInitialWvltActive() const;
 
-    Notifier<uiWaveletView>	activeWvltChged;
+    Notifier<uiWaveletView>	activeWvltChgd;
     void			activeWvltChanged(CallBacker*);
 
 protected:
 
     ObjectSet<Wavelet>&		wvltset_;
-    CtxtIOObj&			wvltctio_;
 
     uiGenInput*			activewvltfld_;
     ObjectSet<uiWavelet>	uiwvlts_;

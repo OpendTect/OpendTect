@@ -207,11 +207,10 @@ bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj,
 
 bool uiVelocityDescDlg::acceptOK(CallBacker*)
 {
-    volselfld_->commitInput();
-    PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );
+    const IOObj* ioobj = volselfld_->ioobj( true );
     if ( !ioobj )
     {
-	uiMSG().error(tr("Please select a valid volume cube."));
+	uiMSG().error(tr("Please select a valid velocity cube."));
 	return false;
     }
 
@@ -239,7 +238,7 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 	ioobj->pars().removeWithKey( VelocityStretcher::sKeyBotVavg() );
     }
 
-    return veldescfld_->updateAndCommit( *ioobj, true );
+    return veldescfld_->updateAndCommit( *cCast(IOObj*,ioobj), true );
 }
 
 

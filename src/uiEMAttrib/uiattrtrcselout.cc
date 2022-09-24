@@ -46,8 +46,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  const NLAModel* n, const MultiID& mid,
 				  bool usesinglehor )
     : uiAttrEMOut( p, ad, n, mid, "Create Horizon delimited cube output" )
-    , ctio_( mkCtxtIOObjHor(ad.is2D()) )
-    , ctio2_( mkCtxtIOObjHor(ad.is2D()) )
     , usesinglehor_(usesinglehor)
     , extraztopfld_(0)
     , extrazbotfld_(0)
@@ -58,6 +56,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , interpfld_(0)
     , nrsampfld_(0)
     , xparsdlg_(0)
+    , is2d_(ad.is2D())
 {
     setCtrlStyle( RunAndClose );
     setHelpKey( usesinglehor_
@@ -84,9 +83,11 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
-    ctio_.ctxt_.forread_ = true;
-    objfld_ = new uiIOObjSel( pargrp_, ctio_, uiStrings::phrCalculate(
-							tr("along Horizon")) );
+    IOObjContext ctxt =
+		is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    ctxt.forread_ = true;
+    objfld_ = new uiIOObjSel( pargrp_, ctxt,
+			      uiStrings::phrCalculate(tr("along Horizon")) );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -98,6 +99,7 @@ void uiAttrTrcSelOut::createSingleHorUI()
 	createInterpFld( pargrp_ );
 	createNrSampFld( pargrp_ );
     }
+
     createCubeBoundsFlds( pargrp_ );
     createOutputFld( pargrp_ );
 }
@@ -110,15 +112,17 @@ void uiAttrTrcSelOut::createTwoHorUI()
 				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalize().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
+    IOObjContext ctxt =
+		is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    ctxt.forread_ = true;
+
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
     su.filldef(false);
-    ctio_.ctxt_.forread_ = true;
-    objfld_ = new uiIOObjSel( pargrp_, ctio_, su );
+    objfld_ = new uiIOObjSel( pargrp_, ctxt, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
     su.seltxt( tr("and bottom Horizon") );
-    ctio2_.ctxt_.forread_ = true;
-    obj2fld_ = new uiIOObjSel( pargrp_, ctio2_, su );
+    obj2fld_ = new uiIOObjSel( pargrp_, ctxt, su );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -152,14 +156,6 @@ void uiAttrTrcSelOut::createTwoHorUI()
 
 uiAttrTrcSelOut::~uiAttrTrcSelOut()
 {
-    delete ctio_.ioobj_;
-    delete &ctio_;
-
-    if ( !usesinglehor_ )
-    {
-	delete ctio2_.ioobj_;
-	delete &ctio2_;
-    }
 }
 
 
@@ -317,15 +313,15 @@ bool uiAttrTrcSelOut::prepareProcessing()
 {
     if ( !uiAttrEMOut::prepareProcessing() ) return false;
 
-    if ( !objfld_->commitInput() )
+    if ( !objfld_->ioobj(true) )
     {
-	uiMSG().error( tr("Please select first Horizon") );
+	uiMSG().error( tr("Please select first horizon") );
 	return false;
     }
 
-    if ( !usesinglehor_ && !obj2fld_->commitInput() )
+    if ( !usesinglehor_ && !obj2fld_->ioobj(true) )
     {
-	uiMSG().error( tr("Please select second Horizon") );
+	uiMSG().error( tr("Please select second horizon") );
 	return false;
     }
 
@@ -352,7 +348,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
 	EM::SurfaceIOData data;
 	uiString errmsg;
-	if ( !EM::EMM().getSurfaceData(ctio_.ioobj_->key(),data,errmsg) )
+	if ( !EM::EMM().getSurfaceData(objfld_->key(true),data,errmsg) )
 	{
 	    uiMSG().error( errmsg );
 	    return false;
@@ -403,13 +399,13 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
     BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );
-    iopar.set( key, ctio_.ioobj_->key() );
+    iopar.set( key, objfld_->key(true) );
 
     if ( !usesinglehor_ )
     {
 	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1);
 	key = IOPar::compKey( sKey::Geometry(), tmpkey );
-	iopar.set( key, ctio2_.ioobj_->key() );
+	iopar.set( key, obj2fld_->key(true) );
     }
 
     PtrMan<IOPar> subselpar = new IOPar;
@@ -505,7 +501,7 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
 {
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !EM::EMM().getSurfaceData(ctio_.ioobj_->key(),sd,errmsg) )
+    if ( !EM::EMM().getSurfaceData(objfld_->key(true),sd,errmsg) )
 	return;
 
     Interval<int> inlrg(sd.rg.start_.inl(), sd.rg.stop_.inl());
@@ -514,7 +510,7 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
     if ( !usesinglehor_ )
     {
 	EM::SurfaceIOData sd2;
-	if ( !EM::EMM().getSurfaceData(ctio2_.ioobj_->key(),sd2,errmsg) )
+	if ( !EM::EMM().getSurfaceData(obj2fld_->key(true),sd2,errmsg) )
 	    return;
 
 	Interval<int> inlrg2(sd2.rg.start_.inl(), sd2.rg.stop_.inl());
@@ -566,18 +562,19 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 
 void uiAttrTrcSelOut::objSel( CallBacker* )
 {
-    if ( !objfld_->commitInput() ||
-	 ( !usesinglehor_ && !obj2fld_->commitInput() ) )
+    const IOObj* ioobj1 = objfld_->ioobj( true );
+    const IOObj* ioobj2 = obj2fld_ ? obj2fld_->ioobj( true ) : nullptr;
+    if ( !ioobj1 || (!usesinglehor_ && !ioobj2) )
 	return;
 
     if ( ads_->is2D() )
     {
-	EM::IOObjInfo info( ctio_.ioobj_->key() );
+	EM::IOObjInfo info( ioobj1->key() );
 	TypeSet<Pos::GeomID> geomids;
 	info.getGeomIDs( geomids );
 	if ( !usesinglehor_ )
 	{
-	    EM::IOObjInfo info2( ctio2_.ioobj_->key() );
+	    EM::IOObjInfo info2( ioobj2->key() );
 	    TypeSet<Pos::GeomID> geomids2;
 	    info2.getGeomIDs( geomids2 );
 	    for ( int idx=geomids.size()-1; idx>=0; idx-- )
@@ -645,12 +642,6 @@ void uiAttrTrcSelOut::extraDlgDone( CallBacker* )
     }
 
     cubeBoundsSel(0);
-}
-
-
-CtxtIOObj& uiAttrTrcSelOut::mkCtxtIOObjHor( bool is2d )
-{
-    return is2d ? *mMkCtxtIOObj( EMHorizon2D ) : *mMkCtxtIOObj( EMHorizon3D );
 }
 
 

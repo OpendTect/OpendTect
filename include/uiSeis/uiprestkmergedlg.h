@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 
-class CtxtIOObj;
 class IOObj;
 class uiIOObjSel;
 class uiPosSubSel;
@@ -38,8 +37,8 @@ protected:
     void		fillListBox();
     bool		setSelectedVols();
 
-    void                createSelectButtons(uiGroup*);
-    void                createMoveButtons(uiGroup*);
+    void		createSelectButtons(uiGroup*);
+    void		createMoveButtons(uiGroup*);
     void		createFields(uiGroup*);
     void		attachFields(uiGroup*,uiGroup*,uiGroup*);
     void		stackSel(CallBacker*);
@@ -48,9 +47,9 @@ protected:
     bool		acceptOK(CallBacker*) override;
     void		setToolButtonProperty();
 
-    BufferStringSet     allvolsnames_;
-    TypeSet<MultiID>    allvolsids_;
-    ObjectSet<IOObj>    selobjs_;
+    BufferStringSet	allvolsnames_;
+    TypeSet<MultiID>	allvolsids_;
+    ObjectSet<IOObj>	selobjs_;
 
     uiListBox*		volsbox_;
     uiListBox*		selvolsbox_;
@@ -64,7 +63,4 @@ protected:
     uiGenInput*		stackfld_;
     uiIOObjSel*		outpfld_;
     uiPosSubSel*	subselfld_;
-
-    CtxtIOObj&          inctio_;
-    CtxtIOObj&          outctio_;
 };

@@ -884,7 +884,7 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
     if ( outputfld_->isEmpty() )
 	mRetErr(tr("Please select choose a name for the output"));
 
-    if ( !outputfld_->commitInput() )
+    if ( !outputfld_->ioobj() )
 	return false;
 
     if ( createImplicitBody() )

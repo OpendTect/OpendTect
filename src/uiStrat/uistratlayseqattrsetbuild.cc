@@ -33,7 +33,6 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 		  "Layer Sequence Attrib Set build group")
     , attrset_(as ? *as : *new Strat::LaySeqAttribSet)
     , reftree_(lm.refTree())
-    , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
     , typesel_(sts)
     , setismine_(!as)
     , anychg_(false)
@@ -60,10 +59,8 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 
 uiStratLaySeqAttribSetBuild::~uiStratLaySeqAttribSetBuild()
 {
-    delete ctio_.ioobj_;
     if ( setismine_ )
 	delete &attrset_;
-    delete &ctio_;
 }
 
 
@@ -72,11 +69,12 @@ bool uiStratLaySeqAttribSetBuild::handleUnsaved()
     if ( !anychg_ && !usrchg_ ) return true;
 
     const int res = uiMSG().question(tr("Well Attribute Set not saved.\n\n"
-	                                "Do you want to save it now?"),
-                                     tr("Yes (store)"), tr("No (discard)"),
-                                        uiStrings::sCancel() );
-    if ( res == 0 ) return true;
-    if ( res == -1 ) return false;
+					"Do you want to save it now?"),
+		tr("Yes (store)"), tr("No (discard)"), uiStrings::sCancel() );
+    if ( res == 0 )
+	return true;
+    if ( res == -1 )
+	return false;
 
     return ioReq(true);
 }
@@ -141,13 +139,17 @@ void uiStratLaySeqAttribSetBuild::removeReq()
 
 bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 {
-    ctio_.ctxt_.forread_ = !forsave;
-    uiIOObjSelDlg dlg( this, ctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
+    IOObjContext ctxt = mIOObjContext( StratLayerSequenceAttribSet );
+    ctxt.forread_ = !forsave;
+    uiIOObjSelDlg dlg( this, ctxt );
+    if ( !dlg.go() )
 	return false;
-    ctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( ctio_.ioobj_->fullUserExpr(!forsave) );
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj )
+	return false;
+
+    const BufferString fnm( ioobj->fullUserExpr(!forsave) );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     bool rv = false;
     if ( forsave )

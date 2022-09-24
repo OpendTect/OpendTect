@@ -564,7 +564,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvlts += &data_.initwvlt_;
     wvlts += &data_.estimatedwvlt_;
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
-    wvltdraw_->activeWvltChged.notify(
+    wvltdraw_->activeWvltChgd.notify(
 		mCB(this,WellTie::uiInfoDlg,wvltChanged) );
     wvltdraw_->setActiveWavelet( true );
 

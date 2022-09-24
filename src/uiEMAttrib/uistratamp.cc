@@ -38,14 +38,11 @@ static const char* statstrs[] =
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup(tr("Stratal Amplitude"),mNoDlgTitle,
 			 mODHelpKey(mStratAmpCalcHelpID)))
-    , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
-    , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
-    , isoverwrite_(false)
 {
     setCtrlStyle( RunAndClose );
 
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
-    inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
+    inpfld_ = new uiAttrSel( this, *ads, "Select Attribute" );
     mAttachCB( inpfld_->selectionDone, uiStratAmpCalc::inpSel );
 
     classfld_ = new uiGenInput( this,
@@ -57,11 +54,12 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     mAttachCB( winoption_->valuechanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld_ );
 
-    horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon() );
+    const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+    horfld1_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
     mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiIOObjSel( this, horctio2_, uiStrings::sBottomHor() );
+    horfld2_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
     mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 
@@ -112,8 +110,6 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 uiStratAmpCalc::~uiStratAmpCalc()
 {
     detachAllNotifiers();
-    delete horctio1_.ioobj_; delete &horctio1_;
-    delete horctio2_.ioobj_; delete &horctio2_;
 }
 
 
@@ -168,17 +164,17 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
     if ( inpfld_->getRanges(cs) )
 	hs.limitTo( cs.hsamp_ );
 
-    if ( horfld1_->commitInput() )
+    if ( horfld1_->ioobj(false) )
     {
-	EM::IOObjInfo eminfo( horctio1_.ioobj_->key() );
+	const EM::IOObjInfo eminfo( horfld1_->key(true) );
 	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
     }
 
-    if ( !usesingle_ && horfld2_->commitInput() )
+    if ( !usesingle_ && horfld2_->ioobj(false) )
     {
-	EM::IOObjInfo eminfo( horctio2_.ioobj_->key() );
+	const EM::IOObjInfo eminfo( horfld2_->key(true) );
 	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
@@ -191,19 +187,19 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 bool uiStratAmpCalc::checkInpFlds()
 {
     if ( inpfld_->isEmpty() )
-mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
+	mErrRet( tr("Missing Input\nPlease select the input "
+		    "attribute / seismics"));
 
-    if ( usesingle_ && !horfld1_->commitInput() )
+    const IOObj* ioobj1 = horfld1_->ioobj( true );
+    const IOObj* ioobj2 = horfld2_->ioobj( true );
+    if ( usesingle_ && !ioobj1 )
 	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
 
-    if ( !usesingle_ )
-    {
-	if ( !horfld1_->commitInput() || !horfld2_->commitInput() )
-	    mErrRet( tr("Missing Input\nPlease Check Top / Bottom Horizon") );
-    }
+    if ( !usesingle_ && (!ioobj1 || !ioobj2) )
+	mErrRet( tr("Missing Input\nPlease Check Top / Bottom Horizon") );
 
-    if ( !usesingle_ && horctio1_.ioobj_->key() == horctio2_.ioobj_->key() )
-	      mErrRet( tr("Select Two Different Horizons") );
+    if ( !usesingle_ && ioobj1->key() == ioobj2->key() )
+	mErrRet( tr("Select Two Different Horizons") );
 
     return true;
 }
@@ -211,11 +207,11 @@ mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
 
 bool uiStratAmpCalc::prepareProcessing()
 {
-    if ( !checkInpFlds() ) return false;
+    if ( !checkInpFlds() )
+	return false;
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
-    const EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj_->key()
-					 : horctio2_.ioobj_->key() );
+    const EM::IOObjInfo eminfo( addtotop ? horfld1_->key() : horfld2_->key() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
@@ -240,9 +236,9 @@ bool uiStratAmpCalc::fillPar()
     iop.setEmpty();
 
     iop.setYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle_ );
-    iop.set( StratAmpCalc::sKeyTopHorizonID() , horctio1_.ioobj_->key() );
+    iop.set( StratAmpCalc::sKeyTopHorizonID() , horfld1_->key() );
     if ( !usesingle_ )
-	iop.set( StratAmpCalc::sKeyBottomHorizonID(), horctio2_.ioobj_->key() );
+	iop.set( StratAmpCalc::sKeyBottomHorizonID(), horfld2_->key() );
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
     iop.setYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );

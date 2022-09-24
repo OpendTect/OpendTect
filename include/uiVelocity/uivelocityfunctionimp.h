@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 class uiFileInput;
 class uiIOObjSel;
-class CtxtIOObj;
 class uiTableImpDataSel;
 class uiVelocityDesc;
 
@@ -33,8 +32,6 @@ protected:
     uiFileInput*	inpfld_;
     uiVelocityDesc*	typefld_;
     uiIOObjSel*		outfld_;
-
-    CtxtIOObj&		ctio_;
 
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;

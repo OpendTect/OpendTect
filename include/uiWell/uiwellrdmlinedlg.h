@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-class CtxtIOObj;
 class uiCheckBox;
 class uiIOObjSel;
 class uiTable;
@@ -95,10 +94,8 @@ protected:
     bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		extendfld_;
-    uiIOObjSel*	outfld_;
+    uiIOObjSel*		outfld_;
     uiCheckBox*	dispfld_;
-
-    CtxtIOObj&		outctio_;
 
     uiPushButton*	previewbutton_;
 

@@ -9,26 +9,26 @@ ________________________________________________________________________
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
-#include "uiioobjsel.h"
-#include "uigeninput.h"
-#include "uispinbox.h"
-#include "uiselsurvranges.h"
-#include "uilabel.h"
-#include "uimsg.h"
-#include "uistrings.h"
-#include "emsurfacetr.h"
+
 #include "ctxtioobj.h"
-#include "survinfo.h"
-#include "keystrs.h"
+#include "emsurfacetr.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "survinfo.h"
+
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiselsurvranges.h"
+#include "uispinbox.h"
+#include "uistrings.h"
 
 
 uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , ctio1_(*mMkCtxtIOObj(EMHorizon3D))
-    , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , zfac_(sCast(float,SI().zDomain().userFactor()))
     , surf1fld_(nullptr)
     , surf2fld_(nullptr)
@@ -42,7 +42,9 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	new uiLabel( this, tr("Not implemented for 2D") );
 	return;
     }
-    surf1fld_ = new uiIOObjSel( this, ctio1_, uiStrings::sHorizon() );
+
+    const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+    surf1fld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),
@@ -51,7 +53,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valuechanged.notify( selcb );
 
-    surf2fld_ = new uiIOObjSel( this, ctio2_, uiStrings::sBottomHor() );
+    surf2fld_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
     uiString txt;
@@ -101,8 +103,6 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 uiSurfacePosProvGroup::~uiSurfacePosProvGroup()
 {
     detachAllNotifiers();
-    delete ctio1_.ioobj_; delete &ctio1_;
-    delete ctio2_.ioobj_; delete &ctio2_;
 }
 
 
@@ -180,22 +180,25 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 
 bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 {
-    if ( !surf1fld_ ) return false;
+    const IOObj* ioobj1 = surf1fld_ ? surf1fld_->ioobj() : nullptr;
+    if ( !ioobj1 )
+	return false;
 
-    if ( !surf1fld_->commitInput() )
-	mErrRet(tr("Please select the surface"))
-    iop.set( mGetSurfKey(id1), ctio1_.ioobj_->key() );
+    iop.set( mGetSurfKey(id1), ioobj1->key() );
 
     Interval<float> ez( 0, 0 );
     if ( issingfld_->getBoolValue() )
 	iop.removeWithKey( mGetSurfKey(id2) );
     else
     {
-	if ( !surf2fld_->commitInput() )
-	    mErrRet(tr("Please select the bottom horizon"))
-	 if (  ctio2_.ioobj_->key() ==	ctio1_.ioobj_->key() )
-	     mErrRet(tr("Please select two different horizons"))
-	iop.set( mGetSurfKey(id2), ctio2_.ioobj_->key() );
+	const IOObj* ioobj2 = surf2fld_->ioobj();
+	if ( !ioobj2 )
+	    return false;
+
+	if ( ioobj1->key() == ioobj2->key() )
+	    mErrRet(tr("Please select two different horizons"))
+
+	iop.set( mGetSurfKey(id2), ioobj2->key() );
     }
 
     const float zstep = zstepfld_ ? zstepfld_->box()->getFValue() / zfac_

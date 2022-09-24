@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
-class CtxtIOObj;
 class od_istream;
 class uiFileInput;
 class uiGenInput;
@@ -52,7 +51,6 @@ protected:
     uiGenInput*		sortsticksfld_;
     uiGenInput*		stickselfld_;
     uiGenInput*		thresholdfld_;
-    CtxtIOObj&		ctio_;
     Table::FormatDesc*	fd_;
     uiTableImpDataSel*	dataselfld_;
     bool		isfss_;

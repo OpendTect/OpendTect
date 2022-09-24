@@ -90,7 +90,7 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Body() );
-    if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body()) )
+    if ( !bodyfld_->ioobj(true) || !bodyfld_->fillPar(iop,sKey::Body()) )
 	mErrRet(tr("Please select the geobody"));
 
     iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(),

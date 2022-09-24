@@ -21,7 +21,6 @@ class uiToolButton;
 class uiToolButtonSetup;
 class uiUnitSel;
 
-class CtxtIOObj;
 class UnitOfMeasure;
 namespace Math { class Formula; }
 
@@ -100,7 +99,6 @@ private:
 
     Setup		setup_;
     TypeSet<double>	recvals_;
-    CtxtIOObj&		ctio_;
 
     BufferString	getIOFileName(bool forread);
     bool		setNotifInpNr(const CallBacker*,int& inpnr);

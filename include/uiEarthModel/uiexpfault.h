@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "multiid.h"
 
-class CtxtIOObj;
 class StreamData;
 class uiCheckBox;
 class uiCheckList;
@@ -38,18 +37,17 @@ public:
 
 protected:
 
-    uiIOObjSelGrp*	bulkinfld_;
-    uiIOObjSel*		infld_;
+    uiIOObjSelGrp*	bulkinfld_		= nullptr;
+    uiIOObjSel*		infld_			= nullptr;
     uiGenInput*		coordfld_;
     uiCheckList*	stickidsfld_;
-    uiCheckBox*		linenmfld_;
+    uiCheckBox*		linenmfld_		= nullptr;
     uiFileInput*	outfld_;
     uiUnitSel*		zunitsel_;
     uiGenInput*		zfld_;
     uiT2DConvSel*	transfld_;
-    Coords::uiCoordSystemSel* coordsysselfld_;
+    Coords::uiCoordSystemSel* coordsysselfld_	= nullptr;
 
-    CtxtIOObj&		ctio_;
     bool		getInputMIDs(TypeSet<MultiID>&);
 
     void		addZChg(CallBacker*);

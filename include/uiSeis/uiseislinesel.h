@@ -29,7 +29,6 @@ class uiSelNrRange;
 class uiSelZRange;
 class uiSeis2DLineSel;
 
-class CtxtIOObj;
 class IOObj;
 
 

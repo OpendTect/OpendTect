@@ -33,7 +33,6 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Angle Mute Computer"),
 				mNoDlgTitle,
 				mODHelpKey(mAngleMuteComputerHelpID) ) )
-    , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer)
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), true );
@@ -48,8 +47,9 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     subsel_->attach( alignedBelow, anglecompgrp_ );
     subsel_->attach( ensureBelow, sep );
 
-    outctio_.ctxt_.forread_ = false;
-    mutedeffld_ = new uiIOObjSel( this, outctio_ );
+    IOObjContext ctxt = mIOObjContext( MuteDef );
+    ctxt.forread_ = false;
+    mutedeffld_ = new uiIOObjSel( this, ctxt );
     mutedeffld_->attach( alignedBelow, subsel_ );
 }
 
@@ -57,7 +57,6 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
 uiAngleMuteComputer::~uiAngleMuteComputer()
 {
     delete processor_;
-    delete &outctio_;
 }
 
 
@@ -66,20 +65,19 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
-    if ( !mutedeffld_->commitInput() || !outctio_.ioobj_ )
-    {
-	uiMSG().error(tr("Please select a valid output mute function"));
+    const IOObj* ioobj = mutedeffld_->ioobj();
+    if ( !ioobj )
 	return false;
-    }
+
     TrcKeySampling hrg;
     if ( !subsel_->isAll() )
 	subsel_->getSampling( hrg );
 
     processor_->params().tks_ = hrg;
-    processor_->params().outputmutemid_ = mutedeffld_->key(true);
+    processor_->params().outputmutemid_ = ioobj->key();
 
     uiTaskRunner taskrunner(this);
-    if ( !TaskRunner::execute( &taskrunner, *processor_ ) )
+    if ( !TaskRunner::execute(&taskrunner,*processor_) )
     {
 	uiMSG().error( processor_->errMsg() );
 	return false;

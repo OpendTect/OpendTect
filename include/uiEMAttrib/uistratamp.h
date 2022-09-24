@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "uidialog.h"
 
-class CtxtIOObj;
 class TrcKeySampling;
 class uiAttrSel;
 class uiBatchJobDispatcherSel;
@@ -41,9 +40,6 @@ protected:
     void		setParFileName();
     bool		acceptOK(CallBacker*) override;
 
-    CtxtIOObj&		horctio1_;
-    CtxtIOObj&		horctio2_;
-
     uiGenInput*		winoption_;
     uiGenInput*		zoffset_;
     uiGenInput*		tophorshiftfld_;
@@ -57,7 +53,7 @@ protected:
     uiIOObjSel*		horfld2_;
     uiPosSubSel*	rangefld_;
     uiLabeledComboBox*	ampoptionfld_;
-    bool		usesingle_;
-    bool		isoverwrite_;
+    bool		usesingle_		= true;
+    bool		isoverwrite_		= false;
     uiBatchJobDispatcherSel*	batchfld_;
 };

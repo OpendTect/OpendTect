@@ -45,7 +45,7 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 	nlamodel_ = model->clone();
 
     setTitleText( uiString::emptyString() );
-    attrfld_ = new uiAttrSel( pargrp_, *ads_, "Quantity to output" );
+    attrfld_ = new uiAttrSel( pargrp_, *ads_, "Select Attribute" );
     attrfld_->setNLAModel( nlamodel_ );
     attrfld_->selectionDone.notify( mCB(this,uiAttrEMOut,attribSel) );
 }
@@ -69,7 +69,7 @@ bool uiAttrEMOut::prepareProcessing()
     attrfld_->processInput();
     if ( !attrfld_->attribID().isValid() && attrfld_->outputNr() < 0 )
     {
-	uiMSG().error( tr("Please select the output quantity") );
+	uiMSG().error( tr("Please select attribute to calculate") );
 	return false;
     }
 

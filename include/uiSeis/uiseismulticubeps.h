@@ -18,7 +18,6 @@ class uiIOObjSel;
 class uiListBox;
 class uiSeisMultiCubePSEntry;
 class IOObj;
-class CtxtIOObj;
 
 mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
 { mODTextTranslationClass(uiSeisMultiCubePS);
@@ -31,17 +30,16 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio_;
     ObjectSet<uiSeisMultiCubePSEntry>	entries_;
     ObjectSet<uiSeisMultiCubePSEntry>	selentries_;
-    int			curselidx_;
+    int			curselidx_		= -1;
 
-    uiListBox*		cubefld_;
-    uiCheckBox*		allcompfld_;
-    uiListBox*		selfld_;
-    uiGenInput*		offsfld_;
-    uiIOObjSel*		outfld_;
-    uiComboBox*		compfld_;
+    uiListBox*		cubefld_		= nullptr;
+    uiCheckBox*		allcompfld_		= nullptr;
+    uiListBox*		selfld_			= nullptr;
+    uiGenInput*		offsfld_		= nullptr;
+    uiIOObjSel*		outfld_			= nullptr;
+    uiComboBox*		compfld_		= nullptr;
 
     void		fillEntries();
     void		fillBox(uiListBox*);

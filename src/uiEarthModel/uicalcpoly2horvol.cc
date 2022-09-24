@@ -163,7 +163,6 @@ uiCalcPolyHorVol::~uiCalcPolyHorVol()
 
 void uiCalcPolyHorVol::horSel( CallBacker* cb )
 {
-    horsel_->commitInput();
     const IOObj* ioobj = horsel_->ioobj( true );
     if ( !ioobj )
 	return;

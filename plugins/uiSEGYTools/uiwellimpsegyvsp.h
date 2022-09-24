@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "samplingdata.h"
 #include "uistring.h"
+
 class uiSEGYVSPBasicPars;
 class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
 class uiIOObjSel;
 class SeisTrc;
-class CtxtIOObj;
 
 
 mExpClass(uiSEGYTools) uiWellImportSEGYVSP : public uiDialog
