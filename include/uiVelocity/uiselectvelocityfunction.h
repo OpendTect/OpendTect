@@ -80,6 +80,8 @@ mExpClass(uiVelocity) uiAddFunction : public uiDialog
 { mODTextTranslationClass(uiAddFunction);
 public:
     				uiAddFunction( uiParent* );
+				~uiAddFunction();
+
     FunctionSource*		getSource();
 public:
     void			typeSelChangeCB(CallBacker*);
@@ -93,8 +95,9 @@ public:
 mExpClass(uiVelocity) uiEditFunction : public uiDialog
 { mODTextTranslationClass(uiEditFunction);
 public:
-    				uiEditFunction( uiParent*,
-						FunctionSource* );
+				uiEditFunction(uiParent*,FunctionSource*);
+				~uiEditFunction();
+
     bool			isOK() const { return dlggrp_; }
 public:
     bool			acceptOK(CallBacker*) override;

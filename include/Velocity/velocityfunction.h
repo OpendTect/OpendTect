@@ -100,6 +100,8 @@ public:
     const char*			errMsg() const;
 
 protected:
+				FunctionSource();
+				~FunctionSource();
 
     friend			class Function;
     void			removeFunction(const Function*);

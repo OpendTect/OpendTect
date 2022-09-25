@@ -23,7 +23,9 @@ mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 public:
 				FunctionAscIO( const Table::FormatDesc& fd,
 					       od_istream&,
-					       od_int64 filesizeinkb=-1 );
+					       od_int64 filesizeinkb=-1);
+				~FunctionAscIO();
+
    static Table::FormatDesc*	getDesc();
    static void			updateDesc(Table::FormatDesc&);
 
