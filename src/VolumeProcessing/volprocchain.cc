@@ -16,8 +16,11 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "survinfo.h"
 
+namespace VolProc
+{
 
-VolProc::Chain::Connection::Connection( Step::ID outpstepid,
+// Chain::Connection
+Chain::Connection::Connection( Step::ID outpstepid,
 			       Step::OutputSlotID outpslotid,
 			       Step::ID inpstepid,
 			       Step::InputSlotID inpslotid )
@@ -26,11 +29,14 @@ VolProc::Chain::Connection::Connection( Step::ID outpstepid,
     , inputstepid_( inpstepid )
     , inputslotid_( inpslotid )
 {
-
 }
 
 
-bool VolProc::Chain::Connection::isUdf() const
+Chain::Connection::~Connection()
+{}
+
+
+bool Chain::Connection::isUdf() const
 {
     return  mIsUdf( outputstepid_ ) ||
 	    mIsUdf( outputslotid_) ||
@@ -39,7 +45,7 @@ bool VolProc::Chain::Connection::isUdf() const
 }
 
 
-bool VolProc::Chain::Connection::operator==( const Chain::Connection& b ) const
+bool Chain::Connection::operator==( const Chain::Connection& b ) const
 {
     return outputstepid_==b.outputstepid_ &&
 	    outputslotid_==b.outputslotid_ &&
@@ -48,27 +54,28 @@ bool VolProc::Chain::Connection::operator==( const Chain::Connection& b ) const
 }
 
 
-void VolProc::Chain::Connection::fillPar( IOPar& iopar, const char* key ) const
+void Chain::Connection::fillPar( IOPar& iopar, const char* key ) const
 {
     iopar.set( key, outputstepid_, outputslotid_,
 	       inputstepid_, inputslotid_ );
 }
 
 
-bool VolProc::Chain::Connection::usePar( const IOPar& iopar, const char* key )
+bool Chain::Connection::usePar( const IOPar& iopar, const char* key )
 {
     return iopar.get( key, outputstepid_, outputslotid_,
 		      inputstepid_, inputslotid_ );
 }
 
 
-bool VolProc::Chain::Connection::operator!=( const Chain::Connection& b ) const
+bool Chain::Connection::operator!=( const Chain::Connection& b ) const
 {
     return !((*this)==b);
 }
 
 
-VolProc::Chain::Chain()
+// Chain
+Chain::Chain()
     : zstep_( SI().zRange(true).step )
     , zist_( SI().zIsTime() )
     , freeid_( 0 )
@@ -79,14 +86,14 @@ VolProc::Chain::Chain()
 }
 
 
-VolProc::Chain::~Chain()
+Chain::~Chain()
 {
     deepErase( steps_ );
     deepErase( outcompscalers_ );
 }
 
 
-bool VolProc::Chain::addConnection( const Chain::Connection& conn )
+bool Chain::addConnection( const Chain::Connection& conn )
 {
     if ( !validConnection(conn) )
 	return false;
@@ -96,13 +103,13 @@ bool VolProc::Chain::addConnection( const Chain::Connection& conn )
 }
 
 
-void VolProc::Chain::removeConnection( const Chain::Connection& conn )
+void Chain::removeConnection( const Chain::Connection& conn )
 {
     web_.getConnections() -= conn;
 }
 
 
-void VolProc::Chain::updateConnections()
+void Chain::updateConnections()
 {
     const Chain::Web oldweb = web_;
     web_.getConnections().erase();
@@ -128,7 +135,7 @@ void VolProc::Chain::updateConnections()
 }
 
 
-bool VolProc::Chain::validConnection( const Chain::Connection& conn ) const
+bool Chain::validConnection( const Chain::Connection& conn ) const
 {
     if ( conn.isUdf() )
 	return false;
@@ -145,19 +152,19 @@ bool VolProc::Chain::validConnection( const Chain::Connection& conn ) const
 }
 
 
-int VolProc::Chain::nrSteps() const
+int Chain::nrSteps() const
 {
     return steps_.size();
 }
 
 
-VolProc::Step* VolProc::Chain::getStep( int idx )
+Step* Chain::getStep( int idx )
 {
     return steps_.validIdx(idx) ? steps_[idx] : 0;
 }
 
 
-VolProc::Step* VolProc::Chain::getStepFromID( Step::ID id )
+Step* Chain::getStepFromID( Step::ID id )
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
 	if ( steps_[idx]->getID()==id )
@@ -167,13 +174,13 @@ VolProc::Step* VolProc::Chain::getStepFromID( Step::ID id )
 }
 
 
-const VolProc::Step* VolProc::Chain::getStepFromID( Step::ID id ) const
+const Step* Chain::getStepFromID( Step::ID id ) const
 {
     return const_cast<Chain*>( this )->getStepFromID( id );
 }
 
 
-VolProc::Step* VolProc::Chain::getStepFromName( const char* nm )
+Step* Chain::getStepFromName( const char* nm )
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
@@ -186,39 +193,39 @@ VolProc::Step* VolProc::Chain::getStepFromName( const char* nm )
 }
 
 
-const VolProc::Step* VolProc::Chain::getStepFromName( const char* nm ) const
+const Step* Chain::getStepFromName( const char* nm ) const
 {
     return const_cast<Chain*>(this)->getStepFromName( nm );
 }
 
 
-int VolProc::Chain::indexOf( const Step* stp ) const
+int Chain::indexOf( const Step* stp ) const
 {
     return steps_.indexOf( stp );
 }
 
 
-void VolProc::Chain::addStep( Step* stp )
+void Chain::addStep( Step* stp )
 {
     stp->setChain( *this );
     steps_ += stp;
 }
 
 
-void VolProc::Chain::insertStep( int idx, Step* stp )
+void Chain::insertStep( int idx, Step* stp )
 {
     steps_.insertAt( stp, idx );
 }
 
 
-void VolProc::Chain::swapSteps( int o1, int o2 )
+void Chain::swapSteps( int o1, int o2 )
 {
     steps_.swap( o1, o2 );
     updateConnections();
 }
 
 
-void VolProc::Chain::removeStep( int sidx )
+void Chain::removeStep( int sidx )
 {
     if ( !steps_.validIdx(sidx) ) return;
 
@@ -227,7 +234,7 @@ void VolProc::Chain::removeStep( int sidx )
 }
 
 
-int VolProc::Chain::getNrUsers( Step::ID stepid,
+int Chain::getNrUsers( Step::ID stepid,
 				Step::InputSlotID inpslotid ) const
 {
     TypeSet<Connection> inpconnections;
@@ -252,7 +259,7 @@ int VolProc::Chain::getNrUsers( Step::ID stepid,
 }
 
 
-const VelocityDesc* VolProc::Chain::getVelDesc() const
+const VelocityDesc* Chain::getVelDesc() const
 {
     for ( int idx=steps_.size()-1; idx>=0; idx-- )
 	if ( steps_[idx]->getVelDesc() )
@@ -262,7 +269,7 @@ const VelocityDesc* VolProc::Chain::getVelDesc() const
 }
 
 
-bool VolProc::Chain::areSamplesIndependent() const
+bool Chain::areSamplesIndependent() const
 {
     for ( int idx=steps_.size()-1; idx>=0; idx-- )
 	if ( !steps_[idx]->areSamplesIndependent() )
@@ -272,7 +279,7 @@ bool VolProc::Chain::areSamplesIndependent() const
 }
 
 
-bool VolProc::Chain::needsFullVolume() const
+bool Chain::needsFullVolume() const
 {
     for ( int idx=steps_.size()-1; idx>=0; idx-- )
 	if ( steps_[idx]->needsFullVolume() )
@@ -282,7 +289,7 @@ bool VolProc::Chain::needsFullVolume() const
 }
 
 
-void VolProc::Chain::fillPar( IOPar& par ) const
+void Chain::fillPar( IOPar& par ) const
 {
     par.set( sKeyNrSteps(), steps_.size() );
     for ( int idx=0; idx<steps_.size(); idx++ )
@@ -315,7 +322,7 @@ void VolProc::Chain::fillPar( IOPar& par ) const
 }
 
 
-const char* VolProc::Chain::sKeyConnection( int idx, BufferString& str )
+const char* Chain::sKeyConnection( int idx, BufferString& str )
 {
     str = "Connection ";
     str += idx;
@@ -323,7 +330,7 @@ const char* VolProc::Chain::sKeyConnection( int idx, BufferString& str )
 }
 
 
-bool VolProc::Chain::usePar( const IOPar& par )
+bool Chain::usePar( const IOPar& par )
 {
     deepErase( steps_ );
     deepErase( outcompscalers_ );
@@ -469,7 +476,7 @@ bool VolProc::Chain::usePar( const IOPar& par )
 }
 
 
-void VolProc::Chain::setStorageID( const MultiID& mid )
+void Chain::setStorageID( const MultiID& mid )
 {
     storageid_ = mid;
 
@@ -478,7 +485,7 @@ void VolProc::Chain::setStorageID( const MultiID& mid )
 }
 
 
-bool VolProc::Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )
+bool Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )
 {
     if ( steps_.size() > 1 )
     {
@@ -494,7 +501,7 @@ bool VolProc::Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )
 }
 
 
-void VolProc::Chain::setOutputScalers( const ObjectSet<Scaler>& scalers )
+void Chain::setOutputScalers( const ObjectSet<Scaler>& scalers )
 {
     deepErase( outcompscalers_ );
     for ( int idx=0; idx<scalers.size(); idx++ )
@@ -502,23 +509,34 @@ void VolProc::Chain::setOutputScalers( const ObjectSet<Scaler>& scalers )
 }
 
 
-const ObjectSet<Scaler>& VolProc::Chain::getOutputScalers() const
+const ObjectSet<Scaler>& Chain::getOutputScalers() const
 {
     return outcompscalers_;
 }
 
 
-uiString VolProc::Chain::errMsg() const
+uiString Chain::errMsg() const
 {
     return errmsg_;
 }
 
 
-void VolProc::Chain::Web::getConnections( Step::ID stepid, bool isinput,
-			    TypeSet<VolProc::Chain::Connection>& res ) const
+// Chain::Web
+Chain::Web::Web()
+{}
+
+
+Chain::Web::~Web()
+{}
+
+
+void Chain::Web::getConnections( Step::ID stepid, bool isinput,
+			    TypeSet<Chain::Connection>& res ) const
 {
     for ( int idx=0; idx<connections_.size(); idx++ )
 	if ( (isinput && connections_[idx].inputstepid_==stepid) ||
 	     (!isinput && connections_[idx].outputstepid_==stepid))
 		res += connections_[idx];
 }
+
+} // namespace VolProc
