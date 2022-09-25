@@ -18,7 +18,8 @@ class uiSlider;
 mExpClass(uiVis) uiArrowDialog : public uiDialog
 {mODTextTranslationClass(uiArrowDialog)
 public:
-			uiArrowDialog(uiParent* p);
+			uiArrowDialog(uiParent*);
+			~uiArrowDialog();
 
     void		setColor(const OD::Color&);
     const OD::Color&	getColor() const;

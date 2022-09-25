@@ -43,6 +43,10 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
 }
 
 
+uiArrowDialog::~uiArrowDialog()
+{}
+
+
 void uiArrowDialog::setColor( const OD::Color& col )
 {
     linestylefld_->setColor( col );

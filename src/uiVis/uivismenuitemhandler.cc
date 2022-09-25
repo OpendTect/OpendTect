@@ -22,6 +22,10 @@ uiVisMenuItemHandler::uiVisMenuItemHandler(const char* classnm,
 {}
 
 
+uiVisMenuItemHandler::~uiVisMenuItemHandler()
+{}
+
+
 VisID uiVisMenuItemHandler::getDisplayID() const
 {
     return VisID(menuhandler_.menuID());
@@ -47,6 +51,10 @@ uiPickSetPolygonMenuItemHandler::uiPickSetPolygonMenuItemHandler(
     , visserv_(vps)
     , addwhenpolygon_(true)
     , addwhenpickset_(true)
+{}
+
+
+uiPickSetPolygonMenuItemHandler::~uiPickSetPolygonMenuItemHandler()
 {}
 
 

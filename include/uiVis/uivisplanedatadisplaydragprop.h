@@ -19,7 +19,9 @@ mExpClass(uiVis) uiVisPlaneDataDisplayDragProp : public uiDlgGroup
 { mODTextTranslationClass(uiVisPlaneDataDisplayDragProp);
 public:
     			uiVisPlaneDataDisplayDragProp(uiParent*,
-			    visSurvey::PlaneDataDisplay* );
+						visSurvey::PlaneDataDisplay*);
+			~uiVisPlaneDataDisplayDragProp();
+
     bool		acceptOK();
     bool		revertChanges();
 

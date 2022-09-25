@@ -35,6 +35,10 @@ uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
 }
 
 
+uiVisPolygonSurfBezierDlg::~uiVisPolygonSurfBezierDlg()
+{}
+
+
 bool uiVisPolygonSurfBezierDlg::acceptOK()
 { return apply(); }
 

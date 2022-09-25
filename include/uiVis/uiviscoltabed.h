@@ -73,6 +73,7 @@ mExpClass(uiVis) uiColorBarDialog : public uiDialog
 public:
 				uiColorBarDialog(uiParent*,
 						 const uiString& title);
+				~uiColorBarDialog();
 
     uiVisColTabEd&		editor()	{ return *coltabed_; }
 

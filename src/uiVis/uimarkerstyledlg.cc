@@ -36,6 +36,10 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title,
 }
 
 
+uiMarkerStyleDlg::~uiMarkerStyleDlg()
+{}
+
+
 bool uiMarkerStyleDlg::acceptOK( CallBacker* )
 {
     MarkerStyle3D style;

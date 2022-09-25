@@ -22,6 +22,7 @@ mExpClass(uiVis) uiSlicePos3DDisp : public uiSlicePos
 {
 public:
 			uiSlicePos3DDisp(uiParent*,uiVisPartServer*);
+			~uiSlicePos3DDisp();
 
     void		setDisplay(VisID dispid);
     VisID		getDisplayID() const;

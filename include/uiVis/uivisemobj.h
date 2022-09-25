@@ -103,6 +103,7 @@ public:
     HelpKey		helpKey() const override;
 
 protected:
+			~uiHorizonSettings();
 
     uiGenInput*		resolutionfld_;
     uiColorTableGroup*	coltabfld_;

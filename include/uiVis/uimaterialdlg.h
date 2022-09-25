@@ -64,6 +64,7 @@ mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
 public:
     				uiLineStyleGrp(uiParent*,
 					       visSurvey::SurveyObject*);
+				~uiLineStyleGrp();
 
 protected:
 
@@ -83,6 +84,7 @@ mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
 public:
 				uiTextureInterpolateGrp(uiParent*,
 					visSurvey::SurveyObject*);
+				~uiTextureInterpolateGrp();
 protected:
     void			chgIntpCB(CallBacker*);
 

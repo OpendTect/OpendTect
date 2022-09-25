@@ -19,6 +19,7 @@ mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
 public:
 			uiSeedPropDlg(uiParent*,EM::EMObject*,
 					int posattr=EM::EMObject::sSeedNode());
+			~uiSeedPropDlg();
 
 protected:
 

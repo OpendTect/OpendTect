@@ -195,6 +195,9 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 }
 
 
+uiSurvTopBotImageDlg::~uiSurvTopBotImageDlg()
+{}
+
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
 {
