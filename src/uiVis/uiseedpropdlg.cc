@@ -22,6 +22,10 @@ uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj, int posattr )
 }
 
 
+uiSeedPropDlg::~uiSeedPropDlg()
+{}
+
+
 void uiSeedPropDlg::doFinalize( CallBacker* )
 {
     stylefld_->setMarkerStyle( markerstyle_ );

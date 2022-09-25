@@ -31,6 +31,7 @@ public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,
 				const uiString& mnutext,const CallBack& cb,
 				const char* parenttext=0,int placement=-1);
+		~uiVisMenuItemHandler();
 
     VisID	getDisplayID() const;
     		/*!<Does only give a valid answer if called from cb. */
@@ -54,6 +55,7 @@ public:
 		uiPickSetPolygonMenuItemHandler(uiVisPartServer&,
 				const uiString& mnutext,const CallBack&,
 				const char* parenttext=0,int placement=-1);
+		~uiPickSetPolygonMenuItemHandler();
 
     void	addWhenPickSet(bool);
     void	addWhenPolygon(bool);

@@ -22,6 +22,7 @@ mExpClass(uiVis) uiGridLinesDlg : public uiDialog
 { mODTextTranslationClass(uiGridLinesDlg);
 public:
 			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);
+			~uiGridLinesDlg();
 
 protected:
 

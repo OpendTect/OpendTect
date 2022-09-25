@@ -84,6 +84,10 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 }
 
 
+uiGridLinesDlg::~uiGridLinesDlg()
+{}
+
+
 void uiGridLinesDlg::showGridLineCB( CallBacker* cb )
 {
     if ( inlspacingfld_ )

@@ -31,6 +31,10 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 }
 
 
+uiAttribTransDlg::~uiAttribTransDlg()
+{}
+
+
 void uiAttribTransDlg::changeCB( CallBacker* )
 {
     const int val = 255*slider_->getIntValue()/100;

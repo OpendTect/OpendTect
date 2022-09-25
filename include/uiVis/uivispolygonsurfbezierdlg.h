@@ -22,7 +22,10 @@ mExpClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
 public:
 					uiVisPolygonSurfBezierDlg(uiParent*,
 						visSurvey::PolygonBodyDisplay*);
+					~uiVisPolygonSurfBezierDlg();
+
     bool				acceptOK();
+
 protected:
     void				applyCB(CallBacker*);
     bool				apply();

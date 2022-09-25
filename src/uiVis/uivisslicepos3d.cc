@@ -33,6 +33,10 @@ uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p, uiVisPartServer* server )
 }
 
 
+uiSlicePos3DDisp::~uiSlicePos3DDisp()
+{}
+
+
 void uiSlicePos3DDisp::setDisplay( VisID dispid )
 {
     CallBack movecb( mCB(this,uiSlicePos3DDisp,updatePos) );

@@ -574,6 +574,10 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
 }
 
 
+uiHorizonSettings::~uiHorizonSettings()
+{}
+
+
 HelpKey uiHorizonSettings::helpKey() const
 { return mODHelpKey(mHorizonSettingsHelpID); }
 

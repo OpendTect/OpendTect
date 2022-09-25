@@ -30,6 +30,10 @@ uiVisPlaneDataDisplayDragProp::uiVisPlaneDataDisplayDragProp(uiParent* p,
 }
 
 
+uiVisPlaneDataDisplayDragProp::~uiVisPlaneDataDisplayDragProp()
+{}
+
+
 bool uiVisPlaneDataDisplayDragProp::acceptOK()
 {
     if ( scrollstate_->getState()==panstate_->getState() )

@@ -21,6 +21,8 @@ mExpClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
 public:
 		 		uiFaultDisplayOptGrp(uiParent*,
 						     visSurvey::FaultDisplay*);
+				~uiFaultDisplayOptGrp();
+
     bool			acceptOK();
 
 protected:

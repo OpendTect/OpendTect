@@ -19,6 +19,7 @@ protected:
 
 			uiMarkerStyleDlg(uiParent*,const uiString& title,
 					 bool withnone=false);
+			~uiMarkerStyleDlg();
 
     uiMarkerStyle3D*	stylefld_;
 

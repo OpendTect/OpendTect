@@ -141,6 +141,10 @@ uiColorBarDialog::uiColorBarDialog( uiParent* p, const uiString& title )
 }
 
 
+uiColorBarDialog::~uiColorBarDialog()
+{}
+
+
 bool uiColorBarDialog::closeOK()
 {
     winClosing.trigger( this );

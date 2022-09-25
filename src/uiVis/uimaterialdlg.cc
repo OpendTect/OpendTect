@@ -119,6 +119,10 @@ uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
 }
 
 
+uiLineStyleGrp::~uiLineStyleGrp()
+{}
+
+
 void uiLineStyleGrp::changedCB( CallBacker* )
 {
     survobj_->setLineStyle( field_->getStyle() );
@@ -198,6 +202,10 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
     textclasssify_->valuechanged.notify(
 	    mCB(this,uiTextureInterpolateGrp,chgIntpCB) );
 }
+
+
+uiTextureInterpolateGrp::~uiTextureInterpolateGrp()
+{}
 
 
 void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )

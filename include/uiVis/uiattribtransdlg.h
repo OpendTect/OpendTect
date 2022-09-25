@@ -20,6 +20,8 @@ public:
 				uiAttribTransDlg(uiParent*,
 						 visSurvey::SurveyObject&,
 						 int attrib);
+				~uiAttribTransDlg();
+
 protected:
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

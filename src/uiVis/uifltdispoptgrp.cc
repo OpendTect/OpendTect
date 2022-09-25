@@ -36,6 +36,10 @@ uiFaultDisplayOptGrp::uiFaultDisplayOptGrp( uiParent* p,
 }
 
 
+uiFaultDisplayOptGrp::~uiFaultDisplayOptGrp()
+{}
+
+
 void uiFaultDisplayOptGrp::algChg( CallBacker* )
 {
     const int tri = algfld_->getIntValue();

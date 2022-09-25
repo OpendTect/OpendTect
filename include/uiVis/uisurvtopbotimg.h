@@ -21,6 +21,7 @@ mExpClass(uiVis) uiSurvTopBotImageDlg : public uiDialog
 { mODTextTranslationClass(uiSurvTopBotImageDlg);
 public:
 			uiSurvTopBotImageDlg(uiParent*,visSurvey::Scene*);
+			~uiSurvTopBotImageDlg();
 
 protected:
 
