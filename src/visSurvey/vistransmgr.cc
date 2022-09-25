@@ -26,7 +26,14 @@ SceneTransformManager& STM()
     return *tm;
 }
 
-#define mComputeZTranslation( sign ) (-1*sign*zfactor*zmidpt)
+
+SceneTransformManager::SceneTransformManager()
+    : mouseCursorCall(this)
+{}
+
+
+SceneTransformManager::~SceneTransformManager()
+{}
 
 
 void SceneTransformManager::computeUTM2DisplayTransform(
@@ -34,8 +41,7 @@ void SceneTransformManager::computeUTM2DisplayTransform(
         mVisTrans* res)
 {
     const Coord startpos = SI().transform( sg.sampling().hsamp_.start_ );
-
-    const float ztransl = mComputeZTranslation( 1 );
+    const float ztransl = -1*zfactor*zmidpt;
 
     res->setA(	1,	0,	0,		-startpos.x,
 		0,	1,	0,		-startpos.y,
@@ -128,14 +134,14 @@ void SceneTransformManager::computeICRotationTransform(
 			0,	0,	sign,	0,
 			0,	0,	0,	1 );
 
-
-    const float ztransl = mComputeZTranslation(sign);
-
     if ( disptrans )
+    {
+	const float ztransl = -1*sign*zfactor*zmidpt;
 	disptrans->setA( inldist,	0,		0,		0,
 			 0,		crldist,	0,		0,
 			 0,		0,		sign*zfactor,	ztransl,
 			 0,		0,		0,		1 );
+    }
 }
 
 } // namespace visSurvey

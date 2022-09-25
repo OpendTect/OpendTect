@@ -20,8 +20,9 @@ mExpClass(visSurvey) AxisDisplay : public visBase::Axes
 				    , public visSurvey::SurveyObject
 { mODTextTranslationClass(AxisDisplay)
 public:
-
 				AxisDisplay();
+				~AxisDisplay();
+
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject, AxisDisplay,
 				    "AxisDisplay",

@@ -10,9 +10,15 @@ ________________________________________________________________________
 #include "visaxisdisplay.h"
 namespace visSurvey
 {
-    AxisDisplay::AxisDisplay()
-	: Axes()
-    {
-    }
+
+AxisDisplay::AxisDisplay()
+    : Axes()
+{
+}
+
+
+AxisDisplay::~AxisDisplay()
+{}
+
 }
 // namespace visSurvey

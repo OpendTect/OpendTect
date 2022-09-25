@@ -23,31 +23,27 @@ class Scene;
 mExpClass(visSurvey) SceneTransformManager : public CallBacker
 {
 public:
-    			SceneTransformManager()
-			    : scene_(0)
-			    , mouseCursorCall(this)
-    			{}
+			SceneTransformManager();
+			~SceneTransformManager();
 
     static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
-				    float zfactor, float zmidpt,mVisTrans* res);
+				    float zfactor,float zmidpt,mVisTrans* res);
     			//!<Given to all objects in XY-space
 
     static void		computeICRotationTransform(const Survey::Geometry3D&,
-						   float zfactor, float zmidpt,
+						   float zfactor,float zmidpt,
 					      	   mVisTrans* rotation,
-						   mVisTrans* disptrans );
+						   mVisTrans* disptrans);
 
-    void		setCurrentScene( Scene* scn ) { scene_ = scn; }
-    Scene*		currentScene() const	{ return scene_; }
+    void		setCurrentScene( Scene* scn )	{ scene_ = scn; }
+    Scene*		currentScene() const		{ return scene_; }
 
     Notifier<SceneTransformManager> mouseCursorCall;
 
 protected:
 
-    Scene*		scene_;
-
+    Scene*		scene_				= nullptr;
 };
-
 
 mGlobal(visSurvey) SceneTransformManager& STM();
 
