@@ -19,7 +19,6 @@ ________________________________________________________________________
 namespace Vel
 {
 
-
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      od_istream& stm,
 			      od_int64 nrkbytes )
@@ -29,6 +28,10 @@ FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
     , nrkbytes_( nrkbytes )
     , output_( 0 )
     , first_( true )
+{}
+
+
+FunctionAscIO::~FunctionAscIO()
 {}
 
 

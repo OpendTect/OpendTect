@@ -26,6 +26,7 @@ namespace Vel
 mImplFactory2Param(uiFunctionSettings, uiParent*,
 		   FunctionSource*, uiFunctionSettings::factory );
 
+// uiFunctionSel
 uiFunctionSel::uiFunctionSel( uiParent* p,
     const ObjectSet<FunctionSource>& srcs, const TypeSet<OD::Color>* colors )
     : uiGroup(p,"Velocity Functions")
@@ -169,6 +170,7 @@ void uiFunctionSel::colorChanged(CallBacker*)
 }
 
 
+// uiAddFunction
 uiAddFunction::uiAddFunction( uiParent* p )
     : uiDialog(p, uiDialog::Setup(uiStrings::phrAdd(
 				  tr("velocity function source")),
@@ -199,6 +201,10 @@ uiAddFunction::uiAddFunction( uiParent* p )
 }
 
 
+uiAddFunction::~uiAddFunction()
+{}
+
+
 FunctionSource* uiAddFunction::getSource()
 {
     const int sel = typesel_->getIntValue();
@@ -222,6 +228,7 @@ bool uiAddFunction::acceptOK(CallBacker*)
 }
 
 
+// uiEditFunction
 uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
     : uiDialog( p, uiDialog::Setup(uiStrings::phrEdit(tr("velocity functions")),
 			     mNoDlgTitle, mODHelpKey(mEditFunctionHelpID)) )
@@ -229,6 +236,10 @@ uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
 {
     dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs, false );
 }
+
+
+uiEditFunction::~uiEditFunction()
+{}
 
 
 bool uiEditFunction::acceptOK(CallBacker*)
