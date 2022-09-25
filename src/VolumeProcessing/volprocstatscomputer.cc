@@ -25,6 +25,10 @@ StatsCalculator::StatsCalculator()
 {}
 
 
+StatsCalculator::~StatsCalculator()
+{}
+
+
 void StatsCalculator::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
@@ -132,6 +136,10 @@ StatsCalculatorTask::StatsCalculatorTask( const Array3D<float>& input,
     totalnr_ = output.info().getSize(0) * output.info().getSize(1);
     prepareWork();
 }
+
+
+StatsCalculatorTask::~StatsCalculatorTask()
+{}
 
 
 bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )

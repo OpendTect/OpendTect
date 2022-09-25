@@ -35,6 +35,7 @@ public:
 			    Step::OutputSlotID outpslot=Step::cUndefSlotID(),
 			    Step::ID inpstep=Step::cUndefID(),
 			    Step::InputSlotID inpslot=Step::cUndefSlotID());
+			~Connection();
 
 	bool		isUdf() const;
 	bool		operator==(const Connection&) const;
@@ -55,6 +56,9 @@ public:
     mExpClass(VolumeProcessing) Web
     {
     public:
+				Web();
+				~Web();
+
 	bool			addConnection(const Connection&);
 	void			removeConnection(const Connection&);
 	void			getConnections(Step::ID,bool input,

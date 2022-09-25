@@ -48,14 +48,16 @@ public:
 //    StepInterval<int>		getInputZRg(const StepInterval<int>&) const;
 
     Task*			createTask() override;
-    bool		needsFullVolume() const override
+    bool			needsFullVolume() const override
 				{ return false; }
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
-    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-				     const StepInterval<int>&) const override;
+    od_int64			extraMemoryUsage(OutputSlotID,
+				    const TrcKeySampling&,
+				    const StepInterval<int>&) const override;
 
 protected:
+				~StatsCalculator();
 
     BinID			stepout_;
     int				nzsampextra_;	//extra on both sides
@@ -71,6 +73,7 @@ public:
 						const TrcKeyZSampling& tkzsout,
 						BinID,int,BufferString,
 						Array3D<float>& out);
+				~StatsCalculatorTask();
 
     static const char*		sKeyEllipse()	{ return "Ellipse"; }
 				//for now
