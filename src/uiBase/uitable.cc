@@ -545,6 +545,11 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 }
 
 
+uiTable::uiTable( uiParent* p, const char* nm )
+    : uiTable(p,Setup(),nm)
+{}
+
+
 uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc )
 {
     body_ = new uiTableBody( *this, p, nm, nr, nc );
