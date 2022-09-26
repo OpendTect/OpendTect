@@ -293,6 +293,7 @@ public:
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
     static uiString sCoefficient()	{ return tr("Coefficient"); }
+    static uiString sCount()		{ return tr("Count"); }
     static uiString sCollapse()		{ return tr("Collapse"); }
     static uiString sCollectingData()	{ return tr("Collecting Data"); }
     static uiString sColor(int num=1)	{ return tr("Color",0, num); }
