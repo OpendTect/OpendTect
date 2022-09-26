@@ -123,6 +123,7 @@ public:
     };
 
 			uiTable(uiParent*,const Setup&,const char* nm);
+			uiTable(uiParent*,const char* nm);
     virtual		~uiTable();
 
     const char*		text(const RowCol&) const;
