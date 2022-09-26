@@ -303,7 +303,10 @@ void uiFileInput::doSelect( CallBacker* )
     }
 
     if ( newfname != oldfname || ( !forread_ && oldfltr != selfltr_ ) )
+    {
+	valueChanged.trigger( *this );
 	valuechanged.trigger( *this );
+    }
 }
 
 

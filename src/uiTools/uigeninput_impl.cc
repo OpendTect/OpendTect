@@ -208,19 +208,21 @@ void uiGenInputInputFld::updateSpec()
 }
 
 
-void uiGenInputInputFld::valChangingNotify(CallBacker*)
+void uiGenInputInputFld::valChangingNotify( CallBacker* )
 {
+    p_->valueChanging.trigger( *p_ );
     p_->valuechanging.trigger( *p_ );
 }
 
 
-void uiGenInputInputFld::valChangedNotify(CallBacker*)
+void uiGenInputInputFld::valChangedNotify( CallBacker* )
 {
+    p_->valueChanged.trigger( *p_ );
     p_->valuechanged.trigger( *p_ );
 }
 
 
-void uiGenInputInputFld::updateReqNotify(CallBacker*)
+void uiGenInputInputFld::updateReqNotify( CallBacker* )
 {
     p_->updateRequested.trigger( *p_ );
 }

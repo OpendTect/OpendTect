@@ -155,6 +155,7 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
     if ( winname.buf() )
     {
 	setWindowName( winname );
+	windowtypefld_->valueChanged.trigger();
 	windowtypefld_->valuechanged.trigger();
     }
 
