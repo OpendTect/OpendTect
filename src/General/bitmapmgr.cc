@@ -200,3 +200,18 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     updlckr.unlockNow();
     return true;
 }
+
+
+BitMapGenTask::BitMapGenTask( BitMapMgr& mgr,
+			const Geom::PosRectangle<double>& wr,
+			const Geom::Size2D<int>& bufwrsz,
+			const Geom::Size2D<int>& pix )
+    : mgr_(mgr)
+    , wr_(wr)
+    , bufwrsz_(bufwrsz)
+    , availpixels_(pix)
+{}
+
+
+BitMapGenTask::~BitMapGenTask()
+{}

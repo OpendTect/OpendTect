@@ -66,6 +66,7 @@ public:
 			IOObjContext(const TranslatorGroup*,
 				     const char* prefname=0);
 			IOObjContext(const IOObjContext&);
+			~IOObjContext();
 
     IOObjContext&	operator =(const IOObjContext&);
 
@@ -141,18 +142,10 @@ public:
 mExpClass(General) CtxtIOObj : public NamedObject
 {
 public:
-    mStartAllowDeprecatedSection
-			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
-			    : NamedObject(ct), ctxt_(ct), ioobj_(o) , iopar_(0)
-			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
-			{ if ( o ) setName(o->name()); }
-			CtxtIOObj( const CtxtIOObj& ct )
-			    : NamedObject(ct), ctxt_(ct.ctxt_)
-			    , ioobj_(ct.ioobj_?ct.ioobj_->clone():0)
-			    , iopar_(ct.iopar_?new IOPar(*ct.iopar_):0)
-			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
-			{}
-    mStopAllowDeprecatedSection
+			CtxtIOObj(const IOObjContext&,IOObj* o=nullptr);
+			CtxtIOObj(const CtxtIOObj&);
+			~CtxtIOObj();
+
     void		destroyAll();
 
     virtual const OD::String& name() const override { return ctxt_.name(); }

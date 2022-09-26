@@ -258,7 +258,8 @@ public:
 	float		reflinevalue_ = mUdf(float);
     };
 
-			DataDispPars()		{}
+			DataDispPars();
+			~DataDispPars();
 
     VD			vd_;
     WVA			wva_;
@@ -295,12 +296,8 @@ public:
 mExpClass(General) Appearance
 {
 public:
-			Appearance( bool drkbg=true )
-			    : darkbg_(drkbg)
-			    , annot_(drkbg)
-			    , secondsetaxes_(drkbg) {}
-
-    virtual		~Appearance()			{}
+			Appearance(bool drkbg=true);
+    virtual		~Appearance();
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);

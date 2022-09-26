@@ -598,6 +598,12 @@ ColTab::SeqMgr::SeqMgr()
 }
 
 
+ColTab::SeqMgr::~SeqMgr()
+{
+    deepErase(seqs_);
+}
+
+
 void ColTab::SeqMgr::refresh()
 {
     deepErase( seqs_ );

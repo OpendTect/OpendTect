@@ -17,15 +17,8 @@ ________________________________________________________________________
 
 mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 {
-		WVAA2DBitMapGenPars()
-		  : drawwiggles_(true)
-		  , drawrefline_(false)
-		  , filllow_(false)
-		  , fillhigh_(true)
-		  , minpixperdim0_(5)
-		  , overlap_(0.5)
-		  , reflinevalue_(mUdf(float))
-		  , x1reversed_(false)	{ midvalue_ = 0; }
+		WVAA2DBitMapGenPars();
+		~WVAA2DBitMapGenPars();
 
     bool	drawwiggles_;	//!< Draw the wiggles themselves
     bool	drawrefline_;	//!< Draw reference line for each trace
@@ -56,6 +49,7 @@ public:
 
 			WVAA2DBitMapGenerator(const A2DBitMapInpData&,
 					      const A2DBitMapPosSetup&);
+			~WVAA2DBitMapGenerator();
 
     WVAA2DBitMapGenPars&	wvapars()		{ return gtPars(); }
     const WVAA2DBitMapGenPars&	wvapars() const		{ return gtPars(); }
@@ -90,8 +84,8 @@ namespace Interpolate { template <class T> class Applier2D; }
 
 mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
 {
-			VDA2DBitMapGenPars()
-			: lininterp_(false)	{}
+			VDA2DBitMapGenPars();
+			~VDA2DBitMapGenPars();
 
     bool		lininterp_;	//!< Use bi-linear interpol, not poly
 
@@ -113,6 +107,10 @@ public:
 
 			VDA2DBitMapGenerator(const A2DBitMapInpData&,
 					     const A2DBitMapPosSetup&);
+			VDA2DBitMapGenerator(
+					const VDA2DBitMapGenerator&) = delete;
+			//!< Copy the pars instead
+			~VDA2DBitMapGenerator();
 
     VDA2DBitMapGenPars&		vdpars()	{ return gtPars(); }
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
@@ -128,11 +126,6 @@ protected:
 				{ return (VDA2DBitMapGenPars&)pars_; }
 
     float			strippixs_;
-
-				VDA2DBitMapGenerator(
-					const VDA2DBitMapGenerator&);
-				    //!< Not implemented to prevent usage
-				    //!< Copy the pars instead
 
     void			doFill() override;
 

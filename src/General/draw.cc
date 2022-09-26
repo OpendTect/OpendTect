@@ -45,11 +45,18 @@ void EnumDefImpl<MarkerStyle3D::Type>::init()
 
 
 Alignment::Alignment( HPos h, VPos v )
-    : hor_(h), ver_(v)					{}
+    : hor_(h), ver_(v)
+{}
+
 
 Alignment::Alignment( Pos h, Pos v )
     : hor_(h==Start?Left:(h==Stop?Right:HCenter))
-    , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))	{}
+    , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))
+{}
+
+
+Alignment::~Alignment()
+{}
 
 
 Alignment::HPos Alignment::opposite( HPos p )
@@ -126,6 +133,10 @@ MarkerStyle2D::MarkerStyle2D(Type tp, int sz, OD::Color col, float rot )
 {}
 
 
+MarkerStyle2D::~MarkerStyle2D()
+{}
+
+
 bool MarkerStyle2D::operator==( const MarkerStyle2D& b ) const
 {
     return type_==b.type_ && size_==b.size_ && color_==b.color_ &&
@@ -146,6 +157,10 @@ bool MarkerStyle2D::isVisible() const
 
 MarkerStyle3D::MarkerStyle3D(Type tp, int sz, OD::Color col )
     : type_(tp), size_(sz), color_(col)
+{}
+
+
+MarkerStyle3D::~MarkerStyle3D()
 {}
 
 
@@ -186,16 +201,35 @@ OD::LineStyle::LineStyle( Type t, int w, Color c )
 {}
 
 
+OD::LineStyle::~LineStyle()
+{}
+
+
 bool OD::LineStyle::operator ==( const OD::LineStyle& ls ) const
-{ return type_ == ls.type_ && width_ == ls.width_ && color_ == ls.color_; }
+{
+    return type_ == ls.type_ && width_ == ls.width_ && color_ == ls.color_;
+}
 
 
 bool OD::LineStyle::operator !=( const OD::LineStyle& ls ) const
-{ return !(*this == ls); }
+{
+    return !(*this == ls);
+}
 
 
 bool OD::LineStyle::isVisible() const
-{ return type_!=None && width_>0 && color_.isVisible();}
+{
+    return type_!=None && width_>0 && color_.isVisible();
+}
+
+
+FillPattern::FillPattern( int typ, int opt )
+    : type_(typ), opt_(opt)
+{}
+
+
+FillPattern::~FillPattern()
+{}
 
 
 void FillPattern::getTypeNames( BufferStringSet& res )
@@ -239,6 +273,10 @@ ArrowHeadStyle::ArrowHeadStyle( int sz, Type t, HandedNess h )
 {}
 
 
+ArrowHeadStyle::~ArrowHeadStyle()
+{}
+
+
 void ArrowHeadStyle::setBoldNess( int b )
 { sz_ = 3*b; }
 
@@ -248,6 +286,10 @@ ArrowStyle::ArrowStyle( int boldness, Type t )
     : type_(t)
     , linestyle_(OD::LineStyle::Solid,boldness)
 { setBoldNess(boldness); }
+
+
+ArrowStyle::~ArrowStyle()
+{}
 
 
 void ArrowStyle::setBoldNess( int b )
@@ -260,3 +302,23 @@ bool ArrowStyle::hasHead() const
 
 bool ArrowStyle::hasTail() const
 { return tailstyle_.sz_ > 0 && (type_ == TwoSided || type_ == TailOnly); }
+
+
+PlotAnnotation::PlotAnnotation()
+    : pos_(mUdf(float))
+    , txt_(uiString::emptyString())
+    , linetype_(Normal)
+{}
+
+
+PlotAnnotation::~PlotAnnotation()
+{}
+
+
+WellSymbol::WellSymbol( OD::WellType tp, int sz, OD::Color pcol )
+    : type_(tp), size_(sz), color_(pcol)
+{}
+
+
+WellSymbol::~WellSymbol()
+{}

@@ -56,6 +56,22 @@ const char* Viewer::sKeyViewZnrDec() { return "Decimal places for Z Value"; };
 }
 
 
+FlatPosData::FlatPosData()
+    : x1rg_(0,0,1)
+    , x2rg_(0,0,1)
+{}
+
+
+FlatPosData::FlatPosData( const FlatPosData& fpd )
+{
+    *this = fpd;
+}
+
+
+FlatPosData::~FlatPosData()
+{}
+
+
 FlatPosData& FlatPosData::operator =( const FlatPosData& fpd )
 {
     if ( this == &fpd ) return *this;
@@ -341,6 +357,13 @@ void FlatView::AuxData::FillGradient::set( const OD::Color& col1,
 }
 
 
+FlatView::DataDispPars::DataDispPars()
+{}
+
+
+FlatView::DataDispPars::~DataDispPars()
+{}
+
 #define mIOPDoWVA(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyWVA(),keynm), memb )
 #define mIOPDoVD(fn,keynm,memb) \
@@ -417,6 +440,17 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoWVA( get, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( get, sKeyRefLineValue(), wva_.reflinevalue_ );
 }
+
+
+FlatView::Appearance::Appearance( bool drkbg )
+    : darkbg_(drkbg)
+    , annot_(drkbg)
+    , secondsetaxes_(drkbg)
+{}
+
+
+FlatView::Appearance::~Appearance()
+{}
 
 
 void FlatView::Appearance::fillPar( IOPar& iop ) const

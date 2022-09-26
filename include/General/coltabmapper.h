@@ -34,6 +34,8 @@ mExpClass(General) MapperSetup : public CallBacker
 {
 public:
 			MapperSetup();
+			~MapperSetup();
+
     enum Type		{ Fixed, Auto, HistEq };
 			mDeclareEnumUtils(Type);
 

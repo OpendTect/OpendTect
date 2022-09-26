@@ -25,7 +25,7 @@ mExpClass(General) Conn
 {
 public:
 
-    virtual		~Conn()			{}
+    virtual		~Conn();
     virtual void	close()			{}
 
     virtual bool	isBad() const		= 0;
@@ -52,7 +52,7 @@ public:
 
 protected:
 
-			Conn()			{}
+			Conn();
 
     MultiID		ioobjid_;
 
@@ -72,8 +72,8 @@ mExpClass(General) XConn  : public Conn
 
 public:
 
-			XConn() : conn_(0), mine_(true) {}
-			~XConn()	{ if ( mine_ ) delete conn_; }
+			XConn();
+			~XConn();
 
     bool		isBad() const override
 			{ return conn_ ? conn_->isBad() : true; }

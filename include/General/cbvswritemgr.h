@@ -21,7 +21,8 @@ class TraceData;
 mExpClass(General) VBrickSpec
 {
 public:
-		VBrickSpec()		{ setStd(false); }
+		VBrickSpec();
+		~VBrickSpec();
 
     void	setStd(bool yn_bricking=false);
 

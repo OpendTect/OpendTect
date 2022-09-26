@@ -30,10 +30,10 @@ mExpClass(General) CBVSInfo
 {
 public:
 
-				CBVSInfo()			{}
-				~CBVSInfo()	{ deepErase(compinfo_); }
-				CBVSInfo( const CBVSInfo& oth )
-				{ *this = oth; }
+				CBVSInfo();
+				CBVSInfo(const CBVSInfo&);
+				~CBVSInfo();
+
     CBVSInfo&			operator =(const CBVSInfo&);
 
     int				estimatedNrTraces() const;

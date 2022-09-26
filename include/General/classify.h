@@ -23,6 +23,7 @@ public:
 		WeightedClassCounter( bool canbeneg=true )
 		: wts_(0)
 		, canbeneg_(canbeneg)		{}
+		~WeightedClassCounter() { clear(); }
 
     void	add(int val,T wt=1);
 

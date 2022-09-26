@@ -15,10 +15,8 @@ ________________________________________________________________________
 mExpClass(General) DBDir : public IODir
 {
 public:
-			DBDir( const char* dirnm )
-			   : IODir(dirnm)		{}
-			DBDir( const DBKey& dbkey )
-			   : IODir(dbkey)		{}
-			~DBDir()			{}
+			DBDir(const char* dirnm);
+			DBDir(const DBKey&);
+			~DBDir();
 protected:
 };

@@ -24,6 +24,10 @@ ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
 }
 
 
+ColTab::IndexedLookUpTable::~IndexedLookUpTable()
+{}
+
+
 void ColTab::IndexedLookUpTable::update()
 {
     cols_.erase();

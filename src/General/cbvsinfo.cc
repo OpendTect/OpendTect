@@ -11,6 +11,58 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include <iostream>
 
+BasicComponentInfo::BasicComponentInfo( const char* nm )
+    : NamedObject(nm)
+    , datatype(0)
+{}
+
+
+BasicComponentInfo::BasicComponentInfo( const BasicComponentInfo& ci )
+    : NamedObject((const char*)ci.name())
+{
+    *this = ci;
+}
+
+
+BasicComponentInfo::~BasicComponentInfo()
+{}
+
+
+BasicComponentInfo& BasicComponentInfo::operator=( const BasicComponentInfo& ci)
+{
+    if ( this == &ci )
+	return *this;
+
+    setName( ci.name() );
+    datatype = ci.datatype;
+    datachar = ci.datachar;
+    return *this;
+}
+
+
+bool BasicComponentInfo::operator==( const BasicComponentInfo& ci ) const
+{
+    return name() == ci.name() &&
+	datatype == ci.datatype &&
+	datachar == ci.datachar;
+}
+
+
+CBVSInfo::CBVSInfo()
+{}
+
+
+CBVSInfo::CBVSInfo( const CBVSInfo& oth )
+{
+    *this = oth;
+}
+
+
+CBVSInfo::~CBVSInfo()
+{
+    deepErase(compinfo_);
+}
+
 
 CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
 {

@@ -20,12 +20,8 @@ mExpClass(General) BinIDValueSet : public Pos::IdxPairValueSet
 {
 public:
 
-    			BinIDValueSet( int nrvals, bool allowdup )
-			    : Pos::IdxPairValueSet(nrvals,allowdup)
-			{}
-			BinIDValueSet( const BinIDValueSet& bvs )
-			    : Pos::IdxPairValueSet(bvs)
-			{ setIs2D(bvs.is2D()); }
+			BinIDValueSet(int nrvals,bool allowdup);
+			BinIDValueSet(const BinIDValueSet&);
 			~BinIDValueSet();
 
     BinIDValueSet&	operator =(const BinIDValueSet&);

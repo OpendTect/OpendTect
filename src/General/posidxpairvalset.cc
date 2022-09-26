@@ -1477,6 +1477,19 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findNearestOnFirst(
 }
 
 
+
+BinIDValueSet::BinIDValueSet( int nrvals, bool allowdup )
+    : Pos::IdxPairValueSet(nrvals,allowdup)
+{}
+
+
+BinIDValueSet::BinIDValueSet( const BinIDValueSet& bvs )
+    : Pos::IdxPairValueSet(bvs)
+{
+    setIs2D(bvs.is2D());
+}
+
+
 BinIDValueSet::~BinIDValueSet()
 {
 }

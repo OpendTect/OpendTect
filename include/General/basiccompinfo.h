@@ -18,27 +18,12 @@ ________________________________________________________________________
 mExpClass(General) BasicComponentInfo : public NamedObject
 {
 public:
-			BasicComponentInfo( const char* nm=0 )
-			: NamedObject(nm)
-			, datatype(0)				{}
-			BasicComponentInfo( const BasicComponentInfo& ci )
-			: NamedObject((const char*)ci.name())
-								{ *this = ci; }
-    BasicComponentInfo&	operator=( const BasicComponentInfo& ci )
-			{
-			    if ( this == &ci ) return *this;
-			    setName( ci.name() );
-			    datatype = ci.datatype;
-			    datachar = ci.datachar;
-			    return *this;
-			}
+			BasicComponentInfo(const char* nm=0);
+			BasicComponentInfo(const BasicComponentInfo&);
+			~BasicComponentInfo();
 
-    bool		operator==( const BasicComponentInfo& ci ) const
-			{
-			    return name() == ci.name()
-				&& datatype == ci.datatype
-				&& datachar == ci.datachar;
-			}
+    BasicComponentInfo& operator=(const BasicComponentInfo&);
+    bool		operator==(const BasicComponentInfo&) const;
 
     int			datatype;
     DataCharacteristics	datachar;

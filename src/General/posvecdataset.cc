@@ -28,6 +28,16 @@ const DataColDef& DataColDef::unknown()
 }
 
 
+DataColDef::DataColDef( const char* nm, const char* ref,
+			const UnitOfMeasure* un )
+    : name_(nm), ref_(ref), unit_(un)
+{}
+
+
+DataColDef::~DataColDef()
+{}
+
+
 DataColDef::MatchLevel DataColDef::compare( const DataColDef& cd,
 					    bool usenm ) const
 {

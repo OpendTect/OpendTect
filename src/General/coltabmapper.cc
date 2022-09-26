@@ -126,6 +126,10 @@ ColTab::MapperSetup::MapperSetup()
 {}
 
 
+ColTab::MapperSetup::~MapperSetup()
+{}
+
+
 ColTab::MapperSetup&
     ColTab::MapperSetup::operator=( const ColTab::MapperSetup& ms )
 {

@@ -54,12 +54,11 @@ public:
     mExpClass(General) Pos
     {
     public:
-			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
-			Pos( const BinID& bid, float _z )
-			    : binid_(bid), nr_(0), z_(_z)
-			    , offsx_(0), offsy_(0)		{}
+			Pos();
+			Pos(const BinID&,float z);
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
+			~Pos();
 
 	bool		operator ==(const Pos& pos) const
 			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
@@ -98,12 +97,10 @@ public:
     mExpClass(General) DataRow
     {
     public:
-			DataRow()
-			    : grp_(1)			{ setSel(false); }
-			DataRow( const Pos& p, unsigned short grp=1,
-				   bool issel=false )
-			    : pos_(p), grp_((short)grp)
-							{ setSel( issel ); }
+			DataRow();
+			DataRow(const Pos&,unsigned short grp=1,
+				bool issel=false);
+			~DataRow();
 
 	bool			operator ==(const DataRow& dr) const
 				{ return pos_==dr.pos_ && grp_==dr.grp_

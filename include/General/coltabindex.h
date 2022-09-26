@@ -31,6 +31,7 @@ public:
 
 			IndexedLookUpTable(const Sequence&,int nrcols=0,
 					   const Mapper* m=0);
+			~IndexedLookUpTable();
 
     void		update();
 			//!< Call when sequence, mapper, or nr cols changed

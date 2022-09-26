@@ -25,9 +25,11 @@ class UnitOfMeasure;
 mExpClass(General) DataColDef
 {
 public:
-				DataColDef( const char* nm, const char* ref=0,
-					    const UnitOfMeasure* un=0 )
-				: name_(nm), ref_(ref), unit_(un)	{}
+				DataColDef(const char* nm,
+					   const char* ref=nullptr,
+					   const UnitOfMeasure* un=nullptr);
+				~DataColDef();
+
     bool			operator ==( const DataColDef& dcd ) const
 				{ return name_ == dcd.name_
 				      && ref_ == dcd.ref_

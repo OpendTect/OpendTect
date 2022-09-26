@@ -25,9 +25,7 @@ mExpClass(General) CBVSIO
 {
 public:
 
-			CBVSIO()
-			: errmsg_(0), strmclosed_(false), nrxlines_(1)
-			, nrcomps_(0), cnrbytes_(0)	{}
+			CBVSIO();
     virtual		~CBVSIO();
 
     bool		failed() const			{ return errmsg_; }
@@ -68,9 +66,7 @@ mExpClass(General) CBVSIOMgr
 {
 public:
 
-			CBVSIOMgr( const char* basefname )
-			: curnr_(0)
-			, basefname_(basefname)	{}
+			CBVSIOMgr(const char* basefname);
     virtual		~CBVSIOMgr();
 
     inline bool		failed() const		{ return errMsg(); }

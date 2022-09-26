@@ -24,6 +24,29 @@ char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 #define mXPMStartLn '"'
 #define mXPMEndLn "\",\n"
 
+A2DBitMapGenPars::A2DBitMapGenPars()
+    : nointerpol_(false)
+    , autoscale_(true)
+    , clipratio_(0.025,0.025)
+    , midvalue_( mUdf(float) )
+    , scale_(0,1)
+{}
+
+
+A2DBitMapGenPars::~A2DBitMapGenPars()
+{}
+
+
+A2DBitMapInpData::A2DBitMapInpData( const Array2D<float>& data )
+    : data_(data)
+{
+    collectData();
+}
+
+
+A2DBitMapInpData::~A2DBitMapInpData()
+{}
+
 
 Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
 					 float midval ) const
@@ -176,8 +199,11 @@ A2DBitMapGenerator::A2DBitMapGenerator( const A2DBitMapInpData& dat,
 	, setup_(setp)
 	, pars_(gp)
 	, bitmap_(0)
-{
-}
+{}
+
+
+A2DBitMapGenerator::~A2DBitMapGenerator()
+{}
 
 
 void A2DBitMapGenerator::initBitMap( A2DBitMap& bm )
@@ -243,12 +269,33 @@ void A2DBitMapGenerator::fill()
 
 //---
 
+WVAA2DBitMapGenPars::WVAA2DBitMapGenPars()
+    : drawwiggles_(true)
+    , drawrefline_(false)
+    , filllow_(false)
+    , fillhigh_(true)
+    , minpixperdim0_(5)
+    , overlap_(0.5)
+    , reflinevalue_(mUdf(float))
+    , x1reversed_(false)
+{
+    midvalue_ = 0;
+}
+
+
+WVAA2DBitMapGenPars::~WVAA2DBitMapGenPars()
+{}
+
 
 WVAA2DBitMapGenerator::WVAA2DBitMapGenerator( const A2DBitMapInpData& d,
 					      const A2DBitMapPosSetup& su )
 	: A2DBitMapGenerator(d,su,*new WVAA2DBitMapGenPars)
 {
 }
+
+
+WVAA2DBitMapGenerator::~WVAA2DBitMapGenerator()
+{}
 
 
 Interval<int> WVAA2DBitMapGenerator::getDispTrcIdxs() const
@@ -420,6 +467,13 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 
 //---
 
+VDA2DBitMapGenPars::VDA2DBitMapGenPars()
+    : lininterp_(false)
+{}
+
+
+VDA2DBitMapGenPars::~VDA2DBitMapGenPars()
+{}
 
 
 float VDA2DBitMapGenPars::offset( char c )
@@ -433,6 +487,10 @@ VDA2DBitMapGenerator::VDA2DBitMapGenerator( const A2DBitMapInpData& d,
 	: A2DBitMapGenerator(d,su,*new VDA2DBitMapGenPars)
 {
 }
+
+
+VDA2DBitMapGenerator::~VDA2DBitMapGenerator()
+{}
 
 
 void VDA2DBitMapGenerator::doFill()

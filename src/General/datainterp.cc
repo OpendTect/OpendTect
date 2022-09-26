@@ -28,6 +28,7 @@ mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
 	"7 - 32 bit floating point",
 	"8 - 64 bit floating point",
 	"9 - 64 bit signed",
+	"10 - 64 bit unsigned",
 	0
 };
 
@@ -44,28 +45,53 @@ void EnumDefImpl<DataCharacteristics::UserType>::init()
 	.add( mEnumTr("32 bit unsigned integer [0,+]") )	// UI32
 	.add( mEnumTr("32 bit floating point") )		// F32
 	.add( mEnumTr("64 bit floating point") )		// F64
-	.add( mEnumTr("64 bit signed integer") );		// SI64
+	.add( mEnumTr("64 bit signed integer [-,+]") )		// SI64
+	.add( mEnumTr("64 bit unsigned integer [0,+]") );	// UI64
 }
 
 
+DataCharacteristics::DataCharacteristics( bool ii, bool is,
+					  ByteCount n, Format f, bool l )
+    : BinDataDesc(ii,is,n)
+    , fmt_(f), littleendian_(l)
+{}
+
+
+DataCharacteristics::DataCharacteristics( OD::DataRepType tp )
+    : DataCharacteristics(UserType(tp))
+{}
+
+
+DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
+	: BinDataDesc( ut!=F32 && ut!=F64, ut>UI32 || (int)ut % 2)
+	, fmt_(Ieee)
+	, littleendian_(__islittle__)
+{
+    if ( ut == Auto )
+	*this = DataCharacteristics();
+    else
+	nrbytes_ = (BinDataDesc::ByteCount)
+		  (ut < SI16 ? 1 : (ut < SI32 ? 2 : (ut > F32 ? 8 : 4) ) );
+}
+
+
+DataCharacteristics::DataCharacteristics( const BinDataDesc& bd )
+    : BinDataDesc(bd)
+    , fmt_(Ieee), littleendian_(__islittle__)
+{}
+
+
+DataCharacteristics::~DataCharacteristics()
+{}
+
 bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )
 {
-    const BufferString res = iop.find( sKey::DataStorage() );
-    if ( res.isEmpty() )
-	return false;
-
-    const BufferString firstchar( res[0] );
-    if ( !firstchar.isNumber(true) )
-	return false;
-
-    ut = UserType( firstchar.toInt() );
-    return true;
+    return parseEnum( iop, sKey::DataStorage(), ut );
 }
 
 
 void DataCharacteristics::putUserTypeToPar( IOPar& iop, UserType ut )
 {
-    const BufferString utstr = toString(ut);
     iop.set( sKey::DataStorage(), toString(ut) );
 }
 
@@ -123,19 +149,6 @@ void DataCharacteristics::set( const char* s )
 	     ? DataCharacteristics::Ibm : DataCharacteristics::Ieee;
     if ( sz > 4 )
 	littleendian_ = toBool( fms[4], true );
-}
-
-
-DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
-	: BinDataDesc( ut!=F32 && ut!=F64, ut>UI32 || (int)ut % 2)
-	, fmt_(Ieee)
-	, littleendian_(__islittle__)
-{
-    if ( ut == Auto )
-	*this = DataCharacteristics();
-    else
-	nrbytes_ = (BinDataDesc::ByteCount)
-		  (ut < SI16 ? 1 : (ut < SI32 ? 2 : (ut > F32 ? 8 : 4) ) );
 }
 
 

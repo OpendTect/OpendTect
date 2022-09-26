@@ -36,6 +36,10 @@ DataInpSpec::DataInpSpec( const DataInpSpec& o )
 {}
 
 
+DataInpSpec::~DataInpSpec()
+{}
+
+
 DataType DataInpSpec::type() const
 { return tp_; }
 
