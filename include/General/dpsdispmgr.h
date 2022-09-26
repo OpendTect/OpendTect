@@ -35,25 +35,14 @@ mClass(General) DataPointSetDisplayProp
 public:
 				DataPointSetDisplayProp(
 					const ColTab::Sequence& cs,
-				        const ColTab::MapperSetup& cm,int id)
-				    : coltab_(cs), coltabmappersu_(cm)
-				    , showsel_(false), dpscolid_(id)	{}
-
+					const ColTab::MapperSetup& cm,int id);
 				DataPointSetDisplayProp(
 					const BufferStringSet& nms,
-					const TypeSet<OD::Color>& cols)
-				    : selgrpnms_(nms), selgrpcols_(cols)
-				    , showsel_(true), dpscolid_(-1)	{}
-    virtual			~DataPointSetDisplayProp()  {}
+					const TypeSet<OD::Color>& cols);
+    virtual			~DataPointSetDisplayProp();
 
-    virtual DataPointSetDisplayProp* clone() const
-    {
-        if ( showsel_ )
-	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
-        else
-	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,
-					       dpscolid_);
-    }
+    virtual DataPointSetDisplayProp*	clone() const;
+    virtual OD::Color			getColor(float val) const;
 
     int				dpsColID() const	{ return dpscolid_; }
     bool			showSelected() const	{ return showsel_; }
@@ -62,25 +51,6 @@ public:
     const ColTab::Sequence&	colSequence() const	{ return coltab_; }
     const ColTab::MapperSetup&	colMapperSetUp() const
 				{ return coltabmappersu_; }
-
-virtual OD::Color getColor( float val ) const
-{
-    if ( showsel_ )
-    {
-	return selgrpcols_.validIdx(mNINT32(val)) ? selgrpcols_[mNINT32(val)]
-						: OD::Color::NoColor();
-    }
-
-    if ( mIsUdf(val) )
-	return coltab_.undefColor();
-
-    ColTab::Mapper mapper;
-    mapper.setup_ = coltabmappersu_;
-    const float pos = mapper.position( val );
-    OD::Color col = coltab_.color( pos );
-    col.setTransparency( (unsigned char) mNINT32(coltab_.transparencyAt(pos)) );
-    return col;
-}
 
 protected:
 
@@ -102,7 +72,8 @@ mClass(General) DataPointSetDisplayMgr : public CallBacker
 public:
 
     typedef int			DispID;
-    virtual			~DataPointSetDisplayMgr()		{}
+    virtual			~DataPointSetDisplayMgr();
+
     virtual void		lock()					= 0;
     virtual void		unLock()				= 0;
 
@@ -134,8 +105,8 @@ public:
 
 protected:
 
-				DataPointSetDisplayMgr()
-				    : dispprop_( 0 )	{}
+				DataPointSetDisplayMgr();
+
     TypeSet<int>		availableviewers_;
-    DataPointSetDisplayProp*	dispprop_;
+    DataPointSetDisplayProp*	dispprop_	= nullptr;
 };

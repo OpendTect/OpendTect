@@ -43,6 +43,17 @@ static void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
 }
 
 
+DataPointSet::Pos::Pos()
+    : offsx_(0), offsy_(0), z_(0), nr_(0)
+{}
+
+
+DataPointSet::Pos::Pos( const BinID& bid, float _z )
+    : binid_(bid), nr_(0), z_(_z)
+    , offsx_(0), offsy_(0)
+{}
+
+
 DataPointSet::Pos::Pos( const Coord& c, float _z )
     : binid_(SI().transform(c))
     , z_(_z)
@@ -57,6 +68,10 @@ DataPointSet::Pos::Pos( const Coord3& c )
 {
     setOffs( c );
 }
+
+
+DataPointSet::Pos::~Pos()
+{}
 
 
 void DataPointSet::Pos::setOffs( const Coord& c )
@@ -87,6 +102,24 @@ Coord DataPointSet::Pos::coord() const
     sc.x += offsx_; sc.y += offsy_;
     return sc;
 }
+
+
+DataPointSet::DataRow::DataRow()
+    : grp_(1)
+{
+    setSel( false );
+}
+
+
+DataPointSet::DataRow::DataRow( const Pos& p, unsigned short grp, bool issel )
+    : pos_(p), grp_((short)grp)
+{
+    setSel( issel );
+}
+
+
+DataPointSet::DataRow::~DataRow()
+{}
 
 
 void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,

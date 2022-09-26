@@ -72,8 +72,8 @@ public:
 		BitMapGenTask(BitMapMgr& mgr,
 			const Geom::PosRectangle<double>& wr,
 			const Geom::Size2D<int>& bufwrsz,
-			const Geom::Size2D<int>& pix )
-		    : mgr_(mgr), wr_(wr), bufwrsz_(bufwrsz), availpixels_(pix){}
+			const Geom::Size2D<int>& pix);
+		~BitMapGenTask();
 
     bool	execute() override
 		{ return mgr_.generate(wr_,bufwrsz_,availpixels_); }

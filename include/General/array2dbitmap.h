@@ -24,12 +24,8 @@ typedef Array2D<char>	A2DBitMap;
 
 mStruct(General) A2DBitMapGenPars
 {
-		A2DBitMapGenPars()
-		  : nointerpol_(false)
-		  , autoscale_(true)
-		  , clipratio_(0.025,0.025)
-		  , midvalue_( mUdf(float) )
-		  , scale_(0,1)			{}
+		A2DBitMapGenPars();
+    virtual	~A2DBitMapGenPars();
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
     bool	autoscale_;	//!< If not, use the scale_
@@ -51,9 +47,8 @@ mExpClass(General) A2DBitMapInpData
 {
 public:
 
-    			A2DBitMapInpData( const Array2D<float>& d )
-			    : data_(d) { collectData(); }
-    virtual		~A2DBitMapInpData()			{}
+			A2DBitMapInpData(const Array2D<float>&);
+    virtual		~A2DBitMapInpData();
 
     const Array2D<float>& data() const	{ return data_; }
     Interval<float>	scale(const Interval<float>& clipratio,
@@ -176,7 +171,7 @@ mExpClass(General) A2DBitMapGenerator
 {
 public:
 
-    virtual		~A2DBitMapGenerator()	{ delete &pars_; }
+    virtual		~A2DBitMapGenerator();
 
     void		setBitMap(A2DBitMap&);
     A2DBitMap&		bitmap()		{ return *bitmap_; }

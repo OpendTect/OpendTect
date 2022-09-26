@@ -19,9 +19,9 @@ mExpClass(General) DataBuffer : public RawDataArray
 {
 public:
 			DataBuffer(int n,int byts=4,bool setnull=false);
+			DataBuffer(const DataBuffer&);
 			~DataBuffer();
-			DataBuffer( const DataBuffer& b )
-			: RawDataArray(0)			{ *this = b; }
+
     DataBuffer&  	operator=(const DataBuffer&);
 
     inline bool		isOk() const		{ return data_ ? true : false; }

@@ -163,7 +163,7 @@ public:
     Notifier<SeqMgr>	seqAdded;
     Notifier<SeqMgr>	seqRemoved;
 
-			~SeqMgr()	{ deepErase(seqs_); }
+			~SeqMgr();
 
 protected:
 

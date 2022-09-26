@@ -44,6 +44,13 @@ DataBuffer::DataBuffer( int n, int byts, bool doinit )
 }
 
 
+DataBuffer::DataBuffer( const DataBuffer& b )
+    : RawDataArray(0)
+{
+    *this = b;
+}
+
+
 DataBuffer::~DataBuffer()
 {
     delete [] data_;

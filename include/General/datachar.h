@@ -33,18 +33,21 @@ mExpClass(General) DataCharacteristics : public BinDataDesc
 public:
 
     enum Format		{ Ieee, Ibm };
+    enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32,
+			  F64, SI64, UI64 };
+			mDeclareEnumUtils(UserType)
+
 
     Format		fmt_;
     bool		littleendian_;
 
-			DataCharacteristics( bool ii=false, bool is=true,
-					     ByteCount n=N4, Format f=Ieee,
-					     bool l=__islittle__ )
-			: BinDataDesc(ii,is,n)
-			, fmt_(f), littleendian_(l)		{}
-			DataCharacteristics( const BinDataDesc& bd )
-			: BinDataDesc(bd)
-			, fmt_(Ieee), littleendian_(__islittle__)	{}
+			DataCharacteristics(bool ii=false,bool is=true,
+					    ByteCount n=N4, Format f=Ieee,
+					    bool l=__islittle__);
+			DataCharacteristics(OD::DataRepType);
+			DataCharacteristics(UserType);
+			DataCharacteristics(const BinDataDesc&);
+			~DataCharacteristics();
 
     inline bool		isIeee() const		{ return fmt_ == Ieee; }
 
@@ -79,10 +82,6 @@ public:
 			{ return (int)nrbytes_ > 1
 			      && littleendian_ != __islittle__; }
 
-    enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32,
-			  F64, SI64, UI64 };
-			mDeclareEnumUtils(UserType)
-			DataCharacteristics(UserType);
     UserType		userType() const; //!< will return 'nearest'
     static bool		getUserTypeFromPar(const IOPar&,UserType&);
     static void		putUserTypeToPar(IOPar&,UserType);
@@ -91,9 +90,6 @@ public:
 
     double		getLimitValue(bool max) const;
 
-			DataCharacteristics( OD::DataRepType tp )
-			    : DataCharacteristics(UserType(tp))
-			{}
 };
 
 #undef mDeclConstr

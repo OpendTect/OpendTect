@@ -44,6 +44,10 @@ FontData::FontData( const char* fms )
 }
 
 
+FontData::~FontData()
+{}
+
+
 bool FontData::operator ==( const FontData& oth ) const
 {
     if ( &oth == this )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basemapimpl.h"
+#include "basemap.h"
 #include "coord.h"
 #include "task.h"
 
@@ -111,32 +111,3 @@ bool BasemapObject::usePar( const IOPar& par, TaskRunner* )
 
     return true;
 }
-
-
-
-BasemapMarkers::BasemapMarkers()
-    : BasemapObject( nullptr )
-{}
-
-
-BasemapMarkers::~BasemapMarkers()
-{ }
-
-
-void BasemapMarkers::setMarkerStyle( int, const MarkerStyle2D& ms )
-{
-    if ( markerstyle_==ms )
-	return;
-
-    markerstyle_ = ms;
-}
-
-
-void BasemapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res) const
-{
-    res = positions_;
-}
-
-
-void BasemapMarkers::updateGeometry()
-{ changed.trigger(); }

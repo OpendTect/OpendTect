@@ -89,7 +89,7 @@ public:
 
 			DataInpSpec(DataType);
 			DataInpSpec(const DataInpSpec&);
-    virtual		~DataInpSpec()			{}
+    virtual		~DataInpSpec();
 
     DataType		type() const;
 

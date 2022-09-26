@@ -28,6 +28,26 @@ StreamConn::StreamConn( const char* fnm, bool forread ) : mInitList(0,false)
 { setFileName( fnm, forread ); }
 
 
+Conn::Conn()
+{}
+
+
+Conn::~Conn()
+{}
+
+
+XConn::XConn()
+    : conn_(0), mine_(true)
+{}
+
+
+XConn::~XConn()
+{
+    if ( mine_ )
+	delete conn_;
+}
+
+
 StreamConn::~StreamConn()
 {
     close();

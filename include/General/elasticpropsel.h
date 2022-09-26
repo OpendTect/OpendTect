@@ -138,6 +138,7 @@ mClass(General) ElasticPropGuess
 public:
 			ElasticPropGuess(const PropertyRefSelection&,
 					 ElasticPropSelection&);
+			~ElasticPropGuess();
 
     bool		isOK() const	{ return isok_; }
 

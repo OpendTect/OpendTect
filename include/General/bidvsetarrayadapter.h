@@ -22,6 +22,7 @@ mExpClass(General) BIDValSetArrAdapter : public Array2D<float>
 public:			
 				BIDValSetArrAdapter(const BinIDValueSet&,
 						    int col,const BinID& step);
+				~BIDValSetArrAdapter();
 
     void			set(int inlidx,int crlidx,float val) override;
     float			get(int inlidx,int crlidx) const override;

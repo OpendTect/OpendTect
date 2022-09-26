@@ -28,6 +28,7 @@ public:
 				 Weight wght=defaultWeight(),
 				 bool ital=defaultItalic());
 			FontData(const char* fms); //! Calls getFrom
+			~FontData();
 
     bool		operator ==(const FontData&) const;
     bool		operator !=(const FontData&) const;

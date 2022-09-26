@@ -23,6 +23,10 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
 }
 
 
+BIDValSetArrAdapter::~BIDValSetArrAdapter()
+{}
+
+
 void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 {
     BinID bid = tks_.atIndex( inlidx, crlidx );

@@ -244,6 +244,10 @@ IOObjContext::IOObjContext( const IOObjContext& oth )
 }
 mStopAllowDeprecatedSection
 
+IOObjContext::~IOObjContext()
+{}
+
+
 #define mCpMemb(nm) nm = oth.nm
 
 IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
@@ -427,6 +431,30 @@ int IOObjContext::nrMatches() const
     IODir iodir( key );
     return iodir.size();
 }
+
+
+mStartAllowDeprecatedSection
+
+CtxtIOObj::CtxtIOObj( const IOObjContext& ct, IOObj* o )
+    : NamedObject(ct), ctxt_(ct), ioobj_(o) , iopar_(nullptr)
+    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
+{
+    if ( o )
+	setName(o->name());
+}
+
+
+CtxtIOObj::CtxtIOObj( const CtxtIOObj& ct )
+    : NamedObject(ct), ctxt_(ct.ctxt_)
+    , ioobj_(ct.ioobj_?ct.ioobj_->clone():nullptr)
+    , iopar_(ct.iopar_?new IOPar(*ct.iopar_):nullptr)
+    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
+{}
+
+mStopAllowDeprecatedSection
+
+CtxtIOObj::~CtxtIOObj()
+{}
 
 
 void CtxtIOObj::fillIfOnlyOne()

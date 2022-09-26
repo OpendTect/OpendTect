@@ -18,6 +18,12 @@ const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 2;
 const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
+CBVSIO::CBVSIO()
+    : errmsg_(0), strmclosed_(false), nrxlines_(1)
+    , nrcomps_(0), cnrbytes_(0)
+{}
+
+
 CBVSIO::~CBVSIO()
 {
     delete [] cnrbytes_;

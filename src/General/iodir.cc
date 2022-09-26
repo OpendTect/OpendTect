@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "iodir.h"
 
 #include "ascstream.h"
+#include "dbdir.h"
 #include "file.h"
 #include "filepath.h"
 #include "hiddenparam.h"
@@ -490,3 +491,19 @@ bool IODir::hasObjectsWithGroup( const char* trgrpnm ) const
 
     return false;
 }
+
+
+// DBDir
+
+DBDir::DBDir( const char* dirnm )
+    : IODir(dirnm)
+{}
+
+
+DBDir::DBDir( const DBKey& dbkey )
+    : IODir(dbkey)
+{}
+
+
+DBDir::~DBDir()
+{}

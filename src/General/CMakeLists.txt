@@ -38,7 +38,7 @@ list ( APPEND OD_MODULE_SOURCES
 	datainterp.cc
 	datapackbase.cc
 	datapointset.cc
-	displaypropertylinks.cc
+	dpsdispmgr.cc
 	draw.cc
 	elasticpropsel.cc
 	flatauxdataeditor.cc

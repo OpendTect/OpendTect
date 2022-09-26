@@ -71,9 +71,25 @@ int CBVSIOMgr::getFileNr( const char* fnm )
 }
 
 
+CBVSIOMgr::CBVSIOMgr( const char* basefname )
+    : curnr_(0)
+    , basefname_(basefname)
+{}
+
+
 CBVSIOMgr::~CBVSIOMgr()
 {
 }
+
+
+VBrickSpec::VBrickSpec()
+{
+    setStd(false);
+}
+
+
+VBrickSpec::~VBrickSpec()
+{}
 
 
 void VBrickSpec::setStd( bool yn )

@@ -28,6 +28,7 @@ public:
 
 		Alignment( HPos h=Left, VPos v=Top );
 		Alignment( Pos h, Pos v );
+		~Alignment();
 
     HPos	hPos() const		{ return hor_; }
     VPos	vPos() const		{ return ver_; }
@@ -66,6 +67,7 @@ public:
 				MarkerStyle2D( Type tp=Square, int sz=1,
 					       OD::Color col=OD::Color::Black(),
 					       float rot=0);
+				~MarkerStyle2D();
 
     bool			operator==(const MarkerStyle2D& a) const;
     const MarkerStyle2D&	operator=(const MarkerStyle2D& a);
@@ -94,6 +96,7 @@ public:
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
 				       OD::Color col=OD::Color::White() );
+			~MarkerStyle3D();
 
     Type		type_;
     int			size_;
@@ -123,7 +126,8 @@ public:
 			mDeclareEnumUtils(Type)
 
 			LineStyle(Type t=Solid,int w=1,
-						OD::Color c=OD::Color::Black());
+				  OD::Color c=OD::Color::Black());
+			~LineStyle();
 
     bool		operator ==( const LineStyle& ls ) const;
     bool		operator !=( const LineStyle& ls ) const;
@@ -146,8 +150,8 @@ mExpClass(General) FillPattern
 {
 public:
 
-			FillPattern( int typ=0, int opt=0 )
-			    : type_(typ), opt_(opt)		{}
+			FillPattern(int typ=0,int opt=0);
+			~FillPattern();
 
     static void	getTypeNames(BufferStringSet&);
     static void	getOptNames(int,BufferStringSet&);
@@ -169,7 +173,8 @@ public:
     enum Type		{ Line, Triangle, Square, Cross };
     enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
 
-		ArrowHeadStyle( int sz=1, Type t=Line, HandedNess h=TwoHanded );
+		ArrowHeadStyle(int sz=1,Type t=Line,HandedNess h=TwoHanded);
+		~ArrowHeadStyle();
 
     void	setBoldNess(int b);
 
@@ -186,7 +191,8 @@ public:
 
     enum Type		{ HeadOnly, TwoSided, TailOnly, HeadNorTail };
 
-			ArrowStyle( int boldness=1, Type t=HeadOnly );
+			ArrowStyle(int boldness=1,Type t=HeadOnly);
+			~ArrowStyle();
     void		setBoldNess( int b );
 
     bool		hasHead() const;
@@ -206,10 +212,8 @@ public:
 
     enum LineType	{ Normal=0, Bold=1, HighLighted=2 };
 
-			PlotAnnotation()
-			    : pos_(mUdf(float))
-			    , txt_(uiString::emptyString())
-			    , linetype_(Normal)			{}
+			PlotAnnotation();
+			~PlotAnnotation();
 
     float		pos_;
     uiString		txt_;
@@ -240,8 +244,8 @@ mExpClass(General) WellSymbol
 public:
 				WellSymbol(OD::WellType tp=OD::UnknownWellType,
 					   int sz=8,
-					   OD::Color pcol=OD::Color::Black())
-				: type_(tp),size_(sz),color_(pcol)	{}
+					   OD::Color pcol=OD::Color::Black());
+				~WellSymbol();
 
     OD::WellType		type_;
     int				size_;

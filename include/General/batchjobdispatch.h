@@ -34,6 +34,7 @@ public:
 			JobSpec(const char* pnm=nullptr,
 				OS::LaunchType lt=OS::Batch);
 			JobSpec(const IOPar&,OS::LaunchType lt=OS::Batch);
+    virtual		~JobSpec();
 
     static const char*	progNameFor(ProcType);
     static ProcType	procTypeFor(const char*);
@@ -78,9 +79,8 @@ public:
 
     static ID		getInvalid()	{ return 0; }
 
-			JobDispatcher()			{}
-
-    virtual		~JobDispatcher()		{}
+			JobDispatcher();
+    virtual		~JobDispatcher();
 
     virtual uiString	description() const		= 0;
     virtual bool	isSuitedFor(const char* prognm) const = 0;

@@ -49,6 +49,10 @@ Batch::JobSpec::JobSpec( const IOPar& iop, OS::LaunchType lt )
 }
 
 
+Batch::JobSpec::~JobSpec()
+{}
+
+
 void Batch::JobSpec::usePar( const IOPar& iop )
 {
     pars_ = iop;
@@ -145,6 +149,14 @@ Batch::JobSpec::ProcType Batch::JobSpec::procTypeFor( const char* odpnm )
 
     return NonODBase;
 }
+
+
+Batch::JobDispatcher::JobDispatcher()
+{}
+
+
+Batch::JobDispatcher::~JobDispatcher()
+{}
 
 
 bool Batch::JobDispatcher::canHandle( const JobSpec& js ) const

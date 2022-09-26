@@ -23,14 +23,10 @@ ________________________________________________________________________
 mExpClass(General) FlatPosData
 {
 public:
-				FlatPosData()
-				    : x1rg_(0,0,1)
-				    , x2rg_(0,0,1)
-				    , x1pos_(0)
-    				    , x1offs_(0)	{}
-				FlatPosData( const FlatPosData& fpd )
-				    : x1pos_(0)		{ *this = fpd; }
-				~FlatPosData()		{ delete [] x1pos_; }
+				FlatPosData();
+				FlatPosData(const FlatPosData&);
+				~FlatPosData();
+
     FlatPosData&		operator =(const FlatPosData&);
     FlatPosData*		clone() { return new FlatPosData(*this); }
 
@@ -70,8 +66,8 @@ protected:
     StepInterval<double>	x1rg_;
     StepInterval<double>	x2rg_;
 
-    float*			x1pos_;
-    double			x1offs_;
+    float*			x1pos_		= nullptr;
+    double			x1offs_		= 0;
 
     inline StepInterval<double>& rg( bool forx1 )
 				{ return forx1 ? x1rg_ : x2rg_; }
