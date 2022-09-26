@@ -220,26 +220,30 @@ Returns true, if changes are accepted.
     void		setPrefix(const uiString&r,int fldnr=0);
 
     Notifier<uiGenInput> checked;
+    Notifier<uiGenInput> valueChanging;
+    Notifier<uiGenInput> valueChanged;
+    Notifier<uiGenInput> updateRequested;
+
+// Deprecated
     Notifier<uiGenInput> valuechanging;
     Notifier<uiGenInput> valuechanged;
-    Notifier<uiGenInput> updateRequested;
 
 protected:
 
     ObjectSet<uiGenInputInputFld>	flds_;
     TypeSet<uiGenInputFieldIdx>&	idxes_;
 
-    bool		finalized_;
+    bool		finalized_			= false;
 
     uiString		selText_;
-    bool		withchk_;
-    bool		isrequired_;
+    bool		withchk_			= false;
+    bool		isrequired_			= false;
 
-    uiLabel*		labl_;
+    uiLabel*		labl_				= nullptr;
     uiString		titletext_;
-    uiCheckBox*		cbox_;
-    uiButton*		selbut_;
-    uiTextValidator* textvl_ = nullptr;
+    uiCheckBox*		cbox_				= nullptr;
+    uiButton*		selbut_				= nullptr;
+    uiTextValidator*	textvl_				= nullptr;
 
 			//! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);
@@ -259,11 +263,12 @@ protected:
 			}
 
 private:
+			uiGenInput(const uiString&,uiParent*);
 
-    bool		checked_;
+    bool		checked_			= false;
 
-    bool		rdonly_;
-    bool		rdonlyset_;
+    bool		rdonly_				= false;
+    bool		rdonlyset_			= false;
 
     ObjectSet<DataInpSpec> inputs_;
 

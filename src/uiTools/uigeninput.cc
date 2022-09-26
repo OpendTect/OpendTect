@@ -600,6 +600,7 @@ void uiIntIntervalInpFld::valChgCB( CallBacker* cb )
 	    start_->setValue( -stop_->getIntValue() );
     }
 
+    p_->valueChanging.trigger( cb );
     p_->valuechanging.trigger( cb );
 }
 
@@ -806,50 +807,55 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 }
 
 
-//-----------------------------------------------------------------------------
+// uiGenInput
 
-#define mInitStdMembs \
-    : uiGroup(p,mFromUiStringTodo(disptxt)) \
-    , finalized_(false) \
-    , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
-    , selText_(uiStrings::sEmptyString()), withchk_(false) \
-    , labl_(nullptr), titletext_(disptxt), cbox_(nullptr), selbut_(nullptr) \
-    , valuechanging(this), valuechanged(this) \
-    , checked(this), updateRequested(this) \
-    , checked_(false), rdonly_(false), rdonlyset_(false) \
-    , elemszpol_( uiObject::Undef ) \
-    , isrequired_(false)
+uiGenInput::uiGenInput( const uiString& disptxt, uiParent* p )
+    : uiGroup(p,mFromUiStringTodo(disptxt))
+    , checked(this)
+    , valueChanging(this)
+    , valueChanged(this)
+    , updateRequested(this)
+    , valuechanging(this)
+    , valuechanged(this)
+    , idxes_(*new TypeSet<uiGenInputFieldIdx>)
+    , selText_(uiStrings::sEmptyString())
+    , titletext_(disptxt)
+    , elemszpol_( uiObject::Undef )
+{}
 
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const char* inputStr)
-    mInitStdMembs
+    : uiGenInput(disptxt,p)
 {
     inputs_ += new StringInpSpec( inputStr );
     if ( !disptxt.isEmpty() )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+
     preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1 )
-    mInitStdMembs
+    : uiGenInput(disptxt,p)
 {
     inputs_ += inp1.clone();
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( !disptxt.isEmpty() && !inputhasnm )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+
     preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1, const DataInpSpec& inp2 )
-    mInitStdMembs
+    : uiGenInput(disptxt,p)
 {
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
+
     preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
@@ -857,11 +863,12 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1, const DataInpSpec& inp2,
 			const DataInpSpec& inp3 )
-    mInitStdMembs
+    : uiGenInput(disptxt,p)
 {
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
     inputs_ += inp3.clone();
+
     preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
