@@ -139,7 +139,10 @@ mExpClass(Algo) DataClipSampler
 {
 public:
 			DataClipSampler(int bufsz=10000);
+			DataClipSampler(const DataClipSampler&);
 			~DataClipSampler();
+
+    DataClipSampler&	operator =(const DataClipSampler&);
 
     void		reset()			{ count_ = 0; }
 
@@ -157,7 +160,7 @@ public:
 protected:
 
     float*		vals_;
-    const int		maxnrvals_;
+    int			maxnrvals_;
     od_int64		count_ = 0;
     Interval<float>	rg_;
     bool		finished_ = false;

@@ -376,10 +376,33 @@ DataClipSampler::DataClipSampler( int ns )
 }
 
 
+DataClipSampler::DataClipSampler(const DataClipSampler& oth )
+    : gen_(*new Stats::RandGen())
+    , vals_(nullptr)
+{
+    *this = oth;
+}
+
+
 DataClipSampler::~DataClipSampler()
 {
     delete [] vals_;
     delete &gen_;
+}
+
+
+DataClipSampler& DataClipSampler::operator=( const DataClipSampler& oth )
+{
+    if ( &oth != this )
+    {
+	maxnrvals_ = oth.maxnrvals_;
+	delete [] vals_;
+	vals_ = new float[maxnrvals_];
+	OD::memCopy( vals_, oth.vals_, maxnrvals_*sizeof(float) );
+	rg_.setFrom( oth.rg_ );
+    }
+
+    return *this;
 }
 
 
