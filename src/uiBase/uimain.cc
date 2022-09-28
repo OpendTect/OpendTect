@@ -512,9 +512,9 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 	QString sheet = QLatin1String( file.readAll() );
 	app_->setStyleSheet( sheet );
     }
-
-    qApp->setStyleSheet(
-	QString("[readOnly=\"true\"] { background-color: %0 }")
+    else
+	qApp->setStyleSheet(
+	    QString("[readOnly=\"true\"] { background-color: %0 }")
 	    .arg(qApp->palette().color(QPalette::Window).name(QColor::HexRgb)));
 
     font_ = nullptr;
