@@ -142,8 +142,10 @@ public:
 
 	BufferString		name_;
 	SamplingData<float>	sampling_;
-	bool			hasannot_ = true;
-	bool			showannot_ = false;
+	bool			hasannot_ = true;	// left, bottom
+	bool			hasannot2_ = true;	// right, top
+	bool			showannot_ = false;	// left, bottom
+	bool			showannot2_ = false;	// right, top
 	bool			showgridlines_ = false;
 	bool			reversed_ = false;
 	bool			annotinint_ = false;
