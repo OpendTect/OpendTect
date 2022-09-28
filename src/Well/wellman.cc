@@ -52,16 +52,7 @@ Well::LoadReqs::LoadReqs( SubObjType typ1, SubObjType typ2, SubObjType typ3 )
 
 
 Well::LoadReqs::~LoadReqs()
-{}
-
-
-Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
 {
-    if ( typ != D2T || SI().zIsTime() )
-        reqs_[typ] = 1;
-    if ( typ == Logs )
-	reqs_[LogInfos] = 1;
-    return *this;
 }
 
 
@@ -88,7 +79,38 @@ Well::LoadReqs Well::LoadReqs::AllNoLogs()
 }
 
 
-void Well::LoadReqs::include( const LoadReqs& oth )
+Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
+{
+    if ( typ != D2T || SI().zIsTime() )
+        reqs_[typ] = 1;
+    if ( typ == Logs )
+	reqs_[LogInfos] = 1;
+    return *this;
+}
+
+
+Well::LoadReqs& Well::LoadReqs::remove( SubObjType typ )
+{
+    reqs_[typ]=0;
+    return *this;
+}
+
+
+Well::LoadReqs& Well::LoadReqs::setToAll()
+{
+    *this = All();
+    return *this;
+}
+
+
+Well::LoadReqs& Well::LoadReqs::setEmpty()
+{
+    reqs_.reset();
+    return *this;
+}
+
+
+Well::LoadReqs& Well::LoadReqs::include( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
     {
@@ -98,10 +120,12 @@ void Well::LoadReqs::include( const LoadReqs& oth )
 
     if ( reqs_[Logs]==1 )
 	reqs_[LogInfos] = 1;
+
+    return *this;
 }
 
 
-void Well::LoadReqs::exclude( const LoadReqs& oth )
+Well::LoadReqs& Well::LoadReqs::exclude( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
     {
@@ -111,6 +135,20 @@ void Well::LoadReqs::exclude( const LoadReqs& oth )
 
     if ( reqs_[Logs]==1 )
 	reqs_[LogInfos] = 1;
+
+    return *this;
+}
+
+
+bool Well::LoadReqs::isEmpty() const
+{
+    return reqs_.none();
+}
+
+
+bool Well::LoadReqs::includes( SubObjType typ ) const
+{
+    return reqs_[typ];
 }
 
 
@@ -514,7 +552,7 @@ bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
 
 
 bool Well::Man::renameLog( const TypeSet<MultiID>& keys, const char* oldnm,
-		  				  	 const char* newnm )
+							 const char* newnm )
 {
     if ( keys.isEmpty() )
 	return false;
@@ -842,7 +880,7 @@ void Well::Man::dumpMgrInfo( StringPairSet& infoset )
 	    infoset.add( IOPar::compKey(wellname,"Load State"),
 			 wd->loadState().toString() );
 	    infoset.add( IOPar::compKey(wellname,"Markers"),
-		    	 wd->markers().size() );
+			 wd->markers().size() );
 	    const LogSet& ls = wd->logs();
 	    int nlogswithdata = 0;
 	    for (int il=0; il<ls.size(); il++)
@@ -854,7 +892,7 @@ void Well::Man::dumpMgrInfo( StringPairSet& infoset )
 	    infoset.add( IOPar::compKey(wellname,"Logs available"), ls.size() );
 	    infoset.add( IOPar::compKey(wellname,"Logs with Info"), ls.size() );
 	    infoset.add( IOPar::compKey(wellname,"Logs with data"),
-		    	 nlogswithdata );
+			 nlogswithdata );
 	}
     }
 }

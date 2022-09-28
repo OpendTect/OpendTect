@@ -53,15 +53,14 @@ public:
 						{ return reqs_ == oth.reqs_; }
 
     LoadReqs&		add(SubObjType);
-    LoadReqs&		remove( SubObjType typ ) { reqs_[typ]=0; return *this; }
-    void		setToAll()		{ *this = All(); }
-    void		setEmpty()		{ reqs_.reset(); }
-    bool		isEmpty() const		{ return reqs_.none(); }
-    void		include(const LoadReqs&);
-    void		exclude(const LoadReqs&);
+    LoadReqs&		remove(SubObjType);
+    LoadReqs&		setToAll();
+    LoadReqs&		setEmpty();
+    LoadReqs&		include(const LoadReqs&);
+    LoadReqs&		exclude(const LoadReqs&);
 
-    bool		includes( SubObjType typ ) const
-						{ return reqs_[typ]; }
+    bool		isEmpty() const;
+    bool		includes(SubObjType) const;
     bool		includes(const LoadReqs&) const;
     BufferString	toString() const;
 
