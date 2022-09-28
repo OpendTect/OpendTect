@@ -65,9 +65,10 @@ protected:
     const MultiID&	seisid_;
     const BufferString& linenm_;
     Interval<float>	zrg_; //!< time range for cross-correlation
-    float_complex*	refarr_; //!< reflectivity in the cross-corr window
-    float*		syntarr_; //!< waveform for cross-correlation
-    float*		seisarr_; //!< waveform for cross-correlation
+    float_complex*	refarr_ = nullptr;
+				//!< reflectivity in the cross-corr window
+    float*		syntarr_ = nullptr; //!< waveform for cross-correlation
+    float*		seisarr_ = nullptr; //!< waveform for cross-correlation
 
     uiString		errmsg_;
     uiString		warnmsg_;

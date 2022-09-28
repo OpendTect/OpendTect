@@ -108,13 +108,17 @@ public:
 			     int lmsidx=-1) const;
     SynthID		first(bool prestack,bool require_generated=false,
 			      int lmsidx=-1) const;
+    bool		isElasticStack(SynthID) const;
+    bool		isElasticPS(SynthID) const;
     bool		isPS(SynthID) const;
     bool		isAttribute(SynthID) const;
     bool		isStratProp(SynthID) const;
 
-    enum SubSelType	{ NoSubSel, OnlyZO, NoZO, OnlyPS, NoPS, OnlyEI, NoEI,
-			  OnlyPSBased, NoPSBased, OnlyAttrib, NoAttrib,
-			  OnlyRaw, NoRaw, OnlyInput, OnlyWithInput, NoWithInput,
+    enum SubSelType	{ NoSubSel, OnlyZO, NoZO, OnlyEIStack, NoEIStack,
+			  OnlyEIGather, NoEIGather, OnlyPS, NoPS,
+			  OnlyPSBased, NoPSBased,
+			  OnlyAttrib, NoAttrib, OnlyRaw, NoRaw,
+			  OnlyInput, OnlyWithInput, NoWithInput,
 			  OnlyProps, NoProps };
     void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
 				 bool omitempty=false,int lmsidx=-1) const;
@@ -186,6 +190,7 @@ public:
     static const char*	sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 
 private:
+			mOD_DisableCopy(DataMgr);
 
 				// input
     const Strat::LayerModelSuite& lms_;
@@ -271,7 +276,6 @@ private:
     mutable uiRetVal	infomsg_;
     mutable bool	swaveinfomsgshown_ = false;
 
-			mOD_DisableCopy( DataMgr );
 public:
 
     void		setWavelet( const Wavelet& wvlt )

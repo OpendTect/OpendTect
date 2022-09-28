@@ -20,6 +20,8 @@ mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 		    uiRayTracer1D::factory );
 
 
+// uiRayTracerSel
+
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& su )
     : uiGroup( p, "Ray Tracer Selector" )
     , parsChanged(this)
@@ -172,6 +174,8 @@ bool uiRayTracerSel::setCurrentType( const char* typestr )
 }
 
 
+// uiRayTracerAdvancedDlg
+
 class uiRayTracerAdvancedDlg : public uiDialog
 { mODTextTranslationClass(uiRayTracerAdvancedDlg);
 public:
@@ -247,6 +251,22 @@ bool uiRayTracerAdvancedDlg::acceptOK( CallBacker* )
 	mErrRet(uirv,return false)
 
     return true;
+}
+
+
+// uiRayTracer1D::Setup
+
+uiRayTracer1D::Setup::Setup()
+    : dooffsets_(true)
+    , doreflectivity_(true)
+    , convertedwaves_(true)
+{
+    withadvanced_ = dooffsets_ && convertedwaves_;
+}
+
+
+uiRayTracer1D::Setup::~Setup()
+{
 }
 
 
@@ -459,10 +479,16 @@ uiRetVal uiRayTracer1D::isOK() const
 }
 
 
+// uiVrmsRayTracer1D
 
 uiVrmsRayTracer1D::uiVrmsRayTracer1D(uiParent* p,const uiRayTracer1D::Setup& su)
     : uiRayTracer1D( p, su )
 {}
+
+
+uiVrmsRayTracer1D::~uiVrmsRayTracer1D()
+{
+}
 
 
 void uiVrmsRayTracer1D::initClass()
@@ -471,6 +497,8 @@ void uiVrmsRayTracer1D::initClass()
 					 sFactoryDisplayName() );
 }
 
+
+// uiRayTracerAdvancedGrp
 
 uiRayTracerAdvancedGrp::uiRayTracerAdvancedGrp( uiParent* p,
 						bool convertedwaves,

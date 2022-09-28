@@ -32,16 +32,13 @@ public:
     mExpClass(uiTools) Setup
     {
 	public:
-			Setup()
-			    : dooffsets_(true)
-			    , doreflectivity_(true)
-			    , convertedwaves_(true)
-			{ withadvanced_ = dooffsets_ && convertedwaves_; }
+			Setup();
+	virtual		~Setup();
 
-	mDefSetupMemb(bool,dooffsets);
-	mDefSetupMemb(bool,doreflectivity);
-	mDefSetupMemb(bool,convertedwaves);
-	mDefSetupMemb(bool,withadvanced);
+	mDefSetupMemb(bool,dooffsets);		// def: true
+	mDefSetupMemb(bool,doreflectivity);	// def: true
+	mDefSetupMemb(bool,convertedwaves);	// def: true
+	mDefSetupMemb(bool,withadvanced);	// def: true
     };
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
@@ -99,6 +96,7 @@ public:
 
 			uiVrmsRayTracer1D(uiParent*,
 					const uiRayTracer1D::Setup&);
+			~uiVrmsRayTracer1D();
 
     static uiRayTracer1D* create( uiParent* p, const uiRayTracer1D::Setup& su )
 			    { return new uiVrmsRayTracer1D( p, su ); }

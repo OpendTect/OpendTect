@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "uiraytrace1d.h"
+#include "uirefltrace1d.h"
 #include "uiseiswvltsel.h"
 #include "uistring.h"
 
@@ -34,18 +35,28 @@ public:
 
     mExpClass(uiWellAttrib) Setup : public uiSeisWaveletSel::Setup
     {
-	public:
-			Setup(const char* wvltseltxt="Wavelet")
-			    : uiSeisWaveletSel::Setup(wvltseltxt)
-			    , withzeroff_(true)
-			    , withelasticstack_(false)
-			    , withps_(true)
-			{}
+    public:
+				Setup(const char* wvltseltxt="Wavelet");
+	virtual			~Setup();
 
-	mDefSetupMemb(bool,withzeroff)
-	mDefSetupMemb(bool,withelasticstack)
-	mDefSetupMemb(bool,withps)
+	mDefSetupMemb(bool,withzeroff)		// def: true
+	mDefSetupMemb(bool,withps)		// def: true
+
+	Setup&		withelasticstack(bool yn);
+	Setup&		withelasticgather(bool yn);
+
+	bool		withElasticStack() const;
+	bool		withElasticGather() const;
+
+	const uiReflCalc1D::Setup* reflsu_ = nullptr;
 	const uiRayTracer1D::Setup* rtsu_ = nullptr;
+
+    private:
+
+	static bool	canDoElastic();
+
+	bool withelasticstack_;
+	bool withelasticgather_;
     };
 
 				uiMultiSynthSeisSel(uiParent*,
@@ -58,11 +69,13 @@ public:
     void			setWavelet(const MultiID&);
     void			setWavelet(const char*);
     void			ensureHasWavelet(const MultiID&);
+    virtual bool		setFrom(const SynthGenParams&);
     virtual bool		usePar(const IOPar&);
 
     const char*			getType() const;
     MultiID			getWaveletID() const;
     const char*			getWaveletName() const;
+    bool			getGenParams(SynthGenParams&) const;
     virtual void		fillPar(IOPar&) const;
 
     Notifier<uiMultiSynthSeisSel> selectionChanged;
@@ -97,7 +110,8 @@ private:
     uiGroup*			topgrp_;
     uiLabeledComboBox*		typelblcbx_ = nullptr;
     uiSynthSeisSel*		zerooffsynthgrp_ = nullptr;
-    uiSynthSeisSel*		elasticsynthgrp_ = nullptr;
+    uiSynthSeisSel*		elasticstacksynthgrp_ = nullptr;
+    uiSynthSeisSel*		elasticgathersynthgrp_ = nullptr;
     uiSynthSeisSel*		prestacksynthgrp_ = nullptr;
     uiSynthSeisSel*		previoussynthgrp_ = nullptr;
     ObjectSet<uiSynthSeisSel>	synthgrps_;
@@ -121,6 +135,7 @@ public:
     uiRetVal			isOK() const override;
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
+    bool			setFrom(const SynthGenParams&) override;
 
     void			manPSSynth(const BufferStringSet&);
     void			manInpSynth(const BufferStringSet&);

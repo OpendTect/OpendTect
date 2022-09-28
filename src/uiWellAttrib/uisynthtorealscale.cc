@@ -346,7 +346,7 @@ void uiSynthToRealScale::updSynthStats()
     TypeSet<float> offsets;
     if ( sd->isPS() )
     {
-	refmodels.getOffsets( offsets );
+	refmodels.getGatherXAxis( offsets );
 	nrtrcs *= offsets.size();
     }
 

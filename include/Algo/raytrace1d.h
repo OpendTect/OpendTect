@@ -36,16 +36,12 @@ public:
     mExpClass(Algo) Setup
     {
     public:
-			Setup()
-			    : pdown_( true )
-			    , pup_( true )
-			    , doreflectivity_(true)
-			{}
-	virtual		~Setup()	{}
+			Setup();
+	virtual		~Setup();
 
-	mDefSetupMemb(bool,pdown);
-	mDefSetupMemb(bool,pup);
-	mDefSetupMemb(bool,doreflectivity);
+	mDefSetupMemb(bool,pdown);		// def: true
+	mDefSetupMemb(bool,pup);		// def: true
+	mDefSetupMemb(bool,doreflectivity);	// def: true
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);

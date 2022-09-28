@@ -44,23 +44,16 @@ class PickSetMgr;
 mExpClass(WellAttrib) DispParams
 { mODTextTranslationClass(DispParams);
 public:
-			DispParams()
-			    : ismarkerdisp_(true)
-			    , isvwrmarkerdisp_(true)
-			    , isvwrhordisp_(false)
-			    , iszinft_(false)
-			    , iszintime_(true)
-			    , dispmrkfullnames_(true)
-			    , disphorfullnames_(true)
-			{}
+			DispParams();
+			~DispParams();
 
-    bool		ismarkerdisp_;
-    bool		isvwrmarkerdisp_;
-    bool		isvwrhordisp_;
-    bool		dispmrkfullnames_;
-    bool		disphorfullnames_;
-    bool		iszinft_;
-    bool		iszintime_;
+    bool		ismarkerdisp_ = true;
+    bool		isvwrmarkerdisp_ = true;
+    bool		isvwrhordisp_ = false;
+    bool		dispmrkfullnames_ = true;
+    bool		disphorfullnames_ = true;
+    bool		iszinft_ = false;
+    bool		iszintime_ = true;
     Well::DisplayProperties::Markers mrkdisp_;
     BufferStringSet	allmarkernms_;
 
@@ -80,16 +73,14 @@ public:
 mExpClass(WellAttrib) Marker
 { mODTextTranslationClass(Marker);
 public:
-			Marker(float z)
-			    : zpos_(z)
-			    , size_(2)
-			{}
+			Marker(float z);
+			~Marker();
 
     OD::Color		color_;
     float		zpos_;
     BufferString	name_;
     Strat::LevelID	id_;
-    int			size_;
+    int			size_ = 2;
 
     bool		operator == ( const Marker& m ) const
 				{ return m.zpos_ == zpos_; }
@@ -99,6 +90,9 @@ public:
 mExpClass(WellAttrib) PickData
 { mODTextTranslationClass(PickData);
 public:
+				PickData();
+				~PickData();
+
     TypeSet<Marker>		synthpicks_;
     TypeSet<Marker>		seispicks_;
 };
@@ -228,6 +222,7 @@ mExpClass(WellAttrib) HorizonMgr
 { mODTextTranslationClass(HorizonMgr);
 public:
 				HorizonMgr(TypeSet<Marker>&);
+				~HorizonMgr();
 
     mStruct(WellAttrib) PosCouple
     {

@@ -37,8 +37,8 @@ public:
     mExpClass(Algo) Setup
     {
     public:
-			Setup()		{}
-	virtual		~Setup()	{}
+			Setup();
+	virtual		~Setup();
 
 	virtual void	fillPar(IOPar&) const		{}
 	virtual bool	usePar(const IOPar&)		{ return true; }
@@ -75,7 +75,8 @@ public:
     static const char*	sKeyAngle()	   { return "Angle Range"; }
     static const char*	sKeyAngleInDegrees() { return "Angles in Degrees"; }
 
-    static StepInterval<float> sDefAngleRange();
+    static float	sDefAngle(bool indegrees);
+    static StepInterval<float> sDefAngleRange(bool indegrees);
 
     static void		setIOParsToSingleAngle(IOPar&,float angle=0.f,
 					       bool angleisindegrees=true);

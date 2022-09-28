@@ -949,12 +949,15 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 
 	    if ( sd->isPS() )
 	    {
+		NotifyStopper ns( offsslider_->valueChanged );
 		const StepInterval<float>& offsetrg = disppars->getOffsetRg();
 		const float prevoff = offsslider_->getFValue();
 		offsslider_->setInterval( offsetrg );
 		const int idx = offsetrg.nearestIndex( prevoff );
 		curoffs_ = offsetrg.atIndex( idx );
+		curoffs_ = offsetrg.limitValue( curoffs_ );
 		offsslider_->setValue( curoffs_ );
+		updateOffSliderTxt();
 	    }
 	    else
 		curoffs_ = 0.f;

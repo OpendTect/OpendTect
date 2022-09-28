@@ -42,6 +42,8 @@ ________________________________________________________________________
 namespace WellTie
 {
 
+// DispParams
+
 const char* DispParams::sKeyIsMarkerDisp()
 { return "Display Markers on Well Display"; }
 
@@ -62,6 +64,16 @@ const char* DispParams::sKeyMarkerFullName()
 
 const char* DispParams::sKeyHorizonFullName()
 { return "Display horizon full name"; }
+
+
+DispParams::DispParams()
+{
+}
+
+
+DispParams::~DispParams()
+{
+}
 
 
 void DispParams::fillPar( IOPar& iop ) const
@@ -96,12 +108,37 @@ float Data::cDefSeisSr()
 }
 
 
+// Marker
+
+Marker::Marker( float z )
+    : zpos_(z)
+{
+}
+
+Marker::~Marker()
+{
+}
+
+
+// PickData
+
+PickData::PickData()
+{
+}
+
+
+PickData::~PickData()
+{
+}
+
+
+// Data
 
 Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)
     , wd_(&wdata)
     , setup_(wts)
-    , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
+    , initwvlt_(*Wavelet::get(IOM().get( wts.sgp_.getWaveletID())))
     , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
     , seistrcs_(*new SeisTrcBuf(true))
 {
@@ -263,9 +300,15 @@ void Data::computeExtractionRange()
 }
 
 
+// HorizonMgr
 
 HorizonMgr::HorizonMgr( TypeSet<Marker>& hor )
     : horizons_(hor)
+{
+}
+
+
+HorizonMgr::~HorizonMgr()
 {
 }
 
@@ -356,7 +399,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 }
 
 
-
+// WellDataMgr
 
 WellDataMgr::WellDataMgr( const MultiID& wellid )
     : wellid_(wellid)
@@ -391,6 +434,7 @@ RefMan<Well::Data> WellDataMgr::wd()
 }
 
 
+// DataWriter
 
 DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
     : wd_(&wd)
@@ -461,6 +505,7 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 }
 
 
+// Server
 
 Server::Server( const WellTie::Setup& wts )
     : wellid_(wts.wellid_)
@@ -515,12 +560,13 @@ bool Server::setNewWavelet( const MultiID& mid )
     if ( !ioobj ) return false;
 
     PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-    if ( !wvlt ) return false;
+    if ( !wvlt )
+	return false;
 
     wvlt->reSample( Data::cDefSeisSr() );
     data_->initwvlt_ = *wvlt;
     data_->initwvlt_.setName( wvlt->name() );
-    const_cast<WellTie::Setup&>(data_->setup()).wvltid_ = mid;
+    mSelf().data_->setup().sgp_.setWavelet( *wvlt.ptr() );
     return updateSynthetics( data_->initwvlt_ );
 }
 

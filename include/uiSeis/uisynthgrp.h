@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "synthseis.h"
 #include "uigroup.h"
 #include "uiraytrace1d.h"
+#include "uirefltrace1d.h"
 #include "uiseiswvltsel.h"
 #include "uistring.h"
 
@@ -102,6 +103,7 @@ public:
 
 			uiBaseSynthSeis(uiParent*,
 					const uiSynthSeis::Setup&);
+			~uiBaseSynthSeis();
 
     static uiSynthSeis* create( uiParent* p, const uiSynthSeis::Setup& su )
 			    { return new uiBaseSynthSeis( p, su ); }
@@ -113,6 +115,8 @@ mExpClass(uiSeis) uiSynthSeisSel : public uiGroup
 public:
 
 			uiSynthSeisSel(uiParent*,const uiSynthSeis::Setup&);
+			uiSynthSeisSel(uiParent*,const uiSynthSeis::Setup&,
+				       const uiReflCalc1D::Setup&);
 			uiSynthSeisSel(uiParent*,const uiSynthSeis::Setup&,
 				       const uiRayTracer1D::Setup&);
 			~uiSynthSeisSel();
@@ -139,6 +143,7 @@ private:
     uiGroup*		uiseisfldsgrp_;
     uiComboBox*		synthseisselfld_ = nullptr;
     ObjectSet<uiSynthSeis> grps_;
+    uiReflCalcSel*	reflsel_ = nullptr;
     uiRayTracerSel*	rtsel_ = nullptr;
 
     void		setDefault();

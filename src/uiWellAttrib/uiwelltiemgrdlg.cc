@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seistrctr.h"
+#include "stratsynthgenparams.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -52,15 +53,15 @@ ________________________________________________________________________
 namespace WellTie
 {
 
-uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
-	: uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismics"),
-		tr("Select Data to tie Well to Seismic"),
-		mODHelpKey(mWellTiMgrDlemgHelpID) )
-		.savebutton(true)
-		.savechecked(false)
-		.modal(false))
-	, wtsetup_(wtsetup)
-	, elpropsel_(*new ElasticPropSelection(false))
+uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, const WellTie::Setup& wtsetup )
+    : uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismics"),
+	    tr("Select Data to tie Well to Seismic"),
+	    mODHelpKey(mWellTiMgrDlemgHelpID) )
+	    .savebutton(true)
+	    .savechecked(false)
+	    .modal(false))
+    , wtsetup_(*new WellTie::Setup(wtsetup))
+    , elpropsel_(*new ElasticPropSelection(false)) //TODO: QC for S-wave
 {
     setVideoKey( mODVideoKey(mWellTiMgrDlemgHelpID) );
     setCtrlStyle( RunAndClose );
@@ -161,7 +162,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     sep->attach( stretchedBelow, logsgrp );
 
     uiMultiSynthSeisSel::Setup sssu( "Reference wavelet" );
-    sssu.withps_ = false;
+    sssu.withelasticgather( false ).withps( false );
 
     wvltfld_ = new uiMultiSynthSeisSel( this, sssu );
     wvltfld_->attach( alignedBelow, wellfld_ );
@@ -214,7 +215,9 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
 
-    Well::LoadReqs lreqs(Well::Trck, Well::Mrkrs, Well::LogInfos);
+    Well::LoadReqs lreqs( true );
+    lreqs.exclude( Well::Logs ).exclude( Well::DispProps3D )
+	 .include( Well::LogInfos);
     wd_ = Well::MGR().get( wellid, lreqs );
     if ( !wd_ ) mErrRet( uiStrings::phrCannotRead(mJoinUiStrs(sWell().toLower(),
 							    sData().toLower())))
@@ -307,9 +310,7 @@ void uiTieWinMGRDlg::getSetup( const char* nm )
     getSeismicInSetup();
     getVelLogInSetup();
     getDenLogInSetup();
-
-    if ( !wtsetup_.wvltid_.isUdf() )
-	wvltfld_->setWavelet( wtsetup_.wvltid_ );
+    wvltfld_->setFrom( wtsetup_.sgp_ );
 
     if ( !wtsetup_.useexistingd2tm_ )
     {
@@ -562,10 +563,8 @@ bool uiTieWinMGRDlg::initSetup()
 				       wtsetup_.corrtype_ );
 
     const uiRetVal uirv = wvltfld_->isOK();
-    if ( !uirv.isOK() )
+    if ( !uirv.isOK() || !wvltfld_->getGenParams(wtsetup_.sgp_) )
 	mErrRet(uirv)
-
-    wtsetup_.wvltid_ = wvltfld_->getWaveletID();
 
     wtsetup_.commitDefaults();
     if ( saveButtonChecked() )
@@ -580,28 +579,29 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !initSetup() )
 	return false;
 
-    Server* server = new Server( wtsetup_ );
+    PtrMan<Server> server = new Server( wtsetup_ );
     if ( !server->isOK() )
-	{ uiMSG().error( server->errMsg() ); delete server; return false; }
+	{ uiMSG().error( server->errMsg() ); return false; }
 
     if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )
     {
-	uiCheckShotEdit dlg( this, *server );
+	uiCheckShotEdit dlg( this, *server.release() );
 	if ( !dlg.go() )
-	    { delete server; return false; }
+	    return false;
     }
 
-    WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, *server );
+    auto* wtdlg = new WellTie::uiTieWin( this, *server.release() );
     wtdlg->setDeleteOnClose( true );
     welltiedlgset_ += wtdlg;
     wtdlg->windowClosed.notify( mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
 
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     const BufferString fname( ioobj->fullUserExpr(true) );
     WellTie::Reader wtr( fname );
-    IOPar* par= wtr.getIOPar( uiTieWin::sKeyWinPar() );
+    IOPar* par = wtr.getIOPar( uiTieWin::sKeyWinPar() );
     if ( par ) wtdlg->usePar( *par );
     delete par;
 

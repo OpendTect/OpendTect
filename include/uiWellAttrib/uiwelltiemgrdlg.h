@@ -36,7 +36,7 @@ mExpClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
 { mODTextTranslationClass(uiTieWinMGRDlg);
 
 public:
-			uiTieWinMGRDlg(uiParent*,WellTie::Setup&);
+			uiTieWinMGRDlg(uiParent*,const WellTie::Setup&);
 			~uiTieWinMGRDlg();
 
     void		delWins();

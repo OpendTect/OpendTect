@@ -207,7 +207,7 @@ void uiSeisWaveletSel::rebuildList()
 	MultiID mid;
 	SI().pars().get(
 	    IOPar::compKey(sKey::Default(),ctxt.trgroup_->groupName()), mid );
-	if ( mid.isUdf() )
+	if ( !mid.isUdf() )
 	{
 	    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )

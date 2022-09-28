@@ -420,8 +420,9 @@ bool StratSynth::DataMgr::usePar( const IOPar& iop )
 bool StratSynth::DataMgr::needSWave() const
 {
     TypeSet<SynthID> needsids;
+    getIDs( needsids, OnlyEIStack );
+    getIDs( needsids, OnlyEIGather );
     getIDs( needsids, OnlyPS );
-    getIDs( needsids, OnlyEI );
     return !needsids.isEmpty();
 }
 
@@ -949,6 +950,20 @@ SynthID StratSynth::DataMgr::first( bool isps, bool genreq,
 }
 
 
+bool StratSynth::DataMgr::isElasticStack( SynthID id ) const
+{
+    const SynthGenParams* sgp = getGenParams( id );
+    return sgp ? sgp->isElasticStack() : false;
+}
+
+
+bool StratSynth::DataMgr::isElasticPS( SynthID id ) const
+{
+    const SynthGenParams* sgp = getGenParams( id );
+    return sgp ? sgp->isElasticGather() : false;
+}
+
+
 bool StratSynth::DataMgr::isPS( SynthID id ) const
 {
     const SynthGenParams* sgp = getGenParams( id );
@@ -1037,12 +1052,12 @@ void StratSynth::DataMgr::gtIdxs( TypeSet<int>& idxs, SubSelType ss,
 	{
 	    mHandleCase( OnlyZO,	sgp.isZeroOffset() );
 	    mHandleCase( NoZO,		!sgp.isZeroOffset() );
+	    mHandleCase( OnlyEIStack,	sgp.isElasticStack() );
+	    mHandleCase( NoEIStack,	!sgp.isElasticStack() );
+	    mHandleCase( OnlyEIGather,	sgp.isElasticGather() );
+	    mHandleCase( NoEIGather,	!sgp.isElasticGather() );
 	    mHandleCase( OnlyPS,	sgp.isPreStack() );
 	    mHandleCase( NoPS,		!sgp.isPreStack() );
-	    mHandleCase( OnlyEI,	false );
-	    mHandleCase( NoEI,		false );
-/*	    mHandleCase( OnlyEI,	sgp.isElastic() );
-	    mHandleCase( NoEI,		!sgp.isElastic() );*/
 	    mHandleCase( OnlyPSBased,	sgp.isPSBased() );
 	    mHandleCase( NoPSBased,	!sgp.isPSBased() );
 	    mHandleCase( OnlyAttrib,	sgp.isAttribute() );
@@ -1186,8 +1201,7 @@ bool StratSynth::DataMgr::generate( SynthID id, int lmsidx,
     mGetGenIdx(idx);
 
     const SynthGenParams& sgp = genparams_[idx];
-    const bool checkswave = !swaveinfomsgshown_ &&
-			    ( sgp.isPreStack() /* TODO || sgp.isEI() */ );
+    const bool checkswave = !swaveinfomsgshown_ && sgp.needsSWave();
     mSelf().gtDSS( lmsidx ).replace( idx, nullptr );
     if ( !ensureElasticModels(lmsidx,checkswave,taskrun) )
 	return false;
@@ -1743,7 +1757,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 		const TypeSet<ElasticModel>& elmdls =
 				    *elasticmodelsets_[ curLayerModelIdx() ];
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
-						sgp.raypars_, msg, taskrun );
+						*sgp.reflPars(), msg, taskrun );
 	    }
 	    if ( !refmodels )
 		return nullptr;
@@ -2387,10 +2401,16 @@ const ReflectivityModelSet* StratSynth::DataMgr::getRefModels(
     TypeSet<SynthID> ids;
     if ( sgp.isZeroOffset() )
 	getIDs( ids, OnlyZO, true, lmsidx );
+    else if ( sgp.isElasticStack() )
+	getIDs( ids, OnlyEIStack, true, lmsidx );
+    else if ( sgp.isElasticGather() )
+	getIDs( ids, OnlyEIGather, true, lmsidx );
     else if ( sgp.isPreStack() )
 	getIDs( ids, OnlyPS, true, lmsidx );
+    else
+	return nullptr;
 
-    const IOPar& reflpars = sgp.raypars_;
+    const IOPar& reflpars = *sgp.reflPars();
     for ( const auto& id : ids )
     {
 	const SyntheticData* sd = gtDS( id, lmsidx );
@@ -2413,13 +2433,16 @@ const Seis::SynthGenDataPack* StratSynth::DataMgr::getSynthGenRes(
 
     TypeSet<SynthID> ids;
     getIDs( ids, OnlyZO, true, lmsidx );
+    getIDs( ids, OnlyEIStack, true, lmsidx );
+    getIDs( ids, OnlyEIGather, true, lmsidx );
     getIDs( ids, OnlyPS, true, lmsidx );
     getIDs( ids, NoRaw, true, lmsidx );
+    const IOPar* reflpar = sgp.reflPars();
     for ( const auto& id : ids )
     {
 	const SyntheticData* sd = gtDS( id, lmsidx );
 	const Seis::SynthGenDataPack& syngendp = sd->synthGenDP();
-	if ( syngendp.hasSameParams(sgp.raypars_,sgp.synthpars_) )
+	if ( reflpar && syngendp.hasSameParams(*reflpar,sgp.synthpars_) )
 	    return &syngendp;
     }
 
@@ -2788,7 +2811,7 @@ bool doPrepare( int nrthreads ) override
     for ( int ithread=0; ithread<nrthreads; ithread++ )
     {
 	auto* anglecomputer = new PreStack::ModelBasedAngleComputer;
-	anglecomputer->setRayTracerPars( pssd_.getGenParams().raypars_ );
+	anglecomputer->setRayTracerPars( *pssd_.getGenParams().reflPars() );
 	anglecomputer->setFFTSmoother( 10.f, 15.f );
 	anglecomputers_.add( anglecomputer );
 	anglegathers_.add( new RefObjectSet<PreStack::Gather> );

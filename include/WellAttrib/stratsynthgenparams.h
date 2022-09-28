@@ -22,12 +22,13 @@ class Wavelet;
 mExpClass(WellAttrib) SynthGenParams
 {
 public:
-    enum SynthType	{ ZeroOffset, PreStack, StratProp, AngleStack,
-			  AVOGradient, InstAttrib };
+    enum SynthType	{ ZeroOffset, ElasticStack, ElasticGather, PreStack,
+			  StratProp, AngleStack, AVOGradient, InstAttrib };
 			mDeclareEnumUtils(SynthType);
 
-			SynthGenParams( SynthType tp=ZeroOffset );
+			SynthGenParams(SynthType tp=ZeroOffset);
 			SynthGenParams(const SynthGenParams&);
+			~SynthGenParams();
 
     SynthGenParams&	operator= (const SynthGenParams&);
     bool		operator== (const SynthGenParams&) const;
@@ -40,16 +41,21 @@ public:
     SynthType		synthtype_;
     BufferString	name_;
     BufferString	inpsynthnm_;
-    IOPar		raypars_;
     IOPar		synthpars_;
     Interval<float>	anglerg_;
     Attrib::Instantaneous::OutType attribtype_;
 
     const char*		getWaveletNm() const;
+    MultiID		getWaveletID() const;
+    const IOPar*	reflPars() const;
     const PropertyRef*	getRef(const PropertyRefSelection&) const;
 
     bool		hasOffsets() const;
     bool		isZeroOffset() const { return synthtype_==ZeroOffset; }
+    bool		isElasticStack() const
+					    { return synthtype_==ElasticStack; }
+    bool		isElasticGather() const
+					    { return synthtype_==ElasticGather;}
     bool		isPreStack() const	{ return synthtype_==PreStack; }
     bool		isCorrected() const;
 			//<! Only for PS gathers
@@ -57,7 +63,8 @@ public:
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }
     bool		canBeAttributeInput() const
-			{ return isZeroOffset() || isPSBased(); }
+			{ return isZeroOffset() || isElasticStack() ||
+				 isPSBased(); }
     bool		isStratProp() const   { return synthtype_==StratProp; }
     bool		isAttribute() const   { return synthtype_==InstAttrib; }
     bool		needsInput() const
@@ -78,6 +85,7 @@ public:
     static const char*	sKeySynthType()		{ return "Synthetic Type"; }
     static const char*	sKeyWaveLetName()	{ return "Wavelet Name"; }
     static const char*	sKeyRayPar();
+    static const char*	sKeyReflPar();
     static const char*	sKeySynthPar();
     static const char*	sKeyInput()		{ return "Input Synthetic"; }
     static const char*	sKeyAngleRange()	{ return "Angle Range"; }
@@ -90,5 +98,7 @@ private:
     static void		setSynthGenPar(const IOPar&,IOPar&);
 
     BufferString	wvltnm_;
+    IOPar		raypars_;
+    IOPar		reflpars_;
 
 };

@@ -24,6 +24,21 @@ StepInterval<float> RayTracer1D::sDefOffsetRange()
 }
 
 
+// RayTracer1D::Setup
+
+RayTracer1D::Setup::Setup()
+    : pdown_(true)
+    , pup_(true)
+    , doreflectivity_(true)
+{
+}
+
+
+RayTracer1D::Setup::~Setup()
+{
+}
+
+
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     par.getYN( sKeyWavetypes(), pdown_, pup_ );
@@ -38,6 +53,8 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
     par.setYN( sKeyReflectivity(), doreflectivity_);
 }
 
+
+// RayTracer1D
 
 RayTracer1D::RayTracer1D()
     : model_(*new ElasticModel())
@@ -358,6 +375,8 @@ float RayTracer1D::getTime( int layer, int offset ) const
     return twt_[offset][layer];
 }
 
+
+// VrmsRayTracer1D
 
 bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {

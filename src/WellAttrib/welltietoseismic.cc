@@ -50,9 +50,6 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
     : data_(data)
     , seisid_(seisid)
     , linenm_(lnm)
-    , seisarr_(0)
-    , syntarr_(0)
-    , refarr_(0)
 {
     zrg_.set( mUdf(float), mUdf(float) );
 }
@@ -60,14 +57,9 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
 
 DataPlayer::~DataPlayer()
 {
-    if ( refarr_ )
-	delete [] refarr_;
-
-    if ( syntarr_ )
-	delete [] syntarr_;
-
-    if ( seisarr_ )
-	delete [] seisarr_;
+    delete [] refarr_;
+    delete [] syntarr_;
+    delete [] seisarr_;
 }
 
 
@@ -153,8 +145,8 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
     const Seis::SynthGenDataPack& synthgendp = synthetics->synthGenDP();
 
     Seis::RaySynthGenerator synthgen( synthgendp );
+    synthgen.usePar( synthetics->getGenParams().synthpars_ );
     synthgen.setWavelet( &wvlt, OD::UsePtr );
-    synthgen.enableFourierDomain( Seis::SynthGenBase::cDefIsFrequency() );
     synthgen.setOutSampling( data_.getTraceRange() );
 
     if ( !TaskRunner::execute(data_.trunner_,synthgen) )
@@ -339,18 +331,14 @@ bool DataPlayer::extractWvf( bool issynt )
     const float wvfrms = mCast( float, stats.rms() );
     if ( issynt )
     {
-	if ( syntarr_ )
-	    delete [] syntarr_;
-
+	delete [] syntarr_;
 	syntarr_ = valarr;
 	data_.correl_.scaler_ = mIsUdf(wvfrms) ? mUdf(float)
 			      : data_.correl_.scaler_ / wvfrms;
     }
     else
     {
-	if ( seisarr_ )
-	    delete [] seisarr_;
-
+	delete [] seisarr_;
 	seisarr_ = valarr;
 	data_.correl_.scaler_ = wvfrms;
     }
@@ -442,9 +430,7 @@ bool DataPlayer::extractReflectivity()
 	nrspikefound++;
     }
 
-    if ( refarr_ )
-	delete [] refarr_;
-
+    delete [] refarr_;
     refarr_ = valarr;
     return true;
 }
@@ -537,28 +523,23 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
 
-    TypeSet<float> offsets; offsets += 0.f;
-    SynthGenParams sgp( SynthGenParams::ZeroOffset );
-    sgp.raypars_.set( RayTracer1D::sKeyOffset(), offsets );
-    sgp.setWavelet( wvlt );
-    sgp.createName( sgp.name_ );
-
     ObjectSet<const TimeDepthModel> forcedtdmodels;
     TimeDepthModel tdmodel;
     if ( setTargetModel(tdmodel) )
 	forcedtdmodels.add( &tdmodel );
 
+    const SynthGenParams& sgp = data_.setup().sgp_;
     ConstRefMan<ReflectivityModelSet> refmodels =
-	Seis::RaySynthGenerator::getRefModels( aimodels, sgp.raypars_,
+	Seis::RaySynthGenerator::getRefModels( aimodels, *sgp.reflPars(),
 		       msg, taskrunner,
 		       forcedtdmodels.isEmpty() ? nullptr : &forcedtdmodels );
     if ( !refmodels )
 	mErrRet( uiStrings::phrCannotCreate(tr("synthetic: %1").arg(msg)) );
 
     Seis::RaySynthGenerator synthgen( *refmodels.ptr() );
+    synthgen.usePar( sgp.synthpars_ );
     synthgen.setWavelet( &wvlt, OD::UsePtr );
     synthgen.setOutSampling( data_.getTraceRange() );
-    synthgen.enableFourierDomain( Seis::SynthGenBase::cDefIsFrequency() );
     if ( !TaskRunner::execute(taskrunner,synthgen) )
 	mErrRet( uiStrings::phrCannotCreate(
 		tr("synthetic: %1").arg(synthgen.uiMessage())) )

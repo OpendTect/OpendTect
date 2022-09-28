@@ -91,6 +91,9 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth::DataMgr& gp )
 
     uiMultiSynthSeisSel::Setup sssu;
     sssu.compact( true );
+#ifndef __debug__
+    sssu.withelasticgather( false ); //TODO: enable later if needed
+#endif
     synthselgrp_ = new uiFullSynthSeisSel( rightgrp, sssu );
     mAttachCB( synthselgrp_->selectionChanged, uiSynthParsGrp::typeChgCB );
     mAttachCB( synthselgrp_->parsChanged, uiSynthParsGrp::parsChangedCB );
@@ -754,12 +757,11 @@ void uiSynthParsGrp::putToScreen()
     NotifyStopper nssel( synthselgrp_->selectionChanged );
     NotifyStopper nspars( synthselgrp_->parsChanged );
 
-    IOPar par;
     const BufferString synthnm( synthnmlb_->getText() );
     const SynthGenParams* cursgp = stratsynth_.getGenParams(
 					    stratsynth_.find( synthnm ) );
     if ( cursgp )
-	cursgp->fillPar( par );
+	synthselgrp_->setFrom( *cursgp );
     else
     {
 	const SynthGenParams::SynthType synthtype =
@@ -774,10 +776,9 @@ void uiSynthParsGrp::putToScreen()
 		sgp.createName( sgp.name_ );
 	    }
 	}
-	sgp.fillPar( par );
-    }
 
-    synthselgrp_->usePar( par );
+	synthselgrp_->setFrom( sgp );
+    }
 }
 
 
@@ -787,14 +788,7 @@ bool uiSynthParsGrp::getFromScreen( SynthGenParams& sgp )
     if ( !uirv.isOK() )
 	mErrRet(uirv,return false);
 
-    IOPar iop;
-    synthselgrp_->fillPar( iop );
-
-    const SynthGenParams::SynthType synthtype =
-		SynthGenParams::parseEnumSynthType( synthselgrp_->getType() );
-    sgp = SynthGenParams( synthtype );
-    sgp.usePar( iop );
-    if ( iop.isEmpty() )
+    if ( !synthselgrp_->getGenParams(sgp) )
 	return false;
 
     if ( sgp.needsInput() )

@@ -238,6 +238,7 @@ ________________________________________________________________________
 #define		mSurfaceLimitedFillerHelpID			0x10302028
 #define		mRayTracerAdvancedDlgHelpID			0x10302029
 #define		mSynthGenAdvancedDlgHelpID			0x10302030
+#define		mEICalcAdvancedDlgHelpID			0x10302031
 // Seismics Wavelets 03
 #define		mSeisWvltManHelpID				0x10303000
 #define		mSeisWvltImpHelpID				0x10303001
