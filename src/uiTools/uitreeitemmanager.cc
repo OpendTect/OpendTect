@@ -687,11 +687,11 @@ uiTreeFactorySet::~uiTreeFactorySet()
 
 
 void uiTreeFactorySet::addFactory( uiTreeItemFactory* ptr, int placement,
-				   int pol2d )
+				   OD::Pol2D3D pol2d )
 {
     factories_ += ptr;
     placementidxs_ += placement;
-    pol2ds_ += pol2d;
+    pol2ds_ += int(pol2d);
     addnotifier.trigger( factories_.size()-1 );
 }
 
@@ -725,8 +725,10 @@ const uiTreeItemFactory* uiTreeFactorySet::getFactory( int idx ) const
 int uiTreeFactorySet::getPlacementIdx( int idx ) const
 { return placementidxs_[idx]; }
 
-int uiTreeFactorySet::getPol2D( int idx ) const
-{ return pol2ds_[idx]; }
+OD::Pol2D3D uiTreeFactorySet::getPol2D3D( int idx ) const
+{
+    return sCast(OD::Pol2D3D,pol2ds_[idx]);
+}
 
 
 uiTreeItemRemover::uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)

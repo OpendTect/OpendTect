@@ -220,7 +220,7 @@ bool Seis::is2DGeom( const IOPar& iop )
 
 uiString Seis::dataName( GeomType tp, bool explprepost )
 {
-    const bool both_2d_3d = SI().survDataType()==SurveyInfo::Both2DAnd3D;
+    const bool both_2d_3d = SI().survDataType()==OD::Both2DAnd3D;
     return uiStrings::sVolDataName( is2D(tp), is3D(tp), isPS(tp),
 				    both_2d_3d, explprepost );
 }

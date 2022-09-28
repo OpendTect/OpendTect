@@ -164,7 +164,7 @@ bool MultiTextureSurveyObject::addAttrib()
     aatrnms->allowNull();
     userrefs_ += aatrnms;
     Attrib::SelSpec as;
-    if ( getAllowedDataType() == Only2D )
+    if ( getAllowedDataType() == OD::Only2D )
     {
 	as.set2DFlag( true );
 	as.setObjectRef( getMultiID().toString() );

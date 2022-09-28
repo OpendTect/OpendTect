@@ -32,12 +32,14 @@ using PortNr_Type	= od_uint16;
 using PID_Type		= od_int32;
 
 enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
-enum Pol2D3D		{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 
 namespace OD
 {
 enum GeomSystem
     { GeomSynth=-2, Geom3D=-1, Geom2D=0 };
+
+enum Pol2D3D
+    { Only3D=0, Both2DAnd3D=1, Only2D=2 };
 
 enum SnapDir
     { SnapDownward=-1, SnapNearest=0, SnapUpward=1 };

@@ -163,7 +163,7 @@ private:
     bool		isTime() const;
     bool		isInFeet() const;
     void		fillSipsFld(bool have2d,bool have3d,bool havewells);
-    SurveyInfo::Pol2D	pol2D() const;
+    OD::Pol2D3D		pol2D3D() const;
     void		pol2dChg(CallBacker*);
     void		zdomainChg(CallBacker*);
 

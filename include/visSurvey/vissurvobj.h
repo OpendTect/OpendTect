@@ -233,7 +233,8 @@ public:
     virtual bool		isAttribEnabled(int attrib) const {return true;}
     bool			isAnyAttribEnabled() const;
     virtual bool		hasSingleColorFallback() const { return false; }
-    virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
+    virtual OD::Pol2D3D		getAllowedDataType() const
+				{ return OD::Only3D; }
 
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
 
@@ -241,9 +242,9 @@ public:
     virtual bool		removeSelections(TaskRunner*)	{ return false;}
     virtual void		clearSelections()		{}
 
-    virtual void		   setSelSpec(int,const Attrib::SelSpec&);
-    virtual void		   setSelSpecs(int attrib,
-					       const TypeSet<Attrib::SelSpec>&);
+    virtual void		setSelSpec(int,const Attrib::SelSpec&);
+    virtual void		setSelSpecs(int attrib,
+					    const TypeSet<Attrib::SelSpec>&);
 
     virtual const Attrib::SelSpec* getSelSpec(int attrib,int version=0) const;
     virtual const TypeSet<Attrib::SelSpec>* getSelSpecs( int attrib ) const
