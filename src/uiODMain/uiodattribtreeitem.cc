@@ -117,20 +117,20 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, VisID visid, int attrib,
 	mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
 	if ( !so ) return;
 
-	Pol2D3D p2d3d = so->getAllowedDataType();
+	OD::Pol2D3D p2d3d = so->getAllowedDataType();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid));
 
 	const bool needtransform = !scene->zDomainInfo().def_.isSI();
 	const bool cantransform = !needtransform || scene->getZAxisTransform();
 
-	bool need2dlist = SI().has2D() && p2d3d != Only3D;
-	bool need3dlist = SI().has3D() && p2d3d != Only2D;
+	bool need2dlist = SI().has2D() && p2d3d != OD::Only3D;
+	bool need3dlist = SI().has3D() && p2d3d != OD::Only2D;
 
 	MenuItem* subitem;
 	attrserv->resetMenuItems();
 	if ( need3dlist )
 	    mCreateItemsList( false, need2dlist );
-	if ( need2dlist && p2d3d != Only3D )
+	if ( need2dlist && p2d3d != OD::Only3D )
 	    mCreateItemsList( true, need3dlist );
     }
 }
@@ -141,7 +141,7 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     bool isonly2d = false;
     const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
-    if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
+    if ( so ) isonly2d = so->getAllowedDataType() == OD::Only2D;
 
     if ( !istb )
     {

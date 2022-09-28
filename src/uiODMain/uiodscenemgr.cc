@@ -105,34 +105,34 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , scenesHidden(this)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
-		       SurveyInfo::No2D );
+		       OD::Only3D );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 1100,
-		       SurveyInfo::No2D );
+		       OD::Only3D );
     tifs_->addFactory( new uiODZsliceTreeItemFactory, 1200,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODVolrenTreeItemFactory, 1500, SurveyInfo::No2D );
+		       OD::Only3D );
+    tifs_->addFactory( new uiODVolrenTreeItemFactory, 1500, OD::Only3D );
     tifs_->addFactory( new uiODRandomLineTreeItemFactory, 2000,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new Line2DTreeItemFactory, 3000, SurveyInfo::Only2D );
+		       OD::Only3D );
+    tifs_->addFactory( new Line2DTreeItemFactory, 3000, OD::Only2D );
     tifs_->addFactory( new uiODHorizonTreeItemFactory, 4000,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 4500,
-		       SurveyInfo::Only2D );
+		       OD::Only2D );
     tifs_->addFactory( new uiODFaultTreeItemFactory, 5000 );
     tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 5500,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
     tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 6000,
-		       SurveyInfo::No2D );
+		       OD::Only3D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 7000,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
     tifs_->addFactory( new uiODPickSetTreeItemFactory, 8000,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
     tifs_->addFactory( new uiODPolygonTreeItemFactory, 8500,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
     tifs_->addFactory( new uiODPSEventsTreeItemFactory, 9000,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
     tifs_->addFactory( new uiODAnnotTreeItemFactory, 10000,
-		       SurveyInfo::Both2DAnd3D );
+		       OD::Both2DAnd3D );
 
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
@@ -926,9 +926,9 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
-	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
-	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D ||
-	     pol2d == SurveyInfo::Both2DAnd3D ||
+	OD::Pol2D3D pol2d = tifs_->getPol2D3D( idx );
+	if ( SI().survDataType() == OD::Both2DAnd3D ||
+	     pol2d == OD::Both2DAnd3D ||
 	     pol2d == SI().survDataType() )
 	{
 	    idxs += idx;

@@ -141,7 +141,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 #endif
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
-				SurveyInfo::Pol2DNames(), tr("Survey type") );
+				SurveyInfo::Pol2D3DNames(), tr("Survey type") );
     lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
 
     mkSIPFld( lcb->attachObj() );
@@ -705,7 +705,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     }
 
     si_.disklocation_.setDirName( newdirnm );
-    si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
+    si_.setSurvDataType( sCast(OD::Pol2D3D,pol2dfld_->currentItem()) );
     if ( mUseAdvanced() )
 	si_.get3Pts( si_.set3coords_, si_.set3binids_,
 			si_.set3binids_[2].crl() );

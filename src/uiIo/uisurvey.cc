@@ -291,7 +291,7 @@ bool uiStartNewSurveySetup::acceptOK( CallBacker* )
     const BufferString survnm = survName();
     survinfo_.setName( survnm );
     survinfo_.updateDirName();
-    survinfo_.setSurvDataType( pol2D() );
+    survinfo_.setSurvDataType( pol2D3D() );
     survinfo_.setZUnit( isTime(), isInFeet() );
     survinfo_.setSipName( sipName() );
 
@@ -388,11 +388,11 @@ bool uiStartNewSurveySetup::isInFeet() const
 }
 
 
-SurveyInfo::Pol2D uiStartNewSurveySetup::pol2D() const
+OD::Pol2D3D uiStartNewSurveySetup::pol2D3D() const
 {
-    return has3D() ? ( has2D() ? SurveyInfo::Both2DAnd3D
-			       : SurveyInfo::No2D )
-			       : SurveyInfo::Only2D;
+    return has3D() ? ( has2D() ? OD::Both2DAnd3D
+			       : OD::Only3D )
+			       : OD::Only2D;
 }
 
 

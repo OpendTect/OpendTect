@@ -583,7 +583,7 @@ void uiODMenuMgr::fillManMenu()
     insertAction( manmnu_, m3Dots(uiStrings::sGeobody(mPlural)),
 		  mManBodyMnuItm, "man_body" );
     insertAction( manmnu_, m3Dots(tr("Geometry 2D")), mManGeomItm, "man2dgeom");
-    if ( SI().survDataType() == SurveyInfo::No2D )
+    if ( SI().survDataType() == OD::Only3D )
 	insertAction( manmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
 		      mManHor3DMnuItm, "man_hor" );
     else
@@ -744,9 +744,9 @@ void uiODMenuMgr::fillProcMenu()
 void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
-    SurveyInfo::Pol2D survtype = SI().survDataType();
+    OD::Pol2D3D survtype = SI().survDataType();
     const char* attrpm = "attributes";
-    if ( survtype == SurveyInfo::Both2DAnd3D )
+    if ( survtype == OD::Both2DAnd3D )
     {
 	uiMenu* aitm = new uiMenu( &appl_, uiStrings::sAttribute(mPlural),
 				   attrpm );
@@ -1216,7 +1216,7 @@ void uiODMenuMgr::fillManTB()
     mantb_->setButtonMenu( manids_.seisid_, seispopmnu,
 			   uiToolButton::InstantPopup );
 
-    if ( SI().survDataType() != SurveyInfo::No2D )
+    if ( SI().survDataType() != OD::Only3D )
 	mAddPopUp( tr("Horizon Menu"), tr("2D Horizons"),
 		   tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, manids_.horid_ );

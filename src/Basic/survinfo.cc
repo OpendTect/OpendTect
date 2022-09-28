@@ -50,7 +50,7 @@ const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
-mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
+mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", nullptr };
 
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
@@ -392,7 +392,7 @@ SurveyInfo::SurveyInfo()
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
-    , survdatatype_(Both2DAnd3D)
+    , survdatatype_(OD::Both2DAnd3D)
     , survdatatypeknown_(false)
     , seisrefdatum_(0.f)
     , coordsystem_(0)
@@ -582,9 +582,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	}
 	else if ( keyw == sKeySurvDataType() )
 	{
-	    Pol2D var;
-	    if ( !parseEnumPol2D( astream.value(), var ) )
-		var = Both2DAnd3D;
+	    OD::Pol2D3D var;
+	    if ( !parseEnumPol2D3D( astream.value(), var ) )
+		var = OD::Both2DAnd3D;
 
 	    si->setSurvDataType( var );
 	}
@@ -1183,7 +1183,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     astream.put( sKey::Name(), name() );
-    astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
+    astream.put( sKeySurvDataType(), getPol2D3DString( survDataType()) );
     FileMultiString fms;
     fms += tkzs_.hsamp_.start_.inl(); fms += tkzs_.hsamp_.stop_.inl();
 				fms += tkzs_.hsamp_.step_.inl();
@@ -1330,11 +1330,15 @@ void SurveyInfo::saveLog( const char* basedir ) const
 
 
 bool SurveyInfo::has2D() const
-{ return survdatatype_ == Only2D || survdatatype_ == Both2DAnd3D; }
+{
+    return survdatatype_ == OD::Only2D || survdatatype_ == OD::Both2DAnd3D;
+}
 
 
 bool SurveyInfo::has3D() const
-{ return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
+{
+    return survdatatype_ == OD::Only3D || survdatatype_ == OD::Both2DAnd3D;
+}
 
 
 void SurveyInfo::update3DGeometry()

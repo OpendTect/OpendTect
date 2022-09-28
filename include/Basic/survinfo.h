@@ -142,7 +142,8 @@ public:
 
     const SurveyDiskLocation&	diskLocation() const;
 
-    enum Pol2D	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
+			using Pol2D3D = OD::Pol2D3D;
+			mDeclareEnumUtils(Pol2D3D);
 
     // Some public fns moved to bottom because they are rarely used; some fns
     // that have 'no user servicable parts inside' are at the very bottom
@@ -171,7 +172,7 @@ protected:
     BinID		set3binids_[3];
     Coord		set3coords_[3];
 
-    Pol2D		survdatatype_;
+    OD::Pol2D3D		survdatatype_;
     bool		survdatatypeknown_;
 
     BufferString	comment_;
@@ -250,9 +251,8 @@ public:
     BufferString	getDataDirName() const;
     void		updateDirName(); //!< May be used after setName()
 
-			mDeclareEnumUtils(Pol2D)
-    Pol2D		survDataType() const	{ return survdatatype_; }
-    void		setSurvDataType( Pol2D typ )
+    OD::Pol2D3D		survDataType() const	{ return survdatatype_; }
+    void		setSurvDataType( OD::Pol2D3D typ )
 			{ survdatatype_ = typ; survdatatypeknown_ = true; }
 
 			// Auxiliary info

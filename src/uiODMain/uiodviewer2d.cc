@@ -507,11 +507,11 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
 
-    for ( int idx=0; idx < tifs_->nrFactories(); idx++ )
+    for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
-	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
-	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D
-	     || pol2d == SurveyInfo::Both2DAnd3D
+	OD::Pol2D3D pol2d = tifs_->getPol2D3D( idx );
+	if ( SI().survDataType() == OD::Both2DAnd3D
+	     || pol2d == OD::Both2DAnd3D
 	     || pol2d == SI().survDataType() )
 	{
 	    idxs += idx;

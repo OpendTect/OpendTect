@@ -109,8 +109,8 @@ public:
 				{ return getTrcKeyZSampling( false, attrib ); }
     TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
 						   int attrib=-1) const;
-    Pol2D3D			getAllowedDataType() const override
-				{ return Only2D; }
+    OD::Pol2D3D			getAllowedDataType() const override
+				{ return OD::Only2D; }
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,

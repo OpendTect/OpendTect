@@ -283,11 +283,12 @@ public:
 mExpClass(uiTools) uiTreeFactorySet : public CallBacker
 {
 public:
-					uiTreeFactorySet();
-					~uiTreeFactorySet();
-    void				addFactory(uiTreeItemFactory* ptr,
-						   int placementindex=-1,
-						   int pol2d=1);
+				uiTreeFactorySet();
+				~uiTreeFactorySet();
+
+    void			addFactory(uiTreeItemFactory* ptr,
+					int placementindex=-1,
+					OD::Pol2D3D pol2d=OD::Both2DAnd3D);
 					/*!<\param ptr	pointer to new factory.
 							Object is managed by me.
 					    \param placementindex
@@ -297,15 +298,19 @@ public:
 							a new tree.
 					   \param pol2d
 					*/
-    void				remove( const char* );
+    void			remove( const char* );
 
-    int					nrFactories() const;
-    const uiTreeItemFactory*		getFactory(int) const;
-    int					getPlacementIdx(int) const;
-    int					getPol2D(int) const;
+    int				nrFactories() const;
+    const uiTreeItemFactory*	getFactory(int) const;
+    int				getPlacementIdx(int) const;
+    OD::Pol2D3D			getPol2D3D(int) const;
 
     CNotifier<uiTreeFactorySet,int>	addnotifier;
     CNotifier<uiTreeFactorySet,int>	removenotifier;
+
+    mDeprecated("Use getPol2D3D")
+    OD::Pol2D3D			getPol2D( int idx ) const
+				{ return getPol2D3D(idx); }
 
 protected:
 

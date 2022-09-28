@@ -84,8 +84,8 @@ public:
     int				selectedTexture(int attrib) const override;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
-    Pol2D3D			getAllowedDataType() const override
-				{ return Both2DAnd3D; }
+    OD::Pol2D3D			getAllowedDataType() const override
+				{ return OD::Both2DAnd3D; }
 
     int				nrAttribs() const override;
     bool			addAttrib() override;
