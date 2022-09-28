@@ -252,7 +252,10 @@ static bool addGenerators( StratSynth::DataMgr& datamgr,
     // Pre-stack
     SynthGenParams presgp( SynthGenParams::PreStack );
     presgp.setWavelet( wvltnm );
-    presgp.raypars_.set( RayTracer1D::sKeyOffset(), offsets );
+    IOPar par;
+    par.set(IOPar::compKey(RayTracer1D::sKeyRayPar(),RayTracer1D::sKeyOffset()),
+	    offsets );
+    presgp.usePar( par );
     presgp.createName( presgp.name_ );
     presdid = datamgr.addSynthetic( presgp );
 

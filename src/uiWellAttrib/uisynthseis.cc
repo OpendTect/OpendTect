@@ -16,6 +16,61 @@ ________________________________________________________________________
 #include "uisynthgrp.h"
 
 
+// uiMultiSynthSeisSel::Setup
+
+uiMultiSynthSeisSel::Setup::Setup( const char* wvltseltxt )
+    : uiSeisWaveletSel::Setup(wvltseltxt)
+    , withzeroff_(true)
+    , withelasticstack_(canDoElastic())
+    , withelasticgather_(canDoElastic())
+    , withps_(true)
+{
+}
+
+
+uiMultiSynthSeisSel::Setup::~Setup()
+{
+}
+
+
+uiMultiSynthSeisSel::Setup&
+uiMultiSynthSeisSel::Setup::withelasticstack( bool yn )
+{
+    withelasticstack_ = yn && canDoElastic();
+    return *this;
+}
+
+
+uiMultiSynthSeisSel::Setup&
+uiMultiSynthSeisSel::Setup::withelasticgather( bool yn )
+{
+    withelasticgather_ = yn && canDoElastic();
+    return *this;
+}
+
+
+bool uiMultiSynthSeisSel::Setup::withElasticStack() const
+{
+    return withelasticstack_;
+}
+
+
+bool uiMultiSynthSeisSel::Setup::withElasticGather() const
+{
+    return withelasticgather_;
+}
+
+
+bool uiMultiSynthSeisSel::Setup::canDoElastic()
+{
+    const bool noelastic = ReflCalc1D::factory().size() < 2 &&
+		ReflCalc1D::factory().hasName( AICalc1D::sFactoryKeyword() );
+    return !noelastic;
+}
+
+
+// uiMultiSynthSeisSel
+
 uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su )
     : uiMultiSynthSeisSel(p,su,false)
 {
@@ -43,13 +98,38 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
     else
 	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::ZeroOffset) );
 
-    if ( su.withelasticstack_ )
+    if ( su.withElasticStack() )
     {
-	//TODO
-//	topgrp_->setHAlignObj( elasticsynthgrp_ );
+	uiSynthSeis::Setup sssu( false, su );
+	uiReflCalc1D::Setup reflsu( true );
+	if ( su.reflsu_ )
+	    reflsu = *su.reflsu_;
+
+	elasticstacksynthgrp_ = new uiSynthSeisSel( topgrp_, sssu, reflsu );
+	mAttachCB( elasticstacksynthgrp_->parsChanged,
+		   uiMultiSynthSeisSel::parsChangedCB );
+	synthgrps_.add( elasticstacksynthgrp_ );
+	topgrp_->setHAlignObj( elasticstacksynthgrp_ );
     }
-/*    else
-		*/
+    else
+	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::ElasticStack));
+
+    if ( su.withElasticGather() )
+    {
+	uiSynthSeis::Setup sssu( false, su );
+	uiReflCalc1D::Setup reflsu( false );
+	if ( su.reflsu_ )
+	    reflsu = *su.reflsu_;
+
+	elasticgathersynthgrp_ = new uiSynthSeisSel( topgrp_, sssu, reflsu );
+	mAttachCB( elasticgathersynthgrp_->parsChanged,
+		   uiMultiSynthSeisSel::parsChangedCB );
+	synthgrps_.add( elasticgathersynthgrp_ );
+	topgrp_->setHAlignObj( elasticgathersynthgrp_ );
+    }
+    else
+	typedef_.remove(
+			synthdef.getKeyForIndex(SynthGenParams::ElasticGather));
 
     if ( su.withps_ )
     {
@@ -135,7 +215,23 @@ void uiMultiSynthSeisSel::selChg( const char* typ )
 	    previoussynthgrp_ = zerooffsynthgrp_;
 	zerooffsynthgrp_->display( dodisp );
     }
-//    if ( elasticsynthgrp_ )
+
+    if ( elasticstacksynthgrp_ )
+    {
+	const bool dodisp = synthtype == SynthGenParams::ElasticStack;
+	if ( elasticstacksynthgrp_->isDisplayed() && !dodisp )
+	    previoussynthgrp_ = elasticstacksynthgrp_;
+	elasticstacksynthgrp_->display( dodisp );
+    }
+
+    if ( elasticgathersynthgrp_ )
+    {
+	const bool dodisp = synthtype == SynthGenParams::ElasticGather;
+	if ( elasticgathersynthgrp_->isDisplayed() && !dodisp )
+	    previoussynthgrp_ = elasticgathersynthgrp_;
+	elasticgathersynthgrp_->display( dodisp );
+    }
+
     if ( prestacksynthgrp_ )
     {
 	const bool dodisp = synthtype == SynthGenParams::PreStack;
@@ -147,11 +243,19 @@ void uiMultiSynthSeisSel::selChg( const char* typ )
     if ( !previoussynthgrp_ )
 	return;
 
+    SynthGenParams::SynthType prevtype;
+    if ( previoussynthgrp_ == zerooffsynthgrp_ )
+	prevtype = SynthGenParams::ZeroOffset;
+    else if ( previoussynthgrp_ == elasticstacksynthgrp_ )
+	prevtype = SynthGenParams::ElasticStack;
+    else if ( previoussynthgrp_ == elasticgathersynthgrp_ )
+	prevtype = SynthGenParams::ElasticGather;
+    else if ( previoussynthgrp_ == prestacksynthgrp_ )
+	prevtype = SynthGenParams::PreStack;
+    else
+	{ pErrMsg("Should not be reached"); }
+
     IOPar par;
-    const SynthGenParams::SynthType prevtype =
-		previoussynthgrp_ == zerooffsynthgrp_
-		? SynthGenParams::ZeroOffset
-		: SynthGenParams::PreStack;
     par.set( SynthGenParams::sKeySynthType(),
 	     SynthGenParams::toString(prevtype) );
     previoussynthgrp_->fillPar( par );
@@ -171,8 +275,12 @@ void uiMultiSynthSeisSel::parsChangedCB( CallBacker* )
 
 void uiMultiSynthSeisSel::doParsChanged( IOPar* par )
 {
-    if ( par )
-	uiMultiSynthSeisSel::usePar( *par );
+    if ( !par )
+	return;
+
+    IOPar iop( *par );
+    iop.removeWithKey( SynthGenParams::sKeySynthType() );
+    uiMultiSynthSeisSel::usePar( iop );
 }
 
 
@@ -188,9 +296,13 @@ uiSynthSeisSel* uiMultiSynthSeisSel::current()
 			      SynthGenParams::parseEnumSynthType( getType() );
     if ( synthtype == SynthGenParams::ZeroOffset )
 	return zerooffsynthgrp_;
-//    if ( synthtype == SynthGenParams::
+    if ( synthtype == SynthGenParams::ElasticStack )
+	return elasticstacksynthgrp_;
+    if ( synthtype == SynthGenParams::ElasticGather )
+	return elasticgathersynthgrp_;
     if ( synthtype == SynthGenParams::PreStack )
 	return prestacksynthgrp_;
+
     return nullptr;
 }
 
@@ -212,7 +324,10 @@ const char* uiMultiSynthSeisSel::getType() const
     SynthGenParams::SynthType typ;
     if ( zerooffsynthgrp_ )
 	typ = SynthGenParams::ZeroOffset;
-//    else if ( elasticsynthgrp_ )
+    else if ( elasticstacksynthgrp_ )
+	typ = SynthGenParams::ElasticStack;
+    else if ( elasticgathersynthgrp_ )
+	typ = SynthGenParams::ElasticGather;
     else if ( prestacksynthgrp_ )
 	typ = SynthGenParams::PreStack;
     else
@@ -257,20 +372,51 @@ void uiMultiSynthSeisSel::ensureHasWavelet( const MultiID& wvltid )
 }
 
 
+bool uiMultiSynthSeisSel::setFrom( const SynthGenParams& sgp )
+{
+    if ( !sgp.isRawOutput() )
+	return false;
+
+    IOPar iop;
+    sgp.fillPar( iop );
+    return uiMultiSynthSeisSel::usePar( iop );
+}
+
+
 bool uiMultiSynthSeisSel::usePar( const IOPar& iop )
 {
-    IOPar par( iop );
-    par.removeSubSelection( RayTracer1D::sKeyRayPar() );
-    // Everything else applies to all types
+    NotifyStopper nssel( selectionChanged );
+    NotifyStopper nspars( parsChanged );
 
     SynthGenParams::SynthType synthtype;
     const bool hastype = SynthGenParams::parseEnum( iop,
 			 SynthGenParams::sKeySynthType(), synthtype );
+    if ( hastype && (synthtype == SynthGenParams::ZeroOffset ||
+		     synthtype == SynthGenParams::ElasticStack ||
+		     synthtype == SynthGenParams::ElasticGather ||
+		     synthtype == SynthGenParams::PreStack) )
+    {
+	const BufferString typestr = SynthGenParams::toString( synthtype );
+	if ( typestr != getType() )
+	    setType( SynthGenParams::toString(synthtype) );
+    }
+
+    nssel.enableNotification();
+
+    IOPar par( iop );
+    par.removeSubSelection( ReflCalc1D::sKeyReflPar() );
+    par.removeSubSelection( RayTracer1D::sKeyRayPar() );
+    // Everything else applies to all types
 
     if ( zerooffsynthgrp_ )
 	zerooffsynthgrp_->usePar(
 	    hastype && synthtype == SynthGenParams::ZeroOffset ? iop : par );
-//    if ( elasticsynthgrp_ )
+    if ( elasticstacksynthgrp_ )
+	elasticstacksynthgrp_->usePar(
+	    hastype && synthtype == SynthGenParams::ElasticStack ? iop : par );
+    if ( elasticgathersynthgrp_ )
+	elasticgathersynthgrp_->usePar(
+	    hastype && synthtype == SynthGenParams::ElasticGather ? iop : par );
     if ( prestacksynthgrp_ )
 	prestacksynthgrp_->usePar(
 	    hastype && synthtype == SynthGenParams::PreStack ? iop : par );
@@ -320,6 +466,18 @@ void uiMultiSynthSeisSel::fillPar( IOPar& iop ) const
 }
 
 
+bool uiMultiSynthSeisSel::getGenParams( SynthGenParams& sgp ) const
+{
+    IOPar iop;
+    fillPar( iop );
+    const SynthGenParams::SynthType synthtype =
+			SynthGenParams::parseEnumSynthType( getType() );
+    sgp = SynthGenParams( synthtype );
+    sgp.usePar( iop );
+    return !iop.isEmpty();
+}
+
+
 void uiMultiSynthSeisSel::fillSynthSeisPar( IOPar& iop ) const
 {
     if ( current() )
@@ -334,6 +492,7 @@ void uiMultiSynthSeisSel::fillReflPars( IOPar& iop ) const
 }
 
 
+// uiFullSynthSeisSel
 
 uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
     : uiMultiSynthSeisSel(p,su,true)
@@ -479,6 +638,20 @@ void uiFullSynthSeisSel::doMan( uiComboBox* cbfld, const BufferStringSet& nms )
 
     cbfld->setSensitive( nms.get(0) != SynthGenParams::sKeyInvalidInputPS() ||
 			 nms.size() > 1 );
+}
+
+
+bool uiFullSynthSeisSel::setFrom( const SynthGenParams& sgp )
+{
+    if ( sgp.isRawOutput() && uiMultiSynthSeisSel::setFrom(sgp) )
+    {
+	setOutputName( sgp.name_ );
+	return true;
+    }
+
+    IOPar par;
+    sgp.fillPar( par );
+    return usePar( par );
 }
 
 

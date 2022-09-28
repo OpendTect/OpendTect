@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "muter.h"
 #include "raytracerrunner.h"
+#include "reflcalcrunner.h"
 #include "reflectivitysampler.h"
 #include "samplfunc.h"
 #include "seisbuf.h"
@@ -945,12 +946,27 @@ bool MultiTraceSynthGenerator::doFinish( bool success )
 
 ConstRefMan<ReflectivityModelSet>
 RaySynthGenerator::getRefModels( const TypeSet<ElasticModel>& emodels,
-				 const IOPar& raypars, uiString& msg,
+				 const IOPar& reflpars, uiString& msg,
 				 TaskRunner* taskrun,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
-    return RayTracerRunner::getRefModels( emodels, raypars, msg, taskrun,
-					  forcedtdmodels );
+    const BufferString refltype = reflpars.find( sKey::Type() );
+    if ( refltype.isEmpty() )
+	return nullptr;
+
+    if ( ReflCalc1D::factory().hasName(refltype.str()) )
+    {
+	return ReflCalcRunner::getRefModels( emodels, reflpars, msg, taskrun,
+					     forcedtdmodels );
+    }
+
+    if ( RayTracer1D::factory().hasName(refltype.str()) )
+    {
+	return RayTracerRunner::getRefModels( emodels, reflpars, msg, taskrun,
+					      forcedtdmodels );
+    }
+
+    return nullptr;
 }
 
 
@@ -961,7 +977,9 @@ RaySynthGenerator::RaySynthGenerator( const ReflectivityModelSet& refmodels )
     , refmodels_(&refmodels)
 {
     msg_ = tr("Generating synthetics");
-    refmodels_->getOffsets( offsets_ );
+    if ( !refmodels_->getGatherXAxis(offsets_) )
+	{ pErrMsg("Cannot recover x-axis distribution"); }
+
     checkPars();
 }
 
@@ -973,7 +991,9 @@ RaySynthGenerator::RaySynthGenerator( const SynthGenDataPack& synthresdp )
     , refmodels_(&synthresdp.getModels())
 {
     msg_ = tr( "Generating synthetics" );
-    synthresdp_->getModels().getOffsets( offsets_ );
+    if ( !synthresdp_->getModels().getGatherXAxis(offsets_) )
+	{ pErrMsg("Cannot recover x-axis distribution"); }
+
     if ( synthgen_ )
     {
 	checkPars();

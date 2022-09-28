@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "prestackanglemute.h"
 #include "propertyref.h"
 #include "raytrace1d.h"
+#include "reflcalc1d.h"
 #include "synthseis.h"
 #include "survinfo.h"
 #include "wavelet.h"
@@ -21,6 +22,8 @@ ________________________________________________________________________
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 const char* SynthGenParams::sKeyRayPar()
 { return RayTracer1D::sKeyRayPar(); }
+const char* SynthGenParams::sKeyReflPar()
+{ return ReflCalc1D::sKeyReflPar(); }
 const char* SynthGenParams::sKeySynthPar()
 { return Seis::RaySynthGenerator::sKeySynthPar(); }
 
@@ -28,6 +31,8 @@ const char* SynthGenParams::sKeySynthPar()
 mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 {
     "Zero Offset Stack",
+    "Elastic Stack",
+    "Elastic Gather",
     "Pre Stack",
     "Strat Property",
     "Angle Stack",
@@ -50,6 +55,11 @@ SynthGenParams::SynthGenParams( const SynthGenParams& oth )
 }
 
 
+SynthGenParams::~SynthGenParams()
+{
+}
+
+
 SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
 {
     if ( &oth == this )
@@ -59,6 +69,7 @@ SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
     name_ = oth.name_;
     inpsynthnm_ = oth.inpsynthnm_;
     raypars_ = oth.raypars_;
+    reflpars_ = oth.reflpars_;
     synthpars_ = oth.synthpars_;
     anglerg_ = oth.anglerg_;
     attribtype_ = oth.attribtype_;
@@ -93,8 +104,9 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 	hassameattrib = attribtype_ == oth.attribtype_;
     }
 
-    return isPreStack() == oth.isPreStack() && wvltnm_ == oth.wvltnm_ &&
-	   raypars_ == oth.raypars_ && synthpars_ == oth.synthpars_ &&
+    return synthtype_ == oth.synthtype_ && wvltnm_ == oth.wvltnm_ &&
+	   raypars_ == oth.raypars_ && reflpars_ == oth.reflpars_ &&
+	   synthpars_ == oth.synthpars_ &&
 	   hassameanglerg && hassameinput && hassameattrib;
 }
 
@@ -132,9 +144,23 @@ void SynthGenParams::setDefaultValues()
 {
     if ( isRawOutput() )
     {
-	const BufferString defrtnm( RayTracer1D::factory().getDefaultName() );
-	raypars_.set( sKey::Type(), defrtnm.isEmpty()
-		       ? VrmsRayTracer1D::sFactoryKeyword() : defrtnm.str() );
+	if ( isZeroOffset() || isElasticStack() || isElasticGather() )
+	{
+	    const BufferString defnm( isZeroOffset()
+				     ? AICalc1D::sFactoryKeyword()
+				     : ReflCalc1D::factory().getDefaultName() );
+	    reflpars_.set( sKey::Type(), defnm.isEmpty()
+			   ? AICalc1D::sFactoryKeyword() : defnm.str() );
+	    raypars_.setEmpty();
+	}
+	else
+	{
+	    const BufferString defnm( RayTracer1D::factory().getDefaultName() );
+	    raypars_.set( sKey::Type(), defnm.isEmpty()
+			   ? VrmsRayTracer1D::sFactoryKeyword() : defnm.str() );
+	    reflpars_.setEmpty();
+	}
+
 	const BufferString defsyntgennm =
 			Seis::SynthGenerator::factory().getDefaultName();
 	synthpars_.set( sKey::Type(), defsyntgennm.isEmpty()
@@ -143,7 +169,24 @@ void SynthGenParams::setDefaultValues()
     }
 
     if ( isZeroOffset() )
-	RayTracer1D::setIOParsToZeroOffset( raypars_ );
+    {
+	ReflCalc1D::setIOParsToSingleAngle( reflpars_ );
+    }
+    else if ( isElasticStack() )
+    {
+	ReflCalc1D::setIOParsToSingleAngle( reflpars_,
+					    ReflCalc1D::sDefAngle( true ) );
+    }
+    else if ( isElasticGather() )
+    {
+	const bool indeg = true;
+	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange( indeg );
+	TypeSet<float> angles;
+	for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
+	    angles += anglerg.atIndex( idx );
+	reflpars_.set( ReflCalc1D::sKeyAngle(), angles );
+	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(), indeg );
+    }
     else if ( isPreStack() )
     {
 	const StepInterval<float> offsetrg = RayTracer1D::sDefOffsetRange();
@@ -164,15 +207,6 @@ void SynthGenParams::setDefaultValues()
 			      : IOM().getFirst( wvlttrgrp.ioCtxt() );
 	if ( wvltobj )
 	    setWavelet( wvltobj->name() );
-
-/*	if ( isPreStack() )
-	{
-	    synthpars_.setYN( Seis::SynthGenBase::sKeyNMO(), true );
-	    synthpars_.set( Seis::SynthGenBase::sKeyMuteLength(),
-			    Seis::SynthGenBase::cStdMuteLength() );
-	    synthpars_.set( Seis::SynthGenBase::sKeyStretchLimit(),
-			    Seis::SynthGenBase::cStdStretchLimit() );
-	}*/
     }
 
     if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
@@ -191,6 +225,30 @@ void SynthGenParams::setDefaultValues()
 const char* SynthGenParams::getWaveletNm() const
 {
     return wvltnm_.buf();
+}
+
+
+MultiID SynthGenParams::getWaveletID() const
+{
+    MultiID wvltkey;
+    if ( synthpars_.get(sKey::WaveletID(),wvltkey) )
+    {
+	PtrMan<IOObj> wvltobj = IOM().get( wvltkey );
+	if ( wvltobj )
+	    wvltkey = wvltobj->key();
+
+    }
+
+    return wvltkey;
+}
+
+
+const IOPar* SynthGenParams::reflPars() const
+{
+    if ( !isRawOutput() )
+	return nullptr;
+
+    return isPreStack() ? &raypars_ : &reflpars_;
 }
 
 
@@ -229,10 +287,12 @@ void SynthGenParams::fillPar( IOPar& par ) const
     if ( isRawOutput() )
     {
 	par.set( sKeyWaveLetName(), wvltnm_ );
-	IOPar raypar, synthpar;
+	IOPar raypar, reflpar, synthpar;
 	raypar.mergeComp( raypars_, sKeyRayPar() );
+	reflpar.mergeComp( reflpars_, sKeyReflPar() );
 	synthpar.mergeComp( synthpars_, sKeySynthPar() );
 	par.merge( raypar );
+	par.merge( reflpar );
 	par.merge( synthpar );
     }
     else if ( needsInput() )
@@ -277,6 +337,26 @@ void SynthGenParams::usePar( const IOPar& par )
 	if ( raypar )
 	    cleanRayPar( *raypar, raypars_ );
 
+	PtrMan<IOPar> relfpar = par.subselect( sKeyReflPar() );
+	if ( relfpar )
+	{
+	    raypars_.setEmpty();
+	    reflpars_.merge( *relfpar.ptr() );
+	}
+	else
+	{
+	    TypeSet<float> offsets;
+	    raypars_.get( RayTracer1D::sKeyOffset(), offsets );
+	    if ( offsets.isEmpty() ||
+		 (offsets.size()==1 && mIsZero(offsets[0],1e-3f)) )
+	    {
+		raypars_.setEmpty();
+		reflpars_.set( sKey::Type(), AICalc1D::sFactoryKeyword() );
+	    }
+	    else
+		reflpars_.setEmpty();
+	}
+
 	PtrMan<IOPar> synthpar = par.subselect( sKeySynthPar() );
 	if ( synthpar )
 	    synthpars_.merge( *synthpar.ptr() );
@@ -300,6 +380,7 @@ void SynthGenParams::usePar( const IOPar& par )
     else
     {
 	raypars_.setEmpty();
+	reflpars_.setEmpty();
 	synthpars_.setEmpty();
 	if ( needsInput() )
 	{
@@ -319,7 +400,7 @@ void SynthGenParams::usePar( const IOPar& par )
 
 bool SynthGenParams::needsSWave() const
 {
-    return isPreStack(); //TODO: update with EEI
+    return isElasticStack() || isElasticGather() || isPreStack();
 }
 
 
@@ -342,23 +423,70 @@ void SynthGenParams::createName( BufferString& nm ) const
 	return;
 
     nm = wvltnm_;
+    if ( isZeroOffset() )
+    {
+	nm.addSpace().add( "Zero-Offset" );
+	return;
+    }
+
+    if ( isElasticStack() )
+    {
+	bool isindegrees = true;
+	float angle = ReflCalc1D::sDefAngle( isindegrees );
+	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angle) &&
+	     reflpars_.getYN(ReflCalc1D::sKeyAngleInDegrees(),isindegrees) &&
+	     !isindegrees )
+	    angle *= mRad2DegF;
+	nm.addSpace().add( "chi=" ).add( angle );
+	return;
+    }
+
+    if ( isElasticGather() )
+    {
+	bool isindegrees = true;
+	TypeSet<float> angles;
+	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angles) && !angles.isEmpty())
+	{
+	    reflpars_.getYN( ReflCalc1D::sKeyAngleInDegrees(), isindegrees );
+	    if ( !isindegrees )
+	    {
+		for (  auto& angle : angles )
+		    angle *= mRad2DegF;
+	    }
+	}
+	else
+	{
+	    pErrMsg( "Should not be reached" );
+	    const StepInterval<float> anglerg =
+				ReflCalc1D::sDefAngleRange( isindegrees );
+	    for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
+		angles += anglerg.atIndex( idx );
+	}
+
+	nm.addSpace().add( "Angle" ).addSpace()
+	  .add( ::toString( angles.first() ) );
+	nm.add( "-" ).add( angles.last() );
+    }
+
     TypeSet<float> offset;
     if ( !raypars_.get(RayTracer1D::sKeyOffset(),offset) && isZeroOffset() )
+    {
+	pErrMsg( "Should not be reached" );
 	offset += 0.f;
+    }
 
     const int offsz = offset.size();
     if ( offsz )
     {
-	nm += " ";
-	nm += "Offset ";
-	nm += ::toString( offset[0] );
+	nm.addSpace().add( "Offset" ).addSpace()
+	  .add( ::toString( offset.first() ) );
 	if ( offsz > 1 )
 	{
-	    nm += "-"; nm += offset[offsz-1];
+	    nm.add( "-" ).add( offset.last() );
 	    bool nmocorrected = true;
 	    if ( synthpars_.getYN(Seis::SynthGenBase::sKeyNMO(),nmocorrected) &&
 		 !nmocorrected )
-		nm += " uncorrected";
+		nm.addSpace().add( "uncorrected" );
 	}
     }
 }

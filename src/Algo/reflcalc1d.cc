@@ -15,6 +15,34 @@ ________________________________________________________________________
 mImplFactory(ReflCalc1D,ReflCalc1D::factory)
 
 
+float ReflCalc1D::sDefAngle( bool indeg )
+{
+    return indeg ? 15.f : 15.f * mDeg2RadF;
+}
+
+
+StepInterval<float> ReflCalc1D::sDefAngleRange( bool indeg )
+{
+    StepInterval<float> angles( 0.f, 30.f, 5.f );
+    if ( !indeg )
+	angles.scale( mDeg2RadF );
+    return angles;
+}
+
+
+// ReflCalc1D::Setup
+
+ReflCalc1D::Setup::Setup()
+{
+}
+
+
+ReflCalc1D::Setup::~Setup()
+{
+}
+
+
+// ReflCalc1D
 
 ReflCalc1D::ReflCalc1D()
     : model_(*new ElasticModel())
@@ -113,7 +141,7 @@ void ReflCalc1D::setIOParsToSingleAngle( IOPar& par, float thetaangle,
 					 bool angleisindegrees )
 {
     par.set( sKeyAngle(), thetaangle );
-    par.set( sKeyAngleInDegrees(), angleisindegrees );
+    par.setYN( sKeyAngleInDegrees(), angleisindegrees );
 }
 
 
@@ -266,6 +294,8 @@ float ReflCalc1D::getTime( int layer ) const
     return twt_[layer];
 }
 
+
+// AICalc1D
 
 AICalc1D::AICalc1D()
     : ReflCalc1D()

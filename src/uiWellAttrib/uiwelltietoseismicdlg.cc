@@ -32,6 +32,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "seistrc.h"
+#include "stratsynthgenparams.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
@@ -228,18 +229,17 @@ void uiTieWin::drawFields()
     polarityfld_->valuechanged.notify( mCB(this, uiTieWin, polarityChanged) );
 
     wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", false, false );
-    wvltfld_->setInput( server_.data().setup().wvltid_ );
+    wvltfld_->setInput( server_.data().setup().sgp_.getWaveletID() );
     wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
     wvltfld_->attach( leftOf, polarityfld_ );
     wvltfld_->attach( ensureBelow, sep1 );
 
-
-    uiSeparator* sep2 = new uiSeparator( this );
+    auto* sep2 = new uiSeparator( this );
     sep2->attach( stretchedBelow, wvltfld_ );
     sep2->attach( ensureBelow, vwrtaskgrp );
 
-    uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
-			mCB(this,uiTieWin,okPushCB), true );
+    auto* okbut = new uiPushButton( this, tr("OK/Save"),
+				    mCB(this,uiTieWin,okPushCB), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, sep2 );
 

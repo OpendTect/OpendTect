@@ -80,6 +80,7 @@ set( OD_MODULE_SOURCES
 	uipropvalfld.cc
 	uiproxydlg.cc
 	uiraytrace1d.cc
+	uirefltrace1d.cc
 	uirgbarraycanvas.cc
 	uirockphysform.cc
 	uisaveimagedlg.cc

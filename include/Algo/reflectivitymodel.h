@@ -37,14 +37,13 @@ public:
 
 private:
 			~ReflectivityModelTrace();
+			mOD_DisableCopy(ReflectivityModelTrace);
 
     int			sz_;
     float_complex*	reflectivities_ = nullptr;
 
     friend class ReflectivityModelBase;
 
-	    ReflectivityModelTrace(const ReflectivityModelTrace&) = delete;
-    void		operator= (const ReflectivityModelTrace&) = delete;
 };
 
 
@@ -78,13 +77,9 @@ protected:
     mExpClass(Algo) Setup : public TimeDepthModelSet::Setup
     {
     public:
-			Setup( bool offsetdomain, bool withangles,
-			       bool withreflectivity )
-			    : TimeDepthModelSet::Setup()
-			    , offsetdomain_(offsetdomain)
-			    , withangles_(withangles)
-			    , withreflectivity_(withreflectivity) {}
-			~Setup()				  {}
+			Setup(bool offsetdomain,bool withangles,
+			      bool withreflectivity);
+			~Setup();
 
 	mDefSetupMemb(bool,offsetdomain);
 	mDefSetupMemb(bool,withangles);
@@ -133,16 +128,15 @@ public:
     mExpClass(Algo) Setup : public ReflectivityModelBase::Setup
     {
     public:
-			Setup(bool withangles,bool withreflectivity)
-			    : ReflectivityModelBase::Setup(true,withangles,
-							   withreflectivity)
-			{}
+			Setup(bool withangles,bool withreflectivity);
+			~Setup();
     };
 
 			OffsetReflectivityModel(const ElasticModel&,
 				const OffsetReflectivityModel::Setup&,
 				const TypeSet<float>* axisvals =nullptr,
 				float* velmax =nullptr);
+			~OffsetReflectivityModel();
 
     bool		isOffsetDomain() const override { return true; }
 };
@@ -159,18 +153,13 @@ public:
     mExpClass(Algo) Setup : public ReflectivityModelBase::Setup
     {
     public:
-			Setup( double azimuth=0. )
-			    : ReflectivityModelBase::Setup(false,false,true)
-			    , azimuth_(azimuth)
-			    , a0_(2500.)
-			    , d0_(2000.)
-			    , b0_(1500.)	{}
-			~Setup() {}
+			Setup(double azimuth=0.);
+			~Setup();
 
 	mDefSetupMemb(double,azimuth);
-	mDefSetupMemb(double,a0);	    //<! Average Vp (m/s)
-	mDefSetupMemb(double,d0);	    //<! Average Rhob (m/s)
-	mDefSetupMemb(double,b0);	    //<! Average Vs (m/s)
+	mDefSetupMemb(double,a0);	    //<! Average Vp (m/s) - def 2500
+	mDefSetupMemb(double,d0);	    //<! Average Rhob (m/s) - def 2000
+	mDefSetupMemb(double,b0);	    //<! Average Vs (m/s) - def 1500
 
 	void		fillPar(IOPar&) const override;
 	bool		usePar(const IOPar&) override;
@@ -182,6 +171,7 @@ public:
 				      AngleReflectivityModel::Setup());
 			AngleReflectivityModel(const ElasticModel&,
 				const TypeSet<float>& anglevals,double azi);
+			~AngleReflectivityModel();
 
     bool		isAngleDomain() const override	{ return true; }
 
@@ -207,7 +197,7 @@ public:
     bool		validIdx(int modlidx) const;
     int			nrModels() const;
     const ReflectivityModelBase* get(int modlidx) const;
-    void		getOffsets(TypeSet<float>&) const;
+    bool		getGatherXAxis(TypeSet<float>&) const;
     void		getTWTrange(Interval<float>&,bool zeroff=true) const;
 
     void		add(const ReflectivityModelBase&);
@@ -217,10 +207,12 @@ public:
 
 private:
 			~ReflectivityModelSet();
+			mOD_DisableCopy(ReflectivityModelSet);
+
+    bool		getAngles(TypeSet<float>&) const;
+    bool		getOffsets(TypeSet<float>&) const;
 
     IOPar&		createpars_;
     RefObjectSet<const ReflectivityModelBase>& refmodels_;
 
-		    ReflectivityModelSet(const ReflectivityModelSet&) = delete;
-    void		operator =( const ReflectivityModelSet&) = delete;
 };

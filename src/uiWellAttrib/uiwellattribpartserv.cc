@@ -248,21 +248,19 @@ bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 
 bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 {
-    WellTie::Setup* wtsetup = new WellTie::Setup();
-    wtsetup->wellid_ = wid;
-    if( welltiedlg_ && (welltiedlg_->getWellId()!=wid) )
-    {
-	delete welltiedlg_;
-	welltiedlg_ = 0;
-    }
+    WellTie::Setup wtsetup;
+    wtsetup.wellid_ = wid;
+    if( welltiedlg_ && welltiedlg_->getWellId() != wid )
+	closeAndNullPtr( welltiedlg_ );
 
     if ( !welltiedlg_ )
     {
-	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), *wtsetup );
+	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), wtsetup );
 	welltiedlg_->setDeleteOnClose( true );
-	mAttachCB(welltiedlg_->windowClosed,
-		  uiWellAttribPartServer::welltieDlgClosedCB);
+	mAttachCB( welltiedlg_->windowClosed,
+		   uiWellAttribPartServer::welltieDlgClosedCB );
     }
+
     welltiedlg_->raise();
     welltiedlg_->show();
     return true;

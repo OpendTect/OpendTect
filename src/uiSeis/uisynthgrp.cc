@@ -24,21 +24,7 @@ mImplFactory2Param( uiSynthSeis, uiParent*, const uiSynthSeis::Setup&,
 		    uiSynthSeis::factory );
 
 
-// uiSynthSeis
-
-uiSynthSeis::Setup::Setup( bool withnmo, const uiSeisWaveletSel::Setup& wvltsu )
-    : wvltsu_(wvltsu)
-    , withnmo_(withnmo)
-    , withadvanced_(true)
-{
-}
-
-
-uiSynthSeis::Setup::~Setup()
-{
-}
-
-
+// uiSynthSeisSel
 
 uiSynthSeisSel::uiSynthSeisSel( uiParent* p, const uiSynthSeis::Setup& su )
     : uiGroup( p, "Synth Seis Selector" )
@@ -59,8 +45,8 @@ uiSynthSeisSel::uiSynthSeisSel( uiParent* p, const uiSynthSeis::Setup& su )
     if ( grps_.size() > 1 )
     {
 	uiStringSet usednms;
-	for ( const auto* uirt1d : grps_ )
-	    usednms.add( uirt1d->factoryDisplayName() );
+	for ( const auto* uiseisgrp : grps_ )
+	    usednms.add( uiseisgrp->factoryDisplayName() );
 
 	synthseissel = new uiLabeledComboBox( uiseisfldsgrp_,
 					      tr("Synthetic Generator") );
@@ -81,6 +67,17 @@ uiSynthSeisSel::uiSynthSeisSel( uiParent* p, const uiSynthSeis::Setup& su )
 	setHAlignObj( grps_.first() );
 
     mAttachCB( postFinalize(), uiSynthSeisSel::initGrpCB );
+}
+
+
+uiSynthSeisSel::uiSynthSeisSel( uiParent* p, const uiSynthSeis::Setup& su,
+				const uiReflCalc1D::Setup& reflsu )
+    : uiSynthSeisSel(p,su)
+{
+    reflsel_ = new uiReflCalcSel( this, reflsu );
+    mAttachCB( reflsel_->parsChanged, uiSynthSeisSel::parsChangedCB );
+    reflsel_->attach( alignedBelow, uiseisfldsgrp_ );
+    setHAlignObj( reflsel_ );
 }
 
 
@@ -152,7 +149,7 @@ uiRetVal uiSynthSeisSel::isOK() const
 
 bool uiSynthSeisSel::withRefl() const
 {
-    return rtsel_;
+    return reflsel_ || rtsel_;
 }
 
 
@@ -179,7 +176,12 @@ void uiSynthSeisSel::ensureHasWavelet( const MultiID& wvltid )
 
 void uiSynthSeisSel::usePar( const IOPar& par )
 {
-    if ( withRefl() )
+    if ( reflsel_ )
+    {
+	ConstPtrMan<IOPar> reflpar = par.subselect( ReflCalc1D::sKeyReflPar() );
+	useReflPars( reflpar ? *reflpar.ptr() : par );
+    }
+    else if ( rtsel_ )
     {
 	ConstPtrMan<IOPar> reflpar = par.subselect( RayTracer1D::sKeyRayPar() );
 	useReflPars( reflpar ? *reflpar.ptr() : par );
@@ -212,9 +214,10 @@ void uiSynthSeisSel::useSynthSeisPar( const IOPar& par )
 
 void uiSynthSeisSel::useReflPars( const IOPar& par )
 {
-    if ( rtsel_ )
+    if ( reflsel_ )
+	reflsel_->usePar( par );
+    else if ( rtsel_ )
 	rtsel_->usePar( par );
-    //Note: there will be another possibility here
 }
 
 
@@ -236,18 +239,24 @@ const char* uiSynthSeisSel::getWaveletName() const
 
 void uiSynthSeisSel::fillPar( IOPar& par ) const
 {
-    if ( withRefl() )
+    if ( reflsel_ )
+    {
+	IOPar reflpar;
+	fillReflPars( reflpar );
+	par.mergeComp( reflpar, ReflCalc1D::sKeyReflPar() );
+    }
+    else if ( rtsel_ )
     {
 	IOPar reflpar;
 	fillReflPars( reflpar );
 	par.mergeComp( reflpar, RayTracer1D::sKeyRayPar() );
     }
     else
-    { //TODO: update with raytracer replacement
+    {
 	IOPar reflpar;
-	reflpar.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
-	RayTracer1D::setIOParsToZeroOffset( reflpar );
-	par.mergeComp( reflpar, RayTracer1D::sKeyRayPar() );
+	reflpar.set( sKey::Type(), AICalc1D::sFactoryKeyword() );
+	ReflCalc1D::setIOParsToSingleAngle( reflpar );
+	par.mergeComp( reflpar, ReflCalc1D::sKeyReflPar() );
     }
 
     IOPar synthseisiop;
@@ -268,9 +277,10 @@ void uiSynthSeisSel::fillSynthSeisPar( IOPar& par ) const
 
 void uiSynthSeisSel::fillReflPars( IOPar& par ) const
 {
-    if ( rtsel_ )
+    if ( reflsel_ )
+	reflsel_->fillPar( par );
+    else if ( rtsel_ )
 	rtsel_->fillPar( par );
-    //Note: there will be another possibility here
 }
 
 
@@ -307,6 +317,7 @@ bool uiSynthSeisSel::setCurrentType( const char* typestr )
 }
 
 
+// uiSynthSeisAdvancedDlg
 
 class uiSynthSeisAdvancedDlg : public uiDialog
 { mODTextTranslationClass(uiSynthSeisAdvancedDlg);
@@ -382,6 +393,21 @@ bool uiSynthSeisAdvancedDlg::acceptOK( CallBacker* )
 	mErrRet(uirv,return false)
 
     return true;
+}
+
+
+// uiSynthSeis::Setup
+
+uiSynthSeis::Setup::Setup( bool withnmo, const uiSeisWaveletSel::Setup& wvltsu )
+    : wvltsu_(wvltsu)
+    , withnmo_(withnmo)
+    , withadvanced_(true)
+{
+}
+
+
+uiSynthSeis::Setup::~Setup()
+{
 }
 
 
@@ -597,10 +623,17 @@ void uiSynthSeis::fillPar( IOPar& par ) const
 }
 
 
+// uiBaseSynthSeis
 
 uiBaseSynthSeis::uiBaseSynthSeis( uiParent* p, const uiSynthSeis::Setup& su )
     : uiSynthSeis(p,su)
-{}
+{
+}
+
+
+uiBaseSynthSeis::~uiBaseSynthSeis()
+{
+}
 
 
 void uiBaseSynthSeis::initClass()
@@ -608,7 +641,6 @@ void uiBaseSynthSeis::initClass()
     uiSynthSeis::factory().addCreator( create, sFactoryKeyword(),
 				       sFactoryDisplayName() );
 }
-
 
 
 // uiSynthSeisAdvancedGrp

@@ -60,9 +60,7 @@ public:
 
 private:
 				~SynthGenDataPack();
-				SynthGenDataPack(const SynthGenDataPack&)
-								    = delete;
-    void			operator= (const SynthGenDataPack&) = delete;
+				mOD_DisableCopy(SynthGenDataPack);
 
     ConstRefMan<ReflectivityModelSet> refmodels_;
     const GeomType		gt_;
@@ -304,7 +302,7 @@ public:
 
     static ConstRefMan<ReflectivityModelSet>
 			getRefModels(const TypeSet<ElasticModel>&,
-				     const IOPar& raypar,uiString& msg,
+				     const IOPar& reflpar,uiString& msg,
 				     TaskRunner* =nullptr,
 				     const ObjectSet<const TimeDepthModel>*
 						    forcedtdmodels =nullptr);

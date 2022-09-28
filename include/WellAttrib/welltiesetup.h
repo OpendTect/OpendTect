@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "namedobj.h"
 
 #include "enums.h"
-#include "multiid.h"
 #include "wellio.h"
-#include "od_iosfwd.h"
+
+class SynthGenParams;
+class od_istream;
+class od_ostream;
 
 
 #define mIsUnvalidD2TM(wd) ( !wd->haveD2TModel() || wd->d2TModel()->size()<2 )
@@ -28,37 +29,24 @@ public:
 			enum CorrType { None, Automatic, UserDefined };
 			mDeclareEnumUtils(CorrType)
 
-			Setup()
-			    : linenm_(*new BufferString) //empty = data is 3D
-			    , issonic_(true)
-			    , useexistingd2tm_(true)
-			    , corrtype_(Automatic)
-			    {}
+				Setup();
+				Setup(const Setup&);
+				~Setup();
 
-
-				Setup( const Setup& setup )
-				    : wellid_(setup.wellid_)
-				    , seisid_(setup.seisid_)
-				    , wvltid_(setup.wvltid_)
-				    , linenm_(setup.linenm_)
-				    , issonic_(setup.issonic_)
-				    , seisnm_(setup.seisnm_)
-				    , vellognm_(setup.vellognm_)
-				    , denlognm_(setup.denlognm_)
-				    , useexistingd2tm_(setup.useexistingd2tm_)
-				    , corrtype_(setup.corrtype_)
-				    {}
+    Setup&			operator =(const Setup&);
 
     MultiID			wellid_;
     MultiID			seisid_;
-    MultiID			wvltid_;
-    BufferString		linenm_;
+    SynthGenParams&		sgp_;
+    BufferString		linenm_;	// Empty: 3D
     BufferString		seisnm_;
-    BufferString		vellognm_;
     BufferString		denlognm_;
-    bool			issonic_;
-    bool			useexistingd2tm_;
-    CorrType			corrtype_;
+    BufferString		vellognm_;
+    BufferString		svellognm_;
+    bool			issonic_ = true;
+    bool			isshearsonic_ = true;
+    bool			useexistingd2tm_ = true;
+    CorrType			corrtype_ = Automatic;
 
     void			supportOldPar(const IOPar&);
     void			usePar(const IOPar&);
@@ -67,22 +55,18 @@ public:
     static Setup&		defaults();
     static void			commitDefaults();
 
-    static const char*		sKeyCSCorrType()
-				{ return "CheckShot Corrections"; }
-    static const char*		sKeyUseExistingD2T()
-				{ return "Use Existing Depth/Time model"; }
-    static const uiString	sCSCorrType()
-				{ return tr("CheckShot Corrections"); }
-    static const uiString	sUseExistingD2T()
-				{ return tr("Use Existing Depth/Time model"); }
+    static const char*		sKeyCSCorrType();
+    static const char*		sKeyUseExistingD2T();
+    static const uiString	sCSCorrType();
+    static const uiString	sUseExistingD2T();
 };
 
 
 mExpClass(WellAttrib) IO : public Well::odIO
 {
 public:
-				IO( const char* f, uiString& errmsg )
-				: Well::odIO(f,errmsg)	{}
+				IO(const char* fnm,uiString& errmsg);
+				~IO();
 
     static const char*		sKeyWellTieSetup();
 
@@ -92,8 +76,8 @@ public:
 mExpClass(WellAttrib) Writer : public IO
 {
 public:
-				Writer( const char* f )
-				    : IO(f,errmsg_) {}
+				Writer(const char* fnm);
+				~Writer();
 
     bool			putWellTieSetup(const WellTie::Setup&) const;
 
@@ -113,8 +97,8 @@ protected:
 mExpClass(WellAttrib) Reader : public IO
 {
 public:
-				Reader( const char* f )
-				    : IO(f,errmsg_) {}
+				Reader(const char* fnm);
+				~Reader();
 
     void			getWellTieSetup(WellTie::Setup&) const;
 

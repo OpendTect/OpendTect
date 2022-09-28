@@ -13,10 +13,11 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "odmemory.h"
 #include "raytrace1d.h"
+#include "reflcalc1d.h"
 #include "typeset.h"
 
 
-const char* AngleReflectivityModel::sKeyMeanRhob() 
+const char* AngleReflectivityModel::sKeyMeanRhob()
 { return "Mean density"; }
 const char* AngleReflectivityModel::sKeyMeanVp()
 { return "Mean Vp"; }
@@ -60,6 +61,20 @@ bool ReflectivityModelTrace::setSize( int sz, bool settonull )
 
 
 // ReflectivityModelBase::Setup
+
+ReflectivityModelBase::Setup::Setup( bool offsetdomain, bool withangles,
+				     bool withreflectivity )
+    : TimeDepthModelSet::Setup()
+    , offsetdomain_(offsetdomain)
+    , withangles_(withangles)
+    , withreflectivity_(withreflectivity)
+{
+}
+
+
+ReflectivityModelBase::Setup::~Setup()
+{
+}
 
 void ReflectivityModelBase::Setup::fillPar( IOPar& iop ) const
 {
@@ -269,6 +284,19 @@ bool ReflectivityModelBase::isSpikeDefined( int ioff, int idz ) const
 }
 
 
+// OffsetReflectivityModel::Setup
+
+OffsetReflectivityModel::Setup::Setup( bool withangles, bool withreflectivity )
+    : ReflectivityModelBase::Setup(true,withangles,withreflectivity)
+{
+}
+
+
+OffsetReflectivityModel::Setup::~Setup()
+{
+}
+
+
 // OffsetReflectivityModel
 
 OffsetReflectivityModel::OffsetReflectivityModel(
@@ -280,7 +308,26 @@ OffsetReflectivityModel::OffsetReflectivityModel(
 }
 
 
+OffsetReflectivityModel::~OffsetReflectivityModel()
+{
+}
+
+
 // AngleReflectivityModel::Setup
+
+AngleReflectivityModel::Setup::Setup( double azimuth )
+    : ReflectivityModelBase::Setup(false,false,true)
+    , azimuth_(azimuth)
+    , a0_(2500.)
+    , d0_(2000.)
+    , b0_(1500.)
+{
+}
+
+
+AngleReflectivityModel::Setup::~Setup()
+{
+}
 
 void AngleReflectivityModel::Setup::fillPar( IOPar& iop ) const
 {
@@ -327,6 +374,11 @@ AngleReflectivityModel::AngleReflectivityModel(
 				double azimuth )
     : AngleReflectivityModel( emodel, anglevals,
 			      AngleReflectivityModel::Setup(azimuth) )
+{
+}
+
+
+AngleReflectivityModel::~AngleReflectivityModel()
 {
 }
 
@@ -403,17 +455,63 @@ void ReflectivityModelSet::add( const ReflectivityModelBase& refmodel )
 }
 
 
-void ReflectivityModelSet::getOffsets( TypeSet<float>& offsets ) const
+bool ReflectivityModelSet::getGatherXAxis( TypeSet<float>& xvals ) const
 {
-    if ( !createpars_.get(RayTracer1D::sKeyOffset(),offsets) )
-    {
-	pErrMsg("Should not happen");
+    const BufferString refltype = createpars_.find( sKey::Type() );
+    if ( refltype.isEmpty() )
+	return false;
 
-	offsets.setEmpty();
-	const float step = 100.f;
-	for ( int idx=0; idx<nrModels(); idx++ )
-	    offsets += step * idx;
-    }
+    if ( ReflCalc1D::factory().hasName(refltype.str()) )
+	return getAngles( xvals );
+
+    if ( RayTracer1D::factory().hasName(refltype.str()) )
+	return getOffsets( xvals );
+
+    return false;
+}
+
+
+bool ReflectivityModelSet::getAngles( TypeSet<float>& angles ) const
+{
+    if ( createpars_.get(ReflCalc1D::sKeyAngle(),angles) )
+	return true;
+
+    pErrMsg("Should not happen");
+    if ( nrModels() == 0 )
+	return false;
+
+    const ReflectivityModelBase* refmodel = get(0);
+    if ( !refmodel || !refmodel->isAngleDomain() )
+	return false;
+
+    angles.setEmpty();
+    const float step = 1.f;
+    for ( int idx=0; idx<refmodel->nrModels(); idx++ )
+	angles += step * idx;
+
+    return false;
+}
+
+
+bool ReflectivityModelSet::getOffsets( TypeSet<float>& offsets ) const
+{
+    if ( createpars_.get(RayTracer1D::sKeyOffset(),offsets) )
+	return true;
+
+    pErrMsg("Should not happen");
+    if ( nrModels() == 0 )
+	return false;
+
+    const ReflectivityModelBase* refmodel = get(0);
+    if ( !refmodel || !refmodel->isOffsetDomain() )
+	return false;
+
+    offsets.setEmpty();
+    const float step = 100.f;
+    for ( int idx=0; idx<refmodel->nrModels(); idx++ )
+	offsets += step * idx;
+
+    return false;
 }
 
 

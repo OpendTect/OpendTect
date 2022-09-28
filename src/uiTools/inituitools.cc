@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uiraytrace1d.h"
+#include "uirefltrace1d.h"
 #include "uisettings.h"
 
 mDefModInitFn(uiTools)
@@ -26,6 +27,7 @@ mDefModInitFn(uiTools)
     uiTriangulationArray2DInterpol::initClass();
     uiExtensionArray2DInterpol::initClass();
     uiVrmsRayTracer1D::initClass();
+    uiAICalc1D::initClass();
 
     uiSingleBatchJobDispatcherLauncher::initClass();
     uiZSliceInterpolationModel::initClass();
