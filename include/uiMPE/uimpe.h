@@ -39,6 +39,9 @@ class SectionTracker;
 mExpClass(uiMPE) uiTrackSettingsValidator : public TrackSettingsValidator
 { mODTextTranslationClass(uiTrackSettingsValidator)
 public:
+		uiTrackSettingsValidator();
+		~uiTrackSettingsValidator();
+
     bool	checkInVolumeTrackMode() const override;
     bool	checkActiveTracker() const override;
     bool	checkStoredData(Attrib::SelSpec&,MultiID&) const override;
@@ -52,7 +55,8 @@ public:
 mExpClass(uiMPE) uiSetupGroup : public uiGroup
 {
 public:
-			uiSetupGroup(uiParent*,const char* helpref);
+    virtual		~uiSetupGroup();
+
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setMode(EMSeedPicker::TrackMode)	{}
     virtual EMSeedPicker::TrackMode getMode() const		= 0;
@@ -78,6 +82,9 @@ public:
     virtual void	setMPEPartServer(uiMPEPartServer*)	{}
 
     BufferString	helpref_;
+
+protected:
+			uiSetupGroup(uiParent*,const char* helpref);
 };
 
 
@@ -91,9 +98,12 @@ typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr);
     be able to procuce instances of itself must register itself with the
     addFactory startup. */
 
-mExpClass(uiMPE) uiSetupGroupFactory
+mExpClass(uiMPE) uiSetupGroupFactory final
 {
 public:
+			uiSetupGroupFactory();
+			~uiSetupGroupFactory();
+
     void		addFactory(uiSetupGrpCreationFunc f, const char* name);
     uiSetupGroup*	create(const char* nm,uiParent*,const char* typestr);
 			/*!<Iterates through all added factory functions
@@ -113,10 +123,15 @@ protected:
 */
 
 
-mExpClass(uiMPE) uiMPEEngine
+mExpClass(uiMPE) uiMPEEngine final
 {
 public:
+				uiMPEEngine();
+				~uiMPEEngine();
+
     uiSetupGroupFactory		setupgrpfact;
+
+protected:
 };
 
 

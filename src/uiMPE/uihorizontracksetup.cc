@@ -78,6 +78,11 @@ uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
     : uiHorizonSetupGroup( p, typestr )
 {}
 
+
+uiBaseHorizonSetupGroup::~uiBaseHorizonSetupGroup()
+{}
+
+
 //uiHorizonSetupGroup
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")

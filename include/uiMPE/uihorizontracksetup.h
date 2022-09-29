@@ -174,6 +174,7 @@ protected:
 mExpClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
 {
 public:
+				~uiBaseHorizonSetupGroup();
     static void			initClass();
 
 protected:

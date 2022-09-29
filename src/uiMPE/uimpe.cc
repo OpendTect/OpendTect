@@ -31,6 +31,14 @@ namespace MPE
 {
 
 // uiTrackSettingsValidator
+uiTrackSettingsValidator::uiTrackSettingsValidator()
+{}
+
+
+uiTrackSettingsValidator::~uiTrackSettingsValidator()
+{}
+
+
 bool uiTrackSettingsValidator::checkInVolumeTrackMode() const
 {
     return true;
@@ -159,11 +167,24 @@ uiSetupGroup::uiSetupGroup( uiParent* p, const char* ref )
 {}
 
 
+uiSetupGroup::~uiSetupGroup()
+{}
+
+
 bool uiSetupGroup::commitToTracker() const
 {
     bool dummybool;
     return commitToTracker( dummybool );
 }
+
+
+// uiSetupGroupFactory
+uiSetupGroupFactory::uiSetupGroupFactory()
+{}
+
+
+uiSetupGroupFactory::~uiSetupGroupFactory()
+{}
 
 
 void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f,
@@ -196,6 +217,15 @@ void uiSetupGroupFactory::remove( const char* nm )
     names_.removeSingle( idx );
     funcs.removeSingle( idx );
 }
+
+
+// uiMPEEngine
+uiMPEEngine::uiMPEEngine()
+{}
+
+
+uiMPEEngine::~uiMPEEngine()
+{}
 
 
 uiMPEEngine& uiMPE()
