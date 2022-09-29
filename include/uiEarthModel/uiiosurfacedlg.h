@@ -31,10 +31,12 @@ namespace EM
 /*! \brief Dialog for horizon export */
 
 mExpClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
-{ mODTextTranslationClass(uiWriteSurfaceDlg)
+{
+mODTextTranslationClass(uiWriteSurfaceDlg)
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
 					  float shift);
+			~uiWriteSurfaceDlg();
 
     void		getSelection(EM::SurfaceIODataSelection&);
     bool		replaceInTree() const;
@@ -49,9 +51,11 @@ protected:
 
 
 mExpClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
-{ mODTextTranslationClass(uiReadSurfaceDlg)
+{
+mODTextTranslationClass(uiReadSurfaceDlg)
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
+			~uiReadSurfaceDlg();
 
     const IOObj*	ioObj() const;
     void		getSelection(EM::SurfaceIODataSelection&);
@@ -63,9 +67,11 @@ protected:
 
 
 mExpClass(uiEarthModel) uiStoreAuxData : public uiDialog
-{ mODTextTranslationClass(uiStoreAuxData)
+{
+mODTextTranslationClass(uiStoreAuxData)
 public:
 			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
+			~uiStoreAuxData();
 
     bool		doOverWrite() const	{ return dooverwrite_; }
     const char*		auxdataName() const;
@@ -81,7 +87,8 @@ protected:
 
 
 mExpClass(uiEarthModel) uiCopySurface : public uiDialog
-{ mODTextTranslationClass(uiCopySurface)
+{
+mODTextTranslationClass(uiCopySurface)
 public:
 			uiCopySurface(uiParent*,const IOObj&,
 				      const uiSurfaceRead::Setup&);

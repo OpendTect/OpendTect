@@ -39,6 +39,7 @@ public:
 
     			uiHorizonAuxDataSel(uiParent*,const MultiID&,int auxidx,
 				const HorizonAuxDataInfo* auxinfo = 0);
+			~uiHorizonAuxDataSel();
 
     int			nrHorizonsWithData() const { return nrhorswithdata_; }
     const MultiID&	selectedID() const	   { return selmid_; }

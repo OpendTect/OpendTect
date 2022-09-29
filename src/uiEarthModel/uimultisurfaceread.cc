@@ -33,7 +33,9 @@ uiString getDispType(BufferString type)
 			    .arg(uiStrings::sHorizon(mPlural)) :
 	uiStrings::sFault(mPlural);
 }
-uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
+
+
+uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
    : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(getDispType(type)),
 				 mNoDlgTitle,
 				 mODHelpKey(mMultiSurfaceReadDlgHelpID) )
@@ -44,6 +46,10 @@ uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
 				mCB(this,uiMultiSurfaceReadDlg,statusMsg) );
     surfacefld_->singleSurfaceSelected.notify( mCB(this,uiDialog,accept) );
 }
+
+
+uiMultiSurfaceReadDlg::~uiMultiSurfaceReadDlg()
+{}
 
 
 void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )

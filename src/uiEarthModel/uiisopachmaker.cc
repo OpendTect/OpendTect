@@ -143,6 +143,10 @@ uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
 }
 
 
+uiIsochronMakerBatch::~uiIsochronMakerBatch()
+{}
+
+
 bool uiIsochronMakerBatch::prepareProcessing()
 {
     return grp_->chkInputFlds();

@@ -77,6 +77,10 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
 }
 
 
+uiHorizonRelationsDlg::~uiHorizonRelationsDlg()
+{}
+
+
 void uiHorizonRelationsDlg::clearCB( CallBacker* )
 {
     if ( !uiMSG().askGoOn(tr("Remove all exising horizon relations?")) )

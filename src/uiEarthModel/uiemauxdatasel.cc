@@ -28,6 +28,10 @@ uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 }
 
 
+uiEMAuxDataSel::~uiEMAuxDataSel()
+{}
+
+
 void uiEMAuxDataSel::butPushCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Horizon/Attributes Selection"),

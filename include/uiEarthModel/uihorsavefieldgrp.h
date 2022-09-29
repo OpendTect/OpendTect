@@ -24,7 +24,8 @@ class uiPosSubSel;
     choice of as new or overwrite. */
 
 mExpClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
-{ mODTextTranslationClass(uiHorSaveFieldGrp);
+{
+mODTextTranslationClass(uiHorSaveFieldGrp);
 public:
 				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
 						  bool is2d=false);

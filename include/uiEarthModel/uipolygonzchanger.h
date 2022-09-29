@@ -19,8 +19,8 @@ namespace Pick { class Set; }
 mExpClass(uiEarthModel) uiPolygonZChanger : public uiDialog
 { mODTextTranslationClass(uiPolygonZChanger)
 public:
-    uiPolygonZChanger(uiParent*,Pick::Set&);
-    ~uiPolygonZChanger();
+			uiPolygonZChanger(uiParent*,Pick::Set&);
+			~uiPolygonZChanger();
 
 protected:
     bool		acceptOK(CallBacker*) override;

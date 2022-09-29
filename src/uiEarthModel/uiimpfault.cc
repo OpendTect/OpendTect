@@ -341,12 +341,17 @@ MultiID uiImportFault::getSelID() const
 }
 
 
+// uiImportFault3D
 uiImportFault3D::uiImportFault3D( uiParent* p, const char* type )
     : uiImportFault(p,type)
 {
     fd_ = EM::FaultAscIO::getDesc(false);
     createUI();
 }
+
+
+uiImportFault3D::~uiImportFault3D()
+{}
 
 
 bool uiImportFault3D::acceptOK( CallBacker* )
@@ -360,6 +365,7 @@ bool uiImportFault3D::acceptOK( CallBacker* )
 }
 
 
+// uiImportFaultStickSet2D
 uiImportFaultStickSet2D::uiImportFaultStickSet2D( uiParent* p,
 						  const char* type )
     : uiImportFault(p,type,true)
@@ -367,6 +373,10 @@ uiImportFaultStickSet2D::uiImportFaultStickSet2D( uiParent* p,
     fd_ = EM::FaultAscIO::getDesc(true);
     createUI();
 }
+
+
+uiImportFaultStickSet2D::~uiImportFaultStickSet2D()
+{}
 
 
 bool uiImportFaultStickSet2D::getFromAscIO( od_istream& strm, EM::Fault& flt )

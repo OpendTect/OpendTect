@@ -50,8 +50,9 @@ mExpClass(uiEarthModel) uiIsochronMakerBatch : public uiDialog
 {
 mODTextTranslationClass(uiIsochronMakerBatch)
 public:
-
 			uiIsochronMakerBatch(uiParent*);
+			~uiIsochronMakerBatch();
+
 protected:
     bool		prepareProcessing();
     bool		fillPar();

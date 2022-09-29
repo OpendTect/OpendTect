@@ -121,6 +121,7 @@ public:
 				       const uiSurfaceWrite::Setup& setup);
 			uiSurfaceWrite(uiParent*,
 				       const uiSurfaceWrite::Setup& setup);
+			~uiSurfaceWrite();
 
     bool		processInput() override;
     Strat::LevelID	getStratLevelID() const;
@@ -165,6 +166,7 @@ public:
     };
 
 			uiSurfaceRead(uiParent*,const Setup&);
+			~uiSurfaceRead();
 
     bool		processInput() override;
     void		setIOObj(const MultiID&);

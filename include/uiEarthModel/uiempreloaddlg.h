@@ -19,6 +19,7 @@ class uiToolButton;
 mExpClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
 { mODTextTranslationClass(uiEMPreLoadDlg);
 public:
+    virtual		~uiEMPreLoadDlg();
 
 protected:
 			uiEMPreLoadDlg(uiParent*,const Setup&);
@@ -37,6 +38,8 @@ mExpClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
 { mODTextTranslationClass(uiHorizonPreLoadDlg);
 public:
 			uiHorizonPreLoadDlg(uiParent*);
+			~uiHorizonPreLoadDlg();
+
 protected:
     void		add3DPushCB(CallBacker*);
     void		add2DPushCB(CallBacker*);

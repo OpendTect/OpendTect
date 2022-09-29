@@ -205,6 +205,10 @@ uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
 }
 
 
+uiFilterHorizonDlg::~uiFilterHorizonDlg()
+{}
+
+
 Executor* uiFilterHorizonDlg::getWorker( Array2D<float>& a2d,
 					 const StepInterval<int>& rowrg,
 					 const StepInterval<int>& colrg )

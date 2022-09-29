@@ -43,6 +43,10 @@ uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
 {}
 
 
+uiEMPreLoadDlg::~uiEMPreLoadDlg()
+{}
+
+
 // uiHorizonPreLoadDlg
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     : uiEMPreLoadDlg( p,uiDialog::Setup( tr("Horizon Pre-load Manager"),
@@ -96,6 +100,10 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 
     selCB( 0 );
 }
+
+
+uiHorizonPreLoadDlg::~uiHorizonPreLoadDlg()
+{}
 
 
 void uiHorizonPreLoadDlg::add3DPushCB( CallBacker* )
