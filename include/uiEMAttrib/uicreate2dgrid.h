@@ -64,6 +64,7 @@ mExpClass(uiEMAttrib) ui2DGridLinesFromInlCrl : public ui2DGridLines
 public:
     				ui2DGridLinesFromInlCrl(uiParent*,
 							const TrcKeySampling&);
+				~ui2DGridLinesFromInlCrl();
 
     bool			fillPar(IOPar&) const override;
     void			updateRange() override;

@@ -48,6 +48,10 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
 }
 
 
+uiHor2DFrom3DDlg::~uiHor2DFrom3DDlg()
+{}
+
+
 bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
 {
     BufferStringSet outnms;

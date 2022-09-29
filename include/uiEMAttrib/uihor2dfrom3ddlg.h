@@ -22,6 +22,7 @@ mExpClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
 { mODTextTranslationClass(uiHor2DFrom3DDlg);
 public:
     				uiHor2DFrom3DDlg(uiParent*);
+				~uiHor2DFrom3DDlg();
 
     bool			doDisplay() const;
     const TypeSet<EM::ObjectID>& getEMObjIDs() const	  { return emobjids_; }
