@@ -40,6 +40,7 @@ public:
 				uiAttrSelData(bool is2d,bool fillwithdef=true);
 				uiAttrSelData(const Attrib::DescSet&,
 					      bool fillwithdef=true);
+				~uiAttrSelData();
 
     Attrib::DescID		attribid_;
     const NLAModel*		nlamodel_;
@@ -178,7 +179,7 @@ public:
 				  bool isinp4otherattrib = true);
 			uiAttrSel(uiParent*,const char*,const uiAttrSelData&,
 				  bool isinp4otherattrib = true);
-			~uiAttrSel()		{}
+			~uiAttrSel();
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
     int			outputNr() const	{ return attrdata_.outputnr_; }
@@ -246,9 +247,9 @@ imaginary part.
 mExpClass(uiAttributes) uiImagAttrSel : public uiAttrSel
 { mODTextTranslationClass(uiImagAttrSel);
 public:
-			uiImagAttrSel( uiParent* p, const char* txt,
-					const uiAttrSelData& asd )
-			: uiAttrSel(p,txt,asd)	{}
+			uiImagAttrSel(uiParent*,const char* txt,
+				      const uiAttrSelData&);
+			~uiImagAttrSel();
 
     inline Attrib::DescID realID() const		{ return attribID(); }
     Attrib::DescID	imagID() const;

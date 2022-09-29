@@ -20,8 +20,8 @@ class uiGenInput;
 mExpClass(uiAttributes) uiReferenceAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiReferenceAttrib);
 public:
-
 			uiReferenceAttrib(uiParent*,bool);
+			~uiReferenceAttrib();
 
 protected:
 

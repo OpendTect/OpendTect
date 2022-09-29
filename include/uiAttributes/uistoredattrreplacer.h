@@ -21,7 +21,7 @@ namespace Attrib
 {
     class Desc;
     class DescSet;
-};
+}
 
 mExpClass(uiAttributes) uiStoredAttribReplacer
 { mODTextTranslationClass(uiStoredAttribReplacer);
@@ -35,6 +35,7 @@ public:
 				    , secondid_(Attrib::DescID::undef())
 				    , lk_(lk)
        				    , storedref_(storedref)	{}
+				~StoredEntry();
 
 	bool			operator == ( const StoredEntry& a ) const
 	    			{ return firstid_ == a.firstid_
@@ -56,7 +57,8 @@ public:
 						       Attrib::DescSet*);
 				uiStoredAttribReplacer(uiParent*,IOPar*,
 						       bool is2d=false);
-				~uiStoredAttribReplacer();
+    virtual			~uiStoredAttribReplacer();
+
     void			go();
     void			setDataPackIDs(
 				    const TypeSet<DataPack::FullID>&);

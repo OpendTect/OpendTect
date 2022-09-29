@@ -63,6 +63,10 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 }
 
 
+uiPositionAttrib::~uiPositionAttrib()
+{}
+
+
 bool uiPositionAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != Position::attribName() )

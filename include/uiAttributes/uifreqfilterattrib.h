@@ -24,8 +24,8 @@ class uiCheckBox;
 mExpClass(uiAttributes) uiFreqFilterAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiFreqFilterAttrib);
 public:
-
 			uiFreqFilterAttrib(uiParent*,bool);
+			~uiFreqFilterAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

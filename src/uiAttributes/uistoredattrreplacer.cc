@@ -25,6 +25,11 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+
+uiStoredAttribReplacer::StoredEntry::~StoredEntry()
+{}
+
+
 uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 						DescSet* attrset )
     : is2d_(attrset->is2D())

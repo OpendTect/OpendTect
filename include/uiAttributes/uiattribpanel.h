@@ -25,23 +25,23 @@ namespace Attrib { class EngineMan; class DescSet;
 mExpClass(uiAttributes) uiAttribPanel
 { mODTextTranslationClass(uiAttribPanel)
 public:
-			uiAttribPanel(uiParent*);
-    virtual		~uiAttribPanel();
+				uiAttribPanel(uiParent*);
+    virtual			~uiAttribPanel();
 
-    void		compAndDispAttrib(Attrib::DescSet*,
-					  const Attrib::DescID&,
-					  const TrcKeyZSampling&,
-					  const Pos::GeomID&);
-			//<! descset becomes mine!
+    void			compAndDispAttrib(Attrib::DescSet*,
+						const Attrib::DescID&,
+						const TrcKeyZSampling&,
+						const Pos::GeomID&);
+				//<! descset becomes mine!
 
 protected:
 
-    FlatDataPack*	computeAttrib();
-    Attrib::EngineMan*	createEngineMan();
-    virtual void	createAndDisplay2DViewer(FlatDataPack*);
-    RefMan<FlatDataPack>createFDPack(const Attrib::Data2DHolder&) const;
-    RefMan<FlatDataPack>createFDPack(Attrib::EngineMan*,
-				     Attrib::Processor*) const;
+    FlatDataPack*		computeAttrib();
+    Attrib::EngineMan*		createEngineMan();
+    virtual void		createAndDisplay2DViewer(FlatDataPack*);
+    RefMan<FlatDataPack>	createFDPack(const Attrib::Data2DHolder&) const;
+    RefMan<FlatDataPack>	createFDPack(Attrib::EngineMan*,
+					     Attrib::Processor*) const;
 
     virtual const char*		getProcName()	{ return "Computing attribute";}
     virtual const char*		getPackName()	{ return "Attribute pack"; }

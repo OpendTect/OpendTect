@@ -146,6 +146,10 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 }
 
 
+uiScalingAttrib::~uiScalingAttrib()
+{}
+
+
 void uiScalingAttrib::typeSel( CallBacker* )
 {
     const int typeval = typefld->getIntValue();

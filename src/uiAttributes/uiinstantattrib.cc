@@ -45,6 +45,10 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 }
 
 
+uiInstantaneousAttrib::~uiInstantaneousAttrib()
+{}
+
+
 bool uiInstantaneousAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != Instantaneous::attribName() )

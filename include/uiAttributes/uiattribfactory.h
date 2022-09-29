@@ -19,7 +19,7 @@ class uiParent;
 
 typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 
-mExpClass(uiAttributes) uiAttributeFactory
+mExpClass(uiAttributes) uiAttributeFactory final
 {
 public:
     virtual		~uiAttributeFactory();
@@ -54,6 +54,7 @@ public:
     bool		hasSteering() const;
 
 protected:
+				uiAttributeFactory();
 
     struct Entry
     {

@@ -67,6 +67,10 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
 }
 
 
+uiCoherencyAttrib::~uiCoherencyAttrib()
+{}
+
+
 void uiCoherencyAttrib::is1Sel( CallBacker* )
 {
     if ( !is1fld || !stepoutfld ) return;

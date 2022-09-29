@@ -22,8 +22,8 @@ class uiSteeringSel;
 mExpClass(uiAttributes) uiSemblanceAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiSemblanceAttrib);
 public:
-
 			uiSemblanceAttrib(uiParent*,bool);
+			~uiSemblanceAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

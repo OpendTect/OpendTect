@@ -222,6 +222,10 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 }
 
 
+AttributeSetCreator::~AttributeSetCreator()
+{}
+
+
 bool AttributeSetCreator::create()
 {
     const int nrdescs = attrset ? attrset->size() : 0;

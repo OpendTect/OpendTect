@@ -21,8 +21,8 @@ class uiGenInput;
 mExpClass(uiAttributes) uiEventAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiEventAttrib);
 public:
-
                         uiEventAttrib(uiParent*,bool);
+			~uiEventAttrib();
 
 protected:
 

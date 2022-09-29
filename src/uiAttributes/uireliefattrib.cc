@@ -44,6 +44,10 @@ uiReliefAttrib::uiReliefAttrib( uiParent* p, bool is2d )
 }
 
 
+uiReliefAttrib::~uiReliefAttrib()
+{}
+
+
 bool uiReliefAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != Relief::attribName() )

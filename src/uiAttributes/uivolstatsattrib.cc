@@ -104,6 +104,9 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 }
 
 
+uiVolumeStatisticsAttrib::~uiVolumeStatisticsAttrib()
+{}
+
 
 void uiVolumeStatisticsAttrib::stackstepChg( CallBacker* )
 {

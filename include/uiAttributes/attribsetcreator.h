@@ -26,6 +26,7 @@ public:
 			AttributeSetCreator(uiParent*,
 					    const BufferStringSet&,
 					    Attrib::DescSet*);
+    virtual		~AttributeSetCreator();
 
     bool		create();
     static void		setStorageHint( const MultiID& m );

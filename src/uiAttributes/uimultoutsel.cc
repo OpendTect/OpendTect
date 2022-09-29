@@ -72,6 +72,10 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 }
 
 
+uiMultOutSel::~uiMultOutSel()
+{}
+
+
 void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
 {
     outlistfld_ = new uiListBox( this, "Outputs", OD::ChooseAtLeastOne );

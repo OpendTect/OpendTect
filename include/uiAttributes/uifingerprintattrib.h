@@ -33,7 +33,6 @@ class calcFingParsObject;
 mExpClass(uiAttributes) uiFingerPrintAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiFingerPrintAttrib);
 public:
-
 			uiFingerPrintAttrib(uiParent*,bool);
 			~uiFingerPrintAttrib();
 

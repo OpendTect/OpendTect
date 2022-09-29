@@ -20,11 +20,11 @@ namespace Attrib { class Desc; class DescSet; class SelSpec; }
 mExpClass(uiAttributes) uiSteerAttrSel : public uiSteerCubeSel
 { mODTextTranslationClass(uiSteerAttrSel);
 public:
-
 				uiSteerAttrSel(uiParent*,
 					      const Attrib::DescSet*,bool is2d,
 					      const uiString& txt=
 					      mJoinUiStrs(sSteering(),sData()));
+				~uiSteerAttrSel();
 
     inline Attrib::DescID	inlDipID() const	{ return getDipID(0); }
 				// Returns -2 when selected is not a dip

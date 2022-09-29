@@ -23,6 +23,8 @@ mClass(uiTextureAttrib) uiTextureAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiTextureAttrib);
 public:
 			uiTextureAttrib(uiParent*,bool);
+			~uiTextureAttrib();
+
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:

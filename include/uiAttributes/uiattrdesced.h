@@ -35,10 +35,9 @@ using namespace Attrib;
 mExpClass(uiAttributes) EvalParam
 {
 public:
-			EvalParam( const char* lbl, const char* par1=0,
-				   const char* par2=0, int idx=mUdf(int) )
-			    : label_(lbl), par1_(par1), par2_(par2), pgidx_(idx)
-			    , evaloutput_(false)	{}
+			EvalParam(const char* lbl,const char* par1=nullptr,
+				  const char* par2=nullptr,int idx=mUdf(int));
+			~EvalParam();
 
     bool		operator==(const EvalParam& ep) const
 			{
@@ -62,9 +61,11 @@ public:
 mExpClass(uiAttributes) uiAttrDescEdCreater
 {
 public:
-    virtual			~uiAttrDescEdCreater()		{}
+    virtual			~uiAttrDescEdCreater();
     virtual uiAttrDescEd*	create(uiParent*) const		= 0;
 
+protected:
+				uiAttrDescEdCreater();
 };
 
 

@@ -98,6 +98,10 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 }
 
 
+AttribParamGroup::~AttribParamGroup()
+{}
+
+
 uiString AttribParamGroup::sInit()
 { return tr("Initial value"); }
 

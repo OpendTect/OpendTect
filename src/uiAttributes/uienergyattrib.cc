@@ -53,6 +53,10 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
 }
 
 
+uiEnergyAttrib::~uiEnergyAttrib()
+{}
+
+
 bool uiEnergyAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != Energy::attribName() )

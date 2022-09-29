@@ -23,8 +23,8 @@ class uiStepOutSel;
 mExpClass(uiAttributes) uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
-
 			uiCoherencyAttrib(uiParent*,bool);
+			~uiCoherencyAttrib();
 
 protected:
 

@@ -22,7 +22,6 @@ namespace Math { class Formula; }
 mExpClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiMathAttrib);
 public:
-
 			uiMathAttrib(uiParent*,bool);
 			~uiMathAttrib();
 

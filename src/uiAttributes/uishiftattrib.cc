@@ -56,6 +56,10 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 }
 
 
+uiShiftAttrib::~uiShiftAttrib()
+{}
+
+
 void uiShiftAttrib::steerSel( CallBacker* )
 {
     steerfld_->display( dosteerfld_->getBoolValue() );
