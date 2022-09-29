@@ -157,7 +157,7 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 	    case 4: crsattr = crsinfolist_->projMethod( idx ); break;
 	}
 
-	if ( crsattr.matches(gestr,CaseInsensitive) )
+	if ( crsattr.matches(gestr,OD::CaseInsensitive) )
 	    dispidxs_.add( idx );
     }
 

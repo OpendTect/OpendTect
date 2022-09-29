@@ -129,7 +129,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
 		if ( lfi.depthcolnr_<0 &&
-			StringView(wordbuf).startsWith("dept",CaseInsensitive))
+			StringView(wordbuf).startsWith("dept",OD::CaseInsensitive))
 		    lfi.depthcolnr_ = colnr;
 		else
 		{
@@ -188,7 +188,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    }
 		}
 		if ( lognm.isEmpty() ||
-		     lognm.startsWith("Run",CaseInsensitive) )
+		     lognm.startsWith("Run",OD::CaseInsensitive) )
 		    lognm = keyw;
 
 		lfi.logcurves_.add( curve );

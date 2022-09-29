@@ -296,7 +296,7 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
     {
 	const BufferString requiredexecnm = ePDD()[idx]->execnm_;
 
-	if ( addedprocnms_.indexOf(requiredexecnm,CaseInsensitive) < 0 )
+	if ( addedprocnms_.indexOf(requiredexecnm,OD::CaseInsensitive) < 0 )
 	    reqexentadded.add( requiredexecnm );
 	else
 	    alreadyadded++;

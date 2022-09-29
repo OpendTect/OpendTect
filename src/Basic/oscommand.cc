@@ -531,7 +531,7 @@ void OS::MachineCommand::addShellIfNeeded()
 #endif
 	return;
 
-    bool needsshell = prognm_.startsWith( "echo", CaseInsensitive );
+    bool needsshell = prognm_.startsWith( "echo", OD::CaseInsensitive );
     if ( !needsshell )
     {
 	for ( const auto arg : args_ )

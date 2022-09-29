@@ -357,7 +357,7 @@ ascistream& ascistream::next()
 
 bool ascistream::isOfFileType( const char* ftyp ) const
 {
-    return filetype_.startsWith( ftyp, CaseInsensitive );
+    return filetype_.startsWith( ftyp, OD::CaseInsensitive );
 }
 
 

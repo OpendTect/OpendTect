@@ -401,10 +401,10 @@ bool yesNoFromString( const char* str )
 bool isBoolString( const char* str )
 {
     StringView fstr( str );
-    return fstr.isEqual("True",CaseInsensitive) ||
-	   fstr.isEqual("False",CaseInsensitive) ||
-	   fstr.isEqual("Yes",CaseInsensitive) ||
-	   fstr.isEqual("No",CaseInsensitive);
+    return fstr.isEqual("True",OD::CaseInsensitive) ||
+	   fstr.isEqual("False",OD::CaseInsensitive) ||
+	   fstr.isEqual("Yes",OD::CaseInsensitive) ||
+	   fstr.isEqual("No",OD::CaseInsensitive);
 }
 
 

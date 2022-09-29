@@ -61,7 +61,7 @@ bool OD::String::operator <( const char* s ) const
     const char* me = gtStr(); \
     mRetEmptyEquality( me, s )
 
-#define mIsInsens() (sens == CaseInsensitive)
+#define mIsInsens() (sens == OD::CaseInsensitive)
 
 bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
 {
@@ -204,7 +204,7 @@ bool OD::String::isNumber( bool int_only ) const
 
 bool OD::String::isYesNo() const
 {
-    return isEqual("yes",CaseInsensitive) || isEqual("no",CaseInsensitive);
+    return isEqual("yes",OD::CaseInsensitive) || isEqual("no",OD::CaseInsensitive);
 }
 
 

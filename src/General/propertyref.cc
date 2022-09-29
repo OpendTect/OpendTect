@@ -239,7 +239,7 @@ bool PropertyRef::isKnownAs( const char* nm ) const
     if ( nmstr.isEmpty() )
 	return false;
 
-    if ( name().matches(nm,CaseInsensitive) )
+    if ( name().matches(nm,OD::CaseInsensitive) )
 	return true;
 
     BufferStringSet nms( name().buf() );

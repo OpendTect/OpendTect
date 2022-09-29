@@ -574,7 +574,7 @@ bool BufferStringSet::operator !=( const BufferStringSet& oth ) const
 }
 
 
-idx_type BufferStringSet::indexOf( const char* str, CaseSensitivity cs ) const
+idx_type BufferStringSet::indexOf( const char* str, OD::CaseSensitivity cs ) const
 {
     if ( str )
     {
@@ -635,12 +635,12 @@ BufferString BufferStringSet::getDispString( size_type maxnritems,
 
 idx_type BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 {
-    return nearestMatch( s, caseinsens ? CaseInsensitive : CaseSensitive );
+    return nearestMatch( s, caseinsens ? OD::CaseInsensitive : OD::CaseSensitive );
 }
 
 
 idx_type BufferStringSet::nearestMatch( const char* s,
-					CaseSensitivity cs ) const
+					OD::CaseSensitivity cs ) const
 {
     const size_type sz = size();
     if ( sz < 2 )
@@ -680,7 +680,7 @@ idx_type BufferStringSet::nearestMatch( const char* s,
 
 
 TypeSet<idx_type> BufferStringSet::getMatches( const char* inpexpr,
-					     CaseSensitivity cs ) const
+						OD::CaseSensitivity cs ) const
 {
     TypeSet<idx_type> ret;
     if ( inpexpr && *inpexpr )
@@ -910,7 +910,7 @@ idx_type* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 }
 
 
-bool BufferStringSet::hasUniqueNames( CaseSensitivity sens ) const
+bool BufferStringSet::hasUniqueNames( OD::CaseSensitivity sens ) const
 {
     const idx_type lastidx = size() - 1;
     for ( idx_type idx=0; idx<lastidx; idx++ )
@@ -921,7 +921,7 @@ bool BufferStringSet::hasUniqueNames( CaseSensitivity sens ) const
 
 
 idx_type BufferStringSet::firstDuplicateOf( idx_type idx2find,
-			CaseSensitivity sens, idx_type startat ) const
+			OD::CaseSensitivity sens, idx_type startat ) const
 {
     const size_type sz = size();
     if ( idx2find < 0 || idx2find >= sz )
@@ -933,7 +933,7 @@ idx_type BufferStringSet::firstDuplicateOf( idx_type idx2find,
 	if ( idx == idx2find )
 	    continue;
 
-	if ( sens == CaseInsensitive )
+	if ( sens == OD::CaseInsensitive )
 	{
 	    if ( caseInsensitiveEqual(tofind.str(),get(idx).str()) )
 		return idx;

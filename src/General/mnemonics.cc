@@ -187,7 +187,7 @@ float Mnemonic::getMatchValue( const char* nm ) const
     if ( nmstr.isEmpty() )
 	return 0.f;
 
-    if ( name().matches(nm,CaseInsensitive) )
+    if ( name().matches(nm,OD::CaseInsensitive) )
 	return 1.f;
 
     BufferStringSet nms( name().buf(), logtypename_.buf() );
@@ -229,7 +229,7 @@ bool Mnemonic::isKnownAs( const char* nm ) const
     if ( nmstr.isEmpty() )
 	return false;
 
-    if ( name().matches(nm,CaseInsensitive) )
+    if ( name().matches(nm,OD::CaseInsensitive) )
 	return true;
 
     BufferStringSet nms( name().buf(), logtypename_.buf() );

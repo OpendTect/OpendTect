@@ -150,7 +150,7 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
     if ( iserr )
     {
 	const StringView fsspace = firstOcc( nm, ' ' );
-	if ( fsspace.startsWith(" directory",CaseInsensitive) )
+	if ( fsspace.startsWith(" directory",OD::CaseInsensitive) )
 	    return nullptr;
     }
 

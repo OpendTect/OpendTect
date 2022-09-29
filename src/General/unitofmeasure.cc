@@ -404,26 +404,26 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	else if ( caseInsensitiveEqual(nm,"F/S",0)
 	       || caseInsensitiveEqual(nm,"F/SEC",0) )
 	    return "ft/s";
-	else if ( (fsnm.endsWith("/S",CaseInsensitive)
-		    || fsnm.endsWith("/SEC",CaseInsensitive))
-		&& (fsnm.startsWith("FT",CaseInsensitive)
-		    || fsnm.startsWith("FEET",CaseInsensitive)) )
+	else if ( (fsnm.endsWith("/S",OD::CaseInsensitive)
+		    || fsnm.endsWith("/SEC",OD::CaseInsensitive))
+		&& (fsnm.startsWith("FT",OD::CaseInsensitive)
+		    || fsnm.startsWith("FEET",OD::CaseInsensitive)) )
 	    return "ft/s";
     break;
     case 'K' : case 'k':
-	if ( fsnm.startsWith("kg/m2s",CaseInsensitive) )
+	if ( fsnm.startsWith("kg/m2s",OD::CaseInsensitive) )
 	    return "m/s x kg/m3";
-	if ( fsnm.startsWith("kg/m2us",CaseInsensitive) )
+	if ( fsnm.startsWith("kg/m2us",OD::CaseInsensitive) )
 	    return "kg/m3 / us/m";
     break;
     case 'G' : case 'g':
 	if ( caseInsensitiveEqual(nm,"gAPI",0) )
 	    return "API";
-	if ( fsnm.startsWith("G/cm2s",CaseInsensitive) )
+	if ( fsnm.startsWith("G/cm2s",OD::CaseInsensitive) )
 	    return "m/s x g/cc";
-	if ( fsnm.startsWith("G/C",CaseInsensitive)
-	  || fsnm.startsWith("GM/C",CaseInsensitive)
-	  || fsnm.startsWith("GR/C",CaseInsensitive) )
+	if ( fsnm.startsWith("G/C",OD::CaseInsensitive)
+	  || fsnm.startsWith("GM/C",OD::CaseInsensitive)
+	  || fsnm.startsWith("GR/C",OD::CaseInsensitive) )
 	    return "g/cc";
     break;
     case 'P' : case 'p':
@@ -431,10 +431,10 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "%";
     break;
     case 'U' : case 'u':
-	if ( fsnm.startsWith("USEC/F",CaseInsensitive)
-	  || fsnm.startsWith("US/F",CaseInsensitive) )
+	if ( fsnm.startsWith("USEC/F",OD::CaseInsensitive)
+	  || fsnm.startsWith("US/F",OD::CaseInsensitive) )
 	    return "us/ft";
-	else if ( fsnm.startsWith("USEC/M",CaseInsensitive) )
+	else if ( fsnm.startsWith("USEC/M",OD::CaseInsensitive) )
 	    return "us/m";
     break;
     case 'm':
@@ -468,22 +468,22 @@ const UnitOfMeasure* UnitOfMeasureRepository::findBest(
     if ( fsnm.isEmpty() )
 	return 0;
 
-    if ( fsnm.startsWith( "FRAC", CaseInsensitive )
-      || fsnm.startsWith( "DEC", CaseInsensitive )
-      || fsnm.startsWith( "UNITLESS", CaseInsensitive ) )
+    if ( fsnm.startsWith( "FRAC", OD::CaseInsensitive )
+      || fsnm.startsWith( "DEC", OD::CaseInsensitive )
+      || fsnm.startsWith( "UNITLESS", OD::CaseInsensitive ) )
 	nm = "Fraction";
 
-    if ( fsnm.startsWith( "RAT", CaseInsensitive ) )
+    if ( fsnm.startsWith( "RAT", OD::CaseInsensitive ) )
 	nm = "Ratio";
 
     for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( uns[idx]->name().isEqual(nm,CaseInsensitive) )
+	if ( uns[idx]->name().isEqual(nm,OD::CaseInsensitive) )
 	    return uns[idx];
     }
     for ( int idx=0; idx<uns.size(); idx++ )
     {
-	if ( StringView(uns[idx]->symbol()).isEqual(nm,CaseInsensitive) )
+	if ( StringView(uns[idx]->symbol()).isEqual(nm,OD::CaseInsensitive) )
 	    return uns[idx];
     }
 

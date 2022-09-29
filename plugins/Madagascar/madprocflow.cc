@@ -56,10 +56,10 @@ ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
 	return ODMad::ProcFlow::None;
 
     if ( firstchar.isEqual(
-		    BufferString(*ODMad::sKeyMadagascar(),CaseInsensitive)) )
+		    BufferString(*ODMad::sKeyMadagascar(),OD::CaseInsensitive)) )
 	return ODMad::ProcFlow::Madagascar;
 
-    if ( firstchar.isEqual("S",CaseInsensitive) )
+    if ( firstchar.isEqual("S",OD::CaseInsensitive) )
 	return ODMad::ProcFlow::SU;
 
     Seis::GeomType gt = Seis::geomTypeOf( res );

@@ -42,15 +42,16 @@ public:
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }
     bool		validIdx( od_int64 i ) const override
 						{ return strs_.validIdx(i); }
-    idx_type		indexOf(const char*,CaseSensitivity s=CaseSensitive
-						) const; //!< first match
+    idx_type		indexOf(const char*,
+				OD::CaseSensitivity s=OD::CaseSensitive) const;
+			//!< first match
     idx_type		indexOf(const GlobExpr&) const;	//!< first match
     idx_type		indexOf( const BufferString* b ) const
 						{ return strs_.indexOf(b); }
     inline bool		isPresent( const BufferString* b ) const
 						{ return strs_.isPresent(b);}
     inline bool		isPresent( const char* s,
-				   CaseSensitivity c=CaseSensitive ) const
+				OD::CaseSensitivity c=OD::CaseSensitive) const
 						{ return indexOf(s,c) >= 0; }
     BufferString&	get( idx_type idx )	{ return *strs_.get(idx); }
     const BufferString&	get( idx_type idx ) const { return *strs_.get(idx); }
@@ -81,16 +82,18 @@ public:
 			{ strs_.append( oth.strs_ ); }
     BufferStringSet&	addWordsFrom(const char*);
 
-#   define		mODBSSDefMatchSens CaseSensitivity cs=CaseInsensitive
-    idx_type		nearestMatch(const char*,mODBSSDefMatchSens) const;
+    idx_type		nearestMatch(const char*,
+			    OD::CaseSensitivity cs=OD::CaseInsensitive) const;
     idx_type		nearestMatch(const char*,bool caseinsens) const;
     TypeSet<idx_type>	getMatches(const char* globexpr,
-				   mODBSSDefMatchSens) const;
+			    OD::CaseSensitivity cs=OD::CaseInsensitive) const;
     bool		isSubsetOf(const BufferStringSet&) const;
     size_type		maxLength() const;
-    idx_type		firstDuplicateOf(idx_type,mODStringDefSens,
-					 idx_type startat=0) const;
-    bool		hasUniqueNames(mODStringDefSens) const;
+    idx_type		firstDuplicateOf(idx_type,
+				OD::CaseSensitivity cs=OD::CaseSensitive,
+				idx_type startat=0) const;
+    bool		hasUniqueNames(
+				OD::CaseSensitivity cs=OD::CaseSensitive) const;
     BufferString	commonStart() const;
 
     void		sort(bool caseinsens=true,bool asc=true);

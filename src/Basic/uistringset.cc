@@ -272,7 +272,7 @@ uiStringSet::idx_type* uiStringSet::getSortIndexes( bool caseinsens,
 	return 0;
 
     mGetIdxArr( size_type, idxs, sz );
-    Qt::CaseSensitivity cs(Qt::CaseSensitive);
+    Qt::CaseSensitivity cs( Qt::CaseSensitive );
     if ( caseinsens )
 	cs = Qt::CaseInsensitive;
 

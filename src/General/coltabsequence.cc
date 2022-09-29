@@ -666,7 +666,7 @@ int ColTab::SeqMgr::indexOf( const char* nm ) const
 	if ( seqs_[idx]->name() == nm )
 	    return idx;
     for ( int idx=0; idx<seqs_.size(); idx++ )
-	if ( seqs_[idx]->name().isEqual(nm,CaseInsensitive) )
+	if ( seqs_[idx]->name().isEqual(nm,OD::CaseInsensitive) )
 	    return idx;
     return -1;
 }

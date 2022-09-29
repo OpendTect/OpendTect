@@ -261,7 +261,7 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
     for ( int idx=0; idx<dps.dataSet().nrCols(); idx++ )
     {
 	const BufferString& cdnm = dps.dataSet().colDef(idx).name_;
-	if ( !colnms.isPresent(cdnm.buf(),CaseInsensitive) )
+	if ( !colnms.isPresent(cdnm.buf(),OD::CaseInsensitive) )
 	    continue;
 
 	dps.dataSet().removeColumn( idx );
