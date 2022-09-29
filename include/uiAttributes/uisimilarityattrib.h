@@ -22,8 +22,8 @@ class uiStepOutSel;
 mExpClass(uiAttributes) uiSimilarityAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiSimilarityAttrib);
 public:
-
 			uiSimilarityAttrib(uiParent*,bool);
+			~uiSimilarityAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 
@@ -60,6 +60,7 @@ protected:
 	public:
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
 					  bool is2d);
+			~uiSimiSteeringSel();
 	   
 	    bool	willSteer() const override;
 	    bool	wantBrowseDip() const;

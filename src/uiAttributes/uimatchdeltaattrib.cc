@@ -36,6 +36,10 @@ uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
 }
 
 
+uiMatchDeltaAttrib::~uiMatchDeltaAttrib()
+{}
+
+
 bool uiMatchDeltaAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( desc.attribName() != MatchDelta::attribName() )

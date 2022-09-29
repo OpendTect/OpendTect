@@ -36,6 +36,10 @@ uiDeltaResampleAttrib::uiDeltaResampleAttrib( uiParent* p, bool is2d )
 }
 
 
+uiDeltaResampleAttrib::~uiDeltaResampleAttrib()
+{}
+
+
 bool uiDeltaResampleAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( desc.attribName() != DeltaResample::attribName() )

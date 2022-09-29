@@ -19,8 +19,8 @@ class uiGenInput;
 mClass(uiAttributes) uiMatchDeltaAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiMatchDeltaAttrib)
 public:
-
 			uiMatchDeltaAttrib(uiParent*,bool);
+			~uiMatchDeltaAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

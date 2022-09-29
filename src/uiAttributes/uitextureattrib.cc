@@ -101,6 +101,10 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 }
 
 
+uiTextureAttrib::~uiTextureAttrib()
+{}
+
+
 bool uiTextureAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName()!=Texture::attribName() )

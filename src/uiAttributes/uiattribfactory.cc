@@ -12,6 +12,10 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 
+uiAttributeFactory::uiAttributeFactory()
+{}
+
+
 uiAttributeFactory::~uiAttributeFactory()
 {
     deepErase( entries_ );

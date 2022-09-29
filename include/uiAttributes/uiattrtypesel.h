@@ -26,6 +26,7 @@ mExpClass(uiAttributes) uiAttrTypeSel : public uiGroup
 public:
 				uiAttrTypeSel(uiParent*,bool sorted=true);
 				~uiAttrTypeSel();
+
     void			fill(BufferStringSet* selgrps=0);
 						//!< with factory entries
 

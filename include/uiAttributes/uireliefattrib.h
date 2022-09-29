@@ -25,6 +25,7 @@ mExpClass(uiAttributes) uiReliefAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiReliefAttrib)
 public:
 			uiReliefAttrib(uiParent*,bool);
+			~uiReliefAttrib();
 
 protected:
 

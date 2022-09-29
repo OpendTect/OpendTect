@@ -28,7 +28,6 @@ class GapDeconACorrView;
 mClass(uiAttributes) uiGapDeconAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiGapDeconAttrib);
 public:
-
 			uiGapDeconAttrib(uiParent*,bool);
 			~uiGapDeconAttrib();
 

@@ -94,6 +94,10 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 }
 
 
+uiFreqFilterAttrib::~uiFreqFilterAttrib()
+{}
+
+
 void uiFreqFilterAttrib::finalizeCB( CallBacker* )
 {
     typeSel(0);

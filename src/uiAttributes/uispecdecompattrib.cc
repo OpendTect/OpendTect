@@ -520,7 +520,16 @@ bool uiSpecDecompAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
     return true;
 }
 
-//______________________________________________________________________
+
+// uiSpecDecompPanel
+uiSpecDecompPanel::uiSpecDecompPanel( uiParent* p )
+    : uiAttribPanel( p )
+{}
+
+
+uiSpecDecompPanel::~uiSpecDecompPanel()
+{}
+
 
 const char* uiSpecDecompPanel::getProcName()
 { return "Compute all frequencies for a single trace"; }

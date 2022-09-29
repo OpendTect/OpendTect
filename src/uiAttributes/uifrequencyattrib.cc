@@ -69,6 +69,10 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 }
 
 
+uiFrequencyAttrib::~uiFrequencyAttrib()
+{}
+
+
 bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( desc.attribName() != Frequency::attribName() )

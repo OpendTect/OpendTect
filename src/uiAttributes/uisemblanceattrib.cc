@@ -85,6 +85,10 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
 }
 
 
+uiSemblanceAttrib::~uiSemblanceAttrib()
+{}
+
+
 void uiSemblanceAttrib::extSel( CallBacker* )
 {
     const bool needstepoutfld = is2D() ? extfld->getIntValue()>=2

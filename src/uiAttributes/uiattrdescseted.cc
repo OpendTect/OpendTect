@@ -68,6 +68,28 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
+EvalParam::EvalParam( const char* lbl, const char* par1,
+		      const char* par2, int idx )
+    : label_(lbl)
+    , par1_(par1)
+    , par2_(par2)
+    , pgidx_(idx)
+    , evaloutput_(false)
+{}
+
+
+EvalParam::~EvalParam()
+{}
+
+
+uiAttrDescEdCreater::uiAttrDescEdCreater()
+{}
+
+
+uiAttrDescEdCreater::~uiAttrDescEdCreater()
+{}
+
+
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
 const char* uiAttribDescSetEd::sKeyAuto2DAttrSetID = "2DAttrset.Auto ID";
 const char* uiAttribDescSetEd::sKeyAuto3DAttrSetID = "3DAttrset.Auto ID";

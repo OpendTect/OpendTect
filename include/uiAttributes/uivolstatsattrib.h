@@ -27,8 +27,9 @@ mExpClass(uiAttributes) uiVolumeStatisticsAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiVolumeStatisticsAttrib);
 public:
 			uiVolumeStatisticsAttrib(uiParent*,bool);
+			~uiVolumeStatisticsAttrib();
 
-    void	getEvalParams(TypeSet<EvalParam>& params) const override;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:
 

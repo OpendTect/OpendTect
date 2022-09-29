@@ -38,11 +38,14 @@ mExpClass(uiAttributes) AttribParamGroup : public uiGroup
 public:
 				AttribParamGroup(uiParent*,const uiAttrDescEd&,
 						 const EvalParam&);
+				~AttribParamGroup();
+
     void			updatePars(Attrib::Desc&,int);
     void			updateDesc(Attrib::Desc&,int);
     const char*			getLabel()		{ return evallbl_; }
     static uiString		sInit();
     static uiString		sIncr();
+
 protected:
 
     void			createInputSpecs(const Attrib::ValParam*,

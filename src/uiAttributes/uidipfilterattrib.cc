@@ -107,6 +107,10 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
 }
 
 
+uiDipFilterAttrib::~uiDipFilterAttrib()
+{}
+
+
 void uiDipFilterAttrib::panelbutCB( CallBacker* )
 {
     PtrMan<uiLinePosSelDlg> dlg = 0;

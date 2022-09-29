@@ -20,8 +20,8 @@ class uiLabeledSpinBox;
 mExpClass(uiAttributes) uiDipFilterAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiDipFilterAttrib);
 public:
-
 			uiDipFilterAttrib(uiParent*,bool);
+			~uiDipFilterAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

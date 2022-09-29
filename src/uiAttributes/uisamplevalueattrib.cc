@@ -27,6 +27,10 @@ uiSampleValueAttrib::uiSampleValueAttrib( uiParent* p, bool is2d )
 }
 
 
+uiSampleValueAttrib::~uiSampleValueAttrib()
+{}
+
+
 bool uiSampleValueAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld_, desc, 0 );

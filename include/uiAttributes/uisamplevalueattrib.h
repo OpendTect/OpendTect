@@ -17,8 +17,8 @@ ________________________________________________________________________
 mExpClass(uiAttributes) uiSampleValueAttrib : public uiAttrDescEd
 {
 public:
-
 			uiSampleValueAttrib(uiParent*,bool);
+			~uiSampleValueAttrib();
 
 protected:
 

@@ -298,6 +298,10 @@ uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet* ads,
 }
 
 
+uiSteerAttrSel::~uiSteerAttrSel()
+{}
+
+
 DescID uiSteerAttrSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();

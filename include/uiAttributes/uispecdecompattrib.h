@@ -28,13 +28,13 @@ class uiTrcPositionDlg;
 mExpClass(uiAttributes) uiSpecDecompAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiSpecDecompAttrib)
 public:
-
 			uiSpecDecompAttrib(uiParent*,bool);
 			~uiSpecDecompAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
     int			getOutputIdx(float) const override;
     float		getOutputValue(int) const override;
+
 protected:
 
     uiImagAttrSel*	inpfld_;
@@ -90,15 +90,14 @@ protected:
 };
 
 
-mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
+mClass(uiAttributes) uiSpecDecompPanel : public uiAttribPanel
 { mODTextTranslationClass(uiSpecDecompPanel)
 public:
-				uiSpecDecompPanel( uiParent* p )
-				    : uiAttribPanel( p )		{}
+				uiSpecDecompPanel(uiParent*);
+				~uiSpecDecompPanel();
 
 protected:
-    const char*		getProcName() override;
-    const char*		getPackName() override;
-    const char*		getPanelName() override;
-
+    const char*			getProcName() override;
+    const char*			getPackName() override;
+    const char*			getPanelName() override;
 };

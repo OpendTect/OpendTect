@@ -21,8 +21,8 @@ class uiGenInput;
 mExpClass(uiAttributes) uiEnergyAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiEnergyAttrib);
 public:
-
 			uiEnergyAttrib(uiParent*,bool);
+			~uiEnergyAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

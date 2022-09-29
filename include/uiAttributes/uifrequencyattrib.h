@@ -21,8 +21,8 @@ class uiWindowFunctionSel;
 mExpClass(uiAttributes) uiFrequencyAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiFrequencyAttrib);
 public:
-
 			uiFrequencyAttrib(uiParent*,bool);
+			~uiFrequencyAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

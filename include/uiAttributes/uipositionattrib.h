@@ -22,8 +22,8 @@ class uiStepOutSel;
 mExpClass(uiAttributes) uiPositionAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiPositionAttrib);
 public:
-
 			uiPositionAttrib(uiParent*,bool);
+			~uiPositionAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

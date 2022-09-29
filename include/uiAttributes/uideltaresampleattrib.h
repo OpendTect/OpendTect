@@ -19,8 +19,8 @@ class uiGenInput;
 mClass(uiAttributes) uiDeltaResampleAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiDeltaResampleAttrib);
 public:
-
 			uiDeltaResampleAttrib(uiParent*,bool);
+			~uiDeltaResampleAttrib();
 
 protected:
 

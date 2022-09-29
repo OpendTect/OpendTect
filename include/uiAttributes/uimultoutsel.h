@@ -27,6 +27,7 @@ mExpClass(uiAttributes) uiMultOutSel : public uiDialog
 { mODTextTranslationClass(uiMultOutSel)
 public:
 			uiMultOutSel(uiParent*,const Attrib::Desc&);
+			~uiMultOutSel();
 
     void		getSelectedOutputs(TypeSet<int>&) const;
     void		getSelectedOutNames(BufferStringSet&) const;

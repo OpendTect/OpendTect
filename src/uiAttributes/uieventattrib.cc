@@ -87,6 +87,10 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 }
 
 
+uiEventAttrib::~uiEventAttrib()
+{}
+
+
 void uiEventAttrib::isSingleSel( CallBacker* )
 {
     const bool issingle = issinglefld_-> getBoolValue();

@@ -138,6 +138,10 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 }
 
 
+uiSimilarityAttrib::~uiSimilarityAttrib()
+{}
+
+
 void uiSimilarityAttrib::extSel( CallBacker* )
 {
     const StringView ext = extfld_->text();
@@ -349,6 +353,10 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 //    typfld_->newSpec(listspec,0);
     setHAlignObj( typfld_ );
 }
+
+
+uiSimilarityAttrib::uiSimiSteeringSel::~uiSimiSteeringSel()
+{}
 
 
 void uiSimilarityAttrib::uiSimiSteeringSel::typeSel(CallBacker*)

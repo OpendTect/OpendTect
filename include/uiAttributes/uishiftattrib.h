@@ -23,10 +23,10 @@ class uiSteeringSel;
 mExpClass(uiAttributes) uiShiftAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiShiftAttrib);
 public:
-
 			uiShiftAttrib(uiParent*,bool);
+			~uiShiftAttrib();
 
-    void	getEvalParams(TypeSet<EvalParam>& params) const override;
+    void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:
 

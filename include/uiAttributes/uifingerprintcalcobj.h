@@ -28,6 +28,7 @@ mExpClass(uiAttributes) calcFingParsObject
 public:
 			calcFingParsObject(uiParent*);
 			~calcFingParsObject();
+
     void		setUserRefList( BufferStringSet* refset )
 							{ reflist_ = refset; }
     void		setDescSet( DescSet* ds )	{ attrset_ = ds; }

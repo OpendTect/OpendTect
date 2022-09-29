@@ -67,6 +67,10 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
 }
 
 
+uiReferenceAttrib::~uiReferenceAttrib()
+{}
+
+
 bool uiReferenceAttrib::setParameters( const Attrib::Desc& desc )
 {
     return desc.attribName() == Reference::attribName();

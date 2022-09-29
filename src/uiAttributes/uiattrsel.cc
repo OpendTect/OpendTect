@@ -82,6 +82,10 @@ uiAttrSelData::uiAttrSelData( const Attrib::DescSet& aset, bool fillwithdef )
     mImplConstr
 
 
+uiAttrSelData::~uiAttrSelData()
+{}
+
+
 bool uiAttrSelData::is2D() const
 {
     return attrSet().is2D();
@@ -686,6 +690,10 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
 }
 
 
+uiAttrSel::~uiAttrSel()
+{}
+
+
 void uiAttrSel::setDescSet( const DescSet* ads )
 {
     attrdata_.setAttrSet( ads );
@@ -939,6 +947,14 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
 
 
 // **** uiImagAttrSel ****
+uiImagAttrSel::uiImagAttrSel( uiParent* p, const char* txt,
+			      const uiAttrSelData& asd )
+    : uiAttrSel(p,txt,asd)
+{}
+
+uiImagAttrSel::~uiImagAttrSel()
+{}
+
 
 DescID uiImagAttrSel::imagID() const
 {
