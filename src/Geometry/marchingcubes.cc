@@ -210,7 +210,7 @@ MarchingCubesModel& MarchingCubesModel::operator=( const MarchingCubesModel& b )
 
 
 bool MarchingCubesModel::operator==( const MarchingCubesModel& mc ) const
-{ return mc.model_==model_ && mc.submodel_==mc.submodel_; }
+{ return mc.model_==model_ && mc.submodel_==submodel_; }
 
 
 #define mCalcCoord( valnr, axis ) \
