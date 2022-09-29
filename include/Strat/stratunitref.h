@@ -184,8 +184,8 @@ mExpClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
 {
 public:
 			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
-					 const char* d=nullptr )
-			: NodeUnitRef(up,c,d)	{}
+					 const char* d=nullptr );
+			~NodeOnlyUnitRef();
 
     bool		hasLeaves() const override	{ return false; }
     Type		type() const override		{ return NodeOnly; }
@@ -200,9 +200,8 @@ mExpClass(Strat) LeavedUnitRef : public NodeUnitRef
 {
 public:
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
-				       const char* d=nullptr )
-			: NodeUnitRef(up,c,d)	{}
-
+				       const char* d=nullptr );
+			~LeavedUnitRef();
     Type		type() const override		{ return Leaved; }
     bool		hasLeaves() const override	{ return true; }
 
@@ -240,6 +239,7 @@ public:
 			LeafUnitRef(NodeUnitRef*,
 				   const LithologyID& lithid=LithologyID::udf(),
 				   const char* desc=nullptr);
+			~LeafUnitRef();
     bool		isUndef() const override;
 
     Type		type() const override		{ return Leaf; }

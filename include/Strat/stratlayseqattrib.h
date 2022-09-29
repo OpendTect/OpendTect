@@ -37,13 +37,8 @@ public:
 			mDeclareEnumUtils(Transform)
 
 			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
-				      const char* nm=0 )
-			    : NamedObject(nm)
-			    , set_(&s), prop_(p)
-			    , islocal_(false)
-			    , transform_(Pow)
-			    , transformval_(mUdf(float))	{}
-
+				      const char* nm=0 );
+			~LaySeqAttrib();
     const PropertyRef&	prop_;
     bool		islocal_;
     BufferString	stat_; // either Stats::Type or Stats::UpscaleType
@@ -88,8 +83,8 @@ mExpClass(Strat) LaySeqAttribSet : public NamedObject
 { mODTextTranslationClass(LaySeqAttribSet);
 public:
 
-			LaySeqAttribSet( const char* nm=0 )
-			    : NamedObject(nm)	{}
+			LaySeqAttribSet(const char* nm=0);
+			~LaySeqAttribSet();
 
     LaySeqAttrib&	attr( int idx )		{ return *(*this)[idx]; }
     const LaySeqAttrib&	attr( int idx ) const	{ return *(*this)[idx]; }

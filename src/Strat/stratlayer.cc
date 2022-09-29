@@ -19,6 +19,14 @@ static const char* sKeyXPos = "XPos";
 
 //------ LayerValue ------
 
+Strat::LayerValue::LayerValue()
+{}
+
+
+Strat::LayerValue::~LayerValue()
+{}
+
+
 BufferString Strat::LayerValue::dumpStr() const
 {
     BufferString ret;
@@ -32,6 +40,16 @@ BufferString Strat::LayerValue::dumpStr() const
     }
     return ret;
 }
+
+
+Strat::SimpleLayerValue::SimpleLayerValue( float val )
+    : LayerValue()
+    , val_ (val)
+{}
+
+
+Strat::SimpleLayerValue::~SimpleLayerValue()
+{}
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,

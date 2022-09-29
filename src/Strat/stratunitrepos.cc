@@ -168,6 +168,15 @@ bool loadDefaultTree()
 
 
 // RepositoryAccess
+
+RepositoryAccess::RepositoryAccess()
+{}
+
+
+RepositoryAccess::~RepositoryAccess()
+{}
+
+
 RefTree* RepositoryAccess::readTree()
 {
     Repos::FileProvider rfp( fileNameBase(), true );

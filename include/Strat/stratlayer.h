@@ -94,7 +94,7 @@ mExpClass(Strat) LayerValue
 public:
 
     virtual LayerValue* clone(const Layer* =nullptr) const	= 0;
-    virtual		~LayerValue()			{}
+    virtual		~LayerValue();
     virtual bool	isSimple() const		{ return false; }
     virtual float	value() const			= 0;
 
@@ -102,7 +102,7 @@ public:
     virtual void	setXPos(float)			{}
 
 protected:
-			LayerValue()			{}
+			LayerValue();
 
 };
 
@@ -110,9 +110,8 @@ protected:
 mExpClass(Strat) SimpleLayerValue : public LayerValue
 { mODTextTranslationClass(SimpleLayerValue);
 public:
-			SimpleLayerValue( float val )
-			    : LayerValue()
-			    , val_ (val)		{}
+			SimpleLayerValue(float);
+			~SimpleLayerValue();
     SimpleLayerValue*	clone(const Layer* =nullptr) const override
 			{ return new SimpleLayerValue(val_); }
 

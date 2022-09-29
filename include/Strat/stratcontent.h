@@ -24,20 +24,11 @@ mExpClass(Strat) Content : public NamedObject
 {
 public:
 
-			Content( const char* nm )
-			    : NamedObject(nm)				{}
-			Content( const Content& c )
-			    : NamedObject(c)
-			    , pattern_(c.pattern_)
-			    , color_(c.color_)				{}
+			Content(const char*);
+			Content(const Content&);
+			~Content();
 
-    Content&		operator =( const Content& c )
-			{
-			    setName(c.name());
-			    pattern_=c.pattern_;
-			    color_ = c.color_;
-			    return *this;
-			}
+    Content&		operator =(const Content&);
     bool		operator ==( const Content& c ) const
 			{ return name() == c.name(); }
 
@@ -67,8 +58,8 @@ mGlobal(Strat) inline bool isUnspecified( const Content* ct )
 mExpClass(Strat) ContentSet : public ObjectSet<Content>
 {
 public:
-
-			~ContentSet()		{ deepErase(*this); }
+			ContentSet();
+			~ContentSet();
 
     int			getIndexOf(const char*) const;
 

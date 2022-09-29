@@ -18,6 +18,17 @@ Strat::UnitRefIter::UnitRefIter( const NodeUnitRef& ur, Pol p )
     reset();
 }
 
+
+Strat::UnitRefIter::UnitRefIter( const UnitRefIter& uri )
+{
+    *this = uri;
+}
+
+
+Strat::UnitRefIter::~UnitRefIter()
+{}
+
+
 Strat::UnitRefIter& Strat::UnitRefIter::operator =(
 				const Strat::UnitRefIter& oth )
 {

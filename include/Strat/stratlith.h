@@ -24,6 +24,8 @@ namespace Strat
 mExpClass(Strat) LithologyID : public IntegerID<od_int32>
 {
 public:
+				LithologyID();
+				~LithologyID();
 
     using IntegerID::IntegerID;
     static inline LithologyID	udf()	  { return LithologyID(); }
@@ -47,8 +49,8 @@ public:
 
 			Lithology(const LithologyID&,const char* nm,
 				  bool por=false);
-			Lithology( const Lithology& l )
-			    : id_(l.id_)	{ *this = l; }
+			Lithology(const Lithology&);
+			~Lithology();
     Lithology&		operator =(const Lithology&);
     bool		operator ==( const Lithology& l ) const
 						{ return l.id_ == id_; }
@@ -82,8 +84,8 @@ public:
 mExpClass(Strat) LithologySet : public CallBacker
 {
 public:
-			LithologySet()
-			    : anyChange(this)	{}
+			LithologySet();
+			~LithologySet();
 
     int			size() const		{ return lths_.size(); }
     bool		isEmpty() const		{ return lths_.isEmpty(); }

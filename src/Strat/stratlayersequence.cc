@@ -23,6 +23,12 @@ Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
 }
 
 
+Strat::LayerSequence::LayerSequence( const Strat::LayerSequence& ls )
+{
+    *this = ls;
+}
+
+
 Strat::LayerSequence::~LayerSequence()
 {
     setEmpty();

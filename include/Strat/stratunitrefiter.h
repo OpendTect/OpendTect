@@ -16,7 +16,7 @@ namespace Strat
 {
 
 /*!\brief Iterator on Ref Nodes.
-  
+
  When constructed, returns unit itself (regardless of Pol). First next()
  goes to first (valid) unit.
 
@@ -31,7 +31,8 @@ public:
     static Pol		polOf(const UnitRef*);
 
 			UnitRefIter(const NodeUnitRef&,Pol p=All);
-			UnitRefIter( const UnitRefIter& uri )	{ *this = uri; }
+			UnitRefIter(const UnitRefIter&);
+			~UnitRefIter();
     UnitRefIter&	operator =(const UnitRefIter&);
 
     void		reset();

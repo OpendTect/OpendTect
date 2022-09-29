@@ -33,6 +33,10 @@ Strat::LayerModel::LayerModel()
 }
 
 
+Strat::LayerModel::LayerModel( const LayerModel& lm )
+{ *this = lm; }
+
+
 Strat::LayerModel::~LayerModel()
 {
     deepErase( seqs_ );
@@ -360,6 +364,10 @@ Strat::LayerModelSuite::LayerModelSuite()
 {
     addModel( "", uiString::empty() );
 }
+
+
+Strat::LayerModelSuite::~LayerModelSuite()
+{}
 
 
 void Strat::LayerModelSuite::setEmpty()

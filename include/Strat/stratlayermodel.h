@@ -34,8 +34,7 @@ mExpClass(Strat) LayerModel
 public:
 
 				LayerModel();
-				LayerModel( const LayerModel& lm )
-							{ *this = lm; }
+				LayerModel(const LayerModel&);
     virtual			~LayerModel();
     LayerModel&			operator =(const LayerModel&);
 
@@ -90,7 +89,7 @@ mExpClass(Strat) LayerModelSuite : public CallBacker
 public:
 
 			LayerModelSuite();
-    virtual		~LayerModelSuite()	{}
+    virtual		~LayerModelSuite();
 
     int			size() const		{ return mdls_.size(); }
     LayerModel&		get( int idx )		{ return *mdls_.get(idx); }
