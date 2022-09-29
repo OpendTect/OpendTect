@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "filespec.h"
+#include "callback.h"
 #include "coord.h"
 #include "samplingdata.h"
 #include "seistype.h"
@@ -47,7 +48,7 @@ public:
 
 /*\brief Parameters that control the primary read/write process */
 
-mExpClass(Seis) FilePars
+mExpClass(Seis) FilePars : public CallBacker
 {
 public:
 			FilePars( bool forread=true );
@@ -82,11 +83,13 @@ public:
     void		getReport(IOPar&,bool isrev0) const;
     void		setCoordSys(const Coords::CoordSystem* crs)
 							    { coordsys_ = crs; }
-    ConstRefMan<Coords::CoordSystem> getCoordSys() const { return coordsys_; }
+    ConstRefMan<Coords::CoordSystem> getCoordSys() const;
 protected:
 
     bool		forread_;
     ConstRefMan<Coords::CoordSystem> coordsys_;
+
+    void		onSurveyChgCB(CallBacker*);
 
 };
 

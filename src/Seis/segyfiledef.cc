@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "segyfiledef.h"
 #include "segyhdr.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "oddirs.h"
@@ -103,12 +104,31 @@ void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
 SEGY::FilePars::FilePars( bool forread )
     : fmt_(forread?0:1)
     , forread_(forread)
-    , coordsys_(SI().getCoordSystem())
-{}
+{
+    mAttachCB(IOM().surveyToBeChanged, FilePars::onSurveyChgCB);
+}
 
 
 SEGY::FilePars::~FilePars()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void SEGY::FilePars::onSurveyChgCB(CallBacker*)
+{
+    if ( coordsys_.ptr() == SI().getCoordSystem().ptr() )
+	coordsys_ = nullptr;
+}
+
+
+ConstRefMan<Coords::CoordSystem> SEGY::FilePars::getCoordSys() const
+{
+    if ( !coordsys_ )
+	mSelf().coordsys_ = SI().getCoordSystem();
+
+    return coordsys_;
+}
 
 
 const char** SEGY::FilePars::getFmts( bool fr )
