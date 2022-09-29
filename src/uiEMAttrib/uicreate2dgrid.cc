@@ -195,6 +195,10 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 }
 
 
+ui2DGridLinesFromInlCrl::~ui2DGridLinesFromInlCrl()
+{}
+
+
 void ui2DGridLinesFromInlCrl::modeChg( CallBacker* cb )
 {
     if ( !cb || cb == inlmodefld_ )
