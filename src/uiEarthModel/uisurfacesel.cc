@@ -134,7 +134,11 @@ uiSurface3DSel::uiSurface3DSel( uiParent* p, const IOObjContext& ct )
 {}
 
 
+uiSurface3DSel::~uiSurface3DSel()
+{}
 
+
+// uiSurface2DSel
 uiSurface2DSel::uiSurface2DSel( uiParent* p, const IOObjContext& ct )
     : uiSurfaceSel( p, ct )
 {
@@ -142,14 +146,27 @@ uiSurface2DSel::uiSurface2DSel( uiParent* p, const IOObjContext& ct )
 }
 
 
+uiSurface2DSel::~uiSurface2DSel()
+{}
+
+
+// uiHorizon2DSel
 uiHorizon2DSel::uiHorizon2DSel( uiParent* p )
     : uiSurface2DSel(p,EMHorizon2DTranslatorGroup::ioContext())
 {}
 
 
+uiHorizon2DSel::~uiHorizon2DSel()
+{}
 
+
+// uiHorizon3DSel
 uiHorizon3DSel::uiHorizon3DSel( uiParent* p )
     : uiSurface3DSel(p,EMHorizon3DTranslatorGroup::ioContext())
 {
     getFullList();
 }
+
+
+uiHorizon3DSel::~uiHorizon3DSel()
+{}

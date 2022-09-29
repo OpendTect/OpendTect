@@ -210,6 +210,10 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 }
 
 
+uiHorizonAuxDataSel::~uiHorizonAuxDataSel()
+{}
+
+
 void uiHorizonAuxDataSel::auxidxChg( CallBacker* )
 { auxidx_ = auxfld_->getIntValue(); }
 

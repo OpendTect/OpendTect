@@ -62,6 +62,10 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 }
 
 
+uiWriteSurfaceDlg::~uiWriteSurfaceDlg()
+{}
+
+
 bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
 {
     return iogrp_->processInput();
@@ -97,6 +101,10 @@ uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
 }
 
 
+uiReadSurfaceDlg::~uiReadSurfaceDlg()
+{}
+
+
 bool uiReadSurfaceDlg::acceptOK( CallBacker* )
 {
     return iogrp_->processInput();
@@ -124,6 +132,10 @@ uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
     attrnmfld_ = new uiGenInput( this, uiStrings::sAttribute() );
     attrnmfld_->setText( surface_.auxdata.auxDataName(0) );
 }
+
+
+uiStoreAuxData::~uiStoreAuxData()
+{}
 
 
 const char* uiStoreAuxData::auxdataName() const

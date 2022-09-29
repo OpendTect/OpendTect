@@ -400,6 +400,10 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 }
 
 
+uiSurfaceWrite::~uiSurfaceWrite()
+{}
+
+
 bool uiSurfaceWrite::processInput()
 {
     if ( sectionfld_ && sectionfld_->nrChosen() < 1 )
@@ -511,6 +515,10 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 
     setHAlignObj( objfld_ );
 }
+
+
+uiSurfaceRead::~uiSurfaceRead()
+{}
 
 
 void uiSurfaceRead::setIOObj( const MultiID& mid )

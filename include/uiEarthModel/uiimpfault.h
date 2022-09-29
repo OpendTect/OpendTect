@@ -23,9 +23,11 @@ namespace Table { class FormatDesc; }
 /*! \brief Dialog for fault import */
 
 mExpClass(uiEarthModel) uiImportFault : public uiDialog
-{ mODTextTranslationClass(uiImportFault);
+{
+mODTextTranslationClass(uiImportFault);
 public:
 			~uiImportFault();
+
     MultiID		getSelID() const;
 
     Notifier<uiImportFault> importReady;
@@ -69,8 +71,11 @@ protected:
 /*Brief Dialog for 3D Fault*/
 mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
 {
+mODTextTranslationClass(uiImportFault3D);
 public:
 			uiImportFault3D(uiParent*,const char* type);
+			~uiImportFault3D();
+
 protected:
     bool		acceptOK(CallBacker*) override;
 };
@@ -80,8 +85,10 @@ protected:
 
 mExpClass(uiEarthModel) uiImportFaultStickSet2D : public uiImportFault
 {
+mODTextTranslationClass(uiImportFaultStickSet2D);
 public:
 			uiImportFaultStickSet2D(uiParent*,const char* type);
+			~uiImportFaultStickSet2D();
 
 protected:
 

@@ -136,6 +136,10 @@ uiCopyFaultSet::uiCopyFaultSet( uiParent* p, const IOObj& ioobj )
 }
 
 
+uiCopyFaultSet::~uiCopyFaultSet()
+{}
+
+
 void uiCopyFaultSet::inpSelCB( CallBacker* )
 {
     const IOObj* selobj = inpfld_->ioobj( true );

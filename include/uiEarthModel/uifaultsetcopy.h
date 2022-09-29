@@ -41,6 +41,7 @@ mExpClass(uiEarthModel) uiCopyFaultSet : public uiDialog
 { mODTextTranslationClass(uiCopyFaultSet)
 public:
 			uiCopyFaultSet(uiParent*,const IOObj&);
+			~uiCopyFaultSet();
 
 protected:
 

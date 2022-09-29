@@ -19,9 +19,11 @@ class uiPushButton;
 class BufferStringSet;
 
 mExpClass(uiEarthModel) uiHorizonRelationsDlg : public uiDialog
-{ mODTextTranslationClass(uiHorizonRelationsDlg);
+{
+mODTextTranslationClass(uiHorizonRelationsDlg);
 public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);
+			~uiHorizonRelationsDlg();
 
 protected:
     uiListBox*		relationfld_;

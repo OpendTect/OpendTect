@@ -58,6 +58,8 @@ protected:
 mExpClass(uiEarthModel) uiSurface3DSel : public uiSurfaceSel
 {
 public:
+			~uiSurface3DSel();
+
 protected:
     			uiSurface3DSel(uiParent*,const IOObjContext&);
 };
@@ -68,6 +70,9 @@ protected:
 
 mExpClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
 {
+public:
+			~uiSurface2DSel();
+
 protected:
 			uiSurface2DSel(uiParent*,const IOObjContext&);
 };
@@ -77,6 +82,7 @@ mExpClass(uiEarthModel) uiHorizon2DSel : public uiSurface2DSel
 {
 public:
     			uiHorizon2DSel(uiParent*);
+			~uiHorizon2DSel();
 protected:
 
 };
@@ -86,6 +92,7 @@ mExpClass(uiEarthModel) uiHorizon3DSel : public uiSurface3DSel
 {
 public:
     			uiHorizon3DSel(uiParent*);
+			~uiHorizon3DSel();
 protected:
 
 };

@@ -27,6 +27,7 @@ public:
 				uiChangeHorizonDlg(uiParent*,EM::Horizon*,
 						   bool is2d,const uiString&);
 				~uiChangeHorizonDlg();
+
     uiHorSaveFieldGrp*		saveFldGrp() const { return savefldgrp_; }
     Notifier<uiChangeHorizonDlg> horReadyForDisplay;
 
@@ -62,6 +63,7 @@ mExpClass(uiEarthModel) uiFilterHorizonDlg : public uiChangeHorizonDlg
 { mODTextTranslationClass(uiFilterHorizonDlg)
 public:
 				uiFilterHorizonDlg(uiParent*,EM::Horizon*);
+				~uiFilterHorizonDlg();
 
 protected:
 

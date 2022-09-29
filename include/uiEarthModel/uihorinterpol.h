@@ -27,7 +27,8 @@ class uiHor3DInterpolSel;
 
 
 mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
-{ mODTextTranslationClass(uiHorizonInterpolDlg);
+{
+mODTextTranslationClass(uiHorizonInterpolDlg);
 public:
 			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,bool is2d);
 			~uiHorizonInterpolDlg();
@@ -56,11 +57,12 @@ protected:
 
 
 mExpClass(uiEarthModel) uiHor3DInterpolSel : public uiGroup
-{ mODTextTranslationClass(uiHor3DInterpolSel);
+{
+mODTextTranslationClass(uiHor3DInterpolSel);
 public:
 				uiHor3DInterpolSel(uiParent*,
 						   bool musthandlefaults);
-				~uiHor3DInterpolSel() {}
+				~uiHor3DInterpolSel();
 
     BinID			getStep() const;
     void			setStep(const BinID&);
@@ -91,11 +93,12 @@ protected:
 
 
 mExpClass(uiEarthModel) uiHor3DInterpol : public uiGroup
-{ mODTextTranslationClass(uiHor3DInterpol);
+{
+mODTextTranslationClass(uiHor3DInterpol);
 public:
     mDefineFactory1ParamInClass(uiHor3DInterpol,uiParent*,factory);
 
-    virtual			~uiHor3DInterpol()	{}
+    virtual			~uiHor3DInterpol();
 
     virtual bool		fillPar(IOPar&) const	{ return false; }
     virtual bool		usePar(const IOPar&)	{ return false; }
@@ -108,9 +111,11 @@ protected:
 
 
 mExpClass(uiEarthModel) uiInvDistHor3DInterpol : public uiHor3DInterpol
-{ mODTextTranslationClass(uiInvDistHor3DInterpol);
+{
+mODTextTranslationClass(uiInvDistHor3DInterpol);
 public:
 				uiInvDistHor3DInterpol(uiParent*);
+				~uiInvDistHor3DInterpol();
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
@@ -138,9 +143,11 @@ protected:
 
 
 mExpClass(uiEarthModel) uiTriangulationHor3DInterpol : public uiHor3DInterpol
-{ mODTextTranslationClass(uiTriangulationHor3DInterpol);
+{
+mODTextTranslationClass(uiTriangulationHor3DInterpol);
 public:
 				uiTriangulationHor3DInterpol(uiParent*);
+				~uiTriangulationHor3DInterpol();
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
@@ -164,9 +171,11 @@ protected:
 
 
 mExpClass(uiEarthModel) uiExtensionHor3DInterpol : public uiHor3DInterpol
-{ mODTextTranslationClass(uiExtensionHor3DInterpol);
+{
+mODTextTranslationClass(uiExtensionHor3DInterpol);
 public:
 				uiExtensionHor3DInterpol(uiParent*);
+				~uiExtensionHor3DInterpol();
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
@@ -188,10 +197,13 @@ protected:
 };
 
 
-mExpClass(uiEarthModel)uiContinuousCurvatureHor3DInterpol:public uiHor3DInterpol
-{mODTextTranslationClass(uiContinuousCurvatureHor3DInterpol);
+mExpClass(uiEarthModel) uiContinuousCurvatureHor3DInterpol
+						: public uiHor3DInterpol
+{
+mODTextTranslationClass(uiContinuousCurvatureHor3DInterpol);
 public:
-    uiContinuousCurvatureHor3DInterpol(uiParent*);
+				uiContinuousCurvatureHor3DInterpol(uiParent*);
+				~uiContinuousCurvatureHor3DInterpol();
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);

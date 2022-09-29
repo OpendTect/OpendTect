@@ -19,8 +19,10 @@ mExpClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
 { mODTextTranslationClass(uiEMAuxDataSel);
 public:
 			uiEMAuxDataSel(uiParent*,const uiString& label,
-				       const MultiID* =0,
-				       const char* auxdata=0 );
+				       const MultiID* =nullptr,
+				       const char* auxdata=nullptr);
+			~uiEMAuxDataSel();
+
     const MultiID&	getSurfaceID() const;
     const char*		getAuxDataSel() const;
 

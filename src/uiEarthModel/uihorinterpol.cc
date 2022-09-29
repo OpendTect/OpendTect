@@ -366,6 +366,10 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 }
 
 
+uiHor3DInterpolSel::~uiHor3DInterpolSel()
+{}
+
+
 void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
 {
     const bool showpolyfld = isPolygon();
@@ -519,6 +523,10 @@ uiHor3DInterpol::uiHor3DInterpol( uiParent* p )
 }
 
 
+uiHor3DInterpol::~uiHor3DInterpol()
+{}
+
+
 const char* uiInvDistHor3DInterpol::factoryKeyword() const
 {
     return InverseDistanceArray2DInterpol::sFactoryKeyword();
@@ -560,6 +568,10 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
 
     setHAlignObj( radiusfld_ );
 }
+
+
+uiInvDistHor3DInterpol::~uiInvDistHor3DInterpol()
+{}
 
 
 void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
@@ -643,6 +655,10 @@ uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol( uiParent* p )
 }
 
 
+uiTriangulationHor3DInterpol::~uiTriangulationHor3DInterpol()
+{}
+
+
 void uiTriangulationHor3DInterpol::useNeighborCB( CallBacker* )
 {
     maxdistfld_->display( !useneighborfld_->isChecked() );
@@ -706,6 +722,10 @@ uiExtensionHor3DInterpol::uiExtensionHor3DInterpol( uiParent* p )
 }
 
 
+uiExtensionHor3DInterpol::~uiExtensionHor3DInterpol()
+{}
+
+
 bool uiExtensionHor3DInterpol::fillPar( IOPar& par ) const
 {
     if ( nrstepsfld_->getIntValue()<1 )
@@ -738,6 +758,10 @@ uiContinuousCurvatureHor3DInterpol::uiContinuousCurvatureHor3DInterpol(
 
     setHAlignObj( radiusfld_ );
 }
+
+
+uiContinuousCurvatureHor3DInterpol::~uiContinuousCurvatureHor3DInterpol()
+{}
 
 
 const char* uiContinuousCurvatureHor3DInterpol::factoryKeyword() const
