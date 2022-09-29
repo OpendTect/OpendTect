@@ -52,6 +52,8 @@ public:
 						Pos::GeomID pickedgeomid,
 						const Coord3* normal) const;
 protected:
+				~FaultStickSetEditor();
+
     float		distToStick(int sticknr,
 				    const MultiID* pickedmid,
 				    const char* pickednm,

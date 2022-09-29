@@ -26,6 +26,8 @@ namespace MPE
 mExpClass(MPEEngine) SectionSourceSelector : public SequentialTask
 {
 public:
+				~SectionSourceSelector();
+
     virtual void		reset();
 
     int				nextStep() override;
@@ -38,6 +40,7 @@ public:
 
     mDeprecatedObs
     EM::SectionID		sectionID() const;
+
 protected:
 				SectionSourceSelector();
 

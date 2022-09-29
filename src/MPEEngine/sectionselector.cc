@@ -15,14 +15,32 @@ namespace MPE
 SectionSourceSelector::SectionSourceSelector()
 {}
 
-void SectionSourceSelector::reset() { selpos_.erase(); }
 
-int SectionSourceSelector::nextStep() { return 0; }
+SectionSourceSelector::~SectionSourceSelector()
+{}
+
+
+void SectionSourceSelector::reset()
+{
+    selpos_.erase();
+}
+
+
+int SectionSourceSelector::nextStep()
+{
+    return 0;
+}
+
 
 const char* SectionSourceSelector::errMsg() const
-{ return errmsg_.str(); }
+{
+    return errmsg_.str();
+}
+
 
 const TypeSet<TrcKey>& SectionSourceSelector::selectedPositions() const
-{ return selpos_;}
+{
+    return selpos_;
+}
 
 } // namespace MPE

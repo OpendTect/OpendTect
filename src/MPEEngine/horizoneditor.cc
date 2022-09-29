@@ -25,6 +25,10 @@ HorizonEditor::HorizonEditor( EM::Horizon3D& hor3d )
 }
 
 
+HorizonEditor::~HorizonEditor()
+{}
+
+
 ObjectEditor* HorizonEditor::create( EM::EMObject& emobj )
 {
     mDynamicCastGet(EM::Horizon3D*,horizon,&emobj);
@@ -55,10 +59,15 @@ void HorizonEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 }
 
 
-
+// Horizon2DEditor
 Horizon2DEditor::Horizon2DEditor( EM::Horizon2D& hor2d )
     : ObjectEditor(hor2d)
 {}
+
+
+Horizon2DEditor::~Horizon2DEditor()
+{}
+
 
 ObjectEditor* Horizon2DEditor::create( EM::EMObject& emobj )
 {

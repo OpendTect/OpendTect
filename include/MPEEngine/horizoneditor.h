@@ -32,6 +32,8 @@ public:
     void			getEditIDs(TypeSet<EM::PosID>&) const override;
 
 protected:
+				~HorizonEditor();
+
     Geometry::ElementEditor*	createEditor() override;
 };
 
@@ -48,6 +50,8 @@ public:
     static void			initClass();
 
 protected:
+				~Horizon2DEditor();
+
     Geometry::ElementEditor*	createEditor() override;
 };
 

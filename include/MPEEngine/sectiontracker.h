@@ -34,9 +34,9 @@ mExpClass(MPEEngine) SectionTracker
 {
 public:
 				SectionTracker(EM::EMObject&,
-					       SectionSourceSelector* = 0,
-					       SectionExtender* = 0,
-					       SectionAdjuster* = 0);
+					       SectionSourceSelector* =nullptr,
+					       SectionExtender* =nullptr,
+					       SectionAdjuster* =nullptr);
     virtual			~SectionTracker();
 
     EM::EMObject&		emObject()		{ return emobject_; }
@@ -78,10 +78,10 @@ public:
 
     mDeprecated("Use without SectionID")
 				SectionTracker(EM::EMObject& emobj,
-					       const EM::SectionID&,
-					       SectionSourceSelector* sss= 0,
-					       SectionExtender* se= 0,
-					       SectionAdjuster* sa= 0)
+				       const EM::SectionID&,
+				       SectionSourceSelector* sss=nullptr,
+				       SectionExtender* se=nullptr,
+				       SectionAdjuster* sa=nullptr)
 				    : SectionTracker(emobj,sss,se,sa)	{}
 
     mDeprecatedObs

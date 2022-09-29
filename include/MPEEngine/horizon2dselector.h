@@ -28,6 +28,8 @@ public:
 				Horizon2DSelector(const EM::Horizon2D& hor2d,
 						  const EM::SectionID&)
 				    : Horizon2DSelector(hor2d)	{}
+				~Horizon2DSelector();
+
     int				nextStep() override;
 
 protected:

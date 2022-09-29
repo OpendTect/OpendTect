@@ -54,6 +54,8 @@ public:
 				{ return getNearstStick(pos,posnormal); }
 
 protected:
+				~FaultEditor();
+
     float		distToStick(const Geometry::FaultStickSurface&,
 				    int curstick,const Coord3& pos,
 				    const Coord3* posnormal) const;
