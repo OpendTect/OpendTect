@@ -399,6 +399,17 @@ bool Strat::NodeUnitRef::isParentOf( const UnitRef& ur ) const
 
 //class NodeOnlyUnitRef
 
+
+Strat::NodeOnlyUnitRef::NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
+					 const char* d )
+    : NodeUnitRef(up,c,d)
+{}
+
+
+Strat::NodeOnlyUnitRef::~NodeOnlyUnitRef()
+{}
+
+
 const Strat::LeafUnitRef* Strat::NodeOnlyUnitRef::firstLeaf() const
 {
     for ( int idx=0; idx<refs_.size(); idx++ )
@@ -412,6 +423,16 @@ const Strat::LeafUnitRef* Strat::NodeOnlyUnitRef::firstLeaf() const
 
 
 //class LeavedUnitRef
+
+Strat::LeavedUnitRef::LeavedUnitRef( NodeUnitRef* up, const char* c,
+				   const char* d )
+    : NodeUnitRef(up,c,d)
+{}
+
+
+Strat::LeavedUnitRef::~LeavedUnitRef()
+{}
+
 
 Strat::LeafUnitRef* Strat::LeavedUnitRef::getLeaf( int idx )
 {
@@ -455,6 +476,10 @@ Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up,
     , lith_(lithidx)
 {
 }
+
+
+Strat::LeafUnitRef::~LeafUnitRef()
+{}
 
 
 bool Strat::LeafUnitRef::isUndef() const

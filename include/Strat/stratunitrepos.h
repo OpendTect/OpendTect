@@ -27,6 +27,8 @@ class RefTree;
 mExpClass(Strat) RepositoryAccess
 { mODTextTranslationClass(RepositoryAccess)
 public:
+			RepositoryAccess();
+			~RepositoryAccess();
 
     bool		haveTree() const;
     uiString		lastMsg() const		{ return msg_; }

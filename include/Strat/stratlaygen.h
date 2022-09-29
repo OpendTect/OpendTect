@@ -31,7 +31,7 @@ mExpClass(Strat) LayerGenerator : public CallBacker
 {
 public:
 
-    virtual		~LayerGenerator()			{}
+    virtual		~LayerGenerator();
 
     virtual LayerGenerator* clone() const
 			{ return canBeCloned() ? createClone() : nullptr; }

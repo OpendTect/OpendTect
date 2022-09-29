@@ -46,6 +46,10 @@ Strat::LayerModelGenerator::LayerModelGenerator(
 }
 
 
+Strat::LayerModelGenerator::~LayerModelGenerator()
+{}
+
+
 bool Strat::LayerModelGenerator::goImpl( od_ostream* strm, bool first,
 					 bool last, int delay )
 {
@@ -79,6 +83,10 @@ int Strat::LayerModelGenerator::nextStep()
     seqnr_++;
     return seqnr_ >= nrseqs_ ? Finished() : MoreToDo();
 }
+
+
+Strat::LayerGenerator::~LayerGenerator()
+{}
 
 
 Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
@@ -387,6 +395,10 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     props_.add( new ValueProperty(PropertyRef::thickness()) );
     mTriggerInstanceCreatedNotifier();
 }
+
+
+Strat::SingleLayerGenerator::~SingleLayerGenerator()
+{}
 
 
 Strat::LayerGenerator* Strat::SingleLayerGenerator::createClone() const

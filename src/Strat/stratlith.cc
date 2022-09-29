@@ -15,6 +15,31 @@ ________________________________________________________________________
 #include "stratcontent.h"
 
 
+Strat::Content::Content( const char* nm )
+    : NamedObject(nm)
+{}
+
+
+Strat::Content::Content( const Strat::Content& c )
+    : NamedObject(c)
+    , pattern_(c.pattern_)
+    , color_(c.color_)
+{}
+
+
+Strat::Content::~Content()
+{}
+
+
+Strat::Content& Strat::Content::operator =( const Strat::Content& c )
+{
+    setName(c.name());
+    pattern_=c.pattern_;
+    color_ = c.color_;
+    return *this;
+}
+
+
 bool Strat::Content::getApearanceFrom( const char* str )
 {
     FileMultiString fms( str );
@@ -45,6 +70,16 @@ const Strat::Content& Strat::Content::unspecified()
 }
 
 
+Strat::ContentSet::ContentSet()
+{}
+
+
+Strat::ContentSet::~ContentSet()
+{
+    deepErase(*this);
+}
+
+
 int Strat::ContentSet::getIndexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -67,6 +102,14 @@ const Strat::Lithology& Strat::Lithology::undef()
 
     return *udf;
 }
+
+
+Strat::LithologyID::LithologyID()
+{}
+
+
+Strat::LithologyID::~LithologyID()
+{}
 
 
 Strat::Lithology::Lithology( const Strat::LithologyID& li, const char* nm,
@@ -95,6 +138,17 @@ Strat::Lithology::Lithology( const char* fstr )
 }
 
 
+Strat::Lithology::Lithology( const Lithology& l )
+    : id_(l.id_)
+{
+    *this = l;
+}
+
+
+Strat::Lithology::~Lithology()
+{}
+
+
 void Strat::Lithology::fill( BufferString& str ) const
 {
     FileMultiString fms;
@@ -118,6 +172,15 @@ Strat::Lithology& Strat::Lithology::operator =( const Strat::Lithology& oth )
     }
     return *this;
 }
+
+
+Strat::LithologySet::LithologySet()
+    : anyChange(this)
+{}
+
+
+Strat::LithologySet::~LithologySet()
+{}
 
 
 int Strat::LithologySet::indexOf( const char* nm ) const

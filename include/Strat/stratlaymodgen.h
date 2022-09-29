@@ -25,6 +25,7 @@ public:
 
 			LayerModelGenerator(const LayerSequenceGenDesc&,
 					    LayerModel&,int nrseqs=100);
+			~LayerModelGenerator();
 
     void		setNrSeq( int nr )	{ nrseqs_ = nr; }
 

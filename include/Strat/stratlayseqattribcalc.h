@@ -33,6 +33,7 @@ mExpClass(Strat) LaySeqAttribCalc
 public:
 
 			LaySeqAttribCalc(const LaySeqAttrib&,const LayerModel&);
+			~LaySeqAttribCalc();
 
     float		getValue(const LayerSequence&,
 				 const Interval<float>& zrange) const;

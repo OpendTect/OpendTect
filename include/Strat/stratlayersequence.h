@@ -34,8 +34,7 @@ mExpClass(Strat) LayerSequence
 public:
 
 			LayerSequence(const PropertyRefSelection* =nullptr);
-			LayerSequence( const LayerSequence& ls )
-						{ *this = ls; }
+			LayerSequence(const LayerSequence&);
     virtual		~LayerSequence();
 
     LayerSequence&	operator =(const LayerSequence&);

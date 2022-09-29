@@ -34,6 +34,29 @@ mDefineEnumUtils(Strat::LaySeqAttrib,Transform,"Value Transformation")
 { "Power", "Log", "Exp", nullptr };
 
 
+Strat::LaySeqAttrib::LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
+				   const char* nm )
+    : NamedObject(nm)
+    , set_(&s), prop_(p)
+    , islocal_(false)
+    , transform_(Pow)
+    , transformval_(mUdf(float))
+{}
+
+
+Strat::LaySeqAttrib::~LaySeqAttrib()
+{}
+
+
+Strat::LaySeqAttribSet::LaySeqAttribSet( const char* nm )
+    : NamedObject(nm)
+{}
+
+
+Strat::LaySeqAttribSet::~LaySeqAttribSet()
+{}
+
+
 Strat::LaySeqAttrib* Strat::LaySeqAttribSet::gtAttr( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -186,6 +209,10 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 	}
     }
 }
+
+
+Strat::LaySeqAttribCalc::~LaySeqAttribCalc()
+{}
 
 
 bool Strat::LaySeqAttribCalc::isDist() const
