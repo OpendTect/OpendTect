@@ -31,6 +31,7 @@ mExpClass(uiMPE) uiMPEPartServer : public uiApplPartServer
 public:
 				uiMPEPartServer(uiApplService&);
 				~uiMPEPartServer();
+
     void			setCurrentAttribDescSet(const Attrib::DescSet*);
     const Attrib::DescSet* 	getCurAttrDescSet(bool is2d) const;
 
