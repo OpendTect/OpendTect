@@ -24,6 +24,10 @@ Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor )
 }
 
 
+Horizon2DExtender::~Horizon2DExtender()
+{}
+
+
 SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,emobj)

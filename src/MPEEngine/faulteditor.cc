@@ -29,6 +29,10 @@ FaultEditor::FaultEditor( EM::Fault3D& fault )
 {}
 
 
+FaultEditor::~FaultEditor()
+{}
+
+
 ObjectEditor* FaultEditor::create( EM::EMObject& emobj )
 {
     mDynamicCastGet(EM::Fault3D*,fault,&emobj);

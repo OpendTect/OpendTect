@@ -15,6 +15,7 @@ ________________________________________________________________________
 namespace MPE
 {
 
+// BinIDSurfaceSourceSelector
 BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
 						const EM::Horizon3D& hor )
     : SectionSourceSelector()
@@ -22,9 +23,30 @@ BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
 {}
 
 
+BinIDSurfaceSourceSelector::~BinIDSurfaceSourceSelector()
+{}
+
+
+int BinIDSurfaceSourceSelector::nextStep()
+{
+    return 0;
+}
+
+
+// SurfaceSourceSelector
 SurfaceSourceSelector::SurfaceSourceSelector( const EM::EMObject& obj )
     : SectionSourceSelector()
     , emobject_( obj )
 {}
+
+
+SurfaceSourceSelector::~SurfaceSourceSelector()
+{}
+
+
+int SurfaceSourceSelector::nextStep()
+{
+    return 0;
+}
 
 } // namespace MPE

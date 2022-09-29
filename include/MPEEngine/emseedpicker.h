@@ -62,7 +62,7 @@ public:
 instance of the class is usually available from each EMTracker.
 */
 
-mExpClass(MPEEngine) EMSeedPicker: public CallBacker
+mExpClass(MPEEngine) EMSeedPicker : public CallBacker
 {
 mODTextTranslationClass(EMSeedPicker)
 public:

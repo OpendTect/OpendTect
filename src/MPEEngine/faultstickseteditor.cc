@@ -30,6 +30,10 @@ FaultStickSetEditor::FaultStickSetEditor( EM::FaultStickSet& emfss )
 {}
 
 
+FaultStickSetEditor::~FaultStickSetEditor()
+{}
+
+
 ObjectEditor* FaultStickSetEditor::create( EM::EMObject& emobj )
 {
     mDynamicCastGet(EM::FaultStickSet*,emfss,&emobj);

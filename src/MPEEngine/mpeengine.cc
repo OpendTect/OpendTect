@@ -45,6 +45,15 @@ MPE::Engine& MPE::engine()
 namespace MPE
 {
 
+// TrackSettingsValidator
+TrackSettingsValidator::TrackSettingsValidator()
+{}
+
+
+TrackSettingsValidator::~TrackSettingsValidator()
+{}
+
+
 // MPE::Engine
 Engine::Engine()
     : activevolumechange(this)

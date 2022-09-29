@@ -38,9 +38,18 @@ Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d )
 }
 
 
+Horizon3DExtender::~Horizon3DExtender()
+{}
+
+
+// BaseHorizon3DExtender
 BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& hor3d )
     : SectionExtender()
     , horizon_( hor3d )
+{}
+
+
+BaseHorizon3DExtender::~BaseHorizon3DExtender()
 {}
 
 

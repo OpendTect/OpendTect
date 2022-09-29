@@ -29,6 +29,8 @@ mExpClass(MPEEngine) Horizon2DExtender : public SectionExtender
 {
 public:
 				Horizon2DExtender(EM::Horizon2D&);
+				~Horizon2DExtender();
+
     static SectionExtender*	create(EM::EMObject*);
     static void			initClass();
 

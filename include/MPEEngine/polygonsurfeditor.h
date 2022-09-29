@@ -38,6 +38,7 @@ public:
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:
+				~PolygonBodyEditor();
 
     bool			setPosition(const EM::PosID&,
 					    const Coord3&) override;

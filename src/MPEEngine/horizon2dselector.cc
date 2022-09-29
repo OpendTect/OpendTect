@@ -22,6 +22,10 @@ Horizon2DSelector::Horizon2DSelector( const EM::Horizon2D& hor )
 {}
 
 
+Horizon2DSelector::~Horizon2DSelector()
+{}
+
+
 int Horizon2DSelector::nextStep()
 {
     pErrMsg( "Implement" );
