@@ -49,13 +49,18 @@ public:
     virtual char	firstChar() const	{ return gtBuf()[0]; }
     virtual char	lastChar() const	{ return gtBuf()[size()-1]; }
 
-#   define		mODStringDefSens CaseSensitivity c=CaseSensitive
-    bool		isEqual(const char*,mODStringDefSens) const;
-    bool		isStartOf(const char*,mODStringDefSens) const;
-    bool		startsWith(const char*,mODStringDefSens) const;
-    bool		isEndOf(const char*,mODStringDefSens) const;
-    bool		endsWith(const char*,mODStringDefSens) const;
-    bool		matches(const char*,mODStringDefSens) const;
+    bool		isEqual(const char*,
+				CaseSensitivity c=CaseSensitive) const;
+    bool		isStartOf(const char*,
+				  CaseSensitivity c=CaseSensitive) const;
+    bool		startsWith(const char*,
+				   CaseSensitivity c=CaseSensitive) const;
+    bool		isEndOf(const char*,
+				CaseSensitivity c=CaseSensitive) const;
+    bool		endsWith(const char*,
+				 CaseSensitivity c=CaseSensitive) const;
+    bool		matches(const char*,
+				CaseSensitivity c=CaseSensitive) const;
 
     bool		contains(char) const;
     bool		contains(const char*) const;

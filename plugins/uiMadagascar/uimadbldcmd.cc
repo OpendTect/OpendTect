@@ -79,7 +79,7 @@ uiMadagascarBldPlotCmd::uiMadagascarBldPlotCmd( uiParent* p )
     for ( int idx=0; idx<defs.size(); idx++ )
     {
 	const ODMad::ProgDef& def = *defs[idx];
-	if ( def.group_->startsWith("plot",CaseInsensitive)
+	if ( def.group_->startsWith("plot",OD::CaseInsensitive)
 	  && def.synopsis_.contains("in.rsf") )
 	    cmdlist_.add( def.name_ );
     }

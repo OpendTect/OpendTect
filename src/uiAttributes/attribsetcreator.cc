@@ -294,17 +294,17 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 	return 0;
 
     BufferString defstr;
-    if ( fsextdesc.startsWith("Energy",CaseInsensitive) )
+    if ( fsextdesc.startsWith("Energy",OD::CaseInsensitive) )
     {
 	defstr = "Energy";
 	addGate( defstr, extdesc );
 	defstr += "output=0";
     }
-    else if ( fsextdesc.startsWith("Reference time",CaseInsensitive) )
+    else if ( fsextdesc.startsWith("Reference time",OD::CaseInsensitive) )
     {
 	defstr = "Reference output=2";
     }
-    else if ( fsextdesc.startsWith("Sample",CaseInsensitive) )
+    else if ( fsextdesc.startsWith("Sample",OD::CaseInsensitive) )
     {
 	BufferString offs = extdesc + 7;
 	offs.trimBlanks();
@@ -314,7 +314,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 	defstr = "Shift pos=0,0 steering=No time=";
 	defstr += offs;
     }
-    else if ( fsextdesc.startsWith("Similarity",CaseInsensitive) )
+    else if ( fsextdesc.startsWith("Similarity",OD::CaseInsensitive) )
     {
 	defstr = "Similarity steering=No";
 	addGate( defstr, extdesc );

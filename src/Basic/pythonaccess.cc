@@ -799,8 +799,8 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 		    cmdret.addKeyedArg( "pidbasenm", scriptfp->fullPath() );
 		}
 
-		if ( prognm.startsWith("cmd",CaseInsensitive) ||
-		     prognm.startsWith("powershell",CaseInsensitive) )
+		if ( prognm.startsWith("cmd",OD::CaseInsensitive) ||
+		     prognm.startsWith("powershell",OD::CaseInsensitive) )
 		    cmdret.addFlag( "consoleuiprog" );
 	    }
 

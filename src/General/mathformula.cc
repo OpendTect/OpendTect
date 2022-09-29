@@ -33,7 +33,7 @@ int Math::SpecVarSet::getIndexOf( const char* varnm ) const
 	return -1;
 
     for ( int idx=0; idx<size(); idx++ )
-	if ( varName(idx).isEqual(varnm,CaseInsensitive) )
+	if ( varName(idx).isEqual(varnm,OD::CaseInsensitive) )
 	    return idx;
 
     return -1;

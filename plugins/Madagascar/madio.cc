@@ -90,7 +90,7 @@ bool ODMad::FileSpec::usePar( const IOPar& iop )
     else
     {
 	const BufferString firstchar( res[0] );
-	forread_ = !firstchar.isEqual( "W", CaseInsensitive );
+	forread_ = !firstchar.isEqual( "W", OD::CaseInsensitive );
     }
 
     BufferString fnm = fnm_, maskfnm = maskfnm_;

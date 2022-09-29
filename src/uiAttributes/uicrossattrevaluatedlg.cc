@@ -256,7 +256,7 @@ void uiCrossAttrEvaluateDlg::getSelDescIDs(
 		continue;
 
 	    BufferString anm = attrset_.desc(idy)->userRef();
-	    if ( !anm.isEqual(userattnm,CaseInsensitive) )
+	    if ( !anm.isEqual(userattnm,OD::CaseInsensitive) )
 		continue;
 
 	    seldeschildids_ += attrset_.desc(idy)->id();

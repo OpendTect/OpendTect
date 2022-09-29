@@ -179,7 +179,7 @@ void StreamProvider::set( const char* inp )
 
     mSkipBlanks( pwork );
     fname_.set( pwork );
-    if ( fname_.startsWith("file://",CaseInsensitive) )
+    if ( fname_.startsWith("file://",OD::CaseInsensitive) )
 	{ pwork += 7; fname_ = pwork; }
 
     BufferString hostname;

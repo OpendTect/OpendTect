@@ -489,7 +489,7 @@ const uiAction* uiActionContainer::findAction( const char* itmtxt ) const
     for ( int idx=0; idx<actions_.size(); idx++ )
     {
 	const uiAction* itm = actions_[idx];
-	if ( itm->text().getString().startsWith(itmtxt,CaseInsensitive) )
+	if ( itm->text().getString().startsWith(itmtxt,OD::CaseInsensitive) )
 	    return itm;
     }
 

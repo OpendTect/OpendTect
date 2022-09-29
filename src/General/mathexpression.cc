@@ -713,8 +713,8 @@ Math::Expression::VarType Math::ExpressionParser::varTypeOf( const char* varnm )
 {
     const BufferString vnm( varnm );
 
-    if ( vnm.isEqual("this",CaseInsensitive)
-      || vnm.isEqual("out",CaseInsensitive) )
+    if ( vnm.isEqual("this",OD::CaseInsensitive)
+      || vnm.isEqual("out",OD::CaseInsensitive) )
 	return Math::Expression::Recursive;
 
     if ( vnm.size() > 1 && (vnm[0]=='c' || vnm[0]=='C') && iswdigit(vnm[1]) )
@@ -1092,7 +1092,7 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 {
     char* str = workstr.getCStr();
 #   define mParseFunction( nm, clss ) { \
-    if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
+    if ( workstr.startsWith( #nm "(", OD::CaseInsensitive ) ) \
     { \
 	workstr[len-1] = '\0'; \
 	PtrMan<Math::Expression> inp = \
@@ -1121,7 +1121,7 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
     mParseFunction( randg, GaussRandom )
 
 #   define mParse2ArgsFunction( nm, clss ) { \
-    if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
+    if ( workstr.startsWith( #nm "(", OD::CaseInsensitive ) ) \
     { \
 	workstr[len-1] = '\0'; \
 	const int fnnameskipsz = StringView( #nm ).size() + 1; \
@@ -1151,7 +1151,7 @@ bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
 {
     char* str = workstr.getCStr();
 #   define mGetIsFnMatch(nm) \
-    const bool is##nm = workstr.startsWith( #nm "(", CaseInsensitive )
+    const bool is##nm = workstr.startsWith( #nm "(", OD::CaseInsensitive )
 
     mGetIsFnMatch(min); mGetIsFnMatch(max); mGetIsFnMatch(sum);
     mGetIsFnMatch(med); mGetIsFnMatch(var); mGetIsFnMatch(avg);
@@ -1310,13 +1310,13 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 	    return ret;
     }
 
-    if ( workstr.isEqual("pi",CaseInsensitive) )
+    if ( workstr.isEqual("pi",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( M_PI );
-    if ( workstr.isEqual("euler",CaseInsensitive) )
+    if ( workstr.isEqual("euler",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( 2.7182818284590452353602874713 );
-    if ( workstr.isEqual("undef",CaseInsensitive) )
+    if ( workstr.isEqual("undef",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( mUdf(double) );
-    if ( workstr.isEqual("null",CaseInsensitive) )
+    if ( workstr.isEqual("null",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( mUdf(double) );
 
     if ( findVariable( str, len, ret ) )

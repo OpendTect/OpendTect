@@ -76,7 +76,7 @@ static bool fnmIsURI( const char*& fnm )
     const BufferString ptrprotsep = uri.find( protsep );
     if ( !ptrprotsep.isEmpty() )
     {
-	if ( uri.startsWith( "file://", CaseInsensitive ) )
+	if ( uri.startsWith( "file://", OD::CaseInsensitive ) )
 	    fnm += 7;
 	else if ( ptrprotsep.isEqual(fnm) )
 	    fnm += StringView(protsep).size();
