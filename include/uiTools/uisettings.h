@@ -164,10 +164,12 @@ public:
 				"General",
 				toUiString(sFactoryKeyword()))
 
-			uiGeneralSettingsGroup(uiParent*,Settings&);
+			~uiGeneralSettingsGroup();
+
     bool		acceptOK() override;
 
 protected:
+			uiGeneralSettingsGroup(uiParent*,Settings&);
 
     uiGenInput*		iconszfld_;
     uiGenInput*		showinlprogressfld_;

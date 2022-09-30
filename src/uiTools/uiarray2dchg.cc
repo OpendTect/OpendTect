@@ -31,6 +31,10 @@ uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
 }
 
 
+uiArr2DFilterPars::~uiArr2DFilterPars()
+{}
+
+
 Array2DFilterPars uiArr2DFilterPars::getInput() const
 {
     Array2DFilterPars pars;
@@ -47,3 +51,7 @@ uiArr2DFilterParsDlg::uiArr2DFilterParsDlg( uiParent* p,
 {
     fld = new uiArr2DFilterPars( this, prs );
 }
+
+
+uiArr2DFilterParsDlg::~uiArr2DFilterParsDlg()
+{}

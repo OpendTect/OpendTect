@@ -20,10 +20,10 @@ class SurveyInfo;
 mExpClass(uiTools) World2UiData
 {
 public:
-
 		World2UiData();
 		World2UiData( uiSize s, const uiWorldRect& w );
 		World2UiData( const uiWorldRect& w, uiSize s );
+    virtual	~World2UiData();
 
     bool	operator ==( const World2UiData& w2ud ) const;
     bool	operator !=( const World2UiData& w2ud ) const;
@@ -57,6 +57,7 @@ public:
 			uiWorld2Ui( const uiRect& rc, const uiWorldRect& wr );
 			uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz );
 			uiWorld2Ui( const World2UiData& w );
+    virtual		~uiWorld2Ui();
 
     bool		operator==(const uiWorld2Ui& ) const;
 

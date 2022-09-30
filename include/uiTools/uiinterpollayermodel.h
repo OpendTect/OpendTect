@@ -24,6 +24,8 @@ public:
 				uiInterpolationLayerModelGrp,
 				uiParent*,factory)
 
+			~uiInterpolationLayerModelGrp();
+
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
@@ -42,6 +44,8 @@ public:
 				uiZSliceInterpolationModel,uiParent*,
 			       "ZSlices",uiStrings::sZSlice(mPlural))
 
+			~uiZSliceInterpolationModel();
+
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
@@ -54,6 +58,7 @@ mExpClass(uiTools) uiInterpolationLayerModel : public uiGroup
 { mODTextTranslationClass(uiInterpolationLayerModel)
 public:
 			uiInterpolationLayerModel(uiParent*);
+			~uiInterpolationLayerModel();
 
     InterpolationLayerModel* getModel();
     void		setModel(const InterpolationLayerModel*);

@@ -18,8 +18,8 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
 {
     const bool zistime = SI().zDomain().isTime();
     const char** typestrs = FFTFilter::TypeNames();
-    typefld_ = new uiGenInput(this, tr("Filter type"), 
-                              StringListInpSpec(typestrs));
+    typefld_ = new uiGenInput( this, tr("Filter type"),
+				StringListInpSpec(typestrs));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
@@ -37,9 +37,12 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
     set( nyq*0.1, nyq*0.4, FFTFilter::LowPass );
 
-
     postFinalize().notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
 }
+
+
+uiFreqFilterSelFreq::~uiFreqFilterSelFreq()
+{}
 
 
 void uiFreqFilterSelFreq::parChgCB( CallBacker* )

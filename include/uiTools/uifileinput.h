@@ -36,6 +36,7 @@ public:
     public:
 			Setup(const char* filenm=0);
 			Setup(uiFileDialog::Type t,const char* filenm=0);
+	virtual		~Setup();
 
 	BufferString	fnm;
 

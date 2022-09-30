@@ -22,8 +22,8 @@ class uiRectItem;
 mExpClass(uiTools) uiFillPattern : public uiGroup
 {
 public:
-
-    				uiFillPattern(uiParent*);
+				uiFillPattern(uiParent*);
+				~uiFillPattern();
 
     FillPattern			get() const;
     void			set(const FillPattern&);

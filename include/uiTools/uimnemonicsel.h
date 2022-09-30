@@ -42,6 +42,8 @@ public:
 				    if ( mns )
 					mnsel_ = *mns;
 				}
+	virtual			~Setup()
+				{}
 
 	static uiString		defLabel()	{ return tr("Mnemonic"); };
 

@@ -221,6 +221,10 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 }
 
 
+uiMarkerStyle3D::~uiMarkerStyle3D()
+{}
+
+
 NotifierAccess* uiMarkerStyle3D::sliderMove()
 { return &szfld_->valueChanging; }
 

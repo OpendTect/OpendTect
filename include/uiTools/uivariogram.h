@@ -22,8 +22,8 @@ class uiSpinBox;
 mExpClass(uiTools) uiVariogramDlg : public uiDialog
 { mODTextTranslationClass(uiVariogramDlg);
 public:
-
 				uiVariogramDlg(uiParent*,bool);
+				~uiVariogramDlg();
 
     int				getMaxRg() const;
     int				getStep() const;
@@ -39,7 +39,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiVariogramDisplay: public uiDialog
+mExpClass(uiTools) uiVariogramDisplay : public uiDialog
 { mODTextTranslationClass(uiVariogramDisplay);
 public:
 				uiVariogramDisplay(uiParent*,Array2D<float>*,
@@ -47,7 +47,6 @@ public:
 						   BufferStringSet*,
 						   int maxrg,
 						   bool ishor);
-
 				~uiVariogramDisplay();
 
     void			draw();

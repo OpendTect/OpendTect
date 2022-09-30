@@ -102,6 +102,10 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
 }
 
 
+uiEventTracker::~uiEventTracker()
+{}
+
+
 void uiEventTracker::changeCB( CallBacker* )
 {
     if ( immediateupdate_ )

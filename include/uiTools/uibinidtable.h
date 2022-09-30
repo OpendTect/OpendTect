@@ -19,6 +19,7 @@ mExpClass(uiTools) uiBinIDTable : public uiGroup
 { mODTextTranslationClass(uiBinIDTable);
 public:
 			uiBinIDTable(uiParent*,bool withz);
+			~uiBinIDTable();
 
     void		setBinIDs(const TypeSet<BinID>&);
     void		getBinIDs(TypeSet<BinID>&) const;

@@ -24,6 +24,10 @@ uiZRangeInput::uiZRangeInput( uiParent* p, bool depth, bool withstep )
 {}
 
 
+uiZRangeInput::~uiZRangeInput()
+{}
+
+
 #define mImplGet( fn, tp ) \
 StepInterval<tp> uiZRangeInput::get##fn##ZRange() const \
 { \

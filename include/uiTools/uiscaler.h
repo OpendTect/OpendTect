@@ -24,6 +24,7 @@ public:
 			uiScaler(uiParent*, const uiString &txt=
 				 uiStrings::sEmptyString(), // "Scale values"
 				 bool linear_only=false);
+			~uiScaler();
 
     Scaler*		getScaler() const;
     void		setInput(const Scaler&);

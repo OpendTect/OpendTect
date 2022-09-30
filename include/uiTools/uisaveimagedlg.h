@@ -24,26 +24,29 @@ class uiLabeledSpinBox;
 mExpClass(uiTools) uiSaveImageDlg : public uiDialog
 { mODTextTranslationClass(uiSaveImageDlg);
 public:
-			uiSaveImageDlg(uiParent*,bool withclipbrd = true,
-				       bool withuseparsfld = true);
+			~uiSaveImageDlg();
 
     Notifier<uiSaveImageDlg>	sizesChanged;
 
     void		sPixels2Inch(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&,float);
+				     Geom::Size2D<float>&,float);
     void		sInch2Pixels(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&,float);
+				     Geom::Size2D<float>&,float);
     void		sCm2Inch(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&);
+				     Geom::Size2D<float>&);
     void		sInch2Cm(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&);
+				     Geom::Size2D<float>&);
     void		createGeomInpFlds(uiObject*);
-    void                fillPar(IOPar&,bool is2d);
-    bool                usePar(const IOPar&);
+
+    void		fillPar(IOPar&,bool is2d);
+    bool		usePar(const IOPar&);
 
     static void		addPrintFmtFilters(BufferString&);
 
 protected:
+			uiSaveImageDlg(uiParent*,bool withclipbrd = true,
+				       bool withuseparsfld = true);
+
     void		setDirName(const char*);
 
     uiLabeledSpinBox*	pixheightfld_;
@@ -68,7 +71,7 @@ protected:
     void		setSizeInPix(int width, int height);
     void		updateFilter();
     virtual void	getSupportedFormats(const char** imgfrmt,
-	    				    const char** frmtdesc,
+					    const char** frmtdesc,
 					    BufferString& filter)	=0;
     void		fileSel(CallBacker*);
     void		addFileExtension(BufferString&);
@@ -109,9 +112,11 @@ mExpClass(uiTools) uiSaveWinImageDlg : public uiSaveImageDlg
 {
 public:
 			uiSaveWinImageDlg(uiParent*);
+			~uiSaveWinImageDlg();
+
 protected:
     void		getSupportedFormats(const char** imgfrmt,
-	    				    const char** frmtdesc,
+					    const char** frmtdesc,
 					    BufferString& filter) override;
     void		setFldVals(CallBacker*) override;
     bool		acceptOK(CallBacker*) override;

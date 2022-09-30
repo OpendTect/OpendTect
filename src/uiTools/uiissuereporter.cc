@@ -86,6 +86,10 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 }
 
 
+uiIssueReporterDlg::~uiIssueReporterDlg()
+{}
+
+
 void uiIssueReporterDlg::viewReportCB( CallBacker* )
 {
     viewReport( uiString::emptyString() );

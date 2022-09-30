@@ -21,9 +21,9 @@ class uiGenInput;
 mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
 {  mODTextTranslationClass(uiIssueReporterDlg);
 public:
-    
 				uiIssueReporterDlg(uiParent*,
 						   System::IssueReporter&);
+				~uiIssueReporterDlg();
     
     System::IssueReporter&	reporter() { return reporter_; }
     const char*			errMsg() const;

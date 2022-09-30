@@ -27,6 +27,19 @@ ________________________________________________________________________
 
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
 
+uiTextFile::uiTextFile( uiParent* p, const char* fnm, const Setup& s )
+    : setup_(s)
+    , filename_(fnm)
+    , fileNmChg(this)
+{
+    init(p);
+}
+
+
+uiTextFile::~uiTextFile()
+{}
+
+
 void uiTextFile::init( uiParent* p )
 {
     txted_ = nullptr;
@@ -279,6 +292,18 @@ uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& dlgsetup )
 {
     init( dlgsetup, uiTextFile::Setup(), dlgsetup.wintitle_.getFullString() );
 }
+
+
+uiTextFileDlg::uiTextFileDlg( uiParent* p, const uiTextFile::Setup& ts,
+			      const Setup& s, const char* fnm)
+    : uiDialog(p,s)
+{
+    init(s,ts,fnm);
+}
+
+
+uiTextFileDlg::~uiTextFileDlg()
+{}
 
 
 void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,

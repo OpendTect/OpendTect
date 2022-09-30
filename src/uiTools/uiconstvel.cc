@@ -32,6 +32,10 @@ uiConstantVel::uiConstantVel( uiParent* p, float defvel, const uiString& lbl )
 {}
 
 
+uiConstantVel::~uiConstantVel()
+{}
+
+
 void uiConstantVel::setInternalVelocity( float vel )
 {
     this->setValue(

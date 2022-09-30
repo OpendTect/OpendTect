@@ -105,6 +105,10 @@ uiPluginMan::uiPluginMan( uiParent* p )
 }
 
 
+uiPluginMan::~uiPluginMan()
+{}
+
+
 struct PluginProduct
 {
 PluginProduct(const char* nm)

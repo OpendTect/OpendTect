@@ -47,16 +47,18 @@ public:
 			    , infoheight_(50)
 			    , layoutpos_(0,0)
 			    {}
+	virtual		~Setup()
+			{}
 
-	 mDefSetupMemb(BufferString,wintitle)
-	 mDefSetupMemb(int,startwidth)
-	 mDefSetupMemb(int,startheight)
-	 mDefSetupMemb(int,infoheight)
-	 mDefSetupMemb(uiPoint,layoutpos)
+	mDefSetupMemb(BufferString,wintitle)
+	mDefSetupMemb(int,startwidth)
+	mDefSetupMemb(int,startheight)
+	mDefSetupMemb(int,infoheight)
+	mDefSetupMemb(uiPoint,layoutpos)
     };
 
 			uiObjectItemViewWin(uiParent*,const Setup&);
-
+			~uiObjectItemViewWin();
 
     int			nrItems() const { return mainviewer_->nrItems(); }
     uiObjectItemView*	mainViewer()	{ return mainviewer_; }
@@ -64,11 +66,11 @@ public:
     void		addObject(uiObject* grp,uiObject* infogrp=0);
     void		addGroup(uiGroup* grp,uiGroup* infogrp=0);
 
-    void                removeObject(uiObject*);
-    void                removeGroup(uiGroup*);
+    void		removeObject(uiObject*);
+    void		removeGroup(uiGroup*);
 
-    void                insertObject(int idx,uiObject*,uiObject* info=0);
-    void                insertGroup(int idx,uiGroup*,uiGroup* info=0);
+    void		insertObject(int idx,uiObject*,uiObject* info=0);
+    void		insertGroup(int idx,uiGroup*,uiGroup* info=0);
 
     void		removeAllItems();
 
@@ -119,8 +121,8 @@ protected:
 mExpClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
 { mODTextTranslationClass(uiObjectItemViewInfoBar);
 public:
-
 			uiObjectItemViewInfoBar(uiParent*);
+			~uiObjectItemViewInfoBar();
 
     void		addItem(uiObjectItem*,uiObjectItem* coupleditm);
     void		addItem( uiObjectItem* itm, int stretch=1 ) override
@@ -133,7 +135,7 @@ public:
     void		updateItemsPos();
     void		reSizeItems();
 
-    void                removeItemByCouple(uiObjectItem* coupleditem);
+    void		removeItemByCouple(uiObjectItem* coupleditem);
 
 protected:
     ObjectSet<uiObjectItem> coupleditems_;
@@ -169,6 +171,7 @@ mExpClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
 { mODTextTranslationClass(uiObjectItemViewAxisPainter);
 public:
 			uiObjectItemViewAxisPainter(uiObjectItemView&);
+			~uiObjectItemViewAxisPainter();
 
     void		setZRange(Interval<float>);
     uiAxisHandler*	getAxis() const	{ return zax_; }

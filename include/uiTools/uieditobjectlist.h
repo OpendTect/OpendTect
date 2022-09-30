@@ -22,15 +22,15 @@ class uiButtonGroup;
 mExpClass(uiTools) uiEditObjectList : public uiGroup
 { mODTextTranslationClass(uiEditObjectList)
 public:
-
-			uiEditObjectList(uiParent*,const char* itmtyp,
-					 bool movable,bool compact=false);
+			~uiEditObjectList();
 
     uiButtonGroup*	buttons()		{ return bgrp_; }
 
     Notifier<uiEditObjectList>	selectionChange;
 
 protected:
+			uiEditObjectList(uiParent*,const char* itmtyp,
+					 bool movable,bool compact=false);
 
     uiListBox*		listfld_;
     uiButtonGroup*	bgrp_;

@@ -18,8 +18,8 @@ class uiListBox;
 mExpClass(uiTools) uiListBoxFilter : public uiGenInput
 { mODTextTranslationClass(uiListBoxFilter)
 public:
-
 			uiListBoxFilter(uiListBox&,bool above=true);
+			~uiListBoxFilter();
 
     void		setItems(const BufferStringSet&);
     void		setItems(const uiStringSet&);

@@ -65,12 +65,7 @@ private:
 mExpClass(uiTools) uiCheckedCompoundParSel : public uiCompoundParSel
 {
 public:
-
-			uiCheckedCompoundParSel(uiParent*,
-				 const uiString& seltxt,
-				 bool mkinvisible, // if not, makes insensitive
-				 const uiString& buttxt=
-				 uiStrings::sEmptyString());
+			~uiCheckedCompoundParSel();
 
     void		setChecked(bool);
     bool		isChecked() const;
@@ -78,10 +73,14 @@ public:
     Notifier<uiCheckedCompoundParSel> checked;
 
 protected:
+			uiCheckedCompoundParSel(uiParent*,
+				 const uiString& seltxt,
+				 bool mkinvisible, // if not, makes insensitive
+				 const uiString& buttxt=
+				 uiStrings::sEmptyString());
 
     uiCheckBox*		cbox_;
     bool		mkinvis_;
 
     void		checkCB(CallBacker*);
-
 };

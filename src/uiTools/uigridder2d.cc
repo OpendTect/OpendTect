@@ -140,6 +140,10 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
 }
 
 
+uiInverseDistanceGridder2D::~uiInverseDistanceGridder2D()
+{}
+
+
 const char* uiInverseDistanceGridder2D::errMsg() const
 {
     return InverseDistanceGridder2D::searchRadiusErrMsg().getOriginalString();

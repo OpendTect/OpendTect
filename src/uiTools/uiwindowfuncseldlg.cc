@@ -186,6 +186,10 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFuncDrawerBase::Setup& su )
 }
 
 
+uiFuncSelDraw::~uiFuncSelDraw()
+{}
+
+
 int uiFuncSelDraw::getListSize() const
 {
     return funclistfld_->size();
@@ -331,6 +335,10 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 
     setCurrentWindowFunc( winname, variable_ );
 }
+
+
+uiWindowFuncSelDlg::~uiWindowFuncSelDlg()
+{}
 
 
 void uiWindowFuncSelDlg::funcSelChg( CallBacker* )

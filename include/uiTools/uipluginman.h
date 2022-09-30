@@ -23,6 +23,7 @@ mExpClass(uiTools) uiPluginMan : public uiDialog
 {  mODTextTranslationClass(uiPluginMan)
 public:
 			uiPluginMan(uiParent*);
+			~uiPluginMan();
 
 protected:
 

@@ -11,6 +11,14 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "uiaxishandlerbase.h"
 
+uiFuncDispBase::uiFuncDispBase( const Setup& su )
+    : setup_(su)
+    , xmarklineval_(mUdf(float))
+    , ymarklineval_(mUdf(float))
+    , xmarkline2val_(mUdf(float))
+    , ymarkline2val_(mUdf(float))
+{}
+
 
 uiFuncDispBase::~uiFuncDispBase()
 {

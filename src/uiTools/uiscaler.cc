@@ -60,6 +60,10 @@ uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
 }
 
 
+uiScaler::~uiScaler()
+{}
+
+
 void uiScaler::doFinalize( CallBacker* )
 {
     typeSel(0);

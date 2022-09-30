@@ -25,15 +25,16 @@ typedef Geom::Point2D<int> iPoint;
 
 mExpClass(uiTools) AnnotBufferFiller
 {
-
 public:
 
     mExpClass(uiTools) LineInfo
     {
 	public:
+				LineInfo()	{}
+	virtual			~LineInfo()	{}
 
-	    OD::LineStyle			linestyle_;
-	    TypeSet<dPoint>      		pts_;
+	OD::LineStyle		linestyle_;
+	TypeSet<dPoint>		pts_;
     };
     //TODO add later on sth for the polygones
 
@@ -52,8 +53,6 @@ public:
     bool		dispannotlines_;
     bool		disphorgdlines_;
     bool		dispvertgdlines_;
-    
-
 
 protected:
 
@@ -64,9 +63,9 @@ protected:
 
     void		setPoint(const iPoint&,int,uiRGBArray&) const;
     void		setLine(const iPoint&,const iPoint&,
-	    			const LineInfo*,uiRGBArray&) const;
+				const LineInfo*,uiRGBArray&) const;
     bool		isLineOutside(const LineInfo*,const uiWorldRect&) const;
     dPoint		computeIntersect(const dPoint&,const dPoint&,
-	    				 const uiWorldRect&)const;
+					 const uiWorldRect&)const;
     void		dummytest();
 };

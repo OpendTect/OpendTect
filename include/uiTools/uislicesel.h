@@ -96,8 +96,9 @@ public:
 					      const CallBack& applycb,
 					      uiSliceSel::Type,
 					      const ZDomain::Info&);
+				~uiSliceSelDlg();
 
-    const TrcKeyZSampling&		getTrcKeyZSampling() const
+    const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return slicesel_->getTrcKeyZSampling(); }
     void			setTrcKeyZSampling( const TrcKeyZSampling& cs )
 				{ slicesel_->setTrcKeyZSampling( cs ); }
@@ -112,7 +113,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiLinePosSelDlg: public uiDialog
+mExpClass(uiTools) uiLinePosSelDlg : public uiDialog
 { mODTextTranslationClass(uiLinePosSelDlg);
 public:
 			uiLinePosSelDlg(uiParent*);

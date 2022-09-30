@@ -32,6 +32,7 @@ public:
 			    , withfns_(true)
 			    , fnsbelow_(true)
 			    , specvars_(0)		{}
+	virtual		~Setup() {}
 
 	mDefSetupMemb(bool,withfns);
 	mDefSetupMemb(bool,fnsbelow);
@@ -43,6 +44,7 @@ public:
     };
 
 			uiMathExpression(uiParent*,const Setup&);
+			~uiMathExpression();
 
     void		setText(const char*);
     void		insertText(const char*);

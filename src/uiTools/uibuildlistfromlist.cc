@@ -96,6 +96,10 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 }
 
 
+uiEditObjectList::~uiEditObjectList()
+{}
+
+
 int uiEditObjectList::currentItem() const
 {
     return listfld_->currentItem();
@@ -215,6 +219,10 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     setHAlignObj( deffld_ );
     defSelChg();
 }
+
+
+uiBuildListFromList::~uiBuildListFromList()
+{}
 
 
 void uiBuildListFromList::setAvailable( const BufferStringSet& avnms )

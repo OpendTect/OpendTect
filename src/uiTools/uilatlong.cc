@@ -457,6 +457,10 @@ uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
 }
 
 
+uiUnlocatedXYSystem::~uiUnlocatedXYSystem()
+{}
+
+
 bool uiUnlocatedXYSystem::initFields( const Coords::CoordSystem* sys )
 {
     mDynamicCastGet( const Coords::UnlocatedXY*, from,	sys );
@@ -496,6 +500,10 @@ uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
 
     setHAlignObj( coordfld_ );
 }
+
+
+uiAnchorBasedXYSystem::~uiAnchorBasedXYSystem()
+{}
 
 
 bool uiAnchorBasedXYSystem::initFields( const Coords::CoordSystem* sys )

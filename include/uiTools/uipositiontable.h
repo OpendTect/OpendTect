@@ -21,6 +21,7 @@ mExpClass(uiTools) uiPositionTable : public uiGroup
 public:
 			uiPositionTable(uiParent*,bool withxy,bool withic,
 					bool withz);
+			~uiPositionTable();
 
     void		setCoords(const TypeSet<Coord>&);
     void		getCoords(TypeSet<Coord>&) const;

@@ -603,6 +603,10 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 }
 
 
+uiSliceSelDlg::~uiSliceSelDlg()
+{}
+
+
 bool uiSliceSelDlg::acceptOK( CallBacker* )
 {
     return slicesel_->acceptOK();

@@ -26,7 +26,7 @@ mExpClass(uiTools) uiBatchJobDispatcherLauncher
 { mODTextTranslationClass(uiBatchJobDispatcherLauncher);
 public:
 
-    virtual			~uiBatchJobDispatcherLauncher() {}
+    virtual			~uiBatchJobDispatcherLauncher();
 
     virtual bool		isSuitedFor(const char* prognm) const;
     virtual bool		canHandleJobSpec() const;
@@ -40,15 +40,13 @@ public:
     Batch::JobDispatcher&	dispatcher()		{ return gtDsptchr(); }
     const Batch::JobDispatcher& dispatcher() const;
 
-    uiString		name() const { return factoryDisplayName(); }
+    uiString			name() const { return factoryDisplayName(); }
 
     mDefineFactory1ParamInClass(uiBatchJobDispatcherLauncher,
 			Batch::JobSpec&,factory);
 
 protected:
-			    uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
-				: jobspec_(js)
-			    {}
+				uiBatchJobDispatcherLauncher(Batch::JobSpec&);
 
     Batch::JobSpec&	jobspec_;
     virtual Batch::JobDispatcher& gtDsptchr()	= 0;

@@ -30,7 +30,11 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
     scrollBarUsed.notify( resetareacb );
     getMouseEventHandler().buttonReleased.notify(
 	                mCB(this,uiObjectItemView,rubberBandCB) );
-} 
+}
+
+
+uiObjectItemView::~uiObjectItemView()
+{}
 
 
 void uiObjectItemView::enableScrollBars( bool yn )

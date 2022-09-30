@@ -24,9 +24,7 @@ class uiVarWizardDlg;
 mExpClass(uiTools) uiVarWizard : public CallBacker
 { mODTextTranslationClass(uiVarWizard);
 public:
-
-			uiVarWizard(uiParent*);
-    virtual		~uiVarWizard()		{}
+    virtual		~uiVarWizard();
 
     IOPar&		pars()			{ return pars_; }
     const IOPar&	pars() const		{ return pars_; }
@@ -41,6 +39,7 @@ public:
     virtual void	raiseCurrent()		= 0;
 
 protected:
+			uiVarWizard(uiParent*);
 
     uiParent*		parent_;
     IOPar		pars_;

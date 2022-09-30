@@ -22,7 +22,11 @@ uiMenuHandler::uiMenuHandler( uiParent* uiparent, int ni )
     : MenuHandler( ni )
     , uiparent_( uiparent )
     , positionxyz_( Coord3::udf() )
-{ }
+{}
+
+
+uiMenuHandler::~uiMenuHandler()
+{}
 
 
 bool uiMenuHandler::executeMenu()
@@ -144,6 +148,10 @@ uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
     tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
     handleEmpty();
 }
+
+
+uiTreeItemTBHandler::~uiTreeItemTBHandler()
+{}
 
 
 void uiTreeItemTBHandler::handleEmpty()

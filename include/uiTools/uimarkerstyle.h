@@ -32,6 +32,8 @@ public:
 			    , transparency_(false)
 			    , sz_(true)
 			{}
+	    virtual	~Setup()	{}
+
 	    mDefSetupMemb(uiString,lbltxt)
 	    mDefSetupMemb(bool,shape)
 	    mDefSetupMemb(bool,color)
@@ -73,6 +75,7 @@ public:
 				const Interval<int>& sizerange,
 				int nrexcluded=0,
 				const MarkerStyle3D::Type* excluded=nullptr);
+			~uiMarkerStyle3D();
 
     NotifierAccess*	sliderMove();
     NotifierAccess*	typeSel();

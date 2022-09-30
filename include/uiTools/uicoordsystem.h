@@ -30,7 +30,7 @@ public:
 
     virtual bool		initFields(const CoordSystem*)= 0;
 
-    RefMan<CoordSystem>	outputSystem() { return outputsystem_; }
+    RefMan<CoordSystem>		outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
 
     HelpKey			helpKey() const override { return helpkey_; }
@@ -40,6 +40,8 @@ public:
 
 protected:
 				uiCoordSystem(uiParent*,const uiString&);
+				~uiCoordSystem();
+
     RefMan<CoordSystem>	outputsystem_;
     HelpKey			helpkey_;
     const SurveyInfo*		si_ = nullptr;
@@ -133,6 +135,7 @@ mExpClass(uiTools) uiLatLongSystemSel : public uiCoordSystemSel
 public:
 			uiLatLongSystemSel(uiParent*,const uiString& seltxt,
 				ConstRefMan<Coords::CoordSystem> cs=nullptr);
+			~uiLatLongSystemSel();
 
     bool		isWGS84() const;
 

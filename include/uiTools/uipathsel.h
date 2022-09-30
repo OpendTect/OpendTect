@@ -16,12 +16,13 @@ ________________________________________________________________________
 mExpClass(uiTools) uiPathListEditor : public uiEditObjectList
 {  mODTextTranslationClass(uiPathListEditor);
 public:
-    uiPathListEditor(uiParent*, const BufferStringSet&);
+			uiPathListEditor(uiParent*,const BufferStringSet&);
+			~uiPathListEditor();
 
-    void	fillList(int);
-    void	editReq(bool) override;
-    void	removeReq() override;
-    void	itemSwitch(bool) override;
+    void		fillList(int);
+    void		editReq(bool) override;
+    void		removeReq() override;
+    void		itemSwitch(bool) override;
 
     BufferStringSet	paths_;
 };
@@ -30,8 +31,8 @@ public:
 mExpClass(uiTools) uiPathSel : public uiCheckedCompoundParSel
 { mODTextTranslationClass(uiPathSel);
 public:
-    uiPathSel(uiParent*, const uiString&);
-    ~uiPathSel();
+			uiPathSel(uiParent*,const uiString&);
+			~uiPathSel();
 
     void		setPaths(const BufferStringSet&);
     BufferString	getSummary() const override;

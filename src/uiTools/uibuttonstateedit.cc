@@ -35,6 +35,10 @@ uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const uiString& label,
 }
 
 
+uiButtonStateEdit::~uiButtonStateEdit()
+{}
+
+
 int uiButtonStateEdit::getState() const
 {
     return states_[combobox_->getIntValue()];

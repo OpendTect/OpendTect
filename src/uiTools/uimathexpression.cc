@@ -80,6 +80,10 @@ uiMathExpression::uiMathExpression( uiParent* p,
 }
 
 
+uiMathExpression::~uiMathExpression()
+{}
+
+
 uiButton* uiMathExpression::addButton( const uiToolButtonSetup& tbsu )
 {
     uiButton* newbut = tbsu.getButton( this );

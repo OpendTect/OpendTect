@@ -158,7 +158,7 @@ public:
 protected:
 
     virtual int			uiTreeViewItemType() const;
-                                /*!<\returns the uiTreeViewItem::Type that
+				/*!<\returns the uiTreeViewItem::Type that
 				    should be created */
     virtual uiParent*		getUiParent() const;
 
@@ -222,12 +222,14 @@ public:
 mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
 {
 public:
-    uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
-    int nextStep() override;
+			uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
+			~uiTreeItemRemover();
+
+    int			nextStep() override;
 
 protected:
-    uiTreeItem* parent_;
-    uiTreeItem* child_;
+    uiTreeItem*		parent_;
+    uiTreeItem*		child_;
 };
 
 
@@ -274,9 +276,12 @@ protected:
 mExpClass(uiTools) uiTreeItemFactory
 {
 public:
-    virtual		~uiTreeItemFactory()		{}
+    virtual		~uiTreeItemFactory();
     virtual const char*	name() const			= 0;
     virtual uiTreeItem*	create() const			= 0;
+
+protected:
+			uiTreeItemFactory();
 };
 
 

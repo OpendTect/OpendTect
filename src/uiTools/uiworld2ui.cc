@@ -27,6 +27,10 @@ World2UiData::World2UiData( const uiWorldRect& w, uiSize s )
 {}
 
 
+World2UiData::~World2UiData()
+{}
+
+
 inline static Coord crd( const Geom::Point2D<double>& p )
 { return Coord(p.x,p.y); }
 
@@ -61,6 +65,10 @@ uiWorld2Ui::uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz )
 
 uiWorld2Ui::uiWorld2Ui( const World2UiData& w )
 { set( w.sz, w.wr ); }
+
+
+uiWorld2Ui::~uiWorld2Ui()
+{}
 
 
 bool uiWorld2Ui::operator==( const uiWorld2Ui& ) const

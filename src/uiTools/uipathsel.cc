@@ -18,12 +18,16 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 uiPathListEditor::uiPathListEditor( uiParent* p, const BufferStringSet& paths )
-: uiEditObjectList(p,"paths",true,true)
-, paths_(paths)
+    : uiEditObjectList(p,"paths",true,true)
+    , paths_(paths)
 {
     listfld_->setHSzPol( uiObject::WideMax );
     fillList( 0 );
 }
+
+
+uiPathListEditor::~uiPathListEditor()
+{}
 
 
 void uiPathListEditor::fillList( int newcur )

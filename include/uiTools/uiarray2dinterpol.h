@@ -46,6 +46,7 @@ public:
 
 protected:
 					~uiArray2DInterpolSel();
+
     uiParent*				getTopObject();
     void				selChangeCB(CallBacker*);
 
@@ -88,6 +89,8 @@ public:
 
 			uiInvDistInterpolPars(uiParent* p,bool cornersfirst,
 					      int stepsz,int nrsteps);
+			~uiInvDistInterpolPars();
+
     bool		isCornersFirst() const;
     int			stepSize() const;
     int			nrSteps() const;
@@ -105,8 +108,8 @@ protected:
 mExpClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 { mODTextTranslationClass(uiInverseDistanceArray2DInterpol);
 public:
-
 				uiInverseDistanceArray2DInterpol(uiParent*);
+				~uiInverseDistanceArray2DInterpol();
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
@@ -137,8 +140,8 @@ protected:
 mExpClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
 { mODTextTranslationClass(uiTriangulationArray2DInterpol);
 public:
-
 				uiTriangulationArray2DInterpol(uiParent*);
+				~uiTriangulationArray2DInterpol();
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
@@ -160,12 +163,12 @@ protected:
 mExpClass(uiTools) uiExtensionArray2DInterpol : public uiArray2DInterpol
 { mODTextTranslationClass(uiExtensionArray2DInterpol);
 public:
-
 				uiExtensionArray2DInterpol(uiParent*);
+				~uiExtensionArray2DInterpol();
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
-    void		      setValuesFrom(const Array2DInterpol&) override;
+    void			setValuesFrom(const Array2DInterpol&) override;
 
     bool			acceptOK() override;
 
@@ -173,5 +176,5 @@ protected:
 
     Array2DInterpol*		createResult() const override;
     int				nrsteps_;
-    uiGenInput*                 nrstepsfld_;
+    uiGenInput*			nrstepsfld_;
 };

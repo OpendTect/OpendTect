@@ -25,6 +25,10 @@ uiInterpolationLayerModelGrp::uiInterpolationLayerModelGrp( uiParent* p )
 }
 
 
+uiInterpolationLayerModelGrp::~uiInterpolationLayerModelGrp()
+{}
+
+
 bool uiInterpolationLayerModelGrp::fillPar( IOPar& par ) const
 {
     par.set( InterpolationLayerModel::sKeyModelType(), factoryKeyword() );
@@ -42,6 +46,10 @@ uiZSliceInterpolationModel::uiZSliceInterpolationModel( uiParent* p )
 {
     new uiLabel( this, uiString::emptyString() );
 }
+
+
+uiZSliceInterpolationModel::~uiZSliceInterpolationModel()
+{}
 
 
 bool uiZSliceInterpolationModel::fillPar( IOPar& par ) const
@@ -85,6 +93,10 @@ uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
     setHAlignObj( layermodelfld_ );
     postFinalize().notify( mCB(this,uiInterpolationLayerModel,selCB) );
 }
+
+
+uiInterpolationLayerModel::~uiInterpolationLayerModel()
+{}
 
 
 void uiInterpolationLayerModel::selCB( CallBacker* )

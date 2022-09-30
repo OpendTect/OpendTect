@@ -66,8 +66,8 @@ protected:
 mExpClass(uiTools) uiFuncSelDraw : public uiGroup
 { mODTextTranslationClass(uiFuncSelDraw);
 public:
-
 			uiFuncSelDraw(uiParent*,const uiFuncDrawerBase::Setup&);
+			~uiFuncSelDraw();
 
     Notifier<uiFuncSelDraw> funclistselChged;
 
@@ -102,8 +102,8 @@ protected:
 mExpClass(uiTools) uiWindowFuncSelDlg : public uiDialog
 { mODTextTranslationClass(uiWindowFuncSelDlg);
 public:
-
 			uiWindowFuncSelDlg(uiParent*,const char*,float);
+			~uiWindowFuncSelDlg();
 
     void		funcSelChg(CallBacker*);
     const char*		getCurrentWindowName() const;

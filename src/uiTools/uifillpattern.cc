@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 
 uiFillPattern::uiFillPattern( uiParent* p )
-	: uiGroup(p)
-	, patternChanged(this)
+    : uiGroup(p)
+    , patternChanged(this)
 {
     const CallBack selchgcb( mCB(this,uiFillPattern,selChg) );
     BufferStringSet nms; FillPattern::getTypeNames( nms );
@@ -38,6 +38,10 @@ uiFillPattern::uiFillPattern( uiParent* p )
     setHAlignObj( optfld_ );
     reDrawPattern();
 }
+
+
+uiFillPattern::~uiFillPattern()
+{}
 
 
 void uiFillPattern::setOptNms()

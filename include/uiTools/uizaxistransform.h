@@ -65,6 +65,7 @@ public:
 						    bool withsampling=false,
 						    bool asfield=false,
 						    bool is2d=false);
+				~uiZAxisTransformSel();
 
     bool			isField() const;
 				/*!<If true, the shape will be a one-line

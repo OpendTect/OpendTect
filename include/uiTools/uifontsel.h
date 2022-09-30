@@ -32,6 +32,7 @@ public:
 		mToUiStringTodo(sFactoryKeyword()))
 
 			uiFontSettingsGroup(uiParent*,Settings&);
+			~uiFontSettingsGroup();
 
     bool		acceptOK() override;
     HelpKey		helpKey() const override;
