@@ -551,6 +551,23 @@ bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
 }
 
 
+bool Well::Man::getAllMnemonics( MnemonicSelection& mns, bool onlyloaded )
+{
+    mns.setEmpty();
+    TypeSet<MultiID> ids;
+    getWellKeys( ids, onlyloaded );
+    for ( const auto& wid : ids )
+    {
+	RefMan<Data> wd = MGR().get( wid, LoadReqs(LogInfos) );
+	MnemonicSelection tmpmns;
+	wd->logs().getAllAvailMnems( tmpmns );
+	for ( const auto* mn : tmpmns )
+	    mns.addIfNew( mn );
+    }
+    return !mns.isEmpty();
+}
+
+
 bool Well::Man::renameLog( const TypeSet<MultiID>& keys, const char* oldnm,
 							 const char* newnm )
 {
