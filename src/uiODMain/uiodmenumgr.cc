@@ -254,10 +254,7 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->addMenu( manmnu_ );
 
     preloadmnu_ = new uiMenu( &appl_, tr("Pre-load"), "preloaded" );
-    insertAction( preloadmnu_, m3Dots(uiStrings::sSeismicData()),
-		 mPreLoadSeisMnuItm, "preload_seis" );
-    insertAction( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
-		 mPreLoadHorMnuItm, "preload_horizon" );
+    fillPreLoadMenu();
     surveymnu_->addMenu( preloadmnu_ );
 
     surveymnu_->insertSeparator();
@@ -616,6 +613,16 @@ void uiODMenuMgr::fillManMenu()
     insertAction( manmnu_, m3Dots(uiStrings::sWell(mPlural)),
 			mManWellMnuItm, "man_wll" );
     manmnu_->insertSeparator();
+}
+
+
+void uiODMenuMgr::fillPreLoadMenu()
+{
+    preloadmnu_->clear();
+    insertAction( preloadmnu_, m3Dots(uiStrings::sSeismicData()),
+		 mPreLoadSeisMnuItm, "preload_seis" );
+    insertAction( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
+		 mPreLoadHorMnuItm, "preload_horizon" );
 }
 
 
@@ -1804,10 +1811,11 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillImportMenu();
     fillExportMenu();
     fillManMenu();
+    fillPreLoadMenu();
 
-    fillSceneMenu();
     fillAnalMenu();
     fillProcMenu();
+    fillSceneMenu();
 
     uiAction* viewtreeitm = viewmnu_->findAction( "Show tree" );
     if ( viewtreeitm )
