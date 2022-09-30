@@ -144,6 +144,7 @@ protected:
     void		fillImportMenu();
     void		fillExportMenu();
     void		fillManMenu();
+    void		fillPreLoadMenu();
     void		fillAnalMenu();
     void		fillProcMenu();
     void		fillSceneMenu();
