@@ -169,11 +169,14 @@ protected:
 mExpClass(Network) NetworkUserQuery
 {
 public:
-    virtual bool	setFromUser()		= 0;
+    virtual			~NetworkUserQuery();
+    virtual bool		setFromUser()		= 0;
 
     static void			setNetworkUserQuery(NetworkUserQuery*);
     static NetworkUserQuery*	getNetworkUserQuery();
+
 protected:
+				NetworkUserQuery();
 
     static NetworkUserQuery*	inst_;
 };

@@ -686,6 +686,16 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
 }
 
 
+
+// NetworkUserQuery
+NetworkUserQuery::NetworkUserQuery()
+{}
+
+
+NetworkUserQuery::~NetworkUserQuery()
+{}
+
+
 NetworkUserQuery* NetworkUserQuery::inst_ = nullptr;
 
 void NetworkUserQuery::setNetworkUserQuery( NetworkUserQuery* newinst )
