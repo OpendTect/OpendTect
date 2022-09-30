@@ -21,6 +21,10 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo )
 }
 
 
+uiSlicePos2DView::~uiSlicePos2DView()
+{}
+
+
 static OD::SliceType getSliceType( const TrcKeyZSampling& cs )
 {
     if ( cs.defaultDir() == TrcKeyZSampling::Crl )

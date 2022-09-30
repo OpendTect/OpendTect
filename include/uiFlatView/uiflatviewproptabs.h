@@ -30,6 +30,7 @@ class uiSelLineStyle;
 mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
 { mODTextTranslationClass(uiFlatViewPropTab);
 public:
+			~uiFlatViewPropTab();
 
     virtual void	putToScreen()		= 0;
 
@@ -51,6 +52,7 @@ protected:
 mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 { mODTextTranslationClass(uiFlatViewDataDispPropTab);
 public:
+			~uiFlatViewDataDispPropTab();
 
     void		setDataNames();
     virtual void	setData()			= 0;
@@ -189,6 +191,7 @@ protected:
 				  FlatView::Annotation::AxisData&,
 				  const BufferStringSet* annots=nullptr,
 				  bool dorevert=true);
+			~AxesGroup();
 
 	void		putToScreen();
 	void		getFromScreen();

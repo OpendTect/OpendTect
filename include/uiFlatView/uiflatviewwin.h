@@ -28,8 +28,8 @@ class uiFlatViewControl;
 mExpClass(uiFlatView) uiFlatViewWin
 { mODTextTranslationClass(uiFlatViewWin);
 public:
-
-    virtual		~uiFlatViewWin()	{}
+			uiFlatViewWin();
+    virtual		~uiFlatViewWin();
 
     uiFlatViewer&	viewer( int idx=0 )	{ return *vwrs_[idx]; }
     const uiFlatViewer&	viewer( int idx=0 ) const { return *vwrs_[idx]; }
