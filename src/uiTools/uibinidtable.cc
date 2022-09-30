@@ -46,6 +46,10 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 }
 
 
+uiBinIDTable::~uiBinIDTable()
+{}
+
+
 void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
 {
     const int nrbids = bids.size();

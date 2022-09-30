@@ -20,12 +20,9 @@ class uiGenInput;
 mExpClass(uiTools) uiGenInputDlgEntry
 { mODTextTranslationClass(uiGenInputDlgEntry);
 public:
-			uiGenInputDlgEntry( const uiString& t,
-					    DataInpSpec* s )
-			    : txt(t), spec(s?s:new StringInpSpec)
-			    , allowundef(false)			{}
+			uiGenInputDlgEntry(const uiString&,DataInpSpec*);
 			    // DataInpSpec becomes mine
-			~uiGenInputDlgEntry()			{ delete spec; }
+			~uiGenInputDlgEntry();
 
     uiString		txt;
     DataInpSpec*	spec;
@@ -43,7 +40,7 @@ public:
 			uiGenInputGrp(uiParent*,const char* grpname,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
-			~uiGenInputGrp()	{ deepErase(*entries); }
+			~uiGenInputGrp();
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);
@@ -90,7 +87,7 @@ public:
 			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
-			~uiGenInputDlg()	{}
+			~uiGenInputDlg();
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);

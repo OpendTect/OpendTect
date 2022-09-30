@@ -52,8 +52,8 @@ protected:
 mExpClass(uiTools) uiNetworkUserQuery : public NetworkUserQuery
 { mODTextTranslationClass(uiNetworkUserQuery);
 public:
-
 			uiNetworkUserQuery();
+			~uiNetworkUserQuery();
 
     bool		setFromUser() override;
 

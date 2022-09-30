@@ -38,6 +38,7 @@ public:
 	mDefSetupMemb(bool,countinplot)
     };
 				uiStatsDisplay(uiParent*,const Setup&);
+				~uiStatsDisplay();
 
     bool			setDataPackID(DataPackID,DataPackMgr::MgrID,
 					      int version=0);

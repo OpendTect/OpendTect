@@ -92,6 +92,10 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 }
 
 
+uiWindowGrabDlg::~uiWindowGrabDlg()
+{}
+
+
 void uiWindowGrabDlg::surveyChanged( CallBacker* )
 {
     dirname_ = "";

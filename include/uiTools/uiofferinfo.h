@@ -27,9 +27,9 @@ class uiTextBrowser;
 mExpClass(uiTools) uiOfferInfoWin : public uiMainWin
 { mODTextTranslationClass(uiOfferInfoWin);
 public:
-
 			uiOfferInfoWin(uiParent*,const uiString& captn,
 					int initialnrlines=5);
+			~uiOfferInfoWin();
 
     void		setText(const char*);
 
@@ -49,11 +49,11 @@ public:
 mExpClass(uiTools) uiOfferInfo : public uiToolButton
 { mODTextTranslationClass(uiOfferInfo);
 public:
-
 			uiOfferInfo(uiParent*,bool setinsens=true);
+			~uiOfferInfo();
 
     void		setInfo(const char*,const uiString& newcaption=
-						     uiStrings::sEmptyString());
+				uiStrings::sEmptyString());
 
 protected:
 
@@ -67,5 +67,4 @@ protected:
 
     void		infoReq(CallBacker*);
     void		winClose(CallBacker*);
-
 };

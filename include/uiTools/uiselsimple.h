@@ -36,6 +36,8 @@ public:
 			       const BufferStringSet& its )
 			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			    , current_(0)		{ its.fill(items_); }
+	virtual		~Setup()
+			{}
 
 	mDefSetupMemb(int,current);
 
@@ -44,7 +46,7 @@ public:
     };
 
 			uiSelectFromList(uiParent*,const Setup&);
-			~uiSelectFromList()	{}
+			~uiSelectFromList();
 
     int			selection() const	{ return setup_.current_; }
 			//!< -1 = no selection made (cancelled or 0 list items)
@@ -84,6 +86,8 @@ public:
 			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			    , items_(its)
 			    , inptxt_( uiStrings::sName())	{}
+	virtual		~Setup()
+			{}
 
 	mDefSetupMemb(BufferString,deflt);
 	mDefSetupMemb(uiString,inptxt);
@@ -93,7 +97,7 @@ public:
     };
 
 			uiGetObjectName(uiParent*,const Setup&);
-			~uiGetObjectName()	{}
+			~uiGetObjectName();
 
     const char*		text() const;
 
@@ -130,6 +134,7 @@ public:
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,uiDialog::Setup,
 				    const BufferStringSet& options, bool wc);
+			~uiGetChoice();
 
     void		addChoice(const uiString& txt,const char* iconnm=0);
     void		setDefaultChoice(int);

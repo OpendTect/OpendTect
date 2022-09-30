@@ -16,10 +16,12 @@ ________________________________________________________________________
 mExpClass(uiTools) uiZRangeInput : public uiGenInput
 { mODTextTranslationClass(uiZRangeInput)
 public:
-    				uiZRangeInput(uiParent*,bool depth,bool wstep);
+				uiZRangeInput(uiParent*,bool depth,bool wstep);
+				~uiZRangeInput();
 
     template <class T> inline
     void			setZRange(T);
+
     StepInterval<float>		getFZRange() const;
     StepInterval<double>	getDZRange() const;
 

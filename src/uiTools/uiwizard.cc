@@ -22,6 +22,10 @@ uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
 }
 
 
+uiWizard::~uiWizard()
+{}
+
+
 void uiWizard::doFinalize( CallBacker* )
 {
     isStarting();

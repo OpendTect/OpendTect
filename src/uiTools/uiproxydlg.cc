@@ -170,10 +170,17 @@ bool uiProxyDlg::acceptOK( CallBacker* )
 }
 
 
+
+// uiNetworkUserQuery
 uiNetworkUserQuery::uiNetworkUserQuery()
     : mainwin_(0)
 {
 }
+
+
+uiNetworkUserQuery::~uiNetworkUserQuery()
+{}
+
 
 bool uiNetworkUserQuery::setFromUser()
 {

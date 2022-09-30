@@ -23,7 +23,8 @@ Implementation of MenuHandler for the dGB-based userinterface.
 mExpClass(uiTools) uiMenuHandler : public MenuHandler
 {
 public:
-				uiMenuHandler( uiParent*, int id );
+				uiMenuHandler(uiParent*,int id);
+				~uiMenuHandler();
 
     uiParent*			getParent() const { return uiparent_; }
 
@@ -78,7 +79,6 @@ protected:
     const TypeSet<int>*		path_;
     Coord3			positionxyz_;
     Geom::Point2D<double>	positionxy_;
-				~uiMenuHandler() {}
 };
 
 
@@ -86,6 +86,7 @@ mExpClass(uiTools) uiTreeItemTBHandler : public MenuHandler
 { mODTextTranslationClass(uiTreeItemTBHandler)
 public:
 				uiTreeItemTBHandler(uiParent*);
+				~uiTreeItemTBHandler();
 
     void			addButtons();
     bool			executeMenu() override

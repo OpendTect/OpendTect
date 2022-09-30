@@ -88,6 +88,10 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 }
 
 
+uiStatsDisplay::~uiStatsDisplay()
+{}
+
+
 void uiStatsDisplay::finalizeCB( CallBacker* )
 {
     if ( !setup_.withtext_ )
@@ -356,6 +360,10 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 	statnmcb_->selectionChanged.notify(
 		mCB(this,uiStatsDisplayWin,dataChanged) );
 }
+
+
+uiStatsDisplayWin::~uiStatsDisplayWin()
+{}
 
 
 void uiStatsDisplayWin::showStat( int idx )

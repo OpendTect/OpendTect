@@ -94,7 +94,7 @@ public:
 			uiStepout3DSel(uiParent*,const uiStepOutSel::Setup&);
 			uiStepout3DSel(uiParent*,bool single=false,
 				  const uiString& seltxt=uiStrings::sStepout());
-			~uiStepout3DSel() {}
+			~uiStepout3DSel();
 
     int			getZVal() const; //nr samples
     int			val(int dir) const;

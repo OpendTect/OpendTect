@@ -22,6 +22,11 @@ uiVarWizard::uiVarWizard( uiParent* p )
 {
 }
 
+
+uiVarWizard::~uiVarWizard()
+{}
+
+
 void uiVarWizard::closeDown()
 {
     processEnded.trigger();

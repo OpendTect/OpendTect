@@ -90,7 +90,7 @@ public:
 			{ return !mIsUdf(specialvalue_); }
     };
 
-    virtual		~uiAxisHandlerBase() {}
+    virtual		~uiAxisHandlerBase();
 
     const Setup&	setup() const	{ return setup_; }
     Setup&		setup()		{ return setup_; }
@@ -108,8 +108,7 @@ public:
     virtual StepInterval<float> range() const = 0;
 
 protected:
-			uiAxisHandlerBase(const Setup& su)
-			    : setup_(su)			{}
+			uiAxisHandlerBase(const Setup& su);
 
     Setup		setup_;
 };

@@ -23,11 +23,9 @@ public:
 
     typedef File::ViewPars Setup;
 
-			uiTextFile( uiParent* p, const char* fnm,
-				    const Setup& s=Setup() )
-			    : setup_(s)
-			    , filename_(fnm)
-			    , fileNmChg(this)	{ init(p); }
+			uiTextFile(uiParent*,const char* fnm,
+				   const Setup& s=Setup());
+			~uiTextFile();
 
     const char*		fileName() const	{ return filename_; }
     bool		isModified () const	{ return ismodified_; }
@@ -90,6 +88,9 @@ public:
 			.separator(false).modal(false).menubar(true);
 		}
 
+	virtual		~Setup()
+			{}
+
 	mDefSetupMemb(bool, scroll2bottom)
 	mDefSetupMemb(bool, allowopen)
 	mDefSetupMemb(bool, allowsave)
@@ -98,10 +99,10 @@ public:
 
 			uiTextFileDlg(uiParent* p,const char* fnm,
 					bool rdonly=false,bool tbl=false);
-			uiTextFileDlg( uiParent* p,const Setup&);
-			uiTextFileDlg( uiParent* p, const uiTextFile::Setup& ts,
-					const Setup& s, const char* fnm )
-			    : uiDialog(p,s)	{ init(s,ts,fnm); }
+			uiTextFileDlg(uiParent* p,const Setup&);
+			uiTextFileDlg(uiParent* p,const uiTextFile::Setup& ts,
+					const Setup& s,const char* fnm);
+			~uiTextFileDlg();
 
     uiTextFile*		editor()		{ return editor_; }
     void		setFileName(const char*);

@@ -12,6 +12,40 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitabstack.h"
 
+
+// uiDlgGroup
+uiDlgGroup::uiDlgGroup(uiParent* p,const uiString& caption )
+    : uiGroup( p, caption.getFullString() )
+    , caption_( caption )
+{}
+
+
+uiDlgGroup::~uiDlgGroup()
+{}
+
+
+
+// uiSingleGroupDlg
+uiSingleGroupDlg::uiSingleGroupDlg( uiParent* p, const uiDialog::Setup& su )
+    : uiDialog(p,su)
+{}
+
+
+uiSingleGroupDlg::~uiSingleGroupDlg()
+{}
+
+
+HelpKey uiSingleGroupDlg::helpKey() const
+{
+    if ( !grp_->helpKey().isEmpty() )
+	return grp_->helpKey();
+
+    return uiDialog::helpKey();
+}
+
+
+
+// uiTabStackDlg
 uiTabStackDlg::uiTabStackDlg( uiParent* p, const uiDialog::Setup& dlgsetup )
     : uiDialog( p, dlgsetup )
     , canrevert_( true )

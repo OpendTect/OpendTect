@@ -22,12 +22,18 @@ uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const uiString& captn, int nrln )
 }
 
 
+uiOfferInfoWin::~uiOfferInfoWin()
+{}
+
+
 void uiOfferInfoWin::setText( const char* txt )
 {
     uitb_->setHtmlText( txt );
 }
 
 
+
+// uiOfferInfo
 uiOfferInfo::uiOfferInfo( uiParent* p, bool setinsens )
 	: uiToolButton(p,"info",tr("View info"),mCB(this,uiOfferInfo,infoReq) )
 	, insens_(setinsens)
@@ -36,6 +42,10 @@ uiOfferInfo::uiOfferInfo( uiParent* p, bool setinsens )
 {
     setInfo( 0, uiStrings::sInformation() );
 }
+
+
+uiOfferInfo::~uiOfferInfo()
+{}
 
 
 void uiOfferInfo::updateWin()

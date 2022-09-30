@@ -30,6 +30,7 @@ public:
 			uiConstantVel(uiParent*,
 				   float defvel=Vel::getGUIDefaultVelocity(),
 				   const uiString& lbl=uiString::emptyString());
+			~uiConstantVel();
 
 			//!< Internal velocities are survey independant (SI)
     void		setInternalVelocity(float);

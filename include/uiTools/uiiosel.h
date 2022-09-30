@@ -137,6 +137,7 @@ public:
 					bool for_read,
 					const char* inp=0,
 					bool withclear=false);
+			~uiIOFileSelect();
 
     void		setFilter( const char* f )	{ filter = f; }
     void		selectDirectory( bool yn=true )	{ seldir = yn; }

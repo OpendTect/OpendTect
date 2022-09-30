@@ -48,6 +48,10 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 }
 
 
+uiSelectFromList::~uiSelectFromList()
+{}
+
+
 uiObject* uiSelectFromList::bottomFld()
 {
     return selfld_->attachObj();
@@ -90,6 +94,10 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
     if ( listfld_ )
 	inpfld_->attach( alignedBelow, listfld_ );
 }
+
+
+uiGetObjectName::~uiGetObjectName()
+{}
 
 
 void uiGetObjectName::selChg( CallBacker* )
@@ -150,6 +158,10 @@ uiGetChoice::uiGetChoice( uiParent* p, uiDialog::Setup s,
     inpfld_->addItems( opts );
     setDefaultChoice( 0 );
 }
+
+
+uiGetChoice::~uiGetChoice()
+{}
 
 
 void uiGetChoice::addChoice( const uiString& txt, const char* iconnm )

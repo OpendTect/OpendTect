@@ -21,6 +21,7 @@ mExpClass(uiTools) uiApplService : public NamedObject
 public:
 			uiApplService( const char* nm = 0 );
 			//!< The name is the application name
+			~uiApplService();
 
     virtual uiParent*	parent() const					= 0;
     virtual bool	eventOccurred(const uiApplPartServer*,int evid)	= 0;
@@ -43,8 +44,8 @@ which of its part servers is calling - proceeds with the right action.
 mExpClass(uiTools) uiApplPartServer : public CallBacker
 {
 public:
+			~uiApplPartServer();
 
-			uiApplPartServer( uiApplService& a );
     virtual const char*	name() const		= 0;
 
     uiApplService&	appserv();
@@ -53,6 +54,7 @@ public:
     void		setParent(uiParent*);
 
 protected:
+			uiApplPartServer(uiApplService&);
 
     uiParent*		parent() const;
 

@@ -45,6 +45,10 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 }
 
 
+uiGraphicsSaveImageDlg::~uiGraphicsSaveImageDlg()
+{}
+
+
 void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
 						  const char** frmtdesc,
 						  BufferString& filters )

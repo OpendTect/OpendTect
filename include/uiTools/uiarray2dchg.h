@@ -21,9 +21,9 @@ class uiStepOutSel;
 mExpClass(uiTools) uiArr2DFilterPars : public uiGroup
 { mODTextTranslationClass(uiArr2DFilterPars);
 public:
-
 				uiArr2DFilterPars(uiParent*,
-					const Array2DFilterPars* p=0);
+					const Array2DFilterPars* =nullptr);
+				~uiArr2DFilterPars();
 
     Array2DFilterPars	getInput() const;
 
@@ -38,9 +38,9 @@ protected:
 mExpClass(uiTools) uiArr2DFilterParsDlg : public uiDialog
 { mODTextTranslationClass(uiArr2DFilterParsDlg);
 public:
-
 			uiArr2DFilterParsDlg(uiParent*,
-					     const Array2DFilterPars* p=0);
+					     const Array2DFilterPars* =nullptr);
+			~uiArr2DFilterParsDlg();
 
     Array2DFilterPars	getInput() const
 			{ return fld->getInput(); }

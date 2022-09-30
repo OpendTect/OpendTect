@@ -186,6 +186,10 @@ uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single,
 }
 
 
+uiStepout3DSel::~uiStepout3DSel()
+{}
+
+
 int uiStepout3DSel::val( int dir ) const
 {
     return dir<2 ? uiStepOutSel::val( dir == 0 ) : fld3_->getIntValue();

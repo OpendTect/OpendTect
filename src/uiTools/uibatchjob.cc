@@ -60,6 +60,10 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 }
 
 
+uiBatchJobDispatcherSel::~uiBatchJobDispatcherSel()
+{}
+
+
 void uiBatchJobDispatcherSel::init( bool optional )
 {
     Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
@@ -342,6 +346,14 @@ void uiBatchJobDispatcherSel::optsPush( CallBacker* )
 mImplFactory1Param(uiBatchJobDispatcherLauncher,Batch::JobSpec&,
 		   uiBatchJobDispatcherLauncher::factory)
 
+uiBatchJobDispatcherLauncher::uiBatchJobDispatcherLauncher( Batch::JobSpec& js )
+    : jobspec_(js)
+{}
+
+
+uiBatchJobDispatcherLauncher::~uiBatchJobDispatcherLauncher()
+{}
+
 
 bool uiBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
 {
@@ -591,6 +603,10 @@ uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
     batchjobfld_ = new uiBatchJobDispatcherSel( batchgrp_, optional, pt );
     batchgrp_->setHAlignObj( batchjobfld_ );
 }
+
+
+uiBatchProcDlg::~uiBatchProcDlg()
+{}
 
 
 void uiBatchProcDlg::getJobName( BufferString& jobnm ) const

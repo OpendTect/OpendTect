@@ -17,6 +17,7 @@ mExpClass(uiTools) uiWizard : public uiDialog
 { mODTextTranslationClass(uiWizard)
 public:
 			uiWizard(uiParent*,uiDialog::Setup&);
+			~uiWizard();
 
     int			addPage(uiGroup*,bool disp=true);
     void		displayPage(int,bool yn=true);

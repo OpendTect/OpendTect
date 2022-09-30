@@ -20,8 +20,8 @@ class uiGenInput;
 mExpClass(uiTools) uiGridder2DSel : public uiDlgGroup
 { mODTextTranslationClass(uiGridder2DSel);
 public:
-    				uiGridder2DSel(uiParent*,const Gridder2D*);
-    				~uiGridder2DSel();
+				uiGridder2DSel(uiParent*,const Gridder2D*);
+				~uiGridder2DSel();
 
     const Gridder2D*		getSel();
     const char*			errMsg() const override;
@@ -35,14 +35,16 @@ protected:
     ObjectSet<Gridder2D>	gridders_;
 };
 
+
 mExpClass(uiTools) uiInverseDistanceGridder2D : public uiDlgGroup
 { mODTextTranslationClass(uiInverseDistanceGridder2D)
 public:
     static void		initClass();
     static uiDlgGroup*	create(uiParent*,Gridder2D*);
 
-    			uiInverseDistanceGridder2D(uiParent*,
+			uiInverseDistanceGridder2D(uiParent*,
 					InverseDistanceGridder2D&);
+			~uiInverseDistanceGridder2D();
 
     bool		acceptOK() override;
     bool		rejectOK() override;

@@ -25,9 +25,11 @@ public:
     			uiEventTracker(uiParent*,EventTracker&,
 				bool hideeventtype=false,
 				bool immediateupdate=false);
+			~uiEventTracker();
 
     bool		acceptOK() override;
     bool		rejectOK() override;
+
 protected:
     void			selEventType(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
@@ -50,4 +52,3 @@ protected:
     EventTracker&		tracker_;
     IOPar			restorepars_;
 };
-			       

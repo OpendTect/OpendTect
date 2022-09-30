@@ -106,6 +106,10 @@ uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
 }
 
 
+uiCheckedCompoundParSel::~uiCheckedCompoundParSel()
+{}
+
+
 void uiCheckedCompoundParSel::setChecked( bool yn )
 {
     cbox_->setChecked( yn );

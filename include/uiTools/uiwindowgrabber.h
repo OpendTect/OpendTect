@@ -25,6 +25,7 @@ mExpClass(uiTools) uiWindowGrabDlg : public uiDialog
 { mODTextTranslationClass(uiWindowGrabDlg);
 public:
 			uiWindowGrabDlg(uiParent*,bool desktop);
+			~uiWindowGrabDlg();
 
     uiMainWin*		getWindow() const;
     const char*		getFilename() const	{ return filename_.buf(); }
@@ -55,7 +56,7 @@ protected:
 
 /*!Grabs the screen area covered by a window or the whole desktop */
 
-mExpClass(uiTools) uiWindowGrabber: public CallBacker
+mExpClass(uiTools) uiWindowGrabber : public CallBacker
 {
 public:
 			uiWindowGrabber(uiParent*);

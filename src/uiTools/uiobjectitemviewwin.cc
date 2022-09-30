@@ -76,6 +76,10 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
 }
 
 
+uiObjectItemViewWin::~uiObjectItemViewWin()
+{}
+
+
 void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
 {
     uiObjectItem* itm = new uiObjectItem( obj );
@@ -387,6 +391,10 @@ uiObjectItemViewInfoBar::uiObjectItemViewInfoBar( uiParent* p )
 }
 
 
+uiObjectItemViewInfoBar::~uiObjectItemViewInfoBar()
+{}
+
+
 void uiObjectItemViewInfoBar::addItem( uiObjectItem* infoitm,
 					uiObjectItem* cpleditm )
 {
@@ -515,6 +523,10 @@ uiObjectItemViewAxisPainter::uiObjectItemViewAxisPainter( uiObjectItemView& vw )
 
     vw.viewareareset.notify( mCB(this,uiObjectItemViewAxisPainter,plotAxis) );
 }
+
+
+uiObjectItemViewAxisPainter::~uiObjectItemViewAxisPainter()
+{}
 
 
 void uiObjectItemViewAxisPainter::setZRange( Interval<float> zrg )

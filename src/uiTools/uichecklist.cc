@@ -28,6 +28,10 @@ uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
 }
 
 
+uiCheckList::~uiCheckList()
+{}
+
+
 uiCheckList& uiCheckList::addItem( const uiString& txt,const char* iconfnm )
 {
     uiCheckBox* cb = new uiCheckBox( grp_, txt );

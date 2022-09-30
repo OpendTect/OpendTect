@@ -51,6 +51,7 @@ public:
     public:
 			Setup(bool itemsmovable,const char* avitmtyp,
 				const char* defitmtyp);
+			~Setup()		{}
 
 	mDefSetupMemb(bool,movable);
 	mDefSetupMemb(bool,withio);		// default: true
@@ -66,11 +67,13 @@ public:
 
     };
 
-			uiBuildListFromList(uiParent*,const Setup&,
-					    const char* grpnm=0);
+			~uiBuildListFromList();
+
     bool		haveUserChange() const		{ return usrchg_; }
 
 protected:
+			uiBuildListFromList(uiParent*,const Setup&,
+					    const char* grpnm=0);
 
     Setup		setup_;
     bool		usrchg_;

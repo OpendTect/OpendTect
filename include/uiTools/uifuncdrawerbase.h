@@ -48,7 +48,9 @@ public:
 		DrawFunction( const FloatMathFunction* f )
 		    : color_(OD::Color::DgbColor())
 		    , mathfunc_(f)
-		    {}
+		{}
+		~DrawFunction()
+		{}
 
 	const FloatMathFunction*    mathfunc_;
 	TypeSet<uiPoint>	    pointlist_;

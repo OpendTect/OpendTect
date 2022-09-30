@@ -18,7 +18,8 @@ class uiGenInput;
 mExpClass(uiTools) uiFreqFilterSelFreq : public uiGroup
 { mODTextTranslationClass(uiFreqFilterSelFreq);
 public:
-    			uiFreqFilterSelFreq(uiParent*);
+			uiFreqFilterSelFreq(uiParent*);
+			~uiFreqFilterSelFreq();
 
     const Interval<float>& freqRange() const 		{ return freqrg_; }
     FFTFilter::Type	filterType() const 		{ return filtertype_; }

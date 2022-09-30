@@ -36,6 +36,7 @@ public:
 
 			uiCheckList(uiParent*,Pol=Unrel,
 				    OD::Orientation orient=OD::Vertical);
+			~uiCheckList();
 
     void		setLabel(const uiString&);
     uiCheckList&	addItem(const uiString& txt,const char* iconfnm=0);

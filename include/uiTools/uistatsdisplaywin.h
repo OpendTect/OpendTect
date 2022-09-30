@@ -24,9 +24,10 @@ public:
     				uiStatsDisplayWin(uiParent*,
 					const uiStatsDisplay::Setup&,int nr=1,
 					bool ismodal=true);
+				~uiStatsDisplayWin();
 
     uiStatsDisplay*		statsDisplay(int nr=0)	{ return disps_[nr]; }
-    void                        setData(const float* medarr,int medsz,int nr=0);
+    void			setData(const float* medarr,int medsz,int nr=0);
     void			addDataNames(const BufferStringSet&);
     void			setDataName(const char*,int nr=0);
     void			setMarkValue(float,bool forx,int nr=0);

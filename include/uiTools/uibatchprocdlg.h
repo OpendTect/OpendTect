@@ -21,12 +21,13 @@ public:
 
     mUseType( Batch::JobSpec,	ProcType );
 
-				uiBatchProcDlg(uiParent*,const uiString&,
-					       bool optional,ProcType);
+				~uiBatchProcDlg();
 
     Batch::ID			getLastID() const   { return batchid_; }
 
 protected:
+				uiBatchProcDlg(uiParent*,const uiString&,
+					       bool optional,ProcType);
 
     virtual bool		prepareProcessing() { return true; }
     virtual void		getJobName(BufferString&) const;

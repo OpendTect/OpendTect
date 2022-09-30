@@ -22,10 +22,8 @@ in a tabstack (uiTabStackDlg) */
 mExpClass(uiTools) uiDlgGroup : public uiGroup
 {
 public:
-			uiDlgGroup(uiParent* p,const uiString& caption )
-			    : uiGroup( p, caption.getFullString() )
-			    , caption_( caption )
-			{}
+			uiDlgGroup(uiParent*,const uiString& caption);
+			~uiDlgGroup();
 
     void		setCaption( const uiString& c ) { caption_ = c; }
     const uiString&	getCaption() const		{ return caption_; }
@@ -56,25 +54,20 @@ protected:
 mExpClass(uiTools) uiSingleGroupDlg : public uiDialog
 {
 public:
-		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
-		    : uiDialog(p,st)
-		    , grp_(0)			{}
-    void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
+			uiSingleGroupDlg(uiParent*,const uiDialog::Setup&);
+			~uiSingleGroupDlg();
 
+    void		setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
 
-    HelpKey	helpKey() const override
-		{
-		    if ( !grp_->helpKey().isEmpty() )
-			return grp_->helpKey();
-
-		    return uiDialog::helpKey();
-		}
+    HelpKey		helpKey() const override;
 
 protected:
-    bool	acceptOK(CallBacker*) override	{ return grp_->acceptOK(); }
-    bool	rejectOK(CallBacker*) override	{ return grp_->rejectOK(); }
+    bool		acceptOK(CallBacker*) override
+			{ return grp_->acceptOK(); }
+    bool		rejectOK(CallBacker*) override
+			{ return grp_->rejectOK(); }
 
-    uiDlgGroup*	grp_;
+    uiDlgGroup*		grp_	= nullptr;
 };
 
 

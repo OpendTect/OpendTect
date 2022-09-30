@@ -15,9 +15,17 @@ uiApplService::uiApplService( const char* nm )
 {}
 
 
+uiApplService::~uiApplService()
+{}
+
+
 uiApplPartServer::uiApplPartServer( uiApplService& a )
     : uias_(a)
     , parent_(nullptr)
+{}
+
+
+uiApplPartServer::~uiApplPartServer()
 {}
 
 

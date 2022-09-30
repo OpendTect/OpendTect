@@ -35,6 +35,10 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
 }
 
 
+uiFontSettingsGroup::~uiFontSettingsGroup()
+{}
+
+
 void uiFontSettingsGroup::addButton( FontData::StdSz tp, uiString infotxt )
 {
     uiButton* but = new uiPushButton( butgrp_,

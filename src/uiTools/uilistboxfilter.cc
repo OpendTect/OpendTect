@@ -26,6 +26,10 @@ uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
 }
 
 
+uiListBoxFilter::~uiListBoxFilter()
+{}
+
+
 void uiListBoxFilter::setItems( const uiStringSet& itms )
 {
     BufferStringSet nms;

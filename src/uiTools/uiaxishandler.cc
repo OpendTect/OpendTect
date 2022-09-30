@@ -292,6 +292,15 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 }
 
 
+uiAxisHandlerBase::uiAxisHandlerBase( const Setup& su )
+    : setup_(su)
+{}
+
+
+uiAxisHandlerBase::~uiAxisHandlerBase()
+{}
+
+
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const Setup& su )
     : uiAxisHandlerBase(su)

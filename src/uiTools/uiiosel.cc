@@ -473,15 +473,21 @@ void uiIOSelect::setLabelSelectable( bool yn )
 }
 
 
+
+// uiIOFileSelect
 uiIOFileSelect::uiIOFileSelect( uiParent* p, const uiString& txt, bool frrd,
 				const char* inp, bool wclr )
-	: uiIOSelect(p,uiIOSelect::Setup(txt).withclear(wclr),
-			mCB(this,uiIOFileSelect,doFileSel))
-	, forread(frrd)
-	, seldir(false)
+    : uiIOSelect(p,uiIOSelect::Setup(txt).withclear(wclr),
+		    mCB(this,uiIOFileSelect,doFileSel))
+    , forread(frrd)
+    , seldir(false)
 {
     if ( inp && *inp ) setInput( inp );
 }
+
+
+uiIOFileSelect::~uiIOFileSelect()
+{}
 
 
 void uiIOFileSelect::doFileSel( CallBacker* c )

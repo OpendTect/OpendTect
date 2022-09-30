@@ -695,6 +695,10 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 }
 
 
+uiTableImpDataSel::~uiTableImpDataSel()
+{}
+
+
 void uiTableImpDataSel::typChg( CallBacker* )
 {
     const int htyp = hdrtypefld_->getIntValue();

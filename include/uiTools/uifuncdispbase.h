@@ -129,14 +129,7 @@ public:
 
     };
 
-				uiFuncDispBase(const Setup& su)
-				    : setup_(su)
-				    , xmarklineval_(mUdf(float))
-				    , ymarklineval_(mUdf(float))
-				    , xmarkline2val_(mUdf(float))
-				    , ymarkline2val_(mUdf(float))
-				    {}
-
+				uiFuncDispBase(const Setup&);
     virtual			~uiFuncDispBase();
 
     Setup&			setup()		{ return setup_; }

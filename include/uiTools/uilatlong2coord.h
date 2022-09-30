@@ -26,11 +26,12 @@ public:
 			       uiParent*, UnlocatedXY::sFactoryKeyword(),
 			       UnlocatedXY::sFactoryDisplayName() );
 
-			uiUnlocatedXYSystem(uiParent*);
+			~uiUnlocatedXYSystem();
 
     bool		initFields(const CoordSystem*) override;
 
 protected:
+			uiUnlocatedXYSystem(uiParent*);
 
     uiGenInput*		xyunitfld_;
 
@@ -46,11 +47,12 @@ public:
 			       uiParent*, AnchorBasedXY::sFactoryKeyword(),
 			       AnchorBasedXY::sFactoryDisplayName() );
 
-			uiAnchorBasedXYSystem(uiParent*);
+			~uiAnchorBasedXYSystem();
 
     bool		initFields(const CoordSystem*) override;
 
 protected:
+			uiAnchorBasedXYSystem(uiParent*);
 
     uiGenInput*		coordfld_;
     uiLatLongInp*	latlngfld_;

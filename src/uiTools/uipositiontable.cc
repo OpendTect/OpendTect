@@ -81,6 +81,10 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 }
 
 
+uiPositionTable::~uiPositionTable()
+{}
+
+
 int uiPositionTable::getXCol() const	{ return withxy_ ? 0 : -1; }
 int uiPositionTable::getYCol() const	{ return withxy_ ? 1 : -1; }
 

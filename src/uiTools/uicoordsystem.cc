@@ -46,6 +46,10 @@ uiCoordSystem::uiCoordSystem( uiParent* p, const uiString& caption )
 {}
 
 
+uiCoordSystem::~uiCoordSystem()
+{}
+
+
 // uiCoordSystemSelGrp
 uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 					      bool orthogonal,
@@ -358,6 +362,10 @@ BufferString uiCoordSystemSel::getSummary() const
 uiLatLongSystemSel::uiLatLongSystemSel( uiParent* p, const uiString& seltxt,
 				  ConstRefMan<Coords::CoordSystem> coordsys )
     : uiCoordSystemSel(p,false,true,coordsys,seltxt)
+{}
+
+
+uiLatLongSystemSel::~uiLatLongSystemSel()
 {}
 
 

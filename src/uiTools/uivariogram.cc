@@ -86,6 +86,10 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 }
 
 
+uiVariogramDlg::~uiVariogramDlg()
+{}
+
+
 void uiVariogramDlg::stepChgCB( CallBacker* )
 {
     const int val = stepfld_->getIntValue();

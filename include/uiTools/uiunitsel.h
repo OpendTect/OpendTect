@@ -57,6 +57,8 @@ public:
 				Setup(const uiString&,
 				      const SurveyInfo* =nullptr);
 				//<! For Z unit only
+	virtual			~Setup()
+				{}
 
 	mDefSetupMemb(Mnemonic::StdType,ptype)
 	mDefSetupMemb(const Mnemonic*,mn)

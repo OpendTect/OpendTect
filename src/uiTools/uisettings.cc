@@ -781,6 +781,10 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 }
 
 
+uiGeneralSettingsGroup::~uiGeneralSettingsGroup()
+{}
+
+
 bool uiGeneralSettingsGroup::acceptOK()
 {
     const int newiconsz = iconszfld_->getIntValue();

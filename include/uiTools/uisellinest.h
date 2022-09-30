@@ -40,7 +40,8 @@ public:
 			    , width_(true)
 			    , transparency_(false)
 			{}
-
+	virtual		~Setup()
+			{}
 
 	mDefSetupMemb(uiString,txt)
 	mDefSetupMemb(bool,drawstyle)

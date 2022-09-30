@@ -36,6 +36,7 @@ mExpClass(uiTools) uiTableImpDataSel : public uiGroup
 public:
 				uiTableImpDataSel(uiParent*,Table::FormatDesc&,
 						  const HelpKey&);
+				~uiTableImpDataSel();
 
     Table::FormatDesc&		desc()		{ return fd_; }
     const OD::String&		fmtName()	{ return fmtname_; }

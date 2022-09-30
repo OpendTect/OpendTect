@@ -84,6 +84,10 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
 }
 
 
+uiSaveImageDlg::~uiSaveImageDlg()
+{}
+
+
 void uiSaveImageDlg::setDirName( const char* nm )
 {
     dirname_ = nm;
@@ -536,6 +540,9 @@ void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
 }
 
 
+
+
+// uiSaveWinImageDlg
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
@@ -554,6 +561,10 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     lockfld_->setSensitive( false );
     updateFilter();
 }
+
+
+uiSaveWinImageDlg::~uiSaveWinImageDlg()
+{}
 
 
 void uiSaveWinImageDlg::setFldVals( CallBacker* )

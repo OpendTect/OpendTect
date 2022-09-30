@@ -18,9 +18,12 @@ class uiGenInput;
 mExpClass(uiTools) uiButtonStateEdit : public uiGroup
 { mODTextTranslationClass(uiButtonStateEdit)
 public:
-    		uiButtonStateEdit(uiParent*,const uiString& label,
-				  int initialstate);
-    int		getState() const;
+			uiButtonStateEdit(uiParent*,const uiString& label,
+					  int initialstate);
+			~uiButtonStateEdit();
+
+    int			getState() const;
+
 protected:
     static uiString	createName(int);
     uiGenInput*		combobox_;

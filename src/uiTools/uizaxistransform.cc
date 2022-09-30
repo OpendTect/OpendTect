@@ -130,6 +130,10 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 }
 
 
+uiZAxisTransformSel::~uiZAxisTransformSel()
+{}
+
+
 bool uiZAxisTransformSel::isField() const
 {
     return isfield_;

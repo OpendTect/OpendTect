@@ -16,6 +16,17 @@ ________________________________________________________________________
    if ( uitreeviewitem_ && uitreeviewitem_->treeView() ) \
         uitreeviewitem_->treeView()->selectionChanged.enable( yn );
 
+
+
+uiTreeItemFactory::uiTreeItemFactory()
+{}
+
+
+uiTreeItemFactory::~uiTreeItemFactory()
+{}
+
+
+
 uiTreeItem::uiTreeItem( const uiString& nm )
     : parent_( 0 )
     , name_( nm )
@@ -733,6 +744,10 @@ OD::Pol2D3D uiTreeFactorySet::getPol2D3D( int idx ) const
 
 uiTreeItemRemover::uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)
     : parent_( parent ), child_( child )
+{}
+
+
+uiTreeItemRemover::~uiTreeItemRemover()
 {}
 
 

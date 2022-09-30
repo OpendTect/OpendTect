@@ -336,6 +336,10 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
 }
 
 
+uiInverseDistanceArray2DInterpol::~uiInverseDistanceArray2DInterpol()
+{}
+
+
 void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
 {
     mDynamicCastGet(const InverseDistanceArray2DInterpol*, ptr, &a );
@@ -391,6 +395,10 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     setDistanceUnit( uiStrings::sEmptyString() );
     intCB( 0 );
 }
+
+
+uiTriangulationArray2DInterpol::~uiTriangulationArray2DInterpol()
+{}
 
 
 void uiTriangulationArray2DInterpol::setValuesFrom(
@@ -472,6 +480,10 @@ uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
 }
 
 
+uiExtensionArray2DInterpol::~uiExtensionArray2DInterpol()
+{}
+
+
 Array2DInterpol* uiExtensionArray2DInterpol::createResult() const
 { return new ExtensionArray2DInterpol; }
 
@@ -528,6 +540,10 @@ uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
     nrstepsfld_->setChecked( !nrstepsudf );
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
 }
+
+
+uiInvDistInterpolPars::~uiInvDistInterpolPars()
+{}
 
 
 bool uiInvDistInterpolPars::isCornersFirst() const

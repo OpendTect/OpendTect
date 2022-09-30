@@ -23,7 +23,7 @@ mExpClass(uiTools) uiObjectItemView : public uiGraphicsView
 {
 public:
 				uiObjectItemView(uiParent*);
-				~uiObjectItemView(){};
+				~uiObjectItemView();
 
     virtual void		addItem(uiObjectItem*,int stretch=1);
     virtual void		insertItem(uiObjectItem*,int pos,int stretch=1);

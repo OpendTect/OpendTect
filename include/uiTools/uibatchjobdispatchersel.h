@@ -33,6 +33,7 @@ public:
 					OS::LaunchType type=OS::Batch);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
 						const JobSpec&);
+			~uiBatchJobDispatcherSel();
 
     void		jobSpecUpdated();
     void		setJobSpec(const JobSpec&);

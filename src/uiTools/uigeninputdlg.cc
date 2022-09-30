@@ -14,6 +14,18 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
+uiGenInputDlgEntry::uiGenInputDlgEntry( const uiString& t, DataInpSpec* s )
+    : txt(t), spec(s?s:new StringInpSpec)
+    , allowundef(false)
+{}
+
+
+uiGenInputDlgEntry::~uiGenInputDlgEntry()
+{
+    delete spec;
+}
+
+
 uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* grpname,
 			      uiString fldtxt, DataInpSpec* spec )
 	: uiGroup(p,grpname)
@@ -31,6 +43,10 @@ uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* grpname,
 {
     build();
 }
+
+
+uiGenInputGrp::~uiGenInputGrp()
+{ deepErase(*entries); }
 
 
 void uiGenInputGrp::build()
@@ -115,6 +131,10 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
     group = new uiGenInputGrp( this, dlgtitle.getFullString(), e );
     postFinalize().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
+
+
+uiGenInputDlg::~uiGenInputDlg()
+{}
 
 
 void uiGenInputDlg::setEnterClose(CallBacker*)
