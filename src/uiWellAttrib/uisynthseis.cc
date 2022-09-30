@@ -253,7 +253,7 @@ void uiMultiSynthSeisSel::selChg( const char* typ )
     else if ( previoussynthgrp_ == prestacksynthgrp_ )
 	prevtype = SynthGenParams::PreStack;
     else
-	{ pErrMsg("Should not be reached"); }
+	{ pErrMsg("Should not be reached"); return; }
 
     IOPar par;
     par.set( SynthGenParams::sKeySynthType(),
