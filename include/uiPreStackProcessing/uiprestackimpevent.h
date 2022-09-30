@@ -23,6 +23,7 @@ mExpClass(uiPreStackProcessing) uiEventImport : public uiDialog
 { mODTextTranslationClass(uiEventImport);
 public:
     			uiEventImport(uiParent*);
+			~uiEventImport();
 
 protected:
     bool		acceptOK(CallBacker*) override;

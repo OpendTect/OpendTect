@@ -103,6 +103,7 @@ public:
 
     static void		initClass();
 			uiAngleMute(uiParent*,AngleMute*);
+			~uiAngleMute();
 
 protected:
 

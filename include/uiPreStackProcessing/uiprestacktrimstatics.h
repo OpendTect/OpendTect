@@ -26,6 +26,7 @@ mExpClass(uiPreStackProcessing) uiTrimStatics : public uiDialog
 public:
     static void		initClass();
 			uiTrimStatics(uiParent*,TrimStatics*);
+			~uiTrimStatics();
 
 protected:
     TrimStatics*	processor_;

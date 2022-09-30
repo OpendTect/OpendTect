@@ -56,8 +56,9 @@ public:
 				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type,
 						    const BufferStringSet&,
 						    bool issynthetic=false);
+				~uiGatherPosSliceSel();
 
-    const TrcKeyZSampling&		cubeSampling();
+    const TrcKeyZSampling&	cubeSampling();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
     void		setStep(int);
@@ -88,6 +89,7 @@ protected:
     void			cellSelectedCB(CallBacker*);
 };
 
+
 mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
 { mODTextTranslationClass(uiViewer2DPosDlg);
 public:
@@ -95,6 +97,7 @@ public:
 						const TrcKeyZSampling&,
 						const BufferStringSet&,
 						bool issynthetic);
+				~uiViewer2DPosDlg();
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     void			getTrcKeyZSampling(TrcKeyZSampling&);
@@ -121,6 +124,8 @@ mExpClass(uiPreStackProcessing) uiViewer2DSelDataDlg : public uiDialog
 public:
 			    uiViewer2DSelDataDlg(uiParent*,
 				    const BufferStringSet&,BufferStringSet&);
+			    ~uiViewer2DSelDataDlg();
+
 protected:
 
     uiListBox*			allgatherfld_;

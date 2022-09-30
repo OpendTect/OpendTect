@@ -64,6 +64,10 @@ uiMute::uiMute( uiParent* p, Mute* mute )
 }
 
 
+uiMute::~uiMute()
+{}
+
+
 bool uiMute::acceptOK( CallBacker* )
 {
     if ( !processor_ ) return true;

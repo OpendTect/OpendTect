@@ -60,6 +60,10 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 }
 
 
+uiViewer2DPosDlg::~uiViewer2DPosDlg()
+{}
+
+
 bool uiViewer2DPosDlg::acceptOK( CallBacker* )
 {
     okpushed_.trigger();
@@ -136,6 +140,10 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     if ( inl1fld_ ) inl1fld_->valueChanging.notify( cb );
     if ( crl1fld_ ) crl1fld_->valueChanging.notify( cb );
 }
+
+
+uiGatherPosSliceSel::~uiGatherPosSliceSel()
+{}
 
 
 void uiGatherPosSliceSel::reDoTable()
@@ -477,6 +485,10 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     fromselect_->setHSzPol( uiObject::Undef );
     selgatherfld_->attach( centeredRightOf, toselect_ );
 }
+
+
+uiViewer2DSelDataDlg::~uiViewer2DSelDataDlg()
+{}
 
 
 void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )

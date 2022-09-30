@@ -49,6 +49,10 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
 }
 
 
+uiEventExport::~uiEventExport()
+{}
+
+
 bool uiEventExport::acceptOK( CallBacker* )
 {
     if ( !outputfile_->fileName() )

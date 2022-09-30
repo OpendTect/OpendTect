@@ -23,6 +23,7 @@ mExpClass(uiPreStackProcessing) uiLateralStack : public uiDialog
 public:
     static void		initClass();
 			uiLateralStack(uiParent*,LateralStack*);
+			~uiLateralStack();
 
 protected:
     bool		acceptOK(CallBacker*) override;
