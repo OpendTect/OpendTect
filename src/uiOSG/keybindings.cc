@@ -17,6 +17,16 @@ ________________________________________________________________________
 
 #include <osgGeo/TrackballManipulator>
 
+// KeyBindings
+KeyBindings::KeyBindings( const char* nm )
+    : name_(nm)
+{}
+
+
+KeyBindings::~KeyBindings()
+{}
+
+
 StringView KeyBindings::sSettingsKey() {return "dTect.MouseControls.Default";}
 
 StringView KeyBindings::sName()    { return "Name"; }
@@ -31,6 +41,18 @@ StringView KeyBindings::sMiddle()  { return "Middle"; }
 StringView KeyBindings::sNone()    { return "None"; }
 
 
+
+// EventButton
+EventButton::EventButton()
+{}
+
+
+EventButton::~EventButton()
+{}
+
+
+
+// KeyBindMan
 KeyBindMan::KeyBindMan()
     : curkeybinding_( "Default" )
 {

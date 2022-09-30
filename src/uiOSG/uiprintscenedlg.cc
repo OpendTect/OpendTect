@@ -55,6 +55,10 @@ ui3DViewer2Image::ui3DViewer2Image( ui3DViewer& vwr, const char* imgfnm,
 }
 
 
+ui3DViewer2Image::~ui3DViewer2Image()
+{}
+
+
 bool ui3DViewer2Image::create()
 {
     const od_int64 size = mNINT64(sizepix_.width()*sizepix_.height())*4 ;
@@ -235,7 +239,6 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<ui3DViewer>& vwrs )
     : uiSaveImageDlg( p, false )
     , viewers_( vwrs )
-    , scenefld_( 0 )
 {
     screendpi_ = uiMain::getMinDPI();
 
@@ -268,6 +271,10 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     setSaveButtonChecked( prevbuttonstate );
     unitChg( 0 );
 }
+
+
+uiPrintSceneDlg::~uiPrintSceneDlg()
+{}
 
 
 void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,

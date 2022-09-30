@@ -29,6 +29,7 @@ mExpClass(uiOSG) ui3DViewer2Image
 public:
 			ui3DViewer2Image(ui3DViewer&,const char* imgfnm,
 					 uiSize imgsz=uiSize(),int dpi=-1);
+    virtual		~ui3DViewer2Image();
 
     bool		create();
 
@@ -55,9 +56,11 @@ mExpClass(uiOSG) uiPrintSceneDlg : public uiSaveImageDlg
 { mODTextTranslationClass(uiPrintSceneDlg);
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);
+			~uiPrintSceneDlg();
+
 protected:
 
-    uiLabeledComboBox*	scenefld_;
+    uiLabeledComboBox*	scenefld_		= nullptr;
 
     const char*		getExtension() override;
     void		writeToSettings() override;

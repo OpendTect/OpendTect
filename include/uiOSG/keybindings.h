@@ -24,8 +24,8 @@ ________________________________________________________________________
 mExpClass(uiOSG) KeyBindings
 {
 public:
-				KeyBindings(const char* nm=0)
-				    : name_(nm) {};
+				KeyBindings(const char* nm=nullptr);
+				~KeyBindings();
 
     BufferString		name_;
 
@@ -57,7 +57,8 @@ public:
 mExpClass(uiOSG) EventButton
 {
 public:
-				EventButton() {}
+				EventButton();
+				~EventButton();
 
     BufferString		mousebut_;
     BufferString		keybut_;
