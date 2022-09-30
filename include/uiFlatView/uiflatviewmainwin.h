@@ -39,6 +39,7 @@ public:
     };
 
     			uiFlatViewMainWin(uiParent*,const Setup&);
+			~uiFlatViewMainWin();
 
     void		start() override	{ show(); }
     void		setWinTitle( const uiString& t ) override

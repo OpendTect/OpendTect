@@ -21,6 +21,11 @@ ________________________________________________________________________
 #include "timedepthmodel.h"
 
 
+MFVCViewManager::MFVCViewManager()
+{
+}
+
+
 MFVCViewManager::~MFVCViewManager()
 {
 }

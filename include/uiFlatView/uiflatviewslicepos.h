@@ -20,6 +20,7 @@ mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 {
 public:
 			uiSlicePos2DView(uiParent*,const ZDomain::Info&);
+			~uiSlicePos2DView();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setLimitSampling(const TrcKeyZSampling&);

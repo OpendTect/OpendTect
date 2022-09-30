@@ -33,6 +33,10 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 }
 
 
+uiFlatViewPropTab::~uiFlatViewPropTab()
+{}
+
+
 uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 		FlatView::Viewer& vwr, const uiString& tablbl, bool show )
     : uiFlatViewPropTab(p,vwr,tablbl)
@@ -105,11 +109,8 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 }
 
 
-void uiFlatViewPropDlg::fillPar( IOPar& iopar) const
-{
-    if ( annottab_ )
-	annottab_->fillPar( iopar );
-}
+uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
+{}
 
 
 void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
@@ -590,6 +591,10 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p, OD::Orientation orient,
 }
 
 
+uiFVAnnotPropTab::AxesGroup::~AxesGroup()
+{}
+
+
 void uiFVAnnotPropTab::AxesGroup::showAuxLineCheckedCB( CallBacker* )
 {
     auxlinestylefld_->setSensitive( showauxannotfld_->isChecked() );
@@ -1026,4 +1031,11 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
     }
 
     return true;
+}
+
+
+void uiFlatViewPropDlg::fillPar( IOPar& iopar) const
+{
+    if ( annottab_ )
+	annottab_->fillPar( iopar );
 }

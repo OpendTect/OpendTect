@@ -21,8 +21,7 @@ class TimeDepthModel;
 mExpClass(uiFlatView) MFVCViewManager
 {
 public:
-			MFVCViewManager()
-			{}
+			MFVCViewManager();
 			~MFVCViewManager();
 
     void		setD2TModels(const ObjectSet<const TimeDepthModel>&);

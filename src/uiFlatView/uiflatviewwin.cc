@@ -18,6 +18,14 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
+uiFlatViewWin::uiFlatViewWin()
+{}
+
+
+uiFlatViewWin::~uiFlatViewWin()
+{}
+
+
 void uiFlatViewWin::createViewers( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
@@ -176,6 +184,10 @@ uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
     createViewers( setup.nrviewers_ );
     setDeleteOnClose( setup.deleteonclose_ );
 }
+
+
+uiFlatViewMainWin::~uiFlatViewMainWin()
+{}
 
 
 void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
