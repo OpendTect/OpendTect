@@ -16,6 +16,11 @@ ________________________________________________________________________
 mClass(uiOSG) uiOsgFontCreator : public visBase::OsgFontCreator
 {
 public:
+				~uiOsgFontCreator();
+
     static void			initClass();
     osgText::Font*		createFont(const FontData&) override;
+
+protected:
+				uiOsgFontCreator();
 };

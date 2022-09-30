@@ -14,6 +14,14 @@ ________________________________________________________________________
 #include "odfontimplementation.h"
 
 
+uiOsgFontCreator::uiOsgFontCreator()
+{}
+
+
+uiOsgFontCreator::~uiOsgFontCreator()
+{}
+
+
 void uiOsgFontCreator::initClass()
 {
     visBase::OsgFontCreator::setCreator( new uiOsgFontCreator );
@@ -25,5 +33,5 @@ osgText::Font* uiOsgFontCreator::createFont( const FontData& fd )
     PtrMan<mQtclass(QFont)> qfont = uiFont::createQFont( fd );
     return qfont
 	? new osgText::Font( new ODFontImplementation(*qfont) )
-	: 0;
+	: nullptr;
 }

@@ -44,7 +44,8 @@ mExpClass(uiOSG) uiGLInfo
 public:
     friend mGlobal(uiOSG) uiGLInfo& uiGLI();
 
-			uiGLInfo()					{}
+			uiGLInfo();
+			~uiGLInfo();
 
     uiString		getMessage(bool* warning=0);
     void		showMessage(uiString msg,bool warn=false,

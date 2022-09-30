@@ -82,6 +82,14 @@ uiGLInfo& uiGLI()
 }
 
 
+uiGLInfo::uiGLInfo()
+{}
+
+
+uiGLInfo::~uiGLInfo()
+{}
+
+
 uiString uiGLInfo::getMessage( bool* warning )
 {
     uiString msg;

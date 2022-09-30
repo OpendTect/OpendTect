@@ -18,7 +18,7 @@ ________________________________________________________________________
 uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs )
 	: uiDialog(p, uiDialog::Setup(tr("Stereo viewing"),
 				      tr("Set stereo offset"),
-                                      mODHelpKey(mStereoDlgHelpID) )
+					mODHelpKey(mStereoDlgHelpID) )
 		      .canceltext(uiString::emptyString()))
 	, vwrs_(vwrs)
 {
@@ -32,11 +32,16 @@ uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs )
 }
 
 
+uiStereoDlg::~uiStereoDlg()
+{}
+
+
 void uiStereoDlg::doFinalize( CallBacker* )
 {
     const float offset = vwrs_[0]->getStereoOffset();
     sliderfld_->setValue( offset );
 }
+
 
 bool uiStereoDlg::acceptOK( CallBacker* )
 {
