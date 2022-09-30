@@ -72,6 +72,10 @@ uiConvPosAscIO::uiConvPosAscIO( const Table::FormatDesc& fd, od_istream& strm )
 }
 
 
+uiConvPosAscIO::~uiConvPosAscIO()
+{}
+
+
 Table::FormatDesc* uiConvPosAscIO::getDesc( const SurveyInfo& si )
 {
     const bool isprojcrs = si.getCoordSystem()->isProjection();

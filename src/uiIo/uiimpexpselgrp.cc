@@ -254,6 +254,10 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 }
 
 
+uiSGSelGrp::~uiSGSelGrp()
+{}
+
+
 void uiSGSelGrp::selDoneCB( CallBacker* )
 {
     selectionDone.trigger();
@@ -566,6 +570,10 @@ uiSGSel::uiSGSel( uiParent* p, bool forread )
 }
 
 
+uiSGSel::~uiSGSel()
+{}
+
+
 void uiSGSel::selectSGCB( CallBacker* )
 {
     uiSGSelDlg dlg( this, forread_ );
@@ -665,6 +673,10 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
 	y2chkfld_->display( false, false );
     }
 }
+
+
+uiReadSelGrp::~uiReadSelGrp()
+{}
 
 
 void uiReadSelGrp::fldCheckedCB( CallBacker* cb )
@@ -992,12 +1004,16 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSave(uiStrings::phrJoinStrings(
 				 uiStrings::sSelection(), tr("Area"))),
 				 mJoinUiStrs(sSpecify(), sParameter(mPlural)),
-                                 mODHelpKey(mExpSelectionAreaHelpID) ))
+				mODHelpKey(mExpSelectionAreaHelpID) ))
     , selgrps_(selgrps)
     , setup_(su)
 {
     outfld_ = new uiSGSel( this, false );
 }
+
+
+uiExpSelectionArea::~uiExpSelectionArea()
+{}
 
 
 bool uiExpSelectionArea::acceptOK( CallBacker* )

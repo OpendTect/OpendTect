@@ -200,6 +200,10 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 }
 
 
+uiEditProbDenFuncDlg::~uiEditProbDenFuncDlg()
+{}
+
+
 bool uiEditProbDenFuncDlg::acceptOK( CallBacker* )
 {
     if ( !edfld_ )

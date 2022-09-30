@@ -32,7 +32,8 @@ public:
 	mDefSetupMemb(bool,incprovs)
     };
 
-    			uiPosFilterSet(uiParent*,const Setup&);
+			uiPosFilterSet(uiParent*,const Setup&);
+			~uiPosFilterSet();
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&) const;
@@ -55,10 +56,10 @@ protected:
 mExpClass(uiIo) uiPosFilterSetSel : public uiCompoundParSel
 {
 public:
-
     typedef uiPosFilterSet::Setup Setup;
 
-    			uiPosFilterSetSel(uiParent*,const Setup&);
+			uiPosFilterSetSel(uiParent*,const Setup&);
+			~uiPosFilterSetSel();
 
     void		usePar(const IOPar&);
     void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }

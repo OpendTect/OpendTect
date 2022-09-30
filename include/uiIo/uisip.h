@@ -49,7 +49,7 @@ mExpClass(uiIo) uiSurvInfoProvider
 {
 public:
 
-    virtual			~uiSurvInfoProvider()	{}
+    virtual			~uiSurvInfoProvider();
 
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
@@ -79,6 +79,11 @@ public:
 
     virtual IOPar*		getCoordSystemPars() const  { return nullptr; }
 
-    static bool		getRanges(TrcKeyZSampling&,Coord[3],Coord,Coord,double);
+    static bool			getRanges(TrcKeyZSampling&,Coord[3],
+					  Coord crd1,Coord crd2,
+					  double gridspacing);
+				//!<Calculates sampling and 3 corner coordinates
 
+protected:
+				uiSurvInfoProvider();
 };

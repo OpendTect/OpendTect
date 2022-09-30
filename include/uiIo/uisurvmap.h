@@ -60,6 +60,7 @@ mExpClass(uiIo) uiNorthArrowObject : public uiBasemapObject
 {
 public:
 			uiNorthArrowObject(BasemapObject*,bool);
+			~uiNorthArrowObject();
 
     const char*		getType() const			{ return "NorthArrow"; }
 
@@ -85,6 +86,7 @@ mExpClass(uiIo) uiSurveyMap : public uiBasemap
 {
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);
+			~uiSurveyMap();
 
     void		setSurveyInfo(const SurveyInfo*);
 

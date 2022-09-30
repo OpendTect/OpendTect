@@ -16,6 +16,20 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include <math.h>
 
+
+uiPrDenFunVarSel::DataColInfo::DataColInfo(
+				const BufferStringSet& colnames,
+				const TypeSet<int>& colids)
+    : colnms_(colnames)
+    , colids_(colids)
+{}
+
+
+uiPrDenFunVarSel::DataColInfo::~DataColInfo()
+{}
+
+
+
 uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p, const DataColInfo& colinfos )
     : uiGroup( p )
     , attrSelChanged(this)
@@ -44,6 +58,10 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p, const DataColInfo& colinfos,
 
     createGUI( cbx->attachObj() );
 }
+
+
+uiPrDenFunVarSel::~uiPrDenFunVarSel()
+{}
 
 
 void uiPrDenFunVarSel::createGUI( uiObject* attachobj )

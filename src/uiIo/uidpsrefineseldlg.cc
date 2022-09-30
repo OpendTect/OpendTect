@@ -63,6 +63,10 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
 }
 
 
+uiDPSRefineSelDlg::~uiDPSRefineSelDlg()
+{}
+
+
 void uiDPSRefineSelDlg::checkMathExpr( CallBacker* )
 {
     if ( mathexprstring_ != inpfld_->text() )

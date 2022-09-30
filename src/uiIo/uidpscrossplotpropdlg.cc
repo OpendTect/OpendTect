@@ -992,6 +992,10 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 }
 
 
+uiDataPointSetCrossPlotterPropDlg::~uiDataPointSetCrossPlotterPropDlg()
+{}
+
+
 void uiDataPointSetCrossPlotterPropDlg::doApply( CallBacker* cb )
 {
     acceptOK( cb );

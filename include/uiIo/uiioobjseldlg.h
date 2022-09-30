@@ -18,13 +18,13 @@ ________________________________________________________________________
 mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
 { mODTextTranslationClass(uiIOObjRetDlg);
 public:
-
-			uiIOObjRetDlg(uiParent* p,const Setup& s)
-			: uiDialog(p,s) {}
+				~uiIOObjRetDlg();
 
     virtual const IOObj*	ioObj() const		= 0;
-
     virtual uiIOObjSelGrp*	selGrp()		{ return 0; }
+
+protected:
+				uiIOObjRetDlg(uiParent*,const Setup&);
 };
 
 
@@ -41,6 +41,7 @@ public:
 			    , allowsetsurvdefault_(true)
 			    , withwriteopts_(true)
 			    , withinserters_(true)		{}
+		virtual	~Setup()				{}
 
 	mDefSetupMemb(uiString,titletext)
 	mDefSetupMemb(bool,multisel)
@@ -51,8 +52,9 @@ public:
     };
 
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-			const uiString& titletxt=uiString::emptyString());
+			    const uiString& titletxt=uiString::emptyString());
 			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
+			~uiIOObjSelDlg();
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
     const MultiID	chosenID(int i=0) const { return selgrp_->chosenID(i); }

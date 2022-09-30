@@ -41,9 +41,10 @@ mExpClass(uiIo) uiConvertPos : public uiDialog
 { mODTextTranslationClass(uiConvertPos);
 
 public:
-				uiConvertPos(uiParent*, const SurveyInfo&,
-							    bool modal = true);
+				uiConvertPos(uiParent*,const SurveyInfo&,
+					     bool modal=true);
 				~uiConvertPos();
+
     enum DataType		{ XY, IC, LL };
 				mDeclareEnumUtils(DataType);
     static const uiString	sLLStr() { return tr("Latitude/Longitude"); }
@@ -64,6 +65,7 @@ mExpClass(uiIo) uiConvPosAscIO : public Table::AscIO
 public:
 				uiConvPosAscIO(const Table::FormatDesc&,
 						od_istream&);
+				~uiConvPosAscIO();
 
     static Table::FormatDesc*	getDesc(const SurveyInfo&);
     bool			getData(Coord&,

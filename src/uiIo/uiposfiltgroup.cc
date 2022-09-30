@@ -25,6 +25,12 @@ uiPosFiltGroup::uiPosFiltGroup( uiParent* p, const uiPosFiltGroup::Setup& su )
 }
 
 
+uiPosFiltGroup::~uiPosFiltGroup()
+{}
+
+
+
+// uiRandPosFiltGroup
 uiRandPosFiltGroup::uiRandPosFiltGroup( uiParent* p,
 					const uiPosFiltGroup::Setup& su )
     : uiPosFiltGroup(p,su)
@@ -33,6 +39,10 @@ uiRandPosFiltGroup::uiRandPosFiltGroup( uiParent* p,
     percpassfld_ = new uiGenInput( this, tr("Percentage to pass"), inpspec );
     setHAlignObj( percpassfld_ );
 }
+
+
+uiRandPosFiltGroup::~uiRandPosFiltGroup()
+{}
 
 
 void uiRandPosFiltGroup::usePar( const IOPar& iop )
@@ -67,6 +77,8 @@ void uiRandPosFiltGroup::initClass()
 }
 
 
+
+// uiSubsampPosFiltGroup
 uiSubsampPosFiltGroup::uiSubsampPosFiltGroup( uiParent* p,
 					const uiPosFiltGroup::Setup& su )
     : uiPosFiltGroup(p,su)
@@ -76,6 +88,10 @@ uiSubsampPosFiltGroup::uiSubsampPosFiltGroup( uiParent* p,
     new uiLabel( this, tr("Pass one every"), eachfld_ );
     setHAlignObj( eachfld_ );
 }
+
+
+uiSubsampPosFiltGroup::~uiSubsampPosFiltGroup()
+{}
 
 
 void uiSubsampPosFiltGroup::usePar( const IOPar& iop )

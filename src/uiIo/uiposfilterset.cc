@@ -110,6 +110,10 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 }
 
 
+uiPosFilterSet::~uiPosFilterSet()
+{}
+
+
 void uiPosFilterSet::selChg( CallBacker* cb )
 {
     if ( grps_.isEmpty() ) return;
@@ -189,6 +193,8 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
 }
 
 
+
+// uiPosFilterSetSel
 uiPosFilterSetSel::uiPosFilterSetSel( uiParent* p,
 				      const uiPosFilterSetSel::Setup& su )
     : uiCompoundParSel(p,su.seltxt_)
@@ -196,6 +202,10 @@ uiPosFilterSetSel::uiPosFilterSetSel( uiParent* p,
 {
     butPush.notify( mCB(this,uiPosFilterSetSel,doDlg) );
 }
+
+
+uiPosFilterSetSel::~uiPosFilterSetSel()
+{}
 
 
 BufferString uiPosFilterSetSel::getSummary() const

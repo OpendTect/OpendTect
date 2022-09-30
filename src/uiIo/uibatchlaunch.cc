@@ -66,6 +66,10 @@ uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
 }
 
 
+uiProcSettings::~uiProcSettings()
+{}
+
+
 HelpKey uiProcSettings::helpKey() const
 { return mODHelpKey(mProcSettingsHelpID); }
 

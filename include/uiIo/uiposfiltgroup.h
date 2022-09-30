@@ -24,11 +24,12 @@ public:
 			Setup( bool is_2d )
 			    : is2d_(is_2d)		{}
 
-	virtual	~Setup()				{}
+	virtual		~Setup()			{}
 	mDefSetupMemb(bool,is2d)
     };
 
 			uiPosFiltGroup(uiParent*,const Setup&);
+			~uiPosFiltGroup();
 
     virtual void	usePar(const IOPar&)		= 0;
     virtual bool	fillPar(IOPar&) const		= 0;

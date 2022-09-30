@@ -175,6 +175,23 @@ BufferStringSet SelectionArea::getAxisNames() const
 }
 
 
+
+// SelectionGrp
+SelectionGrp::SelectionGrp( const char* nm, const OD::Color& col )
+    : NamedObject(nm)
+    , col_(col)
+{}
+
+
+SelectionGrp::SelectionGrp( const char* nm )
+    : NamedObject(nm)
+{}
+
+
+SelectionGrp::~SelectionGrp()
+{}
+
+
 void SelectionGrp::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name().buf() );

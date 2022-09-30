@@ -24,6 +24,8 @@ mExpClass(uiIo) uiDPSOverlayPropDlg : public uiDialog
 public:
 			uiDPSOverlayPropDlg(uiParent*,
 					    uiDataPointSetCrossPlotter&);
+			~uiDPSOverlayPropDlg();
+
     uiDataPointSetCrossPlotter&	plotter()		{ return plotter_; }
 
 protected:

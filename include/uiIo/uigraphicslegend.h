@@ -24,6 +24,7 @@ mExpClass(uiIo) uiLegendItem : public uiRectItem
 public:
 			uiLegendItem();
 			~uiLegendItem();
+
     uiAdvancedTextItem* title_;
     uiAdvancedTextItem* country_;
     uiAdvancedTextItem* block_;

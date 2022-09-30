@@ -29,7 +29,19 @@ ________________________________________________________________________
 #include "settings.h"
 
 
+// uiIOObjInserter
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
+
+uiIOObjInserter::uiIOObjInserter( const Translator& trl )
+    : transl_(trl)
+    , objInserterd(this)
+    , ctxt_(*new IOObjContext(nullptr))
+{}
+
+
+uiIOObjInserter::~uiIOObjInserter()
+{}
+
 
 bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 {
@@ -111,6 +123,15 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 
 
+// uiIOObjRetDlg
+uiIOObjRetDlg::uiIOObjRetDlg( uiParent* p, const Setup& s )
+    : uiDialog(p,s)
+{}
+
+
+uiIOObjRetDlg::~uiIOObjRetDlg()
+{}
+
 #define mConstructorInitListStart(c) \
     uiIOObjRetDlg(p,uiDialog::Setup(selTxt(c.forread_), \
 		    mNoDlgTitle,getHelpKey(c.forread_)) \
@@ -141,6 +162,10 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 {
     init( ctio );
 }
+
+
+uiIOObjSelDlg::~uiIOObjSelDlg()
+{}
 
 
 uiString uiIOObjSelDlg::selTxt( bool forread )

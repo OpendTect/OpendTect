@@ -32,16 +32,15 @@ namespace Pick { class Set; }
 mExpClass(uiIo) RandLocGenPars
 { mODTextTranslationClass(RandLocGenPars);
 public:
-			RandLocGenPars()
-			    : nr_(1), needhor_(false)
-			    , horidx_(-1), horidx2_(-1)	{}
+			RandLocGenPars();
+			~RandLocGenPars();
 
-    int			nr_;
-    bool		needhor_;
+    int			nr_		= 1;
+    bool		needhor_	= false;
     TrcKeySampling	hs_;
     Interval<float>	zrg_;
-    int			horidx_;
-    int			horidx2_;
+    int			horidx_		= -1;
+    int			horidx2_	= -1;
     BufferStringSet	linenms_;
 };
 
@@ -50,13 +49,14 @@ mExpClass(uiIo) uiCreatePicks : public uiDialog
 {
 mODTextTranslationClass(uiCreatePicks)
 public:
+			uiCreatePicks(uiParent*,bool aspolygon=false,
+				   bool addstdfields=true, bool zvalreq=false);
+    virtual		~uiCreatePicks();
+
     enum DepthType	{ Feet=0, Meter };
 			mDeclareEnumUtils(DepthType);
     enum TimeType	{ Seconds=0, MilliSeconds, MicroSeconds };
 			mDeclareEnumUtils(TimeType);
-			uiCreatePicks(uiParent*,bool aspolygon=false,
-				   bool addstdfields=true, bool zvalreq=false);
-    virtual		~uiCreatePicks();
 
     virtual RefMan<Pick::Set>	getPickSet() const;
     const char*		pickSetName() const {return name_; }
@@ -112,6 +112,7 @@ public:
 
 			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
 					 const BufferStringSet&);
+			~uiGenRandPicks2D();
 
     const RandLocGenPars& randPars() const	{ return randpars_; }
 

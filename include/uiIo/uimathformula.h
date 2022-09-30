@@ -41,6 +41,7 @@ public:
 			    , withsubinps_(false)
 			    , withunits_(true)
 			    , mn_(nullptr)	{}
+	virtual		~Setup()		{}
 
 	mDefSetupMemb(uiString,label);
 	mDefSetupMemb(int,maxnrinps);

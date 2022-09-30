@@ -57,6 +57,10 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 }
 
 
+uiSelZRange::~uiSelZRange()
+{}
+
+
 void uiSelZRange::displayStep( bool yn )
 {
     if ( stepfld_ )
@@ -244,20 +248,13 @@ void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
 
 
 uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
-	: uiGroup(p,typ == Inl ? "In-line range selection"
-		 : (typ == Crl ? "Cross-line range selection"
-			       : "Number range selection"))
-	, stepfld_(nullptr)
-	, icstopfld_(nullptr)
-	, nrstopfld_(nullptr)
-	, defstep_(1)
-	, checked(this)
-	, rangeChanged(this)
-	, finalized_(false)
-	, checked_(false)
-	, cbox_(nullptr),
-	  withchk_(false)
-	, lbltxt_("")
+    : uiGroup(p,typ == Inl ? "In-line range selection"
+	     : (typ == Crl ? "Cross-line range selection"
+			   : "Number range selection"))
+    , checked(this)
+    , rangeChanged(this)
+    , lbltxt_("")
+    , defstep_(1)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
@@ -271,6 +268,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
     }
+
     lbltxt_ = nm;
     makeInpFields( rg, wstep, typ==Gen );
     setRange( wrg );
@@ -280,23 +278,20 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 
 uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 			    const char* lbltxt )
-	: uiGroup(p,BufferString(lbltxt," range selection"))
-	, stepfld_(nullptr)
-	, defstep_(limitrg.step)
-	, icstopfld_(nullptr)
-	, nrstopfld_(nullptr)
-	, checked(this)
-	, rangeChanged(this)
-	, finalized_(false)
-	, withchk_(false)
-	, checked_(false)
-	, cbox_(nullptr)
-	, lbltxt_(lbltxt)
+    : uiGroup(p,BufferString(lbltxt," range selection"))
+    , defstep_(limitrg.step)
+    , checked(this)
+    , rangeChanged(this)
+    , lbltxt_(lbltxt)
 {
     makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
     preFinalize().notify( mCB(this,uiSelNrRange,doFinalize) );
 }
+
+
+uiSelNrRange::~uiSelNrRange()
+{}
 
 
 void uiSelNrRange::displayStep( bool yn )
@@ -474,9 +469,11 @@ void uiSelNrRange::checkBoxSel( CallBacker* cb )
     checked.trigger(this);
 }
 
+
+
+// uiSelSteps
 uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
-	: uiGroup(p,"Step selection")
-	, inlfld_(nullptr)
+    : uiGroup(p,"Step selection")
 {
     BinID stp( 0, 1 );
     uiString lbl = mJoinUiStrs( sTraceNumber(), sStep() );
@@ -504,6 +501,10 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 }
 
 
+uiSelSteps::~uiSelSteps()
+{}
+
+
 BinID uiSelSteps::getSteps() const
 {
     return BinID( inlfld_ ? inlfld_->getIntValue() : 0,
@@ -519,6 +520,8 @@ void uiSelSteps::setSteps( const BinID& bid )
 }
 
 
+
+// uiSelHRange
 uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
     : uiGroup(p,"Hor range selection")
     , inlfld_(new uiSelNrRange(this,uiSelNrRange::Inl,wstep))
@@ -538,6 +541,10 @@ uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit,
     crlfld_->attach( alignedBelow, inlfld_ );
     setHAlignObj( inlfld_ );
 }
+
+
+uiSelHRange::~uiSelHRange()
+{}
 
 
 void uiSelHRange::displayStep( bool yn )
@@ -569,6 +576,8 @@ void uiSelHRange::setLimits( const TrcKeySampling& hs )
 }
 
 
+
+// uiSelSubvol
 uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
     : uiGroup(p,"Sub vol selection")
     , hfld_(new uiSelHRange(this,wstep))
@@ -577,6 +586,10 @@ uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
     zfld_->attach( alignedBelow, hfld_ );
     setHAlignObj( hfld_ );
 }
+
+
+uiSelSubvol::~uiSelSubvol()
+{}
 
 
 TrcKeyZSampling uiSelSubvol::getSampling() const

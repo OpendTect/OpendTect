@@ -69,6 +69,10 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 }
 
 
+uiDPSSelectednessDlg::~uiDPSSelectednessDlg()
+{}
+
+
 void uiDPSSelectednessDlg::showOverlayClicked( CallBacker* )
 {
     coltabfld_->display( showoverlayfld_->isChecked() ||

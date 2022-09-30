@@ -521,6 +521,10 @@ uiManPROPS::uiManPROPS( uiParent* p )
 }
 
 
+uiManPROPS::~uiManPROPS()
+{}
+
+
 bool uiManPROPS::rejectOK( CallBacker* )
 {
     if ( !haveUserChange() )
@@ -563,6 +567,10 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 }
 
 
+uiSelectPropRefs::~uiSelectPropRefs()
+{}
+
+
 bool uiSelectPropRefs::acceptOK( CallBacker* )
 {
     return proprefgrp_->acceptOK();
@@ -583,6 +591,10 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
+
+
+uiSelectPropRefsVWDlg::~uiSelectPropRefsVWDlg()
+{}
 
 
 bool uiSelectPropRefsVWDlg::acceptOK( CallBacker* )
@@ -610,6 +622,10 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
 					mCB(this,uiSelectPropRefsGrp,manPROPS));
     manpropsbut->attach( centeredRightOf, propfld_ );
 }
+
+
+uiSelectPropRefsGrp::~uiSelectPropRefsGrp()
+{}
 
 
 void uiSelectPropRefsGrp::fillList()

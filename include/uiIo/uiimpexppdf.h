@@ -29,6 +29,7 @@ mExpClass(uiIo) uiImpRokDocPDF : public uiDialog
 { mODTextTranslationClass(uiImpRokDocPDF);
 public:
 			uiImpRokDocPDF(uiParent*);
+			~uiImpRokDocPDF();
 
 protected:
 
@@ -62,6 +63,7 @@ mExpClass(uiIo) uiExpRokDocPDF : public uiDialog
 { mODTextTranslationClass(uiExpRokDocPDF);
 public:
 			uiExpRokDocPDF(uiParent*);
+			~uiExpRokDocPDF();
 
 protected:
 

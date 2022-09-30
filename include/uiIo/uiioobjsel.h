@@ -43,7 +43,9 @@ public:
 			    , confirmoverwr_(true)
 			    , withinserters_(true)
 			    , withwriteopts_(true)
-			    , filldef_(true) {}
+			    , filldef_(true)
+			{}
+	virtual		~Setup()		{}
 
 	mDefSetupMemb(bool,confirmoverwr)
 	mDefSetupMemb(bool,withinserters) //!< only if forread

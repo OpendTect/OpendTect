@@ -79,9 +79,11 @@ to get the GeomID of the line being imported. Geom2DImpHandler will take care
 of creating new lines in the database or overwriting them.
 */
 
-mExpClass(uiIo) Geom2DImpHandler
+mExpClass(uiIo) Geom2DImpHandler final
 { mODTextTranslationClass(Geom2DImpHandler)
 public:
+			Geom2DImpHandler();
+			~Geom2DImpHandler();
 
     static Pos::GeomID	getGeomID(const char* nm,bool overwrpreok=false);
     static bool		getGeomIDs(const BufferStringSet& lnms,

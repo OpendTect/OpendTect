@@ -50,6 +50,16 @@ mDefineEnumUtils( uiCreatePicks, TimeType, "TimeType" )
 { "Seconds", "MilliSeconds", "MicroSeconds", nullptr };
 
 
+// RandLocGenPars
+RandLocGenPars::RandLocGenPars()
+{}
+
+
+RandLocGenPars::~RandLocGenPars()
+{}
+
+
+// uiCreatePicks
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 			      bool zvalreq )
     : uiDialog(p,uiDialog::Setup(
@@ -302,6 +312,10 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     addStdFields( zfld_->attachObj() );
     preFinalize().notify( mCB(this,uiGenRandPicks2D,geomSel) );
 }
+
+
+uiGenRandPicks2D::~uiGenRandPicks2D()
+{}
 
 
 void uiGenRandPicks2D::hor1Sel( CallBacker* )

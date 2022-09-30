@@ -29,6 +29,7 @@ public:
     {
     public:
 			Setup(uiIOObjSel* tiedto,bool opt=true);
+			~Setup();
 
 	mDefSetupMemb(BufferString,fldtext)
 	mDefSetupMemb(bool,optional)
@@ -37,6 +38,7 @@ public:
     };
 
 			uiT2DConvSel(uiParent*,const Setup&);
+			~uiT2DConvSel();
 
 protected:
 

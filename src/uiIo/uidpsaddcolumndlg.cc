@@ -63,6 +63,10 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 }
 
 
+uiDPSAddColumnDlg::~uiDPSAddColumnDlg()
+{}
+
+
 void uiDPSAddColumnDlg::setColInfos( const BufferStringSet& colnames,
 				     const TypeSet<int>& colids )
 {

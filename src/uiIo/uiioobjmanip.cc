@@ -30,12 +30,33 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 
+// uiManipButGrp::ButData
 uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p,
 				 const uiString& t )
 	: but(b)
 	, pmnm(p)
 	, tt(t)
 {
+}
+
+
+uiManipButGrp::ButData::~ButData()
+{}
+
+
+
+// uiManipButGrp
+uiManipButGrp::uiManipButGrp( uiParent* p )
+    : uiButtonGroup(p,"ManipButtons",OD::Vertical)
+{
+    altbutdata.allowNull();
+}
+
+
+uiManipButGrp::~uiManipButGrp()
+{
+    deepErase(butdata);
+    deepErase(altbutdata);
 }
 
 
@@ -422,3 +443,13 @@ void uiIOObjManipGroup::relocCB( CallBacker* cb )
     mCBCapsuleUnpack(const char*,msg,cb);
     subj_.relocStart( msg );
 }
+
+
+// uiIOObjManipGroupSubj
+uiIOObjManipGroupSubj::uiIOObjManipGroupSubj( uiObject* obj )
+    : obj_(obj)
+{}
+
+
+uiIOObjManipGroupSubj::~uiIOObjManipGroupSubj()
+{}

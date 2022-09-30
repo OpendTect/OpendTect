@@ -31,6 +31,7 @@ public:
 						 const ObjectSet<AxisParam>&,
 						 ArrayND<float>&,
 				 CalcAreaType areatype=DPSDensityCalcND::All);
+				~DPSDensityCalcND();
 
     od_int64			nrIterations() const override;
     od_int64			nrDone() const override { return nrdone_; }

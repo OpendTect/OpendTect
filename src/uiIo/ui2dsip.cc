@@ -127,6 +127,16 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 }
 
 
+
+// uiSurvInfoProvider
+uiSurvInfoProvider::uiSurvInfoProvider()
+{}
+
+
+uiSurvInfoProvider::~uiSurvInfoProvider()
+{}
+
+
 bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
 					   Coord c0, Coord c1, double grdsp )
 {

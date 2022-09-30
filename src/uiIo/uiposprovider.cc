@@ -571,6 +571,10 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
 }
 
 
+uiPosSubSel::~uiPosSubSel()
+{}
+
+
 void uiPosSubSel::selChg( CallBacker* )
 {
     selChange.trigger();

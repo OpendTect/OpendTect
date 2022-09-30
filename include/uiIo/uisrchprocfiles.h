@@ -23,6 +23,7 @@ mExpClass(uiIo) uiSrchProcFiles : public uiDialog
 public:
 			uiSrchProcFiles(uiParent*,CtxtIOObj&,
 					const char* iopar_key);
+			~uiSrchProcFiles();
 
     const char*		fileName() const;
 

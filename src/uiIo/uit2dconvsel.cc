@@ -25,6 +25,10 @@ uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt )
 }
 
 
+uiT2DConvSel::Setup::~Setup()
+{}
+
+
 uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     : uiZAxisTransformSel(p, su.optional_,
 	su.ist2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth(),
@@ -54,6 +58,10 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
 	postFinalize().notify( cb );
     }
 }
+
+
+uiT2DConvSel::~uiT2DConvSel()
+{}
 
 
 #define mGetGroupIdx \

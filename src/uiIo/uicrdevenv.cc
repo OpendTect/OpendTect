@@ -47,6 +47,10 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 }
 
 
+uiCrDevEnv::~uiCrDevEnv()
+{}
+
+
 bool uiCrDevEnv::isOK( const char* datadir )
 {
 #ifdef __mac__

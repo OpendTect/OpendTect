@@ -35,6 +35,11 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
 }
 
 
+uiPosProvGroup::~uiPosProvGroup()
+{}
+
+
+// uiRangePosProvGroup
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
@@ -262,8 +267,8 @@ void uiRangePosProvGroup::samplingCB( CallBacker* )
 }
 
 
-// uiPolyPosProvGroup
 
+// uiPolyPosProvGroup
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
@@ -410,6 +415,8 @@ void uiPolyPosProvGroup::initClass()
 }
 
 
+
+// uiTablePosProvGroup
 uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 		const uiPosProvGroup::Setup& su, bool onlypointset )
     : uiPosProvGroup(p,su)

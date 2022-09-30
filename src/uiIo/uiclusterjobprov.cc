@@ -437,6 +437,15 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
 }
 
 
+// Batch::SimpleClusterProgDef
+Batch::SimpleClusterProgDef::SimpleClusterProgDef()
+{}
+
+
+Batch::SimpleClusterProgDef::~SimpleClusterProgDef()
+{}
+
+
 bool Batch::SimpleClusterProgDef::isSuitedFor( const char* pnm ) const
 {
     StringView prognm = pnm;
@@ -456,17 +465,25 @@ bool Batch::SimpleClusterProgDef::canHandle( const JobSpec& js ) const
 }
 
 
+// uiClusterJobDispatcherLauncher
 uiClusterJobDispatcherLauncher::uiClusterJobDispatcherLauncher(
 						Batch::JobSpec& js )
     : uiBatchJobDispatcherLauncher(js)
     , jd_(*new Batch::ClusterJobDispatcher)
 {}
 
+
 uiClusterJobDispatcherLauncher::~uiClusterJobDispatcherLauncher()
-{ delete &jd_; }
+{
+    delete &jd_;
+}
+
 
 Batch::JobDispatcher& uiClusterJobDispatcherLauncher::gtDsptchr()
-{ return jd_; }
+{
+    return jd_;
+}
+
 
 bool uiClusterJobDispatcherLauncher::go( uiParent* p, Batch::ID* batchid )
 {

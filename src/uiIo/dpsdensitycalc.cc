@@ -40,11 +40,20 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 }
 
 
+DPSDensityCalcND::~DPSDensityCalcND()
+{}
+
+
 uiString DPSDensityCalcND::uiNrDoneText() const
-{ return tr("Points done"); }
+{
+    return tr("Points done");
+}
+
 
 od_int64 DPSDensityCalcND::nrIterations() const
-{ return dps_.size(); }
+{
+    return dps_.size();
+}
 
 
 bool DPSDensityCalcND::setFreqValue( const int* indexs )

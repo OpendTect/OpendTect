@@ -33,6 +33,7 @@ mExpClass(uiIo) uiSGSel : public uiGroup
 { mODTextTranslationClass(uiSGSel);
 public:
 					uiSGSel(uiParent*,bool forread);
+					~uiSGSel();
 
     bool				isOK() const;
     const char*				selGrpFileNm();
@@ -66,6 +67,7 @@ mExpClass(uiIo) uiSGSelGrp : public uiGroup
 { mODTextTranslationClass(uiSGSelGrp);
 public:
 				uiSGSelGrp(uiParent*,bool forread);
+				~uiSGSelGrp();
 
     BufferString		getCurFileNm() const;
     const char*			selGrpSetNm() const;
@@ -135,6 +137,7 @@ mExpClass(uiIo) SelGrpExporter
 public:
 				SelGrpExporter(const char* fnm);
 				~SelGrpExporter();
+
     bool			putSelections(const ObjectSet<SelectionGrp>&,
 					      const char* xnm,
 					      const char* ynm,
@@ -153,6 +156,7 @@ mExpClass(uiIo) uiReadSelGrp : public uiDialog
 { mODTextTranslationClass(uiReadSelGrp);
 public:
 			uiReadSelGrp(uiParent*,uiDataPointSetCrossPlotter&);
+			~uiReadSelGrp();
 
 protected:
 
@@ -196,18 +200,21 @@ public:
 	mExpClass(uiIo) Setup
 	{
 	    public:
-		    Setup(const char* x,const char* y, const char* y2)
-			: y2name_(y2) , yname_(y) , xname_(x) {}
+				Setup( const char* x, const char* y,
+				       const char* y2 )
+				    : y2name_(y2) , yname_(y) , xname_(x)
+				{}
+		virtual		~Setup()	{}
 
 	    mDefSetupMemb(const char*,y2name)
 	    mDefSetupMemb(const char*,yname)
 	    mDefSetupMemb(const char*,xname)
 	};
 
-					uiExpSelectionArea(uiParent*,
+				uiExpSelectionArea(uiParent*,
 						const ObjectSet<SelectionGrp>&,
 						uiExpSelectionArea::Setup);
-
+				~uiExpSelectionArea();
 
 protected:
 
