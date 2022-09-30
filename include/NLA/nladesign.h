@@ -26,10 +26,10 @@ ________________________________________________________________________
 mExpClass(NLA) NLADesign
 {
 public:
-			NLADesign()	{ clear(); }
-			~NLADesign()	{ clear(); }
-			NLADesign( const NLADesign& sd )
-					{ *this = sd; }
+			NLADesign();
+			NLADesign(const NLADesign&);
+			~NLADesign();
+
     NLADesign&		operator =( const NLADesign& sd )
 			{
 			    if ( this != &sd )
