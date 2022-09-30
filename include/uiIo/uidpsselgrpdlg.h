@@ -20,6 +20,7 @@ public:
 
 			uiDPSSelGrpDlg(uiDataPointSetCrossPlotter&,
 				       const BufferStringSet&);
+			~uiDPSSelGrpDlg();
 protected:
 
     int					curselgrp_;

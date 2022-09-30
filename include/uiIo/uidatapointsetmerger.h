@@ -25,14 +25,11 @@ mExpClass(uiIo) DPSMergerProp
 public:
     typedef DataPackID	PackID;
 
-				DPSMergerProp( const MultiID& id, PackID mid,
-					       PackID sid )
-				    : masterdpsid_(mid), slavedpsid_(sid)
-				    , newdpsid_(id), maxz_(mUdf(float))
-				    , maxhordist_(mUdf(float))
-				    , dooverwriteundef_(false)	{}
+				DPSMergerProp(const MultiID&,PackID primary,
+					      PackID secondary);
+				~DPSMergerProp();
 
-   void				setColid(int masterid,int slaveid);
+   void				setColid(int primaryid,int secondaryid);
 
    enum MatchPolicy		{ Exact, Nearest, NoMatch };
    void				setMatchPolicy( MatchPolicy pol )
@@ -69,28 +66,28 @@ protected:
    MatchPolicy			matchpol_;
    ReplacePolicy		replacepol_;
 
-   bool				dooverwriteundef_;
-   // TODO: rename to primarydpsid_;
-   PackID				masterdpsid_;
-   // TODO: rename to secondarydpsid_;
-   PackID				slavedpsid_;
-   // TODO: rename to primarycolids_;
-   TypeSet<int>			mastercolids_;
-   // TODO: rename to secondarycolids_;
-   TypeSet<int>			slavecolids_;
+   bool				dooverwriteundef_	= false;
+   PackID			primarydpsid_;
+   PackID			secondarydpsid_;
+   TypeSet<int>			primarycolids_;
+   TypeSet<int>			secondarycolids_;
    MultiID			newdpsid_;
-   float			maxhordist_;
-   float			maxz_;
+   float			maxhordist_		= mUdf(float);
+   float			maxz_			= mUdf(float);
 
 public:
    mDeprecated("Use primaryDPID()")
-   PackID			masterDPID() const	{ return masterdpsid_;}
+   PackID			masterDPID() const
+				{ return primarydpsid_; }
    mDeprecated("Use secondaryDPID()")
-   PackID			slaveDPID() const	{ return slavedpsid_; }
+   PackID			slaveDPID() const
+				{ return secondarydpsid_; }
    mDeprecated("Use primaryColIDs()")
-   const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
+   const TypeSet<int>&		masterColIDs() const
+				{ return primarycolids_; }
    mDeprecated("Use secondaryColIDs()")
-   const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
+   const TypeSet<int>&		slaveColIDs() const
+				{ return secondarycolids_; }
 };
 
 
@@ -98,6 +95,7 @@ mExpClass(uiIo) DPSMerger : public Executor
 { mODTextTranslationClass(DPSMerger);
 public:
 				DPSMerger(const DPSMergerProp&);
+				~DPSMerger();
 
     void			addNewCols(const BufferStringSet&);
     od_int64			nrDone() const override

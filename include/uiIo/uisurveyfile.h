@@ -33,16 +33,15 @@ class SurveyFile;
 mExpClass(uiIo) uiSurveyFile
 { mODTextTranslationClass(uiSurveyFile);
 public:
-    uiSurveyFile(uiParent*);
-    ~uiSurveyFile();
+			uiSurveyFile(uiParent*);
+			~uiSurveyFile();
 
-    bool	newFile();
-    bool	openFile();
-    bool	openFile(const char*);
-    bool	closeFile();
+    bool		newFile();
+    bool		openFile();
+    bool		openFile(const char*);
+    bool		closeFile();
 
 protected:
     uiParent*		parent_		= nullptr;
     SurveyFile*		survfile_	= nullptr;
-
 };

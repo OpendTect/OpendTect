@@ -1079,10 +1079,13 @@ void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 
 
 // uiCopySurveySIP
-
 uiCopySurveySIP::uiCopySurveySIP()
 {
 }
+
+
+uiCopySurveySIP::~uiCopySurveySIP()
+{}
 
 
 void uiCopySurveySIP::reset()
@@ -1151,6 +1154,10 @@ void uiCopySurveySIP::fillLogPars( IOPar& par ) const
 
 // uiSurveyFileSIP
 uiSurveyFileSIP::uiSurveyFileSIP()
+{}
+
+
+uiSurveyFileSIP::~uiSurveyFileSIP()
 {}
 
 

@@ -35,12 +35,12 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 { mODTextTranslationClass(uiSurveyInfoEditor)
 
 public:
-
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
 					   bool isnew=false);
+			~uiSurveyInfoEditor();
+
     bool		isOK() const		{ return topgrp_; }
 			//!<Must be checked before 'go'
-			~uiSurveyInfoEditor();
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName() const;
@@ -150,18 +150,19 @@ mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 {
 public:
 			uiCopySurveySIP();
+			~uiCopySurveySIP();
 
-    const char* usrText() const override
+    const char*		usrText() const override
 			    { return "Copy from other survey"; }
-    uiDialog*	dialog(uiParent*) override;
-    bool	getInfo(uiDialog*,
+    uiDialog*		dialog(uiParent*) override;
+    bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
 
-    void	fillLogPars(IOPar&) const override;
+    void		fillLogPars(IOPar&) const override;
 
-    TDInfo	tdInfo() const override		{ return tdinf_; }
-    bool	xyInFeet() const override	{ return inft_; }
-    const char* iconName() const override	{ return "copyobj"; }
+    TDInfo		tdInfo() const override		{ return tdinf_; }
+    bool		xyInFeet() const override	{ return inft_; }
+    const char*		iconName() const override	{ return "copyobj"; }
 
     IOPar*		getCoordSystemPars() const override;
 
@@ -171,7 +172,7 @@ protected:
     TDInfo		tdinf_;
     bool		inft_;
     BufferStringSet	survlist_;
-    IOPar* crspars_ = nullptr;
+    IOPar*		crspars_			= nullptr;
 
 public:
     void		reset();
@@ -182,19 +183,20 @@ mExpClass(uiIo) uiSurveyFileSIP : public uiSurvInfoProvider
 { mODTextTranslationClass(uiSurveyFileSIP)
 public:
 			uiSurveyFileSIP();
+			~uiSurveyFileSIP();
 
-    const char* usrText() const override;
-    uiDialog*	dialog(uiParent*) override;
-    bool	getInfo(uiDialog*,
+    const char*		usrText() const override;
+    uiDialog*		dialog(uiParent*) override;
+    bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
 
-    void	fillLogPars(IOPar&) const override;
+    void		fillLogPars(IOPar&) const override;
 
-    TDInfo	tdInfo() const override		{ return tdinf_; }
-    bool	xyInFeet() const override	{ return inft_; }
-    const char* iconName() const override	{ return "ascii"; }
+    TDInfo		tdInfo() const override		{ return tdinf_; }
+    bool		xyInFeet() const override	{ return inft_; }
+    const char*		iconName() const override	{ return "ascii"; }
 
-    IOPar*	getCoordSystemPars() const override;
+    IOPar*		getCoordSystemPars() const override;
 
 protected:
 
@@ -203,5 +205,4 @@ protected:
     bool		inft_;
     BufferString	surveynm_;
     RefMan<Coords::CoordSystem> coordsystem_;
-
 };

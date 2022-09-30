@@ -19,8 +19,8 @@ class uiGenInput;
 mExpClass(uiIo) uiRandPosFiltGroup : public uiPosFiltGroup
 { mODTextTranslationClass(uiRandPosFiltGroup)
 public:
-
 			uiRandPosFiltGroup(uiParent*,const Setup&);
+			~uiRandPosFiltGroup();
 
     void		usePar(const IOPar&) override;
     bool		fillPar(IOPar&) const override;
@@ -42,8 +42,8 @@ protected:
 mExpClass(uiIo) uiSubsampPosFiltGroup : public uiPosFiltGroup
 { mODTextTranslationClass(uiSubsampPosFiltGroup)
 public:
-
 			uiSubsampPosFiltGroup(uiParent*,const Setup&);
+			~uiSubsampPosFiltGroup();
 
     void		usePar(const IOPar&) override;
     bool		fillPar(IOPar&) const override;

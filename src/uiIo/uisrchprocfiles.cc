@@ -49,6 +49,10 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
 }
 
 
+uiSrchProcFiles::~uiSrchProcFiles()
+{}
+
+
 const char* uiSrchProcFiles::fileName() const
 {
     return fnamefld->text();

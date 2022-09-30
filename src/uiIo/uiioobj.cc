@@ -22,6 +22,17 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
+
+uiIOObj::uiIOObj( IOObj& i, bool silent )
+    : ioobj_(i)
+    , silent_(silent)
+{}
+
+
+uiIOObj::~uiIOObj()
+{}
+
+
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 {
     PtrMan<Translator> trans = ioobj_.createTranslator();

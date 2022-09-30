@@ -57,6 +57,10 @@ uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
 }
 
 
+uiDataPointSetCrossPlotter::AxisData::~AxisData()
+{}
+
+
 void uiDataPointSetCrossPlotter::AxisData::stop()
 {
     if ( isreset_ ) return;

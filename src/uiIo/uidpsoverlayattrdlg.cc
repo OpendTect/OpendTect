@@ -95,6 +95,10 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 }
 
 
+uiDPSOverlayPropDlg::~uiDPSOverlayPropDlg()
+{}
+
+
 const char* uiDPSOverlayPropDlg::userName( int did ) const
 {
     if ( did >= 0 )

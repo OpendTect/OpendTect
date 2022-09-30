@@ -25,8 +25,8 @@ class uiListBox;
 mExpClass(uiIo) uiManPROPS : public uiDialog
 { mODTextTranslationClass(uiManPROPS);
 public:
-
 			uiManPROPS(uiParent*);
+			~uiManPROPS();
 
     bool		haveUserChange() const;
 
@@ -58,6 +58,7 @@ public:
 
 			uiSelectPropRefsGrp(uiParent*,PropertyRefSelection&,
 					    const char* lbltxt=nullptr);
+			~uiSelectPropRefsGrp();
 
     bool		structureChanged() const	{ return structchg_; }
     bool		acceptOK() override;
@@ -82,8 +83,11 @@ public:
 				uiSelectPropRefs(uiParent*,
 						 PropertyRefSelection&,
 						 const char* lbltxt=0);
+				~uiSelectPropRefs();
+
     bool		structureChanged() const
 			{ return proprefgrp_->structureChanged(); }
+
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     
@@ -96,6 +100,8 @@ mExpClass(uiIo) uiSelectPropRefsVWDlg : public uiVarWizardDlg
 public:
 			uiSelectPropRefsVWDlg(uiParent*,PropertyRefSelection&,
 					      IOPar&,int,const char* lbltxt=0);
+			~uiSelectPropRefsVWDlg();
+
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     

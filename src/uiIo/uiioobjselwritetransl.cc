@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "transl.h"
 
 
+// uiIOObjTranslatorWriteOpts
 mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
 		   uiIOObjTranslatorWriteOpts::factory);
 
@@ -34,8 +35,14 @@ uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
 }
 
 
+uiIOObjTranslatorWriteOpts::~uiIOObjTranslatorWriteOpts()
+{}
+
+
+
+// uiIOObjSelWriteTranslator
 uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
-				const CtxtIOObj& ctio,
+			const CtxtIOObj& ctio,
 			const BufferStringSet& transltoavoid, bool withopts )
     : uiGroup(p,"Write Translator selector")
     , ctxt_(*new IOObjContext(ctio.ctxt_))

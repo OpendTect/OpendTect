@@ -79,6 +79,10 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 }
 
 
+uiDPSSelGrpDlg::~uiDPSSelGrpDlg()
+{}
+
+
 void uiDPSSelGrpDlg::changeSelGrbNm( CallBacker* )
 {
 

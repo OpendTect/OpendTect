@@ -34,6 +34,7 @@ public:
 			uiCreateDPSPDF(uiParent*,const DataPointSet&,
 				       bool restricted=false);
 			~uiCreateDPSPDF();
+
     const ProbDenFunc*	probDensFunc() const			{ return pdf_; }
     void		setPrefDefNames(const BufferStringSet&);
 

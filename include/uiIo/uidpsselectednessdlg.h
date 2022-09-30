@@ -23,9 +23,10 @@ mExpClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
 public:
 				uiDPSSelectednessDlg(uiParent*,
 					uiDataPointSetCrossPlotter&);
-    bool			acceptOK(CallBacker*) override;
+				~uiDPSSelectednessDlg();
 
 protected:
+    bool			acceptOK(CallBacker*) override;
 
     void			addColumn();
     void			showOverlayAttrib();

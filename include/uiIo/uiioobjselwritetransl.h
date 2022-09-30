@@ -25,8 +25,8 @@ class uiComboBox;
 mExpClass(uiIo) uiIOObjTranslatorWriteOpts : public uiGroup
 {
 public:
-
 			uiIOObjTranslatorWriteOpts(uiParent*,const Translator&);
+			~uiIOObjTranslatorWriteOpts();
 
     mDefineFactory1ParamInClasswKW( uiIOObjTranslatorWriteOpts, uiParent*,
 			factory, transl_.getDisplayName() )

@@ -26,17 +26,28 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 // DPSMergerProp
+DPSMergerProp::DPSMergerProp( const MultiID& id, PackID mid, PackID sid )
+    : primarydpsid_(mid)
+    , secondarydpsid_(sid)
+    , newdpsid_(id)
+{}
+
+
+DPSMergerProp::~DPSMergerProp()
+{}
+
+
 DPSMergerProp::PackID DPSMergerProp::primaryDPID() const
-{ return masterdpsid_; }
+{ return primarydpsid_; }
 
 DPSMergerProp::PackID DPSMergerProp::secondaryDPID() const
-{ return slavedpsid_; }
+{ return secondarydpsid_; }
 
 const TypeSet<int>& DPSMergerProp::primaryColIDs() const
-{ return mastercolids_; }
+{ return primarycolids_; }
 
 const TypeSet<int>& DPSMergerProp::secondaryColIDs() const
-{ return slavecolids_; }
+{ return secondarycolids_; }
 
 
 // DPSMerger
@@ -51,6 +62,10 @@ DPSMerger::DPSMerger( const DPSMergerProp& prop )
     mDynamicCast(DataPointSet*,sdps_,sdp.ptr());
     newdps_ = new DataPointSet( *mdps_ );
 }
+
+
+DPSMerger::~DPSMerger()
+{}
 
 
 void DPSMerger::addNewCols( const BufferStringSet& clnms )
@@ -177,15 +192,15 @@ DataPointSet::DataRow DPSMerger::getDataRow( int srowid, int mrowid )
 
 void DPSMergerProp::setColid( int primarycolid, int secondarycolid )
 {
-    if ( !mastercolids_.isPresent(primarycolid) )
+    if ( !primarycolids_.isPresent(primarycolid) )
     {
-	mastercolids_ += primarycolid;
-	slavecolids_ += secondarycolid;
+	primarycolids_ += primarycolid;
+	secondarycolids_ += secondarycolid;
     }
     else
     {
-	const int idx = mastercolids_.indexOf( primarycolid );
-	slavecolids_[idx] = secondarycolid;
+	const int idx = primarycolids_.indexOf( primarycolid );
+	secondarycolids_[idx] = secondarycolid;
     }
 }
 

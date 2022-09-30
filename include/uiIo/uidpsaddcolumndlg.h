@@ -26,6 +26,8 @@ mExpClass(uiIo) uiDPSAddColumnDlg : public uiDialog
 { mODTextTranslationClass(uiDPSAddColumnDlg);
 public:
 				uiDPSAddColumnDlg(uiParent*,bool withmathop);
+				~uiDPSAddColumnDlg();
+
     void			setColInfos(const BufferStringSet& colnms,
 					    const TypeSet<int>& colids);
     void			checkMathExpr(CallBacker*);

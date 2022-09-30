@@ -23,13 +23,15 @@ mExpClass(uiIo) uiProcSettings : public uiSettingsGroup
 { mODTextTranslationClass(uiProcSettings);
 public:
 			mDefaultFactoryInstantiation2Param(
-		uiSettingsGroup,
-		uiProcSettings,
-		uiParent*,Settings&,
-		"Processing",
-		mToUiStringTodo(sFactoryKeyword()))
+				uiSettingsGroup,
+				uiProcSettings,
+				uiParent*,Settings&,
+				"Processing",
+				uiStrings::sProcessing())
 
 			uiProcSettings(uiParent*,Settings&);
+			~uiProcSettings();
+
     bool		acceptOK() override;
     HelpKey		helpKey() const override;
 

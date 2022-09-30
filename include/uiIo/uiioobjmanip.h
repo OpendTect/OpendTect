@@ -22,11 +22,8 @@ class BufferStringSet;
 mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
 { mODTextTranslationClass(uiManipButGrp);
 public:
-			uiManipButGrp(uiParent* p)
-			    : uiButtonGroup(p,"ManipButtons",OD::Vertical)
-			{ altbutdata.allowNull(); }
-			~uiManipButGrp()
-			{ deepErase(butdata); deepErase(altbutdata); }
+			uiManipButGrp(uiParent*);
+			~uiManipButGrp();
 
     enum Type		{ FileLocation, Rename, Remove, ReadOnly };
 
@@ -42,6 +39,8 @@ protected:
     mStruct(uiIo) ButData
     {
 			ButData(uiToolButton*,const char*,const uiString&);
+			~ButData();
+
 	uiToolButton*	but;
 	BufferString	pmnm;
 	uiString	tt;
@@ -58,8 +57,7 @@ class uiIOObjManipGroup;
 mExpClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
 { mODTextTranslationClass(uiIOObjManipGroupSubj);
 public:
-				uiIOObjManipGroupSubj( uiObject* o )
-				    : obj_(o), grp_(0)		{}
+				~uiIOObjManipGroupSubj();
 
     virtual MultiID		currentID() const			= 0;
     virtual void		getChosenIDs(TypeSet<MultiID>&) const	= 0;
@@ -70,8 +68,11 @@ public:
     virtual void		chgsOccurred()				= 0;
     virtual void		relocStart(const char*)			{}
 
-    uiIOObjManipGroup*		grp_;
+    uiIOObjManipGroup*		grp_				= nullptr;
     uiObject*			obj_;
+
+protected:
+				uiIOObjManipGroupSubj(uiObject*);
 };
 
 

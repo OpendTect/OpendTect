@@ -23,8 +23,8 @@ It returns an IOObj* after successful go().
 mExpClass(uiIo) uiIOObj
 { mODTextTranslationClass(uiIOObj);
 public:
-				uiIOObj( IOObj& i, bool silent=false )
-				    : ioobj_(i), silent_(silent)	{}
+				uiIOObj(IOObj&,bool silent=false);
+				~uiIOObj();
 
     bool			removeImpl(bool remove_entry,bool mustrmimpl,
 					   bool doconfirm=true);

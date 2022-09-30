@@ -27,12 +27,8 @@ time though, they could make 'import' menus (almost) obsolete.
 mExpClass(uiIo) uiIOObjInserter : public CallBacker
 {
 public:
-			uiIOObjInserter( const Translator& trl )
-			    : transl_(trl)
-			    , objInserterd(this)
-			    , ctxt_(*new IOObjContext(nullptr))
-			{}
-    virtual		~uiIOObjInserter()	{}
+			uiIOObjInserter(const Translator&);
+    virtual		~uiIOObjInserter();
 
     mDefineFactoryInClasswKW( uiIOObjInserter, factory, factoryName() )
 

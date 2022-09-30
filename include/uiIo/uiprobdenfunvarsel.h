@@ -19,19 +19,20 @@ mExpClass(uiIo) uiPrDenFunVarSel : public uiGroup
 { mODTextTranslationClass(uiPrDenFunVarSel);
 public:
 
-struct DataColInfo
-{
-			    DataColInfo(const BufferStringSet& colnames,
-				    	const TypeSet<int>& colids)
-				: colnms_(colnames), colids_(colids) {}
+		struct DataColInfo
+		{
+		    DataColInfo(const BufferStringSet& colnames,
+				const TypeSet<int>& colids);
+		    ~DataColInfo();
 
-    BufferStringSet			colnms_;
-    TypeSet<int>			colids_;
-};
+		    BufferStringSet			colnms_;
+		    TypeSet<int>			colids_;
+		};
 
 				uiPrDenFunVarSel(uiParent*, const DataColInfo&);
 				uiPrDenFunVarSel(uiParent*,const DataColInfo&,
 						 const uiString& lbl);
+				~uiPrDenFunVarSel();
 
     int 			selNrBins() const;
     int 			selColID() const;

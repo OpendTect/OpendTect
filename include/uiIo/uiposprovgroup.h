@@ -30,7 +30,8 @@ public:
 			    , withrandom_(false)
 			 { if ( is_2d ) tkzs_.set2DDef(); }
 
-	virtual ~Setup()				{}
+	virtual		~Setup()				{}
+
 	Setup& cs(TrcKeyZSampling d) { tkzs_ = d; return *this; }
 	//!<For legacy compliance
 	mDefSetupMemb(bool,withstep)
@@ -43,6 +44,7 @@ public:
     };
 
 			uiPosProvGroup(uiParent*,const Setup&);
+			~uiPosProvGroup();
 
     virtual void	setExtractionDefaults()		{}
     virtual bool	hasRandomSampling() const	{ return false; }

@@ -464,6 +464,14 @@ bool uiManageLineGeomDlg::acceptOK( CallBacker* )
 
 
 // Geom2DImpHandler
+Geom2DImpHandler::Geom2DImpHandler()
+{}
+
+
+Geom2DImpHandler::~Geom2DImpHandler()
+{}
+
+
 Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( nm );

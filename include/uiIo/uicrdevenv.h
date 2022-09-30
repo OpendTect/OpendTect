@@ -17,6 +17,7 @@ class uiFileInput;
 mExpClass(uiIo) uiCrDevEnv : public uiDialog
 { mODTextTranslationClass(uiCrDevEnv);
 public:
+			~uiCrDevEnv();
 
     static void		crDevEnv(uiParent*);		
     static bool		isOK(const char* dir=0); //!< default dir: $WORK

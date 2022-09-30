@@ -165,6 +165,10 @@ uiNorthArrowObject::uiNorthArrowObject( BasemapObject* bmo, bool withangle )
 }
 
 
+uiNorthArrowObject::~uiNorthArrowObject()
+{}
+
+
 void uiNorthArrowObject::setSurveyInfo( const SurveyInfo* si )
 {
     survinfo_ = si;
@@ -267,6 +271,10 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     centerWorldItem( true );
     setSurveyInfo( survinfo_ );
 }
+
+
+uiSurveyMap::~uiSurveyMap()
+{}
 
 
 uiSurveyBoxObject* uiSurveyMap::getSurveyBox() const

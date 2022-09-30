@@ -30,13 +30,14 @@ class uiTextFileDlg;
 mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
 { mODTextTranslationClass(uiMMBatchJobDispatcher);
 public:
-                        uiMMBatchJobDispatcher(uiParent*,const IOPar&,
-                                         const HelpKey& helpkey=mNoHelpKey );
 			~uiMMBatchJobDispatcher();
 
     static bool		initMMProgram(int argc,char** argv,IOPar& jobpars);
 
 protected:
+
+                        uiMMBatchJobDispatcher(uiParent*,const IOPar&,
+                                         const HelpKey& helpkey=mNoHelpKey );
 
     uiGroup*		specparsgroup_;			// for subclass
     virtual bool	initWork(bool retry)		= 0;

@@ -23,12 +23,13 @@ namespace ZDomain { class Def; }
 mExpClass(uiIo) uiSelZRange : public uiGroup
 { mODTextTranslationClass(uiSelZRange)
 public:
-                        uiSelZRange(uiParent*,bool wstep,
+			uiSelZRange(uiParent*,bool wstep,
 				    bool isrel=false,const char* lbltxt=0,
 				    const char* zdomkey=0);
 			uiSelZRange(uiParent* p,StepInterval<float> limitrg,
 				    bool wstep,const char* lbltxt=0,
 				    const char* zdomkey=0);
+			~uiSelZRange();
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
@@ -63,9 +64,10 @@ mExpClass(uiIo) uiSelNrRange : public uiGroup
 public:
     enum Type		{ Inl, Crl, Gen };
 
-                        uiSelNrRange(uiParent*,Type,bool wstep);
+			uiSelNrRange(uiParent*,Type,bool wstep);
 			uiSelNrRange(uiParent*,StepInterval<int> limit,
 				     bool wstep,const char*);
+			~uiSelNrRange();
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
@@ -82,14 +84,14 @@ public:
 
 protected:
 
-    uiCheckBox*		cbox_;
+    uiCheckBox*		cbox_				= nullptr;
     uiSpinBox*		startfld_;
-    uiSpinBox*		icstopfld_;
-    uiLineEdit*		nrstopfld_;
-    uiLabeledSpinBox*	stepfld_;
+    uiSpinBox*		icstopfld_			= nullptr;
+    uiLineEdit*		nrstopfld_			= nullptr;
+    uiLabeledSpinBox*	stepfld_			= nullptr;
     BufferString	lbltxt_;
-    bool		finalized_;
-    bool		withchk_;
+    bool		finalized_			= false;
+    bool		withchk_			= false;
     int			defstep_;
 
     void		valChg(CallBacker*);
@@ -101,7 +103,7 @@ protected:
     void		makeInpFields(StepInterval<int>,bool,bool);
 
 private:
-    bool		checked_;
+    bool		checked_			= false;
 
 };
 
@@ -111,15 +113,15 @@ private:
 mExpClass(uiIo) uiSelSteps : public uiGroup
 { mODTextTranslationClass(uiSelSteps)
 public:
-
-                        uiSelSteps(uiParent*,bool is2d);
+			uiSelSteps(uiParent*,bool is2d);
+			~uiSelSteps();
 
     BinID		getSteps() const;
     void		setSteps(const BinID&);
 
 protected:
 
-    uiSpinBox*		inlfld_;
+    uiSpinBox*		inlfld_		= nullptr;
     uiSpinBox*		crlfld_;
 
 };
@@ -130,11 +132,12 @@ protected:
 mExpClass(uiIo) uiSelHRange : public uiGroup
 { mODTextTranslationClass(uiSelHRange)
 public:
-                        uiSelHRange(uiParent*,bool wstep);
+			uiSelHRange(uiParent*,bool wstep);
 			uiSelHRange(uiParent*,const TrcKeySampling& limiths,
 				    bool wstep);
+			~uiSelHRange();
 
-    TrcKeySampling		getSampling() const;
+    TrcKeySampling	getSampling() const;
     void		setSampling(const TrcKeySampling&);
     void		setLimits(const TrcKeySampling&);
     void		displayStep( bool yn );
@@ -150,7 +153,8 @@ public:
 mExpClass(uiIo) uiSelSubvol : public uiGroup
 {
 public:
-                        uiSelSubvol(uiParent*,bool wstep,const char* zdomkey=0);
+			uiSelSubvol(uiParent*,bool wstep,const char* zdomkey=0);
+			~uiSelSubvol();
 
     TrcKeyZSampling	getSampling() const;
     void		setSampling(const TrcKeyZSampling&);

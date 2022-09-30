@@ -202,6 +202,8 @@ bool acceptOK( CallBacker* ) override
 };
 
 
+
+// uiStartNewSurveySetup
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
 	: uiDialog(p,Setup(tr("Create New Survey"),
@@ -251,6 +253,10 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     fillSipsFld( has2D(), has3D(), hasWells() );
 }
+
+
+uiStartNewSurveySetup::~uiStartNewSurveySetup()
+{}
 
 
 void uiStartNewSurveySetup::setSurveyNameFld( BufferString name, bool canedit )

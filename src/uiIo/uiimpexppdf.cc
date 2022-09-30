@@ -92,6 +92,10 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 }
 
 
+uiImpRokDocPDF::~uiImpRokDocPDF()
+{}
+
+
 void uiImpRokDocPDF::setDisplayedFields( bool dim1, bool dim2 )
 {
     const bool doshow = dim1 || dim2;
@@ -523,6 +527,10 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     outfld_->setSelectMode( uiFileDialog::AnyFile );
     outfld_->attach( alignedBelow, inpfld_ );
 }
+
+
+uiExpRokDocPDF::~uiExpRokDocPDF()
+{}
 
 
 class RokDocExporter

@@ -62,11 +62,9 @@ protected:
 mExpClass(uiIo) SelectionGrp : public NamedObject
 {
 public:
-			SelectionGrp(const char* nm,const OD::Color& col)
-			    : NamedObject(nm), col_(col)	{}
-			SelectionGrp()
-			    : NamedObject()			{}
-			~SelectionGrp()				{}
+			SelectionGrp(const char* nm,const OD::Color& col);
+			SelectionGrp(const char* nm=nullptr);
+			~SelectionGrp();
 
     OD::Color		col_;
     int			size() const;

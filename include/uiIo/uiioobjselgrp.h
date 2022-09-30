@@ -108,13 +108,14 @@ public:
     {
     public:
 			Setup( OD::ChoiceMode cm=OD::ChooseOnlyOne )
-			: choicemode_(cm)
-			, allowreloc_(false)
-			, allowremove_(true)
-			, allowsetdefault_(false)
-			, withinserters_(true)
-			, withwriteopts_(true)
-			, confirmoverwrite_(true) {}
+			    : choicemode_(cm)
+			    , allowreloc_(false)
+			    , allowremove_(true)
+			    , allowsetdefault_(false)
+			    , withinserters_(true)
+			    , withwriteopts_(true)
+			    , confirmoverwrite_(true) {}
+			~Setup()	{}
 
 	mDefSetupMemb(OD::ChoiceMode,choicemode);
 	mDefSetupMemb(bool,allowreloc);

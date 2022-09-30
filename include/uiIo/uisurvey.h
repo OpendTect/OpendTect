@@ -53,6 +53,7 @@ public:
 			    : cb_(cb)
 			    , pixmap_(pixmap)
 			    , tooltip_(tooltip)		{}
+			~Util()				{}
 
 	CallBack	cb_;
 	BufferString	pixmap_;
@@ -137,6 +138,7 @@ mExpClass(uiIo) uiStartNewSurveySetup : public uiDialog
 public:
 			uiStartNewSurveySetup(uiParent*,const char*,
 					      SurveyInfo&);
+			~uiStartNewSurveySetup();
 
     void		setSurveyNameFld(BufferString,bool);
     bool		isOK();

@@ -50,7 +50,8 @@ public:
 	mDefSetupMemb(ChoiceType,choicetype)
     };
 
-    			uiPosSubSel(uiParent*,const Setup&);
+			uiPosSubSel(uiParent*,const Setup&);
+			~uiPosSubSel();
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;

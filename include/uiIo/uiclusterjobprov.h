@@ -63,7 +63,8 @@ namespace Batch
 mExpClass(uiIo) SimpleClusterProgDef : public ClusterProgDef
 {
 public:
-			SimpleClusterProgDef() {}
+			SimpleClusterProgDef();
+			~SimpleClusterProgDef();
 
     bool		isSuitedFor(const char*) const override;
     bool		canHandle(const JobSpec&) const override;

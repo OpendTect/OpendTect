@@ -36,6 +36,7 @@ public:
 			    , buttontxt_(uiStrings::sSelect())
 			    , optional_(false)
 			    , keepmytxt_(false)		{}
+	virtual		~Setup()			{}
 
 	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(uiString,buttontxt)

@@ -23,10 +23,11 @@ namespace Math { class Expression; }
 mExpClass(uiIo) uiDPSRefineSelDlg : public uiDialog
 { mODTextTranslationClass(uiDPSRefineSelDlg);
 public:
-
 				uiDPSRefineSelDlg(uiDataPointSetCrossPlotter&);
-				Math::Expression* mathObject() { 
-				return mathobj_; }
+				~uiDPSRefineSelDlg();
+
+    Math::Expression*		mathObject()
+				{  return mathobj_; }
 
 protected:
 

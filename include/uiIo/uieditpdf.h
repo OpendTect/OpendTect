@@ -71,6 +71,7 @@ public:
 					 bool edit,bool isnew=false,
 					 const MnemonicSelection* =nullptr,
 					 const BufferStringSet* varnms=nullptr);
+			~uiEditProbDenFuncDlg();
 
     bool		isChanged() const	{ return edfld_->isChanged(); }
 
@@ -134,7 +135,6 @@ public:
 				    bool editable,bool isnew=false,
 				    const MnemonicSelection* = nullptr,
 				    const BufferStringSet* varnms = nullptr);
-
 			~uiEditGaussianProbDenFunc();
 
     bool		commitChanges() override;
@@ -169,5 +169,4 @@ protected:
     void		varSel(CallBacker*);
     void		addSetPush(CallBacker*);
     void		rmPush(CallBacker*);
-
 };
