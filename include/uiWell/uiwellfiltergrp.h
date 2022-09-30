@@ -10,12 +10,12 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 
+#include "mnemonics.h"
 #include "odcommonenums.h"
 #include "welldata.h"
 #include "uidialog.h"
 #include "uigroup.h"
 
-class MnemonicSelection;
 class uiListBox;
 class uiListBoxFilter;
 class uiTableView;
@@ -85,6 +85,7 @@ public:
     void			logValRangeFilter(const MnemonicSelection& mns,
 				    const TypeSet<Interval<float>>& logvalrg);
     bool			isLogMode() const	{ return logmode_; }
+    void			setLogMode(bool yn=true);
 
     Notifier<uiWellFilterGrp>	markerSelectionChg;
 
@@ -109,6 +110,7 @@ protected:
     OD::Orientation		orient_;
 
     bool				logmode_ = true;
-    const MnemonicSelection*		mns_ = nullptr;
+    MnemonicSelection			mns_;
+    BufferStringSet			markernms_;
     const ObjectSet<Well::Data>* 	wds_ = nullptr;
 };

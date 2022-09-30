@@ -107,6 +107,8 @@ public:
 				  bool onlyloaded=false);
     static bool		getAllLogNames(BufferStringSet&,
 				       bool onlyloaded=false);
+    static bool		getAllMnemonics(MnemonicSelection&,
+					bool onlyloaded=false);
 
     static bool		getMarkersByID(const MultiID&, BufferStringSet&);
     static bool		getMarkersByID(const MultiID&, BufferStringSet&,
