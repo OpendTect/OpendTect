@@ -241,3 +241,30 @@ bool isEmpty( const NLAModel* mdl )
 {
     return !mdl || mdl->design().inputs_.isEmpty();
 }
+
+
+NLAModel::NLAModel()
+{}
+
+
+NLAModel::~NLAModel()
+{}
+
+
+// NLADesign
+NLADesign::NLADesign()
+{
+    clear();
+}
+
+
+NLADesign::NLADesign( const NLADesign& nlad )
+{
+    *this = nlad;
+}
+
+
+NLADesign::~NLADesign()
+{
+    clear();
+}

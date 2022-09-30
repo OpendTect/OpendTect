@@ -17,7 +17,7 @@ mClass(NLA) NLAModel
 {
 public:
 
-    virtual				~NLAModel()			{}
+    virtual				~NLAModel();
 
     virtual const char*			name() const			= 0;
     virtual const NLADesign&		design() const			= 0;
@@ -37,6 +37,8 @@ public:
 					{ return compact ? "NN"
 							 : "Neural Network"; }
 
+protected:
+					NLAModel();
 };
 
 

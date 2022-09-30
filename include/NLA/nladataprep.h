@@ -23,7 +23,7 @@ mExpClass(NLA) NLADataPreparer
 {
 public:
 			NLADataPreparer(BinIDValueSet&,int tc);
-			~NLADataPreparer();
+    virtual		~NLADataPreparer();
 
     void		removeUndefs(bool targetonly=false);
     void		limitRange(const Interval<float>&);
@@ -31,7 +31,12 @@ public:
     struct BalanceSetup
     {
 			BalanceSetup()
-			: nrclasses(0), nrptsperclss(0), noiselvl(0.01)	{}
+			: nrclasses(0), nrptsperclss(0), noiselvl(0.01)
+			{}
+
+			~BalanceSetup()
+			{}
+
 	int		nrclasses, nrptsperclss;
 	float		noiselvl;
     };
