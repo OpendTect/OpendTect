@@ -48,6 +48,9 @@ class uiPSMultiPropDlg;
 mExpClass(uiPreStackProcessing) PSViewAppearance : public FlatView::Appearance
 {
 public:
+			PSViewAppearance();
+			~PSViewAppearance();
+
     BufferString	datanm_;
     bool operator==( const PSViewAppearance& psapp ) const
     { return datanm_ == psapp.datanm_; }
@@ -142,6 +145,7 @@ mExpClass(uiPreStackProcessing) uiStoredViewer2DMainWin
 public:
 			uiStoredViewer2DMainWin(uiParent*,const char* title,
 						bool is2d=false);
+			~uiStoredViewer2DMainWin();
 
     void		init(const MultiID&,const BinID& bid,bool isinl,
 			     const StepInterval<int>&,const char* linename=0);
@@ -185,6 +189,7 @@ mExpClass(uiPreStackProcessing) uiSyntheticViewer2DMainWin
 public:
 			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
 			~uiSyntheticViewer2DMainWin();
+
     void		setGathers(const TypeSet<PreStackView::GatherInfo>&);
     void		removeGathers();
     void		getGatherNames(BufferStringSet&) const override;

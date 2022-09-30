@@ -23,4 +23,7 @@ uiSemblanceAlgorithm::uiSemblanceAlgorithm( uiParent* p, const HelpKey& helpkey)
 {}
 
 
+uiSemblanceAlgorithm::~uiSemblanceAlgorithm()
+{}
+
 } // namespace PreStack

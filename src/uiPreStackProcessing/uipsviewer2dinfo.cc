@@ -34,6 +34,10 @@ uiGatherDisplayInfoHeader::uiGatherDisplayInfoHeader( uiParent* p )
 }
 
 
+uiGatherDisplayInfoHeader::~uiGatherDisplayInfoHeader()
+{}
+
+
 void uiGatherDisplayInfoHeader::setOffsetRange( const Interval<float>& offs )
 {
     //TODO display axis range in a graphcis view

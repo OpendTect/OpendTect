@@ -55,6 +55,14 @@ static int sStartNrViewers = 8;
 namespace PreStackView
 {
 
+PSViewAppearance::PSViewAppearance()
+{}
+
+
+PSViewAppearance::~PSViewAppearance()
+{}
+
+
 static const char* sKeySynthetic()	{ return "Synthteic"; }
 
 static void setAnnotationPars( FlatView::Annotation& annot )
@@ -860,6 +868,10 @@ uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
 			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
     }
 }
+
+
+uiStoredViewer2DMainWin::~uiStoredViewer2DMainWin()
+{}
 
 
 void uiStoredViewer2DMainWin::getGatherNames( BufferStringSet& nms) const

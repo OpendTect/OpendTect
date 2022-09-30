@@ -84,6 +84,10 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 }
 
 
+uiTrimStatics::~uiTrimStatics()
+{}
+
+
 void uiTrimStatics::fillTable()
 {
     const TypeSet<TrimStatics::Iteration>& its = processor_->getIterations();

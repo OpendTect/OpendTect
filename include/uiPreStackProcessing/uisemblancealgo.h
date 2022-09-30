@@ -26,6 +26,9 @@ mODTextTranslationClass(uiSemblanceAlgorithm)
 public:
     			mDefineFactory1ParamInClass(uiSemblanceAlgorithm,
 						    uiParent*,factory);
+
+			~uiSemblanceAlgorithm();
+
     virtual bool	populateUI(const SemblanceAlgorithm*) 		= 0;
     virtual bool	populateObject(SemblanceAlgorithm*) const 	= 0;
 

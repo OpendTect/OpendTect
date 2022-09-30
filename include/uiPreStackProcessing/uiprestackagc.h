@@ -23,6 +23,7 @@ mExpClass(uiPreStackProcessing) uiAGC : public uiDialog
 public:
     static void		initClass();
 			uiAGC(uiParent*,AGC*);
+			~uiAGC();
 
 protected:
     bool		acceptOK(CallBacker*) override;

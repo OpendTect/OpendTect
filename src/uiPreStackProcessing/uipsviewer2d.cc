@@ -47,6 +47,13 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
 }
 
 
+uiGatherDisplay::~uiGatherDisplay()
+{
+    NotifyStopper ns( viewer_->dataChanged );
+    delete gatherpainter_;
+}
+
+
 void uiGatherDisplay::setInitialSize( const uiSize& sz )
 {
     setPrefWidth( sz.width() );
@@ -61,12 +68,6 @@ void uiGatherDisplay::setWidth( int width )
     viewer_->rgbCanvas().setMaximumWidth( width );
 }
 
-
-uiGatherDisplay::~uiGatherDisplay()
-{
-    NotifyStopper ns( viewer_->dataChanged );
-    delete gatherpainter_;
-}
 
 void uiGatherDisplay::setVDGather( DataPackID vdid )
 {

@@ -25,6 +25,7 @@ mExpClass(uiPreStackProcessing) uiAngleMuteComputer : public uiDialog
 public:
 			uiAngleMuteComputer(uiParent*);
 			~uiAngleMuteComputer();
+
 protected:
 
 

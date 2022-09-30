@@ -102,6 +102,10 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 }
 
 
+uiProcessorManager::~uiProcessorManager()
+{}
+
+
 bool uiProcessorManager::restore()
 {
     return manager_.usePar( restorepar_ );

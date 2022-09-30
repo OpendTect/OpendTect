@@ -387,6 +387,10 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
 }
 
 
+uiAngleMute::~uiAngleMute()
+{}
+
+
 bool uiAngleMute::acceptOK(CallBacker*)
 {
     if ( !anglecompgrp_->acceptOK() )

@@ -26,6 +26,7 @@ public:
 
     static void		initClass();
 			uiMute(uiParent*,Mute*);
+			~uiMute();
 
 protected:
 

@@ -31,6 +31,7 @@ mExpClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
 { mODTextTranslationClass(uiProcessorManager);
 public:
 				uiProcessorManager(uiParent*,ProcessManager&);
+				~uiProcessorManager();
 
     Notifier<uiProcessorManager>change;
 

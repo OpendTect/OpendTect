@@ -21,7 +21,7 @@ mClass(uiPreStackProcessing) uiGatherDisplayInfoHeader : public uiGroup
 { mODTextTranslationClass(uiGatherDisplayInfoHeader)
 public:
     				uiGatherDisplayInfoHeader(uiParent*);
-    				~uiGatherDisplayInfoHeader() {}
+				~uiGatherDisplayInfoHeader();
 
     void			setData(const BinID&,bool inl,bool is2d,
 	    				const char* data);
