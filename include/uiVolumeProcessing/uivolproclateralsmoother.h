@@ -29,9 +29,9 @@ public:
 	VolProc::LateralSmoother::sFactoryDisplayName())
 	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
 
+				~uiLateralSmoother();
 
 protected:
-
 				uiLateralSmoother(uiParent*,LateralSmoother*,
 						  bool is2d);
     static uiStepDialog*	createInstance(uiParent*, Step*,bool is2d);

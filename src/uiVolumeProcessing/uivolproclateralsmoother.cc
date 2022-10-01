@@ -107,6 +107,10 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
 }
 
 
+uiLateralSmoother::~uiLateralSmoother()
+{}
+
+
 uiStepDialog* uiLateralSmoother::createInstance( uiParent* parent, Step* ps,
 						 bool is2d )
 {

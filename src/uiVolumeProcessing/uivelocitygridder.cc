@@ -68,6 +68,10 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelocityGridder* ro,
 }
 
 
+uiVelocityGridder::~uiVelocityGridder()
+{}
+
+
 void uiVelocityGridder::nameChangeCB( CallBacker* )
 {
     namenotset_ = false;

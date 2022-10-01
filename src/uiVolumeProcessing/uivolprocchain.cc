@@ -54,6 +54,10 @@ uiStepDialog::uiStepDialog( uiParent* p, const uiString& stepnm, Step* step,
 }
 
 
+uiStepDialog::~uiStepDialog()
+{}
+
+
 void uiStepDialog::addMultiInputFld()
 {
     addMultiInputFld( 0 );

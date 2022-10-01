@@ -29,10 +29,11 @@ public:
 	WellLogInterpolator::sFactoryDisplayName())
 	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
 
+				~uiWellLogInterpolator();
+
 protected:
 				uiWellLogInterpolator(uiParent*,
 						WellLogInterpolator&,bool is2d);
-				~uiWellLogInterpolator();
 
     static VolProc::uiStepDialog* createInstance(uiParent*,VolProc::Step*,bool);
 

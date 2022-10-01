@@ -123,6 +123,10 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 }
 
 
+uiVoxelConnectivityFilter::~uiVoxelConnectivityFilter()
+{}
+
+
 void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
 {
     cutoffvalfld_->display( cutofftypefld_->getIntValue()!=mCutOutside &&

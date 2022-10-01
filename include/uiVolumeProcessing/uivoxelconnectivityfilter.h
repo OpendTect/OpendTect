@@ -26,6 +26,8 @@ public:
 	    VolProc::VoxelConnectivityFilter::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
 
+				~uiVoxelConnectivityFilter();
+
 protected:
 				uiVoxelConnectivityFilter(uiParent*,
 					    VoxelConnectivityFilter*,bool is2d);

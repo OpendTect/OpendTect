@@ -22,6 +22,7 @@ mExpClass(uiVolumeProcessing) uiVolProcAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiVolProcAttrib);
 public:
 			uiVolProcAttrib(uiParent*,bool);
+			~uiVolProcAttrib();
 
 protected:
 
