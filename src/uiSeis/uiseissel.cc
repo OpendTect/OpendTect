@@ -147,6 +147,10 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
+uiSeisSelDlg::~uiSeisSelDlg()
+{}
+
+
 void uiSeisSelDlg::entrySel( CallBacker* )
 {
     if ( !compfld_ )
@@ -483,6 +487,10 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, bool is2d, bool forread,
 }
 
 
+uiSteerCubeSel::~uiSteerCubeSel()
+{}
+
+
 const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
 {
     BufferString defkey = uiSeisSel::getDefaultKey( gt );
@@ -507,6 +515,10 @@ uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
 
     setHAlignObj( seissel_ );
 }
+
+
+uiSeisPosProvGroup::~uiSeisPosProvGroup()
+{}
 
 
 #define mGetSeis3DKey(k) IOPar::compKey(sKeyType(),k)

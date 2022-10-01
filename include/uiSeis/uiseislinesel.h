@@ -74,8 +74,8 @@ mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
 { mODTextTranslationClass(uiSeis2DLineSel);
 
 public:
-
 			uiSeis2DLineSel(uiParent*,bool multisel=false);
+			~uiSeis2DLineSel();
 
     bool		inputOK(bool emit_uimsg=true) const;
 
@@ -119,8 +119,8 @@ protected:
 mExpClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
 { mODTextTranslationClass(uiSeis2DLineNameSel);
 public:
-
 			uiSeis2DLineNameSel(uiParent*,bool forread);
+			~uiSeis2DLineNameSel();
 
     const char*		getInput() const;
     Pos::GeomID		getInputGeomID() const;

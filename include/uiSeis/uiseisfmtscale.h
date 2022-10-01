@@ -23,6 +23,8 @@ public:
 
 			uiSeisFmtScale(uiParent*,Seis::GeomType,
 				       bool forexport=true,bool withext=true);
+			~uiSeisFmtScale();
+
     void		updateFrom(const IOObj&);
 
     Scaler*		getScaler() const;

@@ -28,6 +28,7 @@ public:
 			BrowserDef( const char* nm )
 			    : name_(nm)
 			    , for2d_(false)	{}
+			~BrowserDef()		{}
 
 	BufferString	name_;		// translator name for 3D
 	uiString	tooltip_;	// %1 will be filled by object name

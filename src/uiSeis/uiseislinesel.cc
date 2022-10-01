@@ -257,6 +257,10 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 }
 
 
+uiSeis2DLineSel::~uiSeis2DLineSel()
+{}
+
+
 const char* uiSeis2DLineSel::lineName() const
 { return selidxs_.isEmpty() ? "" : lnms_.get( selidxs_[0] ).buf(); }
 
@@ -494,6 +498,10 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
 
     fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
 }
+
+
+uiSeis2DLineNameSel::~uiSeis2DLineNameSel()
+{}
 
 
 void uiSeis2DLineNameSel::fillWithAll()

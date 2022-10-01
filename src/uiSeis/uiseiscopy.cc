@@ -73,6 +73,10 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
 }
 
 
+uiSeisCopyCube::~uiSeisCopyCube()
+{}
+
+
 void uiSeisCopyCube::inpSel( CallBacker* cb )
 {
     const IOObj* inioobj = inpfld_->ioobj( true );
@@ -220,6 +224,10 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outpfld_ );
 }
+
+
+uiSeisCopy2DDataSet::~uiSeisCopy2DDataSet()
+{}
 
 
 void uiSeisCopy2DDataSet::inpSel( CallBacker* )
