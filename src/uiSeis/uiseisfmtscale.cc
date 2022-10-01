@@ -176,6 +176,10 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
 }
 
 
+uiSeisFmtScale::~uiSeisFmtScale()
+{}
+
+
 void uiSeisFmtScale::setSteering( bool yn )
 {
     issteer_ = yn;

@@ -113,6 +113,10 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 }
 
 
+uiSeisPreLoadMgr::~uiSeisPreLoadMgr()
+{}
+
+
 void uiSeisPreLoadMgr::fullUpd( CallBacker* )
 {
     fillList();

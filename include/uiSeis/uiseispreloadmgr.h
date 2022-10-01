@@ -37,6 +37,7 @@ mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
 { mODTextTranslationClass(uiSeisPreLoadMgr)
 public:
 			uiSeisPreLoadMgr(uiParent*);
+			~uiSeisPreLoadMgr();
 
 protected:
 

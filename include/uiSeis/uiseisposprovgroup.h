@@ -20,9 +20,9 @@ class uiSelZRange;
 mExpClass(uiSeis) uiSeisPosProvGroup : public uiPosProvGroup
 { mODTextTranslationClass(uiSeisPosProvGroup);
 public:
-
 			uiSeisPosProvGroup(uiParent*,
 					    const uiPosProvGroup::Setup&);
+			~uiSeisPosProvGroup();
 
     void		usePar(const IOPar&) override;
     bool		fillPar(IOPar&) const override;

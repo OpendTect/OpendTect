@@ -27,6 +27,7 @@ mExpClass(uiSeis) uiSeisCopyCube : public uiDialog
 public:
 
 			uiSeisCopyCube(uiParent*,const IOObj*);
+			~uiSeisCopyCube();
 
 protected:
 
@@ -50,9 +51,9 @@ protected:
 mExpClass(uiSeis) uiSeisCopy2DDataSet : public uiDialog
 { mODTextTranslationClass(uiSeisCopy2DDataSet)
 public:
-
 			uiSeisCopy2DDataSet(uiParent*,const IOObj*,
 					    const char* fixedouttransl=0);
+			~uiSeisCopy2DDataSet();
 protected:
 
     uiSeisSel*		inpfld_;

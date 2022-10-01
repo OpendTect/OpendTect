@@ -35,6 +35,10 @@ uiSeisIOObjInfo::uiSeisIOObjInfo( const MultiID& key, bool errs )
 }
 
 
+uiSeisIOObjInfo::~uiSeisIOObjInfo()
+{}
+
+
 #define mChk(ret) if ( !isOK() ) return ret
 
 bool uiSeisIOObjInfo::provideUserInfo() const

@@ -46,6 +46,7 @@ public:
 			    , allowsetsurvdefault_(false)
 			    , explprepost_(false)
 			    , selectcomp_(false)	{}
+			~Setup()			{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
@@ -110,6 +111,7 @@ public:
 
 			uiSeisSelDlg(uiParent*,const CtxtIOObj&,
 				     const uiSeisSel::Setup&);
+			~uiSeisSelDlg();
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -140,6 +142,7 @@ public:
 					       toUiString("%1 %2")
 					       .arg(uiStrings::sSteering())
 					       .arg(uiStrings::sData()));
+				~uiSteerCubeSel();
 
 protected:
 

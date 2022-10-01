@@ -18,6 +18,7 @@ public:
 
 			uiSeisIOObjInfo(const IOObj&,bool error_feedback=true);
 			uiSeisIOObjInfo(const MultiID&,bool err_feedback=true);
+			~uiSeisIOObjInfo();
 
     bool		isOK() const		{ return sii.isOK(); }
     bool		is2D() const		{ return sii.is2D(); }
