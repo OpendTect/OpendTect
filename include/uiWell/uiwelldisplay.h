@@ -43,6 +43,7 @@ public:
 				    , withcontrol_(true)
 				    , takedisplayfrom3d_(false)
 				    {}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(bool,nobackground)
 	mDefSetupMemb(bool,noxannot)

@@ -31,6 +31,10 @@ uiODWellWriteOpts::uiODWellWriteOpts( uiParent* p )
 }
 
 
+uiODWellWriteOpts::~uiODWellWriteOpts()
+{}
+
+
 void uiODWellWriteOpts::use( const IOPar& iop )
 {
     const BufferString res = iop.find( Well::odWriter::sKeyLogStorage() );

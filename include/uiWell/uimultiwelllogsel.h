@@ -37,6 +37,7 @@ public:
 				    , withzvalsel_(true)
 				    , txtofmainfld_("Extract Between")
 				    {}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(bool,withzintime)
 	mDefSetupMemb(bool,withzvalsel)
@@ -94,6 +95,7 @@ public:
 				    , singlelog_(false)
 				    , withextractintime_(SI().zIsTime())
 				    { }
+	~Setup()	{}
 
 	mDefSetupMemb(bool,withzstep)
 	mDefSetupMemb(bool,withsampling)
@@ -104,6 +106,7 @@ public:
     };
 
 			uiWellExtractParams(uiParent*,const Setup&);
+			~uiWellExtractParams();
 
     Well::ExtractParams& params()
 			{ return static_cast<Well::ExtractParams&>(*params_); }

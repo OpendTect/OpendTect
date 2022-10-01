@@ -29,6 +29,7 @@ mExpClass(uiWell) uiWellSelGrp : public uiGroup
 { mODTextTranslationClass(uiWellSelGrp);
 public:
 			uiWellSelGrp(uiParent*,bool withpos=true);
+			~uiWellSelGrp();
 
     void		getCoordinates(TypeSet<Coord>&);
     const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }

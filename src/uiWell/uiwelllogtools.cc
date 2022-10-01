@@ -87,6 +87,10 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 }
 
 
+uiWellLogToolWinMgr::~uiWellLogToolWinMgr()
+{}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 int uiWellLogToolWinMgr::checkMaxLogsToDisplay()

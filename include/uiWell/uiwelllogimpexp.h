@@ -33,6 +33,7 @@ mExpClass(uiWell) uiImportLogsDlg : public uiDialog
 public:
 			uiImportLogsDlg(uiParent*,const IOObj*,
 					bool wtable=false);
+			~uiImportLogsDlg();
 
 protected:
 

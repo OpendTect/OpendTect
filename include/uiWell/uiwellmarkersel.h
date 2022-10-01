@@ -37,6 +37,7 @@ public:
 			mDeprecated("Use uiString")
 			Setup( bool single, const char* txt )
 			  : Setup(single,::toUiString(txt)) {}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(bool,single);	//!< false => two levels (a zone)
 	mDefSetupMemb(bool,allowsame);	//!< [true]
@@ -48,6 +49,7 @@ public:
     };
 
 			uiWellMarkerSel(uiParent*,const Setup&);
+			~uiWellMarkerSel();
 
     void		setMarkers(const Well::MarkerSet&);
     void		setMarkers(const BufferStringSet&);
@@ -115,6 +117,7 @@ public:
 			  : markerschoicemode_(markerscm)
 			  , withwellfilter_(withwllfilt)
 			  , wellschoicemode_(wellscm)	{}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(OD::ChoiceMode,markerschoicemode);
 	mDefSetupMemb(bool,withwellfilter);
@@ -124,6 +127,7 @@ public:
 
 			uiWellMarkersDlg(uiParent*,
 					 const uiWellMarkersDlg::Setup&);
+			~uiWellMarkersDlg();
 
 			//Available after dlg.go():
     void		getNames(BufferStringSet&);

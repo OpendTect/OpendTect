@@ -303,6 +303,10 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 }
 
 
+uiWellExtractParams::~uiWellExtractParams()
+{}
+
+
 void uiWellExtractParams::onFinalize( CallBacker* cb )
 {
     uiWellZRangeSelector::onFinalize( cb );

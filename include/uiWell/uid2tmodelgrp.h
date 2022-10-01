@@ -29,6 +29,7 @@ public:
 			    , withunitfld_(true)
 			    , asksetcsmdl_(false)
 			    , filefldlbl_("Depth to Time model file")	{}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(bool,fileoptional)
 	mDefSetupMemb(bool,withunitfld)
@@ -38,6 +39,7 @@ public:
     };
 
 			uiD2TModelGroup(uiParent*,const Setup&);
+			~uiD2TModelGroup();
 
     bool		getD2T(Well::Data&,bool cksh = true) const;
     uiString		errMsg() const		{ return errmsg_; }

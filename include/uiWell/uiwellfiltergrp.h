@@ -38,7 +38,6 @@ public:
 					const MnemonicSelection& mns,
 					const BufferStringSet& markernms,
 					OD::Orientation orient=OD::Horizontal);
-
 				~uiWellFilterGrp();
 
     void			setFilterItems(const ObjectSet<Well::Data>&,

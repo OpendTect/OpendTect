@@ -59,6 +59,10 @@ uiWellSel::uiWellSel( uiParent* p, bool forread, const uiIOObjSel::Setup& su )
 }
 
 
+uiWellSel::~uiWellSel()
+{}
+
+
 
 uiWellParSel::uiWellParSel( uiParent* p )
     : uiCompoundParSel(p,uiStrings::sWell(mPlural))
@@ -178,6 +182,10 @@ uiMultiWellSel::uiMultiWellSel( uiParent* p, bool singleline,
 		   uiMultiWellSel::newCurrentCB );
     }
 }
+
+
+uiMultiWellSel::~uiMultiWellSel()
+{}
 
 
 void uiMultiWellSel::allowIOObjManip( bool yn )

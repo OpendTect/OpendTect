@@ -964,6 +964,10 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 }
 
 
+uiMarkerViewDlg::~uiMarkerViewDlg()
+{}
+
+
 void uiMarkerViewDlg::exportCB( CallBacker* )
 {
     if ( !wd_ )

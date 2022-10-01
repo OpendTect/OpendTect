@@ -102,6 +102,10 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
 }
 
 
+uiImportLogsDlg::~uiImportLogsDlg()
+{}
+
+
 void uiImportLogsDlg::lasSel( CallBacker* )
 {
     const char* lasfnm = lasfld_->text();

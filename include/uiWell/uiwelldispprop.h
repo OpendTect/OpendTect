@@ -46,9 +46,11 @@ public:
 			     uiStrings::phrJoinStrings(uiStrings::sLine(),
 			     uiStrings::sColor().toLower()) )
 		, onlyfor2ddisplay_(false) {}
-	    mDefSetupMemb(uiString,mysztxt)
-	    mDefSetupMemb(uiString,mycoltxt)
-	    mDefSetupMemb(bool,onlyfor2ddisplay)
+	virtual		~Setup()	{}
+
+	mDefSetupMemb(uiString,mysztxt)
+	mDefSetupMemb(uiString,mycoltxt)
+	mDefSetupMemb(bool,onlyfor2ddisplay)
     };
 
     virtual		~uiWellDispProperties();

@@ -106,6 +106,8 @@ public:
 			uiWellLogToolWinMgr(uiParent*,
 					const BufferStringSet* welllnms=nullptr,
 					const BufferStringSet* lognms=nullptr);
+			~uiWellLogToolWinMgr();
+
 protected:
 
     uiMultiWellLogSel*	welllogselfld_;

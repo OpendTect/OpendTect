@@ -18,11 +18,11 @@ ________________________________________________________________________
 mExpClass(uiWell) uiWellSel : public uiIOObjSel
 { mODTextTranslationClass(uiWellSel)
 public:
-
 			uiWellSel(uiParent*,bool forread,const Setup&);
 			uiWellSel(uiParent*,bool forread,
 				const uiString& seltxt=uiString::emptyString(),
 				bool withinserters=true);
+			~uiWellSel();
 
 protected:
 
@@ -62,6 +62,7 @@ mExpClass(uiWell) uiMultiWellSel : public uiGroup
 public:
 			uiMultiWellSel(uiParent*,bool single_line,
 					const uiIOObjSelGrp::Setup* su=0);
+			~uiMultiWellSel();
 
     int			nrSelected() const;
     void		setSelected(const TypeSet<MultiID>&);

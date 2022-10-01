@@ -61,6 +61,10 @@ uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
 }
 
 
+uiWellSelGrp::~uiWellSelGrp()
+{}
+
+
 void uiWellSelGrp::createFields()
 {
     wellsbox_ = new uiListBox( this, "Available Wells", OD::ChooseZeroOrMore );
