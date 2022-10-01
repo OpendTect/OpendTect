@@ -76,6 +76,10 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
 }
 
 
+uiSmoother::~uiSmoother()
+{}
+
+
 uiStepDialog* uiSmoother::createInstance( uiParent* parent, Step* ps,
 					  bool is2d )
 {

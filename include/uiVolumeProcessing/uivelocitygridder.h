@@ -28,6 +28,8 @@ public:
 		    VolProc::VelocityGridder::sFactoryDisplayName())
 		    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
+		    		~uiVelocityGridder();
+
 protected:
 				uiVelocityGridder(uiParent*,VelocityGridder*,
 						  bool is2d);
@@ -46,6 +48,5 @@ protected:
 
     bool			namenotset_;
 };
-
 
 } // namespace VolProc

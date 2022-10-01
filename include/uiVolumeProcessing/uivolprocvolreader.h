@@ -33,6 +33,7 @@ protected:
 				uiVolumeReader(uiParent*,VolumeReader*,
 						bool is2d);
 				~uiVolumeReader();
+
     static uiStepDialog*	createInstance(uiParent*, Step*,bool is2d);
 
     void			volSel(CallBacker*);

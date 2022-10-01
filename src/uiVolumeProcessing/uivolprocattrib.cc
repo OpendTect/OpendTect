@@ -34,6 +34,10 @@ uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
 }
 
 
+uiVolProcAttrib::~uiVolProcAttrib()
+{}
+
+
 bool uiVolProcAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( desc.attribName() != VolProcAttrib::attribName() )

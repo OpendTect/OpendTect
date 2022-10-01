@@ -25,7 +25,7 @@ namespace VolProc
 
 class SurfaceLimitedFiller;
 
-mClass(uiVolumeProcessing) uiSurfaceLimitedFiller : public uiStepDialog
+mExpClass(uiVolumeProcessing) uiSurfaceLimitedFiller : public uiStepDialog
 { mODTextTranslationClass(uiSurfaceLimitedFiller)
 public:
     mDefaultFactoryInstanciationBase(
@@ -33,11 +33,12 @@ public:
 	VolProc::SurfaceLimitedFiller::sFactoryDisplayName())
 	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
 
+				~uiSurfaceLimitedFiller();
+
 protected:
 
 				uiSurfaceLimitedFiller(uiParent*,
 					SurfaceLimitedFiller*,bool is2d);
-				~uiSurfaceLimitedFiller();
 
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
     bool			acceptOK(CallBacker*) override;

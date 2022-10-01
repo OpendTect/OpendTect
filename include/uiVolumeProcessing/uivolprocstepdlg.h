@@ -30,6 +30,8 @@ public:
 
 			uiStepDialog(uiParent*,const uiString&,Step*,
 				     bool is2d=false);
+			~uiStepDialog();
+
     virtual bool	isOK() const		{ return true; }
 
 protected:

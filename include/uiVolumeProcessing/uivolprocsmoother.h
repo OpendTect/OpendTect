@@ -18,7 +18,6 @@ class uiLabeledSpinBox;
 namespace VolProc
 {
 
-
 mExpClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
 { mODTextTranslationClass(uiSmoother)
 public:
@@ -28,9 +27,10 @@ public:
 	    Smoother::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
-				uiSmoother(uiParent*,Smoother*,bool is2d);
+				~uiSmoother();
 
 protected:
+				uiSmoother(uiParent*,Smoother*,bool is2d);
 
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
     bool			acceptOK(CallBacker*) override;

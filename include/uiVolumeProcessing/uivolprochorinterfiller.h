@@ -24,9 +24,8 @@ public:
 	    VolProc::HorInterFiller::sFactoryKeyword(),
 	    VolProc::HorInterFiller::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
+
 protected:
-
-
 				uiHorInterFiller(uiParent*,HorInterFiller*,
 						 bool is2d);
 				~uiHorInterFiller();
