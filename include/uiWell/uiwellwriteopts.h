@@ -11,14 +11,15 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uiioobjselwritetransl.h"
 #include "uistring.h"
+
 class uiGenInput;
 
 
 mExpClass(uiWell) uiODWellWriteOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiODWellWriteOpts);
 public:
-
 			uiODWellWriteOpts(uiParent*);
+			~uiODWellWriteOpts();
 
     mDecluiIOObjTranslatorWriteOptsStdFns(uiODWellWriteOpts);
 

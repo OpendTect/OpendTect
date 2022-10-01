@@ -52,6 +52,10 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 }
 
 
+uiAddEditMrkrDlg::~uiAddEditMrkrDlg()
+{}
+
+
 bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
 {
     const BufferString nm( namefld_->text() );

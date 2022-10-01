@@ -94,6 +94,10 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 }
 
 
+uiWellMarkerSel::~uiWellMarkerSel()
+{}
+
+
 void uiWellMarkerSel::setMarkers( const Well::MarkerSet& wms )
 {
     BufferStringSet nms;
@@ -361,6 +365,10 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
     txt->attach( leftBorder );
     txt->attach( ensureBelow, sep );
 }
+
+
+uiWellMarkersDlg::~uiWellMarkersDlg()
+{}
 
 
 void uiWellMarkersDlg::getNames( BufferStringSet& markernms )

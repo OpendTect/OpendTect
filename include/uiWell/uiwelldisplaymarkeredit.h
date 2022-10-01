@@ -29,6 +29,7 @@ mExpClass(uiWell) uiAddEditMrkrDlg : public uiDialog
 public :
 				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
 							bool edit);
+				~uiAddEditMrkrDlg();
 
     void			putToScreen();
 

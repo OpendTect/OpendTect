@@ -70,6 +70,7 @@ public:
 			    , drawcurvenames_(false)
 			    , xannotinpercents_(false)
 			    {}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars

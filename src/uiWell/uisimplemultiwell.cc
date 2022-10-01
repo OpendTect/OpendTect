@@ -113,6 +113,10 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 }
 
 
+uiSimpleMultiWellCreate::~uiSimpleMultiWellCreate()
+{}
+
+
 class uiSimpleMultiWellCreateReadDataAscio : public Table::AscIO
 {
 public:

@@ -89,6 +89,7 @@ mExpClass(uiWell) uiMarkerViewDlg : public uiDialog
 { mODTextTranslationClass(uiMarkerViewDlg)
 public:
 				uiMarkerViewDlg(uiParent*,const Well::Data&);
+				~uiMarkerViewDlg();
 
 protected:
 

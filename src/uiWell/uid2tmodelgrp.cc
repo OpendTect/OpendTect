@@ -75,6 +75,10 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 }
 
 
+uiD2TModelGroup::~uiD2TModelGroup()
+{}
+
+
 void uiD2TModelGroup::fileFldChecked( CallBacker* )
 {
     const bool havefile = setup_.fileoptional_ ? filefld_->isChecked() : true;

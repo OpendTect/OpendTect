@@ -24,6 +24,7 @@ mExpClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
 { mODTextTranslationClass(uiSimpleMultiWellCreate);
 public:
 			uiSimpleMultiWellCreate(uiParent*);
+			~uiSimpleMultiWellCreate();
 
     bool		wantDisplay() const;
     const TypeSet<MultiID>& createdWellIDs() const	{ return crwellids_; }
