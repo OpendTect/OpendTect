@@ -52,6 +52,10 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 }
 
 
+uiSeis2DTo3D::~uiSeis2DTo3D()
+{}
+
+
 Batch::JobSpec& uiSeis2DTo3D::jobSpec()
 {
     return batchfld_->jobSpec();

@@ -63,6 +63,17 @@ FreqTaperSetup::~FreqTaperSetup()
 }
 
 
+// TaperData
+TaperData::TaperData()
+{}
+
+
+
+TaperData::~TaperData()
+{}
+
+
+// uiFreqTaperDlg
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
     : uiDialog( p, uiDialog::Setup(
 			SI().zDomain().isTime() ?
@@ -326,6 +337,10 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     setPercentsFromFreq();
     postFinalize().notify( mCB(this,uiFreqTaperGrp,putToScreen) );
 }
+
+
+uiFreqTaperGrp::~uiFreqTaperGrp()
+{}
 
 
 void uiFreqTaperGrp::freqChanged( CallBacker* )
@@ -662,6 +677,10 @@ uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& s,
     : uiWindowFunctionSel(p,s)
     , freqsetup_(fsu)
     , freqtaperdlg_(0)
+{}
+
+
+uiFreqTaperSel::~uiFreqTaperSel()
 {}
 
 

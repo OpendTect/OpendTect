@@ -36,6 +36,10 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
 }
 
 
+uiSeisSingleTraceDisplay::~uiSeisSingleTraceDisplay()
+{}
+
+
 void uiSeisSingleTraceDisplay::cleanUp()
 {
     removeAllAuxData();

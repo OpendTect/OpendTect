@@ -23,6 +23,7 @@ mExpClass(uiSeis) uiMergeSeis : public uiDialog
 { mODTextTranslationClass(uiMergeSeis);
 public:
                         uiMergeSeis(uiParent*);
+                        ~uiMergeSeis();
 
     void		setInputIds(const TypeSet<MultiID>& mids);
 

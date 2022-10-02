@@ -171,6 +171,17 @@ uiCompoundParSel* uiSeisSubSel::compoundParSel()
 }
 
 
+
+// uiSeis3DSubSel
+uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
+    : uiSeisSubSel(p,ss)
+{}
+
+
+uiSeis3DSubSel::~uiSeis3DSubSel()
+{}
+
+
 void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 {
     uiSeisIOObjInfo oinf(ioobj,false); TrcKeyZSampling cs;

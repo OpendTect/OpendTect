@@ -21,8 +21,8 @@ class uiSeisSubSel;
 mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 { mODTextTranslationClass(uiSeisImpCBVSFromOtherSurveyDlg)
 public:
-
 			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*);
+			~uiSeisImpCBVSFromOtherSurveyDlg();
 
 protected:
 

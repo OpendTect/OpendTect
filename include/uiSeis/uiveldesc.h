@@ -33,12 +33,15 @@ public:
 				Setup( const VelocityDesc* vd=0 )
 				    : is2d_(false)
 				{ if ( vd ) desc_ = *vd; }
+				~Setup()
+				{}
 
 	mDefSetupMemb(VelocityDesc,desc)
 	mDefSetupMemb(bool,is2d)
     };
 
 				uiVelocityDesc(uiParent*,const Setup* s=0);
+				~uiVelocityDesc();
 
     bool			get(VelocityDesc&,bool displayerrors) const;
     void			set(const VelocityDesc&);
@@ -95,6 +98,7 @@ public:
 				uiVelSel(uiParent*,const IOObjContext&,
 					 const uiSeisSel::Setup&,
 					 bool iseditbutton=true);
+				~uiVelSel();
 
     void			setInput(const MultiID&);
     static const IOObjContext&	ioContext();
@@ -154,6 +158,7 @@ public:
 					       const char*,const char*);
 
 				uiTime2Depth(uiParent*);
+				~uiTime2Depth();
 };
 
 
@@ -165,4 +170,5 @@ public:
 					       const char*,const char*);
 
 				uiDepth2Time(uiParent*);
+				~uiDepth2Time();
 };

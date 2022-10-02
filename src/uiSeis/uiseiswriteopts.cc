@@ -36,6 +36,10 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
 }
 
 
+uiCBVSVolOpts::~uiCBVSVolOpts()
+{}
+
+
 void uiCBVSVolOpts::use( const IOPar& iop )
 {
     BufferString res = iop.find( sKey::DataStorage() );
@@ -77,6 +81,10 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
     stortypfld_->setValue( int(DataCharacteristics::F32) );
     setHAlignObj( stortypfld_ );
 }
+
+
+uiCBVSPS3DOpts::~uiCBVSPS3DOpts()
+{}
 
 
 void uiCBVSPS3DOpts::use( const IOPar& iop )

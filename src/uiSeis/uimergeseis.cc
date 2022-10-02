@@ -59,6 +59,10 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 }
 
 
+uiMergeSeis::~uiMergeSeis()
+{}
+
+
 bool uiMergeSeis::acceptOK( CallBacker* )
 {
     ObjectSet<IOPar> inpars;

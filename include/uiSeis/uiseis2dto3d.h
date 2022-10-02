@@ -25,8 +25,8 @@ class uiSeisSel;
 mExpClass(uiSeis) uiSeis2DTo3D : public uiDialog
 { mODTextTranslationClass(uiSeis2DTo3D);
 public:
-
 			uiSeis2DTo3D(uiParent*);
+			~uiSeis2DTo3D();
 
 protected:
 

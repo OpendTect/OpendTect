@@ -52,6 +52,10 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
 }
 
 
+uiStaticsDesc::~uiStaticsDesc()
+{}
+
+
 void uiStaticsDesc::updateFlds( CallBacker* )
 {
     EM::IOObjInfo eminfo( horfld_->key(true) );

@@ -54,6 +54,10 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
 }
 
 
+uiVelocityDesc::~uiVelocityDesc()
+{}
+
+
 void uiVelocityDesc::updateFlds( CallBacker* )
 {
     VelocityDesc::Type type = (VelocityDesc::Type) typefld_->getIntValue();
@@ -262,6 +266,10 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
     postFinalize().notify( mCB(this,uiVelSel,selectionDoneCB) );
     //sets the ranges
 }
+
+
+uiVelSel::~uiVelSel()
+{}
 
 
 const IOObjContext& uiVelSel::ioContext()
@@ -533,6 +541,10 @@ uiTime2Depth::uiTime2Depth( uiParent* p )
 {}
 
 
+uiTime2Depth::~uiTime2Depth()
+{}
+
+
 void uiDepth2Time::initClass()
 {
     uiZAxisTransform::factory().addCreator( createInstance,
@@ -555,4 +567,8 @@ uiZAxisTransform* uiDepth2Time::createInstance( uiParent* p,
 
 uiDepth2Time::uiDepth2Time( uiParent* p )
     : uiVelModelZAxisTransform( p, false )
+{}
+
+
+uiDepth2Time::~uiDepth2Time()
 {}

@@ -16,11 +16,10 @@ ________________________________________________________________________
 mExpClass(uiSeis) uiSeisAmplSpectrum : public uiAmplSpectrum
 { mODTextTranslationClass(uiSeisAmplSpectrum);
 public:
-				uiSeisAmplSpectrum( uiParent* p,
+				uiSeisAmplSpectrum(uiParent* p,
 					const uiAmplSpectrum::Setup& =
-					uiAmplSpectrum::Setup() )
-				    : uiAmplSpectrum(p)
-				{}
+					uiAmplSpectrum::Setup());
+				~uiSeisAmplSpectrum();
 
     void			setDataPackID(DataPackID,DataPackMgr::MgrID,
 					      int version=0);

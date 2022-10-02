@@ -22,6 +22,8 @@ mExpClass(uiSeis) uiElasticModelProvider : public uiGroup
 { mODTextTranslationClass(uiElasticModelProvider);
 public:
 			uiElasticModelProvider(uiParent*,bool is2d);
+			~uiElasticModelProvider();
+
     bool		getInputMIDs(MultiID& pwmid,MultiID& swmid,
 				     MultiID& aimid,MultiID& simid,
 				     MultiID& denmid) const;

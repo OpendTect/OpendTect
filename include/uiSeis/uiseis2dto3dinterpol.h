@@ -27,6 +27,7 @@ public:
 	mDefineFactoryInClass( uiSeis2DTo3DInterPol, factory );
 
 			uiSeis2DTo3DInterPol(uiParent*,uiString&);
+			~uiSeis2DTo3DInterPol();
 
 protected:
     uiSeisSel*		inpfld_;

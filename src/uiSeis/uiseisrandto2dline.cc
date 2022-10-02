@@ -94,6 +94,7 @@ bool uiSeisRandTo2DBase::getRandomLineGeom( Geometry::RandomLineSet& geom) const
 }
 
 
+// uiSeisRandTo2DLineDlg
 uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
     : uiDialog(p,uiDialog::Setup(tr("Save as 2D line"),
@@ -109,6 +110,10 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
     trcnrfld_ = new uiGenInput( this, tr("First Trace Nr"), IntInpSpec(1) );
     trcnrfld_->attach( alignedBelow, linenmfld_ );
 }
+
+
+uiSeisRandTo2DLineDlg::~uiSeisRandTo2DLineDlg()
+{}
 
 
 bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )

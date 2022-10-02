@@ -52,6 +52,7 @@ mExpClass(uiSeis) uiSeisRandTo2DLineDlg : public uiDialog
 public:
 				uiSeisRandTo2DLineDlg(uiParent*,
 					      const Geometry::RandomLine*);
+				~uiSeisRandTo2DLineDlg();
 
 protected:
 

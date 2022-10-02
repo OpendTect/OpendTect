@@ -107,6 +107,10 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 }
 
 
+uiElasticModelProvider::~uiElasticModelProvider()
+{}
+
+
 void uiElasticModelProvider::inpTypeSel( CallBacker* cb )
 {
     const bool isac = inptypefld_->getBoolValue();

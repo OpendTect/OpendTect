@@ -51,6 +51,8 @@ mExpClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg
 { mODTextTranslationClass(uiSeisWvltRotDlg);
 public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
+				~uiSeisWvltRotDlg();
+
 protected:
 
     void			act(CallBacker*) override;

@@ -76,6 +76,10 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 }
 
 
+uiSeisImpCBVSFromOtherSurveyDlg::~uiSeisImpCBVSFromOtherSurveyDlg()
+{}
+
+
 void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
 {
     const bool curitm = interpfld_->getBoolValue() ? 0 : 1;
