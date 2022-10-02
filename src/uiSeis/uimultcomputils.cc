@@ -35,6 +35,10 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
 }
 
 
+uiMultCompDlg::~uiMultCompDlg()
+{}
+
+
 void uiMultCompDlg::getCompNrs( TypeSet<int>& selitems ) const
 {
     compfld_->getChosen( selitems );
@@ -56,7 +60,7 @@ uiMultCompSel::uiMultCompSel( uiParent* p )
 
 uiMultCompSel::~uiMultCompSel()
 {
-    if ( dlg_ ) delete dlg_;
+    delete dlg_;
 }
 
 
@@ -131,6 +135,10 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
     outlistfld_->addItems( names );
     outlistfld_->attach( ensureBelow, useallfld_ );
 }
+
+
+uiMultCompSel::MCompDlg::~MCompDlg()
+{}
 
 
 void uiMultCompSel::MCompDlg::selChg( CallBacker* )

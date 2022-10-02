@@ -20,8 +20,8 @@ class uiSEGYFilePars;
 mExpClass(uiSeis) uiCBVSVolOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiCBVSVolOpts);
 public:
-
 			uiCBVSVolOpts(uiParent*);
+			~uiCBVSVolOpts();
 
     mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSVolOpts);
 
@@ -36,8 +36,8 @@ protected:
 mExpClass(uiSeis) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiCBVSPS3DOpts);
 public:
-
 			uiCBVSPS3DOpts(uiParent*);
+			~uiCBVSPS3DOpts();
 
     mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSPS3DOpts);
 

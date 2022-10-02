@@ -44,6 +44,7 @@ public:
 			Setup( bool _is2d, bool _isps )
 			    : Seis::SelSetup(_is2d,_isps)
 			    , withnullfill_(false)	{}
+			~Setup()			{}
 
 	mDefSetupMemb(bool,withnullfill)
     };

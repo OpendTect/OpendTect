@@ -35,6 +35,10 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 }
 
 
+uiPreStackDataPackSelDlg::~uiPreStackDataPackSelDlg()
+{}
+
+
 bool uiPreStackDataPackSelDlg::acceptOK( CallBacker* )
 {
     const int selidx = datapackinpfld_->currentItem();
@@ -60,6 +64,10 @@ uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     datapackinpfld_->display( false );
     setHAlignObj( seisinpfld_ );
 }
+
+
+uiPreStackSel::~uiPreStackSel()
+{}
 
 
 bool uiPreStackSel::fillPar( IOPar& par ) const

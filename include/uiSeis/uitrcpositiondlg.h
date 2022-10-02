@@ -33,6 +33,7 @@ public:
 				uiFlatDPPosSel(uiParent*,
 					       const DataPack::FullID&);
 				~uiFlatDPPosSel();
+
     double			getPos() const;
 protected:
     uiSlider*			possldr_;
@@ -43,7 +44,7 @@ protected:
     void			sldrPosChangedCB(CallBacker*);
 };
 
-mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
+mExpClass(uiSeis) uiTrcPositionDlg : public uiDialog
 {  mODTextTranslationClass(uiTrcPositionDlg);
 public:
 				uiTrcPositionDlg(uiParent*,

@@ -64,6 +64,7 @@ public:
     { mODTextTranslationClass(WvltMathFunction)
     public:
 			WvltMathFunction(const Wavelet*);
+			~WvltMathFunction();
 
 	StepInterval<float> samppos_;
 	int 		size_;

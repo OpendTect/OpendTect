@@ -469,6 +469,10 @@ uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
 {}
 
 
+uiSeisWvltMerge::WvltMathFunction::~WvltMathFunction()
+{}
+
+
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
     float x = t - samppos_.start;

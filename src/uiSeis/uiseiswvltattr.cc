@@ -74,6 +74,10 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
 }
 
 
+uiSeisWvltRotDlg::~uiSeisWvltRotDlg()
+{}
+
+
 void uiSeisWvltRotDlg::act( CallBacker* )
 {
     const float dphase = sliderfld_->getFValue();

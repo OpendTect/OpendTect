@@ -85,6 +85,9 @@ uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
 }
 
 
+uiSeisBrowser::Setup::~Setup()
+{}
+
 
 uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 			      bool is2d )

@@ -62,10 +62,16 @@ uiSeis2DTo3DInterPol::uiSeis2DTo3DInterPol(uiParent* p, uiString& titletext)
     batchfld_->attach( alignedBelow, possubsel_ );
 }
 
+
+uiSeis2DTo3DInterPol::~uiSeis2DTo3DInterPol()
+{}
+
+
 Batch::JobSpec& uiSeis2DTo3DInterPol::jobSpec()
 {
     return batchfld_->jobSpec();
 }
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiSeis2DTo3DInterPol::prepareProcessing()

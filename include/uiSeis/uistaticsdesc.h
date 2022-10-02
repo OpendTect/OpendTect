@@ -20,8 +20,8 @@ class uiLabeledComboBox;
 mExpClass(uiSeis) uiStaticsDesc : public uiGroup
 { mODTextTranslationClass(uiStaticsDesc);
 public:
-
     				uiStaticsDesc(uiParent*,const StaticsDesc* s=0);
+    				~uiStaticsDesc();
 
     bool			get(StaticsDesc&,bool displayerrors) const;
     void			set(const StaticsDesc&);

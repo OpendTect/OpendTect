@@ -404,6 +404,10 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
 }
 
 
+uiPreStackCopyDlg::~uiPreStackCopyDlg()
+{}
+
+
 void uiPreStackCopyDlg::objSel( CallBacker* )
 {
     const IOObj* ioobj = inpfld_->ioobj( true );

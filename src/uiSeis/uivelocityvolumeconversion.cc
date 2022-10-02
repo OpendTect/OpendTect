@@ -56,6 +56,10 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
 }
 
 
+Vel::uiBatchVolumeConversion::~uiBatchVolumeConversion()
+{}
+
+
 void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 {
     const IOObj* velioobj = input_->ioobj( true );

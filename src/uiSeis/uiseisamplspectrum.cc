@@ -13,6 +13,16 @@ ________________________________________________________________________
 #include "seisdatapack.h"
 
 
+uiSeisAmplSpectrum::uiSeisAmplSpectrum( uiParent* p,
+					const uiAmplSpectrum::Setup& su )
+    : uiAmplSpectrum(p,su)
+{}
+
+
+uiSeisAmplSpectrum::~uiSeisAmplSpectrum()
+{}
+
+
 void uiSeisAmplSpectrum::setDataPackID(
 		DataPackID dpid, DataPackMgr::MgrID dmid, int version )
 {

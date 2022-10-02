@@ -33,6 +33,8 @@ public:
 			    , withman_(true)
 			    , compact_(false)
 			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(BufferString,seltxt);
 	mDefSetupMemb(bool,withextract);

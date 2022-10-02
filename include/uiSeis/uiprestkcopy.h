@@ -23,7 +23,6 @@ class uiGenInput;
 mExpClass(uiSeis) uiPreStackOutputGroup : public uiGroup
 { mODTextTranslationClass(uiPreStackOutputGroup);
 public:
-
 			uiPreStackOutputGroup(uiParent*);
 			~uiPreStackOutputGroup();
 
@@ -49,8 +48,8 @@ protected:
 mExpClass(uiSeis) uiPreStackCopyDlg : public uiDialog
 { mODTextTranslationClass(uiPreStackCopyDlg);
 public:
-
 			uiPreStackCopyDlg(uiParent*,const MultiID&);
+			~uiPreStackCopyDlg();
 
     uiPreStackOutputGroup* outputGroup()		{ return outgrp_; }
 

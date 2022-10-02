@@ -39,6 +39,8 @@ public :
     { mODTextTranslationClass(Setup)
     public:
 			Setup(const MultiID&,Seis::GeomType);
+			~Setup();
+
 	mDefSetupMemb(MultiID,id)
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(BinID,startpos)

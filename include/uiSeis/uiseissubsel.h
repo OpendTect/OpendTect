@@ -75,9 +75,8 @@ protected:
 mExpClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
 { mODTextTranslationClass(uiSeis3DSubSel);
 public:
-
-			uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
-			    : uiSeisSubSel(p,ss)		{}
+			uiSeis3DSubSel(uiParent*,const Seis::SelSetup&);
+			~uiSeis3DSubSel();
 
     void		setInput(const IOObj&) override;
 

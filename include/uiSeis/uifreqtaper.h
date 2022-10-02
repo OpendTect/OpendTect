@@ -48,18 +48,16 @@ mStruct(uiSeis) FreqTaperSetup
 
 mStruct(uiSeis) TaperData
 {
-		    TaperData()
-			: window_(0)
-			, paramval_(1)
-			{}
+			TaperData();
+			~TaperData();
 
     Interval<float>	rg_;
     Interval<float>	refrg_;
 
-    ArrayNDWindow*	window_;
-    int			winsz_;
-    float		paramval_;
-    float		slope_;
+    ArrayNDWindow*	window_			= nullptr;
+    int			winsz_			= 0;
+    float		paramval_		= 1;
+    float		slope_			= mUdf(float);
 };
 
 
@@ -91,6 +89,8 @@ public:
 				ycol_.set(200,0,0);
 				y2col_.set(0,0,220);
 			    }
+			~Setup()
+			{}
 
 	mDefSetupMemb(int,datasz);
 	mDefSetupMemb(uiString,xaxcaption);
@@ -151,8 +151,7 @@ public:
 			uiFreqTaperGrp(uiParent*,
 				       const FreqTaperSetup&,
 				       uiFuncTaperDisp*);
-			~uiFreqTaperGrp(){};
-
+			~uiFreqTaperGrp();
 
     void		setFreqRange(Interval<float>);
     Interval<float>	getFreqRange() const;
@@ -222,6 +221,7 @@ mExpClass(uiSeis) uiFreqTaperSel : public uiWindowFunctionSel
 public:
 			uiFreqTaperSel(uiParent*,const Setup&,
 						const FreqTaperSetup&);
+			~uiFreqTaperSel();
 
     Interval<float>	freqValues() const;
 

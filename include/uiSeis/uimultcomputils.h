@@ -25,6 +25,7 @@ mExpClass(uiSeis) uiMultCompDlg : public uiDialog
 { mODTextTranslationClass(uiMultCompDlg);
 public:
 			uiMultCompDlg(uiParent*,const BufferStringSet&);
+			~uiMultCompDlg();
 
     void		getCompNrs(TypeSet<int>&) const;
     const char*		getCompName(int) const;
@@ -57,6 +58,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
     { mODTextTranslationClass(MCompDlg);
 	public:
 				MCompDlg(uiParent*,const BufferStringSet&);
+				~MCompDlg();
 
 	void			selChg(CallBacker*);
 	uiListBox*		outlistfld_;

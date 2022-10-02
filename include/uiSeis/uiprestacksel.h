@@ -22,10 +22,10 @@ class uiSeisSel;
 mExpClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
 { mODTextTranslationClass(uiPreStackDataPackSelDlg);
 public:
-
 			uiPreStackDataPackSelDlg(uiParent*,
 				const TypeSet<DataPack::FullID>& dpfids,
 				const MultiID& selid);
+			~uiPreStackDataPackSelDlg();
 
     const MultiID&	getMultiID() const	{ return selid_; }
 
@@ -42,8 +42,8 @@ protected:
 mExpClass(uiSeis) uiPreStackSel : public uiGroup
 { mODTextTranslationClass(uiPreStackSel);
 public:
-
 			uiPreStackSel(uiParent*,bool is2d);
+			~uiPreStackSel();
 
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
