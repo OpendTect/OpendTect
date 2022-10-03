@@ -46,6 +46,5 @@ protected:
     void		selChg(CallBacker*);
     void		loadPush(CallBacker*);
     void		unLoadPush(CallBacker*);
-    void		treeSelChgCB(CallBacker*);
 
 };
