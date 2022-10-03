@@ -34,12 +34,12 @@ ________________________________________________________________________
 #include <iostream>
 
 uiPluginMan::uiPluginMan( uiParent* p )
-	: uiDialog(p,Setup(tr("Plugin Management"), mNoDlgTitle,
-			    mODHelpKey(mPluginManHelpID) ) )
-	, selatstartfld_(nullptr)
+    : uiDialog(p,Setup(tr("Plugin Management"), mNoDlgTitle,
+			mODHelpKey(mPluginManHelpID) ) )
+    , selatstartfld_(nullptr)
 {
     setCtrlStyle( uiDialog::CloseOnly );
-    uiGroup* leftgrp = new uiGroup( this, "Left group" );
+    auto* leftgrp = new uiGroup( this, "Left group" );
     pluginview_ = new uiTreeView( leftgrp, "Plugin list" );
     pluginview_->showHeader( false );
     pluginview_->setHSzPol( uiObject::Wide );
@@ -49,11 +49,14 @@ uiPluginMan::uiPluginMan( uiParent* p )
     pluginview_->returnPressed.notify( mCB(this,uiPluginMan,activateCB) );
     pluginview_->doubleClicked.notify( mCB(this,uiPluginMan,activateCB) );
 
-    uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
+    auto* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
 				mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, pluginview_ );
+    auto* unloadbut = new uiPushButton( leftgrp, tr(" Unload a plugin "),
+				mCB(this,uiPluginMan,unLoadPush), false );
+    unloadbut->attach( rightOf, loadbut );
 
-    uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    auto* rightgrp = new uiGroup( this, "Right group" );
     rightgrp->attach( rightOf, leftgrp );
 
     namefld_ = new uiGenInput( rightgrp, tr("Plugin name") );
@@ -85,14 +88,14 @@ uiPluginMan::uiPluginMan( uiParent* p )
     infofld_->attach( alignedBelow, filenmfld_ );
     infofld_->setPrefHeightInChar( 10 );
     infofld_->setPrefWidth( 10 );
-    uiLabel* infolbl = new uiLabel( rightgrp, uiStrings::sInformation() );
+    auto* infolbl = new uiLabel( rightgrp, uiStrings::sInformation() );
     infolbl->attach( leftOf, infofld_ );
 
     licensefld_ = new uiTextBrowser( rightgrp, "License" );
     licensefld_->attach( alignedBelow, infofld_ );
     licensefld_->setPrefHeightInChar( 10 );
     licensefld_->setPrefWidth( 10 );
-    uiLabel* liclbl = new uiLabel( rightgrp, tr("License") );
+    auto* liclbl = new uiLabel( rightgrp, tr("License") );
     liclbl->attach( leftOf, licensefld_ );
 
     postFinalise().notify( mCB(this,uiPluginMan,selChg) );
@@ -314,6 +317,38 @@ void uiPluginMan::loadPush( CallBacker* )
 	selChg(nullptr);
     }
 }
+
+
+void uiPluginMan::unLoadPush( CallBacker* )
+{
+    uiTreeViewItem* itm = pluginview_->selectedItem();
+    if ( !itm || itm->nrChildren() > 0 )
+    {
+	uiMSG().error( tr("Please select a plugin to unload") );
+	return;
+    }
+
+    const BufferString plugindispnm = itm->text();
+    const PluginManager::Data* data =
+			PIM().findDataWithDispName( plugindispnm.buf() );
+    if ( !data || !data->info_ )
+    {
+	uiMSG().error( tr("Cannot find Plugin to unload") );
+	return;
+    }
+    else if ( !data->isloaded_ || !data->sla_ )
+    {
+	uiMSG().error( tr("The plugin does not appear to be loaded") );
+	return;
+    }
+
+    if ( !PIM().unload(data->name_) )
+	return;
+
+    fillList();
+    selChg( nullptr );
+}
+
 
 
 bool uiPluginMan::rejectOK( CallBacker* )

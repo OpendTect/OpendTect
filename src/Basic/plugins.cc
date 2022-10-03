@@ -539,13 +539,12 @@ bool PluginManager::load( const char* libnm )
     }
 
     Data* existing = const_cast<Data*>(
-	findDataWithDispName( data->info_->dispname_ ) );
+		     findDataWithDispName( data->info_->dispname_ ) );
 
     if ( existing && existing->sla_ && existing->sla_->isOK() )
     {
 	data->sla_->close();
-	delete data;
-	data = 0;
+	deleteAndZeroPtr( data );
 
 	if ( existing->isloaded_ )
 	{
@@ -555,9 +554,9 @@ bool PluginManager::load( const char* libnm )
 
 	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly,true) )
 	{
-	    existing->info_ = 0;
+	    existing->info_ = nullptr;
 	    existing->sla_->close();
-	    delete existing->sla_; existing->sla_ = 0;
+	    deleteAndZeroPtr( existing->sla_ );
 	    return false;
 	}
 
@@ -565,17 +564,63 @@ bool PluginManager::load( const char* libnm )
     }
     else
     {
-	if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly,true) )
+	existing = findData( libnmonly.buf() );
+	if ( existing )
 	{
-	    data->sla_->close();
-	    delete data;
-	    return false;
-	}
+	    if ( existing->sla_ )
+		existing->sla_->close();
+	    else
+	    {
+		existing->sla_ = data->sla_;
+		existing->info_ = data->info_;
+		data->sla_ = nullptr;
+	    }
 
-	data->isloaded_ = true;
-	data_ += data;
+	    deleteAndZeroPtr( data );
+
+	    if ( existing->isloaded_ )
+	    {
+		ErrMsg( BufferString( libnm, " is already loaded.") );
+		return false;
+	    }
+
+	    if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly,true))
+	    {
+		existing->info_ = nullptr;
+		deleteAndZeroPtr( existing->sla_ );
+		return false;
+	    }
+
+	    existing->isloaded_ = true;
+	}
+	else
+	{
+	    if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly,true) )
+	    {
+		data->sla_->close();
+		delete data;
+		return false;
+	    }
+
+	    data->isloaded_ = true;
+	    data_.add( data );
+	}
     }
 
+    return true;
+}
+
+
+bool PluginManager::unload( const char* libnm )
+{
+    Data* data = findData( libnm );
+    if ( !data || !data->isloaded_ || !data->sla_ )
+	return false;
+
+    data->sla_->close();
+    deleteAndZeroPtr( data->sla_ );
+    data->info_ = nullptr;
+    data->isloaded_ = false;
     return true;
 }
 
@@ -606,14 +651,14 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 	if ( data.info_ && dontloadlist.isPresent(modnm) )
 	    continue;
 
-	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_,false) )
+	data.isloaded_ = loadPlugin( data.sla_, GetArgC(), GetArgV(),
+				     data.name_, false );
+	if ( !data.isloaded_ )
 	{
-	    data.info_ = 0;
+	    data.info_ = nullptr;
 	    data.sla_->close();
-	    delete data.sla_; data.sla_ = 0;
+	    deleteAndZeroPtr( data.sla_ );
 	}
-
-	data.isloaded_ = true;
 
 	mDefineStaticLocalObject(bool,shw_load,
 				 = GetEnvVarYN("OD_SHOW_PLUGIN_LOAD"));
