@@ -175,6 +175,11 @@ public:
 
     bool		isAngleDomain() const override	{ return true; }
 
+    double		getAzimuth() const		{ return azimuth_; }
+    double		getMeanRhob() const		{ return d0_; }
+    double		getMeanVp() const		{ return a0_; }
+    double		getMeanVs() const		{ return b0_; }
+
     static const char* sKeyMeanRhob();
     static const char* sKeyMeanVp();
     static const char* sKeyMeanVs();
