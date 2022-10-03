@@ -36,10 +36,20 @@ ________________________________________________________________________
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
 
-namespace WellTie
-{
+// WellTie::uiCheckShotEdit::DriftCurve
 
-bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
+WellTie::uiCheckShotEdit::DriftCurve::DriftCurve()
+    : Well::DahObj("Drift Curve")
+{
+}
+
+
+WellTie::uiCheckShotEdit::DriftCurve::~DriftCurve()
+{
+}
+
+
+bool WellTie::uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
 {
     if ( mIsUdf(v) ) return false;
     if ( dah_.isEmpty()|| dh > dah_[dah_.size()-1] )
@@ -56,7 +66,8 @@ bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
 }
 
 
-int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
+int WellTie::uiCheckShotEdit::DriftCurve::indexOfCurrentPoint( float dh,
+							float val ) const
 {
     for ( int idx=0; idx<size(); idx ++ )
     {
@@ -72,13 +83,14 @@ int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
 }
 
 
-uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
+// WellTie::uiCheckShotEdit
+
+WellTie::uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     : uiDialog(p,uiDialog::Setup(tr("Apply Checkshot correction"),
 		tr("Edit depth/time model based on checkshot"),
 		mODHelpKey(mCheckShotEditHelpID) ).nrstatusflds(1))
     , server_(server)
     , wd_(*server.wd())
-    , d2tlineitm_(0)
     , d2t_(wd_.d2TModel())
     , tkzs_(wd_.checkShotModel())
 {
@@ -159,7 +171,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 }
 
 
-uiCheckShotEdit::~uiCheckShotEdit()
+WellTie::uiCheckShotEdit::~uiCheckShotEdit()
 {
     detachAllNotifiers();
     delete control_;
@@ -168,7 +180,7 @@ uiCheckShotEdit::~uiCheckShotEdit()
 }
 
 
-void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
+void WellTie::uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 {
     BufferString infomsg;
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
@@ -180,7 +192,7 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 }
 
 
-void uiCheckShotEdit::mousePressedCB( CallBacker* )
+void WellTie::uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
     const float dah = control_->dah();
     const float val = control_->xPos();
@@ -188,14 +200,14 @@ void uiCheckShotEdit::mousePressedCB( CallBacker* )
 }
 
 
-void uiCheckShotEdit::mouseMovedCB( CallBacker* )
+void WellTie::uiCheckShotEdit::mouseMovedCB( CallBacker* )
 {
     if ( movingpointidx_ >= 0 && isedit_ )
 	movePt();
 }
 
 
-void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
+void WellTie::uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 {
     if ( movingpointidx_ < 0 && isedit_ )
 	doInsertRemovePt();
@@ -204,13 +216,13 @@ void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 }
 
 
-void uiCheckShotEdit::reSizeCB( CallBacker* )
+void WellTie::uiCheckShotEdit::reSizeCB( CallBacker* )
 {
     drawPoints();
 }
 
 
-void uiCheckShotEdit::movePt()
+void WellTie::uiCheckShotEdit::movePt()
 {
     if ( movingpointidx_ < 0 )
 	return;
@@ -235,7 +247,7 @@ void uiCheckShotEdit::movePt()
 }
 
 
-void uiCheckShotEdit::doInsertRemovePt()
+void WellTie::uiCheckShotEdit::doInsertRemovePt()
 {
     if ( isedit_ )
     {
@@ -260,7 +272,7 @@ void uiCheckShotEdit::doInsertRemovePt()
 }
 
 
-void uiCheckShotEdit::editCSPushed( CallBacker* )
+void WellTie::uiCheckShotEdit::editCSPushed( CallBacker* )
 {
     uiD2TModelDlg csmdlg( this, wd_, true );
     if ( csmdlg.go() )
@@ -271,13 +283,13 @@ void uiCheckShotEdit::editCSPushed( CallBacker* )
 }
 
 
-void uiCheckShotEdit::editCB( CallBacker* )
+void WellTie::uiCheckShotEdit::editCB( CallBacker* )
 {
     isedit_ = toolbar_->isOn( editbut_ );
 }
 
 
-void uiCheckShotEdit::undoCB( CallBacker* )
+void WellTie::uiCheckShotEdit::undoCB( CallBacker* )
 {
     undo_.unDo(1,false);
     toolbar_->setSensitive( undobut_, undo_.canUnDo() );
@@ -286,7 +298,7 @@ void uiCheckShotEdit::undoCB( CallBacker* )
 }
 
 
-void uiCheckShotEdit::redoCB( CallBacker* )
+void WellTie::uiCheckShotEdit::redoCB( CallBacker* )
 {
     undo_.reDo(1,false);
     toolbar_->setSensitive( undobut_, undo_.canUnDo() );
@@ -295,7 +307,7 @@ void uiCheckShotEdit::redoCB( CallBacker* )
 }
 
 
-void uiCheckShotEdit::draw()
+void WellTie::uiCheckShotEdit::draw()
 {
     drawDahObj( orgd2t_, true, true );
     drawDahObj( tkzs_, false, true );
@@ -303,7 +315,8 @@ void uiCheckShotEdit::draw()
 }
 
 
-void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
+void WellTie::uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first,
+					   bool left )
 {
     uiWellDahDisplay* disp = left ? d2tdisplay_ : driftdisplay_;
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
@@ -324,7 +337,7 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 }
 
 
-void uiCheckShotEdit::drawDrift()
+void WellTie::uiCheckShotEdit::drawDrift()
 {
     const int sz1 = orgd2t_->size();
     const int sz2 = tkzs_->size();
@@ -366,7 +379,7 @@ void uiCheckShotEdit::drawDrift()
 }
 
 
-void uiCheckShotEdit::drawPoints()
+void WellTie::uiCheckShotEdit::drawPoints()
 {
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
@@ -394,7 +407,7 @@ void uiCheckShotEdit::drawPoints()
 }
 
 
-void uiCheckShotEdit::applyCB( CallBacker* )
+void WellTie::uiCheckShotEdit::applyCB( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
     toolbar_->setSensitive( editbut_, !isorgdrift );
@@ -417,7 +430,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 }
 
 
-bool uiCheckShotEdit::acceptOK( CallBacker* )
+bool WellTie::uiCheckShotEdit::acceptOK( CallBacker* )
 {
     if ( !d2t_ || d2t_->size() < 2)
 	mErrRet(tr("Depth/time model is too small and won't be saved"),
@@ -430,28 +443,37 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
 }
 
 
-bool uiCheckShotEdit::rejectOK( CallBacker* )
+bool WellTie::uiCheckShotEdit::rejectOK( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
     return true;
 }
 
 
+// WellTie::DahObjUndoEvent
 
-DahObjUndoEvent::DahObjUndoEvent( float dah, float val,
+WellTie::DahObjUndoEvent::DahObjUndoEvent( float dah, float val,
 				Well::DahObj& dahobj, bool isadd )
     : dah_(dah)
     , val_(val)
     , dahobj_(dahobj)
     , isadd_(isadd)
-{}
+{
+}
 
 
-const char* DahObjUndoEvent::getStandardDesc() const
-{ return "Add/Remove point in drift curve"; }
+WellTie::DahObjUndoEvent::~DahObjUndoEvent()
+{
+}
 
 
-bool DahObjUndoEvent::unDo()
+const char* WellTie::DahObjUndoEvent::getStandardDesc() const
+{
+    return "Add/Remove point in drift curve";
+}
+
+
+bool WellTie::DahObjUndoEvent::unDo()
 {
     if ( isadd_ )
     {
@@ -467,7 +489,7 @@ bool DahObjUndoEvent::unDo()
 }
 
 
-bool DahObjUndoEvent::reDo()
+bool WellTie::DahObjUndoEvent::reDo()
 {
     if ( isadd_ )
     {
@@ -481,5 +503,3 @@ bool DahObjUndoEvent::reDo()
     }
     return true;
 }
-
-} // namespace WellTie

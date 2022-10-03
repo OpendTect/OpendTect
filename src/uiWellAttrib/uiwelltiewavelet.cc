@@ -26,11 +26,11 @@ ________________________________________________________________________
 #include "odcomplex.h"
 
 
-namespace WellTie
-{
-
 #define mErrRet(msg,act) { uiMSG().error(msg); act; }
-uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
+
+// WellTie::uiWaveletView
+
+WellTie::uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
     : uiGroup(p)
     , activeWvltChgd(this)
     , wvltset_(wvs)
@@ -41,19 +41,19 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	uiwvlts_ += new uiWavelet( this, wvs[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
 	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
-	uiwvlts_[idx]->wvltChged.notify( mCB(
-				    this,uiWaveletView,activeWvltChanged ) );
+	mAttachCB( uiwvlts_[idx]->wvltChged, uiWaveletView::activeWvltChanged );
     }
 }
 
 
-uiWaveletView::~uiWaveletView()
+WellTie::uiWaveletView::~uiWaveletView()
 {
+    detachAllNotifiers();
     deepErase( uiwvlts_ );
 }
 
 
-void uiWaveletView::createWaveletFields( uiGroup* grp )
+void WellTie::uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
 
@@ -70,14 +70,14 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
 }
 
 
-void uiWaveletView::redrawWavelets()
+void WellTie::uiWaveletView::redrawWavelets()
 {
     for ( int idx=0; idx<uiwvlts_.size(); idx++ )
 	uiwvlts_[idx]->drawWavelet();
 }
 
 
-void uiWaveletView::activeWvltChanged( CallBacker* )
+void WellTie::uiWaveletView::activeWvltChanged( CallBacker* )
 {
     const bool isinitactive = activewvltfld_->getBoolValue();
     uiwvlts_[0]->setAsActive( isinitactive );
@@ -87,7 +87,7 @@ void uiWaveletView::activeWvltChanged( CallBacker* )
 }
 
 
-void uiWaveletView::setActiveWavelet( bool initial )
+void WellTie::uiWaveletView::setActiveWavelet( bool initial )
 {
     if ( !activewvltfld_ )
 	return;
@@ -96,7 +96,7 @@ void uiWaveletView::setActiveWavelet( bool initial )
 }
 
 
-bool uiWaveletView::isInitialWvltActive() const
+bool WellTie::uiWaveletView::isInitialWvltActive() const
 {
     if ( !activewvltfld_ )
 	return false;
@@ -105,11 +105,12 @@ bool uiWaveletView::isInitialWvltActive() const
 }
 
 
-uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
+// WellTie::uiWavelet
+
+WellTie::uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     : uiGroup(p)
     , isactive_(isactive)
     , wvlt_(wvlt)
-    , wvltpropdlg_(0)
     , wvltChged(this)
 {
     viewer_ = new uiFlatViewer( this );
@@ -132,12 +133,12 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 }
 
 
-uiWavelet::~uiWavelet()
+WellTie::uiWavelet::~uiWavelet()
 {
 }
 
 
-void uiWavelet::initWaveletViewer()
+void WellTie::uiWavelet::initWaveletViewer()
 {
     FlatView::Appearance& app = viewer_->appearance();
     app.annot_.x1_.name_ = "Amplitude";
@@ -157,56 +158,57 @@ void uiWavelet::initWaveletViewer()
 }
 
 
-void uiWavelet::rotatePhase( CallBacker* )
+void WellTie::uiWavelet::rotatePhase( CallBacker* )
 {
-    Wavelet* orgwvlt = new Wavelet( *wvlt_ );
+    auto* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltRotDlg dlg( this, *wvlt_ );
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
 	*wvlt_ = *orgwvlt;
-	wvltChanged(0);
+	wvltChanged( nullptr );
     }
     delete orgwvlt;
 }
 
 
-void uiWavelet::taper( CallBacker* )
+void WellTie::uiWavelet::taper( CallBacker* )
 {
-    Wavelet* orgwvlt = new Wavelet( *wvlt_ );
+    auto* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltTaperDlg dlg( this, *wvlt_ );
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
 	*wvlt_ = *orgwvlt;
-	wvltChanged(0);
+	wvltChanged( nullptr );
     }
     delete orgwvlt;
 }
 
 
-void uiWavelet::wvltChanged( CallBacker* )
+void WellTie::uiWavelet::wvltChanged( CallBacker* )
 {
     drawWavelet();
-    if ( isactive_ ) wvltChged.trigger();
+    if ( isactive_ )
+	wvltChged.trigger();
 }
 
 
-void uiWavelet::dispProperties( CallBacker* )
+void WellTie::uiWavelet::dispProperties( CallBacker* )
 {
-    delete wvltpropdlg_; wvltpropdlg_=0;
+    delete wvltpropdlg_;
     wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt_ );
     wvltpropdlg_ ->go();
 }
 
 
-void uiWavelet::setAsActive( bool isactive )
+void WellTie::uiWavelet::setAsActive( bool isactive )
 {
     isactive_ = isactive;
 }
 
 
-void uiWavelet::drawWavelet()
+void WellTie::uiWavelet::drawWavelet()
 {
     if ( !wvlt_ ) return;
 
@@ -227,5 +229,3 @@ void uiWavelet::drawWavelet()
     viewer_->enableChange( canupdate );
     viewer_->handleChange( sCast(od_uint32,uiFlatViewer::All) );
 }
-
-} // namespace WellTie

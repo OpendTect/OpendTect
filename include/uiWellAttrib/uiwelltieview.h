@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uigroup.h"
 #include "uiflatviewer.h"
 #include "welltiedata.h"
@@ -66,7 +67,7 @@ protected:
     uiFlatViewer*		vwr_;
     uiParent*			parent_;
     ObjectSet<uiWellLogDisplay> logsdisp_;
-    uiWellDisplayControl*	wellcontrol_;
+    uiWellDisplayControl*	wellcontrol_ = nullptr;
 
     const DispParams&		params_;
     const Data&			data_;
@@ -74,8 +75,8 @@ protected:
     const TypeSet<Marker>&	seispickset_;
     const TypeSet<Marker>&	synthpickset_;
     SeisTrcBuf&			trcbuf_;
-    SeisTrcBufDataPack*		seisdp_;
-    int				nrtrcs_;
+    SeisTrcBufDataPack*		seisdp_ = nullptr;
+    int				nrtrcs_ = 5;
     bool			segpospolarity_ = true;
 
     ObjectSet<FlatView::AuxData> userpickauxdatas_;
@@ -83,8 +84,8 @@ protected:
     ObjectSet<FlatView::AuxData> horauxdatas_;
     ObjectSet<uiTextItem>	hortxtnms_;
     ObjectSet<uiTextItem>	mrktxtnms_;
-    uiPolyLineItem*		checkshotitm_;
-    uiGroup*            logdispgrp_;
+    uiPolyLineItem*		checkshotitm_ = nullptr;
+    uiGroup*			logdispgrp_;
 
     uiLineItem*			linelog1_;
     uiLineItem*			linelog2_;
@@ -117,6 +118,7 @@ mExpClass(uiWellAttrib) uiCrossCorrView : uiGroup
 public:
 
 			uiCrossCorrView(uiParent*,const Data&);
+			~uiCrossCorrView();
 
     void		set(const Data::CorrelData&);
     void		draw();

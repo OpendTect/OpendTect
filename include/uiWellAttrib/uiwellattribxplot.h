@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
 #include "uistring.h"
 
@@ -27,13 +28,13 @@ public:
 
     void				setDescSet(const Attrib::DescSet*);
     void				setDisplayMgr(
-	    					DataPointSetDisplayMgr* mgr)
+						DataPointSetDisplayMgr* mgr)
 					{ dpsdispmgr_ = mgr; }
 
 protected:
 
     uiWellLogExtractGrp*		wellextractgrp_;
-    DataPointSetDisplayMgr* 		dpsdispmgr_;
+    DataPointSetDisplayMgr*		dpsdispmgr_ = nullptr;
 
     bool				acceptOK(CallBacker*) override;
 };

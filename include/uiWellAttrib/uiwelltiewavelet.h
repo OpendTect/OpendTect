@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uistring.h"
@@ -68,7 +69,7 @@ protected:
     Wavelet*			wvlt_;
     ObjectSet<uiToolButton>     wvltbuts_;
     uiFlatViewer*               viewer_;
-    uiWaveletDispPropDlg*	wvltpropdlg_;
+    uiWaveletDispPropDlg*	wvltpropdlg_ = nullptr;
 
     void			initWaveletViewer();
 

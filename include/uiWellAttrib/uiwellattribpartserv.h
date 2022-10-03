@@ -40,7 +40,7 @@ public:
 
     const char*			name() const override	{ return "Wells"; }
 
-    				// Services
+				// Services
     bool			createAttribLog(const MultiID&);
     bool			createAttribLog(const BufferStringSet&);
     bool			createLogCube(const MultiID&);
@@ -48,7 +48,7 @@ public:
 						  Pos::GeomID& newlinegid);
     void			doXPlot();
 
-    void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
+    void			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
     bool			createD2TModel(const MultiID&);
 
@@ -65,14 +65,14 @@ public:
 protected:
 
     Attrib::DescSet*		attrset_;
-    const NLAModel*		nlamodel_;
+    const NLAModel*		nlamodel_ = nullptr;
 
-    WellTie::uiTieWinMGRDlg*	welltiedlg_;
-    uiWellAttribCrossPlot*	xplotwin2d_;
-    uiWellAttribCrossPlot*	xplotwin3d_;
-    uiWellTo2DLineDlg*		wellto2ddlg_;
-    uiCreateLogCubeDlg*		crlogcubedlg_;
-    DataPointSetDisplayMgr*	dpsdispmgr_;
+    WellTie::uiTieWinMGRDlg*	welltiedlg_ = nullptr;
+    uiWellAttribCrossPlot*	xplotwin2d_ = nullptr;
+    uiWellAttribCrossPlot*	xplotwin3d_ = nullptr;
+    uiWellTo2DLineDlg*		wellto2ddlg_ = nullptr;
+    uiCreateLogCubeDlg*		crlogcubedlg_ = nullptr;
+    DataPointSetDisplayMgr*	dpsdispmgr_ = nullptr;
 
     void			surveyChangedCB(CallBacker*);
     void			wellManCreatedCB(CallBacker*);

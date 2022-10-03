@@ -30,6 +30,7 @@ mExpClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
 { mODTextTranslationClass(uiSaveDataDlg);
 public:
 				uiSaveDataDlg(uiParent*,Server&);
+				~uiSaveDataDlg();
 
 protected :
 

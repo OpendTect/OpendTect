@@ -45,15 +45,28 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+// uiWellLogExtractGrp::uiWellLogExtractGrp
+
+uiWellLogExtractGrp::Setup::Setup( bool wa, bool singlog, const char* prop )
+    : singlelog_(singlog)
+    , withattrib_(wa)
+    , prefpropnm_(prop)
+{
+}
+
+
+uiWellLogExtractGrp::Setup::~Setup()
+{
+}
+
+
+// uiWellLogExtractGrp
+
 uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	const uiWellLogExtractGrp::Setup& setup, const Attrib::DescSet* d )
-	: uiGroup(p)
-	, ads_( d )
-	, attrsfld_(0)
-	, posfiltfld_(0)
-	, radiusfld_(0)
-	, curdps_(0)
-	, setup_(setup)
+    : uiGroup(p)
+    , ads_( d )
+    , setup_(setup)
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()

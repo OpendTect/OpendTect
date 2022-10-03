@@ -23,6 +23,7 @@ mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
 { mODTextTranslationClass(uiCreateLogCubeDlg);
 public:
 				uiCreateLogCubeDlg(uiParent*,const MultiID*);
+				~uiCreateLogCubeDlg();
 
     MultiID			currentKey() const	{ return key_; }
 protected:
@@ -41,6 +42,7 @@ public:
 
 				uiCreateLogCubeOutputSel(uiParent*,
 							 bool withwllnm=false);
+				~uiCreateLogCubeOutputSel();
 
     int				getNrRepeatTrcs() const;
     const char*			getPostFix() const;
@@ -56,6 +58,6 @@ protected:
 
     uiLabeledSpinBox*		repeatfld_;
     uiGenInput*			savesuffix_;
-    uiCheckBox*			savewllnmfld_;
+    uiCheckBox*			savewllnmfld_ = nullptr;
 
 };

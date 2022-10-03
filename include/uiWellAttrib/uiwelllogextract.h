@@ -28,19 +28,17 @@ public:
 
     struct Setup
     {
-			Setup(bool wa=true,bool singlog =false,
-			      const char* prop =0)
-			    : singlelog_(singlog)
-			    , withattrib_(wa)
-			    , prefpropnm_(prop)	{}
+				Setup(bool wa =true,bool singlog =false,
+				      const char* prop =0);
+				~Setup();
+
 	mDefSetupMemb(bool,singlelog);
 	mDefSetupMemb(bool,withattrib);
 	mDefSetupMemb(BufferString,prefpropnm);
     };
 				uiWellLogExtractGrp(uiParent*,
 					const uiWellLogExtractGrp::Setup&,
-					const Attrib::DescSet* ads=0);
-
+					const Attrib::DescSet* =nullptr);
 				~uiWellLogExtractGrp();
 
     void			setDescSet(const Attrib::DescSet*);
@@ -60,16 +58,16 @@ protected:
     ObjectSet<IOObj>	wellobjs_;
 
     Setup		setup_;
-    uiListBox*		attrsfld_;
-    uiGenInput*		radiusfld_;
+    uiListBox*		attrsfld_ = nullptr;
+    uiGenInput*		radiusfld_ = nullptr;
     uiGenInput*		logresamplfld_;
     uiMultiWellLogSel*	welllogselfld_;
-    uiPosFilterSetSel*	posfiltfld_;
-    DataPointSet*	curdps_;
+    uiPosFilterSetSel*	posfiltfld_ = nullptr;
+    DataPointSet*	curdps_ = nullptr;
 
     void		adsChg();
     bool		extractWellData(const TypeSet<MultiID>&,
-	    				const BufferStringSet&,
+					const BufferStringSet&,
 					ObjectSet<DataPointSet>&);
     bool		extractAttribData(DataPointSet&,int);
 };

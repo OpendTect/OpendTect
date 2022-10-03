@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
@@ -76,8 +77,8 @@ protected:
     uiToolBar*			toolbar_;
     uiGenInput*			polarityfld_;
 
-    uiControlView*		controlview_;
-    uiInfoDlg*			infodlg_;
+    uiControlView*		controlview_ = nullptr;
+    uiInfoDlg*			infodlg_ = nullptr;
     uiTieView*			drawer_;
     IOPar			par_;
 
@@ -152,15 +153,15 @@ protected:
     ObjectSet<uiLabel>		zlabelflds_;
     uiGenInput*			choicefld_;
     uiGenInput*			estwvltlengthfld_;
-    uiCrossCorrView*		crosscorr_;
-    uiWaveletView*		wvltdraw_;
+    uiCrossCorrView*		crosscorr_ = nullptr;
+    uiWaveletView*		wvltdraw_ = nullptr;
     uiLabel*			wvltscaler_;
 
     BufferStringSet		markernames_;
 
     Interval<float>		zrg_;
     bool			zrginft_;
-    int				selidx_;
+    int				selidx_ = 0;
     BufferString		startmrknm_;
     BufferString		stopmrknm_;
 

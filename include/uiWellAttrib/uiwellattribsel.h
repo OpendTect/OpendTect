@@ -26,7 +26,8 @@ mExpClass(uiWellAttrib) uiWellAttribSel : public uiDialog
 public:
 				uiWellAttribSel(uiParent*,Well::Data&,
 						const Attrib::DescSet&,
-						const NLAModel* mdl=0);
+						const NLAModel* =nullptr);
+				~uiWellAttribSel();
 
     int				selectedLogIdx() const	{ return sellogidx_; }
 
@@ -46,12 +47,12 @@ protected:
 
     bool			inputsOK();
     void			getPositions(BinIDValueSet&,
-	    				     TypeSet<BinIDValueSet::Pos>&,
+					     TypeSet<BinIDValueSet::Pos>&,
 					     TypeSet<float>& depths);
     bool			extractData(BinIDValueSet&);
     bool			createLog(const BinIDValueSet&,
-	    				  const TypeSet<BinIDValueSet::Pos>&,
+					  const TypeSet<BinIDValueSet::Pos>&,
 					  const TypeSet<float>& depths);
 
-    int				sellogidx_;
+    int				sellogidx_ = -1;
 };

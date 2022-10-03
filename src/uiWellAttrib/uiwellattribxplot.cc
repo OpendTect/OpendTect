@@ -20,10 +20,9 @@ using namespace Attrib;
 
 uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 					      const Attrib::DescSet* d )
-	: uiDialog(p,uiDialog::Setup(tr("Attribute/Well Cross-plotting"),
-		     mNoDlgTitle,
-		     mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
-	, dpsdispmgr_(0)
+    : uiDialog(p,uiDialog::Setup(tr("Attribute/Well Cross-plotting"),
+		 mNoDlgTitle,
+		 mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
 {
     setOkText( uiStrings::sNext() );
 
@@ -51,7 +50,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     if ( !wellextractgrp_->extractDPS() )
 	return false;
 
-    uiDataPointSet* uidps =
+    auto* uidps =
 	new uiDataPointSet( this, *wellextractgrp_->getDPS(),
 			    uiDataPointSet::Setup(tr("Well attribute data"),
 						  false), dpsdispmgr_ );

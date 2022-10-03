@@ -47,32 +47,28 @@ ________________________________________________________________________
 #include "welltiesetup.h"
 #include "od_helpids.h"
 
-namespace WellTie
-{
 
 #define mErrRetYN(msg) { uiMSG().error(msg); return false; }
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 #define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
 
-const WellTie::Setup& uiTieWin::welltieSetup() const
+const WellTie::Setup& WellTie::uiTieWin::welltieSetup() const
 {
     return server_.data().setup();
 }
 
 
-uiTieWin::uiTieWin( uiParent* p, Server& wts )
+WellTie::uiTieWin::uiTieWin( uiParent* p, Server& wts )
     : uiFlatViewMainWin(p,
 			uiFlatViewMainWin::Setup(uiString::emptyString())
 			.deleteonclose(false))
     , server_(wts)
     , stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
-    , controlview_(nullptr)
-    , infodlg_(nullptr)
     , params_(server_.dispParams())
 {
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
-    drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
-    server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
+    mAttachCB( drawer_->infoMsgChanged, uiTieWin::dispInfoMsg );
+    mAttachCB( server_.pickMgr().pickadded, uiTieWin::checkIfPick );
     server_.setTaskRunner( new uiTaskRunner(p) );
 
     mGetWD(return)
@@ -84,8 +80,9 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
 }
 
 
-uiTieWin::~uiTieWin()
+WellTie::uiTieWin::~uiTieWin()
 {
+    detachAllNotifiers();
     cleanUp(nullptr);
     delete &stretcher_;
     delete infodlg_;
@@ -94,7 +91,7 @@ uiTieWin::~uiTieWin()
 }
 
 
-void uiTieWin::initAll()
+void WellTie::uiTieWin::initAll()
 {
     drawFields();
     addControls();
@@ -103,7 +100,7 @@ void uiTieWin::initAll()
 }
 
 
-void uiTieWin::fillPar( IOPar& par ) const
+void WellTie::uiTieWin::fillPar( IOPar& par ) const
 {
     server_.dispParams().fillPar( par );
     controlview_->fillPar( par );
@@ -112,7 +109,7 @@ void uiTieWin::fillPar( IOPar& par ) const
 }
 
 
-void uiTieWin::usePar( const IOPar& par )
+void WellTie::uiTieWin::usePar( const IOPar& par )
 {
     server_.dispParams().usePar( par );
     controlview_->usePar( par );
@@ -122,7 +119,7 @@ void uiTieWin::usePar( const IOPar& par )
 }
 
 
-void uiTieWin::displayUserMsg( CallBacker* )
+void WellTie::uiTieWin::displayUserMsg( CallBacker* )
 {
     uiString msg = tr("To correlate synthetic to seismic, "
 		      "choose your tracking mode, "
@@ -141,7 +138,7 @@ void uiTieWin::displayUserMsg( CallBacker* )
 }
 
 
-void uiTieWin::doWork( CallBacker* )
+void WellTie::uiTieWin::doWork( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
     const Wavelet& wvlt = infodlg_ ? infodlg_->getWavelet()
@@ -161,20 +158,20 @@ void uiTieWin::doWork( CallBacker* )
 }
 
 
-void uiTieWin::reDrawSeisViewer( CallBacker* )
+void WellTie::uiTieWin::reDrawSeisViewer( CallBacker* )
 {
     drawer_->redrawViewer();
 }
 
 
-void uiTieWin::reDrawAuxDatas( CallBacker* )
+void WellTie::uiTieWin::reDrawAuxDatas( CallBacker* )
 {
     drawer_->redrawLogsAuxDatas();
     drawer_->redrawViewerAuxDatas();
 }
 
 
-void uiTieWin::reDrawAll( CallBacker* )
+void WellTie::uiTieWin::reDrawAll( CallBacker* )
 {
     drawer_->fullRedraw();
     if ( infodlg_ )
@@ -184,7 +181,7 @@ void uiTieWin::reDrawAll( CallBacker* )
 
 #define mAddButton(pm,func,tip) \
     toolbar_->addButton( pm, tip, mCB(this,uiTieWin,func) )
-void uiTieWin::addToolBarTools()
+void WellTie::uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, tr("Well Tie Control"), uiToolBar::Right );
     mAddButton( "z2t", editD2TPushed, tr("View/Edit Model") );
@@ -193,7 +190,7 @@ void uiTieWin::addToolBarTools()
 }
 
 
-void uiTieWin::addControls()
+void WellTie::uiTieWin::addControls()
 {
     addToolBarTools();
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
@@ -202,14 +199,14 @@ void uiTieWin::addControls()
 }
 
 
-void uiTieWin::snapshotCB( CallBacker* )
+void WellTie::uiTieWin::snapshotCB( CallBacker* )
 {
     uiSaveWinImageDlg snapshotdlg( this );
     snapshotdlg.go();
 }
 
 
-void uiTieWin::drawFields()
+void WellTie::uiTieWin::drawFields()
 {
     uiSeparator* sep1 = new uiSeparator( this );
     sep1->attach( stretchedBelow, viewer() );
@@ -258,13 +255,13 @@ void uiTieWin::drawFields()
 }
 
 
-void uiTieWin::provideWinHelp( CallBacker* )
+void WellTie::uiTieWin::provideWinHelp( CallBacker* )
 {
     HelpProvider::provideHelp( HelpKey(mODHelpKey(mWellTieTieWinHelpID) ) );
 }
 
 
-void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
+void WellTie::uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 {
     eventtypefld_ = new uiLabeledComboBox( taskgrp, uiStrings::sTrack() );
     BufferStringSet eventtypes;
@@ -314,7 +311,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 }
 
 
-void uiTieWin::infoPushed( CallBacker* )
+void WellTie::uiTieWin::infoPushed( CallBacker* )
 {
     if ( !infodlg_ )
     {
@@ -336,7 +333,7 @@ void uiTieWin::infoPushed( CallBacker* )
 }
 
 
-void uiTieWin::editD2TPushed( CallBacker* cb )
+void WellTie::uiTieWin::editD2TPushed( CallBacker* cb )
 {
     Well::Data* wd = server_.wd();
     if ( !wd || !wd->haveD2TModel() ) return;
@@ -350,7 +347,7 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 }
 
 
-void uiTieWin::saveDataPushed( CallBacker* )
+void WellTie::uiTieWin::saveDataPushed( CallBacker* )
 {
     uiSaveDataDlg dlg( this, server_ );
     dlg.go();
@@ -358,14 +355,14 @@ void uiTieWin::saveDataPushed( CallBacker* )
 }
 
 
-void uiTieWin::eventTypeChg( CallBacker* )
+void WellTie::uiTieWin::eventTypeChg( CallBacker* )
 {
     server_.pickMgr().setEventType( eventtypefld_->box()->text() );
     controlview_->setEditMode( true );
 }
 
 
-void uiTieWin::applyPushed( CallBacker* cb )
+void WellTie::uiTieWin::applyPushed( CallBacker* cb )
 {
     mGetWD(return);
     stretcher_.setD2TModel( wd->d2TModel() );
@@ -383,7 +380,7 @@ void uiTieWin::applyPushed( CallBacker* cb )
 }
 
 
-void uiTieWin::clearPicks( CallBacker* cb )
+void WellTie::uiTieWin::clearPicks( CallBacker* cb )
 {
     server_.pickMgr().clearAllPicks();
     checkIfPick( cb );
@@ -391,7 +388,7 @@ void uiTieWin::clearPicks( CallBacker* cb )
 }
 
 
-void uiTieWin::clearLastPick( CallBacker* cb )
+void WellTie::uiTieWin::clearLastPick( CallBacker* cb )
 {
     server_.pickMgr().clearLastPicks();
     checkIfPick( cb );
@@ -399,7 +396,7 @@ void uiTieWin::clearLastPick( CallBacker* cb )
 }
 
 
-void uiTieWin::checkIfPick( CallBacker* )
+void WellTie::uiTieWin::checkIfPick( CallBacker* )
 {
     const bool ispick = server_.pickMgr().isPick();
     const bool issamesz = server_.pickMgr().isSynthSeisSameSize();
@@ -409,7 +406,7 @@ void uiTieWin::checkIfPick( CallBacker* )
 }
 
 
-void uiTieWin::undoPushed( CallBacker* cb )
+void WellTie::uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
 	mErrRet( tr("Cannot go back to previous model") );
@@ -426,7 +423,7 @@ void uiTieWin::undoPushed( CallBacker* cb )
 }
 
 
-void uiTieWin::matchHorMrks( CallBacker* )
+void WellTie::uiTieWin::matchHorMrks( CallBacker* )
 {
     PickSetMgr& pmgr = server_.pickMgr();
     mGetWD(return)
@@ -461,14 +458,14 @@ void uiTieWin::matchHorMrks( CallBacker* )
 }
 
 
-void uiTieWin::nrtrcsCB( CallBacker* )
+void WellTie::uiTieWin::nrtrcsCB( CallBacker* )
 {
     const int nrtrcs = nrtrcsfld_->getIntValue();
     drawer_->setNrTrcs( nrtrcs );
 }
 
 
-void uiTieWin::wvltSelCB( CallBacker* )
+void WellTie::uiTieWin::wvltSelCB( CallBacker* )
 {
     const PtrMan<Wavelet> selwvlt = wvltfld_->getWavelet();
     if ( !selwvlt ) return;
@@ -483,14 +480,14 @@ void uiTieWin::wvltSelCB( CallBacker* )
 }
 
 
-void uiTieWin::cancelPushCB( CallBacker* )
+void WellTie::uiTieWin::cancelPushCB( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
     close();
 }
 
 
-void uiTieWin::cleanUp( CallBacker* )
+void WellTie::uiTieWin::cleanUp( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
     if ( Well::MGR().isLoaded( server_.wellID() ) )
@@ -499,7 +496,7 @@ void uiTieWin::cleanUp( CallBacker* )
 }
 
 
-void uiTieWin::okPushCB( CallBacker* )
+void WellTie::uiTieWin::okPushCB( CallBacker* )
 {
     uiString errmsg = tr("This will overwrite your depth/time model, "
 			 "do you want to continue?");
@@ -516,14 +513,14 @@ void uiTieWin::okPushCB( CallBacker* )
 }
 
 
-void uiTieWin::dispInfoMsg( CallBacker* cb )
+void WellTie::uiTieWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
     statusBar()->message( mToUiStringTodo(mesg.buf()) );
 }
 
 
-void uiTieWin::polarityChanged( CallBacker* )
+void WellTie::uiTieWin::polarityChanged( CallBacker* )
 {
     const bool isSEGPositive = polarityfld_->getBoolValue();
     drawer_->setSEGPositivePolarity( isSEGPositive );
@@ -542,30 +539,26 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 #define	mDahFldIdx  2
 #define mMinWvltLength	20
 
-uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
+WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup(tr("Cross-checking parameters"),
 				     uiString::emptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
 				.modal(false))
-	, server_(server)
-	, selidx_(0)
-	, crosscorr_(nullptr)
-	, wvltdraw_(nullptr)
-	, redrawNeeded(this)
-	, data_(server_.data())
+    , server_(server)
+    , redrawNeeded(this)
+    , data_(server_.data())
 {
     setCtrlStyle( CloseOnly );
 
-    uiGroup* viewersgrp = new uiGroup( this, "Viewers group" );
-    uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
-    uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
+    auto* viewersgrp = new uiGroup( this, "Viewers group" );
+    auto* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
+    auto* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
 
     ObjectSet<Wavelet> wvlts;
     wvlts += &data_.initwvlt_;
     wvlts += &data_.estimatedwvlt_;
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
-    wvltdraw_->activeWvltChgd.notify(
-		mCB(this,WellTie::uiInfoDlg,wvltChanged) );
+    mAttachCB( wvltdraw_->activeWvltChgd, uiInfoDlg::wvltChanged );
     wvltdraw_->setActiveWavelet( true );
 
     wvltscaler_ = new uiLabel( wvltgrp, uiStrings::sEmptyString() );
@@ -578,8 +571,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
-    estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,
-					    needNewEstimatedWvlt) );
+    mAttachCB( estwvltlengthfld_->valuechanged,uiInfoDlg::needNewEstimatedWvlt);
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp, "Vert sep",
 					     OD::Vertical );
@@ -595,10 +587,10 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     markergrp->attach( centeredAbove, viewersgrp );
     horSepar->attach( ensureBelow, markergrp );
 
-    const char* choice[] = { "Markers", "Times", "Depths (MD)", 0 };
+    const char* choice[] = { "Markers", "Times", "Depths (MD)", nullptr };
     choicefld_ = new uiGenInput( markergrp, tr("Compute Data between"),
 					StringListInpSpec(choice) );
-    choicefld_->valuechanged.notify( mCB(this,uiInfoDlg,zrgChanged) );
+    mAttachCB( choicefld_->valuechanged, uiInfoDlg::zrgChanged );
 
     markernames_.add( Well::ExtractParams::sKeyDataStart() );
     mGetWD(return)
@@ -635,7 +627,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
     for ( int idx=0; choice[idx]; idx++ )
     {
-	zrangeflds_[idx]->valuechanged.notify(mCB(this,uiInfoDlg,zrgChanged));
+	mAttachCB( zrangeflds_[idx]->valuechanged, uiInfoDlg::zrgChanged );
 	zrangeflds_[idx]->attach( rightOf, choicefld_ );
 	zlabelflds_ += new uiLabel( markergrp, units[idx] );
 	zlabelflds_[idx]->attach( rightOf, zrangeflds_[idx] );
@@ -645,14 +637,15 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 }
 
 
-uiInfoDlg::~uiInfoDlg()
+WellTie::uiInfoDlg::~uiInfoDlg()
 {
+    detachAllNotifiers();
     delete crosscorr_;
     delete wvltdraw_;
 }
 
 
-void uiInfoDlg::updateInitialWavelet()
+void WellTie::uiInfoDlg::updateInitialWavelet()
 {
     computeNewWavelet();
     server_.computeCrossCorrelation();
@@ -660,7 +653,7 @@ void uiInfoDlg::updateInitialWavelet()
 }
 
 
-void uiInfoDlg::fillPar( IOPar& par ) const
+void WellTie::uiInfoDlg::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyInfoIsInitWvltActive, isInitWvltActive() );
     par.set( sKeyInfoSelBoxIndex, selidx_ );
@@ -685,7 +678,7 @@ void uiInfoDlg::fillPar( IOPar& par ) const
 }
 
 
-void uiInfoDlg::usePar( const IOPar& par )
+void WellTie::uiInfoDlg::usePar( const IOPar& par )
 {
     bool isinitwvltactive;
     par.getYN( sKeyInfoIsInitWvltActive, isinitwvltactive );
@@ -706,7 +699,7 @@ void uiInfoDlg::usePar( const IOPar& par )
 }
 
 
-void uiInfoDlg::putToScreen()
+void WellTie::uiInfoDlg::putToScreen()
 {
     if ( !choicefld_ )
 	return;
@@ -782,7 +775,7 @@ void uiInfoDlg::putToScreen()
 }
 
 
-void uiInfoDlg::dtmodelChanged( CallBacker* )
+void WellTie::uiInfoDlg::dtmodelChanged( CallBacker* )
 {
     needNewEstimatedWvlt( nullptr );
     if ( !isInitWvltActive() )
@@ -793,7 +786,7 @@ void uiInfoDlg::dtmodelChanged( CallBacker* )
 }
 
 
-void uiInfoDlg::wvltChanged( CallBacker* )
+void WellTie::uiInfoDlg::wvltChanged( CallBacker* )
 {
     if ( wvltdraw_ )
 	wvltdraw_->redrawWavelets();
@@ -805,7 +798,7 @@ void uiInfoDlg::wvltChanged( CallBacker* )
 }
 
 
-void uiInfoDlg::needNewEstimatedWvlt( CallBacker* )
+void WellTie::uiInfoDlg::needNewEstimatedWvlt( CallBacker* )
 {
     if ( !computeNewWavelet() )
 	return;
@@ -814,7 +807,7 @@ void uiInfoDlg::needNewEstimatedWvlt( CallBacker* )
 }
 
 
-void uiInfoDlg::synthChanged( CallBacker* )
+void WellTie::uiInfoDlg::synthChanged( CallBacker* )
 {
     redrawNeeded.trigger();
     if ( !server_.computeCrossCorrelation() )
@@ -824,7 +817,7 @@ void uiInfoDlg::synthChanged( CallBacker* )
 }
 
 
-void uiInfoDlg::zrgChanged( CallBacker* )
+void WellTie::uiInfoDlg::zrgChanged( CallBacker* )
 {
     if ( !updateZrg() )
 	return;
@@ -842,7 +835,7 @@ void uiInfoDlg::zrgChanged( CallBacker* )
 }
 
 
-void uiInfoDlg::crossCorrelationChanged( CallBacker* )
+void WellTie::uiInfoDlg::crossCorrelationChanged( CallBacker* )
 {
     if ( crosscorr_ )
     {
@@ -873,7 +866,7 @@ void uiInfoDlg::crossCorrelationChanged( CallBacker* )
 	      : d2t->getDah( zval, wd->track() );
 
 
-bool uiInfoDlg::updateZrg()
+bool WellTie::uiInfoDlg::updateZrg()
 {
     if ( zrangeflds_.isEmpty() || !choicefld_ )
 	return false;
@@ -966,7 +959,7 @@ bool uiInfoDlg::updateZrg()
 }
 
 
-bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
+bool WellTie::uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
     mGetWD(return false)
     const Interval<int> mintv = zrangeflds_[mMarkerFldIdx]->getIInterval();
@@ -997,7 +990,7 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 }
 
 
-bool uiInfoDlg::computeNewWavelet()
+bool WellTie::uiInfoDlg::computeNewWavelet()
 {
     if ( !estwvltlengthfld_ )
 	return false;
@@ -1020,7 +1013,7 @@ bool uiInfoDlg::computeNewWavelet()
 }
 
 
-void uiInfoDlg::drawData()
+void WellTie::uiInfoDlg::drawData()
 {
     crossCorrelationChanged( nullptr );
     if ( wvltdraw_ )
@@ -1028,19 +1021,17 @@ void uiInfoDlg::drawData()
 }
 
 
-const Wavelet& uiInfoDlg::getWavelet() const
+const Wavelet& WellTie::uiInfoDlg::getWavelet() const
 {
     return isInitWvltActive() ? data_.initwvlt_
 			      : data_.estimatedwvlt_;
 }
 
 
-bool uiInfoDlg::isInitWvltActive() const
+bool WellTie::uiInfoDlg::isInitWvltActive() const
 {
     if ( !wvltdraw_ )
 	return true;
 
     return wvltdraw_->isInitialWvltActive();
 }
-
-} // namespace WellTie

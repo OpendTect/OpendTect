@@ -41,7 +41,7 @@ protected:
     uiCheckBox*		dispfld_;
 
     uiPushButton*	previewbutton_;
-    Geometry::RandomLine* rl_;
+    Geometry::RandomLine* rl_ = nullptr;
     uiSeisRandTo2DBase* randto2dlinefld_;
     uiWellSelGrp*	wellselgrp_;
 

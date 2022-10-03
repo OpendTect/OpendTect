@@ -44,6 +44,11 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* key )
 }
 
 
+uiCreateLogCubeDlg::~uiCreateLogCubeDlg()
+{
+}
+
+
 #define mErrRet( msg ) { uiMSG().error( msg ); return false; }
 
 
@@ -84,7 +89,6 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 // uiCreateLogCubeOutputSel
 uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     : uiGroup(p,"Create LogCube output specification Group")
-    , savewllnmfld_(0)
 {
     repeatfld_ = new uiLabeledSpinBox( this,
 				tr("Duplicate trace around the track") );
@@ -108,6 +112,11 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
 }
 
 
+uiCreateLogCubeOutputSel::~uiCreateLogCubeOutputSel()
+{
+}
+
+
 int uiCreateLogCubeOutputSel::getNrRepeatTrcs() const
 {
     return repeatfld_->box()->getIntValue();
@@ -117,7 +126,7 @@ int uiCreateLogCubeOutputSel::getNrRepeatTrcs() const
 const char* uiCreateLogCubeOutputSel::getPostFix() const
 {
     if ( !savesuffix_->isChecked() )
-	return 0;
+	return nullptr;
 
     return savesuffix_->text();
 }

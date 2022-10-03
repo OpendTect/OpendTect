@@ -25,6 +25,7 @@ mExpClass(uiWellAttrib) uiWellLogAttrib : public uiAttrDescEd
 public:
 
 			uiWellLogAttrib(uiParent*,bool);
+			~uiWellLogAttrib();
 
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 

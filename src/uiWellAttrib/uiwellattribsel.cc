@@ -37,11 +37,10 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
     , attrset_(as)
     , nlamodel_(mdl)
     , wd_(&wd)
-    , sellogidx_(-1)
 {
     attribfld = new uiAttrSel( this, &attrset_ );
     attribfld->setNLAModel( nlamodel_ );
-    attribfld->selectionDone.notify( mCB(this,uiWellAttribSel,selDone) );
+    mAttachCB( attribfld->selectionDone, uiWellAttribSel::selDone );
 
     const bool zinft = SI().depthsInFeet();
     BufferString lbl = "Depth range"; lbl += zinft ? "(ft)" : "(m)";
@@ -51,6 +50,12 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
 
     lognmfld = new uiGenInput( this, "Log name" );
     lognmfld->attach( alignedBelow, rangefld );
+}
+
+
+uiWellAttribSel::~uiWellAttribSel()
+{
+    detachAllNotifiers();
 }
 
 

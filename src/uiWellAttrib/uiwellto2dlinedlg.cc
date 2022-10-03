@@ -37,7 +37,6 @@ uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
 				 mODHelpKey(mWellto2DLineDlgHelpID)))
     , wellselgrp_(new uiWellSelGrp(this))
     , wantspreview_(this)
-    , rl_(0)
 {
     createFields();
     attachFields();
@@ -46,7 +45,7 @@ uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
 
 uiWellTo2DLineDlg::~uiWellTo2DLineDlg()
 {
-    if ( rl_ ) rl_->unRef();
+    unRefPtr( rl_ );
 }
 
 
@@ -63,7 +62,7 @@ void uiWellTo2DLineDlg::createFields()
     dispfld_ = new uiCheckBox( this, tr("Display 2D Line on creation") );
     dispfld_->setChecked( true );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    auto* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, extendfld_ );
 
     CallBack cb = mCB(this,uiWellTo2DLineDlg,previewPush);
