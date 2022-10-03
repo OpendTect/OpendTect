@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
 #include "od_helpids.h"
@@ -208,7 +207,7 @@ void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 void uiCheckShotEdit::reSizeCB( CallBacker* )
 {
     drawPoints();
-} 
+}
 
 
 void uiCheckShotEdit::movePt()
@@ -313,14 +312,14 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
     float zfac = 1.f;
     if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
     float startpos = -SI().seismicReferenceDatum();
-    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     Interval<float> zrg( startpos*zfac, stoppos*zfac );
     disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
     dahdata.xrev_ = false;
     dahdata.setData( d );
-    
+
     disp->reDraw();
 }
 
@@ -340,7 +339,7 @@ void uiCheckShotEdit::drawDrift()
 	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift );
-    }								  
+    }
     drawDahObj( &driftcurve_, true, false );
     drawDahObj( &newdriftcurve_, false, false );
 
@@ -355,13 +354,13 @@ void uiCheckShotEdit::drawDrift()
 	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
-    
+
     float startpos = -SI().seismicReferenceDatum();
-    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     float zfac = 1.f;
     if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
-    
+
     Interval<float> zrg( startpos*zfac, stoppos*zfac );
     driftdisplay_->setZRange(zrg);
 }
@@ -381,7 +380,7 @@ void uiCheckShotEdit::drawPoints()
 	for ( int idx=0; idx<d2t_->size(); idx++ )
 	{
 	    const float val = d2t_->value( idx );
-	    const float dah = (float) wd_.track().getPos( 
+	    const float dah = (float) wd_.track().getPos(
 						    (d2t_->dah( idx ))*zfac ).z;
 	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
 	}
@@ -411,8 +410,8 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 	const float csval = drift / SI().zDomain().userFactor() + d2tval;
 	tmpcs.add( dah, csval );
     }
-    
-    CheckShotCorr::calibrate( tmpcs, *d2t_ );
+
+    WellTie::calibrate( tmpcs, *d2t_ );
     drawPoints();
     draw();
 }
