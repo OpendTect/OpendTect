@@ -89,6 +89,7 @@ public:
     void			fillGenParams(SynthGenParams&) const;
 
 private:
+				~InstAttributeSyntheticData();
 
     Attrib::Instantaneous::OutType	attribtype_;
 };
@@ -118,16 +119,16 @@ mExpClass(WellAttrib) AVOGradSyntheticData
 {
 public:
 				AVOGradSyntheticData(
-					const SynthGenParams& sgp,
-					const Seis::SynthGenDataPack& synthdp,
-					SeisTrcBufDataPack& sbufdp )
-				    : PSBasedPostStackSyntheticData(sgp,synthdp,
-								    sbufdp)
-				{}
+						const SynthGenParams&,
+						const Seis::SynthGenDataPack&,
+						SeisTrcBufDataPack&);
 
     bool			isAVOGradient() const override	{ return true; }
     SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::AVOGradient; }
+
+private:
+				~AVOGradSyntheticData();
 };
 
 
@@ -136,16 +137,16 @@ mExpClass(WellAttrib) AngleStackSyntheticData
 {
 public:
 				AngleStackSyntheticData(
-					const SynthGenParams& sgp,
-					const Seis::SynthGenDataPack& synthdp,
-					SeisTrcBufDataPack& sbufdp )
-				    : PSBasedPostStackSyntheticData(sgp,synthdp,
-								    sbufdp)
-				{}
+						const SynthGenParams&,
+						const Seis::SynthGenDataPack&,
+						SeisTrcBufDataPack&);
 
     bool			isAngleStack() const override	{ return true; }
     SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::AngleStack; }
+
+private:
+				~AngleStackSyntheticData();
 };
 
 
@@ -225,6 +226,7 @@ public:
 				{ return SynthGenParams::StratProp; }
 
 private:
+				~StratPropSyntheticData();
 
     const PropertyRef&		prop_;
 };

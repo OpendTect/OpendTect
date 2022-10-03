@@ -24,6 +24,95 @@ ________________________________________________________________________
 
 #define mErrRet(m) errmsg.append(m); return false;
 
+// AttribLogExtractor
+
+AttribLogExtractor::AttribLogExtractor( const Well::Data& wd )
+    : wd_(&wd)
+    , bidset_(BinIDValueSet(2,true))
+{
+}
+
+
+AttribLogExtractor::~AttribLogExtractor()
+{
+}
+
+
+bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
+				      TaskRunner* taskr )
+{
+    uiString errmsg;
+    ObjectSet<BinIDValueSet> bivsset;
+    bivsset += &bidset_;
+    PtrMan<Attrib::Processor> process =
+	    aem.createLocationOutput( errmsg, bivsset );
+    if ( !process )
+	return false;
+    return TaskRunner::execute( taskr, *process );
+}
+
+
+bool AttribLogExtractor::fillPositions( const StepInterval<float>& dahintv )
+{
+    bidset_.setEmpty(); positions_.erase(); depths_.erase();
+    const int nrsteps = dahintv.nrSteps();
+    for ( int idx=0; idx<nrsteps; idx++ )
+    {
+	float md = dahintv.atIndex( idx );
+	Coord3 pos = wd_->track().getPos( md );
+	const BinID bid = SI().transform( pos );
+	if ( !bid.inl() && !bid.crl() ) continue;
+
+	if ( SI().zIsTime() && wd_->d2TModel() )
+	    pos.z = wd_->d2TModel()->getTime( md, wd_->track() );
+	bidset_.add( bid, (float) pos.z, (float)idx );
+	depths_ += md;
+	positions_ += BinIDValueSet::SPos(0,0);
+    }
+
+    BinIDValueSet::SPos pos;
+    while ( bidset_.next(pos) )
+    {
+	float& vidx = bidset_.getVals(pos)[1];
+	int posidx = mNINT32(vidx);
+	positions_[posidx] = pos;
+	mSetUdf(vidx);
+    }
+    return ( !positions_.isEmpty() && !depths_.isEmpty() && !bidset_.isEmpty());
+}
+
+
+// AttribLogCreator::Setup
+
+AttribLogCreator::Setup::Setup( const Attrib::DescSet* attr,
+				const Well::ExtractParams* wep )
+    : nlamodel_(nullptr)
+    , attrib_(attr)
+    , selspec_(nullptr)
+    , tr_(nullptr)
+    , extractparams_(wep)
+{
+}
+
+
+AttribLogCreator::Setup::~Setup()
+{
+}
+
+
+// AttribLogCreator
+
+AttribLogCreator::AttribLogCreator( const Setup& su, int& selidx )
+    : setup_(su)
+    , sellogidx_(selidx)
+{
+}
+
+
+AttribLogCreator::~AttribLogCreator()
+{
+}
+
 
 bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
 {
@@ -95,50 +184,4 @@ bool AttribLogCreator::createLog( Well::Data& wdin,
 	delete newlog;
     }
     return true;
-}
-
-
-
-
-bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
-{
-    bidset_.setEmpty(); positions_.erase(); depths_.erase();
-    const int nrsteps = dahintv.nrSteps();
-    for ( int idx=0; idx<nrsteps; idx++ )
-    {
-	float md = dahintv.atIndex( idx );
-	Coord3 pos = wd_->track().getPos( md );
-	const BinID bid = SI().transform( pos );
-	if ( !bid.inl() && !bid.crl() ) continue;
-
-	if ( SI().zIsTime() && wd_->d2TModel() )
-	    pos.z = wd_->d2TModel()->getTime( md, wd_->track() );
-	bidset_.add( bid, (float) pos.z, (float)idx );
-	depths_ += md;
-	positions_ += BinIDValueSet::SPos(0,0);
-    }
-
-    BinIDValueSet::SPos pos;
-    while ( bidset_.next(pos) )
-    {
-	float& vidx = bidset_.getVals(pos)[1];
-	int posidx = mNINT32(vidx);
-	positions_[posidx] = pos;
-	mSetUdf(vidx);
-    }
-    return ( !positions_.isEmpty() && !depths_.isEmpty() && !bidset_.isEmpty());
-}
-
-
-bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
-				      TaskRunner* taskr )
-{
-    uiString errmsg;
-    ObjectSet<BinIDValueSet> bivsset;
-    bivsset += &bidset_;
-    PtrMan<Attrib::Processor> process =
-	    aem.createLocationOutput( errmsg, bivsset );
-    if ( !process )
-	return false;
-    return TaskRunner::execute( taskr, *process );
 }

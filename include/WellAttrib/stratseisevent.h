@@ -24,12 +24,10 @@ namespace Strat
 mExpClass(WellAttrib) SeisEvent
 {
 public:
-			SeisEvent( Strat::LevelID
+			SeisEvent(Strat::LevelID
 					lvlid =Strat::LevelID::udf(),
-					VSEvent::Type evtyp=VSEvent::None )
-			    : levelid_(lvlid)
-			    , evtype_(evtyp)
-			    , extrwin_(0.f,0.f)				{}
+					VSEvent::Type evtyp=VSEvent::None);
+			~SeisEvent();
 
     float		snappedTime(const SeisTrc&) const;
     bool		snapPick(SeisTrc&) const;

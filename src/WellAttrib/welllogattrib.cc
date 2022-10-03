@@ -22,12 +22,9 @@ ________________________________________________________________________
 #include <math.h>
 
 
-namespace Attrib
-{
+mAttrDefCreateInstance(Attrib::WellLog)
 
-mAttrDefCreateInstance(WellLog)
-
-void WellLog::initClass()
+void Attrib::WellLog::initClass()
 {
     mAttrStartInitClass
 
@@ -44,11 +41,11 @@ void WellLog::initClass()
 }
 
 
-WellLog::WellLog( Desc& ds )
+Attrib::WellLog::WellLog( Desc& ds )
     : Provider(ds)
-    , logvals_(0)
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
 
     logname_ = desc_.getValParam(logName())->getStringValue( 0 );
     wellid_ = MultiID( desc_.getValParam(keyStr())->getStringValue(0) );
@@ -56,29 +53,29 @@ WellLog::WellLog( Desc& ds )
 }
 
 
-WellLog::~WellLog()
+Attrib::WellLog::~WellLog()
 {
     delete logvals_;
 }
 
 
-bool WellLog::getInputOutput( int input, TypeSet<int>& res ) const
+bool Attrib::WellLog::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );
 }
 
 
-bool WellLog::getInputData( const BinID& relpos, int zintv )
+bool Attrib::WellLog::getInputData( const BinID& relpos, int zintv )
 {
     return true;
 }
 
 
-bool WellLog::allowParallelComputation() const
+bool Attrib::WellLog::allowParallelComputation() const
 { return true; }
 
 
-void WellLog::prepareForComputeData()
+void Attrib::WellLog::prepareForComputeData()
 {
     deleteAndZeroPtr( logvals_ );
 
@@ -137,8 +134,9 @@ void WellLog::prepareForComputeData()
 }
 
 
-bool WellLog::computeData( const DataHolder& output, const BinID& relpos,
-			   int z0, int nrsamples, int threadid ) const
+bool Attrib::WellLog::computeData( const DataHolder& output,
+				   const BinID& relpos, int z0, int nrsamples,
+				   int /* threadid */ ) const
 {
     if ( output.isEmpty() || !logvals_ )
 	return false;
@@ -159,5 +157,3 @@ bool WellLog::computeData( const DataHolder& output, const BinID& relpos,
 
     return true;
 }
-
-} // namespace Attrib

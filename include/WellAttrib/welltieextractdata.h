@@ -45,13 +45,14 @@ public:
     uiString		errMsg() const		{ return errmsg_; }
 
 protected:
+			mOD_DisableCopy(SeismicExtractor);
 
     const char*		attrnm_;
-    int			nrdone_;
-    int			radius_;
+    int			nrdone_ = 0;
+    int			radius_ = 1;
     TrcKeyZSampling*	tkzs_;
     TypeSet<BinID>	bidset_;
-    SeisTrc*		outtrc_;
+    SeisTrc*		outtrc_ = nullptr;
     SeisTrcBuf*		trcbuf_;
     SeisTrcReader*	rdr_;
     StepInterval<float> extrintv_;

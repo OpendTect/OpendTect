@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "welltiegeocalculator.h"
 
-#include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "fourier.h"
 #include "fftfilter.h"
@@ -21,24 +20,20 @@ ________________________________________________________________________
 #include "timedepthmodel.h"
 #include "unitofmeasure.h"
 #include "valseries.h"
+#include "welldata.h"
+#include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "welldata.h"
 #include "welltrack.h"
-#include "welltieunitfactors.h"
-#include "welld2tmodel.h"
-#include "odcomplex.h"
 
-
-namespace WellTie
-{
 
 #define	mLocalEps	1e-2f
-Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
-						   const char* sonlog ) const
+
+Well::D2TModel* WellTie::GeoCalculator::getModelFromVelLog(
+				const Well::Data& wd, const char* sonlog )
 {
     const Well::Log* log = wd.logs().getLog( sonlog );
-    if ( !log ) return 0;
+    if ( !log ) return nullptr;
 
     Well::Log proclog( *log );
     if ( log->propType() == Mnemonic::Son )
@@ -61,7 +56,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 	vals += twt;
     }
 
-    Well::D2TModel* d2tnew = new Well::D2TModel;
+    auto* d2tnew = new Well::D2TModel;
     for ( int idx=0; idx<dpt.size(); idx++ )
 	d2tnew->add( dpt[idx], vals[idx] );
 
@@ -70,7 +65,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 }
 
 
-void GeoCalculator::son2Vel( Well::Log& log ) const
+void WellTie::GeoCalculator::son2Vel( Well::Log& log )
 {
     const UnitOfMeasure* loguom = log.unitOfMeasure();
     bool issonic = false;
@@ -112,7 +107,7 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
 }
 
 
-void GeoCalculator::son2TWT( Well::Log& log, const Well::Data& wd ) const
+void WellTie::GeoCalculator::son2TWT( Well::Log& log, const Well::Data& wd )
 {
     if ( log.propType() == Mnemonic::Son )
     {
@@ -127,7 +122,7 @@ void GeoCalculator::son2TWT( Well::Log& log, const Well::Data& wd ) const
 }
 
 
-void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
+void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 {
     int sz = log.size();
     if ( !sz )
@@ -232,7 +227,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 }
 
 
-void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
+void WellTie::GeoCalculator::removeSpikes( float* inp, int sz, int gate,int fac)
 {
     if ( sz< 2 || sz < 2*gate ) return;
     float prevval = inp[0];
@@ -303,8 +298,9 @@ bool doFFT( bool isfwd )
 
 
 #define mNoise 0.01f
-void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
-			        float* deconvals, int inpsz ) const
+void WellTie::GeoCalculator::deconvolve( const float* inp,
+					 const float_complex* filter,
+					 float* deconvals, int inpsz )
 {
     if ( !inp || !filter )
 	return;
@@ -372,8 +368,8 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
 }
 
 
-double GeoCalculator::crossCorr( const float* seis, const float* synth,
-				 float* outp, int sz ) const
+double WellTie::GeoCalculator::crossCorr( const float* seis, const float* synth,
+					  float* outp, int sz )
 {
     genericCrossCorrelation( sz, 0, seis, sz, 0, synth, sz, -sz/2, outp );
     LinStats2D ls2d; ls2d.use( seis, synth, sz );
@@ -381,8 +377,8 @@ double GeoCalculator::crossCorr( const float* seis, const float* synth,
 }
 
 
-void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
-					Well::Log& log ) const
+void WellTie::GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
+					   Well::Log& log )
 {
     log.setEmpty();
     for ( int idx=0; idx<d2t.size(); idx++ )
@@ -392,5 +388,3 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );
     log.guessMnemonic();
 }
-
-} // namespace WellTie

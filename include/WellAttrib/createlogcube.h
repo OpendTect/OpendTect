@@ -55,11 +55,8 @@ protected:
 
     mStruct(WellAttrib) LogCube
     {
-				LogCube(const BufferString& lognm)
-				    : lognm_(lognm)
-				    , fnm_(lognm)
-				    , seisioobj_(0)
-				{}
+				LogCube(const char* lognm);
+				~LogCube();
 
 	const uiString&		errMsg() const { return errmsg_; }
 	bool			doWrite(const SeisTrcBuf&) const;
@@ -67,15 +64,15 @@ protected:
 	bool			makeWriteReady();
 	bool			mkIOObj();
 
-	const BufferString&	lognm_;
+	const BufferString	lognm_;
 	BufferString		fnm_;
-	IOObj*			seisioobj_;
+	IOObj*			seisioobj_ = nullptr;
 	mutable uiString	errmsg_;
     };
 
     mStruct(WellAttrib) WellData : public CallBacker
     {
-				WellData(const MultiID& wid);
+				WellData(const MultiID&);
 				~WellData();
 
 	bool			isOK() const { return errmsg_.isEmpty(); }

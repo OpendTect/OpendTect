@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
 #include "namedobj.h"
-#include "uistring.h"
 #include "ptrman.h"
+#include "uistring.h"
 
 namespace Well
 {
@@ -21,6 +22,8 @@ namespace Well
 
 namespace WellTie
 {
+
+mGlobal(WellAttrib) void calibrate(const Well::D2TModel&,Well::D2TModel&);
 
 class DataWriter;
 class Setup;
@@ -54,13 +57,13 @@ protected:
     RefMan<Well::Data>	wd_;
 
     Well::D2TModel*	d2T();
-    Well::D2TModel*	prvd2t_;
-    Well::D2TModel*	orgd2t_;
+    Well::D2TModel*	prvd2t_ = nullptr;
+    Well::D2TModel*	orgd2t_ = nullptr;
 
     uiString		errmsg_;
 
     DataWriter&		datawriter_;
-    bool		emptyoninit_;
+    bool		emptyoninit_ = false;
 
 };
 

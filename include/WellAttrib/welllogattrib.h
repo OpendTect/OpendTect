@@ -60,7 +60,7 @@ protected:
     MultiID		wellid_;
     BufferString	logname_;
     int			upscaletype_; // Stats::UpscaleType
-    Array1D<float>*	logvals_;
+    Array1D<float>*	logvals_ = nullptr;
     StepInterval<float>	arrzrg_;
 };
 

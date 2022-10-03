@@ -34,6 +34,20 @@ ________________________________________________________________________
 }
 
 
+// LogCubeCreator::LogCube
+
+LogCubeCreator::LogCube::LogCube( const char* lognm )
+    : lognm_(lognm)
+    , fnm_(lognm)
+{
+}
+
+
+LogCubeCreator::LogCube::~LogCube()
+{
+}
+
+
 bool LogCubeCreator::LogCube::makeWriteReady()
 {
     if ( fnm_.isEmpty() )
@@ -91,6 +105,7 @@ bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
 }
 
 
+// LogCubeCreator::WellData
 
 LogCubeCreator::WellData::WellData( const MultiID& wid )
     : wd_(Well::MGR().get(wid, Well::LoadReqs(Well::Trck, Well::D2T)))
@@ -116,6 +131,7 @@ LogCubeCreator::WellData::~WellData()
 }
 
 
+// LogCubeCreator
 
 LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
 				const MultiID& wllid,

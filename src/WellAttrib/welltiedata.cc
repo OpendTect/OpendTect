@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "wellwriter.h"
 
-#include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltieextractdata.h"
 #include "welltiesetup.h"
@@ -39,44 +38,42 @@ ________________________________________________________________________
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
-namespace WellTie
-{
 
 // DispParams
 
-const char* DispParams::sKeyIsMarkerDisp()
+const char* WellTie::DispParams::sKeyIsMarkerDisp()
 { return "Display Markers on Well Display"; }
 
-const char* DispParams::sKeyVwrMarkerDisp()
+const char* WellTie::DispParams::sKeyVwrMarkerDisp()
 { return "Display Markers on 2D Viewer"; }
 
-const char* DispParams::sKeyVwrHorizonDisp()
+const char* WellTie::DispParams::sKeyVwrHorizonDisp()
 { return "Display Horizon on 2D Viewer"; }
 
-const char* DispParams::sKeyZInFeet()
+const char* WellTie::DispParams::sKeyZInFeet()
 { return "Z in Feet"; }
 
-const char* DispParams::sKeyZInTime()
+const char* WellTie::DispParams::sKeyZInTime()
 { return "Z in Time"; }
 
-const char* DispParams::sKeyMarkerFullName()
+const char* WellTie::DispParams::sKeyMarkerFullName()
 { return "Display markers full name"; }
 
-const char* DispParams::sKeyHorizonFullName()
+const char* WellTie::DispParams::sKeyHorizonFullName()
 { return "Display horizon full name"; }
 
 
-DispParams::DispParams()
+WellTie::DispParams::DispParams()
 {
 }
 
 
-DispParams::~DispParams()
+WellTie::DispParams::~DispParams()
 {
 }
 
 
-void DispParams::fillPar( IOPar& iop ) const
+void WellTie::DispParams::fillPar( IOPar& iop ) const
 {
     iop.setYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
     iop.setYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
@@ -89,7 +86,7 @@ void DispParams::fillPar( IOPar& iop ) const
 }
 
 
-void DispParams::usePar( const IOPar& iop )
+void WellTie::DispParams::usePar( const IOPar& iop )
 {
     iop.getYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
     iop.getYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
@@ -102,7 +99,7 @@ void DispParams::usePar( const IOPar& iop )
 }
 
 
-float Data::cDefSeisSr()
+float WellTie::Data::cDefSeisSr()
 {
     return 0.001;
 }
@@ -110,31 +107,43 @@ float Data::cDefSeisSr()
 
 // Marker
 
-Marker::Marker( float z )
+WellTie::Marker::Marker( float z )
     : zpos_(z)
 {
 }
 
-Marker::~Marker()
+WellTie::Marker::~Marker()
 {
 }
 
 
 // PickData
 
-PickData::PickData()
+WellTie::PickData::PickData()
 {
 }
 
 
-PickData::~PickData()
+WellTie::PickData::~PickData()
+{
+}
+
+
+// Data::Correl
+
+WellTie::Data::CorrelData::CorrelData()
+{
+}
+
+
+WellTie::Data::CorrelData::~CorrelData()
 {
 }
 
 
 // Data
 
-Data::Data( const Setup& wts, Well::Data& wdata )
+WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)
     , wd_(&wdata)
     , setup_(wts)
@@ -173,7 +182,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 }
 
 
-Data::~Data()
+WellTie::Data::~Data()
 {
     delete trunner_;
     delete &logset_;
@@ -183,25 +192,25 @@ Data::~Data()
 }
 
 
-const SeisTrc* Data::getTrc( bool synth, int ioff ) const
+const SeisTrc* WellTie::Data::getTrc( bool synth, int ioff ) const
 {
     return mSelf().getTrc( synth, ioff );
 }
 
 
-const SeisTrc* Data::getRealTrc( int ioff ) const
+const SeisTrc* WellTie::Data::getRealTrc( int ioff ) const
 {
     return mSelf().getRealTrc( ioff );
 }
 
 
-SeisTrc* Data::getRealTrc( int ioff )
+SeisTrc* WellTie::Data::getRealTrc( int ioff )
 {
     return seistrcs_.validIdx(ioff) ? seistrcs_.get( ioff ) : nullptr;
 }
 
 
-const SeisTrc* Data::getSynthTrc( int ioff ) const
+const SeisTrc* WellTie::Data::getSynthTrc( int ioff ) const
 {
     const int seqnr = 0;
     if ( postsd_ )
@@ -213,26 +222,26 @@ const SeisTrc* Data::getSynthTrc( int ioff ) const
 }
 
 
-SeisTrc* Data::getTrc( bool synth, int ioff )
+SeisTrc* WellTie::Data::getTrc( bool synth, int ioff )
 {
     return synth ? getSynthTrc( ioff ) : getRealTrc( ioff );
 }
 
 
-SeisTrc* Data::getSynthTrc( int ioff )
+SeisTrc* WellTie::Data::getSynthTrc( int ioff )
 {
     const SeisTrc* trc = const_cast<const Data&>( *this ).getSynthTrc( ioff );
     return const_cast<SeisTrc*>( trc );
 }
 
 
-const SyntheticData* Data::getSynthetics() const
+const SyntheticData* WellTie::Data::getSynthetics() const
 {
     return static_cast<const SyntheticData*>( synthdp_.ptr() );
 }
 
 
-const ReflectivityModelBase* Data::getRefModel() const
+const ReflectivityModelBase* WellTie::Data::getRefModel() const
 {
     const int seqnr = 0;
     const SyntheticData* sd = getSynthetics();
@@ -240,14 +249,14 @@ const ReflectivityModelBase* Data::getRefModel() const
 }
 
 
-float Data::getZStep() const
+float WellTie::Data::getZStep() const
 {
     const SeisTrc* trc = getRealTrc();
     return trc ? trc->info().sampling.step : mUdf(float);
 }
 
 
-void Data::setRealTrc( const SeisTrc* trc, int ioff )
+void WellTie::Data::setRealTrc( const SeisTrc* trc, int ioff )
 {
     if ( seistrcs_.validIdx(ioff) )
 	delete seistrcs_.replace( ioff, const_cast<SeisTrc*>( trc ) );
@@ -256,7 +265,7 @@ void Data::setRealTrc( const SeisTrc* trc, int ioff )
 }
 
 
-void Data::setSynthetics( const SyntheticData* sd )
+void WellTie::Data::setSynthetics( const SyntheticData* sd )
 {
     synthdp_ = sd;
     mDynamicCast(const PostStackSyntheticData*,postsd_,sd);
@@ -264,7 +273,7 @@ void Data::setSynthetics( const SyntheticData* sd )
 }
 
 
-void Data::reverseTrc( bool synth, int ioff )
+void WellTie::Data::reverseTrc( bool synth, int ioff )
 {
     SeisTrc* trc = getTrc( synth, ioff );
     if ( trc )
@@ -272,7 +281,7 @@ void Data::reverseTrc( bool synth, int ioff )
 }
 
 
-void Data::computeExtractionRange()
+void WellTie::Data::computeExtractionRange()
 {
     if ( !wd_ )
 	return;
@@ -302,19 +311,19 @@ void Data::computeExtractionRange()
 
 // HorizonMgr
 
-HorizonMgr::HorizonMgr( TypeSet<Marker>& hor )
+WellTie::HorizonMgr::HorizonMgr( TypeSet<Marker>& hor )
     : horizons_(hor)
 {
 }
 
 
-HorizonMgr::~HorizonMgr()
+WellTie::HorizonMgr::~HorizonMgr()
 {
 }
 
 
-void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
-				uiString& errms, TaskRunner& taskr )
+void WellTie::HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
+					 uiString& errms, TaskRunner& taskr )
 {
     horizons_.erase();
     if ( !wd_ )
@@ -374,8 +383,8 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 
 
 
-void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
-					bool bynames ) const
+void WellTie::HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
+					       bool bynames ) const
 {
     const Well::D2TModel* dtm = wd_ ? wd_->d2TModel() : nullptr;
     if ( !dtm ) return;
@@ -401,31 +410,31 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 
 // WellDataMgr
 
-WellDataMgr::WellDataMgr( const MultiID& wellid )
+WellTie::WellDataMgr::WellDataMgr( const MultiID& wellid )
     : wellid_(wellid)
     , datadeleted_(this)
 {}
 
 
-WellDataMgr::~WellDataMgr()
+WellTie::WellDataMgr::~WellDataMgr()
 {
 }
 
 
-void WellDataMgr::wellDataDelNotify( CallBacker* )
+void WellTie::WellDataMgr::wellDataDelNotify( CallBacker* )
 {
     wd_ = nullptr;
     datadeleted_.trigger();
 }
 
 
-ConstRefMan<Well::Data> WellDataMgr::wellData() const
+ConstRefMan<Well::Data> WellTie::WellDataMgr::wellData() const
 {
     return mSelf().wd();
 }
 
 
-RefMan<Well::Data> WellDataMgr::wd()
+RefMan<Well::Data> WellTie::WellDataMgr::wd()
 {
     if ( !wd_ )
 	wd_ = Well::MGR().get( wellid_, Well::LoadReqs::AllNoLogs() );
@@ -436,7 +445,7 @@ RefMan<Well::Data> WellDataMgr::wd()
 
 // DataWriter
 
-DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
+WellTie::DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
     : wd_(&wd)
     , wellid_(wellid)
 {
@@ -444,13 +453,13 @@ DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
 }
 
 
-DataWriter::~DataWriter()
+WellTie::DataWriter::~DataWriter()
 {
     delete wtr_;
 }
 
 
-void DataWriter::setWellWriter()
+void WellTie::DataWriter::setWellWriter()
 {
     deleteAndZeroPtr( wtr_ );
     IOObj* ioobj = IOM().get( wellid_ );
@@ -462,21 +471,22 @@ void DataWriter::setWellWriter()
 }
 
 
-bool DataWriter::writeD2TM() const
+bool WellTie::DataWriter::writeD2TM() const
 {
     return wtr_ && wtr_->putD2T();
 }
 
 
-bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
+bool WellTie::DataWriter::writeLogs( const Well::LogSet& logset,
+				     bool todisk ) const
 {
     if ( !wd_ || !wtr_ )
 	return false;
 
-    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
+    auto& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
     {
-	Well::Log* log = new Well::Log( logset.getLog(idx) );
+	auto* log = new Well::Log( logset.getLog(idx) );
 	wdlogset.add( log );
     }
 
@@ -488,12 +498,12 @@ bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 }
 
 
-bool DataWriter::removeLogs( const Well::LogSet& logset ) const
+bool WellTie::DataWriter::removeLogs( const Well::LogSet& logset ) const
 {
     if ( !wd_ )
 	return false;
 
-    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
+    auto& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     int nrlogs = wdlogset.size();
     for ( int idx=0; idx<logset.size(); idx++ )
     {
@@ -507,7 +517,7 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 
 // Server
 
-Server::Server( const WellTie::Setup& wts )
+WellTie::Server::Server( const WellTie::Setup& wts )
     : wellid_(wts.wellid_)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
@@ -529,7 +539,7 @@ Server::Server( const WellTie::Setup& wts )
 }
 
 
-Server::~Server()
+WellTie::Server::~Server()
 {
     detachAllNotifiers();
     delete datawriter_;
@@ -542,7 +552,7 @@ Server::~Server()
 }
 
 
-void Server::wellDataDel( CallBacker* )
+void WellTie::Server::wellDataDel( CallBacker* )
 {
     data_->wd_ = wdmgr_->wd();
     d2tmgr_->setWD( *data_->wd_ );
@@ -551,7 +561,7 @@ void Server::wellDataDel( CallBacker* )
 }
 
 
-bool Server::setNewWavelet( const MultiID& mid )
+bool WellTie::Server::setNewWavelet( const MultiID& mid )
 {
     if ( !data_ )
 	return false;
@@ -571,7 +581,7 @@ bool Server::setNewWavelet( const MultiID& mid )
 }
 
 
-bool Server::computeSynthetics( const Wavelet& wvlt )
+bool WellTie::Server::computeSynthetics( const Wavelet& wvlt )
 {
     if ( !dataplayer_ )
 	return false;
@@ -585,7 +595,7 @@ bool Server::computeSynthetics( const Wavelet& wvlt )
 }
 
 
-bool Server::extractSeismics()
+bool WellTie::Server::extractSeismics()
 {
     if ( !dataplayer_ )
 	return false;
@@ -599,7 +609,7 @@ bool Server::extractSeismics()
 }
 
 
-bool Server::updateSynthetics( const Wavelet& wvlt )
+bool WellTie::Server::updateSynthetics( const Wavelet& wvlt )
 {
     if ( !dataplayer_ )
 	return false;
@@ -613,7 +623,7 @@ bool Server::updateSynthetics( const Wavelet& wvlt )
 }
 
 
-bool Server::computeAdditionalInfo( const Interval<float>& zrg )
+bool WellTie::Server::computeAdditionalInfo( const Interval<float>& zrg )
 {
     if ( !dataplayer_ )
 	return false;
@@ -627,7 +637,7 @@ bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 }
 
 
-bool Server::computeCrossCorrelation()
+bool WellTie::Server::computeCrossCorrelation()
 {
     if ( !dataplayer_ )
 	return false;
@@ -641,7 +651,7 @@ bool Server::computeCrossCorrelation()
 }
 
 
-bool Server::computeEstimatedWavelet( int newsz )
+bool WellTie::Server::computeEstimatedWavelet( int newsz )
 {
     if ( !dataplayer_ )
 	return false;
@@ -655,7 +665,7 @@ bool Server::computeEstimatedWavelet( int newsz )
 }
 
 
-void Server::setCrossCorrZrg( const Interval<float>& zrg )
+void WellTie::Server::setCrossCorrZrg( const Interval<float>& zrg )
 {
     if ( !dataplayer_ )
 	return;
@@ -664,7 +674,7 @@ void Server::setCrossCorrZrg( const Interval<float>& zrg )
 }
 
 
-bool Server::hasSynthetic() const
+bool WellTie::Server::hasSynthetic() const
 {
     if ( !dataplayer_ )
 	return false;
@@ -673,7 +683,7 @@ bool Server::hasSynthetic() const
 }
 
 
-bool Server::hasSeismic() const
+bool WellTie::Server::hasSeismic() const
 {
     if ( !dataplayer_ )
 	return false;
@@ -682,7 +692,7 @@ bool Server::hasSeismic() const
 }
 
 
-bool Server::doSeismic() const
+bool WellTie::Server::doSeismic() const
 {
     if ( !dataplayer_ )
 	return false;
@@ -691,7 +701,7 @@ bool Server::doSeismic() const
 }
 
 
-void Server::updateExtractionRange()
+void WellTie::Server::updateExtractionRange()
 {
     if ( !data_ )
 	return;
@@ -700,12 +710,10 @@ void Server::updateExtractionRange()
 }
 
 
-void Server::handleDataPlayerWarning() const
+void WellTie::Server::handleDataPlayerWarning() const
 {
     if ( !dataplayer_ || dataplayer_->warnMsg().isEmpty() )
 	return;
 
     warnmsg_ = dataplayer_->warnMsg();
 }
-
-} // namespace WellTie

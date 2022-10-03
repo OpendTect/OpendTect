@@ -18,7 +18,6 @@ SET(OD_MODULE_SOURCES
 	syntheticdata.cc
 	wellhorpos.cc
 	welllogattrib.cc
-	welltiecshot.cc
 	welltied2tmodelmanager.cc
 	welltiedata.cc
 	welltieextractdata.cc
@@ -26,7 +25,6 @@ SET(OD_MODULE_SOURCES
 	welltiepickset.cc
 	welltiesetup.cc
 	welltietoseismic.cc
-	welltieunitfactors.cc
 )
 
 LIST( APPEND OD_TEST_PROGS

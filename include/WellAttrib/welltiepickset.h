@@ -24,7 +24,8 @@ class Marker;
 mExpClass(WellAttrib) PickSetMgr : public CallBacker
 {
 public:
-				PickSetMgr( PickData& pd );
+				PickSetMgr(PickData&);
+				~PickSetMgr();
 
     Notifier<PickSetMgr>	pickadded;
 
