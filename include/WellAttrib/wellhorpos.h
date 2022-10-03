@@ -25,14 +25,15 @@ horizon ) but only one pos will be returned.
 mExpClass(WellAttrib) WellHorIntersectFinder
 {
 public:
-    				WellHorIntersectFinder(const Well::Track&,
-						const Well::D2TModel* d2t=0);
-				//! a d2t model is needed if z is time 
+				WellHorIntersectFinder(const Well::Track&,
+						const Well::D2TModel* =nullptr);
+				//! a d2t model is needed if z is time
+				~WellHorIntersectFinder();
 
     void			setHorizon(const EM::ObjectID& emid);
 
     float			findZIntersection() const;
-   				//return undef if not found
+				//return undef if not found
 
 protected:
 

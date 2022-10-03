@@ -21,12 +21,18 @@ WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr,
 						const Well::D2TModel* d2t )
     : track_(tr)
     , d2t_(d2t)
-{}
+{
+}
+
+
+WellHorIntersectFinder::~WellHorIntersectFinder()
+{
+}
 
 
 void WellHorIntersectFinder::setHorizon( const EM::ObjectID& emid )
 {
-    hor2d_ = 0; hor3d_ = 0;
+    hor2d_ = nullptr; hor3d_ = nullptr;
     const EM::EMObject* emobj = EM::EMM().getObject( emid );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj)

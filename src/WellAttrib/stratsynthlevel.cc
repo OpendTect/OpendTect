@@ -11,23 +11,32 @@ ________________________________________________________________________
 
 #include "perthreadrepos.h"
 
-namespace StratSynth
-{
 
-const Level& Level::undef()
+// StratSynth::Level
+
+StratSynth::Level::Level( ID lvlid )
+    : id_(lvlid)
+{
+}
+
+
+StratSynth::Level::~Level()
+{
+}
+
+
+const StratSynth::Level& StratSynth::Level::undef()
 {
     static Level ret( Strat::Level::undef().id() );
     return ret;
 }
 
-Level& Level::dummy()
+
+StratSynth::Level& StratSynth::Level::dummy()
 {
     static Level ret( Strat::Level::dummy().id() );
     return ret;
 }
-
-} // namespace StratSynth
-
 
 
 const OD::String& StratSynth::Level::name() const
@@ -42,6 +51,25 @@ const OD::String& StratSynth::Level::name() const
 OD::Color StratSynth::Level::color() const
 {
     return Strat::LVLS().colorOf( id_ );
+}
+
+
+// StratSynth::LevelSet
+
+StratSynth::LevelSet::LevelSet()
+{
+}
+
+
+StratSynth::LevelSet::LevelSet( const LevelSet& oth )
+{
+    *this = oth;
+}
+
+
+StratSynth::LevelSet::~LevelSet()
+{
+    setEmpty();
 }
 
 

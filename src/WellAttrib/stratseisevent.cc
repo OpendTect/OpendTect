@@ -12,6 +12,21 @@ ________________________________________________________________________
 #include "seistrc.h"
 
 
+// Strat::SeisEvent
+
+Strat::SeisEvent::SeisEvent( Strat::LevelID lvlid, VSEvent::Type evtyp )
+    : levelid_(lvlid)
+    , evtype_(evtyp)
+    , extrwin_(0.f,0.f)
+{
+}
+
+
+Strat::SeisEvent::~SeisEvent()
+{
+}
+
+
 bool Strat::SeisEvent::snapPick( SeisTrc& trc ) const
 {
     float reftm = snappedTime( trc );

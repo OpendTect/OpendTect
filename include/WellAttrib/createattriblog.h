@@ -21,10 +21,8 @@ class TaskRunner;
 mExpClass(WellAttrib) AttribLogExtractor
 { mODTextTranslationClass(AttribLogExtractor);
 public:
-				AttribLogExtractor(const Well::Data& wd)
-				    : wd_(&wd)
-				    , bidset_(BinIDValueSet(2,true))
-				    {}
+				AttribLogExtractor(const Well::Data&);
+				~AttribLogExtractor();
 
     const TypeSet<BinIDValueSet::SPos>& positions() const { return positions_; }
     const TypeSet<float>&	depths() const	{ return depths_; }
@@ -32,7 +30,7 @@ public:
 
     bool                        extractData(Attrib::EngineMan&,TaskRunner* t=0);
     bool                        fillPositions(const StepInterval<float>&);
-    void			setWD(const Well::Data& wd)
+    void			setWD( const Well::Data& wd )
 				{ wd_ = &wd; }
 
 protected:
@@ -51,14 +49,9 @@ public:
     mExpClass(WellAttrib) Setup
     {
     public:
-				Setup(const Attrib::DescSet* attr,
-					const Well::ExtractParams* wep)
-				    : nlamodel_(nullptr)
-				    , attrib_(attr)
-				    , selspec_(nullptr)
-				    , tr_(nullptr)
-				    , extractparams_(wep)
-				{}
+				Setup(const Attrib::DescSet*,
+				      const Well::ExtractParams*);
+				~Setup();
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
 	mDefSetupMemb(const Attrib::DescSet*,attrib)
@@ -69,19 +62,15 @@ public:
     };
 
 
-				AttribLogCreator(const Setup& su, int& selidx)
-				    : setup_(su)
-				    , extractor_(0)
-				    , sellogidx_(selidx)
-				    {}
-				~AttribLogCreator() {}
+				AttribLogCreator(const Setup&,int& selidx);
+				~AttribLogCreator();
 
     bool			doWork(Well::Data&,uiString&);
 
 protected:
 
     const Setup&		setup_;
-    AttribLogExtractor*		extractor_;
+    AttribLogExtractor*		extractor_ = nullptr;
     int&			sellogidx_;
 
     bool                        extractData(BinIDValueSet&);

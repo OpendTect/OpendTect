@@ -22,8 +22,8 @@ public:
 
     typedef Strat::LevelID ID;
 
-			Level( ID lvlid )
-			  : id_(lvlid)		{}
+			Level(ID);
+			~Level();
 
     int			size() const		{ return zvals_.size(); }
     ID			id() const		{ return id_; }
@@ -45,9 +45,9 @@ public:
 
     typedef Strat::LevelID ID;
 
-			LevelSet()			{}
-			LevelSet( const LevelSet& oth ) { *this = oth; }
-			~LevelSet()			{ setEmpty(); }
+			LevelSet();
+			LevelSet(const LevelSet&);
+			~LevelSet();
     LevelSet&		operator =(const LevelSet&);
 
     bool		isEmpty() const		{ return lvls_.isEmpty(); }

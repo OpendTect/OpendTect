@@ -523,7 +523,8 @@ PostStackSyntheticDataWithInput::PostStackSyntheticDataWithInput(
 
 
 PostStackSyntheticDataWithInput::~PostStackSyntheticDataWithInput()
-{}
+{
+}
 
 
 InstAttributeSyntheticData::InstAttributeSyntheticData(
@@ -531,6 +532,11 @@ InstAttributeSyntheticData::InstAttributeSyntheticData(
 					const Seis::SynthGenDataPack& synthdp,
 					SeisTrcBufDataPack& sdp )
     : PostStackSyntheticDataWithInput(sgp,synthdp,sdp)
+{
+}
+
+
+InstAttributeSyntheticData::~InstAttributeSyntheticData()
 {
 }
 
@@ -546,7 +552,37 @@ PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(
 
 
 PSBasedPostStackSyntheticData::~PSBasedPostStackSyntheticData()
-{}
+{
+}
+
+
+AVOGradSyntheticData::AVOGradSyntheticData(
+					const SynthGenParams& sgp,
+					const Seis::SynthGenDataPack& synthdp,
+					SeisTrcBufDataPack& sbufdp )
+    : PSBasedPostStackSyntheticData(sgp,synthdp,sbufdp)
+{
+}
+
+
+AVOGradSyntheticData::~AVOGradSyntheticData()
+{
+}
+
+
+AngleStackSyntheticData::AngleStackSyntheticData(
+					const SynthGenParams& sgp,
+					const Seis::SynthGenDataPack& synthdp,
+					SeisTrcBufDataPack& sbufdp )
+    : PSBasedPostStackSyntheticData(sgp,synthdp,sbufdp)
+{
+}
+
+
+AngleStackSyntheticData::~AngleStackSyntheticData()
+{
+}
+
 
 
 StratPropSyntheticData::StratPropSyntheticData( const SynthGenParams& sgp,
@@ -555,4 +591,10 @@ StratPropSyntheticData::StratPropSyntheticData( const SynthGenParams& sgp,
 					const PropertyRef& pr )
     : PostStackSyntheticData(sgp,synthdp,dp)
     , prop_(pr)
-{}
+{
+}
+
+
+StratPropSyntheticData::~StratPropSyntheticData()
+{
+}

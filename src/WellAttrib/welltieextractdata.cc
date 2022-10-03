@@ -22,23 +22,19 @@ ________________________________________________________________________
 #include "seisselectionimpl.h"
 #include "survinfo.h"
 
-namespace WellTie
-{
 
-SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
+// WellTie
+
+WellTie::SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
     : Executor("Extracting Seismic positions")
     , rdr_(new SeisTrcReader(ioobj ))
     , trcbuf_(new SeisTrcBuf(false))
-    , nrdone_(0)
-    , outtrc_(0)
     , tkzs_(new TrcKeyZSampling(false))
     , extrintv_(SI().zRange(false))
-    , linenm_(*new BufferString)
-    , radius_(1)
 {}
 
 
-SeismicExtractor::~SeismicExtractor()
+WellTie::SeismicExtractor::~SeismicExtractor()
 {
     delete tkzs_;
     delete rdr_;
@@ -47,7 +43,7 @@ SeismicExtractor::~SeismicExtractor()
 }
 
 
-void SeismicExtractor::setInterval( const StepInterval<float>& itv )
+void WellTie::SeismicExtractor::setInterval( const StepInterval<float>& itv )
 {
     extrintv_ = itv;
     delete outtrc_;
@@ -57,7 +53,7 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
 }
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
-bool SeismicExtractor::collectTracesAroundPath()
+bool WellTie::SeismicExtractor::collectTracesAroundPath()
 {
     if ( bidset_.isEmpty() )
 	mErrRet( tr("No position extracted from well track") );
@@ -106,7 +102,7 @@ bool SeismicExtractor::collectTracesAroundPath()
 }
 
 
-void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
+void WellTie::SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
 {
     bidset_.erase();
     for ( int idx=0; idx<bids.size(); idx++ )
@@ -119,16 +115,16 @@ void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
 }
 
 
-int SeismicExtractor::nextStep()
+int WellTie::SeismicExtractor::nextStep()
 {
     if ( !nrdone_ && !collectTracesAroundPath() )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
     double zval = extrintv_.atIndex( nrdone_ );
 
     if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps()
 	    || nrdone_ >= bidset_.size() )
-	return Executor::Finished();
+	return Finished();
 
     const BinID curbid = bidset_[nrdone_];
     float val = 0; float nearestval = 0; int nrtracesinradius = 0;
@@ -166,7 +162,5 @@ int SeismicExtractor::nextStep()
     outtrc_->set( nrdone_, val/nrtracesinradius, 0 );
 
     nrdone_ ++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
-
-} // namespace WellTie

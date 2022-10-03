@@ -33,8 +33,6 @@ ________________________________________________________________________
 #include "welltrack.h"
 
 
-namespace WellTie
-{
 #define mErrRet(msg) \
 { \
     if ( errmsg_.isEmpty() ) \
@@ -45,7 +43,7 @@ namespace WellTie
     return false; \
 }
 
-DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
+WellTie::DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
 			const BufferString& lnm )
     : data_(data)
     , seisid_(seisid)
@@ -55,7 +53,7 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
 }
 
 
-DataPlayer::~DataPlayer()
+WellTie::DataPlayer::~DataPlayer()
 {
     delete [] refarr_;
     delete [] syntarr_;
@@ -63,7 +61,7 @@ DataPlayer::~DataPlayer()
 }
 
 
-bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
+bool WellTie::DataPlayer::computeSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
 
@@ -86,7 +84,7 @@ bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
 }
 
 
-bool DataPlayer::extractSeismics()
+bool WellTie::DataPlayer::extractSeismics()
 {
     errmsg_.setEmpty();
 
@@ -134,7 +132,7 @@ bool DataPlayer::extractSeismics()
 }
 
 
-bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
+bool WellTie::DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
 
@@ -165,7 +163,7 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 }
 
 
-bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
+bool WellTie::DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 {
     setCrossCorrZrg( zrg );
     if ( !checkCrossCorrInps() )
@@ -178,7 +176,7 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 }
 
 
-bool DataPlayer::checkCrossCorrInps()
+bool WellTie::DataPlayer::checkCrossCorrInps()
 {
     errmsg_.setEmpty();
 
@@ -218,7 +216,7 @@ bool DataPlayer::checkCrossCorrInps()
 }
 
 
-bool DataPlayer::computeCrossCorrelation()
+bool WellTie::DataPlayer::computeCrossCorrelation()
 {
     errmsg_.setEmpty();
 
@@ -242,14 +240,14 @@ bool DataPlayer::computeCrossCorrelation()
 
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     cd.vals_.setSize( nrsamps, 0 );
-    GeoCalculator gccc;
-    cd.coeff_ = gccc.crossCorr( seisarr_, syntarr_, cd.vals_.arr(), nrsamps );
+    cd.coeff_ = WellTie::GeoCalculator::crossCorr( seisarr_, syntarr_,
+						   cd.vals_.arr(), nrsamps );
 
     return true;
 }
 
 
-bool DataPlayer::computeEstimatedWavelet( int wvltsz )
+bool WellTie::DataPlayer::computeEstimatedWavelet( int wvltsz )
 {
     errmsg_.setEmpty();
 
@@ -274,8 +272,7 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
     if ( !wvltarrfull )
 	mErrRet( tr( "Cannot allocate memory for estimated wavelet" ) )
 
-    GeoCalculator gcwvltest;
-    gcwvltest.deconvolve( seisarr_, refarr_, wvltarrfull, nrsamps );
+    WellTie::GeoCalculator::deconvolve( seisarr_, refarr_, wvltarrfull,nrsamps);
 
     const int outwvltsz = wvltsz%2 ? wvltsz : wvltsz + 1;
     Array1DImpl<float> wvltarr( outwvltsz );
@@ -298,7 +295,7 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 }
 
 
-bool DataPlayer::extractWvf( bool issynt )
+bool WellTie::DataPlayer::extractWvf( bool issynt )
 {
     errmsg_.setEmpty();
 
@@ -347,7 +344,7 @@ bool DataPlayer::extractWvf( bool issynt )
 }
 
 
-bool DataPlayer::extractReflectivity()
+bool WellTie::DataPlayer::extractReflectivity()
 {
     errmsg_.setEmpty();
 
@@ -436,7 +433,7 @@ bool DataPlayer::extractReflectivity()
 }
 
 
-bool DataPlayer::isOKSynthetic() const
+bool WellTie::DataPlayer::isOKSynthetic() const
 {
     const Data& data = data_;
     const SeisTrc* synthtrc = data.getSynthTrc();
@@ -444,7 +441,7 @@ bool DataPlayer::isOKSynthetic() const
 }
 
 
-bool DataPlayer::isOKSeismic() const
+bool WellTie::DataPlayer::isOKSeismic() const
 {
     const Data& data = data_;
     const SeisTrc* realtrc = data.getRealTrc();
@@ -452,13 +449,13 @@ bool DataPlayer::isOKSeismic() const
 }
 
 
-bool DataPlayer::hasSeisId() const
+bool WellTie::DataPlayer::hasSeisId() const
 {
     return !seisid_.isUdf();
 }
 
 
-bool DataPlayer::setAIModel()
+bool WellTie::DataPlayer::setAIModel()
 {
     const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
     const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
@@ -470,10 +467,7 @@ bool DataPlayer::setAIModel()
 	return false;
 
     if ( data_.isSonic() )
-    {
-	GeoCalculator gc;
-	gc.son2Vel( *pcvellog );
-    }
+	WellTie::GeoCalculator::son2Vel( *pcvellog );
 
     aimodel_.erase();
     Well::ElasticModelComputer emodelcomputer( *data_.wd_ );
@@ -494,7 +488,7 @@ bool DataPlayer::setAIModel()
 }
 
 
-bool DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
+bool WellTie::DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
 {
     const ZSampling& reflzrg = data_.getReflRange();
     const int nrlayers = aimodel_.size();
@@ -515,7 +509,7 @@ bool DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
 }
 
 
-bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
+bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
     uiString msg;
@@ -559,7 +553,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 }
 
 
-bool DataPlayer::copyDataToLogSet()
+bool WellTie::DataPlayer::copyDataToLogSet()
 {
     errmsg_.setEmpty();
 
@@ -649,10 +643,8 @@ bool DataPlayer::copyDataToLogSet()
     if ( vellogfrommodel && sonlog )
     {
 	if ( data.isSonic() )
-	{
-	    GeoCalculator gc;
-	    gc.son2Vel( *vellogfrommodel );
-	}
+	    WellTie::GeoCalculator::son2Vel( *vellogfrommodel );
+
 	vellogfrommodel->convertTo( sonuom );
     }
 
@@ -702,8 +694,8 @@ bool DataPlayer::copyDataToLogSet()
 }
 
 
-bool DataPlayer::processLog( const Well::Log* log,
-			     Well::Log& outplog, const char* nm )
+bool WellTie::DataPlayer::processLog( const Well::Log* log,
+				      Well::Log& outplog, const char* nm )
 {
     errmsg_.setEmpty();
     uiString msg;
@@ -729,15 +721,15 @@ bool DataPlayer::processLog( const Well::Log* log,
 	mErrRet( tr( "%1: log size too small, please check your input log" )
 		     .arg( nm ) )
 
-    GeoCalculator gc;
-    gc.removeSpikes( outplog.valArr(), sz, 10, 3 );
+    WellTie::GeoCalculator::removeSpikes( outplog.valArr(), sz, 10, 3 );
     outplog.setName( log->name() );
 
     return true;
 }
 
 
-void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
+void WellTie::DataPlayer::createLog( const char* nm, float* dah,
+				     float* vals, int sz )
 {
     Well::Log* log = 0;
     if ( data_.logset_.indexOf( nm ) < 0 )
@@ -752,5 +744,3 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
     for( int idx=0; idx<sz; idx ++)
 	log->addValue( dah[idx], vals[idx] );
 }
-
-} // namespace WellTie

@@ -147,11 +147,12 @@ public :
 
     mStruct(WellAttrib) CorrelData
     {
-				CorrelData() : lag_(200), coeff_(0) {}
+				CorrelData();
+				~CorrelData();
 
 	TypeSet<float>		vals_;
-	int			lag_;
-	double			coeff_;
+	int			lag_ = 200;
+	double			coeff_ = 0.;
 	float			scaler_ = 1.f;
     };
     CorrelData			correl_;

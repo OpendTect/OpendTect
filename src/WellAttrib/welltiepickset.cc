@@ -15,32 +15,34 @@ ________________________________________________________________________
 #include "welltiedata.h"
 
 
-namespace WellTie
-{
-
-
-PickSetMgr::PickSetMgr( PickData& pd )
-    : evtype_ (VSEvent::Extr)
+WellTie::PickSetMgr::PickSetMgr( PickData& pd )
+    : evtype_(VSEvent::Extr)
     , pickadded(this)
     , synthpickset_(pd.synthpicks_)
     , seispickset_(pd.seispicks_)
-{}
+{
+}
 
 
-void PickSetMgr::setEventType( const char* ev )
+WellTie::PickSetMgr::~PickSetMgr()
+{
+}
+
+
+void WellTie::PickSetMgr::setEventType( const char* ev )
 {
     if ( !VSEvent::parseEnum(ev, evtype_) )
         evtype_ = VSEvent::None;
 }
 
 
-const char* PickSetMgr::getEventType() const
+const char* WellTie::PickSetMgr::getEventType() const
 {
     return VSEvent::toString( evtype_ );
 }
 
 
-void PickSetMgr::getEventTypes( BufferStringSet& bss ) const
+void WellTie::PickSetMgr::getEventTypes( BufferStringSet& bss ) const
 {
     bss.erase();
 
@@ -52,7 +54,7 @@ void PickSetMgr::getEventTypes( BufferStringSet& bss ) const
 }
 
 
-void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
+void WellTie::PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc)
 {
     TypeSet<Marker>& curpickset = issynth ? synthpickset_ : seispickset_;
     TypeSet<Marker>& altpickset = issynth ? seispickset_ : synthpickset_;
@@ -76,7 +78,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 
 
 #define mTimeGate 0.02f
-float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
+float WellTie::PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 {
     if ( evtype_ == VSEvent::None ) return zpos;
 
@@ -103,14 +105,14 @@ float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 }
 
 
-void PickSetMgr::clearAllPicks()
+void WellTie::PickSetMgr::clearAllPicks()
 {
     seispickset_.erase();
     synthpickset_.erase();
 }
 
 
-void PickSetMgr::clearLastPicks()
+void WellTie::PickSetMgr::clearLastPicks()
 {
     if ( isSynthSeisSameSize() )
     {
@@ -127,33 +129,33 @@ void PickSetMgr::clearLastPicks()
 }
 
 
-bool PickSetMgr::isPick() const
+bool WellTie::PickSetMgr::isPick() const
 {
     return ( !seispickset_.isEmpty() || !synthpickset_.isEmpty() );
 }
 
 
-bool PickSetMgr::isSynthSeisSameSize() const
+bool WellTie::PickSetMgr::isSynthSeisSameSize() const
 {
     return ( seispickset_.size() == synthpickset_.size() );
 }
 
 
-void PickSetMgr::setPickSetPos( bool issynth, int idx, float z )
+void WellTie::PickSetMgr::setPickSetPos( bool issynth, int idx, float z )
 {
     TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
     pickset[idx].zpos_ = z;
 }
 
 
-void PickSetMgr::sortByPos()
+void WellTie::PickSetMgr::sortByPos()
 {
     sortByPos( synthpickset_ );
     sortByPos( seispickset_ );
 }
 
 
-void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
+void WellTie::PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
 {
     const int sz = pickset.size();
     TypeSet<float> zvals;
@@ -169,5 +171,3 @@ void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
     for ( int idx=0; idx<sz; idx++ )
 	pickset[idx].zpos_ = zvals[idx];
 }
-
-} // namespace WellTie
