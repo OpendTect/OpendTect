@@ -46,6 +46,7 @@ protected:
     void		activateCB(CallBacker*);
     void		selChg(CallBacker*);
     void		loadPush(CallBacker*);
+    void		unLoadPush(CallBacker*);
 
 };
 

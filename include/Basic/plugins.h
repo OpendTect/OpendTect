@@ -95,6 +95,8 @@ public:
 				//!< see class comments
     bool			load(const char* libnm);
 					//!< Explicit load of a plugin
+    bool			unload(const char* libnm);
+					//!< Explicit unload of a plugin
     void			unLoadAll();
 
     struct Data
