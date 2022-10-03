@@ -25,6 +25,8 @@ ________________________________________________________________________
 #define mToSecFactorF	0.001f
 
 
+// uiStratLevelHorSel
+
 uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
 					const Strat::LevelID& deflvlid )
     : uiGroup(p,"Strat Level With Horizon Group")
@@ -45,6 +47,12 @@ uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
 
     setHAlignObj( lvlsel_ );
     mAttachCB( postFinalize(), uiStratLevelHorSel::initGrp );
+}
+
+
+uiStratLevelHorSel::~uiStratLevelHorSel()
+{
+    detachAllNotifiers();
 }
 
 
@@ -117,6 +125,22 @@ void uiStratLevelHorSel::horSelCB( CallBacker* )
 }
 
 
+// uiStratSeisEvent::Setup
+
+uiStratSeisEvent::Setup::Setup( bool wew )
+    : sellevel_(true)
+    , withextrwin_(wew)
+    , allowlayerbased_(false)
+{
+}
+
+
+uiStratSeisEvent::Setup::~Setup()
+{
+}
+
+
+// uiStratSeisEvent
 
 uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
     : uiGroup(p,"Strat Seis Event Specification Group")

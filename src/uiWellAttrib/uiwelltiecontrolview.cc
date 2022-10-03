@@ -32,9 +32,6 @@ ________________________________________________________________________
 
 static const char* sKeyZoom = "Viewer Zoom";
 
-namespace WellTie
-{
-
 #define mErrRet(msg,act) \
 { uiMSG().error(msg); act; }
 
@@ -43,8 +40,8 @@ namespace WellTie
 #define mDefBut(fnm,cbnm,tt,istoggle) \
     toolbar_->addButton( fnm, tt, cb(cbnm), istoggle );
 
-uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
-				uiFlatViewer* vwr, Server& server )
+WellTie::uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
+				       uiFlatViewer* vwr, Server& server )
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
 			         .withcoltabed(false).withsnapshot(false))
     , toolbar_(tb)
@@ -82,7 +79,13 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 }
 
 
-bool uiControlView::handleUserClick( int vwridx )
+WellTie::uiControlView::~uiControlView()
+{
+    detachAllNotifiers();
+}
+
+
+bool WellTie::uiControlView::handleUserClick( int vwridx )
 {
     const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
     const uiWorldPoint wp = vwr_.getWorld2Ui().transform( ev.pos() );
@@ -106,7 +109,7 @@ bool uiControlView::handleUserClick( int vwridx )
 }
 
 
-bool uiControlView::checkIfInside( double xpos, double zpos )
+bool WellTie::uiControlView::checkIfInside( double xpos, double zpos )
 {
     const uiWorldRect& bbox = vwr_.boundingBox();
     const Interval<double> xrg( bbox.left(), bbox.right() ),
@@ -120,14 +123,14 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
 }
 
 
-void uiControlView::rubBandCB( CallBacker* cb )
+void WellTie::uiControlView::rubBandCB( CallBacker* cb )
 {
     setSelView();
     rubberBandUsed.trigger();
 }
 
 
-void uiControlView::wheelMoveCB( CallBacker* )
+void WellTie::uiControlView::wheelMoveCB( CallBacker* )
 {
     if ( !vwr_.rgbCanvas().
 	getNavigationMouseEventHandler().hasEvent() )
@@ -144,7 +147,7 @@ void uiControlView::wheelMoveCB( CallBacker* )
 }
 
 
-void uiControlView::keyPressCB( CallBacker* )
+void WellTie::uiControlView::keyPressCB( CallBacker* )
 {
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
@@ -153,14 +156,14 @@ void uiControlView::keyPressCB( CallBacker* )
 }
 
 
-void uiControlView::viewChangedCB( CallBacker* )
+void WellTie::uiControlView::viewChangedCB( CallBacker* )
 {
     // TODO: Check if this is really necessary.
     curview_ = vwr_.curView();
 }
 
 
-void uiControlView::setSelView( bool isnewsel, bool viewall )
+void WellTie::uiControlView::setSelView( bool isnewsel, bool viewall )
 {
     uiWorldRect wr = (curview_.height() > 0)  ? curview_ : vwr_.boundingBox();
     if ( isnewsel && vwr_.rgbCanvas().getSelectedArea() )
@@ -186,6 +189,9 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     zoomChanged.trigger();
 }
 
+
+namespace WellTie
+{
 
 class uiMrkDispDlg : public uiDialog
 { mODTextTranslationClass(uiMrkDispDlg);
@@ -259,8 +265,10 @@ protected:
     uiWellMarkersDispProperties* mrkdispfld_;
 };
 
+} // namespace WellTie
 
-void uiControlView::dispHorMrks( CallBacker* )
+
+void WellTie::uiControlView::dispHorMrks( CallBacker* )
 {
     if ( !mrkrdlg_ )
     {
@@ -271,13 +279,13 @@ void uiControlView::dispHorMrks( CallBacker* )
 }
 
 
-void uiControlView::reDrawNeeded( CallBacker* )
+void WellTie::uiControlView::reDrawNeeded( CallBacker* )
 {
     redrawAnnotNeeded.trigger();
 }
 
 
-void uiControlView::loadHorizons( CallBacker* )
+void WellTie::uiControlView::loadHorizons( CallBacker* )
 {
     const SeisIOObjInfo seisinfo( server_.data().setup().seisid_ );
     if ( !seisinfo.isOK() )
@@ -305,13 +313,13 @@ void uiControlView::loadHorizons( CallBacker* )
 }
 
 
-void uiControlView::fillPar( IOPar& iop ) const
+void WellTie::uiControlView::fillPar( IOPar& iop ) const
 {
     iop.set( sKeyZoom, Interval<double>( curview_.top(), curview_.bottom() ) );
 }
 
 
-void uiControlView::usePar( const IOPar& iop )
+void WellTie::uiControlView::usePar( const IOPar& iop )
 {
     Interval<double> zrg;
     iop.get( sKeyZoom, zrg );
@@ -320,10 +328,8 @@ void uiControlView::usePar( const IOPar& iop )
     redrawNeeded.trigger();
 }
 
-void uiControlView::applyProperties(CallBacker*)
+void WellTie::uiControlView::applyProperties(CallBacker*)
 {
     uiFlatViewControl::applyProperties(0);
     setSelView( true, true );
 }
-
-} // namespace WellTie

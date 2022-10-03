@@ -37,10 +37,9 @@ ________________________________________________________________________
 
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
 
-namespace WellTie
-{
+// WellTie::uiTieView
 
-uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
+WellTie::uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data)
     : vwr_(vwr)
     , parent_(p)
     , trcbuf_(*new SeisTrcBuf(true))
@@ -49,10 +48,6 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     , synthpickset_(data.pickdata_.synthpicks_)
     , seispickset_(data.pickdata_.seispicks_)
     , zrange_(data.getTraceRange())
-    , checkshotitm_(0)
-    , wellcontrol_(0)
-    , seisdp_(0)
-    , nrtrcs_(5)
     , infoMsgChanged(this)
 {
     initFlatViewer();
@@ -69,21 +64,21 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 }
 
 
-uiTieView::~uiTieView()
+WellTie::uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
 }
 
 
-void uiTieView::setNrTrcs( int nrtrcs )
+void WellTie::uiTieView::setNrTrcs( int nrtrcs )
 {
     nrtrcs_ = nrtrcs > 0 ? nrtrcs : 5;
     redrawViewer();
 }
 
 
-void uiTieView::setSEGPositivePolarity( bool yn )
+void WellTie::uiTieView::setSEGPositivePolarity( bool yn )
 {
     if ( segpospolarity_==yn )
 	return;
@@ -94,7 +89,7 @@ void uiTieView::setSEGPositivePolarity( bool yn )
 }
 
 
-void uiTieView::initWellControl()
+void WellTie::uiTieView::initWellControl()
 {
     wellcontrol_ = new uiWellDisplayControl( *logsdisp_[0] );
     wellcontrol_->addDahDisplay( *logsdisp_[1] );
@@ -102,7 +97,7 @@ void uiTieView::initWellControl()
 }
 
 
-void uiTieView::fullRedraw()
+void WellTie::uiTieView::fullRedraw()
 {
     setLogsParams();
     drawLog( data_.sKeySonic(), true, 0, !data_.isSonic() );
@@ -115,7 +110,7 @@ void uiTieView::fullRedraw()
 }
 
 
-void uiTieView::redrawViewer()
+void WellTie::uiTieView::redrawViewer()
 {
     drawTraces();
     redrawViewerAuxDatas();
@@ -128,7 +123,7 @@ void uiTieView::redrawViewer()
 }
 
 
-void uiTieView::redrawViewerAuxDatas()
+void WellTie::uiTieView::redrawViewerAuxDatas()
 {
     drawUserPicks();
     drawViewerWellMarkers();
@@ -137,13 +132,13 @@ void uiTieView::redrawViewerAuxDatas()
 }
 
 
-void uiTieView::redrawLogsAuxDatas()
+void WellTie::uiTieView::redrawLogsAuxDatas()
 {
     drawLogDispWellMarkers();
 }
 
 
-void uiTieView::initLogViewers()
+void WellTie::uiTieView::initLogViewers()
 {
     logdispgrp_ = new uiGroup( parent_, "Log Display" );
     logdispgrp_->setBorder(0);
@@ -166,7 +161,7 @@ void uiTieView::initLogViewers()
 }
 
 
-void uiTieView::initFlatViewer()
+void WellTie::uiTieView::initFlatViewer()
 {
     vwr_->setInitialSize( uiSize(520,540) );
     vwr_->setExtraBorders( uiSize(0,-15), uiSize(0,-15) ); // trial and error
@@ -194,7 +189,7 @@ void uiTieView::initFlatViewer()
 }
 
 
-void uiTieView::setLogsParams()
+void WellTie::uiTieView::setLogsParams()
 {
     mGetWD(return)
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
@@ -218,7 +213,8 @@ void uiTieView::setLogsParams()
 }
 
 
-void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
+void WellTie::uiTieView::drawLog( const char* nm, bool first, int dispnr,
+				  bool reversed )
 {
     uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
     wldld.setLog( data_.logset_.getLog( nm ) );
@@ -228,7 +224,7 @@ void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 }
 
 
-void uiTieView::drawTraces()
+void WellTie::uiTieView::drawTraces()
 {
     trcbuf_.erase();
     const int nrtrcs = nrtrcs_*2 + 4;
@@ -254,14 +250,14 @@ void uiTieView::drawTraces()
 }
 
 
-void uiTieView::setUdfTrc( SeisTrc& trc ) const
+void WellTie::uiTieView::setUdfTrc( SeisTrc& trc ) const
 {
     for ( int idx=0; idx<trc.size(); idx++)
 	trc.set( idx, mUdf(float), 0 );
 }
 
 
-void uiTieView::setDataPack()
+void WellTie::uiTieView::setDataPack()
 {
     const bool canupdate = vwr_->enableChange( false );
     vwr_->clearAllPacks();
@@ -277,14 +273,14 @@ void uiTieView::setDataPack()
 }
 
 
-void uiTieView::setLogsRanges( Interval<float> rg )
+void WellTie::uiTieView::setLogsRanges( Interval<float> rg )
 {
     for (int idx=0; idx<logsdisp_.size(); idx++)
 	logsdisp_[idx]->setZRange( rg );
 }
 
 
-void uiTieView::zoomChg( CallBacker* )
+void WellTie::uiTieView::zoomChg( CallBacker* )
 {
     const uiWorldRect& curwr = vwr_->curView();
     const float userfac = SI().showZ2UserFactor();
@@ -319,8 +315,8 @@ void uiTieView::zoomChg( CallBacker* )
 }
 
 
-void uiTieView::drawMarker( FlatView::AuxData* auxdata,
-				bool left, float zpos )
+void WellTie::uiTieView::drawMarker( FlatView::AuxData* auxdata,
+				     bool left, float zpos )
 {
     Interval<float> xrg( (float) vwr_->boundingBox().left(),
 				    (float) vwr_->boundingBox().right() );
@@ -329,7 +325,7 @@ void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 }
 
 
-void uiTieView::drawLogDispWellMarkers()
+void WellTie::uiTieView::drawLogDispWellMarkers()
 {
     mGetWD(return)
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
@@ -347,7 +343,7 @@ void uiTieView::drawLogDispWellMarkers()
     for ( int idx=0; idx<auxs.size(); idx++ ) \
         vwr_->removeAuxData( auxs[idx] ); \
     deepErase( auxs );
-void uiTieView::drawViewerWellMarkers()
+void WellTie::uiTieView::drawViewerWellMarkers()
 {
     mRemoveItms( mrktxtnms_ )
     mGetWD(return)
@@ -406,7 +402,7 @@ void uiTieView::drawViewerWellMarkers()
 }
 
 
-void uiTieView::drawUserPicks()
+void WellTie::uiTieView::drawUserPicks()
 {
     mRemoveSet( userpickauxdatas_ );
     const int nrauxs = mMAX( seispickset_.size(), synthpickset_.size() );
@@ -422,7 +418,8 @@ void uiTieView::drawUserPicks()
 }
 
 
-void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
+void WellTie::uiTieView::drawUserPicks( const TypeSet<Marker>& pickset,
+					bool issynth )
 {
     for ( int idx=0; idx<pickset.size(); idx++ )
     {
@@ -435,7 +432,7 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
 }
 
 
-void uiTieView::drawHorizons()
+void WellTie::uiTieView::drawHorizons()
 {
     mRemoveItms( hortxtnms_ )
     mRemoveSet( horauxdatas_ );
@@ -464,7 +461,7 @@ void uiTieView::drawHorizons()
 }
 
 
-void uiTieView::setInfoMsg( CallBacker* cb )
+void WellTie::uiTieView::setInfoMsg( CallBacker* cb )
 {
     BufferString infomsg;
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
@@ -478,7 +475,7 @@ void uiTieView::setInfoMsg( CallBacker* cb )
 }
 
 
-void uiTieView::mouseMoveCB( CallBacker* cb )
+void WellTie::uiTieView::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
     if ( !mevh ) return;
@@ -496,16 +493,18 @@ void uiTieView::mouseMoveCB( CallBacker* cb )
 }
 
 
-void uiTieView::enableCtrlNotifiers( bool yn )
+void WellTie::uiTieView::enableCtrlNotifiers( bool yn )
 {
     logsdisp_[0]->scene().getMouseEventHandler().movement.enable( yn );
     logsdisp_[1]->scene().getMouseEventHandler().movement.enable( yn );
 }
 
 
-uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
-	: uiGroup(p)
-	, data_(d)
+// WellTie::uiCrossCorrView
+
+WellTie::uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
+    : uiGroup(p)
+    , data_(d)
 {
     disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );
     disp_->xAxis()->setCaption( tr("Lags (ms)") );
@@ -515,7 +514,12 @@ uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
 }
 
 
-void uiCrossCorrView::set( const Data::CorrelData& cd )
+WellTie::uiCrossCorrView::~uiCrossCorrView()
+{
+}
+
+
+void WellTie::uiCrossCorrView::set( const Data::CorrelData& cd )
 {
     vals_.erase();
     for ( int idx=0; idx<cd.vals_.size(); idx++ )
@@ -525,7 +529,7 @@ void uiCrossCorrView::set( const Data::CorrelData& cd )
 }
 
 
-void uiCrossCorrView::draw()
+void WellTie::uiCrossCorrView::draw()
 {
     const int halfsz = vals_.size()/2;
     if ( !vals_.validIdx( halfsz ) )
@@ -549,5 +553,3 @@ void uiCrossCorrView::draw()
     lbl_->setPrefWidthInChar(50);
     lbl_->setText( corrbuf );
 }
-
-} // namespace WellTie

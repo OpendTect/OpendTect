@@ -49,10 +49,10 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-namespace WellTie
-{
+// WellTie::uiTieWinMGRDlg
 
-uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, const WellTie::Setup& wtsetup )
+WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
+					 const WellTie::Setup& wtsetup )
     : uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismics"),
 	    tr("Select Data to tie Well to Seismic"),
 	    mODHelpKey(mWellTiMgrDlemgHelpID) )
@@ -171,7 +171,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, const WellTie::Setup& wtsetup )
 }
 
 
-uiTieWinMGRDlg::~uiTieWinMGRDlg()
+WellTie::uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     detachAllNotifiers();
     delWins();
@@ -180,13 +180,13 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
 }
 
 
-void uiTieWinMGRDlg::initDlg( CallBacker* )
+void WellTie::uiTieWinMGRDlg::initDlg( CallBacker* )
 {
     wellSelChg( nullptr );
 }
 
 
-void uiTieWinMGRDlg::delWins()
+void WellTie::uiTieWinMGRDlg::delWins()
 {
     while ( !welltiedlgset_.isEmpty() )
     {
@@ -196,7 +196,7 @@ void uiTieWinMGRDlg::delWins()
 }
 
 
-bool uiTieWinMGRDlg::selIs2D() const
+bool WellTie::uiTieWinMGRDlg::selIs2D() const
 {
     if ( typefld_ )
 	return !typefld_->getIntValue();
@@ -206,7 +206,7 @@ bool uiTieWinMGRDlg::selIs2D() const
 
 #define mErrRet(s) { if ( !s.isEmpty() && cb ) uiMSG().error(s); return; }
 
-void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
+void WellTie::uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 {
     const IOObj* wellobj = wellfld_->ioobj(true);
     if ( !wellobj ) return;
@@ -247,7 +247,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 }
 
 
-void uiTieWinMGRDlg::typeSelChg( CallBacker* )
+void WellTie::uiTieWinMGRDlg::typeSelChg( CallBacker* )
 {
     const bool is2d = selIs2D();
     if ( seis3dfld_ )
@@ -261,7 +261,7 @@ void uiTieWinMGRDlg::typeSelChg( CallBacker* )
 }
 
 
-void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
+void WellTie::uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
 {
     const bool is2d = selIs2D();
     mDynamicCastGet( uiSeisSel*, seisfld, is2d ? seis2dfld_ : seis3dfld_ );
@@ -284,13 +284,13 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
 }
 
 
-void uiTieWinMGRDlg::seis2DCheckChg( CallBacker* )
+void WellTie::uiTieWinMGRDlg::seis2DCheckChg( CallBacker* )
 {
     seislinefld_->display( seis2dfld_->isChecked() );
 }
 
 
-void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
+void WellTie::uiTieWinMGRDlg::d2TSelChg( CallBacker* )
 {
     const bool useexistingmdl = used2tmbox_->isChecked();
     const bool havecs = wd_ && wd_->haveCheckShotModel();
@@ -302,9 +302,9 @@ void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 
-void uiTieWinMGRDlg::getSetup( const char* nm )
+void WellTie::uiTieWinMGRDlg::getSetup( const char* nm )
 {
-    WellTie::Reader wtr( nm );
+    Reader wtr( nm );
     wtr.getWellTieSetup( wtsetup_ );
     getSeismicInSetup();
     getVelLogInSetup();
@@ -323,7 +323,7 @@ void uiTieWinMGRDlg::getSetup( const char* nm )
 }
 
 
-bool uiTieWinMGRDlg::getSeismicInSetup()
+bool WellTie::uiTieWinMGRDlg::getSeismicInSetup()
 {
     if ( !wtsetup_.seisid_.isUdf() )
     {
@@ -383,7 +383,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 
 
 #define mPwaveIdx 1
-bool uiTieWinMGRDlg::getVelLogInSetup() const
+bool WellTie::uiTieWinMGRDlg::getVelLogInSetup() const
 {
     if ( wtsetup_.vellognm_.isEmpty() )
 	return true;
@@ -414,7 +414,7 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 
 
 #define mDensityIdx 0
-bool uiTieWinMGRDlg::getDenLogInSetup() const
+bool WellTie::uiTieWinMGRDlg::getDenLogInSetup() const
 {
     if ( wtsetup_.denlognm_.isEmpty() )
 	return true;
@@ -443,10 +443,10 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 }
 
 
-void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
-				      const WellTie::Setup& wts ) const
+void WellTie::uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
+						const WellTie::Setup& wts) const
 {
-    WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
+    Writer wtr( Well::odIO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
 	uiMSG().error( uiStrings::phrCannotWrite(tr("parameters")) );
 }
@@ -457,7 +457,7 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 
-bool uiTieWinMGRDlg::initSetup()
+bool WellTie::uiTieWinMGRDlg::initSetup()
 {
     if ( !wellfld_->ioobj() )
 	mErrRet(uiStrings::phrSelect(tr("a valid well")))
@@ -573,7 +573,7 @@ bool uiTieWinMGRDlg::initSetup()
 }
 
 
-bool uiTieWinMGRDlg::acceptOK( CallBacker* )
+bool WellTie::uiTieWinMGRDlg::acceptOK( CallBacker* )
 {
     if ( !initSetup() )
 	return false;
@@ -589,7 +589,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	    return false;
     }
 
-    auto* wtdlg = new WellTie::uiTieWin( this, *server.release() );
+    auto* wtdlg = new uiTieWin( this, *server.release() );
     wtdlg->setDeleteOnClose( true );
     welltiedlgset_ += wtdlg;
     wtdlg->windowClosed.notify( mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
@@ -599,7 +599,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	return false;
 
     const BufferString fname( ioobj->fullUserExpr(true) );
-    WellTie::Reader wtr( fname );
+    Reader wtr( fname );
     IOPar* par = wtr.getIOPar( uiTieWin::sKeyWinPar() );
     if ( par ) wtdlg->usePar( *par );
     delete par;
@@ -608,14 +608,14 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 }
 
 
-void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
+void WellTie::uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
-    mDynamicCastGet(WellTie::uiTieWin*,tiewin,cb);
+    mDynamicCastGet(uiTieWin*,tiewin,cb);
     const int idx = welltiedlgset_.indexOf( tiewin );
     if ( !tiewin || idx<0 ) return;
 
     const MultiID wellid = tiewin->welltieSetup().wellid_;
-    WellTie::Writer wtr( Well::odIO::getMainFileName(wellid) );
+    Writer wtr( Well::odIO::getMainFileName(wellid) );
     IOPar par; tiewin->fillPar( par );
     wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
 
@@ -623,7 +623,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 }
 
 
-bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
+bool WellTie::uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( seisid );
     if ( !ioobj )
@@ -636,8 +636,7 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 }
 
 
-const MultiID& uiTieWinMGRDlg::getWellId() const
+MultiID WellTie::uiTieWinMGRDlg::getWellId() const
 {
     return wtsetup_.wellid_;
 }
-} // namespace WellTie

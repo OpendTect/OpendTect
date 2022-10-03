@@ -35,10 +35,10 @@ ________________________________________________________________________
 #define cLogShift	2
 #define mErrRet( msg ) { uiMSG().error(msg); return false; }
 
-namespace WellTie
-{
 
-uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
+// WellTie::uiSaveDataDlg
+
+WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     : uiDialog(p,uiDialog::Setup(tr("Save current data"),
 			tr("Check the items to be saved"),
 			mODHelpKey(mWellTieSaveDataDlgHelpID)))
@@ -47,9 +47,9 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );
     const Data& data = dataserver_.data();
 
-    uiGroup* loggrp = new uiGroup( this, "Log parameters" );
+    auto* loggrp = new uiGroup( this, "Log parameters" );
     logchk_ = new uiCheckBox( loggrp, tr("Log(s)") );
-    logchk_->activated.notify( mCB(this,uiSaveDataDlg,saveLogsSelCB) );
+    mAttachCB( logchk_->activated, uiSaveDataDlg::saveLogsSelCB );
 
     BufferStringSet lognms;
     for ( int idx=cLogShift; idx<data.logset_.size(); idx++)
@@ -62,21 +62,20 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
 			BoolInpSpec(true,tr("Log"),tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
-    saveasfld_->valuechanged.notify(
-			mCB(this,uiSaveDataDlg,changeLogUIOutput) );
+    mAttachCB( saveasfld_->valuechanged, uiSaveDataDlg::changeLogUIOutput );
 
     outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, true );
     outputgrp_->attach( leftAlignedBelow, saveasfld_ );
     changeLogUIOutput(0);
 
-    uiSeparator* horSepar = new uiSeparator( this );
+    auto* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, loggrp );
 
-    uiGroup* wvltgrp = new uiGroup( this, "Wavelet parameters" );
+    auto* wvltgrp = new uiGroup( this, "Wavelet parameters" );
     wvltgrp->attach( ensureBelow, horSepar );
 
     uiString wtxt( uiStrings::sWavelet() ); wtxt.append( ":" );
-    uiLabel* wvltlbl = new uiLabel( wvltgrp, wtxt );
+    auto* wvltlbl = new uiLabel( wvltgrp, wtxt );
     wvltlbl->attach( leftBorder );
 
     uiString txt = tr("Sample interval %1").arg(SI().getUiZUnitString());
@@ -101,7 +100,13 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
 }
 
 
-void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
+WellTie::uiSaveDataDlg::~uiSaveDataDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void WellTie::uiSaveDataDlg::changeLogUIOutput( CallBacker* )
 {
     const bool islogcube = !saveasfld_->getBoolValue();
     outputgrp_->setPostFix( islogcube ? "log cube": "from well tie" );
@@ -110,7 +115,7 @@ void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
 }
 
 
-void uiSaveDataDlg::saveLogsSelCB( CallBacker* )
+void WellTie::uiSaveDataDlg::saveLogsSelCB( CallBacker* )
 {
     const bool saveall = logchk_->isChecked();
     for ( int ilog=0; ilog<logsfld_->size(); ilog++ )
@@ -118,7 +123,7 @@ void uiSaveDataDlg::saveLogsSelCB( CallBacker* )
 }
 
 
-void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
+void WellTie::uiSaveDataDlg::saveWvltSelCB( CallBacker* )
 {
     const bool saveall = wvltchk_->isChecked();
     initwvltsel_->setChecked( saveall );
@@ -129,7 +134,7 @@ void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
 #define mAppMsg(locmsg,act) { msg.append( locmsg, msg.isSet() ); act; }
 
 
-bool uiSaveDataDlg::saveLogs()
+bool WellTie::uiSaveDataDlg::saveLogs()
 {
     const Data& data = dataserver_.data();
     const bool savetolog = saveasfld_->getBoolValue();
@@ -197,7 +202,7 @@ bool uiSaveDataDlg::saveLogs()
 }
 
 
-bool uiSaveDataDlg::saveWvlt( bool isestimated )
+bool WellTie::uiSaveDataDlg::saveWvlt( bool isestimated )
 {
     uiIOObjSel& wvltsel = isestimated ? *estimatedwvltsel_ : *initwvltsel_;
     if ( !wvltsel.isChecked() )
@@ -232,7 +237,7 @@ bool uiSaveDataDlg::saveWvlt( bool isestimated )
 }
 
 
-bool uiSaveDataDlg::acceptOK( CallBacker* )
+bool WellTie::uiSaveDataDlg::acceptOK( CallBacker* )
 {
     bool success = true;
 
@@ -248,5 +253,3 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 
     return false;
 }
-
-} // namespace WellTie

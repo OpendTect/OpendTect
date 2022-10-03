@@ -40,7 +40,7 @@ public:
 			~uiTieWinMGRDlg();
 
     void		delWins();
-    const MultiID&	getWellId() const;
+    MultiID		getWellId() const;
 
 protected:
 

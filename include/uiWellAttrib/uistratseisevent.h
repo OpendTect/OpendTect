@@ -30,6 +30,7 @@ mExpClass(uiWellAttrib) uiStratLevelHorSel : public uiGroup
 public:
 
 			uiStratLevelHorSel(uiParent*,const Strat::LevelID&);
+			~uiStratLevelHorSel();
 
     void		set2D(bool);
 
@@ -71,15 +72,13 @@ public:
     mExpClass(uiWellAttrib) Setup
     {
     public:
-			Setup( bool wew=false )
-			    : withextrwin_(wew)
-			    , allowlayerbased_(false)
-			    , sellevel_(true)		{}
+			Setup(bool wew=false);
+			~Setup();
 
-	mDefSetupMemb(bool,sellevel)
+	mDefSetupMemb(bool,sellevel)		// def: true
 	mDefSetupMemb(Strat::LevelID,levelid)
 	mDefSetupMemb(bool,withextrwin)
-	mDefSetupMemb(bool,allowlayerbased)
+	mDefSetupMemb(bool,allowlayerbased)	// def: false
     };
 
 			uiStratSeisEvent(uiParent*,const Setup&);

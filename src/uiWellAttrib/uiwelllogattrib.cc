@@ -34,10 +34,9 @@ mInitAttribUI(uiWellLogAttrib,WellLog,"Log",sKeyBasicGrp())
 
 uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,mODHelpKey(mWellLogAttribHelpID))
-
 {
     wellfld_ = new uiWellSel( this, true );
-    wellfld_->selectionDone.notify( mCB(this,uiWellLogAttrib,selDone) );
+    mAttachCB( wellfld_->selectionDone, uiWellLogAttrib::selDone );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Log") );
     logsfld_ = new uiListBox( this, su );
@@ -51,6 +50,12 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     sampfld_->attach( alignedBelow, logsfld_ );
 
     setHAlignObj( wellfld_ );
+}
+
+
+uiWellLogAttrib::~uiWellLogAttrib()
+{
+    detachAllNotifiers();
 }
 
 

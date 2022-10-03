@@ -28,10 +28,10 @@ mExpClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
 { mODTextTranslationClass(uiControlView);
 public:
 			uiControlView(uiParent*,uiToolBar*,
-					uiFlatViewer*,Server&);
-			~uiControlView() { detachAllNotifiers(); }
+				      uiFlatViewer*,Server&);
+			~uiControlView();
 
-    void		setSelView(bool isnewsel = true, bool viewall=false );
+    void		setSelView(bool isnewsel =true,bool viewall=false);
 
     void		usePar(const IOPar& iop);
     void		fillPar(IOPar& iop) const;

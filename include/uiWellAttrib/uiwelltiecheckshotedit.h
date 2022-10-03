@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
 #include "welldahobj.h"
 #include "undo.h"
 #include "uistring.h"
 
-namespace Well { class D2TModel; class Data; class DahObj;}
+namespace Well { class D2TModel; class Data; class DahObj; }
 class uiWellDahDisplay;
 class uiCheckBox;
 class uiComboBox;
@@ -32,6 +33,7 @@ mExpClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
 public:
 			DahObjUndoEvent(float dah,float val,
 					Well::DahObj&,bool isadd);
+			~DahObjUndoEvent();
 
     const char*		getStandardDesc() const override;
     bool		unDo() override;
@@ -55,7 +57,8 @@ public:
     mExpClass(uiWellAttrib) DriftCurve : public Well::DahObj
     {
     public:
-			DriftCurve() : DahObj("Drift Curve") {}
+			DriftCurve();
+			~DriftCurve();
 
 	void		add( float dh, float val )  { dah_ += dh; val_ += val; }
 	float		value( int idx ) const override    { return val_[idx]; }
@@ -96,7 +99,7 @@ protected:
     uiWellDahDisplay*		d2tdisplay_;
     uiWellDahDisplay*		driftdisplay_;
     uiWellDisplayControl*	control_;
-    uiPolyLineItem*		d2tlineitm_;
+    uiPolyLineItem*		d2tlineitm_ = nullptr;
 
     Undo			undo_;
     int				movingpointidx_ = -1;

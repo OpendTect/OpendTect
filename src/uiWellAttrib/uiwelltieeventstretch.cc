@@ -19,27 +19,30 @@ ________________________________________________________________________
 #include "welltiepickset.h"
 #include "welltrack.h"
 
-namespace WellTie
+// WellTie::EventStretch
+
+WellTie::EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr )
+    : pmgr_(pmgr)
+    , synthpickset_(pmgr_.synthPickSet())
+    , seispickset_(pmgr_.seisPickSet())
+    , d2tmgr_(d2tmgr)
 {
-
-EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr )
-	: pmgr_(pmgr)
-	, synthpickset_(pmgr_.synthPickSet())
-	, seispickset_(pmgr_.seisPickSet())
-	, d2tmgr_(d2tmgr)
-	, d2t_(0)
-	, track_(0)
-{}
+}
 
 
-void EventStretch::doWork( CallBacker* )
+WellTie::EventStretch::~EventStretch()
+{
+}
+
+
+void WellTie::EventStretch::doWork( CallBacker* )
 {
     pmgr_.sortByPos();
     doStretchWork();
 }
 
 
-void EventStretch::doStretchWork()
+void WellTie::EventStretch::doStretchWork()
 {
     if ( !d2t_ && d2t_->size() < 2  && !track_ && track_->size() < 2 )
 	return;
@@ -51,7 +54,7 @@ void EventStretch::doStretchWork()
 }
 
 
-void EventStretch::doStaticShift()
+void WellTie::EventStretch::doStaticShift()
 {
     const float shift = seispickset_.last().zpos_ - synthpickset_.last().zpos_;
     d2tmgr_.shiftModel( shift );
@@ -59,7 +62,7 @@ void EventStretch::doStaticShift()
 
 
 #define mGapSize SI().zStep()
-void EventStretch::doStretchSqueeze()
+void WellTie::EventStretch::doStretchSqueeze()
 {
     int d2tsz = d2t_->size();
     //we need to interpolate the model for efficient stretch/squeeze
@@ -102,5 +105,3 @@ void EventStretch::doStretchSqueeze()
 
     d2tmgr_.setFromData( daharr.arr(), calibratedarr.arr(), d2tsz );
 }
-
-} // namespace WellTie

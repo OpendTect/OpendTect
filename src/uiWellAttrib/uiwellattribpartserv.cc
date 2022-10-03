@@ -45,13 +45,6 @@ int uiWellAttribPartServer::evCleanPreview()		{ return 2; }
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , attrset_(new DescSet(false)) //Default, set afterwards
-    , nlamodel_(0)
-    , xplotwin2d_(0)
-    , xplotwin3d_(0)
-    , dpsdispmgr_(0)
-    , welltiedlg_(0)
-    , wellto2ddlg_(0)
-    , crlogcubedlg_(0)
 {
     mAttachCB( IOM().surveyChanged, uiWellAttribPartServer::surveyChangedCB );
     mAttachCB( uiWellMan::instanceCreated(),
@@ -87,7 +80,7 @@ static const Attrib::DescSet* getUserPrefDescSet()
 {
     const DescSet* ds3d = DSHolder().getDescSet( false, false );
     const DescSet* ds2d = DSHolder().getDescSet( true, false );
-    if ( !ds3d && !ds2d ) return 0;
+    if ( !ds3d && !ds2d ) return nullptr;
     if ( !(ds3d && ds2d) ) return ds3d ? ds3d : ds2d;
     if ( !SI().has3D() ) return ds2d;
     if ( !SI().has2D() ) return ds3d;
@@ -99,7 +92,7 @@ static const Attrib::DescSet* getUserPrefDescSet()
     const int res =
 	uiMSG().ask2D3D( toUiString("Which attributes do you want to use?"),
 	true );
-    return res==-1 ? 0 : (res==1 ? ds2d : ds3d);
+    return res==-1 ? nullptr : (res==1 ? ds2d : ds3d);
 }
 
 
@@ -117,11 +110,11 @@ void uiWellAttribPartServer::xplotCB( CallBacker* )
 void uiWellAttribPartServer::cleanUp()
 {
     deleteAndZeroPtr( attrset_ );
-    deleteAndZeroPtr( xplotwin2d_ );
-    deleteAndZeroPtr( xplotwin3d_ );
-    deleteAndZeroPtr( welltiedlg_ );
-    deleteAndZeroPtr( crlogcubedlg_ );
-    deleteAndZeroPtr( wellto2ddlg_ );
+    closeAndZeroPtr( xplotwin2d_ );
+    closeAndZeroPtr( xplotwin3d_ );
+    closeAndZeroPtr( welltiedlg_ );
+    closeAndZeroPtr( crlogcubedlg_ );
+    closeAndZeroPtr( wellto2ddlg_ );
 }
 
 
@@ -150,10 +143,10 @@ bool uiWellAttribPartServer::create2DFromWells( MultiID& seisid,
     if ( !wellto2ddlg_ )
     {
 	wellto2ddlg_  = new uiWellTo2DLineDlg( parent() );
-	wellto2ddlg_->wantspreview_.notify(
-		mCB(this,uiWellAttribPartServer,previewWellto2DLine) );
-	wellto2ddlg_->windowClosed.notify(
-		mCB(this,uiWellAttribPartServer,wellTo2DDlgClosed) );
+	mAttachCB( wellto2ddlg_->wantspreview_,
+		   uiWellAttribPartServer::previewWellto2DLine );
+	mAttachCB( wellto2ddlg_->windowClosed,
+		   uiWellAttribPartServer::wellTo2DDlgClosed );
     }
 
     if ( wellto2ddlg_->go() )
@@ -316,7 +309,7 @@ bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
     }
 
     uiAmplSpectrum::Setup su( toUiString(lognm), false,  resamprg.step );
-    uiAmplSpectrum* asd = new uiAmplSpectrum( parent(), su );
+    auto* asd = new uiAmplSpectrum( parent(), su );
     asd->setData( resamplvals.arr(), resampsz );
     asd->show();
 
