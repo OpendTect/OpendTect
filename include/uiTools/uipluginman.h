@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
+class uiPushButton;
 class uiTextBrowser;
 class uiTreeView;
 
@@ -29,6 +30,7 @@ protected:
 
     uiTreeView*		pluginview_;
 
+    uiPushButton*	unloadbut_;
     uiGenInput*		namefld_;
     uiGenInput*		productfld_;
     uiGenInput*		creatorfld_;
@@ -43,5 +45,7 @@ protected:
     void		activateCB(CallBacker*);
     void		selChg(CallBacker*);
     void		loadPush(CallBacker*);
+    void		unLoadPush(CallBacker*);
+    void		treeSelChgCB(CallBacker*);
 
 };
