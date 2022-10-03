@@ -1338,25 +1338,41 @@ void TableOutput::collectDataSpecial60( const DataHolder& data,
     }
 
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    for ( int idx=rid; idx<datapointset_.size(); idx++ )
+    if ( !tkey.isUdf() )
     {
-	if ( idx != rid )
+	for ( int idx=pairidx; idx<parpset_.size(); idx++ )
 	{
-	    if ( !tkey.isUdf() && pairidx>-1 )
+	    if ( idx != pairidx )
 	    {
 		Pos::GeomID refgid = parpset_[pairidx].gid_;
 		Pos::TraceID reftid = parpset_[pairidx].tid_;
-		{
-		    const int movingpairidx = pairidx + idx - rid;
-		    //approximation rid#pairidx valid since parpset_ is sorted
-		    if ( movingpairidx<parpset_.size() &&
-			    ( refgid != parpset_[movingpairidx].gid_
-			   || reftid != parpset_[movingpairidx].tid_ ) )
-			break;
-		}
+		if ( refgid != parpset_[idx].gid_ ||
+			reftid != parpset_[idx].tid_ )
+		    break;
 	    }
-	    else if ( info.binid != datapointset_.binID(idx) ) break;
+
+	    rid = parpset_[idx].rid_;
+	    const float zval = datapointset_.z( rid );
+	    float* vals = datapointset_.getValues( rid );
+	    int lowz;
+	    DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
+	    const int highz = lowz + 1;
+	    bool isfulldataok = datarg.includes(lowz-1,false) &&
+				datarg.includes(highz+1,false);
+	    bool canusepartdata = data.nrsamples_<4 &&
+				  datarg.includes(lowz,false) &&
+				  datarg.includes(highz,false);
+	    if ( isfulldataok || canusepartdata )
+		computeAndSetVals( data, refstep, zval, vals );
 	}
+
+	return;
+    }
+
+    for ( int idx=rid; idx<datapointset_.size(); idx++ )
+    {
+	if ( idx != rid && info.binid != datapointset_.binID(idx) )
+	    break;
 
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
