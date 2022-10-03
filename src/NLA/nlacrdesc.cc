@@ -21,6 +21,9 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "uistrings.h"
 
+
+// NLACreationDesc
+
 static const char* nladatatyps[] =
 { "Training data", "Test data", "Misclassified training data",
   "Misclassified test data", nullptr };
@@ -237,6 +240,8 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 }
 
 
+// NLAModel
+
 bool isEmpty( const NLAModel* mdl )
 {
     return !mdl || mdl->design().inputs_.isEmpty();
@@ -252,6 +257,7 @@ NLAModel::~NLAModel()
 
 
 // NLADesign
+
 NLADesign::NLADesign()
 {
     clear();

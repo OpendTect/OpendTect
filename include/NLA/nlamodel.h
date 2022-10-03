@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 /*!\brief Minimum Interface for NLA models */
 
-mClass(NLA) NLAModel
+mExpClass(NLA) NLAModel
 {
 public:
 
