@@ -26,8 +26,9 @@ mExpClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
 { mODTextTranslationClass(uiWellLogExtractGrp);
 public:
 
-    struct Setup
+    mExpClass(uiWellAttrib) Setup
     {
+    public:
 				Setup(bool wa =true,bool singlog =false,
 				      const char* prop =0);
 				~Setup();
