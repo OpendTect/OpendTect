@@ -42,6 +42,7 @@ ________________________________________________________________________
 
 #include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "emfaultset3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
@@ -65,6 +66,7 @@ ________________________________________________________________________
 #include "uiodbodydisplaytreeitem.h"
 #include "uioddatatreeitem.h"
 #include "uiodemsurftreeitem.h"
+#include "uiodfaultsettreeitem.h"
 #include "uiodfaulttreeitem.h"
 #include "uiodhortreeitem.h"
 #include "uiodpicksettreeitem.h"
@@ -125,6 +127,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 4500,
 		       SurveyInfo::Only2D );
     tifs_->addFactory( new uiODFaultTreeItemFactory, 5000 );
+    tifs_->addFactory( new uiODFaultSetTreeItemFactory, 5250,
+		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 5500,
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 6000,
@@ -1232,7 +1236,8 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,emtreeitem,chlditm)
 	mDynamicCastGet(const uiODFaultTreeItem*,flttreeitem,chlditm)
 	mDynamicCastGet(const uiODFaultStickSetTreeItem*,fsstreeitem,chlditm)
-	if ( !emtreeitem && !flttreeitem && !fsstreeitem )
+	mDynamicCastGet(const uiODFaultSetTreeItem*,fltsettreeitem,chlditm)
+	if ( !emtreeitem && !flttreeitem && !fsstreeitem && !fltsettreeitem )
 	    continue;
 
 	if ( !type || EM::Horizon3D::typeStr()==type )
@@ -1256,6 +1261,11 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
 	{
 	    if ( fsstreeitem )
 		emids.addIfNew( fsstreeitem->emObjectID() );
+	}
+	else if ( !type || EM::FaultSet3D::typeStr()==type )
+	{
+	    if ( fltsettreeitem )
+		emids.addIfNew( fltsettreeitem->emObjectID() );
 	}
     }
 }
@@ -1289,6 +1299,8 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	itm = new uiODFaultTreeItem(emid);
     else if ( type==EM::FaultStickSet::typeStr() )
 	itm = new uiODFaultStickSetTreeItem(emid);
+    else if ( type==EM::FaultSet3D::typeStr() )
+	itm = new uiODFaultSetTreeItem(emid);
     else if ( type==EM::RandomPosBody::typeStr() )
 	itm = new uiODBodyDisplayTreeItem(emid);
     else if ( type==EM::MarchingCubesSurface::typeStr() )
@@ -1583,6 +1595,8 @@ uiODSceneMgr::Scene::~Scene()
 }
 
 
+
+// uiKeyBindingSettingsGroup
 uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup( p, tr("Mouse interaction"), s )
     , keybindingfld_( 0 )
