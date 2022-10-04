@@ -26,6 +26,7 @@ set(OD_MODULE_SOURCES
 	uiodattribtreeitem.cc
 	uioddatatreeitem.cc
 	uioddisplaytreeitem.cc
+	uiodfaultsettreeitem.cc
 	uiodfaulttoolman.cc
 	uiodfaulttreeitem.cc
 	uiodeditattribcolordlg.cc
