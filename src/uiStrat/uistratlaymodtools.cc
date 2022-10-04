@@ -508,7 +508,24 @@ bool uiStratLayModEditTools::usePar( const IOPar& par, bool notif )
 }
 
 
-//-----------------------------------------------------------------------------
+// uiStratLayModFRPropSelector::Setup
+
+uiStratLayModFRPropSelector::Setup::Setup( bool needswave, bool needpor,
+					   bool needinitsat, bool needfinalsat )
+    : withswave_(needswave)
+    , withpor_(needpor)
+    , withinitsat_(needinitsat)
+    , withfinalsat_(needfinalsat)
+{
+}
+
+
+uiStratLayModFRPropSelector::Setup::~Setup()
+{
+}
+
+
+// uiStratLayModFRPropSelector
 
 #define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
     auto* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
@@ -524,11 +541,11 @@ bool uiStratLayModEditTools::usePar( const IOPar& par, bool notif )
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 					const PropertyRefSelection& proprefsel,
 				const uiStratLayModFRPropSelector::Setup& set )
-	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
-				     tr("There are multiple properties "
-					"referenced with the same type. \n"
-					"Please specify which one to use as: "),
-		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
+    : uiDialog(p,uiDialog::Setup(tr("Property Selector"),
+				 tr("There are multiple properties "
+				    "referenced with the same type. \n"
+				    "Please specify which one to use as: "),
+		 mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
 {
     mCreatePropSelFld(den, tr("Reference for Density"), Mnemonic::Den,
 			nullptr);
@@ -596,6 +613,11 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 	setVPProp( pvelpr->name() );
     else
 	errmsg_ = tr( "No reference to P wave velocity found" );
+}
+
+
+uiStratLayModFRPropSelector::~uiStratLayModFRPropSelector()
+{
 }
 
 

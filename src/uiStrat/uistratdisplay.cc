@@ -26,6 +26,9 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "survinfo.h"
 
+
+// uiStratDisplay
+
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
@@ -404,18 +407,31 @@ const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
 		return lvl;
 	}
     }
-    return 0;
+
+    return nullptr;
 }
 
+
+// uiStratDrawer::ColumnItem
+
+uiStratDrawer::ColumnItem::ColumnItem( const char* nm )
+    : name_(nm)
+{
+}
+
+
+uiStratDrawer::ColumnItem::~ColumnItem()
+{
+}
+
+
+// uiStratDrawer
 
 static int border = 20;
 
 uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
     : data_(ad)
     , scene_(sc)
-    , xax_(0)
-    , yax_(0)
-    , emptyitm_(0)
 {
     initAxis();
 }
@@ -424,13 +440,13 @@ uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
 void uiStratDrawer::initAxis()
 {
     uiAxisHandler::Setup xsu( uiRect::Top );
-    uiAxisHandler* xaxis = new uiAxisHandler( &scene_, xsu );
+    auto* xaxis = new uiAxisHandler( &scene_, xsu );
     xaxis->setBounds( Interval<float>( 0, 100 ) );
     setNewAxis( xaxis, true );
     uiBorder uiborder = uiBorder( border );
     uiAxisHandler::Setup ysu( uiRect::Left );
     ysu.border( uiborder ).nogridline( true );
-    uiAxisHandler* yaxis = new uiAxisHandler( &scene_, ysu );
+    auto* yaxis = new uiAxisHandler( &scene_, ysu );
     setNewAxis( yaxis, false );
 }
 
@@ -507,7 +523,7 @@ void uiStratDrawer::drawColumns()
     if ( nrcols && data_.nrUnits(0) == 0 )
 	drawEmptyText();
     else
-	{ delete emptyitm_; emptyitm_ = 0; }
+	deleteAndZeroPtr( emptyitm_ );
 }
 
 
@@ -517,8 +533,8 @@ void uiStratDrawer::eraseAll()
     {
 	ColumnItem* colitm = colitms_[idx];
 
-	delete colitm->borderitm_; colitm->borderitm_ = 0;
-	delete colitm->bordertxtitm_; colitm->bordertxtitm_ = 0;
+	deleteAndZeroPtr( colitm->borderitm_ );
+	deleteAndZeroPtr( colitm->bordertxtitm_ );
 	colitm->txtitms_.erase();
 	colitm->lvlitms_.erase();
 	colitm->unititms_.erase();
@@ -672,6 +688,21 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 }
 
 
+// uiStratViewControl::Setup
+
+uiStratViewControl::Setup::Setup( const Interval<float>& rg )
+    : maxrg_(rg)
+    , tb_(nullptr)
+{
+}
+
+
+uiStratViewControl::Setup::~Setup()
+{
+}
+
+
+// uiStratViewControl
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( tb_, fnm, tt, mCB(this,uiStratViewControl,cbnm) ); \
@@ -704,6 +735,12 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     mAttachCB( meh.buttonReleased, uiStratViewControl::handDragged );
     mAttachCB( meh.movement, uiStratViewControl::handDragging );
     mAttachCB( viewer_.rubberBandUsed, uiStratViewControl::rubBandCB );
+}
+
+
+uiStratViewControl::~uiStratViewControl()
+{
+    detachAllNotifiers();
 }
 
 

@@ -27,13 +27,8 @@ public:
     {
     public:
 
-			Setup( Type t, Strat::UnitRefIter::Pol p )
-			    : type_(t)
-			    , pol_(p)
-			    , maxnrlines_(12)
-			    , autochoosechildparent_(true)
-			    , chooseallinitial_(false)
-			    , fldtxt_(t==Multi?"Units":"Unit")	{}
+			Setup(Type,Strat::UnitRefIter::Pol);
+			~Setup();
 
 	mDefSetupMemb(Type,type)
 	mDefSetupMemb(Strat::UnitRefIter::Pol,pol)

@@ -37,7 +37,7 @@ protected:
     ObjectSet<uiPropertyValFld> valflds_;
     uiStratLayerContent* contfld_;
     const bool		editable_;
-    bool		chgd_;
+    bool		chgd_ = false;
 
     bool		getFromScreen(bool);
     void		valChg(CallBacker*);

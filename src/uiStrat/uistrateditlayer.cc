@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
+// uiStratEditLayer
+
 uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 			const Strat::LayerSequence& ls, bool editable )
     : uiDialog(p,Setup(tr("Layer properties"),
@@ -31,7 +33,6 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     , editable_(editable)
     , lay_(lay)
     , worklay_(*new Strat::Layer(lay))
-    , chgd_(false)
 {
     if ( !editable_ )
 	setCtrlStyle( CloseOnly );
@@ -70,7 +71,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	algrp = valfld;
 	valflds_ += valfld;
 	if ( editable_ && !lay_.isMath(ival) )
-	    valfld->valueChanged.notify( mCB(this,uiStratEditLayer,valChg) );
+	    mAttachCB( valfld->valueChanged, uiStratEditLayer::valChg );
 	else
 	    valfld->setReadOnly( true );
     }
@@ -83,6 +84,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 
 uiStratEditLayer::~uiStratEditLayer()
 {
+    detachAllNotifiers();
     delete &worklay_;
 }
 

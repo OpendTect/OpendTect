@@ -28,6 +28,7 @@ public:
 
 				uiExtLayerSequenceGenDesc(uiParent*,
 					    Strat::LayerSequenceGenDesc&);
+				~uiExtLayerSequenceGenDesc();
 
     uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
 				    Strat::LayerModelSuite&,int) override;
@@ -42,9 +43,9 @@ protected:
 
     Strat::LayerSequenceGenDesc&	editdesc_;
     uiGenInput*		topdepthfld_;
-    uiRectItem*		outeritm_;
-    uiTextItem*		emptyitm_;
-    uiBorder		border_;	//!< can be set
+    uiRectItem*		outeritm_ = nullptr;
+    uiTextItem*		emptyitm_ = nullptr;
+    uiBorder		border_ = 10;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
     bool		zinft_;		//!< From SI()
     MultiID		descid_;

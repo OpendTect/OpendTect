@@ -23,6 +23,22 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "od_helpids.h"
 
+
+// uiLaySeqAttribEd::Setup
+
+uiLaySeqAttribEd::Setup::Setup( bool isnw )
+    : isnew_(isnw)
+    , allowlocal_(true)
+    , allowintegr_(true)
+{
+}
+
+
+uiLaySeqAttribEd::Setup::~Setup()
+{
+}
+
+
 static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
 {
     BufferString ret( isnew ? "Define" : "Edit" );
@@ -30,6 +46,8 @@ static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
     return ret;
 }
 
+
+// uiLaySeqAttribEd
 
 uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
@@ -40,27 +58,22 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				 mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
     , reftree_(rt)
-    , nmchgd_(false)
-    , anychg_(false)
-    , islocalfld_(0)
-    , integrgrp_(0)
-    , localgrp_(0)
 {
     if ( edsu.allowlocal_ && edsu.allowintegr_ )
     {
 	islocalfld_ = new uiGenInput( this, uiStrings::sType(),
 			    BoolInpSpec( false, tr("Sliding"),
 					 tr("Integrated")) );
-	islocalfld_->valuechanged.notify( mCB(this,uiLaySeqAttribEd,slSel) );
+	mAttachCB( islocalfld_->valuechanged, uiLaySeqAttribEd::slSel );
     }
 
     if ( edsu.allowlocal_ )
     {
 	localgrp_ = new uiGroup( this, "Local group" );
-	uiLabel* lbl = 0;
+	uiLabel* lbl = nullptr;
 	if ( edsu.allowintegr_ )
 	    lbl = new uiLabel( localgrp_, uiString::emptyString() );
-	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
+	auto* lupscfld = new uiLabeledComboBox( localgrp_,
 						Stats::UpscaleTypeNames(),
 						tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
@@ -72,8 +85,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	    localgrp_->attach( alignedBelow, islocalfld_ );
     }
 
-    uiSeparator* sep = 0;
-
+    uiSeparator* sep = nullptr;
     if ( edsu.allowintegr_ )
     {
 	integrgrp_ = new uiGroup( this, "Integrated group" );
@@ -112,14 +124,12 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	sep->attach( stretchedBelow, integrgrp_ );
     }
 
-    const CallBack transfcb( mCB(this,uiLaySeqAttribEd,transfSel) );
-    uiLabeledComboBox* ltransffld = new uiLabeledComboBox( this,
-						tr("Transform values") );
+    auto* ltransffld = new uiLabeledComboBox( this, tr("Transform values") );
     transformfld_ = ltransffld->box();
-    static const char* transfs[] = { "No", "Power", "Log", "Exp", 0 };
+    static const char* transfs[] = { "No", "Power", "Log", "Exp", nullptr };
     transformfld_->addItems( BufferStringSet(transfs) );
     transformfld_->setHSzPol( uiObject::Small );
-    transformfld_->selectionChanged.notify( transfcb );
+    mAttachCB( transformfld_->selectionChanged, uiLaySeqAttribEd::transfSel );
     if ( !sep )
 	ltransffld->attach( alignedBelow, localgrp_ );
     else
@@ -136,12 +146,13 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     namefld_->attach( alignedBelow, ltransffld );
 
     putToScreen();
-    postFinalize().notify( mCB(this,uiLaySeqAttribEd,initWin) );
+    mAttachCB( postFinalize(), uiLaySeqAttribEd::initWin );
 }
 
 
 uiLaySeqAttribEd::~uiLaySeqAttribEd()
 {
+    detachAllNotifiers();
 }
 
 

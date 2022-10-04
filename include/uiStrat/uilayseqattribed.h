@@ -28,14 +28,12 @@ public:
     mExpClass(uiStrat) Setup
     {
     public:
-			Setup( bool isnw )
-			    : isnew_(isnw)
-			    , allowlocal_(true)
-			    , allowintegr_(true)	{}
+			Setup(bool isnw);
+			~Setup();
 
 	mDefSetupMemb(bool,isnew)
-	mDefSetupMemb(bool,allowlocal)
-	mDefSetupMemb(bool,allowintegr)
+	mDefSetupMemb(bool,allowlocal)	// def: true
+	mDefSetupMemb(bool,allowintegr) // def: true
     };
 
 			uiLaySeqAttribEd(uiParent*,Strat::LaySeqAttrib&,
@@ -49,12 +47,12 @@ protected:
 
     Strat::LaySeqAttrib& attr_;
     const Strat::RefTree& reftree_;
-    bool		nmchgd_;
-    bool		anychg_;
+    bool		nmchgd_ = false;
+    bool		anychg_ = false;
 
-    uiGroup*		localgrp_;
-    uiGroup*		integrgrp_;
-    uiGenInput*		islocalfld_;
+    uiGroup*		localgrp_ = nullptr;
+    uiGroup*		integrgrp_ = nullptr;
+    uiGenInput*		islocalfld_ = nullptr;
     uiGenInput*		namefld_;
     uiGenInput*		valfld_;
     uiStratSelUnits*	unfld_;

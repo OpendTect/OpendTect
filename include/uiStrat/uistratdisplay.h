@@ -52,17 +52,15 @@ public:
 
     mStruct(uiStrat) ColumnItem
     {
-				ColumnItem(const char* nm)
-				    : name_(nm)
-				    , borderitm_(0)
-				    , bordertxtitm_(0)		{}
+				ColumnItem(const char* nm);
+				~ColumnItem();
 
 	BufferString		name_;
 	int			size_;
 	int			pos_;
 
-	uiPolyLineItem*		borderitm_;
-	uiTextItem*		bordertxtitm_;
+	uiPolyLineItem*		borderitm_ = nullptr;
+	uiTextItem*		bordertxtitm_ = nullptr;
 	uiGraphicsItemSet	txtitms_;
 	uiGraphicsItemSet	unititms_;
 	uiGraphicsItemSet	lvlitms_;
@@ -74,11 +72,11 @@ public:
 protected:
 
     ObjectSet<ColumnItem>	colitms_;
-    uiTextItem*			emptyitm_;
+    uiTextItem*			emptyitm_ = nullptr;
 
     uiGraphicsScene&		scene_;
-    uiAxisHandler*		yax_;
-    uiAxisHandler*		xax_;
+    uiAxisHandler*		yax_ = nullptr;
+    uiAxisHandler*		xax_ = nullptr;
 
     //data
     const StratDispData&	data_;
@@ -160,16 +158,15 @@ public:
 
     struct Setup
     {
-				Setup( const Interval<float>& rg )
-				    : maxrg_(rg)
-				    , tb_(0)		{}
+				Setup(const Interval<float>& rg);
+				~Setup();
 
 	mDefSetupMemb(uiToolBar*,tb)
 	mDefSetupMemb(Interval<float>,maxrg)
     };
 
 				uiStratViewControl(uiGraphicsView&,Setup&);
-				~uiStratViewControl()	{detachAllNotifiers();}
+				~uiStratViewControl();
 
     void			setRange( const Interval<float>& rg )
 				{ range_ = rg; }

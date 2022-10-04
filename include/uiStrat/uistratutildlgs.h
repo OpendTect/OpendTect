@@ -45,6 +45,7 @@ mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
 { mODTextTranslationClass(uiStratUnitEditDlg)
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
+			~uiStratUnitEditDlg();
 
     const TypeSet<Strat::LithologyID>& getLithologies() const
 			{ return lithids_; }
@@ -77,6 +78,7 @@ mExpClass(uiStrat) uiStratLithoDlg : public uiDialog
 public:
 
 			uiStratLithoDlg(uiParent*);
+			~uiStratLithoDlg();
 
     const char*		getLithName() const;
     void		setSelectedLith(const char*);
@@ -89,8 +91,8 @@ protected:
     uiCheckBox*		isporbox_;
     uiColorInput*	colfld_;
 
-    Strat::Lithology*	prevlith_;
-    bool		anychg_;
+    Strat::Lithology*	prevlith_ = nullptr;
+    bool		anychg_ = false;
 
     void		selChg(CallBacker*);
     void		propChg(CallBacker*);
@@ -109,6 +111,7 @@ mExpClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
 public:
 				uiStratUnitDivideDlg(uiParent*,
 						const Strat::LeavedUnitRef&);
+				~uiStratUnitDivideDlg();
 
     void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&);
 
@@ -116,12 +119,10 @@ protected :
 
     mExpClass(uiStrat) uiDivideTable : public uiTable
     { mODTextTranslationClass(uiDivideTable)
-	public:
-				uiDivideTable(uiParent* p,
-						const uiTable::Setup& s)
-				    : uiTable(p,s,"Subdivide unit table")
-				{}
-	protected:
+    public:
+				uiDivideTable(uiParent*,const uiTable::Setup&);
+				~uiDivideTable();
+    protected:
 	void			popupMenu(CallBacker*) override;
     };
 
@@ -147,6 +148,7 @@ mExpClass(uiStrat) uiStratLevelDlg : public uiDialog
 public:
 
 			uiStratLevelDlg(uiParent*);
+			~uiStratLevelDlg();
 
     void		setLvlInfo(const char*,const OD::Color&);
     void		getLvlInfo(BufferString&,OD::Color&) const;
@@ -163,6 +165,7 @@ mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
 public:
 
 			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
+			~uiStratLinkLvlUnitDlg();
 
     Strat::LevelID	lvlid_;
 
@@ -180,10 +183,12 @@ mExpClass(uiStrat) uiStratContentsDlg : public uiDialog
 { mODTextTranslationClass(uiStratContentsDlg)
 public:
 			uiStratContentsDlg(uiParent*);
+			~uiStratContentsDlg();
+
     bool		anyChg() const		{ return anychg_; }
 
 protected:
 
-    bool		anychg_;
+    bool		anychg_ = false;
 
 };

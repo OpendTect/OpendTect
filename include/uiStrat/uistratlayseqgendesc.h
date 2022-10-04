@@ -35,7 +35,7 @@ mExpClass(uiStrat) uiLayerSequenceGenDesc
 public:
 
 			uiLayerSequenceGenDesc(Strat::LayerSequenceGenDesc&);
-    virtual		~uiLayerSequenceGenDesc()	{}
+    virtual		~uiLayerSequenceGenDesc();
     mDefineFactory2ParamInClass(uiLayerSequenceGenDesc,uiParent*,
 			Strat::LayerSequenceGenDesc&,factory);
 
@@ -60,7 +60,7 @@ public:
 protected:
 
     Strat::LayerSequenceGenDesc& desc_;
-    bool		needsave_;
+    bool		needsave_ = false;
     bool		isValidSelection(const PropertyRefSelection&) const;
     virtual const uiParent* getUiParent() const		= 0;
 

@@ -35,7 +35,6 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     , reftree_(lm.refTree())
     , typesel_(sts)
     , setismine_(!as)
-    , anychg_(false)
 {
     BufferStringSet dispnms;
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )

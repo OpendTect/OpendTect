@@ -44,7 +44,7 @@ public:
 
 protected:
 
-    uiStratRefTree*		uitree_;
+    uiStratRefTree*		uitree_ = nullptr;
     uiStratDisplay*		uistratdisp_;
     uiStratLvlList*		lvllist_;
     Strat::RepositoryAccess&	repos_;
@@ -71,8 +71,8 @@ protected:
     MenuItem			contentsitem_;
     MenuItem			helpitem_;
 
-    bool			needsave_;
-    bool			istreedisp_;
+    bool			needsave_ = false;
+    bool			istreedisp_ = false;
     MultiID			treekey_;
 
     void			finalizeCB(CallBacker*);
