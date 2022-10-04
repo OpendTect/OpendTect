@@ -114,10 +114,8 @@ private:
 	OD::JSON::Object*	request_ = nullptr;
 	mutable uiRetVal	msg_;
     };
-			ServiceMgrBase(const ServiceMgrBase&) = delete;
+			mOD_DisableCopy(ServiceMgrBase);
 			ServiceMgrBase(ServiceMgrBase&&) = delete;
-
-    ServiceMgrBase&	operator=(const ServiceMgrBase&) = delete;
     ServiceMgrBase&	operator=(ServiceMgrBase &&) = delete;
 
     void		init(bool islocal,bool assignport=true,
