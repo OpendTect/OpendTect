@@ -82,8 +82,8 @@ private:
 
     struct sendData
     {
-			sendData(char tag,int stat,const char* msg)
-			    : tag_(tag) , status_(stat), msg_(msg)	{}
+			sendData(char tag,int stat,const char* msg);
+			~sendData();
 
 	char		tag_;
 	int		status_;

@@ -44,7 +44,7 @@ ObjectSet<ServiceMgrBase>& allServiceMgrs()
 }
 
 
-
+// Network::ServiceMgrBase
 
 ServiceMgrBase::ServiceMgrBase( const char* servicenm )
     : NamedCallBacker(servicenm)
@@ -669,6 +669,14 @@ bool ServiceMgrBase::addApplicationAuthority( bool local,
     mc.addKeyedArg( sKeyODServer(), auth.toString() );
 
     return true;
+}
+
+
+// Network::ServiceMgrBase::packetData
+
+ServiceMgrBase::packetData::packetData( const Network::RequestConnection* conn )
+    : conn_(conn)
+{
 }
 
 

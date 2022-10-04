@@ -116,6 +116,7 @@ mExpClass(Network) HostDataList : public ManagedObjectSet<HostData>
 { mODTextTranslationClass(HostDataList)
 public:
 			HostDataList(bool foredit);
+			~HostDataList();
 
     void		setNiceLevel(int);
     int			niceLevel() const;
@@ -146,9 +147,9 @@ public:
 
 protected:
 
-    BufferString	logincmd_;
-    int			nicelvl_;
-    PortNr_Type		firstport_;
+    BufferString	logincmd_ = "ssh";
+    int			nicelvl_ = 19;
+    PortNr_Type		firstport_ = 37500;
     BufferString	win_appl_pr_;
     BufferString	unx_appl_pr_;
     BufferString	win_data_pr_;

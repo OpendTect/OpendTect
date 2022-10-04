@@ -155,7 +155,7 @@ Network::PacketFiller* Network::RequestPacket::finalize(
 
     setPayload( payloadptr, payloadsz );
 
-    PacketFiller* filler = new PacketFiller( *this );
+    auto* filler = new PacketFiller( *this );
     filler->put( hdrstr );
     return filler;
 }
@@ -164,7 +164,7 @@ Network::PacketFiller* Network::RequestPacket::finalize(
 void* Network::RequestPacket::allocPayload( od_int32 size )
 {
     if ( size < 1 )
-	return 0;
+	return nullptr;
 
     mDeclareAndTryAlloc( char*, pl, char[size] );
     return pl;
@@ -184,7 +184,7 @@ void Network::RequestPacket::setStringPayload( const char* str )
 {
     const int sz = StringView( str ).size();
     if ( sz < 1 )
-	setPayload( 0, 0 );
+	setPayload( nullptr, 0 );
     else
     {
 	int newplsz = sz + sizeof(int);
@@ -419,4 +419,33 @@ void Network::RequestPacket::addErrMsg( BufferString& msg ) const
     }
     msg.add( ":\n" ).add( mymsg );
 
+}
+
+
+// Network::PacketFiller
+
+Network::PacketFiller::PacketFiller( RequestPacket& p, int startpos )
+    : pkt_(p)
+    , curpos_(startpos)
+{
+}
+
+
+Network::PacketFiller::~PacketFiller()
+{
+}
+
+
+// Network::PacketInterpreter
+
+Network::PacketInterpreter::PacketInterpreter( const RequestPacket& p,
+					       int startpos )
+    : pkt_(p)
+    , curpos_(startpos)
+{
+}
+
+
+Network::PacketInterpreter::~PacketInterpreter()
+{
 }

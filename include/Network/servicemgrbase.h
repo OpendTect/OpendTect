@@ -105,9 +105,7 @@ private:
 
     mStruct(Network) packetData
     {
-			packetData( const Network::RequestConnection* conn )
-			  : conn_(conn)
-			{}
+			packetData(const Network::RequestConnection*);
 			~packetData();
 
 	const Network::RequestConnection*	conn_;

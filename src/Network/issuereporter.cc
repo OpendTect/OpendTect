@@ -28,10 +28,15 @@ ________________________________________________________________________
 #include <fstream>
 
 System::IssueReporter::IssueReporter( const char* host, const char* path )
-    : host_( host )
-    , path_( path )
-    , isbinary_(false)
-{}
+    : host_(host)
+    , path_(path)
+{
+}
+
+
+System::IssueReporter::~IssueReporter()
+{
+}
 
 
 #define mTestMatch( matchstr ) \

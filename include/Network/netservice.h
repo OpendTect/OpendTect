@@ -45,10 +45,8 @@ public:
 			Service(PortNr_Type,const char* hostnm=nullptr);
 			Service(const Authority&);
 			Service(const OD::JSON::Object&);
-			Service(const Service&)		= delete;
 			~Service();
 
-    Service&		operator =(const Service&)	= delete;
     bool		operator ==(const Service&) const;
     bool		operator !=(const Service&) const;
 
@@ -97,6 +95,7 @@ public:
 				  od_ostream* =nullptr) const;
 
 private:
+			mOD_DisableCopy(Service);
 
     void		init();
 

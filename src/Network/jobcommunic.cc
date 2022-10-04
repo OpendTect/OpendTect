@@ -25,6 +25,21 @@ ________________________________________________________________________
 #include "mmcommunicdefs.h"
 
 
+// JobCommunic::sendData
+
+JobCommunic::sendData::sendData( char tag, int stat, const char* msg )
+    : tag_(tag)
+    , status_(stat)
+    , msg_(msg)
+{
+}
+
+
+JobCommunic::sendData::~sendData()
+{
+}
+
+
 #define mReturn( ret ) { \
     if ( ret ) { nrattempts_ = 0; return true; } \
     if ( nrattempts_++ < maxtries_ ) return true; \
@@ -46,6 +61,7 @@ ________________________________________________________________________
 }
 
 
+// JobCommunic
 JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     : masterauth_(System::hostAddress(host),port)
     , timestamp_(Time::getMilliSeconds())
