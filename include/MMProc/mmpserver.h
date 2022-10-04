@@ -26,17 +26,15 @@ namespace OD { namespace JSON { class Object; } }
 mExpClass(MMProc) MMPServer : public NamedCallBacker
 { mODTextTranslationClass(MMPServer)
 public:
-			MMPServer(PortNr_Type, int timeout=2000);
+			MMPServer(PortNr_Type,int timeout=2000);
 			~MMPServer();
-			MMPServer(const MMPServer&) = delete;
-    MMPServer		operator=(const MMPServer&) = delete;
 
     uiRetVal		errMsg() const		{ return errmsg_; }
     bool		isOK() const;
-    void		setTimeout(int timeout) { timeout_ = timeout; }
+    void		setTimeout( int timeout ) { timeout_ = timeout; }
     void		setLogFile(const char*);
 
-    uiRetVal		sendResponse(const char* key, const OD::JSON::Object&);
+    uiRetVal		sendResponse(const char* key,const OD::JSON::Object&);
 
     CNotifier<MMPServer,const OD::JSON::Object&>	startJob;
     CNotifier<MMPServer,const uiRetVal&>		logMsg;
@@ -44,6 +42,8 @@ public:
     Notifier<MMPServer>					getLogFile;
 
 protected:
+			mOD_DisableCopy(MMPServer);
+
     Network::RequestServer&		server_;
     Network::Service&			thisservice_;
     int					timeout_;

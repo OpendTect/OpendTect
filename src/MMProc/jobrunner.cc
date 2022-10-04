@@ -72,6 +72,21 @@ int& MMJob_getTempFileNr()
 }
 
 
+// HostNFailInfo
+
+HostNFailInfo::HostNFailInfo( const HostData& hd )
+    : hostdata_(hd)
+{
+}
+
+
+HostNFailInfo::~HostNFailInfo()
+{
+}
+
+
+// JobRunner
+
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     : Executor("Running jobs")
     , descprov_(p)

@@ -14,8 +14,22 @@ ________________________________________________________________________
 #include "sets.h"
 
 
+// Batch::ClusterProgDef
+
+Batch::ClusterProgDef::ClusterProgDef()
+{
+}
+
+
+Batch::ClusterProgDef::~ClusterProgDef()
+{
+}
+
+
 static ObjectSet<Batch::ClusterProgDef> progdefs_;
 
+
+// Batch::ClusterJobDispatcher
 
 void Batch::ClusterJobDispatcher::addDef( Batch::ClusterProgDef* pd )
 {
@@ -26,6 +40,11 @@ void Batch::ClusterJobDispatcher::addDef( Batch::ClusterProgDef* pd )
 Batch::ClusterJobDispatcher::ClusterJobDispatcher()
 {
     jobspec_.execpars_.needmonitor( false );
+}
+
+
+Batch::ClusterJobDispatcher::~ClusterJobDispatcher()
+{
 }
 
 

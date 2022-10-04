@@ -48,10 +48,51 @@ ________________________________________________________________________
 }
 
 
+// JobInfo
+
+JobInfo::JobInfo( int dnr )
+    : descnr_(dnr)
+{
+}
+
+
+JobInfo::~JobInfo()
+{
+}
+
+
+// StatusInfo
+
+StatusInfo::StatusInfo( char tg, int desc, int stat, int pid,
+			const char* mg, const char* hostname, int time )
+    : tag(tg)
+    , descnr(desc)
+    , status(stat)
+    , msg(mg)
+    , hostnm(hostname)
+    , timestamp(time)
+    , procid(pid)
+{
+}
+
+
+StatusInfo::~StatusInfo()
+{
+}
+
+
+// CommandString
+
 CommandString::CommandString( const HostData& hostdata, const char* init )
     : hstdata_(hostdata)
     , cmd_(init)
-{}
+{
+}
+
+
+CommandString::~CommandString()
+{
+}
 
 
 CommandString& CommandString::operator=( const char* str )

@@ -28,20 +28,15 @@ class StatusInfo;
 mExpClass(MMProc) HostNFailInfo
 { mODTextTranslationClass(HostNFailInfo);
 public:
-			HostNFailInfo( const HostData& hd )
-			    : hostdata_(hd)
-			    , nrfailures_(0)
-			    , nrsucces_(0)
-			    , lastsuccess_(0)
-			    , starttime_(0)
-			    , inuse_(false) {}
+			HostNFailInfo(const HostData&);
+			~HostNFailInfo();
 
     const HostData&	hostdata_;
-    int			nrfailures_; //!< Reset to 0 at every success
-    int			nrsucces_;
-    int			starttime_;  //!< Set whenever host added.
-    int			lastsuccess_; //!< timestamp
-    bool		inuse_;
+    int			nrfailures_ = 0; //!< Reset to 0 at every success
+    int			nrsucces_  = 0;
+    int			starttime_ = 0;  //!< Set whenever host added.
+    int			lastsuccess_ = 0; //!< timestamp
+    bool		inuse_ = false;
 };
 
 

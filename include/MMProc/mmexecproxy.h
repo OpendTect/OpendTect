@@ -17,7 +17,9 @@ namespace MMProc
 
 mClass(MMProc) ExecProxy
 { mODTextTranslationClass(ExecProxy);
-    			ExecProxy(const char* prognm,const char* hostnm);
+
+			ExecProxy(const char* prognm,const char* hostnm);
+			~ExecProxy();
 
     bool		launch(const IOPar&);
     enum Status		{ NotStarted, Running, Failed, Ended };

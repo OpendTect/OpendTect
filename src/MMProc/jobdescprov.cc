@@ -23,6 +23,7 @@ const char* InlineSplitJobDescProv::sKeyMaxInlRg()
 const char* InlineSplitJobDescProv::sKeyMaxCrlRg()
     { return "Maximum Crossline Range"; }
 
+//Network::JobDescProv
 
 JobDescProv::JobDescProv( const IOPar& iop )
 	: inpiopar_(*new IOPar(iop))
@@ -36,11 +37,18 @@ JobDescProv::~JobDescProv()
 }
 
 
+// Network::KeyReplaceJobDescProv
+
 KeyReplaceJobDescProv::KeyReplaceJobDescProv( const IOPar& iop,
-						const char* key, int nrjobs )
-	: JobDescProv(iop)
-	, key_(key)
-	, nrjobs_(nrjobs)
+					      const char* key, int nrjobs )
+    : JobDescProv(iop)
+    , key_(key)
+    , nrjobs_(nrjobs)
+{
+}
+
+
+KeyReplaceJobDescProv::~KeyReplaceJobDescProv()
 {
 }
 
@@ -69,9 +77,16 @@ void KeyReplaceJobDescProv::dump( od_ostream& strm ) const
 }
 
 
+// Network::StringKeyReplaceJobDescProv
+
 StringKeyReplaceJobDescProv::StringKeyReplaceJobDescProv( const IOPar& iop,
 			const char* key, const BufferStringSet& nms )
     : KeyReplaceJobDescProv(iop,key,nms.size())
+{
+}
+
+
+StringKeyReplaceJobDescProv::~StringKeyReplaceJobDescProv()
 {
 }
 
@@ -82,10 +97,17 @@ const char* StringKeyReplaceJobDescProv::gtObjName( int jidx ) const
 }
 
 
+// Network::IDKeyReplaceJobDescProv
+
 IDKeyReplaceJobDescProv::IDKeyReplaceJobDescProv( const IOPar& iop,
 				const char* ky, const StepInterval<int>& rg )
-	: KeyReplaceJobDescProv(iop,ky,rg.nrSteps()+1)
-	, idrg_(rg)
+    : KeyReplaceJobDescProv(iop,ky,rg.nrSteps()+1)
+    , idrg_(rg)
+{
+}
+
+
+IDKeyReplaceJobDescProv::~IDKeyReplaceJobDescProv()
 {
 }
 
@@ -108,10 +130,10 @@ void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
     Interval<int> dum; SI().sampling(false).hsamp_.get( inlrg_, dum )
 
 
+// Network::InlineSplitJobDescProv
+
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )
-	: JobDescProv(iop)
-	, inls_(0)
-	, ninlperjob_( 1 )
+    : JobDescProv(iop)
 {
     mSetInlRgDef();
     getRange( inlrg_ );
@@ -121,9 +143,8 @@ InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )
 
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
 						const TypeSet<int>& in )
-	: JobDescProv(iop)
-	, inls_(new TypeSet<int>(in))
-	, ninlperjob_( 1 )
+    : JobDescProv(iop)
+    , inls_(new TypeSet<int>(in))
 {
     mSetInlRgDef();
     iop.get( "Nr of Inlines per Job", ninlperjob_ );
@@ -270,10 +291,12 @@ void InlineSplitJobDescProv::setDefaultNrInlPerJob( int nr )
 }
 
 
+// Network::ParSubselJobDescProv
+
 ParSubselJobDescProv::ParSubselJobDescProv( const IOPar& iop,
 					    const char* subselkey )
-	: JobDescProv(iop)
-	, subselkey_(subselkey)
+    : JobDescProv(iop)
+    , subselkey_(subselkey)
 {
     int idx = 0;
     while ( true )
@@ -285,6 +308,11 @@ ParSubselJobDescProv::ParSubselJobDescProv( const IOPar& iop,
 
 	subselpars_ += curselpar;
     }
+}
+
+
+ParSubselJobDescProv::~ParSubselJobDescProv()
+{
 }
 
 
@@ -309,14 +337,23 @@ void ParSubselJobDescProv::dump( od_ostream& strm ) const
 }
 
 
+// Network::ine2DSubselJobDescProv
+
 Line2DSubselJobDescProv::Line2DSubselJobDescProv( const IOPar& iop )
     : ParSubselJobDescProv(iop,IOPar::compKey(getOutSubSelKey(),sKey::Line()))
-{}
+{
+}
+
+
+Line2DSubselJobDescProv::~Line2DSubselJobDescProv()
+{
+}
+
 
 const char* Line2DSubselJobDescProv::objName( int jidx ) const
 {
     if ( !subselpars_.validIdx(jidx) )
-	return 0;
+	return nullptr;
 
     Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     subselpars_[jidx]->get( sKey::GeomID(), geomid );

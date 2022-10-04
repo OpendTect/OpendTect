@@ -22,36 +22,27 @@ mExpClass(MMProc) JobInfo
     friend class	JobRunner;
 public:
 
-    enum State		{ ToDo, Scheduled, Preparing, Working, WrappingUp, 
+    enum State		{ ToDo, Scheduled, Preparing, Working, WrappingUp,
 			  Paused, Completed, JobFailed, HostFailed };
-    			//!< This is always the 'real' status
+			//!< This is always the 'real' status
 			//!< This as opposed to 'requested' or whatever
 
-    			JobInfo( int dnr )
-			    : descnr_(dnr)
-			    , state_(ToDo)
-			    , statusmsg_("Scheduled")
-			    , infomsg_("")
-			    , jobfailures_(0)
-			    , hstfailures_(0)
-			    , hostdata_(0)
-			    , osprocid_(-1)
-			    , starttime_(0)
-			    , recvtime_(0) {}
+			JobInfo(int dnr);
+			~JobInfo();
 
     int			descnr_;	//!< JobdescProv's job number
-    State		state_;
-    int			jobfailures_;	//!< Failures probably caused by job
-    int			hstfailures_;	//!< Failures probably caused by host
-    int			nrdone_;
-    int			osprocid_;	//!< OS process ID
-    BufferString	statusmsg_;	
+    State		state_ = ToDo;
+    int			jobfailures_ = 0; //!< Failures probably caused by job
+    int			hstfailures_ = 0; //!< Failures probably caused by host
+    int			nrdone_ = -1;
+    int			osprocid_ = -1; //!< OS process ID
+    BufferString	statusmsg_ = "Scheduled";
     BufferString	infomsg_;	//!< Error msg if failure
 
-    const HostData*	hostdata_;	//!< Host currently working on job
+    const HostData*	hostdata_ = nullptr; //!< Host currently working on job
 
 protected:
 
-    int			starttime_;
-    int			recvtime_;
+    int			starttime_ = 0;
+    int			recvtime_ = 0;
 };

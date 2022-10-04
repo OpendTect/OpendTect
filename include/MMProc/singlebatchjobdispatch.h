@@ -25,7 +25,7 @@ mExpClass(MMProc) SingleJobDispatcher : public JobDispatcher
 public:
 
 			SingleJobDispatcher();
-    virtual		~SingleJobDispatcher()		{}
+			~SingleJobDispatcher();
 
     uiString		description() const override;
     bool		isSuitedFor(const char*) const override { return true; }

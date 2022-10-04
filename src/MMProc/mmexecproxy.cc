@@ -18,6 +18,11 @@ MMProc::ExecProxy::ExecProxy( const char* pnm, const char* hnm )
 }
 
 
+MMProc::ExecProxy::~ExecProxy()
+{
+}
+
+
 bool MMProc::ExecProxy::launch( const IOPar& iop )
 {
     return false;
