@@ -51,6 +51,19 @@ const char* SelSpec::sKeyOnlyStoredData()
 				      { return "DescSet only for stored data"; }
 static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
+
+SelSpec::SelSpec( const char* ref, DescID id, bool nla, const char* objref )
+    : ref_(ref)
+    , id_(id)
+    , isnla_(nla)
+    , objref_(objref)
+{}
+
+
+SelSpec::~SelSpec()
+{}
+
+
 bool SelSpec::operator==( const SelSpec& ss ) const
 {
     return id()==ss.id() && isNLA()==ss.isNLA() && ss.ref_==ref_ &&
@@ -266,6 +279,17 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
 }
 
 
+
+// Attrib::CurrentSel
+CurrentSel::CurrentSel()
+{}
+
+
+CurrentSel::~CurrentSel()
+{}
+
+
+
 // Attrib::SelInfo
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 		  bool is2d, const DescID& ignoreid, bool usesteering,
@@ -310,6 +334,38 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	}
     }
 }
+
+
+SelInfo::SelInfo( const SelInfo& asi )
+	: ioobjnms_(asi.ioobjnms_)
+	, ioobjids_(asi.ioobjids_)
+	, attrnms_(asi.attrnms_)
+	, attrids_(asi.attrids_)
+	, nlaoutnms_(asi.nlaoutnms_)
+	, is2d_(asi.is2d_)
+	, usesteering_(asi.usesteering_)
+	, onlysteering_(asi.onlysteering_)
+{
+}
+
+
+SelInfo::~SelInfo()
+{}
+
+
+SelInfo& SelInfo::operator=( const SelInfo& asi )
+{
+    ioobjnms_ = asi.ioobjnms_;
+    ioobjids_ = asi.ioobjids_;
+    attrnms_ = asi.attrnms_;
+    attrids_ = asi.attrids_;
+    nlaoutnms_ = asi.nlaoutnms_;
+    is2d_ = asi.is2d_;
+    usesteering_ = asi.usesteering_;
+    onlysteering_ = asi.onlysteering_;
+    return *this;
+}
+
 
 
 void SelInfo::fillStored( bool steerdata, const char* filter )
@@ -390,33 +446,6 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	nms.add( ioobjnmscopy.get(0) );
 	ids.add( ioobjidscopy.get(0) );
     }
-}
-
-
-SelInfo::SelInfo( const SelInfo& asi )
-	: ioobjnms_(asi.ioobjnms_)
-	, ioobjids_(asi.ioobjids_)
-	, attrnms_(asi.attrnms_)
-	, attrids_(asi.attrids_)
-	, nlaoutnms_(asi.nlaoutnms_)
-	, is2d_(asi.is2d_)
-	, usesteering_(asi.usesteering_)
-	, onlysteering_(asi.onlysteering_)
-{
-}
-
-
-SelInfo& SelInfo::operator=( const SelInfo& asi )
-{
-    ioobjnms_ = asi.ioobjnms_;
-    ioobjids_ = asi.ioobjids_;
-    attrnms_ = asi.attrnms_;
-    attrids_ = asi.attrids_;
-    nlaoutnms_ = asi.nlaoutnms_;
-    is2d_ = asi.is2d_;
-    usesteering_ = asi.usesteering_;
-    onlysteering_ = asi.onlysteering_;
-    return *this;
 }
 
 

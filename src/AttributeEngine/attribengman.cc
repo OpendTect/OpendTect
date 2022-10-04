@@ -112,7 +112,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     DescID evalid = createEvaluateADS( attribset, ids, errmsg );
     Processor* proc = createProcessor( attribset, linename, evalid, errmsg );
-    if ( !proc ) return 0;
+    if ( !proc )
+	return nullptr;
 
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
@@ -155,8 +156,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
     LineKey lkey( linename, attribname );
 
-    SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey, errmsg );
-    if ( !storeoutp ) return 0;
+    RefMan<SeisTrcStorOutput> storeoutp = createOutput( iopar, lkey, errmsg );
+    if ( !storeoutp )
+	return nullptr;
 
     bool exttrctosi;
     BufferString basekey = IOPar::compKey( "Output",0 );
@@ -245,14 +247,16 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr.isEqual(sKey::Cube()) )
     {
-	SeisTrcStorOutput* outp = new SeisTrcStorOutput( tkzs_,
-				    Survey::GM().getGeomID(lkey.lineName()) );
+	auto* outp = new SeisTrcStorOutput( tkzs_,
+				Survey::GM().getGeomID(lkey.lineName()) );
+	outp->ref();
 	outp->setGeometry(tkzs_);
 	const bool res = outp->doUsePar( pars );
 	if ( !res )
 	{
 	    errmsg = mToUiStringTodo(outp->errMsg());
-	    delete outp; outp = 0;
+	    outp->unRef();
+	    outp = nullptr;
 	}
 	return outp;
     }

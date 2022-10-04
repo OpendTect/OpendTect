@@ -25,8 +25,8 @@ class DataHolder;
 mExpClass(AttributeEngine) DataHolderLineBuffer
 {
 public:
-    			DataHolderLineBuffer();
-			~DataHolderLineBuffer();
+			DataHolderLineBuffer();
+    virtual		~DataHolderLineBuffer();
 
     DataHolder*		createDataHolder( const BinID&, int t0, int nrsamples );
     void		removeDataHolder(const BinID&);

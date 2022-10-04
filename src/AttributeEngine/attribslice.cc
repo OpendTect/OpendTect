@@ -19,6 +19,10 @@ Slice::Slice( int nrows, int ncols, float udfval )
 }
 
 
+Slice::~Slice()
+{}
+
+
 float Slice::undefValue() const
 {
     return udfval_;

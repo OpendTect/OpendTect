@@ -19,6 +19,14 @@ namespace Attrib
 mImplFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
+ExtAttribCalc::ExtAttribCalc()
+{}
+
+
+ExtAttribCalc::~ExtAttribCalc()
+{}
+
+
 DataPackID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, DataPackID,
 					  TaskRunner* )
 { return DataPack::cNoID(); }

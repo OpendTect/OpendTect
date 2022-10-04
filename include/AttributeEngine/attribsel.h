@@ -41,12 +41,10 @@ class DescSet;
 mExpClass(AttributeEngine) SelSpec
 {
 public:
-			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
-				 bool n=false, const char* objr=0 )
-			: ref_(r), id_(i), isnla_(n)
-			, objref_(objr)
-			, is2d_(false)
-			, defstring_(0)		{}
+			SelSpec(const char* userref=nullptr,
+				DescID id=cAttribNotSel(),
+				bool isnla=false,const char* objectref=nullptr);
+    virtual		~SelSpec();
 
     const DescID&	id() const		{ return id_; }
     bool		isNLA() const		{ return isnla_; }
@@ -105,9 +103,9 @@ protected:
     BufferString	defstring_;
     BufferString	zdomainkey_;
     DescID		id_;
-    bool		isnla_;
+    bool		isnla_			= false;
     StepInterval<int>	discrspec_;
-    bool		is2d_;
+    bool		is2d_			= false;
 
     static const char*	sKeyRef();
     static const char*	sKeyObjRef();
@@ -129,12 +127,12 @@ protected:
 mExpClass(AttributeEngine) CurrentSel
 {
 public:
-			CurrentSel()
-			: attrid_(DescID(-1,true)), outputnr_(-1)	{}
+			CurrentSel();
+    virtual		~CurrentSel();
 
-    DescID		attrid_;
+    DescID		attrid_		= DescID(-1,true);
     MultiID		ioobjkey_;
-    int			outputnr_; // For NLA or attribute nr in 2D
+    int			outputnr_	= -1; // For NLA or attribute nr in 2D
 
 };
 
@@ -146,13 +144,14 @@ public:
 mExpClass(AttributeEngine) SelInfo
 {
 public:
-
 			SelInfo(const DescSet*,const NLAModel* n=0,
 				bool is2d=false,
 				const DescID& ignoreid=DescID::undef(),
 				bool usesteering=false,bool onlysteering=false,
 				bool onlymulticomp=false, bool usehidden=false);
 			SelInfo(const SelInfo&);
+			~SelInfo();
+
     SelInfo&		operator=(const SelInfo&);
 
     BufferStringSet	ioobjnms_;

@@ -36,6 +36,8 @@ public:
 				BinIDParam(const char*);
 				BinIDParam(const char*,const BinID&,
 					   bool isreq=true);
+				~BinIDParam();
+
     BinIDParam*			clone() const override;
     void			setLimits(const Interval<int>& inlrg,
 					  const Interval<int>& crlrg);
@@ -45,7 +47,7 @@ public:
     bool			setCompositeValue(const char*) override;
     bool			getCompositeValue(BufferString&) const override;
 
-    void                        setDefaultValue(const BinID&);
+    void			setDefaultValue(const BinID&);
     BinID			getDefaultBinIDValue() const;
     BufferString		getDefaultValue() const override;
     BinID			getValue() const;
@@ -63,6 +65,8 @@ mExpClass(AttributeEngine) BoolParam : public ValParam
 public:
 				BoolParam(const char*);
 				BoolParam(const char*,bool, bool isreq=true);
+				~BoolParam();
+
     BoolParam*			clone() const override;
 
     bool			setCompositeValue(const char*) override;
@@ -83,6 +87,8 @@ public:
 				EnumParam(const char*);
 				EnumParam(const char*,int defval,
 					  bool isreq=true);
+				~EnumParam();
+
     EnumParam*			clone() const override;
     BufferString		getDefaultValue() const override;
 
@@ -107,6 +113,8 @@ public:
 				StringParam(const char* key);
 				StringParam(const char* key,const char* defstr,
 					    bool isreq=true);
+				~StringParam();
+
     StringParam*		clone() const override;
 
     bool			setCompositeValue(const char*) override;
@@ -125,11 +133,11 @@ template <class T>
 mClass(AttributeEngine) NumParam : public ValParam
 { mODTextTranslationClass(NumParam);
 public:
-				NumParam(const char* key)
-				    : ValParam(key,new NumInpSpec<T>()) {}
+				NumParam(const char* key);
 				NumParam(const char* key,T defval,
 					 bool isreq=true);
 				NumParam(const NumParam<T>&);
+				~NumParam();
 
     NumParam<T>*		clone() const override
 				{ return new NumParam<T>(*this); }
@@ -150,6 +158,12 @@ public:
 
 
 template <class T>
+NumParam<T>::NumParam( const char* key )
+    : ValParam(key,new NumInpSpec<T>())
+{}
+
+
+template <class T>
 NumParam<T>::NumParam( const NumParam<T>& np )
     : ValParam(np.key_,np.spec_->clone())
 {
@@ -166,6 +180,11 @@ NumParam<T>::NumParam( const char* key, T defval, bool isreq )
     setDefaultValue( defval );
     required_ = isreq;
 }
+
+
+template <class T>
+NumParam<T>::~NumParam()
+{}
 
 
 template <class T>
@@ -249,15 +268,12 @@ template <class T>
 mClass(AttributeEngine) NumGateParam : public ValParam
 { mODTextTranslationClass(NumGateParam);
 public:
-				NumGateParam(const char* key)
-				    : ValParam(key,new NumInpIntervalSpec<T>())
-				    {}
-
+				NumGateParam(const char* key);
 				NumGateParam(const char* key,
 					     const Interval<T>& defaultgate,
 					     bool isreq=true);
-
 				NumGateParam(const NumGateParam<T>&);
+				~NumGateParam();
 
     NumGateParam<T>*		clone() const override
 				{ return new NumGateParam<T>(*this); }
@@ -280,6 +296,12 @@ public:
 
 
 template <class T>
+NumGateParam<T>::NumGateParam( const char* key )
+    : ValParam(key,new NumInpIntervalSpec<T>())
+{}
+
+
+template <class T>
 NumGateParam<T>::NumGateParam( const NumGateParam<T>& np )
     : ValParam(np.key_,np.spec_->clone())
 {
@@ -297,6 +319,11 @@ NumGateParam<T>::NumGateParam( const char* key, const Interval<T>& defaultgate,
     setDefaultValue( defaultgate );
     setRequired( isreq );
 }
+
+
+template <class T>
+NumGateParam<T>::~NumGateParam()
+{}
 
 
 template <class T>

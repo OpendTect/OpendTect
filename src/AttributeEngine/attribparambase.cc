@@ -31,6 +31,10 @@ Param::Param( const Param& b )
 {}
 
 
+Param::~Param()
+{}
+
+
 ValParam::ValParam( const char* key, DataInpSpec* spec )
     : Param( key )
     , spec_( spec )

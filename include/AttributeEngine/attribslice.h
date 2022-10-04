@@ -35,6 +35,8 @@ public:
     void		setUndefValue( float udfval, bool initdata=false );
 
 protected:
+			~Slice();
+
     float		udfval_;
 };
 
