@@ -386,10 +386,9 @@ static const char* sKeyFirstPort()	{ return "First port"; }
 static const char* sKeyUnixDataRoot()	{ return "Default Unix Data Root"; }
 static const char* sKeyWinDataRoot()	{ return "Default Windows Data Root"; }
 
+// HostDataList
+
 HostDataList::HostDataList( bool foredit )
-    : logincmd_("ssh")
-    , nicelvl_(19)
-    , firstport_(37500)
 {
     BufferString bhfnm = "BatchHosts";
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )
@@ -402,6 +401,11 @@ HostDataList::HostDataList( bool foredit )
 
     batchhostsfnm_ = fname;
     refresh( foredit );
+}
+
+
+HostDataList::~HostDataList()
+{
 }
 
 

@@ -21,8 +21,9 @@ namespace System
 mExpClass(Network) IssueReporter
 { mODTextTranslationClass(IssueReporter);
 public:
-				IssueReporter( const char* hostname = 0,
-					       const char* path = 0 );
+				IssueReporter(const char* hostname =nullptr,
+					      const char* path =nullptr);
+				~IssueReporter();
 
     bool			readReport(const char* filename);
     bool			setDumpFileName(const char* filename);
@@ -49,7 +50,7 @@ protected:
     BufferString		report_;
     BufferString		crashreportpath_;
     uiString			message_;
-    bool			isbinary_;
+    bool			isbinary_ = false;
 };
 
 } // namespace System

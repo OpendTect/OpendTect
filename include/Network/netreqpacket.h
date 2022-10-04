@@ -147,9 +147,8 @@ public:
 mExpClass(Network) PacketFiller
 {
 public:
-			PacketFiller( RequestPacket& p, int startpos=0 )
-			    : pkt_(p)
-			    , curpos_(startpos) {}
+			PacketFiller(RequestPacket&,int startpos=0);
+			~PacketFiller();
 
 #   define		mNPFSizeFor(v) Network::PacketFiller::sizeFor(v)
 #   define		mNPFSizeForArr(a,s) Network::PacketFiller::sizeFor(a,s)
@@ -187,10 +186,9 @@ protected:
 mExpClass(Network) PacketInterpreter
 {
 public:
-				PacketInterpreter( const RequestPacket& p,
-						 int startpos=0 )
-				    : pkt_(p)
-				    , curpos_(startpos) {}
+				PacketInterpreter(const RequestPacket&,
+						  int startpos=0);
+				~PacketInterpreter();
 
     template <class T> void	get(T&) const;
     inline bool			getBool() const;
