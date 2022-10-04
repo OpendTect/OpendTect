@@ -1383,10 +1383,10 @@ void TableOutput::collectDataSpecial60( const DataHolder& data,
 
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( idx != rid && info.binid != datapointset_.binID(idx) )
+	if ( idx != rid && info.binID() != datapointset_.binID(idx) )
 	    break;
 
-	const float zval = datapointset_.z(idx);
+	 const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
 	int lowz;
 	DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
