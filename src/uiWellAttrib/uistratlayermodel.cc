@@ -166,7 +166,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     }
 
     auto* horspl = new uiSplitter( hsplitparent, "Synth-LayModDisp Splitter",
-				   OD::Horizontal );
+				   OD::Vertical );
     horspl->addGroup( topgrp );
     horspl->addGroup( botgrp );
 
