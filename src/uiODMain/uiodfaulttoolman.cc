@@ -109,6 +109,9 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 }
 
 
+uiFaultStickTransferDlg::~uiFaultStickTransferDlg()
+{}
+
 
 void uiFaultStickTransferDlg::displayCB( CallBacker* )
 {

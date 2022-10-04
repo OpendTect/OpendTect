@@ -26,7 +26,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						ObjectSet<uiTreeItem>& set,
 						const char* attrnm )
     : uiDialog(p,uiDialog::Setup(tr("Color Settings"),mNoDlgTitle,
-                                 mODHelpKey(mODEditAttribColorDlgHelpID) ))
+				mODHelpKey(mODEditAttribColorDlgHelpID) ))
     , items_(set)
     , uicoltab_( 0 )
 {
@@ -69,6 +69,10 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     uicoltab_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
     uicoltab_->scaleChanged.notify( mCB(this,uiODEditAttribColorDlg,mapperChg));
 }
+
+
+uiODEditAttribColorDlg::~uiODEditAttribColorDlg()
+{}
 
 
 void uiODEditAttribColorDlg::seqChg( CallBacker* )

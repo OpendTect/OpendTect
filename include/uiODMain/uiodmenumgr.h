@@ -101,6 +101,7 @@ protected:
 
 			uiODMenuMgr(uiODMain*);
 			~uiODMenuMgr();
+
     void		initSceneMgrDepObjs(uiODApplMgr*,uiODSceneMgr*);
 
     uiODMain&		appl_;

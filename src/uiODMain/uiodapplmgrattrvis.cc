@@ -7,9 +7,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodapplmgraux.h"
-#include "uiodapplmgr.h"
-#include "uimsg.h"
+#include "uiodapplmgrattrvis.h"
 
 #include "attribdescset.h"
 #include "coltabmapper.h"
@@ -26,12 +24,26 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uicolortable.h"
 #include "uiemattribpartserv.h"
+#include "uimsg.h"
 #include "uinlapartserv.h"
+#include "uiodapplmgr.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "visseis2ddisplay.h"
 #include "vissurvobj.h"
+
+
+uiODApplMgrAttrVisHandler::uiODApplMgrAttrVisHandler(
+					uiODApplMgr& a, uiParent* p )
+    : am_(a)
+    , par_(p)
+{}
+
+
+uiODApplMgrAttrVisHandler::~uiODApplMgrAttrVisHandler()
+{}
+
 
 void uiODApplMgrAttrVisHandler::survChg( bool before )
 {

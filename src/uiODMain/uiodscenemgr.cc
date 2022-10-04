@@ -1579,6 +1579,8 @@ uiODSceneMgr::Scene::~Scene()
 }
 
 
+
+// uiKeyBindingSettingsGroup
 uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup( p, tr("Mouse interaction"), s )
     , keybindingfld_( 0 )
@@ -1630,6 +1632,10 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
 #endif
     }
 }
+
+
+uiKeyBindingSettingsGroup::~uiKeyBindingSettingsGroup()
+{}
 
 
 HelpKey uiKeyBindingSettingsGroup::helpKey() const

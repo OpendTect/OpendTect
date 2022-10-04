@@ -19,6 +19,7 @@ mExpClass(uiODMain) uiODViewer2DPosDlg : public uiDialog
 { mODTextTranslationClass(uiODViewer2DPosDlg);
 public:
 			uiODViewer2DPosDlg(uiODMain&);
+			~uiODViewer2DPosDlg();
 
 protected:
     uiODViewer2DPosGrp* posgrp_;

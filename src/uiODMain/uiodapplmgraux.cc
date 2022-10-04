@@ -85,6 +85,16 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 
 
+uiODApplService::uiODApplService( uiParent* p, uiODApplMgr& am )
+    : par_(p)
+    , applman_(am)
+{}
+
+
+uiODApplService::~uiODApplService()
+{}
+
+
 bool uiODApplService::eventOccurred( const uiApplPartServer* ps, int evid )
 {
     return applman_.handleEvent( ps, evid );

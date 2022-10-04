@@ -17,12 +17,14 @@ class uiTreeItem;
 mExpClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
 { mODTextTranslationClass(uiODEditAttribColorDlg);
 public:
-    				uiODEditAttribColorDlg(uiParent*,
+				uiODEditAttribColorDlg(uiParent*,
 						       ObjectSet<uiTreeItem>&,
 						       const char* attrnm);
+				~uiODEditAttribColorDlg();
+
 protected:
 	
-	uiColorTableGroup*		uicoltab_;
+	uiColorTableGroup*	uicoltab_;
 	ObjectSet<uiTreeItem>&	items_;
 
 	void			seqChg(CallBacker*);

@@ -91,6 +91,7 @@ mExpClass(uiODMain) uiODFaultSetDataTreeItem : public uiODAttribTreeItem
 public:
 			uiODFaultSetDataTreeItem(EM::ObjectID,
 				const char* parenttype);
+			~uiODFaultSetDataTreeItem();
 
     void		setDataPointSet(const DataPointSet&);
 

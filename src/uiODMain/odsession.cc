@@ -44,6 +44,10 @@ ODSession::ODSession()
 }
 
 
+ODSession::~ODSession()
+{}
+
+
 void ODSession::clear()
 {
     empars_.setEmpty();

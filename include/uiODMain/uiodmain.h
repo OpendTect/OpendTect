@@ -165,7 +165,7 @@ protected:
     virtual void	afterSurveyChange()		{}
     virtual void	dTectMenuChanged()		{}
     virtual void	dTectToolbarChanged()		{}
-    virtual void	treeAdded(SceneID sceneid)		{}
+    virtual void	treeAdded(SceneID sceneid)	{}
     virtual void	cleanup()			{}
 
     uiODMain&		appl_;

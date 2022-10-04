@@ -38,30 +38,11 @@ mStruct(uiODMain) Viewer2DPosDataSel
     enum PosType	{InLine=0, CrossLine=1, Line2D=2, ZSlice=3, RdmLine=4 };
 			mDeclareEnumUtils(PosType);
 
-			Viewer2DPosDataSel() { clean(); }
-    virtual		~Viewer2DPosDataSel() {}
-			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
-			{
-			    postype_	    = sd.postype_;
-			    selspec_	    = sd.selspec_;
-			    tkzs_	    = sd.tkzs_;
-			    rdmlineid_	    = sd.rdmlineid_;
-			    rdmlinemultiid_ = sd.rdmlinemultiid_;
-			    geomid_	    = sd.geomid_;
-			    selectdata_	    = sd.selectdata_;
-			}
+			Viewer2DPosDataSel();
+			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd);
+    virtual		~Viewer2DPosDataSel();
 
-    virtual void	clean()
-			{
-			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
-						: Viewer2DPosDataSel::Line2D;
-			    selspec_ = Attrib::SelSpec();
-			    tkzs_ = TrcKeyZSampling(true);
-			    rdmlinemultiid_ = MultiID::udf();
-			    rdmlineid_.setUdf();
-			    geomid_ = Survey::GeometryManager::cUndefGeomID();
-			    selectdata_	= true;
-			}
+    virtual void	clean();
 
     PosType		postype_;
     Attrib::SelSpec	selspec_;

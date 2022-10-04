@@ -102,6 +102,5 @@ mODTextTranslationClass(uiODTreeItemFactory)
 public:
 
     virtual uiTreeItem* createForVis(VisID visid,uiTreeItem*) const
-				{ return 0; }
-
+				{ return nullptr; }
 };
