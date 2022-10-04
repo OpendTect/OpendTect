@@ -49,6 +49,10 @@ DeltaResample::DeltaResample( Desc& desc )
 }
 
 
+DeltaResample::~DeltaResample()
+{}
+
+
 bool DeltaResample::getInputData( const BinID& relpos, int zintv )
 {
     refcubedata_ = inputs_[0]->getData( relpos, zintv );

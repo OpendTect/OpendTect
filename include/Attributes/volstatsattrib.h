@@ -40,6 +40,7 @@ public:
 
 protected:
 				VolStatsBase(Desc&);
+				~VolStatsBase();
 
     void			init();
     int*			outputTypes() const;

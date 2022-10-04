@@ -68,6 +68,10 @@ Shift::Shift( Desc& desc )
 }
 
 
+Shift::~Shift()
+{}
+
+
 void Shift::init()
 {
     stepout_ = BinID( abs(pos_.inl()), abs(pos_.crl()) );

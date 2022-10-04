@@ -111,6 +111,10 @@ Texture::Texture( Desc& desc )
 }
 
 
+Texture::~Texture()
+{}
+
+
 bool Texture::getInputOutput( int input, TypeSet<int>& res ) const
 {
     if ( input == 0 )

@@ -234,6 +234,10 @@ Scaling::Scaling( Desc& desc )
 }
 
 
+Scaling::~Scaling()
+{}
+
+
 bool Scaling::allowParallelComputation() const
 {
     return scalingtype_ != mScalingTypeAGC && statstype_ != mStatsTypeDetrend;

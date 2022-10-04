@@ -103,6 +103,10 @@ Event::Event( Desc& desc )
 }
 
 
+Event::~Event()
+{}
+
+
 bool Event::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

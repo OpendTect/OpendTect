@@ -48,7 +48,7 @@ public:
 
 
 protected:
-				~Event() {}
+				~Event();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

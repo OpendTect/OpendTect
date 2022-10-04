@@ -149,6 +149,10 @@ Semblance::Semblance( Desc& desc )
 }
 
 
+Semblance::~Semblance()
+{}
+
+
 bool Semblance::getTrcPos()
 {
     trcpos_.erase();

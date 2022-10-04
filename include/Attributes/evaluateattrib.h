@@ -22,7 +22,7 @@ namespace Attrib
   of a set of attributes in one go;
 */
     
-mExpClass(Attributes) Evaluate: public Provider
+mExpClass(Attributes) Evaluate : public Provider
 {
 public:
     static void			initClass();
@@ -31,7 +31,7 @@ public:
     static const char*		attribName()		{ return "Evaluate"; }
 
 protected:
-				~Evaluate() {}
+				~Evaluate();
     static Provider*		createInstance(Desc&);
 
     bool			allowParallelComputation() const override

@@ -60,6 +60,10 @@ Energy::Energy( Desc& ds )
 }
 
 
+Energy::~Energy()
+{}
+
+
 void Energy::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());

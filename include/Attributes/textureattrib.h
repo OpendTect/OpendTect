@@ -46,7 +46,7 @@ public:
     void		prepareForComputeData() override;
 
 protected:
-			~Texture() {}
+			~Texture();
     static Provider*	createInstance(Desc&);
     static void		updateDefaults(Desc&);
 

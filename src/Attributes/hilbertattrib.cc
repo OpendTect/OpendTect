@@ -49,6 +49,10 @@ Hilbert::Hilbert( Desc& ds )
 }
 
 
+Hilbert::~Hilbert()
+{}
+
+
 bool Hilbert::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

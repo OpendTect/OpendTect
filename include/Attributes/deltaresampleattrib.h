@@ -29,7 +29,7 @@ public:
     static const char*		periodStr()	   { return "period"; }
 
 protected:
-
+				~DeltaResample();
     static Provider*		createInstance(Desc&);
 
     float			period_;

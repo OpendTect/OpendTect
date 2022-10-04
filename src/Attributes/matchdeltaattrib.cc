@@ -49,6 +49,10 @@ MatchDelta::MatchDelta( Desc& desc )
 }
 
 
+MatchDelta::~MatchDelta()
+{}
+
+
 bool MatchDelta::getInputData( const BinID& relpos, int zintv )
 {
     refcubedata_ = inputs_[0]->getData( relpos, zintv );

@@ -18,7 +18,7 @@ namespace Attrib
 \brief Pseudo %Relief Attribute
 */
 
-mExpClass(Attributes) Relief: public Provider
+mExpClass(Attributes) Relief : public Provider
 {
 public:
     static void		initClass();
@@ -27,7 +27,7 @@ public:
     static const char*	attribName()		{ return "Relief"; }
 
 protected:
-			~Relief() {}
+			~Relief();
     static Provider*	createInstance(Desc&);
 
     bool		allowParallelComputation() const override;

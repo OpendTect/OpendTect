@@ -187,6 +187,10 @@ GapDecon::GapDecon( Desc& desc )
 }
 
 
+GapDecon::~GapDecon()
+{}
+
+
 bool GapDecon::getInputData( const BinID& relpos, int zintv )
 {
     inputdata_ = inputs_[0]->getData( relpos, zintv );

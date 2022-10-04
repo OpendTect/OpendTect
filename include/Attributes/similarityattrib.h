@@ -83,7 +83,7 @@ public:
     void			prepPriorToBoundsCalc() override;
 
 protected:
-				~Similarity() {}
+				~Similarity();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     static void			updateDefaults(Desc&);
@@ -138,6 +138,7 @@ protected:
 					: func_( func )
 					, sz_(sz)
 					{}
+				~SimiFunc()		{}
 
 	virtual float	getValue( float x ) const override
 				{

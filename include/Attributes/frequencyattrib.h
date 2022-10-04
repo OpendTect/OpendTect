@@ -125,6 +125,7 @@ protected:
 			FreqFunc(const ValueSeries<float>& func, int sz)
 			    : func_( func )
 			    , sz_(sz)			{}
+			~FreqFunc()			{}
 
     float		getValue( float x ) const override
 			{

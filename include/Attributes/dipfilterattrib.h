@@ -90,7 +90,7 @@ public:
     static const char*	filterTypeNamesStr(int);
 
 protected:
-			~DipFilter() {}
+			~DipFilter();
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
     static void		updateDefaults(Desc&);
