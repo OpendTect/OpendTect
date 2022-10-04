@@ -107,7 +107,7 @@ public:
     mDeprecated("Use setTrcNr")
     SeisTrcInfo&	setCrl( IdxType crl )	{ return setTrcNr(crl); }
 
-    mDeprecated("Use setPos")
+    mDeprecated("Use BinID or setPos")
     BinID&		binid;
     mDeprecated("Use seqnr_ or setTrcNr")
     int&		nr;
