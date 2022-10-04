@@ -45,6 +45,7 @@ mExpClass(EMAttrib) Hor2DFrom3DCreator : public Executor
 public:
 				Hor2DFrom3DCreator(const EM::Horizon3D&,
 						   EM::Horizon2D&);
+				~Hor2DFrom3DCreator();
 
     bool			setCreator(Pos::GeomID);
     int				nextStep() override;

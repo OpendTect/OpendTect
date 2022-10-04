@@ -36,6 +36,9 @@ public:
 				    : ioobj_(seisobj)
 				    , geomid_(gmid)
 				    , gate_(gt)	{}
+				~Setup()
+				{}
+
 	mDefSetupMemb(const IOObj*,ioobj)
 	mDefSetupMemb(Pos::GeomID,geomid)
 	mDefSetupMemb(Interval<float>,gate)
@@ -72,6 +75,9 @@ public:
 				    : seisioobj_(ioobj)
 				    , type_(typ)
 				    , gate_(gt) {}
+				~Setup()
+				{}
+
 	mDefSetupMemb(const IOObj*,seisioobj)
 	mDefSetupMemb(int,type)
 	mDefSetupMemb(Interval<float>,gate)
@@ -79,6 +85,7 @@ public:
 				SeisEventSnapper2D(const EM::Horizon2D*,
 					EM::Horizon2D*,const Setup&);
 				~SeisEventSnapper2D();
+
 protected:
     int				type_;
     Interval<float>		gate_;

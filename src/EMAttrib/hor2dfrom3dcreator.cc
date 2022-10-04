@@ -64,6 +64,10 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 }
 
 
+Hor2DFrom3DCreator::~Hor2DFrom3DCreator()
+{}
+
+
 bool Hor2DFrom3DCreator::setCreator( Pos::GeomID geomid )
 {
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
