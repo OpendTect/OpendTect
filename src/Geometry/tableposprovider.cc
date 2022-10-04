@@ -22,6 +22,17 @@ ________________________________________________________________________
 
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
 
+Pos::TableProvider3D::TableProvider3D()
+    : bvs_(1,true)
+{}
+
+
+Pos::TableProvider3D::TableProvider3D( const TableProvider3D& tp )
+    : bvs_(1,true)
+{
+    *this = tp;
+}
+
 
 Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
     : bvs_(1,true)
@@ -37,6 +48,10 @@ Pos::TableProvider3D::TableProvider3D( const char* fnm )
     IOPar iop; iop.set( mGetTableKey(sKey::FileName()), fnm );
     usePar( iop );
 }
+
+
+Pos::TableProvider3D::~TableProvider3D()
+{}
 
 
 Pos::TableProvider3D& Pos::TableProvider3D::operator =(

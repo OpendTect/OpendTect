@@ -20,8 +20,8 @@ class TaskRunner;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-mExpClass(Geometry) ExplicitMarchingCubesSurface : public CallBacker,
-						   public Geometry::IndexedShape
+mExpClass(Geometry) ExplicitMarchingCubesSurface : public CallBacker
+						 , public Geometry::IndexedShape
 {
 public:
 			ExplicitMarchingCubesSurface(MarchingCubesSurface*);
@@ -94,6 +94,9 @@ wanted.
 mExpClass(Geometry) MarchingCubeTriangleTable
 {
 public:
+				MarchingCubeTriangleTable();
+    virtual			~MarchingCubeTriangleTable();
+
     ObjectSet<char>		indices_;
     TypeSet<unsigned char>	nrindices_;
     				//!Specifies how many pairs of indices that are
@@ -107,8 +110,9 @@ public:
 mExpClass(Geometry) MarchingCubeLookupTable
 {
 public:
-    				MarchingCubeLookupTable();
-    				~MarchingCubeLookupTable();
+				MarchingCubeLookupTable();
+				~MarchingCubeLookupTable();
+
     MarchingCubeTriangleTable	triangles_[256];
 
     static const MarchingCubeLookupTable& get();

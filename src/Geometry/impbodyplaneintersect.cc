@@ -32,6 +32,10 @@ ImplicitBodyPlaneIntersector::ImplicitBodyPlaneIntersector(
 {}
 
 
+ImplicitBodyPlaneIntersector::~ImplicitBodyPlaneIntersector()
+{}
+
+
 bool ImplicitBodyPlaneIntersector::compute()
 {
     IndexedGeometry* geo = !output_.getGeometry().size() ? 0 :

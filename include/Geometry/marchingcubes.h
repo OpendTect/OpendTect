@@ -48,6 +48,7 @@ mExpClass(Geometry) MarchingCubesModel
 public:
 				MarchingCubesModel();
 				MarchingCubesModel(const MarchingCubesModel&);
+    virtual			~MarchingCubesModel();
 
     MarchingCubesModel&		operator=(const MarchingCubesModel&);
     bool			operator==(const MarchingCubesModel&) const;

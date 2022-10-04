@@ -350,6 +350,10 @@ FaultBinIDSurfaceIntersector::FaultBinIDSurfaceIntersector( float horshift,
 {}
 
 
+FaultBinIDSurfaceIntersector::~FaultBinIDSurfaceIntersector()
+{}
+
+
 void FaultBinIDSurfaceIntersector::setShape( const IndexedShape& ns )
 {
     delete output_;

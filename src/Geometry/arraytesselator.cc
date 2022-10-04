@@ -35,6 +35,10 @@ ArrayTesselator::ArrayTesselator( const Array2D<float>& data,
 {}
 
 
+ArrayTesselator::~ArrayTesselator()
+{}
+
+
 uiString ArrayTesselator::uiNrDoneText() const
 {
     return tr("Nodes done");

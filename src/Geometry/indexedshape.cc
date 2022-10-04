@@ -26,6 +26,10 @@ PrimitiveSet::PrimitiveSet()
 {}
 
 
+PrimitiveSet::~PrimitiveSet()
+{}
+
+
 void PrimitiveSet::getAll( TypeSet<int>& res, bool onlyunique ) const
 {
     res.setEmpty();
@@ -53,16 +57,30 @@ void PrimitiveSet::setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType tp)
 
 
 
-PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
-{
-    return creator_ ? creator_->doCreate( indexed, large ) : 0;
-}
+
+// IndexedPrimitiveSet
+IndexedPrimitiveSet::IndexedPrimitiveSet()
+{}
+
+
+IndexedPrimitiveSet::~IndexedPrimitiveSet()
+{}
 
 
 IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
 {
     return (IndexedPrimitiveSet*) PrimitiveSetCreator::create( true, large );
 }
+
+
+
+// IndexedPrimitiveSetImpl
+IndexedPrimitiveSetImpl::IndexedPrimitiveSetImpl()
+{}
+
+
+IndexedPrimitiveSetImpl::~IndexedPrimitiveSetImpl()
+{}
 
 
 int IndexedPrimitiveSetImpl::size() const
@@ -95,13 +113,24 @@ int IndexedPrimitiveSetImpl::set( int, int )
 void IndexedPrimitiveSetImpl::set( const int* arr, int num )
 { indexset_.copy( arr, num ); }
 
+
+
+// RangePrimitiveSet
+RangePrimitiveSet::RangePrimitiveSet()
+{}
+
+
+RangePrimitiveSet::~RangePrimitiveSet()
+{}
+
+
 RangePrimitiveSet* RangePrimitiveSet::create()
 {
     return (RangePrimitiveSet*) PrimitiveSetCreator::create( false, false );
 }
 
 
-void RangePrimitiveSet::getAll(TypeSet<int>& res,bool) const
+void RangePrimitiveSet::getAll( TypeSet<int>& res, bool ) const
 {
     res.erase();
 
@@ -112,10 +141,36 @@ void RangePrimitiveSet::getAll(TypeSet<int>& res,bool) const
 }
 
 
+
+// PrimitiveSetCreator
+PrimitiveSetCreator::PrimitiveSetCreator()
+{}
+
+
+PrimitiveSetCreator::~PrimitiveSetCreator()
+{}
+
+
 void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
 {
     creator_ = c;
 }
+
+
+PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
+{
+    return creator_ ? creator_->doCreate( indexed, large ) : 0;
+}
+
+
+
+// PrimitiveSetCreatorDefImpl
+PrimitiveSetCreatorDefImpl::PrimitiveSetCreatorDefImpl()
+{}
+
+
+PrimitiveSetCreatorDefImpl::~PrimitiveSetCreatorDefImpl()
+{}
 
 
 PrimitiveSet* PrimitiveSetCreatorDefImpl::doCreate( bool indexed, bool large )
@@ -124,6 +179,8 @@ PrimitiveSet* PrimitiveSetCreatorDefImpl::doCreate( bool indexed, bool large )
 }
 
 
+
+// IndexedGeometry
 IndexedGeometry::IndexedGeometry( Type type, Coord3List* coords,
 				  Coord3List* normals,
 				  Coord3List* texturecoordlist,
@@ -270,16 +327,16 @@ bool IndexedGeometry::isEmpty() const
 }
 
 
+
+// IndexedShape
 IndexedShape::IndexedShape()
-    : coordlist_( 0 )
-    , normallist_( 0 )
-    , texturecoordlist_( 0 )
-    , version_( 0 )
 {}
 
 
 IndexedShape::~IndexedShape()
-{ setCoordList( 0, 0, 0 ); }
+{
+    setCoordList( 0, 0, 0 );
+}
 
 
 void IndexedShape::setCoordList( Coord3List* cl, Coord3List* nl,
@@ -338,6 +395,17 @@ void IndexedShape::addVersion()
     version_++;
     if ( version_<0 ) version_ = 0;  //If it goes beyond INT_MAX
 }
+
+
+
+// ExplicitIndexedShape
+ExplicitIndexedShape::ExplicitIndexedShape()
+{}
+
+
+ExplicitIndexedShape::~ExplicitIndexedShape()
+{}
+
 
 int ExplicitIndexedShape::addGeometry( IndexedGeometry* ig )
 {

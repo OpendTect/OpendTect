@@ -22,13 +22,12 @@ namespace Pos
 mExpClass(Geometry) TableProvider3D : public Provider3D
 {
 public:
-
-			TableProvider3D()
-			: bvs_(1,true)	{}
+			TableProvider3D();
 			TableProvider3D(const IOObj& psioobj);
 			TableProvider3D(const char* filenm);
-			TableProvider3D( const TableProvider3D& tp )
-			: bvs_(1,true)	{ *this = tp; }
+			TableProvider3D(const TableProvider3D&);
+			~TableProvider3D();
+
     TableProvider3D&	operator =(const TableProvider3D&);
     const char*		type() const override;	//!< sKey::Table()
     const char*		factoryKeyword() const override { return type(); }

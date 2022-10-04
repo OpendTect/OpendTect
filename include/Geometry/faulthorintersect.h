@@ -32,7 +32,7 @@ public:
 					const BinIDSurface&, 
 					const ExplFaultStickSurface&,
 					Coord3List&);
-				~FaultBinIDSurfaceIntersector() {}
+    virtual			~FaultBinIDSurfaceIntersector();
 
     void			compute();	
 				

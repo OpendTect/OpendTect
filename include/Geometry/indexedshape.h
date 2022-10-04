@@ -43,6 +43,8 @@ public:
 
 protected:
 				PrimitiveSet();
+				~PrimitiveSet();
+
     PrimitiveType		primitivetype_;
 };
 
@@ -56,12 +58,17 @@ public:
     virtual int			pop()				= 0;
     virtual int			set(int,int)			= 0;
     virtual void		set(const int*,int num)		= 0;
+
+protected:
+				IndexedPrimitiveSet();
+				~IndexedPrimitiveSet();
 };
 
 
 mExpClass(Geometry) IndexedPrimitiveSetImpl : public IndexedPrimitiveSet
 {
 public:
+				IndexedPrimitiveSetImpl();
 
     int				size() const override;
     int				get(int) const override;
@@ -76,6 +83,7 @@ public:
     void			set(const int*,int num) override;
 
 protected:
+				~IndexedPrimitiveSetImpl();
 
     TypeSet<int>		indexset_;
 };
@@ -89,13 +97,17 @@ public:
     virtual Interval<int>	getRange() const		= 0;
     int				indexOf(const int) override	= 0;
     void			getAll(TypeSet<int>&,bool) const override;
+
+protected:
+				RangePrimitiveSet();
+				~RangePrimitiveSet();
 };
 
 
 mExpClass(Geometry) PrimitiveSetCreator
 {
 public:
-    virtual			~PrimitiveSetCreator() {}
+    virtual			~PrimitiveSetCreator();
 
     static PrimitiveSet*	create(bool indexed,bool large = false);
 				/*!<Set large if you will have larger indices
@@ -103,6 +115,7 @@ public:
     static void			setCreator(PrimitiveSetCreator*);
 
 protected:
+				PrimitiveSetCreator();
     virtual PrimitiveSet*	doCreate(bool indexed,bool large)	= 0;
 
     static PtrMan<PrimitiveSetCreator>	creator_;
@@ -111,6 +124,10 @@ protected:
 
 mExpClass(Geometry) PrimitiveSetCreatorDefImpl : public PrimitiveSetCreator
 {
+public:
+				PrimitiveSetCreatorDefImpl();
+				~PrimitiveSetCreatorDefImpl();
+
 protected:
     PrimitiveSet*		doCreate(bool indexed,bool large) override;
 };
@@ -215,17 +232,17 @@ protected:
     Threads::Lock		geometrieslock_;
     ObjectSet<IndexedGeometry>	geometries_;
 
-    Coord3List*			coordlist_;
-    Coord3List*			normallist_;
-    Coord3List*			texturecoordlist_;
-    bool			righthandednormals_;
+    Coord3List*			coordlist_		= nullptr;
+    Coord3List*			normallist_		= nullptr;
+    Coord3List*			texturecoordlist_	= nullptr;
+    bool			righthandednormals_	= false;
 
     void			addVersion();
 				/*!<Should be called every time object is
 				    changed. */
 private:
 
-    int				version_;
+    int				version_		= 0;
 };
 
 #define mGetIndexedShapeWriteLocker4Geometries() \
@@ -236,8 +253,8 @@ mExpClass(Geometry) ExplicitIndexedShape : public IndexedShape
 					 , public CallBacker
 {
 public:
-			ExplicitIndexedShape()	{}
-			~ExplicitIndexedShape()	{}
+			ExplicitIndexedShape();
+			~ExplicitIndexedShape();
 
     const Coord3List*	normalCoordList() const	{ return normallist_; }
     Coord3List*		normalCoordList()	{ return normallist_; }

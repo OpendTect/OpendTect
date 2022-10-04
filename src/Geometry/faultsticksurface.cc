@@ -16,7 +16,10 @@ namespace Geometry
 
     
 FaultStickSurface::FaultStickSurface()
-    : sticksvertical_(true)
+{}
+
+
+FaultStickSurface::~FaultStickSurface()
 {}
 
 

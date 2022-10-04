@@ -25,6 +25,7 @@ mExpClass(Geometry) PolygonSurface : public RowColSurface
 public:
 			PolygonSurface();
 			~PolygonSurface();
+
     bool		isEmpty() const override { return !polygons_.size(); }
     Element*		clone() const override;
     enum ChangeTag	{PolygonChange=__mUndefIntVal+1,PolygonInsert,

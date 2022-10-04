@@ -24,17 +24,20 @@ namespace Geometry
 mExpClass(Geometry) Iterator
 { mODTextTranslationClass(Iterator);
 public:
-    virtual 			~Iterator()		{}
+    virtual 			~Iterator();
     virtual GeomPosID		next()			= 0;
-    				//!<returs -1 if not valid
+				//!<returs -1 if not valid
+protected:
+				Iterator();
 };
 
 
 mExpClass(Geometry) Element : public CallBacker
 { mODTextTranslationClass(Element);
 public:
-    				Element();
+				Element();
     virtual			~Element();
+
     virtual Iterator*		createIterator() const			= 0;
 
     virtual void		getPosIDs(TypeSet<GeomPosID>&,

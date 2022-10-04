@@ -39,6 +39,11 @@ Horizon3DTesselator::Horizon3DTesselator( const Coord3List* coords,
     , nrcoordcols_( nrcoordcols )
 {}
 
+
+Horizon3DTesselator::~Horizon3DTesselator()
+{}
+
+
 #define mStrip 3
 #define mLine 2
 #define mPoint 1

@@ -33,6 +33,7 @@ public:
 				//dim=0 icz=inline is the inline position
 				//dim=1 icz=crossline is the crossline position
 				//dim=2 icz=z is the z position
+				~ImplicitBodyPlaneIntersector();
 
     bool			compute();	
 

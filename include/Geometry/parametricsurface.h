@@ -21,8 +21,6 @@ class ParametricCurve;
 mExpClass(Geometry) ParametricSurface : public RowColSurface
 { mODTextTranslationClass(ParametricSurface);
 public:
-			ParametricSurface(const RowCol& origin=RowCol(0,0),
-					const RowCol& step=RowCol(1,1) );
 			~ParametricSurface();
     ParametricSurface*	clone() const override				= 0;
 
@@ -77,7 +75,10 @@ public:
     void		trimUndefParts() override;
 
     int			getKnotIndex(const RowCol& rc) const;
+
 protected:
+			ParametricSurface(const RowCol& origin=RowCol(0,0),
+					const RowCol& step=RowCol(1,1) );
 
     virtual void	_setKnot( int idx, const Coord3& )		= 0;
     virtual bool	checkSelfIntersection( const RowCol& ) const;

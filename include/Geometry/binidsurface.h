@@ -26,6 +26,7 @@ public:
 			BinIDSurface(const BinID& step);
 			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
+
     BinIDSurface*	clone() const override;
     bool		isEmpty() const override { return !depths_; }
 

@@ -13,6 +13,15 @@ ________________________________________________________________________
 
 namespace Geometry
 {
+Iterator::Iterator()
+{}
+
+
+Iterator::~Iterator()
+{}
+
+
+// Element
 Element::Element()
     : nrpositionnotifier( this )
     , movementnotifier( this )

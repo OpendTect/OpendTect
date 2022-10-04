@@ -18,6 +18,7 @@ mExpClass(Geometry) FaultStickSurface : public FaultStickSet
 {
 public:
 			FaultStickSurface();
+			~FaultStickSurface();
 
     bool		insertStick(const Coord3& firstpos,
 				    const Coord3& editnormal,int stick=0,
@@ -28,7 +29,7 @@ public:
 
 protected:
 
-    bool		sticksvertical_;
+    bool		sticksvertical_		= true;
 };
 
 } // namespace Geometry

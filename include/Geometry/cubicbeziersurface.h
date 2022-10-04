@@ -29,6 +29,7 @@ public:
 					const Coord3& p22, const Coord3& p23,
 					const Coord3& p30, const Coord3& p31,
 					const Coord3& p32, const Coord3& p33 );
+			~CubicBezierSurfacePatch();
 
     CubicBezierSurfacePatch*		clone() const;
 

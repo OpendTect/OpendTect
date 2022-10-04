@@ -23,6 +23,7 @@ mExpClass(Geometry) BendPoints
 {
 public:
 			BendPoints();
+    virtual		~BendPoints();
 
     Pos::GeomID		geomid_;
     TypeSet<int>	idxs_;
@@ -33,6 +34,7 @@ mExpClass(Geometry) BendPointFinder2DGeomSet : public Executor
 { mODTextTranslationClass(BendPointFinder2DGeomSet)
 public:
 			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&);
+			~BendPointFinder2DGeomSet();
 
     od_int64		nrDone() const override;
     od_int64		totalNr() const override;
@@ -57,14 +59,11 @@ public:
 
     mExpStruct(Geometry) Point
     {
-			Point(Pos::GeomID id,int mynr,int linenr)
-			    : line(id),mytrcnr(mynr),linetrcnr(linenr)
-			    , mygeomids_(-1)
-			{}
-
+			Point(Pos::GeomID id,int mynr,int linenr);
 			Point(Pos::GeomID myid,Pos::GeomID lineid,
 			      int mynr,int linenr);
 			Point(const Point&);
+			~Point();
 
 	bool		operator==(const Point& oth) const
 			{ return mytrcnr == oth.mytrcnr; }
@@ -82,6 +81,7 @@ public:
     };
 
 			Line2DInterSection(Pos::GeomID);
+    virtual		~Line2DInterSection();
 
     Pos::GeomID		geomID() const		{ return geomid_; }
     bool		isEmpty() const		{ return points_.isEmpty(); }
@@ -107,6 +107,8 @@ protected:
 mExpClass(Geometry) Line2DInterSectionSet : public ObjectSet<Line2DInterSection>
 {
 public:
+				Line2DInterSectionSet();
+				~Line2DInterSectionSet();
 
     const Line2DInterSection*	getByGeomID(Pos::GeomID) const;
     void		getAll(TypeSet<Line2DInterSection::Point>&) const;
@@ -118,6 +120,7 @@ mExpClass(Geometry) Line2DInterSectionFinder : public ParallelTask
 public:
 			Line2DInterSectionFinder(const ObjectSet<BendPoints>&,
 						 Line2DInterSectionSet&);
+			~Line2DInterSectionFinder();
 
     od_int64		nrIterations() const override;
     uiString		uiMessage() const override;

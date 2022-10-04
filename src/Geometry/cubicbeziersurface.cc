@@ -52,6 +52,10 @@ CubicBezierSurfacePatch::CubicBezierSurfacePatch(
 }
 
 
+CubicBezierSurfacePatch::~CubicBezierSurfacePatch()
+{}
+
+
 CubicBezierSurfacePatch* CubicBezierSurfacePatch::clone() const
 {
     return new CubicBezierSurfacePatch(

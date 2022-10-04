@@ -38,6 +38,8 @@ public:
 				Coord3List* normals,
 				int nrnormalcols_,
 				int normstartidx);
+			~Horizon3DTesselator();
+
     int			nextStep() override;
 
 protected:
