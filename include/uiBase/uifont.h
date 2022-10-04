@@ -88,8 +88,7 @@ mExpClass(uiBase) uiFontList : public CallBacker
 friend class	uiFontSettingsGroup;
 
 public:
-
-			uiFontList() : inited_(false)	    {}
+			uiFontList();
 			~uiFontList();
     static uiFontList&	getInst();
 
@@ -124,7 +123,7 @@ protected:
 
 private:
 
-    bool		inited_;
+    bool		inited_		= false;
 
     void		addOldGuess(const IOPar&,const char*);
     void		removeOldEntries(Settings&);

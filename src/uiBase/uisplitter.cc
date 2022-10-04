@@ -36,6 +36,19 @@ uiSplitter::uiSplitter( uiParent* p, const char* txt, bool hor )
 }
 
 
+uiSplitter::uiSplitter( uiParent* p, const char* txt, OD::Orientation orient )
+    : uiObject(p, txt, mkbody(p,txt) )
+{
+    body_->setOrientation(
+		orient==OD::Horizontal ? Qt::Horizontal : Qt::Vertical );
+    setStretch( 2, 2 );
+}
+
+
+uiSplitter::~uiSplitter()
+{}
+
+
 uiSplitterBody& uiSplitter::mkbody( uiParent* p, const char* nm )
 {
     body_ = new uiSplitterBody( *this, p, nm );

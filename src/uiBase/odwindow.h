@@ -201,7 +201,6 @@ public:
     void		setBorder( int b )	{ dlggrp_->setBorder( b ); }
 
     void		addChild(uiBaseObject& child) override;
-    void		manageChld_(uiBaseObject&,uiObjectBody&) override;
     void		attachChild(constraintType,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal) override;
@@ -212,7 +211,8 @@ public:
 
 protected:
 
-    const QWidget* managewidg_() const override
+    void		manageChld_(uiBaseObject&,uiObjectBody&) override;
+    const QWidget*	managewidg_() const override
 			{
 			    if ( !initing_ )
 				return dlggrp_->pbody()->managewidg();

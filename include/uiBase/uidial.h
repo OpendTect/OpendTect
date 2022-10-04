@@ -20,8 +20,7 @@ class uiLineEdit;
 mExpClass(uiBase) uiDial : public uiObject
 {
 public:
-
-                        uiDial(uiParent*,const char* nm="Dial");
+			uiDial(uiParent*,const char* nm="Dial");
 			~uiDial();
 
     void		setValue(int);
@@ -77,6 +76,8 @@ public:
 			    , isvertical_(false)
 			    , dialsize_(60)
 			{}
+			~Setup()
+			{}
 
 		mDefSetupMemb(bool,withedit)
 		mDefSetupMemb(bool,isvertical)
@@ -85,21 +86,22 @@ public:
     };
 
 			uiDialExtra(uiParent*,const Setup&, const char* nm);
+			~uiDialExtra();
 
     uiDial*		dial()		{ return dial_; }
-    uiLabel*		label()	{ return lbl_; }
+    uiLabel*		label()		{ return lbl_; }
 
-    void                processInput();
-    float               editValue() const;
-                        //!<The val in the ed field, which may be outside range
+    void		processInput();
+    float		editValue() const;
+			//!<The val in the ed field, which may be outside range
 
 protected:
 
     uiDial*		dial_;
-    uiLabel*            lbl_;
-    uiLineEdit*         editfld_;
+    uiLabel*		lbl_;
+    uiLineEdit*		editfld_;
 
-    void                init(const Setup&,const char*);
-    void                editRetPress(CallBacker*);
-    void                sliderMove(CallBacker*);
+    void		init(const Setup&,const char*);
+    void		editRetPress(CallBacker*);
+    void		sliderMove(CallBacker*);
 };

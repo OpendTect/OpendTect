@@ -1964,3 +1964,7 @@ uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
 {
     addItems( s );
 }
+
+
+uiLabeledListBox::~uiLabeledListBox()
+{}

@@ -34,20 +34,23 @@ public:
     };
 
 
-                        uiFileDialog(uiParent*,bool forread,
+			uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
 			const uiString& caption=uiString::emptyString());
 
-                        uiFileDialog(uiParent*,Mode mode=AnyFile,
+			uiFileDialog(uiParent*,Mode mode=AnyFile,
 				     const char* fname=0,
 				     const char* filter=0,
 			const uiString& caption=uiString::emptyString());
     enum Type		{ Gen, Img, Txt, Html };
-                        uiFileDialog(uiParent*,Type,
+			uiFileDialog(uiParent*,Type,
 				     const char* fname=0,
 			const uiString& caption=uiString::emptyString());
 						//!< Always AnyFile
+    virtual		~uiFileDialog();
+
+    virtual int		go();
 
     const char*		fileName() const	{ return fn; }
     void		getFileNames(BufferStringSet&) const;
@@ -69,8 +72,6 @@ public:
 
     void		setDefaultExtension(const char*);
     const char*		getDefaultExtension() const;
-
-    int                 go();
 
     static const char*	filesep_;
 

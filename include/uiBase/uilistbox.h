@@ -94,6 +94,8 @@ public:
 			    , prefwidth_(0)
 			    , lblpos_(lp)
 			    {}
+			~Setup()
+			{}
 
 	mDefSetupMemb(uiString,lbl)
 	mDefSetupMemb(OD::ChoiceMode,cm)
@@ -330,6 +332,7 @@ public:
 			uiLabeledListBox(uiParent*,const BufferStringSet&,
 				     const uiString& lbltxt,
 				     OD::ChoiceMode,LblPos p=LeftMid);
+			~uiLabeledListBox();
 
     uiListBox*		box()				{ return this; }
 

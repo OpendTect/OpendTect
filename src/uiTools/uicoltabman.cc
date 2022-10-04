@@ -128,7 +128,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
     ctsu.withdesc( false );
     markercolfld_ = new uiColorInput( rightgrp,
-                                      ctsu.lbltxt(tr("Marker color")) );
+				      ctsu.lbltxt(tr("Marker color")) );
     markercolfld_->colorChanged.notify(
 			mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );

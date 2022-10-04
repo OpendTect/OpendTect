@@ -85,9 +85,78 @@ void fixup( QString& input ) const override
 };
 
 
-//------------------------------------------------------------------------------
+// uiIntValidator
+uiIntValidator::uiIntValidator()
+{}
 
 
+uiIntValidator::uiIntValidator( int bot, int top )
+    : bottom_(bot)
+    , top_(top)
+{}
+
+
+uiIntValidator::~uiIntValidator()
+{}
+
+
+
+// uiFloatValidator
+uiFloatValidator::uiFloatValidator()
+{}
+
+
+uiFloatValidator::uiFloatValidator( float bot, float top )
+    : bottom_(bot)
+    , top_(top)
+{}
+
+
+uiFloatValidator::~uiFloatValidator()
+{}
+
+
+
+// uiTextValidator
+uiTextValidator::uiTextValidator()
+    : leastnrocc_(mUdf(int))
+    , maxnrocc_(mUdf(int))
+    , excludfirstocconly_(true)
+{
+    regexchars_.setEmpty();
+}
+
+
+uiTextValidator::uiTextValidator(const BufferStringSet& regexchars,
+		int leastnrocc, int maxnrocc, bool excludfirstocconly )
+    : regexchars_(regexchars)
+    , leastnrocc_(leastnrocc)
+    , maxnrocc_(maxnrocc)
+    , excludfirstocconly_(excludfirstocconly)
+{}
+
+
+uiTextValidator::uiTextValidator( const uiTextValidator& textvl )
+    : regexchars_(textvl.regexchars_)
+    , leastnrocc_(textvl.leastnrocc_)
+    , maxnrocc_(textvl.maxnrocc_)
+    , excludfirstocconly_(textvl.excludfirstocconly_)
+{}
+
+
+uiTextValidator::~uiTextValidator()
+{}
+
+
+uiTextValidator uiTextValidator::getDefault()
+{
+    BufferStringSet regexchars( "!" );
+    return uiTextValidator( regexchars );
+}
+
+
+
+// uiLineEdit
 uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
@@ -114,6 +183,10 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm )
 {
     setText( "" );
 }
+
+
+uiLineEdit::~uiLineEdit()
+{}
 
 
 uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
@@ -162,6 +235,12 @@ void uiLineEdit::setTextValidator( const uiTextValidator& valstr )
     const QRegularExpression regexp( QString(valstr.getRegExString().buf()) );
     const auto* regexpvl = new QRegularExpressionValidator( regexp );
     body_->setValidator( regexpvl );
+}
+
+
+void uiLineEdit::setDefaultTextValidator()
+{
+    setTextValidator( uiTextValidator::getDefault() );
 }
 
 

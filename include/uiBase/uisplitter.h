@@ -33,12 +33,15 @@ Example:
 mExpClass(uiBase) uiSplitter : public uiObject
 {
 public:
-                        uiSplitter(uiParent*,const char* nm="Splitter", 
-				    bool hor=true);
-			//!< Set hor to false to layout vertically
+			uiSplitter(uiParent*,const char* nm,OD::Orientation);
+			~uiSplitter();
 
     void		addGroup(uiGroup*); //!< Group becomes my child
 
+//			mDeprecated("Use constructor with OD::Orientation")
+			uiSplitter(uiParent*,const char* nm="Splitter",
+				    bool hor=true);
+			//!< Set hor to false to layout vertically
 private:
 
     uiSplitterBody*	body_;

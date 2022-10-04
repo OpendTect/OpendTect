@@ -30,7 +30,7 @@ mFDQtclass(QMenu)
 mExpClass(uiBase) uiButton : public uiObject
 {
 public:
-    virtual		~uiButton()		{}
+    virtual		~uiButton();
 
     virtual void	setText(const uiString&);
     const uiString&	text() const			{ return text_; }
@@ -88,6 +88,7 @@ public:
 			uiPushButton(uiParent*,const uiString& txt,
 				     const uiPixmap&,const CallBack&,
 				     bool immediate);
+			~uiPushButton();
 
     void		setDefault(bool yn=true);
     void		click() override;
@@ -114,6 +115,7 @@ public:
 			uiRadioButton(uiParent*,const uiString&);
 			uiRadioButton(uiParent*,const uiString&,
 				      const CallBack&);
+			~uiRadioButton();
 
     bool		isChecked() const;
     virtual void	setChecked(bool yn=true);
@@ -135,6 +137,7 @@ public:
 			uiCheckBox(uiParent*,const uiString&);
 			uiCheckBox(uiParent*,const uiString&,
 				   const CallBack&);
+			~uiCheckBox();
 
     bool		isChecked() const;
     void		setChecked(bool yn=true);
@@ -156,12 +159,12 @@ private:
 
 mExpClass(uiBase) uiButtonMessenger
 {
-    friend class        i_ButMessenger;
+    friend class	i_ButMessenger;
 
 public:
 
-			uiButtonMessenger()		{}
-    virtual		~uiButtonMessenger()		{}
+			uiButtonMessenger();
+    virtual		~uiButtonMessenger();
 
     //! Button signals emitted by Qt.
     enum notifyTp       { clicked, pressed, released, toggled };

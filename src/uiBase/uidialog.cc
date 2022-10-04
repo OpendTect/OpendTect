@@ -28,6 +28,10 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 }
 
 
+uiDialog::~uiDialog()
+{}
+
+
 void uiDialog::setButtonText( Button but, const uiString& txt )
 {
     switch ( but )

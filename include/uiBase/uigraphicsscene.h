@@ -129,12 +129,13 @@ mExpClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
 {
 public:
 				uiGraphicsObjectScene(const char*);
+				~uiGraphicsObjectScene();
 
     void			addObjectItem(uiObjectItem*);
     void			insertObjectItem(int,uiObjectItem*);
     void			removeObjectItem(uiObjectItem*);
     void			setItemStretch(uiObjectItem*,int stretch);
-    int			stretchFactor(uiObjectItem*) const;
+    int				stretchFactor(uiObjectItem*) const;
 
     void			setLayoutPos(const uiPoint&);
     const uiPoint		layoutPos() const;
@@ -152,10 +153,15 @@ protected:
 mClass(uiBase) uiGraphicsSceneChanger : public Task
 {
 public:
-    uiGraphicsSceneChanger(uiGraphicsScene&,uiGraphicsItem&,bool remove);
-    uiGraphicsSceneChanger(uiGraphicsItemGroup&,uiGraphicsItem&,bool remove);
+				uiGraphicsSceneChanger(uiGraphicsScene&,
+						       uiGraphicsItem&,
+						       bool remove);
+				uiGraphicsSceneChanger(uiGraphicsItemGroup&,
+						       uiGraphicsItem&,
+						       bool remove);
+				~uiGraphicsSceneChanger();
 
-    bool execute() override;
+    bool			execute() override;
 
 protected:
     uiGraphicsScene*		scene_;

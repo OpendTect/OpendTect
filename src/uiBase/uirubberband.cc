@@ -14,6 +14,11 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
+uiRubberBand::uiRubberBand( QWidget* qw )
+    : parent_(qw)
+{}
+
+
 uiRubberBand::~uiRubberBand()
 {
     delete qrubberband_;

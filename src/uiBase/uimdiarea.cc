@@ -361,6 +361,10 @@ uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
 }
 
 
+uiMdiAreaWindow::~uiMdiAreaWindow()
+{}
+
+
 void uiMdiAreaWindow::setTitle( const uiString& title )
 {
     qmdisubwindow_->setWindowTitle( toQString(title) );

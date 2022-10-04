@@ -37,6 +37,7 @@ mExpClass(uiBase) SimpleHelpProvider : public HelpProvider
 protected:
 			SimpleHelpProvider(const char* urlbase,
 					   const char* keylinkfile=0);
+			~SimpleHelpProvider();
 
     void		addKeyLink(const char* key,const char* link);
 
@@ -54,6 +55,8 @@ private:
 mExpClass(uiBase) FlareHelpProvider : public HelpProvider
 {  mODTextTranslationClass(FlareHelpProvider);
 public:
+				~FlareHelpProvider();
+
     static void			initClass(const char* factorykey,
 					  const char* baseurl);
 
@@ -80,6 +83,8 @@ public:
 mExpClass(uiBase) WebsiteHelp : public HelpProvider
 { mODTextTranslationClass(WebsiteHelp);
 public:
+				~WebsiteHelp();
+
     static void			initClass();
     static const char*		sKeyFactoryName();
     static const char*		sKeySupport();
@@ -89,6 +94,8 @@ public:
     static const char*		sKeyCommProjects();
 
 private:
+				WebsiteHelp();
+
     static HelpProvider*	createInstance();
     bool			hasHelp(const char* arg) const override;
     void			provideHelp(const char* arg) const override;
@@ -99,6 +106,8 @@ private:
 mExpClass(uiBase) VideoProvider : public HelpProvider
 {
 public:
+				~VideoProvider();
+
     static void			init();
     static void			initClass(const char* context,
 					  const char* indexfilename);
@@ -120,10 +129,14 @@ private:
 mExpClass(uiBase) ReleaseNotesProvider : public HelpProvider
 {
 public:
+				~ReleaseNotesProvider();
+
     static const char*		sKeyFactoryName();
     static void			initClass();
 
 private:
+				ReleaseNotesProvider();
+
     static HelpProvider*	createInstance();
     bool			hasHelp(const char* arg) const override;
     void			provideHelp(const char* arg) const override;

@@ -15,7 +15,8 @@ template<class OD,class QT>
 mClass(uiBase) ODQtObjectSet
 {
 public:
-    			ODQtObjectSet()		{}
+			ODQtObjectSet()		{}
+			~ODQtObjectSet()	{}
 
    int			size() const		{ return odobjs_.size(); }
 

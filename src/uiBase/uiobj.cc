@@ -182,183 +182,6 @@ void uiBaseObject::addCmdRecorder( const CallBack& cb )
 }
 
 
-// uiParent
-uiParent::uiParent( const char* nm, uiParentBody* b )
-    : uiBaseObject( nm, b )
-{}
-
-
-void uiParent::addChild( uiBaseObject& child )
-{
-    mDynamicCastGet(uiBaseObject*,thisuiobj,this);
-    if ( thisuiobj && &child == thisuiobj )
-	return;
-
-    if ( !body() )
-    {
-	pErrMsg("uiParent has no body!");
-	return;
-    }
-
-    auto* pb = dCast(uiParentBody*,body());
-    if ( !pb )
-    {
-	pErrMsg("uiParent has a body, but it's no uiParentBody");
-	return;
-    }
-
-    pb->addChild( child );
-}
-
-
-void uiParent::manageChld( uiBaseObject& child, uiObjectBody& bdy )
-{
-    if ( &child == static_cast<uiBaseObject*>(this) )
-	return;
-
-    auto* pb = dCast(uiParentBody*,body());
-    if ( !pb )
-	return;
-
-    pb->manageChld( child, bdy );
-}
-
-
-void uiParent::attachChild ( constraintType tp, uiObject* child,
-			     uiObject* other, int margin, bool reciprocal )
-{
-    if ( child == static_cast<uiBaseObject*>(this) )
-	return;
-
-    if ( !body() )
-    {
-	pErrMsg("uiParent has no body!");
-	return;
-    }
-
-    auto* pb = dCast(uiParentBody*,body());
-    if ( !pb )
-    {
-	pErrMsg("uiParent has a body, but it's no uiParentBody");
-	return;
-    }
-
-    pb->attachChild ( tp, child, other, margin, reciprocal );
-}
-
-
-const ObjectSet<uiBaseObject>* uiParent::childList() const
-{
-    auto* pb = dCast(const uiParentBody*,body());
-    return pb ? pb->childList(): nullptr;
-}
-
-
-OD::Color uiObject::roBackgroundColor() const
-{
-    return backgroundColor().lighter( 2.5f );
-}
-
-
-OD::Color uiParent::backgroundColor() const
-{
-    return mainObject() ? mainObject()->backgroundColor()
-			: uiMain::instance().windowColor();
-}
-
-
-void uiParent::translateText()
-{
-    uiBaseObject::translateText();
-
-    if ( !childList() )
-	return;
-
-    for ( auto* child : *childList() )
-    {
-	//Workaround for missing function on uiGroupObj
-	mDynamicCastGet(uiGroupObj*,groupobj,child)
-	if ( groupobj && groupobj->group() )
-	    groupobj->group()->translateText();
-
-	child->translateText();
-    }
-}
-
-
-// uiParentBody
-uiParentBody* uiParent::pbody()
-{
-    return dCast(uiParentBody*,body());
-}
-
-
-void uiParentBody::finalizeChildren()
-{
-    if ( !finalized_ )
-    {
-	finalized_ = true;
-	for ( auto* child : children_ )
-	    child->finalize();
-    }
-}
-
-
-void uiParentBody::clearChildren()
-{
-    for ( auto* child : children_ )
-	child->clear();
-}
-
-
-
-// uiCentralWidgetBody
-uiCentralWidgetBody::uiCentralWidgetBody( const char* nm )
-    : uiParentBody(nm)
-    , initing_(true)
-    , centralwidget_(nullptr)
-{}
-
-
-uiCentralWidgetBody::~uiCentralWidgetBody()
-{}
-
-
-void uiCentralWidgetBody::addChild( uiBaseObject& child )
-{
-    if ( !initing_ && centralwidget_ )
-	centralwidget_->addChild( child );
-    else
-	uiParentBody::addChild( child );
-}
-
-
-void uiCentralWidgetBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
-{
-    if ( !initing_ && centralwidget_ )
-	centralwidget_->manageChld( o, b );
-}
-
-
-void uiCentralWidgetBody::attachChild ( constraintType tp,
-					uiObject* child,
-					uiObject* other, int margin,
-					bool reciprocal )
-{
-    if ( !centralwidget_ || !child || initing_ )
-	return;
-
-    centralwidget_->attachChild( tp, child, other, margin, reciprocal);
-}
-
-
-const QWidget* uiCentralWidgetBody::managewidg_() const
-{
-    return initing_ ? qwidget_() : centralwidget_->pbody()->managewidg();
-}
-
-
-
 // uiObjEventFilter
 class uiObjEventFilter : public QObject
 {
@@ -426,7 +249,7 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , parent_(p)
 {
     if ( p )
-	p->manageChld( *this, b );
+	p->manageChild( *this, b );
 
     uiobjectlist_ += this;
     updateToolTip();
@@ -572,6 +395,12 @@ void uiObject::setStyleSheet( const char* qss )
 OD::Color uiObject::backgroundColor() const
 {
     return objBody()->uibackgroundColor();
+}
+
+
+OD::Color uiObject::roBackgroundColor() const
+{
+    return backgroundColor().lighter( 2.5f );
 }
 
 
@@ -902,7 +731,7 @@ void uiObject::reParent( uiParent* p )
 	return;
 
     objBody()->reParent( pb );
-    p->manageChld( *this, *objBody() );
+    p->manageChild( *this, *objBody() );
 }
 
 

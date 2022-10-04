@@ -44,6 +44,8 @@ public:
 			, deleteonclose_(true)
 			, nrstatusflds_(1)
 			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(uiString,icontxt)

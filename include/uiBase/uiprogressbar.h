@@ -16,9 +16,9 @@ class uiProgressBarBody;
 mExpClass(uiBase) uiProgressBar : public uiObject
 {
 public:
-
-                        uiProgressBar(uiParent*,const char* nm="ProgressBar", 
+			uiProgressBar(uiParent*,const char* nm="ProgressBar",
 				      int totalSteps=100,int progress=0);
+			~uiProgressBar();
 
     void		setProgress(int);
     int			progress() const;

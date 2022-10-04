@@ -122,7 +122,7 @@ protected:
 
     mQtclass(QGraphicsItem*) qgraphicsitem_;
 
-    virtual mQtclass(QGraphicsItem*) mkQtObj()                  { return 0; }
+    virtual mQtclass(QGraphicsItem*) mkQtObj()		{ return nullptr; }
     bool		selected_; // Remove when things in Qt works
     mQtclass(uiGraphicsScene*)	scene_;
     ObjectSet<uiGraphicsItem> children_;
@@ -148,7 +148,8 @@ private:
 mExpClass(uiBase) uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
 {
 public:
-			uiGraphicsItemSet()		{}
+			uiGraphicsItemSet();
+			~uiGraphicsItemSet();
 
     void		add( uiGraphicsItem* itm )	{ (*this) += itm; }
 

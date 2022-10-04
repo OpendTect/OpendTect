@@ -65,6 +65,10 @@ uiKeyDesc::uiKeyDesc( const char* str1, const char* str2 )
 }
 
 
+uiKeyDesc::~uiKeyDesc()
+{}
+
+
 bool uiKeyDesc::set( const char* statestr, const char* keystr )
 {
     if ( !statestr )
@@ -160,8 +164,10 @@ char uiKeyDesc::asciiChar() const
 }
 
 
+
+// uiShortcutsList
 uiShortcutsList::uiShortcutsList( const char* selkey )
-	: selkey_(selkey)
+    : selkey_(selkey)
 {
     PtrMan<IOPar> pars = SCMgr().getStored( selkey );
     if ( !pars ) return;
@@ -195,6 +201,18 @@ uiShortcutsList::uiShortcutsList( const char* selkey )
 }
 
 
+uiShortcutsList::uiShortcutsList( const uiShortcutsList& scl )
+{
+    *this = scl;
+}
+
+
+uiShortcutsList::~uiShortcutsList()
+{
+    empty();
+}
+
+
 uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
 {
     if ( this == &scl ) return *this;
@@ -217,6 +235,7 @@ uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
 	    keydescs_ += new uiKeyDesc( *nonconstkd );
 
     }
+
     return *this;
 }
 
@@ -319,7 +338,17 @@ bool uiShortcutsList::getSCNames( const IOPar& par, int scutidx,
 }
 
 
+// uiShortcutsMgr
 static const char* sFileKey = "shortcuts";
+
+uiShortcutsMgr::uiShortcutsMgr()
+    : shortcutsChanged( this )
+{}
+
+
+uiShortcutsMgr::~uiShortcutsMgr()
+{}
+
 
 IOPar* uiShortcutsMgr::getStored( const char* subsel )
 {
@@ -360,11 +389,6 @@ const uiShortcutsList& uiShortcutsMgr::getList( const char* key ) const
 }
 
 
-uiShortcutsMgr::uiShortcutsMgr()
-    : shortcutsChanged( this )
-{}
-
-
 bool uiShortcutsMgr::setList( const uiShortcutsList& scl, bool usr )
 {
     if ( !usr )
@@ -387,6 +411,7 @@ bool uiShortcutsMgr::setList( const uiShortcutsList& scl, bool usr )
 
 
 
+// uiExtraIntKeyDesc
 uiExtraIntKeyDesc::uiExtraIntKeyDesc( const char* str1, const char* str2,
 				      int val )
     : uiKeyDesc( str1, str2 )
@@ -401,6 +426,10 @@ uiExtraIntKeyDesc::uiExtraIntKeyDesc( const uiExtraIntKeyDesc& uieikd )
 {
     setIntLabel( uieikd.getLabel() );
 }
+
+
+uiExtraIntKeyDesc::~uiExtraIntKeyDesc()
+{}
 
 
 bool uiExtraIntKeyDesc::set( const char* statestr, const char* keystr, int val )

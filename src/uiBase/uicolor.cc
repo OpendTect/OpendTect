@@ -61,12 +61,16 @@ static void endCmdRecEvent( int refnr, bool ok, const OD::Color& col,
 }
 
 
+uiColorInput::~uiColorInput()
+{}
+
+
 uiString uiColorInput::sSelColor()
 { return uiStrings::phrSelect( uiStrings::sColor() ); }
 
 
 bool selectColor( OD::Color& col, uiParent* parnt,
-                uiString txt, bool withtransp )
+		  uiString txt, bool withtransp )
 {
     return uiColorInput::selectColor( col, parnt, txt, withtransp );
 }
@@ -74,7 +78,7 @@ bool selectColor( OD::Color& col, uiParent* parnt,
 
 
 bool uiColorInput::selectColor( OD::Color& col, uiParent* parnt,
-                                uiString txt, bool withtransp )
+				uiString txt, bool withtransp )
 {
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
     if ( txt.isEmpty() ) txt = uiColorInput::sSelColor();

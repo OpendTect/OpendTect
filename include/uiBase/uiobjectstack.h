@@ -17,8 +17,8 @@ class uiObjStackBody;
 mExpClass(uiBase) uiObjectStack : public uiObject
 {
 public:
-
-                        uiObjectStack(uiParent*,const char*);
+			uiObjectStack(uiParent*,const char*);
+			~uiObjectStack();
 
     int			addObject(uiObject*);
     int			addGroup(uiGroup*);

@@ -207,6 +207,10 @@ uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsItemGroup& group,
 {}
 
 
+uiGraphicsSceneChanger::~uiGraphicsSceneChanger()
+{}
+
+
 bool uiGraphicsSceneChanger::execute()
 {
     if ( !isMainThreadCurrent() )
@@ -605,6 +609,10 @@ uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
     layout_->setContentsMargins( 0, 0, 0, 0 );
     setLayoutPos( uiPoint(0, 0) );
 }
+
+
+uiGraphicsObjectScene::~uiGraphicsObjectScene()
+{}
 
 
 void uiGraphicsObjectScene::setLayoutPos( const uiPoint& pt )

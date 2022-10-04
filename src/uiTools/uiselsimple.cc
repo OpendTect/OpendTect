@@ -88,8 +88,7 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
     if ( defnm.isEmpty() && listfld_ )
 	defnm = sup.items_.get(0);
     inpfld_ = new uiGenInput( this, sup.inptxt_, defnm );
-
-    mUseDefaultTextValidatorOnField(inpfld_);
+    inpfld_->setDefaultTextValidator();
 
     if ( listfld_ )
 	inpfld_->attach( alignedBelow, listfld_ );

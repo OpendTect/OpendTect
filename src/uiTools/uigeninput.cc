@@ -969,6 +969,12 @@ void uiGenInput::setTextValidator( const uiTextValidator& textvl )
 }
 
 
+void uiGenInput::setDefaultTextValidator()
+{
+    setTextValidator( uiTextValidator::getDefault() );
+}
+
+
 void uiGenInput::displayField( bool yn, int elemnr, int fldnr )
 {
     if ( elemnr < 0 && fldnr < 0 )

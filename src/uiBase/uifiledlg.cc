@@ -126,6 +126,10 @@ uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
 }
 
 
+uiFileDialog::~uiFileDialog()
+{}
+
+
 int uiFileDialog::go()
 {
     const FilePath fp( fname_ );
@@ -162,7 +166,7 @@ int uiFileDialog::go()
 			tr("System file selection unavailable!"), mNoHelpKey) );
 	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
 	le->setText( dirname );
-	mUseDefaultTextValidatorOnField(le);
+	le->setDefaultTextValidator();
 
 	new uiLabel( &dlg, tr("File name"), le );
 	if ( !dlg.go() ) return 0;

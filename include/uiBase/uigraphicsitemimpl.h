@@ -97,7 +97,8 @@ mExpClass(uiBase) uiCircleItem : public uiEllipseItem
 public:
 				uiCircleItem();
 				uiCircleItem(int r);
-    				uiCircleItem(const uiPoint& center,int r);
+				uiCircleItem(const uiPoint& center,int r);
+				~uiCircleItem();
 
     void			setRadius(int);
 };
@@ -425,16 +426,17 @@ public:
 			ArcSpec( const uiPoint& c, float r,
 				 const Interval<float>& angs )
 			    : center_((float)c.x,(float)c.y), radius_(r)
-			    , angles_(angs), yratio_(1.0f)		{}
+			    , angles_(angs)				{}
 			ArcSpec( const Geom::Point2D<float>& c, float r,
 				 const Interval<float>& angs )
 			    : center_(c), radius_(r)
-			    , angles_(angs), yratio_(1.0f)		{}
+			    , angles_(angs)				{}
+			~ArcSpec()					{}
 
 	Geom::Point2D<float> center_;
 	float		radius_;	//!< X radius. Yrad = radius_ * yratio_
 	Interval<float>	angles_;
-	float		yratio_;	//!< < 1 means: X size > Y size
+	float		yratio_ = 1.f;	//!< < 1 means: X size > Y size
     };
 
     mExpClass(uiBase) SplineSpec
@@ -451,11 +453,14 @@ public:
 				    const uiPoint& p2 )
 			    : end_((float)endp.x,(float)endp.y)
 			    , cp1_((float)p1.x,(float)p1.y)
-			    , cp2_((float)p2.x,(float)p2.y), cubic_(true)  {}
+			    , cp2_((float)p2.x,(float)p2.y)
+			    , cubic_(true)				{}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& p1,
 				    const Geom::Point2D<float>& p2 )
-			    : end_(endp), cp1_(p1), cp2_(p2), cubic_(true) {}
+			    : end_(endp), cp1_(p1), cp2_(p2)
+			    , cubic_(true)				{}
+			~SplineSpec()					{}
 
 	Geom::Point2D<float>	end_;
 	Geom::Point2D<float>	cp1_;

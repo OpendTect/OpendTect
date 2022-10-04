@@ -26,30 +26,42 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-
 static ObjectSet<uiAction> uiactionlist_;
 
-#define mInit \
-    toggled(this), \
-    triggered(this)
+
+uiActionSeparString::uiActionSeparString( const char* str )
+    : SeparString(str,'`')
+{}
+
+
+uiActionSeparString::~uiActionSeparString()
+{}
+
+
+
+uiAction::uiAction()
+    : toggled(this)
+    , triggered(this)
+{}
+
 
 uiAction::uiAction( QAction* qact )
-    : mInit
-    , qaction_(qact)
+    : uiAction()
 {
+    qaction_ = qact;
     msgr_ = new i_ActionMessenger( qact, this );
 }
 
 
 uiAction::uiAction( const uiString& txt )
-    : mInit
+    : uiAction()
 {
     init( txt );
 }
 
 
 uiAction::uiAction( const uiString& txt, const CallBack& cb )
-    : mInit
+    : uiAction()
 {
     init( txt );
     triggered.notify( cb );
@@ -58,7 +70,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb )
 
 uiAction::uiAction( const uiString& txt, const CallBack& cb,
 		    const uiIcon& icon )
-    : mInit
+    : uiAction()
 {
     init( txt );
     setIcon( icon );
@@ -68,7 +80,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 
 uiAction::uiAction( const uiString& txt, const CallBack& cb,
 		    const char* iconfile )
-    : mInit
+    : uiAction()
 {
     init( txt );
     setIcon( iconfile );
@@ -77,7 +89,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 
 
 uiAction::uiAction( const uiString& txt, const char* iconfile )
-    : mInit
+    : uiAction()
 {
     init( txt );
     setIcon( iconfile );
@@ -85,7 +97,7 @@ uiAction::uiAction( const uiString& txt, const char* iconfile )
 
 
 uiAction::uiAction( const MenuItem& itm )
-    : mInit
+    : uiAction()
 {
     init( itm.text );
     setToolTip( mToUiStringTodo(itm.tooltip) );

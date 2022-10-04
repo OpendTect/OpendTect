@@ -20,10 +20,10 @@ class uiPixmap;
 mExpClass(uiBase) uiLabel : public uiObject
 {
 public:
-
 			uiLabel(uiParent*,const uiString&);
 			uiLabel(uiParent*,const uiString&,uiObject*);
 			uiLabel(uiParent*,const uiString&,uiGroup*);
+			~uiLabel();
 
 /*! \brief set text on label
 

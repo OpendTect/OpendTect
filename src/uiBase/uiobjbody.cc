@@ -29,6 +29,14 @@ mUseQtnamespace
 #endif
 
 
+uiBody::uiBody()
+{}
+
+
+uiBody::~uiBody()
+{}
+
+
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
     , NamedCallBacker(nm)

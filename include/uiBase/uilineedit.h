@@ -22,84 +22,60 @@ class uiLineEditBody;
 mExpClass(uiBase) uiIntValidator
 {
 public:
-		uiIntValidator()
-		    : bottom_(-mUdf(int)), top_(mUdf(int))	{}
-		uiIntValidator( int bot, int top )
-		    : bottom_(bot), top_(top)			{}
+		uiIntValidator();
+		uiIntValidator(int bot,int top);
+		~uiIntValidator();
 
-    int		bottom_;
-    int		top_;
+    int		bottom_		= -mUdf(int);
+    int		top_		= mUdf(int);
 };
 
 
 mExpClass(uiBase) uiFloatValidator
 {
 public:
-		uiFloatValidator()
-		    : bottom_(-mUdf(float)), top_(mUdf(float))
-		    , nrdecimals_(1000), scnotation_(true)	{}
-		uiFloatValidator( float bot, float top )
-		    : bottom_(bot), top_(top)
-		    , nrdecimals_(1000), scnotation_(true)	{}
+		uiFloatValidator();
+		uiFloatValidator(float bot,float top);
+		~uiFloatValidator();
 
-    float	bottom_;
-    float	top_;
-    int		nrdecimals_;
-    bool	scnotation_;	// If true, ScientificNotation is used
+    float	bottom_		= -mUdf(float);
+    float	top_		= mUdf(float);
+    int		nrdecimals_	= 10;
+    bool	scnotation_	= true;	// If true, ScientificNotation is used
 };
 
 
-mExpClass( uiBase ) uiTextValidator
+mExpClass(uiBase) uiTextValidator
 {
 public:
-		    uiTextValidator()
-			: leastnrocc_(mUdf(int))
-			, maxnrocc_(mUdf(int))
-			, excludfirstocconly_(true)
-		    {
-			regexchars_.setEmpty();
-		    }
-		    uiTextValidator(const BufferStringSet& regexchars,
-				    const int leastnrocc=mUdf(int),
-				    const int maxnrocc=mUdf(int),
-				    bool excludfirstocconly=true)
-			: regexchars_(regexchars)
-			, leastnrocc_(leastnrocc)
-			, maxnrocc_(maxnrocc)
-			, excludfirstocconly_(excludfirstocconly)
-		    {}
-		    uiTextValidator(const uiTextValidator& textvl)
-			: regexchars_(textvl.regexchars_)
-			, leastnrocc_(textvl.leastnrocc_)
-			, maxnrocc_(textvl.maxnrocc_)
-			, excludfirstocconly_(textvl.excludfirstocconly_)
-		    {}
+			uiTextValidator();
+			uiTextValidator(const BufferStringSet& regexchars,
+					const int leastnrocc=mUdf(int),
+					const int maxnrocc=mUdf(int),
+					bool excludfirstocconly=true);
+			uiTextValidator(const uiTextValidator& textvl);
+			~uiTextValidator();
 
-    BufferStringSet	    regexchars_;
-    int			    leastnrocc_;
-    int			    maxnrocc_;
-    bool		    excludfirstocconly_;
+    static uiTextValidator getDefault();
 
-    BufferString	    getRegExString() const;
+    BufferStringSet	regexchars_;
+    int			leastnrocc_;
+    int			maxnrocc_;
+    bool		excludfirstocconly_;
+
+    BufferString	getRegExString() const;
 };
 
 
-#define mUseDefaultTextValidatorOnField(fld) \
-    BufferStringSet regchars; \
-    regchars.add( "!" ); \
-    uiTextValidator txtvl( regchars ); \
-    fld->setTextValidator( txtvl ); \
-
-
-
-mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>,
-			       public uiObject
+mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>
+			     , public uiObject
 {
 public:
 			//! pref_empty : return empty string/ null value
 			//  insted of undefined value, when line edit is empty.
 			uiLineEdit(uiParent*,const char* nm);
 			uiLineEdit(uiParent*,const DataInpSpec&,const char* nm);
+			~uiLineEdit();
 
     void		setEdited(bool=true);
     bool		isEdited() const;
@@ -116,6 +92,7 @@ public:
     void		setValidator(const uiIntValidator&);
     void		setValidator(const uiFloatValidator&);
     void		setTextValidator(const uiTextValidator&);
+    void		setDefaultTextValidator();
 
     void		setMaxLength(int);
     int			maxLength() const;
@@ -154,11 +131,11 @@ public:
 
 protected:
 
-    bool	notifyValueChanging_( const CallBack& cb ) override
+    bool		notifyValueChanging_( const CallBack& cb ) override
 			{ textChanged.notify( cb ); return true;}
-    bool	notifyValueChanged_( const CallBack& cb ) override
+    bool		notifyValueChanged_( const CallBack& cb ) override
 			{ editingFinished.notify( cb ); return true;}
-    bool	notifyUpdateRequested_( const CallBack& cb ) override
+    bool		notifyUpdateRequested_( const CallBack& cb ) override
 			{ returnPressed.notify( cb ); return true; }
 
 private:
