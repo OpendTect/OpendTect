@@ -52,4 +52,24 @@ bool ElementEditorImpl::mayTranslate3D( GeomPosID ) const
 void ElementEditorImpl::addedKnots(CallBacker*)
 { editpositionchange.trigger(); }
 
+
+
+//BinIDElementEditor
+BinIDElementEditor::BinIDElementEditor( Geometry::Element& elem)
+    : ElementEditorImpl( elem,  Coord3(0,0,1) )
+{}
+
+
+BinIDElementEditor::~BinIDElementEditor()
+{}
+
+
+// PlaneElementEditor
+PlaneElementEditor::PlaneElementEditor( Element& elem, const Coord3& normal )
+    : ElementEditorImpl( elem,  Coord3::udf(), normal )
+{}
+
+
+PlaneElementEditor::~PlaneElementEditor()
+{}
 } // namespace Geometry

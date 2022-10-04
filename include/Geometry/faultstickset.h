@@ -26,6 +26,7 @@ mExpClass(Geometry) FaultStickSet : public RowColSurface
 public:
 			FaultStickSet();
 			~FaultStickSet();
+
     bool		isEmpty() const override  { return !sticks_.size(); }
     Element*		clone() const override;
 

@@ -22,6 +22,8 @@ namespace Geometry
 mExpClass(Geometry) RowColSurface : public Element
 {
 public:
+				~RowColSurface();
+
     void			getPosIDs(TypeSet<GeomPosID>&,
 					  bool=true) const override;
 
@@ -42,6 +44,9 @@ public:
     bool			setPosition(GeomPosID pid,
 					    const Coord3&) override;
     bool			isDefined(GeomPosID pid) const override;
+
+protected:
+				RowColSurface();
 };
 
 } // namespace Geometry

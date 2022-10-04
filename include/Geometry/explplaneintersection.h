@@ -21,8 +21,8 @@ namespace Geometry
     IndexedShape and one ore many planes. */
 
 
-mExpClass(Geometry) ExplPlaneIntersection: public Geometry::IndexedShape,
-			      public CallBacker
+mExpClass(Geometry) ExplPlaneIntersection : public Geometry::IndexedShape
+					  , public CallBacker
 {
 public:
 				ExplPlaneIntersection();

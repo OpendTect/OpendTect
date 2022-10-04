@@ -22,10 +22,10 @@ namespace Pos
 mExpClass(Geometry) PolyProvider3D : public Provider3D
 {
 public:
-
 			PolyProvider3D();
 			PolyProvider3D(const PolyProvider3D&);
 			~PolyProvider3D();
+
     PolyProvider3D&	operator =(const PolyProvider3D&);
     const char*		type() const override;	//!< sKey::Polygon()
     const char*		factoryKeyword() const override { return type(); }

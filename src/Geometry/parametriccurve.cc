@@ -64,6 +64,14 @@ protected:
 
 
 
+ParametricCurve::ParametricCurve()
+{}
+
+
+ParametricCurve::~ParametricCurve()
+{}
+
+
 bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 					   float eps ) const
 {

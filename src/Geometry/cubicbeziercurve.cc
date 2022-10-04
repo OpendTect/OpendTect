@@ -40,6 +40,10 @@ CubicBezierCurve::CubicBezierCurve( const Coord3& c0, const Coord3& c1,
 }
 
 
+CubicBezierCurve::~CubicBezierCurve()
+{}
+
+
 CubicBezierCurve* CubicBezierCurve::clone() const
 { return new CubicBezierCurve(*this); }
 

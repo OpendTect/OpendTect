@@ -29,6 +29,8 @@ namespace Geometry
 mExpClass(Geometry) ParametricCurve : public Element
 {
 public:
+			~ParametricCurve();
+
     virtual Coord3	computePosition( float ) const	= 0;
 			/*!<Computes the position between two samples */
     virtual Coord3	computeTangent( float ) const	= 0;
@@ -64,6 +66,9 @@ public:
     Iterator*		createIterator() const override;
     virtual bool	insertPosition(GeomPosID,const Coord3&)		= 0;
     virtual StepInterval<int>	parameterRange() const			= 0;
+
+    protected:
+			ParametricCurve();
 };
 
 } // namespace Geometry

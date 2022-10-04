@@ -75,6 +75,8 @@ public:
 			    : ev_(ev)
 			    , nodeidx_(nodeidx)
 			{}
+			~ChangeData()
+			{}
 
 	Event		ev_;
 	int		nodeidx_;

@@ -196,6 +196,10 @@ MarchingCubesModel::MarchingCubesModel( const MarchingCubesModel& templ )
 }
 
 
+MarchingCubesModel::~MarchingCubesModel()
+{}
+
+
 MarchingCubesModel& MarchingCubesModel::operator=( const MarchingCubesModel& b )
 {
     model_ = b.model_;

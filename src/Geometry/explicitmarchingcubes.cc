@@ -651,6 +651,17 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* modelidxs )
 }
 
 
+// MarchingCubeTriangleTable
+MarchingCubeTriangleTable::MarchingCubeTriangleTable()
+{}
+
+
+MarchingCubeTriangleTable::~MarchingCubeTriangleTable()
+{}
+
+
+
+// MarchingCubeLookupTable
 MarchingCubeLookupTable::MarchingCubeLookupTable()
 {
     triangles_[0].nrindices_ += 0;

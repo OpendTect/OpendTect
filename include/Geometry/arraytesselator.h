@@ -32,6 +32,7 @@ public:
 			ArrayTesselator(const Array2D<float>& data,
 					const StepInterval<int>& rrg,
 					const StepInterval<int>& crg);
+			~ArrayTesselator();
 
     od_int64		nrIterations() const override
 			{ return (rowrange_.nrSteps()+1) *

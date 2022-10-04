@@ -49,14 +49,27 @@ public:
 
 protected:
 
-    RowCol              curpos_;
-    StepInterval<int>   rowrg_;
-    StepInterval<int>   colrg_;
+    RowCol		curpos_;
+    StepInterval<int>	rowrg_;
+    StepInterval<int>	colrg_;
 };
 
 
+
+// RowColSurface
+RowColSurface::RowColSurface()
+{}
+
+
+RowColSurface::~RowColSurface()
+{}
+
+
 Iterator* RowColSurface::createIterator() const
-{ return new RowColSurfaceIterator( *this ); }
+{
+    return new RowColSurfaceIterator( *this );
+}
+
 
 void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 {

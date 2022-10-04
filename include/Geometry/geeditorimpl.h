@@ -46,16 +46,16 @@ protected:
 mExpClass(Geometry) BinIDElementEditor : public ElementEditorImpl
 {
 public:
-	    BinIDElementEditor( Geometry::Element& elem)
-		: ElementEditorImpl( elem,  Coord3(0,0,1) ) {}
+			BinIDElementEditor( Geometry::Element& elem);
+			~BinIDElementEditor();
 };
 
 
 mExpClass(Geometry) PlaneElementEditor : public ElementEditorImpl
 {
 public:
-	    PlaneElementEditor( Element& elem, const Coord3& normal )
-		: ElementEditorImpl( elem,  Coord3::udf(), normal ) {}
+			PlaneElementEditor(Element& elem,const Coord3& normal);
+			~PlaneElementEditor();
 };
 
 } // namespace Geometry

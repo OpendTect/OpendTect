@@ -23,6 +23,10 @@ BendPoints::BendPoints()
 {}
 
 
+BendPoints::~BendPoints()
+{}
+
+
 BendPointFinder2DGeomSet::BendPointFinder2DGeomSet(
 					const TypeSet<Pos::GeomID>& geomids )
     : Executor("Analyzing 2D Line geometries")
@@ -30,6 +34,10 @@ BendPointFinder2DGeomSet::BendPointFinder2DGeomSet(
     , curidx_(0)
 {
 }
+
+
+BendPointFinder2DGeomSet::~BendPointFinder2DGeomSet()
+{}
 
 
 od_int64 BendPointFinder2DGeomSet::nrDone() const
@@ -83,7 +91,7 @@ Line2DInterSection::Point::Point( Pos::GeomID myid, Pos::GeomID lineid,
     : line(lineid)
     , mytrcnr(mynr)
     , linetrcnr(linenr)
-	, mygeomids_(myid)
+    , mygeomids_(myid)
 {
 }
 
@@ -92,9 +100,19 @@ Line2DInterSection::Point::Point( const Point& pt )
     : line(pt.line)
     , mytrcnr(pt.mytrcnr)
     , linetrcnr(pt.linetrcnr)
-	, mygeomids_(pt.mygeomids_)
+    , mygeomids_(pt.mygeomids_)
 {
 }
+
+Line2DInterSection::Point::Point( Pos::GeomID id, int mynr, int linenr )
+    : line(id)
+    , mytrcnr(mynr)
+    , linetrcnr(linenr)
+{}
+
+
+Line2DInterSection::Point::~Point()
+{}
 
 
 bool Line2DInterSection::Point::isOpposite( const Point& pt ) const
@@ -108,6 +126,10 @@ bool Line2DInterSection::Point::isOpposite( const Point& pt ) const
 
 Line2DInterSection::Line2DInterSection( Pos::GeomID geomid )
     : geomid_(geomid)
+{}
+
+
+Line2DInterSection::~Line2DInterSection()
 {}
 
 
@@ -156,8 +178,16 @@ void Line2DInterSection::addPoint( Pos::GeomID geomid, int mynr, int linenr )
 
 
 // Line2DInterSectionSet
+Line2DInterSectionSet::Line2DInterSectionSet()
+{}
+
+
+Line2DInterSectionSet::~Line2DInterSectionSet()
+{}
+
+
 const Line2DInterSection* Line2DInterSectionSet::getByGeomID(
-						   Pos::GeomID geomid ) const
+						Pos::GeomID geomid ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -224,6 +254,10 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
 	lsintersections_ += new Line2DInterSection( bps[idx]->geomid_ );
     }
 }
+
+
+Line2DInterSectionFinder::~Line2DInterSectionFinder()
+{}
 
 
 od_int64 Line2DInterSectionFinder::nrIterations() const
