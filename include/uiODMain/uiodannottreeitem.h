@@ -86,6 +86,7 @@ protected:
 			uiODAnnotSubItem(Pick::Set&,VisID displayid);
 			//!<Pickset becomes mine, if it's not in the mgr
     virtual		~uiODAnnotSubItem();
+
     void		prepareForShutdown();
     void		removeStuff();
     bool		init();

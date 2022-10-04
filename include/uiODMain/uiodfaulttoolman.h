@@ -30,9 +30,12 @@ class uiToolButton;
 class uiColorInput;
 
 
-namespace EM			{ class FaultStickSet; }
-namespace visSurvey		{ class FaultDisplay;
-    				  class FaultStickSetDisplay; }
+namespace EM { class FaultStickSet; }
+namespace visSurvey
+{
+    class FaultDisplay;
+    class FaultStickSetDisplay;
+}
 
 
 mExpClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
@@ -49,6 +52,8 @@ public:
 				    , saveifdisplayed_( true )
 				    , colormode_( Inherit )
 				{}
+				~Setup()
+				{}
 
 	mDefSetupMemb(bool,displayifnot)
 	mDefSetupMemb(bool,saveifdisplayed)
@@ -56,6 +61,7 @@ public:
     };
 
 				uiFaultStickTransferDlg(uiODMain&,const Setup&);
+				~uiFaultStickTransferDlg();
 
     bool			displayAfterwards() const;
     bool			saveAfterwards() const;

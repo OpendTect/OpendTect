@@ -235,8 +235,8 @@ bool uiODAnnotTreeItem::showSubMenu()
 	uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
 			   new StringInpSpec );
 	dlg.setCaption( tr("Annotations") );
+	dlg.getFld(0)->setDefaultTextValidator();
 
-	mUseDefaultTextValidatorOnField(dlg.getFld(0));
 	while ( true )
 	{
 	    if ( !dlg.go() ) return false;

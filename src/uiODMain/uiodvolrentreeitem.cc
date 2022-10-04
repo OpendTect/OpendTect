@@ -314,6 +314,10 @@ uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
 }
 
 
+uiODVolrenAttribTreeItem::~uiODVolrenAttribTreeItem()
+{}
+
+
 void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
@@ -426,10 +430,14 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
 }
 
 
+
+// uiODVolrenSubTreeItem
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( VisID displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings())
     , convertisotobodymnuitem_(tr("Convert to Geobody"))
-{ displayid_ = displayid; }
+{
+    displayid_ = displayid;
+}
 
 
 uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()

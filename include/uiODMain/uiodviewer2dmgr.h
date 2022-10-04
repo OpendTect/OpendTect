@@ -39,6 +39,8 @@ public:
 				    , isx1_(isx1)
 				    , oldauxpos_(mUdf(float))
 				    , isselected_(selected)	{}
+				~SelectedAuxAnnot()		{}
+
 	int			auxposidx_;
 	bool			isx1_;
 	bool			isselected_;

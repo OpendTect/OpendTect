@@ -37,6 +37,10 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 }
 
 
+uiODViewer2DPosDlg::~uiODViewer2DPosDlg()
+{}
+
+
 void uiODViewer2DPosDlg::zoomLevelCB( CallBacker* )
 {
     const Viewer2DPosDataSel& pds = posgrp_->posDataSel();

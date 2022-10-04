@@ -537,6 +537,10 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 }
 
 
+uiODEarthModelSurfaceDataTreeItem::~uiODEarthModelSurfaceDataTreeItem()
+{}
+
+
 void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 						    bool istb )
 {

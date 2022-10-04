@@ -45,6 +45,42 @@ void EnumDefImpl<Viewer2DPosDataSel::PosType>::init()
 }
 
 
+Viewer2DPosDataSel::Viewer2DPosDataSel()
+{
+    clean();
+}
+
+
+Viewer2DPosDataSel::Viewer2DPosDataSel( const Viewer2DPosDataSel& sd )
+{
+    postype_		= sd.postype_;
+    selspec_		= sd.selspec_;
+    tkzs_		= sd.tkzs_;
+    rdmlineid_		= sd.rdmlineid_;
+    rdmlinemultiid_	= sd.rdmlinemultiid_;
+    geomid_		= sd.geomid_;
+    selectdata_		= sd.selectdata_;
+}
+
+
+Viewer2DPosDataSel::~Viewer2DPosDataSel()
+{}
+
+
+void Viewer2DPosDataSel::clean()
+{
+    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
+			    : Viewer2DPosDataSel::Line2D;
+    selspec_ = Attrib::SelSpec();
+    tkzs_ = TrcKeyZSampling(true);
+    rdmlinemultiid_ = MultiID::udf();
+    rdmlineid_.setUdf();
+    geomid_ = Survey::GeometryManager::cUndefGeomID();
+    selectdata_	= true;
+}
+
+
+
 #define mToPosTypeStr( postype ) \
     Viewer2DPosDataSel::toString( postype )
 

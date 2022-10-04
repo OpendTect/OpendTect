@@ -42,10 +42,12 @@ mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
 public:
 			uiODVolrenTreeItem(VisID displayid=VisID::udf(),
 					   bool rgba=false);
+
     bool		showSubMenu();
 
 protected:
 			~uiODVolrenTreeItem();
+
     bool		init();
     uiString    	createDisplayName() const;
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
@@ -64,6 +66,7 @@ mExpClass(uiODMain) uiODVolrenAttribTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODVolrenAttribTreeItem);
 public:
 			uiODVolrenAttribTreeItem(const char* parenttype);
+			~uiODVolrenAttribTreeItem();
 
 protected:
 

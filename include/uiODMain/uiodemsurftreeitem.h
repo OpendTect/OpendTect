@@ -85,6 +85,7 @@ mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
 public:
 			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
 				       uiVisEMObject*,const char* parenttype);
+			~uiODEarthModelSurfaceDataTreeItem();
 
     void		setDataPointSet(const DataPointSet&);
     void		selectAndLoadAuxData();

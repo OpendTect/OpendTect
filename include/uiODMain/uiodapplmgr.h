@@ -256,16 +256,14 @@ protected:
 
     struct MiscSurvInfo
     {
-				MiscSurvInfo()
-				: xyunit_(1)
-				, zunit_(0)
-				, zstep_(0.004) {}
+				MiscSurvInfo()		{}
+				~MiscSurvInfo()		{}
 
 	void			refresh();
 
-	int			xyunit_;
-	int			zunit_;
-	float			zstep_;
+	int			xyunit_			= 1;
+	int			zunit_			= 0;
+	float			zstep_			= 0.004f;
     };
 
     MiscSurvInfo		tmpprevsurvinfo_;

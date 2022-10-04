@@ -45,14 +45,15 @@ namespace Vel { class uiImportVelFunc; }
 mExpClass(uiODMain) uiODApplService : public uiApplService
 { mODTextTranslationClass(uiODApplService);
 public:
-			uiODApplService( uiParent* p, uiODApplMgr& am )
-			    : par_(p), applman_(am)	{}
+			uiODApplService(uiParent*,uiODApplMgr&);
+			~uiODApplService();
+
     uiParent*		parent() const;
     bool		eventOccurred(const uiApplPartServer*,int);
     void*		getObject(const uiApplPartServer*, int);
 
-    uiODApplMgr&	applman_;
     uiParent*		par_;
+    uiODApplMgr&	applman_;
 };
 
 
@@ -119,8 +120,8 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 { mODTextTranslationClass(uiODApplMgrAttrVisHandler);
     friend class	uiODApplMgr;
 
-			uiODApplMgrAttrVisHandler( uiODApplMgr& a, uiParent* p )
-			    : am_(a), par_(p)		{}
+			uiODApplMgrAttrVisHandler(uiODApplMgr&,uiParent*);
+			~uiODApplMgrAttrVisHandler();
 
     void		survChg(bool);
     void		saveNLA(CallBacker*);

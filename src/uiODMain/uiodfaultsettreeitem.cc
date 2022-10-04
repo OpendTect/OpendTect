@@ -377,6 +377,10 @@ uiODFaultSetDataTreeItem::uiODFaultSetDataTreeItem( EM::ObjectID objid,
 {}
 
 
+uiODFaultSetDataTreeItem::~uiODFaultSetDataTreeItem()
+{}
+
+
 void uiODFaultSetDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );

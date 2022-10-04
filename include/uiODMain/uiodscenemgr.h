@@ -257,12 +257,14 @@ mExpClass(uiODMain) uiKeyBindingSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiKeyBindingSettingsGroup);
 public:
     mDefaultFactoryInstantiation2Param( uiSettingsGroup,
-				       uiKeyBindingSettingsGroup,
-				       uiParent*,Settings&,
-				       "Mouse interaction",
-				mToUiStringTodo(sFactoryKeyword()));
+					uiKeyBindingSettingsGroup,
+					uiParent*,Settings&,
+					"Mouse interaction",
+					mToUiStringTodo(sFactoryKeyword()));
 
-    uiKeyBindingSettingsGroup(uiParent*,Settings&);
+protected:
+			uiKeyBindingSettingsGroup(uiParent*,Settings&);
+			~uiKeyBindingSettingsGroup();
 
 private:
     bool		acceptOK() override;

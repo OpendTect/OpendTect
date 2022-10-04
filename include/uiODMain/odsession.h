@@ -19,7 +19,7 @@ mExpClass(uiODMain) ODSession
 { mODTextTranslationClass(ODSession);
 public:
 			ODSession();
-    virtual		~ODSession()		{}
+    virtual		~ODSession();
 
     IOPar&		empars()		{ return empars_; }
     IOPar&		seispars()		{ return seispars_; }
