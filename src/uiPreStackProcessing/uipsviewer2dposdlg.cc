@@ -28,13 +28,21 @@ ________________________________________________________________________
 
 namespace PreStackView
 {
+GatherInfo::GatherInfo()
+{}
+
+
+GatherInfo::~GatherInfo()
+{}
+
+
 
 uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	const TrcKeyZSampling& cs, const BufferStringSet& gathernms,
 	bool issynthetic )
     : uiDialog(p,uiDialog::Setup(tr("Prestack Gather display positions"),
 			      mNoDlgTitle, mODHelpKey(mViewer2DPSPosDlgHelpID) )
-                              .modal(false))
+			.modal(false))
     , okpushed_(this)
     , is2d_(is2d)
 {

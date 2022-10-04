@@ -24,8 +24,14 @@ uiTab::uiTab( uiGroup& grp, const uiString& caption )
 {}
 
 
+uiTab::~uiTab()
+{}
+
+
 void uiTab::setCaption( const uiString& caption )
-{ caption_ = caption; }
+{
+    caption_ = caption;
+}
 
 
 class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>

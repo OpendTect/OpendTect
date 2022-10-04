@@ -31,6 +31,8 @@ mExpClass(Velocity) VolumeFunction : public Function
 { mODTextTranslationClass(VolumeFunction);
 public:
 			VolumeFunction(VolumeFunctionSource&);
+			~VolumeFunction();
+
     bool		moveTo(const BinID&) override;
     StepInterval<float> getAvailableZ() const override;
     StepInterval<float> getLoadedZ() const;

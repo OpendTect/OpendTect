@@ -17,7 +17,7 @@ class uiBodySel;
 namespace VolProc
 {
 
-mExpClass(uiVolumeProcessing) uiBodyFiller: public uiStepDialog
+mExpClass(uiVolumeProcessing) uiBodyFiller : public uiStepDialog
 { mODTextTranslationClass(uiBodyFiller);
 public:
 	mDefaultFactoryInstanciationBase(

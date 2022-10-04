@@ -13,6 +13,7 @@ ________________________________________________________________________
 namespace Vel
 {
 
+// PickSetEvent
 PickSetEvent::PickSetEvent( Picks& picks, const Pick& oldpick,
 					  const Pick& newpick,
 					  const BinID& bid)
@@ -20,7 +21,11 @@ PickSetEvent::PickSetEvent( Picks& picks, const Pick& oldpick,
     , oldpick_( oldpick )
     , newpick_( newpick )
     , bid_( bid )
-{ }
+{}
+
+
+PickSetEvent::~PickSetEvent()
+{}
 
 
 bool PickSetEvent::unDo()
@@ -51,6 +56,7 @@ const char* PickSetEvent::getStandardDesc() const
 
 
 
+// PickAddEvent
 PickAddEvent::PickAddEvent( Picks& picks, const RowCol& pos )
     : picks_( picks )
     , newpick_( mUdf(float), mUdf(float), -1 )
@@ -58,6 +64,10 @@ PickAddEvent::PickAddEvent( Picks& picks, const RowCol& pos )
 {
     picks_.get( pos, newbid_, newpick_ );
 }
+
+
+PickAddEvent::~PickAddEvent()
+{}
 
 
 bool PickAddEvent::unDo()
@@ -82,6 +92,8 @@ const char* PickAddEvent::getStandardDesc() const
 { return "new velocity pick"; }
 
 
+
+// PickRemoveEvent
 PickRemoveEvent::PickRemoveEvent( Picks& picks,
 	const RowCol& pos )
     : picks_( picks )
@@ -90,6 +102,10 @@ PickRemoveEvent::PickRemoveEvent( Picks& picks,
 {
     picks_.get( pos, oldbid_, oldpick_ );
 }
+
+
+PickRemoveEvent::~PickRemoveEvent()
+{}
 
 
 bool PickRemoveEvent::reDo()

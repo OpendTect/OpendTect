@@ -31,6 +31,8 @@ public:
 			    , width_(2)
 			    , name_(nullptr)
 			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(StepInterval<float>,xaxrg)
 	mDefSetupMemb(StepInterval<float>,yaxrg)

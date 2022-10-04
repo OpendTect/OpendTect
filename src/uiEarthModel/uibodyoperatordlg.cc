@@ -400,6 +400,10 @@ uiBodyOperatorDlg::BodyOperand::BodyOperand()
 }
 
 
+uiBodyOperatorDlg::BodyOperand::~BodyOperand()
+{}
+
+
 bool uiBodyOperatorDlg::BodyOperand::operator==( const BodyOperand& v ) const
 { return mid_==v.mid_ && act_==v.act_; }
 

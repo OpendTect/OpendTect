@@ -38,6 +38,10 @@ VolumeFunction::VolumeFunction( VolumeFunctionSource& source )
 {}
 
 
+VolumeFunction::~VolumeFunction()
+{}
+
+
 bool VolumeFunction::moveTo( const BinID& bid )
 {
     if ( !Function::moveTo( bid ) )

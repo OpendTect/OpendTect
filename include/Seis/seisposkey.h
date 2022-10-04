@@ -25,6 +25,8 @@ public:
 			    : binid_(bid), offset_(offs)		{}
     inline		PosKey( int trcnr, float offs=mUdf(float) )
 			    : binid_(mUdf(int),trcnr), offset_(offs)	{}
+    virtual		~PosKey()					{}
+
     inline bool		operator ==(const PosKey&) const;
 
     inline bool		is2D() const		{ return mIsUdf(binid_.inl()); }
@@ -77,6 +79,7 @@ inline PosKey::PosKey( Seis::GeomType gt )
     if ( Seis::is2D(gt) ) mSetUdf(binid_.inl());
     if ( !Seis::isPS(gt) ) mSetUdf(offset_);
 }
+
 
 inline bool PosKey::hasOffset( float offs ) const
 {

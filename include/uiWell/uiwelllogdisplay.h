@@ -23,12 +23,12 @@ namespace Well { class Log; }
 mExpClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
 {
 public:
-
-		    uiWellLogDisplay(uiParent*,const Setup&);
-		    ~uiWellLogDisplay();
+			uiWellLogDisplay(uiParent*,const Setup&);
+			~uiWellLogDisplay();
 
     mStruct(uiWell) LogData : public uiWellDahDisplay::DahObjData
     {
+			~LogData();
 
 	void		setLog(const Well::Log*);
 	const Well::Log* log() const;

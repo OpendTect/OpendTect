@@ -84,8 +84,12 @@ public:
     const mVisTrans*		getDisplayTransformation() const override;
     int				getNrTextures() const;
     const unsigned char*	getTextureData() const;
+
     mStruct(visBase) TextureDataInfo
     {
+			TextureDataInfo()		{}
+			~TextureDataInfo()		{}
+
 	TypeSet<Coord3> coords_;
 	TypeSet<Coord>	texcoords_;
 	TypeSet<int>	ps_;

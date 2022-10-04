@@ -38,9 +38,9 @@ public:
     mExpClass(Seis) Setup
     {
     public:
-
 			Setup(Seis::GeomType gt,const MultiID&,
 			      const char* outputfnm);
+			~Setup();
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(MultiID,inpkey)
@@ -52,7 +52,6 @@ public:
 	BufferString	getFileName(const Interval<int>&) const;
 
 	mutable int	curfnr_;
-
     };
 
 			ReSorter(const Setup&,const char* linename=0);

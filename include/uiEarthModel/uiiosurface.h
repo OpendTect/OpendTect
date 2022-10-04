@@ -107,6 +107,8 @@ public:
 			    , withdisplayfld_(false)
 			    , displaytext_(tr("Replace in tree"))
 			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(BufferString,typ)
 	mDefSetupMemb(uiString,typname)
@@ -155,6 +157,8 @@ public:
 			    , withsubsel_(false)
 			    , multisubsel_(false)
 			    , multiattribsel_(true)
+			{}
+			~Setup()
 			{}
 
 	mDefSetupMemb(BufferString,typ)

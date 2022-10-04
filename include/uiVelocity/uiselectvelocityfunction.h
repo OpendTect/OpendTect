@@ -66,11 +66,14 @@ mExpClass(uiVelocity) uiFunctionSettings : public uiGroup
 public:
     mDefineFactory2ParamInClass( uiFunctionSettings, uiParent*,
 				 FunctionSource*, factory );
-				uiFunctionSettings(uiParent* p,const char* nm)
-				    : uiGroup( p, nm ) {}
+
+				~uiFunctionSettings();
 
     virtual FunctionSource*	getSource() 	= 0;
     virtual bool		acceptOK()	= 0;
+
+protected:
+				uiFunctionSettings(uiParent* p,const char* nm);
 };
 
 
@@ -79,7 +82,7 @@ public:
 mExpClass(uiVelocity) uiAddFunction : public uiDialog
 { mODTextTranslationClass(uiAddFunction);
 public:
-    				uiAddFunction( uiParent* );
+    				uiAddFunction(uiParent*);
 				~uiAddFunction();
 
     FunctionSource*		getSource();

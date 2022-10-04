@@ -52,7 +52,9 @@ public:
 
     mStruct(visBase) BasicParams
     {
-				BasicParams(){}
+				BasicParams()	{}
+				~BasicParams()	{}
+
 	BufferString		name_;
 	OD::Color		col_;
 	int			size_;
@@ -61,8 +63,9 @@ public:
     //Well
     mStruct(visBase) TrackParams : public BasicParams
     {
-				TrackParams()
-				{}
+				TrackParams()	{}
+				~TrackParams()	{}
+
 	const Coord3*		toppos_;
 	const Coord3*		botpos_;
 	bool			isdispabove_;
@@ -82,8 +85,9 @@ public:
     //Markers
     mStruct(visBase) MarkerParams : public BasicParams
     {
-				MarkerParams()
-				{}
+				MarkerParams()	{}
+				~MarkerParams()	{}
+
 	int			shapeint_;
 	int			cylinderheight_;
 	FontData		font_;
@@ -108,8 +112,9 @@ public:
     //logs
     mStruct(visBase) LogParams : public BasicParams
     {
-				LogParams()
-				{}
+				LogParams()	{}
+				~LogParams()	{}
+
 	float			cliprate_;
 	bool			isdatarange_;
 	bool			islinedisplayed_;
@@ -120,7 +125,7 @@ public:
 	bool			isblock_;
 	int			logwidth_;
 	int			logidx_;
-	Well::Side              side_;
+	Well::Side		side_;
 	Interval<float>		range_;
 	Interval<float>		valrange_;
 	bool			sclog_;

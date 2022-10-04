@@ -26,6 +26,15 @@ namespace Vel
 mImplFactory2Param(uiFunctionSettings, uiParent*,
 		   FunctionSource*, uiFunctionSettings::factory );
 
+uiFunctionSettings::uiFunctionSettings( uiParent* p, const char* nm )
+    : uiGroup( p, nm )
+{}
+
+
+uiFunctionSettings::~uiFunctionSettings()
+{}
+
+
 // uiFunctionSel
 uiFunctionSel::uiFunctionSel( uiParent* p,
     const ObjectSet<FunctionSource>& srcs, const TypeSet<OD::Color>* colors )

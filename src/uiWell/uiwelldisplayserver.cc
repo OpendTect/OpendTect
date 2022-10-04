@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uiwelldisplayserver.h"
 
 #include "dbkey.h"
+#include "welldata.h"
 #include "welllog.h"
 #include "wellman.h"
 #include "uimsg.h"

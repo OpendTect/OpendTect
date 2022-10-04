@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uiwelldisplaycontrol.h"
 
+#include "uiaxishandler.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uiwelllogdisplay.h"
@@ -17,6 +18,7 @@ ________________________________________________________________________
 #include "welld2tmodel.h"
 #include "welllog.h"
 #include "wellmarker.h"
+#include "welltrack.h"
 
 
 uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l )

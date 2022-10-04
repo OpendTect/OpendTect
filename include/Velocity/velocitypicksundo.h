@@ -21,8 +21,9 @@ namespace Vel
 mClass(Velocity) PickSetEvent : public BinIDUndoEvent
 {
 public:
-    		PickSetEvent(Picks&,const Pick& oldpick,
+			PickSetEvent(Picks&,const Pick& oldpick,
 			     const Pick& newpick,const BinID&);
+			~PickSetEvent();
 
     bool		unDo() override;
     bool		reDo() override;
@@ -43,6 +44,7 @@ mClass(Velocity) PickAddEvent : public BinIDUndoEvent
 {
 public:
 			PickAddEvent(Picks&, const RowCol&);
+			~PickAddEvent();
 
     bool		unDo() override;
     bool		reDo() override;
@@ -63,6 +65,7 @@ mClass(Velocity) PickRemoveEvent : public BinIDUndoEvent
 {
 public:
 			PickRemoveEvent(Picks&, const RowCol&);
+			~PickRemoveEvent();
 
     bool		unDo() override;
     bool		reDo() override;

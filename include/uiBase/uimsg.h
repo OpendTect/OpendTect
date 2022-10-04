@@ -157,6 +157,7 @@ public:
 protected:
 
 			uiMsg();
+			~uiMsg();
 
     mQtclass(QWidget*)	popParnt();
 
@@ -168,7 +169,7 @@ private:
     void		endCmdRecEvent(int refnr,int retval,const char* buttxt0,
 				const char* buttxt1=0,const char* buttxt2=0);
 
-    uiMainWin*		uimainwin_;
+    uiMainWin*		uimainwin_		= nullptr;
 
 };
 
@@ -179,17 +180,10 @@ mGlobal(uiBase) uiMsg& uiMSG();
 mExpClass(uiBase) uiMsgMainWinSetter
 {
 public:
-			uiMsgMainWinSetter( uiMainWin* np )
-			    : isset_( np )
-			    , oldparent_( 0 )
-			{
-			    if ( np ) oldparent_ = ::uiMSG().setMainWin( np );
-			}
-
-			~uiMsgMainWinSetter()
-			{ if ( isset_ ) ::uiMSG().setMainWin( oldparent_ ); }
+			uiMsgMainWinSetter(uiMainWin* newparent);
+			~uiMsgMainWinSetter();
 protected:
-    uiMainWin*		oldparent_;
+    uiMainWin*		oldparent_	= nullptr;
     bool		isset_;
 };
 

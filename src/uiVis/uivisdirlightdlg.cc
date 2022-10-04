@@ -745,6 +745,10 @@ uiDirLightDlg::InitInfo::InitInfo()
 }
 
 
+uiDirLightDlg::InitInfo::~InitInfo()
+{}
+
+
 void uiDirLightDlg::InitInfo::reset( bool resetcameralightval )
 {
     azimuth_ = mInitAzimuth;
