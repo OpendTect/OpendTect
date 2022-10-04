@@ -74,11 +74,7 @@ static void saveAsDefaultTree( const MultiID& key )
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,uiStrings::phrManage(uiStrings::sStratigraphy()),3)
-    , needsave_(false)
-    , istreedisp_(false)
-    , treekey_(MultiID::udf())
     , repos_(*new Strat::RepositoryAccess())
-    , uitree_(nullptr)
 {
     createGroups();
     initMenuItems();

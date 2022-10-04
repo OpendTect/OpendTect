@@ -27,11 +27,13 @@ public:
 
 uiStratSelUnitsListItem( uiTreeView* p, const Strat::UnitRef* ur, bool wchk )
     : uiTreeViewItem(p,getSetup(ur,wchk))
-    , unit_(ur)					{}
+    , unit_(ur)
+{}
 
 uiStratSelUnitsListItem( uiTreeViewItem* p, const Strat::UnitRef* ur, bool wchk)
     : uiTreeViewItem(p,getSetup(ur,wchk))
-    , unit_(ur)					{}
+    , unit_(ur)
+{}
 
 static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 {
@@ -44,6 +46,27 @@ static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 
 };
 
+
+// uiStratSelUnits::Setup
+
+uiStratSelUnits::Setup::Setup( uiStratSelUnits::Type typ,
+			       Strat::UnitRefIter::Pol pol )
+    : type_(typ)
+    , pol_(pol)
+    , maxnrlines_(12)
+    , autochoosechildparent_(true)
+    , chooseallinitial_(false)
+    , fldtxt_(typ == Multi ? "Units" : "Unit")
+{
+}
+
+
+uiStratSelUnits::Setup::~Setup()
+{
+}
+
+
+// uiStratSelUnits
 
 uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
 				  const uiStratSelUnits::Setup& su )
@@ -65,27 +88,25 @@ uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
 
 uiStratSelUnits::~uiStratSelUnits()
 {
-    for ( int idx=0; idx<lvitms_.size(); idx++ )
-	lvitms_[idx]->stateChanged.remove( mCB(this,uiStratSelUnits,choiceChg));
+    detachAllNotifiers();
 }
 
 
 #define mDefFillVars() \
     const bool topisok = Strat::UnitRefIter::isValid(topnode_,setup_.pol_); \
-    const bool topisrt mUnusedVar = &topnode_.refTree() == &topnode_; \
-    const CallBack curchgcb( mCB(this,uiStratSelUnits,curChg) ); \
-    const CallBack choicechgcb mUnusedVar \
-			( mCB(this,uiStratSelUnits,choiceChg) ); \
     Strat::UnitRefIter it( topnode_, setup_.pol_ )
 
 
 void uiStratSelUnits::mkBoxFld()
 {
-    tree_ = 0; mDefFillVars();
+    tree_ = nullptr; mDefFillVars();
 
     BufferStringSet nms;
     if ( topisok )
+    {
+	const bool topisrt = &topnode_.refTree() == &topnode_;
 	nms.add( topisrt ? sUsrNameRT : it.unit()->fullCode().buf() );
+    }
     while ( it.next() )
 	nms.add( it.unit()->fullCode().buf() );
 
@@ -96,17 +117,18 @@ void uiStratSelUnits::mkBoxFld()
     }
     else
     {
-	uiLabeledComboBox* cb = new uiLabeledComboBox( this, nms,
-						  toUiString(setup_.fldtxt_) );
+	auto* cb = new uiLabeledComboBox( this, nms,
+					  toUiString(setup_.fldtxt_) );
 	combo_ = cb->box(); setHAlignObj( cb );
     }
-    combo_->selectionChanged.notify( curchgcb );
+
+    mAttachCB( combo_->selectionChanged, uiStratSelUnits::curChg );
 }
 
 
 void uiStratSelUnits::mkTreeFld()
 {
-    combo_ = 0; mDefFillVars();
+    combo_ = nullptr; mDefFillVars();
 
     ObjectSet<const Strat::UnitRef> selectableuns;
     if ( topisok )
@@ -176,14 +198,14 @@ void uiStratSelUnits::mkTreeFld()
 	    newit->setChecked( true );
 
 	if ( needcheck )
-	    newit->stateChanged.notify( choicechgcb );
+	    mAttachCB( newit->stateChanged, uiStratSelUnits::choiceChg );
 
 	lvitms_ += newit;
     }
 
-    tree_->currentChanged.notify( curchgcb );
-    tree_->doubleClicked.notify( mCB(this,uiStratSelUnits,treeFinalSel) );
-    tree_->returnPressed.notify( mCB(this,uiStratSelUnits,treeFinalSel) );
+    mAttachCB( tree_->currentChanged, uiStratSelUnits::curChg );
+    mAttachCB( tree_->doubleClicked, uiStratSelUnits::treeFinalSel );
+    mAttachCB( tree_->returnPressed, uiStratSelUnits::treeFinalSel );
 }
 
 

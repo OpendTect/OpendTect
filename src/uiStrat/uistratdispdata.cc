@@ -21,8 +21,68 @@ ________________________________________________________________________
 #include "stratlith.h"
 
 
+// StratDispData
+
+StratDispData::StratDispData()
+{
+}
+
+
+StratDispData::~StratDispData()
+{
+    eraseData();
+}
+
+
+// StratDispData::Unit
+
+StratDispData::Unit::Unit( const char* nm, const char* fullcode,
+			   const OD::Color& col )
+    : name_( nm )
+    , fullcode_(fullcode)
+    , color_(col)
+{
+}
+
+
+StratDispData::Unit::~Unit()
+{
+}
+
+
+// StratDispData::Level
+
+StratDispData::Level::Level( const char* nm, const char* unitcode )
+    : unitcode_(unitcode)
+    , name_(nm)
+{
+}
+
+
+StratDispData::Level::~Level()
+{
+}
+
+
+// StratDispData::Column
+
+StratDispData::Column::Column( const char* nm )
+    : name_(nm)
+{
+}
+
+
+StratDispData::Column::~Column()
+{
+    deepErase( units_ );
+    deepErase( levels_ );
+}
+
+
+// uiStratTreeToDisp
+
 uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
-					bool witauxs, bool withlvls  )
+				      bool witauxs, bool withlvls  )
     : data_(ad)
     , withauxs_(witauxs)
     , withlevels_(withlvls)
@@ -185,15 +245,17 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 }
 
 
-
 // uiStratDispToTree
+
 uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree )
     : uitree_(uitree)
-{}
+{
+}
 
 
 uiStratDispToTree::~uiStratDispToTree()
-{}
+{
+}
 
 
 uiTreeViewItem* uiStratDispToTree::setCurrentTreeItem( const char* txt )

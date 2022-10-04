@@ -63,7 +63,7 @@ protected:
     Strat::RefTree*	tree_;
 
     uiTreeView*		lv_;
-    bool		anychange_;
+    bool		anychange_ = false;
 
     void		rClickCB(CallBacker*);
     void		mousePressedCB(CallBacker*);

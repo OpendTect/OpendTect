@@ -163,12 +163,9 @@ public:
     {
 	public:
 			Setup(bool needswave=true,bool needpor=true,
-			      bool needinitsat=true,bool needfinalsat=true)
-			    : withswave_(needswave)
-			    , withpor_(needpor)
-			    , withinitsat_(needinitsat)
-			    , withfinalsat_(needfinalsat)
-			{}
+			      bool needinitsat=true,bool needfinalsat=true);
+			~Setup();
+
 	mDefSetupMemb(bool,withswave)
 	mDefSetupMemb(bool,withpor)
 	mDefSetupMemb(bool,withinitsat)
@@ -178,6 +175,7 @@ public:
 			uiStratLayModFRPropSelector(uiParent*,
 						  const PropertyRefSelection&,
 						  const Setup&);
+			~uiStratLayModFRPropSelector();
 
     void		setDenProp(const char*);
     void		setVPProp(const char*);

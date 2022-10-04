@@ -38,8 +38,6 @@ static const int cLithoCol	= 2;
 using namespace Strat;
 
 uiStratRefTree::uiStratRefTree( uiParent* p )
-    : tree_(0)
-    , anychange_(false)
 {
     lv_ = new uiTreeView( p, "RefTree viewer" );
     BufferStringSet labels;
@@ -52,17 +50,18 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     lv_->setMinimumWidth( 650 );
     lv_->setMinimumHeight( 400 );
     lv_->setStretch( 2, 2 );
-    lv_->rightButtonClicked.notify( mCB( this,uiStratRefTree,rClickCB ) );
-    lv_->mouseButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
-    lv_->rightButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
+    mAttachCB( lv_->rightButtonClicked, uiStratRefTree::rClickCB );
+    mAttachCB( lv_->mouseButtonPressed, uiStratRefTree::mousePressedCB );
+    mAttachCB( lv_->rightButtonPressed, uiStratRefTree::mousePressedCB );
 
-    tree_ = 0;
+    tree_ = nullptr;
     setTree( eRT() );
 }
 
 
 uiStratRefTree::~uiStratRefTree()
 {
+    detachAllNotifiers();
 }
 
 

@@ -32,41 +32,35 @@ class uiTreeViewItem;
 mExpClass(uiStrat) StratDispData
 {
 public:
-			StratDispData() {}
-			~StratDispData() { eraseData(); }
+			StratDispData();
+			~StratDispData();
 
     mStruct(uiStrat) Unit
     {
-			Unit(const char* nm, const char* fullcode=0,
-				    const OD::Color& col = OD::Color::White() )
-				: name_( nm )
-				, fullcode_(fullcode)
-				, color_(col)
-				, isdisplayed_(true)
-				{}
+			Unit(const char* nm, const char* fullcode =nullptr,
+			     const OD::Color& col = OD::Color::White());
+			~Unit();
 
-	const char* 	name() const 	{ return name_.buf(); }
-	const char* 	fullCode() const { return fullcode_.buf(); }
+	const char*	name() const	{ return name_.buf(); }
+	const char*	fullCode() const { return fullcode_.buf(); }
 
 	OD::Color	color_;
 	Interval<float>	zrg_;
-	bool		isdisplayed_;
+	bool		isdisplayed_ = true;
 
-	int 		colidx_; //tree depth
+	int		colidx_; //tree depth
 
     protected :
 
-	BufferString 	name_;
+	BufferString	name_;
 	BufferString    fullcode_;
     };
 
 
     mStruct(uiStrat) Level
     {
-			    Level(const char* nm,const char* unitcode)
-				    : unitcode_(unitcode)
-				    , name_( nm )
-				    {}
+			    Level(const char* nm,const char* unitcode);
+			    ~Level();
 
 	const BufferString  name_;
 	const BufferString  unitcode_;
@@ -77,18 +71,11 @@ public:
 
     mStruct(uiStrat) Column
     {
-			Column( const char* nm )
-			    : name_(nm)
-			    , isdisplayed_(true)
-			    {}
-			~Column()
-			{
-			    deepErase( units_ );
-			    deepErase( levels_ );
-			}
+			Column(const char* nm);
+			~Column();
 
 	const BufferString name_;
-	bool		isdisplayed_;
+	bool		isdisplayed_ = true;
 
 	ObjectSet<Unit>	units_;
 	ObjectSet<Level> levels_;
@@ -104,7 +91,7 @@ public:
     void		addCol( Column* col )
 			    { cols_ += col; }
 
-    int 		nrCols() const
+    int			nrCols() const
 			    { return cols_.size(); }
     int			nrUnits( int colidx ) const
 			    { return cols_[colidx]->units_.size(); }
@@ -125,7 +112,7 @@ public:
     const Level*	getLevel( int colidx, int lidx ) const
 			    { return cols_[colidx]->levels_[lidx]; }
 
-    int 		nrDisplayedCols() const
+    int			nrDisplayedCols() const
 			{
 			    int nr = 0;
 			    for ( int idx=0; idx<cols_.size(); idx++)
@@ -157,15 +144,15 @@ public:
     void		setTree();
     Notifier<uiStratTreeToDisp> newtreeRead;
 
-    int			levelColIdx() const 	{ return levelcolidx_; }
+    int			levelColIdx() const	{ return levelcolidx_; }
 
 protected:
 
-    StratDispData& 	data_;
+    StratDispData&	data_;
     Strat::RefTree*	tree_;
 
-    bool 		withauxs_; //lithologies & descriptions
-    bool 		withlevels_;
+    bool		withauxs_; //lithologies & descriptions
+    bool		withlevels_;
     int			lithocolidx_;
     int			desccolidx_;
     int			levelcolidx_;
@@ -176,7 +163,7 @@ protected:
     void		addLithologies(const Strat::LeavedUnitRef&);
     void		addLevel(const Strat::LeavedUnitRef&);
     void		addAnnot(const char*,Interval<float>& posrg,bool);
-    void 		readFromTree();
+    void		readFromTree();
 
     void		triggerDataChange(CallBacker*);
     void		treeDel(CallBacker*);

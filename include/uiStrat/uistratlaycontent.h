@@ -20,8 +20,9 @@ mExpClass(uiStrat) uiStratLayerContent : public uiGroup
 { mODTextTranslationClass(uiStratLayerContent)
 public:
 
-  			uiStratLayerContent(uiParent*,bool isfinal,
+			uiStratLayerContent(uiParent*,bool isfinal,
 					    const Strat::RefTree&);
+			~uiStratLayerContent();
 
     void		set(const Strat::Content&);
     const Strat::Content& get() const;

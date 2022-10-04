@@ -17,12 +17,14 @@ class uiPolygonItem;
 namespace Strat { class LayerGenerator; class SingleLayerGenerator; }
 
 
-mExpClass(uiStrat) uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
+mExpClass(uiStrat) uiBasicLayerSequenceGenDesc
+					: public uiExtLayerSequenceGenDesc
 {
 public:
 
-    			uiBasicLayerSequenceGenDesc(uiParent*,
+			uiBasicLayerSequenceGenDesc(uiParent*,
 					    Strat::LayerSequenceGenDesc&);
+			~uiBasicLayerSequenceGenDesc();
 
     mDefuiExtLayerSequenceGenDescFns(uiBasicLayerSequenceGenDesc,"Basic");
 
@@ -34,7 +36,7 @@ protected:
 			~DispUnit();
 
 	uiGraphicsScene& scene_;
-	uiTextItem*	nm_;
+	uiTextItem*	nm_ = nullptr;
 	uiLineItem*	top_;
 	uiCircleItem*	lithcol_;
 	uiPolygonItem*	poly_;
@@ -42,7 +44,7 @@ protected:
 	int		boty_;
 
 	const Strat::SingleLayerGenerator* gen_;
-	bool		genmine_;
+	bool		genmine_ = false;
     };
 
     ObjectSet<DispUnit>	disps_;

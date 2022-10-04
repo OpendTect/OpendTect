@@ -31,7 +31,10 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
+
 static const char* sNoLevelTxt      = "--Undefined--";
+
+// uiStratUnitEditDlg
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
 uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
@@ -101,6 +104,12 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     }
 
     putToScreen();
+}
+
+
+uiStratUnitEditDlg::~uiStratUnitEditDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -213,6 +222,7 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 
 
 // uiStratLithoBox
+
 uiStratLithoBox::uiStratLithoBox( uiParent* p )
     : uiListBox(p,"Lithologies")
 {
@@ -284,51 +294,54 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 
 
 // uiStratLithoDlg
+
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(
 	     uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
 	    mODHelpKey(mStratLithoDlgHelpID) ))
-    , prevlith_(nullptr)
-    , anychg_(false)
 {
     setCtrlStyle( CloseOnly );
 
     selfld_ = new uiStratLithoBox( this );
-    const CallBack selchgcb( mCB(this,uiStratLithoDlg,selChg) );
-    selfld_->selectionChanged.notify( selchgcb );
+    mAttachCB( selfld_->selectionChanged, uiStratLithoDlg::selChg );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
+    auto* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, selfld_ );
     new uiToolButton( butgrp, "addnew", tr("Add new Lithology"),
 		      mCB(this,uiStratLithoDlg,newLith) );
     new uiToolButton( butgrp, "delete", tr("Remove selected Lithology"),
 		      mCB(this,uiStratLithoDlg,rmLast) );
 
-    const CallBack propchgcb( mCB(this,uiStratLithoDlg,propChg) );
-    uiGroup* rightgrp = new uiGroup( this, "right group" );
+    auto* rightgrp = new uiGroup( this, "right group" );
 
     nmfld_ = new uiGenInput( rightgrp, uiStrings::sName(), StringInpSpec() );
-    nmfld_->updateRequested.notify( mCB(this,uiStratLithoDlg,renameCB) );
-    uiPushButton* applybut = new uiPushButton( rightgrp, uiStrings::sRename(),
-		      mCB(this,uiStratLithoDlg,renameCB), true );
+    mAttachCB( nmfld_->updateRequested, uiStratLithoDlg::renameCB );
+    auto* applybut = new uiPushButton( rightgrp, uiStrings::sRename(),
+				  mCB(this,uiStratLithoDlg,renameCB), true );
     applybut->attach( rightTo, nmfld_ );
 
     isporbox_ = new uiCheckBox( rightgrp, tr("Porous") );
-    isporbox_->activated.notify( propchgcb );
+    mAttachCB( isporbox_->activated, uiStratLithoDlg::propChg );
     isporbox_->attach( alignedBelow, nmfld_ );
 
     uiColorInput::Setup csu( OD::Color::White() );
     csu.dlgtitle( tr("Default color for this lithology") );
     colfld_ = new uiColorInput( rightgrp, csu );
     colfld_->attach( alignedBelow, isporbox_ );
-    colfld_->colorChanged.notify( propchgcb );
+    mAttachCB( colfld_->colorChanged, uiStratLithoDlg::propChg );
 
-    uiSeparator* sep = new uiSeparator( this, "Sep", OD::Vertical );
+    auto* sep = new uiSeparator( this, "Sep", OD::Vertical );
     sep->attach( rightTo, butgrp );
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
 
-    postFinalize().notify( selchgcb );
+    mAttachCB( postFinalize(), uiStratLithoDlg::selChg );
+}
+
+
+uiStratLithoDlg::~uiStratLithoDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -589,16 +602,24 @@ void itemSwitch( bool up ) override
 };
 
 
+// uiStratContentsDlg
+
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("Contents")),
 		tr("Define special layer contents"),
 		mODHelpKey(mStratContentsDlgHelpID) ))
-    , anychg_(false)
 {
     setCtrlStyle( CloseOnly );
     (void)new uiStratContentsEd( this, anychg_ );
 }
 
+
+uiStratContentsDlg::~uiStratContentsDlg()
+{
+}
+
+
+// uiStratLevelDlg
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create/Edit level"),mNoDlgTitle,
@@ -609,6 +630,11 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
 				uiColorInput::Setup(OD::getRandStdDrawColor() ).
 				lbltxt(uiStrings::sColor()) );
     lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
+}
+
+
+uiStratLevelDlg::~uiStratLevelDlg()
+{
 }
 
 
@@ -626,6 +652,21 @@ void uiStratLevelDlg::getLvlInfo( BufferString& lvlnm, OD::Color& col ) const
 }
 
 
+// uiStratUnitDivideDlg::uiDivideTable
+
+uiStratUnitDivideDlg::uiDivideTable::uiDivideTable( uiParent* p,
+						const uiTable::Setup& s)
+    : uiTable(p,s,"Subdivide unit table")
+{
+}
+
+
+uiStratUnitDivideDlg::uiDivideTable::~uiDivideTable()
+{
+}
+
+
+// uiStratUnitDivideDlg
 
 static const int cNrEmptyRows = 2;
 
@@ -662,16 +703,22 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setNrRows( cNrEmptyRows );
-    table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
-    table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
-    table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
-    table_->selectionDeleted.notify(mCB(this,uiStratUnitDivideDlg,resetUnits));
+    mAttachCB( table_->leftClicked, uiStratUnitDivideDlg::mouseClick );
+    mAttachCB( table_->rowInserted, uiStratUnitDivideDlg::resetUnits );
+    mAttachCB( table_->rowDeleted, uiStratUnitDivideDlg::resetUnits );
+    mAttachCB( table_->selectionDeleted, uiStratUnitDivideDlg::resetUnits );
     table_->setMinimumWidth( 450 );
 
     if ( table_->nrRows() )
 	addUnitToTable( 0, rootunit_ );
 
-    resetUnits( 0 );
+    mAttachCB( postFinalize(), uiStratUnitDivideDlg::resetUnits );
+}
+
+
+uiStratUnitDivideDlg::~uiStratUnitDivideDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -827,6 +874,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 }
 
 
+// uiStratLinkLvlUnitDlg
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 					      Strat::LeavedUnitRef& ur )
@@ -855,6 +903,11 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
     if ( lvlid_.isValid() )
 	lvllistfld_->setValue( ids_.indexOf( lvlid_ ) +1 );
+}
+
+
+uiStratLinkLvlUnitDlg::~uiStratLinkLvlUnitDlg()
+{
 }
 
 

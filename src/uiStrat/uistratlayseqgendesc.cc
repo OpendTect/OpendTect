@@ -36,6 +36,7 @@ ________________________________________________________________________
 mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
 	Strat::LayerSequenceGenDesc&,uiLayerSequenceGenDesc::factory)
 
+// uiStratLayerContent
 
 uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
 				  const Strat::RefTree& srt )
@@ -43,14 +44,21 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
     , rt_(srt)
     , contentSelected(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+    auto* lcb = new uiLabeledComboBox( this,
 				isfinal ? tr("Content") : tr("Content zone") );
     fld_ = lcb->box();
     fld_->addItem( "-" );
     for ( int idx=0; idx<rt_.contents().size(); idx++ )
 	fld_->addItem( rt_.contents()[idx]->name() );
     setHAlignObj( lcb );
-    fld_->selectionChanged.notify( mCB(this,uiStratLayerContent,contSel) );
+
+    mAttachCB( fld_->selectionChanged, uiStratLayerContent::contSel );
+}
+
+
+uiStratLayerContent::~uiStratLayerContent()
+{
+    detachAllNotifiers();
 }
 
 
@@ -98,10 +106,10 @@ const Strat::Content& uiStratLayerContent::get() const
 }
 
 
+// uiLayerSequenceGenDesc
 
 uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
     : desc_(d)
-    , needsave_(false)
 {
     if ( desc_.propSelection().size() < 2 )
     {
@@ -116,6 +124,11 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 	desc_.setPropSelection( prs );
     }
 
+}
+
+
+uiLayerSequenceGenDesc::~uiLayerSequenceGenDesc()
+{
 }
 
 #define mErrRet( msg ) \
@@ -165,13 +178,12 @@ bool uiLayerSequenceGenDesc::selProps()
 }
 
 
+// uiExtLayerSequenceGenDesc
+
 uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 					Strat::LayerSequenceGenDesc& dsc )
     : uiGraphicsView(p,"LayerSequence Gen Desc editor")
     , uiLayerSequenceGenDesc(dsc)
-    , border_(10)
-    , outeritm_(0)
-    , emptyitm_(0)
     , editdesc_(*new Strat::LayerSequenceGenDesc(dsc))
     , zinft_(SI().depthsInFeet())
 {
@@ -180,15 +192,15 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     border_.setRight( border_.right() + 10 );
     setPrefWidth( 180 );
     setPrefHeight( 500 );
-    reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
-    reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
+    mAttachCB( reSize, uiExtLayerSequenceGenDesc::reDraw );
+    mAttachCB( reDrawNeeded, uiExtLayerSequenceGenDesc::reDraw );
 
-    getNavigationMouseEventHandler().wheelMove.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,wheelMoveCB) );
-    getMouseEventHandler().buttonReleased.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
-    getMouseEventHandler().doubleClick.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
+    mAttachCB( getNavigationMouseEventHandler().wheelMove,
+	       uiExtLayerSequenceGenDesc::wheelMoveCB );
+    mAttachCB( getMouseEventHandler().buttonReleased,
+	       uiExtLayerSequenceGenDesc::singClckCB );
+    mAttachCB( getMouseEventHandler().doubleClick,
+	       uiExtLayerSequenceGenDesc::dblClckCB );
 
     const uiString lbltxt =
 	tr("top %1").arg(SI().getUiXYUnitString(true,true));
@@ -197,6 +209,12 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     topdepthfld_->attach( rightBorder );
 
     this->attach( ensureBelow, topdepthfld_ );
+}
+
+
+uiExtLayerSequenceGenDesc::~uiExtLayerSequenceGenDesc()
+{
+    detachAllNotifiers();
 }
 
 
@@ -378,11 +396,11 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 }
 
 
+// uiBasicLayerSequenceGenDesc::DispUnit
+
 uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 				    const Strat::LayerGenerator& lg )
-    : nm_(0)
-    , scene_(scn)
-    , genmine_(false)
+    : scene_(scn)
 {
     mDynamicCastGet(const Strat::SingleLayerGenerator*,slg,&lg)
     if ( slg )
@@ -420,11 +438,18 @@ uiBasicLayerSequenceGenDesc::DispUnit::~DispUnit()
 }
 
 
+// uiBasicLayerSequenceGenDesc
+
 uiBasicLayerSequenceGenDesc::uiBasicLayerSequenceGenDesc( uiParent* p,
 				Strat::LayerSequenceGenDesc& d )
     : uiExtLayerSequenceGenDesc(p,d)
 {
     rebuildDispUnits();
+}
+
+
+uiBasicLayerSequenceGenDesc::~uiBasicLayerSequenceGenDesc()
+{
 }
 
 
