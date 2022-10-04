@@ -33,7 +33,6 @@ class NLACreationDesc;
 mExpClass(uiNLA) uiNLAPartServer : public uiApplPartServer
 { mODTextTranslationClass(uiNLAPartServer);
 public:
-			uiNLAPartServer(uiApplService&);
     virtual		~uiNLAPartServer();
 
     const char*		name() const override			= 0;
@@ -102,6 +101,7 @@ public:
 
 
 protected:
+			uiNLAPartServer(uiApplService&);
 
     RefMan<DataPointSet> dps_;
     uiDataPointSet*	uidps_;
