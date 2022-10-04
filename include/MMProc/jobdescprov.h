@@ -24,7 +24,6 @@ mExpClass(MMProc) JobDescProv
 {
 public:
 
-    			JobDescProv(const IOPar&);
     virtual		~JobDescProv();
 
     virtual int		nrJobs() const			= 0;
@@ -36,6 +35,7 @@ public:
     const IOPar&	pars() const			{ return inpiopar_; }
 
 protected:
+			JobDescProv(const IOPar&);
 
     IOPar&		inpiopar_;
     mutable BufferString objnm_;
@@ -50,8 +50,9 @@ in the IOPar with another.
 mExpClass(MMProc) KeyReplaceJobDescProv : public JobDescProv
 {
 public:
-    			KeyReplaceJobDescProv(const IOPar&,const char* key,
-						int nrjobs);
+			KeyReplaceJobDescProv(const IOPar&,const char* key,
+					      int nrjobs);
+			~KeyReplaceJobDescProv();
 
     int			nrJobs() const override		{ return nrjobs_; }
     void		getJob(int,IOPar&) const override;
@@ -75,9 +76,10 @@ protected:
 mExpClass(MMProc) StringKeyReplaceJobDescProv : public KeyReplaceJobDescProv
 {
 public:
-    			StringKeyReplaceJobDescProv(const IOPar&,const char* ky,
+			StringKeyReplaceJobDescProv(const IOPar&,const char* ky,
 					      const BufferStringSet& nms);
 			    //!< IOPar, key and bufstringset will be copied
+			~StringKeyReplaceJobDescProv();
 
 protected:
 
@@ -92,9 +94,10 @@ protected:
 mExpClass(MMProc) IDKeyReplaceJobDescProv : public KeyReplaceJobDescProv
 {
 public:
-    			IDKeyReplaceJobDescProv(const IOPar&,const char* ky,
+			IDKeyReplaceJobDescProv(const IOPar&,const char* ky,
 					      const StepInterval<int>& idrg);
 			    //!< IOPar, key and bufstringset will be copied
+			~IDKeyReplaceJobDescProv();
 
     void		dump(od_ostream&) const override;
 
@@ -117,8 +120,8 @@ The keying is either:
 mExpClass(MMProc) InlineSplitJobDescProv : public JobDescProv
 {
 public:
-    			InlineSplitJobDescProv(const IOPar&);
-    			InlineSplitJobDescProv(const IOPar&,
+			InlineSplitJobDescProv(const IOPar&);
+			InlineSplitJobDescProv(const IOPar&,
 						const TypeSet<int>&);
 			~InlineSplitJobDescProv();
 
@@ -141,9 +144,9 @@ public:
 protected:
 
     StepInterval<int>	inlrg_;
-    TypeSet<int>*	inls_;
+    TypeSet<int>*	inls_ = nullptr;
 
-    int			ninlperjob_;
+    int			ninlperjob_ = 1;
     TypeSet<int>	jobs_;
 
     int			firstInlNr(int) const;
@@ -169,6 +172,7 @@ mExpClass(MMProc) ParSubselJobDescProv : public JobDescProv
 public:
 			ParSubselJobDescProv(const IOPar&,
 					     const char* subselkey);
+			~ParSubselJobDescProv();
 
     int			nrJobs() const override { return subselpars_.size(); }
     void		getJob(int,IOPar&) const override;
@@ -189,6 +193,7 @@ mExpClass(MMProc) Line2DSubselJobDescProv : public ParSubselJobDescProv
 {
 public:
 			Line2DSubselJobDescProv(const IOPar&);
+			~Line2DSubselJobDescProv();
 
     const char*		objType() const override	{ return "Line"; }
     const char*		objName(int) const override;

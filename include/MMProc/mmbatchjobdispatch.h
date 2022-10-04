@@ -19,8 +19,7 @@ mExpClass(MMProc) MMProgDef
 { mODTextTranslationClass(MMProgDef);
 public:
 
-			MMProgDef( const char* mmpnm )
-			    : mmprognm_(mmpnm)			{}
+    virtual		~MMProgDef();
 
     virtual bool	isSuitedFor(const char* prognm) const	= 0;
     virtual bool	canHandle( const JobSpec& js ) const
@@ -32,6 +31,9 @@ public:
 
     static uiString	sMMProcDesc()
 			    { return tr("Distributed Computing Service"); }
+
+protected:
+			MMProgDef(const char* mmpnm);
 
 };
 

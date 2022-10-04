@@ -34,11 +34,10 @@ template <class T> class ObjQueue;
 mExpClass(MMProc) StatusInfo
 {
 public:
-			StatusInfo( char tg, int desc, int stat, int pid,
-				    const char* mg, const char* hostname,
-				    int time )
-			    : tag(tg), descnr(desc), status(stat), msg(mg)
-			    , hostnm(hostname), timestamp(time), procid(pid) {}
+			StatusInfo(char tg,int desc,int stat,int pid,
+				   const char* mg,const char* hostname,
+				   int time);
+			~StatusInfo();
 
     char		tag;
     int			descnr;
@@ -126,6 +125,7 @@ mClass(MMProc) CommandString
 public:
 			CommandString(const HostData& targetmachine,
 				      const char* init=0);
+			~CommandString();
 
     CommandString&	operator=(const char*);
 

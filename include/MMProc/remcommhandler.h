@@ -24,12 +24,12 @@ mExpClass(MMProc) RemCommHandler : public CallBacker
 public:
 			RemCommHandler(PortNr_Type);
 			~RemCommHandler();
-			RemCommHandler(const RemCommHandler&) = delete;
-    RemCommHandler	operator=(const RemCommHandler&) = delete;
 
     void		writeLog(const char* msg);
 
 protected:
+			mOD_DisableCopy(RemCommHandler);
+
     MMPServer&		server_;
     const PortNr_Type	port_;
     od_ostream&		logstrm_;

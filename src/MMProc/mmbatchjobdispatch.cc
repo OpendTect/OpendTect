@@ -12,6 +12,18 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "sets.h"
 
+// Batch::MMProgDef
+
+Batch::MMProgDef::MMProgDef( const char* mmpnm )
+    : mmprognm_(mmpnm)
+{
+}
+
+
+Batch::MMProgDef::~MMProgDef()
+{
+}
+
 
 static ObjectSet<Batch::MMProgDef> progdefs_;
 

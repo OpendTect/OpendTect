@@ -26,16 +26,14 @@ public:
 			MMPServerClient(const Network::Authority&,
 					int timeout=4000);
 			~MMPServerClient();
-			MMPServerClient(const MMPServerClient&) = delete;
-    MMPServerClient	operator=(const MMPServerClient&) = delete;
 
     uiRetVal		errMsg() const		{ return errmsg_; }
     bool		isOK() const;
     bool		refresh();
-    void		setTimeout(int timeout) { timeout_ = timeout; }
+    void		setTimeout( int timeout ) { timeout_ = timeout; }
 
     OD::JSON::Object	sendRequest(const char* reqkey,
-				    const OD::JSON::Object& reqobj );
+				    const OD::JSON::Object& reqobj);
 
     bool		getServerDataRoot();
     bool		setServerDataRoot(const char*);
@@ -51,6 +49,8 @@ public:
     Notifier<MMPServerClient>	errorNotice;
 
 protected:
+			mOD_DisableCopy(MMPServerClient);
+
     Network::Service&	mmpservice_;
     BufferString	svr_odver_;
     FilePath		svr_drfp_;
@@ -58,10 +58,9 @@ protected:
     int			timeout_;
     uiRetVal		errmsg_;
 
-
-    bool		checkServer( const Network::Authority& auth );
+    bool		checkServer(const Network::Authority&);
 
     OD::JSON::Object	sendRequest(const Network::Authority&,
 				    const char* reqkey,
-				    const OD::JSON::Object& reqobj );
+				    const OD::JSON::Object& reqobj);
 };

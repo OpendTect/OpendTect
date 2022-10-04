@@ -29,6 +29,11 @@ Batch::SingleJobDispatcher::SingleJobDispatcher()
 }
 
 
+Batch::SingleJobDispatcher::~SingleJobDispatcher()
+{
+}
+
+
 uiString Batch::SingleJobDispatcher::description() const
 {
     return tr("The job will be executed on one computer, in a single process.");
