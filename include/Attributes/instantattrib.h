@@ -37,7 +37,7 @@ public:
     bool			prepPriorToOutputSetup() override;
 
 protected:
-				~Instantaneous() {}
+				~Instantaneous();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

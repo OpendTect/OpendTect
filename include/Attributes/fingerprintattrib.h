@@ -58,7 +58,7 @@ public:
     bool			usesTracePosition() const override;
 
 protected:
-				~FingerPrint() {}
+				~FingerPrint();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

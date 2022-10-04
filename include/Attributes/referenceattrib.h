@@ -43,7 +43,7 @@ Outputs 2D:
 </pre>
 */
 
-mExpClass(Attributes) Reference: public Provider
+mExpClass(Attributes) Reference : public Provider
 {
 public:
     static void		initClass();
@@ -53,7 +53,7 @@ public:
     static const char*	is2DStr()		{ return "is2D"; }
 
 protected:
-			~Reference() {}
+			~Reference();
 
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);

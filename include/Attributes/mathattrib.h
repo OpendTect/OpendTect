@@ -34,7 +34,7 @@ public:
     static const Math::SpecVarSet&	getSpecVars();
 
 protected:
-				~Mathematics()	{}
+				~Mathematics();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

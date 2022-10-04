@@ -167,6 +167,10 @@ FingerPrint::FingerPrint( Desc& dsc )
 }
 
 
+FingerPrint::~FingerPrint()
+{}
+
+
 bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 {
     while ( inputdata_.size() < inputs_.size() )

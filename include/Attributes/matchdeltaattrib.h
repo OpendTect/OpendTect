@@ -30,7 +30,7 @@ public:
     static const char*		maxshiftStr()	   { return "maxshift"; }
 
 protected:
-
+				~MatchDelta();
     static Provider*		createInstance(Desc&);
 
     float			maxshift_;

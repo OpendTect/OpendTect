@@ -30,7 +30,7 @@ namespace Attrib
 </pre>
 */
 
-mExpClass(Attributes) Scaling: public Provider
+mExpClass(Attributes) Scaling : public Provider
 {
 public:
     static void		initClass();
@@ -49,7 +49,7 @@ public:
     static const char*	scalingTypeNamesStr(int type);
 
 protected:
-			~Scaling() {}
+			~Scaling();
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
@@ -98,7 +98,8 @@ protected:
     {
 			Trend( float a, float b )
 			    : a_( a )
-			    , b_( b )			{};
+			    , b_( b )			{}
+			~Trend()			{}
 
 	float		valueAtX( float x ) const	{ return a_ * x + b_; }
 	bool		operator==( Trend t ) const

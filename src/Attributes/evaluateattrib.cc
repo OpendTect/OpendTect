@@ -33,6 +33,10 @@ Evaluate::Evaluate( Desc& ds )
 }
 
 
+Evaluate::~Evaluate()
+{}
+
+
 bool Evaluate::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

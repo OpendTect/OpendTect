@@ -30,7 +30,7 @@ public:
     static const char*		attribName()	{ return "SampleValue"; }
 
 protected:
-
+				~SampleValue();
     static Provider*		createInstance(Desc&);
 
     bool			allowParallelComputation() const override;

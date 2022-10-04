@@ -52,7 +52,7 @@ public:
 				{ return !stepout_.inl() && !stepout_.crl(); }
 
 protected:
-				~Shift() {}
+				~Shift();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     void			init();

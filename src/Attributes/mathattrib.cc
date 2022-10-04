@@ -19,7 +19,10 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survinfo.h"
 
-const Math::SpecVarSet& Attrib::Mathematics::getSpecVars()
+namespace Attrib
+{
+
+const Math::SpecVarSet& Mathematics::getSpecVars()
 {
     mDefineStaticLocalObject( Math::SpecVarSet, svs, );
 
@@ -37,13 +40,10 @@ const Math::SpecVarSet& Attrib::Mathematics::getSpecVars()
     return svs;
 }
 
-namespace Attrib
-{
 mAttrDefCreateInstance(Mathematics)
-} // namespace Attrib
 
 
-void Attrib::Mathematics::initClass()
+void Mathematics::initClass()
 {
     mAttrStartInitClassWithUpdate
 
@@ -64,12 +64,12 @@ void Attrib::Mathematics::initClass()
 }
 
 
-void Attrib::Mathematics::updateDesc( Desc& desc )
+void Mathematics::updateDesc( Desc& desc )
 {
     ValParam* expr = desc.getValParam( expressionStr() );
     if ( !expr ) return;
 
-    Math::Formula formula( true,Attrib::Mathematics::getSpecVars() );
+    Math::Formula formula( true,Mathematics::getSpecVars() );
     formula.setText( expr->getStringValue() );
     if ( formula.isBad() ) return;
 
@@ -97,7 +97,7 @@ void Attrib::Mathematics::updateDesc( Desc& desc )
 }
 
 
-Attrib::Mathematics::Mathematics( Desc& dsc )
+Mathematics::Mathematics( Desc& dsc )
     : Provider( dsc )
     , desintv_( Interval<float>(0,0) )
     , reqintv_( Interval<int>(0,0) )
@@ -111,7 +111,7 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     ValParam* form = dsc.getValParam( expressionStr() );
     if ( !form ) return;
 
-    formula_ = new Math::Formula( true, Attrib::Mathematics::getSpecVars() );
+    formula_ = new Math::Formula( true, Mathematics::getSpecVars() );
     formula_->setText( form->getStringValue() );
     if ( formula_->isBad() )
     { errmsg_ = mToUiStringTodo(formula_->errMsg()); return; }
@@ -153,19 +153,23 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
 }
 
 
-bool Attrib::Mathematics::allowParallelComputation() const
+Mathematics::~Mathematics()
+{}
+
+
+bool Mathematics::allowParallelComputation() const
 {
     return !formula_->isRecursive();
 }
 
 
-bool Attrib::Mathematics::getInputOutput( int input, TypeSet<int>& res ) const
+bool Mathematics::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );
 }
 
 
-bool Attrib::Mathematics::getInputData( const BinID& relpos, int zintv )
+bool Mathematics::getInputData( const BinID& relpos, int zintv )
 {
     int nrinputs = formula_->nrExternalInputs();
     while ( inputdata_.size() < nrinputs )
@@ -187,7 +191,7 @@ bool Attrib::Mathematics::getInputData( const BinID& relpos, int zintv )
 }
 
 
-bool Attrib::Mathematics::computeData( const DataHolder& output,
+bool Mathematics::computeData( const DataHolder& output,
 				       const BinID& relpos, int z0,
 				       int nrsamples, int threadid ) const
 {
@@ -231,7 +235,7 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 	    for ( int ishft=0; ishft<reqshifts.size(); ishft++ )
 	    {
 		const int inpdataidx = inpidx-nrconstsandspecsfound;
-		const Attrib::DataHolder* inpdh = inputdata_[inpdataidx];
+		const DataHolder* inpdh = inputdata_[inpdataidx];
 		inpvals += inpdh ? mCast( double, getInputValue( *inpdh,
 						  inputidxs_[inpdataidx],
 						  idx+reqshifts[ishft],z0 ) )
@@ -250,7 +254,7 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 }
 
 
-const Interval<int>* Attrib::Mathematics::reqZSampMargin( int inp, int ) const
+const Interval<int>* Mathematics::reqZSampMargin( int inp, int ) const
 {
     //Trick: as call to this function is not multithreaded
     //we use a single address for reqintv_ which will be reset for every input
@@ -275,7 +279,9 @@ const Interval<int>* Attrib::Mathematics::reqZSampMargin( int inp, int ) const
 }
 
 
-const Interval<float>* Attrib::Mathematics::desZMargin( int inp, int ) const
+const Interval<float>* Mathematics::desZMargin( int inp, int ) const
 {
     return &desintv_;
 }
+
+} // namespace Attrib

@@ -36,7 +36,7 @@ if Gradient is selected outputs will be : grad(Energy), grad(SQRT(Energy)), ...
 </pre>
 */
 
-mExpClass(Attributes) Energy: public Provider
+mExpClass(Attributes) Energy : public Provider
 {
 public:
     static void		initClass();
@@ -47,7 +47,7 @@ public:
     static const char*	dogradStr()		{ return "dograd"; }
 
 protected:
-			~Energy() {}
+			~Energy();
     static Provider*	createInstance(Desc&);
     static void		updateDefaults(Desc&);
 

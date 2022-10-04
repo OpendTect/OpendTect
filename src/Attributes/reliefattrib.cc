@@ -38,6 +38,10 @@ Relief::Relief( Desc& ds )
 }
 
 
+Relief::~Relief()
+{}
+
+
 bool Relief::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

@@ -48,6 +48,10 @@ Reference::Reference( Desc& ds )
 }
 
 
+Reference::~Reference()
+{}
+
+
 bool Reference::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

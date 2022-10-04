@@ -172,6 +172,10 @@ DipFilter::DipFilter( Desc& ds )
 }
 
 
+DipFilter::~DipFilter()
+{}
+
+
 bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

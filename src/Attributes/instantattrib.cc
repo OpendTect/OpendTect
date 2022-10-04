@@ -102,6 +102,10 @@ Instantaneous::Instantaneous( Desc& ds )
 }
 
 
+Instantaneous::~Instantaneous()
+{}
+
+
 bool Instantaneous::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );

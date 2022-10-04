@@ -63,7 +63,7 @@ public:
     void			prepPriorToBoundsCalc() override;
 
 protected:
-				~Semblance() {}
+				~Semblance();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

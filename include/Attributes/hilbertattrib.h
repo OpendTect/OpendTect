@@ -28,6 +28,7 @@ public:
     static const char*		halflenStr()	{ return "halflen"; }
 
 protected:
+				~Hilbert();
     static Provider*		createInstance(Desc&);
 
     bool			getInputOutput(int inp,

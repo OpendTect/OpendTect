@@ -202,6 +202,10 @@ Similarity::Similarity( Desc& desc )
 }
 
 
+Similarity::~Similarity()
+{}
+
+
 bool Similarity::getTrcPos()
 {
     const bool is2d = is2D();

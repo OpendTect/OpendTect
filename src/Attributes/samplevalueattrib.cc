@@ -38,6 +38,10 @@ SampleValue::SampleValue( Desc& desc )
 }
 
 
+SampleValue::~SampleValue()
+{}
+
+
 bool SampleValue::allowParallelComputation() const
 { return true; }
 

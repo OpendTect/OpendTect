@@ -38,7 +38,7 @@ public:
     void			prepareForComputeData() override;
 
 protected:
-
+				~GapDecon();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
