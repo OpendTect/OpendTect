@@ -94,6 +94,7 @@ protected:
 	float		dz_;
 
 			InitInfo();
+			~InitInfo();
 	void		reset(bool resetheadonval=true);
 
 	InitInfo&	operator = (const InitInfo&);

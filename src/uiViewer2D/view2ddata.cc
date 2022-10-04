@@ -57,6 +57,10 @@ EMDataObject::EMDataObject( uiFlatViewWin* win,
 {}
 
 
+EMDataObject::~EMDataObject()
+{}
+
+
 void EMDataObject::setEMObjectID( const EM::ObjectID& emid )
 {
     emid_ = emid;

@@ -31,6 +31,10 @@ SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const MultiID& ky,
 }
 
 
+SEGY::ReSorter::Setup::~Setup()
+{}
+
+
 BufferString SEGY::ReSorter::Setup::getFileName( const Interval<int>& rg ) const
 {
     if ( Seis::is2D(geom_) || newfileeach_ < 1 )

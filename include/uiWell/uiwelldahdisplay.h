@@ -10,23 +10,24 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uigraphicsview.h"
-#include "uigraphicsitem.h"
-#include "uiaxishandler.h"
 #include "draw.h"
-#include "survinfo.h"
 #include "welldisp.h"
-#include "welldata.h"
-#include "welld2tmodel.h"
-#include "welltrack.h"
-#include "survinfo.h"
 
-namespace Well { class DahObj; class Marker; class D2TModel; }
+namespace Well
+{
+    class D2TModel;
+    class DahObj;
+    class Marker;
+    class MarkerSet;
+    class Track;
+}
 
-class uiTextItem;
+class uiAxisHandler;
+class uiGraphicsScene;
 class uiLineItem;
 class uiPolyLineItem;
 class uiPolygonItem;
-class uiGraphicsScene;
+class uiTextItem;
 
 #define mDefZPos(zpos)\
 if ( zdata_.zistime_ && zdata_.d2T() && track() )\
@@ -90,26 +91,27 @@ public:
 
     mStruct(uiWell) DahObjData : public CallBacker
     {
-	virtual			~DahObjData() { delete xaxprcts_; }
+	virtual			~DahObjData();
 
 	//Set these
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
 	bool			hasData() const { return dahobj_; }
-	bool			xrev_;
-	int			zoverlayval_;
-	float			cliprate_;
-	OD::Color		col_;
-	bool			drawascurve_;
-	int			curvesz_;
-	bool			drawaspoints_;
-	int			pointsz_;
+
+	bool			xrev_		= false;
+	int			zoverlayval_	= 2;
+	float			cliprate_	= 0.f;
+	OD::Color		col_		= OD::Color::Black();
+	bool			drawascurve_	= true;
+	int			curvesz_	= 1;
+	bool			drawaspoints_	= false;
+	int			pointsz_	= 5;
 
 	//Get these
 	Interval<float>		zrg_;
 	Interval<float>		valrg_;
-	uiAxisHandler		xax_;
-	uiAxisHandler*		xaxprcts_;
-	uiAxisHandler		yax_;
+	uiAxisHandler&		xax_;
+	uiAxisHandler*		xaxprcts_	= nullptr;
+	uiAxisHandler&		yax_;
 
 	virtual void		getInfoForDah(float dah,BufferString&) const;
 	void			plotAxis();
@@ -118,7 +120,7 @@ public:
 				DahObjData(uiGraphicsScene&,bool,
 					const uiWellDahDisplay::Setup&);
 
-	const Well::DahObj*	dahobj_;
+	const Well::DahObj*	dahobj_		= nullptr;
 	uiGraphicsItemSet	curveitms_;
 	uiPolyLineItem*		curvepolyitm_;
 
@@ -127,44 +129,25 @@ public:
 
     mStruct(uiWell) Data
     {
-				    Data( const Well::Data* wd )
-				    : zrg_(mUdf(float),mUdf(float))
-				    , zistime_(false)
-				    , dispzinft_(SI().depthsInFeet())
-				    , wd_(wd)
-				    { if ( wd_ ) wd_->ref(); }
-				    ~Data()
-				    { if ( wd_ ) wd_->unRef(); }
+				Data( const Well::Data* wd );
+				~Data();
 
-	void copyFrom(const uiWellDahDisplay::Data& d)
-	{
-	    if ( &d == this )
-		return;
-
-	    zrg_     	= d.zrg_;
-	    zistime_ 	= d.zistime_;
-	    dispzinft_ 	= d.dispzinft_;
-	    if ( wd_ )
-		wd_->unRef();
-	    wd_ 	= d.wd_;
-	    if ( wd_ )
-		wd_->ref();
-	}
-	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
-	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
-	const Well::MarkerSet*	mrks() const {return wd_ ? &wd_->markers() : 0;}
+	void			copyFrom(const uiWellDahDisplay::Data&);
+	const Well::D2TModel*	d2T() const;
+	const Well::Track*	track() const;
+	const Well::MarkerSet*	mrks() const;
 
 	Interval<float>		zrg_;
 	bool			dispzinft_;
-	bool			zistime_;
+	bool			zistime_		= false;
 	const Well::Data*	wd_;
     };
 
     mStruct(uiWell) PickData
     {
 				PickData( float dah,
-					    OD::Color c=OD::Color::NoColor() )
-				    : dah_(dah), color_(c), val_(mUdf(float)) {}
+					  OD::Color c=OD::Color::NoColor());
+				~PickData();
 
 	bool			operator ==( const PickData& pd ) const
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
@@ -172,8 +155,9 @@ public:
 	float			dah_;
 	OD::Color		color_; //!< default will use the global
 					//setup color
-	float			val_; //this will be a point if defined,
-				      //a line otherwise
+	float			val_	= mUdf(float);
+				//this will be a point if defined,
+				//a line otherwise
     };
 
     void			setData(const Data& data);
@@ -200,15 +184,13 @@ protected:
 
     mStruct(uiWell) MarkerDraw
     {
-				MarkerDraw( const Well::Marker& mrk )
-				: mrk_(mrk)
-				{}
+				MarkerDraw(const Well::Marker&);
 				~MarkerDraw();
 
 	const Well::Marker&	mrk_;
 	OD::LineStyle		ls_;
-	uiTextItem*		txtitm_ = nullptr;
-	uiLineItem*		lineitm_ = nullptr;
+	uiTextItem*		txtitm_		= nullptr;
+	uiLineItem*		lineitm_	= nullptr;
     };
 
     ObjectSet<MarkerDraw>	markerdraws_;

@@ -98,6 +98,9 @@ public:
 
     mStruct(visBase) TextureDataInfo
     {
+			TextureDataInfo()		{}
+			~TextureDataInfo()		{}
+
 	TypeSet<Coord3> coords_;
 	TypeSet<Coord>	texcoords_;
 	TypeSet<int>	ps_;

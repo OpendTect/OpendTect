@@ -41,19 +41,22 @@ public:
     mStruct(uiTools) Setup
     {
 	enum Type		{ Rose, Scatter, Vals };
-				Setup( Type t=Rose )
-				    : type_(t)
-				    , circlels_(OD::LineStyle::Solid)
-				    , sectorls_(OD::LineStyle::Solid)
-				    , equils_(OD::LineStyle::Dot)
-				    , markstyle_(MarkerStyle2D::Circle)
-				    , hlmarkstyle_(MarkerStyle2D::Square,4,
-						   OD::Color::Green())
-				    , docount_(false)
-				    , curissel_(true)
-				    , valcolor_(true)
-				    , clipratio_(0.02)
-				    , prefsize_(400,400)	{}
+			Setup( Type t=Rose )
+			    : type_(t)
+			    , circlels_(OD::LineStyle::Solid)
+			    , sectorls_(OD::LineStyle::Solid)
+			    , equils_(OD::LineStyle::Dot)
+			    , markstyle_(MarkerStyle2D::Circle)
+			    , hlmarkstyle_(MarkerStyle2D::Square,4,
+					   OD::Color::Green())
+			    , docount_(false)
+			    , curissel_(true)
+			    , valcolor_(true)
+			    , clipratio_(0.02)
+			    , prefsize_(400,400)
+			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(Type,type)
 	mDefSetupMemb(OD::LineStyle,circlels)

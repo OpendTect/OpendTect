@@ -27,6 +27,8 @@ mExpClass(Velocity) StoredFunction : public Function
 {
 public:
 				StoredFunction(StoredFunctionSource&);
+				~StoredFunction();
+
     bool			moveTo(const BinID&) override;
     StepInterval<float>		getAvailableZ() const override;
 

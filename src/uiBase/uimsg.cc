@@ -70,7 +70,8 @@ bool event( QEvent* event ) override
 };
 
 
-uiMsg* uiMsg::theinst_ = 0;
+uiMsg* uiMsg::theinst_ = nullptr;
+
 uiMsg& uiMSG()
 {
     if ( !uiMsg::theinst_ )
@@ -80,9 +81,12 @@ uiMsg& uiMSG()
 
 
 uiMsg::uiMsg()
-	: uimainwin_(0)
 {
 }
+
+
+uiMsg::~uiMsg()
+{}
 
 
 uiMainWin* uiMsg::setMainWin( uiMainWin* m )
@@ -657,6 +661,25 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 }
 
 
+
+// uiMsgMainWinSetter
+uiMsgMainWinSetter::uiMsgMainWinSetter( uiMainWin* np )
+    : isset_( np )
+{
+    if ( np )
+	oldparent_ = ::uiMSG().setMainWin( np );
+}
+
+
+uiMsgMainWinSetter::~uiMsgMainWinSetter()
+{
+    if ( isset_ )
+	::uiMSG().setMainWin( oldparent_ );
+}
+
+
+
+// uiUserShowWait
 uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
     : mcc_(new MouseCursorChanger(MouseCursor::Wait))
     , fldidx_(fldidx)

@@ -86,6 +86,8 @@ public:
 		    , showsteeringdata_(false)
 		    , geomid_(mUdfGeomID)
 		{}
+		~Setup()
+		{}
 
 		mDefSetupMemb(uiString,seltxt)
 		mDefSetupMemb(Attrib::DescID,ignoreid)

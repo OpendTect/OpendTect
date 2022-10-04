@@ -151,6 +151,10 @@ uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
 }
 
 
+uiDataPointSet::Setup::~Setup()
+{}
+
+
 #define mDPM DPM(DataPackMgr::PointID())
 
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,

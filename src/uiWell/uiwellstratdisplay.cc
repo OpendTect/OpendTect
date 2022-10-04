@@ -9,11 +9,15 @@ ________________________________________________________________________
 
 #include "uiwellstratdisplay.h"
 
-#include "stratreftree.h"
+#include "uiaxishandler.h"
 #include "uigraphicsscene.h"
+
+#include "stratreftree.h"
+#include "welldata.h"
 #include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "welltrack.h"
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,uiWellDahDisplay::Setup())

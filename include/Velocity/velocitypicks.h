@@ -39,6 +39,8 @@ public:
 			     float vel=mUdf(float),
 			     float offset=mUdf(float),
 			     EM::ObjectID=EM::ObjectID::udf());
+    virtual		~Pick();
+
     bool		operator==(const Pick& b) const;
 
     float		depth_;

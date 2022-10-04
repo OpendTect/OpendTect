@@ -48,6 +48,10 @@ Pick::Pick( float depth, float vel, float offset,
 {}
 
 
+Pick::~Pick()
+{}
+
+
 bool Pick::operator==( const Pick& b ) const
 {
     return b.depth_==depth_ &&

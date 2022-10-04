@@ -59,6 +59,8 @@ public:
     mClass(uiVis) DisplayInfo
     {
     public:
+				DisplayInfo()		{}
+				~DisplayInfo()		{}
 	TypeSet<SceneID>	sceneids_;
 	TypeSet<VisID>		visids_; //linked with scenes_
     };

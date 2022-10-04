@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uiwelltiecheckshotedit.h"
 
+#include "uiaxishandler.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigraphicsscene.h"
@@ -23,15 +24,16 @@ ________________________________________________________________________
 #include "uiwelldahdisplay.h"
 #include "uiwelldisplaycontrol.h"
 
+#include "od_helpids.h"
+#include "sorting.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "welltrack.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
-#include "od_helpids.h"
-#include "sorting.h"
 
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }

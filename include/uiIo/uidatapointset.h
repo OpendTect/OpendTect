@@ -50,6 +50,7 @@ public:
     { mODTextTranslationClass(uiDataPointSet::Setup);
     public:
 	Setup(const uiString& wintitl,bool ismodal=false);
+	~Setup();
 
 	mDefSetupMemb(uiString,wintitle)	//!< "Extracted data"
 	mDefSetupMemb(bool,isconst)		//!< false

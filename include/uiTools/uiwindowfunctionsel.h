@@ -32,6 +32,8 @@ public:
 			    , with2fldsinput_(false)
 			    , winparam_(mUdf(float))
 			    {}
+			~Setup()
+			{}
 
 	mDefSetupMemb(const char*,winname )
 	mDefSetupMemb(const char*,label)

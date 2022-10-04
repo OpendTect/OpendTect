@@ -59,6 +59,10 @@ StoredFunction:: StoredFunction( StoredFunctionSource& source )
 {}
 
 
+StoredFunction::~StoredFunction()
+{}
+
+
 bool StoredFunction::moveTo( const BinID& bid )
 {
     if ( !Function::moveTo( bid ) )

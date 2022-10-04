@@ -50,6 +50,7 @@ protected:
 mExpClass(uiViewer2D) EMDataObject : public DataObject
 {
 public:
+			~EMDataObject();
 
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;

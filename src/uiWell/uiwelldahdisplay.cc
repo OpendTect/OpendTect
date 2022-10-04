@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uiwelldahdisplay.h"
 
+#include "uiaxishandler.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uistrings.h"
@@ -18,37 +19,33 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "welllog.h"
-#include "wellmarker.h"
+
+#include "welldata.h"
 #include "welld2tmodel.h"
+#include "welllog.h"
 #include "wellman.h"
+#include "wellmarker.h"
+#include "welltrack.h"
 
 
 uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellDahDisplay::Setup& s )
-    : dahobj_(nullptr)
-    , zoverlayval_(2)
-    , xax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Top : uiRect::Bottom )
+    : xax_(*new uiAxisHandler(&scn,
+		uiAxisHandler::Setup( isfirst? uiRect::Top : uiRect::Bottom )
 				.border(s.border_)
 				.annotinside(s.annotinside_)
-				.noannot(s.noxannot_))
-    , yax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Left : uiRect::Right )
+				.noannot(s.noxannot_)))
+    , yax_(*new uiAxisHandler(&scn,
+		uiAxisHandler::Setup( isfirst? uiRect::Left : uiRect::Right )
 				.border(s.border_)
 				.annotinside(s.annotinside_)
-				.noannot(s.noyannot_))
-    , xrev_(false)
+				.noannot(s.noyannot_)))
     , zrg_(mUdf(float),mUdf(float))
-    , cliprate_(0)
     , valrg_(mUdf(float),mUdf(float))
-    , col_(OD::Color::Black())
-    , pointsz_(5)
-    , curvesz_(1)
-    , drawascurve_(true)
-    , drawaspoints_(false)
-    , xaxprcts_(0)
 {
     if ( !isfirst )
 	yax_.setup().nogridline(true);
+
     if ( s.xannotinpercents_ )
     {
 	xaxprcts_ = new uiAxisHandler( &scn, uiAxisHandler::Setup(
@@ -61,6 +58,15 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 	xax_.setup().noannot( true );
     }
 }
+
+
+uiWellDahDisplay::DahObjData::~DahObjData()
+{
+    delete &xax_;
+    delete &yax_;
+    delete xaxprcts_;
+}
+
 
 void uiWellDahDisplay::DahObjData::plotAxis()
 {
@@ -85,6 +91,74 @@ void uiWellDahDisplay::DahObjData::getInfoForDah( float dah,
 }
 
 
+
+// uiWellDahDisplay::Data
+uiWellDahDisplay::Data::Data( const Well::Data* wd )
+    : zrg_(mUdf(float),mUdf(float))
+    , dispzinft_(SI().depthsInFeet())
+    , wd_(wd)
+{
+    if ( wd_ )
+	wd_->ref();
+}
+
+
+uiWellDahDisplay::Data::~Data()
+{
+    if ( wd_ )
+	wd_->unRef();
+}
+
+
+void uiWellDahDisplay::Data::copyFrom(const uiWellDahDisplay::Data& d)
+{
+    if ( &d == this )
+	return;
+
+    zrg_ = d.zrg_;
+    zistime_ = d.zistime_;
+    dispzinft_ = d.dispzinft_;
+    if ( wd_ )
+	wd_->unRef();
+
+    wd_ = d.wd_;
+    if ( wd_ )
+	wd_->ref();
+}
+
+
+const Well::D2TModel* uiWellDahDisplay::Data::d2T() const
+{
+    return wd_ ? wd_->d2TModel() : nullptr;
+}
+
+
+const Well::Track* uiWellDahDisplay::Data::track() const
+{
+    return wd_ ? &wd_->track() : nullptr;
+}
+
+
+const Well::MarkerSet* uiWellDahDisplay::Data::mrks() const
+{
+    return wd_ ? &wd_->markers() : nullptr;
+}
+
+
+
+// uiWellDahDisplay::PickData
+uiWellDahDisplay::PickData::PickData( float dah, OD::Color c )
+    : dah_(dah)
+    , color_(c)
+{}
+
+
+uiWellDahDisplay::PickData::~PickData()
+{}
+
+
+
+// uiWellDahDisplay
 uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     : uiGraphicsView(p,"Well Dah display viewer")
     , setup_(su)
@@ -447,9 +521,16 @@ void uiWellDahDisplay::drawZPicks()
 }
 
 
+
+uiWellDahDisplay::MarkerDraw::MarkerDraw( const Well::Marker& mrk )
+    : mrk_(mrk)
+{}
+
+
 uiWellDahDisplay::MarkerDraw::~MarkerDraw()
 {
-    delete txtitm_; delete lineitm_;
+    delete txtitm_;
+    delete lineitm_;
 }
 
 

@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
 #include "welltiepickset.h"
+#include "welltrack.h"
 
 
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;

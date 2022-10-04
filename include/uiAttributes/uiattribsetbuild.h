@@ -24,6 +24,8 @@ public:
     {
     public:
 			Setup(bool for2d);
+			~Setup();
+
 	mDefSetupMemb(bool,is2d);
 	mDefSetupMemb(bool,showps);
 	mDefSetupMemb(bool,singletraceonly);

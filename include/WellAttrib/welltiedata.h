@@ -227,6 +227,9 @@ public:
 
     mStruct(WellAttrib) PosCouple
     {
+				PosCouple()		{}
+				~PosCouple()		{}
+
 	float			z1_, z2_;
 	bool			operator == ( const PosCouple& pc ) const
 				{ return z1_ == pc.z1_ && z2_ == pc.z2_; }

@@ -69,6 +69,7 @@ mExpClass(uiBase) uiTab
 friend class		uiTabBar;
 public:
 			uiTab(uiGroup&,const uiString& caption);
+    virtual		~uiTab();
 
     void		setCaption(const uiString&);
     const uiString&	getCaption() const		{ return caption_; }

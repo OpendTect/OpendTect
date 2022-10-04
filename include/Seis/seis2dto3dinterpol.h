@@ -32,7 +32,7 @@ mExpClass(Seis) Seis2DTo3DInterPol : public Executor
 public:
     mDefineFactoryInClass(Seis2DTo3DInterPol,factory);
 			Seis2DTo3DInterPol();
-			virtual ~Seis2DTo3DInterPol();
+    virtual		~Seis2DTo3DInterPol();
 
     const char*		message() const override
 			{ return errmsg_ ? "interpolating"
@@ -71,31 +71,33 @@ protected:
 
     bool			read_;
     int				nrdone_;
-    mutable int		totnr_;
+    mutable int			totnr_;
     bool			read();
 
-    Array3D<float_complex>*		trcarr_;
-    Array3D<float_complex>*		butterfly_;
-    Array3D<float_complex>*		geom_;
+    Array3D<float_complex>*	trcarr_;
+    Array3D<float_complex>*	butterfly_;
+    Array3D<float_complex>*	geom_;
 
-    Fourier::CC*	fft_;
+    Fourier::CC*		fft_;
     bool			smartscaling_;
 	float			rmsmax_;
     float			pow_;
-    TaskRunner*		taskrun_;
-	od_ostream*		strm_;
+    TaskRunner*			taskrun_;
+    od_ostream*			strm_;
 
-    float	taperangle_;
-    bool	readData();
-    bool	readInputCube(const int szfastx,
+    float			taperangle_;
+    bool			readData();
+    bool			readInputCube(const int szfastx,
 				    const int szfasty, const int szfastz );
-    bool	butterflyOperator();
+    bool			butterflyOperator();
     bool			scaleArray();
     void			smartScale();
     bool			writeOutput();
-	virtual bool	preProcessArray() {return true;}
-	virtual bool	unProcessArray() {return true;}
+    virtual bool		preProcessArray() {return true;}
+    virtual bool		unProcessArray() {return true;}
 };
+
+
 
 mExpClass(Seis) Seis2DTo3DInterPolImpl : public Seis2DTo3DInterPol
 { mODTextTranslationClass(Seis2DTo3DInterPolImpl);
@@ -107,5 +109,7 @@ public:
 		tr("Basic"))
 
 protected:
+				Seis2DTo3DInterPolImpl();
+				~Seis2DTo3DInterPolImpl();
 
 };

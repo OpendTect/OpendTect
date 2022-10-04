@@ -24,21 +24,19 @@ class uiToolButton;
 namespace PreStackView
 {
 
-
 mStruct(uiPreStackProcessing) GatherInfo
 {
-    			GatherInfo()
-			: isstored_(true), isselected_( false )
-			, vddpid_(DataPackID::udf())
-			, wvadpid_(DataPackID::udf())
-			, bid_(mUdf(int),mUdf(int))	{}
-    bool		isstored_;
-    bool		isselected_;
+			GatherInfo();
+			~GatherInfo();
+
+    bool		isstored_		= true;
+    bool		isselected_		= false;
     MultiID		mid_;
-    DataPackID	vddpid_;
-    DataPackID	wvadpid_;
+    DataPackID		vddpid_;
+    DataPackID		wvadpid_;
     BufferString	gathernm_;
-    BinID		bid_;
+    BinID		bid_			= BinID::udf();
+
 bool operator==( const GatherInfo& info ) const
 {
     return isstored_==info.isstored_ && bid_==info.bid_ &&

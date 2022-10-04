@@ -584,3 +584,13 @@ od_int64 Seis2DTo3DInterPol::totalNr() const
 {
     return totnr_;
 }
+
+
+
+// Seis2DTo3DInterPolImpl
+Seis2DTo3DInterPolImpl::Seis2DTo3DInterPolImpl()
+{}
+
+
+Seis2DTo3DInterPolImpl::~Seis2DTo3DInterPolImpl()
+{}

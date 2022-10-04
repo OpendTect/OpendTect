@@ -9,10 +9,14 @@ ________________________________________________________________________
 
 #include "uiwelllogdisplay.h"
 
+#include "uiaxishandler.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+
 #include "coltabsequence.h"
+#include "welld2tmodel.h"
 #include "welllog.h"
+#include "welltrack.h"
 
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
@@ -24,22 +28,9 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 }
 
 
-uiWellLogDisplay::~uiWellLogDisplay()
-{
-    delete ld1_; ld1_ = 0;
-    delete ld2_; ld2_ = 0;
-}
+uiWellLogDisplay::LogData::~LogData()
+{}
 
-
-void uiWellLogDisplay::gatherDataInfo( bool first )
-{
-    LogData& ld = logData( first );
-    ld.xax_.setup().islog( ld.disp_.islogarithmic_ );
-    ld.cliprate_ = ld.disp_.cliprate_;
-    ld.valrg_ = ld.disp_.range_;
-
-    uiWellDahDisplay::gatherDataInfo( first );
-}
 
 
 const Well::Log* uiWellLogDisplay::LogData::log() const
@@ -78,6 +69,24 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     ld1_ = new LogData( scene(), true, su );
     ld2_ = new LogData( scene(), false, su );
     postFinalize().notify( mCB(this,uiWellLogDisplay,init) );
+}
+
+
+uiWellLogDisplay::~uiWellLogDisplay()
+{
+    delete ld1_; ld1_ = 0;
+    delete ld2_; ld2_ = 0;
+}
+
+
+void uiWellLogDisplay::gatherDataInfo( bool first )
+{
+    LogData& ld = logData( first );
+    ld.xax_.setup().islog( ld.disp_.islogarithmic_ );
+    ld.cliprate_ = ld.disp_.cliprate_;
+    ld.valrg_ = ld.disp_.range_;
+
+    uiWellDahDisplay::gatherDataInfo( first );
 }
 
 

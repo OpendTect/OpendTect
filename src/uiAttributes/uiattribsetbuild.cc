@@ -44,6 +44,11 @@ uiAttribDescSetBuild::Setup::Setup( bool for2d )
 }
 
 
+uiAttribDescSetBuild::Setup::~Setup()
+{}
+
+
+
 uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 			const uiAttribDescSetBuild::Setup& su )
     : uiBuildListFromList(p,

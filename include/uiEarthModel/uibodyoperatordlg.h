@@ -53,6 +53,7 @@ protected:
     mStruct(uiEarthModel) BodyOperand
     {
 			BodyOperand();
+			~BodyOperand();
 
 	bool		operator==(const BodyOperand&) const;
 	bool		isOK() const;

@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "propertyref.h"
 #include "unitofmeasure.h"
+#include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
