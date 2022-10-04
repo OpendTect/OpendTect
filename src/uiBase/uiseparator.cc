@@ -38,6 +38,10 @@ uiSeparator::uiSeparator( uiParent* p, const char* txt,
 }
 
 
+uiSeparator::~uiSeparator()
+{}
+
+
 uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 				      bool hor, bool raised )
 {

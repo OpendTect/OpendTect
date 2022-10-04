@@ -144,8 +144,9 @@ const unsigned char* uiRGBArray::getData() const
     return qimg_->bits();
 }
 
-// uiRGBImageLoader
 
+
+// uiRGBImageLoader
 void uiRGBImageLoader::initClass()
 {
     OD::RGBImageLoader::setImageLoader( new uiRGBImageLoader );
@@ -155,6 +156,10 @@ void uiRGBImageLoader::initClass()
 uiRGBImageLoader::uiRGBImageLoader()
 {
 }
+
+
+uiRGBImageLoader::~uiRGBImageLoader()
+{}
 
 
 OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,

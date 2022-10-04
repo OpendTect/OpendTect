@@ -494,7 +494,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
-    mUseDefaultTextValidatorOnField(nmfld_);
+    nmfld_->setDefaultTextValidator();
     nmfld_->setElemSzPol( uiObject::SmallMax );
     nmfld_->setStretch( 2, 0 );
     mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );

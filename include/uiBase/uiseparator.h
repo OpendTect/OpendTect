@@ -18,11 +18,10 @@ class uiSeparatorBody;
 mExpClass(uiBase) uiSeparator : public uiObject
 {
 public:
-
-                        uiSeparator(uiParent*,const char* nm="Separator",
+			uiSeparator(uiParent*,const char* nm="Separator",
 				    OD::Orientation ori=OD::Horizontal,
 				    bool raised=true);
-
+			~uiSeparator();
 
     void		setRaised(bool);
 

@@ -94,8 +94,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 				     StringInpSpec("Stratal Amplitude") );
     mAttachCB( attribnamefld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
-
-    mUseDefaultTextValidatorOnField(attribnamefld_);
+    attribnamefld_->setDefaultTextValidator();
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );

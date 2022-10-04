@@ -21,6 +21,10 @@ uiConstraint::uiConstraint( constraintType tp, i_LayoutItem* o, int marg )
 }
 
 
+uiConstraint::~uiConstraint()
+{}
+
+
 bool uiConstraint::operator==( const uiConstraint& oth ) const
 {
     return type_ == oth.type_ && other_ == oth.other_

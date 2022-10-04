@@ -28,6 +28,10 @@ SimpleHelpProvider::SimpleHelpProvider( const char* baseurl, const char* fnm )
 }
 
 
+SimpleHelpProvider::~SimpleHelpProvider()
+{}
+
+
 void SimpleHelpProvider::addKeyLink( const char* key, const char* lnk )
 {
     keylinks_.set( key, lnk );
@@ -71,6 +75,10 @@ FlareHelpProvider::FlareHelpProvider( const char* url )
     : baseurl_( url )
 {
 }
+
+
+FlareHelpProvider::~FlareHelpProvider()
+{}
 
 
 void FlareHelpProvider::provideHelp( const char* argument ) const
@@ -134,6 +142,14 @@ void FlareHelpProvider::initODHelp()
 
 
 // WebsiteHelp
+WebsiteHelp::WebsiteHelp()
+{}
+
+
+WebsiteHelp::~WebsiteHelp()
+{}
+
+
 void WebsiteHelp::initClass()
 { HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() ); }
 
@@ -190,6 +206,10 @@ VideoProvider::VideoProvider( const char* idxfnm )
 {
     videolinks_.read( idxfnm, "Video definitions" );
 }
+
+
+VideoProvider::~VideoProvider()
+{}
 
 
 void VideoProvider::init()
@@ -268,6 +288,14 @@ uiString VideoProvider::description( const char* arg ) const
 
 
 //ReleaseNotesProvider
+ReleaseNotesProvider::ReleaseNotesProvider()
+{}
+
+
+ReleaseNotesProvider::~ReleaseNotesProvider()
+{}
+
+
 const char* ReleaseNotesProvider::sKeyFactoryName()	{ return "relinfo"; }
 
 HelpProvider* ReleaseNotesProvider::createInstance()

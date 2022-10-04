@@ -488,7 +488,7 @@ uiGroup::uiGroup( uiParent* parnt, const char* nm, bool manage )
     if ( parnt )
     {
 	if ( manage )
-	    parnt->manageChld( *grpobj_, *grpobj_->body_ );
+	    parnt->manageChild( *grpobj_, *grpobj_->body_ );
 	else
 	    parnt->addChild( *this );
     }

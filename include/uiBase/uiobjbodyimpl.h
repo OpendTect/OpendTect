@@ -23,9 +23,11 @@ public:
 			    , T( parnt && parnt->pbody() ?
 				     parnt->pbody()->managewidg() : 0 )
 			    , handle_( hndle )
-			    {
-				this->setObjectName( nm );
-			    }
+			{
+			    this->setObjectName( nm );
+			}
+			~uiObjBodyImpl()
+			{}
 
     const QWidget*	qwidget_() const override { return this; }
     virtual void	setFont( const QFont& )

@@ -30,6 +30,10 @@ uiObjectStack::uiObjectStack( uiParent* p, const char* txt )
 {}
 
 
+uiObjectStack::~uiObjectStack()
+{}
+
+
 uiObjStackBody& uiObjectStack::mkbody( uiParent* p, const char* txt )
 {
     body_ = new uiObjStackBody( *this, p, txt );

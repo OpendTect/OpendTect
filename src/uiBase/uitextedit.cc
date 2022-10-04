@@ -50,6 +50,10 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
 }
 
 
+uiTextEditBase::~uiTextEditBase()
+{}
+
+
 void uiTextEditBase::setEmpty()
 {
     qte().clear();
@@ -318,6 +322,10 @@ uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
     if ( defzoom > 1 )
 	body_->zoomIn( defzoom );
 }
+
+
+uiTextEdit::~uiTextEdit()
+{}
 
 
 uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)

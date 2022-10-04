@@ -1049,7 +1049,7 @@ void uiDialogBody::addChild( uiBaseObject& child )
 void uiDialogBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
 {
     if ( !initing_ )
-	dlggrp_->manageChld( o, b );
+	dlggrp_->manageChild( o, b );
 }
 
 

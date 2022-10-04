@@ -59,6 +59,7 @@ protected:
 mExpClass(uiBase) uiRGBImageLoader : public OD::RGBImageLoader
 { mODTextTranslationClass(uiRGBImageLoader)
 public:
+			~uiRGBImageLoader();
 
     static void		initClass();
 

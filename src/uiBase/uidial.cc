@@ -185,6 +185,10 @@ uiDialExtra::uiDialExtra( uiParent* p, const Setup& s, const char* nm )
 }
 
 
+uiDialExtra::~uiDialExtra()
+{}
+
+
 void uiDialExtra::init( const uiDialExtra::Setup& setup, const char* nm )
 {
     dial_ = new uiDial( this, nm );

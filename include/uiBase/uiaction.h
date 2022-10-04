@@ -112,6 +112,7 @@ protected:
     bool		visible_;
 
 private:
+				uiAction();
 
     uiMenu*			menu_ = nullptr;
 
@@ -142,7 +143,8 @@ public:
 mExpClass(uiBase) uiActionSeparString : public SeparString
 {
 public:
-    uiActionSeparString(const char* str=0) : SeparString(str,'`')	{}
+				uiActionSeparString(const char* str=nullptr);
+    virtual			~uiActionSeparString();
 };
 
 

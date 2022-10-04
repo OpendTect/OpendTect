@@ -20,34 +20,22 @@ mClass(uiBase) uiParentBody : public uiBody, public NamedCallBacker
 {
 friend class uiObjectBody;
 public:
-    virtual		~uiParentBody()
-			{ sendDelNotif(); deleteAllChildren(); }
+    virtual		~uiParentBody();
 
-    virtual void	addChild( uiBaseObject& child )
-			{
-			    if ( children_.isPresent(&child ) )	return;
-			    children_ += &child;
-			    mAttachCB( child.objectToBeDeleted(),
-				       uiParentBody::childDel );
-			}
+    virtual void	addChild(uiBaseObject& child);
 
 			//! child becomes mine.
-    void		manageChld( uiBaseObject& child, uiObjectBody& b)
-			{
-			    addChild( child );
-			    manageChld_(child,b);
-			}
-
-    virtual void	attachChild( constraintType tp, uiObject* child,
-				     uiObject* other, int margin,
-				     bool reciprocal ) =0;
-
-    const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
+    void		manageChild(uiBaseObject& child,uiObjectBody&);
+    virtual void	attachChild(constraintType,uiObject* child,
+				    uiObject* other,int margin,
+				    bool reciprocal) =0;
+    const ObjectSet<uiBaseObject>*
+			childList() const		{ return &children_; }
 
     bool		finalized() const override	{ return finalized_; }
     void		finalize() override		{ finalizeChildren(); }
-    void		finalizeChildren();	// body: uiobj.cc
-    void		clearChildren();	// body: uiobj.cc
+    void		finalizeChildren();
+    void		clearChildren();
 
 			//! widget to be used as parent for QWidgets
     inline const mQtclass(QWidget*) managewidg() const	{ return managewidg_();}
@@ -56,25 +44,10 @@ public:
 		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
 
 protected:
-			uiParentBody( const char* nm )
-			    : NamedCallBacker( nm )
-			    , finalized_( false )
-			{}
+			uiParentBody(const char* nm);
 
-    void	deleteAllChildren()
-		{
-		    //avoid the problems from childDel() removal from
-		    //children_
-		    ObjectSet<uiBaseObject> childrencopy = children_;
-		    children_.erase();
-		    deepErase( childrencopy );
-		}
-
-    void	childDel( CallBacker* cb )
-		{
-		    uiBaseObject* obj = static_cast<uiBaseObject*>( cb );
-		    if ( obj ) children_ -= obj;
-		}
+    void		deleteAllChildren();
+    void		childDel(CallBacker*);
 
     virtual const mQtclass(QWidget*)	managewidg_() const = 0;
     virtual void		manageChld_(uiBaseObject&,uiObjectBody&) {}
@@ -83,7 +56,7 @@ protected:
 
 private:
 
-    bool			finalized_;
+    bool			finalized_		= false;
 };
 
 
@@ -94,7 +67,6 @@ public:
 
     uiGroup*		uiCentralWidg() { return centralwidget_; }
     void		addChild(uiBaseObject&) override;
-    void		manageChld_(uiBaseObject&,uiObjectBody&) override;
     void		attachChild(constraintType,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal) override;
@@ -102,6 +74,7 @@ public:
 protected:
 			uiCentralWidgetBody(const char* nm);
 
+    void		manageChld_(uiBaseObject&,uiObjectBody&) override;
     const QWidget*	managewidg_() const override;
 
     bool		initing_;

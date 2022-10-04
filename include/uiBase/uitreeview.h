@@ -213,6 +213,8 @@ public:
 				, after_(0)
 				, setcheck_(setchecked)
 				{ label( txt ); }
+			~Setup()
+			{}
 
 	mDefSetupMemb(uiTreeViewItem::Type,type)
 	mDefSetupMemb(uiTreeViewItem*,after)

@@ -25,7 +25,7 @@ friend class uiParentBody;
 friend class uiObjectBody;
 public:
     void		addChild(uiBaseObject&);
-    void		manageChld(uiBaseObject&,uiObjectBody&);
+    void		manageChild(uiBaseObject&,uiObjectBody&);
     void		attachChild(constraintType tp,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal);
@@ -109,6 +109,7 @@ public:
 
 protected:
 			uiParent(const char* nm,uiParentBody*);
+			~uiParent();
 
     virtual void	attach_(constraintType t, uiObject* oth, int margin=-1,
 				bool reciprocal=true)

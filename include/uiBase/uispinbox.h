@@ -136,6 +136,7 @@ mExpClass(uiBase) uiLabeledSpinBox : public uiGroup
 public:
 			uiLabeledSpinBox(uiParent*,const uiString&,
 					 int nrdecimals=0,const char* nm=0);
+			~uiLabeledSpinBox();
 
     uiSpinBox*		box()			{ return sb_; }
     const uiSpinBox*	box() const		{ return sb_; }

@@ -85,7 +85,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
     nmfld_ = new uiGenInput( this,
 		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
 					      uiStrings::sPointSet()) );
-    mUseDefaultTextValidatorOnField(nmfld_);
+    nmfld_->setDefaultTextValidator();
 
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(OD::getRandStdDrawColor()).

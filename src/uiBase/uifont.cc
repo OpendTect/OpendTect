@@ -157,11 +157,15 @@ int uiFont::ascent() const
 
 
 // uiFontList
+uiFontList::uiFontList()
+{}
+
 
 uiFontList::~uiFontList()
 {
     deepErase( fonts_ );
 }
+
 
 uiFontList& uiFontList::getInst()
 {

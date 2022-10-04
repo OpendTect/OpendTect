@@ -29,7 +29,6 @@ class BufferStringSet;
 mExpClass(uiBase) uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
-
 			uiComboBox(uiParent*,const char* nm);
 			uiComboBox(uiParent*,const BufferStringSet&,
 				   const char* nm);
@@ -153,6 +152,7 @@ public:
 				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const EnumDef&,
 				  const uiString& lbl,const char* nm=0);
+    virtual	~uiLabeledComboBox();
 
     uiComboBox*	box()		{ return cb_; }
     uiLabel*	label()		{ return labl_; }

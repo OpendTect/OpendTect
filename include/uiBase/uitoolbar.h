@@ -44,9 +44,8 @@ public:
 
 			uiToolBar(uiParent*,const uiString& nm,
 				  ToolBarArea d=Top,bool newline=false);
-			uiToolBar( uiParent* p, const char* nm,
-				   ToolBarArea d=Top, bool newline=false )
-			    : uiToolBar(p,toUiString(nm),d,newline)	{}
+			uiToolBar(uiParent*,const char* nm,
+				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
 
     uiParent*		parent()			{ return parent_; }

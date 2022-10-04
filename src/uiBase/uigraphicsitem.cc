@@ -549,6 +549,16 @@ void uiGraphicsItem::setToolTip( const uiString& tt )
 }
 
 
+
+// uiGraphicsItemSet
+uiGraphicsItemSet::uiGraphicsItemSet()
+{}
+
+
+uiGraphicsItemSet::~uiGraphicsItemSet()
+{}
+
+
 void uiGraphicsItemSet::setZValue( int zval )
 {
     for ( int idx=0; idx<size(); idx++ )

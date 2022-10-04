@@ -83,6 +83,8 @@ public:
 				//!<default enables right click popup
 			, enablecopytext_(false)
 				{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(RowCol,size)
 	mDefSetupMemb(uiString,rowdesc)
@@ -319,6 +321,8 @@ public:
 			SelectionRange()
 			    : firstrow_(-1), lastrow_(-1)
 			    , firstcol_(-1), lastcol_(-1)	{}
+			~SelectionRange()
+			{}
 
 	int		nrRows() const	{ return lastrow_-firstrow_+1; }
 	int		nrCols() const	{ return lastcol_-firstcol_+1; }

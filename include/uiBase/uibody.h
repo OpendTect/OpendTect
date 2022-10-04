@@ -16,7 +16,7 @@ mFDQtclass(QWidget)
 mExpClass(uiBase) uiBody
 {
 public:
-    virtual			~uiBody()				{}
+    virtual			~uiBody();
 
     virtual void		finalize()				{}
     virtual bool		finalized() const	{ return false; }
@@ -32,7 +32,7 @@ public:
 			{return const_cast<mQtclass(QWidget*)>(qwidget_());}
 
 protected:
-				uiBody()				{}
+				uiBody();
 
     virtual const mQtclass(QWidget*)	qwidget_() const		=0;
 

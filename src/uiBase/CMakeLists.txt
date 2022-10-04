@@ -49,6 +49,7 @@ set(OD_MODULE_SOURCES
 	uieventfilter.cc
 	uifiledlg.cc
 	uifont.cc
+	uigeom.cc
 	uigraphicscoltab.cc
 	uigraphicsitem.cc
 	uigraphicsitemimpl.cc
@@ -70,6 +71,7 @@ set(OD_MODULE_SOURCES
 	uiobj.cc
 	uiobjbody.cc
 	uiobjectstack.cc
+	uiparent.cc
 	uipixmap.cc
 	uiplfspecific.cc
 	uiprogressbar.cc

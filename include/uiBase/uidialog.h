@@ -64,6 +64,8 @@ public:
 			, mainwidgcentered_(false), savechecked_(false)
 			, fixedsize_(false), okcancelrev_(false)
 			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(uiString,wintitle)
 	mDefSetupMemb(uiString,dlgtitle)
@@ -96,6 +98,7 @@ public:
     enum		Button { OK, CANCEL, APPLY, HELP, CREDITS, SAVE };
 
 			uiDialog(uiParent*,const Setup&);
+			~uiDialog();
     const Setup&	setup() const;
 
     int			go();

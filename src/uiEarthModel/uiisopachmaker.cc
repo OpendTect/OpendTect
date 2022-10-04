@@ -53,8 +53,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
 				 StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, horsel_ );
-
-    mUseDefaultTextValidatorOnField(attrnmfld_);
+    attrnmfld_->setDefaultTextValidator();
 
     toHorSel(0);
 

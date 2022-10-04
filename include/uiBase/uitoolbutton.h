@@ -19,7 +19,6 @@ class uiToolButtonSetup;
 mExpClass(uiBase) uiToolButton : public uiButton
 {
 public:
-
     enum ArrowType		{ NoArrow,
 				  UpArrow, DownArrow, LeftArrow, RightArrow };
     enum PopupMode		{ DelayedPopup, MenuButtonPopup, InstantPopup };
@@ -85,6 +84,8 @@ public:
 			    , isimmediate_(false)
 			    , arrowtype_(uiToolButton::NoArrow)
 			    , name_(!nm.isEmpty() ? nm : tt)
+			{}
+			~uiToolButtonSetup()
 			{}
 
     mDefuiTBSUMemb(BufferString,icid);

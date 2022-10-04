@@ -68,6 +68,10 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
 }
 
 
+uiLabel::~uiLabel()
+{}
+
+
 void uiLabel::init( const uiString& txt, uiObject* buddy )
 {
 //Overcome QMacStyles setting of fonts, which is not inline with

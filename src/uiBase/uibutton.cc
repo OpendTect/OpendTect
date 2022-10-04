@@ -40,6 +40,14 @@ mUseQtnamespace
 bool uiButton::havecommonpbics_ = false;
 
 
+uiButtonMessenger::uiButtonMessenger()
+{}
+
+
+uiButtonMessenger::~uiButtonMessenger()
+{}
+
+
 
 class uiButtonBody : public uiObjectBody
 		   , public uiButtonMessenger
@@ -236,6 +244,10 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 }
 
 
+uiButton::~uiButton()
+{}
+
+
 void uiButton::setIcon( const char* iconnm )
 {
     if ( !isMainThreadCurrent() )
@@ -406,6 +418,10 @@ uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 }
 
 
+uiPushButton::~uiPushButton()
+{}
+
+
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
     pbbody_ = new uiPushButtonBody( *this, parnt, txt );
@@ -498,6 +514,10 @@ uiRadioButton::uiRadioButton( uiParent* p, const uiString& nm,
 }
 
 
+uiRadioButton::~uiRadioButton()
+{}
+
+
 uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt,
 					  const uiString& txt )
 {
@@ -537,6 +557,10 @@ uiCheckBox::uiCheckBox( uiParent* p, const uiString& nm, const CallBack& cb )
     : uiButton(p,nm,&cb,mkbody(p,nm))
 {
 }
+
+
+uiCheckBox::~uiCheckBox()
+{}
 
 
 uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const uiString& txt )

@@ -21,10 +21,9 @@ typedef Geom::PosRectangle<double> uiWorldRect;
 mExpClass(uiBase) uiSize : public Geom::Size2D<int>
 {
 public:
-			uiSize( const Geom::Size2D<int>& a )
-			    :  Geom::Size2D<int>( a )			{}
-			uiSize( int wdt=0 , int hgt=0 )
-			    : Geom::Size2D<int>(wdt,hgt)		{}
+			uiSize(const Geom::Size2D<int>&);
+			uiSize(int wdt=0,int hgt=0);
+			~uiSize();
 
     inline int		hNrPics() const		{ return width_; }
     inline int		vNrPics() const		{ return height_; }
@@ -49,6 +48,8 @@ public:
     inline		uiRect( const uiPoint& tl, const uiPoint& br );
     inline		uiRect( const uiPoint& tl, const uiSize& sz );
     inline		uiRect( const Geom::PixRectangle<int>& );
+			~uiRect();
+
     inline uiSize	getPixelSize() const;
 
     inline uiRect	selectArea( const uiRect& other ) const;
@@ -74,9 +75,10 @@ public:
 mExpClass(uiBase) uiBorder
 {
 public:
-			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
-			uiBorder( int l, int t, int r, int b )
-				: lt_(l,t), rb_(r,b)	{}
+			uiBorder(int border=0);
+			uiBorder(int left, int top, int right, int bottom);
+			~uiBorder();
+
     bool		operator ==( const uiBorder& b ) const
 			{ return lt_ == b.lt_ && rb_ == b.rb_; }
     bool		operator !=( const uiBorder& b ) const
@@ -93,8 +95,8 @@ public:
     int			get(uiRect::Side) const;
     void		set(uiRect::Side,int);
 
-    uiSize		lt_;
-    uiSize		rb_;
+    uiSize		lt_;		// left-top
+    uiSize		rb_;		// right-bottom
 
     inline uiPoint	drawPt(const uiPoint& relpt) const;
     inline uiPoint	relPt(const uiPoint& drawpt) const;

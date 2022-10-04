@@ -171,6 +171,10 @@ uiCircleItem::uiCircleItem( int r )
 {}
 
 
+uiCircleItem::~uiCircleItem()
+{}
+
+
 void uiCircleItem::setRadius( int r )
 {
     setSize( uiSize(2*r,2*r) );

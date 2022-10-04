@@ -47,8 +47,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				 StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, attrfld_ );
-
-    mUseDefaultTextValidatorOnField(attrnmfld_);
+    attrnmfld_->setDefaultTextValidator();
 
     filludffld_ = new uiGenInput( pargrp_, tr("Fill undefined parts"),
 				  BoolInpSpec(false) );

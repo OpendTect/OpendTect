@@ -21,6 +21,9 @@ class uiString;
 mExpClass(uiBase) uiClipboard
 {
 public:
+			uiClipboard();
+    virtual		~uiClipboard();
+
     static void		setText(const uiString&);
     static void		setText(const char*);
     static void		setImage(const QImage&);

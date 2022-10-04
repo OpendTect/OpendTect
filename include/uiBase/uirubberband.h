@@ -18,10 +18,7 @@ mFDQtclass(QWidget)
 mExpClass(uiBase) uiRubberBand
 {
 public:
-			uiRubberBand(mQtclass(QWidget*) p)
-			    : parent_(p)
-			    , qrubberband_(0)
-			    , aspectratio_(mUdf(float))    {}
+			uiRubberBand(QWidget* p);
 			~uiRubberBand();
 
     void		start(mQtclass(QMouseEvent*));
@@ -36,13 +33,13 @@ public:
 
 protected:
 
-    mQtclass(QRubberBand*)	qrubberband_;
+    mQtclass(QRubberBand*)	qrubberband_	= nullptr;
     mQtclass(QWidget*)		parent_;
 
-    uiPoint		origin_;
-    uiRect		area_;
+    uiPoint			origin_;
+    uiRect			area_;
 
-    float		aspectratio_;
+    float			aspectratio_		= mUdf(float);
 
-    void		handleEv(mQtclass(QMouseEvent*),bool);
+    void			handleEv(mQtclass(QMouseEvent*),bool);
 };

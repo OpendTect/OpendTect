@@ -27,7 +27,7 @@ mExpClass(uiBase) uiKeyDesc
 {
 public:
 			uiKeyDesc(const char* statestr=0,const char* keystr=0);
-    virtual		~uiKeyDesc() {}
+    virtual		~uiKeyDesc();
 
     bool		operator==(const uiKeyDesc& ev) const
 			{ return key_==ev.key_ && state_==ev.state_; }
@@ -64,23 +64,22 @@ mExpClass(uiBase) uiShortcutsList
 {
 public:
 
-    			uiShortcutsList( const uiShortcutsList& scl )
-							{ *this = scl; }
-    			~uiShortcutsList() 		{ empty(); }
+			uiShortcutsList(const uiShortcutsList&);
+			~uiShortcutsList();
+
     uiShortcutsList&	operator =(const uiShortcutsList&);
     bool		write(bool usr=true) const;
-
-    void		fillPar(IOPar&) const;
     
-    ObjectSet<uiKeyDesc>& keyDescs()		{ return keydescs_; }	
-    const ObjectSet<uiKeyDesc>& keyDescs() const { return keydescs_; }	
-    BufferStringSet& 	names()			{ return names_; }
-    const BufferStringSet&  names() const	{ return names_; }
-    const uiKeyDesc*	keyDescOf(const char*) const;
-    const char*		nameOf(const uiKeyDesc&) const;
-    int			valueOf(const uiKeyDesc&) const;
+    ObjectSet<uiKeyDesc>&	keyDescs()		{ return keydescs_; }
+    const ObjectSet<uiKeyDesc>& keyDescs() const	{ return keydescs_; }
+    BufferStringSet& 		names()			{ return names_; }
+    const BufferStringSet&	names() const		{ return names_; }
+    const uiKeyDesc*		keyDescOf(const char*) const;
+    const char*			nameOf(const uiKeyDesc&) const;
+    int				valueOf(const uiKeyDesc&) const;
 
-    void		empty();
+    void			empty();
+    void			fillPar(IOPar&) const;
 
 protected:
 
@@ -103,7 +102,8 @@ mExpClass(uiBase) uiShortcutsMgr : public CallBacker
 {
 public:
 			uiShortcutsMgr();
-    
+			~uiShortcutsMgr();
+
     const uiShortcutsList& getList(const char* key) const;
     bool		setList(const uiShortcutsList&,bool usr=true);
 
@@ -128,6 +128,7 @@ public:
 					  const char* keystr=0,
 					  int val=1);
 			uiExtraIntKeyDesc(const uiExtraIntKeyDesc&);
+			~uiExtraIntKeyDesc();
 			
     bool		operator==(const uiExtraIntKeyDesc& ev) const
 			{ return key_==ev.key_ && state_==ev.state_ &&

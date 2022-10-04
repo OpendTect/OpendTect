@@ -31,6 +31,9 @@ public:
 			    , sz_(h?100:25,h?25:100)
 			    , startal_(Alignment::HCenter,Alignment::Top)
 			    , stopal_(Alignment::HCenter,Alignment::Bottom) {}
+			~Setup()
+			{}
+
 	mDefSetupMemb(bool,hor)
 	mDefSetupMemb(uiSize,sz)
 	mDefSetupMemb(Alignment,startal)

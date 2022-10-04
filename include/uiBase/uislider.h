@@ -50,6 +50,8 @@ public:
 			    , sldrsize_(200)
 			    , isinverted_(false)
 			    {}
+			~Setup()
+			{}
 
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,logscale)

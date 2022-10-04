@@ -34,8 +34,14 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
 }
 
 
+uiTabStack::~uiTabStack()
+{}
+
+
 NotifierAccess& uiTabStack::selChange()
-{ return tabbar_->selected; }
+{
+    return tabbar_->selected;
+}
 
 
 void uiTabStack::tabSel( CallBacker* )

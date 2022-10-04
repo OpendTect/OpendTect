@@ -14,6 +14,14 @@ ________________________________________________________________________
 #include <QApplication>
 #include <QClipboard>
 
+uiClipboard::uiClipboard()
+{}
+
+
+uiClipboard::~uiClipboard()
+{}
+
+
 void uiClipboard::setText( const uiString& str )
 {
     QClipboard* clipboard = QApplication::clipboard();

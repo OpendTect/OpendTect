@@ -23,10 +23,10 @@ mFDQtclass(QMdiSubWindow)
 mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
-	    uiMdiAreaWindow(uiMdiArea&,
-			    const uiString& title=uiString::emptyString());
-
-				~uiMdiAreaWindow()	{}
+				uiMdiAreaWindow(uiMdiArea&,
+						const uiString& title=
+						       uiString::emptyString());
+				~uiMdiAreaWindow();
 
     void			setTitle(const uiString&);
     const uiString&		getTitle() const { return title_; }

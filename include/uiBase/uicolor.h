@@ -22,7 +22,7 @@ class uiSpinBox;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-mGlobal(uiBase) bool selectColor(OD::Color&,uiParent* parnt=0,
+mGlobal(uiBase) bool selectColor(OD::Color&,uiParent* parnt=nullptr,
 				 uiString=uiString::emptyString(),
 				 bool withtransp=false);
 
@@ -46,13 +46,15 @@ public:
 
 	enum TranspHndlng	{ None, InSelector, Separate };
 
-			    Setup( const OD::Color& col, TranspHndlng h=None )
+			Setup( const OD::Color& col, TranspHndlng h=None )
 				: color_(col)
 				, withcheck_(false)
 				, dlgtitle_(uiColorInput::sSelColor())
 				, transp_(h)
 				, withdesc_(h != Separate)
-			    {}
+			{}
+			~Setup()
+			{}
 
 	mDefSetupMemb(OD::Color,color)
 	mDefSetupMemb(uiString,lbltxt)
@@ -64,7 +66,8 @@ public:
     };
 
 				uiColorInput(uiParent*,const Setup&,
-					     const char* nm=0);
+					     const char* nm=nullptr);
+				~uiColorInput();
 
     const OD::Color&		color() const	{ return color_; }
     void			setColor(const OD::Color&);

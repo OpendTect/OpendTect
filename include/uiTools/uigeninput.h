@@ -160,6 +160,7 @@ Returns true, if changes are accepted.
     float		getOffset( mDeclArgs(float) ) const;
 
     void		setTextValidator(const uiTextValidator&);
+    void		setDefaultTextValidator();
 
 
 #undef mDeclArgs

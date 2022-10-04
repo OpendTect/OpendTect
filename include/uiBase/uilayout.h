@@ -38,6 +38,7 @@ mExpClass(uiBase) uiConstraint
 friend class i_LayoutItem;
 public:
 			uiConstraint(constraintType,i_LayoutItem* o,int marg);
+    virtual		~uiConstraint();
 
     bool		operator==(const uiConstraint&) const;
     bool		operator!=(const uiConstraint&) const;

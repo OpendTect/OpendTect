@@ -40,6 +40,10 @@ uiProgressBar::uiProgressBar( uiParent* p, const char* txt,
 }
 
 
+uiProgressBar::~uiProgressBar()
+{}
+
+
 uiProgressBarBody& uiProgressBar::mkbody( uiParent* p, const char* txt )
 {
     body_= new uiProgressBarBody( *this, p, txt );
