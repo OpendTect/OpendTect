@@ -33,18 +33,20 @@ class SelSpec;
 mExpClass(AttributeEngine) ExtAttribCalc
 {
 public:
-    virtual			~ExtAttribCalc()			{}
+				ExtAttribCalc();
+    virtual			~ExtAttribCalc();
+
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
 				/*!<\returns if this object can
 				     compute it or not. */
 
-    virtual DataPackID	createAttrib(const TrcKeyZSampling&,
+    virtual DataPackID		createAttrib(const TrcKeyZSampling&,
 					     DataPackID, TaskRunner*);
     virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
 					     TaskRunner*);
     virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
 					     TaskRunner*);
-    virtual DataPackID	createAttrib(const TrcKeyZSampling&,
+    virtual DataPackID		createAttrib(const TrcKeyZSampling&,
 					     const LineKey&,TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }

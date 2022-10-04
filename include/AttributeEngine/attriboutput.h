@@ -125,6 +125,8 @@ public:
 					    const TrcKeyZSampling&) override;
 
 protected:
+				~DataPackOutput();
+
     TrcKeyZSampling		desiredvolume_;
     TrcKeyZSampling		dcsampling_;	//can differ from desiredvolume_
 				//(special cases with decimated cubes smaller
@@ -146,7 +148,6 @@ mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 public:
 				SeisTrcStorOutput(const TrcKeyZSampling&,
 						  const Pos::GeomID);
-				~SeisTrcStorOutput();
 
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
@@ -184,6 +185,7 @@ public:
     static const char*		depthrangekey();
 
 protected:
+				~SeisTrcStorOutput();
 
     MultiID&			storid_;
     TrcKeyZSampling		desiredvolume_;
@@ -239,8 +241,9 @@ public:
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
 protected:
+				~Trc2DVarZStorOutput();
 
-    const TrcKeyZSampling		getCS();
+    const TrcKeyZSampling	getCS();
 
     DataPointSet*		poszvalues_;
     float			stdtrcsz_;
@@ -260,7 +263,6 @@ public:
 				TwoDOutput(const Interval<int>&,
 					   const Interval<float>&,
 					   Pos::GeomID);
-				~TwoDOutput();
 
     bool			doInit();
     bool			wantsOutput(const BinID&) const override;
@@ -279,6 +281,7 @@ public:
 				{ return errmsg_.str(); }
 
 protected:
+				~TwoDOutput();
 
     TypeSet< Interval<int> >	sampleinterval_;
     BufferString		errmsg_;
@@ -295,7 +298,6 @@ mExpClass(AttributeEngine) LocationOutput : public Output
 {
 public:
 				LocationOutput(BinIDValueSet&);
-				~LocationOutput() {};
 
     bool			getDesiredVolume(
 					TrcKeyZSampling&) const override
@@ -316,6 +318,8 @@ public:
     static const char*		surfidkey();
 
 protected:
+				~LocationOutput();
+
     BinIDValueSet&		bidvalset_;
 
     bool			arebiddupl_;
@@ -335,7 +339,6 @@ mExpClass(AttributeEngine) TrcSelectionOutput : public Output
 public:
 				TrcSelectionOutput(const BinIDValueSet&,
 						   float outval =0);
-				~TrcSelectionOutput() ;
 
     bool			getDesiredVolume(
 					TrcKeyZSampling&) const override;
@@ -350,6 +353,8 @@ public:
     void			setGeomID(Pos::GeomID);
 
 protected:
+				~TrcSelectionOutput();
+
     const BinIDValueSet&	bidvalset_;
     SeisTrcBuf*			outpbuf_;
     float			outval_;
@@ -366,7 +371,6 @@ mExpClass(AttributeEngine) TableOutput : public Output
 {
 public:
 				TableOutput(DataPointSet&,int);
-				~TableOutput();
 
     bool			getDesiredVolume(
 					TrcKeyZSampling&) const override;
@@ -399,6 +403,8 @@ public:
     void			initPairsTable();
 
 protected:
+				~TableOutput();
+
     DataPointSet&		datapointset_;
 
     bool			arebiddupl_;
@@ -423,14 +429,15 @@ protected:
 				PosAndRowIDPair()
 				    : gid_(-1)
 				    , tid_(-1)
-				    , rid_(-1)			{};
-
+				    , rid_(-1)			{}
 				PosAndRowIDPair( Pos::GeomID gid,
 						 Pos::TraceID tid,
 						 DataPointSet::RowID rid )
 				    : gid_(gid)
 				    , tid_(tid)
-				    , rid_(rid)			{};
+				    , rid_(rid)			{}
+				~PosAndRowIDPair()
+				{}
 
 	bool			operator == ( PosAndRowIDPair other ) const
 				{ return other.gid_ == gid_ &&
@@ -451,6 +458,5 @@ protected:
 
     TypeSet<PosAndRowIDPair>	parpset_;
 };
-
 
 } // namespace Attrib

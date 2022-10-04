@@ -32,9 +32,7 @@ namespace Attrib
 mExpClass(AttributeEngine) Param
 {
 public:
-				Param(const char* key);
-				Param(const Param&);
-    virtual			~Param() {}
+    virtual			~Param();
 
     virtual Param*		clone() const		= 0;
 
@@ -68,6 +66,8 @@ public:
     virtual void		fillDefStr(BufferString&) const		=0;
 
 protected:
+				Param(const char* key);
+				Param(const Param&);
 
     BufferString		key_;
     bool			isgroup_;

@@ -34,6 +34,22 @@ DescSetup::DescSetup()
 }
 
 
+DescSetup::~DescSetup()
+{}
+
+
+
+// InputSpec
+InputSpec::InputSpec( const char* desc, bool enabled )
+    : desc_(desc)
+    , enabled_(enabled)
+{}
+
+
+InputSpec::~InputSpec()
+{}
+
+
 bool InputSpec::operator==(const InputSpec& b) const
 {
     if ( desc_!=b.desc_ || enabled_!=b.enabled_ || issteering_!=b.issteering_ )
@@ -55,6 +71,32 @@ bool InputSpec::operator==(const InputSpec& b) const
 }
 
 
+
+// Attrib::DescID
+DescID::DescID()
+    : id_(-1)
+    , isstored_(false)
+{}
+
+
+DescID::DescID( int id, bool isstored )
+    : id_(id)
+    , isstored_(isstored)
+{}
+
+
+DescID::DescID( const DescID& id )
+    : id_(id.id_)
+    , isstored_(id.isstored_)
+{}
+
+
+DescID::~DescID()
+{}
+
+
+
+// Attrib::Desc
 const char* Desc::sKeyOutput() { return "output"; }
 const char* Desc::sKeyAll() { return "ALL"; }
 const char* Desc::sKeyInlDipComp() { return "Inline Dip"; }

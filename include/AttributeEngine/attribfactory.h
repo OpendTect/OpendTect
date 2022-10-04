@@ -23,7 +23,7 @@ typedef Provider* (*ProviderCreater)(Desc&);
 \brief Factory for attribute providers.
 */
 
-mExpClass(AttributeEngine) ProviderFactory
+mExpClass(AttributeEngine) ProviderFactory final
 {
 public:
 			ProviderFactory();

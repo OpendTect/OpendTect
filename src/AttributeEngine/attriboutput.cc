@@ -111,6 +111,8 @@ Pos::GeomID Output::curGeomID() const
 { return seldata_->geomID(); }
 
 
+
+// DataPackOutput
 DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
     : desiredvolume_(cs)
     , dcsampling_(cs)
@@ -118,6 +120,10 @@ DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
     , udfval_(mUdf(float))
 {
 }
+
+
+DataPackOutput::~DataPackOutput()
+{}
 
 
 bool DataPackOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
@@ -241,6 +247,8 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 }
 
 
+
+// SeisTrcStorOutput
 SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
 				      const Pos::GeomID geomid )
     : desiredvolume_(cs)
@@ -255,6 +263,15 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , growtrctosi_(false)
 {
     seldata_->setGeomID( geomid );
+}
+
+
+SeisTrcStorOutput::~SeisTrcStorOutput()
+{
+    delete writer_;
+    delete &storid_;
+    delete auxpars_;
+    delete scaler_;
 }
 
 
@@ -285,15 +302,6 @@ bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 
     storid_ = storid;
     return true;
-}
-
-
-SeisTrcStorOutput::~SeisTrcStorOutput()
-{
-    delete writer_;
-    delete &storid_;
-    delete auxpars_;
-    delete scaler_;
 }
 
 
@@ -570,6 +578,8 @@ bool SeisTrcStorOutput::finishWrite()
 }
 
 
+
+// TwoDOutput
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			Pos::GeomID geomid)
     : errmsg_(0)
@@ -664,6 +674,8 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 }
 
 
+
+// LocationOutput
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
@@ -674,6 +686,10 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 
     arebiddupl_ = areBIDDuplicated();
 }
+
+
+LocationOutput::~LocationOutput()
+{}
 
 
 void LocationOutput::collectData( const DataHolder& data, float refstep,
@@ -772,6 +788,9 @@ bool LocationOutput::areBIDDuplicated() const
     return tmpset.totalSize()<bidvalset_.totalSize();
 }
 
+
+
+// TrcSelectionOutput
 TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 					float outval )
     : bidvalset_(bidvalset)
@@ -944,6 +963,8 @@ const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
 }
 
 
+
+// Trc2DVarZStorOutput
 Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
 					  DataPointSet* poszvalues,
 					  float outval )
@@ -970,6 +991,10 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;
 }
+
+
+Trc2DVarZStorOutput::~Trc2DVarZStorOutput()
+{}
 
 
 void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
@@ -1140,6 +1165,7 @@ bool Trc2DVarZStorOutput::finishWrite()
 
 
 
+// TableOutput
 TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     : datapointset_(datapointset)
     , firstattrcol_(firstcol)

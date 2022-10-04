@@ -38,7 +38,15 @@ BinIDParam::BinIDParam( const char* nm, const BinID& defbid, bool isreq )
     setRequired( isreq );
 }
 
-mParamClone( BinIDParam );
+
+BinIDParam::~BinIDParam()
+{}
+
+
+BinIDParam* BinIDParam::clone() const
+{
+    return new BinIDParam(*this);
+}
 
 
 void BinIDParam::setLimits( const Interval<int>& inlrg,
@@ -118,10 +126,13 @@ BufferString BinIDParam::getDefaultValue() const
 }
 
 
+
+// BoolParam
 BoolParam::BoolParam( const char* nm )
     : ValParam(nm,new BoolInpSpec(true,uiStrings::sYes(),
 				  uiStrings::sNo(),false))
 {}
+
 
 BoolParam::BoolParam( const char* nm, bool defval, bool isreq )
     : ValParam(nm,new BoolInpSpec(true,uiStrings::sYes(),
@@ -131,6 +142,10 @@ BoolParam::BoolParam( const char* nm, bool defval, bool isreq )
     setDefaultValue( defval );
     setRequired( isreq );
 }
+
+
+BoolParam::~BoolParam()
+{}
 
 mParamClone( BoolParam );
 
@@ -170,9 +185,12 @@ void BoolParam::setSet( bool yn )
 { reinterpret_cast<BoolInpSpec*>(spec_)->setSet(yn); }
 
 
+
+// EnumParam
 EnumParam::EnumParam( const char* nm )
     : ValParam( nm, new StringListInpSpec )
 {}
+
 
 EnumParam::EnumParam( const char* nm, int defval, bool isreq )
     : ValParam( nm, new StringListInpSpec )
@@ -180,6 +198,10 @@ EnumParam::EnumParam( const char* nm, int defval, bool isreq )
     setDefaultValue( defval );
     setRequired( isreq );
 }
+
+
+EnumParam::~EnumParam()
+{}
 
 mParamClone( EnumParam );
 
@@ -248,9 +270,12 @@ void EnumParam::setSet( bool yn )
 { reinterpret_cast<StringListInpSpec*>(spec_)->setSet(yn); }
 
 
+
+// StringParam
 StringParam::StringParam( const char* key )
     : ValParam( key, new StringInpSpec )
 {}
+
 
 StringParam::StringParam( const char* key, const char* defstr, bool isreq )
     : ValParam( key, new StringInpSpec )
@@ -258,6 +283,10 @@ StringParam::StringParam( const char* key, const char* defstr, bool isreq )
     setDefaultValue( defstr );
     setRequired( isreq );
 }
+
+
+StringParam::~StringParam()
+{}
 
 mParamClone( StringParam );
 
@@ -293,6 +322,8 @@ bool StringParam::getCompositeValue( BufferString& res ) const
 }
 
 
+
+// SeisStorageRefParam
 SeisStorageRefParam::SeisStorageRefParam()
     : StringParam(StorageProvider::keyStr())
 {}

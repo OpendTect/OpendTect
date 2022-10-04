@@ -23,15 +23,11 @@ dedicated for stored Attributes.
 mExpClass(AttributeEngine) DescID
 {
 public:
-			DescID()
-			    : id_(-1)
-			    , isstored_(false)			{}
-			DescID( int id, bool isstored )
-			    : id_(id)
-			    , isstored_(isstored)		{}
-    			DescID( const DescID& id )
-			    : id_(id.id_)
-			    , isstored_(id.isstored_)		{}
+			DescID();
+			DescID(int id,bool isstored);
+			DescID(const DescID&);
+			~DescID();
+
     inline DescID&	operator =( const DescID& id )
 			{ id_ = id.id_; isstored_ = id.isstored_; return *this;}
     inline bool		isValid() const		{ return id_ >= 0; }

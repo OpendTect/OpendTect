@@ -36,7 +36,9 @@ using DescDefaultsUpdater = void(*)(Desc&);
 mExpClass(AttributeEngine) DescSetup
 {
     public:
-				    DescSetup();
+			DescSetup();
+			~DescSetup();
+
 	mDefSetupClssMemb(DescSetup,bool,is2d)
 	mDefSetupClssMemb(DescSetup,bool,ps)
 	mDefSetupClssMemb(DescSetup,bool,singletraceonly)
@@ -56,16 +58,15 @@ mExpClass(AttributeEngine) DescSetup
 mExpClass(AttributeEngine) InputSpec
 {
 public:
-				InputSpec( const char* d, bool enabled )
-				    : desc_(d), enabled_(enabled)
-				    , issteering_(false)		{}
+				InputSpec(const char* desc,bool enabled);
+				~InputSpec();
 
-    const char*		getDesc() const { return desc_; }
+    const char*			getDesc() const { return desc_; }
 
     BufferString		desc_;
     TypeSet<Seis::DataType>	forbiddenDts_;
     bool			enabled_;
-    bool			issteering_;
+    bool			issteering_		= false;
 
     bool			operator==(const InputSpec&) const;
 };
