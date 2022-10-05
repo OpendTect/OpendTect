@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
@@ -26,8 +25,8 @@ public:
 				mDefaultFactoryInstantiation( Processor, Stack,
 				    "Stack", toUiString(sFactoryKeyword()))
 
- 				Stack();
-    				~Stack();
+				Stack();
+				~Stack();
 
     uiString			errMsg() const override { return errmsg_; }
 
@@ -45,7 +44,7 @@ protected:
     bool			doWork(od_int64,od_int64,int) override;
 
     uiString			errmsg_;
-    Interval<float>*		offsetrg_;
+    Interval<float>*		offsetrg_ = nullptr;
 };
 
 } // namespace PreStack

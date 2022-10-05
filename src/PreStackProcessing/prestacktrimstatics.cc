@@ -24,15 +24,27 @@ static const char* sKeyTrimStatics	= "Trim statics";
 static const char* sKeyOffsetRange	= "Offset range";
 static const char* sKeyMaxShift		= "Maximum shift";
 
+
+// TrimStatics::Iteration
+
 TrimStatics::Iteration::Iteration()
     : ptoffsetrg_(mUdf(float),mUdf(float))
     , tsoffsetrg_(mUdf(float),mUdf(float))
     , maxshift_(mUdf(float))
-{}
+{
+}
+
+
+TrimStatics::Iteration::~Iteration()
+{
+}
 
 
 bool TrimStatics::Iteration::operator==( const Iteration& it ) const
 {
+    if ( &it == this )
+	return true;
+
     return ptoffsetrg_.isEqual(it.ptoffsetrg_,mDefEps) &&
 	   tsoffsetrg_.isEqual(it.tsoffsetrg_,mDefEps) &&
 	   mIsEqual(maxshift_,it.maxshift_,mDefEps);
@@ -43,11 +55,12 @@ bool TrimStatics::Iteration::operator!=( const Iteration& it ) const
 { return !(*this==it); }
 
 
+// TrimStatics
 
 TrimStatics::TrimStatics()
     : Processor(sFactoryKeyword())
-    , output_(2)
-{}
+{
+}
 
 
 TrimStatics::~TrimStatics()

@@ -23,10 +23,12 @@ mExpClass(PreStackProcessing) AGC : public Processor
 { mODTextTranslationClass(AGC)
 public:
 				mDefaultFactoryInstantiation(
-					Processor, AGC, "AGC", 
+					Processor, AGC, "AGC",
 					toUiString(sFactoryKeyword()))
 
 				AGC();
+				~AGC();
+
     bool			prepareWork() override;
 
     void			setWindow(const Interval<float>&);
@@ -49,8 +51,8 @@ protected:
 
     Interval<float>		window_;
     Interval<int>		samplewindow_;
-    float			mutefraction_;
-    int				totalnr_;
+    float			mutefraction_ = 0.f;
+    int				totalnr_ = -1;
 };
 
 } // namespace PreStack

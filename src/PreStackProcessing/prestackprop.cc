@@ -23,7 +23,7 @@ mDefineEnumUtils(PropCalc,CalcType,"Calculation type")
 {
     "Statistics",
     "AVO Attributes",
-    0
+    nullptr
 };
 
 mDefineEnumUtils(PropCalc,AxisType,"Axis transformation")
@@ -35,7 +35,7 @@ mDefineEnumUtils(PropCalc,AxisType,"Axis transformation")
     "Square root",
     "Absolute value",
     "Sine-square",
-    0
+    nullptr
 };
 
 mDefineEnumUtils(PropCalc,LSQType,"Axis type")
@@ -45,14 +45,36 @@ mDefineEnumUtils(PropCalc,LSQType,"Axis type")
     "StdDev of Intercept",
     "StdDev of Gradient",
     "Correlation coefficient",
-    0
+    nullptr
 };
 
 
+// PropCalc::Setup
+
+PropCalc::Setup::Setup()
+    : calctype_(LLSQ)
+    , stattype_(Stats::Average)
+    , lsqtype_(A0)
+    , offsaxis_(Norm)
+    , valaxis_(Norm)
+    , offsrg_(0,mUdf(float))
+    , xscaler_(1.f)
+    , anglerg_(0,30)
+    , useangle_(false)
+    , aperture_(0)
+{
+}
+
+
+PropCalc::Setup::~Setup()
+{
+}
+
+
+// PropCalc
+
 PropCalc::PropCalc( const Setup& s )
     : setup_(s)
-    , innermutes_( 0 )
-    , outermutes_( 0 )
 {
 }
 
@@ -66,7 +88,7 @@ PropCalc::~PropCalc()
 void PropCalc::removeGather()
 {
     delete [] innermutes_;
-    innermutes_ = outermutes_ = 0;
+    innermutes_ = outermutes_ = nullptr;
 }
 
 

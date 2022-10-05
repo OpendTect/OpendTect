@@ -15,7 +15,13 @@ namespace PreStack
 
 mImplFactory( SemblanceAlgorithm, SemblanceAlgorithm::factory );
 
+SemblanceAlgorithm::SemblanceAlgorithm()
+{
+}
+
+
 SemblanceAlgorithm::~SemblanceAlgorithm()
-{}
+{
+}
 
 } // namespace PreStack

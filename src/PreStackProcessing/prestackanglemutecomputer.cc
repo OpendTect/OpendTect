@@ -25,6 +25,20 @@ ________________________________________________________________________
 namespace PreStack
 {
 
+// PreStack::AngleMuteComputer::AngleMuteCompPars
+
+AngleMuteComputer::AngleMuteCompPars::AngleMuteCompPars()
+{
+}
+
+
+AngleMuteComputer::AngleMuteCompPars::~AngleMuteCompPars()
+{
+}
+
+
+// PreStack::AngleMuteComputer::
+
 AngleMuteComputer::AngleMuteComputer()
     : outputmute_(*new MuteDef)
 {

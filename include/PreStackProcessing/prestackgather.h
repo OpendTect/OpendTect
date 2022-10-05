@@ -204,12 +204,12 @@ protected:
 				~GatherSetDataPack();
 
 private:
+				mOD_DisableCopy(GatherSetDataPack);
+
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
     RefObjectSet<Gather>	gathers_;
     Array3D<float>&		arr3d_;
-
-				mOD_DisableCopy( GatherSetDataPack );
 
 public:
 

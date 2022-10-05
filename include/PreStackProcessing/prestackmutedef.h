@@ -27,7 +27,7 @@ namespace PreStack
 mExpClass(PreStackProcessing) MuteDef : public NamedObject
 {
 public:
-					MuteDef(const char* nm=0);
+					MuteDef(const char* nm=nullptr);
 					MuteDef(const MuteDef&);
 					~MuteDef();
 
@@ -41,8 +41,8 @@ public:
     const BinID&			getPos(int idx) const;
 
     void				add(PointBasedMathFunction*,
-	    				    const BinID& pos);
-    					//!<Function becomes mine.
+					    const BinID& pos);
+					//!<Function becomes mine.
     void				remove(int idx);
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
@@ -50,7 +50,7 @@ public:
     void				computeIntervals(float offs,
 					    const BinID&,
 					    TypeSet<Interval<float> >&) const;
-					/*!<Interpolates between 
+					/*!<Interpolates between
 					  defined positions. */
 
     bool				isChanged() const { return ischanged_; }
@@ -65,7 +65,7 @@ protected:
     TypeSet<BinID>			pos_;
     MultiID				refhor_;
 
-    bool				ischanged_;
+    bool				ischanged_ = false;
 
     void				getAllZVals(TypeSet<float>&) const;
 };

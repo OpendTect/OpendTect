@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
 #include "multiid.h"
 #include "offsetazimuth.h"
 #include "prestackprocessor.h"
@@ -60,7 +61,7 @@ protected:
 
     BinID		inputstepout_;
     BinID		patternstepout_;
-    bool		iscross_;
+    bool		iscross_ = true;
 
     TypeSet<OffsetAzimuth>	offsetazi_;
 };

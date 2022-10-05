@@ -27,6 +27,7 @@ mExpClass(PreStackProcessing) Processor : public ParallelTask
 {
 public:
 				mDefineFactoryInClass( Processor, factory );
+				~Processor();
 
     virtual bool		reset(bool force=true);
 
@@ -37,7 +38,7 @@ public:
     const BinID&		getOutputStepout() const;
     virtual bool		setOutputInterest(const BinID& relbid,bool);
     bool			getOutputInterest(const BinID& relbid) const;
-    DataPackID		getOutput(const BinID& relbid) const;
+    DataPackID			getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
     virtual uiString		errMsg() const
@@ -62,14 +63,13 @@ public:
 				    number of samples in gather and run it
 				    parallel vertically.*/
 
-    virtual			~Processor();
     virtual bool		usesPreStackInput() const	{ return true; }
     virtual void		adjustPossibleCompArea(TrcKeySampling&){return;}
     virtual void		retainCurBID( const BinID& ) {};
     virtual bool		mustHaveUserInput() { return true; }
 
 protected:
-				Processor( const char* nm );
+				Processor(const char* nm);
     virtual Gather*		createOutputArray(const Gather& input) const;
     static int			getRelBidOffset(const BinID& relbid,
 						const BinID& stepout);

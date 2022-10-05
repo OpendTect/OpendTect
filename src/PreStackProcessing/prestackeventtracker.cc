@@ -17,13 +17,11 @@ ________________________________________________________________________
 namespace PreStack
 {
 
+// EventTracker
 
 EventTracker::EventTracker()
-    : ownsinnermute_( false )
-    , ownsoutermute_( false )
-    , innermute_( 0 )
-    , outermute_( 0 )
-{}
+{
+}
 
 
 EventTracker::~EventTracker()

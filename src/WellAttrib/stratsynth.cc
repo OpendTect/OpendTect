@@ -2780,7 +2780,6 @@ PSAngleDataCreator( PreStackSyntheticData& pssd )
 
 ~PSAngleDataCreator()
 {
-    deepErase( anglecomputers_ );
 }
 
 uiString uiMessage() const override
@@ -2806,11 +2805,12 @@ bool doPrepare( int nrthreads ) override
     if ( !pssd_.isOK() )
 	return false;
 
-    deepErase( anglecomputers_ );
+    anglecomputers_.setEmpty();
     anglegathers_.setEmpty();
     for ( int ithread=0; ithread<nrthreads; ithread++ )
     {
-	auto* anglecomputer = new PreStack::ModelBasedAngleComputer;
+	RefMan<PreStack::ModelBasedAngleComputer> anglecomputer =
+					new PreStack::ModelBasedAngleComputer;
 	anglecomputer->setRayTracerPars( *pssd_.getGenParams().reflPars() );
 	anglecomputer->setFFTSmoother( 10.f, 15.f );
 	anglecomputers_.add( anglecomputer );
@@ -2862,7 +2862,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 
 bool doFinish( bool success ) override
 {
-    deepErase( anglecomputers_ );
+    anglecomputers_.setEmpty();
     if ( success )
     {
 	RefObjectSet<PreStack::Gather> anglegathers;
@@ -2897,7 +2897,7 @@ static void convertAngleDataToDegrees( PreStack::Gather& ag )
     RefObjectSet<const PreStack::Gather> seisgathers_;
     const ReflectivityModelSet&		refmodels_;
     ManagedObjectSet<RefObjectSet<PreStack::Gather> > anglegathers_;
-    ObjectSet<PreStack::ModelBasedAngleComputer> anglecomputers_;
+    RefObjectSet<PreStack::ModelBasedAngleComputer> anglecomputers_;
     uiString				msg_;
     od_int64				totalnr_;
 

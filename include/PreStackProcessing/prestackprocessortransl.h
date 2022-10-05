@@ -8,8 +8,9 @@ ________________________________________________________________________
 
 -*/
 
- 
+
 #include "prestackprocessingmod.h"
+
 #include "transl.h"
 
 namespace PreStack { class ProcessManager; }
@@ -20,9 +21,9 @@ namespace PreStack { class ProcessManager; }
 
 mExpClass(PreStackProcessing) PreStackProcTranslatorGroup :
 						public TranslatorGroup
-{				      isTranslatorGroup(PreStackProc)
+{ isTranslatorGroup(PreStackProc)
 public:
-			mDefEmptyTranslatorGroupConstructor(PreStackProc)
+			PreStackProcTranslatorGroup();
 
     const char*		defExtension() const override	{ return "psp"; }
 };
@@ -35,7 +36,7 @@ public:
 mExpClass(PreStackProcessing) PreStackProcTranslator : public Translator
 { mODTextTranslationClass(PreStackProcTranslator)
 public:
-			mDefEmptyTranslatorBaseConstructor(PreStackProc)
+			~PreStackProcTranslator();
 
     virtual uiString	read(PreStack::ProcessManager&,Conn&)		= 0;
 			//!< returns err msg or null on success
@@ -47,7 +48,11 @@ public:
     static bool		store(const PreStack::ProcessManager&,const IOObj*,
 			      uiString&);
 
+protected:
+
+			PreStackProcTranslator(const char* nm,const char* unm);
 private:
+
     static uiString	sSelObjNotPreStackProc();
 };
 
@@ -61,8 +66,8 @@ mExpClass(PreStackProcessing) dgbPreStackProcTranslator :
 { mODTextTranslationClass(dgbPreStackProcTranslator)
 			isTranslator(dgb,PreStackProc)
 public:
-
-			mDefEmptyTranslatorConstructor(dgb,PreStackProc)
+			dgbPreStackProcTranslator(const char* nm,
+						  const char* unm);
 
     uiString		read(PreStack::ProcessManager&,Conn&) override;
     uiString		write(const PreStack::ProcessManager&,Conn&) override;

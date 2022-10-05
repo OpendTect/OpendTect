@@ -19,20 +19,27 @@ namespace PreStack
 
 MuteDef::MuteDef( const char* nm )
     : NamedObject( nm )
-    , ischanged_( false )
-{}
+{
+}
 
 
 MuteDef::MuteDef( const MuteDef& b )
-{ (*this) = b; }
+{
+    *this = b;
+}
 
 
 MuteDef::~MuteDef()
-{ deepErase( fns_ ); }
-
-
-MuteDef& MuteDef::operator=(const MuteDef& b)
 {
+    deepErase( fns_ );
+}
+
+
+MuteDef& MuteDef::operator=( const MuteDef& b )
+{
+    if ( &b == this )
+	return *this;
+
     refhor_ = b.refhor_;
     setName( b.name() );
     deepCopy( fns_, b.fns_ );

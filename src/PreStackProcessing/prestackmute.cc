@@ -26,9 +26,6 @@ namespace PreStack
 Mute::Mute()
     : Processor( sFactoryKeyword() )
     , def_(*new MuteDef)
-    , muter_(0)
-    , tail_(false)
-    , taperlen_(10)
 {}
 
 

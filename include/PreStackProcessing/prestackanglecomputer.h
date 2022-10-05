@@ -71,7 +71,7 @@ public:
 
 protected:
 				AngleComputer();
-    virtual			~AngleComputer();
+				~AngleComputer();
 
     bool			fillandInterpArray(Array2D<float>& angledata);
     RefMan<Gather>		computeAngleData();
@@ -107,7 +107,6 @@ mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
 {
 public:
 				VelocityBasedAngleComputer();
-				~VelocityBasedAngleComputer();
 
     bool			setMultiID(const MultiID&);
     bool			isOK() const override { return velsource_; }
@@ -115,6 +114,7 @@ public:
     RefMan<Gather>		computeAngles() override;
 
 protected:
+				~VelocityBasedAngleComputer();
 
     const ElasticModel*		curElasticModel() const override
 				{ return &elasticmodel_; }
@@ -157,12 +157,10 @@ public:
 	TrcKey			trckey_;
 
     private:
-				ModelTool(const ModelTool&) = delete;
-	ModelTool&		operator=(const ModelTool&) = delete;
+				mOD_DisableCopy(ModelTool);
     };
 
 				ModelBasedAngleComputer();
-				~ModelBasedAngleComputer();
 
     void			setElasticModel(const TrcKey&,bool doblock,
 						bool pvelonly,ElasticModel&);
@@ -174,6 +172,7 @@ public:
     RefMan<Gather>		computeAngles() override;
 
 private:
+				~ModelBasedAngleComputer();
 
     const ElasticModel*		curElasticModel() const override;
     const OffsetReflectivityModel* curRefModel() const override;

@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "executor.h"
+
 #include "bufstringset.h"
-#include "trckeyzsampling.h"
+#include "executor.h"
 #include "iopar.h"
 #include "sets.h"
+#include "trckeyzsampling.h"
 #include "valseriesevent.h"
 
 class IOObj;
@@ -88,8 +89,8 @@ protected:
 
     const IOObj*				ioobj_;
     EventManager*				eventmanager_;
-    const BinIDValueSet*			bidsel_;
-    const TrcKeySampling*				horsel_;
+    const BinIDValueSet*			bidsel_ = nullptr;
+    const TrcKeySampling*			horsel_ = nullptr;
 
     ObjectSet<EventPatchReader>			patchreaders_;
 

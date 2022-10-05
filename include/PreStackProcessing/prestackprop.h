@@ -40,28 +40,19 @@ public:
     mExpClass(PreStackProcessing) Setup
     {
     public:
-			Setup()
-			    : calctype_(LLSQ)
-			    , stattype_(Stats::Average)
-			    , lsqtype_(A0)
-			    , offsaxis_(Norm)
-			    , valaxis_(Norm)
-			    , offsrg_(0,mUdf(float))
-			    , xscaler_(1.f)
-			    , anglerg_(0,30)
-			    , useangle_(false)
-			    , aperture_(0)  {}
+			Setup();
+			~Setup();
 
-	mDefSetupMemb(CalcType,calctype)
-	mDefSetupMemb(Stats::Type,stattype)
-	mDefSetupMemb(LSQType,lsqtype)
-	mDefSetupMemb(AxisType,offsaxis)
-	mDefSetupMemb(AxisType,valaxis)
-	mDefSetupMemb(Interval<float>,offsrg)
-	mDefSetupMemb(float,xscaler)
-	mDefSetupMemb(Interval<int>,anglerg)
-	mDefSetupMemb(bool,useangle)
-	mDefSetupMemb(int,aperture)
+	mDefSetupMemb(CalcType,calctype)	// def: Least-Square
+	mDefSetupMemb(Stats::Type,stattype)	// def: Average
+	mDefSetupMemb(LSQType,lsqtype)		// def: A0
+	mDefSetupMemb(AxisType,offsaxis)	// def: Norm
+	mDefSetupMemb(AxisType,valaxis)		// def: Norm
+	mDefSetupMemb(Interval<float>,offsrg)	// def: unlimited
+	mDefSetupMemb(float,xscaler)		// def: 1
+	mDefSetupMemb(Interval<int>,anglerg)	// def: [0, 30]
+	mDefSetupMemb(bool,useangle)		// def: false
+	mDefSetupMemb(int,aperture)		// def: 1
     };
 			PropCalc(const Setup&);
     virtual		~PropCalc();
@@ -89,13 +80,13 @@ protected:
     void		removeGather();
 
     ConstRefMan<Gather> gather_ = nullptr;
-    int*		innermutes_;
-    int*		outermutes_;
+    int*		innermutes_ = nullptr;
+    int*		outermutes_ = nullptr;
     ConstRefMan<Gather> angledata_ = nullptr;;
 
     Setup		setup_;
-	bool		anglevalinradians_ = false;
-	Interval<float>	axisvalsrg_;
+    bool		anglevalinradians_ = false;
+    Interval<float>	axisvalsrg_;
 
 private:
 

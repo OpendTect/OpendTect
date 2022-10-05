@@ -71,7 +71,7 @@ protected:
 
 
 /*!
-\brief Ascii I/O for PreStack event. 
+\brief Ascii I/O for PreStack event.
 */
 
 mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
@@ -79,6 +79,7 @@ mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
 public:
 				EventAscIO(const Table::FormatDesc&,
 					   od_istream&);
+				~EventAscIO();
 
     static Table::FormatDesc*	getDesc();
     static void			updateDesc(Table::FormatDesc&);
@@ -93,7 +94,7 @@ protected:
     od_istream&			strm_;
     float			udfval_;
     bool			isxy_;
-    bool			finishedreadingheader_;
+    bool			finishedreadingheader_ = false;
 };
 
 

@@ -26,9 +26,13 @@ const char* AGC::sKeyMuteFraction()	{ return "Mutefraction"; }
 AGC::AGC()
     : Processor(sFactoryKeyword())
     , window_(-100,100)
-    , mutefraction_(0)
-    , totalnr_(-1)
-{}
+{
+}
+
+
+AGC::~AGC()
+{
+}
 
 
 bool AGC::prepareWork()
