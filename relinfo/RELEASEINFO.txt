@@ -1,4 +1,4 @@
-Opendtect 7.0 release info
+Opendtect 7.X release info
 
 Build platforms/distributions:
 
@@ -11,11 +11,11 @@ Compiler:
 
 Linux: gcc/g++ 5.4.0
 Mac: SDK 10.14
-Windows 64: Visual C++ 19.0
+Windows 64: Visual Studio 2022 (version 17.3)
 
 
 OpenSource packages/versions used:
 
 Qt: 5.15.2
 OpenSceneGraph: 3.6.5
-HDF5 (optional): 1.12.0
+HDF5 (optional): 1.12.2

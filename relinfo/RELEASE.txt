@@ -1,4 +1,5 @@
-OpendTect V7.0.x : Release info
+OpendTect V7.x.x : Release info
 
+In general, all fixes in the stable 7.0 are also applied in the 7.1 releases.
 
 ----
