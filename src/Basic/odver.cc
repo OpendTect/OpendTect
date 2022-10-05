@@ -37,7 +37,7 @@ extern "C" const char* GetFullODVersion()
     mDeclStaticString( ret );
     if ( !ret.isEmpty() ) return ret.buf();
 
-    GetSpecificODVersion( 0, ret );
+    GetSpecificODVersion( nullptr, ret );
 
     if ( ret.isEmpty() )
     {
@@ -57,7 +57,7 @@ extern "C" const char* GetFullODVersion()
 void GetSpecificODVersion( const char* typ, BufferString& res )
 {
     res = ODInst::getPkgVersion( typ ? typ : "basedata" );
-    if ( res.matches( "*error*" ) )
+    if ( res.matches( "*Internal*" ) || res.matches( "*error*" ) )
 	res.setEmpty();
 }
 
