@@ -143,9 +143,7 @@ public:
 
 private:
 			PropertyRefSet();
-
-			PropertyRefSet(const PropertyRefSet&) = delete;
-    PropertyRefSet&	operator =(const PropertyRefSet&) = delete;
+			mOD_DisableCopy(PropertyRefSet);
 
     PropertyRef*	getByName(const char*,bool matchaliases=true);
     PropertyRef*	getByType(PropertyRef::StdType,int occ=0);

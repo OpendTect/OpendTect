@@ -76,8 +76,7 @@ public:
 			//!< Not for production
 
 private:
-			RandGen(const RandGen&)			= delete;
-    RandGen&		operator =(const RandGen&)		= delete;
+			mOD_DisableCopy(RandGen);
 
     std::random_device	rd_;
     mutable std::mt19937 gen_;
@@ -117,8 +116,7 @@ public:
 			//!< Not for production
 
 private:
-			NormalRandGen(const NormalRandGen&)	= delete;
-    NormalRandGen&	operator =(const NormalRandGen&)	= delete;
+			mOD_DisableCopy(NormalRandGen);
 
     std::random_device	rd_;
     mutable std::mt19937_64 gen64_;

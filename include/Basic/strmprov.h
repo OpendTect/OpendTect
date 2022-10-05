@@ -92,8 +92,6 @@ protected:
     static void		sendCBMsg(const CallBack*,const char*);
 
 private:
-			StreamProvider(const StreamProvider&)	= delete;
-    StreamProvider&	operator=(const StreamProvider&)	= delete;
-
+			mOD_DisableCopy(StreamProvider);
 
 };

@@ -24,10 +24,8 @@ mExpClass(Basic) StreamData
 public:
 
 			StreamData();
-			StreamData(const StreamData&)	= delete;
 			StreamData(StreamData&&);
 
-    StreamData&		operator=(const StreamData&)	= delete;
     StreamData&		operator=(StreamData&&);
 
     mDeprecatedObs void transferTo(StreamData&);	//!< retains file name
@@ -60,6 +58,7 @@ public:
     void setImpl(StreamDataImpl*);
 
 private:
+			mOD_DisableCopy(StreamData);
 
     PtrMan<StreamDataImpl>	impl_;
 

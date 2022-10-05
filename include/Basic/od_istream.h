@@ -34,9 +34,7 @@ public:
 			od_istream( std::istream& s )
 			    : od_stream(s)			{}
 
-			od_istream(const od_istream&) = delete;
 			od_istream(od_istream&&);
-    od_istream&		operator=(const od_istream&) = delete;
     od_istream&		operator=(od_istream&&);
 
     bool		open(const char*);
@@ -99,6 +97,9 @@ public:
 				//!< avoid using it in normal circumstances
 
     static od_istream&	nullStream();
+
+private:
+			mOD_DisableCopy(od_istream);
 
 };
 
