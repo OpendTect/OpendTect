@@ -296,6 +296,10 @@ int FileDownloader::nextStep()
 
     if ( odnr_->isFinished() )
     {
+	// Check for any residue data received since the last read
+	if ( odnr_->downloadBytesAvailable() && !writeData() )
+	    return ErrorOccurred();
+
 	initneeded_ = true;
 	nrfilesdownloaded_++;
 	if ( osd_ && osd_->isOK() )
