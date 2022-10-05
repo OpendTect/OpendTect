@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "odver.h"
 #include "od_helpids.h"
 #include "od_istream.h"
+#include "odinst.h"
 #include "plugins.h"
 #include "separstr.h"
 #include "settings.h"
@@ -286,10 +287,15 @@ void uiPluginMan::selChg( CallBacker* )
     if ( piinf.version_ && *piinf.version_ )
     {
 	BufferString vtxt;
-	if ( *piinf.version_ != '=' )
-	    vtxt += piinf.version_;
-	else
+	if ( *piinf.version_ == '=' )
+	{
 	    GetSpecificODVersion( nullptr, vtxt );
+	    if ( vtxt.isEmpty() )
+		vtxt.set( ODInst::getPkgVersion(nullptr) );
+	}
+	else
+	    vtxt.set( piinf.version_ );
+
 	versionfld_->setText( vtxt );
     }
 

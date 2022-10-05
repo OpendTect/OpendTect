@@ -39,11 +39,8 @@ extern "C" const char* GetProjectVersionName()
 {
     BufferString& pvn = getPVN();
     if ( pvn.isEmpty() )
-    {
-	pvn.set( "dTect V" ).add( mODMajorVersion )
-	   .add(".").add( mODMinorVersion )
-	   .add(".").add( mODPatchVersion );
-    }
+	pvn.set( "dTect V" ).add( mODFullVersion );
+
     return pvn.buf();
 }
 

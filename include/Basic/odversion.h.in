@@ -16,3 +16,4 @@ ________________________________________________________________________
 #define mODPatchVersion		@OpendTect_VERSION_PATCH@
 
 #define mODVersion		@OpendTect_VERSION_MAJOR@@OpendTect_VERSION_MINOR@@OpendTect_VERSION_PATCH@
+#define mODFullVersion		"@OpendTect_FULL_VERSION@"

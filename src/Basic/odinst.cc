@@ -293,7 +293,10 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 	fp.setFileName( part1 ); fp.setExtension( "txt", false );
 	fnm = fp.fullPath();
 	if ( !File::exists(fnm) )
-	    { ret = "[error: version file not found]"; return ret.buf(); }
+	{
+	    ret.set( "Internal: [" ).add( mODFullVersion ).add( "]" );
+	    return ret.buf();
+	}
     }
 
     File::getContent( fnm, ret );
