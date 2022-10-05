@@ -23,6 +23,8 @@ ________________________________________________________________________
 
 static const char* sKeyPBMFSetup = "PBMF setup";
 
+// MuteDefTranslatorGroup
+
 defineTranslatorGroup(MuteDef,"Mute Definition");
 uiString MuteDefTranslatorGroup::sTypeName(int num)
 { return uiStrings::sMute(num); }
@@ -31,6 +33,25 @@ defineTranslator(dgb,MuteDef,mDGBKey);
 
 mDefSimpleTranslatorioContext(MuteDef,Misc)
 mDefSimpleTranslatorSelector(MuteDef);
+
+MuteDefTranslatorGroup::MuteDefTranslatorGroup()
+    : TranslatorGroup("MuteDef")
+{
+}
+
+
+// MuteDefTranslator
+
+MuteDefTranslator::MuteDefTranslator( const char* nm, const char* unm )
+    : Translator(nm,unm)
+{
+}
+
+
+MuteDefTranslator::~MuteDefTranslator()
+{
+}
+
 
 uiString MuteDefTranslator::sSelObjNotMuteDef()
 {
@@ -87,6 +108,14 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     }
 
     return msg.isEmpty();
+}
+
+
+// dgbMuteDefTranslator
+
+dgbMuteDefTranslator::dgbMuteDefTranslator( const char* nm, const char* unm )
+    : MuteDefTranslator(nm,unm)
+{
 }
 
 

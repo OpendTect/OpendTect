@@ -44,7 +44,7 @@ mExpClass(PreStackProcessing) Event
 {
 public:
 			Event(int sz,bool quality);
-			Event(const Event& b);
+			Event(const Event&);
 			~Event();
 
     Event&		operator=(const Event&);
@@ -55,19 +55,19 @@ public:
     int			indexOf(const OffsetAzimuth&) const;
 
     int			sz_;
-    float*		pick_;
-    OffsetAzimuth*	offsetazimuth_;
+    float*		pick_ = nullptr;
+    OffsetAzimuth*	offsetazimuth_ = nullptr;
 
     static unsigned char cBestQuality()		{ return 254; }
     static unsigned char cManPickQuality()	{ return 255; }
     static unsigned char cDefaultQuality()	{ return 0; }
-    unsigned char*	pickquality_;
+    unsigned char*	pickquality_ = 0;
 			//255	= manually picked
 			//0-254 = tracked
 
-    unsigned char	quality_;
-    short		horid_;
-    VSEvent::Type	eventtype_;
+    unsigned char	quality_ = 255;
+    short		horid_ = -1;
+    VSEvent::Type	eventtype_ = VSEvent::None;
 };
 
 
@@ -80,12 +80,13 @@ mExpClass(PreStackProcessing) EventSet : public ReferencedObject
 public:
 			EventSet();
 			EventSet(const EventSet&);
+
     EventSet&		operator=(const EventSet&);
 
     int			indexOf(int horid) const;
 
     ObjectSet<Event>	events_;
-    bool		ischanged_;
+    bool		ischanged_ = false;
 
 protected:
     virtual		~EventSet();
@@ -103,12 +104,14 @@ public:
     mStruct(PreStackProcessing) DipSource
     {
 			DipSource();
+			~DipSource();
+
 	enum Type	{ None, Horizon, SteeringVolume };
 			mDeclareEnumUtils(Type);
 
-	bool		operator==(const DipSource& b) const;
+	bool		operator==(const DipSource&) const;
 
-	Type		type_;
+	Type		type_ = None;
 	MultiID		mid_;
 
 	void		fill(BufferString&) const;
@@ -224,14 +227,14 @@ protected:
     BinIDValueSet*		notificationqueue_;
     BinIDValueSet*		reloadbids_;
 
-    int				nexthorid_;
-    int				auxdatachanged_;
+    int				nexthorid_ = 0;
+    bool			auxdatachanged_ = false;
 
     DipSource			primarydipsource_;
     DipSource			secondarydipsource_;
 
-    SeisTrcReader*		primarydipreader_;
-    SeisTrcReader*		secondarydipreader_;
+    SeisTrcReader*		primarydipreader_ = nullptr;
+    SeisTrcReader*		secondarydipreader_ = nullptr;
 
     Undo			undo_;
 };
@@ -247,6 +250,8 @@ public:
 			SetPickUndo(EventManager&,const BinID&,int horidx,
 				    const OffsetAzimuth&,float depth,
 				    unsigned char pickquality);
+			~SetPickUndo();
+
     const char*		getStandardDesc() const override
 			{ return "prestack pick"; }
 
@@ -281,6 +286,8 @@ public:
 				    short horid,VSEvent::Type,
 				    unsigned char pickquality);
 			SetEventUndo(EventManager&,const BinID&,int horidx);
+			~SetEventUndo();
+
     const char*		getStandardDesc() const override
 			{ return "prestack pick"; }
 

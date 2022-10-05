@@ -154,13 +154,12 @@ protected:
 };
 
 
-//EventReader
+// EventReader
+
 EventReader::EventReader( IOObj* ioobj, EventManager* events, bool trigger )
     : Executor( "Reading Prestack events" )
     , eventmanager_( events )
     , ioobj_( ioobj )
-    , bidsel_( 0 )
-    , horsel_( 0 )
     , trigger_( trigger )
 {
     if ( eventmanager_ ) eventmanager_->blockChange( true, true );
@@ -519,7 +518,8 @@ bool EventReader::readAuxData(const char* fnm)
 }
 
 
-//EventWriter
+// EventWriter
+
 EventWriter::EventWriter( IOObj* ioobj, EventManager& events )
     : Executor( "Writing Prestack events" )
     , eventmanager_( events )

@@ -29,6 +29,8 @@ mExpClass(PreStackProcessing) EventTracker
 { mODTextTranslationClass(EventTracker)
 public:
 			mDefineFactoryInClass(EventTracker,factory);
+    virtual		~EventTracker();
+
     virtual void	reInit();
 			//!<Should be called after each survey change
 
@@ -37,7 +39,6 @@ public:
 
     virtual bool	trackEvents(const Gather&,ObjectSet<Event>&) const = 0;
 
-    virtual		~EventTracker();
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
@@ -47,13 +48,13 @@ public:
     static const char*	sKeyOuterMute() { return "Outer mute"; }
 
 protected:
-    				EventTracker();
+				EventTracker();
     void			removeMutes();
 
-    MuteDef*			innermute_;
-    MuteDef*			outermute_;
-    bool			ownsinnermute_;
-    bool			ownsoutermute_;
+    MuteDef*			innermute_ = nullptr;
+    MuteDef*			outermute_ = nullptr;
+    bool			ownsinnermute_ = false;
+    bool			ownsoutermute_ = false;
 
     MultiID			innermuteid_;
     MultiID			outermuteid_;

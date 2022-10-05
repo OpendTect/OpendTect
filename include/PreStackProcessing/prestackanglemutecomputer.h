@@ -35,6 +35,9 @@ public:
 
     mStruct(PreStackProcessing) AngleMuteCompPars : public AngleCompParams
     {
+				AngleMuteCompPars();
+				~AngleMuteCompPars();
+
 	MultiID			outputmutemid_;
 	TrcKeySampling		tks_;
     };

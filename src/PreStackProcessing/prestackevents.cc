@@ -31,27 +31,18 @@ namespace PreStack
 {
 
 mDefineEnumUtils( EventManager::DipSource,Type,"Dip source" )
-{ "None", "Horizon", "SteeringCube", 0 };
+{ "None", "Horizon", "SteeringCube", nullptr };
 
 
 Event::Event( int sz, bool quality )
-    : pick_( 0 )
-    , pickquality_( 0 )
-    , offsetazimuth_( 0 )
-    , horid_( -1 )
-    , quality_( 255 )
-    , eventtype_( VSEvent::None )
 {
     setSize( sz, quality );
 }
 
 
-Event::Event( const Event& b )
-    : pick_( 0 )
-    , pickquality_( 0 )
-    , offsetazimuth_( 0 )
+Event::Event( const Event& oth )
 {
-    (*this) = b;
+    *this = oth;
 }
 
 
@@ -65,6 +56,9 @@ Event::~Event()
 
 Event& Event::operator=( const Event& b )
 {
+    if ( &b == this )
+	return *this;
+
     setSize( b.sz_, b.pickquality_ );
 
     OD::memCopy( pick_, b.pick_, sizeof(float)*sz_ );
@@ -159,8 +153,8 @@ void Event::addPick()
 
 
 EventSet::EventSet()
-    : ischanged_( false )
-{}
+{
+}
 
 
 int Event::indexOf( const OffsetAzimuth& oa ) const
@@ -177,7 +171,7 @@ int Event::indexOf( const OffsetAzimuth& oa ) const
 
 EventSet::EventSet( const EventSet& b )
 {
-    (*this) = b;
+    *this = b;
 }
 
 
@@ -189,6 +183,9 @@ EventSet::~EventSet()
 
 EventSet& EventSet::operator=( const EventSet& b )
 {
+    if ( &b == this )
+	return *this;
+
     deepCopy( events_, b.events_ );
     ischanged_ = b.ischanged_;
     return *this;
@@ -207,6 +204,69 @@ int EventSet::indexOf( int horid ) const
 }
 
 
+// EventManager::DipSource
+
+EventManager::DipSource::DipSource()
+{
+}
+
+
+EventManager::DipSource::~DipSource()
+{
+}
+
+
+bool EventManager::DipSource::operator==(const EventManager::DipSource& b) const
+{
+    if ( &b == this )
+	return true;
+
+    if ( b.type_!=type_ )
+	return false;
+
+    if ( type_==SteeringVolume )
+	return b.mid_==mid_;
+
+    return true;
+}
+
+
+void EventManager::DipSource::fill( BufferString& buf ) const
+{
+    FileMultiString fms;
+    fms += TypeDef().convert( (int) type_ );
+    fms += mid_;
+    buf = fms;
+}
+
+
+bool EventManager::DipSource::use( const char* str )
+{
+    const FileMultiString fms( str );
+    const char* type = fms[0];
+    if ( !type || !*type )
+	return false;
+
+    Type typeenum;
+    if ( !parseEnumType( type, typeenum ) )
+	return false;
+
+    if ( typeenum==SteeringVolume )
+    {
+	if ( fms[1].isEmpty() )
+	    return false;
+
+	mid_.fromString( fms[1].buf() );
+    }
+
+    type_ = typeenum;
+    return true;
+}
+
+
+
+// EventManager
+
 EventManager::EventManager()
     : events_(2,1)
     , changebid_(-1,-1)
@@ -215,14 +275,10 @@ EventManager::EventManager()
     , resetChangeStatus(this)
     , reloadbids_(new BinIDValueSet(0,false))
     , notificationqueue_(new BinIDValueSet(0,false))
-    , nexthorid_(0)
-    , auxdatachanged_(false)
-    , primarydipreader_(nullptr)
-    , secondarydipreader_(nullptr)
     , color_(OD::getRandomColor())
 {
     events_.allowDuplicates( true );
-    emhorizons_.allowNull( true );
+    emhorizons_.setNullAllowed();
 }
 
 
@@ -249,7 +305,7 @@ int EventManager::addHorizon( int id )
     const int res = id==-1 ? nextHorizonID( true ) : id;
     horids_ += res;
     horrefs_ += MultiID();
-    emhorizons_ += 0;
+    emhorizons_ += nullptr;
 
     auxdatachanged_ = true;
     reportChange( BinID(-1,-1) );
@@ -361,7 +417,7 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
     reloadbids_->setEmpty();
     storageid_ = mid;
     if ( !reload )
-	return 0;
+	return nullptr;
 
     horids_.erase();
     horrefs_.erase();
@@ -535,8 +591,8 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 
 	}
 
-	if ( !create ) return 0;
-	EventSet* ge = new EventSet;
+	if ( !create ) return nullptr;
+	auto* ge = new EventSet;
 	ge->ref();
 	events_.add( &ge, bid );
 	return ge;
@@ -756,55 +812,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
     return false;
 }
 
-EventManager::DipSource::DipSource()
-    : type_( None )
-{}
 
-
-bool EventManager::DipSource::operator==(const EventManager::DipSource& b) const
-{
-    if ( b.type_!=type_ )
-	return false;
-
-    if ( type_==SteeringVolume )
-	return b.mid_==mid_;
-
-    return true;
-}
-
-
-void EventManager::DipSource::fill( BufferString& buf ) const
-{
-    FileMultiString fms;
-    fms += TypeDef().convert( (int) type_ );
-    fms += mid_;
-    buf = fms;
-}
-
-
-bool EventManager::DipSource::use( const char* str )
-{
-    const FileMultiString fms( str );
-    const char* type = fms[0];
-    if ( !type || !*type )
-	return false;
-
-    Type typeenum;
-    if ( !parseEnumType( type, typeenum ) )
-	return false;
-
-    if ( typeenum==SteeringVolume )
-    {
-	if ( fms[1].isEmpty() )
-	    return false;
-
-	mid_.fromString( fms[1].buf() );
-    }
-
-    type_ = typeenum;
-    return true;
-}
-
+// SetPickUndo
 
 SetPickUndo::SetPickUndo( EventManager& man, const BinID& bid, int horidx,
 			  const OffsetAzimuth& oa,
@@ -827,6 +836,11 @@ SetPickUndo::SetPickUndo( EventManager& man, const BinID& bid, int horidx,
 	if ( event->pickquality_ )
 	    newquality_ = event->pickquality_[idx];
     }
+}
+
+
+SetPickUndo::~SetPickUndo()
+{
 }
 
 
@@ -911,6 +925,11 @@ SetEventUndo::SetEventUndo( EventManager& man, const BinID& bid, int horidx )
 }
 
 
+SetEventUndo::~SetEventUndo()
+{
+}
+
+
 bool SetEventUndo::unDo()
 {
     if ( isremove_ )
@@ -935,7 +954,7 @@ bool SetEventUndo::addEvent()
     if ( !events )
 	return false;
 
-    Event* ev = new Event( 0, true );
+    auto* ev = new Event( 0, true );
     ev->quality_ = quality_;
     ev->horid_ = horid_;
     ev->eventtype_ = eventtype_;

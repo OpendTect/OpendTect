@@ -30,6 +30,7 @@ mExpClass(PreStackProcessing) AngleCompParams
 {
 public:
 				AngleCompParams();
+				~AngleCompParams();
 
     float			mutecutoff_ = 30.f;
     Interval<int>		anglerange_;
@@ -83,7 +84,8 @@ public:
 
     mStruct(PreStackProcessing) AngleMutePars : public AngleCompParams
     {
-			AngleMutePars()     {}
+			AngleMutePars();
+			~AngleMutePars();
 
 	bool		tail_ = false;
 	float		taperlen_ = 10.f;

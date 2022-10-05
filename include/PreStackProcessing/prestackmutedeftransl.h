@@ -8,8 +8,9 @@ ________________________________________________________________________
 
 -*/
 
- 
+
 #include "prestackprocessingmod.h"
+
 #include "transl.h"
 
 namespace PreStack { class MuteDef; }
@@ -19,9 +20,9 @@ namespace PreStack { class MuteDef; }
 */
 
 mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
-{				      isTranslatorGroup(MuteDef)
+{ isTranslatorGroup(MuteDef)
 public:
-			mDefEmptyTranslatorGroupConstructor(MuteDef)
+			MuteDefTranslatorGroup();
 
     const char*		defExtension() const override	{ return "mute"; }
 };
@@ -34,7 +35,7 @@ public:
 mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
 { mODTextTranslationClass(MuteDefTranslator)
 public:
-			mDefEmptyTranslatorBaseConstructor(MuteDef)
+			~MuteDefTranslator();
 
     virtual const char* read(PreStack::MuteDef&,Conn&)		= 0;
 			//!< returns err msg or null on success
@@ -44,6 +45,9 @@ public:
     static bool		retrieve(PreStack::MuteDef&,const IOObj*,uiString&);
     static bool		store(const PreStack::MuteDef&,const IOObj*,
 			      uiString&);
+
+protected:
+			MuteDefTranslator(const char* nm,const char* unm);
 
 private:
     static uiString	sSelObjNotMuteDef();
@@ -55,10 +59,9 @@ private:
 */
 
 mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
-{			     isTranslator(dgb,MuteDef)
+{ isTranslator(dgb,MuteDef)
 public:
-
-			mDefEmptyTranslatorConstructor(dgb,MuteDef)
+			dgbMuteDefTranslator(const char* nm,const char* unm);
 
     const char*		read(PreStack::MuteDef&,Conn&) override;
     const char*		write(const PreStack::MuteDef&,Conn&) override;

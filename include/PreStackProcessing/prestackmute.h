@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
@@ -30,8 +29,8 @@ public:
 				Processor, Mute,
 				"Mute", toUiString(sFactoryKeyword()))
 
- 			Mute();
-    			~Mute();
+			Mute();
+			~Mute();
 
     bool		prepareWork() override;
 
@@ -58,15 +57,15 @@ public:
 protected:
 
     MuteDef&		def_;
-    Muter*		muter_;
+    Muter*		muter_ = nullptr;
     MultiID		id_;
     uiString		errmsg_;
 
     od_int64		nrIterations() const override { return outidx_.size(); }
     bool		doWork(od_int64,od_int64,int) override;
 
-    bool		tail_;
-    float		taperlen_;
+    bool		tail_ = false;
+    float		taperlen_ = 10;
 
     TypeSet<int>	outidx_;
     TypeSet<int>	offsets_;

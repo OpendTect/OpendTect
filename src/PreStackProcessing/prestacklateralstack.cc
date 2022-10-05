@@ -37,12 +37,13 @@ Processor* LateralStack::createInstance()
 LateralStack::LateralStack()
     : Processor( sFactoryKeyword() )
     , patternstepout_( 1, 1 )
-    , iscross_( true )
-{ }
+{
+}
 
 
 LateralStack::~LateralStack()
-{ }
+{
+}
 
 
 bool LateralStack::reset( bool force )

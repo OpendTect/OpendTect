@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
 #include "transl.h"
 
 class Executor;
@@ -25,7 +26,8 @@ namespace PreStack { class EventManager; }
 mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
 public:
-    				mDefEmptyTranslatorGroupConstructor(PSEvent);
+				PSEventTranslatorGroup();
+
     const char*			defExtension() const override
 				{ return sDefExtension(); }
     static const char*		sDefExtension()	     { return "psevent"; }
@@ -39,9 +41,10 @@ public:
 mExpClass(PreStackProcessing) PSEventTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(PSEvent);
+			~PSEventTranslator();
+
     virtual Executor*	createReader(PreStack::EventManager&,
-	    			     const BinIDValueSet*,
+				     const BinIDValueSet*,
 				     const TrcKeySampling*,IOObj*,
 				     bool trigger)	= 0;
     virtual Executor*	createWriter(PreStack::EventManager&,IOObj*) = 0;
@@ -52,6 +55,9 @@ public:
 			       const TrcKeySampling*, IOObj*, bool trigger );
     static Executor*	writer(PreStack::EventManager&,IOObj*);
     static Executor*	writeAs(PreStack::EventManager&,IOObj*);
+
+protected:
+			PSEventTranslator(const char* nm,const char* unm);
 };
 
 
@@ -62,7 +68,8 @@ public:
 mExpClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
 { isTranslator(dgb,PSEvent)
 public:
-    			mDefEmptyTranslatorConstructor(dgb,PSEvent);
+			dgbPSEventTranslator(const char* nm,const char* unm);
+
     Executor*		createReader(PreStack::EventManager&,
 				 const BinIDValueSet*,
 				 const TrcKeySampling*,IOObj*,bool) override;

@@ -21,12 +21,18 @@ namespace PreStack
 MuteAscIO::MuteAscIO( const Table::FormatDesc& fd, od_istream& stm )
     : Table::AscIO(fd)
     , strm_(stm)
-{}
+{
+}
+
+
+MuteAscIO::~MuteAscIO()
+{
+}
 
 
 Table::FormatDesc* MuteAscIO::getDesc()
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Mute" );
+    auto* fd = new Table::FormatDesc( "Mute" );
     createDescBody( *fd, true );
     return fd;
 }

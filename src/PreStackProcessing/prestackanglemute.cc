@@ -22,9 +22,10 @@ ________________________________________________________________________
 namespace PreStack
 {
 
+// PreStack::AngleCompParams
+
 AngleCompParams::AngleCompParams()
     : anglerange_(0,30)
-    , velvolmid_(MultiID::udf())
 {
     smoothingpar_.set( AngleComputer::sKeySmoothType(),
 		       AngleComputer::FFTFilter );
@@ -53,6 +54,25 @@ AngleCompParams::AngleCompParams()
     rt1d->fillPar( raypar_ );
 }
 
+
+AngleCompParams::~AngleCompParams()
+{
+}
+
+
+// PreStack::AngleMute::AngleMutePars
+
+PreStack::AngleMute::AngleMutePars::AngleMutePars()
+{
+}
+
+
+PreStack::AngleMute::AngleMutePars::~AngleMutePars()
+{
+}
+
+
+// PreStack::AngleMute
 
 AngleMuteBase::AngleMuteBase()
 {
@@ -96,7 +116,6 @@ bool AngleMuteBase::setVelocityFunction()
     velsource_->setFrom( mid );
     return true;
 }
-
 
 
 bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,

@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
@@ -41,6 +40,8 @@ public:
 	{
 	public:
 				Iteration();
+				~Iteration();
+
 	    bool		operator==(const Iteration&) const;
 	    bool		operator!=(const Iteration&) const;
 
@@ -65,7 +66,7 @@ public:
 protected:
     uiString			errmsg_;
     TypeSet<Iteration>		iterations_;
-    int				output_;
+    int				output_ = 2;
     ObjectSet<Array1D<float> >	pilottrcs_;
 
     od_int64			nrIterations() const override;

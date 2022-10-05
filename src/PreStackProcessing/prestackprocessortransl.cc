@@ -13,7 +13,16 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "uistrings.h"
 
+// PreStackProcTranslatorGroup
+
 defineTranslatorGroup(PreStackProc,"Prestack Processor");
+
+PreStackProcTranslatorGroup::PreStackProcTranslatorGroup()
+    : TranslatorGroup("PreStackProc")
+{
+}
+
+
 uiString PreStackProcTranslatorGroup::sTypeName( int num )
 { return tr("Prestack Processor", 0, num ); }
 
@@ -21,6 +30,19 @@ defineTranslator(dgb,PreStackProc,mDGBKey);
 
 mDefSimpleTranslatorioContext(PreStackProc,Misc);
 mDefSimpleTranslatorSelector(PreStackProc);
+
+// PreStackProcTranslator
+
+PreStackProcTranslator::PreStackProcTranslator( const char* nm, const char* unm)
+    : Translator(nm,unm)
+{
+}
+
+
+PreStackProcTranslator::~PreStackProcTranslator()
+{
+}
+
 
 uiString PreStackProcTranslator::sSelObjNotPreStackProc()
 {
@@ -43,7 +65,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 	msg = sSelObjNotPreStackProc();
 	return false;
     }
-    
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
@@ -83,8 +105,17 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
     {
 	msg = ptrl->write( md, *conn );
     }
-    
+
     return msg.isEmpty();
+}
+
+
+// dgbPreStackProcTranslator
+
+dgbPreStackProcTranslator::dgbPreStackProcTranslator( const char* nm,
+						      const char* unm )
+    : PreStackProcTranslator(nm,unm)
+{
 }
 
 

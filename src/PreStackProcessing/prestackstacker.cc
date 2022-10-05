@@ -18,9 +18,9 @@ namespace PreStack
 {
 
 Stack::Stack()
-    : Processor( sFactoryKeyword() )
-    , offsetrg_( 0 )
-{ }
+    : Processor(sFactoryKeyword())
+{
+}
 
 
 Stack::~Stack()
@@ -30,7 +30,7 @@ Stack::~Stack()
 
 
 #define mErrRet(s) \
-{ delete muter_; muter_ = 0; errmsg_ = s; return false; }
+{ deleteAndZeroPtr( muter_ ); errmsg_ = s; return false; }
 
 
 void Stack::setOffsetRange( const Interval<float>* offrg )
@@ -41,10 +41,7 @@ void Stack::setOffsetRange( const Interval<float>* offrg )
 	else *offsetrg_ = *offrg;
     }
     else
-    {
-	delete offsetrg_;
-	offsetrg_ = 0;
-    }
+	deleteAndZeroPtr( offsetrg_ );
 }
 
 
