@@ -67,8 +67,7 @@ protected:
     mutable ArrayNDInfo::nr_dims_type nrdims_;
 
 private:
-
-			AccessImpl(const AccessImpl&)	= delete;
+			mOD_DisableCopy(AccessImpl);
 
     static bool		validH5Obj(const H5::H5Object&);
 

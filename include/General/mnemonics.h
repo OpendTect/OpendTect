@@ -155,9 +155,7 @@ public:
 
 private:
 			MnemonicSet();
-
-			MnemonicSet(const MnemonicSet&) = delete;
-    MnemonicSet&	operator =(const MnemonicSet&) = delete;
+			mOD_DisableCopy(MnemonicSet);
 
     Mnemonic*		getByName(const char*,bool matchaliases=true);
 

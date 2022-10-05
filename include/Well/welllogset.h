@@ -112,8 +112,7 @@ protected:
 					   : const_cast<Log*>(logs_[idx]); }
 
 private:
-			LogSet(const LogSet&)		= delete;
-    LogSet&		operator= (const LogSet&)	= delete;
+			mOD_DisableCopy(LogSet);
 
 };
 

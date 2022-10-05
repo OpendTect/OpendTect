@@ -38,7 +38,6 @@ public:
     inline char*	getCStr()		{ return impl_.getCStr(); }
     inline const char*	buf() const		{ return impl_.buf(); }
     inline		operator const char*() const = delete;
-//						{ return buf(); }
 
     int			nrKeys() const;
     BufferString	key(int) const;

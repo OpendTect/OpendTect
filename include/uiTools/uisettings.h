@@ -41,11 +41,12 @@ public:
     Notifier<uiSettingsMgr> toolbarUpdated;
 
 private:
+			mOD_DisableCopy(uiSettingsMgr);
 
-    void	keyPressedCB(CallBacker*);
-    void	doTerminalCmdCB(CallBacker*);
-    void	doToolBarCmdCB(CallBacker*);
-    void	doPythonSettingsCB(CallBacker*);
+    void		keyPressedCB(CallBacker*);
+    void		doTerminalCmdCB(CallBacker*);
+    void		doToolBarCmdCB(CallBacker*);
+    void		doPythonSettingsCB(CallBacker*);
 
     BufferStringSet	commands_;
     ObjectSet<const BufferStringSet>	progargs_;
@@ -57,8 +58,6 @@ private:
     uiMenu*		usercmdmnu_ = nullptr;
     uiToolBar*		usercmdtb_ = nullptr;
 
-			uiSettingsMgr(const uiSettingsMgr&) = delete;
-    void		operator =(const uiSettingsMgr&)    = delete;
 };
 
 

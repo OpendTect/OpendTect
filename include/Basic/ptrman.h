@@ -124,15 +124,12 @@ template <class T>
 mClass(Basic) PtrMan : public NonConstPtrManBase<T>
 {
 public:
-    inline		PtrMan(T* = nullptr);
+    inline		PtrMan(T* =nullptr);
     inline		PtrMan(PtrMan<T>&&);
-    PtrMan<T>&		operator=( T* p );
-
-			PtrMan(const PtrMan<T>&)		= delete;
-    PtrMan<T>&		operator=(const PtrMan<T>&)		= delete;
-
+    PtrMan<T>&		operator=(T*);
 
 private:
+			mOD_DisableCopy(PtrMan<T>);
 
     static void		deleteFunc( T* p )    { delete p; }
 
@@ -145,14 +142,12 @@ mClass(Basic) ConstPtrMan : public ConstPtrManBase<T>
 {
 public:
 
-    inline		ConstPtrMan(const T* = nullptr);
+    inline		ConstPtrMan(const T* =nullptr);
     inline		ConstPtrMan(ConstPtrMan<T>&&);
-    ConstPtrMan<T>&	operator=(const T* p);
-
-			ConstPtrMan(const ConstPtrMan<T>&)	= delete;
-    ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&)	= delete;
+    ConstPtrMan<T>&	operator=(const T*);
 
 private:
+			mOD_DisableCopy(ConstPtrMan<T>);
 
     static void		deleteFunc( T* p )    { delete p; }
 };
@@ -163,9 +158,9 @@ template <class T>
 mClass(Basic) ArrPtrMan : public NonConstPtrManBase<T>
 {
 public:
-    inline			ArrPtrMan(T* = nullptr);
+    inline			ArrPtrMan(T* =nullptr);
     inline			ArrPtrMan(ArrPtrMan<T>&&);
-    ArrPtrMan<T>&		operator=( T* p );
+    ArrPtrMan<T>&		operator=(T*);
 
 
 #ifdef __debug__
@@ -175,14 +170,12 @@ public:
     const T&			operator[](od_int64) const;
 
 #endif
-    void			setSize(od_int64 size) { size_=size; }
-
-				ArrPtrMan(const ArrPtrMan<T>&)	= delete;
-    inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>&)	= delete;
+    void			setSize( od_int64 size ) { size_=size; }
 
 private:
+				mOD_DisableCopy(ArrPtrMan<T>);
 
-    static void		deleteFunc( T* p )		{ delete [] p; }
+    static void			deleteFunc( T* p )	{ delete [] p; }
 
     od_int64		size_;
 };
@@ -193,12 +186,11 @@ template <class T>
 mClass(Basic) ConstArrPtrMan : public ConstPtrManBase<T>
 {
 public:
-    inline		ConstArrPtrMan(const T* = nullptr);
-    ConstArrPtrMan<T>&	operator=(const T* p);
+    inline		ConstArrPtrMan(const T* =nullptr);
+    ConstArrPtrMan<T>&	operator=(const T*);
 
-    ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&)	 = delete;
-			ConstArrPtrMan(const ConstArrPtrMan<T>&) = delete;
 private:
+			mOD_DisableCopy(ConstArrPtrMan<T>);
 
     static void		deleteFunc( T* p )    { delete p; }
 };

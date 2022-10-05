@@ -88,6 +88,7 @@ public:
     bool		checkValidNrInputs() const;
 
 private:
+			mOD_DisableCopy(uiMathFormula);
 
     Math::Formula&	form_;
     uiMathExpression*	exprfld_;
@@ -116,9 +117,6 @@ private:
     void		recButPush(CallBacker*);
     void		readReq(CallBacker*);
     void		writeReq(CallBacker*);
-
-			uiMathFormula(const uiMathFormula&) = delete;
-   uiMathFormula&	operator =(const uiMathFormula&) = delete;
 
 public:
 

@@ -152,6 +152,7 @@ protected:
 private:
 			TimeDepthModelSet(int modelsz,
 				const TypeSet<float>* axisvals =nullptr);
+			mOD_DisableCopy(TimeDepthModelSet);
 
     void		init(int modelsz,const TypeSet<float>* axisvals);
     void		setFrom(const ElasticModel&,const Setup&,
@@ -163,9 +164,6 @@ private:
     ObjectSet<TimeDepthModel> tdmodels_;
     TimeDepthModel*	defmodel_ = nullptr;
     bool		singleton_ = true;
-
-			TimeDepthModelSet(const TimeDepthModelSet&) = delete;
-   TimeDepthModelSet&	operator =(const TimeDepthModelSet&) = delete;
 
    friend class RayTracer1D;
    friend class ReflCalc1D;
