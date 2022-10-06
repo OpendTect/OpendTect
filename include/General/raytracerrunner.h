@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "raytrace1d.h"
 
-class ElasticModel;
+class ElasticModelSet;
 class IOPar;
 
 mExpClass(General) RayTracerRunner : public ParallelTask
@@ -21,12 +21,12 @@ public:
 				RayTracerRunner(const char* rt1dfactkeywd=
 					VrmsRayTracer1D::sFactoryKeyword());
 				RayTracerRunner(const IOPar& raypar);
-				RayTracerRunner(const TypeSet<ElasticModel>&,
+				RayTracerRunner(const ElasticModelSet&,
 						const IOPar& raypar);
 				~RayTracerRunner();
 
     //before execution only
-    bool			setModel(const TypeSet<ElasticModel>&);
+    bool			setModel(const ElasticModelSet&);
 				//<! No copy: Must stay valid during execution
     void			setOffsets(const TypeSet<float>&);
 
@@ -41,7 +41,7 @@ public:
     ConstRefMan<ReflectivityModelSet> getRefModels() const;
 
     static ConstRefMan<ReflectivityModelSet> getRefModels(
-				    const TypeSet<ElasticModel>&,
+				    const ElasticModelSet&,
 				    const IOPar& raypar,uiString& msg,
 				    TaskRunner* =nullptr,
 			    const ObjectSet<const TimeDepthModel>* =nullptr);

@@ -573,7 +573,7 @@ void ModelBasedAngleComputer::ModelTool::splitModelIfNeeded( float maxthickness)
     {
 	const double thickness = depths[idx] - depths[idx-1];
 	const double pvel = 2. * thickness / (times[idx] - times[idx-1]);
-	*em_ += AILayer( float(thickness), float(pvel), mUdf(float) );
+	em_->add( new AILayer( float(thickness), float(pvel), mUdf(float) ) );
     }
 
     refmodel_ = nullptr;

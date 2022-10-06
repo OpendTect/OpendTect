@@ -186,7 +186,7 @@ void StratSynth::DataMgr::addLayModelSets( bool withmod )
 {
     if ( withmod )
     {
-	elasticmodelsets_.add( new TypeSet<ElasticModel>() );
+	elasticmodelsets_.add( new ElasticModelSet() );
 	levelsets_.add( new LevelSet() );
     }
 
@@ -223,8 +223,7 @@ const Strat::LayerModel& StratSynth::DataMgr::layerModel( int lmsidx ) const
 }
 
 
-const TypeSet<ElasticModel>& StratSynth::DataMgr::elasticModels(
-							int lmsidx ) const
+const ElasticModelSet& StratSynth::DataMgr::elasticModels( int lmsidx ) const
 {
     return *elasticmodelsets_.get( gtActualLMIdx(lmsidx) );
 }
@@ -1321,7 +1320,7 @@ namespace StratSynth
 class ElasticModelCreator : public ::ParallelTask
 { mODTextTranslationClass(StratSynth::ElasticModelCreator);
 public:
-ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems,
+ElasticModelCreator( const Strat::LayerModel& lm, ElasticModelSet& ems,
 		     int calceach )
     : ::ParallelTask( "Elastic Model Generator" )
     , lm_(lm)
@@ -1386,7 +1385,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	if ( seq.isEmpty() )
 	    continue;
 
-	ElasticModel& curem = elasticmodels_[imdl];
+	ElasticModel& curem = *elasticmodels_.get( imdl );
 	if ( !fillElasticModel(seq,withswave_,elpgen,valsptr,nrvals,curem) )
 	    return false;
     }
@@ -1435,9 +1434,9 @@ bool fillElasticModel( const Strat::LayerSequence& seq, bool withswave,
 	    sval = 0;*/
 
 	if ( withswave )
-	    elmod += ElasticLayer( thickness, pval, sval, dval );
+	    elmod.add( new ElasticLayer( thickness, pval, sval, dval ) );
 	else
-	    elmod += AILayer( thickness, pval, dval );
+	    elmod.add( new AILayer( thickness, pval, dval ) );
     }
 
     if ( elmod.isEmpty() )
@@ -1465,7 +1464,7 @@ static float cMaximumVpWaterVel()
     od_int64			nrmodels_;
     const int			calceach_;
     bool			withswave_;
-    TypeSet<ElasticModel>&	elasticmodels_;
+    ElasticModelSet&		elasticmodels_;
     Threads::Mutex		mutex_;
     uiString			msg_;
 
@@ -1479,7 +1478,7 @@ class ElasticModelAdjuster : public ::ParallelTask
 public:
 
 ElasticModelAdjuster( const Strat::LayerModel& lm,
-		      TypeSet<ElasticModel>& ems, bool checksvel, int calceach )
+		      ElasticModelSet& ems, bool checksvel, int calceach )
     : ::ParallelTask("Checking & adjusting elastic models")
     , lm_(lm)
     , elasticmodels_(ems)
@@ -1517,7 +1516,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
     {
 	const int iseq = imdl * calceach_;
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	ElasticModel& curem = elasticmodels_[imdl];
+	ElasticModel& curem = *elasticmodels_.get(imdl);
 	if ( curem.isEmpty() )
 	    continue;
 
@@ -1544,7 +1543,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 	    uiString msg;
 	    for ( int idx=erroridx; idx<curem.size(); idx++ )
 	    {
-		const ElasticLayer& layer = curem[idx];
+		const RefLayer& layer = *curem.get(idx);
 		const bool needinfo = msg.isEmpty();
 		const bool incorrectpvel = !layer.isValidVel();
 		const bool incorrectden = !layer.isValidDen();
@@ -1559,7 +1558,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
 			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
-				.arg(toString(layer.vel_))
+				.arg(toString(layer.getPVel()))
 				.arg(uom ? uom->symbol() : "") );
 		    }
 		}
@@ -1571,7 +1570,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
 			msg.append( tr("'Density' ( sample value: %1 %2 )")
-				.arg(toString(layer.vel_))
+				.arg(toString(layer.getDen()))
 				.arg(uom ? uom->symbol() : "") );
 		    }
 		}
@@ -1583,7 +1582,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
 			msg.append( tr("'Swave' ( sample value: %1 %2 )")
-				.arg(toString(layer.vel_))
+				.arg(toString(layer.getSVel()))
 				.arg(uom ? uom->symbol() : "") );
 		    }
 		}
@@ -1611,7 +1610,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 }
 
     const Strat::LayerModel&	lm_;
-    TypeSet<ElasticModel>&	elasticmodels_;
+    ElasticModelSet&		elasticmodels_;
     const od_int64		nrmodels_;
     const int			calceach_;
     uiString			infomsg_;
@@ -1670,7 +1669,7 @@ bool StratSynth::DataMgr::ensureElasticModels( int lmsidx, bool checkswave,
 	return false;
     }
 
-    TypeSet<ElasticModel>& elmdls = *const_cast<TypeSet<ElasticModel>*>(
+    ElasticModelSet& elmdls = *const_cast<ElasticModelSet*>(
 			    elasticmodelsets_.get( gtActualLMIdx(lmsidx) ) );
     if ( !elmdls.isEmpty() )
 	return true;
@@ -1690,9 +1689,9 @@ bool StratSynth::DataMgr::ensureElasticModels( int lmsidx, bool checkswave,
     }
 
     bool modelsvalid = false;
-    for ( const auto& emodel : elmdls )
+    for ( const auto* emodel : elmdls )
     {
-	if ( !emodel.isEmpty() )
+	if ( !emodel->isEmpty() )
 	{
 	    modelsvalid = true;
 	    break;
@@ -1710,7 +1709,7 @@ bool StratSynth::DataMgr::ensureElasticModels( int lmsidx, bool checkswave,
 
 
 bool StratSynth::DataMgr::adjustElasticModel( const Strat::LayerModel& lm,
-				  TypeSet<ElasticModel>& elmdls,
+				  ElasticModelSet& elmdls,
 				  bool checksvel, TaskRunner* taskrun ) const
 {
     ElasticModelAdjuster emadjuster( lm, elmdls, checksvel, calceach_ );
@@ -1754,7 +1753,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 						getRefModels( sgp, lmsidx );
 	    if ( !refmodels )
 	    {
-		const TypeSet<ElasticModel>& elmdls =
+		const ElasticModelSet& elmdls =
 				    *elasticmodelsets_[ curLayerModelIdx() ];
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
 						*sgp.reflPars(), msg, taskrun );

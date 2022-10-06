@@ -21,11 +21,139 @@ ________________________________________________________________________
 #define mIsValidImp(val) ( validImpRange().includes(val,false) )
 
 
+// RefLayer
+
+mDefineEnumUtils(RefLayer,Type,"Layer Type")
+{
+    "Acoustic Layer",
+    "Elastic Layer",
+    "VTI Layer",
+    "HTI Layer",
+    nullptr
+};
+
+
+RefLayer* RefLayer::create( Type typ )
+{
+    if ( typ == Acoustic )
+	return new AILayer( mUdf(float), mUdf(float), mUdf(float) );
+    if ( typ == Elastic )
+	return new ElasticLayer( mUdf(float), mUdf(float),
+				 mUdf(float), mUdf(float) );
+    //TODO: add others
+
+    return nullptr;
+}
+
+
+RefLayer* RefLayer::clone( const RefLayer& layer, const Type* reqtyp )
+{
+    if ( !reqtyp || (reqtyp && layer.getType() == *reqtyp) )
+	return layer.clone();
+
+    auto* ret = create( reqtyp ? *reqtyp : layer.getType() );
+    *ret = layer;
+    if ( ret->isElastic() )
+	ret->asElastic()->fillVsWithVp( true );
+    if ( ret->isVTI() && !ret->isValidFraRho() )
+	ret->setFracRho( 0.f );
+    if ( ret->isHTI() && !ret->isValidFracAzi() )
+	ret->setFracAzi( 0.f );
+
+    return ret;
+}
+
+
+RefLayer::RefLayer()
+{
+}
+
+
+RefLayer::~RefLayer()
+{
+}
+
+
+RefLayer& RefLayer::operator =( const RefLayer& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    copyFrom( oth );
+    return *this;
+}
+
+
+bool RefLayer::operator ==( const RefLayer& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( getThickness() != oth.getThickness() || getPVel() != oth.getPVel() ||
+	 getDen() != oth.getDen() )
+	return false;
+
+    if ( isElastic() != oth.isElastic() ||
+	(isElastic() && getSVel() != oth.getSVel()) )
+	return false;
+
+    if ( isVTI() != oth.isVTI() ||
+	(isVTI() && getFracRho() != oth.getFracRho()) )
+	return false;
+
+    if ( isHTI() != oth.isHTI() ||
+	(isHTI() && getFracAzi() != oth.getFracAzi()) )
+	return false;
+
+    return true;
+}
+
+
+bool RefLayer::operator !=( const RefLayer& oth ) const
+{
+    return !(*this == oth);
+}
+
+
+bool RefLayer::isOK( bool dodencheck, bool dosvelcheck,
+		     bool dofracrhocheck, bool dofracazicheck ) const
+{
+    if ( !isValidThickness() || !isValidVel() )
+	return false;
+
+    if ( dodencheck && !isValidDen() )
+	return false;
+
+    if ( isElastic() && dosvelcheck && !isValidVs() )
+	return false;
+
+    if ( isVTI() && dofracrhocheck && !isValidFraRho() )
+	return false;
+
+    if ( isHTI() && dofracazicheck && !isValidFracAzi() )
+	return false;
+
+    return true;
+}
+
+
+// AILayer
+
+AILayer::AILayer( float thkness, float vel, float den )
+    : RefLayer()
+    , thickness_(thkness)
+    , den_(den)
+    , vel_(vel)
+{
+}
+
+
 AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
-    : thickness_(thkness)
+    : RefLayer()
+    , thickness_(thkness)
     , den_(den)
 {
-    const bool hasdensity = mIsValidDen( den );
+    const bool hasdensity = isValidDen();
     //compute vel_ using Gardner's equation vel = (den/a)^(1/(1+b))
     //with default values for C0 and C1 respectively 310 and 0.25
     vel_ = hasdensity ? ai / den : Math::PowerOf( ai/310.f, 0.8f );
@@ -37,122 +165,376 @@ AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
 }
 
 
+AILayer::AILayer( const RefLayer& oth )
+    : RefLayer()
+{
+    AILayer::copyFrom( oth );
+}
+
+
+AILayer::~AILayer()
+{
+}
+
+
+RefLayer* AILayer::clone() const
+{
+    return new AILayer( *this );
+}
+
+
+RefLayer& AILayer::operator =( const AILayer& oth )
+{
+    return RefLayer::operator=( oth );
+}
+
+
+void AILayer::copyFrom( const RefLayer& oth )
+{
+    thickness_ = oth.getThickness();
+    den_ = oth.getDen();
+    vel_ = oth.getPVel();
+}
+
+
 float AILayer::getAI() const
 {
-    return mIsValidVel(vel_) && mIsValidDen(den_) ? vel_ * den_ : mUdf(float);
+    return isValidDen() && isValidVel() ? den_ * vel_ : mUdf(float);
 }
 
 
-bool AILayer::isOK( bool dodencheck ) const
+RefLayer& AILayer::setThickness( float thickness )
 {
-    if ( !mIsValidThickness(thickness_) )
-	return false;
-
-    if ( !mIsValidVel(vel_) )
-	return false;
-
-    return dodencheck ? mIsValidDen(den_) : true;
+    thickness_ = thickness;
+    return *this;
 }
 
 
-bool AILayer::isValidVel() const
-{ return mIsValidVel(vel_); }
+RefLayer& AILayer::setPVel( float vel )
+{
+    vel_ = vel;
+    return *this;
+}
 
 
-bool AILayer::isValidDen() const
-{ return mIsValidDen(den_); }
+RefLayer& AILayer::setDen( float den )
+{
+    den_ = den;
+    return *this;
+}
 
 
 bool AILayer::fillDenWithVp( bool onlyinvalid )
 {
-    if ( onlyinvalid && mIsValidDen(den_) )
+    if ( onlyinvalid && isValidDen() )
 	return true;
 
+    if ( !isValidVel() )
+	return false;
+
     den_ = mCast( float, 310. * Math::PowerOf( (double)vel_, 0.25 ) );
-    return mIsValidDen( den_ );
+    return isValidDen();
 }
 
 
-
-float getLayerDepth( const AIModel& mod, int layer )
+bool AILayer::isValidThickness() const
 {
-    float depth = 0;
-    for ( int idx=0; idx<layer+1; idx++ )
-	depth += mod[idx].thickness_;
+    return mIsValidThickness(thickness_);
+}
 
-    return depth;
+
+bool AILayer::isValidVel() const
+{
+    return mIsValidVel(vel_);
+}
+
+
+bool AILayer::isValidDen() const
+{
+    return mIsValidDen(den_);
 }
 
 
 // ElasticLayer
+
 ElasticLayer::ElasticLayer( float thkness, float pvel, float svel, float den )
     : AILayer(thkness,pvel,den)
     , svel_(svel)
-{}
-
-
-ElasticLayer::ElasticLayer( const AILayer& ailayer )
-    : AILayer(ailayer)
-    , svel_(mUdf(float))
-{}
+{
+}
 
 
 ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
 			    bool needcompthkness )
-    : AILayer( thkness, ai, den, needcompthkness )
+    : AILayer(thkness,ai,den,needcompthkness)
 {
-    svel_ = mIsValidImp(si) && mIsValidDen(den) ? si / den_ : mUdf(float);
+    svel_ = mIsValidImp(si) && isValidDen() ? si / getDen() : mUdf(float);
+}
+
+
+ElasticLayer::ElasticLayer( const RefLayer& oth )
+    : AILayer(oth.getThickness(),oth.getPVel(),oth.getDen())
+{
+    if ( oth.isElastic() )
+	svel_ = oth.getSVel();
+}
+
+
+ElasticLayer::~ElasticLayer()
+{
+}
+
+
+RefLayer* ElasticLayer::clone() const
+{
+    return new ElasticLayer( *this );
+}
+
+
+RefLayer& ElasticLayer::operator =( const ElasticLayer& oth )
+{
+    return RefLayer::operator=( oth );
+}
+
+
+void ElasticLayer::copyFrom( const RefLayer& oth )
+{
+    AILayer::copyFrom( oth );
+    if ( oth.isElastic() )
+	svel_ = oth.getSVel();
 }
 
 
 float ElasticLayer::getSI() const
 {
-    return mIsValidVel(svel_) && mIsValidDen(den_) ? svel_ * den_ : mUdf(float);
+    return isValidDen() && isValidVs() ? getDen() * svel_ : mUdf(float);
 }
 
 
-bool ElasticLayer::isOK( bool dodencheck, bool dosvelcheck ) const
+RefLayer& ElasticLayer::setSVel( float vel )
 {
-    if ( !mIsValidThickness(thickness_) )
-	return false;
-
-    if ( !mIsValidVel(vel_) )
-	return false;
-
-    if ( ( dodencheck && !mIsValidDen(den_) ) ||
-	 ( dosvelcheck && !mIsValidVel(svel_) ) )
-	return false;
-
-    return true;
+    svel_ = vel;
+    return *this;
 }
-
-
-bool ElasticLayer::isValidVs() const
-{ return mIsValidVel(svel_); }
 
 
 bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
 {
-    if ( onlyinvalid && mIsValidVel(svel_) )
+    if ( onlyinvalid && isValidVs() )
 	return true;
 
-    svel_ = mCast( float, 0.8619 * (double)vel_ -1172. );
-    return mIsValidVel( svel_ );
+    if ( !isValidVel() )
+	return false;
+
+    svel_ = mCast( float, 0.8619 * (double)getPVel() -1172. );
+    return isValidVs();
 }
 
 
-
-int ElasticModel::isOK( bool dodencheck, bool dosvelcheck ) const
+bool ElasticLayer::isValidVs() const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    return mIsValidVel(svel_);
+}
+
+
+// ElasticModel
+
+ElasticModel::ElasticModel()
+    : ObjectSet<RefLayer>()
+{
+}
+
+
+ElasticModel::ElasticModel( const ObjectSet<RefLayer>& oth )
+    : ObjectSet<RefLayer>()
+{
+    *this = oth;
+}
+
+
+ElasticModel::ElasticModel( const ElasticModel& oth )
+    : ObjectSet<RefLayer>()
+{
+    *this = oth;
+}
+
+
+ElasticModel::~ElasticModel()
+{
+    erase();
+}
+
+
+ElasticModel& ElasticModel::operator =( const ElasticModel& oth )
+{
+    ObjectSet<RefLayer>::operator= (oth );
+    return *this;
+}
+
+
+ElasticModel& ElasticModel::operator -=( RefLayer* ptr )
+{
+    if ( ptr )
     {
-	const ElasticLayer& lay = (*this)[idx];
-	if ( !lay.isOK(dodencheck,dosvelcheck) )
+	this->vec_.erase( (RefLayer*)ptr );
+	delete ptr;
+    }
+
+    return *this;
+}
+
+
+void ElasticModel::append( const ObjectSet<RefLayer>& oth )
+{
+    const int sz = oth.size();
+    this->vec_.setCapacity( this->size()+sz, true );
+    for ( idx_type vidx=0; vidx<sz; vidx++ )
+    {
+	const RefLayer* obj = oth.get( vidx );
+	if ( obj )
+	    ObjectSet<RefLayer>::add( obj->clone() );
+    }
+}
+
+
+void ElasticModel::erase()
+{
+    deepErase( *this );
+}
+
+
+RefLayer* ElasticModel::pop()
+{
+    delete ObjectSet<RefLayer>::pop();
+    return nullptr;
+}
+
+
+RefLayer* ElasticModel::removeSingle( int vidx, bool kporder )
+{
+    delete ObjectSet<RefLayer>::removeSingle( vidx, kporder );
+    return nullptr;
+}
+
+
+void ElasticModel::removeRange( int i1, int i2 )
+{
+    for ( int vidx=i1; vidx<=i2; vidx++ )
+	delete this->get(vidx);
+
+    ObjectSet<RefLayer>::removeRange( i1, i2 );
+}
+
+
+RefLayer* ElasticModel::replace( int vidx, RefLayer* ptr )
+{
+    delete ObjectSet<RefLayer>::replace( vidx, ptr );
+    return nullptr;
+}
+
+
+RefLayer* ElasticModel::removeAndTake( int vidx, bool kporder )
+{
+    return ObjectSet<RefLayer>::removeSingle( vidx, kporder );
+}
+
+
+ElasticModel& ElasticModel::copyFrom( const ElasticModel& oth,
+				      RefLayer::Type reqtyp )
+{
+    if ( oth.getMinType() >= reqtyp )
+    {
+	*this = oth;
+	return *this;
+    }
+
+    const int sz = oth.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	auto* newlayer = RefLayer::clone( *oth.get(idx), &reqtyp );
+	if ( validIdx(idx) )
+	    replace( idx, newlayer );
+	else
+	    add( newlayer );
+    }
+
+    return *this;
+}
+
+
+RefLayer::Type ElasticModel::getType() const
+{
+    if ( isHTI() )
+	return RefLayer::HTI;
+    if ( isVTI() )
+	return RefLayer::VTI;
+    if ( isElastic() )
+	return RefLayer::Elastic;
+
+    return RefLayer::Acoustic;
+}
+
+
+RefLayer::Type ElasticModel::getMinType() const
+{
+    RefLayer::Type ret = RefLayer::HTI;
+    for ( const auto* layer : *this )
+    {
+	const RefLayer::Type typ = layer->getType();
+	if ( typ < ret )
+	    ret = typ;
+	if ( ret == RefLayer::Acoustic )
+	    break;
+    }
+
+    return ret;
+}
+
+
+bool ElasticModel::isElastic() const
+{
+    for ( const auto* layer : *this )
+	if ( layer->isElastic() )
+	    return true;
+
+    return false;
+}
+
+
+bool ElasticModel::isVTI() const
+{
+    for ( const auto* layer : *this )
+	if ( layer->isVTI() )
+	    return true;
+
+    return false;
+}
+
+
+bool ElasticModel::isHTI() const
+{
+    for ( const auto* layer : *this )
+	if ( layer->isHTI() )
+	    return true;
+
+    return false;
+}
+
+
+int ElasticModel::isOK( bool dodencheck, bool dosvelcheck,
+			bool dofracrhocheck, bool dofracazicheck ) const
+{
+    int idx = -1;
+    for ( const auto* layer : *this )
+    {
+	idx++;
+	if ( !layer->isOK(dodencheck,dosvelcheck,dofracrhocheck,dofracazicheck))
 	    return idx;
     }
 
     return -1;
 }
+
 
 #define mRmLay(idx) \
 { \
@@ -166,24 +548,32 @@ void ElasticModel::checkAndClean( int& firsterroridx, bool dodencheck,
 {
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	ElasticLayer& lay = (*this)[idx];
+	RefLayer& lay = *get(idx);
 	if ( !lay.isOK(false,false) )
 	    mRmLay(idx)
 
 	if ( dodencheck && !lay.isValidDen() )
 	{
-	    if ( !lay.fillDenWithVp(onlyinvalid) )
+	    if ( !lay.asAcoustic().fillDenWithVp(onlyinvalid) )
 	    {
 		mRmLay(idx)
 		continue;
 	    }
 	}
 
-	if ( dosvelcheck && !lay.isValidVs() )
+	if ( dosvelcheck && lay.isElastic() && !lay.isValidVs() )
 	{
-	    if ( !lay.fillVsWithVp(onlyinvalid) )
+	    if ( !lay.asElastic()->fillVsWithVp(onlyinvalid) )
 		mRmLay(idx)
 	}
+
+	// Not removing the VTI/HTI props, only setting a neutral value
+	if ( dosvelcheck && (lay.isVTI() || lay.isHTI()) &&
+	     !lay.isValidFraRho() )
+	    lay.setFracRho( 0.f );
+
+	if ( dosvelcheck && lay.isHTI() && !lay.isValidFracAzi() )
+	    lay.setFracAzi( 0.f );
     }
 }
 
@@ -193,7 +583,12 @@ void ElasticModel::interpolate( bool dovp, bool doden, bool dovs )
     BoolTypeSet dointerpolate;
     dointerpolate += dovp;
     dointerpolate += doden;
-    dointerpolate += dovs;
+    if ( isElastic() )
+	dointerpolate += dovs;
+    if ( isVTI() )
+	dointerpolate += true;
+    if ( isHTI() )
+	dointerpolate += true;
 
     for ( int iprop=0; iprop<dointerpolate.size(); iprop++ )
     {
@@ -203,27 +598,40 @@ void ElasticModel::interpolate( bool dovp, bool doden, bool dovs )
 	BendPointBasedMathFunction<float,float> data;
 	for ( int idx=0; idx<size(); idx++ )
 	{
-	    const ElasticLayer& layer = (*this)[idx];
+	    const RefLayer& layer = *get(idx);
 	    float val = mUdf(float);
-	    if ( iprop == 0 && mIsValidVel(layer.vel_) )
-		val = layer.vel_;
-	    else if ( iprop == 1 && mIsValidDen(layer.den_) )
-		val = layer.den_;
-	    else if ( iprop == 2 && mIsValidVel(layer.svel_) )
-		val = layer.svel_;
+	    if ( iprop == 0 && layer.isValidVel() )
+		val = layer.getPVel();
+	    else if ( iprop == 1 && layer.isValidDen() )
+		val = layer.getDen();
+	    else if ( iprop == 2 && layer.isValidVs() )
+		val = layer.getSVel();
+	    else if ( iprop == 3 && layer.isValidFraRho() )
+		val = layer.getFracRho();
+	    else if ( iprop == 4 && layer.isValidFracAzi() )
+		val = layer.getFracAzi();
 
 	    if ( !mIsUdf(val) )
 		data.add( (float)idx, val );
 	}
-	if ( !data.size() )
+
+	if ( data.isEmpty() )
 	    continue;
 
 	for ( int idx=0; idx<size(); idx++ )
 	{
-	    ElasticLayer& layer = (*this)[idx];
-	    float& val = iprop==0 ? layer.vel_
-				  : ( iprop==1 ? layer.den_ : layer.svel_ );
-	    val = data.getValue( (float)idx );
+	    const float val = data.getValue( (float)idx );
+	    RefLayer& layer = *get(idx);
+	    if ( iprop == 0 )
+		layer.setPVel( val );
+	    else if ( iprop == 1 )
+		layer.setDen( val );
+	    else if ( iprop == 2 )
+		layer.setSVel( val );
+	    else if ( iprop == 3 )
+		layer.setFracRho( val );
+	    else if ( iprop == 4 )
+		layer.setFracAzi( val );
 	}
     }
 }
@@ -239,28 +647,27 @@ void ElasticModel::upscale( float maxthickness )
 
     float totthickness = 0.f;
     ElasticModel curmodel;
-    ElasticLayer newlayer( mUdf(float), mUdf(float), mUdf(float), mUdf(float) );
+    PtrMan<RefLayer> newlayer;
     for ( int lidx=0; lidx<orgmodl.size(); lidx++ )
     {
-	ElasticLayer curlayer = orgmodl[lidx];
-	float thickness = curlayer.thickness_;
-	const float pvel = curlayer.vel_;
-	if ( !mIsValidThickness(thickness) || !mIsValidVel(pvel) )
+	PtrMan<RefLayer> curlayer = orgmodl.get(lidx)->clone();
+	float thickness = curlayer->getThickness();
+	if ( !curlayer->isValidThickness() || !curlayer->isValidVel() )
 	    continue;
 
 	if ( thickness > maxthickness-cMinLayerThickness() )
 	{
 	    if ( !curmodel.isEmpty() )
 	    {
-		if ( curmodel.getUpscaledBackus(newlayer) )
-		    *this += newlayer;
+		newlayer = RefLayer::create( curmodel.getType() );
+		if ( curmodel.getUpscaledBackus(*newlayer.ptr()) )
+		    add( newlayer.release() );
 
 		totthickness = 0.f;
 		curmodel.setEmpty();
 	    }
 
-	    newlayer = curlayer;
-	    *this += newlayer;
+	    add( curlayer->clone() );
 	    continue;
 	}
 
@@ -272,27 +679,31 @@ void ElasticModel::upscale( float maxthickness )
 	if ( lastlay )
 	{
 	    thickness -= thicknesstoadd;
-	    curlayer.thickness_ = thicknesstoadd;
+	    curlayer->setThickness( thicknesstoadd );
 	}
 
-	curmodel += curlayer;
+	curmodel.add( curlayer->clone() );
 	if ( lastlay )
 	{
-	    if ( curmodel.getUpscaledBackus(newlayer) )
-		*this += newlayer;
+	    newlayer = RefLayer::create( curmodel.getType() );
+	    if ( curmodel.getUpscaledBackus(*newlayer.ptr()) )
+		add( newlayer.release() );
 
 	    totthickness = thickness;
 	    curmodel.setEmpty();
 	    if ( thickness > cMinLayerThickness() )
 	    {
-		curlayer.thickness_ = thickness;
-		curmodel += curlayer;
+		curlayer->setThickness( thickness );
+		curmodel.add( curlayer->clone() );
 	    }
 	}
     }
     if ( totthickness > cMinLayerThickness() && !curmodel.isEmpty() )
-	if ( curmodel.getUpscaledBackus(newlayer) )
-	    *this += newlayer;
+    {
+	newlayer = RefLayer::create( curmodel.getType() );
+	if ( curmodel.getUpscaledBackus(*newlayer.ptr()) )
+	    add( newlayer.release() );
+    }
 }
 
 
@@ -305,22 +716,26 @@ void ElasticModel::upscaleByN( int nbblock )
     setEmpty();
 
     ElasticModel curmdl;
-    ElasticLayer newlayer( mUdf(float), mUdf(float), mUdf(float), mUdf(float) );
+    PtrMan<RefLayer> newlayer;
     for ( int lidx=0; lidx<orgmodl.size(); lidx++ )
     {
-	curmdl += orgmodl[lidx];
+	curmdl.add( orgmodl.get( lidx )->clone() );
 	if ( (lidx+1) % nbblock == 0 )
 	{
-	    if ( curmdl.getUpscaledBackus(newlayer) )
-		*this += newlayer;
+	    newlayer = RefLayer::create( curmdl.getType() );
+	    if ( curmdl.getUpscaledBackus(*newlayer.ptr()) )
+		add( newlayer->clone() );
 
 	    curmdl.setEmpty();
 	}
     }
 
     if ( !curmdl.isEmpty() )
-	if ( curmdl.getUpscaledBackus(newlayer) )
-	    *this += newlayer;
+    {
+	newlayer = RefLayer::create( curmdl.getType() );
+	if ( curmdl.getUpscaledBackus(*newlayer.ptr()) )
+	    add( newlayer->clone() );
+    }
 }
 
 
@@ -340,51 +755,51 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 	ElasticModel blockmdl;
 	const Interval<int> curblock = blocks[lidx];
 	for ( int lidy=curblock.start; lidy<=curblock.stop; lidy++ )
-	    blockmdl += orgmodl[lidy];
+	    blockmdl.add( orgmodl.get(lidy)->clone() );
 
-	ElasticLayer outlay( mUdf(float),mUdf(float),mUdf(float),mUdf(float) );
-	if ( !blockmdl.getUpscaledBackus(outlay) )
+	PtrMan<RefLayer> outlay = RefLayer::create( blockmdl.getType() );
+	if ( !blockmdl.getUpscaledBackus(*outlay.ptr()) )
 	    continue;
 
-	*this += outlay;
+	add( outlay.release() );
     }
 }
 
 
-bool ElasticModel::getUpscaledByThicknessAvg( ElasticLayer& outlay ) const
+bool ElasticModel::getUpscaledByThicknessAvg( RefLayer& outlay ) const
 {
     if ( isEmpty() )
 	return false;
 
-    outlay.thickness_ = mUdf(float);
-    outlay.vel_ = mUdf(float);
-    outlay.den_ = mUdf(float);
-    outlay.svel_ = mUdf(float);
+    outlay.setThickness( mUdf(float) );
+    outlay.setPVel( mUdf(float) );
+    outlay.setDen( mUdf(float) );
+    outlay.setSVel( mUdf(float) );
 
     float totthickness=0.f, sonp=0.f, den=0.f, sson=0.f;
     float velpthickness=0.f, denthickness=0.f, svelthickness=0.f;
     for ( int lidx=0; lidx<size(); lidx++ )
     {
-	const ElasticLayer& curlayer = (*this)[lidx];
-	const float ldz = curlayer.thickness_;
-	const float layinvelp = curlayer.vel_;
-	const float layinden = curlayer.den_;
-	const float layinsvel = curlayer.svel_;
-
-	if ( !mIsValidThickness(ldz) || !mIsValidVel(layinvelp) )
+	const RefLayer& curlayer = *get(lidx);
+	if ( !curlayer.isValidThickness() || !curlayer.isValidVel() )
 	    continue;
+
+	const float ldz = curlayer.getThickness();
+	const float layinvelp = curlayer.getPVel();
+	const float layinden = curlayer.getDen();
+	const float layinsvel = curlayer.getSVel();
 
 	totthickness += ldz;
 	sonp += ldz / layinvelp;
 	velpthickness += ldz;
 
-	if ( mIsValidDen(layinden) )
+	if ( curlayer.isValidDen() )
 	{
 	    den += layinden * ldz;
 	    denthickness += ldz;
 	}
 
-	if ( mIsValidVel(layinsvel) )
+	if ( curlayer.isElastic() && curlayer.isValidVs() )
 	{
 	    sson += ldz / layinsvel;
 	    svelthickness += ldz;
@@ -398,49 +813,57 @@ bool ElasticModel::getUpscaledByThicknessAvg( ElasticLayer& outlay ) const
     if ( !mIsValidVel(velfinal) )
 	return false;
 
-    outlay.thickness_ = totthickness;
-    outlay.vel_ = velfinal;
+    outlay.setThickness( totthickness );
+    outlay.setPVel( velfinal );
     if ( !mIsValidThickness(denthickness) || denthickness < mDefEpsF )
-	outlay.den_ = mUdf(float);
+	outlay.setDen( mUdf(float) );
     else
     {
 	const float denfinal = den / denthickness;
-	outlay.den_ = mIsValidDen(denfinal) ? denfinal : mUdf(float);
+	outlay.setDen( mIsValidDen(denfinal) ? denfinal : mUdf(float) );
     }
-    if ( !mIsValidThickness(svelthickness) || svelthickness < mDefEpsF )
-	outlay.svel_ = mUdf(float);
-    else
+
+    if ( outlay.isElastic() )
     {
-	const float svelfinal = svelthickness / sson;
-	outlay.svel_ = mIsValidVel(svelfinal) ? svelfinal : mUdf(float);
+	if ( !mIsValidThickness(svelthickness) || svelthickness < mDefEpsF )
+	    outlay.setSVel( mUdf(float) );
+	else
+	{
+	    const float svelfinal = svelthickness / sson;
+	    outlay.setSVel( mIsValidVel(svelfinal) ? svelfinal : mUdf(float) );
+	}
     }
 
     return true;
 }
 
 
-bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
+bool ElasticModel::getUpscaledBackus( RefLayer& outlay, float theta ) const
 {
     if ( isEmpty() )
 	return false;
 
-    outlay.thickness_ = mUdf(float);
-    outlay.vel_ = mUdf(float);
-    outlay.den_ = mUdf(float);
-    outlay.svel_ = mUdf(float);
+    outlay.setThickness( mUdf(float) );
+    outlay.setPVel( mUdf(float) );
+    outlay.setDen( mUdf(float) );
+    outlay.setSVel( mUdf(float) );
 
     float totthickness=0.f, den=0.f;
     float x=0.f, y=0.f, z=0.f, u=0.f, v=0.f, w=0.f;
     for ( int lidx=0; lidx<size(); lidx++ )
     {
-	const ElasticLayer& curlayer = (*this)[lidx];
-	const float ldz = curlayer.thickness_;
-	const float layinvelp = curlayer.vel_;
-	const float layinden = curlayer.den_;
-	const float layinsvel = curlayer.svel_;
-	ElasticLayer tmplay( ldz, layinvelp, layinsvel, layinden );
+	const RefLayer& curlayer = *get(lidx);
+	const float ldz = curlayer.getThickness();
+	const float layinvelp = curlayer.getPVel();
+	const float layinden = curlayer.getDen();
+	const float layinsvel = curlayer.getSVel();
 
-	if ( !tmplay.isOK() )
+	PtrMan<RefLayer> tmplay = curlayer.clone();
+	tmplay->setThickness( ldz );
+	tmplay->setPVel( layinvelp );
+	tmplay->setDen( layinden );
+	tmplay->setSVel( layinsvel );
+	if ( !tmplay->isOK() )
 	    continue;
 
 	totthickness += ldz;
@@ -464,8 +887,8 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
     den /= totthickness;
     x /= totthickness; y /= totthickness; z /= totthickness;
     u /= totthickness; v /= totthickness; w /= totthickness;
-    outlay.thickness_ = totthickness;
-    outlay.den_ = den;
+    outlay.setThickness( totthickness );
+    outlay.setDen( den );
 
     const float c11 = 4.f * x + z * z / u;
     const float c12 = 2.f * y + z * z / u;
@@ -491,8 +914,8 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
     const float mp2 = ( mm + mn ) / 2.f;
     const float msv2 = ( mm - mn ) / 2.f;
 
-    outlay.vel_ = Math::Sqrt( mp2 / den );
-    outlay.svel_ = Math::Sqrt( msv2 / den );
+    outlay.setPVel( Math::Sqrt( mp2 / den ) );
+    outlay.setSVel( Math::Sqrt( msv2 / den ) );
 
     return true;
 }
@@ -509,19 +932,19 @@ void ElasticModel::setMaxThickness( float maxthickness )
     int nbinsert = mUdf(int);
     for ( int lidx=0; lidx<initialsz; lidx++ )
     {
-	const float thickness = orgmodl[lidx].thickness_;
+	const float thickness = orgmodl.get(lidx)->getThickness();
 	if ( !mIsValidThickness(thickness) )
 	    continue;
 
-	ElasticLayer newlayer = orgmodl[lidx];
+	PtrMan<RefLayer> newlayer = orgmodl.get(lidx)->clone();
 	nbinsert = 1;
 	if ( thickness > maxthickness - cMinLayerThickness() )
 	{
 	    nbinsert = mCast( int, thickness/maxthickness ) + 1;
-	    newlayer.thickness_ /= (float)nbinsert;
+	    newlayer->setThickness( newlayer->getThickness() / nbinsert );
 	}
 	for ( int nlidx=0; nlidx<nbinsert; nlidx++ )
-	    *this += newlayer;
+	    add( newlayer->clone() );
     }
 }
 
@@ -536,34 +959,36 @@ void ElasticModel::mergeSameLayers()
     const int initialsz = orgmodl.size();
     bool havemerges = false;
     float totthickness = 0.f;
-    ElasticLayer prevlayer = orgmodl[0];
+    PtrMan<RefLayer> prevlayer = orgmodl.first()->clone();
     for ( int lidx=1; lidx<initialsz; lidx++ )
     {
-	const ElasticLayer& curlayer = orgmodl[lidx];
-	if ( mIsEqual(curlayer.vel_,prevlayer.vel_,1e-2f) &&
-	     mIsEqual(curlayer.den_,prevlayer.den_,1e-2f) &&
-	     mIsEqual(curlayer.svel_,prevlayer.svel_,1e-2f) )
+	const RefLayer& curlayer = *orgmodl.get(lidx);
+	if ( mIsEqual(curlayer.getPVel(),prevlayer->getPVel(),1e-2f) &&
+	     mIsEqual(curlayer.getDen(),prevlayer->getDen(),1e-2f) &&
+	     mIsEqual(curlayer.getSVel(),prevlayer->getSVel(),1e-2f) )
 	{
-	    if ( havemerges == false ) totthickness = prevlayer.thickness_;
+	    if ( havemerges == false )
+		totthickness = prevlayer->getThickness();
+
 	    havemerges = true;
-	    totthickness += curlayer.thickness_;
+	    totthickness += curlayer.getThickness();
 	}
 	else
 	{
 	    if ( havemerges )
 	    {
-		prevlayer.thickness_ = totthickness;
+		prevlayer->setThickness( totthickness );
 		havemerges = false;
 	    }
 
-	    *this += prevlayer;
-	    prevlayer = curlayer;
+	    add( prevlayer.release() );
+	    prevlayer = curlayer.clone();
 	}
     }
     if ( havemerges )
-	prevlayer.thickness_ = totthickness;
+	prevlayer->setThickness( totthickness );
 
-    *this += prevlayer;
+    add( prevlayer.release() );
 }
 
 
@@ -602,12 +1027,13 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 	if ( zinfeet ) firstlayerthickness *= mFromFeetFactorF;
     }
 
+    const float firstden = den ? den[firstidx] : mUdf(float);
     const float firstsvel = svel ? ( zinfeet ? svel[firstidx] * mFromFeetFactorF
 					     : svel[firstidx] )
 				 : mUdf(float);
-    const ElasticLayer firstlayer( firstlayerthickness, firstvel, firstsvel,
-				   den ? den[firstidx] : mUdf(float));
-    *this += firstlayer;
+    add( svel ? new ElasticLayer( firstlayerthickness, firstvel, firstsvel,
+				  firstden )
+	     : new AILayer( firstlayerthickness, firstvel, firstden ) );
 
     for ( int idx=firstidx+1; idx<zsize; idx++ )
     {
@@ -615,13 +1041,15 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 	const float layerthickness = zit ? zrange.step * velp / 2.0f
 				 : ( zinfeet ? zrange.step * mFromFeetFactorF
 					     : zrange.step );
-
-	const float vels = svel ? ( zinfeet ? svel[idx] * mFromFeetFactorF
-					    : svel[idx] )
-				: mUdf(float);
-	const ElasticLayer elayer( layerthickness, velp, vels,
-				   den ? den[idx] : mUdf(float) );
-	*this += elayer;
+	const float rhob = den ? den[idx] : mUdf(float);
+	if ( svel )
+	{
+	    const float vels = zinfeet ? svel[idx] * mFromFeetFactorF
+				       : svel[idx];
+	    add( new ElasticLayer( layerthickness, velp, vels, rhob ) );
+	}
+	else
+	    add( new AILayer( layerthickness, velp, rhob ) );
     }
 
     if ( isEmpty() )
@@ -664,18 +1092,20 @@ bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
 	if ( zinfeet ) firstlayerthickness *= mFromFeetFactorF;
     }
 
-    const ElasticLayer firstlayer( firstlayerthickness, ai[firstidx],
-				   si ? si[firstidx] : mUdf(float),
-				   den ? den[firstidx] : mUdf(float), zit );
-    *this += firstlayer;
+    const float firstden = den ? den[firstidx] : mUdf(float);
+    if ( si )
+	add( new ElasticLayer( firstlayerthickness, ai[firstidx], si[firstidx],
+			       firstden, zit ) );
+    else
+	add( new AILayer( firstlayerthickness, ai[firstidx], firstden, zit ) );
 
     for ( int idx=firstidx+1; idx<zsize; idx++ )
     {
-	const ElasticLayer elayer( zrange.step, ai[idx],
-				   si ? si[idx] : mUdf(float),
-				   den ? den[idx] : mUdf(float), zit );
-
-	*this += elayer;
+	const float rhob = den ? den[idx] : mUdf(float);
+	if ( si )
+	    add( new ElasticLayer(zrange.step, ai[idx], si[idx], rhob, zit) );
+	else
+	    add( new AILayer(zrange.step, ai[idx], rhob, zit) );
     }
 
     if ( isEmpty() )
@@ -695,17 +1125,17 @@ void ElasticModel::removeSpuriousLayers( float zrgstep )
     const bool zistime = SI().zIsTime();
     for ( int idx=size()-2; idx>0; idx-- )
     {
-	const float layervel = (*this)[idx].vel_;
-	const float layerthickness = (*this)[idx].thickness_;
+	const float layervel = get(idx)->getPVel();
+	const float layerthickness = get(idx)->getThickness();
 	const float layertwtthickness = 2.f * layerthickness / layervel;
 	if ( ( zistime && !mIsEqual(layertwtthickness,zrgstep,1e-2f) ) ||
 	     (!zistime && !mIsEqual(layerthickness,zrgstep,1e-2f) ) )
 	    continue;
 
-	const float velabove = (*this)[idx-1].vel_;
-	const float velbelow = (*this)[idx+1].vel_;
-	const float layerthicknessabove = (*this)[idx-1].thickness_;
-	const float layerthicknessbelow = (*this)[idx+1].thickness_;
+	const float velabove = get(idx-1)->getPVel();
+	const float velbelow = get(idx+1)->getPVel();
+	const float layerthicknessabove = get(idx-1)->getThickness();
+	const float layerthicknessbelow = get(idx+1)->getThickness();
 	const float twtthicknessabove = 2.f * layerthicknessabove / velabove;
 	const float twtthicknessbelow = 2.f * layerthicknessbelow / velbelow;
 	if ( zistime )
@@ -724,8 +1154,10 @@ void ElasticModel::removeSpuriousLayers( float zrgstep )
 	const float twtbelow = layertwtthickness * ( layervel-velabove )
 						 / ( velbelow-velabove );
 	const float twtabove = layertwtthickness - twtbelow;
-	(*this)[idx-1].thickness_ += twtabove * velabove / 2.f;
-	(*this)[idx+1].thickness_ += twtbelow * velbelow / 2.f;
+	get(idx-1)->setThickness( get(idx-1)->getThickness() +
+				  twtabove * velabove / 2.f );
+	get(idx+1)->setThickness( get(idx+1)->getThickness() +
+				  twtbelow * velbelow / 2.f );
 	removeSingle( idx );
     }
 }
@@ -739,14 +1171,15 @@ bool ElasticModel::getValues( bool isden, bool issvel,
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	const ElasticLayer& layer = (*this)[idx];
-	const float val = isden ? layer.den_
-				: ( issvel ? layer.svel_ : layer.vel_ );
-	const bool isvalid = isden ? mIsValidDen(val) : mIsValidVel(val);
+	const RefLayer& layer = *get(idx);
+	const bool isvalid = isden ? layer.isValidDen()
+				   : (issvel ? layer.isValidVel()
+					     : layer.isValidVs());
 	if ( !isvalid )
 	    return false;
 
-	vals += val;
+	vals += isden ? layer.getDen()
+		      : ( issvel ? layer.getSVel() : layer.getPVel() );
     }
 
     return true;
@@ -773,7 +1206,7 @@ bool ElasticModel::getValues( bool isden, bool issvel,
 }
 
 bool ElasticModel::getValues( bool vel, bool den, bool svel,
-			      Array2DImpl<float>& vals) const
+			      Array2D<float>& vals ) const
 {
     const int sz = size();
     TypeSet<float> velvals, denvals, svelvals;
@@ -783,7 +1216,8 @@ bool ElasticModel::getValues( bool vel, bool den, bool svel,
     mGetVals(den,true,false,denvals);
     mGetVals(svel,false,true,svelvals);
 
-    if ( !vals.setSize(icomp,sz) )
+    const Array2DInfoImpl info2d( icomp, sz );
+    if ( !vals.setInfo(info2d) )
 	return false;
 
     icomp = 0;
@@ -794,35 +1228,30 @@ bool ElasticModel::getValues( bool vel, bool den, bool svel,
     return true;
 }
 
-#define mRet(act) \
-{ \
-    if ( !hasvals ) delete vals; \
-    act; \
-}
 
 bool ElasticModel::getRatioValues( bool vel, bool den, bool svel,
-				   Array2DImpl<float>& ratiovals,
-				   Array2DImpl<float>* vals ) const
+				   Array2D<float>& ratiovals,
+				   Array2D<float>& vals ) const
 {
+    if ( !getValues(vel,den,svel,vals) )
+	return false;
+
     const int sz = size();
-    bool hasvals = vals;
-    if ( !hasvals )
-	vals = new Array2DImpl<float> ( 1, sz );
+    const int nrcomp = vals.info().getSize( 0 );
+    if ( nrcomp == 0 )
+	return false;
 
-    if ( !getValues(vel,den,svel,*vals) )
-	mRet(return false)
-
-    const int nrcomp = vals->info().getSize( 0 );
-    if ( nrcomp == 0 || !ratiovals.setSize(nrcomp,sz) )
-	mRet(return false)
+    const Array2DInfoImpl info2d( nrcomp, sz );
+    if ( !ratiovals.setInfo(info2d) )
+	return false;
 
     for ( int icomp=0; icomp<nrcomp; icomp++ )
     {
-	float prevval = vals->get( icomp, 0 );
+	float prevval = vals.get( icomp, 0 );
 	ratiovals.set( icomp, 0, 0.f );
 	for ( int idx=1; idx<sz; idx++ )
 	{
-	    const float curval = vals->get( icomp, idx );
+	    const float curval = vals.get( icomp, idx );
 	    const float val = curval < prevval
 			    ? prevval / curval - 1.f
 			    : curval / prevval - 1.f;
@@ -831,8 +1260,7 @@ bool ElasticModel::getRatioValues( bool vel, bool den, bool svel,
 	}
     }
 
-    mRet(return true)
-
+    return true;
 }
 
 
@@ -850,7 +1278,7 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 
     Array2DImpl<float> vals( 1, size() );
     Array2DImpl<float> ratiovals( 1, size() );
-    if ( !getRatioValues(true,!pvelonly,!pvelonly,ratiovals,&vals) )
+    if ( !getRatioValues(true,!pvelonly,!pvelonly,ratiovals,vals) )
 	return false;
 
     const int nrcomp = vals.info().getSize( 0 );
@@ -934,54 +1362,82 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 
 float ElasticModel::getLayerDepth( int ilayer ) const
 {
-    float depth = 0;
+    float depth = 0.f;
     if ( ilayer >= size() )
 	ilayer = size();
 
     for ( int idx=0; idx<ilayer; idx++ )
-	depth += (*this)[idx].thickness_;
+	depth += get(idx)->getThickness();
 
     if ( ilayer < size() )
-	depth += (*this)[ilayer].thickness_ / 2.f;
+	depth += get(ilayer)->getThickness() / 2.f;
 
     return depth;
 }
 
 
-bool ElasticModel::getTimeSampling( const TypeSet<ElasticModel>& models,
-				    Interval<float>& timerg, bool usevs )
+Interval<float> ElasticModel::getTimeSampling( bool usevs ) const
 {
-    if ( models.isEmpty() )
+    Interval<float> ret( 0.f, 0.f );
+    for ( const auto* layer : *this )
+    {
+	if ( !layer->isOK(false,usevs) )
+	    continue;
+
+	const float vel = usevs ? layer->getSVel() : layer->getPVel();
+	ret.stop += layer->getThickness() / vel;
+    }
+
+    ret.stop *= 2.f; // TWT needed
+    return ret;
+}
+
+
+// ElasticModelSet
+
+ElasticModelSet::ElasticModelSet()
+    : ManagedObjectSet<ElasticModel>()
+{
+}
+
+
+ElasticModelSet::~ElasticModelSet()
+{
+}
+
+
+bool ElasticModelSet::setSize( int nrmdls )
+{
+    const int oldsz = size();
+    if ( nrmdls == oldsz )
+	return true;
+
+    if ( nrmdls <= 0 )
+	setEmpty();
+    else if ( nrmdls < oldsz )
+	removeRange( nrmdls, oldsz );
+    else // nrmdls > oldsz
+    {
+	while ( size() < nrmdls )
+	    add( new ElasticModel );
+    }
+
+    return true;
+}
+
+
+bool ElasticModelSet::getTimeSampling( Interval<float>& timerg,
+				       bool usevs ) const
+{
+    if ( isEmpty() )
 	return false;
 
     timerg.set( mUdf(float), -mUdf(float) );
-    for ( int imod=0; imod<models.size(); imod++ )
+    for ( const auto* model : *this )
     {
-	if ( !models.validIdx(imod) )
-	    continue;
-
-	const ElasticModel& model = models[imod];
-	Interval<float> tsampling;
-	model.getTimeSampling( tsampling, usevs );
+	const Interval<float> tsampling = model->getTimeSampling( usevs );
 	timerg.include( tsampling, false );
     }
 
     return !timerg.isUdf();
-}
-
-
-void ElasticModel::getTimeSampling( Interval<float>& timerg, bool usevs ) const
-{
-    timerg.set( 0.f, 0.f );
-    for ( int ilay=0; ilay<size(); ilay++ )
-    {
-	const ElasticLayer& layer = (*this)[ilay];
-	if ( !layer.isOK(false,usevs) )
-	    continue;
-
-	const float vel = usevs ? layer.svel_ : layer.vel_;
-	timerg.stop += layer.thickness_ / vel;
-    }
-
-    timerg.stop *= 2.f;
 }

@@ -28,10 +28,10 @@ ________________________________________________________________________
 static ElasticModel getEModel()
 {
     ElasticModel emdl;
-    emdl += AILayer( 48.f, 2000.f, 2500.f );
-    emdl += AILayer( 520.f, 2600.f, 2300.f );
-    emdl += AILayer( 385.f, 3500.f, 2200.f );
-    emdl += AILayer( 350.f, 4000.f, 2800.f );
+    emdl += new AILayer( 48.f, 2000.f, 2500.f );
+    emdl += new AILayer( 520.f, 2600.f, 2300.f );
+    emdl += new AILayer( 385.f, 3500.f, 2200.f );
+    emdl += new AILayer( 350.f, 4000.f, 2800.f );
     return emdl;
 }
 

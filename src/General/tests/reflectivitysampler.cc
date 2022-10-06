@@ -32,9 +32,9 @@ ________________________________________________________________________
 static ConstRefMan<ReflectivityModelBase> getRefModel()
 {
     ElasticModel emdl;
-    emdl += AILayer( 48.f, 2000.f, 2500.f );
-    emdl += AILayer( 385.f, 3500.f, 2200.f );
-    emdl += AILayer( 350.f, 4000.f, 2800.f );
+    emdl.add( new AILayer( 48.f, 2000.f, 2500.f ) );
+    emdl.add( new AILayer( 385.f, 3500.f, 2200.f ) );
+    emdl.add( new AILayer( 350.f, 4000.f, 2800.f ) );
 
     uiString msg;
     IOPar raypars;

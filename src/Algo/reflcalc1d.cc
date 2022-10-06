@@ -177,8 +177,20 @@ void ReflCalc1D::getAngles(TypeSet<float>& angles, bool retindegrees ) const
 bool ReflCalc1D::setModel( const ElasticModel& lys )
 {
     msg_.setEmpty();
+    if ( thetaangles_.isEmpty() )
+    {
+	msg_ = tr("Internal: Angles must be set before the model");
+	msg_.append( tr("Cannot calculate reflectivities." ), true );
+	return false;
+    }
 
-    model_ = lys;
+    const bool zeroanglesonly =
+	thetaangles_.size()==1 && mIsZero(thetaangles_[0],mDefEps);
+
+    const RefLayer::Type reqtype = zeroanglesonly && !needsSwave()
+				 ? RefLayer::Acoustic : RefLayer::Elastic;
+    model_.copyFrom( lys, reqtype );
+
     int firsterror = -1;
     model_.checkAndClean( firsterror, true, needsSwave() );
 
@@ -246,19 +258,24 @@ bool ReflCalc1D::doWork( od_int64 start, od_int64 stop, int threadidx )
     const int nrmodels = refmodel_->nrRefModels();
     for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
-	const ElasticLayer& elay0 = model_[layer];
-	const ElasticLayer& elay1 = model_[layer+1];
+	const AILayer& ailay0 = model_.get(layer)->asAcoustic();
+	const AILayer& ailay1 = model_.get(layer+1)->asAcoustic();
+	const ElasticLayer* elay0 = ailay0.asElastic();
+	const ElasticLayer* elay1 = ailay1.asElastic();
 	for ( int angidx=0; angidx<nrmodels; angidx++ )
 	{
 	    const float& thetaangle = thetaangles_[angidx];
 	    if ( mIsZero(thetaangle,1e-4f) )
 	    {
-		AICalc1D::computeAI( elay0, elay1,
+		AICalc1D::computeAI( ailay0, ailay1,
 				     reflectivities_[angidx][layer] );
 	    }
 	    else
 	    {
-		compute( threadidx, elay0, elay1, thetaangle,
+		if ( !elay0 || !elay1 )
+		    return false;
+
+		compute( threadidx, *elay0, *elay1, thetaangle,
 			 reflectivities_[angidx][layer] );
 	    }
 	}
@@ -313,11 +330,11 @@ void AICalc1D::compute( int /* threadidx */,
 }
 
 
-void AICalc1D::computeAI( const ElasticLayer& ail0, const ElasticLayer& ail1,
+void AICalc1D::computeAI( const AILayer& ail0, const AILayer& ail1,
 			  float_complex& reflectivity )
 {
-    const float ai0 = ail0.vel_ * ail0.den_;
-    const float ai1 = ail1.vel_ * ail1.den_;
+    const float ai0 = ail0.getAI();
+    const float ai1 = ail1.getAI();
     const float real =
 	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
 							  : (ai1-ai0)/(ai1+ai0);

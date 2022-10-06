@@ -40,14 +40,14 @@ ReflCalcRunner::ReflCalcRunner( const char* refl1dfactkeywd )
 
 
 ReflCalcRunner::ReflCalcRunner( const IOPar& reflpars )
-    : ParallelTask("Raytracing")
+    : ParallelTask("Reflectivity calculation")
     , reflpar_(*new IOPar(reflpars))
 {
     msg_ = tr("Running reflectivity calculation");
 }
 
 
-ReflCalcRunner::ReflCalcRunner( const TypeSet<ElasticModel>& aims,
+ReflCalcRunner::ReflCalcRunner( const ElasticModelSet& aims,
 				const IOPar& reflpars )
     : ReflCalcRunner(reflpars)
 {
@@ -102,7 +102,7 @@ void ReflCalcRunner::setAngles( const TypeSet<float>& angles,
 
 #define mErrRet(msg) { msg_ = msg; return false; }
 
-bool ReflCalcRunner::setModel( const TypeSet<ElasticModel>& aimodels )
+bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels )
 {
     deepErase( reflcalcs_ );
 
@@ -114,9 +114,9 @@ bool ReflCalcRunner::setModel( const TypeSet<ElasticModel>& aimodels )
 
     uiString errmsg;
     totalnr_ = 0;
-    for ( const auto& aimodel : aimodels )
+    for ( const auto* aimodel : aimodels )
     {
-	ReflCalc1D* reflcalc = ReflCalc1D::createInstance( reflpar_, &aimodel,
+	ReflCalc1D* reflcalc = ReflCalc1D::createInstance( reflpar_, aimodel,
 							   errmsg );
 	if ( !reflcalc )
 	{
@@ -225,7 +225,7 @@ bool ReflCalcRunner::getResults( ReflectivityModelSet& ret ) const
 
 
 ConstRefMan<ReflectivityModelSet> ReflCalcRunner::getRefModels(
-				    const TypeSet<ElasticModel>& emodels,
+				    const ElasticModelSet& emodels,
 				    const IOPar& reflpar, uiString& msg,
 				    TaskRunner* taskrun,
 			    const ObjectSet<const TimeDepthModel>* tdmodels )

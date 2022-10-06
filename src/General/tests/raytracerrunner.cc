@@ -28,13 +28,13 @@ ________________________________________________________________________
 
 #define cNrModels 8
 
-static ElasticModel getEModel()
+static ElasticModel* getEModel()
 {
-    ElasticModel emdl;
-    emdl += AILayer( 48.f, 2000.f, 2500.f );
-    emdl += AILayer( 520.f, 2600.f, 2300.f );
-    emdl += AILayer( 385.f, 3500.f, 2200.f );
-    emdl += AILayer( 350.f, 4000.f, 2800.f );
+    auto* emdl = new ElasticModel();
+    emdl->add( new AILayer( 48.f, 2000.f, 2500.f ) );
+    emdl->add( new AILayer( 520.f, 2600.f, 2300.f ) );
+    emdl->add( new AILayer( 385.f, 3500.f, 2200.f ) );
+    emdl->add( new AILayer( 350.f, 4000.f, 2800.f ) );
     return emdl;
 }
 
@@ -65,7 +65,7 @@ static TypeSet<float> getAngles()
 }
 
 
-static bool doRun( bool raytracer, const TypeSet<ElasticModel>& emodels,
+static bool doRun( bool raytracer, const ElasticModelSet& emodels,
 		   bool parallel )
 {
     const bool singlemod = emodels.size() == 1;
@@ -91,8 +91,8 @@ static bool doRun( bool raytracer, const TypeSet<ElasticModel>& emodels,
     const ReflectivityModelBase* refmodel = refmodels->get( modidx );
     mRunStandardTest( refmodel, "Has reflectivity model" );
 
-    const ElasticModel& emdl = singlemod ? emodels.first()
-					 : emodels[cNrModels-1];
+    const ElasticModel& emdl = singlemod ? *emodels.first()
+					 : *emodels.get(cNrModels-1);
     const int nrlayers = emdl.size();
     const int nrd2t = raytracer ? 6 : 1;
     const int modsz = nrlayers + 1;
@@ -143,21 +143,21 @@ static bool doRun( bool raytracer, const TypeSet<ElasticModel>& emodels,
 
 static bool setupAndApplyRunner( bool raytracer, int nr, bool parallel )
 {
-    TypeSet<ElasticModel> emodels;
+    ElasticModelSet emodels;
     for ( int idx=0; idx<nr; idx++ )
-	emodels += getEModel();
+	emodels.add( getEModel() );
 
     if ( nr > 1 )
     {
-	ElasticModel emdl;
+	auto* emdl = new ElasticModel;
 	// Single layer model
-	emdl += AILayer( 48.f, 2000.f, 2500.f );
-	emodels += emdl;
+	emdl->add( new AILayer( 48.f, 2000.f, 2500.f ) );
+	emodels.add( emdl->clone() );
 
 	// Model with the identical layers: May get merged
-	emdl += AILayer( 48.f, 2000.f, 2500.f );
-	emdl += AILayer( 48.f, 2000.f, 2500.f );
-	emodels += emdl;
+	emdl->add( new AILayer( 48.f, 2000.f, 2500.f ) );
+	emdl->add( new AILayer( 48.f, 2000.f, 2500.f ) );
+	emodels.add( emdl );
     }
 
     return doRun( raytracer, emodels, parallel );

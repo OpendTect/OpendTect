@@ -47,7 +47,7 @@ RayTracerRunner::RayTracerRunner( const IOPar& raypars )
 }
 
 
-RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
+RayTracerRunner::RayTracerRunner( const ElasticModelSet& aims,
 				  const IOPar& raypars )
     : RayTracerRunner(raypars)
 {
@@ -93,7 +93,7 @@ void RayTracerRunner::setOffsets( const TypeSet<float>& offsets )
 
 #define mErrRet(msg) { msg_ = msg; return false; }
 
-bool RayTracerRunner::setModel( const TypeSet<ElasticModel>& aimodels )
+bool RayTracerRunner::setModel( const ElasticModelSet& aimodels )
 {
     deepErase( raytracers_ );
 
@@ -105,9 +105,9 @@ bool RayTracerRunner::setModel( const TypeSet<ElasticModel>& aimodels )
 
     uiString errmsg;
     totalnr_ = 0;
-    for ( const auto& aimodel : aimodels )
+    for ( const auto* aimodel : aimodels )
     {
-	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, &aimodel,
+	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, aimodel,
 							 errmsg );
 	if ( !rt1d )
 	{
@@ -218,7 +218,7 @@ bool RayTracerRunner::getResults( ReflectivityModelSet& ret ) const
 
 
 ConstRefMan<ReflectivityModelSet> RayTracerRunner::getRefModels(
-				    const TypeSet<ElasticModel>& emodels,
+				    const ElasticModelSet& emodels,
 				    const IOPar& raypar, uiString& msg,
 				    TaskRunner* taskrun,
 			    const ObjectSet<const TimeDepthModel>* tdmodels )

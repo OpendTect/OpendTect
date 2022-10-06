@@ -432,14 +432,14 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
     float dnmotime, dvrmssum, unmotime, uvrmssum;
     float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
     prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
-    for ( const auto& layer : emodel )
+    for ( const auto* layer : emodel )
     {
-	const float dz = layer.thickness_;
+	const float dz = layer->getThickness();
 	const float thickness = zinfeet ? dz * mToFeetFactorF : dz;
 	deptharr[idz] = idz>1 ? deptharr[idz-1] + thickness : thickness;
 
-	const float dvel = tdmsu.pdown_ ? layer.vel_ : layer.svel_;
-	const float uvel = tdmsu.pup_ ? layer.vel_ : layer.svel_;
+	const float dvel = tdmsu.pdown_ ? layer->getPVel() : layer->getSVel();
+	const float uvel = tdmsu.pup_ ? layer->getPVel() : layer->getSVel();
 	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
 
 	dnmotime = dz / dvel;

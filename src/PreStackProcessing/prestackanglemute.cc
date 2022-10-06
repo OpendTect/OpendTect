@@ -164,10 +164,8 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 
     int il = 1;
     for ( il=1; il<nrlayers; il++ )
-	model += ElasticLayer(depths[il]-depths[il-1],
-			vels[il], mUdf(float), mUdf(float) );
-    model += ElasticLayer(depths[il-1]-depths[il-2],
-			vels[il-1], mUdf(float), mUdf(float) );
+	model.add( new AILayer(depths[il]-depths[il-1],vels[il],mUdf(float)) );
+    model.add( new AILayer(depths[il-1]-depths[il-2],vels[il-1],mUdf(float)) );
     block( model );
 
     sd = zrg;
@@ -307,9 +305,9 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
 
-    TypeSet<ElasticModel> emodels;
-    ElasticModel layers;
-    emodels += layers;
+    ElasticModelSet emodels;
+    auto* layers = new ElasticModel();
+    emodels.add( layers );
     rtrunner->setModel( emodels );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
@@ -321,12 +319,12 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	const BinID bid = input->getBinID();
 
 	int nrlayers = input->data().info().getSize( Gather::zDim() );
-	layers.setEmpty();
+	layers->setEmpty();
 	SamplingData<float> sd;
-	if ( !getLayers(bid,layers,sd,nrlayers) )
+	if ( !getLayers(bid,*layers,sd,nrlayers) )
 	    continue;
 
-	const int nrblockedlayers = layers.size();
+	const int nrblockedlayers = layers->size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
@@ -364,13 +362,17 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    float mtime = 0;
 		    for ( int il=0; il<=muteintlayer; il++ )
 		    {
-			mtime += layers[il].thickness_/layers[il].vel_;
+			const RefLayer& layer = *layers->get( il );
+			mtime += layer.getThickness()/layer.getPVel();
 			if ( il==muteintlayer )
 			{
 			    const float diff = mutelayer-muteintlayer;
 			    if ( diff>0 )
+			    {
+				const RefLayer& layer1 = *layers->get( il );
 				mtime += diff*
-				    layers[il+1].thickness_/layers[il+1].vel_;
+				    layer1.getThickness()/layer.getPVel();
+			    }
 			}
 		    }
 		    mutelayer = sd.getfIndex( mtime );
@@ -381,7 +383,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    for ( int il=0; il<muteintlayer+2; il++ )
 		    {
 			if ( il >= nrblockedlayers ) break;
-			float thk = layers[il].thickness_;
+			float thk = layers->get(il)->getThickness();
 			if ( il == muteintlayer+1 )
 			    thk *= ( mutelayer - muteintlayer);
 

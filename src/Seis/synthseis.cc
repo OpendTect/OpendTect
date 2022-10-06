@@ -945,7 +945,7 @@ bool MultiTraceSynthGenerator::doFinish( bool success )
 
 
 ConstRefMan<ReflectivityModelSet>
-RaySynthGenerator::getRefModels( const TypeSet<ElasticModel>& emodels,
+RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 const IOPar& reflpars, uiString& msg,
 				 TaskRunner* taskrun,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
