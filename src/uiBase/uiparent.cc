@@ -130,9 +130,8 @@ uiParentBody::uiParentBody( const char* nm )
 
 uiParentBody::~uiParentBody()
 {
-    detachAllNotifiers();
-
     sendDelNotif();
+    detachAllNotifiers();
     deleteAllChildren();
 }
 
