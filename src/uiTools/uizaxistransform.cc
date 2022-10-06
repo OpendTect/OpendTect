@@ -151,11 +151,10 @@ NotifierAccess* uiZAxisTransformSel::selectionDone()
     return &selfld_->valuechanged;
 }
 
-#define mGetSel		( selfld_ ? selfld_->getIntValue() : 0 )
 
 bool uiZAxisTransformSel::getTargetSampling( StepInterval<float>& zrg ) const
 {
-    const int idx = mGetSel;
+    const int idx = selfld_ ? selfld_->getIntValue() : 0;
     if ( !transflds_[idx] )
 	return false;
 
@@ -175,15 +174,15 @@ int uiZAxisTransformSel::nrTransforms() const
 
 ZAxisTransform* uiZAxisTransformSel::getSelection()
 {
-    const int idx = mGetSel;
+    const int idx = selfld_ ? selfld_->getIntValue() : 0;
     return transflds_[idx] ? transflds_[idx]->getSelection() : nullptr;
 }
 
 
 StringView uiZAxisTransformSel::selectedToDomain() const
 {
-    const int idx = mGetSel;
-    if ( transflds_.validIdx(idx) )
+    const int idx = selfld_ ? selfld_->getIntValue() : 0;
+    if ( transflds_.validIdx(idx) && transflds_[idx] )
 	return transflds_[idx]->toDomain();
 
     return sKey::EmptyString();
@@ -203,7 +202,7 @@ bool uiZAxisTransformSel::fillPar( IOPar& par )
 
 bool uiZAxisTransformSel::acceptOK()
 {
-    const int idx = mGetSel;
+    const int idx = selfld_ ? selfld_->getIntValue() : 0;
     if ( !transflds_[idx] )
 	return true;
 
@@ -238,7 +237,7 @@ bool uiZAxisTransformSel::acceptOK()
 
 void uiZAxisTransformSel::selCB( CallBacker* )
 {
-    const int selidx = mGetSel;
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
     for ( int idx=0; idx<transflds_.size(); idx++ )
     {
 	if ( !transflds_[idx] )

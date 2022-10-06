@@ -28,13 +28,14 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-			Setup(uiIOObjSel* tiedto,bool opt=true);
+			Setup(uiIOObjSel* tiedto,bool opt=true,bool is2d=false);
 			~Setup();
 
 	mDefSetupMemb(BufferString,fldtext)
 	mDefSetupMemb(bool,optional)
 	mDefSetupMemb(uiIOObjSel*,tiedto)
 	mDefSetupMemb(bool,ist2d)
+	mDefSetupMemb(bool,is2d)
     };
 
 			uiT2DConvSel(uiParent*,const Setup&);

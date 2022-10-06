@@ -212,12 +212,6 @@ uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
     return zUnitAnnot( false, symb, withparens );
 }
 
-#define mCreateLbl() \
-{ \
-    if ( withparens ) lbl.append( "(" ); \
-    lbl.append( tr(symb ? uom->symbol() : uom->name()) ); \
-    if ( withparens ) lbl.append( ")" ); \
-}
 
 uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
 {
@@ -226,9 +220,8 @@ uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
     if ( !uom )
 	return uiString::emptyString();
 
-    uiString lbl;
-    mCreateLbl()
-
+    uiString lbl = toUiString( withparens ? "(%1)" : "%1" ).arg(
+					symb ? uom->symbol() : uom->name() );
     return lbl;
 }
 
@@ -239,8 +232,8 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
     if ( !uom )
 	return uiString::emptyString();
 
-    uiString lbl;
-    mCreateLbl()
+    uiString lbl = toUiString( withparens ? "(%1)" : "%1" ).arg(
+					symb ? uom->symbol() : uom->name() );
 
     return lbl;
 }

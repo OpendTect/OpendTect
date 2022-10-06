@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "zdomain.h"
 
-uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt )
+uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt, bool is2d )
     : tiedto_(tied)
     , optional_(opt)
     , ist2d_(SI().zIsTime())
+    , is2d_(is2d)
 {
 }
 
@@ -33,7 +34,7 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     : uiZAxisTransformSel(p, su.optional_,
 	su.ist2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth(),
 	!su.ist2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth(),
-	false, false )
+	false, false, su.is2d_ )
     , setup_(su)
 {
     uiString fldtext;
