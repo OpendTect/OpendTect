@@ -102,9 +102,9 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     TypeSet<BinID> bids;
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
-    TypeSet<ElasticModel> emodels;
-    ElasticModel layers;
-    emodels += layers;
+    ElasticModelSet emodels;
+    auto* layers = new ElasticModel();
+    emodels.add( layers );
     rtrunner->setModel( emodels );
 
     BinID curbid;
@@ -112,7 +112,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     {
 	curbid = hrg.atIndex( pidx );
 	SamplingData<float> sd;
-	if ( !getLayers(curbid,layers,sd) )
+	if ( !getLayers(curbid,*layers,sd) )
 	    continue;
 
 	if ( !rtrunner->executeParallel(false) )
@@ -126,7 +126,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 	auto* mutefunc = new PointBasedMathFunction();
 
-	const int nrlayers = layers.size();
+	const int nrlayers = layers->size();
 	TypeSet<float> offsets;
 	params().raypar_.get( RayTracer1D::sKeyOffset(), offsets );
 	float zpos = 0;
@@ -151,11 +151,11 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    for ( int idx=0; idx<(int)lastvalidmutelayer+1 ; idx++ )
 	    {
 		if ( idx < lastvalidmutelayer+1 )
-		    zdpt += layers[idx].thickness_;
+		    zdpt += layers->get(idx)->getThickness();
 	    }
 	    float lastdepth = 0;
 	    for ( int idx=0; idx<nrlayers; idx++ )
-		lastdepth += layers[idx].thickness_;
+		lastdepth += layers->get(idx)->getThickness();
 
 	    float thk = lastdepth - zdpt;
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);

@@ -96,7 +96,7 @@ void Well::ElasticModelComputer::setLogs( const Well::Log& vellog,
     if ( denlog )
 	setDenLog( *denlog );
     else
-	inplogs_ += 0;
+	inplogs_ += nullptr;
 
     if ( svellog )
 	setSVelLog( *svellog );
@@ -126,8 +126,8 @@ void Well::ElasticModelComputer::init()
     zrgistime_ = false;
     zstep_ = mUdf(float);
     extractintime_ = false;
-    ls_ = 0;
-    lsnearest_ = 0;
+    ls_ = nullptr;
+    lsnearest_ = nullptr;
     velpissonic_ = false;
 }
 
@@ -156,17 +156,23 @@ bool Well::ElasticModelComputer::computeFromLogs()
     const int nrsteps = ls_->nrZSamples();
     const float dz = !zrgistime_ ? zstep_ * convfact : zstep_ / 2.f;
     int erroridx = -1;
+    const bool needswave = inplogs_.validIdx( mSVelIdx ) &&
+			   inplogs_.get(mSVelIdx);
+    RefLayer* newlayer = nullptr;
     for ( int idl=0; idl<nrsteps; idl++ )
     {
+	const float thickness = !zrgistime_ ? dz : ls_->getThickness( idl );
 	const float velp = getVelp( idl );
 	const float den = getDensity( idl );
-	const float svel = getSVel( idl );
-	const float thickness = !zrgistime_ ? dz : ls_->getThickness( idl );
-	ElasticLayer layer( thickness, velp, svel, den );
-	if ( !layer.isOK(true,false) && erroridx == -1 )
+	if ( needswave )
+	    newlayer = new ElasticLayer( thickness, velp, getSVel(idl), den );
+	else
+	    newlayer = new AILayer( thickness, velp, den );
+
+	if ( !newlayer->isOK(true,false) && erroridx == -1 )
 	    erroridx = idl;
 
-	emodel_ += layer;
+	emodel_.add( newlayer );
     }
 
     if ( emodel_.isEmpty() )
@@ -194,7 +200,8 @@ bool Well::ElasticModelComputer::computeFromLogs()
 		     ls_->getThickness(0) / 2.f;
     }
 
-    emodel_[0].thickness_ += ( startdepth - srddepth ) * convfact;
+    emodel_.first()->setThickness( emodel_.first()->getThickness()
+				   + ( startdepth - srddepth ) * convfact );
 
     return true;
 }

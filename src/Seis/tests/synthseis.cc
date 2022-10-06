@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
+#include "reflcalc1d.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "synthseis.h"
@@ -35,30 +36,30 @@ else \
 
 
 void initTest( bool onespike, bool onemodel, float start_depth,
-	       TypeSet<ElasticModel>& models )
+	       ElasticModelSet& models )
 {
-    AILayer layer1 = AILayer( start_depth, 2000.f, 2500.f );
-    AILayer layer2 = AILayer( 520.f, 2600.f, 2300.f );
-    AILayer layer3 = AILayer( 385.f, 3500.f, 2200.f );
-    AILayer layer4 = AILayer( 350.f, 4000.f, 2800.f );
+    AILayer layer1( start_depth, 2000.f, 2500.f );
+    AILayer layer2( 520.f, 2600.f, 2300.f );
+    AILayer layer3( 385.f, 3500.f, 2200.f );
+    AILayer layer4( 350.f, 4000.f, 2800.f );
 
-    models += ElasticModel();
-    models[0] += layer1;
-    models[0] += layer3;
+    models.add( new ElasticModel );
+    models.get(0)->add( layer1.clone() );
+    models.get(0)->add( layer3.clone() );
     if ( !onespike )
-	models[0] += layer4;
+	models.get(0)->add( layer4.clone() );
 
     if ( onemodel )
 	return;
 
-    models += ElasticModel();
-    models[1] += layer1;
-    models[1] += layer2;
+    models.add( new ElasticModel );
+    models.get(1)->add( layer1.clone() );
+    models.get(1)->add( layer2.clone() );
     if ( onespike )
 	return;
 
-    models[1] += layer3;
-    models[1] += layer4;
+    models.get(1)->add( layer3.clone() );
+    models.get(1)->add( layer4.clone() );
 }
 
 
@@ -164,7 +165,7 @@ mLoad1Module("Seis")
 bool BatchProgram::doWork( od_ostream& strm )
 {
     // Inputs
-    TypeSet<ElasticModel> models;
+    ElasticModelSet models;
     const bool singlespike = false;
     const int nrmodels = 2; // model1: 2 spikes, model2: 3 spikes
     const float start_depth = 48.f;
@@ -197,10 +198,10 @@ bool BatchProgram::doWork( od_ostream& strm )
     wvlts += realwav;
     initTest( singlespike, nrmodels==1, start_depth, models );
 
-    PtrMan<IOPar> raypar = pars().subselect( "Ray Tracer" );
-    if ( !raypar )
+    PtrMan<IOPar> reflpar = pars().subselect( ReflCalc1D::sKeyReflPar() );
+    if ( !reflpar )
     {
-	strm << "Input RayTracer could not be found." << od_newline;
+	strm << "Input calculator could not be found." << od_newline;
 	return false;
     }
 
@@ -217,7 +218,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	uiString msg;
 	ConstRefMan<ReflectivityModelSet> refmodels =
-		  Seis::RaySynthGenerator::getRefModels( models, *raypar,
+		  Seis::RaySynthGenerator::getRefModels( models, *reflpar,
 							 msg, taskr.ptr() );
 	if ( !refmodels )
 	{

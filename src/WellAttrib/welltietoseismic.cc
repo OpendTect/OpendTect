@@ -460,8 +460,8 @@ bool WellTie::DataPlayer::setAIModel()
     const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
     const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
 
-    Well::Log* pcvellog = new Well::Log;
-    Well::Log* pcdenlog = new Well::Log;
+    auto* pcvellog = new Well::Log;
+    auto* pcdenlog = new Well::Log;
     if ( !processLog(sonlog,*pcvellog,data_.sKeySonic()) ||
 	 !processLog(denlog,*pcdenlog,data_.sKeyDensity()) )
 	return false;
@@ -496,11 +496,12 @@ bool WellTie::DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
     TypeSet<float> refltimes( nrlayers, mUdf(float) );
     float* refldepthsarr = refldepths.arr();
     float* refltimesarr = refltimes.arr();
-    refldepthsarr[0] = aimodel_[0].thickness_;
+    refldepthsarr[0] = aimodel_.first()->getThickness();
     refltimesarr[0] = reflzrg.start;
     for ( int idz=1; idz<nrlayers; idz++ )
     {
-	refldepthsarr[idz] = refldepthsarr[idz-1] + aimodel_[idz].thickness_;
+	refldepthsarr[idz] = refldepthsarr[idz-1]
+			   + aimodel_.get(idz)->getThickness();
 	refltimesarr[idz] = reflzrg.atIndex( idz );
     }
 
@@ -514,8 +515,8 @@ bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     errmsg_.setEmpty();
     uiString msg;
     TaskRunner* taskrunner = data_.trunner_;
-    TypeSet<ElasticModel> aimodels;
-    aimodels += aimodel_;
+    ElasticModelSet aimodels;
+    aimodels.add( aimodel_.clone() );
 
     ObjectSet<const TimeDepthModel> forcedtdmodels;
     TimeDepthModel tdmodel;
@@ -574,9 +575,9 @@ bool WellTie::DataPlayer::copyDataToLogSet()
 	    continue;
 
 	dahlog += dah;
-	const AILayer& layer = aimodel_[idx];
-	son += layer.vel_;
-	den += layer.den_;
+	const RefLayer& layer = *aimodel_.get(idx);
+	son += layer.getPVel();
+	den += layer.getDen();
 	ai += layer.getAI();
     }
 

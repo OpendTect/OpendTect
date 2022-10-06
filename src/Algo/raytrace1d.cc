@@ -209,9 +209,11 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
 
     //Zero-offset: Vs is not required, density not either if !doreflectivity_
     const bool zerooffsetonly =
-	offsets_.size()==1 && mIsZero(offsets_[0],mDefEps);
+		    offsets_.size()==1 && mIsZero(offsets_[0],mDefEps);
+    const RefLayer::Type reqtyp = zerooffsetonly || !setup().doreflectivity_
+				? RefLayer::Acoustic : RefLayer::Elastic;
+    model_.copyFrom( lys, reqtyp );
 
-    model_ = lys;
     int firsterror = -1;
     model_.checkAndClean( firsterror, setup().doreflectivity_, !zerooffsetonly);
 
@@ -292,8 +294,9 @@ bool RayTracer1D::doFinish( bool success )
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const ElasticLayer& ellayer = model_[layer];
-    const float downvel = setup().pdown_ ? ellayer.vel_ : ellayer.svel_;
+    const RefLayer& ailayer = *model_.get( layer );
+    const float downvel = setup().pdown_ ? ailayer.getPVel()
+					 : ailayer.getSVel();
 
     const float sini = downvel * rayparam;
     sinarr_[offsetidx][layer] = sini;
@@ -307,8 +310,9 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
     if ( !mIsZero(off,mDefEps) )
     {
-	if ( rayparam*model_[layer].vel_ > 1 ||   // critical angle reached
-	     rayparam*model_[layer+1].vel_ > 1 )  // no reflection
+						 // critical angle reached
+	if ( rayparam*model_.get(layer)->getPVel() > 1 ||
+	     rayparam*model_.get(layer+1)->getPVel() > 1 )  // no reflection
 	{
 	    reflectivities_[offsetidx][layer] = reflectivity;
 	    return true;
@@ -316,7 +320,14 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
 	mAllocLargeVarLenArr( ZoeppritzCoeff, coefs, nrinterfaces );
         for ( int iidx=0; iidx<nrinterfaces; iidx++ )
-	    coefs[iidx].setInterface( rayparam, model_[iidx], model_[iidx+1] );
+	{
+	    const ElasticLayer* elay0 = model_.get( iidx )->asElastic();
+	    const ElasticLayer* elay1 = model_.get( iidx+1 )->asElastic();
+	    if ( !elay0 || !elay1 )
+		return false;
+
+	    coefs[iidx].setInterface( rayparam, *elay0, *elay1 );
+	}
 
 	reflectivity = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
 				     layer==0 ? setup().pup_ : setup().pdown_ );
@@ -342,10 +353,8 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     }
     else
     {
-	const ElasticLayer& ail0 = model_[ layer ];
-	const ElasticLayer& ail1 = model_[ layer+1 ];
-	const float ai0 = ail0.vel_ * ail0.den_;
-	const float ai1 = ail1.vel_ * ail1.den_;
+	const float ai0 = model_.get( layer )->getAI();
+	const float ai1 = model_.get( layer+1 )->getAI();
 	const float real =
 	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
 						          : (ai1-ai0)/(ai1+ai0);
@@ -382,12 +391,14 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();
 
-    for ( int layer=mCast(int,start); layer<=stop; layer++ )
+    for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
-	addToNrDone( 1 );
-	const ElasticLayer& ellayer = model_[layer];
+	const RefLayer& ellayer = *model_.get( layer );
+	if ( !setup_.pdown_ && !ellayer.isElastic() )
+	    return false;
+
 	const float depth = 2.f * depths_[layer];
-	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
+	const float vel = setup_.pdown_ ? ellayer.getPVel() : ellayer.getSVel();
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
 	    const float offset = offsets_[osidx];

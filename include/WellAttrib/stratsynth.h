@@ -141,7 +141,7 @@ public:
     const TypeSet<SynthGenParams>& genParams() const	{ return genparams_; }
     const Strat::LayerModelSuite& layerModelSuite() const	{ return lms_; }
     const Strat::LayerModel& layerModel(int lmsidx=-1) const;
-    const TypeSet<ElasticModel>& elasticModels(int lmsidx=-1) const;
+    const ElasticModelSet& elasticModels(int lmsidx=-1) const;
     const StratSynth::LevelSet& levels(int lmsidx=-1) const;
 
     void		getLevelDepths(Strat::LevelID,TypeSet<float>& zvals,
@@ -203,7 +203,7 @@ private:
 
 				// generated / 'caches'
     ObjectSet<RefObjectSet<const SyntheticData> > lmdatasets_;
-    ObjectSet<TypeSet<ElasticModel> > elasticmodelsets_;
+    ObjectSet<ElasticModelSet> elasticmodelsets_;
     ObjectSet<StratSynth::LevelSet> levelsets_;
 
     PtrMan<DataMgr>	prodmgr_;
@@ -216,7 +216,7 @@ private:
     bool		ensureElasticModels(int lmsidx,bool checkswave,
 					    TaskRunner*) const;
     bool		adjustElasticModel(const Strat::LayerModel&,
-					   TypeSet<ElasticModel>&,bool chksvel,
+					   ElasticModelSet&,bool chksvel,
 					   TaskRunner*) const;
     bool		checkNeedsInput(const SynthGenParams&) const;
 

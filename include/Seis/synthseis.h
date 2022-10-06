@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "reflectivitysampler.h"
 #include "seistype.h"
 
+class ElasticModelSet;
 class SeisTrc;
 class SeisTrcBuf;
 class TimeDepthModel;
@@ -301,7 +302,7 @@ mExpClass(Seis) RaySynthGenerator : public ParallelTask
 public:
 
     static ConstRefMan<ReflectivityModelSet>
-			getRefModels(const TypeSet<ElasticModel>&,
+			getRefModels(const ElasticModelSet&,
 				     const IOPar& reflpar,uiString& msg,
 				     TaskRunner* =nullptr,
 				     const ObjectSet<const TimeDepthModel>*

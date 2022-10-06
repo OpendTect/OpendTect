@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "reflectivitymodel.h"
 
+class AILayer;
 class ElasticLayer;
 class ElasticModel;
 
@@ -46,9 +47,12 @@ public:
 
     virtual ReflCalc1D::Setup&	setup()			= 0;
     virtual const ReflCalc1D::Setup& setup() const	= 0;
+
     virtual bool	hasSameParams(const ReflCalc1D&) const;
     virtual bool	isOK() const			{ return true; }
     virtual bool	needsSwave() const		{ return true; }
+    virtual bool	needFracRho() const		{ return false; }
+    virtual bool	needFracAzi() const		{ return false; }
 
     bool		setModel(const ElasticModel&);
     const ElasticModel& getModel() const	{ return model_; }
@@ -133,8 +137,8 @@ public:
 
     bool			needsSwave() const override { return false; }
 
-    static void			computeAI(const ElasticLayer&,
-					  const ElasticLayer&,float_complex&);
+    static void			computeAI(const AILayer&,
+					  const AILayer&,float_complex&);
 
 private:
 

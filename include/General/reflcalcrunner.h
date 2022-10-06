@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "reflcalc1d.h"
 
-class ElasticModel;
+class ElasticModelSet;
 class IOPar;
 
 mExpClass(General) ReflCalcRunner : public ParallelTask
@@ -21,12 +21,12 @@ public:
 				ReflCalcRunner(const char* refl1dfactkeywd=
 					       AICalc1D::sFactoryKeyword());
 				ReflCalcRunner(const IOPar& reflpar);
-				ReflCalcRunner(const TypeSet<ElasticModel>&,
+				ReflCalcRunner(const ElasticModelSet&,
 					       const IOPar& reflpar);
 				~ReflCalcRunner();
 
     //before execution only
-    bool			setModel(const TypeSet<ElasticModel>&);
+    bool			setModel(const ElasticModelSet&);
 				//<! No copy: Must stay valid during execution
     void			setAngle(float thetaang,bool angleisindegrees);
     void			setAngles(const TypeSet<float>&,
@@ -42,7 +42,7 @@ public:
     ConstRefMan<ReflectivityModelSet> getRefModels() const;
 
     static ConstRefMan<ReflectivityModelSet> getRefModels(
-				    const TypeSet<ElasticModel>&,
+				    const ElasticModelSet&,
 				    const IOPar& reflpar,uiString& msg,
 				    TaskRunner* =nullptr,
 			    const ObjectSet<const TimeDepthModel>* =nullptr);
