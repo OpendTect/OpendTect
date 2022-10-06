@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "ioman.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
@@ -47,15 +48,6 @@ ________________________________________________________________________
 
 #include <stdio.h> // for sprintf
 
-
-static uiStringSet zmodes()
-{
-    uiStringSet zmodes;
-    zmodes.add( uiStrings::sYes() );
-    zmodes.add( uiStrings::sNo() );
-    zmodes.add( uiStrings::sTransform() );
-    return zmodes;
-}
 
 static uiStringSet exptyps()
 {
@@ -291,16 +283,15 @@ int Write3DHorASCII::nextStep()
 uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport(uiStrings::sHorizon()),
 			mNoDlgTitle,mODHelpKey(mExportHorizonHelpID)))
-    , infld_(nullptr)
-    , bulkinfld_(nullptr)
-    , coordsysselfld_(nullptr)
     , isbulk_(isbulk)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
-    setModal( false );
     setDeleteOnClose( false );
+
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
+    uiIOObjSelGrp::Setup stup;
+    stup.choicemode_ = OD::ChooseAtLeastOne;
+    uiObject* attachobj = nullptr;
     if ( !isbulk )
     {
 	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
@@ -308,30 +299,26 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 		    .withsubsel(true).withsectionfld(false) );
 	infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
 	infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
+	attachobj = infld_->attachObj();
     }
     else
+    {
 	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
 				      uiStrings::sHorizon(mPlural), stup );
+	attachobj = bulkinfld_->attachObj();
+    }
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
 			      StringListInpSpec(exptyps()) );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
-    if ( !isbulk )
-	typfld_->attach( alignedBelow, infld_ );
-    else
-	typfld_->attach( alignedBelow, bulkinfld_ );
+    typfld_->attach( alignedBelow, attachobj );
+    attachobj = typfld_->attachObj();
 
     settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
 				      mCB(this,uiExportHorizon,settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
 
-    zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
-			    StringListInpSpec(zmodes()) );
-    zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
-    zfld_->attach( alignedBelow, typfld_ );
-
-    uiObject* attachobj = zfld_->attachObj();
     if ( SI().hasProjection() )
     {
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
@@ -339,11 +326,20 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 	attachobj = coordsysselfld_->attachObj();
     }
 
+    writezfld_ = new uiGenInput( this, tr("Write Z"), BoolInpSpec(true) );
+    writezfld_->attach( alignedBelow, attachobj );
+    mAttachCB( writezfld_->valueChanged, uiExportHorizon::addZChg );
+
+    doconvzfld_ = new uiGenInput( this, tr("Apply Time-Depth conversion"),
+				  BoolInpSpec(false) );
+    doconvzfld_->attach( rightTo, writezfld_ );
+    mAttachCB( doconvzfld_->valueChanged, uiExportHorizon::addZChg );
+
     uiT2DConvSel::Setup su( 0, false );
     su.ist2d( SI().zIsTime() );
     transfld_ = new uiT2DConvSel( this, su );
     transfld_->display( false );
-    transfld_->attach( alignedBelow, attachobj );
+    transfld_->attach( alignedBelow, writezfld_ );
 
     unitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
     unitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
@@ -405,7 +401,7 @@ void uiExportHorizon::writeHeader( od_ostream& strm )
     const int typ = typfld_->getIntValue();
     const bool doxy = typ==0 || typ==2;
     const bool doic = typ==1 || typ==2;
-    const bool addzpos = zfld_->getIntValue() != 1;
+    const bool addzpos = writezfld_->getBoolValue();
     if ( headerfld_->getIntValue() == 1 )
     {
 	BufferString posstr;
@@ -459,33 +455,28 @@ bool uiExportHorizon::writeAscii()
     TypeSet<MultiID> midset;
     if ( !getInputMIDs(midset) )
 	mErrRet(tr("Cannot find object in database"))
-    ObjectSet<EM::IOObjInfo> emioinfoset;
-    for ( int idx=0; idx<midset.size(); idx++ )
-    {
-	EM::IOObjInfo* emioinfo =  new EM::IOObjInfo(midset[idx]);
-	emioinfoset.add(emioinfo);
-    }
 
     const int typ = typfld_->getIntValue();
     const bool doxy = typ==0 || typ==2;
     const bool doic = typ==1 || typ==2;
-    const bool addzpos = zfld_->getIntValue() != 1;
-    const bool dogf = typfld_->getIntValue() == 3;
+    const bool addzpos = writezfld_->getBoolValue();
+    const bool dogf = exportToGF();
 
     RefMan<ZAxisTransform> zatf = 0;
-    if ( zfld_->getIntValue()==2 )
+    if ( doconvzfld_->getBoolValue() )
     {
 	zatf = transfld_->getSelection();
 	if ( !zatf )
 	{
-	 uiMSG().message(tr("Transform of selected option is not "
-							    "implemented"));
+	    uiMSG().message( tr("Z Transform of selected option is not "
+				"implemented") );
 	    return false;
 	}
     }
 
     BufferString udfstr = udffld_->text();
-    if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf();
+    if ( udfstr.isEmpty() )
+	udfstr = sKey::FloatUdf();
 
     BufferString basename = outfld_->fileName();
 
@@ -494,11 +485,12 @@ bool uiExportHorizon::writeAscii()
     uiString errmsg;
     BufferString fname( basename );
     od_ostream stream( fname );
-    for ( int horidx=0; horidx<emioinfoset.size(); horidx++ )
+    for ( int horidx=0; horidx<midset.size(); horidx++ )
     {
-	const IOObj* ioobj = !isbulk_ ? infld_->selIOObj() :
-				      emioinfoset[horidx]->ioObj();
-	if ( !ioobj ) mErrRet(uiStrings::phrCannotFind( tr("horizon object")));
+	ConstPtrMan<IOObj> ioobj = IOM().get( midset[horidx] );
+	if ( !ioobj )
+	    mErrRet(uiStrings::phrCannotFind( tr("horizon object")));
+
 	if ( !em.getSurfaceData(ioobj->key(),sd,errmsg) )
 	    mErrRet( errmsg )
 
@@ -622,14 +614,15 @@ bool uiExportHorizon::writeAscii()
 	    if ( zatf && zatvoi>=0 )
 		zatf->removeVolumeOfInterest( zatvoi );
 	}
-}
+    }
+
     return true;
 }
 
 
 bool uiExportHorizon::acceptOK( CallBacker* )
 {
-    if ( zfld_->getIntValue()==2 )
+    if ( writezfld_->getBoolValue() && doconvzfld_->getBoolValue() )
     {
 	if ( !transfld_->acceptOK() )
 	    return false;
@@ -682,12 +675,16 @@ bool uiExportHorizon::getInputMIDs( TypeSet<MultiID>& midset )
 void uiExportHorizon::typChg( CallBacker* cb )
 {
     if ( coordsysselfld_ )
-	coordsysselfld_->display( typfld_->getIntValue()==0 );
+    {
+	const int typesel = typfld_->getIntValue();
+	const bool expxy = typesel==0 || typesel==2;
+	coordsysselfld_->display( expxy );
+    }
 
     attrSel( cb );
     addZChg( cb );
 
-    const bool isgf = typfld_->getIntValue() == 3;
+    const bool isgf = exportToGF();
     headerfld_->display( !isgf );
     if ( isgf && gfname_.isEmpty() )
 	settingsCB( cb );
@@ -704,12 +701,13 @@ void uiExportHorizon::inpSel( CallBacker* )
 
 void uiExportHorizon::addZChg( CallBacker* )
 {
-    const bool isgf = typfld_->getIntValue() == 3;
+    const bool isgf = exportToGF();
     settingsbutt_->display( isgf );
-    zfld_->display( !isgf );
-    transfld_->display( !isgf && zfld_->getIntValue()==2 );
+    writezfld_->display( !isgf );
+    doconvzfld_->display( !isgf || !writezfld_->getBoolValue() );
+    transfld_->display( !isgf && doconvzfld_->getBoolValue() );
 
-    const bool displayunit = !isgf && zfld_->getIntValue()!=1;
+    const bool displayunit = !isgf && writezfld_->getBoolValue();
     if ( displayunit )
     {
 	const StringView zdomainstr = getZDomain();
@@ -729,14 +727,20 @@ void uiExportHorizon::addZChg( CallBacker* )
 }
 
 
+bool uiExportHorizon::exportToGF() const
+{
+    return typfld_->getIntValue()==3;
+}
+
+
 StringView uiExportHorizon::getZDomain() const
 {
     StringView zdomain = ZDomain::SI().key();
+    if ( exportToGF() )
+	return zdomain;
 
-    if ( typfld_->getIntValue()==3 || zfld_->getIntValue()==2 )
-    {
-	zdomain = transfld_->selectedToDomain();
-    }
+    if ( writezfld_->getBoolValue() && doconvzfld_->getBoolValue() )
+	return transfld_->selectedToDomain();
 
     return zdomain;
 }
@@ -744,7 +748,7 @@ StringView uiExportHorizon::getZDomain() const
 
 void uiExportHorizon::attrSel( CallBacker* )
 {
-    const bool isgf = typfld_->getIntValue() == 3;
+    const bool isgf = exportToGF();
     udffld_->display( !isgf && infld_ && infld_->haveAttrSel() );
 }
 

@@ -33,17 +33,18 @@ public:
 
 protected:
 
-    uiSurfaceRead*	infld_;
+    uiSurfaceRead*	infld_				= nullptr;
     uiFileInput*	outfld_;
     uiGenInput*		headerfld_;
     uiGenInput*		typfld_;
-    uiGenInput*		zfld_;
+    uiGenInput*		writezfld_;
+    uiGenInput*		doconvzfld_;
     uiPushButton*	settingsbutt_;
     uiUnitSel*		unitsel_;
     uiGenInput*		udffld_;
     uiT2DConvSel*	transfld_;
-    uiIOObjSelGrp*	bulkinfld_;
-    Coords::uiCoordSystemSel* coordsysselfld_;
+    uiIOObjSelGrp*	bulkinfld_			= nullptr;
+    Coords::uiCoordSystemSel* coordsysselfld_		= nullptr;
 
     BufferString	gfname_;
     BufferString	gfcomment_;
@@ -60,5 +61,6 @@ protected:
 
     bool		isbulk_;
 
+    bool		exportToGF() const;
     StringView		getZDomain() const;
 };

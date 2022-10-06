@@ -12,13 +12,16 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiioobjselgrp.h"
 
-class SurfaceInfo;
-class uiListBox;
+class uiCheckBox;
 class uiComboBox;
-class uiGenInput;
-class uiCheckList;
 class uiFileInput;
+class uiGenInput;
+class uiListBox;
+class uiT2DConvSel;
+class uiUnitSel;
+
 class od_ostream;
+class SurfaceInfo;
 namespace Coords { class uiCoordSystemSel; }
 
 
@@ -36,24 +39,27 @@ public:
 
 protected:
 
-    uiComboBox*		horselfld_;
-    uiListBox*		linenmfld_;
+    uiComboBox*		horselfld_		= nullptr;
+    uiListBox*		linenmfld_		= nullptr;
+    uiCheckBox*		writeudffld_;
     uiGenInput*		udffld_;
-    uiFileInput*	outfld_;
-    uiCheckList*	optsfld_;
+    uiCheckBox*		writelinenmfld_;
     uiGenInput*		headerfld_;
+    uiGenInput*		doconvfld_;
+    uiT2DConvSel*	transfld_;
+    uiUnitSel*		unitsel_;
+    uiIOObjSelGrp*	bulkinfld_;
+    Coords::uiCoordSystemSel* coordsysselfld_	= nullptr;
+    uiFileInput*	outfld_;
 
     ObjectSet<SurfaceInfo>	hinfos_;
 
     bool		acceptOK(CallBacker*) override;
     void		horChg(CallBacker*);
+    void		convCB(CallBacker*);
+    void		undefCB(CallBacker*);
     bool		doExport();
     void		writeHeader(od_ostream&);
-
-protected:
-
-    uiIOObjSelGrp*	bulkinfld_;
-    Coords::uiCoordSystemSel* coordsysselfld_ = nullptr;
 
     bool		isbulk_;
     bool		getInputMultiIDs(TypeSet<MultiID>&);

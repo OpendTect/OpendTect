@@ -11,24 +11,25 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "emhorizon2d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "emioobjinfo.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "ptrman.h"
 #include "od_ostream.h"
+#include "ptrman.h"
 #include "surfaceinfo.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "tableconvimpl.h"
+#include "zaxistransform.h"
 
-#include "uichecklist.h"
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uicoordsystem.h"
 #include "uifileinput.h"
@@ -36,6 +37,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+#include "uit2dconvsel.h"
+#include "uiunitsel.h"
 #include "od_helpids.h"
 
 #include <stdio.h>
@@ -51,61 +54,75 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     , hinfos_(hinfos)
     , isbulk_(isbulk)
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
+
+    uiObject* attachobj = nullptr;
     if ( isbulk_ )
     {
 	IOObjContext ctxt = mIOObjContext( EMHorizon2D );
 	uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
 	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
-	    uiStrings::sHorizon( mPlural ), stup );
+				uiStrings::sHorizon( mPlural ), stup );
+	attachobj = bulkinfld_->attachObj();
     }
     else
     {
 	auto* lcbox = new uiLabeledComboBox( this,
-			     uiStrings::phrSelect( uiStrings::sHorizon() ),
-			     "Select 2D Horizon" );
+		uiStrings::phrSelect(uiStrings::sHorizon().toLower()),
+		"Select 2D Horizon" );
 	horselfld_ = lcbox->box();
 	horselfld_->setHSzPol( uiObject::MedVar );
 	mAttachCB( horselfld_->selectionChanged, uiExport2DHorizon::horChg );
 	for ( int idx=0; idx<hinfos_.size(); idx++ )
-	    horselfld_->addItem( mToUiStringTodo(hinfos_[idx]->name) );
+	    horselfld_->addItem( hinfos_[idx]->name );
 
 	uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Select lines") );
 	linenmfld_ = new uiListBox( this, su );
 	linenmfld_->attach( alignedBelow, lcbox );
+	attachobj = linenmfld_->attachObj();
     }
 
-    headerfld_ = new uiGenInput( this, tr("Header"),
-				 StringListInpSpec(hdrtyps) );
-    if ( isbulk_ )
-	headerfld_->attach( alignedBelow, bulkinfld_ );
-    else
-	headerfld_->attach( alignedBelow, linenmfld_ );
-
-    udffld_ = new uiGenInput( this, tr("Write undefined parts? Undef value"),
-			      StringInpSpec(sKey::FloatUdf()) );
-    udffld_->setChecked( true );
-    udffld_->setWithCheck( true );
-    udffld_->attach( alignedBelow, headerfld_ );
-
-    optsfld_ = new uiCheckList( this, uiCheckList::Unrel, OD::Horizontal );
-    optsfld_->addItem( tr("Write line name") ).addItem(
-	uiStrings::phrZIn( SI().zIsTime() ? uiStrings::sMsec().toLower()
-					  : uiStrings::sFeet().toLower()) );
-    optsfld_->attach( alignedBelow, udffld_ );
-    optsfld_->setChecked( 0, true )
-	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
-
-    uiObject* attachobj = optsfld_->attachObj();
     if ( SI().hasProjection() )
     {
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-	coordsysselfld_->attach( alignedBelow, optsfld_);
+	coordsysselfld_->attach( alignedBelow, attachobj );
 	attachobj = coordsysselfld_->attachObj();
     }
 
+    doconvfld_ = new uiGenInput( this, tr("Apply Time-Depth conversion"),
+				 BoolInpSpec(false) );
+    doconvfld_->attach( alignedBelow, attachobj );
+    mAttachCB( doconvfld_->valueChanged, uiExport2DHorizon::convCB );
+
+    uiT2DConvSel::Setup su( nullptr, false, true );
+    su.ist2d( SI().zIsTime() );
+    transfld_ = new uiT2DConvSel( this, su );
+    transfld_->display( false );
+    transfld_->attach( alignedBelow, doconvfld_ );
+
+    unitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
+    unitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
+    unitsel_->attach( alignedBelow, transfld_ );
+
+    headerfld_ = new uiGenInput( this, tr("Header"),
+				 StringListInpSpec(hdrtyps) );
+    headerfld_->attach( alignedBelow, unitsel_ );
+
+    writeudffld_ = new uiCheckBox( this, tr("Write undefined parts") );
+    writeudffld_->setChecked( true );
+    mAttachCB( writeudffld_->activated, uiExport2DHorizon::undefCB );
+    writeudffld_->attach( alignedBelow, headerfld_ );
+
+    udffld_ = new uiGenInput( this, tr("Undefined value"),
+			      StringInpSpec(sKey::FloatUdf()) );
+    udffld_->attach( rightTo, writeudffld_ );
+
+    writelinenmfld_ = new uiCheckBox( this, tr("Write line name") );
+    writelinenmfld_->setChecked( true );
+    writelinenmfld_->attach( alignedBelow, writeudffld_ );
+
     outfld_ = new uiASCIIFileInput( this, false );
-    outfld_->attach( alignedBelow, attachobj );
+    outfld_->attach( alignedBelow, writelinenmfld_ );
 
     if ( !isbulk )
 	horChg( nullptr );
@@ -116,6 +133,28 @@ uiExport2DHorizon::~uiExport2DHorizon()
 {
     detachAllNotifiers();
     deepErase( hinfos_ );
+}
+
+
+void uiExport2DHorizon::convCB( CallBacker* )
+{
+    const bool doconv = doconvfld_->getBoolValue();
+    transfld_->display( doconv );
+
+    StringView zdomainstr = ZDomain::SI().key();
+    if ( doconv )
+	zdomainstr = transfld_->selectedToDomain();
+
+    if ( zdomainstr == ZDomain::sKeyDepth() )
+    {
+	unitsel_->setPropType( Mnemonic::Dist );
+	unitsel_->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
+    }
+    else if ( zdomainstr == ZDomain::sKeyTime() )
+    {
+	unitsel_->setPropType( Mnemonic::Time );
+	unitsel_->setUnit( UnitOfMeasure::surveyDefTimeUnit() );
+    }
 }
 
 
@@ -139,10 +178,6 @@ bool uiExport2DHorizon::doExport()
 	if ( undefstr.isEmpty() )
 	    undefstr = "-";
     }
-
-    const float zfac = !optsfld_->isChecked(1) ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
-    const bool wrlinenms = optsfld_->isChecked( 0 );
 
     writeHeader( strm );
     if ( !strm.isOK() )
@@ -210,6 +245,7 @@ bool uiExport2DHorizon::doExport()
 	horinfos += hi;
     }
 
+    const bool wrlinenms = writelinenmfld_->isChecked();
     const bool wrhornms = isbulk_;
     BufferString controlstr;
     Table::FormatProvider prov;
@@ -222,10 +258,21 @@ bool uiExport2DHorizon::doExport()
 	      .add( prov.trcnr() ).add( prov.spnr() ).add( prov.string() );
 
     int nrzdec = SI().nrZDecimals();
-    nrzdec += 2; // extra precision
-    if ( !optsfld_->isChecked(1) && SI().zIsTime() )
-	nrzdec += 3; // z in seconds
+    nrzdec += 3; // extra precision
 
+    RefMan<ZAxisTransform> zatf;
+    if ( doconvfld_->getBoolValue() )
+    {
+	zatf = transfld_->getSelection();
+	if ( !zatf )
+	{
+	    uiMSG().message( tr("Z Transform of selected option is not "
+				"implemented") );
+	    return false;
+	}
+    }
+
+    const UnitOfMeasure* uom = unitsel_->getUnit();
     EM::EMManager& em = EM::EMM();
     for ( int horidx=0; horidx<horinfos.size(); horidx++ )
     {
@@ -259,13 +306,25 @@ bool uiExport2DHorizon::doExport()
 
 	for ( int lidx=0; lidx<hi->linenames_.size(); lidx++ )
 	{
-	    BufferString linename = hi->linenames_.get( lidx );
+	    const BufferString linename = hi->linenames_.get( lidx );
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-	    linename.quote('\"');
+	    BufferString hdrlnm = linename;
+	    hdrlnm.quote('\"');
 	    const StepInterval<int> trcrg = hor->geometry().colRange( geomid );
 	    mDynamicCastGet(const Survey::Geometry2D*,survgeom2d,
 			    Survey::GM().getGeometry(geomid))
-	    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step) continue;
+	    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step )
+		continue;
+
+	    int zatfvoi = -1;
+	    if ( zatf && zatf->needsVolumeOfInterest() )
+	    {
+		uiTaskRunner uitr( this );
+		TrcKeyZSampling tkzs;
+		tkzs.hsamp_.set( geomid, trcrg );
+		zatfvoi = zatf->addVolumeOfInterest( tkzs );
+		zatf->loadDataIfMissing( zatfvoi, &uitr );
+	    }
 
 	    TrcKey tk( geomid, -1 );
 	    Coord crd; float spnr = mUdf(float);
@@ -277,8 +336,20 @@ bool uiExport2DHorizon::doExport()
 		if ( zudf && !wrudfs )
 		    continue;
 
-		const BufferString zstr =
-			zudf ? undefstr.buf() : toString( z*zfac, nrzdec );
+		BufferString zstr;
+		if ( zudf )
+		    zstr = undefstr.buf();
+		else
+		{
+		    float newz = z;
+		    if ( zatf )
+			newz = zatf->transform2D( linename, trcnr, z );
+
+		    if ( uom )
+			newz = uom->userValue( newz );
+
+		    zstr = toString( newz, nrzdec );
+		}
 
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
 		Coords::CoordSystem* coordsys = coordsysselfld_ ?
@@ -294,7 +365,7 @@ bool uiExport2DHorizon::doExport()
 		{
 		    od_sprintf( line.getCStr(), line.bufSize(),
 				controlstr.buf(),
-				horname.buf(), linename.buf(),
+				horname.buf(), hdrlnm.buf(),
 				crd.x, crd.y,
 				trcnr, double(spnr), zstr.buf() );
 		}
@@ -310,7 +381,7 @@ bool uiExport2DHorizon::doExport()
 		{
 		    od_sprintf( line.getCStr(), line.bufSize(),
 				controlstr.buf(),
-				linename.buf(),
+				hdrlnm.buf(),
 				crd.x, crd.y,
 				trcnr, double(spnr), zstr.buf() );
 		}
@@ -330,6 +401,9 @@ bool uiExport2DHorizon::doExport()
 		    mErrRet(msg)
 		}
 	    }
+
+	    if ( zatf && zatfvoi>=0 )
+		zatf->removeVolumeOfInterest( zatfvoi );
 	}
     }
 
@@ -342,8 +416,9 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
     if ( headerfld_->getIntValue() == 0 )
 	return;
 
-    const bool wrtlnm = optsfld_->isChecked( 0 );
-    const BufferString zstr( "Z ", optsfld_->isChecked(1) ? "(ms)" : "(s)" );
+    const bool wrtlnm = writelinenmfld_->isChecked();
+    const UnitOfMeasure* uom = unitsel_->getUnit();
+    const BufferString zstr( "Z (", uom->symbol(), ")" );
     BufferString headerstr;
     if ( headerfld_->getIntValue() == 1 )
     {
@@ -439,7 +514,8 @@ void uiExport2DHorizon::horChg( CallBacker* )
     PtrMan<IOObj> ioobj = IOM().get( horid );
     if ( !ioobj ) return;
 
-    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
+    EM::SurfaceIOData emdata;
+    EM::IOObjInfo oi( *ioobj );
     uiString errmsg;
     if ( !oi.getSurfaceData(emdata,errmsg) )
 	return;
@@ -448,4 +524,13 @@ void uiExport2DHorizon::horChg( CallBacker* )
     linenmfld_->setChosen( sellines );
     if ( linenmfld_->nrChosen() == 0 )
 	linenmfld_->chooseAll();
+
+    const FilePath fp( ioobj->mainFileName() );
+    outfld_->setFileName( fp.baseName() );
+}
+
+
+void uiExport2DHorizon::undefCB(CallBacker *)
+{
+    udffld_->display( writeudffld_->isChecked() );
 }

@@ -332,7 +332,10 @@ bool uiEMPartServer::export3DHorizon( bool bulk )
 	deleteAndZeroPtr( exphordlg_ );
 
     if ( !exphordlg_ )
+    {
 	exphordlg_ = new uiExportHorizon( parent(), bulk );
+	exphordlg_->setModal( false );
+    }
 
     return exphordlg_->go();
 }
