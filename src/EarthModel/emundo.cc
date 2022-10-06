@@ -21,6 +21,14 @@ namespace EM
 
 const char* SetPosUndoEvent::savedposstr_ = "Pos";
 
+EMUndo::EMUndo()
+{}
+
+
+EMUndo::~EMUndo()
+{}
+
+
 ObjectID EMUndo::getCurrentEMObjectID( bool forredo ) const
 {
     const int curidx = indexOf( forredo ? currenteventid_ + 1
@@ -34,10 +42,26 @@ ObjectID EMUndo::getCurrentEMObjectID( bool forredo ) const
 }
 
 
+
+// EMUndoEvent
+EMUndoEvent::EMUndoEvent()
+{}
+
+
+EMUndoEvent::~EMUndoEvent()
+{}
+
+
+
+// SetPosUndoEvent
 SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos,
 				      const PosID& posid )
     : posid_(posid)
     , savedpos_(oldpos)
+{}
+
+
+SetPosUndoEvent::~SetPosUndoEvent()
 {}
 
 
@@ -224,11 +248,16 @@ bool SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
 
 
+// SetPosAttribUndoEvent
 SetPosAttribUndoEvent::SetPosAttribUndoEvent( const PosID& pid,
 						  int attr, bool yesno )
     : posid_( pid )
     , attrib_( attr )
     , yn_( yesno )
+{}
+
+
+SetPosAttribUndoEvent::~SetPosAttribUndoEvent()
 {}
 
 
@@ -258,13 +287,19 @@ bool SetPosAttribUndoEvent::reDo()
 }
 
 
+
+// PosIDChangeEvent
 PosIDChangeEvent::PosIDChangeEvent( const PosID& from,
 					const PosID& to,
 					const Coord3& tosprevpos )
     : from_(from)
     , to_(to)
     , savedpos_(tosprevpos)
-{ }
+{}
+
+
+PosIDChangeEvent::~PosIDChangeEvent()
+{}
 
 
 const char* PosIDChangeEvent::getStandardDesc() const
@@ -305,12 +340,18 @@ bool PosIDChangeEvent::reDo()
 }
 
 
+
+// SetPrefColorEvent
 SetPrefColorEvent::SetPrefColorEvent( const ObjectID& objid,
 					  const OD::Color& oldcol,
 					  const OD::Color& newcol )
     : objectid_(objid)
     , oldcolor_(oldcol)
     , newcolor_(newcol)
+{}
+
+
+SetPrefColorEvent::~SetPrefColorEvent()
 {}
 
 

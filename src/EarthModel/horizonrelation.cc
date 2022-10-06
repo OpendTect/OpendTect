@@ -35,6 +35,10 @@ RelationTree::Node::Node( const MultiID& id )
 }
 
 
+RelationTree::Node::~Node()
+{}
+
+
 bool RelationTree::Node::hasChild( const RelationTree::Node* descendant ) const
 {
     ObjectSet<const RelationTree::Node> nodes = children_;

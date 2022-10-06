@@ -18,6 +18,13 @@ const char* PosID::sectionStr() { return  "Patch"; }
 const char* PosID::subidStr() { return  "Sub ID"; }
 
 
+PosID::PosID( const ObjectID& emobj, const SectionID& section, SubID subid )
+    : emobjid_(emobj)
+    , sectionid_(section)
+    , subid_(subid)
+{}
+
+
 PosID::PosID( const ObjectID& id, const RowCol& rc )
     : emobjid_(id)
     , sectionid_(SectionID::def())
@@ -29,6 +36,10 @@ PosID::PosID( const ObjectID& id, SubID subid )
     : emobjid_(id)
     , sectionid_(SectionID::def())
     , subid_(subid)
+{}
+
+
+PosID::~PosID()
 {}
 
 

@@ -17,6 +17,15 @@ ________________________________________________________________________
 
 namespace EM
 {
+HorizonPainter2D::Marker2D::Marker2D()
+{}
+
+
+HorizonPainter2D::Marker2D::~Marker2D()
+{
+    delete marker_;
+}
+
 
 HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )

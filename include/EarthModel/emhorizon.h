@@ -25,12 +25,14 @@ class EMManager;
 
 mExpClass(EarthModel) HorizonGeometry : public RowColSurfaceGeometry
 {
-protected:
-				HorizonGeometry( Surface& surf )
-				    : RowColSurfaceGeometry(surf)	{}
 public:
+				~HorizonGeometry();
+
     virtual PosID		getPosID(const TrcKey&) const		= 0;
     virtual TrcKey		getTrcKey(const PosID&) const		= 0;
+
+protected:
+				HorizonGeometry(Surface&);
 };
 
 
@@ -41,6 +43,8 @@ public:
 mExpClass(EarthModel) Horizon : public Surface
 {
 public:
+				~Horizon();
+
     HorizonGeometry&		geometry() override		= 0;
     const HorizonGeometry&	geometry() const override
 				{ return const_cast<Horizon*>(this)
@@ -80,9 +84,7 @@ public:
     virtual OD::GeomSystem getSurveyID() const				= 0;
 
 protected:
-			Horizon( EMManager& emm )
-			    : Surface(emm)
-			{}
+			Horizon(EMManager&);
 
     const IOObjContext& getIOObjContext() const override		= 0;
 

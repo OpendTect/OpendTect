@@ -21,6 +21,13 @@ ________________________________________________________________________
 #include <math.h>
 
 
+Poly2HorVol::Poly2HorVol( const Pick::Set* ps, EM::Horizon3D* h )
+    : ps_(ps)
+{
+    setHorizon(h);
+}
+
+
 Poly2HorVol::~Poly2HorVol()
 {
 }

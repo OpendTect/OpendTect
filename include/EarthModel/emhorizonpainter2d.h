@@ -43,15 +43,12 @@ public:
     void		paint();
     void		displayIntersection(bool yn);
 
-	mStruct(EarthModel)	Marker2D
+	mStruct(EarthModel) Marker2D
 	{
-				Marker2D()
-				    : marker_(0)
-				{}
-				~Marker2D()
-				{ delete marker_; }
+				Marker2D();
+				~Marker2D();
 
-	    FlatView::AuxData*	marker_;
+	    FlatView::AuxData*	marker_		= nullptr;
 	};
 
     void		getDisplayedHor(ObjectSet<Marker2D>&);

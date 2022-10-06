@@ -23,20 +23,19 @@ namespace EM	{ class Horizon3D; }
 mExpClass(EarthModel) Poly2HorVol
 {
 public:
-
-			Poly2HorVol( const Pick::Set* ps=0, EM::Horizon3D* h=0 )
-			    : ps_(ps), hor_(0)	{ setHorizon(h); }
-			~Poly2HorVol();
+			Poly2HorVol(const Pick::Set* =nullptr,
+				    EM::Horizon3D* =nullptr);
+    virtual		~Poly2HorVol();
 
     ConstRefMan<Pick::Set>	pickSet() const		{ return ps_; }
-    EM::Horizon3D*	horizon()		{ return hor_; }
-    void		setPickSet( const Pick::Set* ps )	{ ps_ = ps; }
-    void		setHorizon(EM::Horizon3D*);
+    void			setPickSet( const Pick::Set* ps )  { ps_ = ps; }
 
-    bool		setHorizon(const MultiID&,TaskRunner* tr=0);
+    EM::Horizon3D*		horizon()		{ return hor_; }
+    void			setHorizon(EM::Horizon3D*);
+    bool			setHorizon(const MultiID&,TaskRunner* =nullptr);
 
-    float		getM3(float,bool upward,bool usenegvals);
-    const char*		dispText(float m3,bool zinft);
+    float			getM3(float,bool upward,bool usenegvals);
+    const char*			dispText(float m3,bool zinft);
 
 protected:
 

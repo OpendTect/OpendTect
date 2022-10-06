@@ -34,6 +34,16 @@ static const char* sSections = "Patches";
 namespace EM
 {
 
+SurfaceIOData::SurfaceIOData()
+{}
+
+
+SurfaceIOData::~SurfaceIOData()
+{
+    clear();
+}
+
+
 void SurfaceIOData::clear()
 {
     rg.init(false);
@@ -190,6 +200,17 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 }
 
 
+
+// SurfaceIODataSelection
+SurfaceIODataSelection::SurfaceIODataSelection( const SurfaceIOData& s )
+    : sd(s)
+{}
+
+
+SurfaceIODataSelection::~SurfaceIODataSelection()
+{}
+
+
 void SurfaceIODataSelection::setDefault()
 {
     rg = sd.rg;
@@ -202,6 +223,8 @@ void SurfaceIODataSelection::setDefault()
 }
 
 
+
+// Surface
 Surface::Surface( EMManager& man)
     : EMObject( man )
 {
@@ -210,6 +233,7 @@ Surface::Surface( EMManager& man)
 
 Surface::~Surface()
 {}
+
 
 void Surface::removeAll()
 {}
@@ -305,5 +329,27 @@ void Surface::fillPar( IOPar& par ) const
     EMObject::fillPar( par );
     geometry().fillPar( par );
 }
+
+
+
+// HorizonGeometry
+HorizonGeometry::HorizonGeometry( Surface& surf )
+    : RowColSurfaceGeometry(surf)
+{}
+
+
+HorizonGeometry::~HorizonGeometry()
+{}
+
+
+
+// Horizon
+Horizon::Horizon( EMManager& emm )
+    : Surface(emm)
+{}
+
+
+Horizon::~Horizon()
+{}
 
 } // namespace EM

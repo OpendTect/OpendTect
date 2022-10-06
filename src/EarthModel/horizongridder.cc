@@ -170,6 +170,16 @@ bool HorizonGridder::usePar( const IOPar& par )
 }
 
 
+
+// InvDistHor3DGridder
+InvDistHor3DGridder::InvDistHor3DGridder()
+{}
+
+
+InvDistHor3DGridder::~InvDistHor3DGridder()
+{}
+
+
 void InvDistHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
     HorizonGridder::setTrcKeySampling( hs );
@@ -217,6 +227,16 @@ bool InvDistHor3DGridder::usePar( const IOPar& par )
     return InverseDistanceArray2DInterpol::usePar(par)
 	&& HorizonGridder::usePar(par);
 }
+
+
+
+// TriangulationHor3DGridder
+TriangulationHor3DGridder::TriangulationHor3DGridder()
+{}
+
+
+TriangulationHor3DGridder::~TriangulationHor3DGridder()
+{}
 
 
 void TriangulationHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
@@ -268,6 +288,16 @@ bool TriangulationHor3DGridder::usePar( const IOPar& par )
 }
 
 
+
+// ExtensionHor3DGridder
+ExtensionHor3DGridder::ExtensionHor3DGridder()
+{}
+
+
+ExtensionHor3DGridder::~ExtensionHor3DGridder()
+{}
+
+
 void ExtensionHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
     HorizonGridder::setTrcKeySampling( hs );
@@ -294,6 +324,16 @@ bool ExtensionHor3DGridder::usePar( const IOPar& par )
     return ExtensionArray2DInterpol::usePar(par)
 	&& HorizonGridder::usePar(par);
 }
+
+
+
+// ContinuousCurvatureHor3DGridder
+ContinuousCurvatureHor3DGridder::ContinuousCurvatureHor3DGridder()
+{}
+
+
+ContinuousCurvatureHor3DGridder::~ContinuousCurvatureHor3DGridder()
+{}
 
 
 void ContinuousCurvatureHor3DGridder::setTrcKeySampling(

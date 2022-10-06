@@ -1359,6 +1359,10 @@ Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
 {}
 
 
+Horizon3DGeometry::~Horizon3DGeometry()
+{}
+
+
 const Geometry::BinIDSurface* Horizon3DGeometry::geometryElement() const
 {
     return sCast(const Geometry::BinIDSurface*,
@@ -1645,6 +1649,19 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
     const StepInterval<int> colrg = tkzs->hsamp_.crlRange();
     return new RowColIterator( surface_, rowrg, colrg );
 }
+
+
+
+// Horizon3DAscIO
+Horizon3DAscIO::Horizon3DAscIO( const Table::FormatDesc& fd,
+				const char* filenm )
+    : Table::AscIO(fd)
+    , strm_(filenm)
+{}
+
+
+Horizon3DAscIO::~Horizon3DAscIO()
+{}
 
 
 const char* Horizon3DAscIO::sKeyFormatStr()

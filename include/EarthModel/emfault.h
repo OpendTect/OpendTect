@@ -147,6 +147,8 @@ public:
 			FaultStickUndoEvent(const EM::PosID&,
 					    const Coord3& oldpos,
 					    const Coord3& oldnormal );
+			~FaultStickUndoEvent();
+
     const char*		getStandardDesc() const override;
     bool		unDo() override;
     bool		reDo() override;
@@ -171,6 +173,8 @@ public:
 			//Interface for removal
 			FaultKnotUndoEvent(const EM::PosID&,
 					   const Coord3& oldpos);
+			~FaultKnotUndoEvent();
+
     const char*		getStandardDesc() const override;
     bool		unDo() override;
     bool		reDo() override;

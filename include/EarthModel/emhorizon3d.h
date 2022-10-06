@@ -36,6 +36,7 @@ mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
 { mODTextTranslationClass(Horizon3DGeometry)
 public:
 				Horizon3DGeometry(Surface&);
+				~Horizon3DGeometry();
 
     const Geometry::BinIDSurface* geometryElement() const override;
     Geometry::BinIDSurface*	geometryElement() override;

@@ -59,6 +59,7 @@ public:
 				    SubID subid=0);
 				PosID(const ObjectID&,const RowCol&);
 				PosID(const ObjectID&,SubID);
+				~PosID();
 
     static const PosID&		udf();
     void			setUdf();
@@ -89,14 +90,6 @@ protected:
     static const char* 		sectionStr();
     static const char*		subidStr();
 };
-
-
-inline PosID::PosID( const ObjectID& emobj, const SectionID& section,
-		     SubID subid )
-    : emobjid_(emobj)
-    , sectionid_(section)
-    , subid_(subid)
-{}
 
 
 inline bool PosID::operator==(const PosID& b) const

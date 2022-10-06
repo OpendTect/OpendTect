@@ -31,6 +31,10 @@ FSStoFault3DConverter::FaultStick::FaultStick( int sticknr )
 {}
 
 
+FSStoFault3DConverter::FaultStick::~FaultStick()
+{}
+
+
 double FSStoFault3DConverter::FaultStick::slope( double zscale ) const
 {
     if ( crds_.size()<2 )
@@ -117,6 +121,11 @@ FSStoFault3DConverter::Setup::Setup()
 {
 }
 
+
+FSStoFault3DConverter::Setup::~Setup()
+{}
+
+
 FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
 					      const FaultStickSet& fss,
 					      Fault3D& f3d )
@@ -126,6 +135,10 @@ FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
     , curfssg_(0)
 {
 }
+
+
+FSStoFault3DConverter::~FSStoFault3DConverter()
+{}
 
 
 bool FSStoFault3DConverter::convert( bool forimport )

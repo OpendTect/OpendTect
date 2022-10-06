@@ -57,7 +57,26 @@ bool Region::usePar( const IOPar& par )
 static const char* sSide()	{ return "Side"; }
 static const char* sZ()		{ return "Z"; }
 
+// RegionBoundary
+RegionBoundary::RegionBoundary()
+{}
+
+
+RegionBoundary::~RegionBoundary()
+{}
+
+
+
 // RegionInlBoundary
+RegionInlBoundary::RegionInlBoundary( int inl )
+    : inl_(inl)
+{}
+
+
+RegionInlBoundary::~RegionInlBoundary()
+{}
+
+
 const char* RegionInlBoundary::type() const
 { return sKey::Inline(); }
 
@@ -91,6 +110,15 @@ bool RegionInlBoundary::usePar( const IOPar& par )
 
 
 // RegionCrlBoundary
+RegionCrlBoundary::RegionCrlBoundary( int crl )
+    : crl_(crl)
+{}
+
+
+RegionCrlBoundary::~RegionCrlBoundary()
+{}
+
+
 const char* RegionCrlBoundary::type() const
 { return sKey::Crossline(); }
 
@@ -124,6 +152,15 @@ bool RegionCrlBoundary::usePar( const IOPar& par )
 
 
 // RegionZBoundary
+RegionZBoundary::RegionZBoundary( float z )
+    : z_(z)
+{}
+
+
+RegionZBoundary::~RegionZBoundary()
+{}
+
+
 const char* RegionZBoundary::type() const
 { return sKey::ZSlice(); }
 

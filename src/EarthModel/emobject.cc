@@ -44,12 +44,84 @@ static const char* sLockColor()			{ return "Lock Color"; }
 static const char* sSelectionColor()		{ return "Selection Color"; }
 
 
+// EMObjectCallbackData
+EMObjectCallbackData::EMObjectCallbackData()
+    : event( EMObjectCallbackData::Undef )
+{}
+
+
+EMObjectCallbackData::EMObjectCallbackData( const EMObjectCallbackData& data )
+    : event( data.event )
+    , pid0( data.pid0 )
+    , pid1( data.pid1 )
+    , attrib( data.attrib )
+    , flagfor2dviewer( data.flagfor2dviewer )
+{}
+
+
+EMObjectCallbackData::~EMObjectCallbackData()
+{}
+
+
+
+// CBDataSet
+CBDataSet::CBDataSet()
+{}
+
+
+CBDataSet::~CBDataSet()
+{}
+
+
+void CBDataSet::addCallBackData( EM::EMObjectCallbackData* data )
+{
+    Threads::Locker locker( lock_ );
+    emcallbackdata_ += data;
+}
+
+
+EM::EMObjectCallbackData* CBDataSet::getCallBackData( int idx )
+{
+    Threads::Locker locker( lock_ );
+    return emcallbackdata_.validIdx(idx) ? emcallbackdata_[idx] : 0;
+}
+
+
+void CBDataSet::clearData()
+{
+    Threads::Locker locker( lock_ );
+    deepErase( emcallbackdata_ );
+}
+
+
+int CBDataSet::size() const
+{
+    return emcallbackdata_.size();
+}
+
+
+
+// EMObjectIterator
+EMObjectIterator::EMObjectIterator()
+{}
+
+
+EMObjectIterator::~EMObjectIterator()
+{}
+
+
+// PosAttrib
 PosAttrib::PosAttrib( Type typ )
     : type_(typ)
 {}
 
 
+PosAttrib::~PosAttrib()
+{}
 
+
+
+// EMObject
 EMObject::EMObject( EMManager& emm )
     : manager_(emm)
     , change(this)

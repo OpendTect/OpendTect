@@ -43,18 +43,9 @@ class EMManager;
 mExpClass(EarthModel) EMObjectCallbackData
 {
 public:
-		EMObjectCallbackData()
-		    : event( EMObjectCallbackData::Undef )
-		{}
-
-
-		EMObjectCallbackData( const EMObjectCallbackData& data )
-		    : event( data.event )
-		    , pid0( data.pid0 )
-		    , pid1( data.pid1 )
-		    , attrib( data.attrib )
-		    , flagfor2dviewer( data.flagfor2dviewer )
-		{}
+		EMObjectCallbackData();
+		EMObjectCallbackData(const EMObjectCallbackData&);
+		~EMObjectCallbackData();
 
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
@@ -76,28 +67,13 @@ public:
 mExpClass(EarthModel) CBDataSet
 {
 public:
-void addCallBackData( EM::EMObjectCallbackData* data )
-{
-    Threads::Locker locker( lock_ );
-    emcallbackdata_ += data;
-}
+				CBDataSet();
+				~CBDataSet();
 
-EM::EMObjectCallbackData* getCallBackData( int idx )
-{
-    Threads::Locker locker( lock_ );
-    return emcallbackdata_.validIdx(idx) ? emcallbackdata_[idx] : 0;
-}
-
-void clearData()
-{
-    Threads::Locker locker( lock_ );
-    deepErase( emcallbackdata_ );
-}
-
-int size() const
-{
-    return emcallbackdata_.size();
-}
+    void			addCallBackData(EM::EMObjectCallbackData*);
+    EM::EMObjectCallbackData*	getCallBackData(int idx);
+    void			clearData();
+    int				size() const;
 
 protected:
     ObjectSet<EMObjectCallbackData>	emcallbackdata_;
@@ -115,13 +91,18 @@ function is called until no more positions can be found.
 mExpClass(EarthModel) EMObjectIterator
 {
 public:
-    virtual		~EMObjectIterator() {}
+
+    virtual		~EMObjectIterator();
+
     virtual EM::PosID	next()		= 0;
 			/*!<posid.objectID()==-1 when there are no more pids*/
     virtual int		approximateSize() const { return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
     virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(); }
+
+protected:
+			EMObjectIterator();
 };
 
 
@@ -138,6 +119,7 @@ public:
 			  IntersectionNode };
 
 			PosAttrib(Type);
+			~PosAttrib();
 
     Type		type_;
     TypeSet<PosID>	posids_;

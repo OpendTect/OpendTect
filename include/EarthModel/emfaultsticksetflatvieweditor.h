@@ -26,13 +26,14 @@ namespace EM
 mExpClass(EarthModel) FaultStickSetFlatViewEditor : public CallBacker
 {
 public:
-    			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
-			~FaultStickSetFlatViewEditor() {}
+			~FaultStickSetFlatViewEditor();
 
     virtual void	setTrcKeyZSampling(const TrcKeyZSampling&);
     virtual void	drawFault() =0;
 
 protected:
+			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
+
     TrcKeyZSampling	tkzs_;
 };
 

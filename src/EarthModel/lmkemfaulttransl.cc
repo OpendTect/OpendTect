@@ -258,10 +258,16 @@ uiString lmkEMFault3DReader::uiMessage() const
 }
 
 
+
+// lmkEMFault3DTranslator
+lmkEMFault3DTranslator::lmkEMFault3DTranslator( const char* nm, const char* unm)
+    : EMSurfaceTranslator(nm,unm)
+{}
+
+
 lmkEMFault3DTranslator::~lmkEMFault3DTranslator()
 {
 }
-
 
 
 Executor* lmkEMFault3DTranslator::reader( EM::Fault3D& hor, Conn* conn,

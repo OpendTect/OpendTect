@@ -40,6 +40,7 @@ mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
 public:
 			EMSurfaceProvider();
 			~EMSurfaceProvider();
+
     const char*		type() const override;	//!< sKey::Surface()
 
     bool		initialize(TaskRunner* tr=0) override;
@@ -126,28 +127,29 @@ protected:
 */
 
 mExpClass(EarthModel) EMSurfaceProvider3D : public Provider3D
-			  , public EMSurfaceProvider
+					  , public EMSurfaceProvider
 { mODTextTranslationClass(EMSurfaceProvider3D);
 public:
+			EMSurfaceProvider3D();
+			EMSurfaceProvider3D(const EMSurfaceProvider3D&);
+			~EMSurfaceProvider3D();
 
-			EMSurfaceProvider3D()			{}
-			EMSurfaceProvider3D( const EMSurfaceProvider3D& p )
-			    : EMSurfaceProvider()		{ *this = p; }
     const char*		factoryKeyword() const override { return type(); }
     EMSurfaceProvider3D& operator =( const EMSurfaceProvider3D& p )
 			{ copyFrom(p); return *this; }
-    Provider*	clone() const override
+    Provider*		clone() const override
 			{ return new EMSurfaceProvider3D(*this); }
 
-    BinID	curBinID() const override;
-    bool	includes(const BinID&,float) const override;
-    bool	includes( const Coord& c, float z ) const override
+    BinID		curBinID() const override;
+    bool		includes(const BinID&,float) const override;
+    bool		includes( const Coord& c, float z ) const override
 			{ return Provider3D::includes(c,z); }
-    void	getExtent(BinID&,BinID&) const override;
-    Coord	curCoord() const override { return Provider3D::curCoord(); }
-    void	getTrcKeyZSampling( TrcKeyZSampling& cs ) const override
+    void		getExtent(BinID&,BinID&) const override;
+    Coord		curCoord() const override
+			{ return Provider3D::curCoord(); }
+    void		getTrcKeyZSampling( TrcKeyZSampling& cs ) const override
 			{ return Provider3D::getTrcKeyZSampling(cs); }
-    void	getZRange(Interval<float>& rg ) const override
+    void		getZRange(Interval<float>& rg ) const override
 			{ return EMSurfaceProvider::getZRange(rg); }
 
     static void		initClass();
@@ -166,10 +168,10 @@ mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
 { mODTextTranslationClass(EMSurfaceProvider2D);
 public:
+			EMSurfaceProvider2D();
+			EMSurfaceProvider2D(const EMSurfaceProvider2D&);
+			~EMSurfaceProvider2D();
 
-			EMSurfaceProvider2D()			{}
-			EMSurfaceProvider2D( const EMSurfaceProvider2D& p )
-			    : EMSurfaceProvider()		{ *this = p; }
     EMSurfaceProvider2D& operator =( const EMSurfaceProvider2D& p )
 			{ copyFrom(p); return *this; }
     const char*		factoryKeyword() const override { return type(); }
@@ -209,6 +211,7 @@ public:
 				EMSurface2DProvider3D(
 					const EMSurface2DProvider3D&);
 				~EMSurface2DProvider3D();
+
     const char*		factoryKeyword() const override { return type(); }
     EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
 				//{ copyFrom(p); return *this; }

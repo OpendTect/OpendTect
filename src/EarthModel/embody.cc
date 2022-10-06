@@ -28,9 +28,7 @@ namespace EM
 {
 
 ImplicitBody::ImplicitBody()
-    : arr_( 0 )
-    , threshold_( mUdf(float) )
-    , tkzs_( false )
+    : tkzs_( false )
 {}
 
 #define mCopyArr( ib ) \
@@ -49,7 +47,6 @@ ImplicitBody::ImplicitBody()
 ImplicitBody::ImplicitBody( const ImplicitBody& ib )
    : threshold_( ib.threshold_ )
    , tkzs_( ib.tkzs_ )
-   , arr_( 0 )
 {
     mCopyArr(ib)
 }
@@ -71,8 +68,17 @@ ImplicitBody ImplicitBody::operator =( const ImplicitBody& ib )
 }
 
 
+// EM::Body
+Body::Body()
+{}
+
+
+Body::~Body()
+{}
+
+
 ImplicitBody* Body::createImplicitBody( TaskRunner*, bool ) const
-{ return 0; }
+{ return nullptr; }
 
 
 const IOObjContext& Body::getBodyContext() const

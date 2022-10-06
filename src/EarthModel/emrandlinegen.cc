@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+// RandomLineSetByContourGenerator
 EM::RandomLineSetByContourGenerator::Setup::Setup( bool rel )
     : contzrg_(SI().zRange(true))
     , isrel_(rel)
@@ -32,14 +33,23 @@ EM::RandomLineSetByContourGenerator::Setup::Setup( bool rel )
 }
 
 
+EM::RandomLineSetByContourGenerator::Setup::~Setup()
+{}
+
+
+
 EM::RandomLineSetByContourGenerator::RandomLineSetByContourGenerator(
 			const EM::Horizon3D& hor,
 			const EM::RandomLineSetByContourGenerator::Setup& su )
-	: hor_(hor)
-	, geom_(hor.geometry())
-	, setup_(su)
+    : hor_(hor)
+    , geom_(hor.geometry())
+    , setup_(su)
 {
 }
+
+
+EM::RandomLineSetByContourGenerator::~RandomLineSetByContourGenerator()
+{}
 
 
 void EM::RandomLineSetByContourGenerator::createLines(
@@ -120,6 +130,20 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	}
     }
 }
+
+
+
+// RandomLineByShiftGenerator
+EM::RandomLineByShiftGenerator::RandomLineByShiftGenerator(
+	const Geometry::RandomLineSet& rls, float d, int s )
+    : rls_(rls)
+    , dist_(d)
+    , side_(s)
+{}
+
+
+EM::RandomLineByShiftGenerator::~RandomLineByShiftGenerator()
+{}
 
 
 void EM::RandomLineByShiftGenerator::generate( Geometry::RandomLineSet& outrls,

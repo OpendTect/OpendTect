@@ -48,10 +48,8 @@ public:
 
 	mStruct(EarthModel) Marker3D
 	{
-				Marker3D()
-				{}
-				~Marker3D()
-				{ delete marker_; }
+				Marker3D();
+				~Marker3D();
 
 	    FlatView::AuxData*	marker_ = nullptr;
 	};

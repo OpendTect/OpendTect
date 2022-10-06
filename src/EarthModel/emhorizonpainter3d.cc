@@ -16,6 +16,16 @@ ________________________________________________________________________
 
 namespace EM
 {
+HorizonPainter3D::Marker3D::Marker3D()
+{}
+
+
+HorizonPainter3D::Marker3D::~Marker3D()
+{
+    delete marker_;
+}
+
+
 
 HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )

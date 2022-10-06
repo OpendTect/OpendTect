@@ -31,6 +31,7 @@ class BinIDValueSet;
 mExpClass(EarthModel) FaultTrace : public Coord3List
 { mODTextTranslationClass(FaultTrace);
 public:
+			FaultTrace();
 
     int			nextID(int) const override;
     int			add(const Coord3&) override;
@@ -60,7 +61,7 @@ public:
     bool		getIntersection(const BinID&,float,const BinID&,float,
 					BinID&,float&,
 					const StepInterval<int>* trcrg=0,
-                                        bool snappositive=true) const;
+					bool snappositive=true) const;
     bool		getHorCrossings(const BinIDValueSet&,
 					Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
@@ -106,8 +107,7 @@ public:
     static const char*	sKeyFaultAct()	{ return "Fault Act"; }
 
 protected:
-
-			~FaultTrace() {}
+			~FaultTrace();
 
     void		computeTraceSegments();
     Coord		getIntersection(const BinID&,float,
@@ -137,7 +137,7 @@ mExpClass(EarthModel) FaultTrcHolder
 { mODTextTranslationClass(FaultTrcHolder);
 public:
 			FaultTrcHolder();
-			~FaultTrcHolder();
+    virtual		~FaultTrcHolder();
 
     const FaultTrace*	getTrc(int linenr,bool isinl) const;
     int			indexOf(int linenr,bool isinl) const;
@@ -160,12 +160,12 @@ public:
 mExpClass(EarthModel) FaultTraceExtractor : public ParallelTask
 { mODTextTranslationClass(FaultTraceExtractor);
 public:
-			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
 
     uiString		uiMessage() const override;
 
 protected:
+			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 
     virtual bool	extractFaultTrace(int)			= 0;
     virtual od_int64	nrIterations() const override;
@@ -223,7 +223,7 @@ mExpClass(EarthModel) FaultTrcDataProvider
 public:
 			FaultTrcDataProvider();
 			FaultTrcDataProvider(Pos::GeomID);
-			~FaultTrcDataProvider();
+    virtual		~FaultTrcDataProvider();
 
     bool		init(const TypeSet<MultiID>&,const TrcKeySampling&,
 			     TaskRunner* =0);
@@ -254,6 +254,6 @@ protected:
     ObjectSet<FaultTrcHolder>	holders_;
 
     Pos::GeomID		geomid_;
-    uiString	        errmsg_;
+    uiString		errmsg_;
     bool		is2d_;
 };

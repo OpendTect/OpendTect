@@ -28,6 +28,8 @@ class Horizon3D;
 mExpClass(EarthModel) HorizonMerger : public ParallelTask
 {
 public:
+    virtual		~HorizonMerger();
+
     enum Mode		{ Average, Top, Base };
 			mDeclareEnumUtils(Mode)
 
@@ -35,9 +37,9 @@ public:
     Mode		getMode() const		{ return mode_; }
 
 protected:
-			HorizonMerger()	: mode_(Average)	{}
+			HorizonMerger();
 
-    Mode		mode_;
+    Mode		mode_		= Average;
 };
 
 
@@ -65,7 +67,7 @@ private:
     Horizon3D*		outputhor_;
     ObjectSet<Horizon3D> inputhors_;
 
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     bool		ownsarray_;
 };
 

@@ -284,7 +284,11 @@ FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid,
     , pos_( oldpos )
     , normal_( oldnormal )
     , remove_( true )
-{ }
+{}
+
+
+FaultStickUndoEvent::~FaultStickUndoEvent()
+{}
 
 
 const char* FaultStickUndoEvent::getStandardDesc() const
@@ -321,6 +325,8 @@ bool FaultStickUndoEvent::reDo()
 }
 
 
+
+// FaultKnotUndoEvent
 FaultKnotUndoEvent::FaultKnotUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
@@ -336,8 +342,11 @@ FaultKnotUndoEvent::FaultKnotUndoEvent( const EM::PosID& posid,
     : posid_( posid )
     , pos_( oldpos )
     , remove_( true )
-{ }
+{}
 
+
+FaultKnotUndoEvent::~FaultKnotUndoEvent()
+{}
 
 const char* FaultKnotUndoEvent::getStandardDesc() const
 { return remove_ ? "Remove knot" : "Insert knot"; }

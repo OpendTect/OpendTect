@@ -24,6 +24,15 @@ namespace EM
 mDefineEnumUtils(HorizonMerger,Mode,"Merge mode")
 { "Take average", "Use top", "Use base", 0 };
 
+
+HorizonMerger::HorizonMerger()
+{}
+
+
+HorizonMerger::~HorizonMerger()
+{}
+
+
 Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     : outputhor_(0)
     , ownsarray_(true)

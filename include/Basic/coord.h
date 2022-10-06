@@ -82,6 +82,7 @@ public:
     OrdType		operator[]( int idx ) const
 			{ return idx ? (idx==1 ? y : z) : x; }
 
+    inline Coord3&	operator=(const Coord3&);
     inline Coord3	operator+(const Coord3&) const;
     inline Coord3	operator-(const Coord3&) const;
     inline Coord3	operator-() const;
@@ -176,6 +177,15 @@ inline bool Coord3::operator!=( const Coord3& b ) const
 inline bool Coord3::isDefined() const
 {
     return !Values::isUdf(z) && Geom::Point2D<OrdType>::isDefined();
+}
+
+
+inline Coord3& Coord3::operator=( const Coord3& p )
+{
+    x = p.x;
+    y = p.y;
+    z = p.z;
+    return *this;
 }
 
 

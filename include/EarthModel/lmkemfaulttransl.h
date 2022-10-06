@@ -20,11 +20,11 @@ namespace EM { class Fault3D; }
 */
 
 mExpClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
-{			isTranslator(lmk,EMFault3D)
+{
+isTranslator(lmk,EMFault3D)
 public:
 			lmkEMFault3DTranslator(const char* nm,
-					     const char* unm)
-			    : EMSurfaceTranslator(nm,unm)	{}
+					     const char* unm);
     virtual		~lmkEMFault3DTranslator();
 
     virtual Executor*	reader(EM::Fault3D&,Conn*,const char* formatfilename);
@@ -56,11 +56,13 @@ public:
 */
 
 mExpClass(EarthModel) lmkEMFault3DReader : public Executor
-{ mODTextTranslationClass(lmkEMFault3DReader);
+{
+mODTextTranslationClass(lmkEMFault3DReader)
 public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
 					   const char* formatfile);
 			~lmkEMFault3DReader();
+
     int			nextStep() override;
 
     uiString		uiMessage() const override;
@@ -95,7 +97,8 @@ protected:
 */
 
 mClass(EarthModel) lmkEMFault3DWriter : public Executor
-{ mODTextTranslationClass(lmkEMFault3DWriter);
+{
+mODTextTranslationClass(lmkEMFault3DWriter)
 public:
 			lmkEMFault3DWriter(const EM::Fault3D&,
 					   Conn*,const char* formatfile);

@@ -69,6 +69,8 @@ void HorizonSelInfo::getAll( ObjectSet<HorizonSelInfo>& set, bool is2d )
 }
 
 
+
+// HorizonUtils
 float HorizonUtils::getZ( const RowCol& rc, const Horizon* horizon )
 {
     return horizon ? horizon->getZ( TrcKey(rc) ) : mUdf(float);
