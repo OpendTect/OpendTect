@@ -348,7 +348,7 @@ ElasticModel::ElasticModel()
 ElasticModel::ElasticModel( const ObjectSet<RefLayer>& oth )
     : ObjectSet<RefLayer>()
 {
-    *this = oth;
+    deepCopyClone( *this, oth );
 }
 
 
