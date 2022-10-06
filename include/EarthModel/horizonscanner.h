@@ -27,7 +27,6 @@ namespace ZDomain { class Def; }
 mExpClass(EarthModel) HorizonScanner : public Executor
 { mODTextTranslationClass(HorizonScanner);
 public:
-
 			HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom,
 					ZAxisTransform*, bool iszdepth=false);

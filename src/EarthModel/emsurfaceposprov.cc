@@ -428,8 +428,27 @@ int EMSurfaceProvider::nrSurfaces() const
 }
 
 
+
+// EMSurfaceProvider3D
+EMSurfaceProvider3D::EMSurfaceProvider3D()
+{}
+
+
+EMSurfaceProvider3D::EMSurfaceProvider3D( const EMSurfaceProvider3D& p )
+    : EMSurfaceProvider()
+{
+    *this = p;
+}
+
+
+EMSurfaceProvider3D::~EMSurfaceProvider3D()
+{}
+
+
 BinID EMSurfaceProvider3D::curBinID() const
-{ return BinID::fromInt64( curpos_.subID() ); }
+{
+    return BinID::fromInt64( curpos_.subID() );
+}
 
 
 bool EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
@@ -457,6 +476,21 @@ void EMSurfaceProvider3D::initClass()
 
 
 // ***** EMSurfaceProvider2D ****
+EMSurfaceProvider2D::EMSurfaceProvider2D()
+{}
+
+
+EMSurfaceProvider2D::EMSurfaceProvider2D( const EMSurfaceProvider2D& p )
+    : EMSurfaceProvider()
+{
+    *this = p;
+}
+
+
+EMSurfaceProvider2D::~EMSurfaceProvider2D()
+{}
+
+
 const char* EMSurfaceProvider2D::curLine() const
 {
     BinID bid = BinID::fromInt64( curpos_.subID() );

@@ -23,12 +23,9 @@ namespace EM
 mExpClass(EarthModel) Horizon3DAscIO : public Table::AscIO
 {
 public:
-				Horizon3DAscIO( const Table::FormatDesc& fd,
-						const char* filenm )
-				    : Table::AscIO(fd)
-				    , udfval_(mUdf(float))
-				    , finishedreadingheader_(false)
-				    , strm_(filenm) {}
+				Horizon3DAscIO(const Table::FormatDesc&,
+						const char* filenm);
+				~Horizon3DAscIO();
 
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
@@ -47,8 +44,8 @@ public:
 protected:
 
     od_istream			strm_;
-    float			udfval_;
-    bool			finishedreadingheader_;
+    float			udfval_				= mUdf(float);
+    bool			finishedreadingheader_		= false;
 
 };
 
@@ -60,12 +57,9 @@ protected:
 mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
 {
 public:
-				Horizon2DAscIO( const Table::FormatDesc& fd,
-						const char* filenm )
-				    : Table::AscIO(fd)
-				    , udfval_(mUdf(float))
-				    , finishedreadingheader_(false)
-				    , strm_(filenm)		    {}
+				Horizon2DAscIO(const Table::FormatDesc&,
+						const char* filenm);
+				~Horizon2DAscIO();
 
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
@@ -84,8 +78,8 @@ public:
 protected:
 
     od_istream			strm_;
-    float			udfval_;
-    bool			finishedreadingheader_;
+    float			udfval_				= mUdf(float);
+    bool			finishedreadingheader_		= false;
 
 };
 

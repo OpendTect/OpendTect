@@ -761,6 +761,17 @@ EMObjectIterator* Horizon2D::createIterator( const TrcKeyZSampling* ) const
 
 
 // Horizon2DAscIO
+Horizon2DAscIO::Horizon2DAscIO( const Table::FormatDesc& fd,
+				const char* filenm )
+    : Table::AscIO(fd)
+    , strm_(filenm)
+{}
+
+
+Horizon2DAscIO::~Horizon2DAscIO()
+{}
+
+
 Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );

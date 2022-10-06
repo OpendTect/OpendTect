@@ -51,6 +51,8 @@ protected:
 mExpClass(EarthModel) RegionBoundary : public NamedObject
 {
 public:
+			~RegionBoundary();
+
     virtual const char*	type() const				= 0;
     virtual bool	init(TaskRunner*)			{ return true; }
     virtual bool	hasName() const				{ return false;}
@@ -64,19 +66,17 @@ public:
     virtual bool	usePar(const IOPar&)			= 0;
 
 protected:
-			RegionBoundary()
-			    : side_(-1)	{}
+			RegionBoundary();
 
-    int			side_;
+    int			side_		= -1;
 };
 
 
 mExpClass(EarthModel) RegionInlBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionInlBoundary)
 public:
-			RegionInlBoundary( int inl=mUdf(int) )
-			    : inl_(inl)
-			{}
+			RegionInlBoundary(int inl=mUdf(int));
+			~RegionInlBoundary();
 
     const char*		type() const override;
     void		getSideStrs(uiStringSet&) const override;
@@ -92,9 +92,8 @@ public:
 mExpClass(EarthModel) RegionCrlBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionCrlBoundary)
 public:
-			RegionCrlBoundary( int crl=mUdf(int) )
-			    : crl_(crl)
-			{}
+			RegionCrlBoundary(int crl=mUdf(int));
+			~RegionCrlBoundary();
 
     const char*		type() const override;
     void		getSideStrs(uiStringSet&) const override;
@@ -110,8 +109,8 @@ public:
 mExpClass(EarthModel) RegionZBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionZBoundary)
 public:
-			RegionZBoundary( float z=mUdf(float) )
-			    : z_(z) {}
+			RegionZBoundary(float z=mUdf(float));
+			~RegionZBoundary();
 
     const char*		type() const override;
     void		getSideStrs(uiStringSet&) const override;

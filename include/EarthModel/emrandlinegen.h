@@ -33,6 +33,7 @@ public:
     mStruct(EarthModel) Setup
     {
 			Setup(bool linezrgisrelative=true);
+			~Setup();
 
 	mDefSetupMemb(StepInterval<float>,contzrg) //!< default SI().zRange()
 	mDefSetupMemb(Interval<float>,linezrg)	//!< default 30 samples
@@ -46,6 +47,8 @@ public:
 
 			RandomLineSetByContourGenerator(const Horizon3D&,
 							const Setup&);
+			~RandomLineSetByContourGenerator();
+
     Setup&		setup()			{ return setup_; }
 
     void		createLines(Geometry::RandomLineSet&) const;
@@ -66,11 +69,10 @@ protected:
 mExpClass(EarthModel) RandomLineByShiftGenerator
 {
 public:
-
 			RandomLineByShiftGenerator(
 				const Geometry::RandomLineSet& rls,
-				float d=1, int s=0 )
-			    : rls_(rls), dist_(d), side_(s)	{}
+				float dist=1,int side=0);
+			~RandomLineByShiftGenerator();
 
     const Geometry::RandomLineSet& rls_;
     float		dist_;

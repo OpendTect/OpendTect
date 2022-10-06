@@ -33,10 +33,9 @@ class Horizon;
 od_process_attrib_em for computing data on, along or between 2 horizons.
 */
 
-mExpClass(EarthModel) HorizonUtils
+mExpClass(EarthModel) HorizonUtils final
 {
 public:
-			HorizonUtils()		{}
 
     static float	getZ(const RowCol&,const Horizon*);
     static float	getMissingZ(const RowCol&,const Horizon*,int);
@@ -72,11 +71,11 @@ protected:
 };
 
 
-mExpClass( EarthModel ) HorizonSelInfo
+mExpClass(EarthModel) HorizonSelInfo
 {
 public:
 			HorizonSelInfo(const MultiID&);
-			~HorizonSelInfo();
+    virtual		~HorizonSelInfo();
 
     BufferString	name_;
     MultiID		key_;

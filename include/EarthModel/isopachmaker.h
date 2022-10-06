@@ -35,7 +35,7 @@ public:
 
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-	    			      bool overwrite,od_ostream* strm=0);
+				      bool overwrite,od_ostream* strm=0);
     static const char*	sKeyHorizonID();
     static const char*	sKeyCalculateToHorID();
     static const char*	sKeyAttribName();

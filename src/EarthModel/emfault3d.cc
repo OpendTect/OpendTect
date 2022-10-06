@@ -347,6 +347,14 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 
 
 // ***** FaultAscIO *****
+FaultAscIO::FaultAscIO( const Table::FormatDesc& fd )
+    : Table::AscIO(fd)
+{}
+
+
+FaultAscIO::~FaultAscIO()
+{}
+
 
 Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 {

@@ -29,7 +29,6 @@ class TrcKeySamplingIterator;
 mExpClass(EarthModel) HorizonSorter : public Executor
 { mODTextTranslationClass(HorizonSorter);
 public:
-
 				HorizonSorter(const TypeSet<MultiID>&,
 					      bool is2d=false);
 				HorizonSorter(const TypeSet<EM::ObjectID>&,
@@ -68,7 +67,7 @@ protected:
 
     TrcKeySamplingIterator*	iterator_;
     BinID			binid_;
-    TrcKeySampling			tks_;
+    TrcKeySampling		tks_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
     TypeSet<EM::ObjectID>	unsortedids_;

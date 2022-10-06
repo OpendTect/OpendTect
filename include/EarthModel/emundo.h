@@ -28,6 +28,8 @@ class Horizon3D;
 mExpClass(EarthModel) EMUndo : public Undo
 {
 public:
+			EMUndo();
+			~EMUndo();
 
     ObjectID		getCurrentEMObjectID(bool forredo) const;
 };
@@ -36,8 +38,12 @@ public:
 mExpClass(EarthModel) EMUndoEvent : public UndoEvent
 {
 public:
+			~EMUndoEvent();
 
     virtual ObjectID	getObjectID() const =0;
+
+protected:
+			EMUndoEvent();
 };
 
 
@@ -45,6 +51,7 @@ mExpClass(EarthModel) SetPosUndoEvent : public EMUndoEvent
 {
 public:
 			SetPosUndoEvent(const Coord3& oldpos,const PosID&);
+			~SetPosUndoEvent();
 
     const char*		getStandardDesc() const override;
     bool		unDo() override;
@@ -114,6 +121,8 @@ public:
 			{ return posid_.objectID(); }
 
 protected:
+			~SetPosAttribUndoEvent();
+
     PosID		posid_;
     bool		yn_;
     int			attrib_;
@@ -137,6 +146,8 @@ public:
     ObjectID		getObjectID() const override { return to_.objectID(); }
 
 protected:
+			~PosIDChangeEvent();
+
     const PosID		from_;
     const PosID		to_;
     Coord3		savedpos_;
@@ -159,6 +170,8 @@ public:
     ObjectID		getObjectID() const override { return objectid_; }
 
 protected:
+			~SetPrefColorEvent();
+
     const ObjectID	objectid_;
     const OD::Color	oldcolor_;
     const OD::Color	newcolor_;

@@ -30,7 +30,7 @@ mExpClass(EarthModel) FaultAuxData
 public:
 			FaultAuxData(const Fault3D&);
 			FaultAuxData(const MultiID&);
-			~FaultAuxData();
+    virtual		~FaultAuxData();
 
     bool		init();
     int			setData(const char* sdname,const Array2D<float>* data,

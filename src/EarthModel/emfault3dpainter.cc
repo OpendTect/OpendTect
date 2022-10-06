@@ -24,6 +24,17 @@ ________________________________________________________________________
 
 namespace EM
 {
+Fault3DPainter::Fault3DMarker::Fault3DMarker()
+{}
+
+
+Fault3DPainter::Fault3DMarker::~Fault3DMarker()
+{
+    deepErase(stickmarker_);
+    deepErase(intsecmarker_);
+}
+
+
 
 Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     : viewer_(fv)

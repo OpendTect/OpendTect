@@ -31,6 +31,7 @@ public:
     {
     public:
 				Node(const MultiID&);
+				~Node();
 
 	MultiID			id_;
 	ObjectSet<const Node>	children_;
@@ -48,7 +49,7 @@ public:
 
 
 				RelationTree(bool is2d,bool read=true);
-				~RelationTree();
+    virtual			~RelationTree();
 
     const RelationTree::Node*	getNode(const MultiID&) const;
     void			getParents(int,TypeSet<int>&) const;

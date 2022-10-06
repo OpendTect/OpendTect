@@ -37,7 +37,8 @@ mExpClass(EarthModel) BodyOperator
 {
 public:
 			BodyOperator();
-			~BodyOperator();
+    virtual		~BodyOperator();
+
     enum Action		{ Union, IntSect, Minus };
 			mDeclareEnumUtils(Action);
 
@@ -108,6 +109,7 @@ public:
 						const StepInterval<int>& crlrg,
 						const StepInterval<float>& zrg,
 						Array3D<float>& arr);
+			~Expl2ImplBodyExtracter();
 
     od_int64		nrIterations() const override;
 

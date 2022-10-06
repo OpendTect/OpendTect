@@ -38,6 +38,14 @@ static bool allowTrackingAcrossCrossFaults()
 }
 
 
+FaultTrace::FaultTrace()
+{}
+
+
+FaultTrace::~FaultTrace()
+{}
+
+
 int FaultTrace::nextID( int previd ) const
 { return previd >= -1 && previd < coords_.size()-1 ? previd + 1 : -1; }
 

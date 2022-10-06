@@ -24,9 +24,8 @@ class TrcKeySamplingIterator;
 mExpClass(EarthModel) HorizonModifier
 {
 public:
-
 				HorizonModifier(bool is2d=false);
-				~HorizonModifier();
+    virtual			~HorizonModifier();
 
     enum ModifyMode		{ Shift, Remove };
 

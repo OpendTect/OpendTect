@@ -21,7 +21,7 @@ mExpClass(EarthModel) PolygonZChanger
 public:
 			PolygonZChanger(Pick::Set&,const MultiID& horid);
 			PolygonZChanger(Pick::Set&,float zval);
-			~PolygonZChanger();
+    virtual		~PolygonZChanger();
 
     uiRetVal		doWork(TaskRunner&);
 

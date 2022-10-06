@@ -34,6 +34,7 @@ public:
     {
     public:
 				Setup();
+				~Setup();
 
 	enum			DirSpec { Auto, Horizontal, Vertical };
 
@@ -51,6 +52,8 @@ public:
 				FSStoFault3DConverter(const Setup&,
 						      const FaultStickSet&,
 						      Fault3D&);
+    virtual			~FSStoFault3DConverter();
+
     bool			convert(bool forimport);
 
 protected:
@@ -59,6 +62,7 @@ protected:
     {
     public:
 				FaultStick(int sticknr);
+				~FaultStick();
 
 	int			sticknr_;
 	TypeSet<Coord3>		crds_;

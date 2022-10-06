@@ -34,7 +34,7 @@ class Fault3D;
 mExpClass(EarthModel) Fault3DPainter : public CallBacker
 {
 public:
-    			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
+			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
 			~Fault3DPainter();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
@@ -55,6 +55,9 @@ public:
 
 	mStruct(EarthModel) StkMarkerInfo
 	{
+	    			StkMarkerInfo()		{}
+	    			~StkMarkerInfo()	{}
+
 	    FlatView::AuxData*	marker_;
 	    int			stickid_;
 	};
@@ -73,12 +76,9 @@ protected:
 
 	mStruct(EarthModel) Fault3DMarker
 	{
-	    				Fault3DMarker(){}
-					~Fault3DMarker()
-					{
-					    deepErase(stickmarker_);
-					    deepErase(intsecmarker_);
-					}
+					Fault3DMarker();
+					~Fault3DMarker();
+
 	    ObjectSet<StkMarkerInfo>		stickmarker_;
 	    ObjectSet<FlatView::AuxData>	intsecmarker_;
 	};

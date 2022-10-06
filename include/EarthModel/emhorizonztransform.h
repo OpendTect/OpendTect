@@ -58,6 +58,7 @@ public:
 
 protected:
 			~HorizonZTransform();
+
     void		calculateHorizonRange();
     void		horChangeCB( CallBacker* );
     bool		getTopBottom(const TrcKey&,float&top,float&bot) const;

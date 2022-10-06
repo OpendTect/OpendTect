@@ -239,6 +239,11 @@ Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
 {}
 
 
+
+Expl2ImplBodyExtracter::~Expl2ImplBodyExtracter()
+{}
+
+
 bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 {
     planes_.erase();
@@ -859,5 +864,4 @@ void BodyOperator::fillPar( IOPar& par )
     par.set( sKeyAction(), act );
 }
 
-
-}; //Namespce
+} // namespace EM

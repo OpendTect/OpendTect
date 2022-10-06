@@ -30,10 +30,12 @@ public:
 				ImplicitBody();
 				ImplicitBody(const ImplicitBody& nb);
     virtual			~ImplicitBody();
+
     ImplicitBody		operator =(const ImplicitBody&);
 
-    Array3D<float>*		arr_;
-    float			threshold_;//Any value above threshold is inside
+    Array3D<float>*		arr_			= nullptr;
+    float			threshold_		= mUdf(float);
+				//Any value above threshold is inside
     TrcKeyZSampling		tkzs_; //has same size as arr_
 };
 
@@ -45,6 +47,7 @@ public:
 mExpClass(EarthModel) Body
 {
 public:
+    virtual			~Body();
 
     virtual ImplicitBody*	createImplicitBody(TaskRunner*,
 						   bool smooth) const;
@@ -66,7 +69,7 @@ public:
 				//!<Should be mapped to EMObject::fillPar;
 
 protected:
-				~Body()		{}
+				Body();
 };
 
 } // namespace EM

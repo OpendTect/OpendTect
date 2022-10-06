@@ -140,8 +140,8 @@ protected:
 mExpClass(EarthModel) FaultAscIO : public Table::AscIO
 {
 public:
-				FaultAscIO( const Table::FormatDesc& fd )
-				    : Table::AscIO(fd)		{}
+				FaultAscIO(const Table::FormatDesc&);
+				~FaultAscIO();
 
     static Table::FormatDesc*	getDesc(bool is2d);
 

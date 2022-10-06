@@ -35,7 +35,8 @@ public:
 			IOObjInfo(const IOObj&);
 			IOObjInfo(const MultiID&);
 			IOObjInfo(const IOObjInfo&);
-			~IOObjInfo();
+    virtual		~IOObjInfo();
+
     IOObjInfo&		operator =(const IOObjInfo&);
 
     enum ObjectType	{ Unknown, Horizon3D, Horizon2D,

@@ -100,7 +100,6 @@ protected:
 mExpClass(Algo) UndoEvent
 {
 public:
-    				UndoEvent();
     virtual			~UndoEvent();
 
     BufferString		getDesc() const;
@@ -114,6 +113,8 @@ public:
     virtual bool		reDo()				= 0;
 
 protected:
+				UndoEvent();
+
     BufferString*		desc_;
     bool			isuserinteractionend_;
 };

@@ -101,6 +101,8 @@ public:
     bool		usePar(const IOPar&) override;
 
 protected:
+			InvDistHor3DGridder();
+			~InvDistHor3DGridder();
 
     bool		initFromArray(TaskRunner*) override;
     void		setFrom(od_int64 target, const od_int64* sources,
@@ -124,6 +126,8 @@ public:
     bool		usePar(const IOPar&) override;
 
 protected:
+			TriangulationHor3DGridder();
+			~TriangulationHor3DGridder();
 
     bool		initFromArray(TaskRunner*) override;
     void		setFrom(od_int64 target, const od_int64* sources,
@@ -147,7 +151,8 @@ public:
     bool		usePar(const IOPar&) override;
 
 protected:
-
+			ExtensionHor3DGridder();
+			~ExtensionHor3DGridder();
 };
 
 
@@ -167,4 +172,7 @@ public:
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
+protected:
+			ContinuousCurvatureHor3DGridder();
+			~ContinuousCurvatureHor3DGridder();
 };
