@@ -40,7 +40,12 @@ RefLayer* RefLayer::create( Type typ )
     if ( typ == Elastic )
 	return new ElasticLayer( mUdf(float), mUdf(float),
 				 mUdf(float), mUdf(float) );
-    //TODO: add others
+    if ( typ == VTI )
+	return new VTILayer( mUdf(float), mUdf(float), mUdf(float),
+			     mUdf(float), mUdf(float) );
+    if ( typ == HTI )
+	return new HTILayer( mUdf(float), mUdf(float), mUdf(float),
+			     mUdf(float), mUdf(float), mUdf(float) );
 
     return nullptr;
 }
@@ -55,7 +60,7 @@ RefLayer* RefLayer::clone( const RefLayer& layer, const Type* reqtyp )
     *ret = layer;
     if ( ret->isElastic() )
 	ret->asElastic()->fillVsWithVp( true );
-    if ( ret->isVTI() && !ret->isValidFraRho() )
+    if ( ret->isVTI() && !ret->isValidFracRho() )
 	ret->setFracRho( 0.f );
     if ( ret->isHTI() && !ret->isValidFracAzi() )
 	ret->setFracAzi( 0.f );
@@ -140,7 +145,7 @@ bool RefLayer::isOK( bool dodencheck, bool dosvelcheck,
     if ( isElastic() && dosvelcheck && !isValidVs() )
 	return false;
 
-    if ( isVTI() && dofracrhocheck && !isValidFraRho() )
+    if ( isVTI() && dofracrhocheck && !isValidFracRho() )
 	return false;
 
     if ( isHTI() && dofracazicheck && !isValidFracAzi() )
@@ -169,9 +174,9 @@ AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
     const bool hasdensity = isValidDen();
     //compute vel_ using Gardner's equation vel = (den/a)^(1/(1+b))
     //with default values for C0 and C1 respectively 310 and 0.25
-    vel_ = hasdensity ? ai / den : Math::PowerOf( ai/310.f, 0.8f );
+    setPVel( hasdensity ? ai / den : Math::PowerOf( ai/310.f, 0.8f ) );
     if ( !hasdensity )
-	den_ = ai/vel_;
+	setDen( ai/vel_ );
 
     if ( needcompthkness )
 	thickness_ *= vel_ / 2.0f;
@@ -204,9 +209,9 @@ RefLayer& AILayer::operator =( const AILayer& oth )
 
 void AILayer::copyFrom( const RefLayer& oth )
 {
-    thickness_ = oth.getThickness();
-    den_ = oth.getDen();
-    vel_ = oth.getPVel();
+    setThickness( oth.getThickness() );
+    setDen( oth.getDen() );
+    setPVel( oth.getPVel() );
 }
 
 
@@ -245,7 +250,7 @@ bool AILayer::fillDenWithVp( bool onlyinvalid )
     if ( !isValidVel() )
 	return false;
 
-    den_ = mCast( float, 310. * Math::PowerOf( (double)vel_, 0.25 ) );
+    setDen( mCast( float, 310. * Math::PowerOf( (double)vel_, 0.25 ) ) );
     return isValidDen();
 }
 
@@ -281,7 +286,7 @@ ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
 			    bool needcompthkness )
     : AILayer(thkness,ai,den,needcompthkness)
 {
-    svel_ = mIsValidImp(si) && isValidDen() ? si / getDen() : mUdf(float);
+    setSVel( mIsValidImp(si) && isValidDen() ? si / getDen() : mUdf(float) );
 }
 
 
@@ -290,7 +295,7 @@ ElasticLayer::ElasticLayer( const RefLayer& oth )
     , svel_(mUdf(float))
 {
     if ( oth.isElastic() )
-	svel_ = oth.getSVel();
+	setSVel( oth.getSVel() );
     else
 	fillVsWithVp( true );
 }
@@ -317,7 +322,7 @@ void ElasticLayer::copyFrom( const RefLayer& oth )
 {
     AILayer::copyFrom( oth );
     if ( oth.isElastic() )
-	svel_ = oth.getSVel();
+	setSVel( oth.getSVel() );
 }
 
 
@@ -342,7 +347,7 @@ bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
     if ( !isValidVel() )
 	return false;
 
-    svel_ = mCast( float, 0.8619 * (double)getPVel() -1172. );
+    setSVel( mCast( float, 0.8619 * (double)getPVel() -1172. ) );
     return isValidVs();
 }
 
@@ -350,6 +355,133 @@ bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
 bool ElasticLayer::isValidVs() const
 {
     return mIsValidVel(svel_);
+}
+
+
+// VTILayer
+
+VTILayer::VTILayer( float thkness, float pvel, float svel, float den,
+		    float fracrho )
+    : ElasticLayer(thkness,pvel,svel,den)
+    , fracrho_(fracrho)
+{
+}
+
+
+VTILayer::VTILayer( float thkness, float ai, float si, float den,
+		    float fracrho, bool needcompthkness )
+    : ElasticLayer(thkness,ai,si,den,needcompthkness)
+    , fracrho_(fracrho)
+{
+}
+
+
+VTILayer::VTILayer( const RefLayer& oth )
+    : ElasticLayer(oth.getThickness(),oth.getPVel(),oth.getSVel(),oth.getDen())
+    , fracrho_(mUdf(float))
+{
+    setFracRho( oth.isVTI() ? oth.getFracRho() : 0.f );
+}
+
+
+VTILayer::~VTILayer()
+{
+}
+
+
+RefLayer& VTILayer::operator =( const VTILayer& oth )
+{
+    return RefLayer::operator=( oth );
+}
+
+
+RefLayer* VTILayer::clone() const
+{
+    return new VTILayer( *this );
+}
+
+
+RefLayer& VTILayer::setFracRho( float val )
+{
+    fracrho_ = val;
+    return *this;
+}
+
+
+bool VTILayer::isValidFracRho() const
+{
+    return !mIsUdf(fracrho_) && fracrho_ >= 0.f;
+}
+
+
+void VTILayer::copyFrom( const RefLayer& oth )
+{
+    ElasticLayer::copyFrom( oth );
+    setFracRho( oth.isVTI() ? oth.getFracRho() : 0.f );
+}
+
+
+// HTILayer
+
+HTILayer::HTILayer( float thkness, float pvel, float svel, float den,
+		    float fracrho, float fracazi )
+    : VTILayer(thkness,pvel,svel,den,fracrho)
+    , fracazi_(fracazi)
+{
+}
+
+
+HTILayer::HTILayer( float thkness, float ai, float si, float den,
+		    float fracrho, float fracazi, bool needcompthkness )
+    : VTILayer(thkness,ai,si,den,fracrho,needcompthkness)
+    , fracazi_(fracazi)
+{
+}
+
+
+HTILayer::HTILayer( const RefLayer& oth )
+    : VTILayer(oth.getThickness(),oth.getPVel(),oth.getSVel(),oth.getDen(),
+	       oth.getFracRho())
+    , fracazi_(mUdf(float))
+{
+    setFracAzi( oth.isHTI() ? oth.getFracAzi() : 0.f );
+}
+
+
+HTILayer::~HTILayer()
+{
+}
+
+
+RefLayer& HTILayer::operator =( const HTILayer& oth )
+{
+    return RefLayer::operator=( oth );
+}
+
+
+RefLayer* HTILayer::clone() const
+{
+    return new HTILayer( *this );
+}
+
+
+RefLayer& HTILayer::setFracAzi( float val )
+{
+    fracazi_ = val;
+    return *this;
+}
+
+
+bool HTILayer::isValidFracAzi() const
+{
+    return !mIsUdf(fracazi_);
+}
+
+
+void HTILayer::copyFrom( const RefLayer& oth )
+{
+    VTILayer::copyFrom( oth );
+    setFracAzi( oth.isHTI() ? oth.getFracAzi() : 0.f );
 }
 
 
@@ -585,7 +717,7 @@ void ElasticModel::checkAndClean( int& firsterroridx, bool dodencheck,
 
 	// Not removing the VTI/HTI props, only setting a neutral value
 	if ( dosvelcheck && (lay.isVTI() || lay.isHTI()) &&
-	     !lay.isValidFraRho() )
+	     !lay.isValidFracRho() )
 	    lay.setFracRho( 0.f );
 
 	if ( dosvelcheck && lay.isHTI() && !lay.isValidFracAzi() )
@@ -622,7 +754,7 @@ void ElasticModel::interpolate( bool dovp, bool doden, bool dovs )
 		val = layer.getDen();
 	    else if ( iprop == 2 && layer.isValidVs() )
 		val = layer.getSVel();
-	    else if ( iprop == 3 && layer.isValidFraRho() )
+	    else if ( iprop == 3 && layer.isValidFracRho() )
 		val = layer.getFracRho();
 	    else if ( iprop == 4 && layer.isValidFracAzi() )
 		val = layer.getFracAzi();
