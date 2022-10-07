@@ -71,7 +71,7 @@ public:
 
     int			nrSequences(int curlmidx=-1) const; //!< all available
     int			nrTraces(int curlmidx=-1) const;  //!< actual calculated
-    bool		needSWave() const;
+    RefLayer::Type	requiredRefLayerType() const;
 
     bool		ensureGenerated(SynthID,TaskRunner* =nullptr,
 					int curlmidx=-1) const;
@@ -180,8 +180,8 @@ public:
 					int lmsidx=-1) const;
 			//!< return true if unscaled synthetics are found
     bool		checkElasticPropSel(const ElasticPropSelection&,
-					    const bool* checkswave =nullptr,
-					    uiString* msg=nullptr) const;
+					const RefLayer::Type* checktyp =nullptr,
+					uiString* msg=nullptr) const;
 
     static bool		getAllGenPars(const IOPar&,ObjectSet<SynthGenParams>&);
 
@@ -212,11 +212,11 @@ private:
     void		ensureLevels(int lmsidx) const;
     void		setElasticPropSel(const ElasticPropSelection&);
     bool		ensureAdequatePropSelection(int lmsidx,
-						    bool checkswave) const;
-    bool		ensureElasticModels(int lmsidx,bool checkswave,
+						    RefLayer::Type) const;
+    bool		ensureElasticModels(int lmsidx,RefLayer::Type,
 					    TaskRunner*) const;
     bool		adjustElasticModel(const Strat::LayerModel&,
-					   ElasticModelSet&,bool chksvel,
+					   ElasticModelSet&,RefLayer::Type,
 					   TaskRunner*) const;
     bool		checkNeedsInput(const SynthGenParams&) const;
 

@@ -50,6 +50,7 @@ public:
     virtual RayTracer1D::Setup&	setup()		= 0;
     virtual const RayTracer1D::Setup& setup() const	= 0;
     virtual bool	hasSameParams(const RayTracer1D&) const;
+    bool		needsSwave() const;
 
     bool		setModel(const ElasticModel&);
     const ElasticModel&	getModel() const	{ return model_; }

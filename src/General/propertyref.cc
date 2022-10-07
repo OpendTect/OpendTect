@@ -262,7 +262,9 @@ bool PropertyRef::isKnownAs( const char* nm ) const
 
 bool PropertyRef::isElastic() const
 {
-    return stdType() == Mnemonic::Den || stdType() == Mnemonic::Vel;
+    return stdType() == Mnemonic::Den || stdType() == Mnemonic::Vel ||
+	   &mn_ == &Mnemonic::defFracDensity() ||
+	   &mn_ == &Mnemonic::defFracOrientation();
 }
 
 

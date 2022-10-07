@@ -57,6 +57,7 @@ SynthGenParams::SynthGenParams( const SynthGenParams& oth )
 
 SynthGenParams::~SynthGenParams()
 {
+    delete reqtype_;
 }
 
 
@@ -70,6 +71,8 @@ SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
     inpsynthnm_ = oth.inpsynthnm_;
     raypars_ = oth.raypars_;
     reflpars_ = oth.reflpars_;
+    delete reqtype_;
+    reqtype_ = oth.reqtype_ ? new RefLayer::Type(*oth.reqtype_) : nullptr;
     synthpars_ = oth.synthpars_;
     anglerg_ = oth.anglerg_;
     attribtype_ = oth.attribtype_;
@@ -199,6 +202,7 @@ void SynthGenParams::setDefaultValues()
 
     if ( isRawOutput() )
     {
+	setReqType();
 	const TranslatorGroup& wvlttrgrp = WaveletTranslatorGroup::theInst();
 	const BufferString keystr( wvlttrgrp.getSurveyDefaultKey() );
 	MultiID wvltkey;
@@ -208,6 +212,8 @@ void SynthGenParams::setDefaultValues()
 	if ( wvltobj )
 	    setWavelet( wvltobj->name() );
     }
+    else
+	deleteAndZeroPtr( reqtype_ );
 
     if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
     {
@@ -219,6 +225,34 @@ void SynthGenParams::setDefaultValues()
 	anglerg_ = Interval<float>::udf();
 
     createName( name_ );
+}
+
+
+void SynthGenParams::setReqType()
+{
+    uiString msg;
+    if ( !reflpars_.isEmpty() )
+    {
+	PtrMan<ReflCalc1D> calc = ReflCalc1D::createInstance( reflpars_, msg );
+	if ( calc && calc->isOK() )
+	{
+	    if ( !reqtype_ )
+		reqtype_ = new RefLayer::Type;
+	    *reqtype_ = RefLayer::getType( calc->needsSwave(),
+					   calc->needFracRho(),
+					   calc->needFracAzi() );
+	}
+    }
+    else if ( !raypars_.isEmpty() )
+    {
+	PtrMan<RayTracer1D> calc = RayTracer1D::createInstance( raypars_, msg );
+	if ( calc && msg.isEmpty() )
+	{
+	    if ( !reqtype_ )
+		reqtype_ = new RefLayer::Type;
+	    *reqtype_ = RefLayer::getType( calc->needsSwave(), false, false );
+	}
+    }
 }
 
 
@@ -363,6 +397,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	else if ( raypar )
 	    setSynthGenPar( *raypar, synthpars_ );
 
+	setReqType();
 	MultiID wvltkey;
 	if ( synthpars_.get(sKey::WaveletID(),wvltkey) )
 	{
@@ -382,6 +417,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	raypars_.setEmpty();
 	reflpars_.setEmpty();
 	synthpars_.setEmpty();
+	deleteAndZeroPtr( reqtype_ );
 	if ( needsInput() )
 	{
 	    par.get( sKeyInput(), inpsynthnm_ );
@@ -395,12 +431,6 @@ void SynthGenParams::usePar( const IOPar& par )
 	    }
 	}
     }
-}
-
-
-bool SynthGenParams::needsSWave() const
-{
-    return isElasticStack() || isElasticGather() || isPreStack();
 }
 
 

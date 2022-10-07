@@ -338,7 +338,8 @@ void StratSynth::DataMgr::fillPar( IOPar& iop,
     const ElasticPropSelection& elpropsel = layerModel().elasticPropSel();
     if ( !elpropsel.isEmpty() && elpropsel.isOK(&layerModel().propertyRefs()) )
     {
-	if ( needSWave() || !elpropsel.getByType(ElasticFormula::SVel) )
+	if ( requiredRefLayerType() > RefLayer::Acoustic ||
+	     !elpropsel.getByType(ElasticFormula::SVel) )
 	    elpropsel.fillPar( iop );
 	else
 	{
@@ -416,22 +417,28 @@ bool StratSynth::DataMgr::usePar( const IOPar& iop )
 }
 
 
-bool StratSynth::DataMgr::needSWave() const
+RefLayer::Type StratSynth::DataMgr::requiredRefLayerType() const
 {
-    TypeSet<SynthID> needsids;
-    getIDs( needsids, OnlyEIStack );
-    getIDs( needsids, OnlyEIGather );
-    getIDs( needsids, OnlyPS );
-    return !needsids.isEmpty();
+    RefLayer::Type ret = RefLayer::Acoustic;
+    for ( const auto& sgp : genparams_ )
+    {
+	const RefLayer::Type* sgptyp = sgp.requiredRefLayerType();
+	if ( sgptyp && *sgptyp > ret )
+	    ret = *sgptyp;
+	if ( ret == RefLayer::HTI )
+	    break;
+    }
+
+    return ret;
 }
 
 
 bool StratSynth::DataMgr::setElasticProperties( const IOPar& iop, uiString* msg)
 {
-    const bool checkswave = needSWave();
-    ElasticPropSelection elpropsel( false );
+    const RefLayer::Type reqtype = requiredRefLayerType();
+    ElasticPropSelection elpropsel( RefLayer::Acoustic );
     if ( elpropsel.usePar(iop) &&
-	 checkElasticPropSel(elpropsel,&checkswave,msg) )
+	 checkElasticPropSel(elpropsel,&reqtype,msg) )
     {
 	setElasticPropSel( elpropsel );
 	return true;
@@ -442,9 +449,9 @@ bool StratSynth::DataMgr::setElasticProperties( const IOPar& iop, uiString* msg)
 
     IOPar par( iop );
     par.removeWithKey( ElasticPropSelection::sKeyElasticPropSel() );
-    elpropsel = ElasticPropSelection( false );
+    elpropsel = ElasticPropSelection( RefLayer::Acoustic );
     if ( !elpropsel.usePar(iop) ||
-	 !checkElasticPropSel(elpropsel,&checkswave,msg) )
+	 !checkElasticPropSel(elpropsel,&reqtype,msg) )
 	return false;
 
     setElasticPropSel( elpropsel );
@@ -464,15 +471,21 @@ void StratSynth::DataMgr::setElasticPropSel(
 
 bool StratSynth::DataMgr::checkElasticPropSel(
 				const ElasticPropSelection& elpropsel,
-				const bool* checkswave, uiString* errmsg ) const
+				const RefLayer::Type* reqtypein,
+				uiString* errmsg ) const
 {
-    const bool docheckswave = checkswave ? *checkswave : needSWave();
+    const RefLayer::Type reqtype = reqtypein ? *reqtypein
+					     : requiredRefLayerType();
     const PropertyRefSelection& prs = layerModel().propertyRefs();
     TypeSet<ElasticFormula::Type> reqtypes;
     reqtypes += ElasticFormula::Den;
     reqtypes += ElasticFormula::PVel;
-    if ( docheckswave )
+    if ( reqtype > RefLayer::Acoustic )
 	reqtypes += ElasticFormula::SVel;
+    if ( reqtype > RefLayer::Elastic )
+	reqtypes += ElasticFormula::FracRho;
+    if ( reqtype > RefLayer::VTI )
+	reqtypes += ElasticFormula::FracAzi;
 
     return elpropsel.isOK( reqtypes, prs, errmsg );
 }
@@ -607,7 +620,7 @@ SynthID StratSynth::DataMgr::addEntry( SynthID id, const SynthGenParams& sgp )
 	*lmdatasets_.get(ilm) += nullptr;
 
     if ( sgp.isRawOutput() )
-	ensureAdequatePropSelection( -1, sgp.needsSWave() );
+	ensureAdequatePropSelection( -1, *sgp.requiredRefLayerType() );
 
     dirtycount_++;
     entryAdded.trigger( id );
@@ -1200,9 +1213,11 @@ bool StratSynth::DataMgr::generate( SynthID id, int lmsidx,
     mGetGenIdx(idx);
 
     const SynthGenParams& sgp = genparams_[idx];
-    const bool checkswave = !swaveinfomsgshown_ && sgp.needsSWave();
+    RefLayer::Type checktyp = RefLayer::Acoustic;
+    if ( !swaveinfomsgshown_ && sgp.requiredRefLayerType() )
+	checktyp = *sgp.requiredRefLayerType();
     mSelf().gtDSS( lmsidx ).replace( idx, nullptr );
-    if ( !ensureElasticModels(lmsidx,checkswave,taskrun) )
+    if ( !ensureElasticModels(lmsidx,checktyp,taskrun) )
 	return false;
 
     ConstRefMan<SyntheticData> newds = generateDataSet( sgp, lmsidx, taskrun );
@@ -1348,7 +1363,6 @@ bool doPrepare( int nrthreads ) override
 	return false;
 
     const ElasticPropSelection& eps = lm_.elasticPropSel();
-    withswave_ = eps.getByType( ElasticFormula::SVel );
     deepErase( elpgens_ );
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int idx=0; idx<nrthreads; idx++ )
@@ -1374,9 +1388,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	return false;
 
     ElasticPropGen& elpgen = *elpgens_.get( threadid );
+    const ElasticPropSelection& eps = lm_.elasticPropSel();
+    const int nrelvals = eps.size();
+    TypeSet<float> elvals( nrelvals, mUdf(float) );
+    float* elvalsptr = elvals.arr();
+
     const PropertyRefSelection& prs = lm_.propertyRefs();
-    const int nrvals = prs.size();
-    TypeSet<float> layvals( nrvals, mUdf(float) );
+    const int nrpropvals = prs.size();
+    TypeSet<float> layvals( nrpropvals, mUdf(float) );
     float* valsptr = layvals.arr();
     for ( int imdl=int(start); imdl<=stop; imdl++, addToNrDone(1) )
     {
@@ -1386,16 +1405,17 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	    continue;
 
 	ElasticModel& curem = *elasticmodels_.get( imdl );
-	if ( !fillElasticModel(seq,withswave_,elpgen,valsptr,nrvals,curem) )
+	if ( !fillElasticModel(seq,elpgen,elvalsptr,nrelvals,
+			       valsptr,nrpropvals,curem) )
 	    return false;
     }
 
     return true;
 }
 
-bool fillElasticModel( const Strat::LayerSequence& seq, bool withswave,
-		       ElasticPropGen& elpgen,
-		       float* valsptr, int prssz, ElasticModel& elmod )
+bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
+		       float* elvalsptr, int elvalssz,
+		       float* propvalsptr, int prssz, ElasticModel& elmod )
 {
     elmod.setEmpty();
 
@@ -1413,6 +1433,12 @@ bool fillElasticModel( const Strat::LayerSequence& seq, bool withswave,
 	return false;
     }
 
+    //TODO: compute and store the array indices in doPrepare
+    const float* dval = &elvalsptr[0];
+    const float* pval = &elvalsptr[1];
+    const float* sval = elvalssz < 3 ? nullptr : &elvalsptr[2];
+    const float* fracrho = elvalssz < 4 ? nullptr : &elvalsptr[3];
+    const float* fracazi = elvalssz < 5 ? nullptr : &elvalsptr[4];
     const ObjectSet<Strat::Layer>& layers = seq.layers();
     for ( int idx=firstidx; idx<layers.size(); idx++ )
     {
@@ -1423,20 +1449,23 @@ bool fillElasticModel( const Strat::LayerSequence& seq, bool withswave,
 	if ( thickness < 1e-4f )
 	    continue;
 
-	float dval = mUdf(float), pval = mUdf(float), sval = mUdf(float);
-	const int valssz = lay.nrValues(); // May be smaller than prssz
-	lay.getValues( valsptr, valssz );
-	elpgen.getVals( dval, pval, sval, valsptr, valssz );
+	const int propvalssz = lay.nrValues(); // May be smaller than prssz
+	lay.getValues( propvalsptr, propvalssz );
+	elpgen.getVals( propvalsptr, propvalssz, elvalsptr, elvalssz );
 
 	// Detect water - reset Vs
 	/* TODO disabled for now
 	if ( pval < cMaximumVpWaterVel() )
 	    sval = 0;*/
 
-	if ( withswave )
-	    elmod.add( new ElasticLayer( thickness, pval, sval, dval ) );
+	if ( fracazi )
+	    { pErrMsg("TODO: impl"); }
+	else if ( fracrho )
+	    { pErrMsg("TODO: impl"); }
+	else if ( sval )
+	    elmod.add( new ElasticLayer( thickness, *pval, *sval, *dval ) );
 	else
-	    elmod.add( new AILayer( thickness, pval, dval ) );
+	    elmod.add( new AILayer( thickness, *pval, *dval ) );
     }
 
     if ( elmod.isEmpty() )
@@ -1463,7 +1492,6 @@ static float cMaximumVpWaterVel()
     const Strat::LayerModel&	lm_;
     od_int64			nrmodels_;
     const int			calceach_;
-    bool			withswave_;
     ElasticModelSet&		elasticmodels_;
     Threads::Mutex		mutex_;
     uiString			msg_;
@@ -1478,11 +1506,12 @@ class ElasticModelAdjuster : public ::ParallelTask
 public:
 
 ElasticModelAdjuster( const Strat::LayerModel& lm,
-		      ElasticModelSet& ems, bool checksvel, int calceach )
+		      ElasticModelSet& ems, RefLayer::Type checktyp,
+		      int calceach )
     : ::ParallelTask("Checking & adjusting elastic models")
     , lm_(lm)
     , elasticmodels_(ems)
-    , checksvel_(checksvel)
+    , checktyp_(checktyp)
     , nrmodels_(ems.size())
     , calceach_(calceach)
 {
@@ -1512,6 +1541,8 @@ od_int64 nrIterations() const override
 
 bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 {
+    const bool dosvelcheck = checktyp_ > RefLayer::Acoustic;
+    const bool dodencheck = !dosvelcheck; // ??
     for ( int imdl=mCast(int,start); imdl<=stop; imdl++, addToNrDone(1) )
     {
 	const int iseq = imdl * calceach_;
@@ -1522,14 +1553,14 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 
 	ElasticModel tmpmodel( curem );
 	int erroridx = -1;
-	tmpmodel.checkAndClean( erroridx, !checksvel_, checksvel_, false );
+	tmpmodel.checkAndClean( erroridx, dodencheck, dosvelcheck, false );
 	if ( tmpmodel.isEmpty() )
 	{
 	    uiString startstr(
-		checksvel_ ? tr("Could not generate prestack synthetics as all")
+	       dosvelcheck ? tr("Could not generate prestack synthetics as all")
 			   : tr("All") );
-	    uiString propstr( checksvel_ ? tr("Swave velocity")
-					 : tr("Pwave velocity/Density") );
+	    uiString propstr( dosvelcheck ? tr("Swave velocity")
+					  : tr("Pwave velocity/Density") );
 	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
 			  "Probably units are not set correctly." )
 				.arg(startstr).arg(propstr);
@@ -1615,14 +1646,14 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
     const int			calceach_;
     uiString			infomsg_;
     uiString			errmsg_;
-    bool			checksvel_;
+    const RefLayer::Type	checktyp_;
 }; // class ElasticModelAdjuster
 
 } // namespace StratSynth
 
 
 bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
-						       bool checkswave ) const
+					       RefLayer::Type reqtype ) const
 {
     const Strat::LayerModel& lm = layerModel( lmsidx );
     const PropertyRefSelection& prs = lm.propertyRefs();
@@ -1633,13 +1664,18 @@ bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
     }
 
     const ElasticPropSelection& lmelpropsel = lm.elasticPropSel();
-    if ( checkElasticPropSel(lmelpropsel,&checkswave) )
+    if ( checkElasticPropSel(lmelpropsel,&reqtype) )
 	return true;
 
+    const bool checkswave = reqtype > RefLayer::Acoustic;
+    const bool checkfracrho = reqtype > RefLayer::Elastic;
+    const bool checkfracazi = reqtype > RefLayer::VTI;
     ElasticPropSelection elpropsel = lmelpropsel;
     if ( !elpropsel.ensureHasType(ElasticFormula::Den) ||
 	 !elpropsel.ensureHasType(ElasticFormula::PVel) ||
-	 (checkswave && !elpropsel.ensureHasType(ElasticFormula::SVel)) )
+	 (checkswave && !elpropsel.ensureHasType(ElasticFormula::SVel)) ||
+	 (checkfracrho && !elpropsel.ensureHasType(ElasticFormula::FracRho)) ||
+	 (checkfracazi && !elpropsel.ensureHasType(ElasticFormula::FracAzi)) )
 	return false;
 
     PropertyRefSelection inpprs( false );
@@ -1650,7 +1686,7 @@ bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
     }
 
     if ( !elpropsel.setFor(inpprs) ||
-	 !checkElasticPropSel(elpropsel,&checkswave) )
+	 !checkElasticPropSel(elpropsel,&reqtype) )
 	return false;
 
     mSelf().setElasticPropSel( elpropsel );
@@ -1659,10 +1695,11 @@ bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
 }
 
 
-bool StratSynth::DataMgr::ensureElasticModels( int lmsidx, bool checkswave,
+bool StratSynth::DataMgr::ensureElasticModels( int lmsidx,
+					       RefLayer::Type reqtype,
 					       TaskRunner* taskrun ) const
 {
-    if ( !ensureAdequatePropSelection(lmsidx,checkswave) )
+    if ( !ensureAdequatePropSelection(lmsidx,reqtype) )
     {
 	errmsg_ =
 	    tr("No suitable elastic properties found with the layer model");
@@ -1704,18 +1741,19 @@ bool StratSynth::DataMgr::ensureElasticModels( int lmsidx, bool checkswave,
 	return false;
     }
 
-    return adjustElasticModel( lm, elmdls, checkswave, taskrun );
+    return adjustElasticModel( lm, elmdls, reqtype, taskrun );
 }
 
 
 bool StratSynth::DataMgr::adjustElasticModel( const Strat::LayerModel& lm,
 				  ElasticModelSet& elmdls,
-				  bool checksvel, TaskRunner* taskrun ) const
+				  RefLayer::Type checktyp,
+				  TaskRunner* taskrun ) const
 {
-    ElasticModelAdjuster emadjuster( lm, elmdls, checksvel, calceach_ );
+    ElasticModelAdjuster emadjuster( lm, elmdls, checktyp, calceach_ );
     const bool res = TaskRunner::execute( taskrun, emadjuster );
     infomsg_ = emadjuster.infoMsg();
-    swaveinfomsgshown_ = swaveinfomsgshown_ || checksvel;
+    swaveinfomsgshown_ = swaveinfomsgshown_ || checktyp > RefLayer::Acoustic;
     return res;
 }
 

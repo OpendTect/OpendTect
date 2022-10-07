@@ -49,6 +49,8 @@ public:
 
     virtual RefLayer*	clone() const				= 0;
     virtual Type	getType() const				= 0;
+    static Type		getType(bool needswave,bool needfracrho,
+				bool needfracazi);
 
     RefLayer&		operator =(const RefLayer&);
     bool		operator ==(const RefLayer&) const;

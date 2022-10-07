@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 
+#include "ailayer.h"
 #include "enums.h"
 #include "instantattrib.h"
 #include "iopar.h"
@@ -73,7 +74,7 @@ public:
 			{ return !needsInput() && !isStratProp(); }
 			/*!<Any type that can be created using
 			    Seis::RaySynthGenerator */
-    bool		needsSWave() const;
+    const RefLayer::Type* requiredRefLayerType() const	{ return reqtype_; }
     void		createName(BufferString&) const;
 			//!<Create name from wvlt and raypars
     void		setWavelet(const char*);
@@ -94,11 +95,13 @@ public:
 private:
 
     void		setDefaultValues();
+    void		setReqType();
     static void		cleanRayPar(const IOPar&,IOPar&);
     static void		setSynthGenPar(const IOPar&,IOPar&);
 
     BufferString	wvltnm_;
     IOPar		raypars_;
     IOPar		reflpars_;
+    RefLayer::Type*	reqtype_ = nullptr;
 
 };
