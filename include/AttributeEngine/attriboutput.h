@@ -383,12 +383,6 @@ public:
     void			collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&) override;
 
-    //ABI frozen: special function for 6.0 only, replaces the virtual one above
-    void			collectDataSpecial60(const DataHolder&,
-						     float step,
-						     const SeisTrcInfo&,
-						     const TrcKey&);
-
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 						TypeSet<float>&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
@@ -400,7 +394,6 @@ public:
 						{ maxdisttrcs_ = maxdist; }
     void			setMedianDistBetwTrcs(float mediandist);
     void			setPossibleBinIDDuplic() { arebiddupl_ = true; }
-    void			initPairsTable();
 
 protected:
 				~TableOutput();
@@ -411,7 +404,6 @@ protected:
     int				firstattrcol_;
     float			maxdisttrcs_;
     float			mediandisttrcs_;
-    TypeSet<float>		distpicktrc_;
 
     void			computeAndSetVals(const DataHolder&,float,
 						  float,float*);
@@ -420,43 +412,6 @@ protected:
 						 TypeSet<float>&,
 						 int,float) const;
 
-    struct PosAndRowIDPair
-    {
-	Pos::GeomID		gid_;
-	Pos::TraceID		tid_;
-	DataPointSet::RowID	rid_;
-
-				PosAndRowIDPair()
-				    : gid_(-1)
-				    , tid_(-1)
-				    , rid_(-1)			{}
-				PosAndRowIDPair( Pos::GeomID gid,
-						 Pos::TraceID tid,
-						 DataPointSet::RowID rid )
-				    : gid_(gid)
-				    , tid_(tid)
-				    , rid_(rid)			{}
-				~PosAndRowIDPair()
-				{}
-
-	bool			operator == ( PosAndRowIDPair other ) const
-				{ return other.gid_ == gid_ &&
-					 other.tid_ == tid_ &&
-					 other.rid_ == rid_;
-				}
-
-	bool			operator > ( PosAndRowIDPair other ) const
-				{ return gid_.asInt() > other.gid_.asInt()
-				    || (gid_==other.gid_ && tid_>other.tid_)
-				    || (gid_==other.gid_ && tid_==other.tid_
-							 && rid_>other.rid_); }
-
-	bool			matchesTrcKey( const TrcKey& tkey ) const
-				{ return gid_ == tkey.geomID()
-				      && tid_ == tkey.trcNr(); }
-    };
-
-    TypeSet<PosAndRowIDPair>	parpset_;
 };
 
 } // namespace Attrib

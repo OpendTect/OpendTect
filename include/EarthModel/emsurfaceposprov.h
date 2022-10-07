@@ -179,6 +179,7 @@ public:
 			{ return new EMSurfaceProvider2D(*this); }
 
     virtual const char*	curLine() const;
+    Pos::GeomID	curGeomID() const override;
     int		curNr() const override;
     TrcKey	curTrcKey() const override;
     Coord	curCoord() const override;

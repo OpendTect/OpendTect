@@ -217,20 +217,34 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
-	TypeSet<Coord3> crds;
-	if ( !getCoordSet(ioobjids.get(idx),crds) )
-	    continue;
+	const MultiID key( ioobjids.get(idx).buf() );
+	const int setidx = Pick::Mgr().indexOf( key );
+	ConstRefMan<Pick::Set> ps = setidx < 0 ? 0 : Pick::Mgr().get( setidx );
+	RefMan<Pick::Set> createdps = nullptr;
+	if ( !ps )
+	{
+	    PtrMan<IOObj>ioobj = IOM().get( key );
+	    BufferString msg;
+	    if ( !ioobj )
+	    {
+		msg = "Cannot find PointSet with key "; msg += key;
+		ErrMsg( msg );
+		continue;
+	    }
+
+	    ps = createdps = new Pick::Set;
+	    if ( !retrieve(*createdps,ioobj,true,msg) )
+	    {
+		ErrMsg( msg );
+		continue;
+	    }
+	}
 
 	DataPointSet* dps = new DataPointSet( is2d, mini );
-	dpss += dps;
+	if ( !ps->fillDataPointSet(*dps) )
+	    continue;
 
-	DataPointSet::DataRow dr;
-	for ( int ipck=0; ipck<crds.size(); ipck++ )
-	{
-	    const Coord3& crd( crds[ipck] );
-	    dr.pos_.set( crd );
-	    dps->addRow( dr );
-	}
+	dpss += dps;
 	dps->dataChanged();
     }
 }

@@ -309,7 +309,7 @@ mDefParallelCalcBody(
 	if ( mIsUdf(realz) )
 	    continue;
 
-	datarow.pos_.binid_ = bid;
+	datarow.pos_.set( bid );
 	datarow.pos_.z_ = realz+shift;
 	dpsset_[idx]->addRow( datarow );
     }

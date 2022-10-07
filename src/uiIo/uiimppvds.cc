@@ -245,7 +245,6 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
 	if ( aio.coord_.isDefined() )
 	{
 	    DataPointSet::Pos dpspos( aio.coord_, aio.z_ );
-	    if ( is2d_ ) dpspos.nr_ = aio.trcnr_;
 	    DataPointSet::DataRow dr( dpspos );
 	    dr.data_ = aio.datavals_;
 	    dps.addRow( dr );

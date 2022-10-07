@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "picksetmgr.h"
 
+#include "datapointset.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -1151,6 +1152,33 @@ void Set::refNotify() const
 
 void Set::unRefNotify() const
 {
+}
+
+
+bool Set::fillDataPointSet( DataPointSet& dps ) const
+{
+    if ( !is2D() && dps.is2D() )
+    {
+	pErrMsg("Filling a 2D DataPointSet from 3D PointSet");
+	return false;
+    }
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Location& loc = get( idx );
+	DataPointSet::DataRow dr;
+	if ( dps.is2D() )
+	{
+	    dr.pos_.trckey_ = loc.trcKey();
+	    dr.pos_.z_ = loc.z();
+	}
+	else
+	    dr.pos_.set( loc.pos() );
+
+	dps.addRow( dr );
+    }
+
+    return true;
 }
 
 } // namespace Pick

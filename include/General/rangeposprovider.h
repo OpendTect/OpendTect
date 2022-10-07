@@ -111,6 +111,7 @@ public:
     bool		toNextPos() override;
     bool		toNextZ() override;
 
+    Pos::GeomID		curGeomID() const override;
     int			curNr() const override;
     float		curZ() const override;
     Coord		curCoord() const override;
@@ -151,7 +152,6 @@ protected:
 
     const Survey::Geometry2D*	curgeom_;
 
-    Pos::GeomID			curGeomID() const;
     const Survey::Geometry2D*	curGeom() const;
     StepInterval<float>		curZRange() const;
     StepInterval<int>		curTrcRange() const;

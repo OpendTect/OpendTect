@@ -223,7 +223,10 @@ bool Seis2DDataSet::haveMatch( Pos::GeomID geomid,
     const PosInfo::Line2DData& geom = geom2d->data();
     for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
-	if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
+	const BinID postocheck =
+	    bivs.is2D() ? BinID( geomid.asInt(), geom.positions()[idx].nr_ )
+	    		: SI().transform( geom.positions()[idx].coord_ );
+	if ( bivs.includes(postocheck) )
 	    return true;
     }
 

@@ -347,8 +347,8 @@ void uiDataPointSetPickDlg::updateTable()
     for ( int idx=0; idx<dps_.size(); idx++ )
     {
 	const DataPointSet::Pos pos( dps_.pos(idx) );
-	table_->setValue( RowCol(idx,0), pos.binid_.inl() );
-	table_->setValue( RowCol(idx,1), pos.binid_.crl() );
+	table_->setValue( RowCol(idx,0), pos.lineNr() );
+	table_->setValue( RowCol(idx,1), pos.trcNr() );
 	table_->setValue( RowCol(idx,2), pos.coord().x );
 	table_->setValue( RowCol(idx,3), pos.coord().y );
 	table_->setValue( RowCol(idx,4), pos.z() );
@@ -453,8 +453,8 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
     for ( int idx=0; idx<dps_.size(); idx++ )
     {
 	DataPointSet::Pos pos = dps_.pos( idx );
-	const int inlidx = tks_.inlIdx( pos.binid_.inl() );
-	const int crlidx = tks_.crlIdx( pos.binid_.crl() );
+	const int inlidx = tks_.inlIdx( pos.lineNr() );
+	const int crlidx = tks_.crlIdx( pos.trcNr() );
 	const float* vals = dps_.getValues( idx );
 	arr.set( inlidx, crlidx, vals[0] );
     }

@@ -656,7 +656,7 @@ bool SeisTrcReader::mkNextFetcher()
 	tbuf_->deepErase();
 
     const Pos::GeomID geomid = SeisStoreAccess::geomID();
-    const bool islinesel = Survey::is2DGeom( geomid );
+    const bool islinesel = geomid.isValid() && geomid.is2D();
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
     const int nrlines = dataset_->nrLines();
 

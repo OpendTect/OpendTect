@@ -99,6 +99,7 @@ public:
     bool	is2D() const override			{ return true; }
     virtual bool includes(int,float z=mUdf(float),int lidx=0) const = 0;
     bool	includes(const Coord&,float z=mUdf(float)) const override  = 0;
+    bool	includes(Pos::GeomID,int trcnr,float z=mUdf(float)) const;
 
     void		addGeomID(const Pos::GeomID);
     void		removeGeomID(int lidx);

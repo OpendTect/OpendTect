@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 template <class T> class ODPolygon;
 
+class DataPointSet;
 class TrcKeyZSampling;
 class uiComboBox;
 
@@ -95,6 +96,7 @@ public:
     int			nearestLocation(const Coord&) const;
     int			nearestLocation(const Coord3&,bool ignorez=false) const;
     void		getBoundingBox(TrcKeyZSampling&) const;
+    bool		fillDataPointSet(DataPointSet&) const;
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
     static const char*	sKeyFillColor()		{ return "Surface Color"; }

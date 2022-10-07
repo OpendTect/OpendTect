@@ -203,7 +203,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 
     const TrcKey& tracekey = curtrcinfo->trcKey();
     TypeSet< Interval<int> > localintervals;
-    bool isset = setZIntervalsSpecial60( localintervals, curbid,
+    bool isset = setZIntervals( localintervals, curbid,
 					 curtrcinfo->coord, tracekey );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
@@ -225,14 +225,9 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 		mDynamicCastGet( SeisTrcStorOutput*, trcstoroutp, outp );
 		if ( trcstoroutp )
 		    trcstoroutp->writez0shift_ = outz0shifthack;
-		mDynamicCastGet( TableOutput*, taboutpn, outputs_[idx] );
-		if ( !taboutpn || tracekey.isUdf() )
-		    outputs_[idx]->collectData( *data, provider_->getRefStep(),
+
+		outputs_[idx]->collectData( *data, provider_->getRefStep(),
 						*curtrcinfo );
-		else
-		    taboutpn->collectDataSpecial60(
-						*data, provider_->getRefStep(),
-						*curtrcinfo, tracekey );
 	    }
 	}
 
@@ -287,7 +282,6 @@ void Processor::init()
 	    taboutp->setMaxDistBetwTrcs( maxdist );
 	    float mediandist = provider_->getDistBetwTrcs(false);
 	    taboutp->setMedianDistBetwTrcs( mediandist );
-	    taboutp->initPairsTable();
 	}
 
     }
@@ -476,15 +470,7 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 }
 
 
-bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
-			       const BinID& curbid, const Coord& curcoords )
-{
-TrcKey tkey;
-return setZIntervalsSpecial60( localintervals, curbid, curcoords, tkey );
-}
-
-
-bool Processor::setZIntervalsSpecial60(
+bool Processor::setZIntervals(
 			TypeSet< Interval<int> >& localintervals,
 			const BinID& curbid, const Coord& curcoords,
 			const TrcKey& tkey )
