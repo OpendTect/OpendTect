@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "transl.h"
 #include "emsurfaceiodata.h"
+#include "transl.h"
+#include "zaxistransform.h"
 #include "uistring.h"
 
 class Executor;
@@ -132,15 +133,15 @@ public:
 
     EM::SurfaceIODataSelection& selections()		{ return sels_; }
 
-    virtual Executor*		reader(EM::Surface&)	{ return 0; }
+    virtual Executor*		reader(EM::Surface&)	{ return nullptr; }
 				/*!< Executor is managed by client. */
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */
     virtual Executor*		getAuxdataReader(EM::Surface&,int)
-				{ return 0; }
+				{ return nullptr; }
     virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
 							      bool overwt=false)
-				{ return 0; }
+				{ return nullptr; }
 
     uiString			errMsg() const		{ return errmsg_; }
 
@@ -155,6 +156,9 @@ public:
     void			setCreatedFrom( const char* src )
 							{ crfrom_ = src; }
 
+    const ZAxisTransform*	getZAxisTransform() const;
+    void			setZAxisTransform(ZAxisTransform*);
+
 protected:
 
     IOObj*			ioobj_;
@@ -163,6 +167,7 @@ protected:
     EM::SurfaceIOData		sd_;
     EM::SurfaceIODataSelection	sels_;
     BufferString		crfrom_;
+    RefMan<ZAxisTransform>	zatf_ = nullptr;
 
     virtual bool		prepRead()		{ return true; }
     virtual bool		prepWrite()		{ return true; }

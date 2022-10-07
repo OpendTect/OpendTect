@@ -52,9 +52,10 @@ public:
     Geometry::PolygonSurface* geometryElement() override;
     const Geometry::PolygonSurface* geometryElement() const override;
 
-    Executor*		loader(const SurfaceIODataSelection* s=0) override;
-    Executor*		saver(const SurfaceIODataSelection* s=0,
-			      const MultiID* key=0) override;
+    Executor*		loader(const SurfaceIODataSelection* =nullptr,
+				const ZAxisTransform* =nullptr) override;
+    Executor*		saver(const SurfaceIODataSelection* =nullptr,
+			      const MultiID* =nullptr) override;
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;

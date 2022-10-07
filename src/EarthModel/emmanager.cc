@@ -248,15 +248,18 @@ ObjectID EMManager::objectID( int idx ) const
 
 Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 				   const SurfaceIODataSelection* iosel,
-				   TypeSet<MultiID>* idstobeloaded )
+				   TypeSet<MultiID>* idstobeloaded,
+				   const ZAxisTransform* zatf )
 {
-    ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
+    ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) :
+								nullptr;
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const ObjectID objid = getObjectID( mids[idx] );
 	const EMObject* obj = getObject( objid );
 	Executor* loader =
-	    obj && obj->isFullyLoaded() ? 0 : objectLoader( mids[idx], iosel );
+	    obj && obj->isFullyLoaded() ? nullptr :
+				    objectLoader( mids[idx], iosel, zatf );
 	if ( idstobeloaded && loader )
 	    *idstobeloaded += mids[idx];
 
@@ -276,10 +279,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
     }
 
     if ( execgrp && !execgrp->nrExecutors() )
-    {
-	delete execgrp;
-	execgrp = 0;
-    }
+	deleteAndZeroPtr( execgrp );
 
     return execgrp;
 
@@ -287,7 +287,8 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 
 
 Executor* EMManager::objectLoader( const MultiID& mid,
-				   const SurfaceIODataSelection* iosel )
+				   const SurfaceIODataSelection* iosel,
+				   const ZAxisTransform* zatf )
 {
     const ObjectID id = getObjectID( mid );
     EMObject* obj = getObject( id );
@@ -295,14 +296,17 @@ Executor* EMManager::objectLoader( const MultiID& mid,
     if ( !obj )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
-	if ( !ioobj ) return 0;
+	if ( !ioobj )
+	    return nullptr;
 
 	BufferString typenm = ioobj->pars().find( sKey::Type() );
 	if ( typenm.isEmpty() )
 	    typenm = ioobj->group();
 
 	obj = EMOF().create( typenm, *this );
-	if ( !obj ) return 0;
+	if ( !obj )
+	    return nullptr;
+
 	obj->setMultiID( mid );
     }
 
@@ -320,40 +324,39 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 
 	    SurfaceIODataSelection newsel( *iosel );
 	    newsel.rg.include( hs );
-	    return geom->loader( &newsel );
+	    return geom->loader( &newsel, zatf );
 	}
 
-	return surface->geometry().loader(iosel);
+	return surface->geometry().loader( iosel, zatf );
     }
     else if ( obj )
 	return obj->loader();
 
-    return 0;
+    return nullptr;
 }
 
 
-
 EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
-					   TaskRunner* taskrunner )
+			TaskRunner* taskrunner, const ZAxisTransform* zatf )
 {
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( mid );
+	PtrMan<Executor> exec = EM::EMM().objectLoader( mid, nullptr, zatf );
 	if ( !exec )
-	    return 0;
+	    return nullptr;
 
 	if ( !TaskRunner::execute( taskrunner, *exec ) )
-	    return 0;
+	    return nullptr;
 
 	emid = EM::EMM().getObjectID( mid );
 	emobj = EM::EMM().getObject( emid );
     }
 
     if ( !emobj || !emobj->isFullyLoaded() )
-	return 0;
+	return nullptr;
 
     EM::EMObject* tmpobj = emobj;
     tmpobj->ref();

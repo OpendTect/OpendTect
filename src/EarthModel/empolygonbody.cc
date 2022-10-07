@@ -323,7 +323,8 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 }
 
 
-Executor* PolygonBodyGeometry::loader( const SurfaceIODataSelection* )
+Executor* PolygonBodyGeometry::loader( const SurfaceIODataSelection*,
+					    const ZAxisTransform* )
 { return surface_.loader(); }
 
 Geometry::PolygonSurface* PolygonBodyGeometry::geometryElement()
