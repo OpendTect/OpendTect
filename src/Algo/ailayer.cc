@@ -274,9 +274,12 @@ ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
 
 ElasticLayer::ElasticLayer( const RefLayer& oth )
     : AILayer(oth.getThickness(),oth.getPVel(),oth.getDen())
+    , svel_(mUdf(float))
 {
     if ( oth.isElastic() )
 	svel_ = oth.getSVel();
+    else
+	fillVsWithVp( true );
 }
 
 
