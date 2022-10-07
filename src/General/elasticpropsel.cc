@@ -36,11 +36,18 @@ const char* ElasticPropSelection::sKeyElasticProp()
 const char* ElasticPropSelection::sKeyElasticPropSel()
 { return "Elastic Property Selection"; }
 
-mDefSimpleTranslators(ElasticPropSelection,
-		      ElasticPropSelection::sKeyElasticPropSel(),od,Seis);
+
+// ElasticFormula
 
 mDefineEnumUtils(ElasticFormula,Type,"Elastic Property")
-{ "Density", "PWave", "SWave", nullptr };
+{
+    "Density",
+    "PWave",
+    "SWave",
+    "Fracture Density",
+    "Fracture Orientation",
+    nullptr
+};
 
 
 ElasticFormula::ElasticFormula( const char* nm, const char* exp, Type tp )
@@ -104,6 +111,10 @@ const Mnemonic& ElasticFormula::getMnemonic( Type tp )
 	return Mnemonic::defPVEL();
     else if ( tp == SVel )
 	return Mnemonic::defSVEL();
+    else if ( tp == FracRho )
+	return Mnemonic::defFracDensity();
+    else if ( tp == FracAzi )
+	return Mnemonic::defFracOrientation();
 
     return Mnemonic::undef();
 }
@@ -117,6 +128,10 @@ ElasticFormula::Type ElasticFormula::getType( const Mnemonic& mn )
 	return PVel;
     else if ( &mn == &Mnemonic::defSVEL() )
 	return SVel;
+    else if ( &mn == &Mnemonic::defFracDensity() )
+	return FracRho;
+    else if ( &mn == &Mnemonic::defFracOrientation() )
+	return FracAzi;
 
     return Undef;
 }
@@ -137,6 +152,10 @@ ElasticFormula::Type ElasticFormula::type() const
 	return PVel;
     else if ( mn == &Mnemonic::defSVEL() )
 	return SVel;
+    else if ( mn == &Mnemonic::defFracDensity() )
+	return FracRho;
+    else if ( mn == &Mnemonic::defFracOrientation() )
+	return FracAzi;
 
     pErrMsg( "Invalid mnemonic for ElasticFormula" );
     return Undef;
@@ -288,6 +307,8 @@ const char* ElasticFormula::parseVariable( int idx, float& val ) const
 }
 
 
+// ElasticFormulaRepository
+
 ElasticFormulaRepository& ElFR()
 {
     mDefineStaticLocalObject( PtrMan<ElasticFormulaRepository>,
@@ -300,6 +321,11 @@ ElasticFormulaRepository& ElFR()
     }
 
     return *elasticrepos;
+}
+
+
+ElasticFormulaRepository::ElasticFormulaRepository()
+{
 }
 
 
@@ -347,7 +373,7 @@ void ElasticFormulaRepository::getByType( ElasticFormula::Type tp,
 }
 
 
-//------- ElasticPropertyRef ----------
+// ElasticPropertyRef
 
 ElasticPropertyRef::ElasticPropertyRef( const Mnemonic& mn, const char* nm )
     : PropertyRef(mn,nm)
@@ -561,25 +587,36 @@ void ElasticPropertyRef::setFormNameFromRepos( ElasticFormula& eform )
 }
 
 
-//---
+// ElasticPropSelection
 
-ElasticPropSelection::ElasticPropSelection( bool withswave,
+mDefSimpleTranslators(ElasticPropSelection,
+		      ElasticPropSelection::sKeyElasticPropSel(),od,Seis);
+
+ElasticPropSelection::ElasticPropSelection( RefLayer::Type reqtyp,
 					    const PropertyRefSelection& prs )
-    : ElasticPropSelection(withswave)
+    : ElasticPropSelection(reqtyp)
 {
     setFor( prs );
 }
 
 
-ElasticPropSelection::ElasticPropSelection( bool withswave )
+ElasticPropSelection::ElasticPropSelection( RefLayer::Type reqtyp )
     : PropertyRefSelection(false)
 {
+    const bool withswave = reqtyp > RefLayer::Acoustic;
+    const bool withfracrho = reqtyp > RefLayer::Elastic;
+    const bool withfracazi = reqtyp > RefLayer::VTI;
+
     const char** props = ElasticFormula::TypeNames();
     for ( int idx=0; props[idx]; idx++ )
     {
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
 	if ( tp == ElasticFormula::SVel && !withswave )
+	    continue;
+	if ( tp == ElasticFormula::FracRho && !withfracrho )
+	    continue;
+	if ( tp == ElasticFormula::FracAzi && !withfracazi )
 	    continue;
 
 	const Mnemonic* mn = getByType( tp, props[idx] );
@@ -589,6 +626,13 @@ ElasticPropSelection::ElasticPropSelection( bool withswave )
 	add( new ElasticPropertyRef( *mn, props[idx] ) );
     }
 }
+
+
+ElasticPropSelection::ElasticPropSelection( bool needswave )
+    : ElasticPropSelection(needswave ? RefLayer::Elastic : RefLayer::Acoustic)
+{
+}
+
 
 
 ElasticPropSelection::ElasticPropSelection( const ElasticPropSelection& oth )
@@ -613,7 +657,8 @@ ElasticPropSelection& ElasticPropSelection::operator =(
     //No deep cloning, to avoid invalidating the pointers
     TypeSet<ElasticFormula::Type> reqtypes, alltypes;
     alltypes.add( ElasticFormula::Den ).add( ElasticFormula::PVel )
-	    .add( ElasticFormula::SVel );
+	    .add( ElasticFormula::SVel ).add( ElasticFormula::FracRho )
+	    .add( ElasticFormula::FracAzi );
     for ( const auto& tp : alltypes )
     {
 	if ( oth.getByType(tp) )
@@ -696,7 +741,9 @@ const ElasticPropertyRef* ElasticPropSelection::getByType(
 
 bool ElasticPropSelection::ensureHasType( ElasticFormula::Type tp )
 {
-    const ElasticPropSelection defpropsel( tp == ElasticFormula::SVel );
+    const RefLayer::Type reqtyp =
+		RefLayer::getType( tp == ElasticFormula::SVel, false, false );
+    const ElasticPropSelection defpropsel( reqtyp );
     const ElasticPropertyRef* defelastpr = defpropsel.getByType( tp );
     if ( !defelastpr )
 	return false;
@@ -772,6 +819,8 @@ bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 }
 
 
+// ElasticPropGuess
+
 ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& prs,
 				    ElasticPropSelection& sel )
 {
@@ -785,6 +834,11 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& prs,
 	if ( !guessQuantity(prs,eprefed) )
 	    isok_ = false;
     }
+}
+
+
+ElasticPropGuess::~ElasticPropGuess()
+{
 }
 
 
@@ -837,6 +891,12 @@ bool ElasticPropGuess::guessQuantity( const PropertyRefSelection& prs,
 	mnsels.add( selection(pvelpr) );
 	mnsels.add( selection(sonicpr) );
     }
+    else if ( tp == ElasticFormula::FracRho )
+    {
+    }
+    else if ( tp == ElasticFormula::FracAzi )
+    {
+    }
 
     const Math::Formula* form = nullptr;
     for ( const auto* mns : mnsels )
@@ -873,7 +933,9 @@ bool ElasticPropGuess::guessQuantity( const PropertyRefSelection& prs,
 
 MnemonicSelection* ElasticPropGuess::selection( const PropertyRef* pr1,
 						const PropertyRef* pr2,
-						const PropertyRef* pr3 )
+						const PropertyRef* pr3,
+						const PropertyRef* pr4,
+						const PropertyRef* pr5 )
 {
     if ( !pr1 )
 	return nullptr;
@@ -884,8 +946,24 @@ MnemonicSelection* ElasticPropGuess::selection( const PropertyRef* pr1,
 	ret->add( &pr2->mn() );
     if ( pr3 )
 	ret->add( &pr3->mn() );
+    if ( pr4 )
+	ret->add( &pr4->mn() );
+    if ( pr5 )
+	ret->add( &pr5->mn() );
 
     return ret;
+}
+
+
+// ElasticPropGen::CalcData
+
+ElasticPropGen::CalcData::CalcData( const ElasticPropertyRef& epr )
+    : epr_(epr)
+{
+}
+
+ElasticPropGen::CalcData::~CalcData()
+{
 }
 
 
@@ -898,7 +976,9 @@ ElasticPropGen::ElasticPropGen( const ElasticPropSelection& eps,
     TypeSet<ElasticFormula::Type> reqtypes;
     reqtypes += ElasticFormula::Den;
     reqtypes += ElasticFormula::PVel;
-    reqtypes += ElasticFormula::SVel;
+    reqtypes += ElasticFormula::SVel; //TODO: should be optional
+//    reqtypes += ElasticFormula::FracRho;
+//    reqtypes += ElasticFormula::FracAzi;
     for ( const auto& eltyp : reqtypes )
     {
 	if ( !init(prs,eps.getByType(eltyp)) )
@@ -915,7 +995,7 @@ ElasticPropGen::~ElasticPropGen()
 
 bool ElasticPropGen::isOK() const
 {
-    if ( propcalcs_.size() != 3 )
+    if ( propcalcs_.size() < 2 )
 	return false;
 
     for ( int idx=0; idx<2; idx++ )
@@ -985,15 +1065,14 @@ bool ElasticPropGen::init( const PropertyRefSelection& prs,
 }
 
 
-void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
-			      const float* vals, int sz) const
+void ElasticPropGen::getVals( const float* propvals, int propsz,
+			      float* elvals, int elsz ) const
 {
-    if ( propcalcs_.get(0) )
-	den  = getValue( *propcalcs_.get(0), vals, sz );
-    if ( propcalcs_.get(1) )
-	pvel = getValue( *propcalcs_.get(1), vals, sz );
-    if ( propcalcs_.get(2) )
-	svel = getValue( *propcalcs_.get(2), vals, sz );
+    for ( int idx=0; idx<elsz; idx++ )
+    {
+	if ( propcalcs_.validIdx(idx) && propcalcs_.get(idx) )
+	    elvals[idx] = getValue( *propcalcs_.get(idx), propvals, propsz );
+    }
 }
 
 

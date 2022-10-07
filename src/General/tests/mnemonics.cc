@@ -133,8 +133,11 @@ static bool testPropertyRefSelection()
 
 static bool testElasticPropSelection()
 {
-    ElasticPropSelection eprs, prs( false ), copyeprs;
-    mRunStandardTest( eprs.size() == 3 && prs.size() == 2,
+    ElasticPropSelection eprs, prs( RefLayer::Acoustic ), copyeprs,
+			 vtiprs( RefLayer::VTI ), copyvtiprs,
+			 htiprs( RefLayer::HTI ), copyhtiprs;
+    mRunStandardTest( eprs.size() == 3 && prs.size() == 2 &&
+		      vtiprs.size()==4 && htiprs.size() == 5,
 		      "ElasticPropSelection size" );
     for ( const auto* epr : eprs )
 	mRunStandardTest( epr->isElasticForm(), "ElasticPropertyRef type" );
@@ -143,6 +146,8 @@ static bool testElasticPropSelection()
     const Mnemonic& denmn = Mnemonic::defDEN();
     const Mnemonic& pvelmn = Mnemonic::defPVEL();
     const Mnemonic& svelmn = Mnemonic::defSVEL();
+    const Mnemonic& fracrhomn = Mnemonic::defFracDensity();
+    const Mnemonic& fracazimn = Mnemonic::defFracOrientation();
 
     mRunStandardTest( eprs.first()->isCompatibleWith(denmn) &&
 		      prs.first()->isCompatibleWith(denmn),
@@ -152,15 +157,27 @@ static bool testElasticPropSelection()
 		      "ElasticPropSelection has correct P-wave velocity" );
     mRunStandardTest( eprs.last()->isCompatibleWith(svelmn),
 		      "ElasticPropSelection has correct S-wave velocity" );
+    mRunStandardTest( vtiprs.last()->isCompatibleWith(fracrhomn),
+		      "ElasticPropSelection has correct fracture density" );
+    mRunStandardTest( htiprs.get(3)->isCompatibleWith(fracrhomn),
+		      "ElasticPropSelection has correct fracture density" );
+    mRunStandardTest( htiprs.last()->isCompatibleWith(fracazimn),
+		      "ElasticPropSelection has correct fracture orientation" );
 
     copyeprs.erase();
     mRunStandardTest( copyeprs.isEmpty(),
 			"ElasticPropSelection erase" );
 
     copyeprs = eprs;
+    copyvtiprs = vtiprs;
+    copyhtiprs = htiprs;
     mRunStandardTest( copyeprs.size() == eprs.size() &&
 		      *copyeprs.first() == *eprs.first() &&
-		      *copyeprs.last() == *eprs.last(),
+		      *copyeprs.last() == *eprs.last() &&
+		      copyvtiprs.size() == vtiprs.size() &&
+		      *copyvtiprs.last() == *vtiprs.last() &&
+		      copyhtiprs.size() == htiprs.size() &&
+		      *copyhtiprs.last() == *htiprs.last(),
 			"ElasticPropSelection copy" );
 
     return true;

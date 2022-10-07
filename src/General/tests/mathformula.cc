@@ -257,7 +257,7 @@ static bool testElasticForms()
     mRunStandardTest( !svelforms.isEmpty(),
 		      "Has SVel-based elastic formulas" );
 
-    ElasticPropSelection eps, ps( false ), neweps;
+    ElasticPropSelection eps, ps( RefLayer::Acoustic ), neweps;
     neweps.setEmpty();
     const bool validsel = eps.size() == 3 && ps.size() == 2 &&
 			  neweps.isEmpty() &&
@@ -306,15 +306,18 @@ static bool testElasticForms()
     mRunStandardTestWithError( eps.isValidInput(&errmsg),
 		      "Valid input for Den/Vp/Vs", toString(errmsg) );
 
-    const ElasticPropSelection aiselfromDenVp( false, DenVpSel );
-    const ElasticPropSelection elselfromDenVp( true, DenVpSel );
-    const ElasticPropSelection aiselfromDenSon( false, DenSonSel );
-    const ElasticPropSelection elselfromDenSon( true, DenSonSel );
-    const ElasticPropSelection aiselfromDenVpVs( false, DenVpVsSel );
-    const ElasticPropSelection elselfromDenVpVs( true, DenVpVsSel );
-    const ElasticPropSelection aiselfromDenSonShear( false, DenSonShearSel );
-    const ElasticPropSelection elselfromDenSonShear( true, DenSonShearSel );
-    const ElasticPropSelection elselfromAIVp( true, AIVpSel );
+    const RefLayer::Type aityp = RefLayer::Acoustic;
+    const RefLayer::Type sityp = RefLayer::Elastic;
+
+    const ElasticPropSelection aiselfromDenVp( aityp, DenVpSel );
+    const ElasticPropSelection elselfromDenVp( sityp, DenVpSel );
+    const ElasticPropSelection aiselfromDenSon( aityp, DenSonSel );
+    const ElasticPropSelection elselfromDenSon( sityp, DenSonSel );
+    const ElasticPropSelection aiselfromDenVpVs( aityp, DenVpVsSel );
+    const ElasticPropSelection elselfromDenVpVs( sityp, DenVpVsSel );
+    const ElasticPropSelection aiselfromDenSonShear( aityp, DenSonShearSel );
+    const ElasticPropSelection elselfromDenSonShear( sityp, DenSonShearSel );
+    const ElasticPropSelection elselfromAIVp( sityp, AIVpSel );
     mRunStandardTest( aiselfromDenVp.isOK(&DenVpSel) &&
 		      aiselfromDenVp.size() == 2,
 		      "Acoustic Sel from Den-Vp" );

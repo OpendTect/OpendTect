@@ -225,7 +225,7 @@ static bool createModel( const PropertyRefSelection& prs,
 
     mRunStandardTest( lm.size() == nrseq_, "Layer model is set" );
 
-    const ElasticPropSelection esel( true, prs );
+    const ElasticPropSelection esel( RefLayer::Elastic, prs );
     mRunStandardTest( esel.isOK(&prs), "Has elastic properties selection" );
     lm.setElasticPropSel( esel );
 

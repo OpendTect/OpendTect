@@ -197,6 +197,14 @@ void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 }
 
 
+bool RayTracer1D::needsSwave() const
+{
+    const bool zerooffsetonly =
+		    offsets_.size()==1 && mIsZero(offsets_[0],mDefEps);
+    return !(zerooffsetonly || !setup().doreflectivity_);
+}
+
+
 bool RayTracer1D::setModel( const ElasticModel& lys )
 {
     msg_.setEmpty();
@@ -207,15 +215,12 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
 	return false;
     }
 
-    //Zero-offset: Vs is not required, density not either if !doreflectivity_
-    const bool zerooffsetonly =
-		    offsets_.size()==1 && mIsZero(offsets_[0],mDefEps);
-    const RefLayer::Type reqtyp = zerooffsetonly || !setup().doreflectivity_
-				? RefLayer::Acoustic : RefLayer::Elastic;
+    const RefLayer::Type reqtyp = RefLayer::getType( needsSwave(), false,false);
     model_.copyFrom( lys, reqtyp );
 
     int firsterror = -1;
-    model_.checkAndClean( firsterror, setup().doreflectivity_, !zerooffsetonly);
+    model_.checkAndClean( firsterror, setup().doreflectivity_,
+			  reqtyp == RefLayer::Elastic );
 
     if ( model_.isEmpty() )
 	msg_ = tr( "Model is empty" );

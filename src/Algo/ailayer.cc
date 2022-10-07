@@ -74,6 +74,19 @@ RefLayer::~RefLayer()
 }
 
 
+RefLayer::Type RefLayer::getType( bool needswave, bool needfracrho,
+				  bool needfracazi )
+{
+    if ( needfracazi )
+	return HTI;
+    if ( needfracrho )
+	return VTI;
+    if ( needswave )
+	return Elastic;
+    return Acoustic;
+}
+
+
 RefLayer& RefLayer::operator =( const RefLayer& oth )
 {
     if ( &oth == this )

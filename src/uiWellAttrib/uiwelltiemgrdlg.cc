@@ -60,7 +60,8 @@ WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
 	    .savechecked(false)
 	    .modal(false))
     , wtsetup_(*new WellTie::Setup(wtsetup))
-    , elpropsel_(*new ElasticPropSelection(false)) //TODO: QC for S-wave
+    , elpropsel_(*new ElasticPropSelection(RefLayer::Acoustic))
+					   //TODO: QC for S-wave
 {
     setVideoKey( mODVideoKey(mWellTiMgrDlemgHelpID) );
     setCtrlStyle( RunAndClose );

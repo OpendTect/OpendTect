@@ -22,7 +22,7 @@ mExpClass(General) ElasticFormula : public Math::Formula
 {
 public:
 
-			enum Type	{ Den, PVel, SVel, Undef };
+			enum Type { Den, PVel, SVel, FracRho, FracAzi, Undef };
 			mDeclareEnumUtils(Type)
 
 			ElasticFormula(const char* nm,const char* expr,Type);
@@ -74,6 +74,7 @@ public:
 mExpClass(General) ElasticFormulaRepository
 {
 public:
+				ElasticFormulaRepository();
 				~ElasticFormulaRepository();
 
     void			getByType(ElasticFormula::Type,

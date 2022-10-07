@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "elasticprop.h"
+
+#include "ailayer.h"
 #include "propertyref.h"
 #include "uistrings.h"
 
@@ -23,11 +25,12 @@ class IOObj;
 mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 { mODTextTranslationClass(ElasticPropSelection)
 public:
-				ElasticPropSelection(bool withswave,
-					const PropertyRefSelection&);
+				ElasticPropSelection(RefLayer::Type,
+						const PropertyRefSelection&);
 				/*<! Ensure the selection does not contain
 				     math-derived properties */
-				ElasticPropSelection(bool withswave=true);
+				ElasticPropSelection(RefLayer::Type
+							= RefLayer::Elastic);
 				/*<! Not directly usable until either
 				     usePar or setFor is called */
 				ElasticPropSelection(
@@ -85,6 +88,10 @@ private:
 
     MultiID			storedid_;
     uiString			errmsg_;
+
+public:
+
+    mDeprecated("Use RefLayer::Type") ElasticPropSelection(bool needswave);
 };
 
 
@@ -102,16 +109,16 @@ public:
 
     bool		isOK() const;
 
-    void		getVals(float& den,float& pvel,float& svel,
-				const float* proprefvals,int proprefsz) const;
+    void		getVals(const float* proprefvals,int proprefsz,
+				float* elvals,int elrefsz) const;
 
 private:
 
     mClass(General) CalcData
     {
     public:
-			CalcData( const ElasticPropertyRef& epr )
-			    : epr_(epr)			{}
+			CalcData(const ElasticPropertyRef&);
+			~CalcData();
 
 	const ElasticPropertyRef& epr_;
 	const UnitOfMeasure* pruom_ = nullptr;
@@ -148,7 +155,9 @@ private:
 				      ElasticPropertyRef&);
     static MnemonicSelection* selection(const PropertyRef*,
 					const PropertyRef* pr2=nullptr,
-					const PropertyRef* pr3=nullptr);
+					const PropertyRef* pr3=nullptr,
+					const PropertyRef* pr4=nullptr,
+					const PropertyRef* pr5=nullptr);
 
     bool		isok_ = true;
 };
