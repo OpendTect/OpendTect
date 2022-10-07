@@ -137,7 +137,7 @@ int Stats::RandGen::getIndex( int sz ) const
     if ( sz < 2 )
 	return 0;
 
-    std::uniform_int_distribution<int> dis( 0, sz );
+    std::uniform_int_distribution<int> dis( 0, sz-1 );
     return dis( gen_ );
 }
 
@@ -147,7 +147,7 @@ od_int64 Stats::RandGen::getIndex( od_int64 sz ) const
     if ( sz < 2 )
 	return 0;
 
-    std::uniform_int_distribution<od_int64> dis( 0, sz );
+    std::uniform_int_distribution<od_int64> dis( 0, sz-1 );
     return dis( gen64_ );
 }
 
