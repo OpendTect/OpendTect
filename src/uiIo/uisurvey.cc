@@ -227,7 +227,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     new uiLabel( this, tr("Z Domain"), zistimefld_ );
     new uiRadioButton( zistimefld_, uiStrings::sTime() );
     new uiRadioButton( zistimefld_, uiStrings::sDepth() );
-    new uiRadioButton( zistimefld_, tr("I don't know yet") );
+//    new uiRadioButton( zistimefld_, tr("I don't know yet") );
     zistimefld_->selectButton( 0 );
     mAttachCB( zistimefld_->valueChanged, uiStartNewSurveySetup::zdomainChg );
     zistimefld_->attach( alignedBelow, sipfld_ );
