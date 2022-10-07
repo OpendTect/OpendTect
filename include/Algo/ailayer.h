@@ -81,7 +81,7 @@ public:
     virtual bool	isValidVel() const			= 0;
     virtual bool	isValidDen() const			= 0;
     virtual bool	isValidVs() const	{ return false; }
-    virtual bool	isValidFraRho() const	{ return false; }
+    virtual bool	isValidFracRho() const	{ return false; }
     virtual bool	isValidFracAzi() const	{ return false; }
 
     virtual bool	isElastic() const	{ return false; }
@@ -194,6 +194,71 @@ protected:
 private:
 
     float	svel_;
+};
+
+
+mExpClass(Algo) VTILayer : public ElasticLayer
+{
+public:
+		VTILayer(float thkness,float pvel,float svel,float den,
+			 float fracrho);
+		VTILayer(float thkness,float ai,float si,float den,
+			 float fracrho,bool needcompthkness);
+		VTILayer(const RefLayer&);
+		~VTILayer();
+
+    RefLayer&	operator =(const VTILayer&);
+    RefLayer*	clone() const override;
+    Type	getType() const override		{ return VTI; }
+    float	getFracRho() const			{ return fracrho_; }
+    RefLayer&	setFracRho(float) override;
+
+    bool	isValidFracRho() const override;
+
+    bool	isVTI() const override			{ return true; }
+
+    const VTILayer* asVTI() const override		{ return this; }
+    VTILayer*	asVTI() override			{ return this; }
+
+protected:
+
+    void	copyFrom(const RefLayer&) override;
+
+private:
+
+    float	fracrho_;
+};
+
+
+mExpClass(Algo) HTILayer : public VTILayer
+{
+public:
+		HTILayer(float thkness,float pvel,float svel,float den,
+			 float fracrho,float fracazi);
+		HTILayer(float thkness,float ai,float si,float den,
+			 float fracrho,float fracazi,bool needcompthkness);
+		HTILayer(const RefLayer&);
+		~HTILayer();
+
+    RefLayer&	operator =(const HTILayer&);
+    RefLayer*	clone() const override;
+    Type	getType() const override		{ return HTI; }
+    float	getFracAzi() const			{ return fracazi_; }
+    RefLayer&	setFracAzi(float) override;
+    bool	isValidFracAzi() const override;
+
+    bool	isHTI() const override			{ return true; }
+
+    const HTILayer* asHTI() const override		{ return this; }
+    HTILayer*	asHTI() override			{ return this; }
+
+protected:
+
+    void	copyFrom(const RefLayer&) override;
+
+private:
+
+    float	fracazi_;
 };
 
 
