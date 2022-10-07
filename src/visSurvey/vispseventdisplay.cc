@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "prestackevents.h"
 #include "survinfo.h"
-#include "valseriesimpl.h"
+
 #include "velocitycalc.h"
 #include "viscoord.h"
 #include "visdatagroup.h"

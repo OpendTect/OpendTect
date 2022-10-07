@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "undo.h"
 #include "callback.h"
 #include "mousecursor.h"
-#include "polygon.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 

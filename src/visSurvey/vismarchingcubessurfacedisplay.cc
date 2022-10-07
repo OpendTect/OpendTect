@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "vismarchingcubessurfacedisplay.h"
 
-#include "arrayndimpl.h"
 #include "color.h"
 #include "datapointset.h"
 #include "datacoldef.h"

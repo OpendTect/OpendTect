@@ -10,28 +10,28 @@ ________________________________________________________________________
 #include "vispolygonbodydisplay.h"
 
 #include "color.h"
-#include "empolygonbody.h"
 #include "emmanager.h"
+#include "empolygonbody.h"
 #include "executor.h"
-#include "explpolygonsurface.h"
 #include "explplaneintersection.h"
-#include "polygonsurfeditor.h"
+#include "explpolygonsurface.h"
 #include "iopar.h"
 #include "mpeengine.h"
+#include "polygonsurfeditor.h"
 #include "survinfo.h"
 #include "undo.h"
+
 #include "viscoord.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "visgeomindexedshape.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
-#include "visnormals.h"
 #include "visplanedatadisplay.h"
+#include "vispolygonoffset.h"
 #include "vispolyline.h"
 #include "vistransform.h"
 #include "vistristripset.h"
-#include "vispolygonoffset.h"
 
 namespace visSurvey
 {

@@ -13,15 +13,12 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 #include "vispolygonselection.h"
 #include "visevent.h"
-#include "vismpeeditor.h"
 #include "visfaultdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "emfaultstickset.h"
 
-#include "mpeengine.h"
 #include "keyenum.h"
 #include "emfault.h"
-#include "survinfo.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 

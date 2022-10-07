@@ -25,8 +25,6 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "vistransform.h"
 #include "visdragger.h"
-#include "visplanedatadisplay.h"
-#include "visseis2ddisplay.h"
 #include "vispolygonselection.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }

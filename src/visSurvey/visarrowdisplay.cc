@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "visarrowdisplay.h"
 
 #include "pickset.h"
-#include "survinfo.h"
 #include "trigonometry.h"
 #include "viscoord.h"
 #include "visdrawstyle.h"

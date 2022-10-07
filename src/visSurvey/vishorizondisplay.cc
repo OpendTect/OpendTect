@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "vishorizondisplay.h"
 
-#include "arrayndimpl.h"
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
 #include "binidvalue.h"
@@ -38,7 +37,6 @@ ________________________________________________________________________
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpe.h"
-#include "vismultiattribsurvobj.h"
 #include "visplanedatadisplay.h"
 #include "vispointset.h"
 #include "vispolyline.h"

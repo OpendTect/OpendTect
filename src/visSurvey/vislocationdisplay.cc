@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "vissower.h"
 #include "vistransform.h"
 #include "visplanedatadisplay.h"
-#include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 
