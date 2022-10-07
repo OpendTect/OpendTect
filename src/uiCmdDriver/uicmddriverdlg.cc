@@ -512,7 +512,7 @@ void uiCmdDriverDlg::setDefaultSelDirs()
 
 void uiCmdDriverDlg::setDefaultLogFile()
 {
-    const char* dir = defaultlogdir_.isEmpty() ? GetScriptsDir()
+    const char* dir = defaultlogdir_.isEmpty() ? GetScriptsLogDir()
 					       : defaultlogdir_.buf();
 
     BufferString deflogfnm = CmdDriver::defaultLogFilename();
