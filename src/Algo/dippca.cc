@@ -16,6 +16,14 @@ ________________________________________________________________________
 #include "task.h"
 
 
+DipPCA::DipPCA()
+{}
+
+
+DipPCA::~DipPCA()
+{}
+
+
 class Dip3DCalculator : public ParallelTask
 { mODTextTranslationClass(Dip3DCalculator);
 public:
@@ -289,6 +297,10 @@ DipPCA::Setup::Setup()
     thetarg_ = StepInterval<int>(30,85,5);
     alpharg_ = StepInterval<int>(5,85,5);
 }
+
+
+DipPCA::Setup::~Setup()
+{}
 
 
 DipPCA::Setup& DipPCA::Setup::operator=(const DipPCA::Setup& sp )

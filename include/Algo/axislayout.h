@@ -29,6 +29,8 @@ public:
 			    : annotinint_(asint)
 			    , annotinsiderg_(inside)
 			{ setDataRange( dr ); }
+			~AxisLayout()
+			{}
 
     void		setDataRange(const Interval<T>&);
     StepInterval<T>	getSampling() const;

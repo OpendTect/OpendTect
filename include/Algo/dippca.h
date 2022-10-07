@@ -36,10 +36,12 @@ mExpClass(Algo) DipPCA
 {
 public:
 
-    virtual			~DipPCA()			{}
+    virtual			~DipPCA();
 
     mStruct(Algo) Setup
-    {				Setup();
+    {
+				Setup();
+				~Setup();
 	Setup&			operator=(const Setup&);
 
 	float			threshold_;
@@ -52,9 +54,10 @@ public:
     };
 
     void			setSetup(Setup nsetup)	{ setup_ = nsetup; }
-    virtual bool		compute(TaskRunner* tr=0) { return true; }
+    virtual bool		compute(TaskRunner* tr=0) = 0;
 
 protected:
+				DipPCA();
 
     Setup			setup_;
 };
