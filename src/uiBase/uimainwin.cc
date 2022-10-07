@@ -384,6 +384,10 @@ void uiMainWin::saveSettings()
 void uiMainWin::readSettings()
 { body_->readSettings(); }
 
+
+void uiMainWin::restoreDefaultState()
+{ body_->restoreDefaultState(); }
+
 void uiMainWin::raise()
 { body_->raise(); }
 

@@ -923,12 +923,22 @@ void uiODMenuMgr::fillViewMenu()
     toolbarsmnu.setName("Toolbars");
     viewmnu_->addMenu( &toolbarsmnu );
 
+    auto* restoreitm = new uiAction( tr("Default toolbar positions"),
+				mCB(this,uiODMenuMgr,defaultTBPos) );
+    viewmnu_->insertAction( restoreitm );
+
     showtreeitm_ = new uiAction( tr("Show tree"),
 				mCB(this,uiODMenuMgr,toggleTreeMode) );
     viewmnu_->insertAction( showtreeitm_ );
     showtreeitm_->setCheckable( true );
     showtreeitm_->setChecked( true );
     showtreeitm_->setShortcut( "F11" );
+}
+
+
+void uiODMenuMgr::defaultTBPos( CallBacker* )
+{
+    ODMainWin()->restoreDefaultState();
 }
 
 

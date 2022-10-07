@@ -31,7 +31,8 @@ class QWidget;
 
 
 class uiMainWinBody : public uiCentralWidgetBody, public QMainWindow
-{ mODTextTranslationClass(uiMainWinBody)
+{
+mODTextTranslationClass(uiMainWinBody)
 friend class		uiMainWin;
 public:
 			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
@@ -105,6 +106,7 @@ protected:
 
     void		saveSettings();
     void		readSettings();
+    void		restoreDefaultState();
 
     bool		exitapponclose_;
 
