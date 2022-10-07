@@ -24,6 +24,10 @@ ValSeriesTracker::ValSeriesTracker()
 {}
 
 
+ValSeriesTracker::~ValSeriesTracker()
+{}
+
+
 bool ValSeriesTracker::isOK() const
 { return sourcevs_ && targetvs_ && !mIsUdf(sourcedepth_); }
 
@@ -130,6 +134,10 @@ EventTracker::EventTracker()
     , allowamplsignchg_(false)
 {
 }
+
+
+EventTracker::~EventTracker()
+{}
 
 
 void EventTracker::setCompareMethod( CompareMethod cm )

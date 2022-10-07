@@ -22,8 +22,7 @@ a certain value)++ from one ValueSeries<float> to another.
 mExpClass(Algo) ValSeriesTracker
 {
 public:
-			ValSeriesTracker();
-    virtual		~ValSeriesTracker()		{}
+    virtual		~ValSeriesTracker();
     virtual const char* type()				= 0;
 
     virtual bool	isOK() const;
@@ -44,6 +43,7 @@ public:
     virtual bool	usePar(const IOPar& par)	{ return true; }
 
 protected:
+			ValSeriesTracker();
 
     const ValueSeries<float>*	sourcevs_;
     float			sourcedepth_;
@@ -63,6 +63,7 @@ mExpClass(Algo) EventTracker : public ValSeriesTracker
 {
 public:
 				EventTracker();
+				~EventTracker();
 
     const char*			type() override	{ return sType(); }
     static const char*		sType()		{ return "EventTracker"; }

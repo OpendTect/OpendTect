@@ -16,9 +16,9 @@ template<class VT,class IT>
 mClass(Algo) DeSpiker
 {
 public:
-
 			DeSpiker( VT maxgrubbs=VT(5) )
-			    : maxgrubbs_(maxgrubbs)	    {}
+			    : maxgrubbs_(maxgrubbs)		{}
+    virtual		~DeSpiker()				{}
 
     inline bool		hasSpike(const VT*,IT sz) const;
 			//!< returns whether there is at least one spike
