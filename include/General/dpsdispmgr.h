@@ -67,7 +67,7 @@ protected:
 \brief DataPointSet display manager.
 */
 
-mClass(General) DataPointSetDisplayMgr : public CallBacker
+mExpClass(General) DataPointSetDisplayMgr : public CallBacker
 {
 public:
 
