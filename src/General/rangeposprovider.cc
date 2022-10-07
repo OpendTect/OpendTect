@@ -43,7 +43,7 @@ OD::Color getRandStdDrawColor()
 {
     static int curidx = -1;
     if ( curidx == -1 )
-	ColorRandGen().getIndex( OD::Color::nrStdDrawColors() );
+	curidx = ColorRandGen().getIndex( OD::Color::nrStdDrawColors() );
     else
     {
 	curidx++;
