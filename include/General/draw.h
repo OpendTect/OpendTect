@@ -206,7 +206,7 @@ public:
 };
 
 
-mClass(General) PlotAnnotation
+mExpClass(General) PlotAnnotation
 {
 public:
 
