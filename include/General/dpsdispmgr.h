@@ -30,7 +30,7 @@ class DataPointSet;
   DataPointSetDisplayMgr only.
 */
 
-mClass(General) DataPointSetDisplayProp
+mExpClass(General) DataPointSetDisplayProp
 {
 public:
 				DataPointSetDisplayProp(
