@@ -77,7 +77,6 @@ public:
 	, packagekey_( packagekey )
 	, contentlock_( true )
 	, changecount_( mForceUpdate )
-	, tolower_( false )
     {
     }
 
@@ -92,6 +91,7 @@ public:
 	packagekey_ = d.packagekey_;
 	changecount_ = mForceUpdate;
 	tolower_ = d.tolower_;
+	totitlecase_ = d.totitlecase_;
     }
 
     void addAlternateVersion( const uiString& altstr )
@@ -130,7 +130,8 @@ public:
     const char*			packagekey_;
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
-    bool			tolower_;
+    bool			tolower_		= false;
+    bool			totitlecase_		= false;
 
     int				changecount_;
 };
@@ -148,6 +149,7 @@ void uiStringData::set( const char* orig )
     translationpluralnumber_ = -1;
     changecount_ = mForceUpdate;
     tolower_ = false;
+    totitlecase_ = false;
 #ifndef OD_NO_QT
     qstring_.clear();
 #endif
@@ -180,6 +182,9 @@ void uiStringData::getFullString( BufferString& ret ) const
 
     if ( tolower_ )
 	ret.toLower();
+
+    if ( totitlecase_ )
+	ret.toTitleCase();
 }
 
 
@@ -258,6 +263,15 @@ bool uiStringData::fillQString( QString& res,
 	    arguments_.get(idx).fillQString( thearg );
 
 	res = res.arg( thearg );
+    }
+
+    if ( totitlecase_ )
+    {
+	QStringList words = res.split( ' ', Qt::SkipEmptyParts );
+	for ( int i=0; i<words.size(); ++i )
+	    words[i].replace( 0, 1, words[i][0].toUpper() );
+
+	res = words.join(" ");
     }
 
     return translationres;
@@ -357,6 +371,19 @@ uiString& uiString::toLower( bool yn )
     data_->changecount_ = mForceUpdate;
     mSetDBGStr;
 
+    return *this;
+}
+
+
+uiString& uiString::toTitleCase()
+{
+    Threads::Locker datalocker( datalock_ );
+    makeIndependent();
+    mEnsureData;
+    Threads::Locker contentlocker( data_->contentlock_ );
+    data_->totitlecase_ = true;
+    data_->changecount_ = mForceUpdate;
+    mSetDBGStr;
     return *this;
 }
 

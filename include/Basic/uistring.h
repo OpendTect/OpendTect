@@ -140,6 +140,7 @@ public:
     void	setEmpty();
     uiString&	toLower(bool yn=true);		//!< applied before arg subst.
     uiString&	toUpper( bool yn=true )		{ return toLower(!yn); }
+    uiString&	toTitleCase();
     bool	operator!() const		{ return isEmpty(); }
 
     bool	operator>(const uiString& b) const;
