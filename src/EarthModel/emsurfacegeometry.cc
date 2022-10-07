@@ -817,17 +817,27 @@ bool SurfaceGeometry::isFullResolution() const
 }
 
 
-Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
+Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel,
+					    const ZAxisTransform* zatf )
 {
     PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
     if ( !ioobj )
-	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }
+    {
+	surface_.errmsg_ = uiStrings::sCantFindSurf();
+	return nullptr;
+    }
 
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
+    if ( trans && zatf )
+	trans->setZAxisTransform( const_cast<ZAxisTransform*>(zatf) );
+
     if ( !trans || !trans->startRead(*ioobj) )
-	{ surface_.errmsg_ = trans ? trans->errMsg() :
-	    tr("Cannot find Translator"); return 0; }
+    {
+	surface_.errmsg_ = trans ? trans->errMsg() :
+					    tr("Cannot find Translator");
+	return nullptr;
+    }
 
     SurfaceIODataSelection& sel = trans->selections();
     if ( newsel && !sel.rg.isEmpty() )

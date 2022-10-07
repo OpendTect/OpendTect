@@ -19,6 +19,7 @@ template <class T, class AT> class TopList;
 
 
 class RowCol;
+class ZAxisTransform;
 
 
 namespace Geometry { class RowColSurface; }
@@ -57,9 +58,10 @@ public:
 
     virtual bool	isLoaded() const;
     virtual bool	isFullResolution() const;
-    virtual Executor*	loader(const SurfaceIODataSelection* s=0);
-    virtual Executor*	saver(const SurfaceIODataSelection* s=0,
-			      const MultiID* key=0);
+    virtual Executor*	loader(const SurfaceIODataSelection* =nullptr,
+				const ZAxisTransform* =nullptr);
+    virtual Executor*	saver(const SurfaceIODataSelection* =nullptr,
+			      const MultiID* =nullptr);
 
     mDeprecatedDef
     virtual int		findPos(const SectionID&,const Interval<float>& x,

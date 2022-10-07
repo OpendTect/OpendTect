@@ -111,6 +111,7 @@ mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 EMSurfaceTranslator::~EMSurfaceTranslator()
 {
     delete ioobj_;
+    unRefPtr( zatf_ );
 }
 
 
@@ -128,11 +129,26 @@ void EMSurfaceTranslator::setIOObj( const IOObj* ioobj )
 }
 
 
+const ZAxisTransform* EMSurfaceTranslator::getZAxisTransform() const
+{
+    return zatf_;
+}
+
+
+void EMSurfaceTranslator::setZAxisTransform( ZAxisTransform* zatf )
+{
+    unRefPtr( zatf_ );
+    zatf_ = zatf;
+    refPtr( zatf_ );
+}
+
+
 bool EMSurfaceTranslator::startRead( const IOObj& ioobj )
 {
-    init( 0, &ioobj );
+    init( nullptr, &ioobj );
     if ( !prepRead() )
 	return false;
+
     sels_.setDefault();
     return true;
 }
@@ -140,10 +156,11 @@ bool EMSurfaceTranslator::startRead( const IOObj& ioobj )
 
 bool EMSurfaceTranslator::startWrite( const EM::Surface& surf )
 {
-    init( &surf, 0 );
+    init( &surf, nullptr );
     sd_.use( surf );
     if ( !prepWrite() )
 	return false;
+
     sels_.setDefault();
     return true;
 }
