@@ -126,7 +126,7 @@ public:
     float	getThickness() const override	{ return thickness_; }
     float	getPVel() const override	{ return vel_; }
     float	getDen() const override		{ return den_; }
-    float	getAI() const;
+    float	getAI() const override;
 
     RefLayer&	setThickness(float) override;
     RefLayer&	setPVel(float) override;
@@ -215,7 +215,7 @@ public:
     ElasticModel& copyFrom(const ElasticModel& mdl,RefLayer::Type reqtyp);
 		/*!< \param mdl input model (can be itself)
 		     \param reqtyp return type for all layers in model	 */
-    void	append(const ObjectSet<RefLayer>&);
+    void	append(const ObjectSet<RefLayer>&) override;
     void	erase() override;
     RefLayer*	pop() override;
     RefLayer*	removeSingle(int,bool kporder=true) override;
