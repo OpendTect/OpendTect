@@ -445,6 +445,21 @@ BufferString& BufferString::toUpper()
 }
 
 
+BufferString& BufferString::toTitleCase()
+{
+    BufferStringSet words;
+    words.unCat( this->buf(), " " );
+    for ( auto* word : words )
+    {
+	char* ptr = word->getCStr();
+	*ptr = toupper( *ptr );
+    }
+
+    *this = words.cat( " " );
+    return *this;
+}
+
+
 BufferString& BufferString::embed( char s, char e )
 {
     char sbuf[2]; sbuf[0] = s; sbuf[1] = '\0';

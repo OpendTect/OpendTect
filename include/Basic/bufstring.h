@@ -36,7 +36,6 @@ BufferString istr( "", intvar );
 mExpClass(Basic) BufferString : public OD::String
 {
 public:
-
     inline		BufferString();
     inline		BufferString(const char*);
 			BufferString(const OD::String&);
@@ -49,6 +48,7 @@ public:
 				     const char* s=nullptr);
 			BufferString(const QString&);
     virtual		~BufferString();
+
     inline BufferString& operator=( const BufferString& b )
 						{ return assignTo(b.buf_); }
     inline BufferString& operator=( const char* s )
@@ -127,6 +127,7 @@ public:
 				//< If idx >= size(), pads spaces
     BufferString&	toLower();
     BufferString&	toUpper();
+    BufferString&	toTitleCase();
     BufferString&	embed(char open,char close);
     BufferString&	unEmbed(char open,char close);
     inline BufferString& quote( char q='\'' )		{ return embed(q,q); }
