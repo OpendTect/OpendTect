@@ -66,8 +66,17 @@ Pos::Filter2D::~Filter2D()
 }
 
 
+bool Pos::Filter2D::includes( Pos::GeomID geomid, int trcnr, float z ) const
+{
+    const int lidx = geomids_.indexOf( geomid );
+    return lidx < 0 ? false : includes( trcnr, z, lidx );
+}
+
+
 int Pos::Filter2D::nrLines() const
-{ return geomids_.size(); }
+{
+    return geomids_.size();
+}
 
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )

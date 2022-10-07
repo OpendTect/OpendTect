@@ -183,8 +183,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, disptb_(0)
 	, maniptb_(0)
 	, percfld_(0)
-	, showbidsfld_(0)
 {
+    dps_.ref();
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
     mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
 
@@ -271,6 +271,8 @@ uiDataPointSet::~uiDataPointSet()
 	xplotwin_->close();
     if ( statswin_ )
 	statswin_->close();
+
+    dps_.unRef();
 }
 
 
@@ -282,7 +284,7 @@ void uiDataPointSet::applClosingCB( CallBacker* )
 
 void uiDataPointSet::chgPosDispType( CallBacker* )
 {
-    const bool showbids = !is2D() && showbidsfld_->isChecked();
+    const bool showbids = showbidsfld_->isChecked();
     if ( showbids_ == showbids ) return;
     showbids_ = showbids;
     posdisptypechgd_ = true;
@@ -351,13 +353,11 @@ void uiDataPointSet::mkToolBars()
     dispztbid_ = mAddButton( "toggz", toggleXYZ,
 			     tr("Toggle show Z column"), true );
 
-    if ( !is2D() )
-    {
-	showbidsfld_ = new uiCheckBox( disptb_, tr("Show Inl/Crl") );
-	showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
-	showbidsfld_->setChecked( showbids_ );
-	disptb_->addObject( showbidsfld_ );
-    }
+    showbidsfld_ = new uiCheckBox( disptb_,
+	    		is2D() ? tr("Show Line/Trace") : tr("Show Inl/Crl") );
+    showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
+    showbidsfld_->setChecked( showbids_ );
+    disptb_->addObject( showbidsfld_ );
 
     mAddButton( "statsinfo", showStatsWin,
 			     tr("Show histogram and stats for column"), false );
@@ -527,8 +527,14 @@ void uiDataPointSet::fillPos( TRowID tid )
     const DRowID drid = dRowID(tid);
     const DataPointSet::Pos pos( dps_.pos(drid) );
     RowCol rc( tid, 0 );
-    tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 ); rc.col()++;
-    tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 2 ); rc.col()++;
+    if ( is2D() && showbids_ )
+	tbl_->setText( rc, Survey::GM().getName(dps_.geomID(drid)) );
+    else
+	tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 );
+    
+    rc.col()++;
+    tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 2 );
+    rc.col()++;
     if ( mIsUdf(pos.z_) )
 	tbl_->setText( rc, "" );
     else
@@ -538,19 +544,13 @@ void uiDataPointSet::fillPos( TRowID tid )
 	tbl_->setValue( rc, iz * 0.01 );
     }
 
-    if ( dps_.is2D() )
-    {
-	rc.col()++;
-	tbl_->setValue( rc, pos.nr_ );
-    }
-
     BufferString rownm = groupName( dps_.group(dRowID(tid)) );
     if ( rownm.isEmpty() )
     {
 	if ( is2D() )
-	    rownm += pos.nr_;
+	    rownm += pos.trcNr();
 	else
-	    rownm += pos.binid_.toString();
+	    rownm += pos.binID().toString();
     }
     tbl_->setRowLabel( tid, toUiString(rownm) );
     fillingtable_ = false;
@@ -1072,13 +1072,12 @@ void uiDataPointSet::statsClose( CallBacker* )
 
 
 #define mGetHPosName( dcid ) ( did == -nrPosCols() ) ? \
-	( showbids_ ? sKey::Inline() : sKey::XCoord() ) : \
-	( showbids_ ? sKey::Crossline() : sKey::YCoord() )
+	( showbids_ ? (dps_.is2D() ? sKey::LineName() : sKey::Inline()) \
+	  	    : sKey::XCoord() ) : \
+	( showbids_ ? (dps_.is2D() ? sKey::TraceNr() : sKey::Crossline()) \
+	  	    : sKey::YCoord() )
 
-#define mIsZ( dcid ) dps_.is2D() ? dcid == -2 : dcid == -1
-
-#define mIsTrcNr( dcid ) dps_.is2D() && dcid == -1
-
+#define mIsZ( dcid ) dcid == -1
 
 const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 {
@@ -1094,9 +1093,7 @@ const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 	return colnm.buf();
     }
 
-    if ( mIsTrcNr(did) )
-	return "Trace Nr";
-    else if ( mIsZ(did) )
+    if ( mIsZ(did) )
 	return "Z";
     else
 	return mGetHPosName( did );
@@ -1182,14 +1179,13 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
     if ( dcid >= 0 )
 	return dps_.value( dcid, drid );
 
-    if ( mIsTrcNr(dcid) )
-	return mCast(float,dps_.pos( drid ).nr_);
-    else if ( mIsZ(dcid) )
+    if ( mIsZ(dcid) )
     {
 	const float val = dps_.z( drid );
 	if ( !foruser ) return val;
 	return val * zfac_;
     }
+
     return mCast(float,mGetHPosVal(dcid,drid));
 }
 
@@ -1242,7 +1238,7 @@ void uiDataPointSet::valChg( CallBacker* )
 		posval = tbl_->getDValue(cell);
 	    }
 	    showbids_ ? pos.set( bid ) : pos.set( crd );
-	    poschgd = pos.binid_ != beforechgdr_.pos_.binid_;
+	    poschgd = pos.binID() != beforechgdr_.pos_.binID();
 	}
     }
 

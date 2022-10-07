@@ -47,9 +47,7 @@ public:
 				{ return tr("Positions processed"); }
 
     void			addOutputInterest(int sel);
-    bool			setZIntervals(TypeSet< Interval<int> >&,
-					      const BinID&,const Coord&);
-    bool			setZIntervalsSpecial60(
+    bool			setZIntervals(
 					TypeSet< Interval<int> >&,const BinID&,
 					const Coord&,const TrcKey&);
     void			computeAndSetRefZStepAndZ0();

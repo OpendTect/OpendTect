@@ -507,12 +507,22 @@ const char* EMSurfaceProvider2D::curLine() const
 }
 
 
+Pos::GeomID EMSurfaceProvider2D::curGeomID() const
+{
+    return Pos::GeomID( BinID::fromInt64(curpos_.subID()).lineNr() );
+}
+
+
 int EMSurfaceProvider2D::curNr() const
-{ return BinID::fromInt64( curpos_.subID() ).trcNr(); }
+{
+    return BinID::fromInt64( curpos_.subID() ).trcNr();
+}
 
 
 Coord EMSurfaceProvider2D::curCoord() const
-{ return surf1_ ? surf1_->getPos( curpos_ ) : Coord(0,0); }
+{
+    return surf1_ ? surf1_->getPos( curpos_ ) : Coord(0,0);
+}
 
 
 TrcKey EMSurfaceProvider2D::curTrcKey() const
@@ -615,7 +625,6 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 
 	    const BinID bid2d = posid.getRowCol();
 	    DataPointSet::Pos pos( surf.getPos(posid) );
-	    pos.nr_ = bid2d.crl();
 	    dps.addRow( DataPointSet::DataRow( pos,
 			mCast(unsigned short,bid2d.inl())) );
 	}

@@ -104,6 +104,7 @@ public:
 
     bool		is2D() const override			{ return true; }
 
+    virtual Pos::GeomID	curGeomID() const			= 0;
     virtual int		curNr() const				= 0;
     bool		includes(int,float z=mUdf(float),
 				 int nr=0) const override = 0;

@@ -1177,7 +1177,6 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     ((Seis::TableSelData*)seldata_)->binidValueSet() = datapointset_.bivSet();
 
     arebiddupl_ = areBIDDuplicated();
-    distpicktrc_ = TypeSet<float>( datapointset.size(), mUdf(float) );
 }
 
 
@@ -1191,267 +1190,21 @@ bool TableOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
 }
 
 
-void TableOutput::initPairsTable()
-{
-    arebiddupl_ = false;
-    BufferStringSet linenames;
-    TypeSet<Pos::GeomID> ids;
-    Survey::GM().getList( linenames, ids, true );
-    if ( !ids.size() ) //synthetics
-    {
-	arebiddupl_ = datapointset_.bivSet().hasDuplicateBinIDs();
-	return;
-    }
-
-    for ( int idx=0; idx<datapointset_.size(); idx++ )
-    {
-	TrcKeyPath tksclosestline;	//TypeSet to store equivalent solutions
-	TrcKeyPath tksclosesttrc;	//ie intersections, duplicated lines...
-	double disttoline = mUdf(double);
-	double disttotrc = mUdf(double);
-	Coord pointcoord = datapointset_.coord(idx);
-	for ( int geomidx=0; geomidx<ids.size(); geomidx++ )
-	{
-	    const Survey::Geometry* geom =
-			    Survey::GM().getGeometry( ids[geomidx] );
-	    if ( !geom ) continue;
-
-	    const Survey::Geometry2D* geom2d = geom->as2D();
-	    if ( !geom2d ) continue;
-
-	    PosInfo::Line2DPos pos;
-	    if ( !geom2d->data().getPos( pointcoord, pos, maxdisttrcs_ ) )
-		continue;
-
-	    Coord curcoord = pos.coord_;
-	    double dtotrc = pointcoord.distTo( curcoord );
-	    if ( !mIsUdf(dtotrc) && dtotrc<disttotrc )
-	    {
-		tksclosesttrc.erase();
-		tksclosesttrc += TrcKey( ids[geomidx], pos.nr_ );
-		disttotrc = dtotrc;
-	    }
-	    else if ( !mIsUdf(dtotrc) && mIsEqual(dtotrc,disttotrc,1e-3) )
-		tksclosesttrc += TrcKey( ids[geomidx], pos.nr_ );
-
-	    //To ensure there is a match even in case the trace spacing
-	    //is irregular: find if point is close to a line
-	    //Look at 2 adjacent segments, compute distance from point to
-	    //line in both cases
-	    double dtoline = mUdf(double);
-	    const TypeSet<PosInfo::Line2DPos>& posset =
-						geom2d->data().positions();
-	    int posidx = geom2d->data().indexOf( pos.nr_ );
-	    if ( posidx != 0 )
-	    {
-		Coord prevcoord = posset[posidx-1].coord_;
-		ParamLine2 pl2( prevcoord, curcoord );
-		double tval = pl2.closestPoint( pointcoord );
-		if ( Math::Abs(tval) <= 1 )
-		    dtoline = pl2.distanceToPoint( pl2.getPoint(tval) );
-	    }
-	    if ( posidx+1 < posset.size() )
-	    {
-		Coord nextcoord = posset[posidx+1].coord_;
-		ParamLine2 pl2( curcoord, nextcoord );
-		double tval = pl2.closestPoint( pointcoord );
-		if ( Math::Abs(tval) <= 1 )
-		    dtoline = pl2.distanceToPoint( pl2.getPoint(tval) );
-	    }
-
-	    if ( !mIsUdf(dtoline) && dtoline<disttoline )
-	    {
-		tksclosestline.erase();
-		tksclosestline += TrcKey( ids[geomidx], pos.nr_ );
-		disttoline = dtoline;
-	    }
-	    else if ( !mIsUdf(dtoline) && mIsEqual(dtoline,disttoline,1e-3) )
-		tksclosestline += TrcKey( ids[geomidx], pos.nr_ );
-	}
-
-	if ( disttotrc <= mediandisttrcs_/2 )
-	{
-	    const TrcKeyPath& tkpath =
-			  const_cast<const TrcKeyPath&>( tksclosesttrc );
-	    for ( const auto& tkclosesttrc : tkpath )
-	    {
-		PosAndRowIDPair paridp( mUdfGeomID, -1, -1 );
-		paridp.gid_ = tkclosesttrc.geomID();
-		paridp.tid_ = tkclosesttrc.trcNr();
-		paridp.rid_ = idx;
-		parpset_ += paridp;
-	    }
-	}
-	else if ( disttoline <= mediandisttrcs_/2 )
-	{
-	    const TrcKeyPath& tkpath =
-			  const_cast<const TrcKeyPath&>( tksclosestline );
-	    for ( const auto& tkclosestline : tkpath )
-	    {
-		PosAndRowIDPair paridp( mUdfGeomID, -1, -1 );
-		paridp.gid_ = tkclosestline.geomID();
-		paridp.tid_ = tkclosestline.trcNr();
-		paridp.rid_ = idx;
-		parpset_ += paridp;
-	    }
-	}
-    }
-
-    sort( parpset_ );
-    for ( int idx=1; idx<parpset_.size(); idx++ )
-    {
-	TrcKey tkeytocompare( parpset_[idx-1].gid_, parpset_[idx-1].tid_ );
-	if ( parpset_[idx].matchesTrcKey( tkeytocompare ) )
-	{
-	    arebiddupl_ = true;
-	    break;
-	}
-    }
-}
-
-
 void TableOutput::setMedianDistBetwTrcs( float mediandist )
 {
     mediandisttrcs_ = mediandist;
 }
 
 
-void TableOutput::collectDataSpecial60( const DataHolder& data,
-					float refstep,
-					const SeisTrcInfo& info,
-					const TrcKey& tkey )
-{
-    DataPointSet::RowID rid = -1;
-    int pairidx = -1;
-    if ( !tkey.isUdf() && datapointset_.is2D() )
-    {
-	bool foundamatch = false;
-	for ( pairidx=0; pairidx<parpset_.size(); pairidx++ )
-	{
-	    if ( parpset_[pairidx].matchesTrcKey(tkey) )
-	    {
-		foundamatch = true;
-		break;
-	    }
-	}
-	if ( !foundamatch ) return;
-
-	rid = parpset_[pairidx].rid_;
-    }
-    else	//synthetic cases
-    {
-	const Coord coord = info.coord;
-	rid = useCoords() ? datapointset_.findFirst(coord)
-			  : datapointset_.findFirst(info.binID());
-	if ( rid< 0 && datapointset_.is2D() )
-	{
-	    for ( int idx=0; idx<datapointset_.size()-1; idx++ )
-	    {
-		if ( coord > datapointset_.coord(idx) &&
-		     coord < datapointset_.coord(idx+1) )
-		{
-		    const double distn =
-				coord.distTo( datapointset_.coord(idx) );
-		    const double distnp1 =
-				coord.distTo( datapointset_.coord(idx+1) );
-		    if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
-			{ rid = idx; break; }
-		    else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
-			{ rid = idx+1; break; }
-		}
-	    }
-	}
-    }
-    if ( rid<0 ) return;
-
-    const int desnrvals = desoutputs_.size() + firstattrcol_;
-    if ( datapointset_.nrCols() < desnrvals )
-	datapointset_.bivSet().setNrVals(desnrvals+datapointset_.nrFixedCols());
-
-    if ( !arebiddupl_ )
-    {
-	float* vals = datapointset_.getValues( rid );
-	computeAndSetVals( data, refstep, datapointset_.z(rid), vals );
-	return;
-    }
-
-    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    if ( !tkey.isUdf() )
-    {
-	for ( int idx=pairidx; idx<parpset_.size(); idx++ )
-	{
-	    if ( idx != pairidx )
-	    {
-		Pos::GeomID refgid = parpset_[pairidx].gid_;
-		Pos::TraceID reftid = parpset_[pairidx].tid_;
-		if ( refgid != parpset_[idx].gid_ ||
-			reftid != parpset_[idx].tid_ )
-		    break;
-	    }
-
-	    rid = parpset_[idx].rid_;
-	    const float zval = datapointset_.z( rid );
-	    float* vals = datapointset_.getValues( rid );
-	    int lowz;
-	    DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
-	    const int highz = lowz + 1;
-	    bool isfulldataok = datarg.includes(lowz-1,false) &&
-				datarg.includes(highz+1,false);
-	    bool canusepartdata = data.nrsamples_<4 &&
-				  datarg.includes(lowz,false) &&
-				  datarg.includes(highz,false);
-	    if ( isfulldataok || canusepartdata )
-		computeAndSetVals( data, refstep, zval, vals );
-	}
-
-	return;
-    }
-
-    for ( int idx=rid; idx<datapointset_.size(); idx++ )
-    {
-	if ( idx != rid && info.binID() != datapointset_.binID(idx) )
-	    break;
-
-	 const float zval = datapointset_.z(idx);
-	float* vals = datapointset_.getValues( idx );
-	int lowz;
-	DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
-	const int highz = lowz + 1;
-	bool isfulldataok = datarg.includes(lowz-1,false) &&
-			    datarg.includes(highz+1,false);
-	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz,false)
-			      && datarg.includes(highz,false);
-	if ( isfulldataok || canusepartdata )
-	    computeAndSetVals( data, refstep, zval, vals );
-    }
-}
-
-
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    const Coord coord = info.coord;
-    DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(coord)
-				      : datapointset_.findFirst(info.binID());
-    if ( rid< 0 && datapointset_.is2D() )
-    {
-	//TODO remove when datapointset is snaped
-	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
-	{
-	    if ( coord > datapointset_.coord(idx) &&
-		 coord < datapointset_.coord(idx+1) )
-	    {
-		const double distn = coord.distTo( datapointset_.coord(idx) );
-		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
-		if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
-		    { rid = idx; break; }
-		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
-		    { rid = idx+1; break; }
-	    }
-	}
-    }
-
-    if ( rid<0 ) return;
+    const TrcKey tkey = info.trcKey();
+    const BinID dpsbid = tkey.is2D() == datapointset_.is2D() ? tkey.position()
+					: SI().transform( tkey.getCoord() );
+    DataPointSet::RowID rid = datapointset_.findFirst( dpsbid );
+    if ( rid < 0 )
+	return;
 
     const int desnrvals = desoutputs_.size() + firstattrcol_;
     if ( datapointset_.nrCols() < desnrvals )
@@ -1467,7 +1220,8 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( info.binID() != datapointset_.binID(idx) ) break;
+	if ( datapointset_.binID(idx) != dpsbid )
+	    break;
 
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
@@ -1510,19 +1264,15 @@ bool TableOutput::wantsOutput( const Coord& coord ) const
 
 bool TableOutput::wantsOutput( const TrcKey& tkey ) const
 {
-    for ( int pairidx=0; pairidx<parpset_.size(); pairidx++ )
-    {
-	if ( parpset_[pairidx].matchesTrcKey(tkey) )
-	    return true;
-    }
-
-    return false;
+    return tkey.is2D() == datapointset_.is2D() ?
+			datapointset_.findFirst( tkey ) > -1 :
+			datapointset_.findFirst( tkey.getCoord() ) > -1;
 }
 
 
 bool TableOutput::useCoords() const
 {
-    return datapointset_.is2D();
+    return false;
 }
 
 
@@ -1551,51 +1301,9 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						const Coord& coord, float zstep,
 						TypeSet<float>& exactz) const
 {
-    TableOutput* myself = const_cast<TableOutput*>(this);
-    DataPointSet::RowID rid = datapointset_.findFirst( coord );
-    if ( rid< 0 )
-    {
-	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
-	{
-	    if ( coord > datapointset_.coord(idx) &&
-		 coord < datapointset_.coord(idx+1) )
-	    {
-		const double distn = coord.distTo( datapointset_.coord(idx) );
-		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
-		if ( distn<distnp1 && distn<=maxdisttrcs_/2 &&
-		    ( mIsUdf(distpicktrc_[idx]) || distn<distpicktrc_[idx]) )
-		{
-		    rid = idx;
-		    myself->distpicktrc_[idx] = mCast(float,distn);
-		    break;
-		}
-		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 &&
-		  (mIsUdf(distpicktrc_[idx+1]) || distnp1<distpicktrc_[idx+1]) )
-		{
-		    rid = idx+1;
-		    myself->distpicktrc_[idx+1] = mCast(float,distnp1);
-		    break;
-		}
-	    }
-	}
-    }
-    else
-    {
-	const double dist = coord.distTo(datapointset_.coord(rid));
-	myself->distpicktrc_[rid] = mCast(float,dist);
-    }
-
-    TypeSet< Interval<int> > sampleinterval;
-    if ( rid< 0 ) return sampleinterval;
-
-    Coord truecoord = datapointset_.coord( rid );
-    for ( int idx=rid; idx<datapointset_.size(); idx++ )
-    {
-	if ( truecoord != datapointset_.coord( idx ) ) break;
-	addLocalInterval( sampleinterval, exactz, idx, zstep );
-    }
-
-    return sampleinterval;
+    TrcKey tkey;
+    tkey.setIs2D( datapointset_.is2D() ).setFrom( coord );
+    return getLocalZRanges( tkey, zstep, exactz );
 }
 
 
@@ -1607,30 +1315,19 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     if ( tkey.isUdf() )
 	return sampleinterval;
 
-    bool foundamatch = false;
-    int pairidx;
-    for ( pairidx=0; pairidx<parpset_.size(); pairidx++ )
-    {
-	if ( parpset_[pairidx].matchesTrcKey(tkey) )
-	{
-	    foundamatch = true;
-	    break;
-	}
-    }
-    if ( !foundamatch ) return sampleinterval;
+    const BinID dpsbid = tkey.is2D() == datapointset_.is2D() ? tkey.position()
+					: SI().transform( tkey.getCoord() );
+    DataPointSet::RowID rid = datapointset_.findFirst( dpsbid );
+    if ( rid < 0 )
+	return sampleinterval;
 
-    DataPointSet::RowID rid = parpset_[pairidx].rid_;
-    if ( rid< 0 ) return sampleinterval;	//should never happen
-
-    Pos::GeomID refgid = parpset_[pairidx].gid_;
-    Pos::TraceID reftid = parpset_[pairidx].tid_;
     addLocalInterval( sampleinterval, exactz, rid, zstep );
-    for ( int idx=pairidx+1; idx<parpset_.size(); idx++ )
+    for ( int idx=rid+1; idx<datapointset_.size(); idx++ )
     {
-	if ( refgid != parpset_[idx].gid_ || reftid != parpset_[idx].tid_ )
+	if ( datapointset_.binID(idx) != dpsbid )
 	    break;
-
-	addLocalInterval( sampleinterval, exactz, parpset_[idx].rid_, zstep );
+	
+	addLocalInterval( sampleinterval, exactz, idx, zstep );
     }
 
     return sampleinterval;

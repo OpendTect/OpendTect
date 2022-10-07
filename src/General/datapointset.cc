@@ -26,7 +26,7 @@ static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
 #define mAddMembs(is2d,mini) \
 	  is2d_(is2d) \
-	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
+	, nrfixedcols_(mini?1:4) \
 	, minimal_(mini)
 
 
@@ -43,30 +43,54 @@ static void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
 }
 
 
+mStartAllowDeprecatedSection
+
 DataPointSet::Pos::Pos()
-    : offsx_(0), offsy_(0), z_(0), nr_(0)
+    : offsx_(0), offsy_(0), z_(0)
+    , binid_(const_cast<BinID&>(trckey_.position()))
+    , nr_(binid_.trcNr())
 {}
 
-
-DataPointSet::Pos::Pos( const BinID& bid, float _z )
-    : binid_(bid), nr_(0), z_(_z)
-    , offsx_(0), offsy_(0)
-{}
+mStopAllowDeprecatedSection
 
 
-DataPointSet::Pos::Pos( const Coord& c, float _z )
-    : binid_(SI().transform(c))
-    , z_(_z)
+DataPointSet::Pos::Pos( const BinID& bid, float z )
+    : Pos()
 {
+    trckey_.setPosition( bid );
+    z_ = z;
+}
+
+
+DataPointSet::Pos::Pos( ::Pos::GeomID geomid, int trcnr, float z )
+    : Pos()
+{
+    trckey_.setPosition( geomid, trcnr );
+    z_ = z;
+}
+
+
+DataPointSet::Pos::Pos( const Coord& c, float z )
+    : Pos()
+{
+    z_ = z;
     setOffs( c );
 }
 
 
 DataPointSet::Pos::Pos( const Coord3& c )
-    : binid_(SI().transform(c))
-    , z_(( float ) c.z)
+    : Pos()
 {
+    z_ = float( c.z );
     setOffs( c );
+}
+
+
+DataPointSet::Pos::Pos( const DataPointSet::Pos& oth )
+    : Pos()
+{
+    trckey_ = oth.trckey_;
+    z_ = oth.z_;
 }
 
 
@@ -74,17 +98,36 @@ DataPointSet::Pos::~Pos()
 {}
 
 
+DataPointSet::Pos& DataPointSet::Pos::operator =( const DataPointSet::Pos& oth )
+{
+    if ( this != &oth )
+    {
+	trckey_ = oth.trckey_;
+	z_ = oth.z_;
+    }
+
+    return *this;
+}
+
+
 void DataPointSet::Pos::setOffs( const Coord& c )
 {
-    const Coord sc( SI().transform(binid_) );
+    const Coord sc = trckey_.getCoord();
     offsx_ = ( float ) (c.x - sc.x);
     offsy_ = ( float ) (c.y - sc.y);
 }
 
 
+void DataPointSet::Pos::set( ::Pos::GeomID geomid, int trcnr )
+{
+    trckey_.setPosition( geomid, trcnr );
+    offsx_ = offsy_ = 0;
+}
+
+
 void DataPointSet::Pos::set( const Coord& c )
 {
-    binid_ = SI().transform( c );
+    trckey_.setFrom( c );
     setOffs( c );
 }
 
@@ -98,7 +141,7 @@ void DataPointSet::Pos::set( const Coord3& c )
 
 Coord DataPointSet::Pos::coord() const
 {
-    Coord sc( SI().transform(binid_) );
+    Coord sc = trckey_.getCoord();
     sc.x += offsx_; sc.y += offsy_;
     return sc;
 }
@@ -132,8 +175,7 @@ void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,
 	vals += pos_.offsy_;
 	vals += grp_;
     }
-    if ( is2d )
-	vals += (float)pos_.nr_;
+
     for ( int idx=0; idx<data_.size(); idx++ )
 	vals += data_[idx];
 }
@@ -237,27 +279,31 @@ int nextStep() override
     if ( mIsUdf(curz) )
 	return MoreToDo();
 
-    const Coord crd( prov_.curCoord() );
-    dr_.pos_.set( crd );
-    if ( !p3d_ )
-	dr_.pos_.nr_ = p2d_->curNr();
-    dr_.pos_.z_ = curz;
+    DataPointSet::Pos& pos = dr_.pos_;
+    if ( p3d_ )
+	pos.set( p3d_->curBinID() );
+    else if ( p2d_ )
+	pos.set( p2d_->curGeomID(), p2d_->curNr() );
+
+    pos.z_ = curz;
     if ( filt_ )
     {
 	if ( f3d_ )
 	{
-	    if ( filteraccept_ ? !f3d_->includes(dr_.pos_.binid_,dr_.pos_.z_) :
-				 f3d_->includes(dr_.pos_.binid_,dr_.pos_.z_) )
+	    if ( filteraccept_ != f3d_->includes(pos.binID(),pos.z_) )
 		return MoreToDo();
 	}
 	else if ( f2d_ )
 	{
-	    if ( filteraccept_ ? !f2d_->includes(dr_.pos_.nr_,dr_.pos_.z_) :
-				f2d_->includes(dr_.pos_.nr_,dr_.pos_.z_) )
+	    if ( filteraccept_ !=
+		    f2d_->includes(pos.geomID(),pos.trcNr(),pos.z_) )
 		return MoreToDo();
 	}
 	if ( filt_->hasZAdjustment() )
-	    dr_.pos_.z_ = filt_->adjustedZ( crd, (float) dr_.pos_.z_ );
+	{
+	    const Coord crd( prov_.curCoord() );
+	    pos.z_ = filt_->adjustedZ( crd, (float) pos.z_ );
+	}
     }
 
     dps_.addRow( dr_ );
@@ -319,19 +365,19 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	data_.add( new DataColDef(pdvs.colDef(idx)) );
 
     float* vals = new float [ bvssz ];
-    BinID bid; DataPointSet::DataRow dr;
+    BinID bid;
+    DataPointSet::DataRow dr;
     dr.data_.setSize( bvssz - startidx );
     BinIDValueSet::SPos bvspos;
     while ( bvs.next(bvspos) )
     {
-	bvs.get( bvspos, dr.pos_.binid_, vals );
+	bvs.get( bvspos, bid, vals );
+	dr.pos_.trckey_.setPosition( bid );
 	dr.pos_.z_ = vals[0];
 	if ( isdps )
 	{
 	    dr.pos_.setBinIDOffsets( vals[1], vals[2] );
 	    dr.grp_ = (short)vals[3];
-	    if ( is2d_ )
-		dr.pos_.nr_ = mNINT32(vals[4]);
 	}
 	for ( int idx=startidx; idx<bvssz; idx++ )
 	    dr.data_[idx-startidx] = vals[idx];
@@ -355,14 +401,15 @@ DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 
     for ( RowID irow=0; irow<dps.size(); irow++ )
     {
-	DataRow dr( dps.dataRow(irow) );
+	const DataRow dr( dps.dataRow(irow) );
+	const DataPointSet::Pos& pos = dr.pos_;
 	bool inc = true;
 	if ( typ == -1 )
-	    inc = filt.includes( dr.pos_.coord(), dr.pos_.z_ );
+	    inc = filt.includes( pos.coord(), pos.z_ );
 	else if ( f3d )
-	    inc = f3d->includes( dr.pos_.binID(), dr.pos_.z_ );
+	    inc = f3d->includes( pos.binID(), pos.z_ );
 	else if ( f2d )
-	    inc = f2d->includes( dr.pos_.nr_, dr.pos_.z_ );
+	    inc = f2d->includes( pos.geomID(), pos.trcNr(), pos.z_ );
 
 	if ( inc )
 	    addRow( dr );
@@ -404,14 +451,13 @@ DataPointSet& DataPointSet::operator =( const DataPointSet& dps )
 
 void DataPointSet::initPVDS()
 {
-    if ( !minimal_ )
-    {
-	data_.add( new DataColDef(sKey::XOffset()) );
-	data_.add( new DataColDef(sKey::YOffset()) );
-	data_.add( new DataColDef(sKey::SelectionStatus()) );
-    }
-    if ( is2d_ )
-	data_.add( new DataColDef(sKey::TraceNr()) );
+    bivSet().setIs2D( is2D() );
+    if ( minimal_ )
+	return;
+
+    data_.add( new DataColDef(sKey::XOffset()) );
+    data_.add( new DataColDef(sKey::YOffset()) );
+    data_.add( new DataColDef(sKey::SelectionStatus()) );
 }
 
 
@@ -527,13 +573,19 @@ BinIDValueSet& DataPointSet::bivSet()
 DataPointSet::Pos DataPointSet::pos( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Pos());
+    const BinID bid = binID( rid );
+    Pos pos;
+    if ( is2D() )
+	pos.set( ::Pos::GeomID(bid.lineNr()), bid.trcNr() );
+    else
+	pos.set( bid );
+
     const float* vals = bivSet().getVals( bvsidxs_[rid] );
-    Pos p( binID(rid), vals[0] );
+    pos.z_ = vals[0];
     if ( !minimal_ )
-	p.setBinIDOffsets( vals[1], vals[2] );
-    if ( is2d_ )
-	p.nr_ = mNINT32(vals[nrfixedcols_-1]);
-    return p;
+	pos.setBinIDOffsets( vals[1], vals[2] );
+
+    return pos;
 }
 
 
@@ -561,6 +613,13 @@ BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 }
 
 
+TrcKey DataPointSet::trcKey( DataPointSet::RowID rid ) const
+{
+    mChkRowID(rid,TrcKey::udf());
+    return pos(rid).trckey_;
+}
+
+
 Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Coord::udf());
@@ -575,11 +634,17 @@ float DataPointSet::z( DataPointSet::RowID rid ) const
 }
 
 
+::Pos::GeomID DataPointSet::geomID( DataPointSet::RowID rid ) const
+{
+    mChkRowID(rid,::Pos::GeomID::udf());
+    return pos(rid).geomID();
+}
+
+
 int DataPointSet::trcNr( DataPointSet::RowID rid ) const
 {
-    mChkRowID(rid,0); if ( !is2d_ ) return 0;
-    const float fnr = bivSet().getVal( bvsidxs_[rid], nrfixedcols_-1 );
-    return mNINT32(fnr);
+    mChkRowID(rid,0);
+    return pos(rid).trcNr();
 }
 
 
@@ -681,8 +746,8 @@ void DataPointSet::addRow( const DataPointSet::DataRow& dr )
 bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
 {
     bool alreadyin = false;
-    BinIDValueSet::SPos bvspos = bivSet().find( dr.pos_.binid_ );
-    while ( bvspos.isValid() && bivSet().getBinID(bvspos) == dr.pos_.binid_ )
+    BinIDValueSet::SPos bvspos = bivSet().find( dr.pos_.binID() );
+    while ( bvspos.isValid() && bivSet().getBinID(bvspos) == dr.pos_.binID() )
     {
 	const float zval = *bivSet().getVals( bvspos );
 	if ( mIsZero(zval-dr.pos_.z_,mDefEps) )
@@ -882,11 +947,11 @@ DataPointSet::RowID DataPointSet::getRowID( BinIDValueSet::SPos bvspos ) const
 
 DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos ) const
 {
-    BinIDValueSet::SPos bpos = bivSet().find( dpos.binid_ );
+    BinIDValueSet::SPos bpos = bivSet().find( dpos.binID() );
     bivSet().prev( bpos );
     while ( bivSet().next(bpos) )
     {
-	if ( bivSet().getBinID(bpos) != dpos.binid_ )
+	if ( bivSet().getBinID(bpos) != dpos.binID() )
 	    break;
 
 	const float zval = bivSet().getVals(bpos)[0];
@@ -938,6 +1003,16 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     }
 
     return resrowidx;
+}
+
+
+DataPointSet::RowID DataPointSet::findFirst( const TrcKey& tkey ) const
+{
+    if ( tkey.is2D() == !this->is2D() )
+	return -1;
+
+    BinIDValueSet::SPos bpos = bivSet().find( tkey.position() );
+    return getRowID( bpos );
 }
 
 

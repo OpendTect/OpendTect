@@ -78,7 +78,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 	attobj = zrgfld_->attachObj();
     }
 
-    if ( su.withrandom_ )
+    if ( su.withrandom_ && !su.is2d_ )
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 			    BoolInpSpec(true,tr("Random"),tr("Regular")) );

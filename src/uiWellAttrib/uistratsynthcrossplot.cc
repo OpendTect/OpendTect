@@ -301,8 +301,6 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 	uiMSG().error( tr("No valid step provided for data extraction"));
 
     const float halfstep = step / 2.f;
-    const int trcnr = trcinfo.trcNr();
-    const Coord trcpos = trcinfo.coord;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
     const ZSampling win( extrwin.start, extrwin.stop, step );
@@ -323,8 +321,7 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 
 	DataPointSet::DataRow dr;
 	dr.data_.setSize( nrcols, mUdf(float) );
-	dr.pos_.nr_ = trcnr;
-	dr.pos_.set( trcpos );
+	dr.pos_.trckey_ = trcinfo.trcKey();
 	dr.pos_.z_ = twt;
 	dr.data_[depthidx] = dah;
 	dps.addRow( dr );
@@ -350,8 +347,6 @@ void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
     if ( subseq.isEmpty() )
 	return;
 
-    const int trcnr = trcinfo.trcNr();
-    const Coord trcpos = trcinfo.coord;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
     float dah = subseq.startDepth();
@@ -360,8 +355,7 @@ void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
 	const float laythickness = subseq.layers()[ilay]->thickness();
 	DataPointSet::DataRow dr;
 	dr.data_.setSize( nrcols, mUdf(float) );
-	dr.pos_.nr_ = trcnr;
-	dr.pos_.set( trcpos );
+	dr.pos_.trckey_ = trcinfo.trcKey();
 	float depth = dah + laythickness/2.f;
 	dr.pos_.z_ = d2tmodel.getTime( depth );
 	if ( SI().depthsInFeet() )
