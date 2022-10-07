@@ -10,16 +10,15 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 
 #include "attribsel.h"
-#include "mousecursor.h"
-#include "survinfo.h"
-#include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "visevent.h"
-#include "vistexturechannel2rgba.h"
-#include "visobject.h"
+#include "coltabsequence.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "seisbuf.h"
+#include "mousecursor.h"
+#include "survinfo.h"
+#include "visevent.h"
+#include "visobject.h"
+#include "vistexturechannel2rgba.h"
 
 namespace visSurvey {
 

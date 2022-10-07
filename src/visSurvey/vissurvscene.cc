@@ -9,10 +9,7 @@ ________________________________________________________________________
 
 #include "vissurvscene.h"
 
-#include "binidvalue.h"
 #include "color.h"
-#include "trckeyzsampling.h"
-#include "envvars.h"
 #include "fontdata.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -20,7 +17,12 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "survinfo.h"
 #include "trckeyvalue.h"
+#include "trckeyzsampling.h"
 #include "uistring.h"
+#include "uistrings.h"
+#include "zaxistransform.h"
+#include "zdomain.h"
+
 #include "visannot.h"
 #include "visdataman.h"
 #include "visevent.h"
@@ -28,17 +30,14 @@ ________________________________________________________________________
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolygonselection.h"
+#include "visrandomtrackdisplay.h"
 #include "visscenecoltab.h"
 #include "visselman.h"
+#include "vissurvobj.h"
+#include "vistopbotimage.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
-#include "vissurvobj.h"
-#include "visrandomtrackdisplay.h"
 #include "visvolumedisplay.h"
-#include "vistopbotimage.h"
-#include "zaxistransform.h"
-#include "zdomain.h"
-#include "uistrings.h"
 
 
 mCreateFactoryEntry( visSurvey::Scene )

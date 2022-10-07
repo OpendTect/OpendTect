@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "color.h"
 #include "datapointset.h"
 #include "executor.h"
-#include "randcolor.h"
 #include "selector.h"
 
 #include "viscoord.h"

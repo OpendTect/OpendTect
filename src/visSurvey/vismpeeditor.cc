@@ -11,11 +11,9 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "emeditor.h"
-#include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "math2.h"
 
-#include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "vismarkerset.h"

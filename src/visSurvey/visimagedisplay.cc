@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "pickset.h"
 
 #include "visevent.h"
-#include "viscoord.h"
-#include "vistexturecoords.h"
 #include "vistransform.h"
 
 namespace visSurvey

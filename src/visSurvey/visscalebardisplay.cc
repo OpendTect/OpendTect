@@ -10,15 +10,9 @@ ________________________________________________________________________
 #include "visscalebardisplay.h"
 
 #include "color.h"
-#include "pickset.h"
-#include "survinfo.h"
-#include "viscoord.h"
 #include "visdatagroup.h"
-#include "visdrawstyle.h"
 #include "visevent.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vislines.h"
 #include "vistransform.h"
 #include "visscalebar.h"
 

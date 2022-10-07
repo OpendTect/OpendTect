@@ -14,11 +14,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "linekey.h"
 #include "survinfo.h"
-#include "posinfo2dsurv.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
@@ -30,7 +26,6 @@ ________________________________________________________________________
 #include "vismpe.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
-#include "vistransmgr.h"
 #include "visplanedatadisplay.h"
 
 mCreateFactoryEntry( visSurvey::MPEClickCatcher )

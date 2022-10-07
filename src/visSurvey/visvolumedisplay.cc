@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "color.h"
-#include "ioman.h"
 #include "marchingcubes.h"
 #include "paralleltask.h"
 #include "pickset.h"

@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "color.h"
-#include "convmemvalseries.h"
 #include "polylinend.h"
 #include "randomlinegeom.h"
 #include "seisdatapackzaxistransformer.h"
