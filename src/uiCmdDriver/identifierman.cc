@@ -32,9 +32,22 @@ static const char* getSpecDir( const char* envvar, const char* defdir )
     return retdir.buf();
 }
 
-#define getSnapshotsDir() getSpecDir( "DTECT_SNAPSHOTS_DIR", "Snapshots" )
 #define getExportDir() getSpecDir( "DTECT_EXPORT_DIR", "Export" )
 #define getImportDir() getSpecDir( "DTECT_IMPORT_DIR", "Import" )
+
+
+static BufferString getSnapshotsDir()
+{
+    static BufferString retdir = GetEnvVar( "DTECT_SNAPSHOTS_DIR" );
+    if ( retdir.isEmpty() || !File::isDirectory(retdir) )
+    {
+	retdir = FilePath( GetScriptsLogDir(), "Pictures" ).fullPath();
+	if ( !File::exists(retdir) )
+	    File::createDir( retdir );
+    }
+
+    return retdir;
+}
 
 
 IdentifierManager::IdentifierManager()
