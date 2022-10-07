@@ -1445,7 +1445,3 @@ bool ElasticPropSelection::checkForValidSelPropsDesc(
 
     return noerror;
 }
-
-
-ElasticPropGuess::~ElasticPropGuess()
-{}
