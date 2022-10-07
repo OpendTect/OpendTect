@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "objectset.h"
-#include "refcount.h"
 
 //!Helper class to RefObjectSet and ManagedObjectSet
 template <class T>
@@ -78,37 +77,6 @@ public:
 private:
 
     static void			delFunc(T* ptr) { delete ptr; }
-};
-
-
-/*!ObjectSet for reference counted objects. All members are referenced
-   once when added to the set, and unreffed when removed from the set.
-*/
-
-
-template <class T>
-mClass(Basic) RefObjectSet : public ManagedObjectSetBase<T>
-{
-public:
-
-    typedef typename ObjectSet<T>::size_type	size_type;
-    typedef typename ObjectSet<T>::idx_type	idx_type;
-
-				RefObjectSet();
-				RefObjectSet(const RefObjectSet<T>&);
-				RefObjectSet(const ObjectSet<T>&);
-    RefObjectSet*		clone() const override
-				{ return new RefObjectSet(*this); }
-
-    RefObjectSet<T>&		operator=(const ObjectSet<T>&);
-    inline T*			replace(idx_type,T*) override;
-    inline void			insertAt(T*,idx_type) override;
-
-protected:
-
-    ObjectSet<T>&		doAdd(T*) override;
-    static void			unRef( T* ptr ) { unRefPtr(ptr); }
-
 };
 
 
@@ -222,46 +190,3 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 	}
 }
 
-
-template <class T> inline
-RefObjectSet<T>::RefObjectSet()
-    : ManagedObjectSetBase<T>( unRef )
-{}
-
-
-template <class T> inline
-RefObjectSet<T>::RefObjectSet( const ObjectSet<T>& os )
-    : ManagedObjectSetBase<T>( unRef )
-{ *this = os; }
-
-
-template <class T> inline
-RefObjectSet<T>::RefObjectSet( const RefObjectSet<T>& os )
-    : ManagedObjectSetBase<T>( unRef )
-{ *this = os; }
-
-
-template <class T> inline
-RefObjectSet<T>& RefObjectSet<T>::operator =(const ObjectSet<T>& os)
-{ ObjectSet<T>::operator=(os); return *this; }
-
-
-template <class T> inline
-T* RefObjectSet<T>::replace( idx_type vidx, T *ptr )
-{
-    refPtr( ptr );
-    return ManagedObjectSetBase<T>::replace( vidx, ptr );
-}
-
-
-template <class T> inline
-void RefObjectSet<T>::insertAt( T *ptr, idx_type vidx )
-{
-    refPtr( ptr );
-    ManagedObjectSetBase<T>::insertAt( ptr, vidx );
-}
-
-
-template <class T> inline
-ObjectSet<T>& RefObjectSet<T>::doAdd( T *ptr )
-{ refPtr( ptr ); return ObjectSet<T>::doAdd(ptr); }

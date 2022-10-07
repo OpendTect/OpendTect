@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "atomic.h"
-#include "objectset.h"
+#include "manobjectset.h"
 #include "thread.h"
 
 template <class T> class WeakPtr;
@@ -320,7 +320,6 @@ mClass(Basic) WeakPtrSet : public RefCount::WeakPtrSetBase
 public:
 
     typedef Threads::SpinLock		LockType;
-    typedef TypeSet<WeakPtr<T> >	SetType;
     typedef int				idx_type;
     typedef int				size_type;
 
@@ -342,7 +341,7 @@ public:
 private:
 
     mutable LockType	lock_;
-    SetType		ptrs_;
+    ManagedObjectSet<WeakPtr<T> >	ptrs_;
 
 };
 
@@ -655,10 +654,11 @@ bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
     const bool docleanup = blockcleanup_.setIfValueIs( 0, -1, nullptr );
     for ( int idx=ptrs_.size()-1; idx>=0; idx-- )
     {
-	if ( docleanup && !ptrs_[idx] )
+	const WeakPtr<T>& ptr = *ptrs_[idx];
+	if ( docleanup && !ptr )
 	    { ptrs_.removeSingle( idx ); continue; }
 
-	if ( ptrs_[idx]==toadd )
+	if ( ptr==toadd )
 	{
 	    if ( docleanup )
 		blockcleanup_ = 0;
@@ -670,7 +670,7 @@ bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
     if ( docleanup )
 	blockcleanup_ = 0;
 
-    ptrs_ += toadd;
+    ptrs_ += new WeakPtr<T>( toadd );
     lock_.unLock();
 
     return true;
@@ -730,8 +730,8 @@ template <class T> inline
 RefMan<T> WeakPtrSet<T>::operator[]( int idx )
 {
     lock_.lock();
-    RefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() :
-							RefMan<T>( nullptr );
+    RefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx]->get()
+					: RefMan<T>( nullptr );
     lock_.unLock();
     return res;
 }
@@ -741,7 +741,7 @@ template <class T> inline
 ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
 {
     lock_.lock();
-    ConstRefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() :
+    ConstRefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx]->get() :
 					       ConstRefMan<T>( nullptr );
     lock_.unLock();
     return res;
@@ -755,7 +755,7 @@ int WeakPtrSet<T>::indexOf( const T* p ) const
     int res = -1;
     for ( int idx=0; idx<ptrs_.size(); idx++ )
     {
-	if ( ptrs_[idx].get().ptr()==p )
+	if ( ptrs_[idx]->get().ptr()==p )
 	{
 	    res = idx;
 	    break;
@@ -763,4 +763,89 @@ int WeakPtrSet<T>::indexOf( const T* p ) const
     }
     lock_.unLock();
     return res;
+}
+
+
+/*!ObjectSet for reference counted objects. All members are referenced
+   once when added to the set, and unreffed when removed from the set.
+*/
+
+
+template <class T>
+mClass(Basic) RefObjectSet : public ManagedObjectSetBase<T>
+{
+public:
+
+    typedef typename ObjectSet<T>::size_type	size_type;
+    typedef typename ObjectSet<T>::idx_type	idx_type;
+
+				RefObjectSet();
+				RefObjectSet(const RefObjectSet<T>&);
+				RefObjectSet(const ObjectSet<T>&);
+    RefObjectSet*		clone() const override
+				{ return new RefObjectSet(*this); }
+
+    RefObjectSet<T>&		operator=(const ObjectSet<T>&);
+    inline T*			replace(idx_type,T*) override;
+    inline void			insertAt(T*,idx_type) override;
+
+protected:
+
+    ObjectSet<T>&		doAdd(T*) override;
+    static void			unRef( T* ptr ) { unRefPtr(ptr); }
+
+};
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet()
+    : ManagedObjectSetBase<T>( unRef )
+{}
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet( const ObjectSet<T>& os )
+    : ManagedObjectSetBase<T>( unRef )
+{
+    *this = os;
+}
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet( const RefObjectSet<T>& os )
+    : ManagedObjectSetBase<T>( unRef )
+{
+    *this = os;
+}
+
+
+template <class T> inline
+RefObjectSet<T>& RefObjectSet<T>::operator =(const ObjectSet<T>& os)
+{
+    ObjectSet<T>::operator=(os);
+    return *this;
+}
+
+
+template <class T> inline
+T* RefObjectSet<T>::replace( idx_type vidx, T *ptr )
+{
+    refPtr( ptr );
+    return ManagedObjectSetBase<T>::replace( vidx, ptr );
+}
+
+
+template <class T> inline
+void RefObjectSet<T>::insertAt( T *ptr, idx_type vidx )
+{
+    refPtr( ptr );
+    ManagedObjectSetBase<T>::insertAt( ptr, vidx );
+}
+
+
+template <class T> inline
+ObjectSet<T>& RefObjectSet<T>::doAdd( T *ptr )
+{
+    refPtr( ptr );
+    return ObjectSet<T>::doAdd(ptr);
 }
