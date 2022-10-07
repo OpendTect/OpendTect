@@ -7,9 +7,10 @@
 
 SET(OD_MODULE_DEPS General )
 SET(OD_MODULE_SOURCES 
-	sqldatabase.cc sqlquery.cc
-	mantisdatabase.cc mantistables.cc
-	databaseobject.cc )
+	sqldatabase.cc
+	sqlquery.cc
+	databaseobject.cc
+)
 
 # SET(USESQL 1)
 
