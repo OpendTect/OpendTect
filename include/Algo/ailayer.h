@@ -210,7 +210,7 @@ public:
     RefLayer&	operator =(const VTILayer&);
     RefLayer*	clone() const override;
     Type	getType() const override		{ return VTI; }
-    float	getFracRho() const			{ return fracrho_; }
+    float	getFracRho() const override		{ return fracrho_; }
     RefLayer&	setFracRho(float) override;
 
     bool	isValidFracRho() const override;
@@ -243,7 +243,7 @@ public:
     RefLayer&	operator =(const HTILayer&);
     RefLayer*	clone() const override;
     Type	getType() const override		{ return HTI; }
-    float	getFracAzi() const			{ return fracazi_; }
+    float	getFracAzi() const override		{ return fracazi_; }
     RefLayer&	setFracAzi(float) override;
     bool	isValidFracAzi() const override;
 
