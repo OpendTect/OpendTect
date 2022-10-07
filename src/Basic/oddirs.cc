@@ -214,6 +214,15 @@ mExternC(Basic) const char* GetScriptsDir()
 }
 
 
+mExternC(Basic) const char* GetScriptsLogDir()
+{
+    mDeclStaticString( ret );
+    const char* envval = GetEnvVar( "DTECT_SCRIPTS_LOG_DIR" );
+    ret = envval && *envval ? envval : GetSurveyScriptsLogDir();
+    return ret.buf();
+}
+
+
 mExternC(Basic) const char* GetShellScript( const char* nm )
 {
     mDeclStaticString( res );
@@ -723,6 +732,18 @@ mExternC(Basic) const char* GetSurveyScriptsDir()
 {
     mDeclStaticString( ret );
     getSurveySubDir( "Scripts", ret );
+    return ret;
+}
+
+
+mExternC(Basic) const char* GetSurveyScriptsLogDir()
+{
+    mDeclStaticString( ret );
+    getSurveySubDir( "Scripts", ret );
+    ret = FilePath( ret, "Log" ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+
     return ret;
 }
 

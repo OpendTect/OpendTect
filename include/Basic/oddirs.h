@@ -189,9 +189,11 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 
 
 mGlobal(Basic) const char* GetScriptsDir();
+mGlobal(Basic) const char* GetScriptsLogDir();
 mGlobal(Basic) const char* GetSurveyExportDir();
 mGlobal(Basic) const char* GetSurveyPicturesDir();
 mGlobal(Basic) const char* GetSurveyScriptsDir();
+mGlobal(Basic) const char* GetSurveyScriptsLogDir();
 mGlobal(Basic) const char* GetSurveyTempDir();
 mGlobal(Basic) const char* GetSurveyProcDir();
 
