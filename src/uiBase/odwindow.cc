@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
+#include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "keyboardevent.h"
 #include "oddirs.h"
@@ -714,6 +716,12 @@ void uiMainWinBody::saveSettings()
 void uiMainWinBody::readSettings()
 {
     const BufferString fnm = getSettingsFileName();
+    if ( !File::exists(fnm) )
+    {
+	restoreDefaultState();
+	return;
+    }
+
     QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
     QSize qwinsz( settings.value("size", QSize(200,200)).toSize() );
@@ -742,11 +750,29 @@ void uiMainWinBody::readSettings()
     }
 
     prefpos_.setXY( qwinpos.x(), qwinpos.y() );
+
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
 
     updateToolbarsMenu();
     hasguisettings_ = true;
+}
+
+
+void uiMainWinBody::restoreDefaultState()
+{
+    const char* deffnm = "qtdefaultstate.ini";
+    const BufferString fp =
+	    GetSetupDataFileName(ODSetupLoc_ApplSetupPref,deffnm,true);
+    if ( !File::exists(fp) )
+	return;
+
+    QSettings defsetts( fp.buf(), QSettings::IniFormat );
+    defsetts.beginGroup( NamedObject::name().buf() );
+    QVariant defstate = defsetts.value("state");
+    restoreState( defstate.toByteArray() );
+    defsetts.endGroup();
+    updateToolbarsMenu();
 }
 
 

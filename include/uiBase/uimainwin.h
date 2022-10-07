@@ -135,6 +135,7 @@ public:
     void		addToolBarBreak();
 
     uiMenu&		getToolbarsMenu() const;
+    void		restoreDefaultState();
 
     const ObjectSet<uiToolBar>& toolBars() const;
     const ObjectSet<uiDockWin>& dockWins() const;
@@ -221,6 +222,7 @@ protected:
 
     void		saveSettings();
     void		readSettings();
+
     void		saveAsPDF_PS(const char* fnm,int w,int h,
 				     int res);
 
