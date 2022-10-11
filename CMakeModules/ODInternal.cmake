@@ -101,9 +101,7 @@ install( FILES doc/Programmer/pluginexample/CMakeLists.txt
 install( DIRECTORY doc/Programmer/batchprogexample
 	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer )
 
-OD_CURRENT_MONTH( MONTH )
-OD_CURRENT_YEAR( YEAR )
-
+string(TIMESTAMP YEAR %Y)
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
 		${CMAKE_BINARY_DIR}/CMakeModules/license.txt @ONLY )
 
@@ -168,7 +166,6 @@ install ( FILES ${TEXTFILES} DESTINATION ${MISC_INSTALL_PREFIX} )
 if( APPLE )
     install( DIRECTORY data/install_files/macscripts/Contents
 	     DESTINATION . )
-    OD_CURRENT_YEAR( YEAR )
     set( BUNDLEEXEC od_main )
     set( BUNDLEICON "od.icns" )
     set( BUNDLEID "com.dgbes.opendtect" )
@@ -254,7 +251,7 @@ if( UNIX )
 endif()
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 
-OD_CURRENT_DATE( DATE )
+string(TIMESTAMP DATE "%a %d %b %Y %H:%M:%S UTC" UTC )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
 		${CMAKE_BINARY_DIR}/include/Basic/buildinfo.h @ONLY )
 
