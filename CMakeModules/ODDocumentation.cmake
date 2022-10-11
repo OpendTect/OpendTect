@@ -53,7 +53,8 @@ macro( OD_BUILD_DOCUMENTATION )
 	
     configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
-    OD_CURRENT_YEAR( YEAR )
+    
+    string(TIMESTAMP YEAR %Y)
     configure_file( ${FOOTER}
 		${PROJECT_BINARY_DIR}/CMakeFiles/doxygenfooter.html @ONLY
 		IMMEDIATE)
