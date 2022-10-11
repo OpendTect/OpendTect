@@ -1925,6 +1925,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
     {
 	calcsetup.calctype_ = PreStack::PropCalc::Stats;
 	calcsetup.stattype_ = Stats::Average;
+	calcsetup.useangle_ = true;
     }
     else
     {
