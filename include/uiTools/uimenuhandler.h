@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uiparent.h"
 #include "menuhandler.h"
 #include "position.h"
@@ -66,7 +67,7 @@ public:
     const Geom::Point2D<double>& get2DPickedPos() const { return positionxy_; }
     void			set2DPickedPos(const Geom::Point2D<double>& pos)
 					{ positionxy_=pos; }
-    
+
     static int			fromTree();
     static int			fromScene();
 
@@ -100,3 +101,14 @@ protected:
     uiToolBar*			tb_;
     uiParent*			uiparent_;
 };
+
+
+mGlobal(uiTools) int	add2D3DToolButton(uiToolBar&,const char* iconnnm,
+				  const uiString& menuitmtxt,
+				  const CallBack& cb2d,const CallBack& cb3d,
+				  int* tmid2d =nullptr,int* itmid3d =nullptr);
+
+mGlobal(uiTools) void	add2D3DMenuItem(uiMenu&,const char* iconnnm,
+				  const uiString& menuitmtxt,
+				  const CallBack& cb2d,const CallBack& cb3d,
+				  int* tmid2d =nullptr,int* itmid3d =nullptr);

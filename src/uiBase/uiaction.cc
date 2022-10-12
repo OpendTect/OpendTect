@@ -228,7 +228,6 @@ void uiAction::updateToolTips()
 void uiAction::setMenu( uiMenu* menu )
 {
     delete menu_;
-
     menu_ = menu;
     if ( menu_ )
     {
@@ -242,6 +241,25 @@ void uiAction::setMenu( uiMenu* menu )
 	}
     }
 }
+
+
+uiMenu* uiAction::getMenu()
+{
+    return menu_;
+}
+
+
+const uiMenu* uiAction::getMenu() const
+{
+    return menu_;
+}
+
+
+const uiActionContainer* uiAction::getContainer() const
+{
+    return parentcontainer_;
+}
+
 
 
 void uiAction::setParentContainer( const uiActionContainer* parentcontainerin )

@@ -118,7 +118,7 @@ void uiToolBar::addButton( uiButton* button )
 
 void uiToolBar::addObject( uiObject* obj )
 {
-    QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : 0;
+    QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : nullptr;
     if ( qw )
     {
 	qtoolbar_->addWidget( qw );
@@ -149,7 +149,7 @@ uiString uiToolBar::getDispNm() const
 #define mHandleErr(erraction) \
     if ( !action ) \
     { \
-    	pErrMsg("Action not found"); \
+	pErrMsg("Action not found"); \
 	erraction; \
     }
 

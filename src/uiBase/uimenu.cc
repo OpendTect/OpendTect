@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
-#include "uistring.h"
 
 #include "keystrs.h"
 #include "menuhandler.h"
 #include "texttranslator.h"
+#include "uistring.h"
 
 #include "q_uiimpl.h"
 
@@ -274,17 +274,20 @@ void uiMenu::setIcon( const char* iconnm )
 
 
 const char* uiMenu::getIconName() const
-{ return iconnm_; }
+{
+    return iconnm_;
+}
 
 
 int uiMenu::exec()
 {
-    if ( !qmenu_ ) return -1;
+    if ( !qmenu_ )
+	return -1;
 
     if ( !interceptors_.isEmpty() )
     {
 	dointercept_ = false;
-	interceptaction_ = 0;
+	interceptaction_ = nullptr;
 	interceptors_.doCall( this );
 
 	if ( dointercept_ )
@@ -362,4 +365,6 @@ void uiMenu::doRemoveAction( mQtclass(QAction)* action )
 
 
 QWidget* uiMenu::getWidget()
-{ return qmenu_; }
+{
+    return qmenu_;
+}

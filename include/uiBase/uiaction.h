@@ -58,8 +58,9 @@ public:
     void		setMenu(uiMenu*);
 			//!<Becomes mine
 
-    uiMenu*		getMenu()		{ return menu_; }
-    const uiMenu*	getMenu() const		{ return menu_; }
+    uiMenu*		getMenu();
+    const uiMenu*	getMenu() const;
+    const uiActionContainer* getContainer() const;
 
     void		setShortcut(const char*);
 
@@ -178,7 +179,8 @@ public:
 				 */
     int				insertAction(const MenuItem&);
 
-    uiMenu*			addMenu(uiMenu*,const uiMenu* before = 0);
+    virtual bool		isMenu() const		{ return false; }
+    uiMenu*			addMenu(uiMenu*,const uiMenu* before =nullptr);
 				/*!<Becomes mine. Returns pointer to menu. */
 
     uiAction*			insertSeparator();

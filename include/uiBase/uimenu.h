@@ -64,9 +64,11 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 
 public:
 			uiMenu(const uiString& txt=uiString::emptyString(),
-			       const char* iconnm=0);
+			       const char* iconnm =nullptr);
 			uiMenu(const MenuItem&);
 			~uiMenu();
+
+    bool		isMenu() const override		{ return true; }
 
     void		addItems(const ObjectSet<MenuItem>&);
     bool		isStandAlone() const { return !submenuaction_; }
