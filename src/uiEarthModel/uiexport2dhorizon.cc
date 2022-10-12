@@ -461,6 +461,9 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 
 bool uiExport2DHorizon::acceptOK( CallBacker* )
 {
+    if ( doconvfld_->getBoolValue() && !transfld_->acceptOK() )
+	    return false;
+
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() )
