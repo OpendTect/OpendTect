@@ -963,13 +963,67 @@ bool IOMan::implRename( const MultiID& key, const char* newname )
 	return false;
     }
 
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    ioobj->setName( newnm );
-    if ( !trans || !trans->implRename(ioobj,newname) )
+    if ( newnm == ioobj->name() )
 	return false;
 
-    IOM().commitChanges( *ioobj );
-    return true;
+    ConstPtrMan<IOObj> othioobj = IOM().getLocal( newnm, ioobj->group() );
+    if ( othioobj )
+    {
+	msg_ = tr("Name '%1' is already in use.").arg( newnm );
+	return false;
+    }
+
+    PtrMan<Translator> trans = ioobj->createTranslator();
+    if ( !trans )
+	return false;
+
+    ioobj->setName( newnm );
+    mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
+    if ( !iostrm || trans->implIsLink(ioobj) )
+	return IOM().commitChanges( *ioobj );
+
+    if ( !iostrm->implExists(true) )
+    {
+	iostrm->genFileName();
+	return IOM().commitChanges( *ioobj );
+    }
+
+    IOStream chiostrm;
+    chiostrm.copyFrom( iostrm );
+    FilePath fp( iostrm->fileSpec().fileName() );
+    if ( trans )
+	chiostrm.setExt( trans->defExtension() );
+
+    BufferString cleannm( chiostrm.name() );
+    cleannm.clean( BufferString::NoFileSeps );
+    chiostrm.setName( cleannm );
+    chiostrm.genFileName();
+    chiostrm.setName( newnm );
+
+    FilePath deffp( chiostrm.fileSpec().fileName() );
+    fp.setFileName( deffp.fileName() );
+    chiostrm.fileSpec().setFileName( fp.fullPath() );
+
+    const bool newfnm = StringView(chiostrm.fileSpec().fileName())
+				    != iostrm->fileSpec().fileName();
+    if ( newfnm && !doReloc(key,trans,*iostrm,chiostrm) )
+    {
+	if ( !newnm.contains('/') && !newnm.contains('\\') )
+	    return false;
+
+	newnm.clean( BufferString::AllowDots );
+	chiostrm.setName( newnm );
+	chiostrm.genFileName();
+	deffp.set( chiostrm.fileSpec().fileName() );
+	fp.setFileName( deffp.fileName() );
+	chiostrm.fileSpec().setFileName( fp.fullPath() );
+	chiostrm.setName( iostrm->name() );
+	if ( !doReloc(key,trans,*iostrm,chiostrm) )
+	    return false;
+    }
+
+    iostrm->copyFrom( &chiostrm );
+    return IOM().commitChanges( *ioobj );
 }
 
 
@@ -978,12 +1032,21 @@ bool IOMan::implReloc( const MultiID& key, const char* newdir )
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
     {
-	msg_ = uiStrings::phrCannotFindDBEntry( key );
+	msg_ = tr("Cannot create an object for %1").arg( key );
 	return false;
     }
 
     PtrMan<Translator> trans = ioobj->createTranslator();
-    if ( !trans || !trans->implReloc(ioobj,newdir) )
+    mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
+    BufferString oldfnm( iostrm->fullUserExpr() );
+    IOStream chiostrm;
+    chiostrm.copyFrom( iostrm );
+    if ( !File::isDirectory(newdir) )
+	return false;
+
+    FilePath fp( oldfnm ); fp.setPath( newdir );
+    chiostrm.fileSpec().setFileName( fp.fullPath() );
+    if ( !doReloc(key,trans,*iostrm,chiostrm) )
 	return false;
 
     IOM().commitChanges( *ioobj );
@@ -1016,6 +1079,32 @@ bool IOMan::implRemove( const IOObj& obj, bool deep ) const
 {
     PtrMan<Translator> trans = obj.createTranslator();
     return trans && trans->implRemove( &obj, deep );
+}
+
+
+bool IOMan::doReloc( const MultiID& key, Translator* trans,
+		     IOStream& iostrm, IOStream& chiostrm )
+{
+    const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
+				    : iostrm.implExists( true );
+    const BufferString newfname( chiostrm.fullUserExpr() );
+
+    bool succeeded = true;
+    if ( oldimplexist )
+    {
+	const bool newimplexist = trans ? trans->implExists(&chiostrm, true)
+					: chiostrm.implExists(true);
+	if ( newimplexist && !implRemove(key) )
+	    return false;
+
+	succeeded = trans ? trans->implRename( &iostrm, newfname )
+			  : iostrm.implRename( newfname );
+    }
+
+    if ( succeeded )
+	iostrm.fileSpec().setFileName( newfname );
+
+    return succeeded;
 }
 
 

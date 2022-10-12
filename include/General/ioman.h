@@ -177,6 +177,8 @@ private:
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
+    bool		doReloc(const MultiID&,Translator*,
+	    			IOStream&,IOStream&);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
     bool		writeSettingsSurveyFile(const char* dirnm,
 						uiRetVal&) const;
