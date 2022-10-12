@@ -136,8 +136,6 @@ public:
     virtual bool		implReadOnly(const IOObj*) const;
     virtual bool		implRename(const IOObj*,
 					   const char* newnm) const;
-    virtual bool		implReloc(const IOObj*,
-					  const char* newdir) const;
     virtual bool		implRemove(const IOObj*,bool deep=true) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
@@ -183,7 +181,6 @@ protected:
     static bool			renameLargeFile(const char* fnm,
 						const char* newfnm,
 						const CallBack* cb=nullptr);
-    bool			doReloc(IOStream&,IOStream&) const;
 
 public:
 
