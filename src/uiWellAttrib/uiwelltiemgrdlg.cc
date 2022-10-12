@@ -585,7 +585,7 @@ bool WellTie::uiTieWinMGRDlg::acceptOK( CallBacker* )
 
     if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )
     {
-	uiCheckShotEdit dlg( this, *server.release() );
+	uiCheckShotEdit dlg( this, *server );
 	if ( !dlg.go() )
 	    return false;
     }
