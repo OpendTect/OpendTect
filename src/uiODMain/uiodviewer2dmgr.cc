@@ -1146,7 +1146,7 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 
 void uiODViewer2DMgr::remove2DViewer( Viewer2DID id )
 {
-    remove2DViewer( id.asInt(), true );
+    remove2DViewer( id.asInt(), false );
 }
 
 
