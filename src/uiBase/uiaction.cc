@@ -727,9 +727,20 @@ void uiActionContainer::removeAction( uiAction* action )
 
 void uiActionContainer::removeAction( int id )
 {
-    const int idx=ids_.indexOf(id);
+    const int idx = ids_.indexOf(id);
     if ( actions_.validIdx(idx) )
 	removeItem( actions_[idx] );
+}
+
+
+bool uiActionContainer::removeMenu( uiMenu& mnu )
+{
+    const uiAction* mnuaction = findAction( &mnu );
+    if ( !mnuaction )
+	return false;
+
+    removeAction( const_cast<uiAction*>( mnuaction ) );
+    return true;
 }
 
 

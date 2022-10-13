@@ -187,6 +187,7 @@ public:
 
     void			removeAction(uiAction*);
     void			removeAction(int id);
+    bool			removeMenu(uiMenu&);
     void			removeAllActions();
     void			reloadIcons();
 
