@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class BufferStringSet;
+class UnitOfMeasure;
 
 namespace Coords
 {
@@ -73,13 +74,16 @@ public:
     static Projection*		getByAuthCode(AuthorityCode);
     static Coord		convert(const Coord&,const Projection& from,
 					const Projection& to);
-
+    double			getConvFactorToM() const { return convfac_; }
+    const UnitOfMeasure*	getUOM() const { return uom_; }
 protected:
 
     virtual LatLong		toGeographic(const Coord&,
 					     bool wgs84=false) const;
     virtual Coord		fromGeographic(const LatLong&,
 					       bool wgs84=false) const;
+    const UnitOfMeasure*	uom_ = nullptr;
+    double			convfac_ = mUdf(double);
 
 private:
 

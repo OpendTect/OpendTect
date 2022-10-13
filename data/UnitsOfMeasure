@@ -17,6 +17,7 @@ Inch: Distance/Depth`in`0.0254
 Feet: Distance/Depth`ft`0.3048
 Yard: Distance/Depth`yd`0.9144
 Mile: Distance/Depth`mi`1609.344
+Chain: Distance/Depth`ch`20.11677
 -Meter: Distance/Depth`-m`-1
 -Feet: Distance/Depth`-ft`-0.3048
 Kg/m3: Density`kg/m3`1

@@ -83,7 +83,8 @@ public:
     virtual bool		isMeter() const		{ return false; }
     virtual bool		isGeodetic() const	{ return false; }
     virtual bool		isWGS84() const		{ return false; }
-
+    virtual BufferString	getUnitName() const
+					    { return BufferString::empty(); }
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 

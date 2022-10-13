@@ -45,6 +45,7 @@ public:
     bool		isMeter() const override;
     bool		isWGS84() const override;
     BufferString	getURNString() const override;
+    BufferString	getUnitName() const override;
 
     bool		setProjection(AuthorityCode);
     const Projection*	getProjection() const;

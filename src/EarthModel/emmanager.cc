@@ -320,7 +320,7 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	    hs.setInlRange( geom->rowRange() );
 	    hs.setCrlRange( geom->colRange() );
 	    if ( hs.isEmpty() )
-		return geom->loader( iosel );
+		return geom->loader( iosel, zatf );
 
 	    SurfaceIODataSelection newsel( *iosel );
 	    newsel.rg.include( hs );

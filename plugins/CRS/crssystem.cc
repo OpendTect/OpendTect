@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "crssystem.h"
 #include "iopar.h"
+#include "unitofmeasure.h"
 
 static const char* sKeyProjectionID = "Projection.ID";
 static const char* sKeyProjectionName = "Projection.Name";
@@ -139,6 +140,12 @@ bool Coords::ProjectionBasedSystem::isFeet() const
 bool Coords::ProjectionBasedSystem::isMeter() const
 {
     return !proj_ || proj_->isMeter();
+}
+
+
+BufferString Coords::ProjectionBasedSystem::getUnitName() const
+{
+    return UnitOfMeasure::getUnitLbl( proj_->getUOM() );
 }
 
 

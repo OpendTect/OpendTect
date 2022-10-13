@@ -275,6 +275,7 @@ bool UnitOfMeasure::isImperial() const
     needles.add( "Gallon" ); usename += true;
     needles.add( "Barrel" ); usename += true;
     needles.add( "bcf" ); usename += false;
+    needles.add( "chain" ); usename += false;
 
     for ( int idx=0; idx<needles.size(); idx++ )
     {
@@ -389,6 +390,10 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 
     switch ( *nm )
     {
+    case 'B' : case 'b' :
+	if ( caseInsensitiveEqual(nm,"British Foot") )
+	    return "ft";
+    break;
     case 'F': case 'f':
 	if ( caseInsensitiveEqual(nm,"F",0)
 	  || caseInsensitiveEqual(nm,"FT",0)
@@ -430,7 +435,11 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	else if ( fsnm.startsWith("USEC/M",OD::CaseInsensitive) )
 	    return "us/m";
     break;
-    case 'm':
+    case 'M': case 'm':
+	if (caseInsensitiveEqual(nm, "M", 0)
+	    || caseInsensitiveEqual(nm,"METER",0)
+	    || caseInsensitiveEqual(nm,"METRE",0) )
+	    return "m";
 	if ( caseInsensitiveEqual(nm,"m3/m3",0) ) // Petrel special
 	    return "";
     break;
