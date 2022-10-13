@@ -1317,14 +1317,21 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 	strm.getLine( line, &newlinefound );
 	if ( !newlinefound )
 	    break;
+
 	BufferStringSet modulestr;
-	modulestr.unCat( line, "==" );
-	BufferString modname = modulestr.get(0).trimBlanks().toLower();
+	if ( line.contains("==") )
+	    modulestr.unCat( line, "==" );
+	else if ( line.contains(">=") )
+	    modulestr.unCat( line, ">=" );
+	else
+	    modulestr.add( line );
+
+	const BufferString modname = modulestr.get(0).trimBlanks().toLower();
 	if ( modulestr.size() == 1 )
 	    retval.add( hasModule( modname ) );
 	else if (modulestr.size() >= 2 )
 	{
-	    BufferString ver = modulestr.get( 1 ).trimBlanks();
+	    const BufferString ver = modulestr.get( 1 ).trimBlanks();
 	    retval.add( hasModule( modname, ver ) );
 	} else
 	    retval.add( tr("Python requirements file: %1 error at line: %2"
