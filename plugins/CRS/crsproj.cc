@@ -12,11 +12,12 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "file.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "separstr.h"
 #include "typeset.h"
-
-#include "iopar.h"
+#include "unitofmeasure.h"
 
 static StringView sKeyEPSG()		{ return StringView("EPSG"); }
 
@@ -156,6 +157,7 @@ public:
     bool		isOrthogonal() const override;
     bool		isLatLong() const override;
     bool		isMeter() const override;
+    bool		isFeet() const override;
 
     Coords::AuthorityCode	getGeodeticAuthCode() const override;
 
@@ -175,6 +177,8 @@ protected:
 
     PJ*			proj_		= nullptr;
     PJ*			llproj_		= nullptr;
+
+    void		calcData();
 };
 
 } // namespace Coords
@@ -233,7 +237,10 @@ bool Coords::ProjProjection::init()
 {
     proj_ = proj_create( PJ_DEFAULT_CTX, authCode().toURNString().buf() );
     if ( proj_ && !isLatLong() )
+    {
 	llproj_ = proj_crs_get_geodetic_crs( PJ_DEFAULT_CTX, proj_ );
+	calcData();
+    }
 
     return proj_;
 }
@@ -292,7 +299,64 @@ bool Coords::ProjProjection::isLatLong() const
 
 bool Coords::ProjProjection::isMeter() const
 {
-    return true;
+    return uom_ && uom_->scaler().isEmpty();
+}
+
+
+bool Coords::ProjProjection::isFeet() const
+{
+    return uom_ && uom_->name() == "Feet";
+}
+
+
+void Coords::ProjProjection::calcData()
+{
+    BufferString str( proj_as_projjson(PJ_DEFAULT_CTX, proj_, nullptr) );
+    OD::JSON::Object obj( nullptr );
+    const uiRetVal retval = obj.parseJSon( str.getCStr(), str.size() );
+    if ( retval.isError() )
+	return;
+
+    const OD::JSON::Object* crsobj = obj.getObject( "coordinate_system" );
+    if ( !crsobj )
+	return;
+
+    const OD::JSON::Array* crsarr = crsobj->getArray( "axis" );
+    if ( !crsarr || crsarr->isEmpty() )
+	return;
+
+    const OD::JSON::Object axisobj = crsarr->object( 0 );
+    OD::JSON::ValueSet::ValueType type = axisobj.valueType(
+						    axisobj.indexOf("unit") );
+    BufferString unitstr;
+    if ( type == OD::JSON::ValueSet::Data )
+	unitstr = axisobj.getStringValue( "unit" );
+    else
+    {
+	const OD::JSON::Object* unitobj = axisobj.getObject( "unit" );
+	if ( unitobj )
+	    unitstr = unitobj->getStringValue( "name" );
+    }
+
+    uom_ = UnitOfMeasure::getGuessed( unitstr );
+    if ( !uom_ )
+    {
+	if ( unitstr.matches("*met*",OD::CaseInsensitive) )
+	    uom_ = UnitOfMeasure::getGuessed( "Meter" );
+	else if ( unitstr.matches("*foot*",OD::CaseInsensitive) )
+	    uom_ = UnitOfMeasure::getGuessed( "Feet" );
+	else if ( unitstr.matches("*yard*",OD::CaseInsensitive) )
+	    uom_ = UnitOfMeasure::getGuessed( "Yard" );
+    }
+
+    if ( uom_ )
+	convfac_ = uom_->scaler().factor;
+    else if ( !uom_ && type == OD::JSON::ValueSet::SubObject )
+    {
+	const OD::JSON::Object* unitobj = axisobj.getObject( "unit" );
+	if ( unitobj )
+	    convfac_ = unitobj->getDoubleValue( "conversion_factor" );
+    }
 }
 
 

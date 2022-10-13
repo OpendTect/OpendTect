@@ -242,6 +242,73 @@ static bool testTransfer()
 }
 
 
+static bool meterAndFeetCheck()
+{
+    IOPar crspar;
+    crspar.set( "System name", "ProjectionBased System" );
+    crspar.set( "Projection.ID", 0 );
+
+    TypeSet<int> meterCRSIDs;
+    meterCRSIDs.add( 2991 );
+    meterCRSIDs.add( 3168 );
+    meterCRSIDs.add( 8101 );
+    meterCRSIDs.add( 29873 );
+    for ( const auto& crsid : meterCRSIDs )
+    {
+	crspar.update( "Projection.ID", toString(crsid) );
+	RefMan<Coords::CoordSystem> crs =
+				Coords::CoordSystem::createSystem( crspar );
+	mRunTest( crs, "Meter CRS is defined" );
+	mRunTest( crs->isMeter(), "Meter unit CRS returning meter" )
+    }
+
+    TypeSet<int> feetCRSIDs;
+    feetCRSIDs.add( 2155 ); //ft
+    feetCRSIDs.add( 2194 ); //Has been deprecated, just for test
+    feetCRSIDs.add( 2228 );
+    feetCRSIDs.add( 2232 ); //ftUS
+    feetCRSIDs.add( 2239 ); //ftUS
+    feetCRSIDs.add( 3454 ); //deprecated ftUS
+    feetCRSIDs.add( 29872 ); //ftSe
+    feetCRSIDs.add( 5754 ); //British Foot
+    for ( const auto& crsid : feetCRSIDs )
+    {
+	crspar.update( "Projection.ID", toString(crsid) );
+	RefMan<Coords::CoordSystem> crs =
+	    Coords::CoordSystem::createSystem( crspar );
+	mRunTest( crs, "Feet CRS is defined" );
+	mRunTest( crs->isFeet(), "Feet unit CRS returning feet" )
+    }
+
+ //   TypeSet<int> yardCRSIDs;
+ //   yardCRSIDs.add(9037); //Clarke's yard
+ //   for ( const auto& crsid : feetCRSIDs )
+ //   {
+	//crspar.update( "Projection.ID", toString(crsid) );
+	//RefMan<Coords::CoordSystem> crs =
+	//		    Coords::CoordSystem::createSystem( crspar );
+	//mRunTest( crs, "Yard CRS is defined" );
+	//mRunTest( crs->getUnitName().isEqual("yard",OD::CaseInsensitive),
+	//				    "Yard unit CRS returning yard" );
+ //   } //UNABLE TO GET CORRECT CODE FOR CLARKE'S YARD AT PRESENT
+
+    TypeSet<int> diffCRSIDs;
+    diffCRSIDs.add( 3167 ); //chain unit of measure
+    diffCRSIDs.add( 24571 ); //chain unit of measure
+    diffCRSIDs.add( 29871 ); //chain unit of measure
+    for ( const auto& crsid : diffCRSIDs )
+    {
+	crspar.update( "Projection.ID", toString(crsid ));
+	RefMan<Coords::CoordSystem> crs =
+			    Coords::CoordSystem::createSystem( crspar );
+	mRunTest( !crs->isFeet() && !crs->isMeter(),
+				    "CRS unit different from meter and feet" )
+    }
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -256,7 +323,8 @@ int mTestMainFnName( int argc, char** argv )
 	 !testReversibility(cED50ID()) ||
 	 !testReversibility(cWGS84N20ID()) ||
 	 !testReversibility(cNAD27N20ID()) ||
-	 !testTransfer() )
+	 !testTransfer() ||
+	 !meterAndFeetCheck() )
 	return 1;
 
     return 0;

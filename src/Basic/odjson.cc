@@ -365,7 +365,9 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtChildByIdx( idx_type idx ) const
 
     const Value* val = values_[idx];
     if ( !val->isValSet() )
-	{ pErrMsg("Value at idx is not ValSet"); }
+    {
+	pErrMsg("Value at idx is not ValSet");
+    }
 
     return const_cast<ValueSet*>( val->vSet() );
 }
