@@ -74,6 +74,7 @@ DataPointSet::Pos::Pos( const Coord& c, float z )
     : Pos()
 {
     z_ = z;
+    trckey_.setPosition( SI().transform(c) );
     setOffs( c );
 }
 
@@ -82,6 +83,7 @@ DataPointSet::Pos::Pos( const Coord3& c )
     : Pos()
 {
     z_ = float( c.z );
+    trckey_.setPosition( SI().transform(c) );
     setOffs( c );
 }
 
