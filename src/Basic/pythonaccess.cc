@@ -810,7 +810,13 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
     }
     else
     {
-	const OS::MachineCommand cmdret( scriptcmd, true );
+	OS::MachineCommand cmdret( scriptcmd, true );
+	const StringView prognm( scriptcmd.program() );
+	if ( !GetPythonActivatorExe().isEmpty() &&
+	     (prognm.startsWith("cmd", OD::CaseInsensitive) ||
+	      prognm.startsWith("powershell",OD::CaseInsensitive)) )
+	    cmdret.addFlag( "consoleuiprog" );
+
 	scriptcmd = cmdret;
     }
 
