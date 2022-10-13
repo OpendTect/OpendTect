@@ -1556,14 +1556,31 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr,
 	return false;
     }
 
-    OS::MachineCommand mc( cmdstr );
-    OS::CommandExecPars pars( OS::RunInBG );
+    BufferString prognm( cmdstr );
+    bool iswindowsterminal = false;
+    if ( prognm == "wt.exe" )
+    {
+	iswindowsterminal = true;
+	const BufferStringSet paths;
+	const BufferString progfp = File::findExecutable( prognm.buf(), paths );
+	if ( File::exists(progfp.buf()) )
+	    prognm = progfp;
+    }
+
+    OS::MachineCommand mc( prognm.buf() );
     if ( args )
 	mc.addArgs( *args );
 
     BufferString workingdir( workingdirstr );
     if ( workingdir.isEmpty() )
 	workingdir.set( GetPersonalDir() );
+
+    OS::CommandExecPars pars( OS::RunInBG );
+    if ( __iswin__ )
+    {
+	const StringView activatescript( getPythonActivatorPath() );
+	pars.isconsoleuiprog( activatescript.isEmpty() && !iswindowsterminal );
+    }
 
     pars.workingdir( workingdir );
     return execute( mc, pars );
