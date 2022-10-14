@@ -9,20 +9,21 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "gendefs.h"
+
 #include "uistring.h"
-class MouseCursorChanger;
-class uiMainWin;
-class uiStatusBar;
-mFDQtclass(QWidget)
+
 class BufferStringSet;
 class FileMultiString;
+class MouseCursorChanger;
+class uiMainWin;
 class uiParent;
+class uiStatusBar;
+mFDQtclass(QWidget)
 
 
 mExpClass(uiBase) uiMsg
-{ mODTextTranslationClass(uiMsg)
-
+{
+mODTextTranslationClass(uiMsg)
 friend class uiMain;
 mGlobal(uiBase) friend uiMsg& uiMSG();
 
@@ -86,6 +87,10 @@ public:
     int		askSave(const uiString&,bool cancelbut=true);
 		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		askRemove(const uiString&,bool cancelbut=false);
+		//!<\retval 0=Don't remove 1=Remove -1=Cancel
+    int		askRemoveWithDetails(const uiString& msg,
+				     const uiStringSet& details,
+				     bool cancelbut=false);
 		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askContinue(const uiString&);
 		//!<\retval 0=Abort 1=Continue
@@ -151,6 +156,11 @@ public:
 			   const uiString& notxtinp,const uiString& cncltxtinp,
 			   const uiString& title,
 			   bool* notagain);
+    int		showMessageBoxWithDetails(Icon icon,QWidget* parent,
+			   const uiString& txt,const uiString& yestxtinp,
+			   const uiString& notxtinp,const uiString& cncltxtinp,
+			   const uiStringSet& details,
+			   const uiString& title,bool* notagain);
 
     static uiString	sDontShowAgain();
 
