@@ -2,7 +2,7 @@ dTect V6.8.0
 Rock Physics
 Tue 21 Sep 2021 11:32:43
 !
-Net Pay: NETP
+Net Pay: NET_PAY_FLAG
 Description: Compute Net Pay from porosity, saturation, Vshale
 Formula: phi >= c0 && vsh <= c1 && sw <= c2 ? 1 : 0
 Unit: Fraction
@@ -10,7 +10,7 @@ Variable.0.Type: PHI
 Variable.0.Name: Phi
 Variable.0.Description: Porosity
 Variable.0.Unit: Fraction
-Variable.1.Type: VCL
+Variable.1.Type: VSH
 Variable.1.Name: Vsh
 Variable.1.Description: Volume of Shale
 Variable.1.Unit: Fraction
@@ -25,7 +25,7 @@ Constant.1.Default: 0.30
 Constant.2.Name: Sw0
 Constant.2.Default: 0.50
 !
-Reservoir: RSV
+Reservoir: NET_FLAG
 Description: Compute Net Pay from porosity, saturation, Vshale
 Formula: phi >= c0 || vsh <= c1 || sw <= c2 ? 1 : 0
 Unit: Fraction
@@ -33,7 +33,7 @@ Variable.0.Type: PHI
 Variable.0.Name: Phi
 Variable.0.Description: Porosity
 Variable.0.Unit: Fraction
-Variable.1.Type: VCL
+Variable.1.Type: VSH
 Variable.1.Name: Vsh
 Variable.1.Description: Volume of Shale
 Variable.1.Unit: Fraction

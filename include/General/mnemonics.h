@@ -57,6 +57,7 @@ public:
     bool		matches(const char* nm,bool matchaliases) const;
     bool		isKnownAs(const char*) const;
     bool		isCompatibleWith(const Mnemonic*) const;
+    const char*		description() const;
     float		getMatchValue(const char* nm) const;
 
     inline bool		isUdf() const	{ return *this == undef(); }
@@ -185,9 +186,7 @@ public:
     bool		usePar(const IOPar&);
 
     static MnemonicSelection	getAllVolumetrics();
+    static MnemonicSelection	getAllSaturations();
     static MnemonicSelection	getAllPorosity();
 
-private:
-
-    static void		getAll(const BufferStringSet&,MnemonicSelection&);
 };

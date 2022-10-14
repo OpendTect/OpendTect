@@ -327,10 +327,11 @@ PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
 	    hintnms.addIfNew( fms[idx] );
     }
 
-    const Mnemonic* mnptr = mn.isEmpty() ? &MNC().getGuessed( st, &hintnms )
-					 : MNC().getByName( mn );
+    const Mnemonic* mnptr = mn.isEmpty() || mn == Mnemonic::undef().name()
+			  ? &MNC().getGuessed( st, &hintnms )
+			  : MNC().getByName( mn );
     if ( src == Repos::Data || src == Repos::Survey || src == Repos::User )
-	mnptr = getFromLegacy( mnptr, propnm );
+	mnptr = getFromLegacy( mnptr, propnm.buf() );
 
     if ( !mnptr || mnptr->isUdf() )
 	return nullptr;
@@ -437,47 +438,30 @@ void PropertyRef::fillPar( IOPar& iop ) const
 const Mnemonic* PropertyRef::getFromLegacy( const Mnemonic* mn,
 					    const char* propstr )
 {
-    const BufferString propnm( propstr );
-    if ( propnm == standardDenStr() )
-	return &Mnemonic::defDEN();
-    if ( propnm == standardPVelStr() )
+    const Mnemonic* exactmn = MNC().getByName( propstr, false );
+    if ( exactmn )
+	return exactmn;
+
+    const StringView propnm( propstr );
+    if ( propnm.startsWith("Vp_",OD::CaseInsensitive) )
 	return &Mnemonic::defPVEL();
-    if ( propnm == standardSVelStr() )
+    if ( propnm.startsWith("Vs_",OD::CaseInsensitive) )
 	return &Mnemonic::defSVEL();
-    if ( propnm == "Shear Sonic" )
-	return &Mnemonic::defDTS();
-    if ( propnm == "Acoustic Impedance" )
-	return &Mnemonic::defAI();
-    if ( propnm.startsWith( "Elastic Impedance") )
-	return MNC().getByName( "EI", false );
-    if ( propnm == "Shear Impedance" )
-	return &Mnemonic::defSI();
-    if ( propnm == "Water Saturation" )
-	return &Mnemonic::defSW();
-    if ( propnm == "Poissons Ratio" )
-	return MNC().getByName( "PR", false );
-    if ( propnm == "Vp/Vs" )
-	return MNC().getByName( "VPVS", false );
-    if ( propnm == "LambdaRho" )
-	return MNC().getByName( "LR", false );
-    if ( propnm == "MuRho" )
-	return MNC().getByName( "MR", false );
-    if ( propnm == "Vshale" )
-	return MNC().getByName( "VCL", false );
-    if ( propnm == "Delta" )
-	return MNC().getByName( "DEL", false );
-    if ( propnm == "Epsilon" )
-	return MNC().getByName( "EPS", false );
-    if ( propnm == "Eta" )
-	return MNC().getByName( "ETA", false );
-    if ( propnm == "NetPay" )
-	return MNC().getByName( "NETP", false );
-    if ( propnm == "Reservoir" )
-	return MNC().getByName( "RSV", false );
-    if ( propnm == "Pressure" )
-	return MNC().getByName( "PP", false );
-    if ( propnm == "Compressibility" )
-	return MNC().getByName( "CB", false );
+
+    //First try to volumetrics
+    const MnemonicSelection mns( Mnemonic::Volum );
+    for ( const auto* volmn : mns )
+    {
+	if ( volmn->aliases().isPresent(propstr,OD::CaseInsensitive) )
+	    return volmn;
+    }
+
+    //then try them all
+    for ( const auto* anymn : MNC() )
+    {
+	if ( anymn->aliases().isPresent(propstr,OD::CaseInsensitive) )
+	    return anymn;
+    }
 
     return mn;
 }

@@ -22,8 +22,11 @@ PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`
 PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR`PorosityDensity
 PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`BPHI
 NPHI: Compensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL
-SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE`SUWI
-VCL: Vclay`Volumetrics`Lin`0`100`0`100`%`100`200`100`VCLU`VCLC`VCLF`VSH
+SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`0`255`SAT`SWE`SUWI
+SWT: Total Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`0`255
+SWO: Water Saturation in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`0`0`255
+SG: Gas Saturation`Volumetrics`Lin`0`100`0`100`%`0`0`220
+SO: Oil Saturation`Volumetrics`Lin`0`100`0`100`%`0`220`0
 FRACRHO: Fracture Density`Volumetrics`Lin`0`10`0`2`Fraction`169`172`148`VolumeFrac
 FRACSTRIKE: Fracture Orientation`Angle`Lin`0`360`0`360`Degrees`93`72`200`FracOrient
 VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`VelocityRatioVSVP
@@ -39,7 +42,8 @@ PERM: Permeability`Permeability`Log`0.01`5000`1`2000`mD`200`0`0`Permeab
 PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI`PoissonRatio
 TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`GTEM
 LITHO: Lithology`Classification`Lin`0`7`1`5``0`255`255`LITHOF1_FACIES
-NETP: NetPay`Classification`Lin`0`1`0`1``255`255`0`
+NET_FLAG: Net Flag`Classification`Lin`0`1`0`1``255`255`0`NETF`RSV`Reservoir
+NET_PAY_FLAG: Net Pay Flag`Classification`Lin`0`1`0`1``255`255`0`NETP`NetPay
 NMR: Nuclear Magnetic Resonance`Time`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX`NuclearMagRes
 CAL: Caliper`Distance/Depth`Lin`0`25`0`25`in`0`0`0`CALI`CAL1
 BS: Bit Size`Distance/Depth`Lin`-5`20`-5`20`in`0`0`0`BIT`WellBoreRadius
@@ -49,12 +53,58 @@ ETA: Eta`Anisotropy`Lin`-1`1`-1`1``200`150`250`
 LR: LambdaRho`Pressure-Weight`Lin`5`80`5`80`GPa.g/cm3`100`150`255
 MR: MuRho`Pressure-Weight`Lin`5`60`5`60`GPa.g/cm3`100`255`150
 PP: Pressure`Pressure`lin`0`200`0`200`bar`0`0`255`PRES
-RSV: Reservoir`Classification`lin`0`1`0`1``255`0`255`
 CB: Compressibility Bulk`Compressibility`lin`0`5e-11`0`2e-11`1/GigaPascal`100`150`250`BT`Comp
-KB: Bulk modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Incompressibility
+BMK: Bulk modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Incompressibility
+YME: Young's modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Young Modulus
 TWT: Two-way traveltime`Time`lin`````ms````Time
 OWT: One-way traveltime`Time`lin`````ms````
 CONF: Confidence`Other`Lin`````````
-PEF: Photoeletcric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
+PEF: Photoelectric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
+VALB: Volume Fraction of Albite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Valbite
+VANH: Volume of Anhydrite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vanhydrite
+VBIO: Volume of Biotite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vbiotite
+VCAR: Volume Fraction of Carbonate Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vcarbonate
+VCHL: Volume of Chlorite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vchlorite
+VCL: Volume of Clay Type Material Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vclay`VCLU`VCLF
+VCLC: Volume of Calcite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vcalcite
+VCOA: Volume of Coal Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vcoal
+VDCL: Volume of Dry Clay`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vdryclay
+VDOL: Volume of Dolomite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vdolomite
+VEVA: Volume Fraction of Evaporite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vevaporite
+VFEL: Volume of Feldspar Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vfeldspar
+VGLA: Volume of Glauconite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vglauconite
+VGYP: Volume of Gypsum Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vgypsum
+VHAL: Volume of Halite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vhalite
+VIGN: Volume of Igneous Rock Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vigneous
+VILL: Volume of Illite (dry) Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Villite
+VISO: Volume of Isolated Fluid Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Visolated fluid
+VKAO: Volume of Kaolinite (dry) Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vkaolinite
+VLIM: Volume of Limestone Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vlimestone
+VMET: Volume of Metamorphic Rock Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vmetamorphic
+VMHY: Volume of Moved Hydrocarbon Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vmoved hydrogen
+VMON: Volume of Montmorillonite (dry) Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vmontmorillonite
+VMUS: Volume of Muscovite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vmuscovite
+VORT: Volume of Orthoclase Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vorthoclase
+VPAR: Volume of Parallel Porosity Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vparallel porosity
+VPYR: Volume of Pyrite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vpyrite
+VQUA: Volume of Quartz Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vquartz
+VSH: Volume of Shale`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vshale
+VSID: Volume of Siderite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vsiderite
+VSIL: Volume of Silt Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vsilt
+VSM1: Volume of Special Mineral 1 Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vspecial1
+VSM2: Volume of Special Mineral 2 Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vspecial2
+VSM3: Volume of Special Mineral 3 Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vspecial3
+VSM4: Volume of Special Mineral 4 Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vspecial4
+VSND: Volume of Sand Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vsand
+VUGA: Volume of Gas in Undisturbed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vgas undisturbed zone
+VUIW: Volume of Irreducible Water In Undisturbed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Virreducible water undisturbed zone
+VUOI: Volume of Oil in Undisturbed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Voil undisturbed zone
+VUSF: Volume of Special Fluid In Undisturbed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vspecial fluid undisturbed zone
+VUWA: Volume of Water in Undisturbed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vwater undisturbed zone
+VXBW: Volume of Bound Water in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vbound water flushed zone
+VXGA: Volume of Gas in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vgas flushed zone
+VXIW: Volume of Irreducible Water In Flushed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vireducible water flushed zone
+VXOI: Volume of Oil in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Voil flushed zone
+VXSF: Volume of Special Fluid in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vspecial fluid flushed zone
+VXWA: Volume of Water in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vwater flushed zone
 !
-

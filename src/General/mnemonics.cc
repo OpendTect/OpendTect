@@ -219,7 +219,9 @@ float Mnemonic::getMatchValue( const char* nm ) const
 
 bool Mnemonic::matches( const char* nm, bool matchaliases ) const
 {
-    return matchaliases ? isKnownAs( nm ) : name() == nm;
+    return matchaliases ? isKnownAs( nm )
+			: name() == nm
+			  || logtypename_.isEqual( nm, OD::CaseInsensitive );
 }
 
 
@@ -255,11 +257,19 @@ bool Mnemonic::isCompatibleWith( const Mnemonic* oth ) const
     if ( !oth )
 	return false;
 
-    static MnemonicSelection allpors = MnemonicSelection::getAllPorosity();
     static MnemonicSelection allvols = MnemonicSelection::getAllVolumetrics();
+    static MnemonicSelection allpors = MnemonicSelection::getAllPorosity();
+    static MnemonicSelection allsats = MnemonicSelection::getAllSaturations();
     return this == oth ||
 	   ( allpors.isPresent(this) && allpors.isPresent(oth) ) ||
-	   ( allvols.isPresent(this) && allvols.isPresent(oth) );
+	   ( allvols.isPresent(this) && allvols.isPresent(oth) ) ||
+	   ( allsats.isPresent(this) && allsats.isPresent(oth) );
+}
+
+
+const char* Mnemonic::description() const
+{
+    return logtypename_.buf();
 }
 
 
@@ -506,11 +516,9 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
     if ( nm && *nm )
     {
 	for ( const auto* mnc : *this )
-	    if (mnc->matches(nm, matchaliases))
+	    if ( mnc->matches(nm,matchaliases) )
 		return mnc;
     }
-
-
 
     return nullptr;
 }
@@ -624,7 +632,7 @@ void MnemonicSet::readFrom( ascistream& astrm )
 
 	    auto* mnc = new Mnemonic( mnemonicnm, Mnemonic::Other );
 	    mnc->fromString( val );
-	    add( mnc );	
+	    add( mnc );
 	}
     }
 }
@@ -713,27 +721,39 @@ bool MnemonicSelection::usePar( const IOPar& iop )
 	    addIfNew(mn);
 	else
 	    ret = false;
-
     }
 
     return ret;
 }
 
 
-void MnemonicSelection::getAll( const BufferStringSet& mnnms,
-				MnemonicSelection& ret )
+MnemonicSelection MnemonicSelection::getAllVolumetrics()
 {
-    const MnemonicSelection allmns( nullptr );
-    for ( const auto* mnnm : mnnms )
-	ret.add( allmns.getByName(mnnm->buf(),false) );
+    MnemonicSelection mnsel( Mnemonic::Volum );
+    for ( int idx=mnsel.size()-1; idx>=0; idx-- )
+    {
+	const Mnemonic& mn = *mnsel.get( idx );
+	const StringView desc( mn.description() );
+	if ( !desc.startsWith("Volume of ") &&
+	     !desc.startsWith("Volume Fraction") )
+	    mnsel.removeSingle( idx );
+    }
+
+    return mnsel;
 }
 
 
-MnemonicSelection MnemonicSelection::getAllVolumetrics()
+MnemonicSelection MnemonicSelection::getAllSaturations()
 {
-    MnemonicSelection mnsel;
-    const BufferStringSet mnrefnms( "VCL" );
-    getAll( mnrefnms, mnsel );
+    MnemonicSelection mnsel( Mnemonic::Volum );
+    for ( int idx=mnsel.size()-1; idx>=0; idx-- )
+    {
+	const Mnemonic& mn = *mnsel.get( idx );
+	const StringView desc( mn.description() );
+	if ( !desc.contains("Water Saturation") &&
+	     desc != "Oil Saturation" && desc != "Gas Saturation" )
+	    mnsel.removeSingle( idx );
+    }
 
     return mnsel;
 }
@@ -741,10 +761,14 @@ MnemonicSelection MnemonicSelection::getAllVolumetrics()
 
 MnemonicSelection MnemonicSelection::getAllPorosity()
 {
-    MnemonicSelection mnsel;
-    BufferStringSet mnrefnms( "PHI", "PHIT", "PHIE" );
-    mnrefnms.add( "PHIS" ).add( "PHID" ).add( "PHIN" );
-    getAll( mnrefnms, mnsel );
+    MnemonicSelection mnsel( Mnemonic::Volum );
+    for ( int idx=mnsel.size()-1; idx>=0; idx-- )
+    {
+	const Mnemonic& mn = *mnsel.get( idx );
+	const StringView desc( mn.description() );
+	if ( !desc.contains("Porosity") )
+	    mnsel.removeSingle( idx );
+    }
 
     return mnsel;
 }
