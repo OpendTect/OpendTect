@@ -81,7 +81,6 @@ protected:
     void		lockChg(CallBacker*);
     void		sizeChg(CallBacker*);
     void		dpiChg(CallBacker*);
-    void		surveyChanged(CallBacker*);
     virtual void	setFldVals(CallBacker*)			{}
     void		copyToClipBoardClicked(CallBacker*);
 
@@ -91,8 +90,6 @@ protected:
     Geom::Size2D<float> sizecm_;
     float		aspectratio_;	// width / height
     float		screendpi_;
-
-    static BufferString	dirname_;
 
     void		updateSizes();
     void		setNotifiers(bool enable);

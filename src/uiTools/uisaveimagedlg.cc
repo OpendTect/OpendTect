@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -31,8 +30,6 @@ ________________________________________________________________________
 #include <string.h>
 
 static const char* sKeySnapshot = "snapshot";
-
-BufferString uiSaveImageDlg::dirname_;
 
 static int sPDFfmtIdx = 6;
 
@@ -79,8 +76,6 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
     }
 
     setSaveButtonChecked( true );
-
-    IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
 }
 
 
@@ -90,7 +85,6 @@ uiSaveImageDlg::~uiSaveImageDlg()
 
 void uiSaveImageDlg::setDirName( const char* nm )
 {
-    dirname_ = nm;
 }
 
 
@@ -212,23 +206,15 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
 
-    if ( dirname_.isEmpty() )
-	dirname_ = GetSurveyPicturesDir();
     fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
-				    .defseldir(dirname_)
+				    .defseldir(GetPicturesDir())
 				    .directories(false)
 				    .allowallextensions(false) );
     fileinputfld_->setDefaultExtension( "jpg" );
     fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
     fileinputfld_->attach( alignedBelow, dpifld_ );
-}
-
-
-void uiSaveImageDlg::surveyChanged( CallBacker* )
-{
-    dirname_ = "";
 }
 
 
@@ -396,6 +382,8 @@ bool uiSaveImageDlg::filenameOK() const
 	    return false;
     }
 
+    const FilePath filepath( filename );
+    SetPicturesDir( filepath.pathOnly() );
     return true;
 }
 
@@ -448,7 +436,9 @@ const char* uiSaveImageDlg::getExtension()
 
 void uiSaveImageDlg::getSettingsPar( PtrMan<IOPar>& ctiopar,
 				     BufferString typenm )
-{ ctiopar = settings_.subselect( typenm.buf() ); }
+{
+    ctiopar = settings_.subselect( typenm.buf() );
+}
 
 
 void uiSaveImageDlg::fillPar( IOPar& par, bool is2d )
@@ -603,7 +593,9 @@ void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
 bool uiSaveWinImageDlg::acceptOK( CallBacker* )
 {
     mDynamicCastGet(uiMainWin*,mw,parent());
-    if ( !mw ) return false;
+    if ( !mw )
+	return false;
+
     if ( cliboardselfld_->isChecked() )
     {
 	mw->copyToClipBoard();
@@ -620,5 +612,6 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
     else
 	mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
 		       (int)sizepix_.height(), dpifld_->box()->getIntValue());
+
     return true;
 }
