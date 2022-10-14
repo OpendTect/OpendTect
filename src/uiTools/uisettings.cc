@@ -97,8 +97,9 @@ private:
     uiFileInput*	customloc_;
     uiGenInput*		customenvnmfld_;
     uiPathSel*		custompathfld_;
-    uiToolBarCommandEditor*	pyidefld_;
-    uiToolBarCommandEditor*	pytermfld_;
+    uiToolBarCommandEditor* pyidefld_;
+    uiToolBarCommandEditor* pytermfld_;
+    uiButton*		clonebut_;
 
     IOPar*		chgdsetts_ = nullptr;
     bool		needrestore_ = false;
@@ -1114,10 +1115,10 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     safetychkbut->setIcon( "safety" );
     safetychkbut->attach( rightOf, cmdwinbut );
 
-    auto* clonebut = new uiPushButton( this, tr("Clone Environment"),
-				   mCB(this,uiPythonSettings,cloneCB), true );
-    clonebut->setIcon( "copyobj" );
-    clonebut->attach( rightOf, safetychkbut );
+    clonebut_ = new uiPushButton( this, tr("Clone Environment"),
+				  mCB(this,uiPythonSettings,cloneCB), true );
+    clonebut_->setIcon( "copyobj" );
+    clonebut_->attach( rightOf, safetychkbut );
 
     mAttachCB( postFinalize(), uiPythonSettings::initDlg );
 }
@@ -1311,6 +1312,7 @@ void uiPythonSettings::sourceChgCB( CallBacker* )
     const bool iscustom = source == OD::Custom;
     customloc_->display( iscustom );
     customenvnmfld_->display( iscustom );
+    clonebut_->display( source != OD::System );
 
     updateIDEfld();
     parChgCB( nullptr );
