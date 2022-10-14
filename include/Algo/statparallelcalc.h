@@ -41,6 +41,8 @@ public:
 						{ setValues(data,sz,weights); }
 				ParallelCalc( const CalcSetup& s )
 				    : BaseCalc<T>(s) { setValues(0,0,0); }
+				~ParallelCalc()
+				{ setEmpty(); }
 
     inline void			setValues(const T* inp,size_type sz,
 					  const T* wght=0);
