@@ -693,6 +693,8 @@ uiTreeFactorySet::uiTreeFactorySet()
 
 uiTreeFactorySet::~uiTreeFactorySet()
 {
+    for ( int idx=0; idx<factories_.size(); idx++ )
+	removenotifier.trigger( idx );
     deepErase( factories_ );
 }
 
@@ -700,6 +702,14 @@ uiTreeFactorySet::~uiTreeFactorySet()
 void uiTreeFactorySet::addFactory( uiTreeItemFactory* ptr, int placement,
 				   OD::Pol2D3D pol2d )
 {
+    if ( !ptr )
+	return;
+
+    const BufferString newfactnm( ptr->name() );
+    for ( const auto* factory : factories_ )
+	if ( newfactnm == factory->name() )
+	    return;
+
     factories_ += ptr;
     placementidxs_ += placement;
     pol2ds_ += int(pol2d);
