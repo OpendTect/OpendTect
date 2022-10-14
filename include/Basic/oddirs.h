@@ -201,6 +201,9 @@ mGlobal(Basic) const char* GetImportFromDir();
 mGlobal(Basic) void SetImportFromDir(const char*);
 mGlobal(Basic) const char* GetExportToDir();
 mGlobal(Basic) void SetExportToDir(const char*);
+mGlobal(Basic) const char* GetPicturesDir();
+mGlobal(Basic) void SetPicturesDir(const char*);
+mGlobal(Basic) void ResetDefaultDirs();
 
 
 } // extern "C"

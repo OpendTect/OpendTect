@@ -45,11 +45,9 @@ protected:
     bool		filenameOK() const;
 
     bool		acceptOK(CallBacker*) override;
-    void		surveyChanged(CallBacker*);
 
     const char*		getExtension() const;
 
-    static BufferString dirname_;
     BufferString	filename_;
 };
 

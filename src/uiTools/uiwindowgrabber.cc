@@ -18,13 +18,10 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "timer.h"
 #include "od_helpids.h"
-
-BufferString uiWindowGrabDlg::dirname_ = "";
 
 static const char* imageformats[] =
 { "jpg", "png", "tiff", "webp", "bmp", "ppm", "xpm", 0 };
@@ -64,12 +61,10 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 	windowfld_->box()->setHSzPol( uiObject::Wide );
     }
 
-    if ( dirname_.isEmpty() )
-	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, mJoinUiStrs(sFile(),sName()),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
-				    .defseldir(dirname_)
+				    .defseldir(GetPicturesDir())
 				    .directories(false)
 				    .allowallextensions(false) );
     fileinputfld_->valuechanged.notify( mCB(this,uiWindowGrabDlg,fileSel) );
@@ -87,19 +82,11 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 
     infofld_ = new uiLabel( this, tr("Arrange your windows before confirming"));
     infofld_->attach( alignedBelow, qualityfld_ );
-
-    IOM().afterSurveyChange.notify( mCB(this,uiWindowGrabDlg,surveyChanged) );
 }
 
 
 uiWindowGrabDlg::~uiWindowGrabDlg()
 {}
-
-
-void uiWindowGrabDlg::surveyChanged( CallBacker* )
-{
-    dirname_ = "";
-}
 
 
 void uiWindowGrabDlg::updateFilter()
@@ -183,8 +170,8 @@ bool uiWindowGrabDlg::acceptOK( CallBacker* )
     if ( !filenameOK() )
 	return false;
 
-    FilePath filepath( fileinputfld_->fileName() );
-    dirname_ = filepath.pathOnly();
+    const FilePath filepath( fileinputfld_->fileName() );
+    SetPicturesDir( filepath.pathOnly() );
     filename_ = filepath.fullPath();
     return true;
 }

@@ -44,6 +44,7 @@ static BufferString cur_survey_name;
 
 static BufferString sExportToDir;
 static BufferString sImportFromDir;
+static BufferString sPicturesDir;
 
 
 const char* SurveyInfo::surveyFileName()
@@ -70,17 +71,6 @@ const char* SurveyInfo::surveyFileName()
 
 void SurveyInfo::setSurveyName( const char* newnm )
 {
-    if ( !cur_survey_name.isEmpty() )
-    {
-	if ( sExportToDir == GetDataDir() ||
-		FilePath(sExportToDir).isSubDirOf(FilePath(GetDataDir())) )
-	    sExportToDir.setEmpty();
-
-	if ( sImportFromDir == GetDataDir() ||
-		FilePath(sImportFromDir).isSubDirOf(FilePath(GetDataDir())) )
-	    sImportFromDir.setEmpty();
-    }
-
     cur_survey_name = newnm;
     cur_survey_name.trimBlanks();
 }
@@ -791,4 +781,27 @@ mExternC(Basic) const char* GetExportToDir()
 mExternC(Basic) void SetExportToDir( const char* dirnm )
 {
     sExportToDir = dirnm;
+}
+
+
+mExternC(Basic) const char* GetPicturesDir()
+{
+    if ( sPicturesDir.isEmpty() )
+	sPicturesDir = GetSurveyPicturesDir();
+
+    return sPicturesDir;
+}
+
+
+mExternC(Basic) void SetPicturesDir( const char* dirnm )
+{
+    sPicturesDir = dirnm;
+}
+
+
+mExternC(Basic) void ResetDefaultDirs()
+{
+    sImportFromDir.setEmpty();
+    sExportToDir.setEmpty();
+    sPicturesDir.setEmpty();
 }

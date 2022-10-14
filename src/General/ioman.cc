@@ -271,8 +271,9 @@ void IOMan::reInit( bool dotrigger )
 	    IOM().surveyChanged.trigger();
 	    IOM().afterSurveyChange.trigger();
 	}
-    }
 
+	ResetDefaultDirs();
+    }
 }
 
 
