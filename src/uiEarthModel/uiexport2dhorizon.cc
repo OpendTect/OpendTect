@@ -472,6 +472,9 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 	!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	return false;
 
+    if ( doconvfld_->getBoolValue() && !transfld_->acceptOK() )
+	return false;
+
     const bool res = doExport();
     if (!res)
     {
