@@ -36,7 +36,10 @@ mExpClass(Geometry) Element : public CallBacker
 { mODTextTranslationClass(Element);
 public:
 				Element();
+				Element(const Element&);
     virtual			~Element();
+
+    Element&			operator =(const Element&);
 
     virtual Iterator*		createIterator() const			= 0;
 
@@ -71,7 +74,8 @@ public:
     bool			blocksCallBacks() const { return blockcbs_; }
 
 protected:
-    bool			blockcbs_;
+    bool			blockcbs_		= false;
+    bool			ischanged_		= false;
     TypeSet<GeomPosID>		nrposchbuffer_;
     TypeSet<GeomPosID>		movementbuffer_;
     void			triggerMovement(const TypeSet<GeomPosID>&);
@@ -80,7 +84,6 @@ protected:
     void			triggerNrPosCh(const TypeSet<GeomPosID>&);
     void			triggerNrPosCh(const GeomPosID&);
     void			triggerNrPosCh();
-    bool			ischanged_;
 
     uiString&			errmsg();
 
@@ -88,7 +91,7 @@ private:
 
     Threads::Lock		poschglock_;
     Threads::Lock		movementlock_;
-    uiString*			errmsg_;
+    uiString*			errmsg_			= nullptr;
 };
 
 } // namespace Geometry

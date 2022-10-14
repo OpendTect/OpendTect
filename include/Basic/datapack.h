@@ -272,7 +272,7 @@ private:
     void			packDeleted(CallBacker*);
 
     static Threads::Lock	mgrlistlock_;
-    static ManagedObjectSet<DataPackMgr> mgrs_;
+    static ObjectSet<DataPackMgr> mgrs_;
 
     mDeprecatedDef DataPack*	doObtain(DataPackMgrID,bool) const;
     mDeprecatedDef int		indexOf(DataPackMgrID) const;
@@ -285,6 +285,7 @@ public:
 			~DataPackMgr();
 			//!< Delete a DataPackMgr only when you have
 			//!< created it with the constructor.
+			mOD_DisableCopy(DataPackMgr)
 
     static DataPackMgr& DPM(DataPackMgrID);
     static DataPackMgr& DPM(const DataPack::FullID& fid)

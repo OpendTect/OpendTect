@@ -111,8 +111,7 @@ MonitoredObject::MonitoredObject()
 
 
 MonitoredObject::MonitoredObject( const MonitoredObject& oth )
-    : CallBacker(oth)
-    , chgnotifblocklevel_(0)
+    : chgnotifblocklevel_(0)
     , dirtycount_(oth.dirtycount_)
     , chgnotif_(this)
     , delnotif_(this)

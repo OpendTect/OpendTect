@@ -186,6 +186,8 @@ public:
 			CallBacker(const CallBacker&);
     virtual		~CallBacker();
 
+    CallBacker&		operator =(const CallBacker&);
+
     bool		attachCB(const NotifierAccess&,const CallBack&,
 				 bool onlyifnew=false) const;
 			/*!<Adds cb to notifier, and makes sure

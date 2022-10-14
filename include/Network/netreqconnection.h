@@ -46,6 +46,7 @@ public:
 			RequestConnection(Socket*);
 			/*!<Socket does NOT become mine. Socket should be
 			    connected to whomever is my counterpart. */
+			mOD_DisableCopy(RequestConnection);
 
 			~RequestConnection();
 

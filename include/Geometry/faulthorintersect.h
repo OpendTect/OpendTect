@@ -39,7 +39,7 @@ public:
 				//The shape is optional, if not set, we still
 				//compute intersections, stored in crdlist_    
     void			setShape(const IndexedShape&);
-    const IndexedShape*		getShape(bool takeover=true);
+    const IndexedShape*		getShape();
 
 protected:
 

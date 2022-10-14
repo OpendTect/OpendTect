@@ -260,6 +260,12 @@ CallBacker::~CallBacker()
 }
 
 
+CallBacker& CallBacker::operator =( const CallBacker& )
+{
+    return *this;
+}
+
+
 void CallBacker::detachAllNotifiers() const
 {
     CallBacker* self = const_cast<CallBacker*>( this );
