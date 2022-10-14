@@ -24,6 +24,9 @@ data/localizations/*.qm
 data/localizations/generated
 data/Python_envs.txt
 data/Python/machine_learning_requirements.txt
+data/Python/dgbpro_requirements.txt
+data/Python/machine_learning_requirements_optional.txt
+data/Python/odpybind_requirements.txt
 doc/Videos.dgb
 doc/od_userdoc
 test/
