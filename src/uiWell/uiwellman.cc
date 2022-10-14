@@ -13,10 +13,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioman.h"
 #include "ctxtioobj.h"
-#include "file.h"
-#include "filepath.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
@@ -37,17 +34,13 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uistrings.h"
-#include "uitextedit.h"
-#include "uitoolbar.h"
 #include "uiwelldisplayserver.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogimpexp.h"
 #include "uiwelllogcalc.h"
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
-#include "uiwelllogdisplay.h"
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiWellMan)
@@ -355,8 +348,12 @@ void uiWellMan::setLogToolButtonProperties()
     logdownbut_->setSensitive( iswritable_ && curidx>=0 && curidx<nrlogs-1 );
     logupbut_->setSensitive( iswritable_ && curidx>0 );
 
-    TypeSet<MultiID> wellids; selGroup()->getChosen( wellids );
-    BufferStringSet lognms; logsfld_->getChosen( lognms );
+    TypeSet<MultiID> wellids;
+    selGroup()->getChosen( wellids );
+
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
+
     const int nrchosenlogs = lognms.size();
     const int nrchosenwells = wellids.size();
     const bool oneormorelog = nrchosenlogs > 0;
@@ -938,13 +935,16 @@ void uiWellMan::removeLogPush( CallBacker* )
 {
     mEnsureLogSelected(uiStrings::sNoLogSel());
 
-    uiString msg;
-    msg = tr("%1will be removed from disk.\nDo you wish to continue?")
-	.arg(nrsellogs == 1 ? tr("This log ") : tr("These logs "));
-    if ( !uiMSG().askRemove(msg) )
-	return;
+    BufferStringSet logs2rem;
+    logsfld_->getChosen( logs2rem );
 
-    BufferStringSet logs2rem; logsfld_->getChosen( logs2rem );
+    uiString msg = tr("Selected logs will be permanently removed."
+		      "\nDo you wish to continue?");
+    uiStringSet details;
+    logs2rem.fill( details );
+    const int res = uiMSG().askRemoveWithDetails( msg, details );
+    if ( res == 0 )
+	return;
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {

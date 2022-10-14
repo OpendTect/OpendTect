@@ -290,6 +290,18 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 			   const uiString& cncltxt, const uiString& title,
 			   bool* notagain )
 {
+    uiStringSet nodetails;
+    return showMessageBoxWithDetails( icon, parent, txt, yestxt, notxt,
+				      cncltxt, nodetails, title, notagain );
+}
+
+
+int uiMsg::showMessageBoxWithDetails( Icon icon,QWidget* parent,
+			   const uiString& txt,const uiString& yestxt,
+			   const uiString& notxt,const uiString& cncltxt,
+			   const uiStringSet& details,
+			   const uiString& title, bool* notagain )
+{
     mPrepCursor();
     if ( txt.isEmpty() )
 	return -1;
@@ -302,6 +314,13 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 					       notxt, cncltxt, wintitle,
 					       notagain ? &checkbox : 0 );
     if ( checkbox ) checkbox->setChecked( *notagain );
+
+    mb->setSizeGripEnabled( true );
+    if ( !details.isEmpty() )
+    {
+	uiString detailed = details.cat();
+	mb->setDetailedText( toQString(detailed) );
+    }
 
     int retval = 0;
     while ( true )
@@ -317,7 +336,7 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 	    *notagain = checkbox->isChecked();
 
 	retval = res==QMessageBox::Yes ? 1 :
-	         res==QMessageBox::No  ? 0 : -1;
+		 res==QMessageBox::No  ? 0 : -1;
 	break;
     }
 
@@ -325,6 +344,7 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 		    notxt.getOriginalString(), cncltxt.getOriginalString() );
 
     return retval;
+
 }
 
 
@@ -468,6 +488,18 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
     return question( text, uiStrings::sRemove(), notxt,
 		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
 		     tr("Remove data") );
+}
+
+
+int uiMsg::askRemoveWithDetails( const uiString& text,
+				 const uiStringSet& details, bool wcancel )
+{
+    const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
+    const uiString cncltxt =
+		wcancel ? uiStrings::sCancel() : uiString::emptyString();
+    return showMessageBoxWithDetails( Question, popParnt(), text,
+				      uiStrings::sRemove(), notxt, cncltxt,
+				      details, tr("Remove Data"), nullptr );
 }
 
 
