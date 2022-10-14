@@ -356,14 +356,13 @@ FaultBinIDSurfaceIntersector::~FaultBinIDSurfaceIntersector()
 
 void FaultBinIDSurfaceIntersector::setShape( const IndexedShape& ns )
 {
-    delete output_;
     output_ = &ns;
 }
 
 
-const IndexedShape* FaultBinIDSurfaceIntersector::getShape( bool takeover )
+const IndexedShape* FaultBinIDSurfaceIntersector::getShape()
 {
-    return takeover ? output_ : new IndexedShape(*output_);
+    return output_;
 }
 
 

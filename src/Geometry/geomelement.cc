@@ -25,14 +25,28 @@ Iterator::~Iterator()
 Element::Element()
     : nrpositionnotifier( this )
     , movementnotifier( this )
-    , ischanged_( false )
-    , errmsg_( 0 )
-    , blockcbs_( false )
 { }
+
+
+Element::Element( const Element& el )
+    : nrpositionnotifier( this )
+    , movementnotifier( this )
+{
+    *this = el;
+}
 
 
 Element::~Element()
 { delete errmsg_; }
+
+
+Element& Element::operator =( const Element& el )
+{
+    if ( &el != this && el.errmsg_ )
+	errmsg_ = new uiString( *el.errmsg_ );
+
+    return *this;
+}
 
 
 void Element::getPosIDs( TypeSet<GeomPosID>& res, bool noudf ) const

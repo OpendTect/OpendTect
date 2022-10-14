@@ -111,7 +111,7 @@ IOMan& IOM()
 
 IOMan::IOMan( const char* rd )
     : NamedCallBacker("IO Manager")
-    , lock_(Threads::Lock(false))
+    , lock_(false)
     , newIODir(this)
     , entryRemoved(this)
     , entryAdded(this)

@@ -110,11 +110,8 @@ public:
 		   multiple times from the same thread without deadlock.
 		   It will be unlock when unLock has been called the same
 		   number of times as lock(). */
-		SpinLock(const SpinLock&);
 		~SpinLock();
-
-    SpinLock&	operator=(const SpinLock& b)
-		{ recursive_ = b.recursive_; return *this; }
+		mOD_DisableCopy(SpinLock)
 
     void	lock();
     void	unLock();
@@ -149,8 +146,8 @@ public:
 			 multiple times from the same thread without deadlock.
 			 It will be unlock when unLock has been called the same
 			 number of times as lock(). */
-			SpinRWLock(const SpinRWLock&);
 			~SpinRWLock();
+			mOD_DisableCopy(SpinRWLock)
 
 
     void		readLock();

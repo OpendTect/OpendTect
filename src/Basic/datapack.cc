@@ -30,7 +30,7 @@ const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 
 Threads::Lock DataPackMgr::mgrlistlock_;
-ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
+ObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 
 #ifdef __debug__
 # define mTrackDPMsg(msg) \
