@@ -239,6 +239,11 @@ void uiSetDataDir::rootRemoveCB( CallBacker* )
 	return;
 
     dirlist_.removeSingle( curitm );
+    int newcuritm = curitm;
+    if ( newcuritm >= dirlist_.size() )
+	newcuritm = dirlist_.size()-1;
+
+    dirlistfld_->setCurrentItem( newcuritm );
     updateListFld();
 }
 

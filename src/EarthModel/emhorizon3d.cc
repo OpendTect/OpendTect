@@ -837,10 +837,10 @@ bool Horizon3D::readNodeArrays()
     const IOPar par( astream );
     trackingsamp_.usePar( par );
 
-    delete parents_; parents_= 0;
-    delete nodesource_; nodesource_= 0;
-    delete lockednodes_; lockednodes_ = 0;
-    delete children_; children_= 0;
+    deleteAndNullPtr( parents_ );
+    deleteAndNullPtr( nodesource_ );
+    deleteAndNullPtr( lockednodes_ );
+    deleteAndNullPtr( children_ );
 
     initNodeArraysSize( trackingsamp_.inlRange(), trackingsamp_.crlRange() );
 
@@ -909,7 +909,7 @@ void Horizon3D::initNodeArraysSize( const StepInterval<int>& inlrg,
 
 
 void Horizon3D::setNodeArraySize( const StepInterval<int>& inlrg,
-    const StepInterval<int>& crlrg, ArrayType arrtype )
+	const StepInterval<int>& crlrg, ArrayType arrtype )
 {
     const TrcKeySampling curtks = getTrackingSampling();
     TrcKeySampling tks;
