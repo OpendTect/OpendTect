@@ -1,0 +1,7 @@
+folium
+jupyterlab
+jupytext
+matplotlib
+notebook
+pandas
+spyder
