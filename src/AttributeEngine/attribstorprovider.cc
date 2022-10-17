@@ -702,24 +702,6 @@ bool StorageProvider::computeData( const DataHolder& output,
     if ( !trc || !trc->size() )
 	return false;
 
-    if ( desc_.is2D() && seldata_ && seldata_->type() == Seis::Table )
-    {
-	Interval<float> deszrg = desiredvolume_->zsamp_;
-	Interval<float> poszrg = possiblevolume_->zsamp_;
-	const float desonlyzrgstart = deszrg.start - poszrg.start;
-	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
-	Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-	const float diffstart = z0*refstep_ - trcrange.start;
-	const float diffstop = (z0+nrsamples-1)*refstep_ - trcrange.stop;
-	bool isdiffacceptable =
-	    ( (mIsEqual(diffstart,0,refstep_/100) || diffstart>0)
-	      || diffstart >= desonlyzrgstart )
-	 && ( (mIsEqual(diffstop,0,refstep_/100) || diffstop<0 )
-	      || diffstop<=desonlyzrgstop );
-	if ( !isdiffacceptable )
-	    return false;
-    }
-
     return fillDataHolderWithTrc( trc, output );
 }
 
