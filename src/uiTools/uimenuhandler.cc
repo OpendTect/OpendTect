@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 
 #include "mousecursor.h"
+#include "survinfo.h"
 
 int uiMenuHandler::fromTree()	{ return 1; }
 int uiMenuHandler::fromScene()	{ return 0; }
@@ -176,4 +177,85 @@ void uiTreeItemTBHandler::butClickCB( CallBacker* cb )
     ishandled_ = false;
     handlenotifier.trigger( butid, this );
     executeQueue();
+}
+
+
+
+int add2D3DToolButton( uiToolBar& tb, const char* iconnm, const uiString& tt,
+		       const CallBack& cb2d, const CallBack& cb3d,
+		       int* retitmid2d, int* retitmid3d )
+{
+    if ( !SI().has2D() )
+    {
+	const int itmid3d = tb.addButton( iconnm, tt, cb3d, false,
+					  retitmid3d ? *retitmid3d : -1 );
+	if ( retitmid3d )
+	    *retitmid3d = itmid3d;
+	return itmid3d;
+    }
+
+    if ( !SI().has3D() )
+    {
+	const int itmid2d = tb.addButton( iconnm, tt, cb2d, false,
+					  retitmid2d ? *retitmid2d : -1 );
+	if ( retitmid2d )
+	    *retitmid2d = itmid2d;
+	return itmid2d;
+    }
+
+    const int butid = tb.addButton( iconnm, tt );
+    auto* popmnu = new uiMenu( tb.parent(), uiStrings::sAction() );
+    const int itmid2d = popmnu->insertAction(
+				new uiAction( m3Dots(uiStrings::s2D()),cb2d),
+					      retitmid2d ? *retitmid2d : -1 );
+    if ( retitmid2d )
+	*retitmid2d = itmid2d;
+    const int itmid3d = popmnu->insertAction(
+				new uiAction(m3Dots(uiStrings::s3D()),cb3d),
+					     retitmid3d ? *retitmid3d : -1 );
+    if ( retitmid3d )
+	*retitmid3d = itmid3d;
+
+    tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );
+    return butid;
+}
+
+
+void add2D3DMenuItem( uiMenu& menu, const char* iconnm, const uiString& itmtxt,
+		      const CallBack& cb2d, const CallBack& cb3d,
+		      int* retitmid2d, int* retitmid3d )
+{
+    if ( !SI().has2D() )
+    {
+	const int itmid3d = menu.insertAction(
+				new uiAction(m3Dots(itmtxt),cb3d,iconnm),
+				retitmid3d ? *retitmid3d : -1 );
+	if ( retitmid3d )
+	    *retitmid3d = itmid3d;
+	return;
+    }
+
+    if ( !SI().has3D() )
+    {
+	const int itmid2d = menu.insertAction(
+				new uiAction(m3Dots(itmtxt),cb2d,iconnm),
+				retitmid2d ? *retitmid2d : -1 );
+	if ( retitmid2d )
+	    *retitmid2d = itmid2d;
+	return;
+    }
+
+    auto* mnu = new uiMenu( itmtxt, iconnm );
+    const int itmid2d = mnu->insertAction(
+				new uiAction( m3Dots(uiStrings::s2D()),cb2d),
+				retitmid2d ? *retitmid2d : -1);
+    const int itmid3d = mnu->insertAction(
+				new uiAction( m3Dots(uiStrings::s3D()),cb3d),
+				retitmid3d ? *retitmid3d : -1);
+    if ( retitmid2d )
+	*retitmid2d = itmid2d;
+    if ( retitmid3d )
+	*retitmid3d = itmid3d;
+
+    menu.addMenu( mnu );
 }

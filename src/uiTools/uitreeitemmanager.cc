@@ -274,17 +274,18 @@ const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 
 uiTreeItem* uiTreeItem::findChild( const char* nm )
 {
-    if ( name_.getFullString() == nm )
+    const BufferString treenm( toString(name_) );
+    if ( treenm == nm )
 	return this;
 
-    for ( int idx=0; idx<children_.size(); idx++ )
+    for ( auto* child : children_ )
     {
-	uiTreeItem* res = children_[idx]->findChild(nm);
+	uiTreeItem* res = child->findChild( nm );
 	if ( res )
 	    return res;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -685,6 +686,8 @@ uiTreeFactorySet::uiTreeFactorySet()
 
 uiTreeFactorySet::~uiTreeFactorySet()
 {
+    for ( int idx=0; idx<factories_.size(); idx++ )
+	removenotifier.trigger( idx );
     deepErase( factories_ );
 }
 
@@ -692,6 +695,14 @@ uiTreeFactorySet::~uiTreeFactorySet()
 void uiTreeFactorySet::addFactory( uiTreeItemFactory* ptr, int placement,
 				   int pol2d )
 {
+    if ( !ptr )
+	return;
+
+    const BufferString newfactnm( ptr->name() );
+    for ( const auto* factory : factories_ )
+	if ( newfactnm == factory->name() )
+	    return;
+
     factories_ += ptr;
     placementidxs_ += placement;
     pol2ds_ += pol2d;

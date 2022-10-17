@@ -80,17 +80,18 @@ extern "C" {
 }
 
 
-static uiODMain* manODMainWin( uiODMain* i )
+static uiODMain* manODMainWin( uiODMain* i, bool set )
 {
     mDefineStaticLocalObject( uiODMain*, theinst, = nullptr );
-    if ( i ) theinst = i;
+    if ( set )
+	theinst = i;
     return theinst;
 }
 
 
 uiODMain* ODMainWin()
 {
-    return manODMainWin( nullptr );
+    return manODMainWin( nullptr, false );
 }
 
 
@@ -218,7 +219,7 @@ int ODMain( uiMain& app )
     uiDialog::setTitlePos( uiDialog::LeftSide );
 
     PtrMan<uiODMain> odmain = new uiODMain( app );
-    manODMainWin( odmain );
+    manODMainWin( odmain.ptr(), true );
 
     checkScreenRes();
     uiRetVal uirv;
@@ -318,7 +319,7 @@ uiODMain::~uiODMain()
     detachAllNotifiers();
     memtimer_.stop();
     if ( ODMainWin()==this )
-	manODMainWin( nullptr );
+	manODMainWin( nullptr, true );
 
     odmainproginfomgr_.removeAndDeleteParam( this );
     hp_odmainexitmgr_.removeAndDeleteParam( this );
