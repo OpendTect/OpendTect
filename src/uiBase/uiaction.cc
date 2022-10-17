@@ -228,7 +228,6 @@ void uiAction::updateToolTips()
 void uiAction::setMenu( uiMenu* menu )
 {
     delete menu_;
-
     menu_ = menu;
     if ( menu_ )
     {
@@ -241,6 +240,19 @@ void uiAction::setMenu( uiMenu* menu )
 		setIcon( menuicon.buf() );
 	}
     }
+}
+
+
+bool uiActionContainer::isMenu() const
+{
+    mDynamicCastGet(const uiMenu*,mnu,this);
+    return mnu;
+}
+
+
+const uiActionContainer* uiAction::getContainer() const
+{
+    return parentcontainer_;
 }
 
 
@@ -709,9 +721,20 @@ void uiActionContainer::removeAction( uiAction* action )
 
 void uiActionContainer::removeAction( int id )
 {
-    const int idx=ids_.indexOf(id);
+    const int idx = ids_.indexOf(id);
     if ( actions_.validIdx(idx) )
 	removeItem( actions_[idx] );
+}
+
+
+bool uiActionContainer::removeMenu( uiMenu& mnu )
+{
+    const uiAction* mnuaction = findAction( &mnu );
+    if ( !mnuaction )
+	return false;
+
+    removeAction( const_cast<uiAction*>( mnuaction ) );
+    return true;
 }
 
 

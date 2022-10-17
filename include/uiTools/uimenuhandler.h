@@ -100,3 +100,14 @@ protected:
     uiToolBar*			tb_;
     uiParent*			uiparent_;
 };
+
+
+mGlobal(uiTools) int	add2D3DToolButton(uiToolBar&,const char* iconnnm,
+				  const uiString& menuitmtxt,
+				  const CallBack& cb2d,const CallBack& cb3d,
+				  int* tmid2d =nullptr,int* itmid3d =nullptr);
+
+mGlobal(uiTools) void	add2D3DMenuItem(uiMenu&,const char* iconnnm,
+				  const uiString& menuitmtxt,
+				  const CallBack& cb2d,const CallBack& cb3d,
+				  int* tmid2d =nullptr,int* itmid3d =nullptr);

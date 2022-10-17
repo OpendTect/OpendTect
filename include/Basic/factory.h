@@ -126,6 +126,8 @@ public:
 				   where the first name will be the main
 				   name that is returned in getNames. */
 
+    inline void			removeCreator(Creator);
+
     inline T*			create(const char* nm) const;
 				//!<Name may be not be null
 protected:
@@ -186,22 +188,24 @@ template <class T, class P>
 mClass(Basic) Factory1Param : public FactoryBase
 { mODTextTranslationClass(Factory1Param)
 public:
-    typedef			T* (*Creator)(P);
-    inline void			addCreator(Creator,const char* nm=nullptr,
-					   const uiString& usernm =
-						uiString::emptyString());
-				/*!<Name may be be null
-				   If nm is found, old creator is replaced.
-				   nm can be a SeparString, separated by
-				   cSeparator(), allowing multiple names,
-				   where the first name will be the main
-				   name that is returned in getNames. */
-    inline T*			create(const char* nm, P, bool chknm=true)const;
-				//!<Name may be be null, if null name is given
-				//!<chknm will be forced to false
+    typedef		T* (*Creator)(P);
+    inline void		addCreator(Creator,const char* nm =nullptr,
+				   const uiString& usernm =uiString::empty());
+			/*!<Name may be be null
+			   If nm is found, old creator is replaced.
+			   nm can be a SeparString, separated by
+			   cSeparator(), allowing multiple names,
+			   where the first name will be the main
+			   name that is returned in getNames. */
+
+    inline void		removeCreator(Creator);
+
+    inline T*		create(const char* nm,P,bool chknm =true) const;
+			//!<Name may be be null, if null name is given
+			//!<chknm will be forced to false
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
 };
 
 
@@ -214,21 +218,24 @@ mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
     typedef		T* (*Creator)(P0,P1);
-    inline void		addCreator(Creator,const char* nm=nullptr,
-				const uiString& usernm=uiString::emptyString());
+    inline void		addCreator(Creator,const char* nm =nullptr,
+				   const uiString& usernm =uiString::empty());
 			/*!<Name may be be null
 			   If nm is found, old creator is replaced.
 			   nm can be a SeparString, separated by
 			   cSeparator(), allowing multiple names,
 			   where the first name will be the main
 			   name that is returned in getNames. */
-    inline T*		create(const char* nm, P0, P1,
-			       bool chknm=true)const;
+
+    inline void		removeCreator(Creator);
+
+    inline T*		create(const char* nm,P0,P1,
+			       bool chknm =true) const;
 			//!<Name may be be null, if null name is given
 			//!<chknm will be forced to false
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
 };
 
 
@@ -241,21 +248,24 @@ mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
     typedef		T* (*Creator)(P0,P1,P2);
-    inline void		addCreator(Creator,const char* nm=nullptr,
-			    const uiString& usernm =uiString::emptyString());
+    inline void		addCreator(Creator,const char* nm =nullptr,
+				   const uiString& usernm =uiString::empty());
 			/*!<Name may be be null
 			   If nm is found, old creator is replaced.
 			   nm can be a SeparString, separated by
 			   cSeparator(), allowing multiple names,
 			   where the first name will be the main
 			   name that is returned in getNames. */
-    inline T*		create(const char* nm, P0, P1, P2,
-			       bool chknm=true)const;
+
+    inline void		removeCreator(Creator);
+
+    inline T*		create(const char* nm,P0,P1,P2,
+			       bool chknm =true) const;
 			//!<Name may be be null, if null name is given
 			//!<chknm will be forced to false
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
 };
 
 
@@ -349,12 +359,27 @@ static baseclss*	createInstance( parclss1 p1, parclss2 p2 ) \
 	creators_[idx] = cr;\
     }
 
+#define mRemoveCreator \
+    for ( int idx=creators_.size()-1; idx>=0; idx-- ) \
+    { \
+	if ( creators_.get(idx) == cr ) \
+	    creators_.removeSingle(idx); \
+    }
+
+
 template <class T> inline
 void Factory<T>::addCreator( Creator cr, const char* name,
 			     const uiString& username )
 {
     if ( !name ) return;\
     mAddCreator;
+}
+
+
+template <class T> inline
+void Factory<T>::removeCreator( Creator cr )
+{
+    mRemoveCreator;
 }
 
 
@@ -374,6 +399,13 @@ void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
 
 
 template <class T, class P> inline
+void Factory1Param<T,P>::removeCreator( Creator cr )
+{
+    mRemoveCreator;
+}
+
+
+template <class T, class P> inline
 T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 {
     mCreateImpl( chk, creators_[idx]( data ) );
@@ -385,6 +417,13 @@ void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
 					 const uiString& username )
 {
     mAddCreator;
+}
+
+
+template <class T, class P0, class P1> inline
+void Factory2Param<T,P0,P1>::removeCreator( Creator cr )
+{
+    mRemoveCreator;
 }
 
 
@@ -401,6 +440,13 @@ void Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
 					 const uiString& username )
 {
     mAddCreator;
+}
+
+
+template <class T, class P0, class P1, class P2> inline
+void Factory3Param<T,P0,P1,P2>::removeCreator( Creator cr )
+{
+    mRemoveCreator;
 }
 
 

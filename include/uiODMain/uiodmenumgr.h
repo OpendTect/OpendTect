@@ -85,10 +85,14 @@ public:
 
     static int		ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
 				int rescncl=0);
+
+    mDeprecated("Use Global(uiTools) add2D3DToolButton")
     int			add2D3DToolButton(uiToolBar&,const char* iconnnm,
 				     const uiString& tooltip,
 				     const CallBack& cb2d,const CallBack& cb3d,
 				     int itmid2d=-1,int itmid3d=-1);
+
+    mDeprecated("Use Global(uiTools) add2D3DMenuItem")
     void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
 				     const uiString& menuitmtxt,
 				     const CallBack& cb2d,const CallBack& cb3d,
