@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -63,6 +62,7 @@ public:
 
     uiMenu*		getMenu()		{ return menu_; }
     const uiMenu*	getMenu() const		{ return menu_; }
+    const uiActionContainer* getContainer() const;
 
     void		setShortcut(const char*);
 
@@ -195,6 +195,7 @@ public:
 				 */
     int				insertAction(const MenuItem&);
 
+    bool			isMenu() const;
     uiMenu*			addMenu(uiMenu*,const uiMenu* before = 0);
 				/*!<Becomes mine. Returns pointer to menu. */
 
@@ -202,6 +203,7 @@ public:
 
     void			removeAction(uiAction*);
     void			removeAction(int id);
+    bool			removeMenu(uiMenu&);
     void			removeAllActions();
     void			reloadIcons();
 
