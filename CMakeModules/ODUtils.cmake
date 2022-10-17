@@ -126,6 +126,7 @@ macro ( OD_ADD_MODULES )
     else()
 	string(REPLACE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} MODULE_OUTPUT_DIR ${DIR})
     endif()
+    string(TIMESTAMP YEAR %Y)
     foreach( OD_MODULE_NAME ${ARGV} )
 	if ( NOT ${OD_MODULE_NAME} STREQUAL ${DIR} )
 	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} 
