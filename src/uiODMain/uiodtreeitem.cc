@@ -271,8 +271,11 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
-    const uiTreeItem* child = findChild( dummy->name().getFullString().buf() );
-    if ( !children_.isPresent(child) ) return;
+    const BufferString treenm( toString(dummy->name()) );
+    const uiTreeItem* child = findChild( treenm.buf() );
+    if ( !children_.isPresent(child) )
+	return;
+
     removeChild( const_cast<uiTreeItem*>(child) );
 }
 
