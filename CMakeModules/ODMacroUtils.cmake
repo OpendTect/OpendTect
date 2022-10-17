@@ -452,6 +452,7 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
 	    set( RC_APP_DESC ${RC_${TARGET_NAME}_DESC} )
 	    set( RC_ICO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources" )
 	    configure_file( "${OpendTect_DIR}/CMakeModules/templates/od_app.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/resources/${TARGET_NAME}.rc" )
+	    configure_file( "${OpendTect_DIR}/CMakeModules/templates/resource.h.in" "${CMAKE_CURRENT_BINARY_DIR}/resources/resource.h" )
 	    list( APPEND OD_${TARGET_NAME}_RESOURCE resources/${TARGET_NAME}.rc resources/resource.h )
 	endif()
 
