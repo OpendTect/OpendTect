@@ -36,18 +36,23 @@ static bool testMnemonicsSel()
     MnemonicSelection stdtypesel( Mnemonic::Temp );
     MnemonicSelection volmnsel = MnemonicSelection::getAllVolumetrics();
     MnemonicSelection pormnsel = MnemonicSelection::getAllPorosity();
+    MnemonicSelection statsmnsel = MnemonicSelection::getAllSaturations();
 
     mRunStandardTest( emptymnsel.isEmpty(), "Empty Mnemonic selection" );
     mRunStandardTest( !excludedmnsel.isEmpty() &&
 		      !excludedmnsel.getByName(Mnemonic::defDT().name(),false),
 		      "Mnemonic selection without DT" );
     mRunStandardTest( stdtypesel.size() == 1, "Mnemonic selection by type" );
-    mRunStandardTest( volmnsel.size() == 1 &&
-		      volmnsel.first()->name() == "VCL",
+    mRunStandardTest( volmnsel.size() == 47 &&
+		      !volmnsel.isPresent( &Mnemonic::defPHI() ) &&
+		      !volmnsel.isPresent( &Mnemonic::defSW() ),
 		      "Volumetric mnemonic selection" );
-    mRunStandardTest( pormnsel.size() == 6 &&
-		      pormnsel.first()->name() == Mnemonic::defPHI().name(),
+    mRunStandardTest( pormnsel.size() == 7 &&
+		      pormnsel.isPresent( &Mnemonic::defPHI() ),
 		      "Porosity mnemonic selection" );
+    mRunStandardTest( statsmnsel.size() == 5 &&
+		      statsmnsel.isPresent( &Mnemonic::defSW() ),
+		      "Saturation mnemonic selection" );
 
     return true;
 }
