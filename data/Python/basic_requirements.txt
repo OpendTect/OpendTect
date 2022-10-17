@@ -1,3 +1,5 @@
-humanfriendly==
-psutil==5.8.0
-safety==1.10.3
+humanfriendly
+matplotlib-base
+numpy
+psutil>=5.8.0
+safety>=1.10.3
