@@ -67,8 +67,9 @@ set(OD_MODULE_SOURCES
 
 set( OD_MODULE_GUI_PROGS od_main.cc  )
 if ( WIN32 )
+    set( RC_od_main_DESC "OpendTect" )
+
     set( OD_MODULE_PROGS od_main_console.cc )
-    set( OD_od_main_RESOURCE resources/icon1.ico )
     list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_FirewallProcSetter.cc )
 endif()
 
