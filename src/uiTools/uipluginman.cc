@@ -300,10 +300,12 @@ void uiPluginMan::selChg( CallBacker* )
     }
 
     infofld_->setText( piinf.text_ );
-    unloadbut_->setSensitive( true );
+    const bool isfreeplugin = piinf.lictype_ == PluginInfo::GPL;
+    const FilePath devfp( GetSoftwareDir(false), "CMakeCache.txt" );
+    unloadbut_->setSensitive( devfp.exists() || isfreeplugin );
 
     BufferString licmsg;
-    if ( piinf.lictype_ == PluginInfo::GPL )
+    if ( isfreeplugin )
 	licmsg = "Plugin released under GPL license";
     else
     {
