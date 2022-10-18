@@ -36,12 +36,12 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , dp_( &dp )
     , iterator_( dp.sampling().hsamp_ )
     , mid_( mid )
-    , posinfo_(0)
+    , posinfo_(nullptr)
     , compidxs_( compidxs )
-    , trc_( 0 )
+    , trc_(nullptr)
 {
+    getPosInfo();
     compscalers_.allowNull( true );
-    obtainDP();
 
     if ( compidxs_.isEmpty() )
     {
@@ -68,7 +68,6 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
 SeisDataPackWriter::~SeisDataPackWriter()
 {
-    releaseDP();
     delete trc_;
     delete writer_;
     deepErase( compscalers_ );
@@ -77,6 +76,9 @@ SeisDataPackWriter::~SeisDataPackWriter()
 
 void SeisDataPackWriter::getPosInfo()
 {
+    if ( !dp_ )
+	return;
+
     const PosInfo::CubeData* pi = dp_->getTrcsSampling();
     posinfo_ = pi;
     if ( pi && !pi->isFullyRectAndReg() )
@@ -163,34 +165,13 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
     {
-	releaseDP();
 	dp_ = &dp;
-	obtainDP();
+	getPosInfo();
     }
 
     nrdone_ = 0;
     zrg_ = Interval<int>( 0, dp_->sampling().nrZ()-1 );
     setSelection( dp_->sampling().hsamp_, cubezrgidx_ );
-}
-
-
-void SeisDataPackWriter::obtainDP()
-{
-    if ( !dp_ || !DPM( DataPackMgr::SeisID() ).ref(dp_->id()) )
-    {
-	releaseDP();
-	return;
-    }
-
-    getPosInfo();
-}
-
-
-void SeisDataPackWriter::releaseDP()
-{
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
-    dp_ = nullptr;
-    posinfo_ = nullptr;
 }
 
 

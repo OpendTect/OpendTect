@@ -52,9 +52,9 @@ bool Processor::reset( bool force )
     freeArray( outputs_ );
     outputinterest_.erase();
 
-    outputs_ += 0;
+    outputs_ += nullptr;
     outputinterest_ += false;
-    inputs_ += 0;
+    inputs_ += nullptr;
 
     return true;
 }
@@ -73,15 +73,7 @@ void Processor::setInput( const BinID& relbid, DataPackID id )
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );
     if ( offset>=inputs_.size() )
-    {
-	if ( input ) DPM( DataPackMgr::FlatID() ).unRef( input->id() );
 	return;
-    }
-
-    if ( inputs_[offset] )
-    {
-	DPM( DataPackMgr::FlatID() ).unRef( inputs_[offset]->id() );
-    }
 
     inputs_.replace( offset, input );
 }
@@ -414,9 +406,6 @@ bool ProcessManager::usePar( const IOPar& par )
 
 void Processor::freeArray( ObjectSet<Gather>& arr )
 {
-    for ( int idx=0; idx<arr.size(); idx++ )
-	DPM( DataPackMgr::FlatID() ).unRef( arr[idx]->id() );
-
     arr.erase();
 }
 

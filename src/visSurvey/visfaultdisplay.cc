@@ -1963,8 +1963,9 @@ bool FaultDisplay::setDataPackID( int attrib, DataPackID dpid,
 	return false;
 
     DataPackID oldid = datapackids_[attrib];
-    datapackids_[attrib] = dpid;
     dpman.unRef( oldid );
+    datapackids_[attrib] = dpid;
+    dpman.ref( dpid );
     return true;
 }
 
