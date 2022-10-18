@@ -1845,7 +1845,7 @@ HorizonDisplay::IntersectionData*
 				ObjectSet<IntersectionData>& pool )
 {
     IntersectionData* data = nullptr;
-    if ( pool.size() )
+    if ( !pool.isEmpty() )
     {
 	data = pool.pop();
 	if ( data )
@@ -1902,7 +1902,7 @@ void HorizonDisplay::updateIntersectionLines(
     if ( !doall && !isValidIntersectionObject(objs,objidx,whichobj) )
 	return;
 
-    ManagedObjectSet<IntersectionData> lines;
+    ObjectSet<IntersectionData> lines;
     if ( doall )
     {
 	while ( intersectiondata_.size() )
@@ -1938,7 +1938,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
 
 	    if ( trckeypath.isEmpty() && trzs.isEmpty() )
-		return;
+		continue;
 
 	    IntersectionData* data = nullptr;
 
@@ -1973,7 +1973,6 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    intersectiondata_ += data;
 	}
-
     }
 
     //These lines were not used, hance remove from scene.
@@ -1982,6 +1981,8 @@ void HorizonDisplay::updateIntersectionLines(
 	removeChild( lines[idx]->line_->osgNode() );
 	removeChild( lines[idx]->markerset_->osgNode() );
     }
+
+    deepErase( lines );
 }
 
 
@@ -2577,6 +2578,7 @@ HorizonDisplay::IntersectionData::~IntersectionData()
 	unRefAndZeroPtr( zaxistransform_ );
     }
 
+    clear();
     unRefAndZeroPtr( line_ );
     unRefAndZeroPtr( markerset_ );
 }
@@ -2584,7 +2586,7 @@ HorizonDisplay::IntersectionData::~IntersectionData()
 
 void HorizonDisplay::IntersectionData::addLine( const TypeSet<Coord3>& crds )
 {
-    if ( !crds.size() )
+    if ( crds.isEmpty() )
 	return;
 
     if ( crds.size()==1 )
