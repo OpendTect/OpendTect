@@ -329,10 +329,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 
 	dpm_.add( const_cast<RegularSeisDataPack*>(dp.ptr()) );
 	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
-	{
-	    dpm_.unRef( dp->id() );
 	    continue;
-	}
 
 	dp->ref();
 	packset += dp;

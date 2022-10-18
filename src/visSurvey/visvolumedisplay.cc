@@ -1100,10 +1100,7 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPackID dpid,
     auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
     const bool res = setDataVolume( attrib, regsdp, taskr );
     if ( !res )
-    {
-	dpm.unRef( dpid );
 	return false;
-    }
 
     attribs_[attrib]->cache_ = regsdp;
     return true;

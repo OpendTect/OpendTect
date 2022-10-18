@@ -73,6 +73,7 @@ bool PointSetDisplay::setDataPack( DataPackID dpsid )
     if ( !data ) return false;
 
     data_ = data;
+    data_->ref();
 
     setName( data_ ? data_->name() : BufferString::empty() );
 
