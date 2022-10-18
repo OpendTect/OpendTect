@@ -447,11 +447,13 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
     foreach ( EXEC ${OD_MODULE_TESTPROGS} ${OD_MODULE_PROGS} ${OD_MODULE_GUI_PROGS} ${OD_ELEVATED_PERMISSIONS_PROGS} ${OD_ELEVATED_PERMISSIONS_GUI_PROGS} )
     	get_filename_component( TARGET_NAME ${EXEC} NAME_WE )
 
-	if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resources/${TARGET_NAME}.rc" )
-	    list( APPEND OD_${TARGET_NAME}_RESOURCE resources/${TARGET_NAME}.rc )
-	    if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resources/resource.h" )
-	        list( APPEND OD_${TARGET_NAME}_RESOURCE resources/resource.h )
-	    endif()
+	if ( DEFINED RC_${TARGET_NAME}_DESC )
+	    set( RC_APP_NAME ${TARGET_NAME} )
+	    set( RC_APP_DESC ${RC_${TARGET_NAME}_DESC} )
+	    set( RC_ICO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources" )
+	    configure_file( "${OpendTect_DIR}/CMakeModules/templates/od_app.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/resources/${TARGET_NAME}.rc" )
+	    configure_file( "${OpendTect_DIR}/CMakeModules/templates/resource.h.in" "${CMAKE_CURRENT_BINARY_DIR}/resources/resource.h" )
+	    list( APPEND OD_${TARGET_NAME}_RESOURCE resources/${TARGET_NAME}.rc resources/resource.h )
 	endif()
 
 	OD_ADD_SOURCE_FILES( ${EXEC} ${OD_${TARGET_NAME}_RESOURCE} )

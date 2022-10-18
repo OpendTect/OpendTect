@@ -74,10 +74,10 @@ set( OD_MODULE_SOURCES
 	inituiio.cc
 )
 
-if( WIN32 )
-    set( OD_od_BatchHosts_RESOURCE resources/network.ico )
-endif()
-
 set( OD_MODULE_GUI_PROGS od_BatchHosts.cc od_RemoteServiceMgr.cc )
+
+if( WIN32 )
+    set( RC_od_BatchHosts_DESC "Set up Distributed Computing" )
+endif()
 
 OD_INIT_MODULE()
