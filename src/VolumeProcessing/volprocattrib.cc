@@ -234,6 +234,7 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 
     //Ensure it survives the chain executor destruction
     DPM( DataPackMgr::SeisID() ).add( output );
+    DPM( DataPackMgr::SeisID() ).ref( output->id() );
 
     return output->id();
 }
