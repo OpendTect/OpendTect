@@ -39,8 +39,6 @@ uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 
 void uiSeisTrcBufViewer::releaseDP()
 {
-    if ( dp_ )
-	DPM( DataPackMgr::FlatID() ).unRef( dp_->id() );
     dp_ = nullptr;
 }
 
