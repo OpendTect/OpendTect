@@ -185,11 +185,16 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 
     foreach( DATADIR ${DATADIRLIST} )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
-	      DESTINATION ${COPYTODATADIR}/data
-	      PATTERN "basic_requirements.txt" EXCLUDE
-	      PATTERN "presentation_maker_requirements.txt" EXCLUDE )
+	      DESTINATION ${COPYTODATADIR}/data )
     endforeach()
-    set( DATADIRLIST "" )
+    if ( DEFINED PYTHONREQLIST )
+	foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
+	    file( COPY "${COPYFROMDATADIR}/data/Python/${PYTHONREQFNM}.txt"
+		  DESTINATION "${COPYTODATADIR}/data/Python" )
+	endforeach()
+    endif()
+    unset( PYTHONREQLIST )
+    unset( DATADIRLIST )
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( CREATE_PACKAGE )
@@ -200,7 +205,7 @@ macro( COPY_THIRDPARTYLIBS )
     list( APPEND SSLLIBS ${OPENSSLLIBS} )
     foreach( LIB ${OD_THIRD_PARTY_FILES} )
 	string( FIND ${LIB} "Qt" ISQTLIB )
-	if (  APPLE AND NOT ${ISQTLIB} EQUAL -1 )
+	if ( APPLE AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
@@ -312,12 +317,21 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
     string( FIND ${PACKAGE_NAME} "dgb" STATUS )
     if( ${STATUS} EQUAL "0" )
 	set( ODDGBSTR "dgb" )
+
+	#add the base translation to basedata, not dgbbasedata
+	file( RENAME "${COPYTODATADIR}" "${COPYTODATADIR}_TMP" )
+	file( COPY "${COPYFROMDATADIR}/data/localizations/od_en_US.qm"
+	      DESTINATION "${COPYTODATADIR}/data/localizations" )
+	ZIPPACKAGE( "basedata.zip" ${REL_DIR} ${PACKAGE_DIR} )
+	file( RENAME "${COPYTODATADIR}_TMP" "${COPYTODATADIR}" )
+
 	set( RELFILENAM ${RELFILENAM}.${ODDGBSTR}.txt )
 	file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
 	foreach( QMFILE ${QMFILES} )
 	    get_filename_component( QMFILENM ${QMFILE} NAME )
-	    file( COPY ${COPYFROMDATADIR}/data/localizations/${QMFILENM}
-		  DESTINATION ${COPYTODATADIR}/data/localizations )
+	    file( COPY "${COPYFROMDATADIR}/data/localizations/${QMFILENM}"
+		  DESTINATION "${COPYTODATADIR}/data/localizations"
+		  PATTERN "od_en_US*" EXCLUDE )
 	 endforeach()
     else()
 	set( ODDGBSTR "od" )
@@ -344,10 +358,16 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 
     foreach( DATADIR ${DATADIRLIST} )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
-	      DESTINATION ${COPYTODATADIR}/data
-	      PATTERN "machine_learning*.txt" EXCLUDE )
+	      DESTINATION ${COPYTODATADIR}/data )
     endforeach()
-    set( DATADIRLIST "" )
+    if ( DEFINED PYTHONREQLIST )
+	foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
+	    file( COPY "${COPYFROMDATADIR}/data/Python/${PYTHONREQFNM}.txt"
+		  DESTINATION "${COPYTODATADIR}/data/Python" )
+	endforeach()
+    endif()
+    unset( PYTHONREQLIST )
+    unset( DATADIRLIST )
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( CREATE_BASEPACKAGES )
@@ -406,8 +426,8 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
     endif()
 
     set( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
-    if( EXISTS ${DESTINATION_DIR} )
-	file( REMOVE_RECURSE ${DESTINATION_DIR} )
+    if( EXISTS "${DESTINATION_DIR}" )
+	file( REMOVE_RECURSE "${DESTINATION_DIR}" )
     endif()
 
     if ( NOT APPLE )
