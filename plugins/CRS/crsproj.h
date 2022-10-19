@@ -124,3 +124,8 @@ mGlobal(CRS) void		initCRSDatabase();
 mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
 
 } // namespace Coords
+
+
+extern "C" {
+    mGlobal(CRS) bool		initCRSPlugin(bool withdatabase);
+}

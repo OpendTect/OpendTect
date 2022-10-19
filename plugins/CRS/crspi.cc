@@ -46,20 +46,32 @@ static mUnusedVar uiString* legalText()
 namespace Coords
 { extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); } }
 
+bool initCRSPlugin( bool withdatabase )
+{
+#ifdef OD_NO_PROJ
+    return false
+#else
+    Coords::initCRSDatabase();
+    Coords::ProjectionBasedSystem::initClass();
+    if ( withdatabase )
+	SI().readSavedCoordSystem();
+
+    SetWGS84( Coords::Projection::sWGS84ProjDispString(),
+	      Coords::ProjectionBasedSystem::getWGS84LLSystem() );
+    return true;
+#endif
+}
+
+
 mDefODInitPlugin(CRS)
 {
     if ( !NeedDataBase() )
-	return nullptr;
 
+	return nullptr;
 #ifndef OD_NO_PROJ
     legalInformation().addCreator( legalText, "PROJ" );
-
-    Coords::initCRSDatabase();
-    Coords::ProjectionBasedSystem::initClass();
-    SI().readSavedCoordSystem();
-    SetWGS84( Coords::Projection::sWGS84ProjDispString(),
-	      Coords::ProjectionBasedSystem::getWGS84LLSystem() );
 #endif
+    initCRSPlugin( true );
 
     return nullptr;
 }
