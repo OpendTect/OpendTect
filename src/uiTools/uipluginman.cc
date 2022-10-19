@@ -301,8 +301,7 @@ void uiPluginMan::selChg( CallBacker* )
 
     infofld_->setText( piinf.text_ );
     const bool isfreeplugin = piinf.lictype_ == PluginInfo::GPL;
-    const FilePath devfp( GetSoftwareDir(false), "CMakeCache.txt" );
-    unloadbut_->setSensitive( devfp.exists() || isfreeplugin );
+    unloadbut_->setSensitive( isDeveloperBuild() || isfreeplugin );
 
     BufferString licmsg;
     if ( isfreeplugin )
