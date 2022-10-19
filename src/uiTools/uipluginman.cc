@@ -344,8 +344,7 @@ void uiPluginMan::unLoadPush( CallBacker* )
 
     const PluginInfo& piinf = *data->info_;
     const bool isfreeplugin = piinf.lictype_ == PluginInfo::GPL;
-    const FilePath devfp( GetSoftwareDir(false), "CMakeCache.txt" );
-    if ( !devfp.exists() && !isfreeplugin )
+    if ( !isDeveloperBuild() && !isfreeplugin )
 	return;
 
     if ( !PIM().unload(data->name_) )
