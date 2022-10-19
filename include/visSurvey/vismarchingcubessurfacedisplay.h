@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "attribsel.h"
+#include "datapointset.h"
 #include "emposid.h"
 #include "visobject.h"
 #include "vissurvobj.h"
