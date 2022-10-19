@@ -310,11 +310,19 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 	set( ODDGBSTR "dgb" )
 
 	#add the base translation to basedata, not dgbbasedata
-	file( RENAME "${COPYTODATADIR}" "${COPYTODATADIR}_TMP" )
-	file( COPY "${COPYFROMDATADIR}/data/localizations/od_en_US.qm"
-	      DESTINATION "${COPYTODATADIR}/data/localizations" )
-	ZIPPACKAGE( "basedata.zip" ${REL_DIR} ${PACKAGE_DIR} )
-	file( RENAME "${COPYTODATADIR}_TMP" "${COPYTODATADIR}" )
+	if( APPLE )
+	    file( RENAME "${PACKAGE_DIR}/${REL_DIR}" "${PACKAGE_DIR}/${REL_DIR}_TMP" )
+	    file( COPY "${COPYFROMDATADIR}/data/localizations/od_en_US.qm"
+		  DESTINATION "${COPYTODATADIR}/data/localizations" )
+	    ZIPPACKAGE( "basedata_mac.zip" ${REL_DIR} ${PACKAGE_DIR} )
+	    file( RENAME "${PACKAGE_DIR}/${REL_DIR}_TMP" "${PACKAGE_DIR}/${REL_DIR}" )
+	else()
+	    file( RENAME "${COPYTODATADIR}" "${COPYTODATADIR}_TMP" )
+	    file( COPY "${COPYFROMDATADIR}/data/localizations/od_en_US.qm"
+		  DESTINATION "${COPYTODATADIR}/data/localizations" )
+	    ZIPPACKAGE( "basedata.zip" ${REL_DIR} ${PACKAGE_DIR} )
+	    file( RENAME "${COPYTODATADIR}_TMP" "${COPYTODATADIR}" )
+	endif()
 
 	set( RELFILENAM ${RELFILENAM}.${ODDGBSTR}.txt )
 	file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
