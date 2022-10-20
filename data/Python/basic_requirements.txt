@@ -1,5 +1,5 @@
 humanfriendly
-matplotlib-base
+matplotlib
 numpy
 psutil>=5.8.0
 safety>=1.10.3
