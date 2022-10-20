@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
+#include "uispinbox.h"
 #include "uistrings.h"
 #include "uivirtualkeyboard.h"
 
@@ -1761,7 +1762,8 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
     if ( but )
 	but->activated.notify( mCB(this,uiTable,cellObjChangedCB) );
 
-    if ( obj )
+    mDynamicCastGet(uiSpinBox*,sb,obj)
+    if ( obj && !sb )
 	obj->disabFocus();
 }
 
