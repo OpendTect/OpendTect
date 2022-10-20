@@ -1976,6 +1976,12 @@ DataPackID FaultDisplay::getDataPackID( int attrib ) const
 }
 
 
+DataPackID FaultDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    return getDataPackID( attrib );
+}
+
+
 void FaultDisplay::matChangeCB(CallBacker*)
 {
     if ( paneldisplay_ )
