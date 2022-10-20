@@ -129,7 +129,7 @@ void DataPointSet::Pos::set( ::Pos::GeomID geomid, int trcnr )
 
 void DataPointSet::Pos::set( const Coord& c )
 {
-    trckey_.setFrom( c );
+    trckey_.setPosition( SI().transform(c) );
     setOffs( c );
 }
 
