@@ -371,6 +371,7 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 			      false, "" );
     setSelSpec( attrib, as );
 
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     DataPointSet* data = new DataPointSet( false, true );
     DPM( DataPackMgr::PointID() ).add( data );
     getRandomPos( *data, 0 );
@@ -1276,6 +1277,12 @@ bool FaultSetDisplay::setDataPackID( int attrib, DataPackID dpid,
 DataPackID FaultSetDisplay::getDataPackID( int attrib ) const
 {
     return datapackids_[attrib];
+}
+
+
+DataPackID FaultSetDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    return getDataPackID( attrib );
 }
 
 
