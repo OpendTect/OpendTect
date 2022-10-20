@@ -62,10 +62,12 @@ static void getRecentDataRoots( BufferStringSet& dirs )
     if ( !dr )
 	return;
 
-    IOParIterator iter( *dr );
-    BufferString key, val;
-    while ( iter.next(key,val) )
-	dirs.add( val );
+    BufferString path;
+    for ( int idx=0; idx<dr->size(); idx++ )
+    {
+	if ( dr->get(toString(idx),path) && !path.isEmpty() )
+	    dirs.add( path );
+    }
 }
 
 
