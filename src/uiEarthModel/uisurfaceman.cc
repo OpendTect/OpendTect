@@ -592,27 +592,32 @@ void uiSurfaceMan::fillAttribList()
 
 
 static void addZRangeTxt( BufferString& txt, const Interval<float>& zrange,
-			  const UnitOfMeasure* zunit )
+			  const UnitOfMeasure* zuom )
 {
     if ( zrange.isUdf() )
 	return;
 
-    txt += "Z range";
+    const UnitOfMeasure* uom2use = zuom;
     BufferString zunitsym;
-    if ( !zunit )
+    if ( !zuom )
 	zunitsym = SI().getZUnitString();
     else
     {
-	zunitsym += "(";
-	zunitsym += zunit->symbol();
-	zunitsym += ")";
+	zunitsym = zuom->symbol();
+	if ( zunitsym == UnitOfMeasure::surveyDefTimeStorageUnit()->symbol() )
+	{
+	    uom2use = UnitOfMeasure::surveyDefTimeUnit();
+	    zunitsym = uom2use->symbol();
+	}
+	zunitsym.embed( '(', ')' );
     }
 
-    txt += ": ";
-    txt += zunit ? zunit->userValue(zrange.start) : zrange.start;
-    txt += " - ";
-    txt += zunit ? zunit->userValue(zrange.stop) : zrange.stop;
-    txt += "\n";
+    const int nrdec = SI().nrZDecimals();
+    txt.add( "Z range " ).add( zunitsym ).add( ": " )
+	.add( uom2use ? uom2use->userValue(zrange.start) : zrange.start, nrdec )
+	.add( " - " )
+	.add( uom2use ? uom2use->userValue(zrange.stop) : zrange.stop, nrdec )
+	.addNewLine();
 }
 
 
