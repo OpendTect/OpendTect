@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uifuncdispbase.h"
 #include "uigraphicsview.h"
-#include "draw.h"
 
 class uiAxisHandler;
 class uiGraphicsItem;

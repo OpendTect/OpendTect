@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "uigroup.h"
+
 #include "uiobj.h"
 
 class ODScrollArea;

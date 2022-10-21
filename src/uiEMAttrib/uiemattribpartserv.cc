@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mousecursor.h"
 #include "paralleltask.h"
 #include "posvecdataset.h"
 #include "typeset.h"

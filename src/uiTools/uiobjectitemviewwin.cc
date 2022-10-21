@@ -16,11 +16,11 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uilabel.h"
-#include "uirgbarraycanvas.h"
-#include "uiprogressbar.h"
 #include "uislider.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+
+#include "keyboardevent.h"
 
 #define mSldUnits 250
 #define mMaxObjectSize 30 //18 x object size

@@ -10,10 +10,10 @@ ________________________________________________________________________
 #include "uisegymultilinesel.h"
 
 #include "uibutton.h"
-#include "uipixmap.h"
 #include "uitable.h"
 
 #include "filepath.h"
+#include "mousecursor.h"
 #include "segyfiledef.h"
 #include "survgeom.h"
 

@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "iopar.h"
 
 class uiComboBox;
 class uiShortcutsList;

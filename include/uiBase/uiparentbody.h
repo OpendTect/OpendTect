@@ -8,13 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiparent.h"
-#include "uilayout.h"
-#include "sets.h"
-#include "uiobj.h"
-#include "uibody.h"
+#include "uibasemod.h"
 
+#include "uibody.h"
 #include "uigroup.h"
+#include "uilayout.h"
+#include "uiobj.h"
+#include "uiparent.h"
 
 mClass(uiBase) uiParentBody : public uiBody, public NamedCallBacker
 {

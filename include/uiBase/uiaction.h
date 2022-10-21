@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 
+#include "callback.h"
 #include "separstr.h"
 #include "uistring.h"
-#include "uibaseobject.h"
 
 
 class i_ActionMessenger;

@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigeom.h"
 #include "color.h"
-#include "notify.h"
 #include "odpair.h"
 
 mFDQtclass(QApplication)

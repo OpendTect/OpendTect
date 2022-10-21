@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
 #include "uiobj.h"
 #include "uistring.h"
-#include "odiconfile.h"
+#include "odcommonenums.h"
 
 class uiButtonBody;
 class uiCheckBoxBody;

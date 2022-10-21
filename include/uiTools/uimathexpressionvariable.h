@@ -11,16 +11,17 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "mathformula.h"
-#include "propertyref.h"
+#include "mnemonics.h"
+
+namespace Math { class Formula; class Expression; }
 class BufferStringSet;
 class UnitOfMeasure;
-namespace Math { class Formula; class Expression; }
+class uiComboBox;
+class uiGenInput;
 class uiLabel;
 class uiLineEdit;
-class uiUnitSel;
-class uiGenInput;
-class uiComboBox;
 class uiToolButton;
+class uiUnitSel;
 
 
 mExpClass(uiTools) uiMathExpressionVariable : public uiGroup

@@ -9,15 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uitoolsmod.h"
 #include "uigroup.h"
-#include "multiid.h"
 
 class WindowFunction;
+class uiFreqTaperDlg;
 class uiGenInput;
 class uiPushButton;
 class uiWindowFuncSelDlg;
-class uiFreqTaperDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 

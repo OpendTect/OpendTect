@@ -11,10 +11,11 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "uistrings.h"
-class uiLineEdit;
-class uiComboBox;
-class uiPushButton;
+
 class uiButton;
+class uiComboBox;
+class uiLineEdit;
+class uiPushButton;
 class uiToolButtonSetup;
 namespace Math { class SpecVarSet; }
 

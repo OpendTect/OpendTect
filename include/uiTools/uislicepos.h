@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uiparent.h"
-#include "bufstringset.h"
+#include "odcommonenums.h"
 #include "trckeyzsampling.h"
 
 class uiLabel;

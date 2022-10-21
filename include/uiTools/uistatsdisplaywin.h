@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uistatsdisplay.h"
+
 class BufferStringSet;
 class uiComboBox;
 class uiStatsDisplay;

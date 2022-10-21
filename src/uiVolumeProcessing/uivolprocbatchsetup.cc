@@ -10,8 +10,8 @@ ________________________________________________________________________
 #include "uivolprocbatchsetup.h"
 
 #include "ctxtioobj.h"
-#include "ioman.h"
 #include "ioobj.h"
+#include "mousecursor.h"
 #include "seisjobexecprov.h"
 #include "seisselection.h"
 #include "volprocchain.h"
@@ -20,13 +20,11 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uibatchjobdispatchersel.h"
-#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipixmap.h"
 #include "uiseissubsel.h"
 #include "uiseissel.h"
-#include "uiveldesc.h"
 #include "uivolprocchain.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"

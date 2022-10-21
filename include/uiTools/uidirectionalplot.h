@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "statdirdata.h"
 #include "draw.h"

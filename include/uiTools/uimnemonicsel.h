@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uicombobox.h"
 #include "uidialog.h"
-#include "uistrings.h"
 
 #include "mnemonics.h"
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 #include "uistrings.h"
+
 class uiLabel;
 class uiButton;
 class uiCheckBox;

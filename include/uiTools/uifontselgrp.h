@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "draw.h"
 #include "fontdata.h"
 
 class uiColorInput;

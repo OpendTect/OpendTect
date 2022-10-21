@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "sets.h"
 #include "uistring.h"
 
 namespace ColTab { class Sequence; class SeqMgr; }

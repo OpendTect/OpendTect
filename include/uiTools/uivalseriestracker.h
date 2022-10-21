@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidlggroup.h"
 #include "iopar.h"
-#include "samplingdata.h"
 
 class EventTracker;
 class uiGenInput;

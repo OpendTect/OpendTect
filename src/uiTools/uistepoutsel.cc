@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uistrings.h"
 
+#include "binid.h"
+
 
 inline static uiString mkPrefx( const uiString& lbl )
 {

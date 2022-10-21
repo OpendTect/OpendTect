@@ -9,26 +9,29 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uigroup.h"
-#include "multiid.h"
 #include "bufstringset.h"
+#include "multiid.h"
+#include "odcommonenums.h"
 
 
-class IOObj;
 class CtxtIOObj;
-class Translator;
+class IOObj;
 class IOObjContext;
+class Translator;
+
+class uiButton;
 class uiComboBox;
 class uiGenInput;
+class uiIOObjInserter;
 class uiIOObjManipGroup;
 class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
-class uiListBox;
-class uiButton;
-class uiToolButton;
-class uiIOObjInserter;
-class uiListBoxChoiceIO;
 class uiIOObjSelWriteTranslator;
+class uiListBox;
+class uiListBoxChoiceIO;
+class uiToolButton;
 
 
 /*!\brief Basic group for letting the user select an object.

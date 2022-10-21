@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uistrings.h"
 
-#include "bufstring.h"
 #include "helpview.h"
 #include "od_helpids.h"
 

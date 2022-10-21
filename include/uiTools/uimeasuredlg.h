@@ -12,10 +12,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 namespace OD { class LineStyle; }
-class uiGenInput;
-class uiSelLineStyle;
 class uiCheckBox;
 class uiComboBox;
+class uiGenInput;
+class uiSelLineStyle;
 
 mExpClass(uiTools) uiMeasureDlg : public uiDialog
 { mODTextTranslationClass(uiMeasureDlg);

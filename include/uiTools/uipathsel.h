@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uitoolsmod.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "uicompoundparsel.h"

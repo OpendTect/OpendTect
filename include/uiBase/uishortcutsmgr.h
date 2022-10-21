@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "iopar.h"
-#include "enums.h"
 #include "keyenum.h"
 #include "bufstringset.h"
 #include "uistring.h"

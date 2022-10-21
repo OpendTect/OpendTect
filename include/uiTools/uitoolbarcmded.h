@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "bufstringset.h"
-#include "keystrs.h"
 #include "uigroup.h"
-#include "uistringset.h"
 
 class uiCheckBox;
 class uiComboBox;

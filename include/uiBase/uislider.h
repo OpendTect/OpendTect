@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
 #include "uigroup.h"
 #include "uiobj.h"
 #include "uistring.h"
+#include "odcommonenums.h"
 
 class LinScaler;
 

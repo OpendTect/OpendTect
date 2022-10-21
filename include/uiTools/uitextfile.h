@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "file.h"
 #include "uistring.h"
+
 class uiTextEdit;
 class uiTextBrowser;
 class uiTable;

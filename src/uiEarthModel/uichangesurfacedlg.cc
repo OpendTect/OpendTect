@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "od_helpids.h"
+#include "mousecursor.h"
 
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,

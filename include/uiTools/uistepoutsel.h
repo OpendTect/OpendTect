@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "position.h"
 #include "rowcol.h"
 #include "uistrings.h"
+
 class uiSpinBox;
 
 

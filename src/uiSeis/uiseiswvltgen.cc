@@ -9,11 +9,11 @@ ________________________________________________________________________
 
 #include "uiseiswvltgen.h"
 
+#include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "iodir.h"
 #include "iodirentry.h"
-#include "ioman.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletio.h"

@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uilayout.h"
 #include "uigeom.h"
 #include "uiobj.h"
-#include "sets.h"
 
 #include <QLayout>
 #include <QRect>

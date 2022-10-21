@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "uiobj.h"
+
 #include "uigroup.h"
+#include "odcommonenums.h"
 
 mFDQtclass(QButtonGroup)
 class uiButton;

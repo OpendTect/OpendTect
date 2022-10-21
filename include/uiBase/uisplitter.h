@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
 #include "uiobj.h"
+#include "odcommonenums.h"
 
 class uiGroup;
 class uiSplitterBody;

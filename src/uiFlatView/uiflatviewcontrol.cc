@@ -12,8 +12,9 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uigraphicsscene.h"
-#include "uirgbarraycanvas.h"
+#include "uigraphicsview.h"
 
+#include "keyboardevent.h"
 #include "mouseevent.h"
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )

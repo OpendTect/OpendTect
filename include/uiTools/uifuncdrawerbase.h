@@ -11,8 +11,10 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "color.h"
 #include "mathfunc.h"
+#include "uigeom.h"
 
 class uiAxisHandlerBase;
+class uiObject;
 class CallBacker;
 
 /*!brief Displays a mathfunction. */

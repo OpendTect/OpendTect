@@ -11,11 +11,8 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uiaxishandlerbase.h"
 #include "draw.h"
-#include "bufstringset.h"
-#include "namedobj.h"
 #include "uigeom.h"
 #include "uistring.h"
-#include "fontdata.h"
 
 class uiGraphicsScene;
 class uiLineItem;

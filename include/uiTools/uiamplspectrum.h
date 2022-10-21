@@ -9,7 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uidialog.h"
+#include "uimainwin.h"
+
 #include "datapack.h"
 #include "survinfo.h"
 #include "odcomplex.h"

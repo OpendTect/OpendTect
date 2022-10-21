@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "ioman.h"
+#include "mousecursor.h"
 #include "survinfo.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -23,10 +25,7 @@ ________________________________________________________________________
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uitable.h"
-#include "uivolprocchain.h"
-#include "volprocchain.h"
 #include "zdomain.h"
-#include "od_helpids.h"
 
 namespace VolProc
 {

@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+
 class BufferStringSet;
 class uiListBox;
 class uiButton;

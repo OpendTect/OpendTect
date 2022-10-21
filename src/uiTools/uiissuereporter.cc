@@ -11,18 +11,19 @@ ________________________________________________________________________
 
 #include "envvars.h"
 #include "filepath.h"
+#include "mousecursor.h"
+#include "safefileio.h"
 #include "settings.h"
-#include "uiclipboard.h"
-#include "uilabel.h"
-#include "uitextedit.h"
+
 #include "uibutton.h"
+#include "uiclipboard.h"
 #include "uidesktopservices.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
-#include "safefileio.h"
+#include "uitextedit.h"
 
-#include "fstream"
 
 static StringView sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }

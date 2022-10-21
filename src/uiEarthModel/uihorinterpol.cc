@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uihorinterpol.h"
 
-#include "arrayndimpl.h"
 #include "array1dinterpol.h"
 #include "array2dinterpol.h"
 #include "arraynd.h"
@@ -23,6 +22,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "gridder2d.h"
 #include "horizongridder.h"
+#include "mousecursor.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "survinfo.h"
@@ -37,7 +37,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
 
 #define mScopeSurvey	0
 #define mScopeBBX	1

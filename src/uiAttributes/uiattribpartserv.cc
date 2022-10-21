@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "executor.h"
 #include "ioman.h"
+#include "mousecursor.h"
 #include "nlamodel.h"
 #include "randomlinegeom.h"
 #include "rangeposprovider.h"

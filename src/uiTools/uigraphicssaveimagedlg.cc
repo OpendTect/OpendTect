@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uispinbox.h"
 
-#include "filepath.h"
+#include "mousecursor.h"
 #include "iopar.h"
 #include "settings.h"
 

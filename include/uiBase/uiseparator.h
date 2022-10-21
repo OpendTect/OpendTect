@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uiobj.h"
+#include "odcommonenums.h"
 
 //class QFrame;
 

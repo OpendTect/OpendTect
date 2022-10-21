@@ -12,8 +12,9 @@ ________________________________________________________________________
 
 #include "linear.h"
 #include "mathexpression.h"
-#include "od_helpids.h"
+#include "mousecursor.h"
 #include "settings.h"
+
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"

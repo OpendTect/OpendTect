@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uibodyregiondlg.h"
 
 #include "arrayndimpl.h"
-#include "embodytr.h"
 #include "emfault3d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -21,11 +20,11 @@ ________________________________________________________________________
 #include "explplaneintersection.h"
 #include "ioman.h"
 #include "marchingcubes.h"
+#include "mousecursor.h"
 #include "od_helpids.h"
 #include "polygon.h"
 #include "polyposprovider.h"
 #include "positionlist.h"
-#include "sorting.h"
 #include "survinfo.h"
 #include "varlenarray.h"
 
@@ -38,7 +37,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uispinbox.h"
-#include "uistepoutsel.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitaskrunner.h"

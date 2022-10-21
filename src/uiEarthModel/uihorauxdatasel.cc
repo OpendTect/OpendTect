@@ -16,13 +16,14 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "ioman.h"
 #include "iodirentry.h"
+#include "mousecursor.h"
+
 #include "uibutton.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uimsg.h"
-#include "od_helpids.h"
+
 
 class uiHorizonAuxDataDlg: public uiDialog
 { mODTextTranslationClass(uiHorizonAuxDataDlg)

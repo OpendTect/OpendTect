@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uigraphicsitem.h"
 #include "uiworld2ui.h"
+#include "odcommonenums.h"
 
 class uiAdvancedTextItem;
 class uiRectItem;

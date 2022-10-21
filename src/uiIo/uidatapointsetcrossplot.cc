@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uigraphicscoltab.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
-#include "uipixmap.h"
 #include "uirgbarray.h"
 #include "uiworld2ui.h"
 
@@ -21,8 +20,8 @@ ________________________________________________________________________
 #include "densitycalc.h"
 #include "linear.h"
 #include "mathexpression.h"
+#include "mousecursor.h"
 #include "statrand.h"
-#include "timer.h"
 
 
 static const int sMarkerZValue = 5;

@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigeom.h"
 #include "mousecursor.h"
-#include "thread.h"
 
 mFDQtclass(QCursor)
 

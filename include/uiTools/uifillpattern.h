@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "draw.h"
+
 class uiComboBox;
 class uiRectItem;
 

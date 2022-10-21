@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uigraphicsviewbase.h"
+#include "odcommonenums.h"
 
 class uiAction;
 class uiGraphicsItemGroup;

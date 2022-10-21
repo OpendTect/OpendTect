@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
+#include "odcommonenums.h"
 #include "uiparent.h"
-#include "mousecursor.h"
 #include "uistring.h"
 
 mFDQtclass(QWidget)

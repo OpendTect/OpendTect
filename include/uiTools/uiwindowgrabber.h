@@ -11,12 +11,12 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 
-class uiLabeledComboBox;
-class uiFileInput;
-class uiSlider;
-class uiLabel;
-class uiMainWin;
 class Timer;
+class uiFileInput;
+class uiLabel;
+class uiLabeledComboBox;
+class uiMainWin;
+class uiSlider;
 
 
 /*!Dialog to specify the grab window and the output image file */

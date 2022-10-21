@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "timer.h"

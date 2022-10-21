@@ -16,14 +16,13 @@ ________________________________________________________________________
 #include "uislider.h"
 
 #include "iopar.h"
-#include "od_helpids.h"
+#include "mousecursor.h"
 #include "survinfo.h"
 #include "veldesc.h"
+#include "zdomain.h"
 
 #include "visdataman.h"
-#include "vistransmgr.h"
 #include "vissurvscene.h"
-#include "zdomain.h"
 
 #include <typeinfo>
 

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "datapack.h"
+
 class uiHistogramDisplay;
 class uiGenInput;
 class uiLabel;

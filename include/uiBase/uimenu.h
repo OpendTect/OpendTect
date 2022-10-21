@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiaction.h"
 #include "uibaseobject.h"
-#include "separstr.h"
 
 class uiParent;
 class uiPixmap;

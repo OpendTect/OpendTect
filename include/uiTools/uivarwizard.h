@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "iopar.h"
 #include "uistring.h"
+
 class uiParent;
 class uiVarWizardDlg;
 

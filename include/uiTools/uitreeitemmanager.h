@@ -9,12 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "sets.h"
 #include "iopar.h"
 #include "callback.h"
-#include "bufstring.h"
 #include "task.h"
-#include "thread.h"
 
 /*!\brief
 are helping classes for uiTreeViews, wich makes it easy to bundle inteligence

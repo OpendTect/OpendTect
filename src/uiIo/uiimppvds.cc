@@ -9,12 +9,10 @@ ________________________________________________________________________
 
 #include "uiimppvds.h"
 
-#include "uibutton.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
@@ -23,7 +21,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
-#include "od_helpids.h"
+#include "mousecursor.h"
 #include "od_istream.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"

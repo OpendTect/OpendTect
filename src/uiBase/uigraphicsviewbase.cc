@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uigraphicsviewbase.h"
 
 #include "draw.h"
+#include "keyboardevent.h"
 #include "mouseevent.h"
 #include "settingsaccess.h"
 #include "uigraphicsitemimpl.h"

@@ -9,12 +9,13 @@ ________________________________________________________________________
 
 #include "uicrssystem.h"
 
+#include "mousecursor.h"
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "oddirs.h"
-#include "sorting.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uigeninput.h"

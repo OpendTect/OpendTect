@@ -9,9 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uigroup.h"
-class uiLabel;
+#include "odcommonenums.h"
+
 class uiCheckBox;
+class uiLabel;
 class BufferStringSet;
 
 /*! \brief Group of check boxes. Ensures a certain policy is honored.

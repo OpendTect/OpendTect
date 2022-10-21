@@ -10,14 +10,10 @@ ________________________________________________________________________
 #include "uiioobjmanip.h"
 
 #include "file.h"
-#include "filepath.h"
-#include "iodir.h"
-#include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "iopar.h"
 #include "iostrm.h"
-#include "oddirs.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 #include "transl.h"
 
@@ -26,7 +22,6 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uiioobj.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uitoolbutton.h"
 
 

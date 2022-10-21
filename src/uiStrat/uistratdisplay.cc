@@ -10,21 +10,17 @@ ________________________________________________________________________
 #include "uistratdisplay.h"
 
 #include "uiaxishandler.h"
-#include "uicolor.h"
 #include "uifont.h"
 #include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uimenu.h"
-#include "uimenuhandler.h"
-#include "uispinbox.h"
 #include "uistratreftree.h"
-#include "uistratutildlgs.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "keyboardevent.h"
 #include "scaler.h"
-#include "survinfo.h"
 
 
 // uiStratDisplay

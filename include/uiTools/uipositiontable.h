@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "position.h"
 
 class uiGenInput;
 class uiTable;

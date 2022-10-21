@@ -11,9 +11,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigraphicsitem.h"
 #include "task.h"
-#include "bufstringset.h"
 #include "color.h"
-#include "keyboardevent.h"
 #include "mouseevent.h"
 #include "namedobj.h"
 

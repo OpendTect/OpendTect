@@ -9,10 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uimainwin.h"
-#include "uigroup.h"
-#include "uiobjectitemview.h"
+
+#include "mousecursor.h"
 #include "scaler.h"
+#include "uigroup.h"
+#include "uimainwin.h"
+#include "uiobjectitemview.h"
 #include "uistring.h"
 
 class uiCheckBox;

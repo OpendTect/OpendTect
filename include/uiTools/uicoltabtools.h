@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "callback.h"
 #include "uirgbarraycanvas.h"
 
 class uiRGBArray;

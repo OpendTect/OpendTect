@@ -11,7 +11,8 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uifuncdispbase.h"
 #include "uifuncdrawerbase.h"
-#include "uidialog.h"
+
+class uiParent;
 
 mExpClass(uiTools) uiFunctionDisplayServer
 { mODTextTranslationClass(uiFunctionDisplayServer);

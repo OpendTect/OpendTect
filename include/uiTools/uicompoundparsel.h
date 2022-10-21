@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uigroup.h"
 #include "uistrings.h"
+#include "odcommonenums.h"
 
 class uiGenInput;
 class uiButton;

@@ -10,18 +10,17 @@ ________________________________________________________________________
 #include "uistratlayseqattrsetbuild.h"
 #include "uilayseqattribed.h"
 #include "uilistbox.h"
-#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uiioobjseldlg.h"
 #include "uistrings.h"
 
-#include "stratreftree.h"
-#include "stratlayermodel.h"
-#include "stratlayersequence.h"
-#include "stratlayseqattrib.h"
-#include "strattransl.h"
-#include "od_iostream.h"
 #include "ioobj.h"
+#include "mousecursor.h"
+#include "od_iostream.h"
+#include "stratlayermodel.h"
+#include "stratlayseqattrib.h"
+#include "stratreftree.h"
+#include "strattransl.h"
 
 
 uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,

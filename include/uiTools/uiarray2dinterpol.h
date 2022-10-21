@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidlggroup.h"
 #include "factory.h"
-#include "position.h"
 #include "uistring.h"
 
 class Array2DInterpol;

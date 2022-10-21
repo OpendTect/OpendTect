@@ -9,37 +9,32 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uifuncdrawerbase.h"
-#include "uigraphicsview.h"
 #include "uigroup.h"
-#include "uibutton.h"
+
 #include "bufstringset.h"
 #include "color.h"
 #include "mathfunc.h"
-#include "multiid.h"
-#include "arrayndalgo.h"
-#include "arrayndimpl.h"
+#include "uigraphicsview.h"
 #include "uistring.h"
-
-class uiAxisHandler;
-class uiGenInput;
-class uiGraphicsItemGroup;
-class uiFuncTaperDisp;
-class uiListBox;
-class uiRectItem;
-class uiWorld2Ui;
-class uiSliceSelDlg;
 
 class ArrayNDWindow;
 class WindowFunction;
+class uiAxisHandler;
+class uiFuncTaperDisp;
+class uiGenInput;
+class uiGraphicsItemGroup;
+class uiListBox;
+class uiRectItem;
+class uiSliceSelDlg;
+class uiWorld2Ui;
 
 /*!brief Displays a mathfunction. */
 
-mExpClass(uiTools) uiFunctionDrawer :	public uiFuncDrawerBase,
-					public uiGraphicsView
-{ mODTextTranslationClass(uiFunctionDrawer);
+mExpClass(uiTools) uiFunctionDrawer : public uiFuncDrawerBase
+				    , public uiGraphicsView
+{ mODTextTranslationClass(uiFunctionDrawer)
 public:
 
 			uiFunctionDrawer(uiParent*,const Setup&);

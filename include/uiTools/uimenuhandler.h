@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiparent.h"
 #include "menuhandler.h"
-#include "position.h"
 
 class uiMenu;
 class uiToolBar;
