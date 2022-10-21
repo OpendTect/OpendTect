@@ -849,6 +849,19 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	    return false;
     }
 
+    if ( !doimp )
+    {
+	const bool ismulti = fs_.spec_.nrFiles() > 1;
+	uiString part = ismulti ? tr("files remain") : tr("file remains");
+	uiString msg = tr("You have selected the SEGYDirect import option.\n"
+		"Please make sure that the SEG-Y %1\n"
+		"accessible while using OpendTect.\n\n"
+		"Do you want to continue the import as SEGYDirect?").arg(part);
+	const bool res = uiMSG().askContinue( msg );
+	if ( !res )
+	    return false;
+    }
+
     if ( batchfld_ && batchfld_->wantBatch() )
 	return is2d ? doBatch2D( doimp, lnm ) : doBatch( doimp );
 
