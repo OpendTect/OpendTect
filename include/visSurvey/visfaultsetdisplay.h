@@ -132,8 +132,7 @@ public:
     int				addDataPack(const DataPointSet&) const ;
     bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(int attr) const override;
+    DataPackID		getDataPackID(int attrib) const override;
     DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::PointID(); }
 
