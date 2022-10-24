@@ -158,7 +158,7 @@ bool uiSurveyFile::openFile()
 
 bool uiSurveyFile::openFile( const char* filenm )
 {
-    if ( !File::exists(filenm) )
+    if ( !File::isFile(filenm) )
     {
 	uiMSG().error( uiStrings::phrCannotOpenForRead( filenm ) );
 	return false;
