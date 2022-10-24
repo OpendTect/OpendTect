@@ -91,7 +91,8 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
 	emd->deSelection()->remove(
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
-	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
+	if ( ODMainWin() )
+	    ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
     }
 
     if ( MPE::engine().hasTracker(emid_) )
