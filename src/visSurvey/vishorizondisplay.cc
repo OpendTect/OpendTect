@@ -1887,23 +1887,26 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 
 
 HorizonDisplay::IntersectionData*
-HorizonDisplay::getOrCreateIntersectionData(
-		ObjectSet<IntersectionData>& pool )
+	HorizonDisplay::getOrCreateIntersectionData(
+				ObjectSet<IntersectionData>& pool )
 {
-    IntersectionData* data = 0;
-    if ( pool.size() )
-    {
-	data = pool.pop();
-	data->clear();
-    }
-    else
+    IntersectionData* data = nullptr;
+    if ( pool.isEmpty() )
     {
 	data = new IntersectionData( *lineStyle() );
 	data->setDisplayTransformation(transformation_);
 	if ( intersectionlinematerial_ )
 	    data->setMaterial( intersectionlinematerial_ );
+
 	addChild( data->line_->osgNode() );
 	addChild( data->markerset_->osgNode() );
+    }
+    else
+    {
+	mDynamicCastGet(ManagedObjectSet<IntersectionData>*,mpool,&pool)
+	data = mpool ? mpool->removeAndTake(mpool->size()-1) : pool.pop();
+	if ( data )
+	    data->clear();
     }
 
     return data;
@@ -1949,7 +1952,7 @@ void HorizonDisplay::updateIntersectionLines(
     ManagedObjectSet<IntersectionData> lines;
     if ( doall )
     {
-	while ( intersectiondata_.size() )
+	while ( !intersectiondata_.isEmpty() )
 	    lines += intersectiondata_.removeAndTake( 0, false );
     }
     else
@@ -1982,10 +1985,9 @@ void HorizonDisplay::updateIntersectionLines(
 	    objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
 
 	    if ( trckeypath.isEmpty() && trzs.isEmpty() )
-		return;
+		continue;
 
-	    IntersectionData* data = 0;
-
+	    IntersectionData* data = nullptr;
 	    for ( int sectionidx=0; sectionidx<horizon->nrSections();
 		  sectionidx++ )
 	    {
@@ -2010,16 +2012,15 @@ void HorizonDisplay::updateIntersectionLines(
 		}
 	    }
 
-	    intersectiondata_ += data;
+	    intersectiondata_.add( data );
 	}
-
     }
 
     //These lines were not used, hance remove from scene.
-    for ( int idx=0; idx<lines.size(); idx++ )
+    for ( const auto* line : lines )
     {
-	removeChild( lines[idx]->line_->osgNode() );
-	removeChild( lines[idx]->markerset_->osgNode() );
+	removeChild( line->line_->osgNode() );
+	removeChild( line->markerset_->osgNode() );
     }
 }
 
@@ -2617,6 +2618,7 @@ HorizonDisplay::IntersectionData::~IntersectionData()
 	unRefAndZeroPtr( zaxistransform_ );
     }
 
+    clear();
     unRefAndZeroPtr( line_ );
     unRefAndZeroPtr( markerset_ );
 }
@@ -2624,7 +2626,7 @@ HorizonDisplay::IntersectionData::~IntersectionData()
 
 void HorizonDisplay::IntersectionData::addLine( const TypeSet<Coord3>& crds )
 {
-    if ( !crds.size() )
+    if ( crds.isEmpty() )
 	return;
 
     if ( crds.size()==1 )
