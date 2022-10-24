@@ -54,8 +54,9 @@ public:
 
     				Lock(bool for_just_a_few_operations=false);
     				Lock(Type);
+    				Lock(const Lock&);
+    Lock&			operator =(const Lock&);
     virtual			~Lock();
-				mOD_DisableCopy(Lock)
 
 
     // For thread-specialists:
@@ -93,7 +94,6 @@ public:
     				Locker(Lock&,WaitType,RWType);
     				Locker(Lock&,RWType,WaitType);
     virtual			~Locker()		{ unlockNow(); }
-				mOD_DisableCopy(Locker)
 
     inline bool			isLocked() const	{ return needunlock_; }
      				//<! only useful if DontWaitForLock
@@ -109,6 +109,13 @@ protected:
      Lock&			lock_;
      bool			needunlock_;
      bool			isread_;
+
+private:
+
+     				Locker(const Locker&);
+					//!< intentionally not implemented
+    Locker&			operator =(const Locker&);
+					//!< intentionally not implemented
 
 };
 

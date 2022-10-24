@@ -43,7 +43,6 @@ public:
     {
 	detachAllNotifiers();
 	CallBack::removeFromThreadCalls( this );
-	deepErase( conns_ );
     }
 
 
@@ -178,7 +177,7 @@ public:
     Timer				timer_;
     time_t				lastactivity_;
     time_t				timeout_;
-    ObjectSet<RequestConnection>	conns_;
+    ManagedObjectSet<RequestConnection> conns_;
 };
 
 } // namespace Network

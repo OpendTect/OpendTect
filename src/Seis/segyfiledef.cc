@@ -109,28 +109,9 @@ SEGY::FilePars::FilePars( bool forread )
 }
 
 
-SEGY::FilePars::FilePars( const SEGY::FilePars& oth )
-{
-    *this = oth;
-    mAttachCB(IOM().surveyToBeChanged, FilePars::onSurveyChgCB);
-}
-
-
 SEGY::FilePars::~FilePars()
 {
     detachAllNotifiers();
-}
-
-
-SEGY::FilePars& SEGY::FilePars::operator =( const SEGY::FilePars& oth )
-{
-    if ( &oth == this )
-	return *this;
-
-    fmt_ = oth.fmt_;
-    forread_ = oth.forread_;
-    ns_ = oth.ns_;
-    return *this;
 }
 
 

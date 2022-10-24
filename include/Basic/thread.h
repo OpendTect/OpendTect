@@ -47,9 +47,8 @@ public:
 		   multiple times from the same thread without deadlock.
 		   It will be unlock when unLock has been called the same
 		   number of times as lock(). */
+		Mutex(const Mutex&)	= delete;
     virtual	~Mutex();
-		mOD_DisableCopy(Mutex)
-
 
     void	lock();
     void	unLock();
@@ -113,8 +112,8 @@ mExpClass(Basic) ConditionVar : public Mutex
 {
 public:
 				ConditionVar();
+				ConditionVar(const ConditionVar&);
 				~ConditionVar();
-				mOD_DisableCopy(ConditionVar)
 
     void			wait();
     bool			wait(unsigned long timeout);
@@ -146,8 +145,8 @@ mExpClass(Basic) ReadWriteLock
 {
 public:
 			ReadWriteLock();
+			ReadWriteLock(const ReadWriteLock&);
     virtual		~ReadWriteLock();
-			mOD_DisableCopy(ReadWriteLock)
 
     void		readLock();
 			//!<No writers will be active.
@@ -211,7 +210,6 @@ public: \
 		    if ( wait ) thelock.lockfn; \
 		    else islocked_ = thelock.trylockfn; \
 		} \
-		mOD_DisableCopy(clssnm) \
  \
 		~clssnm() { if ( islocked_ ) lock_.unlockfn; } \
     bool	isLocked() const { return islocked_; } \
@@ -246,9 +244,6 @@ mExpClass(Basic) Barrier
 {
 public:
 			Barrier(int nrthreads=-1,bool immediatrelease=true);
-			~Barrier();
-			mOD_DisableCopy(Barrier)
-
     void		setNrThreads(int);
     int			nrThreads() const		{ return nrthreads_; }
 

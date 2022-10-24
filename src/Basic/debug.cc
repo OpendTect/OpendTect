@@ -94,7 +94,7 @@ private:
 } // namespace OD
 
 
-static OD::StaticStringRepos& getStaticStringRepos()
+static OD::StaticStringRepos getStaticStringRepos()
 {
     mDefineStaticLocalObject( OD::StaticStringRepos, repos, );
     return repos;

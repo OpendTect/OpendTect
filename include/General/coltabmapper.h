@@ -34,7 +34,6 @@ mExpClass(General) MapperSetup : public CallBacker
 {
 public:
 			MapperSetup();
-			MapperSetup(const MapperSetup&);
 			~MapperSetup();
 
     enum Type		{ Fixed, Auto, HistEq };

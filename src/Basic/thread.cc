@@ -35,11 +35,65 @@ Threads::Lock::Lock( Threads::Lock::Type lt )
 }
 
 
+Threads::Lock::Lock( const Threads::Lock& oth )
+    : mutex_(oth.mutex_ ? new Mutex(oth.mutex_->isRecursive()) : nullptr)
+    , splock_(oth.splock_ ? new SpinLock(*oth.splock_) : nullptr)
+    , rwlock_(oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : nullptr)
+{
+}
+
+
+Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    // Hopefully we can stay the same type:
+    if ( mutex_ )
+    {
+	if ( oth.mutex_ )
+	{
+	    *mutex_ = *oth.mutex_;
+	    return *this;
+	}
+
+	deleteAndZeroPtr( mutex_ );
+    }
+    else if ( splock_ )
+    {
+	if ( oth.splock_ )
+	{
+	    *splock_ = *oth.splock_;
+	    return *this;
+	}
+
+	deleteAndZeroPtr( splock_ );
+    }
+    else
+    {
+	if ( oth.rwlock_ )
+	{
+	    *rwlock_ = *oth.rwlock_;
+	    return *this;
+	}
+
+	deleteAndZeroPtr( rwlock_ );
+    }
+
+    mutex_ = oth.mutex_ ? new Mutex(oth.mutex_->isRecursive()) : nullptr;
+    splock_ = oth.splock_ ? new SpinLock(*oth.splock_) : nullptr;
+    rwlock_ = oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : nullptr;
+
+    return *this;
+}
+
+
 Threads::Lock::~Lock()
 {
-    delete mutex_;
-    delete splock_;
-    delete rwlock_;
+    //Put to zero to force crash if used again.
+    deleteAndZeroPtr( mutex_ );
+    deleteAndZeroPtr( splock_ );
+    deleteAndZeroPtr( rwlock_ );
 }
 
 
@@ -215,6 +269,7 @@ Threads::Mutex::Mutex( bool recursive )
     DBG::forceCrash( false ); \
 }
 
+
 Threads::Mutex::~Mutex()
 {
     deleteAndZeroPtr( qmutex_ );
@@ -281,6 +336,15 @@ bool Threads::Mutex::tryLock()
 Threads::SpinLock::SpinLock( bool recursive )
     : count_( 0 )
     , recursive_( recursive )
+    , lockingthread_( 0 )
+{
+    mSetupIttNotify( lockingthread_, "Threads::SpinLock" );
+}
+
+
+Threads::SpinLock::SpinLock( const Threads::SpinLock& oth )
+    : count_( 0 )
+    , recursive_( oth.recursive_ )
     , lockingthread_( 0 )
 {
     mSetupIttNotify( lockingthread_, "Threads::SpinLock" );
@@ -364,6 +428,14 @@ Threads::SpinRWLock::SpinRWLock()
 }
 
 
+Threads::SpinRWLock::SpinRWLock( const Threads::SpinRWLock& oth )
+    : count_( 0 )
+
+{
+    mSetupIttNotify( count_, "Threads::SpinRWLock" );
+}
+
+
 Threads::SpinRWLock::~SpinRWLock()
 {
     mDestroyIttNotify( count_ );
@@ -424,6 +496,12 @@ void Threads::SpinRWLock::writeUnlock()
 Threads::ReadWriteLock::ReadWriteLock()
     : status_( 0 )
     , nrreaders_( 0 )
+{}
+
+
+//!Implemented since standard copy constuctor will hang the system
+Threads::ReadWriteLock::ReadWriteLock( const ReadWriteLock& )
+    : status_( 0 )
 {}
 
 
@@ -599,10 +677,6 @@ Threads::Barrier::Barrier( int nrthreads, bool immrel )
 {}
 
 
-Threads::Barrier::~Barrier()
-{}
-
-
 void Threads::Barrier::setNrThreads( int nthreads )
 {
     Threads::MutexLocker lock( condvar_ );
@@ -682,6 +756,15 @@ void Threads::Barrier::releaseAll()
 
 
 Threads::ConditionVar::ConditionVar()
+    : Mutex( false )
+#ifndef OD_NO_QT
+    , cond_( new QWaitCondition )
+#endif
+{ }
+
+
+//!Implemented since standard copy constuctor will hang the system
+Threads::ConditionVar::ConditionVar( const ConditionVar& )
     : Mutex( false )
 #ifndef OD_NO_QT
     , cond_( new QWaitCondition )

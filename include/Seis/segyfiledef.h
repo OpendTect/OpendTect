@@ -52,10 +52,8 @@ mExpClass(Seis) FilePars : public CallBacker
 {
 public:
 			FilePars( bool forread=true );
-			FilePars(const FilePars&);
-			~FilePars();
 
-    FilePars&		operator =(const FilePars&);
+			~FilePars();
 
     int			ns_ = 0;
     int			fmt_;

@@ -126,14 +126,6 @@ ColTab::MapperSetup::MapperSetup()
 {}
 
 
-ColTab::MapperSetup::MapperSetup( const ColTab::MapperSetup& oth )
-    : rangeChange(this)
-    , autoscaleChange(this)
-{
-    *this = oth;
-}
-
-
 ColTab::MapperSetup::~MapperSetup()
 {}
 
@@ -141,9 +133,6 @@ ColTab::MapperSetup::~MapperSetup()
 ColTab::MapperSetup&
     ColTab::MapperSetup::operator=( const ColTab::MapperSetup& ms )
 {
-    if ( &ms == this )
-	return *this;
-
     type_ = ms.type_;
     cliprate_ = ms.cliprate_;
     autosym0_ = ms.autosym0_;
@@ -155,7 +144,6 @@ ColTab::MapperSetup&
     flipseq_ = ms.flipseq_;
     return *this;
 }
-
 
 bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& newmpr ) const
 {
