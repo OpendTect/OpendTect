@@ -70,7 +70,7 @@ public:
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
 
-	conns_ += newconn;
+	conns_.add( newconn );
     }
 
 
@@ -150,7 +150,7 @@ public:
 
     void closeServerCB( CallBacker* )
     {
-	conns_.setEmpty();
+	deepErase( conns_ );
 	ApplicationData::exit( 0 );
     }
 
