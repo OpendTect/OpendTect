@@ -684,5 +684,6 @@ void uiODRandomLineTreeItem::editNodes()
 
 void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
 {
-    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
+    if ( ODMainWin() )
+	ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }
