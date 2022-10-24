@@ -1845,13 +1845,7 @@ HorizonDisplay::IntersectionData*
 				ObjectSet<IntersectionData>& pool )
 {
     IntersectionData* data = nullptr;
-    if ( !pool.isEmpty() )
-    {
-	data = pool.pop();
-	if ( data )
-	    data->clear();
-    }
-    else
+    if ( pool.isEmpty() )
     {
 	data = new IntersectionData( *lineStyle() );
 	data->setDisplayTransformation(transformation_);
@@ -1860,6 +1854,13 @@ HorizonDisplay::IntersectionData*
 
 	addChild( data->line_->osgNode() );
 	addChild( data->markerset_->osgNode() );
+    }
+    else
+    {
+	mDynamicCastGet(ManagedObjectSet<IntersectionData>*,mpool,&pool)
+	data = mpool ? mpool->removeAndTake(mpool->size()-1) : pool.pop();
+	if ( data )
+	    data->clear();
     }
 
     return data;
@@ -1902,10 +1903,10 @@ void HorizonDisplay::updateIntersectionLines(
     if ( !doall && !isValidIntersectionObject(objs,objidx,whichobj) )
 	return;
 
-    ObjectSet<IntersectionData> lines;
+    ManagedObjectSet<IntersectionData> lines;
     if ( doall )
     {
-	while ( intersectiondata_.size() )
+	while ( !intersectiondata_.isEmpty() )
 	    lines += intersectiondata_.removeAndTake( 0, false );
     }
     else
@@ -1941,23 +1942,10 @@ void HorizonDisplay::updateIntersectionLines(
 		continue;
 
 	    IntersectionData* data = nullptr;
-
 	    for ( int sectionidx=0; sectionidx<horizon->nrSections();
 		  sectionidx++ )
 	    {
-		if ( trckeypath.size() )
-		{
-		    const Interval<float> zrg =
-			objs[objidx]->getDataTraceRange();
-		    data = getOrCreateIntersectionData( lines );
-		    if ( data )
-		    {
-			data->objid_ = vo->id();
-			traverseLine( trckeypath, trccoords, zrg, *data );
-		    }
-		    continue;
-		}
-		else
+		if ( trckeypath.isEmpty() )
 		{
 		    if ( mIsZero(trzs.zsamp_.width(),1e-5) )
 		    {
@@ -1969,20 +1957,30 @@ void HorizonDisplay::updateIntersectionLines(
 			drawHorizonOnZSlice( trzs, *data );
 		    }
 		}
+		else
+		{
+		    const Interval<float> zrg =
+			objs[objidx]->getDataTraceRange();
+		    data = getOrCreateIntersectionData( lines );
+		    if ( data )
+		    {
+			data->objid_ = vo->id();
+			traverseLine( trckeypath, trccoords, zrg, *data );
+		    }
+		    continue;
+		}
 	    }
 
-	    intersectiondata_ += data;
+	    intersectiondata_.add( data );
 	}
     }
 
     //These lines were not used, hance remove from scene.
-    for ( int idx=0; idx<lines.size(); idx++ )
+    for ( const auto* line : lines )
     {
-	removeChild( lines[idx]->line_->osgNode() );
-	removeChild( lines[idx]->markerset_->osgNode() );
+	removeChild( line->line_->osgNode() );
+	removeChild( line->markerset_->osgNode() );
     }
-
-    deepErase( lines );
 }
 
 
