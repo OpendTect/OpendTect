@@ -45,6 +45,8 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
+#include "visfaultdisplay.h"
+#include "visfaultsetdisplay.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
@@ -738,11 +740,18 @@ DataPackID uiVisPartServer::getDataPackID( VisID id, int attrib ) const
 }
 
 
-DataPackID uiVisPartServer::getDisplayedDataPackID( VisID id, int attrib)const
+DataPackID uiVisPartServer::getDisplayedDataPackID( VisID id, int attrib )const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDisplayedDataPackID( attrib ) :
-						    DataPackID::udf();
+    mDynamicCastGet(const visSurvey::FaultDisplay*,fltso,so);
+    if ( fltso )
+	return fltso->getDataPackID( attrib );
+
+    mDynamicCastGet(const visSurvey::FaultSetDisplay*,fltsetso,so);
+    if ( fltsetso )
+	return fltsetso->getDataPackID( attrib );
+
+    return so ? so->getDisplayedDataPackID( attrib ) : DataPackID::udf();
 }
 
 
