@@ -130,7 +130,7 @@ protected:
     visBase::MarchingCubesSurface*		displaysurface_	= nullptr;
     EM::MarchingCubesSurface*			emsurface_	= nullptr;
     Attrib::SelSpec				selspec_; // Not used
-    RefObjectSet<DataPointSet>			cache_;
+    ObjectSet<DataPointSet>			cache_;
     TypeSet<Attrib::SelSpec>			selspecs_;
 
     bool					isattribenabled_ = true;

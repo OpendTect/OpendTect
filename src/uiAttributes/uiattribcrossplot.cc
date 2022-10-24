@@ -270,6 +270,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
 
 #define mErrRet(s) \
 { \
+    if ( dps ) mDPM.unRef(dps->id()); \
     if ( !s.isEmpty() ) uiMSG().error(s); return false; \
 }
 

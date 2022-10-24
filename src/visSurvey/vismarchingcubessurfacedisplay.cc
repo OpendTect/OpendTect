@@ -61,6 +61,11 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     getMaterial()->change.remove(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
+    for ( int idx=cache_.size()-1; idx>=0; idx-- )
+    {
+	if ( cache_[idx] )
+	    DPM( DataPackMgr::PointID() ).unRef( cache_[idx]->id() );
+    }
 
     if ( model2displayspacetransform_ )
 	model2displayspacetransform_->unRef();
@@ -411,13 +416,21 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     }
 
     if ( cache_.validIdx(attrib) )
+    {
+	if ( cache_[attrib] )
+	    DPM( DataPackMgr::PointID() ).unRef( cache_[attrib]->id() );
+
 	cache_.replace(attrib,ndps);
+    }
     else
     {
 	while ( attrib>cache_.size() )
-	    cache_ += nullptr;
+	    cache_ += 0;
 	cache_ += ndps;
     }
+
+    if ( cache_[attrib] )
+	DPM( DataPackMgr::PointID() ).ref( cache_[attrib]->id() );
 
     validtexture_ = true;
     updateSingleColor();

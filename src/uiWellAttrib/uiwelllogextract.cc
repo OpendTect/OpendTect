@@ -110,6 +110,7 @@ uiWellLogExtractGrp::~uiWellLogExtractGrp()
 
 void uiWellLogExtractGrp::releaseDPS()
 {
+    mDPM.unRef( curdps_->id() );
     curdps_ = nullptr;
 }
 

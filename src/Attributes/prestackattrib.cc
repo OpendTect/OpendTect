@@ -245,6 +245,7 @@ PSAttrib::PSAttrib( Desc& ds )
 
 PSAttrib::~PSAttrib()
 {
+    if ( anglecomp_ ) anglecomp_->unRef();
     delete propcalc_;
     delete preprocessor_;
     delete psrdr_;

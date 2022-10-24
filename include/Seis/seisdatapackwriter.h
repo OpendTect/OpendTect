@@ -31,7 +31,7 @@ public:
 
     void		setSelection(const TrcKeySampling&,
 				     const Interval<int>&);
-    const RegularSeisDataPack* dataPack() const { return dp_.ptr(); }
+    const RegularSeisDataPack* dataPack() const	{ return dp_; }
     void		setNextDataPack(const RegularSeisDataPack&);
 
     void		setComponentScaler(const Scaler&,int compidx);
@@ -54,7 +54,7 @@ private:
 
     TypeSet<int>		compidxs_;
     MultiID			mid_;
-    ConstRefMan<RegularSeisDataPack>	dp_;
+    const RegularSeisDataPack*	dp_;
 
     int				nrdone_;
     int				totalnr_;
@@ -70,6 +70,8 @@ private:
     bool			is2d_;
 
     void			getPosInfo();
+    void			obtainDP();
+    void			releaseDP();
 
     friend class VolProc::ChainOutput;
 

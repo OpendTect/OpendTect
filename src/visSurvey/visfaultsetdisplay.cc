@@ -1266,9 +1266,8 @@ bool FaultSetDisplay::setDataPackID( int attrib, DataPackID dpid,
 	return false;
 
     DataPackID oldid = datapackids_[attrib];
-    dpman.unRef( oldid );
     datapackids_[attrib] = dpid;
-    dpman.ref( dpid );
+    dpman.unRef( oldid );
     return true;
 }
 

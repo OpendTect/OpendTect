@@ -71,6 +71,8 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 uiNLAPartServer::~uiNLAPartServer()
 {
     delete uidps_;
+    if ( dps_ )
+	mDPM.unRef( dps_->id() );
     delete &storepars_;
 }
 
@@ -517,7 +519,7 @@ bool uiNLAPartServer::doDPSDlg()
 
 #undef mErrRet
 #define mErrRet(rv) \
-{ if ( dps_ ) dps_ = nullptr; return rv; }
+{ if ( dps_ ) { mDPM.unRef( dps_->id() ); dps_ = 0; } return rv; }
 
 
 RefMan<DataPointSet> uiNLAPartServer::gtDps() const
