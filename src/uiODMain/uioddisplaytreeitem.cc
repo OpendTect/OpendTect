@@ -105,7 +105,8 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	tb->handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
     }
 
-    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
+    if ( ODMainWin() )
+	ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
 }
 
 
@@ -565,7 +566,7 @@ void uiODDisplayTreeItem::prepareForShutdown()
     uiTreeItem::prepareForShutdown();
     mDynamicCastGet( const visSurvey::SurveyObject*, so,
 		     visserv_->getObject(displayid_) );
-    if ( ODMainWin()->colTabEd().getSurvObj() == so )
+    if ( ODMainWin() && ODMainWin()->colTabEd().getSurvObj() == so )
 	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
 
     visserv_->removeObject( displayid_, sceneID() );
