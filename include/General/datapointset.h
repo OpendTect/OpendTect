@@ -79,9 +79,9 @@ public:
 
 	void		set( const BinID& bid )
 			{ trckey_.setPosition( bid ); offsx_ = offsy_ = 0; }
-	void		set(::Pos::GeomID,int trcnr); // 2D
-	void		set(const Coord&); // 3D
-	void		set(const Coord3&); // 3D
+	void		set(::Pos::GeomID,int trcnr);
+	void		set(const Coord&);
+	void		set(const Coord3&);
 
 	TrcKey		trckey_;
 	float		z_;
