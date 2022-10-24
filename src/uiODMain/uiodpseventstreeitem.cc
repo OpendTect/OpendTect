@@ -135,8 +135,11 @@ uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
 
 uiODPSEventsTreeItem::~uiODPSEventsTreeItem()
 {
-    ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(
-	   &ODMainWin()->colTabEd().getColTabSequence() );
+    if ( !ODMainWin() )
+	return;
+
+    auto* cseq = const_cast<ColTab::Sequence*>(
+			 &ODMainWin()->colTabEd().getColTabSequence() );
     if ( cseq )
     {
 	cseq->colorChanged.remove(
