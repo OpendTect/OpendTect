@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uistrings.h"
 
+#include "binidvalue.h"
 #include "commondefs.h"
 #include "datainpspec.h"
 #include "filepath.h"
-#include "survinfo.h"
-#include "binidvalue.h"
-#include "undefval.h"
 #include "settings.h"
+#include "survinfo.h"
+#include "undefval.h"
 
 
 //! maps a uiGenInput's idx to a field- and sub-idx
