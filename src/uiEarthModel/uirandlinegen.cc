@@ -254,7 +254,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     if ( !ioobjin )
 	return false;
 
-    const IOObj* ioobjout = infld_->ioobj();
+    const IOObj* ioobjout = outfld_->ioobj();
     if ( !ioobjout )
 	return false;
 
