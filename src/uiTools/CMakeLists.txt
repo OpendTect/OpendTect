@@ -55,6 +55,7 @@ set( OD_MODULE_SOURCES
 	uihistogramdisplay.cc
 	uihistogramsel.cc
 	uihostiddlg.cc
+	uihostinpgrp.cc
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc

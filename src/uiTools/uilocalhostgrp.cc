@@ -55,7 +55,8 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
     setHAlignObj( hostnmfld_ );
 
     hostnmfld_->setText( System::localHostName() );
-    hostnmoverrulefld_->setText( SettingsAccess().getHostNameOverrule() );
+    if ( hostnmoverrulefld_ )
+	hostnmoverrulefld_->setText( SettingsAccess().getHostNameOverrule() );
     lookupaddrCB( nullptr );
 }
 
