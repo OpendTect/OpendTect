@@ -1459,6 +1459,72 @@ void uiPythonSettings::safetycheckCB( CallBacker* )
 }
 
 
+class uiCloneEnvDlg : public uiDialog
+{
+mODTextTranslationClass(uiCloneEnvDlg)
+public:
+uiCloneEnvDlg( uiParent* p, const FilePath& envpath )
+    : uiDialog(p,Setup(tr("Clone Python Environment"),mNoDlgTitle,mTODOHelpKey))
+{
+    sourcefld_ = new uiGenInput( this, uiStrings::sSource() );
+    sourcefld_->setFilename( envpath.fullPath().buf() );
+    sourcefld_->setReadOnly( true );
+
+    uiFileInput::Setup fsu;
+    destfld_ = new uiFileInput( this, tr("Destination folder"), fsu );
+    destfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+    destfld_->attach( alignedBelow, sourcefld_ );
+
+    const BufferString defnm( envpath.baseName(), "_clone" );
+    destnmfld_ = new uiGenInput( this, tr("New environment name") );
+    destnmfld_->setText( defnm );
+    destnmfld_->attach( alignedBelow, destfld_ );
+
+    setOkText( tr("Clone") );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    const BufferString destdir = destfld_->fileName();
+    if ( destdir.isEmpty() )
+    {
+	uiMSG().error( tr("Please selection destionation folder.") );
+	return false;
+    }
+
+    const BufferString clonename = destnmfld_->text();
+    const FilePath fp( destdir, clonename );
+    destdir_ = fp.fullPath();
+    if ( File::exists(destdir_) )
+    {
+	uiMSG().error( tr("Destination already exists:\n%1")
+			.arg(destdir_) );
+	return false;
+    }
+
+    if ( !File::isWritable(destdir) )
+    {
+	uiMSG().error( tr("Destination is not writable.") );
+	return false;
+    }
+
+    return true;
+}
+
+const char* destDir() const
+{
+    return destdir_.buf();
+}
+
+BufferString	destdir_;
+
+uiGenInput*	sourcefld_;
+uiFileInput*	destfld_;
+uiGenInput*	destnmfld_;
+
+};
+
 void uiPythonSettings::cloneCB( CallBacker* )
 {
     if ( !useScreen() )
@@ -1474,24 +1540,14 @@ void uiPythonSettings::cloneCB( CallBacker* )
 	return;
     }
 
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, nullptr, nullptr,
-		      tr("Destination for Cloned Environment") );
+    uiCloneEnvDlg dlg( this, envpath );
     if ( !dlg.go() )
 	return;
 
-    const BufferString dirloc( dlg.fileName() );
-    const BufferString clonename( envname,"_clone" );
-    FilePath fp( dirloc, clonename );
-    if ( File::exists(fp.fullPath()) || !File::isWritable(dirloc) )
-    {
-	uiMSG().error( uiStrings::phrCannotCreateDirectory(
-						toUiString(fp.fullPath())) );
-	return;
-    }
-
+    const char* destdir = dlg.destDir();
     BufferStringSet mcargs;
-    mcargs.add("create").add("--clone").add(envname)
-						.add("-p").add(fp.fullPath());
+    mcargs.add("create").add("--clone").add(envname.buf())
+	  .add("-p").add(destdir);
     const OS::MachineCommand mc( "conda", mcargs );
     auto& mgr = Threads::CommandLaunchMgr::getMgr();
     CallBack cb( mCB(this,uiPythonSettings,cloneFinishedCB) );

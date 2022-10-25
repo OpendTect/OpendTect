@@ -171,6 +171,7 @@ Returns true, if changes are accepted.
     void		setValue(double,int nr=0);
     void		setValue(float,int nr=0);
     void		setValue(bool,int nr=0);
+    void		setFilename(const char*);
 
     inline void		setTexts( const char* v1, const char* v2 )
 			{ setText(v1,0); setText(v2,1); }

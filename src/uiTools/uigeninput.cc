@@ -1099,6 +1099,12 @@ void uiGenInput::setValue( const BinIDValue& b )
 }
 
 
+void uiGenInput::setFilename( const char* fnm )
+{
+    setText( FilePath::getLongPath(fnm) );
+}
+
+
 UserInputObj* uiGenInput::element( int nr )
 {
     if ( !finalized_ ) return 0;
