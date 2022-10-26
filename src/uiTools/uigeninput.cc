@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "commondefs.h"
 #include "datainpspec.h"
+#include "filepath.h"
 #include "survinfo.h"
 #include "binidvalue.h"
 #include "undefval.h"
