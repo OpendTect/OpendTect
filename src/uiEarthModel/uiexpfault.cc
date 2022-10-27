@@ -331,9 +331,6 @@ bool uiExportFault::writeAscii()
 
 		    const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
 
-		    if ( zatf )
-			crd.z = double(zatf->transformTrc( tk, float(crd.z) ));
-
 		    if ( !doxy )
 		    {
 			const BinID& bid = tk.position();
@@ -354,7 +351,19 @@ bool uiExportFault::writeAscii()
 			ostrm << str;
 		    }
 
-		    ostrm << '\t' << unit->userValue( crd.z );
+		    if ( zatf )
+			crd.z = double(zatf->transformTrc( tk, float(crd.z) ));
+
+		    if ( zatf && SI().depthsInFeet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "ft" );
+			crd.z = uom->getSIValue( crd.z );
+		    }
+
+		    if ( !mIsUdf(crd.z) && unit )
+			crd.z = unit->userValue( crd.z );
+
+		    ostrm << '\t' << crd.z;
 
 		    if ( inclstickidx )
 			ostrm << '\t' << stickidx;
