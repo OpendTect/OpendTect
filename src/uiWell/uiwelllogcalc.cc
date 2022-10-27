@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "uiwelllogdisplay.h"
 
 #include "ioman.h"
-#include "ioobj.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
 #include "od_helpids.h"
@@ -36,7 +35,6 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "wellreader.h"
 #include "welltrack.h"
-#include "wellwriter.h"
 
 #define mMDIdx		0
 #define mTVDIdx		1
@@ -285,7 +283,7 @@ bool getFormulaInfo( Math::Formula& form ) const
 
     uiRockPhysForm*	formgrp_;
 
-};
+}; // class uiWellLogCalcRockPhys
 
 
 void uiWellLogCalc::rockPhysReq( CallBacker* )
@@ -500,14 +498,15 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     {
 	if ( errormsg.isError() )
 	    uiMSG().errorWithDetails( errormsg.messages(),
-				      tr("Adding log failed for all wells") );
+				      tr("Adding new log failed") );
 	return false;
     }
+
     if ( errormsg.isError() )
 	uiMSG().errorWithDetails( errormsg.messages(),
-				  tr("Adding log failed for some wells") );
+		tr("Adding new log failed for some of the selected wells") );
     else
-	uiMSG().message( tr("Successfully added this log to all wells") );
+	uiMSG().message( tr("Successfully added this log") );
 
     havenew_ = true;
     viewlogbut_->setSensitive( true );
