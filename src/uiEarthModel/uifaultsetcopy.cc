@@ -28,8 +28,11 @@ ________________________________________________________________________
 uiFault2FaultSet::uiFault2FaultSet( uiParent* p )
     : uiDialog(p,Setup(tr("Copy Faults to FaultSet"),mNoDlgTitle,mTODOHelpKey))
 {
+    uiIOObjSelGrp::Setup su( OD::ChooseAtLeastOne );
+    su.withinserters(false).withwriteopts(false);
     IOObjContext ctxt = mIOObjContext( EMFault3D );
-    infld_ = new uiIOObjSelGrp( this, ctxt, tr("Select Faults") );
+    infld_ = new uiIOObjSelGrp( this, ctxt, tr("Select Faults"), su );
+    infld_->displayManipGroup( false, true );
 
     IOObjContext fsctxt = mIOObjContext( EMFaultSet3D );
     fsctxt.forread_ = false;
