@@ -49,7 +49,7 @@ namespace Coords
 bool initCRSPlugin( bool withdatabase )
 {
 #ifdef OD_NO_PROJ
-    return false
+    return false;
 #else
     Coords::initCRSDatabase();
     Coords::ProjectionBasedSystem::initClass();
