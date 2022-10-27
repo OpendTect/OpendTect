@@ -38,9 +38,9 @@ mDefineEnumUtils(ProcDesc::DataEntry,ActionType,"ActionType")
  template <>
  void EnumDefImpl<ProcDesc::DataEntry::ActionType>::init()
  {
-     uistrings_ += uiStrings::sAdd();
-     uistrings_ += uiStrings::sRemove();
-     uistrings_ += tr("Not sure");
+     uistrings_ += tr("Add Firewall Rules");
+     uistrings_ += tr("Remove Firewall Rules");
+     uistrings_ += tr("Add or Remove Firewall Rules");
  }
 
 
@@ -112,6 +112,49 @@ void ProcDesc::Data::setPath( const BufferString& path )
 {
     path_ = path;
 }
+
+
+bool ProcDesc::Data::hasWorkToDo( const BufferString& pypath, bool toadd )
+ {
+    ProcDesc::DataEntry::ActionType acttyp =
+		toadd ? ProcDesc::DataEntry::Add : ProcDesc::DataEntry::Remove;
+
+    BufferStringSet pyprocnms;
+    uiStringSet pyprocdescs;
+    ePDD().getProcData( pyprocnms, pyprocdescs,
+					ProcDesc::DataEntry::Python, acttyp );
+
+
+    FilePath fp( pypath );
+    fp.add( "envs" );
+
+    for ( int idx=pyprocnms.size()-1; idx>=0; idx-- )
+    {
+	const FilePath pyexefp( fp.fullPath(), pyprocnms.get(idx),
+								"python.exe" );
+
+	if ( !File::exists(pyexefp.fullPath()) )
+	{
+	    pyprocnms.removeSingle( idx );
+	    pyprocdescs.removeSingle( idx );
+	    continue;
+	}
+    }
+
+    uiStringSet odprocdescs;
+    BufferStringSet odprocnms;
+    ePDD().getProcData( odprocnms, odprocdescs, ProcDesc::DataEntry::ODv6,
+								    acttyp );
+    if ( odprocdescs.isEmpty() && pyprocdescs.isEmpty() )
+	return false;
+
+    const ProcDesc::DataEntry::ActionType availacttype = ePDD().getActionType();
+    if ( availacttype == ProcDesc::DataEntry::AddNRemove ||
+			acttyp == ProcDesc::DataEntry::AddNRemove )
+	return true;
+
+    return acttyp == availacttype;
+ }
 
 
 ProcDesc::Data& ProcDesc::Data::add( ProcDesc::DataEntry* pdde )
