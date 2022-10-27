@@ -143,8 +143,8 @@ void SeisIOSimple::Data::clear( bool survchg )
 
 
 SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
-    : Executor( imp ? "Import Seismics from simple file"
-		    : "Export Seismics to simple file" )
+    : Executor( imp ? "Import Seismic from simple file"
+		    : "Export Seismic to simple file" )
     , data_(d)
     , trc_(*new SeisTrc)
     , isimp_(imp)

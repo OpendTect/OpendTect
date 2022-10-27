@@ -180,8 +180,8 @@ void WellTie::uiTieView::initFlatViewer()
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
     app.annot_.x1_.name_ = "";
     app.annot_.x2_.name_ =  "TWT";
-    app.annot_.title_ = "Synthetics                     "
-			"                                Seismics";
+    app.annot_.title_ = "Synthetic                      "
+			"                                 Seismic";
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
     vwr_->getMouseEventHandler().movement.notify(
 				mCB(this,uiTieView,setInfoMsg) );
