@@ -160,15 +160,15 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
     TextStreamProgressMeter pm( strm );
     deepErase( data );
 
+    auto* res = new BinIDValueSet( 1, false );
+    data += res;
+
     PtrMan<EMObjectIterator> iterator = horizon->createIterator();
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
-	if ( !pid.isValid() )
+	if ( !pid.objectID().isValid() )
 	    break;
-
-	auto* res = new BinIDValueSet( 1, false );
-	data += res;
 
 	const Coord3 crd = horizon->getPos( pid );
 	const BinID bid = SI().transform(crd);
@@ -177,7 +177,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
     }
 
     pm.setFinished();
-    strm << "Done!" << od_endl;
+    strm << "Fetching horizon positions Done!\n\n" << od_endl;
 }
 
 
