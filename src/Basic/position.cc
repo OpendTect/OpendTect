@@ -465,8 +465,12 @@ Coord TrcKey::getCoord() const
     if ( is3D() )
 	return geometry().as3D()->transform( pos_ );
     else if ( isSynthetic() )
-	// Keep it independent of the survey, may be Coord::udf()?
-	return Coord( double(lineNr()), double(trcNr()) );
+    { //To ensure it never falls within SI()
+	const BinID pos( SI().inlRange().stop + SI().inlRange().step,
+			 SI().crlRange().stop +
+			 SI().crlRange().step * (trcNr()+1) );
+	return geometry().as3D()->transform( pos );
+    }
 
     const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomID() );
     return geom2d.isEmpty() ? Coord::udf() : geom2d.toCoord( trcNr() );
