@@ -29,6 +29,6 @@ mDefModInitFn(uiODMain)
 
 #ifdef __win__
     ePDD().add( ePDD().sKeyODExecNm(), uiODMain::sODDesc(),
-						ProcDesc::DataEntry::ODv6 );
+						ProcDesc::DataEntry::OD );
 #endif
 }

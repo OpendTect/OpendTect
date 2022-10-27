@@ -24,7 +24,7 @@ namespace ProcDesc
     mExpClass(Basic) DataEntry
     {
     public:
-	enum Type	    { ODv6, Python };
+	enum Type	    { OD, Python };
 				mDeclareEnumUtils(Type)
 	enum ActionType     { Add, Remove, AddNRemove };
 				mDeclareEnumUtils(ActionType)
@@ -61,11 +61,12 @@ namespace ProcDesc
 	IOPar&			readPars();
 	bool			writePars(const IOPar&,bool toadd);
 	static BufferString	sKeyODExecNm() { return "od_main"; }
+	bool			hasWorkToDo(const BufferString& pypath,bool);
 
     protected:
 	IOPar			pars_;
 	BufferString		path_;
-	BufferStringSet		addedodv6procs_;
+	BufferStringSet		addedodprocs_;
 	BufferStringSet		addedpyprocs_;
 	BufferStringSet		addedprocnms_;
 

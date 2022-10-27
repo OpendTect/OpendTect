@@ -32,6 +32,6 @@ mDefModInitFn(uiSeis)
     uiSeisPosProvGroup::initClass();
 #ifdef __win__
     ePDD().add( "od_SeisMMBatch",
-	Batch::SeisMMProgDef::sSeisMMProcDesc(), ProcDesc::DataEntry::ODv6 );
+	Batch::SeisMMProgDef::sSeisMMProcDesc(), ProcDesc::DataEntry::OD );
 #endif // __win__
 }

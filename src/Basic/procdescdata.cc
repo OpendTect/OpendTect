@@ -38,9 +38,9 @@ mDefineEnumUtils(ProcDesc::DataEntry,ActionType,"ActionType")
  template <>
  void EnumDefImpl<ProcDesc::DataEntry::ActionType>::init()
  {
-     uistrings_ += uiStrings::sAdd();
-     uistrings_ += uiStrings::sRemove();
-     uistrings_ += tr("Not sure");
+     uistrings_ += tr("Add Firewall Rules");
+     uistrings_ += tr("Remove Firewall Rules");
+     uistrings_ += tr("Add or Remove Firewall Rules");
  }
 
 
@@ -114,6 +114,49 @@ void ProcDesc::Data::setPath( const BufferString& path )
 }
 
 
+bool ProcDesc::Data::hasWorkToDo( const BufferString& pypath, bool toadd )
+ {
+    ProcDesc::DataEntry::ActionType acttyp =
+		toadd ? ProcDesc::DataEntry::Add : ProcDesc::DataEntry::Remove;
+
+    BufferStringSet pyprocnms;
+    uiStringSet pyprocdescs;
+    ePDD().getProcData( pyprocnms, pyprocdescs,
+					ProcDesc::DataEntry::Python, acttyp );
+
+
+    FilePath fp( pypath );
+    fp.add( "envs" );
+
+    for ( int idx=pyprocnms.size()-1; idx>=0; idx-- )
+    {
+	const FilePath pyexefp( fp.fullPath(), pyprocnms.get(idx),
+								"python.exe" );
+
+	if ( !File::exists(pyexefp.fullPath()) )
+	{
+	    pyprocnms.removeSingle( idx );
+	    pyprocdescs.removeSingle( idx );
+	    continue;
+	}
+    }
+
+    uiStringSet odprocdescs;
+    BufferStringSet odprocnms;
+    ePDD().getProcData( odprocnms, odprocdescs, ProcDesc::DataEntry::OD,
+								    acttyp );
+    if ( odprocdescs.isEmpty() && pyprocdescs.isEmpty() )
+	return false;
+
+    const ProcDesc::DataEntry::ActionType availacttype = ePDD().getActionType();
+    if ( availacttype == ProcDesc::DataEntry::AddNRemove ||
+			acttyp == ProcDesc::DataEntry::AddNRemove )
+	return true;
+
+    return acttyp == availacttype;
+ }
+
+
 ProcDesc::Data& ProcDesc::Data::add( ProcDesc::DataEntry* pdde )
 {
     *this += pdde;
@@ -123,7 +166,7 @@ ProcDesc::Data& ProcDesc::Data::add( ProcDesc::DataEntry* pdde )
 
 void ProcDesc::Data::setEmpty()
 {
-    addedodv6procs_.setEmpty();
+    addedodprocs_.setEmpty();
     addedpyprocs_.setEmpty();
     addedprocnms_.setEmpty();
 }
@@ -157,10 +200,10 @@ IOPar& ProcDesc::Data::readPars()
 	return pars_;
 
     setEmpty();
-    pars_.get( ProcDesc::DataEntry::sKeyODv6(), addedodv6procs_ );
+    pars_.get( ProcDesc::DataEntry::sKeyODv6(), addedodprocs_ );
     pars_.get( ProcDesc::DataEntry::sKeyPython(), addedpyprocs_ );
 
-    addedprocnms_.add( addedodv6procs_, true );
+    addedprocnms_.add( addedodprocs_, true );
     addedprocnms_.add( addedpyprocs_, true );
 
     return pars_;
@@ -191,12 +234,12 @@ bool ProcDesc::Data::writePars( const IOPar& pars, bool toadd )
 
     if ( toadd )
     {
-	v6procs.append( addedodv6procs_ );
+	v6procs.append( addedodprocs_ );
 	pyprocs.append( addedpyprocs_ );
     }
     else
     {
-	mRemoveProcsNUpdateList( v6procs, addedodv6procs_ )
+	mRemoveProcsNUpdateList( v6procs, addedodprocs_ )
 	mRemoveProcsNUpdateList( pyprocs, addedpyprocs_ )
     }
 
@@ -215,7 +258,7 @@ void ProcDesc::Data::getProcData( BufferStringSet& nms, uiStringSet& descs,
     else if ( acttyp == DataEntry::Remove )
 	getProcsToBeRemoved( nms, descs, type );
 
-    if ( type == DataEntry::ODv6 )
+    if ( type == DataEntry::OD )
     {
 	int idx = nms.indexOf( sKeyODExecNm() );
 
@@ -247,7 +290,7 @@ void ProcDesc::Data::getProcsToBeAdded( BufferStringSet& nms,
     }
     else
     {
-	BufferStringSet targetset = type == DataEntry::ODv6 ? addedodv6procs_ :
+	BufferStringSet targetset = type == DataEntry::OD ? addedodprocs_ :
 							 addedpyprocs_;
 	for ( int idx=0; idx<ePDD().size(); idx++ )
 	{
@@ -270,7 +313,7 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
     if ( pars_.isEmpty() )
 	return; // no process are added already hence none to be removed
 
-    BufferStringSet targetset = type == DataEntry::ODv6 ? addedodv6procs_ :
+    BufferStringSet targetset = type == DataEntry::OD ? addedodprocs_ :
 								addedpyprocs_;
 
     for ( int idx=0; idx<ePDD().size(); idx++ )
