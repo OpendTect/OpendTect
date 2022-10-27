@@ -14,24 +14,20 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "oddirs.h"
-#include "od_iostream.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 
+#include "embody.h"
 #include "embodytr.h"
 #include "emfault3d.h"
 #include "emfaultauxdata.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
-#include "emmarchingcubessurface.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
-#include "emsurfauxdataio.h"
 
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
@@ -52,7 +48,6 @@ ________________________________________________________________________
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
 #include "uitable.h"
-#include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
@@ -197,10 +192,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		mCB(this,uiSurfaceMan,setRelations), false );
     }
 
-    if ( type_==Flt3D )
-    {
-    }
-
     if ( type_==Body )
     {
 	applybodybut_ = addManipButton( "set_union",
@@ -223,6 +214,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 			    uiStrings::phrManage(uiStrings::sFault(mPlural)),
 			    mCB(this,uiSurfaceMan,manFltSetCB) );
 	manselsetbut_->setSensitive( false );
+    }
+
+    if ( type_==Flt3D || type_==FltSet )
+    {
+	addManipButton( "faultplanes", tr("Copy Faults to FaultSet"),
+			mCB(this,uiSurfaceMan,copyFault2FaultSetCB) );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -285,15 +282,18 @@ void uiSurfaceMan::setToolButtonProperties()
     if ( surfdatarenamebut_ )
     {
 	surfdatarenamebut_->setSensitive( hasattribs );
-	mSetButToolTip(surfdatarenamebut_,"Rename '",attribfld_->getText(),
-		       "'", sRenameSelData())
+	BufferString nm;
+	if ( attribfld_ )
+	    nm = attribfld_->getText();
+	mSetButToolTip(surfdatarenamebut_,"Rename '",nm,"'",sRenameSelData())
     }
 
     if ( surfdataremovebut_ )
     {
 	surfdataremovebut_->setSensitive( hasattribs );
 	BufferStringSet attrnms;
-	attribfld_->getChosen( attrnms );
+	if ( attribfld_ )
+	    attribfld_->getChosen( attrnms );
 	mSetButToolTip(surfdataremovebut_,"Remove ",attrnms.getDispString(2),
 		       "", sRemoveSelData())
     }
@@ -1095,4 +1095,15 @@ void uiSurfaceMan::manFltSetCB( CallBacker* )
 
     uiFltSetMan dlg( this, *curioobj_ );
     dlg.go();
+}
+
+
+void uiSurfaceMan::copyFault2FaultSetCB( CallBacker* )
+{
+    uiFault2FaultSet dlg( this );
+    if ( !dlg.go() )
+	return;
+
+    if ( type_ == FltSet )
+	updateCB(nullptr);
 }

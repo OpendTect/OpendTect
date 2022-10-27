@@ -72,6 +72,7 @@ protected:
     void		setToolButtonProperties();
     void		ownSelChg() override;
     void		manFltSetCB(CallBacker*);
+    void		copyFault2FaultSetCB(CallBacker*);
 
 private:
     uiString		sRenameSelData();
