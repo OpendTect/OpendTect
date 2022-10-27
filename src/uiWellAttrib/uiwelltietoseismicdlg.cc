@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiwelltiewavelet.h"
 #include "uiwelltiesavedatadlg.h"
 
-#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uigroup.h"
@@ -26,18 +25,15 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uistrings.h"
 #include "uitoolbar.h"
-#include "uitaskrunner.h"
 #include "uiwelldlgs.h"
-#include "uiwelllogdisplay.h"
 
 #include "seiscommon.h"
 #include "seistrc.h"
 #include "stratsynthgenparams.h"
+#include "unitofmeasure.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
-#include "welllog.h"
-#include "welllogset.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
 #include "wellman.h"
@@ -69,7 +65,6 @@ WellTie::uiTieWin::uiTieWin( uiParent* p, Server& wts )
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
     mAttachCB( drawer_->infoMsgChanged, uiTieWin::dispInfoMsg );
     mAttachCB( server_.pickMgr().pickadded, uiTieWin::checkIfPick );
-    server_.setTaskRunner( new uiTaskRunner(p) );
 
     mGetWD(return)
     uiString title = tr("Tie %1 to %2").arg(toUiString(wd->name()))
