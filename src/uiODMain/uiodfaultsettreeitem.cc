@@ -13,22 +13,18 @@ ________________________________________________________________________
 #include "emfaultset3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "ioman.h"
+#include "executor.h"
 #include "ioobj.h"
 #include "mousecursor.h"
-#include "randcolor.h"
 
 #include "uiempartserv.h"
 #include "uiioobjseldlg.h"
 #include "uimenu.h"
-#include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uiodviewer2dmgr.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "visfaultsetdisplay.h"
@@ -46,7 +42,7 @@ uiODFaultSetParentTreeItem::~uiODFaultSetParentTreeItem()
 
 
 const char* uiODFaultSetParentTreeItem::iconName() const
-{ return "faultplanes"; }
+{ return "tree-fltset"; }
 
 
 #define mAddMnuID	0
