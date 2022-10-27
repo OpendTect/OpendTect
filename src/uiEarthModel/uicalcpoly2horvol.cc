@@ -13,29 +13,30 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
-#include "executor.h"
+#include "od_helpids.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "survinfo.h"
-#include "veldesc.h"
 #include "unitofmeasure.h"
+#include "veldesc.h"
 
-#include "uiioobjsel.h"
-#include "uigeninput.h"
 #include "uibutton.h"
 #include "uichecklist.h"
+#include "uiconstvel.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
-#include "uilabel.h"
-#include "uimsg.h"
-#include "od_helpids.h"
+#include "uiunitsel.h"
 
 #include <math.h>
 
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p,const uiString& dlgtxt )
-	: uiDialog(p,Setup(tr("Calculate volume"),dlgtxt,
+	: uiDialog(p,Setup(tr("Calculate Volume"),dlgtxt,
 			   mODHelpKey(mCalcPoly2HorVolHelpID)))
 	, zinft_(SI().depthsInFeet())
 {
@@ -62,7 +63,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     if ( SI().zIsTime() )
     {
 	velfld_ = new uiGenInput( grp, VelocityDesc::getVelVolumeLabel(),
-		FloatInpSpec(zinft_?10000.f:3000.f) );
+		FloatInpSpec(Vel::getGUIDefaultVelocity()) );
 	velfld_->attach( alignedBelow, optsfld_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();
@@ -71,43 +72,77 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     uiSeparator* sep = new uiSeparator( grp, "Hor sep" );
     sep->attach( stretchedBelow, attobj );
 
-    uiPushButton* calcbut = new uiPushButton( grp,
-				tr("Estimate volume"), calccb, true);
+    auto* calcbut = new uiPushButton( grp, uiStrings::sCalculate(),
+				      calccb, true);
+    calcbut->setIcon( "downarrow" );
     calcbut->attach( alignedBelow, attobj );
     calcbut->attach( ensureBelow, sep );
+    uiObject* attachobj = calcbut;
 
-    uiGenInput* areafld = 0;
     const Pick::Set* ps = getPickSet();
     if ( ps )
     {
-	const float area = ps->getXYArea();
-	if ( !mIsUdf(area) )
-	{
-	    areafld = new uiGenInput( grp, tr("==> Area") );
-	    areafld->attach( alignedBelow, calcbut );
-	    areafld->setReadOnly( true );
-	    areafld->setText( getAreaString(area,SI().xyInFeet(),2,true) );
-	}
+	areainm2_ = ps->getXYArea();
+	areafld_ = new uiGenInput( grp, tr("Area") );
+	areafld_->attach( alignedBelow, attachobj );
+	areafld_->setReadOnly( true );
+	attachobj = areafld_->attachObj();
+
+	areaunitfld_ = new uiUnitSel( grp, Mnemonic::Area );
+	areaunitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "mi2" : "km2"));
+	mAttachCB( areaunitfld_->selChange, uiCalcHorVol::unitChgCB );
+	areaunitfld_->attach( rightOf, areafld_ );
+
+	unitChgCB( areaunitfld_ );
     }
 
-    valfld_ = new uiGenInput( grp, tr("==> Volume") );
-    valfld_->setElemSzPol( uiObject::WideMax );
-    if ( areafld )
-	valfld_->attach( alignedBelow, areafld );
-    else
-	valfld_->attach( alignedBelow, calcbut );
+    volumefld_ = new uiGenInput( grp, tr("Volume") );
+    volumefld_->setReadOnly( true );
+    volumefld_->attach( alignedBelow, attachobj );
 
-    valfld_->setReadOnly( true );
+    volumeunitfld_ = new uiUnitSel( grp, Mnemonic::Vol );
+    volumeunitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "ft3" : "m3") );
+    mAttachCB( volumeunitfld_->selChange, uiCalcHorVol::unitChgCB );
+    volumeunitfld_->attach( rightOf, volumefld_ );
 
     grp->setHAlignObj( attobj );
     return grp;
 }
 
 
+void uiCalcHorVol::unitChgCB( CallBacker* cb )
+{
+    CallBacker* caller = cb ? cb->trueCaller() : nullptr;
+    BufferString txt;
+    if ( caller && caller==volumeunitfld_ )
+    {
+	const UnitOfMeasure* uom = volumeunitfld_->getUnit();
+	if ( uom && !mIsUdf(volumeinm3_) )
+	{
+	    const float newval = uom->getUserValueFromSI( volumeinm3_ );
+	    txt.set( newval, 4 );
+	}
+
+	volumefld_->setText( txt );
+    }
+    else if ( caller && caller==areaunitfld_ )
+    {
+	const UnitOfMeasure* uom = areaunitfld_->getUnit();
+	if ( uom && !mIsUdf(areainm2_) )
+	{
+	    const float newval = uom->getUserValueFromSI( areainm2_ );
+	    txt.set( newval, 4 );
+	}
+
+	areafld_->setText( txt );
+    }
+}
+
+
 void uiCalcHorVol::haveChg( CallBacker* )
 {
-    if ( valfld_ )
-	valfld_->clear();
+    if ( volumefld_ )
+	volumefld_->clear();
 }
 
 
@@ -131,15 +166,18 @@ void uiCalcHorVol::calcReq( CallBacker* )
 	    vel *= mFromFeetFactorF;
     }
 
+    const bool allownegativevalues = !optsfld_->isChecked( 0 );
+    const bool upward = optsfld_->isChecked( 1 );
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
-    const float m3 = ph2v.getM3( vel, optsfld_->isChecked(0),
-				 !optsfld_->isChecked(1) );
-    valfld_->setText( ph2v.dispText(m3,SI().xyInFeet()) );
+    volumeinm3_ = ph2v.getM3( vel, upward, allownegativevalues );
+    unitChgCB( volumeunitfld_ );
 }
 
 
+
+// uiCalcPolyHorVol
 uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
-	: uiCalcHorVol(p, tr("Volume estimation: polygon to horizon") )
+	: uiCalcHorVol(p,tr("Polygon: %1").arg(ps.name()))
 	, ps_(&ps)
 {
     if ( ps_->size() < 3 )
@@ -168,10 +206,9 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
 	return;
 
     uiTaskRunner taskrunner( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
-							  &taskrunner );
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    hor_ = hor;
+    EM::EMObject* emobj =
+		EM::EMM().loadIfNotFullyLoaded( ioobj->key(), &taskrunner );
+    hor_ = sCast(EM::Horizon3D*,emobj);
     haveChg( cb );
 }
 
@@ -179,7 +216,7 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
 
 // uiCalcHorPolyVol
 uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
-    : uiCalcHorVol(p,tr("Volume estimation from horizon part"))
+    : uiCalcHorVol(p,tr("Horizon: %1").arg(h.name()))
     , hor_(&h)
 {
     if ( hor_->nrSections() < 1 )

@@ -35,7 +35,6 @@ public:
     bool			setHorizon(const MultiID&,TaskRunner* =nullptr);
 
     float			getM3(float,bool upward,bool usenegvals);
-    const char*			dispText(float m3,bool zinft);
 
 protected:
 

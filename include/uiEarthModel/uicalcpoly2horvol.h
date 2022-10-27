@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiCheckList;
 class uiGenInput;
 class uiIOObjSel;
+class uiUnitSel;
 
 
 /*! \brief UI for calculation of volume at horizons */
@@ -29,14 +30,20 @@ protected:
 			uiCalcHorVol(uiParent*,const uiString&);
     virtual		~uiCalcHorVol();
 
-    uiCheckList*	optsfld_	= nullptr;
-    uiGenInput*		velfld_		= nullptr;
-    uiGenInput*		valfld_		= nullptr;
-
     uiGroup*		mkStdGrp();
 
-    const bool		zinft_;
+    uiCheckList*	optsfld_		= nullptr;
+    uiGenInput*		velfld_			= nullptr;
+    uiGenInput*		areafld_		= nullptr;
+    uiUnitSel*		areaunitfld_		= nullptr;
+    uiGenInput*		volumefld_;
+    uiUnitSel*		volumeunitfld_;
 
+    const bool		zinft_;
+    float		areainm2_		= mUdf(float);
+    float		volumeinm3_		= mUdf(float);
+
+    void		unitChgCB(CallBacker*);
     void		haveChg(CallBacker*);
     void		calcReq(CallBacker*);
 
