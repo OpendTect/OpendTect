@@ -56,7 +56,7 @@ protected:
 
     Well::LogSet&		superwls_;
     Math::Formula&		form_;
-    float			zsampintv_;
+    float			zsampintv_	= mUdf(float);
     BufferStringSet		lognms_;
     MnemonicSelection		mnsel_;
     TypeSet<MultiID>		wellids_;
