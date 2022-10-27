@@ -11,18 +11,36 @@ ________________________________________________________________________
 
 #include "bodyvolumecalc.h"
 #include "embody.h"
-#include "executor.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
+
 #include "uibutton.h"
+#include "uiconstvel.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
-#include "veldesc.h"
-#include "od_helpids.h"
+#include "uiunitsel.h"
+
+#include "hiddenparam.h"
+
+class HP_uiImplBodyCalDlg
+{
+mOD_DisableCopy(HP_uiImplBodyCalDlg)
+public:
+HP_uiImplBodyCalDlg()	{}
+~HP_uiImplBodyCalDlg()	{}
+
+    uiUnitSel*		unitfld_		= nullptr;
+    float		volumeinm3_		= mUdf(float);
+};
+
+static HiddenParam<uiImplBodyCalDlg,HP_uiImplBodyCalDlg*> hp( nullptr );
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
-    : uiDialog(p,Setup(tr("Calculate Volume"),tr("Geobody volume estimation"),
+    : uiDialog(p,Setup(tr("Calculate Geobody Volume"),mNoDlgTitle,
 		       mODHelpKey(mImplBodyCalDlgHelpID) ))
     , embody_(eb)
     , velfld_(0)
@@ -35,56 +53,38 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     {
 	velfld_ = new uiGenInput( this,
 			 VelocityDesc::getVelVolumeLabel(),
-			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
+			 FloatInpSpec(Vel::getGUIDefaultVelocity()) );
     }
 
-    uiPushButton* calcbut =
-	new uiPushButton( this, tr("Estimate volume"), true );
-    calcbut->activated.notify( mCB(this,uiImplBodyCalDlg,calcCB) );
+    auto* calcbut = new uiPushButton( this, uiStrings::sCalculate(), true );
+    calcbut->setIcon( "downarrow" );
+    mAttachCB( calcbut->activated, uiImplBodyCalDlg::calcCB );
     if ( velfld_ )
 	calcbut->attach( alignedBelow, velfld_ );
 
     volfld_ = new uiGenInput( this, uiStrings::sVolume() );
-    volfld_->setElemSzPol( uiObject::WideMax );
     volfld_->setReadOnly( true );
     volfld_->attach( alignedBelow, calcbut );
+
+    hp.setParam( this, new HP_uiImplBodyCalDlg() );
+
+    auto* unitfld = new uiUnitSel( this, Mnemonic::Vol );
+    unitfld->setUnit( UoMR().get(SI().depthsInFeet() ? "ft3" : "m3") );
+    mAttachCB( unitfld->selChange, uiImplBodyCalDlg::unitChgCB );
+    unitfld->attach( rightOf, volfld_ );
+    hp.getParam(this)->unitfld_ = unitfld;
 }
 
 
 uiImplBodyCalDlg::~uiImplBodyCalDlg()
-{ delete impbody_; }
+{
+    detachAllNotifiers();
+    delete impbody_;
+    hp.removeAndDeleteParam( this );
+}
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
-
-static BufferString dispText( float m3, bool inft )
-{
-    const float bblconv = 6.2898108;
-    const float ft3conv = 35.314667;
-
-    if ( mIsUdf(m3) )
-	return "";
-
-    float dispval = m3;
-    if ( inft ) dispval *= ft3conv;
-    bool mega = false;
-    if ( fabs(dispval) > 1e6 )
-	{ mega = true; dispval /= 1e6; }
-
-    BufferString txt;
-    txt = dispval; txt += mega ? "M " : " ";
-    txt += inft ? "ft^3" : "m^3";
-    txt += " (";
-    dispval *= bblconv;
-    if ( inft ) dispval /= ft3conv;
-    if ( dispval > 1e6 )
-	{ mega = true; dispval /= 1e6; }
-    txt += dispval; if ( mega ) txt += "M";
-    txt += " bbl)";
-
-    return txt;
-}
-
 
 void uiImplBodyCalDlg::calcCB( CallBacker* )
 {
@@ -105,14 +105,31 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	    vel *= mFromFeetFactorF;
     }
 
+    float& volumeinm3 = hp.getParam(this)->volumeinm3_;
+    volumeinm3 = mUdf(float);
     uiTaskRunner taskrunner(this);
     BodyVolumeCalculator bc( impbody_->tkzs_, *impbody_->arr_,
 			     impbody_->threshold_, vel );
-    TaskRunner::execute( &taskrunner, bc );
+    if ( !TaskRunner::execute(&taskrunner,bc) )
+	return;
 
-    const float m3 = bc.getVolume();
-    const BufferString txt = dispText( m3, SI().xyInFeet() );
-    volfld_->setText( txt.buf() );
+    volumeinm3 = bc.getVolume();
+    unitChgCB( nullptr );
+}
+
+
+void uiImplBodyCalDlg::unitChgCB( CallBacker* )
+{
+    const auto* extra = hp.getParam(this);
+    BufferString txt;
+    const UnitOfMeasure* uom = extra->unitfld_->getUnit();
+    if ( uom && !mIsUdf(extra->volumeinm3_) )
+    {
+	const float newval = uom->getUserValueFromSI( extra->volumeinm3_ );
+	txt.set( newval, 4 );
+    }
+
+    volfld_->setText( txt );
 }
 
 

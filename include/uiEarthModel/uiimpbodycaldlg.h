@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiGenInput;
-namespace EM	{ class Body; class ImplicitBody; }
+namespace EM { class Body; class ImplicitBody; }
 
 
 /*! \brief UI for volume calculation of implicit body */
@@ -27,6 +27,7 @@ public:
 protected:
     
     void		calcCB(CallBacker*);
+    void		unitChgCB(CallBacker*);
     void		getImpBody();
 
     const EM::Body&	embody_;

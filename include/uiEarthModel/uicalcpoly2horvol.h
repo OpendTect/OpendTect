@@ -37,6 +37,7 @@ protected:
 
     const bool		zinft_;
 
+    void		unitChgCB(CallBacker*);
     void		haveChg(CallBacker*);
     void		calcReq(CallBacker*);
 
@@ -64,7 +65,16 @@ protected:
     RefMan<EM::Horizon3D>	hor_		= nullptr;
 
     const Pick::Set*		getPickSet() const override	{ return ps_; }
-    const EM::Horizon3D*	getHorizon() const override	{ return hor_; }
+    const EM::Horizon3D*	getHorizon() const override
+				{
+				    if ( !hor_ )
+				    {
+					auto* nc =cCast(uiCalcPolyHorVol*,this);
+					nc->horSel( nullptr);
+				    }
+
+				    return hor_;
+				}
 
     void			horSel(CallBacker*);
 };
@@ -87,7 +97,16 @@ protected:
     RefMan<Pick::Set>		ps_		= nullptr;
     ConstRefMan<EM::Horizon3D>	hor_;
 
-    const Pick::Set*		getPickSet() const override	{ return ps_; }
+    const Pick::Set*		getPickSet() const override
+				{
+				    if ( !ps_ )
+				    {
+					auto* nc =cCast(uiCalcHorPolyVol*,this);
+					nc->psSel( nullptr);
+				    }
+				    return ps_;
+				}
+
     const EM::Horizon3D*	getHorizon() const override	{ return hor_; }
 
     void			psSel(CallBacker*);
