@@ -45,13 +45,13 @@ uiCalcHorVol::uiCalcHorVol( uiParent* p,const uiString& dlgtxt )
 
 
 uiCalcHorVol::~uiCalcHorVol()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 uiGroup* uiCalcHorVol::mkStdGrp()
 {
-    const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
-
     uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
 
     optsfld_ = new uiCheckList( grp );
@@ -59,53 +59,45 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	     .addItem( tr("Upward") );
     optsfld_->setChecked( 0, true ).setChecked( 1, true );
 
-    uiObject* attobj = optsfld_->attachObj();
+    uiObject* attachobj = optsfld_->attachObj();
     if ( SI().zIsTime() )
     {
 	velfld_ = new uiGenInput( grp, VelocityDesc::getVelVolumeLabel(),
 		FloatInpSpec(Vel::getGUIDefaultVelocity()) );
 	velfld_->attach( alignedBelow, optsfld_ );
-	velfld_->valuechanged.notify( calccb );
-	attobj = velfld_->attachObj();
+	mAttachCB( velfld_->valuechanged, uiCalcHorVol::calcReq );
+	attachobj = velfld_->attachObj();
     }
 
-    uiSeparator* sep = new uiSeparator( grp, "Hor sep" );
-    sep->attach( stretchedBelow, attobj );
-
+    const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
     auto* calcbut = new uiPushButton( grp, uiStrings::sCalculate(),
-				      calccb, true);
+				      calccb, true );
     calcbut->setIcon( "downarrow" );
-    calcbut->attach( alignedBelow, attobj );
-    calcbut->attach( ensureBelow, sep );
-    uiObject* attachobj = calcbut;
+    calcbut->attach( alignedBelow, attachobj );
 
-    const Pick::Set* ps = getPickSet();
-    if ( ps )
-    {
-	areainm2_ = ps->getXYArea();
-	areafld_ = new uiGenInput( grp, tr("Area") );
-	areafld_->attach( alignedBelow, attachobj );
-	areafld_->setReadOnly( true );
-	attachobj = areafld_->attachObj();
+    auto* sep = new uiSeparator( grp, "Hor sep" );
+    sep->attach( stretchedBelow, calcbut );
 
-	areaunitfld_ = new uiUnitSel( grp, Mnemonic::Area );
-	areaunitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "mi2" : "km2"));
-	mAttachCB( areaunitfld_->selChange, uiCalcHorVol::unitChgCB );
-	areaunitfld_->attach( rightOf, areafld_ );
+    areafld_ = new uiGenInput( grp, tr("Area") );
+    areafld_->attach( alignedBelow, calcbut );
+    areafld_->attach( ensureBelow, sep );
+    areafld_->setReadOnly( true );
 
-	unitChgCB( areaunitfld_ );
-    }
+    areaunitfld_ = new uiUnitSel( grp, Mnemonic::Area );
+    areaunitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "mi2" : "km2"));
+    mAttachCB( areaunitfld_->selChange, uiCalcHorVol::unitChgCB );
+    areaunitfld_->attach( rightOf, areafld_ );
 
     volumefld_ = new uiGenInput( grp, tr("Volume") );
     volumefld_->setReadOnly( true );
-    volumefld_->attach( alignedBelow, attachobj );
+    volumefld_->attach( alignedBelow, areafld_ );
 
     volumeunitfld_ = new uiUnitSel( grp, Mnemonic::Vol );
     volumeunitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "ft3" : "m3") );
     mAttachCB( volumeunitfld_->selChange, uiCalcHorVol::unitChgCB );
     volumeunitfld_->attach( rightOf, volumefld_ );
 
-    grp->setHAlignObj( attobj );
+    grp->setHAlignObj( volumefld_ );
     return grp;
 }
 
@@ -171,6 +163,9 @@ void uiCalcHorVol::calcReq( CallBacker* )
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
     volumeinm3_ = ph2v.getM3( vel, upward, allownegativevalues );
     unitChgCB( volumeunitfld_ );
+
+    areainm2_ = ps->getXYArea();
+    unitChgCB( areaunitfld_ );
 }
 
 
@@ -196,6 +191,15 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 
 uiCalcPolyHorVol::~uiCalcPolyHorVol()
 {
+}
+
+
+const EM::Horizon3D* uiCalcPolyHorVol::getHorizon() const
+{
+    if ( !hor_ )
+	cCast(uiCalcPolyHorVol*,this)->horSel( nullptr);
+
+    return hor_;
 }
 
 
@@ -237,6 +241,15 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 
 uiCalcHorPolyVol::~uiCalcHorPolyVol()
 {
+}
+
+
+const Pick::Set* uiCalcHorPolyVol::getPickSet() const
+{
+    if ( !ps_ )
+	cCast(uiCalcHorPolyVol*,this)->psSel( nullptr);
+
+    return ps_;
 }
 
 
