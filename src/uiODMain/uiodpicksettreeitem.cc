@@ -840,7 +840,7 @@ bool uiODPolygonTreeItem::init()
 void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || isDisplayID(menu->menuID()) )
+    if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     if ( istb )
