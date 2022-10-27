@@ -16,12 +16,13 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uistrings.h"
 
+#include "binidvalue.h"
 #include "commondefs.h"
 #include "datainpspec.h"
-#include "survinfo.h"
-#include "binidvalue.h"
-#include "undefval.h"
+#include "filepath.h"
 #include "settings.h"
+#include "survinfo.h"
+#include "undefval.h"
 
 
 //! maps a uiGenInput's idx to a field- and sub-idx
@@ -1096,6 +1097,12 @@ void uiGenInput::setValue( const Interval<float>& i )
 void uiGenInput::setValue( const BinIDValue& b )
 {
     setValue(b.inl(),0); setValue(b.crl(),1); setValue(b.val(),2);
+}
+
+
+void uiGenInput::setFilename( const char* fnm )
+{
+    setText( FilePath::getLongPath(fnm) );
 }
 
 
