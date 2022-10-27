@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 #include "uicrdevenv.h"
 #include "uidatapackmon.h"
-#include "uifiledlg.h"
 #include "uifirewallprocsetterdlg.h"
 #include "uiglinfo.h"
 #include "uihostiddlg.h"
@@ -44,17 +43,14 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
-#include "keystrs.h"
 #include "measuretoolman.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odsysmem.h"
 #include "odver.h"
-#include "settings.h"
 #include "od_ostream.h"
+#include "settings.h"
 #include "survinfo.h"
-#include "texttranslator.h"
-#include "thread.h"
 
 
 static const char* sKeyIconSetNm = "Icon set name";
@@ -1161,9 +1157,13 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
     mantb_ ->setButtonMenu( mnuid, popmnu, uiToolButton::InstantPopup ); }
 
-#define mAddPopupMnu( mnu, txt, itm ) \
-    mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), \
-									 itm );
+
+static void addPopupMnu( uiMenu& mnu, const uiString& txt, const char* iconnm,
+			 int itmidx, const CallBack& cb )
+{
+    mnu.insertAction( new uiAction(txt,cb,iconnm), itmidx );
+}
+
 
 void uiODMenuMgr::fillManTB()
 {
@@ -1186,18 +1186,21 @@ void uiODMenuMgr::fillManTB()
     manids_.stratid_ = mAddTB(mantb_,"man_strat",
 	uiStrings::phrManage(uiStrings::sStratigraphy()),false,manStrat);
 
-    auto* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
+    const CallBack clickcb = mCB(this,uiODMenuMgr,handleClick);
+    auto* seispopmnu = new uiMenu( tr("Seismic Menu") );
     if ( SI().has2D() )
     {
-	mAddPopupMnu( seispopmnu, tr("2D Seismics"), mManSeis2DMnuItm )
-	mAddPopupMnu( seispopmnu, tr("2D Prestack Seismics"),
-		      mManSeisPS2DMnuItm )
+	addPopupMnu( *seispopmnu, tr("2D Seismic Data"), "man2d",
+		     mManSeis2DMnuItm, clickcb );
+	addPopupMnu( *seispopmnu, tr("2D Prestack Seismic Data"), "man_ps",
+		      mManSeisPS2DMnuItm, clickcb );
     }
     if ( SI().has3D() )
     {
-	mAddPopupMnu( seispopmnu, tr("3D Seismics"), mManSeis3DMnuItm )
-	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
-		      mManSeisPS3DMnuItm )
+	addPopupMnu( *seispopmnu, tr("3D Seismic Data"), "man_seis",
+		     mManSeis3DMnuItm, clickcb );
+	addPopupMnu( *seispopmnu, tr("3D Prestack Seismic Data"), "man_ps",
+		     mManSeisPS3DMnuItm, clickcb );
     }
     mantb_->setButtonMenu( manids_.seisid_, seispopmnu,
 			   uiToolButton::InstantPopup );
@@ -1207,13 +1210,13 @@ void uiODMenuMgr::fillManTB()
 		   tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, manids_.horid_ );
 
-    auto* fltpopmnu = new uiMenu( &appl_, tr("Faults Menu") );
-    mAddPopupMnu( fltpopmnu, uiStrings::sFault(mPlural), mManFaultMnuItm )
-    mAddPopupMnu( fltpopmnu, uiStrings::sFaultStickSet(mPlural),
-		  mManFaultStickMnuItm )
-    if ( SI().has3D() )
-	mAddPopupMnu( fltpopmnu, uiStrings::sFaultSet(mPlural),
-		      mManFaultSetMnuItm )
+    auto* fltpopmnu = new uiMenu( tr("Faults Menu") );
+    addPopupMnu( *fltpopmnu, uiStrings::sFault(mPlural), "man_flt",
+		 mManFaultMnuItm, clickcb );
+    addPopupMnu( *fltpopmnu, uiStrings::sFaultStickSet(mPlural), "man_fltss",
+		  mManFaultStickMnuItm, clickcb );
+    addPopupMnu( *fltpopmnu, uiStrings::sFaultSet(mPlural), "man_fltset",
+		  mManFaultSetMnuItm, clickcb );
     mantb_->setButtonMenu( manids_.fltid_, fltpopmnu,
 			   uiToolButton::InstantPopup );
 }
@@ -1368,7 +1371,7 @@ void uiODMenuMgr::handleToolClick( CallBacker* cb )
 void uiODMenuMgr::selectionMode( CallBacker* cb )
 {
     uiVisPartServer* visserv = appl_.applMgr().visServer();
-    if ( cb == visserv )
+    if ( cb && cb==visserv )
     {
 	const bool ison = visserv->isSelectionModeOn();
 	viewtb_->turnOn( polyselectid_, ison );

@@ -183,7 +183,7 @@ void uiAttribDescSetEd::createMenuBar()
 		    importSet, "impset" );
     mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFile );
     mInsertItem( m3Dots(tr("Reconstruct from job file")), job2Set, "job2set" );
-    mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
+    mInsertItemNoIcon( m3Dots(tr("Import set from Seismic")), importFromSeis );
 
     filemnu->addMenu( impmnu );
     menubar->addMenu( filemnu );

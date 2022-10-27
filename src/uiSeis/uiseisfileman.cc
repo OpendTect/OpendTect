@@ -74,8 +74,8 @@ static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = 0;
 		       mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(is2d
-	    ? uiStrings::phrManage(tr("2D Seismics"))
-	    : uiStrings::phrManage(tr("3D Seismics")),
+	    ? uiStrings::phrManage(tr("2D Seismic Data"))
+	    : uiStrings::phrManage(tr("3D Seismic Data")),
 				    mNoDlgTitle,mHelpID)
 				    .nrstatusflds(1).modal(false),
 		  SeisTrcTranslatorGroup::ioContext(),

@@ -420,7 +420,7 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismics").arg(sKeyBayesClss()),
+    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismic").arg(sKeyBayesClss()),
 					tr("[3] Specify Seismic input"),
 					mODHelpKey(mSeisBayesSeisInpHelpID) ),
 					pars,Middle)

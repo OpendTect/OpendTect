@@ -13,36 +13,28 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "seisioobjinfo.h"
-#include "seisread.h"
 #include "seistrctr.h"
 #include "stratsynthgenparams.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "wavelet.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
-#include "wellodreader.h"
 #include "welltransl.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
-#include "welltiegeocalculator.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
 #include "uisynthseis.h"
-#include "uiwaveletextraction.h"
 #include "uiwellpropertyrefsel.h"
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecheckshotedit.h"
@@ -53,7 +45,7 @@ ________________________________________________________________________
 
 WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
 					 const WellTie::Setup& wtsetup )
-    : uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismics"),
+    : uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismic"),
 	    tr("Select Data to tie Well to Seismic"),
 	    mODHelpKey(mWellTiMgrDlemgHelpID) )
 	    .savebutton(true)
@@ -168,7 +160,7 @@ WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
-    mAttachCB( postFinalize(), uiTieWinMGRDlg::initDlg );
+    mAttachCB( afterPopup, uiTieWinMGRDlg::initDlg );
 }
 
 
