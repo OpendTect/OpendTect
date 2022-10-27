@@ -704,7 +704,7 @@ void uiExportHorizon::addZChg( CallBacker* )
     const bool isgf = exportToGF();
     settingsbutt_->display( isgf );
     writezfld_->display( !isgf );
-    doconvzfld_->display( !isgf || !writezfld_->getBoolValue() );
+    doconvzfld_->display( !isgf && writezfld_->getBoolValue() );
     transfld_->display( !isgf && doconvzfld_->getBoolValue() );
 
     const bool displayunit = !isgf && writezfld_->getBoolValue();
