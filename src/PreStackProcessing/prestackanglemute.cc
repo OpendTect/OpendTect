@@ -119,56 +119,58 @@ bool AngleMuteBase::setVelocityFunction()
 
 
 bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
-			       SamplingData<float>& sd, int resamplesz )
+			       SamplingData<float>& sd, int nrsamples )
 {
-    TypeSet<float> vels;
     RefMan<Vel::VolumeFunction> velfun = velsource_->createFunction( bid );
-    if ( !velfun || !velsource_->getVel(bid,sd,vels) )
+    if ( !velfun )
 	return false;
 
-    const int velsz = vels.size();
-    if ( resamplesz > velsz )
-    {
-	for ( int idy=velsz; idy<resamplesz; idy++ )
-	{
-	    const float vel = velfun->getVelocity( sd.atIndex(idy) );
-	    if ( mIsUdf(vel) )
-		continue;
+    TypeSet<float> vels( nrsamples, mUdf(float) );
+    for ( int idx=0; idx<nrsamples; idx++ )
+	vels[idx] = velfun->getVelocity( sd.atIndex(idx) );
 
-	    vels += vel;
-	}
-    }
-    int nrlayers = vels.size();
-
-    const StepInterval<float> zrg = velfun->getAvailableZ();
-    TypeSet<float> depths;
-    depths.setSize( nrlayers, 0 );
-
+    TypeSet<float> depths( nrsamples, 0 );
+    const VelocityDesc& veldesc = velfun->getDesc();
     if ( velsource_->zIsTime() )
     {
-	 ArrayValueSeries<float,float> velvals( vels.arr(), false, nrlayers );
-	 ArrayValueSeries<float,float> depthvals(depths.arr(), false, nrlayers);
-	 const VelocityDesc& veldesc = velfun->getDesc();
+	 ArrayValueSeries<float,float> velvals( vels.arr(), false, nrsamples );
+	 ArrayValueSeries<float,float> depthvals( depths.arr(), false,
+						  nrsamples );
 	 TimeDepthConverter tdc;
-	 tdc.setVelocityModel( velvals, nrlayers, sd, veldesc, true,
+	 tdc.setVelocityModel( velvals, nrsamples, sd, veldesc, true,
 				&UnitOfMeasure::surveyDefVelUnit()->scaler() );
-	 if ( !tdc.calcDepths(depthvals,nrlayers,sd) )
+	 if ( !tdc.calcDepths(depthvals,nrsamples,sd) )
 	     return false;
-
     }
     else
     {
-	for ( int il=0; il<nrlayers; il++ )
-	    depths[il] = zrg.atIndex( il );
+	for ( int il=0; il<nrsamples; il++ )
+	    depths[il] = sd.atIndex( il );
     }
 
-    int il = 1;
-    for ( il=1; il<nrlayers; il++ )
-	model.add( new AILayer(depths[il]-depths[il-1],vels[il],mUdf(float)) );
-    model.add( new AILayer(depths[il-1]-depths[il-2],vels[il-1],mUdf(float)) );
-    block( model );
+    const int nrlayers = nrsamples - 1;
+    for ( int il=0; il<nrlayers; il++ )
+    {
+	float vel = UnitOfMeasure::surveyDefVelUnit()->internalValue( vels[il]);
+	const float topdepth = depths[il];
+	const float basedepth = depths[il+1];
+	if ( velsource_->zIsTime() )
+	{	    
+	    if ( mIsUdf(topdepth) || mIsUdf(basedepth) )
+		continue;
 
-    sd = zrg;
+	    vel = (basedepth - topdepth)*2 / sd.step;
+	}
+	else
+	{
+	    //TODO: convert to interval velocity if needed
+	}
+
+	model.add( new AILayer( basedepth - topdepth, vel,
+				mUdf(float), mUdf(float) ) );
+    }
+
+    block( model );
     return !model.isEmpty();
 }
 
@@ -318,15 +320,17 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	const BinID bid = input->getBinID();
 
-	int nrlayers = input->data().info().getSize( Gather::zDim() );
+	const int nrsamples = input->data().info().getSize( Gather::zDim() );
 	layers->setEmpty();
-	SamplingData<float> sd;
-	if ( !getLayers(bid,*layers,sd,nrlayers) )
+	SamplingData<float> sd( input->zRange() );
+	if ( !getLayers(bid,*layers,sd,nrsamples) )
 	    continue;
 
+	const int nrlayers = nrsamples - 1;
 	const int nrblockedlayers = layers->size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
+
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
 	    offsets += input->getOffset( ioffset );
 

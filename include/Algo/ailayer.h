@@ -399,13 +399,25 @@ public:
 
 
 inline const Interval<float> validThicknessRange()
-{ return Interval<float> ( cMinLayerThickness(), mUdf(float) ); }
+{
+    return Interval<float> ( cMinLayerThickness(), mUdf(float) );
+}
 
 inline const Interval<float> validDensityRange()
-{ return Interval<float> ( 100.f, 10000.f ); }
+{
+    return Interval<float> ( 100.f, 10000.f );
+}
+
+inline const Interval<float> validVelocityRange( bool infeetpersec )
+{
+    return infeetpersec ? Interval<float> ( 300.f, 60000.f )
+			: Interval<float> ( 100.f, 20000.f );
+}
 
 inline const Interval<float> validVelocityRange()
-{ return Interval<float> ( 10.f, 10000.f ); }
+{
+    return validVelocityRange( SI().depthsInFeet() );
+}
 
 inline const Interval<float> validImpRange()
 {
