@@ -23,7 +23,7 @@ static const char* sKeyDip = "Dip";
 
 #define mInitPtrs \
       trckey_(TrcKey::udf()) \
-    , text_(0)
+    , text_(nullptr)
 
 Pick::Location::Location( double x, double y, double zval )
     : pos_(x,y,zval)
@@ -236,7 +236,7 @@ Pick::Location& Pick::Location::setText( const char* txt )
 	    text_ = new BufferString( txt );
     }
     else if ( !txt || !*txt )
-	{ delete text_; text_ = 0; }
+	deleteAndNullPtr( text_ );
     else
 	*text_ = txt;
 
@@ -254,7 +254,7 @@ bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 
 bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 {
-    if ( text_->isEmpty() )
+    if ( !text_ || text_->isEmpty() )
     {
 	if ( val )
 	    val->setEmpty();
@@ -280,7 +280,11 @@ bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 
 
 void Pick::Location::setText( const char* key, const char* txt )
-{ setKeyedText(key,txt); }
+{
+    setKeyedText(key,txt);
+}
+
+
 void Pick::Location::setKeyedText( const char* key, const char* txt )
 {
     removeTextKey( key );
@@ -289,6 +293,7 @@ void Pick::Location::setKeyedText( const char* key, const char* txt )
 
     if ( !text_ )
 	text_ = new BufferString;
+
     SeparString sepstr( *text_, '\'' );
     sepstr.add( key ).add( txt );
     setText( sepstr );
@@ -367,7 +372,7 @@ bool Pick::Location::fromString( const char* s )
 	char* start = text_->getCStr();
 	char* stop = firstOcc( start, '"' );
 	if ( !stop )
-	    { delete text_; text_ = 0; }
+	    deleteAndNullPtr( text_ );
 	else
 	{
 	    *stop = '\0';
@@ -376,7 +381,7 @@ bool Pick::Location::fromString( const char* s )
 	}
     }
     else if ( text_ )
-	{ delete text_; text_ = 0; }
+	deleteAndNullPtr( text_ );
 
     BufferString bufstr( s );
     char* str = bufstr.getCStr();
