@@ -2169,7 +2169,9 @@ uiWellDefMnemLogDlg::Tables::Tables( Well::Data& wd, uiGroup* tablegrp,
 
 
 uiWellDefMnemLogDlg::Tables::~Tables()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 uiTable& uiWellDefMnemLogDlg::Tables::getTable()
@@ -2218,7 +2220,7 @@ void uiWellDefMnemLogDlg::Tables::createLogRows()
     {
 	auto* deflogfld =
 	    new uiComboBox( nullptr, *suitablelogs, "Suitable Logs" );
-	mAttachCB( deflogfld->selectionChanged,	
+	mAttachCB( deflogfld->selectionChanged,
 		   uiWellDefMnemLogDlg::Tables::defLogChangedCB );
 	if ( deflogfld )
 	    deflogsflds_.addIfNew( deflogfld );
