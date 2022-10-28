@@ -66,7 +66,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     else
     {
 	valstr = pars.find( sKey::TraceNr() );
-	if ( !!valstr.isEmpty() )
+	if ( !valstr.isEmpty() )
 	    mesg.add("TrcNr=").add( valstr );
 	else
 	{

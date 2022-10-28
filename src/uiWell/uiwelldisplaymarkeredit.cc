@@ -37,7 +37,7 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
     , marker_(mrk)
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(),
-                               StringInpSpec("Marker") );
+				StringInpSpec("Marker") );
 
     uiColorInput::Setup csu( mrk.color() );
     csu.lbltxt( uiStrings::sColor() ).withdesc(false);
@@ -87,7 +87,7 @@ void uiAddEditMrkrDlg::putToScreen()
 
 
 uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Edit Markers Dialog"),
+    : uiDialog(p,uiDialog::Setup(tr("Edit Markers"),
 				 mNoDlgTitle, mODHelpKey(
 				     mDispEditMarkerDlgHelpID) )
 				.modal(false))
@@ -103,6 +103,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     mrklist_->rightButtonClicked.notify(
 			    mCB(this,uiDispEditMarkerDlg,listRClickCB) );
     mrklist_->setStretch( 2, 2 );
+    mrklist_->setPrefWidth( 250 );
 
     toolgrp_ = new uiGroup( this, "Tools" );
     toolgrp_->attach( rightOf, mrklist_ );
@@ -354,8 +355,12 @@ void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
     const BufferString selnm = mrklist_->nrChosen() ? mrklist_->getText()
 						    : sKey::EmptyString().buf();
-    if ( mrklist_->size() ) mrklist_->setEmpty();
-    BufferStringSet mrknms; TypeSet<OD::Color> mrkcols; TypeSet<float> dahs;
+    if ( mrklist_->size() )
+	mrklist_->setEmpty();
+
+    BufferStringSet mrknms;
+    TypeSet<OD::Color> mrkcols;
+    TypeSet<float> dahs;
 
 #define mAddMrkToList(mrk)\
 if ( mrknms.addIfNew( mrk.name() ) )\
@@ -385,9 +390,10 @@ if ( mrknms.addIfNew( mrk.name() ) )\
 
     for ( int idx=0; idx<mrknms.size(); idx++ )
     {
-	mrklist_->addItem( toUiString(mrknms.get( idxs[idx]) ),
-							  mrkcols[idxs[idx]] );
-	colors_ += mrkcols[idxs[idx]];
+	const int index = idxs[idx];
+	const OD::Color& col = mrkcols[index];
+	mrklist_->addItem( toUiString(mrknms.get(index)), col );
+	colors_ += col;
     }
 
     if ( mrklist_->isEmpty() )
@@ -397,12 +403,12 @@ if ( mrknms.addIfNew( mrk.name() ) )\
 	tmplist_ += mrk;
     }
 
-    if ( isPicking() )
-    {
-	const int selidx = mrklist_->indexOf( selnm );
-	if ( mrklist_->validIdx(selidx) )
-	    mrklist_->setCurrentItem( selidx );
-    }
+    int selidx = 0;
+    if ( isPicking() && !selnm.isEmpty() )
+	selidx = mrklist_->indexOf( selnm );
+
+    mrklist_->setCurrentItem( selidx );
+    mrklist_->resizeHeightToContents();
 }
 
 

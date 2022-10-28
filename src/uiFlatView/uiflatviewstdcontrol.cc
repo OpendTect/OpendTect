@@ -824,8 +824,11 @@ void uiFlatViewStdControl::setEditMode( bool yn )
 {
     uiToolBar* edittb = editToolBar();
     if ( edittb )
+    {
 	edittb->turnOn( editbut_, yn );
-    editModeCB( const_cast<uiAction*>(edittb->findAction( editbut_ )) );
+	auto* action = cCast(uiAction*,edittb->findAction(editbut_));
+	editModeCB( action );
+    }
 }
 
 
