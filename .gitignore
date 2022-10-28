@@ -96,6 +96,7 @@ CMakeFiles
 CMakeScripts
 Makefile
 CMakeCache.txt
+CMakeCache.txt.prev
 CMakeLists.txt.user*
 CMakeUserPresets.json
 CTestCustom.cmake
