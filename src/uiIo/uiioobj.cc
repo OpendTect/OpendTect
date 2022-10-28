@@ -39,14 +39,27 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     if ( !trans )
 	return false;
 
-    uiString msg, canceltxt, yestxt, notxt;
-    if ( trans->getConfirmRemoveMsg(&ioobj_,msg,canceltxt,yestxt,notxt) )
+    uiString msg, canceltxt, deepremovetext, shallowremovetxt;
+    if ( trans->getConfirmRemoveMsg(&ioobj_,msg,canceltxt,deepremovetext,
+				    shallowremovetxt) )
     {
-	const int resp = uiMSG().askGoOnAfter( msg, canceltxt, yestxt, notxt );
-	if ( resp < 0 )
-	    return false;
+	bool deepremove = true;
+	if ( shallowremovetxt.isEmpty() )
+	{
+	    if ( !uiMSG().askRemove(msg) )
+		return false;
+	}
+	else
+	{
+	    //TODO: Pop up a dialog with radio buttons for deep & shallow texts
+	    const int resp = uiMSG().askGoOnAfter( msg, canceltxt,
+					deepremovetext, shallowremovetxt );
+	    if ( resp < 0 )
+		return false;
 
-	const bool deepremove = resp == 1;
+	    deepremove = resp == 1;
+	}
+
 	if ( !IOM().implRemove(ioobj_,deepremove) )
 	{
 	    if ( !silent_ )

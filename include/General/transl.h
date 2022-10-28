@@ -148,10 +148,12 @@ public:
     virtual bool		isUserSelectable( bool forread=true ) const
 				{ return true; }
     virtual bool		getConfirmRemoveMsg(const IOObj*,uiString& msg,
-						    uiString& canceltxt,
-						    uiString& yestxt,
-						    uiString& notxt) const;
-				/*!< yestxt for deep delete, notxt for shallow*/
+					uiString& canceltxt,
+					uiString& deepremovetxt,
+					uiString& shallowremovetxt) const;
+				/*!< if deepremove option is selected by user,
+				     the implRemove call gets deep=true */
+
     virtual IOObj*		createWriteIOObj(const IOObjContext&,
 						 const MultiID&) const;
     virtual const char*		iconName() const	{ return "od"; }
