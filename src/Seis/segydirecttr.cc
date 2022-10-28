@@ -685,7 +685,8 @@ bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj,
 
 bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
 				uiString& msg, uiString& canceltxt,
-				uiString& yestxt, uiString& notxt ) const
+				uiString& deepremovetxt,
+				uiString& shallowremovetxt ) const
 {
     if ( !ioobj || !ioobj->implExists(true) )
 	return false;
@@ -699,14 +700,14 @@ bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
 
     if ( segyfiles.isEmpty() )
 	return Translator::getConfirmRemoveMsg( ioobj, msg, canceltxt,
-						yestxt, notxt );
+					deepremovetxt, shallowremovetxt );
 
-    msg = tr("Database entry for %1 '%2' will be permanently removed "
-	    "along with the linked SEGY files:\n%3")
-	    .arg(userName()).arg(ioobj->name()).arg(segyfiles.cat());
+    msg = tr("Database entry for '%1' will be permanently removed "
+	    "along with the linked SEGY files:\n%2")
+	    .arg(ioobj->name()).arg(segyfiles.cat());
     canceltxt = uiStrings::sCancel();
-    yestxt = tr("Remove all");
-    notxt = tr("Keep SEGY files");
+    deepremovetxt = tr("Remove all");
+    shallowremovetxt = tr("Keep SEGY files");
     return true;
 }
 

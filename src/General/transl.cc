@@ -453,17 +453,17 @@ bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 
 
 bool Translator::getConfirmRemoveMsg( const IOObj* ioobj, uiString& msg,
-		uiString& canceltxt, uiString& yestxt, uiString& notxt ) const
+				uiString& canceltxt, uiString& deepremovetxt,
+				uiString& shallowremovetxt ) const
 {
     if ( !ioobj || !ioobj->implExists(true) )
 	return false;
 
-    msg = tr("Database entry for %1 '%2' will be permanently removed "
-	    "along with the associated data.")
-	    .arg(userName()).arg(ioobj->name());
+    msg = tr("Database entry for '%1' will be permanently removed "
+	    "along with the associated data.").arg(ioobj->name());
     canceltxt = uiStrings::sCancel();
-    yestxt = uiStrings::sRemove();
-    notxt = uiString::empty();
+    deepremovetxt = uiStrings::sRemove();
+    shallowremovetxt = uiString::empty();
     return true;
 }
 
