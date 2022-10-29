@@ -136,15 +136,18 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
     const int nrlayers = nrsamples - 1;
     for ( int il=0; il<nrlayers; il++ )
     {
-	const float toptime = sd.atIndex( il );
-	const float basetime = sd.atIndex( il+1 );
+	float vel = vels[il];
 	const float topdepth = depths[il];
 	const float basedepth = depths[il+1];
-	if ( mIsUdf(topdepth) || mIsUdf(basedepth) )
-	    continue;
+	if ( velsource_->zIsTime() )
+	{
+	    if ( mIsUdf(topdepth) || mIsUdf(basedepth) )
+		continue;
 
-	model += ElasticLayer( basedepth - topdepth,
-			       (basedepth - topdepth)*2 / (basetime - toptime),
+	    vel = (basedepth - topdepth)*2 / sd.step;
+	}
+
+	model += ElasticLayer( basedepth - topdepth, vel,
 			       mUdf(float), mUdf(float) );
     }
 
@@ -296,7 +299,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !getLayers(bid,layers,sd,nrsamples) )
 	    continue;
 
-	const int nrlayers = layers.size();
+	const int nrlayers = nrsamples - 1;
 	const int nrblockedlayers = layers.size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
