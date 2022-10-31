@@ -327,34 +327,28 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
 
 void uiODViewer2D::setDataPack( DataPackID packid, bool wva, bool isnew )
 {
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+				  !wva || (isnew && wvaselspec_==vdselspec_) );
+
+    setDataPack( packid, dest, isnew );
+}
+
+
+void uiODViewer2D::setDataPack( DataPackID packid,
+				FlatView::Viewer::VwrDest dest,
+				bool isnew )
+{
     if ( packid == DataPack::cNoID() ) return;
 
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	const TypeSet<DataPackID> ids = vwr.availablePacks();
-	if ( ids.isPresent(packid) )
-	    { vwr.usePack( FlatView::Viewer::WVA, packid, isnew ); continue; }
+	if ( vwr.isAvailable(packid) )
+	    vwr.usePack( dest, packid, isnew );
+	else
+	    vwr.setPack( dest, packid, isnew );
 
-	const StringView newpackname = dpm.nameOf(packid);
-	bool setforotherdisp = false;
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    const StringView packname = dpm.nameOf(ids[idx]);
-	    if ( packname == newpackname )
-	    {
-		if ( ids[idx] == vwr.packID(!wva) )
-		    setforotherdisp = true;
-		vwr.removePack( ids[idx] );
-		break;
-	    }
-	}
-
-	const FlatView::Viewer::VwrDest dest =
-	    FlatView::Viewer::getDest( wva, setforotherdisp ||
-					    (isnew && wvaselspec_==vdselspec_));
-	vwr.setPack( dest, packid, isnew );
+	vwr.removeUnusedPacks();
     }
 
     dataChanged.trigger( this );
@@ -673,8 +667,9 @@ DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
-    const DataPackID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
-    return createFlatDataPack( dpid, 0 );
+    ConstRefMan<RegularSeisDataPack> dp = attrserv->createOutput( tkzs,
+								  nullptr );
+    return createFlatDataPack( *dp, 0 );
 }
 
 
@@ -683,8 +678,19 @@ DataPackID uiODViewer2D::createFlatDataPack(
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( !seisdp || !(comp<seisdp->nrComponents()) )
-	return dpid;
+    if ( seisdp )
+	return createFlatDataPack( *seisdp, comp );
+    else
+	return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createFlatDataPack( const SeisDataPack& dp,
+					     int comp ) const
+{
+    ConstRefMan<SeisDataPack> seisdp( &dp );
+    if ( !seisdp->validComp(comp) )
+	return DataPack::cNoID();
 
     const StringView zdomainkey( seisdp->zDomain().key() );
     const bool alreadytransformed =
@@ -701,13 +707,19 @@ DataPackID uiODViewer2D::createFlatDataPack(
 
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
-    SeisFlatDataPack* seisfdp = 0;
+    RefMan<SeisFlatDataPack> seisfdp;
     if ( regsdp )
 	seisfdp = new RegularFlatDataPack( *regsdp, comp );
     else if ( randsdp )
 	seisfdp = new RandomFlatDataPack( *randsdp, comp );
-    DPM(DataPackMgr::FlatID()).add( seisfdp );
-    return seisfdp ? seisfdp->id() : DataPack::cNoID();
+
+    if ( DPM(DataPackMgr::FlatID()).add( seisfdp ) )
+    {
+	DPM( DataPackMgr::FlatID() ).ref( seisfdp->id() );
+	return seisfdp->id();
+    }
+    else
+	return DataPack::cNoID();
 }
 
 

@@ -725,6 +725,22 @@ void FlatView::Viewer::removePack( DataPackID id )
 }
 
 
+void FlatView::Viewer::removeUnusedPacks()
+{
+    DataPackID curwvaid = packID( true );
+    DataPackID curvdid = packID( false );
+
+    for ( int idx=ids_.size()-1; idx>=0; idx-- )
+    {
+	const auto id = ids_[idx];
+	if ( id == DataPack::cNoID() || id == curvdid || id == curwvaid )
+	    continue;
+
+	removePack( id );
+    }
+}
+
+
 bool FlatView::Viewer::enableChange( bool yn )
 {
     const bool ret = canhandlechange_;
