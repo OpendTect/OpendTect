@@ -2184,6 +2184,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	for ( const auto* pr : prs_ )
 	{
 	    const int iprop = props.indexOf( pr );
+	    const bool propisclass =  pr->hasType( Mnemonic::Class );
 	    const bool propisvel = pr->hasType( Mnemonic::Vel );
 	    SeisTrcBufDataPack* dp = seisbufdps_[prs_.indexOf(pr)];
 	    SeisTrcBuf& trcbuf = dp->trcBuf();
@@ -2192,7 +2193,10 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	    if ( !rawtrc )
 		continue;
 
-	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
+	    const PointBasedMathFunction::InterpolType intertyp =
+				propisclass ? PointBasedMathFunction::Snap
+					    : PointBasedMathFunction::Linear;
+	    PointBasedMathFunction propvals( intertyp,
 					     PointBasedMathFunction::EndVal );
 
 	    for ( int idz=0; idz<sz; idz++ )
@@ -2210,7 +2214,8 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 		    continue;
 
 		Stats::CalcSetup laypropcalc( true );
-		laypropcalc.require( Stats::Average );
+		laypropcalc.require( propisclass ? Stats::MostFreq
+						 : Stats::Average );
 		Stats::RunCalc<double> propval( laypropcalc );
 		for ( int ilay=0; ilay<curseq.size(); ilay++ )
 		{
@@ -2225,11 +2230,24 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 		    propval.addValue( propisvel ? 1.f / val : val,
 				      lay->thickness() );
 		}
-		const float val = mCast( float, propval.average() );
+		const float val = mCast( float, propisclass
+						? propval.mostFreq()
+						: propval.average() );
 		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
 		    continue;
 
 		propvals.add( time, propisvel ? 1.f / val : val );
+	    }
+
+	    if ( propisclass )
+	    {
+		for ( int idz=0; idz<sz; idz++ )
+		{
+		    const float time = mCast( float, zrg_.atIndex(idz) );
+		    rawtrc->set( idz, propvals.getValue( time ), 0 );
+		}
+
+		continue;
 	    }
 
 	    Array1DImpl<float> proptr( sz );
