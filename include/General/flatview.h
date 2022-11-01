@@ -370,6 +370,7 @@ public:
 			//!< Does not add new packs, just selects from added
     virtual void	removePack(::DataPackID);
 			//!< Releases DataPack after removing from the list.
+    void		removeUnusedPacks();
     void		setPack(VwrDest,::DataPackID,bool usedefs=true);
 			//!< add + use the datapack on either wva or vd or both
     void		clearAllPacks();
@@ -384,7 +385,7 @@ public:
 			 if the specified display has no datapack. */
     bool		hasPack( bool wva ) const
 			{ return packID(wva)!=DataPack::cNoID(); }
-    DataPackID	packID(bool wva) const;
+    DataPackID		packID(bool wva) const;
 
     const TypeSet< ::DataPackID>&	availablePacks() const	{ return ids_; }
     bool		isAvailable( ::DataPackID id ) const

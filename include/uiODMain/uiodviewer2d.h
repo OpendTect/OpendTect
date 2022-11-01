@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "emposid.h"
+#include "flatview.h"
 #include "integerid.h"
 #include "trckeyzsampling.h"
 
@@ -37,7 +38,6 @@ class DataManager;
 class ZAxisTransform;
 
 namespace Attrib	{ class SelSpec; }
-namespace FlatView	{ class AuxData; }
 namespace View2D	{ class DataManager; class DataObject; }
 namespace ZDomain	{ class Def; }
 
@@ -101,6 +101,14 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
+    DataPackID			createFlatDataPack(const SeisDataPack&,
+						   int comp) const;
+				/*!< Creates a FlatDataPack from SeisDataPack.
+				Either a transformed or a non-transformed
+				datapack can be passed. The returned datapack
+				will always be in transformed domain if the
+				viewer hasZAxisTransform(). */
+
     DataPackID			createMapDataPack(const RegularFlatDataPack&);
     bool			useStoredDispPars(bool wva);
     bool			isVertical() const	{ return isvertical_; }
@@ -258,6 +266,9 @@ protected:
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
     void			setDataPack(DataPackID,bool wva,bool isnew);
+    void			setDataPack(DataPackID,
+					    FlatView::Viewer::VwrDest,
+					    bool isnew);
     void			adjustOthrDisp(bool wva,bool isnew);
     void			removeAvailablePacks();
     void			rebuildTree();
