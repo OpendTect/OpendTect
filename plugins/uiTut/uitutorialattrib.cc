@@ -139,7 +139,7 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
 	if ( smoothdirfld_->getBoolValue() )
 	{
 	    BinID stepout( stepoutfld_->getBinID() );
-	    if ( stepout == BinID(0,0) )
+	    if ( stepout == BinID::noStepout() )
 		stepout.inl() = stepout.crl() = mUdf(int);
 	    mSetBinID( Tutorial::stepoutStr(), stepout );
 	    dosteer = steerfld_->willSteer();

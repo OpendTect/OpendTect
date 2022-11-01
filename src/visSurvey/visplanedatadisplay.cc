@@ -723,6 +723,12 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     {
 	const Coord3 center = texturerect_->getCenter();
 	Coord3 halfsize = texturerect_->getWidth()/2;
+	if ( halfsize.isNull() )
+	{
+	    res.setEmpty();
+	    return res;
+	}
+
 	halfsize[orientation_] = 0;
 
 	c0 = center + halfsize;

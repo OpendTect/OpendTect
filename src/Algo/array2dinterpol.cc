@@ -417,8 +417,8 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 	{
 	    if ( def[idx] ) continue;
 
-	    Geom::Point2D<double> pos( (double)(idx / nrcols_ + origin_.inl()),
-				       (double)(idx % nrcols_ + origin_.crl()));
+	    Geom::Point2D<double> pos( (double)(idx / nrcols_ + origin_.row()),
+				       (double)(idx % nrcols_ + origin_.col()));
 	    if ( poly_->isInside(pos,true,0) )
 		shouldinterpol[idx] = true;
 	}

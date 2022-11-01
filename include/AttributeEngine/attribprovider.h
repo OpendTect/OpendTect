@@ -54,7 +54,7 @@ public:
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
-    const DataHolder*		getData(const BinID& relpos=BinID(0,0),
+    const DataHolder*		getData(const BinID& relpos=BinID::noStepout(),
 					int idx=0);
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 

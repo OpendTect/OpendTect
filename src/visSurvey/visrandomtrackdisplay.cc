@@ -1013,7 +1013,7 @@ BinID RandomTrackDisplay::proposeNewPos( int nodenr ) const
     res.crl() = mMIN( SI().crlRange(true).stop, res.crl() );
     res.crl() = mMAX( SI().crlRange(true).start, res.crl() );
 
-    SI().snap(res, BinID(0,0) );
+    SI().snap( res );
 
     return res;
 }
@@ -1248,7 +1248,7 @@ bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 	return false;
 
     BinID snapped( binid );
-    SI().snap( snapped, BinID(0,0) );
+    SI().snap( snapped );
     if ( snapped != binid )
 	return false;
 
@@ -1271,7 +1271,7 @@ BinID RandomTrackDisplay::snapPosition( const BinID& bid ) const
     if ( binid.crl() < hs.start_.crl() ) binid.crl() = hs.start_.crl();
     if ( binid.crl() > hs.stop_.crl() ) binid.crl() = hs.stop_.crl();
 
-    SI().snap( binid, BinID(0,0) );
+    SI().snap( binid );
     return binid;
 }
 
@@ -1930,11 +1930,11 @@ void RandomTrackDisplay::setPickPos( const Coord3& pos )
     if ( sz )
     {
 	BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
-	s3dgeom_->snap( bid, BinID(0,0) );
+	s3dgeom_->snap( bid );
 
 	const Coord3 lastpos = polyline_->getPoint(sz-1);
 	BinID lastbid( mNINT32(lastpos.x), mNINT32(lastpos.y) );
-	s3dgeom_->snap( bid, BinID(0,0) );
+	s3dgeom_->snap( bid );
 
 	if ( bid == lastbid )
 	    removePickPos( sz-1 );

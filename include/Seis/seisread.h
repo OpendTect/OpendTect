@@ -109,27 +109,27 @@ public:
 
 protected:
 
-    bool		foundvalidinl = false;
-    bool		foundvalidcrl = false;
-    bool		new_packet = false;
-    bool		needskip = false;
-    bool		forcefloats = false;
-    bool		inforead = false;
-    int			prev_inl = mUdf(int);
-    int			curlineidx = -1;
-    int			nrfetchers = 0;
+    bool		foundvalidinl		= false;
+    bool		foundvalidcrl		= false;
+    bool		new_packet		= false;
+    bool		needskip		= false;
+    bool		forcefloats		= false;
+    bool		inforead		= false;
+    int			prev_inl		= mUdf(int);
+    int			curlineidx		= -1;
+    int			nrfetchers		= 0;
     TrcKeySampling*	outer;
-    SeisTrcBuf*		tbuf_ = nullptr;
-    Executor*		fetcher = nullptr;
-    Seis::ReadMode	readmode = Seis::Prod;
-    bool		entryis2d = false;
+    SeisTrcBuf*		tbuf_			= nullptr;
+    Executor*		fetcher			= nullptr;
+    Seis::ReadMode	readmode		= Seis::Prod;
+    bool		entryis2d		= false;
     StepInterval<int>	curtrcnrrg;
-    SeisPS2DReader*	psrdr2d_ = nullptr;
-    SeisPS3DReader*	psrdr3d_ = nullptr;
-    PosInfo::CubeDataIterator* pscditer_ = nullptr;
-    PosInfo::Line2DDataIterator* pslditer_ = nullptr;
-    BinID		curpsbid_ = BinID(0,0);
-    int			selcomp_ = -1;
+    SeisPS2DReader*	psrdr2d_		= nullptr;
+    SeisPS3DReader*	psrdr3d_		= nullptr;
+    PosInfo::CubeDataIterator* pscditer_	= nullptr;
+    PosInfo::Line2DDataIterator* pslditer_	= nullptr;
+    BinID		curpsbid_		= BinID::udf();
+    int			selcomp_		= -1;
 
     void		init();
     Conn*		openFirst();

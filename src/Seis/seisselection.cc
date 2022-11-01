@@ -203,7 +203,7 @@ bool Seis::SelData::isOK( const TrcKey& tk ) const
 bool Seis::SelData::isOK( const Pos::IdxPair& pos ) const
 {
     return Survey::is2DGeom( geomID() )
-		    ? isOK( Pos::GeomID(pos.row()), pos.trcNr() )
+		    ? isOK( Pos::GeomID(pos.row()), pos.col() )
 		    : isOK( BinID(pos) );
 }
 

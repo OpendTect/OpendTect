@@ -13,11 +13,8 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "attribparamgroup.h"
-#include "statruncalc.h"
 #include "survinfo.h"
 #include <math.h>
-#include "statruncalc.h"
 
 
 namespace Attrib
@@ -140,7 +137,7 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<posandsteeridx_.posidx_.size(); idx++ )
     {
-	const bool atcenterpos = posandsteeridx_.pos_[idx] == BinID(0,0);
+	const bool atcenterpos = posandsteeridx_.pos_[idx] ==BinID::noStepout();
 	const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
 	const DataHolder* data = inputs_[0]->getData( inpos, zintv );
 	if ( atcenterpos && !data )

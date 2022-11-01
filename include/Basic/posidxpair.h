@@ -36,20 +36,12 @@ public:
     inline bool			operator >(const IdxPair& oth) const;
 
 				// aliases for first
-    inline IdxType&		inl()		{ return first; }
-    inline IdxType&		lineNr()	{ return first; }
     inline IdxType&		row()		{ return first; }
 
 				// aliases for second
-    inline IdxType&		crl()		{ return second; }
-    inline IdxType&		trcNr()		{ return second; }
     inline IdxType&		col()		{ return second; }
 
 				// const versions of the aliases
-    inline IdxType		inl() const	{ return first; }
-    inline IdxType		crl() const	{ return second; }
-    inline IdxType		lineNr() const	{ return first; }
-    inline IdxType		trcNr() const	{ return second; }
     inline IdxType		row() const	{ return first; }
     inline IdxType		col() const	{ return second; }
 

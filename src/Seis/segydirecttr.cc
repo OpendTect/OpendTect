@@ -482,7 +482,8 @@ Conn* SEGYDirectSeisTrcTranslator::curConn()
 
 BinID SEGYDirectSeisTrcTranslator::curBinID() const
 {
-    if ( !cubeData().validIdx(ild_) || !cubeData()[ild_]  ) return BinID(0,0);
+    if ( !cubeData().validIdx(ild_) || !cubeData()[ild_]  )
+	return BinID::udf();
 
     const PosInfo::LineData& ld = *cubeData()[ild_];
     return BinID( ld.linenr_, ld.segments_[iseg_].atIndex( itrc_ ) );

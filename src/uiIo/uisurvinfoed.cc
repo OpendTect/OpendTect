@@ -16,36 +16,28 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "statrand.h"
 #include "survinfo.h"
 #include "systeminfo.h"
-#include "settings.h"
 #include "unitofmeasure.h"
 #include "latlong.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uicoordsystem.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
-#include "uilatlong2coord.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
-#include "uisurvey.h"
 #include "uisurveyselect.h"
 #include "uitabstack.h"
 #include "od_helpids.h"
-
-#include "qwidget.h"
-
 
 extern "C" const char* GetBaseDataDir();
 
@@ -286,23 +278,28 @@ void uiSurveyInfoEditor::mkRangeGrp()
 
 void uiSurveyInfoEditor::mkCoordGrp()
 {
+    const Interval<int> inlcrlvals( -mUdf(int), mUdf(int) );
+    IntInpIntervalSpec iis;
+    iis.setLimits( inlcrlvals, -1 );
+
     crdgrp_ = new uiGroup( tabs_->tabGroup(), "Coordinate settings" );
     uiLabel* dummy = new uiLabel( crdgrp_, uiStrings::sEmptyString() );
-    ic0fld_ = new uiGenInput( crdgrp_, tr("First In-line/Cross-line"),
-			IntInpIntervalSpec().setName("Inl Position1",0)
-					    .setName("Crl Position1",1) );
+    iis.setName("Inl Position1",0).setName("Crl Position1",1);
+    ic0fld_ = new uiGenInput( crdgrp_, tr("First In-line/Cross-line"), iis );
     mAttachCB( ic0fld_->valuechanging, uiSurveyInfoEditor::ic0ChgCB );
     ic0fld_->attach( alignedBelow, dummy );
+
+    iis.setName("Inl Position2",0).setName("Crl Position2",1);
     ic1fld_ = new uiGenInput( crdgrp_, tr("Another position on above In-line"),
-			IntInpIntervalSpec().setName("Inl Position2",0)
-					    .setName("Crl Position2",1) );
+			      iis );
+
+    iis.setName("Inl Position3",0).setName("Crl Position3",1);
     ic2fld_ = new uiGenInput( crdgrp_, tr("Position not on above In-line"),
-			IntInpIntervalSpec().setName("Inl Position3",0)
-					    .setName("Crl Position3",1) );
+			      iis );
     mAttachCB( ic2fld_->valuechanging, uiSurveyInfoEditor::ic2ChgCB );
-    ic3fld_ = new uiGenInput( crdgrp_, tr("Fourth position"),
-			IntInpIntervalSpec().setName("Inl Position4",0)
-					    .setName("Crl Position4",1) );
+
+    iis.setName("Inl Position4",0).setName("Crl Position4",1);
+    ic3fld_ = new uiGenInput( crdgrp_, tr("Fourth position"), iis );
 
     PositionInpSpec::Setup psetup;
     psetup.wantcoords_ = true;
@@ -417,12 +414,19 @@ void uiSurveyInfoEditor::setValues()
     setZValFld( zfld_, 1, zrg.stop*zfac, si_.nrZDecimals() );
     setZValFld( zfld_, 2, zrg.step*zfac, si_.nrZDecimals() );
 
+    int nrdec = 4;
     x0fld_->setValue( si_.b2c_.getTransform(true).a );
+    x0fld_->setNrDecimals( nrdec );
     xinlfld_->setValue( si_.b2c_.getTransform(true).b );
+    xinlfld_->setNrDecimals( nrdec );
     xcrlfld_->setValue( si_.b2c_.getTransform(true).c );
+    xcrlfld_->setNrDecimals( nrdec );
     y0fld_->setValue( si_.b2c_.getTransform(false).a );
+    y0fld_->setNrDecimals( nrdec );
     yinlfld_->setValue( si_.b2c_.getTransform(false).b );
+    yinlfld_->setNrDecimals( nrdec );
     ycrlfld_->setValue( si_.b2c_.getTransform(false).c );
+    ycrlfld_->setNrDecimals( nrdec );
 
     Coord c[3]; BinID b[2]; int xline;
     si_.get3Pts( c, b, xline );
@@ -444,7 +448,7 @@ void uiSurveyInfoEditor::setValues()
 	xy1fld_->setValue( c[2] );
 	xy2fld_->setValue( c[1] );
 	xy3fld_->setValue( c4 );
-	const int nrdec = si_.nrXYDecimals();
+	nrdec = si_.nrXYDecimals();
 	xy0fld_->setNrDecimals( nrdec, 0 ); xy0fld_->setNrDecimals( nrdec, 1 );
 	xy1fld_->setNrDecimals( nrdec, 0 ); xy1fld_->setNrDecimals( nrdec, 1 );
 	xy2fld_->setNrDecimals( nrdec, 0 ); xy2fld_->setNrDecimals( nrdec, 1 );
@@ -582,14 +586,22 @@ bool uiSurveyInfoEditor::doApply()
 
     if ( !mUseAdvanced() )
     {
-	if ( !setCoords() ) return false;
+	if ( !setCoords() )
+	    return false;
 
+	const int nrdec = 4;
 	x0fld_->setValue( si_.b2c_.getTransform(true).a );
+	x0fld_->setNrDecimals( nrdec );
 	xinlfld_->setValue( si_.b2c_.getTransform(true).b );
+	xinlfld_->setNrDecimals( nrdec );
 	xcrlfld_->setValue( si_.b2c_.getTransform(true).c );
+	xcrlfld_->setNrDecimals( nrdec );
 	y0fld_->setValue( si_.b2c_.getTransform(false).a );
+	y0fld_->setNrDecimals( nrdec );
 	yinlfld_->setValue( si_.b2c_.getTransform(false).b );
+	yinlfld_->setNrDecimals( nrdec );
 	ycrlfld_->setValue( si_.b2c_.getTransform(false).c );
+	ycrlfld_->setNrDecimals( nrdec );
 	overrulefld_->setChecked( false );
     }
     else if ( !setRelation() )

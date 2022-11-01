@@ -211,8 +211,7 @@ Geometry* GeometryManager::getGeometry( Pos::GeomID geomid )
 
 const Geometry3D* GeometryManager::getGeometry3D( OD::GeomSystem /*gs*/ ) const
 {
-    const TrcKey tk( BinID(0,0) );
-    const Geometry* geom = getGeometry( tk.geomID() );
+    const Geometry* geom = getGeometry( default3DGeomID() );
     return geom ? geom->as3D() : nullptr;
 }
 

@@ -326,7 +326,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	}
 	else
 	{
-	    SeisTrc* trc = getTrcFromPack( BinID(0,0), 1 );
+	    SeisTrc* trc = getTrcFromPack( BinID::noStepout(), 1 );
 	    if ( !trc ) return 0;
 
 	    status_ = Ready;

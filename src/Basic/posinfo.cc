@@ -553,7 +553,7 @@ bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
 
 BinID PosInfo::CubeData::binID( const PosInfo::CubeDataPos& cdp ) const
 {
-    return !isValid(cdp) ? BinID(0,0)
+    return !isValid(cdp) ? BinID::udf()
 	: BinID( (*this)[cdp.lidx_]->linenr_,
 		 (*this)[cdp.lidx_]->segments_[cdp.segnr_].atIndex(cdp.sidx_) );
 }

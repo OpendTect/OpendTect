@@ -11,13 +11,9 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "arrayndimpl.h"
-#include "arrayndinfo.h"
-#include "arrayndalgo.h"
 #include "reflectivitymodel.h"
-#include "fourier.h"
 #include "fftfilter.h"
 #include "mathfunc.h"
-#include "position.h"
 #include "prestackgather.h"
 #include "raytrace1d.h"
 #include "smoother1d.h"
@@ -49,7 +45,7 @@ static const float maxtwttime = 100.0f;
 
 
 AngleComputer::AngleComputer()
-    : trckey_(BinID(0,0))
+    : trckey_(BinID::udf())
 {
 }
 

@@ -111,7 +111,7 @@ const char* VolStatsBase::shapeTypeStr( int type )
 
 VolStatsBase::VolStatsBase( Desc& ds )
     : Provider( ds )
-    , positions_(0,BinID(0,0))
+    , positions_(0,BinID::noStepout())
     , gate_( 0, 0 )
 {
     if ( !isOK() ) return;
@@ -316,7 +316,7 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
     int nrvalidtrcs = 0;
     for ( int posidx=0; posidx<nrpos; posidx++ )
     {
-	const bool atcenterpos = positions_[posidx] == BinID(0,0);
+	const bool atcenterpos = positions_[posidx] == BinID::noStepout();
 	const BinID truepos = relpos + positions_[posidx] * bidstep;
 	const DataHolder* indata = inputs_[0]->getData( truepos, zintv );
 	if ( !indata )

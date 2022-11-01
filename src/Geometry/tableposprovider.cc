@@ -192,18 +192,26 @@ void Pos::TableProvider3D::getSummary( BufferString& txt ) const
 
 void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    BinIDValueSet::SPos p; bvs_.next(p);
+    BinIDValueSet::SPos p;
+    bvs_.next(p);
     if ( !p.isValid() )
-	{ start = stop = BinID(0,0); return; }
+    {
+	start = stop = BinID::udf();
+	return;
+    }
 
     start = stop = bvs_.getBinID(p);
     while ( bvs_.next(p) )
     {
 	const BinID bid( bvs_.getBinID(p) );
-	if ( start.inl() > bid.inl() ) start.inl() = bid.inl();
-	if ( stop.inl() < bid.inl() ) stop.inl() = bid.inl();
-	if ( start.crl() > bid.crl() ) start.crl() = bid.crl();
-	if ( stop.crl() < bid.crl() ) stop.crl() = bid.crl();
+	if ( start.inl() > bid.inl() )
+	    start.inl() = bid.inl();
+	if ( stop.inl() < bid.inl() )
+	    stop.inl() = bid.inl();
+	if ( start.crl() > bid.crl() )
+	    start.crl() = bid.crl();
+	if ( stop.crl() < bid.crl() )
+	    stop.crl() = bid.crl();
     }
 }
 

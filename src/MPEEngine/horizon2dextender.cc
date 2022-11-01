@@ -53,7 +53,7 @@ void Horizon2DExtender::setDirection( const TrcKeyValue& dir )
 {
     direction_ = dir;
     xydirection_ =
-	SI().transform( BinID(0,0) ) - SI().transform( dir.tk_.position() );
+	SI().transform(BinID::noStepout()) - SI().transform(dir.tk_.position());
     const double abs = xydirection_.abs();
     alldirs_ = mIsZero( abs, 1e-3 );
     if ( !alldirs_ )

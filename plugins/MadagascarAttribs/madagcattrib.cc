@@ -25,7 +25,7 @@ void MadAGC::initClass()
     mAttrStartInitClass
 
     BinIDParam* stepout = new BinIDParam( smoothradiusStr() );
-    stepout->setDefaultValue( BinID(0,0) );
+    stepout->setDefaultValue( BinID::noStepout() );
     desc->addParam( stepout );
 
     desc->addParam( new IntParam( nrrepeatStr(), 1, false ) );

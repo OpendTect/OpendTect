@@ -76,8 +76,8 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 	(3*csin.hsamp_.start_.crl()+5*csin.hsamp_.stop_.crl())/8;
     cs.zsamp_.start = ( 5*csin.zsamp_.start + 3*csin.zsamp_.stop ) / 8.f;
     cs.zsamp_.stop = ( 3*csin.zsamp_.start + 5*csin.zsamp_.stop ) / 8.f;
-    SI().snap( cs.hsamp_.start_, BinID(0,0) );
-    SI().snap( cs.hsamp_.stop_, BinID(0,0) );
+    SI().snap( cs.hsamp_.start_ );
+    SI().snap( cs.hsamp_.stop_ );
     float z0 = csin.zsamp_.snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
     float z1 = csin.zsamp_.snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
     return cs;

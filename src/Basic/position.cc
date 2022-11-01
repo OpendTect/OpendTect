@@ -642,21 +642,21 @@ bool Pos::IdxPair2Coord::set3Pts( const Coord& c0, const Coord& c1,
 			  const Coord& c2, const Pos::IdxPair& ip0,
 			  const Pos::IdxPair& ip1, od_int32 crl2 )
 {
-    if ( ip1.inl() == ip0.inl() )
+    if ( ip1.row() == ip0.row() )
 	return false;
-    if ( ip0.crl() == crl2 )
+    if ( ip0.col() == crl2 )
         return false;
 
     DirTransform nxtr, nytr;
-    od_int32 cold = ip0.crl() - crl2;
+    od_int32 cold = ip0.col() - crl2;
     nxtr.c = ( c0.x - c2.x ) / cold;
     nytr.c = ( c0.y - c2.y ) / cold;
-    const od_int32 rowd = ip0.inl() - ip1.inl();
-    cold = ip0.crl() - ip1.crl();
+    const od_int32 rowd = ip0.row() - ip1.row();
+    cold = ip0.col() - ip1.col();
     nxtr.b = ( c0.x - c1.x ) / rowd - ( nxtr.c * cold / rowd );
     nytr.b = ( c0.y - c1.y ) / rowd - ( nytr.c * cold / rowd );
-    nxtr.a = c0.x - nxtr.b * ip0.inl() - nxtr.c * ip0.crl();
-    nytr.a = c0.y - nytr.b * ip0.inl() - nytr.c * ip0.crl();
+    nxtr.a = c0.x - nxtr.b * ip0.row() - nxtr.c * ip0.col();
+    nytr.a = c0.y - nytr.b * ip0.row() - nytr.c * ip0.col();
 
     if ( mIsZero(nxtr.a,mDefEps) ) nxtr.a = 0;
     if ( mIsZero(nxtr.b,mDefEps) ) nxtr.b = 0;

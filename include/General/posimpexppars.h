@@ -84,7 +84,7 @@ public:
     			PosImpExpPars()			{ clear(); }
     void		clear()
 			{
-			    binidscale_ = 1;	binidoffs_ = BinID(0,0);
+			    binidscale_ = 1;	binidoffs_ = BinID::noStepout();
 			    trcnrscale_ = 1;	trcnroffs_ = 0;
 			    coordscale_ = 1;	coordoffs_ = Coord(0,0);
 			    zscale_ = 1;	zoffs_ = 0;

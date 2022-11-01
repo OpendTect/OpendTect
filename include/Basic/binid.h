@@ -12,14 +12,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "posidxpair.h"
 
-// The following should become separate classes with their own specific
-// functions at some point in time ...
-typedef BinID BinIDStep;
-typedef BinID BinIDDelta; // is base class for:
-typedef BinID BinIDAbsDelta;
-typedef BinID BinIDRelDelta;
-
-
 /*! \brief Positioning in a seismic survey: inline/crossline or lineNr/trcNr. */
 
 
@@ -32,22 +24,34 @@ public:
     inline			BinID(const Pos::IdxPair&);
     inline			BinID(const BinID&);
 
-    inline const BinID&		operator+=(const BinIDAbsDelta&);
-    inline const BinID&		operator-=(const BinIDAbsDelta&);
-    inline BinID	 	operator+(const BinIDAbsDelta&) const;
-    inline BinID	 	operator-(const BinIDAbsDelta&) const;
+				// aliases for first
+    inline IdxType&		inl()		{ return first; }
+    inline IdxType&		lineNr()	{ return first; }
+
+				// aliases for second
+    inline IdxType&		crl()		{ return second; }
+    inline IdxType&		trcNr()		{ return second; }
+
+				// const versions of the aliases
+    inline IdxType		inl() const	{ return first; }
+    inline IdxType		crl() const	{ return second; }
+    inline IdxType		lineNr() const	{ return first; }
+    inline IdxType		trcNr() const	{ return second; }
+
+    inline const BinID&		operator+=(const BinID&);
+    inline const BinID&		operator-=(const BinID&);
+    inline BinID		operator+(const BinID&) const;
+    inline BinID		operator-(const BinID&) const;
     inline BinID&		operator=(const BinID&);
 
-    				// BinIDRelDelta operator:
-    inline BinIDAbsDelta	operator*(const Pos::Index_Type_Pair&) const;
-    				// BinIDAbsDelta operator:
-    inline BinIDRelDelta	operator/(const Pos::Index_Type_Pair&) const;
+    inline BinID		operator*(const Pos::Index_Type_Pair&) const;
+    inline BinID		operator/(const Pos::Index_Type_Pair&) const;
 
-    				// BinID[Abs|Rel]Delta operators:
-    // 'BinID' below should be either BinIDRelDelta or BinIDAbsDelta
     inline BinID		operator*(int) const;
     inline BinID		operator/(int) const;
     inline BinID		operator-() const;
+
+    inline static BinID		noStepout()	{ return BinID(0,0); }
 
     inline static BinID		fromInt64(od_int64);
 
@@ -76,16 +80,16 @@ BinID::BinID( const BinID& bid )
 }
 
 
-inline const BinID& BinID::operator+=( const BinIDAbsDelta& bid )
+inline const BinID& BinID::operator+=( const BinID& bid )
 { inl() += bid.inl(); crl() += bid.crl(); return *this; }
 
-inline const BinID& BinID::operator-=( const BinIDAbsDelta& bid )
+inline const BinID& BinID::operator-=( const BinID& bid )
 { inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
 
-inline BinID BinID::operator+( const BinIDAbsDelta& bid ) const
+inline BinID BinID::operator+( const BinID& bid ) const
 { return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
 
-inline BinID BinID::operator-( const BinIDAbsDelta& bid ) const
+inline BinID BinID::operator-( const BinID& bid ) const
 { return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
 
 inline BinID BinID::operator-() const
@@ -94,10 +98,10 @@ inline BinID BinID::operator-() const
 BinID& BinID::operator=( const BinID& bid )
 { inl() = bid.inl(); crl() = bid.crl(); return *this; }
 
-inline BinIDAbsDelta BinID::operator*( const Pos::Index_Type_Pair& ip ) const
+inline BinID BinID::operator*( const Pos::Index_Type_Pair& ip ) const
 { return BinID( first*ip.first, second*ip.second ); }
 
-inline BinIDAbsDelta BinID::operator/( const Pos::Index_Type_Pair& ip ) const
+inline BinID BinID::operator/( const Pos::Index_Type_Pair& ip ) const
 { return BinID( first/ip.first, second/ip.second ); }
 
 inline BinID BinID::operator*( int factor ) const

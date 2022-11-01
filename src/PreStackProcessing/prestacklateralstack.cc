@@ -48,7 +48,7 @@ LateralStack::~LateralStack()
 
 bool LateralStack::reset( bool force )
 {
-    inputstepout_ = BinID(0,0);
+    inputstepout_ = BinID::noStepout();
     freeArray( inputs_ );
     return Processor::reset( force );
 }
@@ -63,7 +63,7 @@ bool LateralStack::setPattern( const BinID& stepout, bool cross )
     iscross_ = cross;
 
     freeArray( inputs_ );
-    inputstepout_ = BinID(0,0);
+    inputstepout_ = BinID::noStepout();
 
     return true;
 }
@@ -141,7 +141,8 @@ bool LateralStack::prepareWork()
     if ( !Processor::prepareWork() )
 	return false;
 
-    const int centeroffset = getRelBidOffset( BinID(0,0), outputstepout_ );
+    const int centeroffset =
+		getRelBidOffset( BinID::noStepout(), outputstepout_ );
     Gather* centergather = outputs_[centeroffset];
     if ( !centergather )
 	return false;

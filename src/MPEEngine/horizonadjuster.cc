@@ -190,8 +190,8 @@ int HorizonAdjuster::nextStep()
 	    const float winsz = SI().zStep() * 50; // should be sufficient
 	    setSearchWindow( Interval<float>(-winsz,winsz) );
 
-	    const TrcKey tk = target.is3D() ? TrcKey( BinID(-1,-1) )
-					    : TrcKey( target.geomID(), -1 );
+	    const TrcKey tk = target.is3D() ? TrcKey( BinID::udf() )
+					: TrcKey( target.geomID(), mUdf(int) );
 	    res = track( tk, target, targetz );
 
 	    evtracker_.useSimilarity( wasusingsim );
@@ -240,13 +240,14 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
     evtracker_.setRangeStep( sd.step );
     evtracker_.setTarget( &tovs, nrz, sd.getfIndex(startz) );
 
-    if ( from.lineNr()!=-1 && from.trcNr()!=-1 )
+    if ( !mIsUdf(from.lineNr()) && !mIsUdf(from.trcNr()) )
     {
 	if ( !horizon_.hasZ(from) )
 	    return false;
 
 	const int seedtrcidx = sdp->getGlobalIdx( seedtk_ );
-	if ( seedtrcidx < 0 ) return false;
+	if ( seedtrcidx < 0 )
+	    return false;
 
 	OffsetValueSeries<float> seedvs = sdp->getTrcStorage( 0, seedtrcidx );
 	if ( evtracker_.getCompareMethod() == EventTracker::SeedTrace )
@@ -258,7 +259,8 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	    evtracker_.setSeed( 0, -1, mUdf(float) );
 
 	const int fromtrcidx = sdp->getGlobalIdx( from );
-	if ( fromtrcidx < 0 ) return false;
+	if ( fromtrcidx < 0 )
+	    return false;
 
 	const OffsetValueSeries<float> fromvs =
 			sdp->getTrcStorage( 0, fromtrcidx );
@@ -272,7 +274,9 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	if ( !searchWindow().includes(resz-startz,false) )
 	    return false;
 
-	if ( res ) targetz = resz;
+	if ( res )
+	    targetz = resz;
+
 	return res;
     }
 

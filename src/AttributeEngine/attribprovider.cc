@@ -1358,7 +1358,7 @@ void Provider::updateInputReqs( int inp )
 	    stepout.crl() = mMAX(stepout.crl(),des->crl() );
 	}
 
-	inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) +
+	inputs_[inp]->setReqBufStepout( ( req ? *req : BinID::noStepout() ) +
 				       reqbufferstepout_, true );
 	inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
     }
