@@ -356,9 +356,6 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
     for ( int idx=0; idx<stepout_; idx++ )
 	tbuf_.add( tbufafter_.get(idx) );
 
-    for ( int idx=0; idx<tbuf_.size(); idx++ )
-	tbuf_.get(idx)->info().setTrcNr( idx );
-
     fillTable();
     return true;
 }
