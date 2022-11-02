@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "isopachmaker.h"
 
-#include "emmanager.h"
 #include "emhorizon3d.h"
 #include "executor.h"
 #include "emsurfaceauxdata.h"

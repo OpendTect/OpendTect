@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
-#include "posinfo2dsurv.h"
 #include "stratlevel.h"
 
 class IOObj;

@@ -10,9 +10,10 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 #include "executor.h"
-#include "posinfo2dsurv.h"
+#include "posgeomid.h"
 
 namespace EM { class Horizon3D; class Horizon2D; }
+namespace Survey { class Geometry2D; }
 class BufferStringSet;
 
 /*!

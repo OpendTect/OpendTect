@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "binidsurface.h"
 #include "emobject.h"
-#include "parametricsurface.h"
 #include "survinfo.h"
 
 namespace EM

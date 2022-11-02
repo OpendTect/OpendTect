@@ -10,6 +10,8 @@ ________________________________________________________________________
 #include "uibulkfaultimp.h"
 
 #include "emfault3d.h"
+#include "emfaultset3d.h"
+#include "emfaultstickset.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
@@ -18,15 +20,11 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "tabledef.h"
 
-#include "uibutton.h"
-#include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
-#include "emfsstofault3d.h"
-#include "emfaultset3d.h"
 #include "uiioobjsel.h"
 
 class BulkFaultAscIO : public Table::AscIO

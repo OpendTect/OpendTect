@@ -23,8 +23,6 @@ ________________________________________________________________________
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "faultsticksurface.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

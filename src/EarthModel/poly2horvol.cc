@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 #include "emmanager.h"
 #include "emhorizon3d.h"
-#include "emsurfacetr.h"
-#include "executor.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "polygon.h"

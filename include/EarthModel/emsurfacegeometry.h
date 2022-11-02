@@ -9,10 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "bufstringset.h"
 #include "emposid.h"
 #include "emobject.h"
-#include "mathfunc.h"
 #include "rowcolsurface.h"
 
 template <class T, class AT> class TopList;

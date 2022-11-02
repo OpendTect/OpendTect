@@ -11,15 +11,8 @@ ________________________________________________________________________
 
 #include "emfault3d.h"
 #include "executor.h"
-#include "ptrman.h"
-#include "position.h"
 #include "survinfo.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "ctxtioobj.h"
-#include "ascstream.h"
 #include "od_istream.h"
-#include "uistrings.h"
 
 
 const char* lmkEMFault3DTranslator::pointtypestr() { return "FAULT_PTYPE"; }

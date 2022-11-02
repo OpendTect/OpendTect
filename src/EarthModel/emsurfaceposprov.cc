@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
@@ -30,8 +29,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 #include "statrand.h"
-
-#include "errmsg.h"
 
 namespace Pos
 {

@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "emfault.h"
 #include "tableascio.h"
-#include "emfaultstickset.h"
 
 namespace Table { class FormatDesc; }
 

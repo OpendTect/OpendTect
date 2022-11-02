@@ -11,11 +11,10 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 
 #include "binid.h"
-#include "emobject.h"
+#include "emposid.h"
 #include "executor.h"
 #include "multiid.h"
-#include "posinfo2dsurv.h"
-#include "trckeyzsampling.h"
+#include "trckeysampling.h"
 
 
 namespace EM { class Horizon; }

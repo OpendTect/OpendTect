@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "emhorizonutils.h"
 
 #include "binidvalset.h"
-#include "binidvalue.h"
 #include "trckeyzsampling.h"
 #include "datapointset.h"
 
@@ -18,17 +17,14 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
-#include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioobj.h"
-#include "parametricsurface.h"
 #include "posprovider.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "survinfo.h"
-#include "posinfo2dsurv.h"
 #include "od_ostream.h"
 
 #define mMaxSampInterpol	150;

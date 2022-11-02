@@ -12,18 +12,16 @@ ________________________________________________________________________
 #include "color.h"
 #include "emioobjinfo.h"
 #include "emundo.h"
-#include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emobjectposselector.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "rowcolsurface.h"
 #include "ptrman.h"
+#include "rowcolsurface.h"
 #include "selector.h"
-#include "survinfo.h"
-#include "uistrings.h"
+#include "zdomain.h"
 
 namespace EM
 {

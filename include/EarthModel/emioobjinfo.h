@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
-#include "emobject.h"
+#include "emposid.h"
+#include "enums.h"
 #include "stratlevel.h"
 
 class BufferStringSet;

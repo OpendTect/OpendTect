@@ -10,9 +10,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emhorizon.h"
-#include "bufstringset.h"
 #include "horizon2dline.h"
-#include "posinfo2dsurv.h"
 
 class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }

@@ -8,12 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "seis2deventsnapper.h"
-#include "seisselectionimpl.h"
+
 #include "emhor2dseisiter.h"
 #include "emhorizon2d.h"
-#include "seistrc.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "seistrc.h"
+#include "seisread.h"
 
 
 Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,

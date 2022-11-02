@@ -9,17 +9,11 @@ ________________________________________________________________________
 
 #include "hor2dfrom3dcreator.h"
 
-#include "bufstring.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "executor.h"
-#include "multiid.h"
-#include "posinfo.h"
-#include "ioobj.h"
-#include "ioman.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 
 Hor2DFrom3DCreatorGrp::Hor2DFrom3DCreatorGrp( const EM::Horizon3D& hor3d,
 					      EM::Horizon2D& hor2d )

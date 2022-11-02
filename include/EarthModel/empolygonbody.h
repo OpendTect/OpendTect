@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "polygonsurface.h"
-#include "tableascio.h"
 
 namespace Table { class FormatDesc; }
 template <class T> class SortedList;

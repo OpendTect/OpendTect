@@ -11,12 +11,9 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "od_istream.h"
-#include "position.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-
-#include "uistrings.h"
 
 
 namespace EM

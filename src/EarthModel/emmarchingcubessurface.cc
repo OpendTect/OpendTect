@@ -11,23 +11,22 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
-#include "datainterp.h"
 #include "datachar.h"
-#include "executor.h"
-#include "embodytr.h"
+#include "datainterp.h"
 #include "embodyoperator.h"
+#include "embodytr.h"
+#include "emmanager.h"
+#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
 #include "randcolor.h"
-#include "streamconn.h"
 #include "separstr.h"
-#include "od_iostream.h"
+#include "streamconn.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
-#include "emmanager.h"
 
 namespace EM
 {

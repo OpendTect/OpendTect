@@ -7,11 +7,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
-#include "ascstream.h"
 #include "embody.h"
+
+#include "arrayndimpl.h"
 #include "embodytr.h"
-#include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"

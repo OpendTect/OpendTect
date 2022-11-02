@@ -12,10 +12,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhorizon2d.h"
 #include "seis2ddata.h"
-#include "survinfo.h"
-#include "posinfo2dsurv.h"
-#include "ioman.h"
-#include "ioobj.h"
 
 
 #define mGetEMObjPtr(mid) EM::EMM().getObject( EM::EMM().getObjectID(mid) )

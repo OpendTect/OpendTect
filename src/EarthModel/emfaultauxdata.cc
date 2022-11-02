@@ -11,25 +11,16 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
-#include "binidvalset.h"
 #include "emfault3d.h"
 #include "emioobjinfo.h"
-#include "emsurfacegeometry.h"
-#include "emsurfacetr.h"
-#include "emsurfauxdataio.h"
-#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
-#include "parametricsurface.h"
 #include "ptrman.h"
 #include "safefileio.h"
-#include "settings.h"
-#include "varlenarray.h"
 
 namespace EM
 {

@@ -9,15 +9,15 @@ ________________________________________________________________________
 
 #include "emfaultstickpainter.h"
 
-#include "faultstickset.h"
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "faultstickset.h"
 #include "flatposdata.h"
 #include "randomlinegeom.h"
-#include "zaxistransform.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+#include "zaxistransform.h"
 
 namespace EM
 {

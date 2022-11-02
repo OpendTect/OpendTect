@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "faulttrace.h"
 #include "emhorizon3d.h"
 #include "statruncalc.h"
-#include "survinfo.h"
 #include "uistrings.h"
 
 const char* HorizonGridder::sKeyMethod()	{ return "Method"; }

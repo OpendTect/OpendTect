@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "polygon.h"
-#include "position.h"
 #include "trckeyzsampling.h"
 
 class FaultTrcDataProvider;

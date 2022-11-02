@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
-#include "emsurfaceiodata.h"
 #include "emsurfaceposprov.h"
 #include "emsurfacetr.h"
 #include "horizongridder.h"

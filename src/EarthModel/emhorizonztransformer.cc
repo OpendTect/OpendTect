@@ -10,8 +10,7 @@ ________________________________________________________________________
 #include "emhorizonztransformer.h"
 
 #include "emhorizon2d.h"
-#include "emhorizonztransform.h"
-#include "binidvalue.h"
+#include "zaxistransform.h"
 
 namespace EM
 {

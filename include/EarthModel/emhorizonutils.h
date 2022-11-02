@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emposid.h"
 #include "multiid.h"
-#include "sets.h"
 #include "ranges.h"
 
 class RowCol;

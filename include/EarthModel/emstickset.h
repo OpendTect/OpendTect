@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
+#include "binidvalue.h"
 #include "emposid.h"
 #include "emobject.h"
-#include "sets.h"
 #include "coord.h"
 
 

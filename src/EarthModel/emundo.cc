@@ -12,9 +12,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "emmanager.h"
-#include "emsurface.h"
 #include "emhorizon3d.h"
-#include "iopar.h"
 
 namespace EM
 {

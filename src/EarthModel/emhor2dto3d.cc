@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "array2dinterpol.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
-#include "uistrings.h"
+
 
 namespace EM
 {

@@ -9,12 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "sets.h"
+
 #include "bufstring.h"
 #include "callback.h"
 #include "factory.h"
-#include "ptrman.h"
-#include "ranges.h"
 #include "multiid.h"
 #include "emposid.h"
 #include "emundo.h"

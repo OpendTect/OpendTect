@@ -25,9 +25,6 @@ defineTranslator(dgb,EMFaultSet3D,mDGBKey);
 defineTranslator(lmk,EMFault3D,"Landmark");
 
 #include "embodytr.h"
-#include "emmarchingcubessurface.h"
-#include "empolygonbody.h"
-#include "emrandomposbody.h"
 defineTranslatorGroup(EMBody,"Body");
 defineTranslator(od,EMBody,EMBodyTranslatorGroup::sKeyUserWord());
 defineTranslator(mc,EMBody,EMBodyTranslatorGroup::sKeyUserWord());

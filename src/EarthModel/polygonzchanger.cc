@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "polygonzchanger.h"
+
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"

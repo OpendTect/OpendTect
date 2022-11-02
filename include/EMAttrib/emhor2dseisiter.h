@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 #include "multiid.h"
+
 class Seis2DDataSet;
 namespace EM { class Horizon2D; class Horizon2DGeometry; }
 

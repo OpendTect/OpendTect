@@ -10,11 +10,9 @@ ________________________________________________________________________
 #include "horizonsorter.h"
 
 #include "arrayndimpl.h"
-#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ptrman.h"
-#include "survinfo.h"
 #include "uistrings.h"
 
 

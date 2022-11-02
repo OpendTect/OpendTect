@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
 #include "multiid.h"

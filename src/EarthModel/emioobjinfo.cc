@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "uistrings.h"
 
 namespace EM
 {

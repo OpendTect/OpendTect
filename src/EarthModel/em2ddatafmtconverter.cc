@@ -9,13 +9,11 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "emioobjinfo.h"
-#include "emhorizon2d.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "od_ostream.h"
-#include "safefileio.h"
 #include "survgeom.h"
 
 

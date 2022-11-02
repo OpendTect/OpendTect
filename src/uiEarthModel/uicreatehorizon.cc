@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "emhorizon3d.h"
+#include "executor.h"
 #include "ioobj.h"
 #include "survinfo.h"
 

@@ -9,15 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "executor.h"
-#include "paralleltask.h"
-#include "trckeysampling.h"
+
 #include "multiid.h"
+#include "paralleltask.h"
 #include "positionlist.h"
-#include "sets.h"
-#include "posinfo2dsurv.h"
-#include "trigonometry.h"
 #include "threadlock.h"
+#include "trckeysampling.h"
+#include "trigonometry.h"
 
 namespace EM { class Fault; class Horizon; }
 namespace Geometry { class ExplFaultStickSurface; }

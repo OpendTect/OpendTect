@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 
 #include "executor.h"
-#include "emposid.h"
 
 class od_ostream;
 class DataPointSet;

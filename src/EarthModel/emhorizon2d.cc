@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
-#include "emrowcoliterator.h"
 #include "horizon2dline.h"
 #include "ioman.h"
 #include "selector.h"
@@ -23,7 +22,6 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
-#include "color.h"
 
 
 namespace EM

@@ -9,10 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "emposid.h"
-#include "coord.h"
-#include "sets.h"
 
+#include "coord.h"
+#include "typeset.h"
 
 namespace Geometry { class FaultStickSet; }
 

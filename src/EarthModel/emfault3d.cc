@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "emfault3d.h"
 
 #include "emfaultauxdata.h"
+#include "emfaultstickset.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -18,7 +19,6 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "unitofmeasure.h"
 
 namespace EM {
 

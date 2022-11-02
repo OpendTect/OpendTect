@@ -9,20 +9,15 @@ ________________________________________________________________________
 
 #include "embodyoperator.h"
 
-#include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "delaunay3d.h"
 #include "embody.h"
-#include "embodytr.h"
 #include "emmanager.h"
-#include "empolygonbody.h"
-#include "emmarchingcubessurface.h"
-#include "emrandomposbody.h"
-#include "survinfo.h"
-#include "task.h"
+#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "executor.h"
+#include "survinfo.h"
+#include "task.h"
 
 
 namespace EM

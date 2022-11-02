@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "executor.h"
-#include "bufstring.h"
 #include "trckeysampling.h"
 
 class TrcKeySampling;

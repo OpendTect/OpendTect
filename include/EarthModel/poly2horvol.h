@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "gendefs.h"
 #include "ptrman.h"
 
 class TaskRunner;

@@ -10,22 +10,22 @@ ________________________________________________________________________
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
-#include "emobject.h"
 #include "emhorizon.h"
+#include "emioobjinfo.h"
+#include "emobject.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "emsurfacetr.h"
-#include "emioobjinfo.h"
 #include "executor.h"
 #include "filepath.h"
-#include "iopar.h"
 #include "ioman.h"
+#include "iopar.h"
 #include "iostrm.h"
+#include "keystrs.h"
+#include "od_istream.h"
 #include "ptrman.h"
 #include "selector.h"
 #include "stratlevel.h"
-#include "keystrs.h"
-#include "od_iostream.h"
+
 
 EM::EMManager& EM::EMM()
 {

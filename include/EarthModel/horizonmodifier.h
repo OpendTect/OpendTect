@@ -9,10 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "emposid.h"
 #include "multiid.h"
 #include "ranges.h"
-#include "posinfo2dsurv.h"
 
 namespace EM { class Horizon; }
 class TrcKeySamplingIterator;

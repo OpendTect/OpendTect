@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "embodytr.h"
+
 #include "embody.h"
 #include "emobject.h"
 #include "emmanager.h"

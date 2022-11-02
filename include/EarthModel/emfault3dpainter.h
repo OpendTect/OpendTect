@@ -10,11 +10,11 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "callback.h"
-#include "trckeyzsampling.h"
-#include "draw.h"
+
 #include "emposid.h"
+#include "draw.h"
 #include "flatview.h"
-#include "randomlinegeom.h"
+#include "trckeyzsampling.h"
 
 namespace FlatView { class Viewer; }
 namespace Geometry { class FaultStickSurface; class ExplPlaneIntersection;

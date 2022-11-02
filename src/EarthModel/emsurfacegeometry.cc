@@ -10,20 +10,14 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 
 #include "emrowcoliterator.h"
-
 #include "emsurface.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
-
 #include "undo.h"
 #include "emmanager.h"
-#include "parametricsurface.h"
-#include "mathfunc.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "pca.h"
-#include "toplist.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
