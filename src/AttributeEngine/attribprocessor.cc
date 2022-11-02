@@ -34,7 +34,7 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     , isinited_(false)
     , useshortcuts_(false)
     , moveonly(this)
-    , prevbid_(BinID(-1,-1))
+    , prevbid_(BinID::udf())
     , sd_(0)
     , showdataavailabilityerrors_(true)
 {

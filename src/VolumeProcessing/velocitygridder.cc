@@ -165,7 +165,7 @@ BinID VelGriddingTask::getNextBid()
     if ( !remainingbids_.next(curpos_) )
     {
 	pErrMsg("Too many bids requested");
-	return BinID(-1,-1);
+	return BinID::udf();
     }
 
     return remainingbids_.getBinID(curpos_);

@@ -308,7 +308,7 @@ int EventManager::addHorizon( int id )
     emhorizons_ += nullptr;
 
     auxdatachanged_ = true;
-    reportChange( BinID(-1,-1) );
+    reportChange();
 
     return  res;
 }
@@ -348,7 +348,7 @@ bool EventManager::removeHorizon( int id )
 	}
     }
 
-    reportChange( BinID(-1,-1) );
+    reportChange();
     return true;
 }
 
@@ -380,7 +380,7 @@ void EventManager::setColor( const OD::Color& col )
 
     color_ = col;
     auxdatachanged_ = true;
-    reportChange( BinID(-1,-1) );
+    reportChange();
 }
 
 
@@ -395,7 +395,7 @@ void EventManager::setHorizonEMReference( int id, const MultiID& mid )
 
     horrefs_[horids_.indexOf(id)] = mid;
     auxdatachanged_ = true;
-    reportChange( BinID(-1,-1) );
+    reportChange();
 }
 
 
@@ -429,7 +429,7 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
     cleanUp( false );
 
     Executor* loader = load( *reloadbids_, true );
-    reportChange( BinID(-1,-1) ); //since blocked by loader, it will fire when
+    reportChange(); //since blocked by loader, it will fire when
 				  //loading finished
     return loader;
 }

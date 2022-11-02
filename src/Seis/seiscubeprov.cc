@@ -334,23 +334,24 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 BinID SeisMSCProvider::getPos() const
 {
     return bufidx_==-1
-	? BinID(-1,-1) : tbufs_[bufidx_]->get(trcidx_)->info().binID();
+	? BinID::udf() : tbufs_[bufidx_]->get(trcidx_)->info().binID();
 }
 
 
 int SeisMSCProvider::getTrcNr() const
 {
     return !is2D() || bufidx_==-1
-	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
+	? mUdf(int) : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
 }
 
 
 SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
 {
     if ( bufidx_==-1 )
-	return 0;
+	return nullptr;
+
     if ( abs(deltainl)>desstepout_.row() || abs(deltacrl)>desstepout_.col() )
-	return 0;
+	return nullptr;
 
     BinID bidtofind( deltainl*stepoutstep_.row(), deltacrl*stepoutstep_.col() );
     bidtofind += !is2D() ? tbufs_[bufidx_]->get(trcidx_)->info().binID() :
@@ -376,7 +377,7 @@ SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
 SeisTrc* SeisMSCProvider::get( const BinID& bid )
 {
     if ( bufidx_==-1 || !stepoutstep_.row() || !stepoutstep_.col() )
-	return 0;
+	return nullptr;
 
     RowCol biddif( bid );
     biddif -= tbufs_[bufidx_]->get(trcidx_)->info().binID();
@@ -385,7 +386,7 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
     RowCol check( delta  ); check *= stepoutstep_;
 
     if ( biddif != check )
-	return 0;
+	return nullptr;
 
     return get( delta.row(), delta.col() );
 }

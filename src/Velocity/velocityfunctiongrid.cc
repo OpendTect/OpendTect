@@ -658,7 +658,7 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
-	if ( bid.inl()!=-1 && bid.crl()!=-1 && !func->isInfluencedBy(bid) )
+	if ( !bid.isUdf() && !func->isInfluencedBy(bid) )
 	    continue;
 
 	func->removeCache();
@@ -666,7 +666,7 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
     }
     lckr.unlockNow();
 
-    changebid_ = BinID(-1,-1);
+    changebid_ = BinID::udf();
     notifier_.trigger();
 }
 

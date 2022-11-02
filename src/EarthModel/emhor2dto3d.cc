@@ -126,7 +126,8 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 
 void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 {
-    BinID minbid( mUdf(int), 0 ), maxbid;
+    BinID minbid, maxbid;
+    minbid.setUdf();
     for ( EM::RowColIterator iter(hor2d_); ; )
     {
 	const EM::PosID posid = iter.next();
@@ -135,7 +136,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 
 	const Coord coord = hor2d_.getPos( posid );
 	const BinID bid = SI().transform( coord );
-	if ( mIsUdf(minbid.inl()) )
+	if ( minbid.isUdf() )
 	    minbid = maxbid = bid;
 	else
 	{
@@ -158,9 +159,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 	    extendedsize = inv->getNrSteps();
 
 	minbid.inl() -= extendedsize;
-	if ( minbid.inl()<0 ) minbid.inl() = 0;
 	minbid.crl() -= extendedsize;
-	if ( minbid.crl()<0 ) minbid.crl() = 0;
 	maxbid.inl() += extendedsize;
 	maxbid.crl() += extendedsize;
     }

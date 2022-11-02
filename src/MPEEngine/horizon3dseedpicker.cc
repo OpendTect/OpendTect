@@ -243,18 +243,18 @@ TrcKey Horizon3DSeedPicker::replaceSeed( const TrcKey& oldseed,
 
 bool Horizon3DSeedPicker::reTrack()
 {
-    propagatelist_.erase(); seedlist_.erase();
+    propagatelist_.erase();
+    seedlist_.erase();
 
-    const bool res = retrackOnActiveLine( TrcKey(BinID(-1,-1)), false );
+    const bool res = retrackOnActiveLine( TrcKey(BinID::udf()), false );
     return res;
 }
 
 
 bool Horizon3DSeedPicker::retrackOnActiveLine( const TrcKey& starttk,
-					     bool startwasdefined,
-					     bool eraseonly )
+					       bool startwasdefined,
+					       bool eraseonly )
 {
-
     trackbounds_.erase();
     junctions_.erase();
 

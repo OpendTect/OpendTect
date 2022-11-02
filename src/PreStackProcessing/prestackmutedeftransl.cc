@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "prestackmutedeftransl.h"
 
 #include "ascstream.h"
+#include "binid.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -17,7 +18,6 @@ ________________________________________________________________________
 #include "prestackmutedef.h"
 #include "ptrman.h"
 #include "ioman.h"
-#include "odver.h"
 #include "streamconn.h"
 #include "uistrings.h"
 

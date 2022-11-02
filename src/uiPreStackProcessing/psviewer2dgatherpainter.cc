@@ -28,9 +28,11 @@ Viewer2DGatherPainter::~Viewer2DGatherPainter()
 
 
 BinID Viewer2DGatherPainter::getBinID() const
-{ return inputwvagather_ ? inputwvagather_->getBinID()
-			 : inputvdgather_ ? inputvdgather_->getBinID()
-					  : BinID(-1,-1); }
+{
+    return inputwvagather_ ? inputwvagather_->getBinID()
+			   : (inputvdgather_ ? inputvdgather_->getBinID()
+					     : BinID::udf());
+}
 
 
 void Viewer2DGatherPainter::setVDGather( DataPackID vdid )

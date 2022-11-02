@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "multiid.h"
 #include "namedobj.h"
-#include "position.h"
-#include "samplingdata.h"
 
 
 namespace PreStack

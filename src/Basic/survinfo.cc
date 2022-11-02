@@ -930,10 +930,16 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 	intv.stop = cs.hsamp_.stop_.inl();
     if ( intv.stop < cs.hsamp_.start_.inl() )
 	intv.stop = cs.hsamp_.start_.inl();
+
     BinID bid( intv.start, 0 );
-    snap( bid, BinID(1,1) ); intv.start = bid.inl();
-    bid.inl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl();
+    snap( bid, BinID(1,1) );
+    intv.start = bid.inl();
+
+    bid.inl() = intv.stop;
+    snap( bid, BinID(-1,-1) );
+    intv.stop = bid.inl();
 }
+
 
 void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
@@ -947,21 +953,30 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 	intv.stop = cs.hsamp_.stop_.crl();
     if ( intv.stop < cs.hsamp_.start_.crl() )
 	intv.stop = cs.hsamp_.start_.crl();
-    BinID bid( 0, intv.start );
-    snap( bid, BinID(1,1) ); intv.start = bid.crl();
-    bid.crl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl();
-}
 
+    BinID bid( 0, intv.start );
+    snap( bid, BinID(1,1) );
+    intv.start = bid.crl();
+
+    bid.crl() = intv.stop;
+    snap( bid, BinID(-1,-1) );
+    intv.stop = bid.crl();
+}
 
 
 void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 {
     const StepInterval<float>& rg = sampling(work).zsamp_;
     intv.sort();
-    if ( intv.start < rg.start ) intv.start = rg.start;
-    if ( intv.start > rg.stop )  intv.start = rg.stop;
-    if ( intv.stop > rg.stop )   intv.stop = rg.stop;
-    if ( intv.stop < rg.start )  intv.stop = rg.start;
+    if ( intv.start < rg.start )
+	intv.start = rg.start;
+    if ( intv.start > rg.stop )
+	intv.start = rg.stop;
+    if ( intv.stop > rg.stop )
+	intv.stop = rg.stop;
+    if ( intv.stop < rg.start )
+	intv.stop = rg.start;
+
     snapZ( intv.start, 1 );
     snapZ( intv.stop, -1 );
 }
@@ -977,16 +992,22 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 
 
 bool SurveyInfo::zIsTime() const
-{ return zdef_.isTime(); }
+{
+    return zdef_.isTime();
+}
 
 
 SurveyInfo::Unit SurveyInfo::xyUnit() const
-{ return xyinfeet_ ? Feet : Meter; }
+{
+    return xyinfeet_ ? Feet : Meter;
+}
 
 
 SurveyInfo::Unit SurveyInfo::zUnit() const
 {
-    if ( zIsTime() ) return Second;
+    if ( zIsTime() )
+	return Second;
+
     return depthsinfeet_ ? Feet : Meter;
 }
 
