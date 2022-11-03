@@ -120,22 +120,26 @@ Wavelet::~Wavelet()
 IOObj* Wavelet::getIOObj( const char* waveletnm )
 {
     if ( !waveletnm || !*waveletnm )
-	return 0;
+	return nullptr;
 
-    IOObjContext ctxt( mIOObjContext(Wavelet) );
-    IOM().to( ctxt.getSelKey() );
-    return IOM().getLocal( waveletnm, mTranslGroupName(Wavelet) );
+    const IOObjContext ctxt( mIOObjContext(Wavelet) );
+    return IOM().to( ctxt.getSelKey() )
+		? IOM().getLocal( waveletnm, mTranslGroupName(Wavelet) )
+		: nullptr;
 }
 
 
 Wavelet* Wavelet::get( const IOObj* ioobj )
 {
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
+
     PtrMan<WaveletTranslator> tr =
 		(WaveletTranslator*)ioobj->createTranslator();
-    if ( !tr ) return 0;
-    Wavelet* newwv = 0;
+    if ( !tr )
+	return nullptr;
 
+    Wavelet* newwv = nullptr;
     Conn* connptr = ioobj->getConn( Conn::Read );
     if ( !connptr || connptr->isBad() )
 	ErrMsg( "Cannot open Wavelet file" );
@@ -148,7 +152,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 	{
 	    ErrMsg( "Problem reading Wavelet from file (format error?)" );
 	    delete newwv;
-	    newwv = 0;
+	    newwv = nullptr;
 	}
     }
 

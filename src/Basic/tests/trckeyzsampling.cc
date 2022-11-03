@@ -209,9 +209,69 @@ bool testJSON()
 }
 
 
+bool testConversion( bool syntheticonly )
+{
+    Coord crdqc( 500000., 4000000. );
+    const bool nosurvgeom = syntheticonly ||
+			  !Survey::GM().getGeometry(Survey::default3DGeomID());
+    for ( int itrc=1; itrc<3; itrc++ )
+    {
+	const TrcKey synthtk = TrcKey::getSynth( itrc );
+	const Coord crd = synthtk.getCoord();
+	TrcKey synthtkcheck;
+	synthtkcheck.setGeomSystem( OD::GeomSynth ).setFrom( crd );
+	if ( nosurvgeom )
+	    { mRunStandardTest( crd == crdqc, "TrcKey -> Coord" ); }
+	else
+	    { mRunStandardTest( crd != crdqc, "TrcKey -> Coord" ); }
+
+	mRunStandardTest(synthtk == synthtkcheck, "TrcKey -> Coord -> TrcKey" );
+	crdqc.x += 25.;
+    }
+
+    if ( nosurvgeom )
+	return true;
+
+    const BinID lastbid( SI().inlRange().stop, SI().crlRange().stop );
+    const Coord sicrs = SI().transform( lastbid );
+    TrcKey sitk;
+    sitk.setGeomSystem( OD::Geom3D ).setFrom( sicrs );
+    const Coord sicrscheck = sitk.getCoord();
+    mRunStandardTest( sicrs == sicrscheck, "Coord -> TrcKey -> Coord" );
+
+    return true;
+}
+
+
+static void loadGeometries()
+{
+    const BufferString datarootdir = SI().getDataDirName();
+    uiRetVal uirv = SurveyInfo::isValidDataRoot( datarootdir.buf() );
+    if ( !uirv.isOK() )
+	return;
+
+    const BufferString survdirnm = SI().getDirName();
+    const FilePath survfp( datarootdir.buf(), survdirnm.buf() );
+    const BufferString survfnm = survfp.fullPath();
+    uirv = SurveyInfo::isValidSurveyDir( survfnm.buf() );
+    if ( !uirv.isOK() )
+	return;
+
+    Survey::GMAdmin().fillGeometries( nullptr );
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    // First without valid SI()
+    if ( !testConversion(true) )
+	return 1;
+
+    loadGeometries();
+    if ( !testConversion(false) )
+	return 1;
 
     const TrcKeyZSampling initcs = SI().sampling( false );
     const TrcKeyZSampling initworkcs = SI().sampling( true );
