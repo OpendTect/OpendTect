@@ -69,14 +69,15 @@ public:
 						const TrcKeyZSampling& tkzsout,
 						int,BinID,Array3D<float>& out);
 
-    od_int64			totalNr() const		{ return totalnr_; }
-    uiString			uiMessage() const;
+    od_int64			totalNr() const override { return totalnr_; }
+    uiString			uiMessage() const override;
 
 private:
 
-    bool			doWork(od_int64,od_int64,int);
+    bool			doWork(od_int64,od_int64,int) override;
 
-    od_int64			nrIterations() const	{ return totalnr_; }
+    od_int64			nrIterations() const override
+							{ return totalnr_; }
 
     od_int64			totalnr_;
 

@@ -8,8 +8,8 @@ ________________________________________________________________________
 -*/
 
 #include "tutlogtools.h"
-#include "welllog.h"
 #include "statruncalc.h"
+#include "welllog.h"
 
 Tut::LogTools::LogTools( const Well::Log& inp, Well::Log& outp )
 	: inplog_(inp)
@@ -30,19 +30,22 @@ bool Tut::LogTools::runSmooth( const int inpgate )
     for ( int idx=0; idx<sz+rad; idx++ )
     {
 	const int cpos = idx - rad;
+	const float dah = inplog_.dah( cpos );
+	const float cposval = inplog_.value( cpos );
 	if ( idx < sz )
 	{
-	    const float inval = inplog_.value(idx);
-	    if (!mIsUdf(inval) )
+	    const float inval = inplog_.value( idx );
+	    if ( !mIsUdf(inval) )
 		wcalc += inval;
+
 	    if ( cpos >= rad )
-		outplog_.addValue( inplog_.dah(cpos), wcalc.median() );
+		outplog_.addValue( dah, wcalc.median() );
 	}
 	else
-	    outplog_.addValue( inplog_.dah(cpos), inplog_.value(cpos) );
+	    outplog_.addValue( dah, cposval );
 
 	if ( cpos<rad && cpos>=0 )
-	    outplog_.addValue( inplog_.dah(cpos), inplog_.value(cpos) );
+	    outplog_.addValue( dah, cposval );
     }
 
     return true;

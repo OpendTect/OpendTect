@@ -68,7 +68,8 @@ void Tutorial::initClass()
     
 void Tutorial::updateDesc( Desc& desc )
 {
-    BufferString action = desc.getValParam( actionStr() )->getStringValue();
+    const BufferString action =
+			desc.getValParam( actionStr() )->getStringValue();
     bool horsmooth = desc.getValParam( horsmoothStr() )->getBoolValue();
 
     desc.setParamEnabled( factorStr(), action=="Scale" );
@@ -84,7 +85,8 @@ void Tutorial::updateDesc( Desc& desc )
 Tutorial::Tutorial( Desc& desc )
     : Provider( desc )
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
 
     mGetEnum( action_, actionStr() );
     mGetFloat( factor_, factorStr() );
@@ -118,6 +120,10 @@ Tutorial::Tutorial( Desc& desc )
 }
 
 
+Tutorial::~Tutorial()
+{}
+
+
 bool Tutorial::getInputOutput( int input, TypeSet<int>& res ) const
 {
     if ( input == 0 )
@@ -133,32 +139,38 @@ bool Tutorial::getInputOutput( int input, TypeSet<int>& res ) const
 bool Tutorial::getInputData( const BinID& relpos, int zintv )
 {
     if ( inpdata_.isEmpty() )
-	inpdata_ += 0;
-    const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
-    if ( !inpdata ) return false;
-    inpdata_.replace( 0, inpdata);
+	inpdata_ += nullptr;
 
+    const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
+    if ( !inpdata )
+	return false;
+
+    inpdata_.replace( 0, inpdata);
 
     if ( action_ ==2 && horsmooth_ )
     {
-	steeringdata_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) : 0;
+	steeringdata_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) :
+								    nullptr;
 	const int maxlength  = mMAX(stepout_.inl(), stepout_.crl())*2 + 1;
 	while ( inpdata_.size() < maxlength * maxlength )
-	    inpdata_ += 0;
+	    inpdata_ += nullptr;
     
 	const BinID bidstep = inputs_[0]->getStepoutStep();
 	for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	{
-	    if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
+	    if ( posandsteeridx_.steeridx_[idx] == 0 )
+		continue;
+
 	    const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
 	    const DataHolder* data = inputs_[0]->getData( inpos );
-	    if ( !data ) continue;
+	    if ( !data )
+		continue;
+
 	    inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
 	}
     }
 
     dataidx_ = getDataIndex( 0 );
-
     return true;
 }
 
@@ -168,7 +180,7 @@ const BinID* Tutorial::desStepout( int inp, int out ) const
     if ( inp==0 && action_==2 && horsmooth_ )
 	return &stepout_;
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -177,17 +189,16 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float outval = 0;
+	float outval = 0.f;
+	float sum = 0.f;
 	if ( action_==0 || action_==1 )
 	{
 	    const float trcval = getInputValue( *inpdata_[0], dataidx_,
 		    				idx, z0 );
-	    outval = action_==0 ? trcval * factor_ + shift_ :
-					trcval * trcval;
+	    outval = action_==0 ? trcval * factor_ + shift_ : trcval * trcval;
 	}
 	else if ( action_==2 && !horsmooth_ )
 	{
-	    float sum = 0;
 	    int count = 0;
 	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
 	    {
@@ -199,19 +210,24 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 		    count ++;
 		}
 	    }
+
 	    outval = sum / count;
 	}
-	else if (action_ == 2 && horsmooth_ )
+	else if ( action_ == 2 && horsmooth_ )
 	{
-	    float sum = 0;
 	    int count = 0;
 	    for ( int posidx=0; posidx<inpdata_.size(); posidx++ )
 	    {
-		if ( !inpdata_[posidx] ) continue;
+		if ( !inpdata_[posidx] )
+		    continue;
+
 		const float shift = steeringdata_ ? 
-		    	getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
-		const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
-		if ( sampidx < 0 || sampidx >= nrsamples ) continue; 
+			getInputValue( *steeringdata_,posidx, idx, z0 ) : 0.f;
+		const int sampidx = idx + ( mIsUdf(shift) ? 0 :
+							    mNINT32(shift) );
+		if ( sampidx < 0 || sampidx >= nrsamples )
+		    continue;
+
 		const float val = getInputValue( *inpdata_[posidx], 
 					dataidx_, sampidx, z0 );
 		if ( !mIsUdf(val) )
@@ -220,6 +236,7 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 		    count ++;
 		}
 	    }
+
 	    outval = count ? sum/count : mUdf(float);
 	}
 
@@ -230,12 +247,12 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-const Interval<int>* Tutorial::desZSampMargin(int,int) const
+const Interval<int>* Tutorial::desZSampMargin( int, int ) const
 {
     if ( action_ == 2 && !horsmooth_ )
 	return &sampgate_;
 
-    return 0;
+    return nullptr;
 }
 
 

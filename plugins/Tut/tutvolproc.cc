@@ -102,7 +102,7 @@ bool TutOpCalculator::prepareWork()
 Task* TutOpCalculator::createTask()
 {
     if ( !prepareWork() )
-	return 0;
+	return nullptr;
 
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
@@ -170,6 +170,7 @@ bool TutOpCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 	    output_.set( outpinlidx, outpcrlidx, idz,
 			 type_ == mTypeShift ? val : val*val );
 	}
+
 	iter.next( curbid );
     }
 

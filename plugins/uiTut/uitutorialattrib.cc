@@ -8,12 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "uitutorialattrib.h"
-#include "tutorialattrib.h"
 
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "survinfo.h"
+#include "tutorialattrib.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -28,7 +29,7 @@ static const char* actionstr[] =
     "Scale",
     "Square",
     "Smooth",
-    0
+    nullptr
 };
 
 
@@ -56,8 +57,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
-    steerfld_->steertypeSelected_.notify(
-				mCB(this,uiTutorialAttrib,steerTypeSel) );
+    mAttachCB(steerfld_->steertypeSelected_,uiTutorialAttrib::steerTypeSel);
     steerfld_->attach( alignedBelow, smoothdirfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
@@ -72,9 +72,15 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     shiftfld_ = new uiGenInput( this, uiStrings::sShift(), FloatInpSpec() );
     shiftfld_->attach( alignedBelow, factorfld_ );
 
-    actionSel(0);
+    actionSel( nullptr );
 
     setHAlignObj( inpfld_ );
+}
+
+
+uiTutorialAttrib::~uiTutorialAttrib()
+{
+    detachAllNotifiers();
 }
 
 

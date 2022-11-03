@@ -17,7 +17,7 @@ static const char* possibleoperations[] =
 {
         "Square",
         "Shift",
-        0
+	nullptr
 };
 
 namespace VolProc
@@ -25,7 +25,7 @@ namespace VolProc
 
 uiTutOpCalculator::uiTutOpCalculator( uiParent* p, TutOpCalculator* opcalc )
     : uiStepDialog( p, TutOpCalculator::sFactoryDisplayName(), opcalc )
-    , opcalc_( opcalc )
+    , opcalc_(opcalc)
 {
     typefld_ = new uiGenInput( this,
 				tr("Choose action to execute"),
@@ -51,7 +51,8 @@ uiStepDialog* uiTutOpCalculator::createInstance( uiParent* parent, Step* ps,
 						 bool is2d )
 {
     mDynamicCastGet( TutOpCalculator*, opcalc, ps );
-    if ( !opcalc ) return 0;
+    if ( !opcalc )
+	return nullptr;
 
     return new uiTutOpCalculator( parent, opcalc );
 }

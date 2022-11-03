@@ -1,4 +1,4 @@
-#pragma once
+	    #pragma once
 /*+
 ________________________________________________________________________
 
@@ -24,50 +24,50 @@ namespace Tut
 mExpClass(Tut) HorTool : public Executor
 { mODTextTranslationClass(HorTool);
 public:
-    virtual		~HorTool();
+    virtual	    ~HorTool();
 
-    void		setHorizons(EM::Horizon3D* hor1,EM::Horizon3D* hor2=0);
-    od_int64		totalNr() const;
-    od_int64		nrDone() const		{ return nrdone_; }
-    void		setHorSamp(const StepInterval<int>& inlrg,
-		    		   const StepInterval<int>& crlrg);
-    uiString		uiNrDoneText() const	{ return tr("Positions done"); }
+    void	    setHorizons(EM::Horizon3D* hor1,
+						EM::Horizon3D* hor2=nullptr);
+    od_int64	    totalNr() const override;
+    od_int64	    nrDone() const override { return nrdone_; }
+    uiString	    uiNrDoneText() const override { return msg_; }
+
+    void	    setHorSamp(const StepInterval<int>& inlrg,
+				    const StepInterval<int>& crlrg);
 
 protected:
-			HorTool(const char* title);
+				HorTool(const char* title);
 
     TrcKeySampling		hs_;
-    int			nrdone_;
+    int				nrdone_ = 0;
+    uiString			msg_;
 
-    TrcKeySamplingIterator* iter_;
+    TrcKeySamplingIterator*	iter_ = nullptr;
 
-    EM::Horizon3D*	horizon1_;
-    EM::Horizon3D*	horizon2_;
-
+    RefMan<EM::Horizon3D>	horizon1_;
+    RefMan<EM::Horizon3D>	horizon2_;
 };
-
-
-
 
 
 mExpClass(Tut) ThicknessCalculator : public HorTool
 { mODTextTranslationClass(ThicknessCalculator);
 public:
-    			ThicknessCalculator();
+			ThicknessCalculator();
 
-    int			nextStep();
     Executor*		dataSaver();
-    void		init(const char*);
+    void		setAttribName(const char*);
 
-    uiString		uiMessage() const { 
-					return tr("Calculating thickness"); 
-					  }
+    uiString		uiMessage() const override
+				    { return tr("Calculating thickness"); }
 
 protected:
 
     EM::PosID		posid_;
-    int			dataidx_;
+    int			dataidx_ = 0;
     const float		usrfac_;
+
+private:
+    int			nextStep() override;
 
 };
 
@@ -76,18 +76,18 @@ mExpClass(Tut) HorSmoother : public HorTool
 { mODTextTranslationClass(HorSmoother);
 public:
 			HorSmoother();
-			   
-    int			nextStep();
-    void		setWeak( bool yn )	{ weak_ = yn; }
+
+    void		setWeak( bool yn ) { weak_ = yn; }
     Executor*		dataSaver(const MultiID&);
 
-    uiString		uiMessage() const	{ return tr("Smoothing"); }
+    uiString		uiMessage() const override  { return tr("Smoothing"); }
 
 protected:
 
-    EM::SubID		subid_;
-    bool		weak_;
+    bool		weak_ = false;
 
+private:
+    int			nextStep() override;
 };
 
 } // namespace

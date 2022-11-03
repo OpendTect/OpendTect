@@ -23,7 +23,7 @@ mExpClass(uiTut) uiTutorialAttrib : public uiAttrDescEd
 public:
 
 			uiTutorialAttrib(uiParent*,bool);
-
+			~uiTutorialAttrib();
 protected:
 
     uiAttrSel*		inpfld_;

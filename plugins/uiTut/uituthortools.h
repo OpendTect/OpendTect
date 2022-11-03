@@ -24,7 +24,7 @@ public:
 protected:
 
     void		choiceSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     bool		checkAttribName() const;
     bool		doThicknessCalc();
