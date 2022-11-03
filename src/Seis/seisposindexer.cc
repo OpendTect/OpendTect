@@ -139,8 +139,7 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
     else \
 	strm_->getBin( var )
 
-#   define mRet(yn) { strm_ = 0; return yn; }
-
+#   define mRet(yn) { strm_ = nullptr; return yn; }
 
 bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
 	bool readall,
@@ -151,14 +150,14 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     if ( strm_ )
 	{ pErrMsg("strm_ not null"); delete strm_; strm_ = 0; }
 
-    od_istream* strm = new od_istream( fnm );
+    PtrMan<od_istream> strm = new od_istream( fnm );
     if ( !strm->isOK() )
 	mRet( false )
     strm->setReadPosition( offset );
     if ( !strm->isOK() )
 	mRet( false )
 
-    strm_ = strm;
+    strm_ = strm.ptr();
     if ( !readHeader(int32interp,int64interp,floatinterp) )
 	mRet( false )
 
