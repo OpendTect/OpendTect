@@ -377,6 +377,21 @@ bool FilePath::makeRelativeTo( const FilePath& oth )
 }
 
 
+bool FilePath::makeAbsolute( const FilePath& oth )
+{
+    if ( isAbsolute() )
+	return true;
+
+    if ( !oth.isAbsolute() )
+	return false;
+
+    const BufferString relpath = fullPath();
+    const BufferString path = oth.fullPath();
+    set( File::getAbsolutePath(path.buf(),relpath.buf()) );
+    return true;
+}
+
+
 BufferString FilePath::fullPath( Style f, bool cleanup ) const
 {
     BufferString res = dirUpTo( lvls_.size() );

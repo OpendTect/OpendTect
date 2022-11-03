@@ -673,9 +673,12 @@ bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj,
     if ( deep )
     {
 	SEGY::DirectDef segydef( ioobj->mainFileName() );
-	const SEGY::FileDataSet& fds = segydef.fileDataSet();
-	for ( int idx=0; idx<fds.nrFiles(); idx++ )
-	    File::remove( fds.fileName(idx) );
+	if ( !segydef.isEmpty() )
+	{
+	    const SEGY::FileDataSet& fds = segydef.fileDataSet();
+	    for ( int idx=0; idx<fds.nrFiles(); idx++ )
+		File::remove( fds.fileName(idx) );
+	}
     }
 
     Translator::implRemove( ioobj );

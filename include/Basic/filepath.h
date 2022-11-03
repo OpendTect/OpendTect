@@ -63,6 +63,7 @@ public:
 			/*!<If reldir is set, it will be filled with the
 			    relative path. */
     bool		makeRelativeTo(const FilePath&);
+    bool		makeAbsolute(const FilePath&);
     bool		makeCanonical();
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
