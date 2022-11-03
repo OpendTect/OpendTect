@@ -433,6 +433,30 @@ TrcKey& TrcKey::setPosition( const Pos::IdxPair& pos, bool is2d )
 }
 
 
+namespace Pos
+{
+
+static IdxPair2Coord& getSyntheticB2C()
+{
+    static PtrMan<IdxPair2Coord> synthb2c;
+    if ( !synthb2c )
+    {
+	auto* newb2c = new IdxPair2Coord;
+	const Coord c0( 500000., 4000000. );
+	const Coord c1( 500000., 4000025. );
+	const Coord c2( 500025., 4000000. );
+	const IdxPair rc0( 1, 1 );
+	const IdxPair rc1( 2, 1 );
+	const IdxPair rc2( 1, 2 );
+	newb2c->set3Pts( c0, c1, c2, rc0, rc1, rc2.col() );
+	synthb2c.setIfNull( newb2c, true );
+    }
+
+    return *synthb2c.ptr();
+}
+
+} // namespace Pos
+
 TrcKey& TrcKey::setFrom( const Coord& crd )
 {
     if ( is3D() )
@@ -440,8 +464,17 @@ TrcKey& TrcKey::setFrom( const Coord& crd )
     else if ( isSynthetic() )
     {
 	setGeomID( gtGeomID(OD::GeomSynth) );
-	const BinID bid = geometry().as3D()->transform( crd );
-	setTrcNr( bid.trcNr() - SI().crlRange().stop - SI().crlRange().step );
+	if ( Survey::GM().getGeometry(Survey::default3DGeomID()) )
+	{
+	    const BinID bid = geometry().as3D()->transform( crd );
+	    setTrcNr( (bid.trcNr() - SI().crlRange().stop) /
+		       SI().crlRange().step );
+	}
+	else
+	{
+	    const BinID bid = Pos::getSyntheticB2C().transformBack( crd );
+	    setTrcNr( bid.trcNr() );
+	}
     }
     else
     {
@@ -465,11 +498,19 @@ Coord TrcKey::getCoord() const
     if ( is3D() )
 	return geometry().as3D()->transform( pos_ );
     else if ( isSynthetic() )
-    { //To ensure it never falls within SI()
-	const BinID pos( SI().inlRange().stop + SI().inlRange().step,
-			 SI().crlRange().stop +
-			 SI().crlRange().step * (trcNr()+1) );
-	return geometry().as3D()->transform( pos );
+    {
+	if ( Survey::GM().getGeometry(Survey::default3DGeomID()) )
+	{ //To ensure it never falls within SI()
+	    const BinID pos( SI().inlRange().stop + SI().inlRange().step,
+			     SI().crlRange().stop +
+			     SI().crlRange().step * trcNr() );
+	    return geometry().as3D()->transform( pos );
+	}
+	else
+	{ //No current survey, return 'plausible' coordinates
+	    const BinID pos( 1, trcNr() );
+	    return Pos::getSyntheticB2C().transform( pos );
+	}
     }
 
     const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomID() );

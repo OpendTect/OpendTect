@@ -471,7 +471,7 @@ bool IOMan::to( IOObjContext::StdSelType type, bool force_reread )
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
     Threads::Locker lock( lock_ );
-    if ( rootdir_.isEmpty() )
+    if ( !File::isDirectory(rootdir_.buf()) || (!forcereread && isBad()) )
 	return false;
 
     MultiID key = ky;
@@ -498,8 +498,8 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
     }
     delete refioobj;
 
-    IODir* newdir = dirkey.isUdf() ? new IODir( rootdir_.buf() ) :
-					    new IODir( dirkey );
+    auto* newdir = dirkey.isUdf() ? new IODir( rootdir_.buf() )
+				  : new IODir( dirkey );
     if ( !newdir || newdir->isBad() )
     {
 	delete newdir;
@@ -604,7 +604,8 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 	*nrfound = 0;
 
     Threads::Locker lock( lock_ );
-    if ( !ctxt.trgroup_ ) return nullptr;
+    if ( !ctxt.trgroup_ || isBad() )
+	return nullptr;
 
     if ( !IOM().to(ctxt.getSelKey()) || !dirptr_ )
 	return nullptr;
