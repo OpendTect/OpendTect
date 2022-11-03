@@ -125,8 +125,9 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool is2d = Seis::is2D( gt );
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
-    docopyfld_ = new uiGenInput( this, tr("Copy data"),
-	    BoolInpSpec(false,tr("Yes (import)"),tr("No (scan&&link)")) );
+    docopyfld_ = new uiGenInput( this, tr("Import as"),
+		BoolInpSpec(true,tr("OpendTect CBVS (copy&&import)"),
+				 tr("SEGYDirect (scan&&link)")) );
     docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
 
     uiSeisTransfer::Setup trsu( gt );
@@ -839,6 +840,20 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     {
 	uiSeisIOObjInfo oinf( *outioobj, true );
 	if ( !oinf.checkSpaceLeft(transffld_->spaceInfo()) )
+	    return false;
+    }
+
+    if ( !doimp )
+    {
+	const bool ismulti = fs_.spec_.nrFiles() > 1;
+	uiString part = ismulti ? tr("files remain") : tr("file remains");
+	uiString msg = tr("You have selected the SEGYDirect (scan&link) "
+		"import option.\n"
+		"Please make sure that the SEG-Y %1\n"
+		"accessible while using OpendTect.\n\n"
+		"Do you want to continue the import as SEGYDirect?").arg(part);
+	const bool res = uiMSG().askContinue( msg );
+	if ( !res )
 	    return false;
     }
 
