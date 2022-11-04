@@ -172,6 +172,8 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 	body_->setValidator( new QIntValidator );
     else if ( rep == DataType::stringTp )
 	body_->setValidator( new QRegularExpressionValidator );
+
+    setDefaultStyleSheet();
 }
 
 
@@ -182,6 +184,8 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm )
     , UserInputObjImpl<const char*>()
 {
     setText( "" );
+
+    setDefaultStyleSheet();
 }
 
 
@@ -368,6 +372,18 @@ void uiLineEdit::popupVirtualKeyboard( int globalx, int globaly )
 	returnPressed.trigger();
 
     editingFinished.trigger();
+}
+
+
+void uiLineEdit::setDefaultStyleSheet()
+{
+    BufferString qss =
+	"QLineEdit { border: 1px solid #8f8f91; border-radius: 5px; "
+		    "padding: 0 3px; selection-background-color: darkgray; "
+		    "min-height: 23px; }"
+	"QLineEdit:read-only { background: lightgray; }";
+
+    setStyleSheet( qss );
 }
 
 
