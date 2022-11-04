@@ -79,6 +79,8 @@ protected:
 mExpClass(uiBase) uiPushButton : public uiButton
 {
 public:
+			uiPushButton(uiParent*,const uiString& txt);
+			//!<PushButton without stylesheet
 			uiPushButton(uiParent*,const uiString& txt,
 				     bool immediate);
 			uiPushButton(uiParent*,const uiString& txt,
@@ -95,6 +97,8 @@ public:
     void		setMenu(uiMenu*);
     void		setFlat(bool);
     bool		isFlat() const;
+
+    void		setDefaultStyleSheet(bool withbgcolor=true);
 
 private:
 

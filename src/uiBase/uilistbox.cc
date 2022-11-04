@@ -517,11 +517,12 @@ void uiListBox::mkCheckGroup()
     checkgrp_ = new uiGroup( this, "CheckGroup" );
     checkgrp_->attach( alignedAbove, lb_ );
 
-    uiPushButton* pb = new uiPushButton( checkgrp_, uiStrings::sEmptyString(),
-					 mCB(this,uiListBox,menuCB), true );
+    auto* pb = new uiPushButton( checkgrp_, uiStrings::sEmptyString() );
+    pb->activated.notify( mCB(this,uiListBox,menuCB) );
     pb->setName( "Selection menu" );
     pb->setIcon( "menu-arrow" );
     pb->setPrefWidth( 40 );
+    pb->setMinimumWidth( 40 );
     pb->setMaximumWidth( 40 );
     pb->setFlat( true );
 #ifdef __win__
