@@ -28,13 +28,9 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
-#include "od_ostream.h"
-#include "posinfo2dsurv.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"
-#include "segydirect2d.h"
-#include "segyhdr.h"
 #include "segyscanner.h"
 #include "segytr.h"
 #include "seiscbvs.h"
@@ -49,9 +45,7 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
-#include "wellreader.h"
 #include "welltrack.h"
-#include "welltransl.h"
 #include "wellwriter.h"
 
 #include "coordsystem.h"
@@ -124,8 +118,9 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool is2d = Seis::is2D( gt );
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
-    docopyfld_ = new uiGenInput( this, tr("Copy data"),
-	    BoolInpSpec(false,tr("Yes (import)"),tr("No (scan&&link)")) );
+    docopyfld_ = new uiGenInput( this, tr("Import as"),
+		BoolInpSpec(true,tr("OpendTect CBVS (copy&&import)"),
+				 tr("SEGYDirect (scan&&link)")) );
     docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
 
     uiSeisTransfer::Setup trsu( gt );
@@ -853,7 +848,8 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     {
 	const bool ismulti = fs_.spec_.nrFiles() > 1;
 	uiString part = ismulti ? tr("files remain") : tr("file remains");
-	uiString msg = tr("You have selected the SEGYDirect import option.\n"
+	uiString msg = tr("You have selected the SEGYDirect (scan&link) "
+		"import option.\n"
 		"Please make sure that the SEG-Y %1\n"
 		"accessible while using OpendTect.\n\n"
 		"Do you want to continue the import as SEGYDirect?").arg(part);
