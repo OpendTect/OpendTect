@@ -169,6 +169,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
 	delete int64interp_;
 	int64interp_ = int64interp
 	    ? new DataInterpreter<od_int64>( *int64interp ) : 0;
+	strm.release();
 	return true;
     }
 
