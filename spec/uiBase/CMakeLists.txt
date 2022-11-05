@@ -5,6 +5,10 @@
 #________________________________________________________________________
 #
 
-SET( OD_MODULE_DEPS uiTools )
-SET( OD_MODULE_PROGS od_layouttest.cc )
+SET( OD_MODULE_DEPS uiBase )
+SET( OD_MODULE_PROGS
+	od_layouttest.cc
+	od_screentest.cc
+)
+
 OD_INIT_MODULE()
