@@ -22,15 +22,6 @@ ________________________________________________________________________
 #include <QScreen>
 
 
-static uiLineEdit* createFld( uiParent* p, const char* txt )
-{
-    auto* le = new uiLineEdit( p, txt );
-    if ( txt )
-	new uiLabel( p, toUiString(txt), le );
-    return le;
-}
-
-
 class uiScreenGrp : public uiGroup
 {
 public:
