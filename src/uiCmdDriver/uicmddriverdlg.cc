@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "uifileinput.h"
 #include "uilabel.h"
-#include "uimsg.h"
-#include "uitextedit.h"
 #include "uimain.h"
+#include "uimsg.h"
+#include "uitable.h"
+#include "uitextedit.h"
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -27,12 +28,12 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "timer.h"
 #include "od_helpids.h"
+#include "timer.h"
+
 
 namespace CmdDrive
 {
-
 
 uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
 	: uiDialog( p, Setup(tr("Command interaction"), ispec.dlgtitle_,
@@ -547,5 +548,57 @@ void uiCmdDriverDlg::autoStartGo( const char* fnm )
     else
 	drv_.executeFinished.trigger();
 }
+
+
+
+// uiRunScriptDlg
+uiRunScriptDlg::uiRunScriptDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Run Command Driver Script"),
+		       mNoDlgTitle,mTODOHelpKey))
+{
+    scriptfld_ = new uiFileInput( this,
+			uiStrings::phrInput(tr("command file")),
+			uiFileInput::Setup(uiFileDialog::Gen)
+			.filter("Script files (*.odcmd)")
+			.forread(true)
+			.withexamine(true)
+			.exameditable(true)
+			.defseldir(GetScriptsDir())
+			.displaylocalpath(true) );
+    mAttachCB( scriptfld_->valuechanged, uiRunScriptDlg::inpSelCB );
+
+    logfld_ = new uiFileInput( this,
+			uiStrings::phrOutput(uiStrings::sLogFile()),
+			uiFileInput::Setup()
+			.filter("Log files (*.log)")
+			.forread(false)
+			.withexamine(true)
+			.examstyle(File::Log)
+			.defseldir(GetScriptsLogDir())
+			.displaylocalpath(true) );
+    logfld_->attach( alignedBelow, scriptfld_ );
+
+    scriptlistfld_ = new uiTable( this, uiTable::Setup(5,2).rowdesc("Script"),
+				  "Script Table" );
+    scriptlistfld_->attach( alignedBelow, logfld_ );
+    scriptlistfld_->setColumnLabel( 0, tr("Script") );
+    scriptlistfld_->setColumnLabel( 1, uiStrings::sStatus() );
+}
+
+
+uiRunScriptDlg::~uiRunScriptDlg()
+{}
+
+
+void uiRunScriptDlg::inpSelCB( CallBacker* )
+{
+    const FilePath inpfp( scriptfld_->fileName() );
+    if ( inpfp.isEmpty() )
+	return;
+
+
+}
+
+
 
 } // namespace CmdDrive

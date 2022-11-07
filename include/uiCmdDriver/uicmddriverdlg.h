@@ -13,11 +13,11 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiFileInput;
-class uiTextEdit;
 class uiLabel;
 class uiLabeledComboBox;
 class uiPushButton;
-
+class uiTable;
+class uiTextEdit;
 
 namespace CmdDrive
 {
@@ -102,6 +102,21 @@ protected:
 private:
 
     static uiString sInterrupting() { return tr("-Interrupting-"); }
+};
+
+
+mExpClass(uiCmdDriver) uiRunScriptDlg : public uiDialog
+{ mODTextTranslationClass(uiRunScriptDlg)
+public:
+				uiRunScriptDlg(uiParent*);
+				~uiRunScriptDlg();
+
+protected:
+    uiFileInput*		scriptfld_;
+    uiFileInput*		logfld_;
+    uiTable*			scriptlistfld_;
+
+    void			inpSelCB(CallBacker*);
 };
 
 } // namespace CmdDrive
