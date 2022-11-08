@@ -70,7 +70,8 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
     }
 
     odappl_.viewer2DMgr().displayIn2DViewer( posdatasel,
-					     false, initialx1pospercm_,
+					     FlatView::Viewer::VD,
+					     initialx1pospercm_,
 	   				     initialx2pospercm_ );
     return true;
 }

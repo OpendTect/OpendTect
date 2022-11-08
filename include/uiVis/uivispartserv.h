@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "trckeyzsampling.h"
 #include "datapack.h"
+#include "flatview.h"
 #include "keyboardevent.h"
 #include "menuhandler.h"
 #include "mouseevent.h"
@@ -286,8 +287,12 @@ public:
     static int			evToHomePos();
 
 				// ColorTable stuff
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			fillDispPars(VisID,int attrib,
 					 FlatView::DataDispPars&,bool) const;
+    void			fillDispPars(VisID,int attrib,
+					     FlatView::DataDispPars&,
+					     FlatView::Viewer::VwrDest) const;
     const ColTab::MapperSetup*	getColTabMapperSetup(VisID,int attrib,
 						 int version=mUdf(int)) const;
     void			setColTabMapperSetup(VisID,int attrib,

@@ -453,7 +453,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     if ( !rdmline || regsdp.isEmpty() )
 	return DataPack::cNoID();
 
-    RandomSeisDataPack* randsdp = new RandomSeisDataPack(
+    RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
 		SeisDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
     randsdp->setRandomLineID( rdmlineid );
     if ( regsdp.getScaler() )
@@ -507,8 +507,13 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 
     randsdp->setZDomain( regsdp.zDomain() );
     randsdp->setName( regsdp.name() );
-    DPM(DataPackMgr::SeisID()).add( randsdp );
-    return randsdp->id();
+    if ( DPM(DataPackMgr::SeisID()).add( randsdp ) )
+    {
+	DPM(DataPackMgr::SeisID()).ref( randsdp->id() );
+	return randsdp->id();
+    }
+    else
+	return DataPack::cNoID();
 }
 
 
@@ -528,7 +533,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     if ( path.isEmpty()  || regsdp.isEmpty() )
 	return DataPack::cNoID();
 
-    RandomSeisDataPack* randsdp = new RandomSeisDataPack(
+    RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
 		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
     randsdp->setPath( path );
     if ( regsdp.getScaler() )
@@ -559,8 +564,13 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 
     randsdp->setZDomain( regsdp.zDomain() );
     randsdp->setName( regsdp.name() );
-    DPM(DataPackMgr::SeisID()).add( randsdp );
-    return randsdp->id();
+    if ( DPM(DataPackMgr::SeisID()).add(randsdp) )
+    {
+	DPM(DataPackMgr::SeisID()).ref( randsdp->id() );
+	return randsdp->id();
+    }
+    else
+	return DataPack::cNoID();
 }
 
 

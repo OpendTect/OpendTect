@@ -56,16 +56,29 @@ public:
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     Viewer2DID			displayIn2DViewer(DataPackID,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      bool wva);
+    Viewer2DID			displayIn2DViewer(DataPackID,
+					      const Attrib::SelSpec&,
+					      const FlatView::DataDispPars::VD&,
+					      FlatView::Viewer::VwrDest);
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     Viewer2DID			displayIn2DViewer(
 					Viewer2DPosDataSel&,bool wva,
 					float initialx1pospercm=mUdf(float),
 					float initialx2pospercm=mUdf(float));
+    Viewer2DID			displayIn2DViewer(Viewer2DPosDataSel&,
+						  FlatView::Viewer::VwrDest,
+					float initialx1pospercm=mUdf(float),
+					float initialx2pospercm=mUdf(float));
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			displayIn2DViewer(VisID visid,int attribid,
 						  bool wva);
+    void			displayIn2DViewer(VisID visid,int attribid,
+						  FlatView::Viewer::VwrDest);
     void			remove2DViewer(VisID);
     void			remove2DViewer(Viewer2DID);
 

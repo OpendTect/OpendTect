@@ -1492,7 +1492,9 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items,
 
 void uiODSceneMgr::displayIn2DViewer( VisID visid, int attribid, bool dowva )
 {
-    appl_.viewer2DMgr().displayIn2DViewer( visid, attribid, dowva );
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
+								      !dowva );
+    appl_.viewer2DMgr().displayIn2DViewer( visid, attribid, dest );
 }
 
 

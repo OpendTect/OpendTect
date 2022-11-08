@@ -225,15 +225,31 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					const FlatView::DataDispPars::VD& pars,
 					bool dowva )
 {
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
+								      !dowva );
+    return displayIn2DViewer( dpid, as, pars, dest );
+}
+
+
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
+					const Attrib::SelSpec& as,
+					const FlatView::DataDispPars::VD& pars,
+					FlatView::Viewer::VwrDest dest )
+{
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
-    vwr2d->setSelSpec( &as, dowva );
-    vwr2d->setSelSpec( &as, !dowva );
-    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
+    vwr2d->setSelSpec( &as, dest );
+    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0), dest );
     vwr2d->setWinTitle( false );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false; ddp.vd_ = pars;
+    const bool wva =	dest == FlatView::Viewer::WVA ||
+			dest == FlatView::Viewer::Both;
+    const bool vd =	dest == FlatView::Viewer::VD ||
+			dest == FlatView::Viewer::Both;
+    ddp.vd_ = pars;
+    ddp.wva_.show_ = wva;
+    ddp.vd_.show_ = vd;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
     attachNotifiersAndSetAuxData( vwr2d );
     return vwr2d->ID();
@@ -242,6 +258,18 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 
 Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					bool dowva,
+					float initialx1pospercm,
+					float initialx2pospercm )
+{
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
+								      !dowva );
+    return displayIn2DViewer( posdatasel, dest, initialx1pospercm,
+			      initialx2pospercm);
+}
+
+
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
+					FlatView::Viewer::VwrDest dest,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
@@ -273,21 +301,25 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     const Attrib::SelSpec& as = posdatasel.selspec_;
-    vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
+    vwr2d->setSelSpec( &as, dest );
     const Geometry::RandomLine* rdmline =
 	Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
     if ( rdmline )
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
+    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0), dest );
     vwr2d->setWinTitle( false );
-    vwr2d->useStoredDispPars( dowva );
-    vwr2d->useStoredDispPars( !dowva );
+    vwr2d->useStoredDispPars( dest );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+    const bool wva =	dest == FlatView::Viewer::WVA ||
+			dest == FlatView::Viewer::Both;
+    const bool vd =	dest == FlatView::Viewer::VD ||
+			dest == FlatView::Viewer::Both;
+    ddp.wva_.show_ = wva;
+    ddp.vd_.show_ = vd;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
     if ( geom2dids_.size() > 0 )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
@@ -297,6 +329,15 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 
 
 void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid, bool dowva )
+{
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
+								      !dowva );
+    displayIn2DViewer( visid, attribid, dest );
+}
+
+
+void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid,
+					 FlatView::Viewer::VwrDest dest )
 {
     const DataPackID id = visServ().getDisplayedDataPackID( visid, attribid );
     if ( !id.isValid() ) return;
@@ -316,26 +357,30 @@ void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid, bool dowva )
     }
     else
 	visServ().fillDispPars( visid, attribid,
-		vwr2d->viewwin()->viewer().appearance().ddpars_, dowva );
+		vwr2d->viewwin()->viewer().appearance().ddpars_, dest );
     //<-- So that new display parameters are read before the new data is set.
     //<-- This will avoid time lag between updating data and display parameters.
 
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
-    vwr2d->setSelSpec( as, dowva );
-    if ( isnewvwr ) vwr2d->setSelSpec( as, !dowva );
+    if ( isnewvwr )
+	vwr2d->setSelSpec( as, FlatView::Viewer::Both );
+    else
+	vwr2d->setSelSpec( as, dest );
 
     const int version = visServ().currentVersion( visid, attribid );
     const DataPackID dpid = vwr2d->createFlatDataPack( id, version );
-    vwr2d->setUpView( dpid, dowva );
+    if ( isnewvwr )
+	vwr2d->makeUpView( dpid, FlatView::Viewer::Both );
+    else
+	vwr2d->makeUpView( dpid, dest );
+
     vwr2d->setWinTitle( true );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
     {
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	visServ().fillDispPars( visid, attribid, ddp, dowva );
-	visServ().fillDispPars( visid, attribid, ddp, !dowva );
-	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+	visServ().fillDispPars( visid, attribid, ddp, dest );
     if ( geom2dids_.size() > 0 )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
 	attachNotifiersAndSetAuxData( vwr2d );
@@ -687,8 +732,10 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 				      const uiWorldPoint& initialcentre )
 {
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
-    vwr2d->setSelSpec( &curvwr2d.selSpec(true), true );
-    vwr2d->setSelSpec( &curvwr2d.selSpec(false), false );
+    vwr2d->setSelSpec( &curvwr2d.selSpec(FlatView::Viewer::WVA),
+		       FlatView::Viewer::WVA );
+    vwr2d->setSelSpec( &curvwr2d.selSpec(FlatView::Viewer::VD),
+		       FlatView::Viewer::VD );
     vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
     uiTaskRunner taskr( const_cast<uiODViewer2D&>(curvwr2d).viewerParent() );
     vwr2d->setTrcKeyZSampling( newsampling, &taskr );
@@ -701,9 +748,9 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 
     const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
     if ( curvwr.isVisible(true) )
-	vwr2d->setUpView( vwr2d->createDataPack(true), true );
+	vwr2d->makeUpView( vwr2d->createDataPack(true), FlatView::Viewer::WVA );
     else if ( curvwr.isVisible(false) )
-	vwr2d->setUpView( vwr2d->createDataPack(false), false );
+	vwr2d->makeUpView( vwr2d->createDataPack(false), FlatView::Viewer::VD );
 
     if ( vwr2d->viewControl() && control )
 	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );
@@ -1229,9 +1276,11 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 		vwrpar->get( sKeyAttrID(), attrid ) &&
 		    vwrpar->getYN( sKeyWVA(), wva ) )
 	{
+	    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest(
+								    wva, !wva );
 	    const int nrattribs = visServ().getNrAttribs( visid );
 	    const int attrnr = nrattribs-1;
-	    displayIn2DViewer( visid, attrnr, wva );
+	    displayIn2DViewer( visid, attrnr, dest );
 	    uiODViewer2D* curvwr = find2DViewer( visid );
 	    if ( curvwr ) curvwr->usePar( *vwrpar );
 	}
