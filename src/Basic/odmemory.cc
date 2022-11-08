@@ -192,20 +192,19 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
     virtfree = swapfree;
 #endif
 #ifdef __mac__
-    vm_statistics_data_t vm_info;
+    vm_statistics64_data_t vm_info;
     mach_msg_type_number_t info_count;
 
-    info_count = HOST_VM_INFO_COUNT;
-    if ( host_statistics(mach_host_self(),HOST_VM_INFO,
-		(host_info_t)&vm_info,&info_count) )
-	mErrRet
+    info_count = HOST_VM_INFO64_COUNT;
+    if ( host_statistics64(mach_host_self(),HOST_VM_INFO64,
+                (host_info64_t)&vm_info,&info_count) )
+        mErrRet
 
     total = (vm_info.active_count + vm_info.inactive_count +
-	     vm_info.free_count + vm_info.wire_count) * vm_page_size;
-    free = vm_info.free_count * vm_page_size;
+             vm_info.free_count + vm_info.wire_count) * vm_page_size;
+    free = (vm_info.free_count + vm_info.inactive_count) * vm_page_size;
     virttotal = 0; //TODO: impl?
     virtfree = 0; //TODO: impl?
-
 #endif
 #ifdef __win__
     MEMORYSTATUSEX status;
