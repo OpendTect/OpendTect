@@ -156,7 +156,7 @@ bool uiTutHorTools::doThicknessCalc()
 
     PtrMan<Executor> saver = calc->dataSaver();
 
-    if ( !taskrunner.execute(*saver) );
+    if ( !taskrunner.execute(*saver) )
     {
 	uiMSG().error(tr("Thickness calculation failed"));
 	return false;
@@ -184,7 +184,7 @@ bool uiTutHorTools::doSmoother()
 
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
     bool ret = taskrunner.execute( *saver );
-    if (!ret)
+    if ( !ret )
     {
 	uiMSG().error( tr("Smoothing operation failed") );
 	return false;
