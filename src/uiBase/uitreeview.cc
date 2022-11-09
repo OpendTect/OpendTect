@@ -133,7 +133,7 @@ void uiTreeViewBody::resizeEvent( QResizeEvent* ev )
 // hack for OpendTect scene tree
     if ( lvhandle_.columnWidthMode(1) == uiTreeView::Fixed )
     {
-	const int fixedwidth = fixcolwidths_[ 1 ];
+	const int fixedwidth = fixcolwidths_.validIdx(1) ? fixcolwidths_[1] : 0;
 	if ( mIsUdf(fixedwidth) || fixedwidth==0 )
 	    return QTreeWidget::resizeEvent( ev );
 	QScrollBar* sb = verticalScrollBar();
