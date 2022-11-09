@@ -16,9 +16,6 @@ ________________________________________________________________________
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
 
-#include "stringview.h"
-#include "keystrs.h"
-#include "settings.h"
 #include "thread.h"
 #include "threadlock.h"
 #include "timefun.h"
@@ -42,7 +39,7 @@ static uiParent* getTRParent( uiParent* p )
 
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog( getTRParent(prnt),
-                uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
+		uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause().appendPlainText("   "))
 	.canceltext(uiStrings::sAbort()) )
@@ -58,8 +55,8 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
 
-    tim_.tick.notify( mCB(this,uiTaskRunner,timerTick) );
-    postFinalize().notify( mCB(this,uiTaskRunner,onFinalize) );
+    mAttachCB( tim_.tick, uiTaskRunner::timerTick );
+    mAttachCB( postFinalize(), uiTaskRunner::onFinalize );
 
     statusBar()->addMsgFld( tr("Current activity"), Alignment::Left, 1 );
     statusBar()->addMsgFld( tr("Counted items"), Alignment::Right, 1 );
@@ -72,8 +69,14 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
 
 uiTaskRunner::~uiTaskRunner()
 {
+    detachAllNotifiers();
+
     if ( thread_ )
-	{ thread_->waitForFinish(); deleteAndZeroPtr(thread_); }
+    {
+	thread_->waitForFinish();
+	deleteAndNullPtr( thread_ );
+    }
+
     delete &tim_;
 }
 
