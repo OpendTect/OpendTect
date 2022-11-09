@@ -33,7 +33,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     taskfld_= new uiGenInput( this, tr("Task"),
 			BoolInpSpec(true,tr("Thickness between two horizons"),
 					 tr("Smooth a horizon")) );
-    mAttachCB(taskfld_->valuechanged,uiTutHorTools::choiceSel);
+    mAttachCB( taskfld_->valuechanged, uiTutHorTools::choiceSel );
 
     IOObjContext ctxt = mIOObjContext(EMHorizon3D);
     inpfld_ = new uiIOObjSel( this, ctxt, tr("Input Horizon") );
@@ -62,7 +62,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 			BoolInpSpec(true, tr("Low"), tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
-    mAttachCB(postFinalize(), uiTutHorTools::choiceSel);
+    mAttachCB( postFinalize(), uiTutHorTools::choiceSel );
 }
 
 
@@ -117,7 +117,8 @@ bool uiTutHorTools::checkAttribName() const
 
 bool uiTutHorTools::acceptOK( CallBacker* )
 {
-    if ( !inpfld_->ioobj() ) return false;
+    if ( !inpfld_->ioobj() )
+	return false;
 
     const bool isthick = taskfld_->getBoolValue();
     return isthick ? doThicknessCalc() : doSmoother();
@@ -183,14 +184,13 @@ bool uiTutHorTools::doSmoother()
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
-    bool ret = taskrunner.execute( *saver );
-    if ( !ret )
+    if ( !taskrunner.execute(*saver) )
     {
 	uiMSG().error( tr("Smoothing operation failed") );
 	return false;
     }
-    else
-	ret = uiMSG().askGoOn(
+
+    const bool ret = uiMSG().askGoOn(
 	    tr("Process finished successfully. Do you want to continue?") );
 
     return !ret;

@@ -38,7 +38,7 @@ public:
     static const char*  horsmoothStr()          { return "smoothdir"; }
     static const char*  steeringStr()   	{ return "steering"; }
     static const char*  stepoutStr()      	{ return "stepout"; }
-    void		initSteering()		{ stdPrepSteering(stepout_); }
+    void		initSteering() override { stdPrepSteering(stepout_); }
 
 protected:
 
@@ -49,12 +49,13 @@ protected:
     bool		allowParallelComputation() const override
 							      { return true; }
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int zintv);
+    bool		getInputOutput(int input,
+					    TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&,int zintv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int z0,int nrsamples,int threadid) const;
-    const BinID*	desStepout(int input,int output) const;
-    const Interval<int>*    desZSampMargin(int input,int output) const;
+			    int z0,int nrsamples,int threadid) const override;
+    const BinID*	desStepout(int input,int output) const override;
+    const Interval<int>*   desZSampMargin(int input,int output) const override;
 
     int			action_;
     float		factor_;

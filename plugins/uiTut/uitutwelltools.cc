@@ -45,7 +45,8 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
     inplogfld_->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
 	inplogfld_->addItem( logs.getLog(idx).name() );
-    mAttachCB(inplogfld_->selectionChanged,uiTutWellTools::inpchg);
+
+    mAttachCB( inplogfld_->selectionChanged, uiTutWellTools::inpchg );
 
     outplogfld_ = new uiGenInput( this, tr("Specify Output Log name"),
 				StringInpSpec( "" ) );

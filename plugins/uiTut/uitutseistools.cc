@@ -39,7 +39,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     // The input seismic object
     inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(geom_,true),
 				uiSeisSel::Setup(geom_) );
-    mAttachCB(inpfld_->selectionDone, uiTutSeisTools::inpSel);
+    mAttachCB( inpfld_->selectionDone, uiTutSeisTools::inpSel );
 
     subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(geom_) );
 
@@ -47,7 +47,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     // What seismic tool is required?
     actionfld_ = new uiGenInput( this, uiStrings::sAction(),
 				 StringListInpSpec(actions) );
-    mAttachCB(actionfld_->valuechanged,uiTutSeisTools::choiceSel);
+    mAttachCB( actionfld_->valuechanged, uiTutSeisTools::choiceSel );
     actionfld_->attach( centeredBelow, subselfld_ );
 
     // Parameters for scaling
@@ -79,7 +79,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     outfld_->attach( alignedBelow, scalegrp_ );
 
     // Make sure only relevant stuff is displayed on startup
-    mAttachCB(postFinalize(),uiTutSeisTools::choiceSel);
+    mAttachCB( postFinalize(), uiTutSeisTools::choiceSel );
 }
 
 
@@ -110,6 +110,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
 	return false; // Error messages already handled
+
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
@@ -136,9 +137,13 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     case Tut::SeisTools::Scale:
     {
 	float usrfactor = factorfld_->getFValue();
-	if ( mIsUdf(usrfactor) ) usrfactor = 1;
+	if ( mIsUdf(usrfactor) )
+	    usrfactor = 1;
+
 	float usrshift = shiftfld_->getFValue();
-	if ( mIsUdf(usrshift) ) usrshift = 0;
+	if ( mIsUdf(usrshift) )
+	    usrshift = 0;
+
 	tst_.setScale( usrfactor, usrshift );
     }
     break;
@@ -147,7 +152,8 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 	SamplingData<float> sd( newsdfld_->getFValue(0),
 				newsdfld_->getFValue(1) );
 	const float fac = 1.f / SI().zDomain().userFactor();
-	sd.start *= fac; sd.step *= fac;
+	sd.start *= fac;
+	sd.step *= fac;
 	tst_.setSampling( sd );
     }
     break;
