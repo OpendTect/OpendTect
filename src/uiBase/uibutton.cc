@@ -430,6 +430,27 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
 }
 
 
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
+			    const char* iconnm, bool ia )
+    : uiPushButton(p,nm)
+{
+    immediate_ = ia;
+    setIcon( iconnm );
+    setDefaultStyleSheet();
+}
+
+
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
+			    const char* iconnm, const CallBack& cb, bool ia )
+    : uiPushButton(p,nm)
+{
+    immediate_ = ia;
+    setIcon( iconnm );
+    setDefaultStyleSheet();
+    activated.notify( cb );
+}
+
+
 uiPushButton::~uiPushButton()
 {
     detachAllNotifiers();

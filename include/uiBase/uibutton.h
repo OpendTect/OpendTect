@@ -90,6 +90,11 @@ public:
 			uiPushButton(uiParent*,const uiString& txt,
 				     const uiPixmap&,const CallBack&,
 				     bool immediate);
+			uiPushButton(uiParent*,const uiString& txt,
+				     const char* iconnm,bool immediate);
+			uiPushButton(uiParent*,const uiString& txt,
+				     const char* iconnm,const CallBack&,
+				     bool immediate);
 			~uiPushButton();
 
     void		setDefault(bool yn=true);
