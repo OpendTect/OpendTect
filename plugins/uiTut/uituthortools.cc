@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "ioobj.h"
-#include "transl.h"
 #include "keystrs.h"
+#include "transl.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -33,7 +33,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     taskfld_= new uiGenInput( this, tr("Task"),
 			BoolInpSpec(true,tr("Thickness between two horizons"),
 					 tr("Smooth a horizon")) );
-    taskfld_->valuechanged.notify( mCB(this,uiTutHorTools,choiceSel) );
+    mAttachCB( taskfld_->valuechanged, uiTutHorTools::choiceSel );
 
     IOObjContext ctxt = mIOObjContext(EMHorizon3D);
     inpfld_ = new uiIOObjSel( this, ctxt, tr("Input Horizon") );
@@ -59,15 +59,16 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
-			BoolInpSpec(true, tr("Low"), tr("High")) );
+			BoolInpSpec(true,tr("Low"),tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
-    postFinalize().notify( mCB(this,uiTutHorTools,choiceSel) );
+    mAttachCB( postFinalize(), uiTutHorTools::choiceSel );
 }
 
 
 uiTutHorTools::~uiTutHorTools()
 {
+    detachAllNotifiers();
 }
 
 
@@ -116,7 +117,8 @@ bool uiTutHorTools::checkAttribName() const
 
 bool uiTutHorTools::acceptOK( CallBacker* )
 {
-    if ( !inpfld_->ioobj() ) return false;
+    if ( !inpfld_->ioobj() )
+	return false;
 
     const bool isthick = taskfld_->getBoolValue();
     return isthick ? doThicknessCalc() : doSmoother();
@@ -132,14 +134,15 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 bool uiTutHorTools::doThicknessCalc()
 {
     if ( inpfld_->key() == inpfld2_->key()
-	    && !uiMSG().askGoOn(tr("Input horizon same as Output. Continue?")) )
+	   && !uiMSG().askGoOn(tr("Input horizon same as Output. Continue?")) )
 	return false;
 
     if ( !inpfld2_->ioobj() )
 	return false;
 
     const bool cont = checkAttribName();
-    if ( !cont ) return false;
+    if ( !cont )
+	return false;
 
     uiTaskRunner taskrunner( this );
     Tut::ThicknessCalculator* calc = new Tut::ThicknessCalculator;
@@ -147,13 +150,22 @@ bool uiTutHorTools::doThicknessCalc()
     mGetHor( hor1, top ? inpfld_ : inpfld2_ );
     mGetHor( hor2, top ? inpfld2_ : inpfld_ );
     calc->setHorizons( hor1, hor2 );
-    calc->init( attribnamefld_->text() );
+    calc->setAttribName( attribnamefld_->text() );
 
     if ( !taskrunner.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver();
-    return taskrunner.execute( *saver );
+
+    if ( !taskrunner.execute(*saver) )
+    {
+	uiMSG().error( tr("Thickness calculation failed") );
+	return false;
+    }
+
+    const bool ret = uiMSG().askGoOn(
+	    tr("Process finished successfully. Do you want to continue?") );
+    return !ret;
 }
 
 
@@ -172,5 +184,14 @@ bool uiTutHorTools::doSmoother()
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
-    return taskrunner.execute( *saver );
+    if ( !taskrunner.execute(*saver) )
+    {
+	uiMSG().error( tr("Smoothing operation failed") );
+	return false;
+    }
+
+    const bool ret = uiMSG().askGoOn(
+	    tr("Process finished successfully. Do you want to continue?") );
+
+    return !ret;
 }

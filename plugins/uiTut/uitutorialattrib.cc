@@ -8,12 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "uitutorialattrib.h"
-#include "tutorialattrib.h"
 
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "survinfo.h"
+#include "tutorialattrib.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -28,7 +29,7 @@ static const char* actionstr[] =
     "Scale",
     "Square",
     "Smooth",
-    0
+    nullptr
 };
 
 
@@ -42,13 +43,13 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 
     actionfld_ = new uiGenInput( this, uiStrings::sAction(),
 				StringListInpSpec(actionstr) );
-    actionfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
+    mAttachCB( actionfld_->valuechanged, uiTutorialAttrib::actionSel );
     actionfld_->attach( alignedBelow, inpfld_ );
 
     smoothdirfld_ = new uiGenInput( this, tr("Smoothing direction"),
 	                        BoolInpSpec(true,uiStrings::sHorizontal(),
                                             uiStrings::sVertical()) );
-    smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
+    mAttachCB( smoothdirfld_->valuechanged, uiTutorialAttrib::actionSel );
     smoothdirfld_->attach( alignedBelow, actionfld_ );
 
     smoothstrengthfld_ = new uiGenInput( this, tr("Filter strength"),
@@ -56,8 +57,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
-    steerfld_->steertypeSelected_.notify(
-				mCB(this,uiTutorialAttrib,steerTypeSel) );
+    mAttachCB( steerfld_->steertypeSelected_, uiTutorialAttrib::steerTypeSel );
     steerfld_->attach( alignedBelow, smoothdirfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
@@ -72,9 +72,15 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     shiftfld_ = new uiGenInput( this, uiStrings::sShift(), FloatInpSpec() );
     shiftfld_->attach( alignedBelow, factorfld_ );
 
-    actionSel(0);
+    actionSel( nullptr );
 
     setHAlignObj( inpfld_ );
+}
+
+
+uiTutorialAttrib::~uiTutorialAttrib()
+{
+    detachAllNotifiers();
 }
 
 
@@ -107,7 +113,7 @@ bool uiTutorialAttrib::setParameters( const Desc& desc )
                 smoothstrengthfld_->setValue(weaksmooth) );
     mIfGetBinID( Tutorial::stepoutStr(), stepout,
                 stepoutfld_->setBinID(stepout) );
-    actionSel(0);
+    actionSel( nullptr );
 
     return true;
 }

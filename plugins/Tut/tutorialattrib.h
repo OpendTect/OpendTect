@@ -29,6 +29,7 @@ mExpClass(Tut) Tutorial : public Provider
 public:
     static void		initClass();
 			Tutorial(Desc&);
+
     static const char*	attribName()		{ return "Tutorial"; }
     static const char*	actionStr()		{ return "action"; }
     static const char*	shiftStr()		{ return "shift"; }
@@ -37,22 +38,24 @@ public:
     static const char*  horsmoothStr()          { return "smoothdir"; }
     static const char*  steeringStr()   	{ return "steering"; }
     static const char*  stepoutStr()      	{ return "stepout"; }
-    void		initSteering()		{ stdPrepSteering(stepout_); }
+    void		initSteering() override { stdPrepSteering(stepout_); }
 
 protected:
 
-			~Tutorial() {}
+			~Tutorial();
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
-    bool		allowParallelComputation() const	{ return true; }
+    bool		allowParallelComputation() const override
+							      { return true; }
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int zintv);
+    bool		getInputOutput(int input,TypeSet<int>& res)
+								const override;
+    bool		getInputData(const BinID&,int zintv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int z0,int nrsamples,int threadid) const;
-    const BinID*        desStepout(int,int) const;
-    const Interval<int>* desZSampMargin(int,int) const;
+			    int z0,int nrsamples,int threadid) const override;
+    const BinID*	desStepout(int input,int output) const override;
+    const Interval<int>*   desZSampMargin(int input,int output) const override;
 
     int			action_;
     float		factor_;

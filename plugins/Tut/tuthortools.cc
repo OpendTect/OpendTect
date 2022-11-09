@@ -10,31 +10,23 @@ ________________________________________________________________________
 #include "tuthortools.h"
 #include "emhorizon3d.h"
 #include "emsurface.h"
-#include "trckeyzsampling.h"
-#include "survinfo.h"
 #include "emsurfaceauxdata.h"
-#include "statruncalc.h"
-#include "keystrs.h"
-
-
-
 #include "ioobj.h"
+#include "keystrs.h"
+#include "statruncalc.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 
 Tut::HorTool::HorTool(const char* title)
     : Executor(title)
-    , horizon1_(0)
-    , horizon2_(0)
-    , iter_(0)
-    , nrdone_(0)
 {
+    msg_ = tr("Positions done");
 }
 
 
 Tut::HorTool::~HorTool()
 {
     delete iter_;
-    if ( horizon1_ ) horizon1_->unRef();
-    if ( horizon2_ ) horizon2_->unRef();
 }
 
 
@@ -61,19 +53,19 @@ void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg,
 				const StepInterval<int>& crlrg )
 {
     hs_.set( inlrg, crlrg );
+    delete iter_;
     iter_ = new TrcKeySamplingIterator( hs_ );
 }
 
 
 Tut::ThicknessCalculator::ThicknessCalculator()
 	: HorTool("Calculating Thickness")
-	, dataidx_(0)
 	, usrfac_( (float) SI().zDomain().userFactor() )
 {
 }
 
 
-void Tut::ThicknessCalculator::init( const char* attribname )
+void Tut::ThicknessCalculator::setAttribName( const char* attribname )
 {
     if ( !horizon1_ )
     {
@@ -91,7 +83,7 @@ int Tut::ThicknessCalculator::nextStep()
 {
     BinID bid;
     if ( !iter_->next(bid) )
-	return Executor::Finished();
+	return Finished();
 
     const EM::SubID subid = bid.toInt64();
     const float z1 = (float) horizon1_->getPos( subid ).z;
@@ -105,7 +97,7 @@ int Tut::ThicknessCalculator::nextStep()
     horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -117,7 +109,6 @@ Executor* Tut::ThicknessCalculator::dataSaver()
 
 Tut::HorSmoother::HorSmoother()
     : HorTool("Smoothing Horizon")
-    , subid_(0)
 {
 }
 
@@ -126,35 +117,34 @@ int Tut::HorSmoother::nextStep()
 {
     BinID bid;
     if ( !iter_->next(bid) )
-	return Executor::Finished();
+	return Finished();
 
     const int rad = weak_ ? 1 : 2;
-    float sum = 0; int count = 0;
+    float sum = 0.f;
+    int count = 0;
     for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
     {
 	for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
 	{
 	    const BinID binid = BinID( bid.inl() +inloffs *hs_.step_.inl(),
-				       bid.crl() +crloffs *hs_.step_.crl());
-	    const EM::SubID subid = binid.toInt64();
-	    const float z = (float) horizon1_->getPos( subid ).z;
-	    if ( mIsUdf(z) ) continue;
+				       bid.crl() +crloffs *hs_.step_.crl() );
+	    const float z = horizon1_->getZ( binid );
+	    if ( mIsUdf(z) )
+		continue;
+
 	    sum += z; count++;
 	}
     }
-    float val = count ? sum / count : mUdf(float);
 
-    subid_ = bid.toInt64();
-    Coord3 pos = horizon1_->getPos( subid_ );
-    pos.z = val;
-    horizon1_->setPos( subid_, pos, false );
+    float val = count ? sum/count : mUdf(float);
+    horizon1_->setZ( bid, val, false );
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
 Executor* Tut::HorSmoother::dataSaver( const MultiID& id )
 {
-    return horizon1_->geometry().saver( 0, &id );
+    return horizon1_->geometry().saver( nullptr, &id );
 }

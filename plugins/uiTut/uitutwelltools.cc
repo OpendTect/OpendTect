@@ -8,21 +8,24 @@ ________________________________________________________________________
 -*/
 
 #include "uitutwelltools.h"
-#include "uigeninput.h"
-#include "uilistbox.h"
-#include "uispinbox.h"
-#include "uimsg.h"
+
+
 #include "bufstring.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "od_ostream.h"
+#include "tutlogtools.h"
 #include "welldata.h"
 #include "wellio.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellwriter.h"
-#include "tutlogtools.h"
+
+#include "uigeninput.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uispinbox.h"
 
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
@@ -42,11 +45,10 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
     inplogfld_->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
 	inplogfld_->addItem( logs.getLog(idx).name() );
-    inplogfld_->selectionChanged.notify(
-				mCB(this,uiTutWellTools,inpchg) );
+    mAttachCB( inplogfld_->selectionChanged, uiTutWellTools::inpchg );
 
     outplogfld_ = new uiGenInput( this, tr("Specify Output Log name"),
-				StringInpSpec( "" ) );
+				StringInpSpec("") );
     outplogfld_->setElemSzPol( uiObject::Wide );
     outplogfld_->attach( alignedBelow, inplogfld_ );
 
@@ -58,6 +60,7 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 
 uiTutWellTools::~uiTutWellTools()
 {
+    detachAllNotifiers();
 }
 
 
@@ -73,27 +76,29 @@ void uiTutWellTools::inpchg( CallBacker* )
 
 bool uiTutWellTools::acceptOK( CallBacker* )
 {
-    if ( !wd_ ) return false;
-    const char* inplognm = inplogfld_->getText();
+    if ( !wd_ )
+	return false;
+
+    const BufferString inplognm = inplogfld_->getText();
     Well::LogSet& logset = wd_->logs();
     const int inpidx = logset.indexOf( inplognm );
     if ( inpidx<0 || inpidx>=logset.size() )
 	mErrRet( tr("Please select a valid Input Log") )
 
-    const char* lognm = outplogfld_->text();
-    const int outpidx = logset.indexOf( lognm );
-    if ( outpidx>=0 && outpidx<logset.size() )
-	mErrRet( tr("Output Log already exists\n Enter a new name") )
-
-    if ( !lognm || !*lognm )
+    const BufferString lognm = outplogfld_->text();
+    if ( lognm.isEmpty() )
 	mErrRet( tr("Please enter a valid name for Output log") )
 
+    const int outpidx = logset.indexOf( lognm );
+    if ( outpidx>=0 && outpidx<logset.size() )
+	mErrRet( tr("Output Log already exists. Enter a new name") )
+
     const int gate = gatefld_->box()->getIntValue();
-    auto* outputlog = new Well::Log( lognm );
+    PtrMan<Well::Log> outputlog = new Well::Log( lognm );
     Tut::LogTools logtool( *wd_->getLog(inplognm), *outputlog );
     if ( logtool.runSmooth(gate) )
     {
-	logset.add( outputlog );
+	logset.add( outputlog.release() );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
 	if ( !ioobj )
 	    mErrRet( tr("Cannot find object in I/O Manager") )
@@ -109,7 +114,12 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	}
     }
     else
-	delete outputlog;
+    {
+	uiMSG().error( tr("Smoothing operation failed") );
+	return false;
+    }
 
-    return true;
+    const bool ret = uiMSG().askGoOn(
+	    tr("Process finished successfully. Do you want to continue?") );
+    return !ret;
 }

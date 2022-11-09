@@ -23,55 +23,27 @@ ________________________________________________________________________
 
 Tut::SeisTools::SeisTools()
     : Executor("Tutorial tools: Direct Seismic")
-    , inioobj_(0), outioobj_(0)
-    , rdr_(0), wrr_(0)
     , trcin_(*new SeisTrc)
     , trcout_(*new SeisTrc)
 {
-    clear();
+    newsd_.start = 0;
+    newsd_.step = 1;
+    msg_ = uiStrings::sProcessing();
 }
 
 
 Tut::SeisTools::~SeisTools()
 {
-    clear();
+    delete inioobj_;
+    delete outioobj_;
+    delete rdr_;
+    delete wrr_;
     delete &trcin_;
     delete &trcout_;
 }
 
 
-void Tut::SeisTools::clear()
-{
-    delete inioobj_; inioobj_ = 0;
-    delete outioobj_; outioobj_ = 0;
-    delete rdr_; rdr_ = 0;
-    delete wrr_; wrr_ = 0;
-
-    action_ = Scale;
-    factor_ = 1; shift_ = 0;
-    newsd_.start = 0; newsd_.step = 1;
-    weaksmooth_ = false;
-    totnr_ = -1; nrdone_ = 0;
-}
-
-
-void Tut::SeisTools::setInput( const IOObj& ioobj )
-{ delete inioobj_; inioobj_ = ioobj.clone(); }
-
-void Tut::SeisTools::setOutput( const IOObj& ioobj )
-{ delete outioobj_; outioobj_ = ioobj.clone(); }
-
-void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
-{ tkzs_ = cs; }
-
-
-uiString Tut::SeisTools::uiMessage() const
-{
-    return errmsg_.isEmpty() ? uiStrings::sProcessing() : errmsg_;
-}
-
-
-od_int64 Tut::SeisTools::totalNr() const
+void Tut::SeisTools::calculateTotalNr()
 {
     if ( inioobj_ && totnr_ == -1 )
     {
@@ -82,7 +54,40 @@ od_int64 Tut::SeisTools::totalNr() const
 	    totnr_ = spinf.expectednrtrcs;
     }
 
-    return totnr_ < 0 ? -1 : totnr_;
+    if ( totnr_ < 0 )
+	totnr_ = -1;
+}
+
+
+void Tut::SeisTools::setInput( const IOObj& ioobj )
+{
+    delete inioobj_;
+    inioobj_ = ioobj.clone();
+}
+
+
+void Tut::SeisTools::setOutput( const IOObj& ioobj )
+{
+    delete outioobj_;
+    outioobj_ = ioobj.clone();
+}
+
+
+void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
+{
+    tkzs_ = cs;
+}
+
+
+uiString Tut::SeisTools::uiMessage() const
+{
+    return msg_;
+}
+
+
+od_int64 Tut::SeisTools::totalNr() const
+{
+    return totnr_;
 }
 
 
@@ -90,12 +95,13 @@ bool Tut::SeisTools::createReader()
 {
     if ( !inioobj_ )
     {
-	errmsg_ = uiStrings::phrCannotFindObjInDB();
+	msg_ = uiStrings::phrCannotFindObjInDB();
 	return false;
     }
 
     const Seis::GeomType gt = Seis::geomTypeOf( tkzs_.is2D(), false );
     const Pos::GeomID gid = tkzs_.hsamp_.getGeomID();
+    delete rdr_;
     rdr_ = new SeisTrcReader( *inioobj_, gid, &gt );
     PtrMan<Seis::SelData> sd = new Seis::RangeSelData( tkzs_ );
     if ( sd && !sd->isAll() )
@@ -104,7 +110,8 @@ bool Tut::SeisTools::createReader()
     rdr_->forceFloatData( action_ != Smooth );
     if ( !rdr_->prepareWork() )
     {
-	errmsg_ = rdr_->errMsg();
+	msg_ = rdr_->errMsg();
+	deleteAndNullPtr( rdr_ );
 	return false;
     }
 
@@ -116,33 +123,42 @@ bool Tut::SeisTools::createWriter()
 {
     if ( !outioobj_ )
     {
-	errmsg_ = uiStrings::phrCannotFindObjInDB();
+	msg_ = uiStrings::phrCannotFindObjInDB();
 	return false;
     }
 
     const Seis::GeomType gt = rdr_->geomType();
     const Pos::GeomID gid = tkzs_.hsamp_.getGeomID();
+    delete wrr_;
     wrr_ = new SeisTrcWriter( *outioobj_, gid, &gt );
-    if ( !wrr_->prepareWork(trcout_) )
-    {
-	errmsg_ = wrr_->errMsg();
-	return false;
-    }
-
     return true;
+}
+
+
+bool Tut::SeisTools::goImpl( od_ostream* strm, bool first, bool last,
+								int delay )
+{
+    if ( !createReader() || !createWriter() )
+	return false;
+
+    nrdone_ = 0;
+    const bool res = Executor::goImpl( strm, first, last, delay );
+    deleteAndNullPtr( rdr_ );
+    deleteAndNullPtr( wrr_ );
+
+    return res;
 }
 
 
 int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
-	return createReader() ? MoreToDo()
-			      : ErrorOccurred();
+	return ErrorOccurred();
 
-    int rv = rdr_->get( trcin_.info() );
+    const int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
     {
-	errmsg_ = rdr_->errMsg();
+	msg_ = rdr_->errMsg();
 	return ErrorOccurred();
     }
     else if ( rv == 0 )
@@ -151,17 +167,20 @@ int Tut::SeisTools::nextStep()
     {
 	if ( !rdr_->get(trcin_) )
 	{
-	    errmsg_ = rdr_->errMsg();
+	    msg_ = rdr_->errMsg();
 	    return ErrorOccurred();
 	}
 
 	trcout_ = trcin_;
 	handleTrace();
-
-	if ( !wrr_ && !createWriter() )
+	if ( !wrr_ || !wrr_->prepareWork(trcout_) )
 	    return ErrorOccurred();
+
 	if ( !wrr_->put(trcout_) )
-	    { errmsg_ = wrr_->errMsg(); return ErrorOccurred(); }
+	{
+	    msg_ = wrr_->errMsg();
+	    return ErrorOccurred();
+	}
     }
 
     return MoreToDo();
@@ -196,7 +215,7 @@ void Tut::SeisTools::handleTrace()
 	{
 	    for ( int idx=0; idx<trcin_.size(); idx++ )
 	    {
-	        float sum = 0;
+		float sum = 0.f;
 		int count = 0;
 		for( int ismp=idx-sgate2; ismp<=idx+sgate2; ismp++)
 		{
@@ -207,6 +226,7 @@ void Tut::SeisTools::handleTrace()
 			count++;
 		    }
 		}
+
 		if ( count )
 		    trcout_.set( idx, sum/count, icomp );
 	    }

@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 #include "tutmod.h"
 #include "executor.h"
-#include "trckeyzsampling.h"
 #include "samplingdata.h"
+#include "trckeyzsampling.h"
 
 class IOObj;
 class SeisTrc;
@@ -30,7 +30,6 @@ public:
 
     			SeisTools();
     virtual		~SeisTools();
-    void		clear();
 
     const IOObj*	input() const		{ return inioobj_; }
     const IOObj*	output() const		{ return outioobj_; }
@@ -52,35 +51,41 @@ public:
     						{ weaksmooth_ = yn; }
 
 			// Executor compliance functions
-    uiString		uiMessage() const;
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const;
-    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override { return nrdone_; }
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override
+					    { return tr("Traces handled"); }
 			// This is where it actually happens
-    int			nextStep();
 
 protected:
 
-    IOObj*		inioobj_;
-    IOObj*		outioobj_;
+    IOObj*		inioobj_    = nullptr;
+    IOObj*		outioobj_   = nullptr;
     TrcKeyZSampling	tkzs_;
     Action		action_;
-    float		factor_;
-    float		shift_;
+    float		factor_     = 1.f;
+    float		shift_	    = 0.f;
     SamplingData<float>	newsd_;
-    bool		weaksmooth_;
+    bool		weaksmooth_ = false;
 
-    SeisTrcReader*	rdr_;
-    SeisTrcWriter*	wrr_;
+    SeisTrcReader*	rdr_	    = nullptr;
+    SeisTrcWriter*	wrr_	    = nullptr;
     SeisTrc&		trcin_;
     SeisTrc&            trcout_;
-    int			nrdone_;
-    mutable int		totnr_;
-    uiString		errmsg_;
+    int			nrdone_     = 0;
+    int			totnr_	    = -1;
+    uiString		msg_;
 
     bool		createReader();
     bool		createWriter();
     void		handleTrace();
+
+    bool		goImpl(od_ostream*,bool,bool,int) override;
+
+private:
+    int			nextStep() override;
+    void		calculateTotalNr();
 
 };
 
