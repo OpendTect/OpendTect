@@ -12,21 +12,21 @@ ________________________________________________________________________
 #include "cmddriverbasics.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uicursor.h"
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimsg.h"
-#include "uitable.h"
 #include "uitextedit.h"
+#include "uitreeview.h"
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "timer.h"
@@ -552,53 +552,223 @@ void uiCmdDriverDlg::autoStartGo( const char* fnm )
 
 
 // uiRunScriptDlg
-uiRunScriptDlg::uiRunScriptDlg( uiParent* p )
+class ScriptItem : public uiTreeViewItem
+{
+public:
+ScriptItem( uiTreeViewItem* parent, const char* fnm, CmdDriver& drv )
+    : uiTreeViewItem(parent,Setup())
+    , fnm_(fnm)
+    , driver_(drv)
+{
+    const FilePath fp( fnm );
+    setText( toUiString(fp.fileName()), 0 );
+}
+
+
+ScriptItem( uiTreeView* parent, const char* fnm, CmdDriver& drv )
+    : uiTreeViewItem(parent,Setup())
+    , fnm_(fnm)
+    , driver_(drv)
+{
+    const FilePath fp( fnm );
+    setText( toUiString(fp.fileName()), 0 );
+    setIcon( 1, "empty" );
+}
+
+
+bool execute()
+{
+    setIcon( 1, "inprogress" );
+    setSelected( true );
+    mAttachCB( driver_.executeFinished, ScriptItem::executeFinishedCB );
+
+    const FilePath logfp = getLogFilename();
+    logfnm_ = logfp.fullPath();
+    driver_.setLogFileName( logfp.fileName() );
+
+    driver_.getActionsFromFile( fnm_ );
+    return driver_.execute();
+}
+
+
+void executeFinishedCB( CallBacker* )
+{
+    const bool haserror = driver_.scriptAborted() || driver_.scriptFailed();
+    setIcon( 1, haserror ? "abort" : "checkgreen" );
+    setSelected( false );
+    mDetachCB( driver_.executeFinished, ScriptItem::executeFinishedCB );
+}
+
+
+FilePath getLogFilename() const
+{
+    const FilePath scriptfp( fnm_ );
+    FilePath logfp( driver_.outputDir() );
+    logfp.add( scriptfp.fileName() );
+    logfp.setExtension( "log" );
+    return logfp;
+}
+
+    BufferString		fnm_;
+    BufferString		logfnm_;
+
+    enum Status			{ Pending, Started, FinishedOK, FinishedError };
+    Status			status_;
+    CmdDriver&			driver_;
+};
+
+
+uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     : uiDialog(p,Setup(tr("Run Command Driver Script"),
 		       mNoDlgTitle,mTODOHelpKey))
+    , drv_(driver)
 {
+    setCtrlStyle( CloseOnly );
+
+    mAttachCB( drv_.executeFinished, uiScriptRunnerDlg::executeFinishedCB );
+
     scriptfld_ = new uiFileInput( this,
-			uiStrings::phrInput(tr("command file")),
+			uiStrings::phrInput(tr("Command Driver Script")),
 			uiFileInput::Setup(uiFileDialog::Gen)
-			.filter("Script files (*.odcmd)")
-			.forread(true)
-			.withexamine(true)
-			.exameditable(true)
-			.defseldir(GetScriptsDir())
-			.displaylocalpath(true) );
-    mAttachCB( scriptfld_->valuechanged, uiRunScriptDlg::inpSelCB );
+			    .filter("Script files (*.odcmd)")
+			    .forread(true)
+			    .withexamine(true)
+			    .exameditable(true)
+			    .defseldir(GetScriptsDir())
+			    .displaylocalpath(true) );
+    mAttachCB( scriptfld_->valuechanged, uiScriptRunnerDlg::inpSelCB );
 
     logfld_ = new uiFileInput( this,
 			uiStrings::phrOutput(uiStrings::sLogFile()),
 			uiFileInput::Setup()
-			.filter("Log files (*.log)")
-			.forread(false)
-			.withexamine(true)
-			.examstyle(File::Log)
-			.defseldir(GetScriptsLogDir())
-			.displaylocalpath(true) );
+			    .directories(true)
+			    .forread(false)
+			    .defseldir(GetScriptsLogDir()) );
+    logfld_->setText( GetScriptsLogDir() );
     logfld_->attach( alignedBelow, scriptfld_ );
 
-    scriptlistfld_ = new uiTable( this, uiTable::Setup(5,2).rowdesc("Script"),
-				  "Script Table" );
-    scriptlistfld_->attach( alignedBelow, logfld_ );
-    scriptlistfld_->setColumnLabel( 0, tr("Script") );
-    scriptlistfld_->setColumnLabel( 1, uiStrings::sStatus() );
+    scriptlistfld_ = new uiTreeView( this, "Script Tree" );
+    scriptlistfld_->attach( ensureBelow, logfld_ );
+    uiStringSet lbls;
+    lbls.add( tr("Script") ).add( uiStrings::sStatus() );
+    scriptlistfld_->setSelectionMode( uiTreeView::Single );
+    scriptlistfld_->addColumns( lbls );
+    scriptlistfld_->setColumnWidthMode( 0, uiTreeView::Stretch );
+    scriptlistfld_->setColumnWidth( 0, 350 );
+    scriptlistfld_->setFixedColumnWidth( 1, 50 );
+    scriptlistfld_->setPrefWidth( 400 );
+    scriptlistfld_->setPrefHeight( 400 );
+    scriptlistfld_->setStretch( 2, 2 );
+    mAttachCB( scriptlistfld_->doubleClicked, uiScriptRunnerDlg::doubleClickCB );
+
+    auto* grp = new uiButtonGroup( this, "", OD::Horizontal );
+    grp->attach( centeredBelow, scriptlistfld_ );
+    gobut_ = new uiPushButton( grp, uiStrings::sGo(), "resume",
+			       mCB(this,uiScriptRunnerDlg,goCB), true );
+    stopbut_ = new uiPushButton( grp, uiStrings::sStop(), "stop",
+				 mCB(this,uiScriptRunnerDlg,stopCB), true );
+    stopbut_->setSensitive( false );
 }
 
 
-uiRunScriptDlg::~uiRunScriptDlg()
-{}
-
-
-void uiRunScriptDlg::inpSelCB( CallBacker* )
+uiScriptRunnerDlg::~uiScriptRunnerDlg()
 {
+    detachAllNotifiers();
+}
+
+
+void uiScriptRunnerDlg::inpSelCB( CallBacker* )
+{
+    scriptlistfld_->clear();
+
     const FilePath inpfp( scriptfld_->fileName() );
     if ( inpfp.isEmpty() )
 	return;
 
-
+    auto* item = new ScriptItem( scriptlistfld_, inpfp.fullPath(), drv_ );
+    addChildren( *item );
+    scriptlistfld_->expandAll();
 }
 
 
+void uiScriptRunnerDlg::addChildren( ScriptItem& parent )
+{
+    BufferStringSet includes;
+    drv_.getIncludedScripts( parent.fnm_, includes );
+    for ( auto* fnm : includes )
+    {
+	auto* item = new ScriptItem( &parent, fnm->buf(), drv_ );
+	addChildren( *item );
+    }
+}
+
+
+void uiScriptRunnerDlg::goCB( CallBacker* )
+{
+    abort_ = false;
+    gobut_->setSensitive( false );
+    stopbut_->setSensitive( true );
+    delete iter_;
+    iter_ = new uiTreeViewItemIterator( *scriptlistfld_ );
+
+    drv_.setOutputDir( logfld_->fileName() );
+    executeNext();
+}
+
+
+void uiScriptRunnerDlg::stopCB( CallBacker* )
+{
+    abort_ = true;
+    drv_.abort();
+}
+
+
+bool uiScriptRunnerDlg::executeNext()
+{
+    uiTreeViewItem* item = iter_->next();
+    if ( !item || abort_ )
+    {
+	gobut_->setSensitive( true );
+	stopbut_->setSensitive( false );
+	return false;
+    }
+
+    if ( item->nrChildren() > 0 )
+	return executeNext();
+
+    auto* scriptitem = sCast(ScriptItem*,item);
+    return scriptitem->execute();
+}
+
+
+void uiScriptRunnerDlg::executeFinishedCB( CallBacker* )
+{
+    executeNext();
+}
+
+
+void uiScriptRunnerDlg::doubleClickCB( CallBacker* )
+{
+    uiTreeViewItem* item = scriptlistfld_->itemNotified();
+    auto* scriptitem = sCast(ScriptItem*,item);
+    if ( !scriptitem )
+	return;
+
+    const int column = scriptlistfld_->columnNotified();
+    const BufferString fnm = column==0 ? scriptitem->fnm_ : scriptitem->logfnm_;
+    if ( !File::exists(fnm) )
+    {
+	uiMSG().error( tr("File does not exist:\n%1").arg(fnm) );
+	return;
+    }
+
+    File::launchViewer( column==0 ? scriptitem->fnm_ : scriptitem->logfnm_ );
+}
+
+
+bool uiScriptRunnerDlg::acceptOK( CallBacker* )
+{
+    return false;
+}
 
 } // namespace CmdDrive

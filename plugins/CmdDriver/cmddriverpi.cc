@@ -49,6 +49,11 @@ mDefODInitPlugin(CmdDriver)
 				    mCB(&mgr,uiCmdDriverMgr,showDlgCB) );
     ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
 
+    auto* mnuitm = new uiAction(
+		m3Dots(toUiString("Command Driver Script Runner")),
+		mCB(&mgr,uiCmdDriverMgr,showScriptRunnerCB) );
+    ODMainWin()->menuMgr().toolsMnu()->insertAction( mnuitm );
+
     initExtraCommands();
     initExtraFunctions();
     initExtraComposers();

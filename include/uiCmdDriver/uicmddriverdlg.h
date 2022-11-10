@@ -16,8 +16,9 @@ class uiFileInput;
 class uiLabel;
 class uiLabeledComboBox;
 class uiPushButton;
-class uiTable;
 class uiTextEdit;
+class uiTreeView;
+class uiTreeViewItemIterator;
 
 namespace CmdDrive
 {
@@ -25,10 +26,12 @@ namespace CmdDrive
 class CmdDriver;
 class CmdRecorder;
 class InteractSpec;
+class ScriptItem;
 
 
 mExpClass(uiCmdDriver) uiCmdInteractDlg : public uiDialog
-{ mODTextTranslationClass(uiCmdInteractDlg);
+{
+mODTextTranslationClass(uiCmdInteractDlg)
 public:
 				uiCmdInteractDlg(uiParent*,const InteractSpec&);
 
@@ -43,7 +46,8 @@ protected:
 
 
 mExpClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
-{ mODTextTranslationClass(uiCmdDriverDlg);
+{
+mODTextTranslationClass(uiCmdDriverDlg)
 public:
 				uiCmdDriverDlg(uiParent*,
 					       CmdDriver&,CmdRecorder&,
@@ -105,18 +109,32 @@ private:
 };
 
 
-mExpClass(uiCmdDriver) uiRunScriptDlg : public uiDialog
-{ mODTextTranslationClass(uiRunScriptDlg)
+mExpClass(uiCmdDriver) uiScriptRunnerDlg : public uiDialog
+{
+mODTextTranslationClass(uiScriptRunnerDlg)
 public:
-				uiRunScriptDlg(uiParent*);
-				~uiRunScriptDlg();
+				uiScriptRunnerDlg(uiParent*,CmdDriver&);
+				~uiScriptRunnerDlg();
 
 protected:
     uiFileInput*		scriptfld_;
     uiFileInput*		logfld_;
-    uiTable*			scriptlistfld_;
+    uiTreeView*			scriptlistfld_;
+    uiPushButton*		gobut_;
+    uiPushButton*		stopbut_;
 
     void			inpSelCB(CallBacker*);
+    void			addChildren(ScriptItem&);
+    bool			acceptOK(CallBacker*);
+    void			goCB(CallBacker*);
+    void			stopCB(CallBacker*);
+    void			executeFinishedCB(CallBacker*);
+    bool			executeNext();
+    void			doubleClickCB(CallBacker*);
+
+    CmdDriver&			drv_;
+    uiTreeViewItemIterator*	iter_		= nullptr;
+    bool			abort_		= false;
 };
 
 } // namespace CmdDrive

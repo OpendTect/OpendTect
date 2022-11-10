@@ -40,6 +40,7 @@ public:
     void			setDefaultLogDir(const char* dirnm);
 
     void			showDlgCB(CallBacker*);
+    void			showScriptRunnerCB(CallBacker*);
 
     static uiString		usrDispNm() { return tr("Command Driver"); }
     static uiCmdDriverMgr&	getMgr(bool fullodmode=false);
