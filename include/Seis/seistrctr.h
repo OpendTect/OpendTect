@@ -25,6 +25,7 @@ class SeisPacketInfo;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcInfo;
+class TaskRunner;
 class TraceData;
 class TrcKeyZSampling;
 
@@ -178,7 +179,8 @@ public:
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&);
     virtual bool	readData(TraceData* extbuf=nullptr) { return false; }
-    virtual bool	readDataPack(RegularSeisDataPack&)  { return false; }
+    virtual bool	readDataPack(RegularSeisDataPack&,
+				     TaskRunner* =nullptr)  { return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	write(const SeisTrc&);
 			// overrule if you don't need sorting/buffering

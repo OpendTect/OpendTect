@@ -16,16 +16,12 @@ ________________________________________________________________________
 #include "attribdescsetsholder.h"
 #include "attribdescsettr.h"
 #include "attribengman.h"
-#include "attribfactory.h"
-#include "attribposvecoutput.h"
 #include "attribprocessor.h"
+#include "attribprovider.h"
 #include "attribsel.h"
 #include "attribsetcreator.h"
-#include "attribstorprovider.h"
 
 #include "arraynd.h"
-#include "arrayndslice.h"
-#include "arrayndwrapper.h"
 #include "coltabmapper.h"
 #include "datacoldef.h"
 #include "datapointset.h"
@@ -36,7 +32,10 @@ ________________________________________________________________________
 #include "rangeposprovider.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
+#include "seisioobjinfo.h"
 #include "seispreload.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
@@ -54,18 +53,16 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicrossattrevaluatedlg.h"
 #include "uievaluatedlg.h"
-#include "uigeninputdlg.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
-#include "uimenu.h"
 #include "uimsg.h"
 #include "uimultcomputils.h"
 #include "uimultoutsel.h"
 #include "uirgbattrseldlg.h"
-#include "uiseisioobjinfo.h"
 #include "uiseispartserv.h"
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
+
 
 int uiAttribPartServer::evDirectShowAttr()	{ return 0; }
 int uiAttribPartServer::evNewAttrSet()		{ return 1; }
@@ -802,6 +799,19 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
 	if ( !preloadeddatapack && isz )
 	{
+	    if ( targetdesc->isStored() )
+	    {
+		const MultiID mid( targetdesc->getStoredID().buf() );
+		const SeisIOObjInfo seisinfo( mid );
+		SeisTrcReader rdr( mid, seisinfo.geomType() );
+		rdr.setSelData( new Seis::RangeSelData(tkzs) );
+		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
+				SeisDataPack::categoryStr(false,false) );
+		uiTaskRunner taskr( parent() );
+		if ( rdr.getDataPack(*sdp,&taskr) )
+		    return sdp;
+	    }
+
 	    uiString errmsg;
 	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
 	    RefMan<Provider> tmpprov =

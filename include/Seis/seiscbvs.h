@@ -28,6 +28,7 @@ public:
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&) override;
+    bool		readDataPack(RegularSeisDataPack&,TaskRunner*) override;
     bool		skip(int nrtrcs=1) override;
 
     bool		supportsGoTo() const override		{ return true; }

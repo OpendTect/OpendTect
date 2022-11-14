@@ -493,6 +493,27 @@ bool SeisTrcReader::getData( TraceData& data )
 }
 
 
+bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
+{
+    needskip = false;
+    if ( !prepared_ && !prepareWork(readmode) )
+	return false;
+    else if ( outer == &getUdfTks() && !startWork() )
+	return false;
+
+    if ( psioprov_ || is2D() )
+	return false;
+
+    if ( !strl()->readDataPack(sdp,taskr) )
+    {
+	errmsg_ = strl()->errMsg();
+	return false;
+    }
+
+    return true;
+}
+
+
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
