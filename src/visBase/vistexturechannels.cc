@@ -372,8 +372,8 @@ bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
 	ownsunmappeddata_[version] = true;
     }
 
-    if ( !skipclip &&
-	 mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
+    const ColTab::MapperSetup& ms = mappers_[version]->setup_;
+    if ( !skipclip && ms.type_!=ColTab::MapperSetup::Fixed )
 	clipData( version, tr );
 
     return mapData( version, tr );
