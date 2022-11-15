@@ -22,6 +22,8 @@ namespace OD
     };
 };
 
+class StringPairSet;
+
 typedef TypeSet<TrcKey> TrcKeyPath;
 
 /*!
@@ -143,6 +145,7 @@ public:
     void		fillJSON(OD::JSON::Object&) const;
     bool		useJSON(const OD::JSON::Object&);
     void		toString(BufferString&) const; //!< Nice text for info
+    void		fillInfoSet(StringPairSet&) const;
 
     OD::GeomSystem	survid_;
     BinID		start_;

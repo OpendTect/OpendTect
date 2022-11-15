@@ -114,6 +114,7 @@ public:
     void		fillJSON(OD::JSON::Object&) const;
     bool		useJSON(const OD::JSON::Object&);
     static void		removeInfo(IOPar&);
+    void		fillInfoSet(StringPairSet&) const;
 
 //Legacy, don't use
     inline int		inlIdx( int inl ) const { return lineIdx(inl); }
