@@ -245,7 +245,8 @@ void uiODViewer2D::setUpAux()
 }
 
 
-void uiODViewer2D::setUpView( DataPackID packid, bool wva )
+void uiODViewer2D::setUpView( DataPackID packid,
+			       FlatView::Viewer::VwrDest dst )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     ConstRefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
@@ -294,7 +295,8 @@ void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
     }
 
-    setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
+    setDataPack( packid, dst, isnew );
+    adjustOthrDisp( dst, isnew );
 
     //updating stuff
     if ( treetp_ )
@@ -314,9 +316,19 @@ void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 
 void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
 {
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+								      !wva );
+    adjustOthrDisp( dest, isnew );
+}
+
+
+void uiODViewer2D::adjustOthrDisp( FlatView::Viewer::VwrDest dest, bool isnew )
+{
     if ( !slicepos_ ) return;
     const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     const bool newcs = ( cs != tkzs_ );
+    const bool wva =	dest == FlatView::Viewer::WVA;
+
     const DataPackID othrdpid = newcs ? createDataPack(!wva)
 					: getDataPackID(!wva);
     if ( newcs && (othrdpid != DataPack::cNoID()) )
@@ -610,10 +622,34 @@ void uiODViewer2D::removeAvailablePacks()
 
 void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 {
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+								      !wva );
+    setSelSpec( as, dest );
+}
+
+
+void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as,
+			       FlatView::Viewer::VwrDest dest )
+{
+    const bool wva =	dest == FlatView::Viewer::WVA ||
+			dest == FlatView::Viewer::Both;
+    const bool vd =	dest == FlatView::Viewer::VD ||
+			dest == FlatView::Viewer::Both;
+
     if ( as )
-	(wva ? wvaselspec_ : vdselspec_) = *as;
+    {
+	if ( wva )
+	    wvaselspec_ = *as;
+	if ( vd )
+	    vdselspec_ = *as;
+    }
     else
-	initSelSpec( wva ? wvaselspec_ : vdselspec_ );
+    {
+	if ( wva )
+	    initSelSpec( wvaselspec_ );
+	if ( vd )
+	    initSelSpec( vdselspec_ );
+    }
 }
 
 
@@ -629,10 +665,12 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
     uiTaskRunner taskr( viewerParent() );
     setTrcKeyZSampling( tkzs, &taskr );
     const uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
-	setUpView( createDataPack(false), false );
+    if ( vdselspec_==wvaselspec_ )
+	setUpView( createDataPack(false), FlatView::Viewer::Both );
+    else if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
+	setUpView( createDataPack(false), FlatView::Viewer::VD );
     else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
-	setUpView( createDataPack(true), true );
+	setUpView( createDataPack(true), FlatView::Viewer::WVA );
     posChanged.trigger();
 }
 
@@ -776,14 +814,28 @@ DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
 	new MapDataPack( "ZSlice", new Array2DImpl<float>( slice2d ) );
     mdp->setName( rsdp.name() );
     mdp->setProps( inlrg, crlrg, true, &dimnames );
-    DPM(DataPackMgr::FlatID()).add( mdp );
-    return mdp->id();
+    if ( DPM(DataPackMgr::FlatID()).add( mdp ) )
+    {
+	DPM( DataPackMgr::FlatID() ).ref( mdp->id() );
+	return mdp->id();
+    }
+    else
+	return DataPack::cNoID();
 }
 
 
 bool uiODViewer2D::useStoredDispPars( bool wva )
 {
-    PtrMan<IOObj> ioobj = appl_.applMgr().attrServer()->getIOObj(selSpec(wva));
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+								      !wva );
+    return useStoredDispPars( dest );
+}
+
+
+bool getMapperSetup( uiODMain& appl, const Attrib::SelSpec& selspec,
+		     ColTab::MapperSetup& mapper, BufferString& ctab_name )
+{
+    PtrMan<IOObj> ioobj = appl.applMgr().attrServer()->getIOObj(selspec);
     if ( !ioobj ) return false;
 
     SeisIOObjInfo seisobj( ioobj );
@@ -791,17 +843,41 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     if ( !seisobj.getDisplayPars(iop) )
 	return false;
 
-    ColTab::MapperSetup mapper;
     if ( !mapper.usePar(iop) )
+	return false;
+
+    ctab_name = iop.find( sKey::Name() );
+
+    return true;
+}
+
+
+bool uiODViewer2D::useStoredDispPars( FlatView::Viewer::VwrDest dest )
+{
+    const bool wva =	dest == FlatView::Viewer::WVA ||
+			dest == FlatView::Viewer::Both;
+    const bool vd =	dest == FlatView::Viewer::VD ||
+			dest == FlatView::Viewer::Both;
+
+    ColTab::MapperSetup mapper_wva;
+    ColTab::MapperSetup mapper_vd;
+    BufferString ctabnm_wva, ctabnm_vd;
+    if ( (wva && !getMapperSetup(appl_, selSpec(true), mapper_wva, ctabnm_wva))
+     || (vd && !getMapperSetup(appl_, selSpec(false), mapper_vd, ctabnm_vd)) )
 	return false;
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	wva ? ddp.wva_.mappersetup_ : ddp.vd_.mappersetup_ = mapper;
-	if ( !wva )
-	    ddp.vd_.ctab_ = iop.find( sKey::Name() );
+	if ( wva )
+	    ddp.wva_.mappersetup_ = mapper_wva;
+
+	if ( vd )
+	{
+	    ddp.vd_.mappersetup_ = mapper_vd;
+	    ddp.vd_.ctab_ = ctabnm_vd;
+	}
     }
 
     return true;

@@ -426,10 +426,16 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    menu->setIsHandled( true );
 	}
     }
-    else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
+    else if ( mnuid==view2dwvaitem_.id )
     {
 	ODMainWin()->viewer2DMgr().displayIn2DViewer( displayID(), attribNr(),
-						   mnuid==view2dwvaitem_.id );
+						      FlatView::Viewer::WVA );
+	menu->setIsHandled( true );
+    }
+    else if ( mnuid==view2dvditem_.id )
+    {
+	ODMainWin()->viewer2DMgr().displayIn2DViewer( displayID(), attribNr(),
+						      FlatView::Viewer::VD );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )

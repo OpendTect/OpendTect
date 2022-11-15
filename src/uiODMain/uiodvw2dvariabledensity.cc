@@ -191,7 +191,7 @@ void uiODView2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
 
     const DataPackID dpid = createDataPack( selspec );
     if ( dpid != DataPack::cNoID() )
-	viewer2D()->setUpView( dpid, false );
+	viewer2D()->setUpView( dpid, FlatView::Viewer::VD );
 }
 
 
@@ -298,8 +298,8 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	createDataPack( selas, attrbnm.buf(), steering, stored );
     if ( dpid == DataPack::cNoID() ) return false;
 
-    viewer2D()->setSelSpec( &selas, false );
-    if ( !viewer2D()->useStoredDispPars(false) )
+    viewer2D()->setSelSpec( &selas, FlatView::Viewer::VD );
+    if ( !viewer2D()->useStoredDispPars(FlatView::Viewer::VD) )
     {
 	ColTab::MapperSetup& vdmapper =
 	    vwr.appearance().ddpars_.vd_.mappersetup_;
@@ -317,7 +317,7 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	ddpars.vd_.show_ = true;
     }
 
-    viewer2D()->setUpView( dpid, false );
+    viewer2D()->setUpView( dpid, FlatView::Viewer::VD );
     return true;
 }
 
@@ -370,7 +370,11 @@ DataPackID uiODView2DVariableDensityTreeItem::createDataPack(
 	const DataPackID dpid =
 	    attrserv->createRdmTrcsOutput( randfdp->zRange(),
 					   randfdp->getRandomLineID() );
-	return viewer2D()->createFlatDataPack( dpid, 0 );
+
+	DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+	ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+	dpm.unRef( dpid );
+	return viewer2D()->createFlatDataPack( *seisdp, 0 );
     }
 
     return viewer2D()->createDataPack( selas );

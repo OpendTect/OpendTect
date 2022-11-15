@@ -56,8 +56,12 @@ public:
     Viewer2DID			ID() const	{ return id_; }
     VisID			visID() const	{ return visid_; }
 
-    virtual void		setUpView(DataPackID,bool wva);
+    virtual void		setUpView(DataPackID,
+					  FlatView::Viewer::VwrDest);
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
+    void			setSelSpec(const Attrib::SelSpec*,
+					   FlatView::Viewer::VwrDest);
     void			setMouseCursorExchange(MouseCursorExchange*);
 
     uiParent*			viewerParent();
@@ -110,7 +114,9 @@ public:
 				viewer hasZAxisTransform(). */
 
     DataPackID			createMapDataPack(const RegularFlatDataPack&);
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     bool			useStoredDispPars(bool wva);
+    bool			useStoredDispPars(FlatView::Viewer::VwrDest);
     bool			isVertical() const	{ return isvertical_; }
 
     ZAxisTransform*		getZAxisTransform() const
@@ -269,7 +275,10 @@ protected:
     void			setDataPack(DataPackID,
 					    FlatView::Viewer::VwrDest,
 					    bool isnew);
+    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			adjustOthrDisp(bool wva,bool isnew);
+    void			adjustOthrDisp(FlatView::Viewer::VwrDest,
+					       bool isnew);
     void			removeAvailablePacks();
     void			rebuildTree();
 

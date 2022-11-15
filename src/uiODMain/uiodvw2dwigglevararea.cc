@@ -137,7 +137,7 @@ void uiODView2DWiggleVarAreaTreeItem::dataTransformCB( CallBacker* )
 
     const DataPackID dpid = createDataPack( selspec );
     if ( dpid != DataPack::cNoID() )
-	viewer2D()->setUpView( dpid, true );
+	viewer2D()->setUpView( dpid, FlatView::Viewer::WVA );
 }
 
 
@@ -233,8 +233,8 @@ bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	createDataPack( selas, attrbnm.buf(), steering, stored );
     if ( dpid == DataPack::cNoID() ) return false;
 
-    viewer2D()->setSelSpec( &selas, true );
-    if ( !viewer2D()->useStoredDispPars(true) )
+    viewer2D()->setSelSpec( &selas, FlatView::Viewer::WVA );
+    if ( !viewer2D()->useStoredDispPars(FlatView::Viewer::WVA) )
     {
 	ColTab::MapperSetup& wvamapper =
 	    vwr.appearance().ddpars_.wva_.mappersetup_;
@@ -249,8 +249,8 @@ bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	ddpars.wva_.show_ = true;
     }
 
-    viewer2D()->setSelSpec( &selas, true );
-    viewer2D()->setUpView( dpid, true );
+    viewer2D()->setSelSpec( &selas, FlatView::Viewer::WVA );
+    viewer2D()->setUpView( dpid, FlatView::Viewer::WVA );
     return true;
 }
 
@@ -301,7 +301,11 @@ DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
 	const DataPackID dpid =
 	    attrserv->createRdmTrcsOutput( randfdp->zRange(),
 					   randfdp->getRandomLineID() );
-	return viewer2D()->createFlatDataPack( dpid, 0 );
+
+	    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+	ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+	dpm.unRef( dpid );
+	return viewer2D()->createFlatDataPack( *seisdp, 0 );
     }
 
     return viewer2D()->createDataPack( selas );

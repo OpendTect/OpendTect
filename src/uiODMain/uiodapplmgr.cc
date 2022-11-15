@@ -1558,7 +1558,7 @@ void uiODApplMgr::addMPEParentPath( VisID visid, const TrcKey& tk )
 
     const VisID rlvisid =
 	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
-    viewer2DMgr().displayIn2DViewer( rlvisid, 0, false );
+    viewer2DMgr().displayIn2DViewer( rlvisid, 0, FlatView::Viewer::VD );
     visserv_->setSelObjectId( visid );
 }
 

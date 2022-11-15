@@ -988,26 +988,38 @@ void uiVisPartServer::fillDispPars( VisID id, int attrib,
 				    FlatView::DataDispPars& common,
 				    bool wva ) const
 {
+    const auto dest = FlatView::Viewer::getDest( wva, !wva );
+    fillDispPars( id, attrib, common, dest );
+}
+
+
+void uiVisPartServer::fillDispPars( VisID id, int attrib,
+				    FlatView::DataDispPars& common,
+				    FlatView::Viewer::VwrDest dest ) const
+{
+    const bool wva =	dest == FlatView::Viewer::WVA ||
+			dest == FlatView::Viewer::Both;
+    const bool vd =	dest == FlatView::Viewer::VD ||
+			dest == FlatView::Viewer::Both;
+
     const ColTab::MapperSetup* mapper = getColTabMapperSetup( id, attrib );
     const ColTab::Sequence* seq = getColTabSequence( id, attrib );
     if ( !mapper || !seq )
 	return;
 
-    FlatView::DataDispPars::Common* compars;
+    common.wva_.show_ = false;
+    common.vd_.show_ = false;
     if ( wva )
-	compars = &common.wva_;
-    else
-	compars = &common.vd_;
-
-    if ( !wva )
     {
+	common.wva_.mappersetup_ = *mapper;
+	common.wva_.show_ = true;
+    }
+    if ( vd )
+    {
+	common.vd_.mappersetup_ = *mapper;
 	common.vd_.ctab_ = seq->name();
 	common.vd_.show_ = true;
     }
-    else
-	common.wva_.show_ = true;
-
-    compars->mappersetup_ = *mapper;
 }
 
 

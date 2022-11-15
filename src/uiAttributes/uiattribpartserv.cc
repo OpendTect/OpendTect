@@ -1136,7 +1136,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     if ( !createOutput(bidset,output,knots,trckeys) || output.isEmpty() )
 	return DataPack::cNoID();
 
-    auto* newpack =
+    RefMan<RandomSeisDataPack> newpack =
 		new RandomSeisDataPack( SeisDataPack::categoryStr(true,false) );
     newpack->setRandomLineID( rdlid );
     newpack->setPath( trckeys );
@@ -1159,8 +1159,13 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
     newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
-    return newpack->id();
+    if ( DPM(DataPackMgr::SeisID()).add( newpack ) )
+    {
+	DPM(DataPackMgr::SeisID()).ref( newpack->id() );
+	return newpack->id();
+    }
+    else
+	return DataPack::cNoID();
 }
 
 
@@ -1242,7 +1247,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     if ( !createOutput(bidset,output,trueknotspos,trckeys) )
 	return DataPack::cNoID();
 
-    auto* newpack = new RandomSeisDataPack(
+    RefMan<RandomSeisDataPack> newpack = new RandomSeisDataPack(
 				SeisDataPack::categoryStr(true,false) );
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
@@ -1264,8 +1269,13 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
     newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
-    return newpack->id();
+    if ( DPM(DataPackMgr::SeisID()).add( newpack ) )
+    {
+	DPM(DataPackMgr::SeisID()).ref( newpack->id() );
+	return newpack->id();
+    }
+    else
+	return DataPack::cNoID();
 }
 
 
