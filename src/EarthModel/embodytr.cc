@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "emmarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
+#include "emsurface.h"
+#include "file.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "uistrings.h"
 
@@ -88,4 +91,33 @@ Executor* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
 
     mDynamicCastGet(EM::RandomPosBody*,rdpbdy,const_cast<EM::Body*>(&body));
     return rdpbdy ? rdpbdy->saver(&ioobj) : 0;
+}
+
+
+bool odEMBodyTranslator::implRemove( const IOObj* ioobj, bool deep ) const
+{
+    if ( !ioobj || !Translator::implRemove(ioobj,deep) )
+	return false;
+
+    const BufferString parfnm( EM::Surface::getParFileName(*ioobj).buf() );
+    if ( File::exists(parfnm) )
+	return File::remove( parfnm );
+
+    return true;
+}
+
+
+bool odEMBodyTranslator::implRename( const IOObj* ioobj,
+				     const char* newnm ) const
+{
+    if ( !ioobj || !Translator::implRename(ioobj,newnm) )
+	return false;
+
+    const FilePath oldparfp( EM::Surface::getParFileName(*ioobj).buf() );
+    FilePath newparfp( newnm );
+    newparfp.setExtension( oldparfp.extension() );
+    if ( File::exists(oldparfp.fullPath()) )
+	return File::rename( oldparfp.fullPath(), newparfp.fullPath() );
+
+    return true;
 }
