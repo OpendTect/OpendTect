@@ -155,11 +155,11 @@ protected:
     SurveyDiskLocation	disklocation_;
 
     ZDomain::Def&	zdef_;
-    bool		xyinfeet_;
-    bool		depthsinfeet_;
+    bool		xyinfeet_			= false;
+    bool		depthsinfeet_			= false;
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
-    float		seisrefdatum_;
+    float		seisrefdatum_			= 0.f;
     IOPar&		pars_;
     IOPar		logpars_;
     RefMan<Coords::CoordSystem> coordsystem_;
@@ -173,7 +173,7 @@ protected:
     Coord		set3coords_[3];
 
     OD::Pol2D3D		survdatatype_;
-    bool		survdatatypeknown_;
+    bool		survdatatypeknown_		= false;
 
     BufferString	comment_;
     BufferString	sipnm_;

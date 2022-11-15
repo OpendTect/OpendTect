@@ -387,21 +387,17 @@ SurveyInfo::SurveyInfo()
     : tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , zdef_(*new ZDomain::Def(ZDomain::Time()) )
-    , depthsinfeet_(false)
-    , xyinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
     , survdatatype_(OD::Both2DAnd3D)
-    , survdatatypeknown_(false)
-    , seisrefdatum_(0.f)
-    , coordsystem_(0)
 {
     rdxtr_.b = rdytr_.c = 1;
-    set3binids_[2].crl() = 0;
+    for ( int idx=0; idx<3; idx++ )
+	set3binids_[idx].setUdf();
 
-	// We need a 'reasonable' transform even when no proper SI is available
-	// For example DataPointSets need to work
+    // We need a 'reasonable' transform even when no proper SI is available
+    // For example DataPointSets need to work
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
@@ -448,7 +444,8 @@ SurveyInfo::~SurveyInfo()
 
 SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 {
-    if ( &si == this ) return *this;
+    if ( &si == this )
+	return *this;
 
     setName( si.name() );
     zdef_ = si.zdef_;
@@ -464,7 +461,12 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 	set3binids_[idx] = si.set3binids_[idx];
 	set3coords_[idx] = si.set3coords_[idx];
     }
-    tkzs_ = si.tkzs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
+
+    tkzs_ = si.tkzs_;
+    wcs_ = si.wcs_;
+    pars_ = si.pars_;
+    ll2c_ = si.ll2c_;
+
     seisrefdatum_ = si.seisrefdatum_;
     rdxtr_ = si.rdxtr_; rdytr_ = si.rdytr_;
     sipnm_ = si.sipnm_;
@@ -660,7 +662,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 
 bool SurveyInfo::wrapUpRead()
 {
-    if ( set3binids_[2].crl() == 0 )
+    if ( set3binids_[2].isUdf() )
 	get3Pts( set3coords_, set3binids_, set3binids_[2].crl() );
 
     b2c_.setTransforms( rdxtr_, rdytr_ );
@@ -1056,7 +1058,7 @@ BinID SurveyInfo::transform( const Coord& c ) const
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 {
     const int firstinl = set3binids_[0].inl();
-    if ( firstinl && !mIsUdf(firstinl) )
+    if ( !mIsUdf(firstinl) )
     {
 	b[0] = set3binids_[0]; c[0] = set3coords_[0];
 	b[1] = set3binids_[1]; c[1] = set3coords_[1];

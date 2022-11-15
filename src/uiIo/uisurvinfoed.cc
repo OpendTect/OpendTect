@@ -430,7 +430,7 @@ void uiSurveyInfoEditor::setValues()
 
     Coord c[3]; BinID b[2]; int xline;
     si_.get3Pts( c, b, xline );
-    if ( b[0].inl() )
+    if ( !b[0].isUdf() )
     {
 	ic0fld_->setValue( b[0] );
 	ic1fld_->setValues( b[0].inl(), xline );
@@ -443,7 +443,7 @@ void uiSurveyInfoEditor::setValues()
 	    c[2] = si_.transform( BinID(b[0].inl(),xline) );
 	}
 
-	const Coord c4 = si_.transform( ic3fld_->getBinID() );
+	const Coord c4 = si_.b2c_.transform( ic3fld_->getBinID() );
 	xy0fld_->setValue( c[0] );
 	xy1fld_->setValue( c[2] );
 	xy2fld_->setValue( c[1] );
