@@ -60,6 +60,10 @@ public:
     Executor*		writer(const EM::Body&,IOObj&);
     Executor*		reader(const IOObj&);
 
+    bool		implRemove(const IOObj*) const;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const;
+
     EMBody*		getReadBody()			{ return readbody_; }
     uiString		errMsg() const			{ return errmsg_; };
 
