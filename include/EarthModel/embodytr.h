@@ -56,6 +56,9 @@ public:
     Executor*		writer(const EM::Body&,IOObj&) override;
     Executor*		reader(const IOObj&) override;
 
+    bool		implRemove(const IOObj*,bool deep) const override;
+    bool		implRename(const IOObj*,const char*) const override;
+
     EMBody*		getReadBody() override		{ return readbody_; }
     uiString		errMsg() const override		{ return errmsg_; };
 
