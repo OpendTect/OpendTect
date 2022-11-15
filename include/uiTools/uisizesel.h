@@ -13,10 +13,12 @@ ________________________________________________________________________
 
 #include <array>
 
+class uiCheckBox;
 class uiSpinBox;
 
 mExpClass(uiTools) uiSizeSel : public uiGroup
 {
+mODTextTranslationClass(uiSizeSel)
 public:
 			uiSizeSel(uiParent*,const uiString& lbl,int maxnrdim);
 			~uiSizeSel();
@@ -44,6 +46,7 @@ public:
 
 protected:
     ObjectSet<uiSpinBox>	sizeflds_;
+    uiCheckBox*			symmfld_;
 
     void		valueChangingCB(CallBacker*);
 };

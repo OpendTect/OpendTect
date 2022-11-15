@@ -9,9 +9,9 @@ ________________________________________________________________________
 
 #include "uisizesel.h"
 
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uispinbox.h"
-#include "uistrings.h"
 
 
 uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
@@ -34,6 +34,9 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 	sizeflds_ += fld;
     }
 
+    symmfld_ = new uiCheckBox( this, tr("Symmetric") );
+    symmfld_->attach( rightTo, sizeflds_.last() );
+
     setHAlignObj( sizeflds_[0] );
 }
 
@@ -44,8 +47,21 @@ uiSizeSel::~uiSizeSel()
 }
 
 
-void uiSizeSel::valueChangingCB(CallBacker*)
+void uiSizeSel::valueChangingCB( CallBacker* cb )
 {
+    const bool dosymm = symmfld_->isChecked();
+    if ( dosymm )
+    {
+	const int sz = sCast(uiSpinBox*,cb)->getIntValue();
+	for ( auto* fld : sizeflds_ )
+	{
+	    if ( fld == cb )
+		continue;
+
+	    NotifyStopper ns( fld->valueChanged );
+	    fld->setValue( sz );
+	}
+    }
     valueChanging.trigger();
 }
 
