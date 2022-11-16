@@ -125,7 +125,7 @@ bool Pos::SeisProvider3D::toNextZ()
 
 BinID Pos::SeisProvider3D::curBinID() const
 {
-    return curpos_.isValid() ? cubedata_.binID( curpos_ ) : BinID(0,0);
+    return curpos_.isValid() ? cubedata_.binID( curpos_ ) : BinID::udf();
 }
 
 

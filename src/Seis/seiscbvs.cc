@@ -351,7 +351,7 @@ bool CBVSSeisTrcTranslator::toNext()
     }
 
     BinID nextbid = rdmgr_->nextBinID();
-    if ( nextbid == BinID(0,0) )
+    if ( nextbid.isUdf() )
 	return false;
 
     if ( !selRes(nextbid) )

@@ -18,7 +18,7 @@ namespace Attrib
 
 BinID getSteeringPosition( int targetidx )
 {
-    if ( !targetidx ) return BinID(0,0);
+    if ( !targetidx ) return BinID::noStepout();
 
     int radius = 1;
     int idx = 0;
@@ -56,7 +56,7 @@ BinID getSteeringPosition( int targetidx )
 	radius++;
     }
 
-    return BinID(0,0);
+    return BinID::noStepout();
 }
 
 static int *map = NULL;
@@ -69,7 +69,7 @@ static int& mapAt( int inl, int crl )
 
 void fillSteeringMap()
 {
-    mapAt(0,0) = 0;//    if ( !targetidx ) return BinID(0,0);
+    mapAt(0,0) = 0;//    if ( !targetidx ) return BinID::noStepout();
 
     int radius = 1;
     int idx = 0;
@@ -82,25 +82,25 @@ void fillSteeringMap()
 	for ( crl=-radius; crl<radius; crl++ )
 	{
 	    idx++;
-	    mapAt(inl,crl)=idx; //if ( idx==targetidx ) return BinID( inl, crl );
+	    mapAt(inl,crl)=idx; //if ( idx==targetidx ) return BinID(inl,crl);
 	}
 
 	for ( ; inl<radius; inl++ )
 	{
 	    idx++;
-	    mapAt(inl,crl)=idx; // if ( idx==targetidx ) return BinID( inl, crl );
+	    mapAt(inl,crl)=idx; // if ( idx==targetidx ) return BinID(inl,crl);
 	}
 
 	for ( ; crl>-radius; crl-- )
 	{
 	    idx++;
-	    mapAt(inl,crl)=idx; // if ( idx==targetidx ) return BinID( inl, crl );
+	    mapAt(inl,crl)=idx; // if ( idx==targetidx ) return BinID(inl,crl);
 	}
 
 	for ( ; inl>-radius; inl-- )
 	{
 	    idx++;
-	    mapAt(inl,crl)=idx; //if ( idx==targetidx ) return BinID( inl, crl );
+	    mapAt(inl,crl)=idx; //if ( idx==targetidx ) return BinID(inl,crl);
 	}
 
 	radius++;

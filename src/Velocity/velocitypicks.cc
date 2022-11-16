@@ -167,8 +167,8 @@ bool Picks::setColor( const OD::Color& col, bool dosave )
 	color_ = col;
 	changed_ = true;
 
-	change.trigger(BinID(-1,-1));
-	changelate.trigger(BinID(-1,-1));
+	change.trigger( BinID::udf() );
+	changelate.trigger( BinID::udf() );
     }
 
     if ( !dosave )
@@ -230,8 +230,8 @@ void Picks::removeAll( bool addtoundo, bool interactionend )
 
     changed_ = false;
     storageid_.setUdf();
-    change.trigger(BinID(-1,-1));
-    changelate.trigger(BinID(-1,-1));
+    change.trigger( BinID::udf() );
+    changelate.trigger( BinID::udf() );
 }
 
 
@@ -385,8 +385,8 @@ bool Picks::store( const IOObj* ioobjarg )
     if ( storageid_!=ioobj->key() )
     {
 	storageid_=ioobj->key();
-	change.trigger(BinID(-1,-1));
-	changelate.trigger(BinID(-1,-1));
+	change.trigger( BinID::udf() );
+	changelate.trigger( BinID::udf() );
     }
 
     TypeSet<EM::ObjectID> emids;
@@ -434,8 +434,8 @@ bool Picks::store( const IOObj* ioobjarg )
     }
 
     changed_ = false;
-    change.trigger(BinID(-1,-1));
-    changelate.trigger(BinID(-1,-1));
+    change.trigger( BinID::udf() );
+    changelate.trigger( BinID::udf() );
     return true;
 }
 
@@ -700,7 +700,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
     get( emid, picks );
 
     TypeSet<float> vels( picks.size(), mUdf(float) );
-    TypeSet<BinID> bids( picks.size(), BinID(-1,-1) );
+    TypeSet<BinID> bids( picks.size(), BinID::udf() );
     for ( int idx=vels.size()-1; idx>=0; idx-- )
     {
 	const Pick& pick = picks_.getRef( picks[idx], 0 );
@@ -815,8 +815,8 @@ bool Picks::load( const IOObj* ioobj )
     color_ = ps->disp_.color_;
 
     changed_ = false;
-    change.trigger( BinID(-1,-1) );
-    changelate.trigger(BinID(-1,-1));
+    change.trigger( BinID::udf() );
+    changelate.trigger( BinID::udf() );
 
     return true;
 }
@@ -837,8 +837,8 @@ void Picks::setSmoother(Smoother1D<float>* ns )
     delete smoother_;
     smoother_ = ns;
     changed_ = true;
-    change.trigger(BinID(-1,-1));
-    changelate.trigger(BinID(-1,-1));
+    change.trigger( BinID::udf() );
+    changelate.trigger( BinID::udf() );
 }
 
 
@@ -1032,8 +1032,8 @@ void Picks::setAll( float vel, bool addtoundo )
     if ( eventid!=-1 )
 	undo().setUserInteractionEnd( eventid );
 
-    change.trigger(BinID(-1,-1));
-    changelate.trigger(BinID(-1,-1));
+    change.trigger( BinID::udf() );
+    changelate.trigger( BinID::udf() );
 }
 
 

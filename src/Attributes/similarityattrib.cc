@@ -230,7 +230,7 @@ bool Similarity::getTrcPos()
     else if ( extension_==mExtensionCross || extension_==mExtensionAllDir
 	      || extension_==mExtensionDiagonal )
     {
-	trcpos_ += BinID(0,0);
+	trcpos_ += BinID::noStepout();
 
 	if ( extension_==mExtensionCross )
 	{
@@ -310,7 +310,7 @@ bool Similarity::getInputData( const BinID& relpos, int zintv )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
-	const bool atcenterpos = trcpos_[idx] == BinID(0,0);
+	const bool atcenterpos = trcpos_[idx] == BinID::noStepout();
 	const BinID truepos = relpos + trcpos_[idx]*bidstep;
 	const DataHolder* data = inputs_[0]->getData( truepos, zintv );
 	if ( atcenterpos && !data )

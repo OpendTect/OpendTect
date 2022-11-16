@@ -195,7 +195,7 @@ public:
 						const BinIDValueSet&);
     void			addReloadPosition(const BinID&);
 
-    void			reportChange(const BinID&);
+    void			reportChange(const BinID& bid=BinID::udf());
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

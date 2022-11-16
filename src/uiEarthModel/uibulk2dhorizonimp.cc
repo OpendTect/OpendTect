@@ -10,17 +10,13 @@ ________________________________________________________________________
 #include "uibulk2dhorizonimp.h"
 
 #include "binidvalset.h"
-#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "posinfodetector.h"
 #include "od_istream.h"
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
 
-#include "uibutton.h"
-#include "uifiledlg.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
@@ -30,7 +26,6 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "ioman.h"
 #include "emsurfacetr.h"
-#include "od_ostream.h"
 #include "randcolor.h"
 
 class Horizon2DBulkImporter : public Executor
@@ -79,7 +74,8 @@ int nextStep() override
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, vals );
-    if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
+    if ( bid.isUdf() )
+	return Executor::ErrorOccurred();
 
     const Pos::GeomID geomid( bid.inl() );
     if ( bid.inl() != prevlineidx_ )

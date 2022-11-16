@@ -111,7 +111,7 @@ bool  uiSimilaritybyAW::getParameters( Desc& desc )
 	    searchrangefld_->getFInterval() );
 
     BinID stepout( stepoutfld_->getBinID() );
-    if( stepout == BinID(0,0) )
+    if( stepout == BinID::noStepout() )
         stepout.inl() = stepout.crl() = mUdf(int);
     mSetBinID( SimilaritybyAW::stepoutStr(), stepout );
 

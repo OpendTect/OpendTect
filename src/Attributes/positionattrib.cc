@@ -35,7 +35,7 @@ void Position::initClass()
     mAttrStartInitClassWithUpdate
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
-    stepout->setDefaultValue( BinID(0,0) );
+    stepout->setDefaultValue( BinID::noStepout() );
     desc->addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );

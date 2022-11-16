@@ -34,7 +34,7 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     , isinited_(false)
     , useshortcuts_(false)
     , moveonly(this)
-    , prevbid_(BinID(-1,-1))
+    , prevbid_(BinID::udf())
     , sd_(0)
     , showdataavailabilityerrors_(true)
 {
@@ -216,7 +216,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    outz0shifthack = (nrsteps-inrsteps) * trcsd.step;
 
 	const DataHolder* data = isset ?
-				provider_->getData( BinID(0,0), idi ) : nullptr;
+			provider_->getData( BinID::noStepout(), idi ) : nullptr;
 	if ( data )
 	{
 	    for ( int idx=0; idx<outputs_.size(); idx++ )

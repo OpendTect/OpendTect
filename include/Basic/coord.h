@@ -114,6 +114,7 @@ public:
     static const Coord3& udf();
     inline bool		isDefined() const;
     inline bool		isUdf() const		{ return !isDefined(); }
+    inline bool		isNull() const;
 
     const char*		toString() const;
     bool		fromString(const char*);
@@ -177,6 +178,12 @@ inline bool Coord3::operator!=( const Coord3& b ) const
 inline bool Coord3::isDefined() const
 {
     return !Values::isUdf(z) && Geom::Point2D<OrdType>::isDefined();
+}
+
+
+inline bool Coord3::isNull() const
+{
+    return mIsZero(x,mDefEps) && mIsZero(y,mDefEps) && mIsZero(z,mDefEps);
 }
 
 

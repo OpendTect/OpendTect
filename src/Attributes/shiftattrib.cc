@@ -8,13 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "shiftattrib.h"
+
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
-#include "valseriesinterpol.h"
 
 
 namespace Attrib
@@ -27,7 +27,7 @@ void Shift::initClass()
     mAttrStartInitClassWithUpdate
     
     BinIDParam* pos = new BinIDParam( posStr() );
-    pos->setDefaultValue( BinID(0,0) );
+    pos->setDefaultValue( BinID::noStepout() );
     desc->addParam( pos );
 
     FloatParam* zpos = new FloatParam( timeStr() );
@@ -52,7 +52,8 @@ void Shift::initClass()
 
 void Shift::updateDesc( Desc& desc )
 {
-    desc.inputSpec(1).enabled_ = desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ =
+			desc.getValParam(steeringStr())->getBoolValue();
 }
 
 

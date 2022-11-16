@@ -67,7 +67,7 @@ bool TutOpCalculator::usePar( const IOPar& par )
 			      ||  !par.get(sKey::StepCrl(),shift_.crl()) ) )
 	return false;
     else if ( type_ == mTypeSquare )
-	shift_ = BinID( 0, 0 );
+	shift_ = BinID::noStepout();
 
     setStepParameters();
 

@@ -10,14 +10,11 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 
 #include "iopar.h"
-#include "separstr.h"
 
 namespace PreStack
 {
 
-
 mImplFactory( Processor, Processor::factory );
-
 
 Processor::Processor( const char* nm )
     : ParallelTask( nm )
@@ -46,7 +43,7 @@ const BinID& Processor::getOutputStepout() const
 
 bool Processor::reset( bool force )
 {
-    outputstepout_ = BinID(0,0);
+    outputstepout_ = BinID::noStepout();
 
     freeArray( inputs_ );
     freeArray( outputs_ );
@@ -123,7 +120,13 @@ bool Processor::prepareWork()
 {
     bool found = false;
     for ( int idx=inputs_.size()-1; idx>=0; idx-- )
-	if ( inputs_[idx] ) { found = true; break; }
+    {
+	if ( inputs_[idx] )
+	{
+	    found = true;
+	    break;
+	}
+    }
 
     if ( !found && usesPreStackInput() )
 	return false;
@@ -206,43 +209,42 @@ ProcessManager::~ProcessManager()
 bool ProcessManager::reset( bool force )
 {
     for ( int idx=0; idx<processors_.size(); idx++ )
+    {
 	if ( !processors_[idx]->reset(force) )
 	    return false;
+    }
 
-    if ( !processors_.size() )
+    if ( processors_.isEmpty() )
 	return true;
 
     BinID outputstepout( 0, 0 );
-    return processors_[processors_.size()-1]->setOutputInterest(
-							outputstepout, true );
+    return processors_.last()->setOutputInterest( outputstepout, true );
 
 }
 
 
 bool ProcessManager::needsPreStackInput() const
 {
-    return processors_.size() ? processors_[0]->usesPreStackInput() : false;
+    return !processors_.isEmpty() ? processors_[0]->usesPreStackInput() : false;
 }
 
 
 BinID ProcessManager::getInputStepout() const
 {
-    if ( processors_.size() ) return processors_[0]->getInputStepout();
-    return BinID( 0, 0 );
+    return !processors_.isEmpty() ? processors_[0]->getInputStepout()
+				  : BinID::noStepout();
 }
 
 
 bool ProcessManager::wantsInput( const BinID& relbid ) const
 {
-    return processors_.size()
-	? processors_[0]->wantsInput( relbid )
-	: false;
+    return !processors_.isEmpty() ? processors_[0]->wantsInput(relbid) : false;
 }
 
 
 void ProcessManager::setInput( const BinID& relbid, DataPackID id )
 {
-    if ( processors_.size() )
+    if ( !processors_.isEmpty() )
 	processors_[0]->setInput( relbid, id );
 }
 
@@ -300,9 +302,8 @@ bool ProcessManager::process()
 
 DataPackID ProcessManager::getOutput() const
 {
-    return processors_.size()
-	? processors_[processors_.size()-1]->getOutput(BinID(0,0))
-	: DataPack::cNoID();
+    return !processors_.isEmpty()
+	? processors_.last()->getOutput(BinID::noStepout()) : DataPack::cNoID();
 }
 
 
@@ -314,7 +315,9 @@ void ProcessManager::addProcessor( Processor* sgp )
 
 
 int ProcessManager::nrProcessors() const
-{ return processors_.size(); }
+{
+    return processors_.size();
+}
 
 
 void ProcessManager::removeProcessor( int idx )
@@ -345,12 +348,15 @@ int ProcessManager::indexOf( const Processor* proc ) const
 
 
 Processor* ProcessManager::getProcessor( int idx )
-{ return processors_[idx]; }
+{
+    return processors_[idx];
+}
 
 
-const Processor*
-ProcessManager::getProcessor( int idx ) const
-{ return processors_[idx]; }
+const Processor* ProcessManager::getProcessor( int idx ) const
+{
+    return processors_[idx];
+}
 
 
 void ProcessManager::fillPar( IOPar& par ) const
@@ -375,7 +381,7 @@ bool ProcessManager::usePar( const IOPar& par )
     removeAllProcessors();
 
     int nrprocessors;
-    if ( !par.get( sKeyNrProcessors(), nrprocessors ) )
+    if ( !par.get(sKeyNrProcessors(),nrprocessors) )
 	return false;
 
     for ( int idx=0; idx<nrprocessors; idx++ )
@@ -398,6 +404,7 @@ bool ProcessManager::usePar( const IOPar& par )
 		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
 	    else
 		errmsg_.append( proc->errMsg() );
+
 	    delete proc;
 	    return false;
 	}
@@ -419,6 +426,5 @@ void Processor::freeArray( ObjectSet<Gather>& arr )
 
     arr.erase();
 }
-
 
 } // namespace PreStack

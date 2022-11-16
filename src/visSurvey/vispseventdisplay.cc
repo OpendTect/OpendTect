@@ -478,7 +478,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 
 	const BinID bid = gather->is3DSeis() ? gather->getPosition()
-					     : BinID(-1,-1);
+					     : BinID::udf();
 	cs.hsamp_.setInlRange( Interval<int>(bid.inl(), bid.inl()) );
 	cs.hsamp_.setCrlRange( Interval<int>(bid.crl(), bid.crl()) );
 
@@ -682,8 +682,8 @@ const mVisTrans* PSEventDisplay::getDisplayTransformation() const
 
 void PSEventDisplay::eventChangeCB(CallBacker*)
 {
-    const BinID bid = eventman_ ? eventman_->changeBid() : BinID(-1,-1);
-    if ( bid.inl()<0 || bid.crl()<0 )
+    const BinID bid = eventman_ ? eventman_->changeBid() : BinID::udf();
+    if ( bid.isUdf() )
     {
 	if ( eventman_ )
 	    getMaterial()->setColor( eventman_->getColor() );

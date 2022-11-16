@@ -522,14 +522,14 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     if ( inputs_.size() < 1 )
     {
-	pos = BinID(-1,-1);
+	pos.setUdf();
 	if ( seldata_ && seldata_->type() == Seis::Table )
 	{
 	    Seis::SelData* nonconstsd = const_cast<Seis::SelData*>(seldata_);
 	    mDynamicCastGet( Seis::TableSelData*, tabsel, nonconstsd )
 	    if ( tabsel )
 	    {
-		if ( currentbid_ == BinID(-1,-1) )
+		if ( currentbid_.isUdf() )
 		    pos = tabsel->binidValueSet().firstBinID();
 		else
 		{
@@ -541,14 +541,12 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
 		currentbid_ = pos;
 		alreadymoved_ = true;
-		return currentbid_ == BinID(-1,-1) ? 0 : 1;
-
+		return currentbid_.isUdf() ? 0 : 1;
 	    }
 	}
     }
 
-    bool docheck = pos == BinID(-1,-1);
-
+    const bool docheck = pos.isUdf();
     if ( is2D() )
 	prevtrcnr_ = currentbid_.crl();
 
@@ -565,7 +563,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    currentbid_ = inputs_[idx]->getCurrentPosition();
 	    trcinfobid_ = inputs_[idx]->getTrcInfoBid();
 	    if ( !docheck && currentbid_ == pos ) continue;
-	    if ( !docheck && trcinfobid_ != BinID(-1,-1) && trcinfobid_ == pos )
+	    if ( !docheck && !trcinfobid_.isUdf() && trcinfobid_ == pos )
 		continue;
 
 	    needmove = true;
@@ -588,7 +586,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    for ( int idi=0; idi<inputs_.size(); idi++)
 	    {
 		if ( inputs_[idi]
-		     && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1)
+		     && !inputs_[idi]->getTrcInfoBid().isUdf()
 		     && inputs_[idi]->getTrcInfoBid() != pos )
 		{
 		    allok = false;
@@ -598,7 +596,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
 	    if ( !allok )
 	    {
-		BinID newstart( BinID(-1,-1) );
+		BinID newstart = BinID::udf();
 		computeNewStartPos( newstart );
 
 		pos = newstart;
@@ -612,7 +610,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     {
 	if ( inputs_.isEmpty() && !desc_.isStored() )
 	{
-	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
+	    if ( currentbid_.isUdf() )
 		currentbid_ = desiredvolume_->hsamp_.start_;
 	    else
 	    {
@@ -632,9 +630,9 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    }
 	}
 	else if ( needmove )
-	    currentbid_ = BinID(-1,-1);
+	    currentbid_.setUdf();
 
-	setCurrentPosition(currentbid_);
+	setCurrentPosition( currentbid_ );
 	alreadymoved_ = true;
 	return 1;
     }
@@ -684,15 +682,15 @@ void Provider::computeNewStartPos( BinID& newstart )
     const BinID step = getStepoutStep();
     for ( int idi=0; idi<inputs_.size(); idi++ )
     {
-	BinID inputbid(BinID(-1,-1));
-	if ( inputs_[idi] && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1) )
+	BinID inputbid = BinID::udf();
+	if ( inputs_[idi] && !inputs_[idi]->getTrcInfoBid().isUdf() )
 	    inputbid = inputs_[idi]->getCurrentPosition();
 
-	if ( inputbid == BinID(-1,-1) ) continue;
-	if ( newstart == BinID(-1,-1) )
-	{
+	if ( inputbid.isUdf() )
+	    continue;
+
+	if ( newstart.isUdf() )
 	    newstart = inputbid;
-	}
 	else
 	{
 	    if ( is2D() )
@@ -852,7 +850,7 @@ void Provider::updateCurrentInfo()
 
 bool Provider::setCurrentPosition( const BinID& bid )
 {
-    if ( currentbid_ == BinID(-1,-1) )
+    if ( currentbid_.isUdf() )
 	currentbid_ = bid;
     else if ( bid != currentbid_ )
     {
@@ -1358,7 +1356,7 @@ void Provider::updateInputReqs( int inp )
 	    stepout.crl() = mMAX(stepout.crl(),des->crl() );
 	}
 
-	inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) +
+	inputs_[inp]->setReqBufStepout( ( req ? *req : BinID::noStepout() ) +
 				       reqbufferstepout_, true );
 	inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
     }

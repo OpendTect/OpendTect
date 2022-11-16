@@ -55,6 +55,8 @@ public:
     inline bool			fromString(const char*);
 
     inline BufferString		usrDispStr() const;
+
+    inline static BinID		noStepout()		{ return BinID(0,0); }
 };
 
 

@@ -92,7 +92,7 @@ public:
     const MultiID&		multiID() const		{ return mid_; }
 
     virtual NotifierAccess*	changeNotifier()	{ return 0; }
-    virtual BinID		changeBinID() const	{ return BinID(-1,-1); }
+    virtual BinID		changeBinID() const	{ return BinID::udf(); }
 
     virtual void		fillPar(IOPar&) const	{}
     virtual bool		usePar(const IOPar&)	{ return true; }

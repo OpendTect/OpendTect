@@ -192,7 +192,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     }
 
     ids_ += res;
-    curpos_ += BinID(-1,-1);
+    curpos_ += BinID::udf();
     locations_ += 0;
     return res;
 }

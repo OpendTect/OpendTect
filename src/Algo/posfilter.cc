@@ -443,7 +443,8 @@ bool Pos::Provider3D::includes( const Coord& c, float z ) const
 Coord Pos::Provider3D::curCoord() const
 {
     ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry3D( survID() );
-    return geom->toCoord( curBinID() );
+    const BinID curbid = curBinID();
+    return geom && !curbid.isUdf() ? geom->toCoord( curBinID() ) : Coord::udf();
 }
 
 

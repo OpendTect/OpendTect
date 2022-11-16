@@ -296,7 +296,7 @@ BinID CBVSReadMgr::nextBinID() const
 
     while ( 1 )
     {
-	if ( ret != BinID(0,0) )
+	if ( ret != BinID::udf() )
 	    return ret;
 	else
 	{

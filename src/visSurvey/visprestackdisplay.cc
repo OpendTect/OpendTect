@@ -259,7 +259,7 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 	if ( resetpos )
 	{
 	    BinID nearbid = getNearBinID( bid_ );
-	    if ( nearbid.inl()==-1 || nearbid.crl()==-1 )
+	    if ( nearbid.isUdf() )
 	    {
 		const StepInterval<int> rg = getTraceRange( bid_, false );
 		BufferString msg( "No gather data at the whole section.\n" );
@@ -293,7 +293,7 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 
 bool PreStackDisplay::updateData()
 {
-    if ( (is3DSeis() && (bid_.inl()==-1 || bid_.crl()==-1)) ||
+    if ( (is3DSeis() && bid_.isUdf()) ||
 	 (!is3DSeis() && !seis2d_) || !ioobj_ || !reader_ )
     {
 	turnOn(false);
@@ -404,7 +404,7 @@ BinID PreStackDisplay::getNearBinID( const BinID& bid ) const
 {
     const StepInterval<int> tracerg = getTraceRange( bid );
     if ( tracerg.isUdf() )
-	return BinID(-1,-1);
+	return BinID::udf();
 
     BinID res = bid;
     if ( isOrientationInline() )
@@ -491,7 +491,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     if ( (!section_ && !seis2d_) || factor_<0 || width_<0 )
 	return;
 
-    if ( section_ && ( bid_.inl()<0 || bid_.crl()<0 ) )
+    if ( section_ && bid_.isUdf() )
 	return;
 
     const Coord direction = posside_ ? basedirection_ : -basedirection_;

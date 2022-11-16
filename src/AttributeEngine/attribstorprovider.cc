@@ -288,7 +288,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	if ( getDesc().is2D() )
 	    prevtrcnr_ = currentbid_.crl();
 
-	bool validstartpos = startpos != BinID(-1,-1);
+	const bool validstartpos = !startpos.isUdf();
 	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binID() == startpos )
 	{
 	    alreadymoved_ = true;
@@ -301,12 +301,15 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
     {
 	if ( isondisc_ )
 	{
-	    SeisMSCProvider::AdvanceState res = mscprov_ ? mscprov_->advance()
-						 : SeisMSCProvider::EndReached;
+	    SeisMSCProvider::AdvanceState res =
+		mscprov_ ? mscprov_->advance() : SeisMSCProvider::EndReached;
 	    switch ( res )
 	    {
-		case SeisMSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
-						      return -1; }
+		case SeisMSCProvider::Error:
+		{
+		    errmsg_ = mscprov_->errMsg();
+		    return -1;
+		}
 		case SeisMSCProvider::EndReached:	return 0;
 		case SeisMSCProvider::Buffering:	continue;
 						//TODO return 'no new position'
@@ -314,7 +317,10 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		case SeisMSCProvider::NewPosition:
 		{
 		    if ( useshortcuts_ )
-			{ advancefurther = false; continue; }
+		    {
+			advancefurther = false;
+			continue;
+		    }
 
 		    SeisTrc* trc = mscprov_->get( 0, 0 );
 		    if ( !trc ) continue; // should not happen
@@ -326,8 +332,9 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	}
 	else
 	{
-	    SeisTrc* trc = getTrcFromPack( BinID(0,0), 1 );
-	    if ( !trc ) return 0;
+	    SeisTrc* trc = getTrcFromPack( BinID::noStepout(), 1 );
+	    if ( !trc )
+		return 0;
 
 	    status_ = Ready;
 	    registerNewPosInfo( trc, startpos, firstcheck, advancefurther );
@@ -357,7 +364,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
     const SeisTrcInfo& newti = trc->info();
     currentbid_ = desc_.is2D()? BinID( 0, newti.trcNr() ) : newti.binID();
     trcinfobid_ = newti.binID();
-    if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
+    if ( firstcheck || startpos.isUdf() || currentbid_==startpos
 	    || newti.binID() == startpos )
     {
 	advancefurther = false;

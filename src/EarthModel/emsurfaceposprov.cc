@@ -645,7 +645,9 @@ bool EMSurface2DProvider3D::initialize( TaskRunner* taskr )
 
 
 BinID EMSurface2DProvider3D::curBinID() const
-{ return !surf1_ ? BinID(0,0) : SI().transform( surf1_->getPos(curpos_) ); }
+{
+    return !surf1_ ? BinID::udf() : SI().transform( surf1_->getPos(curpos_) );
+}
 
 
 bool EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
@@ -862,7 +864,7 @@ void EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
 {
     if ( !isOK() )
     {
-	start = stop = BinID(0,0);
+	start = stop = BinID::udf();
 	return;
     }
 

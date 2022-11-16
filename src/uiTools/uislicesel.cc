@@ -441,8 +441,8 @@ void uiSliceSel::readInput()
 
     if ( dogeomcheck_ )
     {
-	SI().snap( tkzs_.hsamp_.start_, BinID(0,0) );
-	SI().snap( tkzs_.hsamp_.stop_, BinID(0,0) );
+	SI().snap( tkzs_.hsamp_.start_ );
+	SI().snap( tkzs_.hsamp_.stop_ );
     }
 }
 

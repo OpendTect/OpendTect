@@ -187,9 +187,9 @@ Interval<float> BinIDSurface::zRange( Coord p1, Coord p2 ) const
 
     const RowCol rc1 = getNearestKnotRowCol( p1 );
     const RowCol rc2 = getNearestKnotRowCol( p2 );
-    StepInterval<int> rrg( rc1.first, rc2.first, step_.inl() );
+    StepInterval<int> rrg( rc1.first, rc2.first, step_.first );
     rrg.sort();
-    StepInterval<int> crg( rc1.second, rc2.second, step_.crl() );
+    StepInterval<int> crg( rc1.second, rc2.second, step_.second );
     crg.sort();
     for ( int row=rrg.start; row<=rrg.stop; row+=rrg.step )
     {

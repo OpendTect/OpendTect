@@ -94,8 +94,8 @@ public:
     virtual Pos::GeomID		getGeomID() const;
     virtual void		setGeomID(Pos::GeomID);
 
-    virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
-						bool firstcheck = false);
+    virtual int			moveToNextTrace(BinID startpos=BinID::udf(),
+						bool firstcheck=false);
 				/*!<\retval -1	something went wrong
 				    \retval  0  finished, no more positions
 				    \retval  1	arrived at new position

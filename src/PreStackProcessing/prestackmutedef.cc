@@ -83,7 +83,7 @@ void MuteDef::add( PointBasedMathFunction* fn , const BinID& pos )
 
 void MuteDef::remove( int idx )
 {
-    if ( idx<0 || idx>=size() )
+    if ( !fns_.validIdx(idx) )
 	return;
 
     delete fns_.removeSingle( idx );
@@ -94,18 +94,16 @@ void MuteDef::remove( int idx )
 
 float MuteDef::value( float offs, const BinID& pos ) const
 {
-    if ( pos.inl()<0 || pos.crl()<0 )
+    if ( fns_.isEmpty() || pos.isUdf() )
 	return mUdf(float);
 
-    if ( fns_.size() < 1 )
-	return mUdf(float);
-    else if ( fns_.size() == 1 )
+    if ( fns_.size() == 1 )
 	return fns_[0]->getValue( offs );
 
     const Coord si00 = SI().transform(
-	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
+	BinID(SI().inlRange(true).start,SI().crlRange(true).start) );
     const Coord si11 = SI().transform(
-	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
+	BinID(SI().inlRange(true).stop,SI().crlRange(true).stop) );
 
     const double normalweight = si00.sqDistTo( si11 );
 
@@ -118,7 +116,9 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	const Coord crd( SI().transform(pos_[iloc]) );
 	const float val = fns_[iloc]->getValue( offs );
 	const double sqdist = crd.sqDistTo( centercrd );
-	if ( sqdist < 1 ) return val;
+	if ( sqdist < 1 )
+	    return val;
+
 	calc.addValue( val, (float) (normalweight / sqdist) );
     }
 
@@ -129,13 +129,13 @@ float MuteDef::value( float offs, const BinID& pos ) const
 void MuteDef::computeIntervals( float offs, const BinID& pos,
 			       TypeSet<Interval<float> >& res) const
 {
-    if ( pos.inl()<0 || pos.crl()<0 || fns_.isEmpty() )
+    if ( fns_.isEmpty() )
 	return;
 
     const Coord si00 = SI().transform(
-	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
+	    BinID(SI().inlRange(true).start,SI().crlRange(true).start) );
     const Coord si11 = SI().transform(
-	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
+	    BinID(SI().inlRange(true).stop,SI().crlRange(true).stop) );
 
     const double normalweight = si00.sqDistTo( si11 );
     const Coord centercrd( SI().transform(pos) );
@@ -189,15 +189,20 @@ void MuteDef::getAllZVals( TypeSet<float>& zvals ) const
 	for ( int idx=0; idx<fns_[ifn]->size(); idx ++ )
 	    zvals += fns_[ifn]->xVals()[idx];
     }
+
     sort_array( zvals.arr(), zvals.size() );
 }
 
 
 void MuteDef::setReferenceHorizon( const MultiID& mid )
-{ refhor_ = mid; }
+{
+    refhor_ = mid;
+}
 
 
 const MultiID& MuteDef::getReferenceHorizon() const
-{ return refhor_; }
+{
+    return refhor_;
+}
 
 } // namespace PreStack

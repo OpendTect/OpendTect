@@ -37,7 +37,7 @@ public:
     static const char*	attribName()		{ return "Storage"; }
     static const char*	keyStr()		{ return "id"; }
 
-    int			moveToNextTrace(BinID startpos=BinID(-1,-1),
+    int			moveToNextTrace(BinID startpos=BinID::udf(),
 					bool firstcheck=false) override;
     bool		getPossibleVolume(int outp,TrcKeyZSampling&) override;
     BinID		getStepoutStep() const override;

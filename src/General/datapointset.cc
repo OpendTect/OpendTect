@@ -610,7 +610,7 @@ DataPointSet::DataRow DataPointSet::dataRow( DataPointSet::RowID rid ) const
 
 BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 {
-    mChkRowID(rid,BinID(0,0));
+    mChkRowID(rid,BinID::udf() );
     return bivSet().getBinID( bvsidxs_[rid] );
 }
 
@@ -645,7 +645,7 @@ float DataPointSet::z( DataPointSet::RowID rid ) const
 
 int DataPointSet::trcNr( DataPointSet::RowID rid ) const
 {
-    mChkRowID(rid,0);
+    mChkRowID(rid,mUdf(int));
     return pos(rid).trcNr();
 }
 
