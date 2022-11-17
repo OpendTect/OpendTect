@@ -200,7 +200,8 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     xyinfld_->attach( alignedBelow, attachobj );
 
     inlcrlinfld_ = new uiGenInput( ingrp, uiConvertPos::sICStr(),
-				   IntInpSpec(), IntInpSpec() );
+				   IntInpSpec().setName("Inl"),
+				   IntInpSpec().setName("Crl") );
     inlcrlinfld_->setElemSzPol( uiObject::Medium );
     inlcrlinfld_->attach( alignedBelow, inptypfld_ );
 
