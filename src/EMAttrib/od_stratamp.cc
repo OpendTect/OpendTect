@@ -67,7 +67,7 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const TrcKeySampling& hs,
 
 #define mUnRef(){ tophor->unRef(); if ( bothor ) bothor->unRef(); }
 
-mLoad3Modules("Attributes","EMAttrib","PreStackProcessing")
+mLoad3Modules("EMAttrib","WellAttrib","PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {

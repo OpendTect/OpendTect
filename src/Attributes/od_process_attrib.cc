@@ -48,7 +48,7 @@ mDefSimpleTranslatorSelector(AttribDescSet);
 	}
 
 
-mLoad2Modules("Attributes","PreStackProcessing")
+mLoad3Modules("EMAttrib","WellAttrib","PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
