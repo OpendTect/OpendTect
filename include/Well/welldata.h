@@ -46,8 +46,8 @@ public:
 			~Info();
 
     enum InfoType	{ None, Name, UWID, WellType, TD, KB, GroundElev,
-			  SurfCoord, SurfBinID, Operator, Field, County, State,
-			  Province, Country };
+			  MarkerDepth, SurfCoord, SurfBinID, Operator, Field,
+			  County, State, Province, Country };
 			mDeclareEnumUtils(InfoType)
 
     enum DepthType	{ MD, TVD, TVDSS, TVDSD, TWT };
@@ -75,6 +75,7 @@ public:
     float		groundelev_		= mUdf(float);
 
     static const char*	sKeyDepthUnit();
+    static const char*	sKeyDepthType();
     static const char*	sKeyUwid();
     static const char*	sKeyOper();
     static const char*	sKeyField();
@@ -88,6 +89,7 @@ public:
     static const char*	sKeyTVDSS();
     static const char*	sKeyReplVel();
     static const char*	sKeyGroundElev();
+    static const char*	sKeyMarkerDepth();
     static const char*	sKeyWellType();
     static int		legacyLogWidthFactor();
 
@@ -149,7 +151,8 @@ public:
 				    { return for2d ? disp2d_ : disp3d_; }
     const DisplayProperties&	displayProperties( bool for2d=false ) const
 				    { return for2d ? disp2d_ : disp3d_; }
-    uiString			getInfoString(Info::InfoType) const;
+    uiString			getInfoString(Info::InfoType,
+					const IOPar* modifier=nullptr) const;
 
     void			setEmpty(); //!< removes everything
 
