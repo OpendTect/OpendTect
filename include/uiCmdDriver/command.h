@@ -429,7 +429,6 @@ protected:
 	mWinWarnStrm << "This " << objnm << " was switched " \
 		    << (onoff==1 ? "on" : "off") << " already" << od_endl; \
 	setRecoveryStep( CmdDriver::NextCmd ); \
-	return false; \
     } \
 }
 

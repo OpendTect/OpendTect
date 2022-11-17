@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uicursor.h"
+#include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimain.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uitextedit.h"
 #include "uitreeview.h"
@@ -660,6 +662,8 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     scriptlistfld_->setPrefHeight( 400 );
     scriptlistfld_->setStretch( 2, 2 );
     mAttachCB( scriptlistfld_->doubleClicked, uiScriptRunnerDlg::doubleClickCB );
+    mAttachCB( scriptlistfld_->rightButtonPressed,
+	       uiScriptRunnerDlg::rightClickCB );
 
     auto* grp = new uiButtonGroup( this, "", OD::Horizontal );
     grp->attach( centeredBelow, scriptlistfld_ );
@@ -763,6 +767,27 @@ void uiScriptRunnerDlg::doubleClickCB( CallBacker* )
     }
 
     File::launchViewer( column==0 ? scriptitem->fnm_ : scriptitem->logfnm_ );
+}
+
+
+void uiScriptRunnerDlg::rightClickCB( CallBacker* )
+{
+    const int column = scriptlistfld_->columnNotified();
+    if ( column != 0 )
+	return;
+
+    uiTreeViewItem* item = scriptlistfld_->itemNotified();
+    auto* scriptitem = sCast(ScriptItem*,item);
+    if ( !scriptitem )
+	return;
+
+    uiMenu menu( uiStrings::sAction() );
+    menu.insertAction( new uiAction(uiStrings::sEdit()), 0 );
+    const int res = menu.exec();
+    if ( res != 0 )
+	return;
+
+    uiDesktopServices::openUrl( scriptitem->fnm_ );
 }
 
 

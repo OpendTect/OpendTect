@@ -131,6 +131,7 @@ protected:
     void			executeFinishedCB(CallBacker*);
     bool			executeNext();
     void			doubleClickCB(CallBacker*);
+    void			rightClickCB(CallBacker*);
 
     CmdDriver&			drv_;
     uiTreeViewItemIterator*	iter_		= nullptr;
