@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
+const char* Well::Info::sKeyDepthType() { return "Depth type"; }
 const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
 const char* Well::Info::sKeyOper()	{ return "Operator"; }
 const char* Well::Info::sKeyField()	{ return "Field"; }
@@ -41,6 +42,8 @@ const char* Well::Info::sKeyReplVel()
 	{ return "Replacement velocity [from KB to SRD]"; }
 const char* Well::Info::sKeyGroundElev()
 	{ return "Ground Level elevation [GL]"; }
+const char* Well::Info::sKeyMarkerDepth()
+	{ return "Marker depth"; }
 
 // Strings for GUI
 uiString Well::Info::sUwid()		{ return tr("Unique Well ID"); }
@@ -80,7 +83,8 @@ mDefineEnumUtils(Well::Info, InfoType, "Info type")
 {
     sKey::None(), sKey::Name(), Well::Info::sKeyUwid(),
     Well::Info::sKeyWellType(), Well::Info::sKeyTD(), Well::Info::sKeyKBElev(),
-    Well::Info::sKeyGroundElev(), Well::Info::sKeyCoord(), "Surface Inl/Crl",
+    Well::Info::sKeyGroundElev(), Well::Info::sKeyMarkerDepth(),
+    Well::Info::sKeyCoord(), "Surface Inl/Crl",
     Well::Info::sKeyOper(), Well::Info::sKeyField(),
     Well::Info::sKeyCounty(), Well::Info::sKeyState(),
     Well::Info::sKeyProvince(), Well::Info::sKeyCountry(), 0
@@ -336,7 +340,8 @@ void Well::Data::setEmpty()
 }
 
 
-uiString Well::Data::getInfoString( Well::Info::InfoType it ) const
+uiString Well::Data::getInfoString( Well::Info::InfoType it,
+				    const IOPar* modifier ) const
 {
     const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
     uiString ret = uiString::empty();
@@ -376,6 +381,53 @@ uiString Well::Data::getInfoString( Well::Info::InfoType it ) const
 	    {
 		ret = toUiString( zun->userValue(info().groundelev_), 2 );
 	    }
+	    break;
+
+	case Well::Info::MarkerDepth:
+	    if ( modifier )
+	    {
+		const BufferString markername = modifier->find( sKey::Name() );
+		const Marker* marker = markers().getByName( markername );
+		if ( !marker )
+		    return uiString::empty();
+
+		const float dah = marker->dah();
+		if ( mIsUdf(dah) )
+		    return uiString::empty();
+
+		Well::Info::DepthType dt;
+		if ( !Well::Info::parseEnum(
+			    *modifier,Well::Info::sKeyDepthType(),dt) )
+		    return uiString::empty();
+
+		if ( dt == Well::Info::MD )
+		    ret = toUiString( zun->userValue(dah), 2 );
+		else if ( dt == Well::Info::TWT )
+		{
+		    const float twt =
+				d2TModel() ? d2TModel()->getTime( dah, track() )
+					   : mUdf(float);
+		    if ( mIsUdf(twt) )
+			return uiString::empty();
+
+		    ret = toUiString( UnitOfMeasure::surveyDefTimeUnit()
+							->userValue(twt), 2 );
+		}
+		else
+		{
+		    float zval = track().getPos(dah).z;
+		    if ( mIsUdf(zval) )
+			return uiString::empty();
+
+		    if ( dt == Well::Info::TVD )
+			zval += track().getKbElev();
+		    else if ( dt == Well::Info::TVDSD )
+			zval += SI().seismicReferenceDatum();
+
+		    ret = toUiString( zun->userValue(zval), 2 );
+		}
+	    }
+
 	    break;
 
 	case Well::Info::SurfCoord:
