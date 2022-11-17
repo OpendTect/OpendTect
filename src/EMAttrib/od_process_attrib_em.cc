@@ -323,7 +323,7 @@ static void interpolate( EM::Horizon3D* horizon,
     aem.setAttribSet( &localattribset ); \
     aem.setAttribSpecs( selspecs ); \
 
-mLoad2Modules("Attributes","PreStackProcessing")
+mLoad3Modules("EMAttrib","WellAttrib","PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
