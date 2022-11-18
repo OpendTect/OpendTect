@@ -130,7 +130,7 @@ protected:
     Pos::GeomID		geomid_;
     DataPackMgr&	dpm_;
 
-    const RegularSeisDataPack*	cache_ = nullptr;
+    ConstRefMan<RegularSeisDataPack>	cache_;
 
     DescSet*		procattrset_ = nullptr;
     int			curattridx_ = 0;

@@ -707,6 +707,9 @@ DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
     attrserv->setTargetSelSpec( selspec );
     ConstRefMan<RegularSeisDataPack> dp = attrserv->createOutput( tkzs,
 								  nullptr );
+    if ( !dp )
+	return DataPack::cNoID();
+
     return createFlatDataPack( *dp, 0 );
 }
 
@@ -716,10 +719,10 @@ DataPackID uiODViewer2D::createFlatDataPack(
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( seisdp )
-	return createFlatDataPack( *seisdp, comp );
-    else
+    if ( !seisdp )
 	return DataPack::cNoID();
+
+    return createFlatDataPack( *seisdp, comp );
 }
 
 
@@ -751,13 +754,11 @@ DataPackID uiODViewer2D::createFlatDataPack( const SeisDataPack& dp,
     else if ( randsdp )
 	seisfdp = new RandomFlatDataPack( *randsdp, comp );
 
-    if ( DPM(DataPackMgr::FlatID()).add( seisfdp ) )
-    {
-	DPM( DataPackMgr::FlatID() ).ref( seisfdp->id() );
-	return seisfdp->id();
-    }
-    else
+    if ( !seisfdp || !DPM(DataPackMgr::FlatID()).add(seisfdp) )
 	return DataPack::cNoID();
+
+    seisfdp->ref();
+    return seisfdp->id();
 }
 
 
@@ -812,15 +813,13 @@ DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
 
     RefMan<MapDataPack> mdp =
 	new MapDataPack( "ZSlice", new Array2DImpl<float>( slice2d ) );
+    if ( !mdp || !DPM(DataPackMgr::FlatID()).add( mdp ) )
+	return DataPack::cNoID();
+
     mdp->setName( rsdp.name() );
     mdp->setProps( inlrg, crlrg, true, &dimnames );
-    if ( DPM(DataPackMgr::FlatID()).add( mdp ) )
-    {
-	DPM( DataPackMgr::FlatID() ).ref( mdp->id() );
-	return mdp->id();
-    }
-    else
-	return DataPack::cNoID();
+    mdp->ref();
+    return mdp->id();
 }
 
 
