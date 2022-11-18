@@ -67,7 +67,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     linegrp_ = new uiManipButGrp( linefld_ );
     linegrp_->addButton( uiManipButGrp::Remove,
-			 uiStrings::phrDelete("data for line"),
+			 uiStrings::phrDelete(tr("data for line")),
 			 mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", uiStrings::phrMerge(
 			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
