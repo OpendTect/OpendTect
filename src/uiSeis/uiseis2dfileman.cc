@@ -66,8 +66,9 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
 
     linegrp_ = new uiManipButGrp( linefld_ );
-    linegrp_->addButton( uiManipButGrp::Remove, uiStrings::phrRemove(
-		    uiStrings::sLine()), mCB(this,uiSeis2DFileMan,removeLine) );
+    linegrp_->addButton( uiManipButGrp::Remove,
+			 uiStrings::phrDelete("data for line"),
+			 mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", uiStrings::phrMerge(
 			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
 			mergeLines) );
@@ -224,8 +225,9 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     BufferStringSet sellines;
     linefld_->getChosen( sellines );
     if ( sellines.isEmpty() ||
-	!uiMSG().askRemove(tr("All selected lines "
-	    "will be removed.\n\nDo you want to continue?")) )
+	!uiMSG().askDelete(tr("Data for the selected lines "
+	    "will be deleted from the dataset '%1'.\n\n"
+	    "Do you want to continue?").arg(dataset_->name())) )
 	return;
 
     for ( int idx=0; idx<sellines.size(); idx++ )

@@ -278,19 +278,19 @@ void uiColorTableMan::removeCB( CallBacker* )
     if ( selstatus_ == sKeyDefault().getFullString() )
     {
 	uiMSG().error(
-		tr("This is a default colortable and connot be removed") );
+		tr("This is a default colortable and connot be deleted") );
 	return;
     }
 
     const char* ctnm = ctab_.name();
-    uiString msg(tr("%1 '%2' will be removed.\n%3\nDo you wish to continue?")
+    uiString msg(tr("%1 '%2' will be deleted.\n%3\nDo you wish to continue?")
 	     .arg(selstatus_ == sKeyEdited().getFullString() ?
 	     uiStrings::phrJoinStrings(sKeyEdited(),uiStrings::sColorTable()):
 	     uiStrings::phrJoinStrings(tr("Own made"),uiStrings::sColorTable()))
 	     .arg(ctnm).arg(selstatus_ == sKeyEdited().getFullString()
 					 ? tr("and replaced by the default.\n")
 					 : uiString::emptyString()));
-    if ( !uiMSG().askRemove(msg) )
+    if ( !uiMSG().askDelete(msg) )
 	return;
 
     BufferStringSet allctnms;

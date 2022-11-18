@@ -147,7 +147,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		"and create a new development location there?")
 	    .arg(isdir ? tr("folder") : tr("file"));
 
-	if ( !uiMSG().askRemove(msg) )
+	if ( !uiMSG().askDelete(msg) )
 	    return;
 
 	File::remove( workdirnm );

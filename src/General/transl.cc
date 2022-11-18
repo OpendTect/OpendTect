@@ -459,10 +459,10 @@ bool Translator::getConfirmRemoveMsg( const IOObj* ioobj, uiString& msg,
     if ( !ioobj || !ioobj->implExists(true) )
 	return false;
 
-    msg = tr("Database entry for '%1' will be permanently removed "
-	    "along with the associated data.").arg(ioobj->name());
+    msg = tr("Do you want to delete '%1' permanently from the database?")
+		.arg(ioobj->name());
     canceltxt = uiStrings::sCancel();
-    deepremovetxt = uiStrings::sRemove();
+    deepremovetxt = uiStrings::sDelete();
     shallowremovetxt = uiString::empty();
     return true;
 }

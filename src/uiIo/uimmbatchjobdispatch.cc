@@ -813,8 +813,8 @@ bool uiMMBatchJobDispatcher::rejectOK( CallBacker* )
 	    }
 	    else
 	    {
-		msg.arg("\n\nDo you want to remove already processed data?");
-		res = uiMSG().askRemove( msg, true );
+		msg.arg("\n\nDo you want to delete already processed data?");
+		res = uiMSG().askDelete( msg, true );
 	    }
 	}
 	if ( res == -1 )
