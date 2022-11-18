@@ -9,10 +9,23 @@ ________________________________________________________________________
 
 #include "uisizesel.h"
 
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uispinbox.h"
-#include "uistrings.h"
 
+#include "hiddenparam.h"
+
+class HP_uiSizeSel
+{
+mOD_DisableCopy(HP_uiSizeSel)
+public:
+HP_uiSizeSel()   {}
+~HP_uiSizeSel()  {}
+
+    uiCheckBox*		symmfld_;
+};
+
+static HiddenParam<uiSizeSel,HP_uiSizeSel*> hp( nullptr );
 
 uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
     : uiGroup(p,"Image Size Group")
@@ -34,6 +47,11 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 	sizeflds_ += fld;
     }
 
+    hp.setParam( this, new HP_uiSizeSel );
+    auto* symmfld = new uiCheckBox( this, toUiString("Symmetric") );
+    symmfld->attach( rightTo, sizeflds_.last() );
+    hp.getParam(this)->symmfld_ = symmfld;
+
     setHAlignObj( sizeflds_[0] );
 }
 
@@ -44,8 +62,22 @@ uiSizeSel::~uiSizeSel()
 }
 
 
-void uiSizeSel::valueChangingCB(CallBacker*)
+void uiSizeSel::valueChangingCB( CallBacker* cb )
 {
+    const bool dosymm = hp.getParam(this)->symmfld_->isChecked();
+    if ( dosymm )
+    {
+	const int sz = sCast(uiSpinBox*,cb)->getIntValue();
+	for ( auto* fld : sizeflds_ )
+	{
+	    if ( fld == cb )
+		continue;
+
+	    NotifyStopper ns( fld->valueChanged );
+	    fld->setValue( sz );
+	}
+    }
+
     valueChanging.trigger();
 }
 
