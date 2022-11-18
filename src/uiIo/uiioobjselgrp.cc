@@ -45,8 +45,8 @@ static const char* NoIconNm = "empty";
 static bool requireIcon()
 {
     mDefineStaticLocalObject(const bool, icsel,
-	= Settings::common().isTrue("Ui.Icons.ObjSel"));
-    return icsel;
+	= Settings::common().isFalse("Ui.Icons.ObjSel"));
+    return !icsel;
 }
 
 
