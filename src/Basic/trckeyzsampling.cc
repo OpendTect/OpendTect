@@ -1521,11 +1521,11 @@ void TrcKeyZSampling::normalize()
 }
 
 
-void TrcKeyZSampling::fillInfoSet( StringPairSet& infoset ) const
+void TrcKeyZSampling::fillInfoSet( StringPairSet& infoset, float zscale ) const
 {
     hsamp_.fillInfoSet( infoset );
 
-    const float zfactor = SI().zIsTime() ? 1000 : 1;
+    const float zfactor = mIsUdf(zscale) ? (SI().zIsTime() ? 1000 : 1) : zscale;
     uiString str = ::toUiString("%1 - %2 - %3; Total: %4")
 			.arg(zsamp_.start*zfactor)
 			.arg(zsamp_.stop*zfactor)
