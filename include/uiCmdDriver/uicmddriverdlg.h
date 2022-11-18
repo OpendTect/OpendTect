@@ -13,11 +13,12 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiFileInput;
-class uiTextEdit;
 class uiLabel;
 class uiLabeledComboBox;
 class uiPushButton;
-
+class uiTextEdit;
+class uiTreeView;
+class uiTreeViewItemIterator;
 
 namespace CmdDrive
 {
@@ -25,10 +26,12 @@ namespace CmdDrive
 class CmdDriver;
 class CmdRecorder;
 class InteractSpec;
+class ScriptItem;
 
 
 mExpClass(uiCmdDriver) uiCmdInteractDlg : public uiDialog
-{ mODTextTranslationClass(uiCmdInteractDlg);
+{
+mODTextTranslationClass(uiCmdInteractDlg)
 public:
 				uiCmdInteractDlg(uiParent*,const InteractSpec&);
 
@@ -43,7 +46,8 @@ protected:
 
 
 mExpClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
-{ mODTextTranslationClass(uiCmdDriverDlg);
+{
+mODTextTranslationClass(uiCmdDriverDlg)
 public:
 				uiCmdDriverDlg(uiParent*,
 					       CmdDriver&,CmdRecorder&,
@@ -102,6 +106,36 @@ protected:
 private:
 
     static uiString sInterrupting() { return tr("-Interrupting-"); }
+};
+
+
+mExpClass(uiCmdDriver) uiScriptRunnerDlg : public uiDialog
+{
+mODTextTranslationClass(uiScriptRunnerDlg)
+public:
+				uiScriptRunnerDlg(uiParent*,CmdDriver&);
+				~uiScriptRunnerDlg();
+
+protected:
+    uiFileInput*		scriptfld_;
+    uiFileInput*		logfld_;
+    uiTreeView*			scriptlistfld_;
+    uiPushButton*		gobut_;
+    uiPushButton*		stopbut_;
+
+    void			inpSelCB(CallBacker*);
+    void			addChildren(ScriptItem&);
+    bool			acceptOK(CallBacker*);
+    void			goCB(CallBacker*);
+    void			stopCB(CallBacker*);
+    void			executeFinishedCB(CallBacker*);
+    bool			executeNext();
+    void			doubleClickCB(CallBacker*);
+    void			rightClickCB(CallBacker*);
+
+    CmdDriver&			drv_;
+    uiTreeViewItemIterator*	iter_		= nullptr;
+    bool			abort_		= false;
 };
 
 } // namespace CmdDrive

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "od_istream.h"
 #include "thread.h"
 #include "timefun.h"
@@ -130,6 +129,12 @@ CmdDriver::CmdDriver( uiMainWin& aw )
 }
 
 
+void CmdDriver::clearLog()
+{
+    logstream_.close();
+}
+
+
 const WildcardManager& CmdDriver::wildcardMan() const
 { return const_cast<const WildcardManager&>( *wcm_ ); }
 
@@ -148,6 +153,7 @@ void CmdDriver::reInit()
     abort_ = false;
     pause_ = false;
     resume_ = false;
+    failed_ = false;
 
     regularsleep_ = 0;
     pendingsleep_ = 0;
@@ -339,6 +345,44 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	return false; \
     } \
 }
+
+
+bool CmdDriver::getIncludedScripts( const char* fnm,
+				    BufferStringSet& incs ) const
+{
+    errmsg_ = "Include finder. File: ";
+    errmsg_.add( fnm ).addNewLine();
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	{ errmsg_ += "File cannot be opened"; return false; }
+
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType("OpendTect commands") )
+	{ errmsg_ += "File is invalid"; return false; }
+
+    BufferString line, word;
+    incs.erase();
+    while ( strm.isOK() )
+    {
+	strm.getLine( line );
+	char* lineptr = line.getCStr();
+	mTrimBlanks( lineptr );
+	if ( !*lineptr )
+	    continue;
+
+	const char* ptr = getNextWord( lineptr, word.getCStr() );
+	if ( caseInsensitiveEqual(word,"include") )
+	{
+	    getNextWord( ptr, word.getCStr() );
+	    BufferString filepath;
+	    idm_->substitute( word.buf(), filepath );
+	    incs.add( filepath );
+	}
+    }
+
+    return !incs.isEmpty();
+}
+
 
 bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 {
@@ -714,6 +758,7 @@ void CmdDriver::mkThread( CallBacker* )
 	if ( !ok )
 	{
 	    mTimeStrm << "FAIL" << od_endl;
+	    failed_ = true;
 
 	    if ( onError()==Recover && recover() )
 		continue;
@@ -756,7 +801,9 @@ void CmdDriver::mkThread( CallBacker* )
 
 
 void CmdDriver::executeFinishedCB( CallBacker* )
-{ executeFinished.trigger(); }
+{
+    executeFinished.trigger();
+}
 
 
 void CmdDriver::killTaskRunnerCB( CallBacker* )

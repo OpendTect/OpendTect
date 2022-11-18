@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "cmddriverbasics.h"
 #include "interpretexpr.h"
+#include "od_ostream.h"
 
 #include "mousecursor.h"
 

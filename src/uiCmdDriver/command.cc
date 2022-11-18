@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "inputcommands.h"
 #include "listcommands.h"
 #include "menubutcommands.h"
+#include "od_ostream.h"
 #include "qtcommands.h"
 #include "tablecommands.h"
 #include "treecommands.h"

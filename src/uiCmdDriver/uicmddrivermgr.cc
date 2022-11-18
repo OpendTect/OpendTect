@@ -26,8 +26,6 @@ ________________________________________________________________________
 
 #include "uicmddriverdlg.h"
 #include "uimain.h"
-#include "uimenu.h"
-#include "uimsg.h"
 
 
 namespace CmdDrive
@@ -127,6 +125,14 @@ void uiCmdDriverMgr::keyPressedCB( CallBacker* )
 void uiCmdDriverMgr::showDlgCB( CallBacker* )
 {
     getCmdDlg()->popUp();
+}
+
+
+void uiCmdDriverMgr::showScriptRunnerCB( CallBacker* )
+{
+    auto* dlg = new uiScriptRunnerDlg( &applwin_, *drv_ );
+    dlg->setModal( false );
+    dlg->go();
 }
 
 

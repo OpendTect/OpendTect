@@ -10,9 +10,7 @@ ________________________________________________________________________
 
 #include "uicmddrivermod.h"
 #include "bufstringset.h"
-#include "od_iostream.h"
 #include "separstr.h"
-#include "strmdata.h"
 #include "thread.h"
 #include "uimainwin.h"
 
@@ -104,16 +102,20 @@ public:
     friend class 	Function;
     friend class 	MenuTracer;
 
-    			CmdDriver(uiMainWin& applwin);
-    			~CmdDriver();
+			CmdDriver(uiMainWin& applwin);
+			~CmdDriver();
 
-    bool		getActionsFromFile(const char*);
-    bool		insertActionsFromFile(const char*);
+    bool		getActionsFromFile(const char* fnm);
+    bool		insertActionsFromFile(const char* fnm);
+    bool		getIncludedScripts(const char* fnm,
+					   BufferStringSet&) const;
 
     bool		execute();
     void		abort()				{ abort_ = true; }
     void		pause(bool yn=true);
     const char*		errMsg() const			{ return errmsg_.str();}
+    bool		scriptFailed() const		{ return failed_; }
+    bool		scriptAborted() const		{ return abort_; }
 
     const char*		outputDir() const		{ return outdir_; }
     void		setOutputDir(const char* od)	{ outdir_ = od; }
@@ -121,7 +123,7 @@ public:
     static const char*	defaultLogFilename();
     const char*		logFileName() const		{ return logfnm_; }
     void		setLogFileName(const char* fnm)	{ logfnm_ = fnm; }
-    void		clearLog()			{ logstream_.close(); }
+    void		clearLog();
 
     enum		LogModeTag { LogBasic, LogNormal, LogAll };		
     void		setLogMode(LogModeTag tag)	{ logmode_ = tag; } 
@@ -132,14 +134,14 @@ public:
     void		setCaseSensitive(bool yn)   { casesensitive_ = yn; }
     void		skipGreyOuts(bool yn=true)  { skipgreyouts_ = yn; }
 
-    bool		isCaseSensitive() const     { return casesensitive_; }
+    bool		isCaseSensitive() const	    { return casesensitive_; }
     OnErrorTag		onError() const		    { return onerror_; }
     bool		greyOutsSkipped() const	    { return skipgreyouts_; }
 
     void		setSleep(float time,
-	    			 bool regular=true);
+				 bool regular=true);
     void		setWait(float time,
-	    			bool regular=true);
+				bool regular=true);
 
     static bool		nowExecuting();
 
@@ -170,6 +172,7 @@ protected:
     bool		abort_;
     bool		pause_;
     bool		resume_;
+    bool		failed_;
 
     bool		prepareActivate(Activator*);
     void		finishActivate();
@@ -182,11 +185,12 @@ protected:
 
     void		reInit();
 
+    mutable BufferString	errmsg_;
+
     CmdDriver&		drv_;
     BufferString	outdir_;
     BufferString	logfnm_;
     BufferString	cmdfnm_;
-    BufferString	errmsg_;
     Threads::Thread*	execthr_;
     od_ostream&		logstream_;
     FilePath&		outfp_;

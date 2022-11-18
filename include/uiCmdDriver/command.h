@@ -426,10 +426,9 @@ protected:
     const bool ischecked = (checked); \
     if ( onoff == (ischecked ? 1 : -1) ) \
     { \
-	mWinErrStrm << "This " << objnm << " was switched " \
+	mWinWarnStrm << "This " << objnm << " was switched " \
 		    << (onoff==1 ? "on" : "off") << " already" << od_endl; \
 	setRecoveryStep( CmdDriver::NextCmd ); \
-	return false; \
     } \
 }
 
