@@ -9,25 +9,20 @@ ________________________________________________________________________
 
 #include "seisimporter.h"
 
+#include "binidsorting.h"
+#include "cbvsreadmgr.h"
+#include "ioobj.h"
+#include "ptrman.h"
+#include "scaler.h"
 #include "seisbuf.h"
-#include "seiscbvs.h"
 #include "seisread.h"
 #include "seisresampler.h"
 #include "seisselection.h"
 #include "seistrc.h"
 #include "seiswrite.h"
-
+#include "survinfo.h"
 #include "thread.h"
 #include "threadwork.h"
-#include "binidsorting.h"
-#include "cbvsreadmgr.h"
-#include "conn.h"
-#include "file.h"
-#include "filepath.h"
-#include "iostrm.h"
-#include "ptrman.h"
-#include "scaler.h"
-#include "survinfo.h"
 #include "uistrings.h"
 
 
@@ -43,7 +38,7 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     , sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
     , prevbid_(*new BinID(mUdf(int),mUdf(int)))
     , lock_(*new Threads::ConditionVar)
-    , maxqueuesize_( Threads::getNrProcessors()*100 )
+    , maxqueuesize_(100) // arbitrary, but more seems to lower performance
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
 					Threads::WorkManager::SingleThread,
