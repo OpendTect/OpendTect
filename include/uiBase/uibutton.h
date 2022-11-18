@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
 #include "uiobj.h"
 #include "uistring.h"
-#include "odiconfile.h"
+#include "odcommonenums.h"
 
 class uiButtonBody;
 class uiCheckBoxBody;
@@ -79,6 +80,8 @@ protected:
 mExpClass(uiBase) uiPushButton : public uiButton
 {
 public:
+			uiPushButton(uiParent*,const uiString& txt);
+			//!<PushButton without stylesheet
 			uiPushButton(uiParent*,const uiString& txt,
 				     bool immediate);
 			uiPushButton(uiParent*,const uiString& txt,
@@ -88,6 +91,11 @@ public:
 			uiPushButton(uiParent*,const uiString& txt,
 				     const uiPixmap&,const CallBack&,
 				     bool immediate);
+			uiPushButton(uiParent*,const uiString& txt,
+				     const char* iconnm,bool immediate);
+			uiPushButton(uiParent*,const uiString& txt,
+				     const char* iconnm,const CallBack&,
+				     bool immediate);
 			~uiPushButton();
 
     void		setDefault(bool yn=true);
@@ -95,6 +103,8 @@ public:
     void		setMenu(uiMenu*);
     void		setFlat(bool);
     bool		isFlat() const;
+
+    void		setDefaultStyleSheet(bool withbgcolor=true);
 
 private:
 

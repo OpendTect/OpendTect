@@ -128,6 +128,7 @@ public:
 
     void		setToolTip( const uiString& tt ) override
 			{ uiObject::setToolTip(tt); }
+    void		setDefaultStyleSheet();
 
 protected:
 

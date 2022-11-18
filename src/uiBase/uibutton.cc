@@ -381,50 +381,85 @@ QAbstractButton* uiButton::qButton()
 #define mQBut(typ) dynamic_cast<Q##typ&>( *body() )
 
 // uiPushButton
-uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm, bool ia )
-    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
-    , immediate_(ia)
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm )
+    : uiButton(p,nm,nullptr,mkbody(p,nm))
+    , immediate_(true)
 {
     updateText();
+    setMinimumHeight( 23 );
+    setMinimumWidth( 80 );
 }
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm, bool ia )
+    : uiPushButton(p,nm)
+{
+    immediate_ = ia;
+    setDefaultStyleSheet();
+}
+
+
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
 			    const CallBack& cb, bool ia )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,nm) )
-    , immediate_(ia)
+    : uiPushButton(p,nm)
 {
-    updateText();
+    immediate_ = ia;
+    setDefaultStyleSheet();
+    activated.notify( cb );
 }
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
 			    const uiPixmap& pm, bool ia )
-    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
-    , immediate_(ia)
+    : uiPushButton(p,nm)
 {
-    updateText();
+    immediate_ = ia;
     setPixmap( pm );
+    setDefaultStyleSheet();
 }
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
 			    const uiPixmap& pm, const CallBack& cb, bool ia )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,nm) )
-    , immediate_(ia)
+    : uiPushButton(p,nm)
 {
-    updateText();
+    immediate_ = ia;
     setPixmap( pm );
+    setDefaultStyleSheet();
+    activated.notify( cb );
+}
+
+
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
+			    const char* iconnm, bool ia )
+    : uiPushButton(p,nm)
+{
+    immediate_ = ia;
+    setIcon( iconnm );
+    setDefaultStyleSheet();
+}
+
+
+uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
+			    const char* iconnm, const CallBack& cb, bool ia )
+    : uiPushButton(p,nm)
+{
+    immediate_ = ia;
+    setIcon( iconnm );
+    setDefaultStyleSheet();
+    activated.notify( cb );
 }
 
 
 uiPushButton::~uiPushButton()
-{}
-
-
-uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
-    pbbody_ = new uiPushButtonBody( *this, parnt, txt );
+    detachAllNotifiers();
+}
+
+
+uiPushButtonBody& uiPushButton::mkbody( uiParent* p, const uiString& txt )
+{
+    pbbody_ = new uiPushButtonBody( *this, p, txt );
     return *pbbody_;
 }
 
@@ -491,6 +526,42 @@ void uiPushButton::setDefault( bool yn )
 {
     mQBut(PushButton).setDefault( yn );
     setFocus();
+}
+
+
+static BufferString getPBStyleSheet( bool withbgcolor=true )
+{
+    BufferString qss =
+	"QPushButton { border: 1px solid #8f8f91; border-radius: 5px; }";
+
+    qss.add(
+	"QPushButton:flat { border: none; }"
+	"QPushButton:default { border: 1px solid; border-color: navy; }" );
+
+    if ( withbgcolor )
+    {
+	qss.add(
+	    "QPushButton {"
+		"background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+				"stop: 0 #f6f7fa, stop: 1 #dadbde); }" );
+
+	qss.add(
+	    "QPushButton:pressed {"
+		"background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+				"stop: 0 #dadbde, stop: 1 #f6f7fa); }" );
+    }
+
+
+    return qss;
+}
+
+
+void uiPushButton::setDefaultStyleSheet( bool withbgcolor )
+{
+    if ( __ismac__ )
+	return;
+
+    setStyleSheet( getPBStyleSheet(withbgcolor) );
 }
 
 
