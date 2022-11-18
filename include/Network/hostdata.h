@@ -91,14 +91,14 @@ public:
 protected:
 			HostData(const char* nm,const OD::Platform&);
 
-    bool		staticip_;
+    bool		staticip_			= false;
     BufferString	hostname_;
     BufferString	ipaddress_;
     BufferStringSet	aliases_;
     OD::Platform	platform_;
     FilePath		appl_pr_;
     FilePath		data_pr_;
-    const HostData*	localhd_ = nullptr;
+    const HostData*	localhd_			= nullptr;
 
     friend class	HostDataList;
 
