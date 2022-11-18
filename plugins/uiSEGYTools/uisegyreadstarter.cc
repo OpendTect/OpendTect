@@ -29,12 +29,12 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uimenu.h"
-#include "uisplitter.h"
 
 #include "dataclipper.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "filepath.h"
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "od_istream.h"
 #include "posinfodetector.h"
