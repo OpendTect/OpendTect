@@ -964,6 +964,27 @@ void TrcKeySampling::toString( BufferString& str ) const
 }
 
 
+void TrcKeySampling::fillInfoSet( StringPairSet& infoset ) const
+{
+    {
+    uiString str = toUiString("%1 - %2 - %3; Total: %4")
+			.arg(start_.inl())
+			.arg(stop_.inl())
+			.arg(step_.inl())
+			.arg(nrInl());
+    infoset.add( sKey::InlRange(), str.getFullString() );
+    }
+    {
+    uiString str = toUiString("%1 - %2 - %3; Total: %4")
+			.arg(start_.crl())
+			.arg(stop_.crl())
+			.arg(step_.crl())
+			.arg(nrCrl());
+    infoset.add( sKey::CrlRange(), str.getFullString() );
+    }
+}
+
+
 void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
 {
     if ( nr > totalNr() )
@@ -1497,6 +1518,20 @@ void TrcKeyZSampling::normalize()
 {
     hsamp_.normalize();
     normalizeZ( zsamp_ );
+}
+
+
+void TrcKeyZSampling::fillInfoSet( StringPairSet& infoset, float zscale ) const
+{
+    hsamp_.fillInfoSet( infoset );
+
+    const float zfactor = mIsUdf(zscale) ? (SI().zIsTime() ? 1000 : 1) : zscale;
+    uiString str = ::toUiString("%1 - %2 - %3; Total: %4")
+			.arg(zsamp_.start*zfactor)
+			.arg(zsamp_.stop*zfactor)
+			.arg(zsamp_.step*zfactor)
+			.arg(nrZ());
+    infoset.add( sKey::ZRange(), str.getFullString() );
 }
 
 
