@@ -938,11 +938,11 @@ void uiWellMan::removeLogPush( CallBacker* )
     BufferStringSet logs2rem;
     logsfld_->getChosen( logs2rem );
 
-    uiString msg = tr("Selected logs will be permanently removed."
+    uiString msg = tr("Selected logs will be permanently deleted."
 		      "\nDo you wish to continue?");
     uiStringSet details;
     logs2rem.fill( details );
-    const int res = uiMSG().askRemoveWithDetails( msg, details );
+    const int res = uiMSG().askDeleteWithDetails( msg, details );
     if ( res == 0 )
 	return;
 

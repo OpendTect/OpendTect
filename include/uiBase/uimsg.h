@@ -86,6 +86,12 @@ public:
 			 const uiString& caption=uiString::emptyString());
     int		askSave(const uiString&,bool cancelbut=true);
 		//!<\retval 0=Don't save 1=Save -1=Cancel
+    int		askDelete(const uiString&,bool cancelbut=false);
+		//!<\retval 0=Don't delete 1=Delete -1=Cancel
+    int		askDeleteWithDetails(const uiString& msg,
+				     const uiStringSet& details,
+				     bool cancelbut=false);
+		//!<\retval 0=Don't delete 1=Delete -1=Cancel
     int		askRemove(const uiString&,bool cancelbut=false);
 		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askRemoveWithDetails(const uiString& msg,

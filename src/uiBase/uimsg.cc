@@ -482,6 +482,27 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 }
 
 
+int uiMsg::askDelete( const uiString& text, bool wcancel )
+{
+    const uiString notxt = wcancel ? tr("Don't delete") : uiStrings::sCancel();
+    return question( text, uiStrings::sDelete(), notxt,
+		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
+		     tr("Delete data") );
+}
+
+
+int uiMsg::askDeleteWithDetails( const uiString& text,
+				 const uiStringSet& details, bool wcancel )
+{
+    const uiString notxt = wcancel ? tr("Don't delete") : uiStrings::sCancel();
+    const uiString cncltxt =
+		wcancel ? uiStrings::sCancel() : uiString::emptyString();
+    return showMessageBoxWithDetails( Question, popParnt(), text,
+				      uiStrings::sDelete(), notxt, cncltxt,
+				      details, tr("Delete Data"), nullptr );
+}
+
+
 int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
     const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();

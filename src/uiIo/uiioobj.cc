@@ -40,13 +40,14 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	return false;
 
     uiString msg, canceltxt, deepremovetext, shallowremovetxt;
-    if ( trans->getConfirmRemoveMsg(&ioobj_,msg,canceltxt,deepremovetext,
+    bool deepremove = false;
+    if ( doconfirm && !silent_ &&
+	    trans->getConfirmRemoveMsg(&ioobj_,msg,canceltxt,deepremovetext,
 				    shallowremovetxt) )
     {
-	bool deepremove = true;
 	if ( shallowremovetxt.isEmpty() )
 	{
-	    if ( !uiMSG().askRemove(msg) )
+	    if ( !uiMSG().askDelete(msg) )
 		return false;
 	}
 	else
@@ -59,19 +60,19 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 
 	    deepremove = resp == 1;
 	}
+    }
 
-	if ( !IOM().implRemove(ioobj_,deepremove) )
+    if ( !IOM().implRemove(ioobj_,deepremove) )
+    {
+	if ( !silent_ )
 	{
-	    if ( !silent_ )
-	    {
-		uiString mess = tr("Could not delete data file(s).\n"
-				   "Remove entry from list anyway?");
-		if ( !uiMSG().askRemove(mess) )
-		    return false;
-	    }
-
-	    return false;
+	    uiString mess = tr("Could not delete data file(s).\n"
+			       "Remove entry from list anyway?");
+	    if ( !uiMSG().askRemove(mess) )
+		return false;
 	}
+
+	return false;
     }
 
     if ( rmentry )
