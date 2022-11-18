@@ -59,6 +59,7 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 uiSizeSel::~uiSizeSel()
 {
     detachAllNotifiers();
+    hp.removeParam( this );
 }
 
 
