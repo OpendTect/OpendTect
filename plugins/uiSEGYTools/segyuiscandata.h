@@ -42,8 +42,10 @@ mExpClass(uiSEGYTools) BasicFileInfo
 public:
 
 			BasicFileInfo(bool is2d);
+			BasicFileInfo(const BasicFileInfo&);
     virtual		~BasicFileInfo();
 
+    BasicFileInfo&	operator =(const BasicFileInfo&);
     void		init(bool is2d);
 
     int			revision_;

@@ -10,18 +10,14 @@ ________________________________________________________________________
 #include "segyuiscandata.h"
 #include "segyhdrkeydata.h"
 #include "segyhdr.h"
-#include "segyhdrdef.h"
 #include "seisinfo.h"
 #include "od_istream.h"
 #include "datainterp.h"
 #include "dataclipper.h"
 #include "posinfodetector.h"
-#include "sortedlist.h"
 #include "survinfo.h"
 #include "executor.h"
 #include "coordsystem.h"
-
-#include "uitaskrunner.h"
 
 static const int cQuickScanNrTrcsAtEnds = 225; // 2 times
 static const int cQuickScanNrTrcsInMiddle = 25; // 2 times
@@ -36,8 +32,29 @@ SEGY::BasicFileInfo::BasicFileInfo( bool is2d )
 }
 
 
+SEGY::BasicFileInfo::BasicFileInfo( const BasicFileInfo& oth )
+{
+    *this = oth;
+}
+
+
 SEGY::BasicFileInfo::~BasicFileInfo()
 {
+}
+
+
+SEGY::BasicFileInfo& SEGY::BasicFileInfo::operator=( const BasicFileInfo& oth )
+{
+    revision_ = oth.revision_;
+    binsr_ = oth.binsr_;
+    ns_ = oth.ns_;
+    thdrns_ = oth.thdrns_;
+    format_ = oth.format_;
+    sampling_ = oth.sampling_;
+    hdrsswapped_ = oth.hdrsswapped_;
+    dataswapped_ = oth.dataswapped_;
+    is2d_ = oth.is2d_;
+    return *this;
 }
 
 

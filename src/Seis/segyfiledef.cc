@@ -109,7 +109,7 @@ SEGY::FilePars::FilePars( bool forread )
 }
 
 
-SEGY::FilePars::FilePars( const SEGY::FilePars& oth )
+SEGY::FilePars::FilePars( const FilePars& oth )
 {
     *this = oth;
     mAttachCB(IOM().surveyToBeChanged, FilePars::onSurveyChgCB);
@@ -122,14 +122,16 @@ SEGY::FilePars::~FilePars()
 }
 
 
-SEGY::FilePars& SEGY::FilePars::operator =( const SEGY::FilePars& oth )
+SEGY::FilePars& SEGY::FilePars::operator=( const FilePars& oth )
 {
     if ( &oth == this )
 	return *this;
 
-    fmt_ = oth.fmt_;
-    forread_ = oth.forread_;
     ns_ = oth.ns_;
+    fmt_ = oth.fmt_;
+    byteswap_ = oth.byteswap_;
+    forread_ = oth.forread_;
+    coordsys_ = oth.coordsys_;
     return *this;
 }
 
