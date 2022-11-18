@@ -13,19 +13,28 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "linekey.h"
 #include "uistring.h"
-class Scaler;
-class SeisTrc;
+
 class Executor;
+class RegularSeisDataPack;
+class Scaler;
+class SeisPS2DReader;
+class SeisPS3DReader;
+class SeisTrc;
+class SeisTrcBuf;
+class TaskRunner;
 class TraceData;
 class TrcKeySampling;
-class SeisTrcBuf;
-class SeisPS3DReader;
-class SeisPS2DReader;
-namespace Seis { class Bounds; class Bounds2D; }
+namespace Seis
+{
+    class Bounds;
+    class Bounds2D;
+}
 namespace PosInfo
 {
-    class CubeData; class CubeDataIterator;
-    class Line2DData; class Line2DDataIterator;
+    class CubeData;
+    class CubeDataIterator;
+    class Line2DData;
+    class Line2DDataIterator;
 }
 
 
@@ -79,6 +88,7 @@ public:
 			      get(SeisTrc&). */
 
     bool		getData(TraceData&);
+    bool		getDataPack(RegularSeisDataPack&,TaskRunner* =nullptr);
 
     bool		get(SeisTrc&);
 			/*!< It is possible to directly call this without
@@ -86,6 +96,7 @@ public:
 			     the trace selections in the SelData may be
 			     ignored then - depending on the Translator's
 			     capabilities. */
+
 
     void		fillPar(IOPar&) const override;
 

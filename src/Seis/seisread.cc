@@ -12,14 +12,11 @@ ________________________________________________________________________
 #include "seis2dlineio.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
-#include "seiscbvs.h"
 #include "seispacketinfo.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
-#include "segydirecttr.h"
-#include "segydirectdef.h"
 #include "seis2ddata.h"
 
 #include "binidvalset.h"
@@ -27,15 +24,13 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
-#include "posinfo2dsurv.h"
+#include "scaler.h"
 #include "streamconn.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "trckeyzsampling.h"
-#include "uistrings.h"
 
 
 TrcKeySampling& getUdfTks()
@@ -491,6 +486,27 @@ bool SeisTrcReader::getData( TraceData& data )
     {
 	errmsg_ = strl()->errMsg();
 	strl()->skip();
+	return false;
+    }
+
+    return true;
+}
+
+
+bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
+{
+    needskip = false;
+    if ( !prepared_ && !prepareWork(readmode) )
+	return false;
+    else if ( outer == &getUdfTks() && !startWork() )
+	return false;
+
+    if ( psioprov_ || is2D() )
+	return false;
+
+    if ( !strl()->readDataPack(sdp,taskr) )
+    {
+	errmsg_ = strl()->errMsg();
 	return false;
     }
 

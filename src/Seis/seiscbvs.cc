@@ -12,10 +12,11 @@ ________________________________________________________________________
 #include "cbvsreader.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
+#include "envvars.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
-#include "keystrs.h"
+#include "seisdatapack.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seistrc.h"
@@ -23,7 +24,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "uistrings.h"
+
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
@@ -450,6 +451,46 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     }
 
     return (headerdonenew_ = true);
+}
+
+
+bool CBVSSeisTrcTranslator::readDataPack( RegularSeisDataPack& rsdp,
+					  TaskRunner* taskr )
+{
+    const bool res = GetEnvVarYN("OD_ENABLE_TRANSLATOR_DATAPACK",false);
+    if ( !res )
+	return false;
+
+    if ( !storbuf_ && !commitSelections() )
+	return false;
+
+    TrcKeyZSampling tkzs;
+    tkzs.hsamp_.setInlRange( seldata_->inlRange() );
+    tkzs.hsamp_.setCrlRange( seldata_->crlRange() );
+    tkzs.zsamp_.setFrom( seldata_->zRange() );
+    rsdp.setSampling( tkzs );
+    rsdp.addComponent( "" );
+
+    while ( true )
+    {
+	const BinID bid = rdmgr_->binID();
+	const int inlidx = tkzs.hsamp_.lineIdx( bid.inl() );
+	const int crlidx = tkzs.hsamp_.trcIdx( bid.crl() );
+	const int zidx = 0;
+
+	if ( !rdmgr_->fetch(*storbuf_,compsel_,&samprg_) )
+	{
+	    errmsg_ = toUiString( rdmgr_->errMsg() );
+	    return false;
+	}
+
+	const float val = storbuf_->getValue( 0, 0 );
+	rsdp.data(0).set( inlidx, crlidx, zidx, val );
+	if ( !toNext() )
+	    break;
+    }
+
+    return true;
 }
 
 
