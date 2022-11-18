@@ -49,6 +49,7 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 
     hp.setParam( this, new HP_uiSizeSel );
     auto* symmfld = new uiCheckBox( this, toUiString("Symmetric") );
+    symmfld->setChecked();
     symmfld->attach( rightTo, sizeflds_.last() );
     hp.getParam(this)->symmfld_ = symmfld;
 
