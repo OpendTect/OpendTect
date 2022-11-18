@@ -42,11 +42,13 @@ static const char* sKeyHostName()	{ return "Hostname"; }
 static const char* sKeyIPAddress()	{ return "IP Address"; }
 
 HostData::HostData( const char* nm )
+    : staticip_(false)
 { init( nm ); }
 
 
 HostData::HostData( const char* nm, const OD::Platform& plf )
     : platform_(plf)
+    , staticip_(false)
 { init( nm ); }
 
 
@@ -54,15 +56,17 @@ HostData::HostData( const char* nm, const HostData& localhost,
 		    const OD::Platform& plf )
     : platform_(plf)
     , localhd_(&localhost)
+    , staticip_(false)
 { init( nm ); }
 
 
 HostData::HostData( const HostData& oth )
-    : aliases_( oth.aliases_ )
-    , platform_( oth.platform_ )
-    , appl_pr_( oth.appl_pr_ )
-    , data_pr_( oth.data_pr_ )
-    , localhd_( oth.localhd_ )
+    : aliases_(oth.aliases_)
+    , platform_(oth.platform_)
+    , appl_pr_(oth.appl_pr_)
+    , data_pr_(oth.data_pr_)
+    , localhd_(oth.localhd_)
+    , staticip_(oth.staticip_)
 {
     if ( oth.isStaticIP() )
 	init( oth.ipaddress_ );
@@ -83,7 +87,7 @@ const char* HostData::localHostName()
 
 bool HostData::isStaticIP() const
 {
-    return staticip_==true;
+    return staticip_;
 }
 
 
