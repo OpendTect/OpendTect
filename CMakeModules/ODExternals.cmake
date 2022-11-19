@@ -97,7 +97,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 		file(TOUCH_NOCREATE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 	    endif()
 	else()
-	    message ( FATAL_ERROR "${DIR} is not up to date" )
+	    message ( WARNING "Cannot check status for '${DIR}' external. It may not be up-to-date" )
 	endif()
     endif()
 
