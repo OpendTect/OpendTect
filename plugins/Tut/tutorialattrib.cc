@@ -145,7 +145,7 @@ bool Tutorial::getInputData( const BinID& relpos, int zintv )
     if ( !inpdata )
 	return false;
 
-    inpdata_.replace( 0, inpdata);
+    inpdata_.replace( 0, inpdata );
 
     if ( action_ ==2 && horsmooth_ )
     {
