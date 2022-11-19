@@ -22,6 +22,8 @@ if ( NOT OD_NO_OSG )
     unset( OD_NO_OSG )
 endif()
 set( HDF5_ROOT @HDF5_ROOT@ )
+set( OPENSSL_ROOT_DIR @OPENSSL_ROOT_DIR@ )
+
 #Setup OpendTect's binary location (if not done)
 if ( NOT DEFINED OD_BINARY_BASEDIR )
     if ( APPLE )
