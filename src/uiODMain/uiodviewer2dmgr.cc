@@ -237,8 +237,9 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					FlatView::Viewer::VwrDest dest )
 {
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
-    vwr2d->setSelSpec( &as, dest );
-    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0), dest );
+    vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
+    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0),
+		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
@@ -301,14 +302,16 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     const Attrib::SelSpec& as = posdatasel.selspec_;
-    vwr2d->setSelSpec( &as, dest );
+    vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
     const Geometry::RandomLine* rdmline =
 	Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
     if ( rdmline )
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0), dest );
+    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0),
+		       FlatView::Viewer::Both );
+    DPM(DataPackMgr::SeisID()).unRef( dpid );
     vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dest );
 

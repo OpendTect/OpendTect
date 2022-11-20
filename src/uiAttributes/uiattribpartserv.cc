@@ -745,12 +745,10 @@ DataPackID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     ConstRefMan<RegularSeisDataPack> cache =
 					dpm.get<RegularSeisDataPack>( cacheid );
     ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr() );
-    if ( !newpack )
+    if ( !newpack || !dpm.add(newpack) )
 	return DataPack::cNoID();
 
-    newpack.setNoDelete( true );
-    dpm.add( newpack );
-
+    newpack->ref();
     return newpack->id();
 }
 
@@ -1138,6 +1136,9 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 
     RefMan<RandomSeisDataPack> newpack =
 		new RandomSeisDataPack( SeisDataPack::categoryStr(true,false) );
+    if ( !newpack || !DPM(DataPackMgr::SeisID()).add(newpack) )
+	return DataPack::cNoID();
+
     newpack->setRandomLineID( rdlid );
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
@@ -1159,13 +1160,8 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
     newpack->setName( targetspecs_[0].userRef() );
-    if ( DPM(DataPackMgr::SeisID()).add( newpack ) )
-    {
-	DPM(DataPackMgr::SeisID()).ref( newpack->id() );
-	return newpack->id();
-    }
-    else
-	return DataPack::cNoID();
+    newpack->ref();
+    return newpack->id();
 }
 
 
@@ -1249,6 +1245,9 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 
     RefMan<RandomSeisDataPack> newpack = new RandomSeisDataPack(
 				SeisDataPack::categoryStr(true,false) );
+    if ( !newpack || !DPM(DataPackMgr::SeisID()).add(newpack) )
+	return DataPack::cNoID();
+
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
@@ -1269,13 +1268,8 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
     newpack->setName( targetspecs_[0].userRef() );
-    if ( DPM(DataPackMgr::SeisID()).add( newpack ) )
-    {
-	DPM(DataPackMgr::SeisID()).ref( newpack->id() );
-	return newpack->id();
-    }
-    else
-	return DataPack::cNoID();
+    newpack->ref();
+    return newpack->id();
 }
 
 
@@ -1494,6 +1488,7 @@ DataPackID uiAttribPartServer::createDataPackFor2D(
 		input, outputsampling.hsamp_.getGeomID(), zdef,
 		compnames, outputid );
     datapackcreator.execute();
+    DPM(DataPackMgr::SeisID()).ref( outputid );
     return outputid;
 }
 
