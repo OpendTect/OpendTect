@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	initvissurvey.cc
 	visarrowdisplay.cc
 	visaxisdisplay.cc

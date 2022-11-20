@@ -36,6 +36,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	set( OpendTect_INST_DIR ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
     endif()
 
+    set( CMAKE_FOLDER "Releases" )
     add_custom_target( packages ${CMAKE_COMMAND} 
 	    -DOpendTect_INST_DIR=${OpendTect_INST_DIR}
 	    -DOpendTect_FULL_VERSION=${OpendTect_FULL_VERSION}
@@ -60,10 +61,12 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
 	    -P "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake" 
 	    COMMENT "Creating packages" ) 
+    unset( CMAKE_FOLDER )
 endmacro()
 
 
 macro( OD_ADD_SIGNLIBRARIES_TARGET )
+    set( CMAKE_FOLDER "Releases" )
     if ( WIN32 )
 	set( EXECPLFDIR "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
 	file( TO_NATIVE_PATH "${EXECPLFDIR}" EXECPLFDIR )
@@ -73,4 +76,5 @@ macro( OD_ADD_SIGNLIBRARIES_TARGET )
 	add_custom_target( signlibraries "${SIGN_SCRIPT_LOCATION}" "${CMAKE_INSTALL_PREFIX}"
 			   COMMENT "Signing Libraries and EXEs" )
     endif()
+    unset( CMAKE_FOLDER )
 endmacro()

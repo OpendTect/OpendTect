@@ -5,23 +5,12 @@
 #________________________________________________________________________
 #
 
-set ( OD_MODULE_DEPS Algo )
-if ( UNIX )
-    set ( OD_TEST_PROGS ibmformat.cc )
-endif()
+set( OD_MODULE_DEPS Algo )
+set( OD_FOLDER "Base" )
+set( OD_USEQT Core ) # for the ziphandler.cc only
+set( OD_USEZLIB TRUE )
 
-list ( APPEND OD_TEST_PROGS
-	mathexpression.cc
-	mathformula.cc
-	mnemonics.cc
-	posidxpairvalset.cc
-	raytracerrunner.cc
-	reflectivitysampler.cc
-	unitofmeasure.cc
-)
-set( OD_NIGHTLY_TEST_PROGS zip.cc )
-
-list ( APPEND OD_MODULE_SOURCES
+set( OD_MODULE_SOURCES
 	array2dbitmap.cc
 	basemap.cc
 	batchjobdispatch.cc
@@ -105,13 +94,26 @@ list ( APPEND OD_MODULE_SOURCES
 	initgeneral.cc
 )
 
-set (OD_USEQT Core) # for the ziphandler.cc only
-set (OD_USEZLIB Yes)
-set (OD_MODULE_PROGS od_DBMan.cc)
-set (OD_MODULE_TESTPROGS test_exit_program.cc )
+set( OD_MODULE_PROGS od_DBMan.cc )
+set( OD_MODULE_TESTPROGS test_exit_program.cc )
+
+if ( UNIX )
+    set( OD_TEST_PROGS ibmformat.cc )
+endif()
+
+list( APPEND OD_TEST_PROGS
+	mathexpression.cc
+	mathformula.cc
+	mnemonics.cc
+	posidxpairvalset.cc
+	raytracerrunner.cc
+	reflectivitysampler.cc
+	unitofmeasure.cc
+)
+set( OD_NIGHTLY_TEST_PROGS zip.cc )
 
 if ( CMAKE_COMPILER_IS_GNUCC )
-    if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )
+    if ( CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4" )
 	message( "Turning down optimizations on ibmformat.cc to avoid "
 		 "compiler problems." )
 	set_source_files_properties( ibmformat.cc PROPERTIES COMPILE_FLAGS -O )

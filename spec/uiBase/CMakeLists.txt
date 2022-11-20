@@ -5,8 +5,9 @@
 #________________________________________________________________________
 #
 
-SET( OD_MODULE_DEPS uiBase General )
-SET( OD_MODULE_PROGS
+set( OD_MODULE_DEPS uiBase General )
+set( OD_FOLDER "Base (GUI)" )
+set( OD_MODULE_PROGS
 	od_layouttest.cc
 	od_screentest.cc
 )

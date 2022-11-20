@@ -6,6 +6,8 @@
 #
 
 set( OD_MODULE_DEPS uiBase MMProc )
+set( OD_FOLDER "Base (GUI)" )
+
 set( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc
@@ -134,6 +136,5 @@ endif( WIN32 )
 if ( OD_ENABLE_BREAKPAD )
     list ( APPEND OD_MODULE_TESTPROGS test_breakpad.cc )
 endif()
-
 
 OD_INIT_MODULE()

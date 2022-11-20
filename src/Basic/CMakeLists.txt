@@ -5,18 +5,18 @@
 #________________________________________________________________________
 #
 
+set( OD_FOLDER "Base" )
 set( OD_USEQT Core )
-set( OD_USEBREAKPAD Yes )
+set( OD_USEBREAKPAD TRUE )
 
 if ( UNIX )
-    option ( OD_ENABLE_MEMDEBUGGER_CODE
+    option( OD_ENABLE_MEMDEBUGGER_CODE
 	    "Enable code that gives less false memory violation positives" OFF )
     if ( OD_ENABLE_MEMDEBUGGER_CODE )
 	add_definitions("-DmMEM_DEBUGGER")
     endif()
 endif( UNIX )
-if ( EXISTS "${CMAKE_SOURCE_DIR}/external/odpy" AND
-     IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
     add_definitions( -D__odpy_dir__="${CMAKE_SOURCE_DIR}/external/odpy" )
 endif()
 
@@ -157,9 +157,9 @@ endif()
 
 if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
     if ( UNIX )
-	set ( FILEEXT sh )
+	set( FILEEXT sh )
     else()
-	set ( FILEEXT cmd )
+	set( FILEEXT cmd )
     endif()
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -175,9 +175,9 @@ if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
                     "${PROJECT_BINARY_DIR}/testscripts/count_to_1000.csh" )
 
     if ( UNIX )
-	set ( FILEEXT sh )
+	set( FILEEXT sh )
     else()
-	set ( FILEEXT bat )
+	set( FILEEXT bat )
     endif()
     execute_process(
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different

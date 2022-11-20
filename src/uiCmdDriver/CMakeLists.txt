@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS uiTools )
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiTools )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	canvascommands.cc
 	cmdcomposer.cc
 	cmddriverbasics.cc
@@ -28,4 +30,5 @@ SET(OD_MODULE_SOURCES
 	uicmddriverdlg.cc
 	uicmddrivermgr.cc
 )
+
 OD_INIT_MODULE()

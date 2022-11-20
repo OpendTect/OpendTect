@@ -11,6 +11,7 @@ if ( NOT OD_NO_PROJ )
 endif()
 
 set( OD_MODULE_DEPS General )
+set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES 
 	crspi.cc

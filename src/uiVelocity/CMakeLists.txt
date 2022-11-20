@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiSeis Velocity )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiSeis Velocity )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituivelocity.cc
 	uilinearveltrans.cc
 	uiselectvelocityfunction.cc

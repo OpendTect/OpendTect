@@ -5,21 +5,19 @@
 #________________________________________________________________________
 #
 
-if ( UNIX )
-    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/backend-server/upload.sh.in
-		    ${CMAKE_BINARY_DIR}/dtect/backend-server-upload.sh @ONLY )
-endif( UNIX )
+set( OD_MODULE_DEPS General )
+set( OD_FOLDER "Base" )
+set( OD_USEQT Network )
+set( OD_USEOPENSSL TRUE )
+set( OD_USECRYPTO TRUE )
 
-set ( OD_USEQT Network )
-set ( OD_USEOPENSSL Yes )
-set ( OD_USECRYPTO Yes )
-set ( OD_MODULE_DEPS General )
-
-set ( QT_MOC_HEADERS
+set( QT_MOC_HEADERS
 	i_odhttpconn.h
 	qtcpservercomm.h
-	qtcpsocketcomm.h)
-set ( OD_MODULE_SOURCES
+	qtcpsocketcomm.h
+)
+
+set( OD_MODULE_SOURCES
 	clientservicebase.cc
 	cvsaccess.cc
 	hostdata.cc
@@ -41,9 +39,16 @@ set ( OD_MODULE_SOURCES
 	systeminfo.cc
 	webfileaccess.cc
 )
+
 set ( OD_MODULE_TESTPROGS test_netreqechoserver.cc test_netsocketechoserver.cc )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc webstreamsource.cc )
+
+if ( UNIX )
+    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/backend-server/upload.sh.in
+		    ${CMAKE_BINARY_DIR}/dtect/backend-server-upload.sh @ONLY )
+endif( UNIX )
+
 OD_INIT_MODULE()
 
 # The test programs are independant, but it is handy to compile the server app

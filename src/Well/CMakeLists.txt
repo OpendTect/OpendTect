@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS General)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS General )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	initwell.cc
 	directionalsurvey.cc
 	laswriter.cc
@@ -31,6 +33,6 @@ SET(OD_MODULE_SOURCES
 	wellwriter.cc
 )
 
-SET(OD_MODULE_PROGS od_WellMan.cc )
+set( OD_MODULE_PROGS od_WellMan.cc )
 
 OD_INIT_MODULE()

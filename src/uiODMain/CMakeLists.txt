@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS
+set( OD_MODULE_DEPS
 	uiVis
 	uiVolumeProcessing
 	uiNLA
@@ -13,7 +13,9 @@ set(OD_MODULE_DEPS
 	uiEMAttrib
 	uiViewer2D
 )
-set(OD_MODULE_SOURCES
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituiodmain.cc
 	measuretoolman.cc
 	odsession.cc

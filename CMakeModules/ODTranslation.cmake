@@ -23,12 +23,14 @@ macro( OD_ADD_TRANSLATIONS )
 	    endif()
 
 	    if ( NOT TARGET update_translations )
+		set( CMAKE_FOLDER "Base" )
 		add_custom_target( update_translations
 			COMMAND ${OpendTect_DIR}/dtect/update_translations.csh
 				${OpendTect_DIR} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
 				"od"
 				"${QT_LUPDATE_EXECUTABLE}"
 			COMMENT "Updating plural localizations" )
+		unset( CMAKE_FOLDER )
 	    endif()
 	endif()
     endif()

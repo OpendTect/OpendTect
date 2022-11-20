@@ -6,6 +6,8 @@
 #
 
 set( OD_MODULE_DEPS uiTools uiFlatView Geometry )
+set( OD_FOLDER "Base (GUI)" )
+
 set( OD_MODULE_SOURCES
 	dpsdensitycalc.cc
 	ui2dgeomman.cc
@@ -74,7 +76,10 @@ set( OD_MODULE_SOURCES
 	inituiio.cc
 )
 
-set( OD_MODULE_GUI_PROGS od_BatchHosts.cc od_RemoteServiceMgr.cc )
+set( OD_MODULE_GUI_PROGS
+	od_BatchHosts.cc
+	od_RemoteServiceMgr.cc
+)
 
 if( WIN32 )
     set( RC_od_BatchHosts_DESC "Set up Distributed Computing" )

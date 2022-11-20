@@ -5,9 +5,11 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS General )
-set(OD_USEQT PrintSupport)
-set(QT_MOC_HEADERS
+set( OD_MODULE_DEPS General )
+set( OD_FOLDER "Base (GUI)" )
+set( OD_USEQT PrintSupport )
+
+set( QT_MOC_HEADERS
 	i_qaction.h
 	i_qbutton.h
 	i_qcombobox.h
@@ -27,7 +29,7 @@ set(QT_MOC_HEADERS
 	i_qtreeview.h
 )
 
-set(OD_MODULE_SOURCES
+set( OD_MODULE_SOURCES
 	i_layout.cc
 	i_layoutitem.cc
 	inituibase.cc
@@ -98,9 +100,9 @@ set(OD_MODULE_SOURCES
 )
 
 if ( APPLE )
-    list ( APPEND OD_MODULE_SOURCES uimacinit.cc )
+    list( APPEND OD_MODULE_SOURCES uimacinit.cc )
 endif()
 
-SET(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
+set( OD_MODULE_GUI_PROGS od_DispMsg.cc )
 
 OD_INIT_MODULE()

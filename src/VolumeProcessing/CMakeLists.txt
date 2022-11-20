@@ -6,7 +6,8 @@
 #
 
 set( OD_MODULE_DEPS Velocity Well )
-set( OD_TEST_PROGS volprocchain.cc )
+set( OD_FOLDER "Base" )
+
 set( OD_MODULE_SOURCES
 	initvolumeprocessing.cc
 	velocitygridder.cc
@@ -27,6 +28,8 @@ set( OD_MODULE_SOURCES
 	voxelconnectivityfilter.cc
 	wellloginterpolator.cc
 )
+
 set( OD_MODULE_BATCHPROGS od_process_volume.cc )
+set( OD_TEST_PROGS volprocchain.cc )
 
 OD_INIT_MODULE()

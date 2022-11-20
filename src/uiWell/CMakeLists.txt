@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiStrat Well)
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiStrat Well )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituiwell.cc
 	uibulkwellimp.cc
 	uid2tmodelgrp.cc

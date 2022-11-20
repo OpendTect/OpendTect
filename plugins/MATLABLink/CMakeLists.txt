@@ -7,9 +7,10 @@
 
 set( MATLAB_DIR "" CACHE PATH "Directory containing MATLAB-SDK" )
 
-if ( NOT MATLAB_DIR STREQUAL "" )
+if ( IS_DIRECTORY "${MATLAB_DIR}" )
 
     set( OD_MODULE_DEPS VolumeProcessing )
+    set( OD_FOLDER "OD Free Plugins" )
     set( OD_IS_PLUGIN yes )
     set( OD_MODULE_SOURCES
 	matlabarray.cc
@@ -85,7 +86,9 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 		 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
     endif()
 else()
+
     get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
     list( REMOVE_ITEM OD_PLUGINS ${OD_MODULE_NAME} )
     set( OD_PLUGINS ${OD_PLUGINS} PARENT_SCOPE )
+
 endif()

@@ -5,9 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS AttributeEngine)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS AttributeEngine )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes)
+set( OD_MODULE_SOURCES
 	corrmultiattrib.cc
 	expattribspi.cc
 	eventfreqattrib.cc
@@ -15,6 +16,6 @@ SET(OD_MODULE_SOURCES
 	integratedtrace.cc
 	similaritybyaw.cc
 )
-SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
+set( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
 
 OD_INIT_MODULE()

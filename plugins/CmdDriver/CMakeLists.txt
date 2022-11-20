@@ -5,12 +5,13 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS uiCmdDriver uiODMain)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiCmdDriver uiODMain )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes )
+set( OD_MODULE_SOURCES
 	#coincommands.cc
 	cmddriverpi.cc
 )
-SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 
 OD_INIT_MODULE()

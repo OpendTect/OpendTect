@@ -5,10 +5,11 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS Geometry)
-set(OD_USEOSG Yes)
+set( OD_MODULE_DEPS Geometry )
+set( OD_FOLDER "Base" )
+set( OD_USEOSG TRUE )
 
-set(OD_MODULE_SOURCES
+set( OD_MODULE_SOURCES
 	initvisbase.cc
 	visannot.cc
 	visaxes.cc

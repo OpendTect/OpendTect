@@ -5,9 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS AttributeEngine EarthModel VolumeProcessing Well)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS AttributeEngine EarthModel VolumeProcessing Well )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes )
+set( OD_MODULE_SOURCES
 	tutseistools.cc
 	tuthortools.cc
 	tutorialattrib.cc
@@ -15,7 +16,7 @@ SET(OD_MODULE_SOURCES
 	tutvolproc.cc
 	tutpi.cc
 )
-SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} ${OD_VOLUME_EXECS} )
-SET( OD_NO_ALO_ENTRY 1 )
+set( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} ${OD_VOLUME_EXECS} )
+set( OD_NO_ALO_ENTRY TRUE )
 
 OD_INIT_MODULE()

@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS AttributeEngine PreStackProcessing)
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS AttributeEngine PreStackProcessing )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	convolveattrib.cc
 	deltaresampleattrib.cc
 	dipfilterattrib.cc
@@ -36,6 +38,6 @@ set(OD_MODULE_SOURCES
 	initattributes.cc
 )
 
-set(OD_MODULE_BATCHPROGS od_process_attrib.cc  )
+set( OD_MODULE_BATCHPROGS od_process_attrib.cc  )
 
 OD_INIT_MODULE()

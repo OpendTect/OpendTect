@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS Well Attributes Strat )
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS Well Attributes Strat )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	initwellattrib.cc
 	createattriblog.cc
 	createlogcube.cc
@@ -27,7 +29,7 @@ SET(OD_MODULE_SOURCES
 	welltietoseismic.cc
 )
 
-LIST( APPEND OD_TEST_PROGS
+set( OD_TEST_PROGS
 	stratsynthdatamgr.cc
 )
 

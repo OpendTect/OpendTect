@@ -5,12 +5,16 @@
 #________________________________________________________________________
 #
 
-ADD_DEFINITIONS( -D_CONSOLE )
-set(OD_MODULE_DEPS Network )
-set(OD_USEBATCH 1)
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS Network )
+set( OD_FOLDER "Base" )
+set( OD_USEBATCH TRUE )
+
+set( OD_MODULE_SOURCES
 	batchprog.cc
 	batchserviceservermgr.cc
 )
-set(OD_MODULE_LINK_OPTIONS ${OD_SUPPRESS_UNDEF_FLAGS} )
+
+set( OD_MODULE_LINK_OPTIONS ${OD_SUPPRESS_UNDEF_FLAGS} )
+ADD_DEFINITIONS( -D_CONSOLE )
+
 OD_INIT_MODULE()

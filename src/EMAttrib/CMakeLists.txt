@@ -5,8 +5,9 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS EarthModel AttributeEngine )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS EarthModel AttributeEngine )
+set( OD_FOLDER "Base" )
+set( OD_MODULE_SOURCES
 	emhor2dseisiter.cc
 	gridcreator.cc
 	hor2dfrom3dcreator.cc
