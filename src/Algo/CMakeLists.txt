@@ -5,24 +5,8 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS Basic )
-
-set( OD_TEST_PROGS
-	array2dmatrix.cc
-	arraymath.cc
-	checksum.cc
-	contcurvinterpol.cc
-	gaussianprobdenfunc.cc
-	simpnumer.cc
-	sorting.cc
-	timedepthmodel.cc
-	velocitycalc.cc
-)
-
-set( OD_NIGHTLY_TEST_PROGS
-	fourier.cc
-	bendpoints2coords.cc
-)
+set( OD_MODULE_DEPS Basic )
+set( OD_FOLDER "Base" )
 
 set( OD_MODULE_SOURCES
 	ailayer.cc
@@ -90,6 +74,23 @@ set( OD_MODULE_SOURCES
 	zaxistransformer.cc
 	zoeppritzcoeff.cc
 	initalgo.cc
+)
+
+set( OD_TEST_PROGS
+	array2dmatrix.cc
+	arraymath.cc
+	checksum.cc
+	contcurvinterpol.cc
+	gaussianprobdenfunc.cc
+	simpnumer.cc
+	sorting.cc
+	timedepthmodel.cc
+	velocitycalc.cc
+)
+
+set( OD_NIGHTLY_TEST_PROGS
+	fourier.cc
+	bendpoints2coords.cc
 )
 
 OD_INIT_MODULE()

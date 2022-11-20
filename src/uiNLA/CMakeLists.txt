@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiIo NLA Well Seis )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiIo NLA Well Seis )
+set( OD_FOLDER "Machine Learning" )
+
+set( OD_MODULE_SOURCES
 	uinlapartserv.cc
 )
 

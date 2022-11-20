@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS NLA Seis )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS NLA Seis )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	attribdataholder.cc
 	attribdataholderarray.cc
 	attribdesc.cc

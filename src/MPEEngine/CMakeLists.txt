@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS EarthModel AttributeEngine )
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS EarthModel AttributeEngine )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	autotracker.cc
 	emeditor.cc
 	emseedpicker.cc

@@ -5,11 +5,12 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS visSurvey uiTools )
-set(OD_USEQT OpenGL)
-set(OD_USEOSG Yes)
+set( OD_MODULE_DEPS visSurvey uiTools )
+set( OD_FOLDER "Base (GUI)" )
+set( OD_USEQT OpenGL )
+set( OD_USEOSG TRUE )
 
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_SOURCES
 	inituiosg.cc
 	keybindings.cc
 	od3dviewer.cc
@@ -24,6 +25,6 @@ SET(OD_MODULE_SOURCES
 	uistereodlg.cc 
 )
 
-SET(OD_MODULE_PROGS od_osgfileviewer.cc )
+set( OD_MODULE_PROGS od_osgfileviewer.cc )
 
 OD_INIT_MODULE()

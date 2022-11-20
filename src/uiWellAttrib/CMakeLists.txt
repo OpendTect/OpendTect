@@ -6,6 +6,8 @@
 #
 
 set( OD_MODULE_DEPS uiWell uiAttributes WellAttrib )
+set( OD_FOLDER "Base (GUI)" )
+
 set( OD_MODULE_SOURCES
 	inituiwellattrib.cc
 	uicreateattriblogdlg.cc

@@ -61,9 +61,11 @@ macro( OD_BUILD_DOCUMENTATION )
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
-    add_custom_target ( doc
-			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
-			SOURCES ${OD_DOXYGEN_FILE} )
+    set( CMAKE_FOLDER "Documentation" )
+    add_custom_target( doc
+		       COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
+		       SOURCES ${OD_DOXYGEN_FILE} )
+    unset( CMAKE_FOLDER )
 
     install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html
 	      DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
@@ -112,10 +114,12 @@ macro( OD_BUILD_USERDOCUMENTATION )
 
     set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
 
+    set( CMAKE_FOLDER "Documentation" )
     add_custom_target( "userdoc" "${MADCAP_FLARE_EXEC}"
 			-project "${USERDOC_PROJECT}"
 			-target "${USERDOC_TARGET}"
 			COMMENT "Building user documentation" )
+    unset( CMAKE_FOLDER )
     install( DIRECTORY "${USERDOC_OUTPUT_DIR}/" DESTINATION "${MISC_INSTALL_PREFIX}/doc/${USERDOC_NAME}" )
 
 endmacro( OD_BUILD_USERDOCUMENTATION )

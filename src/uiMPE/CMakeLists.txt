@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiAttributes uiFlatView MPEEngine )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiAttributes uiFlatView MPEEngine )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituimpe.cc
 	mpef3dflatvieweditor.cc
 	mpefssflatvieweditor.cc

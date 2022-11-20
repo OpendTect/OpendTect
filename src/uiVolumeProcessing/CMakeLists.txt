@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituivolumeprocessing.cc
 	uivelocitygridder.cc
 	uivolprocattrib.cc

@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	uiattremout.cc
 	uiattrsurfout.cc
 	uiattrtrcselout.cc

@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiIo Strat )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiIo Strat )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituistrat.cc
 	uistratdisplay.cc
 	uistrateditlayer.cc

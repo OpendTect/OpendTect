@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS uiStrat EarthModel )
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiStrat EarthModel )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituiearthmodel.cc
 	uibodyposprovgroup.cc
 	uibodyregiondlg.cc

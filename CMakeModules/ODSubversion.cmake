@@ -99,10 +99,12 @@ macro( OD_SETUP_EXTERNALS )
 
     if ( NOT UPDATE_CMD STREQUAL "" )
 
+	set( CMAKE_FOLDER "Other" )
 	add_custom_target( update
 		      ${UPDATE_CMD} ${EXTERNALCMD}
 		      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		      COMMENT "Updating from repositories" )
+	unset( CMAKE_FOLDER )
 
     endif()
 

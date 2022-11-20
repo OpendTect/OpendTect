@@ -5,9 +5,14 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS uiIo )
-SET(OD_MODULE_SOURCES uiodsysadm.cc uiodsysadmcoltabs.cc )
+set( OD_MODULE_DEPS uiIo )
+set( OD_FOLDER "Base (GUI)" )
 
-SET( OD_MODULE_PROGS od_sysadmmain.cc  )
+set( OD_MODULE_SOURCES
+	uiodsysadm.cc
+	uiodsysadmcoltabs.cc
+)
+
+set( OD_MODULE_PROGS od_sysadmmain.cc  )
 
 OD_INIT_MODULE()

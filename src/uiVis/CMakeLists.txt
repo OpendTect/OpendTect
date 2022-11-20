@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS uiOSG uiMPE )
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiOSG uiMPE )
+set( OD_FOLDER "Base (GUI)" )
+
+set( OD_MODULE_SOURCES
 	inituivis.cc
 	uiarrowdlg.cc
 	uiattribtransdlg.cc

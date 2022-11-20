@@ -5,9 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS EarthModel Seis Well)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS EarthModel Seis Well )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes )
+set( OD_MODULE_SOURCES
 	gmtpar.cc
 	gmtarray2dinterpol.cc
 	gmtbasemap.cc
@@ -21,7 +22,7 @@ SET(OD_MODULE_SOURCES
 	gmtprocflow.cc
 	gmtpi.cc
 )
-SET( OD_MODULE_BATCHPROGS od_gmtexec.cc )
-SET( OD_PLUGIN_ALO_EXEC od_gmtexec )
+set( OD_MODULE_BATCHPROGS od_gmtexec.cc )
+set( OD_PLUGIN_ALO_EXEC od_gmtexec )
 
 OD_INIT_MODULE()

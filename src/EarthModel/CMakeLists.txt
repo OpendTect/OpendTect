@@ -5,11 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS Geometry)
-SET(OD_BATCH_TEST_PROGS
-	emstoredobjaccess.cc
-)
-set(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS Geometry )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	em2ddatafmtconverter.cc
 	embody.cc
 	embodyoperator.cc
@@ -67,7 +66,13 @@ set(OD_MODULE_SOURCES
 	polygonzchanger.cc
 	initearthmodel.cc
 )
+
+set( OD_BATCH_TEST_PROGS
+	emstoredobjaccess.cc
+)
+
 set( OD_MODULE_BATCHPROGS
 	od_isopach.cc
 )
+
 OD_INIT_MODULE()

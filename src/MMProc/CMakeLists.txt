@@ -5,9 +5,10 @@
 #________________________________________________________________________
 #
 
-set(OD_MODULE_DEPS Network)
+set( OD_MODULE_DEPS Network )
+set( OD_FOLDER "Base" )
 
-set(OD_MODULE_SOURCES
+set( OD_MODULE_SOURCES
 	batchprogtracker.cc
 	jobdescprov.cc
 	jobiomgr.cc
@@ -23,11 +24,13 @@ set(OD_MODULE_SOURCES
 	singlebatchjobdispatch.cc
 )
 
-set(OD_MODULE_PROGS
+set( OD_MODULE_PROGS
 	od_remoteservice.cc
 	od_remexec.cc
 )
 
-set( OD_ELEVATED_PERMISSIONS_PROGS od_Setup_Firewall.cc )
+set( OD_ELEVATED_PERMISSIONS_PROGS
+	od_Setup_Firewall.cc
+)
 
 OD_INIT_MODULE()

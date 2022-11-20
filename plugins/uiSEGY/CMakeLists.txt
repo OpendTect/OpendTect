@@ -9,9 +9,10 @@ FIND_OD_PLUGIN( "uiSEGYTools" )
 
 if ( uiSEGYTools_FOUND )
 
-    set(OD_MODULE_DEPS uiSEGYTools uiODMain)
-    set(OD_IS_PLUGIN yes)
-    set(OD_MODULE_SOURCES
+    set( OD_MODULE_DEPS uiSEGYTools uiODMain )
+    set( OD_FOLDER "OD Free Plugins" )
+    set( OD_IS_PLUGIN yes )
+    set( OD_MODULE_SOURCES
 	uisegypi.cc
     )
 

@@ -5,9 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS ExpAttribs uiODMain)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS ExpAttribs uiODMain )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes )
+set( OD_MODULE_SOURCES
 	uieventfreqattrib.cc
 	uiexpattribspi.cc
 	uigrubbsfilterattrib.cc
@@ -15,6 +16,6 @@ SET(OD_MODULE_SOURCES
 	uisimilaritybyaw.cc
 	uiintegratedtrace.cc
 )
-SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 
 OD_INIT_MODULE()

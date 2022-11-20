@@ -5,8 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS General )
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS General )
+set( OD_FOLDER "Base" )
+
+set( OD_MODULE_SOURCES
 	arraytesselator.cc
 	binidsurface.cc
 	cubicbeziercurve.cc
@@ -46,4 +48,5 @@ SET(OD_MODULE_SOURCES
 )
 
 OD_ADD_SOURCE_FILES( marchingcubeslist.cc )
+
 OD_INIT_MODULE()

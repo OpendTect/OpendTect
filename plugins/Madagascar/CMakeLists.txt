@@ -5,9 +5,10 @@
 #________________________________________________________________________
 #
 
-SET(OD_MODULE_DEPS AttributeEngine)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS AttributeEngine )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes )
+set( OD_MODULE_SOURCES
 	maddefs.cc
 	madio.cc
 	madpi.cc
@@ -16,6 +17,6 @@ SET(OD_MODULE_SOURCES
 	madprocflow.cc
 	madstream.cc
 )
-SET( OD_MODULE_BATCHPROGS od_madexec.cc )
+set( OD_MODULE_BATCHPROGS od_madexec.cc )
 
 OD_INIT_MODULE()
