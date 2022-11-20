@@ -5,16 +5,15 @@
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits
-set ( OD_64BIT 1 )
+set ( OD_64BIT TRUE )
 if ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-    set ( OD_64BIT )
+    set ( OD_64BIT FALSE )
 endif()
 
 #Discover Debug
-if( ${CMAKE_BUILD_TYPE} MATCHES Release)
-    set ( OD_DEBUG )
-else()
-    set ( OD_DEBUG 1 )
+set ( OD_DEBUG TRUE )
+if( CMAKE_BUILD_TYPE MATCHES Release )
+    set ( OD_DEBUG FALSE )
 endif()
 
 set ( SET_SYMBOLS -D__hassymbols__ )
@@ -27,7 +26,7 @@ set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYM
 if( UNIX ) #Apple and Linux
 
     if ( CMAKE_COMPILER_IS_GNUCC  )
-	set ( OD_GCC_COMPILER 1 )
+	set ( OD_GCC_COMPILER TRUE )
 	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
 			 OUTPUT_VARIABLE GCC_VERSION )
 
@@ -40,10 +39,10 @@ if( UNIX ) #Apple and Linux
 	    set ( CMAKE_CXX_FLAGS
 		  "${CMAKE_CXX_FLAGS} -D__MAC_LLVM_COMPILER_ERROR__" )
 	endif()
-	set( CMAKE_MACOSX_RPATH 1 )
+	set( CMAKE_MACOSX_RPATH TRUE )
 	set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
-	set ( OD_GCC_COMPILER 1 )
-	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
+	set ( OD_GCC_COMPILER TRUE )
+	if ( CMAKE_GENERATOR STREQUAL "Xcode" )
 	    set( OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS yes )
 	endif()
 
@@ -150,8 +149,8 @@ if(WIN32)
         set ( OD_PLFSUBDIR "win32" )
     endif()
     #Create Launchers on Windows
-    set ( OD_CREATE_LAUNCHERS 1 )
-    set ( OD_SET_TARGET_PROPERTIES 1 )
+    set ( OD_CREATE_LAUNCHERS TRUE )
+    set ( OD_SET_TARGET_PROPERTIES TRUE )
 
     #Setting Stack Reserve size for Executables only
     if ( NOT DEFINED STACK_RESERVE_SIZE )
@@ -162,13 +161,16 @@ if(WIN32)
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
+    if ( CMAKE_GENERATOR MATCHES "Visual Studio" )
+	set ( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS}" )
+    endif()
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
     set ( EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "-DmUnusedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUnusedVar= ${CMAKE_C_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
-    string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
+    string ( REPLACE "/W3 " "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
