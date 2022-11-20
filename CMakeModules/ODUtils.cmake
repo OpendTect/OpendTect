@@ -10,9 +10,9 @@ if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
     if ( CMAKE_BUILD_TYPE STREQUAL "" )
 	set ( DEBUGENV $ENV{DEBUG} )
 	if ( DEBUGENV AND
-	    ( (${DEBUGENV} MATCHES "yes" ) OR
-	      (${DEBUGENV} MATCHES "Yes" ) OR
-	      (${DEBUGENV} MATCHES "YES" ) ) )
+	    ( ( DEBUGENV MATCHES "yes" ) OR
+	      ( DEBUGENV MATCHES "Yes" ) OR
+	      ( DEBUGENV MATCHES "YES" ) ) )
 	    set ( CMAKE_BUILD_TYPE "Debug"
 		  CACHE STRING "Debug or Release" FORCE )
 	else()
@@ -91,16 +91,18 @@ option ( OD_DISABLE_EXTERNAL_LIBS_CHECK "Disabling automatic retrieval of extern
 mark_as_advanced( FORCE OD_DISABLE_EXTERNAL_LIBS_CHECK )
 
 macro( OD_ADD_EXTERNALS )
-    if ( "${CMAKE_GENERATOR}" MATCHES "Ninja" )
+    set( CMAKE_EXT_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
+    if ( CMAKE_GENERATOR MATCHES "Ninja" )
 	if ( UNIX AND EXISTS "${CMAKE_MAKE_PROGRAM}" )
 	    set( EXTPLFARCH "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}" )
 	endif()
 	set( EXTGENERATOR "-G${CMAKE_GENERATOR}" )
-    elseif ( WIN32 AND "${CMAKE_GENERATOR}" MATCHES "Visual Studio" )
+    elseif ( WIN32 AND CMAKE_GENERATOR MATCHES "Visual Studio" )
 	set( EXTGENERATOR "-G ${CMAKE_GENERATOR}" )
 	if ( NOT "${CMAKE_VS_PLATFORM_NAME_DEFAULT}" STREQUAL "" )
 	    set( EXTPLFARCH "-A ${CMAKE_VS_PLATFORM_NAME_DEFAULT}" )
 	endif()
+	string( REPLACE "/MP " "" CMAKE_EXT_CXX_FLAGS ${CMAKE_EXT_CXX_FLAGS} ) 
     else()
 	find_program( NINJA_BIN "ninja" )
 	if ( NINJA_BIN )
@@ -144,7 +146,7 @@ macro ( OD_ADD_OPTIONAL_MODULES )
 	string(REPLACE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} MODULE_OUTPUT_DIR ${DIR})
     endif()
     foreach( OD_MODULE_NAME ${ARGV} )
-	if ( NOT ${OD_MODULE_NAME} MATCHES ${DIR} )
+	if ( NOT OD_MODULE_NAME MATCHES ${DIR} )
 	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} 
 			      "${MODULE_OUTPUT_DIR}/${OD_MODULE_NAME}"
 			      EXCLUDE_FROM_ALL )

@@ -5,10 +5,10 @@
 #_______________________________________________________________________________
 
 if ( EXISTS ${CMAKE_SOURCE_DIR}/.git )
-    set ( OD_FROM_GIT 1 )
+    set ( OD_FROM_GIT TRUE )
 endif()
 if ( EXISTS ${CMAKE_SOURCE_DIR}/.svn )
-    set ( OD_FROM_SVN 1 )
+    set ( OD_FROM_SVN TRUE )
 endif()
 
 if ( OD_FROM_SVN )
@@ -97,6 +97,10 @@ if ( EXISTS ${PLUGIN_DIR} )
 		RESULT_VARIABLE STATUS )
 	if ( NOT ${STATUS} EQUAL 0 )
 	    message( FATAL_ERROR "${ERROUTPUT}" )
+	elseif ( ERROUTPUT MATCHES "Warning" )
+	    message( WARNING "${ERROUTPUT}" )
+	elseif ( NOT ERROUTPUT STREQUAL "" )
+	    message( STATUS "${ERROUTPUT}" )
 	endif()
 
 	set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
@@ -107,7 +111,7 @@ if ( EXISTS ${PLUGIN_DIR} )
     endif()
 endif()
 
-if ( NOT "${UPDATE_CMD}" STREQUAL "" )
+    if ( NOT UPDATE_CMD STREQUAL "" )
 
     add_custom_target( update
        		  ${UPDATE_CMD} ${EXTERNALCMD}
