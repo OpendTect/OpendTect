@@ -97,9 +97,9 @@ if ( EXISTS ${PLUGIN_DIR} )
 		RESULT_VARIABLE STATUS )
 	if ( NOT ${STATUS} EQUAL 0 )
 	    message( FATAL_ERROR "${ERROUTPUT}" )
-	elseif ( "${ERROUTPUT}" MATCHES "Warning" )
+	elseif ( ERROUTPUT MATCHES "Warning" )
 	    message( WARNING "${ERROUTPUT}" )
-	elseif ( NOT "${ERROUTPUT}" STREQUAL "" )
+	elseif ( NOT ERROUTPUT STREQUAL "" )
 	    message( STATUS "${ERROUTPUT}" )
 	endif()
 
@@ -111,7 +111,7 @@ if ( EXISTS ${PLUGIN_DIR} )
     endif()
 endif()
 
-if ( NOT "${UPDATE_CMD}" STREQUAL "" )
+    if ( NOT UPDATE_CMD STREQUAL "" )
 
     add_custom_target( update
        		  ${UPDATE_CMD} ${EXTERNALCMD}
