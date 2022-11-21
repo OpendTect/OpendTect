@@ -15,20 +15,18 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "posgeomid.h"
 #include "ranges.h"
+#include "seisdatapack.h"
 #include "sets.h"
 #include "uistring.h"
 
 class BinIDValueSet;
 class BufferStringSet;
 class DataPackMgr;
-class TrcKeyZSampling;
 class DataPointSet;
 class Executor;
 class LineKey;
 class NLAModel;
-class RegularSeisDataPack;
 class SeisTrcBuf;
-class SeisTrcInfo;
 
 namespace Attrib
 {

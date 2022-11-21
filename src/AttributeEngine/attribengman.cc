@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 #include "posvecdataset.h"
 #include "seis2ddata.h"
-#include "seisdatapack.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
