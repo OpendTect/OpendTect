@@ -33,6 +33,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		reset();
 
     CNotifier<uiSynthParsGrp,SynthID> synthAdded;
     CNotifier<uiSynthParsGrp,SynthID> synthSelected;

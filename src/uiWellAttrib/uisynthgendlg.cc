@@ -593,6 +593,12 @@ bool uiSynthParsGrp::usePar( const IOPar& par )
 }
 
 
+void uiSynthParsGrp::reset()
+{
+    newCB( nullptr );
+}
+
+
 bool uiSynthParsGrp::confirmSave()
 {
     const int dosave = uiMSG().askSave( tr("%1 are not saved. Save now?")
