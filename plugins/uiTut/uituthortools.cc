@@ -186,7 +186,7 @@ bool uiTutHorTools::doSmoother()
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
     if ( !taskrunner.execute(*saver) )
     {
-	uiMSG().error( tr("Smoothing operation failed") );
+	uiMSG().error(tr("Smoothing operation failed"));
 	return false;
     }
 
