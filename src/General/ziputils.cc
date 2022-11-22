@@ -217,6 +217,7 @@ int nextStep() override
 	return ErrorOccurred();
 	
     int nrfiles = zh.getCumulativeFileCount();
+    int prevnrdone = 0;
     for ( int idx=0; idx<nrfiles; idx++ )
     {
 	if ( !zh.extractNextFile() )
@@ -225,7 +226,9 @@ int nextStep() override
 	    return ErrorOccurred();
 	}
 	
-	nrdone_ += zh.getNrDoneSize()/mBytesToMBFactor;
+	const int curnrdone = zh.getNrDoneSize()/mBytesToMBFactor;
+	nrdone_ += ( curnrdone - prevnrdone );
+	prevnrdone = curnrdone;
     }
 
     archidx_++;
