@@ -483,9 +483,10 @@ bool Processor::setZIntervals(
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[idx] );
+	mDynamicCastGet( LocationOutput*, locoutp, outputs_[idx] );
 	bool wantsout = !tkey.isUdf() && taboutp && is2d_
 			   ? taboutp->wantsOutput(tkey)
-			   : outputs_[idx]->useCoords()
+			   : outputs_[idx]->useCoords() || locoutp
 				? outputs_[idx]->wantsOutput(curcoords)
 				: outputs_[idx]->wantsOutput(curbid);
 
@@ -498,7 +499,7 @@ bool Processor::setZIntervals(
 	const float refzstep = provider_->getRefStep();
 	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp && is2d_
 	    ? taboutp->getLocalZRanges( tkey, refzstep, exactz )
-	    : outputs_[idx]->useCoords()
+	    : outputs_[idx]->useCoords() || locoutp
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
 
