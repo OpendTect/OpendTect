@@ -233,6 +233,7 @@ od_int64 HttpRequestProcess::getContentLengthHeader() const
 
 od_int64 HttpRequestProcess::downloadBytesAvailable() const
 {
+    Threads::MutexLocker locker(receiveddatalock_);
     return receiveddata_ ? receiveddata_->length() : 0;
 }
 

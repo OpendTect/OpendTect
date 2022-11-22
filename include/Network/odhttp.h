@@ -190,7 +190,7 @@ private:
     QNetworkReply*				qnetworkreply_ = nullptr;
 
     QByteArray*					receiveddata_ = nullptr;
-    Threads::ConditionVar			receiveddatalock_;
+    mutable Threads::ConditionVar		receiveddatalock_;
 
     uiString					errmsg_;
 };
