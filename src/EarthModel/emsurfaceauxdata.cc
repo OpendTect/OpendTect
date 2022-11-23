@@ -127,7 +127,7 @@ int SurfaceAuxData::addAuxData( const char* name )
     auxdatashift_ += 0.0;
     auxdatatypes_ += NoType;
 
-
+    init( auxdatanames_.size()-1, false );
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
 	if ( auxdata_[idx] )

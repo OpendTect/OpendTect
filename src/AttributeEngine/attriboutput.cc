@@ -695,7 +695,8 @@ LocationOutput::~LocationOutput()
 void LocationOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( info.binID() );
+    const BinID bid = SI().transform(info.coord);
+    BinIDValueSet::SPos pos = bidvalset_.find( bid );
     if ( !pos.isValid() ) return;
 
     const int desnrvals = desoutputs_.size()+1;
@@ -724,7 +725,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	    computeAndSetVals( data, refstep, vals );
 
 	bidvalset_.next( pos );
-	if ( info.binID() != bidvalset_.getBinID(pos) )
+	if ( bid != bidvalset_.getBinID(pos) )
 	    break;
     }
 }
