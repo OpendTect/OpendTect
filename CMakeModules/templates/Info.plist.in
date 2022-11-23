@@ -12,6 +12,10 @@
 	<string>@BUNDLEID@</string>
 	<key>CFBundleName</key>
 	<string>@BUNDLENAME@</string>
+	<key>CFBundleVersion</key>
+	<string>@BUNDLEVERSION@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@BUNDLEVERSION@</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© @YEAR@, dGB Beheer B.V.</string>
 </dict>
