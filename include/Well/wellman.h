@@ -123,7 +123,7 @@ public:
 				  TypeSet<int>&);
     Coord		getMapLocation(const MultiID&) const;
 
-    bool		writeAndRegister(const MultiID&,const Log&);
+    bool		writeAndRegister(const MultiID&,PtrMan<Log>&);
 					//!< Log becomes mine
     bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
 					//!< Returns empty set if all succeeded
@@ -157,6 +157,8 @@ public:
 				    bool forceLoad=false);
     mDeprecated("Use getAllMarkerNames instead")
     static bool		getMarkerNames(BufferStringSet&);
+    mDeprecated("Use writeAndRegister PtrMan<Log>& argument")
+    bool		writeAndRegister(const MultiID&,const Log&);
 
 };
 

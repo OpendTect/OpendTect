@@ -471,7 +471,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	auto* newwl = new Well::Log( newnm );
+	PtrMan<Well::Log> newwl = new Well::Log( newnm );
 	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
 	{
 	    deleteLog( inpdatas );
@@ -481,9 +481,10 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 	if ( outmn && !outmn->isUdf() )
 	    newwl->setMnemonic( *outmn );
+
 	newwl->setUnitOfMeasure( outun );
 
-	if ( !Well::MGR().writeAndRegister(wmid,*newwl) )
+	if ( !Well::MGR().writeAndRegister(wmid,newwl) )
 	{
 	    deleteLog( inpdatas );
 	    errormsg.add( tr(Well::MGR().errMsg()) );
