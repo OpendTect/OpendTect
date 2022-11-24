@@ -793,16 +793,17 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 }
 
 
-bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
+bool Well::Man::writeAndRegister( const MultiID& key ,
+						    PtrMan<Well::Log>& log )
 {
+    if ( !log )
+	return false;
+
     RefMan<Well::Data> wd = get( key, Well::LoadReqs( Well::LogInfos ) );
     if ( !wd )
-    {
-	delete &log;
 	return false;
-    }
 
-    const BufferString newlognm = log.name();
+    const BufferString newlognm = log->name();
     Well::LogSet& currlogset = wd->logs();
     Well::Log currlogcopy;
     bool logadded = false;
@@ -810,13 +811,13 @@ bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
     {
 	Well::Log& currlog = *currlogset.getLog( newlognm.buf() );
 	currlogcopy = currlog;
-	currlog = log;
-	delete &log;
+	currlog = *log;
+	log = nullptr;
     }
     else
     {
 	NotifyStopper ns( currlogset.logAdded );
-	currlogset.add( const_cast<Well::Log*>(&log) );
+	currlogset.add( log.release() );
 	logadded = true;
     }
 
@@ -846,20 +847,23 @@ bool Well::Man::writeAndRegister( const MultiID& key ,
 				  ObjectSet<Well::Log>& logset )
 {
     bool res = true;
-    for ( int idx=logset.size()-1; idx>=0; idx-- )
+    ObjectSet<PtrMan<Well::Log>> manlogset;
+    while ( !logset.isEmpty() )
+	manlogset.add( new PtrMan<Well::Log>(logset.pop()) );
+
+    for ( int idx=0; idx<manlogset.size(); idx++ )
     {
-	Well::Log* currlog = logset.get( idx );
-	if ( !currlog )
+	if ( !manlogset.get(idx)->ptr() )
 	    continue;
 
-	if ( !writeAndRegister(key,*currlog) )
+	if ( !writeAndRegister(key,*manlogset.get(idx)) )
 	{
 	    res = false;
 	    continue;
 	}
-
-	logset.removeSingle( idx );
     }
+
+    deepErase( manlogset );
 
     return res;
 }

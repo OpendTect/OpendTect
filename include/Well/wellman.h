@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "sets.h"
+#include <bitset>
 #include "bufstring.h"
 #include "color.h"
-#include <bitset>
+#include "ptrman.h"
 #include "refcount.h"
+#include "sets.h"
 
 class BufferStringSet;
 class DBKey;
@@ -123,7 +124,7 @@ public:
 				  TypeSet<int>&);
     Coord		getMapLocation(const MultiID&) const;
 
-    bool		writeAndRegister(const MultiID&,const Log&);
+    bool		writeAndRegister(const MultiID&,PtrMan<Log>&);
 					//!< Log becomes mine
     bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
 					//!< Returns empty set if all succeeded
