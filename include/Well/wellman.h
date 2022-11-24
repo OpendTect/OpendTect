@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "sets.h"
+#include <bitset>
 #include "bufstring.h"
 #include "color.h"
-#include <bitset>
+#include "ptrman.h"
 #include "refcount.h"
+#include "sets.h"
 
 class BufferStringSet;
 class DBKey;
