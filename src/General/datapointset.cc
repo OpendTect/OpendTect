@@ -361,7 +361,8 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 		    && pdvs.colDef(2) == data_.colDef(2)
 		    && pdvs.colDef(3) == data_.colDef(3);
     const int startidx = isdps ? nrfixedcols_ : 1;
-    if ( bvssz < startidx ) return;
+    if ( bvssz < startidx )
+	return;
 
     for ( int idx=startidx; idx<bvssz; idx++ )
 	data_.add( new DataColDef(pdvs.colDef(idx)) );
@@ -386,6 +387,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	addRow( dr );
     }
 
+    delete [] vals;
     calcIdxs();
 }
 
@@ -468,6 +470,7 @@ void DataPointSet::init( const TypeSet<DataPointSet::DataRow>& pts,
 {
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
+
     for ( int idx=0; idx<pts.size(); idx++ )
 	addRow( pts[idx] );
 
@@ -601,6 +604,7 @@ DataPointSet::DataRow DataPointSet::dataRow( DataPointSet::RowID rid ) const
     DataRow dr( pos(rid) );
     if ( !minimal_ )
 	dr.grp_ = (short)mNINT32(vals[groupcol_]);
+
     for ( int idx=nrfixedcols_; idx<nrvals; idx++ )
 	dr.data_ += vals[idx];
 
@@ -758,7 +762,10 @@ bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
     }
 
     if ( !alreadyin )
-	{ addRow( dr ); return true; }
+    {
+	addRow( dr );
+	return true;
+    }
 
     TypeSet<float> vals; dr.getBVSValues( vals, is2d_, minimal_ );
     bivSet().set( bvspos, vals );
@@ -1118,9 +1125,18 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    bid = sampling_->hsamp_.getNearest( bid );
 	}
 
-	const TrcKey tk = sdp_.is2D()
-			? TrcKey( sampling_->hsamp_.getGeomID(), bid.trcNr() )
-			: TrcKey( bid );
+	TrcKey tk;
+	if ( !sdp_.is2D() )
+	    tk = TrcKey( bid );
+	else
+	{
+	    Pos::GeomID geomid;
+	    if ( sampling_ ) // Not sure what to do when sampling_ is null
+		geomid = sampling_->hsamp_.getGeomID();
+
+	    tk = TrcKey( geomid, bid.trcNr() );
+	}
+
 	const int gidx = sdp_.getGlobalIdx( tk );
 	if ( gidx<0 || gidx>nrtrcs ) continue;
 
@@ -1136,16 +1152,18 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    if ( hastrcdata_ )
 	    {
 		const float* trcdata = sdp_.getTrcData( cidx, gidx );
-		const SampledFunctionImpl<float,const float*>
+		SampledFunctionImpl<float,const float*>
 						sampfunc( trcdata, nrz );
+		sampfunc.setHasUdfs( true );
 		vals[firstcol_+outidx] = sampfunc.getValue( fzidx );
 	    }
 	    else if ( hasstorage_ )
 	    {
 		const OffsetValueSeries<float> ovs =
 			sdp_.getTrcStorage( cidx, gidx );
-		const SampledFunctionImpl<float,ValueSeries<float> >
+		SampledFunctionImpl<float,ValueSeries<float> >
 						sampfunc( ovs, nrz );
+		sampfunc.setHasUdfs( true );
 		vals[firstcol_+outidx] = sampfunc.getValue( fzidx );
 	    }
 
