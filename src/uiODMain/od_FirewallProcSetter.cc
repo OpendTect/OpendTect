@@ -36,51 +36,60 @@ protected:
     BufferString    actcmd_;
 
 public:
-	FirewallParameterDlg( uiParent* p, const BufferString& odpath,
-			      const BufferString& pypath,
-			      const BufferString& cmd )
-	: uiDialog(p,uiDialog::Setup(tr("Missing Parameters"),mNoDlgTitle,
-				mNoHelpKey).oktext(tr("Update Parameters")))
+    FirewallParameterDlg( uiParent* p, const BufferString& odpath,
+			    const BufferString& pypath,
+			    const BufferString& cmd )
+    : uiDialog(p,uiDialog::Setup(tr("Missing Parameters"),dlgTitle(),
+			    mNoHelpKey).oktext(tr("Update Parameters")))
+    {
+	uiFileInput::Setup flsu;
+	flsu .forread( true );
+	flsu.directories( true );
+	odpthfld_ = new uiFileInput( this, tr("OpendTect Folder Path"),
+								    flsu );
+	odpthfld_->setFileName( odpath );
+
+	pypthfld_ = new uiFileInput( this, tr("Python Folder Path"),
+								    flsu );
+	pypthfld_->attach( alignedBelow, odpthfld_ );
+	odpthfld_->setFileName( odpath );
+	if ( !ProcDesc::DataEntry::isCMDOK(cmd) )
 	{
-	    uiFileInput::Setup flsu;
-	    flsu .forread( true );
-	    flsu.directories( true );
-	    odpthfld_ = new uiFileInput( this, tr("OpendTect Folder Path"),
-									flsu );
-	    odpthfld_->setFileName( odpath );
-
-	    pypthfld_ = new uiFileInput( this, tr("Python Folder Path"),
-									flsu );
-	    pypthfld_->attach( alignedBelow, odpthfld_ );
-	    odpthfld_->setFileName( odpath );
-	    if ( !ProcDesc::DataEntry::isCMDOK(cmd) )
-	    {
-		acttypefld_ = new uiGenInput( this, toUiString("ActionType"),
-			  StringListInpSpec(PDE::ActionTypeDef().strings()) );
-		PDE::ActionType type = PDE::getActionTypeForCMDKey( cmd );
-		acttypefld_->setText( PDE::ActionTypeDef().getKey(type) );
-		acttypefld_->attach( alignedBelow, pypthfld_ );
-	    }
-	    else
-		actcmd_ = cmd;
+	    acttypefld_ = new uiGenInput( this, tr("Action"),
+			StringListInpSpec(PDE::ActionTypeDef().strings()) );
+	    PDE::ActionType type = PDE::getActionTypeForCMDKey( cmd );
+	    acttypefld_->setText( PDE::ActionTypeDef().getKey(type) );
+	    acttypefld_->attach( alignedBelow, pypthfld_ );
 	}
+	else
+	    actcmd_ = cmd;
+    }
 
-	bool acceptOK(CallBacker*)
+    bool acceptOK( CallBacker* )
+    {
+	odpth_ = odpthfld_->text();
+	pypth_ = pypthfld_->text();
+	if ( acttypefld_ )
 	{
-	    odpth_ = odpthfld_->text();
-	    pypth_ = pypthfld_->text();
-	    if ( acttypefld_ )
-	    {
-		const int idx = acttypefld_->getIntValue();
-		actcmd_ = PDE::getCMDActionKey(
-				PDE::ActionTypeDef().getEnumForIndex(idx) );
-	    }
-	    return true;
+	    const int idx = acttypefld_->getIntValue();
+	    actcmd_ = PDE::getCMDActionKey(
+			    PDE::ActionTypeDef().getEnumForIndex(idx) );
 	}
+	return true;
+    }
 
-	const BufferString& getODPath() const { return odpth_; }
-	const BufferString& getPyPath() const { return pypth_; }
-	const BufferString& getActCmd() const { return actcmd_; }
+    static uiString dlgTitle()
+    {
+	uiString txt = tr("Please input the value of following parameters.");
+	txt.append(tr("These seem to be incorrectly read or\nlocation they are "
+	    "directed to is unavailable"), true );
+
+	return txt;
+    }
+
+    const BufferString& getODPath() const { return odpth_; }
+    const BufferString& getPyPath() const { return pypth_; }
+    const BufferString& getActCmd() const { return actcmd_; }
 };
 
 static const char* odflag()
