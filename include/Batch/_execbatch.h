@@ -12,7 +12,7 @@ ________________________________________________________________________
  The implementation of Execute_batch should be in the executable on
  windows, but can be in a .so on *nix.
  In order not to pollute batchprog.h, I've placed the implementation
- into a separate file, which is included trough batchprog.h on win32
+ into a separate file, which is included through batchprog.h on win32
  and included in batchprog.cc on *nix.
 
 */
@@ -95,6 +95,7 @@ static void setBatchPriority( int argc, char** argv, float priority, int pid )
 
 void Execute_batch( int* pargc, char** argv )
 {
+    OD::ModDeps().ensureLoaded( "Network" );
     PIM().loadAuto( false );
     if ( !BP().init() )
 	return;
