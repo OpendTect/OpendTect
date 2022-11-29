@@ -291,13 +291,13 @@ int FileDownloader::nextStep()
     if ( odnr_->isError() )
 	return errorOccured();
 
-    if ( odnr_->downloadBytesAvailable() && !writeData() )
+    if ( !writeData() )
 	return ErrorOccurred();
 
     if ( odnr_->isFinished() )
     {
 	// Check for any residue data received since the last read
-	if ( odnr_->downloadBytesAvailable() && !writeData() )
+	if ( !writeData() )
 	    return ErrorOccurred();
 
 	initneeded_ = true;
@@ -335,6 +335,9 @@ od_int64 FileDownloader::getDownloadSize()
 bool FileDownloader::writeData()
 {
     od_int64 bytes = odnr_->downloadBytesAvailable();
+    if ( !bytes )
+	return true;
+
     mAllocLargeVarLenArr( char, buffer, bytes );
     bytes = odnr_->read( buffer, bytes );
     nrdone_ += bytes;
