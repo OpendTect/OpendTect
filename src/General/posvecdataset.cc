@@ -546,7 +546,8 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 		crd.y += vals[yoffsetidx];
 	    }
 
-	    strm << '\t' << toString(crd.x,2) << '\t' << toString(crd.y,2);
+	    strm << '\t' << toString(crd.x,2);
+	    strm << '\t' << toString(crd.y,2);
 	}
 
 	for ( int idx=0; idx<nrvals; idx++ )
