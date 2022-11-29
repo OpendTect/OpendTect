@@ -224,6 +224,7 @@ if ( comm_ ) \
 
 #ifdef __prog__
 # ifdef __win__
+#  include "moddepmgr.h"
 #  include "_execbatch.h"
 # endif
 #define mMainIsDefined
