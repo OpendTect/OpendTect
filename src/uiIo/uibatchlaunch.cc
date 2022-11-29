@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uibatchlaunch.h"
 
-#include "uiclusterjobprov.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uilabel.h"

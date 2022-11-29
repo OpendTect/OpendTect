@@ -9,20 +9,15 @@ ________________________________________________________________________
 
 #include "uimanprops.h"
 
-#include "mathexpression.h"
 #include "mathproperty.h"
 #include "separstr.h"
+
 #include "uibuildlistfromlist.h"
 #include "uicolor.h"
-#include "uicombobox.h"
 #include "uigeninput.h"
-#include "uilabel.h"
-#include "uilineedit.h"
 #include "uilistbox.h"
-#include "uimathexpression.h"
 #include "uimathpropeddlg.h"
 #include "uimsg.h"
-#include "uirockphysform.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"

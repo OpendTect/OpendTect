@@ -10,13 +10,14 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidlggroup.h"
-class uiDataPointSetCrossPlotter;
-class uiDPSCPScalingTab;
-class uiDPSCPStatsTab;
-class uiDPSUserDefTab;
+
 class uiDPSCPBackdropTab;
 class uiDPSCPDisplayPropTab;
+class uiDPSCPScalingTab;
+class uiDPSCPStatsTab;
 class uiDPSDensPlotSetTab;
+class uiDPSUserDefTab;
+class uiDataPointSetCrossPlotter;
 
 /*!
 \brief Crossplot properties dialog box.

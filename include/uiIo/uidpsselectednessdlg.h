@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidpsaddcolumndlg.h"
-#include "bufstringset.h"
 
 class uiCheckBox;
 class uiColorTableGroup;

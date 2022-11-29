@@ -8,10 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiposfilterset.h"
+
 #include "posfilterset.h"
 #include "posprovider.h"
 #include "uiposprovgroup.h"
-#include "uimainwin.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uilabel.h"

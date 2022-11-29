@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "uigraphicslegend.h"
 
-#include "uifont.h"
+#include "fontdata.h"
 #include "uigraphicsitemimpl.h"
 
 uiLegendItem::uiLegendItem()
@@ -31,31 +31,31 @@ uiLegendItem::~uiLegendItem()
 
 void uiLegendItem::buildLayout()
 {
-    uiAdvancedTextItem* country = new uiAdvancedTextItem( sCountry() );
-    uiAdvancedTextItem* block = new uiAdvancedTextItem( sBlock() );
-    uiAdvancedTextItem* license = new uiAdvancedTextItem( sLicense() );
-    uiAdvancedTextItem* modelname = new uiAdvancedTextItem( sModelNm() );
-    uiAdvancedTextItem* horizonname = new uiAdvancedTextItem( sHorNm() );
-    uiAdvancedTextItem* mapscale = new uiAdvancedTextItem( sScale() );
-    uiAdvancedTextItem* contourinc = new uiAdvancedTextItem( sContourInc() );
-    uiAdvancedTextItem* username = new uiAdvancedTextItem( sUserNm() );
-    uiAdvancedTextItem* date = new uiAdvancedTextItem( sDate() );
-    uiAdvancedTextItem* sign = new uiAdvancedTextItem( sSignature() );
+    auto* country = new uiAdvancedTextItem( sCountry() );
+    auto* block = new uiAdvancedTextItem( sBlock() );
+    auto* license = new uiAdvancedTextItem( sLicense() );
+    auto* modelname = new uiAdvancedTextItem( sModelNm() );
+    auto* horizonname = new uiAdvancedTextItem( sHorNm() );
+    auto* mapscale = new uiAdvancedTextItem( sScale() );
+    auto* contourinc = new uiAdvancedTextItem( sContourInc() );
+    auto* username = new uiAdvancedTextItem( sUserNm() );
+    auto* date = new uiAdvancedTextItem( sDate() );
+    auto* sign = new uiAdvancedTextItem( sSignature() );
 
     const int width = 100;
     const int height = 40;
-    uiRectItem* rec0 = new uiRectItem( 0, 0, 2*width, height );
-    uiRectItem* separator = new uiRectItem( 0, 0, 2*width, height/10 );
-    uiRectItem* rec1 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec2 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec3 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec4 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec5 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec6 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec7 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec8 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec9 = new uiRectItem( 0, 0, width, height );
-    uiRectItem* rec10 = new uiRectItem( 0, 0, width, height );
+    auto* rec0 = new uiRectItem( 0, 0, 2*width, height );
+    auto* separator = new uiRectItem( 0, 0, 2*width, height/10 );
+    auto* rec1 = new uiRectItem( 0, 0, width, height );
+    auto* rec2 = new uiRectItem( 0, 0, width, height );
+    auto* rec3 = new uiRectItem( 0, 0, width, height );
+    auto* rec4 = new uiRectItem( 0, 0, width, height );
+    auto* rec5 = new uiRectItem( 0, 0, width, height );
+    auto* rec6 = new uiRectItem( 0, 0, width, height );
+    auto* rec7 = new uiRectItem( 0, 0, width, height );
+    auto* rec8 = new uiRectItem( 0, 0, width, height );
+    auto* rec9 = new uiRectItem( 0, 0, width, height );
+    auto* rec10 = new uiRectItem( 0, 0, width, height );
 
     addChild( country );
     addChild( block );

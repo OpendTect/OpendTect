@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "coordsystem.h"
-#include "ranges.h"
 
 class SurveyInfo;
 class uiCheckBox;

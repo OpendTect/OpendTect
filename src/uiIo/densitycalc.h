@@ -11,8 +11,7 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplot.h"
 
 #include "arrayndimpl.h"
-#include "task.h"
-#include "threadlock.h"
+#include "paralleltask.h"
 
 #include "uidatapointset.h"
 #include "uirgbarray.h"

@@ -12,20 +12,14 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uichecklist.h"
 #include "uiclipboard.h"
-#include "uicombobox.h"
 #include "uiconvpos.h"
 #include "uidatarootsel.h"
 #include "uidesktopservices.h"
 #include "uifileinput.h"
-#include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
-#include "uilatlong2coord.h"
-#include "uilineedit.h"
 #include "uilistbox.h"
-#include "uimain.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uiseparator.h"
 #include "uisetdatadir.h"
 #include "uisettings.h"
@@ -41,28 +35,21 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "ui2dsip.h"
 
-#include "angles.h"
 #include "applicationdata.h"
 #include "ctxtioobj.h"
 #include "dirlist.h"
-#include "envvars.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
-#include "latlong.h"
 #include "mousecursor.h"
 #include "oddirs.h"
-#include "odver.h"
-#include "od_ostream.h"
 #include "od_helpids.h"
 #include "settings.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
-#include "systeminfo.h"
 #include "trckeyzsampling.h"
 
 
@@ -258,7 +245,7 @@ uiStartNewSurveySetup::~uiStartNewSurveySetup()
 {}
 
 
-void uiStartNewSurveySetup::setSurveyNameFld( BufferString name, bool canedit )
+void uiStartNewSurveySetup::setSurveyNameFld( const char* name, bool canedit )
 {
     survnmfld_->setText( name );
     survnmfld_->setSensitive( canedit );

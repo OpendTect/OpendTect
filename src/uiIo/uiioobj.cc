@@ -11,16 +11,12 @@ ________________________________________________________________________
 
 #include "compoundkey.h"
 #include "ctxtioobj.h"
-#include "filepath.h"
 #include "iodir.h"
 #include "ioman.h"
-#include "iostrm.h"
 #include "survinfo.h"
 #include "transl.h"
 
 #include "uimsg.h"
-#include "uistrings.h"
-
 
 
 uiIOObj::uiIOObj( IOObj& i, bool silent )

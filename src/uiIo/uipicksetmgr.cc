@@ -8,7 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "uipicksetmgr.h"
-#include "uiimppickset.h"
+
 #include "uiioobj.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "uimain.h"
 #include "iodir.h"
 #include "ioman.h"

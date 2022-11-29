@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uigraphicsitem.h"
 #include "uigraphicsitemimpl.h"
 
 class uiRectItem;

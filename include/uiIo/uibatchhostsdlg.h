@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "uistringset.h"
 
 class HostDataList;
 class RowCol;

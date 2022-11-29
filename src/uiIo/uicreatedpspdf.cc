@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uidatapointsetcrossplot.h"
 #include "uieditpdf.h"
-#include "uigeninput.h"
 #include "uiprobdenfunvarsel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"

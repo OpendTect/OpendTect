@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uisurveyselect.h"
 
-#include "ctxtioobj.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"

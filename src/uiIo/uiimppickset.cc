@@ -8,7 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiimppickset.h"
-#include "uibutton.h"
+
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uifileinput.h"

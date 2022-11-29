@@ -9,8 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uigroup.h"
-#include "factory.h"
 #include "uizaxistransform.h"
 
 class uiIOObjSel;

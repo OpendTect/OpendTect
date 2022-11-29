@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "mousecursor.h"
 #include "pickset.h"
 #include "picksettr.h"
@@ -30,7 +29,6 @@ ________________________________________________________________________
 #include "statrand.h"
 #include "surfaceinfo.h"
 #include "survgeom2d.h"
-#include "survinfo.h"
 
 int uiPickPartServer::evGetHorInfo2D()		{ return 0; }
 int uiPickPartServer::evGetHorInfo3D()		{ return 1; }

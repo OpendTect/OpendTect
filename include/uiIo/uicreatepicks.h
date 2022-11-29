@@ -10,10 +10,11 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "trckeyzsampling.h"
+
 #include "bufstringset.h"
-#include "uigeninput.h"
 #include "enums.h"
+#include "trckeysampling.h"
+#include "uigeninput.h"
 
 class uiComboBox;
 class uiColorInput;

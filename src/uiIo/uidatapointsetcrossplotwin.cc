@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uidpsoverlayattrdlg.h"
 #include "uidpsrefineseldlg.h"
 #include "uidpsselgrpdlg.h"
-#include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -29,7 +28,6 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
-#include "arrayndimpl.h"
 #include "dpsdispmgr.h"
 #include "randcolor.h"
 #include "settings.h"

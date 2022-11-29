@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeom.h"
 #include "uigeninput.h"
-#include "uifileinput.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -27,11 +25,8 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "file.h"
 #include "ioman.h"
-#include "odver.h"
 #include "safefileio.h"
-#include "separstr.h"
 #include "od_iostream.h"
-#include "timefun.h"
 #include "od_helpids.h"
 
 static const char* sKeyFileType = "CrossPlot Selection";

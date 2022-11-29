@@ -7,12 +7,12 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiprobdenfunvarsel.h"
+
 #include "ranges.h"
 #include "datainpspec.h"
-#include "uiprobdenfunvarsel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uistrings.h"
 #include <math.h>
 

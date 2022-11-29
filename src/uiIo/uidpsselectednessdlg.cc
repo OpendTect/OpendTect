@@ -10,19 +10,16 @@ ________________________________________________________________________
 #include "uidpsselectednessdlg.h"
 
 #include "uibutton.h"
-#include "uicombobox.h"
 #include "uicolortable.h"
 #include "uidatapointsetcrossplot.h"
-#include "uilabel.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
-#include "uitable.h"
 
 #include "datacoldef.h"
 #include "dpsdispmgr.h"
-#include "posvecdataset.h"
-#include "mathexpression.h"
 #include "od_helpids.h"
+#include "posvecdataset.h"
 
 uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& plotter )

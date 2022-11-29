@@ -22,6 +22,7 @@ class uiTable;
 class uiTabStack;
 class uiToolButton;
 class uiUnitSel;
+
 class Gaussian1DProbDenFunc;
 class Gaussian2DProbDenFunc;
 class GaussianNDProbDenFunc;

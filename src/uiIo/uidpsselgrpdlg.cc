@@ -9,12 +9,12 @@ ________________________________________________________________________
 
 #include "uidpsselgrpdlg.h"
 
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uidatapointsetcrossplot.h"
 #include "uiimpexpselgrp.h"
 #include "uimsg.h"
 #include "uitable.h"
-#include "uitoolbutton.h"
 
 #include "randcolor.h"
 #include "od_helpids.h"

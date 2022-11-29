@@ -12,11 +12,9 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
-#include "ioman.h"
 #include "survinfo.h"
 
 #include "uicombobox.h"
-#include "uidpsaddcolumndlg.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"

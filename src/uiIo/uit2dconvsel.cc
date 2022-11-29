@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uicombobox.h"
+
 #include "ioobj.h"
 #include "survinfo.h"
-#include "veldesc.h"
 #include "zdomain.h"
 
 uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt, bool is2d )

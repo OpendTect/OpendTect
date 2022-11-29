@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigeom2dsel.h"
-#include "uigroup.h"
 #include "uiimpexp2dgeom.h"
 #include "uilabel.h"
 #include "uimsg.h"

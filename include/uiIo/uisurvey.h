@@ -140,7 +140,7 @@ public:
 					      SurveyInfo&);
 			~uiStartNewSurveySetup();
 
-    void		setSurveyNameFld(BufferString,bool);
+    void		setSurveyNameFld(const char*,bool);
     bool		isOK();
     bool		acceptOK(CallBacker*) override;
 

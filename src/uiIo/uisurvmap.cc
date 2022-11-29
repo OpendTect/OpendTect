@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uistrings.h"
 
 #include "angles.h"
 #include "draw.h"

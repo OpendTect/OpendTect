@@ -7,11 +7,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uidatapointsetcrossplot.h"
+#include "uidpscrossplottools.h"
 
 #include "polygon.h"
 #include "keystrs.h"
-#include "trigonometry.h"
 
 static const char* sKeyNrAreas = "Nr of Selection Areas";
 static const char* sKeyRect = "Rectangle";

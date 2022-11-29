@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "oddirs.h"

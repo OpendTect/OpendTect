@@ -8,26 +8,25 @@ ________________________________________________________________________
 -*/
 
 #include "uibatchprogs.h"
-#include "uifileinput.h"
-#include "uitextfile.h"
-#include "uicombobox.h"
-#include "uitextedit.h"
+
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uitextedit.h"
+#include "uitextfile.h"
+
 #include "ascstream.h"
+#include "dirlist.h"
+#include "envvars.h"
 #include "file.h"
-#include "filepath.h"
 #include "manobjectset.h"
+#include "od_helpids.h"
 #include "od_istream.h"
-#include "iopar.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "separstr.h"
-#include "envvars.h"
-#include "dirlist.h"
-
-#include "od_helpids.h"
 
 
 class BatchProgPar

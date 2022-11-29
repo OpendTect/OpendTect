@@ -9,8 +9,7 @@ ________________________________________________________________________
 
 #include "uisimpletimedepthmodel.h"
 
-#include "binidvalue.h"
-#include "od_iostream.h"
+#include "od_istream.h"
 #include "simpletimedepthmodel.h"
 #include "survinfo.h"
 #include "zdomain.h"
@@ -19,7 +18,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uiioobjseldlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitable.h"

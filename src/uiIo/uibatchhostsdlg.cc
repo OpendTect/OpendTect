@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistatusbutton.h"
@@ -23,14 +22,11 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "file.h"
-#include "genc.h"
 #include "hostdata.h"
 #include "mmpserverclient.h"
-#include "oddirs.h"
 #include "od_helpids.h"
 #include "remjobexec.h"
 #include "systeminfo.h"
-#include "survinfo.h"
 
 #include <limits>
 

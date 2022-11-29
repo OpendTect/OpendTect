@@ -8,13 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiioobjselwritetransl.h"
-#include "uiioobjsel.h"
 
-#include "uibutton.h"
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 
 #include "ctxtioobj.h"
 #include "ioman.h"

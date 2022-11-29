@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "odver.h"
 #include "od_helpids.h"
-#include "od_iostream.h"
+#include "od_ostream.h"
 #include "probdenfunctr.h"
 #include "sampledprobdenfunc.h"
 #include "timefun.h"

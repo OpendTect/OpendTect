@@ -10,10 +10,7 @@ ________________________________________________________________________
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
 
-#include "uibutton.h"
 #include "uiioobjselgrp.h"
-#include "uilistbox.h"
-#include "uitextedit.h"
 #include "uitoolbutton.h"
 
 #include "ctxtioobj.h"

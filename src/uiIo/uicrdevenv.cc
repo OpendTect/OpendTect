@@ -9,18 +9,14 @@ ________________________________________________________________________
 
 #include "uicrdevenv.h"
 
-#include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uilabel.h"
-#include "uimain.h"
 #include "uimsg.h"
 
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "oddirs.h"
-#include "settings.h"
 #include "oscommand.h"
 #include "od_helpids.h"
 

@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "uiclusterjobprov.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -20,21 +20,19 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "genc.h"
-#include "hostdata.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "jobdescprov.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "settings.h"
 #include "statrand.h"
 #include "systeminfo.h"
 #include "transl.h"
-#include "od_helpids.h"
 
 
 const char* uiClusterJobProv::sKeySeisOutIDKey()

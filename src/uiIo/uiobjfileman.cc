@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uiobjfileman.h"
 
 #include "uifont.h"
-#include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"

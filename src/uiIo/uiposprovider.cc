@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
-#include "uimainwin.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uitoolbutton.h"

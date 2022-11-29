@@ -10,9 +10,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "uigroup.h"
 #include "coord.h"
-#include "ranges.h"
 
 class LatLong;
 class SurveyInfo;

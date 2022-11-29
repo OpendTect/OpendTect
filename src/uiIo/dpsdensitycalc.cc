@@ -7,12 +7,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
 #include "dpsdensitycalc.h"
+
 #include "datapointset.h"
-#include "datacoldef.h"
 #include "survinfo.h"
-#include "unitofmeasure.h"
 
 mDefineEnumUtils(DPSDensityCalcND,CalcAreaType,"Calculation Area Type")
 {

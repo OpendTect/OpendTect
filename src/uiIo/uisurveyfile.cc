@@ -9,19 +9,19 @@ ________________________________________________________________________
 
 #include "uisurveyfile.h"
 
-#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "oddirs.h"
 #include "surveyfile.h"
 #include "survinfo.h"
+
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "uistringset.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
 #include "uitaskrunner.h"
-#include "ziputils.h"
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 

@@ -8,7 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "task.h"
+#include "uiiomod.h"
+#include "paralleltask.h"
+
 #include "arraynd.h"
 #include "datapointset.h"
 #include "ranges.h"
