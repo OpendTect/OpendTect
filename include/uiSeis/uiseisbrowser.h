@@ -65,7 +65,6 @@ public :
     int			stepOut()			{ return stepout_; }
     void		setStepout(int);
     bool		is2D() const;
-    bool		is2d_;
 
     const BinID&	curBinID() const;
     float		curZ() const;
@@ -76,33 +75,34 @@ public :
 
 protected:
 
-    const Setup		setup_;
-    uiSeisBrowserInfoVwr* infovwr_;
-    uiSeisTrcBufViewer*	trcbufvwr_;
+    const Setup		    setup_;
+    uiSeisBrowserInfoVwr*   infovwr_	    = nullptr;
+    uiSeisTrcBufViewer*     trcbufvwr_	    = nullptr;
 
-    SeisTrcBuf&		tbuf_;
-    SeisTrcBuf&		tbufchgdtrcs_;
-    SeisTrc&		ctrc_;
-    CBVSSeisTrcTranslator* tr_;
-    CBVSSeisTrcTranslator* tro_;
-    CBVSSeisTrcTranslator* tri_;
-    const ZDomain::Def*	zdomdef_;
+    SeisTrcBuf&		    tbuf_;
+    SeisTrcBuf&		    tbufchgdtrcs_;
+    SeisTrc&		    ctrc_;
+    CBVSSeisTrcTranslator*  tr_		    = nullptr;
+    CBVSSeisTrcTranslator*  tro_	    = nullptr;
+    CBVSSeisTrcTranslator*  tri_;
+    const ZDomain::Def*     zdomdef_;
 
-    bool		crlwise_;
-    int			crlwisebutidx_;
-    int			showwgglbutidx_;
-    uiComboBox*		selcompnmfld_;
-    uiSpinBox*		nrtrcsfld_;
+    bool		    crlwise_	    = false;;
+    bool		    is2d_;
+    int			    crlwisebutidx_;
+    int			    showwgglbutidx_;
+    uiComboBox*		    selcompnmfld_;
+    uiSpinBox*		    nrtrcsfld_;
 
-    int			stepout_;
+    int			    stepout_	    = 25;
 
-    uiTable*		tbl_;
-    uiToolBar*		uitb_;
-    int			compnr_;
-    int			nrcomps_;
-    BufferStringSet	compnms_;
-    int			nrsamples_;
-    SamplingData<float>	sd_;
+    uiTable*		    tbl_	    = nullptr;
+    uiToolBar*		    uitb_	    = nullptr;
+    int			    compnr_	    = 0;
+    int			    nrcomps_	    = 1;
+    BufferStringSet	    compnms_;
+    int			    nrsamples_;
+    SamplingData<float>     sd_		    = 0;
 
     bool		openData(const Setup&);
     void		createMenuAndToolBar();

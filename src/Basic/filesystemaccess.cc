@@ -275,7 +275,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     if ( !exists(oldname) )
     {
 	if ( errmsg )
-	    errmsg->append(uiStrings::phrDoesntExist(::toUiString(oldname)));
+	    errmsg->append( uiStrings::phrDoesntExist(::toUiString(oldname)) );
 	return false;
     }
 
@@ -284,24 +284,26 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     {
 	if ( errmsg )
 	{
-	    BufferString errstr("Destination '");
-	    errstr.add(destpath.fullPath())
-		.add("' already exists.")
-		.add("Please remove or rename manually.");
+	    BufferString errstr( "Destination '" );
+	    errstr.add( destpath.fullPath() )
+		.add( "' already exists." )
+		.add( "Please remove or rename manually." );
 	    errmsg->append(errstr);
 	}
+
 	return false;
     }
 
-    const FilePath destdir(destpath.pathOnly());
-    const BufferString targetbasedir(destdir.fullPath());
+    const FilePath destdir( destpath.pathOnly() );
+    const BufferString targetbasedir( destdir.fullPath() );
     if ( !exists(targetbasedir) )
     {
 	if ( !File::createDir(targetbasedir) )
 	{
 	    if ( errmsg )
-		errmsg->append(uiStrings::phrCannotCreateDirectory(
-		    toUiString(targetbasedir)));
+		errmsg->append( uiStrings::phrCannotCreateDirectory(
+		    toUiString(targetbasedir)) );
+
 	    return false;
 	}
     }
@@ -320,7 +322,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     bool res=false;
     while ( ++itatr < nritatr )
     {
-	res = QFile::rename(oldname, newname);
+	res = QFile::rename( oldname, newname );
 	if ( res )
 	    return true;
 	else if ( !exists(oldname) && exists(newname) )
@@ -331,17 +333,17 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 	if ( !res && isDirectory(oldname) )
 	{
 	    QDir dir;
-	    res = dir.rename(oldname, newname);
+	    res = dir.rename( oldname, newname );
 	    if ( res )
 		return true;
 	    else if ( !exists(oldname) && exists(newname) )
 		return true;
 	    else
 	    {
-		const FilePath sourcefp(oldname);
-		dir.setCurrent(QString(sourcefp.pathOnly()));
-		const QString newnm = dir.relativeFilePath(newname);
-		res = dir.rename(QString(sourcefp.fileName()), newnm);
+		const FilePath sourcefp( oldname );
+		dir.setCurrent( QString(sourcefp.pathOnly()) );
+		const QString newnm = dir.relativeFilePath( newname );
+		res = dir.rename( QString(sourcefp.fileName()), newnm );
 		if ( res )
 		    return true;
 		else if ( !exists(oldname) && exists(newname) )
@@ -354,7 +356,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 
     if ( !res )
     { //Trying c rename function
-	rename(oldname, newname);
+	::rename( oldname, newname );
 	if ( !exists(oldname) && exists(newname) )
 	    return true;
     }
@@ -365,36 +367,37 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     else
     {
 	const BufferString destdrive = destdir.rootPath();
-	const FilePath sourcefp(oldname);
+	const FilePath sourcefp( oldname );
 	const BufferString sourcedrive = sourcefp.rootPath();
 	if ( destdrive != sourcedrive )
 	{
 	    BufferString msgstr;
-	    res = File::copyDir(oldname, newname, &msgstr);
+	    res = File::copyDir( oldname, newname, &msgstr );
 	    if ( !res )
 	    {
 		if ( errmsg && !msgstr.isEmpty() )
-		    errmsg->append(msgstr);
+		    errmsg->append( msgstr );
+
 		return false;
 	    }
 
-	    res = File::removeDir(oldname);
+	    res = File::removeDir( oldname );
 	    return res;
 	}
 
-	mc.setProgram("move");
+	mc.setProgram( "move" );
     }
 
-    mc.addArg(oldname).addArg(newname);
+    mc.addArg( oldname ).addArg( newname );
     BufferString stdoutput, stderror;
-    res = mc.execute(stdoutput, &stderror);
+    res = mc.execute( stdoutput, &stderror );
     if ( !res && errmsg )
     {
 	if ( !stderror.isEmpty() )
-	    errmsg->append(stderror, true);
+	    errmsg->append( stderror, true );
 
 	if ( !stdoutput.isEmpty() )
-	    errmsg->append(stdoutput, true);
+	    errmsg->append( stdoutput, true );
 
 	errmsg->append("Failed to rename using system command.");
     }

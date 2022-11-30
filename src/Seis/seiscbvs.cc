@@ -82,7 +82,6 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 }
 
 
-
 void CBVSSeisTrcTranslator::cleanUp()
 {
     SeisTrcTranslator::cleanUp();
