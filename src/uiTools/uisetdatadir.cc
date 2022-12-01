@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "uidesktopservices.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
+#include "uihelpview.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "dirlist.h"
-#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -373,8 +372,8 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    else
 	    {
 		uiString msg = tr("The target folder:\n%1"
-		    "\nis not an OpendTect Data Root folder."
-		    "\nIt already contains files though."
+		    "\nis not an OpendTect Data Root folder. "
+		    "It already contains files though."
 		    "\n\nDo you want to convert this folder into an "
 		    "OpendTect Data Root?"
 		    "\n(this process will not remove the existing files)")
@@ -421,13 +420,15 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     {
 	void go( CallBacker* )
 	{
-	    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
+	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+			       WebsiteHelp::sKeyFreeProjects() );
+	    HelpProvider::provideHelp( key );
 	}
     };
     uiGetChoice uigc( par, opts, uiStrings::phrSelect(tr("next action")) );
     OSRPageShower ps;
     uiPushButton* pb = new uiPushButton( &uigc,
-				 tr("visit OSR web site (for free surveys)"),
+				 tr("visit TerraNubis (for free surveys)"),
 				 mCB(&ps,OSRPageShower,go), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
     if ( !uigc.go() || uigc.choice() == 0 )
@@ -449,7 +450,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 
 
 using fromFromSdlUiParSdlPtrFn = bool(*)(SurveyDiskLocation&,uiParent*,
-                            const SurveyDiskLocation*,uiDialog::DoneResult* );
+			const SurveyDiskLocation*,uiDialog::DoneResult* );
 static fromFromSdlUiParSdlPtrFn dosurvselfn_ = nullptr;
 
 mGlobal(uiTools) void setGlobal_uiTools_SurvSelFns(fromFromSdlUiParSdlPtrFn);
@@ -459,14 +460,14 @@ void setGlobal_uiTools_SurvSelFns( fromFromSdlUiParSdlPtrFn dosurvselfn )
 }
 
 extern "C" {
-    mGlobal(uiTools) bool doSurveySelectionDlg(SurveyDiskLocation&,uiParent*,
-                                     const SurveyDiskLocation*,
-                                     uiDialog::DoneResult*);
+mGlobal(uiTools) bool doSurveySelectionDlg(SurveyDiskLocation&,uiParent*,
+					const SurveyDiskLocation*,
+					uiDialog::DoneResult*);
 }
 
 mExternC(uiTools) bool doSurveySelectionDlg( SurveyDiskLocation& newsdl,
-                                uiParent* p, const SurveyDiskLocation* cursdl,
-                                uiDialog::DoneResult* doneres )
+				uiParent* p, const SurveyDiskLocation* cursdl,
+				uiDialog::DoneResult* doneres )
 {
     return dosurvselfn_ ? (*dosurvselfn_)(newsdl,p,cursdl,doneres) : false;
 }
