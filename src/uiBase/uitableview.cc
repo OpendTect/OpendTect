@@ -89,12 +89,12 @@ const uiPixmap* createPixmap( const QVariant& qvar, const QRect& rect ) const
     pmparams.use( qsl );
     if ( pmparams.isEmpty() )
 	return nullptr;
-    
+
     uiPixmap* pm = uiPixmap::createFromParams( pmparams );
     BufferString pmsrc = pm->source();
     if ( pm && pmsrc != uiPixmap::sKeyCreatedSrc() )
 	pm->scaleToHeight( rect.height() - sPmScalePadding );
-	
+
     return pm;
 }
 
@@ -460,12 +460,14 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
     , doubleClicked(this)
 {
     columndelegates_.setNullAllowed( true );
-    mAttachCB(this->doubleClicked,uiTableView::doubleClickedCB);
+    mAttachCB( this->doubleClicked, uiTableView::doubleClickedCB );
 }
 
 
 uiTableView::~uiTableView()
 {
+    detachAllNotifiers();
+
     delete horizontalheaderstate_;
     deepErase( columndelegates_ );
 }
