@@ -528,9 +528,7 @@ virtual od_int64 totalNr() const	{ return totalnr_; }
 
 virtual uiString uiMessage() const
 {
-    uiString ret( tr("Scanning traces in %1") );
-    ret.arg( strm_.fileName() );
-    return ret;
+    return tr("Scanning traces");
 }
 
 virtual int nextStep()
@@ -640,6 +638,7 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
 
     if ( !full_ )
 	keydata_.add( thdr, def.hdrsswapped_, isfirst );
+
     pidetector_->add( ti.coord, ti.binID(), ti.trcNr(), ti.offset, ti.azimuth );
     addValues( clipsampler, vals, def.ns_ );
 
