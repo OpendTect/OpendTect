@@ -490,9 +490,9 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	maxval = getmaxVal(maxval,val);
 	crdvals += visBase::Well::Coord3Value( pos, val );
 
-	if( isfilled )
+	if ( isfilled )
 	{
-	    const float valfill = logfill->value(idx);
+	    const float valfill = logfill->value( idx );
 	    if ( !mIsUdf(valfill) )
 	    {
 		minvalF = getminVal(minvalF,valfill);
@@ -679,8 +679,9 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     info += toString( mNINT32(dah*zfac) );
 
-    setLogInfo( info, val, dah, true );
-    setLogInfo( info, val, dah, false );
+    setLogInfo( info, val, dah, visBase::Well::Left );
+    setLogInfo( info, val, dah, visBase::Well::Center );
+    setLogInfo( info, val, dah, visBase::Well::Right );
 
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     const float zstep2 = zfactor*SI().zStep()/2;
@@ -698,17 +699,20 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 
 void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
-				float dah, bool isleft ) const
+				float dah, visBase::Well::Side side ) const
 {
     mGetWD(return);
 
-    const visBase::Well::Side side  =
-			isleft ? visBase::Well::Left : visBase::Well::Right;
-
-    BufferString lognm( mGetLogPar( side , name_ ) );
+    BufferString lognm( mGetLogPar(side,name_) );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
     {
-	info += isleft ? ", Left: " : ", Right: ";
+	if ( side==visBase::Well::Left )
+	    info.add( ", Left: " );
+	else if ( side==visBase::Well::Center )
+	    info.add( ", Center: " );
+	else
+	    info.add( ", Right: ");
+
 	info += lognm;
 	const Well::Log* log = wd->logs().getLog( lognm.buf() );
 	if (log)

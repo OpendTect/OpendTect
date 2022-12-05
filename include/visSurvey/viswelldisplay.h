@@ -163,7 +163,7 @@ protected:
     void			pickCB(CallBacker* cb=0);
     void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
-					   float,bool) const;
+					   float,visBase::Well::Side) const;
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,VisID);
 
