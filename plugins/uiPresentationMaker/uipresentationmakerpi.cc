@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uipresentationmaker.h"
 #include "uitoolbar.h"
 
-#include "ioman.h"
 #include "odplugin.h"
 
 
@@ -75,7 +74,7 @@ void uiPresMakerPIMgr::cleanup()
 void uiPresMakerPIMgr::showDlgCB( CallBacker* )
 {
     if ( !dlg_ )
-	dlg_ = new uiPresentationMakerDlg( &appl() );
+	dlg_ = new uiPresentationMakerDlg( nullptr );
 
     dlg_->show();
 }
