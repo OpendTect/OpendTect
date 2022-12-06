@@ -57,10 +57,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     }
 
     toolBars() += this;
-#ifdef __mac__
-    qtoolbar_->setStyleSheet( "background: gray;" );
-#endif
 }
+
 
 uiToolBar::uiToolBar( uiParent* p, const char* nm, ToolBarArea d, bool newline )
     : uiToolBar(p,toUiString(nm),d,newline)
