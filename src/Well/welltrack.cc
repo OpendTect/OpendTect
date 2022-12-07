@@ -520,7 +520,7 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     if ( dah_.size() < 2 )
 	return dah_[0];
 
-    if ( dah_.size() > 100 )
+    if ( pos_.size() > 1000 )
     {
 	NearestCoordFinder finder( pos_, posin );
 	if ( finder.execute() && finder.nearestIndex()!=-1 )
