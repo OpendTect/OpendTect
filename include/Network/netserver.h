@@ -72,15 +72,15 @@ protected:
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
 
-    mQtclass(QTcpServer)* qtcpserver_	    = nullptr;
-    mQtclass(QLocalServer)* qlocalserver_   = nullptr;
-    mQtclass(QTcpServerComm)* comm_;
-    mutable BufferString errmsg_;
-    ObjectSet<Socket>	sockets_;
-    TypeSet<int>	ids_;
-    ObjectSet<Socket>	sockets2bdeleted_;
+    mQtclass(QTcpServer)*	qtcpserver_		= nullptr;
+    mQtclass(QLocalServer)*	qlocalserver_		= nullptr;
+    mQtclass(QTcpServerComm)*	comm_;
+    mutable BufferString	errmsg_;
+    ObjectSet<Socket>		sockets_;
+    TypeSet<int>		ids_;
+    ObjectSet<Socket>		sockets2bdeleted_;
 
-    friend class	mQtclass(QTcpServerComm);
+    friend class		mQtclass(QTcpServerComm);
 
 };
 

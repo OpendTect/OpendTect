@@ -159,7 +159,7 @@ private:
 	TypeSet<Network::Authority::ConnType> conntypes;
 	conntypes += Network::Authority::FQDN;
 	conntypes += Network::Authority::HostName;
-	conntypes += Network::Authority::IPv4;
+	conntypes += Network::Authority::IPv4Address;
 	for ( int idx=0; idx<exphostaddrs.size(); idx++ )
 	{
 	    const QHostAddress qaddr = QHostAddress( QHostAddress::Any );

@@ -734,7 +734,7 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 
     const Network::Authority servauth = authority();
     mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
-		    servauth.getConnHost(Network::Authority::IPv4) );
+		    servauth.getConnHost(Network::Authority::IPv4Address) );
     mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(), servauth.getPort() );
     mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
     mc.addArg( iopfp.fullPath(machine.pathStyle()) );

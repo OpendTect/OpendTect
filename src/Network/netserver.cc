@@ -354,9 +354,9 @@ BufferString Network::Authority::getConnHost( ConnType typ ) const
     BufferString ret;
     switch ( typ )
     {
-	case FQDN:	ret.set( System::localFullHostName() ); break;
-	case HostName:	ret.set( System::localHostName() ); break;
-	case IPv4:	ret.set( System::localAddress() ); break;
+	case FQDN:		ret.set( System::localFullHostName() ); break;
+	case HostName:		ret.set( System::localHostName() ); break;
+	case IPv4Address:	ret.set( System::localAddress() ); break;
 	default: break;
     }
 

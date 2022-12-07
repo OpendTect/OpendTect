@@ -71,7 +71,7 @@ public:
     BufferString	toString() const;
     BufferString	getUserInfo() const		{ return userinfo_; }
     BufferString	getHost() const;
-    enum ConnType	{ FQDN, HostName, IPv4 };
+    enum ConnType	{ FQDN, HostName, IPv4Address };
     BufferString	getConnHost(ConnType) const;
 			/*<! Exclusively for network authorities from listening
 			  TCP servers, returns the connection name to be used

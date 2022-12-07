@@ -175,8 +175,8 @@ bool JobRunner::addHost( const HostData& hd )
 	const Network::Authority auth = iomgr().authority();
 	const int port = auth.isOK() ? auth.getPort() : firstport_;
 	const BufferString servnm( auth.isOK()
-			    ? auth.getConnHost(Network::Authority::IPv4).buf()
-			    : System::localAddress() );
+		? auth.getConnHost(Network::Authority::IPv4Address).buf()
+		: System::localAddress() );
 	deleteAndZeroPtr( iomgr_ );
 	errmsg_ = tr("Failed to listen to port %1 on %2 on ")
 		.arg( port ).arg( servnm );
