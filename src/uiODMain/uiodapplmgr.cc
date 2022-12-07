@@ -9,14 +9,8 @@ ________________________________________________________________________
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
-#include "uiodscenemgr.h"
-#include "uiodmenumgr.h"
-#include "uiodtreeitem.h"
 
-#include "uiattribcrossplot.h"
 #include "uiattribpartserv.h"
-#include "uiconvpos.h"
-#include "uidesktopservices.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uifiledlg.h"
@@ -26,60 +20,58 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
-#include "uiodviewer2dposdlg.h"
+#include "uiodmenumgr.h"
+#include "uiodscenemgr.h"
+#include "uiodstratlayermodelmgr.h"
+#include "uiodtreeitem.h"
 #include "uiodviewer2dmgr.h"
+#include "uiodviewer2dposdlg.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
-#include "uiodstratlayermodelmgr.h"
 #include "uistrings.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
-#include "uiveldesc.h"
-#include "uivispartserv.h"
 #include "uivisdatapointsetdisplaymgr.h"
+#include "uivispartserv.h"
 #include "uivolprocpartserv.h"
-#include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
+#include "uiwellpartserv.h"
+#include "uizaxistransform.h"
+
 #include "visfaultdisplay.h"
 #include "visfaultsticksetdisplay.h"
-#include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
-#include "vispicksetdisplay.h"
-#include "visplanedatadisplay.h"
+#include "vishorizondisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
-#include "visselman.h"
 #include "visseis2ddisplay.h"
-#include "vistexturechannels.h"
+#include "visselman.h"
 
 #include "attribdescset.h"
 #include "bendpointfinder.h"
 #include "datacoldef.h"
 #include "datapointset.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emhorizon2d.h"
-#include "emhorizon3d.h"
-#include "emseedpicker.h"
-#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "externalattrib.h"
 #include "file.h"
 #include "filepath.h"
-#include "genc.h"
 #include "ioman.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "od_helpids.h"
 #include "oddirs.h"
 #include "odsession.h"
 #include "pickset.h"
-#include "posinfo2d.h"
 #include "posvecdataset.h"
 #include "randomlinegeom.h"
 #include "unitofmeasure.h"
-#include "od_helpids.h"
+#include "zaxistransform.h"
+
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
@@ -505,7 +497,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 
     uiSingleGroupDlg dlg( &appl_, setup );
 
-    uiZAxisTransformSel* uitrans = SI().zIsTime()
+    auto* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
 				   ZDomain::sKeyDepth(), true, false, is2d )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
@@ -1318,13 +1310,15 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	if ( !isok || mIsUdf(textureidx) )
 	{
 	    uiTreeItem* parent = sceneMgr().findItem(visid);
-	    if ( !mIsUdf(emattrserv_->attribIdx() ) )
+	    if ( parent && !mIsUdf(emattrserv_->attribIdx()) )
 	    {
 		uiTreeItem* itm = parent->lastChild();
 		while ( true )
 		{
-		    uiTreeItem* nxt = itm->siblingAbove();
-		    if ( !nxt ) break;
+		    uiTreeItem* nxt = itm ? itm->siblingAbove() : nullptr;
+		    if ( !nxt )
+			break;
+
 		    itm = nxt;
 		}
 
