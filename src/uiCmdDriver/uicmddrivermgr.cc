@@ -83,6 +83,15 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
 }
 
 
+void uiCmdDriverMgr::cleanup()
+{
+    if ( drv_->nowExecuting() )
+	return;
+
+    closeAndNullPtr( scriptrunnerdlg_ );
+}
+
+
 uiCmdDriverMgr& uiCmdDriverMgr::getMgr( bool fullodmode )
 {
     mDefineStaticLocalObject( PtrMan<CmdDrive::uiCmdDriverMgr>, cmdmmgr,
@@ -130,9 +139,13 @@ void uiCmdDriverMgr::showDlgCB( CallBacker* )
 
 void uiCmdDriverMgr::showScriptRunnerCB( CallBacker* )
 {
-    auto* dlg = new uiScriptRunnerDlg( &applwin_, *drv_ );
-    dlg->setModal( false );
-    dlg->go();
+    if ( !scriptrunnerdlg_ )
+    {
+	scriptrunnerdlg_ = new uiScriptRunnerDlg( nullptr, *drv_ );
+	scriptrunnerdlg_->setModal( false );
+    }
+
+    scriptrunnerdlg_->show();
 }
 
 

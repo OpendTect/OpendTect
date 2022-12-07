@@ -23,6 +23,7 @@ namespace CmdDrive
 class CmdDriver;
 class CmdRecorder;
 class uiCmdDriverDlg;
+class uiScriptRunnerDlg;
 
 
 mExpClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
@@ -30,6 +31,8 @@ mExpClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
 public:
 				uiCmdDriverMgr(bool fullodmode=false);
 				~uiCmdDriverMgr();
+
+    void			cleanup(); // only when not running
 
     void			enableCmdLineParsing(bool yn=true);
 
@@ -64,9 +67,10 @@ protected:
     uiMainWin&			applwin_;
     CmdDriver*			drv_;
     CmdRecorder*		rec_;
-    CmdRecorder*		historec_ = nullptr;
+    CmdRecorder*		historec_		= nullptr;
     Timer*			tim_;
-    uiCmdDriverDlg*		cmddlg_ = nullptr;
+    uiCmdDriverDlg*		cmddlg_			= nullptr;
+    uiScriptRunnerDlg*		scriptrunnerdlg_	= nullptr;
 
     bool			cmdlineparsing_;
     BufferString		defaultscriptsdir_;

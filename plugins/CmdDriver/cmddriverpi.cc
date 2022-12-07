@@ -29,35 +29,49 @@ mDefODPluginInfo(CmdDriver)
 }
 
 
-static void initExtraCommands()
+class CmdDriverPIMgr : public uiPluginInitMgr
 {
-}
-
-static void initExtraFunctions()
+mODTextTranslationClass(CmdDriverPIMgr)
+public:
+CmdDriverPIMgr()
 {
-}
-
-static void initExtraComposers()
-{
+    init();
 }
 
 
-mDefODInitPlugin(CmdDriver)
+~CmdDriverPIMgr()
+{}
+
+
+void init() override
 {
-    uiCmdDriverMgr& mgr = uiCmdDriverMgr::getMgr( true );
+    mgr_ = &uiCmdDriverMgr::getMgr( true );
     auto* cmdmnuitm = new uiAction( m3Dots( uiCmdDriverMgr::usrDispNm() ),
-				    mCB(&mgr,uiCmdDriverMgr,showDlgCB) );
+				    mCB(mgr_,uiCmdDriverMgr,showDlgCB) );
     ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
 
     auto* mnuitm = new uiAction(
 		m3Dots(toUiString("Command Driver Script Runner")),
-		mCB(&mgr,uiCmdDriverMgr,showScriptRunnerCB) );
+		mCB(mgr_,uiCmdDriverMgr,showScriptRunnerCB) );
     ODMainWin()->menuMgr().toolsMnu()->insertAction( mnuitm );
+}
 
-    initExtraCommands();
-    initExtraFunctions();
-    initExtraComposers();
 
+void cleanup() override
+{
+    mgr_->cleanup();
+}
+
+protected:
+
+    uiCmdDriverMgr* mgr_	= nullptr;
+};
+
+
+mDefODInitPlugin(CmdDriver)
+{
+    mDefineStaticLocalObject( PtrMan<CmdDriverPIMgr>, theinst_,
+				= new CmdDriverPIMgr() );
     return nullptr;
 }
 
