@@ -520,6 +520,13 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     if ( dah_.size() < 2 )
 	return dah_[0];
 
+    if ( dah_.size() > 100 )
+    {
+	NearestCoordFinder finder( pos_, posin );
+	if ( finder.execute() && finder.nearestIndex()!=-1 )
+	    return dah_[finder.nearestIndex()];
+    }
+
     const double zfac = zistime_ ? 2000. : 1.;
     Coord3 curpos(posin); curpos.z *= zfac;
     int startidx = 0;

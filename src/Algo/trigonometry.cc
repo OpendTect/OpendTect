@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "math2.h"
 #include "pca.h"
-#include "position.h"
 #include "typeset.h"
 
 #include <math.h>
@@ -22,7 +21,7 @@ const Sphere& Sphere::nullSphere() { return nullsphere_; }
 bool Sphere::isNull() const
 {
     return mIsZero(radius,mDefEpsF)
-        && mIsZero(theta,mDefEpsF)
+	&& mIsZero(theta,mDefEpsF)
 	&& mIsZero(phi,mDefEpsF);
 }
 
@@ -163,9 +162,7 @@ void Quaternion::getRotation( Vector3& axis, float& angle ) const
 Coord3 Quaternion::rotate( const Coord3& v ) const
 {
     const Coord3 qvv = s_*v + vec_.cross(v);
-
     const Coord3 iqvec = -vec_;
-
     return (iqvec.dot(v))*iqvec+s_*qvv+qvv.cross(iqvec);
 }
 
@@ -959,4 +956,66 @@ Coord3 spherical2Cartesian( const Sphere& sph, bool math )
     }
 
     return Coord3(x,y,z);
+}
+
+
+
+// NearestCoordFinder
+NearestCoordFinder::NearestCoordFinder( const TypeSet<Coord3>& crds, const Coord3& crd )
+    : ParallelTask("Finding nearest MD")
+    , crds_(crds)
+    , crd_(crd)
+{}
+
+
+NearestCoordFinder::~NearestCoordFinder()
+{}
+
+
+od_int64 NearestCoordFinder::nrIterations() const
+{
+    return crds_.size();
+}
+
+
+bool NearestCoordFinder::doPrepare( int nrthreads )
+{
+    minidxs_.setSize( nrthreads, -1 );
+    mindists_.setSize( nrthreads, mUdf(double) );
+    return true;
+}
+
+
+bool NearestCoordFinder::doFinish( bool success )
+{
+    int thridx = -1;
+    double dist = mUdf(double);
+    for ( int idx=0; idx<mindists_.size(); idx++ )
+    {
+	if ( mindists_[idx] < dist )
+	{
+	    dist = mindists_[idx];
+	    thridx = idx;
+	}
+    }
+
+    nearestidx_ = thridx != -1 ? minidxs_[thridx] : -1;
+    nearestdist_ = thridx != -1 ? Math::Sqrt(mindists_[thridx]) : mUdf(float);
+    return success;
+}
+
+
+bool NearestCoordFinder::doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	const double dist = crd_.sqDistTo( crds_[idx] );
+	if ( dist > mindists_[threadidx] )
+	    continue;
+
+	mindists_[threadidx] = dist;
+	minidxs_[threadidx] = idx;
+    }
+
+    return true;
 }
