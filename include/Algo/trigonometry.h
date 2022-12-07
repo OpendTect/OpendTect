@@ -659,7 +659,7 @@ inline Coord3 lineSegmentIntersectsTriangle( Coord3 segStart, Coord3 segEnd,
 \brief Find nearest coordinate in a TypeSet
 */
 
-class NearestCoordFinder : public ParallelTask
+mExpClass(Algo) NearestCoordFinder : public ParallelTask
 {
 public:
 			NearestCoordFinder(const TypeSet<Coord3>&,
