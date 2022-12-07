@@ -667,7 +667,11 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
-    uiString mdlbl = toUiString("MD %1").arg(toUiString(SI().xyUnit()) );
+
+    const bool depthsinfeet = SI().depthsInFeet();
+    const uiString depthunitstr =
+		uiStrings::sDistUnitString( depthsinfeet, true, false );
+    uiString mdlbl = toUiString("MD (%1)").arg( depthunitstr );
     uiString loglbl = toUiString(log_.name());
     if ( log_.haveUnit() )
 	loglbl = toUiString("%1 (%2)").arg(loglbl).arg( log.unitMeasLabel() );
