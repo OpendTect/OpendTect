@@ -73,8 +73,9 @@ public:
 			mDeclareEnumUtils(Fld)
     double		getValue(Fld) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
-    int			getDefaultAxisFld(Seis::GeomType,
-					  const SeisTrcInfo* next) const;
+    Fld			getDefaultAxisFld(Seis::GeomType,
+					  const SeisTrcInfo* next,
+					  const SeisTrcInfo* last) const;
     void		getInterestingFlds(Seis::GeomType,IOPar&) const;
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
 				  bool setpos=false);
