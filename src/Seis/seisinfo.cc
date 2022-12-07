@@ -398,24 +398,43 @@ void SeisTrcInfo::getAxisCandidates( Seis::GeomType gt,
 
 
 int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
-				    const SeisTrcInfo* ti ) const
+				    const SeisTrcInfo* next ) const
+{
+    return static_cast<int>( getDefaultAxisFld(gt, next, nullptr) );
+}
+
+
+SeisTrcInfo::Fld SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
+						 const SeisTrcInfo* next,
+						 const SeisTrcInfo* last ) const
 {
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    if ( !ti )
+    if ( !next )
 	return isps ? Offset : (is2d ? TrcNr : BinIDCrl);
 
-    if ( isps && !Seis::equalOffset(ti->offset,offset) )
+    if ( isps && !Seis::equalOffset(next->offset,offset) )
 	return Offset;
-    if ( is2d && ti->trcNr() != trcNr() )
+
+    if ( last )
+    {
+	if ( is2d )
+	    return lineNr() == last->lineNr() && trcNr() != next->trcNr() ?
+								TrcNr : SeqNr;
+	else if ( inl() == last->inl() && crl() != next->crl() )
+	    return BinIDCrl;
+	else if ( crl() == last->crl() && inl() != next->inl() )
+	    return BinIDInl;
+    }
+    else if ( is2d && next->trcNr() != trcNr() )
 	return TrcNr;
-    if ( !is2d && ti->crl() != crl() )
+    else if ( !is2d && next->crl() != crl() )
 	return BinIDCrl;
-    if ( !is2d && ti->inl() != inl() )
+    else if ( !is2d && next->inl() != inl() )
 	return BinIDInl;
 
     // 'normal' doesn't apply, try coordinates
-    return mIsZero(ti->coord.x-coord.x,.1) ? CoordY : CoordX;
+    return mIsZero(next->coord.x-coord.x,.1) ? CoordY : CoordX;
 }
 
 

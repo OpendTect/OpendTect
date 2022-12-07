@@ -65,10 +65,19 @@ bool uiTutODMad::acceptOK( CallBacker* )
 			    ? madstream_.isPS() ? Seis::LinePS : Seis::Line
 			    : madstream_.isPS() ? Seis::VolPS : Seis::Vol;
     SeisTrcBuf* trcbuf = madstream_.getTrcBuf();
-    SeisTrcInfo::Fld seisifld = (SeisTrcInfo::Fld)0;
-    if ( trcbuf && trcbuf->get(0) && trcbuf->get(1) )
-	seisifld = (SeisTrcInfo::Fld) trcbuf->get(0)->info().
-				getDefaultAxisFld(geom,&trcbuf->get(1)->info());
+    if ( !trcbuf || trcbuf->isEmpty() )
+	return false;
+
+    const int sz = trcbuf->size();
+    SeisTrcInfo::Fld seisifld = SeisTrcInfo::SeqNr;
+    if ( sz > 1 )
+    {
+	const SeisTrcInfo& first = trcbuf->first()->info();
+	const SeisTrcInfo& next = trcbuf->get(1)->info();
+	const SeisTrcInfo& last = trcbuf->last()->info();
+	seisifld = first.getDefaultAxisFld( geom, &next, &last );
+    }
+
     bufdtpack_ = new SeisTrcBufDataPack( trcbuf, geom, seisifld,
 					 "Madagascar data" );
     bufdtpack_->trcBufArr2D().setBufMine( true );

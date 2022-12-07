@@ -48,12 +48,17 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
 				 const char* dpname, int compnr, bool mine )
 {
     releaseDP();
-    const int sz = tbuf.size();
-    if ( sz < 1 ) return;
+    if ( tbuf.isEmpty() ) return;
 
-    const SeisTrcInfo::Fld type = (SeisTrcInfo::Fld)
-	(sz < 2 ? (int)SeisTrcInfo::TrcNr
-	: tbuf.first()->info().getDefaultAxisFld( geom, &tbuf.get(1)->info() ));
+    const int sz = tbuf.size();
+    SeisTrcInfo::Fld type = SeisTrcInfo::SeqNr;
+    if ( sz > 1 )
+    {
+	const SeisTrcInfo& first = tbuf.first()->info();
+	const SeisTrcInfo& next = tbuf.get(1)->info();
+	const SeisTrcInfo& last = tbuf.last()->info();
+	type = first.getDefaultAxisFld( geom, &next, &last );
+    }
 
     if ( mine )
 	dp_ = new SeisTrcBufDataPack( const_cast<SeisTrcBuf*>(&tbuf), geom,
