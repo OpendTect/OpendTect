@@ -25,16 +25,35 @@
 
 ServiceMgrBase* ServiceMgrBase::theNewMain( ServiceMgrBase* newmain )
 {
-    mDefineStaticLocalObject( ServiceMgrBase*, mainservice, = nullptr )
+    return theNewMain( true, newmain );
+}
+
+
+ServiceMgrBase* ServiceMgrBase::theNewMain( bool local, ServiceMgrBase* newmain)
+{
+    mDefineStaticLocalObject( ServiceMgrBase*, mainlocalservice, = nullptr )
+    mDefineStaticLocalObject( ServiceMgrBase*, maintcpservice, = nullptr )
     if ( newmain )
-	mainservice = newmain;
-    return mainservice;
+    {
+	if ( local )
+	    mainlocalservice = newmain;
+	else
+	    maintcpservice = newmain;
+    }
+
+    return local ? mainlocalservice : maintcpservice;
 }
 
 
 const ServiceMgrBase* ServiceMgrBase::theMain()
 {
-    return theNewMain( nullptr );
+    return theMain( true );
+}
+
+
+const ServiceMgrBase* ServiceMgrBase::theMain( bool local )
+{
+    return theNewMain( local, nullptr );
 }
 
 
@@ -87,7 +106,7 @@ bool& ServiceMgrBase::serverIsMine( bool islocal )
 void ServiceMgrBase::init( bool islocal, bool assignport,Network::SpecAddr spec)
 {
     allServiceMgrs().add( this );
-    const ServiceMgrBase* mainserv = theMain();
+    const ServiceMgrBase* mainserv = theMain( islocal );
     if ( islocal )
 	localserver_ = mainserv ? mainserv->localserver_ : nullptr;
     else
@@ -132,7 +151,7 @@ void ServiceMgrBase::init( bool islocal, bool assignport,Network::SpecAddr spec)
 
     if ( portid>0 || islocal )
     {
-	Network::RequestServer* server = islocal
+	auto* server = islocal
 	    ? new Network::RequestServer(
 		    Network::Authority::getAppServerName("odservice"))
 	    : new Network::RequestServer( portid, spec );
@@ -176,7 +195,10 @@ Network::Authority ServiceMgrBase::getAuthority( bool islocal ) const
 
 bool ServiceMgrBase::isMainService() const
 {
-    return this == theMain();
+    if ( !tcpserver_ && !localserver_ )
+	return false;
+
+    return this == theMain( localserver_ );
 }
 
 
@@ -217,8 +239,8 @@ bool ServiceMgrBase::useServer( Network::RequestServer* server, bool islocal )
 	return false;
     }
 
-    if ( !theMain() )
-	theNewMain( this );
+    if ( !theMain(islocal) )
+	theNewMain( islocal, this );
 
     return true;
 }
@@ -659,7 +681,7 @@ void ServiceMgrBase::sendErr( uiRetVal& uirv )
 bool ServiceMgrBase::addApplicationAuthority( bool local,
 					     OS::MachineCommand& mc )
 {
-    const ServiceMgrBase* mainserv = theMain();
+    const ServiceMgrBase* mainserv = theMain( local );
     if ( !mainserv )
 	return false;
 
