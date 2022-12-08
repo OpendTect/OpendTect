@@ -95,7 +95,9 @@ protected:
     virtual void	closeApp();
 
     static bool		addApplicationAuthority(bool local,OS::MachineCommand&);
+    mDeprecated("Use bool argument")
     static const ServiceMgrBase* theMain();
+    static const ServiceMgrBase* theMain(bool local);
 
     static void		debugMsg(const char*); // Not implemented
 
@@ -157,6 +159,8 @@ private:
     static const char*	sKeyError()		{ return "error"; }
     static const char*	sKeyOK()		{ return "ok"; }
 
+    mDeprecated("Use bool argument")
     static ServiceMgrBase* theNewMain(ServiceMgrBase*);
+    static ServiceMgrBase* theNewMain(bool local,ServiceMgrBase*);
 
 };
