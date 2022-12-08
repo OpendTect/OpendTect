@@ -731,7 +731,21 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 	    continue;
 
 	if ( !as.is2D() )
-	    return idx;
+	{
+	    if ( !attribcachedatapackids_.validIdx(idx) )
+		continue;
+
+	    auto sdp = dpm_.get<RegularSeisDataPack>(
+						attribcachedatapackids_[idx] );
+	    if ( !sdp )
+		continue;
+
+	    TrcKeySampling cachedcs = sdp->sampling().hsamp_;
+	    if ( cachedcs.includes(activevolume_.hsamp_) )
+		return idx;
+	    else
+		continue;
+	}
 
 	if ( attribcachespecs_[idx]->geomid_ != activeGeomID() )
 	    continue;
@@ -763,7 +777,10 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 {
     auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
     if ( regfdp )
+    {
+	dpm_.add<SeisDataPack>( regfdp->getSource() );
 	cacheid = regfdp->getSourceID();
+    }
 
     const int idx = getCacheIndexOf(as);
     if ( attribcachedatapackids_.validIdx(idx) )

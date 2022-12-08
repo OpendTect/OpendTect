@@ -143,7 +143,8 @@ public:
 
     int				nrTrcs() const;
     TrcKey			getTrcKey(int trcidx) const;
-    DataPackID		getSourceID() const;
+    DataPackID			getSourceID() const;
+    ConstRefMan<SeisDataPack>	getSource() const;
     int				getSourceGlobalIdx(const TrcKey&) const;
 
     bool			is2D() const;
