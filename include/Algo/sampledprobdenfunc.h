@@ -232,6 +232,6 @@ private:
 
 public:
 
-			SampledNDProbDenFunc(); //TODO: remove ?
+    mDeprecatedObs	SampledNDProbDenFunc();
 
 };
