@@ -617,6 +617,12 @@ DataPackID SeisFlatDataPack::getSourceID() const
 }
 
 
+ConstRefMan<SeisDataPack> SeisFlatDataPack::getSource() const
+{
+    return source_;
+}
+
+
 int SeisFlatDataPack::getSourceGlobalIdx( const TrcKey& tk ) const
 {
     return source_->getGlobalIdx( tk );
