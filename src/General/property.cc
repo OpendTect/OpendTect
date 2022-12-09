@@ -446,7 +446,8 @@ bool MathProperty::init( const PropertySet& ps ) const
 	}
 
 	inps_ += prop;
-	form_.setInputValUnit( iinp, prop->unit() );
+	if ( prop )
+	    form_.setInputValUnit( iinp, prop->unit() );
     }
 
     const_cast<MathProperty*>(this)->reset();
