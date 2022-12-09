@@ -289,9 +289,16 @@ SamplingData<float>& ArrayNDProbDenFunc::sampling( int dim )
 
 const SamplingData<float>& ArrayNDProbDenFunc::getSampling( int dim ) const
 {
-    if ( sds_.validIdx(dim) )
-	return sds_.get( dim );
+    if ( dim >=0 && dim < nrDims_() )
+    {
+	while ( sds_.size() < nrDims_() )
+	    getNonConst<ArrayNDProbDenFunc>(this)->sds_
+					.add( SamplingData<float>( 0.f, 1.f ) );
 
+	return sds_.get( dim );
+    }
+
+    // Fallback for invalid dim values
     static SamplingData<float> ret( 0.f, 1.f );
     return ret;
 }

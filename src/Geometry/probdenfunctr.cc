@@ -161,7 +161,11 @@ ProbDenFunc* odProbDenFuncTranslator::readInfo( od_istream& strm )
     else if ( type.isEqual(Sampled2DProbDenFunc::typeStr()) )
 	pdf = new Sampled2DProbDenFunc();
     else if ( type.isEqual(SampledNDProbDenFunc::typeStr()) )
-	pdf = new SampledNDProbDenFunc();
+    {
+	int nrdim = 0;
+	par.get( ProbDenFunc::sKeyNrDim(), nrdim );
+	pdf = new SampledNDProbDenFunc(nrdim>0 ? nrdim : 3);
+    }
     else if ( type.isEqual(Gaussian1DProbDenFunc::typeStr()) )
 	pdf = new Gaussian1DProbDenFunc();
     else if ( type.isEqual(Gaussian2DProbDenFunc::typeStr()) )
