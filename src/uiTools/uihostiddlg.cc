@@ -27,7 +27,7 @@ ________________________________________________________________________
 uiHostIDDlg::uiHostIDDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Host Information"),mNoDlgTitle,mNoHelpKey))
 {
-    setCtrlStyle( CloseOnly );
+    setOkCancelText( tr("Copy to Clipboard"), uiStrings::sClose() );
     setTitleText( tr("Information needed to generate a license") );
 
     BufferStringSet hostids;
@@ -46,25 +46,31 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 
     hostidfld_ = new uiGenInput( this, tr("HostID(s)") );
     hostidfld_->setReadOnly();
+    hostidfld_->setElemSzPol( uiObject::Wide );
+
     localhostgrp_ = new uiLocalHostGrp( this, tr("Computer/Host") );
     localhostgrp_->attach( alignedBelow, hostidfld_ );
+    localhostgrp_->setStretch( 2, 2 );
 
     timezonefld_ = new uiGenInput( this, tr("Time Zone") );
     timezonefld_->setReadOnly();
     timezonefld_->attach( alignedBelow, localhostgrp_ );
+    timezonefld_->setElemSzPol( uiObject::Wide );
 
     osfld_ = new uiGenInput( this, tr("Operating System") );
-    osfld_->setStretch( 2, 1 );
     osfld_->setReadOnly();
     osfld_->attach( alignedBelow, timezonefld_ );
+    osfld_->setElemSzPol( uiObject::Wide );
+
     productnmfld_ = new uiGenInput( this, tr("OS Product name") );
-    productnmfld_->setStretch( 2, 1 );
     productnmfld_->setReadOnly();
     productnmfld_->attach( alignedBelow, osfld_ );
+    productnmfld_->setElemSzPol( uiObject::Wide );
+
     usernmfld_ = new uiGenInput( this, tr("User name") );
-    usernmfld_->setStretch( 2, 1 );
     usernmfld_->setReadOnly();
     usernmfld_->attach( alignedBelow, productnmfld_ );
+    usernmfld_->setElemSzPol( uiObject::Wide );
 
     BufferString hostidstext = hostids.cat( " " );
     if ( hostids.size() > 1 )
@@ -87,18 +93,30 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
 
-    auto* but = new uiToolButton( this, "clipboard", tr("Copy to Clipboard"),
-				  mCB(this,uiHostIDDlg,copyCB) );
-
-    but->attach( rightTo, hostidfld_ );
+    mAttachCB( postFinalize(), uiHostIDDlg::finalizeCB );
 }
 
 
 uiHostIDDlg::~uiHostIDDlg()
 {
+    detachAllNotifiers();
 }
 
-void uiHostIDDlg::copyCB( CallBacker* )
+
+void uiHostIDDlg::finalizeCB( CallBacker* )
+{
+    button(OK)->setIcon( "clipboard" );
+}
+
+
+bool uiHostIDDlg::acceptOK( CallBacker* )
+{
+    copyToClipboard();
+    return false;
+}
+
+
+void uiHostIDDlg::copyToClipboard()
 {
     BufferString txt;
     txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
@@ -110,5 +128,6 @@ void uiHostIDDlg::copyCB( CallBacker* )
        .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
     uiClipboard::setText( txt.buf() );
     uiMSG().message( tr("Information copied to clipboard.\n"
-			"Paste in an email and send to support@dgbes.com") );
+			"When requesting a license, you can now paste the\n"
+			"contents in an email and send to support@dgbes.com") );
 }

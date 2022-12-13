@@ -19,8 +19,11 @@ mExpClass(uiTools) uiHostIDDlg : public uiDialog
 public:
 			uiHostIDDlg(uiParent*);
 			~uiHostIDDlg();
+
 protected:
-    void		copyCB(CallBacker*);
+    void		finalizeCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
+    void		copyToClipboard();
 
     uiGenInput*		hostidfld_;
     uiLocalHostGrp*	localhostgrp_;
