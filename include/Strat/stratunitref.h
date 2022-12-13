@@ -190,6 +190,7 @@ public:
     bool		hasLeaves() const override	{ return false; }
     Type		type() const override		{ return NodeOnly; }
     const LeafUnitRef*	firstLeaf() const override;
+    void		ensureTimeSorted();
 
 };
 
