@@ -368,13 +368,23 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 	    LeavedUnitRef& ur = *units[idx];
 	    if ( idx == 0)
 	    {
-		IOPar iop; ur.putPropsTo( iop );
-		startunit->getPropsFrom( iop );
+		ldur.setCode( ur.code().buf() );
+
+		BufferString valstr;
+		// Workaround for protected function
+		UnitRef* urptr = &ur;
+		urptr->fill( valstr );
+		startunit->use( valstr );
+
+		IOPar iop;
+		ur.putPropsTo( iop );
+		ldur.getPropsFrom( iop );
+		lvit->setText( toUiString(ur.code()) );
 		delete &ur;
 	    }
 	    else
 	    {
-		parnode->add( &ur );
+		parnode->insert( &ur, curidx+idx );
 		insertUnitInLVIT( lvit->parent(), curidx+idx, ur );
 		addLithologies( ur, lithids );
 	    }

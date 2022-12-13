@@ -189,6 +189,7 @@ public:
     virtual bool	hasLeaves() const	{ return false; }
     virtual Type	type() const		{ return NodeOnly; }
     virtual const LeafUnitRef*	firstLeaf() const;
+    void		ensureTimeSorted();
 
 };
 
