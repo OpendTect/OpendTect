@@ -354,7 +354,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 
     if ( !res )
     { //Trying c rename function
-	rename(oldname, newname);
+	::rename(oldname, newname);
 	if ( !exists(oldname) && exists(newname) )
 	    return true;
     }
