@@ -884,6 +884,9 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     {
 	if ( preloadeddatapack )
 	{
+	    if ( !preloadeddatapack->sampling().includes(tkzs) )
+		return nullptr;
+
 	    ObjectSet<const RegularSeisDataPack> cubeset;
 	    cubeset += preloadeddatapack;
 	    return aem->getDataPackOutput( cubeset );
