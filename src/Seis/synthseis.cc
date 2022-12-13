@@ -1107,7 +1107,8 @@ uiString RaySynthGenerator::uiNrDoneText() const
 
 bool RaySynthGenerator::checkPars( bool* skipnmo )
 {
-    const int nrtrcsperpos = refmodels_->get(0)->nrRefModels();
+    const ReflectivityModelBase* model = refmodels_->get(0);
+    const int nrtrcsperpos = model ? model->nrRefModels() : 0;
     if ( nrtrcsperpos < 1 )
 	mErrRet( tr("No reflectivity models given to make synthetics"), false );
 
