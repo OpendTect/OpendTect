@@ -72,7 +72,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_->addButton( "mergelines", uiStrings::phrMerge(
 			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
 			mergeLines) );
-    linegrp_->addButton( "browseseis", tr("Browse/edit this line"),
+    linegrp_->addButton( "browseseis", tr("Browse this line"),
 		        mCB(this,uiSeis2DFileMan,browsePush) );
     linegrp_->attach( rightOf, linefld_->box() );
 

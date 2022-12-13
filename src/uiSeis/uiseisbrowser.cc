@@ -93,10 +93,10 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 			      bool is2d )
     : uiDialog(p,su)
     , is2d_(is2d)
-    , tr_(0)
-    , tro_(0)
-    , tbl_(0)
-    , uitb_(0)
+    , tr_(nullptr)
+    , tro_(nullptr)
+    , tbl_(nullptr)
+    , uitb_(nullptr)
     , tbufbefore_(*new SeisTrcBuf(true))
     , tbufafter_(*new SeisTrcBuf(true))
     , tbuf_(*new SeisTrcBuf(false))
@@ -107,11 +107,12 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
-    , infovwr_(0)
-    , trcbufvwr_(0)
+    , infovwr_(nullptr)
+    , trcbufvwr_(nullptr)
     , setup_(su)
     , zdomdef_(&ZDomain::SI())
 {
+    setCtrlStyle( CloseOnly );
     if ( !openData(su) )
     {
 	setTitleText( tr("Error") );
@@ -123,21 +124,20 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 	if ( !su.linekey_.isEmpty() )
 	    { lbltxt = toUiString("%1 - %2").arg(lbltxt).arg(su.linekey_); }
 	new uiLabel( this, lbltxt );
-	setCtrlStyle( CloseOnly );
 	return;
     }
 
     createMenuAndToolBar();
     createTable();
-
     setPos( su.startpos_, true );
     setZ( su.startz_ );
-    tbl_->selectionChanged.notify( mCB(this,uiSeisBrowser,trcselectionChanged));
+    mAttachCB( tbl_->selectionChanged, uiSeisBrowser::trcselectionChanged );
 }
 
 
 uiSeisBrowser::~uiSeisBrowser()
 {
+    detachAllNotifiers();
     delete tr_;
     delete &tbuf_;
     delete &tbufbefore_;
@@ -236,8 +236,8 @@ void uiSeisBrowser::createMenuAndToolBar()
 	selcompnmfld_ = new uiComboBox( uitb_, compnms_, "Component name" );
 	uitb_->addObject( selcompnmfld_ );
 	selcompnmfld_->setCurrentItem( compnr_ );
-	selcompnmfld_->selectionChanged.notify(
-					mCB(this,uiSeisBrowser,chgCompNrCB) );
+	mAttachCB( selcompnmfld_->selectionChanged,
+						uiSeisBrowser::chgCompNrCB );
     }
 
     uiLabel* lbl = new uiLabel( uitb_, tr("Nr traces") );
@@ -246,7 +246,7 @@ void uiSeisBrowser::createMenuAndToolBar()
     nrtrcsfld_->setInterval( StepInterval<int>(3,99999,2) );
     nrtrcsfld_->doSnap( true );
     nrtrcsfld_->setValue( 2*stepout_+1 );
-    nrtrcsfld_->valueChanged.notify( mCB(this,uiSeisBrowser,nrTracesChgCB) );
+    mAttachCB( nrtrcsfld_->valueChanged, uiSeisBrowser::nrTracesChgCB );
     uitb_->addObject( nrtrcsfld_ );
 }
 
@@ -258,11 +258,11 @@ void uiSeisBrowser::createTable()
     tbl_ = new uiTable( this, uiTable::Setup(nrrows,nrcols)
 			     .selmode(uiTable::Multi).manualresize(true),
 			     "Seismic data" );
-    tbl_->valueChanged.notify( mCB(this,uiSeisBrowser,valChgReDraw) );
+    mAttachCB( tbl_->valueChanged, uiSeisBrowser::valChgReDraw );
     tbl_->setStretch( 1, 1 );
     tbl_->setPrefHeight( 400 );
     tbl_->setPrefWidth( 600 );
-    tbl_->setTableReadOnly( setup_.readonly_ );
+    tbl_->setTableReadOnly( true );
 }
 
 
@@ -489,8 +489,9 @@ void uiSeisBrowser::infoPush( CallBacker* )
     if ( !infovwr_ )
     {
 	infovwr_ = new uiSeisBrowserInfoVwr( this, trc, is2d_, *zdomdef_ );
-	infovwr_->windowClosed.notify( mCB(this,uiSeisBrowser,infoClose) );
+	mAttachCB( infovwr_->windowClosed, uiSeisBrowser::infoClose );
     }
+
     infovwr_->setTrace( trc );
     infovwr_->show();
 }
@@ -610,7 +611,7 @@ void uiSeisBrowser::doBrowse( uiParent* p, const IOObj& ioobj, bool is2d,
 
 bool uiSeisBrowser::acceptOK( CallBacker* )
 {
-    commitChanges();
+   /* commitChanges();
     if ( tbufchgdtrcs_.isEmpty() )
 	return true;
 
@@ -620,7 +621,8 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
     if ( res == 1 )
 	return storeChgdData();
 
-    return res == 0;
+    return res == 0;*/
+    return true;
 }
 
 
@@ -754,8 +756,8 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	uiSeisTrcBufViewer::Setup stbvsetup( uiString::emptyString() );
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );
-	trcbufvwr_->windowClosed.notify(
-			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
+	mAttachCB( trcbufvwr_->windowClosed,
+				    uiSeisBrowser::trcbufViewerClosed );
 
 	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
 				    IOM().nameOf(setup_.id_), compnr_ );
