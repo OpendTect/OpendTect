@@ -529,11 +529,17 @@ unsigned int getWinVersion()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	DWORD dwFlagsRet = RRF_RT_REG_DWORD;
-	if ( !readKey( HKEY_LOCAL_MACHINE,
-	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "CurrentMajorVersionNumber", ret, &dwFlagsRet) )
-	    ret.set( "Unknown major version" );
+	const BufferString buildnr = getWinBuildNumber();
+	if ( buildnr.startsWith("22") )
+	    ret = 11;
+	else
+	{
+	    DWORD dwFlagsRet = RRF_RT_REG_DWORD;
+	    if ( !readKey( HKEY_LOCAL_MACHINE,
+			"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+			"CurrentMajorVersionNumber", ret, &dwFlagsRet) )
+		ret = 0; // Unknown major version
+	}
     }
 
     return ret.toInt();
