@@ -209,6 +209,9 @@ bool RefTree::read( od_istream& strm )
 
     if ( refs_.isEmpty() )
 	initTree();
+    else
+	ensureTimeSorted();
+
     return true;
 }
 

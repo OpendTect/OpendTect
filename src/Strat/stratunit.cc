@@ -15,9 +15,10 @@
 #include "iopar.h"
 #include "keystrs.h"
 #include "randcolor.h"
+#include "sorting.h"
 
 mDefineEnumUtils(Strat::UnitRef,Type,"Unit Type")
-{ "Node", "Leaved", "Leaf", 0 };
+{ "Node", "Leaved", "Leaf", nullptr };
 
 
 //class UnitRef
@@ -352,6 +353,10 @@ bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
 
     if ( refs_.validIdx( posidx ) )
 	refs_.insertAt( un, posidx );
+    else if ( posidx == refs_.size() )
+	refs_ += un;
+    else
+	return false;
 
     refTree().reportAdd( un );
     return true;
@@ -408,6 +413,37 @@ const Strat::LeafUnitRef* Strat::NodeOnlyUnitRef::firstLeaf() const
     return 0;
 }
 
+
+void Strat::NodeOnlyUnitRef::ensureTimeSorted()
+{
+    TypeSet<float> toptimes;
+    TypeSet<int> idxs;
+    float prevtoptime = -mUdf(float);
+    bool needsorting = false;
+    for ( int idx=0; idx<nrRefs(); idx++ )
+    {
+	mDynamicCastGet(const NodeUnitRef*,nur,refs_[idx])
+	if ( !nur )
+	    return;
+
+	const float toptime = nur->timeRange().start;
+	if ( mIsUdf(toptime) )
+	    return;
+
+	if ( toptime < prevtoptime )
+	    needsorting = true;
+
+	toptimes += toptime;
+	idxs += idx;
+	prevtoptime = toptime;
+    }
+
+    if ( !needsorting )
+	return;
+
+    sort_coupled( toptimes.arr(), idxs.arr(), idxs.size() );
+    refs_.useIndexes( idxs.arr() );
+}
 
 //class LeavedUnitRef
 
