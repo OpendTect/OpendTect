@@ -164,6 +164,8 @@ protected:
     void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
+    void			setLogInfo(BufferString&,BufferString&,
+					   float,visBase::Well::Side) const;
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,VisID);
 
