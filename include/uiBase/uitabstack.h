@@ -36,7 +36,7 @@ public:
 			// use this as parent for groups to add
     uiGroup*		tabGroup()			{ return tabgrp_; }
 
-    void		addTab(uiGroup*,
+    int			addTab(uiGroup*,
 			       const uiString& =uiString::emptyString());
     void		removeTab(uiGroup*);
 
