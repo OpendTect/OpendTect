@@ -20,7 +20,8 @@ mExpClass(uiTools) uiSizeSel : public uiGroup
 {
 mODTextTranslationClass(uiSizeSel)
 public:
-			uiSizeSel(uiParent*,const uiString& lbl,int maxnrdim);
+			uiSizeSel(uiParent*,const uiString& lbl,int maxnrdim,
+				  bool withsymm=true);
 			~uiSizeSel();
 
     int			maxNrDim() const;
@@ -34,7 +35,7 @@ public:
 
     void		setPrefix(int dim,const uiString&);
     void		setDefaultPrefixes();
-			//!<1dim: Z; 2dim: Nr,Z; 3 dim: Inl,Crl,Z
+			//!<1 dim: Z; 2 dim: Nr,Z; 3 dim: Inl,Crl,Z
 
 // For convenience
     void		setImageSize(std::array<int,2>);
@@ -46,7 +47,7 @@ public:
 
 protected:
     ObjectSet<uiSpinBox>	sizeflds_;
-    uiCheckBox*			symmfld_;
+    uiCheckBox*			symmfld_	= nullptr;
 
     void		valueChangingCB(CallBacker*);
 };

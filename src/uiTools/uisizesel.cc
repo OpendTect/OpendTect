@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "uispinbox.h"
 
 
-uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
+uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim,
+		      bool withsym )
     : uiGroup(p,"Image Size Group")
     , valueChanging(this)
 {
@@ -34,8 +35,11 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 	sizeflds_ += fld;
     }
 
-    symmfld_ = new uiCheckBox( this, tr("Symmetric") );
-    symmfld_->attach( rightTo, sizeflds_.last() );
+    if ( withsym )
+    {
+	symmfld_ = new uiCheckBox( this, tr("Symmetric") );
+	symmfld_->attach( rightTo, sizeflds_.last() );
+    }
 
     setHAlignObj( sizeflds_[0] );
 }
