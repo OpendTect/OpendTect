@@ -50,7 +50,7 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 
     localhostgrp_ = new uiLocalHostGrp( this, tr("Computer/Host") );
     localhostgrp_->attach( alignedBelow, hostidfld_ );
-    localhostgrp_->setStretch( 2, 2 );
+    localhostgrp_->setHSzPol( uiObject::Wide );
 
     timezonefld_ = new uiGenInput( this, tr("Time Zone") );
     timezonefld_->setReadOnly();

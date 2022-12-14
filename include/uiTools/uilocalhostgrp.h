@@ -23,14 +23,17 @@ public:
 				 bool withoverride=true);
 			~uiLocalHostGrp();
 
+    void		setHSzPol(uiObject::SzPolicy);
+
     BufferString	hostname() const;
     BufferString	address() const;
 
 protected:
 
     uiGenInput*		hostnmfld_;
-    uiGenInput*		hostnmoverrulefld_;
+    uiGenInput*		hostnmoverrulefld_		= nullptr;
     uiGenInput*		hostaddrfld_;
+    uiGenInput*		domainfld_			= nullptr;
 
     void		overrulecheckedCB(CallBacker*);
     void		hostnmoverruleCB(CallBacker*);
