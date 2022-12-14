@@ -25,30 +25,33 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
     hostnmfld_ = new uiGenInput( this,
 			 uiStrings::phrJoinStrings( txt, uiStrings::sName() ) );
     hostnmfld_->setReadOnly();
-    hostnmoverrulefld_ = nullptr;
+    uiObject* attachobj = hostnmfld_->attachObj();
+
     if ( withoverride )
     {
 	hostnmoverrulefld_ = new uiGenInput( this,
 	 uiStrings::phrJoinStrings( txt, uiStrings::sName(), tr("Overrule") ) );
 	hostnmoverrulefld_->setWithCheck( true );
 	hostnmoverrulefld_->attach( alignedBelow, hostnmfld_ );
-	mAttachCB(hostnmoverrulefld_->checked,
-					  uiLocalHostGrp::overrulecheckedCB);
-	mAttachCB(hostnmoverrulefld_->valuechanged,
-					      uiLocalHostGrp::hostnmoverruleCB);
+	mAttachCB( hostnmoverrulefld_->checked,
+		   uiLocalHostGrp::overrulecheckedCB);
+	mAttachCB( hostnmoverrulefld_->valuechanged,
+		   uiLocalHostGrp::hostnmoverruleCB);
+	attachobj = hostnmoverrulefld_->attachObj();
     }
 
     hostaddrfld_ = new uiGenInput( this,
 			   uiStrings::phrJoinStrings( txt, tr("Address") ) );
     hostaddrfld_->setReadOnly();
-    hostaddrfld_->attach( alignedBelow, withoverride ? hostnmoverrulefld_
-								: hostnmfld_ );
+    hostaddrfld_->attach( alignedBelow, attachobj );
+
     const StringView domainnm = System::localDomainName();
     if ( !domainnm.isEmpty() )
     {
 	auto* domainfld = new uiGenInput( this, tr("Domain name") );
 	domainfld->setText( domainnm );
 	domainfld->setReadOnly();
+	domainfld->setStretch( 2, 1 );
 	domainfld->attach( alignedBelow, hostaddrfld_ );
     }
 
@@ -64,6 +67,15 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 uiLocalHostGrp::~uiLocalHostGrp()
 {
     detachAllNotifiers();
+}
+
+
+void uiLocalHostGrp::setHSzPol( uiObject::SzPolicy szpol )
+{
+    hostnmfld_->setElemSzPol( szpol );
+    hostaddrfld_->setElemSzPol( szpol );
+    if ( hostnmoverrulefld_ )
+	hostnmoverrulefld_->setElemSzPol( szpol );
 }
 
 

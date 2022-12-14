@@ -24,6 +24,8 @@ public:
 				 bool withoverride=true);
 			~uiLocalHostGrp();
 
+    void		setHSzPol(uiObject::SzPolicy);
+
     BufferString	hostname() const;
     BufferString	address() const;
 
