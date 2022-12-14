@@ -27,10 +27,7 @@ Processor::Processor( const char* nm )
 
 
 Processor::~Processor()
-{
-    freeArray( inputs_ );
-    freeArray( outputs_ );
-}
+{}
 
 
 const BinID& Processor::getInputStepout() const
@@ -416,6 +413,12 @@ bool ProcessManager::usePar( const IOPar& par )
     setupChange.trigger();
 
     return true;
+}
+
+
+void Processor::freeArray( RefObjectSet<Gather>& arr )
+{
+    arr.erase();
 }
 
 

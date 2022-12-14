@@ -73,6 +73,8 @@ protected:
     virtual Gather*		createOutputArray(const Gather& input) const;
     static int			getRelBidOffset(const BinID& relbid,
 						const BinID& stepout);
+    static void			freeArray(RefObjectSet<Gather>&);
+    mDeprecated("Use method taking RefObjectSet")
     static void			freeArray(ObjectSet<Gather>&);
 
     BinID			outputstepout_;
