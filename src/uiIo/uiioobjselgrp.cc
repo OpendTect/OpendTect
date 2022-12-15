@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "settings.h"
-#include "strmprov.h"
+#include "survinfo.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -288,10 +288,15 @@ public:
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     : uiIOObjManipGroupSubj(sg->listfld_->box())
     , selgrp_(sg)
-    , manipgrp_(nullptr)
 {
-    selgrp_->selectionChanged.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
-    selgrp_->itemChosen.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
+    mAttachCB( selgrp_->selectionChanged, uiIOObjSelGrpManipSubj::selChg );
+    mAttachCB( selgrp_->itemChosen, uiIOObjSelGrpManipSubj::selChg );
+}
+
+
+~uiIOObjSelGrpManipSubj()
+{
+    detachAllNotifiers();
 }
 
 
@@ -339,7 +344,7 @@ void relocStart( const char* msg ) override
 }
 
     uiIOObjSelGrp*	selgrp_;
-    uiIOObjManipGroup*	manipgrp_;
+    uiIOObjManipGroup*	manipgrp_ = nullptr;
 
 }; // class uiIOObjSelGrpManipSubj
 
@@ -412,7 +417,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	mkManipulators();
 
     setHAlignObj( topgrp_ );
-    mAttachCB( postFinalize(), uiIOObjSelGrp::setInitial );
+    mAttachCB( postFinalize(), uiIOObjSelGrp::initGrpCB );
 }
 
 
@@ -431,7 +436,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter() );
     filtfld_->setElemSzPol( uiObject::SmallVar );
-    filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    mAttachCB( filtfld_->updateRequested, uiIOObjSelGrp::filtChg );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( !withctxtfilter.isEmpty() )
     {
@@ -445,7 +450,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	if ( valstrs.size()>1 )
 	{
 	    valstrs.sort();
-	    BufferString* firstline = new BufferString("All ");
+	    auto* firstline = new BufferString("All ");
 	    firstline->add( withctxtfilter );
 	    valstrs.insertAt( firstline, 0 );
 	    auto* lbl = new uiLabel( listfld_, uiStrings::sType() );
@@ -469,28 +474,21 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     {
 	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_,
 					     ctio_.ctxt_.objectTypeName() );
-	lbchoiceio_->readDone.notify( mCB(this,uiIOObjSelGrp,readChoiceDone) );
-	lbchoiceio_->storeRequested.notify(
-				mCB(this,uiIOObjSelGrp,writeChoiceReq) );
+	mAttachCB( lbchoiceio_->readDone, uiIOObjSelGrp::readChoiceDone );
+	mAttachCB( lbchoiceio_->storeRequested, uiIOObjSelGrp::writeChoiceReq );
     }
-
-    fullUpdate( -1 );
-
-    if ( ctio_.ioobj_ )
-	listfld_->setCurrentItem( ctio_.ioobj_->name().buf() );
 }
 
 
 void uiIOObjSelGrp::mkWriteFlds()
 {
-    uiGroup* wrgrp = new uiGroup( this, "Write group" );
+    auto* wrgrp = new uiGroup( this, "Write group" );
     wrtrselfld_ = nullptr;
     if ( setup_.withwriteopts_ )
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_,
 						setup_.trsnotallwed_, true );
-	wrtrselfld_->suggestedNameAvailble.notify(
-				mCB(this,uiIOObjSelGrp,nameAvCB) );
+	mAttachCB( wrtrselfld_->suggestedNameAvailble, uiIOObjSelGrp::nameAvCB);
     }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
@@ -503,7 +501,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     wrgrp->setHAlignObj( nmfld_ );
     wrgrp->attach( alignedBelow, topgrp_ );
 
-    LineKey lk( ctio_.name() );
+    const LineKey lk( ctio_.name() );
     const BufferString nm( lk.lineName() );
     if ( !nm.isEmpty() )
     {
@@ -531,25 +529,27 @@ void uiIOObjSelGrp::mkManipulators()
     if ( !setup_.withinserters_ || uiIOObjInserter::allDisabled() )
 	return;
 
-    if ( !ctio_.ctxt_.forread_
-      || !uiIOObjInserter::isPresent(*ctio_.ctxt_.trgroup_) )
+    if ( !ctio_.ctxt_.forread_ ||
+	 !uiIOObjInserter::isPresent(*ctio_.ctxt_.trgroup_) )
 	return;
 
-    uiGroup* insbutgrp = new uiGroup( listfld_->parent(),
-					"IOObj insert buttons" );
+    auto* insbutgrp = new uiGroup( listfld_->parent(), "IOObj insert buttons" );
     const ObjectSet<const Translator>& tpls = ctio_.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	const BufferString trnm = tpls[idx]->typeName();
 
 	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
-	    ctio_.ctxt_.toselect_.allowtransls_)
-				|| (setup_.trsnotallwed_.indexOf(trnm)>=0) )
+					ctio_.ctxt_.toselect_.allowtransls_) ||
+	     setup_.trsnotallwed_.indexOf(trnm)>=0 )
 	    continue;
 
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
 	if ( !inserter || inserter->isDisabled() )
+	{
+	    delete inserter;
 	    continue;
+	}
 
 	inserter->setIOObjCtxt( ctio_.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
@@ -578,10 +578,9 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     detachAllNotifiers();
     deepErase( inserters_ );
     if ( manipgrpsubj_ )
-    {
 	delete manipgrpsubj_->manipgrp_;
-	delete manipgrpsubj_;
-    }
+
+    delete manipgrpsubj_;
     delete ctio_.ioobj_;
     delete &ctio_;
     delete lbchoiceio_;
@@ -930,7 +929,7 @@ void uiIOObjSelGrp::updateEntry( const MultiID& mid, const BufferString& objnm,
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    const IODir iodir ( ctio_.ctxt_.getSelKey() );
+    const IODir iodir( ctio_.ctxt_.getSelKey() );
     IODirEntryList del( iodir, ctio_.ctxt_ );
     BufferString nmflt = filtfld_->text();
     GlobExpr::validateFilterString( nmflt );
@@ -940,7 +939,6 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
-
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
@@ -952,8 +950,23 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	{
 	    objid = del[idx]->ioobj_->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
-	    isdef = setup_.allowsetdefault_
-			? IOObj::isSurveyDefault( objid ) : false;
+	    if ( setup_.allowsetdefault_ )
+	    {
+		const OD::String& grpnm = ioobj->group();
+		const TranslatorGroup* trl = !grpnm.isEmpty() &&
+			TranslatorGroup::hasGroup( grpnm.buf() )
+		    ? &TranslatorGroup::getGroup( ioobj->group())
+		    : nullptr;
+		if ( trl )
+		{
+		    const BufferString keynm =
+				       trl->getSurveyDefaultKey(ctio_.ioobj_ );
+		    isdef = SI().pars().isPresent(keynm) &&
+			    SI().pars().find(keynm) == objid.toString();
+		}
+		else
+		    isdef = IOObj::isSurveyDefault( objid );
+	    }
 
 	    ioobjnm = ioobj->name();
 	    dispnm = ioobj->name();
@@ -1099,6 +1112,13 @@ void uiIOObjSelGrp::triggerStatusMsg( const char* txt )
 {
     CBCapsule<const char*> caps( txt, this );
     newStatusMsg.trigger( &caps );
+}
+
+
+void uiIOObjSelGrp::initGrpCB( CallBacker* cb )
+{
+    fullUpdate( -1 );
+    setInitial( cb );
 }
 
 
