@@ -237,6 +237,7 @@ protected:
     IOObj*		updStatusBarInfo(bool);
     void		triggerStatusMsg(const char*);
 
+    void		initGrpCB(CallBacker*);
     void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
     void		choiceChg(CallBacker*);
