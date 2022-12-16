@@ -403,6 +403,7 @@ bool getHostIDs( BufferStringSet& hostids, BufferString& errmsg )
     return OD::getHostIDs( hostids, errmsg );
 }
 
+
 const char* productName()
 {
     mDeclStaticString( str );

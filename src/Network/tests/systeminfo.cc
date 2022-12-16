@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "netsocket.h"
 #include "systeminfo.h"
 #include "timer.h"
+#include "winutils.h"
 
 #include "testprog.h"
 
@@ -219,11 +220,42 @@ private:
 };
 
 
+static void testWinVersion()
+{
+#ifdef __win__
+
+    const bool isserverwin = IsWindowsServer();
+    const BufferString winver( getWinVersion() );
+    const BufferString winminorver( getWinMinorVersion() );
+    const BufferString fullwinver( getFullWinVersion() );
+    const BufferString winbuildnr( getWinBuildNumber() );
+    const BufferString windispname( getWinDisplayName() );
+    const BufferString winedition( getWinEdition() );
+    const BufferString winproductnm( getWinProductName() );
+    const BufferString prodname( System::productName() );
+
+    logStream() << "Windows server edition: " \
+		<< (isserverwin ? "Yes" : "No") << od_newline;
+    logStream() << "Windows version: " << winver.buf() << od_newline;
+    logStream() << "Windows minor version: " << winminorver.buf() << od_newline;
+    logStream() << "Windows full version: " << fullwinver.buf() << od_newline;
+    logStream() << "Windows build number: " << winbuildnr.buf() << od_newline;
+    logStream() << "Windows display name: " << windispname.buf() << od_newline;
+    logStream() << "Windows edition: " << winedition.buf() << od_newline;
+    logStream() << "Windows product name: " << winproductnm.buf() << od_newline;
+    logStream() << "System product name: " << prodname.buf() << od_endl;
+
+#endif
+}
+
 
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    if ( __iswin__ )
+	testWinVersion();
 
     ApplicationData app;
     TestClass tester;

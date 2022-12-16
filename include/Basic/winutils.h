@@ -59,13 +59,14 @@ mDeprecatedMachCmd mGlobal(Basic) bool execShellCmd(const char* comm,
 mDeprecatedMachCmd mGlobal(Basic) bool execProc(const char* comm,bool inconsole,
 					 bool inbg,const char* runin);
 
-mGlobal(Basic) unsigned int	getWinVersion();
-mGlobal(Basic) unsigned int     getWinMinorVersion();
+mGlobal(Basic) const char*	getWinVersion();
+mGlobal(Basic) const char*	getWinMinorVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
 mGlobal(Basic) const char*      getWinBuildNumber();
 mGlobal(Basic) const char*      getWinDisplayName();
 mGlobal(Basic) const char*	getWinEdition();
 mGlobal(Basic) const char*	getWinProductName();
+mGlobal(Basic) bool		IsWindowsServer();
 
 mGlobal(Basic) bool		canHaveAppLocker();
 mGlobal(Basic) bool		hasAppLocker();
