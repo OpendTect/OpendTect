@@ -43,8 +43,6 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 			const BufferStringSet& transltoavoid, bool withopts )
     : uiGroup(p,"Write Translator selector")
     , ctxt_(*new IOObjContext(ctio.ctxt_))
-    , selfld_(0)
-    , lbl_(0)
     , suggestedNameAvailble(this)
 {
     optflds_.allowNull( true );
@@ -57,9 +55,10 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 	    continue;
 	else if ( IOObjSelConstraints::isAllowedTranslator(
 		    trl->userName(),ctio.ctxt_.toselect_.allowtransls_)
-	  && trl->isUserSelectable( false ) )
+					    && trl->isUserSelectable(false) )
 	    trs_ += trl;
     }
+
     if ( trs_.size() < 1 )
     {
 	if ( alltrs.isEmpty() )
@@ -119,6 +118,7 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
 	if ( !icnm.isEmpty() )
 	    selfld_->setIcon( idx, icnm );
     }
+
     selfld_->setCurrentItem( cur );
 
     mAttachCB( selfld_->selectionChanged, uiIOObjSelWriteTranslator::selChg );
@@ -143,6 +143,39 @@ bool uiIOObjSelWriteTranslator::isEmpty() const
 	    return false;
 
     return true;
+}
+
+
+void uiIOObjSelWriteTranslator::updateTransFld(
+					const BufferStringSet& transltoavoid )
+{
+    selfld_->setEmpty();
+    trs_.setEmpty();
+    const TranslatorGroup& trgrp = *ctxt_.trgroup_;
+    const ObjectSet<const Translator>& alltrs = trgrp.templates();
+    for ( int idx=0; idx<alltrs.size(); idx++ )
+    {
+	const Translator* trl = alltrs[idx];
+	if ( transltoavoid.indexOf(trl->typeName()) >= 0 )
+	    continue;
+
+	else if ( IOObjSelConstraints::isAllowedTranslator(
+	    trl->userName(),ctxt_.toselect_.allowtransls_)
+	    && trl->isUserSelectable(false) )
+	    trs_ += trl;
+    }
+
+    for ( int idx=0; idx<trs_.size(); idx++ )
+    {
+	const Translator& trl = *trs_[idx];
+	const BufferString trnm( trl.userName() );
+	selfld_->addItem( toUiString(trnm) );
+	BufferString icnm( trl.iconName() );
+	if ( !icnm.isEmpty() )
+	    selfld_->setIcon( idx, icnm );
+    }
+
+    selfld_->setCurrentItem( 0 );
 }
 
 

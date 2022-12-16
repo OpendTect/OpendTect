@@ -66,6 +66,7 @@ public:
     bool		isUserSelectable(bool) const override	{ return true; }
 
     static const char*	sKeyOptDir()		{ return "Optimized direction";}
+    bool		supportsMultiCompTrc() const override { return true; }
 
 protected:
 

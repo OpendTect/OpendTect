@@ -481,7 +481,8 @@ void uiIOObjSelGrp::mkWriteFlds()
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_,
 						setup_.trsnotallwed_, true );
-	mAttachCB( wrtrselfld_->suggestedNameAvailble, uiIOObjSelGrp::nameAvCB);
+	mAttachCB( wrtrselfld_->suggestedNameAvailble,
+						    uiIOObjSelGrp::nameAvCB );
     }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
@@ -491,6 +492,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );
     if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
 	nmfld_->attach( alignedBelow, wrtrselfld_ );
+
     wrgrp->setHAlignObj( nmfld_ );
     wrgrp->attach( alignedBelow, topgrp_ );
 

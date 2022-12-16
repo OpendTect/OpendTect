@@ -42,7 +42,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
 
     inpfld_ = new uiSeisSel( this, inctxt, sssu );
-    inpfld_->selectionDone.notify( mCB(this,uiSeisCopyCube,inpSel) );
+    mAttachCB( inpfld_->selectionDone, uiSeisCopyCube::inpSel );
 
     compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
     compfld_->attach( alignedBelow, inpfld_ );
@@ -69,12 +69,14 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outfld_ );
 
-    postFinalize().notify( mCB(this,uiSeisCopyCube,inpSel) );
+    mAttachCB( postFinalise(), uiSeisCopyCube::inpSel );
 }
 
 
 uiSeisCopyCube::~uiSeisCopyCube()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiSeisCopyCube::inpSel( CallBacker* cb )
@@ -95,6 +97,8 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
 	compfld_->box()->addItem( tr("<All>") );
 	compfld_->box()->addItems( cnms );
     }
+
+    outfld_->updateOutputOpts( ismc_ );
     compfld_->display( ismc_ );
 }
 
@@ -199,7 +203,7 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     uiSeisSel::Setup sssu( gt );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     inpfld_ = new uiSeisSel( this, ioctxt, sssu );
-    inpfld_->selectionDone.notify( mCB(this,uiSeisCopy2DDataSet,inpSel) );
+    mAttachCB( inpfld_->selectionDone, uiSeisCopy2DDataSet::inpSel );
 
     subselfld_ = new uiSeis2DMultiLineSel( this, uiStrings::phrSelect(
 		     tr("%1 to copy").arg(uiStrings::sLine(mPlural))), true );
@@ -227,7 +231,9 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 
 
 uiSeisCopy2DDataSet::~uiSeisCopy2DDataSet()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiSeisCopy2DDataSet::inpSel( CallBacker* )

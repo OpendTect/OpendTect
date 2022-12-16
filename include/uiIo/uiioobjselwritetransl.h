@@ -98,20 +98,22 @@ public:
     Notifier<uiIOObjSelWriteTranslator> suggestedNameAvailble;
     virtual const char* suggestedName() const;
 
+    void		updateTransFld(const BufferStringSet& transltoavoid);
+
 protected:
 
-    IOObjContext&	ctxt_;
-    ObjectSet<const Translator> trs_;
-    ObjectSet<uiIOObjTranslatorWriteOpts> optflds_;
+    IOObjContext&			    ctxt_;
+    ObjectSet<const Translator>		    trs_;
+    ObjectSet<uiIOObjTranslatorWriteOpts>   optflds_;
 
-    uiComboBox*		selfld_;
-    uiLabel*		lbl_;
+    uiComboBox*				    selfld_		= nullptr;
+    uiLabel*				    lbl_		= nullptr;
 
-    void		mkSelFld(const CtxtIOObj&,bool);
-    int			translIdx() const;
-    void		selChg(CallBacker*);
-    void		nmAvCB( CallBacker* )
+    void				mkSelFld(const CtxtIOObj&,bool);
+    int					translIdx() const;
+    void				selChg(CallBacker*);
+    void				nmAvCB( CallBacker* )
 					{ suggestedNameAvailble.trigger(); }
-    uiIOObjTranslatorWriteOpts* getCurOptFld() const;
+    uiIOObjTranslatorWriteOpts*		getCurOptFld() const;
 
 };

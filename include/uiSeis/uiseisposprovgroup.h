@@ -34,8 +34,8 @@ public:
 
 protected:
 
-    uiSeisSel*		seissel_;
-    uiSelZRange*	zrgfld_;
+    uiSeisSel*		seissel_	    = nullptr;
+    uiSelZRange*	zrgfld_		    = nullptr;
 
     static const char*	sKeyType() { return Pos::SeisProvider3D::sKeyType(); }
 

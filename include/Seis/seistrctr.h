@@ -157,6 +157,7 @@ public:
 			     example trace. Some STT's *require* a valid IOObj
 			     in Conn */
     virtual Conn*	curConn()			{ return conn_; }
+    virtual bool	supportsMultiCompTrc() const	{ return false; }
 
     SeisPacketInfo&		packetInfo()		{ return pinfo_; }
     const Seis::SelData*	selData() const		{ return seldata_; }

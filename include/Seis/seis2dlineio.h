@@ -187,6 +187,7 @@ public:
 			~CBVSSeisTrc2DTranslator();
 
     bool		isUserSelectable(bool) const override { return true; }
+    bool		supportsMultiCompTrc() const override { return true; }
 };
 
 /*!\brief SEGYDirect translator for 2D Seismics */

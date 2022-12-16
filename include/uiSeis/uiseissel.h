@@ -80,6 +80,7 @@ public:
     void		processInput() override;
     bool		existingTyped() const override;
     void		updateInput() override;
+    void		updateOutputOpts(bool issteering);
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
 
@@ -89,9 +90,9 @@ protected:
     int			compnr_;
     mutable BufferString curusrnm_;
     IOPar		dlgiopar_;
-    uiCheckBox*		othdombox_;
+    uiCheckBox*		othdombox_		= nullptr;
 
-    Setup		mkSetup(const Setup&,bool forread);
+    Setup		mkSetup(const Setup&,const IOObjContext&);
     void		fillDefault() override;
     void		newSelection(uiIOObjRetDlg*) override;
     void		commitSucceeded() override;
@@ -118,7 +119,7 @@ public:
 
 protected:
 
-    uiLabeledComboBox*	compfld_;
+    uiLabeledComboBox*	compfld_		= nullptr;
     int			steerpol_;
     BufferString	notalloweddatatype_;	// 2D only
     BufferString	zdomainkey_;	// 2D only

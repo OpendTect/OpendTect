@@ -61,12 +61,7 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect_.dontallow_.addVal( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
-    {
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
-	ctxt.fixTranslator(
-		Seis::is2D(su.geom_) ? CBVSSeisTrc2DTranslator::translKey()
-				     : CBVSSeisTrcTranslator::translKey() );
-    }
 
     return ctxt;
 }
@@ -93,7 +88,6 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
     : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtio4Steering(c,sssu))
-    , compfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
 {
@@ -187,6 +181,7 @@ BufferString uiSeisSelDlg::getDataType()
     if ( steerpol_ )
 	return steerpol_ == uiSeisSel::Setup::NoSteering
 			  ? res : BufferString( sKey::Steering() );
+
     const IOObj* ioobj = ioObj();
     if ( ioobj )
 	res = ioobj->pars().find( sKey::Type() );
@@ -258,10 +253,9 @@ static IOObjContext getIOObjCtxt( const IOObjContext& c,
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread_))
-	, seissetup_(mkSetup(su,ctxt.forread_))
-	, othdombox_(0)
-	, compnr_(0)
+    : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt))
+    , seissetup_(mkSetup(su,ctxt))
+    , compnr_(0)
 {
     workctio_.ctxt_ = inctio_.ctxt_;
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
@@ -287,11 +281,31 @@ uiSeisSel::~uiSeisSel()
 }
 
 
-uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
+uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
+						    const IOObjContext& ctxt )
 {
     uiSeisSel::Setup ret( su );
-    ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, forread );
+    ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
+    if ( ctxt.trgroup_ && !ctxt.forread_ &&
+					su.steerpol_ == Setup::OnlySteering )
+    {
+	ret.withwriteopts_ = !ctxt.forread_;
+	const TranslatorGroup& trgrp = *ctxt.trgroup_;
+	const ObjectSet<const Translator>& alltrs = trgrp.templates();
+	for ( const auto* transl : alltrs )
+	{
+	    mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
+	    if ( seistr && !seistr->supportsMultiCompTrc() )
+	    {
+		const BufferString nm = transl->typeName();
+		ret.trsnotallwed_.add( transl->typeName() );
+	    }
+	}
+    }
+    else
+	ret.withwriteopts_ = false;
+
     return ret;
 }
 
@@ -351,6 +365,7 @@ void uiSeisSel::setCompNr( int nr )
 	dlgiopar_.removeWithKey( sKey::Component() );
     else
 	dlgiopar_.set( sKey::Component(), nr );
+
     updateInput();
 }
 
@@ -423,6 +438,30 @@ void uiSeisSel::updateInput()
 	text += compnms.get( compnr_ );
 	uiIOSelect::setInputText( text.buf() );
     }
+
+}
+
+
+void uiSeisSel::updateOutputOpts( bool issteering )
+{
+    BufferStringSet transntallowed;
+    if ( !issteering )
+    {
+	wrtrselfld_->updateTransFld( transntallowed );
+	return;
+    }
+
+    CtxtIOObj& ctxt = ctxtIOObj();
+    const TranslatorGroup& trgrp = *ctxt.ctxt_.trgroup_;
+    const ObjectSet<const Translator>& alltrs = trgrp.templates();
+    for ( const auto* transl : alltrs )
+    {
+	mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
+	if ( seistr && !seistr->supportsMultiCompTrc() )
+	    transntallowed.add( transl->typeName() );
+    }
+
+    wrtrselfld_->updateTransFld( transntallowed );
 }
 
 
@@ -474,7 +513,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 {
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().seltxt( txt );
-    sssu.withwriteopts(false).withinserters(false);
+    sssu.withwriteopts( true ).withinserters( false );
     return sssu;
 }
 
@@ -501,7 +540,6 @@ const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
 uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
 					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , zrgfld_(0)
 {
     uiSeisSel::Setup ssu( Seis::Vol );
     ssu.seltxt( tr("Cube for positions") );
