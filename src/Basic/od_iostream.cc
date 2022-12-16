@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "filesystemaccess.h"
 #include "fixedstreambuf.h"
-#include "stringview.h"
 #include "iopar.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
@@ -787,33 +786,35 @@ od_istream& od_istream::get( CompoundKey& ck )
 mImplStrmAddFn(const MultiID&,t.toString().buf())
 
 
+
+// od_istrstream
 od_istrstream::od_istrstream( const char* str )
     : od_istream(new std::istringstream(str))
 {
 }
 
 
-#define mGetStdStream(clss,stdclss,cnst,var) \
-    clss& self = const_cast<clss&>( *this ); \
-    cnst std::stdclss& var = static_cast<cnst std::stdclss&>( self.stdStream() )
-
-
 const char* od_istrstream::input() const
 {
-    mGetStdStream(od_istrstream,istringstream,const,stdstrstrm);
-    return stdstrstrm.str().c_str();
+    auto& self = cCast( od_istrstream&, *this );
+    const auto& strm = sCast( const std::istringstream&, self.stdStream() );
+    static std::string str;
+    str = strm.str();
+    return str.c_str();
 }
 
 
 void od_istrstream::setInput( const char* inp )
 {
-    mGetStdStream(od_istrstream,istringstream,,stdstrstrm);
-    stdstrstrm.str( inp ? inp : "" );
-    stdstrstrm.clear();
+    auto& self = cCast( od_istrstream&, *this );
+    auto& strm = sCast( std::istringstream&, self.stdStream() );
+    strm.str( inp ? inp : "" );
+    strm.clear();
     errmsg_.setEmpty();
 }
 
 
+// od_ostrstream
 od_ostrstream::od_ostrstream()
     : od_ostream(new std::ostringstream)
 {
@@ -822,20 +823,23 @@ od_ostrstream::od_ostrstream()
 
 const char* od_ostrstream::result() const
 {
-    mGetStdStream(od_ostrstream,ostringstream,const,stdstrstrm);
-    mDeclStaticString( ret );
-    ret = stdstrstrm.str().c_str();
-    return ret.buf();
+    auto& self = cCast( od_ostrstream&, *this );
+    const auto& strm = sCast( const std::ostringstream&, self.stdStream() );
+    static std::string str;
+    str = strm.str();
+    return str.c_str();
 }
 
 
 void od_ostrstream::setEmpty()
 {
-    mGetStdStream(od_ostrstream,ostringstream,,stdstrstrm);
-    stdstrstrm.str( "" );
-    stdstrstrm.clear();
+    auto& self = cCast( od_ostrstream&, *this );
+    auto& strm = sCast( std::ostringstream&, self.stdStream() );
+    strm.str( "" );
+    strm.clear();
     errmsg_.setEmpty();
 }
+
 
 od_ostream& od_cerr()
 {
