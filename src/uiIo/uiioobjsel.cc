@@ -300,7 +300,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 void uiIOObjSel::init()
 {
     workctio_.ctxt_.fillTrGroup();
-    wrtrselfld_ = 0;
+    wrtrselfld_ = nullptr;
     if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,

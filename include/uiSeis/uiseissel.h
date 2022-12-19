@@ -27,11 +27,13 @@ public:
     struct Setup : public uiIOObjSel::Setup
     {
 	enum SteerPol	{ NoSteering=0, OnlySteering=1, InclSteer=2 };
+	enum CompNrPol	{ SingleCompOnly=0, MultiCompOnly=1, Both=2};
 
 			Setup( Seis::GeomType gt )
 			    : geom_(gt)
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
+			    , compnrpol_(Both)
 			    , enabotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
@@ -41,6 +43,7 @@ public:
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
+			    , compnrpol_(Both)
 			    , enabotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
@@ -51,6 +54,7 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
+	mDefSetupMemb(CompNrPol,compnrpol)
 	mDefSetupMemb(SteerPol,steerpol)
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(const char*,survdefsubsel)
@@ -81,6 +85,7 @@ public:
     bool		existingTyped() const override;
     void		updateInput() override;
     void		updateOutputOpts(bool issteering);
+    bool		outputSupportMultiComp() const;
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
 

@@ -40,6 +40,7 @@ protected:
     bool		ismc_;
 
     void		inpSel(CallBacker*);
+    void		compSel(CallBacker*);
 
     bool		acceptOK(CallBacker*) override;
 

@@ -327,7 +327,8 @@ bool uiAttrVolOut::prepareProcessing()
 	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
 	{
-	    uiMultOutSel multoutdlg( this, *seldesc );
+	    const bool ismctransl = objfld_->outputSupportMultiComp();
+	    uiMultOutSel multoutdlg( this, *seldesc, !ismctransl );
 	    if ( multoutdlg.doDisp() )
 	    {
 		if ( multoutdlg.go() )

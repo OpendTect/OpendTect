@@ -26,7 +26,8 @@ components when creating a volume output */
 mExpClass(uiAttributes) uiMultOutSel : public uiDialog
 { mODTextTranslationClass(uiMultOutSel)
 public:
-			uiMultOutSel(uiParent*,const Attrib::Desc&);
+			uiMultOutSel(uiParent*,const Attrib::Desc&,
+							    bool isisnglesel);
 			~uiMultOutSel();
 
     void		getSelectedOutputs(TypeSet<int>&) const;
@@ -43,11 +44,12 @@ public:
 
 protected:
 
-    void		createMultOutDlg(const BufferStringSet&);
+    void		createMultOutDlg(const BufferStringSet&,
+							    bool isisnglesel);
     void		allSel(CallBacker*);
 
-    uiListBox*		outlistfld_;
-    uiCheckBox*		outallfld_;
+    uiListBox*		outlistfld_ = nullptr;
+    uiCheckBox*		outallfld_  = nullptr;
 
     TypeSet<int>	outputids_;
 

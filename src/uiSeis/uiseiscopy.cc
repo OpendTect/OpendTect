@@ -46,6 +46,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
 
     compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
     compfld_->attach( alignedBelow, inpfld_ );
+    mAttachCB( compfld_->box()->selectionChanged, uiSeisCopyCube::compSel );
 
     uiSeisTransfer::Setup sts( gt );
     if ( startobj )
@@ -100,6 +101,13 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
 
     outfld_->updateOutputOpts( ismc_ );
     compfld_->display( ismc_ );
+}
+
+
+void uiSeisCopyCube::compSel( CallBacker* )
+{
+    const int sel = compfld_->box()->currentItem();
+    outfld_->updateOutputOpts( sel == 0 );
 }
 
 

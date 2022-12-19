@@ -126,7 +126,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     }
     else
     {
-	uiMultOutSel dlg( this, *seldesc );
+	uiMultOutSel dlg( this, *seldesc, false );
 	if ( dlg.doDisp() )
 	{
 	    if ( dlg.go() )

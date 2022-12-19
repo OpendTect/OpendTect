@@ -281,16 +281,26 @@ uiSeisSel::~uiSeisSel()
 }
 
 
+bool uiSeisSel::outputSupportMultiComp() const
+{
+    const Translator* transl = wrtrselfld_->selectedTranslator();
+    mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
+    if ( !seistr )
+	return false;
+
+    return seistr->supportsMultiCompTrc();
+}
+
 uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
 						    const IOObjContext& ctxt )
 {
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
+    ret.withwriteopts_ = !ctxt.forread_;
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
-					su.steerpol_ == Setup::OnlySteering )
+					su.compnrpol_ == Setup::MultiCompOnly )
     {
-	ret.withwriteopts_ = !ctxt.forread_;
 	const TranslatorGroup& trgrp = *ctxt.trgroup_;
 	const ObjectSet<const Translator>& alltrs = trgrp.templates();
 	for ( const auto* transl : alltrs )
@@ -299,12 +309,10 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
 	    if ( seistr && !seistr->supportsMultiCompTrc() )
 	    {
 		const BufferString nm = transl->typeName();
-		ret.trsnotallwed_.add( transl->typeName() );
+		ret.trsnotallwed_.addIfNew( transl->typeName() );
 	    }
 	}
     }
-    else
-	ret.withwriteopts_ = false;
 
     return ret;
 }
