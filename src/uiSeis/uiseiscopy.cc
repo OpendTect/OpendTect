@@ -69,7 +69,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outfld_ );
 
-    mAttachCB( postFinalise(), uiSeisCopyCube::inpSel );
+    mAttachCB( postFinalize(), uiSeisCopyCube::inpSel );
 }
 
 
