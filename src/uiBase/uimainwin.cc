@@ -637,12 +637,17 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 
 #else
 
-    QScreen* qscreen = body_ ? body_->screen() : uiMainWinBody::primaryScreen();
+    QScreen* qscreen = uiMainWinBody::primaryScreen();
+    if ( body_ )
+    {
+	const QWidget* centralwidget = body_->centralWidget();
+	qscreen = centralwidget ? centralwidget->screen() : body_->screen();
+    }
+
     if ( !qscreen )
 	return false;
 
-    const WId winid = body_->winId();
-    QPixmap desktopsnapshot = qscreen->grabWindow( winid );
+    QPixmap desktopsnapshot = qscreen->grabWindow( 0 );
 
 #endif
 
@@ -652,22 +657,35 @@ bool uiMainWin::grab( const char* filenm, int zoom,
         if ( !qwin || zoom==1 )
             qwin = body_;
 
-	#ifdef __win__
+#ifdef __win__
 
         RECT rect = {};
         GetWindowRect( (HWND)qwin->winId() , &rect );
         const int width  = rect.right - rect.left;
+	/*on windows, it gets width till end of monitor and not entire widget*/
         const int height = rect.bottom - rect.top;
 
 #else
 
         const int width = qwin->frameGeometry().width();
-        /*on windows, it gets width till end of monitor and not entire widget*/
         const int height = qwin->frameGeometry().height();
 
 #endif
-        desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
-                                                width, height );
+
+	int xpos = qwin->x();
+	int ypos = qwin->y();
+
+#ifdef __unix__
+
+	if ( qscreen != uiMainWinBody::primaryScreen() )
+	{
+	    xpos -= qscreen->geometry().left();
+	    ypos -= qscreen->geometry().top();
+	}
+
+#endif
+
+	desktopsnapshot = desktopsnapshot.copy( xpos, ypos, width, height );
     }
 
     return desktopsnapshot.save( QString(filenm), format, quality );
