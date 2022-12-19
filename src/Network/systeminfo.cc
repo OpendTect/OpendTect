@@ -403,18 +403,34 @@ bool getHostIDs( BufferStringSet& hostids, BufferString& errmsg )
     return OD::getHostIDs( hostids, errmsg );
 }
 
+
 const char* productName()
 {
     mDeclStaticString( str );
     if ( str.isEmpty() )
     {
 #ifdef __win__
-	str.set( OD::Platform().osName() ).addSpace()
-	   .add( getWinVersion() ).add( " Version " );
-	BufferString vernm( getWinDisplayName() );
-	if ( vernm.isEmpty() )
-	    vernm.set( getWinEdition() );
-	str.add( vernm );
+	str.set( OD::Platform().osName() ).addSpace();
+	const unsigned int winver = getWinVersion();
+	BufferString winverstr;
+	if ( winver > 0 )
+	    winverstr.set( winver );
+	else
+	    winverstr.set( "Unknown version number" );
+
+	if ( winverstr.isEmpty() || winverstr.contains("Unknown") )
+	    winverstr = getWinProductName();
+	else
+	{
+	    winverstr.add( " Version " );
+	    BufferString vernm( getWinDisplayName() );
+	    if ( vernm.isEmpty() || vernm.contains("Unknown") )
+		vernm.set( getWinEdition() );
+
+	    winverstr.add( vernm.buf() );
+	}
+
+	str.add( winverstr.buf() );
 #else
 	str = QSysInfo::prettyProductName();
 #endif

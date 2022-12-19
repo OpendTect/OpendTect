@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "string2.h"
 
 #ifdef __win__
@@ -521,6 +522,33 @@ bool IsUserAnAdmin()
     return isadmin;
 }
 
+static bool isWindows11()
+{
+    if ( IsWindowsServer() )
+	return false;
+
+    static int res = -1;
+    if ( res < 0 )
+    {
+	const StringView buildnrstr( getWinBuildNumber() );
+	if ( isAlphaNumString(buildnrstr.buf()) )
+	{
+	    const int buildnr = buildnrstr.toInt();
+	    res = buildnr >= 22000 ? 1 : 0;
+	    // Will break down unless we known the upper limit as well (30000?)
+	}
+	else
+	{
+	    res = buildnrstr.contains( "Unknown" ) ? 0
+		: (buildnrstr.startsWith("22") ? 1 : 0);
+	    /* Will break down as soon as build numbers will reach 23000
+	       Very likely already in 23H1 */
+	}
+    }
+
+    return res == 1;
+}
+
 } // namespace WinUtils
 
 
@@ -529,16 +557,27 @@ unsigned int getWinVersion()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	const BufferString buildnr = getWinBuildNumber();
-	if ( buildnr.startsWith("22") )
+	if ( WinUtils::isWindows11() )
 	    ret = 11;
 	else
 	{
 	    DWORD dwFlagsRet = RRF_RT_REG_DWORD;
-	    if ( !readKey( HKEY_LOCAL_MACHINE,
+	    if ( !readKey(HKEY_LOCAL_MACHINE,
 			"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-			"CurrentMajorVersionNumber", ret, &dwFlagsRet) )
-		ret = 0; // Unknown major version
+			"CurrentMajorVersionNumber",ret,&dwFlagsRet) )
+	    {
+		if ( readKey(HKEY_LOCAL_MACHINE,
+		    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		    "CurrentVersion",ret,&dwFlagsRet) )
+		{
+		    const SeparString ss( ret.buf(), '.' );
+		    if ( ss.size() > 0 )
+			ret = ss[0];
+		}
+
+		if ( !isAlphaNumString(ret.buf()) )
+		    ret.setEmpty();
+	    }
 	}
     }
 
@@ -552,10 +591,22 @@ unsigned int getWinMinorVersion()
     if ( ret.isEmpty() )
     {
 	DWORD dwFlagsRet = RRF_RT_REG_DWORD;
-	if ( !readKey( HKEY_LOCAL_MACHINE,
+	if ( !readKey(HKEY_LOCAL_MACHINE,
 	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "CurrentMinorVersionNumber", ret, &dwFlagsRet ) )
-	    ret.set( "Unknown minor version" );
+	    "CurrentMinorVersionNumber",ret,&dwFlagsRet) )
+	{
+	    if ( readKey(HKEY_LOCAL_MACHINE,
+		"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		"CurrentVersion",ret,&dwFlagsRet) )
+	    {
+		const SeparString ss( ret.buf(), '.' );
+		if ( ss.size() > 1 )
+		    ret = ss[1];
+	    }
+
+	    if ( !isAlphaNumString(ret.buf()) )
+		ret.setEmpty();
+	}
     }
 
     return ret.toInt();
@@ -567,22 +618,38 @@ const char* getWinBuildNumber()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	if ( !readKey( HKEY_LOCAL_MACHINE,
+	if ( !readKey(HKEY_LOCAL_MACHINE,
 	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "CurrentBuildNumber", ret ) )
+	    "CurrentBuildNumber",ret) )
 	    ret.set( "Unknown build number" );
     }
 
     return ret.buf();
 }
 
+
 const char* getFullWinVersion()
 {
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	ret.add( getWinVersion() ).add( "." )
-	   .add( getWinMinorVersion() );
+	const unsigned int winver = getWinVersion();
+	const unsigned int winminver = getWinMinorVersion();
+	if ( winver == 0 && winminver == 0 )
+	{
+	    ret.add( getWinProductName() );
+	}
+	else
+	{
+	    BufferString winverstr, winminverstr;
+	    if ( winver > 0 )
+		winverstr.set( winver );
+	    else
+		winverstr.set( "Unknown version number" );
+
+	    ret.add( winverstr.buf() ).add( "." )
+	       .add( getWinMinorVersion() );
+	}
     }
 
     return ret.buf();
@@ -595,9 +662,9 @@ const char* getWinDisplayName()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	if ( !readKey( HKEY_LOCAL_MACHINE,
+	if ( !readKey(HKEY_LOCAL_MACHINE,
 	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "DisplayVersion", ret ) )
+	    "DisplayVersion",ret ) )
 	    ret.set( "Unknown display name" );
     }
 
@@ -607,12 +674,12 @@ const char* getWinDisplayName()
 
 const char* getWinEdition()
 {
-    mDeclStaticString(ret);
+    mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
 	if ( !readKey(HKEY_LOCAL_MACHINE,
 		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		      "EditionID", ret) )
+		      "EditionID",ret) )
 	    ret.set( "Unknown edition" );
     }
 
@@ -622,16 +689,36 @@ const char* getWinEdition()
 
 const char* getWinProductName()
 {
-    mDeclStaticString(ret);
+    mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
 	if ( !readKey(HKEY_LOCAL_MACHINE,
 		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		      "ProductName", ret) )
+		      "ProductName",ret) )
 	    ret.set( "Unknown product name" );
+
+	if ( WinUtils::isWindows11() )
+	    ret.replace( "10", "11" );
     }
 
     return ret;
+}
+
+
+bool IsWindowsServer()
+{
+    static int res = -1;
+    if ( res < 0 )
+    {
+	res = 0;
+	BufferString ret;
+	if ( readKey(HKEY_LOCAL_MACHINE,
+	     "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+	     "InstallationType",ret) && ret == "Server" )
+	    res = 1;
+    }
+
+    return res == 1;
 }
 
 
@@ -730,7 +817,7 @@ bool executeWinProg( const char* comm, const char* parm, const char* runin )
 mStartAllowDeprecatedSection
      if ( !comm || !*comm ) return false;
 
-     unsigned int winversion = getWinVersion();
+     const unsigned int winversion = getWinVersion();
      if ( winversion < 6 )
      {
 	 BufferString com( comm, " " );

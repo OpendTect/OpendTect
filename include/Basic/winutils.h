@@ -66,6 +66,7 @@ mGlobal(Basic) const char*      getWinBuildNumber();
 mGlobal(Basic) const char*      getWinDisplayName();
 mGlobal(Basic) const char*	getWinEdition();
 mGlobal(Basic) const char*	getWinProductName();
+mGlobal(Basic) bool		IsWindowsServer();
 
 mGlobal(Basic) bool		canHaveAppLocker();
 mGlobal(Basic) bool		hasAppLocker();
