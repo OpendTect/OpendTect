@@ -451,16 +451,20 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 
 void uiRayTracer1D::fillPar( IOPar& par ) const
 {
-    StepInterval<float> offsetrg;
-    offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
-    offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
-    offsetrg.step = offsetstepfld_->getFValue();
-    TypeSet<float> offsets;
-    for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
-	offsets += offsetrg.atIndex( idx );
+    if ( offsetfld_ && offsetstepfld_ )
+    {
+	StepInterval<float> offsetrg;
+	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
+	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
+	offsetrg.step = offsetstepfld_->getFValue();
+	TypeSet<float> offsets;
+	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
+	    offsets += offsetrg.atIndex( idx );
 
-    par.set( RayTracer1D::sKeyOffset(), offsets );
-    par.setYN( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+	par.set( RayTracer1D::sKeyOffset(), offsets );
+	par.setYN( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+    }
+
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_ );
     if ( advdlg_ )
 	advdlg_->fillPar( par );

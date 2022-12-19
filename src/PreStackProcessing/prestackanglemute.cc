@@ -308,7 +308,6 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
     ElasticModelSet emodels;
     auto* layers = new ElasticModel();
     emodels.add( layers );
-    rtrunner->setModel( emodels );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
@@ -324,6 +323,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !getLayers(bid,*layers,sd,nrlayers) )
 	    continue;
 
+	rtrunner->setModel( emodels );
 	const int nrblockedlayers = layers->size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );

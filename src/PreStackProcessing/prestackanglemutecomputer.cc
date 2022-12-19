@@ -97,24 +97,27 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
 
 bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
+    if ( !rtrunners_.validIdx(thread) )
+	return false;
+
+    RayTracerRunner* rtrunner = rtrunners_[thread];
+
     const TrcKeySampling& hrg = params().tks_;
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 
-    RayTracerRunner* rtrunner = rtrunners_[thread];
     ElasticModelSet emodels;
     auto* layers = new ElasticModel();
     emodels.add( layers );
-    rtrunner->setModel( emodels );
-
-    BinID curbid;
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
-	curbid = hrg.atIndex( pidx );
+	BinID curbid = hrg.atIndex( pidx );
 	SamplingData<float> sd;
+	layers->setEmpty();
 	if ( !getLayers(curbid,*layers,sd) )
 	    continue;
 
+	rtrunner->setModel( emodels );
 	if ( !rtrunner->executeParallel(false) )
 	    { errmsg_ = rtrunner->uiMessage(); continue; }
 

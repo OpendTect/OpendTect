@@ -27,7 +27,6 @@ public:
 
     //before execution only
     bool			setModel(const ElasticModelSet&);
-				//<! No copy: Must stay valid during execution
     void			setOffsets(const TypeSet<float>&);
 
 
