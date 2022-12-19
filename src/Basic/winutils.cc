@@ -632,8 +632,17 @@ const char* getFullWinVersion()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	ret.add( getWinVersion() ).add( "." )
-	   .add( getWinMinorVersion() );
+	const BufferString winverstr( getWinVersion() );
+	const BufferString winminverstr( getWinMinorVersion() );
+	if ( winverstr.contains("Unknown") && winminverstr.contains("Unknown"))
+	{
+	    ret.add( getWinProductName() );
+	}
+	else
+	{
+	    ret.add( getWinVersion() ).add( "." )
+	       .add( getWinMinorVersion() );
+	}
     }
 
     return ret.buf();
