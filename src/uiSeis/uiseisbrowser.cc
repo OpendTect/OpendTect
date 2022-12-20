@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseissel.h"
 #include "uiseistrcbufviewer.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
@@ -47,6 +48,126 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
+//Writer class
+class uiSeisBrowseWriter : public Executor
+{ mODTextTranslationClass(uiSeisBrowseWriter);
+public:
+
+    uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup,
+					const SeisTrcBuf& tbuf, bool is2d )
+	: Executor( "Writing Back Changed Traces" )
+	, is2d_(is2d)
+	, tbufchgdtrcs_(tbuf)
+	, trc_(*new SeisTrc())
+	, msg_(tr("Initialising"))
+    {
+	PtrMan<IOObj> outioobj = IOM().get( setup.outmid_ );
+	PtrMan<IOObj> inpioobj = IOM().get( setup.inpmid_ );
+	const FilePath fp( outioobj->fullUserExpr(true) );
+	safeio_ = new SafeFileIO( fp.fullPath() );
+
+	tro_ = CBVSSeisTrcTranslator::getInstance();
+	tro_->set2D( Seis::is2D(setup.geom_) );
+
+	uiString errmsg;
+	tri_ = CBVSSeisTrcTranslator::make( inpioobj->fullUserExpr(true),
+				    false, Seis::is2D(setup.geom_), &errmsg );
+
+	SeisIOObjInfo seisinfo( inpioobj.ptr() );
+	TrcKeyZSampling cs;
+	seisinfo.getRanges( cs );
+	totalnr_ = cs.nrInl() * cs.nrCrl();
+    }
+
+
+    ~uiSeisBrowseWriter()
+    {
+	delete tri_;
+	delete tro_; // tro_ may depend on a 'living' safeio_
+	delete safeio_;
+    }
+
+
+    bool init()
+    {
+	if ( !tri_ ||  !tro_ )
+	{
+	    uiMSG().error( uiString::emptyString() );
+	    return false;
+	}
+
+	if ( !safeio_->open(false) )
+	{
+	    uiMSG().error( tr("Unable to open the file") );
+	    return false;
+	}
+
+	StreamConn* conno = new StreamConn( safeio_->ostrm() );
+	if ( !tro_->initWrite( conno, *tbufchgdtrcs_.first()) )
+	{
+	    uiMSG().error( tr("Unable to write") );
+	    return false;
+	}
+
+	if ( !tri_->readInfo(trc_.info()) || !tri_->read(trc_) )
+	{
+	    uiMSG().error( tr("Input cube is empty") );
+	    return false;
+	}
+
+	msg_ = tr("Writing");
+	return true;
+    }
+
+    od_int64		totalNr() const override	{ return totalnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+    { return tr("Traces done"); }
+
+protected:
+
+    int nextStep() override
+    {
+	if ( nrdone_ == 0 && !init() )
+	    return ErrorOccurred();
+
+	if ( tri_->read(trc_) )
+	{
+	    const int chgidx = tbufchgdtrcs_.find( trc_.info().binID(), is2d_ );
+	    const bool res = chgidx<0 ? tro_->write( trc_ )
+		: tro_->write( *tbufchgdtrcs_.get(chgidx) );
+	    if ( !res )
+	    {
+		msg_ = tro_->errMsg();
+		safeio_->closeFail();
+		return ErrorOccurred();
+	    }
+
+	    nrdone_++;
+	    return MoreToDo();
+	}
+
+	deleteAndNullPtr( tri_ );
+	deleteAndNullPtr( tro_ );
+	return safeio_->closeSuccess() ? Finished() : ErrorOccurred();
+    }
+
+    CBVSSeisTrcTranslator*  tri_		= nullptr;
+    CBVSSeisTrcTranslator*  tro_		= nullptr;
+    SafeFileIO*		    safeio_		= nullptr;
+
+    int			totalnr_;
+    int			nrdone_			= 0;
+    const SeisTrcBuf&	tbufchgdtrcs_;
+    SeisTrc&		trc_;
+    bool		is2d_;
+    uiString		msg_;
+
+};
+
+
+//Viewer Class
 class uiSeisBrowserInfoVwr : public uiAmplSpectrum
 { mODTextTranslationClass(uiSeisBrowserInfoVwr);
 public :
@@ -74,11 +195,11 @@ protected:
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
     : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
 		      mODHelpKey(mSeisBrowserHelpID) )
-    , id_(ky)
+    , inpmid_(ky)
+    , outmid_(ky)
     , geom_(gt)
     , startpos_(mUdf(int),mUdf(int))
     , startz_(mUdf(float))
-    , readonly_(true)
 {
     wintitle_ = uiString(tr("Browse %1 '%2'")).arg( Seis::nameOf( gt ) )
 					      .arg(IOM().nameOf( ky ));
@@ -101,24 +222,23 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
     , ctrc_(*new SeisTrc)
     , zdomdef_(&ZDomain::SI())
 {
+    setCtrlStyle( CloseOnly );
     if ( !openData(su) )
     {
 	setTitleText( tr("Error") );
 	uiString lbltxt = uiStrings::phrCannotOpen(uiStrings::phrInput(
 			  uiStrings::phrData(tr("('%1')\n%2")
 			  .arg(Seis::nameOf(su.geom_))
-			  .arg(IOM().nameOf( su.id_ )))));
+			  .arg(IOM().nameOf( su.inpmid_ )))));
 
 	if ( !su.linekey_.isEmpty() )
 	    { lbltxt = toUiString("%1 - %2").arg(lbltxt).arg(su.linekey_); }
 	new uiLabel( this, lbltxt );
-	setCtrlStyle( CloseOnly );
 	return;
     }
 
     createMenuAndToolBar();
     createTable();
-
     setPos( su.startpos_, true );
     setZ( su.startz_ );
     mAttachCB( tbl_->selectionChanged, uiSeisBrowser::trcselectionChanged );
@@ -161,7 +281,7 @@ void uiSeisBrowser::setZ( float z )
 bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 {
     uiString emsg;
-    PtrMan<IOObj> ioobj = IOM().get( su.id_ );
+    PtrMan<IOObj> ioobj = IOM().get( su.inpmid_ );
     if ( !ioobj )
 	return false;
 
@@ -215,6 +335,16 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 void uiSeisBrowser::createMenuAndToolBar()
 {
     uitb_ = new uiToolBar( this, tr("Tool Bar") );
+    if ( !setup_.locked_ )
+    {
+	editbutidx_ = mAddButton( "edit", editCB, uiStrings::sEdit(), true );
+	savebutidx_ = mAddButton( "save", saveChangesCB, uiStrings::sSave(),
+								    false );
+	saveasbutidx_ = mAddButton( "saveas", saveAsChangesCB,
+						uiStrings::sSaveAs(), false );
+	updateSaveButtonState( false );
+    }
+
     mAddButton( "gotopos",goToPush,tr("Goto position"),false );
     mAddButton( "info",infoPush,tr("Information"),false );
     if ( !is2d_ )
@@ -256,7 +386,7 @@ void uiSeisBrowser::createTable()
     tbl_->setStretch( 1, 1 );
     tbl_->setPrefHeight( 400 );
     tbl_->setPrefWidth( 600 );
-    tbl_->setTableReadOnly( setup_.readonly_ );
+    tbl_->setTableReadOnly( true );
 }
 
 
@@ -308,7 +438,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 
     NotifyStopper notifstop( tbl_->valueChanged );
 
-    commitChanges();
+    commitChanges( false );
     BinID binid( bid );
     const bool inlok = is2D() || !mIsUdf(bid.inl());
     const bool crlok = !mIsUdf(bid.crl());
@@ -478,6 +608,77 @@ bool uiSeisBrowser::goTo( const BinID& bid )
 }
 
 
+void uiSeisBrowser::updateSaveButtonState( bool setactive )
+{
+    saveenabled_ = setactive;
+    uitb_->setSensitive( savebutidx_, setactive );
+    uitb_->setSensitive( saveasbutidx_, setactive );
+}
+
+
+bool uiSeisBrowser::storeChgdData( const bool isnew )
+{
+    commitChanges( isnew );
+    deleteAndZeroPtr( tr_ );
+    if ( tbufchgdtrcs_.isEmpty() )
+	return false;
+
+    Setup su( setup_ );
+    if ( isnew )
+    {
+	IOObjContext ctxt( uiSeisSel::ioContext(is2D()?Seis::Line:Seis::Vol,
+								    false) );
+	ctxt.toselect_.require_.set( sKey::Type(), sKey::Attribute() );
+	uiSeisSelDlg seiseldlg( this, ctxt, uiSeisSel::Setup(is2D(),false) );
+	if ( !seiseldlg.go() )
+	    return false;
+
+	const IOObj* ioobj = seiseldlg.ioObj();
+	if ( !ioobj )
+	{
+	    uiMSG().error( tr("Output object not defined") );
+	    return false;
+	}
+
+	su.outmid_ = ioobj->key();
+    }
+
+    PtrMan<uiSeisBrowseWriter> wrtr =
+	new uiSeisBrowseWriter( su, tbufchgdtrcs_, is2D() );
+    uiTaskRunner dlg( this );
+    if ( !TaskRunner::execute(&dlg,*wrtr) )
+    {
+	openData( setup_ );
+	uiMSG().error( tr("Unable to write data") );
+	return false;
+    }
+
+    updateSaveButtonState( false );
+    uiMSG().message( tr("Data Successfully written") );
+    return true;
+}
+
+
+void uiSeisBrowser::editCB( CallBacker* )
+{
+    const bool editenabled = uitb_->isOn( editbutidx_ );
+    tbl_->setTableReadOnly( !editenabled );
+    updateSaveButtonState( editenabled );
+}
+
+
+void uiSeisBrowser::saveChangesCB( CallBacker* )
+{
+    storeChgdData( false );
+}
+
+
+void uiSeisBrowser::saveAsChangesCB( CallBacker* )
+{
+    storeChgdData( true );
+}
+
+
 void uiSeisBrowser::infoPush( CallBacker* )
 {
     const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_
@@ -561,7 +762,7 @@ void uiSeisBrowser::switchViewTypePush( CallBacker* )
 }
 
 
-void uiSeisBrowser::commitChanges()
+void uiSeisBrowser::commitChanges( bool isnew )
 {
     if ( tbuf_.size() < 1 )
 	return;
@@ -590,7 +791,7 @@ void uiSeisBrowser::commitChanges()
 
 	const SeisTrc& buftrc = *tbuf_.get(idx);
 	const int chidx = tbufchgdtrcs_.find(buftrc.info().binID(),is2D());
-	if ( chidx < 0 )
+	if ( chidx < 0 || isnew )
 	    tbufchgdtrcs_.add( new SeisTrc( buftrc ) );
 	else
 	{
@@ -605,166 +806,12 @@ void uiSeisBrowser::doBrowse( uiParent* p, const IOObj& ioobj, bool is2d,
 			      const LineKey* lk )
 {
     uiSeisBrowser::Setup setup( ioobj.key(), is2d ? Seis::Line : Seis::Vol );
-    setup.readonly( ioobj.implReadOnly() );
+    setup.locked( ioobj.implReadOnly() );
     if ( lk )
 	setup.linekey( *lk );
 
     uiSeisBrowser dlg( p, setup, is2d );
     dlg.go();
-}
-
-
-bool uiSeisBrowser::acceptOK( CallBacker* )
-{
-    commitChanges();
-    if ( tbufchgdtrcs_.isEmpty() )
-    {
-	deleteAndZeroPtr( tr_ );
-	return true;
-    }
-
-    const int res =
-	uiMSG().askSave(tr("Do you want to save the changes permanently?"),
-			true);
-    if ( res == 1 )
-    {
-	deleteAndZeroPtr( tr_ );
-	if ( storeChgdData() )
-	{
-	    uiMSG().message( tr("Data Successfully written") );
-	    return true;
-	}
-	else
-	    openData( setup_ );
-    }
-
-    return res == 0;
-}
-
-
-class uiSeisBrowseWriter : public Executor
-{ mODTextTranslationClass(uiSeisBrowseWriter);
-public:
-
-uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
-		    bool is2d )
-    : Executor( "Writing Back Changed Traces" )
-    , is2d_(is2d)
-    , tbufchgdtrcs_(tbuf)
-    , trc_(*new SeisTrc())
-    , msg_(tr("Initialising"))
-{
-    PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
-    const FilePath fp( ioobj->fullUserExpr(true) );
-    safeio_ = new SafeFileIO( fp.fullPath() );
-
-    tro_ = CBVSSeisTrcTranslator::getInstance();
-    tro_->set2D( Seis::is2D(setup.geom_) );
-
-    uiString errmsg;
-    tri_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
-				Seis::is2D(setup.geom_), &errmsg );
-
-    SeisIOObjInfo seisinfo( ioobj.ptr() );
-    TrcKeyZSampling cs;
-    seisinfo.getRanges( cs );
-    totalnr_ = cs.nrInl() * cs.nrCrl();
-}
-
-
-~uiSeisBrowseWriter()
-{
-    delete tri_;
-    delete tro_; // tro_ may depend on a 'living' safeio_
-    delete safeio_;
-}
-
-
-bool init()
-{
-    if ( !tri_ ||  !tro_ )
-    {
-	uiMSG().error( uiString::emptyString() );
-	return false;
-    }
-
-    if ( !safeio_->open(false) )
-    {
-	uiMSG().error( tr("Unable to open the file") );
-	return false;
-    }
-
-    StreamConn* conno = new StreamConn( safeio_->ostrm() );
-    if ( !tro_->initWrite( conno, *tbufchgdtrcs_.first()) )
-    {
-	uiMSG().error( tr("Unable to write") );
-	return false;
-    }
-
-    if ( !tri_->readInfo(trc_.info()) || !tri_->read(trc_) )
-    {
-	uiMSG().error( tr("Input cube is empty") );
-	return false;
-    }
-
-    msg_ = tr("Writing");
-    return true;
-}
-
-    od_int64		totalNr() const override	{ return totalnr_; }
-    od_int64		nrDone() const override		{ return nrdone_; }
-    uiString		uiMessage() const override	{ return msg_; }
-    uiString		uiNrDoneText() const override
-						{ return tr("Traces done"); }
-
-protected:
-
-int nextStep() override
-{
-    if ( nrdone_ == 0 && !init() )
-	return ErrorOccurred();
-
-    if ( tri_->read(trc_) )
-    {
-	const int chgidx = tbufchgdtrcs_.find( trc_.info().binID(), is2d_ );
-	const bool res = chgidx<0 ? tro_->write( trc_ )
-				  : tro_->write( *tbufchgdtrcs_.get(chgidx) );
-	if ( !res )
-	{
-	    msg_ = tro_->errMsg();
-	    safeio_->closeFail();
-	    return ErrorOccurred();
-	}
-
-	nrdone_++;
-	return MoreToDo();
-    }
-
-    deleteAndNullPtr( tri_ );
-    deleteAndNullPtr( tro_ );
-    return safeio_->closeSuccess() ? Finished() : ErrorOccurred();
-}
-
-    CBVSSeisTrcTranslator*  tri_		= nullptr;
-    CBVSSeisTrcTranslator*  tro_		= nullptr;
-    SafeFileIO*		    safeio_		= nullptr;
-
-    int			totalnr_;
-    int			nrdone_			= 0;
-    const SeisTrcBuf&	tbufchgdtrcs_;
-    SeisTrc&		trc_;
-    bool                is2d_;
-    uiString		msg_;
-
-};
-
-
-bool uiSeisBrowser::storeChgdData()
-{
-    PtrMan<uiSeisBrowseWriter> wrtr =
-	new uiSeisBrowseWriter( setup_, tbufchgdtrcs_, is2D() );
-    uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, *wrtr );
 }
 
 
@@ -780,7 +827,7 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	mAttachCB( trcbufvwr_->windowClosed,
 					uiSeisBrowser::trcbufViewerClosed );
 	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-				    IOM().nameOf(setup_.id_), compnr_ );
+				    IOM().nameOf(setup_.inpmid_), compnr_ );
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
 	if ( (tbuf_.isEmpty()) )
@@ -808,7 +855,7 @@ void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
 
 void uiSeisBrowser::valChgReDraw( CallBacker* )
 {
-    commitChanges();
+    commitChanges( false );
     const RowCol rc = tbl_->currentCell();
     if ( rc.row()<0 || rc.col()<0 )
 	return;
@@ -818,6 +865,9 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
     trace->set( rc.row(), chgdval, compnr_ );
     if ( trcbufvwr_ )
 	trcbufvwr_->handleBufChange();
+
+    if ( !saveenabled_ )
+	updateSaveButtonState( true );
 }
 
 
@@ -834,7 +884,7 @@ void uiSeisBrowser::setTrcBufViewTitle()
 void uiSeisBrowser::chgCompNrCB( CallBacker* )
 {
     NotifyStopper notifstop( tbl_->valueChanged );
-    commitChanges();
+    commitChanges( false );
     compnr_ = selcompnmfld_ ? selcompnmfld_->currentItem() : 0;
     fillTable();
 }
@@ -850,7 +900,7 @@ void uiSeisBrowser::nrTracesChgCB( CallBacker* )
     if ( trcbufvwr_ )
     {
 	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-				    IOM().nameOf(setup_.id_), compnr_ );
+				    IOM().nameOf(setup_.inpmid_), compnr_ );
 	trcbufvwr_->handleBufChange();
     }
 }

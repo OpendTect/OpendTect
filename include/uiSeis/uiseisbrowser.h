@@ -41,13 +41,13 @@ public :
 			Setup(const MultiID&,Seis::GeomType);
 			~Setup();
 
-	mDefSetupMemb(MultiID,id)
+	mDefSetupMemb(MultiID,inpmid)
+	mDefSetupMemb(MultiID,outmid)
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(BinID,startpos)
 	mDefSetupMemb(float,startz)
 	mDefSetupMemb(LineKey,linekey)
-	mDefSetupMemb(bool,readonly)	//!< def: true
-
+	mDefSetupMemb(bool,locked)
     };
 			uiSeisBrowser(uiParent*,const Setup&,bool);
 			~uiSeisBrowser();
@@ -57,8 +57,6 @@ public :
     bool		doSetPos(const BinID&,bool force,bool veryfirst=false);
     void		setZ(float) ;
     void		setCrlWise( bool yn=true )	{ crlwise_ = yn; }
-    void		commitChanges();
-    bool		storeChgdData();
     bool		goTo(const BinID&);
 
 
@@ -87,10 +85,14 @@ protected:
     CBVSSeisTrcTranslator*  tri_;
     const ZDomain::Def*     zdomdef_;
 
-    bool		    crlwise_	    = false;;
+    bool		    crlwise_	    = false;
+    bool		    saveenabled_    = false;
     bool		    is2d_;
     int			    crlwisebutidx_;
     int			    showwgglbutidx_;
+    int			    editbutidx_     = mUdf(int);
+    int			    savebutidx_     = mUdf(int);
+    int			    saveasbutidx_   = mUdf(int);
     uiComboBox*		    selcompnmfld_;
     uiSpinBox*		    nrtrcsfld_;
 
@@ -114,6 +116,9 @@ protected:
     void		addTrc(SeisTrcBuf&,const BinID&);
     void		updateWiggleButtonStatus();
     void		setTrcBufViewTitle();
+    void		commitChanges(bool isnew);
+    bool		storeChgdData(bool isnew);
+    void		updateSaveButtonState(bool setactive);
 
     void		goToPush(CallBacker*);
     void		infoPush(CallBacker*);
@@ -121,13 +126,15 @@ protected:
     void		rightArrowPush(CallBacker*);
     void		leftArrowPush(CallBacker*);
     void		switchViewTypePush(CallBacker*);
-    bool		acceptOK(CallBacker*) override;
     void		dispTracesPush(CallBacker*);
     void		trcbufViewerClosed(CallBacker*);
     void		trcselectionChanged(CallBacker*);
     void		valChgReDraw(CallBacker*);
     void		chgCompNrCB(CallBacker*);
     void		nrTracesChgCB(CallBacker*);
+    void		saveChangesCB(CallBacker*);
+    void		saveAsChangesCB(CallBacker*);
+    void		editCB(CallBacker*);
 
 private:
 
