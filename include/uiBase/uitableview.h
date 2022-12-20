@@ -62,6 +62,7 @@ public:
     void			removeSelection(const TypeSet<RowCol>&);
     const RowCol&		currentCell() const;
     void			setCurrentCell(const RowCol&);
+    void			moveColumn(int from,int to);
 
     void			setColumnValueType(int col,CellType);
     void			setColumnWidth(int col,int width );
