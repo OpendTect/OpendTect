@@ -758,3 +758,26 @@ uiTableView::CellType uiTableView::getCellType( int col ) const
 void uiTableView::doubleClickedCB( CallBacker* cb )
 {
 }
+
+
+void uiTableView::moveColumn( int from, int to )
+{
+    const QModelIndex fromidx
+		= tablemodel_->getAbstractModel()->index( 0, from );
+    if ( !fromidx.isValid() )
+    {
+	pErrMsg("Invalid \"from\" column");
+	return;
+    }
+
+    const QModelIndex toidx
+		= tablemodel_->getAbstractModel()->index( 0, to );
+    if ( !toidx.isValid() )
+    {
+	pErrMsg("Invalid \"to\" column");
+	return;
+    }
+
+    QHeaderView *headerView = odtableview_->horizontalHeader();
+    headerView->moveSection(from,to);
+}
