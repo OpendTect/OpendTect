@@ -125,25 +125,41 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
     if ( !velfun )
 	return false;
 
-    TypeSet<float> vels( nrsamples, mUdf(float) );
-    for ( int idx=0; idx<nrsamples; idx++ )
-	vels[idx] = velfun->getVelocity( sd.atIndex(idx) );
+    TypeSet<float> vels;
+    if ( nrsamples>0 )
+    {
+	vels.setSize( nrsamples, mUdf(float) );
+	for ( int idx=0; idx<nrsamples; idx++ )
+	    vels[idx] = velfun->getVelocity( sd.atIndex(idx) );
+    } else if ( !velsource_->getVel(bid, sd, vels) )
+	    return false;
 
-    TypeSet<float> depths( nrsamples, 0 );
+    nrsamples = vels.size();
+    ArrayValueSeries<float,float> velvals( vels.arr(), false, nrsamples );
+    TimeDepthConverter tdc;
     const VelocityDesc& veldesc = velfun->getDesc();
+    tdc.setVelocityModel( velvals, nrsamples, sd, veldesc,
+			  velsource_->zIsTime(),
+			  &UnitOfMeasure::surveyDefVelUnit()->scaler() );
+    TypeSet<float> depths( nrsamples, 0 );
+    TypeSet<float> times( nrsamples, 0 );
     if ( velsource_->zIsTime() )
     {
-	 ArrayValueSeries<float,float> velvals( vels.arr(), false, nrsamples );
-	 ArrayValueSeries<float,float> depthvals( depths.arr(), false,
-						  nrsamples );
-	 TimeDepthConverter tdc;
-	 tdc.setVelocityModel( velvals, nrsamples, sd, veldesc, true,
-				&UnitOfMeasure::surveyDefVelUnit()->scaler() );
-	 if ( !tdc.calcDepths(depthvals,nrsamples,sd) )
+	ArrayValueSeries<float,float> depthvals( depths.arr(), false,
+						 nrsamples );
+	if ( !tdc.calcDepths(depthvals, nrsamples, sd) )
 	     return false;
+
+	for ( int il=0; il<nrsamples; il++ )
+	    times[il] = sd.atIndex( il );
     }
     else
     {
+	ArrayValueSeries<float,float> timevals( times.arr(), false,
+						 nrsamples );
+	if ( !tdc.calcTimes(timevals, nrsamples, sd) )
+	     return false;
+
 	for ( int il=0; il<nrsamples; il++ )
 	    depths[il] = sd.atIndex( il );
     }
@@ -151,23 +167,17 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
     const int nrlayers = nrsamples - 1;
     for ( int il=0; il<nrlayers; il++ )
     {
-	float vel = UnitOfMeasure::surveyDefVelUnit()->internalValue( vels[il]);
 	const float topdepth = depths[il];
 	const float basedepth = depths[il+1];
-	if ( velsource_->zIsTime() )
-	{	    
-	    if ( mIsUdf(topdepth) || mIsUdf(basedepth) )
+	const float toptime = times[il];
+	const float basetime = times[il+1];
+	if ( mIsUdf(topdepth) || mIsUdf(basedepth) ||
+	     mIsUdf(toptime) || mIsUdf(basetime) )
 		continue;
 
-	    vel = (basedepth - topdepth)*2 / sd.step;
-	}
-	else
-	{
-	    //TODO: convert to interval velocity if needed
-	}
+	const float vel = (basedepth - topdepth) / (basetime - toptime) * 2.0f;
 
-	model.add( new AILayer( basedepth - topdepth, vel,
-				mUdf(float), mUdf(float) ) );
+	model.add( new AILayer(basedepth - topdepth, vel, mUdf(float)) );
     }
 
     block( model );
@@ -310,7 +320,6 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
     ElasticModelSet emodels;
     auto* layers = new ElasticModel();
     emodels.add( layers );
-    rtrunner->setModel( emodels );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
@@ -320,13 +329,14 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	const BinID bid = input->getBinID();
 
-	const int nrsamples = input->data().info().getSize( Gather::zDim() );
+	const int nrsamps = input->data().info().getSize( Gather::zDim() );
 	layers->setEmpty();
-	SamplingData<float> sd( input->zRange() );
-	if ( !getLayers(bid,*layers,sd,nrsamples) )
+	SamplingData<float> sd = input->zRange();
+	if ( !getLayers(bid, *layers, sd, nrsamps) )
 	    continue;
 
-	const int nrlayers = nrsamples - 1;
+	rtrunner->setModel( emodels );
+	const int nrlayers = nrsamps-1;
 	const int nrblockedlayers = layers->size();
 	TypeSet<float> offsets;
 	const int nroffsets = input->size( input->offsetDim()==0 );
@@ -367,7 +377,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 		    for ( int il=0; il<=muteintlayer; il++ )
 		    {
 			const RefLayer& layer = *layers->get( il );
-			mtime += layer.getThickness()/layer.getPVel();
+			mtime += layer.getThickness()/layer.getPVel() * 2.0f;
 			if ( il==muteintlayer )
 			{
 			    const float diff = mutelayer-muteintlayer;
@@ -375,7 +385,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 			    {
 				const RefLayer& layer1 = *layers->get( il );
 				mtime += diff*
-				    layer1.getThickness()/layer.getPVel();
+				    layer1.getThickness()/layer.getPVel()*2.0f;
 			    }
 			}
 		    }

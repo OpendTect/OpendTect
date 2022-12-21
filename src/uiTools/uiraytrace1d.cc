@@ -451,7 +451,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 
 void uiRayTracer1D::fillPar( IOPar& par ) const
 {
-    if ( offsetfld_ )
+    if ( offsetfld_ && offsetstepfld_ )
     {
 	StepInterval<float> offsetrg;
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );

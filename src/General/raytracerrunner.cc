@@ -201,9 +201,6 @@ bool RayTracerRunner::getResults( ReflectivityModelSet& ret ) const
     if ( raytracers.isEmpty() )
 	return true;
 
-    if ( !raytracers.first()->setup().doreflectivity_ )
-	return false;
-
     for ( const auto* rt : raytracers )
     {
 	ConstRefMan<OffsetReflectivityModel> refmodel = rt->getRefModel();

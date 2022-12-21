@@ -45,6 +45,7 @@ public:
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 
     od_int64			nrIterations() const override;
+    uiString			uiNrDoneText() const override;
     bool			doPrepare(int) override;
     bool			doWork(od_int64 start,
 				       od_int64 stop,int) override;
