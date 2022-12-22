@@ -531,7 +531,7 @@ static bool isWindows11()
     if ( res < 0 )
     {
 	const StringView buildnrstr( getWinBuildNumber() );
-	if ( isAlphaNumString(buildnrstr.buf()) )
+	if ( buildnrstr.isNumber(true) )
 	{
 	    const int buildnr = buildnrstr.toInt();
 	    res = buildnr >= 22000 ? 1 : 0;
@@ -810,9 +810,9 @@ bool executeWinProg( const char* comm, const char* parm, const char* runin )
 mStartAllowDeprecatedSection
      if ( !comm || !*comm ) return false;
 
-     const char* winversionstr = getWinVersion();
-     const int winversion = isAlphaNumString( winversionstr )
-			  ? toInt( winversionstr ) : 0;
+     const StringView winversionstr( getWinVersion() );
+     const int winversion = winversionstr.isNumber( true )
+			  ? winversionstr.toInt() : 0;
      if ( winversion < 6 )
      {
 	 BufferString com( comm, " " );
