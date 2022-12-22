@@ -531,7 +531,7 @@ static bool isWindows11()
     if ( res < 0 )
     {
 	const StringView buildnrstr( getWinBuildNumber() );
-	if ( isAlphaNumString(buildnrstr.buf()) )
+	if ( buildnrstr.isNumber(true) )
 	{
 	    const int buildnr = buildnrstr.toInt();
 	    res = buildnr >= 22000 ? 1 : 0;
@@ -575,7 +575,7 @@ unsigned int getWinVersion()
 			ret = ss[0];
 		}
 
-		if ( !isAlphaNumString(ret.buf()) )
+		if ( !ret.isNumber(true) )
 		    ret.setEmpty();
 	    }
 	}
@@ -604,7 +604,7 @@ unsigned int getWinMinorVersion()
 		    ret = ss[1];
 	    }
 
-	    if ( !isAlphaNumString(ret.buf()) )
+	    if ( !ret.isNumber(true) )
 		ret.setEmpty();
 	}
     }
