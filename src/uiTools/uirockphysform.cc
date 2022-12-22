@@ -71,9 +71,9 @@ void update( const RockPhysics::Formula& form, int iinp )
     infofld_->setInfo( form.inputDescription( iinp ),
 		       od_static_tr("update","Information on '%1'").
 						      arg(toUiString(cstnm_)) );
-    const Interval<float> typicalrg = form.inputTypicalRange( iinp );
-    valfld_->setValue( typicalrg );
+    valfld_->setValue( form.getConstVal(iinp) );
 
+    const Interval<float> typicalrg = form.inputTypicalRange( iinp );
     const bool haverg = !typicalrg.isUdf();
     if ( haverg )
     {
