@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
+#include "mousecursor.h"
 #include "od_helpids.h"
 #include "ptrman.h"
 #include "survinfo.h"
