@@ -617,7 +617,6 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 }
 
 
-std::string OD_Win_GetSnapShotFile(const std::string&);
 
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
