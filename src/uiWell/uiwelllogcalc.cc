@@ -166,9 +166,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     uiUnitSel::Setup uussu( Mnemonic::Other,
 			    tr("New log's unit of measure") );
-    uussu.mode( uiUnitSel::Setup::SymbolsOnly );
+    uussu.mode( uiUnitSel::Setup::SymbolsOnly ).variableszpol(true);
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, lcb );
+    outunfld_->attach( ensureRightOf, viewlogbut_ );
 
     if ( rockphysmode )
 	afterPopup.notify( rockphyscb );
@@ -483,7 +484,6 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    newwl->setMnemonic( *outmn );
 
 	newwl->setUnitOfMeasure( outun );
-
 	if ( !Well::MGR().writeAndRegister(wmid,newwl) )
 	{
 	    deleteLog( inpdatas );
