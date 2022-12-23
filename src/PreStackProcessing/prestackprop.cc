@@ -89,6 +89,7 @@ void PropCalc::removeGather()
 {
     delete [] innermutes_;
     innermutes_ = outermutes_ = nullptr;
+    angledata_ = nullptr;
 }
 
 
@@ -312,8 +313,11 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 			      TypeSet<float>& yvals, TypeSet<float>& xvals )
 {
     const int nrvals = yvals.size();
-    if ( nrvals == 0 )
+    if ( nrvals == 0 && su.calctype_ == Stats )
 	return 0.f;
+
+    if ( nrvals <2 && su.calctype_ == LLSQ )
+	return mUdf(float);
 
     transformAxis( yvals, su.valaxis_ );
     Stats::CalcSetup rcs;

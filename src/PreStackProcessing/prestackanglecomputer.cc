@@ -57,7 +57,11 @@ AngleComputer::~AngleComputer()
 
 void AngleComputer::setOutputSampling( const FlatPosData& os )
 {
-    outputsampling_  = os;
+    if ( outputsampling_ != os )
+    {
+	outputsampling_  = os;
+	refmodel_ = nullptr;
+    }
 }
 
 
@@ -384,13 +388,10 @@ RefMan<Gather> AngleComputer::computeAngleData()
 	}
 
 	uiString errormsg;
-	RayTracer1D* raytracer =
+	PtrMan<RayTracer1D> raytracer =
 		     RayTracer1D::createInstance( raypars_, errormsg );
 	if ( !errormsg.isEmpty() )
-	{
-	    delete raytracer;
 	    return nullptr;
-	}
 
 	raytracer->setup().doreflectivity( false );
 	TypeSet<float> offsets;
@@ -494,6 +495,7 @@ RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 	return nullptr;
 
     elasticmodel_.setMaxThickness( maxthickness_ );
+    refmodel_ =  nullptr;
 
     return computeAngleData();
 }

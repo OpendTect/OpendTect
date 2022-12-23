@@ -245,7 +245,6 @@ PSAttrib::PSAttrib( Desc& ds )
 
 PSAttrib::~PSAttrib()
 {
-    if ( anglecomp_ ) anglecomp_->unRef();
     delete propcalc_;
     delete preprocessor_;
     delete psrdr_;
@@ -340,7 +339,7 @@ bool PSAttrib::getAngleInputData()
     if ( !angledata )
 	return false;
 
-    propcalc_->setAngleData( angledata->id() );
+    propcalc_->setAngleData( *angledata );
     return true;
 }
 

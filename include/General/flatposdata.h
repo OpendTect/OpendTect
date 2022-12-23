@@ -30,6 +30,9 @@ public:
     FlatPosData&		operator =(const FlatPosData&);
     FlatPosData*		clone() { return new FlatPosData(*this); }
 
+    bool			operator==(const FlatPosData&) const;
+    bool			operator!=(const FlatPosData&) const;
+
     void			setRange(bool forx1,
 	    				 const StepInterval<double>&);
     inline const StepInterval<double>& range( bool forx1 ) const

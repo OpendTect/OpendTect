@@ -122,7 +122,7 @@ protected:
     PreStack::ProcessManager*	preprocessor_ = nullptr;
     PreStack::PropCalc*		propcalc_ = nullptr;
     PreStack::PropCalc::Setup	setup_;
-    RefMan<PreStack::AngleComputer>	anglecomp_ = nullptr;
+    RefMan<PreStack::AngleComputer>	anglecomp_;
     DataPackID		anglegsdpid_ = DataPack::FullID::PackID(-1);
 
     MultiID			preprocid_;
