@@ -95,8 +95,21 @@ void uiTabStack::setTabText( int idx, const char* nm )
 
 
 void uiTabStack::removeTab( uiGroup* grp )
-{ tabbar_->removeTab( grp ); }
+{
+    tabbar_->removeTab( grp );
+}
 
+
+void uiTabStack::setTabEnabled( int idx, bool yn )
+{
+    tabbar_->setTabEnabled( idx, yn );
+}
+
+
+bool uiTabStack::isTabEnabled( int idx ) const
+{
+    return tabbar_->isTabEnabled( idx );
+}
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {

@@ -40,16 +40,18 @@ public:
 			       const uiString& =uiString::emptyString());
     void		removeTab(uiGroup*);
 
+    void		setTabEnabled(int idx,bool yn);
+    bool		isTabEnabled(int idx) const;
     void		setTabEnabled(uiGroup*,bool yn);
     bool		isTabEnabled(uiGroup*) const;
 
     void		setTabVisible(uiGroup*,bool yn);
     bool		isTabVisible(uiGroup*) const;
 
-    void		setCurrentPage(int id);
+    void		setCurrentPage(int idx);
     void		setCurrentPage(uiGroup*);
     void		setCurrentPage(const char* grpnm);
-    void		setTabIcon(int id,const char* icnnm);
+    void		setTabIcon(int idx,const char* icnnm);
     void		setTabIcon(uiGroup*,const char* icnnm);
     void		setTabsClosable(bool closable);
     void		showCloseButton(uiGroup*,bool yn,bool shrink=false);
