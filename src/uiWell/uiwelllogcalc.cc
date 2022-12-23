@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
-#include "mousecursor.h"
 #include "od_helpids.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -167,9 +166,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     uiUnitSel::Setup uussu( Mnemonic::Other,
 			    tr("New log's unit of measure") );
-    uussu.mode( uiUnitSel::Setup::SymbolsOnly );
+    uussu.mode( uiUnitSel::Setup::SymbolsOnly ).variableszpol(true);
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, lcb );
+    outunfld_->attach( ensureRightOf, viewlogbut_ );
 
     if ( rockphysmode )
 	afterPopup.notify( rockphyscb );
