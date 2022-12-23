@@ -549,16 +549,18 @@ uiWellRockPhysLauncher( uiParent* p )
 
 bool acceptOK( CallBacker* ) override
 {
-    TypeSet<MultiID> mids;
-    selgrp_->getChosen( mids );
-    if ( mids.isEmpty() )
+    mids_.erase();
+    selgrp_->getChosen( mids_ );
+    if ( mids_.isEmpty() )
+    {
+	uiMSG().error( tr("Please select at least 1 well.") );
 	return false;
+    }
 
-    uiWellLogCalc dlg( this, mids, true );
-    dlg.go();
     return true;
 }
 
+    TypeSet<MultiID>	mids_;
     uiIOObjSelGrp*	selgrp_;
 
 };
@@ -566,19 +568,25 @@ bool acceptOK( CallBacker* ) override
 
 void uiWellPartServer::launchRockPhysics()
 {
-    uiWellRockPhysLauncher dlg( parent() );
-    const int sz = dlg.selgrp_->size();
-    if ( sz == 0 )
-	uiMSG().error( tr("Please create one or more wells first") );
-    else if ( sz > 1 )
-	dlg.go();
-    else
+    TypeSet<MultiID> keys;
+    Well::MGR().getWellKeys( keys );
+    if ( keys.isEmpty() )
     {
-	dlg.selgrp_->chooseAll();
-	TypeSet<MultiID> mids; dlg.selgrp_->getChosen( mids );
-	uiWellLogCalc lcdlg( parent(), mids, true );
-	lcdlg.go();
+	uiMSG().error( tr("Please create one or more wells first.") );
+	return;
     }
+
+    if ( keys.size() > 1 )
+    {
+	uiWellRockPhysLauncher dlg( parent() );
+	if ( !dlg.go() )
+	    return;
+
+	keys = dlg.mids_;
+    }
+
+    uiWellLogCalc lcdlg( parent(), keys, true );
+    lcdlg.go();
 }
 
 
