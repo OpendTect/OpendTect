@@ -79,10 +79,10 @@ protected:
 
     void		removeGather();
 
-    ConstRefMan<Gather> gather_ = nullptr;
+    ConstRefMan<Gather> gather_;
     int*		innermutes_ = nullptr;
     int*		outermutes_ = nullptr;
-    ConstRefMan<Gather> angledata_ = nullptr;;
+    ConstRefMan<Gather> angledata_;
 
     Setup		setup_;
     bool		anglevalinradians_ = false;

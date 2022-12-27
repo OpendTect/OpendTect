@@ -89,6 +89,19 @@ FlatPosData& FlatPosData::operator =( const FlatPosData& fpd )
     return *this;
 }
 
+
+bool FlatPosData::operator==( const FlatPosData& oth ) const
+{
+    return oth.x1rg_==x1rg_ && oth.x2rg_==x2rg_ && oth.x1offs_==x1offs_;
+}
+
+
+bool FlatPosData::operator!=( const FlatPosData& oth ) const
+{
+    return !operator==( oth );
+}
+
+
 void FlatPosData::setRange( bool isx1, const StepInterval<double>& newrg )
 {
     rg( isx1 ) = newrg;

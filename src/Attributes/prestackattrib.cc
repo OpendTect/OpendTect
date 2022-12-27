@@ -339,7 +339,7 @@ bool PSAttrib::getAngleInputData()
     if ( !angledata )
 	return false;
 
-    propcalc_->setAngleData( angledata->id() );
+    propcalc_->setAngleData( *angledata );
     return true;
 }
 
