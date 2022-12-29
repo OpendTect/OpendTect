@@ -600,11 +600,11 @@ void uiIOObjSelGrp::chooseAll( bool yn ) { listfld_->chooseAll(yn);}
 MultiID uiIOObjSelGrp::currentID() const
 {
     const int selidx = listfld_->currentItem();
-    if ( selidx < 0 )
+    if ( selidx < 0 || !dataset_.validIdx(selidx) )
 	return MultiID::udf();
 
     const EntryData* ed = dataset_.get( selidx );
-    return ed->getMID();
+    return ed ? ed->getMID() : MultiID::udf();
 }
 
 
