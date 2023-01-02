@@ -404,6 +404,9 @@ int uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<int>& parents,
     const int id = ids_.isEmpty() ? 0 : ids_.last() + 1;
     for ( int idx=0; idx<parents.size(); idx++ )
     {
+	if ( !allsceneids_.validIdx(idx) )
+	    continue;
+
 	RefMan<visBase::DataObject> sceneptr =
 		visserv_.getObject( allsceneids_[idx] );
 	if ( !sceneptr )
