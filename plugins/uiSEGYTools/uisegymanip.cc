@@ -248,9 +248,10 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const CallBack addcb( mCB(this,uiSEGYFileManip,addReq) );
     const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
-    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Trace headers") );
-    avtrchdrsfld_ = new uiListBox( grp, su );
+    auto* thlbl = new uiLabel( grp, tr("Trace headers") );
+    avtrchdrsfld_ = new uiListBox( grp, "Trace Headers" );
     avtrchdrsfld_->setHSzPol( uiObject::Small );
+    avtrchdrsfld_->attach( alignedBelow, thlbl );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
     for ( int idx=0; idx<def.size(); idx++ )
 	trchdrdefined_ += false;
@@ -260,13 +261,15 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
 					    tr("Add to calculated list"),
 					    addcb );
-    addbut->attach( centeredRightOf, avtrchdrsfld_ );
-    trchdrfld_ = new uiListBox( grp, "Defined calculations" );
+    addbut->attach( rightOf, avtrchdrsfld_ );
+    trchdrfld_ = new uiListBox( grp, "Calculation" );
     trchdrfld_->attach( rightTo, avtrchdrsfld_ );
     trchdrfld_->attach( ensureRightOf, addbut );
     trchdrfld_->selectionChanged.notify( mCB(this,uiSEGYFileManip,selChg) );
     trchdrfld_->doubleClicked.notify( edcb );
     trchdrfld_->setHSzPol( uiObject::Medium );
+    auto* eqlbl = new uiLabel( grp, tr("Calculation") );
+    eqlbl->attach( alignedAbove, trchdrfld_ );
 
     edbut_ = new uiToolButton( grp, "edit", tr("Edit calculation"), edcb );
     edbut_->attach( rightOf, trchdrfld_ );
@@ -297,9 +300,11 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 	thtbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
 	thtbl_->setValue( RowCol(irow,0), he.bytepos_ + 1 );
     }
-    thtbl_->attach( ensureRightOf, edbut_ );
+    thtbl_->attach( rightOf, edbut_ );
     thtbl_->setStretch( 0, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
+    auto* tablbl = new uiLabel( grp, tr("Result browser") );
+    tablbl->attach( alignedAbove, thtbl_ );
 
     plotbut_ = new uiToolButton( grp, "distmap",
 		    tr("Plot the values of the selected header entries"),
