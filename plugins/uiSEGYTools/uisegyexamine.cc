@@ -434,6 +434,7 @@ void uiSEGYExamine::updateInp()
     bool stoppedatend = false;
     firsttrace_ = trc0fld_->getIntValue();
     trans->goToTrace( firsttrace_-1 );
+    const float sampstep = trans->binHeader().sampleRate( !SI().zIsTime() );
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
 	if ( !trans->read(trc) )
@@ -456,6 +457,7 @@ void uiSEGYExamine::updateInp()
 
 	nrdone++;
 	trc.info().seqnr_ = nrdone;
+	trc.info().sampling.step = sampstep;
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );
