@@ -44,7 +44,7 @@ public:
     Executor*			getUpdater();
     void			updateColors();
     bool			setDataPack(DataPackID);
-    const DataPointSet*		getDataPack() const	{ return data_; }
+    ConstRefMan<DataPointSet>	getDataPack() const	{ return data_; }
     void			setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
@@ -72,7 +72,7 @@ protected:
 				~PointSetDisplay();
     DataPointSetDisplayProp*	dpsdispprop_;
     visBase::PointSet*		pointset_;
-    DataPointSet*		data_;
+    RefMan<DataPointSet>	data_;
     const mVisTrans*		transformation_;
 
 };
