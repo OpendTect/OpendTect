@@ -274,7 +274,7 @@ void HorizonPainter2D::updateIntersectionMarkers()
 		}
 
 		float x = .0f;
-		const TrcKey tk( geomid_, trcnr );
+		const TrcKey tk( geomids[idy], trcnr );
 		Coord3 crd = hor2d->getCoord( tk );
 		ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
 		const float z = zat ? zat->transformTrc( tk, (float)crd.z )
