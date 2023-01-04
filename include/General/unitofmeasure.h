@@ -191,13 +191,14 @@ private:
 
 template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
 {
-    if ( SI().zInFeet() )
+    if ( SI().zInFeet() && (isCompatibleWith(*surveyDefDepthUnit()) ||
+			    isCompatibleWith(*surveyDefVelUnit())) )
     {
-	if ( symbol_.contains("ft") )
+	if ( name().contains("Feet") )
 	    return inp;
-	else if ( symbol_.contains("m") )
+	else if ( name().contains("Meter") )
 	{
-	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
+	    const UnitOfMeasure* feetunit = UoMR().get( "Feet" );
 	    return feetunit ? feetunit->getUserValueFromSI( inp ) : inp;
 	}
     }
@@ -208,13 +209,14 @@ template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
 
 template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 {
-    if ( SI().zInFeet() )
+    if ( SI().zInFeet() && (isCompatibleWith(*surveyDefDepthUnit()) ||
+			    isCompatibleWith(*surveyDefVelUnit())) )
     {
-	if ( symbol_.contains("ft") )
+	if ( name().contains("Feet") )
 	    return inp;
-	else if ( symbol_.contains("m") )
+	else if ( name().contains("Meter") )
 	{
-	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
+	    const UnitOfMeasure* feetunit = UoMR().get( "Feet" );
 	    return feetunit ? feetunit->getSIValue( inp ) : inp;
 	}
     }
