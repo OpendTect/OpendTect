@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 mFDQtclass(QWidget)
+mFDQtclass(QScreen)
 class uiDockWin;
 class uiGroup;
 class uiMainWinBody;
@@ -161,6 +162,7 @@ public:
     bool		finalized() const;
     uiMainWin*		mainwin() override		{ return this; }
     mQtclass(QWidget*)	qWidget() const;
+    mQtclass(QScreen*)	qScreen() const;
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 
@@ -193,10 +195,15 @@ public:
 			     uncompressed file, quality=-1: use default    */
     static bool		grabScreen(const char* filenm,const char* format=0,
 				   int quality=-1,int screen=0);
+    static bool		grabScreen(const char* filenm,const char* format=0,
+				   int quality=-1,
+				   mQtclass(QScreen*) qscreen=nullptr);
 
     void		activateInGUIThread(const CallBack&,
 					    bool busywait=true);
     void		saveImage(const char* fnm,int w,int h,int res);
+    void		saveImage(const char* fnm, const char* fmt=nullptr,
+				  int quality=-1 );
     void		saveAsPDF(const char* fnm,int w,int h,int res);
     mDeprecatedObs
     void		saveAsPS(const char* fnm,int w,int h,int res)
