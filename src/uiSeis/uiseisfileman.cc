@@ -14,33 +14,24 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
 #include "od_helpids.h"
-#include "seis2dlineio.h"
 #include "seiscbvs.h"
-#include "seispsioprov.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
 #include "zdomain.h"
 
-#include "ui2dgeomman.h"
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimergeseis.h"
 #include "uiseis2dfileman.h"
 #include "uiseis2dfrom3d.h"
-#include "uiseis2dgeom.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
-#include "uiseisioobjinfo.h"
 #include "uiseispsman.h"
-#include "uisplitter.h"
-#include "uitaskrunner.h"
-#include "uitextedit.h"
 #include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
@@ -287,6 +278,15 @@ void uiSeisFileMan::mkFileInfo()
 		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
 		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
+
+	    StepInterval<float> zrg = cs.zsamp_;
+	    zrg.scale( zddef.userFactor() );
+	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
+	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
+		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
+		.add(" - ").add( zrg.stop, nrdec )
+		.add(" [").add( zrg.step, nrdec ).add("]");
+
 	    SeisIOObjInfo::SpaceInfo spcinfo;
 	    double area;
 	    if ( oinf.getDefSpaceInfo(spcinfo) )
@@ -301,14 +301,6 @@ void uiSeisFileMan::mkFileInfo()
 	    }
 	    txt.add("\nArea: ")
 	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
-
-	    StepInterval<float> zrg = cs.zsamp_;
-	    zrg.scale( zddef.userFactor() );
-	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
-	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
-		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
-		.add(" - ").add( zrg.stop, nrdec )
-		.add(" [").add( zrg.step, nrdec ).add("]");
 	}
     }
 
