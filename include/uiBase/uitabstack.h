@@ -36,8 +36,8 @@ public:
 			// use this as parent for groups to add
     uiGroup*		tabGroup()			{ return tabgrp_; }
 
-    int			addTab(uiGroup*,
-			       const uiString& =uiString::emptyString());
+    int			addTab(uiGroup*,const uiString& lbl,
+			       const char* iconnm=nullptr);
     void		removeTab(uiGroup*);
 
     void		setTabEnabled(int idx,bool yn);

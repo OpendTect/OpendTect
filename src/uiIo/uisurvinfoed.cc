@@ -271,8 +271,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
-    tabs_->addTab( rangegrp_ );
-    tabs_->setTabIcon( rangegrp_, "alldirs" );
+    tabs_->addTab( rangegrp_, tr("Survey ranges"), "alldirs" );
 }
 
 
@@ -333,8 +332,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
     xyunitlbl_->attach( alignedBelow, xy3fld_ );
 
     crdgrp_->setHAlignObj( ic0fld_ );
-    tabs_->addTab( crdgrp_ );
-    tabs_->setTabIcon( crdgrp_, "gridsettings-easy" );
+    tabs_->addTab( crdgrp_, tr("Coordinate settings"), "gridsettings-easy" );
 }
 
 
@@ -372,8 +370,8 @@ void uiSurveyInfoEditor::mkTransfGrp()
     overrulefld_->attach( alignedBelow, ycrlfld_ );
     trgrp_->setHAlignObj( xinlfld_ );
 
-    tabs_->addTab( trgrp_ );
-    tabs_->setTabIcon( trgrp_, "gridsettings-advanced" );
+    tabs_->addTab( trgrp_, tr("I/C to X/Y transformation"),
+		   "gridsettings-advanced" );
 }
 
 
@@ -382,8 +380,7 @@ void uiSurveyInfoEditor::mkCRSGrp()
     crsgrp_ = new uiGroup( tabs_->tabGroup(), sKey::CoordSys() );
     crssel_ = new Coords::uiCoordSystemSelGrp( crsgrp_, true, false,
 						&si_, si_.getCoordSystem() );
-    tabs_->addTab( crsgrp_ );
-    tabs_->setTabIcon( crsgrp_, "crs" );
+    tabs_->addTab( crsgrp_, uiStrings::sCoordSys(), "crs" );
 }
 
 

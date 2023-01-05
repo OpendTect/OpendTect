@@ -462,22 +462,19 @@ uiSurvey::uiSurvey( uiParent* p )
     infofld_ = new uiTextEdit( infogrp, "Info", true );
     infofld_->setPrefHeightInChar( 10 );
     infofld_->setStretch( 2, 2 );
-    tabs->addTab( infogrp, uiStrings::sInformation() );
-    tabs->setTabIcon( 0, "info" );
+    tabs->addTab( infogrp, uiStrings::sInformation(), "info" );
 
     uiGroup* notesgrp = new uiGroup( tabs->tabGroup(), "Notes Group" );
     notesfld_ = new uiTextEdit( notesgrp, "Survey Notes" );
     notesfld_->setPrefHeightInChar( 10 );
     notesfld_->setStretch( 2, 2 );
-    tabs->addTab( notesgrp, tr("Notes") );
-    tabs->setTabIcon( 1, "notes" );
+    tabs->addTab( notesgrp, tr("Notes"), "notes" );
 
     uiGroup* loggrp = new uiGroup( tabs->tabGroup(), "Log Group" );
     logfld_ = new uiTextEdit( loggrp, "Survey Log", true );
     logfld_->setPrefHeightInChar( 10 );
     logfld_->setStretch( 2, 2 );
-    tabs->addTab( loggrp, tr("Log") );
-    tabs->setTabIcon( 2, "logfile" );
+    tabs->addTab( loggrp, tr("Log"), "logfile" );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );

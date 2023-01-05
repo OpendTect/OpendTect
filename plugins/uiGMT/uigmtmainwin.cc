@@ -54,7 +54,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     uiParent* tabparent = tabstack_->tabGroup();
     basemapgrp_ = new uiGMTBaseMapGrp( tabparent );
-    tabstack_->addTab( basemapgrp_ );
+    tabstack_->addTab( basemapgrp_, basemapgrp_->getCaption() );
     for ( int idx=0; idx<uiGMTOF().size(); idx++ )
     {
 	const char* tabname = uiGMTOF().name( idx );
@@ -62,7 +62,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 	if ( !grp )
 	    continue;
 
-	tabstack_->addTab( grp );
+	tabstack_->addTab( grp, grp->getCaption() );
 	overlaygrps_ += grp;
     }
 
