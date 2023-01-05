@@ -1028,10 +1028,7 @@ void uiIOObjSelGrp::fillListBox()
 
     const TypeSet<int> defaultidxs = dataset_.getDefaultIdxs();
     for ( const auto& idx : defaultidxs )
-    {
-	listfld_->setColor( idx, OD::Color(240,240,200) );
 	listfld_->setBold( idx, true );
-    }
 
     selectionChanged.trigger();
 }
