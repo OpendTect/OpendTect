@@ -534,7 +534,7 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
 
 
 class dGBFaultSet3DReader : public Executor
-{
+{ mODTextTranslationClass(dGBFaultSet3DReader)
 public:
 dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     : Executor("Reading FaultSet")
@@ -550,10 +550,19 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
 }
 
 od_int64 nrDone() const override
-{ return curidx_; }
+{
+    return curidx_;
+}
 
 od_int64 totalNr() const override
-{ return dl_.size(); }
+{
+    return dl_.size();
+}
+
+uiString uiNrDoneText() const override
+{
+    return tr("Faults read");
+}
 
 int nextStep() override
 {
@@ -598,7 +607,7 @@ int nextStep() override
 
 
 class dGBFaultSet3DWriter : public Executor
-{
+{ mODTextTranslationClass(dGBFaultSet3DWriter)
 public:
 dGBFaultSet3DWriter( const IOObj& ioobj, const EM::FaultSet3D& fltset )
     : Executor("Reading FaultSet")
@@ -609,10 +618,19 @@ dGBFaultSet3DWriter( const IOObj& ioobj, const EM::FaultSet3D& fltset )
 }
 
 od_int64 nrDone() const override
-{ return curidx_; }
+{
+    return curidx_;
+}
 
 od_int64 totalNr() const override
-{ return fltset_.nrFaults(); }
+{
+    return fltset_.nrFaults();
+}
+
+uiString uiNrDoneText() const override
+{
+    return tr("Faults written");
+}
 
 int nextStep() override
 {

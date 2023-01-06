@@ -110,6 +110,8 @@ FaultSetDisplay::~FaultSetDisplay()
 	deepErase( *texturedataset_[idx] );
 
     deepErase( texturedataset_ );
+    if ( faultset_ )
+	faultset_->unRef();
 }
 
 

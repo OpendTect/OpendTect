@@ -36,6 +36,8 @@ public:
     bool		forWrite() const override;
     StreamConn*		getStream() override		{ return this; }
     void		close() override;
+    void		closeNoDelete();
+    bool		reOpen();
 
     void		setStream(od_istream*); //!< strm becomes all mine
     void		setStream(od_ostream*); //!< strm becomes all mine

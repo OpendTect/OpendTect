@@ -84,6 +84,8 @@ protected:
     od_ostream*			stream_;
     bool			binary_;
     BufferString		filename_;
+
+    bool			writeHeader();
 };
 
 
@@ -138,6 +140,8 @@ protected:
     DataInterpreter<od_int64>*	int64interpreter_;
     DataInterpreter<float>*	floatinterpreter_;
     bool			error_;
+
+    bool			readHeader();
 };
 
 };

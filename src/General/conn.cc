@@ -92,7 +92,27 @@ bool StreamConn::forWrite() const
 void StreamConn::close()
 {
     if ( strm_ && mine_ )
-	{ delete strm_; strm_ = 0; }
+	deleteAndZeroPtr( strm_ );
+}
+
+
+void StreamConn::closeNoDelete()
+{
+    if ( strm_ && mine_ )
+	strm_->close();
+}
+
+
+bool StreamConn::reOpen()
+{
+    if ( strm_ && mine_ )
+    {
+	mDynamicCastGet(od_istream*,istrm,strm_)
+	if ( istrm )
+	    return istrm->reOpen();
+    }
+
+    return false;
 }
 
 

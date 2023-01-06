@@ -38,7 +38,9 @@ Fault3D::Fault3D( EMManager& em )
 
 
 Fault3D::~Fault3D()
-{ delete auxdata_; }
+{
+    delete auxdata_;
+}
 
 
 FaultAuxData* Fault3D::auxData()

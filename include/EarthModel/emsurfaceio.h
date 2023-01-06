@@ -233,6 +233,7 @@ protected:
    const TypeSet< StepInterval<int> >* linestrcrgs_;
    static const char*	linenamesstr_;
    void			init(const char* fulluserexp,const char* name);
+   int			wrapUp(int);
 };
 
 
