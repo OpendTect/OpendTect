@@ -141,6 +141,18 @@ QWidget* uiMainWin::qWidget() const
 { return body_; }
 
 
+QScreen* uiMainWin::qScreen() const
+{
+    QScreen* qscreen = uiMainWinBody::primaryScreen();
+    if ( body_ )
+    {
+	const QWidget* centralwidget = body_->centralWidget();
+	qscreen = centralwidget ? centralwidget->screen() : body_->screen();
+    }
+    return qscreen;
+}
+
+
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
@@ -621,42 +633,18 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
-    QScreen* qscreen = uiMainWinBody::primaryScreen();
-    if ( body_ )
-    {
-	const QWidget* centralwidget = body_->centralWidget();
-	qscreen = centralwidget ? centralwidget->screen() : body_->screen();
-    }
-
+    QScreen* qscreen = qScreen();
     if ( !qscreen )
 	return false;
 
-    QPixmap desktopsnapshot = qscreen->grabWindow( 0 );
+    if ( zoom == 0 )
+	return grabScreen( filenm, format, quality, qscreen );
+    else if ( zoom == 1 )
+	mSelf().saveImage( filenm, format, quality );
+    else
+	activeModalWindow()->saveImage( filenm, format, quality );
 
-    if ( zoom > 0 )
-    {
-        QWidget* qwin = qApp->activeModalWidget();
-        if ( !qwin || zoom==1 )
-            qwin = body_;
-
-        const int width = qwin->frameGeometry().width();
-        const int height = qwin->frameGeometry().height();
-
-	int xpos = qwin->x();
-	int ypos = qwin->y();
-
-
-	if ( qscreen != uiMainWinBody::primaryScreen() )
-	{
-	    xpos -= qscreen->geometry().left();
-	    ypos -= qscreen->geometry().top();
-	}
-
-
-	desktopsnapshot = desktopsnapshot.copy( xpos, ypos, width, height );
-    }
-
-    return desktopsnapshot.save( QString(filenm), format, quality );
+    return true;
 }
 
 
@@ -675,6 +663,13 @@ bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
     else
 	qscreen = screens.first();
 
+    return grabScreen( filenm, format, quality, qscreen );
+}
+
+
+bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
+			    QScreen* qscreen )
+{
     if ( !qscreen ) return false;
 
     const QRect geom = qscreen->geometry();
@@ -732,9 +727,10 @@ ImageSaver()
 }
 
 
-void setImageProp( WId qwid, int w, int h, int r )
+void setImageProp( QScreen* qscreen, QWidget* qw, int w, int h, int r )
 {
-    qwinid_ = qwid;
+    qscreen_ = qscreen;
+    qwin_ = qw;
     width_ = w;
     height_ = h;
     res_ = r;
@@ -743,10 +739,14 @@ void setImageProp( WId qwid, int w, int h, int r )
 }
 
 
-void setImageProp( WId qwid, const char* fnm, int w, int h, int r )
+void setImageProp( QScreen* qscreen, QWidget* qw, const char* fnm,
+		   const char* format, int quality, int w, int h, int r )
 {
-    qwinid_ = qwid;
+    qscreen_ = qscreen;
+    qwin_ = qw;
     fname_ = fnm;
+    format_ = format;
+    quality_ = quality;
     width_ = w;
     height_ = h;
     res_ = r;
@@ -758,9 +758,15 @@ void setImageProp( WId qwid, const char* fnm, int w, int h, int r )
 protected:
 void shootImageCB( CallBacker* )
 {
-    QScreen* qscreen = uiMainWinBody::primaryScreen();
-    if ( !qscreen ) return;
-    const QPixmap snapshot = qscreen->grabWindow( qwinid_ );
+    if ( !qscreen_ || !qwin_ )
+	return;
+
+    const QRect fmgeo = qwin_->frameGeometry();
+    const QRect geom = qwin_->geometry();
+    const int xshift = geom.width() - fmgeo.width();
+    const int yshift = geom.height() - fmgeo.height();
+    WId wid = qwin_->winId();
+    const QPixmap snapshot = qscreen_->grabWindow( wid, xshift, yshift );
 
     QImage image = snapshot.toImage();
     image = image.scaledToWidth( width_ );
@@ -770,18 +776,23 @@ void shootImageCB( CallBacker* )
     if ( copytoclipboard_ )
 	uiClipboard::setImage( image );
     else
-	image.save( fname_ );
+	image.save( fname_, format_, quality_ );
 
     timer_.stop();
 }
 
-    int		width_ = 0;
-    int		height_ = 0;
-    int		res_ = -1;
-    bool	copytoclipboard_ = false;
-    QString	fname_;
-    WId		qwinid_;
-    Timer	timer_;
+    int			width_ = 0;
+    int			height_ = 0;
+    int			xshift_ = 0;
+    int			yshift_ = 0;
+    int			res_ = -1;
+    bool		copytoclipboard_ = false;
+    QString		fname_;
+    BufferString	format_;
+    int			quality_;
+    QScreen*		qscreen_;
+    QWidget*		qwin_;
+    Timer		timer_;
 };
 
 
@@ -790,11 +801,26 @@ void uiMainWin::copyToClipBoard()
     QWidget* qwin = qWidget();
     if ( !qwin )
 	qwin = body_;
-    WId wid = qwin->winId();
-    const int width = qwin->frameGeometry().width();
-    const int height = qwin->frameGeometry().height();
+
+    raise();
+    const QRect fmgeo = qwin->frameGeometry();
     mDefineStaticLocalObject( ImageSaver, imagesaver, );
-    imagesaver.setImageProp( wid, width, height, uiMain::getMinDPI() );
+    imagesaver.setImageProp( qScreen(), qwin, fmgeo.width(), fmgeo.height(),
+			     uiMain::getMinDPI() );
+}
+
+
+void uiMainWin::saveImage( const char* fnm, const char* format, int quality )
+{
+    QWidget* qwin = qWidget();
+    if ( !qwin )
+	qwin = body_;
+
+    raise();
+    const QRect fmgeo = qwin->frameGeometry();
+    mDefineStaticLocalObject( ImageSaver, imagesaver, );
+    imagesaver.setImageProp( qScreen(), qwin, fnm, format, quality,
+			 fmgeo.width(), fmgeo.height(), uiMain::getMinDPI() );
 }
 
 
@@ -803,9 +829,11 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
     QWidget* qwin = qWidget();
     if ( !qwin )
 	qwin = body_;
-    WId wid = qwin->winId();
+
+    raise();
     mDefineStaticLocalObject( ImageSaver, imagesaver, );
-    imagesaver.setImageProp( wid, fnm, width, height, res );
+    imagesaver.setImageProp( qScreen(), qwin, fnm, nullptr, -1, width, height,
+			     res );
 }
 
 
