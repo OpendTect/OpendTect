@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "mathformula.h"
 #include "mathproperty.h"
 #include "safefileio.h"
 #include "separstr.h"
@@ -167,9 +168,11 @@ float PropertyRef::DispDefs::commonValue() const
 PropertyRef::PropertyRef( const Mnemonic& mn, const char* nm )
     : NamedCallBacker((nm && *nm) ? nm : mn.name().buf())
     , mn_(mn)
+    , uom_(mn.unit())
     , unitChanged(this)
 {
     disp_.copyFrom( mn.disp_ );
+    setDefaults();
 }
 
 
@@ -277,6 +280,9 @@ void PropertyRef::setFixedDef( const MathProperty* mp )
 
 void PropertyRef::setUnit( const char* newunitlbl )
 {
+    if ( StringView(newunitlbl) == disp_.getUnitLbl() )
+	return;
+
     const UnitOfMeasure* olduom = uom_;
     uom_ = UoMR().get( newunitlbl );
     if ( !uom_ )
@@ -344,6 +350,19 @@ PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
 }
 
 
+void PropertyRef::setDefaults()
+{
+    const MnemonicSelection allsats = MnemonicSelection::getAllSaturations();
+    if ( !mathdef_ && !disp_.defval_ && allsats.isPresent(&mn_) )
+    {
+	float defval = BufferString(
+	      mn_.description()).contains( "Water Saturation" ) ? 1.f : 0.f;
+	convValue( defval, nullptr, unit() );
+	disp_.defval_ = new ValueProperty( *this, defval );
+    }
+}
+
+
 void PropertyRef::usePar( const IOPar& iop )
 {
     propaliases_.setEmpty();
@@ -353,45 +372,134 @@ void PropertyRef::usePar( const IOPar& iop )
 	propaliases_.addIfNew( fms[ifms] );
 
     iop.get( sKey::Color(), disp_.color_ );
+
+    const UnitOfMeasure* intuom = UoMR().getInternalFor( stdType() );
+
     fms = iop.find( sKey::Range() );
-    sz = fms.size();
-    Interval<float> typicalrange = disp_.typicalrange_;
-    if ( sz > 1 )
+    bool hasrangeunit = false;
+    if ( fms.size() > 1 )
     {
-	typicalrange.start = fms.getFValue( 0 );
-	typicalrange.stop = fms.getFValue( 1 );
+	Interval<float> typicalrange( fms.getFValue(0), fms.getFValue(1) );
+	const UnitOfMeasure* valsuom = fms.size() > 2
+				     ? UoMR().get( fms[2].buf() ) : nullptr;
+	if ( valsuom && intuom && valsuom != intuom &&
+	     valsuom->isCompatibleWith(*intuom) )
+	{
+	    NotifyStopper ns( unitChanged );
+	    setUnit( fms[2].buf() );
+	    hasrangeunit = true;
+	    disp_.typicalrange_ = typicalrange;
+	}
+	else
+	{
+	    convValue( typicalrange.start, intuom, unit() );
+	    convValue( typicalrange.stop, intuom, unit() );
+	    disp_.typicalrange_ = typicalrange;
+	}
     }
 
-    NotifyStopper ns( unitChanged );
-    setUnit( sz > 2 ? fms[2].buf() : disp_.getUnitLbl() );
-    disp_.typicalrange_ = typicalrange;
-
-    deleteAndZeroPtr( disp_.defval_ );
-    deleteAndZeroPtr( mathdef_ );
     BufferString mathdefstr;
     fms = iop.find( sKeyDefaultValue );
     sz = fms.size();
-    if ( sz == 1 )
+    if ( sz == 1 && fms[0].isNumber() )
     {
-	const BufferString retstr( fms.buf() );
-	if ( retstr.isNumber() )
-	    disp_.defval_ = new ValueProperty( *this, retstr.toFloat() );
+	const float defval = getConvertedValue( fms[0].toFloat(),
+						intuom, unit() );
+	delete disp_.defval_;
+	disp_.defval_ = new ValueProperty( *this, defval );
     }
-    else if ( sz > 1 )
+    else if ( sz > 0 )
     {
-	const BufferString typ( fms[0] );
-	if ( typ == ValueProperty::typeStr() )
-	    disp_.defval_ = new ValueProperty( *this, toFloat(fms[1]) );
+	const StringView typ( fms[0] );
+	if ( typ == ValueProperty::typeStr() && sz > 1 )
+	{
+	    float defval = fms[1].toFloat();
+	    const UnitOfMeasure* valuom = sz > 2 ? UoMR().get(fms[2]) : nullptr;
+	    if ( valuom && intuom && valuom != intuom &&
+		 valuom->isCompatibleWith(*intuom) )
+	    {
+		if ( hasrangeunit )
+		    convValue( defval, valuom, unit() );
+		else
+		{
+		    NotifyStopper ns( unitChanged );
+		    setUnit( fms[2].buf() );
+		}
+	    }
+	    else
+		convValue( defval, intuom, unit() );
+
+	    if ( !mIsUdf(defval) )
+	    {
+		delete disp_.defval_;
+		disp_.defval_ = new ValueProperty( *this, defval );
+	    }
+	}
 	else if ( typ == RangeProperty::typeStr() && sz > 2 )
-	    disp_.defval_ = new RangeProperty( *this,
-		    Interval<float>(toFloat(fms[1]), toFloat(fms[2])) );
-	else if ( typ == MathProperty::typeStr() )
-	    disp_.defval_ = new MathProperty( *this, fms[1] );
+	{
+	    Interval<float> defrange( fms[1].toFloat(), fms[2].toFloat() );
+	    const UnitOfMeasure* valsuom = sz > 3 ? UoMR().get(fms[3])
+						  : nullptr;
+	    if ( valsuom && intuom && valsuom != intuom &&
+		 valsuom->isCompatibleWith(*intuom) )
+	    {
+		if ( hasrangeunit )
+		{
+		    convValue( defrange.start, valsuom, unit() );
+		    convValue( defrange.stop, valsuom, unit() );
+		}
+		else
+		{
+		    NotifyStopper ns( unitChanged );
+		    setUnit( fms[2].buf() );
+		}
+	    }
+	    else
+	    {
+		convValue( defrange.start, intuom, unit() );
+		convValue( defrange.stop, intuom, unit() );
+	    }
+
+	    if ( !defrange.isUdf() )
+	    {
+		delete disp_.defval_;
+		disp_.defval_ = new RangeProperty( *this, defrange );
+	    }
+	}
+	else if ( (typ == MathProperty::typeStr() && sz > 1) ||
+		  (sz == 1 && typ.startsWith("Formula")) )
+	{
+	    const StringView formdef = typ == MathProperty::typeStr() && sz > 1
+				     ? fms[1] : typ;
+	    PtrMan<MathProperty> mathdef =
+				 new MathProperty( *this, formdef.buf() );
+	    if ( mathdef && mathdef->getForm().isOK() )
+	    {
+		delete disp_.defval_;
+		disp_.defval_ = mathdef.release();
+	    }
+	    else
+		{ pErrMsg("Cannot parse default value formula"); }
+	}
     }
 
     const BufferString def = iop.find( sKeyDefinition );
     if ( !def.isEmpty() )
-	mathdef_ = new MathProperty( *this, def );
+    {
+	PtrMan<MathProperty> mathdef = new MathProperty( *this, def );
+	if ( mathdef && mathdef->getForm().isOK() )
+	{
+	    delete mathdef_;
+	    mathdef_ = mathdef.release();
+	}
+	else
+	    { pErrMsg("Cannot parse fixed definition formula"); }
+    }
+
+    if ( disp_.defval_ && mathdef_ )
+	deleteAndZeroPtr( disp_.defval_ ); //Keep only one possibility
+
+    setDefaults();
 }
 
 

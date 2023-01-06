@@ -1,13 +1,13 @@
 dTect V7.1.0
 Mnemonic
-Tue Feb 01 11:29:44 2022
+Fri 06 Jan 2023, 14:08:12
 !
 GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH`GR1`GRC`GAMMA
 POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`GammaRayPotassium
 THOR: Spectral Gamma Ray`Fluid`Lin`0`40`0`40`ppm`255`0`0`GammaRayThorium
 URAN: Spectral Gamma Ray`Fluid`Lin`0`30`0`30`ppm`255`0`0`GammaRayUranium
 RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8
-SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`SSP`SPAR
+SP: Spontaneous Potential`Electrical Potential`Lin`-250`100`-80`20`mV`0`255`100`SSP`SPAR
 RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL`LLG
 RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LLD
 RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
@@ -53,8 +53,8 @@ ETA: Eta`Anisotropy`Lin`-1`1`-1`1``200`150`250`
 LR: LambdaRho`Pressure-Weight`Lin`5`80`5`80`GPa.g/cm3`100`150`255
 MR: MuRho`Pressure-Weight`Lin`5`60`5`60`GPa.g/cm3`100`255`150
 PP: Pressure`Pressure`lin`0`200`0`200`bar`0`0`255`PRES
-CB: Compressibility Bulk`Compressibility`lin`0`5e-11`0`2e-11`1/GigaPascal`100`150`250`BT`Comp
-BMK: Bulk modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Incompressibility
+CB: Compressibility Bulk`Compressibility`lin`0`0.002`0`0.1`1/GigaPascal`100`150`250`BT`Comp
+BMK: Bulk modulus`Pressure`lin`0`500`0`100`GPa`100`255`155`Incompressibility
 YME: Young's modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Young Modulus
 TWT: Two-way traveltime`Time`lin`````ms````Time
 OWT: One-way traveltime`Time`lin`````ms````

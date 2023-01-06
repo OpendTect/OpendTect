@@ -526,7 +526,8 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
     ObjectSet<const UnitOfMeasure> candidates;
     getRelevant( st, candidates );
     for ( const auto* uom : candidates )
-	if ( uom->scaler().isEmpty() )
+	if ( uom->scaler().isEmpty() ||
+	     (st == Mnemonic::Perm && uom->name() == "Darcy") )
 	    return uom;
 
     return nullptr;

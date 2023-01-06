@@ -1,6 +1,6 @@
 dTect V7.1.0
 Properties
-Tue Feb 01 11:29:44 2022
+Fri 06 Jan 2023, 14:08:12
 !
 Density: Density
 Color: 0`0`200
@@ -9,27 +9,25 @@ Range: 2.2`2.8`g/cc
 Pwave velocity: Velocity
 Color: 0`200`0
 Range: 1500`4500`m/s
-DefaultValue: Value`2000
+DefaultValue: Value`2000`m/s
 !
 Swave velocity: Velocity
 Color: 0`255`0
 Range: 500`2000`m/s
-DefaultValue: Value`1400
+DefaultValue: Value`1400`m/s
 !
 Porosity: Volumetrics
 Aliases: Phi`Por`PIGN
 Color: 200`200`0
 Range: 0`30`%
-DefaultValue: Value`10
+DefaultValue: Value`10`%
 !
 Permeability: Permeability
 Color: 200`0`0
 Range: 1`500`mD
-Logarithmic: Yes
 !
 Gamma Ray: Gamma Ray
 Color: 255`0`0
-Range: 0`150`API
 !
 Temperature: Temperature
 Color: 0`0`0
@@ -37,7 +35,6 @@ Range: 0`200`deg.C
 !
 Pressure: Pressure
 Color: 0`0`255
-Range: 0`200`bar
 !
 Sonic: Sonic travel time
 Color: 0`255`255
@@ -63,80 +60,63 @@ Definition: Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [De
 !
 Water Saturation: Volumetrics
 Color: 0`200`255
-Range: 0`100`%
-DefaultValue: Value`100
+DefaultValue: Value`100`%
 !
 Spontaneous Potential: Electrical Potential
 Color: 255`100`0
-Range: -1`1`V
 !
 Resistivity: Resistivity
 Color: 200`200`0
-Range: 0`200`ohmm
-Logarithmic: Yes
 !
 Poissons Ratio: Elastic Ratio
 Color: 200`100`200
-Range: 0.1`0.5
 !
 Vp/Vs: Elastic Ratio
 Color: 200`150`200
-Range: 0.1`0.5
 Definition: Formula: +## [Expression] ## [Vp / Vs] ##.+## [Input.0.Def] ## [Pwave velocity] ##.+## [Input.1.Def] ## [Swave velocity] ##.
 !
 Vs/Vp: Elastic Ratio
 Color: 200`150`150
-Range: 2`10
 Definition: Formula: +## [Expression] ## [Vs / Vp] ##.+## [Input.0.Def] ## [Swave velocity] ##.+## [Input.1.Def] ## [Pwave velocity] ##.
 !
 LambdaRho: Pressure-Weight
 Color: 100`150`255
-Range: 5`80`GPa.g/cm3
 !
 MuRho: Pressure-Weight
 Color: 100`255`150
-Range: 5`60`GPa.g/cm3
 !
 Compressibility: Compressibility
 Color: 100`200`100
-Range: 2e-10`2e-06
 !
 Vshale: Volumetrics
 Aliases: VSH`Volume of Shale
 Color: 100`200`100
-Range: 0`100`%
-DefaultValue: Value`100
+DefaultValue: Value`100`%
 !
 Delta: Anisotropy
 Color: 150`200`150
-Range: -1`1
 DefaultValue: Value`0
 !
 Epsilon: Anisotropy
 Color: 200`150`150
-Range: -1`1
 DefaultValue: Value`0
 !
 Eta: Anisotropy
 Color: 200`150`250
-Range: -1`1
 DefaultValue: Value`0
 !
 NetPay: Classification
 Aliases: Net Pay Flag
 Color: 255`255`0
-Range: 0`1
 DefaultValue: Value`0
 !
 Reservoir: Classification
 Aliases: Net Flag
 Color: 255`0`255
-Range: 0`1
 DefaultValue: Value`0
 !
 Litho: Classification
 Color: 0`255`255
-Range: 1`5
 DefaultValue: Value`1
 !
 Fracture Density: Volumetrics

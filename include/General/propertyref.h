@@ -111,11 +111,13 @@ protected:
     const Mnemonic&	mn_;
     BufferStringSet	propaliases_;
     MathProperty*	mathdef_ = nullptr;
-    const UnitOfMeasure* uom_ = nullptr;
+    const UnitOfMeasure* uom_;
     Repos::Source	source_ = Repos::Temp;
 
     friend class PropertyRefSet;
     friend class uiEditPropRef;
+
+    void		setDefaults();
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     static const Mnemonic* getFromLegacy(const Mnemonic*,const char* propnm);
