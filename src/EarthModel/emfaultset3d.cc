@@ -31,7 +31,9 @@ FaultSet3D::FaultSet3D( EMManager& man )
 
 
 FaultSet3D::~FaultSet3D()
-{}
+{
+    deepUnRef( faults_ );
+}
 
 
 Executor* FaultSet3D::loader()

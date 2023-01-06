@@ -1610,6 +1610,7 @@ void dgbSurfaceWriter::finishWriting()
     astream.newParagraph();
     par_->putTo( astream );
     surface_.saveDisplayPars();
+    deleteAndZeroPtr( conn_ );
 }
 
 
