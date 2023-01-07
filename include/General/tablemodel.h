@@ -43,12 +43,18 @@ public:
 	double		getDValue() const;
 	int		getIntValue() const;
 
+	CellData&	operator=(const CellData&);
+
 	QVariant&	qvar_;
     };
 
     enum ItemFlag		{ NoFlags=0, ItemSelectable=1, ItemEditable=2,
 				  ItemDragEnabled=4, ItemDropEnabled=8,
 				  ItemIsUserCheckable=16, ItemEnabled=32 };
+
+    enum CellType		{ Bool, Text, NumI, NumF,
+				  NumD, Color, Date, Enum, Other };
+
     virtual			~TableModel();
 
     virtual int			nrRows() const				= 0;
@@ -66,6 +72,8 @@ public:
     virtual uiString		tooltip(int row,int col) const		= 0;
     virtual const EnumDef*	getEnumDef(int col) const
 				{ return nullptr; }
+
+    virtual CellType		getColumnCellType(int col) const;
 
     QAbstractTableModel*	getAbstractModel();
     void			beginReset();

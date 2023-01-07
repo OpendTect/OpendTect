@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uiicon.h"
 
-#include "perthreadrepos.h"
 #include "tablemodel.h"
 
 #include "q_uiimpl.h"
@@ -38,7 +37,7 @@ class ODStyledItemDelegate : public QStyledItemDelegate
 {
 public:
 
-ODStyledItemDelegate( uiTableView::CellType typ )
+ODStyledItemDelegate( TableModel::CellType typ )
     : celltype_(typ)
 {}
 
@@ -60,14 +59,14 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     QStyledItemDelegate::paint( painter, myoption, index );
 }
 
-uiTableView::CellType cellType() const
+TableModel::CellType cellType() const
 {
     return celltype_;
 }
 
 private:
 
-	uiTableView::CellType	celltype_;
+    TableModel::CellType	celltype_;
 
 };
 
@@ -76,13 +75,13 @@ class DecorationItemDelegate : public ODStyledItemDelegate
 {
 public:
 DecorationItemDelegate()
-    : ODStyledItemDelegate(uiTableView::Color)
+    : ODStyledItemDelegate(TableModel::Color)
 {}
 
 static const int sXPosPadding = 2;
 static const int sPmScalePadding = 10;
 
-const uiPixmap* createPixmap( const QVariant& qvar, const QRect& rect ) const
+const uiPixmap* createPixmap( const QVariant& qvar, QRect rect ) const
 {
     const QStringList qsl = qvar.toStringList();
     BufferStringSet pmparams;
@@ -127,7 +126,7 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 class DoubleItemDelegate : public ODStyledItemDelegate
 {
 public:
-DoubleItemDelegate(uiTableView::CellType tp)
+DoubleItemDelegate( TableModel::CellType tp )
     : ODStyledItemDelegate(tp)
     , nrdecimals_(2)
 {}
@@ -151,7 +150,7 @@ class TextItemDelegate : public ODStyledItemDelegate
 {
 public:
 TextItemDelegate()
-    : ODStyledItemDelegate(uiTableView::Text)
+    : ODStyledItemDelegate(TableModel::Text)
 {}
 
 
@@ -186,7 +185,7 @@ class EnumItemDelegate : public ODStyledItemDelegate
 {
 public:
 EnumItemDelegate(const EnumDef* enumdef)
-    : ODStyledItemDelegate(uiTableView::Enum)
+    : ODStyledItemDelegate(TableModel::Enum)
     , enumdef_(enumdef)
 {}
 
@@ -689,7 +688,7 @@ void uiTableView::selectAll()
 }
 
 
-void uiTableView::setColumnValueType( int col, CellType tp )
+void uiTableView::setColumnValueType( int col, TableModel::CellType tp )
 {
     ODStyledItemDelegate* coldelegate = getColumnDelegate( col, tp );
     if ( coldelegate )
@@ -697,7 +696,8 @@ void uiTableView::setColumnValueType( int col, CellType tp )
 }
 
 
-ODStyledItemDelegate* uiTableView::getColumnDelegate( int col, CellType tp )
+ODStyledItemDelegate*
+	uiTableView::getColumnDelegate( int col, TableModel::CellType tp )
 {
     if ( columndelegates_.validIdx(col) && columndelegates_[col] &&
 	    columndelegates_[col]->cellType() == tp )
@@ -712,16 +712,17 @@ ODStyledItemDelegate* uiTableView::getColumnDelegate( int col, CellType tp )
 }
 
 
-ODStyledItemDelegate* uiTableView::createColumnDelegate( int col, CellType tp )
+ODStyledItemDelegate*
+	uiTableView::createColumnDelegate( int col, TableModel::CellType tp )
 {
-    if ( tp==NumD || tp==NumF )
+    if ( tp==TableModel::NumD || tp==TableModel::NumF )
 	return new DoubleItemDelegate(tp);
-    if ( tp==Text )
+    if ( tp==TableModel::Text )
 	return new TextItemDelegate;
-    if ( tp==Enum )
+    if ( tp==TableModel::Enum )
 	return new EnumItemDelegate( tablemodel_ ? tablemodel_->getEnumDef(col)
 						 : nullptr );
-    if ( tp==Color )
+    if ( tp==TableModel::Color )
 	return new DecorationItemDelegate;
 
     return nullptr;
@@ -746,12 +747,12 @@ void uiTableView::setCurrentCell( const RowCol& rc )
 }
 
 
-uiTableView::CellType uiTableView::getCellType( int col ) const
+TableModel::CellType uiTableView::getCellType( int col ) const
 {
     if ( columndelegates_.validIdx(col) && columndelegates_[col] )
 	return columndelegates_[col]->cellType();
 
-    return uiTableView::Other;
+    return TableModel::Other;
 }
 
 
