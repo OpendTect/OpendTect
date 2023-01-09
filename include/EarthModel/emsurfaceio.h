@@ -120,7 +120,7 @@ public:
     static const char*	sKeyUndefLineSet();
     static const char*	sKeyUndefLine();
 
-// Deprecated public functions
+//  Deprecated public functions
     mDeprecatedObs
     int			nrSections() const;
     mDeprecatedObs
@@ -157,68 +157,69 @@ protected:
     void		goToNextRow();
     void		createArray();
 
-    StreamConn*		conn_;
+    BufferString	filename_;
+    StreamConn*		conn_				= nullptr;
+    RefMan<EM::Surface>	surface_;
 
     BufferStringSet	linenames_;
     BufferStringSet	linesets_;
     TypeSet<Pos::GeomID>	geomids_;
-    bool		fullyread_;
+    bool		fullyread_			= true;
 
     BufferStringSet	auxdatanames_;
     TypeSet<float>	auxdatashifts_;
     ObjectSet<EM::dgbSurfDataReader> auxdataexecs_;
     TypeSet<int>	auxdatasel_;
 
-    const IOPar*	par_;
+    const IOPar*	par_				= nullptr;
 
     uiString		msg_;
-    bool		error_;
-    int			nrdone_;
+    bool		error_				= false;
+    int			nrdone_				= 0;
 
-    bool		isinited_;
-    bool		setsurfacepar_;
+    bool		isinited_			= false;
+    bool		setsurfacepar_			= false;
 
-    int			sectionsread_;
-    int			sectionindex_;
-    int			oldsectionindex_;
-    TypeSet<int>		sectionids_;
+    int			sectionsread_			= 0;
+    int			sectionindex_			= 0;
+    int			oldsectionindex_		= -1;
+    TypeSet<int>	sectionids_;
 
-    int			firstrow_;
-    int			nrrows_;
-    int			rowindex_;
+    int			firstrow_			= 0;
+    int			nrrows_				= 0;
+    int			rowindex_			= 0;
 
-    DataInterpreter<int>* int32interpreter_;
-    DataInterpreter<double>* floatinterpreter_;
-    EM::Surface*	surface_;
-    Array3D<float>*	cube_;
-    Array2D<float>*	arr_;
+    DataInterpreter<int>* int32interpreter_		= nullptr;
+    DataInterpreter<double>* floatinterpreter_		= nullptr;
+    Array3D<float>*	cube_				= nullptr;
+    Array2D<float>*	arr_				= nullptr;
 
 
     StepInterval<int>	rowrange_;
     StepInterval<int>	colrange_;
     Interval<float>	zrange_;
-    const UnitOfMeasure*	zunit_;
+    const UnitOfMeasure*	zunit_			= nullptr;
 
-    StepInterval<int>*	readrowrange_;
-    StepInterval<int>*	readcolrange_;
+    StepInterval<int>*	readrowrange_			= nullptr;
+    StepInterval<int>*	readcolrange_			= nullptr;
 
-    bool		readonlyz_;
+    bool		readonlyz_			= true;
     BufferString	dbinfo_;
-    int			version_;
+    int			version_			= 1;
 
     bool		getIndices(const RowCol&,int&,int&) const;
     bool		readVersion2Row(od_istream&,int,int);
 
-//Version 3 stuff
+//  Version 3 stuff
     bool		readVersion3Row(od_istream&,int,int,int,
 						int noofcoltoskip=0);
-    DataInterpreter<int>* int16interpreter_;
-    DataInterpreter<od_int64>* int64interpreter_;
+    DataInterpreter<int>* int16interpreter_		= nullptr;
+    DataInterpreter<od_int64>* int64interpreter_	= nullptr;
     TypeSet<od_int64>	rowoffsets_;
     TypeSet<od_int64>	sectionoffsets_;
-    int			parsoffset_;
+    int			parsoffset_			= -1;
 
-//Version 1 stuff
+//  Version 1 stuff
     bool		readVersion1Row(od_istream&,int,int);
     RowCol		convertRowCol(int,int) const;
     bool		parseVersion1(const IOPar&);
@@ -228,10 +229,12 @@ protected:
     double		conv11, conv12, conv13, conv21, conv22, conv23;
 
 // for loading horizon based on Lines trace range
-   const BufferStringSet* readlinenames_;
-   const TypeSet< StepInterval<int> >* linestrcrgs_;
+   const BufferStringSet* readlinenames_		= nullptr;
+   const TypeSet< StepInterval<int> >* linestrcrgs_	= nullptr;
    static const char*	linenamesstr_;
-   void			init(const char* fulluserexp,const char* name);
+
+   void			init(const char* filetype,const char* name);
+   int			wrapUp(int);
 };
 
 

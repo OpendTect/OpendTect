@@ -71,20 +71,22 @@ protected:
     bool			writeFloat(float);
     int				dataidx_;
     const EM::Horizon3D&	surf_;
-    const TrcKeySampling*		sel_;
+    const TrcKeySampling*	sel_;
 
     TypeSet<EM::SubID>		subids_;
     TypeSet<float>		values_;
-    int				sectionindex_;
+    int				sectionindex_	= 0;
 
-    int				chunksize_;
-    int				nrdone_;
-    int				totalnr_;
+    int				chunksize_	= 100;
+    int				nrdone_		= 0;
+    int				totalnr_	= 0;
     uiString		        errmsg_;
 
-    od_ostream*			stream_;
+    od_ostream*			stream_		= nullptr;
     bool			binary_;
     BufferString		filename_;
+
+    bool			writeHeader();
 };
 
 
@@ -117,28 +119,32 @@ protected:
     bool			readInt(int&);
     bool			readInt64(od_int64&);
     bool			readFloat(float&);
+
     BufferString		dataname_;
     BufferString		datainfo_;
-    int				dataidx_;
-    float			shift_;
-    EM::Horizon3D*		surf_;
-    const TrcKeySampling*	sel_;
+    int				dataidx_		= -1;
+    float			shift_			= 0;
+    EM::Horizon3D*		surf_			= nullptr;
 
-    int				sectionindex_;
-    int				nrsections_;
+    int				sectionindex_		= 0;
+    int				nrsections_		= 0;
     EM::SectionID		currentsection_;
-    int				valsleftonsection_;
+    int				valsleftonsection_	= 0;
 
-    int				chunksize_;
-    int				nrdone_;
-    int				totalnr_;
+    int				chunksize_		= 100;
+    int				nrdone_			= 0;
+    int				totalnr_		= 0;
     uiString		        errmsg_;
 
-    od_istream*			stream_;
-    DataInterpreter<int>*	intinterpreter_;
-    DataInterpreter<od_int64>*	int64interpreter_;
-    DataInterpreter<float>*	floatinterpreter_;
-    bool			error_;
+    od_istream*			stream_			= nullptr;
+    BufferString		filename_;
+
+    DataInterpreter<int>*	intinterpreter_		= nullptr;
+    DataInterpreter<od_int64>*	int64interpreter_	= nullptr;
+    DataInterpreter<float>*	floatinterpreter_	= nullptr;
+    bool			error_			= true;
+
+    bool			readHeader();
 };
 
 };

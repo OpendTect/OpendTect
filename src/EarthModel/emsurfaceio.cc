@@ -81,9 +81,9 @@ BufferString dgbSurfaceReader::sColStepKey( int idx )
 dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 				    const char* filetype )
     : ExecutorGroup( "Surface Reader" )
+    , filename_(ioobj.fullUserExpr(true))
 {
-    init( ioobj.fullUserExpr(true), ioobj.name() );
-    error_ = !readHeaders( filetype );
+    init( filetype, ioobj.name() );
 }
 
 
@@ -91,59 +91,34 @@ dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
 				    const char* objname,
 				    const char* filetype )
     : ExecutorGroup( "Surface Reader" )
+    , filename_(fulluserexp)
 {
-    init( fulluserexp, objname );
-    error_ = !readHeaders( filetype );
+    init( filetype, objname );
 }
 
 
 
-void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
+void dgbSurfaceReader::init( const char* filetype, const char* objname )
 {
-    conn_ = new StreamConn( fullexpr, Conn::Read );
-    cube_ = 0;
-    surface_ = nullptr;
-    arr_ = nullptr;
-    par_ = nullptr;
-    setsurfacepar_ = false;
-    readrowrange_ = nullptr;
-    readcolrange_ = nullptr;
     zrange_ = Interval<float>(mUdf(float),mUdf(float));
     zunit_ = UnitOfMeasure::surveyDefZStorageUnit();
-    int16interpreter_ = nullptr;
-    int32interpreter_ = nullptr;
-    int64interpreter_ = nullptr;
-    floatinterpreter_ = nullptr;
-    nrdone_ = 0;
-    readonlyz_ =true;
-    sectionindex_ = 0;
-    sectionsread_ = 0;
-    oldsectionindex_ = -1;
-    isinited_ = false;
-    fullyread_ = true;
-    version_ = 1;
-    readlinenames_ = 0;
-    linestrcrgs_ = 0;
-    nrrows_ = 0;
-    parsoffset_ = -1;
-
     linenames_.allowNull();
 
     BufferString exnm( "Reading surface '", objname, "'" );
     setName( exnm.buf() );
     setNrDoneText( Task::uiStdNrDoneText() );
     auxdataexecs_.allowNull(true);
-
+    error_ = !readHeaders( filetype );
     if ( conn_ )
 	createAuxDataReader();
+
+    deleteAndZeroPtr( conn_ );
 }
 
 
 void dgbSurfaceReader::setOutput( EM::Surface& ns )
 {
-    if ( surface_ ) surface_->unRef();
     surface_ = &ns;
-    if ( surface_ ) surface_->ref();
 }
 
 
@@ -166,6 +141,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	const int nrsections = readInt32( strm );
 	if ( !strm.isOK() ) { msg_ = sMsgReadError(); return false; }
 
+	sectionoffsets_.setEmpty();
 	for ( int idx=0; idx<nrsections; idx++ )
 	{
 	    const od_int64 off = readInt64( strm );
@@ -173,6 +149,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	    sectionoffsets_ += off;
 	}
 
+	sectionids_.setEmpty();
 	for ( int idx=0; idx<nrsections; idx++ )
 	    sectionids_ += readInt32(strm);
 
@@ -181,6 +158,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	parsoffset_ = mCast(int,strm.position());
 	ascistream parstream( strm, false );
 	parstream.next();
+	delete par_;
 	par_ = new IOPar( parstream );
     }
     else
@@ -193,6 +171,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	    return false;
 	}
 
+	sectionids_.setEmpty();
 	for ( int idx=0; idx<nrsections; idx++ )
 	{
 	    int sectionid = idx;
@@ -201,6 +180,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	    sectionids_ += sectionid;
 	}
 
+	delete par_;
 	par_ = new IOPar( toppar );
     }
 
@@ -226,6 +206,8 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
     TypeSet<int> lineids; bool is2d = false;
 
     const bool haslinenames = !linenames_.isEmpty();
+    geomids_.setEmpty();
+    trcranges.setEmpty();
     if ( par_->hasKey(Horizon2DGeometry::sKeyNrLines()) )
     {
 	is2d = true;
@@ -316,16 +298,24 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 
 bool dgbSurfaceReader::readHeaders( const char* filetype )
 {
-    StreamConn& sconn( *((StreamConn*)conn_) );
-    od_istream& strm = sconn.iStream();
+    if ( !conn_ )
+	conn_ = new StreamConn( filename_, Conn::Read );
+
+    od_istream& strm = conn_->iStream();
     if ( !strm.isOK() )
     {
 	msg_ = tr("Could not open horizon file"); strm.addErrMsgTo( msg_ );
-	delete conn_; conn_ = 0; return false;
+	deleteAndZeroPtr( conn_ );
+	return false;
     }
+
     ascistream astream( strm );
-    if ( !astream.isOfFileType(filetype) )
-	{ msg_ = tr("Horizon file has wrong file type"); return false; }
+    if ( filetype && !astream.isOfFileType(filetype) )
+    {
+	msg_ = tr("Horizon file has wrong file type");
+	deleteAndZeroPtr( conn_ );
+	return false;
+    }
 
     version_ = 1;
     astream.next();
@@ -341,12 +331,16 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
     mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
 
-    if ( !readParData(strm,toppar,sconn.fileName()) )
+    if ( !readParData(strm,toppar,filename_) )
+    {
+	deleteAndZeroPtr( conn_ );
 	return false;
+    }
 
     par_->get( sKeyRowRange(), rowrange_ );
     par_->get( sKeyColRange(), colrange_ );
     par_->get( sKeyZRange(), zrange_ );
+    linenames_.setEmpty();
     par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
     BufferString zunitlbl;
@@ -357,7 +351,10 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
     if ( res < 0 )
+    {
+	deleteAndZeroPtr( conn_ );
 	return false;
+    }
 
     const bool is2d = res;
     setLinesTrcRngs( trcranges );
@@ -368,11 +365,18 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     par_->get( sKeyDBInfo(), dbinfo_ );
 
     if ( version_==1 )
-	return parseVersion1( *par_ );
+    {
+	const bool ret = parseVersion1( *par_ );
+	if ( !ret )
+	    deleteAndZeroPtr( conn_ );
+
+	return ret;
+    }
 
     if ( is2d && linesets_.isEmpty() && geomids_.isEmpty() )
     {
 	msg_ = tr("No geometry found for this horizon");
+	deleteAndZeroPtr( conn_ );
 	return false;
     }
 
@@ -387,10 +391,12 @@ void dgbSurfaceReader::createAuxDataReader()
     {
 	if ( gap > 50 ) break;
 
-	BufferString hovfnm(
-		dgbSurfDataWriter::createHovName(conn_->fileName(),idx) );
+	BufferString hovfnm( dgbSurfDataWriter::createHovName(filename_,idx) );
 	if ( File::isEmpty(hovfnm.buf()) )
-	{ gap++; continue; }
+	{
+	    gap++;
+	    continue;
+	}
 
 	dgbSurfDataReader* dreader = new dgbSurfDataReader( hovfnm.buf() );
 	if ( dreader->dataName() )
@@ -432,10 +438,7 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete int64interpreter_;
     delete floatinterpreter_;
     if ( surface_ )
-    {
 	surface_->geometry().resetChangedFlag();
-	surface_->unRef();
-    }
 }
 
 
@@ -665,7 +668,7 @@ void dgbSurfaceReader::setGeometry()
 	    readcolrange_->step *= -1;
     }
 
-    mDynamicCastGet(Horizon3D*,hor,surface_);
+    mDynamicCastGet(Horizon3D*,hor,surface_.ptr());
     if ( hor )
     {
 	const RowCol filestep = getFileStep();
@@ -736,6 +739,13 @@ int dgbSurfaceReader::currentRow() const
 { return firstrow_+rowindex_*rowrange_.step; }
 
 
+int dgbSurfaceReader::wrapUp( int res )
+{
+    deleteAndZeroPtr( conn_ );
+    return res;
+}
+
+
 int dgbSurfaceReader::nextStep()
 {
     if ( error_ || (!surface_ && !cube_) )
@@ -743,14 +753,14 @@ int dgbSurfaceReader::nextStep()
 	if ( !surface_ && !cube_ )
 	    msg_ = toUiString("Internal: No Output Set");
 
-	return ErrorOccurred();
+	return wrapUp( ErrorOccurred() );
     }
-
-    od_istream& strm = conn_->iStream();
 
     if ( !isinited_ )
     {
 	isinited_ = true;
+	if ( !readHeaders(nullptr) )
+	    return wrapUp( ErrorOccurred() );
 
 	if ( surface_ )
 	    surface_->enableGeometryChecks( false );
@@ -759,9 +769,12 @@ int dgbSurfaceReader::nextStep()
 	par_->getYN( sKeyDepthOnly(), readonlyz_ );
     }
 
+    od_istream& strm = conn_->iStream();
+
     if ( sectionindex_ >= sectionids_.size() )
     {
-	if ( !surface_ ) return Finished();
+	if ( !surface_ )
+	    return wrapUp( Finished() );
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res && !setsurfacepar_ )
@@ -770,7 +783,7 @@ int dgbSurfaceReader::nextStep()
 	    if ( !surface_->usePar(*par_) )
 	    {
 		msg_ = tr("Could not parse header");
-		return ErrorOccurred();
+		return wrapUp( ErrorOccurred() );
 	    }
 
 	    surface_->setFullyLoaded( fullyread_ );
@@ -778,14 +791,14 @@ int dgbSurfaceReader::nextStep()
 	    surface_->enableGeometryChecks(true);
 	}
 
-	return res;
+	return res < MoreToDo() ? wrapUp( res ) : res;
     }
 
     if ( sectionindex_!=oldsectionindex_ )
     {
 	const int res = prepareNewSection(strm);
 	if ( res!=Finished() )
-	    return res;
+	    return res==ErrorOccurred() ? wrapUp( res ) : res;
     }
 
     while ( shouldSkipCurrentRow() )
@@ -795,7 +808,7 @@ int dgbSurfaceReader::nextStep()
 
 	const int res = skipRow( strm );
 	if ( res==ErrorOccurred() )
-	    return res;
+	    return wrapUp( res );
 	else if ( res==Finished() ) //Section change
 	    return MoreToDo();
     }
@@ -803,7 +816,7 @@ int dgbSurfaceReader::nextStep()
     if ( !prepareRowRead(strm) )
     {
 	msg_ = strm.errMsg();
-        return ErrorOccurred();
+	return wrapUp( ErrorOccurred() );
     }
 
     int nrcols = readInt32( strm );
@@ -835,13 +848,13 @@ int dgbSurfaceReader::nextStep()
     if ( !strm.isOK() )
     {
 	msg_ = sMsgReadError();
-	return ErrorOccurred();
+	return wrapUp( ErrorOccurred() );
     }
 
     int colstep = colrange_.step;
     par_->get( sColStepKey( currentRow() ).buf(), colstep );
 
-    mDynamicCastGet(Horizon2D*,hor2d,surface_);
+    mDynamicCastGet(Horizon2D*,hor2d,surface_.ptr());
 
     if ( hor2d )
     {
@@ -857,7 +870,7 @@ int dgbSurfaceReader::nextStep()
 	{
 	    const int res = skipRow( strm );
 	    if ( res==ErrorOccurred() )
-		return res;
+		return wrapUp( res );
 	    else if ( res==Finished() )
 		return MoreToDo();
 	}
@@ -870,8 +883,8 @@ int dgbSurfaceReader::nextStep()
 	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 			     Survey::GM().getGeometry(geomid) );
 	    if ( !geom2d )
-		return skipRow(strm) == ErrorOccurred() ? ErrorOccurred()
-							: MoreToDo();
+		return skipRow(strm) == ErrorOccurred() ?
+					wrapUp(ErrorOccurred()) : MoreToDo();
 
 	    const int startcol = firstcol + noofcoltoskip;
 	    const int stopcol = firstcol + noofcoltoskip + colstep*(nrcols - 1);
@@ -880,7 +893,7 @@ int dgbSurfaceReader::nextStep()
 	}
     }
 
-    mDynamicCastGet(Fault3D*,flt3d,surface_);
+    mDynamicCastGet(Fault3D*,flt3d,surface_.ptr());
     if ( flt3d )
     {
 	createArray();
@@ -888,7 +901,7 @@ int dgbSurfaceReader::nextStep()
 	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
-    mDynamicCastGet(FaultStickSet*,emfss,surface_);
+    mDynamicCastGet(FaultStickSet*,emfss,surface_.ptr());
     if ( emfss )
     {
 	createArray();
@@ -896,7 +909,7 @@ int dgbSurfaceReader::nextStep()
 	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
-    mDynamicCastGet(PolygonBody*,polygon,surface_);
+    mDynamicCastGet(PolygonBody*,polygon,surface_.ptr());
     if ( polygon )
     {
 	createArray();
@@ -914,7 +927,7 @@ int dgbSurfaceReader::nextStep()
 					  noofcoltoskip) ) ||
          ( version_==2 && !readVersion2Row(strm, firstcol, nrcols) ) ||
          ( version_==1 && !readVersion1Row(strm, firstcol, nrcols) ) )
-	return ErrorOccurred();
+	return wrapUp( ErrorOccurred() );
 
     goToNextRow();
     return MoreToDo();
@@ -1230,7 +1243,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
     RowCol rc( currentRow(), 0 );
     bool didread = false;
 
-    mDynamicCastGet(Horizon2D*,hor2d,surface_);
+    mDynamicCastGet(Horizon2D*,hor2d,surface_.ptr());
     const bool hor2dok = hor2d && geomids_.validIdx(rowindex_);
 
     for ( ; colindex<nrcols+colstoskip; colindex++ )
@@ -1582,6 +1595,7 @@ void dgbSurfaceWriter::finishWriting()
     astream.newParagraph();
     par_->putTo( astream );
     surface_.saveDisplayPars();
+    deleteAndZeroPtr( conn_ );
 }
 
 

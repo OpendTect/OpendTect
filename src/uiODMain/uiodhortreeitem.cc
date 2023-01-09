@@ -158,7 +158,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     {
 	setSectionDisplayRestoreForAllHors( true );
 
-	ObjectSet<EM::EMObject> objs;
+	RefObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
@@ -175,7 +175,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
 	    addChld( itm, false, false );
 	}
-	deepUnRef( objs );
 
 	setSectionDisplayRestoreForAllHors( false );
     }
