@@ -10,8 +10,10 @@ ________________________________________________________________________
 #include "uimathpropeddlg.h"
 #include "uimathformula.h"
 #include "uimathexpressionvariable.h"
+#include "uimsg.h"
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
+
 #include "mathproperty.h"
 #include "od_helpids.h"
 
@@ -79,6 +81,13 @@ void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 		  tr("Use a rock physics formula"),
 		  mODHelpKey(mRockPhysFormHelpID)) );
     auto* rpffld = new uiRockPhysForm( &dlg, prop_.mn() );
+    const uiRetVal uirv = rpffld->isOK();
+    if ( !uirv.isOK() )
+    {
+	uiMSG().error( uirv );
+	return;
+    }
+
     if ( !dlg.go() || !rpffld->getFormulaInfo(prop_.getForm()) )
 	return;
 

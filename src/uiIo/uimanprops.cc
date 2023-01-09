@@ -153,7 +153,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 			       StringInpSpec(pr.name()) );
     mAttachCB( namefld_->valuechanged, uiEditPropRef::nameChgCB );
 
-    const MnemonicSelection mnsel( pr.stdType() );
+    const MnemonicSelection mnsel = MnemonicSelection::getGroupFor( pr.mn() );
     BufferStringSet mnnames;
     for ( const auto* mnc : mnsel )
 	mnnames.add( mnc->name() );
@@ -372,8 +372,8 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 
     pr_.disp_.color_ = colfld_->color();
     NotifyStopper ns( pr_.unitChanged );
-    pr_.disp_.typicalrange_ = rgfld_->getFInterval();
     pr_.setUnit( unfld_->getUnitName() );
+    pr_.disp_.typicalrange_ = rgfld_->getFInterval();
 
     BufferString defaultstr( defaultfld_->text() );
     defaultstr.trimBlanks();

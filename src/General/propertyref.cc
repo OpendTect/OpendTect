@@ -376,26 +376,31 @@ void PropertyRef::usePar( const IOPar& iop )
     const UnitOfMeasure* intuom = UoMR().getInternalFor( stdType() );
 
     fms = iop.find( sKey::Range() );
-    bool hasrangeunit = false;
     if ( fms.size() > 1 )
     {
 	Interval<float> typicalrange( fms.getFValue(0), fms.getFValue(1) );
 	const UnitOfMeasure* valsuom = fms.size() > 2
 				     ? UoMR().get( fms[2].buf() ) : nullptr;
-	if ( valsuom && intuom && valsuom != intuom &&
-	     valsuom->isCompatibleWith(*intuom) )
+	if ( valsuom && intuom && valsuom->isCompatibleWith(*intuom) )
 	{
-	    NotifyStopper ns( unitChanged );
-	    setUnit( fms[2].buf() );
-	    hasrangeunit = true;
-	    disp_.typicalrange_ = typicalrange;
+	    if ( unit() == mn_.unit() && valsuom != unit() )
+	    {
+		NotifyStopper ns( unitChanged );
+		setUnit( fms[2].buf() );
+	    }
+	    else
+	    {
+		convValue( typicalrange.start, valsuom, unit() );
+		convValue( typicalrange.stop, valsuom, unit() );
+	    }
 	}
 	else
 	{
 	    convValue( typicalrange.start, intuom, unit() );
 	    convValue( typicalrange.stop, intuom, unit() );
-	    disp_.typicalrange_ = typicalrange;
 	}
+
+	disp_.typicalrange_ = typicalrange;
     }
 
     BufferString mathdefstr;
@@ -415,16 +420,15 @@ void PropertyRef::usePar( const IOPar& iop )
 	{
 	    float defval = fms[1].toFloat();
 	    const UnitOfMeasure* valuom = sz > 2 ? UoMR().get(fms[2]) : nullptr;
-	    if ( valuom && intuom && valuom != intuom &&
-		 valuom->isCompatibleWith(*intuom) )
+	    if ( valuom && intuom && valuom->isCompatibleWith(*intuom) )
 	    {
-		if ( hasrangeunit )
-		    convValue( defval, valuom, unit() );
-		else
+		if ( unit() == mn_.unit() && valuom != unit() )
 		{
 		    NotifyStopper ns( unitChanged );
 		    setUnit( fms[2].buf() );
 		}
+		else
+		    convValue( defval, valuom, unit() );
 	    }
 	    else
 		convValue( defval, intuom, unit() );
@@ -440,18 +444,17 @@ void PropertyRef::usePar( const IOPar& iop )
 	    Interval<float> defrange( fms[1].toFloat(), fms[2].toFloat() );
 	    const UnitOfMeasure* valsuom = sz > 3 ? UoMR().get(fms[3])
 						  : nullptr;
-	    if ( valsuom && intuom && valsuom != intuom &&
-		 valsuom->isCompatibleWith(*intuom) )
+	    if ( valsuom && intuom && valsuom->isCompatibleWith(*intuom) )
 	    {
-		if ( hasrangeunit )
-		{
-		    convValue( defrange.start, valsuom, unit() );
-		    convValue( defrange.stop, valsuom, unit() );
-		}
-		else
+		if ( unit() == mn_.unit() && valsuom != unit() )
 		{
 		    NotifyStopper ns( unitChanged );
 		    setUnit( fms[2].buf() );
+		}
+		else
+		{
+		    convValue( defrange.start, valsuom, unit() );
+		    convValue( defrange.stop, valsuom, unit() );
 		}
 	    }
 	    else
@@ -498,8 +501,6 @@ void PropertyRef::usePar( const IOPar& iop )
 
     if ( disp_.defval_ && mathdef_ )
 	deleteAndZeroPtr( disp_.defval_ ); //Keep only one possibility
-
-    setDefaults();
 }
 
 
@@ -516,21 +517,38 @@ void PropertyRef::fillPar( IOPar& iop ) const
 	iop.set( sKeyAliases, fms );
     }
 
-    iop.set( sKey::Color(), disp_.color_ );
-
-    const Interval<float> vintv( disp_.typicalrange_ );
+    const Mnemonic::DispDefs& mndisp = mn_.disp_;
+    if ( disp_.color_ == mndisp.color_ )
+	iop.removeWithKey( sKey::Color() );
+    else
+	iop.set( sKey::Color(), disp_.color_ );
 
     FileMultiString fms;
-    fms += ::toString( vintv.start );
-    fms += ::toString( vintv.stop );
-    const char* unitlbl = disp_.getUnitLbl();
-    if ( unitlbl && *unitlbl )
-	fms += unitlbl;
+    const Interval<float>& vintv = disp_.typicalrange_;
+    const float inteps = vintv.width() == 0.f ? mDefEpsF
+					  : Math::Abs( vintv.center() ) * 1e-4f;
+    Interval<float> mnintv = mndisp.typicalrange_;
+    const UnitOfMeasure* mnuom = mn_.unit();
+    convValue( mnintv.start, mnuom, uom_ );
+    convValue( mnintv.stop, mnuom, uom_ );
+    if ( mnuom != uom_ || !vintv.isEqual(mnintv,inteps) )
+    {
+	fms += ::toString( vintv.start );
+	fms += ::toString( vintv.stop );
+	const char* unitlbl = disp_.getUnitLbl();
+	if ( unitlbl && *unitlbl )
+	    fms += unitlbl;
 
-    iop.set( sKey::Range(), fms );
+	iop.set( sKey::Range(), fms );
+    }
+    else
+	iop.removeWithKey( sKey::Range() );
+
     if ( disp_.defval_ )
     {
-	fms.set( disp_.defval_->type() ).add( disp_.defval_->def() );
+	fms.set( disp_.defval_->type() );
+	const FileMultiString deffms( disp_.defval_->def() );
+	fms.add( deffms );
 	iop.set( sKeyDefaultValue, fms );
     }
     else
