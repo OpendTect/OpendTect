@@ -619,18 +619,17 @@ void MnemonicSet::readFrom( ascistream& astrm )
 {
     while ( !atEndOfSection(astrm.next()) )
     {
-	IOPar iop; iop.getFrom( astrm );
-	IOParIterator iter( iop );
-	BufferString key, val;
-	while ( iter.next(key,val) )
+	while ( !astrm.atEOS() )
 	{
-	    const BufferString mnemonicnm( key );
-	    if ( getByName(mnemonicnm,false) )
-		continue;
+	    const BufferString mnemonicnm( astrm.keyWord() );
+	    if ( !getByName(mnemonicnm,false) )
+	    {
+		auto* mnc = new Mnemonic( mnemonicnm, Mnemonic::Other );
+		mnc->fromString( astrm.value() );
+		add( mnc );
+	    }
 
-	    auto* mnc = new Mnemonic( mnemonicnm, Mnemonic::Other );
-	    mnc->fromString( val );
-	    add( mnc );
+	    astrm.next();
 	}
     }
 }
@@ -744,6 +743,30 @@ MnemonicSelection MnemonicSelection::getAllVolumetrics()
 	if ( !desc.startsWith("Volume of ") &&
 	     !desc.startsWith("Volume Fraction") )
 	    mnsel.removeSingle( idx );
+    }
+
+    return mnsel;
+}
+
+
+MnemonicSelection MnemonicSelection::getGroupFor( const Mnemonic& mn )
+{
+    MnemonicSelection mnsel( mn.stdType() );
+    if ( mn.stdType() != Mnemonic::Volum )
+	return mnsel;
+
+    const MnemonicSelection allsats = getAllSaturations();
+    const MnemonicSelection allpors = getAllPorosity();
+    if ( allsats.isPresent(&mn) )
+	mnsel = allsats;
+    else if ( allpors.isPresent(&mn) )
+	mnsel = allpors;
+    else
+    {
+	for ( const auto* thismn : allsats )
+	    mnsel -= thismn;
+	for ( const auto* thismn : allpors )
+	    mnsel -= thismn;
     }
 
     return mnsel;

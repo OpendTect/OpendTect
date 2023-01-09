@@ -185,6 +185,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    static MnemonicSelection	getGroupFor(const Mnemonic&);
     static MnemonicSelection	getAllVolumetrics();
     static MnemonicSelection	getAllSaturations();
     static MnemonicSelection	getAllPorosity();

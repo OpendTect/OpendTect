@@ -128,15 +128,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
 	typfld_->setCurrentItem( defidx );
     mAttachCB( typfld_->selectionChanged, uiRockPhysForm::typSel );
 
-    for ( const auto* mnsel : mnsels )
-    {
-	uiMnemonicsSel::Setup umnselsu( mnsel );
-	auto* mnselfld = new uiMnemonicsSel( this, umnselsu );
-	mnselfld->attach( alignedBelow, lcb );
-	mnselflds_.add( mnselfld );
-	uiComboBox* mnselcbfld = mnselfld->box();
-	mAttachCB( mnselcbfld->selectionChanged, uiRockPhysForm::mnSel );
-    }
+    createMnemonicFld( mnsels, lcb->attachObj() );
 
     createFlds( mnselflds_.isEmpty()
 			? (uiObject*)lcb->attachObj()
@@ -146,15 +138,56 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
 
 uiRockPhysForm::uiRockPhysForm( uiParent* p, const Mnemonic& mn )
     : uiGroup(p,"RockPhyics Formula Selector")
-    , fixedmn_(&mn)
 {
-    createFlds( nullptr );
+    if ( mn.stdType() == Mnemonic::Volum )
+	createVolumeFlds( mn );
+    else
+	fixedmn_ = &mn;
+
+    createFlds( mnselflds_.isEmpty() ? nullptr
+	    : (uiObject*)mnselflds_.first()->attachObj() );
 }
 
 
 uiRockPhysForm::~uiRockPhysForm()
 {
     detachAllNotifiers();
+}
+
+
+void uiRockPhysForm::createVolumeFlds( const Mnemonic& mn )
+{
+    MnemonicSelection mnsel = MnemonicSelection::getGroupFor( mn );
+    ObjectSet<const Math::Formula> mathforms;
+    const RockPhysics::FormulaSet& rphys = ROCKPHYSFORMS();
+    for ( int idx=mnsel.size()-1; idx>=0; idx--, mathforms.setEmpty() )
+    {
+	const Mnemonic* tmn = mnsel.get( idx );
+	if ( !rphys.getRelevant(*tmn,mathforms) )
+	    mnsel.removeSingle( idx );
+    }
+
+    ObjectSet<MnemonicSelection> mnsels;
+    mnsels.add( &mnsel );
+    createMnemonicFld( mnsels, nullptr );
+}
+
+
+void uiRockPhysForm::createMnemonicFld(
+				const ObjectSet<MnemonicSelection>& mnsels,
+				uiObject* attachobj )
+{
+    for ( const auto* mnsel : mnsels )
+    {
+	uiMnemonicsSel::Setup umnselsu( mnsel );
+	auto* mnselfld = new uiMnemonicsSel( this, umnselsu );
+	if ( attachobj )
+	    mnselfld->attach( alignedBelow, attachobj );
+
+	mnselflds_.add( mnselfld );
+	uiComboBox* mnselcbfld = mnselfld->box();
+	mAttachCB( mnselcbfld->selectionChanged, uiRockPhysForm::mnSel );
+    }
 }
 
 
@@ -206,6 +239,11 @@ void uiRockPhysForm::initGrp( CallBacker* )
 {
     if ( typfld_ )
 	typSel( nullptr );
+    else if ( !mnselflds_.isEmpty() &&
+	      !mnselflds_.first()->getSelection().isEmpty() )
+    {
+	setType( *mnselflds_.first()->getSelection().first() );
+    }
     else if ( fixedmn_ )
 	setType( *fixedmn_ );
 }
@@ -381,16 +419,37 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form ) const
 uiRetVal uiRockPhysForm::isOK() const
 {
     uiRetVal ret;
-    for ( const auto* cstfld : cstflds_ )
+
+    if ( finalized() )
     {
-	if ( cstfld->attachObj()->isDisplayed() && mIsUdf(cstfld->value()) )
+	for ( const auto* cstfld : cstflds_ )
 	{
-	    const uiString errmsg =
-		    tr("Please provide a value for constant '%1'" )
-					.arg( cstfld->cstnm_ );
-	    ret.add( errmsg );
+	    if ( cstfld->attachObj()->isDisplayed() && mIsUdf(cstfld->value()) )
+	    {
+		const uiString errmsg =
+			tr("Please provide a value for constant '%1'" )
+					    .arg( cstfld->cstnm_ );
+		ret.add( errmsg );
+	    }
 	}
     }
+
+    bool hasformula = false;
+    if ( fixedmn_ )
+    {
+	ObjectSet<const Math::Formula> forms;
+	hasformula = ROCKPHYSFORMS().getRelevant( *fixedmn_, forms );
+    }
+    else
+    {
+	int nrmn = 0;
+	for ( const auto* mnselfld : mnselflds_ )
+	    nrmn += mnselfld->getSelection().size();
+	hasformula = nrmn > 0;
+    }
+
+    if ( !hasformula )
+	ret.add( tr("No formula available for this property") );
 
     return ret;
 }

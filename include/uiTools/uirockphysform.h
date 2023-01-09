@@ -56,6 +56,9 @@ private:
     void		mnSel(CallBacker*);
     void		nameSel(CallBacker*);
 
+    void		createMnemonicFld(const ObjectSet<MnemonicSelection>&,
+					  uiObject* attachobj);
+    void		createVolumeFlds(const Mnemonic&);
     void		createFlds(uiObject*);
     void		setType(const Mnemonic&);
     BufferString	getFormText(const RockPhysics::Formula&,bool) const;
