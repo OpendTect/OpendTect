@@ -116,6 +116,8 @@ protected:
 
     friend class PropertyRefSet;
     friend class uiEditPropRef;
+
+    void		setDefaults();
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     static const Mnemonic* getFromLegacy(const Mnemonic*,const char* propnm);
