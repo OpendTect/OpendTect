@@ -190,6 +190,7 @@ private:
 
     // ugly, but hard to avoid:
     friend class		IOMan;
+    friend class		EmptyTempSurvey;
     friend class		uiSurvey;
     friend class		uiSurveyMap;
     friend class		uiSurveyInfoEditor;

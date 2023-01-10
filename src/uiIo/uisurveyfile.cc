@@ -43,8 +43,8 @@ bool uiSurveyFile::newFile()
     fdlg.setMode(uiFileDialog::AnyFile);
     fdlg.setDirectory( GetPersonalDir() );
     fdlg.setDefaultExtension( SurveyFile::extStr() );
-    fdlg.setConfirmOverwrite(true);
-    if (!fdlg.go())
+    fdlg.setConfirmOverwrite( true );
+    if ( !fdlg.go() )
 	return false;
 
     FilePath openfile_fp = FilePath( fdlg.fileName() );
@@ -60,16 +60,16 @@ bool uiSurveyFile::newFile()
 	return false;
     }
 
-    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
+    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
     PtrMan<SurveyInfo> newsurvinfo = SurveyInfo::read( fp.fullPath() );
     if ( !newsurvinfo )
     {
-	uiMSG().error( tr( "Cannot read software default survey\n"
+	uiMSG().error( tr("Cannot read software default survey\n"
 			   "Try to reinstall the OpendTect package") );
 	return false;
     }
-    newsurvinfo->setName( surveyname );
 
+    newsurvinfo->setName( surveyname );
     BufferString dataroot( newsurvey->getTempBaseDir() );
     uiStartNewSurveySetup setup_dlg( parent_, dataroot, *newsurvinfo );
     setup_dlg.setSurveyNameFld( surveyname, false );
@@ -98,6 +98,7 @@ bool uiSurveyFile::newFile()
 	uiMSG().error( tr("Cannot set the permissions for the new survey") );
 	return false;
     }
+
     SetCurBaseDataDirOverrule( dataroot );
     uiSurveyInfoEditor info_dlg( parent_, *(newsurvinfo.release()), true );
     info_dlg.setNameandPathSensitive( false, false );
@@ -126,9 +127,7 @@ bool uiSurveyFile::newFile()
 	{
 	    MultiID mid;
 	    if ( impiop->get( sKey::ID(), mid ) )
-	    {
 		IOM().to( mid );
-	    }
 	    else
 		IOM().to( IOObjContext::Seis );
 
@@ -209,6 +208,7 @@ bool uiSurveyFile::closeFile()
 	    return false;
 	}
     }
+
     deleteAndZeroPtr( survfile_ );
     return true;
 }
