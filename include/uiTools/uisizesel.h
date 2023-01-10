@@ -24,6 +24,7 @@ public:
     int			maxNrDim() const;
     void		setNrDim(int);
     int			currentNrDim() const;
+    void		setSymmetric(bool yn);
 
     void		setImageSize(int dim,int sz);
     int			getImageSize(int dim) const;

@@ -49,7 +49,7 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 
     hp.setParam( this, new HP_uiSizeSel );
     auto* symmfld = new uiCheckBox( this, toUiString("Symmetric") );
-    symmfld->setChecked();
+    symmfld->setChecked( false );
     symmfld->attach( rightTo, sizeflds_.last() );
     hp.getParam(this)->symmfld_ = symmfld;
 
@@ -105,6 +105,12 @@ int uiSizeSel::currentNrDim() const
 	    idx++;
 
     return idx;
+}
+
+
+void uiSizeSel::setSymmetric( bool yn )
+{
+    hp.getParam(this)->symmfld_->setChecked( yn );
 }
 
 
@@ -181,6 +187,8 @@ void uiSizeSel::setDefaultPrefixes()
 void uiSizeSel::setImageSize( std::array<int,2> sz )
 {
     const int nrflds = std::min( sizeflds_.size(), int(sz.size()) );
+    const bool issymmetric =  sz[0] == sz[1];
+    setSymmetric( issymmetric );
     for ( int idx=0; idx<nrflds; idx++ )
 	sizeflds_[idx]->setValue( sz[idx] );
 }
@@ -189,6 +197,8 @@ void uiSizeSel::setImageSize( std::array<int,2> sz )
 void uiSizeSel::setImageSize( std::array<int,3> sz )
 {
     const int nrflds = std::min( sizeflds_.size(), int(sz.size()) );
+    const bool issymmetric =  sz[0] == sz[1] && sz[0] == sz[2];
+    setSymmetric( issymmetric );
     for ( int idx=0; idx<nrflds; idx++ )
 	sizeflds_[idx]->setValue( sz[idx] );
 }
