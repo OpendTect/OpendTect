@@ -31,8 +31,8 @@ namespace PosInfo { class CubeData; class Line2DData; }
 mExpClass(Seis) SeisPSReader
 {
 public:
-			SeisPSReader();
     virtual		~SeisPSReader();
+
     virtual bool	is3D() const					= 0;
     virtual bool	is2D() const					= 0;
     virtual Pos::GeomID geomID() const					= 0;
@@ -48,6 +48,8 @@ public:
 
     virtual StepInterval<float>	getZRange() const;
 
+protected:
+			SeisPSReader();
 };
 
 /*!\brief reads from a 3D prestack seismic data store. */
@@ -55,7 +57,6 @@ public:
 mExpClass(Seis) SeisPS3DReader : public SeisPSReader
 {
 public:
-			SeisPS3DReader();
 			~SeisPS3DReader();
     bool		is3D() const override	{ return true; }
     bool		is2D() const override	{ return false; }
@@ -63,6 +64,8 @@ public:
 
     virtual const PosInfo::CubeData&	posData() const			= 0;
 
+protected:
+			SeisPS3DReader();
 };
 
 
@@ -71,8 +74,6 @@ public:
 mExpClass(Seis) SeisPS2DReader : public SeisPSReader
 {
 public:
-			SeisPS2DReader(const char* lnm);
-			SeisPS2DReader(Pos::GeomID);
 			~SeisPS2DReader();
 
     bool		is3D() const override	{ return false; }
@@ -86,6 +87,8 @@ public:
     virtual const PosInfo::Line2DData&	posData() const		= 0;
 
 protected:
+			SeisPS2DReader(const char* lnm);
+			SeisPS2DReader(Pos::GeomID);
 
     BufferString	lnm_;
     Pos::GeomID		geomid_;

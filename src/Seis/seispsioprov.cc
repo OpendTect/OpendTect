@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
-#include "keystrs.h"
 
 
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
@@ -45,31 +44,59 @@ SeisPSIOProvider::~SeisPSIOProvider()
 {}
 
 
-SeisPS3DReader*	SeisPSIOProvider::get3DReader( const IOObj& ioobj,
-						int inl ) const
-{ return make3DReader( ioobj.fullUserExpr(true), inl ); }
-SeisPS2DReader*	SeisPSIOProvider::get2DReader( const IOObj& ioobj,
-						Pos::GeomID geomid ) const
-{ return make2DReader( ioobj.fullUserExpr(true), geomid ); }
-SeisPS2DReader*	SeisPSIOProvider::get2DReader( const IOObj& ioobj,
-						const char* lnm ) const
-{ return make2DReader( ioobj.fullUserExpr(true), lnm ); }
+SeisPS3DReader*
+	SeisPSIOProvider::get3DReader( const IOObj& ioobj, int inl ) const
+{
+    return make3DReader( ioobj.fullUserExpr(true), inl );
+}
 
-SeisPSWriter*	SeisPSIOProvider::get3DWriter( const IOObj& ioobj ) const
-{ return make3DWriter( ioobj.fullUserExpr(false) ); }
-SeisPSWriter*	SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
+
+SeisPS2DReader* SeisPSIOProvider::get2DReader( const IOObj& ioobj,
 						Pos::GeomID geomid ) const
-{ return make2DWriter( ioobj.fullUserExpr(false), geomid ); }
-SeisPSWriter*	SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
-						const char* lnm ) const
-{ return make2DWriter( ioobj.fullUserExpr(false), lnm ); }
+{
+    return make2DReader( ioobj.fullUserExpr(true), geomid );
+}
+
+
+SeisPS2DReader* SeisPSIOProvider::get2DReader( const IOObj& ioobj,
+					       const char* lnm ) const
+{
+    return make2DReader( ioobj.fullUserExpr(true), lnm );
+}
+
+
+SeisPSWriter* SeisPSIOProvider::get3DWriter( const IOObj& ioobj ) const
+{
+    return make3DWriter( ioobj.fullUserExpr(false) );
+}
+
+
+SeisPSWriter* SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
+					     Pos::GeomID geomid ) const
+{
+    return make2DWriter( ioobj.fullUserExpr(false), geomid );
+}
+
+
+SeisPSWriter* SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
+					     const char* lnm ) const
+{
+    return make2DWriter( ioobj.fullUserExpr(false), lnm );
+}
+
 
 bool SeisPSIOProvider::fetchGeomIDs( const IOObj& ioobj,
-				   TypeSet<Pos::GeomID>& geomids ) const
-{ return getGeomIDs( ioobj.fullUserExpr(true), geomids ); }
+				     TypeSet<Pos::GeomID>& geomids ) const
+{
+    return getGeomIDs( ioobj.fullUserExpr(true), geomids );
+}
+
+
 bool SeisPSIOProvider::fetchLineNames( const IOObj& ioobj,
-				     BufferStringSet& lnms ) const
-{ return getLineNames( ioobj.fullUserExpr(true), lnms ); }
+				       BufferStringSet& lnms ) const
+{
+    return getLineNames( ioobj.fullUserExpr(true), lnms );
+}
 
 
 SeisPSIOProviderFactory& SPSIOPF()
@@ -81,12 +108,17 @@ SeisPSIOProviderFactory& SPSIOPF()
 
 const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 {
-    if ( provs_.isEmpty() )	return nullptr;
-    else if ( !t )		return provs_[0];
+    if ( provs_.isEmpty() )
+	return nullptr;
+
+    if ( !t )
+	return provs_[0];
 
     for ( int idx=0; idx<provs_.size(); idx++ )
+    {
 	if ( provs_[idx]->type()==t )
 	    return provs_[idx];
+    }
 
     return nullptr;
 }
@@ -135,7 +167,7 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
 
     IODir iodir( ioobj.key() );
     BufferString nm( "{" ); nm += ioobj.name(); nm += "}";
-    IOX* iox = new IOX( nm );
+    auto* iox = new IOX( nm );
     iox->setTranslator( mTranslKey(SeisTrc,SeisPSCube) );
     iox->setGroup( mTranslGroupName(SeisTrc) );
     iox->acquireNewKeyIn( iodir.key() );
@@ -171,7 +203,9 @@ bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
 SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
 						      int inl ) const
 {
-    if ( provs_.isEmpty() ) return nullptr;
+    if ( provs_.isEmpty() )
+	return nullptr;
+
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPS3DReader* reader =
 	prov ? prov->get3DReader( ioobj, inl ) : nullptr;
@@ -186,26 +220,26 @@ SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
 SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 						      Pos::GeomID geomid ) const
 {
-    if ( provs_.isEmpty() ) return nullptr;
+    if ( provs_.isEmpty() )
+	return nullptr;
+
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    SeisPS2DReader* rdr = prov ? prov->get2DReader( ioobj, geomid ) : nullptr;
+    if ( rdr )
+	rdr->usePar( ioobj.pars() );
 
-    SeisPS2DReader* reader = prov ?
-	prov->get2DReader( ioobj, geomid ) : nullptr;
-    if ( reader )
-	reader->usePar( ioobj.pars() );
-
-    return reader;
+    return rdr;
 }
 
 
 SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 						      const char* lnm ) const
 {
-    if ( provs_.isEmpty() ) return nullptr;
-    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    if ( provs_.isEmpty() )
+	return nullptr;
 
-    SeisPS2DReader* reader = prov ?
-	prov->get2DReader( ioobj, lnm ) : nullptr;
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    SeisPS2DReader* reader = prov ? prov->get2DReader( ioobj, lnm ) : nullptr;
     if ( reader )
 	reader->usePar( ioobj.pars() );
 
@@ -215,10 +249,11 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 
 SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
 {
-    if ( provs_.isEmpty() ) return nullptr;
+    if ( provs_.isEmpty() )
+	return nullptr;
+
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    SeisPSWriter* writer =
-	prov ? prov->get3DWriter( ioobj ) : nullptr;
+    SeisPSWriter* writer = prov ? prov->get3DWriter( ioobj ) : nullptr;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -229,10 +264,11 @@ SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
 SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 						    Pos::GeomID geomid ) const
 {
-    if ( provs_.isEmpty() ) return nullptr;
+    if ( provs_.isEmpty() )
+	return nullptr;
+
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    SeisPSWriter* writer =
-	prov ? prov->get2DWriter( ioobj, geomid ) : nullptr;
+    SeisPSWriter* writer = prov ? prov->get2DWriter( ioobj, geomid ) : nullptr;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -243,10 +279,11 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 						    const char* lnm ) const
 {
-    if ( provs_.isEmpty() ) return nullptr;
+    if ( provs_.isEmpty() )
+	return nullptr;
+
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    SeisPSWriter* writer =
-	prov ? prov->get2DWriter( ioobj, lnm ) : nullptr;
+    SeisPSWriter* writer = prov ? prov->get2DWriter( ioobj, lnm ) : nullptr;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -254,6 +291,8 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 }
 
 
+
+// SeisPSReader
 SeisPSReader::SeisPSReader()
 {}
 
@@ -278,6 +317,8 @@ StepInterval<float> SeisPSReader::getZRange() const
 }
 
 
+
+// SeisPS3DTranslator
 mDefSimpleTranslatorioContext(SeisPS3D,Seis)
 mDefSimpleTranslatorioContext(SeisPS2D,Seis)
 
@@ -323,6 +364,8 @@ bool SeisPS3DTranslator::implRename( const IOObj* ioobj,
 }
 
 
+
+// CBVSSeisPS3DTranslator
 CBVSSeisPS3DTranslator::~CBVSSeisPS3DTranslator()
 {}
 
@@ -342,6 +385,8 @@ bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 }
 
 
+
+// CBVSSeisPS2DTranslator
 CBVSSeisPS2DTranslator::~CBVSSeisPS2DTranslator()
 {}
 
@@ -357,6 +402,8 @@ bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj, bool ) const
 }
 
 
+
+// SeisPSCubeSeisTrcTranslator
 SeisPSCubeSeisTrcTranslator::SeisPSCubeSeisTrcTranslator( const char* nm,
 							  const char* unm )
 	: SeisTrcTranslator(nm,unm)
@@ -395,7 +442,11 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	int trcnr = -1;
 	useioobj->pars().get( sKeyOffsNr, trcnr );
 	if ( trcnr >= 0 )
-	    { trcnrs_.erase(); trcnrs_ += trcnr; }
+	{
+	    trcnrs_.erase();
+	    trcnrs_ += trcnr;
+	}
+
 	delete useioobj;
     }
     else
@@ -406,8 +457,10 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	    errmsg_ = tr("Wrong connection from Object Manager");
 	    return false;
 	}
+
 	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
     }
+
     conn_->close();
     errmsg_ = psrdr_ ? psrdr_->errMsg() : tr("Cannot find PS data store type");
     if ( !errmsg_.isEmpty() )
@@ -423,6 +476,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     TypeSet<float> offss;
     if ( !doRead(trc_,&offss) )
 	return false;
+
     insd_ = trc_.info().sampling;
     innrsamples_ = trc_.size();
     for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
@@ -437,7 +491,9 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 
 bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
 {
-    if ( !posdata_.includes(bid.inl(),bid.crl()) ) return false;
+    if ( !posdata_.includes(bid.inl(),bid.crl()) )
+	return false;
+
     curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg.step;
     return true;
 }
@@ -452,7 +508,10 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
 	{
 	    BinID bid( curbinid_.inl(), crl );
 	    if ( !seldata_ || seldata_->isOK(BinID(curbinid_.inl(),crl)) )
-		{ curbinid_.crl() = crl; return true; }
+	    {
+		curbinid_.crl() = crl;
+		return true;
+	    }
 	}
     }
 
@@ -467,7 +526,8 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
 
 bool SeisPSCubeSeisTrcTranslator::commitSelections_()
 {
-    if ( !trcnrs_.isEmpty() ) return true;
+    if ( !trcnrs_.isEmpty() )
+	return true;
 
     for ( int idx=0; idx<tarcds_.size(); idx++ )
     {
@@ -481,7 +541,9 @@ bool SeisPSCubeSeisTrcTranslator::commitSelections_()
 
 bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 {
-    if ( !toNext() ) return false;
+    if ( !toNext() )
+	return false;
+
     SeisTrc* newtrc = nullptr;
     if ( !trcnrs_.isEmpty() )
     {
@@ -516,18 +578,22 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		    newtrc->data().getInterpreter(0)->dataChar() );
 	    if ( offss )
 		*offss += newtrc->info().offset;
+
 	    for ( int icomp=1; icomp<tbuf.size(); icomp++ )
 	    {
 		const SeisTrc& btrc = *tbuf.get(icomp);
 		newtrc->data().addComponent( trcsz, trcdc );
 		for ( int isamp=0; isamp<trcsz; isamp++ )
 		    newtrc->set( isamp, btrc.get(isamp,0), icomp );
+
 		if ( offss )
 		    *offss += btrc.info().offset;
 	    }
 	}
     }
-    if ( !newtrc ) return false;
+
+    if ( !newtrc )
+	return false;
 
     trc = *newtrc;
     if ( seldata_ && !seldata_->isAll() )
@@ -543,6 +609,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		trc.set( idx, newtrc->getValue( zrg.start + idx * sr, icomp ),
 			 icomp );
     }
+
     delete newtrc;
     return true;
 }
@@ -550,9 +617,15 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 
 bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 {
-    if ( !outcds_ ) commitSelections();
-    if ( inforead_ ) return true;
-    if ( !doRead(trc_) ) return false;
+    if ( !outcds_ )
+	commitSelections();
+
+    if ( inforead_ )
+	return true;
+
+    if ( !doRead(trc_) )
+	return false;
+
     inforead_ = true;
     inf = trc_.info();
     return true;
@@ -561,9 +634,16 @@ bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 
 bool SeisPSCubeSeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !outcds_ ) commitSelections();
+    if ( !outcds_ )
+	commitSelections();
+
     if ( inforead_ )
-	{ inforead_ = false; trc = trc_; return true; }
+    {
+	inforead_ = false;
+	trc = trc_;
+	return true;
+    }
+
     inforead_ = false;
     return doRead( trc );
 }
@@ -573,16 +653,22 @@ bool SeisPSCubeSeisTrcTranslator::skip( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
     {
-	if ( !toNext() ) return false;
+	if ( !toNext() )
+	    return false;
     }
+
     return true;
 }
 
 
+
+// SeisPS2DTranslator
 SeisPS2DTranslator::~SeisPS2DTranslator()
 {}
 
 
+
+// SeisPS3DReader
 SeisPS3DReader::SeisPS3DReader()
 {}
 
@@ -591,6 +677,8 @@ SeisPS3DReader::~SeisPS3DReader()
 {}
 
 
+
+// SeisPSWriter
 SeisPSWriter::SeisPSWriter()
 {}
 

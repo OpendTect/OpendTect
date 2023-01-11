@@ -126,8 +126,10 @@ bool SeisTrcTranslator::isPS( const IOObj& ioobj, bool internal_only )
     const OD::String& grpnm = ioobj.group();
     const bool trok = (!grpnm.isEmpty() && grpnm[0] == 'P') ||
 				(grpnm.size()>3 && grpnm[3] == 'P');
-    return trok || internal_only ? trok
-	: ioobj.pars().isTrue( sKeyIsPS() ) || Seis::isPSGeom( ioobj.pars() );
+    if ( trok || internal_only )
+	return trok;
+
+    return ioobj.pars().isTrue(sKeyIsPS()) || Seis::isPSGeom(ioobj.pars());
 }
 
 
@@ -219,7 +221,8 @@ bool SeisTrcTranslator::commitSelections()
     const int sz = tarcds_.size();
     if ( sz < 1 ) return false;
 
-    outsd_ = insd_; outnrsamples_ = innrsamples_;
+    outsd_ = insd_;
+    outnrsamples_ = innrsamples_;
     if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
     {
 	Interval<float> selzrg( seldata_->zRange() );

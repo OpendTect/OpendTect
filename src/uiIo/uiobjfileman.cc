@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "iox.h"
 #include "od_iostream.h"
 #include "systeminfo.h"
 
@@ -334,7 +335,11 @@ BufferString uiObjFileMan::getFileInfo()
     const BufferString fname = curioobj_->fullUserExpr();
     const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
-	txt.add( "Data source: " ).add( curioobj_->connType() );
+    {
+	auto* iox = sCast(IOX*,curioobj_);
+	if ( iox )
+	    txt.add( "Data source: " ).add( iox->ownKey() );
+    }
     else
     {
 	int nrfiles = 0;

@@ -270,9 +270,16 @@ static BufferString getInfoText( const IOObj& ioobj )
 	{
 	    txt.setEmpty();
 	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
-		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
+	    {
+		txt.add(sKey::Inline())
+		mAddRangeTxt(inl());
+	    }
+
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
-		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
+	    {
+		txt.addNewLine().add(sKey::Crossline())
+		mAddRangeTxt(crl());
+	    }
 
 	    StepInterval<float> zrg = cs.zsamp_;
 	    zrg.scale( zddef.userFactor() );
