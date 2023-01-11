@@ -248,7 +248,7 @@ void uiMathExpressionVariable::use( const Math::Expression* expr )
 }
 
 
-void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits )
+void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits)
 {
     specvars_ = form.specVars();
     varnm_.setEmpty();
@@ -260,6 +260,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits )
     curmn_ = form.inputMnemonic( varidx_ );
     setVariable( varnm, form.isConst( varidx_ ) );
     const BufferString inpdef( form.inputDef(varidx_) );
+    const BufferString inpdesc( form.inputDescription(varidx_) );
     const bool isspec = isSpec();
 
     if ( isConst() )
@@ -275,6 +276,8 @@ void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits )
     }
     else if ( !isspec )
 	selectInput( inpdef );
+
+    vardesc_.set( inpdesc );
 }
 
 
@@ -308,11 +311,23 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 	{
 	    for ( const auto* avnm : avnms )
 	    {
-		if ( curmn_->matches(avnm->str(),true) )
+		if ( curmn_->matches(avnm->str(),true,true) )
 		{
 		    varnm.set( avnm->str() );
 		    isfound = true;
 		    break;
+		}
+	    }
+	    if ( !isfound )
+	    {
+		for ( const auto* avnm : avnms )
+		{
+		    if ( curmn_->matches(avnm->str(),true,false) )
+		    {
+			varnm.set( avnm->str() );
+			isfound = true;
+			break;
+		    }
 		}
 	    }
 	}
@@ -372,6 +387,7 @@ void uiMathExpressionVariable::fill( Math::Formula& form ) const
 	return;
 
     form.setInputDef( varidx_, getInput() );
+    form.setInputDescription( varidx_, getDescription() );
     form.setInputMnemonic( varidx_, curmn_ );
     form.setInputFormUnit( varidx_, getUnit() );
 }

@@ -11,9 +11,9 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "mathformula.h"
 #include "mathspecvars.h"
 #include "mathproperty.h"
+#include "rockphysics.h"
 #include "separstr.h"
 #include "safefileio.h"
 #include "unitofmeasure.h"
@@ -53,9 +53,10 @@ bool Property::isEqualTo( const Property& oth ) const
 }
 
 
-bool Property::matches( const char* nm, bool matchaliases ) const
+bool Property::matches( const char* nm, bool matchaliases,
+			bool exactmatch ) const
 {
-    return ref().matches( nm, matchaliases );
+    return ref().matches( nm, matchaliases, exactmatch );
 }
 
 
@@ -102,9 +103,9 @@ Property* Property::get( const IOPar& iop )
 }
 
 
-bool Property::init(const PropertySet&) const
+bool Property::init( const PropertySet& ) const
 {
-    const_cast<Property*>(this)->reset();
+    mSelf().reset();
     return true;
 }
 
@@ -363,6 +364,7 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
     , form_(*new Math::Formula(false,getSpecVars()))
 {
+    form_.setOutputMnemonic( &mn() );
     inps_.allowNull( true );
     if ( df && *df )
 	setDef( df );
@@ -373,6 +375,7 @@ MathProperty::MathProperty( const MathProperty& oth )
     : Property(oth.ref())
     , form_(*new Math::Formula(oth.form_))
     , inps_(oth.inps_)
+    , isfromrockphys_(oth.isfromrockphys_)
 {
 }
 
@@ -436,7 +439,12 @@ bool MathProperty::init( const PropertySet& ps ) const
 	else if ( !form_.isConst(iinp) )
 	{
 	    const char* inpnm = form_.inputDef( iinp );
-	    prop = ps.getByName( inpnm );
+	    const Mnemonic* inpmn = form_.inputMnemonic( iinp );
+	    if ( inpmn )
+		prop = ps.getByMnemonic( *inpmn );
+	    if ( !prop )
+		prop = ps.getByName( inpnm );
+
 	    if ( !prop )
 	    {
 		errmsg_ =
@@ -447,11 +455,24 @@ bool MathProperty::init( const PropertySet& ps ) const
 
 	inps_ += prop;
 	if ( prop )
+	{
 	    form_.setInputValUnit( iinp, prop->unit() );
+	    if ( !isfromrockphys_ )
+		form_.setInputMnemonic( iinp, &prop->mn() );
+	}
     }
 
-    const_cast<MathProperty*>(this)->reset();
     form_.setOutputValUnit( unit() );
+
+    Property::init( ps );
+    if ( !isfromrockphys_ && !form_.hasFixedUnits() )
+    {
+	if ( ROCKPHYSFORMS().getMatching(mSelf().form_) )
+	{
+	    mSelf().isfromrockphys_ = true;
+	    return init( ps );
+	}
+    }
 
     return true;
 }
@@ -494,6 +515,8 @@ void MathProperty::setDef( const char* defstr )
     defstr += sKeyMathForm.size();
     IOPar iop; iop.getFrom( defstr );
     form_.usePar( iop );
+    if ( !form_.hasFixedUnits() )
+	isfromrockphys_ = ROCKPHYSFORMS().getMatching( form_ );
 }
 
 
@@ -558,6 +581,9 @@ void MathProperty::setPreV5Def( const char* inpstr )
 
     if ( fmssz > 1 )
 	form_.setOutputFormUnit( UoMR().get(fms[1]) );
+
+    if ( !form_.hasFixedUnits() )
+	isfromrockphys_ = ROCKPHYSFORMS().getMatching( form_ );
 }
 
 
@@ -679,25 +705,6 @@ bool MathProperty::isConst( int iinp ) const
 }
 
 
-void MathProperty::setUnit( const UnitOfMeasure* uom )
-{
-    form_.setOutputFormUnit( uom );
-}
-
-
-const UnitOfMeasure* MathProperty::unit() const
-{
-    return form_.outputFormUnit();
-}
-
-
-void MathProperty::doUnitChange( const UnitOfMeasure*,
-				 const UnitOfMeasure* newuom )
-{
-    setUnit( newuom );
-}
-
-
 //------- PropertySet ----------
 
 PropertySet::PropertySet()
@@ -737,20 +744,38 @@ PropertySet& PropertySet::operator =( const PropertySet& ps )
 
 Property* PropertySet::getByName( const char* nm, bool matchaliases )
 {
-    const Property* ret =
-	    const_cast<const PropertySet*>(this)->getByName( nm, matchaliases );
-    return const_cast<Property*>( ret );
+    if ( nm && *nm )
+    {
+	for ( auto* prop : *this )
+	    if ( prop->matches(nm,matchaliases,true) )
+		return prop;
+
+	for ( auto* prop : *this )
+	    if ( prop->matches(nm,matchaliases,false) )
+		return prop;
+    }
+
+    return nullptr;
 }
 
 
 const Property* PropertySet::getByName( const char* nm,
 					bool matchaliases ) const
 {
-    if ( nm && *nm )
+    return mSelf().getByName( nm, matchaliases );
+}
+
+
+const Property* PropertySet::getByMnemonic( const Mnemonic& mn, int occ ) const
+{
+    for ( const auto* prop : *this )
     {
-	for ( const auto* prop : *this )
-	    if ( prop->matches(nm,matchaliases) )
+	if ( prop->ref().isCompatibleWith(mn) )
+	{
+	    occ--;
+	    if ( occ < 0 )
 		return prop;
+	}
     }
 
     return nullptr;

@@ -54,8 +54,9 @@ public:
     Mnemonic&		operator =(const Mnemonic&);
     bool		operator ==(const Mnemonic&) const;
     bool		operator !=(const Mnemonic&) const;
-    bool		matches(const char* nm,bool matchaliases) const;
-    bool		isKnownAs(const char*) const;
+    bool		matches(const char* nm,bool matchaliases,
+				bool exactmatch) const;
+    bool		isKnownAs(const char*,bool exactmatch) const;
     bool		isCompatibleWith(const Mnemonic*) const;
     const char*		description() const;
     float		getMatchValue(const char* nm) const;

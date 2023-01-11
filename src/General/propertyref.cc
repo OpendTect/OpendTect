@@ -230,13 +230,14 @@ bool PropertyRef::operator !=( const PropertyRef& oth ) const
 }
 
 
-bool PropertyRef::matches( const char* nm, bool matchaliases ) const
+bool PropertyRef::matches( const char* nm, bool matchaliases,
+			   bool exactmatch ) const
 {
-    return matchaliases ? isKnownAs( nm ) : name() == nm;
+    return matchaliases ? isKnownAs( nm, exactmatch ) : name() == nm;
 }
 
 
-bool PropertyRef::isKnownAs( const char* nm ) const
+bool PropertyRef::isKnownAs( const char* nm, bool exactmatch ) const
 {
     const StringView nmstr( nm );
     if ( nmstr.isEmpty() )
@@ -252,11 +253,19 @@ bool PropertyRef::isKnownAs( const char* nm ) const
 	if ( findnm->isEmpty() )
 	    continue;
 
-	BufferString gexpr( findnm->buf() );
-	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
-	const GlobExpr ge( gexpr, false );
-	if ( ge.matches(nmstr) )
-	    return true;
+	if ( exactmatch )
+	{
+	    if ( findnm->matches(nm,OD::CaseInsensitive) )
+		return true;
+	}
+	else
+	{
+	    BufferString gexpr( findnm->buf() );
+	    gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
+	    const GlobExpr ge( gexpr, false );
+	    if ( ge.matches(nmstr) )
+		return true;
+	}
     }
 
     return false;
@@ -689,7 +698,11 @@ const PropertyRef* PropertyRefSet::getByName( const char* nm,
     if ( nm && *nm )
     {
 	for ( const auto* pr : *this )
-	    if ( pr->matches(nm,matchaliases) )
+	    if ( pr->matches(nm,matchaliases,true) )
+		return pr;
+
+	for ( const auto* pr : *this )
+	    if ( pr->matches(nm,matchaliases,false) )
 		return pr;
     }
 
@@ -963,7 +976,11 @@ const PropertyRef* PropertyRefSelection::getByName( const char* nm,
     if ( nm && *nm )
     {
 	for ( const auto* pr : *this )
-	    if ( pr->matches(nm,matchaliases) )
+	    if ( pr->matches(nm,matchaliases,true) )
+		return pr;
+
+	for ( const auto* pr : *this )
+	    if ( pr->matches(nm,matchaliases,false) )
 		return pr;
     }
 

@@ -32,7 +32,8 @@ public:
     static Property*	get(const IOPar&);
 
     bool		isEqualTo(const Property&) const;
-    bool		matches(const char* nm,bool matchaliases) const;
+    bool		matches(const char* nm,bool matchaliases,
+				bool exactmatch) const;
     virtual bool	isValue() const			{ return false; }
     virtual bool	isRange() const			{ return false; }
     virtual bool	isFormula() const		{ return false; }
@@ -116,6 +117,7 @@ public:
 
     const Property*	getByName(const char*,bool matchaliases=false) const;
     Property*		getByName(const char*,bool matchaliases=false);
+    const Property*	getByMnemonic(const Mnemonic&,int occ=0) const;
 
     Property*		set(Property*); //!< add or change into
     void		erase() override		{ deepErase(*this); }

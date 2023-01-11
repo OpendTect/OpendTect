@@ -26,13 +26,12 @@ const ObjectSet<const Math::ExpressionOperatorDescGroup>&
 {
     mDefineStaticLocalObject(
 	PtrMan<ManagedObjectSet<const Math::ExpressionOperatorDescGroup> >,
-	ret, = 0 );
+	ret, = nullptr );
 
     if ( ret ) return *ret;
     ret = new ManagedObjectSet<const Math::ExpressionOperatorDescGroup>;
 
-    Math::ExpressionOperatorDescGroup* grp
-				= new Math::ExpressionOperatorDescGroup;
+    auto* grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Basic";
 
 #   define mAddDesc(s,d,i,n) \
@@ -105,19 +104,23 @@ class ExpressionVariable : public Expression
 {
 public:
 				ExpressionVariable( const char* str )
-				    : Expression( 0 )
-				    , str_(str) { addIfOK(str_.buf()); }
+				    : Expression(0)
+				    , str_(str)
+				{ addIfOK(str_.buf()); }
 
     const char*			fullVariableExpression( int ) const override
 							{ return str_.buf(); }
     int				nrVariables() const override	{ return 1; }
-    double			getValue() const override	{ return val_; }
+    double			getValue() const override	{ return val_;}
     void			setVariableValue( int, double nv ) override
 							{ val_ = nv; }
+    int				nrLevels() const override { return 0; }
+    bool			isCommutative() const override
+				{ return true; }
     Expression*			clone() const override
 				{
-				    Expression* res =
-					new ExpressionVariable(str_.buf());
+				    auto* res =
+					new ExpressionVariable( str_.buf() );
 				    copyInput( res );
 				    return res;
 				}
@@ -136,9 +139,19 @@ class ExpressionConstant : public Expression
 public:
 
 ExpressionConstant( double val )
-    : val_ ( val )
-    , Expression( 0 )
+    : Expression(0)
+    , val_ (val)
 {
+}
+
+int nrLevels() const override
+{
+    return 0;
+}
+
+bool isCommutative() const override
+{
+    return true;
 }
 
 double getValue() const override
@@ -148,7 +161,7 @@ double getValue() const override
 
 Expression* clone() const override
 {
-    Expression* res = new ExpressionConstant(val_);
+    auto* res = new ExpressionConstant( val_ );
     copyInput( res );
     return res;
 }
@@ -174,11 +187,12 @@ Expression##clss() : Expression( nr ) \
 { \
 } \
  \
+bool isCommutative() const override; \
 double getValue() const override; \
  \
 Expression* clone() const override \
 { \
-    Expression* res = new Expression##clss(); \
+    auto* res = new Expression##clss(); \
     copyInput( res ); \
     return res; \
 } \
@@ -186,7 +200,9 @@ Expression* clone() const override \
 };
 
 
-mMathExpressionClass( Plus, 2 )
+mMathExpressionClass(Plus, 2)
+bool ExpressionPlus::isCommutative() const
+{ return inputs_[0]->isCommutative() && inputs_[1]->isCommutative(); }
 double ExpressionPlus::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -198,6 +214,7 @@ double ExpressionPlus::getValue() const
 
 
 mMathExpressionClass( Minus, 2 )
+bool ExpressionMinus::isCommutative() const { return false; }
 double ExpressionMinus::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -210,6 +227,8 @@ double ExpressionMinus::getValue() const
 
 
 mMathExpressionClass( Multiply, 2 )
+bool ExpressionMultiply::isCommutative() const
+{ return inputs_[0]->isCommutative() && inputs_[1]->isCommutative(); }
 double ExpressionMultiply::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -222,6 +241,7 @@ double ExpressionMultiply::getValue() const
 
 
 mMathExpressionClass( Divide, 2 )
+bool ExpressionDivide::isCommutative() const { return false; }
 double ExpressionDivide::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -237,6 +257,7 @@ double ExpressionDivide::getValue() const
 
 
 mMathExpressionClass( IntDivide, 2 )
+bool ExpressionIntDivide::isCommutative() const { return false; }
 double ExpressionIntDivide::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -254,6 +275,7 @@ double ExpressionIntDivide::getValue() const
 
 
 mMathExpressionClass( IntDivRest, 2 )
+bool ExpressionIntDivRest::isCommutative() const { return false; }
 double ExpressionIntDivRest::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -271,6 +293,8 @@ double ExpressionIntDivRest::getValue() const
 
 
 mMathExpressionClass( Abs, 1 )
+bool ExpressionAbs::isCommutative() const
+{ return inputs_[0]->isCommutative(); }
 double ExpressionAbs::getValue() const
 {
     return fabs(inputs_[0]->getValue());
@@ -278,6 +302,7 @@ double ExpressionAbs::getValue() const
 
 
 mMathExpressionClass( Power, 2 )
+bool ExpressionPower::isCommutative() const { return false; }
 double ExpressionPower::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -297,6 +322,7 @@ double ExpressionPower::getValue() const
 
 
 mMathExpressionClass( Condition, 3 )
+bool ExpressionCondition::isCommutative() const { return false; }
 double ExpressionCondition::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -310,6 +336,7 @@ double ExpressionCondition::getValue() const
 
 
 mMathExpressionClass( LessOrEqual, 2 )
+bool ExpressionLessOrEqual::isCommutative() const { return false; }
 double ExpressionLessOrEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -322,6 +349,7 @@ double ExpressionLessOrEqual::getValue() const
 
 
 mMathExpressionClass( Less, 2 )
+bool ExpressionLess::isCommutative() const { return false; }
 double ExpressionLess::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -334,6 +362,7 @@ double ExpressionLess::getValue() const
 
 
 mMathExpressionClass( MoreOrEqual, 2 )
+bool ExpressionMoreOrEqual::isCommutative() const { return false; }
 double ExpressionMoreOrEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -346,6 +375,7 @@ double ExpressionMoreOrEqual::getValue() const
 
 
 mMathExpressionClass( More, 2 )
+bool ExpressionMore::isCommutative() const { return false; }
 double ExpressionMore::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -358,6 +388,8 @@ double ExpressionMore::getValue() const
 
 
 mMathExpressionClass( Equal, 2 )
+bool ExpressionEqual::isCommutative() const
+{ return inputs_[0]->isCommutative() && inputs_[1]->isCommutative(); }
 double ExpressionEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -377,6 +409,8 @@ double ExpressionEqual::getValue() const
 
 
 mMathExpressionClass( NotEqual, 2 )
+bool ExpressionNotEqual::isCommutative() const
+{ return inputs_[0]->isCommutative() && inputs_[1]->isCommutative(); }
 double ExpressionNotEqual::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -396,6 +430,8 @@ double ExpressionNotEqual::getValue() const
 
 
 mMathExpressionClass( OR, 2 )
+bool ExpressionOR::isCommutative() const
+{ return inputs_[0]->isCommutative() && inputs_[1]->isCommutative(); }
 double ExpressionOR::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -408,6 +444,8 @@ double ExpressionOR::getValue() const
 
 
 mMathExpressionClass( AND, 2 )
+bool ExpressionAND::isCommutative() const
+{ return inputs_[0]->isCommutative() && inputs_[1]->isCommutative(); }
 double ExpressionAND::getValue() const
 {
     double val0 = inputs_[0]->getValue();
@@ -420,6 +458,8 @@ double ExpressionAND::getValue() const
 
 
 mMathExpressionClass( Random, 1 )
+bool ExpressionRandom::isCommutative() const
+{ return inputs_[0]->isCommutative(); }
 double ExpressionRandom::getValue() const
 {
     const double maxval = inputs_[0]->getValue();
@@ -432,6 +472,8 @@ double ExpressionRandom::getValue() const
 
 
 mMathExpressionClass( GaussRandom, 1 )
+bool ExpressionGaussRandom::isCommutative() const
+{ return inputs_[0]->isCommutative(); }
 double ExpressionGaussRandom::getValue() const
 {
     const double stdev = inputs_[0]->getValue();
@@ -451,6 +493,8 @@ public: \
 Expression##clss() \
     : Expression( 1 ) \
 {} \
+\
+bool isCommutative() const override { return inputs_[0]->isCommutative(); } \
 \
 double getValue() const override \
 { \
@@ -493,11 +537,19 @@ Expression##statnm( int nrvals ) \
     : Expression( nrvals ) \
 {} \
 \
+bool isCommutative() const override \
+{ \
+    for ( int idx=0; idx<inputs_.size(); idx++ ) \
+	if ( !inputs_[0]->isCommutative() ) \
+	    return false; \
+    return true; \
+} \
+\
 double getValue() const override \
 { \
     Stats::RunCalc<double> stats( \
 	Stats::CalcSetup().require( Stats::statnm ) ); \
-    for ( int idx=0; idx<inputs_.size(); idx++) \
+    for ( int idx=0; idx<inputs_.size(); idx++ ) \
 	stats += inputs_[idx]->getValue(); \
 \
     return (double)stats.getValue( Stats::statnm ); \
@@ -601,11 +653,10 @@ int Math::Expression::getConstIdx( int ivar ) const
 
 
 Math::Expression::Expression( int sz )
-    : isrecursive_(false)
 {
-    inputs_.allowNull();
+    inputs_.setNullAllowed();
     for ( int idx=0; idx<sz; idx++ )
-	inputs_ += 0;
+	inputs_ += nullptr;
 }
 
 
@@ -620,6 +671,20 @@ Math::Expression::~Expression( )
 int Math::Expression::nrVariables() const
 {
     return variableobj_.size();
+}
+
+
+int Math::Expression::nrLevels() const
+{
+    int maxlvl = 0;
+    for ( const auto* inp : inputs_ )
+    {
+	const int nrlvl = inp->nrLevels();
+	if ( nrlvl > maxlvl )
+	    maxlvl = nrlvl;
+    }
+
+    return 1 + maxlvl;
 }
 
 
@@ -660,9 +725,13 @@ int Math::Expression::firstOccurVarName( const char* fullvnm ) const
 }
 
 
-const char* Math::Expression::type() const
+BufferString Math::Expression::type() const
 {
-    return ::className(*this) + 14;
+    BufferString ret( ::className(*this) + (__iswin__ ? 12 : 8) );
+    if ( !__iswin__ )
+	ret.last() = '\0';
+
+    return ret;
 }
 
 

@@ -92,6 +92,10 @@ public:
     bool		operator !=(const Formula&) const;
 			//!*< Does not use the description
     Formula&		operator =(const Formula&);
+    bool		isCompatibleWith(const Formula&) const;
+			//!*< Does not use the description and values
+    Formula&		copyFrom(const Math::Formula&);
+			//!*< Does not copy input definitions and descriptions
 
     void		setDescription( const char* descstr )
 						{ desc_.set( descstr ); }
@@ -122,7 +126,7 @@ public:
     Interval<int>	shiftRange( int iinp ) const
 					    { return inps_[iinp]->shftRg(); }
     bool		isRecursive() const	{ return maxRecShift() > 0; }
-    int			maxRecShift() const	{ return recstartvals_.size(); }
+    int			maxRecShift() const	{ return recstartvals_.size();}
 
 		// 2. Things to set before calculation or store
 
@@ -153,6 +157,8 @@ public:
 		// 3. Things you have set yourself or that were retrieved
 
     const char*		description() const { return desc_.buf(); }
+    const char*		inputVar( int iinp ) const
+					{ return inps_[iinp]->varname_.buf(); }
     const char*		inputDef( int iinp ) const
 					{ return inps_[iinp]->inpdef_.buf(); }
     const char*		inputDescription( int iinp ) const
@@ -162,12 +168,14 @@ public:
 					}
     const Mnemonic*	inputMnemonic( int iinp ) const
 					{ return inps_[iinp]->formmn_; }
+    void		getInputMnemonics(MnemonicSelection&) const;
     const UnitOfMeasure* inputFormUnit( int iinp ) const
 					{ return inps_[iinp]->formunit_;}
     const Mnemonic*	outputMnemonic() const	{ return outputformmn_; }
     const UnitOfMeasure* outputFormUnit() const { return outputformunit_; }
     double		getConstVal(int) const;
 			//!< if isConst returns toDouble(inputDef(i)), else Udf
+    virtual bool	hasFixedUnits() const;
 
 		// 4. To get an output value
 
@@ -187,6 +195,7 @@ public:
     const SpecVarSet&	specVars() const	{ return *specvars_; }
     bool		inputsAreSeries() const	{ return inputsareseries_; }
     int			nrConsts() const;
+    int			nrSpecs() const;
     const char*		userDispText() const;
     int			nrExternalInputs() const;
 
@@ -211,8 +220,9 @@ protected:
 						    { *this = oth; }
 	InpDef&			operator=(const InpDef&);
 	bool			operator==(const InpDef&) const;
-	bool			operator!=( const InpDef& oth ) const
-				{ return !(*this == oth); }
+	bool			operator!=(const InpDef&) const;
+	bool			isCompatibleWith(const InpDef&) const;
+				// Ignores the val units
 
 	BufferString		varname_;	// from Expression
 	Type			type_;		// from Expression

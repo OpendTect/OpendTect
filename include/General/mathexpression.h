@@ -55,8 +55,11 @@ public:
 
     virtual		~Expression();
 
-    const char*		type() const;
+    BufferString	type() const;
     void		dump( BufferString& str ) const { doDump(str,0); }
+
+    virtual int		nrLevels() const;
+    virtual bool	isCommutative() const		    = 0;
 
 protected:
 
@@ -72,7 +75,7 @@ protected:
     ObjectSet<TypeSet<int> > variablenr_;
     ObjectSet<Expression> inputs_;
     BufferStringSet	varnms_;
-    bool		isrecursive_;
+    bool		isrecursive_ = false;
 
     friend class	ExpressionParser;
 

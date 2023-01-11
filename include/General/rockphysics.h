@@ -52,6 +52,7 @@ public:
     Interval<float>	inputTypicalRange(int) const;
 
     void		setText(const char*) override;
+    bool		hasFixedUnits() const override	    { return true; }
 
 private:
 
@@ -93,6 +94,7 @@ public:
     void		getRelevant(PropType,MnemonicSelection&) const;
     bool		getRelevant(const Mnemonic&,
 				    ObjectSet<const Math::Formula>&) const;
+    bool		getMatching(Math::Formula&) const;
 
 private:
 

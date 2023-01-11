@@ -57,8 +57,6 @@ public:
     Mnemonic::StdType		inputType(int) const;
     const UnitOfMeasure*	inputUnit(int) const;
     bool			isConst(int) const;
-    void			setUnit(const UnitOfMeasure*);
-    const UnitOfMeasure*	unit() const;
 
     static const Math::SpecVarSet& getSpecVars();
 
@@ -68,12 +66,8 @@ protected:
     mutable ObjectSet<const Property>	inps_;
     mutable uiString		errmsg_;
     mutable BufferString	fulldef_;
+    bool			isfromrockphys_ = false;
 
     void			setPreV5Def(const char*);
-
-private:
-
-    void			doUnitChange(const UnitOfMeasure* olduom,
-				const UnitOfMeasure* newuom) override;
 
 };

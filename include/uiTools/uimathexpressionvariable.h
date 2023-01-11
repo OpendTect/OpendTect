@@ -54,6 +54,7 @@ public:
     int			specIdx() const		{ return specidx_; }
     const char*		getInput() const;
     const Mnemonic*	getMnemonic() const	{ return curmn_; }
+    const char*		getDescription() const	{ return vardesc_.buf(); }
     const UnitOfMeasure* getUnit() const;
     void		fill(Math::Formula&) const;
     BufferStringSet	getInputNms(const Mnemonic* =nullptr,
@@ -77,6 +78,8 @@ public:
 
 protected:
 
+			mOD_DisableCopy(uiMathExpressionVariable);
+
     void		initFlds( CallBacker* )	{ updateDisp(); }
     void		inpChg( CallBacker* )	{ inpSel.trigger(); }
     void		subInpChg( CallBacker* ) { subInpSel.trigger(); }
@@ -84,6 +87,7 @@ protected:
 
     const int		varidx_;
     BufferString	varnm_;
+    BufferString	vardesc_;
     BufferStringSet	nonspecinputs_;
     const MnemonicSelection*	mnsel_ = nullptr;
     const Mnemonic*	curmn_ = nullptr;
