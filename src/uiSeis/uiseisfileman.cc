@@ -134,11 +134,6 @@ int uiSeisFileMan::addBrowser( uiSeisFileMan::BrowserDef* bd )
 }
 
 
-#define mIsOfTranslName(nm) (curioobj_->translator().isEqual(nm))
-#define mIsOfTranslType(typ) \
-	mIsOfTranslName(typ##SeisTrcTranslator::translKey())
-
-
 void uiSeisFileMan::ownSelChg()
 {
     setToolButtonProperties();
@@ -246,15 +241,15 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 }
 
 
-void uiSeisFileMan::mkFileInfo()
+static BufferString getInfoText( const IOObj& ioobj )
 {
     BufferString txt;
-    SeisIOObjInfo oinf( curioobj_ );
+    SeisIOObjInfo oinf( ioobj );
+    if ( !oinf.isOK() )
+	return txt;
 
-    if ( oinf.isOK() )
-    {
-
-    if ( is2d_ )
+    const bool is2d = oinf.is2D();
+    if ( is2d )
     {
 	BufferStringSet nms;
 	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
@@ -269,7 +264,7 @@ void uiSeisFileMan::mkFileInfo()
 
     const ZDomain::Def& zddef = oinf.zDomainDef();
     TrcKeyZSampling cs;
-    if ( !is2d_ )
+    if ( !is2d )
     {
 	if ( oinf.getRanges(cs) )
 	{
@@ -304,9 +299,9 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
-    if ( !curioobj_->pars().isEmpty() )
+    const IOPar& pars = ioobj.pars();
+    if ( !pars.isEmpty() )
     {
-	const IOPar& pars = curioobj_->pars();
 	BufferString parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nType: " ).add( parstr );
@@ -354,11 +349,13 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
-    BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
-    if ( mIsOfTranslType(CBVS) )
+    const bool iscbvs =
+	ioobj.translator().isEqual( CBVSSeisTrcTranslator::translKey() );
+    BufferString dsstr = pars.find( sKey::DataStorage() );
+    if ( iscbvs )
     {
 	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
-	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
+	if ( tri->initRead( new StreamConn(ioobj.fullUserExpr(true),
 				Conn::Read) ) )
 	{
 	    const BasicComponentInfo& bci =
@@ -368,6 +365,7 @@ void uiSeisFileMan::mkFileInfo()
 	}
 	delete tri;
     }
+
     if ( dsstr.size() > 4 )
 	txt.add( "\nStorage: " ).add( dsstr.buf() + 4 );
 
@@ -375,13 +373,17 @@ void uiSeisFileMan::mkFileInfo()
     if ( nrcomp > 1 )
 	txt.add( "\nNumber of components: " ).add( nrcomp );
 
+    return txt;
+}
 
-    } // if ( oinf.isOK() )
 
+void uiSeisFileMan::mkFileInfo()
+{
+    BufferString txt = getInfoText( *curioobj_ );
     if ( txt.isEmpty() )
-	txt = "<No specific info available>\n";
-    txt.add( "\n" ).add( getFileInfo() );
+	txt = "No specific info available.\n";
 
+    txt.add( "\n" ).add( getFileInfo() );
     setInfo( txt );
 }
 
