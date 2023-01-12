@@ -72,6 +72,24 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 }
 
 
+int uiTabStack::addTab( uiGroup* grp, const uiString& txt, const char* iconnm )
+{
+    if ( !grp )
+	return -1;
+
+    const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
+    auto* tab = new uiTab( *grp, tabcaption );
+    const int tabidx = tabbar_->addTab( tab );
+    if ( iconnm && *iconnm )
+	tabbar_->setTabIcon( tabidx, iconnm );
+
+    if ( !hAlignObj() )
+	setHAlignObj( grp );
+
+    return tabidx;
+}
+
+
 int uiTabStack::insertTab( uiGroup* grp, int index, const uiString& txt )
 {
     if ( !grp ) return -1;

@@ -38,6 +38,8 @@ public:
 
     void		addTab(uiGroup*,
 			       const uiString& =uiString::emptyString());
+    int			addTab(uiGroup*,const uiString& lbl,
+			       const char* iconnm);
     void		removeTab(uiGroup*);
 
     void		setTabEnabled(int idx,bool yn);
