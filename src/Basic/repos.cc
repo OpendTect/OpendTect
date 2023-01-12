@@ -8,12 +8,14 @@ ________________________________________________________________________
 -*/
 
 #include "repos.h"
+
+#include "ascstream.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "od_iostream.h"
-#include "ascstream.h"
+#include "odruncontext.h"
 #include "safefileio.h"
-#include "file.h"
+
 #include <ctype.h>
 
 
@@ -71,6 +73,8 @@ void Repos::FileProvider::getFname( BufferString& res, bool withdot ) const
 BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 {
     BufferString ret;
+    if ( OD::InTestProgRunContext() && isUserDefined(src) )
+	return ret;
 
 #define mSetRet(fn,yn) \
 	getFname( ret, yn ); \
