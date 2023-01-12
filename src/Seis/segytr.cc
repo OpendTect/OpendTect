@@ -684,20 +684,27 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
 #define mBadBid(ti) \
 	(ti.inl() <= 0 && ti.crl() <= 0)
-#define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
 
 
 bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( headerdonenew_ ) return true;
+    if ( !outcds_ )
+	commitSelections();
+
+    if ( headerdonenew_ )
+	return true;
 
     const int oldcurinl = curbid_.inl();
     const int oldcurtrcnr = curtrcnr_;
     if ( read_mode != Seis::Scan )
-	{ mSetUdf(curbid_.inl()); mSetUdf(curtrcnr_); }
+    {
+	mSetUdf(curbid_.inl());
+	mSetUdf(curtrcnr_);
+    }
 
     if ( !readTraceHeadBuffer() )
 	return false;
+
     if ( !tryInterpretBuf(ti) )
 	return false;
 
@@ -724,8 +731,12 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadCoord(ti) )
-		mSkipThisTrace()
+	    {
+		if ( !skipThisTrace(ti,nrbadtrcs) )
+		    return false;
+	    }
 	}
+
 	ti.setPos( SI().transform( ti.coord ) );
     }
     else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
@@ -735,7 +746,10 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) )
-		mSkipThisTrace()
+	    {
+		if ( !skipThisTrace(ti,nrbadtrcs) )
+		    return false;
+	    }
 	}
 	ti.calcCoord();
     }
@@ -743,10 +757,15 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     {
 	if ( read_mode == Seis::Scan )
 	    goodpos = !mBadBid(ti) || !mBadCoord(ti);
+
 	if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) && mBadCoord(ti) )
-		mSkipThisTrace()
+	    {
+		if ( !skipThisTrace(ti,nrbadtrcs) )
+		    return false;
+	    }
+
 	    if ( !is_2d )
 	    {
 		if ( mBadBid(ti) )
@@ -764,7 +783,8 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( is_2d )
 	ti.setGeomID( curGeomID() );
 
-    if ( !useinpsd_ ) ti.sampling = outsd_;
+    if ( !useinpsd_ )
+	ti.sampling = outsd_;
 
     offsetcalc_.setOffset( ti, trchead_ );
 
