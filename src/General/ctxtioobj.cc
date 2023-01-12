@@ -11,11 +11,14 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "ioman.h"
 #include "iodir.h"
+#include "iodirentry.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "transl.h"
 #include "globexpr.h"
 #include "separstr.h"
+#include "stringview.h"
 #include "file.h"
 #include "filepath.h"
 #include "survinfo.h"
@@ -430,6 +433,32 @@ int IOObjContext::nrMatches() const
     const MultiID key( getStdDirData(stdseltype_)->id_ );
     IODir iodir( key );
     return iodir.size();
+}
+
+
+
+int IOObjContext::nrMatches( bool forgroup ) const
+{
+    if ( !forgroup )
+	return nrMatches();
+
+    const PtrMan<IODir> dbdir = IOM().getDir( trgroup_->groupName().buf() );
+    if ( !dbdir )
+	return -1;
+
+    IODirEntryList iodlist( *dbdir, *this );
+    int count = 0;
+    for ( const auto* entry : iodlist )
+    {
+	const IOObj* ioobj = entry->ioobj_;
+	if ( !ioobj )
+	    continue;
+
+	if ( !ioobj->isTmp() && ioobj->group() == trgroup_->groupName().buf() )
+	    count++;
+    }
+
+    return count;
 }
 
 

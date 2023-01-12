@@ -117,6 +117,7 @@ public:
 			{ deftransl_ = toselect_.allowtransls_ = trusrnm; }
 
     int			nrMatches() const;
+    int			nrMatches(bool forgroup) const;
     inline bool		haveMatches() const { return nrMatches() > 0; }
 
     mDeprecated("Use stdseltype_")	StdSelType&		stdseltype;
