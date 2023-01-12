@@ -62,8 +62,9 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
 			 uiListBox::AboveMid );
     cubefld_ = new uiListBox( this, su1 );
     fillBox( cubefld_ );
-    cubefld_->setPrefWidthInChar( 30 );
+    cubefld_->resizeWidthToContents();
     cubefld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,inputChg) );
+
     allcompfld_ = new uiCheckBox( this, tr("Use all attribute components") );
     allcompfld_->setSensitive( false );
     allcompfld_->attach( alignedBelow, cubefld_ );
@@ -81,7 +82,6 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
     selfld_->attach( rightTo, cubefld_ );
     selfld_->attach( ensureRightOf, bgrp );
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );
-    selfld_->setPrefWidthInChar( 30 );
 
     compfld_ = new uiComboBox( this, "Component" );
     compfld_->setHSzPol( uiObject::WideMax );

@@ -29,11 +29,9 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "iodir.h"
 #include "multiid.h"
-#include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsmerge.h"
 #include "seisselectionimpl.h"
-#include "seissingtrcproc.h"
 #include "survinfo.h"
 #include "transl.h"
 #include "uiioobjsel.h"
@@ -68,7 +66,9 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 {
     volsbox_ = new uiListBox( topgrp, "Available Stores",
 				OD::ChooseAtLeastOne );
+    volsbox_->setHSzPol( uiObject::Wide );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
+    selvolsbox_->setHSzPol( uiObject::Wide );
 
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
@@ -125,7 +125,7 @@ void uiPreStackMergeDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
     selbuttons->attach( ensureRightOf, volsbox_ );
     selvolsbox_->attach( rightTo, volsbox_ );
     movebuttons->attach( centeredRightOf, selvolsbox_ );
-    stackfld_->attach( centeredBelow, topgrp );
+    stackfld_->attach( ensureBelow, topgrp );
     subselfld_->attach( alignedBelow, stackfld_ );
     outpfld_->attach( alignedBelow, subselfld_ );
 }
