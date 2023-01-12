@@ -445,7 +445,6 @@ uiRetVal EmptyTempSurvey::save( TaskRunner* )
 	return lasterrs_;
     }
 
-    bool issuccess = false;
     if ( File::exists(surveyfile_) && File::isReadable(surveyfile_) )
     {
 	FilePath backup_fp( saveloc_, "SurveySetup" );

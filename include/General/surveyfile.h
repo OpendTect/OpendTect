@@ -106,7 +106,7 @@ public:
 						{ return zipfileloc_;  }
     void	setSaveLocation(const char* saveloc);
 
-    inline bool setManaged(bool ismanaged) { ismanaged_ = ismanaged; }
+    inline void setManaged(bool ismanaged) { ismanaged_ = ismanaged; }
 
 
 protected:
