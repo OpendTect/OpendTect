@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "odjson.h"
 #include "survinfo.h"
 
 #include "uistringset.h"
 
 class TaskRunner;
+namespace OD{ namespace JSON{ class Object; }}
 
 /*!\brief Utility class to work with OpendTect survey/project zip files.
 
@@ -112,13 +112,11 @@ public:
 protected:
     bool		    createOMFFile();
     bool		    createTempSurveySetup(bool hasomf);
-    bool		    fillSurveyInfo();
-    bool		    initSurvey();
+    bool		    fillSurveyInfo(const OD::JSON::Object* obj);
+    bool		    initSurvey(const OD::JSON::Object* obj=nullptr);
 
     BufferString		origsurveyfp_;
     SurveyInfo			si_;
-    const OD::JSON::Object&	obj_;
-    bool			noparams_;
     bool			ismanaged_	= true;
     BufferString		saveloc_;
     BufferString		zipfileloc_;

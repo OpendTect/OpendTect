@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "uistrings.h"
 #include "uistringset.h"
 #include "ziputils.h"
@@ -204,8 +205,6 @@ uiRetVal SurveyFile::unmount( bool saveIt, TaskRunner* trun )
 EmptyTempSurvey::EmptyTempSurvey( const char* surveybaseloc,
 					const char* surveynm, bool ismanaged )
     : SurveyCreator(surveybaseloc,surveynm)
-    , obj_(OD::JSON::Object())
-    , noparams_(true)
     , si_(SurveyInfo())
     , ismanaged_(ismanaged)
 {
@@ -216,14 +215,12 @@ EmptyTempSurvey::EmptyTempSurvey( const char* surveybaseloc,
 
 EmptyTempSurvey::EmptyTempSurvey( const OD::JSON::Object& obj )
     : SurveyCreator(nullptr,nullptr)
-    , obj_(obj)
-    , noparams_(false)
     , si_(SurveyInfo())
 {
-    tmpbasedir_ = obj_.getStringValue( sKey::sKeySurveyLoc() );
-    surveydirnm_ = obj_.getStringValue( sKey::sKeySurveyNm() );
-    saveloc_ = obj_.getStringValue( sKeySaveLoc() );
-    initSurvey();
+    tmpbasedir_ = obj.getStringValue( sKey::sKeySurveyLoc() );
+    surveydirnm_ = obj.getStringValue( sKey::sKeySurveyNm() );
+    saveloc_ = obj.getStringValue( sKeySaveLoc() );
+    initSurvey( &obj );
 }
 
 
@@ -237,7 +234,7 @@ EmptyTempSurvey::~EmptyTempSurvey()
 }
 
 
-bool EmptyTempSurvey::initSurvey()
+bool EmptyTempSurvey::initSurvey( const OD::JSON::Object* obj )
 {
     if ( surveydirnm_.isEmpty() )
 	surveydirnm_ = "TemporarySurvey";
@@ -272,7 +269,7 @@ bool EmptyTempSurvey::initSurvey()
     if ( !createTempSurveySetup(hasomf) )
 	return false;
 
-    return fillSurveyInfo();
+    return fillSurveyInfo( obj );
 }
 
 
@@ -316,41 +313,27 @@ bool EmptyTempSurvey::createTempSurveySetup( bool hasomf )
 
 
 
-bool EmptyTempSurvey::fillSurveyInfo()
+bool EmptyTempSurvey::fillSurveyInfo( const OD::JSON::Object* obj )
 {
     TrcKeyZSampling cs;
     TrcKeySampling& hs = cs.hsamp_;
-    if ( noparams_ )
+    if ( obj )
     {
-	si_.setZUnit( true );
-	si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), false );
-	si_.setXYInFeet( false );
-	si_.setSeismicReferenceDatum( 0 );
-	si_.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
-	hs.start_.inl() = 0;
-	hs.start_.crl() = 0;
-	hs.stop_.inl() = 1000000;
-	hs.stop_.crl() = 1000000;
-	hs.step_.inl() = 1;
-	hs.step_.crl() = 1;
-    }
-    else
-    {
-	const BufferString zdom( obj_.getStringValue(sKey::ZDomain()) );
+	const BufferString zdom( obj->getStringValue(sKey::ZDomain()) );
 	const bool istime = zdom.isEqual( sKey::Time() );
-	const bool isfeet = obj_.getBoolValue( SurveyInfo::sKeyDpthInFt() );
+	const bool isfeet = obj->getBoolValue( SurveyInfo::sKeyDpthInFt() );
 	si_.setZUnit( istime, isfeet );
 	si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), isfeet );
-	hs.start_.inl() = obj_.getDoubleValue( sKey::FirstInl() );
-	hs.start_.crl() = obj_.getDoubleValue( sKey::FirstCrl() );
-	hs.stop_.inl() = obj_.getDoubleValue( sKey::LastInl() );
-	hs.stop_.crl() = obj_.getDoubleValue( sKey::LastCrl() );
-	hs.step_.inl() = obj_.getDoubleValue( sKey::StepInl() );
-	hs.step_.crl() = obj_.getDoubleValue( sKey::StepCrl() );
-	const double srd = obj_.getDoubleValue(
-					SurveyInfo::sKeySeismicRefDatum() );
+	hs.start_.inl() = obj->getDoubleValue( sKey::FirstInl() );
+	hs.start_.crl() = obj->getDoubleValue( sKey::FirstCrl() );
+	hs.stop_.inl() = obj->getDoubleValue( sKey::LastInl() );
+	hs.stop_.crl() = obj->getDoubleValue( sKey::LastCrl() );
+	hs.step_.inl() = obj->getDoubleValue( sKey::StepInl() );
+	hs.step_.crl() = obj->getDoubleValue( sKey::StepCrl() );
+	const double srd = obj->getDoubleValue(
+	    SurveyInfo::sKeySeismicRefDatum() );
 	si_.setSeismicReferenceDatum( srd );
-	const int crsid = obj_.getIntValue( sKeyCRSID() );
+	const int crsid = obj->getIntValue( sKeyCRSID() );
 	if ( crsid >= 0 )
 	{
 	    IOPar crspar;
@@ -365,10 +348,24 @@ bool EmptyTempSurvey::fillSurveyInfo()
 	else
 	{
 	    RefMan<Coords::CoordSystem> coordsys =
-				    Coords::CoordSystem::getWGS84LLSystem();
+		Coords::CoordSystem::getWGS84LLSystem();
 	    si_.setCoordSystem( coordsys );
 	    si_.setXYInFeet( coordsys->isFeet() );
 	}
+    }
+    else
+    {
+	si_.setZUnit( true );
+	si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), false );
+	si_.setXYInFeet( false );
+	si_.setSeismicReferenceDatum( 0 );
+	si_.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
+	hs.start_.inl() = 0;
+	hs.start_.crl() = 0;
+	hs.stop_.inl() = 1000000;
+	hs.stop_.crl() = 1000000;
+	hs.step_.inl() = 1;
+	hs.step_.crl() = 1;
     }
 
     si_.setRange( cs, false );
