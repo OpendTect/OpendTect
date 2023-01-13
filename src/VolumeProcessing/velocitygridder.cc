@@ -700,7 +700,7 @@ bool VelocityGridder::usePar( const IOPar& par )
     delete layermodel_;
     layermodel_ = InterpolationLayerModel::factory().create( lmtype );
     if ( !layermodel_ || (lmpar && !layermodel_->usePar(*lmpar)) )
-	deleteAndZeroPtr( layermodel_ );
+	deleteAndNullPtr( layermodel_ );
 
     return true;
 }

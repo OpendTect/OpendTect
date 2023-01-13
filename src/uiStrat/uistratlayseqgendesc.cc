@@ -293,7 +293,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     else
     {
-	deleteAndZeroPtr( emptyitm_ );
+	deleteAndNullPtr( emptyitm_ );
 	doDraw();
     }
 }

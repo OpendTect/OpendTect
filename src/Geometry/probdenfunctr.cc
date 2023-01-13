@@ -141,7 +141,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
 	return nullptr;
 
     if ( !pdf->readBulk(strm,binary_) )
-	deleteAndZeroPtr( pdf );
+	deleteAndNullPtr( pdf );
 
     return pdf;
 }
@@ -177,7 +177,7 @@ ProbDenFunc* odProbDenFuncTranslator::readInfo( od_istream& strm )
 	return nullptr;
 
     if ( !pdf->usePar(par) )
-	deleteAndZeroPtr( pdf );
+	deleteAndNullPtr( pdf );
 
     binary_ = false;
     par.getYN( sKey::Binary(), binary_ );

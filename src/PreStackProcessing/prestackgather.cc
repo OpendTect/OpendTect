@@ -102,7 +102,7 @@ bool Gather::readFrom( const MultiID& mid, const TrcKey& tk, int comp,
     if ( !ioobj )
     {
 	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
-	deleteAndZeroPtr( arr2d_ );
+	deleteAndNullPtr( arr2d_ );
 	return false;
     }
 
@@ -126,7 +126,7 @@ bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
     {
 	if ( errmsg )
 	    (*errmsg) = tr("This Prestack data store cannot be handled.");
-	deleteAndZeroPtr( arr2d_ );
+	deleteAndNullPtr( arr2d_ );
 	return false;
     }
 
@@ -179,7 +179,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
     if ( !rdr.getGather(tk.position(),*tbuf) )
     {
 	if ( errmsg ) (*errmsg) = rdr.errMsg();
-	deleteAndZeroPtr( arr2d_ );
+	deleteAndNullPtr( arr2d_ );
 	return false;
     }
 
@@ -239,7 +239,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
     if ( !isset )
     {
-	deleteAndZeroPtr( arr2d_ );
+	deleteAndNullPtr( arr2d_ );
 	return false;
     }
 
@@ -261,7 +261,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 	arr2d_ = new Array2DImpl<float>( newinfo );
 	if ( !arr2d_ || !arr2d_->isOK() )
 	{
-	    deleteAndZeroPtr( arr2d_ );
+	    deleteAndNullPtr( arr2d_ );
 	    return false;
 	}
     }

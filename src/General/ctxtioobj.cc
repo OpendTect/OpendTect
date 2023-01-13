@@ -567,8 +567,8 @@ void CtxtIOObj::setPar( IOPar* iop )
 
 void CtxtIOObj::destroyAll()
 {
-    deleteAndZeroPtr( ioobj_ );
-    deleteAndZeroPtr( iopar_ );
+    deleteAndNullPtr( ioobj_ );
+    deleteAndNullPtr( iopar_ );
 }
 
 

@@ -104,7 +104,7 @@ void uiDPSDemoMgr::dTectToolbarChanged()
 
 void uiDPSDemoMgr::cleanup()
 {
-    closeAndZeroPtr( dlg_ );
+    closeAndNullPtr( dlg_ );
     uiPluginInitMgr::cleanup();
 }
 

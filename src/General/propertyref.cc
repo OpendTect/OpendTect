@@ -509,7 +509,7 @@ void PropertyRef::usePar( const IOPar& iop )
     }
 
     if ( disp_.defval_ && mathdef_ )
-	deleteAndZeroPtr( disp_.defval_ ); //Keep only one possibility
+	deleteAndNullPtr( disp_.defval_ ); //Keep only one possibility
 }
 
 

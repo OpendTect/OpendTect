@@ -152,12 +152,12 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
 
 bool Horizon2DScanner::reInitAscIO( const char* fnm )
 {
-    deleteAndZeroPtr( ascio_ );
+    deleteAndNullPtr( ascio_ );
     ascio_ = new EM::Horizon2DAscIO( fd_, fnm );
     if ( !ascio_->isOK() )
     {
 	msg_ = uiStrings::phrCannotOpenForRead( fnm );
-	deleteAndZeroPtr( ascio_ );
+	deleteAndNullPtr( ascio_ );
 	return false;
     }
     return true;
@@ -190,7 +190,7 @@ int Horizon2DScanner::nextStep()
 	    istracenr_ = ascio_->isTraceNr();
 
 	fileidx_++;
-	deleteAndZeroPtr( ascio_ );
+	deleteAndNullPtr( ascio_ );
 	return Executor::MoreToDo();
     }
 

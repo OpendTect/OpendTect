@@ -479,7 +479,7 @@ int Seis2DLineMerger::doWork()
 	    outbuf_.deepErase();
 	    if ( !putter_->close() )
 		mErrRet(putter_->errMsg())
-	    deleteAndZeroPtr( putter_ );
+	    deleteAndNullPtr( putter_ );
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry(outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d || !Survey::GMAdmin().write(*geom2d, msg_) )

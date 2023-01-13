@@ -335,7 +335,7 @@ HorizonDisplay::HorizonDisplay()
 HorizonDisplay::~HorizonDisplay()
 {
     deepErase(as_);
-    unRefAndZeroPtr( intersectionlinematerial_ );
+    unRefAndNullPtr( intersectionlinematerial_ );
 
     coltabmappersetups_.erase();
     coltabsequences_.erase();
@@ -350,7 +350,7 @@ HorizonDisplay::~HorizonDisplay()
     }
 
     removeEMStuff();
-    unRefAndZeroPtr( zaxistransform_ );
+    unRefAndNullPtr( zaxistransform_ );
 
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
@@ -1310,7 +1310,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
 void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 {
-    unRefAndZeroPtr( intersectionlinematerial_ );
+    unRefAndNullPtr( intersectionlinematerial_ );
 
     intersectionlinematerial_ = nm;
 
@@ -2573,12 +2573,12 @@ HorizonDisplay::IntersectionData::~IntersectionData()
     if ( zaxistransform_ )
     {
 	zaxistransform_->removeVolumeOfInterest( voiid_ );
-	unRefAndZeroPtr( zaxistransform_ );
+	unRefAndNullPtr( zaxistransform_ );
     }
 
     clear();
-    unRefAndZeroPtr( line_ );
-    unRefAndZeroPtr( markerset_ );
+    unRefAndNullPtr( line_ );
+    unRefAndNullPtr( markerset_ );
 }
 
 
@@ -2626,7 +2626,7 @@ void HorizonDisplay::IntersectionData::updateDataTransform(
     if ( zaxistransform_ && zaxistransform_!=trans )
     {
 	zaxistransform_->removeVolumeOfInterest( voiid_ );
-	unRefAndZeroPtr( zaxistransform_ );
+	unRefAndNullPtr( zaxistransform_ );
 	voiid_ = -2;
     }
     zaxistransform_ = trans;
@@ -2690,7 +2690,7 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 		newline->setMaterial( line_->getMaterial() );
 
 	    oldline = line_;
-	    unRefAndZeroPtr( line_ );
+	    unRefAndNullPtr( line_ );
 	    line_ = newline;
 	    line_->ref();
 	}

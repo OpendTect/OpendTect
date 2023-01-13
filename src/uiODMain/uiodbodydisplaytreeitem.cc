@@ -270,9 +270,9 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( VisID id, bool dummy )
 uiODBodyDisplayTreeItem::~uiODBodyDisplayTreeItem()
 {
     detachAllNotifiers();
-    unRefAndZeroPtr( mcd_ );
-    unRefAndZeroPtr( plg_ );
-    unRefAndZeroPtr( rpb_ );
+    unRefAndNullPtr( mcd_ );
+    unRefAndNullPtr( plg_ );
+    unRefAndNullPtr( rpb_ );
 
 }
 
@@ -471,9 +471,9 @@ bool uiODBodyDisplayTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 void uiODBodyDisplayTreeItem::prepareForShutdown()
 {
     detachAllNotifiers();
-    unRefAndZeroPtr( mcd_ );
-    unRefAndZeroPtr( plg_ );
-    unRefAndZeroPtr( rpb_ );
+    unRefAndNullPtr( mcd_ );
+    unRefAndNullPtr( plg_ );
+    unRefAndNullPtr( rpb_ );
 
 
     uiODDisplayTreeItem::prepareForShutdown();

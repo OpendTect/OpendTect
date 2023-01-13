@@ -584,8 +584,8 @@ void uiStratTreeWin::survChgCB( CallBacker* )
 
     OBJDISP()->go( uistratdisp_ );
 
-    deleteAndZeroPtr( lvllist_ );
-    deleteAndZeroPtr( uitree_ );
+    deleteAndNullPtr( lvllist_ );
+    deleteAndNullPtr( uitree_ );
     stratwin = nullptr;
 }
 

@@ -253,7 +253,7 @@ void IOMan::reInit( bool dotrigger )
 
     TranslatorGroup::clearSelHists();
 
-    deleteAndZeroPtr( dirptr_ );
+    deleteAndNullPtr( dirptr_ );
     survchgblocked_ = false;
     state_ = IOMan::NeedInit;
 

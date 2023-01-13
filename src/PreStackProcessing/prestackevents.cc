@@ -775,7 +775,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( !reader || !reader->ioObj() || reader->ioObj()->key()!=ds.mid_ )
 	{
 	    const SeisIOObjInfo seisinfo( ds.mid_ );
-	    deleteAndZeroPtr( reader );
+	    deleteAndNullPtr( reader );
 	    reader = new SeisTrcReader( ds.mid_, seisinfo.geomType() );
 	    if ( !reader->prepareWork() )
 		return false;

@@ -464,7 +464,7 @@ bool ElasticPropertyRef::isOK( const PropertyRefSelection* prs ) const
 void ElasticPropertyRef::setRef( const PropertyRef* pr )
 {
     pr_ = pr;
-    deleteAndZeroPtr( formula_ );
+    deleteAndNullPtr( formula_ );
 }
 
 
@@ -1161,7 +1161,7 @@ ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj )
 
 	if ( !eps->isOK(nullptr) )
 	{
-	    deleteAndZeroPtr( eps );
+	    deleteAndNullPtr( eps );
 	    ErrMsg( "Problem reading Elastic property selection from file" );
 	}
     }

@@ -485,7 +485,7 @@ void uiTableView::setModel( TableModel* mdl )
     if ( !tablemodel_ )
 	return;
 
-    deleteAndZeroPtr( horizontalheaderstate_ );
+    deleteAndNullPtr( horizontalheaderstate_ );
     delete qproxymodel_;
     qproxymodel_ = new QSortFilterProxyModel();
     qproxymodel_->setSourceModel( tablemodel_->getAbstractModel() );
@@ -502,7 +502,7 @@ void uiTableView::setNrFrozenColumns( int nrcols )
 
 void uiTableView::saveHorizontalHeaderState()
 {
-    deleteAndZeroPtr( horizontalheaderstate_ );
+    deleteAndNullPtr( horizontalheaderstate_ );
     QHeaderView* horhdr = odtableview_->horizontalHeader();
     if ( horhdr )
 	horizontalheaderstate_ = new QByteArray( horhdr->saveState() );

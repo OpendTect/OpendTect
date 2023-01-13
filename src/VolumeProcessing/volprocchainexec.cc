@@ -753,7 +753,7 @@ ConstRefMan<RegularSeisDataPack> VolProc::ChainExecutor::getOutput() const
     \
     if ( !errors.isEmpty() ) \
 	errmsg_ = errors.cat(); \
-    deleteAndZeroPtr( curepoch_ ); \
+    deleteAndNullPtr( curepoch_ ); \
     return ErrorOccurred(); \
 }
 
@@ -795,7 +795,7 @@ int VolProc::ChainExecutor::nextStep()
 
     //Everyone who wants my data has it. I can release it.
     curepoch_->releaseData();
-    deleteAndZeroPtr( curepoch_ );
+    deleteAndNullPtr( curepoch_ );
 
     return finished ? Finished() : MoreToDo();
 }

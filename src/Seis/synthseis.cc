@@ -145,7 +145,7 @@ bool SynthGenBase::cDefIsFrequency()
 bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
     if ( waveletismine_ )
-	{ deleteAndZeroPtr( wavelet_ ); }
+	{ deleteAndNullPtr( wavelet_ ); }
     if ( !wvlt )
 	mErrRet(tr("No valid wavelet given"), false);
     if ( pol == OD::CopyPtr )

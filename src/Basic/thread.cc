@@ -217,8 +217,8 @@ Threads::Mutex::Mutex( bool recursive )
 
 Threads::Mutex::~Mutex()
 {
-    deleteAndZeroPtr( qmutex_ );
-    deleteAndZeroPtr( qrecursivemutex_ );
+    deleteAndNullPtr( qmutex_ );
+    deleteAndNullPtr( qrecursivemutex_ );
 
 #ifdef __debug__
     if ( lockingthread_ )
@@ -696,7 +696,7 @@ Threads::ConditionVar::~ConditionVar()
     if (count_)
 	pErrMsg("Deleting condition variable with waiting threads.");
 # endif
-    deleteAndZeroPtr( cond_ );
+    deleteAndNullPtr( cond_ );
 #endif
 }
 
@@ -798,7 +798,7 @@ Threads::Thread::~Thread()
 {
 #ifndef OD_NO_QT
     thread_->wait();
-    deleteAndZeroPtr( thread_ );
+    deleteAndNullPtr( thread_ );
 #endif
 }
 

@@ -997,18 +997,16 @@ bool uiContourTreeItem::doubleClick( uiTreeViewItem* item )
 }
 
 
-#define mUnRefAndZero(var) if ( var ) { var->unRef(); var = 0; }
-
 void uiContourTreeItem::removeAll()
 {
     if ( lines_ )
     {
 	applMgr()->visServer()->removeObject( lines_, sceneID() );
-	mUnRefAndZero( lines_ );
+	unRefAndNullPtr( lines_ );
     }
 
-    mUnRefAndZero( drawstyle_ );
-    mUnRefAndZero( material_ );
+    unRefAndNullPtr( drawstyle_ );
+    unRefAndNullPtr( material_ );
     removeLabels();
 }
 
@@ -1019,7 +1017,7 @@ void uiContourTreeItem::removeLabels()
     if ( labels_ )
     {
 	visserv->removeObject( labels_, sceneID() );
-	mUnRefAndZero( labels_ );
+	unRefAndNullPtr( labels_ );
     }
 }
 

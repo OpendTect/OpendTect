@@ -345,9 +345,9 @@ void SEGYDirectSeisTrcTranslator::cleanUp()
 {
     SeisTrcTranslator::cleanUp();
 
-    deleteAndZeroPtr( def_ );
-    deleteAndZeroPtr( tr_ );
-    deleteAndZeroPtr( fds_ );
+    deleteAndNullPtr( def_ );
+    deleteAndNullPtr( tr_ );
+    deleteAndNullPtr( fds_ );
     initVars( forread_ );
 }
 

@@ -175,8 +175,8 @@ uiStratSynthCrossplot::~uiStratSynthCrossplot()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); deleteAndZeroPtr( dps ); return dps; }
-#define mpErrRet(s) { pErrMsg(s); deleteAndZeroPtr( dps ); return dps; }
+#define mErrRet(s) { uiMSG().error(s); deleteAndNullPtr( dps ); return dps; }
+#define mpErrRet(s) { pErrMsg(s); deleteAndNullPtr( dps ); return dps; }
 
 DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,

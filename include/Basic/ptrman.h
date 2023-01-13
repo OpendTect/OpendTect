@@ -25,6 +25,7 @@ void deleteAndNullPtr( T*& ptr, bool isowner=true )
 { if ( isowner ) delete ptr; ptr = nullptr; }
 
 template <class T>
+mDeprecated("Use deleteAndNullPtr")
 void deleteAndZeroPtr( T*& ptr, bool isowner=true )
 { deleteAndNullPtr( ptr, isowner ); }
 
@@ -33,6 +34,7 @@ void deleteAndNullArrPtr( T*& ptr, bool isowner=true )
 { if ( isowner ) delete [] ptr; ptr = nullptr; }
 
 template <class T>
+mDeprecated("Use deleteAndNullArrPtr")
 void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
 { deleteAndNullArrPtr( ptr, isowner ); }
 

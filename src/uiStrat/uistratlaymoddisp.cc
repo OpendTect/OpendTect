@@ -1046,7 +1046,7 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 {
     if ( selseqidx_ < 0 )
     {
-	deleteAndZeroPtr( selseqad_ );
+	deleteAndNullPtr( selseqad_ );
 	return;
     }
 

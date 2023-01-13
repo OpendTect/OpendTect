@@ -279,7 +279,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
     }
 
     if ( execgrp && !execgrp->nrExecutors() )
-	deleteAndZeroPtr( execgrp );
+	deleteAndNullPtr( execgrp );
 
     return execgrp;
 

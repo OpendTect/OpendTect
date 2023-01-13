@@ -156,11 +156,11 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 
     astream.next();
     if ( *astream.keyWord() != '$' )
-	deleteAndZeroPtr( objptr );
+	deleteAndNullPtr( objptr );
     else
     {
 	if ( !objptr->getFrom(astream) || objptr->isBad() )
-	    deleteAndZeroPtr( objptr );
+	    deleteAndNullPtr( objptr );
 	else
 	{
 	    while ( *astream.keyWord() == '#' )

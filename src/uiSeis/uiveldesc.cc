@@ -393,7 +393,7 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
 
 uiVelModelZAxisTransform::~uiVelModelZAxisTransform()
 {
-    unRefAndZeroPtr( transform_ );
+    unRefAndNullPtr( transform_ );
 }
 
 
@@ -459,7 +459,7 @@ const char* uiVelModelZAxisTransform::selName() const
 
 bool uiVelModelZAxisTransform::acceptOK()
 {
-    unRefAndZeroPtr( transform_ );
+    unRefAndNullPtr( transform_ );
 
     const IOObj* ioobj = velsel_->ioobj( false );
     if ( !ioobj )

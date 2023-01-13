@@ -77,7 +77,7 @@ bool testRefCountMacro()
     mRunTest( refclass->unRef(), true, false, 1 );
     mRunTest( refclass->unRefNoDelete(), true, false, 0 );
     mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( MacroReferencedClass::unRefAndZeroPtr( refclass ),
+    mRunTest( MacroReferencedClass::unRefAndNullPtr( refclass ),
 	      refclass==nullptr, true,
 	      RefCount::Counter::cInvalidRefCount() );
 
@@ -110,7 +110,7 @@ bool testRefCount()
     mRunTest( refclass->unRef(), true, false, 1 );
     mRunTest( refclass->unRefNoDelete(), true, false, 0 );
     mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( unRefAndZeroPtr( refclass ), refclass==nullptr, true,
+    mRunTest( unRefAndNullPtr( refclass ), refclass==nullptr, true,
 	      RefCount::Counter::cInvalidRefCount() );
 
     //Test null pointers

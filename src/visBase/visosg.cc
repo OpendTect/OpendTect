@@ -15,24 +15,36 @@ ________________________________________________________________________
 #include <osg/Referenced>
 #include <osg/Version>
 
+void visBase::unRefAndNullOsgPtr( osg::Referenced* ptr )
+{
+    if ( !ptr )
+	return;
+
+    ptr->unref();
+    ptr = nullptr;
+}
+
+
 void visBase::unRefAndZeroOsgPtr( osg::Referenced* ptr )
 {
-    if ( !ptr ) return;
-    ptr->unref();
-    ptr = 0;
+    unRefAndNullOsgPtr( ptr );
 }
 
 
 void visBase::unRefOsgPtr( osg::Referenced* ptr )
 {
-    if ( !ptr ) return;
+    if ( !ptr )
+	return;
+
     ptr->unref();
 }
 
 
 void visBase::refOsgPtr( const osg::Referenced* ptr )
 {
-    if ( !ptr ) return;
+    if ( !ptr )
+	return;
+
     ptr->ref();
 }
 
@@ -62,7 +74,8 @@ void OneFrameCullDisabler::operator()( osg::Node* node, osg::NodeVisitor* nv )
 const char* GetOSGVersion()
 {
     mDeclStaticString( ret );
-    if ( !ret.isEmpty() ) return ret.buf();
+    if ( !ret.isEmpty() )
+	return ret.buf();
 
     ret.set( OPENSCENEGRAPH_MAJOR_VERSION ).add( "." )
        .add( OPENSCENEGRAPH_MINOR_VERSION ).add( "." )

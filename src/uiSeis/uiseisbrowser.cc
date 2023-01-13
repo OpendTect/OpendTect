@@ -619,7 +619,7 @@ void uiSeisBrowser::updateSaveButtonState( bool setactive )
 bool uiSeisBrowser::storeChgdData( const bool isnew )
 {
     commitChanges( isnew );
-    deleteAndZeroPtr( tr_ );
+    deleteAndNullPtr( tr_ );
     if ( tbufchgdtrcs_.isEmpty() )
 	return false;
 

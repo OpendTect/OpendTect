@@ -273,7 +273,7 @@ bool uiSynthToRealScale::getEvent()
 
 bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
 {
-    deleteAndZeroPtr( polygon_ );
+    deleteAndNullPtr( polygon_ );
     horizon_ = nullptr;
     if ( polyfld_->isChecked() )
     {

@@ -233,7 +233,7 @@ bool Dragger::defaultRotation() const
 
 Dragger::~Dragger()
 {
-    unRefAndZeroPtr( inactiveshape_ );
+    unRefAndNullPtr( inactiveshape_ );
 }
 
 
@@ -299,7 +299,7 @@ void Dragger::notifyMove()
 void Dragger::setOwnShape( DataObject* newshape, bool activeshape )
 {
     newshape->ref();
-    unRefAndZeroPtr( inactiveshape_ );
+    unRefAndNullPtr( inactiveshape_ );
     inactiveshape_ = newshape;
 }
 

@@ -620,14 +620,14 @@ void TileResolutionData::refOsgPrimitiveSets()
 
 void TileResolutionData::unRefOsgPrimitiveSets()
 {
-    unRefAndZeroOsgPtr( trianglesosgps_ );
-    unRefAndZeroOsgPtr( linesosgps_ );
-    unRefAndZeroOsgPtr( pointsosgps_ );
-    unRefAndZeroOsgPtr( wireframesosgps_ );
-    unRefAndZeroOsgPtr( trianglesps_ );
-    unRefAndZeroOsgPtr( linesps_ );
-    unRefAndZeroOsgPtr( pointsps_ );
-    unRefAndZeroOsgPtr( wireframesps_ );
+    unRefAndNullOsgPtr( trianglesosgps_ );
+    unRefAndNullOsgPtr( linesosgps_ );
+    unRefAndNullOsgPtr( pointsosgps_ );
+    unRefAndNullOsgPtr( wireframesosgps_ );
+    unRefAndNullOsgPtr( trianglesps_ );
+    unRefAndNullOsgPtr( linesps_ );
+    unRefAndNullOsgPtr( pointsps_ );
+    unRefAndNullOsgPtr( wireframesps_ );
 }
 
 

@@ -556,7 +556,7 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 	    {
 		if ( !pscditer_->next(curpsbid_) )
 		{
-		    deleteAndZeroPtr( psrdr3d_ );
+		    deleteAndNullPtr( psrdr3d_ );
 		    return 0;
 		}
 		selres = seldata_ ? seldata_->selRes( curpsbid_ ) : 0;
@@ -577,7 +577,7 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 	    {
 		if ( !pslditer_->next() )
 		{
-		    deleteAndZeroPtr( psrdr2d_ );
+		    deleteAndNullPtr( psrdr2d_ );
 		    return 0;
 		}
 

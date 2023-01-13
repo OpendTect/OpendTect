@@ -101,7 +101,7 @@ bool SeisCubeCopier::init()
 	errmsg_ = stp_->uiMessage();
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = uiStrings::phrCannotRead( uiStrings::sInput() );
-	deleteAndZeroPtr( stp_ );
+	deleteAndNullPtr( stp_ );
     }
 
     if ( wrr->ioObj() )
@@ -310,8 +310,8 @@ bool Seis2DCopier::goImpl( od_ostream* strm, bool first, bool last, int delay )
 
     const bool res = Executor::goImpl( strm, first, last, delay );
 
-    deleteAndZeroPtr( rdr_ );
-    deleteAndZeroPtr( wrr_ );
+    deleteAndNullPtr( rdr_ );
+    deleteAndNullPtr( wrr_ );
 
     return res;
 }

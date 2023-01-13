@@ -77,7 +77,7 @@ bool Attrib::WellLog::allowParallelComputation() const
 
 void Attrib::WellLog::prepareForComputeData()
 {
-    deleteAndZeroPtr( logvals_ );
+    deleteAndNullPtr( logvals_ );
 
     RefMan<Well::Data> wd = new Well::Data;
     if ( Well::MGR().isLoaded(wellid_) )

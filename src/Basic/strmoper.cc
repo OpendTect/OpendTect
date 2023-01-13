@@ -572,13 +572,13 @@ void StreamData::setOStrm( std::ostream* strm )
 void StreamData::StreamDataImpl::close()
 {
     if ( istrm_ && istrm_ != &std::cin )
-	deleteAndZeroPtr( istrm_ );
+	deleteAndNullPtr( istrm_ );
 
     if ( ostrm_ )
     {
 	ostrm_->flush();
 	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr )
-	    deleteAndZeroPtr( ostrm_ );
+	    deleteAndNullPtr( ostrm_ );
 	else
 	    ostrm_ = 0;
     }

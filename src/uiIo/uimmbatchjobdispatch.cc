@@ -275,7 +275,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 					.arg(clienthost) );
 	setCancelText( uiStrings::sClose() );
 	button(OK)->display( false );
-	deleteAndZeroPtr( jobrunner_ );
+	deleteAndNullPtr( jobrunner_ );
 	return;
     }
 
@@ -315,7 +315,7 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 
     if ( jobrunner_->nextStep() == Executor::ErrorOccurred() )
     {
-	deleteAndZeroPtr( jobrunner_ );
+	deleteAndNullPtr( jobrunner_ );
 	addbut_->setSensitive( true );
 	return;
     }
@@ -589,7 +589,7 @@ bool uiMMBatchJobDispatcher::wrapUp()
     clearAliveDisp();
 
     removeTempResults();
-    deleteAndZeroPtr( jobrunner_ );
+    deleteAndNullPtr( jobrunner_ );
     return true;
 }
 

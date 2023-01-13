@@ -213,7 +213,7 @@ void SynthGenParams::setDefaultValues()
 	    setWavelet( wvltobj->name() );
     }
     else
-	deleteAndZeroPtr( reqtype_ );
+	deleteAndNullPtr( reqtype_ );
 
     if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
     {
@@ -417,7 +417,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	raypars_.setEmpty();
 	reflpars_.setEmpty();
 	synthpars_.setEmpty();
-	deleteAndZeroPtr( reqtype_ );
+	deleteAndNullPtr( reqtype_ );
 	if ( needsInput() )
 	{
 	    par.get( sKeyInput(), inpsynthnm_ );

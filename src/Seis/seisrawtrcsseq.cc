@@ -75,7 +75,7 @@ Seis::RawTrcsSequence& Seis::RawTrcsSequence::operator=(
 
     deepErase( data_ );
     deepErase( trcscalers_ );
-    deleteAndZeroPtr( thisseq.tks_ );
+    deleteAndNullPtr( thisseq.tks_ );
     const int& thisnrpos = nrpos_;
     const_cast<int&>( thisnrpos ) = oth.nrpos_;
     TypeSet<TrcKey>* tks = new TypeSet<TrcKey>;

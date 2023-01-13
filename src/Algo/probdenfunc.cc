@@ -249,7 +249,7 @@ ArrayNDProbDenFunc& ArrayNDProbDenFunc::operator =(
     if ( this != &oth )
     {
 	sds_ = oth.sds_;
-	deleteAndZeroArrPtr( cumbins_ );
+	deleteAndNullArrPtr( cumbins_ );
 	if ( oth.cumbins_ )
 	    fillCumBins();
 
@@ -445,7 +445,7 @@ void ArrayNDProbDenFunc::fillCumBins() const
 	return;
 
     const od_uint64 sz = totalSize();
-    deleteAndZeroArrPtr( cumbins_ );
+    deleteAndNullArrPtr( cumbins_ );
     if ( sz < 1 ) return;
 
     const float* vals = getData().getData();

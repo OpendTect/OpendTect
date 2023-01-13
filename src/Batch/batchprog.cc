@@ -115,7 +115,7 @@ BatchProgram::~BatchProgram()
     else
 	strm_->close();
 
-    deleteAndZeroPtr( clparser_ );
+    deleteAndNullPtr( clparser_ );
     delete iopar_;
     delete comm_;
     deepErase( requests_ );
@@ -329,7 +329,7 @@ bool BatchProgram::initLogging()
 	{
 	    od_cerr() << name() << ": Cannot open window for output" << od_endl;
 	    od_cerr() << "Using std output instead" << od_endl;
-	    deleteAndZeroPtr( strm_ );
+	    deleteAndNullPtr( strm_ );
 	    res = 0;
 	}
     }
@@ -349,7 +349,7 @@ bool BatchProgram::initLogging()
 		od_cerr() << name() << ": Cannot open log file" << od_endl;
 		od_cerr() << "Using stdoutput instead" << od_endl;
 	    }
-	    deleteAndZeroPtr( strm_ );
+	    deleteAndNullPtr( strm_ );
 	    strm_ = &od_cout();
 	    strmismine_ = false;
 	}
@@ -503,7 +503,7 @@ void BatchProgram::doFinalize()
     if ( thread_ )
     {
 	thread_->waitForFinish();
-	deleteAndZeroPtr( thread_ );
+	deleteAndNullPtr( thread_ );
     }
 }
 

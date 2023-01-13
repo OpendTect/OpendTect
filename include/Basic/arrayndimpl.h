@@ -104,7 +104,7 @@ public:
 			Array2DImpl(const Array2DInfo&);
 			Array2DImpl(const Array2D<T>&);
 			Array2DImpl(const Array2DImpl<T>&);
-			~Array2DImpl() { deleteAndZeroArrPtr( ptr2d_ ); }
+			~Array2DImpl() { deleteAndNullArrPtr( ptr2d_ ); }
 
     Array2DImpl<T>&	operator =( const Array2D<T>& ai )
 			    { copyFrom(ai); return *this; }
@@ -580,7 +580,7 @@ void Array2DImpl<T>::updateStorage()
 template <class T> inline
 void Array2DImpl<T>::updateCachePointers()
 {
-    deleteAndZeroArrPtr( ptr2d_ );
+    deleteAndNullArrPtr( ptr2d_ );
 
     if ( !base::ptr_ )
 	return;

@@ -123,7 +123,7 @@ void uiGMTMgr::dTectMenuChanged()
 
 void uiGMTMgr::cleanup()
 {
-    closeAndZeroPtr( dlg_ );
+    closeAndNullPtr( dlg_ );
     uiPluginInitMgr::cleanup();
 }
 

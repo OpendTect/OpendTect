@@ -590,7 +590,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
 
     if ( is2d && !Survey::is2DGeom(geomid_) )
     {
-	deleteAndZeroPtr( ioobj_ );
+	deleteAndNullPtr( ioobj_ );
 	msg_ = tr("2D Line ID not specified");
 	return;
     }

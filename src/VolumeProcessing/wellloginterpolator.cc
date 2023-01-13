@@ -218,7 +218,7 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 	mdfunc_.add( layerz, md );
     }
 
-    deleteAndZeroPtr( log_ );
+    deleteAndNullPtr( log_ );
 
     return !logfunc_.isEmpty();
 }
@@ -256,10 +256,10 @@ WellLogInterpolator::~WellLogInterpolator()
 void WellLogInterpolator::releaseData()
 {
     Step::releaseData();
-    deleteAndZeroPtr( gridder_ );
-    deleteAndZeroPtr( layermodel_ );
+    deleteAndNullPtr( gridder_ );
+    deleteAndNullPtr( layermodel_ );
     deepErase( infos_ );
-    deleteAndZeroPtr( invdistgridder_ );
+    deleteAndNullPtr( invdistgridder_ );
 }
 
 
@@ -616,7 +616,7 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     delete layermodel_;
     layermodel_ = InterpolationLayerModel::factory().create( lmtype );
     if ( !layermodel_ || (lmpar && !layermodel_->usePar(*lmpar)) )
-	deleteAndZeroPtr( layermodel_ );
+	deleteAndNullPtr( layermodel_ );
 
     return true;
 }

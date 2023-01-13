@@ -66,7 +66,7 @@ void uiPresMakerPIMgr::dTectToolbarChanged()
 
 void uiPresMakerPIMgr::cleanup()
 {
-    closeAndZeroPtr( dlg_ );
+    closeAndNullPtr( dlg_ );
     uiPluginInitMgr::cleanup();
 }
 

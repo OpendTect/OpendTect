@@ -445,7 +445,7 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
 	}
     }
 
-    deleteAndZeroPtr( in );
+    deleteAndNullPtr( in );
     if ( pdfis1d )
     {
 	auto* newpdf = new Sampled1DProbDenFunc( a1d );

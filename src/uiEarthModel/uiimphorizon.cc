@@ -207,7 +207,7 @@ uiImportHorizon::~uiImportHorizon()
 
 void uiImportHorizon::descChg( CallBacker* )
 {
-    deleteAndZeroPtr( scanner_ );
+    deleteAndNullPtr( scanner_ );
 }
 
 

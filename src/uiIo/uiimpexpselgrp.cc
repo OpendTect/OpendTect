@@ -431,7 +431,7 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 	selgrpset += selgrp;
     }
 
-    deleteAndZeroPtr( strm_ );
+    deleteAndNullPtr( strm_ );
     return selgrpset;
 }
 
@@ -443,7 +443,7 @@ SelGrpExporter::SelGrpExporter( const char* fnm )
     {
 	errmsg_ = tr("Cannot write to specified file");
 	strm_->addErrMsgTo( errmsg_ );
-	deleteAndZeroPtr( strm_ );
+	deleteAndNullPtr( strm_ );
     }
 }
 
@@ -490,7 +490,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 	strm_->addErrMsgTo( errmsg_ );
     }
 
-    deleteAndZeroPtr( strm_ );
+    deleteAndNullPtr( strm_ );
     return ret;
 }
 

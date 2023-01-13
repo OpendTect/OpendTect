@@ -106,28 +106,28 @@ uiSeisPartServer::~uiSeisPartServer()
 
 void uiSeisPartServer::survChangedCB( CallBacker* )
 {
-    deleteAndZeroPtr( man2dseisdlg_ );
-    deleteAndZeroPtr( man3dseisdlg_ );
-    deleteAndZeroPtr( man2dprestkdlg_ );
-    deleteAndZeroPtr( man3dprestkdlg_ );
-    deleteAndZeroPtr( manwvltdlg_ );
-    deleteAndZeroPtr( impwvltdlg_ );
-    deleteAndZeroPtr( expwvltdlg_ );
+    deleteAndNullPtr( man2dseisdlg_ );
+    deleteAndNullPtr( man3dseisdlg_ );
+    deleteAndNullPtr( man2dprestkdlg_ );
+    deleteAndNullPtr( man3dprestkdlg_ );
+    deleteAndNullPtr( manwvltdlg_ );
+    deleteAndNullPtr( impwvltdlg_ );
+    deleteAndNullPtr( expwvltdlg_ );
 
-    deleteAndZeroPtr( impcbvsdlg_ );
-    deleteAndZeroPtr( impcbvsothsurvdlg_ );
-    deleteAndZeroPtr( imp3dseisdlg_ );
-    deleteAndZeroPtr( exp3dseisdlg_ );
-    deleteAndZeroPtr( imp2dseisdlg_ );
-    deleteAndZeroPtr( exp2dseisdlg_ );
-    deleteAndZeroPtr( impps3dseisdlg_ );
-    deleteAndZeroPtr( expps3dseisdlg_ );
-    deleteAndZeroPtr( impps2dseisdlg_ );
-    deleteAndZeroPtr( expps2dseisdlg_ );
-    deleteAndZeroPtr( expcubeposdlg_ );
+    deleteAndNullPtr( impcbvsdlg_ );
+    deleteAndNullPtr( impcbvsothsurvdlg_ );
+    deleteAndNullPtr( imp3dseisdlg_ );
+    deleteAndNullPtr( exp3dseisdlg_ );
+    deleteAndNullPtr( imp2dseisdlg_ );
+    deleteAndNullPtr( exp2dseisdlg_ );
+    deleteAndNullPtr( impps3dseisdlg_ );
+    deleteAndNullPtr( expps3dseisdlg_ );
+    deleteAndNullPtr( impps2dseisdlg_ );
+    deleteAndNullPtr( expps2dseisdlg_ );
+    deleteAndNullPtr( expcubeposdlg_ );
 
-    deleteAndZeroPtr( t2ddlgs2d_ );
-    deleteAndZeroPtr( t2ddlgs3d_ );
+    deleteAndNullPtr( t2ddlgs2d_ );
+    deleteAndNullPtr( t2ddlgs3d_ );
 }
 
 

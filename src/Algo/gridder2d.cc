@@ -119,7 +119,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( order == trend_->getOrder() )
 	    return;
 
-	deleteAndZeroPtr( trend_ );
+	deleteAndNullPtr( trend_ );
     }
 
     if ( order != PolyTrend::None )
@@ -697,8 +697,8 @@ bool RadialBasisFunctionGridder2D::updateSolver()
 
 bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
 {
-    deleteAndZeroPtr( solv_ );
-    deleteAndZeroPtr( globalweights_ ); //previous solution is invalid too
+    deleteAndNullPtr( solv_ );
+    deleteAndNullPtr( globalweights_ ); //previous solution is invalid too
     const int sz = usedpoints_.size();
     if ( !points_ || !sz )
 	return false;
@@ -736,7 +736,7 @@ bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
 
 bool RadialBasisFunctionGridder2D::updateSolution()
 {
-    deleteAndZeroPtr( globalweights_ );
+    deleteAndNullPtr( globalweights_ );
     if ( !values_ || values_->isEmpty() )
 	return false;
 

@@ -347,7 +347,7 @@ void uiIOObjSel::preFinalizeCB( CallBacker* )
 void uiIOObjSel::survChangedCB( CallBacker* )
 {
     if ( workctio_.ioobj_ )
-	deleteAndZeroPtr( workctio_.ioobj_ );
+	deleteAndNullPtr( workctio_.ioobj_ );
 
     initRead();
 }

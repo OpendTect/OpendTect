@@ -173,7 +173,7 @@ void* Network::RequestPacket::allocPayload( od_int32 size )
 
 void Network::RequestPacket::setPayload( void* ptr, od_int32 size )
 {
-    deleteAndZeroArrPtr( payload_ );
+    deleteAndNullArrPtr( payload_ );
 
     payload_ = (char*)ptr;
     mPayloadSize_ = payload_ ? size : 0;

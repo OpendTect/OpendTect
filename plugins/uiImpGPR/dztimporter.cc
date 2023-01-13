@@ -157,7 +157,7 @@ int DZT::Importer::closeAll()
 {
     istream_.close();
 
-    deleteAndZeroPtr(wrr_);
+    deleteAndNullPtr(wrr_);
 
     return Finished();
 }

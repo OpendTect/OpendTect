@@ -331,7 +331,7 @@ Pos::RangeProvider2D::RangeProvider2D( const Pos::RangeProvider2D& p )
 
 Pos::RangeProvider2D::~RangeProvider2D()
 {
-    unRefAndZeroPtr( curgeom_ );
+    unRefAndNullPtr( curgeom_ );
 }
 
 
@@ -344,7 +344,7 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 	trcrgs_ = p.trcrgs_;
 	curtrcidx_ = p.curtrcidx_;
 	curlineidx_ =  p.curlineidx_;
-	unRefAndZeroPtr( curgeom_ );
+	unRefAndNullPtr( curgeom_ );
 	curzidx_ = p.curzidx_;
 	curlinezsampsz_ = p.curlinezsampsz_;
 	for ( int idx=0; idx<p.nrLines(); idx++ )
@@ -365,7 +365,7 @@ const char* Pos::RangeProvider2D::type() const
 void Pos::RangeProvider2D::reset()
 {
     curlineidx_ = 0;
-    unRefAndZeroPtr( curgeom_ );
+    unRefAndNullPtr( curgeom_ );
     StepInterval<float> zrg = zrgs_[0];
     if ( !geomids_.isEmpty() )
     {
@@ -484,7 +484,7 @@ bool Pos::RangeProvider2D::toNextPos()
 	    break;
 
 	curlineidx_++;
-	unRefAndZeroPtr( curgeom_ );
+	unRefAndNullPtr( curgeom_ );
 	if ( !geomids_.validIdx(curlineidx_) )
 	    return false;
 

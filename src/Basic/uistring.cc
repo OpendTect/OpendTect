@@ -321,7 +321,7 @@ uiString::uiString( const uiString& str )
 
 uiString::~uiString()
 {
-    unRefAndZeroPtr(data_);
+    unRefAndNullPtr(data_);
 
     delete [] debugstr_;
 }
@@ -356,7 +356,7 @@ bool uiString::isEmpty() const
 
 void uiString::setEmpty()
 {
-    unRefAndZeroPtr(data_);
+    unRefAndNullPtr(data_);
     mSetDBGStr;
 }
 
@@ -517,7 +517,7 @@ uiString& uiString::operator=( const uiString& str )
 
     Threads::Locker datalocker( datalock_ );
     refPtr( str.data_ );
-    unRefAndZeroPtr( data_ );
+    unRefAndNullPtr( data_ );
     data_ = str.data_;
     mSetDBGStr;
     return *this;
@@ -547,7 +547,7 @@ uiString& uiString::set( const char* str )
     }
     else
     {
-	unRefAndZeroPtr( data_ );
+	unRefAndNullPtr( data_ );
     }
     mSetDBGStr;
     return *this;

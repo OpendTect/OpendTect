@@ -163,7 +163,7 @@ PSAttrib::PSAttrib( Desc& ds )
 					       errmsg) )
 	{
 	    errmsg_ = errmsg;
-	    deleteAndZeroPtr( preprocessor_ );
+	    deleteAndNullPtr( preprocessor_ );
 	}
     }
     else

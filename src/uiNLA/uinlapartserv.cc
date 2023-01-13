@@ -510,7 +510,7 @@ bool uiNLAPartServer::doDPSDlg()
     uidps_->setGroupNames( bss );
     uidps_->setGroupType( "Data Set" );
     const bool res = uidps_->go();
-    deleteAndZeroPtr( uidps_ );
+    deleteAndNullPtr( uidps_ );
     return res;
 }
 

@@ -41,7 +41,7 @@ bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
     mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
     bothor_ = bothor;
 
-    deleteAndZeroPtr( iter_ );
+    deleteAndNullPtr( iter_ );
 
     return tophor_ && bothor_;
 }

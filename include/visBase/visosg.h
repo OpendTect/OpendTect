@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 /*! Definition of macros used to make osg-life easier */
 
-#include "refcount.h"
 #include "visbasemod.h"
+#include "refcount.h"
 
 class Coord3;
 
@@ -37,9 +37,11 @@ defined(uiOSG_EXPORTS) || defined(UIOSG_EXPORTS)
 
 namespace visBase
 {
-   void unRefOsgPtr(osg::Referenced*);
-   void refOsgPtr(const osg::Referenced*);
-   void unRefAndZeroOsgPtr(osg::Referenced*);
+    void unRefOsgPtr(osg::Referenced*);
+    void refOsgPtr(const osg::Referenced*);
+    void unRefAndNullOsgPtr(osg::Referenced*);
+    mDeprecated("Use unRefAndNullOsgPtr")
+    void unRefAndZeroOsgPtr(osg::Referenced*);
 }
 
 

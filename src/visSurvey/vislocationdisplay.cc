@@ -86,9 +86,9 @@ LocationDisplay::~LocationDisplay()
     }
 
     removeChild( sower_->osgNode() );
-    unRefAndZeroPtr( sower_ );
+    unRefAndNullPtr( sower_ );
     removeChild( painter_->osgNode() );
-    unRefAndZeroPtr( painter_ );
+    unRefAndNullPtr( painter_ );
 }
 
 

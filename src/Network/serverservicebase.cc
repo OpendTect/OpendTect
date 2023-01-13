@@ -238,9 +238,9 @@ void ServiceServerMgr::reportToCheckCB( CallBacker* )
 void ServiceServerMgr::doAppClosing( CallBacker* cb )
 {
     detachAllNotifiers();
-    deleteAndZeroPtr( reporttocheck_ );
+    deleteAndNullPtr( reporttocheck_ );
     doDeRegister();
-    deleteAndZeroPtr( thisservice_ );
-    deleteAndZeroPtr( reportto_ );
+    deleteAndNullPtr( thisservice_ );
+    deleteAndNullPtr( reportto_ );
     ServiceMgrBase::doAppClosing( cb );
 }

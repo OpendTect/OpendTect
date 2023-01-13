@@ -304,13 +304,13 @@ uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
 uiSimpleTimeDepthTransform::~uiSimpleTimeDepthTransform()
 {
     detachAllNotifiers();
-    unRefAndZeroPtr( transform_ );
+    unRefAndNullPtr( transform_ );
 }
 
 
 ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
 {
-    unRefAndZeroPtr( transform_ );
+    unRefAndNullPtr( transform_ );
 
     const IOObj* ioobj = selfld_->ioobj( true );
     if ( !ioobj )
@@ -324,7 +324,7 @@ ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
     {
-	unRefAndZeroPtr( transform_ );
+	unRefAndNullPtr( transform_ );
 	return nullptr;
     }
 

@@ -608,7 +608,7 @@ StreamData Network::HttpFileSystemAccess::createIStream( const char* fnm,
     impl->fname_ = fnm;
     impl->istrm_ = new Network::webistream( new Network::webistreambuf( fnm ) );
     if ( !impl->istrm_->good() )
-	deleteAndZeroPtr( impl->istrm_ );
+	deleteAndNullPtr( impl->istrm_ );
 
     sd.setImpl( impl );
     return sd;
@@ -626,7 +626,7 @@ StreamData Network::HttpFileSystemAccess::createOStream( const char* fnm,
     impl->fname_ = fnm;
     impl->ostrm_ = new Network::webostream( new Network::webostreambuf( fnm ) );
     if ( !impl->ostrm_->good() )
-	deleteAndZeroPtr( impl->ostrm_ );
+	deleteAndNullPtr( impl->ostrm_ );
 
     sd.setImpl( impl );
     return sd;

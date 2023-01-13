@@ -35,7 +35,7 @@ PointSet::PointSet()
 
 PointSet::~PointSet()
 {
-    unRefAndZeroPtr( drawstyle_ );
+    unRefAndNullPtr( drawstyle_ );
 }
 
 

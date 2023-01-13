@@ -50,14 +50,14 @@ AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
 
 
 #define mRemoveAnnotItem( item )\
-{ view_.scene().removeItem( item ); deleteAndZeroPtr( item ); }
+{ view_.scene().removeItem( item ); deleteAndNullPtr( item ); }
 
 AxesDrawer::~AxesDrawer()
 {
-    mRemoveAnnotItem( rectitem_ );
-    mRemoveAnnotItem( titletxt_ );
-    mRemoveAnnotItem( scalebaritem_ );
-    mRemoveAnnotItem( colorbaritem_ );
+    deleteAndNullPtr( rectitem_ );
+    deleteAndNullPtr( titletxt_ );
+    deleteAndNullPtr( scalebaritem_ );
+    deleteAndNullPtr( colorbaritem_ );
 }
 
 
@@ -174,8 +174,8 @@ void AxesDrawer::updateViewRect()
 
     if ( !showx1annot && !showx2annot && annot.title_.isEmpty() )
     {
-	mRemoveAnnotItem( rectitem_ );
-	mRemoveAnnotItem( titletxt_ );
+	deleteAndNullPtr( rectitem_ );
+	deleteAndNullPtr( titletxt_ );
 	return;
     }
 

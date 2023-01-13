@@ -1682,7 +1682,7 @@ bool uiPythonSettings::useScreen()
 
     needrestore_ = chgdsetts_;
     if ( commitSetts(*chgdsetts_) )
-	deleteAndZeroPtr(chgdsetts_);
+	deleteAndNullPtr(chgdsetts_);
 
     if ( chgdsetts_ )
 	return false;

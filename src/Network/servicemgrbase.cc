@@ -252,7 +252,7 @@ void ServiceMgrBase::stopServer( bool islocal )
                 pFDebugMsg( DGB_SERVICES,
                     BufferString( "Stopping listening to: ",
                         getAuthority( true ).toString() ) );
-            deleteAndZeroPtr( localserver_ );
+	    deleteAndNullPtr( localserver_ );
         }
         else
         {
@@ -260,7 +260,7 @@ void ServiceMgrBase::stopServer( bool islocal )
                 pFDebugMsg( DGB_SERVICES,
                     BufferString( "Stopping listening to: ",
                         getAuthority( false ).toString() ) );
-            deleteAndZeroPtr( tcpserver_ );
+	    deleteAndNullPtr( tcpserver_ );
         }
     }
 }
@@ -504,7 +504,7 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 	{
 	    NotifyStopper ns( pytha.envChange );
 	    if ( activatefp.isEmpty() )
-		deleteAndZeroPtr( pytha.activatefp_ );
+		deleteAndNullPtr( pytha.activatefp_ );
 	    else if ( pytha.activatefp_ )
 		*pytha.activatefp_ = activatefp;
 	    else

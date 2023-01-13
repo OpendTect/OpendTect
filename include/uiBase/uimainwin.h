@@ -279,5 +279,6 @@ void closeAndNullPtr( T*& ptr )
 }
 
 template <class T>
+mDeprecated("Use closeAndNullPtr")
 void closeAndZeroPtr( T*& ptr )
 { closeAndNullPtr( ptr); }

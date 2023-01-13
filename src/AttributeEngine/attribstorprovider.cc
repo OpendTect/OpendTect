@@ -187,7 +187,7 @@ StorageProvider::~StorageProvider()
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg_ = s; deleteAndZeroPtr( mscprov_ ); return false; }
+#define mErrRet(s) { errmsg_ = s; deleteAndNullPtr( mscprov_ ); return false; }
 
 bool StorageProvider::checkInpAndParsAtStart()
 {

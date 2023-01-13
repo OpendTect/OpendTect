@@ -377,7 +377,7 @@ void VertexShape::setCoordinates( Coordinates* coords )
     {
 	 mDetachCB( coords_->change, VertexShape::coordinatesChangedCB );
 	 if ( osggeom_ ) osggeom_->setVertexArray(0);
-	 unRefAndZeroPtr( coords_ );
+	 unRefAndNullPtr( coords_ );
     }
     coords_ = coords;
 

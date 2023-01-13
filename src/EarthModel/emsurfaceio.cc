@@ -112,7 +112,7 @@ void dgbSurfaceReader::init( const char* filetype, const char* objname )
     if ( conn_ )
 	createAuxDataReader();
 
-    deleteAndZeroPtr( conn_ );
+    deleteAndNullPtr( conn_ );
 }
 
 
@@ -305,7 +305,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( !strm.isOK() )
     {
 	msg_ = tr("Could not open horizon file"); strm.addErrMsgTo( msg_ );
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -313,7 +313,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( filetype && !astream.isOfFileType(filetype) )
     {
 	msg_ = tr("Horizon file has wrong file type");
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -333,7 +333,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     if ( !readParData(strm,toppar,filename_) )
     {
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -352,7 +352,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     const int res = scanFor2DGeom( trcranges );
     if ( res < 0 )
     {
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -368,7 +368,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     {
 	const bool ret = parseVersion1( *par_ );
 	if ( !ret )
-	    deleteAndZeroPtr( conn_ );
+	    deleteAndNullPtr( conn_ );
 
 	return ret;
     }
@@ -376,7 +376,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( is2d && linesets_.isEmpty() && geomids_.isEmpty() )
     {
 	msg_ = tr("No geometry found for this horizon");
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -741,7 +741,7 @@ int dgbSurfaceReader::currentRow() const
 
 int dgbSurfaceReader::wrapUp( int res )
 {
-    deleteAndZeroPtr( conn_ );
+    deleteAndNullPtr( conn_ );
     return res;
 }
 
@@ -1595,7 +1595,7 @@ void dgbSurfaceWriter::finishWriting()
     astream.newParagraph();
     par_->putTo( astream );
     surface_.saveDisplayPars();
-    deleteAndZeroPtr( conn_ );
+    deleteAndNullPtr( conn_ );
 }
 
 

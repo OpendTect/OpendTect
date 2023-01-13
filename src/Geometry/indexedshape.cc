@@ -315,7 +315,7 @@ void IndexedGeometry::removeAll( bool deep )
 	texturecoordlist_->remove( idxs );
 
     if ( deep )
-     unRefAndZeroPtr( primitiveset_ );
+     unRefAndNullPtr( primitiveset_ );
     else
 	primitiveset_->setEmpty();
 }

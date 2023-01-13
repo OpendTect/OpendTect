@@ -86,9 +86,9 @@ void SurfaceLimitedFiller::releaseData()
     deepUnRef( hors_ );
     deepErase( faults_ );
 
-    unRefAndZeroPtr( starthorizon_ );
-    unRefAndZeroPtr( refhorizon_ );
-    unRefAndZeroPtr( gradhorizon_ );;
+    unRefAndNullPtr( starthorizon_ );
+    unRefAndNullPtr( refhorizon_ );
+    unRefAndNullPtr( gradhorizon_ );;
 }
 
 
@@ -201,7 +201,7 @@ int SurfaceLimitedFiller::setDataHorizon( const MultiID& mid,
     Executor* loader = hor3d->auxdata.auxDataLoader( auxdataidx );
     if ( !loader || !loader->execute() )
     {
-	unRefAndZeroPtr( hor3d );
+	unRefAndNullPtr( hor3d );
 	return -1;
     }
 

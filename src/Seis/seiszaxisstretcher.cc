@@ -67,7 +67,7 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
     if ( !seisreader_->prepareWork(Seis::Scan) ||
 	 !seisreader_->seisTranslator())
     {
-	deleteAndZeroPtr( seisreader_ );
+	deleteAndNullPtr( seisreader_ );
 	return;
     }
 
@@ -137,7 +137,7 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
     seisreader_->setSelData( sd.clone() );
     if ( !seisreader_->prepareWork() )
     {
-	deleteAndZeroPtr( seisreader_ );
+	deleteAndNullPtr( seisreader_ );
 	return;
     }
 
@@ -146,7 +146,7 @@ void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 	seisreadertdmodel_->setSelData( sd.clone() );
 	if ( !seisreadertdmodel_->prepareWork() )
 	{
-	    deleteAndZeroPtr( seisreadertdmodel_ );
+	    deleteAndNullPtr( seisreadertdmodel_ );
 	    return;
 	}
     }
@@ -452,7 +452,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
     {
 	if ( !seisreader_->get(trc) )
 	{
-	    deleteAndZeroPtr( seisreader_ );
+	    deleteAndNullPtr( seisreader_ );
 	    return false;
 	}
 
@@ -507,7 +507,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
     {
 	if ( !seisreadertdmodel_->get(trc) )
 	{
-	    deleteAndZeroPtr( seisreadertdmodel_ );
+	    deleteAndNullPtr( seisreadertdmodel_ );
 	    return false;
 	}
 

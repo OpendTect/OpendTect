@@ -103,7 +103,7 @@ SeisStoreAccess::Setup& SeisStoreAccess::Setup::operator =( const Setup& oth )
 {
     if ( this != &oth )
     {
-	deleteAndZeroPtr( ioobj_ );
+	deleteAndNullPtr( ioobj_ );
 	if ( oth.ioobj_ )
 	    ioobj( *oth.ioobj_ );
 
@@ -311,7 +311,7 @@ void SeisStoreAccess::setIOObj( const IOObj* ioobj )
     else
     {
 	if ( !trl_ )
-	    deleteAndZeroPtr( ioobj_ );
+	    deleteAndNullPtr( ioobj_ );
 	else if ( strl() && seldata_ && !seldata_->isAll() )
 	    strl()->setSelData( seldata_ );
     }
@@ -363,15 +363,15 @@ bool SeisStoreAccess::cleanUp( bool alsoioobj_ )
     if ( strl() )
 	{ ret = strl()->close(); if ( !ret ) errmsg_ = strl()->errMsg(); }
 
-    deleteAndZeroPtr( trl_ );
-    deleteAndZeroPtr( dataset_ );
+    deleteAndNullPtr( trl_ );
+    deleteAndNullPtr( dataset_ );
     psioprov_ = nullptr;
     nrtrcs_ = 0;
 
     if ( alsoioobj_ )
     {
-	deleteAndZeroPtr( ioobj_ );
-	deleteAndZeroPtr( seldata_ );
+	deleteAndNullPtr( ioobj_ );
+	deleteAndNullPtr( seldata_ );
     }
 
     return ret;
@@ -422,7 +422,7 @@ void SeisStoreAccess::usePar( const IOPar& iop )
     if ( !seldata_ )
 	seldata_ = Seis::SelData::get( iop );
     if ( seldata_ && seldata_->isAll() )
-	deleteAndZeroPtr( seldata_ );
+	deleteAndNullPtr( seldata_ );
 
     if ( strl() )
     {
@@ -492,8 +492,8 @@ void Seis::ODSeqInp::initClass()
 
 bool Seis::ODSeqInp::usePar( const IOPar& iop )
 {
-    deleteAndZeroPtr( rdr_ );
-    deleteAndZeroPtr( psrdr_ );
+    deleteAndNullPtr( rdr_ );
+    deleteAndNullPtr( psrdr_ );
 
     const Seis::GeomType gt = getGeomType( iop );
     if ( !Seis::isPS(gt) )
@@ -507,7 +507,7 @@ bool Seis::ODSeqInp::usePar( const IOPar& iop )
 	if ( !rdr_->errMsg().isEmpty() )
 	{
 	    errmsg_ = rdr_->errMsg();
-	    deleteAndZeroPtr( rdr_ );;
+	    deleteAndNullPtr( rdr_ );;
 	}
 
 	return rdr_;
@@ -621,7 +621,7 @@ void Seis::ODSeqOut::initClass()
 
 bool Seis::ODSeqOut::usePar( const IOPar& iop )
 {
-    deleteAndZeroPtr( wrr_ );
+    deleteAndNullPtr( wrr_ );
     PtrMan<IOObj> ioobj = SeisStoreAccess::getFromPar( iop );
     if ( !ioobj )
 	return false;
@@ -633,7 +633,7 @@ bool Seis::ODSeqOut::usePar( const IOPar& iop )
     if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
-	deleteAndZeroPtr( wrr_ );
+	deleteAndNullPtr( wrr_ );
     }
 
     return wrr_;

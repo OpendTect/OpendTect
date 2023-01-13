@@ -34,13 +34,13 @@ uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
 
 uiWellT2DTransform::~uiWellT2DTransform()
 {
-    unRefAndZeroPtr( transform_ );
+    unRefAndNullPtr( transform_ );
 }
 
 
 ZAxisTransform* uiWellT2DTransform::getSelection()
 {
-    unRefAndZeroPtr( transform_ );
+    unRefAndNullPtr( transform_ );
 
     const IOObj* ioobj = fld_->ioobj( true );
     if ( !ioobj ) return 0;
@@ -49,7 +49,7 @@ ZAxisTransform* uiWellT2DTransform::getSelection()
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
     {
-	unRefAndZeroPtr( transform_ );
+	unRefAndNullPtr( transform_ );
 	return 0;
     }
 

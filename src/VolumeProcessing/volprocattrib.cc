@@ -62,7 +62,7 @@ void VolProcAttrib::prepareForComputeData()
 	return;
 
     if ( chain_ ) chain_->unRef();
-    if ( executor_ ) deleteAndZeroPtr( executor_ );
+    if ( executor_ ) deleteAndNullPtr( executor_ );
     chain_ = new VolProc::Chain();
     chain_->ref();
     uiString errmsg;

@@ -74,8 +74,8 @@ MPEEditor::~MPEEditor()
     removeChild( sower_->osgNode() );
     delete sower_;
 
-    unRefAndZeroPtr( patchmarkers_ );
-    unRefAndZeroPtr( patchline_ );
+    unRefAndNullPtr( patchmarkers_ );
+    unRefAndNullPtr( patchline_ );
 }
 
 

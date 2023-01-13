@@ -418,7 +418,7 @@ static bool doBasicProdSelFn( uiParent* p, bool& skippluginsel, uiRetVal& msgs )
 	    msgs.add( toUiString(prodloader_->errMsg()) );
 	    prodloader_->close();
 	}
-	deleteAndZeroPtr( prodloader_ );
+	deleteAndNullPtr( prodloader_ );
 	return false;
     }
 
@@ -459,7 +459,7 @@ mExternC(uiTools) bool doProductSelection( uiParent* p, bool& skippluginsel,
 		   ? true : (*prodselfn_)(p,skippluginsel,msgs);
     if ( prodloader_ )
 	prodloader_->close();
-    deleteAndZeroPtr( prodloader_ );
+    deleteAndNullPtr( prodloader_ );
 
     return res;
 }

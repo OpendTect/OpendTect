@@ -51,7 +51,7 @@ HttpRequestProcess::~HttpRequestProcess()
 	qnetworkreplyconn_->deleteLater();
 
     Threads::MutexLocker locker(receiveddatalock_);
-    deleteAndZeroPtr( receiveddata_ );
+    deleteAndNullPtr( receiveddata_ );
 #endif
 }
 
@@ -385,7 +385,7 @@ void HttpRequestManager::shutDownThreading()
     if ( thread_ )
     {
 	thread_->waitForFinish();
-	deleteAndZeroPtr( thread_ );
+	deleteAndNullPtr( thread_ );
     }
 }
 
@@ -454,7 +454,7 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
 
     removeReceiverForCurrentThread();
     qnam_ = nullptr; //Deleted with eventloop_
-    deleteAndZeroPtr( eventloop_ );
+    deleteAndNullPtr( eventloop_ );
 #endif
 }
 

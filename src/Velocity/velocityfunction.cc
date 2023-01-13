@@ -70,7 +70,7 @@ float Function::getVelocity( float z ) const
 	if ( !computeVelocity( (float) cachesd_.start, (float) cachesd_.step,
 			       cache_->size(), cache_->arr() ) )
 	{
-	    deleteAndZeroPtr( cache_ );
+	    deleteAndNullPtr( cache_ );
 	    return mUdf( float );
 	}
     }
@@ -113,7 +113,7 @@ bool Function::moveTo( const BinID& bid )
 void Function::removeCache()
 {
     Threads::Locker lckr( cachelock_ );
-    deleteAndZeroPtr( cache_ );
+    deleteAndNullPtr( cache_ );
 }
 
 

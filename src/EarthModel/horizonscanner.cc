@@ -260,7 +260,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
     ascio_ = new EM::Horizon3DAscIO( fd_, fnm );
     if ( !ascio_ || !ascio_->isOK() )
     {
-	deleteAndZeroPtr( ascio_ );
+	deleteAndNullPtr( ascio_ );
 	return false;
     }
 
@@ -438,7 +438,7 @@ bool HorizonScanner::analyzeData()
     }
 
     isxy_ = selxy_;
-    deleteAndZeroPtr( ascio_ );
+    deleteAndNullPtr( ascio_ );
     return true;
 }
 

@@ -849,7 +849,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	return;
 
     sipfld_->setCurrentItem( 0 );
-    deleteAndZeroPtr( impiop_ );
+    deleteAndNullPtr( impiop_ );
     lastsip_ = nullptr;
 
     uiSurvInfoProvider* sip = sips_[sipidx-1];
@@ -1099,7 +1099,7 @@ uiCopySurveySIP::~uiCopySurveySIP()
 
 void uiCopySurveySIP::reset()
 {
-    deleteAndZeroPtr(crspars_);
+    deleteAndNullPtr(crspars_);
 }
 
 

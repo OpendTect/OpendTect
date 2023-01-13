@@ -44,7 +44,7 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     reader_ = new SeisTrcReader( input );
     if ( !reader_->prepareWork() )
     {
-	deleteAndZeroPtr( reader_ );
+	deleteAndNullPtr( reader_ );
 	errmsg_ = uiStrings::sCantReadInp();
 	return;
     }
@@ -143,7 +143,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	reader_ = new SeisTrcReader( *input_ );
 	if ( !reader_->prepareWork() )
 	{
-	    deleteAndZeroPtr( reader_ );
+	    deleteAndNullPtr( reader_ );
 	    errmsg_ = uiStrings::sCantReadInp();
 	    return false;
 	}
@@ -207,7 +207,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 		if ( !interptr )
 		{
 		    errmsg_ = tr("Not enough memory");
-		    deleteAndZeroPtr( outputtrc );
+		    deleteAndNullPtr( outputtrc );
 		    return false;
 		}
 	    }
@@ -217,7 +217,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 		 (velinpdesc_.type_ == VelocityDesc::RMS &&
 		  !computeDix(inputptr,sd,trcsz,targetptr) ) )
 	    {
-		deleteAndZeroPtr( outputtrc );
+		deleteAndNullPtr( outputtrc );
 	    }
 	}
 
@@ -227,7 +227,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	     (veloutpdesc_.type_ == VelocityDesc::RMS &&
 	      !computeVrms(srcptr,sd,trcsz,outptr) ) )
 	{
-	    deleteAndZeroPtr( outputtrc );
+	    deleteAndNullPtr( outputtrc );
 	}
 
 	delete [] interptr;

@@ -411,7 +411,7 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     uiIOObjSelDlg dlg( this, *ctio );
     dlg.setHelpKey( mODHelpKey(mSessionSaveRestoreHelpID) );
     if ( !dlg.go() )
-	{ delete ctio->ioobj_; deleteAndZeroPtr( ctio ); }
+	{ delete ctio->ioobj_; deleteAndNullPtr( ctio ); }
     else
     {
 	delete ctio->ioobj_; ctio->ioobj_ = dlg.ioObj()->clone();

@@ -80,7 +80,7 @@ void MMPServer::newConnectionCB( CallBacker* )
     if ( !conn->isOK() )
     {
 	errmsg_.add( conn->errMsg() );
-	deleteAndZeroPtr( conn );
+	deleteAndNullPtr( conn );
 	return;
     }
 
@@ -135,7 +135,7 @@ void MMPServer::connClosedCB( CallBacker* cb )
 
     mDetachCB(conn->packetArrived, MMPServer::packetArrivedCB);
     mDetachCB(conn->connectionClosed, MMPServer::connClosedCB);
-    deleteAndZeroPtr(conn);
+    deleteAndNullPtr(conn);
     if ( !errmsg_.isOK() )
 	logMsg.trigger( errmsg_ );
 }

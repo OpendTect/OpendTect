@@ -42,7 +42,7 @@ PointSetDisplay::~PointSetDisplay()
     setDisplayTransformation( 0 );
     delete dpsdispprop_;
 
-    unRefAndZeroPtr( pointset_ );
+    unRefAndNullPtr( pointset_ );
 
 }
 

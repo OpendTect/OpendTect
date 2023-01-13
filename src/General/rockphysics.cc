@@ -365,7 +365,7 @@ RockPhysicsFormulaMgr()
 
 void doNull( CallBacker* )
 {
-    deleteAndZeroPtr( fms_ );
+    deleteAndNullPtr( fms_ );
 }
 
 void createSet()

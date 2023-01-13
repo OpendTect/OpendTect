@@ -49,7 +49,7 @@ using namespace Attrib;
 using namespace EM;
 
 #define mDestroyWorkers \
-	{ deleteAndZeroPtr( proc ); }
+	{ deleteAndNullPtr( proc ); }
 
 
 #define mErrRet(s) \

@@ -198,8 +198,8 @@ void uiSEGYMgr::dTectToolbarChanged()
 
 void uiSEGYMgr::cleanup()
 {
-    closeAndZeroPtr( impdlg_ );
-    closeAndZeroPtr( expdlg_ );
+    closeAndNullPtr( impdlg_ );
+    closeAndNullPtr( expdlg_ );
     uiPluginInitMgr::cleanup();
 }
 

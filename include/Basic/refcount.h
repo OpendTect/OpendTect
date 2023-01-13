@@ -387,7 +387,7 @@ public: \
 		    if ( ptr ) \
 			ptr->unRef(); \
 		} \
-    static void unRefAndZeroPtr( ClassName*& ptr ) \
+    static void unRefAndNullPtr( ClassName*& ptr ) \
 		{ \
 		    if ( ptr ) \
 			ptr->unRef(); \
@@ -395,6 +395,8 @@ public: \
 			return; \
 		    ptr = nullptr; \
 		} \
+    static void unRefAndZeroPtr( ClassName*& ptr ) \
+		{ unRefAndNullPtr(ptr); } \
 private: \
     virtual void		refNotify() const {} \
     virtual void		unRefNotify() const {} \

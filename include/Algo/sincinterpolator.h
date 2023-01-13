@@ -275,7 +275,7 @@ inline float SincInterpolator::getTableVal( int idx, int idy ) const
 template <class RT>
 bool SincInterpolator::initUndefTable( const RT* vals, od_int64 sz )
 {
-    deleteAndZeroArrPtr( isudfarr_ );
+    deleteAndNullArrPtr( isudfarr_ );
     if ( !vals )
 	return true;
 
@@ -292,7 +292,7 @@ bool SincInterpolator::initUndefTable( const RT* vals, od_int64 sz )
     }
 
     if ( !hasudfs )
-	deleteAndZeroArrPtr( isudfarr_ );
+	deleteAndNullArrPtr( isudfarr_ );
 
     return true;
 }
@@ -315,7 +315,7 @@ void SincInterpolator1D<RT,PT>::setInput( const RT* data, bool datahasnoudf )
 {
     data_ = data;
     if ( datahasnoudf )
-	deleteAndZeroArrPtr( isudfarr_ );
+	deleteAndNullArrPtr( isudfarr_ );
     else
 	initUndefTable( data_, nx_ );
 }

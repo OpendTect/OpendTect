@@ -708,7 +708,7 @@ Strat::LevelSet* Strat::LevelSet::read( const MultiID& key )
 
     auto* ret = new LevelSet;
     if ( !ret->readFrom(fp.fullPath()) )
-	deleteAndZeroPtr( ret );
+	deleteAndNullPtr( ret );
 
     if ( ret )
 	ret->dbky_ = key;

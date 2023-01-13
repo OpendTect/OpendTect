@@ -112,8 +112,8 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 	nrdone_++;
     }
 
-    deleteAndZeroPtr( sd_ );
-    deleteAndZeroPtr( sdmask_ );
+    deleteAndNullPtr( sd_ );
+    deleteAndNullPtr( sdmask_ );
 
     BufferString path( path_ );
     path_ = FilePath( GetDataDir() ).add( "Misc" )
@@ -136,8 +136,8 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool GMTArray2DInterpol::doFinish( bool success )
 {
-    deleteAndZeroPtr( sd_ );
-    deleteAndZeroPtr( sdmask_ );
+    deleteAndNullPtr( sd_ );
+    deleteAndNullPtr( sdmask_ );
 
     OS::MachineCommand xyzmc( "grd2xyz" );
     xyzmc.addArg( path_ );

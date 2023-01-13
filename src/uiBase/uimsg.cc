@@ -774,5 +774,5 @@ void uiUserShowWait::readyNow()
 
     setMessage( uiString::emptyString() );
     mcc_->restore();
-    deleteAndZeroPtr( mcc_ );
+    deleteAndNullPtr( mcc_ );
 }

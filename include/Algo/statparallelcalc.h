@@ -101,7 +101,7 @@ inline void ParallelCalc<T>::setEmpty()
 {
     this->clear();
     nradded_ = 0; data_ = nullptr; weights_ = nullptr;
-    deleteAndZeroPtr( udfarr_ );
+    deleteAndNullPtr( udfarr_ );
 }
 
 

@@ -64,14 +64,14 @@ PickSetDisplay::~PickSetDisplay()
 	dragger_ = nullptr;
     }
 
-    unRefAndZeroPtr( bodydisplay_ );
+    unRefAndNullPtr( bodydisplay_ );
     removeChild( markerset_->osgNode() );
-    unRefAndZeroPtr( markerset_ );
+    unRefAndNullPtr( markerset_ );
 
     if ( polylines_ )
     {
 	removeChild( polylines_->osgNode() );
-	unRefAndZeroPtr( polylines_ );
+	unRefAndNullPtr( polylines_ );
     }
 
     Pick::SetMgr& mgr = Pick::Mgr();
@@ -399,7 +399,7 @@ void PickSetDisplay::removeAll()
 	polylines_->removeAllPrimitiveSets();
 	polylines_->getCoordinates()->setEmpty();
 	removeChild( polylines_->osgNode() );
-	unRefAndZeroPtr( polylines_ );
+	unRefAndNullPtr( polylines_ );
     }
 }
 

@@ -393,7 +393,7 @@ void PluginManager::openALOEntries()
     for ( auto* dataptr : data_ )
     {
 	Data& data = *dataptr;
-	deleteAndZeroPtr( data.sla_ );
+	deleteAndNullPtr( data.sla_ );
 	if ( data.autosource_ == Data::None )
 	    continue;
 
@@ -404,14 +404,14 @@ void PluginManager::openALOEntries()
 	    if ( !errmsg.isEmpty() )
 		ErrMsg( errmsg );
 
-	    deleteAndZeroPtr( data.sla_ );
+	    deleteAndNullPtr( data.sla_ );
 	    if ( data.autosource_ == Data::Both )
 	    {
 		data.autosource_ = data.autosource_ == Data::UserDir
 				    ? Data::AppDir : Data::UserDir;
 		data.sla_ = new SharedLibAccess( getFileName(data) );
 		if ( !data.sla_->isOK() )
-		    { deleteAndZeroPtr( data.sla_ ); }
+		    { deleteAndNullPtr( data.sla_ ); }
 	    }
 	}
 
@@ -532,7 +532,7 @@ bool PluginManager::load( const char* libnm )
     if ( existing && existing->sla_ && existing->sla_->isOK() )
     {
 	data->sla_->close();
-	deleteAndZeroPtr( data );
+	deleteAndNullPtr( data );
 
 	if ( existing->isloaded_ )
 	{
@@ -544,7 +544,7 @@ bool PluginManager::load( const char* libnm )
 	{
 	    existing->info_ = nullptr;
 	    existing->sla_->close();
-	    deleteAndZeroPtr( existing->sla_ );
+	    deleteAndNullPtr( existing->sla_ );
 	    return false;
 	}
 
@@ -564,7 +564,7 @@ bool PluginManager::load( const char* libnm )
 		data->sla_ = nullptr;
 	    }
 
-	    deleteAndZeroPtr( data );
+	    deleteAndNullPtr( data );
 
 	    if ( existing->isloaded_ )
 	    {
@@ -575,7 +575,7 @@ bool PluginManager::load( const char* libnm )
 	    if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly,true))
 	    {
 		existing->info_ = nullptr;
-		deleteAndZeroPtr( existing->sla_ );
+		deleteAndNullPtr( existing->sla_ );
 		return false;
 	    }
 
@@ -606,7 +606,7 @@ bool PluginManager::unload( const char* libnm )
 	return false;
 
     data->sla_->close();
-    deleteAndZeroPtr( data->sla_ );
+    deleteAndNullPtr( data->sla_ );
     data->info_ = nullptr;
     data->isloaded_ = false;
     return true;
@@ -639,7 +639,7 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 	{
 	    data.info_ = nullptr;
 	    data.sla_->close();
-	    deleteAndZeroPtr( data.sla_ );
+	    deleteAndNullPtr( data.sla_ );
 	}
 
 	mDefineStaticLocalObject(bool,shw_load,
@@ -668,7 +668,7 @@ void PluginManager::unLoadAll()
 	    continue;
 
 	data->sla_->close();
-	deleteAndZeroPtr( data->sla_ );
+	deleteAndNullPtr( data->sla_ );
 	data->isloaded_ = false;
     }
 }

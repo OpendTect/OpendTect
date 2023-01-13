@@ -69,7 +69,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 	if ( msg )
 	    *msg = tr->errMsg();
 
-	deleteAndZeroPtr( tr );
+	deleteAndNullPtr( tr );
     }
     else if ( tr && tr->is2D() )
     {
@@ -94,9 +94,9 @@ void CBVSSeisTrcTranslator::cleanUp()
 
 void CBVSSeisTrcTranslator::destroyVars( int )
 {
-    deleteAndZeroPtr( rdmgr_ );
-    deleteAndZeroPtr( wrmgr_ );
-    deleteAndZeroArrPtr( compsel_ );
+    deleteAndNullPtr( rdmgr_ );
+    deleteAndNullPtr( wrmgr_ );
+    deleteAndNullArrPtr( compsel_ );
 }
 
 
@@ -209,7 +209,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( rdmgr_->failed() )
     {
 	errmsg_ = toUiString( rdmgr_->errMsg() );
-	deleteAndZeroPtr( rdmgr_ );
+	deleteAndNullPtr( rdmgr_ );
 	return false;
     }
 
@@ -645,7 +645,7 @@ static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
     fp.setExtension( ext );
     StreamProvider* sp = new StreamProvider( fp.fullPath() );
     if ( !sp->exists(true) )
-	deleteAndZeroPtr( sp );
+	deleteAndNullPtr( sp );
 
     return sp;
 }

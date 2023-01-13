@@ -81,7 +81,7 @@ void SEGYSeisTrcTranslator::cleanUp()
 {
     SeisTrcTranslator::cleanUp();
 
-    deleteAndZeroPtr( bp2c_ );
+    deleteAndNullPtr( bp2c_ );
 
     mSetUdf(curbid_.inl());
     mSetUdf(prevbid_.inl());

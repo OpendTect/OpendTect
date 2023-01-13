@@ -48,7 +48,7 @@ void ZMapImporter::setCoordSystem( Coords::CoordSystem* crs )
 
 void ZMapImporter::setUOM( const UnitOfMeasure* uom )
 {
-    deleteAndZeroPtr( uom_ );
+    deleteAndNullPtr( uom_ );
     if ( uom )
 	uom_ = new UnitOfMeasure( *uom );
 }

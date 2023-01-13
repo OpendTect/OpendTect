@@ -47,7 +47,7 @@ bool ReflectivityModelTrace::isOK() const
 
 bool ReflectivityModelTrace::setSize( int sz, bool settonull )
 {
-    deleteAndZeroArrPtr( reflectivities_ );
+    deleteAndNullArrPtr( reflectivities_ );
     if ( sz > 0 )
     {
 	mTryAlloc( reflectivities_, float_complex[sz] );
@@ -125,7 +125,7 @@ ReflectivityModelBase::ReflectivityModelBase( const ElasticModel& emodel,
 	mTryAlloc( sinarr_, float*[nroffs_] );
 	if ( !sini_ )
 	{
-	    deleteAndZeroArrPtr( sini_ );
+	    deleteAndNullArrPtr( sini_ );
 	    isbad_ = true;
 	    return;
 	}

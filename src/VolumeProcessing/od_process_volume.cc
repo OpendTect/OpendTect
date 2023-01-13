@@ -40,7 +40,7 @@ void start()
 void stop()
 {
     if ( thread_ )
-	deleteAndZeroPtr( thread_ );
+	deleteAndNullPtr( thread_ );
 }
 
 

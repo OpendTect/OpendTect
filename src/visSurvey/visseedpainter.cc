@@ -105,7 +105,7 @@ SeedPainter::~SeedPainter()
 {
     removeChild( circle_->osgNode() );
     circle_->unRef();
-    deleteAndZeroPtr( prevev_ );
+    deleteAndNullPtr( prevev_ );
 }
 
 
@@ -228,7 +228,7 @@ bool SeedPainter::acceptMouse( const visBase::EventInfo& eventinfo )
 	picksetmgr_->undo().setUserInteractionEnd(
 				picksetmgr_->undo().currentEventID() );
 
-	deleteAndZeroPtr( prevev_ );
+	deleteAndNullPtr( prevev_ );
 	mReturnHandled( true );
     }
 

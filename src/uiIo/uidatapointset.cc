@@ -1351,8 +1351,8 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 {
     removeSelPts( nullptr );
 
-    closeAndZeroPtr( xplotwin_ );
-    closeAndZeroPtr( statswin_ );
+    closeAndNullPtr( xplotwin_ );
+    closeAndNullPtr( statswin_ );
     return true;
 }
 

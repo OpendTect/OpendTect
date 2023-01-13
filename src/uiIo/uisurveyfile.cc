@@ -209,6 +209,6 @@ bool uiSurveyFile::closeFile()
 	}
     }
 
-    deleteAndZeroPtr( survfile_ );
+    deleteAndNullPtr( survfile_ );
     return true;
 }

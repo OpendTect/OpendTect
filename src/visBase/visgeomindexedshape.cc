@@ -73,11 +73,11 @@ GeomIndexedShape::GeomIndexedShape()
 GeomIndexedShape::~GeomIndexedShape()
 {
     detachAllNotifiers();
-    unRefAndZeroPtr( singlematerial_ );
-    unRefAndZeroPtr( coltabmaterial_ );
+    unRefAndNullPtr( singlematerial_ );
+    unRefAndNullPtr( coltabmaterial_ );
 
     delete colorhandler_;
-    unRefAndZeroPtr( vtexshape_ );
+    unRefAndNullPtr( vtexshape_ );
 }
 
 
@@ -499,7 +499,7 @@ void GeomIndexedShape::setGeometryShapeType( GeomShapeType shapetype,
 	return;
 
     removeChild( vtexshape_->osgNode() );
-    unRefAndZeroPtr( vtexshape_ );
+    unRefAndNullPtr( vtexshape_ );
 
     if ( shapetype == PolyLine )
 	vtexshape_ = visBase::PolyLine::create();
