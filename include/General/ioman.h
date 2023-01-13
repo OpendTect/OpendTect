@@ -220,7 +220,6 @@ public:
     uiRetVal		setDataSource(const IOPar&,bool refresh=false);
     uiRetVal		setDataSource(const CommandLineParser&,
 				      bool refresh=false);
-    BufferString	fullSurveyPath() const;
     bool		recordDataSource(const SurveyDiskLocation&,
 					 uiRetVal&) const;
 			/*!< records dataroot in settings,

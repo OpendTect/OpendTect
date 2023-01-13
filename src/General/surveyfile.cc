@@ -389,7 +389,7 @@ bool EmptyTempSurvey::fillSurveyInfo( const OD::JSON::Object* obj )
 
 uiRetVal EmptyTempSurvey::mount( bool, TaskRunner* )
 {
-    origsurveyfp_ = IOM().fullSurveyPath();
+    origsurveyfp_ = SI().diskLocation().fullPath();
     IOM().setTempSurvey( si_.diskLocation() );
     BufferString errmsg;
     if ( !IOM().validSurveySetup(errmsg) )

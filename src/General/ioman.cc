@@ -1466,13 +1466,6 @@ uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 }
 
 
-BufferString IOMan::fullSurveyPath() const
-{
-    FilePath fp( rootDir(), surveyName() );
-    return fp.fullPath();
-}
-
-
 bool IOMan::recordDataSource( const SurveyDiskLocation& sdl,
 			      uiRetVal& uirv ) const
 {
