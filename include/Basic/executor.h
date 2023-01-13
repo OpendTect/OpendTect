@@ -55,6 +55,9 @@ public:
 			// Being a Task requires:
     bool		execute() override	{ return go(); }
 
+    virtual bool	doPrepare();
+    virtual bool	doFinish(bool success);
+
 protected:
 
     virtual bool	goImpl(od_ostream*,bool,bool,int);
@@ -94,6 +97,7 @@ public:
 protected:
 
     int			nextStep() override;
+    bool		doPrepare() override;
     virtual bool	goToNextExecutor();
     void		findNextSumStop();
 

@@ -523,7 +523,7 @@ int Strat::LayModAttribCalc::nextStep()
     }
 
     seqidx_++;
-    return seqidx_ >= lm_.size() ? doFinish() : MoreToDo();
+    return seqidx_ >= lm_.size() ? Finished() : MoreToDo();
 }
 
 
@@ -537,8 +537,10 @@ void Strat::LayModAttribCalc::setExtrGates(
 }
 
 
-int Strat::LayModAttribCalc::doFinish()
+bool Strat::LayModAttribCalc::doFinish( bool success )
 {
-    dps_.purgeInactive();
-    return Finished();
+    if ( success )
+	dps_.purgeInactive();
+
+    return success;
 }

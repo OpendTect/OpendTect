@@ -468,7 +468,7 @@ void SeisInterpol::setParams( const TrcKeySampling& hs, float maxvel )
 }
 
 
-void SeisInterpol::doPrepare()
+bool SeisInterpol::doPrepare()
 {
     delete fft_;
     fft_ = Fourier::CC::createDefault();
@@ -490,6 +490,7 @@ void SeisInterpol::doPrepare()
     hs_.setCrlRange(Interval<int>(crlrg.start-diffszy/2,crlrg.stop+diffszy/2));
 
     setUpData();
+    return true;
 }
 
 
@@ -557,9 +558,6 @@ void SeisInterpol::doWork( bool docomputemax, int poscutfreq )
 
 int SeisInterpol::nextStep()
 {
-    if ( nrdone_ == 0 )
-	doPrepare();
-
     for ( int idtrc=0; idtrc<posidxs_.size(); idtrc++ )
     {
 	TrcPosTrl& trpos = posidxs_[idtrc];

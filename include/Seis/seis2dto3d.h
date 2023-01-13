@@ -85,7 +85,7 @@ protected:
 
     void		clear();
     void		doWork(bool,int);
-    void		doPrepare();
+    bool		doPrepare() override;
     void		setUpData();
     void		setFinalTrcs();
 

@@ -100,14 +100,18 @@ public:
 
     int nextStep() override
     {
-	if ( !exec_ ) return ErrorOccurred();
-	const int res = exec_->doStep();
-	if ( res==Finished() )
+	return exec_ ? exec_->doStep() : ErrorOccurred();
+    }
+
+    bool doFinish( bool success )
+    {
+	if ( success )
 	{
 	    surface_.setFullyLoaded( true );
 	    surface_.resetChangedFlag();
 	}
-	return res;
+
+	return success;
     }
 
     od_int64	totalNr() const override

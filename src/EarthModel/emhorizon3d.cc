@@ -84,33 +84,44 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 }
 
 
+bool doPrepare()
+{
+    if ( nrattribs_ < 0 )
+	return false;
+
+    const Geometry::BinIDSurface* rcgeom =
+	    horizon_.geometry().geometryElement();
+    if ( !rcgeom )
+	return false;
+
+    inlrg_ = rcgeom->rowRange();
+    crlrg_ = rcgeom->colRange();
+    inl_ = inlrg_.start;
+    return true;
+}
+
+
 int nextStep() override
 {
-    if ( nrattribs_ < 0 ) return ErrorOccurred();
-
-    if ( !nrdone_ )
-    {
-	const Geometry::BinIDSurface* rcgeom =
-		horizon_.geometry().geometryElement();
-	if ( !rcgeom ) return ErrorOccurred();
-
-	inlrg_ = rcgeom->rowRange();
-	crlrg_ = rcgeom->colRange();
-	inl_ = inlrg_.start;
-    }
+    if ( inl_ > inlrg_.stop )
+	return Finished();
 
     PosID posid( horizon_.id() );
     const BinIDValueSet& bvs = *bvss_[0];
     for ( int crl=crlrg_.start; crl<=crlrg_.stop; crl+=crlrg_.step )
     {
 	const BinID bid( inl_, crl );
-	if ( !hs_.includes(bid) ) continue;
+	if ( !hs_.includes(bid) )
+	    continue;
 
 	BinIDValueSet::SPos pos = bvs.find( bid );
-	if ( !pos.isValid() ) continue;
+	if ( !pos.isValid() )
+	    continue;
 
 	const float* vals = bvs.getVals( pos );
-	if ( !vals ) continue;
+	if ( !vals )
+	    continue;
+
 	posid.setSubID( bid.toInt64() );
 	for ( int iattr=0; iattr<nrattribs_; iattr++ )
 	{
@@ -210,17 +221,18 @@ od_int64	nrDone() const override		{ return nrdone_; }
 uiString	uiNrDoneText() const override
 					{ return tr("Positions handled"); }
 
+bool doPrepare()
+{
+    return nrvals_ >= 0 && !horarrays_.isEmpty();
+}
+
 int nextStep() override
 {
     if ( nrvals_ == -1 || horarrays_.isEmpty() )
 	return ErrorOccurred();
 
     if ( sectionidx_ >= bvss_.size() )
-    {
-	fillHorizonArray();
-	horizon_.enableGeometryChecks( true );
 	return Finished();
-    }
 
     const BinIDValueSet& bvs = *bvss_[sectionidx_];
     BinID bid;
@@ -250,6 +262,17 @@ int nextStep() override
     }
 
     return MoreToDo();
+}
+
+bool doFinish( bool success )
+{
+    if ( success )
+    {
+	fillHorizonArray();
+	horizon_.enableGeometryChecks( true );
+    }
+
+    return success;
 }
 
 void fillHorizonArray()

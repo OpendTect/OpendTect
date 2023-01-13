@@ -104,11 +104,7 @@ void LinearArray1DInterpol::extrapolate( bool start )
 int LinearArray1DInterpol::nextStep()
 {
     if ( arr_->info().getTotalSz() <= nrdone_ )
-    {
-	if ( doextrapol_ )
-	    extrapolate( false );
 	return Finished();
-    }
 
     if ( (!arr_->info().validPos(nrdone_) || mIsUdf(arr_->get(nrdone_)))
 	  && !arrstarted_ )
@@ -137,11 +133,7 @@ int LinearArray1DInterpol::nextStep()
     }
 
     if ( stopidx >= arr_->info().getTotalSz() )
-    {
-	if ( doextrapol_ )
-	    extrapolate( false );
 	return Finished();
-    }
 
     if ( (stopidx-startidx)>maxgapsize_ )
     {
@@ -161,6 +153,15 @@ int LinearArray1DInterpol::nextStep()
     nrdone_++;
 
     return MoreToDo();
+}
+
+
+bool LinearArray1DInterpol::doFinish( bool success )
+{
+    if ( success && doextrapol_ )
+	extrapolate( false );
+
+    return success;
 }
 
 
@@ -234,11 +235,7 @@ void PolyArray1DInterpol::extrapolate( bool start )
 int PolyArray1DInterpol::nextStep()
 {
     if ( arr_->info().getTotalSz() <= nrdone_ )
-    {
-	if ( doextrapol_ )
-	    extrapolate( false );
 	return Finished();
-    }
 
     if ( (!arr_->info().validPos(nrdone_) || mIsUdf(arr_->get(nrdone_)))
 	  && !arrstarted_ )
@@ -266,11 +263,7 @@ int PolyArray1DInterpol::nextStep()
 
     if ( mIsUdf(arr_->get((int)posidxs[posidxs.size()-1])) ||
 	 posidxs[posidxs.size()-1]==0 )
-    {
-	if ( doextrapol_ )
-	    extrapolate( false );
 	return Finished();
-    }
 
     TypeSet<float> vals( posidxs.size(), (float)0 );
 
@@ -285,4 +278,13 @@ int PolyArray1DInterpol::nextStep()
     nrdone_++;
 
     return MoreToDo();
+}
+
+
+bool PolyArray1DInterpol::doFinish( bool success )
+{
+    if ( success && doextrapol_ )
+	extrapolate( false );
+
+    return true;
 }

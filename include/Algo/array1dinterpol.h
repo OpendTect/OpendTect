@@ -59,6 +59,7 @@ public:
 			LinearArray1DInterpol();
 protected:
     int			nextStep() override;
+    bool		doFinish(bool) override;
     void		extrapolate(bool start);
 };
 
@@ -73,6 +74,7 @@ public:
 			PolyArray1DInterpol();
 protected:
     int			nextStep() override;
+    bool		doFinish(bool) override;
     bool		getPositions(int pos,TypeSet<float>& posidxs);
     void		extrapolate(bool start);
 };

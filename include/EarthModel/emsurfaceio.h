@@ -92,7 +92,9 @@ public:
     uiString		uiNrDoneText() const override;
     od_int64		totalNr() const override;
 
+    bool		doPrepare() override;
     int			nextStep() override;
+    bool		doFinish(bool) override;
 
     uiString		uiMessage() const override;
 
@@ -146,7 +148,7 @@ protected:
     bool		readParData(od_istream&,const IOPar&,const char*);
     void		mergeExternalPar(const char*);
     int			scanFor2DGeom(TypeSet< StepInterval<int> >&);
-    bool		readHeaders(const char*);
+    bool		readHeaders(StreamConn&,const char*);
     bool		readRowOffsets(od_istream&);
     RowCol		getFileStep() const;
     int			prepareNewSection(od_istream&);
@@ -234,7 +236,6 @@ protected:
    static const char*	linenamesstr_;
 
    void			init(const char* filetype,const char* name);
-   int			wrapUp(int);
 };
 
 

@@ -108,11 +108,9 @@ void dgbSurfaceReader::init( const char* filetype, const char* objname )
     setName( exnm.buf() );
     setNrDoneText( Task::uiStdNrDoneText() );
     auxdataexecs_.allowNull(true);
-    error_ = !readHeaders( filetype );
-    if ( conn_ )
-	createAuxDataReader();
-
-    deleteAndNullPtr( conn_ );
+    StreamConn conn( filename_, Conn::Read );
+    error_ = !readHeaders( conn, filetype );
+    createAuxDataReader();
 }
 
 
@@ -296,16 +294,12 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 }
 
 
-bool dgbSurfaceReader::readHeaders( const char* filetype )
+bool dgbSurfaceReader::readHeaders( StreamConn& conn, const char* filetype )
 {
-    if ( !conn_ )
-	conn_ = new StreamConn( filename_, Conn::Read );
-
-    od_istream& strm = conn_->iStream();
+    od_istream& strm = conn.iStream();
     if ( !strm.isOK() )
     {
 	msg_ = tr("Could not open horizon file"); strm.addErrMsgTo( msg_ );
-	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -313,7 +307,6 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( filetype && !astream.isOfFileType(filetype) )
     {
 	msg_ = tr("Horizon file has wrong file type");
-	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -332,10 +325,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
 
     if ( !readParData(strm,toppar,filename_) )
-    {
-	deleteAndNullPtr( conn_ );
 	return false;
-    }
 
     par_->get( sKeyRowRange(), rowrange_ );
     par_->get( sKeyColRange(), colrange_ );
@@ -351,10 +341,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
     if ( res < 0 )
-    {
-	deleteAndNullPtr( conn_ );
 	return false;
-    }
 
     const bool is2d = res;
     setLinesTrcRngs( trcranges );
@@ -365,18 +352,11 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     par_->get( sKeyDBInfo(), dbinfo_ );
 
     if ( version_==1 )
-    {
-	const bool ret = parseVersion1( *par_ );
-	if ( !ret )
-	    deleteAndNullPtr( conn_ );
-
-	return ret;
-    }
+	return parseVersion1( *par_ );
 
     if ( is2d && linesets_.isEmpty() && geomids_.isEmpty() )
     {
 	msg_ = tr("No geometry found for this horizon");
-	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -739,10 +719,22 @@ int dgbSurfaceReader::currentRow() const
 { return firstrow_+rowindex_*rowrange_.step; }
 
 
-int dgbSurfaceReader::wrapUp( int res )
+bool dgbSurfaceReader::doPrepare()
 {
-    deleteAndNullPtr( conn_ );
-    return res;
+    isinited_ = true;
+    if ( !conn_ )
+    {
+	conn_ = new StreamConn( filename_, Conn::Read );
+	if ( !readHeaders(*conn_,nullptr) )
+	    return false;
+    }
+
+    if ( surface_ )
+	surface_->enableGeometryChecks( false );
+
+    setGeometry();
+    par_->getYN( sKeyDepthOnly(), readonlyz_ );
+    return true;
 }
 
 
@@ -753,20 +745,7 @@ int dgbSurfaceReader::nextStep()
 	if ( !surface_ && !cube_ )
 	    msg_ = toUiString("Internal: No Output Set");
 
-	return wrapUp( ErrorOccurred() );
-    }
-
-    if ( !isinited_ )
-    {
-	isinited_ = true;
-	if ( !readHeaders(nullptr) )
-	    return wrapUp( ErrorOccurred() );
-
-	if ( surface_ )
-	    surface_->enableGeometryChecks( false );
-
-	setGeometry();
-	par_->getYN( sKeyDepthOnly(), readonlyz_ );
+	return ErrorOccurred();
     }
 
     od_istream& strm = conn_->iStream();
@@ -774,7 +753,7 @@ int dgbSurfaceReader::nextStep()
     if ( sectionindex_ >= sectionids_.size() )
     {
 	if ( !surface_ )
-	    return wrapUp( Finished() );
+	    return Finished();
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res && !setsurfacepar_ )
@@ -783,7 +762,7 @@ int dgbSurfaceReader::nextStep()
 	    if ( !surface_->usePar(*par_) )
 	    {
 		msg_ = tr("Could not parse header");
-		return wrapUp( ErrorOccurred() );
+		return ErrorOccurred();
 	    }
 
 	    surface_->setFullyLoaded( fullyread_ );
@@ -791,14 +770,14 @@ int dgbSurfaceReader::nextStep()
 	    surface_->enableGeometryChecks(true);
 	}
 
-	return res < MoreToDo() ? wrapUp( res ) : res;
+	return res;
     }
 
     if ( sectionindex_!=oldsectionindex_ )
     {
 	const int res = prepareNewSection(strm);
 	if ( res!=Finished() )
-	    return res==ErrorOccurred() ? wrapUp( res ) : res;
+	    return res;
     }
 
     while ( shouldSkipCurrentRow() )
@@ -808,7 +787,7 @@ int dgbSurfaceReader::nextStep()
 
 	const int res = skipRow( strm );
 	if ( res==ErrorOccurred() )
-	    return wrapUp( res );
+	    return res;
 	else if ( res==Finished() ) //Section change
 	    return MoreToDo();
     }
@@ -816,7 +795,7 @@ int dgbSurfaceReader::nextStep()
     if ( !prepareRowRead(strm) )
     {
 	msg_ = strm.errMsg();
-	return wrapUp( ErrorOccurred() );
+	return ErrorOccurred();
     }
 
     int nrcols = readInt32( strm );
@@ -848,7 +827,7 @@ int dgbSurfaceReader::nextStep()
     if ( !strm.isOK() )
     {
 	msg_ = sMsgReadError();
-	return wrapUp( ErrorOccurred() );
+	return ErrorOccurred();
     }
 
     int colstep = colrange_.step;
@@ -870,7 +849,7 @@ int dgbSurfaceReader::nextStep()
 	{
 	    const int res = skipRow( strm );
 	    if ( res==ErrorOccurred() )
-		return wrapUp( res );
+		return res;
 	    else if ( res==Finished() )
 		return MoreToDo();
 	}
@@ -884,7 +863,7 @@ int dgbSurfaceReader::nextStep()
 			     Survey::GM().getGeometry(geomid) );
 	    if ( !geom2d )
 		return skipRow(strm) == ErrorOccurred() ?
-					wrapUp(ErrorOccurred()) : MoreToDo();
+					ErrorOccurred() : MoreToDo();
 
 	    const int startcol = firstcol + noofcoltoskip;
 	    const int stopcol = firstcol + noofcoltoskip + colstep*(nrcols - 1);
@@ -927,10 +906,17 @@ int dgbSurfaceReader::nextStep()
 					  noofcoltoskip) ) ||
          ( version_==2 && !readVersion2Row(strm, firstcol, nrcols) ) ||
          ( version_==1 && !readVersion1Row(strm, firstcol, nrcols) ) )
-	return wrapUp( ErrorOccurred() );
+	return ErrorOccurred();
 
     goToNextRow();
     return MoreToDo();
+}
+
+
+bool dgbSurfaceReader::doFinish( bool success )
+{
+    deleteAndZeroPtr( conn_ );
+    return success;
 }
 
 

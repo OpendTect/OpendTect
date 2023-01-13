@@ -20,7 +20,13 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 {
     if ( !strm || strm == &od_ostream::nullStream() )
     {
-	if ( !delay ) return SequentialTask::execute();
+	if ( !doPrepare() )
+	    return false;
+
+	if ( !delay )
+	{
+	    return doFinish( SequentialTask::execute() );
+	}
 
 	int rv = MoreToDo();
 	while ( rv )
@@ -30,12 +36,13 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	    {
 		const uiString msg = uiMessage();
 		if ( !msg.isEmpty() ) ErrMsg( msg.getFullString() );
-		return false;
+		return doFinish( false );
 	    }
 	    if ( delay )
 		Threads::sleep( delay*0.001 );
 	}
-	return true;
+
+	return doFinish( true );
     }
 
     if ( isfirst )
@@ -48,6 +55,8 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
     bool res = SequentialTask::execute();
     if ( !res )
 	*strm << "Error: " << uiMessage().getFullString() << od_newline;
+    else
+	res = doFinish( res );
 
     ((Task*)(this))->setProgressMeter( nullptr );
 
@@ -59,12 +68,24 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 }
 
 
+bool Executor::doPrepare()
+{
+    return true;
+}
+
+
 int Executor::doStep()
 {
     prestep.trigger();
     const int res = SequentialTask::doStep();
     if ( res > 0 ) poststep.trigger();
     return res;
+}
+
+
+bool Executor::doFinish( bool success )
+{
+    return success;
 }
 
 
@@ -118,16 +139,35 @@ void ExecutorGroup::add( Executor* n )
 }
 
 
+bool ExecutorGroup::doPrepare()
+{
+    if ( !executors_.isEmpty() )
+	return executors_[0]->doPrepare();
+
+    return true;
+}
+
+
 int ExecutorGroup::nextStep()
 {
     const int nrexecs = executors_.size();
-    if ( !nrexecs ) return Finished();
+    if ( !nrexecs )
+	return Finished();
 
     int res = executorres_[currentexec_] = executors_[currentexec_]->doStep();
     if ( res == ErrorOccurred() )
 	return ErrorOccurred();
     else if ( parallel_ || res==Finished() )
+    {
+	bool needsnextexec = res == Finished();
+	if ( needsnextexec && !executors_[currentexec_]->doFinish(true) )
+	    return ErrorOccurred();
+
 	res = goToNextExecutor() ? MoreToDo() : Finished();
+	needsnextexec = needsnextexec && res == MoreToDo();
+	if ( needsnextexec && !executors_[currentexec_]->doPrepare() )
+	    return ErrorOccurred();
+    }
 
     return res;
 }
