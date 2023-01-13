@@ -1324,11 +1324,11 @@ void IOPar::putTo( ascostream& strm ) const
     }
 
     ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
-    if ( !sortedidxs )
-	return;
-
-    for ( int idx=0; idx<keys.size(); idx++ )
-	strm.put( keys.get(sortedidxs[idx]), vals.get(sortedidxs[idx]) );
+    if ( sortedidxs )
+    {
+	for ( int idx=0; idx<keys.size(); idx++ )
+	    strm.put( keys.get(sortedidxs[idx]), vals.get(sortedidxs[idx]) );
+    }
 
     strm.newParagraph();
 }
