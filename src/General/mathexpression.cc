@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "ctype.h"
 #include "ptrman.h"
 #include "math2.h"
+#include "perthreadrepos.h"
 #include "statrand.h"
 #include "statruncalc.h"
 #include "undefval.h"
