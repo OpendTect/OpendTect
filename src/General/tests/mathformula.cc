@@ -540,8 +540,9 @@ static bool testMathProperty()
 	}
     }
 
-    mRunStandardTest( mathprops.size() == mathpropsman.size() &&
-		      props.prepareUsage(), "PropertySet is ready for use" );
+    mRunStandardTestWithError( mathprops.size() == mathpropsman.size() &&
+		      props.prepareUsage(), "PropertySet is ready for use",
+		      toString(props.errMsg()) );
     mRunStandardTest( props.errMsg().isEmpty(), "PropertySet has no error" );
 
     BufferStringSet rpformnames;

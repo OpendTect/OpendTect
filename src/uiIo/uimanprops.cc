@@ -599,7 +599,8 @@ bool uiSelectPropRefsVWDlg::acceptOK( CallBacker* )
 
 
 
-uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
+uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,
+					  PropertyRefSelection& prs,
 					  const char* lbl )
     : uiDlgGroup(p,tr("Layer Properties"))
     , props_(PROPS())
@@ -612,9 +613,9 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
     propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();
 
-    uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
-					tr("Manage available properties"),
-					mCB(this,uiSelectPropRefsGrp,manPROPS));
+    auto* manpropsbut = new uiToolButton( this, "man_props",
+				tr( "Manage available properties" ),
+				mCB(this,uiSelectPropRefsGrp,manPROPS) );
     manpropsbut->attach( centeredRightOf, propfld_ );
 }
 
@@ -672,9 +673,8 @@ void uiSelectPropRefsGrp::manPROPS( CallBacker* )
 
 bool uiSelectPropRefsGrp::acceptOK()
 {
-    prsel_.erase();
-    prsel_.insertAt( &PropertyRef::thickness(), 0 );
-
+    PropertyRefSelection prsel;
+    PropertySet propset;
     for ( int idx=0; idx<propfld_->size(); idx++ )
     {
 	if ( !propfld_->isChosen(idx) )
@@ -682,9 +682,24 @@ bool uiSelectPropRefsGrp::acceptOK()
 
 	const char* pnm = propfld_->textOfItem( idx );
 	const PropertyRef* pr = props_.getByName( pnm, false );
-	if ( !pr ) { pErrMsg("Huh"); structchg_ = true; continue; }
-	prsel_ += pr;
+	if ( !pr )
+	    { pErrMsg("Huh"); structchg_ = true; continue; }
+
+	prsel.add( pr );
+	if ( pr->hasFixedDef() )
+	    propset.add( new MathProperty( *pr, pr->fixedDef().def()) );
+	else
+	    propset.add( new ValueProperty( *pr ) );
     }
+        
+    if ( !propset.prepareUsage() )
+    {
+	uiMSG().errorWithDetails( propset.errMsg(),
+				  tr("Incorrect layer properties selection") );
+	return false;
+    }
+
+    prsel_ = prsel;
 
     return true;
 }
