@@ -532,7 +532,7 @@ static bool testMathProperty()
     for ( auto* mathprop : mathpropsman )
     {
 	MathProperty* mathpropptr = mathprop->ptr();
-	const Property* prop = props.set( mathpropptr );
+	props.set( mathpropptr );
 	if ( props.isPresent(mathpropptr) )
 	{
 	    mathprops.add( mathpropptr );

@@ -478,7 +478,6 @@ BufferString getNormalized( const Formula& form )
 {
     BufferString ret( form.text() );
 
-    const Expression& expr = *form.expression();
     BufferStringSet varnms, newvarnms;
     int ivar = 0, cstidx = 0;
     for ( int iinp=0; iinp<form.nrInputs(); iinp++ )
@@ -593,7 +592,7 @@ bool RockPhysics::FormulaSet::getMatching( Math::Formula& form ) const
 	{
 	    const int nrrpvars = rpform->nrInputs() - rpform->nrConsts()
 						    - rpform->nrSpecs();
-	    if ( nrrpvars != nrrpvars )
+	    if ( nrrpvars != nrvars )
 		continue;
 
 	    const BufferString rpformnormtxt = Math::getNormalized( *rpform );
