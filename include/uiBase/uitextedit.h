@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "undefval.h"
 
+class uiLabel;
 class uiTextEditBody;
 class uiTextBrowserBody;
 mFDQtclass(QTextEdit)
@@ -78,6 +79,8 @@ public:
 			uiTextEdit(uiParent* parnt,const char* nm="Text editor",
 				   bool readonly=false);
 			~uiTextEdit();
+
+    uiLabel*		setIcon(const char* iconnm,const uiString& tooltip);
 
     void		setText(const char* txt) { setText( txt, false ); }
 			//!<Does not trigger notification
