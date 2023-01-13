@@ -150,6 +150,7 @@ public:
 
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
+    static bool		prepareDataRoot(const char* dirnm);
 
     static void		setTempSurvey(const SurveyDiskLocation&);
     static void		cancelTempSurvey();
