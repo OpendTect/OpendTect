@@ -563,7 +563,6 @@ void uiIOObjSelGrp::mkManipulators()
 	inserters_ += inserter;
     }
 
-    mAttachCB( IOM().entryAdded, uiIOObjSelGrp::objInserted );
     insbutgrp->attach( centeredLeftOf, listfld_ );
 }
 
@@ -1141,7 +1140,11 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     mAttachCB( listfld_->itemChosen, uiIOObjSelGrp::choiceChg );
     mAttachCB( listfld_->deleteButtonPressed, uiIOObjSelGrp::delPress );
     if ( ctio_.ctxt_.forread_ )
+    {
 	selChg( nullptr );
+	mAttachCB( IOM().entryAdded, uiIOObjSelGrp::objInserted );
+    }
+
 }
 
 
