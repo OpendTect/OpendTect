@@ -93,6 +93,8 @@ DataPointSet::Pos::Pos( const DataPointSet::Pos& oth )
 {
     trckey_ = oth.trckey_;
     z_ = oth.z_;
+    offsx_ = oth.offsx_;
+    offsy_ = oth.offsy_;
 }
 
 
@@ -709,7 +711,9 @@ int DataPointSet::selGroup( DataPointSet::RowID rid ) const
 
 bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 {
-    if ( minimal_ ) return true;
+    if ( minimal_ )
+	return true;
+
     mChkRowID(rid,0);
     return selGroup(rid) >= 0;
 }
@@ -717,7 +721,9 @@ bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 
 void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 {
-    if ( minimal_ ) return;
+    if ( minimal_ )
+	return;
+
     mChkRowID(rid,);
     int grp = getCompacted( -1, newgrp ) ;
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = mCast( float, grp );
@@ -726,7 +732,9 @@ void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 
 void DataPointSet::setSelected( DataPointSet::RowID rid, int selgrp )
 {
-    if ( minimal_ ) return;
+    if ( minimal_ )
+	return;
+
     mChkRowID(rid,);
     short grp = (short)group( rid );
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] =
@@ -736,7 +744,9 @@ void DataPointSet::setSelected( DataPointSet::RowID rid, int selgrp )
 
 void DataPointSet::setInactive( DataPointSet::RowID rid, bool sel )
 {
-    if ( minimal_ ) return;
+    if ( minimal_ )
+	return;
+
     mChkRowID(rid,);
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = 0;
 }
@@ -744,7 +754,8 @@ void DataPointSet::setInactive( DataPointSet::RowID rid, bool sel )
 
 void DataPointSet::addRow( const DataPointSet::DataRow& dr )
 {
-    TypeSet<float> vals; dr.getBVSValues( vals, is2d_, minimal_ );
+    TypeSet<float> vals;
+    dr.getBVSValues( vals, is2d_, minimal_ );
     bivSet().add( dr.binID(), vals );
 }
 
@@ -828,6 +839,7 @@ void DataPointSet::purgeInactive()
 	if ( isInactive(irow) )
 	    torem += bvsidxs_[irow];
     }
+
     if ( !torem.isEmpty() )
     {
 	bivSet().remove( torem );
@@ -844,6 +856,7 @@ void DataPointSet::purgeSelected( bool sel )
 	if ( sel != isSelected(irow) )
 	    torem += bvsidxs_[irow];
     }
+
     if ( !torem.isEmpty() )
     {
 	bivSet().remove( torem );
@@ -872,6 +885,7 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 	    colsbuf += icol;
 	outcols = &colsbuf;
     }
+
     if ( maxsz <= mysz && allowudf && outcols->size() == mynrcols )
 	return new DataPointSet( *this );
 
@@ -883,11 +897,15 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 	    cds += const_cast<DataColDef*>(
 			    dataSet().coldefs_[ nrfixedcols_ + colnr ] );
     }
+
     DataPointSet* ret = new DataPointSet( TypeSet<DataRow>(), cds, is2D(),
 					  isMinimal() );
-
     mGetIdxArr( RowID, idxs, mysz );
-    if ( !idxs ) { delete ret; return 0; }
+    if ( !idxs )
+    {
+	delete ret;
+	return nullptr;
+    }
 
     const int nrcols = outcols->size();
     int activesz = mysz;
@@ -1035,16 +1053,21 @@ DataPointSet::RowID DataPointSet::findFirst( const BinID& bid ) const
 DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 {
     const BinID bid = SI().transform( crd );
-    if ( minimal_ ) return findFirst( bid );
+    if ( minimal_ )
+	return findFirst( bid );
+
     const DataPointSet::RowID rid = findFirst( bid );
-    if ( rid < 0 ) return -1;
+    if ( rid < 0 )
+	return -1;
 
     for ( int idx=rid; idx<size(); idx++ )
     {
-	if ( binID(idx) != bid ) break;
-	Coord c( coord(idx) );
-	if ( mIsEqual( c.x, crd.x, 1e-3 )
-	  && mIsEqual( c.y, crd.y, 1e-3 ) ) return idx;
+	if ( binID(idx) != bid )
+	    break;
+
+	const Coord c( coord(idx) );
+	if ( mIsEqual(c.x,crd.x,1e-3) && mIsEqual(c.y,crd.y,1e-3) )
+	    return idx;
     }
 
     return -1;
@@ -1102,7 +1125,9 @@ od_int64 DPSFromVolumeFiller::nrIterations() const
 
 
 void DPSFromVolumeFiller::setSampling( const TrcKeyZSampling* tkzs )
-{ sampling_ = tkzs; }
+{
+    sampling_ = tkzs;
+}
 
 
 bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
