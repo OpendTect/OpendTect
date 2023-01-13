@@ -270,6 +270,8 @@ void uiMathFormula::guessInputFormDefs()
 	    inpdef.set( varnm );
 	    form_.setInputDef( idx, inpdef );
 	}
+	else if ( form_.inputMnemonic(idx) && form_.inputFormUnit(idx) )
+	    continue;
 
 	const BufferStringSet allinpnms = inpfld->getInputNms();
 	if ( !mnsel_ )
@@ -290,13 +292,29 @@ void uiMathFormula::guessInputFormDefs()
 	if ( mn && !mn->isUdf() )
 	{
 	    if ( !inpnms.isPresent(inpdef.str()) )
+	    {
 		for ( const auto* inpnm : inpnms )
-		    if ( mn->matches(inpnm->str(),true) )
+		{
+		    if ( mn->matches(inpnm->str(),true,true) )
 		    {
 			inpdef.set( inpnm->str() );
 			found = true;
 			break;
 		    }
+		}
+		if ( !found )
+		{
+		    for ( const auto* inpnm : inpnms )
+		    {
+			if ( mn->matches(inpnm->str(),true,false) )
+			{
+			    inpdef.set( inpnm->str() );
+			    found = true;
+			    break;
+			}
+		    }
+		}
+	    }
 	}
 	else
 	{
@@ -305,13 +323,29 @@ void uiMathFormula::guessInputFormDefs()
 	    if ( mn && !mn->isUdf() )
 	    {
 		if ( !inpnms.isPresent(inpdef.str()) )
+		{
 		    for ( const auto* inpnm : inpnms )
-			if ( mn->matches(inpnm->str(),true) )
+		    {
+			if ( mn->matches(inpnm->str(),true,true) )
 			{
 			    inpdef.set( inpnm->str() );
 			    found = true;
 			    break;
 			}
+		    }
+		    if ( !found )
+		    {
+			for ( const auto* inpnm : inpnms )
+			{
+			    if ( mn->matches(inpnm->str(),true,false) )
+			    {
+				inpdef.set( inpnm->str() );
+				found = true;
+				break;
+			    }
+			}
+		    }
+		}
 	    }
 	    else if ( (!mn || mn->isUdf()) && !inpnms.isEmpty() )
 	    {

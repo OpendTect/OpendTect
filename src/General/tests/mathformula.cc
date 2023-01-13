@@ -8,10 +8,17 @@ ________________________________________________________________________
 -*/
 
 #include "elasticpropsel.h"
+#include "mathexpression.h"
+#include "mathproperty.h"
 #include "mathspecvars.h"
 #include "rockphysics.h"
 #include "testprog.h"
 #include "unitofmeasure.h"
+
+static const float propvals[] = { 50.f, 2.5f, 3000.f, 1250.f, 7500.f, 3125.f,
+    2.4f, 0.41666667f, 0.394958f, 36.71875f, 9.765625f, 101.6f, 243.84f,
+    2.2942567f, 2.2942567f, 1524.7951f, 9.615385f
+};
 
 
 #define mTestValErr(var,val) \
@@ -23,7 +30,8 @@ ________________________________________________________________________
 #define mTestVal(var,val) \
     if ( var != val ) mTestValErr(var,val) mTestValSucces(var,val)
 #define mTestValD(var,val) \
-    if ( !mIsEqual(var,val,0.001) ) mTestValErr(var,val) mTestValSucces(var,val)
+    if ( !mIsEqual(var,val,0.001) ) \
+	mTestValErr(var,val) mTestValSucces(var,val)
 
 
 static bool testSimpleFormula()
@@ -371,6 +379,223 @@ static bool testElasticForms()
 }
 
 
+static bool testMathProperty()
+{
+    const PropertyRef* denpr = PROPS().getByMnemonic( Mnemonic::defDEN() );
+    const PropertyRef* pvelpr = PROPS().getByMnemonic( Mnemonic::defPVEL() );
+    const PropertyRef* svelpr = PROPS().getByMnemonic( Mnemonic::defSVEL() );
+    const PropertyRef* aipr = PROPS().getByMnemonic( Mnemonic::defAI() );
+    const PropertyRef* sipr = PROPS().getByMnemonic( Mnemonic::defSI() );
+    const PropertyRef* vpvspr =
+		PROPS().getByMnemonic( *MNC().getByName("VPVS"),false );
+    const PropertyRef* vsvppr =
+		PROPS().getByMnemonic( *MNC().getByName("VSVP"),false );
+    const PropertyRef* prpr =
+		PROPS().getByMnemonic( *MNC().getByName("PR"), false );
+    const PropertyRef* lrpr =
+		PROPS().getByMnemonic( *MNC().getByName("LR"), false );
+    const PropertyRef* mrpr =
+		PROPS().getByMnemonic( *MNC().getByName("MR"), false );
+    const PropertyRef* dtpr = PROPS().getByMnemonic( Mnemonic::defDT() );
+    const PropertyRef* dtspr = PROPS().getByMnemonic( Mnemonic::defDTS() );
+    const PropertyRef* phipr = PROPS().getByMnemonic( Mnemonic::defPHI() );
+
+    mRunStandardTest( denpr && pvelpr && svelpr && sipr && aipr &&
+		      vpvspr && vsvppr && prpr && dtpr && dtspr && phipr,
+		      "Has required props" );
+
+    PropertyRefSelection fixeddefprs( false );
+    fixeddefprs.add( aipr ).add( sipr ).add( vpvspr ).add( vsvppr )
+	       .add( prpr ).add( lrpr ).add( mrpr );
+    for ( const auto* pr : fixeddefprs )
+    {
+	mRunStandardTest( pr->hasFixedDef() &&
+			  pr->fixedDef().getForm().hasFixedUnits(),
+	    BufferString( pr->name(), " has a fixed definition") );
+    }
+
+    auto* denfromvppr = new PropertyRef( *denpr );
+    denfromvppr->setName( "Density from Vp (Gardner)" );
+    auto* denfromsonpr = new PropertyRef( *denpr );
+    denfromsonpr->setName( "Density from Sonic (Gardner)" );
+    auto* svelfrompvelpr = new PropertyRef( *svelpr );
+    svelfrompvelpr->setName( "Swave velocity (Krief)" );
+    auto* phifromdenpr = new PropertyRef( *phipr );
+    phifromdenpr->setName( "Porosity from density" );
+    ePROPS().add( denfromvppr ).add( denfromsonpr )
+	    .add( svelfrompvelpr ).add( phifromdenpr );
+
+    PropertyRefSelection prs;
+    prs.add( denpr ).add( pvelpr ).add( svelpr );
+
+    const BufferString formstr( "Formula: " );
+    BufferString defstr;
+    PtrMan<MathProperty> mathaiprop = new MathProperty( *aipr );
+    PtrMan<MathProperty> mathsiprop = new MathProperty( *sipr );
+    PtrMan<MathProperty> mathvpvsprop = new MathProperty( *vpvspr );
+    PtrMan<MathProperty> mathvsvpprop = new MathProperty( *vsvppr );
+    PtrMan<MathProperty> mathprprop = new MathProperty( *prpr );
+    PtrMan<MathProperty> mathlrprop = new MathProperty( *lrpr );
+    PtrMan<MathProperty> mathmrprop = new MathProperty( *mrpr );
+    PtrMan<MathProperty> mathdtprop = new MathProperty( *dtpr );
+    PtrMan<MathProperty> mathdtsprop = new MathProperty( *dtspr );
+    PtrMan<MathProperty> mathden1prop = new MathProperty( *denfromvppr );
+    PtrMan<MathProperty> mathden2prop = new MathProperty( *denfromsonpr );
+    PtrMan<MathProperty> mathvsfromvpprop = new MathProperty( *svelfrompvelpr);
+    PtrMan<MathProperty> mathphiprop = new MathProperty( *phifromdenpr );
+    ObjectSet<PtrMan<MathProperty> > mathpropsman;
+
+    mathpropsman.add( &mathaiprop ).add( &mathsiprop ).add( &mathvpvsprop )
+		.add( &mathvsvpprop ).add( &mathprprop ).add( &mathlrprop )
+		.add( &mathmrprop ).add( &mathdtprop ).add( &mathdtsprop )
+		.add( &mathden1prop ).add( &mathden2prop )
+		.add( &mathvsfromvpprop ).add( &mathphiprop );
+
+    IOPar defiop;
+    defiop.set( "Expression", "den * vel" );
+    defiop.set( "Input.0.Def", PropertyRef::standardDenStr() );
+    defiop.set( "Input.1.Def", PropertyRef::standardPVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathaiprop->setDef( defstr.buf() );
+
+    defiop.set( "Input.1.Def", PropertyRef::standardSVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathsiprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "Vp / Vs" );
+    defiop.set( "Input.0.Def", PropertyRef::standardPVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathvpvsprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "Vs / Vp" );
+    defiop.set( "Input.0.Def", PropertyRef::standardSVelStr() );
+    defiop.set( "Input.1.Def", PropertyRef::standardPVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathvsvpprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "( (Vp/Vs)^2 - 2 ) / ( 2*( (Vp/Vs)^2 - 1) )" );
+    defiop.set( "Input.0.Def", PropertyRef::standardPVelStr() );
+    defiop.set( "Input.1.Def", PropertyRef::standardSVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathprprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "AI^2 - 2 * SI^2" );
+    defiop.set( "Input.0.Def", aipr->name() );
+    defiop.set( "Input.1.Def", sipr->name() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathlrprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "SI^2" );
+    defiop.set( "Input.0.Def", sipr->name() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathmrprop->setDef( defstr.buf() );
+
+    defiop.removeWithKey( "Input.1.Def" );
+
+    defiop.set( "Expression", "1 / Vp" );
+    defiop.set( "Input.0.Def", PropertyRef::standardPVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathdtprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "1 / Vs" );
+    defiop.set( "Input.0.Def", PropertyRef::standardSVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathdtsprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "0.31 * Vp^0.25" );
+    defiop.set( "Input.0.Def", PropertyRef::standardPVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathden1prop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "0.31 * (1/son)^0.25" );
+    defiop.set( "Input.0.Def", "sonic" );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathden2prop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "sqrt( 0.452*Vp^2 - 1.743 )" );
+    defiop.set( "Input.0.Def", PropertyRef::standardPVelStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathvsfromvpprop->setDef( defstr.buf() );
+
+    defiop.set( "Expression", "(2.65 - Rhob) / (2.65 - 1.09)" );
+    defiop.set( "Input.0.Def", PropertyRef::standardDenStr() );
+    defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
+    mathphiprop->setDef( defstr.buf() );
+
+    Property& aiprop = *mathaiprop;
+    mRunStandardTest( aiprop.isFormula(), "Math property is a formula" );
+    mRunStandardTest( mathaiprop->getForm().expression() &&
+	BufferString( mathaiprop->getForm().expression()->type() )
+		== "ExpressionMultiply", "AI expression type" );
+
+    PropertySet props( prs ); ObjectSet<const MathProperty> mathprops;
+    for ( auto* mathprop : mathpropsman )
+    {
+	MathProperty* mathpropptr = mathprop->ptr();
+	props.set( mathpropptr );
+	if ( props.isPresent(mathpropptr) )
+	{
+	    mathprops.add( mathpropptr );
+	    mathprop->release();
+	}
+    }
+
+    mRunStandardTest( mathprops.size() == mathpropsman.size() &&
+		      props.prepareUsage(), "PropertySet is ready for use" );
+    mRunStandardTest( props.errMsg().isEmpty(), "PropertySet has no error" );
+
+    BufferStringSet rpformnames;
+    rpformnames.add("Acoustic Impedance from P-wave velocity" )
+	       .add( "Shear Impedance from S-wave velocity" )
+	       .add( "Vp/Vs ratio from Velocity curves" )
+	       .add( "Vs/Vp ratio from Velocity curves" )
+	       .add( "Poisson's ratio from Velocity logs" )
+	       .add( "Lambda-Rho" )
+	       .add( "Mhu-Rho" )
+	       .add( "Sonic from velocity" )
+	       .add( "Shear Sonic from shear velocity" )
+	       .add( "Gardner equation - P-wave" )
+	       .add( "Gardner equation - Sonic" )
+	       .add( "Krief's equation" )
+	       .add( "Porosity from Density" );
+
+    for ( int idx=0; idx<rpformnames.size(); idx++ )
+    {
+	const MathProperty* mathprop = mathprops.get( idx );
+	const BufferString propnm( mathprop ? mathprop->name() : nullptr );
+	mRunStandardTest( mathprop,
+	    BufferString("Found math property '", propnm,"' in PropertySet") );
+
+	const Mnemonic& mn = mathprop->ref().mn();
+	const BufferString& formnm = rpformnames.get( idx );
+	const RockPhysics::Formula* fm =
+			   ROCKPHYSFORMS().getByName( mn, formnm.buf() );
+	mRunStandardTest( fm, "Found formula in repository" );
+	mRunStandardTest( mathprop->getForm().hasFixedUnits(),
+			  "Formula has fixed units" );
+	mRunStandardTest( fm->isCompatibleWith(mathprop->getForm()),
+			  "Forms are identical" );
+    }
+
+    TypeSet<float> vals;
+    for ( const auto* prop : props )
+	vals += prop->value();
+
+    for ( int idx=0; idx<props.size(); idx++ )
+    {
+	const float val = vals[idx];
+	const float expval = propvals[idx];
+	const bool test = mIsEqual( val, expval, expval*1e-6f );
+	BufferString msg( "Expected: ", expval, " for property '" );
+	msg.add( props.get(idx)->name() ).add( "', calculated: " )
+	   .add( val );
+	mRunStandardTest( test, msg );
+    }
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -378,7 +603,8 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testSimpleFormula() ||
 	 !testRepeatingVar() ||
 	 !testCastagna() ||
-	 !testElasticForms() )
+	 !testElasticForms() ||
+	 !testMathProperty() )
 	return 1;
 
     return 0;

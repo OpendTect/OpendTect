@@ -22,6 +22,10 @@ ________________________________________________________________________
 #include "mathexpression.h"
 #include "unitofmeasure.h"
 
+#include "hiddenparam.h"
+
+
+HiddenParam<uiMathExpressionVariable,BufferString*> vardescparammgr_(0);
 
 uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 	int varidx, bool withunit, bool withsub, const Math::SpecVarSet* svs )
@@ -31,6 +35,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     , inpSel(this)
     , subInpSel(this)
 {
+    vardescparammgr_.setParam( this, new BufferString() );
     inpgrp_ = new uiGroup( this, "Input group" );
     inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
     const uiString lblstr = tr("For %1 use").arg(varidx_+1);
@@ -79,6 +84,7 @@ uiMathExpressionVariable::~uiMathExpressionVariable()
 {
     detachAllNotifiers();
     delete &specvars_;
+    vardescparammgr_.removeAndDeleteParam( this );
 }
 
 
@@ -115,6 +121,12 @@ BufferStringSet uiMathExpressionVariable::getInputNms( const Mnemonic* mn,
     }
 
     return nms;
+}
+
+
+const char* uiMathExpressionVariable::getDescription() const
+{
+    return vardescparammgr_.getParam( this )->buf();
 }
 
 
@@ -248,7 +260,7 @@ void uiMathExpressionVariable::use( const Math::Expression* expr )
 }
 
 
-void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits )
+void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits)
 {
     specvars_ = form.specVars();
     varnm_.setEmpty();
@@ -260,6 +272,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits )
     curmn_ = form.inputMnemonic( varidx_ );
     setVariable( varnm, form.isConst( varidx_ ) );
     const BufferString inpdef( form.inputDef(varidx_) );
+    const BufferString inpdesc( form.inputDescription(varidx_) );
     const bool isspec = isSpec();
 
     if ( isConst() )
@@ -275,6 +288,8 @@ void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits )
     }
     else if ( !isspec )
 	selectInput( inpdef );
+
+    vardescparammgr_.getParam( this )->set( inpdesc );
 }
 
 
@@ -308,11 +323,23 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 	{
 	    for ( const auto* avnm : avnms )
 	    {
-		if ( curmn_->matches(avnm->str(),true) )
+		if ( curmn_->matches(avnm->str(),true,true) )
 		{
 		    varnm.set( avnm->str() );
 		    isfound = true;
 		    break;
+		}
+	    }
+	    if ( !isfound )
+	    {
+		for ( const auto* avnm : avnms )
+		{
+		    if ( curmn_->matches(avnm->str(),true,false) )
+		    {
+			varnm.set( avnm->str() );
+			isfound = true;
+			break;
+		    }
 		}
 	    }
 	}
@@ -372,6 +399,7 @@ void uiMathExpressionVariable::fill( Math::Formula& form ) const
 	return;
 
     form.setInputDef( varidx_, getInput() );
+    form.setInputDescription( varidx_, getDescription() );
     form.setInputMnemonic( varidx_, curmn_ );
     form.setInputFormUnit( varidx_, getUnit() );
 }

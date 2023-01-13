@@ -42,8 +42,13 @@ public:
     PropertyRef&	operator =(const PropertyRef&);
     bool		operator ==(const PropertyRef&) const;
     bool		operator !=(const PropertyRef&) const;
+    mDeprecated("Use third argument")
     bool		matches(const char* nm,bool matchaliases) const;
+    bool		matches(const char* nm,bool matchaliases,
+				bool exactmatch) const;
+    mDeprecated("Use second argument")
     bool		isKnownAs(const char*) const;
+    bool		isKnownAs(const char*,bool exactmatch) const;
     bool		hasFixedDef() const	{ return mathdef_; }
     bool		isElastic() const;
     virtual bool	isElasticForm() const	{ return false; }

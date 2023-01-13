@@ -93,6 +93,7 @@ public:
     void		getRelevant(PropType,MnemonicSelection&) const;
     bool		getRelevant(const Mnemonic&,
 				    ObjectSet<const Math::Formula>&) const;
+    bool		getMatching(Math::Formula&) const;
 
 private:
 

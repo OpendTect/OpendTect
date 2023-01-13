@@ -1,6 +1,6 @@
 dTect V7.0.0
 Properties
-Fri 06 Jan 2023, 14:08:12
+Fri 13 Jan 2023, 13:00:00
 !
 Density: Density
 Color: 0`0`200
@@ -70,6 +70,7 @@ Color: 200`200`0
 !
 Poissons Ratio: Elastic Ratio
 Color: 200`100`200
+Definition: Formula: +## [Expression] ## [( (Vp/Vs)^2 - 2 ) / ( 2*( (Vp/Vs)^2 - 1) )] ##.+## [Input.0.Def] ## [Pwave velocity] ##.+## [Input.1.Def] ## [Swave velocity] ##.
 !
 Vp/Vs: Elastic Ratio
 Color: 200`150`200
@@ -81,9 +82,11 @@ Definition: Formula: +## [Expression] ## [Vs / Vp] ##.+## [Input.0.Def] ## [Swav
 !
 LambdaRho: Pressure-Weight
 Color: 100`150`255
+Definition: Formula: +## [Expression] ## [AI^2 - 2 * SI^2] ##.+## [Input.0.Def] ## [Acoustic Impedance] ##.+## [Input.1.Def] ## [Shear Impedance] ##.
 !
 MuRho: Pressure-Weight
 Color: 100`255`150
+Definition: Formula: +## [Expression] ## [SI^2] ##.+## [Input.0.Def] ## [Shear Impedance] ##.
 !
 Compressibility: Compressibility
 Color: 100`200`100

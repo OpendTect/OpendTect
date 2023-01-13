@@ -57,6 +57,7 @@ public:
     Mnemonic::StdType		inputType(int) const;
     const UnitOfMeasure*	inputUnit(int) const;
     bool			isConst(int) const;
+    mDeprecatedObs
     void			setUnit(const UnitOfMeasure*);
     const UnitOfMeasure*	unit() const;
 

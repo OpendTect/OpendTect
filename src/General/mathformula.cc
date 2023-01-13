@@ -67,11 +67,16 @@ Math::Formula::InpDef& Math::Formula::InpDef::operator =( const InpDef& oth )
 
 bool Math::Formula::InpDef::operator ==( const InpDef& oth ) const
 {
-    return varname_ == oth.varname_ && type_ == oth.type_ &&
-	   inpdef_ == oth.inpdef_ &&
-	   formmn_ == oth.formmn_ && formunit_ == oth.formunit_ &&
-	   valunit_ == oth.valunit_ &&
-	   shifts_ == oth.shifts_;
+    return isCompatibleWith( oth ) && varname_ == oth.varname_ &&
+	inpdef_ == oth.inpdef_ && valunit_ == oth.valunit_ &&
+	shifts_ == oth.shifts_;
+}
+
+
+bool Math::Formula::InpDef::isCompatibleWith( const InpDef& oth ) const
+{
+    return type_ == oth.type_ && formmn_ == oth.formmn_ &&
+	   formunit_ == oth.formunit_;
 }
 
 
@@ -115,27 +120,49 @@ Math::Formula::Formula( const Math::Formula& oth )
 
 bool Math::Formula::operator ==( const Math::Formula& oth ) const
 {
-    if ( text_ != oth.text_ || inputsareseries_ != oth.inputsareseries_ )
+    if ( &oth == this )
+	return true;
+
+    if ( name() != oth.name() )
 	return false;
 
-    if ( inps_.size() != oth.inps_.size() )
+    if ( !isCompatibleWith(oth) ||
+	  inputsareseries_ != oth.inputsareseries_ ||
+	  outputvalunit_ != oth.outputvalunit_ ||
+	  recstartvals_ != oth.recstartvals_ )
 	return false;
 
     for ( int idx=0; idx<oth.inps_.size(); idx++ )
 	if ( *inps_.get(idx) != *oth.inps_.get(idx) )
 	    return false;
 
-    return name() == oth.name() &&
-	   outputformmn_ == oth.outputformmn_ &&
-	   outputformunit_ == oth.outputformunit_ &&
-	   outputvalunit_ == oth.outputvalunit_ &&
-	   recstartvals_ == oth.recstartvals_;
+    return true;
 }
 
 
 bool Math::Formula::operator !=( const Math::Formula& oth ) const
 {
     return !(*this == oth);
+}
+
+
+bool Math::Formula::isCompatibleWith( const Math::Formula& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( text_ != oth.text_  )
+	return false;
+
+    if ( inps_.size() != oth.inps_.size() )
+	return false;
+
+    for ( int idx=0; idx<oth.inps_.size(); idx++ )
+	if ( !inps_.get(idx)->isCompatibleWith(*oth.inps_.get(idx)) )
+	    return false;
+
+    return outputformmn_ == oth.outputformmn_ &&
+	   outputformunit_ == oth.outputformunit_;
 }
 
 
@@ -199,6 +226,62 @@ void Math::Formula::addShift( int iinp, int ivar, int& shft,
     inps_.get(iinp)->shifts_ += shft;
     shiftvaridxs[iinp] += ivar;
     shft = 0;
+}
+
+
+Math::Formula& Math::Formula::copyFrom( const Math::Formula& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    BufferStringSet inpdefs, inpdescs; //varnms ?
+    MnemonicSelection mnsel;
+    mnsel.setNullAllowed();
+    for ( int iinp=0; iinp<nrInputs(); iinp++ )
+    {
+	inpdefs.add( inputDef(iinp) );
+	inpdescs.add( inputDescription(iinp) );
+	mnsel.add( inputMnemonic(iinp) );
+    }
+
+    setText( oth.text() );
+    if ( nrInputs() != oth.nrInputs() )
+	{ pErrMsg("Incorrect formula copy" ); }
+
+    for ( int iinp=0; iinp<nrInputs(); iinp++ )
+    {
+	const Mnemonic* othinpmn = oth.inputMnemonic( iinp );
+	const int mnidx = mnsel.indexOf( othinpmn );
+	const bool valididx = mnsel.validIdx( mnidx );
+	const Mnemonic* inpmn = valididx ? mnsel.get( mnidx ) : nullptr;
+	const char* inpdef = valididx ? inpdefs.get( mnidx ).buf() : nullptr;
+	const char* inpdesc = valididx ? inpdescs.get( mnidx ).buf() : nullptr;
+	if ( inpmn && inpmn == othinpmn )
+	{
+	    setInputDef( iinp, inpdef );
+	    setInputDescription( iinp, inpdesc );
+	    setInputMnemonic( iinp, inpmn );
+	}
+	else
+	{
+	    setInputDef( iinp, oth.inputDef(iinp) );
+	    setInputDescription( iinp, oth.inputDescription(iinp) );
+	    setInputMnemonic( iinp, othinpmn );
+	}
+
+	setInputFormUnit( iinp, oth.inputFormUnit(iinp) );
+    }
+
+    setOutputMnemonic( oth.outputMnemonic() );
+    setOutputFormUnit( oth.outputFormUnit() );
+
+    if ( name().isEmpty() )
+	setName( oth.name() );
+
+    if ( desc_.isEmpty() )
+	setDescription( oth.description() );
+
+    return *this;
 }
 
 
@@ -365,6 +448,24 @@ int Math::Formula::nrConsts() const
 }
 
 
+int Math::Formula::nrSpecs() const
+{
+    int nr = 0;
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+	if ( isSpec(iinp) )
+	    nr++;
+    return nr;
+}
+
+
+void Math::Formula::getInputMnemonics( MnemonicSelection& mnsel ) const
+{
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+	if ( !isConst(iinp) && !isSpec(iinp) )
+	    mnsel.add( inputMnemonic(iinp) );
+}
+
+
 int Math::Formula::nrExternalInputs() const
 {
     int nrinputs = 0;
@@ -383,6 +484,21 @@ int Math::Formula::nrValues2Provide() const
 	if ( inpidxs_[ivar] >= 0 )
 	    nrvals++;
     return nrvals;
+}
+
+
+bool Math::Formula::hasFixedUnits() const
+{
+    for ( const auto* inp : inps_ )
+    {
+	if ( inp->isConst() || inp->isSpec() )
+	    continue;
+
+	if ( !inp->formmn_ || !inp->formunit_ )
+	    return false;
+    }
+
+    return outputformmn_ && outputformunit_;
 }
 
 
@@ -521,25 +637,32 @@ void Math::Formula::usePar( const IOPar& iop )
 	mDefInpKeybase;
 
 	BufferString inpdesc;
-	unstr.setEmpty(); mnnm.setEmpty(); valunstr.setEmpty();
-	iop.get( mInpDefKy, id->inpdef_ );
+	mnnm.setEmpty(); unstr.setEmpty(); valunstr.setEmpty();
 	iop.get( mInpDescKy, id->inpdesc_ );
-	iop.get( mInpMnKy, mnnm );
-	iop.get( mInpValUnKy, valunstr );
-	iop.get( mInpUnKy, unstr );
-	id->formmn_ = MNC().getByName( mnnm, false );
-	id->valunit_ = UoMR().get( valunstr );
-	id->formunit_ = UoMR().get( unstr );
+	if ( iop.get(mInpMnKy,mnnm) && !mnnm.isEmpty() )
+	    id->formmn_ = MNC().getByName( mnnm, false );
+
+	if ( iop.get(mInpDefKy,id->inpdef_) && !id->inpdef_.isEmpty() &&
+	     !id->formmn_ )
+	    id->formmn_ = MNC().getByName( id->inpdef_ );
+
+	if ( iop.get(mInpUnKy,unstr) && !unstr.isEmpty() )
+	    id->formunit_ = UoMR().get( unstr );
+
+	if ( iop.get(mInpValUnKy,valunstr) && !valunstr.isEmpty() )
+	    id->valunit_ = UoMR().get( valunstr );
 	iinp++;
     }
 
-    unstr.setEmpty(); mnnm.setEmpty(); valunstr.setEmpty();
-    iop.get( mOutMnKy, mnnm );
-    iop.get( mOutUnKy, unstr );
-    iop.get( mOutValUnKy, valunstr );
-    outputformmn_ = MNC().getByName( mnnm.str(), false );
-    outputformunit_ = UoMR().get( unstr );
-    outputvalunit_ = UoMR().get( valunstr );
+    mnnm.setEmpty(); unstr.setEmpty(); valunstr.setEmpty();
+    if ( iop.get(mOutMnKy,mnnm) && !mnnm.isEmpty() )
+	outputformmn_ = MNC().getByName( mnnm.str(), false );
+
+    if ( iop.get(mOutUnKy,unstr) && !unstr.isEmpty() )
+	outputformunit_ = UoMR().get( unstr );
+
+    if ( iop.get(mOutValUnKy,valunstr) && !valunstr.isEmpty() )
+	outputvalunit_ = UoMR().get( valunstr );
 }
 
 

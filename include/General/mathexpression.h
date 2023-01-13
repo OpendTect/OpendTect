@@ -58,6 +58,8 @@ public:
     const char*		type() const;
     void		dump( BufferString& str ) const { doDump(str,0); }
 
+    int			nrLevels() const;
+
 protected:
 
 			Expression(int nrinputs);

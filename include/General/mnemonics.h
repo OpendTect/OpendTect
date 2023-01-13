@@ -54,8 +54,13 @@ public:
     Mnemonic&		operator =(const Mnemonic&);
     bool		operator ==(const Mnemonic&) const;
     bool		operator !=(const Mnemonic&) const;
+    mDeprecated("Use third argument")
     bool		matches(const char* nm,bool matchaliases) const;
+    bool		matches(const char* nm,bool matchaliases,
+				bool exactmatch) const;
+    mDeprecated("Use second argument")
     bool		isKnownAs(const char*) const;
+    bool		isKnownAs(const char*,bool exactmatch) const;
     bool		isCompatibleWith(const Mnemonic*) const;
     const char*		description() const;
     float		getMatchValue(const char* nm) const;

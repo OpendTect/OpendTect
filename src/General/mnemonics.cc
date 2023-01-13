@@ -219,11 +219,27 @@ float Mnemonic::getMatchValue( const char* nm ) const
 
 bool Mnemonic::matches( const char* nm, bool matchaliases ) const
 {
-    return matchaliases ? isKnownAs( nm ) : name() == nm;
+    return matches( nm, matchaliases, false );
+}
+
+
+bool Mnemonic::matches( const char* nm, bool matchaliases,
+			bool exactmatch ) const
+{
+    if ( name() == nm || logtypename_.isEqual(nm,OD::CaseInsensitive) )
+	return true;
+
+    return matchaliases ? isKnownAs( nm, exactmatch ) : false;
 }
 
 
 bool Mnemonic::isKnownAs( const char* nm ) const
+{
+    return isKnownAs( nm, false );
+}
+
+
+bool Mnemonic::isKnownAs( const char* nm, bool exactmatch ) const
 {
     const StringView nmstr( nm );
     if ( nmstr.isEmpty() )
@@ -239,11 +255,19 @@ bool Mnemonic::isKnownAs( const char* nm ) const
 	if ( findnm->isEmpty() )
 	    continue;
 
-	BufferString gexpr( findnm->buf() );
-	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
-	const GlobExpr ge( gexpr, false );
-	if ( ge.matches(nmstr) )
-	    return true;
+	if ( exactmatch )
+	{
+	    if ( findnm->matches(nm,OD::CaseInsensitive) )
+		return true;
+	}
+	else
+	{
+	    BufferString gexpr( findnm->buf() );
+	    gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
+	    const GlobExpr ge( gexpr, false );
+	    if ( ge.matches(nmstr) )
+		return true;
+	}
     }
 
     return false;
@@ -514,7 +538,11 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
     if ( nm && *nm )
     {
 	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases) )
+	    if ( mnc->matches(nm,matchaliases,true) )
+		return mnc;
+
+	for ( const auto* mnc : *this )
+	    if ( mnc->matches(nm,matchaliases,false) )
 		return mnc;
     }
 
@@ -522,7 +550,7 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
 }
 
 
-const Mnemonic* MnemonicSet::getBestGuessedMnemonics(const char* nm,
+const Mnemonic* MnemonicSet::getBestGuessedMnemonics( const char* nm,
 						 bool matchaliases) const
 {
     ObjectSet<const Mnemonic> possiblemnemonics;
@@ -531,7 +559,7 @@ const Mnemonic* MnemonicSet::getBestGuessedMnemonics(const char* nm,
 	TypeSet<OD::Pair<const Mnemonic*, float>> mnemmatchvals;
 	for ( const auto* mnc : *this )
 	{
-	    if ( !matchaliases && mnc->matches(nm,false) )
+	    if ( !matchaliases && mnc->matches(nm,false,false) )
 		return mnc;
 	    else
 	    {
@@ -685,7 +713,11 @@ const Mnemonic* MnemonicSelection::getByName( const char* nm,
     if ( nm && *nm )
     {
 	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases) )
+	    if ( mnc->matches(nm,matchaliases,true) )
+		return mnc;
+
+	for ( const auto* mnc : *this )
+	    if ( mnc->matches(nm,matchaliases,false) )
 		return mnc;
     }
 

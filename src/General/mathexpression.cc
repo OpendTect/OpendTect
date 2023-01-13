@@ -26,13 +26,12 @@ const ObjectSet<const Math::ExpressionOperatorDescGroup>&
 {
     mDefineStaticLocalObject(
 	PtrMan<ManagedObjectSet<const Math::ExpressionOperatorDescGroup> >,
-	ret, = 0 );
+	ret, = nullptr );
 
     if ( ret ) return *ret;
     ret = new ManagedObjectSet<const Math::ExpressionOperatorDescGroup>;
 
-    Math::ExpressionOperatorDescGroup* grp
-				= new Math::ExpressionOperatorDescGroup;
+    auto* grp = new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Basic";
 
 #   define mAddDesc(s,d,i,n) \
@@ -105,19 +104,20 @@ class ExpressionVariable : public Expression
 {
 public:
 				ExpressionVariable( const char* str )
-				    : Expression( 0 )
-				    , str_(str) { addIfOK(str_.buf()); }
+				    : Expression(0)
+				    , str_(str)
+				{ addIfOK(str_.buf()); }
 
     const char*			fullVariableExpression( int ) const override
 							{ return str_.buf(); }
     int				nrVariables() const override	{ return 1; }
-    double			getValue() const override	{ return val_; }
+    double			getValue() const override	{ return val_;}
     void			setVariableValue( int, double nv ) override
 							{ val_ = nv; }
     Expression*			clone() const override
 				{
-				    Expression* res =
-					new ExpressionVariable(str_.buf());
+				    auto* res =
+					new ExpressionVariable( str_.buf() );
 				    copyInput( res );
 				    return res;
 				}
@@ -136,8 +136,8 @@ class ExpressionConstant : public Expression
 public:
 
 ExpressionConstant( double val )
-    : val_ ( val )
-    , Expression( 0 )
+    : Expression(0)
+    , val_ (val)
 {
 }
 
@@ -148,7 +148,7 @@ double getValue() const override
 
 Expression* clone() const override
 {
-    Expression* res = new ExpressionConstant(val_);
+    auto* res = new ExpressionConstant( val_ );
     copyInput( res );
     return res;
 }
@@ -178,7 +178,7 @@ double getValue() const override; \
  \
 Expression* clone() const override \
 { \
-    Expression* res = new Expression##clss(); \
+    auto* res = new Expression##clss(); \
     copyInput( res ); \
     return res; \
 } \
@@ -497,7 +497,7 @@ double getValue() const override \
 { \
     Stats::RunCalc<double> stats( \
 	Stats::CalcSetup().require( Stats::statnm ) ); \
-    for ( int idx=0; idx<inputs_.size(); idx++) \
+    for ( int idx=0; idx<inputs_.size(); idx++ ) \
 	stats += inputs_[idx]->getValue(); \
 \
     return (double)stats.getValue( Stats::statnm ); \
@@ -603,9 +603,9 @@ int Math::Expression::getConstIdx( int ivar ) const
 Math::Expression::Expression( int sz )
     : isrecursive_(false)
 {
-    inputs_.allowNull();
+    inputs_.setNullAllowed();
     for ( int idx=0; idx<sz; idx++ )
-	inputs_ += 0;
+	inputs_ += nullptr;
 }
 
 
@@ -620,6 +620,36 @@ Math::Expression::~Expression( )
 int Math::Expression::nrVariables() const
 {
     return variableobj_.size();
+}
+
+
+int Math::Expression::nrLevels() const
+{
+    mDynamicCastGet(const ExpressionVariable*,thisexprvar,this);
+    if ( thisexprvar )
+	return 0;
+
+    mDynamicCastGet(const ExpressionConstant*,thisexprcst,this);
+    if ( thisexprcst )
+	return 0;
+
+    int maxlvl = 0;
+    for ( const auto* inp : inputs_ )
+    {
+	mDynamicCastGet(const ExpressionVariable*,exprvar,inp);
+	if ( exprvar )
+	    continue;
+
+	mDynamicCastGet(const ExpressionConstant*,exprcst,inp);
+	if ( exprcst )
+	    continue;
+
+	const int nrlvl = inp->nrLevels();
+	if ( nrlvl > maxlvl )
+	    maxlvl = nrlvl;
+    }
+
+    return 1 + maxlvl;
 }
 
 
@@ -662,7 +692,12 @@ int Math::Expression::firstOccurVarName( const char* fullvnm ) const
 
 const char* Math::Expression::type() const
 {
-    return ::className(*this) + 14;
+    mDeclStaticString(ret);
+    ret.set( ::className(*this) + (__iswin__ ? 12 : 8) );
+    if ( !__iswin__ )
+	ret.last() = '\0';
+
+    return ret.buf();
 }
 
 

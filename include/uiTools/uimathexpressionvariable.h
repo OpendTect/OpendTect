@@ -53,6 +53,7 @@ public:
     int			specIdx() const		{ return specidx_; }
     const char*		getInput() const;
     const Mnemonic*	getMnemonic() const	{ return curmn_; }
+    const char*		getDescription() const;
     const UnitOfMeasure* getUnit() const;
     void		fill(Math::Formula&) const;
     BufferStringSet	getInputNms(const Mnemonic* =nullptr,

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "mathexpression.h"
 #include "mathproperty.h"
 #include "safefileio.h"
 #include "separstr.h"
@@ -450,7 +451,7 @@ const RockPhysics::Formula* RockPhysics::FormulaSet::getByName(
 
 
 bool RockPhysics::FormulaSet::getRelevant( const Mnemonic& mn,
-				   ObjectSet<const Math::Formula>& forms ) const
+				 ObjectSet<const Math::Formula>& forms ) const
 {
     ObjectSet<const Math::Formula> rpforms;
     for ( const auto* fm : *this )
@@ -468,6 +469,158 @@ void RockPhysics::FormulaSet::getRelevant( const Mnemonic& mn,
     getRelevant( mn, forms );
     for ( const auto* fm : forms )
 	nms.add( fm->name() );
+}
+
+namespace Math
+{
+
+BufferString getNormalized( const Formula& form )
+{
+    BufferString ret( form.text() );
+
+    BufferStringSet varnms, newvarnms;
+    int ivar = 0, cstidx = 0;
+    for ( int iinp=0; iinp<form.nrInputs(); iinp++ )
+    {
+	if ( form.isConst(iinp) )
+	{
+	    varnms.add( BufferString( "c", cstidx++ ) );
+	    const double val = form.getConstVal( iinp );
+	    newvarnms.add( ::toString(val) );
+	}
+	else if ( !form.isSpec(iinp) )
+	{
+	    const BufferString varnm = form.inputVar( iinp );
+	    if ( varnms.isPresent(varnm) )
+		continue;
+
+	    varnms.add( varnm.buf() );
+	    newvarnms.add( BufferString( "x", ivar++ ) );
+	}
+    }
+
+    for ( int idx=0; idx<varnms.size(); idx++ )
+    {
+	if ( newvarnms.get(idx) == varnms.get(idx) )
+	    continue;
+
+	const char* inpvar = varnms.get( idx ).buf();
+	const char* newvar = newvarnms.get( idx ).buf();
+	ret.replace( inpvar, newvar );
+    }
+
+    ret.remove( ' ' ).replace( "+-", "-" );
+
+    return ret;
+}
+
+} // namespace Math
+
+
+bool RockPhysics::FormulaSet::getMatching( Math::Formula& form ) const
+{
+    const Math::Expression* expr = form.expression();
+    if ( !expr )
+	return false;
+
+    const Mnemonic* outmn = form.outputMnemonic();
+    if ( !outmn )
+	return false;
+
+    ObjectSet<const Math::Formula> rpforms;
+    getRelevant( *outmn, rpforms );
+    if ( rpforms.isEmpty() )
+	return false;
+
+    MnemonicSelection mnsel;
+    form.getInputMnemonics( mnsel );
+    const int nrspecs = form.nrSpecs();
+    if ( nrspecs > 0 || mnsel.size() != form.nrValues2Provide() )
+	return false;
+
+    const int nrcsts = form.nrConsts();
+    if ( nrcsts > 0 )
+	return false; //TODO : maybe add support
+
+    ObjectSet<const Math::Formula> relevantforms;
+    if ( !Math::getRelevant(*outmn,rpforms,relevantforms,&mnsel) )
+	return false;
+
+    const BufferString exprtyp( expr->type() );
+    const int nrlevels = expr->nrLevels();
+    const int nrvars = form.nrInputs() - form.nrConsts() - form.nrSpecs();
+    const BufferString formnormtxt = Math::getNormalized( form );
+    for ( const auto* rpform : relevantforms )
+    {
+	if ( !rpform->isOK() )
+	    continue;
+
+	const Math::Expression* rpexpr = rpform->expression();
+	if ( !rpexpr || rpexpr->isRecursive() )
+	    continue;
+
+	const BufferString rpexprtyp( rpexpr->type() );
+	if ( rpexprtyp != exprtyp )
+	    continue;
+
+	MnemonicSelection rpmnsel;
+	rpform->getInputMnemonics( rpmnsel );
+	if ( rpmnsel.size() != mnsel.size() )
+	    continue;
+
+	if ( nrlevels == 1 )
+	{
+	    if ( (rpexprtyp == "ExpressionPlus" &&
+		  exprtyp == "ExpressionPlus") ||
+		 (rpexprtyp == "ExpressionMultiply" &&
+		  exprtyp == "ExpressionMultiply") )
+	    {
+		int nrfound = 0;
+		for ( const auto* mn : mnsel )
+		{
+		    if ( rpmnsel.isPresent(mn) )
+			nrfound++;
+		}
+
+		if ( nrfound == mnsel.size() )
+		{
+		    const_cast<Math::Formula&>( form ).copyFrom( *rpform );
+		    return true;
+		}
+	    }
+	}
+
+	const int npnrlevels = rpexpr->nrLevels();
+	if ( nrlevels == npnrlevels )
+	{
+	    const int nrrpvars = rpform->nrInputs() - rpform->nrConsts()
+						    - rpform->nrSpecs();
+	    if ( nrrpvars != nrvars )
+		continue;
+
+	    const BufferString rpformnormtxt = Math::getNormalized( *rpform );
+	    if ( rpformnormtxt != formnormtxt )
+		continue;
+
+	    bool allfound = true;
+	    for ( int idx=0; idx<mnsel.size(); idx++ )
+	    {
+		if ( rpmnsel.get(idx) != mnsel.get(idx) )
+		{
+		    allfound = false;
+		    break;
+		}
+	    }
+
+	    if ( allfound )
+	    {
+		const_cast<Math::Formula&>( form ).copyFrom( *rpform );
+		return true;
+	    }
+	}
+    }
+
+    return false;
 }
 
 
@@ -524,7 +677,7 @@ void RockPhysics::FormulaSet::readFrom( ascistream& astrm )
 	const BufferString nm = astrm.keyWord();
 	const BufferString mn = astrm.value();
 	IOPar iop;
-	iop.getFrom(astrm);
+	iop.getFrom( astrm );
 	if ( !iop.hasKey(sKey::Name()) )
 	{
 	    iop.set( sKey::Name(), nm );
