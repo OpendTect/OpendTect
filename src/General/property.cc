@@ -461,7 +461,8 @@ bool MathProperty::init( const PropertySet& ps ) const
 	    if ( !prop )
 	    {
 		errmsg_ =
-		    tr( "Missing input '%1' for '%2'" ).arg(name()).arg(inpnm);
+		    tr( "Missing input '%1' for the calculation of '%2'" )
+			.arg( inpnm ).arg( name() );
 		return false;
 	    }
 	}
