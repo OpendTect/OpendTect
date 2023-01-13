@@ -243,8 +243,7 @@ bool EmptyTempSurvey::initSurvey( const OD::JSON::Object* obj )
     {
 	lastwarning_ = tr("Write location was not writable, "
 			    "creating directory at tempoarary location");
-	tmpbasedir_ =
-		    FilePath( File::getTempPath(), "OD_Survey" ).fullPath();
+	tmpbasedir_ = IOM().getNewTempDataRootDir();
 	surveyfile_ = tmpbasedir_;
     }
 
@@ -275,6 +274,9 @@ bool EmptyTempSurvey::initSurvey( const OD::JSON::Object* obj )
 
 bool EmptyTempSurvey::createOMFFile()
 {
+    if ( IOM().isValidDataRoot(tmpbasedir_) )
+	return true;
+
     IODir basedir( tmpbasedir_.buf() );
     return basedir.doWrite();
 }
@@ -404,6 +406,7 @@ uiRetVal EmptyTempSurvey::mount( bool, TaskRunner* )
 uiRetVal EmptyTempSurvey::unmount( bool dosave, TaskRunner* )
 {
     IOM().cancelTempSurvey();
+    origsurveyfp_.setEmpty();
     if ( dosave )
 	return save();
 
