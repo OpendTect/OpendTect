@@ -89,18 +89,22 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
 int nextStep() override
 {
-    if ( nrattribs_ < 0 ) return ErrorOccurred();
+    if ( nrattribs_ < 0 )
+	return ErrorOccurred();
 
     if ( !nrdone_ )
     {
 	const Geometry::BinIDSurface* rcgeom =
 		horizon_.geometry().geometryElement();
-	if ( !rcgeom ) return ErrorOccurred();
+	if ( !rcgeom )
+	    return ErrorOccurred();
 
 	inlrg_ = rcgeom->rowRange();
 	crlrg_ = rcgeom->colRange();
 	inl_ = inlrg_.start;
     }
+    else if ( inl_ > inlrg_.stop )
+	return Finished();
 
     PosID posid( horizon_.id() );
     const BinIDValueSet& bvs = *bvss_[0];
