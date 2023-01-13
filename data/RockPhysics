@@ -1,6 +1,6 @@
 dTect V7.1.0
 Rock Physics
-Tue 21 Sep 2021 11:32:43
+Fri 13 Jan 2023 17:30:00
 !
 Net Pay: NET_PAY_FLAG
 Description: Compute Net Pay from porosity, saturation, Vshale
@@ -652,4 +652,108 @@ Variable.1.Type: RHOB
 Variable.1.Name: Rhob
 Variable.1.Description: Density
 Variable.1.Unit: Kg/m3
+!
+S-wave velocity from P-wave velocity and Vp/Vs ratio: SVEL
+Description: Compute S-wave velocity from P-wave velocity and Vp/Vs ratio
+Formula: velp / vpvs_ratio
+Unit: Meter/second
+Variable.0.Type: PVEL
+Variable.0.Name: Vp
+Variable.0.Description: P-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: VPVS
+Variable.1.Name: Vp/Vs
+Variable.1.Description: Vp/Vs ratio
+Variable.1.Unit: Ratio
+!
+S-wave velocity from P-wave velocity and Vs/Vp ratio: SVEL
+Description: Compute S-wave velocity from P-wave velocity and Vs/Vp ratio
+Formula: velp * vsvp_ratio
+Unit: Meter/second
+Variable.0.Type: PVEL
+Variable.0.Name: Vp
+Variable.0.Description: P-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: VSVP
+Variable.1.Name: Vs/Vp
+Variable.1.Description: Vs/Vp ratio
+Variable.1.Unit: Ratio
+!
+S-wave velocity from Sonic and Vp/Vs ratio: SVEL
+Description: Compute S-wave velocity from Sonic and Vp/Vs ratio
+Formula: 1 / ( dt * vpvs_ratio )
+Unit: Meter/second
+Variable.0.Type: DT
+Variable.0.Name: DT
+Variable.0.Description: Sonic travel time
+Variable.0.Unit: Seconds/meter
+Variable.1.Type: VPVS
+Variable.1.Name: Vp/Vs
+Variable.1.Description: Vp/Vs ratio
+Variable.1.Unit: Ratio
+!
+S-wave velocity from Vs/Vp ratio and Sonic: SVEL
+Description: Compute S-wave velocity from Vs/Vp ratio and Sonic
+Formula: vsvp_ratio / dt
+Unit: Meter/second
+Variable.0.Type: VSVP
+Variable.0.Name: Vs/Vp
+Variable.0.Description: Vs/Vp ratio
+Variable.0.Unit: Ratio
+Variable.1.Type: DT
+Variable.1.Name: DT
+Variable.1.Description: Sonic travel time
+Variable.1.Unit: Seconds/meter
+!
+P-wave velocity from S-wave velocity and Vp/Vs ratio: PVEL
+Description: Compute P-wave velocity from S-wave velocity and Vp/Vs ratio
+Formula: vels * vpvs_ratio
+Unit: Meter/second
+Variable.0.Type: SVEL
+Variable.0.Name: Vs
+Variable.0.Description: S-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: VPVS
+Variable.1.Name: Vp/Vs
+Variable.1.Description: Vp/Vs ratio
+Variable.1.Unit: Ratio
+!
+P-wave velocity from S-wave velocity and Vs/Vp ratio: PVEL
+Description: Compute P-wave velocity from S-wave velocity and Vs/Vp ratio
+Formula: vels / vsvp_ratio
+Unit: Meter/second
+Variable.0.Type: SVEL
+Variable.0.Name: Vs
+Variable.0.Description: S-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: VSVP
+Variable.1.Name: Vs/Vp
+Variable.1.Description: Vs/Vp ratio
+Variable.1.Unit: Ratio
+!
+P-wave velocity from Vp/Vs ratio and Shear Sonic: PVEL
+Description: Compute P-wave velocity from Vp/Vs ratio and Shear Sonic
+Formula: vpvs_ratio / dts
+Unit: Meter/second
+Variable.0.Type: VPVS
+Variable.0.Name: Vp/Vs
+Variable.0.Description: Vp/Vs ratio
+Variable.0.Unit: Ratio
+Variable.1.Type: DTS
+Variable.1.Name: DTS
+Variable.1.Description: Sonic travel time
+Variable.1.Unit: Seconds/meter
+!
+P-wave velocity from Vs/Vp ratio and Shear Sonic: PVEL
+Description: Compute P-wave velocity from Vs/Vp ratio and Shear Sonic
+Formula: 1 / ( vsvp_ratio * dts )
+Unit: Meter/second
+Variable.0.Type: VSVP
+Variable.0.Name: Vs/Vp
+Variable.0.Description: Vs/Vp ratio
+Variable.0.Unit: Ratio
+Variable.1.Type: DTS
+Variable.1.Name: DTS
+Variable.1.Description: Sonic travel time
+Variable.1.Unit: Seconds/meter
 !
