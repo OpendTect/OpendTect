@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "oddirs.h"
 
 #include "uifileinput.h"
@@ -46,16 +47,13 @@ bool doSurveySelection( SurveyDiskLocation& newsdl, uiParent* p,
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-static bool checkIfDataDir( const char* path, bool forread )
+static bool isPotentialDataDir( const char* path )
 {
-    if ( SurveyInfo::isValidDataRoot(path).isOK() )
-	return true;
-
     DirList surveydirlist( path, File::DirsInDir );
     for ( int idx=0; idx<surveydirlist.size(); idx++ )
     {
 	if ( SurveyInfo::isValidSurveyDir(surveydirlist.fullPath(idx)).isOK() )
-	    return forread || File::isWritable( path );
+	    return File::isWritable( path );
     }
 
     return false;
@@ -154,15 +152,13 @@ const BufferString uiSurveySelectDlg::getSurveyPath() const
 bool uiSurveySelectDlg::continueAfterErrMsg()
 {
     if ( needvalidrootdir_ )
-    {
-	uiMSG().error( tr("Selected folder is not a valid Data Root") );
-	return false;
-    }
+	return uiMSG().askGoOn(
+	    tr("The selected folder is not an OpendTect Data Root. Do you want "
+	       "to make it an OpendTect Data Root") );
 
-    const bool res = uiMSG().askGoOn(
-	    tr("Selected folder is not a valid Data Root. Do you still "
-	       "want to search for OpendTect Surveys in this location") );
-    return res;
+    return uiMSG().askGoOn(
+	    tr("The selected folder is not an Opendtect Data Root. Do you "
+	       "still want to search for OpendTect Surveys in this location") );
 }
 
 
@@ -171,10 +167,17 @@ void uiSurveySelectDlg::fillSurveyList()
     surveylistfld_->setEmpty();
     BufferString dataroot = getDataRoot();
     bool datarootisvalid = false;
+    bool needconfirmation = false;
     bool useparent = false;
     while ( !datarootisvalid && !dataroot.isEmpty() )
     {
-	datarootisvalid = checkIfDataDir( dataroot, forread_ );
+	datarootisvalid = IOMan::isValidDataRoot( dataroot );
+	if ( !datarootisvalid && isPotentialDataDir(dataroot) )
+	{
+	    datarootisvalid = true;
+	    needconfirmation = true;
+	}
+
 	if ( !datarootisvalid )
 	{
 	    dataroot = FilePath(dataroot).pathOnly();
@@ -182,8 +185,11 @@ void uiSurveySelectDlg::fillSurveyList()
 	}
     }
 
-    if ( !datarootisvalid && !continueAfterErrMsg() )
-	return;
+    if ( needconfirmation )
+    {
+	if ( !continueAfterErrMsg() || !IOMan::prepareDataRoot(dataroot) )
+	    return;
+    }
 
     if ( useparent )
 	setDataRoot( dataroot );
@@ -281,7 +287,7 @@ bool uiSurveySelect::getFullSurveyPath( BufferString& fullpath ) const
     }
 
     BufferString path( fp.pathOnly() ), survnm( fp.fileName() );
-    const bool isdatadir = checkIfDataDir( path, forread_ );
+    const bool isdatadir = IOMan::isValidDataRoot( path );
     fullpath = makeFullSurveyPath( survnm, path );
     return isdatadir && !fullpath.isEmpty() ? true : false;
 }
