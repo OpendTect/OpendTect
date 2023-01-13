@@ -262,7 +262,7 @@ bool EmptyTempSurvey::initSurvey( const OD::JSON::Object* obj )
     }
 
     si_.setName( surveydirnm_ );
-    FilePath fp( tmpbasedir_ );
+    FilePath fp( tmpbasedir_, surveydirnm_ );
     si_.disklocation_ = SurveyDiskLocation( fp );
     const bool hasomf = File::exists(
 				    FilePath(tmpbasedir_,".omf").fullPath() );

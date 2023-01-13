@@ -79,7 +79,7 @@ int mTestMainFnName( int argc, char** argv )
 
     logStream() << "------------Creating Temporary Survey------------" <<
 								    od_endl;
-    EmptyTempSurvey tempsurvey;
+    EmptyTempSurvey tempsurvey( nullptr, nullptr, false );
     if ( !tempSurveyCreationIsOK(tempsurvey) ||
 	    !tempSurveyActivate(tempsurvey) ||
 		    !tempSurveyDeactivate(tempsurvey) ||
