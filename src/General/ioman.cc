@@ -1397,14 +1397,19 @@ bool IOMan::isValidDataRoot( const char* d )
 
     fp.setFileName( ".survey" );
     if ( File::exists(fp.fullPath()) )
-    {
-	// probably we're in a survey. Still let's be sure:
-	fp.setFileName( "Seismics" );
-	if ( File::isDirectory(fp.fullPath()) )
-	    return false;
-    }
+	ErrMsg( "Warning: .survey file found in Data Root");
 
-    return true;
+    IODir datarootdir( fp.pathOnly().buf() );
+    return !datarootdir.isBad() && !datarootdir.isEmpty() &&
+	datarootdir.get("Appl dir","Appl");
+}
+
+
+bool IOMan::prepareDataRoot( const char* dirnm )
+{
+    const BufferString stdomf( mGetSetupFileName("omf") );
+    const BufferString datarootomf = FilePath( dirnm ).add( ".omf" ).fullPath();
+    return File::copy( stdomf, datarootomf ) && isValidDataRoot( dirnm );
 }
 
 
@@ -1565,14 +1570,12 @@ BufferString IOMan::getNewTempDataRootDir()
     if ( !File::createDir( tmpdataroot ) )
 	return BufferString::empty();
 
-    const FilePath infp( mGetSWDirDataDir(), "omf" );
-    const FilePath outfp( tmpdataroot, ".omf" );
-    const bool res = ascostream::copyFile( infp.fullPath() , outfp.fullPath() );
-    if ( !res )
+    if ( !prepareDataRoot(tmpdataroot) )
     {
 	File::removeDir( tmpdataroot );
 	return BufferString::empty();
     }
+
     return tmpdataroot;
 }
 
