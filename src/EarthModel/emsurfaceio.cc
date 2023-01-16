@@ -915,7 +915,7 @@ int dgbSurfaceReader::nextStep()
 
 bool dgbSurfaceReader::doFinish( bool success )
 {
-    deleteAndZeroPtr( conn_ );
+    deleteAndNullPtr( conn_ );
     return success;
 }
 
