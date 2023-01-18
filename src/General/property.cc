@@ -53,10 +53,9 @@ bool Property::isEqualTo( const Property& oth ) const
 }
 
 
-bool Property::matches( const char* nm, bool matchaliases,
-			bool exactmatch ) const
+bool Property::matches( const char* nm, bool matchaliases, float* matchval )
 {
-    return ref().matches( nm, matchaliases, exactmatch );
+    return ref().matches( nm, matchaliases, matchval );
 }
 
 
@@ -745,25 +744,30 @@ PropertySet& PropertySet::operator =( const PropertySet& ps )
 
 Property* PropertySet::getByName( const char* nm, bool matchaliases )
 {
-    if ( nm && *nm )
-    {
-	for ( auto* prop : *this )
-	    if ( prop->matches(nm,matchaliases,true) )
-		return prop;
-
-	for ( auto* prop : *this )
-	    if ( prop->matches(nm,matchaliases,false) )
-		return prop;
-    }
-
-    return nullptr;
+    const Property* ret =
+	const_cast<const PropertySet*>(this)->getByName( nm, matchaliases );
+    return const_cast<Property*>( ret );
 }
 
 
 const Property* PropertySet::getByName( const char* nm,
 					bool matchaliases ) const
 {
-    return mSelf().getByName( nm, matchaliases );
+    PropertyRefSelection prs( false );
+    for ( const auto* prop : *this )
+	prs.add( &prop->ref() );
+
+    const PropertyRef* pr = PropertyRefSet::getByName( nm, prs, matchaliases );
+    if ( !pr )
+	return nullptr;
+
+    for ( const auto* prop : *this )
+    {
+	if ( &prop->ref() == pr )
+	    return prop;
+    }
+
+    return nullptr;
 }
 
 

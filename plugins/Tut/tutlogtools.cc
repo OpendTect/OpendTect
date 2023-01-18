@@ -12,16 +12,19 @@ ________________________________________________________________________
 #include "welllog.h"
 
 Tut::LogTools::LogTools( const Well::Log& inp, Well::Log& outp )
-	: inplog_(inp)
-	, outplog_(outp)
+    : inplog_(inp)
+    , outplog_(outp)
 {
 }
 
+
+Tut::LogTools::~LogTools()
+{
+}
+
+
 bool Tut::LogTools::runSmooth( const int inpgate )
 {
-    outplog_.setMnemLabel( inplog_.mnemLabel() );
-    outplog_.setUnitMeasLabel( inplog_.unitMeasLabel() );
-
     const int gate = inpgate % 2 ? inpgate : inpgate + 1;
     const int rad = gate / 2;
     Stats::WindowedCalc<float> wcalc(
@@ -47,6 +50,9 @@ bool Tut::LogTools::runSmooth( const int inpgate )
 	if ( cpos<rad && cpos>=0 )
 	    outplog_.addValue( dah, cposval );
     }
+
+    outplog_.setUnitMeasLabel( inplog_.unitMeasLabel() );
+    outplog_.setMnemonicLabel( inplog_.mnemonicLabel() );
 
     return true;
 }

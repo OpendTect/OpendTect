@@ -704,9 +704,6 @@ bool WellTie::DataPlayer::processLog( const Well::Log* log,
     if ( !log )
 	mErrRet( tr( "Can not find log '%1'" ).arg( nm ) )
 
-    outplog.setMnemLabel( log->mnemLabel() );
-    outplog.setUnitMeasLabel( log->unitMeasLabel() );
-
     int sz = log->size();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -721,6 +718,9 @@ bool WellTie::DataPlayer::processLog( const Well::Log* log,
     if ( sz <= 2 )
 	mErrRet( tr( "%1: log size too small, please check your input log" )
 		     .arg( nm ) )
+
+    outplog.setUnitMeasLabel( log->unitMeasLabel() );
+    outplog.setMnemonicLabel( log->mnemonicLabel() );
 
     WellTie::GeoCalculator::removeSpikes( outplog.valArr(), sz, 10, 3 );
     outplog.setName( log->name() );

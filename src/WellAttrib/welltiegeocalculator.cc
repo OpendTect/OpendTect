@@ -102,7 +102,7 @@ void WellTie::GeoCalculator::son2Vel( Well::Log& log )
     if ( outuom )
     {
 	log.setUnitMeasLabel( outuomlbl );
-	log.guessMnemonic();
+	log.setMnemonicLabel( nullptr, true );
     }
 }
 
@@ -222,7 +222,7 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
     if ( outuom )
     {
 	log.setUnitMeasLabel( outuomlbl );
-	log.guessMnemonic();
+	log.setMnemonicLabel( nullptr, true );
     }
 }
 
@@ -386,5 +386,5 @@ void WellTie::GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
 
     const Mnemonic::StdType tp = Mnemonic::Time;
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );
-    log.guessMnemonic();
+    log.setMnemonicLabel( nullptr, true );
 }

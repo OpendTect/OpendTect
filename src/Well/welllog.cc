@@ -183,7 +183,7 @@ void Well::LogSet::removeTopBottomUdfs()
 void Well::LogSet::getAllAvailMnems( MnemonicSelection& mns ) const
 {
     for ( const auto* log : logs_ )
-	if ( log->mnemonic() )
+	if ( log->mnemonic(true) )
 	    mns.addIfNew( log->mnemonic() );
 }
 
@@ -192,7 +192,7 @@ TypeSet<int> Well::LogSet::getSuitable( const Mnemonic& mn ) const
 {
     TypeSet<int> ret;
     for ( const auto* log : logs_ )
-	if ( mn.isCompatibleWith(log->mnemonic()) )
+	if ( mn.isCompatibleWith(log->mnemonic(true)) )
 	    ret += logs_.indexOf(log);
 
     return ret;
@@ -381,10 +381,7 @@ void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
 const Mnemonic* Well::LogSet::getMnemonicOfLog( const char* nm ) const
 {
     const Well::Log* log = getLog( nm );
-    if ( !log )
-	return nullptr;
-
-    return log->mnemonic();
+    return log ? log->mnemonic( true ) : nullptr;
 }
 
 
@@ -627,7 +624,7 @@ void Well::Log::removeTopBottomUdfs()
 }
 
 
-const char* Well::Log::mnemLabel() const
+const char* Well::Log::mnemonicLabel() const
 {
     if ( mnemonic() )
 	return mnemonic()->name();
@@ -636,42 +633,43 @@ const char* Well::Log::mnemLabel() const
 }
 
 
-const Mnemonic* Well::Log::mnemonic() const
+const Mnemonic* Well::Log::mnemonic( bool setifnull ) const
 {
-    if ( !mn_ )
-    {
-	const Mnemonic* ret = MNC().getByName( mnemlbl_, false );
-	if ( ret )
-	{
-	    const_cast<Log&>( *this ).setMnemonic( *ret );
-	    return ret;
-	}
-
-	ret = MNC().getByName( name(), true );
-	const UnitOfMeasure* uom = unitOfMeasure();
-	if ( ret && ((uom && ret->stdType() == uom->propType()) || !uom) )
-	{
-	    const_cast<Log&>( *this ).setMnemonic( *ret );
-	    return ret;
-	}
-
-	const_cast<Log&>( *this ).setMnemonic(
-				isCode() ? MNC().getGuessed( propType() )
-					 : MNC().getGuessed( uom ) );
-    }
+    if ( !mn_ && setifnull )
+	return mSelf().guessMnemonic();
 
     return mn_;
 }
 
 
-void Well::Log::guessMnemonic()
+bool Well::Log::haveMnemonic() const
+{
+    return !mnemlbl_.isEmpty() && mnemlbl_ != Mnemonic::undef().name();
+}
+
+
+const Mnemonic* Well::Log::guessMnemonic()
 {
     if ( mn_ )
-	return;
+	return mn_;
 
-    const Mnemonic* mn = mnemonic();
-    if ( mn )
+    const UnitOfMeasure* uom = unitOfMeasure();
+    if ( !uom && haveUnit() )
+	uom = UoMR().get( unitMeasLabel() );
+
+    const char* nm = mnemlbl_ == Mnemonic::undef().name() ? nullptr
+							  : mnemlbl_.buf();
+    const BufferStringSet hintnms( name().str() );
+    const Mnemonic* mn = nullptr;
+    if ( isCode() )
+	mn = MnemonicSelection::getGuessed( nm, Mnemonic::Class, &hintnms );
+    if ( !mn )
+	mn = MnemonicSelection::getGuessed( nm, uom, &hintnms );
+
+    if ( mn && !mn->isUdf() )
 	setMnemonic( *mn );
+
+    return mn;
 }
 
 
@@ -682,8 +680,19 @@ void Well::Log::setMnemonic( const Mnemonic& mn )
 }
 
 
-void Well::Log::setMnemLabel( const char* mnem )
+void Well::Log::setMnemonicLabel( const char* mnem, bool setifnull )
 {
+    const StringView mnnm( mnem );
+    if ( (mnnm.isEmpty() && setifnull) || mnnm == Mnemonic::undef().name() )
+    {
+	mnemlbl_.set( mnem );
+	const Mnemonic* mn = guessMnemonic();
+	if ( !mn )
+	    mnemlbl_.setEmpty();
+
+	return;
+    }
+
     const Mnemonic* mn = MNC().getByName( mnem, false );
     if ( mn )
     {
@@ -760,9 +769,6 @@ bool Well::Log::insertAtDah( float dh, float val )
 Well::Log* Well::Log::cleanUdfs() const
 {
     auto* outlog = new Well::Log;
-    outlog->setName( getName() );
-    outlog->setMnemLabel( mnemLabel() );
-    outlog->setUnitMeasLabel( unitMeasLabel() );
 
     bool first = true;
     bool newz = true;
@@ -784,7 +790,6 @@ Well::Log* Well::Log::cleanUdfs() const
 	    outlog->addValue( dah_[idx], vals_[idx] );
 	    first = false;
 	    newz = false;
-
 	}
 	else if ( newz && numconsecudf>=2 )
 	{
@@ -795,8 +800,13 @@ Well::Log* Well::Log::cleanUdfs() const
 	}
 	else
 	    outlog->addValue( dah_[idx], vals_[idx] );
+
 	numconsecudf = 0;
     }
+
+    outlog->setName( getName() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
+    outlog->setMnemonicLabel( mnemonicLabel() );
     return outlog;
 }
 
@@ -824,8 +834,8 @@ Well::Log* Well::Log::upScaleLog( const StepInterval<float>& dahrg ) const
 			    logisvel );
     upscaler.execute();
     outlog->setName( getName() );
-    outlog->setMnemLabel( mnemLabel() );
     outlog->setUnitMeasLabel( unitMeasLabel() );
+    outlog->setMnemonicLabel( mnemonicLabel() );
     return outlog;
 }
 
@@ -848,8 +858,8 @@ Well::Log* Well::Log::sampleLog( const StepInterval<float>& dahrg ) const
     LogRegularSampler sampler( outlog->size(), *this, *outlog, dahrg );
     sampler.execute();
     outlog->setName( getName() );
-    outlog->setMnemLabel( mnemLabel() );
     outlog->setUnitMeasLabel( unitMeasLabel() );
+    outlog->setMnemonicLabel( mnemonicLabel() );
     return outlog;
 }
 

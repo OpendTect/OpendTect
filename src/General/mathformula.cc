@@ -18,12 +18,48 @@ ________________________________________________________________________
 
 mDefSimpleTranslators(MathFormula,Math::Formula::sKeyFileType(),od,Misc);
 
+// Math::SpecVar
+
+Math::SpecVar::SpecVar( const char* varnm, const char* dispnm, bool hasuns,
+			const Mnemonic* mn )
+    : varnm_(varnm)
+    , dispnm_(dispnm)
+    , hasunits_(hasuns)
+    , mn_(mn)
+{
+}
+
+
+Math::SpecVar::SpecVar( const char* varnm, const char* dispnm, bool hasuns,
+			Mnemonic::StdType typ )
+    : SpecVar(varnm,dispnm,hasuns,MnemonicSelection::getGuessed(nullptr,typ))
+{
+}
+
+
+Math::SpecVar::~SpecVar()
+{
+}
+
+
+// Math::SpecVarSet
 
 const Math::SpecVarSet& Math::SpecVarSet::getEmpty()
 {
     static ConstPtrMan<Math::SpecVarSet> emptyspecvarset =
 						new Math::SpecVarSet();
     return *emptyspecvarset.ptr();
+}
+
+
+Math::SpecVarSet::SpecVarSet()
+    : TypeSet<SpecVar>()
+{
+}
+
+
+Math::SpecVarSet::~SpecVarSet()
+{
 }
 
 
@@ -44,6 +80,34 @@ void Math::SpecVarSet::getNames( BufferStringSet& nms, bool usrdisp ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	nms.add( usrdisp ? dispName(idx) : varName(idx) );
+}
+
+
+void Math::SpecVarSet::add( const char* varnm, const char* dispnm,
+			    bool hasuns, Mnemonic::StdType typ )
+{
+    const Mnemonic* mn = MnemonicSelection::getGuessed( nullptr, typ );
+    *this += SpecVar( varnm, dispnm, hasuns, mn );
+}
+
+
+// Math::Formula::InpDef
+
+Math::Formula::InpDef::InpDef( const char* nm, Type typ )
+    : varname_(nm)
+    , type_(typ)
+{
+}
+
+
+Math::Formula::InpDef::InpDef( const InpDef& oth )
+{
+    *this = oth;
+}
+
+
+Math::Formula::InpDef::~InpDef()
+{
 }
 
 

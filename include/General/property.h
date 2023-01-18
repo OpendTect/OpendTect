@@ -33,7 +33,7 @@ public:
 
     bool		isEqualTo(const Property&) const;
     bool		matches(const char* nm,bool matchaliases,
-				bool exactmatch) const;
+				float* matchval =nullptr);
     virtual bool	isValue() const			{ return false; }
     virtual bool	isRange() const			{ return false; }
     virtual bool	isFormula() const		{ return false; }

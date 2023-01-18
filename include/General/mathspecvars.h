@@ -23,16 +23,11 @@ mExpClass(General) SpecVar
 {
 public:
 
-			SpecVar( const char* varnm, const char* dispnm,
-				 bool hasuns=false, const Mnemonic* mn=nullptr )
-			    : varnm_(varnm), dispnm_(dispnm)
-			    , hasunits_(hasuns), mn_(mn)	{}
-    mDeprecatedDef	SpecVar( const char* varnm, const char* dispnm,
-				 bool hasuns,
-				 Mnemonic::StdType typ )
-			    : SpecVar(varnm,dispnm,hasuns,
-				      &MNC().getGuessed(typ) )
-			{}
+			SpecVar(const char* varnm,const char* dispnm,
+				bool hasuns =false,const Mnemonic* =nullptr);
+    mDeprecatedDef	SpecVar(const char* varnm,const char* dispnm,
+				bool hasuns,Mnemonic::StdType);
+			~SpecVar();
 
     bool		operator ==( const SpecVar& oth ) const
 					{ return varnm_ == oth.varnm_; }
@@ -56,7 +51,8 @@ private:
 mExpClass(General) SpecVarSet : public TypeSet<SpecVar>
 {
 public:
-			SpecVarSet()		{}
+			SpecVarSet();
+			~SpecVarSet();
 
     int			getIndexOf(const char* varnm) const;
     void		getNames(BufferStringSet&,bool usrdisp=true) const;
@@ -89,13 +85,9 @@ public:
 public:
 
     mDeprecatedDef
-    void		add( const char* varnm, const char* dispnm,
-			   bool hasuns, Mnemonic::StdType typ )
-			{ *this += SpecVar(varnm,dispnm,hasuns,
-					   &MNC().getGuessed(typ)); }
+    void		add(const char* varnm,const char* dispnm,
+			    bool hasuns,Mnemonic::StdType);
 
 };
-
-
 
 } // namespace Math

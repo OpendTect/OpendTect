@@ -43,8 +43,7 @@ public:
     bool		operator ==(const PropertyRef&) const;
     bool		operator !=(const PropertyRef&) const;
     bool		matches(const char* nm,bool matchaliases,
-				bool exactmatch) const;
-    bool		isKnownAs(const char*,bool exactmatch) const;
+				float* matchval =nullptr) const;
     bool		hasFixedDef() const	{ return mathdef_; }
     bool		isElastic() const;
     virtual bool	isElasticForm() const	{ return false; }
@@ -159,6 +158,12 @@ private:
 
     friend class PropertyRefSetMgr;
     friend class uiManPROPS;
+
+public:
+
+    static const PropertyRef* getByName(const char*,
+				    const ObjectSet<const PropertyRef>&,
+				    bool matchaliases);
 
 };
 

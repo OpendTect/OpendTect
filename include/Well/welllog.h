@@ -66,12 +66,11 @@ public:
     Interval<float>&	valueRange()			{ return range_; }
     const Interval<float>& valueRange() const		{ return range_; }
 
-    const char*		mnemLabel() const;
-    const Mnemonic*	mnemonic() const;
-    bool		haveMnemonic() const	{ return !mnemlbl_.isEmpty(); }
-    void		guessMnemonic();
+    const char*		mnemonicLabel() const;
+    const Mnemonic*	mnemonic(bool setifnull=false) const;
+    bool		haveMnemonic() const;
     void		setMnemonic(const Mnemonic&);
-    void		setMnemLabel(const char*);
+    void		setMnemonicLabel(const char*,bool setifnull=false);
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
     const UnitOfMeasure* unitOfMeasure() const		{ return uom_; }
@@ -103,7 +102,7 @@ public:
     IOPar&		pars()				{ return pars_; }
     const IOPar&	pars() const			{ return pars_; }
 
-protected:
+private:
 
     TypeSet<float>	vals_;
     Interval<float>	range_;
@@ -114,11 +113,22 @@ protected:
     bool		iscode_ = false;
     IOPar		pars_;
 
+    const Mnemonic*	guessMnemonic();
+
     void		removeAux( int idx ) override
 			{ vals_.removeSingle(idx); }
 
     void		eraseAux() override		{ vals_.erase(); }
     float		gtVal(float,int&) const;
+
+public:
+
+    mDeprecated("Use mnemonicLabel")
+    const char*		mnemLabel() const	{ return mnemonicLabel(); }
+
+    mDeprecated("Use setMnemonicLabel")
+    void		setMnemLabel( const char* str )
+			{ setMnemonicLabel( str ); }
 
 };
 

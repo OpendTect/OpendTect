@@ -214,10 +214,10 @@ protected:
 
 	enum Type		{ Var, Const, Spec };
 
-				InpDef( const char* nm, Type t )
-				    : varname_(nm), type_(t)	{}
-				InpDef( const InpDef& oth )
-						    { *this = oth; }
+				InpDef(const char* nm,Type);
+				InpDef(const InpDef&);
+				~InpDef();
+
 	InpDef&			operator=(const InpDef&);
 	bool			operator==(const InpDef&) const;
 	bool			operator!=(const InpDef&) const;

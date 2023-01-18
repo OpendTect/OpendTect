@@ -604,9 +604,8 @@ void uiWellPropSel::setLog( const Mnemonic::StdType tp, const char* nm,
     if ( !propflds_.validIdx(idx) )
 	{ pErrMsg("Idx failure"); return; }
 
-    const BufferStringSet hintnms( nm );
-    const Mnemonic& mn = MNC().getGuessed( tp, &hintnms );
-    setLog( &mn, nm, usealt, uom, idx );
+    const Mnemonic* mn = MnemonicSelection::getGuessed( nm, tp );
+    setLog( mn, nm, usealt, uom, idx );
 }
 
 
@@ -617,9 +616,12 @@ bool uiWellPropSel::getLog( const Mnemonic::StdType tp, BufferString& retlognm,
     if ( !propflds_.validIdx(idx) )
 	{ pErrMsg("Idx failure"); return false; }
 
-    const Mnemonic& mn = MNC().getGuessed( tp );
+    const Mnemonic* mn = MnemonicSelection::getGuessed( nullptr, tp );
+    if ( !mn )
+	mn = &Mnemonic::undef();
+
     const UnitOfMeasure* uom = nullptr;
-    const bool res = getLog( mn, retlognm, retisrev, uom, idx );
+    const bool res = getLog( *mn, retlognm, retisrev, uom, idx );
     if ( res )
 	uomstr.set( UnitOfMeasure::getUnitLbl( uom ) );
 

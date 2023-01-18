@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "mathformulatransl.h"
 #include "mathspecvars.h"
 #include "od_iostream.h"
+#include "odpair.h"
 #include "unitofmeasure.h"
 
 
@@ -293,26 +294,27 @@ void uiMathFormula::guessInputFormDefs()
 	{
 	    if ( !inpnms.isPresent(inpdef.str()) )
 	    {
+		float val; int maxidx = -1; float maxval = -1.f;
+		TypeSet<OD::Pair<float,BufferString> > mnemmatches;
 		for ( const auto* inpnm : inpnms )
 		{
-		    if ( mn->matches(inpnm->str(),true,true) )
+		    const char* inpmstr = inpnm->str();
+		    if ( !mn->matches(inpmstr,true,&val) )
+			continue;
+
+		    mnemmatches +=
+				OD::Pair<float,BufferString>( val, inpmstr );
+		    if ( val > maxval )
 		    {
-			inpdef.set( inpnm->str() );
-			found = true;
-			break;
+			maxval = val;
+			maxidx = mnemmatches.size() - 1;
 		    }
 		}
-		if ( !found )
+
+		if ( mnemmatches.validIdx(maxidx) )
 		{
-		    for ( const auto* inpnm : inpnms )
-		    {
-			if ( mn->matches(inpnm->str(),true,false) )
-			{
-			    inpdef.set( inpnm->str() );
-			    found = true;
-			    break;
-			}
-		    }
+		    inpdef.set( mnemmatches[maxidx].second() );
+		    found = true;
 		}
 	    }
 	}
@@ -324,26 +326,27 @@ void uiMathFormula::guessInputFormDefs()
 	    {
 		if ( !inpnms.isPresent(inpdef.str()) )
 		{
+		    float val; int maxidx = -1; float maxval = -1.f;
+		    TypeSet<OD::Pair<float,BufferString> > mnemmatches;
 		    for ( const auto* inpnm : inpnms )
 		    {
-			if ( mn->matches(inpnm->str(),true,true) )
+			const char* inpmstr = inpnm->str();
+			if ( !mn->matches(inpmstr,true,&val) )
+			    continue;
+
+			mnemmatches +=
+				   OD::Pair<float,BufferString>( val, inpmstr );
+			if ( val > maxval )
 			{
-			    inpdef.set( inpnm->str() );
-			    found = true;
-			    break;
+			    maxval = val;
+			    maxidx = mnemmatches.size() - 1;
 			}
 		    }
-		    if ( !found )
+
+		    if ( mnemmatches.validIdx(maxidx) )
 		    {
-			for ( const auto* inpnm : inpnms )
-			{
-			    if ( mn->matches(inpnm->str(),true,false) )
-			    {
-				inpdef.set( inpnm->str() );
-				found = true;
-				break;
-			    }
-			}
+			inpdef.set( mnemmatches[maxidx].second() );
+			found = true;
 		    }
 		}
 	    }

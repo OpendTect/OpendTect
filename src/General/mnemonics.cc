@@ -17,6 +17,9 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "unitofmeasure.h"
 
+#include <regex>
+
+
 static const char* filenamebase = "Mnemonics";
 const char* Mnemonic::sKeyMnemonic()	{ return "Mnemonic"; }
 
@@ -181,84 +184,69 @@ bool Mnemonic::operator !=( const Mnemonic& oth ) const
 }
 
 
-float Mnemonic::getMatchValue( const char* nm ) const
+bool Mnemonic::matches( const char* nm, bool matchaliases,
+			float* matchval ) const
+{
+    BufferStringSet nms( name().buf(), logtypename_.buf() );
+    if ( matchaliases && !aliases_.isEmpty() )
+	nms.append( aliases_ );
+
+    const float val = getMatchValue( nm, nms, !matchaliases );
+    if ( matchval )
+	*matchval = val;
+
+    return val > 0.f;
+}
+
+
+float Mnemonic::getMatchValue( const char* nm, const BufferStringSet& nms,
+			       bool exactmatch, bool hasaltnm )
 {
     const StringView nmstr( nm );
-    if ( nmstr.isEmpty() )
+    const int sz = nmstr.size();
+    if ( sz < 1 || nms.isEmpty() )
 	return 0.f;
 
-    if ( name().matches(nm,OD::CaseInsensitive) )
-	return 1.f;
+    const OD::String& mainnm = *nms.first();
+    if ( mainnm == nm )
+	return 3000.f;
+    else if ( !exactmatch && mainnm.matches(nm,OD::CaseInsensitive) )
+	return 2000.f;
 
-    BufferStringSet nms( name().buf(), logtypename_.buf() );
-    nms.add( aliases_, false );
+    if ( hasaltnm && nms.size() > 1 )
+    {
+	const OD::String& altnm = nms.get( 1 );
+	if ( altnm == nm )
+	    return 1000.f;
+	else if ( !exactmatch && altnm.matches(nm,OD::CaseInsensitive) )
+	    return 500.f;
+    }
+
+    if ( exactmatch )
+	return 0.f;
+
+    const std::string tomatch = nm;
+    std::smatch m;
     for ( const auto* findnm : nms )
     {
 	if ( findnm->isEmpty() )
 	    continue;
 
-	if ( findnm->isEqual(nmstr) )
-	    return 1.f;
+	if ( findnm->isEqual(nm,OD::CaseSensitive) )
+	    return findnm->size();
+	else if ( findnm->isEqual(nm,OD::CaseInsensitive) )
+	    return (float)findnm->size() - 1e-4f;
 
 	BufferString gexpr( findnm->buf() );
-	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
-	const GlobExpr ge( gexpr, false );
-	if ( ge.matches(nmstr) )
-	{
-	    const unsigned int levdist =
-			    nmstr.getLevenshteinDist( findnm->buf(), false );
-	    const int nmsize = nmstr.size();
-	    const float val = (float)levdist / nmsize;
-	    return val;
-	}
+	gexpr.trimBlanks().replace( " ", "[^a-z]{0,2}" )
+			  .replace( "_", "[^a-z]{0,2}" );
+	const std::string expr = gexpr.str();
+	const std::regex stdge = std::regex( expr, std::regex::icase );
+	if ( std::regex_search(tomatch,m,stdge) )
+	    return findnm->size();
     }
 
     return 0.f;
-}
-
-
-bool Mnemonic::matches( const char* nm, bool matchaliases,
-			bool exactmatch ) const
-{
-    if ( name() == nm || logtypename_.isEqual(nm,OD::CaseInsensitive) )
-	return true;
-
-    return matchaliases ? isKnownAs( nm, exactmatch ) : false;
-}
-
-
-bool Mnemonic::isKnownAs( const char* nm, bool exactmatch ) const
-{
-    const StringView nmstr( nm );
-    if ( nmstr.isEmpty() )
-	return false;
-
-    if ( name().matches(nm,OD::CaseInsensitive) )
-	return true;
-
-    BufferStringSet nms( name().buf(), logtypename_.buf() );
-    nms.add( aliases_, false );
-    for ( const auto* findnm : nms )
-    {
-	if ( findnm->isEmpty() )
-	    continue;
-
-	if ( exactmatch )
-	{
-	    if ( findnm->matches(nm,OD::CaseInsensitive) )
-		return true;
-	}
-	else
-	{
-	    BufferString gexpr( findnm->buf() );
-	    gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
-	    const GlobExpr ge( gexpr, false );
-	    if ( ge.matches(nmstr) )
-		return true;
-	}
-    }
-
-    return false;
 }
 
 
@@ -369,9 +357,7 @@ const Mnemonic& Mnemonic::undef()
 	{
 	    newudf->logtypename_ = "Other";
 	    BufferStringSet& aliases = newudf->aliases();
-	    aliases.add( "" ).add( "undef*" ).add( "?undef?" )
-		   .add( "?undefined?" )
-		   .add( "udf" ).add( "unknown" );
+	    aliases.add( "udf" ).add( "unknown" );
 	    newudf->disp_.color_ = OD::Color::LightGrey();
 	}
     }
@@ -522,92 +508,45 @@ Mnemonic* MnemonicSet::getByName( const char* nm, bool matchaliases )
 const Mnemonic* MnemonicSet::getByName( const char* nm,
 					bool matchaliases ) const
 {
-    ObjectSet<const Mnemonic> possiblemnemonics;
-    if ( nm && *nm )
-    {
-	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases,true) )
-		return mnc;
-
-	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases,false) )
-		return mnc;
-    }
-
-    return nullptr;
-}
-
-
-const Mnemonic* MnemonicSet::getBestGuessedMnemonics( const char* nm,
-						 bool matchaliases) const
-{
-    ObjectSet<const Mnemonic> possiblemnemonics;
-    if ( nm && *nm )
-    {
-	TypeSet<OD::Pair<const Mnemonic*, float>> mnemmatchvals;
-	for ( const auto* mnc : *this )
-	{
-	    if ( !matchaliases && mnc->matches(nm,false,false) )
-		return mnc;
-	    else
-	    {
-		float matchval = mnc->getMatchValue( nm );
-		if ( mIsEqual(matchval,1,1e-6) ) //This signifies exact match,
-		    return mnc;
-
-		OD::Pair<const Mnemonic*,float> pair( mnc, matchval );
-		mnemmatchvals.add( pair );
-	    }
-	}
-
-	const Mnemonic* mnem = nullptr;
-	float prevval = 0.f;
-	for ( const auto valpair : mnemmatchvals )
-	{
-	    if ( prevval < valpair.second() )
-	    {
-		prevval = valpair.second();
-		mnem = valpair.first();
-	    }
-	}
-
-	return mnem;
-    }
-
-    return nullptr;
-}
-
-
-const Mnemonic& MnemonicSet::getGuessed( Mnemonic::StdType stdtype,
-					 const BufferStringSet* hintnms ) const
-{
-    const MnemonicSelection mnsel( stdtype );
-    if ( !hintnms )
-	return mnsel.isEmpty() ? Mnemonic::undef() : *mnsel.first();
-
-    for ( const auto* hintnm : *hintnms )
-    {
-	const Mnemonic* mn = mnsel.getByName( hintnm->str() );
-	if ( mn )
-	    return *mn;
-    }
-
-    return *mnsel.first();
-}
-
-
-const Mnemonic& MnemonicSet::getGuessed( const UnitOfMeasure* uom ) const
-{
-    if ( !uom )
-	return Mnemonic::undef();
-
+    MnemonicSelection mnsel;
     for ( const auto* mnc : *this )
+	mnsel.add( mnc );
+
+    return getByName( nm, mnsel, matchaliases );
+}
+
+
+const Mnemonic* MnemonicSet::getByName( const char* nm,
+					const ObjectSet<const Mnemonic>& mnsel,
+					bool matchaliases )
+{
+    const StringView nmstr( nm );
+    const int sz = nmstr.size();
+    if ( sz < 1 )
+	return nullptr;
+
+    float val;
+    TypeSet<OD::Pair<float,const Mnemonic*> > mnemmatchvals;
+    int maxidx = -1; float maxval = -1.f;
+    for ( const auto* mnc : mnsel )
     {
-	if ( mnc->hasType(uom->propType()) )
-	   return *mnc;
+	if ( !mnc || !mnc->matches(nm,matchaliases,&val) )
+	    continue;
+
+	mnemmatchvals += OD::Pair<float,const Mnemonic*>( val, mnc );
+	if ( val > maxval )
+	{
+	    maxval = val;
+	    maxidx = mnemmatchvals.size()-1;
+	}
     }
 
-    return Mnemonic::undef();
+    if ( mnemmatchvals.isEmpty() )
+	return nullptr;
+
+    const Mnemonic* ret = mnemmatchvals.validIdx( maxidx )
+			? mnemmatchvals[maxidx].second() : nullptr;
+    return ret;
 }
 
 
@@ -669,7 +608,8 @@ MnemonicSelection::MnemonicSelection( const Mnemonic* exclude )
 	    add( mnc );
     }
 
-    add( &Mnemonic::undef() );
+    if ( !exclude )
+	add( &Mnemonic::undef() );
 }
 
 
@@ -688,6 +628,25 @@ MnemonicSelection::MnemonicSelection( const Mnemonic::StdType stdtyp )
 }
 
 
+MnemonicSelection::MnemonicSelection( const UnitOfMeasure& uom )
+    : ObjectSet<const Mnemonic>()
+{
+    const MnemonicSet& mns = MNC();
+    TypeSet<Mnemonic::StdType> uomtypes;
+    for ( int idx=0; idx<uom.nrTypes(); idx++ )
+	uomtypes += uom.propType( idx );
+
+    for ( const auto* mnc : mns )
+    {
+	if ( uomtypes.isPresent(mnc->stdType()) )
+	    add( mnc );
+    }
+
+    if ( isEmpty() )
+	add( &Mnemonic::undef() );
+}
+
+
 void MnemonicSelection::getNames( BufferStringSet& names ) const
 {
     for ( const auto* mnc : *this )
@@ -698,18 +657,7 @@ void MnemonicSelection::getNames( BufferStringSet& names ) const
 const Mnemonic* MnemonicSelection::getByName( const char* nm,
 					      bool matchaliases ) const
 {
-    if ( nm && *nm )
-    {
-	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases,true) )
-		return mnc;
-
-	for ( const auto* mnc : *this )
-	    if ( mnc->matches(nm,matchaliases,false) )
-		return mnc;
-    }
-
-    return nullptr;
+    return MnemonicSet::getByName( nm, *this, matchaliases );
 }
 
 
@@ -812,4 +760,46 @@ MnemonicSelection MnemonicSelection::getAllPorosity()
     }
 
     return mnsel;
+}
+
+
+const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
+		const Mnemonic::StdType typ, const BufferStringSet* hintnms )
+{
+    const MnemonicSelection mnsel( typ );
+    return mnsel.getGuessed( nm, hintnms );
+}
+
+
+const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
+		const UnitOfMeasure* uom, const BufferStringSet* hintnms )
+{
+    MnemonicSelection mnsel;
+    if ( uom )
+	mnsel = MnemonicSelection( *uom );
+    else
+	mnsel = MnemonicSelection( nullptr );
+
+    return mnsel.getGuessed( nm, hintnms );
+}
+
+
+const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
+					const BufferStringSet* hintnms ) const
+{
+    const Mnemonic* ret = getByName( nm, false );
+    if ( !ret )
+	ret = getByName( nm );
+
+    if ( !ret && hintnms )
+    {
+	for ( const auto* hintnm : *hintnms )
+	{
+	    ret = getByName( hintnm->buf() );
+	    if ( ret )
+		break;
+	}
+    }
+
+    return ret ? ret : ( isEmpty() ? nullptr : first() );
 }

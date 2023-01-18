@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "linekey.h"
+#include "odpair.h"
 #include "separstr.h"
 #include "mathspecvars.h"
 #include "mathexpression.h"
@@ -309,26 +310,26 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 	curmn_ = mnsel_ ? mnsel_->getByName( varnm ) : nullptr;
 	if ( curmn_ )
 	{
+	    float val; int maxidx = -1; float maxval = -1.f;
+	    TypeSet<OD::Pair<float,BufferString> > mnemmatches;
 	    for ( const auto* avnm : avnms )
 	    {
-		if ( curmn_->matches(avnm->str(),true,true) )
+		const char* avnmstr = avnm->str();
+		if ( !curmn_->matches(avnmstr,true,&val) )
+		    continue;
+
+		mnemmatches += OD::Pair<float,BufferString>( val, avnmstr );
+		if ( val > maxval )
 		{
-		    varnm.set( avnm->str() );
-		    isfound = true;
-		    break;
+		    maxval = val;
+		    maxidx = mnemmatches.size() - 1;
 		}
 	    }
-	    if ( !isfound )
+
+	    if ( mnemmatches.validIdx(maxidx) )
 	    {
-		for ( const auto* avnm : avnms )
-		{
-		    if ( curmn_->matches(avnm->str(),true,false) )
-		    {
-			varnm.set( avnm->str() );
-			isfound = true;
-			break;
-		    }
-		}
+		varnm.set( mnemmatches[maxidx].second() );
+		isfound = true;
 	    }
 	}
 
@@ -402,6 +403,9 @@ void uiMathExpressionVariable::setSelUnit( const UnitOfMeasure* uom )
 
 void uiMathExpressionVariable::setFormType( const Mnemonic& mn )
 {
+    if ( mn.isUdf() )
+	return;
+
     curmn_ = &mn;
     if ( unfld_ )
 	unfld_->setMnemonic( mn );
@@ -429,7 +433,11 @@ void uiMathExpressionVariable::setUnit( const char* nm )
 
 void uiMathExpressionVariable::setPropType( Mnemonic::StdType typ )
 {
-    setFormType( MNC().getGuessed(typ) );
+    const Mnemonic* mn = MnemonicSelection::getGuessed( nullptr, typ );
+    if ( !mn )
+	mn = &Mnemonic::undef();
+
+    setFormType( *mn );
 }
 
 

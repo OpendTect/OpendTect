@@ -55,11 +55,9 @@ public:
     bool		operator ==(const Mnemonic&) const;
     bool		operator !=(const Mnemonic&) const;
     bool		matches(const char* nm,bool matchaliases,
-				bool exactmatch) const;
-    bool		isKnownAs(const char*,bool exactmatch) const;
+				float* matchval =nullptr) const;
     bool		isCompatibleWith(const Mnemonic*) const;
     const char*		description() const;
-    float		getMatchValue(const char* nm) const;
 
     inline bool		isUdf() const	{ return *this == undef(); }
 
@@ -138,6 +136,24 @@ protected:
     void			fromString(const char*);
     void			fillPar(IOPar&) const;
 
+public:
+
+    static float	getMatchValue(const char* str,const BufferStringSet&,
+				      bool exactmatch,bool hasaltnm =true);
+			/*<! Returns the strength of the match between str and
+			     the strings in the set, in decreasing order:
+			       Case sensitive match with the first string
+			     > Case insensitive match with the first string
+			     > Case sensitive match with the alternate string
+			     > Case insensitive match with the alternate string
+			     > Case sensitive match with any string in the set
+			     > Case insensitive match with any string in the set
+			     > positive regex search with any string in the set
+			     If used, the alternative string must be the second
+			     item in the set.
+			     The match value for a Case sensitive match with
+			     any string and below is the length of that string
+			 */
 };
 
 
@@ -146,14 +162,7 @@ mExpClass(General) MnemonicSet : public ManagedObjectSet<Mnemonic>
 public:
 
     const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
-    const Mnemonic&	getGuessed(const UnitOfMeasure*) const;
-			//!< first match only, returns undef() is missing
-    const Mnemonic&	getGuessed(Mnemonic::StdType,
-			       const BufferStringSet* hintnms =nullptr) const;
-			//!< first match only, returns undef() is missing
     void		getNames(BufferStringSet&) const;
-    const Mnemonic*	getBestGuessedMnemonics(const char*,
-					    bool matchaliases = true) const;
 
 private:
 			MnemonicSet();
@@ -166,6 +175,13 @@ private:
     void		readFrom(ascistream&);
 
     friend class MnemonicSetMgr;
+
+public:
+
+    static const Mnemonic* getByName(const char*,
+					const ObjectSet<const Mnemonic>&,
+					bool matchaliases);
+
 };
 
 
@@ -180,15 +196,26 @@ public:
 			MnemonicSelection();
 			MnemonicSelection(const Mnemonic* exclude);
 			MnemonicSelection(const Mnemonic::StdType);
+			MnemonicSelection(const UnitOfMeasure&);
 
     void		getNames(BufferStringSet&) const;
     const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    static const Mnemonic* getGuessed(const char*,const Mnemonic::StdType,
+				      const BufferStringSet* hintnms =nullptr);
+    static const Mnemonic* getGuessed(const char*,const UnitOfMeasure*,
+				      const BufferStringSet* hintnms =nullptr);
+
     static MnemonicSelection	getGroupFor(const Mnemonic&);
     static MnemonicSelection	getAllVolumetrics();
     static MnemonicSelection	getAllSaturations();
     static MnemonicSelection	getAllPorosity();
+
+private:
+
+    const Mnemonic*	getGuessed(const char*,
+				   const BufferStringSet* hintnms) const;
 
 };

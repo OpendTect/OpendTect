@@ -58,8 +58,8 @@ const UnitOfMeasure* uiEditProbDenFunc::getUnit( int idim )
 }
 
 
-const UnitOfMeasure* uiEditProbDenFunc::guessUnit( const ProbDenFunc& pdf,
-						   int idim )
+const Mnemonic* uiEditProbDenFunc::guessMnemonic( const ProbDenFunc& pdf,
+						  int idim )
 {
     const BufferString varnm( pdf.dimName(idim) );
 
@@ -87,37 +87,47 @@ const UnitOfMeasure* uiEditProbDenFunc::guessUnit( const ProbDenFunc& pdf,
 	}
     }
 
-    if ( !pdfmn )
-    { // Finally see if the unit name or symbol is part of the dim name
-	const ObjectSet<const UnitOfMeasure>& units = UoMR().all();
-	for ( const auto* uom : units )
-	{
-	    BufferString gexpr( "*", uom->name(), "*" );
-	    const GlobExpr ge( gexpr, false );
-	    if ( ge.matches(varnm) )
-	    {
-		pdfmn = &MNC().getGuessed( uom );
-		break;
-	    }
-	}
-	for ( const auto* uom : units )
-	{
-	    BufferString gexpr( uom->symbol() );
-	    if ( gexpr.isEmpty() || (!gexpr.contains("/") &&
-		 gexpr != "%" ) )
-		continue;
+    if ( pdfmn && !pdfmn->isUdf() )
+	return pdfmn;
 
-	    gexpr.insertAt( 0, "*" ).add( "*" );
-	    const GlobExpr ge( gexpr, false );
-	    if ( ge.matches(varnm) )
-	    {
-		pdfmn = &MNC().getGuessed( uom );
-		break;
-	    }
+    // Finally see if the unit name or symbol is part of the dim name
+    const ObjectSet<const UnitOfMeasure>& units = UoMR().all();
+    for ( const auto* uom : units )
+    {
+	BufferString gexpr( "*", uom->name(), "*" );
+	const GlobExpr ge( gexpr, false );
+	if ( ge.matches(varnm) )
+	{
+	    pdfmn = MnemonicSelection::getGuessed( nullptr, uom );
+	    break;
 	}
     }
 
-    if ( !pdfmn || pdfmn->stdType() == Mnemonic::Other )
+    for ( const auto* uom : units )
+    {
+	BufferString gexpr( uom->symbol() );
+	if ( gexpr.isEmpty() || (!gexpr.contains("/") &&
+	     gexpr != "%" ) )
+	    continue;
+
+	gexpr.insertAt( 0, "*" ).add( "*" );
+	const GlobExpr ge( gexpr, false );
+	if ( ge.matches(varnm) )
+	{
+	    pdfmn = MnemonicSelection::getGuessed( nullptr, uom );
+	    break;
+	}
+    }
+
+    return pdfmn && !pdfmn->isUdf() ? pdfmn : nullptr;
+}
+
+
+const UnitOfMeasure* uiEditProbDenFunc::guessUnit( const ProbDenFunc& pdf,
+						   int idim )
+{
+    const Mnemonic* pdfmn = guessMnemonic( pdf, idim );
+    if ( !pdfmn )
 	return nullptr;
 
     const float avgval = pdf.averagePos( idim );
