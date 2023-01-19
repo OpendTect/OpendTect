@@ -314,6 +314,19 @@ void uiFileInput::doSelect( CallBacker* )
 }
 
 
+void uiFileInput::ensureAbsolutePath( BufferString& fname ) const
+{
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() && !defseldir_.isEmpty() )
+    {
+	fp.insert( defseldir_ );
+	fname = fp.fullPath(); //fname is cleaned here.
+    }
+    else
+	fname = FilePath::mkCleanPath( fname, FilePath::Local );
+}
+
+
 const char* uiFileInput::fileName() const
 {
     mDeclStaticString( fname );
@@ -327,15 +340,7 @@ const char* uiFileInput::fileName() const
 	fname += "\\";
 #endif
 
-    FilePath fp( fname );
-    if ( !fp.isAbsolute() && !defseldir_.isEmpty() )
-    {
-	fp.insert( defseldir_ );
-	fname = fp.fullPath(); //fname is cleaned here.
-    }
-    else
-	fname = FilePath::mkCleanPath( fname, FilePath::Local );
-
+    ensureAbsolutePath( fname );
     return fname;
 }
 
@@ -362,6 +367,8 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
     BufferString allfnms = text();
     uiFileDialog::string2List( allfnms, list );
+    for ( int idx=0; idx<list.size(); idx++ )
+	ensureAbsolutePath( list.get(idx) );
 }
 
 

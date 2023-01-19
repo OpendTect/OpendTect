@@ -123,6 +123,7 @@ protected:
     void		examineFile(CallBacker*);
     void		isFinalized(CallBacker*);
     void		fnmEntered(CallBacker*);
+    void		ensureAbsolutePath(BufferString&) const;
 };
 
 
