@@ -12,9 +12,11 @@ ________________________________________________________________________
 
 #include "coordsystem.h"
 #include "executor.h"
+#include "trckeysampling.h"
 
 class UnitOfMeasure;
 template<class T> class Array2D;
+namespace PosInfo { class Detector; }
 
 namespace EM
 {
@@ -39,6 +41,12 @@ public:
     Coord		minCoord() const;
     Coord		maxCoord() const;
     Coord		step() const;
+    TrcKeySampling	sampling() const;
+
+    int			nrRows() const			{ return nrrows_; }
+    int			nrCols() const			{ return nrcols_; }
+
+    const PosInfo::Detector& detector() const		{ return *posdetector_;}
 
 protected:
 
@@ -57,6 +65,7 @@ protected:
     od_istream*		istrm_		= nullptr;
     RefMan<Coords::CoordSystem>	coordsystem_;
     UnitOfMeasure*	uom_		= nullptr;
+    PosInfo::Detector*	posdetector_;
 
     // header line 1
     int			nrnodesperline_	= 0;

@@ -108,7 +108,6 @@ protected:
 
     uiFileInput*		inpfld_;
     Coords::uiCoordSystemSel*	crsfld_;
-    uiPosSubSel*		subselfld_;
     uiUnitSel*			unitfld_;
     uiIOObjSel*			outputfld_;
 
