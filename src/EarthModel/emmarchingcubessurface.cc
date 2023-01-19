@@ -103,7 +103,7 @@ public:
 	return exec_ ? exec_->doStep() : ErrorOccurred();
     }
 
-    bool doFinish( bool success )
+    bool doFinish( bool success, od_ostream* ) override
     {
 	if ( success )
 	{

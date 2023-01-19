@@ -100,6 +100,7 @@ public:
     od_int64		nrDone() const override		{ return nrdone_; }
 
     void		reset();
+    od_ostream&		stream()			{ return strm_; }
 
 protected:
 

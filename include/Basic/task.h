@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "uistring.h"
 
+class od_ostream;
 class ProgressMeter;
 namespace Threads { class ConditionVar; }
 
@@ -41,7 +42,8 @@ public:
     virtual od_int64	totalNr() const			{ return -1; }
 			/*!\note totalNr is only used for displaying
 				 progress. */
-    virtual uiRetVal	errorWithDetails() const { return uiRetVal(uiMessage()); }
+    virtual uiRetVal	errorWithDetails() const
+			{ return uiRetVal(uiMessage()); }
 
     static uiString	stdNrDoneText() { return tr("Nr Done"); }
     static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
@@ -184,6 +186,10 @@ protected:
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
+    virtual bool	doPrepare(od_ostream* =nullptr);
+			/*!<\will be called before the 1st nextStep() call */
+    virtual bool	doFinish(bool success,od_ostream* =nullptr);
+			/*!<\will be called after the last nextStep() call */
 };
 
 

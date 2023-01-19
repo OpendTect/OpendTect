@@ -84,7 +84,7 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 }
 
 
-bool doPrepare()
+bool doPrepare( od_ostream* )
 {
     if ( nrattribs_ < 0 )
 	return false;
@@ -221,7 +221,7 @@ od_int64	nrDone() const override		{ return nrdone_; }
 uiString	uiNrDoneText() const override
 					{ return tr("Positions handled"); }
 
-bool doPrepare()
+bool doPrepare( od_ostream* )
 {
     return nrvals_ >= 0 && !horarrays_.isEmpty();
 }
@@ -264,7 +264,7 @@ int nextStep() override
     return MoreToDo();
 }
 
-bool doFinish( bool success )
+bool doFinish( bool success, od_ostream* )
 {
     if ( success )
     {

@@ -96,7 +96,7 @@ protected:
     ObjectSet<ExtrGateSet>	extrgates_;
     const Strat::Level*		stoplvl_;
 
-    bool			doFinish(bool) override;
+    bool			doFinish(bool,od_ostream* =nullptr) override;
 
 };
 

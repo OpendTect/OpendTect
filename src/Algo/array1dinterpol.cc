@@ -156,7 +156,7 @@ int LinearArray1DInterpol::nextStep()
 }
 
 
-bool LinearArray1DInterpol::doFinish( bool success )
+bool LinearArray1DInterpol::doFinish( bool success, od_ostream* )
 {
     if ( success && doextrapol_ )
 	extrapolate( false );
@@ -281,7 +281,7 @@ int PolyArray1DInterpol::nextStep()
 }
 
 
-bool PolyArray1DInterpol::doFinish( bool success )
+bool PolyArray1DInterpol::doFinish( bool success, od_ostream* )
 {
     if ( success && doextrapol_ )
 	extrapolate( false );

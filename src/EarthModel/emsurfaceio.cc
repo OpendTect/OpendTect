@@ -719,7 +719,7 @@ int dgbSurfaceReader::currentRow() const
 { return firstrow_+rowindex_*rowrange_.step; }
 
 
-bool dgbSurfaceReader::doPrepare()
+bool dgbSurfaceReader::doPrepare( od_ostream* )
 {
     isinited_ = true;
     if ( !conn_ )
@@ -913,7 +913,7 @@ int dgbSurfaceReader::nextStep()
 }
 
 
-bool dgbSurfaceReader::doFinish( bool success )
+bool dgbSurfaceReader::doFinish( bool success, od_ostream*  )
 {
     deleteAndNullPtr( conn_ );
     return success;

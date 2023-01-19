@@ -85,7 +85,7 @@ protected:
 
     void		clear();
     void		doWork(bool,int);
-    bool		doPrepare() override;
+    bool		doPrepare(od_ostream* =nullptr) override;
     void		setUpData();
     void		setFinalTrcs();
 

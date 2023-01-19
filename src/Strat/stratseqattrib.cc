@@ -537,7 +537,7 @@ void Strat::LayModAttribCalc::setExtrGates(
 }
 
 
-bool Strat::LayModAttribCalc::doFinish( bool success )
+bool Strat::LayModAttribCalc::doFinish( bool success, od_ostream* )
 {
     if ( success )
 	dps_.purgeInactive();

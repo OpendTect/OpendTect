@@ -92,10 +92,6 @@ public:
     uiString		uiNrDoneText() const override;
     od_int64		totalNr() const override;
 
-    bool		doPrepare() override;
-    int			nextStep() override;
-    bool		doFinish(bool) override;
-
     uiString		uiMessage() const override;
 
     static const char*	sKeyNrSections();
@@ -137,8 +133,11 @@ public:
 
 protected:
 
-    bool		isBinary() const;
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool,od_ostream* =nullptr) override;
 
+    bool		isBinary() const;
     double		readDouble(od_istream&) const;
     int			readInt16(od_istream&) const;
     int			readInt32(od_istream&) const;

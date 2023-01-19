@@ -468,7 +468,7 @@ void SeisInterpol::setParams( const TrcKeySampling& hs, float maxvel )
 }
 
 
-bool SeisInterpol::doPrepare()
+bool SeisInterpol::doPrepare( od_ostream* )
 {
     delete fft_;
     fft_ = Fourier::CC::createDefault();

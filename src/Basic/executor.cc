@@ -20,13 +20,11 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 {
     if ( !strm || strm == &od_ostream::nullStream() )
     {
-	if ( !doPrepare() )
-	    return false;
-
 	if ( !delay )
-	{
-	    return doFinish( SequentialTask::execute() );
-	}
+	    return SequentialTask::execute();
+
+	if ( !doPrepare(nullptr) )
+	    return false;
 
 	int rv = MoreToDo();
 	while ( rv )
@@ -35,14 +33,16 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	    if ( rv < 0 )
 	    {
 		const uiString msg = uiMessage();
-		if ( !msg.isEmpty() ) ErrMsg( msg.getFullString() );
-		return doFinish( false );
+		if ( !msg.isEmpty() )
+		    ErrMsg( msg.getFullString() );
+
+		return doFinish( false, nullptr );
 	    }
-	    if ( delay )
-		Threads::sleep( delay*0.001 );
+
+	    Threads::sleep( delay*0.001 );
 	}
 
-	return doFinish( true );
+	return doFinish( true, nullptr );
     }
 
     if ( isfirst )
@@ -52,11 +52,9 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
     progressmeter.setName( name() );
     ((Task*)(this))->setProgressMeter( &progressmeter );
 
-    bool res = SequentialTask::execute();
+    const bool res = SequentialTask::execute();
     if ( !res )
 	*strm << "Error: " << uiMessage().getFullString() << od_newline;
-    else
-	res = doFinish( res );
 
     ((Task*)(this))->setProgressMeter( nullptr );
 
@@ -68,24 +66,12 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 }
 
 
-bool Executor::doPrepare()
-{
-    return true;
-}
-
-
 int Executor::doStep()
 {
     prestep.trigger();
     const int res = SequentialTask::doStep();
     if ( res > 0 ) poststep.trigger();
     return res;
-}
-
-
-bool Executor::doFinish( bool success )
-{
-    return success;
 }
 
 
@@ -139,10 +125,10 @@ void ExecutorGroup::add( Executor* n )
 }
 
 
-bool ExecutorGroup::doPrepare()
+bool ExecutorGroup::doPrepare( od_ostream* s )
 {
     if ( !executors_.isEmpty() )
-	return executors_[0]->doPrepare();
+	return executors_[0]->doPrepare( s );
 
     return true;
 }
@@ -159,13 +145,15 @@ int ExecutorGroup::nextStep()
 	return ErrorOccurred();
     else if ( parallel_ || res==Finished() )
     {
+	mDynamicCastGet(TextStreamProgressMeter*,tspm,progressMeter())
+	od_ostream* strm = tspm ? &tspm->stream() : nullptr;
 	bool needsnextexec = res == Finished();
-	if ( needsnextexec && !executors_[currentexec_]->doFinish(true) )
+	if ( needsnextexec && !executors_[currentexec_]->doFinish(true,strm) )
 	    return ErrorOccurred();
 
 	res = goToNextExecutor() ? MoreToDo() : Finished();
 	needsnextexec = needsnextexec && res == MoreToDo();
-	if ( needsnextexec && !executors_[currentexec_]->doPrepare() )
+	if ( needsnextexec && !executors_[currentexec_]->doPrepare(strm) )
 	    return ErrorOccurred();
     }
 

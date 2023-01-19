@@ -358,6 +358,12 @@ SequentialTask::~SequentialTask()
 }
 
 
+bool SequentialTask::doPrepare( od_ostream* )
+{
+    return true;
+}
+
+
 int SequentialTask::doStep()
 {
     const int res = nextStep();
@@ -367,12 +373,20 @@ int SequentialTask::doStep()
 }
 
 
+bool SequentialTask::doFinish( bool success, od_ostream* )
+{
+    return success;
+}
 
 bool SequentialTask::execute()
 {
     control_ = Task::Run;
-
     reportProgressStarted();
+    mDynamicCastGet(TextStreamProgressMeter*,tspm,progressMeter())
+    od_ostream* strm = tspm ? &tspm->stream() : nullptr;
+    if ( !doPrepare(strm) )
+	return false;
+
     bool success = false;
     do
     {
@@ -380,8 +394,9 @@ bool SequentialTask::execute()
 	success = !res;
 	if ( success || res < 0 ) break;
     } while ( shouldContinue() );
-    reportProgressFinished();
 
+    success = doFinish( success, strm );
+    reportProgressFinished();
     return success;
 }
 
