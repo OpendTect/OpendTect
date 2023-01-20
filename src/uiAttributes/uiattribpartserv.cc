@@ -129,7 +129,7 @@ uiAttribPartServer::~uiAttribPartServer()
     delete attrsetdlg_;
 
     deepErase( attrxplotset_ );
-    delete &eDSHolder();
+    delete &DSHolder(false);
     delete manattribset2ddlg_;
     delete manattribsetdlg_;
     delete impattrsetdlg_;
@@ -551,7 +551,8 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 
 bool uiAttribPartServer::setSaved( bool is2d ) const
 {
-    return DSHolder().getDescSetMan( is2d )->isSaved();
+    const DescSetsHolder* holder = &DSHolder( false );
+    return holder ? holder->getDescSetMan( is2d )->isSaved() : true;
 }
 
 

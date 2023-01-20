@@ -17,9 +17,9 @@ namespace Attrib
 
 DescSetsHolder* DescSetsHolder::dsholder_ = 0;
 
-const DescSetsHolder& DSHolder()
+const DescSetsHolder& DSHolder( bool createifnull )
 {
-    if ( !DescSetsHolder::dsholder_ )
+    if ( !DescSetsHolder::dsholder_ && createifnull )
 	DescSetsHolder::dsholder_ = new DescSetsHolder();
 
     return *DescSetsHolder::dsholder_;
@@ -28,7 +28,7 @@ const DescSetsHolder& DSHolder()
 
 DescSetsHolder& eDSHolder()
 {
-    return const_cast<DescSetsHolder&>( DSHolder() );
+    return const_cast<DescSetsHolder&>( DSHolder(true) );
 }
 
 
