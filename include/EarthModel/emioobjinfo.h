@@ -84,6 +84,11 @@ public:
     bool		getTrcRanges(TypeSet< StepInterval<int> >&) const;
     bool		hasGeomIDs() const;
 
+    static void		getHorizonNamesForLine(const Pos::GeomID&,
+					       BufferStringSet&);
+    static void		getHorizonIDsForLine(const Pos::GeomID&,
+					     TypeSet<MultiID>&);
+
     // Body
     bool		getBodyRange(TrcKeyZSampling&) const;
 

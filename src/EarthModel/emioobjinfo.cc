@@ -469,4 +469,31 @@ int IOObjInfo::nrSticks() const
     return rowrange.isUdf() ? 0 : rowrange.width()+1;
 }
 
+
+void IOObjInfo::getHorizonNamesForLine( const Pos::GeomID& geomid,
+					BufferStringSet& nms )
+{
+    nms.setEmpty();
+    TypeSet<MultiID> keys;
+    getHorizonIDsForLine( geomid, keys );
+    for ( const auto& key : keys )
+	nms.add( IOM().nameOf(key) );
+}
+
+
+void IOObjInfo::getHorizonIDsForLine( const Pos::GeomID& geomid,
+				      TypeSet<MultiID>& keys )
+{
+    TypeSet<MultiID> allhorkeys;
+    getIDs( Horizon2D, allhorkeys );
+
+    for ( const auto& key : allhorkeys )
+    {
+	const EM::IOObjInfo emobjinfo( key );
+	TypeSet<Pos::GeomID> geomids;
+	if ( emobjinfo.getGeomIDs(geomids) && geomids.isPresent(geomid) )
+	    keys += key;
+    }
+}
+
 } // namespace EM
