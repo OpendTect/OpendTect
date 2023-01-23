@@ -129,7 +129,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
 		if ( lfi.depthcolnr_<0 &&
-			StringView(wordbuf).startsWith("dept",OD::CaseInsensitive))
+			StringView(wordbuf).startsWith("dept",
+							OD::CaseInsensitive))
 		    lfi.depthcolnr_ = colnr;
 		else
 		{
@@ -578,18 +579,23 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	}
 
 	newlog->setUnitMeasLabel( unlbl );
-	newlog->guessMnemonic();
+	const UnitOfMeasure* uom = newlog->unitOfMeasure();
+	const BufferStringSet hintnms( inplfi.lognms_.get(idx).buf() );
+	const Mnemonic* mn = MnemonicSelection::getGuessed(
+			      inplfi.logcurves_.get(idx).buf(), uom, &hintnms );
+	if ( mn && !mn->isUdf() )
+	    newlog->setMnemonic( *mn );
+
 	wd_->logs().add( newlog );
     }
 
-    return getLogData( strm, issel, lfi, istvd, addstartidx,
-			inplfi.size()+1 );
+    return getLogData( strm, issel, lfi, istvd, addstartidx, inplfi.size()+1 );
 }
 
 
 const char* Well::LASImporter::getLogData( od_istream& strm,
-	const BoolTypeSet& issel, const FileInfo& lfi,
-	bool istvd, int addstartidx, int totalcols )
+			    const BoolTypeSet& issel, const FileInfo& lfi,
+			    bool istvd, int addstartidx, int totalcols )
 {
     Interval<float> reqzrg( Interval<float>().setFrom( lfi.zrg_ ) );
     const bool havestart = !mIsUdf(reqzrg.start);
@@ -599,6 +605,7 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 
     float prevdpth = mUdf(float), prevdah = mUdf(float);
     int nradded = 0;
+    Well::LogSet& logs = wd_->logs();
     while ( true )
     {
 	TypeSet<float> vals;
@@ -651,7 +658,7 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	prevdah = dah;
 
 	for ( int idx=0; idx<selvals.size(); idx++ )
-	    wd_->logs().getLog(addstartidx+idx).addValue( dah, selvals[idx] );
+	    logs.getLog( addstartidx+idx ).addValue( dah, selvals[idx] );
 
 	nradded++;
     }
@@ -659,7 +666,14 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
     if ( nradded == 0 )
 	return "No matching log data found";
 
-    wd_->logs().updateDahIntvs();
-    wd_->logs().removeTopBottomUdfs();
-    return 0;
+    for ( int idx=0; idx<lfi.size(); idx++ )
+    {
+	Well::Log& newlog = logs.getLog( addstartidx+idx );
+	if ( !newlog.haveMnemonic() )
+	    newlog.setMnemonicLabel( nullptr, true );
+    }
+
+    logs.updateDahIntvs();
+    logs.removeTopBottomUdfs();
+    return nullptr;
 }

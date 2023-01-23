@@ -22,9 +22,11 @@ class uiTable;
 class uiTabStack;
 class uiToolButton;
 class uiUnitSel;
+
 class Gaussian1DProbDenFunc;
 class Gaussian2DProbDenFunc;
 class GaussianNDProbDenFunc;
+class Mnemonic;
 class MnemonicSelection;
 class ProbDenFunc;
 class UnitOfMeasure;
@@ -46,6 +48,7 @@ public:
 				BufferString& varnm,Interval<float>& rg,
 				const UnitOfMeasure*&);
 
+    static const Mnemonic* guessMnemonic(const ProbDenFunc&,int idim);
     static const UnitOfMeasure* guessUnit(const ProbDenFunc&,int idim);
 
 protected:

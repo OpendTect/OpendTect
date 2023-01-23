@@ -671,12 +671,13 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
     ascistream astrm( strm, false );
     bool havehdrinfo = false;
     bintype = 0;
+    BufferString mnnm;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::Name()) )
 	    newlog->setName( astrm.value() );
 	if ( astrm.hasKeyword(Log::sKeyMnemLbl()) )
-	    newlog->setMnemLabel( astrm.value() );
+	    mnnm.set( astrm.value() );
 	if ( astrm.hasKeyword(Log::sKeyUnitLbl()) )
 	    newlog->setUnitMeasLabel( astrm.value() );
 	if ( astrm.hasKeyword(Log::sKeyHdrInfo()) )
@@ -695,6 +696,7 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 
     }
 
+    newlog->setMnemonicLabel( mnnm.buf(), true );
     if ( newlog->name().isEmpty() )
     {
 	BufferString nm( "[" ); nm += idx+1; nm += "]";

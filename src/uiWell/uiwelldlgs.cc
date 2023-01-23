@@ -2034,11 +2034,7 @@ void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
 	for ( const auto* log : *logset )
 	{
 	    rowidx++;
-	    const Mnemonic* mn = log->mnemonic();
-	    const UnitOfMeasure* uom = log->unitOfMeasure();
-	    if ( !mn && uom )
-		mn = &MNC().getGuessed(uom);
-
+	    const Mnemonic* mn = log->mnemonic( true );
 	    uiMnemonicsSel::Setup mnsu( mn ? mn->stdType() : Mnemonic::Other,
 					uiString::empty() );
 	    auto* mnemfld = new uiMnemonicsSel( nullptr, mnsu );

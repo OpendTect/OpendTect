@@ -35,7 +35,7 @@ public:
     mDeprecated("Use third argument")
     bool		matches(const char* nm,bool matchaliases) const;
     bool		matches(const char* nm,bool matchaliases,
-				bool exactmatch) const;
+				float* matchval) const;
     virtual bool	isValue() const			{ return false; }
     virtual bool	isRange() const			{ return false; }
     virtual bool	isFormula() const		{ return false; }

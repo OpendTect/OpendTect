@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "mathformula.h"
 #include "mathproperty.h"
+#include "odpair.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -232,55 +233,41 @@ bool PropertyRef::operator !=( const PropertyRef& oth ) const
 
 bool PropertyRef::matches( const char* nm, bool matchaliases ) const
 {
-    return matches( nm, matchaliases, false );
+    return matches( nm, matchaliases, nullptr );
 }
 
 
 bool PropertyRef::matches( const char* nm, bool matchaliases,
-			   bool exactmatch ) const
+			   float* matchval ) const
 {
-    return matchaliases ? isKnownAs( nm, exactmatch ) : name() == nm;
+    BufferStringSet nms( name().buf() );
+    if ( matchaliases )
+    {
+	if ( !propaliases_.isEmpty() )
+	    nms.append( propaliases_ );
+
+	nms.add( mn_.name() ).add( mn_.description() );
+	if ( !mn_.aliases().isEmpty() )
+	    nms.append( mn_.aliases() );
+    }
+
+    const float val = Mnemonic::getMatchValue( nm, nms, !matchaliases, false );
+    if ( matchval )
+	*matchval = val;
+
+    return val > 0.f;
 }
 
 
 bool PropertyRef::isKnownAs( const char* nm ) const
 {
-    return isKnownAs( nm, false );
+    return matches( nm, false, nullptr );
 }
 
 
 bool PropertyRef::isKnownAs( const char* nm, bool exactmatch ) const
 {
-    const StringView nmstr( nm );
-    if ( nmstr.isEmpty() )
-	return false;
-
-    if ( name().matches(nm,OD::CaseInsensitive) )
-	return true;
-
-    BufferStringSet nms( name().buf() );
-    nms.add( aliases(), false );
-    for ( const auto* findnm : nms )
-    {
-	if ( findnm->isEmpty() )
-	    continue;
-
-	if ( exactmatch )
-	{
-	    if ( findnm->matches(nm,OD::CaseInsensitive) )
-		return true;
-	}
-	else
-	{
-	    BufferString gexpr( findnm->buf() );
-	    gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
-	    const GlobExpr ge( gexpr, false );
-	    if ( ge.matches(nmstr) )
-		return true;
-	}
-    }
-
-    return false;
+    return matches( nm, exactmatch, nullptr );
 }
 
 
@@ -355,9 +342,9 @@ PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
     }
 
     const Mnemonic* mnptr = mn.isEmpty() || mn == Mnemonic::undef().name()
-			  ? &MNC().getGuessed( st, &hintnms )
+			  ? MnemonicSelection::getGuessed(nullptr,st,&hintnms)
 			  : MNC().getByName( mn );
-    if ( src == Repos::Data || src == Repos::Survey || src == Repos::User )
+    if ( Repos::isUserDefined(src) )
 	mnptr = getFromLegacy( mnptr, propnm.buf() );
 
     if ( !mnptr || mnptr->isUdf() )
@@ -707,18 +694,45 @@ PropertyRef* PropertyRefSet::getByName( const char* nm, bool matchaliases )
 const PropertyRef* PropertyRefSet::getByName( const char* nm,
 					      bool matchaliases ) const
 {
-    if ( nm && *nm )
-    {
-	for ( const auto* pr : *this )
-	    if ( pr->matches(nm,matchaliases,true) )
-		return pr;
+    PropertyRefSelection prs( false );
+    for ( const auto* pr : *this )
+	prs.add( pr );
 
-	for ( const auto* pr : *this )
-	    if ( pr->matches(nm,matchaliases,false) )
-		return pr;
+    return getByName( nm, prs, matchaliases );
+}
+
+
+const PropertyRef* PropertyRefSet::getByName( const char* nm,
+				    const ObjectSet<const PropertyRef>& prs,
+				    bool matchaliases )
+{
+    const StringView nmstr( nm );
+    const int sz = nmstr.size();
+    if ( sz < 1 )
+	return nullptr;
+
+    float val;
+    TypeSet<OD::Pair<float,const PropertyRef*> > prmatchvals;
+    int maxidx = -1; float maxval = -1.f;
+    for ( const auto* pr : prs )
+    {
+	if ( !pr || !pr->matches(nm,matchaliases,&val) )
+	    continue;
+
+	prmatchvals += OD::Pair<float,const PropertyRef*>( val, pr );
+	if ( val > maxval )
+	{
+	    maxval = val;
+	    maxidx = prmatchvals.size()-1;
+	}
     }
 
-    return nullptr;
+    if ( prmatchvals.isEmpty() )
+	return nullptr;
+
+    const PropertyRef* ret = prmatchvals.validIdx( maxidx )
+			   ? prmatchvals[maxidx].second() : nullptr;
+    return ret;
 }
 
 
@@ -985,18 +999,7 @@ bool PropertyRefSelection::usePar( const IOPar& par )
 const PropertyRef* PropertyRefSelection::getByName( const char* nm,
 						    bool matchaliases ) const
 {
-    if ( nm && *nm )
-    {
-	for ( const auto* pr : *this )
-	    if ( pr->matches(nm,matchaliases,true) )
-		return pr;
-
-	for ( const auto* pr : *this )
-	    if ( pr->matches(nm,matchaliases,false) )
-		return pr;
-    }
-
-    return nullptr;
+    return PropertyRefSet::getByName( nm, *this, matchaliases );
 }
 
 

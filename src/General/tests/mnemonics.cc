@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "testprog.h"
 
 #include "elasticpropsel.h"
+#include "unitofmeasure.h"
 
 
 static bool testRanges()
@@ -30,10 +31,13 @@ static bool testRanges()
 static bool testMnemonicsSel()
 {
     mRunStandardTest( MNC().size() > 20, "MnemonicSet size" )
+    const UnitOfMeasure* percentuom = UoMR().get( "Percent" );
+    mRunStandardTest( percentuom, "% unit of measure" );
 
     MnemonicSelection emptymnsel;
     MnemonicSelection excludedmnsel( &Mnemonic::defDT() );
     MnemonicSelection stdtypesel( Mnemonic::Temp );
+    MnemonicSelection percenttypesel( *percentuom );
     MnemonicSelection volmnsel = MnemonicSelection::getAllVolumetrics();
     MnemonicSelection pormnsel = MnemonicSelection::getAllPorosity();
     MnemonicSelection statsmnsel = MnemonicSelection::getAllSaturations();
@@ -53,6 +57,7 @@ static bool testMnemonicsSel()
     mRunStandardTest( statsmnsel.size() == 5 &&
 		      statsmnsel.isPresent( &Mnemonic::defSW() ),
 		      "Saturation mnemonic selection" );
+    mRunStandardTest( percenttypesel.size() == 67,"Percent mnemonic selection");
 
     return true;
 }
@@ -189,6 +194,189 @@ static bool testElasticPropSelection()
 }
 
 
+static bool find( const char* mnnm, const char* prnm, const char* findnm )
+{
+    const MnemonicSelection mnsel( nullptr );
+
+    const Mnemonic* defmn = mnsel.getByName( mnnm, false );
+    mRunStandardTest( defmn,
+		      BufferString("Retrieved mnemonic '", mnnm, "'") );
+
+    BufferStringSet allnms( findnm );
+    allnms.add( BufferString("With prefix ",findnm) )
+	  .add( BufferString(findnm," with suffix") )
+	  .add( BufferString("With prefix (",findnm,") with suffix") );
+
+    BufferString msg;
+    if ( prnm )
+    {
+	const PropertyRefSelection prs( false, nullptr );
+	const PropertyRef* defpr = prs.getByName( prnm, false );
+	mRunStandardTest( defpr,
+		     BufferString("Retrieved PropertyRef '", prnm, "'") );
+
+	for ( const auto* nm : allnms )
+	{
+	    const PropertyRef* pr = prs.getByName( nm->str() );
+	    if ( pr )
+	    {
+		if ( pr != defpr )
+		{
+		    msg.set( "Wrong property match: returned '" )
+		       .add( pr->name() ).add ("' while using '" )
+		       .add( nm->str() ).add( "'" );
+		    break;
+		}
+		else if ( &pr->mn() != defmn )
+		{
+		    msg.set( "Wrong mnemonic match: returned '" )
+		       .add( pr->name() ).add ("' while using '" )
+		       .add( nm->str() ).add( "'" );
+		    break;
+		}
+	    }
+	    else
+	    {
+		msg.set( "No match found using '" ).add( nm->str() ).add( "'" );
+		break;
+	    }
+	}
+	mRunStandardTestWithError( msg.isEmpty(),
+	    BufferString("Partial match for PropertyRef '", prnm, "'"), msg);
+    }
+
+    msg.setEmpty();
+    for ( const auto* nm : allnms )
+    {
+	const Mnemonic* mn = mnsel.getByName( nm->str() );
+	if ( !mn )
+	{
+	    msg.set( "No match found using '" ).add( nm->str() ).add( "'" );
+	    break;
+	}
+	else if ( mn && mn != defmn )
+	{
+	    msg.set( "Wrong match: returned '" ).add( mn->name() )
+	       .add ("' while using '" ).add( nm->str() ).add( "'" );
+	    break;
+	}
+    }
+    mRunStandardTestWithError( msg.isEmpty(),
+	    BufferString("Partial match for mnemonic '", mnnm, "'"), msg );
+
+    return true;
+}
+
+
+static bool testFindProp()
+{
+    BufferStringSet searchnms;
+
+    const char* denmnnm = Mnemonic::defDEN().name().str();
+    const char* denprnm = PropertyRef::standardDenStr();
+    if ( !find(denmnnm,nullptr,denmnnm) || !find(denmnnm,denprnm,denprnm) )
+	return false;
+
+    const char* pvelmnnm = Mnemonic::defPVEL().name().str();
+    const char* pvelprnm = PropertyRef::standardPVelStr();
+    searchnms.setEmpty();
+    searchnms.add( pvelprnm ).add( "Pwave" ).add( "P-wave" ).add( "P_wave" )
+	     .add( "Pwave vel" ).add( "P-wave vel" );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(pvelmnnm,nullptr,nm->str()) ||
+	     !find(pvelmnnm,pvelprnm,nm->str()) )
+	return false;
+    }
+
+    const char* svelmnnm = Mnemonic::defSVEL().name().str();
+    const char* svelprnm = PropertyRef::standardSVelStr();
+    searchnms.setEmpty();
+    searchnms.add( svelprnm ).add( "Swave" ).add( "S-wave" ).add( "S_wave" )
+	     .add( "Swave vel" ).add( "S-wave vel" );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(svelmnnm,nullptr,nm->str()) ||
+	     !find(svelmnnm,svelprnm,nm->str()) )
+	return false;
+    }
+
+    const char* sonmnnm = Mnemonic::defDT().name().str();
+    static const char* sonicprnm = "Sonic";
+    if ( !find(sonmnnm,nullptr,sonmnnm) )
+	return false;
+
+    searchnms.setEmpty();
+    searchnms.add( sonicprnm );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(sonmnnm,nullptr,nm->str()) ||
+	     !find(sonmnnm,sonicprnm,nm->str()) )
+	return false;
+    }
+
+    const char* shearsonicmnnm = Mnemonic::defDTS().name().str();
+    static const char* shearsonicprnm = "Shear Sonic";
+    if ( !find(shearsonicmnnm,nullptr,shearsonicmnnm) )
+	return false;
+
+    searchnms.setEmpty();
+    searchnms.add( shearsonicprnm );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(shearsonicmnnm,nullptr,nm->str()) ||
+	     !find(shearsonicmnnm,shearsonicprnm,nm->str()) )
+	return false;
+    }
+
+    const char* swmnnm = Mnemonic::defSW().name().str();
+    static const char* swprnm = "Water Saturation";
+    if ( !find(swmnnm,nullptr,swmnnm) )
+	return false;
+
+    searchnms.setEmpty();
+    searchnms.add( swprnm );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(swmnnm,nullptr,nm->str()) ||
+	     !find(swmnnm,swprnm,nm->str()) )
+	return false;
+    }
+
+    static const char* vpvsmnnm = "VPVS";
+    static const char* vpvsprnm = "Vp/Vs";
+    if ( !find(vpvsmnnm,nullptr,vpvsmnnm) )
+	return false;
+
+    searchnms.setEmpty();
+    searchnms.add( vpvsprnm ).add( "VpVs" )
+	     .add( "VpVsRatio" ).add( "VpVs Ratio" );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(vpvsmnnm,nullptr,nm->str()) ||
+	     !find(vpvsmnnm,vpvsprnm,nm->str()) )
+	return false;
+    }
+
+    static const char* vsvpmnnm = "VSVP";
+    static const char* vsvpprnm = "Vs/Vp";
+    if ( !find(vsvpmnnm,nullptr,vsvpmnnm) )
+	return false;
+
+    searchnms.setEmpty();
+    searchnms.add( vsvpprnm ).add( "VsVp" )
+	     .add( "VsVpRatio" ).add( "VsVp Ratio" );
+    for ( const auto* nm : searchnms )
+    {
+	if ( !find(vsvpmnnm,nullptr,nm->str()) ||
+	     !find(vsvpmnnm,vsvpprnm,nm->str()) )
+	return false;
+    }
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -197,7 +385,8 @@ int mTestMainFnName( int argc, char** argv )
 	 !testMnemonicsSel() ||
 	 !testPropertyRefSet() ||
 	 !testPropertyRefSelection() ||
-	 !testElasticPropSelection() )
+	 !testElasticPropSelection() ||
+	 !testFindProp() )
 	return 1;
 
     return 0;

@@ -45,9 +45,10 @@ public:
     mDeprecated("Use third argument")
     bool		matches(const char* nm,bool matchaliases) const;
     bool		matches(const char* nm,bool matchaliases,
-				bool exactmatch) const;
-    mDeprecated("Use second argument")
+				float* matchval) const;
+    mDeprecated("Use matches")
     bool		isKnownAs(const char*) const;
+    mDeprecated("Use matches")
     bool		isKnownAs(const char*,bool exactmatch) const;
     bool		hasFixedDef() const	{ return mathdef_; }
     bool		isElastic() const;
@@ -163,6 +164,12 @@ private:
 
     friend class PropertyRefSetMgr;
     friend class uiManPROPS;
+
+public:
+
+    static const PropertyRef* getByName(const char*,
+				    const ObjectSet<const PropertyRef>&,
+				    bool matchaliases);
 
 };
 

@@ -367,7 +367,7 @@ bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
     const bool haveunits = wl.haveUnit();
     const bool havepars = !wl.pars().isEmpty();
     if ( havemnemonics )
-	astrm.put( Well::Log::sKeyMnemLbl(), wl.mnemLabel() );
+	astrm.put( Well::Log::sKeyMnemLbl(), wl.mnemonicLabel() );
     if ( haveunits )
 	astrm.put( Well::Log::sKeyUnitLbl(), wl.unitMeasLabel() );
     astrm.putYN( Well::Log::sKeyHdrInfo(), havepars );

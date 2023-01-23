@@ -20,12 +20,12 @@ mExpClass(Tut) LogTools
 {
 public:
 
-    			LogTools(const Well::Log& input,Well::Log& output);
-			   		    
+			LogTools(const Well::Log& input,Well::Log& output);
+			~LogTools();
 
     bool		runSmooth(int gate);
 
-protected:
+private:
 
     const Well::Log&	inplog_;
     Well::Log&		outplog_;

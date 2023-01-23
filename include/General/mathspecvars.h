@@ -31,7 +31,7 @@ public:
 				 bool hasuns,
 				 Mnemonic::StdType typ )
 			    : SpecVar(varnm,dispnm,hasuns,
-				      &MNC().getGuessed(typ) )
+				    MnemonicSelection::getGuessed(nullptr,typ))
 			{}
 
     bool		operator ==( const SpecVar& oth ) const
@@ -91,8 +91,11 @@ public:
     mDeprecatedDef
     void		add( const char* varnm, const char* dispnm,
 			   bool hasuns, Mnemonic::StdType typ )
-			{ *this += SpecVar(varnm,dispnm,hasuns,
-					   &MNC().getGuessed(typ)); }
+			{
+			    const Mnemonic* mn =
+				MnemonicSelection::getGuessed( nullptr, typ );
+			    *this += SpecVar( varnm, dispnm, hasuns, mn );
+			}
 
 };
 
