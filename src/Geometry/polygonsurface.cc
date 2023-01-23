@@ -215,7 +215,7 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	return;
 
     const int polygonidx = plg - firstpolygon_; 
-    if ( polygonidx<0 || polygonidx>polygons_.size() ) 
+    if ( !polygons_.validIdx(polygonidx) )
 	return;
 
     const int nrknots = (*polygons_[polygonidx]).size();
