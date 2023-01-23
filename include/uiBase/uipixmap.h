@@ -16,7 +16,7 @@ mFDQtclass(QBitmap)
 mFDQtclass(QPaintDevice)
 mFDQtclass(QPixmap)
 
-class BufferStringSet;
+class PixmapDesc;
 namespace ColTab { class Sequence; }
 class uiRGBArray;
 
@@ -31,7 +31,6 @@ class uiRGBArray;
 mExpClass(uiBase) uiPixmap : public NamedObject
 {
 public:
-
 			uiPixmap();
 			uiPixmap(int w,int h);
 			uiPixmap(const char* icon_identifier);
@@ -39,8 +38,8 @@ public:
 			uiPixmap(const char* xpm[]);
 			uiPixmap(const mQtclass(QPixmap&));
 			uiPixmap(const uiPixmap&);
-
-    virtual		~uiPixmap();
+			uiPixmap(const PixmapDesc&);
+			~uiPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);
 
@@ -59,33 +58,16 @@ public:
     void		scaleToHeight(int h);
     void		scaleToWidth(int w);
 
-    const char*		source() const		{ return srcname_.buf(); }
-    void		params(BufferStringSet&) const;
-			// -> sets color param to OD::Color::noColor()
-			// -> thus set the color after calling this func.
-
+    const char*		source() const;
     bool		save(const char* fnm,const char* fmt=0,
 			     int quality=-1) const;
 
-    static bool		isPresent(const char*);
-
-    static uiPixmap*	createFromParams(const BufferStringSet& params);
-
-    static const char*	sKeyXpmSrc()		{ return "[xpm]"; }
-    static const char*	sKeyRgbSrc()		{ return "[uiRGBArray]"; }
-    static const char*	sKeyCreatedSrc()	{ return "[created]"; }
-    static const char*	sKeyGradientSrc()	{ return "[Gradient]"; }
-    static const char*	sKeyColorTabSrc()	{ return "[colortable]"; }
-
-    static const int	sPmParamSrcIdx		= 0;
-    static const int	sPmParamWidthIdx	= 1;
-    static const int	sPmParamHeightIdx	= 2;
-    static const int	sPmParamColIdx		= 3;
+    void		fillDesc(PixmapDesc&) const;
 
 protected:
 
     mQtclass(QPixmap*)	qpixmap_;
-    BufferString	srcname_;
+    BufferString	source_;
 };
 
 

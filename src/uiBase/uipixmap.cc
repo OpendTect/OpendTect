@@ -9,13 +9,10 @@ ________________________________________________________________________
 
 #include "uipixmap.h"
 
-#include "arraynd.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
-#include "file.h"
-#include "filepath.h"
 #include "odiconfile.h"
-#include "settings.h"
+#include "pixmapdesc.h"
 
 #include "uirgbarray.h"
 
@@ -36,14 +33,14 @@ uiPixmap::uiPixmap()
 
 uiPixmap::uiPixmap( const uiPixmap& pm )
     : qpixmap_(new QPixmap(*pm.qpixmap_))
-    , srcname_(pm.srcname_)
+    , source_(pm.source_)
 {
 }
 
 
 uiPixmap::uiPixmap( const uiRGBArray& rgbarr )
     : qpixmap_(new QPixmap)
-    , srcname_("[uiRGBArray]")
+    , source_(PixmapDesc::sKeyRgbSrc())
 {
     convertFromRGBArray( rgbarr );
 }
@@ -51,14 +48,14 @@ uiPixmap::uiPixmap( const uiRGBArray& rgbarr )
 
 uiPixmap::uiPixmap( const char* xpm[] )
     : qpixmap_(new QPixmap(xpm))
-    , srcname_("[xpm]")
+    , source_(PixmapDesc::sKeyXpmSrc())
 {
 }
 
 
 uiPixmap::uiPixmap( int w, int h )
     : qpixmap_(new QPixmap( w<2 ? 1 : w, h<2 ? 2 : h ))
-    , srcname_("[created]")
+    , source_(PixmapDesc::sKeyNoSrc())
 {
     qpixmap_->fill( QColor(0,0,0,0) );
 }
@@ -66,19 +63,31 @@ uiPixmap::uiPixmap( int w, int h )
 
 uiPixmap::uiPixmap( const QPixmap& pm )
     : qpixmap_(new QPixmap(pm))
+    , source_(PixmapDesc::sKeyNoSrc())
 {
 }
 
 
 uiPixmap::uiPixmap( const char* icnm )
     : qpixmap_(nullptr)
-    , srcname_(icnm)
+    , source_(icnm)
 {
     OD::IconFile icfile( icnm );
     if ( !icfile.haveData() )
-	{ qpixmap_ = new QPixmap; return; }
+    {
+	qpixmap_ = new QPixmap;
+	return;
+    }
 
     qpixmap_ = new QPixmap( icfile.fileNames().get(0).str(), nullptr );
+}
+
+
+uiPixmap::uiPixmap( const PixmapDesc& desc )
+{
+    source_ = desc.source_;
+    qpixmap_ = new QPixmap( desc.width_, desc.height_ );
+    fill( desc.color_ );
 }
 
 
@@ -88,22 +97,39 @@ uiPixmap::~uiPixmap()
 }
 
 
+const char* uiPixmap::source() const
+{
+    return source_.buf();
+}
+
+
 void uiPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
-    if ( !qpixmap_ ) qpixmap_ = new QPixmap;
+    if ( !qpixmap_ )
+	qpixmap_ = new QPixmap;
+
     *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(),
 				    Qt::OrderedAlphaDither );
+    source_ = PixmapDesc::sKeyRgbSrc();
 }
 
 
 int uiPixmap::width() const
-{ return qpixmap_->width(); }
+{
+    return qpixmap_->width();
+}
+
 
 int uiPixmap::height() const
-{ return qpixmap_->height(); }
+{
+    return qpixmap_->height();
+}
+
 
 bool uiPixmap::isEmpty() const
-{ return !qpixmap_ || qpixmap_->isNull(); }
+{
+    return !qpixmap_ || qpixmap_->isNull();
+}
 
 
 void uiPixmap::scale( int w, int h )
@@ -147,6 +173,7 @@ void uiPixmap::scaleToWidth( int w )
 
 void uiPixmap::fill( const OD::Color& col )
 {
+    source_ = PixmapDesc::sKeySingleColorSrc();
     qpixmap_->fill( QColor(col.r(),col.g(),col.b()) );
     QPainter painter( qpixmap_ );
     painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
@@ -155,8 +182,6 @@ void uiPixmap::fill( const OD::Color& col )
 
 void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
 {
-    srcname_ = "[colortable]";
-
     const bool validsz = width()>=2 && height()>=2;
     if ( seq.isEmpty() || !validsz )
     {
@@ -194,14 +219,13 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
     QPainter painter( qpixmap_ );
     painter.setPen( QColor(100,100,100) );
     painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
+    source_ = PixmapDesc::sKeyColorTabSrc();
 }
 
 
 void uiPixmap::fillGradient( const OD::Color& col1, const OD::Color& col2,
 			      bool hor )
 {
-    srcname_ = "[Gradient]";
-
     const bool validsz = width()>=2 && height()>=2;
     if ( !validsz )
     {
@@ -237,45 +261,25 @@ void uiPixmap::fillGradient( const OD::Color& col1, const OD::Color& col2,
     QPainter painter( qpixmap_ );
     painter.setPen( QColor(100,100,100) );
     painter.drawRect( 0, 0, qpixmap_->width()-1, qpixmap_->height()-1 );
+    source_ = PixmapDesc::sKeyGradientSrc();
 }
 
 
 bool uiPixmap::save( const char* fnm, const char* fmt, int quality ) const
-{ return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false; }
-
-
-bool uiPixmap::isPresent( const char* icnm )
 {
-    return OD::IconFile::isPresent( icnm );
+    return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false;
 }
 
 
-void uiPixmap::params( BufferStringSet& pmparams ) const
+void uiPixmap::fillDesc( PixmapDesc& desc ) const
 {
-    pmparams.add( source() );
-    pmparams.add( ::toString(width()) );
-    pmparams.add( ::toString(height()) );
-    pmparams.add( OD::Color::NoColor().getStdStr() );
+    desc.source_ = source();
+    desc.width_ = width();
+    desc.height_ = height();
+    desc.color_ = OD::Color::NoColor();
 }
 
 
-uiPixmap* uiPixmap::createFromParams( const BufferStringSet& pmparams )
-{
-    uiPixmap* pm = nullptr;
-    const BufferString& pmsrc = pmparams.get( uiPixmap::sPmParamSrcIdx );
-    if ( pmsrc == uiPixmap::sKeyCreatedSrc() )
-    {
-	pm = new uiPixmap( pmparams.get(uiPixmap::sPmParamWidthIdx).toInt(),
-			   pmparams.get(uiPixmap::sPmParamHeightIdx).toInt() );
-	OD::Color col;
-	col.setStdStr( pmparams.get(uiPixmap::sPmParamColIdx) );
-	pm->fill( col );
-    }
-    else
-	pm = new uiPixmap( pmsrc );
-
-    return pm;
-}
 
 static int sPDFfmtIdx = 6;
 

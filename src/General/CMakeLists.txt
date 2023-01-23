@@ -64,6 +64,7 @@ set( OD_MODULE_SOURCES
 	picklocation.cc
 	pickretriever.cc
 	pickset.cc
+	pixmapdesc.cc
 	posidxpairdataset.cc
 	posidxpairvalset.cc
 	posimpexppars.cc

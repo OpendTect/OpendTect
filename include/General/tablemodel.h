@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "odcommonenums.h"
-#include "rowcol.h"
+
 #include "color.h"
+#include "odcommonenums.h"
+#include "pixmapdesc.h"
 
 
 class QAbstractTableModel;
@@ -65,7 +66,7 @@ public:
 
     virtual OD::Color		textColor(int row,int col) const	= 0;
     virtual OD::Color		cellColor(int row,int col) const	= 0;
-    virtual BufferStringSet	pixmap(int row,int col) const		= 0;
+    virtual PixmapDesc		pixmap(int row,int col) const		= 0;
     virtual void		setChecked(int row,int col,int val)	{}
     virtual int			isChecked(int row,int col) const  { return -1; }
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;

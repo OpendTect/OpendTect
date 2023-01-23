@@ -83,13 +83,11 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
     if ( role == Qt::DecorationRole )
     {
-	BufferStringSet pmsrc = model_.pixmap(qmodidx.row(), qmodidx.column());
-	if ( pmsrc.isEmpty() )
+	const PixmapDesc pd = model_.pixmap( qmodidx.row(), qmodidx.column() );
+	if ( !pd.isValid() )
 	    return QVariant();
 
-	QStringList qstrlist;
-	pmsrc.fill( qstrlist );
-	return qstrlist;
+	return pd.toString().buf();
     }
 
     if ( role == Qt::ForegroundRole )
@@ -165,19 +163,7 @@ void ODAbstractTableModel::endReset()
 { endResetModel(); }
 
 
-// TableModel
-TableModel::TableModel()
-{
-    odtablemodel_ = new ODAbstractTableModel(*this);
-}
-
-
-TableModel::~TableModel()
-{
-    delete odtablemodel_;
-}
-
-
+// TableModel::CellData
 TableModel::CellData::CellData()
     : qvar_(*new QVariant())
 {}
@@ -244,6 +230,19 @@ TableModel::CellData& TableModel::CellData::operator=( const CellData& cd )
 {
     qvar_ = cd.qvar_;
     return *this;
+}
+
+
+// TableModel
+TableModel::TableModel()
+{
+    odtablemodel_ = new ODAbstractTableModel(*this);
+}
+
+
+TableModel::~TableModel()
+{
+    delete odtablemodel_;
 }
 
 
