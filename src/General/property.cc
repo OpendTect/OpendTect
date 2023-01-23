@@ -53,7 +53,8 @@ bool Property::isEqualTo( const Property& oth ) const
 }
 
 
-bool Property::matches( const char* nm, bool matchaliases, float* matchval )
+bool Property::matches( const char* nm, bool matchaliases,
+			float* matchval ) const
 {
     return ref().matches( nm, matchaliases, matchval );
 }
