@@ -210,9 +210,11 @@ int mTestMainFnName(int argc, char** argv)
 
     PortNr_Type port = 37504;
     parser.getVal( portkey, port );
-    const bool onlytcp6 = parser.hasKey( tcp6key );
+    bool onlytcp6 = parser.hasKey( tcp6key );
     const bool onlytcp4 = parser.hasKey( tcp4key );
     const bool uselocal = parser.hasKey( localstr );
+    if ( uselocal && !onlytcp6 && !onlytcp4 )
+	onlytcp6 = true;
 
     Network::SpecAddr addr = Network::None;
     if ( uselocal )

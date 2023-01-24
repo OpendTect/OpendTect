@@ -8,6 +8,7 @@
 #
 
 import argparse
+import platform
 import socket
 
 parser = argparse.ArgumentParser(
@@ -34,7 +35,8 @@ args = vars(parser.parse_args())
 onlytcp6 = args['onlytcp6']
 onlytcp4 = args['onlytcp4']
 uselocal = args['localserv']
-if uselocal and not onlytcp6 and not onlytcp4:
+if not onlytcp6 and not onlytcp4:
+  if uselocal or platform.system() == 'Windows':
     onlytcp6 = True
    
 HOST = ''            # Symbolic name meaning all available interfaces
