@@ -69,9 +69,11 @@ void uiMnemonicsSel::setFromSelection()
     BufferStringSet mnsnames;
     for ( const auto* mn : mns_ )
 	mnsnames.add( mn->name() );
+
+    mnsnames.sort();
     cb_->addItems( mnsnames );
     if ( !mnsnames.isEmpty() )
-	cb_->setCurrentItem( mnsnames.first()->str() );
+	cb_->setCurrentItem( 0 );
 }
 
 
