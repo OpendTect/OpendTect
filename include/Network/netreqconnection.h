@@ -22,7 +22,7 @@ struct PacketSendData;
 
 
 /*\brief
-  Manages RequestPackets by sending/receiveing them using a Tcp Connection.
+  Manages RequestPackets by sending/receiving them using a Tcp Connection.
 
   To send a packet, make the RequestPacket and use sendPacket().
 
