@@ -277,8 +277,7 @@ bool EmptyTempSurvey::createOMFFile()
     if ( IOM().isValidDataRoot(tmpbasedir_) )
 	return true;
 
-    IODir basedir( tmpbasedir_.buf() );
-    return basedir.doWrite();
+    return IOMan::prepareDataRoot( tmpbasedir_ );
 }
 
 
