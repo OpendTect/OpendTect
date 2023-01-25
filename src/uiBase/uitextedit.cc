@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "i_qtextedit.h"
 
 #include "uifont.h"
+#include "uilabel.h"
 #include "uimain.h"
 #include "uiobjbodyimpl.h"
 
@@ -332,6 +333,17 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 {
     body_= new uiTextEditBody( *this, parnt, nm, ro );
     return *body_;
+}
+
+
+
+uiLabel* uiTextEdit::setIcon( const char* iconnm, const uiString& tooltip )
+{
+    auto* lbl = new uiLabel( parent(), uiString::emptyString() );
+    lbl->setIcon( iconnm );
+    lbl->setToolTip( tooltip );
+    lbl->attach( leftOf, this );
+    return lbl;
 }
 
 

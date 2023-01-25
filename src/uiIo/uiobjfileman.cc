@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uiobjfileman.h"
 
 #include "uifont.h"
-#include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
@@ -25,6 +24,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "iox.h"
 #include "od_iostream.h"
 #include "systeminfo.h"
 
@@ -82,12 +82,9 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     extrabutgrp_->setPrefHeight( ft.height()*2 );
 
     infogrp_ = new uiGroup( this, "Info Group" );
-    auto* infolbl = new uiLabel( infogrp_, uiString::emptyString() );
-    infolbl->setIcon( "info" );
-    infolbl->setToolTip( tr("Data Information") );
 
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
-    infofld_->attach( rightTo, infolbl );
+    infofld_->setIcon( "info", tr("Data Information") );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
     auto* dummytb = new uiToolButton( infogrp_, "empty",
@@ -96,15 +93,11 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     dummytb->display( false );
 
     auto* notesgrp = new uiGroup( this, "Notes Group" );
-    auto* noteslbl = new uiLabel( notesgrp, uiString::emptyString() );
-    noteslbl->setIcon( "notes" );
-    noteslbl->setToolTip( tr("Notes for selected data") );
 
     notesfld_ = new uiTextEdit( notesgrp, "User info" );
+    notesfld_->setIcon( "notes", tr("Notes for selected data") );
     notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
-    notesfld_->setToolTip( tr("Notes") );
-    notesfld_->attach( rightTo, noteslbl );
     auto* savebut = new uiToolButton( notesgrp, "save", tr("Save Notes"),
 				      mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
@@ -335,7 +328,11 @@ BufferString uiObjFileMan::getFileInfo()
     const BufferString fname = curioobj_->fullUserExpr();
     const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
-	txt.add( "Data source: " ).add( curioobj_->connType() );
+    {
+	auto* iox = sCast(IOX*,curioobj_);
+	if ( iox )
+	    txt.add( "Data source: " ).add( iox->ownKey() );
+    }
     else
     {
 	int nrfiles = 0;
