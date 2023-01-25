@@ -50,6 +50,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "oddirs.h"
 #include "pickset.h"
+#include "posinfodetector.h"
 #include "randcolor.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
@@ -207,7 +208,7 @@ uiImportHorizon::~uiImportHorizon()
 
 void uiImportHorizon::descChg( CallBacker* )
 {
-    deleteAndZeroPtr( scanner_ );
+    deleteAndNullPtr( scanner_ );
 }
 
 
@@ -801,19 +802,17 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     uiObject* attachobj = inpfld_->attachObj();
     if ( SI().getCoordSystem() && SI().getCoordSystem()->isProjection() )
     {
-	crsfld_ = new Coords::uiCoordSystemSel(this, false);
+	crsfld_ = new Coords::uiCoordSystemSel( this );
 	mAttachCB( crsfld_->changed, uiImpHorFromZMap::inputChgd );
-	crsfld_->attach(alignedBelow, inpfld_);
+	crsfld_->attach( alignedBelow, inpfld_ );
 	attachobj = crsfld_->attachObj();
     }
 
-    subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
-    subselfld_->attach( alignedBelow, attachobj );
-
-    uiUnitSel::Setup uusu( Mnemonic::Dist, uiStrings::sUnit() );
+    uiUnitSel::Setup uusu( tr("Z unit in file") );
     uusu.allowneg( true );
     unitfld_ = new uiUnitSel( this, uusu );
-    unitfld_->attach( alignedBelow, subselfld_ );
+    unitfld_->setUnit( UnitOfMeasure::surveyDefZUnit() );
+    unitfld_->attach( alignedBelow, attachobj );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
     ctxt.forread_ = false;
@@ -835,20 +834,6 @@ MultiID uiImpHorFromZMap::getSelID() const
 }
 
 
-static void getCoordinates( const EM::ZMapImporter& importer,
-			    TrcKeySampling& tks, Coord& mincrd, Coord& maxcrd )
-{
-    mincrd = importer.minCoord();
-    maxcrd = importer.maxCoord();
-    tks.init( false );
-    tks.include( SI().transform(mincrd) );
-    tks.include( SI().transform(maxcrd) );
-    tks.include( SI().transform(Coord(mincrd.x,maxcrd.y)) );
-    tks.include( SI().transform(Coord(maxcrd.x,mincrd.y)) );
-    tks.step_ = SI().sampling(false).hsamp_.step_;
-}
-
-
 void uiImpHorFromZMap::inputChgd( CallBacker* )
 {
     const StringView horfnm = inpfld_->fileName();
@@ -858,12 +843,6 @@ void uiImpHorFromZMap::inputChgd( CallBacker* )
     EM::ZMapImporter importer( horfnm );
     if ( crsfld_ )
 	importer.setCoordSystem( crsfld_->getCoordSystem() );
-
-    TrcKeySampling tks; Coord mincrd, maxcrd;
-    getCoordinates( importer, tks, mincrd, maxcrd );
-    TrcKeyZSampling tkzs; tkzs.hsamp_ = tks;
-    subselfld_->setInputLimit( tkzs );
-    subselfld_->setInput( tkzs );
 
     const FilePath fnmfp( horfnm );
     SetImportFromDir( fnmfp.pathOnly() );
@@ -913,13 +892,9 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
-    TrcKeySampling tks; Coord mincrd, maxcrd;
-    getCoordinates( importer, tks, mincrd, maxcrd );
-
-    tks = subselfld_->envelope().hsamp_;
-
+    const TrcKeySampling tks = importer.sampling();
     const Array2D<float>* arr2d = importer.data();
-    Array2DFromXYConverter conv( *arr2d, mincrd, importer.step() );
+    Array2DFromXYConverter conv( *arr2d, importer.minCoord(), importer.step() );
     conv.setOutputSampling( tks );
     if ( !uitr.execute(conv) )
     {
@@ -931,7 +906,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     EM::Horizon3D* hor3d = createHor();
     hor3d->setArray2D( conv.getOutput(), tks.start_, tks.step_, false );
     PtrMan<Executor> saver = hor3d->saver();
-    if ( !uitr.execute(*saver) )
+    if ( !saver || !uitr.execute(*saver) )
     {
 	uiMSG().error( tr("Can not save output horizon.") );
 	hor3d->unRef();
