@@ -1157,17 +1157,16 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 	    const uiString msg( tr("We recommend doing a full file scan to "
 		"establish the true ranges and steps of the input file."
 		"\nIf you are sure the quick scan has got everything right, "
-		"you may want to continue without a full scan."
-		"\n\nDo you want to continue without a full scan?") );
+		"you may want to skip the full scan.") );
 	    const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
-			tr("Yes, continue"), tr("No, execute full scan now") );
-	    if ( res < 1 )
-	    {
-		if ( res == 0 )
-		    execNewScan( KeepAll, true );
+		    		tr("Run full scan"), tr("Skip full scan") );
+	    if ( res < 1 ) // Cancel
 		return false;
-	    }
+
+	    if ( res == 1 ) // Run full scan
+		execNewScan( KeepAll, true );
 	}
+
 	return true;
     }
     else if ( impType().is2D() && filespec_.nrFiles() > 1 )
