@@ -15,8 +15,8 @@ class i_LayoutItem;
 
 enum constraintType
 {
-    leftOf, rightOf, //!< LeftOf/RightOf atach widgets tightly together
-    leftTo, rightTo, //!< LeftTo/RightTo allow extra horizonal distance
+    leftOf, rightOf, //!< LeftOf/RightOf attach widgets tightly together
+    leftTo, rightTo, //!< LeftTo/RightTo allow extra horizontal distance
     leftAlignedBelow, leftAlignedAbove,
     rightAlignedBelow, rightAlignedAbove,
     alignedWith, alignedBelow, alignedAbove,	//!< Uses uiObject::horAlign()
