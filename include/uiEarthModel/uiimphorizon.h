@@ -38,7 +38,6 @@ namespace Table { class FormatDesc; }
 mExpClass(uiEarthModel) uiImportHorizon : public uiDialog
 { mODTextTranslationClass(uiImportHorizon);
 public:
-    static void		initClass();
 			uiImportHorizon(uiParent*,bool);
 			~uiImportHorizon();
 
@@ -60,9 +59,7 @@ protected:
     uiStratLevelSel*	stratlvlfld_			= nullptr;
     uiIOObjSel*		outputfld_;
 
-    uiGenInput*		domsel_				= nullptr;
-    uiGenInput*		impdomsel_			= nullptr;
-    uiT2DConvSel*	transfld_;
+    uiGenInput*		zdomainfld_				= nullptr;
 
     bool		acceptOK(CallBacker*) override;
     void		descChg(CallBacker*);
@@ -74,8 +71,7 @@ protected:
     void		fillUdfSel(CallBacker*);
     void		stratLvlChg(CallBacker*);
     void		interpolSettingsCB(CallBacker*);
-    void		zDomSel(CallBacker*);
-    void		impDomSel(CallBacker*);
+    void		zDomainCB(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();

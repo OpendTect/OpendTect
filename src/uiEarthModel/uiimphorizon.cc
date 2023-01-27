@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
 #include "uistrings.h"
-#include "uit2dconvsel.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
@@ -46,7 +45,6 @@ ________________________________________________________________________
 #include "horizonscanner.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "posinfodetector.h"
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
@@ -54,12 +52,6 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 #include <math.h>
-
-static BufferString sImportFromPath;
-
-
-void uiImportHorizon::initClass()
-{}
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
@@ -81,7 +73,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFile );
-    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
+    mAttachCB( inpfld_->valueChanged, uiImportHorizon::inputChgd );
 
     OD::ChoiceMode mode =
 	isgeom ? OD::ChooseZeroOrMore : OD::ChooseAtLeastOne;
@@ -89,7 +81,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     attrlistfld_ = new uiListBox( this, su );
     attrlistfld_->attach( alignedBelow, inpfld_ );
     attrlistfld_->setNrLines( 5 );
-    attrlistfld_->itemChosen.notify( mCB(this,uiImportHorizon,inputChgd) );
+    mAttachCB( attrlistfld_->itemChosen, uiImportHorizon::inputChgd );
 
     uiButtonGroup* butgrp =
 		new uiButtonGroup( attrlistfld_, "Buttons", OD::Vertical );
@@ -106,31 +98,17 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 		  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
-    dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
+    mAttachCB( dataselfld_->descChanged, uiImportHorizon::descChg );
     if ( isgeom )
     {
-	domsel_ = new uiGenInput( this, tr("Horizon is in:"),
-				     BoolInpSpec(true,tr("Time"),
-						      tr("Depth")) );
-	domsel_->attach( alignedBelow, attrlistfld_ );
-	domsel_->attach( ensureBelow, sep );
-	domsel_->setValue( SI().zIsTime() );
-	domsel_->valuechanged.notify( mCB(this,uiImportHorizon,zDomSel) );
+	zdomainfld_ = new uiGenInput( this, tr("Horizon is in"),
+				BoolInpSpec(true,tr("Time"),tr("Depth")) );
+	zdomainfld_->attach( alignedBelow, attrlistfld_ );
+	zdomainfld_->attach( ensureBelow, sep );
+	zdomainfld_->setValue( SI().zIsTime() );
+	mAttachCB( zdomainfld_->valueChanged, uiImportHorizon::zDomainCB );
 
-	impdomsel_ = new uiGenInput( this, tr("Import Horizon in"),
-				     BoolInpSpec(true,tr("Time"),
-						      tr("Depth")) );
-	impdomsel_->attach( alignedBelow, domsel_  );
-	impdomsel_->attach( ensureBelow, sep );
-	impdomsel_->setValue( SI().zIsTime() );
-	impdomsel_->valuechanged.notify( mCB(this,uiImportHorizon,impDomSel) );
-
-	uiT2DConvSel::Setup t2dsu( 0, false );
-	t2dsu.ist2d( !SI().zIsTime() );
-	transfld_ = new uiT2DConvSel( this, t2dsu );
-	transfld_->display( false );
-	transfld_->attach( alignedBelow, impdomsel_ );
-	dataselfld_->attach( alignedBelow, transfld_ );
+	dataselfld_->attach( alignedBelow, zdomainfld_ );
     }
     else
     {
@@ -167,10 +145,11 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	setHelpKey(mODHelpKey(mImportHorizonHelpID) );
 	filludffld_ = new uiGenInput( this, tr("Fill undefined parts"),
 				      BoolInpSpec(true) );
-	filludffld_->valuechanged.notify(mCB(this,uiImportHorizon,fillUdfSel));
+	mAttachCB( filludffld_->valueChanged, uiImportHorizon::fillUdfSel );
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
+
 	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(),
 	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
 	interpolparbut_->attach( rightOf, filludffld_ );
@@ -179,7 +158,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 	stratlvlfld_ = new uiStratLevelSel( this, true );
 	stratlvlfld_->attach( alignedBelow, outputfld_ );
-	stratlvlfld_->selChange.notify( mCB(this,uiImportHorizon,stratLvlChg) );
+	mAttachCB( stratlvlfld_->selChange, uiImportHorizon::stratLvlChg );
 
 	colbut_ = new uiColorInput( this,
 				  uiColorInput::Setup(OD::getRandStdDrawColor())
@@ -189,13 +168,13 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	fillUdfSel( nullptr );
     }
 
-    zDomSel( nullptr );
-    postFinalize().notify( mCB(this,uiImportHorizon,inputChgd) );
+    mAttachCB( postFinalize(), uiImportHorizon::inputChgd );
 }
 
 
 uiImportHorizon::~uiImportHorizon()
 {
+    detachAllNotifiers();
     delete interpol_;
 }
 
@@ -206,29 +185,9 @@ void uiImportHorizon::descChg( CallBacker* )
 }
 
 
-void uiImportHorizon::zDomSel( CallBacker* )
+void uiImportHorizon::zDomainCB( CallBacker* )
 {
-    const bool selhorisinsidomain = (domsel_->getBoolValue() && SI().zIsTime())
-			      || (!domsel_->getBoolValue() && !SI().zIsTime());
-    if ( selhorisinsidomain )
-    {
-	impdomsel_->setValue( domsel_->getBoolValue() );
-	impdomsel_->setSensitive( false );
-    }
-    else
-	impdomsel_->setSensitive( true );
-
-    impDomSel( nullptr );
     inputChgd( nullptr );
-}
-
-
-void uiImportHorizon::impDomSel( CallBacker* )
-{
-    const bool disptransfld =
-			domsel_->getBoolValue() != impdomsel_->getBoolValue();
-    if ( transfld_ )
-	transfld_->display( disptransfld );
 }
 
 
@@ -256,11 +215,9 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
     attrlistfld_->getChosen( attrnms );
     if ( isgeom_ )
     {
-	BufferString zvalstr( sKey::ZValue() );
-	if ( domsel_ )
-	    zvalstr = domsel_->getBoolValue() ? sKey::Time() : sKey::Depth();
-
-	attrnms.insertAt( new BufferString(zvalstr), 0 );
+	auto* zvalstr = new BufferString(
+	    zdomainfld_->getBoolValue() ? sKey::Time() : sKey::Depth() );
+	attrnms.insertAt( zvalstr, 0 );
     }
 
     const int nrattrib = attrnms.size();
@@ -379,28 +336,8 @@ bool uiImportHorizon::doScan()
     if ( !getFileNames(filenms) )
 	return false;
 
-    uiTaskRunner taskrunner( this );
-    ZAxisTransform* zatf = nullptr;
-    int zatfvoi = -1;
-    const bool needstransform =
-			domsel_->getBoolValue() != impdomsel_->getBoolValue();
-    if ( needstransform && transfld_ && transfld_->acceptOK() )
-    {
-	zatf = transfld_->getSelection();
-	if ( zatf->needsVolumeOfInterest() )
-	{
-	    //TODO: Use a smarter TrcKeyZSampling for VOI
-	    zatfvoi = zatf->addVolumeOfInterest( SI().sampling(true), false );
-	    if ( !zatf->loadDataIfMissing( zatfvoi, &taskrunner ) )
-	    {
-		uiMSG().error( tr("Cannot load data for depth-time transform"));
-		return false;
-	    }
-	}
-    }
-
-    bool importindepth = impdomsel_ && !impdomsel_->getBoolValue();
-    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf, importindepth );
+    const bool zindepth = !zdomainfld_->getBoolValue();
+    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, nullptr, zindepth );
     if ( !scanner_->uiMessage().isEmpty() )
     {
 	const bool res = uiMSG().askGoOn( tr("%1\nDo you want to continue?")
@@ -411,11 +348,9 @@ bool uiImportHorizon::doScan()
 	    return false;
     }
 
-    if ( !TaskRunner::execute( &taskrunner, *scanner_ ) )
+    uiTaskRunner uitr( this );
+    if ( !TaskRunner::execute(&uitr,*scanner_) )
 	return false;
-
-    if ( zatf && zatfvoi >= 0 )
-	zatf->removeVolumeOfInterest( zatfvoi );
 
     const StepInterval<int> nilnrg = scanner_->inlRg();
     const StepInterval<int> nclnrg = scanner_->crlRg();
@@ -495,11 +430,9 @@ bool uiImportHorizon::doImport()
     attrlistfld_->getChosen( attrnms );
     if ( isgeom_ )
     {
-	BufferString zvalstr( sKey::ZValue() );
-	if ( domsel_ && domsel_->getBoolValue() != SI().zIsTime() )
-	    zvalstr = SI().zIsTime() ? sKey::Depth() : sKey::Time();
-
-	attrnms.insertAt( new BufferString(zvalstr), 0 );
+	auto* zvalstr = new BufferString(
+	    zdomainfld_->getBoolValue() ? sKey::Time() : sKey::Depth() );
+	attrnms.insertAt( zvalstr, 0 );
     }
 
     if ( attrnms.isEmpty() )
@@ -557,8 +490,9 @@ bool uiImportHorizon::doImport()
     if ( !success )
 	mErrRetUnRef(tr("Cannot import horizon"))
 
-    impdomsel_ && impdomsel_->getBoolValue() ? horizon->setZInTime()
-						    : horizon->setZInDepth();
+    if ( zdomainfld_ )
+	zdomainfld_->getBoolValue() ? horizon->setZInTime()
+				    : horizon->setZInDepth();
     bool rv;
     if ( isgeom_ )
     {
@@ -595,9 +529,9 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	if ( ioobj )
 	{
 	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	    const bool zisdepth = !impdomsel_->getBoolValue();
-	    ioobj->pars().update( ZDomain::sKey(), zisdepth ? sKey::Depth()
-							    : sKey::Time() );
+	    const bool zisdepth = !zdomainfld_->getBoolValue();
+	    ioobj->pars().update( ZDomain::sKey(),
+				  zisdepth ? sKey::Depth() : sKey::Time() );
 
 	    ioobj->updateCreationPars();
 	    IOM().commitChanges( *ioobj );
@@ -791,7 +725,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     enableSaveButton( tr("Display after import") );
 
     inpfld_ = new uiASCIIFileInput( this, tr("ZMap file"), true );
-    mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
+    mAttachCB( inpfld_->valueChanged, uiImpHorFromZMap::inputChgd );
 
     uiObject* attachobj = inpfld_->attachObj();
     if ( SI().getCoordSystem() && SI().getCoordSystem()->isProjection() )
