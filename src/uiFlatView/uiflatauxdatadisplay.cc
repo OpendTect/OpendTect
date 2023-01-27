@@ -90,7 +90,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 
     display_->setZValue( zvalue_ );
 
-    if ( x1rg_ || x2rg_ || fitnameinview_ )
+    if ( x1rg_ || x2rg_ || (fitnameinview_ && nameitem_ && namepos_ != NoDraw) )
     {
 	if ( viewer_ )
 	    mAttachCBIfNotAttached( viewer_->viewChanged,

@@ -45,7 +45,7 @@ ________________________________________________________________________
 #include "wavelet.h"
 
 using namespace StratSynth;
-static const int cMarkerSize = 6;
+static const int cMarkerSize = 3;
 
 
 namespace StratSynth
@@ -1187,7 +1187,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 		{
 		    int mrkrsz = cMarkerSize;
 		    if ( issellvl && datamgr_.nrTraces() <= 25 )
-			mrkrsz *= 2;
+			mrkrsz += 2;
 
 		    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 							  mrkrsz,

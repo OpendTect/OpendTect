@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uimultiflatviewcontrol.h"
 #include "uistrateditlayer.h"
 #include "uistratlaymodtools.h"
+#include "uitaskrunner.h"
 #include "uitextedit.h"
 
 #include "arrayndimpl.h"
@@ -340,8 +341,8 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 	laymodfld_->attach( alignedBelow, inputfld_ );
 	mAttachCB( laymodfld_->selectionDone, uiStratLayerModelDispIO::selCB );
 
-	infofld_ = new uiTextEdit( this, "Info", true );
-	infofld_->setPrefHeightInChar( 5 );
+	infofld_ = new uiTextBrowser( this, "Info", 20, false );
+	infofld_->setPrefHeightInChar( 10 );
 	infofld_->attach( alignedBelow, laymodfld_ );
 
 	eachfld_ = new uiGenInput( this, tr("Read each"),
@@ -452,17 +453,55 @@ void selCB( CallBacker* )
 
     nrwells_ = nrseqs;
 
-    BufferString txt;
-    txt.add( "Nr pseudo-wells: " ).add( nrseqs ).addNewLine();
-    txt.add( "Properties: " );
+    BufferString txt( "<ul><li>Nr pseudo-wells: " );
+    txt.add( nrseqs ).add( "</li>" );
+    BufferStringSet props, extraprops, missingprops;
     for ( int idx=0; idx<propref.size(); idx++ )
     {
-	if ( idx>0 ) txt.add(",");
-	txt.add( propref[idx]->name() );
+	props.add( propref[idx]->name() );
+	const int oldidx = lm_.propertyRefs().indexOf( propref[idx] );
+	if ( oldidx < 0 )
+	    extraprops.add( propref[idx]->name() );
     }
-    txt.addNewLine();
 
-    infofld_->setText( txt );
+    const bool allmatch = propref.size() == lm_.propertyRefs().size() &&
+			  extraprops.isEmpty();
+    if ( allmatch )
+	txt.add( "<li>The Pseudo-wells and the current Layer Model Description "
+		"have the same set of properties: " )
+	    .add( props.getDispString() ).add( "</li>" );
+    else
+    {
+	const char* liwithyellowbg = "<li style=\"background-color:#ffffaa;\">";
+	txt.add( liwithyellowbg )
+	   .add( "Warning: The Pseudo-wells and the current Layer Model "
+		 "Description have different sets of properties. <ul>" );
+	for ( int idx=0; idx<lm_.propertyRefs().size(); idx++ )
+	{
+	    const int newidx = propref.indexOf( lm_.propertyRefs()[idx] );
+	    if ( newidx < 0 )
+		missingprops.add( lm_.propertyRefs()[idx]->name() );
+	}
+
+	if ( !missingprops.isEmpty() )
+	    txt.add( liwithyellowbg )
+		.add( "The following Layer Model Description properties "
+		    "are missing from the Pseudo-wells and hence "
+		    "will get undefined values: " )
+		.add( missingprops.getDispString() ).add( "</li>" );
+
+	if ( !extraprops.isEmpty() )
+	    txt.add( liwithyellowbg )
+		.add( "The following Pseudo-wells properties are not "
+		    "used in the Layer Model Description and hence "
+		    "will be ignored: " )
+		.add( extraprops.getDispString() ).add( "</li>" );
+
+	txt.add( "</ul></li>" );
+    }
+
+    txt.add( "</ul>" );
+    infofld_->setHtmlText( txt );
     nrCB( nullptr );
 }
 
@@ -486,17 +525,26 @@ bool acceptOK( CallBacker* ) override
 	if ( !strm )
 	    return false;
 
-	Strat::LayerModel newlm;
-	if ( !newlm.read(*strm) )
-	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
-		       "in the log file ('Utilities-Show log file')"))
-
 	const int each = eachfld_->getIntValue();
 	sUseEach = each;
 	const int firstmdl = startatfld_->getIntValue();
 	sStartAt = firstmdl;
-	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
+	Strat::LayerModel newlm;
+	uiTaskRunner dlg( this );
+	uiString msg;
+	if ( !newlm.read(*strm,firstmdl-1,each,msg,&dlg) )
+	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
+		       "in the log file ('Utilities-Show log file')"))
+
+	if ( !msg.isEmpty() )
+	{
+	    msg.appendPhrase( tr("Do you want to continue") );
+	    if ( !uiMSG().askGoOn(msg) )
+		return false;
+	}
+
 	sDoReplace = doreplacefld_->getBoolValue();
+	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
 	if ( sDoReplace )
 	{
 	    lm.setEmpty();
@@ -504,9 +552,7 @@ bool acceptOK( CallBacker* ) override
 	}
 
 	const int szbefore = lm.size();
-	for ( int iseq=firstmdl-1; iseq<newlm.size(); iseq+=each )
-	    lm.addSequence( newlm.sequence(iseq) );
-
+	lm.append( newlm );
 	changedmodel_ |= szbefore != lm.size();
 	addedmodels_ = !sDoReplace && szbefore<lm.size();
     }
@@ -536,7 +582,7 @@ bool acceptOK( CallBacker* ) override
     uiGenInput*			inputfld_		= nullptr;
     uiFileInput*		filefld_		= nullptr;
     uiIOObjSel*			laymodfld_;
-    uiTextEdit*			infofld_		= nullptr;
+    uiTextBrowser*		infofld_		= nullptr;
     uiGenInput*			doreplacefld_		= nullptr;
     uiGenInput*			eachfld_		= nullptr;
     uiGenInput*			startatfld_		= nullptr;
@@ -590,9 +636,6 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 	sequencesAdded.trigger();
     if ( dlg.changedmodel_ )
 	notifyModelChanged(-1);
-
-/*    const int nrmodels = lm.size();
-    tools_.setDispEach( sCast(int,Math::Ceil(nrmodels/100.f)) );*/
 
     return true;
 }

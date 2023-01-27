@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class od_istream;
 class od_ostream;
+class TaskRunner;
 
 namespace Strat
 {
@@ -31,6 +32,7 @@ class RefTree;
 
 mExpClass(Strat) LayerModel
 { mIsContainer( LayerModel, ObjectSet<LayerSequence>, seqs_ )
+  mODTextTranslationClass(LayerModel)
 public:
 
 				LayerModel();
@@ -51,6 +53,8 @@ public:
     LayerSequence&		addSequence(const LayerSequence&);
 				//!< Does a match of props
     void			removeSequence(int);
+    void			append(const LayerModel&);
+				//!< Does a match of props
 
     PropertyRefSelection&	propertyRefs()		{ return proprefs_; }
     const PropertyRefSelection& propertyRefs() const	{ return proprefs_; }
@@ -64,7 +68,10 @@ public:
 
     bool			readHeader(od_istream&,PropertyRefSelection&,
 					   int& nrseq,bool& mathpreserve);
-    bool			read(od_istream&);
+
+    mDeprecatedObs bool		read(od_istream&);
+    bool			read(od_istream&,int start,int step,
+				     uiString&,TaskRunner* t=nullptr);
     bool			write(od_ostream&,int modnr=0,
 					bool mathpreserve=false) const;
 
@@ -72,6 +79,8 @@ public:
     static StringView		defSVelStr()	{ return "DefaultSVel"; }
 
 protected:
+
+    friend class		LayerModelReader;
 
     PropertyRefSelection	proprefs_;
     ElasticPropSelection	elasticpropsel_;
