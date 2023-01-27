@@ -79,6 +79,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , lms_(*new Strat::LayerModelSuite)
     , beforeSave(this)
     , afterRetrieve(this)
+    , nrmodels_(0)
 {
     setDeleteOnClose( true );
 
@@ -204,7 +205,8 @@ void uiStratLayerModel::initWin( CallBacker* )
     mAttachCB( gentools_->propEdReq, uiStratLayerModel::manPropsCB );
     mAttachCB( gentools_->genReq, uiStratLayerModel::genModelsCB );
 
-    mAttachCB( lms_.modelChanged, uiStratLayerModel::modChgCB );
+    // This one should be the first callback to be called when model changes.
+    lms_.modelChanged.notify( mCB(this,uiStratLayerModel,modChgCB), true );
 
     mAttachCB( synthdatamgr_->elPropSelChanged,
 	       uiStratLayerModel::elasticPropsCB );
@@ -485,7 +487,7 @@ bool uiStratLayerModel::updateDispEach( const Strat::LayerModel& mdl )
     if ( !modtools_->canSetDispEach() )
 	return false;
 
-    const int oldnrseq = lms_.getCurrent().size();
+    const int oldnrseq = nrmodels_;
     if ( oldnrseq == 0 )
 	return false;
 
@@ -498,6 +500,7 @@ bool uiStratLayerModel::updateDispEach( const Strat::LayerModel& mdl )
     if ( newnreach < 1 || newnrseq <= 20 )
 	newnreach = 1;
 
+    modtools_->setMaxDispEach( newnrseq );
     modtools_->setDispEach( newnreach, false );
     return true;
 }
@@ -541,19 +544,20 @@ bool uiStratLayerModel::doGenModels( bool full )
 }
 
 
-void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodl, bool full )
+void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodel, bool full )
 {
     synthdisp_->enableDispUpdate( false ); //Not until its handleNewModel
-    setModelProps( newmodl ? *newmodl : lms_.getCurrent() );
-    if ( newmodl )
-    {
-	newmodl->prepareUse();
-	modtools_->setMaxDispEach( newmodl->size() );
-	if ( !full && updateDispEach(*newmodl) )
-	    synthdatamgr_->setCalcEach( modtools_->dispEach() );
+    const Strat::LayerModel& model = newmodel ? *newmodel : lms_.getCurrent();
+    setModelProps( model );
+    if ( !full && updateDispEach(model) )
+	synthdatamgr_->setCalcEach( modtools_->dispEach() );
 
+    nrmodels_ = model.size();
+    if ( newmodel )
+    {
+	newmodel->prepareUse();
 	NotifyStopper nsmoddisp( lms_.curChanged, moddisp_ );
-	lms_.setBaseModel( newmodl, full );
+	lms_.setBaseModel( newmodel, full );
     }
 
     //First the parameters
@@ -576,11 +580,9 @@ void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodl, bool full )
     synthdatamgr_->addPropertySynthetics(); //May only add the missing ones
     synthdatamgrdc_ = synthdatamgr_->dirtyCount();
 
-    if ( newmodl )
-    {
-	NotifyStopper nslmchg( lms_.modelChanged, this );
-	lms_.touch();
-    }
+    NotifyStopper nslmchg( lms_.modelChanged, this );
+    lms_.touch();
+    nslmchg.enableNotification();
 
     synthdisp_->handleModelChange( full );
 

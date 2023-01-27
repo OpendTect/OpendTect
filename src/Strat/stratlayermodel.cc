@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratlayermodel.h"
 
+#include "executor.h"
 #include "od_iostream.h"
 #include "separstr.h"
 #include "stratlayer.h"
@@ -156,6 +157,13 @@ void Strat::LayerModel::removeSequence( int seqidx )
 }
 
 
+void Strat::LayerModel::append( const LayerModel& oth )
+{
+    for ( int iseq=0; iseq<oth.size(); iseq++ )
+	addSequence( oth.sequence(iseq) );
+}
+
+
 void Strat::LayerModel::prepareUse() const
 {
     for ( int iseq=0; iseq<seqs_.size(); iseq++ )
@@ -215,87 +223,188 @@ bool Strat::LayerModel::readHeader( od_istream& strm,
 }
 
 
-bool Strat::LayerModel::read( od_istream& strm )
+namespace Strat
 {
-    deepErase( seqs_ );
+class LayerModelReader : public Executor
+{ mODTextTranslationClass(LayerModelReader)
+public:
+LayerModelReader( Strat::LayerModel& lm, od_istream& strm,
+		  const StepInterval<int> readrg, bool mathpreserve )
+    : Executor("Reading pseudo-wells")
+    , lm_(lm)
+    , strm_(strm)
+    , readrg_(readrg)
+    , mathpreserve_(mathpreserve)
+{
+    nextreadidx_ = readrg_.start;
+}
+
+od_int64 nrDone() const
+{
+    return curidx_;
+}
+
+od_int64 totalNr() const
+{
+    return readrg_.stop;
+}
+
+uiString uiNrDoneText() const
+{
+    return tr("Pseudo-wells done");
+}
+
+bool skipWell()
+{
+    strm_.skipUntil( 'S' );
+    while ( strm_.isOK() )
+    {
+	if ( strm_.peek() != '#' )
+	{
+	    strm_.skipLine();
+	    continue;
+	}
+
+	strm_.ignore( 1 ); // skip '#'
+	if ( strm_.peek() == 'S' )
+	    break;
+
+	strm_.skipLine();
+    }
+
+    return strm_.isOK();
+}
+
+int nextStep()
+{
+    if ( nextreadidx_ > readrg_.stop )
+	return Finished();
+
+    if ( !strm_.isOK() )
+	return ErrorOccurred();
+
+    while ( curidx_ < nextreadidx_ && skipWell() )
+	curidx_++;
+
+    strm_.skipUntil( 'S' );
+    BufferString linestr;
+    strm_.getLine( linestr );
+    SeparString separlinestr( linestr.buf(), od_tab );
+    auto* seq = new LayerSequence( &lm_.propertyRefs() );
+    int nrlays = separlinestr.getIValue( 1 );
+    if ( separlinestr.size()>2 )
+    {
+	float startdepth = separlinestr.getFValue( 2 );
+	seq->setStartDepth( startdepth );
+    }
+
+    if ( !strm_.isOK() )
+	return ErrorOccurred();
+
+    const int nrprops = lm_.propertyRefs().size();
+    BufferString word;
+    const Strat::RefTree& rt = RT();
+    for ( int ilay=0; ilay<nrlays; ilay++ )
+    {
+	strm_.skipWord(); // skip "#L.."
+	if ( !strm_.getWord(word,false) )
+	{
+	    delete seq;
+	    return ErrorOccurred();
+	}
+
+	FileMultiString fms( word );
+	const BufferString unitname = fms[0];
+	const Strat::UnitRef* ur = rt.find( unitname );
+	mDynamicCastGet(const Strat::LeafUnitRef*,lur,ur)
+	if ( !lur )
+	    missinglayerunits_.addIfNew( unitname );
+
+	auto* newlay = new Strat::Layer( lur ? *lur : rt.undefLeaf() );
+	if ( fms.size() > 1 )
+	{
+	    const Content* c = rt.contents().getByName(fms[1]);
+	    newlay->setContent( c ? *c : Content::unspecified() );
+	}
+	float val; strm_ >> val;
+	newlay->setThickness( val );
+	if ( !mathpreserve_ )
+	{
+	    for ( int iprop=1; iprop<nrprops; iprop++ )
+	    {
+		strm_ >> val;
+		newlay->setValue( iprop, val );
+	    }
+
+	    strm_.skipLine();
+	}
+	else
+	{
+	    BufferString txt;
+	    for ( int iprop=1; iprop<nrprops; iprop++ )
+	    {
+		strm_ >> txt;
+		if ( txt.isNumber() )
+		    newlay->setValue( iprop, toFloat(txt) );
+		else
+		{
+		    IOPar iop; iop.getFrom( txt );
+		    newlay->setValue( iprop, iop, lm_.proprefs_ );
+		}
+	    }
+	}
+
+	seq->layers() += newlay;
+    }
+
+    seq->prepareUse();
+    lm_.seqs_ += seq;
+    curidx_++;
+    nextreadidx_ += readrg_.step;
+    return MoreToDo();
+}
+
+    Strat::LayerModel&		lm_;
+    od_istream&			strm_;
+    const StepInterval<int>&	readrg_;
+    bool			mathpreserve_;
+    int				curidx_ = 0;
+    int				nextreadidx_;
+    BufferStringSet		missinglayerunits_;
+};
+} // namespace Strat
+
+bool Strat::LayerModel::read( od_istream& strm, int start, int step,
+			      uiString& msg, TaskRunner* trunner )
+{
     int nrseqs = 0;
     bool mathpreserve = false;
     PropertyRefSelection newprops;
     if ( !readHeader(strm,newprops,nrseqs,mathpreserve) )
 	return false;
 
-    const int nrprops = newprops.size();
     proprefs_ = newprops;
+    const int nrseqtoread = (nrseqs-start-1)/step + 1;
+    StepInterval<int> readrg( start, start + step*(nrseqtoread-1), step );
 
-    BufferString word;
-    const RefTree& rt = RT();
+    LayerModelReader rdr( *this, strm, readrg, mathpreserve );
+    if ( !TaskRunner::execute(trunner,rdr) )
+	return false;
 
-    for ( int iseq=0; iseq<nrseqs; iseq++ )
-    {
-	strm.skipUntil( 'S' ); // skip "#S.."
-	BufferString linestr;
-	strm.getLine( linestr );
-	SeparString separlinestr( linestr.buf(), od_tab );
-	auto* seq = new LayerSequence( &proprefs_ );
-	int nrlays = separlinestr.getIValue( 1 );
-	if ( separlinestr.size()>2 )
-	{
-	    float startdepth = separlinestr.getFValue( 2 );
-	    seq->setStartDepth( startdepth );
-	}
-	if ( !strm.isOK() )
-	    { ErrMsg("Error during read"); return false; }
-
-	for ( int ilay=0; ilay<nrlays; ilay++ )
-	{
-	    strm.skipWord(); // skip "#L.."
-	    if ( !strm.getWord(word,false) )
-	    {
-		ErrMsg( BufferString("Incomplete sequence found: ",iseq) );
-		delete seq; seq = 0; break;
-	    }
-	    FileMultiString fms( word );
-	    const UnitRef* ur = rt.find( fms[0] );
-	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
-	    Layer* newlay = new Layer( lur ? *lur : rt.undefLeaf() );
-	    if ( fms.size() > 1 )
-	    {
-		const Content* c = rt.contents().getByName(fms[1]);
-		newlay->setContent( c ? *c : Content::unspecified() );
-	    }
-	    float val; strm >> val;
-	    newlay->setThickness( val );
-	    if ( !mathpreserve )
-	    {
-		for ( int iprop=1; iprop<nrprops; iprop++ )
-		    { strm >> val; newlay->setValue( iprop, val ); }
-		strm.skipLine();
-	    }
-	    else
-	    {
-		BufferString txt;
-		for ( int iprop=1; iprop<nrprops; iprop++ )
-		{
-		    strm >> txt;
-		    if ( txt.isNumber() )
-			newlay->setValue( iprop, toFloat(txt) );
-		    else
-		    {
-			IOPar iop; iop.getFrom( txt );
-			newlay->setValue( iprop, iop, proprefs_ );
-		    }
-		}
-	    }
-	    seq->layers() += newlay;
-	}
-	if ( !seq )
-	    break;
-
-	seq->prepareUse();
-	seqs_ += seq;
-    }
+    if ( !rdr.missinglayerunits_.isEmpty() )
+	msg = tr("The following layer units present in the Pseudo-wells file "
+		"are missing from the current Stratigraphic tree : %1")
+	    .arg(rdr.missinglayerunits_.getDispString());
 
     return true;
+}
+
+
+bool Strat::LayerModel::read( od_istream& strm )
+{
+    deepErase( seqs_ );
+    uiString msg;
+    return read( strm, 0, 1, msg, nullptr );
 }
 
 
