@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "hiddenparam.h"
 #include "od_istream.h"
-#include "position.h"
+#include "posinfodetector.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -25,6 +25,7 @@ ________________________________________________________________________
 namespace EM
 {
 static HiddenParam<ZMapImporter,UnitOfMeasure*> uoms_(nullptr);
+static HiddenParam<ZMapImporter,PosInfo::Detector*> posds_(nullptr);
 
 ZMapImporter::ZMapImporter( const char* fnm )
     : Executor("Reading ZMap data")
@@ -34,6 +35,7 @@ ZMapImporter::ZMapImporter( const char* fnm )
     istrm_ = new od_istream( fnm_ );
 
     uoms_.setParam( this, nullptr );
+    posds_.setParam( this, new PosInfo::Detector(false) );
     initHeader();
     applyCRS();
 }
@@ -44,6 +46,7 @@ ZMapImporter::~ZMapImporter()
     delete istrm_;
     delete data_;
     uoms_.removeAndDeleteParam( this );
+    posds_.removeAndDeleteParam( this );
 }
 
 
@@ -64,24 +67,25 @@ void ZMapImporter::setUOM( const UnitOfMeasure* uom )
 
 bool ZMapImporter::initHeader()
 {
-    BufferString buf;
+    BufferString linestr;
     while( true ) // comments
     {
-	istrm_->getLine( buf );
-	if ( buf.isEmpty() || buf[0]=='!' )
+	istrm_->getLine( linestr );
+	if ( linestr.isEmpty() || linestr[0]=='!' )
 	    continue;
 
 	break;
     }
 
 // header line 1
-    SeparStringSB ss( buf, ',' );
+    SeparStringSB ss( linestr, ',' );
     if ( ss.size() != 3 )
 	return false;
     nrnodesperline_ = toInt( ss[2] );
 
 //header line 2
-    istrm_->getLine( buf ); ss.set( buf );
+    istrm_->getLine( linestr );
+    ss = linestr.buf();
     if ( ss.size() != 5 )
 	return false;
     nrchars_ = toInt( ss[0] );
@@ -91,7 +95,8 @@ bool ZMapImporter::initHeader()
     firstcol_ = toInt( ss[4] );
 
 //header line 3
-    istrm_->getLine( buf ); ss.set( buf );
+    istrm_->getLine( linestr );
+    ss = linestr.buf();
     if ( ss.size() != 6 )
 	return false;
     nrrows_ = toInt( ss[0] );
@@ -102,10 +107,10 @@ bool ZMapImporter::initHeader()
     ymax_ = toDouble( ss[5] );
 
 //header line 4
-    istrm_->getLine( buf );
+    istrm_->getLine( linestr );
 
 // end
-    istrm_->getLine( buf );
+    istrm_->getLine( linestr );
 
     totalnr_ = nrrows_ * nrcols_;
     return true;
@@ -133,14 +138,21 @@ void ZMapImporter::applyCRS()
 
 int ZMapImporter::nextStep()
 {
+    if ( totalnr_ == 0 )
+	return ErrorOccurred();
+
     if ( !data_ )
     {
 	data_ = new Array2DImpl<float>( nrrows_, nrcols_ );
 	data_->setAll( mUdf(float) );
     }
 
+    auto* posdetector = posds_.getParam( this );
     if ( nrdone_ >= totalnr_ )
+    {
+	posdetector->finish();
 	return Finished();
+    }
 
     BufferString buf;
     istrm_->getWord( buf );
@@ -162,6 +174,12 @@ int ZMapImporter::nextStep()
     const int col = (int)(nrdone_ / nrrows_);
     data_->set( row, col, zval );
 
+    Coord curcrd;
+    curcrd.x = mincrd_.x + dx_*col;
+    curcrd.y = mincrd_.y + dy_*row;
+    const BinID curbid = SI().transform( curcrd );
+    posdetector->add( curcrd, curbid );
+
     nrdone_++;
     return MoreToDo();
 }
@@ -175,5 +193,26 @@ Coord ZMapImporter::maxCoord() const
 
 Coord ZMapImporter::step() const
 { return Coord( dx_, dy_ ); }
+
+
+TrcKeySampling ZMapImporter::sampling() const
+{
+    TrcKeySampling tks( false );
+    tks.include( TrcKey(SI().transform(mincrd_)) );
+    tks.include( TrcKey(SI().transform(maxcrd_)) );
+    tks.include( TrcKey(SI().transform(Coord(mincrd_.x,maxcrd_.y))) );
+    tks.include( TrcKey(SI().transform(Coord(maxcrd_.x,mincrd_.y))) );
+
+    auto* posdetector = posds_.getParam( this );
+    tks.step_ = BinID( Math::Abs(posdetector->step().inl()),
+		       Math::Abs(posdetector->step().crl()) );
+    return tks;
+}
+
+
+const PosInfo::Detector& ZMapImporter::detector() const
+{
+    return *posds_.getParam( this );
+}
 
 } // namespace EM
