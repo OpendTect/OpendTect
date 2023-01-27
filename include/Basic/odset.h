@@ -114,10 +114,3 @@ mGlobal(mod) inline void swap( clss& o1, clss& o2 ) \
 { \
     o1.swap( o2 ); \
 }
-
-
-#define mODSetApplyToAll( itp, os, op ) \
-    for ( itp idx=(itp) os.nrItems()-1; idx>=0; idx-- ) \
-    { \
-        op; \
-    }
