@@ -31,10 +31,10 @@ FRACRHO: Fracture Density`Volumetrics`Lin`0`10`0`2`Fraction`169`172`148`VolumeFr
 FRACSTRIKE: Fracture Orientation`Angle`Lin`0`360`0`360`Degrees`93`72`200`FracOrient
 VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`VelocityRatioVSVP
 VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`VelocityRatioVpVs
-IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`AIMP
-AI: Acoustic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`P Imp`ImpedanceP
-EI: Elastic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`200`255`100`EEI`ExtendedElasticImpedance
-SI: Shear Impedance`Impedance`Lin`1e6`1.2e7`1.1e6`1.1e7`m/s x kg/m3`100`255`100`S Imp`ImpedanceS
+IMP: Impedance`Impedance`Lin`2e3`2.3e4`2.2e3`2.2e4`m/s x g/cc`255`150`0`AIMP
+AI: Acoustic Impedance`Impedance`Lin`2e3`2.3e4`2.2e3`2.2e4`m/s x g/cc`255`150`0`P Imp`ImpedanceP
+EI: Elastic Impedance`Impedance`Lin`2e3`2.3e4`2.2e3`2.2e4`m/s x g/cc`200`255`100`EEI`ExtendedElasticImpedance
+SI: Shear Impedance`Impedance`Lin`1e3`1.2e4`1.1e3`1.1e4`m/s x g/cc`100`255`100`S Imp`ImpedanceS
 VEL: Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`Vint`Vrms`Vavg
 PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`P wave`Vp`VelocityP
 SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`S wave`Vs`VelocityS
