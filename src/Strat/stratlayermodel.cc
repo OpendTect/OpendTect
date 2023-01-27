@@ -229,7 +229,7 @@ class LayerModelReader : public Executor
 { mODTextTranslationClass(LayerModelReader)
 public:
 LayerModelReader( Strat::LayerModel& lm, od_istream& strm,
-		  const StepInterval<int> readrg, bool mathpreserve )
+		  const StepInterval<int>& readrg, bool mathpreserve )
     : Executor("Reading pseudo-wells")
     , lm_(lm)
     , strm_(strm)
