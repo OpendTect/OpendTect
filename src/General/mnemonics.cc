@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 #include <regex>
+#include <QHash>
+#include <QString>
 
 
 static const char* filenamebase = "Mnemonics";
@@ -505,14 +507,38 @@ Mnemonic* MnemonicSet::getByName( const char* nm, bool matchaliases )
 }
 
 
+using MnemonicsCache = QHash<QString,const Mnemonic*>;
+
+MnemonicsCache& getMnemonicLookupCache( bool matchaliases )
+{
+    if ( matchaliases )
+    {
+	mDefineStaticLocalObject( MnemonicsCache, macache, );
+	return macache;
+    }
+
+    mDefineStaticLocalObject( MnemonicsCache, cache, );
+    return cache;
+}
+
+
 const Mnemonic* MnemonicSet::getByName( const char* nm,
 					bool matchaliases ) const
 {
+    MnemonicsCache& cache = getMnemonicLookupCache( matchaliases );
+    const QString qstr( nm );
+    if ( cache.contains(qstr) )
+	return cache[qstr];
+
     MnemonicSelection mnsel;
     for ( const auto* mnc : *this )
 	mnsel.add( mnc );
 
-    return getByName( nm, mnsel, matchaliases );
+    const Mnemonic* ret = getByName( nm, mnsel, matchaliases );
+    if ( ret || !cache.empty() )
+	cache[qstr] = ret;
+
+    return ret;
 }
 
 

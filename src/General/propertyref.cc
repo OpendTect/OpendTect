@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 #include <typeinfo>
+#include <QHash>
+#include <QString>
 
 
 static const char* filenamebase = "Properties";
@@ -589,6 +591,20 @@ const PropertyRef& PropertyRef::thickness()
 }
 
 
+using PropertyRefCache = QHash<QString,const PropertyRef*>;
+
+PropertyRefCache& getPropLookupCache( bool matchaliases )
+{
+    if ( matchaliases )
+    {
+	mDefineStaticLocalObject( PropertyRefCache, macache, );
+	return macache;
+    }
+
+    mDefineStaticLocalObject( PropertyRefCache, cache, );
+    return cache;
+}
+
 //------- PropertyRefSetMgr ----------
 
 class PropertyRefSetMgr : public CallBacker
@@ -608,7 +624,9 @@ PropertyRefSetMgr()
 
 void doNull( CallBacker* )
 {
-    delete prs_; prs_ = nullptr;
+    getPropLookupCache(true).clear();
+    getPropLookupCache(false).clear();
+    deleteAndNullPtr( prs_ );
 }
 
 void createSet()
@@ -643,7 +661,6 @@ void createSet()
 }
 
     PropertyRefSet* prs_ = nullptr;
-
 };
 
 
@@ -676,11 +693,20 @@ PropertyRef* PropertyRefSet::getByName( const char* nm, bool matchaliases )
 const PropertyRef* PropertyRefSet::getByName( const char* nm,
 					      bool matchaliases ) const
 {
+    const QString qstr( nm );
+    PropertyRefCache& cache = getPropLookupCache( matchaliases );
+    if ( cache.contains(qstr) )
+	return cache[qstr];
+
     PropertyRefSelection prs( false );
     for ( const auto* pr : *this )
 	prs.add( pr );
 
-    return getByName( nm, prs, matchaliases );
+    const PropertyRef* ret = getByName( nm, prs, matchaliases );
+    if ( ret || !cache.empty() )
+	cache[qstr] = ret;
+
+    return ret;
 }
 
 
