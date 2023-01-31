@@ -106,10 +106,12 @@ SeisTrcWriter::~SeisTrcWriter()
 
 bool SeisTrcWriter::close()
 {
-    deleteAndZeroPtr( gidp_ );
-    bool ret = true;
     if ( putter_ )
-	{ ret = putter_->close(); if ( !ret ) errmsg_ = putter_->errMsg(); }
+    {
+	ret = putter_->close();
+	if ( !ret )
+	    errmsg_ = putter_->errMsg();
+    }
 
     if ( is2D() )
     {
@@ -129,6 +131,7 @@ bool SeisTrcWriter::close()
 
     deleteAndZeroPtr( putter_ );
     deleteAndZeroPtr( pswriter_ );
+    deleteAndZeroPtr( gidp_ );
     psioprov_ = nullptr;
     ret &= SeisStoreAccess::close();
 
