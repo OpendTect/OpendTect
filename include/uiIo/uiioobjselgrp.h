@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 
 class CtxtIOObj;
+class FileSystemWatcher;
 class IOObj;
 class IOObjContext;
 class Translator;
@@ -229,6 +230,7 @@ protected:
     ObjectSet<uiIOObjInserter>	inserters_;
     uiGroup*			topgrp_;
     uiComboBox*			ctxtfiltfld_			= nullptr;
+    FileSystemWatcher*		fswatcher_			= nullptr;
 
     void		fillListBox();
     void		addEntryToListBox(const MultiID&);
@@ -250,6 +252,7 @@ protected:
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
     void		ctxtChgCB(CallBacker*);
+    void		omfChgCB(CallBacker*);
 
 private:
 

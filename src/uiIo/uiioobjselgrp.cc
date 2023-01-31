@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
+#include "filepath.h"
+#include "filesystemwatcher.h"
 #include "globexpr.h"
 #include "iodir.h"
 #include "iodirentry.h"
@@ -409,8 +411,19 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     if ( ctio_.ctxt_.maydooper_ )
 	mkManipulators();
 
+    fswatcher_ = new FileSystemWatcher;
+    const FilePath fp( IOM().curDirName(), ".omf" );
+    fswatcher_->addFile( fp.fullPath() );
+    mAttachCB( fswatcher_->fileChanged, uiIOObjSelGrp::omfChgCB );
+
     setHAlignObj( topgrp_ );
     mAttachCB( postFinalize(), uiIOObjSelGrp::initGrpCB );
+}
+
+
+void uiIOObjSelGrp::omfChgCB( CallBacker* )
+{
+    fullUpdate( -1 );
 }
 
 
@@ -578,6 +591,7 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     delete ctio_.ioobj_;
     delete &ctio_;
     delete lbchoiceio_;
+    delete fswatcher_;
 }
 
 
