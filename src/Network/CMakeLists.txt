@@ -40,7 +40,12 @@ set( OD_MODULE_SOURCES
 	webfileaccess.cc
 )
 
-set ( OD_MODULE_TESTPROGS test_netreqechoserver.cc test_netsocketechoserver.cc )
+set ( OD_MODULE_TESTPROGS
+	test_client_connection.cc
+	test_listening_server.cc
+	test_netreqechoserver.cc
+	test_netsocketechoserver.cc
+)
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc webstreamsource.cc )
 
