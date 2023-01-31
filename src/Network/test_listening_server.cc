@@ -238,7 +238,8 @@ int mTestMainFnName(int argc, char** argv)
 
     unsigned short timeout = sCast(unsigned short,600); //sec
     parser.getVal( Network::Server::sKeyTimeout(), timeout );
-    strm << " with a " << timeout << " seconds timeout" << od_endl;
+    strm << " with a " << timeout << " seconds timeout" << od_newline;
+    strm << "Listening server using port: " << port << od_endl;
 
     Network::RequestEchoServer tester( port, addr, timeout );
 
