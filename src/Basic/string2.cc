@@ -381,6 +381,15 @@ const char* getDistUnitString( bool isfeet, bool wb )
 }
 
 
+const char* getTimeUnitString( bool internalstandard, bool wb )
+{
+    if ( internalstandard )
+	return wb ? "(s)" : "s";
+
+    return wb ? "(ms)" : "ms";
+}
+
+
 const char* getVelUnitString( bool isfeet, bool wb )
 {
     if ( isfeet )

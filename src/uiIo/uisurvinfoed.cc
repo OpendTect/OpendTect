@@ -1118,12 +1118,14 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = Uknown;
     inft_ = false;
     mDynamicCastGet(uiSurveySelectDlg*,seldlg,dlg)
-    if ( !seldlg ) return false;
+    if ( !seldlg )
+	return false;
 
     const BufferString fname = seldlg->getSurveyPath();
     othersurvey_ = fname;
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
-    if ( !survinfo ) return false;
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::readDirectory( fname );
+    if ( !survinfo )
+	return false;
 
     cs = survinfo->sampling( false );
     crd[0] = survinfo->transform( cs.hsamp_.start_ );
@@ -1206,11 +1208,13 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = Uknown;
     inft_ = false;
     mDynamicCastGet(uiSurveyFileDlg*,filedlg,dlg)
-    if ( !filedlg ) return false;
+    if ( !filedlg )
+	return false;
 
     filenm_ = filedlg->inpfld_->fileName();
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( filenm_, true );
-    if ( !survinfo ) return false;
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::readDirectory( filenm_ );
+    if ( !survinfo )
+	return false;
 
     cs = survinfo->sampling( false );
     crd[0] = survinfo->transform( cs.hsamp_.start_ );

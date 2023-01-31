@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "safefileio.h"
 #include "separstr.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "iopar.h"
 #include "zdomain.h"
 #include "keystrs.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include "surveydisklocation.h"
 #include "uistrings.h"
 #include <stdio.h>
+
 
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
@@ -65,6 +67,210 @@ Survey::Geometry3D& Survey::Geometry3D::current()
 Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 {
     return transform( BinID(linenr,tracenr) );
+}
+
+
+namespace Survey
+{
+    //Fill OD::JSON::Object functions
+    void fillObjFromRanges( const TrcKeyZSampling& tkzs, bool zistime,
+			    bool depthisfeet, OD::JSON::Object& jsonobj )
+    {
+	OD::JSON::Array inlobj( OD::JSON::Number );
+	inlobj.add( tkzs.hsamp_.start_.inl() );
+	inlobj.add( tkzs.hsamp_.stop_.inl() );
+	inlobj.add( tkzs.hsamp_.step_.inl() );
+	jsonobj.set( SurveyInfo::sKeyInlRange(), new OD::JSON::Array(inlobj) );
+
+	OD::JSON::Array crlobj( OD::JSON::Number );
+	crlobj.add( tkzs.hsamp_.start_.crl() );
+	crlobj.add( tkzs.hsamp_.stop_.crl() );
+	crlobj.add( tkzs.hsamp_.step_.crl() );
+	jsonobj.set( SurveyInfo::sKeyCrlRange(), new OD::JSON::Array(crlobj) );
+
+	OD::JSON::Array zobj( OD::JSON::Number );
+	zobj.add( tkzs.zsamp_.start );
+	zobj.add( tkzs.zsamp_.stop );
+	zobj.add( tkzs.zsamp_.step );
+	OD::JSON::Object zdef;
+	zdef.set( sKey::Range(), new OD::JSON::Array(zobj) );
+	zdef.set( SurveyInfo::sKeyDomain(), zistime ? sKey::Time() :
+				    depthisfeet ? "Feet" : sKey::Depth() );
+	jsonobj.set( SurveyInfo::sKeyZAxis(), new OD::JSON::Object(zdef) );
+    }
+
+
+    void fillObjWithDirTransform( const TypeSet<float>& dirx,
+	const TypeSet<float>& diry, OD::JSON::Object& obj )
+    {
+	OD::JSON::Array dirxarr( OD::JSON::Number );
+	dirxarr.add( dirx[0] ).add( dirx[1] ).add( dirx[2] );
+
+	OD::JSON::Array diryarr( OD::JSON::Number );
+	diryarr.add( diry[0] ).add( diry[1] ).add( diry[2] );
+
+	OD::JSON::Object trans;
+	trans.set( sKeyXTransf, new OD::JSON::Array(dirxarr) );
+	OD::JSON::Object ytransf;
+	trans.set( sKeyYTransf, new OD::JSON::Array(diryarr) );
+	obj.set( SurveyInfo::sKeyTransformation(),
+	    new OD::JSON::Object(trans) );
+    }
+
+
+    void fillObjWithDirTransform( const Pos::IdxPair2Coord& b2c,
+	OD::JSON::Object& obj )
+    {
+	const Pos::IdxPair2Coord::DirTransform& dirx =
+						    b2c.getTransform( true );
+	TypeSet<float> dirxset;
+	dirxset.add( dirx.a ).add( dirx.b ).add( dirx.c );
+
+	const Pos::IdxPair2Coord::DirTransform& diry =
+						    b2c.getTransform( false );
+	TypeSet<float> diryset;
+	diryset.add( diry.a ).add( diry.b ).add( diry.c );
+
+	fillObjWithDirTransform( dirxset, diryset, obj );
+    }
+
+
+    void fillObjWithSetPts( const TypeSet<BinID>& bids,
+	const TypeSet<Coord>& crds, OD::JSON::Object& obj )
+    {
+	OD::JSON::Array setarr( true );
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    const BinID bid = bids[idx];
+	    OD::JSON::Array arrint( OD::JSON::Number );
+	    arrint.add( bid.inl() ).add( bid.crl() );
+	    OD::JSON::Object ptobj;
+	    ptobj.set( SurveyInfo::sKeyIC(), new OD::JSON::Array(arrint) );
+
+	    const Coord crd = crds[idx];
+	    OD::JSON::Array arrdoub( OD::JSON::Number );
+	    arrdoub.add( crd.x ).add( crd.y );
+	    ptobj.set( SurveyInfo::sKeyXY(), new OD::JSON::Array(arrdoub) );
+
+	    setarr.add( new OD::JSON::Object(ptobj) );
+	}
+
+	obj.set( SurveyInfo::sKeySetPt(), new OD::JSON::Array(setarr) );
+    }
+
+
+    void fillObjWithUnit( const char* xystr, const char* depthstr,
+							OD::JSON::Object& obj )
+    {
+	OD::JSON::Object unitobj;
+	unitobj.set( SurveyInfo::sKeyXY(), xystr );
+	unitobj.set( sKey::Z(), depthstr );
+	obj.set( sKey::Units(), new OD::JSON::Object(unitobj) );
+    }
+
+    //Use OD::JSON::Object functions
+    void fillRangesFromObj( const OD::JSON::Object& obj, SurveyInfo& si )
+    {
+	TrcKeyZSampling tkzs( false );
+	//Inline range setting
+	const auto* inlarr = obj.getArray( SurveyInfo::sKeyInlRange() );
+	if ( inlarr )
+	{
+	    tkzs.hsamp_.start_.inl() = inlarr->getIntValue( 0 );
+	    tkzs.hsamp_.stop_.inl() = inlarr->getIntValue( 1 );
+	    tkzs.hsamp_.step_.inl() = inlarr->getIntValue( 2 );
+	}
+
+	//Crossline range setting
+	const auto* crlarr = obj.getArray( SurveyInfo::sKeyCrlRange() );
+	if ( crlarr )
+	{
+	    tkzs.hsamp_.start_.crl() = crlarr->getIntValue( 0 );
+	    tkzs.hsamp_.stop_.crl() = crlarr->getIntValue( 1 );
+	    tkzs.hsamp_.step_.crl() = crlarr->getIntValue( 2 );
+	}
+
+	//ZRange setting
+	const auto* zobj = obj.getObject( SurveyInfo::sKeyZAxis() );
+	if ( zobj )
+	{
+	    const BufferString domain = zobj->getStringValue(
+						SurveyInfo::sKeyDomain() );
+	    const bool isztime = domain.isEqual( sKey::Time() );
+	    const bool isdepthfeet = domain.isEqual( "Feet" );
+	    const auto* zarr = zobj->getArray( sKey::Range() );
+	    if ( zarr )
+	    {
+		tkzs.zsamp_.start = zarr->getDoubleValue( 0 );
+		tkzs.zsamp_.stop = zarr->getDoubleValue( 1 );
+		tkzs.zsamp_.step = zarr->getDoubleValue( 2 );
+		if ( Values::isUdf(tkzs.zsamp_.step)
+		    || mIsZero(tkzs.zsamp_.step,mDefEps) )
+		    tkzs.zsamp_.step = 0.004;
+
+	    }
+
+	    si.setZUnit( isztime, isdepthfeet );
+	}
+
+	si.setRange( tkzs, false );
+    }
+
+
+    void fillDirTransformFromObj( const OD::JSON::Object& obj, SurveyInfo& si )
+    {
+	const auto* transformobj = obj.getObject(
+					    SurveyInfo::sKeyTransformation() );
+	if ( !transformobj )
+	    return;
+
+	const auto* xarr = transformobj->getArray( sKeyXTransf );
+	if ( xarr )
+	    si.setTr( xarr->getDoubleValue(0), xarr->getDoubleValue(1),
+				    xarr->getDoubleValue(2), true );
+
+	const auto* yarr = transformobj->getArray( sKeyYTransf );
+	if ( yarr )
+	    si.setTr( yarr->getDoubleValue(0), yarr->getDoubleValue(1),
+		yarr->getDoubleValue(2), false );
+    }
+
+
+    void fillSetPtsFromObj( const OD::JSON::Object& obj, SurveyInfo& si )
+    {
+	const auto* setptsarr = obj.getArray( SurveyInfo::sKeySetPt() );
+	if ( !setptsarr )
+	    return;
+
+	BinID bids[2];
+	Coord crds[3];
+	int xline = 0;
+	for ( int idx=0; idx<setptsarr->size(); idx++ )
+	{
+	    auto& ptobj = setptsarr->object( idx );
+	    const auto* icarr = ptobj.getArray( SurveyInfo::sKeyIC() );
+	    if ( icarr )
+	    {
+		if ( idx == 2 )
+		    xline = icarr->getIntValue( 1 );
+		else
+		{
+		    bids[idx].inl() = icarr->getIntValue( 0 );
+		    bids[idx].crl() = icarr->getIntValue( 1 );
+		}
+	    }
+
+	    const auto* xyarr = ptobj.getArray( SurveyInfo::sKeyXY() );
+	    if ( xyarr )
+	    {
+		crds[idx].x = xyarr->getDoubleValue( 0 );
+		crds[idx].y = xyarr->getDoubleValue( 1 );
+	    }
+
+	}
+
+	si.set3PtsWithMsg( crds, bids, xline );
+    }
 }
 
 
@@ -354,9 +560,10 @@ const SurveyInfo& SI()
     int cursurvinfoidx = survInfoStack().size() - 1;
     if ( cursurvinfoidx < 0 )
     {
-	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
+	SurveyInfo* newsi = SurveyInfo::readDirectory( GetDataDir() );
 	if ( !newsi )
 	    newsi = new SurveyInfo;
+
 	survInfoStack() += newsi;
 	cursurvinfoidx = survInfoStack().size() - 1;
     }
@@ -482,143 +689,109 @@ SurveyInfo& SurveyInfo::empty()
 }
 
 
-SurveyInfo* SurveyInfo::read( const char* survdir )
+SurveyInfo* SurveyInfo::readDirectory( const char* loc )
 {
-    return SurveyInfo::read( survdir, false );
+    FilePath fp( loc );
+    fp.add( sKeySetupFileName() );
+
+    return readFile(fp.fullPath() );
 }
 
 
-SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
+SurveyInfo* SurveyInfo::readFile( const char* loc )
 {
-    FilePath fp( survdir );
-    if ( !isfile )
-	fp.add( sKeySetupFileName() );
+    FilePath fp( loc );
+    const BufferString extension( fp.extension() );
+    const bool isjson = extension.isEqual( "json", OD::CaseInsensitive );
 
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
-	return 0;
+	return nullptr;
 
-    ascistream astream( sfio.istrm() );
-    if ( !astream.isOfFileType(sKeySI) )
+    PtrMan<SurveyInfo> si;
+    uiRetVal ret;
+
+    OD::JSON::Object obj;
+    if ( isjson )
     {
-	BufferString errmsg( "Survey definition file cannot be read.\n"
-			     "Survey file '" );
-	errmsg += fp.fullPath(); errmsg += "' has file type '";
-	errmsg += astream.fileType();
-	errmsg += "'.\nThe file may be corrupt or not accessible.";
-	ErrMsg( errmsg );
+	od_istream strm( fp.fullPath() );
+	obj.read( strm );
+	si = readJSON( obj, ret );
+    }
+    else
+	si = readStrm( sfio.istrm(), ret );
+
+    if ( ret.isError() )
+    {
 	sfio.closeFail();
-	return 0;
+	return nullptr;
     }
 
-    astream.next();
-    SurveyInfo* si = new SurveyInfo;
+    const bool savesuccsess = sfio.closeSuccess();
 
-    if ( !isfile )
+    if ( !si->wrapUpRead() )
+	return nullptr;
+
+    return si.release();
+}
+
+
+SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
+{
+
+    FilePath diskloc = obj.getFilePath( sKeySurvDiskLoc() );
+    PtrMan<SurveyInfo> si = new SurveyInfo;
+    si->disklocation_ = SurveyDiskLocation( diskloc );
+    const BufferString surveynm = obj.getStringValue( sKey::Name() );
+    si->setName( surveynm );
+    auto* defobj = obj.getObject( sKeyDef() );
+    if ( defobj )
     {
-	FilePath fpsurvdir( survdir );
-	si->disklocation_ = SurveyDiskLocation( fpsurvdir );
-	if ( !survdir || si->disklocation_.isEmpty() )
-	    return si;
-
-	si->setName( si->disklocation_.dirName() ); // good default
-
-	//Read params here, so we can look at the pars below
-	const FilePath fpdef( survdir, sKeyDefsFile );
-	si->getPars().read( fpdef.fullPath(), sKeySurvDefs, true );
+	si->getPars().useJSON( *defobj );
 	si->getPars().setName( sKeySurvDefs );
-
-	//Scrub away old settings (confusing to users)
+	const FilePath fplog( diskloc.fullPath(), sKeyLogFile );
 	si->getPars().removeWithKey( "Depth in feet" );
-
-	// Read log
-	const FilePath fplog( survdir, sKeyLogFile );
 	IOPar& logpars = si->getLogPars();
 	logpars.read( fplog.fullPath(), sKeySurvLog, true );
 	logpars.setName( sKeySurvLog );
 	if ( logpars.isEmpty() )
-	    logpars.set( sKey::Version(), astream.version() );
-	logpars.set( sKey::ModAt(), astream.timeStamp() );
+	    logpars.set( sKeyProjVersion(),
+				    obj.getStringValue(sKey::Version()) );
+
+	logpars.set( sKey::ModAt(), obj.getStringValue(sKey::ModAt()) );
     }
 
-    BufferString keyw = astream.keyWord();
-    IOPar coordsystempar;
-    while ( !atEndOfSection(astream) )
+    const BufferString datatype = obj.getStringValue( sKeySurvDataType() );
+    OD::Pol2D3D var;
+    if ( !parseEnumPol2D3D(datatype,var) )
+	var = OD::Both2DAnd3D;
+
+    si->setSurvDataType( var );
+    Survey::fillRangesFromObj( obj, *si );
+    si->tkzs_.normalize();
+    si->wcs_ = si->tkzs_;
+    si->seisrefdatum_ = obj.getDoubleValue( sKeySeismicRefDatum() );
+    Survey::fillSetPtsFromObj( obj, *si );
+    Survey::fillDirTransformFromObj( obj, *si );
+    auto* crsobj = obj.getObject( sKeyCRS() );
+    if ( crsobj )
     {
-	keyw = astream.keyWord();
-	if ( keyw == sKey::Name() )
-	    si->setName( astream.value() );
-	else if ( keyw == sKeyInlRange() )
-	{
-	    FileMultiString fms( astream.value() );
-	    si->tkzs_.hsamp_.start_.inl() = fms.getIValue( 0 );
-	    si->tkzs_.hsamp_.stop_.inl() = fms.getIValue( 1 );
-	    si->tkzs_.hsamp_.step_.inl() = fms.getIValue( 2 );
-	}
-	else if ( keyw == sKeyCrlRange() )
-	{
-	    FileMultiString fms( astream.value() );
-	    si->tkzs_.hsamp_.start_.crl() = fms.getIValue( 0 );
-	    si->tkzs_.hsamp_.stop_.crl() = fms.getIValue( 1 );
-	    si->tkzs_.hsamp_.step_.crl() = fms.getIValue( 2 );
-	}
-	else if ( keyw == sKeyZRange() )
-	{
-	    FileMultiString fms( astream.value() );
-	    si->tkzs_.zsamp_.start = fms.getFValue( 0 );
-	    si->tkzs_.zsamp_.stop = fms.getFValue( 1 );
-	    si->tkzs_.zsamp_.step = fms.getFValue( 2 );
-	    if ( Values::isUdf(si->tkzs_.zsamp_.step)
-	      || mIsZero(si->tkzs_.zsamp_.step,mDefEps) )
-		si->tkzs_.zsamp_.step = 0.004;
-	    if ( fms.size() > 3 )
-	    {
-		if ( *fms[3] == 'T' )
-		    si->zdef_ = ZDomain::Time();
-		else
-		{
-		    si->zdef_ = ZDomain::Depth();
-		    si->depthsinfeet_ = *fms[3] == 'F';
-		}
-	    }
-	}
-	else if ( keyw == sKeySurvDataType() )
-	{
-	    OD::Pol2D3D var;
-	    if ( !parseEnumPol2D3D( astream.value(), var ) )
-		var = OD::Both2DAnd3D;
-
-	    si->setSurvDataType( var );
-	}
-	else if ( keyw == sKeyXYInFt() )
-	    si->xyinfeet_ = astream.getYN();
-	else if ( keyw == sKeySeismicRefDatum() )
-	    si->seisrefdatum_ = astream.getFValue();
-	else if ( keyw.startsWith(sKey::CoordSys()) )
-	    coordsystempar.add( keyw, astream.value() );
-	else
-	    si->handleLineRead( keyw, astream.value() );
-
-	astream.next();
+	IOPar crspar;
+	crspar.useJSON( *crsobj );
+	si->coordsystem_ = Coords::CoordSystem::createSystem( crspar );
     }
-
-    PtrMan<IOPar> coordsyssubpar =
-	coordsystempar.subselect( sKey::CoordSys() );
-    if ( !coordsyssubpar )
-	coordsyssubpar = si->pars().subselect( sKey::CoordSys() );
-    if ( coordsyssubpar )
-	si->coordsystem_ =
-		Coords::CoordSystem::createSystem( *coordsyssubpar );
 
     if ( si->coordsystem_ )
 	si->xyinfeet_ = si->coordsystem_->isFeet();
     else
     {
+	const BufferString ll2cstr = obj.getStringValue( sKeyLatLongAnchor );
+	si->ll2c_.fromString( ll2cstr );
 	if ( si->ll2c_.isOK() )
 	{
 	    RefMan<Coords::AnchorBasedXY> anchoredsystem =
-			new Coords::AnchorBasedXY( si->ll2c_.refLatLong(),
-						   si->ll2c_.refCoord() );
+		new Coords::AnchorBasedXY( si->ll2c_.refLatLong(),
+		    si->ll2c_.refCoord() );
 	    anchoredsystem->setIsFeet( si->xyinfeet_ );
 	    si->coordsystem_ = anchoredsystem;
 	}
@@ -635,28 +808,184 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	if ( si->xyinfeet_ )
 	    si->depthsinfeet_ = true;
 	else
-	{
 	    si->depthsinfeet_ = false;
-	    si->getPars().getYN( sKeyDpthInFt(), si->depthsinfeet_ );
-	}
     }
 
-    si->tkzs_.normalize();
-    si->wcs_ = si->tkzs_;
 
+    return si.release();
+}
+
+
+SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
+{
+    ascistream astream( strm );
+    FilePath fp( strm.fileName() );
+    if ( !astream.isOfFileType(sKeySI) )
+    {
+	ret = tr("Survey definition file cannot be read.\n"
+	    "Survey file '%1' has file type '%2'.\n"
+	    "The file may be corrupt or not accessible.").
+				arg(fp.fullPath()).arg(astream.fileType());
+	ErrMsg( ret.getText() );
+	return nullptr;
+    }
+
+    OD::JSON::Object obj;
+    astream.next();
+    FilePath fpsurvdir( fp.dirUpTo(fp.nrLevels()-2) );
+    if ( fpsurvdir.isEmpty() )
+    {
+	ret = tr("Survey directory path is not valid or not specified");
+	return nullptr;
+    }
+
+    obj.set( sKeySurvDiskLoc(), fpsurvdir );
+    const FilePath fpdef( fpsurvdir.fullPath(), sKeyDefsFile );
+
+    IOPar defpars;
+    defpars.read( fpdef.fullPath(), sKeySurvDefs, true );
+    defpars.removeWithKey( "Depth in feet" );
+    OD::JSON::Object defobj;
+    defpars.fillJSON( defobj );
+    obj.set( sKeyDef(), new OD::JSON::Object(defobj) );
+    obj.set( sKeyProjVersion(), astream.version() );
+    obj.set( sKey::ModAt(), astream.timeStamp() );
+
+    BufferString keyw = astream.keyWord();
+    IOPar coordsystempar;
+    TrcKeyZSampling samp( false );
+    bool zistime = true;
+    bool zisfeet = false;
+    bool xyinfeet = false;
+    TypeSet<float> dirxset;
+    TypeSet<float> diryset;
+    TypeSet<BinID> bids;
+    TypeSet<Coord> crds;
+    while ( !atEndOfSection(astream) )
+    {
+	keyw = astream.keyWord();
+	if ( keyw == sKey::Name() )
+	    obj.set( sKey::Name(), astream.value() );
+	else if ( keyw == sKeyInlRange() )
+	{
+	    FileMultiString fms( astream.value() );
+	    samp.hsamp_.start_.inl() = fms.getIValue( 0 );
+	    samp.hsamp_.stop_.inl() = fms.getIValue( 1 );
+	    samp.hsamp_.step_.inl() = fms.getIValue( 2 );
+	}
+	else if ( keyw == sKeyCrlRange() )
+	{
+	    FileMultiString fms( astream.value() );
+	    samp.hsamp_.start_.crl() = fms.getIValue( 0 );
+	    samp.hsamp_.stop_.crl() = fms.getIValue( 1 );
+	    samp.hsamp_.step_.crl() = fms.getIValue( 2 );
+	}
+	else if ( keyw == sKeyZRange() )
+	{
+	    FileMultiString fms( astream.value() );
+	    samp.zsamp_.start = fms.getFValue( 0 );
+	    samp.zsamp_.stop = fms.getFValue( 1 );
+	    samp.zsamp_.step = fms.getFValue( 2 );
+	    if ( Values::isUdf(samp.zsamp_.step)
+	      || mIsZero(samp.zsamp_.step,mDefEps) )
+		samp.zsamp_.step = 0.004;
+	    if ( fms.size() > 3 )
+	    {
+		if ( *fms[3] == 'T' )
+		    zistime = true;
+		else
+		{
+		    zistime = false;
+		    zisfeet = *fms[3] == 'F';
+		}
+	    }
+	}
+	else if ( keyw == sKeySurvDataType() )
+	    obj.set( sKeySurvDataType(), astream.value() );
+	else if ( keyw == sKeyXYInFt() )
+	    xyinfeet = astream.getYN();
+	else if ( keyw == sKeySeismicRefDatum() )
+	{
+	    float refval = astream.getFValue();
+	    /*if ( zisfeet )
+		refval *= mToFeetFactorF;*/
+
+	    obj.set( sKeySeismicRefDatum(), refval );
+	}
+	else if ( keyw == sKeyXTransf )
+	{
+	    FileMultiString fms( astream.value() );
+	    dirxset.add( fms.getDValue(0) ).add( fms.getDValue(1) )
+						    .add( fms.getDValue(2) );
+	}
+	else if ( keyw == sKeyYTransf )
+	{
+	    FileMultiString fms( astream.value() );
+	    diryset.add( fms.getDValue(0) ).add( fms.getDValue(1) )
+		.add( fms.getDValue(2) );
+	}
+	else if ( keyw.startsWith(sKey::CoordSys()) )
+	    coordsystempar.add( keyw, astream.value() );
+	else if ( keyw == sKeyLatLongAnchor )
+	    obj.set( sKeyLatLongAnchor, astream.value() );
+	else if ( keyw.startsWith(sKeySetPt()) )
+	{
+	    const char* ptr = firstOcc( (const char*)keyw, '.' );
+	    if ( !ptr )
+		return nullptr;
+
+	    int ptidx = toInt( ptr + 1 ) - 1;
+	    if ( ptidx < 0 )
+		ptidx = 0;
+
+	    if ( ptidx > 3 )
+		ptidx = 2;
+
+	    FileMultiString fms( astream.value() );
+	    if ( fms.size() < 2 )
+		return nullptr;
+
+	    BinID bid;
+	    bid.fromString( fms[0] );
+	    bids.add( bid );
+	    Coord crd;
+	    crd.fromString( fms[1] );
+	    crds.add( crd );
+	}
+
+	astream.next();
+    }
+
+    Survey::fillObjFromRanges( samp, zistime, zisfeet, obj );
+    Survey::fillObjWithDirTransform( dirxset, diryset, obj );
+    Survey::fillObjWithSetPts( bids, crds, obj );
+    PtrMan<IOPar> coordsyssubpar =
+	coordsystempar.subselect( sKey::CoordSys() );
+    if ( coordsyssubpar )
+    {
+	OD::JSON::Object crsobj;
+	coordsyssubpar->fillJSON( crsobj );
+	obj.set( sKeyCRS(), new OD::JSON::Object(crsobj) );
+    }
+
+    const BufferString zstr = zistime ? getTimeUnitString( true, false ) :
+					getDistUnitString( zisfeet, false );
+    Survey::fillObjWithUnit( getDistUnitString(xyinfeet,false), zstr, obj );
     BufferString line;
+    BufferString comment;
     while ( astream.stream().getLine(line) )
     {
-	if ( !si->comment_.isEmpty() )
-	    si->comment_ += "\n";
-	si->comment_ += line;
+	if ( !comment.isEmpty() )
+	    comment += "\n";
+
+	comment += line;
     }
-    sfio.closeSuccess();
 
-    if ( !si->wrapUpRead() )
-    { delete si; return nullptr; }
+    if ( comment.isEmpty() )
+	obj.set( sKeyComments(), comment );
 
-    return si;
+
+    return readJSON( obj, ret );
 }
 
 
@@ -678,7 +1007,14 @@ bool SurveyInfo::wrapUpRead()
 }
 
 
-void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
+
+
+
+
+
+
+void SurveyInfo::handleTransformData( const BufferString& keyw,
+							    const char* val )
 {
     if ( keyw == sKeyXTransf )
 	setTr( rdxtr_, val );
@@ -686,15 +1022,23 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	setTr( rdytr_, val );
     else if ( keyw == sKeyLatLongAnchor )
 	ll2c_.fromString( val );
-    else if ( keyw.startsWith("Set Point") )
+    else if ( keyw.startsWith(sKeySetPt()) )
     {
 	const char* ptr = firstOcc( (const char*)keyw, '.' );
-	if ( !ptr ) return;
+	if ( !ptr )
+	    return;
+
 	int ptidx = toInt( ptr + 1 ) - 1;
-	if ( ptidx < 0 ) ptidx = 0;
-	if ( ptidx > 3 ) ptidx = 2;
+	if ( ptidx < 0 )
+	    ptidx = 0;
+
+	if ( ptidx > 3 )
+	    ptidx = 2;
+
 	FileMultiString fms( val );
-	if ( fms.size() < 2 ) return;
+	if ( fms.size() < 2 )
+	    return;
+
 	set3binids_[ptidx].fromString( fms[0] );
 	set3coords_[ptidx].fromString( fms[1] );
     }
@@ -1169,22 +1513,34 @@ void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& tr, const char* str )
 }
 
 
-void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& tr,
+void SurveyInfo::setTr( double a, double b, double c, bool isx )
+{
+    Pos::IdxPair2Coord::DirTransform& dirtr = isx ? rdxtr_ : rdytr_;
+    dirtr.a = a;
+    dirtr.b = b;
+    dirtr.c = c;
+}
+
+
+void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& dirtr,
 			  ascostream& astream, const char* key ) const
 {
     char buf[1024];
-    od_sprintf( buf, 1024, "%.10lg`%.10lg`%.10lg", tr.a, tr.b, tr.c );
+    od_sprintf( buf, 1024, "%.10lg`%.10lg`%.10lg", dirtr.a, dirtr.b, dirtr.c );
     astream.put( key, buf );
 }
 
 
 bool SurveyInfo::isRightHandSystem() const
-{ return get3DGeometry(false)->isRightHandSystem(); }
-
-
-bool SurveyInfo::write( const char* basedir ) const
 {
-    if ( !basedir ) basedir = GetBaseDataDir();
+    return get3DGeometry(false)->isRightHandSystem();
+}
+
+
+bool SurveyInfo::write( const char* basedir, bool isjson ) const
+{
+    if ( !basedir || !*basedir )
+	basedir = GetBaseDataDir();
 
     FilePath fp( basedir, disklocation_.dirName(), sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
@@ -1192,92 +1548,147 @@ bool SurveyInfo::write( const char* basedir ) const
     {
 	BufferString msg( "Cannot open survey info file for write!" );
 	if ( *sfio.errMsg() )
-	    { msg += "\n\t"; msg += sfio.errMsg(); }
+	{
+	    msg += "\n\t";
+	    msg += sfio.errMsg();
+	}
+
 	ErrMsg( msg );
 	return false;
     }
 
     od_ostream& strm = sfio.ostrm();
-    ascostream astream( strm );
-    if ( !astream.putHeader(sKeySI) )
+    OD::JSON::Object* jsonobj( nullptr );
+    if ( isjson )
     {
-	ErrMsg( "Cannot write to survey info file!" );
-	return false;
+	jsonobj = new OD::JSON::Object();
+	jsonobj->set( sKey::Name(), name() );
+	jsonobj->set( sKeySurvDataType(), getPol2D3DString(survDataType()) );
+
+	Survey::fillObjFromRanges( tkzs_, zIsTime(), zInFeet(), *jsonobj );
+
+	if ( !comment_.isEmpty() )
+	    jsonobj->set( sKeyComments(), comment_ );
+
+	writeSpecLines( nullptr, jsonobj );
     }
-
-    astream.put( sKey::Name(), name() );
-    astream.put( sKeySurvDataType(), getPol2D3DString( survDataType()) );
-    FileMultiString fms;
-    fms += tkzs_.hsamp_.start_.inl(); fms += tkzs_.hsamp_.stop_.inl();
-				fms += tkzs_.hsamp_.step_.inl();
-    astream.put( sKeyInlRange(), fms );
-    fms = "";
-    fms += tkzs_.hsamp_.start_.crl(); fms += tkzs_.hsamp_.stop_.crl();
-				fms += tkzs_.hsamp_.step_.crl();
-    astream.put( sKeyCrlRange(), fms );
-    fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
-    fms += tkzs_.zsamp_.step;
-    fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
-    astream.put( sKeyZRange(), fms );
-
-    writeSpecLines( astream );
-
-    astream.newParagraph();
-    const char* ptr = (const char*)comment_;
-    if ( *ptr )
+    else
     {
-	while ( 1 )
+	ascostream astream( strm );
+	if ( !astream.putHeader(sKeySI) )
 	{
-	    char* nlptr = const_cast<char*>( firstOcc( ptr, '\n' ) );
-	    if ( !nlptr )
-	    {
-		if ( *ptr )
-		    strm << ptr;
-		break;
-	    }
-	    *nlptr = '\0';
-	    strm << ptr << '\n';
-	    *nlptr = '\n';
-	    ptr = nlptr + 1;
+	    ErrMsg( "Cannot write to survey info file!" );
+	    return false;
 	}
-	strm << '\n';
+
+	astream.put( sKey::Name(), name() );
+	astream.put( sKeySurvDataType(), getPol2D3DString(survDataType()) );
+	FileMultiString fms;
+	fms += tkzs_.hsamp_.start_.inl(); fms += tkzs_.hsamp_.stop_.inl();
+				    fms += tkzs_.hsamp_.step_.inl();
+	astream.put( sKeyInlRange(), fms );
+	fms = "";
+
+	fms += tkzs_.hsamp_.start_.crl(); fms += tkzs_.hsamp_.stop_.crl();
+				    fms += tkzs_.hsamp_.step_.crl();
+	astream.put( sKeyCrlRange(), fms );
+
+	fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
+	fms += tkzs_.zsamp_.step;
+	fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+	astream.put( sKeyZRange(), fms );
+
+	writeSpecLines( &astream );
+	astream.newParagraph();
+	const char* ptr = (const char*)comment_;
+	if ( *ptr )
+	{
+	    while ( 1 )
+	    {
+		char* nlptr = const_cast<char*>( firstOcc( ptr, '\n' ) );
+		if ( !nlptr )
+		{
+		    if ( *ptr )
+			strm << ptr;
+		    break;
+		}
+		*nlptr = '\0';
+		strm << ptr << '\n';
+		*nlptr = '\n';
+		ptr = nlptr + 1;
+	    }
+	    strm << '\n';
+	}
+
+	if ( !strm.isOK() )
+	{
+	    sfio.closeFail();
+	    BufferString msg( "Error during write of survey info file!" );
+	    msg += strm.errMsg().getFullString();
+	    ErrMsg( msg );
+	    return false;
+	}
+	else if ( !sfio.closeSuccess() )
+	{
+	    BufferString msg( "Error closing survey info file:\n" );
+	    msg += sfio.errMsg();
+	    ErrMsg( msg );
+	    return false;
+	}
     }
 
-    if ( !strm.isOK() )
-    {
-	sfio.closeFail();
-	BufferString msg( "Error during write of survey info file!" );
-	msg += strm.errMsg().getFullString();
-	ErrMsg( msg );
-	return false;
-    }
-    else if ( !sfio.closeSuccess() )
-    {
-	BufferString msg( "Error closing survey info file:\n" );
-	msg += sfio.errMsg();
-	ErrMsg( msg );
-	return false;
-    }
-
-    fp.set( basedir ); fp.add( disklocation_.dirName() );
-    savePars( fp.fullPath() );
+    fp.set( basedir );
+    fp.add( disklocation_.dirName() );
+    savePars( fp.fullPath(), jsonobj );
     saveLog( fp.fullPath() );
+    if ( isjson )
+    {
+	const uiRetVal ret = jsonobj->write( strm, true );
+	if ( !sfio.closeSuccess() || ret.isError() )
+	{
+	    BufferString msg( "Error closing survey info file:\n" );
+	    msg += ret.isEmpty() ? sfio.errMsg() : ret.getText();
+	    ErrMsg( msg );
+	}
+    }
+
     return true;
 }
 
 
-void SurveyInfo::writeSpecLines( ascostream& astream ) const
+void SurveyInfo::writeSpecLines( ascostream* astream,
+						OD::JSON::Object* obj ) const
 {
-    putTr( b2c_.getTransform(true), astream, sKeyXTransf );
-    putTr( b2c_.getTransform(false), astream, sKeyYTransf );
+    if ( astream )
+    {
+	putTr( b2c_.getTransform(true), *astream, sKeyXTransf );
+	putTr( b2c_.getTransform(false), *astream, sKeyYTransf );
+    }
+    else if ( obj )
+	Survey::fillObjWithDirTransform( b2c_, *obj );
+
     FileMultiString fms;
+    OD::JSON::Array setarr( true );
+    TypeSet<BinID> bids;
+    TypeSet<Coord> crds;
     for ( int idx=0; idx<3; idx++ )
     {
-	SeparString ky( "Set Point", '.' );
-	ky += idx + 1;
-	fms = set3binids_[idx].toString();
-	fms += set3coords_[idx].toString();
-	astream.put( ky.buf(), fms.buf() );
+	BinID bid = set3binids_[idx];
+	Coord crd = set3coords_[idx];
+	if ( obj )
+	{
+	    bids.add( bid );
+	    crds.add( crd );
+	}
+	else if ( astream )
+	{
+	    SeparString ky( sKeySetPt(), '.' );
+	    ky += idx + 1;
+	    fms = set3binids_[idx].toString();
+	    fms += set3coords_[idx].toString();
+	    astream->put( ky.buf(), fms.buf() );
+	}
+
     }
 
     if ( coordsystem_ )
@@ -1285,17 +1696,45 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	IOPar par;
 	coordsystem_->fillPar( par );
 	IOParIterator iter( par );
-	BufferString key, val, buf;
-	while ( iter.next(key,val) )
-	    astream.put( IOPar::compKey(sKey::CoordSys(),key), val );
+	if ( obj )
+	{
+	    par.removeWithKey( "XY in Feet" );
+	    OD::JSON::Object crsobj;
+	    par.fillJSON( crsobj );
+	    obj->set( sKeyCRS(), new OD::JSON::Object(crsobj) );
+	}
+	else if ( astream )
+	{
+	    BufferString key, val, buf;
+	    while ( iter.next(key,val) )
+		astream->put( IOPar::compKey(sKey::CoordSys(),key), val );
+	}
     }
-    else
-	astream.putYN( sKeyXYInFt(), xyinfeet_ );
+    else if ( !obj )
+	astream->putYN( sKeyXYInFt(), xyinfeet_ );
 
-    if ( ll2c_.isOK() )
-	astream.put( sKeyLatLongAnchor, ll2c_.toString() );
-    astream.putYN( sKeyXYInFt(), xyInFeet() );
-    astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
+    if ( obj )
+    {
+	Survey::fillObjWithSetPts( bids, crds, *obj );
+	float fac = 1.f;
+	float seisrefval = seisrefdatum_;
+	/*if ( zInFeet() )
+	    seisrefval *= mToFeetFactorF;*/
+
+	obj->set( sKeySeismicRefDatum(), seisrefval );
+	Survey::fillObjWithUnit( getXYUnitString(false),
+			    getUiZUnitString(false).getFullString(), *obj );
+	if ( ll2c_.isOK() )
+	    obj->set( sKeyLatLongAnchor, ll2c_.toString() );
+
+    }
+    else if ( astream )
+    {
+	astream->putYN( sKeyXYInFt(), xyInFeet() );
+	astream->put( sKeySeismicRefDatum(), seisrefdatum_ );
+	if ( ll2c_.isOK() )
+	    astream->put( sKeyLatLongAnchor, ll2c_.toString() );
+    }
 }
 
 
@@ -1310,8 +1749,17 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     return; \
 }
 
-void SurveyInfo::savePars( const char* basedir ) const
+
+void SurveyInfo::savePars( const char* basedir, OD::JSON::Object* obj  ) const
 {
+    if ( obj )
+    {
+	OD::JSON::Object defobj;
+	pars_.fillJSON( defobj );
+	obj->set( sKeyDef(), new OD::JSON::Object(defobj) );
+	return;
+    }
+
     BufferString surveypath;
     if ( !basedir || !*basedir )
     {
@@ -1325,10 +1773,12 @@ void SurveyInfo::savePars( const char* basedir ) const
     if ( pars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )
-	    File::remove( defsfnm );
+	    File::remove(defsfnm);
     }
-    else if ( !pars_.write(defsfnm,sKeySurvDefs) )
-	uiErrMsg( defsfnm )
+    else if ( !pars_.write(defsfnm, sKeySurvDefs) )
+	uiErrMsg(defsfnm)
+
+
 }
 
 

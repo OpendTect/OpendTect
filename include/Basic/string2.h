@@ -148,6 +148,9 @@ mGlobal(Basic) const char* getYesNoString(bool);
 	/*!< returns ptr to static buffer with "yes" or "No". */
 mGlobal(Basic) const char* getDistUnitString(bool isfeet,bool withparentheses);
 	/*!< returns ptr to static buffer with "m" or "ft" */
+mGlobal(Basic) const char* getTimeUnitString(bool internstand,
+							bool withparantheses);
+	/*!< returns ptr to time string in "s" or "ms"*/
 mGlobal(Basic) const char* getVelUnitString(bool isfeet,bool withparentheses);
 	/*!< returns ptr to static buffer with "m/s" or "ft/s" */
 
