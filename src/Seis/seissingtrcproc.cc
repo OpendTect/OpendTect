@@ -518,12 +518,9 @@ void SeisSingleTraceProc::wrapUp()
 {
     currdridx_ = -1;
     if ( wrr_ )
-	wrr_->setGeomIDProvider( nullptr ); //Before the readers are deleted
-
-    deepErase( rdrs_ );
-    if ( wrr_ )
 	wrr_->close();
 
+    deepErase( rdrs_ );
     deleteAndNullPtr( wrr_ );
 }
 
