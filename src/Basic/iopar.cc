@@ -704,13 +704,15 @@ mDefGetFVals(double)
 template <class T>
 static bool iopget_typeset( const IOPar& iop, const char* keyw, TypeSet<T>& res)
 {
-    mGetStartNotEmptyOn(iop,pval);
+    BufferString val = iop.find( keyw );
+    if ( val.isEmpty() )
+	return false;
 
     res.erase();
     int keyidx = 0;
-    while ( pval && *pval )
+    while ( !val.isEmpty() )
     {
-	FileMultiString fms( pval );
+	FileMultiString fms( val.buf() );
 	const int len = fms.size();
 	for ( int idx=0; idx<len; idx++ )
 	{
@@ -720,8 +722,7 @@ static bool iopget_typeset( const IOPar& iop, const char* keyw, TypeSet<T>& res)
 	}
 
 	keyidx++;
-	const BufferString findval = iop.find( IOPar::compKey(keyw, keyidx) );
-	pval = findval.str();
+	val = iop.find( IOPar::compKey(keyw, keyidx) );
     }
 
     return true;
