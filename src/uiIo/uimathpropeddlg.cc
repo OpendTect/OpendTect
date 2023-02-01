@@ -31,7 +31,6 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 	 .stortype( "Math Property" )
 	 .maxnrinps(8);
     formfld_ = new uiMathFormula( this, prop_.getForm(), umfsu );
-    mAttachCB( formfld_->inpSet, uiMathPropEdDlg::inpSel );
 
     BufferStringSet availpropnms;
     MnemonicSelection mnsel;
@@ -61,20 +60,6 @@ uiMathPropEdDlg::~uiMathPropEdDlg()
 }
 
 
-void uiMathPropEdDlg::inpSel( CallBacker* cb )
-{
-    mDynamicCastGet(uiMathExpressionVariable*,inpfld,cb);
-    if ( !inpfld || !inpfld->isActive() ||
-	  inpfld->isConst() || inpfld->isSpec() )
-	return;
-
-    const BufferString inpnm( inpfld->getInput() );
-    const PropertyRef* pr = prs_.getByName( inpnm );
-    if ( pr )
-	inpfld->setSelUnit( pr->unit() );
-}
-
-
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(uiStrings::sRockPhy(),
@@ -88,11 +73,10 @@ void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 	return;
     }
 
-    if ( !dlg.go() || !rpffld->getFormulaInfo(prop_.getForm()) )
+    if ( !dlg.go() )
 	return;
 
-    formfld_->setFixedFormUnits( true );
-    formfld_->useForm();
+    rpffld->getFormulaInfo( prop_.getForm() );
 }
 
 

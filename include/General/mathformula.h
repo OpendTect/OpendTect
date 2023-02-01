@@ -76,7 +76,7 @@ in IOPar, but this is aso required if there are constants in the expression.
 */
 
 
-mExpClass(General) Formula : public NamedObject
+mExpClass(General) Formula : public NamedCallBacker
 {
 public:
 
@@ -112,7 +112,7 @@ public:
 						      && !text_.isEmpty(); }
     const char*		errMsg() const		{ return errmsg_; }
 
-    const char*		text() const		{ return text_; }
+    const char*		text() const		{ return text_.buf(); }
     int			nrInputs() const    { return inps_.size(); }
     const char*		variableName( int iinp ) const
 					    { return inps_[iinp]->varname_; }
@@ -201,6 +201,8 @@ public:
 
     bool		isCompatibleWith(const Mnemonic&,
 				 const MnemonicSelection* inps=nullptr) const;
+
+    Notifier<Formula>	allChanged;
 
     static const char*	sKeyExpression()	{ return "Expression"; }
     static const char*	sKeyRecStartVals()	{ return "Recursion start"; }

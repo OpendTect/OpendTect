@@ -18,7 +18,6 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
-class uiMathExpressionVariable;
 class uiMathFormula;
 class uiToolButton;
 class uiUnitSel;
@@ -78,8 +77,6 @@ protected:
     void		getAllLogs();
     bool		useForm();
     Well::Log*		getLog4InpIdx(Well::LogSet&,const char* lognm);
-    void		setUnits4Log(const char* lognm,
-				     uiMathExpressionVariable&);
     void		fillSRFld(const char* lognm);
 
     bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&,uiString&);
@@ -92,7 +89,6 @@ protected:
     void		rockPhysReq(CallBacker*);
     void		inpSel(CallBacker*);
     void		formMnSet(CallBacker*);
-    void		formUnitSel(CallBacker*);
     void		feetSel(CallBacker*);
     void		vwLog(CallBacker*);
     void		viewOutputCB(CallBacker*);

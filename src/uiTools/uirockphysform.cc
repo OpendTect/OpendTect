@@ -98,7 +98,7 @@ void update( const RockPhysics::Formula& form, int iinp )
 
 
 
-uiRockPhysForm::uiRockPhysForm( uiParent* p )
+uiRockPhysForm::uiRockPhysForm( uiParent* p, Mnemonic::StdType deftyp )
     : uiGroup(p,"RockPhysics Formula Selector")
 {
     BufferStringSet typnms( Mnemonic::StdTypeNames() );
@@ -119,7 +119,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     }
 
     const int defidx = typnms.indexOf(
-		    Mnemonic::StdTypeDef().getKeyForIndex( Mnemonic::Imp ) );
+		       Mnemonic::StdTypeDef().getKeyForIndex( deftyp ) );
 
     auto* lcb = new uiLabeledComboBox( this, typnms, tr("Property Type") );
     typfld_ = lcb->box();

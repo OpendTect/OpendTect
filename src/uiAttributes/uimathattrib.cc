@@ -44,8 +44,8 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     mfsu.withunits( false ).maxnrinps( 8 ).withsubinps( true )
 	.stortype( "Attribute calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
-//  formfld_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
-    formfld_->inpSet.notify( mCB(this,uiMathAttrib,inpSel) );
+//    mAttachCB( formfld_->formSet, uiMathAttrib::formSel );
+    mAttachCB( formfld_->inpSet, uiMathAttrib::inpSel );
     updateNonSpecInputs();
     const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Use rockphysics formula"),
@@ -57,6 +57,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
 uiMathAttrib::~uiMathAttrib()
 {
+    detachAllNotifiers();
     delete &form_;
 }
 
@@ -125,10 +126,10 @@ void uiMathAttrib::rockPhysReq( CallBacker* )
     uiDialog rpdlg( this, uiDialog::Setup(uiStrings::sRockPhy(),mNoDlgTitle,
 					  mODHelpKey(mrockPhysReqHelpID)) );
     auto* rpform = new uiRockPhysForm( &rpdlg );
-    if ( !rpdlg.go() || !rpform->getFormulaInfo(form_) )
+    if ( !rpdlg.go() )
 	return;
 
-    formfld_->useForm();
+    rpform->getFormulaInfo( form_ );
 }
 
 

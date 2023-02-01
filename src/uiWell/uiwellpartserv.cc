@@ -544,7 +544,8 @@ uiWellRockPhysLauncher( uiParent* p )
 		mODHelpKey(mWellRockPhysLauncherHelpID)))
 {
     selgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
-			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne)
+				.allowsetdefault(true) );
 }
 
 bool acceptOK( CallBacker* ) override

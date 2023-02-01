@@ -32,7 +32,6 @@ protected:
     const PropertyRefSelection& prs_;
 
     void		rockPhysReq(CallBacker*);
-    void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 
 };

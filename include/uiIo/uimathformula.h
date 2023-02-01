@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "mnemonics.h"
 
 class uiButton;
+class uiCheckBox;
+class uiComboBox;
+class uiLabel;
 class uiMathExpression;
 class uiMathExpressionVariable;
 class uiMnemonicsSel;
@@ -56,11 +59,9 @@ public:
 			~uiMathFormula();
 
     bool		setText(const char*);
-    bool		useForm();
     void		setNonSpecInputs(const BufferStringSet&,int iinp=-1,
 					 const MnemonicSelection* =nullptr);
     void		setNonSpecSubInputs(const BufferStringSet&,int iinp=-1);
-    void		setFixedFormUnits( bool yn )	{ fixedunits_ = yn; }
 
     const char*		text() const;
     bool		updateForm() const;
@@ -78,8 +79,7 @@ public:
 
     Notifier<uiMathFormula> inpSet;
     Notifier<uiMathFormula> subInpSet;
-    Notifier<uiMathFormula> formMnSet;
-    Notifier<uiMathFormula> formUnitSet;
+    CNotifier<uiMathFormula,const Mnemonic*> formMnSet;
 
     uiMathExpression*	exprFld()		{ return exprfld_; }
     int			nrInpFlds() const	{ return inpflds_.size(); }
@@ -91,29 +91,48 @@ private:
 			mOD_DisableCopy(uiMathFormula);
 
     Math::Formula&	form_;
-    uiMathExpression*	exprfld_;
-    MnemonicSelection*	mnsel_ = nullptr;
-    ObjectSet<uiMathExpressionVariable> inpflds_;
-    uiMnemonicsSel*	mnselfld_ = nullptr;
-    uiUnitSel*		unitfld_ = nullptr;
-    bool		fixedunits_ = false;
-    uiToolButton*	recbut_ = nullptr;
-
     Setup		setup_;
     TypeSet<double>	recvals_;
 
+    uiMathExpression*	exprfld_;
+    MnemonicSelection*	mnsel_ = nullptr;
+    uiToolButton*	recbut_ = nullptr;
+    bool		fullformupdate_ = false;
+    uiLabel*		formlbl_ = nullptr;
+    ObjectSet<uiMathExpressionVariable> inpflds_;
+
+    uiLabel*		formreslbl_ = nullptr;
+    uiComboBox*		typfld_ = nullptr;
+    ObjectSet<uiMnemonicsSel> mnselflds_;
+    ObjectSet<uiUnitSel> unitflds_;
+    uiCheckBox*		selectunitsfld_ = nullptr;
+
+    Mnemonic::StdType	getOutputStdType() const;
+    const uiMnemonicsSel* getMnSelFld() const;
+    const uiUnitSel*	getUnitSelFld() const;
+    void		setFormMnemonic(const Mnemonic&,bool dispyn);
+    uiMnemonicsSel*	getMnSelFld();
+    uiUnitSel*		getUnitSelFld();
+
     BufferString	getIOFileName(bool forread);
     bool		setNotifInpNr(const CallBacker*,int& inpnr);
+    void		addFormOutputsDefs();
+    bool		guessFormula(Math::Formula&);
     void		guessInputFormDefs();
-    bool		guessOutputFormDefs();
-    bool		setOutputDefsFromForm();
+    void		guessOutputFormDefs();
+    bool		setOutputDefsFromForm(bool hasfixedunits);
+    bool		putToScreen();
+    bool		hasFixedUnits() const;
 
-    void		initFlds(CallBacker*);
+    void		initGrp(CallBacker*);
+    void		formChangedCB(CallBacker*);
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);
     void		subInpSetCB(CallBacker*);
+    void		formTypeSetCB(CallBacker*);
     void		formMnSetCB(CallBacker*);
     void		formUnitSetCB(CallBacker*);
+    void		chooseUnitsCB(CallBacker*);
     void		recButPush(CallBacker*);
     void		readReq(CallBacker*);
     void		writeReq(CallBacker*);
@@ -122,4 +141,10 @@ public:
 
     mDeprecated("Use MnemonicSelection")
     bool		useForm(const TypeSet<Mnemonic::StdType>*);
+
+    mDeprecated("Use Math::Formula::allChanged")
+    bool		useForm();
+
+    mDeprecatedObs
+    void		setFixedFormUnits(bool)			{}
 };

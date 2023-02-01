@@ -163,26 +163,29 @@ Interval<int> Math::Formula::InpDef::shftRg() const
 
 
 Math::Formula::Formula( bool inpseries, const char* txt )
-    : NamedObject("")
+    : NamedCallBacker("")
     , specvars_(&SpecVarSet::getEmpty())
     , inputsareseries_(inpseries)
+    , allChanged(this)
 {
     setText( txt );
 }
 
 
 Math::Formula::Formula( bool inpseries, const SpecVarSet& svs, const char* txt )
-    : NamedObject("")
+    : NamedCallBacker("")
     , specvars_(&svs)
     , inputsareseries_(inpseries)
+    , allChanged(this)
 {
     setText( txt );
 }
 
 
 Math::Formula::Formula( const Math::Formula& oth )
-    : NamedObject("")
+    : NamedCallBacker("")
     , inputsareseries_(true)
+    , allChanged(this)
 {
     *this = oth;
 }
@@ -256,6 +259,7 @@ Math::Formula& Math::Formula::operator =( const Math::Formula& oth )
 	recshifts_ = oth.recshifts_;
 	validxs_ = oth.validxs_;
 	prevvals_ = oth.prevvals_;
+	allChanged.trigger();
     }
     return *this;
 }

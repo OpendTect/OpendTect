@@ -116,7 +116,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     setOkCancelText( uiStrings::sCalculate(), uiStrings::sClose() );
 
-    uiMathFormula::Setup mfsu( tr("Formula (like 'den / son')") );
+    uiMathFormula::Setup mfsu( tr("Formula (like 'den / sonic')") );
     mfsu.stortype( "Log calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->addInpViewIcon( "view_log", "Display this log",
@@ -124,7 +124,6 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->setNonSpecInputs( lognms_, -1, &mnsel_ );
     mAttachCB( formfld_->inpSet, uiWellLogCalc::inpSel );
     mAttachCB( formfld_->formMnSet, uiWellLogCalc::formMnSet );
-    mAttachCB( formfld_->formUnitSet, uiWellLogCalc::formUnitSel );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Choose rockphysics formula"),
 			    rockphyscb, uiStrings::sRockPhy() );
@@ -261,12 +260,13 @@ class uiWellLogCalcRockPhys : public uiDialog
 { mODTextTranslationClass(uiWellLogCalcRockPhys);
 public:
 
-uiWellLogCalcRockPhys( uiParent* p )
+uiWellLogCalcRockPhys( uiParent* p, Mnemonic::StdType typ )
     : uiDialog(p, uiDialog::Setup(uiStrings::sRockPhy(),
 				  tr("Use a rock physics formula"),
 				  mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 {
-    formgrp_ = new uiRockPhysForm( this );
+    formgrp_ = typ == Mnemonic::Other ? new uiRockPhysForm( this )
+				      : new uiRockPhysForm( this, typ );
 }
 
 bool acceptOK( CallBacker* ) override
@@ -290,12 +290,13 @@ bool getFormulaInfo( Math::Formula& form ) const
 
 void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
-    uiWellLogCalcRockPhys dlg( this );
-    if ( !dlg.go() || !dlg.getFormulaInfo(form_) )
+    const Mnemonic* mn = form_.outputMnemonic();
+    const Mnemonic::StdType typ = mn ? mn->stdType() : Mnemonic::Other;
+    uiWellLogCalcRockPhys dlg( this, typ );
+    if ( !dlg.go() )
 	return;
 
-    formfld_->setFixedFormUnits( true );
-    formfld_->useForm();
+    dlg.getFormulaInfo( form_ );
 }
 
 
@@ -313,17 +314,6 @@ void uiWellLogCalc::feetSel( CallBacker* )
 Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, const char* lognm )
 {
     return wls.getLog( lognm );
-}
-
-
-void uiWellLogCalc::setUnits4Log( const char* lognm,
-				  uiMathExpressionVariable& inpfld )
-{
-    const Well::Log* wl = getLog4InpIdx( superwls_, lognm );
-    if ( !wl )
-	{ pErrMsg("Huh"); return; }
-
-    inpfld.setSelUnit( wl->unitOfMeasure() );
 }
 
 
@@ -355,17 +345,16 @@ void uiWellLogCalc::inpSel( CallBacker* cb )
     const BufferString inpnm( inpfld->getInput() );
 
     fillSRFld( inpnm.buf() );
-    setUnits4Log( inpnm.buf(), *inpfld );
 }
 
 
 void uiWellLogCalc::formMnSet( CallBacker* cb )
 {
-    mDynamicCastGet(uiMnemonicsSel*,uimnselfld,cb)
-    if ( !uimnselfld )
+    if ( !cb || !cb->isCapsule() )
 	return;
 
-    const Mnemonic* mn = uimnselfld->mnemonic();
+    mCBCapsuleUnpack(const Mnemonic*,mn,cb);
+    const bool isfixed = mn;
     if ( !mn )
 	mn = &Mnemonic::undef();
 
@@ -373,18 +362,10 @@ void uiWellLogCalc::formMnSet( CallBacker* cb )
     const UnitOfMeasure* mnunit = mn->unit();
     outunfld_->setPropType( mn->stdType() );
     if ( (prevoutuom && mnunit && !prevoutuom->isCompatibleWith(*mnunit)) ||
-	  !uimnselfld->sensitive() )
+	  isfixed )
 	outunfld_->setUnit( mnunit );
-}
-
-
-void uiWellLogCalc::formUnitSel( CallBacker* cb )
-{
-    mDynamicCastGet(uiUnitSel*,unitfld,cb);
-    if ( !unitfld )
-	return;
-
-    //TODO: Record and use last user preference?
+    else if ( mn->isUdf() )
+	outunfld_->setUnit( (const UnitOfMeasure*)nullptr );
 }
 
 

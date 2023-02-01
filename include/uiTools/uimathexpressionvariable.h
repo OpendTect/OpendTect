@@ -40,7 +40,7 @@ public:
 					 const MnemonicSelection* =nullptr);
     void		setNonSpecSubInputs(const BufferStringSet&);
 
-    virtual void	use(const Math::Formula&,bool fixedunits=false);
+    virtual void	use(const Math::Formula&,bool hasfixedunits =false);
     virtual void	use(const Math::Expression*);
 
     int			varIdx() const		{ return varidx_; }
@@ -55,25 +55,21 @@ public:
     const char*		getInput() const;
     const Mnemonic*	getMnemonic() const	{ return curmn_; }
     const char*		getDescription() const	{ return vardesc_.buf(); }
+    uiLabel*		getFormLbl() const	{ return formlbl_; }
     const UnitOfMeasure* getUnit() const;
     void		fill(Math::Formula&) const;
     BufferStringSet	getInputNms(const Mnemonic* =nullptr,
 				    bool sub=false) const;
 
-    void		selectInput(const char*,bool exact=false);
     void		selectSubInput(int);
-    void		setSelUnit(const UnitOfMeasure*);
-			//!<unit of selected variable
     void		setFormType(const Mnemonic&);
 			//!<Mnemonic required by formula
-    void		setFormUnit(const UnitOfMeasure*,bool sensitiveyn);
+    void		setFormUnit(const UnitOfMeasure*,bool dispyn);
 			//!<unit required by formula
-
 
     Notifier<uiMathExpressionVariable> inpSel;
     Notifier<uiMathExpressionVariable> subInpSel;
 
-    uiGroup*		rightMostField();
     const uiToolButton*	viewBut() const		{ return vwbut_; }
 
 protected:
@@ -102,16 +98,19 @@ protected:
     uiComboBox*		inpfld_;
     uiComboBox*		subinpfld_	= nullptr;
     uiGenInput*		constfld_;
-    uiLabel*		unitlbl_	= nullptr;
-    uiLineEdit*		selunfld_	= nullptr;
+    uiToolButton*	vwbut_		= nullptr;
     uiLabel*		formlbl_	= nullptr;
     uiUnitSel*		unfld_		= nullptr;
-    uiToolButton*	vwbut_		= nullptr;
 
-    void		updateDisp();
+    void		selectInput(const char*,bool exact=false,
+				    bool hasfixedunits =false);
+    bool		isFormUnitDisplayed() const;
+    void		updateDisp(bool hasfixedunits =false);
     void		updateInpNms(bool sub);
+    void		displayUnitFld(bool yn);
     void		setActive(bool);
-    void		setVariable(const char*,bool cst);
+    void		setVariable(const char*,bool cst,
+				    bool hasfixedunits);
 
 public:
 
@@ -122,5 +121,9 @@ public:
 			{ setFormUnit( uom, true ); }
     mDeprecated("Provide a Mnemonic object")
     void		setPropType(Mnemonic::StdType);
+    mDeprecatedObs
+    void		setSelUnit(const UnitOfMeasure*);
+    mDeprecatedObs
+    uiGroup*		rightMostField()		{ return nullptr; }
 
 };

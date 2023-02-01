@@ -25,7 +25,8 @@ mExpClass(uiTools) uiRockPhysForm : public uiGroup
 { mODTextTranslationClass(uiRockPhysForm);
 public:
 
-			uiRockPhysForm(uiParent*);
+			uiRockPhysForm(uiParent*,
+				       Mnemonic::StdType =Mnemonic::Imp);
 			uiRockPhysForm(uiParent*,const Mnemonic&);
 			~uiRockPhysForm();
 
