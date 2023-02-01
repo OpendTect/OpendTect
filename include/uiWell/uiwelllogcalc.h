@@ -78,6 +78,7 @@ protected:
     void		getAllLogs();
     bool		useForm();
     Well::Log*		getLog4InpIdx(Well::LogSet&,const char* lognm);
+    mDeprecatedObs
     void		setUnits4Log(const char* lognm,
 				     uiMathExpressionVariable&);
     void		fillSRFld(const char* lognm);
@@ -92,6 +93,7 @@ protected:
     void		rockPhysReq(CallBacker*);
     void		inpSel(CallBacker*);
     void		formMnSet(CallBacker*);
+    mDeprecatedObs
     void		formUnitSel(CallBacker*);
     void		feetSel(CallBacker*);
     void		vwLog(CallBacker*);

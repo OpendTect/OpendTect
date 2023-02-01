@@ -58,19 +58,13 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     constfld_->attach( alignedWith, inpfld_ );
     if ( withunit )
     {
-	selunfld_ = new uiLineEdit( this, sKey::Unit() );
-	selunfld_->setReadOnly();
-	selunfld_->attach( rightOf, inpgrp_ );
-
 	uiUnitSel::Setup uussu( Mnemonic::Other );
-	uussu.mode( uiUnitSel::Setup::SymbolsOnly );
+	uussu.mode( uiUnitSel::Setup::SymbolsOnly )
+	     .withnone(true ).variableszpol( true );
 	unfld_ = new uiUnitSel( this, uussu );
-	unfld_->attach( rightOf, selunfld_ );
-
+	unfld_->attach( rightOf, inpgrp_ );
 	if ( varidx==0 )
 	{
-	    unitlbl_ = new uiLabel( this, tr("Input unit") );
-	    unitlbl_->attach( alignedAbove, selunfld_ );
 	    formlbl_ = new uiLabel( this, tr("Formula requires") );
 	    formlbl_->attach( alignedAbove, unfld_ );
 	}
@@ -90,7 +84,7 @@ uiMathExpressionVariable::~uiMathExpressionVariable()
 
 
 void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
-						const CallBack& cb )
+					       const CallBack& cb )
 {
     vwbut_ = new uiToolButton( inpgrp_, icnm, mToUiStringTodo(tt), cb );
     vwbut_->attach( rightOf, subinpfld_ ? subinpfld_ : inpfld_ );
@@ -167,10 +161,7 @@ void uiMathExpressionVariable::setNonSpecSubInputs( const BufferStringSet& nms )
 
 uiGroup* uiMathExpressionVariable::rightMostField()
 {
-    if ( unfld_ )
-	return unfld_;
-
-    return inpgrp_;
+    return nullptr;
 }
 
 
@@ -181,25 +172,26 @@ void uiMathExpressionVariable::showHideVwBut( CallBacker* )
 }
 
 
-void uiMathExpressionVariable::updateDisp()
+void uiMathExpressionVariable::updateDisp( bool hasfixedunits )
 {
     constfld_->display( isActive() && isConst() );
     bool dodisp = isActive() && !isConst();
-    inpfld_->display( dodisp );
     inplbl_->display( dodisp );
+    inpfld_->display( dodisp );
     if ( subinpfld_ )
 	subinpfld_->display( dodisp && !nonspecsubinputs_.isEmpty() );
 
     if ( unfld_ )
     {
 	if ( isSpec() )
-	    dodisp = dodisp && specvars_.hasUnits(specidx_);
-	selunfld_->display( dodisp );
-	unfld_->display( dodisp );
-	if ( unitlbl_ )
-	    unitlbl_->display( dodisp );
-	if ( formlbl_ )
-	    formlbl_->display( dodisp );
+	    dodisp = dodisp && specvars_.hasUnits( specidx_ );
+
+	if ( unfld_ )
+	{
+	    unfld_->display( dodisp );
+	    if ( dodisp )
+		displayUnitFld( !hasfixedunits );
+	}
     }
 
     showHideVwBut();
@@ -213,6 +205,13 @@ void uiMathExpressionVariable::setActive( bool yn )
 
 
 void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
+{
+    return setVariable( varnm, isconst, false );
+}
+
+
+void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst,
+					    bool hasfixedunits )
 {
     setActive( true );
     isconst_ = isconst;
@@ -243,7 +242,7 @@ void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
 
     inpfld_->setSensitive( issens );
 
-    updateDisp();
+    updateDisp( hasfixedunits );
 }
 
 
@@ -257,11 +256,13 @@ void uiMathExpressionVariable::use( const Math::Expression* expr )
 
     const int varidx = expr->indexOfUnVarName( expr->uniqueVarName(varidx_) );
     curmn_ = nullptr;
-    setVariable( varnm, expr->getType(varidx) == Math::Expression::Constant );
+    setVariable( varnm, expr->getType(varidx) == Math::Expression::Constant,
+		 false );
 }
 
 
-void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits)
+void uiMathExpressionVariable::use( const Math::Formula& form,
+				    bool hasfixedunits )
 {
     specvars_ = form.specVars();
     varnm_.setEmpty();
@@ -271,7 +272,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits)
 
     const BufferString varnm = form.variableName( varidx_ );
     curmn_ = form.inputMnemonic( varidx_ );
-    setVariable( varnm, form.isConst( varidx_ ) );
+    setVariable( varnm, form.isConst( varidx_ ), hasfixedunits );
     const BufferString inpdef( form.inputDef(varidx_) );
     const BufferString inpdesc( form.inputDescription(varidx_) );
     const bool isspec = isSpec();
@@ -288,13 +289,20 @@ void uiMathExpressionVariable::use( const Math::Formula& form, bool fixedunits)
 	    unfld_->setMnemonic( formmn );
     }
     else if ( !isspec )
-	selectInput( inpdef );
+	selectInput( inpdef, false, hasfixedunits );
 
     vardescparammgr_.getParam( this )->set( inpdesc );
 }
 
 
 void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
+{
+    selectInput( inpnm, exact, false );
+}
+
+
+void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact,
+					    bool hasfixedunits )
 {
     if ( !inpnm ) inpnm = "";
     const Math::Expression::VarType vartp =
@@ -307,7 +315,7 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     }
 
     isconst_ = false;
-    updateDisp();
+    updateDisp( hasfixedunits );
     BufferString varnm( inpnm ), subnm;
     if ( subinpfld_ )
     {
@@ -357,7 +365,11 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     }
 
     if ( isfound )
+    {
 	inpfld_->setCurrentItem( varnm.buf() );
+	if ( curmn_ )
+	    setFormType( *curmn_ );
+    }
 
     inpChg( nullptr );
     if ( subinpfld_ )
@@ -390,7 +402,34 @@ const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
 {
     if ( !unfld_ || !unfld_->mainObject()->isDisplayed() )
 	return nullptr;
+
     return unfld_->getUnit();
+}
+
+
+void uiMathExpressionVariable::displayUnitFld( bool yn )
+{
+    if ( !unfld_ )
+	return;
+
+#ifdef __debug__
+    unfld_->setSensitive( yn );
+#else
+    unfld_->display( yn );
+#endif
+}
+
+
+bool uiMathExpressionVariable::isFormUnitDisplayed() const
+{
+    if ( !unfld_ || !isActive() || !unfld_->isDisplayed() )
+	return false;
+
+#ifdef __debug__
+    return unfld_->sensitive();
+#else
+    return true;
+#endif
 }
 
 
@@ -407,10 +446,7 @@ void uiMathExpressionVariable::fill( Math::Formula& form ) const
 
 
 void uiMathExpressionVariable::setSelUnit( const UnitOfMeasure* uom )
-{
-    if ( selunfld_ )
-	selunfld_->setText( UnitOfMeasure::getUnitLbl( uom, "-" ) );
-}
+{}
 
 
 void uiMathExpressionVariable::setFormType( const Mnemonic& mn )
@@ -420,26 +456,35 @@ void uiMathExpressionVariable::setFormType( const Mnemonic& mn )
 
     curmn_ = &mn;
     if ( unfld_ )
+    {
 	unfld_->setMnemonic( mn );
+	if ( !mn.isUdf() )
+	    unfld_->setPropType( mn.stdType() );
+    }
 }
 
 
 void uiMathExpressionVariable::setFormUnit( const UnitOfMeasure* uom,
-					    bool dosensitive )
+					    bool dodispyn )
 {
     if ( !unfld_ )
 	return;
 
     unfld_->setUnit( uom );
-    unfld_->setSensitive( dosensitive );
+    if ( isFormUnitDisplayed() == dodispyn )
+	return;
+
+    displayUnitFld( dodispyn );
 }
 
 
 void uiMathExpressionVariable::setUnit( const char* nm )
 {
+    if ( !unfld_ )
+	return;
+
     const UnitOfMeasure* uom = UoMR().get( nm );
-    setFormUnit( uom, true );
-    unfld_->setSensitive( !uom );
+    setFormUnit( uom, !uom );
 }
 
 

@@ -32,6 +32,7 @@ protected:
     const PropertyRefSelection& prs_;
 
     void		rockPhysReq(CallBacker*);
+    mDeprecatedObs
     void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 

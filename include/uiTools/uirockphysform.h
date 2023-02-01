@@ -26,6 +26,8 @@ mExpClass(uiTools) uiRockPhysForm : public uiGroup
 public:
 
 			uiRockPhysForm(uiParent*);
+			uiRockPhysForm(uiParent*,
+				       Mnemonic::StdType);
 			uiRockPhysForm(uiParent*,const Mnemonic&);
 			~uiRockPhysForm();
 

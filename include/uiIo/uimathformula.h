@@ -60,6 +60,7 @@ public:
     void		setNonSpecInputs(const BufferStringSet&,int iinp=-1,
 					 const MnemonicSelection* =nullptr);
     void		setNonSpecSubInputs(const BufferStringSet&,int iinp=-1);
+    mDeprecatedObs
     void		setFixedFormUnits( bool yn )	{ fixedunits_ = yn; }
 
     const char*		text() const;
@@ -80,6 +81,7 @@ public:
     Notifier<uiMathFormula> subInpSet;
     Notifier<uiMathFormula> formMnSet;
     Notifier<uiMathFormula> formUnitSet;
+    CNotifier<uiMathFormula,const Mnemonic*>& formCMnSet();
 
     uiMathExpression*	exprFld()		{ return exprfld_; }
     int			nrInpFlds() const	{ return inpflds_.size(); }
@@ -102,18 +104,34 @@ private:
     Setup		setup_;
     TypeSet<double>	recvals_;
 
+    Mnemonic::StdType	getOutputStdType() const;
+    const uiMnemonicsSel* getMnSelFld() const;
+    const uiUnitSel*	getUnitSelFld() const;
+    void		setFormMnemonic(const Mnemonic&,bool dispyn);
+    uiMnemonicsSel*	getMnSelFld();
+    uiUnitSel*		getUnitSelFld();
+
     BufferString	getIOFileName(bool forread);
     bool		setNotifInpNr(const CallBacker*,int& inpnr);
+    void		addFormOutputsDefs();
+    bool		guessFormula(Math::Formula&);
     void		guessInputFormDefs();
     bool		guessOutputFormDefs();
+    mDeprecatedObs
     bool		setOutputDefsFromForm();
+    bool		setOutputDefsFromForm(bool hasfixedunits);
+    bool		putToScreen();
+    bool		hasFixedUnits() const;
 
     void		initFlds(CallBacker*);
+    void		formChangedCB(CallBacker*);
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);
     void		subInpSetCB(CallBacker*);
+    void		formTypeSetCB(CallBacker*);
     void		formMnSetCB(CallBacker*);
     void		formUnitSetCB(CallBacker*);
+    void		chooseUnitsCB(CallBacker*);
     void		recButPush(CallBacker*);
     void		readReq(CallBacker*);
     void		writeReq(CallBacker*);

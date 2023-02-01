@@ -9,10 +9,12 @@ ________________________________________________________________________
 
 #include "uimathformula.h"
 
+#include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uiioobjseldlg.h"
+#include "uilabel.h"
 #include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
 #include "uimnemonicsel.h"
@@ -23,16 +25,45 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "mathexpression.h"
 #include "mathformula.h"
 #include "mathformulatransl.h"
 #include "mathspecvars.h"
 #include "od_iostream.h"
 #include "odpair.h"
+#include "rockphysics.h"
 #include "unitofmeasure.h"
 
+#include "hiddenparam.h"
+
+
+class uiMathFormAdd
+{
+public:
+
+uiMathFormAdd( uiMathFormula& uiform )
+    : formMnSet(&uiform)
+{
+    mnselflds_.setNullAllowed();
+    unitflds_.setNullAllowed();
+}
+
+CNotifier<uiMathFormula,const Mnemonic*> formMnSet;
+bool		fullformupdate_ = false;
+uiLabel*	formlbl_ = nullptr;
+uiLabel*	formreslbl_ = nullptr;
+uiComboBox*	typfld_ = nullptr;
+uiCheckBox*	selectunitsfld_ = nullptr;
+ObjectSet<uiMnemonicsSel> mnselflds_;
+ObjectSet<uiUnitSel> unitflds_;
+
+};
+
+
+HiddenParam<uiMathFormula,uiMathFormAdd*> uimathaddedfldmgr_(nullptr);
 
 uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
-				const uiMathFormula::Setup& su )
+			      const uiMathFormula::Setup& su )
     : uiGroup(p,"Math Formula")
     , form_(form)
     , setup_(su)
@@ -41,6 +72,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     , formMnSet(this)
     , formUnitSet(this)
 {
+    uimathaddedfldmgr_.setParam( this, new uiMathFormAdd(*this) );
     uiMathExpression::Setup mesu( setup_.label_ );
     mesu.withsetbut( true ).fnsbelow( false ).specvars( &form_.specVars() );
     exprfld_ = new uiMathExpression( this, mesu );
@@ -59,36 +91,11 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
 	mAttachCB( fld->inpSel, uiMathFormula::inpSetCB );
 	mAttachCB( fld->subInpSel, uiMathFormula::subInpSetCB );
-	inpflds_ += fld;
+	inpflds_.add( fld );
     }
 
-    if ( setup_.withunits_ )
-    {
-	uiObject* aboveobj = inpflds_[inpflds_.size()-1]->attachObj();
-	const Mnemonic* mn = setup_.mn_ ? setup_.mn_ : &Mnemonic::undef();
-	const bool havemnemonic = !mn->isUdf();
-	const uiString formreslbl = tr("Formula result is");
-	if ( !havemnemonic )
-	{
-	    uiMnemonicsSel::Setup uimnsu( nullptr, formreslbl );
-	    mnselfld_ = new uiMnemonicsSel( this, uimnsu );
-	    mnselfld_->attach( alignedBelow, aboveobj );
-	    mAttachCB( mnselfld_->box()->selectionChanged,
-		       uiMathFormula::formMnSetCB );
-	}
-
-	const uiString unitlbl = mnselfld_ ? tr("in") : formreslbl;
-	const uiUnitSel::Setup uussu( mn->stdType(),
-				havemnemonic ? tr("Formula output unit") :
-				unitlbl );
-	unitfld_ = new uiUnitSel( this, uussu );
-	if ( mnselfld_ )
-	    unitfld_->attach( rightOf, mnselfld_ );
-	else
-	    unitfld_->attach( alignedBelow, aboveobj );
-
-	mAttachCB( unitfld_->selChange, uiMathFormula::formUnitSetCB );
-    }
+    if ( setup_.withunits_ && !inpflds_.isEmpty() )
+	addFormOutputsDefs();
 
     const bool wantio = !setup_.stortype_.isEmpty();
     uiButtonGroup* bgrp = nullptr;
@@ -121,6 +128,151 @@ uiMathFormula::~uiMathFormula()
 {
     detachAllNotifiers();
     delete mnsel_;
+    uimathaddedfldmgr_.removeAndDeleteParam( this );
+}
+
+
+void uiMathFormula::addFormOutputsDefs()
+{
+    auto* formresgrp = new uiGroup( this, "Formula result pars" );
+    uiObject* alignobj = nullptr;
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    addedflds.formlbl_ = inpflds_.first()->getFormLbl();
+    const Mnemonic* mn = setup_.mn_ ? setup_.mn_ : &Mnemonic::undef();
+    const bool havemnemonic = !mn->isUdf();
+    ManagedObjectSet<MnemonicSelection> mnsels;
+    BufferStringSet typnms;
+    if ( havemnemonic )
+    {
+	auto* mnsel = new MnemonicSelection;
+	mnsel->add( mn );
+	mnsels.add( mnsel );
+	typnms.add( Mnemonic::toString(mn->stdType()) );
+    }
+    else
+    {
+	const BufferStringSet alltypnms( Mnemonic::StdTypeNames() );
+	for ( const auto* typnm : alltypnms )
+	{
+	    const Mnemonic::StdType typ =
+			    Mnemonic::parseEnumStdType( typnm->buf() );
+	    const bool isall = typ == Mnemonic::Other;
+	    MnemonicSelection mnsel( typ );
+	    if ( mnsel.isEmpty() )
+		continue;
+
+	    if ( isall )
+		mnsel = MnemonicSelection( nullptr );
+
+	    mnsels.add( new MnemonicSelection(mnsel) );
+	    typnms.add( typnm->buf() );
+	}
+    }
+
+    uiLabel* formreslbl = nullptr;
+    uiComboBox* typfld = nullptr;
+    ObjectSet<uiMnemonicsSel>& mnselflds = addedflds.mnselflds_;
+    ObjectSet<uiUnitSel>& unitflds = addedflds.unitflds_;
+    if ( typnms.size() > 1 )
+    {
+	formreslbl = new uiLabel( formresgrp, tr("Formula result is") );
+	typfld = new uiComboBox( formresgrp, typnms, "Property Type" );
+	typfld->setHSzPol( uiObject::SmallVar );
+	typfld->attach( rightTo, formreslbl );
+	mAttachCB( typfld->selectionChanged, uiMathFormula::formTypeSetCB);
+	alignobj = typfld;
+
+	for ( int idx=0; idx<typnms.size(); idx++ )
+	{
+	    const MnemonicSelection& mnsel = *mnsels.get( idx );
+	    if ( mnsel.size() < 2 )
+	    {
+		mnselflds.add( nullptr );
+		continue;
+	    }
+
+	    const uiMnemonicsSel::Setup uimnsu( &mnsel, uiString::empty() );
+	    auto* mnselfld = new uiMnemonicsSel( formresgrp, uimnsu );
+	    mnselfld->attach( rightTo, typfld );
+	    mAttachCB( mnselfld->box()->selectionChanged,
+		       uiMathFormula::formMnSetCB );
+	    mnselflds.add( mnselfld );
+	}
+    }
+
+    for ( int idx=0; idx<mnsels.size(); idx++ )
+    {
+	const char* typnm = typnms.get(idx).buf();
+	const Mnemonic::StdType typ = Mnemonic::parseEnumStdType( typnm );
+	ObjectSet<const UnitOfMeasure> uoms;
+	UoMR().getRelevant( typ, uoms );
+	if ( uoms.isEmpty() )
+	{
+	    unitflds.add( nullptr );
+	    continue;
+	}
+
+	uiMnemonicsSel* mnselfld = mnselflds.validIdx(idx)
+				 ? mnselflds.get( idx ) : nullptr;
+	if ( !formreslbl )
+	    formreslbl = new uiLabel(formresgrp,tr("Formula output unit"));
+
+	uiObject* attachobj = mnselfld ? (uiObject*)mnselfld
+				       : (typfld ? (uiObject*)typfld
+						  : (uiObject*)formreslbl);
+
+	const uiString unitlbl = typfld || mnselfld ? tr("in")
+						    : uiString::empty();
+	uiUnitSel::Setup uussu( typ, unitlbl );
+	uussu.mode( uiUnitSel::Setup::SymbolsOnly )
+	     .withnone( true ).variableszpol( true );
+	auto* unitfld = new uiUnitSel( formresgrp, uussu );
+	unitfld->attach( rightOf, attachobj );
+	mAttachCB( unitfld->selChange, uiMathFormula::formUnitSetCB );
+	unitflds.add( unitfld );
+	if ( !alignobj )
+	    alignobj = unitfld->attachObj();
+    }
+
+    auto* selectunitsfld = new uiCheckBox( formresgrp,
+			tr("Specify formula internal units"),
+			mCB(this,uiMathFormula,chooseUnitsCB) );
+    selectunitsfld->attach( alignedBelow, alignobj );
+
+    addedflds.formreslbl_ = formreslbl;
+    addedflds.typfld_ = typfld;
+    addedflds.selectunitsfld_ = selectunitsfld;
+
+    formresgrp->setHAlignObj( alignobj );
+    formresgrp->attach( alignedBelow, inpflds_.last()->attachObj() );
+}
+
+
+void uiMathFormula::initFlds( CallBacker* )
+{
+    if ( recbut_ )
+	recbut_->display( false );
+
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    if ( addedflds.formlbl_ )
+	addedflds.formlbl_->display( false );
+    for ( auto* inpflds : inpflds_ )
+	inpflds->use( nullptr ); //hide
+    if ( setup_.withunits_ )
+    {
+	setFormMnemonic( Mnemonic::undef(), true );
+	addedflds.selectunitsfld_->display( false );
+	addedflds.selectunitsfld_->setChecked( false );
+    }
+
+    if ( form_.isOK() )
+	formChangedCB( nullptr );
+}
+
+
+CNotifier<uiMathFormula,const Mnemonic*>& uiMathFormula::formCMnSet()
+{
+    return uimathaddedfldmgr_.getParam( this )->formMnSet;
 }
 
 
@@ -172,6 +324,7 @@ bool uiMathFormula::checkValidNrInputs() const
 	uiMSG().error( msg );
 	return false;
     }
+
     return true;
 }
 
@@ -179,13 +332,19 @@ bool uiMathFormula::checkValidNrInputs() const
 bool uiMathFormula::setText( const char* txt )
 {
     form_.setText( txt );
-    return useForm();
+    return putToScreen();
 }
 
 
 const char* uiMathFormula::text() const
 {
     return exprfld_->text();
+}
+
+
+bool uiMathFormula::hasFixedUnits() const
+{
+    return setup_.withunits_ && form_.hasFixedUnits();
 }
 
 
@@ -198,9 +357,11 @@ bool uiMathFormula::updateForm() const
     for ( int idx=0; idx<nrInputs(); idx++ )
 	inpflds_[idx]->fill( form_ );
 
-    if ( unitfld_ )
+    const uiUnitSel* unitfld = getUnitSelFld();
+    if ( unitfld )
     {
-	const Mnemonic* mn = mnselfld_ ? mnselfld_->mnemonic() : setup_.mn_;
+	const uiMnemonicsSel* mnselfld = getMnSelFld();
+	const Mnemonic* mn = mnselfld ? mnselfld->mnemonic() : setup_.mn_;
 	if ( !mn || mn->isUdf() )
 	{
 	    if ( !uiMSG().askGoOn( tr("Formula return type is undefined.\n"
@@ -209,7 +370,7 @@ bool uiMathFormula::updateForm() const
 	}
 
 	form_.setOutputMnemonic( mn );
-	form_.setOutputFormUnit( unitfld_->getUnit() );
+	form_.setOutputFormUnit( unitfld->getUnit() );
     }
 
     const int nrrec = form_.maxRecShift();
@@ -222,39 +383,83 @@ bool uiMathFormula::updateForm() const
 
 bool uiMathFormula::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
 {
-    fixedunits_ = inputtypes;
     return useForm();
 }
 
 
 bool uiMathFormula::useForm()
 {
-    const bool isbad = form_.isBad();
-    if ( !isbad )
-	exprfld_->setText( form_.text() );
+    formChangedCB( nullptr );
+    return true;
+}
 
-    guessInputFormDefs();
-    for ( auto* inpfld : inpflds_ )
-	inpfld->use( form_, fixedunits_ );
 
-    if ( recbut_ )
-	recbut_->display( form_.isRecursive() );
+namespace OD
+{
 
-    if ( isbad )
+static void displayOptional( uiObject& fld, bool yn )
+{
+#ifdef __debug__
+    fld.setSensitive( yn );
+#else
+    fld.display( yn );
+#endif
+}
+
+} // namespace Math
+
+
+bool uiMathFormula::putToScreen()
+{
+    if ( form_.isBad() )
     {
 	uiMSG().error(tr("Invalid expression:\n%1").arg(form_.errMsg()));
 	return false;
     }
 
-    return checkValidNrInputs();
+    if ( !checkValidNrInputs() )
+	return false;
+
+    exprfld_->setText( form_.text() );
+    if ( recbut_ )
+	recbut_->display( form_.isRecursive() );
+
+    if ( setup_.withunits_ && !hasFixedUnits() )
+    {
+	guessInputFormDefs();
+	guessOutputFormDefs();
+    }
+
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    const bool hasfixedunits = hasFixedUnits();
+    if ( setup_.withunits_ )
+    {
+	uiLabel* formlbl = addedflds.formlbl_;
+	if ( formlbl )
+	{
+	    formlbl->display( nrInputs() > 0 );
+	    OD::displayOptional( *formlbl, !hasfixedunits );
+	}
+    }
+
+    bool& fullformupdate = addedflds.fullformupdate_;
+    fullformupdate = true;
+    for ( auto* inpfld : inpflds_ )
+	inpfld->use( form_, hasfixedunits );
+    fullformupdate = false;
+    if ( setup_.withunits_ )
+    {
+	setOutputDefsFromForm( hasfixedunits );
+	addedflds.selectunitsfld_->display( hasfixedunits );
+	addedflds.selectunitsfld_->setChecked( !hasfixedunits );
+    }
+
+    return true;
 }
 
 
 void uiMathFormula::guessInputFormDefs()
 {
-    if ( fixedunits_ )
-	return;
-
     for ( int idx=0; idx<nrInputs(); idx++ )
     {
 	if ( form_.isConst(idx) )
@@ -369,64 +574,134 @@ void uiMathFormula::guessInputFormDefs()
 	    form_.setInputDef( idx, inpdef );
 
 	form_.setInputMnemonic( idx, mn ? mn : &Mnemonic::undef() );
-	if ( mn && !mn->isUdf() && mn->unit() )
-	    form_.setInputFormUnit( idx, UoMR().getInternalFor(mn->stdType()) );
+	if ( mn && !mn->isUdf() )
+	    form_.setInputFormUnit( idx, nullptr );
     }
+}
+
+
+bool uiMathFormula::guessFormula( Math::Formula& form )
+{
+    if ( !form.isOK() )
+	return false;
+
+    const int nrinps = form.nrInputs();
+    const int nrvals = form.nrValues2Provide();
+    const int nrconsts = form.nrConsts();
+    const int nrspecs = form.nrSpecs();
+    BufferString formexpr( form.text() );
+    formexpr.remove( ' ' );
+
+    const RockPhysics::FormulaSet& rpforms = ROCKPHYSFORMS();
+    for ( const auto* rpform : rpforms )
+    {
+	if ( rpform->nrInputs() != nrinps ||
+	     rpform->nrValues2Provide() != nrvals ||
+	     rpform->nrConsts() != nrconsts || rpform->nrSpecs() != nrspecs )
+	    continue;
+
+	BufferString rpexpr = rpform->text();
+	rpexpr.remove( ' ' );
+	if ( rpexpr.isEqual(formexpr,OD::CaseInsensitive) )
+	{
+	    form.copyFrom( *rpform );
+	    return true;
+	}
+
+	for ( int iinp=0; iinp<nrinps; iinp++ )
+	{
+	    if ( rpform->isConst(iinp) || rpform->isSpec(iinp) )
+		continue;
+
+	    rpexpr.replace( rpform->inputVar(iinp), rpform->inputDef(iinp) );
+	}
+
+	if ( rpexpr.isEqual(formexpr,OD::CaseInsensitive) )
+	{
+	    form.copyFrom( *rpform );
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 
 bool uiMathFormula::guessOutputFormDefs()
 {
-    if ( !unitfld_ )
-	return true;
-
-    if ( fixedunits_ )
-	return setOutputDefsFromForm();
-
     TypeSet<int> varidxs;
     for ( int idx=0; idx<form_.nrInputs(); idx++ )
 	if ( !form_.isConst(idx) && !form_.isSpec(idx) )
 	    varidxs += idx;
 
     if ( varidxs.isEmpty() )
-	return setOutputDefsFromForm();
+	return false;
 
-    const uiMathExpressionVariable* firstinpfld = inpflds_.get( varidxs[0] );
-    const UnitOfMeasure* inpuom = firstinpfld->getUnit();
-    for ( int idx=1; idx<varidxs.size(); idx++ )
-	if ( inpflds_.get( varidxs[idx] )->getUnit() != inpuom )
-	    return setOutputDefsFromForm();
+    const Mnemonic* firstinpmn = form_.inputMnemonic( varidxs.first() );
+    if ( !firstinpmn || firstinpmn->isUdf() )
+	return false;
 
-    if ( mnselfld_ )
+    const UnitOfMeasure* firstuom = form_.inputFormUnit( varidxs.first() );
+    if ( varidxs.size() == 1 )
     {
-	const Mnemonic* mn = firstinpfld->getMnemonic();
-	if ( !mn )
-	    mn = &Mnemonic::undef();
-	mnselfld_->setMnemonic( *mn );
-	formMnSetCB( nullptr );
+	form_.setOutputMnemonic( firstinpmn );
+	form_.setOutputFormUnit( firstuom );
+	return true;
     }
 
-    unitfld_->setUnit( inpuom );
-    formUnitSetCB( nullptr );
-    return true;
+    for ( int idx=1; idx<varidxs.size(); idx++ )
+    {
+	const Mnemonic* othermn = form_.inputMnemonic( varidxs[idx] );
+	if ( !othermn || othermn->isUdf() || othermn != firstinpmn )
+	    return false;
+    }
+
+    const Math::ExpressionParser mp( exprfld_->text(), false );
+    PtrMan<Math::Expression> mathexpr = mp.parse();
+    if ( !mathexpr )
+	return false;
+
+    const BufferString exprtyp( mathexpr->type() );
+    if ( exprtyp == "ExpressionPlus" || exprtyp == "ExpressionMinus" )
+    {
+	form_.setOutputMnemonic( firstinpmn );
+	form_.setOutputFormUnit( firstuom );
+	return true;
+    }
+
+    return false;
 }
 
 
 bool uiMathFormula::setOutputDefsFromForm()
 {
-    if ( mnselfld_ && form_.isOK() )
+    return setOutputDefsFromForm( false );
+}
+
+
+bool uiMathFormula::setOutputDefsFromForm( bool hasfixedunits )
+{
+    const Mnemonic* mn = form_.outputMnemonic();
+    const UnitOfMeasure* formun = form_.outputFormUnit();
+    const bool dodisp = !hasfixedunits;
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    uiLabel* formreslbl = addedflds.formreslbl_;
+    OD::displayOptional( *formreslbl, dodisp );
+    if ( addedflds.typfld_ )
     {
-	const Mnemonic* mn = form_.outputMnemonic();
 	if ( !mn )
 	    mn = &Mnemonic::undef();
-	mnselfld_->setMnemonic( *mn );
-	formMnSetCB( nullptr );
+
+	setFormMnemonic( *mn, dodisp );
     }
 
-    const UnitOfMeasure* formun = form_.isOK()
-				? form_.outputFormUnit() : nullptr;
-    unitfld_->setUnit( formun );
-    formUnitSetCB( nullptr );
+    uiUnitSel* unitselfld = getUnitSelFld();
+    if ( unitselfld )
+    {
+	OD::displayOptional( *unitselfld, dodisp );
+	unitselfld->setUnit( formun );
+    }
+
     return true;
 }
 
@@ -478,23 +753,30 @@ double uiMathFormula::getConstVal( int inpidx ) const
 }
 
 
-void uiMathFormula::initFlds( CallBacker* )
+void uiMathFormula::formChangedCB( CallBacker* )
 {
-    useForm();
+    putToScreen();
 }
 
 
 void uiMathFormula::formSetCB( CallBacker* )
 {
     const StringView formtxt = form_.text();
-    const bool changed = StringView(exprfld_->text()) != formtxt;
+    const BufferString newexpr( exprfld_->text() );
+    const bool changed = newexpr != formtxt;
     if ( !changed )
 	return;
 
-    form_.setText( exprfld_->text() );
-    form_.clearAllDefs();
-    fixedunits_ = false;
-    useForm();
+    Math::Formula newform( false, newexpr.buf() );
+    if ( guessFormula(newform) )
+	form_ = newform;
+    else
+    {
+	form_.setText( newexpr.buf() );
+	form_.clearAllDefs();
+    }
+
+    formChangedCB( nullptr );
 }
 
 
@@ -507,6 +789,7 @@ void uiMathFormula::inpSetCB( CallBacker* cb )
     uiMathExpressionVariable* inpfld = inpflds_.get( inpidx );
     const bool isvariable = inpidx < nrInputs() &&
 			    ( !isSpec(inpidx) || !isConst(inpidx) );
+    bool mnemonicchanged = false;
     if ( isvariable )
     {
 	const BufferString inpdef = getInput( inpidx );
@@ -514,15 +797,20 @@ void uiMathFormula::inpSetCB( CallBacker* cb )
 	if ( mnsel_ && (!mn || mn->isUdf()) )
 	    mn = mnsel_->getByName( inpdef );
 
-	inpfld->setFormType( mn ? *mn : Mnemonic::undef() );
+	mnemonicchanged = inpfld->getMnemonic() != mn;
+	if ( mnemonicchanged )
+	    inpfld->setFormType( mn ? *mn : Mnemonic::undef() );
+
 	const UnitOfMeasure* uom = form_.inputFormUnit( inpidx );
-	const bool sensitive = !fixedunits_;
-	inpfld->setFormUnit( uom, sensitive );
+	const bool dispuom = !mn || mn->isUdf() || !uom;
+	inpfld->setFormUnit( uom, dispuom );
     }
 
     inpSet.trigger( inpfld );
 
-    if ( isvariable )
+    const bool fullformupdate =
+		uimathaddedfldmgr_.getParam( this )->fullformupdate_;
+    if ( isvariable && mnemonicchanged && !fullformupdate )
 	guessOutputFormDefs();
 }
 
@@ -550,22 +838,119 @@ bool uiMathFormula::setNotifInpNr( const CallBacker* cb, int& notifinpnr )
 }
 
 
-void uiMathFormula::formMnSetCB( CallBacker* )
+void uiMathFormula::formTypeSetCB( CallBacker* cb )
 {
-    const Mnemonic* mn = mnselfld_->mnemonic();
-    if ( !mn )
-	mn = &Mnemonic::undef();
-    unitfld_->setPropType( mn->stdType() );
-    mnselfld_->setSensitive( !fixedunits_ );
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    uiComboBox* typfld = addedflds.typfld_;
+    const int curidx = typfld->currentItem();
+    const bool hasfixedunits = hasFixedUnits();
+    const bool nooutputuom = cb && cb == typfld && !form_.outputFormUnit();
+    ObjectSet<uiMnemonicsSel>& mnselflds = addedflds.mnselflds_;
+    ObjectSet<uiUnitSel>& unitflds = addedflds.unitflds_;
+    for ( int idx=0; idx<mnselflds.size(); idx++ )
+    {
+	uiMnemonicsSel* mnselfld = mnselflds.get( idx );
+	if ( mnselfld )
+	    mnselfld->display( idx == curidx );
+	if ( idx == curidx )
+	{
+	    if ( mnselfld )
+	    {
+		formMnSetCB( nullptr );
+		if ( cb && cb == typfld && !hasfixedunits )
+		    OD::displayOptional( *mnselfld, true );
+	    }
+	    else
+	    {
+		const Mnemonic::StdType curtyp = getOutputStdType();
+		const MnemonicSelection mnsel( curtyp );
+		if ( !mnsel.isEmpty() )
+		    formCMnSet().trigger( mnsel.first() );
+	    }
+	}
+    }
 
-    formMnSet.trigger( mnselfld_ );
+    for ( int idx=0; idx<unitflds.size(); idx++ )
+    {
+	uiUnitSel* unitselfld = unitflds.get( idx );
+	const bool dodisp = idx == curidx && unitselfld;
+	if ( unitselfld )
+	{
+	    unitselfld->display( dodisp );
+	    if ( dodisp )
+	    {
+		if ( nooutputuom )
+		    unitselfld->setUnit( (const UnitOfMeasure*)nullptr );
+
+		if ( cb && cb == typfld && !hasfixedunits )
+		    OD::displayOptional( *unitselfld, true );
+	    }
+	}
+    }
 }
 
 
-void uiMathFormula::formUnitSetCB( CallBacker* )
+void uiMathFormula::formMnSetCB( CallBacker* cb )
 {
-    unitfld_->setSensitive( !fixedunits_ );
-    formUnitSet.trigger( unitfld_ );
+    uiMnemonicsSel* mnselfld = getMnSelFld();
+    if ( !mnselfld )
+	return;
+
+    if ( cb && cb == mnselfld )
+	form_.setOutputMnemonic( mnselfld->mnemonic() );
+
+    uiUnitSel* unitselfd = getUnitSelFld();
+    const Mnemonic::StdType curtyp = getOutputStdType();
+    const Mnemonic* mn = mnselfld->mnemonic();
+    if ( curtyp == Mnemonic::Other && unitselfd )
+    {
+	if ( mn && !mn->isUdf() )
+	    unitselfd->setPropType( mn->stdType() );
+	else
+	    unitselfd->setPropType( Mnemonic::Other );
+    }
+
+    formCMnSet().trigger( mn );
+}
+
+
+void uiMathFormula::formUnitSetCB( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    uiUnitSel* unitfld = getUnitSelFld();
+    if ( unitfld && cb == unitfld )
+	form_.setOutputFormUnit( unitfld->getUnit() );
+}
+
+
+void uiMathFormula::chooseUnitsCB( CallBacker* )
+{
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    const bool showunitflds = addedflds.selectunitsfld_->isChecked();
+    uiLabel* formlbl = addedflds.formlbl_;
+    if ( formlbl )
+	OD::displayOptional( *formlbl, showunitflds );
+
+    uiLabel* formreslbl = addedflds.formreslbl_;
+    if ( formreslbl )
+	OD::displayOptional( *formreslbl, showunitflds );
+
+    for ( auto* fld : inpflds_ )
+	fld->setFormUnit( fld->getUnit(), showunitflds );
+
+    uiComboBox* typfld = addedflds.typfld_;
+    if ( typfld )
+	OD::displayOptional( *typfld, showunitflds );
+
+    uiMnemonicsSel* mnselfld = getMnSelFld();
+    if ( mnselfld )
+	OD::displayOptional( *mnselfld, showunitflds );
+
+    uiUnitSel* unitfld = getUnitSelFld();
+    if ( unitfld )
+	OD::displayOptional( *unitfld, showunitflds );
 }
 
 
@@ -622,6 +1007,94 @@ void uiMathFormula::recButPush( CallBacker* )
 }
 
 
+Mnemonic::StdType uiMathFormula::getOutputStdType() const
+{
+    uiComboBox* typfld = uimathaddedfldmgr_.getParam(this)->typfld_;
+    if ( !typfld )
+	return Mnemonic::Other;
+
+    const BufferString curtypstr( typfld->text() );
+    return Mnemonic::parseEnumStdType( curtypstr.buf() );
+}
+
+
+void uiMathFormula::setFormMnemonic( const Mnemonic& mn, bool dodisp )
+{
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    uiComboBox* typfld = addedflds.typfld_;
+    if ( !typfld )
+	return;
+
+    ObjectSet<uiMnemonicsSel>& mnselflds = addedflds.mnselflds_;
+    if ( mnselflds.isEmpty() )
+	return;
+
+    const Mnemonic::StdType typ = mn.stdType();
+    const Mnemonic::StdType curtyp = getOutputStdType();
+    if ( typ != curtyp )
+    {
+	typfld->setCurrentItem( Mnemonic::toString(typ) );
+	formTypeSetCB( nullptr );
+    }
+
+    OD::displayOptional( *typfld, dodisp );
+
+    uiMnemonicsSel* mnselfld = getMnSelFld();
+    if ( mnselfld )
+    {
+	if ( mnselfld->mnemonic() != &mn )
+	{
+	    mnselfld->setMnemonic( mn );
+	    formMnSetCB( nullptr );
+	}
+
+	OD::displayOptional( *mnselfld, dodisp );
+    }
+
+    uiUnitSel* unitselfld = getUnitSelFld();
+    if ( unitselfld )
+	formUnitSetCB( nullptr );
+}
+
+
+const uiMnemonicsSel* uiMathFormula::getMnSelFld() const
+{
+    return mSelf().getMnSelFld();
+}
+
+
+uiMnemonicsSel* uiMathFormula::getMnSelFld()
+{
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    uiComboBox* typfld = addedflds.typfld_;
+    if ( !typfld )
+	return nullptr;
+
+    const int curidx = typfld->currentItem();
+    ObjectSet<uiMnemonicsSel>& mnselflds = addedflds.mnselflds_;
+    return mnselflds.validIdx( curidx ) ? mnselflds.get( curidx ) : nullptr;
+}
+
+
+const uiUnitSel* uiMathFormula::getUnitSelFld() const
+{
+    return mSelf().getUnitSelFld();
+}
+
+
+uiUnitSel* uiMathFormula::getUnitSelFld()
+{
+    uiMathFormAdd& addedflds = *uimathaddedfldmgr_.getParam(this);
+    uiComboBox* typfld = addedflds.typfld_;
+    ObjectSet<uiUnitSel>& unitflds = addedflds.unitflds_;
+    if ( !typfld )
+	return unitflds.isEmpty() ? nullptr : unitflds.first();
+
+    const int curidx = typfld->currentItem();
+    return unitflds.validIdx( curidx ) ? unitflds.get( curidx ) : nullptr;
+}
+
+
 BufferString uiMathFormula::getIOFileName( bool forread )
 {
     IOObjContext ctxt = mIOObjContext( MathFormula );
@@ -670,9 +1143,18 @@ void uiMathFormula::readReq( CallBacker* )
     }
 
     IOPar iop( astrm );
-    form_.usePar( iop );
-    recvals_ = form_.recStartVals();
-    useForm();
+    Math::Formula form;
+    form.usePar( iop );
+    if ( !form.isOK() )
+    {
+	uiMSG().error( tr("Cannot restore the stored formula:\n%1")
+			  .arg(form.text()) );
+	return;
+    }
+
+    recvals_ = form.recStartVals();
+    form_ = form;
+    formChangedCB( nullptr );
 }
 
 
