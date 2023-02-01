@@ -117,7 +117,11 @@ int Table::Converter::nextStep()
 	    mFinishReturn( msg_.isEmpty() ? Finished() : ErrorOccurred() );
 
 	if ( imphndlr_.atEnd() )
+	{
 	    atend_ = true;
+	    mFinishReturn( Finished() );
+	}
+
 	if ( impstate == Table::ImportHandler::EndRow )
 	    return MoreToDo();
     }

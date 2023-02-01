@@ -84,7 +84,7 @@ public:
 			    : Executor("Data import")
 			    , imphndlr_(i), exphndlr_(o)
 			    , rowsdone_(0), selcolnr_(-1), atend_(false)
-			    , msg_(tr("Importing"))		{}
+			{}
     // Setup
     TypeSet<int>	selcols_;
     uiString		msg_;
