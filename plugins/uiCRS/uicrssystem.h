@@ -24,7 +24,6 @@ namespace Coords
 {
 
 class CRSInfoList;
-class uiConvertGeographicPos;
 
 mExpClass(uiCRS) uiProjectionBasedSystem : public uiCoordSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
@@ -46,8 +45,6 @@ protected:
     uiLineEdit*		searchfld_;
     uiLabeledComboBox*	filtersel_;
 
-    uiConvertGeographicPos*	convdlg_	= nullptr;
-
     bool			orthogonal_	= true;
     PtrMan<CRSInfoList>		crsinfolist_;
     int				curselidx_	= -1;
@@ -60,7 +57,6 @@ protected:
     void		fillList();
     void		setCurrent();
     void		selChgCB(CallBacker*);
-    void		convCB(CallBacker*);
     void		searchCB(CallBacker*);
     void		infoCB(CallBacker*);
 
@@ -76,40 +72,6 @@ public:
 
     static uiCoordSystem* getCRSGeodeticFld(uiParent*);
 
-};
-
-
-mExpClass(uiCRS) uiConvertGeographicPos : public uiDialog
-{ mODTextTranslationClass(uiConvertGeographicPos);
-
-public:
-			uiConvertGeographicPos(uiParent*,
-					ConstRefMan<CoordSystem>,
-					const Coord& initialpos);
-
-    void		setCoordSystem(ConstRefMan<CoordSystem>);
-
-private:
-
-    ConstRefMan<CoordSystem>	coordsystem_;
-
-    uiGenInput*		ismanfld_;
-    uiGroup*		mangrp_;
-    uiGroup*		filegrp_;
-    uiGenInput*		dirfld_;
-    uiGenInput*		xfld_;
-    uiGenInput*		yfld_;
-    uiCheckBox*		towgs84fld_;
-    uiCheckBox*		fromwgs84fld_;
-    uiLatLongInp*	latlngfld_;
-    uiFileInput*	inpfilefld_;
-    uiFileInput*	outfilefld_;
-
-    void		finalizeCB(CallBacker*);
-    void		selChg(CallBacker*);
-    void		applyCB(CallBacker*);
-    void		convPos();
-    void		convFile();
 };
 
 } // namespace Coords

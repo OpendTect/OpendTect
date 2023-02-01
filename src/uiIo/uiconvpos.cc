@@ -323,7 +323,7 @@ void uiManualConvGroup::convFromLL()
     LatLong ll;
     llinfld_->get( ll );
     if ( !ll.isDefined() )
-	mErrRet( tr("Lat-Long value not defined") )
+	return;
 
     const Coord llascrd( ll.lng_, ll.lat_ );
     const Coord incrd = survinfo_.getCoordSystem()->convertFrom( llascrd,

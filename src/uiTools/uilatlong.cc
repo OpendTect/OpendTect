@@ -159,10 +159,17 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     lblgrp->setHAlignObj( lnglbl );
 
     auto* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
-    lngdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Longitude" );
+    uiFloatValidator validator( -180.f, 180.f );
+    validator.nrdecimals_ = 5;
+    validator.scnotation_ = false;
+    lngdecfld_ = new uiLineEdit( inpgrp, "Dec Longitude" );
+    lngdecfld_->setValidator( validator );
     inpgrp->setHAlignObj( lngdecfld_ );
 
-    latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
+    latdecfld_ = new uiLineEdit( inpgrp, "Dec Latitude" );
+    validator.bottom_ = -90.f;
+    validator.top_ = 90.f;
+    latdecfld_->setValidator( validator );
     latdecfld_->attach( alignedBelow, lngdecfld_ );
 
     lngdmsfld_ = new uiLatLongDMSInp( inpgrp, false );
@@ -215,14 +222,13 @@ void uiLatLongInp::get( LatLong& ll, bool isdec ) const
 {
     if ( isdec )
     {
-	ll.lat_ = latdecfld_->getDValue();
 	ll.lng_ = lngdecfld_->getDValue();
+	ll.lat_ = latdecfld_->getDValue();
+	return;
     }
-    else
-    {
-	ll.lat_ = latdmsfld_->value();
-	ll.lng_ = lngdmsfld_->value();
-    }
+
+    ll.lat_ = latdmsfld_->value();
+    ll.lng_ = lngdmsfld_->value();
 }
 
 
@@ -262,186 +268,6 @@ void uiLatLongInp::setReadOnly( bool yn )
     latdecfld_->setReadOnly( yn );
     lngdmsfld_->setReadOnly( yn );
     latdmsfld_->setReadOnly( yn );
-}
-
-
-uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
-					const SurveyInfo* si )
-    : uiDialog(p,uiDialog::Setup(tr("Lat/Long vs Coordinates"),
-	     tr("Estimation of geographical coordinates from/to "
-	     "the rectangular survey coordinates"),
-				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
-    , ll2c_(*new LatLong2Coord(l))
-    , si_(si?si:&SI())
-{
-    coordfld_ = new uiGenInput( this, tr("Coordinate in or near survey"),
-				DoubleInpSpec(), DoubleInpSpec() );
-    uiToolButton* tb = new uiToolButton( this, "xy2ll",
-			    tr("Transform file from/to lat long"),
-			    mCB(this,uiLatLong2CoordDlg,transfFile) );
-    tb->attach( rightTo, coordfld_ );
-    tb->attach( rightBorder );
-
-    latlngfld_ = new uiLatLongInp( this );
-    latlngfld_->attach( alignedBelow, coordfld_ );
-    new uiLabel( this, tr("Corresponds to"), latlngfld_ );
-
-    if ( ll2c_.isOK() )
-    {
-	coordfld_->setValue( ll2c_.refCoord() );
-	latlngfld_->set( ll2c_.refLatLong() );
-    }
-}
-
-
-uiLatLong2CoordDlg::~uiLatLong2CoordDlg()
-{
-    delete &ll2c_;
-}
-
-
-class uiLatLong2CoordFileTransDlg : public uiDialog
-{ mODTextTranslationClass(uiLatLong2CoordFileTransDlg)
-public:
-
-uiLatLong2CoordFileTransDlg( uiParent* p,
-			     ConstRefMan<Coords::CoordSystem> coordsys )
-    : uiDialog(p,Setup(tr("Transform file"),
-		       tr("Transform a file, Lat Long <=> X Y"),
-		       mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
-    , coordsys_(coordsys)
-{
-    inpfld_ = new uiASCIIFileInput( this, true );
-
-    tollfld_ = new uiGenInput( this, tr("Transform"), BoolInpSpec( true,
-			tr("X Y to Lat Long"), tr("Lat Long to X Y") ) );
-    tollfld_->attach( alignedBelow, inpfld_ );
-
-    outfld_ = new uiASCIIFileInput( this, false );
-    outfld_->attach( alignedBelow, tollfld_ );
-}
-
-bool acceptOK( CallBacker* ) override
-{
-    const BufferString inpfnm = inpfld_->fileName();
-    if ( inpfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))
-    if ( !File::exists(inpfnm) ) mErrRet(tr("Input file does not exist"))
-    const BufferString outfnm = outfld_->fileName();
-    if ( outfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))
-
-    od_istream inpstrm( inpfnm );
-    if ( !inpstrm.isOK() ) mErrRet(tr("Empty input file"))
-    od_ostream outstrm( outfnm );
-    if ( !outstrm.isOK() ) mErrRet(tr("Cannot open output file"))
-
-    const bool toll = tollfld_->getBoolValue();
-
-    double d1, d2;
-    Coord coord; LatLong ll;
-    while ( inpstrm.isOK() )
-    {
-	mSetUdf(d1); mSetUdf(d2);
-	inpstrm >> d1 >> d2;
-	if ( mIsUdf(d1) || mIsUdf(d2) )
-	    continue;
-
-	if ( toll )
-	{
-	    coord.x = d1; coord.y = d2;
-	    if ( !SI().isReasonable(coord) )
-		continue;
-	    ll = LatLong::transform( coord, true, coordsys_ );
-	    outstrm << ll.lat_ << od_tab << ll.lng_;
-	}
-	else
-	{
-	    ll.lat_ = d1; ll.lng_ = d2;
-	    coord = LatLong::transform( ll, true, coordsys_ );
-	    if ( !SI().isReasonable(coord) )
-		continue;
-	    outstrm << coord.x << od_tab << coord.y;
-	}
-	if ( !outstrm.isOK() )
-	    break;
-	outstrm << od_endl;
-    }
-
-    return true;
-}
-
-    uiFileInput*	inpfld_;
-    uiGenInput*		tollfld_;
-    uiFileInput*	outfld_;
-    ConstRefMan<Coords::CoordSystem>  coordsys_;
-
-};
-
-
-void uiLatLong2CoordDlg::transfFile( CallBacker* )
-{
-    return;
-}
-
-
-bool uiLatLong2CoordDlg::getLL2C()
-{
-    LatLong ll; latlngfld_->get( ll );
-    const Coord crd = coordfld_->getCoord();
-    if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) || mIsUdf(crd.x) || mIsUdf(crd.y) )
-	mErrRet(tr("Please fill all fields"))
-    if (ll.lat_ > 90 || ll.lat_ < -90)
-	mErrRet(tr("Latitude must be between -90 and 90"))
-    if (ll.lng_ > 180 || ll.lng_ < -180)
-	mErrRet(tr("Longitude must be between -180 and 180"))
-    if ( !si_->isReasonable(crd) )
-    {
-	if ( !uiMSG().askContinue(
-	    tr("The coordinate seems to be far away from the survey."
-	       "\nContinue?")))
-	    return false;
-    }
-
-    ll2c_.set( ll, crd );
-    if ( !ll2c_.isOK() )
-    {
-	uiMSG().error(tr("Sorry, your Lat/Long definition has a problem"));
-	return false;
-    }
-
-    return true;
-}
-
-
-bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
-{
-    if ( !getLL2C() )
-	return false;
-
-    si_->getLatlong2Coord() = ll2c_;
-    if ( !si_->write() )
-    {
-	uiMSG().error(tr("Could not write the definitions "
-			 "to your '.survey' file"
-			 "\nThe definition will work this "
-			 "OpendTect session only"));
-	return false;
-    }
-
-    if ( si_->getDirName() == SI().getDirName() &&
-	 si_->getDataDirName() == SI().getDataDirName() )
-	SI().getLatlong2Coord() = ll2c_;
-
-    return true;
-}
-
-
-bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
-{
-    if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
-    if ( si->latlong2Coord().isOK() ) return true;
-
-    uiLatLong2CoordDlg dlg( p, si->latlong2Coord(), si );
-    return dlg.go();
 }
 
 
