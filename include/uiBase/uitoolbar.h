@@ -56,6 +56,7 @@ public:
 				  bool toggle=false,int id=-1);
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
+    void		removeObject(uiObject*);
 
     void		setLabel(const uiString&);
     uiString		getDispNm() const;
@@ -130,6 +131,7 @@ protected:
 
     ToolBarArea			tbarea_;
     ObjectSet<uiObject>		addedobjects_;
+    ObjectSet<QAction>		addedactions_; // QAction of added QWidget
 
     uiString			label_;
     int				getButtonID(mQtclass(QAction*));

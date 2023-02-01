@@ -121,15 +121,32 @@ void uiToolBar::addObject( uiObject* obj )
     QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : nullptr;
     if ( qw )
     {
-	qtoolbar_->addWidget( qw );
+	QAction* qact = qtoolbar_->addWidget( qw );
+	qact->setVisible( true );
 	mDynamicCastGet(uiToolButton*,button,obj)
-	if ( !button ) qw->setMaximumHeight( uiObject::iconSize() );
+	if ( !button )
+	    qw->setMaximumHeight( uiObject::iconSize() );
+
 	addedobjects_ += obj;
+	addedactions_ += qact;
     }
     else
     {
 	pErrMsg("Not a valid object");
     }
+}
+
+
+void uiToolBar::removeObject( uiObject* obj )
+{
+    const int idx = addedobjects_.indexOf( obj );
+    if ( !addedactions_.validIdx(idx) )
+	return;
+
+    QAction* qaction = addedactions_[idx];
+    qtoolbar_->removeAction( qaction );
+    addedobjects_.removeSingle( idx );
+    addedactions_.removeSingle( idx );
 }
 
 
@@ -295,6 +312,7 @@ void uiToolBar::clear()
 {
     removeAllActions();
     deepErase( addedobjects_ );
+    addedactions_.erase();
 }
 
 
