@@ -308,7 +308,7 @@ uiLatLong2CoordFileTransDlg( uiParent* p,
 			     ConstRefMan<Coords::CoordSystem> coordsys )
     : uiDialog(p,Setup(tr("Transform file"),
 		       tr("Transform a file, Lat Long <=> X Y"),
-		       mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
+		       mNoHelpKey))
     , coordsys_(coordsys)
 {
     inpfld_ = new uiASCIIFileInput( this, true );
