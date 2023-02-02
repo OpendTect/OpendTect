@@ -149,7 +149,14 @@ uiMultiMnemonicsSel::uiMultiMnemonicsSel( uiParent* p,
     else
 	MNC().getNames( mnemnms );
 
+    mnemnms.sort();
     mnemlist_->addItems( mnemnms );
+    int maxsize = mnemlist_->size();
+    if ( maxsize > 15 )
+	maxsize = 15;
+
+    mnemlist_->setNrLines( maxsize );
+    mnemlist_->setHSzPol( uiObject::Wide );
 }
 
 

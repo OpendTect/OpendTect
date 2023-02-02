@@ -83,7 +83,7 @@ public:
     void			depthRangeFilter(const Interval<float> depthrg);
     void			logValRangeFilter(const MnemonicSelection& mns,
 				    const TypeSet<Interval<float>>& logvalrg);
-    bool			isLogMode() const	{ return logmode_; }
+    bool			isLogMode() const { return initdesc_.logmode_; }
     void			setLogMode(bool yn=true);
 
     Notifier<uiWellFilterGrp>	markerSelectionChg;
@@ -91,11 +91,38 @@ public:
 protected:
 
 
+    void			initGrp(CallBacker*);
     void			selButPush(CallBacker*);
     void			selChgCB(CallBacker*);
     void			markerSelChgCB(CallBacker*);
+    void			fillListBoxes();
+    void			fillInitSelection(const BufferStringSet& wllnms,
+						  const BufferStringSet& lognms,
+						  const BufferStringSet& mrkrs);
+    void			fillInitSelection(const BufferStringSet& wllnms,
+						  const MnemonicSelection& mns,
+						  const BufferStringSet& mrkrs);
+    void			setSelection(const BufferStringSet& wellnms,
+					     const BufferStringSet& lognms,
+					     const BufferStringSet& mrkrnms);
+    void			setSelection(const BufferStringSet& wellnms,
+					     const MnemonicSelection& mns,
+					     const BufferStringSet& mrkrnms);
 
     void			setMaxLinesForLists();
+
+    mStruct(uiWell) InitDesc
+    {
+	BufferStringSet			selwellnms_;
+	BufferStringSet			sellognms_;
+	BufferStringSet			selmrkrnms_;
+	MnemonicSelection		selmns_;
+	bool				logmode_ = true;
+	const ObjectSet<Well::Data>*	wds_ = nullptr;
+	MnemonicSelection		mns_;
+	BufferStringSet			lognms_;
+	BufferStringSet			markernms_;
+    };
 
     uiListBox*			welllist_;
     uiListBox*			logormnslist_;
@@ -107,9 +134,6 @@ protected:
     uiToolButton*		fromlogormnsbut_;
     uiToolButton*		frommarkerbut_;
     OD::Orientation		orient_;
+    InitDesc			initdesc_;
 
-    bool				logmode_ = true;
-    MnemonicSelection			mns_;
-    BufferStringSet			markernms_;
-    const ObjectSet<Well::Data>* 	wds_ = nullptr;
 };
