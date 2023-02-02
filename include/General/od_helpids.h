@@ -46,7 +46,6 @@ ________________________________________________________________________
 #define		mODApplMgrDispatchersetAutoUpdatePolHelpID	0x00004005
 #define		mProxyDlgHelpID					0x00004007
 #define		mExp2DGeomHelpID				0x00004008
-#define		mLatLong2CoordFileTransDlgHelpID		0x00004009
 #define		mEditSEGYFileDataDlgHelpID			0x00004010
 #define		mSEGYReadImpParsDlgHelpID			0x00004011
 #define		mSEGYStoreImpParsDlgHelpID			0x00004012
