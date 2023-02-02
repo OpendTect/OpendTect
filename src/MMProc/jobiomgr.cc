@@ -213,8 +213,13 @@ void JobIOHandler::listen( PortNr_Type firstport, int maxtries )
     uiRetVal portmsg;
     PortNr_Type currentport = firstport;
     currentport = Network::getUsablePort( portmsg, currentport, maxtries );
+    const bool tcp6 = GetEnvVarYN( "DTECT_MMP_IPv6" );
+    const bool tcp4 = GetEnvVarYN( "DTECT_MMP_IPv4" );
+    const Network::SpecAddr addr = tcp4==tcp6
+				 ? Network::Any
+				 : (tcp6 ? Network::IPv6 : Network::IPv4);
     ready_ = currentport >= firstport && portmsg.isOK() &&
-	     server_.listen( Network::Any, currentport );
+	     server_.listen( addr, currentport );
     if ( ready_ )
 	usedport_ = currentport;
     else
