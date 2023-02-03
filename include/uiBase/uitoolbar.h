@@ -56,6 +56,7 @@ public:
 				  bool toggle=false,int id=-1);
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
+    void		removeObject(uiObject*);
 
     void		setLabel(const uiString&);
     uiString		getDispNm() const;

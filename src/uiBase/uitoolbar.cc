@@ -16,14 +16,16 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "bufstringset.h"
+#include "hiddenparam.h".h"
 #include "menuhandler.h"
-#include "separstr.h"
 
 #include "q_uiimpl.h"
 
 #include <QToolBar>
 #include <QToolButton>
 #include "i_qtoolbar.h"
+
+static HiddenParam<uiToolBar,ObjectSet<QAction>*> hp_addedactions( nullptr );
 
 mUseQtnamespace
 
@@ -57,6 +59,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     }
 
     toolBars() += this;
+
+    hp_addedactions.setParam( this, new ObjectSet<QAction> );
 }
 
 
@@ -73,6 +77,8 @@ uiToolBar::~uiToolBar()
     delete qtoolbar_;
     delete msgr_;
     toolBars() -= this;
+
+    hp_addedactions.removeAndDeleteParam( this );
 }
 
 
@@ -116,18 +122,36 @@ void uiToolBar::addButton( uiButton* button )
 
 void uiToolBar::addObject( uiObject* obj )
 {
-    QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : 0;
+    QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : nullptr;
     if ( qw )
     {
-	qtoolbar_->addWidget( qw );
+	QAction* qact = qtoolbar_->addWidget( qw );
+	qact->setVisible( true );
 	mDynamicCastGet(uiToolButton*,button,obj)
-	if ( !button ) qw->setMaximumHeight( uiObject::iconSize() );
+	if ( !button )
+	    qw->setMaximumHeight( uiObject::iconSize() );
+
 	addedobjects_ += obj;
+	hp_addedactions.getParam(this)->add( qact );
     }
     else
     {
 	pErrMsg("Not a valid object");
     }
+}
+
+
+void uiToolBar::removeObject( uiObject* obj )
+{
+    ObjectSet<QAction>& addedactions = *hp_addedactions.getParam( this );
+    const int idx = addedobjects_.indexOf( obj );
+    if ( !addedactions.validIdx(idx) )
+	return;
+
+    QAction* qaction = addedactions[idx];
+    qtoolbar_->removeAction( qaction );
+    addedobjects_.removeSingle( idx );
+    addedactions.removeSingle( idx );
 }
 
 
@@ -147,7 +171,7 @@ uiString uiToolBar::getDispNm() const
 #define mHandleErr(erraction) \
     if ( !action ) \
     { \
-    	pErrMsg("Action not found"); \
+	pErrMsg("Action not found"); \
 	erraction; \
     }
 
@@ -293,6 +317,7 @@ void uiToolBar::clear()
 {
     removeAllActions();
     deepErase( addedobjects_ );
+    hp_addedactions.getParam(this)->erase();
 }
 
 
