@@ -106,6 +106,7 @@ SeisTrcWriter::~SeisTrcWriter()
 
 bool SeisTrcWriter::close()
 {
+    bool ret = true;
     if ( putter_ )
     {
 	ret = putter_->close();
