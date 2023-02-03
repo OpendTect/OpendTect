@@ -159,10 +159,17 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     lblgrp->setHAlignObj( lnglbl );
 
     auto* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
-    lngdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Longitude" );
+    uiFloatValidator validator( -180.f, 180.f );
+    validator.nrdecimals_ = 5;
+    validator.scnotation_ = false;
+    lngdecfld_ = new uiLineEdit( inpgrp, "Dec Longitude" );
+    lngdecfld_->setValidator( validator );
     inpgrp->setHAlignObj( lngdecfld_ );
 
-    latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
+    latdecfld_ = new uiLineEdit( inpgrp, "Dec Latitude" );
+    validator.bottom_ = -90.f;
+    validator.top_ = 90.f;
+    latdecfld_->setValidator( validator );
     latdecfld_->attach( alignedBelow, lngdecfld_ );
 
     lngdmsfld_ = new uiLatLongDMSInp( inpgrp, false );
@@ -215,14 +222,13 @@ void uiLatLongInp::get( LatLong& ll, bool isdec ) const
 {
     if ( isdec )
     {
-	ll.lat_ = latdecfld_->getDValue();
 	ll.lng_ = lngdecfld_->getDValue();
+	ll.lat_ = latdecfld_->getDValue();
+	return;
     }
-    else
-    {
-	ll.lat_ = latdmsfld_->value();
-	ll.lng_ = lngdmsfld_->value();
-    }
+
+    ll.lat_ = latdmsfld_->value();
+    ll.lng_ = lngdmsfld_->value();
 }
 
 
