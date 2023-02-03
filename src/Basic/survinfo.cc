@@ -726,6 +726,8 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
 	sfio.closeFail();
 	return nullptr;
     }
+    else
+	sfio.closeSuccess();
 
     if ( !si->wrapUpRead() )
 	return nullptr;
