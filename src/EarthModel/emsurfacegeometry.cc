@@ -811,8 +811,7 @@ bool SurfaceGeometry::isFullResolution() const
 }
 
 
-Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel,
-					    const ZAxisTransform* zatf )
+Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
     PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
     if ( !ioobj )
@@ -823,9 +822,6 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel,
 
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( trans && zatf )
-	trans->setZAxisTransform( const_cast<ZAxisTransform*>(zatf) );
-
     if ( !trans || !trans->startRead(*ioobj) )
     {
 	surface_.errmsg_ = trans ? trans->errMsg() :

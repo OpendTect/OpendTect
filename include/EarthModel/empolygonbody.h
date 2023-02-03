@@ -51,8 +51,8 @@ public:
     Geometry::PolygonSurface* geometryElement() override;
     const Geometry::PolygonSurface* geometryElement() const override;
 
-    Executor*		loader(const SurfaceIODataSelection* =nullptr,
-				const ZAxisTransform* =nullptr) override;
+    Executor*		loader(const SurfaceIODataSelection* =nullptr)
+								    override;
     Executor*		saver(const SurfaceIODataSelection* =nullptr,
 			      const MultiID* =nullptr) override;
 

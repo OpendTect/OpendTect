@@ -156,9 +156,6 @@ public:
     void			setCreatedFrom( const char* src )
 							{ crfrom_ = src; }
 
-    const ZAxisTransform*	getZAxisTransform() const;
-    void			setZAxisTransform(ZAxisTransform*);
-
 protected:
 
     IOObj*			ioobj_;
@@ -167,7 +164,6 @@ protected:
     EM::SurfaceIOData		sd_;
     EM::SurfaceIODataSelection	sels_;
     BufferString		crfrom_;
-    RefMan<ZAxisTransform>	zatf_ = nullptr;
 
     virtual bool		prepRead()		{ return true; }
     virtual bool		prepWrite()		{ return true; }

@@ -56,8 +56,7 @@ public:
 
     virtual bool	isLoaded() const;
     virtual bool	isFullResolution() const;
-    virtual Executor*	loader(const SurfaceIODataSelection* =nullptr,
-				const ZAxisTransform* =nullptr);
+    virtual Executor*	loader(const SurfaceIODataSelection* =nullptr);
     virtual Executor*	saver(const SurfaceIODataSelection* =nullptr,
 			      const MultiID* =nullptr);
 

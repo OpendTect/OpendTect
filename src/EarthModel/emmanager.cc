@@ -248,8 +248,7 @@ ObjectID EMManager::objectID( int idx ) const
 
 Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 				   const SurfaceIODataSelection* iosel,
-				   TypeSet<MultiID>* idstobeloaded,
-				   const ZAxisTransform* zatf )
+				   TypeSet<MultiID>* idstobeloaded )
 {
     ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) :
 								nullptr;
@@ -259,7 +258,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 	const EMObject* obj = getObject( objid );
 	Executor* loader =
 	    obj && obj->isFullyLoaded() ? nullptr :
-				    objectLoader( mids[idx], iosel, zatf );
+					    objectLoader( mids[idx], iosel );
 	if ( idstobeloaded && loader )
 	    *idstobeloaded += mids[idx];
 
@@ -287,8 +286,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 
 
 Executor* EMManager::objectLoader( const MultiID& mid,
-				   const SurfaceIODataSelection* iosel,
-				   const ZAxisTransform* zatf )
+				   const SurfaceIODataSelection* iosel )
 {
     const ObjectID id = getObjectID( mid );
     EMObject* obj = getObject( id );
@@ -320,14 +318,14 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	    hs.setInlRange( geom->rowRange() );
 	    hs.setCrlRange( geom->colRange() );
 	    if ( hs.isEmpty() )
-		return geom->loader( iosel, zatf );
+		return geom->loader( iosel );
 
 	    SurfaceIODataSelection newsel( *iosel );
 	    newsel.rg.include( hs );
-	    return geom->loader( &newsel, zatf );
+	    return geom->loader( &newsel );
 	}
 
-	return surface->geometry().loader( iosel, zatf );
+	return surface->geometry().loader( iosel );
     }
     else if ( obj )
 	return obj->loader();
@@ -337,14 +335,14 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 
 
 EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
-			TaskRunner* taskrunner, const ZAxisTransform* zatf )
+						    TaskRunner* taskrunner )
 {
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( mid, nullptr, zatf );
+	PtrMan<Executor> exec = EM::EMM().objectLoader( mid, nullptr );
 	if ( !exec )
 	    return nullptr;
 
@@ -360,7 +358,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
 
     EM::EMObject* tmpobj = emobj;
     tmpobj->ref();
-    emobj = 0; //unrefs
+    emobj = nullptr; //unrefs
     tmpobj->unRefNoDelete();
 
     return tmpobj;

@@ -109,7 +109,6 @@ mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 EMSurfaceTranslator::~EMSurfaceTranslator()
 {
     delete ioobj_;
-    unRefPtr( zatf_ );
 }
 
 
@@ -124,20 +123,6 @@ void EMSurfaceTranslator::setIOObj( const IOObj* ioobj )
 {
     delete ioobj_;
     ioobj_ = ioobj ? ioobj->clone() : 0;
-}
-
-
-const ZAxisTransform* EMSurfaceTranslator::getZAxisTransform() const
-{
-    return zatf_;
-}
-
-
-void EMSurfaceTranslator::setZAxisTransform( ZAxisTransform* zatf )
-{
-    unRefPtr( zatf_ );
-    zatf_ = zatf;
-    refPtr( zatf_ );
 }
 
 

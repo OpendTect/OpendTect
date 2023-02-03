@@ -49,8 +49,7 @@ public:
     bool		objectExists(const EMObject*) const;
 
     EMObject*		loadIfNotFullyLoaded(const MultiID&,
-				    TaskRunner* =nullptr,
-				    const ZAxisTransform* = nullptr);
+				    TaskRunner* =nullptr);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
@@ -117,12 +116,10 @@ public:
     void		setEmpty();
 
     Executor*		objectLoader(const MultiID&,
-				    const SurfaceIODataSelection* =nullptr,
-				    const ZAxisTransform* =nullptr);
+				    const SurfaceIODataSelection* =nullptr);
     Executor*		objectLoader(const TypeSet<MultiID>&,
 				    const SurfaceIODataSelection* =nullptr,
-				    TypeSet<MultiID>* idstobeloaded =nullptr,
-				    const ZAxisTransform* =nullptr);
+				    TypeSet<MultiID>* idstobeloaded =nullptr);
 			/*!< idstobeloaded are the ids for which the objects
 			     will be actually loaded */
 
