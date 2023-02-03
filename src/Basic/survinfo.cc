@@ -727,8 +727,6 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
 	return nullptr;
     }
 
-    const bool savesuccsess = sfio.closeSuccess();
-
     if ( !si->wrapUpRead() )
 	return nullptr;
 
@@ -1647,7 +1645,7 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 	if ( !sfio.closeSuccess() || ret.isError() )
 	{
 	    BufferString msg( "Error closing survey info file:\n" );
-	    msg += ret.isEmpty() ? sfio.errMsg() : ret.getText();
+	    msg += ret.isEmpty() ? sfio.errMsg() : ret.getText().buf();
 	    ErrMsg( msg );
 	}
     }
@@ -1716,7 +1714,6 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
     if ( obj )
     {
 	Survey::fillObjWithSetPts( bids, crds, *obj );
-	float fac = 1.f;
 	float seisrefval = seisrefdatum_;
 	/*if ( zInFeet() )
 	    seisrefval *= mToFeetFactorF;*/
