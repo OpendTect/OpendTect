@@ -594,29 +594,56 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
     {
 	Stats::RandGen randgen;
 	PosInfo::CubeDataPos cdp;
-	while ( true )
+	SpaceInfo si;
+	getDefSpaceInfo( si );
+	const int ddsamples = 100000;
+	const int nrperline = ddsamples/cd.size() + (ddsamples%cd.size()!=0);
+	const int trcsperline = nrperline/si.expectednrsamps +
+					    (nrperline%si.expectednrsamps!=0);
+
+	for ( int lidx=0; lidx<cd.size(); lidx++ )
 	{
-	    cdp.lidx_ = randgen.getIndex( cd.size() );
+	    PtrMan<SeisTrcBuf> traces;
+	    cdp.lidx_ = lidx;
 	    const auto& segs = cd.get( cdp.lidx_ )->segments_;
-	    cdp.segnr_ = randgen.getIndex( segs.size() );
-	    cdp.sidx_ = randgen.getIndex( segs.get(cdp.segnr_).nrSteps()+1 );
+	    for ( int tidx=0; tidx<trcsperline; tidx++ )
+	    {
+		cdp.segnr_ = randgen.getIndex( segs.size() );
+		cdp.sidx_ = randgen.getIndex(segs.get(cdp.segnr_).nrSteps()+1);
+		const BinID bid = cd.binID( cdp );
+		if ( trl->supportsGoTo() )
+		{
+		    SeisTrc trc;
+		    if ( !trl->goTo(bid) || !rdr.get(trc) || trc.isNull() )
+			continue;
 
-	    const BinID bid = cd.binID( cdp );
-	    bool res = true;
-	    if ( trl->supportsGoTo() )
-		res = trl->goTo( bid );
+		    ssc.useTrace( trc );
+		}
+		else if ( trl->is2D() )
+		{
+		    if ( !traces )
+		    {
+			traces = new SeisTrcBuf(true);
+			const auto* seisdata = rdr.dataSet();
+			if ( !seisdata )
+			    continue;
+			const Pos::GeomID geomid( bid.lineNr() );
+			PtrMan<Executor> ex = seisdata->lineFetcher( geomid,
+								     *traces );
+			if ( !ex || !ex->execute() || traces->isEmpty() )
+			    continue;
+		    }
+		    const int idx = traces->find( bid, true );
+		    if ( idx==-1 )
+			continue;
 
-	    if ( !res )
-		continue;
+		    const auto* trc = traces->get( idx );
+		    if ( !trc || trc->isNull() )
+			continue;
 
-	    SeisTrc trc;
-	    res = rdr.get( trc );
-	    if ( !res || trc.isNull() )
-		continue;
-
-	    ssc.useTrace( trc );
-	    if ( ssc.nrSamplesUsed() > 100000 )
-		break;
+		    ssc.useTrace( *trc );
+		}
+	    }
 	}
     }
 
