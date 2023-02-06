@@ -426,7 +426,6 @@ public:
 
 MnemonicSetMgr()
 {
-    mAttachCB( IOM().surveyChanged, MnemonicSetMgr::doNull );
 }
 
 
@@ -437,39 +436,28 @@ MnemonicSetMgr()
 }
 
 
-void doNull( CallBacker* )
-{
-    delete mns_;
-    mns_ = nullptr;
-}
-
-
 void createSet()
 {
     Repos::FileProvider rfp( filenamebase, true );
-    rfp.setSource(Repos::Source::ApplSetup);
-    while ( rfp.next() )
-    {
-	const BufferString fnm( rfp.fileName() );
-	SafeFileIO sfio( fnm );
-	if ( !sfio.open(true) )
-	    continue;
+    rfp.setSource( Repos::Source::ApplSetup );
+    rfp.next();
 
+    const BufferString fnm( rfp.fileName() );
+    SafeFileIO sfio( fnm );
+    if ( sfio.open(true) )
+    {
 	ascistream astrm( sfio.istrm(), true );
 	MnemonicSet* oldmns_ = mns_;
 	mns_ = new MnemonicSet;
 	mns_->readFrom( astrm );
+	sfio.closeSuccess();
 	if ( mns_->isEmpty() )
 	{
 	    delete mns_;
 	    mns_ = oldmns_;
 	}
 	else
-	{
 	    delete oldmns_;
-	    sfio.closeSuccess();
-	    break;
-	}
     }
 
     if ( !mns_ )
@@ -484,7 +472,7 @@ void createSet()
 const MnemonicSet& MNC()
 {
     mDefineStaticLocalObject( MnemonicSetMgr, msm, );
-    if ( !msm.mns_)
+    if ( !msm.mns_ )
 	msm.createSet();
 
     return *msm.mns_;
