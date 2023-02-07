@@ -574,31 +574,17 @@ mDefAdd3Val(float)	mDefAdd4Val(float)
 mDefAdd1Val(double)	mDefAdd2Val(double)
 mDefAdd3Val(double)	mDefAdd4Val(double)
 
-
-#define mGetStart(pval) \
-    if ( !pval ) return false; \
+#define mGetStartAllowEmpty(pval) \
+    if ( !isPresent(keyw) ) return false; \
+    const BufferString valstr = find( keyw ); \
+    const char* pval = valstr.buf(); \
     mSkipBlanks(pval)
 
-#define mGetStartAllowEmptyOn(iop,pval) \
-    BufferString val = iop.find( keyw ); \
-    const char* pval = val.buf(); \
-    mGetStart(pval)
-
-#define mGetStartAllowEmpty(pval) \
-    BufferString retval = find( keyw ); \
-    if ( retval.isEmpty() ) \
-	return false; \
-    const char* pval = retval.buf(); \
-    mGetStart(pval)
-
-#define mGetStartNotEmptyOn(iop,pval) \
-    mGetStartAllowEmptyOn(iop,pval); \
-    if ( !*pval ) return false
-
 #define mGetStartNotEmpty(pval) \
-    mGetStartAllowEmpty(pval); \
-    if ( !*pval ) return false
-
+    const BufferString valstr = find( keyw ); \
+    if ( valstr.isEmpty() ) return false; \
+    const char* pval = valstr.buf(); \
+    mSkipBlanks(pval)
 
 #define mDefGetI1Val( type, convfunc ) \
 bool IOPar::get( const char* keyw, type& v1 ) const \
