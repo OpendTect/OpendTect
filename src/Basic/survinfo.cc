@@ -138,6 +138,9 @@ namespace Survey
     void fillObjWithSetPts( const TypeSet<BinID>& bids,
 	const TypeSet<Coord>& crds, OD::JSON::Object& obj )
     {
+	if ( bids.size() < 3 || crds.size() < 3 )
+	    return;
+
 	OD::JSON::Array setarr( true );
 	for ( int idx=0; idx<3; idx++ )
 	{
@@ -959,7 +962,9 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
 
     Survey::fillObjFromRanges( samp, zistime, zisfeet, obj );
     Survey::fillObjWithDirTransform( dirxset, diryset, obj );
-    Survey::fillObjWithSetPts( bids, crds, obj );
+    if ( !bids.isEmpty() && !crds.isEmpty() )
+	Survey::fillObjWithSetPts( bids, crds, obj );
+
     PtrMan<IOPar> coordsyssubpar =
 	coordsystempar.subselect( sKey::CoordSys() );
     if ( coordsyssubpar )
