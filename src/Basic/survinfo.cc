@@ -726,9 +726,8 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
 	sfio.closeFail();
 	return nullptr;
     }
-    else
-	sfio.closeSuccess();
 
+    sfio.closeSuccess();
     if ( !si->wrapUpRead() )
 	return nullptr;
 
@@ -738,7 +737,6 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
 
 SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
 {
-
     FilePath diskloc = obj.getFilePath( sKeySurvDiskLoc() );
     PtrMan<SurveyInfo> si = new SurveyInfo;
     si->disklocation_ = SurveyDiskLocation( diskloc );
@@ -811,6 +809,9 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
 	    si->depthsinfeet_ = false;
     }
 
+    const BufferString comments = obj.getStringValue( sKeyComments() );
+    if ( !comments.isEmpty() )
+	si->setComment( comments.str() );
 
     return si.release();
 }
@@ -981,9 +982,8 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
 	comment += line;
     }
 
-    if ( comment.isEmpty() )
+    if ( !comment.isEmpty() )
 	obj.set( sKeyComments(), comment );
-
 
     return readJSON( obj, ret );
 }
