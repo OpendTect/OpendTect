@@ -174,16 +174,10 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 void Seis::SelData::usePar( const IOPar& iop )
 {
     BufferString res = iop.hasKey( sKey::Type() ) ?
-	iop.find( sKey::Type() ) : iop.find(sKeyBinIDSel);
+	iop.find( sKey::Type() ) : iop.find( sKeyBinIDSel );
 
     isall_ = res.isEmpty() || res.isEqual( sKey::None() );
     iop.get( sKey::GeomID(), geomid_ );
-    if ( geomid_.asInt() < 0 )
-    {
-	res = iop.find( sKey::LineKey() );
-	if ( !res.isEmpty() )
-	    geomid_ = Survey::GM().getGeomID( res );
-    }
 }
 
 

@@ -27,11 +27,11 @@ ________________________________________________________________________
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
-	: uiGroup(p,"uiPosProvider")
-	, setup_(su)
-	, selfld_(0)
-	, fullsurvbut_(0)
-	, posProvGroupChanged(this)
+    : uiGroup(p,"uiPosProvider")
+    , setup_(su)
+    , selfld_(nullptr)
+    , fullsurvbut_(nullptr)
+    , posProvGroupChanged(this)
 {
     const BufferStringSet& factnms( setup_.is2d_
 	    ? Pos::Provider2D::factory().getNames()
@@ -71,29 +71,29 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 
 	uiPosProvGroup* grp = uiPosProvGroup::factory()
 				.create(nm,this,setup_,true);
-	if ( !grp ) continue;
+	if ( !grp )
+	    continue;
 
 	nms.add( factusrnms[idx] );
 	grp->setName( nm );
 	grps_ += grp;
 
-	mAttachCB(grp->posProvGroupChg, uiPosProvider::selChg);
+	mAttachCB( grp->posProvGroupChg, uiPosProvider::selChg );
     }
     if ( setup_.allownone_ )
 	nms.add( uiStrings::sAll() );
 
-    const CallBack selcb( mCB(this,uiPosProvider,selChg) );
-    if ( grps_.size() == 0 )
+    if ( grps_.isEmpty() )
     {
 	new uiLabel( this, tr("No position providers available") );
 	return;
     }
 
-    uiObject* attachobj = 0;
+    uiObject* attachobj = nullptr;
     if ( nms.size() > 1 )
     {
 	selfld_ = new uiGenInput( this, setup_.seltxt_, StringListInpSpec(nms));
-	selfld_->valuechanged.notify( selcb );
+	mAttachCB( selfld_->valuechanged, uiPosProvider::selChg );
 	attachobj = selfld_->attachObj();
     }
 
@@ -127,8 +127,8 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     for ( int idx=0; idx<grps_.size(); idx++ )
 	grps_[idx]->attach( alignedBelow, attachobj );
 
-    setHAlignObj( grps_[0] );
-    postFinalize().notify( selcb );
+    setHAlignObj( grps_.first() );
+    mAttachCB( postFinalize(), uiPosProvider::selChg );
 }
 
 
@@ -140,7 +140,9 @@ uiPosProvider::~uiPosProvider()
 
 void uiPosProvider::selChg( CallBacker* )
 {
-    if ( !selfld_ ) return;
+    if ( !selfld_ )
+	return;
+
     const int selidx = selfld_->getIntValue();
     for ( int idx=0; idx<grps_.size(); idx++ )
 	grps_[idx]->display( idx == selidx );
@@ -157,7 +159,8 @@ void uiPosProvider::selChg( CallBacker* )
 void uiPosProvider::fullSurvPush( CallBacker* )
 {
     const int selidx = selfld_ ? selfld_->getIntValue() : 0;
-    if ( selidx < 0 ) return;
+    if ( selidx < 0 )
+	return;
 
     IOPar iop;
     SI().sampling( setup_.useworkarea_ ).fillPar( iop );
@@ -187,7 +190,7 @@ void uiPosProvider::openCB( CallBacker* )
 	mErrRet( tr("No valid subselection found") )
 
     usePar( iop );
-    selChg(0);
+    selChg( nullptr );
 }
 
 
@@ -203,7 +206,8 @@ void uiPosProvider::saveCB( CallBacker* )
     CtxtIOObj ctio( PosProvidersTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio, tr("Save Subselection") );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
+    if ( !dlg.go() || !dlg.ioObj() )
+	return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj_;
@@ -221,10 +225,12 @@ void uiPosProvider::saveCB( CallBacker* )
 
 uiPosProvGroup* uiPosProvider::curGrp() const
 {
-    if ( grps_.size() < 1 ) return 0;
+    if ( grps_.size() < 1 )
+	return nullptr;
+
     const int selidx = selfld_ ? selfld_->getIntValue() : 0;
     return const_cast<uiPosProvGroup*>(
-	    selidx < grps_.size() ? grps_[selidx] : 0);
+	    selidx < grps_.size() ? grps_[selidx] : nullptr);
 }
 
 
@@ -258,7 +264,7 @@ void uiPosProvider::getSampling( TrcKeyZSampling& tkzs,
     else
 	fillPar( iop );
 
-    PtrMan<Pos::Provider> prov = 0;
+    PtrMan<Pos::Provider> prov;
     if ( setup_.is2d_ )
 	prov = Pos::Provider2D::make( iop );
     else
@@ -277,6 +283,7 @@ bool uiPosProvider::hasRandomSampling() const
 	if ( curgrp )
 	    return curgrp->hasRandomSampling();
     }
+
     return false;
 }
 
@@ -337,7 +344,7 @@ Pos::Provider* uiPosProvider::createProvider() const
 {
     IOPar iop;
     if ( !fillPar(iop) )
-	return 0;
+	return nullptr;
 
     if ( setup_.is2d_ )
 	return Pos::Provider2D::make( iop );
@@ -349,18 +356,19 @@ Pos::Provider* uiPosProvider::createProvider() const
 uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     : uiCompoundParSel(p,su.seltxt_)
     , setup_(su)
-    , prov_(0)
+    , prov_(nullptr)
     , tkzs_(*new TrcKeyZSampling(false))
 {
     txtfld_->setElemSzPol( uiObject::WideVar );
     iop_.set( sKey::Type(), sKey::None() );
     mkNewProv(false);
-    butPush.notify( mCB(this,uiPosProvSel,doDlg) );
+    mAttachCB( butPush, uiPosProvSel::doDlg );
 }
 
 
 uiPosProvSel::~uiPosProvSel()
 {
+    detachAllNotifiers();
     delete prov_;
     delete &tkzs_;
 }
@@ -369,13 +377,14 @@ uiPosProvSel::~uiPosProvSel()
 BufferString uiPosProvSel::getSummary() const
 {
     BufferString ret;
-    if ( !prov_ )
-	ret = "-";
-    else
+    if ( prov_ )
     {
 	ret = prov_->type(); ret[1] = '\0'; ret += ": ";
 	prov_->getSummary( ret );
     }
+    else
+	ret = "-";
+
     return ret;
 }
 
@@ -394,17 +403,18 @@ void uiPosProvSel::setProvFromCS()
     delete prov_;
     if ( setup_.is2d_ )
     {
-	Pos::RangeProvider2D* rp2d = new Pos::RangeProvider2D;
-	rp2d->setTrcRange( tkzs_.hsamp_.crlRange(), 0 );
-	rp2d->setZRange( tkzs_.zsamp_, 0 );
+	auto* rp2d = new Pos::RangeProvider2D;
+	rp2d->setTrcRange( tkzs_.hsamp_.trcRange() );
+	rp2d->setZRange( tkzs_.zsamp_ );
 	prov_ = rp2d;
     }
     else
     {
-	Pos::RangeProvider3D* rp3d = new Pos::RangeProvider3D;
+	auto* rp3d = new Pos::RangeProvider3D;
 	rp3d->setSampling( tkzs_ );
 	prov_ = rp3d;
     }
+
     prov_->fillPar( iop_ );
     iop_.set( sKey::Type(), prov_->type() );
     updateSummary();
@@ -505,7 +515,7 @@ void uiPosProvSel::doDlg( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup(uiStrings::sPosition(mPlural),
 			   uiStrings::phrSpecify(uiStrings::sPosition(mPlural)),
 			   mODHelpKey(mPosProvSelHelpID) ) );
-    uiPosProvider* pp = new uiPosProvider( &dlg, setup_ );
+    auto* pp = new uiPosProvider( &dlg, setup_ );
     pp->usePar( iop_ );
     if ( dlg.go() )
     {
@@ -525,7 +535,7 @@ void uiPosProvSel::usePar( const IOPar& iop )
     if ( prov_ )
     {
 	prov_->fillPar( iop_ );
-	iop_.set(sKey::Type(),prov_->type());
+	iop_.set( sKey::Type(), prov_->type() );
     }
 }
 
@@ -566,13 +576,15 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
     ppsu.zdomkey( su.zdomkey_ );
     ps_ = new uiPosProvSel( this, ppsu );
-    ps_->butPush.notify( mCB(this,uiPosSubSel,selChg) );
+    mAttachCB( ps_->butPush, uiPosSubSel::selChg );
     setHAlignObj( ps_ );
 }
 
 
 uiPosSubSel::~uiPosSubSel()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiPosSubSel::selChg( CallBacker* )
@@ -590,7 +602,7 @@ ret uiPosSubSel::nm( typ arg ) cnst \
 ret uiPosSubSel::nm( typ1 arg1, typ2 arg2 ) cnst \
 { \
     ps_->nm( arg1, arg2 ); \
-    selChg(0); \
+    selChg(nullptr); \
 }
 
 mDefFn(void,usePar,const IOPar&,iop,,)
