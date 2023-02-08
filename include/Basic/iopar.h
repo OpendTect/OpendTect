@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 
+#include "bufstring.h"
 #include "dbkey.h"
-#include "stringview.h"
 #include "integerid.h"
 #include "od_iosfwd.h"
 #include "posgeomid.h"

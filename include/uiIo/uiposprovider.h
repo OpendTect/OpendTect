@@ -29,7 +29,7 @@ public:
     struct Setup : public uiPosProvGroup::Setup
     {
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
-       			  VolumeTypes };
+			  VolumeTypes };
 
 			Setup( bool is_2d, bool with_step, bool with_z )
 			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
@@ -65,8 +65,8 @@ public:
 
 protected:
 
-    uiGenInput*			selfld_;
-    uiButton*			fullsurvbut_;
+    uiGenInput*			selfld_ = nullptr;
+    uiButton*			fullsurvbut_ = nullptr;
     uiButton*			openbut_;
     uiButton*			savebut_;
     ObjectSet<uiPosProvGroup>	grps_;
@@ -92,7 +92,7 @@ public:
 			~uiPosProvSel();
 
     void		usePar(const IOPar&);
-    void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }
+    void		fillPar( IOPar& iop ) const;
 
     Pos::Provider*	curProvider()			{ return prov_; }
     const Pos::Provider* curProvider() const		{ return prov_; }
@@ -111,7 +111,7 @@ protected:
 
     Setup		setup_;
     IOPar		iop_;
-    Pos::Provider*	prov_;
+    Pos::Provider*	prov_ = nullptr;
     TrcKeyZSampling&	tkzs_;
 
     void		doDlg(CallBacker*);

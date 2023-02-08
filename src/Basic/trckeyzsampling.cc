@@ -22,7 +22,7 @@ ________________________________________________________________________
 mStartAllowDeprecatedSection
 
 mDefineEnumUtils(TrcKeyZSampling,Dir,"Direction")
-{ "Inline","Crossline", "ZSlice", 0 };
+{ "Inline","Crossline", "ZSlice", nullptr };
 
 template<>
 void EnumDefImpl<TrcKeyZSampling::Dir>::init()
@@ -644,10 +644,11 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 
 void TrcKeySampling::fillPar( IOPar& pars ) const
 {
+    const Pos::GeomID geomid = getGeomID();
     if ( is2D() )
     {
 	IOPar tmppar;
-	tmppar.set( sKey::GeomID(), start_.lineNr() );
+	tmppar.set( sKey::GeomID(), geomid );
 	tmppar.set( sKey::FirstTrc(), start_.trcNr() );
 	tmppar.set( sKey::LastTrc() , stop_.trcNr() );
 	tmppar.set( sKey::StepCrl(), step_.trcNr() );
@@ -662,6 +663,7 @@ void TrcKeySampling::fillPar( IOPar& pars ) const
 	pars.set( sKey::LastCrl(), stop_.trcNr() );
 	pars.set( sKey::StepInl(), step_.lineNr() );
 	pars.set( sKey::StepCrl(), step_.trcNr() );
+	pars.set( sKey::GeomID(), geomid );
 	pars.set( sKey::SurveyID(), survid_ );
     }
 }

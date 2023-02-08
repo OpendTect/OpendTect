@@ -8,25 +8,28 @@ ________________________________________________________________________
 -*/
 
 #include "iopar.h"
-#include "multiid.h"
-#include "keystrs.h"
-#include "od_iostream.h"
-#include "globexpr.h"
-#include "position.h"
-#include "odversion.h"
-#include "separstr.h"
+
 #include "ascstream.h"
-#include "samplingdata.h"
-#include "perthreadrepos.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
-#include "timefun.h"
+#include "globexpr.h"
+#include "keystrs.h"
+#include "multiid.h"
+#include "od_iostream.h"
 #include "oddirs.h"
 #include "odjson.h"
 #include "odver.h"
+#include "odversion.h"
+#include "perthreadrepos.h"
+#include "position.h"
+#include "samplingdata.h"
+#include "separstr.h"
+#include "timefun.h"
+
 #include <stdio.h>
 #include <string.h>
+
 #include <QHash>
 #include <QHashIterator>
 #include <QRegularExpression>
