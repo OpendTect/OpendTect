@@ -753,7 +753,7 @@ const IOObjContext& Horizon2D::getIOObjContext() const
 
 EMObjectIterator* Horizon2D::createIterator( const TrcKeyZSampling* ) const
 {
-    return nullptr;
+    return geometry().createIterator();
 }
 
 
