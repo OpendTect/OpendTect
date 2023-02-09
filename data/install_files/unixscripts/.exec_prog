@@ -1,9 +1,12 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# OpenTect: execution of batch programs on the command line.
-# $Id$
-#_______________________________________________________________________________
+# Copyright:	(C) 1995-2023 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# OpendTect: execution of batch programs on the command line.
+#
 
 if ( ! $?CSHCMD ) then
     setenv CSHCMD ""

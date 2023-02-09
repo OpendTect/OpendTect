@@ -1,10 +1,12 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
+# Copyright:	(C) 1995-2023 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
+#________________________________________________________________________
+#
 # License installer common source script
-# $Id: .lic_inst_common,v 1.1 2010-04-06 08:33:09 relman Exp $
-#_______________________________________________________________________________
+#
 
 if ( ! $?target_name ) then
 	echo "$0 can be only called after setting the 'target_name' variable."

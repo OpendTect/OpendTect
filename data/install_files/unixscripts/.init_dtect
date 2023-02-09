@@ -1,13 +1,13 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# OpenTect environment initialisation script
-# $Id: .init_dtect,v 1.7 2012/07/27 09:10:29 relman Exp $
-#_______________________________________________________________________________
-
-#-----------------------------------------------------
+# Copyright:	(C) 1995-2023 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# OpendTect environment initialization script
 # Filled by 'install'
+#
 
 if ( ! $?DTECT_APPL ) then
     setenv DTECT_APPL "__INST_DIR__"

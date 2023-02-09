@@ -1,11 +1,12 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# OpendTect: Initialise user files and directories
-# $Id: .init_dtect_user,v 1.2 2010-05-21 05:29:27 relman Exp $
-#_______________________________________________________________________________
-
+# Copyright:	(C) 1995-2023 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# OpendTect: Initialize user files and directories
+#
 
 #-- set DTECT_HOME
 

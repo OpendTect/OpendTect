@@ -1,10 +1,12 @@
 #!/bin/csh -f
 #_______________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# OpenTect startup script
-# $Id: .start_dtect,v 1.10 2012/07/30 14:12:30 kristofer Exp $
-#_______________________________________________________________________________
+# Copyright:	(C) 1995-2022 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# OpendTect startup script
+#
 
 if ( ! $?CSHCMD ) then
     setenv CSHCMD ""

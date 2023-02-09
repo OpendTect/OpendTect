@@ -1,11 +1,11 @@
 #!/bin/csh -f
-#_______________________________________________________________________________
+#________________________________________________________________________
 #
-# (C) dGB Beheer B.V.
-# OpenTect license manager daemon startup script
-# $Id: .lic_start_common,v 1.1 2010-04-06 08:33:09 relman Exp $
-#_______________________________________________________________________________
-
+# Copyright:	(C) 1995-2023 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
+#________________________________________________________________________
+#
+# OpendTect license manager daemon startup script
 #
 # You may want to change the following directory.
 # It is the directory where the logfiles will be placed.
