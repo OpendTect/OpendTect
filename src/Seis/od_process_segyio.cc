@@ -234,9 +234,26 @@ bool BatchProgram::doWork( od_ostream& strm )
     ManagedObjectSet<IOPar> allpars;
     splitIOPars( pars(), allpars, is2d );
 
+    const bool ismultiline = allpars.size() > 1;
     for ( int idx=0; idx<allpars.size(); idx++ )
     {
 	IOPar& curpars = *allpars[idx];
+	if ( ismultiline )
+	{
+	    strm << "Line " << idx+1 << " of " << allpars.size() << od_endl;
+	    Pos::GeomID geomid;
+	    BufferString linename;
+	    if ( curpars.get(sKey::GeomID(),geomid) )
+		linename = Survey::GM().getName( geomid );
+
+	    if ( !linename.isEmpty() )
+		strm << "Line name: " << linename << od_endl;
+
+	    const BufferString filename = curpars.find( sKey::FileName() );
+	    if ( !filename.isEmpty() )
+		strm << "File name: " << filename << od_endl;
+	}
+
 	if ( isimport )
 	    doImport( strm, curpars, is2d );
 	else if ( isexport )
