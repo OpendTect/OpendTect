@@ -110,7 +110,7 @@ Write3DHorASCII( od_ostream&, int sectionidx, int sidx,
 		 const Setup&);
 
     int				nextStep() override;
-    const char*			message() const override	{ return msg_; }
+    const char*			message() const override    { return msg_; }
     const char*			nrDoneText() const override;
     od_int64			nrDone() const override;
     od_int64			totalNr() const override;
@@ -229,8 +229,10 @@ int Write3DHorASCII::nextStep()
     str.setEmpty();
     if ( setup_.doxy_ )
 	str.add( crd.x, 2 ).addTab().add( crd.y, 2 );
+
     if ( setup_.doxy_ && setup_.doic_ )
 	str.addTab();
+
     if ( setup_.doic_ )
 	str.add( bid.inl() ).addTab().add( bid.crl() );
 
@@ -297,8 +299,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
 				    EMHorizon3DTranslatorGroup::sGroupName())
 		    .withsubsel(true).withsectionfld(false) );
-	infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
-	infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
+	mAttachCB( infld_->inpChange, uiExportHorizon::inpSel );
+	mAttachCB( infld_->attrSelChange, uiExportHorizon::attrSel );
 	attachobj = infld_->attachObj();
     }
     else
@@ -310,7 +312,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
 			      StringListInpSpec(exptyps()) );
-    typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
+    mAttachCB( typfld_->valuechanged, uiExportHorizon::typChg );
     typfld_->attach( alignedBelow, attachobj );
     attachobj = typfld_->attachObj();
 
@@ -356,14 +358,15 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, udffld_ );
 
-    typChg( 0 );
+    mAttachCB( postFinalize(), uiExportHorizon::typChg );
     if ( !isbulk )
-	inpSel( 0 );
+	mAttachCB( postFinalize(), uiExportHorizon::inpSel );
 }
 
 
 uiExportHorizon::~uiExportHorizon()
 {
+    detachAllNotifiers();
 }
 
 
@@ -497,8 +500,8 @@ bool uiExportHorizon::writeAscii()
 	EM::SurfaceIODataSelection sels( sd );
 	if ( !isbulk_ )
 	    infld_->getSelection( sels );
-	sels.selvalues.erase();
 
+	sels.selvalues.erase();
 	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
 	if ( !emobj )
 	    mErrRet(uiStrings::sCantCreateHor())
@@ -510,13 +513,15 @@ bool uiExportHorizon::writeAscii()
 	    mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) )
 
 	uiTaskRunner taskrunner( this );
-	if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
+	if ( !TaskRunner::execute(&taskrunner,*loader) )
+	    return false;
 
 	if ( !isbulk_ )
 	    infld_->getSelection( sels );
 	else
 	    for( int idx=0; idx<sd.sections.size(); idx++ )
 		sels.selsections += idx;
+
 	if ( dogf && sels.selvalues.size() > 1 && uiMSG().askContinue(
 			tr("Only the first selected attribute will be used\n"
 				 "Do you wish to continue?")) )
@@ -532,7 +537,6 @@ bool uiExportHorizon::writeAscii()
 	}
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
-
 	const UnitOfMeasure* unit = unitsel_->getUnit();
 	TypeSet<int>& sections = sels.selsections;
 	int zatvoi = -1;
@@ -588,9 +592,7 @@ bool uiExportHorizon::writeAscii()
 	    const int sectionidx = sections[sidx];
 
 	    if ( stream.isBad() )
-	    {
 		mErrRet( uiStrings::sCantOpenOutpFile() );
-	    }
 
 	    if ( dogf )
 		initGF( stream, gfname_.buf(), gfcomment_.buf() );
@@ -609,7 +611,8 @@ bool uiExportHorizon::writeAscii()
 	    Write3DHorASCII* executor = new Write3DHorASCII(stream, sectionidx,
 			    sidx, hor, zatf.ptr(), unit, crs, su);
 	    exphorgrp.add(executor);
-	    if ( !TaskRunner::execute( &taskrunner, exphorgrp ) ) return false;
+	    if ( !TaskRunner::execute(&taskrunner,exphorgrp) )
+		return false;
 
 	    if ( zatf && zatvoi>=0 )
 		zatf->removeVolumeOfInterest( zatvoi );
@@ -645,6 +648,7 @@ bool uiExportHorizon::acceptOK( CallBacker* )
       uiMSG().error( uiStrings::phrCannotWrite(tr("output file.")));
       return false;
     }
+
     uiString msg = tr("%1 successfully exported."
 			"\n\nDo you want to export more %2?").arg(
 				  uiStrings::sHorizon(!isbulk_?1:mPlural))
@@ -693,9 +697,13 @@ void uiExportHorizon::typChg( CallBacker* cb )
 
 void uiExportHorizon::inpSel( CallBacker* )
 {
-    const IOObj* ioobj = infld_ ? infld_->selIOObj() : 0;
+    const IOObj* ioobj = infld_ ? infld_->selIOObj() : nullptr;
     if ( ioobj )
+    {
 	gfname_ = ioobj->name();
+	EM::IOObjInfo info( ioobj->key() );
+	unitsel_->setUnit( info.getZUoM() );
+    }
 }
 
 
@@ -706,7 +714,6 @@ void uiExportHorizon::addZChg( CallBacker* )
     writezfld_->display( !isgf );
     doconvzfld_->display( !isgf && writezfld_->getBoolValue() );
     transfld_->display( !isgf && doconvzfld_->getBoolValue() );
-
     const bool displayunit = !isgf && writezfld_->getBoolValue();
     if ( displayunit )
     {
