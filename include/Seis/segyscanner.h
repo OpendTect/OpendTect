@@ -57,7 +57,8 @@ public:
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
     uiStringSet scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
-    void			getReport(IOPar&,const IOPar* inppars=0) const;
+    void			getReport(IOPar&,
+					  const IOPar* inppars=nullptr) const;
     StepInterval<float>		zRange() const;
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
 

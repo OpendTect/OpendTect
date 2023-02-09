@@ -141,6 +141,8 @@ namespace sKey
     inline StringView Polygon()		{ return "Polygon"; }
     inline StringView Position()	{ return "Position"; }
     inline StringView PreStackSeis()	{ return "PreStack Seismic"; }
+    inline StringView ProjSystem()	{ return "ProjectionBased System"; }
+    inline StringView Projection()	{ return "Projection"; }
     inline StringView Property()	{ return "Property"; }
     inline StringView Python()		{ return "Python"; }
     inline StringView Quiet()		{ return "quiet"; }

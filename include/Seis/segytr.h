@@ -28,7 +28,8 @@ public:
 
 			SEGYSeisTrcTranslator(const char*,const char*);
 			~SEGYSeisTrcTranslator();
-    const char* defExtension() const override	{ return "sgy"; }
+
+    const char*		defExtension() const override	{ return "sgy"; }
 
     bool		readInfo(SeisTrcInfo&) override;
     bool		skip(int) override;

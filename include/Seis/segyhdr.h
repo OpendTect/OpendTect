@@ -56,6 +56,9 @@ public:
 		//!< Used when writing header
 
     void	getText(BufferString&) const;
+    RefMan<Coords::CoordSystem> getCoordSystem(
+					const char* filenm=nullptr) const;
+
     void	setText(const char*);
 
     bool	isAscii() const;
@@ -70,7 +73,7 @@ public:
     static const char*	sKeySettingEBCDIC()
 			{ return "SEGY.Text Header EBCDIC"; }
 
-protected:
+private:
 
     int			revision_	= 1;
     Seis::GeomType	geomtype_	= Seis::Vol;
@@ -83,6 +86,9 @@ protected:
     int		setGeneralInfo(const char* datanm);
     int		setSurveySetupInfo(int firstlinenr,const Coords::CoordSystem*);
     int		setPosInfo(int firstlinenr,const TrcHeaderDef&);
+
+    static RefMan<Coords::CoordSystem> getCoordSystemFrom(const char* filenm);
+
 };
 
 

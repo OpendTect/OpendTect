@@ -68,9 +68,9 @@ public:
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
     virtual TDInfo		tdInfo() const		{ return Uknown; }
     virtual bool		xyInFeet() const	{ return false; }
-    virtual const char*		iconName() const	{ return 0; }
+    virtual const char*		iconName() const	{ return nullptr; }
 
-    virtual IOPar*		getImportPars() const	{ return 0; }
+    virtual IOPar*		getImportPars() const	{ return nullptr; }
     virtual void		startImport(uiParent*,const IOPar&) {}
     virtual const char*		importAskQuestion() const
 				{ return "Proceed to import?"; }

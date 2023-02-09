@@ -166,6 +166,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( !strm.isOK() )
 	mErrRetWithFileName( "has no textual header" )
 
+    coordsystem_ = txthdr.getCoordSystem( strm.fileName() );
+
     SEGY::BinHeader binhdr;
     strm.getBin( binhdr.buf(), SegyBinHeaderLength );
     if ( strm.isBad() )
@@ -516,22 +518,23 @@ FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
     : ::Executor("SEG-Y scanner")
     , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals)
     , clipsampler_(cs), offscalc_(oc)
-    , nrdone_(1)
 {
     si_.full_ = true;
     totalnr_ = def_.nrTracesIn( strm );
 }
 
-virtual uiString uiNrDoneText() const	{ return tr("Traces handled"); }
-virtual od_int64 nrDone() const		{ return nrdone_; }
-virtual od_int64 totalNr() const	{ return totalnr_; }
+uiString uiNrDoneText() const override	{ return tr("Traces handled"); }
+od_int64 nrDone() const override	{ return nrdone_; }
+od_int64 totalNr() const override	{ return totalnr_; }
 
-virtual uiString uiMessage() const
+uiString uiMessage() const override
 {
     return tr("Scanning traces");
 }
 
-virtual int nextStep()
+private:
+
+int nextStep() override
 {
     for ( int idx=0; idx<10; idx++ )
     {
@@ -556,7 +559,8 @@ virtual int nextStep()
     float*		vals_;
     DataClipSampler&	clipsampler_;
     const OffsetCalculator& offscalc_;
-    od_int64		nrdone_, totalnr_;
+    od_int64		nrdone_ = 1;
+    od_int64		totalnr_;
 
 }; // class FullUIScanner
 

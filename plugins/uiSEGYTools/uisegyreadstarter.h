@@ -54,7 +54,8 @@ public:
     const char*		userFileName() const	{ return userfilename_; }
 
     const SurveyInfo*	survInfo() const
-			{ return survinfook_ ? survinfo_ : 0; }
+			{ return survinfook_ ? survinfo_ : nullptr; }
+    RefMan<Coords::CoordSystem> getCoordSystem() const;
     bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
     bool		zInFeet() const
 			{ return scaninfos_ && scaninfos_->inFeet(); }
@@ -142,7 +143,7 @@ protected:
     void		updateCoordScale();
     bool		reviewAndEditLineNames();
 
-    void		initWin(CallBacker*);
+    void		initDlg(CallBacker*);
     void		firstSel(CallBacker*);
     void		typChg(CallBacker*);
     void		inpChg(CallBacker*);

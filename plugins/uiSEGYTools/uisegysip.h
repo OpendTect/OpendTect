@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uisip.h"
-#include "iopar.h"
+
+#include "coordsystem.h"
 
 /* uiSurvInfoProvider taking its source in (a) SEG-Y file(s) */
 
@@ -21,20 +22,27 @@ public:
 			uiSEGYSurvInfoProvider();
 			~uiSEGYSurvInfoProvider();
 
-    const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
-    uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
-    bool		xyInFeet() const	{ return xyinft_; }
-    virtual const char*	iconName() const	{ return "segy"; }
+			mOD_DisableCopy(uiSEGYSurvInfoProvider);
 
-    void		fillLogPars(IOPar&) const;
-    IOPar*		getImportPars() const;
-    void		startImport(uiParent*,const IOPar&);
-    const char*		importAskQuestion() const;
+    const char*		usrText() const override { return "Scan SEG-Y file(s)";}
+    uiDialog*		dialog(uiParent*) override;
+    bool		getInfo(uiDialog*,TrcKeyZSampling&,
+				Coord crd[3]) override;
+    bool		xyInFeet() const override	{ return xyinft_; }
+    const char*		iconName() const override	{ return "segy"; }
+
+    void		fillLogPars(IOPar&) const override;
+    IOPar*		getCoordSystemPars() const override;
+    IOPar*		getImportPars() const override;
+    void		startImport(uiParent*,const IOPar&) override;
+    const char*		importAskQuestion() const override;
     const uiString	importAskUiQuestion() const;
 
+private:
+
     IOPar		imppars_;
-    bool		xyinft_			= false;
     BufferString	userfilename_;
+    bool		xyinft_			= false;
+    RefMan<Coords::CoordSystem> coordsystem_;
 
 };

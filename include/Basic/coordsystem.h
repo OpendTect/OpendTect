@@ -120,9 +120,10 @@ public:
 			UnlocatedXY();
 
     CoordSystem*	clone() const override;
-    uiString	description() const override
-		{ return tr("Coordinate system in an undefined projection.");}
-    BufferString summary() const override { return sFactoryKeyword(); }
+    uiString		description() const override
+			{ return tr("Coordinate system in an "
+				    "undefined projection."); }
+    BufferString	summary() const override { return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const override { return false; }
@@ -136,10 +137,11 @@ public:
 
 private:
 
-    LatLong	toGeographic(const Coord&,bool wgs84) const override;
-    Coord	fromGeographic(const LatLong&,bool wgs84) const override;
-    bool	doUsePar(const IOPar&) override;
-    void	doFillPar(IOPar&) const override;
+    LatLong		toGeographic(const Coord&,bool wgs84) const override;
+    Coord		fromGeographic(const LatLong&,
+				       bool wgs84) const override;
+    bool		doUsePar(const IOPar&) override;
+    void		doFillPar(IOPar&) const override;
 
     bool		isfeet_;
 };
@@ -154,13 +156,14 @@ public:
 
 			AnchorBasedXY();
 			AnchorBasedXY(const LatLong&,const Coord&);
-    CoordSystem* clone() const override;
-    uiString	description() const override
-		    { return tr("Coordinate system has an anchor point "
-				    "for which Latitude/Longitude is known");}
+
+    CoordSystem*	clone() const override;
+    uiString		description() const override
+			{ return tr("Coordinate system has an anchor point "
+				    "for which Latitude/Longitude is known"); }
     BufferString	summary() const override;
 
-    void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
+    void		setIsFeet( bool isfeet )	{ isfeet_ = isfeet; }
     bool		geographicTransformOK() const override;
     void		setLatLongEstimate(const LatLong&,const Coord&);
 
@@ -178,17 +181,16 @@ private:
 
     LatLong		toGeographic(const Coord&,bool wgs84) const override;
 			//!<Very approximate! Be Aware!
-    Coord		fromGeographic(
-				    const LatLong&,bool wgs84) const override;
+    Coord		fromGeographic(const LatLong&,
+				       bool wgs84) const override;
+    bool		doUsePar(const IOPar&) override;
+    void		doFillPar(IOPar&) const override;
 
     bool		isfeet_		= false;
     Coord		refcoord_	= Coord::udf();
     LatLong		reflatlng_	= LatLong::udf();
 
     double		lngdist_	= mUdf(double);
-
-    virtual bool	doUsePar(const IOPar&) override;
-    virtual void	doFillPar(IOPar&) const override;
 
 };
 
