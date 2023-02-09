@@ -108,8 +108,8 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
     delete resampler_;
-    deepErase( rdrs_ );
     delete &wrr_;
+    deepErase( rdrs_ );
     delete &intrc_;
     delete &wrrkey_;
     delete scaler_;
