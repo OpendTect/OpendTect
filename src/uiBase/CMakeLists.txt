@@ -9,26 +9,6 @@ set( OD_MODULE_DEPS General )
 set( OD_FOLDER "Base (GUI)" )
 set( OD_USEQT PrintSupport )
 
-set( QT_MOC_HEADERS
-	i_qaction.h
-	i_qbutton.h
-	i_qcombobox.h
-	i_qdial.h
-	i_qlineedit.h
-	i_qlistbox.h
-	i_qmdiarea.h
-	i_qptr.h
-	i_qslider.h
-	i_qspinbox.h
-	i_qsystemtrayicon.h
-	i_qtabbar.h
-	i_qtable.h
-	i_qtableview.h
-	i_qtextedit.h
-	i_qtoolbar.h
-	i_qtreeview.h
-)
-
 set( OD_MODULE_SOURCES
 	i_layout.cc
 	i_layoutitem.cc

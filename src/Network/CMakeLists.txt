@@ -11,12 +11,6 @@ set( OD_USEQT Network )
 set( OD_USEOPENSSL TRUE )
 set( OD_USECRYPTO TRUE )
 
-set( QT_MOC_HEADERS
-	i_odhttpconn.h
-	qtcpservercomm.h
-	qtcpsocketcomm.h
-)
-
 set( OD_MODULE_SOURCES
 	clientservicebase.cc
 	cvsaccess.cc

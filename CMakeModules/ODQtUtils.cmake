@@ -344,20 +344,13 @@ endmacro( OD_ADD_QTMODS )
 
 macro( OD_SETUP_QT )
 
+    set( CMAKE_AUTOMOC ON)
     OD_ADD_QTMODS()
     foreach( QTCOMP ${OD_ALLQTCOMPS} )
 	if ( NOT TARGET ${QTCOMP} )
 	    message( FATAL_ERROR "${QTCOMP} is NOT a valid target" )
 	endif()
     endforeach()
-
-    if( QT_MOC_HEADERS )
-	set ( OD_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
-	foreach( HEADER ${QT_MOC_HEADERS} )
-	    list( APPEND QT_MOC_INPUT ${OD_MODULE_DIR}/${HEADER} )
-	endforeach()
-	QT_WRAP_CPP( QT_MOC_OUTFILES ${QT_MOC_INPUT} )
-    endif( QT_MOC_HEADERS )
 
     foreach ( QTMOD ${LINKMODS} )
 	get_target_property( INCLUDEDIR ${QTMOD} INTERFACE_INCLUDE_DIRECTORIES )

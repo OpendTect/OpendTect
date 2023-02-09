@@ -20,11 +20,6 @@ if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
     add_definitions( -D__odpy_dir__="${CMAKE_SOURCE_DIR}/external/odpy" )
 endif()
 
-set( QT_MOC_HEADERS
-	qtimercomm.h
-	qfilesystemcomm.h
-)
-
 set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
