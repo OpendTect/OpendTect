@@ -202,6 +202,7 @@ public:
     const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		sort();  // -> sorts mnemonics alphabetically
 
     static const Mnemonic* getGuessed(const char*,const Mnemonic::StdType,
 				      const BufferStringSet* hintnms =nullptr);

@@ -817,3 +817,16 @@ const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
 
     return ret ? ret : ( isEmpty() ? nullptr : first() );
 }
+
+
+void MnemonicSelection::sort()
+{
+    BufferStringSet mnemnms;
+    getNames( mnemnms );
+    mnemnms.sort();
+    MnemonicSelection mns;
+    for ( const auto* name : mnemnms )
+	mns.add( this->getByName(*name,false) );
+
+    *this = mns;
+}
