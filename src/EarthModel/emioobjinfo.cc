@@ -41,8 +41,8 @@ mDefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
 
 
 IOObjInfo::IOObjInfo( const IOObj* ioobj )
-    : ioobj_(ioobj ? ioobj->clone() : 0)
-    , reader_(0)
+    : ioobj_(ioobj ? ioobj->clone() : nullptr)
+    , reader_(nullptr)
 {
     setType();
 }
@@ -50,7 +50,7 @@ IOObjInfo::IOObjInfo( const IOObj* ioobj )
 
 IOObjInfo::IOObjInfo( const IOObj& ioobj )
     : ioobj_(ioobj.clone())
-    , reader_(0)
+    , reader_(nullptr)
 {
     setType();
 }
@@ -58,7 +58,7 @@ IOObjInfo::IOObjInfo( const IOObj& ioobj )
 
 IOObjInfo::IOObjInfo( const MultiID& id )
     : ioobj_(IOM().get(id))
-    , reader_(0)
+    , reader_(nullptr)
 {
     setType();
 }
@@ -66,9 +66,9 @@ IOObjInfo::IOObjInfo( const MultiID& id )
 
 IOObjInfo::IOObjInfo( const IOObjInfo& sii )
     : type_(sii.type_)
-    , reader_(0)
+    , reader_(nullptr)
 {
-    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
+    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 }
 
 
@@ -90,7 +90,7 @@ IOObjInfo& IOObjInfo::operator =( const IOObjInfo& sii )
     if ( &sii != this )
     {
 	delete ioobj_;
-	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
+	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 	type_ = sii.type_;
     }
     return *this;
@@ -104,7 +104,7 @@ bool IOObjInfo::isOK() const
 
 
 const char* IOObjInfo::name() const
-{ return ioobj_ ? ioobj_->name().str() : 0; }
+{ return ioobj_ ? ioobj_->name().str() : nullptr; }
 
 
 
@@ -171,6 +171,15 @@ Interval<float> IOObjInfo::getZRange() const
 }
 
 
+const UnitOfMeasure* IOObjInfo::getZUoM() const
+{
+    if ( !ioobj_ )
+	return UnitOfMeasure::surveyDefZUnit();
+
+    return UnitOfMeasure::getGuessed( getZUnitLabel() );
+}
+
+
 BufferString IOObjInfo::getZUnitLabel() const
 {
     if ( !ioobj_ )
@@ -219,7 +228,7 @@ StepInterval<int> IOObjInfo::getCrlRange() const
 IOPar* IOObjInfo::getPars() const
 {
     mGetReader
-    return reader_ && reader_->pars() ? new IOPar(*reader_->pars()) : 0;
+    return reader_ && reader_->pars() ? new IOPar(*reader_->pars()) : nullptr;
 }
 
 
@@ -236,7 +245,8 @@ const char* IOObjInfo::timeLastModified() const
 
 const char* IOObjInfo::timeLastModified( bool iso ) const
 {
-    if ( !ioobj_ ) return 0;
+    if ( !ioobj_ )
+	return nullptr;
 
     const char* fnm = ioobj_->fullUserExpr();
     return File::timeLastModified( fnm, iso ? 0 : Time::defDateTimeFmt() );
@@ -344,6 +354,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 	uiString msg( str->errMsg() );
 	if ( msg.isEmpty() )
 	    msg = tr( "Cannot read '%1'").arg( ioobj_->name() );
+
 	mErrRet( msg )
     }
 

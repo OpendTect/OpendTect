@@ -16,6 +16,7 @@ ________________________________________________________________________
 class BufferStringSet;
 class TrcKeyZSampling;
 class IOObj;
+class UnitOfMeasure;
 
 namespace EM
 {
@@ -56,6 +57,7 @@ public:
     bool		getAttribNames(BufferStringSet&) const;
     Interval<float>	getZRange() const;
     BufferString	getZUnitLabel() const;
+    const UnitOfMeasure* getZUoM() const;
     StepInterval<int>	getInlRange() const;
     StepInterval<int>	getCrlRange() const;
     IOPar*		getPars() const;
