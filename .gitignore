@@ -36,6 +36,8 @@ packages/
 __pycache__
 
 src/*/moc_*
+src/*/*_autogen
+plugins/*/*_autogen
 src/*/resources/*.aps
 src/*/resources/resource.h
 lib*.dylib
