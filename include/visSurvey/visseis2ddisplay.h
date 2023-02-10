@@ -44,6 +44,7 @@ public:
     void			setGeomID(Pos::GeomID geomid);
     BufferString		getLineName() const;
     Pos::GeomID			getGeomID() const override   { return geomid_; }
+    MultiID			getMultiID() const override;
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
@@ -205,8 +206,6 @@ protected:
     RefObjectSet<RegularSeisDataPack>	datapacks_;
     RefObjectSet<RegularSeisDataPack>	transformedpacks_;
 
-    MultiID			datasetid_;
-
     PosInfo::Line2DData&	geometry_;
 
     struct TraceDisplayInfo
@@ -249,10 +248,6 @@ protected:
 				//Old format
     static const char*		sKeyTextureID();
 
-public:
-// old stuff, only here to keep other code compiling
-    MultiID			getMultiID() const override
-				{ return datasetid_; }
 };
 
 } // namespace visSurvey

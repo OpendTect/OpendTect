@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "seisdatapackzaxistransformer.h"
 #include "survgeom2d.h"
+#include "survgeometrytransl.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -175,6 +176,14 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
     }
 
     geomidchanged_.trigger();
+}
+
+
+MultiID Seis2DDisplay::getMultiID() const
+{
+    MultiID linemultiid = SurvGeom2DTranslatorGroup::ioContext().getSelKey();
+    linemultiid.setObjectID( geomid_.asInt() );
+    return linemultiid;
 }
 
 

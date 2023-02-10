@@ -530,6 +530,7 @@ bool uiOD2DLineTreeItem::init()
 	if ( !parentitm ) return false;
 
 	visSurvey::Seis2DDisplay* s2d = new visSurvey::Seis2DDisplay;
+	s2d->setGeomID( geomid_ );
 	visserv_->addObject( s2d, sceneID(), true );
 	displayid_ = s2d->id();
 
@@ -554,7 +555,6 @@ bool uiOD2DLineTreeItem::init()
     if ( !geom2d )
 	return false;
 
-    s2d->setGeomID( geomid_ );
     s2d->setName( geom2d->getName() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
