@@ -126,15 +126,17 @@ void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 
 void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
 {
-    graphitem_.addChild( &itm );
-    mAttachCB( itm.leftClicked, uiBaseMapObject::leftClickCB );
-    mAttachCB( itm.rightClicked, uiBaseMapObject::rightClickCB );
+    graphitem_.addChildWithoutCheck( &itm );
+
+    // Using the old notify call, as mAttachCB has a huge overhead.
+    itm.leftClicked.notify( mCB(this,uiBaseMapObject,leftClickCB) );
+    itm.rightClicked.notify( mCB(this,uiBaseMapObject,rightClickCB) );
 }
 
 
 void uiBaseMapObject::addLabel( uiGraphicsItem& itm )
 {
-    labelitem_.addChild( &itm );
+    labelitem_.addChildWithoutCheck( &itm );
 }
 
 
@@ -239,7 +241,7 @@ void uiBaseMapObject::update()
 		{
 		    auto* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
 		    itm->setPaintInCenter( true );
-		    graphitem_.addChild( itm );
+		    graphitem_.addChildWithoutCheck( itm );
 		}
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
