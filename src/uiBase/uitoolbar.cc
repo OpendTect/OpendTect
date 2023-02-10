@@ -118,6 +118,9 @@ void uiToolBar::addButton( uiButton* button )
 
 void uiToolBar::addObject( uiObject* obj )
 {
+    if ( addedobjects_.isPresent(obj) )
+	return;
+
     QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : nullptr;
     if ( qw )
     {
@@ -147,6 +150,12 @@ void uiToolBar::removeObject( uiObject* obj )
     qtoolbar_->removeAction( qaction );
     addedobjects_.removeSingle( idx );
     addedactions_.removeSingle( idx );
+}
+
+
+bool uiToolBar::hasObject( const uiObject* obj ) const
+{
+    return addedobjects_.isPresent( obj );
 }
 
 

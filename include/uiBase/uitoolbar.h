@@ -57,6 +57,7 @@ public:
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
     void		removeObject(uiObject*);
+    bool		hasObject(const uiObject*) const;
 
     void		setLabel(const uiString&);
     uiString		getDispNm() const;
