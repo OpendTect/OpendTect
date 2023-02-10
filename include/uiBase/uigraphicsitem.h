@@ -72,7 +72,7 @@ public:
     int			nrChildren() const;
     void		removeChild(uiGraphicsItem*,bool withdelete);
     void		removeAll(bool withdelete);
-    void		addChild(uiGraphicsItem*);
+    void		addChild(uiGraphicsItem*,bool checkifnew=true);
     void		addChildSet(uiGraphicsItemSet&);
     void		removeChildSet(uiGraphicsItemSet&);
 
@@ -142,6 +142,7 @@ private:
     uiWorldPoint	translation_;
     uiWorldPoint	scale_;
     double		angle_;
+
 };
 
 

@@ -357,9 +357,9 @@ void uiGraphicsItem::removeAll( bool withdelete )
 }
 
 
-void uiGraphicsItem::addChild( uiGraphicsItem* itm )
+void uiGraphicsItem::addChild( uiGraphicsItem* itm, bool checkifnew )
 {
-    if ( !itm || children_.isPresent(itm) )
+    if ( !itm || (checkifnew && children_.isPresent(itm)) )
 	return;
 
     itm->parent_ = this;
