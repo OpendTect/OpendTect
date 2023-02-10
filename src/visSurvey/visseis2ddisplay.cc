@@ -27,6 +27,7 @@
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "survgeom2d.h"
+#include "survgeometrytransl.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -162,7 +163,7 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
-    uiString lnm = mToUiStringTodo(Survey::GM().getName( geomid_) );
+    uiString lnm = toUiString( Survey::GM().getName(geomid_) );
     if ( lnm.isEmpty() )
 	lnm.set( toUiString(geomid) );
 
@@ -175,6 +176,10 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 	linename_->text()->setFontData( scene_->getAnnotFont(),
 					getPixelDensity() );
     }
+
+    // Temporary hack to make getMultiID() return the MultiID of 2D Geometry
+    datasetid_ = SurvGeom2DTranslatorGroup::ioContext().getSelKey();
+    datasetid_.add( geomid_ );
 
     geomidchanged_.trigger();
 }
