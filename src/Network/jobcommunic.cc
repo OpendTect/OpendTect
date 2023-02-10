@@ -284,7 +284,7 @@ void JobCommunic::sendMsgCB( CallBacker* cber )
     }
     else
     {
-	BufferString emsg( "Primary Host sent an unkown response code: '" );
+	BufferString emsg( "Primary Host sent an unknown response code: '" );
 	emsg.add( primaryhostinfo ).add( "', " )
 	    .add( socket_->errMsg().getFullString() );
 	setErrMsg( emsg );
