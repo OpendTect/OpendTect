@@ -142,6 +142,9 @@ private:
     uiWorldPoint	translation_;
     uiWorldPoint	scale_;
     double		angle_;
+
+public:
+    void		addChildWithoutCheck(uiGraphicsItem*);
 };
 
 
