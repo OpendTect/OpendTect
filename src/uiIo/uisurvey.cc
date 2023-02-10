@@ -848,7 +848,8 @@ bool uiSurvey::hasSurveys() const
 
 void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
 {
-    delete cursurvinfo_; cursurvinfo_ = newsi;
+    delete cursurvinfo_;
+    cursurvinfo_ = newsi;
 
     if ( updscreen )
 	putToScreen();
@@ -887,10 +888,12 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
 
 void uiSurvey::newButPushed( CallBacker* )
 {
-    if ( !rootDirWritable() ) return;
+    if ( !rootDirWritable() )
+	return;
 
     const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
-    SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath() );
+    PtrMan<SurveyInfo> newsurvinfo =
+				    SurveyInfo::readDirectory( fp.fullPath() );
     if ( !newsurvinfo )
     {
 	uiString errmsg = tr("Cannot read software default survey\n"
@@ -900,7 +903,7 @@ void uiSurvey::newButPushed( CallBacker* )
 
     uiStartNewSurveySetup dlg( this, dataroot_, *newsurvinfo );
     if ( !dlg.go() )
-	{ delete newsurvinfo; return; }
+	return;
 
     const BufferString orgdirname = newsurvinfo->getDirName().buf();
     const BufferString storagedir = FilePath( dataroot_ ).add( orgdirname )
@@ -908,11 +911,9 @@ void uiSurvey::newButPushed( CallBacker* )
     if ( !uiSurveyInfoEditor::copySurv(
 		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),0,
 				  dataroot_,orgdirname) )
-	{ delete newsurvinfo;
-	    mErrRetVoid( tr("Cannot make a copy of the default survey") ); }
+	mErrRetVoid( tr("Cannot make a copy of the default survey") );
 
-    setCurrentSurvInfo( newsurvinfo, false );
-
+    setCurrentSurvInfo( newsurvinfo.release(), false );
     cursurvinfo_->disklocation_.setBasePath( dataroot_ );
     File::setSystemFileAttrib( storagedir, true );
     if ( !File::makeWritable(storagedir,true,true) )
@@ -990,7 +991,7 @@ void uiSurvey::copyButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_) );
+    setCurrentSurvInfo( SurveyInfo::readDirectory(dlg.newdirnm_) );
     if ( !cursurvinfo_ )
 	mErrRetVoid(tr("Could not read the copied survey"))
 
@@ -1196,28 +1197,29 @@ bool uiSurvey::checkSurveyName()
 void uiSurvey::readSurvInfoFromFile()
 {
     const BufferString survnm( selectedSurveyName() );
-    SurveyInfo* newsi = 0;
+    PtrMan<SurveyInfo> newsi;
     if ( !survnm.isEmpty() )
     {
 	const BufferString fname = FilePath( dataroot_ )
 			    .add( selectedSurveyName() ).fullPath();
-	newsi = SurveyInfo::read( fname );
+	newsi = SurveyInfo::readDirectory( fname );
 	if ( !newsi )
 	    uiMSG().warning(
 		    tr("Cannot read survey setup file: %1").arg(fname) );
     }
 
     if ( newsi )
-	setCurrentSurvInfo( newsi );
+	setCurrentSurvInfo( newsi.release() );
 }
 
 
 bool uiSurvey::doSurvInfoDialog( bool isnew )
 {
-    delete impiop_; impiop_ = 0; impsip_ = 0;
+    deleteAndNullPtr( impiop_ );
+    impsip_ = nullptr;
     uiSurveyInfoEditor dlg( this, *cursurvinfo_, isnew );
     if ( isnew )
-	cursurvinfo_ = 0; // dlg takes over cursurvinfo_
+	cursurvinfo_ = nullptr; // dlg takes over cursurvinfo_
 
     if ( !dlg.isOK() )
 	return false;

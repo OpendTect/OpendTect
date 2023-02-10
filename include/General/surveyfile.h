@@ -10,6 +10,9 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
+#include "odjson.h"
+#include "survinfo.h"
+
 #include "uistringset.h"
 
 class TaskRunner;
@@ -59,4 +62,55 @@ protected:
 
     void	readSurveyDirNameFromFile();
 
+};
+
+
+mExpClass(General) EmptyTempSurvey
+{ mODTextTranslationClass(EmptyTempSurvey)
+public:
+			EmptyTempSurvey(const char* surveybaseloc=nullptr,
+			    const char* surveynm=nullptr,bool ismanaged=true);
+			EmptyTempSurvey(const OD::JSON::Object&);
+			~EmptyTempSurvey();
+
+    static const char*	    sKeyCRSID()     { return "CRSID"; }
+    static const char*	    sKeySaveLoc()   { return "Save Location"; }
+
+    uiRetVal		activate();
+    uiRetVal		save(TaskRunner* trun=nullptr);
+    uiRetVal		mount(bool isNew=false, TaskRunner* trun=nullptr);
+    uiRetVal		unmount(bool save=true, TaskRunner* trun=nullptr);
+    const BufferString	getZipArchiveLocation() const
+						    { return zipfileloc_;  }
+    void		setSaveLocation(const char* saveloc);
+
+    inline void		setManaged(bool ismanaged) { ismanaged_ = ismanaged; }
+
+    bool		isMounted() const	{ return mounted_; }
+    bool		isOK() const		{ return lasterrs_.isOK(); }
+
+    BufferString	getTempBaseDir() const	{ return tmpbasedir_; }
+    BufferString	getSurveyDir() const	{ return surveydirnm_; }
+    BufferString	getSurveyFile() const	{ return surveyfile_; }
+    uiRetVal		errMsg() const		{ return lasterrs_; }
+    uiRetVal		warningMsg() const	{ return lastwarning_; }
+
+
+protected:
+    bool		    createOMFFile();
+    bool		    createTempSurveySetup(bool hasomf);
+    bool		    fillSurveyInfo(const OD::JSON::Object* obj);
+    bool		    initSurvey(const OD::JSON::Object* obj=nullptr);
+
+    BufferString		origsurveyfp_;
+    SurveyInfo			si_;
+    bool			ismanaged_	= true;
+    BufferString		saveloc_;
+    BufferString		zipfileloc_;
+    BufferString		tmpbasedir_;
+    BufferString		surveyfile_;
+    BufferString		surveydirnm_;
+    bool			mounted_ = false;
+    uiRetVal			lasterrs_;
+    uiRetVal			lastwarning_;
 };

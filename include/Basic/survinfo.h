@@ -181,10 +181,15 @@ protected:
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
     void		writeSpecLines(ascostream&) const;
+    void		writeSpecLines(ascostream*,
+					OD::JSON::Object* obj=nullptr) const;
 
     void		setTr(Pos::IdxPair2Coord::DirTransform&,const char*);
     void		putTr(const Pos::IdxPair2Coord::DirTransform&,
 				ascostream&,const char*) const;
+
+    static SurveyInfo*	readJSON(const OD::JSON::Object&,uiRetVal&);
+    static SurveyInfo*	readStrm(od_istream&,uiRetVal&);
 
 private:
 
@@ -193,6 +198,7 @@ private:
     friend class		uiSurvey;
     friend class		uiSurveyMap;
     friend class		uiSurveyInfoEditor;
+    friend class		EmptyTempSurvey;
 
     Pos::IdxPair2Coord::DirTransform rdxtr_;
     Pos::IdxPair2Coord::DirTransform rdytr_;
@@ -201,6 +207,7 @@ private:
     static void			setSurveyName(const char*);
 				// friends only
     static const char*		surveyFileName();
+
 
 public:
 
@@ -244,8 +251,19 @@ public:
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
     static const char*  sKeySeismicRefDatum();
-    static const char*	sKeySetupFileName()		{ return ".survey"; }
-    static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
+    static const char*	sKeySetupFileName()	    { return ".survey"; }
+    static const char*	sKeyBasicSurveyName()	    { return "BasicSurvey"; }
+    static const char*	sKeyDef()		    { return "Defs"; }
+    static const char*	sKeyCRS()		    { return "CRS"; }
+    static const char*	sKeyZAxis()		    { return "Z-Axis"; }
+    static const char*	sKeyDomain()		    { return "Domain"; }
+    static const char*	sKeySetPt()		    { return "Set Point"; }
+    static const char*	sKeyIC()		    { return "IC"; }
+    static const char*	sKeyXY()		    { return "XY"; }
+    static const char*	sKeyComments()		    { return "Comments"; }
+    static const char*	sKeySurvDiskLoc()   { return "Survey Disk Location";  }
+    static const char*	sKeyTransformation() { return "Transformation"; }
+    static const char*	sKeyProjVersion()   { return "Project Version"; }
 
     BufferString	getDirName() const;
     BufferString	getDataDirName() const;
@@ -276,13 +294,24 @@ public:
     IOPar&		getLogPars() const
 			{ return const_cast<SurveyInfo*>(this)->logpars_; }
 
+    mDeprecated("Use writeJSON(const char*,bool)")
     bool		write(const char* basedir=nullptr) const;
+    bool		writeJSON(const char* basedir=nullptr,
+						    bool isjson=false) const;
 			//!< Write to .survey file
     void		savePars(const char* basedir=nullptr) const;
+    void		saveJSON(const char* basedir,
+					OD::JSON::Object* obj=nullptr) const;
 			//!< Write to .defs file
     void		saveLog(const char* basedir=nullptr) const;
+    mDeprecated("Use readDirectory")
     static SurveyInfo*	read(const char* survdir);
+    mDeprecated("Use readFile")
     static SurveyInfo*	read(const char* path,bool pathisfile);
+
+    static SurveyInfo*	readFile(const char* loc);
+    static SurveyInfo*	readDirectory(const char* loc);
+    void		setTr(double,double,double,bool isx);
     void		setRange(const TrcKeyZSampling&,bool);
     uiString		set3PtsWithMsg(const Coord c[3],const BinID b[2],
 				       int xline);

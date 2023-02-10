@@ -240,7 +240,7 @@ const SurveyInfo& SurveyDiskLocation::surveyInfo() const
     const FilePath fp( fullpath, SurveyInfo::sKeySetupFileName() );
     const BufferString survinfofnm = fp.fullPath();
 
-    SurveyInfo* newinfo = 0;
+    SurveyInfo* newinfo = nullptr;
     od_int64 timestamp = mUdf( od_int64 );
     if ( File::exists(survinfofnm) )
     {
@@ -257,7 +257,7 @@ const SurveyInfo& SurveyDiskLocation::surveyInfo() const
 	    }
 	}
 
-	newinfo = SurveyInfo::read( fullpath );
+	newinfo = SurveyInfo::readFile( fullpath );
     }
 
     if ( !newinfo )

@@ -187,6 +187,8 @@ namespace sKey
     inline StringView Surface()		{ return "Surface"; }
     inline StringView Survey()		{ return "Survey"; }
     inline StringView SurveyID()	{ return "Survey ID"; }
+    inline StringView sKeySurveyLoc()	{ return "Survey Location"; }
+    inline StringView sKeySurveyNm()	{ return "Survey Name"; }
     inline StringView TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
     inline StringView TVDSS()		{ return "TVDSS"; }
     inline StringView TWT()		{ return "TWT"; }
