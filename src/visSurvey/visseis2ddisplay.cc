@@ -21,10 +21,10 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "bendpointfinder.h"
-#include "color.h"
 #include "mousecursor.h"
 #include "seisdatapackzaxistransformer.h"
 #include "survgeom2d.h"
+#include "survgeometrytransl.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -173,6 +173,10 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 	linename_->text()->setFontData( scene_->getAnnotFont(),
 					getPixelDensity() );
     }
+
+    // Temporary hack to make getMultiID() return the MultiID of 2D Geometry
+    datasetid_ = SurvGeom2DTranslatorGroup::ioContext().getSelKey();
+    datasetid_.setObjectID( geomid_.asInt() );
 
     geomidchanged_.trigger();
 }
