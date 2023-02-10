@@ -370,6 +370,17 @@ void uiGraphicsItem::addChild( uiGraphicsItem* itm )
 }
 
 
+void uiGraphicsItem::addChildWithoutCheck( uiGraphicsItem* itm )
+{
+    if ( !itm )
+	return;
+
+    itm->parent_ = this;
+    children_ += itm;
+    itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
+}
+
+
 void uiGraphicsItem::addChildSet( uiGraphicsItemSet& set )
 {
     for ( int idx=0; idx<set.size(); idx++ )
