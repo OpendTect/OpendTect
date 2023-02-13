@@ -57,6 +57,7 @@ public:
 
     const SurveyInfo*	survInfo() const
 			{ return survinfook_ ? survinfo_ : 0; }
+    RefMan<Coords::CoordSystem> getCoordSystem() const;
     bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
     bool		zInFeet() const
 			{ return scaninfos_ && scaninfos_->inFeet(); }

@@ -107,6 +107,9 @@ public:
 				const uiString& seltxt=uiStrings::sCoordSys());
 			~uiCoordSystemSel();
 
+    void			setCoordSystem(const CoordSystem*);
+    void			doSel();
+
     RefMan<CoordSystem>		getCoordSystem()	{ return coordsystem_; }
 
     Notifier<uiCoordSystemSel>	changed;
