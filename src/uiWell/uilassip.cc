@@ -194,7 +194,7 @@ IOPar* uiLASSurvInfoProvider::getCoordSystemPars() const
     if ( !coordsystem_ )
 	return nullptr;
 
-    IOPar* crspar = new IOPar;
+    auto* crspar = new IOPar;
     coordsystem_->fillPar( *crspar );
     return crspar;
 }

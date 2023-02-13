@@ -350,6 +350,20 @@ void uiCoordSystemSel::selCB( CallBacker* )
 }
 
 
+void uiCoordSystemSel::setCoordSystem( const CoordSystem* coordsystem )
+{
+    coordsystem_ = coordsystem ? coordsystem->clone() : nullptr;
+    updateSummary();
+    changed.trigger();
+}
+
+
+void uiCoordSystemSel::doSel()
+{
+    selCB( nullptr );
+}
+
+
 BufferString uiCoordSystemSel::getSummary() const
 {
     if ( !coordsystem_ )

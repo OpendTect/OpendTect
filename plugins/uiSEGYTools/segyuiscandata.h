@@ -57,6 +57,7 @@ public:
     bool		hdrsswapped_;
     bool		dataswapped_;
     bool		is2d_;
+    RefMan<Coords::CoordSystem> coordsystem_;
 
     bool		usenrsampsinfile_	= true;
     bool		useformatinfile_	= true;
@@ -73,7 +74,7 @@ public:
     int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
     bool		goToTrace(od_istream&,od_stream_Pos,int) const;
     uiString		getFrom(od_istream&,bool& zinft,
-				const bool* knownhdrswap=0);
+				const bool* knownhdrswap =nullptr);
 			//!< try returned isEmpty(), if not error occurred
 			//!< on success leaves stream at start of first trace
 

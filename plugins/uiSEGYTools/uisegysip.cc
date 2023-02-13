@@ -34,20 +34,22 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
     uiMSG().setMainWin(mw);
 
 
-bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
+bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& tkzs,
 				      Coord crd[3] )
 {
     imppars_.setEmpty();
     if ( !d )
 	return false;
+
     mDynamicCastGet(uiSEGYReadStarter*,rdst,d)
     if ( !rdst )
 	{ pErrMsg("Huh?"); return false; }
-    else if ( rdst->uiResult() != 1 )
+    else if ( rdst->uiResult() != (int)uiDialog::Accepted )
 	return false; // canceled
-    else if ( !rdst->getInfo4SI(cs,crd) )
+    else if ( !rdst->getInfo4SI(tkzs,crd) )
 	return false;
 
+    coordsystem_ = rdst->getCoordSystem();
     xyinft_ = rdst->zInFeet();
     const SEGY::FullSpec fullspec( rdst->fullSpec() );
     fullspec.fillPar( imppars_ );
@@ -75,6 +77,17 @@ void uiSEGYSurvInfoProvider::fillLogPars( IOPar& par ) const
     addBytePars( par, imppars_, SEGY::TrcHeaderDef::sCrlByte() );
     addBytePars( par, imppars_, SEGY::TrcHeaderDef::sXCoordByte() );
     addBytePars( par, imppars_, SEGY::TrcHeaderDef::sYCoordByte() );
+}
+
+
+IOPar* uiSEGYSurvInfoProvider::getCoordSystemPars() const
+{
+    if ( !coordsystem_ )
+	return nullptr;
+
+    auto* crspar = new IOPar;
+    coordsystem_->fillPar( *crspar );
+    return crspar;
 }
 
 

@@ -20,7 +20,7 @@ mExpClass(CRS) ProjectionBasedSystem : public CoordSystem
 public:
 
     mDefaultFactoryInstantiation( CoordSystem,ProjectionBasedSystem,
-				  "ProjectionBased System",
+				  sKey::ProjSystem(),
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();
@@ -63,8 +63,7 @@ private:
 
     LatLong		toGeographic(const Coord&,bool wgs84) const override;
     Coord		fromGeographic(const LatLong&,
-						    bool wgs84) const override;
-
+				       bool wgs84) const override;
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
 

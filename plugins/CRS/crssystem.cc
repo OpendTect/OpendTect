@@ -11,15 +11,13 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "unitofmeasure.h"
 
-static const char* sKeyProjectionID = "Projection.ID";
-static const char* sKeyProjectionName = "Projection.Name";
 
 Coords::ProjectionBasedSystem::ProjectionBasedSystem()
-{}
+{
+}
 
 
-Coords::ProjectionBasedSystem::ProjectionBasedSystem(
-					    Coords::AuthorityCode code )
+Coords::ProjectionBasedSystem::ProjectionBasedSystem( AuthorityCode code )
 {
     setProjection( code );
 }
@@ -159,7 +157,7 @@ bool Coords::ProjectionBasedSystem::isWGS84() const
 bool Coords::ProjectionBasedSystem::doUsePar( const IOPar& par )
 {
     BufferString authcodestr;
-    if ( par.get(sKeyProjectionID,authcodestr) )
+    if ( par.get(IOPar::compKey(sKey::Projection(),sKey::ID()),authcodestr) )
 	setProjection( Coords::AuthorityCode::fromString(authcodestr) );
 
     return true;
@@ -171,8 +169,10 @@ void Coords::ProjectionBasedSystem::doFillPar( IOPar& par ) const
     if ( !proj_ )
 	return;
 
-    par.set( sKeyProjectionID, proj_->authCode().toString() );
-    par.set( sKeyProjectionName, proj_->userName() );
+    par.set( IOPar::compKey(sKey::Projection(),sKey::ID()),
+	     proj_->authCode().toString() );
+    par.set( IOPar::compKey(sKey::Projection(),sKey::Name()),
+	     proj_->userName() );
 }
 
 

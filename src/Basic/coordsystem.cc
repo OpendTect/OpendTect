@@ -118,15 +118,15 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 {
     BufferString factorykey;
-    if ( !par.get( sKeyFactoryName(), factorykey ) )
-	return 0;
+    if ( !par.get(sKeyFactoryName(),factorykey) )
+	return nullptr;
 
     RefMan<CoordSystem> res = factory().create( factorykey );
     if ( !res )
-	return 0;
+	return nullptr;
 
-    if ( !res->usePar( par ) )
-	return 0;
+    if ( !res->usePar(par) )
+	return nullptr;
 
     return res;
 }
