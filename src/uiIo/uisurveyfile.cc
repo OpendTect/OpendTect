@@ -61,7 +61,8 @@ bool uiSurveyFile::newFile()
     }
 
     const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
-    PtrMan<SurveyInfo> newsurvinfo = SurveyInfo::read( fp.fullPath() );
+    PtrMan<SurveyInfo> newsurvinfo = 
+				    SurveyInfo::readDirectory( fp.fullPath() );
     if ( !newsurvinfo )
     {
 	uiMSG().error( tr( "Cannot read software default survey\n"
