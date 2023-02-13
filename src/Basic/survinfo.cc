@@ -1564,7 +1564,7 @@ bool SurveyInfo::write( const char* basedir ) const
 
 bool SurveyInfo::writeJSON( const char* basedir ) const
 {
-    writeSurveyFile( basedir, true );
+    return writeSurveyFile( basedir, true );
 }
 
 
