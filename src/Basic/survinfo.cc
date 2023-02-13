@@ -1558,11 +1558,17 @@ bool SurveyInfo::isRightHandSystem() const
 
 bool SurveyInfo::write( const char* basedir ) const
 {
-    return writeJSON( basedir, false );
+    return writeSurveyFile( basedir, false );
 }
 
 
-bool SurveyInfo::writeJSON( const char* basedir, bool isjson ) const
+bool SurveyInfo::writeJSON( const char* basedir ) const
+{
+    writeSurveyFile( basedir, true );
+}
+
+
+bool SurveyInfo::writeSurveyFile(const char* basedir, bool isjson) const
 {
     if ( !basedir || !*basedir )
 	basedir = GetBaseDataDir();

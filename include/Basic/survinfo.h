@@ -208,6 +208,9 @@ private:
 				// friends only
     static const char*		surveyFileName();
 
+    bool			writeSurveyFile(const char* basedir,
+							    bool isjson) const;
+
 
 public:
 
@@ -294,10 +297,8 @@ public:
     IOPar&		getLogPars() const
 			{ return const_cast<SurveyInfo*>(this)->logpars_; }
 
-    mDeprecated("Use writeJSON(const char*,bool)")
     bool		write(const char* basedir=nullptr) const;
-    bool		writeJSON(const char* basedir=nullptr,
-						    bool isjson=false) const;
+    bool		writeJSON(const char* basedir=nullptr) const;
 			//!< Write to .survey file
     void		savePars(const char* basedir=nullptr) const;
     void		saveJSON(const char* basedir,
