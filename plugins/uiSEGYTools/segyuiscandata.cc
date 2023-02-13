@@ -149,6 +149,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( !strm.isOK() )
 	mErrRetWithFileName( "has no textual header" )
 
+    coordsystem_ = txthdr.getCoordSystem( strm.fileName() );
+
     SEGY::BinHeader binhdr;
     strm.getBin( binhdr.buf(), SegyBinHeaderLength );
     if ( strm.isBad() )

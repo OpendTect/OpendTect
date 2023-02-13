@@ -30,6 +30,7 @@ public:
     virtual const char*	iconName() const	{ return "segy"; }
 
     void		fillLogPars(IOPar&) const;
+    IOPar*		getCoordSystemPars() const override;
     IOPar*		getImportPars() const;
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
@@ -38,6 +39,7 @@ public:
     IOPar		imppars_;
     bool		xyinft_			= false;
     BufferString	userfilename_;
+    RefMan<Coords::CoordSystem> coordsystem_;
 
 };
 

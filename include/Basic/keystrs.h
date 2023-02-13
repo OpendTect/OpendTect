@@ -120,6 +120,8 @@ namespace sKey
     inline FixedString PreStackSeis()	{ return "PreStack Seismic"; }
     inline FixedString Polygon()	{ return "Polygon"; }
     inline FixedString Position()	{ return "Position"; }
+    inline FixedString ProjSystem()	{ return "ProjectionBased System"; }
+    inline FixedString Projection()	{ return "Projection"; }
     inline FixedString Property()	{ return "Property"; }
     inline FixedString Python()		{ return "Python"; }
     inline FixedString Quiet()		{ return "quiet"; }

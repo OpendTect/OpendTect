@@ -7,6 +7,7 @@
 #include "segyhdr.h"
 
 #include "envvars.h"
+#include "filepath.h"
 #include "linekey.h"
 #include "math2.h"
 #include "msgh.h"
@@ -532,6 +533,112 @@ void SEGY::TxtHeader::setText( const char* txt )
     }
 
     setLineStarts();
+}
+
+
+RefMan<Coords::CoordSystem> SEGY::TxtHeader::getCoordSystem(
+						const char* filename ) const
+{
+    RefMan<Coords::CoordSystem> ret;
+    if ( filename && *filename )
+    {
+	ret = getCoordSystemFrom( filename );
+	if ( ret && ret->isOK() )
+	    return ret;
+    }
+
+    BufferString txt;
+    getText( txt );
+    if ( txt.size() < SegyTxtHeaderLength )
+	return nullptr;
+
+    BufferStringSet lines; lines.unCat( txt.str() );
+    const BufferString projkey( sKey::Projection(), ": " );
+    BufferString projstr;
+    for ( auto* line : lines )
+    {
+	if ( !line->contains(projkey.buf()) )
+	    continue;
+
+	line->trimBlanks();
+	const char* startstr = line->find( '[' );
+	if ( !startstr || !*startstr )
+	    continue;
+
+	const char* endstr = line->find( ']' );
+	if ( !endstr || !*endstr )
+	    continue;
+
+	const int sz = endstr - startstr + 1;
+	if ( sz < 4 )
+	    continue;
+
+	BufferString tmpstr( startstr );
+	if ( tmpstr.size() >= sz )
+	    tmpstr[sz] = '\0';
+
+	tmpstr.unEmbed('[',']').replace(':','`');
+	projstr = tmpstr;
+	break;
+    }
+
+    if ( projstr.isEmpty() )
+	return nullptr;
+
+    IOPar iop;
+    iop.set( Coords::CoordSystem::sKeyFactoryName(), sKey::ProjSystem() );
+    iop.set( IOPar::compKey(sKey::Projection(),sKey::ID()), projstr );
+
+    ret = Coords::CoordSystem::createSystem( iop );
+    return ret && ret->isOK() ? ret : nullptr;
+}
+
+
+RefMan<Coords::CoordSystem> SEGY::TxtHeader::getCoordSystemFrom(
+							const char* filenm )
+{
+    FilePath fp( filenm );
+    if ( !fp.exists() )
+	return nullptr;
+
+    fp.setExtension( "crsmeta.xml" );
+    if ( !fp.exists() )
+	return nullptr;
+
+    od_istream xmlstrm( fp );
+    if ( !xmlstrm.isOK() )
+	return nullptr;
+
+    BufferString line;
+    xmlstrm.getAll( line );
+    xmlstrm.close();
+
+    const FixedString latesystem =
+			    line.find( "LateBoundCoordinateReferenceSystem" );
+    if ( latesystem.isEmpty() )
+	return nullptr;
+
+    const BufferString authcodestr( "<AuthorityCode>" );
+    const char* str = latesystem.find( authcodestr.buf() );
+    if ( !str || !*str )
+	return nullptr;
+
+    str += authcodestr.size();
+    const char* endstr = firstOcc( str, '<' );
+    if ( !endstr || !*endstr )
+	return nullptr;
+
+    *(const_cast<char*>( endstr )) = '\0';
+    BufferString projstr( str );
+    if ( projstr.isEmpty() )
+	return nullptr;
+
+    projstr.replace( ',', '`' );
+
+    IOPar iop;
+    iop.set( Coords::CoordSystem::sKeyFactoryName(), sKey::ProjSystem() );
+    iop.set( IOPar::compKey(sKey::Projection(),sKey::ID()), projstr );
+    return Coords::CoordSystem::createSystem( iop );
 }
 
 

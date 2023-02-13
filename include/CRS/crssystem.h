@@ -22,7 +22,7 @@ mExpClass(CRS) ProjectionBasedSystem : public CoordSystem
 public:
 
     mDefaultFactoryInstantiation( CoordSystem,ProjectionBasedSystem,
-				  "ProjectionBased System",
+				  sKey::ProjSystem(),
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();

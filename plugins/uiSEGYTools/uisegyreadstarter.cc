@@ -86,6 +86,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	.objtype( tr("SEG-Y") ).defseldir(sImportFromPath);
     inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
 			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
+    inpfld_->setStretch( 2, 0 );
     mAttachCB( inpfld_->valuechanged, uiSEGYReadStarter::inpChg );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 				 mCB(this,uiSEGYReadStarter,editFile), false );
@@ -123,9 +124,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     coordsysselfld_->attach( alignedBelow, attachobj );
 
     mAttachCB( coordsysselfld_->butPush, uiSEGYReadStarter::coordSysChangedCB );
-    coordsysselfld_->display( impType().is2D() );
 
-    uiSeparator* sep = new uiSeparator( this, "Top sep" );
+    auto* sep = new uiSeparator( this, "Top sep" );
     sep->attach( stretchedBelow, topgrp_ );
 
     midgrp_ = new uiGroup( this, "Mid group" );
@@ -142,7 +142,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     if ( forsurvsetup )
     {
 	survmap_ = new uiSurveyMap( botgrp_, true );
-	survmap_->setSurveyInfo( 0 );
+	survmap_->setSurveyInfo( nullptr );
     }
 
     uiGroup* amplgrp = createAmplDisp();
@@ -162,27 +162,27 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
 void uiSEGYReadStarter::createTools()
 {
-    uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
+    auto* toolgrp = new uiGroup( midgrp_, "Tool group" );
     toolgrp->setStretch( 0, 0 );
     toolgrp->attach( rightOf, infofld_ );
-    uiToolButton* openbut = new uiToolButton( toolgrp, "open",
-				tr("Use Saved SEG-Y setup"),
-				mCB(this,uiSEGYReadStarter,readParsCB) );
-    uiToolButton* savebut = new uiToolButton( toolgrp, "save",
-				tr("Store this setup"),
-				mCB(this,uiSEGYReadStarter,writeParsCB) );
+    auto* openbut = new uiToolButton( toolgrp, "open",
+				      tr("Use Saved SEG-Y setup"),
+				      mCB(this,uiSEGYReadStarter,readParsCB) );
+    auto* savebut = new uiToolButton( toolgrp, "save",
+				      tr("Store this setup"),
+				      mCB(this,uiSEGYReadStarter,writeParsCB) );
     savebut->attach( rightOf, openbut );
 
     fullscanbut_ = new uiToolButton( toolgrp, "fullscan",
-				    tr("Scan the entire input"),
-				    mCB(this,uiSEGYReadStarter,fullScanReq) );
+				     tr("Scan the entire input"),
+				     mCB(this,uiSEGYReadStarter,fullScanReq) );
     fullscanbut_->attach( alignedBelow, openbut );
     hdrentrysettsbut_ = new uiToolButton( toolgrp, "settings",
 			    tr("Settings for byte location scanning"),
 			    mCB(this,uiSEGYReadStarter,editHdrEntrySettings) );
     hdrentrysettsbut_->attach( rightOf, fullscanbut_ );
 
-    uiGroup* examinegrp = new uiGroup( toolgrp, "Examine group" );
+    auto* examinegrp = new uiGroup( toolgrp, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
 				    uiString::emptyString(),
 				    mCB(this,uiSEGYReadStarter,examineCB) );
@@ -242,7 +242,7 @@ void uiSEGYReadStarter::createTools()
 
 uiGroup* uiSEGYReadStarter::createAmplDisp()
 {
-    uiGroup* amplgrp = new uiGroup( botgrp_, "Hist grp" );
+    auto* amplgrp = new uiGroup( botgrp_, "Hist grp" );
     const CallBack adupcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
 
     uiHistogramDisplay::Setup hdsu;
@@ -302,7 +302,7 @@ void uiSEGYReadStarter::clearDisplay()
     if ( ampldisp_ )
 	ampldisp_->setEmpty();
     if ( forsurvsetup_ )
-	survmap_->setSurveyInfo( 0 );
+	survmap_->setSurveyInfo( nullptr );
     setToolStates();
 }
 
@@ -323,7 +323,10 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 
 
 void uiSEGYReadStarter::multiLineSelCB( CallBacker* )
-{ reviewAndEditLineNames(); }
+{
+    reviewAndEditLineNames();
+}
+
 
 bool uiSEGYReadStarter::reviewAndEditLineNames()
 {
@@ -334,7 +337,7 @@ bool uiSEGYReadStarter::reviewAndEditLineNames()
 
 void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 {
-    delete scaninfos_; scaninfos_ = 0;
+    deleteAndZeroPtr( scaninfos_ );
     clipsampler_.reset();
     clearDisplay();
     if ( !getFileSpec() )
@@ -448,35 +451,20 @@ void uiSEGYReadStarter::setToolStates()
     if ( coordscalefld_ )
 	coordscalefld_->display( loaddef_.needXY() );
 
-    bool coordisprojection = SI().getCoordSystem() &&
-		SI().getCoordSystem()->isProjection();
-
-    if ( impType().is2D() )
-    {
-	const bool shoulddisplay = coordisprojection;
-	coordsysselfld_->display( shoulddisplay );
-    }
-    else
-    {
-	const bool isxybutused = usexybut_ && usexybut_->isChecked();
-	const bool shoulddisplay = coordisprojection && isxybutused;
-	coordsysselfld_->display( shoulddisplay );
-    }
-
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
 }
 
 
 void uiSEGYReadStarter::initWin( CallBacker* )
 {
-    typChg( 0 );
+    typChg( nullptr );
     if ( !forsurvsetup_ )
-	inpChg( 0 );
+	inpChg( nullptr );
 
     if ( filespec_.isEmpty() )
     {
 	timer_ = new Timer( "uiSEGYReadStarter timer" );
-	timer_->tick.notify( mCB(this,uiSEGYReadStarter,firstSel));
+	mAttachCB( timer_->tick, uiSEGYReadStarter::firstSel );
 	timer_->start( 1, true );
     }
 
@@ -489,13 +477,13 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	uiButton* okbut = button( OK );
 	const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
 	const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
-	uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
-					    tr("'Classic'"), impcb, false );
+	auto* execoldbut = new uiPushButton( okbut->parent(),
+					     tr("'Classic'"), impcb, false );
 	execoldbut->setIcon( "launch" );
 	execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
 	execoldbut->attach( leftTo, okbut );
 	execoldbut->attach( leftBorder );
-	uiMenu* mnu = new uiMenu;
+	auto* mnu = new uiMenu;
 	mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
 	mnu->insertAction( new uiAction(tr("Link"),linkcb) );
 	execoldbut->setMenu( mnu );
@@ -505,11 +493,11 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
 void uiSEGYReadStarter::firstSel( CallBacker* )
 {
-    timer_->tick.remove( mCB(this,uiSEGYReadStarter,firstSel));
+    mDetachCB( timer_->tick, uiSEGYReadStarter::firstSel );
 
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
-	    uiSEGYFileSpec::fileFilter(),
-	    tr("Select (one of) the SEG-Y file(s)") );
+			uiSEGYFileSpec::fileFilter(),
+			tr("Select (one of) the SEG-Y file(s)") );
     if ( forsurvsetup_ )
 	dlg.setDirectory( GetBaseDataDir() );
     else
@@ -542,8 +530,9 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 
 void uiSEGYReadStarter::coordSysChangedCB( CallBacker* )
 {
-    if ( *coordsysselfld_->getCoordSystem() == *SI().getCoordSystem()
-	    || userfilename_.isEmpty() )
+    if ( (coordsysselfld_->getCoordSystem() &&
+	 *coordsysselfld_->getCoordSystem() == *SI().getCoordSystem()) ||
+	 userfilename_.isEmpty() )
 	return;
 
     execNewScan( KeepNone, false );
@@ -592,7 +581,7 @@ void uiSEGYReadStarter::runClassic( bool imp )
     if ( !timer_ )
 	timer_ = new Timer( "uiSEGYReadStarter timer" );
 
-    timer_->tick.notify( mCB(this,uiSEGYReadStarter,initClassic));
+    mAttachCB( timer_->tick, uiSEGYReadStarter::initClassic );
     timer_->start( 1, true );
 }
 
@@ -654,8 +643,8 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     uiSEGYExamine::Setup su( examineNrTraces() );
-    su.fs_ = filespec_; su.fp_ = filepars_;
-    uiSEGYExamine* dlg = new uiSEGYExamine( this, su );
+    su.fs( filespec_ ).fp( filepars_ );
+    auto* dlg = new uiSEGYExamine( this, su );
     dlg->setDeleteOnClose( true );
     dlg->go();
 }
@@ -666,8 +655,7 @@ void uiSEGYReadStarter::usePar( const IOPar& iop )
     if ( typfld_ )
 	typfld_->usePar( iop );
 
-    if ( coordsysselfld_->isDisplayed() )
-      coordsysselfld_->getCoordSystem()->usePar( iop );
+    coordsysselfld_->getCoordSystem()->usePar( iop );
 
     int nrtrcs = examineNrTraces();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrtrcs );
@@ -698,8 +686,7 @@ void uiSEGYReadStarter::fillPar( IOPar& iop ) const
     const FullSpec fullspec = fullSpec();
     fullspec.fillPar( iop );
 
-    if ( SI().getCoordSystem().ptr() && SI().getCoordSystem()->isProjection() )
-      coordsysselfld_->getCoordSystem()->fillPar( iop );
+    coordsysselfld_->getCoordSystem()->fillPar( iop );
 
     iop.set( FilePars::sKeyRevision(), loaddef_.revision_ );
     impType().fillPar( iop );
@@ -960,14 +947,20 @@ void uiSEGYReadStarter::updateSurvMap()
 }
 
 
-bool uiSEGYReadStarter::getInfo4SI( TrcKeyZSampling& cs, Coord crd[3] ) const
+RefMan<Coords::CoordSystem> uiSEGYReadStarter::getCoordSystem() const
+{
+    return coordsysselfld_->getCoordSystem();
+}
+
+
+bool uiSEGYReadStarter::getInfo4SI( TrcKeyZSampling& tkzs, Coord crd[3] ) const
 {
     if ( !survinfook_ )
 	return false;
 
     BinID bids[2]; int xline;
     survinfo_->get3Pts( crd, bids, xline );
-    cs = survinfo_->sampling( false );
+    tkzs = survinfo_->sampling( false );
     return true;
 }
 
@@ -1063,21 +1056,35 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	{ uiMSG().error( tr("Cannot open file: %1").arg(fnm) ); return false; }
 
     SEGY::ScanInfo& si = scaninfos_->add( fnm );
-    if ( coordsysselfld_->isDisplayed() )
-	loaddef_.setUserCoordSys( coordsysselfld_->getCoordSystem() );
+    ConstRefMan<Coords::CoordSystem> usercoordsystem =
+				coordsysselfld_->getCoordSystem();
+    loaddef_.setUserCoordSys( usercoordsystem.getNonConstPtr() );
     SEGY::BasicFileInfo& bfi = si.basicInfo();
     bool zinft = false;
-    uiString errmsg = bfi.getFrom( strm, zinft,
-			       ct != KeepNone ? &loaddef_.hdrsswapped_ : 0 );
+    const uiString errmsg = bfi.getFrom( strm, zinft,
+			    ct != KeepNone ? &loaddef_.hdrsswapped_ : nullptr );
     if ( !errmsg.isEmpty() )
-	{ uiMSG().error( errmsg ); scaninfos_->removeLast(); return false; }
-    else if ( scaninfos_->size() == 1 )
+    {
+	uiMSG().error( errmsg );
+	scaninfos_->removeLast();
+	return false;
+    }
+
+    if ( scaninfos_->size() == 1 )
     {
 	scaninfos_->setInFeet( zinft );
 	if ( ct == KeepNone )
 	{
 	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
 	    infofld_->setLoadDefCache( loaddef_ );
+	}
+
+	ConstRefMan<Coords::CoordSystem> segycoordsystem = bfi.coordsystem_;
+	if ( segycoordsystem && segycoordsystem->isOK() &&
+	     segycoordsystem != usercoordsystem )
+	{
+	    loaddef_.setUserCoordSys( segycoordsystem.getNonConstPtr() );
+	    coordsysselfld_->setCoordSystem( segycoordsystem.getNonConstPtr() );
 	}
     }
 
@@ -1124,7 +1131,7 @@ void uiSEGYReadStarter::displayScanResults()
 
     setToolStates();
     if ( ampldisp_ )
-	updateAmplDisplay( 0 );
+	updateAmplDisplay( nullptr );
 
     infofld_->setScanInfo( *scaninfos_, filespec_.nrFiles() );
     if ( forsurvsetup_ )
@@ -1161,34 +1168,68 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
     {
 	if ( !survinfook_ )
 	    mErrRet( tr("No valid survey setup found" ) )
+
 	if ( !lastscanwasfull_ )
 	{
 	    const uiString msg( tr("We recommend doing a full file scan to "
 		"establish the true ranges and steps of the input file."
 		"\nIf you are sure the quick scan has got everything right, "
-		"you may want to continue without a full scan."
-		"\n\nDo you want to continue without a full scan?") );
+		"you may want to skip the full scan.") );
 	    const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
-			tr("Yes, continue"), tr("No, execute full scan now") );
-	    if ( res < 1 )
-	    {
-		if ( res == 0 )
-		    execNewScan( KeepAll, true );
+				tr("Run full scan"), tr("Skip full scan") );
+	    if ( res < 0 ) // Cancel
 		return false;
-	    }
+
+	    if ( res == 1 ) // Run full scan
+		execNewScan( KeepAll, true );
 	}
+
+	ConstRefMan<Coords::CoordSystem> crssystem = getCoordSystem();
+	if ( !crssystem || !crssystem->isOK() || !crssystem->isProjection() )
+	{
+	    const uiString msg( tr("We recommend setting the coordinate "
+		    "system when setting up a project from a SEG-Y file.") );
+	    const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
+				uiStrings::sDefine(), uiStrings::sSkip() );
+	    if ( res < 0 ) // Cancel
+		return false;
+
+	    if ( res == 1 )
+		coordsysselfld_->doSel();
+	}
+
 	return true;
     }
-    else if ( impType().is2D() && filespec_.nrFiles() > 1 )
+
+    if ( impType().is2D() && filespec_.nrFiles() > 1 )
     {
 	if ( linenames_.size() != filespec_.nrFiles() &&
-		!reviewAndEditLineNames() )
+	     !reviewAndEditLineNames() )
 	    return false;
+    }
+
+    ConstRefMan<Coords::CoordSystem> crssystem = getCoordSystem();
+    if ( !SI().hasProjection() && crssystem && crssystem->isOK() &&
+	 crssystem->isProjection() )
+    {
+	const uiString msg( tr("The current survey has not been set up with "
+			       "a CRS."
+		"\nDo you want to define it from the current SEG-Y setup?") );
+	const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
+				    uiStrings::sDefine(), uiStrings::sSkip() );
+	if ( res < 0 ) // Cancel
+	    return false;
+
+	if ( res == 1 )
+	{
+	    eSI().setCoordSystem( crssystem.getNonConstPtr() );
+	    SI().write();
+	}
     }
 
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
-    dlg.setCoordSystem( coordsysselfld_->getCoordSystem() );
+    dlg.setCoordSystem( crssystem.getNonConstPtr() );
     dlg.go();
 
     outputid_ = dlg.getOutputKey();
