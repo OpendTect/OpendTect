@@ -793,8 +793,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
 	attachobj = crsfld_->attachObj();
     }
 
-    auto* unitfld = new uiUnitSel( this,
-		uiUnitSel::Setup(PropertyRef::Dist,uiStrings::sUnit()) );
+    auto* unitfld = new uiUnitSel( this, "Z unit in file" );
     unitfld->attach( alignedBelow, attachobj );
     unitselflds.setParam( this, unitfld );
 
