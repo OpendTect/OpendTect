@@ -489,7 +489,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
 	channels_->setUnMappedVSData( attrib, idx, stor,
-			ownsstor ? OD::TakeOverPtr : OD::UsePtr, taskr );
+			ownsstor ? OD::TakeOverPtr : OD::UsePtr, nullptr );
     }
 
     channels_->turnOn( true );
