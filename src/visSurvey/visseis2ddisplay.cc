@@ -533,10 +533,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 void Seis2DDisplay::updatePanelStripPath()
 {
     TraceDisplayInfo& tdi = trcdisplayinfo_;
-    BendPointFinder2D finder( tdi.alltrcpos_.arr(), tdi.alltrcpos_.size(), 1.0);
-    finder.execute();
-
-    const TypeSet<int>& bends = finder.bendPoints();
+    const TypeSet<int>& bends = geometry_.getBendPoints();
     tdi.alljoints_.erase();
 
     for ( int idx=0; idx<bends.size(); idx++ )
