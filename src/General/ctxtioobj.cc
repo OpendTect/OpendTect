@@ -416,7 +416,9 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 	if ( !File::exists(iostrm->fullUserExpr()) )
 	    break;
 	ifnm++;
-	iostrm->setName( BufferString(uniqnm,ifnm) );
+	BufferString newname( uniqnm );
+	newname.add( " (" ).add( ifnm ).add( ")" );
+	iostrm->setName( newname );
 	IOM().ensureUniqueName( *iostrm );
     }
 
