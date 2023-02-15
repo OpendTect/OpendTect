@@ -1019,6 +1019,9 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
 	    executablepath = bindingexecutablepath;
 
 	bindingfnm.replace( '.', '\0' ); //Shortest baseName
+	if ( !__iswin__ )
+	    bindingfnm.replace( "lib", "" );
+
 	SetExecutableNameOverrule( bindingfnm.buf() );
     }
 
