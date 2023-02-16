@@ -557,8 +557,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
-    if ( eventinfo.type == visBase::MouseDoubleClick ||
-	 eventinfo.buttonstate_ == OD::ShiftButton )
+    if ( eventinfo.type == visBase::MouseDoubleClick )
     {
 	makenewstick_ = true;
 	return;
