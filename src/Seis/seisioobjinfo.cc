@@ -16,28 +16,24 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "globexpr.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
+#include "seis2dlineio.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
-#include "seiscbvs2d.h"
 #include "seispsioprov.h"
 #include "seisread.h"
-#include "seisselectionimpl.h"
 #include "seisstatscollector.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "statrand.h"
-#include "survgeom2d.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
@@ -66,7 +62,8 @@ Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj )
 }
 
 
-Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
+Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj,
+				    const Pos::GeomID& geomid )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))
 {
     ioobjinfo_.is2D() ? init2D(geomid) : init();
@@ -116,7 +113,7 @@ void Seis::ObjectSummary::init()
 }
 
 
-void Seis::ObjectSummary::init2D( Pos::GeomID geomid )
+void Seis::ObjectSummary::init2D( const Pos::GeomID& geomid )
 {
     bad_ = !ioobjinfo_.isOK();
     if ( bad_ ) return;
@@ -751,18 +748,11 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
     if ( dset->nrLines() == 0 )
 	return;
 
-    BufferStringSet rejected;
     for ( int idx=0; idx<dset->nrLines(); idx++ )
     {
 	const char* nm = dset->lineName(idx);
 	if ( bss.isPresent(nm) )
 	    continue;
-
-	if ( o2d.bvs_ )
-	{
-	    if ( rejected.isPresent(nm) )
-		continue;
-	}
 
 	bss.add( nm );
     }
@@ -771,7 +761,7 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 }
 
 
-bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
+bool SeisIOObjInfo::getRanges( const Pos::GeomID& geomid,
 			       StepInterval<int>& trcrg,
 			       StepInterval<float>& zrg ) const
 {
@@ -847,14 +837,14 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 }
 
 
-int SeisIOObjInfo::nrComponents( Pos::GeomID geomid ) const
+int SeisIOObjInfo::nrComponents( const Pos::GeomID& geomid ) const
 {
     return getComponentInfo( geomid, nullptr );
 }
 
 
 void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
-				       Pos::GeomID geomid ) const
+				       const Pos::GeomID& geomid ) const
 {
     getComponentInfo( geomid, &nms );
 }
@@ -867,7 +857,7 @@ void SeisIOObjInfo::getCompNames( const MultiID& mid, BufferStringSet& nms )
 }
 
 
-int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
+int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
 				     BufferStringSet* nms ) const
 {
     int ret = 0;
@@ -934,7 +924,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 }
 
 
-bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
+bool SeisIOObjInfo::hasData( const Pos::GeomID& geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
     const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
@@ -967,11 +957,36 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 					    BufferStringSet& datasets,
 					    Opts2D o2d )
-{ getDataSetNamesForLine( Survey::GM().getGeomID(lnm), datasets, o2d ); }
+{
+    getDataSetNamesForLine( Survey::GM().getGeomID(lnm), datasets, o2d );
+}
 
-void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
+
+
+
+
+void SeisIOObjInfo::getDataSetNamesForLine( const Pos::GeomID& geomid,
 					    BufferStringSet& datasets,
-					    Opts2D o2d )
+					    const Opts2D& o2d )
+{
+    TypeSet<MultiID> mids;
+    getDataSetInfoForLine( geomid, mids, datasets, o2d );
+}
+
+
+void SeisIOObjInfo::getDataSetIDsForLine( const Pos::GeomID& geomid,
+					  TypeSet<MultiID>& mids,
+					  const Opts2D& o2d )
+{
+    BufferStringSet datasets;
+    getDataSetInfoForLine( geomid, mids, datasets, o2d );
+}
+
+
+void SeisIOObjInfo::getDataSetInfoForLine( const Pos::GeomID& geomid,
+					   TypeSet<MultiID>& mids,
+					   BufferStringSet& datasets,
+					   const Opts2D& o2d )
 {
     if ( geomid == mUdfGeomID )
 	return;
@@ -1004,7 +1019,10 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 
 	Seis2DDataSet ds( *ioobj );
 	if ( ds.isPresent(geomid) )
+	{
+	    mids.add( ioobj->key() );
 	    datasets.add( ioobj->name() );
+	}
     }
 }
 

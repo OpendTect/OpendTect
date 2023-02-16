@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "datachar.h"
 #include "datadistribution.h"
-#include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
 #include "bufstring.h"
@@ -38,7 +37,7 @@ public:
 			ObjectSummary(const MultiID&);
 			ObjectSummary(const DBKey&);
 			ObjectSummary(const IOObj&);
-			ObjectSummary(const IOObj&,Pos::GeomID);
+			ObjectSummary(const IOObj&,const Pos::GeomID&);
 			ObjectSummary(const ObjectSummary&);
 			~ObjectSummary();
 
@@ -79,7 +78,7 @@ protected:
 private:
 
     void		init();
-    void		init2D(Pos::GeomID);
+    void		init2D(const Pos::GeomID&);
     void		refreshCache(const SeisTrcTranslator&);
 
     friend class RawTrcsSequence;
@@ -134,10 +133,10 @@ public:
     bool		getBPS(int&,int icomp) const;
 			//!< max bytes per sample, component -1 => add all
 
-    int			nrComponents(Pos::GeomID geomid=
+    int			nrComponents(const Pos::GeomID& geomid=
 					    Survey::GM().cUndefGeomID()) const;
     void		getComponentNames(BufferStringSet&,
-					  Pos::GeomID geomid=
+					  const Pos::GeomID& geomid=
 					  Survey::GM().cUndefGeomID()) const;
     bool		getDisplayPars(IOPar&) const;
 
@@ -155,8 +154,7 @@ public:
     mStruct(Seis) Opts2D
     {
 				Opts2D()
-				    : bvs_(0), steerpol_(2)	{}
-	const BinIDValueSet*	bvs_;
+				    : steerpol_(2)	{}
 	BufferString		zdomky_;	//!< default=empty=only SI()'s
 				//!< Will be matched as GlobExpr
 	int			steerpol_;	//!< 0=none, 1=only, 2=both
@@ -168,7 +166,7 @@ public:
     void		getLineNames( BufferStringSet& b,
 				      Opts2D o2d=Opts2D() ) const
 				{ getNms(b,o2d); }
-    bool		getRanges(const Pos::GeomID geomid,
+    bool		getRanges(const Pos::GeomID& geomid,
 				  StepInterval<int>& trcrg,
 				  StepInterval<float>& zrg) const;
 
@@ -177,13 +175,17 @@ public:
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
 
-    static bool		hasData(Pos::GeomID);
-    static void		getDataSetNamesForLine( Pos::GeomID geomid,
-						BufferStringSet& b,
-						Opts2D o2d=Opts2D() );
-    static void		getDataSetNamesForLine( const char* nm,
-						BufferStringSet& b,
-						Opts2D o2d=Opts2D() );
+    static bool		hasData(const Pos::GeomID&);
+    static void		getDataSetNamesForLine(const Pos::GeomID& geomid,
+					       BufferStringSet&,
+					       const Opts2D& o2d={});
+    static void		getDataSetIDsForLine(const Pos::GeomID& geomid,
+					     TypeSet<MultiID>&,
+					     const Opts2D& o2d={});
+    static void		getDataSetInfoForLine(const Pos::GeomID& geomid,
+					      TypeSet<MultiID>&,
+					      BufferStringSet& datasetnames,
+					      const Opts2D& o2d={});
     static void		getCompNames(const MultiID&,BufferStringSet&);
 			//!< Function useful in attribute environments
 			//!< The 'MultiID' must be IOObj_ID
@@ -195,7 +197,12 @@ public:
     void		getUserInfo(uiStringSet&) const;
 
 
-			mDeprecatedDef SeisIOObjInfo(const char* ioobjnm);
+    mDeprecatedDef	SeisIOObjInfo(const char* ioobjnm);
+    mDeprecated("Use getDataSetNamesForLine with Pos::GeomID")
+    static void		getDataSetNamesForLine(const char* linenm,
+					       BufferStringSet&,
+					       Opts2D o2d={});
+
 protected:
 
     Seis::GeomType	geomtype_;
@@ -206,7 +213,8 @@ protected:
     void		setType();
 
     void		getNms(BufferStringSet&,const Opts2D&) const;
-    int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
+    int			getComponentInfo(const Pos::GeomID&,
+					 BufferStringSet*) const;
 
     void		getCommonUserInfo(uiStringSet&) const;
     void		getPostStackUserInfo(uiStringSet&) const;

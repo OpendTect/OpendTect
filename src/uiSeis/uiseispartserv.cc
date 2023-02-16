@@ -450,7 +450,8 @@ void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
 					   int steerpol )
 {
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = steerpol;
-    SeisIOObjInfo::getDataSetNamesForLine( linenm, datasets, o2d );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    SeisIOObjInfo::getDataSetNamesForLine( geomid, datasets, o2d );
 }
 
 
@@ -535,7 +536,8 @@ void uiSeisPartServer::get2DZdomainAttribs( const char* linenm,
 {
     SeisIOObjInfo::Opts2D o2d;
     o2d.zdomky_ = zdomainstr;
-    SeisIOObjInfo::getDataSetNamesForLine( linenm, attribs, o2d );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    SeisIOObjInfo::getDataSetNamesForLine( geomid, attribs, o2d );
 }
 
 
