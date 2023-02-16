@@ -625,7 +625,8 @@ void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODDisplayTreeItem::createMenu( menu, istb );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !menu || !isDisplayID(menu->menuID()) || !s2d ) return;
+    if ( !menu || !isDisplayID(menu->menuID()) || !s2d )
+	return;
 
     mAddMenuOrTBItem( istb, nullptr, &displaymnuitem_, &linenmitm_,
 		      true, s2d->isLineNameShown() )
@@ -1151,6 +1152,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     s2d->enableAttrib( attribNr(), true );
 
     updateColumnText(0);
+    updateColumnText(1);
 
     if ( s2d->isOn() != isChecked() )
 	setChecked( s2d->isOn(), true );
