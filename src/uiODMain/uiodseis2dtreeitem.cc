@@ -1152,6 +1152,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     s2d->enableAttrib( attribNr(), true );
 
     updateColumnText(0);
+    updateColumnText(1);
 
     if ( s2d->isOn() != isChecked() )
 	setChecked( s2d->isOn(), true );
