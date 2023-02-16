@@ -25,6 +25,7 @@ set( OD_PLUGINS
 	uiCRS
         uiSEGYTools
         uiMadagascarAttribs
+	ODBind
 )
 
 if ( NOT OD_NO_OSG )

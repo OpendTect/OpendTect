@@ -13,7 +13,7 @@ endif()
 set( OD_MODULE_DEPS General )
 set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
-set( OD_MODULE_SOURCES 
+set( OD_MODULE_SOURCES
 	crspi.cc
 	crsproj.cc
 	crssystem.cc
@@ -36,6 +36,7 @@ if ( NOT OD_NO_PROJ )
 	  od_process_attrib_hc
 	  od_synthrock_extractexamples
 	  odpybind
+	  ODBind
     )
 endif()
 
