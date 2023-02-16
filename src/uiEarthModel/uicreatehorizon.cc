@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 
 uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(uiStrings::phrCreate(uiStrings::sHorizon(1)),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Create Constant Z Horizon"),mNoDlgTitle,
 		       mODHelpKey(mCreateHorizonHelpID)).modal(false))
     , zfld_(0)
     , ready(this)
@@ -38,7 +38,7 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
 	return;
     }
 
-    uiString lbl = tr("Z Value ");
+    uiString lbl = tr("Z Value");
     lbl.append( SI().getUiZUnitString() );
     zfld_ = new uiGenInput( this, lbl, FloatInpSpec(SI().zRange(true).start
 					*SI().zDomain().userFactor()) );

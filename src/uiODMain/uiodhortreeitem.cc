@@ -69,7 +69,9 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     , constzitem_(m3Dots(tr("With Constant Z")),mConstIdx)
     , handleMenu(this)
 {
-    newmenu_.addItem( &trackitem_ );
+    if ( SI().has3D() )
+	newmenu_.addItem( &trackitem_ );
+
     newmenu_.addItem( &constzitem_ );
 }
 
@@ -120,7 +122,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     uiMenu* newmenu = new uiMenu( newmenu_ );
     mnu.addMenu( newmenu );
-    newmenu->setEnabled( !hastransform && SI().has3D() );
+    newmenu->setEnabled( !hastransform );
 
     if ( children_.size() )
     {
