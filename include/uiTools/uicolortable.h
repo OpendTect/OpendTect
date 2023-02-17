@@ -128,6 +128,7 @@ public:
 			~uiColorTableGroup();
 
     OD::Orientation	getOrientation() const override;
+    void		setCanvasAsAlignObj();
 
 private:
     void		init(OD::Orientation,bool nominmax);

@@ -770,7 +770,15 @@ uiColorTableGroup::~uiColorTableGroup()
 
 
 OD::Orientation uiColorTableGroup::getOrientation() const
-{ return orientation_; }
+{
+    return orientation_;
+}
+
+
+void uiColorTableGroup::setCanvasAsAlignObj()
+{
+    setHAlignObj( canvas_ );
+}
 
 
 
