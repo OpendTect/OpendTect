@@ -206,7 +206,7 @@ private:
     ObjectSet<ElasticModelSet> elasticmodelsets_;
     ObjectSet<StratSynth::LevelSet> levelsets_;
 
-    PtrMan<DataMgr>	prodmgr_;
+    PtrMan<DataMgr>	prodmgr_;	// not used. only here for abi comp
 
     void		clearData(bool lmdata,bool synthdata);
     void		ensureLevels(int lmsidx) const;

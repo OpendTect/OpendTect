@@ -11,35 +11,30 @@ ________________________________________________________________________
 #include "stratsynthlevel.h"
 #include "syntheticdataimpl.h"
 
-#include "angles.h"
-#include "attribsel.h"
-#include "attribengman.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribparam.h"
-#include "attribprocessor.h"
+#include "attribengman.h"
 #include "attribfactory.h"
+#include "attribprocessor.h"
 #include "attribsel.h"
-#include "attribstorprovider.h"
+#include "attribsel.h"
 #include "binidvalset.h"
 #include "elasticpropsel.h"
 #include "envvars.h"
 #include "fftfilter.h"
 #include "hilbertattrib.h"
 #include "ioman.h"
-#include "prestackattrib.h"
-#include "prestackgather.h"
 #include "prestackanglecomputer.h"
+#include "prestackgather.h"
+#include "prestackprop.h"
 #include "propertyref.h"
-#include "raytracerrunner.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
-#include "seistrcprop.h"
-#include "survinfo.h"
 #include "statruncalc.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "survinfo.h"
 #include "unitofmeasure.h"
 #include "wavelet.h"
 
@@ -108,8 +103,7 @@ StratSynth::DataMgr* StratSynth::DataMgr::getProdMgr()
     if ( calceach_ < 2 )
 	return this;
 
-    prodmgr_ = new DataMgr( *this, 1 );
-    return prodmgr_.ptr();
+    return new DataMgr( *this, 1 );
 }
 
 
@@ -171,7 +165,6 @@ void StratSynth::DataMgr::clearData( bool lmdata, bool synthdata )
 	}
     }
 
-    prodmgr_ = nullptr;
     deepErase( lmdatasets_ );
     for ( int idx=0; idx<nrLayerModels(); idx++ )
 	addLayModelSets( lmdata );
