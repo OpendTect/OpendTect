@@ -34,7 +34,7 @@ uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
     , levelSel(this)
     , horSel(this)
 {
-    lvlsel_ = new uiStratLevelSel( this, false, tr("Reference Level"));
+    lvlsel_ = new uiStratLevelSel( this, false, tr("Reference level"));
 
     uiIOObjSel::Setup hsu( tr("Horizon at that level") );
     horsel3d_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D), hsu );
