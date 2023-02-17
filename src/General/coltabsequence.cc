@@ -13,7 +13,9 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "bendpointfinder.h"
 #include "bufstringset.h"
+#include "dirlist.h"
 #include "file.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -613,16 +615,33 @@ void ColTab::SeqMgr::refresh()
 
 void ColTab::SeqMgr::readColTabs()
 {
-    IOPar* iop = nullptr;
-    BufferString fnm = mGetSetupFileName("ColTabs");
-    od_istream strm( mGetSetupFileName("ColTabs") );
+    IOPar iop;
+    const BufferString fnm = mGetSetupFileName("ColTabs");
+    od_istream strm( fnm );
     if ( strm.isOK() )
     {
 	ascistream astrm( strm );
-	iop = new IOPar( astrm );
+	iop.getFrom( astrm );
+	if ( !iop.isEmpty() )
+	    addFromPar( iop, true );
     }
-    if ( iop )
-	{ addFromPar( *iop, true ); delete iop; }
+
+    // Read additional ColTabs.* files typically coming from plugin vendors
+    FilePath defcoltabfp( fnm );
+    DirList auxfiles( defcoltabfp.pathOnly(), File::FilesInDir, "ColTabs.*" );
+    for ( int idx=0; idx<auxfiles.size(); idx++ )
+    {
+	od_istream auxstrm( auxfiles.fullPath(idx) );
+	if ( auxstrm.isOK() )
+	{
+	    ascistream auxastrm( auxstrm );
+	    iop.setEmpty();
+	    iop.getFrom( auxastrm );
+	    if ( !iop.isEmpty() )
+		addFromPar( iop, true );
+	}
+    }
+
     if ( InSysAdmMode() )
 	return;
 
