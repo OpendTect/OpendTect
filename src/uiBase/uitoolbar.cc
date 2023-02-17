@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "bufstringset.h"
-#include "hiddenparam.h".h"
+#include "hiddenparam.h"
 #include "menuhandler.h"
 
 #include "q_uiimpl.h"
