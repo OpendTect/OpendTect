@@ -307,47 +307,83 @@ class Survey(object):
         return res
 
 
-class Horizon2D(object):
+class _SurveyObject(object):
     """
-    A class for an OpendTect 2D horizon
+    Base class for OpendTect survey objects - not useful on its own
     """
 
-    _new = wrap_function(LIBODB, 'horizon2d_new', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
-    _del = wrap_function(LIBODB, 'horizon2d_del', None, [ct.c_void_p])
-    _attribcount = wrap_function(LIBODB, 'horizon2d_attribcount', ct.c_int, [ct.c_void_p])
-    _attribnames = wrap_function(LIBODB, 'horizon2d_attribnames', ct.c_void_p, [ct.c_void_p])
-    _info = wrap_function(LIBODB, 'horizon2d_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _infos = wrap_function(LIBODB, 'horizon2d_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
-    _linecount = wrap_function(LIBODB, 'horizon2d_linecount', ct.c_int, [ct.c_void_p])
-    _lineids = wrap_function(LIBODB, 'horizon2d_lineids', None, [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int)])
-    _linenames = wrap_function(LIBODB, 'horizon2d_linenames', ct.c_void_p, [ct.c_void_p])
-    _name = wrap_function(LIBODB, 'horizon2d_name', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _names = wrap_function(LIBODB, 'horizon2d_names', ct.c_void_p, [ct.c_void_p])
+    @classmethod
+    def _initbasebindings(clss, bindnm):
+        clss._newin = wrap_function(LIBODB, f'{bindnm}_newin', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
+        clss._newout = wrap_function(LIBODB, f'{bindnm}_newout', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
+        clss._del = wrap_function(LIBODB, f'{bindnm}_del', None, [ct.c_void_p])
+        clss._errmsg = wrap_function(LIBODB, f'{bindnm}_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+        clss._feature = wrap_function(LIBODB, f'{bindnm}_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+        clss._features = wrap_function(LIBODB, f'{bindnm}_features', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
+        clss._info = wrap_function(LIBODB, f'{bindnm}_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+        clss._infos = wrap_function(LIBODB, f'{bindnm}_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
+        clss._isok = wrap_function(LIBODB, f'{bindnm}_isok', ct.c_bool, [ct.c_void_p])
+        clss._name = wrap_function(LIBODB, f'{bindnm}_name', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+        clss._names = wrap_function(LIBODB, f'{bindnm}_names', ct.c_void_p, [ct.c_void_p])
 
-    def __init__(self, survey: Survey, horizon_name: str):
-        self._horizon = Horizon2D._new(survey._survey, horizon_name.encode())
+    def __init__(self, survey: Survey, name: str):
+        """Initialise an OpendTect object
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        name : str
+            OpendTect object name
+
+        """
+
+        if not hasattr(self,'_newin'):
+            self._initbindings(type(self).__name__.lower())
+
+        self._handle = self._newin( survey._survey, name.encode())
+        if not self._isok(self._handle):
+            raise TypeError(self._errmsg(self._handle))
 
     def __del__(self):
-        Horizon2D._del(self._horizon)
-
-    @property
-    def attribcount(self) ->int:
-        """int: Number of attributes attached to this 2D horizon (readonly)"""
-        return Horizon2D._attribcount(self._horizon)
-
-    @property
-    def attribnames(self) ->list[str]:
-        """list[str]: Names of attributes attached to this 2D horizon (readonly)"""
-        return pystrlist(Horizon2D._attribnames(self._horizon))
+        self._del(self._handle)
 
     @property
     def name(self) ->str:
-        """str: Name of this 2D horizon (readonly)"""
-        return pystr(Horizon2D._name(self._horizon))
+        """str: Name of this object (readonly)"""
+        return pystr(self._name(self._handle))
 
+    def feature(self) ->dict:
+        """ Return a GeoJSON feature for the object
+
+        """
+        return pyjsonstr(self._feature(self._handle))
+
+    @classmethod
+    def features(clss, survey: Survey, fornms: list=[]) ->str:
+        """ Return a GeoJSON Feature Collection for all or a subset of objects in the given survey.
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        fornms : list[str]
+            A list of object names to use, an empty list will give information for all objects.            
+
+        Returns
+        -------
+        dict
+
+        """ 
+        fornmsptr = stringset_new()
+        for nm in fornms:
+            stringset_add(fornmsptr, nm.encode())
+        res = pystr(clss._features(survey._survey, fornmsptr ))
+        stringset_del(fornmsptr)
+        return res
 
     def info(self) ->dict:
-        """Return basic information for this 2d horizon.
+        """Return basic information for this survye object.
         
         Returns
         -------
@@ -355,7 +391,74 @@ class Horizon2D(object):
 
         """
 
-        return pyjsonstr(Horizon2D._info(self._horizon))
+        return pyjsonstr(self._info(self._handle))
+
+    @classmethod
+    def infos(clss, survey: Survey, fornms: list=[]) ->dict:
+        """ Return basic information for all or a subset of objects in the given survey.
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        fornms : list[str]
+            A list of object names to use, an empty list will give information for all objects.
+            
+        Returns
+        -------
+        dict
+
+        """ 
+        fornmsptr = stringset_new()
+        for nm in fornms:
+            stringset_add(fornmsptr, nm.encode())
+        infolist = pyjsonstr(clss._infos(survey._survey, fornmsptr ))
+        stringset_del(fornmsptr)
+        return {key: [i[key] for i in infolist] for key in infolist[0]}
+
+    @classmethod
+    def names(clss, survey: Survey) ->list[str]:
+        """ Return the names of this object type in the given survey
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+
+        Returns
+        -------
+        list[str]
+
+        """
+
+        return pystrlist(clss._names(survey._survey))
+
+
+
+
+class Horizon2D(_SurveyObject):
+    """
+    A class for an OpendTect 2D horizon
+    """
+
+    @classmethod
+    def _initbindings(clss, bindnm):
+        clss._initbasebindings(bindnm)
+        clss._attribcount = wrap_function(LIBODB, f'{bindnm}_attribcount', ct.c_int, [ct.c_void_p])
+        clss._attribnames = wrap_function(LIBODB, f'{bindnm}_attribnames', ct.c_void_p, [ct.c_void_p])
+        clss._linecount = wrap_function(LIBODB, f'{bindnm}_linecount', ct.c_int, [ct.c_void_p])
+        clss._lineids = wrap_function(LIBODB, f'{bindnm}_lineids', None, [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int)])
+        clss._linenames = wrap_function(LIBODB, f'{bindnm}_linenames', ct.c_void_p, [ct.c_void_p])
+
+    @property
+    def attribcount(self) ->int:
+        """int: Number of attributes attached to this 2D horizon (readonly)"""
+        return self._attribcount(self._handle)
+
+    @property
+    def attribnames(self) ->list[str]:
+        """list[str]: Names of attributes attached to this 2D horizon (readonly)"""
+        return pystrlist(self._attribnames(self._handle))
 
     def lineids(self) ->list[int]:
         """ Return the OpendTect line indices of 2D lines in this 2D horizon.
@@ -366,8 +469,8 @@ class Horizon2D(object):
 
         """
 
-        ids = (ct.c_int * Horizon2D._linecount(self._horizon))()
-        Horizon2D._lineids(self._horizon, len(ids), ids)
+        ids = (ct.c_int * self._linecount(self._handle))()
+        self._lineids(self._handle, len(ids), ids)
         return ids[:]
 
     def linenames(self) ->list[str]:
@@ -379,150 +482,26 @@ class Horizon2D(object):
 
         """
 
-        return pystrlist(Horizon2D._linenames(self._horizon))
-
-    @staticmethod
-    def names(survey: Survey) ->list[str]:
-        """ Return the names of 2d horizons in the given survey
-
-        Parameters
-        ----------
-        survey : Survey
-            An OpendTect survey object
-
-        Returns
-        -------
-        list[str]
-
-        """
-
-        return pystrlist(Horizon2D._names(survey._survey))
-
-    @staticmethod
-    def infos(survey: Survey, fornms: list=[]) ->dict:
-        """ Return basic information for all or a subset of 2D horizons in the given survey.
-
-        Parameters
-        ----------
-        survey : Survey
-            An OpendTect survey object
-        fornms : list[str]
-            A list of 2D horizon names to use, an empty list will give information for all 2D horizons.
-            
-        Returns
-        -------
-        dict
-
-        """ 
-        fornmsptr = stringset_new()
-        for nm in fornms:
-            stringset_add(fornmsptr, nm.encode())
-        infolist = pyjsonstr(Horizon2D._infos(survey._survey, fornmsptr ))
-        stringset_del(fornmsptr)
-        return {key: [i[key] for i in infolist] for key in infolist[0]}
+        return pystrlist(self._linenames(self._handle))
 
 
-
-class Horizon3D(object):
+class Horizon3D(_SurveyObject):
     """
     A class for an OpendTect 3D horizon
     """
-
-    _newin = wrap_function(LIBODB, 'horizon3d_newin', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
-    _newout = wrap_function(LIBODB, 'horizon3d_newout', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
-    _del = wrap_function(LIBODB, 'horizon3d_del', None, [ct.c_void_p])
-    _attribcount = wrap_function(LIBODB, 'horizon3d_attribcount', ct.c_int, [ct.c_void_p])
-    _attribnames = wrap_function(LIBODB, 'horizon3d_attribnames', ct.c_void_p, [ct.c_void_p])
-    _feature = wrap_function(LIBODB, 'horizon3d_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _features = wrap_function(LIBODB, 'horizon3d_features', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
-    _info = wrap_function(LIBODB, 'horizon3d_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _infos = wrap_function(LIBODB, 'horizon3d_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
-    _name = wrap_function(LIBODB, 'horizon3d_name', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _names = wrap_function(LIBODB, 'horizon3d_names', ct.c_void_p, [ct.c_void_p])
-
-    def __init__(self, survey: Survey, horizon_name: str, *args):
-        """Initialise an OpendTect 3D Horizon object
-
-        Parameters
-        ----------
-        survey : Survey
-            An OpendTect survey object
-        horizon_name : str
-            OpendTect 3D horizon name
-
-        """
-
-        self._horizon = Horizon3D._newin(survey._survey, horizon_name.encode())
-
-    def __del__(self):
-        Horizon3D._del(self._horizon)
+    @classmethod
+    def _initbindings(clss, bindnm):
+        clss._initbasebindings(bindnm)
+        clss._attribcount = wrap_function(LIBODB, f'{bindnm}_attribcount', ct.c_int, [ct.c_void_p])
+        clss._attribnames = wrap_function(LIBODB, f'{bindnm}_attribnames', ct.c_void_p, [ct.c_void_p])
 
     @property
     def attribcount(self) ->int:
         """int: Number of attributes attached to this 3D horizon (readonly)"""
-        return Horizon3D._attribcount(self._horizon)
+        return self._attribcount(self._handle)
 
     @property
     def attribnames(self) ->list[str]:
         """list[str]: Names of attributes attached to this 3D horizon (readonly)"""
-        return pystrlist(Horizon3D._attribnames(self._horizon))
-
-    def info(self) ->dict:
-        return pyjsonstr(Horizon3D._info(self._horizon))
-
-    @property
-    def name(self) ->str:
-        return pystr(Horizon3D._name(self._horizon))
-
-    @staticmethod
-    def names(survey: Survey) ->list[str]:
-        return pystrlist(Horizon3D._names(survey._survey))
-
-    @staticmethod
-    def infos(survey: Survey, fornms: list=[]) ->dict:
-        """ Return basic information for all or a subset of 3D horizons in the given survey.
-
-        Parameters
-        ----------
-        survey : Survey
-            An OpendTect survey object
-        fornms : list[str]
-            A list of 3D horizon names to use, an empty list will give information for all 3D horizons.
-            
-        Returns
-        -------
-        dict
-
-        """ 
-        fornmsptr = stringset_new()
-        for nm in fornms:
-            stringset_add(fornmsptr, nm.encode())
-        infolist = pyjsonstr(Horizon3D._infos(survey._survey, fornmsptr ))
-        stringset_del(fornmsptr)
-        return {key: [i[key] for i in infolist] for key in infolist[0]}
-
-    @staticmethod
-    def features(survey: Survey, fornms: list=[]) ->str:
-        """ Return a GeoJSON Feature Collection with the outlines and basic information for all 
-        or a subset of 3d horizons in the given survey.
-
-        Parameters
-        ----------
-        survey : Survey
-            An OpendTect survey object
-        fornms : list[str]
-            A list of 3D horizon names to use, an empty list will give information for all 3D horizons.
-            
-        Returns
-        -------
-        dict
-
-        """ 
-        fornmsptr = stringset_new()
-        for nm in fornms:
-            stringset_add(fornmsptr, nm.encode())
-        res = pystr(Horizon3D._features(survey._survey, fornmsptr ))
-        stringset_del(fornmsptr)
-        return res
-
+        return pystrlist(self._attribnames(self._handle))
      

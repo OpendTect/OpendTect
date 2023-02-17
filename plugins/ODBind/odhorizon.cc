@@ -40,9 +40,9 @@ ________________________________________________________________________________
 #include "odsurvey_object.h"
 #include "odhorizon.h"
 
-#ifdef __win__
-    template class __declspec(dllimport) ValueSeries<float>;
-#endif
+// #ifdef __win__
+//     template class __declspec(dllimport) ValueSeries<float>;
+// #endif
 
 const char* odHorizon3D::sKeyTranslatorGrp()
 {
@@ -677,12 +677,7 @@ void odHorizon2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 // Horizon3D bindings
 //------------------------------------------------------------------------------
-hHorizon3D horizon3d_newin( hSurvey survey, const char* name )
-{
-    const auto* p = reinterpret_cast<odSurvey*>(survey);
-    return new odHorizon3D( *p, name );
-}
-
+mDefineBaseBindings(Horizon3D, horizon3d)
 hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 			     const intStepInterval il,
 			     const intStepInterval xl, bool overwrite )
@@ -692,11 +687,6 @@ hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 			    StepInterval<int>(il.start, il.stop, il.step),
 			    StepInterval<int>(xl.start, xl.stop, xl.step),
 			    overwrite  );
-}
-
-void horizon3d_del( hHorizon3D self )
-{
-    delete reinterpret_cast<odHorizon3D*>(self);
 }
 
 int horizon3d_attribcount( hHorizon3D self )
@@ -711,76 +701,15 @@ hStringSet horizon3d_attribnames( hHorizon3D self )
     return p->getAttribNames();
 }
 
-const char* horizon3d_errmsg( hHorizon3D self )
-{
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
-    return strdup( p->errMsg() );
-}
-
-const char* horizon3d_feature( hHorizon3D self )
-{
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
-    OD::JSON::Object jsobj;
-    p->getFeature( jsobj );
-    return strdup( jsobj.dumpJSon().buf() );
-}
-
-const char* horizon3d_features( hSurvey survey, const hStringSet forhors )
-{
-    const auto* surv = reinterpret_cast<odSurvey*>(survey);
-    const auto* hors = reinterpret_cast<BufferStringSet*>(forhors);
-    OD::JSON::Object jsobj;
-    odHorizon3D::getFeatures<odHorizon3D>( jsobj, *surv, *hors );
-    return strdup( jsobj.dumpJSon().buf() );
-}
-
-const char* horizon3d_info( hHorizon3D self )
-{
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
-    OD::JSON::Object jsobj;
-    p->getInfo( jsobj );
-    return strdup( jsobj.dumpJSon() );
-}
-
-const char* horizon3d_infos( hSurvey survey, const hStringSet forhors )
-{
-    const auto* surv = reinterpret_cast<odSurvey*>(survey);
-    const auto* hors = reinterpret_cast<BufferStringSet*>(forhors);
-    OD::JSON::Array jsarr( true );
-    odHorizon3D::getInfos<odHorizon3D>( jsarr, *surv, *hors );
-    return strdup( jsarr.dumpJSon().buf() );
-}
-
-bool horizon3d_isok( hHorizon3D self )
-{
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
-    return p->isOK();
-}
-
-const char* horizon3d_name( hHorizon3D self )
-{
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
-    return p->getName();
-}
-
-hStringSet horizon3d_names( hSurvey survey )
-{
-    const auto* p = reinterpret_cast<odSurvey*>(survey);
-    return odHorizon3D::getNames<odHorizon3D>( *p );
-}
-
 
 // Horizon2D bindings
 //------------------------------------------------------------------------------
-hHorizon2D horizon2d_new( hSurvey survey, const char* name )
+mDefineBaseBindings(Horizon2D, horizon2d)
+hHorizon2D horizon2d_newout( hSurvey survey, const char* name,
+			     bool creategeom, bool overwrite )
 {
     const auto* p = reinterpret_cast<odSurvey*>(survey);
-    return new odHorizon2D( *p, name );
-}
-
-void horizon2d_del( hHorizon2D self )
-{
-    delete reinterpret_cast<odHorizon2D*>(self);
+    return new odHorizon2D( *p, name, creategeom, overwrite  );
 }
 
 int horizon2d_attribcount( hHorizon2D self )
@@ -793,35 +722,6 @@ hStringSet horizon2d_attribnames( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
     return p->getAttribNames();
-}
-
-const char* horizon2d_errmsg( hHorizon2D self )
-{
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    return strdup( p->errMsg() );
-}
-
-const char* horizon2d_info( hHorizon2D self )
-{
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    OD::JSON::Object jsobj;
-    p->getInfo( jsobj );
-    return strdup( jsobj.dumpJSon() );
-}
-
-const char* horizon2d_infos( hSurvey survey, const hStringSet forhors )
-{
-    const auto* surv = reinterpret_cast<odSurvey*>(survey);
-    const auto* hors = reinterpret_cast<BufferStringSet*>(forhors);
-    OD::JSON::Array jsarr( true );
-    odHorizon2D::getInfos<odHorizon2D>( jsarr, *surv, *hors );
-    return strdup( jsarr.dumpJSon().buf() );
-}
-
-bool horizon2d_isok( hHorizon2D self )
-{
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    return p->isOK();
 }
 
 int horizon2d_linecount( hHorizon2D self )
@@ -841,18 +741,3 @@ hStringSet horizon2d_linenames( hHorizon2D self )
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
     return p->getLineNames();
 }
-
-const char* horizon2d_name( hHorizon2D self )
-{
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    return p->getName();
-}
-
-hStringSet horizon2d_names( hSurvey survey )
-{
-    const auto* p = reinterpret_cast<odSurvey*>(survey);
-    return odHorizon2D::getNames<odHorizon2D>( *p );
-}
-
-
-

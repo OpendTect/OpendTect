@@ -100,36 +100,20 @@ protected:
 };
 
 typedef void* hSurvey;
-typedef void* hHorizon2D;
-typedef void* hHorizon3D;
-
-mExternC(ODBind) hHorizon3D	horizon3d_newin(hSurvey, const char* name);
+mDeclareBaseBindings(Horizon3D, horizon3d)
 mExternC(ODBind) hHorizon3D	horizon3d_newout(hSurvey, const char* name,
 						 const intStepInterval iline,
 						 const intStepInterval xline,
 						 bool overwrite);
-mExternC(ODBind) void		horizon3d_del(hHorizon3D);
 mExternC(ODBind) int		horizon3d_attribcount(hHorizon3D);
 mExternC(ODBind) hStringSet	horizon3d_attribnames(hHorizon3D);
-mExternC(ODBind) const char*	horizon3d_feature(hHorizon3D);
-mExternC(ODBind) const char*	horizon3d_features(hSurvey, const hStringSet);
-mExternC(ODBind) const char*	horizon3d_info(hHorizon3D);
-mExternC(ODBind) const char*	horizon3d_infos(hSurvey, const hStringSet);
-mExternC(ODBind) const char*	horizon3d_name(hHorizon3D);
-mExternC(ODBind) hStringSet	horizon3d_names(hSurvey);
 
-mExternC(ODBind) hHorizon2D	horizon2d_new(hSurvey, const char* name);
-mExternC(ODBind) void		horizon2d_del(hHorizon2D);
-
+mDeclareBaseBindings(Horizon2D, horizon2d)
+mExternC(ODBind) hHorizon2D	horizon2d_newout(hSurvey, const char* name,
+						 bool creategeom,
+						 bool overwrite);
 mExternC(ODBind) int		horizon2d_attribcount(hHorizon2D);
 mExternC(ODBind) hStringSet	horizon2d_attribnames(hHorizon2D);
-mExternC(ODBind) const char*	horizn2d_errmsg(hHorizon2D);
-mExternC(ODBind) const char*	horizn2d_feature(hHorizon2D);
-mExternC(ODBind) const char*	horizon2d_info(hHorizon2D);
-mExternC(ODBind) const char*	horizon2d_infos(hSurvey, const hStringSet);
-mExternC(ODBind) bool		horizon2d_isok(hHorizon2D);
 mExternC(ODBind) int		horizon2d_linecount(hHorizon2D);
 mExternC(ODBind) void		horizon2d_lineids(hHorizon2D, int, int*);
 mExternC(ODBind) hStringSet	horizon2d_linenames(hHorizon2D);
-mExternC(ODBind) const char*	horizon2d_name(hHorizon2D);
-mExternC(ODBind) hStringSet	horizon2d_names(hSurvey);

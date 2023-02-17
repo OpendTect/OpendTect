@@ -146,3 +146,86 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     jsobj.set( "features", features );
 }
 
+//
+// Use mDeclareBaseBindings(Horizon3D, horizon3d) in the .h file
+//
+// should produce
+//	mExternC(ODBind) hHorizon3D horizon3d_newin(hSurvey, const char* name);
+//	mExternC(ODBind) void horizon3d_del(hHorizon3D);
+//	etc
+#define mDeclareBaseBindings(classnm, bindnm) \
+    typedef void* h##classnm; \
+    mExternC(ODBind) h##classnm bindnm##_newin(hSurvey, const char* name); \
+    mExternC(ODBind) void bindnm##_del(h##classnm); \
+    mExternC(ODBind) const char* bindnm##_errmsg(h##classnm); \
+    mExternC(ODBind) const char* bindnm##_feature(h##classnm); \
+    mExternC(ODBind) const char* bindnm##_features(hSurvey, const hStringSet); \
+    mExternC(ODBind) const char* bindnm##_info(h##classnm); \
+    mExternC(ODBind) const char* bindnm##_infos(hSurvey, const hStringSet); \
+    mExternC(ODBind) bool bindnm##_isok(h##classnm); \
+    mExternC(ODBind) const char* bindnm##_name(h##classnm); \
+    mExternC(ODBind) hStringSet bindnm##_names(hSurvey);
+
+//
+// Use mDefineBaseBindings(Horizon3D, horizon3d) in the .cc file
+//
+#define mDefineBaseBindings(classnm, bindnm) \
+    h##classnm bindnm##_newin( hSurvey survey, const char* name ) \
+    { \
+	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
+	return new od##classnm( *surv, name ); \
+    } \
+    void bindnm##_del( h##classnm self ) \
+    { \
+	delete reinterpret_cast<od##classnm*>(self); \
+    } \
+    const char* bindnm##_errmsg( h##classnm self ) \
+    { \
+	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	return strdup( p->errMsg() ); \
+    } \
+    const char* bindnm##_feature( h##classnm self ) \
+    { \
+	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	OD::JSON::Object jsobj; \
+	p->getFeature( jsobj ); \
+	return strdup( jsobj.dumpJSon().buf() ); \
+    } \
+    const char* bindnm##_features( hSurvey survey, const hStringSet fornms ) \
+    { \
+	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
+	const auto* nms = reinterpret_cast<BufferStringSet*>(fornms); \
+	OD::JSON::Object jsobj; \
+	od##classnm::getFeatures<od##classnm>( jsobj, *surv, *nms ); \
+	return strdup( jsobj.dumpJSon().buf() ); \
+    } \
+    const char* bindnm##_info( h##classnm self ) \
+    { \
+	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	OD::JSON::Object jsobj; \
+	p->getInfo( jsobj ); \
+	return strdup( jsobj.dumpJSon() ); \
+    } \
+    const char* bindnm##_infos( hSurvey survey, const hStringSet fornms ) \
+    { \
+	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
+	const auto* nms = reinterpret_cast<BufferStringSet*>(fornms); \
+	OD::JSON::Array jsarr( true ); \
+	od##classnm::getInfos<od##classnm>( jsarr, *surv, *nms ); \
+	return strdup( jsarr.dumpJSon().buf() ); \
+    } \
+    bool bindnm##_isok( h##classnm self ) \
+    { \
+	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	return p->isOK(); \
+    } \
+    const char* bindnm##_name( h##classnm self ) \
+    { \
+	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	return p->getName(); \
+    } \
+    hStringSet bindnm##_names( hSurvey survey ) \
+    { \
+	const auto* p = reinterpret_cast<odSurvey*>(survey); \
+	return od##classnm::getNames<od##classnm>( *p ); \
+    }
