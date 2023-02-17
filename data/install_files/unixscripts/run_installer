@@ -48,10 +48,97 @@ if [[ ! -L ${curdir}/../lib ]]; then
     fi
 fi
 
-#check the presence of libpng in curdir
-pngfilenm=`ls ${curdir} | grep "libpng*"`
-if [[ -z $pngfilenm ]]; then
+ldconfig=/sbin/ldconfig
+odpng15libdir=${curdir}/png15
+if [[ -x ${ldconfig} ]]; then
+    syslibpng15=`${ldconfig} -p | grep libpng15.so.15 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+else
+    syslibpng15=/usr/lib64/libpng15.so.15
+fi
+if [[ -e "${syslibpng15}" ]]; then
+    haspng=1
+else
+    if [[ -e "${odpng15libdir}" ]]; then
+    	if [ -z ${SET_LD_LIBRARY_PATH+x} ]; then
+	    export SET_LD_LIBRARY_PATH=${odpng15libdir}
+	else
+	    export SET_LD_LIBRARY_PATH=${odpng15libdir}:${LD_LIBRARY_PATH}
+	fi
+	haspng=1
+    fi
+fi
+
+odpng16libdir=${curdir}/png16
+if [[ -x ${ldconfig} ]]; then
+    syslibpng16=`${ldconfig} -p | grep libpng16.so.16 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+else
+    syslibpng16=/usr/lib64/libpng16.so.16
+fi
+if [[ -e "${syslibpng16}" ]]; then
+    haspng=1
+else
+    if [[ -e "${odpng16libdir}" ]]; then
+    	if [ -z ${SET_LD_LIBRARY_PATH+x} ]; then
+	    export SET_LD_LIBRARY_PATH=${odpng16libdir}
+	else
+	    export SET_LD_LIBRARY_PATH=${odpng16libdir}:${LD_LIBRARY_PATH}
+	fi
+	haspng=1
+    fi
+fi
+
+if [[ -z ${haspng+x} ]]; then
     echo -e "\npng library is missing"
+    echo  "Cannot launch the installer without it."
+    exit 1
+fi
+
+odfreetypelibdir=${curdir}/freetype
+if [[ -x ${ldconfig} ]]; then
+    syslibfreetype=`${ldconfig} -p | grep libfreetype.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+else
+    syslibfreetype=/usr/lib64/libfreetype.so.6
+fi
+if [[ -e "${syslibfreetype}" ]]; then
+    hasfreetype=1
+else
+    if [[ -e "${odfreetypelibdir}" ]]; then
+    	if [ -z ${SET_LD_LIBRARY_PATH+x} ]; then
+	    export SET_LD_LIBRARY_PATH=${odfreetypelibdir}
+	else
+	    export SET_LD_LIBRARY_PATH=${odfreetypelibdir}:${LD_LIBRARY_PATH}
+	fi
+	hasfreetype=1
+    fi
+fi
+
+if [[ -z ${hasfreetype+x} ]]; then
+    echo -e "\nfreetype library is missing"
+    echo  "Cannot launch the installer without it."
+    exit 1
+fi
+
+odfontconfiglibdir=${curdir}/fontconfig
+if [[ -x ${ldconfig} ]]; then
+    syslibfontconfig=`${ldconfig} -p | grep libfontconfig.so.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+else
+    syslibfontconfig=/usr/lib64/libfontconfig.so.1
+fi
+if [[ -e "${syslibfontconfig}" ]]; then
+    hasfontconfig=1
+else
+    if [[ -e "${odfontconfiglibdir}" ]]; then
+    	if [ -z ${SET_LD_LIBRARY_PATH+x} ]; then
+	    export SET_LD_LIBRARY_PATH=${odfontconfiglibdir}
+	else
+	    export SET_LD_LIBRARY_PATH=${odfontconfiglibdir}:${LD_LIBRARY_PATH}
+	fi
+	hasfontconfig=1
+    fi
+fi
+
+if [[ -z ${hasfontconfig+x} ]]; then
+    echo -e "\nfontconfig library is missing"
     echo  "Cannot launch the installer without it."
     exit 1
 fi
@@ -71,5 +158,18 @@ if [[ -n $DTECT_APPL ]]; then
     export DTECT_APPL=""
 fi
 
-"${curdir}/od_instmgr" "$@"
-exit $?
+start_time=$(date +%s)
+if ! "${curdir}/od_instmgr" "$@"; then
+    end_time=$(date +%s)
+    elapsed=$(( end_time - start_time ))
+    if [[ $elapsed -lt 1 && -z ${LD_LIBRARY_PATH+x} ]]; then
+	if [ -z ${LD_LIBRARY_PATH+x} ]; then
+	    export LD_LIBRARY_PATH=${SET_LD_LIBRARY_PATH}
+	else
+	    export LD_LIBRARY_PATH=${SET_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+	fi
+	if ! "${curdir}/od_instmgr" "$@"; then
+	    exit $?
+	fi
+    fi
+fi

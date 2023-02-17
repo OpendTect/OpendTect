@@ -90,6 +90,65 @@ else
 	endif
     endif
 
+    # png15 library compatibility check
+    set odpng15libdir = "${bindir}/png15"
+    if ( -e ${ldconfig} ) then
+	set syslibpng15 = `${ldconfig} -p | grep libpng15.so.15 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else
+	set syslibpng15 = "/usr/lib64/libpng15.so.15"
+    endif
+    if ( ! -e "${syslibpng15}" && -e "${odpng15libdir}" ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH "${odpng15libdir}":${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH "${odpng15libdir}"
+	endif
+    endif
+    # png16 library compatibility check
+    set odpng16libdir = "${bindir}/png16"
+    if ( -e ${ldconfig} ) then
+	set syslibpng16 = `${ldconfig} -p | grep libpng16.so.16 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else
+	set syslibpng16 = "/usr/lib64/libpng16.so.16"
+    endif
+    if ( ! -e "${syslibpng16}" && -e "${odpng16libdir}" ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH "${odpng16libdir}":${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH "${odpng16libdir}"
+	endif
+    endif
+
+    # freetype library compatibility check
+    set odfreetypelibdir = "${bindir}/freetype"
+    if ( -e ${ldconfig} ) then
+	set syslibfreetype = `${ldconfig} -p | grep libfreetype.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else
+	set syslibfreetype = "/usr/lib64/libfreetype.so.6"
+    endif
+    if ( ! -e "${syslibfreetype}" && -e "${odfreetypelibdir}" ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH "${odfreetypelibdir}":${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH "${odfreetypelibdir}"
+	endif
+    endif
+
+    # fontconfig library compatibility check
+    set odfontconfiglibdir = "${bindir}/fontconfig"
+    if ( -e ${ldconfig} ) then
+	set syslibfontconfig = `${ldconfig} -p | grep libfontconfig.so.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else
+	set syslibfontconfig = "/usr/lib64/libfontconfig.so.1"
+    endif
+    if ( ! -e "${syslibfontconfig}" && -e "${odfontconfiglibdir}" ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH "${odfontconfiglibdir}":${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH "${odfontconfiglibdir}"
+	endif
+    endif
+
     if ( -e "${bindir}"/libdGBPDF3D.so ) then
 	# OpenSSL presence check
 	if ( -e ${ldconfig} ) then
