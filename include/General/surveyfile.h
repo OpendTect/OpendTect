@@ -48,7 +48,6 @@ public:
     uiRetVal		warningMsg() const	{ return lastwarning_; }
 
     virtual const BufferString	getZipArchiveLocation() const = 0;
-
 protected:
 				SurveyCreator(const char*,const char*);
 

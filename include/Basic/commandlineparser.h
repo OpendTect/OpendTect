@@ -123,8 +123,9 @@ public:
 				    in FilePaths */
 
 
-    static const char*		sDataRootArg()		{ return "dataroot"; }
-    static const char*		sSurveyArg()		{ return "survey"; }
+    static const char*		sDataRootArg()	   { return "dataroot"; }
+    static const char*		sSurveyArg()	   { return "survey"; }
+    static const char*		sNeedTempSurv()    { return "needtempsurvey"; }
     BufferString		envVarBase() const;
     BufferString		getFullSurveyPath(bool* iscursurv=0) const;
 
