@@ -206,8 +206,6 @@ private:
     ObjectSet<ElasticModelSet> elasticmodelsets_;
     ObjectSet<StratSynth::LevelSet> levelsets_;
 
-    PtrMan<DataMgr>	prodmgr_;
-
     void		clearData(bool lmdata,bool synthdata);
     void		ensureLevels(int lmsidx) const;
     void		setElasticPropSel(const ElasticPropSelection&);
