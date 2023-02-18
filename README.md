@@ -54,8 +54,8 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.0.1 (optional)](https://download.osgeo.org/proj/proj-9.0.1.tar.gz), [Sqlite 3.38 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.0.1 (optional)](https://download.osgeo.org/proj/proj-9.0.1.tar.gz), [Sqlite 3.38 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.1.1 (optional)](https://download.osgeo.org/proj/proj-9.1.1.tar.gz), [Sqlite 3.40 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.1.1 (optional)](https://download.osgeo.org/proj/proj-9.1.1.tar.gz), [Sqlite 3.40 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.4.5, od6.4 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
