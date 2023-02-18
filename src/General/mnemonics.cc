@@ -569,7 +569,7 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
 {
     MnemonicsCache& cache = getMnemonicLookupCache( matchaliases );
     const QString qstr( nm );
-    if ( cache.contains(qstr) )
+    if ( cache.contains(qstr) && cache[qstr] )
 	return cache[qstr];
 
     MnemonicSelection mnsel;
@@ -577,7 +577,7 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
 	mnsel.add( mnc );
 
     const Mnemonic* ret = getByName( nm, mnsel, matchaliases );
-    if ( ret || !cache.empty() )
+    if ( ret && !cache.empty() )
 	cache[qstr] = ret;
 
     return ret;
