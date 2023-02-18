@@ -105,7 +105,7 @@ void ODOpenGLWidget::mousePressEvent( QMouseEvent* ev  )
     switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
-	case Qt::MidButton: button = 2; break;
+	case Qt::MiddleButton: button = 2; break;
 	case Qt::RightButton: button = 3; break;
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
@@ -113,7 +113,7 @@ void ODOpenGLWidget::mousePressEvent( QMouseEvent* ev  )
 
     setKeyboardModifiers( ev  );
     getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
-	    			       button );
+				       button );
 }
 
 
@@ -123,7 +123,7 @@ void ODOpenGLWidget::mouseReleaseEvent( QMouseEvent* ev  )
     switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
-	case Qt::MidButton: button = 2; break;
+	case Qt::MiddleButton: button = 2; break;
 	case Qt::RightButton: button = 3; break;
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
@@ -131,7 +131,7 @@ void ODOpenGLWidget::mouseReleaseEvent( QMouseEvent* ev  )
 
     setKeyboardModifiers( ev  );
     getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
-	    			       button );
+				       button );
 }
 
 
@@ -141,7 +141,7 @@ void ODOpenGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
     switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
-	case Qt::MidButton: button = 2; break;
+	case Qt::MiddleButton: button = 2; break;
 	case Qt::RightButton: button = 3; break;
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
@@ -149,7 +149,7 @@ void ODOpenGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
 
     setKeyboardModifiers( ev  );
     getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
-	    			       button );
+				       button );
 }
 
 

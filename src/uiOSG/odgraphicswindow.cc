@@ -389,7 +389,7 @@ void ODGLWidget::mousePressEvent( QMouseEvent* ev  )
     switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
-	case Qt::MidButton: button = 2; break;
+	case Qt::MiddleButton: button = 2; break;
 	case Qt::RightButton: button = 3; break;
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
@@ -406,7 +406,7 @@ void ODGLWidget::mouseReleaseEvent( QMouseEvent* ev  )
     switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
-	case Qt::MidButton: button = 2; break;
+	case Qt::MiddleButton: button = 2; break;
 	case Qt::RightButton: button = 3; break;
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
@@ -423,7 +423,7 @@ void ODGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
     switch ( ev ->button() )
     {
 	case Qt::LeftButton: button = 1; break;
-	case Qt::MidButton: button = 2; break;
+	case Qt::MiddleButton: button = 2; break;
 	case Qt::RightButton: button = 3; break;
 	case Qt::NoButton: button = 0; break;
 	default: button = 0; break;
