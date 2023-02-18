@@ -624,8 +624,8 @@ PropertyRefSetMgr()
 
 void doNull( CallBacker* )
 {
-    getPropLookupCache(true).clear();
-    getPropLookupCache(false).clear();
+    getPropLookupCache( true ).clear();
+    getPropLookupCache( false ).clear();
     deleteAndNullPtr( prs_ );
 }
 
@@ -695,7 +695,7 @@ const PropertyRef* PropertyRefSet::getByName( const char* nm,
 {
     const QString qstr( nm );
     PropertyRefCache& cache = getPropLookupCache( matchaliases );
-    if ( cache.contains(qstr) )
+    if ( cache.contains(qstr) && cache[qstr] )
 	return cache[qstr];
 
     PropertyRefSelection prs( false );
@@ -703,7 +703,7 @@ const PropertyRef* PropertyRefSet::getByName( const char* nm,
 	prs.add( pr );
 
     const PropertyRef* ret = getByName( nm, prs, matchaliases );
-    if ( ret || !cache.empty() )
+    if ( ret && !cache.empty() )
 	cache[qstr] = ret;
 
     return ret;

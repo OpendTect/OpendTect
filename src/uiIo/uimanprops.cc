@@ -479,7 +479,10 @@ void uiBuildPROPS::removeReq()
     const PropertyRef* pr = const_cast<const PropertyRefSet&>( props_ )
 						.getByName( prnm, false );
     if ( isPropRemovable(pr) )
+    {
 	props_ -= const_cast<PropertyRef*>( pr );
+	removeItem();
+    }
 }
 
 
@@ -688,7 +691,7 @@ bool uiSelectPropRefsGrp::acceptOK()
 	else
 	    propset.add( new ValueProperty( *pr ) );
     }
-        
+
     if ( !propset.prepareUsage() )
     {
 	uiMSG().errorWithDetails( propset.errMsg(),
