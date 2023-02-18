@@ -45,17 +45,17 @@ OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gp
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.3.1) or msvc2019 64 bit (>= v16.7.5). The free community edition is sufficient.
 	- macOS: SDK 10.14
-	- Linux: gcc 64 bit version 5.4.0 or higher
+	- Linux: gcc 64 bit version 9.5.0 or higher
 - CMake version 3.14 or higher
-- The c++14 version is enabled by default on all platforms.
+- The c++17 version is enabled by default on all platforms.
 
 ### Dependencies
 To build the software you need to also download and install/build a few dependencies which probably are not installed in your system. The version of dependencies varies between the branches. The Qt dependencies are available in binary installers, the others have to be built from source.
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.0.1 (optional)](https://download.osgeo.org/proj/proj-9.0.1.tar.gz), [Sqlite 3.38 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.0.1 (optional)](https://download.osgeo.org/proj/proj-9.0.1.tar.gz), [Sqlite 3.38 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.1.1 (optional)](https://download.osgeo.org/proj/proj-9.1.1.tar.gz), [Sqlite 3.40 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.1.1 (optional)](https://download.osgeo.org/proj/proj-9.1.1.tar.gz), [Sqlite 3.40 (optional)](https://www.sqlite.org/download.html), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.4.5, od6.4 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
