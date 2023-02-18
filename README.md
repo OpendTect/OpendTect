@@ -45,9 +45,9 @@ OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gp
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.3.1) or msvc2019 64 bit (>= v16.7.5). The free community edition is sufficient.
 	- macOS: SDK 10.14
-	- Linux: gcc 64 bit version 5.4.0 or higher
+	- Linux: gcc 64 bit version 9.5.0 or higher
 - CMake version 3.14 or higher
-- The c++14 version is enabled by default on all platforms.
+- The c++17 version is enabled by default on all platforms.
 
 ### Dependencies
 To build the software you need to also download and install/build a few dependencies which probably are not installed in your system. The version of dependencies varies between the branches. The Qt dependencies are available in binary installers, the others have to be built from source.
