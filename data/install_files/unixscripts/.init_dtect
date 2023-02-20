@@ -7,7 +7,6 @@
 #
 # OpendTect environment initialization script
 # Filled by 'install'
-#
 
 if ( ! $?DTECT_APPL ) then
     setenv DTECT_APPL "__INST_DIR__"
@@ -74,8 +73,14 @@ else
     set odsystemlibsdir = "${bindir}/systemlibs"
     if ( -e ${ldconfig} ) then
         set libstdc = `${ldconfig} -p | grep libstdc++.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
-        set gccmajorver = `strings "${libstdc}" | grep -m 1 GLIBC_2.17`
-        if ( ${gccmajorver} == "" ) then
+	set cxxabiver = 1.3.12
+	( which strings --version ) >& /dev/null
+        if ( $status == 0 ) then
+	    set gcccxxabiver = `strings "${libstdc}" | grep -m 1 CXXABI_${cxxabiver}`
+	else
+	    set gcccxxabiver = `grep -z CXXABI_${cxxabiver} ${libstdc}`
+	endif
+        if ( ${gcccxxabiver} == "" ) then
 	    if ( $?LD_LIBRARY_PATH ) then
 		setenv LD_LIBRARY_PATH "${odsystemlibsdir}":${LD_LIBRARY_PATH}
 	    else
