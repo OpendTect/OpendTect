@@ -18,9 +18,9 @@ source "__INST_DIR__/bin/init_dtect" >&! /dev/null
 if ( $status != 0 ) then
     exit 1
 endif
-which initwarn >& /dev/null
-set result=$status
-if ( $result == 0 ) then
+
+( which initwarn ) >& /dev/null
+if ( ${status} == 0 ) then
     if ( `which initwarn | grep aliased | wc -l` == 1 ) then
 	initwarn
 	unalias initwarn
