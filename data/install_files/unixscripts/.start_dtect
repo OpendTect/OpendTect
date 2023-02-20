@@ -20,10 +20,13 @@ source "__INST_DIR__/bin/init_dtect_user"
 
 if ( $status == 0 ) then
 
-    if ( `which initwarn | grep aliased | wc -l` == 1 ) then
-	initwarn
-	unalias initwarn
-endif
+    ( which initwarn ) >& /dev/null
+    if ( ${status} == 0 ) then
+	if ( `which initwarn | grep aliased | wc -l` == 1 ) then
+	    initwarn
+	    unalias initwarn
+	endif
+    endif
 
     if ( $?DTECT_DATA ) then
 	if ( ! -d "$DTECT_DATA" ) then
