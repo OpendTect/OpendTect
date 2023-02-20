@@ -145,12 +145,10 @@ fi
 
 infomsg=`ldd $qtfile | grep "not found"`
 if [[ -n "$infomsg" ]]; then
-    infomsg=`ldd $qtfile | grep "not found" | grep -v $pngfilenm`
-    if [[ -n "$infomsg" ]]; then
-	echo  "System libraries listed below are missing, please install them and rerun the installer"
-	echo "$infomsg"
-        exit 1
-    fi
+    echo "System libraries listed below are missing:"
+    echo "$infomsg"
+    echo "Please install them and rerun the installer"
+    exit 1
 fi
 
 #get rid of the OD environment.
