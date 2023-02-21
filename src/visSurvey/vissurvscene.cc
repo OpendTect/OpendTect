@@ -1219,28 +1219,36 @@ bool Scene::usePar( const IOPar& par )
     par.get( sKeyNrChild(), nrchilds );
 
     TypeSet<int> childids;
+    TypeSet<int> indexes;
     for ( int idx=0; idx<nrchilds; idx++ )
     {
 	BufferString key( childfix(), idx );
-	PtrMan<IOPar> chldpar = par.subselect( key.buf() );
+	PtrMan<IOPar> childpar = par.subselect( key.buf() );
 
 	int sessionobjid;
-	if ( chldpar->get(sKeyChildID(),sessionobjid) )
+	if ( childpar && childpar->get(sKeyChildID(),sessionobjid) )
+	{
 	    childids += sessionobjid;
+	    indexes += idx;
+	}
     }
 
-    sort( childids );
+    ArrPtrMan<int> sortindexes = getSortIndexes( childids );
+    if ( !sortindexes )
+	return true;
 
-    for ( int chld=0; chld<childids.size(); chld++ )
+    for ( int idx=0; idx<childids.size(); idx++ )
     {
-	BufferString key( childfix(), chld );
+	const int sortindex = sortindexes[idx];
+	const int childidx = indexes[sortindex];
+	BufferString key( childfix(), childidx );
 	PtrMan<IOPar> chldpar = par.subselect( key.buf() );
 
 	BufferString surobjtype;
 	if ( !chldpar->get( sKey::Type(), surobjtype ) )
 	    continue;
 
-	const VisID visid( childids[chld] );
+	const VisID visid( childids[sortindex] );
 	if ( visBase::DM().getObject(visid) )
 	{
 	    pErrMsg("Hmmm");

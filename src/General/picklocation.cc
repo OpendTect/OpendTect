@@ -23,7 +23,7 @@ static const char* sKeyDip = "Dip";
 
 #define mInitPtrs \
       trckey_(TrcKey::udf()) \
-    , text_(0)
+    , text_(nullptr)
 
 Pick::Location::Location( double x, double y, double zval )
     : pos_(x,y,zval)
@@ -254,7 +254,7 @@ bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 
 bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 {
-    if ( text_->isEmpty() )
+    if ( !hasText() )
     {
 	if ( val )
 	    val->setEmpty();
