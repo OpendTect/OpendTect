@@ -227,7 +227,10 @@ EmptyTempSurvey::EmptyTempSurvey( const OD::JSON::Object& obj )
 
 EmptyTempSurvey::~EmptyTempSurvey()
 {
-    if ( !ismanaged_ && File::exists(tmpbasedir_) )
+    if ( ismanaged_ )
+	return;
+
+    if ( File::exists(tmpbasedir_) )
 	File::removeDir( tmpbasedir_ );
 
     if ( !origsurveyfp_.isEmpty() )
