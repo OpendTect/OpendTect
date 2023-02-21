@@ -65,11 +65,6 @@ odSurvey::odSurvey(const char* basedir, const char* surveynm)
 odSurvey::~odSurvey()
 {}
 
-const char* odSurvey::getName() const
-{
-    return strdup(si().name());
-}
-
 const char* odSurvey::type() const
 {
     BufferString res;
@@ -80,9 +75,13 @@ const char* odSurvey::type() const
 
 void odSurvey::getInfo( OD::JSON::Object& jsobj) const
 {
-    jsobj.set( "Name", getName() );
-    jsobj.set( "Type", type() );
+    const auto& info = si();
+    jsobj.set( "name", info.name().buf() );
+    jsobj.set( "type", type() );
     jsobj.set( "crs", get_crsCode() );
+    jsobj.set( "xyunit", info.getXYUnitString(false) );
+    jsobj.set( "zunit", info.getZUnitString(false) );
+    jsobj.set( "srd", info.seismicReferenceDatum() );
 }
 
 
@@ -490,12 +489,6 @@ const char* survey_infos( const char* basedir, const hStringSet forsurveys )
     OD::JSON::Array jsarr( true );
     odSurvey::getInfos( jsarr, basedir, *p );
     return strdup( jsarr.dumpJSon().buf() );
-}
-
-const char* survey_name( hSurvey self )
-{
-    const auto* p = reinterpret_cast<odSurvey*>(self);
-    return p->getName();
 }
 
 hStringSet survey_names( const char* basedir )

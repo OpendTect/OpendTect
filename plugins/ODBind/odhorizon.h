@@ -29,6 +29,8 @@ ________________________________________________________________________________
 #include "odbind.h"
 #include "odsurvey_object.h"
 
+#include <tuple>
+
 class odSurvey;
 template <class T>
 class Array2D;
@@ -51,16 +53,17 @@ class odHorizon3D : public odEMObject
 public:
     odHorizon3D(const odSurvey& thesurvey, const char* name);
     odHorizon3D(const odSurvey& thesurvey, const char* name,
-		const StepInterval<int>& ilines,
-		const StepInterval<int>& xlines, bool overwrite=false);
+		const StepInterval<int>& inl_rg,
+		const StepInterval<int>& crl_rg, bool overwrite=false);
     ~odHorizon3D();
 
-    StepInterval<int>	ilines() const;
-    StepInterval<int>	xlines() const;
     void		close();
-    void		getData();
-//    void		putData(const py::object&, bool bycoord=false);
-//    py::dict		getCoords(const py::list&) const;
+    void		getZ(hAllocator);
+    void		getXY(hAllocator);
+    void		putZ(const uint32_t shape[2], const float* data,
+			     const int32_t* inlines, const int32_t* crlines);
+    void		putZ(const uint32_t shape[2], const float* data,
+			     const double* xpos, const double* ypos);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool) const override;
@@ -102,11 +105,24 @@ protected:
 typedef void* hSurvey;
 mDeclareBaseBindings(Horizon3D, horizon3d)
 mExternC(ODBind) hHorizon3D	horizon3d_newout(hSurvey, const char* name,
-						 const intStepInterval iline,
-						 const intStepInterval xline,
+						 const int* inl_rg,
+						 const int* crl_rg,
 						 bool overwrite);
 mExternC(ODBind) int		horizon3d_attribcount(hHorizon3D);
 mExternC(ODBind) hStringSet	horizon3d_attribnames(hHorizon3D);
+mExternC(ODBind) void		horizon3d_getz(hHorizon3D, hAllocator);
+mExternC(ODBind) void		horizon3d_getxy(hHorizon3D, hAllocator);
+mExternC(ODBind) void		horizon3d_putz(hHorizon3D,
+					       const uint32_t shape[2],
+					       const float* data,
+					       const int32_t* inlines,
+					       const int32_t* crlines);
+mExternC(ODBind) void		horizon3d_putz_byxy(hHorizon3D,
+						    const uint32_t shape[2],
+						    const float* data,
+						    const double* xpos,
+						    const double* ypos);
+
 
 mDeclareBaseBindings(Horizon2D, horizon2d)
 mExternC(ODBind) hHorizon2D	horizon2d_newout(hSurvey, const char* name,

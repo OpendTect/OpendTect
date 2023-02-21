@@ -39,6 +39,7 @@ Examples
 import sys, os
 import ctypes as ct
 import json
+import numpy as np
 import odpy.common as odc
 
 def get_lib_name(modnm: str) -> str:
@@ -61,6 +62,21 @@ def wrap_function(lib, funcname, restype, argtypes):
     func.restype = restype
     func.argtypes = argtypes
     return func
+
+class NumpyAllocator:
+    CFUNCTYPE = ct.CFUNCTYPE(ct.c_long, ct.c_int, ct.POINTER(ct.c_int), ct.c_char)
+
+    def __init__(self):
+        self.allocated_arrays = []
+
+    def __call__(self, dims, shape, dtype):
+        x = np.empty(shape[:dims], np.dtype(dtype))
+        self.allocated_arrays.append(x)
+        return x.ctypes.data_as(ct.c_void_p).value
+
+    def getcfunc(self):
+        return self.CFUNCTYPE(self)
+    cfunc = property(getcfunc)
 
 libodbind = os.path.join(odc.getExecPlfDir(), get_lib_name('ODBind'))
 LIBODB = ct.CDLL(libodbind)
@@ -110,7 +126,6 @@ class Survey(object):
     _bin = wrap_function(LIBODB, 'survey_bin', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)])
     _bincoords = wrap_function(LIBODB, 'survey_bincoords', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
     _coords = wrap_function(LIBODB, 'survey_coords', None, [ct.c_void_p, ct.c_int, ct.c_int, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
-    _crs = wrap_function(LIBODB, 'survey_crs', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _feature = wrap_function(LIBODB, 'survey_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _features = wrap_function(LIBODB, 'survey_features', ct.POINTER(ct.c_char_p), [ct.c_char_p, ct.c_void_p])
     _has2d = wrap_function(LIBODB, 'survey_has2d', ct.c_bool, [ct.c_void_p])
@@ -118,7 +133,6 @@ class Survey(object):
     _hasobject = wrap_function(LIBODB, 'survey_hasobject', ct.c_bool, [ct.c_void_p, ct.c_char_p, ct.c_char_p])
     _info = wrap_function(LIBODB, 'survey_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _infos = wrap_function(LIBODB, 'survey_infos', ct.POINTER(ct.c_char_p), [ct.c_char_p, ct.c_void_p])
-    _name = wrap_function(LIBODB, 'survey_name', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _names = wrap_function(LIBODB, 'survey_names', ct.c_void_p, [ct.c_char_p])
     _path = wrap_function(LIBODB, 'survey_path', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _type = wrap_function(LIBODB, 'survey_survtype', ct.POINTER(ct.c_char_p), [ct.c_void_p])
@@ -134,35 +148,25 @@ class Survey(object):
             OpendTect survey name
 
         """
-        self._survey = Survey._new(basedir.encode(), survey_name.encode())
+        self._handle = Survey._new(basedir.encode(), survey_name.encode())
 
     def __del__(self):
-        Survey._del(self._survey)
-
-    @property
-    def crs(self) ->str:
-        """str: Survey crs code (readonly)"""
-        return pystr(Survey._crs(self._survey))
+        Survey._del(self._handle)
 
     @property
     def has2d(self) ->bool:
         """bool: True if the survey contains 2D data, False otherwise (readonly)"""
-        return Survey._has2d(self._survey)
+        return Survey._has2d(self._handle)
 
     @property
     def has3d(self) ->bool:
         """bool: True if the survey contains 3D data, False otherwise (readonly)"""
-        return Survey._has3d(self._survey)
-
-    @property
-    def name(self) ->str:
-        """str: OpendTect survey name (readonly)"""
-        return pystr(Survey._name(self._survey))
+        return Survey._has3d(self._handle)
 
     @property
     def survey_type(self) ->str:
         """str: Survey type: one of 2D, 3D or 2D3D (readonly)"""
-        return pystr(Survey._type(self._survey))
+        return pystr(Survey._type(self._handle))
 
     def bin(self, x: float, y: float ) ->tuple[int, int]:
         """Return the nearest inline and crossline location to the given X and Y coordinates.
@@ -182,7 +186,7 @@ class Survey(object):
         """ 
         iline = ct.c_int()
         xline = ct.c_int()
-        Survey._bin(self._survey, x, y, ct.byref(iline), ct.byref(xline))
+        Survey._bin(self._handle, x, y, ct.byref(iline), ct.byref(xline))
         return (iline.value, xline.value)
 
     def bincoords(self, x: float, y: float ) ->tuple[float, float]:
@@ -203,7 +207,7 @@ class Survey(object):
         """
         iline = ct.c_double()
         xline = ct.c_double()
-        Survey._bincoords(self._survey, x, y, ct.byref(iline), ct.byref(xline))
+        Survey._bincoords(self._handle, x, y, ct.byref(iline), ct.byref(xline))
         return (iline.value, xline.value)
 
     def coords(self, iline: int, xline: int ) ->tuple[float, float]:
@@ -224,7 +228,7 @@ class Survey(object):
         """
         x = ct.c_double()
         y = ct.c_double()
-        Survey._coords(self._survey, iline, xline, ct.byref(x), ct.byref(y))
+        Survey._coords(self._handle, iline, xline, ct.byref(x), ct.byref(y))
         return (x.value, y.value)
 
     def feature(self) ->dict:
@@ -241,7 +245,7 @@ class Survey(object):
         dict
 
         """
-        return pyjsonstr(Survey._info(self._survey))
+        return pyjsonstr(Survey._info(self._handle))
 
     @staticmethod
     def names(basedir: str) ->list[str]:
@@ -315,7 +319,6 @@ class _SurveyObject(object):
     @classmethod
     def _initbasebindings(clss, bindnm):
         clss._newin = wrap_function(LIBODB, f'{bindnm}_newin', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
-        clss._newout = wrap_function(LIBODB, f'{bindnm}_newout', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
         clss._del = wrap_function(LIBODB, f'{bindnm}_del', None, [ct.c_void_p])
         clss._errmsg = wrap_function(LIBODB, f'{bindnm}_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
         clss._feature = wrap_function(LIBODB, f'{bindnm}_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
@@ -323,7 +326,6 @@ class _SurveyObject(object):
         clss._info = wrap_function(LIBODB, f'{bindnm}_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
         clss._infos = wrap_function(LIBODB, f'{bindnm}_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._isok = wrap_function(LIBODB, f'{bindnm}_isok', ct.c_bool, [ct.c_void_p])
-        clss._name = wrap_function(LIBODB, f'{bindnm}_name', ct.POINTER(ct.c_char_p), [ct.c_void_p])
         clss._names = wrap_function(LIBODB, f'{bindnm}_names', ct.c_void_p, [ct.c_void_p])
 
     def __init__(self, survey: Survey, name: str):
@@ -341,17 +343,13 @@ class _SurveyObject(object):
         if not hasattr(self,'_newin'):
             self._initbindings(type(self).__name__.lower())
 
-        self._handle = self._newin( survey._survey, name.encode())
+        self._survey = survey
+        self._handle = self._newin( survey._handle, name.encode())
         if not self._isok(self._handle):
             raise TypeError(self._errmsg(self._handle))
 
     def __del__(self):
         self._del(self._handle)
-
-    @property
-    def name(self) ->str:
-        """str: Name of this object (readonly)"""
-        return pystr(self._name(self._handle))
 
     def feature(self) ->dict:
         """ Return a GeoJSON feature for the object
@@ -378,12 +376,12 @@ class _SurveyObject(object):
         fornmsptr = stringset_new()
         for nm in fornms:
             stringset_add(fornmsptr, nm.encode())
-        res = pystr(clss._features(survey._survey, fornmsptr ))
+        res = pystr(clss._features(survey._handle, fornmsptr ))
         stringset_del(fornmsptr)
         return res
 
     def info(self) ->dict:
-        """Return basic information for this survye object.
+        """Return basic information for this object.
         
         Returns
         -------
@@ -412,9 +410,28 @@ class _SurveyObject(object):
         fornmsptr = stringset_new()
         for nm in fornms:
             stringset_add(fornmsptr, nm.encode())
-        infolist = pyjsonstr(clss._infos(survey._survey, fornmsptr ))
+        infolist = pyjsonstr(clss._infos(survey._handle, fornmsptr ))
         stringset_del(fornmsptr)
         return {key: [i[key] for i in infolist] for key in infolist[0]}
+
+    @classmethod
+    def infos_dataframe(clss, survey: Survey, fornms: list=[]) ->dict:
+        """ Return basic information for all or a subset of objects in the given survey as a Pandas DataFrame.
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        fornms : list[str]
+            A list of object names to use, an empty list will give information for all objects.
+            
+        Returns
+        -------
+        dict
+
+        """
+        from pandas import DataFrame
+        return DataFrame(clss.infos(survey, fornms))
 
     @classmethod
     def names(clss, survey: Survey) ->list[str]:
@@ -431,7 +448,7 @@ class _SurveyObject(object):
 
         """
 
-        return pystrlist(clss._names(survey._survey))
+        return pystrlist(clss._names(survey._handle))
 
 
 
@@ -492,16 +509,96 @@ class Horizon3D(_SurveyObject):
     @classmethod
     def _initbindings(clss, bindnm):
         clss._initbasebindings(bindnm)
-        clss._attribcount = wrap_function(LIBODB, f'{bindnm}_attribcount', ct.c_int, [ct.c_void_p])
+        clss._newout = wrap_function(LIBODB, f'{bindnm}_newout', ct.c_void_p, [ct.c_void_p, ct.c_char_p, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.c_bool])
         clss._attribnames = wrap_function(LIBODB, f'{bindnm}_attribnames', ct.c_void_p, [ct.c_void_p])
-
-    @property
-    def attribcount(self) ->int:
-        """int: Number of attributes attached to this 3D horizon (readonly)"""
-        return self._attribcount(self._handle)
+        clss._getz = wrap_function(LIBODB, f'{bindnm}_getz', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._getxy = wrap_function(LIBODB, f'{bindnm}_getxy', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        putzargs = [ct.c_void_p, 
+                    np.ctypeslib.ndpointer(dtype=np.uint32, ndim=1, flags="C_CONTIGUOUS"),
+                    np.ctypeslib.ndpointer(dtype=np.float32, ndim=2, flags="C_CONTIGUOUS"),
+                    np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),
+                    np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS")
+                    ]
+        clss._putz = wrap_function(LIBODB, f'{bindnm}_getz', None, putzargs)
 
     @property
     def attribnames(self) ->list[str]:
         """list[str]: Names of attributes attached to this 3D horizon (readonly)"""
         return pystrlist(self._attribnames(self._handle))
+
+    @property
+    def ilines(self) ->list[int]:
+        """list[int]: Inline numbers included in this 3D horizon (readonly)"""
+        hi_inl = self.info()['inl_range']
+        inlrg = range(hi_inl[0], hi_inl[1]+hi_inl[2], hi_inl[2] )
+        return [inl for inl in inlrg]
+
+    @property
+    def xlines(self) ->list[int]:
+        """list[int]: Crossline numbers included in this 3D horizon (readonly)"""
+        hi_crl = self.info()['crl_range']
+        crlrg = range(hi_crl[0], hi_crl[1]+hi_crl[2], hi_crl[2] )
+        return [crl for crl in crlrg]
+
+    @classmethod
+    def create(clss, survey: Survey, name: str, inl_rg: list[int], crl_rg: list[int], overwrite: bool=False):
+        if not hasattr(clss,'_newin'):
+            clss._initbindings(type(clss).__name__.lower())
+
+        newhor = clss.__new__(clss)
+        newhor._survey = survey
+        ct_inlrg = (ct.c_int * 3)(*inl_rg)
+        ct_crlrg = (ct.c_int * 3)(*crl_rg)
+        newhor._handle = clss._newout(survey._handle, name, ct_inl_rg, ct_crl_rg, overwrite)
+        if not clss._isok(newhor._handle):
+            raise TypeError(clss._errmsg(newhor._handle))
+
+        return newhor
+
+    def getz(self):
+        allocator = NumpyAllocator()
+        self._getz(self._handle, allocator.cfunc)
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
+
+        return allocator.allocated_arrays[0]
      
+    def getxy(self):
+        allocator = NumpyAllocator()
+        self._getxy(self._handle, allocator.cfunc)
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
+
+        return (allocator.allocated_arrays[:2])
+
+    def get_xarray(self):
+        from xarray import DataArray
+        name = self.info()['name']
+        xy = self.getxy()
+        z = self.getz()
+        si = self._survey.info()
+        dims = ['inl', 'crl']
+        xyattrs = { 'units': si['xyunit']}
+        coords =    {
+                        'inl': self.ilines,
+                        'crl': self.xlines,
+                        'x': DataArray(xy[0], dims=dims, attrs=xyattrs),
+                        'y': DataArray(xy[1], dims=dims, attrs=xyattrs)
+                    }
+        attribs =   {
+                        'description': name,
+                        'units': si['zunit'],
+                        'crs': si['crs']
+                    }
+        return DataArray(z, coords=coords, dims=dims, name=name, attrs=attribs)
+
+    def putz(self, data, inlines, crlines):
+        npdata = data if data.isinstance('ndarray') else np.array(data)
+        npinlines = inlines if inlines.isinstance('ndarray') else np.array(inlines)
+        npcrlines = crlines if crlines.isinstance('ndarray') else np.array(crlines)
+        shape = np.array(npdata.shape, dtype=np.uint32)
+        self._putz(self._handle, shape, npdata, npinlines, npcrlines)
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
+
+

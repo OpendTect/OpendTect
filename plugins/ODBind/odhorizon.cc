@@ -37,7 +37,6 @@ ________________________________________________________________________________
 #include <string.h>
 
 #include "odsurvey.h"
-#include "odsurvey_object.h"
 #include "odhorizon.h"
 
 // #ifdef __win__
@@ -113,11 +112,11 @@ odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name )
 
 
 odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name,
-			  const StepInterval<int>& ilines,
-			  const StepInterval<int>& xlines, bool overwrite )
+			  const StepInterval<int>& inl_rg,
+			  const StepInterval<int>& crl_rg, bool overwrite )
     : odEMObject(thesurvey, name, sKeyTranslatorGrp(), overwrite)
 {
-    tk_.set( ilines, xlines );
+    tk_.set( inl_rg, crl_rg );
     array_ = new Array2DImpl<float>( tk_.nrInl(), tk_.nrCrl() );
     array_->setAll( mUdf(float) );
 }
@@ -162,18 +161,6 @@ void odHorizon3D::close()
 }
 
 
-StepInterval<int> odHorizon3D::ilines() const
-{
-    return tk_.lineRange();
-}
-
-
-StepInterval<int> odHorizon3D::xlines() const
-{
-    return tk_.trcRange();
-}
-
-
 void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
 {
     survey_.activate();
@@ -182,11 +169,12 @@ void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
     if ( !eminfo.isOK() )
 	return;
 
-    jsobj.set( "Name", getName() );
-    jsobj.set( "NrAttribute", getNrAttributes() );
-    jsobj.set( "Z Range", eminfo.getZRange() );
-    jsobj.set( "Inl Range", eminfo.getInlRange() );
-    jsobj.set( "Crl Range", eminfo.getCrlRange() );
+    jsobj.set( "name", getName() );
+    jsobj.set( "inl_range", tk_.lineRange() );
+    jsobj.set( "crl_range", tk_.trcRange() );
+    jsobj.set( "z_range", eminfo.getZRange() );
+    jsobj.set( "attrib_count", getNrAttributes() );
+
 }
 
 
@@ -203,235 +191,161 @@ void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 }
 
 
-void odHorizon3D::getData()
+void odHorizon3D::getZ( hAllocator allocator )
 {
     survey_.activate();
     errmsg_.setEmpty();
-    if ( !forread_ )
-    {
-	errmsg_.add( "horizon only opened for writing." );
-	return;
-    }
-
     if ( !ioobj_ )
     {
 	errmsg_.add( "Invalid ioobj." );
 	return;
     }
 
-    const MultiID hor3dkey = ioobj_->key();
-    RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
-    if ( !obj )
-    {
-	errmsg_.add( "Invalid emobject." );
-	return;
-    }
-
-    mDynamicCastGet(EM::Horizon3D*,hor,obj.ptr());
-    if ( !hor )
-    {
-	errmsg_.add( "Invalid Horizon3D." );
-	return;
-    }
-
     if ( !array_ )
+    {
+	const MultiID hor3dkey = ioobj_->key();
+	RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
+	if ( !obj )
+	{
+	    errmsg_.add( "Invalid emobject." );
+	    return;
+	}
+
+	mDynamicCastGet(EM::Horizon3D*,hor,obj.ptr());
+	if ( !hor )
+	{
+	    errmsg_.add( "Invalid Horizon3D." );
+	    return;
+	}
+
 	array_ = hor->createArray2D();
+    }
 
-    // const int nx = tk_.nrLines();
-    // const int ny = tk_.nrTrcs();
- //    py::array_t<float> img( {nx, ny} );
- //    auto r_img = img.mutable_unchecked<2>();
- //    const float zfac = SI().showZ2UserFactor();
- //    const float znan = std::nanf("");
- //    for ( int iln=0; iln<nx; iln++ )
- //    {
-	// for ( int xln = 0; xln<ny; xln++ )
-	// {
-	//     float z = array->get( iln, xln);
-	//     if ( mIsUdf(z) )
-	// 	z = znan;
-	//     else
-	// 	z *= zfac;
- //
-	//     r_img(iln,xln) = z;
-	// }
- //    }
+    if ( !array_ || !isOK() )
+	return;
 
+    const int ndim = 2;
+    int dims[ndim];
+    for ( int i=0; i<ndim; i++ )
+	dims[i] = array_->info().getSize(i);
+
+    float* data = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+    const float zfac = SI().showZ2UserFactor();
+    const float znan = std::nanf("");
+    for (int i=0; i<dims[0]; i++)
+    {
+	for (int j=0; j<dims[1]; j++)
+	{
+	    float z = array_->get( i, j );
+	    if ( mIsUdf(z) )
+		z = znan;
+	    else
+		z *= zfac;
+
+	    *data++ = z;
+	}
+    }
 }
 
-// py::object odHorizon3D::getData() const
-// {
-//     survey_.activate();
-//     if ( !forread_ )
-// 	throw( pybind11::value_error("horizon only opened for writing.") );
-//
-//     if ( !ioobj_ )
-// 	throw( pybind11::value_error("Invalid ioobj.") );
-//
-//     auto XDA = py::module::import("xarray").attr("DataArray");
-//
-//     EM::IOObjInfo eminfo( ioobj_ );
-//     if ( !eminfo.isOK() )
-// 	throw( pybind11::value_error("Invalid eminfo.") );
-//
-//     const MultiID hor3dkey = ioobj_->key();
-//     RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
-//     if (!obj)
-// 	throw( pybind11::value_error("Invalid emobject.") );
-//
-//     mDynamicCastGet(EM::Horizon3D*,hor,obj.ptr());
-//     if (!hor)
-// 	throw( pybind11::value_error("Invalid Horizon3D.") );
-//
-//     PtrMan<Array2D<float>> array = hor->createArray2D();
-//
-//     const int nx = tk_.nrLines();
-//     const int ny = tk_.nrTrcs();
-//     py::array_t<float> img( {nx, ny} );
-//     auto r_img = img.mutable_unchecked<2>();
-//     const float zfac = SI().showZ2UserFactor();
-//     const float znan = std::nanf("");
-//     for ( int iln=0; iln<nx; iln++ )
-//     {
-// 	for ( int xln = 0; xln<ny; xln++ )
-// 	{
-// 	    float z = array->get( iln, xln);
-// 	    if ( mIsUdf(z) )
-// 		z = znan;
-// 	    else
-// 		z *= zfac;
-//
-// 	    r_img(iln,xln) = z;
-// 	}
-//     }
-//
-//     py::list dims;
-//     dims.append( "iline" );
-//     dims.append( "xline" );
-//     py::dict coords = getCoords( dims );
-//     py::dict attribs;
-//     attribs["description"] = getName();
-//     attribs["units"] = SI().getZUnitString( false );
-//     attribs["crs"] = survey_.get_epsgCode();
-//
-//     return XDA( img, "coords"_a=coords, "dims"_a=dims, "name"_a=getName(),
-// 		"attrs"_a=attribs );
-// }
-//
-//
-// py::dict odHorizon3D::getCoords( const py::list& dims ) const
-// {
-//     auto XDA = py::module::import("xarray").attr("DataArray");
-//     py::dict coords;
-//     const int nl = tk_.nrLines();
-//     const int nt = tk_.nrTrcs();
-//     py::array_t<double> xpos( {nl, nt} );
-//     py::array_t<double> ypos( {nl, nt} );
-//     py::array_t<int> lines( nl );
-//     py::array_t<int> trcs( nt );
-//     auto r_xpos = xpos.mutable_unchecked<2>();
-//     auto r_ypos = ypos.mutable_unchecked<2>();
-//     auto r_lines = lines.mutable_unchecked<1>();
-//     auto r_trcs = trcs.mutable_unchecked<1>();
-//
-//     for ( int inl=0; inl<nl; inl++ )
-//     {
-// 	const int line = tk_.lineID( inl );
-// 	r_lines( inl ) = line;
-// 	for ( int xln = 0; xln<nt; xln++ )
-// 	{
-// 	    const int trc = tk_.traceID( xln );
-// 	    r_trcs( xln ) = trc;
-// 	    const BinID bid( line, trc );
-// 	    const Coord pos = tk_.toCoord( bid );
-// 	    r_xpos( inl, xln ) = pos.x;
-// 	    r_ypos( inl, xln ) = pos.y;
-// 	}
-//     }
-//     py::dict xyattrs;
-//     xyattrs["units"] = SI().getXYUnitString( false );
-//     coords["iline"] = lines;
-//     coords["xline"] = trcs;
-//     coords["x"] = XDA( xpos, "dims"_a=dims,  "attrs"_a=xyattrs );
-//     coords["y"] = XDA( ypos, "dims"_a=dims,  "attrs"_a=xyattrs );
-//
-//     return coords;
-// }
-//
-//
-// void odHorizon3D::putData( const py::object& pyobj, bool bycoord )
-// {
-//     survey_.activate();
-//     auto XDA = py::module::import("xarray").attr("DataArray");
-//     if ( forread_ || !array_ )
-// 	throw( pybind11::value_error("cannot save, object is read only") );
-//
-//     if ( !isinstance(pyobj, py::type::of(XDA())) )
-// 	throw( pybind11::type_error("input is not an xarray DataArray.") );
-//
-//     auto crs = pyobj.attr( "attrs" )["crs" ].cast<std::string>();
-//     if ( bycoord && crs != survey_.get_epsgCode() )
-//     {
-// 	py::print("Input CRS: ", crs, "Survey CRS: ", survey_.get_epsgCode() );
-// 	throw( pybind11::value_error("output by Coord requires same CRS.") );
-//     }
-//
-//     py::tuple dims = pyobj.attr( "dims" ).cast<py::tuple>();
-//     const bool is2d = dims.size()==1;
-//     py::array_t<float> data = pyobj;
-//     auto coords = pyobj.attr("coords");
-//     py::array_t<double> xs = coords.attr("get")("x").attr("to_numpy")();
-//     py::array_t<double> ys = coords.attr("get")("y").attr("to_numpy")();
-//     py::array_t<int> linenrs =
-//				coords.attr("get")("iline").attr("to_numpy")();
-//     py::array_t<int> trcnrs = coords.attr("get")("xline").attr("to_numpy")();
-//     const int nx = linenrs.size();
-//     const int ny = trcnrs.size();
-//
-//     auto r_data = data.unchecked();
-//     auto r_xs = xs.unchecked();
-//     auto r_ys = ys.unchecked();
-//     auto r_linenrs = linenrs.unchecked();
-//     auto r_trcnrs = trcnrs.unchecked();
-//
-//     TrcKey trckey;
-//     trckey.setIs2D( false );
-//     const float zfac = SI().showZ2UserFactor();
-//     for ( int iln=0; iln<nx; iln++ )
-//     {
-// 	for ( int xln = 0; xln<ny; xln++ )
-// 	{
-// 	    if ( bycoord || is2d )
-// 	    {
-// 		const Coord pos( r_xs(iln, xln), r_ys(iln, xln) );
-// 		trckey.setFrom( pos );
-// 	    }
-// 	    else
-// 	    {
-// 		trckey.setLineNr( r_linenrs(iln) );
-// 		trckey.setTrcNr( r_trcnrs(xln) );
-// 	    }
-//
-// 	    if ( tk_.includes(trckey) )
-// 	    {
-// 		float val = r_data( iln, xln );
-// #ifdef __win__
-// 		if ( !isnan(val) )
-// #else
-// 		if ( !std::isnan(val) )
-// #endif
-// 		{
-// 		    val /= zfac;
-// 		    array_->set( tk_.lineIdx(trckey.inl()),
-// 				tk_.trcIdx(trckey.crl()), val );
-// 		    writecount_++;
-// 		}
-// 	    }
-// 	}
-//     }
-// }
-//
-//
+
+void odHorizon3D::getXY( hAllocator allocator )
+{
+    survey_.activate();
+    errmsg_.setEmpty();
+    if ( tk_.isEmpty() )
+    {
+	errmsg_.add( "Invalid horizon geometry" );
+	return;
+    }
+
+    const int ndim = 2;
+    int dims[ndim];
+    dims[0] = tk_.nrLines();
+    dims[1] = tk_.nrTrcs();
+    double* xdata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
+    double* ydata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
+    for (int xdx=0; xdx<dims[0]; xdx++)
+    {
+	const int line = tk_.lineID( xdx );
+	for (int ydx=0; ydx<dims[1]; ydx++)
+	{
+	    const int trc = tk_.traceID( ydx );
+	    const BinID bid( line, trc );
+	    const Coord pos = tk_.toCoord( bid );
+	    *xdata++ = pos.x;
+	    *ydata++ = pos.y;
+	}
+    }
+}
+
+
+void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
+			const int32_t* inlines, const int32_t* crlines)
+{
+    TrcKey trckey;
+    trckey.setIs2D( false );
+    const float zfac = SI().showZ2UserFactor();
+    writecount_ = 0;
+    for ( int xdx=0; xdx<shape[0]; xdx++ )
+    {
+	const int32_t inl = inlines[xdx];
+	for ( int ydx=0; ydx<shape[1]; ydx++ )
+	{
+	    const int32_t crl = crlines[ydx];
+	    trckey.setLineNr( inl );
+	    trckey.setTrcNr( crl );
+	    if ( tk_.includes(trckey) )
+	    {
+		float val = data[xdx*shape[1]+ydx];
+#ifdef __win__
+		if ( !isnan(val) )
+#else
+		if ( !std::isnan(val) )
+#endif
+		{
+		    val /= zfac;
+		    array_->set( tk_.lineIdx(trckey.inl()),
+				 tk_.trcIdx(trckey.crl()), val );
+		    writecount_++;
+		}
+	    }
+	}
+    }
+}
+
+
+void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
+			const double* xpos, const double* ypos)
+{
+    TrcKey trckey;
+    trckey.setIs2D( false );
+    const float zfac = SI().showZ2UserFactor();
+    writecount_ = 0;
+    for ( int xdx=0; xdx<shape[0]; xdx++ )
+    {
+	for ( int ydx=0; ydx<shape[1]; ydx++ )
+	{
+	    const int idx = xdx*shape[1]+ydx;
+	    const Coord pos( xpos[idx], ypos[idx] );
+	    trckey.setFrom( pos );
+	    if ( tk_.includes(trckey) )
+	    {
+		float val = data[idx];
+#ifdef __win__
+		if ( !isnan(val) )
+#else
+		if ( !std::isnan(val) )
+#endif
+		{
+		    val /= zfac;
+		    array_->set( tk_.lineIdx(trckey.inl()),
+				 tk_.trcIdx(trckey.crl()), val );
+		    writecount_++;
+		}
+	    }
+	}
+    }
+}
 
 
 odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
@@ -679,26 +593,53 @@ void odHorizon2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 //------------------------------------------------------------------------------
 mDefineBaseBindings(Horizon3D, horizon3d)
 hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
-			     const intStepInterval il,
-			     const intStepInterval xl, bool overwrite )
+			     const int* inl_rg, const int* crl_rg,
+			     bool overwrite )
 {
     const auto* p = reinterpret_cast<odSurvey*>(survey);
     return new odHorizon3D( *p, name,
-			    StepInterval<int>(il.start, il.stop, il.step),
-			    StepInterval<int>(xl.start, xl.stop, xl.step),
+			    StepInterval<int>(inl_rg[0], inl_rg[1], inl_rg[2]),
+			    StepInterval<int>(crl_rg[0], crl_rg[1], crl_rg[2]),
 			    overwrite  );
 }
 
-int horizon3d_attribcount( hHorizon3D self )
-{
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
-    return p->getNrAttributes();
-}
 
 hStringSet horizon3d_attribnames( hHorizon3D self )
 {
     const auto* p = reinterpret_cast<odHorizon3D*>(self);
     return p->getAttribNames();
+}
+
+
+void horizon3d_getz( hHorizon3D self, hAllocator allocator )
+{
+    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    p->getZ( allocator );
+}
+
+
+void horizon3d_getxy( hHorizon3D self , hAllocator allocator )
+{
+    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    p->getXY( allocator );
+}
+
+
+void horizon3d_putz( hHorizon3D self, const uint32_t shape[2],
+		     const float* data, const int32_t* inlines,
+		     const int32_t* crlines )
+{
+    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    p->putZ( shape, data, inlines, crlines );
+}
+
+
+void horizon3d_putz_byxy( hHorizon3D self, const uint32_t shape[2],
+			  const float* data,
+			  const double* xpos, const double* ypos )
+{
+    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    p->putZ( shape, data, xpos, ypos );
 }
 
 

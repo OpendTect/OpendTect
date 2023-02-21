@@ -163,7 +163,6 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     mExternC(ODBind) const char* bindnm##_info(h##classnm); \
     mExternC(ODBind) const char* bindnm##_infos(hSurvey, const hStringSet); \
     mExternC(ODBind) bool bindnm##_isok(h##classnm); \
-    mExternC(ODBind) const char* bindnm##_name(h##classnm); \
     mExternC(ODBind) hStringSet bindnm##_names(hSurvey);
 
 //
@@ -218,11 +217,6 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     { \
 	const auto* p = reinterpret_cast<od##classnm*>(self); \
 	return p->isOK(); \
-    } \
-    const char* bindnm##_name( h##classnm self ) \
-    { \
-	const auto* p = reinterpret_cast<od##classnm*>(self); \
-	return p->getName(); \
     } \
     hStringSet bindnm##_names( hSurvey survey ) \
     { \

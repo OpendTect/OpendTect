@@ -43,7 +43,6 @@ public:
     odSurvey(const char* basedir, const char* surveynm);
     ~odSurvey();
 
-    const char*		getName() const;
     const char*		type() const;
     bool		has2D() const;
     bool		has3D() const;
@@ -95,7 +94,6 @@ mExternC(ODBind) void		survey_bincoords(hSurvey, double x, double y,
 						 double* iline, double* xline);
 mExternC(ODBind) void		survey_coords(hSurvey, int iline, int xline,
 					      double* x, double* y);
-mExternC(ODBind) const char*	survey_crs(hSurvey);
 mExternC(ODBind) const char*	survey_feature(hSurvey);
 mExternC(ODBind) const char*	survey_features(const char*, const hStringSet);
 mExternC(ODBind) bool		survey_has2d(hSurvey);
@@ -104,7 +102,6 @@ mExternC(ODBind) bool		survey_hasobject(hSurvey, const char* objname,
 						 const char* trgrpnm);
 mExternC(ODBind) const char*	survey_info(hSurvey);
 mExternC(ODBind) const char*	survey_infos(const char*, const hStringSet);
-mExternC(ODBind) const char*	survey_name(hSurvey);
 mExternC(ODBind) hStringSet	survey_names(const char* basedir);
 mExternC(ODBind) const char*	survey_path(hSurvey);
 mExternC(ODBind) const char*	survey_survtype(hSurvey);

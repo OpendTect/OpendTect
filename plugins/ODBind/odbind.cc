@@ -30,7 +30,6 @@ ________________________________________________________________________________
 #include <string.h>
 
 #include "odbind.h"
-#include "odsurvey.h"
 
 void cstring_del( char* str )
 {

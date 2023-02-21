@@ -25,6 +25,8 @@ ________________________________________________________________________________
 
 mExternC(ODBind) void		cstring_del(char*);
 
+typedef void* (*hAllocator)(int, int*, char);
+
 typedef void* hStringSet;
 mExternC(ODBind) hStringSet	stringset_new();
 mExternC(ODBind) hStringSet	stringset_new1(const char* arr[], int len=-1);
