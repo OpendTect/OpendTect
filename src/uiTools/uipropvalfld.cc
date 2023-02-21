@@ -32,7 +32,7 @@ uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
     unfld_->attach( rightOf, valfld_ );
     setHAlignObj( valfld_ );
 
-    mAttachCB( valfld_->valuechanged, uiPropertyValFld::valChg );
+    mAttachCB( valfld_->valueChanged, uiPropertyValFld::valChg );
     mAttachCB( unfld_->selChange, uiPropertyValFld::unChg );
 }
 
@@ -80,7 +80,7 @@ void uiPropertyValFld::setValue( float val )
     const UnitOfMeasure* curuom = unfld_->getUnit();
     const float newvalue = curuom == pruom_
 			 ? val : getConvertedValue( val, pruom_, curuom );
-    NotifyStopper ns( valfld_->valuechanged );
+    NotifyStopper ns( valfld_->valueChanged );
     valfld_->setValue( val );
     handleValChg( newvalue, false );
 }

@@ -47,7 +47,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     // What seismic tool is required?
     actionfld_ = new uiGenInput( this, uiStrings::sAction(),
 				 StringListInpSpec(actions) );
-    mAttachCB( actionfld_->valuechanged, uiTutSeisTools::choiceSel );
+    mAttachCB( actionfld_->valueChanged, uiTutSeisTools::choiceSel );
     actionfld_->attach( centeredBelow, subselfld_ );
 
     // Parameters for scaling

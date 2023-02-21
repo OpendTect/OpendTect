@@ -35,7 +35,7 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 	hostnmoverrulefld_->attach( alignedBelow, hostnmfld_ );
 	mAttachCB( hostnmoverrulefld_->checked,
 		   uiLocalHostGrp::overrulecheckedCB);
-	mAttachCB( hostnmoverrulefld_->valuechanged,
+	mAttachCB( hostnmoverrulefld_->valueChanged,
 		   uiLocalHostGrp::hostnmoverruleCB);
 	attachobj = hostnmoverrulefld_->attachObj();
     }

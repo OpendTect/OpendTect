@@ -50,7 +50,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 	const CallBack geomcb( mCB(this,uiResortSEGYDlg,geomSel) );
 	geomfld_ = new uiGenInput( this, uiStrings::sType(),
                                    StringListInpSpec(geomnms) );
-	geomfld_->valuechanged.notify( geomcb );
+	geomfld_->valueChanged.notify( geomcb );
 	postFinalize().notify( geomcb );
     }
 

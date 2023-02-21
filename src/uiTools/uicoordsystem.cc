@@ -107,7 +107,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	coordsystemsel_ = new uiGenInput( this, tr("Coordinate System"),
 				      StringListInpSpec(names) );
 	coordsystemsel_->attach( leftBorder );
-	mAttachCB( coordsystemsel_->valuechanged,
+	mAttachCB( coordsystemsel_->valueChanged,
 	       uiCoordSystemSelGrp::systemChangedCB);
     }
 
@@ -142,7 +142,7 @@ void uiCoordSystemSelGrp::createGeodeticUI()
 			BoolInpSpec(true,
 			toUiString(Coords::CoordSystem::sWGS84ProjDispString()),
 			uiStrings::sOther()) );
-    wgs84selfld_->valuechanged.notify( mCB(this,uiCoordSystemSelGrp,wgs84Sel) );
+    wgs84selfld_->valueChanged.notify( mCB(this,uiCoordSystemSelGrp,wgs84Sel) );
 
     auto* uillsys = getGeodecticCoordSystemFld( this );
     uillsys->attach( alignedBelow, wgs84selfld_ );

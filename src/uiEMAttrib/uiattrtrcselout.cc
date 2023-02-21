@@ -234,7 +234,7 @@ void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
     interpfld_ = new uiGenInput( prnt, interplbl, BoolInpSpec(true,flbl,plbl) );
     interpfld_->setWithCheck( true );
     interpfld_->setChecked( true );
-    interpfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,interpSel) );
+    interpfld_->valueChanged.notify( mCB(this,uiAttrTrcSelOut,interpSel) );
     interpfld_->checked.notify( mCB(this,uiAttrTrcSelOut,interpSel) );
     if ( usesinglehor_ )
 	interpfld_->attach( alignedBelow, outsidevalfld_ );
@@ -256,7 +256,7 @@ void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
     const uiString zlabel = createAddWidthLabel();
     addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(false) );
     addwidthfld_->attach( alignedBelow, nrsampfld_ );
-    addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel));
+    addwidthfld_->valueChanged.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel));
 }
 
 
@@ -288,7 +288,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 					   : nrsampfld_ ? nrsampfld_
 							: outsidevalfld_ );
     setcubeboundsfld_->setValue( false );
-    setcubeboundsfld_->valuechanged.notify(
+    setcubeboundsfld_->valueChanged.notify(
 	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
     cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"),

@@ -186,7 +186,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     const bool isblank = templfnm.isEmpty();
     templatefld_ = new uiGenInput( this, tr("Template"),
 	BoolInpSpec(isblank,tr("Blank"),tr("Custom")) );
-    templatefld_->valuechanged.notify(
+    templatefld_->valueChanged.notify(
 		mCB(this,uiPresentationMakerDlg,templateCB) );
     templatefld_->attach( alignedBelow, titlefld_ );
 

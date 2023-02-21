@@ -30,7 +30,7 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
     inoutbut_ = new uiGenInput( this, uiString::emptyString(),
 				BoolInpSpec(true,tr("Inside"),
 				tr("Outside")) );
-    inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
+    inoutbut_->valueChanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
     bodyfld_ = new uiBodySel( this, true );
     bodyfld_->attach( alignedBelow, inoutbut_ );
 

@@ -71,7 +71,7 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
 
     IntInpSpec filterrg( 21 ); filterrg.setLimits( StepInterval<int>(3,99,2) );
     filterszfld_ = new uiGenInput( this, tr("Filter length"), filterrg );
-    filterszfld_->valuechanging.notify( mCB(this,uiWaveletMatchDlg,filterSzCB));
+    filterszfld_->valueChanging.notify( mCB(this,uiWaveletMatchDlg,filterSzCB));
     filterszfld_->attach( rightOf, wvlt1fld_ );
 
     wvltoutfld_ = new uiWaveletSel( this, false );

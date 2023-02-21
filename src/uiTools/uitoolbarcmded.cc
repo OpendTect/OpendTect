@@ -115,8 +115,8 @@ uiToolBarCommandEditor::~uiToolBarCommandEditor()
 
 void uiToolBarCommandEditor::initGrp( CallBacker* )
 {
-    mAttachCB(commandfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
-    mAttachCB(tooltipfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
+    mAttachCB(commandfld_->valueChanged,uiToolBarCommandEditor::commandChgCB);
+    mAttachCB(tooltipfld_->valueChanged,uiToolBarCommandEditor::commandChgCB);
 
     if ( checkbox_ )
     {

@@ -82,7 +82,7 @@ void uiWellSelGrp::createFields()
 
 	onlytopfld_ = new uiGenInput( this, tr("Use only wells' top position"),
 				      BoolInpSpec(true) );
-	onlytopfld_->valuechanged.notify( mCB(this,uiWellSelGrp,ptsSel) );
+	onlytopfld_->valueChanged.notify( mCB(this,uiWellSelGrp,ptsSel) );
 	onlytopfld_->attach( alignedBelow, selwellstbl_ );
 	onlytopfld_->attach( ensureBelow, wellsbox_ );
     }

@@ -62,7 +62,7 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
 			BoolInpSpec(true,tr("Log"),tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
-    mAttachCB( saveasfld_->valuechanged, uiSaveDataDlg::changeLogUIOutput );
+    mAttachCB( saveasfld_->valueChanged, uiSaveDataDlg::changeLogUIOutput );
 
     outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, true );
     outputgrp_->attach( leftAlignedBelow, saveasfld_ );

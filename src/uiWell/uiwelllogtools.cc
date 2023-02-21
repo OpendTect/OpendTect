@@ -285,7 +285,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     savegrp->attach( alignedBelow, actiongrp );
     savefld_ = new uiGenInput( savegrp, tr("On OK"),
 	BoolInpSpec(true,tr("Save logs as new"),tr("Overwrite original logs")));
-    savefld_->valuechanged.notify( mCB(this,uiWellLogToolWin,saveCB) );
+    savefld_->valueChanged.notify( mCB(this,uiWellLogToolWin,saveCB) );
 
     extfld_ = new uiGenInput( savegrp, tr("Log name extension") );
     extfld_->setText( "_edited" );

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "attribparamgroup.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -87,7 +86,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     attriboutputfld_ = new uiGenInput( this, uiStrings::sOutput(),
 		StringListInpSpec(attriboutputStr) );
     CallBack cboutsel = mCB(this, uiCEEMDAttrib, outSel);
-    attriboutputfld_->valuechanged.notify(cboutsel);
+    attriboutputfld_->valueChanged.notify(cboutsel);
     attriboutputfld_->attach( alignedBelow, tfpanelbut_ );
 
     uiString lbl = uiStrings::phrOutput(uiStrings::sFrequency());

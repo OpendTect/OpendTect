@@ -83,7 +83,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 
     typefld = new uiGenInput( this, uiStrings::sType(),
                               StringListInpSpec(scalingtypestr) );
-    typefld->valuechanged.notify( mCB(this,uiScalingAttrib,typeSel) );
+    typefld->valueChanged.notify( mCB(this,uiScalingAttrib,typeSel) );
     typefld->attach( alignedBelow, inpfld );
 
     nfld = new uiGenInput( this, tr("n"), FloatInpSpec() );
@@ -99,7 +99,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     statsfld = new uiGenInput( this, tr("Basis"),
         StringListInpSpec(statstypestr) );
     statsfld->attach( alignedBelow, typefld );
-    statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
+    statsfld->valueChanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
     tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, statsfld );

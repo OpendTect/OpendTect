@@ -8,30 +8,27 @@ ________________________________________________________________________
 -*/
 
 #include "uifreqtaper.h"
+
 #include "uiamplspectrum.h"
-#include "uiaxishandler.h"
+#include "uiaxishandlerbase.h"
+#include "uicombobox.h"
+#include "uifunctiondisplayserver.h"
 #include "uigeninput.h"
 #include "uigroup.h"
-#include "uifunctiondisplay.h"
-#include "uifunctiondisplayserver.h"
-#include "uigraphicsscene.h"
-#include "uilabel.h"
-#include "uicombobox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uislicesel.h"
 #include "uislider.h"
 
-#include "arrayndimpl.h"
 #include "arrayndalgo.h"
-#include "ioman.h"
+#include "arrayndimpl.h"
+#include "od_helpids.h"
 #include "scaler.h"
 #include "seisbuf.h"
-#include "seisread.h"
-#include "seistrc.h"
 #include "seisioobjinfo.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
-#include "od_helpids.h"
+#include "seistrc.h"
 
 
 FreqTaperSetup::FreqTaperSetup()
@@ -293,8 +290,8 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
 							       FloatInpSpec() );
     varinpfld_->setTitleText ( tapertxt );
     varinpfld_->setValue( td1_.paramval_ );
-    varinpfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,slopeChanged) );
-    varinpfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,taperChged) );
+    varinpfld_->valueChanged.notify( mCB(this,uiFreqTaperGrp,slopeChanged) );
+    varinpfld_->valueChanged.notify( mCB(this,uiFreqTaperGrp,taperChged) );
     varinpfld_->setElemSzPol( uiObject::Small );
 
     const bool zistime = SI().zDomain().isTime();
@@ -304,7 +301,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
 					    tr("Start/Stop wavenumber(/kft)") :
 					    tr("Start/Stop wavenumber(/km)"),
 				    FloatInpSpec().setName("Min frequency") );
-    inffreqfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
+    inffreqfld_->valueChanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
     inffreqfld_->attach( rightOf, varinpfld_ );
     inffreqfld_->setElemSzPol( uiObject::Small );
 
@@ -320,7 +317,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
 
     supfreqfld_ = new uiGenInput( this, uiString::emptyString(),
 				    FloatInpSpec().setName("Max frequency") );
-    supfreqfld_->valuechanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
+    supfreqfld_->valueChanged.notify( mCB(this,uiFreqTaperGrp,freqChanged) );
 
     supfreqfld_->attach( rightOf, sliderfld_ );
     supfreqfld_->setElemSzPol( uiObject::Small );
@@ -329,7 +326,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     {
 	freqinpfld_ = new uiGenInput(this, uiStrings::sView(),BoolInpSpec(true,
 				     tr("Min frequency"), tr("Max frequency")));
-	freqinpfld_->valuechanged.notify(
+	freqinpfld_->valueChanged.notify(
 			mCB(this,uiFreqTaperGrp,freqChoiceChged) );
 	freqinpfld_->attach( centeredBelow, inffreqfld_ );
     }
@@ -373,8 +370,8 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
 
 
 #define mStopFreqNotifiers()\
-    NotifyStopper nsf1( inffreqfld_->valuechanged );\
-    NotifyStopper nsf2( supfreqfld_->valuechanged );
+    NotifyStopper nsf1( inffreqfld_->valueChanged );\
+    NotifyStopper nsf2( supfreqfld_->valueChanged );
 void uiFreqTaperGrp::sliderChanged( CallBacker* )
 {
     mStopFreqNotifiers()
@@ -422,7 +419,7 @@ void uiFreqTaperGrp::taperChged( CallBacker* cb )
 void uiFreqTaperGrp::putToScreen( CallBacker* )
 {
     mStopFreqNotifiers()
-    NotifyStopper nsf3( varinpfld_->valuechanged );
+    NotifyStopper nsf3( varinpfld_->valueChanged );
     NotifyStopper nsf4( sliderfld_->valueChanged );
 
     TaperData& td = mGetData();
@@ -473,6 +470,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
     mStopFreqNotifiers()
     if ( mIsZero(slope,mDefEps) )
 	slope = 0.05f;
+
     const float slopeindecade = (float)(slope/mDec2Oct);
     const float slopeinhertz = Math::PowerOf( 10, 1.f/slopeindecade );
     TaperData& td = mGetData();

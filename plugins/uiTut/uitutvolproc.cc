@@ -30,7 +30,7 @@ uiTutOpCalculator::uiTutOpCalculator( uiParent* p, TutOpCalculator* opcalc )
     typefld_ = new uiGenInput( this,
 				tr("Choose action to execute"),
 				StringListInpSpec( possibleoperations ) );
-    mAttachCB( typefld_->valuechanged, uiTutOpCalculator::typeSel );
+    mAttachCB( typefld_->valueChanged, uiTutOpCalculator::typeSel );
 
     shiftfld_ = new uiStepOutSel( this, false  );
     shiftfld_->attach( alignedBelow, typefld_ );

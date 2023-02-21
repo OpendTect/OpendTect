@@ -38,7 +38,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
 
     directionsel_ = new uiGenInput( this, tr("Direction"),
 	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true ));
-    directionsel_->valuechanged.notify(
+    directionsel_->valueChanged.notify(
 			mCB(this,uiBatchTime2DepthSetup,dirChangeCB) );
 
     t2dfld_ = new uiZAxisTransformSel( this, false, ZDomain::sKeyTime(),

@@ -484,7 +484,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(formats) );
-    mAttachCB( typefld_->valuechanged, uiSeisPreLoadSel::selChangeCB );
+    mAttachCB( typefld_->valueChanged, uiSeisPreLoadSel::selChangeCB );
     typefld_->attach( alignedBelow, formatdiskfld_ );
 
     memusagefld_ = new uiGenInput( leftgrp, tr("Est usage") );
@@ -493,7 +493,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     doscalefld_ = new uiGenInput( leftgrp, tr("Scale Values"),
 				  BoolInpSpec(false) );
-    mAttachCB( doscalefld_->valuechanged, uiSeisPreLoadSel::doScaleCB );
+    mAttachCB( doscalefld_->valueChanged, uiSeisPreLoadSel::doScaleCB );
     doscalefld_->attach( alignedBelow, typefld_ );
 
     fromrgfld_ = new uiGenInput( leftgrp, tr("Scale From"),

@@ -51,7 +51,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     winoption_= new uiGenInput( this, tr("Window Option"),
 		BoolInpSpec(true,tr("Single Horizon"),tr("Double Horizon")) );
-    mAttachCB( winoption_->valuechanged, uiStratAmpCalc::choiceSel );
+    mAttachCB( winoption_->valueChanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld_ );
 
     const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
@@ -83,7 +83,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     selfld_= new uiGenInput( this, tr("Add result as HorizonData to"),
 	BoolInpSpec(true,uiStrings::sTopHor(),uiStrings::sBottomHor()) );
-    mAttachCB( selfld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
+    mAttachCB( selfld_->valueChanged, uiStratAmpCalc::setParFileNameCB );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
     foldfld_ = new uiGenInput( this, tr("Output fold as an extra attribute"),
@@ -92,7 +92,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
 				     StringInpSpec("Stratal Amplitude") );
-    mAttachCB( attribnamefld_->valuechanged, uiStratAmpCalc::setParFileNameCB );
+    mAttachCB( attribnamefld_->valueChanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
     attribnamefld_->setDefaultTextValidator();
 

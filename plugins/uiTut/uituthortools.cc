@@ -33,7 +33,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     taskfld_= new uiGenInput( this, tr("Task"),
 			BoolInpSpec(true,tr("Thickness between two horizons"),
 					 tr("Smooth a horizon")) );
-    mAttachCB( taskfld_->valuechanged, uiTutHorTools::choiceSel );
+    mAttachCB( taskfld_->valueChanged, uiTutHorTools::choiceSel );
 
     IOObjContext ctxt = mIOObjContext(EMHorizon3D);
     inpfld_ = new uiIOObjSel( this, ctxt, tr("Input Horizon") );

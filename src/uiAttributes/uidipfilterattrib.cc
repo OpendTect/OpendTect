@@ -65,7 +65,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     uiString fltrlbl = tr("%1 to pass").arg(zIsTime() ? uiStrings::sVelocity()
 						      : uiStrings::sDip());
     fltrtpfld_ = new uiGenInput( this, fltrlbl, StringListInpSpec(fltrstrs) );
-    fltrtpfld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
+    fltrtpfld_->valueChanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
     fltrtpfld_->attach( alignedBelow, szfld_ );
 
     uiString lbl = tr("Min/max %1").arg(zIsTime() ? tr("%1 %2")
@@ -89,7 +89,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
 			      BoolInpSpec(true) );
     azifld_->setValue( false );
     azifld_->attach( alignedBelow, velfld_ );
-    azifld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
+    azifld_->valueChanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
 
     aziintfld_ = new uiGenInput( this, tr("Azimuth to pass (min/max)"),
 				FloatInpIntervalSpec()

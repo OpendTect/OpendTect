@@ -43,13 +43,13 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 
     actionfld_ = new uiGenInput( this, uiStrings::sAction(),
 				StringListInpSpec(actionstr) );
-    mAttachCB( actionfld_->valuechanged, uiTutorialAttrib::actionSel );
+    mAttachCB( actionfld_->valueChanged, uiTutorialAttrib::actionSel );
     actionfld_->attach( alignedBelow, inpfld_ );
 
     smoothdirfld_ = new uiGenInput( this, tr("Smoothing direction"),
 	                        BoolInpSpec(true,uiStrings::sHorizontal(),
                                             uiStrings::sVertical()) );
-    mAttachCB( smoothdirfld_->valuechanged, uiTutorialAttrib::actionSel );
+    mAttachCB( smoothdirfld_->valueChanged, uiTutorialAttrib::actionSel );
     smoothdirfld_->attach( alignedBelow, actionfld_ );
 
     smoothstrengthfld_ = new uiGenInput( this, tr("Filter strength"),

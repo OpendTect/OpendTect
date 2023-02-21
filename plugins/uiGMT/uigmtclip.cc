@@ -49,7 +49,7 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
     optionfld_ = new uiGenInput(this, uiString::emptyString(),
 	    BoolInpSpec(true,tr("Clip Outside"),tr("Clip Inside"),true) );
     optionfld_->attach( alignedBelow, polygonfld_ );
-    actionfld_->valuechanged.notify( mCB(this,uiGMTClipGrp,actionSel) );
+    actionfld_->valueChanged.notify( mCB(this,uiGMTClipGrp,actionSel) );
     postFinalize().notify( mCB(this,uiGMTClipGrp,actionSel) );
 }
 

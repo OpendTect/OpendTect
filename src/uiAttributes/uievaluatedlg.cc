@@ -307,7 +307,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 
     evalfld = new uiGenInput( this, tr("Evaluate"),
                               StringListInpSpec(strs) );
-    evalfld->valuechanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
+    evalfld->valueChanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
 
     uiGroup* pargrp = new uiGroup( this, "" );
     pargrp->setStretch( 1, 1 );

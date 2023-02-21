@@ -74,7 +74,7 @@ uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
 	uiInterpolationLayerModelGrp::factory().getUserNames();
     layermodelfld_ = new uiGenInput( this, tr("Interpolate along"),
 				     StringListInpSpec(usrnms) );
-    layermodelfld_->valuechanged.notify(
+    layermodelfld_->valueChanged.notify(
 		mCB(this,uiInterpolationLayerModel,selCB) );
 
     const BufferStringSet& names =

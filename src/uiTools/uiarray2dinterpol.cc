@@ -99,7 +99,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	if ( prevfld )
 	    methodsel_->attach( alignedBelow, prevfld );
 
-	methodsel_->valuechanged.notify(
+	methodsel_->valueChanged.notify(
 		mCB( this, uiArray2DInterpolSel, selChangeCB ) );
 
 	methodidx = oldvals ? methods.indexOf( oldvals->factoryKeyword() ) : 0;

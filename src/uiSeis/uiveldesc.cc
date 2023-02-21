@@ -37,12 +37,12 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
 {
     typefld_ = new uiGenInput( this, tr("Velocity type"),
 			StringListInpSpec(VelocityDesc::TypeDef()) );
-    typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,updateFlds) );
+    typefld_->valueChanged.notify( mCB(this,uiVelocityDesc,updateFlds) );
 
     uiGroup* vigrp = new uiGroup( this, "Vel info grp" );
     hasstaticsfld_ = new uiGenInput( vigrp, tr("Has statics"),
 				     BoolInpSpec(true) );
-    hasstaticsfld_->valuechanged.notify(mCB(this,uiVelocityDesc,updateFlds));
+    hasstaticsfld_->valueChanged.notify(mCB(this,uiVelocityDesc,updateFlds));
 
     staticsfld_ = new uiStaticsDesc( vigrp, 0 );
     staticsfld_->attach( alignedBelow, hasstaticsfld_ );
@@ -74,7 +74,7 @@ void uiVelocityDesc::updateFlds( CallBacker* )
 
 
 NotifierAccess& uiVelocityDesc::typeChangeNotifier()
-{ return typefld_->valuechanged; }
+{ return typefld_->valueChanged; }
 
 
 void uiVelocityDesc::set( const VelocityDesc& desc )

@@ -59,7 +59,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	stylesel_ = new uiGenInput( this, lbltxt,
 				StringListInpSpec(OD::LineStyle::TypeDef()) );
 	stylesel_->setValue( linestyle_.type_ );
-	mAttachCB( stylesel_->valuechanged, uiSelLineStyle::changeCB );
+	mAttachCB( stylesel_->valueChanged, uiSelLineStyle::changeCB );
 	alobj = stylesel_->attachObj();
     }
 

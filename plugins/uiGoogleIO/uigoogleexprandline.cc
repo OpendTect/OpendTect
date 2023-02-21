@@ -41,7 +41,7 @@ uiGISExportRandomLine::uiGISExportRandomLine( uiParent* p,
     putlnmfld_ = new uiGenInput( this, tr("Annotate line"),
 				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 2 );
-    mAttachCB(putlnmfld_->valuechanged,uiGISExportRandomLine::putSel);
+    mAttachCB(putlnmfld_->valueChanged,uiGISExportRandomLine::putSel);
 
     lnmfld_ = new uiGenInput( this, tr("Line annotation"),
 			      StringInpSpec(nm) );

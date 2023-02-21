@@ -320,7 +320,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     }
 
 
-    useglobfld_->valuechanged.notify( dispcb );
+    useglobfld_->valueChanged.notify( dispcb );
     postFinalize().notify( dispcb );
 }
 

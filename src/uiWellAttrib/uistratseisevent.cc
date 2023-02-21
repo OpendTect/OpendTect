@@ -229,13 +229,13 @@ void uiStratSeisEvent::initGrp( CallBacker* )
 #define mSetAnyChg( fld, notif ) \
     if ( fld ) mAttachCB( fld->notif, uiStratSeisEvent::anyChgCB );
     mSetAnyChg( levelfld_, selChange );
-    mSetAnyChg( evfld_, valuechanged );
+    mSetAnyChg( evfld_, valueChanged );
     mSetAnyChg( evfld_, checked );
-    mSetAnyChg( snapoffsfld_, valuechanged );
-    mSetAnyChg( extrwinfld_, valuechanged );
+    mSetAnyChg( snapoffsfld_, valueChanged );
+    mSetAnyChg( extrwinfld_, valueChanged );
     mSetAnyChg( extrwinfld_, checked );
-    mSetAnyChg( extrstepfld_, valuechanged );
-    mSetAnyChg( uptolvlfld_, valuechanged );
+    mSetAnyChg( extrstepfld_, valueChanged );
+    mSetAnyChg( uptolvlfld_, valueChanged );
     mSetAnyChg( uptolvlfld_, checked );
     mSetAnyChg( layerbasedfld_, activated );
 

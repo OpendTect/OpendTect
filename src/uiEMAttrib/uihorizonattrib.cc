@@ -62,7 +62,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     getOutputNames( strs, true );
     typefld_ = new uiGenInput( this, uiStrings::sOutput(),
 			       StringListInpSpec(strs) );
-    typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
+    typefld_->valueChanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
 
     isrelbox_ = new uiCheckBox( this, tr("Relative") );

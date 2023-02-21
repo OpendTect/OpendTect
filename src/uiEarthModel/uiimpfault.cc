@@ -77,14 +77,14 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 void uiImportFault::createUI()
 {
     infld_ = new uiASCIIFileInput( this, true );
-    mAttachCB( infld_->valuechanged, uiImportFault::inputChgd );
+    mAttachCB( infld_->valueChanged, uiImportFault::inputChgd );
 
     if ( !isfss_ )
     {
 	BufferStringSet types; types.add( "Plain ASCII" );
 	typefld_ = new uiGenInput( this, uiStrings::sType(),
 				   StringListInpSpec(types) );
-	mAttachCB( typefld_->valuechanged, uiImportFault::typeSel );
+	mAttachCB( typefld_->valueChanged, uiImportFault::typeSel );
 	typefld_->attach( alignedBelow, infld_ );
 
 	formatfld_ = new uiFileInput( this, tr("Input Landmark formatfile"),
@@ -98,7 +98,7 @@ void uiImportFault::createUI()
 	stickselfld_ = new uiGenInput( this, tr("Stick selection"),
 				    StringListInpSpec(stickselopt) );
 	stickselfld_->attach( alignedBelow, typefld_ );
-	mAttachCB( stickselfld_->valuechanged, uiImportFault::stickSel );
+	mAttachCB( stickselfld_->valueChanged, uiImportFault::stickSel );
 
 	thresholdfld_ = new uiGenInput(this, uiString::emptyString(),
 				DoubleInpSpec(1.0).setName("Threshold") );

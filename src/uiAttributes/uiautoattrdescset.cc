@@ -55,7 +55,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     usefld_ = new uiGenInput( this, tr("Enable auto-load Attribute Set"),
 			      BoolInpSpec(true) );
     usefld_->setValue( douse );
-    usefld_->valuechanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
+    usefld_->valueChanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 
     ctio_.setObj( mid );
     ctio_.ctxt_.forread_ = true;
@@ -146,7 +146,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
     defselfld_ = new uiGenInput( this, uiStrings::phrSelect(tr("from")),
 		     BoolInpSpec(true,tr("Survey-defined sets"),
 		     mJoinUiStrs(sDefault(),sSet(mPlural).toLower())) );
-    defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
+    defselfld_->valueChanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 
     autoloadfld_ = new uiGenInput( this, uiString::emptyString(),
                                    BoolInpSpec(false, tr("Set for Auto-Load\t"),

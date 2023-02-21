@@ -54,7 +54,7 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     attributefld_ =
 	new uiGenInput( this, uiStrings::sOutput(), 
                         StringListInpSpec(attributelist_) );
-    attributefld_->valuechanged.notify(
+    attributefld_->valueChanged.notify(
 	    mCB(this, uiSimilaritybyAW, choiceSel) );
     attributefld_->attach(alignedBelow, steerfld_);
 

@@ -156,7 +156,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p,
     crnewfld_ = new uiGenInput( this, tr("2D Line"),
 			     BoolInpSpec(true,uiStrings::phrCreate(
 			     uiStrings::sNew()), tr("Use existing")) );
-    mAttachCB( crnewfld_->valuechanged, uiStratSynthExport::crNewChg );
+    mAttachCB( crnewfld_->valueChanged, uiStratSynthExport::crNewChg );
 
     newlinenmfld_ = new uiGenInput( this, mJoinUiStrs(sNew(),sLineName()),
 				    StringInpSpec() );
@@ -246,7 +246,7 @@ void uiStratSynthExport::fillGeomGroup()
     if ( haverl )
 	inpspec.addString( uiStrings::sRandomLine() );
     geomsel_ = new uiGenInput( geomgrp_, tr("Geometry for line"), inpspec );
-    mAttachCB( geomsel_->valuechanged, uiStratSynthExport::geomSel );
+    mAttachCB( geomsel_->valueChanged, uiStratSynthExport::geomSel );
     geomgrp_->setHAlignObj( geomsel_ );
 
     Coord startcoord, stopcoord;

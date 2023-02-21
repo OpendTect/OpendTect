@@ -192,7 +192,7 @@ uiAddFunction::uiAddFunction( uiParent* p )
 	uiFunctionSettings::factory().getUserNames();
     typesel_ = new uiGenInput( this, uiStrings::sType(),
                                StringListInpSpec(sourceusernames));
-    typesel_->valuechanged.notify(
+    typesel_->valueChanged.notify(
 			    mCB(this,uiAddFunction,typeSelChangeCB));
 
     for ( int idx=0; idx<sourceclasses.size(); idx++ )

@@ -37,7 +37,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     inpfld_ = new uiGenInput( this, tr("Enter Ranges") );
     inpfld_->setElemSzPol( uiObject::WideMax );
     inpfld_->updateRequested.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
-    inpfld_->valuechanging.notify( mCB(this,uiDPSRefineSelDlg,checkMathExpr) );
+    inpfld_->valueChanging.notify( mCB(this,uiDPSRefineSelDlg,checkMathExpr) );
     label->attach( leftAlignedAbove, inpfld_ );
 
     setbut_ = new uiPushButton( this, tr("Set"), true );

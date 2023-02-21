@@ -33,7 +33,7 @@ uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
     {
 	StringListInpSpec spec(scalestrs);
 	typefld = new uiGenInput( this, uiStrings::sEmptyString(), spec );
-	typefld->valuechanged.notify( mCB(this,uiScaler,typeSel) );
+	typefld->valueChanged.notify( mCB(this,uiScaler,typeSel) );
     }
 
     ynfld = new uiCheckBox( this, lbl );

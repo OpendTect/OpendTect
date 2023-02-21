@@ -201,7 +201,7 @@ uiODLegalInfo(uiParent* p)
 
     textsel_ = new uiGenInput( this, tr("Project"),
 		StringListInpSpec(legalInformation().getUserNames()) );
-    textsel_->valuechanged.notify( mCB(this,uiODLegalInfo,selChgCB) );
+    textsel_->valueChanged.notify( mCB(this,uiODLegalInfo,selChgCB) );
     textsel_->attach( alignedBelow, label );
 
     textfld_ = new uiTextEdit( this );

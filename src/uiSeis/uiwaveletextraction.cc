@@ -85,7 +85,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     zextraction_ = new uiGenInput( this, tr("Vertical Extraction"),
 			BoolInpSpec(linesel2dfld_,tr("Z range"),
 				    uiStrings::sHorizon(mPlural)) );
-    mAttachCB( zextraction_->valuechanged, uiWaveletExtraction::choiceSelCB );
+    mAttachCB( zextraction_->valueChanged, uiWaveletExtraction::choiceSelCB );
 
     linesel2dfld_ ? zextraction_->attach( alignedBelow, linesel2dfld_ )
 		  : zextraction_->attach( alignedBelow, subselfld3d_ );

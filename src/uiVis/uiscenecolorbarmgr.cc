@@ -43,7 +43,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     posfld_ = new uiGenInput( this, tr("Position"), StringListInpSpec(positms));
     posfld_->attach( alignedBelow, wfld );
     posfld_->setValue( scenecoltab_->getPos() );
-    posfld_->valuechanged.notify(
+    posfld_->valueChanged.notify(
 			mCB(this,uiSceneColorbarMgr,posChangedCB) );
 }
 

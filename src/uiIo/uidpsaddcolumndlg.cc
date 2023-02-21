@@ -41,7 +41,7 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
     inpfld_->setElemSzPol( uiObject::WideMax );
     inpfld_->updateRequested.notify(
 	    mCB(this,uiDPSAddColumnDlg,parsePush) );
-    inpfld_->valuechanging.notify(
+    inpfld_->valueChanging.notify(
 	    mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
     inpfld_->attach( alignedBelow, label );
 

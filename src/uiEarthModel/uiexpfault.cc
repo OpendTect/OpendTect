@@ -78,7 +78,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
-    mAttachCB( coordfld_->valuechanged, uiExportFault::exportCoordSysChgCB );
+    mAttachCB( coordfld_->valueChanged, uiExportFault::exportCoordSysChgCB );
 
     IOObjContext ctxt = mGetCtxt( typ );
     uiIOObjSelGrp::Setup su; su.choicemode_ = OD::ChooseAtLeastOne;
@@ -108,7 +108,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
 			    StringListInpSpec(zmodes) );
-    zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
+    zfld_->valueChanged.notify( mCB(this,uiExportFault,addZChg ) );
     zfld_->attach( alignedBelow, attachobj );
 
     uiT2DConvSel::Setup stup( nullptr, false );

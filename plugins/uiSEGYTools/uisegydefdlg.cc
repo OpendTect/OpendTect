@@ -258,7 +258,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     dirsel_ = new uiFileInput( this, tr("New location"), absfnm.buf() );
     dirsel_->setSelectMode( uiFileDialog::Directory );
     dirsel_->setObjType( tr("Location") );
-    dirsel_->valuechanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
+    dirsel_->valueChanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
     dirsel_->attach( leftAlignedBelow, lbl );
 
     fillFileTable();

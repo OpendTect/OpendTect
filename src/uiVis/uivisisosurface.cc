@@ -44,7 +44,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     modefld_ = new uiGenInput( this, tr("Mode"),
 	    BoolInpSpec(true,tr("Full volume"),tr("Seed based")) );
     modefld_->setValue( fullmode );
-    modefld_->valuechanged.notify(
+    modefld_->valueChanged.notify(
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
 
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );

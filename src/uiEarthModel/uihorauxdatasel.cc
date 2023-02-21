@@ -192,7 +192,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 	str );
     auxfld_->attach( rightOf, selbut_ );
     auxfld_->setPrefWidthInChar( 60 );
-    auxfld_->valuechanged.notify(
+    auxfld_->valueChanged.notify(
 	    mCB(this,uiHorizonAuxDataSel,auxidxChg) );
     if ( hasobj && auxidx>=0 ) auxfld_->setValue(auxidx);
 

@@ -24,7 +24,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     mODHelpKey(mProxyDlgHelpID) ))
 {
     useproxyfld_ = new uiGenInput( this, tr("Use proxy"), BoolInpSpec(true) );
-    useproxyfld_->valuechanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
+    useproxyfld_->valueChanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
 
     hostfld_ = new uiGenInput( this, tr("HTTP Proxy"), StringInpSpec() );
     hostfld_->attach( alignedBelow, useproxyfld_ );

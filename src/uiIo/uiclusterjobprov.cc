@@ -231,7 +231,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     const int nrinl = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, tr("Nr of inlines per job"),
 				IntInpSpec(nrinl) );
-    nrinlfld_->valuechanging.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
+    nrinlfld_->valueChanging.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 
     nrjobsfld_ = new uiLabel( this, tr("Total nr of jobs: 0000") );
     nrjobsfld_->attach( rightTo, nrinlfld_ );

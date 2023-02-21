@@ -63,7 +63,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     optionfld_ = new uiGenInput( this, tr("Intersection with "),
 				 BoolInpSpec(true, tr("Z Slice"),
 				 uiStrings::sHorizon()) );
-    optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
+    optionfld_->valueChanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );
 
     const uiString lbl = tr("Z Value %1").arg( SI().getZUnitString() );

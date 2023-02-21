@@ -208,6 +208,8 @@ void uiGenInputInputFld::updateSpec()
 }
 
 
+mStartAllowDeprecatedSection
+
 void uiGenInputInputFld::valChangingNotify( CallBacker* )
 {
     p_->valueChanging.trigger( *p_ );
@@ -220,6 +222,8 @@ void uiGenInputInputFld::valChangedNotify( CallBacker* )
     p_->valueChanged.trigger( *p_ );
     p_->valuechanged.trigger( *p_ );
 }
+
+mStopAllowDeprecatedSection
 
 
 void uiGenInputInputFld::updateReqNotify( CallBacker* )

@@ -178,7 +178,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
 
     inptypfld_ = new uiGenInput( ingrp, tr("Convert from"),
 				 StringListInpSpec(datatypedef_) );
-    mAttachCB( inptypfld_->valuechanged, uiManualConvGroup::inputTypChg );
+    mAttachCB( inptypfld_->valueChanged, uiManualConvGroup::inputTypChg );
     ingrp->setHAlignObj( inptypfld_ );
 
     uiObject* attachobj = inptypfld_->attachObj();

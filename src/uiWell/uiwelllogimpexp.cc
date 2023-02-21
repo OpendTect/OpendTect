@@ -49,7 +49,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     lasfld_ = new uiASCIIFileInput( this, tr("Input (pseudo-)LAS logs file"),
 				    true );
     lasfld_->setFilter( Well::LASImporter::fileFilter() );
-    lasfld_->valuechanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
+    lasfld_->valueChanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
     intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),
 			      FloatInpIntervalSpec(false) );
@@ -315,7 +315,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 
     typefld_ = new uiGenInput( this, uiStrings::sFormat(),
 			      StringListInpSpec(exptypes) );
-    typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
+    typefld_->valueChanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
     uiObject* attachobj = typefld_->attachObj();

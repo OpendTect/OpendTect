@@ -331,7 +331,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     varinpfld_ = new uiGenInput( this, tapertxt, FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, funcdrawer_ );
     varinpfld_->setValue( variable_ * 100 );
-    varinpfld_->valuechanged.notify( mCB(this,uiWindowFuncSelDlg,funcSelChg) );
+    varinpfld_->valueChanged.notify( mCB(this,uiWindowFuncSelDlg,funcSelChg) );
 
     setCurrentWindowFunc( winname, variable_ );
 }

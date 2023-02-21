@@ -218,7 +218,7 @@ void WellTie::uiTieWin::drawFields()
 						     Seis::sSEGNegative()) );
     polarityfld_->attach( leftOf, vwrtaskgrp );
     polarityfld_->attach( ensureBelow, sep1 );
-    polarityfld_->valuechanged.notify( mCB(this, uiTieWin, polarityChanged) );
+    polarityfld_->valueChanged.notify( mCB(this, uiTieWin, polarityChanged) );
 
     wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", false, false );
     wvltfld_->setInput( server_.data().setup().sgp_.getWaveletID() );
@@ -271,7 +271,7 @@ void WellTie::uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     IntInpSpec iis( 5 );
     iis.setLimits( StepInterval<int>(1,99,2) );
     nrtrcsfld_ = new uiGenInput( taskgrp, tr("Nr Traces"), iis );
-    nrtrcsfld_->valuechanging.notify( mCB(this,uiTieWin,nrtrcsCB) );
+    nrtrcsfld_->valueChanging.notify( mCB(this,uiTieWin,nrtrcsCB) );
     nrtrcsfld_->attach( alignedBelow, eventtypefld_ );
 
     applybut_ = new uiPushButton( taskgrp, tr("Apply Changes"),
@@ -566,7 +566,7 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
-    mAttachCB( estwvltlengthfld_->valuechanged,uiInfoDlg::needNewEstimatedWvlt);
+    mAttachCB( estwvltlengthfld_->valueChanged,uiInfoDlg::needNewEstimatedWvlt);
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp, "Vert sep",
 					     OD::Vertical );
@@ -585,7 +585,7 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const char* choice[] = { "Markers", "Times", "Depths (MD)", nullptr };
     choicefld_ = new uiGenInput( markergrp, tr("Compute Data between"),
 					StringListInpSpec(choice) );
-    mAttachCB( choicefld_->valuechanged, uiInfoDlg::zrgChanged );
+    mAttachCB( choicefld_->valueChanged, uiInfoDlg::zrgChanged );
 
     markernames_.add( Well::ExtractParams::sKeyDataStart() );
     mGetWD(return)
@@ -622,7 +622,7 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
     for ( int idx=0; choice[idx]; idx++ )
     {
-	mAttachCB( zrangeflds_[idx]->valuechanged, uiInfoDlg::zrgChanged );
+	mAttachCB( zrangeflds_[idx]->valueChanged, uiInfoDlg::zrgChanged );
 	zrangeflds_[idx]->attach( rightOf, choicefld_ );
 	zlabelflds_ += new uiLabel( markergrp, units[idx] );
 	zlabelflds_[idx]->attach( rightOf, zrangeflds_[idx] );
@@ -866,9 +866,9 @@ bool WellTie::uiInfoDlg::updateZrg()
     if ( zrangeflds_.isEmpty() || !choicefld_ )
 	return false;
 
-    NotifyStopper ns0 = NotifyStopper( zrangeflds_[0]->valuechanged );
-    NotifyStopper ns1 = NotifyStopper( zrangeflds_[1]->valuechanged );
-    NotifyStopper ns2 = NotifyStopper( zrangeflds_[2]->valuechanged );
+    NotifyStopper ns0 = NotifyStopper( zrangeflds_[0]->valueChanged );
+    NotifyStopper ns1 = NotifyStopper( zrangeflds_[1]->valueChanged );
+    NotifyStopper ns2 = NotifyStopper( zrangeflds_[2]->valueChanged );
 
     mGetWD(return false)
     const Well::D2TModel* d2t = wd->d2TModel();

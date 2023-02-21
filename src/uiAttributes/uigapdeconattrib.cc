@@ -98,7 +98,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
 
     wantmixfld_ = new uiGenInput( this, tr("Use trace averaging"),
 				  BoolInpSpec(true) );
-    wantmixfld_->valuechanged.notify( mCB(this,uiGapDeconAttrib,mixSel) );
+    wantmixfld_->valueChanged.notify( mCB(this,uiGapDeconAttrib,mixSel) );
     wantmixfld_->attach( alignedBelow, noiselvlfld_ );
 //    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
 //    stepoutlbl->attach( rightOf, wantmixfld_ );

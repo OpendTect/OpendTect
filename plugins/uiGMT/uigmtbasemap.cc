@@ -32,13 +32,13 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     xrgfld_ = new uiGenInput( this, tr("X range"),
 			      IntInpIntervalSpec(false) );
     xrgfld_->setElemSzPol( uiObject::Medium );
-    xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
+    xrgfld_->valueChanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     xrgfld_->attach( alignedBelow, titlefld_ );
 
     yrgfld_ = new uiGenInput( this, tr("Y range"),
 			      IntInpIntervalSpec(false) );
     yrgfld_->setElemSzPol( uiObject::Medium );
-    yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
+    yrgfld_->valueChanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
     resetbut_ = new uiPushButton( this, tr("Reset to Survey"),
@@ -46,17 +46,17 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     resetbut_->attach( rightTo, yrgfld_ );
 
     xdimfld_ = new uiGenInput( this, tr("Map Width (cm)"), FloatInpSpec() );
-    xdimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
+    xdimfld_->valueChanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
     xdimfld_->setElemSzPol( uiObject::Small );
     xdimfld_->attach( alignedBelow, yrgfld_ );
 
     ydimfld_ = new uiGenInput( this, tr("Height (cm)"), FloatInpSpec() );
-    ydimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
+    ydimfld_->valueChanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
     ydimfld_->setElemSzPol( uiObject::Small );
     ydimfld_->attach( rightTo, xdimfld_ );
 
     scalefld_ = new uiGenInput( this, tr("Scale  1 :"), IntInpSpec() );
-    scalefld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,scaleChg) );
+    scalefld_->valueChanged.notify( mCB(this,uiGMTBaseMapGrp,scaleChg) );
     scalefld_->setElemSzPol( uiObject::Medium );
     scalefld_->attach( rightTo, ydimfld_ );
 
@@ -159,8 +159,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 {
     Interval<float> xrg;
     Interval<float> yrg;
-    xrgfld_->valuechanged.disable();
-    yrgfld_->valuechanged.disable();
+    xrgfld_->valueChanged.disable();
+    yrgfld_->valueChanged.disable();
     Interval<int> xintv, yintv;
     if ( fromsurvey )
     {
@@ -182,8 +182,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 
     if ( mIsZero(yrg.width(),mDefEps) )
     {
-	xrgfld_->valuechanged.enable();
-	yrgfld_->valuechanged.enable();
+	xrgfld_->valueChanged.enable();
+	yrgfld_->valueChanged.enable();
 	uiMSG().error( tr("Y range is beyond permissible limits") );
 	return;
     }
@@ -193,8 +193,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     {
 	uiMSG().error( tr("Unreasonable aspect ratio",
 		          "Please check the X and Y ranges") );
-	xrgfld_->valuechanged.enable();
-	yrgfld_->valuechanged.enable();
+	xrgfld_->valueChanged.enable();
+	yrgfld_->valueChanged.enable();
 	return;
     }
 
@@ -205,8 +205,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     xdimfld_->setValue( xrg.width() * 100 / scaleval );
     ydimfld_->setValue( yrg.width() * 100 / scaleval );
     scalefld_->setValue( scaleval );
-    xrgfld_->valuechanged.enable();
-    yrgfld_->valuechanged.enable();
+    xrgfld_->valueChanged.enable();
+    yrgfld_->valueChanged.enable();
 }
 
 

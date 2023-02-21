@@ -88,7 +88,7 @@ void uiSteeringSel::createFields()
     if ( withconstdir_ ) steertyps.add ( "Constant direction" );
     typfld_ = new uiGenInput( this, uiStrings::sSteering(),
 			      StringListInpSpec(steertyps) );
-    typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
+    typfld_->valueChanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );
     inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );

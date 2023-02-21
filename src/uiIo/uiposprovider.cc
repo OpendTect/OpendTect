@@ -90,7 +90,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     if ( nms.size() > 1 )
     {
 	selfld_ = new uiGenInput( this, setup_.seltxt_, StringListInpSpec(nms));
-	mAttachCB( selfld_->valuechanged, uiPosProvider::selChg );
+	mAttachCB( selfld_->valueChanged, uiPosProvider::selChg );
 	attachobj = selfld_->attachObj();
     }
 

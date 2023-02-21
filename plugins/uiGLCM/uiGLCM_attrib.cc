@@ -130,13 +130,13 @@ uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
 
     attributefld_ = new uiGenInput( this, tr("GLCM Attribute"),
 				    StringListInpSpec(attribstr) );
-    attributefld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib,
+    attributefld_ ->valueChanged.notify( mCB( this, uiGLCM_attrib,
 					 GLCMattributeSel) );
     attributefld_ ->attach( alignedBelow, samprangefld_ );
 
     directfld_ = new uiGenInput( this, tr("Direction of Calculation"),
 				 StringListInpSpec(directionstr) );
-    directfld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib,
+    directfld_ ->valueChanged.notify( mCB( this, uiGLCM_attrib,
 				      GLCMdirectionSel) );
     directfld_ ->attach( alignedBelow, attributefld_ );
 

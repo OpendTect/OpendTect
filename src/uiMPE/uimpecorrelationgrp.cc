@@ -40,9 +40,9 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
 				  BoolInpSpec(true));
-    usecorrfld_->valuechanged.notify(
+    usecorrfld_->valueChanged.notify(
 	    mCB(this,uiCorrelationGroup,selUseCorrelation) );
-    usecorrfld_->valuechanged.notify(
+    usecorrfld_->valueChanged.notify(
 	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
     leftgrp->setHAlignObj( usecorrfld_ );
 
@@ -52,7 +52,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     uiString compwindtxt = tr("Compare window %1").arg(SI().getUiZUnitString());
     compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
     compwinfld_->attach( alignedBelow, usecorrfld_ );
-    compwinfld_->valuechanging.notify(
+    compwinfld_->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
     corrthresholdfld_ =
@@ -65,7 +65,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     uiString nostr = uiStrings::sEmptyString();
     snapfld_ = new uiGenInput( leftgrp, nostr,
 			BoolInpSpec(true,tr("Snap to Event"),nostr) );
-    snapfld_->valuechanged.notify(
+    snapfld_->valueChanged.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
     snapfld_->attach( rightTo, corrthresholdfld_ );
 
@@ -81,14 +81,14 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, corrthresholdfld_ );
     nrzfld_->attach( ensureBelow, sep );
-    nrzfld_->valuechanging.notify(
+    nrzfld_->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
     IntInpSpec tiis;
     tiis.setLimits( StepInterval<int>(3,99,2) );
     nrtrcsfld_ = new uiGenInput( leftgrp, tr("Nr Traces"), tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
-    nrtrcsfld_->valuechanging.notify(
+    nrtrcsfld_->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
     previewgrp_ = new uiPreviewGroup( this );
@@ -155,7 +155,7 @@ void uiCorrelationGroup::setSectionTracker( SectionTracker* st )
 
 void uiCorrelationGroup::init()
 {
-    NotifyStopper ns1( usecorrfld_->valuechanged );
+    NotifyStopper ns1( usecorrfld_->valueChanged );
     usecorrfld_->setValue( !adjuster_->trackByValue() );
 
     const Interval<int> corrintv(
@@ -164,7 +164,7 @@ void uiCorrelationGroup::init()
 		mCast(int,adjuster_->similarityWindow().stop *
 			  SI().zDomain().userFactor()) );
 
-    NotifyStopper ns2( compwinfld_->valuechanging );
+    NotifyStopper ns2( compwinfld_->valueChanging );
     compwinfld_->setValue( corrintv );
 
     NotifyStopper ns3( corrthresholdfld_->box()->valueChanging );

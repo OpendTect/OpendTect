@@ -371,13 +371,13 @@ uiWellTrackReadDlg( uiParent* p, Well::Data& wd )
 	   .add( tr("Directional Well") );
     tracksrcfld_ = new uiGenInput( this, tr("Input type"),
 				StringListInpSpec(options) );
-    tracksrcfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,trckSrcSel));
+    tracksrcfld_->valueChanged.notify( mCB(this,uiWellTrackReadDlg,trckSrcSel));
 
     wtinfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
 		   uiFileInput::Setup().withexamine(true) );
     wtinfld_->attach( alignedBelow, tracksrcfld_ );
-    wtinfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
+    wtinfld_->valueChanged.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				mODHelpKey(mWellImportAscDataSelHelpID) );
@@ -2366,7 +2366,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 	tables_ += table;
     }
 
-    mAttachCB( bulkmode_->valuechanged, uiWellDefMnemLogDlg::changeModeCB );
+    mAttachCB( bulkmode_->valueChanged, uiWellDefMnemLogDlg::changeModeCB );
     mAttachCB( welllist_->selectionChanged,
 	       uiWellDefMnemLogDlg::wellChangedCB );
     mAttachCB( postFinalize(), uiWellDefMnemLogDlg::initDlg );

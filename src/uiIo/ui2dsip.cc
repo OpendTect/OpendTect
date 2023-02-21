@@ -228,7 +228,7 @@ uiNavReadDlg( uiParent* p )
     setModal( true );
     setOkCancelText( uiStrings::sContinue(), uiStrings::sCancel() );
 
-    singlemultifld_->valuechanged.notify( mCB(this,uiNavReadDlg,singmultCB2) );
+    singlemultifld_->valueChanged.notify( mCB(this,uiNavReadDlg,singmultCB2) );
     linefld_->display( false );
 
     crssel_ = new Coords::uiCoordSystemSel( this );

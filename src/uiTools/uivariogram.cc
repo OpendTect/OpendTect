@@ -173,13 +173,13 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 
     typefld_ = new uiGenInput( this, tr("Variogram model"),
 			     StringListInpSpec(typestrs) );
-    typefld_->valuechanged.notify( chgCBfld );
+    typefld_->valueChanged.notify( chgCBfld );
     typefld_->attach( alignedBelow, rangefld_ );
 
     uiString lblnmstr = ishor ? tr("Direction:") : tr("Source:");
     labelfld_ = new uiGenInput( this, lblnmstr,
 				StringListInpSpec(*labels) );
-    labelfld_->valuechanged.notify( chgCBlbl );
+    labelfld_->valueChanged.notify( chgCBlbl );
     labelfld_->attach( rightAlignedAbove, disp_ );
 }
 

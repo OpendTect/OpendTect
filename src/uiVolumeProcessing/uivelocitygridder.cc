@@ -62,7 +62,7 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelocityGridder* ro,
     namenotset_ = namefld_->isUndef();
     if ( namenotset_ )
     {
-	namefld_->valuechanged.notify(
+	namefld_->valueChanged.notify(
 		mCB(this,uiVelocityGridder,nameChangeCB) );
     }
 }
@@ -82,7 +82,7 @@ void uiVelocityGridder::sourceChangeCB( CallBacker* )
 {
     if ( namenotset_ && velfuncsel_->getVelSources().size()==1 )
     {
-	NotifyStopper ns( namefld_->valuechanged );
+	NotifyStopper ns( namefld_->valueChanged );
 	namefld_->setText( velfuncsel_->getVelSources()[0]->userName() );
     }
 }

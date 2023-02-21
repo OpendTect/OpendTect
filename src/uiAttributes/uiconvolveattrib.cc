@@ -70,7 +70,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
     kernelfld_ = new uiGenInput( this, tr("Filter type"),
                                 StringListInpSpec( kerstrs ) );
     kernelfld_->attach( alignedBelow, inpfld_ );
-    kernelfld_->valuechanged.notify( mCB(this,uiConvolveAttrib,kernelSel) );
+    kernelfld_->valueChanged.notify( mCB(this,uiConvolveAttrib,kernelSel) );
 
     szfld_ = new uiLabeledSpinBox( this, tr("Filter size") );
     szfld_->box()->setMinValue( cMinVal );

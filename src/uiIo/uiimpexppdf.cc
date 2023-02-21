@@ -49,7 +49,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImpRokDocPDF,selChg) );
+    inpfld_->valueChanged.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
     varnmsfld_ = new uiGenInput( this, tr("Output variable names"),
 				 StringInpSpec(), StringInpSpec() );

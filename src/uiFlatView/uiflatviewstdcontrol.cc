@@ -76,7 +76,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 	unitflds_->attach( ensureBelow, sep );
     }
 
-    mAttachCB( unitflds_->valuechanged, uiFlatViewZoomLevelDlg::unitChgCB );
+    mAttachCB( unitflds_->valueChanged, uiFlatViewZoomLevelDlg::unitChgCB );
 
     x1fld_ = new uiGenInput( this, getFieldLabel(true,usesi), FloatInpSpec() );
     x1fld_->attach( alignedBelow, unitflds_ );

@@ -162,20 +162,20 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
     inlmodefld_ = new uiGenInput( this, uiStrings::sInline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
 				  tr("Individual line(s)")) );
-    inlmodefld_->valuechanged.notify( modecb );
+    inlmodefld_->valueChanged.notify( modecb );
 
     inlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, true );
     inlrgfld_->rangeChanged.notify( parscb );
     inlrgfld_->attach( alignedBelow, inlmodefld_ );
 
     inlsfld_ = new uiGenInput( this, tr("In-lines (comma separated)") );
-    inlsfld_->valuechanged.notify( parscb );
+    inlsfld_->valueChanged.notify( parscb );
     inlsfld_->attach( alignedBelow, inlmodefld_ );
 
     crlmodefld_ = new uiGenInput( this, uiStrings::sCrossline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
 				  tr("Individual line(s)")) );
-    crlmodefld_->valuechanged.notify( modecb );
+    crlmodefld_->valueChanged.notify( modecb );
     crlmodefld_->attach( alignedBelow, inlrgfld_ );
 
     crlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Crl, true );
@@ -183,7 +183,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
     crlrgfld_->attach( alignedBelow, crlmodefld_ );
 
     crlsfld_ = new uiGenInput( this, tr("Cross-lines (comma separated)") );
-    crlsfld_->valuechanged.notify( parscb );
+    crlsfld_->valueChanged.notify( parscb );
     crlsfld_->attach( alignedBelow, crlmodefld_ );
 
     inlprefixfld_->attach( alignedBelow, crlsfld_ );
@@ -347,7 +347,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     const StepInterval<int> spacinglimits( 500, 1000000, 500 );
     pardistfld_ = new uiGenInput( this, parlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
-    pardistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
+    pardistfld_->valueChanged.notify( mCB(this,ui2DGridLinesFromRandLine,
 					  paramsChgCB) );
     if ( !rdl || rdl->nrNodes() != 2 )
     {
@@ -362,7 +362,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 	    tr("Perpendicular line spacing %1").arg(SI().getUiXYUnitString()) );
     perdistfld_ = new uiGenInput( this, perlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
-    perdistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
+    perdistfld_->valueChanged.notify( mCB(this,ui2DGridLinesFromRandLine,
 					  paramsChgCB) );
     perdistfld_->attach( alignedBelow, pardistfld_ );
 
@@ -541,7 +541,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 	sourceselfld_ = new uiGenInput( grp, uiStrings::phrCreate(
 				  tr("Grid from")), BoolInpSpec(true,
 				  tr("Inl/Crl"),uiStrings::sRandomLine()) );
-	sourceselfld_->valuechanged.notify( mCB(this,uiCreate2DGrid,srcSelCB) );
+	sourceselfld_->valueChanged.notify( mCB(this,uiCreate2DGrid,srcSelCB) );
 	sourceselfld_->attach( alignedBelow, bboxfld_ );
 	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, tkzs_.hsamp_ );
 	inlcrlgridgrp_->gridChanged.notify(

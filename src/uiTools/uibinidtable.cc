@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitable.h"
 #include "uimsg.h"
-#include "position.h"
 #include "ranges.h"
 #include "survinfo.h"
 

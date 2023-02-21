@@ -42,7 +42,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
-    mAttachCB( inpfld_->valuechanged, uiSeisWvltImp::inputChgd );
+    mAttachCB( inpfld_->valueChanged, uiSeisWvltImp::inputChgd );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );

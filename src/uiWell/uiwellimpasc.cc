@@ -61,10 +61,10 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	   .add( tr("Vertical Well") );
     tracksrcfld_ = new uiGenInput( this, tr("Input type"),
 				StringListInpSpec(options) );
-    tracksrcfld_->valuechanged.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
+    tracksrcfld_->valueChanged.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
     trckinpfld_ = new uiASCIIFileInput( this, tr("Well Track file"), true );
-    trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
+    trckinpfld_->valueChanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( alignedBelow, tracksrcfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,

@@ -42,7 +42,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
-    mAttachCB( inpfld_->valuechanged, uiImpPVDS::inputChgd );
+    mAttachCB( inpfld_->valueChanged, uiImpPVDS::inputChgd );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );

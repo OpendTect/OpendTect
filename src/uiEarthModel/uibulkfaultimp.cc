@@ -177,7 +177,7 @@ void uiBulkFaultImport::init()
 				uiStrings::phrOutput(uiStrings::sFaultSet()) );
 	fltsetnmfld_->attach( alignedBelow, dataselfld_ );
 
-	mAttachCB( inpfld_->valuechanged, uiBulkFaultImport::inpChangedCB );
+	mAttachCB( inpfld_->valueChanged, uiBulkFaultImport::inpChangedCB );
     }
 }
 

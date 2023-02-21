@@ -138,7 +138,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
     basedirfld_->setStretch( 2, 0 );
-    mAttachCB( basedirfld_->valuechanged, uiSetDataDir::rootCheckCB );
+    mAttachCB( basedirfld_->valueChanged, uiSetDataDir::rootCheckCB );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
     dirlistfld_ = new uiListBox( this, su );

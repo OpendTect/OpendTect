@@ -583,7 +583,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     lbltxt = tr("Contour Range").addSpace();
     mAddZUnitStr(lbltxt);
     intvfld_ = new uiGenInput(this,lbltxt,FloatInpIntervalSpec(contourintv_));
-    mAttachCB( intvfld_->valuechanged, uiContourParsDlg::intvChanged );
+    mAttachCB( intvfld_->valueChanged, uiContourParsDlg::intvChanged );
     intvfld_->attach( leftAlignedBelow, lbl );
 
     uiSelLineStyle::Setup lssu; lssu.drawstyle(false);

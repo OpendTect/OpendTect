@@ -51,7 +51,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     gathertypefld_ = new uiGenInput( this, tr("Gather type"),
 			StringListInpSpec(PSAttrib::GatherTypeNames()) );
     gathertypefld_->attach( alignedBelow, prestackinpfld_ );
-    gathertypefld_->valuechanged.notify(
+    gathertypefld_->valueChanged.notify(
 				 mCB(this,uiPreStackAttrib,gatherTypSel) );
 
     xrgfld_ = new uiGenInput( this, tr("Offset range (empty=all) "),
@@ -60,7 +60,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"),
 				       BoolInpSpec(false) );
     dopreprocessfld_->attach( alignedBelow, xrgfld_ );
-    dopreprocessfld_->valuechanged.notify(
+    dopreprocessfld_->valueChanged.notify(
 	    mCB(this,uiPreStackAttrib,doPreProcSel) );
     preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), 0 );
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
@@ -68,7 +68,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
 		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
     calctypefld_->attach( alignedBelow, preprocsel_ );
-    calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
+    calctypefld_->valueChanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
     BufferStringSet stattypenames; getStatTypeNames(stattypenames);
     stattypefld_ = new uiGenInput( this, tr("Statistics type"),
@@ -90,7 +90,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xunitfld_ = new uiGenInput( this, uiString::emptyString(),
 				StringListInpSpec(PSAttrib::XaxisUnitNames()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
-    xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
+    xunitfld_->valueChanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
 
     xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())

@@ -421,7 +421,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	othercrsfld_ = new uiGenInput( this, tr("Export to other CRS"),
 				       BoolInpSpec(false) );
 	othercrsfld_->attach( alignedBelow, transffld_ );
-	mAttachCB( othercrsfld_->valuechanged, uiSEGYExp::crsCB );
+	mAttachCB( othercrsfld_->valueChanged, uiSEGYExp::crsCB );
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
 	mAttachCB( coordsysselfld_->changed, uiSEGYExp::updateTextHdrCB );
 	coordsysselfld_->attach( alignedBelow, othercrsfld_ );

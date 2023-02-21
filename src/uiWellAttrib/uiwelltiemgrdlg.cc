@@ -84,7 +84,7 @@ WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
 	typefld_ = new uiGenInput( seisgrp, tr("Seismic"),
 				   StringListInpSpec( seistypes ) );
 	typefld_->setValue( true );
-	mAttachCB( typefld_->valuechanged, uiTieWinMGRDlg::typeSelChg );
+	mAttachCB( typefld_->valueChanged, uiTieWinMGRDlg::typeSelChg );
     }
 
     if ( has2d )

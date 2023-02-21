@@ -502,7 +502,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     nmfld_->setDefaultTextValidator();
     nmfld_->setElemSzPol( uiObject::SmallMax );
     nmfld_->setStretch( 2, 0 );
-    mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );
+    mAttachCB( nmfld_->valueChanged, uiIOObjSelGrp::newOutputNameCB );
     if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
 	nmfld_->attach( alignedBelow, wrtrselfld_ );
 

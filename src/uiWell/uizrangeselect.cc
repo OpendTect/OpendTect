@@ -23,7 +23,7 @@ uiZRangeSelect::uiZRangeSelect( uiParent* p, const uiString& lbl, bool zintwt )
 {
     BufferStringSet zchoices = getZChoiceStrings();
     zchoicefld_ = new uiGenInput( this, lbl, StringListInpSpec(zchoices) );
-    mAttachCB(zchoicefld_->valuechanged, uiZRangeSelect::updateDisplayCB);
+    mAttachCB(zchoicefld_->valueChanged, uiZRangeSelect::updateDisplayCB);
     setHAlignObj( zchoicefld_ );
 
     markersel_ = new uiWellMarkerSel( this, uiWellMarkerSel::Setup(false) );

@@ -207,7 +207,7 @@ void uiGatherPosSliceSel::reDoTable()
 	    inpfld->setValue( issynthetic_ ? modelnr : gatherpos );
 	    inpfld->checked.notify(mCB(this,uiGatherPosSliceSel,
                                        gatherChecked));
-	    inpfld->valuechanging.notify(
+	    inpfld->valueChanging.notify(
 		    mCB(this,uiGatherPosSliceSel,gatherPosChanged));
 	    inpfld->preFinalize().trigger();
 	    posseltbl_->setCellGroup( rc, inpfld );

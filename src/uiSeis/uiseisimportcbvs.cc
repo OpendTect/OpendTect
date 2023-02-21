@@ -49,7 +49,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
     inpfld_ = new uiFileInput( this, tr("(First) CBVS file name"), fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,inpSel) );
+    inpfld_->valueChanged.notify( mCB(this,uiSeisImportCBVS,inpSel) );
 
     StringListInpSpec spec;
     spec.addString( uiStrings::phrInput(uiStrings::phrData(tr("Cube"))) );
@@ -57,13 +57,13 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     spec.addString( tr("SteeringCube") );
     typefld_ = new uiGenInput( this, tr("Cube type"), spec );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
+    typefld_->valueChanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
 
     modefld_ = new uiGenInput( this, tr("Import mode"),
 			       BoolInpSpec( false, tr("Copy the data"),
 						   tr("Use in-place") ) );
     modefld_->attach( alignedBelow, typefld_ );
-    modefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,modeSel) );
+    modefld_->valueChanged.notify( mCB(this,uiSeisImportCBVS,modeSel) );
 
     uiSeisTransfer::Setup sts( Seis::Vol );
     sts.withnullfill(false).withstep(true).onlyrange(false)

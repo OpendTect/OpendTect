@@ -127,7 +127,7 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
     useallfld_ = new uiGenInput( this, tr("Components to use:"),
 				 BoolInpSpec( true, uiStrings::sAll(),
                                  tr("Subselection") ) );
-    useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
+    useallfld_->valueChanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available components"),
 			 uiListBox::AboveMid );

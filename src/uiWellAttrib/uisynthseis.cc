@@ -518,7 +518,7 @@ uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
     angleinpfld_ = new uiGenInput( topgrp, tr("Angle range"), finpspec );
     angleinpfld_->setValue( angsgp.anglerg_ );
     angleinpfld_->attach( alignedBelow, psselfld_ );
-    mAttachCB( angleinpfld_->valuechanged, uiFullSynthSeisSel::parsChangedCB );
+    mAttachCB( angleinpfld_->valueChanged, uiFullSynthSeisSel::parsChangedCB );
 
     EnumDef attribs = Attrib::Instantaneous::OutTypeDef();
     attribs.remove( attribs.getKeyForIndex(Attrib::Instantaneous::RotatePhase));
@@ -534,8 +534,8 @@ uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
     namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( ensureBelow, topgrp );
     namefld_->attach( alignedBelow, topgrp->attachObj() );
-    mAttachCB( namefld_->valuechanging, uiFullSynthSeisSel::nameChangedCB );
-    mAttachCB( namefld_->valuechanged, uiFullSynthSeisSel::nameChangedCB );
+    mAttachCB( namefld_->valueChanging, uiFullSynthSeisSel::nameChangedCB );
+    mAttachCB( namefld_->valueChanged, uiFullSynthSeisSel::nameChangedCB );
 }
 
 
@@ -696,7 +696,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 				 psbox->size() > 1 );
 	}
 
-	NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
+	NotifyStopper angparschgstopper( angleinpfld_->valueChanged );
 	angleinpfld_->setValue( genparams.anglerg_ );
     }
     else if ( genparams.isAttribute() )

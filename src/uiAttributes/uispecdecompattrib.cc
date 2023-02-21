@@ -58,7 +58,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     typefld_ = new uiGenInput( this, tr("Transform type"),
 			      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
+    typefld_->valueChanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 			      DoubleInpIntervalSpec().setName("Z start",0)

@@ -114,7 +114,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 		BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
 			 uiStrings::sConstant(), fromhorattribstr ) );
 	usestartvalfld_->setSensitive( hasauxdata );
-	usestartvalfld_->valuechanged.notify(
+	usestartvalfld_->valueChanged.notify(
 		mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
 	usestartvalfld_->attach( ensureBelow, table_ );
 	startvalfld_->attach( alignedBelow, usestartvalfld_ );
@@ -134,7 +134,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 		BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
 			 uiStrings::sConstant(), gradientsurfdatalabel ) );
 	usegradientfld_->setSensitive( hasauxdata );
-	usegradientfld_->valuechanged.notify(
+	usegradientfld_->valueChanged.notify(
 		mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
 	usegradientfld_->attach( alignedBelow, startvalfld_ );
 	gradientfld_->attach( alignedBelow, usegradientfld_ );
@@ -158,7 +158,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     userefdepthfld_ = new uiGenInput( this, labl,
 	    BoolInpSpec(surfacefiller_->usesRefZValue(),uiStrings::sConstant(),
 	    uiStrings::sHorizon()));
-    userefdepthfld_->valuechanged.notify(
+    userefdepthfld_->valueChanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
     userefdepthfld_->attach( alignedBelow, gradientfld_ );
 

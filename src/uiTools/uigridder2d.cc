@@ -42,7 +42,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 
     griddingsel_ = new uiGenInput( this, tr("Algorithm"),
 	    			   StringListInpSpec( gridderusernames ) );
-    griddingsel_->valuechanged.notify( mCB(this,uiGridder2DSel,selChangeCB) );
+    griddingsel_->valueChanged.notify( mCB(this,uiGridder2DSel,selChangeCB) );
 
     for ( int idx=0; idx<griddernames.size(); idx++ )
     {
@@ -72,7 +72,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 
 uiGridder2DSel::~uiGridder2DSel()
 {
-    griddingsel_->valuechanged.remove( mCB(this,uiGridder2DSel,selChangeCB) );
+    griddingsel_->valueChanged.remove( mCB(this,uiGridder2DSel,selChangeCB) );
     deepErase( gridders_ );
 }
 

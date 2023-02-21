@@ -74,7 +74,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 	}
     }
 
-    algosel_->valuechanged.notify( mCB(this,uiWellLogInterpolator,algoChg) );
+    algosel_->valueChanged.notify( mCB(this,uiWellLogInterpolator,algoChg) );
     addNameFld( radiusfld_ );
 
     postFinalize().notify( mCB(this,uiWellLogInterpolator,finalizeCB) );

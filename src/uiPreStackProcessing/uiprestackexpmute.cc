@@ -40,7 +40,7 @@ uiExportMute::uiExportMute( uiParent* p )
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
-    coordfld_->valuechanged.notify( mCB(this,uiExportMute,coordTypChngCB) );
+    coordfld_->valueChanged.notify( mCB(this,uiExportMute,coordTypChngCB) );
 
     uiObject* attachobj = coordfld_->attachObj();
     if ( SI().hasProjection() )

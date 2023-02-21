@@ -62,7 +62,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
 	flds->doclipfld_ = new uiGenInput( this, tr("Use clipping"),
 				BoolInpSpec(asp.doautoscale_) );
-	flds->doclipfld_->valuechanged.notify(
+	flds->doclipfld_->valueChanged.notify(
 				mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->percclipfld_ = new uiGenInput( this, tr("Clipping percentage"),
 				FloatInpSpec(asp.clipratio_*100) );
@@ -300,7 +300,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     inpfld_ = new uiGenInput( this, tr("Equation Y1=") );
     inpfld_->setElemSzPol( uiObject::Wide );
     inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB) );
-    inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
+    inpfld_->valueChanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
 
     rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(),sErrors()) );
     rmsfld_->setElemSzPol( uiObject::Wide );
@@ -323,7 +323,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	inpfld1_ = new uiGenInput( this, tr("Equation Y2=") );
 	inpfld1_->setElemSzPol( uiObject::Wide );
 	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB));
-	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
+	inpfld1_->valueChanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );
 
 	rmsfld1_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
@@ -360,7 +360,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 				uiStrings::sDraw(),tr("Y1")),
 				mJoinUiStrs(sDraw(), sY2())) );
 	selaxisfld_->attach( rightTo, drawlinebut_ );
-	selaxisfld_->valuechanged.notify(
+	selaxisfld_->valueChanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
 	selaxisfld_->display( false );
     }
@@ -891,7 +891,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     nrbinsxfld_ = new uiGenInput( this, tr("Nr bins X-axis"),
 		IntInpSpec(plotter_.nrBins().first(),1) );
     nrbinsxfld_->attach( alignedBelow, minptinpfld_ );
-    mAttachCB( nrbinsxfld_->valuechanging, uiDPSDensPlotSetTab::nrXBinsChgd );
+    mAttachCB( nrbinsxfld_->valueChanging, uiDPSDensPlotSetTab::nrXBinsChgd );
 
     dxfld_ = new uiGenInput( this, tr("Delta X") );
     dxfld_->attach( rightTo, nrbinsxfld_ );
@@ -899,7 +899,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     nrbinsyfld_ = new uiGenInput( this, tr("Nr bins Y-axis"),
 		IntInpSpec(plotter_.nrBins().second(),1) );
     nrbinsyfld_->attach( alignedBelow, nrbinsxfld_ );
-    mAttachCB( nrbinsyfld_->valuechanging, uiDPSDensPlotSetTab::nrYBinsChgd );
+    mAttachCB( nrbinsyfld_->valueChanging, uiDPSDensPlotSetTab::nrYBinsChgd );
 
     dyfld_ = new uiGenInput( this, tr("Delta Y") );
     dyfld_->attach( rightTo, nrbinsyfld_ );

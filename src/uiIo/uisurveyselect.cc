@@ -73,7 +73,7 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
 		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
 		.directories(true) );
     setDataRoot( dataroot ? dataroot : sdl.basePath().buf() );
-    mAttachCB( datarootfld_->valuechanged, uiSurveySelectDlg::rootSelCB );
+    mAttachCB( datarootfld_->valueChanged, uiSurveySelectDlg::rootSelCB );
 
     auto* sep = new uiSeparator( this, "Survey list" );
     sep->attach( stretchedBelow, datarootfld_ );

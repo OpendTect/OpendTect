@@ -87,7 +87,7 @@ void uiSeis2DTo3D::mkParamsGrp()
     interpoltypefld_ = new uiGenInput( this, tr("Type of interpolation"),
 			BoolInpSpec(true,tr("Nearest trace"),tr("FFT based")) );
     interpoltypefld_->attach( alignedBelow, inpfld_ );
-    interpoltypefld_->valuechanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
+    interpoltypefld_->valueChanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
 
     winfld_ = new uiGenInput( this,tr("Interpolation window (Inl/Crl)"),
 							IntInpIntervalSpec() );

@@ -72,12 +72,12 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
 
     uiString ztag = tr("Value range ");
     rgfld_ = new uiGenInput( this, ztag, FloatInpIntervalSpec(true) );
-    rgfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
+    rgfld_->valueChanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     rgfld_->attach( alignedBelow, lcb );
 
     nrcontourfld_ = new uiGenInput( this, tr("Number of contours"),
 				    IntInpSpec() );
-    nrcontourfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
+    nrcontourfld_->valueChanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     nrcontourfld_->attach( alignedBelow, rgfld_ );
 
     resetbut_ = new uiPushButton( this, tr("Reset range"),
@@ -208,7 +208,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
     mDynamicCastGet(uiGenInput*,fld,cb)
     StepInterval<float> datarg = rgfld_->getFStepInterval();
-    rgfld_->valuechanged.disable();
+    rgfld_->valueChanged.disable();
     if ( fld == rgfld_ )
     {
 	int nrcontours = datarg.nrSteps() + 1;
@@ -221,7 +221,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
 	    datarg.step = ( datarg.stop - datarg.start ) / ( nrcontours - 1 );
 	    rgfld_->setValue( datarg );
-	    rgfld_->valuechanged.enable();
+	    rgfld_->valueChanged.enable();
 	    return;
 	}
 
@@ -238,7 +238,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
 	    nrcontours = datarg.nrSteps() + 1;
 	    nrcontourfld_->setValue( nrcontours );
-	    rgfld_->valuechanged.enable();
+	    rgfld_->valueChanged.enable();
 	    return;
 	}
 
@@ -246,7 +246,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	rgfld_->setValue( datarg );
     }
 
-    rgfld_->valuechanged.enable();
+    rgfld_->valueChanged.enable();
     if ( !valrg_.isUdf() )
 	resetbut_->setSensitive( true );
 }

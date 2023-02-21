@@ -65,7 +65,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     CallBack cb( mCB(this,uiWellZRangeSelector,getFromScreen) );
     zchoicefld_ = new uiGenInput( this, toUiString(s.txtofmainfld_),
 					StringListInpSpec(zchoiceset) );
-    zchoicefld_->valuechanged.notify( cb );
+    zchoicefld_->valueChanged.notify( cb );
     setHAlignObj( zchoicefld_ );
 
     uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
@@ -91,7 +91,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    newgeninp = new uiGenInput(this,msg,FloatInpIntervalSpec());
 	    zselectionflds_ += newgeninp;
 	    newgeninp->setElemSzPol( uiObject::Medium );
-	    newgeninp->valuechanged.notify( cb );
+	    newgeninp->valueChanged.notify( cb );
 
 	    Well::ZRangeSelector::ZSelection zsel;
 	    Well::ZRangeSelector::parseEnum( zchoiceset.get(idx), zsel );
@@ -112,14 +112,14 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0).setName("above") );
     abovefld_->setElemSzPol( uiObject::Medium );
-    abovefld_->valuechanged.notify( cb );
+    abovefld_->valueChanged.notify( cb );
     abovefld_->attach( alignedBelow, zselectionflds_[0] );
 
     belowfld_ = new uiGenInput( this, uiString::emptyString(),
 				FloatInpSpec(0).setName("below") );
     belowfld_->setElemSzPol( uiObject::Medium );
     belowfld_->attach( rightOf, abovefld_ );
-    belowfld_->valuechanged.notify( cb );
+    belowfld_->valueChanged.notify( cb );
 
     postFinalize().notify( mCB(this,uiWellZRangeSelector,onFinalize) );
 }
@@ -288,8 +288,8 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 	    timestepfld_->attach( rightOf, zchoicefld_ );
 	}
 
-	depthstepfld_->valuechanged.notify( cb );
-	timestepfld_->valuechanged.notify( cb );
+	depthstepfld_->valueChanged.notify( cb );
+	timestepfld_->valueChanged.notify( cb );
     }
 
     if ( s.withsampling_ )
@@ -297,7 +297,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 	sampfld_ = new uiGenInput( this, tr("Log resampling method"),
 				StringListInpSpec(Stats::UpscaleTypeNames()) );
 	sampfld_->setValue( Stats::UseAvg );
-	sampfld_->valuechanged.notify( cb );
+	sampfld_->valueChanged.notify( cb );
 	sampfld_->attach( alignedBelow, abovefld_ );
     }
 }

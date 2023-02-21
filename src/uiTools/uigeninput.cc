@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include "datainpspec.h"
 #include "filepath.h"
-#include "settings.h"
-#include "survinfo.h"
 #include "undefval.h"
 
 
@@ -591,6 +589,8 @@ void uiIntIntervalInpFld::setValue( int val, int idx )
 }
 
 
+mStartAllowDeprecatedSection
+
 void uiIntIntervalInpFld::valChgCB( CallBacker* cb )
 {
     if ( symm_ && symm_->isChecked() )
@@ -604,6 +604,8 @@ void uiIntIntervalInpFld::valChgCB( CallBacker* cb )
     p_->valueChanging.trigger( cb );
     p_->valuechanging.trigger( cb );
 }
+
+mStopAllowDeprecatedSection
 
 
 void uiIntIntervalInpFld::symmCB( CallBacker* )
@@ -809,6 +811,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
 
 // uiGenInput
+mStartAllowDeprecatedSection
 
 uiGenInput::uiGenInput( const uiString& disptxt, uiParent* p )
     : uiGroup(p,mFromUiStringTodo(disptxt))
@@ -881,6 +884,8 @@ uiGenInput::~uiGenInput()
     delete &idxes_;
     delete textvl_;
 }
+
+mStopAllowDeprecatedSection
 
 
 void uiGenInput::addInput( const DataInpSpec& inp )

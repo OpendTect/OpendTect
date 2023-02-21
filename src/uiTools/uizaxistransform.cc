@@ -107,7 +107,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     {
 	selfld_ = new uiGenInput( this, tr("Z transform"),
 		StringListInpSpec(names) );
-	selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
+	selfld_->valueChanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
 
 	setHAlignObj( selfld_ );
 
@@ -148,7 +148,7 @@ void uiZAxisTransformSel::setLabel(const uiString& lbl )
 
 NotifierAccess* uiZAxisTransformSel::selectionDone()
 {
-    return &selfld_->valuechanged;
+    return &selfld_->valueChanged;
 }
 
 

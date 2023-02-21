@@ -42,7 +42,7 @@ uiImportMute::uiImportMute( uiParent* p )
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
 					 BoolInpSpec(true) );
     inpfilehaveposfld_->attach( alignedBelow, inpfld_ );
-    inpfilehaveposfld_->valuechanged.notify(
+    inpfilehaveposfld_->valueChanged.notify(
 				mCB(this,uiImportMute,changePrefPosInfo) );
 
     inlcrlfld_ = new uiGenInput( this, tr("Inl/Crl"),

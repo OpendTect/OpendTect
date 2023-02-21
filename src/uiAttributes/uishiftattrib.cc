@@ -44,7 +44,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 
     dosteerfld_ = new uiGenInput( this, tr("Use steering"), BoolInpSpec(true) );
     dosteerfld_->attach( alignedBelow, stepoutfld_ );
-    dosteerfld_->valuechanged.notify( mCB(this,uiShiftAttrib,steerSel) );
+    dosteerfld_->valueChanged.notify( mCB(this,uiShiftAttrib,steerSel) );
     dosteerfld_->setElemSzPol( uiObject::SmallVar );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d );

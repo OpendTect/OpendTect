@@ -63,7 +63,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 
     shapefld_ = new uiGenInput( this, tr("Shape"), 
                                 StringListInpSpec(shapestrs) );
-    shapefld_->valuechanged.notify(
+    shapefld_->valueChanged.notify(
 			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));
     shapefld_->attach( alignedBelow, gatefld_ );
     shapefld_->display( !is2d_ );

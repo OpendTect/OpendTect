@@ -71,7 +71,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     if ( defdir.isEmpty() ) defdir = GetDataDir();
     fnmfld_->setDefaultSelectionDir( defdir );
     if ( !forread_ ) fnmfld_->setDefaultExtension( "sgy" );
-    fnmfld_->valuechanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
+    fnmfld_->valueChanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
     if ( forread_ )
     {
 	manipbut_ = new uiPushButton( this, tr("Manipulate"),
@@ -821,14 +821,14 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    havecoordsinhdrfld_ = new uiGenInput( grp,
 		    tr("Header contains coordinates"), BoolInpSpec(true) );
 	    havecoordsinhdrfld_->attach( alignedBelow, trnrdeffld_ );
-	    havecoordsinhdrfld_->valuechanged.notify(
+	    havecoordsinhdrfld_->valueChanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
 	    xcoorddeffld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_ = new uiGenInput( grp, tr("Coordinate source"),
 			     BoolInpSpec(false,tr("'Nr X Y' file"),
 					 uiStrings::sGenerate()) );
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
-	    readcoordsfld_->valuechanged.notify(
+	    readcoordsfld_->valueChanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
 	    coordsfnmfld_ = new uiFileInput( grp, uiStrings::sName(),
 			uiFileInput::Setup(uiFileDialog::Gen)
@@ -938,7 +938,7 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
     {
 	psposfld_ = new uiGenInput( grp, tr("Offsets/azimuths"),
 				    StringListInpSpec(choices) );
-	psposfld_->valuechanged.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
+	psposfld_->valueChanged.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
     }
 
     mMkDefFld( grp, offs, Offs, true, false, true );

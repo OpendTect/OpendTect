@@ -73,7 +73,7 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
 			       BoolInpSpec(true,tr("As new"),
                                uiStrings::sOverwrite()) );
 
-    savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
+    savefld_->valueChanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     if ( withsubsel )
 	savefld_->attach( alignedBelow, rgfld_ );

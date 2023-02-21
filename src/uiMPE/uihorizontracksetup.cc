@@ -338,7 +338,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     sep->attach( stretchedBelow, modeselgrp_ );
     uiStringSet strs; strs.add( tr("Seed Trace") ).add( tr("Adjacent Parent") );
     methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
-    methodfld_->valuechanged.notify(
+    methodfld_->valueChanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
@@ -348,7 +348,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 	failfld_ = new uiGenInput( grp, tr("If tracking fails"),
 			BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()));
 	failfld_->attach( alignedBelow, methodfld_ );
-	failfld_->valuechanged.notify(
+	failfld_->valueChanged.notify(
 		mCB(this,uiHorizonSetupGroup,seedModeChange) );
     }
     else
@@ -363,9 +363,9 @@ uiGroup* uiHorizonSetupGroup::createVarianceGroup()
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Variance" );
 
     usevarfld_ = new uiGenInput( grp, tr("Use Variance"), BoolInpSpec(false) );
-    usevarfld_->valuechanged.notify(
+    usevarfld_->valueChanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selUseVariance) );
-    usevarfld_->valuechanged.notify(
+    usevarfld_->valueChanged.notify(
 	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
 
     const IOObjContext ctxt =
@@ -377,7 +377,7 @@ uiGroup* uiHorizonSetupGroup::createVarianceGroup()
     varthresholdfld_ =
 	new uiGenInput( grp, tr("Variance threshold"), FloatInpSpec() );
     varthresholdfld_->attach( alignedBelow, variancefld_ );
-    varthresholdfld_->valuechanged.notify(
+    varthresholdfld_->valueChanged.notify(
 	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
 
     grp->setHAlignObj( usevarfld_ );
@@ -407,7 +407,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedtypenames.removeSingle( 0 ); // Remove 'None'
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
 			StringListInpSpec(seedtypenames) );
-    seedtypefld_->valuechanged.notify(
+    seedtypefld_->valueChanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
 

@@ -54,7 +54,7 @@ uiGISExportWells::uiGISExportWells( uiParent* p, const MultiID& mid )
     putnmfld_ = new uiGenInput( this, tr("Annotate position"),
 				 StringListInpSpec(choices) );
     putnmfld_->setValue( 2 );
-    mAttachCB(putnmfld_->valuechanged,uiGISExportWells::putSel);
+    mAttachCB(putnmfld_->valueChanged,uiGISExportWells::putSel);
     putnmfld_->attach( alignedBelow, colinput_ );
 
     const uiString label = ismultisel_ ?

@@ -60,7 +60,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
 
     rangefld_ = new uiGenInput( mandispgrp, tr("Scale Range"),
 	    			FloatInpIntervalSpec() );
-    rangefld_->valuechanged.notify( mCB(this,uiGainAnalysisDlg,dispRangeChgd ));
+    rangefld_->valueChanged.notify( mCB(this,uiGainAnalysisDlg,dispRangeChgd ));
     rangefld_->setValue( scalerg );
 
     stepfld_ = new uiLabeledSpinBox( mandispgrp, tr("Gridline step"));
@@ -74,7 +74,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     ampscaletypefld_ = new uiGenInput( mandispgrp, tr("Amplitude Scale"),
 	    			    BoolInpSpec(true,tr("Linear"),tr("dB")) );
     ampscaletypefld_->attach( rightTo, stepfld_ );
-    ampscaletypefld_->valuechanged.notify(
+    ampscaletypefld_->valueChanged.notify(
 	    mCB(this,uiGainAnalysisDlg,amplScaleTypeChanged) );
 
     setData( true );

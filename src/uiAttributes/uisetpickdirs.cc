@@ -70,7 +70,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     dirinpfld_ = new uiGenInput( this, tr("Direction from"),
 		    BoolInpSpec(true,tr("SteeringCube"),
 				uiStrings::sAttribute(mPlural)));
-    dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
+    dirinpfld_->valueChanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
     steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),
 				    is2d );
     steerfld_->attach( alignedBelow, dirinpfld_ );

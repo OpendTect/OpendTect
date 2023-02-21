@@ -84,7 +84,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
     extfld_ = new uiGenInput( this, tr("Extension"),
 			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
-    extfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
+    extfld_->valueChanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld_->attach( alignedBelow, gatefld_ );
 
     uiStepOutSel::Setup setup( is2d );
@@ -118,7 +118,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     dooutpstatsfld_ = new uiGenInput( this, uiStrings::sOutput(),
 			BoolInpSpec(true,tr("Statistics"),
                                     tr("Dip at max similarity")));
-    dooutpstatsfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,outSel) );
+    dooutpstatsfld_->valueChanged.notify( mCB(this,uiSimilarityAttrib,outSel) );
     dooutpstatsfld_->attach( alignedBelow, deltadipfld_ );
 
     outpstatsfld_ = new uiGenInput( this, tr("Output statistic"),
@@ -339,7 +339,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 	steertyps.add( "None" );
 	typfld_ = new uiGenInput( this, uiStrings::sSteering(),
 				  StringListInpSpec(steertyps) );
-	typfld_->valuechanged.notify(
+	typfld_->valueChanged.notify(
 		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));
     }
     else

@@ -55,7 +55,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     ewfld_ = new uiGenInput( this, uiString::emptyString(),
 	BoolInpSpec(true,uiStrings::sEast(false),uiStrings::sWest(false)) );
     ewfld_->attach( rightTo, cmfld_ );
-    ewfld_->valuechanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
+    ewfld_->valueChanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    ODGMT::ResolutionDef(), uiStrings::sResolution() );
@@ -97,7 +97,7 @@ void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
 
     utmfld_->valueChanging.disable();
     cmfld_->valueChanging.disable();
-    ewfld_->valuechanged.disable();
+    ewfld_->valueChanged.disable();
     mDynamicCastGet(uiSpinBox*,box,cb)
     if ( box == utmfld_ )
     {
@@ -118,7 +118,7 @@ void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
 
     utmfld_->valueChanging.enable();
     cmfld_->valueChanging.enable();
-    ewfld_->valuechanged.enable();
+    ewfld_->valueChanged.enable();
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }

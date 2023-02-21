@@ -99,9 +99,9 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 	defaultext_.setEmpty();
     }
 
-    valuechanging.notify( mCB(this,uiFileInput,inputChg) );
+    valueChanging.notify( mCB(this,uiFileInput,inputChg) );
     postFinalize().notify( mCB(this,uiFileInput,isFinalized) );
-    valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
+    valueChanged.notify( mCB(this,uiFileInput,fnmEntered) );
 }
 
 
@@ -122,7 +122,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     setStretch( 2, 0 );
     setFileName( fnm );
     setWithSelect( true );
-    valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
+    valueChanged.notify( mCB(this,uiFileInput,fnmEntered) );
 }
 
 
@@ -309,7 +309,7 @@ void uiFileInput::doSelect( CallBacker* )
     if ( newfname != oldfname || ( !forread_ && oldfltr != selfltr_ ) )
     {
 	valueChanged.trigger( *this );
-	valuechanged.trigger( *this );
+	valueChanged.trigger( *this );
     }
 }
 
@@ -427,7 +427,7 @@ static uiFileInput::Setup getSetup( bool forread )
 uiASCIIFileInput::uiASCIIFileInput( uiParent* p, bool forread )
     : uiFileInput(p,getLabel(forread),getSetup(forread))
 {
-    mAttachCB( valuechanged, uiASCIIFileInput::fileSelCB );
+    mAttachCB( valueChanged, uiASCIIFileInput::fileSelCB );
 }
 
 
@@ -435,7 +435,7 @@ uiASCIIFileInput::uiASCIIFileInput( uiParent* p, const uiString& lbl,
 				    bool forread )
     : uiFileInput(p,lbl,getSetup(forread))
 {
-    mAttachCB( valuechanged, uiASCIIFileInput::fileSelCB );
+    mAttachCB( valueChanged, uiASCIIFileInput::fileSelCB );
 }
 
 

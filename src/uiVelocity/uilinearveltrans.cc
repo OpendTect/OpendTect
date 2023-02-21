@@ -49,11 +49,11 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
 {
     const uiString velfldlbl( VelocityDesc::toUiString(VelocityDesc::Interval));
     velfld_ = new uiConstantVel( this, Vel::getGUIDefaultVelocity(), velfldlbl);
-    mAttachCB( velfld_->valuechanging, uiLinearVelTransform::velChangedCB );
+    mAttachCB( velfld_->valueChanging, uiLinearVelTransform::velChangedCB );
 
     gradientfld_ = new uiGenInput( this, tr("Gradient (1/s)"), FloatInpSpec(0));
     gradientfld_->attach( rightTo, velfld_ );
-    mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
+    mAttachCB( gradientfld_->valueChanging, uiLinearVelTransform::velChangedCB);
 
     setHAlignObj( velfld_ );
     postFinalize().notify( mCB(this,uiLinearVelTransform,velChangedCB) );
@@ -82,7 +82,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	    if ( range.isUdf() ) range.setUdf();
 	}
 
-	NotifyStopper stopper( rangefld_->valuechanging );
+	NotifyStopper stopper( rangefld_->valueChanging );
 	rangefld_->setZRange( range );
     }
 }

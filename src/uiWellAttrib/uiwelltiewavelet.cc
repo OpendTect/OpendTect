@@ -13,17 +13,12 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "survinfo.h"
 #include "wavelet.h"
-#include "waveletio.h"
 
-#include "uiaxishandler.h"
 #include "uiflatviewer.h"
-#include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uimsg.h"
 #include "uiseiswvltattr.h"
 #include "uitoolbutton.h"
-#include "odcomplex.h"
 
 
 #define mErrRet(msg,act) { uiMSG().error(msg); act; }
@@ -64,7 +59,7 @@ void WellTie::uiWaveletView::createWaveletFields( uiGroup* grp )
     activewvltfld_ = new uiGenInput( this, uiString::emptyString(),
 				     BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
-    activewvltfld_->valuechanged.notify(
+    activewvltfld_->valueChanged.notify(
 			 mCB(this, uiWaveletView, activeWvltChanged) );
     setVSpacing ( 0 );
 }

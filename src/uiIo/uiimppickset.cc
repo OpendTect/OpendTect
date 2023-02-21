@@ -73,7 +73,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
     filefld_ = new uiASCIIFileInput( this, import_ );
     if ( import_ )
-	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
+	filefld_->valueChanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread_ = !import_;

@@ -47,9 +47,9 @@ uiHostInpGrp::uiHostInpGrp( uiParent* p, const uiString& txt )
 
     modeChgCB( nullptr );
     lookupCB( nullptr );
-    mAttachCB( modefld_->valuechanged, uiHostInpGrp::modeChgCB );
-    mAttachCB( hostnmfld_->valuechanged, uiHostInpGrp::lookupCB );
-    mAttachCB( hostaddrfld_->valuechanged, uiHostInpGrp::lookupCB );
+    mAttachCB( modefld_->valueChanged, uiHostInpGrp::modeChgCB );
+    mAttachCB( hostnmfld_->valueChanged, uiHostInpGrp::lookupCB );
+    mAttachCB( hostaddrfld_->valueChanged, uiHostInpGrp::lookupCB );
 
     setHAlignObj( modefld_ );
 
@@ -92,13 +92,13 @@ void uiHostInpGrp::lookupCB( CallBacker* )
 	}
 
 	hostdata_.setIPAddress( ipaddr );
-	NotifyStopper ns( hostnmfld_->valuechanged );
+	NotifyStopper ns( hostnmfld_->valueChanged );
 	hostnmfld_->setText( hostdata_.getHostName() );
     }
     else
     {
 	hostdata_.setHostName( hostnmfld_->text() );
-	NotifyStopper ns( hostaddrfld_->valuechanged );
+	NotifyStopper ns( hostaddrfld_->valueChanged );
 	hostaddrfld_->setText( hostdata_.getIPAddress() );
     }
 }

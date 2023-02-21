@@ -22,7 +22,7 @@ uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
     else
 	attach( above ? centeredAbove : centeredBelow, lb_.box() );
 
-    valuechanged.notify( mCB(this,uiListBoxFilter,filtChg) );
+    valueChanged.notify( mCB(this,uiListBoxFilter,filtChg) );
 }
 
 

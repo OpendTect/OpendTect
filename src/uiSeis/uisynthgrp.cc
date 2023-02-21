@@ -662,7 +662,7 @@ uiSynthSeisAdvancedGrp::uiSynthSeisAdvancedGrp( uiParent* p, bool withnmo )
     convdomainfld_ = new uiGenInput( this, tr("Convolution Domain"),
 				     StringListInpSpec(ConvDomainNames()) );
     convdomainfld_->setText( toString(domain) );
-    mAttachCB( convdomainfld_->valuechanged,
+    mAttachCB( convdomainfld_->valueChanged,
 	       uiSynthSeisAdvancedGrp::parsChangedCB );
 
     if ( withnmo )
@@ -680,7 +680,7 @@ void uiSynthSeisAdvancedGrp::createNMOGrp()
 			      BoolInpSpec(true) );
     nmofld_->setValue( true );
     nmofld_->attach( alignedBelow, convdomainfld_ );
-    mAttachCB( nmofld_->valuechanged, uiSynthSeisAdvancedGrp::nmoSelCB );
+    mAttachCB( nmofld_->valueChanged, uiSynthSeisAdvancedGrp::nmoSelCB );
 
     const double stretchlimpc =
 			mToPercent(Seis::SynthGenBase::cStdStretchLimit());
@@ -689,7 +689,7 @@ void uiSynthSeisAdvancedGrp::createNMOGrp()
     stretchmutelimitfld_ = new uiGenInput( this, tr("Stretch mute (%)"),
 					   inpspec );
     stretchmutelimitfld_->attach( alignedBelow, nmofld_ );
-    mAttachCB( stretchmutelimitfld_->valuechanged,
+    mAttachCB( stretchmutelimitfld_->valueChanged,
 	       uiSynthSeisAdvancedGrp::parsChangedCB );
 
     const double mutelengthms = Seis::SynthGenBase::cStdMuteLength() *
@@ -697,7 +697,7 @@ void uiSynthSeisAdvancedGrp::createNMOGrp()
     mutelenfld_ = new uiGenInput( this, tr("Mute taper-length (ms)"),
 				  DoubleInpSpec(mutelengthms) );
     mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
-    mAttachCB( mutelenfld_->valuechanged,
+    mAttachCB( mutelenfld_->valueChanged,
 	       uiSynthSeisAdvancedGrp::parsChangedCB );
 }
 

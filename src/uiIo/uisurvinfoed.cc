@@ -223,7 +223,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     iis.setLimits( startstoprg, -1 ).setLimits( steprg, 2 );
     iis.setName("Inl Start",0).setName("Inl Stop",1).setName("Inl step",2);
     inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"), iis );
-    mAttachCB( inlfld_->valuechanged, uiSurveyInfoEditor::rangeChg );
+    mAttachCB( inlfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     inlfld_->attach( alignedBelow, dummy );
     nrinlslbl_ = new uiLabel( rangegrp_, uiStrings::sEmptyString() );
     nrinlslbl_->setStretch( 2, 0 );
@@ -231,7 +231,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 
     iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
     crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"), iis );
-    mAttachCB( crlfld_->valuechanged, uiSurveyInfoEditor::rangeChg );
+    mAttachCB( crlfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     nrcrlslbl_ = new uiLabel( rangegrp_, uiStrings::sEmptyString() );
     nrcrlslbl_->setStretch( 2, 0 );
     nrcrlslbl_->attach( rightTo, crlfld_ );
@@ -240,7 +240,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 			   DoubleInpIntervalSpec(true).setName("Z Start",0)
 						      .setName("Z Stop",1)
 						      .setName("Z step",2) );
-    mAttachCB( zfld_->valuechanged, uiSurveyInfoEditor::rangeChg );
+    mAttachCB( zfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     crlfld_->attach( alignedBelow, inlfld_ );
     zfld_->attach( alignedBelow, crlfld_ );
 
@@ -256,7 +256,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     depthdispfld_ = new uiGenInput( rangegrp_, tr("Display depths in"),
 	BoolInpSpec(!depthinft,uiStrings::sMeter(),uiStrings::sFeet()) );
     depthdispfld_->setSensitive( zistime && !si_.xyInFeet() );
-    mAttachCB( depthdispfld_->valuechanged,
+    mAttachCB( depthdispfld_->valueChanged,
 	       uiSurveyInfoEditor::depthDisplayUnitSel );
     depthdispfld_->attach( alignedBelow, zfld_ );
 
@@ -285,7 +285,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
     uiLabel* dummy = new uiLabel( crdgrp_, uiStrings::sEmptyString() );
     iis.setName("Inl Position1",0).setName("Crl Position1",1);
     ic0fld_ = new uiGenInput( crdgrp_, tr("First In-line/Cross-line"), iis );
-    mAttachCB( ic0fld_->valuechanging, uiSurveyInfoEditor::ic0ChgCB );
+    mAttachCB( ic0fld_->valueChanging, uiSurveyInfoEditor::ic0ChgCB );
     ic0fld_->attach( alignedBelow, dummy );
 
     iis.setName("Inl Position2",0).setName("Crl Position2",1);
@@ -295,7 +295,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
     iis.setName("Inl Position3",0).setName("Crl Position3",1);
     ic2fld_ = new uiGenInput( crdgrp_, tr("Position not on above In-line"),
 			      iis );
-    mAttachCB( ic2fld_->valuechanging, uiSurveyInfoEditor::ic2ChgCB );
+    mAttachCB( ic2fld_->valueChanging, uiSurveyInfoEditor::ic2ChgCB );
 
     iis.setName("Inl Position4",0).setName("Crl Position4",1);
     ic3fld_ = new uiGenInput( crdgrp_, tr("Fourth position"), iis );

@@ -69,7 +69,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
     serialcolormodefld_ = new uiGenInput(this,uiString::emptyString(),
 					 StringListInpSpec(serialbss));
-    serialcolormodefld_->valuechanged.notify(
+    serialcolormodefld_->valueChanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     serialcolormodefld_->attach( alignedBelow, colormodelbl );
 
@@ -77,14 +77,14 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     existsbss.add( "Current" ); existsbss.add( "User-defined" );
     existscolormodefld_ = new uiGenInput(this,uiString::emptyString(),
 					 StringListInpSpec(existsbss));
-    existscolormodefld_->valuechanged.notify(
+    existscolormodefld_->valueChanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     existscolormodefld_->attach( alignedBelow, colormodelbl );
 
     BufferStringSet singlebss; singlebss.add( "User-defined" );
     singlecolormodefld_ = new uiGenInput(this,uiString::emptyString(),
 					 StringListInpSpec(singlebss));
-    singlecolormodefld_->valuechanged.notify(
+    singlecolormodefld_->valueChanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     singlecolormodefld_->attach( alignedBelow, colormodelbl );
 

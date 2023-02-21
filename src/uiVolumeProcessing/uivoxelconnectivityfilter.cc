@@ -76,7 +76,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	cutoffvalfld_->setValue( acceptrange.stop );
     }
 
-    cutofftypefld_->valuechanged.notify(
+    cutofftypefld_->valueChanged.notify(
           mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
 
     uiSeparator* sep = new uiSeparator( this );
@@ -98,7 +98,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     acceptoutputfld_ = new uiGenInput( this, tr("Kept output"),
 	StringListInpSpec( VoxelConnectivityFilter::AcceptOutputDef() ) );
     acceptoutputfld_->setValue( (int) step->getAcceptOutput() );
-    acceptoutputfld_->valuechanged.notify(
+    acceptoutputfld_->valueChanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
     acceptoutputfld_->attach( alignedBelow, minbodysizefld_ );
 
@@ -110,7 +110,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	    BoolInpSpec(mIsUdf(step->getRejectValue() ),
 			tr("Undefined value"), uiStrings::sValue() ) );
     rejectoutputudffld_->attach( alignedBelow, acceptvaluefld_ );
-    rejectoutputudffld_->valuechanged.notify(
+    rejectoutputudffld_->valueChanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
 
     rejectoutputvalfld_ = new uiGenInput( this, tr("Rejected value"),

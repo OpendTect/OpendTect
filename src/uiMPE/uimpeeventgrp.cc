@@ -77,7 +77,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
 			     StringListInpSpec(sEventNames) );
-    evfld_->valuechanged.notify( mCB(this,uiEventGroup,selEventType) );
+    evfld_->valueChanged.notify( mCB(this,uiEventGroup,selEventType) );
     leftgrp->setHAlignObj( evfld_ );
 
     uiStringSet strs;
@@ -85,14 +85,14 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     thresholdtypefld_ = new uiGenInput( leftgrp, tr("Threshold type"),
 					StringListInpSpec(strs) );
     thresholdtypefld_->setValue( 1 );
-    thresholdtypefld_->valuechanged.notify(
+    thresholdtypefld_->valueChanged.notify(
 	    mCB(this,uiEventGroup,selAmpThresholdType) );
     thresholdtypefld_->attach( alignedBelow, evfld_ );
 
     ampthresholdfld_ = new uiGenInput( leftgrp, tr("Allowed difference (%)"),
 				       StringInpSpec() );
     ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
-    ampthresholdfld_->valuechanged.notify(
+    ampthresholdfld_->valueChanged.notify(
 	    mCB(this,uiEventGroup,changeCB) );
 
     if ( !is2d && sAllowSteps )
@@ -109,7 +109,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     iis.setLimits( swin0, 0 ); iis.setLimits( swin1, 1 );
     srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
     srchgatefld_->attach( alignedBelow, ampthresholdfld_ );
-    srchgatefld_->valuechanging.notify( mCB(this,uiEventGroup,changeCB) );
+    srchgatefld_->valueChanging.notify( mCB(this,uiEventGroup,changeCB) );
 
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
     sep->attach( stretchedBelow, srchgatefld_ );
@@ -124,13 +124,13 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, srchgatefld_ );
     nrzfld_->attach( ensureBelow, sep );
-    nrzfld_->valuechanging.notify(
+    nrzfld_->valueChanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
     IntInpSpec tiis; tiis.setLimits( StepInterval<int>(3,99,2) );
     nrtrcsfld_ = new uiGenInput( leftgrp, tr("Nr Traces"), tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
-    nrtrcsfld_->valuechanging.notify(
+    nrtrcsfld_->valueChanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
     datalabel_ = new uiLabel( leftgrp, uiStrings::sEmptyString() );
@@ -315,7 +315,7 @@ void uiEventGroup::init()
 	fldidx += 4;
     evfld_->setValue( fldidx );
 
-    NotifyStopper ns1( srchgatefld_->valuechanging );
+    NotifyStopper ns1( srchgatefld_->valueChanging );
     Interval<float> intvf( adjuster_->searchWindow() );
     intvf.scale( mCast(float,SI().zDomain().userFactor()) );
     Interval<int> srchintv; srchintv.setFrom( intvf );

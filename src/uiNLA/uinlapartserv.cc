@@ -154,12 +154,12 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, tr("Balance data"), BoolInpSpec(true) );
-    dobalfld->valuechanged.notify( mCB(this,uiPrepNLAData,doBalChg) );
+    dobalfld->valueChanged.notify( mCB(this,uiPrepNLAData,doBalChg) );
 
     nrptspclssfld = new uiGenInput( datagrp, uiStrings::phrData(tr(
 			"points per class")),IntInpSpec(bsetup_.nrptsperclss) );
     nrptspclssfld->attach( alignedBelow, dobalfld );
-    nrptspclssfld->valuechanged.notify( mCB(this,uiPrepNLAData,cutoffChg) );
+    nrptspclssfld->valueChanged.notify( mCB(this,uiPrepNLAData,cutoffChg) );
     percnoisefld = new uiGenInput( datagrp, tr("Percentage noise when adding"),
 				   FloatInpSpec(bsetup_.noiselvl*100) );
     percnoisefld->attach( alignedBelow, nrptspclssfld );
@@ -169,7 +169,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     valrgfld = new uiGenInput( datagrp, uiStrings::phrData(tr("range to use")),
 				FloatInpIntervalSpec(rg_) );
     valrgfld->attach( alignedBelow, percnoisefld );
-    valrgfld->valuechanged.notify( mCB(this,uiPrepNLAData,valrgChg) );
+    valrgfld->valueChanged.notify( mCB(this,uiPrepNLAData,valrgChg) );
 
     datagrp->attach( centeredBelow, graphgrp );
 }

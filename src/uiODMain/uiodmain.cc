@@ -493,10 +493,10 @@ uiODMainAutoSessionDlg( uiODMain* p )
 
     usefld_ = new uiGenInput( this, tr("Auto-load session mode"),
 	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
-    usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    usefld_->valueChanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
 				BoolInpSpec(!id.isUdf()) );
-    doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    doselfld_->valueChanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
     IOObjContext ctxt = mIOObjContext( ODSession );

@@ -68,6 +68,6 @@ uiTime2DepthZTransformBase::getTargetSampling(StepInterval<float>& res) const
 void uiTime2DepthZTransformBase::finalizeDoneCB(CallBacker*)
 {
     if ( rangefld_ )
-	mAttachCB( rangefld_->valuechanging,
+	mAttachCB( rangefld_->valueChanging,
 		   uiTime2DepthZTransformBase::rangeChangedCB );
 }

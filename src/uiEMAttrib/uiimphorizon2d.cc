@@ -202,7 +202,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    mAttachCB(inpfld_->valuechanged,uiImportHorizon2D::formatSel);
+    mAttachCB(inpfld_->valueChanged,uiImportHorizon2D::formatSel);
 
     BufferStringSet hornms;
     uiEMPartServer::getAllSurfaceInfo( horinfos_, true );

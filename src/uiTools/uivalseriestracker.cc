@@ -32,8 +32,8 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
 	evfld_ = new uiGenInput( this, tr("Event type"),
 				StringListInpSpec(EventTracker::sEventNames()));
 	evfld_->setValue( EventTracker::getEventTypeIdx(tracker_.trackEvent()));
-	evfld_->valuechanged.notify( mCB(this,uiEventTracker,selEventType) );
-	evfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+	evfld_->valueChanged.notify( mCB(this,uiEventTracker,selEventType) );
+	evfld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     }
 
     uiString srchwindtxt( tr("Search window %1").arg(SI().getUiZUnitString()) );
@@ -43,7 +43,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
 	    tracker_.permittedRange().start * SI().zDomain().userFactor(),
 	    tracker_.permittedRange().stop * SI().zDomain().userFactor() );
     srchgatefld_->setValue( srchintv );
-    srchgatefld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    srchgatefld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     if ( evfld_ ) srchgatefld_->attach( alignedBelow, evfld_ );
 
     thresholdtypefld_ = new uiGenInput( this, tr("Threshold type"),
@@ -51,35 +51,35 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
                                         tr("Cut-off amplitude"),
                                         tr("Relative difference")) );
     thresholdtypefld_->setValue( tracker_.useAbsThreshold() );
-    thresholdtypefld_->valuechanged.notify(
+    thresholdtypefld_->valueChanged.notify(
 			mCB(this,uiEventTracker,selAmpThresholdType) );
-    thresholdtypefld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    thresholdtypefld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     thresholdtypefld_->attach( alignedBelow, srchgatefld_ );
 
     ampthresholdfld_ = new uiGenInput ( this, tr("Amplitude value"),
                                         FloatInpSpec());
     ampthresholdfld_->setValue( tracker_.amplitudeThreshold() );
-    ampthresholdfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    ampthresholdfld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
 
     alloweddifffld_ = new uiGenInput ( this, tr("Allowed difference (%)"),
 	    			       FloatInpSpec());
     alloweddifffld_->setValue( tracker_.allowedVariance()*100 );
-    alloweddifffld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    alloweddifffld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     alloweddifffld_->attach( alignedBelow, thresholdtypefld_ );
 
     usesimifld_ = new uiGenInput( this, tr("Compare waveforms"),
                                   BoolInpSpec(true) );
     usesimifld_->setValue( tracker_.usesSimilarity() );
-    usesimifld_->valuechanged.notify(
+    usesimifld_->valueChanged.notify(
 	    mCB(this,uiEventTracker,selUseSimilarity) );
-    usesimifld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    usesimifld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     usesimifld_->attach( alignedBelow, ampthresholdfld_ );
 
     uiString compwindtxt =
 		tr("Compare window %1").arg(SI().getUiZUnitString());
     compwinfld_ = new uiGenInput( this, compwindtxt, FloatInpIntervalSpec() );
-    compwinfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    compwinfld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     compwinfld_->attach( alignedBelow, usesimifld_ );
 
     const Interval<float> simiintv(
@@ -91,7 +91,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     simithresholdfld_ = new uiGenInput( this, tr("Similarity threshold(0-1)"),
 				       FloatInpSpec() );
     simithresholdfld_->attach( alignedBelow, compwinfld_ );
-    simithresholdfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
+    simithresholdfld_->valueChanged.notify( mCB(this,uiEventTracker,changeCB) );
     simithresholdfld_->setValue( tracker_.similarityThreshold() );
 
     selEventType( 0 );

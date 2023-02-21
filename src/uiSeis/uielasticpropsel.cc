@@ -155,7 +155,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 
     formfld_ = new uiGenInput( this, tr("Formula ") );
     formfld_->attach( alignedBelow, selmathfld_ );
-    mAttachCB( formfld_->valuechanged, uiElasticPropSelGrp::selFormulaChgCB );
+    mAttachCB( formfld_->valueChanged, uiElasticPropSelGrp::selFormulaChgCB );
 
     singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
     singleinpfld_->attach( alignedBelow, selmathfld_ );

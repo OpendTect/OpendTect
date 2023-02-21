@@ -41,7 +41,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
     autowidthfld_ = new uiGenInput( this, tr("Width"),
 	    BoolInpSpec( true, tr("Relative"), tr("Absolute") ) );
     autowidthfld_->setValue( viewer_.displayAutoWidth() );
-    autowidthfld_->valuechanged.notify(
+    autowidthfld_->valueChanged.notify(
 	    mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
 
     uiSlider::Setup ss; ss.nrdec(mSliderDecimal);
@@ -77,7 +77,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
 uiViewer3DShapeTab::~uiViewer3DShapeTab()
 {
     if ( autowidthfld_ )
-	autowidthfld_->valuechanged.remove(
+	autowidthfld_->valueChanged.remove(
 		mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
 
     if ( factorslider_ )

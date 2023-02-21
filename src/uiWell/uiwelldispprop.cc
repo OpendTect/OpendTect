@@ -522,19 +522,19 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     setLogSet( wl );
     putToScreen();
 
-    mAttachCB( cliprangefld_->valuechanged, mCBChoiceSel );
-    mAttachCB( clipratefld_->valuechanged, mCBChoiceSel );
-    mAttachCB( colorrangefld_->valuechanged, mCBChoiceSel );
-    mAttachCB( rangefld_->valuechanged, mCBChoiceSel );
-    mAttachCB( clipratefld_->valuechanged, mCBPropChg );
+    mAttachCB( cliprangefld_->valueChanged, mCBChoiceSel );
+    mAttachCB( clipratefld_->valueChanged, mCBChoiceSel );
+    mAttachCB( colorrangefld_->valueChanged, mCBChoiceSel );
+    mAttachCB( rangefld_->valueChanged, mCBChoiceSel );
+    mAttachCB( clipratefld_->valueChanged, mCBPropChg );
     mAttachCB( coltablistfld_->selectionChanged, mCBPropChg );
-    mAttachCB( colorrangefld_->valuechanged, mCBPropChg );
+    mAttachCB( colorrangefld_->valueChanged, mCBPropChg );
     mAttachCB( fillcolorfld_->colorChanged, mCBPropChg );
     mAttachCB( logwidthslider_->valueChanged, mCBPropChg );
 
     mAttachCB( logarithmfld_->activated, mCBPropChg );
     mAttachCB( ovlapfld_->valueChanging, mCBPropChg );
-    mAttachCB( rangefld_->valuechanged, mCBPropChg );
+    mAttachCB( rangefld_->valueChanged, mCBPropChg );
     mAttachCB( repeatfld_->valueChanging, mCBPropChg );
     mAttachCB( revertlogfld_->activated, mCBPropChg );
     mAttachCB( seiscolorfld_->colorChanged, mCBPropChg );

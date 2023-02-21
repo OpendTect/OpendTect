@@ -20,17 +20,17 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     const char** typestrs = FFTFilter::TypeNames();
     typefld_ = new uiGenInput( this, tr("Filter type"),
 				StringListInpSpec(typestrs));
-    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
-    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
-    typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
+    typefld_->valueChanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
+    typefld_->valueChanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
+    typefld_->valueChanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
     freqfld_ = new uiGenInput( this, sMinMax(), 
 	    FloatInpSpec().setName(zistime?"Min frequency":"Min wavenumber"),
 	    FloatInpSpec().setName(zistime?"Max frequency":"Max wavenumber") );
     freqfld_->setElemSzPol( uiObject::Small );
     freqfld_->attach( alignedBelow, typefld_ );
-    freqfld_->valuechanged.notify(mCB(this,uiFreqFilterSelFreq,getFromScreen));
-    freqfld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
+    freqfld_->valueChanged.notify(mCB(this,uiFreqFilterSelFreq,getFromScreen));
+    freqfld_->valueChanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
     setHAlignObj( freqfld_ );
 

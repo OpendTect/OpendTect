@@ -65,7 +65,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	velfld_ = new uiGenInput( grp, VelocityDesc::getVelVolumeLabel(),
 		FloatInpSpec(Vel::getGUIDefaultVelocity()) );
 	velfld_->attach( alignedBelow, optsfld_ );
-	mAttachCB( velfld_->valuechanged, uiCalcHorVol::calcReq );
+	mAttachCB( velfld_->valueChanged, uiCalcHorVol::calcReq );
 	attachobj = velfld_->attachObj();
     }
 

@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "uiamplspectrum.h"
 
-#include "uiaxishandler.h"
+#include "uiaxishandlerbase.h"
 #include "uibutton.h"
 #include "uifiledlg.h"
 #include "uifuncdispbase.h"
@@ -19,15 +19,12 @@ ________________________________________________________________________
 #include "uispinbox.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "flatposdata.h"
 #include "fourier.h"
-#include "mouseevent.h"
 #include "od_ostream.h"
-#include "trckeyzsampling.h"
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
@@ -67,7 +64,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
-    mAttachCB(rangefld_->valuechanged, uiAmplSpectrum::dispRangeChgd);
+    mAttachCB(rangefld_->valueChanged, uiAmplSpectrum::dispRangeChgd);
     stepfld_ = new uiLabeledSpinBox( dispparamgrp_, tr("Gridline step"));
     stepfld_->box()->setNrDecimals( 0 );
     stepfld_->attach( rightOf, rangefld_ );

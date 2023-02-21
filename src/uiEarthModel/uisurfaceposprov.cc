@@ -51,7 +51,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 			BoolInpSpec(true,tr("On Horizon"),
 				    tr("To a 2nd Horizon")) );
     issingfld_->attach( alignedBelow, surf1fld_ );
-    issingfld_->valuechanged.notify( selcb );
+    issingfld_->valueChanged.notify( selcb );
 
     surf2fld_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
@@ -81,7 +81,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 				BoolInpSpec(true,tr("Random"),tr("Regular")) );
-	mAttachCB( samplingfld_->valuechanged,
+	mAttachCB( samplingfld_->valueChanged,
 		   uiSurfacePosProvGroup::samplingCB );
 	if ( extrazfld_ )
 	    samplingfld_->attach( alignedBelow, extrazfld_ );

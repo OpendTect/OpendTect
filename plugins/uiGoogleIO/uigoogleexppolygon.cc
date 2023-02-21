@@ -44,7 +44,7 @@ uiGISExportPolygon::uiGISExportPolygon( uiParent* p, const MultiID& mid )
 	inputyp_ = new uiGenInput( this,
 				    uiStrings::phrInput(uiStrings::sType()),
 		BoolInpSpec(true,uiStrings::sPickSet(),uiStrings::sPolygon()) );
-	mAttachCB(inputyp_->valuechanged,uiGISExportPolygon::inputTypChngCB);
+	mAttachCB(inputyp_->valueChanged,uiGISExportPolygon::inputTypChngCB);
 	selfld_ = new uiIOObjSelGrp( this, mIOObjContext(PickSet),
 						uiStrings::sSelect(), su );
 	selfld_->attach( alignedBelow, inputyp_ );

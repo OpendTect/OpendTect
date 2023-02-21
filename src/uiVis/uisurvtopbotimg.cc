@@ -40,7 +40,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     fnmfld_ = new uiFileInput( leftgrp,
 	    istop_ ? tr("Top image") : tr("Bottom image"), su);
     fnmfld_->setWithCheck( true );
-    fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
+    fnmfld_->valueChanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
     mAttachCB( fnmfld_->checked,uiSurvTopBotImageGrp::onOff );
     fnmfld_->setChecked( img_ && img_->isOn() );
 
@@ -65,13 +65,13 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 			     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
     tlfld_->setElemSzPol( uiObject::MedVar );
     tlfld_->attach( alignedBelow, fnmfld_ );
-    mAddCoordchgCB( tlfld_->valuechanged );
+    mAddCoordchgCB( tlfld_->valueChanged );
 
     brfld_ = new uiGenInput( leftgrp, tr("SouthEast (BottomRight) Coordinate"),
 			     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
     brfld_->setElemSzPol( uiObject::MedVar );
     brfld_->attach( alignedBelow, tlfld_ );
-    mAddCoordchgCB( brfld_->valuechanged );
+    mAddCoordchgCB( brfld_->valueChanged );
 
     transpfld_ = new uiSlider( leftgrp,
 			       uiSlider::Setup(uiStrings::sTransparency())

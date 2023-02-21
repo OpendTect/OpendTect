@@ -667,7 +667,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     const CallBack hdrchgcb = mCB(this,uiTableImpDataSel,hdrChg);
     hdrtypefld_ = new uiGenInput( this, tr("File header"),
 				  StringListInpSpec(hdrtyps) );
-    hdrtypefld_->valuechanged.notify( typchgcb );
+    hdrtypefld_->valueChanged.notify( typchgcb );
 
     uiToolButton* button = new uiToolButton( this, "open",
 				tr("Selecting existing format"),
@@ -680,11 +680,11 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrlinesfld_ = new uiGenInput( this, tr("Header size (number of lines)"),
 				   iis );
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
-    hdrlinesfld_->valuechanged.notify( hdrchgcb );
+    hdrlinesfld_->valueChanged.notify( hdrchgcb );
     hdrtokfld_ = new uiGenInput( this, tr("End-of-header 'word'"),
 				 StringInpSpec(fd_.eohtoken_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
-    hdrtokfld_->valuechanged.notify( hdrchgcb );
+    hdrtokfld_->valueChanged.notify( hdrchgcb );
 
     fmtdeffld_ = new uiTableFmtDescFldsParSel( this, helpkey );
     fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );

@@ -98,7 +98,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     {
 	selfld_ = new uiGenInput( this, tr("Batch execution"),
 				  StringListInpSpec());
-	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
+	selfld_->valueChanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
 	if ( optional )
 	{
 	    selfld_->setWithCheck( true );
@@ -474,7 +474,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 	const HostData* curhost = sjd_.remotehost_.isEmpty() ? nullptr
 				: hdl_.find( sjd_.remotehost_.str() );
 	remhostfld_->setChecked( curhost );
-	mAttachCB( remhostfld_->valuechanged,
+	mAttachCB( remhostfld_->valueChanged,
 		   uiSingleBatchJobDispatcherPars::hostChgCB );
 	mAttachCB( remhostfld_->checked,
 		   uiSingleBatchJobDispatcherPars::hostChgCB );

@@ -228,7 +228,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     zistimefld_ = new uiGenInput( this, tr("Z Domain"),
 		BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
-    zistimefld_->valuechanged.notify(
+    zistimefld_->valueChanged.notify(
 			mCB(this,uiStartNewSurveySetup,zdomainChg) );
     zistimefld_->attach( alignedBelow, sipfld_ );
 

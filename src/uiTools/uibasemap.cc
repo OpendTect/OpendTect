@@ -12,11 +12,10 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uipixmap.h"
-#include "uirgbarray.h"
 #include "uiworld2ui.h"
 
 #include "fontdata.h"
-#include "survinfo.h"
+
 
 uiBasemapObject::uiBasemapObject( BasemapObject* bmo )
     : bmobject_( bmo )

@@ -59,7 +59,7 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
 
     extfld = new uiGenInput( this, tr("Extension"),
 			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
-    extfld->valuechanged.notify( mCB(this,uiSemblanceAttrib,extSel) );
+    extfld->valueChanged.notify( mCB(this,uiSemblanceAttrib,extSel) );
     extfld->attach( alignedBelow, gatefld );
 
     uiStepOutSel::Setup setup( is2d );

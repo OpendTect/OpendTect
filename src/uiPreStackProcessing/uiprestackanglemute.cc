@@ -175,14 +175,14 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
     smoothtypefld_->setValue( PreStack::AngleComputer::FFTFilter );
-    mAttachCB( smoothtypefld_->valuechanged,
+    mAttachCB( smoothtypefld_->valueChanged,
 	       uiAngleCompAdvParsDlg::smoothTypeSel );
 
     const BufferStringSet& windowfunctions = WINFUNCS().getNames();
     smoothwindowfld_ = new uiGenInput( this, tr("Window/Taper"),
 				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
-    mAttachCB( smoothwindowfld_->valuechanged,
+    mAttachCB( smoothwindowfld_->valueChanged,
 	       uiAngleCompAdvParsDlg::smoothWindowSel );
 
     smoothwinparamfld_ = new uiGenInput( this, tr("Taper length"),

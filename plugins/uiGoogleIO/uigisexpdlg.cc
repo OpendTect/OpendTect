@@ -22,7 +22,7 @@ uiGISExpStdFld::uiGISExpStdFld( uiParent* p, BufferString typnm )
     StringListInpSpec writerlist( GISWriter::factory().getUserNames() );
 
     exptyp_ = new uiGenInput( this, tr("Export Type"), writerlist );
-    mAttachCB(exptyp_->valuechanged,uiGISExpStdFld::expTypChng);
+    mAttachCB(exptyp_->valueChanged,uiGISExpStdFld::expTypChng);
 
     const bool shoulddisplaycrsfld = SI().getCoordSystem() &&
 	SI().getCoordSystem()->isProjection();

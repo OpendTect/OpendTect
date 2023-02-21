@@ -72,7 +72,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
-    stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
+    stackfld_->valueChanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
 
     IOObjContext ctxt = mIOObjContext( SeisPS3D );
     ctxt.forread_ = false;

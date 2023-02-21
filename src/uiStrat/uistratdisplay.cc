@@ -119,7 +119,7 @@ void uiStratDisplay::createDispParamGrp()
 		FloatInpIntervalSpec()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
-    mAttachCB( rangefld_->valuechanged, uiStratDisplay::dispParamChgd );
+    mAttachCB( rangefld_->valueChanged, uiStratDisplay::dispParamChgd );
 
     viewcolbutton_ = new uiPushButton( dispparamgrp_, tr("Columns"),
 				       mCB(this,uiStratDisplay,selCols), false);

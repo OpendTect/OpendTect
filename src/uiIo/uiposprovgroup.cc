@@ -82,7 +82,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     {
 	samplingfld_ = new uiGenInput( this, tr("Sampling Mode"),
 			    BoolInpSpec(true,tr("Random"),tr("Regular")) );
-	mAttachCB( samplingfld_->valuechanged,
+	mAttachCB( samplingfld_->valueChanged,
 		   uiRangePosProvGroup::samplingCB );
 	if ( attobj )
 	    samplingfld_->attach( alignedBelow, attobj );
@@ -296,7 +296,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
     inoutfld_ = new uiGenInput( this, tr("Use Positions"),
 			BoolInpSpec(true,tr("Inside"),tr("Outside")) );
-    inoutfld_->valuechanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
+    inoutfld_->valueChanged.notify( mCB(this,uiPolyPosProvGroup,inoutCB) );
 
     bboxfld_ = new uiPosSubSel( this,
 			uiPosSubSel::Setup(false,su.withz_) );
@@ -427,7 +427,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 		    BoolInpSpec(true,uiStrings::sPointSet(),
 			uiStrings::phrJoinStrings(uiStrings::sTable(),
 						  uiStrings::sFile())));
-    selfld_->valuechanged.notify( selcb );
+    selfld_->valueChanged.notify( selcb );
 
     IOObjContext ctxt = mIOObjContext( PickSet );
     PickSetTranslator::fillConstraints( ctxt, false );

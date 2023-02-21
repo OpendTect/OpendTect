@@ -287,13 +287,13 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& su )
 	offsetfld_->setElemSzPol( uiObject::Small );
 	offsetfld_->setValue(
 			Interval<float>( offsetrg.start, offsetrg.stop ) );
-	mAttachCB( offsetfld_->valuechanged, uiRayTracer1D::parsChangedCB );
+	mAttachCB( offsetfld_->valueChanged, uiRayTracer1D::parsChangedCB );
 
 	offsetstepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( offsetrg.step );
-	mAttachCB( offsetstepfld_->valuechanged, uiRayTracer1D::parsChangedCB );
+	mAttachCB( offsetstepfld_->valueChanged, uiRayTracer1D::parsChangedCB );
     }
 
     if ( su.convertedwaves_ )
@@ -516,13 +516,13 @@ uiRayTracerAdvancedGrp::uiRayTracerAdvancedGrp( uiParent* p,
     const RayTracer1D::Setup defrtsu;
     const BoolInpSpec inpspecdn( defrtsu.pdown_, tr("P"), tr("S") );
     downwavefld_ = new uiGenInput( this, tr("Downward wave-type"), inpspecdn );
-    mAttachCB( downwavefld_->valuechanged,
+    mAttachCB( downwavefld_->valueChanged,
 	       uiRayTracerAdvancedGrp::parsChangedCB );
 
     const BoolInpSpec inpspecup( defrtsu.pup_, tr("P"), tr("S") );
     upwavefld_ = new uiGenInput( this, tr("Upward wave-type"), inpspecup );
     upwavefld_->attach( alignedBelow, downwavefld_ );
-    mAttachCB( upwavefld_->valuechanged,
+    mAttachCB( upwavefld_->valueChanged,
 	       uiRayTracerAdvancedGrp::parsChangedCB );
 
     setHAlignObj( downwavefld_ );

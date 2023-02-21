@@ -64,7 +64,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     typfld_ = new uiGenInput( this, isinp ? uiStrings::sInput()
                                           : uiStrings::sOutput(),
 			      StringListInpSpec(seistypes) );
-    typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
+    typfld_->valueChanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( have3d )
     {
 	const IOObjContext ioct3d( uiSeisSel::ioContext(Seis::Vol,isinp) );

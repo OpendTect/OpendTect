@@ -148,7 +148,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     horizonfld_ = new uiGenInput( this,
 				  uiStrings::phrModify(uiStrings::sHorizon(1)),
 				  StringListInpSpec(hornms) );
-    horizonfld_->valuechanged.notify( mCB(this,HorizonModifyDlg,horSel) );
+    horizonfld_->valueChanged.notify( mCB(this,HorizonModifyDlg,horSel) );
     horizonfld_->attach( leftAlignedBelow, lbl );
 
     modefld_ = new uiGenInput( this, tr("Modify action"),
@@ -161,7 +161,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 			       uiStrings::sHorizon(1))),
 			       BoolInpSpec(true,tr("As new"),
 			       uiStrings::sOverwrite()) );
-    savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
+    savefld_->valueChanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
     savefld_->setSensitive( EM::canOverwrite(mid1) );
 

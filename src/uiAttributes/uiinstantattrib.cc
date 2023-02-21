@@ -35,7 +35,7 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 	StringListInpSpec(Instantaneous::OutTypeDef().strings()) );
     outpfld->setElemSzPol( uiObject::MedVar );
     outpfld->attach( alignedBelow, inpfld );
-    outpfld->valuechanged.notify( mCB(this,uiInstantaneousAttrib,outputSelCB) );
+    outpfld->valueChanged.notify( mCB(this,uiInstantaneousAttrib,outputSelCB) );
 
     phaserotfld = new uiLabeledSpinBox(this,tr("Specify angle (deg)"));
     phaserotfld->box()->setInterval( -180, 180 );

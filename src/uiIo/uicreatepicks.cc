@@ -283,7 +283,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 	geomfld_ = new uiGenInput( this, uiStrings::sGeometry(),
 				     StringListInpSpec(sGeoms2D) );
 	geomfld_->attach( alignedBelow, linenmfld_ );
-	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,geomSel) );
+	geomfld_->valueChanged.notify( mCB(this,uiGenRandPicks2D,geomSel) );
 	horselfld_->attach( alignedBelow, geomfld_ );
 	horsel2fld_->attach( rightOf, horselfld_ );
     }

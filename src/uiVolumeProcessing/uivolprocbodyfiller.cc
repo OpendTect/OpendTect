@@ -61,7 +61,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf, bool is2d )
 
     insidetypfld_ = new uiGenInput( this, tr("Inside Fill Type"),
 				    StringListInpSpec(types) );
-    insidetypfld_->valuechanged.notify( mCB(this,uiBodyFiller,typeSel) );
+    insidetypfld_->valueChanged.notify( mCB(this,uiBodyFiller,typeSel) );
     insidetypfld_->attach( alignedBelow, bodyfld_ );
 
     const float udfval = mUdf(float);
@@ -71,7 +71,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf, bool is2d )
 
     outsidetypfld_ = new uiGenInput( this, tr("Outside Fill Type"),
 				     StringListInpSpec(types) );
-    outsidetypfld_->valuechanged.notify( mCB(this,uiBodyFiller,typeSel) );
+    outsidetypfld_->valueChanged.notify( mCB(this,uiBodyFiller,typeSel) );
     outsidetypfld_->attach( alignedBelow, insidevaluefld_ );
 
     outsidevaluefld_ = new uiGenInput( this, tr("Outside Value"),

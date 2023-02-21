@@ -48,14 +48,14 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     zgridfld_ = new uiGenInput( this, tr("Z grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x2_.showgridlines_ ) );
     zgridfld_->attach( alignedBelow, uicoltab_ );
-    zgridfld_->valuechanged.notify(
+    zgridfld_->valueChanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
     zgridautofld_ = new uiGenInput( this, uiString::emptyString(),
 	    BoolInpSpec( zudf, tr("Automatic sampling"),
 			 uiString::emptyString(), 0 ) );
     zgridautofld_->attach( rightOf, zgridfld_ );
-    zgridautofld_->valuechanged.notify(
+    zgridautofld_->valueChanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
     zgridrangefld_ = new uiGenInput( this, tr("Z grid sampling (start/step)"),
@@ -71,14 +71,14 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     offsgridfld_ = new uiGenInput( this, tr("Offset grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x1_.showgridlines_ ) );
     offsgridfld_->attach( alignedBelow, zgridrangefld_ );
-    offsgridfld_->valuechanged.notify(
+    offsgridfld_->valueChanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
     offsgridautofld_ = new uiGenInput( this, uiString::emptyString(),
 	    BoolInpSpec( offsudf, tr("Automatic sampling"),
 			 uiString::emptyString(), 0 ) );
     offsgridautofld_->attach( rightOf, offsgridfld_ );
-    offsgridautofld_->valuechanged.notify(
+    offsgridautofld_->valueChanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
     offsgridrangefld_ = new uiGenInput( this,

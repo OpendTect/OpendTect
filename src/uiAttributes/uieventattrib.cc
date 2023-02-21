@@ -54,18 +54,18 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     issinglefld_ = new uiGenInput( this, uiStrings::sUse(),
 		BoolInpSpec(true,tr("Single event"),tr("Multiple events")) );
     issinglefld_->attach( alignedBelow, inpfld_ );
-    issinglefld_->valuechanged.notify( mCB(this,uiEventAttrib,isSingleSel) );
+    issinglefld_->valueChanged.notify( mCB(this,uiEventAttrib,isSingleSel) );
 
     evtypefld_ = new uiGenInput( this, tr("Event type"),
 				 StringListInpSpec(evtypestrs) );
     evtypefld_->attach( alignedBelow, issinglefld_ );
-    evtypefld_->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
+    evtypefld_->valueChanged.notify( mCB(this,uiEventAttrib,isGateSel) );
     evtypefld_->display( false );
 
     outampfld_ = new uiGenInput( this, tr("Compute"),
 		BoolInpSpec(true, tr("Distance between 2 consecutive events"),
 			    uiStrings::phrOutput( uiStrings::sAmplitude() )) );
-    outampfld_->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
+    outampfld_->valueChanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
     outampfld_->attach( alignedBelow, evtypefld_ );
 
     tonextfld_ = new uiGenInput( this, tr("starting from"),

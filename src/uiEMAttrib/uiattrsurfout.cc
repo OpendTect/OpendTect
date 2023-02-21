@@ -51,7 +51,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 
     filludffld_ = new uiGenInput( pargrp_, tr("Fill undefined parts"),
 				  BoolInpSpec(false) );
-    filludffld_->valuechanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
+    filludffld_->valueChanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
     settingsbut_ = new uiPushButton( pargrp_, uiStrings::sSettings(),

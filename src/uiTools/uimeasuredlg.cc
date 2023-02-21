@@ -77,7 +77,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVelocity(),
 		   UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
 	appvelfld_ = new uiGenInput(topgrp, zdistlbl, FloatInpSpec(velocity_));
-	mAttachCB( appvelfld_->valuechanged, uiMeasureDlg::velocityChgd );
+	mAttachCB( appvelfld_->valueChanged, uiMeasureDlg::velocityChgd );
 	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
 

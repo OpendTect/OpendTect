@@ -67,13 +67,13 @@ uiPrDenFunVarSel::~uiPrDenFunVarSel()
 void uiPrDenFunVarSel::createGUI( uiObject* attachobj )
 {
     rangesel_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
-    rangesel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
+    rangesel_->valueChanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
     rangesel_->attach( rightTo, attachobj );
 
     nrbinsel_ = new uiGenInput( this, tr("Nr of Bins"), IntInpSpec() );
     nrbinsel_->setElemSzPol( uiObject::Small );
     nrbinsel_->setValue( 25 );
-    nrbinsel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,nrBinChanged) );
+    nrbinsel_->valueChanged.notify( mCB(this,uiPrDenFunVarSel,nrBinChanged) );
     nrbinsel_->attach( rightTo, rangesel_ );
 
     setHAlignObj( attrsel_ );

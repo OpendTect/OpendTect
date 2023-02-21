@@ -247,7 +247,7 @@ void uiAttr2DSelDlg::createSelectionFields( ZDomain::Info& info )
 
     storsteerfilter_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
     storsteerfilter_->attach( centeredAbove, storoutfld_ );
-    storsteerfilter_->valuechanged.notify( mCB(this,uiAttr2DSelDlg,filtChg) );
+    storsteerfilter_->valueChanged.notify( mCB(this,uiAttr2DSelDlg,filtChg) );
 
     o2d.steerpol_ = 1;
     nms.erase();

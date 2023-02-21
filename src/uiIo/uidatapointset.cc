@@ -67,7 +67,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
 		      tr("Selected Points"),tr("All points with attribute") );
     typefld_ = new uiGenInput( this, uiStrings::sDisplay(),binp );
-    typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
+    typefld_->valueChanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
 
     BufferStringSet colnms;
     const DataPointSet& dps = plotter.dps();
@@ -732,7 +732,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     seltypefld_ = new uiGenInput( this, mJoinUiStrs(sPosition(), sType()),
 			BoolInpSpec(true,tr("X/Y"),toUiString("%1/%2").arg(
 			uiStrings::sInline()).arg(uiStrings::sCrossline())) );
-    seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
+    seltypefld_->valueChanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
 
     posinpfld_ = new uiGenInput( this,
 				uiStrings::phrInput(uiStrings::sPosition()),
@@ -1436,7 +1436,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
     tabfld_ = new uiGenInput( this, tr("Output to"),
 		BoolInpSpec(false,tr("Text file"),
 			    tr("OpendTect Cross-plot Data")) );
-    tabfld_->valuechanged.notify( tccb );
+    tabfld_->valueChanged.notify( tccb );
 
     txtfld_ = new uiASCIIFileInput( this, false );
     txtfld_->attach( alignedBelow, tabfld_ );

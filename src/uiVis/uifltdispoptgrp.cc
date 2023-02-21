@@ -27,7 +27,7 @@ uiFaultDisplayOptGrp::uiFaultDisplayOptGrp( uiParent* p,
     algfld_ = new uiGenInput( this, tr("Project along"),
 			      StringListInpSpec(dispopt) );
     algfld_->setValue( fltdisp_->triangulateAlg() );
-    algfld_->valuechanged.notify( mCB(this,uiFaultDisplayOptGrp,algChg) );
+    algfld_->valueChanged.notify( mCB(this,uiFaultDisplayOptGrp,algChg) );
 
     applybut_ = new uiPushButton( this, tr("Update display now"), true );
     applybut_->attach( centeredBelow, algfld_ );

@@ -50,7 +50,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 
     uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
     rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
-    rangeinpfld_->valuechanged.notify(
+    rangeinpfld_->valueChanged.notify(
 	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
 
     lbl = tr("Shift %1").arg(SI().getUiZUnitString());

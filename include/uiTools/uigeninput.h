@@ -226,8 +226,9 @@ Returns true, if changes are accepted.
     Notifier<uiGenInput> valueChanged;
     Notifier<uiGenInput> updateRequested;
 
-// Deprecated
+    mDeprecated("Use valueChanging")
     Notifier<uiGenInput> valuechanging;
+    mDeprecated("Use valueChanged")
     Notifier<uiGenInput> valuechanged;
 
 protected:

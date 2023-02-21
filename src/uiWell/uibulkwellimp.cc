@@ -347,7 +347,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     inpfld_ = new uiASCIIFileInput( this, tr("Input LAS files"), true );
     inpfld_->setFilter( Well::LASImporter::fileFilter() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    mAttachCB( inpfld_->valuechanged, uiBulkLogImport::lasSel );
+    mAttachCB( inpfld_->valueChanged, uiBulkLogImport::lasSel );
 
     ismdfld_ = new uiGenInput( this, tr("Depth values are"),
 		    BoolInpSpec(true,tr("MD"),tr("TVDSS")) );
@@ -365,7 +365,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     welluwinmfld_ = new uiGenInput( this, tr("Using UWI as well name"),
 	    BoolInpSpec(false,uiStrings::sYes(),uiStrings::sNo()) );
     welluwinmfld_->attach( alignedBelow, lognmfld_ );
-    mAttachCB( welluwinmfld_->valuechanged, uiBulkLogImport::nameSelChg );
+    mAttachCB( welluwinmfld_->valueChanged, uiBulkLogImport::nameSelChg );
 
     wellstable_ = new uiTable( this, uiTable::Setup(3,3), "Wells" );
     wellstable_->setColumnLabel( 0, tr("Well name in LAS") );
@@ -920,7 +920,7 @@ uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
-    mAttachCB( inpfld_->valuechanged, uiBulkDirectionalImport::fileCB );
+    mAttachCB( inpfld_->valueChanged, uiBulkDirectionalImport::fileCB );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				mODHelpKey(mTableImpDataSelwellsHelpID) );

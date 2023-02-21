@@ -35,7 +35,7 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
 
     useconstantvelfld_ = new uiGenInput( this, tr("Use constant velocity"),
 	    BoolInpSpec(true) );
-    useconstantvelfld_->valuechanged.notify(
+    useconstantvelfld_->valueChanged.notify(
 	    mCB(this,uiStaticsDesc,updateFlds));
     useconstantvelfld_->attach( alignedBelow, horfld_ );
 

@@ -110,7 +110,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     const char* segtypes[] = { "None", "Fixed", "Variable", 0 };
     segmentfld_ = new uiGenInput( rightgrp, tr("Segmentation"),
 				  StringListInpSpec(segtypes) );
-    segmentfld_->valuechanged.notify( mCB(this,uiColorTableMan,segmentSel) );
+    segmentfld_->valueChanged.notify( mCB(this,uiColorTableMan,segmentSel) );
     segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
     nrsegbox_ = new uiSpinBox( rightgrp, 0, 0 );
     nrsegbox_->setInterval( 2, 64 ); nrsegbox_->setValue( 8 );

@@ -285,7 +285,7 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
 					IntInpSpec(defangle,-90,90) );
 	    anglefld_->setElemSzPol( uiObject::Small );
 	    anglefld_->setValue( defangle );
-	    mAttachCB( anglefld_->valuechanged, uiReflCalc1D::parsChangedCB );
+	    mAttachCB( anglefld_->valueChanged, uiReflCalc1D::parsChangedCB );
 	}
 	else
 	{
@@ -298,13 +298,13 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
 	    anglefld_->setElemSzPol( uiObject::Small );
 	    anglefld_->setValue(
 			    Interval<float>( anglerg.start, anglerg.stop ) );
-	    mAttachCB( anglefld_->valuechanged, uiReflCalc1D::parsChangedCB );
+	    mAttachCB( anglefld_->valueChanged, uiReflCalc1D::parsChangedCB );
 
 	    anglestepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	    anglestepfld_->attach( rightOf, anglefld_ );
 	    anglestepfld_->setElemSzPol( uiObject::Small );
 	    anglestepfld_->setValue( anglerg.step );
-	    mAttachCB( anglestepfld_->valuechanged,uiReflCalc1D::parsChangedCB);
+	    mAttachCB( anglestepfld_->valueChanged,uiReflCalc1D::parsChangedCB);
 	}
     }
 

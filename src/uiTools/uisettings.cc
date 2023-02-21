@@ -522,7 +522,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	BufferStringSet grps; getGrps( grps );
 	grpfld_ = new uiGenInput( this, tr("Settings group"),
 				  StringListInpSpec(grps) );
-	mAttachCB( grpfld_->valuechanged, uiSettings::grpChg );
+	mAttachCB( grpfld_->valueChanged, uiSettings::grpChg );
     }
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
@@ -914,7 +914,7 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     enablemipmappingfld_ = new uiGenInput( this, tr("Mipmap anti-aliasing"),
 					   BoolInpSpec(enablemipmapping_) );
     enablemipmappingfld_->attach( alignedBelow, lcb );
-    enablemipmappingfld_->valuechanged.notify(
+    enablemipmappingfld_->valueChanged.notify(
 			    mCB(this,uiVisSettingsGroup,mipmappingToggled) );
 
     anisotropicpowerfld_= new uiLabeledComboBox( this,
@@ -1137,12 +1137,12 @@ void uiPythonSettings::initDlg( CallBacker* )
     sourceChgCB(0);
     updateIDEfld();
 
-    mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
+    mAttachCB( pythonsrcfld_->valueChanged, uiPythonSettings::sourceChgCB );
     if ( internalloc_ )
-	mAttachCB( internalloc_->valuechanged,
+	mAttachCB( internalloc_->valueChanged,
 		   uiPythonSettings::internalLocChgCB );
-    mAttachCB( customloc_->valuechanged, uiPythonSettings::customEnvChgCB );
-    mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
+    mAttachCB( customloc_->valueChanged, uiPythonSettings::customEnvChgCB );
+    mAttachCB( customenvnmfld_->valueChanged, uiPythonSettings::parChgCB );
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
     mAttachCB( custompathfld_->selChange, uiPythonSettings::parChgCB );
     mAttachCB( pyidefld_->changed, uiPythonSettings::parChgCB );

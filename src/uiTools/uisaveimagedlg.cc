@@ -154,7 +154,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     {
 	useparsfld_ = new uiGenInput( this, tr("Get size from"),
 		BoolInpSpec(false,uiStrings::sSettings(),tr("Screen")) );
-	useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
+	useparsfld_->valueChanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
     }
 
@@ -193,7 +193,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 						    StringListInpSpec(units) );
     unitfld_->setElemSzPol( uiObject::Small );
-    unitfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
+    unitfld_->valueChanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
     unitfld_->attach( rightTo, heightfld_ );
 
     lockfld_ = new uiCheckBox( this, tr("Lock aspect ratio") );
@@ -213,7 +213,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 				    .directories(false)
 				    .allowallextensions(false) );
     fileinputfld_->setDefaultExtension( "jpg" );
-    fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
+    fileinputfld_->valueChanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 }
 

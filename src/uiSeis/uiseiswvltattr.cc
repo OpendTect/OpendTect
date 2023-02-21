@@ -160,7 +160,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 		    BoolInpSpec(true, istime ? uiStrings::sTime()
 					     : uiStrings::sDepth(),
 					       tr("Frequency")));
-    typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
+    typefld_->valueChanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
 
     const float zfact = SI().showZ2UserFactor();

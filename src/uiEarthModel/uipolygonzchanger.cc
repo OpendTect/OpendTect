@@ -25,7 +25,7 @@ uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
     isconstzfld_ = new uiGenInput( this, uiStrings::sUse(),
 		    BoolInpSpec(true,tr("Constant Z"),tr("Horizon")) );
     isconstzfld_->
-	       valuechanged.notify( mCB(this,uiPolygonZChanger,changeZvalCB) );
+	       valueChanged.notify( mCB(this,uiPolygonZChanger,changeZvalCB) );
 
     uiString constzlbl =
 		    tr("Z value").addSpace().append( SI().getUiZUnitString() );

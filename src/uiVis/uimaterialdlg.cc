@@ -199,7 +199,7 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 
     textclasssify_ = new uiGenInput( this, tr("Data:   "),
 	    BoolInpSpec(intpenabled,tr("Interpolation"),tr("Classification")) );
-    textclasssify_->valuechanged.notify(
+    textclasssify_->valueChanged.notify(
 	    mCB(this,uiTextureInterpolateGrp,chgIntpCB) );
 }
 

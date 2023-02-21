@@ -107,7 +107,7 @@ void uiFirewallProcSetter::initUI( const BufferString* path,
     {
 	addremfld_ = new uiGenInput( this, uiStrings::sAction(),
 	    BoolInpSpec(true, uiStrings::sAdd(), uiStrings::sRemove()) );
-	mAttachCB( addremfld_->valuechanged,
+	mAttachCB( addremfld_->valueChanged,
 				    uiFirewallProcSetter::selectionChgCB );
 	attachobj = addremfld_->attachObj();
 	toadd_ = addremfld_->getBoolValue();
@@ -176,7 +176,7 @@ void uiFirewallProcSetter::initUI( const BufferString* path,
     }
 
     if ( addremfld_ )
-	mAttachCB( addremfld_->valuechanged,
+	mAttachCB( addremfld_->valueChanged,
 				    uiFirewallProcSetter::selectionChgCB );
 
     mAttachCB( postFinalize(), uiFirewallProcSetter::updateCB );

@@ -37,7 +37,7 @@ uiLASReadDlg( uiParent* p )
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
 						      uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    mAttachCB( inpfld_->valuechanged, uiLASReadDlg::lasSel );
+    mAttachCB( inpfld_->valueChanged, uiLASReadDlg::lasSel );
 
     crssel_ = new Coords::uiCoordSystemSel( this, true, false );
     crssel_->attach( alignedBelow, inpfld_ );

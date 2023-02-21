@@ -321,7 +321,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     scopes += tr("Polygon");
     filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
     filltypefld_->setValue( 2 );
-    filltypefld_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
+    filltypefld_->valueChanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
 
     IOObjContext ctxt = mIOObjContext( PickSet );
     ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
@@ -347,7 +347,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     methodsel_ = new uiGenInput( this, tr("Algorithm"),
 		StringListInpSpec(uiHor3DInterpol::factory().getUserNames() ) );
     methodsel_->attach( alignedBelow, maxholeszfld_ );
-    methodsel_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,methodSelCB) );
+    methodsel_->valueChanged.notify( mCB(this,uiHor3DInterpolSel,methodSelCB) );
 
     for ( int idx=0; idx<methods.size(); idx++ )
     {

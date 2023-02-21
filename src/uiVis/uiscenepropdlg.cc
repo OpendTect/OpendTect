@@ -146,7 +146,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     modes.add( "Hide" ).add( "Always show" ).add( "Show on mouse hover" );
     wheelmodefld_ = new uiGenInput( this, tr("Zoom/Rotate Wheels Display"),
 				    StringListInpSpec(modes) );
-    wheelmodefld_->valuechanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    wheelmodefld_->valueChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     wheelmodefld_->setValue( wheeldisplaymode_ );
     wheelmodefld_->attach( alignedBelow, animationfld_ );
 }

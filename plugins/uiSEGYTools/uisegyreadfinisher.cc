@@ -121,7 +121,7 @@ void uiSEGYReadFinisher::crSeisFields()
     docopyfld_ = new uiGenInput( this, tr("Import as"),
 		BoolInpSpec(true,tr("OpendTect CBVS (copy&&import)"),
 				 tr("SEGYDirect (scan&&link)")) );
-    docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
+    docopyfld_->valueChanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
 
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
@@ -235,7 +235,7 @@ void uiSEGYReadFinisher::crVSPFields()
     inptxt.arg( startz ).arg( endz );
     const char* doms[] = { "TWT", "TVDSS", "MD", 0 };
     inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(doms) );
-    inpdomfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );
+    inpdomfld_->valueChanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );
     isfeetfld_ = new uiCheckBox( this, tr("in Feet") );
     isfeetfld_->attach( rightOf, inpdomfld_ );
     isfeetfld_->setChecked( fs_.zinfeet_ );

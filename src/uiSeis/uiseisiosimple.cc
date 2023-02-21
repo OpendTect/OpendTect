@@ -91,7 +91,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	mkIsAscFld();
 	fnmfld_ = new uiASCIIFileInput( this,
 		uiStrings::phrInput(uiStrings::sFile().toLower()), true );
-	mAttachCB( fnmfld_->valuechanged, uiSeisIOSimple::inpFileSel );
+	mAttachCB( fnmfld_->valueChanged, uiSeisIOSimple::inpFileSel );
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
     else
@@ -111,7 +111,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			       : tr("Output a position for every trace"),
 			BoolInpSpec(true) );
     haveposfld_->setValue( data().havepos_ );
-    mAttachCB( haveposfld_->valuechanged, uiSeisIOSimple::haveposSel );
+    mAttachCB( haveposfld_->valueChanged, uiSeisIOSimple::haveposSel );
     if ( isimp_ && is2d )
 	haveposfld_->attach( alignedBelow, coordsysselfld_ );
     else
@@ -129,13 +129,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
-	mAttachCB( havenrfld_->valuechanged, uiSeisIOSimple::havenrSel );
+	mAttachCB( havenrfld_->valueChanged, uiSeisIOSimple::havenrSel );
 	txt = tr("%1 (after trace number)").arg(isimp_ ?
 	      tr("Ref/SP number included") : tr("Include Ref/SP number"));
 	haverefnrfld_ = new uiGenInput( this, txt, BoolInpSpec(false) );
 	haverefnrfld_->setValue( data().haverefnr_ );
 	haverefnrfld_->attach( alignedBelow, havenrfld_ );
-	mAttachCB( havenrfld_->valuechanged, uiSeisIOSimple::havenrSel );
+	mAttachCB( havenrfld_->valueChanged, uiSeisIOSimple::havenrSel );
 	attachobj = haverefnrfld_->attachObj();
     }
     else
@@ -144,7 +144,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		? tr("Position in file is") : tr("Position in file will be"),
 		BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
 	isxyfld_->setValue( data().isxy_ );
-	mAttachCB( isxyfld_->valuechanged,
+	mAttachCB( isxyfld_->valueChanged,
 		   uiSeisIOSimple::positionInFileSelChg );
 	isxyfld_->attach( alignedBelow, attachobj );
 	coordsysselfld_->attach( alignedBelow, isxyfld_ );
@@ -245,7 +245,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			.setName("Info in file start No",1) );
     havesdfld_->setValue( data().havesd_ );
     havesdfld_->attach( alignedBelow, attachobj );
-    mAttachCB( havesdfld_->valuechanged, uiSeisIOSimple::havesdSel );
+    mAttachCB( havesdfld_->valueChanged, uiSeisIOSimple::havesdSel );
 
     if ( isimp_ )
     {
@@ -296,7 +296,7 @@ void uiSeisIOSimple::mkIsAscFld()
     isascfld_ = new uiGenInput( this, tr("File type"),
 				BoolInpSpec(true,uiStrings::sASCII(),
 					    tr("Binary")) );
-    mAttachCB( isascfld_->valuechanged, uiSeisIOSimple::isascSel );
+    mAttachCB( isascfld_->valueChanged, uiSeisIOSimple::isascSel );
     isascfld_->setValue( data().isasc_ );
 }
 

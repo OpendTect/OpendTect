@@ -89,7 +89,7 @@ uiDZTImporter( uiParent* p )
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( "*.dzt" ).forread( true );
     inpfld_ = new uiFileInput(this, uiStrings::phrInput(tr("DZT file")), fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiDZTImporter,inpSel) );
+    inpfld_->valueChanged.notify( mCB(this,uiDZTImporter,inpSel) );
 
     nrdeffld_ = new uiGenInput( this, tr("%1 definition: start, step")
 					.arg( uiStrings::sTraceNumber() ),

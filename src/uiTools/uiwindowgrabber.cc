@@ -68,7 +68,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 				    .defseldir(GetPicturesDir())
 				    .directories(false)
 				    .allowallextensions(false) );
-    fileinputfld_->valuechanged.notify( mCB(this,uiWindowGrabDlg,fileSel) );
+    fileinputfld_->valueChanged.notify( mCB(this,uiWindowGrabDlg,fileSel) );
     if ( windowfld_ )
 	fileinputfld_->attach( alignedBelow, windowfld_ );
     updateFilter();

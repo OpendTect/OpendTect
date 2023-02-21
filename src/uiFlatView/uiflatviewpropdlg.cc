@@ -59,7 +59,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
     useclipfld_ = new uiGenInput(this, tr("Use clipping"),
 				 StringListInpSpec( clipmodes ) );
-    useclipfld_->valuechanged.notify(
+    useclipfld_->valueChanged.notify(
 			mCB(this,uiFlatViewDataDispPropTab,clipSel) );
     if ( showdisplayfield_ )
 	useclipfld_->attach( alignedBelow, lcb );
@@ -69,14 +69,14 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     symclipratiofld_->setElemSzPol(uiObject::Small);
     symclipratiofld_->attach( alignedBelow, useclipfld_ );
     symclipratiofld_->display( useclipfld_->getIntValue()==1 );
-    symclipratiofld_->valuechanged.notify(
+    symclipratiofld_->valueChanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
     usemidvalfld_ = new uiGenInput(this,
 				   tr("Specify mid value"),BoolInpSpec(true));
     usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
     usemidvalfld_->display( useclipfld_->getIntValue()==1 );
-    usemidvalfld_->valuechanged.notify(
+    usemidvalfld_->valueChanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,useMidValSel) );
 
     symmidvalfld_ = new uiGenInput( this,
@@ -85,7 +85,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     symmidvalfld_->attach( alignedBelow, usemidvalfld_ );
     symmidvalfld_->display( useclipfld_->getIntValue()==1 &&
 			    usemidvalfld_->getBoolValue() );
-    symmidvalfld_->valuechanged.notify(
+    symmidvalfld_->valueChanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
     assymclipratiofld_ = new uiGenInput( this,
@@ -94,7 +94,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     assymclipratiofld_->setElemSzPol(uiObject::Small);
     assymclipratiofld_->attach( alignedBelow, useclipfld_ );
     assymclipratiofld_->display( useclipfld_->getIntValue()==2 );
-    assymclipratiofld_->valuechanged.notify(
+    assymclipratiofld_->valueChanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
     rgfld_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
@@ -371,7 +371,7 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     reflinefld_ = new uiGenInput( this, tr("Display reference line at"),
 			BoolInpSpec(true,tr("Specified value"),
 				    tr("Median value")) );
-    reflinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
+    reflinefld_->valueChanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
     reflinefld_->attach( alignedBelow, wigcolsel_ );
 
     refvalfld_ = new uiGenInput( this, tr("Reference line value"),
@@ -710,7 +710,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     {
 	auxnamefld_ = new uiGenInput( this, tr("Aux data"),
 				      StringListInpSpec( auxnames ) );
-	auxnamefld_->valuechanged.notify(
+	auxnamefld_->valueChanged.notify(
 			mCB( this, uiFVAnnotPropTab, auxNmFldCB));
 	auxnamefld_->attach( alignedBelow, viewnrdeczfld_ );
 
@@ -932,7 +932,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     {
 	titleoptfld_ = new uiGenInput( grp, tr("Title"),
 	    BoolInpSpec(false,tr("Custom"),tr("Automatic")) );
-	mAttachCB( titleoptfld_->valuechanged, uiFlatViewPropDlg::titleChgCB );
+	mAttachCB( titleoptfld_->valueChanged, uiFlatViewPropDlg::titleChgCB );
 
 	titlefld_->attach( rightTo, titleoptfld_ );
     }

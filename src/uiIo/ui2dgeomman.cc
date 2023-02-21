@@ -185,7 +185,7 @@ uiTrc2SPDlg( uiParent* p )
 {
     dirfld_ = new uiGenInput( this, tr("Calculate"),
 	BoolInpSpec(true,uiStrings::sSPNumber(),uiStrings::sTraceNumber()) );
-    dirfld_->valuechanged.notify( mCB(this,uiTrc2SPDlg,dirChg) );
+    dirfld_->valueChanged.notify( mCB(this,uiTrc2SPDlg,dirChg) );
 
     uiString splbl = toUiString( "%1 =" ).arg( uiStrings::sSPNumber() );
     spincrfld_ = new uiGenInput( this, splbl, FloatInpSpec(1) );
@@ -282,7 +282,7 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
 
     linefld_= new uiGenInput( this, uiStrings::sLineName(),
 			StringListInpSpec(linenms));
-    mAttachCB( linefld_->valuechanged, uiManageLineGeomDlg::lineSel );
+    mAttachCB( linefld_->valueChanged, uiManageLineGeomDlg::lineSel );
     linefld_->attach( hCentered );
 
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomidset[0]);

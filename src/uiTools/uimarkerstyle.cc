@@ -50,7 +50,7 @@ uiMarkerStyle2D::uiMarkerStyle2D( uiParent* p, const Setup& su )
     if ( su.shape_ )
     {
 	typefld_ = new uiGenInput( this, lbltxt, str );
-	typefld_->valuechanged.notify( mCB(this,uiMarkerStyle2D,changeCB) );
+	typefld_->valueChanged.notify( mCB(this,uiMarkerStyle2D,changeCB) );
 	alignobj = typefld_->attachObj();
     }
 
@@ -230,7 +230,7 @@ NotifierAccess* uiMarkerStyle3D::sliderMove()
 
 
 NotifierAccess* uiMarkerStyle3D::typeSel()
-{ return &typefld_->valuechanged; }
+{ return &typefld_->valueChanged; }
 
 
 NotifierAccess* uiMarkerStyle3D::colSel()

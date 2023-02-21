@@ -68,7 +68,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 
     thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
     thresholdfld_->attach( alignedBelow, usethresholdfld_ );
-    mAttachCB( thresholdfld_->valuechanged, uiPickPropDlg::thresholdChangeCB );
+    mAttachCB( thresholdfld_->valueChanged, uiPickPropDlg::thresholdChangeCB );
     thresholdfld_->setSensitive( usethreshold );
     thresholdfld_->setValue( Pick::Set::getSizeThreshold() );
 }

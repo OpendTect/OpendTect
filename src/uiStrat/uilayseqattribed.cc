@@ -64,7 +64,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	islocalfld_ = new uiGenInput( this, uiStrings::sType(),
 			    BoolInpSpec( false, tr("Sliding"),
 					 tr("Integrated")) );
-	mAttachCB( islocalfld_->valuechanged, uiLaySeqAttribEd::slSel );
+	mAttachCB( islocalfld_->valueChanged, uiLaySeqAttribEd::slSel );
     }
 
     if ( edsu.allowlocal_ )

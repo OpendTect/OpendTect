@@ -35,7 +35,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     usetophorfld_ = new uiGenInput( this, tr("Top boundary"),
 	    BoolInpSpec(hf->getTopHorizonID(),uiStrings::sHorizon(),
 		tr("Survey top")) );
-    usetophorfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
+    usetophorfld_->valueChanged.notify(mCB(this, uiHorInterFiller,updateFlds));
 
     IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
 			     : mIOObjContext(EMHorizon3D);
@@ -48,7 +48,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     usebottomhorfld_ = new uiGenInput( this, tr("Bottom boundary"),
 	BoolInpSpec(hf->getBottomHorizonID(),uiStrings::sHorizon(),
 			    tr("Survey bottom")) );
-    usebottomhorfld_->valuechanged.notify(
+    usebottomhorfld_->valueChanged.notify(
 	    mCB(this, uiHorInterFiller,updateFlds) );
     usebottomhorfld_->attach( alignedBelow, topvalfld_ );
 
@@ -59,7 +59,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
 	    BoolInpSpec(hf->usesGradient(), tr("Gradient") ,
 			tr("Bottom value") ));
     usegradientfld_->attach( alignedBelow, bottomhorfld_ );
-    usegradientfld_->valuechanged.notify(mCB(this,uiHorInterFiller,updateFlds));
+    usegradientfld_->valueChanged.notify(mCB(this,uiHorInterFiller,updateFlds));
 
     const uiString gradientlabel = tr( "Gradient [/%1]")
 	    .arg( SI().getUiZUnitString( false ) );

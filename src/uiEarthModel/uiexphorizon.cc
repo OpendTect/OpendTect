@@ -312,7 +312,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
 			      StringListInpSpec(exptyps()) );
-    mAttachCB( typfld_->valuechanged, uiExportHorizon::typChg );
+    mAttachCB( typfld_->valueChanged, uiExportHorizon::typChg );
     typfld_->attach( alignedBelow, attachobj );
     attachobj = typfld_->attachObj();
 

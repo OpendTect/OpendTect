@@ -260,7 +260,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 				FloatInpSpec(), FloatInpSpec() );
 	if ( !rg.isUdf() )
 	    rgfld->setValue( rg );
-	mAttachCB( rgfld->valuechanged, uiProbDenFuncGenSampled::rgChg );
+	mAttachCB( rgfld->valueChanged, uiProbDenFuncGenSampled::rgChg );
 
 	uiUnitSel::Setup ussu( Mnemonic::Other );
 	ussu.mn( mns.validIdx(idx) ? mns.get(idx) : nullptr )
@@ -368,7 +368,7 @@ void uiProbDenFuncGenSampled::unitChgCB( CallBacker* cb )
 
     const UnitOfMeasure* newuom = uiunitsel->getUnit();
     uiGenInput* rgfld = rgflds_.get( dimidx );
-    NotifyStopper ns( rgfld->valuechanged );
+    NotifyStopper ns( rgfld->valueChanged );
     const Interval<float> rg( rgfld->getFInterval() );
     rgfld->setValue( getConvertedValue( rg.start, prevuom, newuom ), 0 );
     rgfld->setValue( getConvertedValue( rg.stop, prevuom, newuom ), 1 );

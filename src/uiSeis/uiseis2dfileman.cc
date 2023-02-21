@@ -282,7 +282,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     mrgoptfld_ = new uiGenInput( geomgrp, uiStrings::phrMerge(tr("method")),
 				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
-    mAttachCB( mrgoptfld_->valuechanged, uiSeis2DFileManMergeDlg::optSel );
+    mAttachCB( mrgoptfld_->valueChanged, uiSeis2DFileManMergeDlg::optSel );
 
     renumbfld_ = new uiGenInput( geomgrp, tr("Renumber; Start/step numbers"),
 				 IntInpSpec(1), IntInpSpec(1) );
@@ -325,7 +325,7 @@ void initWin( CallBacker* )
 {
     optSel( nullptr);
     fillData2MergeCB( nullptr );
-    mAttachCB( renumbfld_->valuechanged, uiSeis2DFileManMergeDlg::optSel );
+    mAttachCB( renumbfld_->valueChanged, uiSeis2DFileManMergeDlg::optSel );
     mAttachCB( renumbfld_->checked, uiSeis2DFileManMergeDlg::optSel );
 }
 

@@ -35,7 +35,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 				      funclist );
     if ( su.winname_ ) windowtypefld_->setText( su.winname_ );
 
-    windowtypefld_->valuechanged.notify(
+    windowtypefld_->valueChanged.notify(
 			mCB(this,uiWindowFunctionSel,windowChangedCB) );
 
     viewbut_ = new uiPushButton( this, uiStrings::sView(), true );
@@ -64,7 +64,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 		varinpfld->setValue( su.winparam_ * 100 );
 
 	    varinpfld->attach( alignedBelow, windowtypefld_ );
-	    varinpfld->valuechanged.notify(
+	    varinpfld->valueChanged.notify(
 			mCB(this,uiWindowFunctionSel,windowChangedCB) );
 	}
 
@@ -82,7 +82,7 @@ uiWindowFunctionSel::~uiWindowFunctionSel()
 
 
 NotifierAccess& uiWindowFunctionSel::typeChange()
-{ return windowtypefld_->valuechanged; }
+{ return windowtypefld_->valueChanged; }
 
 
 const char* uiWindowFunctionSel::windowName() const
@@ -156,7 +156,7 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
     {
 	setWindowName( winname );
 	windowtypefld_->valueChanged.trigger();
-	windowtypefld_->valuechanged.trigger();
+	windowtypefld_->valueChanged.trigger();
     }
 
     const float variable = winfuncseldlg_->getVariable();

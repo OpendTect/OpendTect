@@ -657,7 +657,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 	BoolInpSpec(false,tr("Single horizon wrapping"),
 			  tr("Multiple horizon layers")) );
     singlehorfld_->attach( alignedBelow, subvolfld_ );
-    singlehorfld_->valuechanged.notify( mCB(this,uiBodyRegionDlg,horModChg) );
+    singlehorfld_->valueChanged.notify( mCB(this,uiBodyRegionDlg,horModChg) );
 
     uiTable::Setup tsu( 4, 4 );
     uiGroup* tblgrp = new uiGroup( this );

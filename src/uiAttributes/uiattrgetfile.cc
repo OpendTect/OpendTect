@@ -48,7 +48,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
 
     fileinpfld->setDefaultSelectionDir( isattrset_ ? GetBaseDataDir()
 						   : GetProcFileName(0) );
-    fileinpfld->valuechanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
+    fileinpfld->valueChanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
     if ( !isattrset_ )
     {
 	uiPushButton* but = new uiPushButton( this,
@@ -171,7 +171,7 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
     fileinpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 		uiFileInput::Setup().defseldir(sImportDir).forread(true)
 				    .filter(fltr).withexamine(true) );
-    mAttachCB( fileinpfld_->valuechanged, uiImpAttrSet::inpChgd );
+    mAttachCB( fileinpfld_->valueChanged, uiImpAttrSet::inpChgd );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
     ctxt.forread_ = false;

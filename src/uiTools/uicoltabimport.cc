@@ -50,14 +50,14 @@ uiColTabImport::uiColTabImport( uiParent* p )
     setOkText( uiStrings::sImport() );
     choicefld_ = new uiGenInput( this, tr("Import from"),
 				 StringListInpSpec(ImportTypeDef()) );
-    choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
+    choicefld_->valueChanged.notify( mCB(this,uiColTabImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
     dirfld_ = new uiFileInput( this, getLabel(OtherUser),
 			       uiFileInput::Setup(sHomePath)
 			       .directories(true) );
     dirfld_->setReadOnly();
-    dirfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
+    dirfld_->valueChanged.notify( mCB(this,uiColTabImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
 
     dtectusrfld_ = new uiGenInput( this, tr("DTECT_USER (if any)") );

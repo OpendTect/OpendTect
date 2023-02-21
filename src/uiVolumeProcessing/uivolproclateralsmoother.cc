@@ -68,7 +68,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
     ismedianfld_ = new uiGenInput( this, uiStrings::sType(),
 	    BoolInpSpec( pars && pars->type_==Stats::Median,
 	     uiStrings::sMedian(), uiStrings::sAverage()) );
-    ismedianfld_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
+    ismedianfld_->valueChanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
     ismedianfld_->attach( alignedBelow, stepoutgroup );
 
     weightedfld_ = new uiGenInput( this, tr("Weighted"),
@@ -84,7 +84,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
     udfhandling_ = new uiGenInput( this, tr("Undefined substitution"),
 	    StringListInpSpec( udfhanlingstrs ) );
     udfhandling_->attach( alignedBelow, mirroredgesfld_ );
-    udfhandling_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
+    udfhandling_->valueChanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
 
     udffixedvalue_ = new uiGenInput( this, tr("Fixed value"),
 	    FloatInpSpec( mUdf(float) ) );

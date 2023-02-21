@@ -331,11 +331,11 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
     {
 	inputfld_ = new uiGenInput( this, tr("Saved in v6.4 or earlier"),
 				BoolInpSpec(false,uiStrings::sEmptyString()) );
-	mAttachCB( inputfld_->valuechanged, uiStratLayerModelDispIO::inputCB );
+	mAttachCB( inputfld_->valueChanged, uiStratLayerModelDispIO::inputCB );
 
 	filefld_ = new uiFileInput( this, uiStrings::sFileName() );
 	filefld_->attach( alignedBelow, inputfld_ );
-	mAttachCB( filefld_->valuechanged, uiStratLayerModelDispIO::selCB );
+	mAttachCB( filefld_->valueChanged, uiStratLayerModelDispIO::selCB );
 
 	laymodfld_ = new uiIOObjSel( this, ctxt );
 	laymodfld_->attach( alignedBelow, inputfld_ );
@@ -347,12 +347,12 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 
 	eachfld_ = new uiGenInput( this, tr("Read each"),
 				   IntInpSpec(sUseEach,1,1000) );
-	mAttachCB( eachfld_->valuechanging, uiStratLayerModelDispIO::nrCB );
+	mAttachCB( eachfld_->valueChanging, uiStratLayerModelDispIO::nrCB );
 	eachfld_->attach( alignedBelow, infofld_ );
 
 	startatfld_ = new uiGenInput( this, tr("Start at"),
 				      IntInpSpec(sStartAt,1,100000) );
-	mAttachCB( startatfld_->valuechanging, uiStratLayerModelDispIO::nrCB );
+	mAttachCB( startatfld_->valueChanging, uiStratLayerModelDispIO::nrCB );
 	startatfld_->attach( rightTo, eachfld_ );
 
 	nrreadfld_ = new uiGenInput( this, tr("Models to read" ) );
