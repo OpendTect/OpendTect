@@ -703,7 +703,7 @@ const PropertyRef* PropertyRefSet::getByName( const char* nm,
 	prs.add( pr );
 
     const PropertyRef* ret = getByName( nm, prs, matchaliases );
-    if ( ret && !cache.empty() )
+    if ( ret )
 	cache[qstr] = ret;
 
     return ret;
