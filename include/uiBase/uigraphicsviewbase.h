@@ -141,6 +141,7 @@ public:
 				~uiGraphicsViewMask();
 
     void			setBorder(int);
+    int				border() const;
     void			setMaskColor(const OD::Color&);
     void			update();
 

@@ -846,6 +846,12 @@ void uiGraphicsViewMask::setBorder( int b )
 }
 
 
+int uiGraphicsViewMask::border() const
+{
+    return border_;
+}
+
+
 void uiGraphicsViewMask::setMaskColor( const OD::Color& col )
 {
     maskcolor_ = col;
