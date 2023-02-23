@@ -577,7 +577,7 @@ const Mnemonic* MnemonicSet::getByName( const char* nm,
 	mnsel.add( mnc );
 
     const Mnemonic* ret = getByName( nm, mnsel, matchaliases );
-    if ( ret && !cache.empty() )
+    if ( ret )
 	cache[qstr] = ret;
 
     return ret;
@@ -887,9 +887,13 @@ const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
 const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
 					const BufferStringSet* hintnms ) const
 {
-    const Mnemonic* ret = getByName( nm, false );
-    if ( !ret )
-	ret = getByName( nm );
+    const Mnemonic* ret = nullptr;
+    if ( nm && *nm )
+    {
+	ret = getByName( nm, false );
+	if ( !ret )
+	    ret = getByName( nm );
+    }
 
     if ( !ret && hintnms )
     {
@@ -909,10 +913,7 @@ void MnemonicSelection::sort()
 {
     BufferStringSet mnemnms;
     getNames( mnemnms );
-    mnemnms.sort();
-    MnemonicSelection mns;
-    for ( const auto* name : mnemnms )
-	mns.add( this->getByName(*name,false) );
-
-    *this = mns;
+    ArrPtrMan<int> sortindexes = mnemnms.getSortIndexes();
+    if ( sortindexes )
+	useIndexes( sortindexes );
 }
