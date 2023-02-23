@@ -57,7 +57,6 @@ public:
 		const StepInterval<int>& crl_rg, bool overwrite=false);
     ~odHorizon3D();
 
-    void		close();
     void		getZ(hAllocator);
     void		getXY(hAllocator);
     void		putZ(const uint32_t shape[2], const float* data,
@@ -74,6 +73,9 @@ protected:
     TrcKeySampling		tk_;
     PtrMan<Array2D<float>>	array_;
     size_t			writecount_ = 0;
+
+    void			save();
+
 };
 
 
@@ -108,7 +110,6 @@ mExternC(ODBind) hHorizon3D	horizon3d_newout(hSurvey, const char* name,
 						 const int* inl_rg,
 						 const int* crl_rg,
 						 bool overwrite);
-mExternC(ODBind) int		horizon3d_attribcount(hHorizon3D);
 mExternC(ODBind) hStringSet	horizon3d_attribnames(hHorizon3D);
 mExternC(ODBind) void		horizon3d_getz(hHorizon3D, hAllocator);
 mExternC(ODBind) void		horizon3d_getxy(hHorizon3D, hAllocator);
@@ -128,7 +129,6 @@ mDeclareBaseBindings(Horizon2D, horizon2d)
 mExternC(ODBind) hHorizon2D	horizon2d_newout(hSurvey, const char* name,
 						 bool creategeom,
 						 bool overwrite);
-mExternC(ODBind) int		horizon2d_attribcount(hHorizon2D);
 mExternC(ODBind) hStringSet	horizon2d_attribnames(hHorizon2D);
 mExternC(ODBind) int		horizon2d_linecount(hHorizon2D);
 mExternC(ODBind) void		horizon2d_lineids(hHorizon2D, int, int*);

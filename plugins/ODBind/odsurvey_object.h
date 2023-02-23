@@ -25,6 +25,8 @@ ________________________________________________________________________________
 #include "trckeyzsampling.h"
 
 #include "odsurvey.h"
+#include <string.h>
+
 
 class IOObj;
 class SurveyInfo;
@@ -37,16 +39,15 @@ public:
     virtual ~odSurveyObject();
     odSurveyObject(const odSurveyObject&);
 
-    bool		isOK() const		{ return errmsg_.isEmpty(); }
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    bool		isOK() const	{ return errmsg_.isEmpty(); }
+    BufferString	errMsg() const	{ return errmsg_; }
 
-    const char*		getName() const;
+    BufferString	getName() const;
     virtual void	getInfo(OD::JSON::Object&) const = 0;
     virtual void	getFeature(OD::JSON::Object&, bool towgs=true) const;
     virtual void	getPoints(OD::JSON::Array&, bool towgs) const = 0;
 
     const IOObj&	ioobj() const	{ return *ioobj_; }
-    bool		forread() const	{ return forread_; }
     const odSurvey&	survey() const	{ return survey_; }
 
     template<typename T>
@@ -71,7 +72,6 @@ protected:
     const odSurvey&	survey_;
     BufferString	name_;
     PtrMan<IOObj>	ioobj_;
-    bool		forread_;
     bool		overwrite_ = false;
     BufferString	errmsg_;
 
@@ -172,7 +172,7 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     h##classnm bindnm##_newin( hSurvey survey, const char* name ) \
     { \
 	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
-	return new od##classnm( *surv, name ); \
+	return surv && name ? new od##classnm( *surv, name ) : nullptr; \
     } \
     void bindnm##_del( h##classnm self ) \
     { \
@@ -181,12 +181,13 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     const char* bindnm##_errmsg( h##classnm self ) \
     { \
 	const auto* p = reinterpret_cast<od##classnm*>(self); \
-	return strdup( p->errMsg() ); \
+	return p ? strdup( p->errMsg().buf() ) : nullptr; \
     } \
     const char* bindnm##_feature( h##classnm self ) \
     { \
 	const auto* p = reinterpret_cast<od##classnm*>(self); \
 	OD::JSON::Object jsobj; \
+	if ( !p ) return nullptr; \
 	p->getFeature( jsobj ); \
 	return strdup( jsobj.dumpJSon().buf() ); \
     } \
@@ -194,6 +195,7 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     { \
 	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
 	const auto* nms = reinterpret_cast<BufferStringSet*>(fornms); \
+	if ( !surv || !nms ) return nullptr; \
 	OD::JSON::Object jsobj; \
 	od##classnm::getFeatures<od##classnm>( jsobj, *surv, *nms ); \
 	return strdup( jsobj.dumpJSon().buf() ); \
@@ -201,14 +203,16 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     const char* bindnm##_info( h##classnm self ) \
     { \
 	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	if ( !p ) return nullptr; \
 	OD::JSON::Object jsobj; \
 	p->getInfo( jsobj ); \
-	return strdup( jsobj.dumpJSon() ); \
+	return strdup( jsobj.dumpJSon().buf() ); \
     } \
     const char* bindnm##_infos( hSurvey survey, const hStringSet fornms ) \
     { \
 	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
 	const auto* nms = reinterpret_cast<BufferStringSet*>(fornms); \
+	if ( !surv || !nms ) return nullptr; \
 	OD::JSON::Array jsarr( true ); \
 	od##classnm::getInfos<od##classnm>( jsarr, *surv, *nms ); \
 	return strdup( jsarr.dumpJSon().buf() ); \
@@ -216,10 +220,11 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     bool bindnm##_isok( h##classnm self ) \
     { \
 	const auto* p = reinterpret_cast<od##classnm*>(self); \
-	return p->isOK(); \
+	return p ? p->isOK() : false; \
     } \
     hStringSet bindnm##_names( hSurvey survey ) \
     { \
 	const auto* p = reinterpret_cast<odSurvey*>(survey); \
+	if ( !p ) return nullptr; \
 	return od##classnm::getNames<od##classnm>( *p ); \
     }

@@ -39,6 +39,7 @@ Examples
 import sys, os
 import ctypes as ct
 import json
+import atexit
 import numpy as np
 import odpy.common as odc
 
@@ -81,7 +82,9 @@ class NumpyAllocator:
 libodbind = os.path.join(odc.getExecPlfDir(), get_lib_name('ODBind'))
 LIBODB = ct.CDLL(libodbind)
 init_module = wrap_function(LIBODB, 'initModule', None, [ct.c_char_p])
+exit_module = wrap_function(LIBODB, 'exitModule', None, [])
 init_module(libodbind.encode())
+atexit.register(exit_module)
 
 cstring_del = wrap_function(LIBODB, 'cstring_del', None, [ct.POINTER(ct.c_char_p)])
 def pystr(cstringptr: ct.POINTER(ct.c_char_p), autodel: bool=True) ->str:
@@ -235,7 +238,7 @@ class Survey(object):
         """ Return a GeoJSON feature for the survey
 
         """
-        return pyjsonstr(Survey._feature(self._survey))
+        return '{"type":"FeatureCollection","features":['+ pystr(Survey._feature(self._handle)) + ']}'
 
     def info(self) ->dict:
         """Return basic information for the OpendTect survey.
@@ -287,6 +290,26 @@ class Survey(object):
         return {key: [i[key] for i in infolist] for key in infolist[0]}
 
     @staticmethod
+    def infos_dataframe(basedir: str, fornms: list=[]):
+        """ Return basic information for all or a subset of surveys in the given data root as a Pandas DataFrame.
+
+        Parameters
+        ----------
+        basedir : str
+            The OpendTect data root
+        fornms : list[str]
+            A list of survey names to use, an empty list will give information for all surveys.
+            
+        Returns
+        -------
+        Pandas DataFrame
+
+        """
+        from pandas import DataFrame
+        return DataFrame(Survey.infos(basedir, fornms))
+
+
+    @staticmethod
     def features(basedir: str, fornms: list=[]) ->str:
         """ Return a GeoJSON Feature Collection with the outlines and basic information for all 
         or a subset of surveys in the given data root.
@@ -320,7 +343,7 @@ class _SurveyObject(object):
     def _initbasebindings(clss, bindnm):
         clss._newin = wrap_function(LIBODB, f'{bindnm}_newin', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
         clss._del = wrap_function(LIBODB, f'{bindnm}_del', None, [ct.c_void_p])
-        clss._errmsg = wrap_function(LIBODB, f'{bindnm}_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+        clss._errmsg = wrap_function(LIBODB, f'{bindnm}_errmsg', ct.POINTER(ct.c_char_p), [ct.c_void_p])
         clss._feature = wrap_function(LIBODB, f'{bindnm}_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
         clss._features = wrap_function(LIBODB, f'{bindnm}_features', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._info = wrap_function(LIBODB, f'{bindnm}_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
@@ -340,13 +363,10 @@ class _SurveyObject(object):
 
         """
 
-        if not hasattr(self,'_newin'):
-            self._initbindings(type(self).__name__.lower())
-
         self._survey = survey
         self._handle = self._newin( survey._handle, name.encode())
         if not self._isok(self._handle):
-            raise TypeError(self._errmsg(self._handle))
+            raise TypeError(pystr(self._errmsg(self._handle)))
 
     def __del__(self):
         self._del(self._handle)
@@ -355,7 +375,7 @@ class _SurveyObject(object):
         """ Return a GeoJSON feature for the object
 
         """
-        return pyjsonstr(self._feature(self._handle))
+        return '{"type":"FeatureCollection","features":['+ pystr(self._feature(self._handle)) + ']}'
 
     @classmethod
     def features(clss, survey: Survey, fornms: list=[]) ->str:
@@ -461,16 +481,10 @@ class Horizon2D(_SurveyObject):
     @classmethod
     def _initbindings(clss, bindnm):
         clss._initbasebindings(bindnm)
-        clss._attribcount = wrap_function(LIBODB, f'{bindnm}_attribcount', ct.c_int, [ct.c_void_p])
         clss._attribnames = wrap_function(LIBODB, f'{bindnm}_attribnames', ct.c_void_p, [ct.c_void_p])
         clss._linecount = wrap_function(LIBODB, f'{bindnm}_linecount', ct.c_int, [ct.c_void_p])
         clss._lineids = wrap_function(LIBODB, f'{bindnm}_lineids', None, [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int)])
         clss._linenames = wrap_function(LIBODB, f'{bindnm}_linenames', ct.c_void_p, [ct.c_void_p])
-
-    @property
-    def attribcount(self) ->int:
-        """int: Number of attributes attached to this 2D horizon (readonly)"""
-        return self._attribcount(self._handle)
 
     @property
     def attribnames(self) ->list[str]:
@@ -500,6 +514,7 @@ class Horizon2D(_SurveyObject):
         """
 
         return pystrlist(self._linenames(self._handle))
+Horizon2D._initbindings('horizon2d')
 
 
 class Horizon3D(_SurveyObject):
@@ -519,7 +534,7 @@ class Horizon3D(_SurveyObject):
                     np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),
                     np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS")
                     ]
-        clss._putz = wrap_function(LIBODB, f'{bindnm}_getz', None, putzargs)
+        clss._putz = wrap_function(LIBODB, f'{bindnm}_putz', None, putzargs)
 
     @property
     def attribnames(self) ->list[str]:
@@ -542,20 +557,46 @@ class Horizon3D(_SurveyObject):
 
     @classmethod
     def create(clss, survey: Survey, name: str, inl_rg: list[int], crl_rg: list[int], overwrite: bool=False):
-        if not hasattr(clss,'_newin'):
-            clss._initbindings(type(clss).__name__.lower())
+        """Create a new OpendTect 3D horizon object
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        name : str
+            OpendTect 3D horizon name
+        inl_rg : list[int]
+            The inline range (start, stop and step) for the horizon
+        crl_rg : list[int]
+            The crossline range (start, stop and step) for the horizon
+        overwrite : bool=False
+            Flag to indicate if the new horizon can replace an existing horizon of the same name
+
+        Returns
+        -------
+        A Horizon3D object
+
+        """
 
         newhor = clss.__new__(clss)
         newhor._survey = survey
         ct_inlrg = (ct.c_int * 3)(*inl_rg)
         ct_crlrg = (ct.c_int * 3)(*crl_rg)
-        newhor._handle = clss._newout(survey._handle, name, ct_inl_rg, ct_crl_rg, overwrite)
+        newhor._handle = clss._newout(survey._handle, name.encode(), ct_inlrg, ct_crlrg, overwrite)
         if not clss._isok(newhor._handle):
-            raise TypeError(clss._errmsg(newhor._handle))
+            raise TypeError(pystr(clss._errmsg(newhor._handle)))
 
         return newhor
 
     def getz(self):
+        """Get the 3D horizon Z values as a Numpy array
+
+        Returns
+        -------
+        Numpy 2D array with the horizon Z values
+
+        """
+
         allocator = NumpyAllocator()
         self._getz(self._handle, allocator.cfunc)
         if not self._isok(self._handle):
@@ -564,6 +605,14 @@ class Horizon3D(_SurveyObject):
         return allocator.allocated_arrays[0]
      
     def getxy(self):
+        """Get the 3D horizon X,Y values as Numpy arrays
+
+        Returns
+        -------
+        Tuple of Numpy 2D arrays with the horizon X, Y values
+
+        """
+
         allocator = NumpyAllocator()
         self._getxy(self._handle, allocator.cfunc)
         if not self._isok(self._handle):
@@ -572,6 +621,14 @@ class Horizon3D(_SurveyObject):
         return (allocator.allocated_arrays[:2])
 
     def get_xarray(self):
+        """Get the 3D horizon Z values as an XArray DataArray
+
+        Returns
+        -------
+        XArray DataArray with the horizon Z values and both inline/crossline and X/Y coordinates
+
+        """
+
         from xarray import DataArray
         name = self.info()['name']
         xy = self.getxy()
@@ -593,12 +650,44 @@ class Horizon3D(_SurveyObject):
         return DataArray(z, coords=coords, dims=dims, name=name, attrs=attribs)
 
     def putz(self, data, inlines, crlines):
-        npdata = data if data.isinstance('ndarray') else np.array(data)
-        npinlines = inlines if inlines.isinstance('ndarray') else np.array(inlines)
-        npcrlines = crlines if crlines.isinstance('ndarray') else np.array(crlines)
+        """Save the 3D horizon Z values from the data Numpy 2D array
+
+        Parameters
+        ----------
+        data : numpy.ndarray
+            Horizon Z values
+        inlines : arraylike
+            Inline locations of Z values
+        crlines : arraylike
+            Crossline locations of Z values
+        """
+
+        npdata = data if isinstance(data, np.ndarray) else np.array(data)
+        npinlines = inlines if isinstance(inlines, np.ndarray) else np.array(inlines, dtype=np.int32)
+        npcrlines = crlines if isinstance(crlines, np.ndarray) else np.array(crlines, dtype=np.int32)
         shape = np.array(npdata.shape, dtype=np.uint32)
         self._putz(self._handle, shape, npdata, npinlines, npcrlines)
         if not self._isok(self._handle):
             raise ValueError(self._errmsg(self._handle))
+
+    def put_xarray(self, data_array):
+        """Save the 3D horizon Z values from the data_array XArray DataArray
+
+        Parameters
+        ----------
+        data_array : XArray DataArray
+            Horizon Z values and 'inl' and 'crl' coordinates
+        """
+
+        npdata = data_array.values
+        npinlines = data_array.coords['inl'].to_numpy().astype(dtype=np.int32)
+        npcrlines = data_array.coords['crl'].to_numpy().astype(dtype=np.int32)
+        shape = np.array(npdata.shape, dtype=np.uint32)
+        self._putz(self._handle, shape, npdata, npinlines, npcrlines)
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
+
+
+Horizon3D._initbindings('horizon3d')
 
 

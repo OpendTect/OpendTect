@@ -35,17 +35,11 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
 				const char* tgname )
     : survey_(thesurvey)
     , name_(name)
-    , forread_(true)
 {
     survey_.activate();
-    errmsg_.setEmpty();
     ioobj_ = IOM().get( name, tgname );
     if ( !ioobj_ )
-    {
-	if ( !errmsg_.isEmpty() )
-	    errmsg_.addNewLine();
-	errmsg_.add("Attempt to read invalid IO object.");
-    }
+	errmsg_ = "IO object read error: ";
     else
 	name_ = ioobj_->name();
 }
@@ -56,18 +50,12 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
 				const char* fmt )
     : survey_(thesurvey)
     , name_(name)
-    , forread_(false)
     , overwrite_(overwrite)
 {
     survey_.activate();
-    errmsg_.setEmpty();
     ioobj_ = survey_.createObj( name, tgname, fmt, overwrite, errmsg_);
-    if ( !ioobj_ )
-    {
-	if ( !errmsg_.isEmpty() )
-	    errmsg_.addNewLine();
-	errmsg_.add("Attempt to write to invalid IO object.");
-    }
+    if ( !ioobj_ || !errmsg_.isEmpty() )
+	errmsg_.insertAt( 0, "IO object creation error: " );
     else
 	name_ = ioobj_->name();
 }
@@ -80,16 +68,16 @@ odSurveyObject::~odSurveyObject()
 odSurveyObject::odSurveyObject( const odSurveyObject& oth )
     : survey_(oth.survey_)
     , name_(oth.name_)
-    ,forread_(oth.forread_)
+    , overwrite_(oth.overwrite_)
 {
     survey_.activate();
     ioobj_ = oth.ioobj_->clone();
 }
 
 
-const char* odSurveyObject::getName() const
+BufferString odSurveyObject::getName() const
 {
-    return strdup( name_ );
+    return name_;
 }
 
 // py::tuple odSurveyObject::tkzsToTuple( const TrcKeyZSampling& tkzs,
@@ -161,8 +149,10 @@ void odSurveyObject::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
     jsobj.set( "properties", info );
     auto* geom = new OD::JSON::Object;
     geom->set( "type", "Polygon" );
+    auto* rings = new OD::JSON::Array( false ) ;
     auto* coords = new OD::JSON::Array( false );
     getPoints( *coords, towgs );
-    geom->set( "coordinates", coords );
+    rings->add( coords );
+    geom->set( "coordinates", rings );
     jsobj.set( "geometry", geom );
 }

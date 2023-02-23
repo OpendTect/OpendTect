@@ -43,11 +43,11 @@ public:
     odSurvey(const char* basedir, const char* surveynm);
     ~odSurvey();
 
-    const char*		type() const;
+    BufferString	type() const;
     bool		has2D() const;
     bool		has3D() const;
-    const char*		get_crsCode() const;
-    const char*		surveyPath() const;
+    BufferString	get_crsCode() const;
+    BufferString	surveyPath() const;
     void		activate() const;
     const SurveyInfo&	si() const { activate(); return SI(); }
 
@@ -85,6 +85,7 @@ typedef void* hStringSet;
 typedef void* hSurvey;
 
 mExternC(ODBind) void		initModule(const char*);
+mExternC(ODBind) void		exitModule();
 mExternC(ODBind) hSurvey	survey_new(const char* basedir,
 					   const char* surveynm);
 mExternC(ODBind) void		survey_del(hSurvey);

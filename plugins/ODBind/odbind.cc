@@ -75,6 +75,6 @@ hStringSet stringset_add( hStringSet self, const char* txt )
 const char* stringset_get( hStringSet self, int idx )
 {
     const auto* p = reinterpret_cast<BufferStringSet*>(self);
-    return p->get( idx ).buf();
+    return strdup( p->get( idx ).buf() );
 }
 

@@ -40,8 +40,7 @@ ________________________________________________________________________________
 #include "survinfo.h"
 #include "transl.h"
 
-#include <string.h>
-#include <sstream>
+#include <cstring>
 
 BufferString odSurvey::curbasedir_;
 BufferString odSurvey::cursurvey_;
@@ -65,20 +64,20 @@ odSurvey::odSurvey(const char* basedir, const char* surveynm)
 odSurvey::~odSurvey()
 {}
 
-const char* odSurvey::type() const
+BufferString odSurvey::type() const
 {
     BufferString res;
     if (has2D()) res.add( "2D" );
     if (has3D()) res.add( "3D" );
-    return strdup(res);
+    return res;
 }
 
 void odSurvey::getInfo( OD::JSON::Object& jsobj) const
 {
     const auto& info = si();
     jsobj.set( "name", info.name().buf() );
-    jsobj.set( "type", type() );
-    jsobj.set( "crs", get_crsCode() );
+    jsobj.set( "type", type().buf() );
+    jsobj.set( "crs", get_crsCode().buf() );
     jsobj.set( "xyunit", info.getXYUnitString(false) );
     jsobj.set( "zunit", info.getZUnitString(false) );
     jsobj.set( "srd", info.seismicReferenceDatum() );
@@ -93,9 +92,11 @@ void odSurvey::getFeature(OD::JSON::Object& jsobj, bool towgs) const
     jsobj.set( "properties", info );
     auto* geom = new OD::JSON::Object;
     geom->set( "type", "Polygon" );
+    auto* rings = new OD::JSON::Array( false ) ;
     auto* coords = new OD::JSON::Array( false );
     getPoints( *coords, towgs );
-    geom->set( "coordinates", coords );
+    rings->add( coords );
+    geom->set( "coordinates", rings );
     jsobj.set( "geometry", geom );
 }
 
@@ -121,12 +122,10 @@ void odSurvey::makeCoordsList( OD::JSON::Array& points,
 	ConstRefMan<Coords::CoordSystem> coordsys = si().getCoordSystem();
 	for ( const auto& coord : coords )
 	{
-	    auto* point = new OD::JSON::Array(OD::JSON::DataType::Number);
+	    auto* point = new OD::JSON::Array(OD::JSON::DataType::String);
 	    const LatLong ll( LatLong::transform(coord, true, coordsys) );
-	    const double lng = roundOff<double>( ll.lng_ * 1000000. )/1000000.;
-	    const double lat = roundOff<double>( ll.lat_ * 1000000. )/1000000.;
-	    point->add( lng );
-	    point->add( lat );
+	    point->add( strdup(toString(ll.lng_, 6)) );
+	    point->add( strdup(toString(ll.lat_, 6)) );
 	    points.add(point);
 	}
     }
@@ -153,7 +152,7 @@ bool odSurvey::has3D() const
     return si().has3D();
 }
 
-const char* odSurvey::get_crsCode() const
+BufferString odSurvey::get_crsCode() const
 {
     BufferString crscode;
     IOPar iop;
@@ -164,13 +163,13 @@ const char* odSurvey::get_crsCode() const
 	crscode = iop.find( IOPar::compKey(sKey::Projection(),sKey::ID()) );
 	crscode.replace("`", ":");
     }
-    return strdup( crscode.buf() );
+    return crscode;
 }
 
-const char* odSurvey::surveyPath() const
+BufferString odSurvey::surveyPath() const
 {
     FilePath fp(si().getDataDirName(), si().getDirName());
-    return strdup( fp.fullPath().buf() );
+    return fp.fullPath();
 }
 
 BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
@@ -227,13 +226,13 @@ void odSurvey::getObjInfos( OD::JSON::Object& jsobj, const char* trgrpnm ) const
 	    }
 	}
     }
-    jsobj.set( "Name", nms );
-    jsobj.set( "ID", ids );
-    jsobj.set( "Format", trls );
+    jsobj.set( "name", nms );
+    jsobj.set( "id", ids );
+    jsobj.set( "format", trls );
     if (havetype)
-	jsobj.set( "Type", types );
+	jsobj.set( "type", types );
 
-    jsobj.set( "Files", files );
+    jsobj.set( "files", files );
 }
 
 
@@ -248,7 +247,6 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 			    const char* translkey, bool overwrite,
 			    BufferString& errmsg ) const
 {
-    errmsg.setEmpty();
     if ( !objname || !trgrpnm || !TranslatorGroup::hasGroup(trgrpnm) )
 	return nullptr;
 
@@ -261,7 +259,7 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 	if ( overwrite )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
-	    if ( !IOM().implRemove(*ioobj) )
+	    if ( !IOM().implRemove(ioobj->key(), true) )
 	    {
 		errmsg = "cannot remove existing object.";
 		return nullptr;
@@ -283,7 +281,7 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
     IOM().getEntry( ctio, false );
     if ( !ctio.ioobj_ || !IOM().commitChanges(*ctio.ioobj_) )
     {
-	errmsg = "Unable to create new object.";
+	errmsg = "unable to create new object.";
 	return nullptr;
     }
 
@@ -438,7 +436,7 @@ void survey_coords( hSurvey self, int iline, int xline, double* x, double* y )
 const char* survey_crs( hSurvey self )
 {
     const auto* p = reinterpret_cast<odSurvey*>(self);
-    return p->get_crsCode();
+    return strdup( p->get_crsCode().buf() );
 }
 
 const char* survey_feature( hSurvey self )
@@ -499,18 +497,24 @@ hStringSet survey_names( const char* basedir )
 const char* survey_path( hSurvey self )
 {
     const auto* p = reinterpret_cast<odSurvey*>(self);
-    return p->surveyPath();
+    return strdup( p->surveyPath().buf() );
 }
 
 const char* survey_survtype( hSurvey self )
 {
     const auto* p = reinterpret_cast<odSurvey*>(self);
-    return p->type();
+    return strdup( p->type().buf() );
 }
 
 void initModule( const char* odbindfnm )
 {
     odSurvey::initModule( odbindfnm );
+}
+
+void exitModule()
+{
+    IOM().applicationClosing.trigger();
+    CloseBindings();
 }
 
 

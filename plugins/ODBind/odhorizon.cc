@@ -103,10 +103,10 @@ odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name )
 	tk_.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     else
     {
-	if ( !errmsg_.isEmpty() )
-	    errmsg_.addNewLine();
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = "Error opening horizon: ";
 
-	errmsg_.add( "Invalid eminfo." );
+	errmsg_.add( "invalid eminfo." );
     }
 }
 
@@ -124,21 +124,34 @@ odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name,
 
 odHorizon3D::~odHorizon3D()
 {
-    if ( !forread_ )
-	close();
 }
 
 
-void odHorizon3D::close()
+void odHorizon3D::save()
 {
     survey_.activate();
-    errmsg_.setEmpty();
-    if ( array_ && writecount_ )
+    if ( ioobj_ && array_ && writecount_ )
     {
-	RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::create( name_ );
+	EM::IOObjInfo eminfo( ioobj_ );
+	RefMan<EM::Horizon3D> hor3d;
+	if ( eminfo.isOK() && eminfo.isHorizon() )
+	{
+	    const MultiID hor3dkey = ioobj_->key();
+	    RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
+	    if ( !obj )
+	    {
+		errmsg_ = "Horizon3D::save - invalid emobject.";
+		return;
+	    }
+
+	    hor3d = reinterpret_cast<EM::Horizon3D*>( obj.ptr() );
+	}
+	else
+	    hor3d = EM::Horizon3D::create( name_ );
+
 	if ( !hor3d )
 	{
-	    errmsg_.add( "cannot create horizon" );
+	    errmsg_ = "Horizon3D::save - invalid object.";
 	    return;
 	}
 
@@ -148,14 +161,11 @@ void odHorizon3D::close()
 	    PtrMan<Executor> saver = hor3d->saver();
 	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )
 	    {
-		errmsg_.add( "failed during horizon save" );
+		errmsg_ = "Horizon3D::save - error during save.";
 		return;
 	    }
 	}
     }
-
-    if ( writecount_==0 )
-	IOM().implRemove( *ioobj_ );
 
     writecount_ = 0;
 }
@@ -165,14 +175,14 @@ void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
 {
     survey_.activate();
     jsobj.setEmpty();
-    EM::IOObjInfo eminfo( ioobj_ );
-    if ( !eminfo.isOK() )
-	return;
-
-    jsobj.set( "name", getName() );
+    jsobj.set( "name", getName().buf() );
     jsobj.set( "inl_range", tk_.lineRange() );
     jsobj.set( "crl_range", tk_.trcRange() );
-    jsobj.set( "z_range", eminfo.getZRange() );
+    if ( ioobj_ )
+    {
+	EM::IOObjInfo eminfo( ioobj_ );
+	jsobj.set( "z_range", eminfo.getZRange() );
+    }
     jsobj.set( "attrib_count", getNrAttributes() );
 
 }
@@ -194,10 +204,9 @@ void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 void odHorizon3D::getZ( hAllocator allocator )
 {
     survey_.activate();
-    errmsg_.setEmpty();
     if ( !ioobj_ )
     {
-	errmsg_.add( "Invalid ioobj." );
+	errmsg_ = "Horizon3D::get - invalid ioobj.";
 	return;
     }
 
@@ -207,14 +216,14 @@ void odHorizon3D::getZ( hAllocator allocator )
 	RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
 	if ( !obj )
 	{
-	    errmsg_.add( "Invalid emobject." );
+	    errmsg_ = "Horizon3D::get - invalid emobject.";
 	    return;
 	}
 
 	mDynamicCastGet(EM::Horizon3D*,hor,obj.ptr());
 	if ( !hor )
 	{
-	    errmsg_.add( "Invalid Horizon3D." );
+	    errmsg_ = "Horizon3D::get - invalid object.";
 	    return;
 	}
 
@@ -254,7 +263,7 @@ void odHorizon3D::getXY( hAllocator allocator )
     errmsg_.setEmpty();
     if ( tk_.isEmpty() )
     {
-	errmsg_.add( "Invalid horizon geometry" );
+	errmsg_ = "Horizon3D::getXY - invalid horizon geometry";
 	return;
     }
 
@@ -311,6 +320,8 @@ void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
 	    }
 	}
     }
+
+    save();
 }
 
 
@@ -345,6 +356,8 @@ void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
 	    }
 	}
     }
+
+    save();
 }
 
 
@@ -357,10 +370,10 @@ odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
     EM::IOObjInfo eminfo( ioobj_ );
     if ( !eminfo.isOK() )
     {
-	if ( !errmsg_.isEmpty() )
-	    errmsg_.addNewLine();
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = "Error opening horizon: ";
 
-	errmsg_.add( "Invalid eminfo." );
+	errmsg_.add( "invalid eminfo." );
     }
 
  //    const MultiID hor2dkey = ioobj_->key();
@@ -385,8 +398,6 @@ odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name,
 
 odHorizon2D::~odHorizon2D()
 {
-    if ( !forread_ )
-	close();
 }
 
 
@@ -425,10 +436,10 @@ void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
     if ( !eminfo.isOK() )
 	return;
 
-    jsobj.set( "Name", getName() );
-    jsobj.set( "NrAttribute", getNrAttributes() );
-    jsobj.set( "NrLines", getNrLines() );
-    jsobj.set( "Z Range", eminfo.getZRange() );
+    jsobj.set( "name", getName().buf() );
+    jsobj.set( "z_range", eminfo.getZRange() );
+    jsobj.set( "line_count", getNrLines() );
+    jsobj.set( "attrib_count", getNrAttributes() );
 }
 
 
@@ -597,6 +608,7 @@ hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 			     bool overwrite )
 {
     const auto* p = reinterpret_cast<odSurvey*>(survey);
+    if ( !p ) return nullptr;
     return new odHorizon3D( *p, name,
 			    StepInterval<int>(inl_rg[0], inl_rg[1], inl_rg[2]),
 			    StepInterval<int>(crl_rg[0], crl_rg[1], crl_rg[2]),
@@ -607,6 +619,7 @@ hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 hStringSet horizon3d_attribnames( hHorizon3D self )
 {
     const auto* p = reinterpret_cast<odHorizon3D*>(self);
+    if ( !p ) return nullptr; \
     return p->getAttribNames();
 }
 
@@ -614,14 +627,16 @@ hStringSet horizon3d_attribnames( hHorizon3D self )
 void horizon3d_getz( hHorizon3D self, hAllocator allocator )
 {
     auto* p = reinterpret_cast<odHorizon3D*>(self);
-    p->getZ( allocator );
+    if ( p )
+	p->getZ( allocator );
 }
 
 
 void horizon3d_getxy( hHorizon3D self , hAllocator allocator )
 {
     auto* p = reinterpret_cast<odHorizon3D*>(self);
-    p->getXY( allocator );
+    if ( p )
+	p->getXY( allocator );
 }
 
 
@@ -630,7 +645,8 @@ void horizon3d_putz( hHorizon3D self, const uint32_t shape[2],
 		     const int32_t* crlines )
 {
     auto* p = reinterpret_cast<odHorizon3D*>(self);
-    p->putZ( shape, data, inlines, crlines );
+    if ( p )
+	p->putZ( shape, data, inlines, crlines );
 }
 
 
@@ -639,7 +655,8 @@ void horizon3d_putz_byxy( hHorizon3D self, const uint32_t shape[2],
 			  const double* xpos, const double* ypos )
 {
     auto* p = reinterpret_cast<odHorizon3D*>(self);
-    p->putZ( shape, data, xpos, ypos );
+    if ( p )
+	p->putZ( shape, data, xpos, ypos );
 }
 
 
@@ -650,35 +667,32 @@ hHorizon2D horizon2d_newout( hSurvey survey, const char* name,
 			     bool creategeom, bool overwrite )
 {
     const auto* p = reinterpret_cast<odSurvey*>(survey);
+    if ( !p ) return nullptr;
     return new odHorizon2D( *p, name, creategeom, overwrite  );
-}
-
-int horizon2d_attribcount( hHorizon2D self )
-{
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    return p->getNrAttributes();
 }
 
 hStringSet horizon2d_attribnames( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    if ( !p ) return nullptr;
     return p->getAttribNames();
 }
 
 int horizon2d_linecount( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    return p->getNrLines();
+    return p ? p->getNrLines() : 0;
 }
 
 void horizon2d_lineids( hHorizon2D self, int num, int* ids )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    p->getLineIDs( num, ids );
+    if ( p )
+	p->getLineIDs( num, ids );
 }
 
 hStringSet horizon2d_linenames( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
-    return p->getLineNames();
+    return p ? p->getLineNames() : nullptr;
 }
