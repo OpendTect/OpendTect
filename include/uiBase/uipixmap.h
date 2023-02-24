@@ -17,6 +17,7 @@ mFDQtclass(QPaintDevice)
 mFDQtclass(QPixmap)
 
 class BufferStringSet;
+class PixmapDesc;
 namespace ColTab { class Sequence; }
 class uiRGBArray;
 
@@ -31,7 +32,6 @@ class uiRGBArray;
 mExpClass(uiBase) uiPixmap : public NamedObject
 {
 public:
-
 			uiPixmap();
 			uiPixmap(int w,int h);
 			uiPixmap(const char* icon_identifier);
@@ -39,6 +39,7 @@ public:
 			uiPixmap(const char* xpm[]);
 			uiPixmap(const mQtclass(QPixmap&));
 			uiPixmap(const uiPixmap&);
+			uiPixmap(const PixmapDesc&);
 
     virtual		~uiPixmap();
 
@@ -60,15 +61,20 @@ public:
     void		scaleToWidth(int w);
 
     const char*		source() const		{ return srcname_.buf(); }
+
+    mDeprecated("Use fillDesc instead with a PixmapDesc")
     void		params(BufferStringSet&) const;
 			// -> sets color param to OD::Color::noColor()
 			// -> thus set the color after calling this func.
-
     bool		save(const char* fnm,const char* fmt=0,
 			     int quality=-1) const;
 
+    void		fillDesc(PixmapDesc&) const;
+
+    mDeprecatedDef
     static bool		isPresent(const char*);
 
+    mDeprecated("Can be created in constructor now")
     static uiPixmap*	createFromParams(const BufferStringSet& params);
 
     static const char*	sKeyXpmSrc()		{ return "[xpm]"; }

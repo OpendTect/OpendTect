@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 
+class InitDesc;
 class uiListBox;
 class uiListBoxFilter;
 class uiTableView;
@@ -83,7 +84,7 @@ public:
     void			depthRangeFilter(const Interval<float> depthrg);
     void			logValRangeFilter(const MnemonicSelection& mns,
 				    const TypeSet<Interval<float>>& logvalrg);
-    bool			isLogMode() const	{ return logmode_; }
+    bool			isLogMode() const { return getLogMode(); }
     void			setLogMode(bool yn=true);
 
     Notifier<uiWellFilterGrp>	markerSelectionChg;
@@ -91,9 +92,25 @@ public:
 protected:
 
 
+    void			initGrp(CallBacker*);
     void			selButPush(CallBacker*);
     void			selChgCB(CallBacker*);
     void			markerSelChgCB(CallBacker*);
+
+    bool			getLogMode() const;
+    void			fillListBoxes();
+    void			fillInitSelection(const BufferStringSet& wllnms,
+						  const BufferStringSet& lognms,
+						  const BufferStringSet& mrkrs);
+    void			fillInitSelection(const BufferStringSet& wllnms,
+						  const MnemonicSelection& mns,
+						  const BufferStringSet& mrkrs);
+    void			setSelection(const BufferStringSet& wellnms,
+					     const BufferStringSet& lognms,
+					     const BufferStringSet& mrkrnms);
+    void			setSelection(const BufferStringSet& wellnms,
+					     const MnemonicSelection& mns,
+					     const BufferStringSet& mrkrnms);
 
     void			setMaxLinesForLists();
 
@@ -112,4 +129,5 @@ protected:
     MnemonicSelection			mns_;
     BufferStringSet			markernms_;
     const ObjectSet<Well::Data>* 	wds_ = nullptr;
+
 };

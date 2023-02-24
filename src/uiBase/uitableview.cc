@@ -10,6 +10,8 @@ ________________________________________________________________________
 #include "uitableview.h"
 #include "i_qtableview.h"
 
+#include "pixmapdesc.h"
+
 #include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
@@ -84,15 +86,19 @@ static const int sPmScalePadding = 10;
 
 const uiPixmap* createPixmap( const QVariant& qvar, const QRect& rect ) const
 {
-    const QStringList qsl = qvar.toStringList();
-    BufferStringSet pmparams;
-    pmparams.use( qsl );
-    if ( pmparams.isEmpty() )
+    const QString qstr = qvar.toString();
+    const BufferString desc( qstr );
+    if ( desc.isEmpty() )
 	return nullptr;
 
-    uiPixmap* pm = uiPixmap::createFromParams( pmparams );
+    PixmapDesc pd;
+    pd.fromString( desc );
+    if ( !pd.isValid() )
+	return nullptr;
+
+    auto* pm = new uiPixmap( pd );
     BufferString pmsrc = pm->source();
-    if ( pm && pmsrc != uiPixmap::sKeyCreatedSrc() )
+    if ( pm && pmsrc != PixmapDesc::sKeySingleColorSrc() )
 	pm->scaleToHeight( rect.height() - sPmScalePadding );
 
     return pm;

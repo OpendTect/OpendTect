@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "odcommonenums.h"
 #include "rowcol.h"
 #include "color.h"

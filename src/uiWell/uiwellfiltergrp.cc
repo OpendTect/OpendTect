@@ -23,6 +23,28 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "welltransl.h"
 
+#include "hiddenparam.h"
+
+class InitDesc
+{
+public:
+
+					InitDesc()	{}
+					~InitDesc()	{}
+
+    BufferStringSet			selwellnms_;
+    BufferStringSet			sellognms_;
+    BufferStringSet			selmrkrnms_;
+    MnemonicSelection			selmns_;
+    bool				logmode_ = true;
+    const ObjectSet<Well::Data>*	wds_ = nullptr;
+    MnemonicSelection			mns_;
+    BufferStringSet			lognms_;
+    BufferStringSet			markernms_;
+};
+
+
+static HiddenParam<uiWellFilterGrp,InitDesc*> hp( nullptr );
 
 
 uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
@@ -30,6 +52,8 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     , orient_(orient)
     , markerSelectionChg(this)
 {
+    hp.setParam( this, new InitDesc );
+
     const bool hor = orient_ == OD::Horizontal;
     const IOObjContext ctxt = mIOObjContext( Well );
     uiIOObjSelGrp::Setup suw( OD::ChooseZeroOrMore );
@@ -72,6 +96,7 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     mAttachCB( logormnslist_->selectionChanged, uiWellFilterGrp::selChgCB );
     mAttachCB( markerlist_->selectionChanged, uiWellFilterGrp::selChgCB );
     mAttachCB( markerlist_->selectionChanged, uiWellFilterGrp::markerSelChgCB );
+    mAttachCB( postFinalize(), uiWellFilterGrp::initGrp );
 }
 
 
@@ -98,6 +123,19 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, const ObjectSet<Well::Data>& wds,
 uiWellFilterGrp::~uiWellFilterGrp()
 {
     detachAllNotifiers();
+    hp.removeAndDeleteParam( this );
+}
+
+
+void uiWellFilterGrp::initGrp( CallBacker* )
+{
+    const InitDesc& initdesc = *hp.getParam(this);
+    fillListBoxes();
+    initdesc.logmode_ ? setSelection( initdesc.selwellnms_,
+				      initdesc.sellognms_,
+				      initdesc.selmrkrnms_ )
+		      : setSelection( initdesc.selwellnms_, initdesc.selmns_,
+				      initdesc.selmrkrnms_ );
 }
 
 
@@ -105,17 +143,14 @@ void uiWellFilterGrp::setFilterItems( const ObjectSet<Well::Data>& wds,
 				      const BufferStringSet& lognms,
 				      const BufferStringSet& markernms )
 {
-    wds_ = &wds;
-    logmode_ = true;
-    mns_.setEmpty();
+    InitDesc& initdesc = *hp.getParam(this);
+    initdesc.wds_ = &wds;
+    initdesc.logmode_ = true;
+    initdesc.mns_.setEmpty();
     BufferStringSet sortedlognms = lognms;
     sortedlognms.sort();
-    logormnsfilter_->setItems( sortedlognms );
-    logormnslist_->chooseAll();
-    markernms_ = markernms;
-    markerfilter_->setItems( markernms );
-    markerlist_->chooseAll();
-    setMaxLinesForLists();
+    initdesc.lognms_ = sortedlognms;
+    initdesc.markernms_ = markernms;
 }
 
 
@@ -123,21 +158,33 @@ void uiWellFilterGrp::setFilterItems( const ObjectSet<Well::Data>& wds,
 				      const MnemonicSelection& mns,
 				      const BufferStringSet& markernms )
 {
-    wds_ = &wds;
-    mns_ = mns;
-    logmode_ = false;
-    if ( !mns.isEmpty() )
+    InitDesc& initdesc = *hp.getParam(this);
+    initdesc.wds_ = &wds;
+    initdesc.mns_ = mns;
+    initdesc.logmode_ = false;
+    initdesc.markernms_ = markernms;
+}
+
+
+void uiWellFilterGrp::fillListBoxes()
+{
+    const InitDesc& initdesc = *hp.getParam(this);
+    if ( initdesc.logmode_ )
+    {
+	logormnsfilter_->setItems( initdesc.lognms_ );
+	logormnslist_->chooseAll();
+    }
+    else if ( !initdesc.mns_.isEmpty() )
     {
 	BufferStringSet mnemnms;
-	for ( const auto* mn : mns )
+	for ( const auto* mn : initdesc.mns_ )
 	    mnemnms.addIfNew( mn->name() );
 
 	logormnsfilter_->setItems( mnemnms );
 	logormnslist_->chooseAll();
     }
 
-    markernms_ = markernms;
-    markerfilter_->setItems( markernms );
+    markerfilter_->setItems( initdesc.markernms_ );
     markerlist_->chooseAll();
     setMaxLinesForLists();
 }
@@ -145,20 +192,21 @@ void uiWellFilterGrp::setFilterItems( const ObjectSet<Well::Data>& wds,
 
 void uiWellFilterGrp::setLogMode( bool yn )
 {
-    if ( logmode_ == yn )
+    const InitDesc& initdesc = *hp.getParam(this);
+    if ( initdesc.logmode_ == yn )
 	return;
 
     if ( yn )
     {
 	BufferStringSet lognms;
 	Well::Man::getAllLogNames( lognms, true );
-	setFilterItems( *wds_, lognms, markernms_ );
+	setFilterItems( *initdesc.wds_, lognms, initdesc.markernms_ );
     }
     else
     {
 	MnemonicSelection mns;
 	Well::Man::getAllMnemonics( mns, true );
-	setFilterItems( *wds_, mns, markernms_ );
+	setFilterItems( *initdesc.wds_, mns, initdesc.markernms_ );
     }
 }
 
@@ -195,12 +243,13 @@ void uiWellFilterGrp::setSelected( const BufferStringSet& wellnms,
 				   const BufferStringSet& lognms,
 				   const BufferStringSet& mrkrnms )
 {
-    welllist_->setChosen( wellnms );
-    if ( logmode_ )
-	logormnslist_->setChosen( lognms );
+    if ( !finalized() )
+    {
+	fillInitSelection( wellnms, lognms, mrkrnms );
+	return;
+    }
 
-    markerlist_->setChosen( mrkrnms );
-    selChgCB( nullptr );
+    setSelection( wellnms, lognms, mrkrnms );
 }
 
 
@@ -208,19 +257,13 @@ void uiWellFilterGrp::setSelected( const BufferStringSet& wellnms,
 				   const MnemonicSelection& mns,
 				   const BufferStringSet& mrkrnms )
 {
-    welllist_->setChosen( wellnms );
-    if ( !mns.isEmpty() )
+    if ( !finalized() )
     {
-	BufferStringSet mnemnms;
-	for ( const auto* mn : mns )
-	    mnemnms.addIfNew( mn->name() );
-
-	if ( !logmode_ )
-	    logormnslist_->setChosen( mnemnms );
+	fillInitSelection( wellnms, mns, mrkrnms );
+	return;
     }
 
-    markerlist_->setChosen( mrkrnms );
-    selChgCB( nullptr );
+    setSelection( wellnms, mns, mrkrnms );
 }
 
 
@@ -233,6 +276,38 @@ void uiWellFilterGrp::setSelected( const DBKeySet& wellids,
 	wellnms.add( IOM().objectName(*wellid) );
 
     setSelected( wellnms, mns, mrkrnms );
+}
+
+
+void uiWellFilterGrp::setSelection( const BufferStringSet& wellnms,
+				    const BufferStringSet& lognms,
+				    const BufferStringSet& mrkrnms )
+{
+    const InitDesc& initdesc = *hp.getParam(this);
+    welllist_->setChosen( wellnms );
+    if ( initdesc.logmode_ )
+	logormnslist_->setChosen( lognms );
+
+    markerlist_->setChosen( mrkrnms );
+    selChgCB( nullptr );
+}
+
+
+void uiWellFilterGrp::setSelection( const BufferStringSet& wellnms,
+				    const MnemonicSelection& mns,
+				    const BufferStringSet& mrkrnms )
+{
+    const InitDesc& initdesc = *hp.getParam(this);
+    welllist_->setChosen( wellnms );
+    BufferStringSet mnemnms;
+    for ( const auto* mn : mns )
+	mnemnms.addIfNew( mn->name() );
+
+    if ( !initdesc.logmode_ )
+	logormnslist_->setChosen( mnemnms );
+
+    markerlist_->setChosen( mrkrnms );
+    selChgCB( nullptr );
 }
 
 
@@ -257,8 +332,9 @@ void uiWellFilterGrp::getSelected( BufferStringSet& wellnms,
 				   BufferStringSet& lognms,
 				   BufferStringSet& mrkrnms ) const
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     welllist_->getChosen( wellnms );
-    if ( logmode_ )
+    if ( initdesc.logmode_ )
 	logormnslist_->getChosen( lognms );
     else
 	lognms.setEmpty();
@@ -271,14 +347,15 @@ void uiWellFilterGrp::getSelected( BufferStringSet& wellnms,
 				   MnemonicSelection& mns,
 				   BufferStringSet& mrkrnms ) const
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     welllist_->getChosen( wellnms );
     mns.setEmpty();
-    if ( !logmode_ )
+    if ( !initdesc.logmode_ )
     {
 	BufferStringSet selmnnms;
 	logormnslist_->getChosen( selmnnms );
 	for ( const auto* mnnm : selmnnms )
-	    mns.addIfNew( mns_.getByName(*mnnm) );
+	    mns.addIfNew( initdesc.mns_.getByName(*mnnm) );
     }
 
     markerlist_->getChosen( mrkrnms );
@@ -312,9 +389,10 @@ BufferStringSet uiWellFilterGrp::getSelectedMarkers() const
 
 void uiWellFilterGrp::noLogFilterCB( CallBacker* )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     BufferStringSet wellstohide;
     TypeSet<int> idxstohide;
-    Well::WellDataFilter wdf( *wds_ );
+    Well::WellDataFilter wdf( *initdesc.wds_ );
     wdf.getWellsWithNoLogs( wellstohide );
     for ( const auto* wellnm : wellstohide )
 	idxstohide += welllist_->indexOf( *wellnm );
@@ -326,13 +404,14 @@ void uiWellFilterGrp::noLogFilterCB( CallBacker* )
 
 void uiWellFilterGrp::mnemFilterCB( CallBacker* )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     MnemonicSelection mns;
     BufferStringSet suitablelogs;
     uiMultiMnemonicsSel dlg( this, mns );
     if ( !dlg.go() )
 	return;
 
-    Well::WellDataFilter wdf( *wds_ );
+    Well::WellDataFilter wdf( *initdesc.wds_ );
     wdf.getLogsForMnems( mns, suitablelogs );
     logormnslist_->setChosen( suitablelogs );
 }
@@ -340,8 +419,9 @@ void uiWellFilterGrp::mnemFilterCB( CallBacker* )
 
 void uiWellFilterGrp::wellTypeFilter( OD::WellType wt )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     BufferStringSet wellnms;
-    Well::WellDataFilter wdf( *wds_ );
+    Well::WellDataFilter wdf( *initdesc.wds_ );
     wdf.getWellsOfType( wt, wellnms );
     welllist_->setChosen( wellnms );
 }
@@ -350,12 +430,13 @@ void uiWellFilterGrp::wellTypeFilter( OD::WellType wt )
 void uiWellFilterGrp::markerZoneFilter( const BufferString& topnm,
 					const BufferString& botnm )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     BufferStringSet wellnms, lognms, markernms;
     MnemonicSelection mns;
     markernms.add( topnm ).add( botnm );
-    Well::WellDataFilter wdf( *wds_ );
+    Well::WellDataFilter wdf( *initdesc.wds_ );
     wdf.getWellsFromMarkers( markernms, wellnms );
-    if ( logmode_ )
+    if ( initdesc.logmode_ )
     {
 	wdf.getLogsInMarkerZone( wellnms, topnm, botnm, lognms );
 	welllist_->setChosen( wellnms );
@@ -376,10 +457,11 @@ void uiWellFilterGrp::markerZoneFilter( const BufferString& topnm,
 
 void uiWellFilterGrp::depthRangeFilter( const Interval<float> depthrg )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     BufferStringSet wellnms, lognms;
     MnemonicSelection mns;
-    Well::WellDataFilter wdf( *wds_ );
-    if ( logmode_ )
+    Well::WellDataFilter wdf( *initdesc.wds_ );
+    if ( initdesc.logmode_ )
     {
 	wdf.getLogsInDepthInterval( depthrg, wellnms, lognms );
 	welllist_->setChosen( wellnms );
@@ -401,8 +483,9 @@ void uiWellFilterGrp::depthRangeFilter( const Interval<float> depthrg )
 void uiWellFilterGrp::logValRangeFilter( const MnemonicSelection& mns,
 				 const TypeSet<Interval<float>>& logvalrg )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     BufferStringSet wellnms, lognms;
-    Well::WellDataFilter wdf( *wds_ );
+    Well::WellDataFilter wdf( *initdesc.wds_ );
     wdf.getLogsInValRange( mns, logvalrg, wellnms, lognms );
     welllist_->setChosen( wellnms );
     logormnslist_->setChosen( lognms );
@@ -411,12 +494,13 @@ void uiWellFilterGrp::logValRangeFilter( const MnemonicSelection& mns,
 
 void uiWellFilterGrp::selChgCB( CallBacker* )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     const int selwells = welllist_->nrChosen();
     const int totalwells = welllist_->size();
     welllist_->setLabelText( tr("Selected Wells %1/%2").arg(selwells).
 							arg(totalwells), 0 );
 
-    const char* logormn = logmode_ ? "Logs" : "Mnemonics";
+    const char* logormn = initdesc.logmode_ ? "Logs" : "Mnemonics";
     const int sellogsormns = logormnslist_->nrChosen();
     const int totallogsormns =	logormnslist_->size();
     logormnslist_->setLabelText( tr("Selected %1 %2/%3").arg(logormn)
@@ -438,16 +522,17 @@ void uiWellFilterGrp::markerSelChgCB( CallBacker* )
 
 void uiWellFilterGrp::selButPush( CallBacker* cb )
 {
+    const InitDesc& initdesc = *hp.getParam(this);
     mDynamicCastGet(uiToolButton*,but,cb)
     BufferStringSet wellnames, lognames, markernames;
     MnemonicSelection mns;
-    Well::WellDataFilter wdf( *wds_ );
+    Well::WellDataFilter wdf( *initdesc.wds_ );
     if ( but == fromwellbut_ )
     {
 	welllist_->getChosen( wellnames );
 	wdf.getMarkersLogsMnemsFromWells( wellnames,
 					  lognames, mns, markernames );
-	if ( logmode_ )
+	if ( initdesc.logmode_ )
 	    logormnslist_->setChosen( lognames );
 	else
 	{
@@ -462,7 +547,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
     }
     else if ( but == fromlogormnsbut_ )
     {
-	if ( logmode_ )
+	if ( initdesc.logmode_ )
 	{
 	    logormnslist_->getChosen( lognames );
 	    wdf.getWellsFromLogs( lognames, wellnames );
@@ -472,7 +557,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
 	    BufferStringSet mnnms;
 	    logormnslist_->getChosen( mnnms );
 	    for ( const auto* mnnm : mnnms )
-		mns.addIfNew( mns_.getByName(*mnnm) );
+		mns.addIfNew( initdesc.mns_.getByName(*mnnm) );
 
 	    wdf.getWellsFromMnems( mns, wellnames );
 	}
@@ -485,4 +570,33 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
 	wdf.getWellsFromMarkers( markernames, wellnames );
 	welllist_->setChosen( wellnames );
     }
+}
+
+
+void uiWellFilterGrp::fillInitSelection( const BufferStringSet& wellnms,
+					 const BufferStringSet& lognms,
+					 const BufferStringSet& mrkrnms )
+{
+    InitDesc& initdesc = *hp.getParam(this);
+    initdesc.selwellnms_ = wellnms;
+    initdesc.sellognms_ = lognms;
+    initdesc.selmrkrnms_ = mrkrnms;
+}
+
+
+void uiWellFilterGrp::fillInitSelection( const BufferStringSet& wellnms,
+					 const MnemonicSelection& mns,
+					 const BufferStringSet& mrkrnms )
+{
+    InitDesc& initdesc = *hp.getParam(this);
+    initdesc.selwellnms_ = wellnms;
+    initdesc.selmns_ = mns;
+    initdesc.selmrkrnms_ = mrkrnms;
+}
+
+
+bool uiWellFilterGrp::getLogMode() const
+{
+    const InitDesc& initdesc = *hp.getParam(this);
+    return initdesc.logmode_;
 }

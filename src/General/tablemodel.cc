@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "tablemodel.h"
 
 #include "perthreadrepos.h"
+#include "pixmapdesc.h"
 
 #include <QAbstractTableModel>
 #include <QByteArray>
@@ -83,13 +84,12 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
     if ( role == Qt::DecorationRole )
     {
-	BufferStringSet pmsrc = model_.pixmap(qmodidx.row(), qmodidx.column());
-	if ( pmsrc.isEmpty() )
+	PixmapDesc pd;
+	pd.fromStringSet( model_.pixmap(qmodidx.row(), qmodidx.column()) );
+	if ( !pd.isValid() )
 	    return QVariant();
 
-	QStringList qstrlist;
-	pmsrc.fill( qstrlist );
-	return qstrlist;
+	return pd.toString().buf();
     }
 
     if ( role == Qt::ForegroundRole )
@@ -178,6 +178,7 @@ TableModel::~TableModel()
 }
 
 
+// TableModel::CellData
 TableModel::CellData::CellData()
     : qvar_(*new QVariant())
 {}
