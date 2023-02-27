@@ -82,8 +82,8 @@ protected:
     void		updateEstUsage();
     bool		acceptOK(CallBacker*) override;
 
-    Scaler*		scaler_;
-    Stats::RandGen&	gen_;
+    Scaler*			scaler_;
+    Stats::RandGen&		gen_;
 
     uiSeisSel*			seissel_;
     uiSeisSubSel*		subselfld_;
@@ -109,7 +109,7 @@ public:
 
     const MultiID&		selectedKey() const;
     const char*			selectedName() const;
-    DataPackID		selectedDPID() const;
+    DataPackID			selectedDPID() const;
     int				selectedCompNr() const;
     const char*			selectedCompName() const;
 
