@@ -74,8 +74,13 @@ Pos::GeomID TrcKeySampling::getGeomID() const
 
 void TrcKeySampling::setGeomID( const Pos::GeomID& geomid )
 {
-    start_.lineNr() = stop_.lineNr() = geomid.asInt();
-    step_.lineNr() = 1;
+    if ( geomid.is2D() )
+    {
+	start_.lineNr() = stop_.lineNr() = geomid.asInt();
+	step_.lineNr() = 1;
+    }
+
+    survid_ = geomid.geomSystem();
 }
 
 
@@ -87,7 +92,6 @@ bool TrcKeySampling::init( Pos::GeomID gid )
 
     survid_ = geom->geomSystem();
     (*this) = geom->sampling().hsamp_;
-
     return true;
 }
 
