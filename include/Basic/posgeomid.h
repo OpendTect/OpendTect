@@ -34,8 +34,6 @@ public:
 			}
 
     static inline GeomID udf()		{ return GeomID(); }
-    static inline GeomID as3D()		{ return GeomID(OD::Geom3D); }
-    static inline GeomID asSynth()	{ return GeomID(OD::GeomSynth); }
 
     inline bool		is2D() const
 			{ return geomSystem() == OD::Geom2D; }
