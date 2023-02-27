@@ -11,7 +11,7 @@
 set( LIBLIST @OD_CORE_MODULE_NAMES_od@ )
 set( PLUGINS @OD_PLUGINS@ )
 set( EXCLUDE_PLUGINS Hello uiHello Tut uiTut uiDPSDemo uiQtApp
-		     uiTutMadagascar uiCrashMe )
+		     uiTutMadagascar )
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
 set( EXECLIST @OD_BASE_EXECUTABLE@ )
