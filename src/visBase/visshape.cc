@@ -238,17 +238,21 @@ void VertexShape::NodeCallbackHandler::updateTexture()
 
     laytex->setTextureSizePolicy( osgGeo::LayeredTexture::AnySize );
     laytex->reInitTiling();
+
+#ifdef __debug__
     const Coord size( Conv::to<Coord>(laytex->imageEnvelopeSize()) );
     if ( size.x>laytex->maxTextureSize() || size.y>laytex->maxTextureSize() )
     {
 	pErrMsg( "Texture size overflow, because tiling not yet supported" );
     }
 
-    if ( laytex->isOn() &&
-		vtxshape_.coords_->size()!=vtxshape_.texturecoords_->size() )
+    const int nrcoords = vtxshape_.coords_->size();
+    const int nrtexturecoords = vtxshape_.texturecoords_->size();
+    if ( laytex->isOn() && nrcoords!=nrtexturecoords )
     {
 	pErrMsg( "One texture coordinate per vertex expected" );
     }
+#endif
 
     const osg::Vec2f origin( 0.0f, 0.0f );
     const osg::Vec2f opposite( laytex->textureEnvelopeSize() );
