@@ -45,7 +45,9 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 
 uiHistogramDisplay::~uiHistogramDisplay()
 {
-    delete &rc_; delete header_; delete nitm_;
+    delete &rc_;
+    delete header_;
+    delete nitm_;
     deepErase( baritems_ );
 }
 
@@ -69,14 +71,16 @@ bool uiHistogramDisplay::setDataPackID(
 {
     rc_.setEmpty();
     auto dp = DPM(dmid).getDP( dpid );
-    if ( !dp ) return false;
+    if ( !dp )
+	return false;
 
     BufferString dpversionnm;
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const SeisDataPack*,seisdp,dp.ptr());
-	if ( !seisdp || seisdp->isEmpty() ) return false;
+	mDynamicCastGet(const SeisDataPack*,seisdp,dp.ptr())
+	if ( !seisdp || seisdp->isEmpty() )
+	    return false;
 
 	const Array3D<float>* arr3d = &seisdp->data( version );
 	dpversionnm = seisdp->getComponentName(version);
@@ -91,7 +95,7 @@ bool uiHistogramDisplay::setDataPackID(
 	    dpversionnm = mdp->name();
 	    setData( &mdp->rawData() );
 	}
-	else if( fdp )
+	else if ( fdp )
 	{
 	    dpversionnm = fdp->name();
 	    setData( &fdp->data() );
@@ -145,10 +149,16 @@ void uiHistogramDisplay::setDataDPS( const DataPointSet& dpset, int dpsidx )
 void uiHistogramDisplay::setData( const Array2D<float>* array )
 {
     if ( !array )
-	{ rc_.setEmpty(); return; }
+    {
+	rc_.setEmpty();
+	return;
+    }
 
     if ( array->getData() )
-	{ setData( array->getData(), array->info().getTotalSz() ); return; }
+    {
+	setData( array->getData(), array->info().getTotalSz() );
+	return;
+    }
 
     const int sz2d0 = array->info().getSize( 0 );
     const int sz2d1 = array->info().getSize( 1 );
@@ -162,6 +172,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 		vals += val;
 	}
     }
+
     rc_.setValues( vals.arr(), vals.size() );
     updateAndDraw();
 }
@@ -170,23 +181,33 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 void uiHistogramDisplay::setData( const Array3D<float>* array )
 {
     if ( !array )
-	{ rc_.setEmpty(); return; }
+    {
+	rc_.setEmpty();
+	return;
+    }
 
     if ( array->getData() )
-	{ setData( array->getData(), array->info().getTotalSz() ); return; }
+    {
+	setData( array->getData(), array->info().getTotalSz() );
+	return;
+    }
 
     const int sz0 = array->info().getSize( 0 );
     const int sz1 = array->info().getSize( 1 );
     const int sz2 = array->info().getSize( 2 );
     LargeValVec<float> vals;
     for ( int idx0=0; idx0<sz0; idx0++ )
+    {
 	for ( int idx1=0; idx1<sz1; idx1++ )
+	{
 	    for ( int idx2=0; idx2<sz2; idx2++ )
 	    {
 		const float val = array->get( idx0, idx1, idx2 );
 		if ( !mIsUdf(val) )
 		    vals += val;
 	    }
+	}
+    }
 
     rc_.setValues( vals.arr(), vals.size() );
     updateAndDraw();
@@ -202,7 +223,10 @@ void uiHistogramDisplay::setData( const LargeValVec<float>& vals )
 void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 {
     if ( !array || sz < 1 )
-	{ rc_.setEmpty(); return; }
+    {
+	rc_.setEmpty();
+	return;
+    }
 
     if ( array != originaldata_.arr() )
     {
@@ -216,11 +240,12 @@ void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 	}
     }
 
+    LargeValVec<float> mydisplaydata;
     const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) &&
 			   !mIsUdf(mydrawrg_.stop);
     if ( usedrawrg )
     {
-	LargeValVec<float> mydisplaydata( sz, mUdf(float) );
+	mydisplaydata.setSize( sz, mUdf(float) );
 	od_int64 addedcount = 0;
 	for ( od_int64 idx=0; idx<sz; idx++ )
 	{
@@ -288,16 +313,20 @@ void uiHistogramDisplay::updateAndDraw()
 void uiHistogramDisplay::updateHistogram()
 {
     if ( !rc_.execute() )
-	{ uiMSG().error( rc_.errMsg() ); return; }
+    {
+	uiMSG().error( rc_.errMsg() );
+	return;
+    }
 
     const od_int64 nrpts = rc_.count();
     nrclasses_ = getNrIntervals( nrpts );
     TypeSet<float> histdata( nrclasses_, 0 );
-    const float min = rc_.min(); const float max = rc_.max();
+    const float min = rc_.min();
+    const float max = rc_.max();
     const float step = (max - min) / nrclasses_;
     if ( mIsZero(step,1e-6) )
     {
-	histdata[nrclasses_/2] = mCast( float, nrpts );
+	histdata[nrclasses_/2] = float(nrpts);
 	setHistogram( histdata, Interval<float>(min-1,max+1), nrpts );
 	return;
     }
@@ -306,12 +335,17 @@ void uiHistogramDisplay::updateHistogram()
     for ( od_int64 idx=0; idx<nrpts; idx++ )
     {
 	int seg = mCast(int,(rc_.medvals_[idx] - min) / step);
-	if ( seg < -1 || seg > nrclasses_ )
-	   { pErrMsg("Huh"); continue; }
+	if ( seg<-1 || seg>nrclasses_ )
+	{
+	    pErrMsg("Huh");
+	    continue;
+	}
 
-	if ( seg < 0 )			seg = 0;
+	if ( seg < 0 )
+	    seg = 0;
 
-	if ( seg == nrclasses_ )	seg = nrclasses_ - 1;
+	if ( seg == nrclasses_ )
+	    seg = nrclasses_ - 1;
 
 	histdata[seg] += 1; nrinpvals_++;
     }
@@ -363,7 +397,7 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 
 void uiHistogramDisplay::putN()
 {
-    delete nitm_; nitm_ = 0;
+    deleteAndNullPtr( nitm_ );
     nitm_ = scene().addItem( new uiTextItem(uiPoint(viewWidth()/10,0),
 						tr("N=%1").arg(nrinpvals_)) );
     nitm_->setPenColor( OD::Color::Black() );
