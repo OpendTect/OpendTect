@@ -136,6 +136,7 @@ set( OD_MODULE_SOURCES
 	threadwork.cc
 	timefun.cc
 	timer.cc
+	trckeysampling.cc
 	trckeyzsampling.cc
 	uistring.cc
 	uistrings.cc

@@ -33,10 +33,10 @@ typedef TypeSet<TrcKey> TrcKeyPath;
 mExpClass(Basic) TrcKeySampling
 {
 public:
-
 			TrcKeySampling();
 			TrcKeySampling(const TrcKeySampling&);
-			TrcKeySampling(Pos::GeomID);
+			TrcKeySampling(const Pos::GeomID&);
+			~TrcKeySampling();
 
     bool		is2D() const	{ return ::is2D(survid_); }
     Pos::GeomID		getGeomID() const;
@@ -110,7 +110,7 @@ public:
 
     void		init(bool settoSI=true);
 			//!< Sets to survey values or mUdf(int) (but step 1)
-    bool		init(Pos::GeomID);
+    bool		init(const Pos::GeomID&);
     void		init(const TrcKey&);
 
     void		set2DDef();
@@ -202,7 +202,6 @@ public:
 
 
 
-
 /*!
 \brief Finds next BinID in TrcKeySampling; initializes to first position.
 */
@@ -210,9 +209,9 @@ public:
 mExpClass(Basic) TrcKeySamplingIterator
 {
 public:
-		TrcKeySamplingIterator() : tks_( true ) { reset(); }
-		TrcKeySamplingIterator( const TrcKeySampling& hs )
-		{ setSampling( hs ); }
+		TrcKeySamplingIterator();
+		TrcKeySamplingIterator(const TrcKeySampling&);
+		~TrcKeySamplingIterator();
 
     void	setSampling(const TrcKeySampling&);
 
@@ -221,8 +220,8 @@ public:
     bool	next(TrcKey&) const;
     bool	next(BinID&) const;
 
-    od_int64	curIdx() const		     { return curpos_; }
-    TrcKey	curTrcKey() const	     { return tks_.trcKeyAt( curIdx());}
+    od_int64	curIdx() const		{ return curpos_; }
+    TrcKey	curTrcKey() const	{ return tks_.trcKeyAt( curIdx());}
 
 protected:
 

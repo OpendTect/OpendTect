@@ -34,6 +34,10 @@ public:
 
 			TrcKeyZSampling();
 			TrcKeyZSampling(const TrcKeyZSampling&);
+			TrcKeyZSampling(const Pos::GeomID&);
+			~TrcKeyZSampling();
+
+//    mDeprecated("Use TrcKeyZSampling(Pos::GeomID)")
 			TrcKeyZSampling(bool settoSI);
 
     enum Dir		{ Inl=0, Crl=1, Z=2 };
@@ -45,6 +49,7 @@ public:
     void		getDefaultNormal(Coord3&) const;
     bool		isFlat() const; //!< is one of directions size 1?
 
+    bool		init(const Pos::GeomID&);
     void		init(bool settoSI=true);
 			//!< Sets hrg_.init and zrg_ to survey values or zeros
     inline void		setEmpty()		{ init(false); }
