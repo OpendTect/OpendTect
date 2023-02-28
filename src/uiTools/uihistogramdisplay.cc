@@ -217,11 +217,12 @@ void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 	}
     }
 
+    LargeValVec<float> mydisplaydata;
     const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) &&
 			   !mIsUdf(mydrawrg_.stop);
     if ( usedrawrg )
     {
-	LargeValVec<float> mydisplaydata( sz, mUdf(float) );
+	mydisplaydata.setSize( sz, mUdf(float) );
 	od_int64 addedcount = 0;
 	for ( od_int64 idx=0; idx<sz; idx++ )
 	{
