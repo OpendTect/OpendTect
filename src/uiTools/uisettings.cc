@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "keyboardevent.h"
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "od_helpids.h"
 #include "posimpexppars.h"
 #include "ptrman.h"
 #include "pythonaccess.h"
-#include "separstr.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
 
@@ -40,15 +40,14 @@ ________________________________________________________________________
 #include "uipathsel.h"
 #include "uipixmap.h"
 #include "uiseparator.h"
-#include "uishortcutsmgr.h"
 #include "uislider.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uitoolbarcmded.h"
+#include "uitoolbutton.h"
 #include "uivirtualkeyboard.h"
-
 
 static const char* sKeyCommon = "<general>";
 
@@ -60,8 +59,207 @@ namespace sKey {
 };
 
 
+mExpClass(uiTools) uiSafetyCheckDlg : public uiDialog
+{
+mODTextTranslationClass(uiSafetyCheckDlg)
+public:
+			uiSafetyCheckDlg(uiParent*);
+			~uiSafetyCheckDlg();
+
+private:
+    void		finalizeCB(CallBacker*);
+    void		readSettings();
+    void		saveSettings();
+    void		modeCB(CallBacker*);
+    void		checkCB(CallBacker*);
+    void		licenseCB(CallBacker*);
+    void		saveCB(CallBacker*);
+    void		scan(const char* command);
+
+    uiGenInput*		modefld_;
+    uiGenInput*		apikeyfld_;
+    uiTextBrowser*	outputfld_;
+    uiToolButton*	savebut_;
+};
+
+
+uiSafetyCheckDlg::uiSafetyCheckDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Scan for Vulnerabilities"),mNoDlgTitle,mTODOHelpKey))
+{
+    setCtrlStyle( CloseOnly );
+
+    auto* safetybut = new uiPushButton( this, uiString::empty() );
+    safetybut->setIcon( "safety" );
+    safetybut->setMinimumHeight( 50 );
+    safetybut->setMinimumWidth( 50 );
+    safetybut->setFlat( true );
+
+    modefld_ = new uiGenInput( this, tr("Database"),
+			BoolInpSpec(true,tr("Commercial"),tr("Open-source")) );
+    mAttachCB( modefld_->valueChanged, uiSafetyCheckDlg::modeCB );
+    modefld_->attach( rightTo, safetybut );
+
+    apikeyfld_ = new uiGenInput( this, tr("API key") );
+    apikeyfld_->setElemSzPol( uiObject::Wide );
+    apikeyfld_->attach( alignedBelow, modefld_ );
+
+    auto* sep = new uiSeparator( this, "" );
+    sep->attach( stretchedBelow, apikeyfld_ );
+    sep->attach( ensureBelow, safetybut );
+
+    auto* grp = new uiButtonGroup( this, "Buttons", OD::Horizontal );
+    grp->attach( ensureBelow, sep );
+    auto* checkbut = new uiPushButton( grp, tr("Check"), true );
+    mAttachCB( checkbut->activated, uiSafetyCheckDlg::checkCB );
+
+    auto* licensebut = new uiPushButton( grp, tr("License"), true );
+    mAttachCB( licensebut->activated, uiSafetyCheckDlg::licenseCB );
+
+    savebut_ = new uiToolButton( grp, "save", tr("Save Report"),
+			mCB(this,uiSafetyCheckDlg,saveCB) );
+    savebut_->setSensitive( false );
+
+    outputfld_ = new uiTextBrowser( this );
+    outputfld_->setPrefWidthInChar( 90 );
+    outputfld_->attach( centeredBelow, grp );
+
+    mAttachCB( postFinalize(), uiSafetyCheckDlg::finalizeCB );
+}
+
+
+uiSafetyCheckDlg::~uiSafetyCheckDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSafetyCheckDlg::finalizeCB( CallBacker* )
+{
+    readSettings();
+}
+
+
+void uiSafetyCheckDlg::modeCB( CallBacker* )
+{
+    const bool needsapikey = modefld_->getBoolValue();
+    apikeyfld_->display( needsapikey );
+}
+
+
+static Settings& getPythonSettings()
+{
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    return Settings::fetch( pythonstr );
+}
+
+
+static const char* sKeySafety()
+{ return "Safety"; }
+
+static const char* sKeySafetyAPIKey()
+{
+    return IOPar::compKey( sKeySafety(), "APIKey" );
+}
+
+
+void uiSafetyCheckDlg::readSettings()
+{
+    BufferString apikey;
+    const Settings& pythonsetts = getPythonSettings();
+    const bool hasentry = pythonsetts.get( sKeySafetyAPIKey(), apikey );
+    modefld_->setValue( !hasentry || !apikey.isEmpty() );
+    apikeyfld_->setText( apikey );
+}
+
+
+void uiSafetyCheckDlg::saveSettings()
+{
+    Settings& pythonsetts = getPythonSettings();
+    pythonsetts.set( sKeySafetyAPIKey(), apikeyfld_->text() );
+    pythonsetts.write();
+}
+
+
+void uiSafetyCheckDlg::scan( const char* command )
+{
+    outputfld_->setText( "" );
+    savebut_->setSensitive( false );
+
+    const bool needsapikey = modefld_->getBoolValue();
+    SetEnvVar( "SAFETY_SOURCE", "dGB" );
+    SetEnvVar( "SAFETY_CUSTOM_INTEGRATION", "True" );
+
+    OS::MachineCommand mc;
+    OD::PythA().setForScript( "safety", mc );
+    mc.addArg( command );
+    mc.addKeyedArg( "output", "text" );
+    if ( needsapikey )
+    {
+	const BufferString apikey = apikeyfld_->text();
+	if ( apikey.isEmpty() )
+	{
+	    uiMSG().error( tr("Please provide an API key") );
+	    return;
+	}
+
+//	const BufferString db = "https://pyup.io/aws/safety/dgb/2.0.0/";
+//	mc.addKeyedArg( "db", db.buf() );
+	mc.addKeyedArg( "key", apikey.buf() );
+	saveSettings();
+    }
+
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    BufferString stdoutstr, stderrstr;
+    uiString errmsg;
+    const bool res = OD::PythA().execute( mc, stdoutstr, &stderrstr, &errmsg );
+    if ( !res )
+    {
+	if ( errmsg.isEmpty() )
+	    errmsg.set( tr("Cannot execute the safety command") );
+
+	uiMSG().error( errmsg );
+    }
+
+    outputfld_->setText(
+	!stdoutstr.isEmpty() ? stdoutstr.buf()
+			     : (!stderrstr.isEmpty() ? stderrstr.buf() : "") );
+    savebut_->setSensitive( true );
+}
+
+
+void uiSafetyCheckDlg::checkCB( CallBacker* )
+{ scan( "check" ); }
+
+
+void uiSafetyCheckDlg::licenseCB( CallBacker* )
+{
+    const bool useos = !modefld_->getBoolValue();
+    if ( useos )
+    {
+	uiMSG().error(
+		tr("This feature can only be used with a valid API key.\n"
+		   "Please send an email to info@dgbes.com for "
+		   "more information.") );
+	return;
+    }
+
+    scan( "license" ); }
+
+
+void uiSafetyCheckDlg::saveCB( CallBacker* )
+{
+    uiFileDialog dlg( this, false, "safetyreport.txt" );
+    if ( !dlg.go() )
+	return;
+
+    outputfld_->saveToFile( dlg.fileName() );
+}
+
+
+
 mExpClass(uiTools) uiPythonSettings : public uiDialog
-{ mODTextTranslationClass(uiPythonSettings);
+{
+mODTextTranslationClass(uiPythonSettings)
 public:
 			uiPythonSettings(uiParent*, const char*);
     virtual		~uiPythonSettings();
@@ -1292,7 +1490,7 @@ bool uiPythonSettings::commitSetts( const IOPar& iop )
 {
     Settings& setts = Settings::fetch( iop.name() );
     setts.IOPar::operator =( iop );
-    if ( !setts.write(false) )
+    if ( !setts.write() )
     {
 	uiMSG().error( tr( "Cannot write %1" ).arg( setts.name() ) );
 	return false;
@@ -1436,26 +1634,7 @@ void uiPythonSettings::safetycheckCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
-    OS::MachineCommand mc;
-    OD::PythA().setForScript( "safety", mc );
-    mc.addArg( "check" );
-    BufferString stdoutstr;
-    uiString errmsg;
-    uiUserShowWait usw( this, tr("Checking Python environment") );
-    if ( !OD::PythA().execute(mc,stdoutstr,nullptr,&errmsg) ||
-	 stdoutstr.isEmpty() )
-    {
-	uiMSG().error( errmsg );
-	return;
-    }
-
-    uiDialog dlg( this, uiDialog::Setup(tr("Safety Check"), mNoDlgTitle,
-					mNoHelpKey) );
-    auto* browser = new uiTextBrowser( &dlg );
-    browser->setPrefWidthInChar( 100 );
-    browser->setText( stdoutstr.buf() );
-    dlg.setCancelText( uiString::empty() );
-    usw.readyNow();
+    uiSafetyCheckDlg dlg( this );
     dlg.go();
 }
 
