@@ -1313,7 +1313,7 @@ void IOPar::putTo( ascostream& strm ) const
 	vals.add( val );
     }
 
-    ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
+    ConstArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
     if ( sortedidxs )
     {
 	for ( int idx=0; idx<keys.size(); idx++ )
@@ -1508,7 +1508,7 @@ void IOPar::dumpPretty( BufferString& res ) const
     for ( int ispc=0; ispc<valpos; ispc++ )
 	valposstr[ispc] = ' ';
 
-    ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
+    ConstArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
     if ( !sortedidxs )
 	return;
 
@@ -1743,7 +1743,7 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
 	vals.add( val );
     }
 
-    ArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
+    ConstArrPtrMan<int> sortedidxs = keys.getSortIndexes( false );
     if ( !sortedidxs )
 	return;
 

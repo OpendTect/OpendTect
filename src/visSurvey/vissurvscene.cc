@@ -1233,7 +1233,7 @@ bool Scene::usePar( const IOPar& par )
 	}
     }
 
-    ArrPtrMan<int> sortindexes = getSortIndexes( childids );
+    ConstArrPtrMan<int> sortindexes = getSortIndexes( childids );
     if ( !sortindexes )
 	return true;
 

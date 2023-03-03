@@ -51,7 +51,7 @@ protected:
     BufferStringSet		grpnms_;
     BufferStringSet		attrnms_;
     TypeSet<int>		attrgroups_;
-    int*			idxs_;
+    ConstArrPtrMan<int>		idxs_		= nullptr;
     bool			sorted_;
 
     void			grpSel(CallBacker*);

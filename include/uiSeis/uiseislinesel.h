@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uistring.h"
@@ -16,7 +17,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
-#include "posinfo2dsurv.h"
 
 class uiComboBox;
 class uiGenInput;
@@ -27,7 +27,6 @@ class uiListBoxFilter;
 class uiSeisSel;
 class uiSelNrRange;
 class uiSelZRange;
-class uiSeis2DLineSel;
 
 class IOObj;
 
@@ -35,9 +34,11 @@ class IOObj;
 mExpClass(uiSeis) uiSeis2DLineChoose : public uiGroup
 { mODTextTranslationClass(uiSeis2DLineChoose);
 public:
-
 			uiSeis2DLineChoose(uiParent*,
 					OD::ChoiceMode cm=OD::ChooseOnlyOne);
+			uiSeis2DLineChoose(uiParent*,
+					   const TypeSet<Pos::GeomID>&,
+					   OD::ChoiceMode cm);
 			~uiSeis2DLineChoose();
 
     void		getChosen(TypeSet<Pos::GeomID>&) const;
@@ -53,7 +54,7 @@ protected:
 
     uiListBox*		listfld_;
     uiListBoxFilter*	filtfld_;
-    uiListBoxChoiceIO*	lbchoiceio_;
+    uiListBoxChoiceIO*	lbchoiceio_		= nullptr;
 
     ObjectSet<uiIOObjInserter>	inserters_;
     ObjectSet<uiButton>		insertbuts_;
@@ -62,7 +63,7 @@ protected:
     void		writeChoiceReq(CallBacker*);
     void		objInserted(CallBacker*);
 
-    friend class	uiSeis2DLineSel;
+    mDeprecated("Use a public constructor")
 			uiSeis2DLineChoose(uiParent*,OD::ChoiceMode,
 			    const BufferStringSet&,const TypeSet<Pos::GeomID>&);
 

@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "posinfo2d.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"

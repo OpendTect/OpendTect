@@ -432,14 +432,12 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 
     if ( ioobjnmscopy.size() > 1 )
     {
-	int* sortindexes = ioobjnmscopy.getSortIndexes();
+	ConstArrPtrMan<int> sortindexes = ioobjnmscopy.getSortIndexes();
 	for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )
 	{
 	    nms.add( ioobjnmscopy.get(sortindexes[idx]) );
 	    ids.add( ioobjidscopy.get(sortindexes[idx]) );
 	}
-
-	delete [] sortindexes;
     }
     else if ( ioobjnmscopy.size() )
     {

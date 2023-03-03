@@ -19,21 +19,16 @@ ________________________________________________________________________
 #include "uilistboxchoiceio.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiseissel.h"
-#include "uiselsimple.h"
 #include "uiselsurvranges.h"
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "linekey.h"
+#include "posinfo2d.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seisioobjinfo.h"
-#include "seistrc.h"
-#include "seistrctr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "transl.h"
@@ -43,14 +38,14 @@ ________________________________________________________________________
 // uiSeis2DLineChoose
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     : uiGroup(p,"Line chooser")
-    , lbchoiceio_(0)
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
-    const int* idxs = lnms_.getSortIndexes( false );
+    ConstArrPtrMan<int> idxs = lnms_.getSortIndexes( false );
     const int sz = lnms_.size();
     BufferStringSet lnmstmp = lnms_;
     TypeSet<Pos::GeomID> geomidstmp = geomids_;
-    lnms_.erase(); geomids_.erase();
+    lnms_.erase();
+    geomids_.erase();
     for ( int idx=0; idx<sz; idx++ )
     {
 	lnms_.add( lnmstmp[ idxs[idx] ]->buf() );
@@ -59,7 +54,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 
     init( cm );
 
-    CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc2D );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( SeisTrc2D );
     if ( ctio )
     {
 	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
@@ -78,10 +73,20 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
 		const BufferStringSet& lnms, const TypeSet<Pos::GeomID>& gids )
     : uiGroup(p,"Line chooser")
-    , lnms_(lnms)
     , geomids_(gids)
-    , lbchoiceio_(nullptr)
 {
+    Survey::sortByLinename( geomids_, &lnms_ );
+    init( cm );
+}
+
+
+uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p,
+					const TypeSet<Pos::GeomID>& gids,
+					OD::ChoiceMode cm )
+    : uiGroup(p,"Line chooser")
+    , geomids_(gids)
+{
+    Survey::sortByLinename( geomids_, &lnms_ );
     init( cm );
 }
 
@@ -233,7 +238,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
     BufferStringSet lnms; TypeSet<Pos::GeomID> geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
-    const int* idxs = lnms.getSortIndexes( false );
+    ConstArrPtrMan<int> idxs = lnms.getSortIndexes( false );
     if ( !idxs )
     {
 	lnms_ = lnms;
@@ -438,9 +443,8 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     const TypeSet<int> curselidxs = selidxs_;
     uiDialog dlg( this,
 		  uiDialog::Setup(tr("Line selection"),mNoDlgTitle,mNoHelpKey));
-    uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
-		    ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne,
-		    lnms_, geomids_ );
+    auto* lchfld = new uiSeis2DLineChoose( &dlg, geomids_,
+		    ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     TypeSet<Pos::GeomID> chosenids;
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	chosenids += geomids_[ selidxs_[idx] ];

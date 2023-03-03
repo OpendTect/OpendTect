@@ -1178,7 +1178,7 @@ void uiListBox::sortItems( bool asc )
 	nms.add( textOfItem(idx) );
     }
 
-    int* sortidxs = nms.getSortIndexes(true,asc);
+    ConstArrPtrMan<int> sortidxs = nms.getSortIndexes(true,asc);
     nms.useIndexes( sortidxs );
     setEmpty();
     addItems( nms );
@@ -1189,7 +1189,6 @@ void uiListBox::sortItems( bool asc )
 	setChosen( newidx, chosen[idx] );
     }
 
-    delete [] sortidxs;
     if ( !cur.isEmpty() )
 	setCurrentItem( cur.buf() );
 }

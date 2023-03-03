@@ -24,7 +24,6 @@ const char* uiAttrTypeSel::sKeyAllGrp = "<All>";
 uiAttrTypeSel::uiAttrTypeSel( uiParent* p, bool sorted )
     : uiGroup(p,"Attribute type selector")
     , sorted_(sorted)
-    , idxs_(0)
     , selChg(this)
 {
     grpfld_ = new uiComboBox( this, "Attribute group" );
@@ -50,7 +49,7 @@ void uiAttrTypeSel::clear()
     grpnms_.erase(); grpnms_.add( sKeyAllGrp );
     attrnms_.erase();
     attrgroups_.erase();
-    delete [] idxs_; idxs_ = 0;
+    idxs_ = nullptr;
 }
 
 
@@ -107,9 +106,9 @@ void uiAttrTypeSel::setAttr( const char* attrnm )
     if ( attridx < 0 )
 	return;
 
-    int grpidx = attrgroups_[attridx];
-    int oldgrpitem = grpfld_->currentItem();
-    int oldgrpidx = idxs_ ? idxs_[oldgrpitem] : oldgrpitem;
+    const int grpidx = attrgroups_[attridx];
+    const int oldgrpitem = grpfld_->currentItem();
+    const int oldgrpidx = idxs_ ? idxs_[oldgrpitem] : oldgrpitem;
     if ( oldgrpitem == 0 || grpidx == oldgrpidx )
 	attrfld_->setText( attrnm );
     else
@@ -142,8 +141,7 @@ void uiAttrTypeSel::update()
     grpfld_->setEmpty(); attrfld_->setEmpty();
     const int nrgrps = grpnms_.size();
 
-    delete [] idxs_;
-    idxs_ = sorted_ ? grpnms_.getSortIndexes() : 0;
+    idxs_ = sorted_ ? grpnms_.getSortIndexes() : nullptr;
 
     for ( int idx=0; idx<nrgrps; idx++ )
 	grpfld_->addItem( toUiString(grpnms_.get(idxs_ ? idxs_[idx] : idx)) );

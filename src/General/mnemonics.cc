@@ -827,7 +827,7 @@ void MnemonicSelection::sort()
 {
     BufferStringSet mnemnms;
     getNames( mnemnms );
-    ArrPtrMan<int> sortindexes = mnemnms.getSortIndexes();
+    ConstArrPtrMan<int> sortindexes = mnemnms.getSortIndexes();
     if ( sortindexes )
 	useIndexes( sortindexes );
 }

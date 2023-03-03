@@ -653,8 +653,9 @@ void uiSettings::dispNewGrp( CallBacker* )
 	vals.add( val );
     }
 
-    ArrPtrMan<int> idxs = keys.getSortIndexes();
-    keys.useIndexes(idxs); vals.useIndexes(idxs);
+    ConstArrPtrMan<int> idxs = keys.getSortIndexes();
+    keys.useIndexes( idxs );
+    vals.useIndexes( idxs );
 
     const int sz = keys.size();
     tbl_->clearTable();
