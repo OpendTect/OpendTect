@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uigroup.h"
+
+#include "ptrman.h"
 #include "bufstringset.h"
 
 class uiComboBox;
