@@ -47,7 +47,7 @@ public:
     static const Geometry& default3D();
 
     Pos::GeomID		getID() const			{ return id_; }
-    void		setID( Pos::GeomID id )		{ id_ = id; }
+    void		setID( const Pos::GeomID& id )	{ id_ = id; }
     virtual const char*	getName() const			= 0;
 
     virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
@@ -107,21 +107,21 @@ public:
 				GeometryManager();
 				~GeometryManager();
 
-    const Geometry*		getGeometry(Pos::GeomID) const;
+    const Geometry*		getGeometry(const Pos::GeomID&) const;
     const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
     const Geometry3D*		getGeometry3D(OD::GeomSystem) const;
 
-    const Geometry2D&		get2D(Pos::GeomID) const;
+    const Geometry2D&		get2D(const Pos::GeomID&) const;
 
     int				nrGeometries() const;
-    bool			isUsable(Pos::GeomID) const;
+    bool			isUsable(const Pos::GeomID&) const;
 
     Pos::GeomID			getGeomID(const char* linenm) const;
-    const char*			getName(Pos::GeomID) const;
+    const char*			getName(const Pos::GeomID&) const;
     Pos::GeomID			default2DGeomID() const;
-    StepInterval<float>		zRange(Pos::GeomID) const;
+    StepInterval<float>		zRange(const Pos::GeomID&) const;
 
     Coord			toCoord(const TrcKey&) const;
 
@@ -147,7 +147,7 @@ protected:
     void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 
-    int				indexOf(Pos::GeomID) const;
+    int				indexOf(const Pos::GeomID&) const;
     bool			hasDuplicateLineNames();
 
     Threads::Lock		lock_;
@@ -160,12 +160,12 @@ public:
     /*! Admin functions:
       Use the following functions only when you know what you are doing. */
 
-    Geometry*			getGeometry(Pos::GeomID);
-    Geometry2D&			get2D(Pos::GeomID);
+    Geometry*			getGeometry(const Pos::GeomID&);
+    Geometry2D&			get2D(const Pos::GeomID&);
     bool			write(Geometry&,uiString&);
     Pos::GeomID			addNewEntry(Geometry*,uiString&);
 				/*! Returns new GeomID. */
-    bool			removeGeometry(Pos::GeomID);
+    bool			removeGeometry(const Pos::GeomID&);
 
     Pos::GeomID			getGeomID(const char* lsm,
 					  const char* linenm) const;
@@ -201,12 +201,14 @@ mGlobal(Basic) const GeometryManager& GM();
 inline mGlobal(Basic) GeometryManager& GMAdmin()
 { return const_cast<GeometryManager&>( Survey::GM() ); }
 
-mGlobal(Basic) bool is2DGeom(Pos::GeomID);
-mGlobal(Basic) bool is3DGeom(Pos::GeomID);
-mGlobal(Basic) bool isSynthetic(Pos::GeomID);
+mGlobal(Basic) bool is2DGeom(const Pos::GeomID&);
+mGlobal(Basic) bool is3DGeom(const Pos::GeomID&);
+mGlobal(Basic) bool isSynthetic(const Pos::GeomID&);
 mGlobal(Basic) Pos::GeomID default3DGeomID();
 mGlobal(Basic) Pos::GeomID getDefault2DGeomID();
-mGlobal(Basic) bool isValidGeomID(Pos::GeomID);
+mGlobal(Basic) bool isValidGeomID(const Pos::GeomID&);
+mGlobal(Basic) void sortByLinename(TypeSet<Pos::GeomID>&,
+				   BufferStringSet* lnms=nullptr);
 
 
 mExpClass(Basic) GeometryReader

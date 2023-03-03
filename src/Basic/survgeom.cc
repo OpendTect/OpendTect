@@ -54,13 +54,13 @@ const GeometryManager& GM()
 }
 
 
-bool is2DGeom( Pos::GeomID geomid )
+bool is2DGeom( const Pos::GeomID& geomid )
 { return geomid.is2D(); }
 
-bool is3DGeom( Pos::GeomID geomid )
+bool is3DGeom( const Pos::GeomID& geomid )
 { return geomid.is3D(); }
 
-bool isSynthetic( Pos::GeomID geomid )
+bool isSynthetic( const Pos::GeomID& geomid )
 { return geomid.isSynth(); }
 
 Pos::GeomID default3DGeomID()
@@ -69,8 +69,31 @@ Pos::GeomID default3DGeomID()
 Pos::GeomID getDefault2DGeomID()
 { return Survey::GM().default2DGeomID(); }
 
-bool isValidGeomID( Pos::GeomID geomid )
+bool isValidGeomID( const Pos::GeomID& geomid )
 { return geomid.isValid(); }
+
+
+void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
+{
+    BufferStringSet lnms;
+    const TypeSet<Pos::GeomID> tmpgids = geomids;
+    for ( const auto& geomid : tmpgids )
+	lnms.add( Survey::GM().getName(geomid) );
+
+    ConstArrPtrMan<int> idxs = lnms.getSortIndexes();
+    if ( linenames )
+    {
+	lnms.useIndexes( idxs );
+	*linenames = lnms;
+    }
+
+    geomids.erase();
+    for ( int idx=0; idx<tmpgids.size(); idx++ )
+    {
+	const int sortedidx = idxs[idx];
+	geomids.add( tmpgids[sortedidx] );
+    }
+}
 
 
 Geometry::Geometry()
@@ -157,7 +180,7 @@ int GeometryManager::nrGeometries() const
 }
 
 
-bool GeometryManager::isUsable( Pos::GeomID geomid ) const
+bool GeometryManager::isUsable( const Pos::GeomID& geomid ) const
 {
     auto* geom = getGeometry( geomid );
     if ( !geom )
@@ -189,7 +212,7 @@ void GeometryManager::ensureSIPresent() const
 }
 
 
-const Geometry* GeometryManager::getGeometry( Pos::GeomID geomid ) const
+const Geometry* GeometryManager::getGeometry( const Pos::GeomID& geomid ) const
 {
     if ( IsExiting() )
 	return nullptr;
@@ -199,7 +222,7 @@ const Geometry* GeometryManager::getGeometry( Pos::GeomID geomid ) const
 }
 
 
-Geometry* GeometryManager::getGeometry( Pos::GeomID geomid )
+Geometry* GeometryManager::getGeometry( const Pos::GeomID& geomid )
 {
     if ( IsExiting() )
 	return nullptr;
@@ -224,14 +247,14 @@ static Geometry2D& dummyGeom2D()
 }
 
 
-const Geometry2D& GeometryManager::get2D( Pos::GeomID geomid ) const
+const Geometry2D& GeometryManager::get2D( const Pos::GeomID& geomid ) const
 {
     const Geometry* geom = getGeometry( geomid );
     return geom && geom->as2D() ? *geom->as2D(): dummyGeom2D();
 }
 
 
-Geometry2D& GeometryManager::get2D( Pos::GeomID geomid )
+Geometry2D& GeometryManager::get2D( const Pos::GeomID& geomid )
 {
     Geometry* geom = getGeometry( geomid );
     return geom && geom->as2D() ? *geom->as2D(): dummyGeom2D();
@@ -290,7 +313,7 @@ Pos::GeomID GeometryManager::getGeomID( const char* lsnm,
 }
 
 
-const char* GeometryManager::getName( Pos::GeomID geomid ) const
+const char* GeometryManager::getName( const Pos::GeomID& geomid ) const
 {
     mGetConstGeom(geom,geomid);
     return geom ? geom->getName() : nullptr;
@@ -309,7 +332,7 @@ Pos::GeomID Survey::GeometryManager::default2DGeomID() const
 }
 
 
-StepInterval<float> GeometryManager::zRange( Pos::GeomID geomid ) const
+StepInterval<float> GeometryManager::zRange( const Pos::GeomID& geomid ) const
 {
     const Survey::Geometry* geom = getGeometry( geomid );
     StepInterval<float> zrg = SI().zRange();
@@ -535,7 +558,7 @@ Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 }
 
 
-bool GeometryManager::removeGeometry( Pos::GeomID geomid )
+bool GeometryManager::removeGeometry( const Pos::GeomID& geomid )
 {
     const int index = indexOf( geomid );
     if ( geometries_.validIdx(index) )
@@ -553,7 +576,7 @@ bool GeometryManager::removeGeometry( Pos::GeomID geomid )
 }
 
 
-int GeometryManager::indexOf( Pos::GeomID geomid ) const
+int GeometryManager::indexOf( const Pos::GeomID& geomid ) const
 {
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->getID() == geomid )
