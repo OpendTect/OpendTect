@@ -40,18 +40,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     : uiGroup(p,"Line chooser")
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
-    ConstArrPtrMan<int> idxs = lnms_.getSortIndexes( false );
-    const int sz = lnms_.size();
-    BufferStringSet lnmstmp = lnms_;
-    TypeSet<Pos::GeomID> geomidstmp = geomids_;
-    lnms_.erase();
-    geomids_.erase();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	lnms_.add( lnmstmp[ idxs[idx] ]->buf() );
-	geomids_.add( geomidstmp[ idxs[idx] ] );
-    }
-
+    Survey::sortByLinename( geomids_, &lnms_ );
     init( cm );
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( SeisTrc2D );
