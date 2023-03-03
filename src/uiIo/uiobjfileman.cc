@@ -329,7 +329,7 @@ BufferString uiObjFileMan::getFileInfo()
     const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
     {
-	auto* iox = sCast(IOX*,curioobj_);
+	auto* iox = dCast(IOX*,curioobj_);
 	if ( iox )
 	    txt.add( "Data source: " ).add( iox->ownKey() );
     }
