@@ -8,8 +8,8 @@ ________________________________________________________________________
 -*/
 
 #include "pixmapdesc.h"
-#include "bufstringset.h"
 #include "separstr.h"
+
 
 // PixmapDesc
 PixmapDesc::PixmapDesc()
@@ -60,36 +60,18 @@ bool PixmapDesc::isValid() const
 
 BufferString PixmapDesc::toString() const
 {
-    FileMultiString fms;
-    fms.add( source_ ).add( width_ ).add( height_ ).add( color_.getStdStr() );
-    return fms.buf();
-}
-
-
-BufferStringSet PixmapDesc::toStringSet() const
-{
-    BufferStringSet pmsrc;
-    pmsrc.add( source_ )
-	 .add( ::toString(width_) )
-	 .add( ::toString(height_) )
-	 .add( color_.getStdStr() );
-    return pmsrc;
+    SeparString ss;
+    ss.setSepChar( '`' );
+    ss.add( source_ ).add( width_ ).add( height_ ).add( color_.getStdStr() );
+    return ss.buf();
 }
 
 
 void PixmapDesc::fromString( const char* str )
 {
-    FileMultiString fms( str );
-    source_ = fms[0];
-    width_ = fms.getIValue( 1 );
-    height_ = fms.getIValue( 2 );
-    color_.setStdStr( fms[3] );
-}
-
-
-void PixmapDesc::fromStringSet( const BufferStringSet& pmsrc )
-{
-    FileMultiString fms( nullptr );
-    fms.set( pmsrc );
-    fromString( fms.buf() );
+    SeparString ss( str, '`' );
+    source_ = ss[0];
+    width_ = ss.getIValue( 1 );
+    height_ = ss.getIValue( 2 );
+    color_.setStdStr( ss[3] );
 }

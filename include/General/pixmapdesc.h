@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "color.h"
 
-class BufferStringSet;
 mExpClass(General) PixmapDesc
 {
 public:
@@ -28,9 +27,7 @@ public:
 			    OD::Color col=OD::Color::NoColor());
     bool		isValid() const;
     BufferString	toString() const;
-    BufferStringSet	toStringSet() const;
     void		fromString(const char*);
-    void		fromStringSet(const BufferStringSet&);
 
     BufferString	source_;
     int			width_		= 0;

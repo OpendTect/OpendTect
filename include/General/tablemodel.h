@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
-#include "odcommonenums.h"
-#include "rowcol.h"
 #include "color.h"
+#include "odcommonenums.h"
+#include "pixmapdesc.h"
 
 
 class QAbstractTableModel;
@@ -44,12 +44,18 @@ public:
 	double		getDValue() const;
 	int		getIntValue() const;
 
+	CellData&	operator=(const CellData&);
+
 	QVariant&	qvar_;
     };
 
     enum ItemFlag		{ NoFlags=0, ItemSelectable=1, ItemEditable=2,
 				  ItemDragEnabled=4, ItemDropEnabled=8,
 				  ItemIsUserCheckable=16, ItemEnabled=32 };
+
+    enum CellType		{ Bool, Text, NumI, NumF,
+				  NumD, Color, Date, Enum, Other };
+
     virtual			~TableModel();
 
     virtual int			nrRows() const				= 0;
@@ -60,13 +66,15 @@ public:
 
     virtual OD::Color		textColor(int row,int col) const	= 0;
     virtual OD::Color		cellColor(int row,int col) const	= 0;
-    virtual BufferStringSet	pixmap(int row,int col) const		= 0;
+    virtual PixmapDesc		pixmap(int row,int col) const		= 0;
     virtual void		setChecked(int row,int col,int val)	{}
     virtual int			isChecked(int row,int col) const  { return -1; }
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const		= 0;
     virtual const EnumDef*	getEnumDef(int col) const
 				{ return nullptr; }
+
+    virtual CellType		getColumnCellType(int col) const;
 
     QAbstractTableModel*	getAbstractModel();
     void			beginReset();

@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiobj.h"
 #include "rowcol.h"
+#include "tablemodel.h"
 
-class TableModel;
 class ODTableView;
 class ODStyledItemDelegate;
 class QByteArray;
@@ -27,8 +27,6 @@ public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
-    enum CellType		{ Bool, Text, NumI, NumF,
-				  NumD, Color, Date, Enum, Other };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
@@ -64,17 +62,18 @@ public:
     void			setCurrentCell(const RowCol&);
     void			moveColumn(int from,int to);
 
-    void			setColumnValueType(int col,CellType);
+    void			setColumnValueType(int col,
+						   TableModel::CellType);
     void			setColumnWidth(int col,int width );
 
-    CellType			getCellType(int col) const;
+    TableModel::CellType	getCellType(int col) const;
 
     Notifier<uiTableView>	doubleClicked;
 
 protected:
 
     ODTableView&		mkView(uiParent*,const char*);
-    ODStyledItemDelegate*	getColumnDelegate(int col,CellType);
+    ODStyledItemDelegate*	getColumnDelegate(int col,TableModel::CellType);
 
     TableModel*			tablemodel_	= nullptr;
     ODTableView*		odtableview_;
@@ -83,7 +82,8 @@ protected:
 
     ObjectSet<ODStyledItemDelegate>	columndelegates_;
 
-    virtual ODStyledItemDelegate*	createColumnDelegate(int col,CellType);
+    virtual ODStyledItemDelegate* createColumnDelegate(int col,
+						       TableModel::CellType);
 
     void			doubleClickedCB(CallBacker*);
 };

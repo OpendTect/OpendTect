@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "tablemodel.h"
 
 #include "perthreadrepos.h"
-#include "pixmapdesc.h"
 
 #include <QAbstractTableModel>
 #include <QByteArray>
@@ -84,8 +83,7 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
     if ( role == Qt::DecorationRole )
     {
-	PixmapDesc pd;
-	pd.fromStringSet( model_.pixmap(qmodidx.row(), qmodidx.column()) );
+	const PixmapDesc pd = model_.pixmap( qmodidx.row(), qmodidx.column() );
 	if ( !pd.isValid() )
 	    return QVariant();
 
@@ -165,19 +163,6 @@ void ODAbstractTableModel::endReset()
 { endResetModel(); }
 
 
-// TableModel
-TableModel::TableModel()
-{
-    odtablemodel_ = new ODAbstractTableModel(*this);
-}
-
-
-TableModel::~TableModel()
-{
-    delete odtablemodel_;
-}
-
-
 // TableModel::CellData
 TableModel::CellData::CellData()
     : qvar_(*new QVariant())
@@ -221,6 +206,7 @@ TableModel::CellData::~CellData()
 bool TableModel::CellData::getBoolValue() const
 { return qvar_.toBool(); }
 
+
 const char* TableModel::CellData::text() const
 {
     mDeclStaticString( ret );
@@ -228,6 +214,7 @@ const char* TableModel::CellData::text() const
     ret = qvar_.toString();
     return ret.buf();
 }
+
 
 float TableModel::CellData::getFValue() const
 { return qvar_.toFloat(); }
@@ -238,6 +225,27 @@ double TableModel::CellData::getDValue() const
 int TableModel::CellData::getIntValue() const
 { return qvar_.toInt(); }
 
+
+TableModel::CellData& TableModel::CellData::operator=( const CellData& cd )
+{
+    qvar_ = cd.qvar_;
+    return *this;
+}
+
+
+// TableModel
+TableModel::TableModel()
+{
+    odtablemodel_ = new ODAbstractTableModel(*this);
+}
+
+
+TableModel::~TableModel()
+{
+    delete odtablemodel_;
+}
+
+
 QAbstractTableModel* TableModel::getAbstractModel()
 { return odtablemodel_; }
 
@@ -246,3 +254,6 @@ void TableModel::beginReset()
 
 void TableModel::endReset()
 { odtablemodel_->endReset(); }
+
+TableModel::CellType TableModel::getColumnCellType( int col ) const
+{ return Text; }
