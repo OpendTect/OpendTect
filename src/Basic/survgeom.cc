@@ -76,8 +76,7 @@ bool isValidGeomID( const Pos::GeomID& geomid )
 void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
 {
     BufferStringSet lnms;
-    const TypeSet<Pos::GeomID> tmpgids = geomids;
-    for ( const auto& geomid : tmpgids )
+    for ( const auto& geomid : geomids )
 	lnms.add( Survey::GM().getName(geomid) );
 
     ConstArrPtrMan<int> idxs = lnms.getSortIndexes();
@@ -87,12 +86,7 @@ void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
 	*linenames = lnms;
     }
 
-    geomids.erase();
-    for ( int idx=0; idx<tmpgids.size(); idx++ )
-    {
-	const int sortedidx = idxs[idx];
-	geomids.add( tmpgids[sortedidx] );
-    }
+    geomids.useIndexes( idxs );
 }
 
 
