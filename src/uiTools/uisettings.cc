@@ -202,6 +202,7 @@ void uiSafetyCheckDlg::scan( const char* command )
 	    return;
 	}
 
+// Use the db argument in Safety 2.4 
 //	const BufferString db = "https://pyup.io/aws/safety/dgb/2.0.0/";
 //	mc.addKeyedArg( "db", db.buf() );
 	mc.addKeyedArg( "key", apikey.buf() );
