@@ -207,6 +207,8 @@ mGlobal(Basic) bool isSynthetic(Pos::GeomID);
 mGlobal(Basic) Pos::GeomID default3DGeomID();
 mGlobal(Basic) Pos::GeomID getDefault2DGeomID();
 mGlobal(Basic) bool isValidGeomID(Pos::GeomID);
+mGlobal(Basic) void sortByLinename(TypeSet<Pos::GeomID>&,
+				   BufferStringSet* lnms=nullptr);
 
 
 mExpClass(Basic) GeometryReader

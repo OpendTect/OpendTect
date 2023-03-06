@@ -73,6 +73,23 @@ bool isValidGeomID( Pos::GeomID geomid )
 { return geomid.isValid(); }
 
 
+void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
+{
+    BufferStringSet lnms;
+    for ( const auto& geomid : geomids )
+	lnms.add( Survey::GM().getName(geomid) );
+
+    ConstArrPtrMan<int> idxs = lnms.getSortIndexes();
+    if ( linenames )
+    {
+	lnms.useIndexes( idxs );
+	*linenames = lnms;
+    }
+
+    geomids.useIndexes( idxs );
+}
+
+
 Geometry::Geometry()
     : id_(mUdfGeomID)
 {
