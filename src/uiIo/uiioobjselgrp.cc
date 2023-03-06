@@ -498,6 +498,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );
     if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
 	nmfld_->attach( alignedBelow, wrtrselfld_ );
+
     wrgrp->setHAlignObj( nmfld_ );
     wrgrp->attach( alignedBelow, topgrp_ );
 
@@ -1031,10 +1032,7 @@ void uiIOObjSelGrp::fillListBox()
 
     const TypeSet<int> defaultidxs = dataset_.getDefaultIdxs();
     for ( const auto& idx : defaultidxs )
-    {
-	listfld_->setColor( idx, OD::Color(240,240,200) );
 	listfld_->setBold( idx, true );
-    }
 
     selectionChanged.trigger();
 }
