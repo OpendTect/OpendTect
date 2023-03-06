@@ -43,23 +43,13 @@ ________________________________________________________________________
 // uiSeis2DLineChoose
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     : uiGroup(p,"Line chooser")
-    , lbchoiceio_(0)
+    , lbchoiceio_(nullptr)
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
-    const int* idxs = lnms_.getSortIndexes( false );
-    const int sz = lnms_.size();
-    BufferStringSet lnmstmp = lnms_;
-    TypeSet<Pos::GeomID> geomidstmp = geomids_;
-    lnms_.erase(); geomids_.erase();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	lnms_.add( lnmstmp[ idxs[idx] ]->buf() );
-	geomids_.add( geomidstmp[ idxs[idx] ] );
-    }
-
+    Survey::sortByLinename( geomids_, &lnms_ );
     init( cm );
 
-    CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc2D );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( SeisTrc2D );
     if ( ctio )
     {
 	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
@@ -78,10 +68,22 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
 		const BufferStringSet& lnms, const TypeSet<Pos::GeomID>& gids )
     : uiGroup(p,"Line chooser")
-    , lnms_(lnms)
     , geomids_(gids)
     , lbchoiceio_(nullptr)
 {
+    Survey::sortByLinename( geomids_, &lnms_ );
+    init( cm );
+}
+
+
+uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p,
+					const TypeSet<Pos::GeomID>& gids,
+					OD::ChoiceMode cm )
+    : uiGroup(p,"Line chooser")
+    , geomids_(gids)
+    , lbchoiceio_(nullptr)
+{
+    Survey::sortByLinename( geomids_, &lnms_ );
     init( cm );
 }
 
@@ -233,7 +235,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
     BufferStringSet lnms; TypeSet<Pos::GeomID> geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
-    const int* idxs = lnms.getSortIndexes( false );
+    ConstArrPtrMan<int> idxs = lnms.getSortIndexes( false );
     if ( !idxs )
     {
 	lnms_ = lnms;

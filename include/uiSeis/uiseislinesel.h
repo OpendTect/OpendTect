@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uistring.h"
@@ -38,6 +39,9 @@ public:
 
 			uiSeis2DLineChoose(uiParent*,
 					OD::ChoiceMode cm=OD::ChooseOnlyOne);
+			uiSeis2DLineChoose(uiParent*,
+					   const TypeSet<Pos::GeomID>&,
+					   OD::ChoiceMode cm);
 			~uiSeis2DLineChoose();
 
     void		getChosen(TypeSet<Pos::GeomID>&) const;
