@@ -25,9 +25,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
-#include "seistrc.h"
 #include "seisioobjinfo.h"
-#include "seisbufadapters.h"
 #include "survinfo.h"
 #include "volstatsattrib.h"
 
@@ -82,8 +80,8 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     inpfld = createInpFld( is2d );
 
     typefld = new uiGenInput( this, uiStrings::sType(),
-                              StringListInpSpec(scalingtypestr) );
-    typefld->valuechanged.notify( mCB(this,uiScalingAttrib,typeSel) );
+			      StringListInpSpec(scalingtypestr) );
+    typefld->valueChanged.notify( mCB(this,uiScalingAttrib,typeSel) );
     typefld->attach( alignedBelow, inpfld );
 
     nfld = new uiGenInput( this, tr("n"), FloatInpSpec() );
@@ -99,7 +97,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     statsfld = new uiGenInput( this, tr("Basis"),
         StringListInpSpec(statstypestr) );
     statsfld->attach( alignedBelow, typefld );
-    statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
+    statsfld->valueChanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
     tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, statsfld );
@@ -110,7 +108,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 			       .fillcol(true)
 			       .maxrowhgt(1)
 			       .selmode(uiTable::Multi),
-		                                "Define Gate limits" );
+			"Define Gate limits" );
 
     table->setNrCols( 3 );
     table->setNrRows( initnrrows );
@@ -293,6 +291,9 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     TrcKeyZSampling cs;
     if ( typefld->getIntValue() == 4 )
     {
+	if ( scalefactors_.isEmpty() )
+	    return false;
+
 	tgs.erase();
 	factors.erase();
 	for ( int idx=0; idx<zvals_.size()-1; idx++ )
@@ -358,6 +359,16 @@ bool uiScalingAttrib::areUIParsOK()
 	if ( sqrgfld->isUndef(0) && sqrgfld->isUndef(1) )
 	{
 	    errmsg_ = tr("Please fill in at least one value range limit");
+	    return false;
+	}
+    }
+
+    if ( typeval == 4 )
+    {
+	if ( scalefactors_.isEmpty() )
+	{
+	    errmsg_ = tr("Please press the 'Analyze' button first to define "
+			 "the scaling factor.");
 	    return false;
 	}
     }
