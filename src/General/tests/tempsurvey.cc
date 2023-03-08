@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "testprog.h"
 
 #include "file.h"
+#include "filepath.h"
 #include "surveyfile.h"
 #include "ptrman.h"
 #include "od_istream.h"
@@ -63,7 +64,6 @@ int mTestMainFnName( int argc, char** argv )
 	return 1;
     }
 
-
     SurveyFile surveyfile( tempsurvey.getZipArchiveLocation() );
     logStream() << "------------UnZipping Temporary Survey------------" <<
 								    od_endl;
@@ -71,6 +71,15 @@ int mTestMainFnName( int argc, char** argv )
     {
 	errStream() << surveyfile.errMsg();
 	return 1;
+    }
+
+    if ( !clParser().hasKey("keep") )
+    {
+	File::removeDir( tempsurvey.getTempBaseDir() );
+	FilePath fp( tempsurvey.getZipArchiveLocation() );
+	File::remove( fp.fullPath() );
+	fp.setExtension( SurveyFile::bckupExtStr() );
+	File::remove( fp.fullPath() );
     }
 
     return 0;

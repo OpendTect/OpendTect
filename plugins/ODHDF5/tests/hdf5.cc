@@ -65,7 +65,7 @@ static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky,
 		  arr.totalSize()*sizeof(float)) );
 	return uirv;
     }
-    
+
     HDF5::DataSetKey dsky( grpdsky.fullDataSetName(), "BigData" );
     dsky.setMaximumSize( 0, 5 );
     uirv = wrr.createDataSet( dsky, *allinfo, OD::F32 );
@@ -672,6 +672,9 @@ int mTestMainFnName( int argc, char** argv )
       || !testEdit()
       || !testRead() )
 	return 1;
+
+    if ( !clParser().hasKey("keep") )
+        File::remove( filename_.buf() );
 
     return 0;
 }
