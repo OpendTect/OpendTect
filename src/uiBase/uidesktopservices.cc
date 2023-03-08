@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
+#include "filepath.h"
 #include "oscommand.h"
 #include "uimsg.h"
 
@@ -154,8 +155,7 @@ bool uiDesktopServices::showInFolder( const char* file )
 	if ( !explorercmd.isEmpty() )
 	{
 	    mc.setProgram( explorercmd );
-	    BufferString filearg( "/select,\"", file, "\"" );
-	    filearg.replace( "\\", "\\\\" );
+	    BufferString filearg( "/select,", FilePath::getShortPath(file) );
 	    mc.addArg( filearg );
 	}
     }
