@@ -434,7 +434,8 @@ static void addPars( BufferString& httpstr, const IOPar& postvars )
     while ( iter.next(key,val) )
     {
 	addContentStart( httpstr, key );
-	httpstr.add( sHttpNewline ).add( val ).add( sHttpNewline );
+	httpstr.add( sHttpNewline ).add( sHttpNewline )
+	       .add( val ).add( sHttpNewline );
     }
 
     addContentStop( httpstr );
