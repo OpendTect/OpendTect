@@ -48,7 +48,7 @@ f3demo = odb.Survey(data_root, 'F3_Demo_2020')
 ```
 
 ### Horizon3D.info() function
-Returns basic information for a survey in a Python dictionary
+Returns basic information for a 3D horizon in a Python dictionary
 
 ```python
 mfs4 = odb.Horizon3D(f3demo, 'Demo 1 --> MFS4')

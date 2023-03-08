@@ -197,7 +197,7 @@ void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
     coords.swap( 2, 3 );
     coords += coords[0];
-    return survey_.makeCoordsList( jsarr, coords, towgs );
+    survey_.makeCoordsList( jsarr, coords, towgs );
 }
 
 
@@ -376,14 +376,21 @@ odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
 	errmsg_.add( "invalid eminfo." );
     }
 
- //    const MultiID hor2dkey = ioobj_->key();
- //    EM::EMObject* obj = EM::EMM().loadIfNotFullyLoaded(hor2dkey);
- // //    if (!obj)
-	// // throw( pybind11::value_error("Invalid emobject.") );
- //
- //    mDynamicCast(EM::Horizon2D*, hor_, obj);
- // //    if (!hor_)
-	// // throw( pybind11::value_error("Invalid Horizon2D.") );
+    const MultiID hor2dkey = ioobj_->key();
+    EM::EMObject* obj = EM::EMM().loadIfNotFullyLoaded(hor2dkey);
+    if ( !obj )
+    {
+	errmsg_ = "Horizon2D - invalid emobject.";
+	return;
+    }
+
+    mDynamicCastGet(EM::Horizon2D*, hor, obj );
+    if ( !hor )
+    {
+	errmsg_ = "Horizon2D - invalid object.";
+	return;
+    }
+    hor_ = hor;
 }
 
 
@@ -401,9 +408,9 @@ odHorizon2D::~odHorizon2D()
 }
 
 
-void odHorizon2D::close()
-{
-    survey_.activate();
+// void odHorizon2D::close()
+// {
+//     survey_.activate();
 //     if ( array_ && writecount_ )
 //     {
 // 	RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::create( name_ );
@@ -425,7 +432,7 @@ void odHorizon2D::close()
 //     delete array_;
 //     array_ = nullptr;
 //     writecount_ = 0;
-}
+// }
 
 
 void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
@@ -457,6 +464,13 @@ BufferStringSet* odHorizon2D::getLineNames() const
 }
 
 
+BufferString odHorizon2D::getLineName( int lineid ) const
+{
+    const int lidx = hor_->geometry().lineIndex( Pos::GeomID(lineid) );
+    return BufferString( hor_->geometry().lineName(lidx) );
+}
+
+
 int odHorizon2D::getNrLines() const
 {
     survey_.activate();
@@ -484,119 +498,113 @@ void odHorizon2D::getLineIDs( int num, int* ids ) const
 }
 
 
-// py::object odHorizon2D::getData( int lineid ) const
-// {
-//     if ( !forread_ || !hor_ )
-// 	throw( pybind11::value_error("horizon only opened for writing.") );
-//
-//     survey_.activate();
-//     auto XDA = py::module::import("xarray").attr("DataArray");
-//     Pos::GeomID geomid( lineid );
-//     if ( !hor_->geometry().hasLine(geomid) )
-// 	throw( pybind11::value_error("lineid not found.") );
-//
-//     const StepInterval<int> trcrg = hor_->geometry().colRange( geomid );
-//     const int ntrc = trcrg.nrSteps()+1;
-//     py::array_t<float> zs( ntrc );
-//     py::array_t<int> trcnrs( ntrc );
-//     py::array_t<double> xpos( ntrc );
-//     py::array_t<double> ypos( ntrc );
-//
-//     auto r_zs = zs.mutable_unchecked<1>();
-//     auto r_xpos = xpos.mutable_unchecked<1>();
-//     auto r_ypos = ypos.mutable_unchecked<1>();
-//     auto r_trcnrs = trcnrs.mutable_unchecked<1>();
-//
-//     const float zfac = SI().showZ2UserFactor();
-//     const float znan = std::nanf("");
-//     TrcKey tk( geomid, -1 );
-//     for ( int trcdx=0; trcdx<ntrc; trcdx++ )
-//     {
-// 	const int trcnr = trcrg.atIndex( trcdx );
-// 	tk.setTrcNr( trcnr );
-// 	float z = hor_->getZ( tk );
-// 	if ( mIsUdf(z) )
-// 	    z = znan;
-// 	else
-// 	    z *= zfac;
-//
-// 	const Coord coord = hor_->getCoord( tk );
-// 	r_zs( trcdx ) = z;
-// 	r_trcnrs( trcdx ) = trcnr;
-// 	r_xpos( trcdx ) =coord.x;
-// 	r_ypos( trcdx ) =coord.y;
-//     }
-//
-//     py::list dims;
-//     py::dict coords;
-//     dims.append( "trace" );
-//     const int lineidx = hor_->geometry().lineIndex( geomid );
-//     coords["linename"] = hor_->geometry().lineName( lineidx );
-//     coords["horizon"] = hor_->name().buf();
-//     coords["line"] = lineid;
-//     coords["trace"] = trcnrs;
-//     py::dict xyattrs;
-//     xyattrs["units"] = SI().getXYUnitString( false );
-//     coords["x"] = XDA( xpos, "dims"_a=dims,  "attrs"_a=xyattrs );
-//     coords["y"] = XDA( ypos, "dims"_a=dims,  "attrs"_a=xyattrs );
-//
-//     py::dict attribs;
-//     std::string name = coords["linename"].cast<std::string>() + ":"
-// 					+ coords["horizon"].cast<std::string>();
-//     attribs["description"] = name;
-//     attribs["units"] = SI().getZUnitString( false );
-//     attribs["crs"] = survey_.get_epsgCode();
-//
-//     return XDA( zs, "coords"_a=coords, "dims"_a=dims, "name"_a=name,
-// 		"attrs"_a=attribs );
-// }
-//
-//
-// py::dict odHorizon2D::getData( const py::tuple& tup ) const
-// {
-//     TypeSet<int> lineids;
-//     BufferStringSet linenms;
-//     for ( int lidx=0; lidx<tup.size(); lidx++ )
-//     {
-// 	int lineid = -1;
-// 	BufferString linenm;
-// 	if ( py::isinstance<py::int_>(tup[lidx]) )
-// 	{
-// 	    lineid = tup[lidx].cast<int>();
-// 	    Pos::GeomID geomid( lineid );
-// 	    const int idx = hor_->geometry().lineIndex( geomid );
-// 	    if ( hor_->geometry().hasLine( geomid ) )
-// 		linenm = hor_->geometry().lineName( idx );
-// 	    else
-// 		lineid = -1;
-// 	}
-// 	else if ( py::isinstance<py::str>(tup[lidx]) )
-// 	{
-// 	    linenm = tup[lidx].cast<std::string>();
-// 	    const int lineidx = hor_->geometry().lineIndex( linenm.buf() );
-// 	    if ( lineidx!=-1 )
-// 		lineid = hor_->geometry().geomID( lineidx ).asInt();
-// 	    else
-// 		linenm.setEmpty();
-//
-// 	}
-// 	if ( lineid!=-1 && !linenm.isEmpty() )
-// 	{
-// 	    lineids += lineid;
-// 	    linenms.add( linenm );
-// 	}
-//     }
-//
-//     py::dict res;
-//     for ( int idx=0; idx<lineids.size(); idx++ )
-// 	res[linenms.get(idx).buf()] = getData( lineids[idx] );
-//
-//     return res;
-// }
-//
-//
+void odHorizon2D::getZ( hAllocator allocator, int lineid )
+{
+    if ( !hor_ )
+    {
+	errmsg_ = "Horizon2D::getZ - invalid object.";
+	return;
+    }
+
+    survey_.activate();
+    Pos::GeomID geomid( lineid );
+    PtrMan<Array1D<float>> array = hor_->createArray1D( geomid );
+    if ( !array )
+    {
+	errmsg_ = "Horizon2D::getZ - lineid not found.";
+	return;
+    }
+
+    const int ndim = 1;
+    int dims[ndim];
+    for ( int i=0; i<ndim; i++ )
+	dims[i] = array->info().getSize(i);
+
+    float* data = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+    const float zfac = SI().showZ2UserFactor();
+    const float znan = std::nanf("");
+    for (int i=0; i<dims[0]; i++)
+    {
+	float z = array->get( i );
+	if ( mIsUdf(z) )
+	    z = znan;
+	else
+	    z *= zfac;
+
+	*data++ = z;
+    }
+}
+
+
+void odHorizon2D::getXY( hAllocator allocator, int lineid )
+{
+    if ( !hor_ )
+    {
+	errmsg_ = "Horizon2D::getZ - invalid object.";
+	return;
+    }
+
+    survey_.activate();
+    Pos::GeomID geomid( lineid );
+    if ( !hor_->geometry().hasLine(geomid) )
+    {
+	errmsg_ = "Horizon2D::getXY - lineid not found.";
+	return;
+    }
+
+    const StepInterval<int> trcrg = hor_->geometry().colRange( geomid );
+    const int ntrc = trcrg.nrSteps()+1;
+    const int ndim = 1;
+    int dims[ndim];
+    dims[0] = ntrc;
+    double* xdata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
+    double* ydata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
+    int32_t* trc = reinterpret_cast<int32_t*>( allocator(ndim, dims, 'i') );
+    TrcKey tk( geomid, -1 );
+    for (int idx=0; idx<dims[0]; idx++)
+    {
+	const int trcnr = trcrg.atIndex( idx );
+	tk.setTrcNr( trcnr );
+	const Coord pos = hor_->getCoord( tk );
+	*xdata++ = pos.x;
+	*ydata++ = pos.y;
+	*trc++ = trcnr;
+    }
+}
+
+
+void odHorizon2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
+{
+    jsobj.set( "type", "Feature" );
+    auto* info = new OD::JSON::Object;
+    getInfo( *info );
+    jsobj.set( "properties", info );
+    auto* geom = new OD::JSON::Object;
+    geom->set( "type", "MultiLineString" );
+    auto* coords = new OD::JSON::Array( false );
+    getPoints( *coords, towgs );
+    geom->set( "coordinates", coords );
+    jsobj.set( "geometry", geom );
+}
+
+
 void odHorizon2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    survey_.activate();
+    const auto* h2dline = hor_->geometry().geometryElement();
+    for ( int idx=0; idx<h2dline->nrLines(); idx++ )
+    {
+	const Pos::GeomID geomid = h2dline->geomID( idx );
+	PosInfo::Line2DData l2d;
+	h2dline->geometry( geomid, l2d );
+	const auto& l2dpos = l2d.positions();
+	TypeSet<Coord> coords;
+	coords += l2dpos.first().coord_;
+	coords += l2dpos.last().coord_;
+	auto* jscoords = new OD::JSON::Array( false );
+	survey_.makeCoordsList( *jscoords, coords, towgs );
+	jsarr.add( jscoords );
+    }
 }
 
 
@@ -671,6 +679,7 @@ hHorizon2D horizon2d_newout( hSurvey survey, const char* name,
     return new odHorizon2D( *p, name, creategeom, overwrite  );
 }
 
+
 hStringSet horizon2d_attribnames( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
@@ -678,11 +687,13 @@ hStringSet horizon2d_attribnames( hHorizon2D self )
     return p->getAttribNames();
 }
 
+
 int horizon2d_linecount( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
     return p ? p->getNrLines() : 0;
 }
+
 
 void horizon2d_lineids( hHorizon2D self, int num, int* ids )
 {
@@ -691,8 +702,33 @@ void horizon2d_lineids( hHorizon2D self, int num, int* ids )
 	p->getLineIDs( num, ids );
 }
 
+const char* horizon2d_linename( hHorizon2D self, int  lineid )
+{
+    const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    return p ? strdup( p->getLineName(lineid).buf() ) : nullptr;
+}
+
 hStringSet horizon2d_linenames( hHorizon2D self )
 {
     const auto* p = reinterpret_cast<odHorizon2D*>(self);
     return p ? p->getLineNames() : nullptr;
 }
+
+
+void horizon2d_getz( hHorizon2D self, hAllocator allocator, int lineid )
+{
+    auto* p = reinterpret_cast<odHorizon2D*>(self);
+    if ( p )
+	p->getZ( allocator, lineid );
+}
+
+
+void horizon2d_getxy( hHorizon2D self , hAllocator allocator, int lineid )
+{
+    auto* p = reinterpret_cast<odHorizon2D*>(self);
+    if ( p )
+	p->getXY( allocator, lineid );
+}
+
+
+
