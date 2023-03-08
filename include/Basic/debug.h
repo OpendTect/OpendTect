@@ -84,17 +84,16 @@ public:
 
     void		setSendAppl( const char* a )    { sendappl_ = a; }
 
-    static StringView	sSenderAppl();		//None
-    static StringView	sUiSenderAppl();	//od_uiReportIssue
+    static const char*	sKeyDumpFile()	{ return "dumpfile"; }
 
 private:
-					CrashDumper();
+			CrashDumper();
 
-    void				init();
+    void		init();
 
-    static CrashDumper*			theinst_;
+    static CrashDumper* theinst_;
 
-    BufferString			sendappl_;
+    BufferString	sendappl_;
     google_breakpad::ExceptionHandler*	handler_ = nullptr;
 };
 

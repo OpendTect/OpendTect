@@ -50,7 +50,7 @@ protected:
     BufferString		report_;
     BufferString		crashreportpath_;
     uiString			message_;
-    bool			isbinary_ = false;
+    bool			isbinary_ = true;
 };
 
 } // namespace System

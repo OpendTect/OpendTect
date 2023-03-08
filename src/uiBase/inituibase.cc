@@ -30,6 +30,5 @@ mDefModInitFn(uiBase)
     ReleaseNotesProvider::initClass();
     uiRGBImageLoader::initClass();
 
-    System::CrashDumper::getInstance().setSendAppl(
-	    System::CrashDumper::sUiSenderAppl() );
+    System::CrashDumper::getInstance().setSendAppl( "od_uiReportIssue" );
 }

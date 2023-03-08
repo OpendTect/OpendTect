@@ -80,38 +80,21 @@ bool System::IssueReporter::readReport( const char* filename )
 void System::IssueReporter::fillBasicReport( const char* filename )
 {
     report_.setEmpty();
-    BufferString unfilteredreport;
-    unfilteredreport.add(  "The file path of crash report is....\n" );
-    unfilteredreport.add( filename );
+    StringPairSet infoset;
+    infoset.add( "OpendTect version", ODInst::getPkgVersion("base") );
+    infoset.add( "Platform", OD::Platform::local().longName() );
+    infoset.add( "Operating System", System::productName() );
 
-    unfilteredreport.add( "\n\nOpendTect's Version Name is :  " );
-    unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
-    unfilteredreport.add( "\nUser's platform is : " );
-    unfilteredreport.add( OD::Platform::local().longName() );
+#ifdef __win__
+    infoset.add( "Windows OS version", getFullWinVersion() );
+#endif
 
-    unfilteredreport.add( "\nMAC Address Hash: ");
-    unfilteredreport.add( System::macAddressHash() );
+    infoset.add( "Nr. of processors", Threads::getNrProcessors() );
 
     StringPairSet meminfo;
     OD::dumpMemInfo( meminfo );
-    BufferString dumpmemstr;
-    meminfo.dumpPretty( dumpmemstr );
-    unfilteredreport.add( "\n" ).add( dumpmemstr );
-
-    unfilteredreport.add( "Nr. of Processors : " );
-    unfilteredreport.add( Threads::getNrProcessors() );
-    #ifdef __win__
-    unfilteredreport.add( "\nWindows OS Version : " );
-    unfilteredreport.add( getFullWinVersion() );
-    #endif
-
-    SeparString sep( unfilteredreport.buf(), '\n' );
-
-    for ( int idx=0; idx<sep.size(); idx++ )
-    {
-	BufferString line = sep[idx];
-	report_.add( line ).add( "\n" );
-    }
+    infoset.add( meminfo );
+    infoset.dumpPretty( report_ );
 }
 
 
@@ -138,7 +121,7 @@ bool System::IssueReporter::send()
 
     BufferString remotefname ( OD::Platform::local().shortName(), "_" );
     remotefname.add( ODInst::getPkgVersion ("base") );
-    remotefname.add( "_" ).add( "crash_report.dmp" );
+    remotefname.add( "_crash_report.dmp" );
 
     const char* filetype = "dumpfile";
     uiString errmsg;
@@ -172,8 +155,10 @@ bool System::IssueReporter::parseCommandLine()
 
     if ( syntaxerror || parser.nrArgs()<1 )
     {
-	errmsg_ = tr("Usage: %1 <filename> [--host <hostname>] [--binary]"
-		     "[--path <path>]").arg( parser.getExecutable() );
+	errmsg_ = tr("Usage: %1 --%2 <filename> [--%3] [--%4 <hostname>] "
+		     "[--%5 <path>]").arg( parser.getExecutable() )
+		     .arg( CrashDumper::sKeyDumpFile() ).arg( sKey::Binary() )
+		     .arg( hostkey ).arg( pathkey );
 	return false;
     }
 
@@ -184,7 +169,7 @@ bool System::IssueReporter::parseCommandLine()
 
     parser.getVal( hostkey, host_ );
     parser.getVal( pathkey, path_ );
-    isbinary_ = parser.hasKey( "binary" );
+    isbinary_ = parser.hasKey( sKey::Binary() );
 
     if ( !setDumpFileName(filename) )
 	return false;

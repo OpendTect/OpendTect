@@ -19,6 +19,10 @@ public:
 			//!< ftp:// or mailto:
     			//!< ftp://user:passwd@ftp.example.com
     			//!< mailto:user@foo.com?subject=Test&body=Just a test
+    static bool		showInFolder(const char* file);
+			//!< Open the file explorer window and highlight
+			//!< the given file
+
 
 protected:
 };

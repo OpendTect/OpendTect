@@ -62,9 +62,6 @@ mDefModInitFn(Basic)
 #endif
 #endif
 
-    System::CrashDumper::getInstance().setSendAppl(
-	    System::CrashDumper::sSenderAppl() );
-
 #ifndef OD_NO_QT
     legalInformation().addCreator( qtLegalText, "Qt" );
 #endif

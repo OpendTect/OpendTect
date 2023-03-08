@@ -17,16 +17,18 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
-#include "uigeninput.h"
+#include "uigroup.h"
+#include "uilabel.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
-#include "safefileio.h"
-
-#include "fstream"
+#include "uitextedit.h"
 
 static StringView sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }
 
+
+#define mExtraSpacing 10
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 					System::IssueReporter& rep )
@@ -34,48 +36,65 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 		mNoDlgTitle,mNoHelpKey) )
     , reporter_(rep)
 {
-    uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
-    lblgrp->setFrame( true );
-    uiLabel* plealbl = new uiLabel( lblgrp,
-		tr("OpendTect has stopped working.\n\n"
-		"An error report has been created,\n"
-		"which we would like to use for analysis.\n\n"
-		"You would be helping us immensely by giving us\n"
-		"as much detail as you wish on what you were doing\n"
-		"when this problem occurred.\n\n"
-		"For feedback and/or updates on this issue,\n"
-		"do please also leave your e-mail address\n") );
-    plealbl->setAlignment( Alignment::HCenter );
+    auto* infolbl = new uiLabel( this,
+				 tr("OpendTect has stopped working\n\n"
+				    "An error report has been created,\n"
+				    "which we would like to use for analysis"));
+    infolbl->setAlignment( Alignment::HCenter );
 
-    const bool senddmp = reporter_.isBinary();
-    uiLabel* filelbl = new uiLabel( this, tr("Crash report: ") );
-    uiLabel* filenmlbl = new uiLabel( this, toUiString(reporter_.filePath()) );
-    filenmlbl->attach( alignedBelow, lblgrp );
-    filelbl->attach( leftOf, filenmlbl );
+    auto* filenamefld = new uiLineEdit( this, "filename" );
+    filenamefld->setText( FilePath(reporter_.filePath()).fileName() );
+    filenamefld->setReadOnly( true );
+    filenamefld->setStretch( 2, 1 );
+    mUnusedVar auto* filelbl =
+	new uiLabel( this, tr("Error report "), filenamefld );
 
-    uiButton* vrbut = new uiPushButton( this,
-	    		senddmp ? tr("Open folder") : tr("View report"),
-			mCB(this, uiIssueReporterDlg, viewReportCB), false);
+    auto* showbut = new uiPushButton( this, tr("Show in folder"),
+			mCB(this,uiIssueReporterDlg,viewReportCB), false );
+    showbut->setIcon( "folder" );
+    showbut->attach( rightOf, filenamefld );
+    infolbl->attach( centeredAbove, filenamefld, mExtraSpacing );
 
-    uiGroup* usrinpgrp = new uiGroup( this, "User input group" );
-    commentfld_ = new uiTextEdit( usrinpgrp );
+    machinfofld_ = new uiTextBrowser( this );
+    machinfofld_->setPrefWidthInChar( 60 );
+    machinfofld_->setPrefHeightInChar( 8 );
+    machinfofld_->setText( reporter_.getReport() );
+
+    filenamefld->attach( alignedAbove, machinfofld_ );
+
+    machinfobut_ = new uiCheckBox( this, tr("Add System information"),
+				   mCB(this,uiIssueReporterDlg,machInfoCB) );
+    machinfobut_->setChecked( true );
+    machinfobut_->attach( centeredLeftOf, machinfofld_ );
+
+    commentfld_ = new uiTextEdit( this );
     commentfld_->setPrefWidthInChar( 60 );
     commentfld_->setPrefHeightInChar( 8 );
-    new uiLabel( usrinpgrp, tr("[Details you wish to share]"), commentfld_ );
-    emailfld_ = new uiGenInput( usrinpgrp, tr("[E-mail address]") );
+    commentfld_->attach( alignedBelow, machinfofld_, mExtraSpacing );
+    commentfld_->setPlaceholderText( tr("Please add as much detail as you wish"
+			"\nabout what you were doing when"
+			"\nthis problem occurred."
+			"\n\nThis would help us immensely"
+			"\nin resolving the problem") );
+
+    auto* commentlbl = new uiLabel( this, tr("Description") );
+    commentlbl->attach( centeredLeftOf, commentfld_ );
+
+    emailfld_ = new uiLineEdit( this, "email" );
+    emailfld_->setPlaceholderText( toUiString("someone@example.com") );
+    emailfld_->setToolTip( tr("Please provide an email address\n"
+			   "for feedback or update on this issue") );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
 
-    uiButton* proxybut = new uiPushButton( usrinpgrp, tr("Proxy settings"),
+    auto* emaillbl = new uiLabel( this, tr("Email"), emailfld_ );
+    emaillbl->setAlignment( Alignment::Right );
+
+    uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
 					   false );
     proxybut->setIcon( "proxysettings" );
     proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
     proxybut->attach( rightOf, emailfld_ );
-
-    usrinpgrp->setHAlignObj( emailfld_ );
-    usrinpgrp->attach( alignedBelow, filenmlbl );
-    vrbut->attach( ensureBelow, lblgrp );
-    vrbut->attach( rightAlignedAbove, usrinpgrp );
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
@@ -92,7 +111,13 @@ uiIssueReporterDlg::~uiIssueReporterDlg()
 
 void uiIssueReporterDlg::viewReportCB( CallBacker* )
 {
-    viewReport( uiString::emptyString() );
+    uiDesktopServices::showInFolder( reporter_.filePath() );
+}
+
+
+void uiIssueReporterDlg::machInfoCB( CallBacker* )
+{
+    machinfofld_->setSensitive( machinfobut_->isChecked() );
 }
 
 
@@ -106,49 +131,6 @@ bool uiIssueReporterDlg::allowSending() const
     Settings::common().getYN(sKeyAllowSending(),res );
 
     return res;
-}
-
-
-void uiIssueReporterDlg::viewReport( const uiString& cap )
-{
-    if ( reporter_.isBinary() )
-    {
-	uiDesktopServices::openUrl( FilePath(reporter_.filePath()).pathOnly() );
-	return;
-    }
-
-    BufferString report;
-    getReport( report );
-
-    uiDialog dlg( this, uiDialog::Setup(tr("View report"),
-				    uiStrings::sEmptyString(), mNoHelpKey ) );
-    uiLabel* label = cap.isEmpty()
-	? (uiLabel*) 0
-	: new uiLabel( &dlg, cap );
-
-    uiTextBrowser* browser = new uiTextBrowser(&dlg);
-    if ( label )
-	browser->attach( alignedBelow, label );
-
-    browser->setText( report.buf() );
-    dlg.setCancelText( uiStrings::sEmptyString() );
-
-    uiPushButton* copytoclipboard = new uiPushButton( &dlg,
-				  tr("Copy to Clipboard"), true );
-    copytoclipboard->activated.notify(
-			mCB(this,uiIssueReporterDlg,copyToClipBoardCB) );
-    copytoclipboard->attach( alignedBelow, browser );
-
-    dlg.go();
-}
-
-
-void uiIssueReporterDlg::copyToClipBoardCB( CallBacker* )
-{
-    BufferString report;
-    getReport( report );
-
-    uiClipboard::setText( toUiString(report) );
 }
 
 
@@ -176,20 +158,22 @@ void uiIssueReporterDlg::setButSensitive( bool yn )
 void uiIssueReporterDlg::getReport( BufferString& res ) const
 {
     res.set( "From: " ).add( emailfld_->text() );
-    res.add( "\n\nDetails:\n\n" ).add( commentfld_->text() );
-    res.add( "\n\nReport:\n\n" ).add( reporter_.getReport() );
+    res.add( "\n\nDetails given by user:\n" ).add( commentfld_->text() );
+    res.add( "\n\nSystem Information:\n" ).add( reporter_.getReport() );
 }
 
 
 bool uiIssueReporterDlg::acceptOK(CallBacker *)
 {
+    filename_ = reporter_.filePath();
     if ( !allowSending() )
     {
-	viewReport(
+	uiMSG().message(
 	    tr("Your installation does not allow direct "
-	       "reporting of problem reports. Please "
-	       "copy this text and send it to "
-	       "support@dgbes.com for processing." ));
+	       "reporting of error reports.\n"
+	       "Please send the error report file:\n\n%1"
+	       "\n\nalong with the system information"
+	       "\n\nto support@dgbes.com.").arg(filename_) );
 
 	return true;
     }
@@ -234,22 +218,11 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
     }
     else
     {
-	filename_ = reporter_.filePath();
-	SafeFileIO outfile( filename_, false );
-	if ( outfile.open( false ) )
-	{
-	    od_ostream& outstream = outfile.ostrm();
-	    outstream << report;
-	    if ( outstream.isOK() )
-		outfile.closeSuccess();
-	    else
-		outfile.closeFail();
-	}
-
 	cursorchanger.restore();
 	uiString msg = tr("The report could not be sent automatically.\n"
 			  "You can still send it manually by e-mail.\n"
 			  "Please send the file:\n\n%1"
+			  "\n\nalong with the system information"
 			  "\n\nto support@dgbes.com.")
 		     .arg(filename_);
 

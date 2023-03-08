@@ -13,8 +13,10 @@ ________________________________________________________________________
 
 #include "issuereporter.h"
 
+class uiCheckBox;
+class uiLineEdit;
+class uiTextBrowser;
 class uiTextEdit;
-class uiGenInput;
 
 /*! \brief reports issues to opendtect.org. Usually crash reports. */
 
@@ -34,9 +36,8 @@ public:
 protected:
     bool			allowSending() const;
     void			viewReportCB(CallBacker*);
-    void			viewReport(const uiString& caption);
-    void			copyToClipBoardCB(CallBacker*);
     void			proxySetCB(CallBacker*);
+    void			machInfoCB(CallBacker*);
     
     bool			acceptOK(CallBacker*) override;
     void			setButSensitive(bool);
@@ -45,8 +46,10 @@ protected:
     static uiString		sSendReport() { return tr("Send report"); }
     static uiString		sDontSendReport() { return tr("Do not send"); }
     
+    uiTextBrowser*		machinfofld_;
+    uiCheckBox*			machinfobut_;
     uiTextEdit*			commentfld_;
-    uiGenInput*			emailfld_;
+    uiLineEdit*			emailfld_;
     
     System::IssueReporter&	reporter_;
     BufferString		filename_;

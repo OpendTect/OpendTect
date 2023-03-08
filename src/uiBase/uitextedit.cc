@@ -124,6 +124,12 @@ void uiTextEditBase::hideScrollBar( bool vertical )
 }
 
 
+void uiTextEditBase::setPlaceholderText( const uiString& txt )
+{
+    qte().setPlaceholderText( toQString(txt) );
+}
+
+
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
 {
     StreamData sd = StreamProvider::createIStream( src );

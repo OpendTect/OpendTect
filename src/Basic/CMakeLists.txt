@@ -163,10 +163,6 @@ if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
     endif()
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		    "${CMAKE_SOURCE_DIR}/bin/process_dumpfile.${FILEEXT}"
-		    "${PROJECT_BINARY_DIR}/bin/process_dumpfile.${FILEEXT}" )
-    execute_process(
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		    "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
 		    "${PROJECT_BINARY_DIR}/testscripts/script with space.${FILEEXT}" )
     execute_process(
