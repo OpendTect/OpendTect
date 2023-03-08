@@ -85,3 +85,7 @@ endif()
 
 #Write out new symbols to correct location
 file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
+
+if ( UNIX AND NOT APPLE )
+    execute_process( COMMAND strip ${LIBRARY} )
+endif()
