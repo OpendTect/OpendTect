@@ -29,6 +29,7 @@ public:
     bool		saveToFile(const char*,int linelen=0,bool newlns=true);
 
     const char*		text() const;
+    void		setPlaceholderText(const uiString&);
     int			nrLines() const;
     bool		verticalSliderIsDown() const;
 			//!<Returns false in absence of the slider

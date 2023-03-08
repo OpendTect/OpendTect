@@ -620,38 +620,24 @@ void CrashDumper::init()
 
 void CrashDumper::sendDump( const char* filename )
 {
-    if ( !File::exists(filename) )
+    if ( sendappl_.isEmpty() || !File::exists(filename) )
 	return;
 
-    const BufferString processscript =
-#if defined( __win__ )
-	"process_dumpfile.cmd";
-#else
-	"process_dumpfile.sh";
-#endif
+    BufferString newfilename = FilePath( GetArgV()[0] ).baseName();
+    newfilename.add( "_error_report.dmp" );
+    FilePath newfp( filename );
+    newfp.setFileName( newfilename );
+    newfilename = newfp.fullPath();
+    if ( File::exists(newfilename) )
+	File::remove( newfilename );
 
-    const FilePath script( GetScriptDir(), processscript );
-    OS::MachineCommand machcomm( script.fullPath(), filename );
+    if ( File::rename(filename,newfilename) )
+	filename = newfilename.buf();
 
-#ifdef __unix__
-    const FilePath symboldir( GetExecPlfDir(), "symbols" );
-    const FilePath dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
-    const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
-
-    machcomm.addArg( symboldir.fullPath() )
-	    .addArg( dumphandler.fullPath() )
-	    .addArg( prefix );
-#endif
-    if ( !sendappl_.isEmpty() )
-	machcomm.addArg( FilePath(GetExecPlfDir(),sendappl_).fullPath() );
-#ifdef __win__
-    machcomm.addFlag( "binary" );
-#endif
-
-    const OS::CommandExecPars pars( OS::RunInBG );
-    std::cout << machcomm.toString(&pars).buf() << std::endl;
-
-    machcomm.execute( pars );
+    OS::MachineCommand mc( sendappl_ );
+    mc.addKeyedArg( sKeyDumpFile(), filename );
+    mc.addFlag( sKey::Binary() );
+    mc.execute( OS::RunInBG );
 }
 
 
@@ -672,21 +658,6 @@ CrashDumper& CrashDumper::getInstance()
 
     return *theinst_;
 }
-
-
-//!Obsolete since we don't do non-ui
-StringView CrashDumper::sSenderAppl()
-{ return StringView(""); }
-
-StringView CrashDumper::sUiSenderAppl()
-{
-#ifdef __win__
-    return StringView( "od_uiReportIssue.exe" );
-#else
-    return StringView( "od_uiReportIssue" );
-#endif
-}
-
 
 
 #ifdef mUseCrashDumper

@@ -20,13 +20,13 @@ set( EXECLIST @OD_BASE_EXECUTABLE@ )
 set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
 if( WIN32 )
     set( SPECFILES ${TXTFILES} )
-    set( ODSCRIPTS process_dumpfile.cmd od_external.bat )
+    set( ODSCRIPTS od_external.bat )
 else()
     set( SPECFILES .exec_prog .init_dtect .init_dtect_user install
 		   .lic_inst_common .lic_start_common mk_datadir .start_dtect
 		   setup.od odinit.matlab )
     set( SPECFILES ${SPECFILES} ${TXTFILES} )
-    set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh init_dtect_GL )
+    set( ODSCRIPTS od_* mksethdir macterm.in init_dtect_GL )
     list( REMOVE_ITEM ODSCRIPTS od_external.bat )
 endif()
 

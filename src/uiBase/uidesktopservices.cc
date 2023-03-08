@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "debug.h"
 #include "envvars.h"
+#include "file.h"
 #include "oscommand.h"
 #include "uimsg.h"
 
@@ -139,4 +140,42 @@ bool uiDesktopServices::openUrl( const char* url )
 	SetEnvVar( sKeyLDLibPath, odenvlibpath.buf() );
 
     return res;
+}
+
+
+bool uiDesktopServices::showInFolder( const char* file )
+{
+    OS::MachineCommand mc;
+    const BufferStringSet mypaths;
+    if ( __iswin__ )
+    {
+	const BufferString explorercmd =
+			File::findExecutable( "explorer.exe", mypaths, true );
+	if ( !explorercmd.isEmpty() )
+	{
+	    mc.setProgram( explorercmd );
+	    BufferString filearg( "/select,\"", file, "\"" );
+	    filearg.replace( "\\", "\\\\" );
+	    mc.addArg( filearg );
+	}
+    }
+    else if ( __islinux__ )
+    {
+	BufferString filemgrcmd =
+			File::findExecutable( "dolphin", mypaths, true );
+	if ( filemgrcmd.isEmpty() )
+	    filemgrcmd = File::findExecutable( "nautilus", mypaths, true );
+	//TODO: Add other popular Linux file managers.
+
+	if ( !filemgrcmd.isEmpty() )
+	{
+	    mc.setProgram( filemgrcmd );
+	    mc.addKeyedArg( "select", file );
+	}
+    }
+
+    if ( !mc.isBad() )
+	return mc.execute( OS::RunInBG );
+
+    return false;
 }

@@ -294,7 +294,8 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 	fnm = fp.fullPath();
 	if ( !File::exists(fnm) )
 	{
-	    ret.set( "Internal: [" ).add( mODFullVersion ).add( "]" );
+	    // Most probably you have built from source
+	    ret.set( mODFullVersion ).add( " (development)" );
 	    return ret.buf();
 	}
     }
