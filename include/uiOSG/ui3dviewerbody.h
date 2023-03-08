@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "refcount.h"
-#include "visosg.h"
 #include "uieventfilter.h"
 
 class QGestureEvent;
@@ -41,11 +40,9 @@ class SwapCallback;
 
 namespace osg
 {
-    class Group;
     class GraphicsContext;
     class Camera;
-    class MatrixTransform;
-    class Projection;
+    class Switch;
     class Vec3f;
     class Viewport;
 }
@@ -80,9 +77,6 @@ public:
 
     void			setReversedMouseWheelDirection(bool);
     bool			getReversedMouseWheelDirection() const;
-
-    void			setHomePos(const IOPar&);
-    void			resetToHomePosition();
 
     void			toggleCameraType();
     bool			isCameraPerspective() const;
@@ -125,11 +119,16 @@ public:
     visBase::PolygonSelection*	getPolygonSelector();
     visBase::SceneColTab*	getSceneColTab();
 
+    void			setStartupView();
+    void			setHomePos(const IOPar&);
     void			toHomePos();
     void			saveHomePos();
-    bool			isHomePosEmpty() { return homepos_.isEmpty(); }
+    void			resetHomePos();
+    bool			isHomePosEmpty() const;
+
     void			fillCameraPos(IOPar&) const;
     bool			useCameraPos(const IOPar&);
+
     const osgViewer::View*	getOsgViewerMainView() const { return view_; }
     const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
     void			setScenesPixelDensity(float dpi);
@@ -184,6 +183,9 @@ protected:
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
 						     const osg::Vec3f&,bool);
+
+    Timer*				viewalltimer_;
+    void				viewAllCB(CallBacker*);
 
     void				thumbWheelRotationCB(CallBacker*);
     void				enableThumbWheelHandling(bool yn,

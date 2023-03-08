@@ -10,13 +10,12 @@ ________________________________________________________________________
 
 #include "uiosgmod.h"
 #include "uiobj.h"
-#include "uigroup.h"
 #include "color.h"
-#include "position.h"
 #include "enums.h"
 
 class BufferStringSet;
 class FontData;
+class Timer;
 class ui3DViewerBody;
 
 namespace visBase { class Scene; class PolygonSelection; class SceneColTab; }
@@ -72,9 +71,12 @@ public:
     void		setReversedMouseWheelDirection(bool);
     bool		getReversedMouseWheelDirection() const;
 
+    void		setStartupView();
     void		viewAll(bool animate=true);
     void		toHomePos();
     void		saveHomePos();
+    void		resetHomePos();
+
     void		showRotAxis(bool);
     void		setAnnotationColor(const OD::Color&);
     OD::Color		getAnnotationColor() const;
