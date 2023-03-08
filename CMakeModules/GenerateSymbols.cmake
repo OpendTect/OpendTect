@@ -86,6 +86,6 @@ endif()
 #Write out new symbols to correct location
 file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
 
-if ( UNIX AND NOT APPLE )
+if ( UNIX AND NOT APPLE AND CTEST_MODEL STREQUAL "Experimental" )
     execute_process( COMMAND strip ${LIBRARY} )
 endif()
