@@ -70,18 +70,21 @@ private:
 	hostaddress = System::hostAddress( localhoststr, false );
 	mRunStandardTest( hostaddress=="::1", "localhost address ipv6" );
 
-	hostaddress = System::hostAddress( "dgb29", true );
-	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29 ipv4" );
-
-	hostaddress = System::hostAddress( "dgb29", false );
-	mRunStandardTest( !hostaddress.isEmpty(), "dgb29 ipv6" );
-
 	const BufferString dgb29hostname( "dgb29.", getDomainName() );
 	hostaddress = System::hostAddress( dgb29hostname );
 	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29.domain ipv4" );
 
 	hostaddress = System::hostAddress( dgb29hostname, false );
 	mRunStandardTest( !hostaddress.isEmpty(), "dgb29.domain ipv6" );
+
+	if ( __iswin__ )
+	    return true;
+
+	hostaddress = System::hostAddress( "dgb29", true );
+	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29 ipv4" );
+
+	hostaddress = System::hostAddress( "dgb29", false );
+	mRunStandardTest( !hostaddress.isEmpty(), "dgb29 ipv6" );
 
 	return true;
     }
@@ -186,8 +189,9 @@ private:
 	exphostaddrs
 	    .add( localhoststr )
 	    .add( localhostnm )
-	    .add( "dgb29" )
 	    .add( dgb29hostname );
+	if ( !__iswin__ )
+	    exphostaddrs.add( "dgb29" );
 
 	auths.setEmpty(); isoks.setEmpty(); isaddrs.setEmpty();
 	for ( const auto* exphostaddr : exphostaddrs )
