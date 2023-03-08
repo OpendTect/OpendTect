@@ -59,9 +59,9 @@ protected:
 
     Wavelet&			wvlt_;
     const IOObj&		iobj_;
-    const Seis::SelData*	sd_;
+    const Seis::SelData*	sd_		= nullptr;
     ObjectSet<Seis::SelData>    sdset_;
-    SeisTrcReader*		seisrdr_;
+    SeisTrcReader*		seisrdr_	= nullptr;
     Fourier::CC*		fft_;
     int				lineidx_;
     float			paramval_;

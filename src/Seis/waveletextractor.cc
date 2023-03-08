@@ -27,7 +27,6 @@ ________________________________________________________________________
 WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     : Executor( "Extracting Wavelet" )
     , iobj_(ioobj)
-    , sd_(0)
     , wvltsize_(wvltsize)
     , phase_(0)
     , nrusedtrcs_(0)
