@@ -19,6 +19,12 @@ endif( UNIX )
 if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
     add_definitions( -D__odpy_dir__="${CMAKE_SOURCE_DIR}/external/odpy" )
 endif()
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
+    add_definitions( -D__safety_dir__="${CMAKE_SOURCE_DIR}/external/safety" )
+endif()
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow" )
+    add_definitions( -D__marshmallow_dir__="${CMAKE_SOURCE_DIR}/external/marshmallow/src" )
+endif()
 
 set( QT_MOC_HEADERS
 	qtimercomm.h

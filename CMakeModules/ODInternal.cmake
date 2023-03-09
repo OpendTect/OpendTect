@@ -147,6 +147,28 @@ if ( EXISTS "${CMAKE_SOURCE_DIR}/external/odpy" )
 		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
     endif()
 endif()
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/safety" )
+    if ( APPLE )
+	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety/safety"
+		  DESTINATION Contents/Resources/bin/python
+		  PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+    else()
+	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety/safety"
+		  DESTINATION "bin/python"
+		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+    endif()
+endif()
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/marshmallow" )
+    if ( APPLE )
+	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow/src/marshmallow"
+		  DESTINATION Contents/Resources/bin/python
+		  PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+    else()
+	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow/src/marshmallow"
+		  DESTINATION "bin/python"
+		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+    endif()
+endif()
 
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
