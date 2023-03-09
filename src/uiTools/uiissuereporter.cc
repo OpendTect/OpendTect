@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "filepath.h"
 #include "mousecursor.h"
-#include "safefileio.h"
 #include "settings.h"
 
 #include "uibutton.h"
@@ -23,7 +22,6 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
-#include "uiseparator.h"
 #include "uitextedit.h"
 
 static StringView sKeyAskBeforeSending()
@@ -220,17 +218,6 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
     }
     else
     {
-	SafeFileIO outfile( filename_, false );
-	if ( outfile.open( false ) )
-	{
-	    od_ostream& outstream = outfile.ostrm();
-	    outstream << report;
-	    if ( outstream.isOK() )
-		outfile.closeSuccess();
-	    else
-		outfile.closeFail();
-	}
-
 	cursorchanger.restore();
 	uiString msg = tr("The report could not be sent automatically.\n"
 			  "You can still send it manually by e-mail.\n"
