@@ -12,9 +12,9 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
 #include "uimathformula.h"
-#include "uimnemonicsel.h"
 #include "uimsg.h"
 #include "uirockphysform.h"
 #include "uiseparator.h"
@@ -116,9 +116,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     setOkCancelText( uiStrings::sCalculate(), uiStrings::sClose() );
 
-    uiMathFormula::Setup mfsu( tr("Formula (like 'den / sonic')") );
+    uiMathFormula::Setup mfsu( tr("Formula") );
     mfsu.stortype( "Log calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
+    formfld_->exprFld()->setPlaceholderText( toUiString("density / sonic") );
     formfld_->addInpViewIcon( "view_log", "Display this log",
 			      mCB(this,uiWellLogCalc,vwLog) );
     formfld_->setNonSpecInputs( lognms_, -1, &mnsel_ );

@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "mathformula.h"
 #include "mathformulatransl.h"
 #include "mathspecvars.h"
-#include "od_iostream.h"
 #include "odpair.h"
 #include "rockphysics.h"
 #include "unitofmeasure.h"
@@ -75,16 +74,20 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     if ( wantio || form_.inputsAreSeries() )
 	bgrp = new uiButtonGroup( this, "tool buts", OD::Horizontal );
 
-    if ( form_.inputsAreSeries() )
-	recbut_ = new uiToolButton( bgrp, "recursion",
-				    tr("Set start values for recursion"),
-				    mCB(this,uiMathFormula,recButPush) );
     if ( wantio )
     {
 	new uiToolButton( bgrp, "open", tr("Open stored formula"),
 				    mCB(this,uiMathFormula,readReq) );
 	new uiToolButton( bgrp, "save", tr("Save this formula"),
 				    mCB(this,uiMathFormula,writeReq) );
+    }
+
+    if ( form_.inputsAreSeries() )
+    {
+	bgrp->nextButtonOnNewRowCol();
+	recbut_ = new uiToolButton( bgrp, "recursion",
+				    tr("Set start values for recursion"),
+				    mCB(this,uiMathFormula,recButPush) );
     }
 
     if ( bgrp )

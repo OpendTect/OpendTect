@@ -456,11 +456,7 @@ const uiString& uiIOSelect::labelText() const
 void uiIOSelect::setLabelText( const uiString& s )
 {
     if ( lbl_ )
-    {
 	lbl_->setText( s );
-	lbl_->setPrefWidthInChar( s.size() + 3 );
-	return ;
-    }
     else if ( optbox_ )
 	optbox_->setText( s );
 }

@@ -58,6 +58,8 @@ public:
     Notifier<uiMathExpression>	formSet;
     void		extFormSet()		{ retPressCB(0); }
 
+    void		setPlaceholderText(const uiString&);
+
 protected:
 
     uiLineEdit*		txtfld_;

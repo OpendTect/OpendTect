@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "uimathpropeddlg.h"
 #include "uimathformula.h"
-#include "uimathexpressionvariable.h"
+#include "uimathexpression.h"
 #include "uimsg.h"
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
@@ -26,11 +26,12 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     , prop_(pr)
     , prs_(*new PropertyRefSelection(prs))
 {
-    uiMathFormula::Setup umfsu( tr("Formula (like den * vel)") );
+    uiMathFormula::Setup umfsu( tr("Formula") );
     umfsu.mn( &prop_.mn() )
 	 .stortype( "Math Property" )
 	 .maxnrinps(8);
     formfld_ = new uiMathFormula( this, prop_.getForm(), umfsu );
+    formfld_->exprFld()->setPlaceholderText( toUiString("density * velocity") );
 
     BufferStringSet availpropnms;
     MnemonicSelection mnsel;

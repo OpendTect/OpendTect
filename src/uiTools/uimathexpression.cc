@@ -189,3 +189,9 @@ void uiMathExpression::doIns( CallBacker* )
 
     insertText( txt );
 }
+
+
+void uiMathExpression::setPlaceholderText( const uiString& txt )
+{
+    txtfld_->setPlaceholderText( txt );
+}

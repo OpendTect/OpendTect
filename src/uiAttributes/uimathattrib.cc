@@ -18,15 +18,12 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "ioman.h"
 #include "seisioobjinfo.h"
-#include "survinfo.h"
 #include "uiattrsel.h"
-#include "uigeninput.h"
 #include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
 #include "uimathformula.h"
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
-#include "uimsg.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -40,13 +37,15 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	, form_(*new Math::Formula(true,Attrib::Mathematics::getSpecVars()))
 {
     uiAttrSelData asd( is2d );
-    uiMathFormula::Setup mfsu( tr("Formula (like 'nearstk + c0 * farstk')") );
+    uiMathFormula::Setup mfsu( tr("Formula") );
     mfsu.withunits( false ).maxnrinps( 8 ).withsubinps( true )
 	.stortype( "Attribute calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
-//    mAttachCB( formfld_->formSet, uiMathAttrib::formSel );
+    formfld_->exprFld()->setPlaceholderText(
+		toUiString("nearstk + c0 * farstk") );
     mAttachCB( formfld_->inpSet, uiMathAttrib::inpSel );
     updateNonSpecInputs();
+
     const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Use rockphysics formula"),
 			    rockphyscb, uiStrings::sRockPhy());

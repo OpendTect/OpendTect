@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uilineedit.h"
 #include "uiunitsel.h"
 #include "uitoolbutton.h"
 
@@ -37,7 +36,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     const uiString lblstr = tr("For %1 use").arg(varidx_+1);
     inpfld_->setHSzPol( uiObject::Wide );
     inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
-    inplbl_->setPrefWidthInChar( 35 );
+    inplbl_->setPrefWidthInChar( 25 );
     inplbl_->setAlignment( Alignment::Right );
     mAttachCB( inpfld_->selectionChanged, uiMathExpressionVariable::inpChg );
 
