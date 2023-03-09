@@ -146,7 +146,6 @@ bool uiDesktopServices::openUrl( const char* url )
 
 bool uiDesktopServices::showInFolder( const char* file )
 {
-    OS::MachineCommand mc;
     const BufferStringSet mypaths;
     if ( __iswin__ )
     {
@@ -154,9 +153,10 @@ bool uiDesktopServices::showInFolder( const char* file )
 			File::findExecutable( "explorer.exe", mypaths, true );
 	if ( !explorercmd.isEmpty() )
 	{
-	    mc.setProgram( explorercmd );
+	    OS::MachineCommand mc( explorercmd, true );
 	    BufferString filearg( "/select,", FilePath::getShortPath(file) );
 	    mc.addArg( filearg );
+	    return mc.execute( OS::RunInBG );
 	}
     }
     else if ( __islinux__ )
@@ -169,13 +169,11 @@ bool uiDesktopServices::showInFolder( const char* file )
 
 	if ( !filemgrcmd.isEmpty() )
 	{
-	    mc.setProgram( filemgrcmd );
+	    OS::MachineCommand mc( filemgrcmd, true );
 	    mc.addKeyedArg( "select", file );
+	    return mc.execute( OS::RunInBG );
 	}
     }
-
-    if ( !mc.isBad() )
-	return mc.execute( OS::RunInBG );
 
     return false;
 }
