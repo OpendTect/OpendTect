@@ -69,18 +69,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	      "${PACKAGE_NAME}" STREQUAL "devel") )
 	    file( COPY ${COPYFROMLIBDIR}/${LIBNM}
 		  DESTINATION ${COPYTOLIBDIR} )
-
-	    #copying breakpad symbols
-	    if ( OD_ENABLE_BREAKPAD )
-		if( WIN32 )
-		    #TODO
-		elseif( APPLE )
-		    #TODO
-		else()
-		    file( COPY ${COPYFROMLIBDIR}/symbols/${LIBNM}
-			  DESTINATION ${COPYTOLIBDIR}/symbols )
-		endif()
-	    endif()
 	endif()
 
 	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
@@ -143,18 +131,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    else()
 		file( COPY ${COPYFROMLIBDIR}/${EXE}
 		      DESTINATION ${COPYTOLIBDIR} )
-	    endif()
-
-	    #copying breakpad symbols
-	    if ( OD_ENABLE_BREAKPAD )
-		if ( WIN32 )
-		    #TODO
-		elseif( APPLE )
-		    #TODO
-		else()
-		    file( COPY ${COPYFROMLIBDIR}/symbols/${EXE}
-			  DESTINATION ${COPYTOLIBDIR}/symbols )
-		endif()
 	    endif()
 	endforeach()
     endif()
@@ -641,66 +617,4 @@ macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
 
     file( REMOVE_RECURSE "${PACKAGE_DIR}/${REL_DIR}" )
 endmacro( ZIPPACKAGE )
-
-#Genarate Symbols and then Strip the binaries
-macro ( OD_GENERATE_BREAKPAD_SYMBOLS ALLLIBS EXECS)
-    if ( NOT DEFINED BREAKPAD_DIR )
-	message ( FATAL_ERROR "BREAKPAD_DIR not defined" )
-    endif()
-    if ( NOT EXISTS ${BREAKPAD_DIR} )
-	message ( FATAL_ERROR "BREAKPAD_DIR: ${BREAKPAD_DIR} not found" )
-    endif()
-
-    set( SYMBOLDIRNM symbols_${OD_PLFSUBDIR}_${FULLVER_NAME} )
-    if( NOT EXISTS ${PACKAGE_DIR}/${SYMBOLDIRNM} )
-	file( MAKE_DIRECTORY ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
-    endif()
-    set( SYMBOLDIR ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
-
-if( UNIX )
-    set( LIBNAMES "" )
-    foreach( LIB ${ALLLIBS} )
-	set(SOLIB "lib${LIB}.so")
-	set( LIBNAMES ${LIBNAMES} ${SOLIB} )
-    endforeach()
-    set( ALLLIBSBINS ${LIBNAMES} ${EXECS} )
-    set( SYMGENCMD ${BREAKPAD_DIR}/bin/dump_syms )
-elseif( WIN32 )
-    set( LIBSBINS ${ALLLIBS} ${EXECS} )
-    set( ALLLIBSBINS "" )
-    foreach( LIBNM ${LIBSBINS} )
-	if ( ${LIBNM} STREQUAL "lmutil" )
-	    set( LIBNM "" )
-	endif()
-	set( ALLLIBSBINS ${ALLLIBSBINS} ${LIBNM} )
-    endforeach()
-    set( SYMGENCMD ${BREAKPAD_DIR}/bin/dump_syms.exe )
-endif()
-
-    foreach( FILENAME ${ALLLIBSBINS} )
-	if ( UNIX )
-	    execute_process( COMMAND "${SYMGENCMD}" ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${FILENAME}
-			     OUTPUT_FILE ${SYMBOLDIR}/${FILENAME}.sym )
-	elseif( WIN32 )
-	    execute_process( COMMAND "${SYMGENCMD}" ${BINARY_DIR}/bin/${OD_PLFSUBDIR}/Release/${FILENAME}.pdb
-			     OUTPUT_FILE ${SYMBOLDIR}/${FILENAME}.sym )
-	endif()
-
-	file( STRINGS ${SYMBOLDIR}/${FILENAME}.sym STUFF LIMIT_COUNT 1 )
-	string( REGEX REPLACE " " ";" NEWSTUFF ${STUFF} )
-	set( WORDS ${NEWSTUFF} )
-	list( GET WORDS 3 SYMADDRESS ) #assuming 4th word is symbol address
-	if( UNIX )
-	    file( MAKE_DIRECTORY ${SYMBOLDIR}/${FILENAME}/${SYMADDRESS} )
-	elseif( WIN32 )
-	    file( MAKE_DIRECTORY ${SYMBOLDIR}/${FILENAME}.pdb/${SYMADDRESS} )
-	endif()
-
-	if ( UNIX )
-	    file( RENAME ${SYMBOLDIR}/${FILENAME}.sym ${SYMBOLDIR}/${FILENAME}/${SYMADDRESS}/${FILENAME}.sym )
-	elseif( WIN32 )
-	    file( RENAME ${SYMBOLDIR}/${FILENAME}.sym ${SYMBOLDIR}/${FILENAME}.pdb/${SYMADDRESS}/${FILENAME}.sym )
-	endif()
-    endforeach()
-endmacro( OD_GENERATE_BREAKPAD_SYMBOLS )
 
