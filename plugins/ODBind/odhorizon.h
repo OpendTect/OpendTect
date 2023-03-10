@@ -88,18 +88,21 @@ public:
     ~odHorizon2D();
 
     BufferStringSet*	getLineNames() const;
+    BufferString	getLineName(int lineid) const;
     int			getNrLines() const;
     void		getLineIDs( int num, int* ids) const;
-    void		close();
-    // py::object		getData(int) const;
-    // py::dict		getData(const py::tuple& tup) const;
+    void		getZ(hAllocator, int lineid);
+    void		getXY(hAllocator, int lineid);
+
     void		getInfo(OD::JSON::Object&) const override;
+    void		getFeature(OD::JSON::Object&,
+				   bool towgs=true) const override;
     void		getPoints(OD::JSON::Array&, bool) const override;
 
     static const char*	sKeyTranslatorGrp()	{ return "2D Horizon"; }
 
 protected:
-    // RefMan<EM::Horizon2D>	hor_;
+    RefMan<EM::Horizon2D>	hor_;
     bool			creategeom_;
 
 };
@@ -132,4 +135,7 @@ mExternC(ODBind) hHorizon2D	horizon2d_newout(hSurvey, const char* name,
 mExternC(ODBind) hStringSet	horizon2d_attribnames(hHorizon2D);
 mExternC(ODBind) int		horizon2d_linecount(hHorizon2D);
 mExternC(ODBind) void		horizon2d_lineids(hHorizon2D, int, int*);
+mExternC(ODBind) const char*	horizon2d_linename(hHorizon2D, int);
 mExternC(ODBind) hStringSet	horizon2d_linenames(hHorizon2D);
+mExternC(ODBind) void		horizon2d_getz(hHorizon2D, hAllocator, int);
+mExternC(ODBind) void		horizon2d_getxy(hHorizon2D, hAllocator, int);
