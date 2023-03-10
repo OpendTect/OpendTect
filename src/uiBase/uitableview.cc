@@ -565,6 +565,44 @@ bool uiTableView::isColumnHidden( int col ) const
 { return odtableview_->isColumnHidden( col ); }
 
 
+void uiTableView::getVisibleRows( TypeSet<int>& rows,
+				  bool mappedtosource ) const
+{
+    for ( int idx=0; idx<tablemodel_->nrRows(); idx++ )
+    {
+	if ( isRowHidden(idx) )
+	    continue;
+
+	if ( mappedtosource )
+	{
+	    const RowCol rc = mapToSource( RowCol(idx,0) );
+	    rows += rc.row();
+	}
+	else
+	    rows += idx;
+    }
+}
+
+
+void uiTableView::getVisibleColumns( TypeSet<int>& cols,
+				     bool mappedtosource ) const
+{
+    for ( int idx=0; idx<tablemodel_->nrCols(); idx++ )
+    {
+	if ( isColumnHidden(idx) )
+	    continue;
+
+	if ( mappedtosource )
+	{
+	    const RowCol rc = mapToSource( RowCol(0,idx) );
+	    cols += rc.col();
+	}
+	else
+	    cols += idx;
+    }
+}
+
+
 RowCol uiTableView::mapFromSource( const RowCol& rc ) const
 {
     QModelIndex sourceidx =
@@ -638,7 +676,8 @@ bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
 }
 
 
-bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
+bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs,
+				    bool mappedtosource ) const
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     if ( !selmdl->hasSelection() )
@@ -652,7 +691,11 @@ bool uiTableView::getSelectedCells( TypeSet<RowCol>& rcs ) const
 	if ( isRowHidden(selrow) || isColumnHidden(selcol) )
 	    continue;
 
-	rcs += RowCol( selrow, selcol );
+	const RowCol rc( selrow, selcol );
+	if ( mappedtosource )
+	    rcs += mapToSource( rc );
+	else
+	    rcs += rc;
     }
 
     return rcs.size();
@@ -664,8 +707,8 @@ void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs )
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     for ( const auto& rc : rcs )
     {
-	const QModelIndex idx = tablemodel_->getAbstractModel()
-					   ->index( rc.row(), rc.col() );
+	const QModelIndex idx =
+		tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
 	selmdl->select( idx, QItemSelectionModel::Select );
     }
 }

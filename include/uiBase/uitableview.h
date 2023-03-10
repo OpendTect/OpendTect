@@ -35,15 +35,20 @@ public:
     void			saveHorizontalHeaderState();
     void			resetHorizontalHeader();
 
+    void			setNrFrozenColumns(int nrcols);
+
     void			setSectionsMovable(bool);
     void			setSortingEnabled(bool);
     bool			isSortingEnabled() const;
     void			sortByColumn(int col,bool asc=true);
     void			setRowHidden(int row,bool);
     bool			isRowHidden(int row) const;
+    void			getVisibleRows(TypeSet<int>&,
+					       bool mappedtosource) const;
     void			setColumnHidden(int col,bool);
     bool			isColumnHidden(int col) const;
-    void			setNrFrozenColumns(int nrcols);
+    void			getVisibleColumns(TypeSet<int>&,
+					       bool mappedtosource) const;
 
     RowCol			mapFromSource(const RowCol&) const;
 				// source model to filter model
@@ -54,7 +59,8 @@ public:
     void			clearSelection();
     bool			getSelectedRows(TypeSet<int>&) const;
     bool			getSelectedColumns(TypeSet<int>&) const;
-    bool			getSelectedCells(TypeSet<RowCol>&) const;
+    bool			getSelectedCells(TypeSet<RowCol>&,
+						 bool mappedtosource) const;
     void			selectAll();
     void			setSelectedCells(const TypeSet<RowCol>&);
     void			removeSelection(const TypeSet<RowCol>&);
