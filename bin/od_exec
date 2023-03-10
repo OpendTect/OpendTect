@@ -113,10 +113,6 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	
 	if ( $result != 0 ) then
 	    set xtermpath=/usr/bin/X11/xterm
-	    if ( $HDIR == sun5 ) then
-	        set xtermpath=/usr/openwin/bin/xterm
-		if ( ! -x $xtermpath ) set xtermpath=/usr/bin/xterm
-	    endif
 	    if ( $HDIR == mac ) set xtermpath="$DTECT_APPL/bin/mac_term"
 	endif
 
