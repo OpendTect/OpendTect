@@ -47,7 +47,17 @@ void uiWellInserter::startRead( CallBacker* cb )
     mDynamicCastGet(uiButton*,but,cb)
     uiParent* par = but ? but->mainwin() : nullptr;
     if ( !par )
+    {
+	mDynamicCastGet(uiParent*,directpar,cb)
+	par = directpar ? directpar : uiMainWin::activeWindow();
+    }
+
+    if ( !par )
+    {
+	pErrMsg("Should have at least a ActiveWindow as parent");
 	return;
+    }
+
 
     uiBulkLogImport impdlg( par );
     impdlg.setModal( true );
