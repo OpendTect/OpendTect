@@ -105,3 +105,4 @@ protected:
 
 mGlobal(uiBase) bool isMainThread(Threads::ThreadID);
 mGlobal(uiBase) bool isMainThreadCurrent();
+mGlobal(uiBase) bool useNativeDialog();
