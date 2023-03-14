@@ -82,7 +82,7 @@ public:
     void		updateInput() override;
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
-
+    void		updateOutputOpts(bool issteering);
 protected:
 
     Setup		seissetup_;
@@ -91,7 +91,9 @@ protected:
     IOPar		dlgiopar_;
     uiCheckBox*		othdombox_;
 
+    mDeprecated("Use mkSetupWithCtxt(const Setup&,const IOObjContext&)")
     Setup		mkSetup(const Setup&,bool forread);
+    Setup		mkSetupWithCtxt(const Setup&,const IOObjContext&);
     void		fillDefault() override;
     void		newSelection(uiIOObjRetDlg*) override;
     void		commitSucceeded() override;

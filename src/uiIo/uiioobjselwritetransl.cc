@@ -149,6 +149,39 @@ bool uiIOObjSelWriteTranslator::isEmpty() const
 }
 
 
+void uiIOObjSelWriteTranslator::updateTransFld(
+					const BufferStringSet& transltoavoid )
+{
+    selfld_->setEmpty();
+    trs_.setEmpty();
+    const TranslatorGroup& trgrp = *ctxt_.trgroup_;
+    const ObjectSet<const Translator>& alltrs = trgrp.templates();
+    for ( int idx=0; idx<alltrs.size(); idx++ )
+    {
+	const Translator* trl = alltrs[idx];
+	if ( transltoavoid.indexOf(trl->typeName()) >= 0 )
+	    continue;
+
+	else if ( IOObjSelConstraints::isAllowedTranslator(
+	    trl->userName(),ctxt_.toselect_.allowtransls_)
+	    && trl->isUserSelectable(false) )
+	    trs_ += trl;
+    }
+
+    for ( int idx=0; idx<trs_.size(); idx++ )
+    {
+	const Translator& trl = *trs_[idx];
+	const BufferString trnm( trl.userName() );
+	selfld_->addItem( toUiString(trnm) );
+	BufferString icnm( trl.iconName() );
+	if ( !icnm.isEmpty() )
+	    selfld_->setIcon( idx, icnm );
+    }
+
+    selfld_->setCurrentItem( 0 );
+}
+
+
 const char* uiIOObjSelWriteTranslator::suggestedName() const
 {
     uiIOObjTranslatorWriteOpts* optfld = getCurOptFld();

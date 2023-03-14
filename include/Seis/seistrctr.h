@@ -175,6 +175,7 @@ public:
     bool		commitSelections();
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
+    bool		supportsMultiCompTrc() const;
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&);

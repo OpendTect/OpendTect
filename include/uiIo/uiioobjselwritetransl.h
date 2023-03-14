@@ -97,7 +97,7 @@ public:
 
     Notifier<uiIOObjSelWriteTranslator> suggestedNameAvailble;
     virtual const char* suggestedName() const;
-
+    void		updateTransFld(const BufferStringSet& transltoavoid);
 protected:
 
     IOObjContext&	ctxt_;

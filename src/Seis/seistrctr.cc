@@ -121,6 +121,16 @@ bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 }
 
 
+bool SeisTrcTranslator::supportsMultiCompTrc() const
+{
+    if ( !group_ )
+	return false;
+
+    return group_->groupName().isEqual( "CBVS" ) ||
+	group_->groupName().isEqual( "PetrelDirect" );
+}
+
+
 bool SeisTrcTranslator::isPS( const IOObj& ioobj, bool internal_only )
 {
     const OD::String& grpnm = ioobj.group();

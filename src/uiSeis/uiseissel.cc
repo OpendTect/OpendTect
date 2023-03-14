@@ -61,12 +61,7 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect_.dontallow_.addVal( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
-    {
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
-	ctxt.fixTranslator(
-		Seis::is2D(su.geom_) ? CBVSSeisTrc2DTranslator::translKey()
-				     : CBVSSeisTrcTranslator::translKey() );
-    }
 
     return ctxt;
 }
@@ -258,8 +253,8 @@ static IOObjContext getIOObjCtxt( const IOObjContext& c,
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread_))
-	, seissetup_(mkSetup(su,ctxt.forread_))
+	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetupWithCtxt(su,ctxt))
+	, seissetup_(mkSetupWithCtxt(su,ctxt))
 	, othdombox_(0)
 	, compnr_(0)
 {
@@ -294,6 +289,34 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
     ret.filldef( su.allowsetdefault_ );
     return ret;
 }
+
+
+uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
+					    const IOObjContext& ctxt )
+{
+    uiSeisSel::Setup ret = mkSetup( su, ctxt.forread_ );
+    if ( ctxt.trgroup_ && !ctxt.forread_ &&
+	su.steerpol_ == Setup::OnlySteering )
+    {
+	ret.withwriteopts_ = !ctxt.forread_;
+	const TranslatorGroup& trgrp = *ctxt.trgroup_;
+	const ObjectSet<const Translator>& alltrs = trgrp.templates();
+	for ( const auto* transl : alltrs )
+	{
+	    mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
+	    if ( seistr && !seistr->supportsMultiCompTrc() )
+	    {
+		const BufferString nm = transl->typeName();
+		ret.trsnotallwed_.add( transl->typeName() );
+	    }
+	}
+    }
+    else
+	ret.withwriteopts_ = false;
+
+    return ret;
+}
+
 
 
 const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
@@ -441,6 +464,29 @@ void uiSeisSel::commitSucceeded()
 }
 
 
+void uiSeisSel::updateOutputOpts( bool issteering )
+{
+    BufferStringSet transntallowed;
+    if ( !issteering )
+    {
+	wrtrselfld_->updateTransFld( transntallowed );
+	return;
+    }
+
+    CtxtIOObj& ctxt = ctxtIOObj();
+    const TranslatorGroup& trgrp = *ctxt.ctxt_.trgroup_;
+    const ObjectSet<const Translator>& alltrs = trgrp.templates();
+    for ( const auto* transl : alltrs )
+    {
+	mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
+	if ( seistr && !seistr->supportsMultiCompTrc() )
+	    transntallowed.add( transl->typeName() );
+    }
+
+    wrtrselfld_->updateTransFld( transntallowed );
+}
+
+
 void uiSeisSel::processInput()
 {
     obtainIOObj();
@@ -474,7 +520,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 {
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().seltxt( txt );
-    sssu.withwriteopts(false).withinserters(false);
+    sssu.withwriteopts( true ).withinserters( false );
     return sssu;
 }
 
