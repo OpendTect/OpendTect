@@ -294,7 +294,9 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
 uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
 					    const IOObjContext& ctxt )
 {
-    uiSeisSel::Setup ret = mkSetup( su, ctxt.forread_ );
+    uiSeisSel::Setup ret( su );
+    ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su,  ctxt.forread_ );
+    ret.filldef( su.allowsetdefault_ );
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
 	su.steerpol_ == Setup::OnlySteering )
     {
