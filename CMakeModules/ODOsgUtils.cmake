@@ -121,7 +121,7 @@ macro( OSGGEO_GET_SYMBOLS )
 	    get_filename_component( LIBBASENM "${OSGGEO_LIBRARY_RELEASE}" NAME_WE )
 	    set( SYMLIBNM "${OSGGEO_DIR}/bin/${LIBBASENM}.dll" )
 	else()
-	    set( SYMLIBNM "${OSGGEO_LIBRARY_RELASE}" )
+	    set( SYMLIBNM "${OSGGEO_LIBRARY_RELEASE}" )
 	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND}
 		"-DLIBRARY=${SYMLIBNM}"
