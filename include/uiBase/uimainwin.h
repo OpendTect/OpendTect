@@ -231,8 +231,7 @@ protected:
     void		saveSettings();
     void		readSettings();
 
-    void		saveAsPDF_PS(const char* fnm,int w,int h,
-				     int res);
+    void		saveAsPDF_PS(const char* fnm,int w,int h,int res);
 
     void		copyToClipBoardCB(CallBacker*);
     void		aftPopupCB(CallBacker*);
@@ -241,6 +240,7 @@ protected:
     mDeprecated("Use setForceFinalize()")
     void		setForceFinalise( bool yn )
 			{ setForceFinalize( yn ); }
+    void		setContentsMargins(int l,int t,int r,int b);
 
     uiMainWinBody*	body_;
     uiParent*		parent_;

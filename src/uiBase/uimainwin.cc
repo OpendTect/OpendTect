@@ -178,6 +178,13 @@ bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 void uiMainWin::setForceFinalize( bool yn )	{ body_->force_finalize_ = yn; }
 
+
+void uiMainWin::setContentsMargins( int left, int top, int right, int bottom )
+{
+    body_->setContentsMargins( left, top, right, bottom );
+}
+
+
 void uiMainWin::forceClose()
 {
     if ( !isModal() )
