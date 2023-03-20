@@ -598,15 +598,19 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			Survey::GM().getGeometry(geomid))
 	if ( !geom2d )
-	{ errmsg_ = tr("Cannot read 2D geometry"); return false; }
+	{
+	    errmsg_ = tr("Cannot read 2D geometry");
+	    return false;
+	}
 
-	float max;
-	geom2d->data().compDistBetwTrcsStats( max, trcdist_ );
-	if ( mIsZero(trcdist_,mDefEps) )
+	const float avgtrcdist = geom2d->averageTrcDist();
+	if ( mIsUdf(avgtrcdist) || mIsZero(avgtrcdist,1e-3) )
 	{
 	    errmsg_ = tr("Cannot calculate median trace distance");
 	    return false;
 	}
+
+	trcdist_ = avgtrcdist;
     }
 
     return true;
