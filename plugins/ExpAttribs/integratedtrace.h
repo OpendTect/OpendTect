@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "expattribsmod.h"
 #include "attribprovider.h"
-#include "arrayndalgo.h"
 
 namespace Attrib
 {

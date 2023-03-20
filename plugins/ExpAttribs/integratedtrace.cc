@@ -10,9 +10,11 @@ ________________________________________________________________________
 #include "integratedtrace.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
-#include "attribdescset.h"
 #include "attribfactory.h"
-#include "attribparam.h"
+
+
+// Based on:
+// https://agilescientific.com/blog/2011/12/28/i-is-for-integrated-trace.html
 
 namespace Attrib
 {
