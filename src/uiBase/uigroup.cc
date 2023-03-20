@@ -112,6 +112,13 @@ public:
 			    { lomngr_->setVSpacing( space ); }
     void		setBorder( int b )
 			    { lomngr_->setContentsMargins( b, b, b, b ); }
+    void		setBorder( int l, int t, int r, int b )
+			{
+			    if ( objbody_.qwidget() )
+				objbody_.qwidget()->setContentsMargins(l,t,r,b);
+			    else // fallback
+				lomngr_->setContentsMargins( l, t, r, b );
+			}
 
     uiObject*		hAlignObj()			{ return halignobj_; }
     void		setHAlignObj( uiObject* o );
@@ -588,6 +595,12 @@ void uiGroup::setVSpacing( int s )
 void uiGroup::setBorder( int b )
 {
     body_->setBorder( b );
+}
+
+
+void uiGroup::setBorder( int l, int t, int r, int b )
+{
+    body_->setBorder( l, t, r, b );
 }
 
 
