@@ -750,9 +750,9 @@ void uiColorTableGroup::init( OD::Orientation orient, bool nominmax )
 	    selfld_->attach( rightOf, canvas_, 2 );
 	else
 	{
-	    canvas_->attach( rightOf, minfld_ );
-	    maxfld_->attach( rightOf, canvas_ );
-	    selfld_->attach( rightOf, maxfld_ );
+	    canvas_->attach( rightOf, minfld_, 2 );
+	    maxfld_->attach( rightOf, canvas_, 2 );
+	    selfld_->attach( rightOf, maxfld_, 2 );
 	}
     }
 
@@ -780,6 +780,17 @@ void uiColorTableGroup::setCanvasAsAlignObj()
     setHAlignObj( canvas_ );
 }
 
+
+void uiColorTableGroup::setHSzPol( uiObject::SzPolicy pol )
+{
+    if ( !minfld_ )
+	return;
+
+    minfld_->setMinimumWidth( 10 );
+    maxfld_->setMinimumWidth( 10 );
+    minfld_->setHSzPol( pol );
+    maxfld_->setHSzPol( pol );
+}
 
 
 // uiColorTableToolBar

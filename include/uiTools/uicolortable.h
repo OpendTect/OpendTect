@@ -129,6 +129,7 @@ public:
 
     OD::Orientation	getOrientation() const override;
     void		setCanvasAsAlignObj();
+    void		setHSzPol(uiObject::SzPolicy);
 
 private:
     void		init(OD::Orientation,bool nominmax);
