@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "menuhandler.h"
-#include "separstr.h"
 
 #include "q_uiimpl.h"
 
@@ -57,6 +56,10 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     }
 
     toolBars() += this;
+
+    const int iconsz = uiObject::iconSize();
+    qtoolbar_->setIconSize( QSize(iconsz,iconsz) );
+
 #ifdef __mac__
     qtoolbar_->setStyleSheet( "background: gray;" );
 #endif
