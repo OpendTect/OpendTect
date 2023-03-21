@@ -60,6 +60,9 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 
     toolBars() += this;
 
+    const int iconsz = uiObject::iconSize();
+    qtoolbar_->setIconSize( QSize(iconsz,iconsz) );
+
     hp_addedactions.setParam( this, new ObjectSet<QAction> );
 }
 
