@@ -48,12 +48,12 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 
     doclipfld_ = new uiGenInput( this, tr("Auto-set scale ranges"),
 				BoolInpSpec(true) );
-    mAttachCB( doclipfld_->valuechanged, uiAutoRangeClipDlg::clipPush );
+    mAttachCB( doclipfld_->valueChanged, uiAutoRangeClipDlg::clipPush );
 
     cliptypefld_ = new uiGenInput( this, tr("Clip type"),
 			BoolInpSpec(true,tr("Symmetrical"),tr("Asymmetrical")));
     cliptypefld_->attach( alignedBelow, doclipfld_ );
-    mAttachCB( cliptypefld_->valuechanged, uiAutoRangeClipDlg::cliptypePush );
+    mAttachCB( cliptypefld_->valueChanged, uiAutoRangeClipDlg::cliptypePush );
 
     clipfld_ = new uiGenInput( this, tr("Percentage clipped (low/high)"),
 			      FloatInpIntervalSpec() );
@@ -63,11 +63,11 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     autosymfld_ = new uiGenInput( this, tr("Auto detect symmetry"),
 				 BoolInpSpec(true) );
     autosymfld_->attach( alignedBelow, clipfld_ );
-    mAttachCB( autosymfld_->valuechanged, uiAutoRangeClipDlg::autoSymPush );
+    mAttachCB( autosymfld_->valueChanged, uiAutoRangeClipDlg::autoSymPush );
 
     symfld_ = new uiGenInput( this, tr("Set symmetrical"), BoolInpSpec(true) );
     symfld_->attach( alignedBelow, autosymfld_ );
-    mAttachCB( symfld_->valuechanged, uiAutoRangeClipDlg::symPush );
+    mAttachCB( symfld_->valueChanged, uiAutoRangeClipDlg::symPush );
 
     midvalfld_ = new uiGenInput( this, tr("Symmetrical Mid Value"),
 				FloatInpSpec() );
@@ -85,12 +85,12 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 				StringListInpSpec(formats) );
     formatfld_->attach( alignedBelow, midvalfld_ );
     formatfld_->attach( ensureBelow, sep );
-    mAttachCB( formatfld_->valuechanged, uiAutoRangeClipDlg::formatChangedCB );
+    mAttachCB( formatfld_->valueChanged, uiAutoRangeClipDlg::formatChangedCB );
 
     precisionfld_ = new uiGenInput( this, tr("Precision"),
 				    IntInpSpec(5,0,8) );
     precisionfld_->attach( alignedBelow, formatfld_ );
-    mAttachCB(precisionfld_->valuechanging,uiAutoRangeClipDlg::formatChangedCB);
+    mAttachCB(precisionfld_->valueChanging,uiAutoRangeClipDlg::formatChangedCB);
 
     precisioninfolbl_ = new uiLabel( this, getPrecicionInfo(2) );
     precisioninfolbl_->attach( rightTo, precisionfld_ );
