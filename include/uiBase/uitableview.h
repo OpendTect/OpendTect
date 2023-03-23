@@ -74,6 +74,7 @@ public:
     TableModel::CellType	getCellType(int col) const;
 
     Notifier<uiTableView>	doubleClicked;
+    Notifier<uiTableView>	selectionChanged;
 
 protected:
 

@@ -36,6 +36,9 @@ ________________________________________________________________________
 class ODStyledItemDelegate : public QStyledItemDelegate
 {
 public:
+ODStyledItemDelegate( QObject* parent )
+    : QStyledItemDelegate(parent)
+{}
 
 ODStyledItemDelegate( TableModel::CellType typ )
     : celltype_(typ)
@@ -304,6 +307,13 @@ ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
 }
 
 
+void currentChanged( const QModelIndex& current,
+		     const QModelIndex& previous ) override
+{
+    handle_.selectionChanged.trigger();
+}
+
+
 void setModel( QAbstractItemModel* tblmodel ) override
 {
     QTableView::setModel( tblmodel );
@@ -461,6 +471,7 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , doubleClicked(this)
+    , selectionChanged(this)
 {
     columndelegates_.setNullAllowed( true );
     mAttachCB( this->doubleClicked, uiTableView::doubleClickedCB );
