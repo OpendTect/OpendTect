@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 
+#include "mnemonics.h"
 #include "welldata.h"
 
 namespace Well
@@ -30,10 +31,16 @@ public:
 				{ lognms_ = nms; }
     inline const BufferStringSet& selectedLogs() const
 				{ return lognms_; }
+
     inline void			setSelectedMarkers( const BufferStringSet& nms )
 				{markernms_ = nms; }
     inline const BufferStringSet& selectedMarkers() const
 				{ return markernms_; }
+
+    inline void			setSelectedMnemonics(const MnemonicSelection& m)
+				{ mnemonics_ = m; }
+    inline const MnemonicSelection& selectedMnemonics() const
+				{ return mnemonics_ ; }
 
     inline void			setMDRange( const Interval<float>& rg )
 				{ mdrg_ = rg; }
@@ -46,6 +53,7 @@ protected:
 
     BufferStringSet		lognms_;
     BufferStringSet		markernms_;
+    MnemonicSelection		mnemonics_;
 };
 
 
