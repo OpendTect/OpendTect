@@ -22,23 +22,27 @@ QT_BEGIN_NAMESPACE
 
 class i_ToolBarMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiToolBar;
+Q_OBJECT
+friend class uiToolBar;
 
 protected:
-i_ToolBarMessenger( QToolBar* sndr, uiToolBar* receiver )
+i_ToolBarMessenger( QToolBar* sndr, uiToolBar* rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(actionTriggered(QAction*)),
-	     this, SLOT(actionTriggered(QAction*)) );
-    connect( sndr, SIGNAL(orientationChanged(Qt::Orientation)),
-	     this, SLOT(orientationChanged(Qt::Orientation)) );
+    connect( sndr, &QToolBar::actionTriggered,
+	     this, &i_ToolBarMessenger::actionTriggered );
+    connect( sndr, &QToolBar::orientationChanged,
+	     this, &i_ToolBarMessenger::orientationChanged );
 }
 
+
+~i_ToolBarMessenger()
+{}
+
 private:
-    uiToolBar*		receiver_;
     QToolBar*		sender_;
+    uiToolBar*		receiver_;
 
 private slots:
 
@@ -49,7 +53,9 @@ void actionTriggered( QAction* qaction )
 }
 
 void orientationChanged( Qt::Orientation )
-{ receiver_->orientationChanged.trigger( *receiver_ ); }
+{
+    receiver_->orientationChanged.trigger( *receiver_ );
+}
 
 };
 

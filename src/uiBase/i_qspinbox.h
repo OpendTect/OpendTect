@@ -21,34 +21,40 @@ QT_BEGIN_NAMESPACE
 
 class i_SpinBoxMessenger : public QObject
 {
-    Q_OBJECT
-    friend class uiSpinBoxBody;
+Q_OBJECT
+friend class uiSpinBoxBody;
 
 protected:
-			i_SpinBoxMessenger(QDoubleSpinBox*  sndr,
-					   uiSpinBox* receiver)
-			: sender_(sndr)
-			, receiver_(receiver)
-			{
-			    connect( sndr, SIGNAL(editingFinished()),
-				     this, SLOT(editingFinished()) );
-			    connect(sndr, SIGNAL(valueChanged(double)),
-				    this, SLOT(valueChanged(double)) );
-			}
+i_SpinBoxMessenger( QDoubleSpinBox* sndr, uiSpinBox* rec )
+    : sender_(sndr)
+    , receiver_(rec)
+{
+    connect( sndr, &QAbstractSpinBox::editingFinished,
+	     this, &i_SpinBoxMessenger::editingFinished );
+    connect( sndr, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+	     this, &i_SpinBoxMessenger::valueChanged );
+}
 
-    virtual		~i_SpinBoxMessenger() {}
+~i_SpinBoxMessenger()
+{}
 
 private:
 
-    uiSpinBox*		receiver_;
     QDoubleSpinBox*	sender_;
+    uiSpinBox*		receiver_;
 
 private slots:
 
-    void		editingFinished()
-			{ receiver_->notifyHandler( true ); }
-    void		valueChanged(double)
-			{ receiver_->notifyHandler( false ); }
+void editingFinished()
+{
+    receiver_->notifyHandler( true );
+}
+
+void valueChanged(double)
+{
+    receiver_->notifyHandler( false );
+}
+
 };
 
 QT_END_NAMESPACE

@@ -17,8 +17,8 @@ QT_BEGIN_NAMESPACE
 
 class QDialogMessenger : public QObject 
 {
-    Q_OBJECT
-    friend class	uiDialog;
+Q_OBJECT
+friend class uiDialog;
 
 protected:
 
@@ -26,10 +26,14 @@ QDialogMessenger( QDialog* qdlg, uiDialog* uidlg )
     : qdialog_(qdlg)
     , uidialog_(uidlg)
 {
-   connect( qdialog_, SIGNAL(accepted()), this, SLOT(accepted()) );
-   connect( qdialog_, SIGNAL(rejected()), this, SLOT(rejected()) );
-   connect( qdialog_, SIGNAL(finished(int)), this, SLOT(finished(int)) );
+   connect( qdialog_, &QDialog::accepted, this, &QDialogMessenger::accepted );
+   connect( qdialog_, &QDialog::rejected, this, &QDialogMessenger::rejected );
+   connect( qdialog_, &QDialog::finished, this, &QDialogMessenger::finished );
 }
+
+
+~QDialogMessenger()
+{}
 
 
 private slots:

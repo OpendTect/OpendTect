@@ -23,8 +23,8 @@ QT_BEGIN_NAMESPACE
 
 class FrozenColumnsHelper : public QObject
 {
-    Q_OBJECT
-    friend class ODTableView;
+Q_OBJECT
+friend class ODTableView;
 
 protected:
 FrozenColumnsHelper( QTableView* mainview, QTableView* frozenview )
@@ -44,8 +44,14 @@ FrozenColumnsHelper( QTableView* mainview, QTableView* frozenview )
 }
 
 
+~FrozenColumnsHelper()
+{}
+
+
 void setNrColumns( int nrcol )
-{ nrcols_ = nrcol; }
+{
+    nrcols_ = nrcol;
+}
 
 
 void updateGeom()
@@ -87,25 +93,27 @@ void rowResized( int row, int oldheight, int newheight )
 
 class i_tableViewMessenger : public QObject
 {
-    Q_OBJECT
-    friend class ODTableView;
+Q_OBJECT
+friend class ODTableView;
 
 protected:
-i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
+i_tableViewMessenger( QTableView* sndr, uiTableView* rec )
     : sender_(sndr)
-    , receiver_(rcvr )
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(doubleClicked(const QModelIndex&)),
-	     this, SLOT(doubleClicked(const QModelIndex&)),
+    connect( sndr, &QAbstractItemView::doubleClicked,
+	     this, &i_tableViewMessenger::doubleClicked,
 	     Qt::QueuedConnection );
 }
 
-    virtual		~i_tableViewMessenger() {}
+
+~i_tableViewMessenger()
+{}
 
 private:
 
-    uiTableView*	receiver_;
     QTableView*		sender_;
+    uiTableView*	receiver_;
 
 private slots:
 

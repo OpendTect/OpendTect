@@ -21,43 +21,36 @@ QT_BEGIN_NAMESPACE
 
 class i_listMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiListBoxBody;
+Q_OBJECT
+friend class	uiListBoxBody;
 
 protected:
-			i_listMessenger( QListWidget* sndr,
-					 uiListBox* receiver )
-			: sender_( sndr )
-			, receiver_( receiver )
-			{
-			    connect( sndr,
-				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-				this,
-				SLOT(itemDoubleClicked(QListWidgetItem*)) );
+i_listMessenger( QListWidget* sndr, uiListBox* rec )
+    : sender_(sndr)
+    , receiver_(rec)
+{
+    connect( sndr, &QListWidget::itemDoubleClicked,
+	     this, &i_listMessenger::itemDoubleClicked );
 
-			    connect( sndr,
-				SIGNAL(itemClicked(QListWidgetItem*)),
-				this,
-				SLOT(itemClicked(QListWidgetItem*)) );
+    connect( sndr, &QListWidget::itemClicked,
+	     this, &i_listMessenger::itemClicked );
 
-			    connect( sndr, SIGNAL(itemSelectionChanged()),
-				     this, SLOT(itemSelectionChanged()) );
+    connect( sndr, &QListWidget::itemSelectionChanged,
+	     this, &i_listMessenger::itemSelectionChanged );
 
-			    connect( sndr,
-				 SIGNAL(itemEntered(QListWidgetItem*)),
-				 this, SLOT(itemEntered(QListWidgetItem*)) );
+    connect( sndr, &QListWidget::itemEntered,
+	     this, &i_listMessenger::itemEntered );
+    connect( sndr, &QListWidget::itemChanged,
+	     this, &i_listMessenger::itemChanged );
+}
 
-			    connect( sndr,
-				SIGNAL(itemChanged(QListWidgetItem*)),
-				this, SLOT(itemChanged(QListWidgetItem*)) );
-			}
-
-    virtual		~i_listMessenger() {}
+~i_listMessenger()
+{}
 
 private:
 
-    uiListBox*		receiver_;
     QListWidget*	sender_;
+    uiListBox*		receiver_;
 
 
 #define mTrigger( notifier, itm ) \
@@ -76,7 +69,9 @@ private:
 private slots:
 
 void itemDoubleClicked( QListWidgetItem* itm )
-{ mTrigger( doubleClicked, itm ); }
+{
+    mTrigger( doubleClicked, itm );
+}
 
 
 void itemClicked( QListWidgetItem* itm )
@@ -106,7 +101,6 @@ void itemChanged( QListWidgetItem* itm )
 }
 
 #undef mTrigger
-
 };
 
 QT_END_NAMESPACE

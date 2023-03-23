@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include <QWidget>
 #include <QMdiArea>
+#include <QMdiSubWindow>
 
 
 //! Helper class for uiMdiArea to relay Qt's messages.
@@ -23,28 +24,35 @@ QT_BEGIN_NAMESPACE
 
 class i_MdiAreaMessenger : public QObject
 {
-    Q_OBJECT
-    friend class uiMdiAreaBody;
+Q_OBJECT
+friend class uiMdiAreaBody;
 
 protected:
 
-i_MdiAreaMessenger( QMdiArea* sndr, uiMdiArea* receiver )
+i_MdiAreaMessenger( QMdiArea* sndr, uiMdiArea* rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(subWindowActivated(QMdiSubWindow*)),
-	     this, SLOT(subWindowActivated(QMdiSubWindow*)) );
+    connect( sndr, &QMdiArea::subWindowActivated,
+	     this, &i_MdiAreaMessenger::subWindowActivated );
 }
+
+
+~i_MdiAreaMessenger()
+{}
+
 
 private:
 
-    uiMdiArea*	receiver_;
     QMdiArea*	sender_;
+    uiMdiArea*	receiver_;
 
 private slots:
 
 void subWindowActivated( QMdiSubWindow* )
-{ receiver_->windowActivated.trigger( *receiver_ ); }
+{
+    receiver_->windowActivated.trigger( *receiver_ );
+}
 
 };
 

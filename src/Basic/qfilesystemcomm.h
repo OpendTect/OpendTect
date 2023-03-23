@@ -28,10 +28,10 @@ QFileSystemWComm( QFileSystemWatcher* qfswatcher, FileSystemWatcher* fswatcher )
     : qfswatcher_(qfswatcher)
     , fswatcher_(fswatcher)
 {
-    connect( qfswatcher, SIGNAL(directoryChanged(const QString&)),
-	     this, SLOT(directoryChanged(const QString&)) );
-    connect( qfswatcher, SIGNAL(fileChanged(const QString&)),
-	     this, SLOT(fileChanged(const QString&)) );
+    connect( qfswatcher, &QFileSystemWatcher::directoryChanged,
+	     this, &QFileSystemWComm::directoryChanged );
+    connect( qfswatcher, &QFileSystemWatcher::fileChanged,
+	     this, &QFileSystemWComm::fileChanged );
 }
 
 private slots:

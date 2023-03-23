@@ -8,31 +8,42 @@ ________________________________________________________________________
 -*/
 
 #include "qptr.h"
-
 #include "i_qptr.h"
 
-QObjPtr::QObjPtr( QObject* qo )
-    : impl_( new i_QPtrImpl( qo ) )
+// QObjPtr
+QObjPtr::QObjPtr( QObject* qobj )
+    : impl_(new i_QPtrImpl(qobj))
 {}
 
 
 QObjPtr::~QObjPtr()
-{ delete impl_; }
+{
+    delete impl_;
+}
 
 
 QObjPtr::operator QObject*()
-{ return impl_->ptr(); }
+{
+    return impl_->ptr();
+}
 
 
 QObjPtr::operator const QObject*() const
-{ return impl_->ptr(); }
+{
+    return impl_->ptr();
+}
 
 
 const QObject* QObjPtr::operator->() const
-{ return impl_->ptr(); }
+{
+    return impl_->ptr();
+}
+
 
 QObject* QObjPtr::operator->()
-{ return impl_->ptr(); }
+{
+    return impl_->ptr();
+}
 
 
 QObject* QObjPtr::operator=( QObject* qo )
@@ -40,6 +51,7 @@ QObject* QObjPtr::operator=( QObject* qo )
     impl_->set( qo );
     return qo; 
 }
+
 
 Threads::Mutex& QObjPtr::mutex()
 {
@@ -52,18 +64,8 @@ NotifierAccess& QObjPtr::deleteNotifier()
     return impl_->notifier_;
 }
 
-void i_QPtrImpl::set(QObject* qo )
-{
-    if ( sender_ ) sender_->disconnect( this );
 
-    sender_ = qo;
-    if ( sender_ )
-    {
-	connect( sender_, SIGNAL(destroyed(QObject*)),
-		 this, SLOT(destroyed(QObject*)) );
-    }
-}
-
+// i_QPtrImpl
 i_QPtrImpl::i_QPtrImpl( QObject* sndr )
     : sender_(0)
     , notifier_(this)
@@ -72,8 +74,22 @@ i_QPtrImpl::i_QPtrImpl( QObject* sndr )
     set( sndr );
 }
 
+
 i_QPtrImpl::~i_QPtrImpl()
 {
     Threads::Locker lock( lock_ );
-    set( 0 );
+    set( nullptr );
+}
+
+void i_QPtrImpl::set( QObject* qo )
+{
+    if ( sender_ )
+	sender_->disconnect( this );
+
+    sender_ = qo;
+    if ( sender_ )
+    {
+	connect( sender_, &QObject::destroyed,
+		 this, &i_QPtrImpl::_destroyed );
+    }
 }

@@ -22,58 +22,64 @@ QT_BEGIN_NAMESPACE
 
 class i_treeVwMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiTreeViewBody;
+Q_OBJECT
+friend class uiTreeViewBody;
 
 protected:
 
-i_treeVwMessenger( QTreeWidget& sndr, uiTreeView& receiver )
+i_treeVwMessenger( QTreeWidget& sndr, uiTreeView& rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( &sndr, SIGNAL(itemSelectionChanged()),
-	     this, SLOT(itemSelectionChanged()) );
+    connect( &sndr, &QTreeWidget::itemSelectionChanged,
+	     this, &i_treeVwMessenger::itemSelectionChanged );
 
-    connect( &sndr, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-	     this, SLOT(itemChanged(QTreeWidgetItem*,int)) );
+    connect( &sndr, &QTreeWidget::itemChanged,
+	     this, &i_treeVwMessenger::itemChanged );
 
-    connect( &sndr,
-	     SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-	     this,
-	     SLOT(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)) );
+    connect( &sndr, &QTreeWidget::currentItemChanged,
+	     this, &i_treeVwMessenger::currentItemChanged );
 
-    connect( &sndr, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-	     this, SLOT(itemClicked(QTreeWidgetItem*,int)) );
+    connect( &sndr, &QTreeWidget::itemClicked,
+	     this, &i_treeVwMessenger::itemClicked );
 
-    connect( &sndr, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
-	     this, SLOT(itemPressed(QTreeWidgetItem*,int)) );
+    connect( &sndr, &QTreeWidget::itemPressed,
+	     this, &i_treeVwMessenger::itemPressed );
 
-    connect( &sndr, SIGNAL(customContextMenuRequested(const QPoint &)),
-	     this, SLOT(customContextMenuRequested(const QPoint &)) );
+    connect( &sndr, &QWidget::customContextMenuRequested,
+	     this, &i_treeVwMessenger::customContextMenuRequested );
 
-    connect( &sndr, SIGNAL(itemExpanded(QTreeWidgetItem*)),
-	     this, SLOT(itemExpanded(QTreeWidgetItem*)) );
+    connect( &sndr, &QTreeWidget::itemExpanded,
+	     this, &i_treeVwMessenger::itemExpanded );
 
-    connect( &sndr, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
-	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
+    connect( &sndr, &QTreeWidget::itemCollapsed,
+	     this, &i_treeVwMessenger::itemCollapsed );
 
-    connect( &sndr, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
-	     this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)) );
+    connect( &sndr, &QTreeWidget::itemDoubleClicked,
+	     this, &i_treeVwMessenger::itemDoubleClicked );
 
-    connect( &sndr, SIGNAL(itemEntered(QTreeWidgetItem*,int)),
-	     this, SLOT(itemEntered(QTreeWidgetItem*,int)) );
+    connect( &sndr, &QTreeWidget::itemEntered,
+	     this, &i_treeVwMessenger::itemEntered );
 }
+
+
+~i_treeVwMessenger()
+{}
 
 private:
 
 void setNotifiedItem( QTreeWidgetItem* item )
-{ receiver_.setNotifiedItem(item); }
+{
+    receiver_.setNotifiedItem(item);
+}
 
 void setNotifiedColumn( int col )
-{ receiver_.setNotifiedColumn( col ); }
+{
+    receiver_.setNotifiedColumn( col );
+}
 
-uiTreeView&	receiver_;
-QTreeWidget&	sender_;
+    QTreeWidget&	sender_;
+    uiTreeView&		receiver_;
 
 
 #define mTriggerBody( notifier, triggerstatement1, triggerstatement2 ) \

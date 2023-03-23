@@ -21,7 +21,7 @@ Qt's signal/slot mechanism.
 
 class i_QPtrImpl : public QObject, public CallBacker
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
 
@@ -42,6 +42,7 @@ public:
 
 
     void		set(QObject* qo);
+
 			i_QPtrImpl( QObject* sndr = 0 );
 			~i_QPtrImpl();
 
@@ -51,7 +52,7 @@ private:
 
 private slots:
 
-    void		destroyed( QObject* )
+    void		_destroyed( QObject* )
 			{
 			    notifier_.trigger();
 			    Threads::Locker lckr( lock_ );

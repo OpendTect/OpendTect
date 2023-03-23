@@ -24,7 +24,7 @@ when the QObject goes out of scope.
 class QObjPtr
 {
 public:
-				QObjPtr(mQtclass(QObject)* = 0);
+				QObjPtr(mQtclass(QObject)* = nullptr);
 				~QObjPtr();
 
 				operator mQtclass(QObject)*();
@@ -40,5 +40,5 @@ public:
 
 protected:
 
-    i_QPtrImpl*		impl_;
+    i_QPtrImpl*			impl_;
 };

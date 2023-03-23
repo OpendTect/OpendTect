@@ -22,45 +22,64 @@ QT_BEGIN_NAMESPACE
 
 class i_ButMessenger : public QObject
 {
-
-    Q_OBJECT
-    friend class	uiButton;
+Q_OBJECT
+friend class uiButton;
 
 public:
 
-i_ButMessenger( QAbstractButton& sndr, uiButtonMessenger& receiver )
-    : receiver_(receiver)
-    , sender_(sndr)
+i_ButMessenger( QAbstractButton& sndr, uiButtonMessenger& rec )
+    : sender_(sndr)
+    , receiver_(rec)
 {
-#define mConnectButMsngr(nm,args) \
-    connect( &sender_, SIGNAL(nm(args)), this, SLOT(nm(args)) )
-
-    mConnectButMsngr( toggled, bool );
-    mConnectButMsngr( clicked, );
-    mConnectButMsngr( pressed, );
-    mConnectButMsngr( released, );
+    connect( &sender_, &QAbstractButton::toggled,
+	     this, &i_ButMessenger::toggled );
+    connect( &sender_, &QAbstractButton::clicked,
+	     this, &i_ButMessenger::clicked );
+    connect( &sender_, &QAbstractButton::pressed,
+	     this, &i_ButMessenger::pressed );
+    connect( &sender_, &QAbstractButton::released,
+	     this, &i_ButMessenger::released );
 }
+
+
+~i_ButMessenger()
+{}
+
 
 private:
 
-    uiButtonMessenger&	receiver_;
     QAbstractButton&	sender_;
+    uiButtonMessenger&	receiver_;
 
 public slots:
 
-    void toggled(bool)	{ receiver_.notifyHandler(uiButtonMessenger::toggled); }
-    void clicked()	{ receiver_.notifyHandler(uiButtonMessenger::clicked); }
-    void pressed()	{ receiver_.notifyHandler(uiButtonMessenger::pressed); }
-    void released()	{ receiver_.notifyHandler(uiButtonMessenger::released);}
+void toggled(bool)
+{
+    receiver_.notifyHandler( uiButtonMessenger::toggled );
+}
+
+void clicked()
+{
+    receiver_.notifyHandler( uiButtonMessenger::clicked );
+}
+
+void pressed()
+{
+    receiver_.notifyHandler( uiButtonMessenger::pressed );
+}
+
+void released()
+{
+    receiver_.notifyHandler( uiButtonMessenger::released );
+}
 
 };
 
 
 class i_ButtonGroupMessenger : public QObject
 {
-
-    Q_OBJECT
-    friend class	uiButtonGroup;
+Q_OBJECT
+friend class uiButtonGroup;
 
 public:
 
@@ -68,9 +87,14 @@ i_ButtonGroupMessenger( QButtonGroup& sndr, uiButtonGroup& receiver )
     : receiver_(receiver)
     , sender_(sndr)
 {
-    connect( &sender_, SIGNAL(buttonClicked(QAbstractButton*)),
-	    this, SLOT(clicked()) );
+    connect( &sender_,
+	     QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+	     this, &i_ButtonGroupMessenger::clicked );
 }
+
+
+~i_ButtonGroupMessenger()
+{}
 
 private:
 
@@ -79,7 +103,11 @@ private:
 
 public slots:
 
-    void clicked()      { receiver_.valueChanged.trigger(); }
+void clicked()
+{
+    receiver_.valueChanged.trigger();
+}
+
 };
 
 QT_END_NAMESPACE

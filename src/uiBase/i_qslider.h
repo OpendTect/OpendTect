@@ -23,26 +23,34 @@ class QString;
 
 class i_SliderMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiSliderBody;
+Q_OBJECT
+friend class	uiSliderBody;
 
 protected:
 
-i_SliderMessenger( QSlider* sndr, uiSlider* receiver )
+i_SliderMessenger( QSlider* sndr, uiSlider* rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
-    connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
-    connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
-    connect( sndr, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)) );
+    connect( sndr, &QAbstractSlider::sliderMoved,
+	     this, &i_SliderMessenger::sliderMoved );
+    connect( sndr, &QAbstractSlider::sliderPressed,
+	     this, &i_SliderMessenger::sliderPressed );
+    connect( sndr, &QAbstractSlider::sliderReleased,
+	     this, &i_SliderMessenger::sliderReleased );
+    connect( sndr, &QAbstractSlider::valueChanged,
+	     this, &i_SliderMessenger::valueChanged );
 }
+
+
+~i_SliderMessenger()
+{}
 
 
 private:
 
-    uiSlider*	receiver_;
     QSlider*	sender_;
+    uiSlider*	receiver_;
 
 #define mTrigger( notifier ) \
     const int refnr = receiver_->slider()->beginCmdRecEvent( #notifier ); \
@@ -51,13 +59,27 @@ private:
 
 private slots:
 
-void sliderMoved(int)	{ mTrigger(sliderMoved); }
-void sliderPressed()	{ mTrigger(sliderPressed); }
-void sliderReleased()	{ mTrigger(sliderReleased); }
-void valueChanged(int)	{ mTrigger(valueChanged); }
+void sliderMoved(int)
+{
+    mTrigger(sliderMoved);
+}
+
+void sliderPressed()
+{
+    mTrigger(sliderPressed);
+}
+
+void sliderReleased()
+{
+    mTrigger(sliderReleased);
+}
+
+void valueChanged(int)
+{
+    mTrigger(valueChanged);
+}
 
 #undef mTrigger
-
 };
 
 QT_END_NAMESPACE

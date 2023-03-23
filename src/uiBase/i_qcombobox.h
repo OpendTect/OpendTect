@@ -21,45 +21,41 @@ QT_BEGIN_NAMESPACE
 
 class i_comboMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiComboBoxBody;
+Q_OBJECT
+friend class uiComboBoxBody;
 
 protected:
-			i_comboMessenger( QComboBox*  sndr,
-					 uiComboBox* receiver )
-			: _sender( sndr )
-			, _receiver( receiver )
-			{
-			    connect( sndr, SIGNAL( activated (int)),
-				     this,   SLOT( activated (int)) );
+i_comboMessenger( QComboBox* sndr, uiComboBox* rec )
+    : sender_(sndr)
+    , receiver_(rec)
+{
+    connect( sender_, QOverload<int>::of(&QComboBox::activated),
+	     this, &i_comboMessenger::activated );
+    connect( sender_, &QComboBox::editTextChanged,
+	     this, &i_comboMessenger::editTextChanged );
+}
 
-			    connect( sndr,
-				     SIGNAL( editTextChanged(const QString&)),
-				     this,
-				     SLOT( editTextChanged(const QString&)) );
-			}
 
-    virtual		~i_comboMessenger() {}
+~i_comboMessenger()
+{}
 
 private:
 
-    uiComboBox*	_receiver;
-    QComboBox*	_sender;
+    QComboBox*	sender_;
+    uiComboBox*	receiver_;
 
 private slots:
 
-/*!
-    Handler for activated events.
-    \sa QComboBox::activated
-*/
-
 void activated( int )
-{ _receiver->notifyHandler( true ); }
+{
+    receiver_->notifyHandler( true );
+}
 
 
 void editTextChanged( const QString& )
-{ _receiver->notifyHandler( false ); }
-
+{
+    receiver_->notifyHandler( false );
+}
 
 };
 

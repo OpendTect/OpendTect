@@ -31,13 +31,15 @@ QTimerComm( QTimer* qtimer, Timer* timer )
     , timer_(timer)
     , magic_( 0xdeadbeef )
 {
-    connect( qtimer, SIGNAL(timeout()), this, SLOT(timeout()) );
+    connect( qtimer, &QTimer::timeout, this, &QTimerComm::timeout );
 }
 
 public:
 
-virtual	~QTimerComm()
-{ deactivate(); }
+~QTimerComm()
+{
+    deactivate();
+}
 
 
 void deactivate()

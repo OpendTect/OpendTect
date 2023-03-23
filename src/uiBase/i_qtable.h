@@ -25,56 +25,58 @@ QT_BEGIN_NAMESPACE
 
 class i_tableMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiTableBody;
+Q_OBJECT
+friend class uiTableBody;
 
 protected:
-i_tableMessenger( QTableWidget*  sndr, uiTable* receiver )
+i_tableMessenger( QTableWidget* sndr, uiTable* rec )
     : sender_(sndr)
-    , receiver_(receiver)
-    , lastpressedheaderidx_(-1)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(cellChanged(int,int)),
-	     this, SLOT(valueChanged(int,int)) );
+    connect( sndr, &QTableWidget::cellChanged,
+	     this, &i_tableMessenger::valueChanged );
 
-    connect( sndr, SIGNAL(cellClicked(int,int)),
-	     this, SLOT(clicked(int,int)) );
+    connect( sndr, &QTableWidget::cellClicked,
+	     this, &i_tableMessenger::clicked );
 
-    connect( sndr, SIGNAL(cellPressed(int,int)),
-	     this, SLOT(cellPressed(int,int)) );
+    connect( sndr, &QTableWidget::cellPressed,
+	     this, &i_tableMessenger::cellPressed );
 
-    connect( sndr, SIGNAL(cellDoubleClicked(int,int)),
-	     this, SLOT(doubleClicked(int,int)) );
+    connect( sndr, &QTableWidget::cellDoubleClicked,
+	     this, &i_tableMessenger::doubleClicked );
 
-    connect( sndr, SIGNAL(itemSelectionChanged()),
-	     this, SLOT(itemSelectionChanged()) );
+    connect( sndr, &QTableWidget::itemSelectionChanged,
+	     this, &i_tableMessenger::itemSelectionChanged );
 
-    connect( sndr, SIGNAL(cellEntered(int,int)),
-	     this, SLOT(cellEntered(int,int)) );
+    connect( sndr, &QTableWidget::cellEntered,
+	     this, &i_tableMessenger::cellEntered );
 
-    connect( sndr->verticalHeader(), SIGNAL(sectionClicked(int)),
-	     this, SLOT(rowClicked(int)) );
-    connect( sndr->horizontalHeader(), SIGNAL(sectionClicked(int)),
-	     this, SLOT(columnClicked(int)) );
+    connect( sndr->verticalHeader(), &QHeaderView::sectionClicked,
+	     this, &i_tableMessenger::rowClicked );
+    connect( sndr->horizontalHeader(), &QHeaderView::sectionClicked,
+	     this, &i_tableMessenger::columnClicked );
 
-    connect( sndr->verticalHeader(), SIGNAL(sectionPressed(int)),
-	     this, SLOT(rowPressed(int)) );
-    connect( sndr->horizontalHeader(), SIGNAL(sectionPressed(int)),
-	     this, SLOT(columnPressed(int)) );
+    connect( sndr->verticalHeader(), &QHeaderView::sectionPressed,
+	     this, &i_tableMessenger::rowPressed );
+    connect( sndr->horizontalHeader(), &QHeaderView::sectionPressed,
+	     this, &i_tableMessenger::columnPressed );
 
-    connect( sndr->verticalHeader(), SIGNAL(sectionDoubleClicked(int)),
-	     this, SLOT(rowDoubleClicked(int)) );
-    connect( sndr->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)),
-	     this, SLOT(columnDoubleClicked(int)) );
+    connect( sndr->verticalHeader(), &QHeaderView::sectionDoubleClicked,
+	     this, &i_tableMessenger::rowDoubleClicked );
+    connect( sndr->horizontalHeader(), &QHeaderView::sectionDoubleClicked,
+	     this, &i_tableMessenger::columnDoubleClicked );
 }
 
-    virtual		~i_tableMessenger() {}
+
+~i_tableMessenger()
+{}
+
 
 private:
 
-    uiTable*		receiver_;
     QTableWidget*	sender_;
-    int			lastpressedheaderidx_;
+    uiTable*		receiver_;
+    int			lastpressedheaderidx_	= -1;
 
 private slots:
 
@@ -131,7 +133,9 @@ void doubleClicked( int row, int col )
 
 
 void itemSelectionChanged()
-{ mTrigger( selectionChanged, -1, -1 ); }
+{
+    mTrigger( selectionChanged, -1, -1 );
+}
 
 
 void cellPressed( int row, int col )
@@ -142,7 +146,9 @@ void cellPressed( int row, int col )
 
 
 void cellEntered( int row, int col )
-{ mNoTrigger( cellEntered, row, col ); }
+{
+    mNoTrigger( cellEntered, row, col );
+}
 
 
 void rowClicked( int idx )
@@ -178,11 +184,16 @@ void columnPressed( int idx )
 
 
 void rowDoubleClicked( int idx )
-{ mNoHeaderTrigger( rowDoubleClicked, idx, true ); }
+{
+    mNoHeaderTrigger( rowDoubleClicked, idx, true );
+}
 
 
 void columnDoubleClicked( int idx )
-{ mNoHeaderTrigger( columnDoubleClicked, idx, false ); }
+{
+    mNoHeaderTrigger( columnDoubleClicked, idx, false );
+}
+
 
 #undef mNoTrigger
 #undef mTrigger

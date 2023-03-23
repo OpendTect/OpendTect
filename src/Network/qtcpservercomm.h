@@ -21,8 +21,8 @@ QT_BEGIN_NAMESPACE
 
 class QTcpServerComm : public QObject
 {
-    Q_OBJECT
-    friend class	Network::Server;
+Q_OBJECT
+friend class Network::Server;
 
 protected:
 
@@ -32,7 +32,8 @@ QTcpServerComm( QTcpServer* qtcpserver, Network::Server* netserver )
 {
     if ( !qtcpserver || !netserver )
 	return;
-    connect( qtcpserver, SIGNAL(newConnection()), this, SLOT(notifNewConn()) );
+    connect( qtcpserver, &QTcpServer::newConnection,
+	     this, &QTcpServerComm::notifNewConn );
 }
 
 
@@ -42,9 +43,14 @@ QTcpServerComm( QLocalServer* qlocalserver, Network::Server* netserver )
 {
     if ( !qlocalserver || !netserver )
 	return;
-    connect( qlocalserver, SIGNAL(newConnection()), this,
-						    SLOT(notifNewConn()) );
+
+    connect( qlocalserver, &QLocalServer::newConnection,
+	     this, &QTcpServerComm::notifNewConn );
 }
+
+
+~QTcpServerComm()
+{}
 
 private slots:
 

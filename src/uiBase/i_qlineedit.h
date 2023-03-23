@@ -21,28 +21,32 @@ QT_BEGIN_NAMESPACE
 */
 class i_lineEditMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiLineEditBody;
+Q_OBJECT
+friend class uiLineEditBody;
 
 protected:
-i_lineEditMessenger( QLineEdit* sndr, uiLineEdit* receiver )
-    : sender_( sndr )
-    , receiver_( receiver )
+i_lineEditMessenger( QLineEdit* sndr, uiLineEdit* rec )
+    : sender_(sndr)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(returnPressed()),
-	     this, SLOT(returnPressed()) );
-    connect( sndr, SIGNAL(editingFinished()),
-	     this, SLOT(editingFinished()) );
-    connect( sndr, SIGNAL(textChanged(const QString&)),
-	     this, SLOT(textChanged(const QString&)) );
-    connect( sndr, SIGNAL(selectionChanged()),
-	     this, SLOT(selectionChanged()) );
+    connect( sndr, &QLineEdit::returnPressed,
+	     this, &i_lineEditMessenger::returnPressed );
+    connect( sndr, &QLineEdit::editingFinished,
+	     this, &i_lineEditMessenger::editingFinished );
+    connect( sndr, &QLineEdit::textChanged,
+	     this, &i_lineEditMessenger::textChanged );
+    connect( sndr, &QLineEdit::selectionChanged,
+	     this, &i_lineEditMessenger::selectionChanged );
 }
+
+
+~i_lineEditMessenger()
+{}
 
 private:
 
-    uiLineEdit*	receiver_;
     QLineEdit*	sender_;
+    uiLineEdit*	receiver_;
 
 private slots:
 
@@ -51,21 +55,29 @@ private slots:
     receiver_->notifier.trigger(*receiver_); \
     receiver_->endCmdRecEvent( refnr, #notifier );
 
-    void		editingFinished()
-			{
-			    if ( !sender_->isModified() )
-				return;
+void editingFinished()
+{
+    if ( !sender_->isModified() )
+	return;
 
-			    mTrigger( editingFinished );
-			}
+    mTrigger( editingFinished );
+}
 
-    void		returnPressed()
-			{ mTrigger( returnPressed ); }
-    void		textChanged(const QString&)
-			{ mTrigger( textChanged ); }
+void returnPressed()
+{
+    mTrigger( returnPressed );
+}
 
-    void		selectionChanged()
-			{ receiver_->selectionChanged.trigger(*receiver_); }
+void textChanged(const QString&)
+{
+    mTrigger( textChanged );
+}
+
+void selectionChanged()
+{
+    receiver_->selectionChanged.trigger(*receiver_);
+}
+
 #undef mTrigger
 };
 

@@ -23,40 +23,45 @@ QT_BEGIN_NAMESPACE
 
 class i_tabbarMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiTabBarBody;
+Q_OBJECT
+friend class uiTabBarBody;
 
 protected:
-i_tabbarMessenger( QTabBar* sndr, uiTabBar* receiver )
+i_tabbarMessenger( QTabBar* sndr, uiTabBar* rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(currentChanged(int)), this, SLOT(selected(int)) );
-    connect( sndr, SIGNAL(tabCloseRequested(int)),
-	     this, SLOT(tabToBeClosed(int)) );
+    connect( sndr, &QTabBar::currentChanged,
+	     this, &i_tabbarMessenger::selected );
+    connect( sndr, &QTabBar::tabCloseRequested,
+	     this, &i_tabbarMessenger::tabToBeClosed );
 }
+
+
+~i_tabbarMessenger()
+{}
 
 private:
 
-    uiTabBar*		receiver_;
     QTabBar*		sender_;
+    uiTabBar*		receiver_;
 
 private slots:
 
-    void		selected ( int id )
-			{
-			    const int refnr = receiver_->beginCmdRecEvent();
-			    receiver_->selected.trigger(*receiver_);
-			    receiver_->endCmdRecEvent( refnr );
-			}
+void selected ( int id )
+{
+    const int refnr = receiver_->beginCmdRecEvent();
+    receiver_->selected.trigger(*receiver_);
+    receiver_->endCmdRecEvent( refnr );
+}
 
-    void		tabToBeClosed( int tabidx )
-			{
-			    const int refnr = receiver_->beginCmdRecEvent();
-			    receiver_->tabToBeClosed.trigger(tabidx,
-							      *receiver_);
-			    receiver_->endCmdRecEvent( refnr );
-			}
+void tabToBeClosed( int tabidx )
+{
+    const int refnr = receiver_->beginCmdRecEvent();
+    receiver_->tabToBeClosed.trigger(tabidx,
+				      *receiver_);
+    receiver_->endCmdRecEvent( refnr );
+}
 
 };
 

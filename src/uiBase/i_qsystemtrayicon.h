@@ -24,20 +24,25 @@ friend class uiSystemTrayIcon;
 
 protected:
 
-QSystemTrayIconMessenger( QSystemTrayIcon* sndr, uiSystemTrayIcon* receiver )
+QSystemTrayIconMessenger( QSystemTrayIcon* sndr, uiSystemTrayIcon* rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-	     this, SLOT(activated(QSystemTrayIcon::ActivationReason)) );
-    connect( sndr, SIGNAL(messageClicked()), this, SLOT(messageClicked()) );
+    connect( sndr, &QSystemTrayIcon::activated,
+	     this, &QSystemTrayIconMessenger::activated );
+    connect( sndr, &QSystemTrayIcon::messageClicked,
+	     this, &QSystemTrayIconMessenger::messageClicked );
 }
+
+
+~QSystemTrayIconMessenger()
+{}
 
 
 private:
 
-    uiSystemTrayIcon*	receiver_;
     QSystemTrayIcon*	sender_;
+    uiSystemTrayIcon*	receiver_;
 
 
 private slots:

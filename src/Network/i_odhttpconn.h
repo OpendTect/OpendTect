@@ -26,84 +26,95 @@ public:
     static void setReadEventType(int);
 
 private:
-    Q_OBJECT
-    friend class Network::HttpRequestProcess;
-    static int readeventtype;
+Q_OBJECT
+friend class Network::HttpRequestProcess;
+static int readeventtype;
 
 protected:
 
 QNetworkReplyConn( QNetworkReply* sndr, Network::HttpRequestProcess* rec )
-    : sender_(sndr), receiver_(rec)
+    : sender_(sndr)
+    , receiver_(rec)
 {
-    connect( sender_, SIGNAL(downloadProgress(qint64,qint64)),
-	     this, SLOT(downloadProgress(qint64,qint64)) );
-    connect( sender_, SIGNAL(sslErrors(const QList<QSslError> &)),
-	     this, SLOT(sslErrors(const QList<QSslError> &)) );
-    connect( sender_, SIGNAL(error(QNetworkReply::NetworkError)),
-	     this, SLOT(error(QNetworkReply::NetworkError)) );
-    connect( sender_, SIGNAL(finished()),
-	     this, SLOT(finished()) );
-    connect( sender_, SIGNAL(metaDataChanged()),
-	     this, SLOT(metaDataChanged()) );
-    connect( sender_, SIGNAL(uploadProgress(qint64,qint64)),
-	     this, SLOT(uploadProgress(qint64,qint64)) );
+    connect( sender_, &QNetworkReply::downloadProgress,
+	     this, &QNetworkReplyConn::downloadProgress );
+    connect( sender_, &QNetworkReply::sslErrors,
+	     this, &QNetworkReplyConn::sslErrors );
+    connect( sender_, &QNetworkReply::errorOccurred,
+	     this, &QNetworkReplyConn::errorOccurred );
+    connect( sender_, &QNetworkReply::finished,
+	     this, &QNetworkReplyConn::finished );
+    connect( sender_, &QNetworkReply::metaDataChanged,
+	     this, &QNetworkReplyConn::metaDataChanged );
+    connect( sender_, &QNetworkReply::uploadProgress,
+	     this, &QNetworkReplyConn::uploadProgress );
 
     // From QIODevice
-    connect( sender_, SIGNAL(aboutToClose()),
-	     this, SLOT(aboutToClose()) );
-    connect( sender_, SIGNAL(bytesWritten(qint64)),
-	     this, SLOT(bytesWritten(qint64)) );
-    connect( sender_, SIGNAL(readyRead()),
-	     this, SLOT(readyRead()) );
-    connect( sender_, SIGNAL(readChannelFinished()),
-	    this, SLOT(readChannelFinished()) );
+    connect( sender_, &QIODevice::aboutToClose,
+	     this, &QNetworkReplyConn::aboutToClose );
+    connect( sender_, &QIODevice::bytesWritten,
+	     this, &QNetworkReplyConn::bytesWritten );
+    connect( sender_, &QIODevice::readyRead,
+	     this, &QNetworkReplyConn::readyRead );
+    connect( sender_, &QIODevice::readChannelFinished,
+	    this, &QNetworkReplyConn::readChannelFinished );
 }
+
+
+~QNetworkReplyConn()
+{}
 
 
 private slots:
 
-void downloadProgress(qint64 bytes,qint64 totalbytes)
+void downloadProgress( qint64 bytes, qint64 totalbytes )
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportDownloadProgress( bytes, totalbytes );
+    if ( receiver )
+	receiver->reportDownloadProgress( bytes, totalbytes );
 }
 
 
-void error(QNetworkReply::NetworkError)
+void errorOccurred( QNetworkReply::NetworkError )
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportError();
+    if ( receiver )
+	receiver->reportError();
 }
 
-void sslErrors(const QList<QSslError>& errors)
+void sslErrors( const QList<QSslError>& errors )
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportSSLErrors( errors );
+    if ( receiver )
+	receiver->reportSSLErrors( errors );
 }
 
 
 void finished()
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportFinished();
+    if ( receiver )
+	receiver->reportFinished();
 }
 
 void metaDataChanged()
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportMetaDataChanged();
+    if ( receiver )
+	receiver->reportMetaDataChanged();
 }
 
-void uploadProgress(qint64 bytes,qint64 totalbytes)
+void uploadProgress( qint64 bytes, qint64 totalbytes )
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportUploadProgress( bytes, totalbytes );
+    if ( receiver )
+	receiver->reportUploadProgress( bytes, totalbytes );
 }
 
 void aboutToClose()
 {}
 
-void bytesWritten(qint64)
+void bytesWritten( qint64 )
 {}
 
 void readChannelFinished()
@@ -112,7 +123,8 @@ void readChannelFinished()
 void readyRead()
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->reportReadyRead();
+    if ( receiver )
+	receiver->reportReadyRead();
 }
 
 

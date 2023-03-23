@@ -21,26 +21,34 @@ QT_BEGIN_NAMESPACE
 
 class i_DialMessenger : public QObject
 {
-    Q_OBJECT
-    friend class	uiDialBody;
+Q_OBJECT
+friend class uiDialBody;
 
 protected:
 
-i_DialMessenger( QDial* sndr, uiDial* receiver )
+i_DialMessenger( QDial* sndr, uiDial* rec )
     : sender_(sndr)
-    , receiver_(receiver)
+    , receiver_(rec)
 {
-    connect( sndr, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)) );
-    connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
-    connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
-    connect( sndr, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)) );
+    connect( sndr, &QAbstractSlider::sliderMoved,
+	     this, &i_DialMessenger::sliderMoved );
+    connect( sndr, &QAbstractSlider::sliderPressed,
+	     this, &i_DialMessenger::sliderPressed );
+    connect( sndr, &QAbstractSlider::sliderReleased,
+	     this, &i_DialMessenger::sliderReleased );
+    connect( sndr, &QAbstractSlider::valueChanged,
+	     this, &i_DialMessenger::valueChanged );
 }
+
+
+~i_DialMessenger()
+{}
 
 
 private:
 
-    uiDial*	receiver_;
     QDial*	sender_;
+    uiDial*	receiver_;
 
 #define mTrigger( notifier ) \
     const int refnr = receiver_->beginCmdRecEvent( #notifier ); \
@@ -49,13 +57,27 @@ private:
 
 private slots:
 
-void sliderMoved(int)	{ mTrigger(sliderMoved); }
-void sliderPressed()	{ mTrigger(sliderPressed); }
-void sliderReleased()	{ mTrigger(sliderReleased); }
-void valueChanged(int)	{ mTrigger(valueChanged); }
+void sliderMoved(int)
+{
+    mTrigger(sliderMoved);
+}
+
+void sliderPressed()
+{
+    mTrigger(sliderPressed);
+}
+
+void sliderReleased()
+{
+    mTrigger(sliderReleased);
+}
+
+void valueChanged(int)
+{
+    mTrigger(valueChanged);
+}
 
 #undef mTrigger
-
 };
 
 QT_END_NAMESPACE
