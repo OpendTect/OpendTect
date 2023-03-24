@@ -351,6 +351,7 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
 	    pdf2d.setCorrelation( corrs_[0].cc_ );
 	return pdf2d.value( poss[0], poss[1] );
     }
+
     if ( nrdims > 3 )
     {
 	// This is a bogus 'boxcar'; a real implementation is not feasible
@@ -364,6 +365,8 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
 
 	    ret /= 2 * stdev;
 	}
+
+	return ret;
     }
 
 
