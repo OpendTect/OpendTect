@@ -41,6 +41,7 @@ ________________________________________________________________________________
 #include "transl.h"
 
 #include <cstring>
+#include <filesystem>
 
 BufferString odSurvey::curbasedir_;
 BufferString odSurvey::cursurvey_;
@@ -305,9 +306,10 @@ void odSurvey::initModule( const char* odbindfnm )
     if ( AreProgramArgsSet() )
 	return;
 
-    FilePath fp( odbindfnm );
+    const std::filesystem::path fp( odbindfnm );
     const int argc = GetArgC() < 0 ? 0 : GetArgC();
-    SetBindings( fp.pathOnly(), argc, GetArgV(), true, fp.fullPath() );
+    SetBindings( fp.parent_path().string().c_str(), argc, GetArgV(), true,
+		 fp.string().c_str() );
     InitBindings( moddeps, false );
 }
 
