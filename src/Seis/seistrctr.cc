@@ -126,8 +126,7 @@ bool SeisTrcTranslator::supportsMultiCompTrc() const
     if ( !group_ )
 	return false;
 
-    return group_->groupName().isEqual( "CBVS" ) ||
-	group_->groupName().isEqual( "PetrelDirect" );
+    return typname_.isEqual( "CBVS" ) || typname_.isEqual( "dGBPetrel" );
 }
 
 

@@ -253,10 +253,10 @@ static IOObjContext getIOObjCtxt( const IOObjContext& c,
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetupWithCtxt(su,ctxt))
-	, seissetup_(mkSetupWithCtxt(su,ctxt))
-	, othdombox_(0)
-	, compnr_(0)
+    : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetupWithCtxt(su,ctxt))
+    , seissetup_(mkSetupWithCtxt(su,ctxt))
+    , othdombox_(nullptr)
+    , compnr_(0)
 {
     workctio_.ctxt_ = inctio_.ctxt_;
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
@@ -297,10 +297,10 @@ uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su,  ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
+    ret.withwriteopts_ = !ctxt.forread_;
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
 	su.steerpol_ == Setup::OnlySteering )
     {
-	ret.withwriteopts_ = !ctxt.forread_;
 	const TranslatorGroup& trgrp = *ctxt.trgroup_;
 	const ObjectSet<const Translator>& alltrs = trgrp.templates();
 	for ( const auto* transl : alltrs )
@@ -309,12 +309,10 @@ uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
 	    if ( seistr && !seistr->supportsMultiCompTrc() )
 	    {
 		const BufferString nm = transl->typeName();
-		ret.trsnotallwed_.add( transl->typeName() );
+		ret.trsnotallwed_.addIfNew( transl->typeName() );
 	    }
 	}
     }
-    else
-	ret.withwriteopts_ = false;
 
     return ret;
 }
