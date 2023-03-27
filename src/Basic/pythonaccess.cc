@@ -725,7 +725,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     }
 #ifdef __win__
     if ( background )
-	strm.add( "Start \"%proctitle%\" /MIN " );
+	strm.add( "Start \"%proctitle%\" " );
 #endif
     BufferStringSet args( cmd.args() );
 #ifdef __unix__
