@@ -189,7 +189,9 @@ namespace sKey
     inline StringView Surface()		{ return "Surface"; }
     inline StringView Survey()		{ return "Survey"; }
     inline StringView SurveyID()	{ return "Survey ID"; }
+    mDeprecated("Use function from CommandLineParser, sDataRootArg")
     inline StringView sKeySurveyLoc()	{ return "Survey Location"; }
+    mDeprecated("Use function from CommandLineParser, sSurveyArg")
     inline StringView sKeySurveyNm()	{ return "Survey Name"; }
     inline StringView TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
     inline StringView TVDSS()		{ return "TVDSS"; }

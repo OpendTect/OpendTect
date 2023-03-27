@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "strmprov.h"
 #include "surveydisklocation.h"
+#include "surveyfile.h"
 #include "survinfo.h"
 #include "timefun.h"
 #include "transl.h"
@@ -1466,7 +1467,23 @@ uiRetVal IOMan::setDataSource( const IOPar& iop, bool refresh )
 uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 {
     bool usecur = true;
-    const BufferString newpath = clp.getFullSurveyPath( &usecur );
+    bool needtempsurvey = clp.hasKey( CommandLineParser::sNeedTempSurv() );
+    BufferString newpath;
+    if ( needtempsurvey )
+    {
+	BufferString surveynm;
+	BufferString surveyloc;
+	clp.getVal( CommandLineParser::sSurveyArg(), surveynm );
+	clp.getVal( CommandLineParser::sDataRootArg(), surveyloc );
+	EmptyTempSurvey tempsurvey( surveyloc, surveynm );
+	tempsurvey.mount();
+	FilePath fp( tempsurvey.getTempBaseDir() );
+	fp.add( tempsurvey.getSurveyDir() );
+	newpath = fp.fullPath();
+    }
+    else
+	newpath = clp.getFullSurveyPath( &usecur );
+
     return setDataSource( newpath, refresh );
 }
 

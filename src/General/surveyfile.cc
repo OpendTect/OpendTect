@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "surveyfile.h"
 
+#include "commandlineparser.h"
 #include "coordsystem.h"
 #include "dbman.h"
 #include "file.h"
@@ -205,8 +206,8 @@ EmptyTempSurvey::EmptyTempSurvey( const char* surveybaseloc,
 EmptyTempSurvey::EmptyTempSurvey( const OD::JSON::Object& obj )
     : si_(SurveyInfo())
 {
-    tmpbasedir_ = obj.getStringValue( sKey::sKeySurveyLoc() );
-    surveydirnm_ = obj.getStringValue( sKey::sKeySurveyNm() );
+    tmpbasedir_ = obj.getStringValue( CommandLineParser::sDataRootArg() );
+    surveydirnm_ = obj.getStringValue( CommandLineParser::sSurveyArg() );
     saveloc_ = obj.getStringValue( sKeySaveLoc() );
     initSurvey( &obj );
 }
@@ -235,14 +236,10 @@ bool EmptyTempSurvey::initSurvey( const OD::JSON::Object* obj )
 	surveyfile_ = tmpbasedir_;
     }
 
-    if ( File::exists(tmpbasedir_) )
-    {
+    if ( !ismanaged_ && File::exists(tmpbasedir_) )
 	lastwarning_ = tr("%1 is not empty, "
 	    "might contain previous survey which might be lost.")
 							    .arg(tmpbasedir_);
-	ismanaged_ = false;
-
-    }
     else if ( !File::createDir(tmpbasedir_) )
     {
 	lasterrs_ = tr("Failed to create temporary survey data");
