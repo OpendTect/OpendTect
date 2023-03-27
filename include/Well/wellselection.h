@@ -33,7 +33,7 @@ public:
 				{ return lognms_; }
 
     inline void			setSelectedMarkers( const BufferStringSet& nms )
-				{markernms_ = nms; }
+				{ markernms_ = nms; }
     inline const BufferStringSet& selectedMarkers() const
 				{ return markernms_; }
 
@@ -54,6 +54,21 @@ protected:
     BufferStringSet		lognms_;
     BufferStringSet		markernms_;
     MnemonicSelection		mnemonics_;
+};
+
+
+mExpClass(Well) MultiSelSpec
+{
+public:
+				MultiSelSpec();
+    virtual			~MultiSelSpec();
+
+    void			clear();
+
+    TypeSet<MultiID>		wellids_;
+    BufferStringSet		lognms_;
+    BufferStringSet		mnemonicnms_;
+    BufferStringSet		markernms_;
 };
 
 
