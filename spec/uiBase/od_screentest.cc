@@ -105,13 +105,17 @@ uiScreenDlg::uiScreenDlg( uiParent* p )
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiBase" );
-
+    SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
-    PtrMan<uiDialog> mw = new uiScreenDlg( nullptr );
 
+    OD::ModDeps().ensureLoaded( "General" );
+
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "uiBase" );
+    PtrMan<uiDialog> mw = new uiScreenDlg( nullptr );
     app.setTopLevel( mw );
+    PIM().loadAuto( true );
     mw->go();
+
     return app.exec();
 }

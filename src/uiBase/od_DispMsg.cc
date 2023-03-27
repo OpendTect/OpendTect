@@ -15,26 +15,30 @@ ________________________________________________________________________
 
 #include "commandlineparser.h"
 #include "moddepmgr.h"
-#include "texttranslator.h"
 
 
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
-    CommandLineParser parser;
+    uiMain app( argc, argv );
 
-    TextTranslateMgr::loadTranslations();
+    OD::ModDeps().ensureLoaded( "General" );
 
+    PIM().loadAuto( false );
+    CommandLineParser parser( argc, argv );
     if ( parser.nrArgs()<1 )
 	return 1;
 
+    OD::ModDeps().ensureLoaded( "uiBase" );
+    PIM().loadAuto( true );
+
     int typ = 0; //Default is info
-    if ( parser.hasKey( "warn" ) )
+    if ( parser.hasKey("warn") )
 	typ = 1;
-    else if ( parser.hasKey( "err" ) )
+    else if ( parser.hasKey("err") )
 	typ = 2;
-    else if ( parser.hasKey( "ask" ))
+    else if ( parser.hasKey("ask") )
 	typ = 3;
 
     BufferStringSet normalargs;
@@ -54,8 +58,6 @@ int mProgMainFnName( int argc, char** argv )
 	    : (typ ==2 ? od_static_tr("main", "Problem found!")
 		       : od_static_tr("main", "Your answer:"));
 
-    uiMain app( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiBase" );
     if ( typ == 0 )
 	uiMSG().message( msg );
     else if ( typ == 1 )

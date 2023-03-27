@@ -32,9 +32,10 @@ ________________________________________________________________________
 int mProgMainFnName( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "General" );
+    OD::ModDeps().ensureLoaded( "uiTools" );
 
-    CommandLineParser parser;
+    PIM().loadAuto( false );
+    CommandLineParser parser( argc, argv );
 
     const bool withdelete = !parser.hasKey( "nodelete" );
     const bool dosubmit = parser.hasKey( "dosubmit" );
@@ -69,25 +70,27 @@ int mProgMainFnName( int argc, char** argv )
     }
 
     const BufferString res = iop.find( sKey::Survey() );
-    if ( !res.isEmpty() && SI().getDirName() != res )
-	IOMan::setSurvey( res );
 
-    PIM().loadAuto( false );
-
+    OD::ModDeps().ensureLoaded( "uiSeis" );
     if ( dosubmit )
     {
 	uiMain app( argc, argv );
-	OD::ModDeps().ensureLoaded( "uiSeis" );
-	PtrMan<uiDialog> cp = new uiClusterProc( nullptr, iop );
+	if ( !res.isEmpty() && SI().getDirName() != res )
+	    IOMan::setSurvey( res );
 
+	PtrMan<uiDialog> cp = new uiClusterProc( nullptr, iop );
 	app.setTopLevel( cp );
+	PIM().loadAuto( true );
 	cp->setActivateOnFirstShow();
 	cp->show();
 
 	return app.exec();
     }
 
-    OD::ModDeps().ensureLoaded( "uiSeis" );
+    if ( !res.isEmpty() && SI().getDirName() != res )
+	IOMan::setSurvey( res );
+
+    PIM().loadAuto( true );
 
     od_cout() << "Merging output ..." << od_endl;
     TextTaskRunner taskrunner( od_cout() );

@@ -20,7 +20,10 @@ int mProgMainFnName( int argc, char** argv )
     SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
 
-    OD::ModDeps().ensureLoaded( "uiTools" );
+    OD::ModDeps().ensureLoaded( "Network" );
+    OD::ModDeps().ensureLoaded( "uiBase" );
+
+    PIM().loadAuto( false );
 
 #ifdef mUseCrashDumper
     //Disable IssueReporter for IssueReporter itself.
@@ -34,8 +37,10 @@ int mProgMainFnName( int argc, char** argv )
 	return 1;
     }
 
+    OD::ModDeps().ensureLoaded( "uiTools" );
     PtrMan<uiDialog> dlg = new uiIssueReporterDlg( nullptr, reporter );
     app.setTopLevel( dlg );
+    PIM().loadAuto( true );
     dlg->show();
 
     return app.exec();

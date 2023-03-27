@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "plugins.h"
 #include "timer.h"
+
 #include <iostream>
 
 static const char* sVersionCmd = "version";
@@ -39,11 +40,16 @@ ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
 
     OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "General" );
     SetEnvVar( "OD_DISABLE_APPLOCKER_TEST", "Yes" );
+
     PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded( moddep );
-    PIM().loadAuto( true );
     clp_ = new CommandLineParser;
+    if ( moddep && *moddep )
+	OD::ModDeps().ensureLoaded( moddep );
+
+    PIM().loadAuto( true );
+
     mAttachCB( timer_.tick, ServerProgTool::timerTickCB );
 }
 

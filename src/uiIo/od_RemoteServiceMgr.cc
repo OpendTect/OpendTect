@@ -77,7 +77,13 @@ protected:
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv, false );
+    SetProgramArgs( argc, argv );
+    uiMain app( argc, argv );
+    ApplicationData::setApplicationName( "OpendTect RemoteServiceMgr" );
+
+    OD::ModDeps().ensureLoaded( "uiTools" );
+
+    PIM().loadAuto( false );
     CommandLineParser clp( argc, argv );
     if ( clp.hasKey("help") )
     {
@@ -85,16 +91,14 @@ int mProgMainFnName( int argc, char** argv )
 	return 0;
     }
 
-    uiMain app( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiIo" );
-    ApplicationData::setApplicationName( "OpendTect RemoteServiceMgr" );
-
-    uiRetVal uirv = IOM().setDataSource( clp );
+    const uiRetVal uirv = IOM().setDataSource( clp );
     if ( !uirv.isOK() )
 	return 1;
 
+    OD::ModDeps().ensureLoaded( "uiIo" );
     PtrMan<uiRemoteServiceMgr> mw = new uiRemoteServiceMgr( nullptr );
     app.setTopLevel( mw );
+    PIM().loadAuto( true );
     mw->show();
     mw->processCommandLine();
 

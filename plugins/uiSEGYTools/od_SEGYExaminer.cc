@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "prog.h"
 #include "seistype.h"
-#include "texttranslator.h"
 #include "uimain.h"
 
 
@@ -37,11 +36,12 @@ int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
-    OD::ModDeps().ensureLoaded( "uiSeis" );
+    uiMain app( argc, argv );
 
-    TextTranslateMgr::loadTranslations();
+    OD::ModDeps().ensureLoaded( "uiIo" );
 
-    CommandLineParser clp;
+    PIM().loadAuto( false );
+    CommandLineParser clp( argc, argv );
     clp.setKeyHasValue( "geomtype" );
     clp.setKeyHasValue( "nrtrcs" );
     clp.setKeyHasValue( "ns" );
@@ -85,10 +85,10 @@ int mProgMainFnName( int argc, char** argv )
     fnm.replace( "+x+", "*" );
     su.setFileName( fnm );
 
-    uiMain app( argc, argv );
-
+    OD::ModDeps().ensureLoaded( "uiWellAttrib" );
     PtrMan<uiDialog> sgyex = new uiSEGYExamine( nullptr, su );
     app.setTopLevel( sgyex );
+    PIM().loadAuto( true );
     sgyex->show();
 
     return app.exec();

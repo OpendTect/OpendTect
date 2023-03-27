@@ -19,15 +19,17 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "prog.h"
 
-#include "texttranslator.h"
 
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
+    uiMain app( argc, argv );
 
-    TextTranslateMgr::loadTranslations();
+    OD::ModDeps().ensureLoaded( "Network" );
+    OD::ModDeps().ensureLoaded( "uiBase" );
 
+    PIM().loadAuto( false );
     CommandLineParser clp( argc, argv );
     BufferStringSet args;
     clp.getNormalArguments( args );
@@ -53,7 +55,6 @@ int mProgMainFnName( int argc, char** argv )
 
     const BufferString title = args.size() > 1 ? args.get(1).buf() : fnm.buf();
 
-    uiMain app( argc, argv );
     OD::ModDeps().ensureLoaded( "uiTools" );
     PtrMan<uiMainWin> mw = new uiMainWin( nullptr, toUiString(title.buf()) );
     uiPixmap pm( fnm );
@@ -62,6 +63,7 @@ int mProgMainFnName( int argc, char** argv )
     view->setPrefHeight( pm.height() );
     view->scene().addItem( new uiPixmapItem(pm) );
     app.setTopLevel( mw );
+    PIM().loadAuto( true );
     mw->show();
 
     return app.exec();

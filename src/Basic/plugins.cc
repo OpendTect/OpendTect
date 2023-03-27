@@ -196,7 +196,6 @@ bool RuntimeLibLoader::isOK() const
 
 
 PluginManager::PluginManager()
-    : allPluginsLoaded(this)
 {
     if ( !AreProgramArgsSet() )
     {
@@ -655,8 +654,6 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 	    UsrMsg( msg );
 	}
     }
-
-    allPluginsLoaded.trigger( pitype );
 }
 
 

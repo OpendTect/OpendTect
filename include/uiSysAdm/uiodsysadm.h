@@ -11,12 +11,14 @@ ________________________________________________________________________
 #include "uisysadmmod.h"
 #include "uidialog.h"
 #include "uistring.h"
+
 class uiODSysAdm;
 class uiListBox;
+class uiMain;
 class uiTextEdit;
 
 
-uiODSysAdm& ODSysAdmMainWin();
+uiODSysAdm* ODSysAdmMainWin();
 //!< Top-level access
 
 /*!
@@ -27,7 +29,7 @@ mExpClass(uiSysAdm) uiODSysAdm : public uiDialog
 { mODTextTranslationClass(uiODSysAdm);
 public:
 
-			uiODSysAdm(uiParent*);
+			uiODSysAdm(uiMain&);
 			~uiODSysAdm();
     struct TaskEntry
     {

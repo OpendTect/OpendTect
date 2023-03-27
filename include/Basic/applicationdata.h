@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "callback.h"
 #include "thread.h"
 
@@ -21,7 +20,7 @@ class QEventLoopReceiver;
 
    Provides an event-loop for console applications. It can also be used in GUI
    program as an access-point (adding events and telling it to quit) to
-   QApplication (which has to be created before creating the ApplicationData.
+   QApplication (which has to be created before creating the ApplicationData).
 */
 
 mExpClass(Basic) ApplicationData : public CallBacker
@@ -49,6 +48,10 @@ public:
     static void		setOrganizationDomain(const char*);
     static void		setApplicationName(const char*);
     static BufferString	applicationName();
+
+    static Notifier<ApplicationData>& applicationToBeStarted();
+			//!<Just before the event loop is started
+
 protected:
 
     mQtclass(QCoreApplication)* application_ = nullptr;

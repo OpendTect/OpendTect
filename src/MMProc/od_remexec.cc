@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "hostdata.h"
 #include "mmpkeystr.h"
+#include "moddepmgr.h"
 #include "netserver.h"
 #include "netsocket.h"
 #include "od_ostream.h"
@@ -174,11 +175,19 @@ void doWork( CallBacker* )
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::BatchProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     ApplicationData app;
-    CommandLineParser clp;
+
+    OD::ModDeps().ensureLoaded( "Network" );
+
+    PIM().loadAuto( false );
+    CommandLineParser clp( argc, argv );
+
+    OD::ModDeps().ensureLoaded( "MMProc" );
     od_ostream& strm = od_ostream::logStream();
     PtrMan<RemExecHandler> handler = new RemExecHandler( clp, strm );
+    PIM().loadAuto( true );
+
     const bool ret = handler && handler->isOK() ? app.exec() : 1;
     handler = nullptr;
     return ret;

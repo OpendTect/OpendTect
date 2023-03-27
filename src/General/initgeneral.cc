@@ -9,21 +9,19 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
-#include "commandlineparser.h"
-#include "mathproperty.h"
-#include "ioman.h"
-#include "genc.h"
+#include "batchjobdispatch.h"
 #include "elasticpropseltransl.h"
-#include "mathformulatransl.h"
-#include "ioobjselectiontransl.h"
-#include "preloads.h"
+#include "genc.h"
+#include "geojsonwriter.h"
 #include "geometryio.h"
+#include "googlexmlwriter.h"
+#include "ioobjselectiontransl.h"
+#include "mathformulatransl.h"
+#include "mathproperty.h"
+#include "preloads.h"
 #include "rangeposprovider.h"
 #include "simpletimedepthmodel.h"
 #include "survgeometrytransl.h"
-#include "batchjobdispatch.h"
-#include "googlexmlwriter.h"
-#include "geojsonwriter.h"
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
@@ -73,6 +71,4 @@ mDefModInitFn(General)
     odSimpleTimeDepthModelTranslator::initClass();
     SimpleT2DTransform::initClass();
     SimpleD2TTransform::initClass();
-
-    IOM().setDataSource( CommandLineParser() );
 }

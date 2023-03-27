@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "progressmeter.h"
 #include "sighndl.h"
 #include "timer.h"
-#include "texttranslator.h"
 #include "varlenarray.h"
 
 #include <iostream>
@@ -398,29 +397,30 @@ int mProgMainFnName( int argc, char** argv )
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
+
+    OD::ModDeps().ensureLoaded( "Network" );
     OD::ModDeps().ensureLoaded( "uiBase" );
 
-    TextTranslateMgr::loadTranslations();
-
-    CommandLineParser cl( argc, argv );
+    PIM().loadAuto( false );
+    CommandLineParser clp( argc, argv );
     if ( argc < 2 )
-	mErrRet(printBatchUsage( cl.getExecutableName() ))
+	mErrRet(printBatchUsage( clp.getExecutableName() ))
 
-    cl.setKeyHasValue( uiProgressViewer::sKeyInputFile() );
-    cl.setKeyHasValue( uiProgressViewer::sKeyPID() );
-    cl.setKeyHasValue( uiProgressViewer::sKeyDelay() );
+    clp.setKeyHasValue( uiProgressViewer::sKeyInputFile() );
+    clp.setKeyHasValue( uiProgressViewer::sKeyPID() );
+    clp.setKeyHasValue( uiProgressViewer::sKeyDelay() );
 
     BufferString inpfile;
-    cl.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
+    clp.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
     int pid = mUdf(int);
-    cl.getVal( uiProgressViewer::sKeyPID(), pid );
+    clp.getVal( uiProgressViewer::sKeyPID(), pid );
     int delay = cDefDelay;
-    cl.getVal( uiProgressViewer::sKeyDelay(), delay );
+    clp.getVal( uiProgressViewer::sKeyDelay(), delay );
 
     if ( inpfile.isEmpty() )
     {
 	BufferStringSet normalargs;
-	cl.getNormalArguments( normalargs );
+	clp.getNormalArguments( normalargs );
 	if ( !normalargs.isEmpty() )
 	{
 	    const FilePath fp( normalargs.get(0) );
@@ -437,8 +437,10 @@ int mProgMainFnName( int argc, char** argv )
 	}
     }
 
-    PtrMan<uiMainWin> pv = new uiProgressViewer( 0, inpfile, pid, delay );
+    OD::ModDeps().ensureLoaded( "uiTools" );
+    PtrMan<uiMainWin> pv = new uiProgressViewer( nullptr, inpfile, pid, delay);
     app.setTopLevel( pv );
+    PIM().loadAuto( true );
     pv->show();
 
     return app.exec();

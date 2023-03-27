@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include <QCoreApplication>
 
+
 ApplicationData::ApplicationData()
 {
     if ( !hasInstance() )
@@ -37,8 +38,19 @@ bool ApplicationData::hasInstance()
 }
 
 
+Notifier<ApplicationData>& ApplicationData::applicationToBeStarted()
+{
+    static PtrMan<Notifier<ApplicationData> > thenotif_;
+    if ( !thenotif_ )
+	thenotif_ = new Notifier<ApplicationData>( nullptr );
+
+    return *thenotif_.ptr();
+}
+
+
 int ApplicationData::exec()
 {
+    applicationToBeStarted().trigger();
     return QCoreApplication::exec();
 }
 
@@ -65,15 +77,22 @@ void ApplicationData::swapCommandAndCTRL( bool yn )
 
 
 void ApplicationData::setOrganizationName( const char* nm )
-{ QCoreApplication::setOrganizationName( nm ); }
+{
+    QCoreApplication::setOrganizationName( nm );
+}
 
 
 void ApplicationData::setOrganizationDomain( const char* domain )
-{ QCoreApplication::setOrganizationDomain( domain ); }
+{
+    QCoreApplication::setOrganizationDomain( domain );
+}
 
 
 void ApplicationData::setApplicationName( const char* nm )
-{ QCoreApplication::setApplicationName( nm ); }
+{
+    QCoreApplication::setApplicationName( nm );
+}
+
 
 BufferString ApplicationData::applicationName()
 {

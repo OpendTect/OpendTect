@@ -396,7 +396,7 @@ bool uiPluginMan::rejectOK( CallBacker* )
 
 static SharedLibAccess* prodloader_ = nullptr;
 
-static bool doBasicProdSelFn( uiParent* p, bool& skippluginsel, uiRetVal& msgs )
+static bool doBasicProdSelFn( bool& skippluginsel, uiRetVal& msgs )
 {
     BufferString libnm( 256, false );
     SharedLibAccess::getLibName( "uidGBTools", libnm.getCStr(),libnm.bufSize());
@@ -435,28 +435,28 @@ static bool doBasicProdSelFn( uiParent* p, bool& skippluginsel, uiRetVal& msgs )
 }
 
 
-using boolFromuiParentPtrFn = bool(*)(uiParent*,bool&,uiRetVal&);
-static boolFromuiParentPtrFn prodselfn_ = doBasicProdSelFn;
+using boolFrombooluiRetValFn = bool(*)(bool&,uiRetVal&);
+static boolFrombooluiRetValFn prodselfn_ = doBasicProdSelFn;
 
-mGlobal(uiTools) void setGlobal_uiTools_Fns(boolFromuiParentPtrFn);
-void setGlobal_uiTools_Fns( boolFromuiParentPtrFn prodselfn )
+mGlobal(uiTools) void setGlobal_uiTools_Fns(boolFrombooluiRetValFn);
+void setGlobal_uiTools_Fns( boolFrombooluiRetValFn prodselfn )
 {
     prodselfn_ = prodselfn;
 }
 
 
 extern "C" {
-    mGlobal(uiTools) bool doProductSelection(uiParent*,bool&,uiRetVal&);
+    mGlobal(uiTools) bool doProductSelection(bool&,uiRetVal&);
 }
 
-mExternC(uiTools) bool doProductSelection( uiParent* p, bool& skippluginsel,
+mExternC(uiTools) bool doProductSelection( bool& skippluginsel,
 					   uiRetVal& msgs )
 {
-    if ( !doBasicProdSelFn(p,skippluginsel,msgs) )
+    if ( !doBasicProdSelFn(skippluginsel,msgs) )
 	return false;
 
     const bool res = prodselfn_ == doBasicProdSelFn
-		   ? true : (*prodselfn_)(p,skippluginsel,msgs);
+		   ? true : (*prodselfn_)(skippluginsel,msgs);
     if ( prodloader_ )
 	prodloader_->close();
     deleteAndNullPtr( prodloader_ );

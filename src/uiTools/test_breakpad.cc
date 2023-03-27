@@ -22,9 +22,15 @@ If everything works Breakpad should trigger and write out a crash report.
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::TestProgCtxt );
-    SetProgramArgs(argc, argv);
-    OD::ModDeps().ensureLoaded("uiTools");
-    
+    SetProgramArgs( argc, argv, false );
+
+    OD::ModDeps().ensureLoaded( "Network" );
+    OD::ModDeps().ensureLoaded( "uiBase" );
+
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "uiTools" );
+    PIM().loadAuto( true );
+
     DBG::forceCrash(false);
 
     return 0;

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "pythonaccess.h"
 
+#include "applicationdata.h"
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "commandlineparser.h"
@@ -83,7 +84,8 @@ void EnumDefImpl<OD::PythonSource>::init()
 OD::PythonAccess::PythonAccess()
     : envChange(this)
 {
-    mAttachCB( PIM().allPluginsLoaded, PythonAccess::pluginsLoaded );
+    mAttachCB( ApplicationData::applicationToBeStarted(),
+	       PythonAccess::appToBeStartedCB );
     updatePythonPath();
 }
 
@@ -1299,15 +1301,8 @@ void OD::PythonAccess::envChangeCB( CallBacker* )
 }
 
 
-void OD::PythonAccess::pluginsLoaded( CallBacker* cb )
+void OD::PythonAccess::appToBeStartedCB( CallBacker* )
 {
-    if ( !cb )
-	return;
-
-    mCBCapsuleUnpack( int, loadedid, cb );
-    if ( loadedid < PI_AUTO_INIT_LATE )
-	return;
-
     File::initTempDir();
 }
 

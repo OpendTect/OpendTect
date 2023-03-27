@@ -96,8 +96,6 @@ public:
 					//!< Explicit unload of a plugin
     void			unLoadAll();
 
-    CNotifier<PluginManager,int>    allPluginsLoaded;
-
     struct Data
     {
 	enum AutoSource		{ None, UserDir, AppDir, Both };
