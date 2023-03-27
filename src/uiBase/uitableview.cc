@@ -310,6 +310,14 @@ ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
 void currentChanged( const QModelIndex& current,
 		     const QModelIndex& previous ) override
 {
+    QTableView::currentChanged( current, previous );
+}
+
+
+void selectionChanged( const QItemSelection& selected,
+		       const QItemSelection& deselected ) override
+{
+    QTableView::selectionChanged( selected, deselected );
     handle_.selectionChanged.trigger();
 }
 
