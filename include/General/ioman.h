@@ -92,6 +92,7 @@ public:
 			//!< if keystr is not an IOObj key, will return keystr
     const char*		nameOf(const MultiID&) const;
     const char*		objectName(const DBKey&) const;
+    static void		getObjectNames(const DBKeySet&,BufferStringSet&);
 
     MultiID		createNewKey(const MultiID& dirkey);
 

@@ -9,8 +9,6 @@ ________________________________________________________________________
 
 #include "ioman.h"
 
-#include "applicationdata.h"
-#include "ascstream.h"
 #include "commandlineparser.h"
 #include "compoundkey.h"
 #include "ctxtioobj.h"
@@ -26,7 +24,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "perthreadrepos.h"
 #include "safefileio.h"
-#include "separstr.h"
 #include "settings.h"
 #include "strmprov.h"
 #include "surveydisklocation.h"
@@ -717,7 +714,7 @@ const char* IOMan::nameOf( const char* id ) const
     IOObj* ioobj = get( ky );
     ret.setEmpty();
     if ( !ioobj )
-	{ ret = "ID=<"; ret += id; ret += ">"; }
+	ret.set( "ID=<" ).add( id ).add( ">" );
     else
     {
 	ret = ioobj->name();
@@ -735,6 +732,14 @@ const char* IOMan::objectName( const DBKey& key ) const
     ret = ioobj ? ioobj->name().buf()
 		: BufferString("ID=<",key.toString(false),">").buf();
     return ret.buf();
+}
+
+
+void IOMan::getObjectNames( const DBKeySet& keys, BufferStringSet& nms )
+{
+    nms.erase();
+    for ( const auto* key : keys )
+	nms.add( IOM().objectName(*key) );
 }
 
 
