@@ -154,6 +154,46 @@ DBKey DBKey::getLocal() const
 
 
 // DBKeySet
+DBKeySet::DBKeySet()
+{}
+
+
+DBKeySet::DBKeySet( const DBKeySet& oth )
+{
+    deepAppend( dbkys_, oth.dbkys_ );
+}
+
+
+DBKeySet::DBKeySet( const TypeSet<MultiID>& mids )
+{
+    *this = mids;
+}
+
+
+DBKeySet::DBKeySet( const DBKey& dbky )
+{
+    add( dbky );
+}
+
+
+DBKeySet::~DBKeySet()
+{
+    deepErase(dbkys_);
+}
+
+
+DBKeySet* DBKeySet::clone() const
+{
+    return new DBKeySet(*this);
+}
+
+
+DBKeySet& DBKeySet::operator=( const DBKeySet& oth )
+{
+    deepCopy( dbkys_, oth.dbkys_ );
+    return *this;
+}
+
 
 DBKeySet& DBKeySet::operator=( const TypeSet<MultiID>& mids )
 {

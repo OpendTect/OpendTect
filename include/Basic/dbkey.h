@@ -54,18 +54,16 @@ protected:
 mExpClass(Basic) DBKeySet : public OD::Set
 { mIsContainer( DBKeySet, ObjectSet<DBKey>, dbkys_ )
 public:
+			DBKeySet();
+			DBKeySet(const DBKeySet&);
+			DBKeySet(const TypeSet<MultiID>&);
+			DBKeySet(const DBKey&);
+			~DBKeySet();
 
-    inline		DBKeySet()		{}
-    inline		DBKeySet( const DBKeySet& oth )
-				    { deepAppend( dbkys_, oth.dbkys_ ); }
-    explicit		DBKeySet( const DBKey& dbky )
-						{ add( dbky ); }
-			~DBKeySet()		{ deepErase(dbkys_); }
-    DBKeySet*		clone() const override	{ return new DBKeySet(*this); }
+    DBKeySet*		clone() const override;
 
-    inline DBKeySet&	operator =( const DBKeySet& oth )
-			{ deepCopy( dbkys_, oth.dbkys_ ); return *this; }
-    DBKeySet&		operator =( const TypeSet<MultiID>& oth );
+    inline DBKeySet&	operator =(const DBKeySet&);
+    DBKeySet&		operator =(const TypeSet<MultiID>&);
     bool		operator ==(const DBKeySet&) const;
     bool		operator !=(const DBKeySet&) const;
 
