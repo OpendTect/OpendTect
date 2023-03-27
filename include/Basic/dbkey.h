@@ -62,7 +62,7 @@ public:
 
     DBKeySet*		clone() const override;
 
-    inline DBKeySet&	operator =(const DBKeySet&);
+    DBKeySet&		operator =(const DBKeySet&);
     DBKeySet&		operator =(const TypeSet<MultiID>&);
     bool		operator ==(const DBKeySet&) const;
     bool		operator !=(const DBKeySet&) const;
