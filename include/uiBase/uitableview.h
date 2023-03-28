@@ -63,6 +63,8 @@ public:
 						 bool mappedtosource) const;
     void			selectAll();
     void			setSelectedCells(const TypeSet<RowCol>&);
+    void			setSelectedCells(const TypeSet<RowCol>&,
+						 bool mapfromsource);
     void			removeSelection(const TypeSet<RowCol>&);
     const RowCol&		currentCell() const;
     void			setCurrentCell(const RowCol&);

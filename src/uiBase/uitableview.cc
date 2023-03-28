@@ -733,6 +733,26 @@ void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs )
 }
 
 
+void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs,
+				    bool mapfromsource )
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    for ( const auto& rc : rcs )
+    {
+	const QModelIndex sourceidx =
+		tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
+	if ( !mapfromsource )
+	{
+	    selmdl->select( sourceidx, QItemSelectionModel::Select );
+	    continue;
+	}
+
+	const QModelIndex qmi = qproxymodel_->mapFromSource( sourceidx );
+	selmdl->select( qmi, QItemSelectionModel::Select );
+    }
+}
+
+
 void uiTableView::removeSelection( const TypeSet<RowCol>& rcs )
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
