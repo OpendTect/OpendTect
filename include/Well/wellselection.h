@@ -65,7 +65,7 @@ public:
 
     void			clear();
 
-    TypeSet<MultiID>		wellids_;
+    DBKeySet			wellkeys_;
     BufferStringSet		lognms_;
     BufferStringSet		mnemonicnms_;
     BufferStringSet		markernms_;

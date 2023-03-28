@@ -53,7 +53,7 @@ MultiSelSpec::~MultiSelSpec()
 
 void MultiSelSpec::clear()
 {
-    wellids_.erase();
+    wellkeys_.erase();
     lognms_.erase();
     mnemonicnms_.erase();
     markernms_.erase();
