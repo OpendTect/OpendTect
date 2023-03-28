@@ -125,11 +125,14 @@ public:
     visBase::PolygonSelection*	getPolygonSelector();
     visBase::SceneColTab*	getSceneColTab();
 
+    void			setStartupView();
     void			toHomePos();
     void			saveHomePos();
+    void			resetHomePos();
     bool			isHomePosEmpty() { return homepos_.isEmpty(); }
     void			fillCameraPos(IOPar&) const;
     bool			useCameraPos(const IOPar&);
+
     const osgViewer::View*	getOsgViewerMainView() const { return view_; }
     const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
     void			setScenesPixelDensity(float dpi);
@@ -184,6 +187,8 @@ protected:
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
 						     const osg::Vec3f&,bool);
+
+    void				viewAllCB(CallBacker*);
 
     void				thumbWheelRotationCB(CallBacker*);
     void				enableThumbWheelHandling(bool yn,

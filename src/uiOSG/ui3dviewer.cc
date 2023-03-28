@@ -9,62 +9,51 @@ ________________________________________________________________________
 
 #include "ui3dviewer.h"
 
-#include "uicursor.h"
-#include "ui3dviewerbody.h"
-#include "ui3dindirectviewer.h"
-#include "uirgbarray.h"
-#include "uimain.h"
-#include "uimouseeventblockerbygesture.h"
-#include "swapbuffercallback.h"
-#include "odgraphicswindow.h"
-
-#include <osgViewer/View>
-#include <osgViewer/CompositeViewer>
-#include <osgViewer/ViewerEventHandlers>
-#include <osgGeo/TrackballManipulator>
-#include <osg/MatrixTransform>
-#include <osgGeo/ThumbWheel>
-#include <osg/Version>
-
-#include "envvars.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "keybindings.h"
 #include "keyboardevent.h"
 #include "keystrs.h"
-#include "math2.h"
 #include "oddirs.h"
+#include "odgraphicswindow.h"
 #include "ptrman.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
-#include "visaxes.h"
-#include "visscenecoltab.h"
+#include "swapbuffercallback.h"
+#include "timer.h"
 
+#include "ui3dindirectviewer.h"
+#include "ui3dviewerbody.h"
+#include "uicursor.h"
+#include "uimain.h"
+#include "uimouseeventblockerbygesture.h"
 #include "uiobjbody.h"
+#include "visaxes.h"
 #include "viscamera.h"
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "vispolygonselection.h"
+#include "visscenecoltab.h"
 #include "vissurvscene.h"
-#include "vistransform.h"
-#include "vistext.h"
 #include "visthumbwheel.h"
+
+#include <QGesture>
+#include <QGestureEvent>
+#include <QPainter>
+#include <QTabletEvent>
+
+#include <osg/MatrixTransform>
+#include <osg/Version>
+#include <osgGeo/ThumbWheel>
+#include <osgGeo/TrackballManipulator>
+#include <osgViewer/CompositeViewer>
+#include <osgViewer/View>
+#include <osgViewer/ViewerEventHandlers>
 
 #include <iostream>
 #include <math.h>
 
-#include <QTabletEvent>
-#include <QGestureEvent>
-#include <QGesture>
-#include <QPainter>
-
-#include "uiobjbody.h"
-#include "keystrs.h"
-
-#include "survinfo.h"
-#include "viscamera.h"
-#include "vissurvscene.h"
-#include "visdatagroup.h"
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
 static const char* sKeyManipCenter()	{ return "Manipulator Center"; }
@@ -185,6 +174,7 @@ const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
 
 //--------------------------------------------------------------------------
 
+HiddenParam<ui3DViewerBody,Timer*> hp_timers(nullptr);
 
 ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody(parnt,0)
@@ -222,6 +212,10 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	       ui3DViewerBody::setFocusCB );
+
+    auto* viewalltimer = new Timer;
+    hp_timers.setParam( this, viewalltimer );
+    mAttachCB( viewalltimer->tick, ui3DViewerBody::viewAllCB );
 }
 
 
@@ -229,6 +223,7 @@ ui3DViewerBody::~ui3DViewerBody()
 {
     detachAllNotifiers();
     delete &keybindman_;
+    hp_timers.removeAndDeleteParam( this );
 
     manipmessenger_->detach();
     manipmessenger_->unref();
@@ -241,10 +236,13 @@ ui3DViewerBody::~ui3DViewerBody()
 	compositeviewer_->removeView( hudview_ );
 	compositeviewer_->unref();
     }
+
     viewport_->unref();
     offscreenrenderswitch_->unref();
     offscreenrenderhudswitch_->unref();
-    if ( swapcallback_ ) swapcallback_->unref();
+
+    if ( swapcallback_ )
+	swapcallback_->unref();
 }
 
 
@@ -257,6 +255,13 @@ void ui3DViewerBody::removeSwapCallback( CallBacker* )
 	swapcallback_ = 0;
     }
 }
+
+
+void ui3DViewerBody::viewAllCB( CallBacker* )
+{
+    viewAll( true );
+}
+
 
 #define mMainCameraOrder    0
 #define mHudCameraOrder	    (mMainCameraOrder+1)
@@ -1285,7 +1290,8 @@ void ui3DViewerBody::fillCameraPos( IOPar& par ) const
 
 bool ui3DViewerBody::useCameraPos( const IOPar& par )
 {
-    if ( par.isEmpty() ) return false;
+    if ( par.isEmpty() )
+	return false;
 
     const PtrMan<IOPar> survhomepospar = SI().pars().subselect( sKeyHomePos() );
     if ( !survhomepospar )
@@ -1300,12 +1306,11 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 	return false;
 
     osgGeo::TrackballManipulator* manip = getCameraManipulator();
-    if ( !manip ) return false;
+    if ( !manip )
+	return false;
 
-    manip->setCenter( Conv::to<osg::Vec3d>( center ) );
-    manip->setRotation( osg::Quat( x, y, z, w ) );
-    manip->setDistance( distance );
-
+    manip->animateTo( Conv::to<osg::Vec3d>(center), osg::Quat(x,y,z,w),
+		      distance );
     requestRedraw();
     return true;
 
@@ -1402,7 +1407,9 @@ void ui3DViewerBody::resetToHomePosition()
 
 
 void ui3DViewerBody::toHomePos()
-{ useCameraPos( homepos_ ); }
+{
+    useCameraPos( homepos_ );
+}
 
 
 void ui3DViewerBody::saveHomePos()
@@ -1410,13 +1417,33 @@ void ui3DViewerBody::saveHomePos()
     homepos_.setEmpty();
     fillCameraPos( homepos_ );
 
-    if ( SI().getPars().isPresent( preOdHomePosition() ) )
-    {
-	SI().getPars().removeSubSelection( sKeyHomePos() );
-    }
-
-    SI().getPars().mergeComp( homepos_, sKeyHomePos() );
+    IOPar& pars = SI().getPars();
+    pars.removeSubSelection( preOdHomePosition() );
+    pars.removeSubSelection( sKeyHomePos() );
+    pars.mergeComp( homepos_, sKeyHomePos() );
     SI().savePars();
+}
+
+
+void ui3DViewerBody::resetHomePos()
+{
+    homepos_.setEmpty();
+    SI().getPars().removeSubSelection( sKeyHomePos() );
+    SI().savePars();
+}
+
+
+void ui3DViewerBody::setStartupView()
+{
+    const bool hashomepos = !isHomePosEmpty();
+    if ( hashomepos )
+	toHomePos();
+    else
+    {
+	SI().has3D() ? viewPlaneInl() : viewPlaneN();
+	// animation should be finished before calling viewAll
+	hp_timers.getParam(this)->start( 1000, true );
+    }
 }
 
 
@@ -1575,6 +1602,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 
 ui3DViewer::~ui3DViewer()
 {
+    detachAllNotifiers();
     delete osgbody_;
 }
 
@@ -1688,13 +1716,19 @@ void ui3DViewer::viewPlane( PlaneType type )
 
     switch ( type )
     {
-	case X: osgbody_->viewPlaneX(); break;
-	case Y: osgbody_->viewPlaneN(); break;
-	case Z: osgbody_->viewPlaneZ(); break;
-	case Inl: osgbody_->viewPlaneInl(); break;
-	case Crl: osgbody_->viewPlaneCrl(); break;
-	case YZ:osgbody_->viewPlaneYZ(); break;
+	case X:		osgbody_->viewPlaneX(); break;
+	case Y:		osgbody_->viewPlaneN(); break;
+	case Z:		osgbody_->viewPlaneZ(); break;
+	case Inl:	osgbody_->viewPlaneInl(); break;
+	case Crl:	osgbody_->viewPlaneCrl(); break;
+	case YZ:	osgbody_->viewPlaneYZ(); break;
     }
+}
+
+
+void ui3DViewer::setStartupView()
+{
+    osgbody_->setStartupView();
 }
 
 
@@ -1793,12 +1827,15 @@ void ui3DViewer::align()
 { osgbody_->align(); }
 
 void ui3DViewer::toHomePos()
-{ osgbody_->toHomePos(); }
+{ setStartupView(); }
 
 void ui3DViewer::saveHomePos()
 { osgbody_->saveHomePos(); }
 
-void ui3DViewer::showRotAxis( bool yn ) // OSG-TODO
+void ui3DViewer::resetHomePos()
+{ osgbody_->resetHomePos(); }
+
+void ui3DViewer::showRotAxis( bool yn )
 { osgbody_->showRotAxis( yn ); }
 
 void ui3DViewer::setWheelDisplayMode( WheelMode mode )

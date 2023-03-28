@@ -72,9 +72,12 @@ public:
     void		setReversedMouseWheelDirection(bool);
     bool		getReversedMouseWheelDirection() const;
 
+    void		setStartupView();
     void		viewAll(bool animate=true);
     void		toHomePos();
     void		saveHomePos();
+    void		resetHomePos();
+
     void		showRotAxis(bool);
     void		setAnnotationColor(const OD::Color&);
     OD::Color		getAnnotationColor() const;

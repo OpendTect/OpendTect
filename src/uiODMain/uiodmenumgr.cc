@@ -1256,7 +1256,17 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
     actviewid_ = viewtb_->addButton( "altpick", tr("Switch to View Mode"),
 			mCB(this,uiODMenuMgr,toggViewMode), false );
-    mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
+
+    const int homeid =
+		mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
+    auto* homemnu = new uiMenu( tr("Home Menu") );
+    {
+	auto* itm = new uiAction( tr("Reset home position"),
+				  mCB(scenemgr,uiODSceneMgr,resetHomePos) );
+	homemnu->insertAction( itm, 0 );
+    }
+    viewtb_->setButtonMenu( homeid, homemnu );
+
     mAddTB(viewtb_,"set_home",tr("Save Home Position"),false,saveHomePos);
     mAddTB(viewtb_,"view_all",tr("View All"),false,viewAll);
     cameraid_ = mAddTB(viewtb_,"perspective",
@@ -1271,7 +1281,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	viewselectid_ = viewtb_->addButton( "cube_inl",tr("View In-line"),
 				mCB(this,uiODMenuMgr,handleViewClick), false );
 
-	auto* vwmnu = new uiMenu( &appl_, tr("View Menu") );
+	auto* vwmnu = new uiMenu( tr("View Menu") );
 	mAddMnuItm( vwmnu, tr("View In-line"),
 		    handleViewClick, "cube_inl", 0 );
 	mAddMnuItm( vwmnu, tr("View Cross-line"), handleViewClick,

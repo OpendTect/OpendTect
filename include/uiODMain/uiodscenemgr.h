@@ -84,6 +84,7 @@ public:
 
     void			toHomePos(CallBacker*);
     void			saveHomePos(CallBacker*);
+    void			resetHomePos(CallBacker*);
     void			viewAll(CallBacker*);
     void			align(CallBacker*);
     void			showRotAxis(CallBacker*);

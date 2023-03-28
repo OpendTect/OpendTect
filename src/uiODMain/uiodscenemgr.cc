@@ -16,10 +16,11 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
-#include "uiwellattribpartserv.h"
 #include "uisettings.h"
 #include "uigeninput.h"
 
+#include "uiaction.h"
+#include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uidockwin.h"
 #include "uifont.h"
@@ -33,7 +34,6 @@ ________________________________________________________________________
 #include "uiscenepropdlg.h"
 #include "uistatusbar.h"
 #include "uistrings.h"
-#include "uitoolbar.h"
 #include "uitreeitemmanager.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
@@ -49,11 +49,9 @@ ________________________________________________________________________
 #include "emrandomposbody.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "mpeengine.h"
 #include "uiosgutil.h"
 #include "pickset.h"
 #include "ptrman.h"
-#include "randomlinegeom.h"
 #include "sorting.h"
 #include "settingsaccess.h"
 #include "vissurvscene.h"
@@ -63,7 +61,6 @@ ________________________________________________________________________
 // For factories
 #include "uiodannottreeitem.h"
 #include "uiodbodydisplaytreeitem.h"
-#include "uioddatatreeitem.h"
 #include "uiodemsurftreeitem.h"
 #include "uiodfaultsettreeitem.h"
 #include "uiodfaulttreeitem.h"
@@ -252,11 +249,14 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	scn.vwr3d_->showRotAxis( true );
     }
 
-    if ( name.isSet() ) setSceneName( sceneid, name );
+    if ( name.isSet() )
+	setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
-
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
+
+    scn.vwr3d_->setStartupView();
+
     return sceneid;
 }
 
@@ -638,6 +638,13 @@ void uiODSceneMgr::toHomePos( CallBacker* )
 { mDoAllScenes(vwr3d_,toHomePos,); }
 void uiODSceneMgr::saveHomePos( CallBacker* )
 { mDoAllScenes(vwr3d_,saveHomePos,); }
+
+void uiODSceneMgr::resetHomePos( CallBacker* )
+{
+    mDoAllScenes(vwr3d_,resetHomePos,);
+    mDoAllScenes(vwr3d_,setStartupView,);
+}
+
 void uiODSceneMgr::viewAll( CallBacker* )
 { mDoAllScenes(vwr3d_,viewAll,); }
 void uiODSceneMgr::align( CallBacker* )
