@@ -307,8 +307,11 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     if ( !force && istested_ )
 	return isusable_;
 
-    istested_ = true;
-    isusable_ = false;
+    {
+	Threads::Locker locker( lock_ );
+	istested_ = true;
+	isusable_ = false;
+    }
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source = hasInternalEnvironment(false) ? Internal : System;
