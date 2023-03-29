@@ -84,9 +84,10 @@ protected:
     Coord3		origpos_;
     float		origgl_;
 
-    void		fillTable(CallBacker* cb);
+    void		initDlg(CallBacker*);
+    void		fillTable(CallBacker*);
     bool		fillTable();
-    void		fillSetFields(CallBacker* cb=0);
+    void		fillSetFields(CallBacker* =nullptr);
     void		updNow(CallBacker*);
     bool		updNow();
     void		readNew(CallBacker*);
@@ -130,15 +131,21 @@ protected:
     uiTable*		tbl_;
     uiCheckBox*		zinftfld_;
     uiCheckBox*		timefld_;
-    uiGenInput*		replvelfld_;
+    uiGenInput*		replvelfld_ = nullptr;
+    TypeSet<double>	mdvals_;
+    TypeSet<double>	tvals_;
 
+    void		setEmpty();
+    void		initDlg(CallBacker*);
     void		fillTable(CallBacker*);
     void		fillReplVel(CallBacker*);
     bool		getFromScreen();
     void		updNow(CallBacker*);
     void		updReplVelNow(CallBacker*);
+    void		dtpointAddedCB(CallBacker*);
     void		dtpointChangedCB(CallBacker*);
     void		dtpointRemovedCB(CallBacker*);
+    void		selectionDeletedCB(CallBacker*);
     bool		updateDtpointDepth(int row);
     bool		updateDtpointTime(int row);
     bool		updateDtpoint(int row,float oldval);
