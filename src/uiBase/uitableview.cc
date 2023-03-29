@@ -36,6 +36,9 @@ ________________________________________________________________________
 class ODStyledItemDelegate : public QStyledItemDelegate
 {
 public:
+ODStyledItemDelegate( QObject* parent )
+    : QStyledItemDelegate(parent)
+{}
 
 ODStyledItemDelegate( TableModel::CellType typ )
     : celltype_(typ)
@@ -304,6 +307,21 @@ ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
 }
 
 
+void currentChanged( const QModelIndex& current,
+		     const QModelIndex& previous ) override
+{
+    QTableView::currentChanged( current, previous );
+}
+
+
+void selectionChanged( const QItemSelection& selected,
+		       const QItemSelection& deselected ) override
+{
+    QTableView::selectionChanged( selected, deselected );
+    handle_.selectionChanged.trigger();
+}
+
+
 void setModel( QAbstractItemModel* tblmodel ) override
 {
     QTableView::setModel( tblmodel );
@@ -461,6 +479,7 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , doubleClicked(this)
+    , selectionChanged(this)
 {
     columndelegates_.setNullAllowed( true );
     mAttachCB( this->doubleClicked, uiTableView::doubleClickedCB );
@@ -713,9 +732,29 @@ void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs )
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     for ( const auto& rc : rcs )
     {
-	const QModelIndex idx = tablemodel_->getAbstractModel()
-					   ->index( rc.row(), rc.col() );
+	const QModelIndex idx =
+		tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
 	selmdl->select( idx, QItemSelectionModel::Select );
+    }
+}
+
+
+void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs,
+				    bool mapfromsource )
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    for ( const auto& rc : rcs )
+    {
+	const QModelIndex sourceidx =
+		tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
+	if ( !mapfromsource )
+	{
+	    selmdl->select( sourceidx, QItemSelectionModel::Select );
+	    continue;
+	}
+
+	const QModelIndex qmi = qproxymodel_->mapFromSource( sourceidx );
+	selmdl->select( qmi, QItemSelectionModel::Select );
     }
 }
 

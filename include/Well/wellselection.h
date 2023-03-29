@@ -49,6 +49,21 @@ protected:
 };
 
 
+mExpClass(Well) MultiSelSpec
+{
+public:
+				MultiSelSpec();
+    virtual			~MultiSelSpec();
+
+    void			clear();
+
+    DBKeySet			wellkeys_;
+    BufferStringSet		lognms_;
+    BufferStringSet		mnemonicnms_;
+    BufferStringSet		markernms_;
+};
+
+
 //!\brief Holds a set of logs and markers.
 //! This object does not own logs. It borrows from the Well::Data object
 //! or from users of an instance.

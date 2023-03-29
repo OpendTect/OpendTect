@@ -41,6 +41,26 @@ const char* SelInfo::wellName() const
 }
 
 
+
+// MultiSelSpec
+MultiSelSpec::MultiSelSpec()
+{}
+
+
+MultiSelSpec::~MultiSelSpec()
+{}
+
+
+void MultiSelSpec::clear()
+{
+    wellkeys_.erase();
+    lognms_.erase();
+    mnemonicnms_.erase();
+    markernms_.erase();
+}
+
+
+
 // SubSelData
 SubSelData::SubSelData( const SelInfo& info )
     : logs_(*new LogSet)

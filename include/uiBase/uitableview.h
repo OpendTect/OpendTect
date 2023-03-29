@@ -64,6 +64,8 @@ public:
 						 bool mappedtosource) const;
     void			selectAll();
     void			setSelectedCells(const TypeSet<RowCol>&);
+    void			setSelectedCells(const TypeSet<RowCol>&,
+						 bool mapfromsource);
     void			removeSelection(const TypeSet<RowCol>&);
     const RowCol&		currentCell() const;
     void			setCurrentCell(const RowCol&);
@@ -75,6 +77,7 @@ public:
     TableModel::CellType	getCellType(int col) const;
 
     Notifier<uiTableView>	doubleClicked;
+    Notifier<uiTableView>	selectionChanged;
 
 protected:
 

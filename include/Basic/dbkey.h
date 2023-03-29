@@ -60,6 +60,7 @@ public:
 				    { deepAppend( dbkys_, oth.dbkys_ ); }
     explicit		DBKeySet( const DBKey& dbky )
 						{ add( dbky ); }
+			DBKeySet(const TypeSet<MultiID>&);
 			~DBKeySet()		{ deepErase(dbkys_); }
     DBKeySet*		clone() const override	{ return new DBKeySet(*this); }
 

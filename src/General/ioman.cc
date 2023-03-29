@@ -738,6 +738,14 @@ const char* IOMan::objectName( const DBKey& key ) const
 }
 
 
+void IOMan::getObjectNames( const DBKeySet& keys, BufferStringSet& nms )
+{
+    nms.erase();
+    for ( const auto* key : keys )
+	nms.add( IOM().objectName(*key) );
+}
+
+
 const char* IOMan::curDirName() const
 {
     return dirptr_ ? dirptr_->dirName() : (const char*)rootdir_;

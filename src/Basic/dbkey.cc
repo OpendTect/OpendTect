@@ -154,6 +154,11 @@ DBKey DBKey::getLocal() const
 
 
 // DBKeySet
+DBKeySet::DBKeySet( const TypeSet<MultiID>& mids )
+{
+    *this = mids;
+}
+
 
 DBKeySet& DBKeySet::operator=( const TypeSet<MultiID>& mids )
 {
