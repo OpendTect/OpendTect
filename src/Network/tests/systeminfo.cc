@@ -74,7 +74,8 @@ private:
 	hostaddress = System::hostAddress( localhoststr, false );
 	mRunStandardTest( hostaddress=="::1", "localhost address ipv6" );
 
-	const BufferString dgb29hostname( "dgb29.", getDomainName() );
+	BufferString dgb29hostname( "dgb29.", getDomainName() );
+	dgb29hostname.replace( "ad.enschede", "enschede" );
 	hostaddress = System::hostAddress( dgb29hostname );
 	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29.domain ipv4" );
 
@@ -188,7 +189,8 @@ private:
 
 	// Now hostname based authorities
 
-	const BufferString dgb29hostname( "dgb29.", getDomainName() );
+	BufferString dgb29hostname( "dgb29.", getDomainName() );
+	dgb29hostname.replace( "ad.enschede", "enschede" );
 	exphostaddrs.setEmpty();
 	exphostaddrs
 	    .add( localhoststr )
