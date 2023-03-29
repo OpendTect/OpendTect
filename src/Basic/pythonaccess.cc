@@ -727,8 +727,16 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	strm.add( " " ).add( venvnm ).add( od_newline );
     }
 #ifdef __win__
-    if ( background )
-	strm.add( "Start \"%proctitle%\" " );
+    if (background)
+    {
+	const BufferString prognm( cmd.program() );
+	if ( prognm.startsWith("cmd", OD::CaseInsensitive) ||
+	     prognm.startsWith("powershell", OD::CaseInsensitive) ||
+	     prognm.startsWith("wt", OD::CaseInsensitive))
+	    strm.add("Start \"%proctitle%\" ");
+	else
+	    strm.add("Start \"%proctitle%\" /MIN ");
+    }
 #endif
     BufferStringSet args( cmd.args() );
 #ifdef __unix__
