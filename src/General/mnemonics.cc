@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "unitofmeasure.h"
 
-#include <regex>
 #include <QHash>
+#include <QRegularExpression>
 #include <QString>
 
 
@@ -269,8 +269,7 @@ float Mnemonic::getMatchValue( const char* nm, const BufferStringSet& nms,
     if ( exactmatch )
 	return 0.f;
 
-    const std::string tomatch = nm;
-    std::smatch m;
+    const QString qtomatch = nm;
     for ( const auto* findnm : nms )
     {
 	if ( findnm->isEmpty() )
@@ -284,9 +283,12 @@ float Mnemonic::getMatchValue( const char* nm, const BufferStringSet& nms,
 	BufferString gexpr( findnm->buf() );
 	gexpr.trimBlanks().replace( " ", "[^a-z]{0,2}" )
 			  .replace( "_", "[^a-z]{0,2}" );
-	const std::string expr = gexpr.str();
-	const std::regex stdge = std::regex( expr, std::regex::icase );
-	if ( std::regex_search(tomatch,m,stdge) )
+
+	const QString expr = gexpr.str();
+	const QRegularExpression qge( expr,
+				QRegularExpression::CaseInsensitiveOption );
+	const QRegularExpressionMatch match = qge.match( qtomatch );
+	if ( match.hasMatch() )
 	    return findnm->size();
     }
 
