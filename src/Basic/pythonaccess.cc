@@ -309,8 +309,11 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     if ( !force && istested_ )
 	return isusable_;
 
-    istested_ = true;
-    isusable_ = false;
+    {
+	Threads::Locker locker( lock_ );
+	istested_ = true;
+	isusable_ = false;
+    }
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source = hasInternalEnvironment(false) ? Internal : System;
@@ -726,8 +729,16 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	strm.add( " " ).add( venvnm ).add( od_newline );
     }
 #ifdef __win__
-    if ( background )
-	strm.add( "Start \"%proctitle%\" /MIN " );
+    if (background)
+    {
+	const BufferString prognm( cmd.program() );
+	if ( prognm.startsWith("cmd", OD::CaseInsensitive) ||
+	     prognm.startsWith("powershell", OD::CaseInsensitive) ||
+	     prognm.startsWith("wt", OD::CaseInsensitive))
+	    strm.add("Start \"%proctitle%\" ");
+	else
+	    strm.add("Start \"%proctitle%\" /MIN ");
+    }
 #endif
     BufferStringSet args( cmd.args() );
 #ifdef __unix__
