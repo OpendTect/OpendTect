@@ -180,33 +180,35 @@ bool HorizonPainter3D::addPolyLine()
 
 	}
     }
-
-    TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-    while ( iter.next(bid) )
+    else
     {
-	int inlfromcs = bid.inl();
-	const Coord3 crd = hor3d->getPos( bid.toInt64() );
-	EM::PosID posid( id_, bid );
-
-	if ( !crd.isDefined() )
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
+	while ( iter.next(bid) )
 	{
-	    coorddefined = false;
-	    bid.inl() = inlfromcs;
-	    continue;
+	    int inlfromcs = bid.inl();
+	    const Coord3 crd = hor3d->getPos( bid.toInt64() );
+	    EM::PosID posid( id_, bid );
+
+	    if ( !crd.isDefined() )
+	    {
+		coorddefined = false;
+		bid.inl() = inlfromcs;
+		continue;
+	    }
+	    else if ( !coorddefined )
+	    {
+		coorddefined = true;
+		newmarker = true;
+	    }
+
+	    if ( newmarker )
+		generateNewMarker( *hor3d, *secmarkerln, marker );
+
+	    if ( addDataToMarker(bid,crd,posid,*hor3d,*marker,newmarker) )
+		nrseeds_++;
+
+	    newmarker = false;
 	}
-	else if ( !coorddefined )
-	{
-	    coorddefined = true;
-	    newmarker = true;
-	}
-
-	if ( newmarker )
-	    generateNewMarker( *hor3d, *secmarkerln, marker );
-
-	if ( addDataToMarker(bid,crd,posid,*hor3d,*marker,newmarker) )
-	    nrseeds_++;
-
-	newmarker = false;
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
