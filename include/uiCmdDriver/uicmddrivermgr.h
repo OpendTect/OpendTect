@@ -31,6 +31,8 @@ public:
 				uiCmdDriverMgr(bool fullodmode=false);
 				~uiCmdDriverMgr();
 
+    void			cleanup(); // only when not running
+
     void			enableCmdLineParsing(bool yn=true);
 
     void			addCmdLineScript(const char* fnm);

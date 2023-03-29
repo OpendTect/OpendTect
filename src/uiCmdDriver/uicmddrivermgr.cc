@@ -27,9 +27,13 @@ ________________________________________________________________________
 #include "uicmddriverdlg.h"
 #include "uimain.h"
 
+#include "hiddenparam.h"
+
 
 namespace CmdDrive
 {
+
+HiddenParam<uiCmdDriverMgr,uiScriptRunnerDlg*> scriptrunnerdlgmgr_(nullptr);
 
 
 static const char* autoexecfnm = "autoexec.odcmd";
@@ -44,6 +48,7 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
     , defaultscriptsdir_(fullodmode ? "" : GetPersonalDir())
     , defaultlogdir_(fullodmode ? "" : GetPersonalDir())
 {
+    scriptrunnerdlgmgr_.setParam( this, nullptr );
     tim_ = new Timer();
     rec_ = new CmdRecorder( applwin_ );
     drv_ = new CmdDriver( applwin_ );
@@ -73,6 +78,7 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
     delete tim_;
     delete rec_;
     delete drv_;
+    scriptrunnerdlgmgr_.removeAndDeleteParam( this );
 
     if ( historec_ )
     {
@@ -80,6 +86,16 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
 	SignalHandling::stopNotify( SignalHandling::Kill,
 				    mCB(this,uiCmdDriverMgr,stopRecordingCB) );
     }
+}
+
+
+void uiCmdDriverMgr::cleanup()
+{
+    if ( drv_->nowExecuting() )
+	return;
+
+    delete scriptrunnerdlgmgr_.getParam( this );
+    scriptrunnerdlgmgr_.setParam( this, nullptr );
 }
 
 
@@ -130,9 +146,14 @@ void uiCmdDriverMgr::showDlgCB( CallBacker* )
 
 void uiCmdDriverMgr::showScriptRunnerCB( CallBacker* )
 {
-    auto* dlg = new uiScriptRunnerDlg( &applwin_, *drv_ );
-    dlg->setModal( false );
-    dlg->go();
+    if ( !scriptrunnerdlgmgr_.getParam(this) )
+    {
+	auto* scriptrunnerdlg = new uiScriptRunnerDlg( nullptr, *drv_ );
+	scriptrunnerdlg->setModal( false );
+	scriptrunnerdlgmgr_.setParam( this, scriptrunnerdlg );
+    }
+
+    scriptrunnerdlgmgr_.getParam( this )->show();
 }
 
 
