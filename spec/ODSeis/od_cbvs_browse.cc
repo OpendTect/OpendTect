@@ -25,7 +25,6 @@ ________________________________________________________________________
 
 #include <ctype.h>
 #include <math.h>
-#include <ctype.h>
 
 #include <iostream>
 
