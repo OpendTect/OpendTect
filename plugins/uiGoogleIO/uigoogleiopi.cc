@@ -314,7 +314,8 @@ mDefODInitPlugin(uiGoogleIO)
     if ( ODMainWin() && !theinst_.ptr() )
     {
 	theinst_ = new uiGoogleIOMgr();
-	return "Cannot instantiate GoogleIO plugin";
+	if ( !theinst_ )
+	    return "Cannot instantiate GoogleIO plugin";
     }
 
     return nullptr;
