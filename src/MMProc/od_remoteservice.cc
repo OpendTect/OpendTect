@@ -8,9 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "remcommhandler.h"
-#include "applicationdata.h"
 
+#include "applicationdata.h"
 #include "genc.h"
+#include "moddepmgr.h"
 #include "prog.h"
 #include "remjobexec.h"
 
@@ -18,10 +19,17 @@ ________________________________________________________________________
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::BatchProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     ApplicationData app;
 
+    OD::ModDeps().ensureLoaded( "Network" );
+
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "MMProc" );
     PtrMan<RemCommHandler> handler = new RemCommHandler(
 					RemoteJobExec::remoteHandlerPort() );
-    return app.exec();
+    PIM().loadAuto( true );
+    const bool ret = handler ? app.exec() : 1;
+    handler = nullptr;
+    return ret;
 }

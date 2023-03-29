@@ -7,13 +7,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "prog.h"
+#include "moddepmgr.h"
+#include "testprog.h"
 
 
-int mProgMainFnName( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::TestProgCtxt );
+    mInitTestProg();
+    OD::ModDeps().ensureLoaded( "General" );
 
     logStream() << "Exiting with return code 1" << od_endl;
+
     return 1;
 }

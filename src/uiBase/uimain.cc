@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "oscommand.h"
 #include "settings.h"
+#include "texttranslator.h"
 #include "thread.h"
 
 #include <QApplication>
@@ -519,6 +520,8 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     font_ = nullptr;
     setFont( *font() , true );
+
+    TextTranslateMgr::loadTranslations();
 }
 
 
@@ -533,6 +536,7 @@ int uiMain::exec()
     if ( !app_ )
 	{ pErrMsg("Huh?") ; return -1; }
 
+    ApplicationData::applicationToBeStarted().trigger();
     const int ret = app_->exec();
     return ret;
 }

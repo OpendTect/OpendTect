@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "threadwork.h"
 
 extern "C" void od_Seis_initStdClasses();
+extern "C" const char* InitCRSPlugin(int,char**);
 
 
 #define mErrRet( msg ) \
@@ -65,6 +66,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     argv[0] = progname;
 
     SetProgramArgs( argc, argv );
+    InitCRSPlugin();
     od_Seis_initStdClasses();
 
     const BufferString segyfnm = mxArrayToString( prhs[0] );

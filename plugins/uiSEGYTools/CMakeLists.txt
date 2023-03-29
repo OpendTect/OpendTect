@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS uiIo uiSeis uiWellAttrib )
+set( OD_MODULE_DEPS uiWellAttrib )
 set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES
@@ -37,7 +37,7 @@ set( OD_MODULE_SOURCES
     uisegytoolspi.cc
 )
 
-set( OD_PLUGIN_ALO_EXEC ${OD_SURVEY_EXECS} ${DGB_SEGY_EXECS} )
 set( OD_MODULE_PROGS od_SEGYExaminer.cc )
+set( OD_PLUGIN_ALO_EXEC ${OD_SURVEY_EXECS} ${DGB_SEGY_EXECS} )
 
 OD_INIT_MODULE()

@@ -16,9 +16,7 @@ set( OD_MODULE_SOURCES
 if ( NOT OD_NO_PROJ )
     set ( OD_PLUGIN_ALO_EXEC
 	${OD_MAIN_EXEC}
-	${DGB_PRO_UIEXECS}
 	${DGB_ML_UIEXECS}
-	${DGB_SR_EXECS}
     )
 endif()
 

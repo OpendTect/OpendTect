@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "applicationdata.h"
+#include "moddepmgr.h"
 #include "netreqpacket.h"
 #include "manobjectset.h"
 #include "netreqconnection.h"
@@ -43,6 +44,7 @@ public:
     {
 	detachAllNotifiers();
 	CallBack::removeFromThreadCalls( this );
+	deepErase( conns_ );
     }
 
 
@@ -69,7 +71,7 @@ public:
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
 
-	conns_ += newconn;
+	conns_.add( newconn );
     }
 
 
@@ -149,7 +151,7 @@ public:
 
     void closeServerCB( CallBacker* )
     {
-	conns_.setEmpty();
+	deepErase( conns_ );
 	ApplicationData::exit( 0 );
     }
 
@@ -177,17 +179,17 @@ public:
     Timer				timer_;
     time_t				lastactivity_;
     time_t				timeout_;
-    ManagedObjectSet<RequestConnection> conns_;
+    ObjectSet<RequestConnection>	conns_;
 };
 
 } // namespace Network
 
 
-int mTestMainFnName(int argc, char** argv)
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
     ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     Network::Authority auth;
     auth.setFrom( clParser(), "test_netreq",

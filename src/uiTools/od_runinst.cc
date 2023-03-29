@@ -11,12 +11,16 @@ ________________________________________________________________________
 #include "prog.h"
 
 #include "commandlineparser.h"
+#include "moddepmgr.h"
 #include "odinst.h"
+
 
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::InstallerCtxt )
     SetProgramArgs( argc, argv, false );
+    OD::ModDeps().ensureLoaded( "Network" );
+
     CommandLineParser cl( argc, argv );
     const int nrargs = cl.nrArgs();
     const bool useargs = nrargs >= 1;
@@ -27,6 +31,6 @@ int mProgMainFnName( int argc, char** argv )
     }
     else
 	ODInst::startInstManagement();
- 
+
     return 0;
 }

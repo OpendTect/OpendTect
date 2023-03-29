@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "applicationdata.h"
+#include "moddepmgr.h"
 #include "oscommand.h"
 #include "sighndl.h"
 #include "string.h"
@@ -275,8 +276,8 @@ static void terminateServer( const PID_Type pid )
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
     ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     Network::Authority auth;
     auth.setFrom( clParser(), "test_netreq",

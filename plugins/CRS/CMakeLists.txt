@@ -22,8 +22,7 @@ set( OD_MODULE_SOURCES
 if ( NOT OD_NO_PROJ )
     set( OD_TEST_PROGS crs.cc )
     set( OD_PLUGIN_ALO_EXEC
-	  od_DBMan
-	  od_WellMan
+	  ${OD_DB_EXECS}
 	  ${OD_ATTRIB_EXECS}
 	  ${OD_VOLUME_EXECS}
 	  ${OD_SEIS_EXECS}
@@ -33,10 +32,9 @@ if ( NOT OD_NO_PROJ )
 	  od_process_flattening
 	  ${DGB_PRO_EXECS}
 	  ${DGB_ML_EXECS}
+	  ${DGB_SR_EXECS}
 	  od_process_attrib_hc
 	  od_synthrock_extractexamples
-	  odpybind
-	  ODBind
     )
 endif()
 

@@ -33,6 +33,7 @@ class CmdDriverPIMgr : public uiPluginInitMgr
 {
 mODTextTranslationClass(CmdDriverPIMgr)
 public:
+
 CmdDriverPIMgr()
 {
     init();
@@ -40,20 +41,32 @@ CmdDriverPIMgr()
 
 
 ~CmdDriverPIMgr()
-{}
+{
+}
 
 
 void init() override
 {
+    if ( !ODMainWin() )
+	return;
+
     mgr_ = &uiCmdDriverMgr::getMgr( true );
+}
+
+
+void dTectMenuChanged() override
+{
+    if ( !ODMainWin() )
+	return;
+
     auto* cmdmnuitm = new uiAction( m3Dots( uiCmdDriverMgr::usrDispNm() ),
 				    mCB(mgr_,uiCmdDriverMgr,showDlgCB) );
-    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
+    appl_.menuMgr().toolsMnu()->insertAction( cmdmnuitm );
 
     auto* mnuitm = new uiAction(
 		m3Dots(toUiString("Command Driver Script Runner")),
 		mCB(mgr_,uiCmdDriverMgr,showScriptRunnerCB) );
-    ODMainWin()->menuMgr().toolsMnu()->insertAction( mnuitm );
+    appl_.menuMgr().toolsMnu()->insertAction( mnuitm );
 }
 
 

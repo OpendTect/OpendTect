@@ -7,16 +7,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "prog.h"
 #include "genc.h"
+#include "moddepmgr.h"
+#include "prog.h"
+
+#include "uimain.h"
+
 #include <iostream>
 
-extern int ODSysAdmMain(int,char**);
+extern int ODSysAdmMain(uiMain&);
 
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::SysAdmCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
+    uiMain app( argc, argv );
 
-    return ODSysAdmMain( argc, argv );
+    return ODSysAdmMain( app );
 }

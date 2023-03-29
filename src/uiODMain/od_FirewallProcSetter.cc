@@ -109,9 +109,11 @@ static void printBatchUsage()
     od_ostream& strm = od_ostream::logStream();
     strm << "Usage: " << "od_FilewallProcSetter ";
     strm << "[--help] ";
-    strm << "[--" << odflag() << " <path till the OpendTect installation directory ([...]/OpendTect/6.6.0)>] ";
+    strm << "[--" << odflag() << " <path till the OpendTect installation folder"
+		" ([...]/OpendTect/6.6.0)>] ";
     strm << "[--" << pyflag() << " <path till python folder>]";
-    strm << "It uses administrative rights to launch FirewallProcSetter Dialog\n";
+    strm << "It uses administrative rights to "
+	    "launch FirewallProcSetter Dialog\n";
     strm << "\nThese are common actions that dialog can do\n";
     strm << "\t"
 	 << ProcDesc::DataEntry::getCMDActionKey( ProcDesc::DataEntry::Add )
@@ -120,7 +122,8 @@ static void printBatchUsage()
 	 << ProcDesc::DataEntry::getCMDActionKey( ProcDesc::DataEntry::Remove )
 	 << "\t to remove rules from firewall\n";
     strm << "\t"
-	 << ProcDesc::DataEntry::getCMDActionKey( ProcDesc::DataEntry::AddNRemove )
+	 << ProcDesc::DataEntry::getCMDActionKey(
+					ProcDesc::DataEntry::AddNRemove )
 	 << "\t  to add and remove rules to firewall\n";
     strm << "\n Use short and quoted paths";
     strm << od_endl;
@@ -138,11 +141,12 @@ int mProgMainFnName( int argc, char** argv )
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
-    PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded( "uiODMain" );
-    PIM().loadAuto( true );
 
-    CommandLineParser parser;
+    OD::ModDeps().ensureLoaded( "uiTools" );
+
+    PIM().loadAuto( false );
+
+    CommandLineParser parser( argc, argv );
     if ( parser.hasKey("help") || parser.hasKey("h") )
     {
 	printBatchUsage();
@@ -169,11 +173,14 @@ int mProgMainFnName( int argc, char** argv )
     if ( !parser.getVal(pyflag(),pythonpath) && !File::isDirectory(pythonpath) )
 	errocc = true;
 
+    OD::ModDeps().ensureLoaded( "uiODMain" );
     PtrMan<uiFirewallProcSetter> fwdlg = nullptr;
     if ( errocc )
     {
 	fwdlg = new uiFirewallProcSetter( nullptr );
 	app.setTopLevel( fwdlg );
+	PIM().loadAuto( true );
+
 	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( fwdlg,
 						    path, pythonpath, type );
 	dlg->setActivateOnFirstShow();
@@ -212,6 +219,7 @@ int mProgMainFnName( int argc, char** argv )
 	fwdlg = new uiFirewallProcSetter( nullptr,
 					    opertype, &path, &pythonpath );
 	app.setTopLevel( fwdlg );
+	PIM().loadAuto( true );
     }
 
     fwdlg->show();

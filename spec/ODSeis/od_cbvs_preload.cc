@@ -7,13 +7,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "seistrc.h"
-#include "seiscbvs.h"
-#include "seisselectionimpl.h"
+#include "commandlineparser.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
 #include "ptrman.h"
+#include "seistrc.h"
+#include "seiscbvs.h"
+#include "seisselectionimpl.h"
 #include "timefun.h"
 
 #include <iostream>
@@ -26,7 +27,10 @@ ________________________________________________________________________
 
 int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::BatchProgCtxt )
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "Network" );
+
     if ( argc < 2 )
     {
 	std::cerr << "Usage: " << argv[0]
@@ -36,7 +40,15 @@ int mProgMainFnName( int argc, char** argv )
 	return 1;
     }
 
+    PIM().loadAuto( false );
+    CommandLineParser clp( argc, argv );
+    const uiRetVal uirv = IOM().setDataSource( clp );
+    if ( !uirv.isOK() )
+	return 1;
+
     OD::ModDeps().ensureLoaded( "Seis" );
+    PIM().loadAuto( true );
+
     const MultiID seismid( argv[1] );
     PtrMan<IOObj> ioobj = IOM().get( seismid );
     if ( !ioobj )

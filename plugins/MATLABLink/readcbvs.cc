@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "threadwork.h"
 
 extern "C" void od_Seis_initStdClasses();
+extern "C" const char* InitCRSPlugin(int,char**);
 
 static const char* sInpSeisKey = "Input Seismics";
 
@@ -50,6 +51,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     argv[0] = progname;
 
     SetProgramArgs( argc, argv );
+    InitCRSPlugin();
     od_Seis_initStdClasses();
 
     const BufferString fnm = mxArrayToString( prhs[0] );

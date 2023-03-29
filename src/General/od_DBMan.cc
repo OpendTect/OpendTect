@@ -57,7 +57,7 @@ protected:
 
 
 DBManServerTool::DBManServerTool( int argc, char** argv )
-    : ServerProgTool(argc,argv,"General")
+    : ServerProgTool(argc,argv,nullptr)
 {
     initParsing( cProtocolNr, false );
 }

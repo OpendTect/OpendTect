@@ -97,6 +97,8 @@ public:
     void			unLoadAll();
 
     CNotifier<PluginManager,int>    allPluginsLoaded;
+				/*Deprecated, consider using
+				  ApplicationData::applicationToBeStarted()*/
 
     struct Data
     {

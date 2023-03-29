@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "commandlineparser.h"
 #include "file.h"
+#include "moddepmgr.h"
 #include "odgraphicswindow.h"
 
 #include <QApplication>
@@ -33,7 +34,11 @@ int mProgMainFnName( int argc, char** argv )
     uiMain::preInitForOpenGL();
     uiMain app( argc, argv );
 
-    CommandLineParser clp;
+    OD::ModDeps().ensureLoaded( "uiTools" );
+
+    PIM().loadAuto( false );
+
+    CommandLineParser clp( argc, argv );
     BufferStringSet files;
     clp.getNormalArguments( files );
     BufferString file;
@@ -60,13 +65,13 @@ int mProgMainFnName( int argc, char** argv )
     viewer->setCameraManipulator( new osgGA::TrackballManipulator );
     setViewer( viewer.get() );
 
+    OD::ModDeps().ensureLoaded( "uiOSG" );
     PtrMan<ODGLWidget> glw = new ODGLWidget;
     PtrMan<ODGraphicsWindow> graphicswin = new ODGraphicsWindow( glw );
-
     viewer->getCamera()->setViewport(
 		    new osg::Viewport(0, 0, glw->width(), glw->height() ) );
     viewer->getCamera()->setGraphicsContext( graphicswin );
-
+    PIM().loadAuto( true );
     glw->show();
 
     return app.exec();

@@ -310,10 +310,12 @@ void uiGoogleIOMgr::exportWell( CallBacker* )
 
 mDefODInitPlugin(uiGoogleIO)
 {
-    mDefineStaticLocalObject( PtrMan<uiGoogleIOMgr>, theinst_,
-		= new uiGoogleIOMgr() );
-    if ( !theinst_ )
+    static PtrMan<uiGoogleIOMgr> theinst_;
+    if ( ODMainWin() && !theinst_.ptr() )
+    {
+	theinst_ = new uiGoogleIOMgr();
 	return "Cannot instantiate GoogleIO plugin";
+    }
 
     return nullptr;
 }

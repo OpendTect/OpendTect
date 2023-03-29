@@ -7,16 +7,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "testprog.h"
 
 #include "applicationdata.h"
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "moddepmgr.h"
 #include "odnetworkaccess.h"
 #include "perthreadrepos.h"
 #include "systeminfo.h"
+#include "testprog.h"
 
 
 static FilePath tempfile;
@@ -179,10 +180,11 @@ void loopCB(CallBacker*)
 }
 
 
-int mTestMainFnName(int argc, char** argv)
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     prefix_ = "[Without eventloop] ";
 

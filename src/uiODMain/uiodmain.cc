@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "uiodmain.h"
 
+#include "applicationdata.h"
+
 #include "uiattribpartserv.h"
 #include "uimain.h"
 #include "uicolortable.h"
@@ -42,6 +44,7 @@ ________________________________________________________________________
 
 #include "coltabsequence.h"
 #include "commandlaunchmgr.h"
+#include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
 #include "filepath.h"
@@ -72,7 +75,7 @@ ________________________________________________________________________
 
 extern "C" {
 
-    mGlobal(uiTools) bool doProductSelection(uiParent*,bool&,uiRetVal&);
+    mGlobal(uiTools) bool doProductSelection(bool&,uiRetVal&);
 
 }
 
@@ -209,15 +212,14 @@ int ODMain( uiMain& app )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
     OD::ModDeps().ensureLoaded( "uiBase" );
+
     uiDialog::setTitlePos( uiDialog::LeftSide );
 
-    PtrMan<uiODMain> odmain = new uiODMain( app );
-    manODMainWin( odmain.ptr(), true );
-
+    PtrMan<ApplicationData> bapp = new ApplicationData();
     checkScreenRes();
     uiRetVal uirv;
     bool skippluginsel = false;
-    if ( !doProductSelection(odmain,skippluginsel,uirv) )
+    if ( !doProductSelection(skippluginsel,uirv) )
     {
 	if ( !uirv.isOK() )
 	    uiMSG().error( uirv );
@@ -232,15 +234,22 @@ int ODMain( uiMain& app )
     splash->showMessage( "Loading plugins ..." );
 
     PIM().loadAuto( false, !skippluginsel );
+    CommandLineParser clp;
+    IOM().setDataSource( clp );
+
     OD::ModDeps().ensureLoaded( "uiODMain" );
-    PIM().loadAuto( true, !skippluginsel );
+    PtrMan<uiODMain> odmain = new uiODMain( app );
+    manODMainWin( odmain.ptr(), true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
+
+    PIM().loadAuto( true, !skippluginsel );
 
     splash->showMessage( "Initializing Scene ..." );
     odmain->initScene();
     splash = nullptr;
     odmain->setActivateOnFirstShow();
+
     return odmain->go() ? 0 : 1;
 }
 
@@ -974,9 +983,12 @@ uiServiceClientMgr& uiODMain::serviceMgr()
 uiPluginInitMgr::uiPluginInitMgr()
     : appl_(*ODMainWin())
 {
-    mAttachCB( appl_.beforeExit, uiPluginInitMgr::applCloseCB );
     mAttachCB( IOM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
     mAttachCB( IOM().afterSurveyChange, uiPluginInitMgr::afterSurvChgCB );
+    if ( !ODMainWin() )
+	return;
+
+    mAttachCB( appl_.beforeExit, uiPluginInitMgr::applCloseCB );
     mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
     mAttachCB( appl_.menuMgr().dTectTBChanged, uiPluginInitMgr::tbChgCB );
     mAttachCB( appl_.sceneMgr().treeAdded, uiPluginInitMgr::treeAddCB );
@@ -991,8 +1003,11 @@ uiPluginInitMgr::~uiPluginInitMgr()
 
 void uiPluginInitMgr::init()
 {
-    dTectMenuChanged();
-    dTectToolbarChanged();
+    if ( ODMainWin() )
+    {
+	dTectMenuChanged();
+	dTectToolbarChanged();
+    }
 }
 
 

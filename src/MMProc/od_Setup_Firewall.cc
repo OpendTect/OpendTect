@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "filepath.h"
 #include "keystrs.h"
+#include "moddepmgr.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "pythonaccess.h"
@@ -121,8 +122,14 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::BatchProgCtxt )
-    SetProgramArgs( argc, argv );
-    CommandLineParser parser;
+    SetProgramArgs( argc, argv, false );
+    OD::ModDeps().ensureLoaded( "Network" );
+
+    PIM().loadAuto( false );
+    CommandLineParser parser( argc, argv );
+    OD::ModDeps().ensureLoaded( "MMProc" );
+    PIM().loadAuto( true );
+
     SetUpFirewallServerTool progtool;
     BufferStringSet procnms;
     parser.getNormalArguments( procnms );

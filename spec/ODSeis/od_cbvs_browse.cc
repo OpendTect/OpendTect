@@ -7,20 +7,24 @@ ________________________________________________________________________
 
 -*/
 
-#include "seistrc.h"
-#include "seiscbvs.h"
 #include "cbvsinfo.h"
 #include "cbvsreadmgr.h"
+#include "commandlineparser.h"
 #include "conn.h"
+#include "datachar.h"
+#include "ioman.h"
 #include "iostrm.h"
 #include "file.h"
 #include "filepath.h"
-#include "datachar.h"
+#include "moddepmgr.h"
 #include "strmprov.h"
 #include "ptrman.h"
 #include "od_iostream.h"
-#include <math.h>
+#include "seiscbvs.h"
+#include "seistrc.h"
+
 #include <ctype.h>
+#include <math.h>
 
 #include <iostream>
 
@@ -51,12 +55,22 @@ int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::BatchProgCtxt )
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "Network" );
 
     if ( argc < 2 )
     {
 	od_cerr() << "Usage: " << argv[0] << " cbvs_file" << od_endl;
 	return 1;
     }
+
+    PIM().loadAuto( false );
+    CommandLineParser clp( argc, argv );
+    const uiRetVal uirv = IOM().setDataSource( clp );
+    if ( !uirv.isOK() )
+	return 1;
+
+    OD::ModDeps().ensureLoaded( "Seis" );
+    PIM().loadAuto( true );
 
     FilePath fp( argv[1] );
     if ( !fp.isAbsolute() )

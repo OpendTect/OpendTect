@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "oscommand.h"
 #include "prog.h"
-#include "texttranslator.h"
 
 
 static void printBatchUsage()
@@ -46,12 +45,16 @@ int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
-    CommandLineParser clp;
+    uiMain app( argc, argv );
+
+    OD::ModDeps().ensureLoaded( "Network" );
+    OD::ModDeps().ensureLoaded( "uiBase" );
+
+    PIM().loadAuto( false );
+    CommandLineParser clp( argc, argv );
     const int nrargs = clp.nrArgs();
     if ( nrargs < 1 )
 	mErrRet()
-
-    TextTranslateMgr::loadTranslations();
 
     BufferString fnm;
     if ( clp.hasKey(File::ViewPars::sKeyFile()) )
@@ -92,14 +95,14 @@ int mProgMainFnName( int argc, char** argv )
     if ( clp.getVal(File::ViewPars::sKeyStyle(),stl) )
 	parseEnum( stl.str(), vp.style_ );
 
-    uiMain app( argc, argv );
     OD::ModDeps().ensureLoaded( "uiTools" );
 
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
-    PtrMan<uiDialog> dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
+    PtrMan<uiDialog> dlg = new uiTextFileDlg( nullptr, vp, fdsetup, fnm );
     dlg->setActivateOnFirstShow();
     app.setTopLevel( dlg );
+    PIM().loadAuto( true );
     dlg->show();
 
     return app.exec();

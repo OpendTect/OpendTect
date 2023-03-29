@@ -170,7 +170,9 @@ namespace OD
 	static FilePath*	getActivateScript(const FilePath& root);
 	bool			retrievePythonVersionStr();
 	void			envChangeCB(CallBacker*);
+	mDeprecated("Use appToBeStartedCB")
 	void			pluginsLoaded(CallBacker*);
+	void			appToBeStartedCB(CallBacker*);
 	const BufferStringSet&	getBasePythonPath_() const;
 
 	void		    createFireWallExeList(ManagedObjectSet<FilePath>&);

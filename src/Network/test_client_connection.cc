@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "applicationdata.h"
+#include "moddepmgr.h"
 #include "netreqpacket.h"
 #include "netreqconnection.h"
 #include "netserver.h"
@@ -106,11 +107,11 @@ private:
 } // namespace Network
 
 
-int mTestMainFnName(int argc, char** argv)
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
     ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     CommandLineParser& parser = clParser();
     parser.setKeyHasValue( addrkey );

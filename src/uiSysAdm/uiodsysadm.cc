@@ -24,27 +24,38 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 
 
-uiODSysAdm& ODSysAdmMainWin()
+static uiODSysAdm* mainODSysAdmMainWin( uiODSysAdm* i, bool set )
 {
-    mDefineStaticLocalObject( uiODSysAdm, theinst, (0) );
+    mDefineStaticLocalObject( uiODSysAdm*, theinst, = nullptr );
+    if ( set )
+	theinst = i;
     return theinst;
 }
 
 
-mGlobal(uiSysAdm) int ODSysAdmMain(int,char**); // keep compiler happy
-int ODSysAdmMain( int argc, char** argv )
+uiODSysAdm& ODSysAdmMainWin()
+{
+    return *mainODSysAdmMainWin( nullptr, false );
+}
+
+
+mGlobal(uiSysAdm) int ODSysAdmMain(uiMain&);
+
+int ODSysAdmMain( uiMain& app )
 {
     SetInSysAdmMode();
 
-    PIM().loadAuto( false );
-    uiMain app( argc, argv );
-    uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs
-    PIM().loadAuto( true );
-    OD::ModDeps().ensureLoaded( "uiSysAdm" );
+    OD::ModDeps().ensureLoaded( "uiTools" );
 
-    app.setTopLevel( &odsa );
-    uiMSG().setMainWin( &odsa );
-    odsa.show();
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "uiSysAdm" );
+    PtrMan<uiODSysAdm> odsa = new uiODSysAdm( app );
+    mainODSysAdmMainWin( odsa, true );
+    app.setTopLevel( odsa.ptr() );
+    uiMSG().setMainWin( odsa.ptr() );
+    PIM().loadAuto( true );
+    odsa->show();
+
     return app.exec();
 }
 
@@ -65,6 +76,19 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
 	, haveas_(!asdir_.isEmpty() && File::exists(asdir_))
 	, swwritable_(File::isWritable(swdir_))
 	, aswritable_(haveas_ && File::isWritable(asdir_))
+{
+}
+
+
+uiODSysAdm::uiODSysAdm( uiMain& a )
+    : uiDialog(nullptr,uiDialog::Setup(tr("OpendTect System Administration"),
+				 mNoDlgTitle, mNoHelpKey))
+	// The order of the following has to match the header file's!
+    , swdir_(GetSoftwareDir(0))
+    , asdir_(GetApplSetupDir())
+    , haveas_(!asdir_.isEmpty() && File::exists(asdir_))
+    , swwritable_(File::isWritable(swdir_))
+    , aswritable_(haveas_ && File::isWritable(asdir_))
 {
 
     if ( !swwritable_ && !aswritable_ )
@@ -131,8 +155,6 @@ void uiODSysAdm::setInitial( CallBacker* )
 
 uiODSysAdm::~uiODSysAdm()
 {
-    for ( int idx=0; idx<groups_.size(); idx++ )
-	delete groups_[idx];
     deepErase( groups_ );
 }
 
@@ -144,7 +166,8 @@ uiODSysAdm::GroupEntry* uiODSysAdm::getGroupEntry( const char* nm )
 	if ( groups_[idx]->name_ == nm )
 	    return groups_[idx];
     }
-    return 0;
+
+    return nullptr;
 }
 
 
