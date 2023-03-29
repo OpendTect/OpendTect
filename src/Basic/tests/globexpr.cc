@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "globexpr.h"
 
 #include <regex>
+#include <QRegularExpression>
 
 
 int mTestMainFnName( int argc, char** argv )
@@ -35,12 +36,23 @@ int mTestMainFnName( int argc, char** argv )
 	<< expr.c_str() << "'" << od_endl;
 
     const std::regex stdge = casesensitive
-			   ? std::regex( expr, std::regex::icase )
-			   : std::regex( expr );
+			   ? std::regex( expr )
+			   : std::regex( expr, std::regex::icase );
     std::smatch m;
     const bool stdmatch = std::regex_search( tomatch, m, stdge );
     od_cout() << "'" << tomatch.c_str()
 	<< (stdmatch ? "' matches '" : "' doesn't match '")
+	<< expr.c_str() << "'" << od_endl;
+
+    const QString qexpr = expr.c_str();
+    const QString qmatch = tomatch.c_str();
+    const QRegularExpression qge( qexpr, casesensitive
+			? QRegularExpression::NoPatternOption
+			: QRegularExpression::CaseInsensitiveOption );
+    const QRegularExpressionMatch qtmatch = qge.match( qmatch );
+    const bool hasqtmatch = qtmatch.hasMatch();
+    od_cout() << "'" << tomatch.c_str()
+	<< (hasqtmatch ? "' matches '" : "' doesn't match '")
 	<< expr.c_str() << "'" << od_endl;
 
     return 0;
