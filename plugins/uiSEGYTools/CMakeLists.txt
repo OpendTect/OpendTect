@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS uiIo uiSeis uiWellAttrib )
+set( OD_MODULE_DEPS uiWellAttrib )
 set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES
