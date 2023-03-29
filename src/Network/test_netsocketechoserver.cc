@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "applicationdata.h"
+#include "moddepmgr.h"
 #include "netserver.h"
 #include "netsocket.h"
 #include "timer.h"
@@ -121,11 +122,11 @@ public:
 } // namespace Network
 
 
-int mTestMainFnName(int argc, char** argv)
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
     ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     Network::Authority auth;
     auth.setFrom( clParser(), "test_netsocket",

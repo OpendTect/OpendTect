@@ -7,11 +7,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "genc.h"
-#include "signal.h"
 #include "moddepmgr.h"
-
-#include "prog.h"
+#include "testprog.h"
 
 
 /*On windows, this will only trigger outside a debugger. Hence, set the path
@@ -19,17 +16,10 @@ ________________________________________________________________________
 If everything works Breakpad should trigger and write out a crash report.
 */
 
-int mProgMainFnName( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::TestProgCtxt );
-    SetProgramArgs( argc, argv, false );
-
-    OD::ModDeps().ensureLoaded( "Network" );
-    OD::ModDeps().ensureLoaded( "uiBase" );
-
-    PIM().loadAuto( false );
+    mInitTestProg();
     OD::ModDeps().ensureLoaded( "uiTools" );
-    PIM().loadAuto( true );
 
     DBG::forceCrash(false);
 

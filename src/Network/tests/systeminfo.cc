@@ -7,14 +7,16 @@ ________________________________________________________________________
 
 -*/
 
+
 #include "applicationdata.h"
+#include "moddepmgr.h"
 #include "networkcommon.h"
 #include "netsocket.h"
 #include "systeminfo.h"
+#include "testprog.h"
 #include "timer.h"
 #include "winutils.h"
 
-#include "testprog.h"
 
 #include <QHostAddress>
 
@@ -253,15 +255,15 @@ static void testWinVersion()
 }
 
 
-
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+    ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     if ( __iswin__ )
 	testWinVersion();
 
-    ApplicationData app;
     TestClass tester;
 
     return app.exec();

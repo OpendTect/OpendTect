@@ -7,10 +7,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "netsocket.h"
 
 #include "applicationdata.h"
+#include "moddepmgr.h"
 #include "netserver.h"
+#include "netsocket.h"
 #include "odsysmem.h"
 #include "odmemory.h"
 #include "oscommand.h"
@@ -158,11 +159,11 @@ static void terminateServer( const PID_Type pid )
 // can be specified by --serverapp "application". If no serverapp is given,
 // echoserver is started
 
-int mTestMainFnName(int argc, char** argv)
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
     ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     Network::Authority auth;
     auth.setFrom( clParser(), "test_netsocket",

@@ -7,13 +7,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "testprog.h"
 
 #include "applicationdata.h"
 #include "file.h"
 #include "filepath.h"
-#include "od_iostream.h"
 #include "moddepmgr.h"
+#include "od_iostream.h"
+#include "testprog.h"
 
 
 static const char* smallfname = "http://intranet/testing/ctest/test_file";
@@ -101,8 +101,8 @@ bool testIsLocalFlag()
 int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
-    ApplicationData app; // needed for QEventLoop
-    OD::ModDeps().ensureLoaded( "Network" ); //Init factories
+    ApplicationData app;
+    OD::ModDeps().ensureLoaded( "Network" );
 
     if ( !testReadSmallFile() || !testIsLocalFlag() )
 	return 1;
