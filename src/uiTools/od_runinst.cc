@@ -11,7 +11,9 @@ ________________________________________________________________________
 #include "prog.h"
 
 #include "commandlineparser.h"
+#include "moddepmgr.h"
 #include "odinst.h"
+
 
 int mProgMainFnName( int argc, char** argv )
 {
