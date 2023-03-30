@@ -13,10 +13,9 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "multiid.h"
-#include "position.h"
+
 #include "uiapplserv.h"
 #include "uistring.h"
-#include "uibulk2dhorizonimp.h"
 
 
 class BinIDValueSet;
@@ -27,6 +26,7 @@ class TrcKeySampling;
 class SurfaceInfo;
 class ZAxisTransform;
 class uiBulkHorizonImport;
+class uiBulk2DHorizonImport;
 class uiBulkFaultImport;
 class uiCreateHorizon;
 class uiExportFault;
@@ -98,7 +98,7 @@ public:
 			/*!<return bool is overwrite old horizon or not. */
     bool		filterSurface(const EM::ObjectID&);
 			/*!<return bool is overwrite old horizon or not. */
-    void		fillPickSet(Pick::Set&,MultiID);
+    void		fillPickSet(Pick::Set&,const MultiID&) const;
     void		deriveHor3DFrom2D(const EM::ObjectID&);
     bool		askUserToSave(const EM::ObjectID&,bool withcancl) const;
 			/*!< If object has changed, user is asked whether
@@ -142,8 +142,8 @@ public:
     void		manageFaultSets();
     void		manageBodies();
     bool		loadSurface(const MultiID&,
-				    const EM::SurfaceIODataSelection* s=0);
-    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
+			    const EM::SurfaceIODataSelection* s=nullptr) const;
+    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&) const;
     static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
@@ -152,11 +152,11 @@ public:
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
 					TypeSet<BinID>&,
-					TypeSet< Interval<float> >&);
+					TypeSet< Interval<float> >&) const;
     mDeprecatedDef void getSurfaceDef2D(const ObjectSet<MultiID>&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
-					TypeSet< Interval<float> >&);
+					TypeSet< Interval<float> >&) const;
 
     bool		storeObject(const EM::ObjectID&,
 				    bool storeas=false) const;
@@ -183,10 +183,10 @@ public:
     bool		attr2Geom(const EM::ObjectID&,const char* nm,
 				  const DataPointSet&);
     bool		geom2Attr(const EM::ObjectID&);
-    ZAxisTransform*	getHorizonZAxisTransform(bool is2d);
+    ZAxisTransform*	getHorizonZAxisTransform(bool is2d) const;
 
     MultiID		genRandLine(int opt);
-    bool		dispLineOnCreation()	{ return disponcreation_; }
+    bool		dispLineOnCreation() const   { return disponcreation_; }
 
     void		removeUndo();
 
@@ -216,37 +216,36 @@ protected:
     void		survChangedCB(CallBacker*);
 
     EM::ObjectID	selemid_;
-    EM::EMManager&	em_;
-    uiImportHorizon*	imphorattrdlg_;
-    uiImportHorizon*	imphorgeomdlg_;
-    uiBulkHorizonImport* impbulkhordlg_;
-    uiImpHorFromZMap*	impzmapdlg_;
-    uiBulkFaultImport*	impbulkfltdlg_;
-    uiBulkFaultImport*	impfltsetdlg_;
-    uiImportFault3D*	impfltdlg_;
-    uiImportFault3D*	impfltstickdlg_;
-    uiImportFaultStickSet2D*	impfss2ddlg_;
-    uiExportHorizon*	exphordlg_;
-    uiExport2DHorizon*	exp2dhordlg_;
-    uiExportFault*	expfltdlg_;
-    uiExportFault*	expfltstickdlg_;
-    uiExportFault*	expfltsetdlg_;
-    uiCreateHorizon*	crhordlg_;
-    uiBulkFaultImport*	impbulkfssdlg_;
-    uiBulk2DHorizonImport* impbulk2dhordlg_;
+    uiImportHorizon*	imphorattrdlg_		= nullptr;
+    uiImportHorizon*	imphorgeomdlg_		= nullptr;
+    uiBulkHorizonImport* impbulkhordlg_		= nullptr;
+    uiImpHorFromZMap*	impzmapdlg_		= nullptr;
+    uiBulkFaultImport*	impbulkfltdlg_		= nullptr;
+    uiBulkFaultImport*	impfltsetdlg_		= nullptr;
+    uiImportFault3D*	impfltdlg_		= nullptr;
+    uiImportFault3D*	impfltstickdlg_		= nullptr;
+    uiImportFaultStickSet2D*	impfss2ddlg_	= nullptr;
+    uiExportHorizon*	exphordlg_		= nullptr;
+    uiExport2DHorizon*	exp2dhordlg_		= nullptr;
+    uiExportFault*	expfltdlg_		= nullptr;
+    uiExportFault*	expfltstickdlg_		= nullptr;
+    uiExportFault*	expfltsetdlg_		= nullptr;
+    uiCreateHorizon*	crhordlg_		= nullptr;
+    uiBulkFaultImport*	impbulkfssdlg_		= nullptr;
+    uiBulk2DHorizonImport* impbulk2dhordlg_	= nullptr;
 
     TrcKeySampling	selectedrg_;
-    bool		disponcreation_;
+    bool		disponcreation_		= false;
 
     ObjectSet<uiVariogramDisplay>	variodlgs_;
 
     static const char*  sKeySectionID() { return "Section ID"; }
-    uiSurfaceMan*	man2dhordlg_;
-    uiSurfaceMan*	man3dhordlg_;
-    uiSurfaceMan*	man3dfaultdlg_;
-    uiSurfaceMan*	manfssdlg_;
-    uiSurfaceMan*	manfltsetdlg_;
-    uiSurfaceMan*	manbodydlg_;
+    uiSurfaceMan*	man2dhordlg_		= nullptr;
+    uiSurfaceMan*	man3dhordlg_		= nullptr;
+    uiSurfaceMan*	man3dfaultdlg_		= nullptr;
+    uiSurfaceMan*	manfssdlg_		= nullptr;
+    uiSurfaceMan*	manfltsetdlg_		= nullptr;
+    uiSurfaceMan*	manbodydlg_		= nullptr;
 
     void		displayOnCreateCB(CallBacker*);
 };

@@ -176,6 +176,20 @@ const EMObject* EMManager::getObject( const ObjectID& id ) const
 { return const_cast<EMManager*>(this)->getObject(id); }
 
 
+EMObject* EMManager::getObject( const MultiID& mid )
+{
+    ObjectID id = getObjectID( mid );
+    return id.isValid() ? getObject(id) : nullptr;
+}
+
+
+const EMObject* EMManager::getObject( const MultiID& mid ) const
+{
+    ObjectID id = getObjectID( mid );
+    return id.isValid() ? getObject(id) : nullptr;
+}
+
+
 ObjectID EMManager::getObjectID( const MultiID& mid ) const
 {
     ObjectID res;

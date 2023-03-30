@@ -57,6 +57,8 @@ public:
 
     EMObject*		getObject(const ObjectID&);
     const EMObject*	getObject(const ObjectID&) const;
+    EMObject*		getObject(const MultiID&);
+    const EMObject*	getObject(const MultiID&) const;
     EMObject*		createTempObject(const char* type);
 
     BufferString	objectName(const MultiID&) const;
