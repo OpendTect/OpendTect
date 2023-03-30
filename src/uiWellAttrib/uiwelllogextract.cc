@@ -356,8 +356,8 @@ bool uiWellLogExtractGrp::extractDPS()
 	releaseDPS();
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
-    mDPM.add( curdps_ );
     curdps_->ref();
+    mDPM.add( curdps_ );
 
     deepErase( dcds );
     const int nrattribs = attrnms.size();
