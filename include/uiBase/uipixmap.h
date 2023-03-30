@@ -66,8 +66,12 @@ public:
 
 protected:
 
-    mQtclass(QPixmap*)	qpixmap_;
+    mQtclass(QPixmap*)	qpixmap_	= nullptr;
     BufferString	source_;
+
+private:
+
+    void		initFromIcon(const char* icon_identifier);
 };
 
 

@@ -53,8 +53,24 @@ void PixmapDesc::set( const char* src, int width, int height, OD::Color col )
 
 bool PixmapDesc::isValid() const
 {
-    const bool isinvalid = width_==0 || height_==0;
-    return !isinvalid;
+    const bool hassource = !source_.isEmpty();
+    const bool hasdimension = width_!=0 || height_!=0;
+    const bool isvalid = hassource || hasdimension;
+    return isvalid;
+}
+
+
+bool PixmapDesc::sourceIsIcon() const
+{
+    if ( source_.isEmpty() )
+	return false;
+
+    if ( source_==sKeyXpmSrc() || source_==sKeyRgbSrc()
+	 || source_==sKeyGradientSrc() || source_==sKeyColorTabSrc()
+	 || source_==sKeySingleColorSrc() || source_==sKeyNoSrc() )
+	return false;
+
+    return true;
 }
 
 

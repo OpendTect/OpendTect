@@ -28,6 +28,7 @@ public:
     bool		isValid() const;
     BufferString	toString() const;
     void		fromString(const char*);
+    bool		sourceIsIcon() const;
 
     BufferString	source_;
     int			width_		= 0;

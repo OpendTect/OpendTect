@@ -27,7 +27,6 @@ mUseQtnamespace
 
 
 uiPixmap::uiPixmap()
-    : qpixmap_(nullptr)
 {}
 
 
@@ -69,31 +68,44 @@ uiPixmap::uiPixmap( const QPixmap& pm )
 
 
 uiPixmap::uiPixmap( const char* icnm )
-    : qpixmap_(nullptr)
-    , source_(icnm)
+    : source_(icnm)
 {
-    OD::IconFile icfile( icnm );
-    if ( !icfile.haveData() )
-    {
-	qpixmap_ = new QPixmap;
-	return;
-    }
-
-    qpixmap_ = new QPixmap( icfile.fileNames().get(0).str(), nullptr );
+    initFromIcon( icnm );
 }
 
 
 uiPixmap::uiPixmap( const PixmapDesc& desc )
 {
     source_ = desc.source_;
-    qpixmap_ = new QPixmap( desc.width_, desc.height_ );
-    fill( desc.color_ );
+    if ( desc.sourceIsIcon() )
+	initFromIcon( desc.source_ );
+    else
+    {
+	delete qpixmap_;
+	qpixmap_ = new QPixmap( desc.width_, desc.height_ );
+	fill( desc.color_ );
+    }
 }
 
 
 uiPixmap::~uiPixmap()
 {
     delete qpixmap_;
+}
+
+
+void uiPixmap::initFromIcon( const char* icnm )
+{
+    OD::IconFile icfile( icnm );
+    if ( !icfile.haveData() )
+    {
+	delete qpixmap_;
+	qpixmap_ = new QPixmap;
+	return;
+    }
+
+    delete qpixmap_;
+    qpixmap_ = new QPixmap( icfile.fileNames().get(0).str(), nullptr );
 }
 
 
