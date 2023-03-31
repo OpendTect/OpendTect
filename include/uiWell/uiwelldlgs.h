@@ -84,6 +84,7 @@ protected:
     Coord3		origpos_;
     float		origgl_;
 
+    void		initDlg(CallBacker*);
     void		fillTable(CallBacker* cb);
     bool		fillTable();
     void		fillSetFields(CallBacker* cb=0);
@@ -132,13 +133,17 @@ protected:
     uiCheckBox*		timefld_;
     uiGenInput*		replvelfld_;
 
+    void		setEmpty();
+    void		initDlg(CallBacker*);
     void		fillTable(CallBacker*);
     void		fillReplVel(CallBacker*);
     bool		getFromScreen();
     void		updNow(CallBacker*);
     void		updReplVelNow(CallBacker*);
+    void		dtpointAddedCB(CallBacker*);
     void		dtpointChangedCB(CallBacker*);
     void		dtpointRemovedCB(CallBacker*);
+    void		selectionDeletedCB(CallBacker*);
     bool		updateDtpointDepth(int row);
     bool		updateDtpointTime(int row);
     bool		updateDtpoint(int row,float oldval);
