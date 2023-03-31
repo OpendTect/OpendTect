@@ -500,9 +500,9 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
 	for ( auto* dispprop : dispprops )
 	{
 	    BufferStringSet markernms =
-				dispprop->getMarkers().markerNms( false );
-	    markernms.remove( mrknm );
-	    dispprop->setMarkerNames( markernms, false );
+				dispprop->getMarkers().markerNms( true );
+	    markernms.addIfNew( mrknm );
+	    dispprop->setMarkerNames( markernms, true );
 	}
     }
     else if ( curmrk_ )
