@@ -105,13 +105,13 @@ uiString getDlgTitle( const MultiID& wllky )
 
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
-	: uiDialog(p,mGetDlgSetup(d,tr("Well Track"),mWellTrackDlgHelpID))
-	, wd_(d)
-	, track_(d.track())
-	, orgtrack_(new Well::Track(d.track()))
-	, fd_( *Well::TrackAscIO::getDesc() )
-	, origpos_(mUdf(Coord3))
-	, origgl_(d.info().groundelev)
+    : uiDialog(p,mGetDlgSetup(d,tr("Well Track"),mWellTrackDlgHelpID))
+    , wd_(d)
+    , track_(d.track())
+    , orgtrack_(new Well::Track(d.track()))
+    , fd_( *Well::TrackAscIO::getDesc() )
+    , origpos_(mUdf(Coord3))
+    , origgl_(d.info().groundelev)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
 					.rowdesc(uiStrings::sPoint())
@@ -137,48 +137,52 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     uwifld_ = new uiGenInput( this, tr("UWI"), StringInpSpec() );
     uwifld_->setText( wd_.info().uwid );
     uwifld_->attach( leftAlignedBelow, tbl_ );
-    if ( !writable_ ) uwifld_->setReadOnly( true );
+    if ( !writable_ )
+	uwifld_->setReadOnly( true );
 
     zinftfld_ = new uiCheckBox( this, tr("Z in Feet") );
     zinftfld_->setChecked( SI().depthsInFeet() );
-    zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillTable) );
-    zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillSetFields) );
+    mAttachCB( zinftfld_->activated, uiWellTrackDlg::fillTable );
+    mAttachCB( zinftfld_->activated, uiWellTrackDlg::fillSetFields );
     zinftfld_->attach( rightAlignedBelow, tbl_ );
 
-    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    auto* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, uwifld_ );
 
-    uiGroup* actgrp = new uiGroup( this, "Action grp" );
+    auto* actgrp = new uiGroup( this, "Action grp" );
     actgrp->attach( ensureBelow, sep );
 
-    uiPushButton* setbut = 0;
+    uiPushButton* setbut = nullptr;
     uiString unitstr = SI().getUiXYUnitString();
     wellheadxfld_ = new uiGenInput( actgrp,
 				tr("X-Coordinate of well head %1").arg(unitstr),
 				DoubleInpSpec(mUdf(double)) );
     mAddSetBut( wellheadxfld_, updateXpos )
-    if ( !writable_ ) wellheadxfld_->setReadOnly( true );
+    if ( !writable_ )
+	wellheadxfld_->setReadOnly( true );
 
     wellheadyfld_ = new uiGenInput( actgrp,
 				tr("Y-Coordinate of well head %1").arg(unitstr),
 				DoubleInpSpec(mUdf(double)) );
     wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
     mAddSetBut( wellheadyfld_, updateYpos )
-    if ( !writable_ ) wellheadyfld_->setReadOnly( true );
+    if ( !writable_ )
+	wellheadyfld_->setReadOnly( true );
 
     kbelevfld_ = new uiGenInput( actgrp, Well::Info::sKBElev(),
 				 FloatInpSpec(mUdf(float)) );
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
-    if ( !writable_ ) kbelevfld_->setReadOnly( true );
+    if ( !writable_ )
+	kbelevfld_->setReadOnly( true );
 
     glfld_ = new uiGenInput( actgrp, Well::Info::sGroundElev(),
 					FloatInpSpec(mUdf(float)) );
     glfld_->attach( alignedBelow, kbelevfld_ );
-    if ( !writable_ ) glfld_->setReadOnly( true );
+    if ( !writable_ )
+	glfld_->setReadOnly( true );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "ImpExp buttons",
-					       OD::Horizontal );
+    auto* butgrp = new uiButtonGroup( this, "ImpExp buttons", OD::Horizontal );
     butgrp->attach( leftAlignedBelow, actgrp );
     if ( writable_ )
 	new uiToolButton( butgrp, "import", uiStrings::sImport(),
@@ -194,14 +198,21 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     if ( !track_.isEmpty() )
 	origpos_ = track_.pos(0);
 
-    fillTable();
+    mAttachCB( postFinalise(), uiWellTrackDlg::initDlg );
 }
 
 
 uiWellTrackDlg::~uiWellTrackDlg()
 {
+    detachAllNotifiers();
     delete orgtrack_;
     delete &fd_;
+}
+
+
+void uiWellTrackDlg::initDlg( CallBacker* )
+{
+    fillTable();
 }
 
 
@@ -215,7 +226,9 @@ const uiString uiWellTrackDlg::sTimeDepthModel()
 
 static const UnitOfMeasure* getDisplayUnit( uiCheckBox* zinfeet )
 {
-    if ( !zinfeet ) return 0;
+    if ( !zinfeet )
+	return nullptr;
+
     return zinfeet->isChecked() ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
 }
 
@@ -367,18 +380,18 @@ uiWellTrackReadDlg( uiParent* p, Well::Data& wd )
 	   .add( tr("Directional Well") );
     tracksrcfld_ = new uiGenInput( this, tr("Input type"),
 				StringListInpSpec(options) );
-    tracksrcfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,trckSrcSel));
+    mAttachCB( tracksrcfld_->valuechanged, uiWellTrackReadDlg::trckSrcSel );
 
     wtinfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
 		   uiFileInput::Setup().withexamine(true) );
     wtinfld_->attach( alignedBelow, tracksrcfld_ );
-    wtinfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
+    mAttachCB( wtinfld_->valuechanged, uiWellTrackReadDlg::inputChgd );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				mODHelpKey(mWellImportAscDataSelHelpID) );
     dataselfld_->attach( alignedBelow, wtinfld_ );
-    dataselfld_->descChanged.notify( mCB(this,uiWellTrackReadDlg,trckFmtChg) );
+    mAttachCB( dataselfld_->descChanged, uiWellTrackReadDlg::trckFmtChg );
 
     dirselfld_ = new uiTableImpDataSel( this, dirfd_,
 				mODHelpKey(mWellImportAscDataSelHelpID) );
@@ -404,6 +417,7 @@ uiWellTrackReadDlg( uiParent* p, Well::Data& wd )
 
 ~uiWellTrackReadDlg()
 {
+    detachAllNotifiers();
     delete &fd_;
     delete &dirfd_;
 }
@@ -837,6 +851,9 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 // ==================================================================
 
 
+static HiddenParam<uiD2TModelDlg,TypeSet<double>*> mdvalsd2tdlgmgr_(nullptr);
+static HiddenParam<uiD2TModelDlg,TypeSet<double>*> tvalsd2tdlgmgr_(nullptr);
+
 static const int cMDCol = 0;
 static const int cTVDCol = 1;
 
@@ -844,13 +861,16 @@ static const int cTVDCol = 1;
 
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,mGetDlgSetup(wd,mTDName(cksh),mD2TModelDlgHelpID))
-	, wd_(wd)
-	, cksh_(cksh)
-	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
-	, origreplvel_(wd.info().replvel)
-	, replvelfld_(0)
+    : uiDialog(p,mGetDlgSetup(wd,mTDName(cksh),mD2TModelDlgHelpID))
+    , wd_(wd)
+    , cksh_(cksh)
+    , orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : nullptr)
+    , origreplvel_(wd.info().replvel)
+    , replvelfld_(nullptr)
 {
+    mdvalsd2tdlgmgr_.setParam( this, new TypeSet<double> );
+    tvalsd2tdlgmgr_.setParam( this, new TypeSet<double> );
+
     tbl_ = new uiTable( this, uiTable::Setup()
 				.rowdesc(cksh_ ? "Measure point" : "Control Pt")
 				.rowgrow(true)
@@ -863,18 +883,20 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
     timefld_->setChecked( true );
-    timefld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
+    mAttachCB( timefld_->activated, uiD2TModelDlg::fillTable );
 
     zinftfld_ = new uiCheckBox( this, tr(" Z in feet") );
     zinftfld_->setChecked( SI().depthsInFeet() );
-    zinftfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
+    mAttachCB( zinftfld_->activated, uiD2TModelDlg::fillTable );
 
     BufferStringSet header;
     getColLabels( header );
     tbl_->setColumnLabels( header.getUiStringSet() );
     tbl_->setNrRows( nremptyrows );
-    tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
-    tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
+    mAttachCB( tbl_->valueChanged, uiD2TModelDlg::dtpointChangedCB );
+    mAttachCB( tbl_->rowInserted, uiD2TModelDlg::dtpointAddedCB );
+    mAttachCB( tbl_->rowDeleted, uiD2TModelDlg::dtpointRemovedCB );
+    mAttachCB( tbl_->selectionDeleted, uiD2TModelDlg::selectionDeletedCB );
     uiString kbstr = toUiString(Well::Info::sKBElev());
     tbl_->setColumnToolTip( cMDCol,
 	   tr("Measured depth along the borehole, origin at %1").arg(kbstr));
@@ -901,17 +923,17 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	    replvelfld_-> setReadOnly( true );
 	else
 	{
-	    uiButton* updbut = new uiPushButton( this, tr("Update display"),
-				       mCB(this,uiD2TModelDlg,updNow), true );
+	    auto* updbut = new uiPushButton( this, tr("Update display"),
+			mCB(this,uiD2TModelDlg,updNow), true );
 	    updbut->attach( ensureBelow, tbl_ );
-	    replvelfld_->updateRequested.notify(
-					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	    uiPushButton* setbut = new uiPushButton( this, tr("Set"),
-			      mCB(this,uiD2TModelDlg,updReplVelNow), true );
+	    mAttachCB( replvelfld_->updateRequested,
+		       uiD2TModelDlg::updReplVelNow );
+	    auto* setbut = new uiPushButton( this, tr("Set"),
+			mCB(this,uiD2TModelDlg,updReplVelNow), true );
 	    setbut->attach( rightOf, replvelfld_ );
 	}
 	replvelfld_->attach( ensureBelow, zinftfld_ );
-	zinftfld_->activated.notify( mCB(this,uiD2TModelDlg,fillReplVel) );
+	mAttachCB( zinftfld_->activated, uiD2TModelDlg::fillReplVel );
     }
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
@@ -926,11 +948,26 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     else
 	iobutgrp->attach( ensureBelow, zinftfld_ );
 
+    mAttachCB( postFinalise(), uiD2TModelDlg::initDlg );
+}
+
+
+uiD2TModelDlg::~uiD2TModelDlg()
+{
+    detachAllNotifiers();
+    delete orgd2t_;
+    mdvalsd2tdlgmgr_.removeAndDeleteParam( this );
+    tvalsd2tdlgmgr_.removeAndDeleteParam( this );
+}
+
+
+void uiD2TModelDlg::initDlg( CallBacker* )
+{
     correctD2TModelIfInvalid();
 
-    fillTable(0);
+    fillTable( nullptr );
     if ( !cksh_ )
-	fillReplVel(0);
+	fillReplVel( nullptr );
 }
 
 
@@ -1009,9 +1046,49 @@ int uiD2TModelDlg::getVintCol() const
 }
 
 
+void uiD2TModelDlg::setEmpty()
+{
+    tbl_->clearTable();
+    mdvalsd2tdlgmgr_.getParam( this )->setEmpty();
+    tvalsd2tdlgmgr_.getParam( this )->setEmpty();
+}
+
+
 void uiD2TModelDlg::setDepthValue( int irow, int icol, float val )
 {
     if ( icol == getTimeCol() ) return;
+
+    double depthval = val;
+    double mdval = mUdf(double);
+    if ( icol == cMDCol )
+	mdval = depthval;
+    else if ( icol == cTVDCol )
+    {
+	depthval -= wd_.track().getKbElev();
+	mdval = wd_.track().getDahForTVD( depthval );
+    }
+    else if ( icol == getTVDSSCol() )
+    {
+	mdval = wd_.track().getDahForTVD( depthval );
+    }
+    else if ( icol == getTVDSDCol() )
+    {
+	depthval -= SI().seismicReferenceDatum();
+	mdval = wd_.track().getDahForTVD( depthval );
+    }
+    else if ( icol == getTVDGLCol() )
+    {
+	depthval -= wd_.info().groundelev;
+	mdval = wd_.track().getDahForTVD( depthval );
+    }
+    else if ( icol != getVintCol() )
+    {
+	pErrMsg("Should not be reached");
+    }
+
+    if ( icol != getVintCol() && !mIsUdf(mdval) )
+	mdvalsd2tdlgmgr_.getParam( this )->get( irow ) = mdval;
+
     tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true), 2 );
 }
 
@@ -1030,7 +1107,11 @@ float uiD2TModelDlg::getDepthValue( int irow, int icol ) const
 
 void uiD2TModelDlg::setTimeValue( int irow, float val )
 {
-    tbl_->setValue( RowCol(irow,getTimeCol()), mConvertTimeVal(val,true), 2 );
+    if ( !mIsUdf(val) )
+	tvalsd2tdlgmgr_.getParam( this )->get( irow ) = val;
+
+    const double twtval = mConvertTimeVal(val,true);
+    tbl_->setValue( RowCol(irow,getTimeCol()), twtval, 2 );
 }
 
 
@@ -1067,6 +1148,9 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     }
 
     const int dtsz = d2t->size();
+    mdvalsd2tdlgmgr_.getParam( this )->setSize( dtsz );
+    tvalsd2tdlgmgr_.getParam( this )->setSize( dtsz );
+
     tbl_->setNrRows( dtsz + nremptyrows );
     BufferStringSet header;
     getColLabels( header );
@@ -1078,24 +1162,32 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     float vint;
-    for ( int idx=0; idx<dtsz; idx++ )
+    for ( int idz=0; idz<dtsz; idz++ )
     {
-	const float dah = d2t->dah(idx);
+	const float dah = d2t->dah(idz);
 	const float tvdss = mCast(float,track.getPos(dah).z);
 	const float tvd = tvdss + kbelev;
 	mGetVel(dah,d2t)
-	setDepthValue( idx, cMDCol, dah );
-	setDepthValue( idx, cTVDCol, tvd );
+	setDepthValue( idz, cMDCol, dah );
+	setDepthValue( idz, cTVDCol, tvd );
 	if ( hastvdgl )
-	    setDepthValue( idx, getTVDGLCol(),	tvdss + groundevel );
+	    setDepthValue( idz, getTVDGLCol(),	tvdss + groundevel );
 
 	if ( hastvdsd )
-	    setDepthValue( idx, getTVDSDCol(), tvdss + srd );
+	    setDepthValue( idz, getTVDSDCol(), tvdss + srd );
 
-	setDepthValue( idx, getTVDSSCol(), tvdss );
-	setTimeValue( idx, d2t->t(idx) );
-	setDepthValue( idx, getVintCol(), vint );
+	setDepthValue( idz, getTVDSSCol(), tvdss );
+	setTimeValue( idz, d2t->t(idz) );
+	setDepthValue( idz, getVintCol(), vint );
     }
+
+    for ( int idz=0; idz<dtsz; idz++ )
+    {
+	const float dah = d2t->dah( idz );
+	mdvalsd2tdlgmgr_.getParam( this )->get( idz ) = dah;
+	tvalsd2tdlgmgr_.getParam( this )->get( idz ) = d2t->t( idz );
+    }
+
     tbl_->setColumnReadOnly( getVintCol(), true );
 }
 
@@ -1111,12 +1203,6 @@ void uiD2TModelDlg::fillReplVel( CallBacker* )
 }
 
 
-uiD2TModelDlg::~uiD2TModelDlg()
-{
-    delete orgd2t_;
-}
-
-
 void uiD2TModelDlg::dtpointChangedCB( CallBacker* )
 {
     const int row = tbl_->currentRow();
@@ -1126,6 +1212,14 @@ void uiD2TModelDlg::dtpointChangedCB( CallBacker* )
 	updateDtpointDepth( row );
     else if ( col == getTimeCol() )
 	updateDtpointTime( row );
+}
+
+
+void uiD2TModelDlg::dtpointAddedCB( CallBacker* )
+{
+    const int row = tbl_->newCell().row();
+    mdvalsd2tdlgmgr_.getParam( this )->insert( row, mUdf(double) );
+    tvalsd2tdlgmgr_.getParam( this )->insert( row, mUdf(double) );
 }
 
 
@@ -1145,13 +1239,55 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
 	return;
 
     d2t->remove( idah-1 );
+    mdvalsd2tdlgmgr_.getParam( this )->removeSingle( idah-1 );
+    tvalsd2tdlgmgr_.getParam( this )->removeSingle( idah-1 );
     const int nextrow = getNextCompleteRowIdx( row-1 );
     if ( mIsUdf(nextrow) )
 	return;
 
     idah = d2t->indexOf( getDepthValue(nextrow,cMDCol) );
-    const float olddah = d2t->dah( idah );
-    updateDtpoint( nextrow, olddah );
+    const float nextdah = d2t->dah( idah );
+    const float srd = mCast(float,SI().seismicReferenceDatum());
+    float vint;
+    mGetVel( nextdah, d2t );
+    NotifyStopper ns( tbl_->valueChanged );
+    setDepthValue( nextrow, getVintCol(), vint );
+}
+
+
+void uiD2TModelDlg::selectionDeletedCB( CallBacker* )
+{
+    TypeSet<int> notifrows = tbl_->getNotifRCs();
+    if ( notifrows.isEmpty() )
+	return;
+
+    Well::D2TModel* d2t = mD2TModel;
+    if ( !d2t || d2t->size()<3 )
+    {
+	uiMSG().error(tr("Invalid time-depth model"));
+	return;
+    }
+
+    sort( notifrows );
+    NotifyStopper ns( tbl_->valueChanged );
+    const float srd = mCast(float,SI().seismicReferenceDatum());
+    float vint;
+    for ( int idx=notifrows.size()-1; idx>=0; idx-- )
+    {
+	int idah = notifrows[idx];
+	d2t->remove( idah );
+	mdvalsd2tdlgmgr_.getParam( this )->removeSingle( idah );
+	tvalsd2tdlgmgr_.getParam( this )->removeSingle( idah );
+
+	const int nextrow = getNextCompleteRowIdx( idah );
+	if ( mIsUdf(nextrow) )
+	    continue;
+
+	idah = d2t->indexOf( getDepthValue(nextrow,cMDCol) );
+	const float nextdah = d2t->dah( idah );
+	mGetVel( nextdah, d2t );
+	setDepthValue( nextrow, getVintCol(), vint );
+    }
 }
 
 
@@ -1289,6 +1425,8 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
 	setTimeValue( row, twt );
     }
 
+    mdvalsd2tdlgmgr_.getParam( this )->get( row ) = dah;
+
     return updateDtpoint( row, olddah );
 }
 
@@ -1348,6 +1486,8 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
 	mErrRet(errmsg)
     }
 
+    tvalsd2tdlgmgr_.getParam( this )->get( row ) = inval;
+
     return updateDtpoint( row, oldval );
 }
 
@@ -1375,11 +1515,22 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 	const float olddah = oldvalisdah ? oldval : d2t->getDah( oldval, track);
 	const int dahidx = d2t->indexOf( olddah );
 	d2t->remove( dahidx );
+	mdvalsd2tdlgmgr_.getParam( this )->removeSingle( dahidx );
+	tvalsd2tdlgmgr_.getParam( this )->removeSingle( dahidx );
     }
 
     const float dah = getDepthValue( row, cMDCol );
     const float twt = getTimeValue( row );
-    d2t->insertAtDah( dah, twt );
+    if ( d2t->insertAtDah(dah,twt) && !mIsUdf(oldval) )
+    {
+	const int idz = d2t->indexOf( dah );
+	if ( idz>=0 && idz < d2t->size() )
+	{
+	    mdvalsd2tdlgmgr_.getParam( this )->insert( idz, dah );
+	    tvalsd2tdlgmgr_.getParam( this )->insert( idz, twt );
+	}
+    }
+
     wd_.d2tchanged.trigger();
 
     const float srd = mCast(float,SI().seismicReferenceDatum());
@@ -1471,12 +1622,16 @@ bool acceptOK( CallBacker* )
 
 	return false;
     }
+
     if ( !d2tgrp->warnMsg().isEmpty() )
 	uiMSG().warning( d2tgrp->warnMsg() );
 
     Well::D2TModel* d2t = mD2TModel;
-    if ( d2t && d2t->size()>1 )
-	d2t->deInterpolate();
+    if ( d2t && !d2t->isEmpty() )
+    {
+	uiString msg;
+	d2t->ensureValid( wd_, msg );
+    }
 
     return true;
 }
@@ -1491,16 +1646,12 @@ bool acceptOK( CallBacker* )
 void uiD2TModelDlg::readNew( CallBacker* )
 {
     uiD2TModelReadDlg dlg( this, wd_, cksh_ );
-    if ( !dlg.go() ) return;
-
-    if ( !dlg.d2tgrp->getD2T(wd_,cksh_) )
+    if ( !dlg.go() )
 	return;
-    else
-    {
-	tbl_->clearTable();
-	fillTable(0);
-	wd_.d2tchanged.trigger();
-    }
+
+    setEmpty();
+    fillTable(0);
+    wd_.d2tchanged.trigger();
 }
 
 
@@ -1685,8 +1836,8 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 	if ( mIsUdf(getDepthValue(irow,getVintCol())) )
 	    continue;
 
-	const float dah = getDepthValue( irow, cMDCol );
-	const float twt = getTimeValue( irow );
+	const float dah = mdvalsd2tdlgmgr_.getParam( this )->get( irow );
+	const float twt = tvalsd2tdlgmgr_.getParam( this )->get( irow );
 	d2t.add( dah, twt );
     }
 }
@@ -1770,7 +1921,8 @@ uiNewWellDlg::uiNewWellDlg( uiParent* p )
 	lbl->attach( leftOf, listfld_ );
     }
 
-    colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
+    colsel_ = new uiColorInput( this,
+				uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, inpFld() );
 }
@@ -1936,7 +2088,6 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 }
 
 
-
 // uiSetD2TFromOtherWell
 static HiddenParam<uiSetD2TFromOtherWell,uiConstantVel*> replvelfld_(nullptr);
 
@@ -1975,7 +2126,7 @@ void uiSetD2TFromOtherWell::inpSelCB( CallBacker* )
 {
     const MultiID key = inpwellfld_->key( true );
     RefMan<Well::Data> wd =
- 	key.isUdf() ? nullptr : Well::MGR().get( key, Well::Inf );
+	key.isUdf() ? nullptr : Well::MGR().get( key, Well::Inf );
     if ( !wd )
 	return;
 
@@ -2047,12 +2198,17 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 
 	if ( chgreplvel )
 	    wd->info().replvel = newreplvel;
+
 	TypeSet<double> depths( inputdepths );
 	TypeSet<double> times( inputtimes );
 	uiString errmsg;
 	const bool res =
 		wd->d2TModel()->ensureValid( *wd, errmsg, &depths, &times );
-	if ( !res )
+	if ( res )
+	{
+	    wd->d2TModel()->ensureValid( *wd, errmsg );
+	}
+	else
 	{
 	    uiString msgtoadd;
 	    msgtoadd.append( wd->name() ).append( " : " ).append( errmsg );

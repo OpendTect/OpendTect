@@ -461,6 +461,10 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
 	return mUdf(double);
 
     const double srddepth = -1. * SI().seismicReferenceDatum();
+    if ( srddepth < wllheadz && !zvals.isEmpty() && !tvals.isEmpty() &&
+	 tvals[0] > mDefEpsT )
+	return 2. * ( zvals[0] - srddepth ) / tvals[0];
+
     const Interval<double> vrepldepthrg( srddepth, wllheadz );
     TypeSet<double> vels, thicknesses;
     for ( int idz=1; idz<zvals.size(); idz++ )
@@ -468,6 +472,9 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
 	Interval<double> velrg( zvals[idz-1], zvals[idz] );
 	if ( !velrg.overlaps(vrepldepthrg) )
 	    continue;
+
+	if ( velrg.start > vrepldepthrg.stop )
+	    break;
 
 	velrg.limitTo( vrepldepthrg );
 	const double thickness = velrg.width();
@@ -485,13 +492,7 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
     }
 
     if ( vels.isEmpty() )
-    {
-	if ( srddepth < wllheadz && !zvals.isEmpty() &&
-	     !tvals.isEmpty() && tvals[0] > mDefEpsT )
-	    return 2. * ( zvals[0] - srddepth ) / tvals[0];
-	else
-	    return mUdf(double);
-    }
+	return mUdf(double);
 
     Stats::ParallelCalc<double> velocitycalc( Stats::CalcSetup(true),
 					      vels.arr(), vels.size(),
@@ -622,7 +623,7 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 	return;
 
     uiString replvelbl = Well::Info::sReplVel();
-    if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsV) )
+    if ( !mIsEqual((float)vreplinfile,info.replvel,1e-1f) )
     {
 	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsV) )
 	{
@@ -722,13 +723,15 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 
     const double zwllhead = track.getPos( 0.f ).z;
     const double vreplfile = getVreplFromFile( zvals, tvals, zwllhead );
-    Well::Info& wllinfo = const_cast<Well::Info&>( wll.info() );
+    Well::Info& wllinfo = mNonConst( wll.info() );
     checkReplacementVelocity( wllinfo, vreplfile, warnmsg );
 
     const double srddepth = -1. * SI().seismicReferenceDatum();
     const bool kbabovesrd = zwllhead < srddepth;
     const double originz = kbabovesrd ? srddepth : zwllhead;
-    const double origintwtinfile = getDatumTwtFromFile( zvals, tvals, originz );
+    const double origintwtinfile = kbabovesrd
+				 ? getDatumTwtFromFile( zvals, tvals, originz )
+				 : mUdf(double);
     //before any data gets removed
 
     if ( !removePairsAtOrAboveDatum(zvals,tvals,zwllhead) )
