@@ -274,6 +274,18 @@ namespace Survey
 
 	si.set3PtsWithMsg( crds, bids, xline );
     }
+
+    void setUnitsFromObj( const OD::JSON::Object& obj, SurveyInfo& si )
+    {
+	const OD::JSON::Object* unitsobj = obj.getObject( sKey::Units() );
+	if ( !unitsobj )
+	    return;
+
+	const BufferString xystr =
+			    unitsobj->getStringValue( SurveyInfo::sKeyXY() );
+	if ( !xystr.isEmpty() )
+	    si.setXYInFeet( xystr == getDistUnitString(true,false) );
+    }
 }
 
 
@@ -757,7 +769,6 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
 
 SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
 {
-
     FilePath diskloc = obj.getFilePath( sKeySurvDiskLoc() );
     PtrMan<SurveyInfo> si = new SurveyInfo;
     si->disklocation_ = SurveyDiskLocation( diskloc );
@@ -792,6 +803,7 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
     si->seisrefdatum_ = obj.getDoubleValue( sKeySeismicRefDatum() );
     Survey::fillSetPtsFromObj( obj, *si );
     Survey::fillDirTransformFromObj( obj, *si );
+    Survey::setUnitsFromObj( obj, *si );
     auto* crsobj = obj.getObject( sKeyCRS() );
     if ( crsobj )
     {
@@ -822,12 +834,15 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
 	}
     }
 
-    if ( si->zdef_ == ZDomain::Time() )
+    if ( si->zIsTime() )
     {
-	if ( si->xyinfeet_ )
-	    si->depthsinfeet_ = true;
+	bool depthinft = false;
+	if ( si->xyInFeet() )
+	    depthinft = true;
 	else
-	    si->depthsinfeet_ = false;
+	    si->getPars().getYN( sKeyDpthInFt(), depthinft );
+
+	si->setDepthInFeet( depthinft );
     }
 
     const BufferString comments = obj.getStringValue( sKeyComments() );
@@ -1008,7 +1023,6 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
     if ( !comment.isEmpty() )
 	obj.set( sKeyComments(), comment );
 
-
     return readJSON( obj, ret );
 }
 
@@ -1031,9 +1045,7 @@ bool SurveyInfo::wrapUpRead()
 }
 
 
-
-void SurveyInfo::handleLineRead( const BufferString& keyw,
-							    const char* val )
+void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 {
     if ( keyw == sKeyXTransf )
 	setTr( rdxtr_, val );
