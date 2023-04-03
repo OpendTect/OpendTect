@@ -51,11 +51,16 @@ if( UNIX ) #Apple and Linux
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
 	set ( CMAKE_FIND_LIBRARY_SUFFIXES .dylib )
 
-	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
-        add_definitions("-arch x86_64")
+	if ( ${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "arm64" )
+	    set ( OD_PLATFORM_LINK_OPTIONS "-arch arm64" )
+	    add_definitions("-arch arm64")
+	else()
+	    set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
+	    add_definitions("-arch x86_64")
+	endif()
+
         find_library( APP_SERVICES_LIBRARY ApplicationServices
 		      PATH ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks )
-        find_library( STDCPP_LIBRARY stdc++ REQUIRED )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
 	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
