@@ -57,7 +57,6 @@ if( UNIX ) #Apple and Linux
 	else()
 	    set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
 	    add_definitions("-arch x86_64")
-	    find_library( STDCPP_LIBRARY stdc++ REQUIRED )
 	endif()
 
         find_library( APP_SERVICES_LIBRARY ApplicationServices
