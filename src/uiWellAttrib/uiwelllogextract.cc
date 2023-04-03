@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "datacoldef.h"
-#include "datapointset.h"
 #include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -114,7 +113,7 @@ void uiWellLogExtractGrp::releaseDPS()
 }
 
 
-const DataPointSet* uiWellLogExtractGrp::getDPS() const
+ConstRefMan<DataPointSet> uiWellLogExtractGrp::getDPS() const
 { return curdps_; }
 
 
@@ -351,12 +350,9 @@ bool uiWellLogExtractGrp::extractDPS()
     }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    if ( curdps_ )
-	releaseDPS();
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
     mDPM.add( curdps_ );
-    curdps_->ref();
 
     deepErase( dcds );
     const int nrattribs = attrnms.size();

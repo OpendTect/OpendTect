@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+#include "datapointset.h"
 #include "uigroup.h"
+
 class IOObj;
 class uiListBox;
 class uiGenInput;
-class DataPointSet;
 class DataPointSetDisplayMgr;
 class BufferStringSet;
 class uiDataPointSet;
@@ -49,7 +50,7 @@ public:
     void			getSelLogNames(BufferStringSet&);
 
     bool			extractDPS();
-    const DataPointSet*		getDPS() const;
+    ConstRefMan<DataPointSet>	getDPS() const;
     void			releaseDPS();
     const Setup&		su() const		{ return setup_; }
 
@@ -64,7 +65,7 @@ protected:
     uiGenInput*		logresamplfld_;
     uiMultiWellLogSel*	welllogselfld_;
     uiPosFilterSetSel*	posfiltfld_ = nullptr;
-    DataPointSet*	curdps_ = nullptr;
+    RefMan<DataPointSet>	curdps_;
 
     void		adsChg();
     bool		extractWellData(const TypeSet<MultiID>&,
