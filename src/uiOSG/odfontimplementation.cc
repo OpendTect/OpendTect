@@ -114,7 +114,7 @@ osgText::Glyph*
     // for horizontal layout
     osg::Vec2 bottomLeft(leftBearing - margin, - rectF.bottom() - margin);
     glyph->setHorizontalBearing(bottomLeft * coord_scale);
-    glyph->setHorizontalAdvance(fontMetricsF.width(QChar(charcode)) * coord_scale);
+    glyph->setHorizontalAdvance(fontMetricsF.horizontalAdvance(QChar(charcode)) * coord_scale);
 
     // for vertical layout
     osg::Vec2 topMiddle(- margin + 0.5*(leftBearing - rect.width() - rightBearing),

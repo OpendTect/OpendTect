@@ -183,8 +183,13 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 	if ( midmousebutfordrag_ )
 	{
 	    setDragMode( ScrollHandDrag );
+#if QT_VERSION >= QT_VERSION_CHECK(6,2,0)
+	    QMouseEvent fake( ev->type(), ev->position(), ev->globalPosition(),
+			      Qt::LeftButton, Qt::LeftButton, ev->modifiers() );
+#else
 	    QMouseEvent fake( ev->type(), ev->pos(), Qt::LeftButton,
 			      Qt::LeftButton, ev->modifiers() );
+#endif
 	    QGraphicsView::mousePressEvent( &fake );
 	}
     }

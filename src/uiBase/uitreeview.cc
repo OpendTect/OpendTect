@@ -16,10 +16,7 @@ ________________________________________________________________________
 #include "uishortcutsmgr.h"
 #include "uistrings.h"
 
-#include "keystrs.h"
 #include "odqtobjset.h"
-#include "perthreadrepos.h"
-#include "texttranslator.h"
 
 #include "q_uiimpl.h"
 
@@ -128,14 +125,21 @@ void uiTreeViewBody::resizeEvent( QResizeEvent* ev )
 {
     const int nrcols = columnCount();
     if ( nrcols != 2 )
-	return QTreeWidget::resizeEvent( ev );
+    {
+	QTreeWidget::resizeEvent( ev );
+	return;
+    }
 
 // hack for OpendTect scene tree
     if ( lvhandle_.columnWidthMode(1) == uiTreeView::Fixed )
     {
 	const int fixedwidth = fixcolwidths_.validIdx(1) ? fixcolwidths_[1] : 0;
 	if ( mIsUdf(fixedwidth) || fixedwidth==0 )
-	    return QTreeWidget::resizeEvent( ev );
+	{
+	    QTreeWidget::resizeEvent( ev );
+	    return;
+	}
+
 	QScrollBar* sb = verticalScrollBar();
 	int sbwidth = sb && sb->isVisible() ? sb->width() : 0;
 	setColumnWidth( 0, width()-fixedwidth-sbwidth-4 );
@@ -579,7 +583,8 @@ void uiTreeView::setColumnAlignment( Alignment::HPos hal )
 void uiTreeView::setColumnAlignment( int col, Alignment::HPos hal )
 {
     Alignment al( hal );
-    body_->headerItem()->setTextAlignment( col, al.uiValue() );
+    body_->headerItem()->setTextAlignment( col,
+					   sCast(Qt::Alignment,al.uiValue()) );
 }
 
 
@@ -598,17 +603,27 @@ void uiTreeView::ensureItemVisible( const uiTreeViewItem* itm )
 
 
 void uiTreeView::setSelectionMode( SelectionMode mod )
-{ body_->setSelectionMode( (QTreeWidget::SelectionMode)int(mod) ); }
+{
+    body_->setSelectionMode( (QTreeWidget::SelectionMode)int(mod) );
+}
+
 
 uiTreeView::SelectionMode uiTreeView::selectionMode() const
-{ return (uiTreeView::SelectionMode)int(body_->selectionMode()); }
+{
+    return (uiTreeView::SelectionMode)int(body_->selectionMode());
+}
+
 
 void uiTreeView::setSelectionBehavior( SelectionBehavior behavior )
-{ body_->setSelectionBehavior( (QTreeWidget::SelectionBehavior)int(behavior)); }
+{
+    body_->setSelectionBehavior( (QTreeWidget::SelectionBehavior)int(behavior));
+}
 
 
 uiTreeView::SelectionBehavior uiTreeView::selectionBehavior() const
-{ return (uiTreeView::SelectionBehavior)int(body_->selectionBehavior()); }
+{
+    return (uiTreeView::SelectionBehavior)int(body_->selectionBehavior());
+}
 
 
 void uiTreeView::setSelected( uiTreeViewItem* itm, bool yn )

@@ -407,7 +407,8 @@ void OsgIndirectViewWidget<T>::mousePressEvent( QMouseEvent* qme )
         default: button = 0; break;
     }
     setKeyboardModifiers( qme );
-    gw_->getEventQueue()->mouseButtonPress( qme->x(), qme->y(), button );
+    const QPoint& qpos = qme->pos();
+    gw_->getEventQueue()->mouseButtonPress( qpos.x(), qpos.y(), button );
 }
 
 
@@ -424,7 +425,8 @@ void OsgIndirectViewWidget<T>::mouseReleaseEvent( QMouseEvent* qme )
         default: button = 0; break;
     }
     setKeyboardModifiers( qme );
-    gw_->getEventQueue()->mouseButtonRelease( qme->x(), qme->y(), button );
+    const QPoint& qpos = qme->pos();
+    gw_->getEventQueue()->mouseButtonRelease( qpos.x(), qpos.y(), button );
 }
 
 
@@ -441,7 +443,8 @@ void OsgIndirectViewWidget<T>::mouseDoubleClickEvent( QMouseEvent* qme )
         default: button = 0; break;
     }
     setKeyboardModifiers( qme );
-    gw_->getEventQueue()->mouseDoubleButtonPress( qme->x(), qme->y(), button );
+    const QPoint& qpos = qme->pos();
+    gw_->getEventQueue()->mouseDoubleButtonPress( qpos.x(), qpos.y(), button );
 }
 
 
@@ -449,7 +452,8 @@ template <class T> inline
 void OsgIndirectViewWidget<T>::mouseMoveEvent( QMouseEvent* qme )
 {
     setKeyboardModifiers( qme );
-    gw_->getEventQueue()->mouseMotion( qme->x(), qme->y() );
+    const QPoint& qpos = qme->pos();
+    gw_->getEventQueue()->mouseMotion( qpos.x(), qpos.y() );
 }
 
 
