@@ -11,12 +11,13 @@ ________________________________________________________________________
 #include "instantattrib.h"
 
 #include "attribdesc.h"
-#include "attribparam.h"
+#include "attribparambase.h"
+#include "od_helpids.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
-#include "od_helpids.h"
 
 using namespace Attrib;
 

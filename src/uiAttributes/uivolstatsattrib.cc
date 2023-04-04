@@ -12,14 +12,15 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "od_helpids.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
-#include "uibutton.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
-#include "od_helpids.h"
 
 using namespace Attrib;
 

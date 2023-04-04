@@ -11,18 +11,12 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
-#include "keystrs.h"
-#include "linekey.h"
 #include "od_helpids.h"
-#include "oddirs.h"
 #include "perthreadrepos.h"
-#include "seisselection.h"
-#include "seistrctr.h"
 
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uisteeringsel.h"
+#include "uiseissel.h"
 #include "uitextedit.h"
 
 

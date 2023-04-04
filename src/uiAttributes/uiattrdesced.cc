@@ -8,18 +8,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiattrdesced.h"
-#include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uilabel.h"
 #include "uisteeringsel.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
-#include "attribparam.h"
+#include "attribfactory.h"
+#include "attribparambase.h"
 #include "attribprovider.h"
 #include "attribstorprovider.h"
-#include "attribfactory.h"
 #include "iopar.h"
 #include "survinfo.h"
 

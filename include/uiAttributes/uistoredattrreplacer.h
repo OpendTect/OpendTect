@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapack.h"
 #include "linekey.h"
-#include "sets.h"
 #include "uistring.h"
 
 class uiParent;
@@ -30,11 +29,11 @@ public:
     struct StoredEntry
     {
 				StoredEntry( Attrib::DescID id1, LineKey lk,
-				       	     BufferString storedref )
+					     const char* storedref )
 				    : firstid_(id1)
 				    , secondid_(Attrib::DescID::undef())
 				    , lk_(lk)
-       				    , storedref_(storedref)	{}
+				    , storedref_(storedref)	{}
 				~StoredEntry();
 
 	bool			operator == ( const StoredEntry& a ) const

@@ -8,25 +8,24 @@ ________________________________________________________________________
 -*/
 
 #include "uigdexamacorr.h"
-#include "uigapdeconattrib.h"
-#include "gapdeconattrib.h"
 
-#include "attribsel.h"
-#include "attribdesc.h"
+#include "attribdataholder.h"
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attribprocessor.h"
-#include "attribfactory.h"
-#include "attribdataholder.h"
+#include "attribsel.h"
 #include "flatposdata.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+
 #include "uiattribpartserv.h"
-#include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
+
+using namespace Attrib;
 
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )

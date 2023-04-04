@@ -11,17 +11,18 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribparam.h"
+#include "attribparambase.h"
 #include "attribstorprovider.h"
 #include "bufstringset.h"
 #include "iopar.h"
 #include "linekey.h"
 #include "varlenarray.h"
-#include <string.h>
 
 #include "uiattrinpdlg.h"
 #include "uicombobox.h"
 #include "uimsg.h"
+
+#include <string.h>
 
 using namespace Attrib;
 

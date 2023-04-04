@@ -9,11 +9,13 @@ ________________________________________________________________________
 
 #include "uideltaresampleattrib.h"
 #include "deltaresampleattrib.h"
+
 #include "attribdesc.h"
-#include "attribparam.h"
+#include "attribparambase.h"
+#include "od_helpids.h"
+
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "od_helpids.h"
 
 using namespace Attrib;
 

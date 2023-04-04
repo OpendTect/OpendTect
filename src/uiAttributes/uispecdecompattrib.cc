@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "trckeyzsampling.h"
 #include "hilbertattrib.h"
-#include "position.h"
 #include "survinfo.h"
 #include "wavelettrans.h"
 #include "uiattribfactory.h"
@@ -24,13 +23,11 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 #include "uimsg.h"
 #include "uispinbox.h"
 #include "uistrings.h"
 #include "uitrcpositiondlg.h"
 
-#include "attribstorprovider.h"
 #include "od_helpids.h"
 
 using namespace Attrib;

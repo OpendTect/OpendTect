@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uidialog.h"
-#include "multiid.h"
 #include "bufstringset.h"
 
 class uiAttrDescEd;

@@ -13,11 +13,14 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribparam.h"
+#include "od_helpids.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uisteeringsel.h"
 #include "uistepoutsel.h"
-#include "od_helpids.h"
+
 
 using namespace Attrib;
 
@@ -67,6 +70,25 @@ static const char* outpdip3dstrs[] =
 	0
 };
 
+
+mClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
+{ mODTextTranslationClass(uiSimiSteeringSel)
+    public:
+		uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,bool is2d);
+		~uiSimiSteeringSel();
+
+	bool	willSteer() const override;
+	bool	wantBrowseDip() const;
+	int	browseDipIdxInList() const;
+
+	Notifier<uiSimiSteeringSel> typeSelected;
+
+    protected:
+	void	typeSel(CallBacker*) override;
+};
+
+
+
 mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp())
 
 
@@ -101,7 +123,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     stepoutfld_->attach( alignedBelow, extfld_ );
     stepoutfld_->setFieldNames( "Inl Stepout", "Crl Stepout" );
 
-    steerfld_ = new uiSimilarityAttrib::uiSimiSteeringSel( this, 0, is2d );
+    steerfld_ = new uiSimiSteeringSel( this, 0, is2d );
     steerfld_->typeSelected.notify( mCB(this,uiSimilarityAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
@@ -327,9 +349,8 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
 }
 
 
-uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
-						    const Attrib::DescSet* dset,
-						    bool is2d )
+uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p, const Attrib::DescSet* dset,
+						   bool is2d )
     : uiSteeringSel( p, dset, is2d, true, false )
     , typeSelected(this)
 {
@@ -340,7 +361,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 	typfld_ = new uiGenInput( this, uiStrings::sSteering(),
 				  StringListInpSpec(steertyps) );
 	typfld_->valueChanged.notify(
-		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));
+		    mCB(this,uiSimiSteeringSel,typeSel));
     }
     else
 	createFields();
@@ -355,18 +376,18 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 }
 
 
-uiSimilarityAttrib::uiSimiSteeringSel::~uiSimiSteeringSel()
+uiSimiSteeringSel::~uiSimiSteeringSel()
 {}
 
 
-void uiSimilarityAttrib::uiSimiSteeringSel::typeSel(CallBacker*)
+void uiSimiSteeringSel::typeSel(CallBacker*)
 {
     typeSelected.trigger();
     uiSteeringSel::typeSel(0);
 }
 
 
-bool uiSimilarityAttrib::uiSimiSteeringSel::willSteer() const
+bool uiSimiSteeringSel::willSteer() const
 {
     if ( !typfld_ ) return false;
 
@@ -375,7 +396,7 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::willSteer() const
 }
 
 
-bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
+bool uiSimiSteeringSel::wantBrowseDip() const
 {
     if ( !typfld_ ) return false;
 
@@ -384,7 +405,7 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 }
 
 
-int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
+int uiSimiSteeringSel::browseDipIdxInList() const
 {
     return uiAF().hasSteering() ? withconstdir_ ? 4 : 3 : 1;
 }

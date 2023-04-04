@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "referenceattrib.h"
 
 #include "attribdesc.h"
-#include "attribparam.h"
 #include "survinfo.h"
 #include "uiattribfactory.h"
 #include "uigeninput.h"

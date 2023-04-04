@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "hilbertattrib.h"
 #include "instantattrib.h"
 #include "od_helpids.h"
-#include "survinfo.h"
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"

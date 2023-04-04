@@ -9,13 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uiattrdesced.h"
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "attribdescid.h"
 
 class FlatDataPack;
 class uiFlatViewMainWin;
+class uiParent;
 
 namespace Attrib { class EngineMan; class DescSet;
 		   class Data2DHolder; class Processor; }

@@ -8,19 +8,22 @@ ________________________________________________________________________
 -*/
 
 #include "attribsetcreator.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
-#include "uiseparator.h"
-#include "uiioobjsel.h"
-#include "seiscbvs.h"
 #include "ctxtioobj.h"
-#include "uidialog.h"
-#include "uilabel.h"
-#include "uimsg.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "seistrctr.h"
+
+#include "uidialog.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiseparator.h"
 #include "uistrings.h"
+
 
 using namespace Attrib;
 MultiID storhint_;
@@ -92,7 +95,7 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
     fldgrp->setHAlignObj( curgrp );
     fldgrp->attach( centeredBelow, lbl );
 
-    uiIOObjSel* prevsel = 0;
+    uiIOObjSel* prevsel = nullptr;
     const int maxnrselinrow = 9;
     bool neednewgrp = false;
 

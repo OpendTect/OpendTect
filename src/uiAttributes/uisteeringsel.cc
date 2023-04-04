@@ -8,12 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "uisteeringsel.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
 #include "attribdescsetsholder.h"
 #include "attribfactory.h"
-#include "attribparam.h"
+#include "attribparambase.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
@@ -22,10 +23,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "paramsetget.h"
 #include "survinfo.h"
-#include "keystrs.h"
-#include "seisselection.h"
-#include "seiscbvs.h"
-#include "seisioobjinfo.h"
+
 #include "uiattribfactory.h"
 #include "uigeninput.h"
 #include "uilabel.h"

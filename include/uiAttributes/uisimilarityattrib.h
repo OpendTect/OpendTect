@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "uisteeringsel.h"
 
 class uiAttrSel;
 class uiGenInput;
+class uiSimiSteeringSel;
 class uiStepOutSel;
 
 
@@ -54,23 +54,6 @@ protected:
     void		steerTypeSel(CallBacker*);
 
 			mDeclReqAttribUIFns
-
-    mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
-    { mODTextTranslationClass(uiSimiSteeringSel) 
-	public:
-			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
-					  bool is2d);
-			~uiSimiSteeringSel();
-	   
-	    bool	willSteer() const override;
-	    bool	wantBrowseDip() const;
-	    int		browseDipIdxInList() const;
-
-	    Notifier<uiSimiSteeringSel> typeSelected;
-
-	protected:
-	    void	typeSel(CallBacker*) override;
-    };
 
     uiSimiSteeringSel*	steerfld_;
 };

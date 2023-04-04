@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uicombobox.h"
 
-#include "attribdesc.h"
 #include "survinfo.h"
 
 using namespace Attrib;

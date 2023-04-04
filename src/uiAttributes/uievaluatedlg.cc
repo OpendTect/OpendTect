@@ -8,23 +8,24 @@ ________________________________________________________________________
 -*/
 
 #include "uievaluatedlg.h"
-#include "uigeninput.h"
-#include "datainpspec.h"
-#include "iopar.h"
-#include "uislider.h"
-#include "uibutton.h"
-#include "uilabel.h"
-#include "uispinbox.h"
-#include "uiattrdesced.h"
 
-#include "attribparam.h"
-#include "attribparamgroup.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribparam.h"
+#include "attribparamgroup.h"
 #include "attribsel.h"
-#include "odver.h"
-#include "survinfo.h"
+#include "datainpspec.h"
+#include "iopar.h"
 #include "od_helpids.h"
+#include "survinfo.h"
+
+#include "uiattrdesced.h"
+#include "uibutton.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uislider.h"
+#include "uispinbox.h"
+
 
 using namespace Attrib;
 

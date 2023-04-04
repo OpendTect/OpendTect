@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "bufstringset.h"
-#include "ioobj.h"
 
 
 #include "uidialog.h"

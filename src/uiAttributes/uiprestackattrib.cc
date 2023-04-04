@@ -11,28 +11,23 @@ ________________________________________________________________________
 #include "prestackattrib.h"
 
 #include "attribdesc.h"
-#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
 #include "multiid.h"
+#include "od_helpids.h"
 #include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
 #include "prestackprop.h"
-#include "raytrace1d.h"
-#include "seispsioprov.h"
 #include "windowfunction.h"
-#include "uiattrsel.h"
+
 #include "uiattribfactory.h"
 #include "uibutton.h"
-#include "uiprestackanglemute.h"
-#include "uiprestacksel.h"
-#include "uiprestackprocessorsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uiveldesc.h"
-#include "od_helpids.h"
 #include "uimsg.h"
+#include "uiprestackanglemute.h"
+#include "uiprestackprocessorsel.h"
+#include "uiprestacksel.h"
 
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())

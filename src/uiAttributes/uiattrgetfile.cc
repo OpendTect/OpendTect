@@ -15,9 +15,8 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "oddirs.h"
-#include "seistrctr.h"
 #include "od_helpids.h"
+#include "oddirs.h"
 
 #include "uiattrsrchprocfiles.h"
 #include "uibutton.h"

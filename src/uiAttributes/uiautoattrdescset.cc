@@ -9,30 +9,24 @@ ________________________________________________________________________
 
 #include "uiautoattrdescset.h"
 
-#include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetman.h"
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "survinfo.h"
+#include "od_helpids.h"
 #include "settings.h"
+#include "survinfo.h"
 
+#include "uiattrdescseted.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uimenu.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 #include "uistrings.h"
-#include "uiattrdescseted.h"
-#include "od_helpids.h"
-
 
 
 using namespace Attrib;

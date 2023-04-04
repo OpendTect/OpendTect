@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "uistring.h"
 
 namespace Attrib { class EngineMan; class DescSet;
@@ -31,11 +30,11 @@ public:
 
     bool                computeAutocorr(bool);
     void                createAndDisplay2DViewer(bool);
-    void		setTrcKeyZSampling( TrcKeyZSampling cs )
+    void		setTrcKeyZSampling( const TrcKeyZSampling& cs )
 			{ tkzs_ = cs; }
     void		setGeomID( const Pos::GeomID& geomid )
 			{ geomid_ = geomid; }
-    void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
+    void		setAttribID( const Attrib::DescID& id )	{ attribid_=id;}
     void                setDescSet(Attrib::DescSet*);
 			//<! descset becomes mine!
 

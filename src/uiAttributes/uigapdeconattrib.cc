@@ -15,21 +15,23 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "hilbertattrib.h"
+#include "od_helpids.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
+
 #include "uiattrsel.h"
-#include "uiseisioobjinfo.h"
-#include "uislicesel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uispinbox.h"
-#include "trckeyzsampling.h"
-#include "volstatsattrib.h"
-#include "hilbertattrib.h"
 #include "uimsg.h"
-#include "od_helpids.h"
+#include "uislicesel.h"
+#include "uispinbox.h"
+#include "volstatsattrib.h"
+
 
 using namespace Attrib;
 

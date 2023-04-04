@@ -8,14 +8,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiattribsingleedit.h"
-#include "uiattrdesced.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
+#include "od_helpids.h"
+
+#include "uiattrdesced.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "od_helpids.h"
 
 
 uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 
 #include "attribdescid.h"
-#include "position.h"
 #include "ranges.h"
 
 class uiAttrSel;

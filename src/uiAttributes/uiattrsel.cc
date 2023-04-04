@@ -8,30 +8,27 @@ ________________________________________________________________________
 -*/
 
 #include "uiattrsel.h"
-#include "attribdescset.h"
+
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribfactory.h"
-#include "attribparam.h"
 #include "attribsel.h"
-#include "attribstorprovider.h"
 #include "ctxtioobj.h"
-#include "datainpspec.h"
 #include "datapack.h"
 #include "hilbertattrib.h"
-#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "linekey.h"
 #include "nladesign.h"
 #include "nlamodel.h"
+#include "od_helpids.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seistrctr.h"
 #include "separstr.h"
-#include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "zdomain.h"
 
@@ -45,7 +42,7 @@ ________________________________________________________________________
 #include "uilistboxfilter.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "od_helpids.h"
+
 
 const Attrib::DescSet& emptyads2d()
 {

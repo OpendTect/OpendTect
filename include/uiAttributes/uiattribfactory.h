@@ -9,7 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "bufstringset.h"
+#include "bufstring.h"
+#include "objectset.h"
 
 class uiAttrDescEd;
 class uiParent;

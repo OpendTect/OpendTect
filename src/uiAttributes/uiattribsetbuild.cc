@@ -8,6 +8,18 @@ ________________________________________________________________________
 -*/
 
 #include "uiattribsetbuild.h"
+
+#include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribdescsettr.h"
+#include "attribfactory.h"
+#include "attribparambase.h"
+#include "attribstorprovider.h"
+#include "ioobj.h"
+#include "keystrs.h"
+#include "linekey.h"
+#include "survinfo.h"
+
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
 #include "uiattribsingleedit.h"
@@ -15,20 +27,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiprestackattrib.h"
 #include "uistoredattrreplacer.h"
-#include "uitaskrunner.h"
 #include "uitoolbutton.h"
-
-#include "attribdataholder.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribdescsettr.h"
-#include "attribstorprovider.h"
-#include "attribparambase.h"
-#include "attribfactory.h"
-#include "keystrs.h"
-#include "linekey.h"
-#include "survinfo.h"
-#include "ioobj.h"
 
 
 uiAttribDescSetBuild::Setup::Setup( bool for2d )

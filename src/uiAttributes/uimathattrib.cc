@@ -9,22 +9,24 @@ ________________________________________________________________________
 
 #include "uimathattrib.h"
 #include "mathattrib.h"
-#include "mathformula.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "attribstorprovider.h"
-#include "attribfactory.h"
 #include "ioman.h"
+#include "mathformula.h"
+#include "od_helpids.h"
 #include "seisioobjinfo.h"
+
 #include "uiattrsel.h"
 #include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
 #include "uimathformula.h"
 #include "uirockphysform.h"
 #include "uitoolbutton.h"
-#include "od_helpids.h"
 
 #include <math.h>
 

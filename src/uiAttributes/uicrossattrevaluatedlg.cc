@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "odver.h"
 
 #include "uiattrdescseted.h"
 #include "uibutton.h"

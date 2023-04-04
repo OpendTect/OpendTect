@@ -13,9 +13,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribparam.h"
-#include "attribfactory.h"
-#include "ioman.h"
-#include "ioobj.h"
+#include "od_helpids.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seisioobjinfo.h"
@@ -32,7 +30,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uislicesel.h"
 #include "uispinbox.h"
-#include "od_helpids.h"
 
 using namespace Attrib;
 

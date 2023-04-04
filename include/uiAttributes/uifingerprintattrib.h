@@ -10,23 +10,21 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "position.h"
-#include "multiid.h"
 
-class uiAttrSel;
-class uiTable;
-class uiLabel;
-class uiIOObjSel;
-class uiGenInput;
-class uiRadioButton;
-class uiToolButton;
-class uiButtonGroup;
-class uiSeis2DLineSel;
 class BinIDValueSet;
 class PickRetriever;
-
-class uiFPAdvancedDlg;
 class calcFingParsObject;
+
+class uiAttrSel;
+class uiButtonGroup;
+class uiFPAdvancedDlg;
+class uiGenInput;
+class uiIOObjSel;
+class uiLabel;
+class uiRadioButton;
+class uiSeis2DLineSel;
+class uiTable;
+class uiToolButton;
 
 /*! \brief FingerPrint Attribute description editor */
 

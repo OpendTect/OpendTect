@@ -7,26 +7,28 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattribpanel.h"
-#include "attribparam.h"
-#include "attribsel.h"
-#include "attribdesc.h"
+#include "attribdataholder.h"
+#include "attribdescid.h"
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attribprocessor.h"
 #include "attribprovider.h"
-#include "attribfactory.h"
-#include "attribdataholder.h"
+#include "attribsel.h"
 #include "flatposdata.h"
+#include "ptrman.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+
+#include "uiattribpanel.h"
 #include "uiattribpartserv.h"
-#include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 
+
+using namespace  Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
     : flatvwin_(nullptr)
@@ -87,7 +89,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 
 EngineMan* uiAttribPanel::createEngineMan()
 {
-    EngineMan* aem = new EngineMan;
+    auto* aem = new EngineMan;
 
     TypeSet<SelSpec> attribspecs;
     SelSpec sp( nullptr, attribid_ );

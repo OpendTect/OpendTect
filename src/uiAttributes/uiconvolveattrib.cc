@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "attribfactory.h"
 #include "ioman.h"
-#include "survinfo.h"
+#include "od_helpids.h"
 #include "waveletio.h"
 
 #include "uiattribfactory.h"
@@ -22,7 +21,6 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uispinbox.h"
-#include "od_helpids.h"
 
 using namespace Attrib;
 

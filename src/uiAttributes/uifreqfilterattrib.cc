@@ -13,14 +13,16 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribparam.h"
+#include "od_helpids.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
 #include "uifreqfilter.h"
+#include "uifreqtaper.h"
 #include "uigeninput.h"
 #include "uiwindowfunctionsel.h"
-#include "uifreqtaper.h"
-#include "od_helpids.h"
+
 
 using namespace Attrib;
 

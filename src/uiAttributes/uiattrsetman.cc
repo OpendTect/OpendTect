@@ -9,18 +9,14 @@ ________________________________________________________________________
 
 #include "uiattrsetman.h"
 
-#include "uibutton.h"
-#include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
-#include "uitextedit.h"
 
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
-#include "survinfo.h"
 #include "od_helpids.h"
+#include "survinfo.h"
 
 mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 

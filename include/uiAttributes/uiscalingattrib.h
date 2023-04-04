@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "attribdescid.h"
 
 namespace Attrib { class Desc; class EngineMan; class Processor; }
 class uiParent;

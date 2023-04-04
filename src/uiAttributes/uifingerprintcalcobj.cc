@@ -8,26 +8,28 @@ ________________________________________________________________________
 -*/
 
 #include "uifingerprintcalcobj.h"
+
 #include "attribdesc.h"
-#include "attribsel.h"
-#include "attribparam.h"
 #include "attribdescset.h"
-#include "attribstorprovider.h"
-#include "attribprocessor.h"
 #include "attribengman.h"
-#include "uimsg.h"
-#include "ioobj.h"
-#include "ioman.h"
+#include "attribparambase.h"
+#include "attribprocessor.h"
+#include "attribsel.h"
+#include "attribstorprovider.h"
 #include "binidvalset.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "picksettr.h"
-#include "seis2ddata.h"
 #include "posinfo2d.h"
-#include "posinfo2dsurv.h"
-#include "survinfo.h"
-#include "survgeom2d.h"
-#include "uitaskrunner.h"
 #include "ptrman.h"
+#include "seis2ddata.h"
 #include "statrand.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+
+#include "uimsg.h"
+#include "uitaskrunner.h"
+
 
 using namespace Attrib;
 
