@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "fontdata.h"
 #include "namedobj.h"
 #include "color.h"
+#include "draw.h"
 #include "ranges.h"
 #include "survinfo.h"
 
@@ -54,9 +55,11 @@ public:
 
 	int		getSize() const			{ return size_; }
 	const OD::Color& getColor() const		{ return color_; }
+	OD::LineStyle	getLineStyle() const;
 
 	void		setSize( int sz )		{ size_ = sz; }
 	void		setColor( const OD::Color& col ) { color_ = col; }
+	void		setLineStyle(const OD::LineStyle&);
 
 	void		usePar(const IOPar&);
 	void		fillPar(IOPar&) const;
@@ -83,9 +86,9 @@ public:
 	virtual void	doFillCenterPar(IOPar&) const	{}
 	virtual void	doFillRightPar(IOPar&) const	{}
 
-	OD::Color	color_ = OD::Color(0,0,255);
-	int		size_ = 1;
-
+	OD::Color		color_ = OD::Color(0,0,255);
+	int			size_ = 1;
+	OD::LineStyle::Type	linetype_ = OD::LineStyle::Solid;
     };
 
     mStruct(Well) Track : public BasicProps

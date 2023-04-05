@@ -198,6 +198,21 @@ Well::DisplayProperties::BasicProps::~BasicProps()
 }
 
 
+OD::LineStyle Well::DisplayProperties::BasicProps::getLineStyle() const
+{
+    return OD::LineStyle( linetype_, size_, color_ );
+}
+
+
+void Well::DisplayProperties::BasicProps::setLineStyle(
+						    const OD::LineStyle& ls )
+{
+    size_ = ls.width_;
+    linetype_ = ls.type_;
+    color_ = ls.color_;
+}
+
+
 bool Well::DisplayProperties::BasicProps::operator ==(
 						const BasicProps& oth ) const
 {

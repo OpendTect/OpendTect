@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "uistring.h"
+#include "welldisp.h"
 
 class uiParent;
 class uiWellLogToolWinGrp;
@@ -35,6 +36,8 @@ public:
     virtual void	addLog(const Well::Log&)		{}
     virtual void	addLogSet(const Well::LogSet&)		{}
     virtual void	update()				{}
+    virtual void	setDisplayProps(const Well::DisplayProperties::Log&,
+					bool forname=true) {}
 };
 
 
