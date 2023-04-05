@@ -259,8 +259,7 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
     for ( const auto& node : nodes )
 	cs.hsamp_.include( node );
 
-    cs.zsamp_.setFrom( getDepthInterval() );
-    cs.zsamp_.step = appliedZRangeStep();
+    cs.zsamp_.set( getDepthInterval(), appliedZRangeStep() );
     return cs;
 }
 
@@ -687,7 +686,7 @@ const ZAxisTransform* RandomTrackDisplay::getZAxisTransform() const
 { return datatransform_; }
 
 
-bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
+bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
     if ( datatransform_ )
     {
@@ -794,7 +793,7 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 }
 
 
-void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
+void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPackID dpid = getDisplayedDataPackID( attrib );
@@ -869,7 +868,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 	    TrcKeyZSampling tkzs( false );
 	    for ( int idx=0; idx<path.size(); idx++ )
 		tkzs.hsamp_.include( path[idx] );
-	    tkzs.zsamp_ = panelstrip_->getZRange();
+	    tkzs.zsamp_.setInterval( panelstrip_->getZRange() );
 	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
 				      : datatransform_->getGoodZStep();
 	    if ( voiidx_ < 0 )

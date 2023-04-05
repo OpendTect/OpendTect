@@ -587,7 +587,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     TrcKeyZSampling auxtkzs;
     auxtkzs.hsamp_.start_ = path.first().binID();
     auxtkzs.hsamp_.stop_ = path.last().binID();
-    auxtkzs.zsamp_ = zrange;
+    auxtkzs.zsamp_.setInterval( zrange );
     if ( !auxtkzs.adjustTo(regsdp.sampling(),true) && path.size()>1 )
 	path.removeRange( 1, path.size()-1 );
 

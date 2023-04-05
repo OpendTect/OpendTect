@@ -391,7 +391,7 @@ StepInterval<float> uiSeis2DSubSel::getZRange( Pos::GeomID geomid ) const
     if ( multilnmsel_ )
 	zrg = multilnmsel_->getZRange( geomid );
     else
-	zrg.setFrom( selfld_->envelope().zsamp_ );
+	zrg = selfld_->envelope().zsamp_;
 
     return zrg;
 
@@ -407,7 +407,7 @@ void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs,
     tkzs.set2DDef();
     tkzs.hsamp_.setGeomID( geomid );
     tkzs.hsamp_.setTrcRange( getTrcRange(geomid) );
-    tkzs.zsamp_.setFrom( getZRange(geomid) );
+    tkzs.zsamp_ = getZRange( geomid );
 
 }
 

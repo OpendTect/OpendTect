@@ -198,7 +198,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     if ( crlfld_ ) { mGetHrgSampling(crl) };
     if ( zfld_ )
     {
-	cs.zsamp_.setFrom( zspacingfld_->getFStepInterval() );
+	cs.zsamp_ = zspacingfld_->getFStepInterval();
 	cs.zsamp_.scale( 1.f/SI().zDomain().userFactor() );
     }
 

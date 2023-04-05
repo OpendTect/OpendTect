@@ -68,9 +68,9 @@ void uiWellT2DTransform::setZRangeCB( CallBacker* )
 	StepInterval<float> range( StepInterval<float>::udf() );
 	if ( trans )
 	{
-	    range = trans->getZInterval( false );
-	    range.step = trans->getGoodZStep();
-	    if ( range.isUdf() ) range.setUdf();
+	    range.set( trans->getZInterval(false), trans->getGoodZStep() );
+	    if ( range.isUdf() )
+		range.setUdf();
 	}
 
 	rangefld_->setZRange( range );

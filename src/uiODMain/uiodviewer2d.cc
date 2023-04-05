@@ -426,8 +426,8 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
 	if ( datatransform_ )
 	{
 	    TrcKeyZSampling limitcs;
-	    limitcs.zsamp_.setFrom( datatransform_->getZInterval(false) );
-	    limitcs.zsamp_.step = datatransform_->getGoodZStep();
+	    limitcs.zsamp_.set( datatransform_->getZInterval(false),
+				datatransform_->getGoodZStep() );
 	    slicepos_->setLimitSampling( limitcs );
 	}
     }
@@ -720,6 +720,7 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
     {
 	if ( tkzs.nrZ() == 1 )
 	    return createDataPackForTransformedZSliceRM( selspec );
+
 	tkzs.zsamp_.setFrom( zat->getZInterval(true) );
 	tkzs.zsamp_.step = SI().zStep();
     }

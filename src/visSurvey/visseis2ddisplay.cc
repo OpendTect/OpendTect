@@ -257,10 +257,8 @@ StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
     if ( !datatransform_ || !displayspace )
 	return geometry_.zRange();
 
-    StepInterval<float> zrg;
-    zrg.setFrom( datatransform_->getZInterval(false) );
-    zrg.step = geometry_.zRange().step;
-    return zrg;
+    return StepInterval<float>( datatransform_->getZInterval(false),
+				geometry_.zRange().step );
 }
 
 
@@ -276,7 +274,7 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
     if ( hasdata && trcdisplayinfo_.zrg_.isEqual(zrg,mDefEps) )
 	return;
 
-    trcdisplayinfo_.zrg_.setFrom( zrg );
+    trcdisplayinfo_.zrg_.setInterval( zrg );
 
     updatePanelStripZRange();
     updatePanelStripPath();
@@ -790,7 +788,7 @@ TrcKeyZSampling Seis2DDisplay::getTrcKeyZSampling( bool displayspace,
     tkzs.hsamp_.init( getGeomID() );
     const StepInterval<int> trcrg( getTraceNrRange() );
     tkzs.hsamp_.setTrcRange( trcrg );
-    tkzs.zsamp_.setFrom( getZRange(displayspace,attrib) );
+    tkzs.zsamp_ = getZRange( displayspace, attrib );
     return tkzs;
 }
 

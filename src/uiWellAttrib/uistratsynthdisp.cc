@@ -66,8 +66,8 @@ public:
     class VwrDataPack
     {
     public:
-			VwrDataPack( DataPackID dpid, int lmsidx,
-				     const Strat::LevelID flatlvlid,
+			VwrDataPack( const DataPackID& dpid, int lmsidx,
+				     const Strat::LevelID& flatlvlid,
 				     int offsidx )
 			    : dpid_(dpid)
 			    , lmsidx_(lmsidx)
@@ -149,7 +149,7 @@ SynthSpecificPars& operator =( const SynthSpecificPars& oth )
 }
 
 
-ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::LevelID flatlvlid,
+ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::LevelID& flatlvlid,
 			  int offsidx ) const
 {
     DataPackID dpid = DataPackID::udf();
@@ -170,7 +170,7 @@ ConstRefMan<FlatDataPack> find( int lmsidx, const Strat::LevelID flatlvlid,
 }
 
 
-void addIfNew( DataPackID dpid, int lmsidx, const Strat::LevelID flatlvlid,
+void addIfNew( DataPackID dpid, int lmsidx, const Strat::LevelID& flatlvlid,
 	       int offsidx )
 {
     PtrMan<VwrDataPack> newobj = new VwrDataPack( dpid, lmsidx,
@@ -320,8 +320,7 @@ void setMappers( const SyntheticData& sd )
 
 void setOffsets( const PreStackSyntheticData& pssd )
 {
-    offsetrg_ = pssd.offsetRange();
-    offsetrg_.step = pssd.offsetRangeStep();
+    offsetrg_.set( pssd.offsetRange(), pssd.offsetRangeStep() );
 }
 
 

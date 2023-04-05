@@ -150,7 +150,7 @@ void fillTable( const SimpleTimeDepthModel& mdl )
 }
 
 
-void removeCB( CallBacker* cb )
+void removeCB( CallBacker* )
 {
     if ( tbl_->nrRows() < 2 )
 	return;
@@ -159,7 +159,8 @@ void removeCB( CallBacker* cb )
     rembut_->setSensitive( tbl_->nrRows() > 1 );
 }
 
-void addCB( CallBacker* cb )
+
+void addCB( CallBacker* )
 {
     tbl_->setNrRows( tbl_->nrRows() + 1 );
     rembut_->setSensitive( tbl_->nrRows() > 1 );
@@ -354,8 +355,7 @@ void uiSimpleTimeDepthTransform::setZRangeCB( CallBacker* )
 	StepInterval<float> range( StepInterval<float>::udf() );
 	if ( trans )
 	{
-	    range = trans->getZInterval( false );
-	    range.step = trans->getGoodZStep();
+	    range.set( trans->getZInterval(false), trans->getGoodZStep() );
 	    if ( range.isUdf() )
 		range.setUdf();
 	}

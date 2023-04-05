@@ -142,9 +142,11 @@ public:
     inline		StepInterval(const T& start,const T& stop,
 				     const T& step);
     inline		StepInterval(const Interval<T>&);
+    inline		StepInterval(const Interval<T>&,const T& step);
     inline		StepInterval( const StepInterval<T>& si )
 			: Interval<T>(si), step(si.step)	{}
-    inline StepInterval<T>& operator=(const Interval<T>&);
+
+    inline StepInterval<T>& operator=(const Interval<T>&) = delete;
     inline StepInterval<T>& operator=(const StepInterval<T>&);
 
     inline bool		isUdf() const override;
@@ -156,6 +158,8 @@ public:
 
     inline StepInterval<T>*	clone() const override;
     inline void		set(const T& start,const T& stop,const T& step);
+    inline void		set(const Interval<T>& rg,const T& step);
+    inline void		setInterval(const Interval<T>&);
 
     template <class X>
     const StepInterval<T>& setFrom(const Interval<X>&);
@@ -202,7 +206,9 @@ public:
 };
 
 
-typedef StepInterval<float> ZSampling;
+using ZSampling = StepInterval<float>;
+
+
 namespace Pos
 {
     mGlobal(Basic)	void normalize(StepInterval<int>&,int defstep);
@@ -525,7 +531,8 @@ bool BasicInterval<T>::includes( const BasicInterval<X>& t, bool allowrev )const
 template <class T> template <class X> inline
 bool BasicInterval<T>::includes( const Interval<X>& t, bool allowrev ) const
 {
-    return BasicInterval<T>::includes( static_cast<BasicInterval>( t ));
+    return BasicInterval<T>::includes(
+			static_cast<BasicInterval>(t), allowrev );
 }
 
 
@@ -560,18 +567,32 @@ void BasicInterval<T>::include( const T& i, bool allowrev )
 {
     if ( mIsUdf(i) )
 	return;
+
     if ( mIsUdf(start) || mIsUdf(stop) )
-	start = stop =i;
+	start = stop = i;
     else if ( allowrev && isRev() )
-	{ if ( stop>i ) stop=i; if ( start<i ) start=i; }
+    {
+	if ( stop>i )
+	    stop=i;
+	if ( start<i )
+	    start=i;
+    }
     else
-	{ if ( start>i ) start=i; if ( stop<i ) stop=i; }
+    {
+	if ( start>i )
+	    start=i;
+	if ( stop<i )
+	    stop=i;
+    }
 }
 
 
 template <class T> inline
 void BasicInterval<T>::include( const BasicInterval<T>& i, bool allowrev )
-{ include( i.start, allowrev ); include( i.stop, allowrev ); }
+{
+    include( i.start, allowrev );
+    include( i.stop, allowrev );
+}
 
 
 template <class T> inline
@@ -593,8 +614,11 @@ template <class T> template <class X> inline
 X BasicInterval<T>::limitValue( const X& t ) const
 {
     const bool isrev = isRev();
-    if ( (!isrev&&t>stop) || (isrev&&t<stop) ) return stop;
-    if ( (!isrev&&t<start) || (isrev&&t>start) ) return start;
+    if ( (!isrev&&t>stop) || (isrev&&t<stop) )
+	return stop;
+    if ( (!isrev&&t<start) || (isrev&&t>start) )
+	return start;
+
     return t;
 }
 
@@ -673,10 +697,19 @@ StepInterval<T>::StepInterval( const Interval<T>& intv )
     }
 }
 
+template <class T>
+StepInterval<T>::StepInterval( const Interval<T>& intv, const T& stp )
+    : Interval<T>(intv)
+    , step(stp)
+{}
+
 
 template <class T>
-inline StepInterval<T>& StepInterval<T>::operator=( const Interval<T>& intv )
-{ assign( *this, intv ); return *this; }
+inline StepInterval<T>& StepInterval<T>::operator=( const StepInterval<T>& intv)
+{
+    assign( *this, intv );
+    return *this;
+}
 
 
 template <class T>
@@ -703,6 +736,14 @@ template <class T> inline
 void StepInterval<T>::set( const T& t1, const T& t2, const T& t3 )
 { Interval<T>::set( t1, t2 ); step = t3; }
 
+
+template <class T> inline
+void StepInterval<T>::set( const Interval<T>& rg, const T& stp )
+{ set( rg.start, rg.stop, stp ); }
+
+template <class T> inline
+void StepInterval<T>::setInterval( const Interval<T>& rg )
+{ Interval<T>::set( rg.start, rg.stop ); }
 
 template <class T> inline
 bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const

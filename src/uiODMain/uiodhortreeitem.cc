@@ -691,7 +691,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	TrcKeyZSampling curcs;
-	curcs.zsamp_.setFrom( SI().zRange(true) );
+	curcs.zsamp_ = SI().zRange( true );
 	curcs.hsamp_.set( section->displayedRowRange(),
 		       section->displayedColRange() );
 

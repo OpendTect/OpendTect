@@ -454,7 +454,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 
 bool CBVSSeisTrcTranslator::readDataPack( RegularSeisDataPack& rsdp,
-					  TaskRunner* taskr )
+					  TaskRunner* )
 {
     const bool res = GetEnvVarYN("OD_ENABLE_TRANSLATOR_DATAPACK",false);
     if ( !res )
@@ -466,7 +466,7 @@ bool CBVSSeisTrcTranslator::readDataPack( RegularSeisDataPack& rsdp,
     TrcKeyZSampling tkzs;
     tkzs.hsamp_.setInlRange( seldata_->inlRange() );
     tkzs.hsamp_.setCrlRange( seldata_->crlRange() );
-    tkzs.zsamp_.setFrom( seldata_->zRange() );
+    tkzs.zsamp_.setInterval( seldata_->zRange() );
     rsdp.setSampling( tkzs );
     rsdp.addComponent( "" );
 

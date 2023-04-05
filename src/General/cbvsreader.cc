@@ -318,7 +318,7 @@ bool CBVSReader::readComps()
 
 	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar.nrBytes();
 	bytespertrace_ += cnrbytes_[icomp];
-	samprg_ = Interval<int>( 0, info_.nrsamples_-1 );
+	samprg_.set( 0, info_.nrsamples_-1, 1 );
     }
 
     return true;

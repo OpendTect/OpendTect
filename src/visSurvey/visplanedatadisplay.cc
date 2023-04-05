@@ -755,8 +755,8 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     {
 	if ( !displayspace )
 	{
-	    res.zsamp_.setFrom( datatransform_->getZInterval(true) );
-	    res.zsamp_.step = SI().zRange(true).step;
+	    res.zsamp_.set( datatransform_->getZInterval(true),
+			    SI().zRange(true).step );
 	}
 	else
 	{

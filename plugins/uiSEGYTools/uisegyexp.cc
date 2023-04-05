@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uifiledlg.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiscrollarea.h"
@@ -24,7 +23,6 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
-#include "uiselsimple.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -41,13 +39,8 @@ ________________________________________________________________________
 #include "segybatchio.h"
 #include "segydirecttr.h"
 #include "segyhdr.h"
-#include "segytr.h"
 #include "seispacketinfo.h"
-#include "seisread.h"
-#include "seissingtrcproc.h"
-#include "seiswrite.h"
 #include "settings.h"
-#include "survgeom.h"
 #include "zdomain.h"
 
 #define mTxtHdrWidth	80
@@ -718,9 +711,9 @@ void uiSEGYExp::generateAutoTextHeader( BufferString& hdrtxt ) const
     if ( seldata )
     {
 	thdef.pinfo = new SeisPacketInfo;
-	thdef.pinfo->inlrg = seldata->inlRange();
-	thdef.pinfo->crlrg = seldata->crlRange();
-	thdef.pinfo->zrg = seldata->zRange();
+	thdef.pinfo->inlrg.setInterval( seldata->inlRange() );
+	thdef.pinfo->crlrg.setInterval( seldata->crlRange() );
+	thdef.pinfo->zrg.setInterval( seldata->zRange() );
     }
 
     SEGY::TxtHeader txthdr( 1 );

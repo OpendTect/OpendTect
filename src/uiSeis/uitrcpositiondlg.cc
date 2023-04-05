@@ -198,7 +198,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
     pickretriever_ = PickRetriever::getInstance();
     pickretriever_->finished()->notify(
 				mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
-    zrg_.setFrom( cs.zsamp_ );
+    zrg_ = cs.zsamp_;
 }
 
 

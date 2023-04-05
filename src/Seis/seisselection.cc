@@ -593,7 +593,7 @@ Interval<float> Seis::TableSelData::zRange() const
 {
     if ( isall_ ) return Seis::SelData::zRange();
 
-    Interval<float> zrg = bvs_.valRange( 0 ) + extraz_;
+    Interval<float> zrg( bvs_.valRange(0) + extraz_ );
     if ( zrg.isUdf() )
 	zrg = SI().zRange(true);
 
@@ -728,8 +728,8 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
 
 
 Seis::PolySelData::PolySelData( const Seis::PolySelData& sd )
-    : stepoutreach_(0,0)
-    , zrg_(sd.zrg_)
+    : zrg_(sd.zrg_)
+    , stepoutreach_(0,0)
 {
     for ( int idx=0; idx<sd.polys_.size(); idx++ )
 	polys_ += new ODPolygon<float>( *sd.polys_[idx] );

@@ -211,9 +211,9 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     if ( seldata_ )
     {
-	pinfo_.inlrg = seldata_->inlRange();
-	pinfo_.crlrg = seldata_->crlRange();
-	pinfo_.zrg = seldata_->zRange();
+	pinfo_.inlrg.setInterval( seldata_->inlRange() );
+	pinfo_.crlrg.setInterval( seldata_->crlRange() );
+	pinfo_.zrg.setInterval( seldata_->zRange() );
     }
 
     if ( !initConn(c) || !initWrite_(trc) )

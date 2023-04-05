@@ -60,8 +60,11 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp = new FlatDataPack( "Wavelet", fva2d );
 	OD::memCopy( fva2d->getData(), wvlt->samples(), wvltsz*sizeof(float) );
 	dp->setName( wvlt->name() );
-	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
-	if ( SI().zIsTime() ) posns.scale( zfac );
+	StepInterval<double> posns;
+	posns.setFrom( wvlt->samplePositions() );
+	if ( SI().zIsTime() )
+	    posns.scale( zfac );
+
 	dp->posData().setRange( false, posns );
     }
 

@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 #include "timedepthconv.h"
 #include "zdomain.h"
-#include "survinfo.h"
-#include "binidvalue.h"
 
 #include "uiconstvel.h"
 #include "uimsg.h"
@@ -77,9 +75,9 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	RefMan<ZAxisTransform> trans = getSelection();
 	if ( trans )
 	{
-	    range = trans->getZInterval( false );
-	    range.step = trans->getGoodZStep();
-	    if ( range.isUdf() ) range.setUdf();
+	    range.set( trans->getZInterval(false), trans->getGoodZStep() );
+	    if ( range.isUdf() )
+		range.setUdf();
 	}
 
 	NotifyStopper stopper( rangefld_->valueChanging );

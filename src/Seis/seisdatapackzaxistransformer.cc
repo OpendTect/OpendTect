@@ -17,13 +17,12 @@ ________________________________________________________________________
 
 SeisDataPackZAxisTransformer::SeisDataPackZAxisTransformer( ZAxisTransform& zat,
 							    SeisDataPack* out )
-    : transform_(zat)
-    , dpm_(DPM(DataPackMgr::SeisID()))
+    : dpm_(DPM(DataPackMgr::SeisID()))
+    , transform_(zat)
     , outputdp_(out)
 {
     transform_.ref();
-    zrange_.setFrom( transform_.getZInterval(false) );
-    zrange_.step = transform_.getGoodZStep();
+    zrange_.set( transform_.getZInterval(false), transform_.getGoodZStep() );
 }
 
 
@@ -61,7 +60,7 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 	if ( regsdp )
 	{
 	    TrcKeyZSampling tkzs( regsdp->sampling() );
-	    tkzs.zsamp_.setFrom( zrange_ );
+	    tkzs.zsamp_ = zrange_;
 	    auto* output = new RegularSeisDataPack( category, desc );
 	    output->setSampling( tkzs );
 	    outputdp_ = output;

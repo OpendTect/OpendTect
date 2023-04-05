@@ -124,8 +124,7 @@ void Attrib::WellLog::prepareForComputeData()
 	return;
     }
 
-    arrzrg_ = logsamp.zRange();
-    arrzrg_.step = pars.zstep_;
+    arrzrg_.set( logsamp.zRange(), pars.zstep_ );
     const int arrsz = arrzrg_.nrSteps()+1;
     logvals_ = new Array1DImpl<float>( arrsz );
 

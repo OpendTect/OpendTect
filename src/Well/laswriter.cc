@@ -37,8 +37,7 @@ LASWriter::LASWriter( const Well::Data& wd, const BufferStringSet& lognms,
 	logs_.add( new Well::Log(*log) );
     }
 
-    mdrg_ = logs_.dahInterval();
-    mdrg_.step = 0.1524f;
+    mdrg_.set( logs_.dahInterval(), 0.1524f );
 }
 
 

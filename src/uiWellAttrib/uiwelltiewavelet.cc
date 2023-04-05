@@ -205,7 +205,8 @@ void WellTie::uiWavelet::setAsActive( bool isactive )
 
 void WellTie::uiWavelet::drawWavelet()
 {
-    if ( !wvlt_ ) return;
+    if ( !wvlt_ )
+	return;
 
     const int wvltsz = wvlt_->size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
@@ -217,8 +218,11 @@ void WellTie::uiWavelet::drawWavelet()
     const bool canupdate = viewer_->enableChange( false );
     viewer_->clearAllPacks();
     viewer_->setPack( FlatView::Viewer::WVA, dp, false );
-    StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
-    if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
+    StepInterval<double> posns;
+    posns.setFrom( wvlt_->samplePositions() );
+    if ( SI().zIsTime() )
+       	posns.scale( SI().zDomain().userFactor() );
+
     dp->posData().setRange( false, posns );
     viewer_->setViewToBoundingBox();
     viewer_->enableChange( canupdate );

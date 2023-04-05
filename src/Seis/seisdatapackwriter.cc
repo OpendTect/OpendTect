@@ -58,7 +58,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     }
 
     zrg_ = Interval<int>( 0, dp_->sampling().nrZ()-1 );
-    cubezrgidx_ = zrg_; cubezrgidx_.step = 1;
+    cubezrgidx_.set( zrg_, 1 );
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( *ioobj ) : nullptr;
@@ -187,11 +187,11 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     if ( !zrg_.includes(cubezrgidx) )
     {
 	pErrMsg("Invalid selection");
-	cubezrgidx_ = Interval<int>::udf();
+	cubezrgidx_.setUdf();
 	return;
     }
 
-    cubezrgidx_ = cubezrgidx; cubezrgidx_.step = 1;
+    cubezrgidx_.set( cubezrgidx, 1 );
 
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )

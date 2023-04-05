@@ -312,7 +312,7 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
     const bool stopok = mIsZero(dstop,1e-5) || dstop < 0;
     if ( !startok || !stopok || rg.isRev() )
     {
-	rg = posrange_;
+	rg.setInterval( posrange_ );
 	rg.step = ( rg.stop - rg.start )/5;
 	rangefld_->setValue( posrange_ );
     }

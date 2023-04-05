@@ -437,7 +437,7 @@ void uiSliceSel::readInput()
     }
 
     tkzs_.hsamp_.set( inlrg, crlrg );
-    tkzs_.zsamp_.setFrom( zrg );
+    tkzs_.zsamp_.setInterval( zrg );
 
     if ( dogeomcheck_ )
     {

@@ -226,7 +226,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 	if ( !isset )
 	{
 	    isset = true;
-	    zrg.setFrom( trc->info().sampling.interval( trcsz ) );
+	    zrg = trc->info().sampling.interval( trcsz );
 	    crd = trc->info().coord;
 	}
 	else

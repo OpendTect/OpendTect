@@ -800,7 +800,7 @@ bool DataPointSet::getRange( TrcKeyZSampling& tkzs ) const
 	return false;
 
     tkzs.hsamp_.set( bivSet().firstRange(), bivSet().secondRange() );
-    tkzs.zsamp_.setFrom( bivSet().valRange(0) );
+    tkzs.zsamp_.setInterval( bivSet().valRange(0) );
     return true;
 }
 

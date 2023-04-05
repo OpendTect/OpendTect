@@ -685,7 +685,7 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
 	return;
 
     if ( zrg )
-	*zrg = Interval<float>(mUdf(float),-mUdf(float));
+	zrg->setUdf();
 
     TrcKeyPath rdmlsknots;
     for ( int lidx=0; lidx<rls.size(); lidx++ )

@@ -140,7 +140,8 @@ void uiPreviewGroup::updateViewer()
     const TrcKey& tk = seedpos_.tk_;
     const float z = seedpos_.val_;
 
-    StepInterval<float> zintv; zintv.setFrom( zintv_ );
+    StepInterval<float> zintv;
+    zintv.setFrom( zintv_ );
     zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
     zintv.step = SI().zStep();
 
@@ -172,7 +173,8 @@ void uiPreviewGroup::updateWindowLines()
     const TrcKey& tk = seedpos_.tk_;
     const float z = seedpos_.val_;
 
-    StepInterval<float> zintv; zintv.setFrom( winintv_ );
+    StepInterval<float> zintv;
+    zintv.setFrom( winintv_ );
     zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
 
     const int so = nrtrcs_/2+1;

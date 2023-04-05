@@ -79,7 +79,7 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 
 	TrcKeyZSampling cs(true);
 	cs.hsamp_.set( inlrg, crlrg );
-	cs.zsamp_.setFrom( zrg );
+	cs.zsamp_.setInterval( zrg );
 	outsidergfld_->setInput( cs );
     }
 

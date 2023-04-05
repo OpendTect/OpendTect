@@ -370,7 +370,7 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld,
 			  StepInterval<float>& rg, bool forgui )
 {
-    rg = rgfld->getFInterval();
+    rg.setInterval( rgfld->getFInterval() );
     const int sz = szfld->getIntValue();
     if ( mIsUdf(sz) )
 	return false;

@@ -418,8 +418,7 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 	return;
     }
     const int wvltsz = wvlt->size();
-    StepInterval<float> intxval;
-    intxval.setFrom( wvlt->samplePositions() );
+    StepInterval<float> intxval = wvlt->samplePositions();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
     waveletdisplay_->setVals( intxval, wvlt->samples(), wvltsz );

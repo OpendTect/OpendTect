@@ -351,7 +351,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
     }
     else
     {
-	readcs.zsamp_.setFrom( filezrg );
+	readcs.zsamp_ = filezrg;
     }
 
     Array3D<float>* arr = voidata_[idx];

@@ -304,9 +304,9 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	if ( !rdmline )
 	    return Viewer2DID::udf();
 
-	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
-	dp = attrserv->createRdmTrcsOutputRM( posdatasel.tkzs_.zsamp_,
-					      rdmline->ID() );
+	posdatasel.tkzs_.zsamp_.setInterval( rdmline->zRange() );
+	dp = attrserv->createRdmTrcsOutputRM(
+		posdatasel.tkzs_.zsamp_, rdmline->ID() );
     }
     else
 	dp = attrserv->createOutput( posdatasel.tkzs_ );
@@ -396,8 +396,9 @@ void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid,
     {
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	visServ().fillDispPars( visid, attribid, ddp, dest );
-    if ( geom2dids_.size() > 0 )
-	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
+	if ( geom2dids_.size() > 0 )
+	    vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
+
 	attachNotifiersAndSetAuxData( vwr2d );
     }
 
@@ -553,8 +554,8 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	ConstRefMan<ZAxisTransform> zat = vwr2d->getZAxisTransform();
 	if ( zat )
 	{
-	    oldtkzs.zsamp_ = newtkzs.zsamp_ = zat->getZInterval( false );
-	    oldtkzs.zsamp_.step = newtkzs.zsamp_.step = zat->getGoodZStep();
+	    newtkzs.zsamp_.set( zat->getZInterval(false), zat->getGoodZStep() );
+	    oldtkzs.zsamp_ = newtkzs.zsamp_;
 	}
 
 	if ( tkzs.defaultDir()!=TrcKeyZSampling::Inl && selauxannot_.isx1_ )
@@ -568,8 +569,8 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	{
 	    const float auxpos = selauxannot_.oldauxpos_;
 	    const float newauxpos = auxannot[selannotidx].pos_;
-	    oldtkzs.zsamp_ = Interval<float>( auxpos, auxpos );
-	    newtkzs.zsamp_ = Interval<float>( newauxpos, newauxpos );
+	    oldtkzs.zsamp_.setInterval( Interval<float>(auxpos,auxpos) );
+	    newtkzs.zsamp_.setInterval( Interval<float>(newauxpos,newauxpos) );
 	}
 	else
 	{
@@ -695,10 +696,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
 	ConstRefMan<ZAxisTransform> zat = curvwr2d->getZAxisTransform();
 	if ( zat )
-	{
-	    newtkzs.zsamp_ = zat->getZInterval( false );
-	    newtkzs.zsamp_.step = zat->getGoodZStep();
-	}
+	    newtkzs.zsamp_.set( zat->getZInterval(false), zat->getGoodZStep() );
 
 	if ( menuid==0 )
 	{
@@ -731,7 +729,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	}
 	else if ( menuid == 3 )
 	{
-	    newtkzs.zsamp_ = Interval<float>( samplecrdz, samplecrdz );
+	    newtkzs.zsamp_.setInterval( Interval<float>(samplecrdz,samplecrdz));
 	    initialcentre.setXY( bid.inl(), bid.crl() );
 	}
 

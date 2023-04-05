@@ -452,9 +452,10 @@ bool SeisSingleTraceProc::writeTrc()
 	    const int linenr = currdr.geomID().asInt();
 	    wrtr.packetInfo().inlrg.set( linenr, linenr, 1 );
 	    if ( currdr.selData() )
-		wrtr.packetInfo().crlrg = currdr.selData()->crlRange();
+		wrtr.packetInfo().crlrg.setInterval(
+					currdr.selData()->crlRange() );
 	    else
-		wrtr.packetInfo().crlrg = currdr.curTrcNrRange();
+		wrtr.packetInfo().crlrg.setInterval( currdr.curTrcNrRange() );
 	}
 	else
 	{

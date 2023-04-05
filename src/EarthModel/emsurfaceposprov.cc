@@ -804,7 +804,7 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     iop.get( sKeyBBCrlrg(), crlrg );
     iop.get( sKeyBBZrg(), zrg );
     bbox_.hsamp_.set( inlrg, crlrg );
-    bbox_.zsamp_.setFrom( zrg );
+    bbox_.zsamp_.setInterval( zrg );
 
     initializedbody_ = false;
 }

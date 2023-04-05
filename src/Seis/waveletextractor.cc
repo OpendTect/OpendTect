@@ -96,7 +96,7 @@ void WaveletExtractor::init2D()
     StepInterval<int> range;
     for ( int idx=0; idx<sdset_.size(); idx++ )
     {
-	range = sdset_[idx]->crlRange();
+	range.set( sdset_[idx]->crlRange(), 1 );
 	totalnr_ += range.nrSteps() + 1;
     }
 
