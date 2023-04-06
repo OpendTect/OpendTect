@@ -94,6 +94,18 @@ uiPixmap::~uiPixmap()
 }
 
 
+uiPixmap& uiPixmap::operator=( const uiPixmap& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    delete qpixmap_;
+    qpixmap_ = new QPixmap( *oth.qpixmap_ );
+    source_ = oth.source_;
+    return *this;
+}
+
+
 void uiPixmap::initFromIcon( const char* icnm )
 {
     OD::IconFile icfile( icnm );

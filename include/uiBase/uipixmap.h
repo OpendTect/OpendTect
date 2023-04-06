@@ -41,6 +41,7 @@ public:
 			uiPixmap(const PixmapDesc&);
 			~uiPixmap();
 
+    uiPixmap&		operator=(const uiPixmap&);
     void		convertFromRGBArray(const uiRGBArray&);
 
     mQtclass(QPixmap*)	qpixmap()		{ return qpixmap_; }
