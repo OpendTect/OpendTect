@@ -149,7 +149,15 @@ i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 	{ pErrMsg("Already have layout itm"); return layoutitem_ ; }
 
     layoutitem_ = mkLayoutItem_( mngr );
+    if ( layoutitem_ )
+	mAttachCB( layoutitem_->objectToBeDeleted(), uiObjectBody::itemDelCB );
     return layoutitem_;
+}
+
+
+void uiObjectBody::itemDelCB( CallBacker* )
+{
+    layoutitem_ = nullptr;
 }
 
 
@@ -545,7 +553,7 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 /*!
     attaches to parent if other=nullptr
 */
-void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
+void uiObjectBody::attach ( ConstraintType tp, uiObject* other, int margin,
 			    bool reciprocal )
 {
 //    parent_->attachChild( tp, this, other, margin );
@@ -553,7 +561,7 @@ void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
 }
 
 
-void uiObjectBody::attach( constraintType tp, uiParent* other, int margin,
+void uiObjectBody::attach( ConstraintType tp, uiParent* other, int margin,
 			   bool reciprocal )
 {
     attach( tp, other->mainObject(), margin, reciprocal );

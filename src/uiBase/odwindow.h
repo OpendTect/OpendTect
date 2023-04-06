@@ -38,6 +38,7 @@ public:
 			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
 				      const char* nm,bool modal);
     virtual		~uiMainWinBody();
+			mOD_DisableCopy(uiMainWinBody)
 
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
 					   bool visibleonly);
@@ -203,7 +204,7 @@ public:
     void		setBorder( int b )	{ dlggrp_->setBorder( b ); }
 
     void		addChild(uiBaseObject& child) override;
-    void		attachChild(constraintType,uiObject* child,
+    void		attachChild(ConstraintType,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal) override;
     void		provideHelp(CallBacker*);

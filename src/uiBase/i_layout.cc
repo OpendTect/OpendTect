@@ -77,7 +77,8 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	BufferString msg = "i_LayoutMngr::addItem";
+	BufferString msg = "i_LayoutMngr::addItem - ";
+	msg.add( name() );
 	if ( itm->objLayouted() )
 	    msg.add( " - Object: ").add( itm->objLayouted()->name() );
 	else if ( itm->bodyLayouted() )
@@ -272,19 +273,21 @@ class ResizeItem
 {
 #define NR_RES_IT	3
 public:
-			ResizeItem( i_LayoutItem* it, int hStre, int vStre )
-			    : item( it ), hStr( hStre ), vStr( vStre )
-			    , hDelta( 0 ), vDelta( 0 )
-			    , nhiter( hStre ? NR_RES_IT : 0 )
-			    , nviter( vStre ? NR_RES_IT : 0 ) {}
+ResizeItem( i_LayoutItem* it, int hStre, int vStre )
+    : item( it )
+    , hStr( hStre )
+    , vStr( vStre )
+    , nhiter( hStre ? NR_RES_IT : 0 )
+    , nviter( vStre ? NR_RES_IT : 0 )
+{}
 
     i_LayoutItem*	item;
     const int		hStr;
     const int		vStr;
     int			nhiter;
     int			nviter;
-    int			hDelta;
-    int			vDelta;
+    int			hDelta		= 0;
+    int			vDelta		= 0;
 
 };
 
@@ -378,13 +381,13 @@ void i_LayoutMngr::fillResizeList( ObjectSet<ResizeItem>& resizelist,
 }
 
 
-void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, LayoutMode lom )
+void i_LayoutMngr::moveChildrenTo( int rtop, int rleft, LayoutMode lom )
 {
     for ( auto* itm : childrenlist_ )
     {
 	uiRect& chldGeomtry = itm->curpos(lom);
-	chldGeomtry.topTo ( rTop );
-	chldGeomtry.leftTo ( rLeft );
+	chldGeomtry.topTo ( rtop );
+	chldGeomtry.leftTo ( rleft );
     }
 }
 
@@ -392,7 +395,7 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, LayoutMode lom )
 bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
 				  int maxhdelt, int maxvdelt,
 				  int hdir, int vdir,
-				  const QRect& targetRect, int iternr )
+				  const QRect& targetrect, int iternr )
 {
     layoutChildren( setGeom );
     uiRect childrenBBox = childrenRect(setGeom);
@@ -403,8 +406,8 @@ bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
     int oldrgt = itmGeometry.right();
     int oldbtm = itmGeometry.bottom();
 
-    if ( hdir<0 && itm.hStr>1 && oldrgt <= targetRect.right() )  hdir = 1;
-    if ( vdir<0 && itm.vStr>1 && oldbtm <= targetRect.bottom() ) vdir = 1;
+    if ( hdir<0 && itm.hStr>1 && oldrgt <= targetrect.right() )  hdir = 1;
+    if ( vdir<0 && itm.vStr>1 && oldbtm <= targetrect.bottom() ) vdir = 1;
 
     bool hdone = false;
     bool vdone = false;
@@ -414,17 +417,17 @@ bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
 	    || ((itm.hStr==1) && (abs(itm.hDelta+hdir) < abs(maxhdelt)))
 	   )
         &&!( (hdir>0) &&
-	     ( itmGeometry.right() + hdir > targetRect.right() )
+	     ( itmGeometry.right() + hdir > targetrect.right() )
 	   )
         &&!( (hdir<0) &&
-             ( itmGeometry.right() <= targetRect.right() )
+	     ( itmGeometry.right() <= targetrect.right() )
 	   )
       )
     {
         hdone = true;
         itm.hDelta += hdir;
         itmGeometry.setHNrPics ( refGeom.hNrPics() + itm.hDelta );
-	if ( hdir>0 &&  itmGeometry.right() > targetRect.right() )
+	if ( hdir>0 &&  itmGeometry.right() > targetrect.right() )
 	    itmGeometry.leftTo( itmGeometry.left() - 1 );
     }
 
@@ -433,9 +436,9 @@ bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
             || ((itm.vStr==1) && (abs(itm.vDelta+vdir) < abs(maxvdelt)))
 	   )
         &&!( (vdir>0) &&
-	       ( itmGeometry.bottom() + vdir > targetRect.bottom() ) )
+	       ( itmGeometry.bottom() + vdir > targetrect.bottom() ) )
         &&!( (vdir<0) &&
-              ( itmGeometry.bottom() <= targetRect.bottom()) )
+	      ( itmGeometry.bottom() <= targetrect.bottom()) )
       )
     {
         vdone = true;
@@ -482,9 +485,9 @@ bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
 
 	if ( hdir > 0 )
 	{
-	    revert |= itmGeometry.right() > targetRect.right();
+	    revert |= itmGeometry.right() > targetrect.right();
 
-	    bool tmp = childrenBBox.right() > targetRect.right();
+	    bool tmp = childrenBBox.right() > targetrect.right();
 	    tmp &= childrenBBox.right() > oldcbbrgt;
 
 	    revert |= tmp;
@@ -514,15 +517,15 @@ bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
     {
 	if ( ((vdir >0)&&
              (
-		( itmGeometry.bottom() > targetRect.bottom() )
-	      ||(  ( childrenBBox.bottom() > targetRect.bottom() )
+		( itmGeometry.bottom() > targetrect.bottom() )
+	      ||(  ( childrenBBox.bottom() > targetrect.bottom() )
 		 &&( childrenBBox.bottom() > oldcbbbtm )
 	        )
 	     )
 	    )
 	    || ( (vdir <0) &&
                 !(  ( childrenBBox.bottom() < oldcbbbtm )
-		  ||(  ( itmGeometry.bottom() > targetRect.bottom())
+		  ||(  ( itmGeometry.bottom() > targetrect.bottom())
 		     &&( itmGeometry.bottom() < oldbtm)
 		    )
                  )
@@ -539,7 +542,7 @@ bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
 
     if ( do_layout )
     {   // move all items to top-left corner first
-	moveChildrenTo( targetRect.top(), targetRect.left(),setGeom);
+	moveChildrenTo( targetrect.top(), targetrect.left(),setGeom);
 	layoutChildren( setGeom );
     }
 
@@ -786,7 +789,7 @@ int i_LayoutMngr::count () const
 }
 
 
-bool i_LayoutMngr::attach( constraintType type, QWidget& current,
+bool i_LayoutMngr::attach( ConstraintType type, QWidget& current,
 			   QWidget* other, int mrgin,
 			   bool reciprocal )
 {

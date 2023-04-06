@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 class i_LayoutItem;
 
-enum constraintType
+enum ConstraintType
 {
     leftOf, rightOf, //!< LeftOf/RightOf attach widgets tightly together
     leftTo, rightTo, //!< LeftTo/RightTo allow extra horizontal distance
@@ -37,7 +37,7 @@ mExpClass(uiBase) uiConstraint
 {
 friend class i_LayoutItem;
 public:
-			uiConstraint(constraintType,i_LayoutItem* o,int marg);
+			uiConstraint(ConstraintType,i_LayoutItem*,int marg);
     virtual		~uiConstraint();
 
     bool		operator==(const uiConstraint&) const;
@@ -47,7 +47,7 @@ public:
     void		disable(bool yn=true);
 
 protected:
-    constraintType	type_;
+    ConstraintType	type_;
     i_LayoutItem*	other_;
     int			margin_;
     bool		enabled_;

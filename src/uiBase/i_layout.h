@@ -22,7 +22,7 @@ class Timer;
 //! internal enum used to determine in which direction a widget
 
 //! can be stretched and to check which outer limit must be checked
-enum stretchLimitTp { left=1, right=2, above=4, below=8,
+enum StretchLimitTp { left=1, right=2, above=4, below=8,
 		      rightLimit=16, bottomLimit=32 };
 
 
@@ -71,8 +71,8 @@ class i_LayoutMngr : public mQtclass(QLayout), public NamedCallBacker
 public:
 			i_LayoutMngr(mQtclass(QWidget*) prnt,
 				     const char* name,uiObjectBody& mngbdy);
-
     virtual		~i_LayoutMngr();
+			mOD_DisableCopy(i_LayoutMngr)
 
     void		addItem(mQtclass(QLayoutItem*)) override;
     void		addItem(i_LayoutItem*);
@@ -88,7 +88,7 @@ public:
     virtual void	updatedAlignment(LayoutMode);
     virtual void	initChildLayout(LayoutMode);
 
-    bool		attach(constraintType,mQtclass(QWidget&),
+    bool		attach(ConstraintType,mQtclass(QWidget&),
 			       mQtclass(QWidget*),int,
 			       bool reciprocal=true);
 

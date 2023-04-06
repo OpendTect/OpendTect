@@ -30,6 +30,7 @@ public:
 				i_LayoutItem(i_LayoutMngr&,
 					     mQtclass(QLayoutItem&));
     virtual			~i_LayoutItem();
+				mOD_DisableCopy(i_LayoutItem)
 
     virtual int			horAlign(LayoutMode m ) const
 				    { return curpos(m).left(); }
@@ -66,7 +67,7 @@ protected:
     void			initLayout(LayoutMode,int mngrtop,int mngrleft);
     bool			layout(LayoutMode,int,bool);
 
-    void			attach(constraintType,i_LayoutItem* other,
+    void			attach(ConstraintType,i_LayoutItem* other,
 				       int margin,bool reciprocal=true);
 
     virtual uiObject*		objLayouted()		{ return nullptr; }
@@ -113,8 +114,8 @@ public:
 			    : i_LayoutItem(mgr,
 				    *new mQtclass(QWidgetItem)(obj.qwidget()) )
 			    , uiobjbody_(obj)		{}
-
     virtual		~i_uiLayoutItem();
+			mOD_DisableCopy(i_uiLayoutItem)
 
     uiSize		minimumSize() const override;
 

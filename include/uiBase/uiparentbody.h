@@ -20,13 +20,14 @@ mClass(uiBase) uiParentBody : public uiBody, public NamedCallBacker
 {
 friend class uiObjectBody;
 public:
-    virtual		~uiParentBody();
+			~uiParentBody();
+			mOD_DisableCopy(uiParentBody)
 
     virtual void	addChild(uiBaseObject& child);
 
 			//! child becomes mine.
     void		manageChild(uiBaseObject& child,uiObjectBody&);
-    virtual void	attachChild(constraintType,uiObject* child,
+    virtual void	attachChild(ConstraintType,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal) =0;
     const ObjectSet<uiBaseObject>*
@@ -64,10 +65,11 @@ mExpClass(uiBase) uiCentralWidgetBody : public uiParentBody
 {
 public:
     virtual		~uiCentralWidgetBody();
+			mOD_DisableCopy(uiCentralWidgetBody)
 
     uiGroup*		uiCentralWidg() { return centralwidget_; }
     void		addChild(uiBaseObject&) override;
-    void		attachChild(constraintType,uiObject* child,
+    void		attachChild(ConstraintType,uiObject* child,
 				    uiObject* other,int margin,
 				    bool reciprocal) override;
 

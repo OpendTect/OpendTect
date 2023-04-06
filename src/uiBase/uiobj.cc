@@ -560,20 +560,20 @@ int uiObject::stretch( bool hor ) const
 }
 
 
-void uiObject::attach( constraintType tp, int margin )
+void uiObject::attach( ConstraintType tp, int margin )
 {
     objBody()->attach( tp, sCast(uiObject*,nullptr), margin );
 }
 
 
-void uiObject::attach( constraintType tp, uiObject* other, int margin,
+void uiObject::attach( ConstraintType tp, uiObject* other, int margin,
 			bool reciprocal )
 {
     objBody()->attach(tp, other, margin, reciprocal);
 }
 
 
-void uiObject::attach( constraintType tp, uiParent* other, int margin,
+void uiObject::attach( ConstraintType tp, uiParent* other, int margin,
 			bool reciprocal )
 {
     objBody()->attach( tp, other, margin, reciprocal );

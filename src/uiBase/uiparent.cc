@@ -66,8 +66,8 @@ void uiParent::manageChild( uiBaseObject& child, uiObjectBody& bdy )
 }
 
 
-void uiParent::attachChild ( constraintType tp, uiObject* child,
-			     uiObject* other, int margin, bool reciprocal )
+void uiParent::attachChild( ConstraintType tp, uiObject* child,
+			    uiObject* other, int margin, bool reciprocal )
 {
     if ( child == static_cast<uiBaseObject*>(this) )
 	return;
@@ -218,8 +218,7 @@ void uiCentralWidgetBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
 }
 
 
-void uiCentralWidgetBody::attachChild ( constraintType tp,
-					uiObject* child,
+void uiCentralWidgetBody::attachChild( ConstraintType tp, uiObject* child,
 					uiObject* other, int margin,
 					bool reciprocal )
 {

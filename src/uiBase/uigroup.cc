@@ -29,6 +29,9 @@ public:
 			i_uiGroupLayoutItem( i_LayoutMngr& mgr,
 					     uiGroupObjBody& obj,
 					     uiGroupParentBody& par );
+			~i_uiGroupLayoutItem()
+			{}
+			mOD_DisableCopy(i_uiGroupLayoutItem)
 
     int		horAlign(LayoutMode) const override;
     int		center(LayoutMode,bool hor) const override;
@@ -59,6 +62,8 @@ class uiGroupObjBody : public uiObjectBody, public QFrame
 public:
 				uiGroupObjBody(uiGroupObj&,uiParent*,
 					       const char*);
+				~uiGroupObjBody()	{}
+				mOD_DisableCopy(uiGroupObjBody)
 
     const QWidget*		qwidget_() const override { return this; }
 
@@ -99,12 +104,8 @@ class uiGroupParentBody : public uiParentBody
 public:
 			uiGroupParentBody(uiGroup&,uiGroupObjBody&,uiParent*,
 					  const char* nm="uiGroupObjBody");
-
-    virtual		~uiGroupParentBody()
-			{
-			    handle_.body_ = nullptr;
-			    delete lomngr_;
-			}
+			~uiGroupParentBody();
+			mOD_DisableCopy(uiGroupParentBody)
 
     void		setHSpacing( int space )
 			    { lomngr_->setHSpacing( space ); }
@@ -151,7 +152,7 @@ protected:
     void		manageChld_( uiBaseObject& o, uiObjectBody& b ) override
 			    { lomngr_->addItem( b.mkLayoutItem( *lomngr_ ) ); }
 
-    void		attachChild ( constraintType tp,
+    void		attachChild ( ConstraintType tp,
 				      uiObject* child,
 				      uiObject* other, int margin,
 				      bool reciprocal ) override
@@ -192,6 +193,14 @@ uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
 {
     lomngr_ = new i_LayoutMngr( objbdy.qwidget(), nm, objbdy );
     mAttachCB( lomngr_->objectToBeDeleted(), uiGroupParentBody::mngrDel );
+}
+
+
+uiGroupParentBody::~uiGroupParentBody()
+{
+    detachAllNotifiers();
+    handle_.body_ = nullptr;
+    delete lomngr_;
 }
 
 
@@ -354,9 +363,7 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
     if ( !prntbody_ )
 	{ pErrMsg("Duh. No parentbody yet."); return 0; }
 #endif
-    i_uiGroupLayoutItem* loitm =
-			new i_uiGroupLayoutItem( mgr, *this, *prntbody_ );
-
+    auto* loitm = new i_uiGroupLayoutItem( mgr, *this, *prntbody_ );
     return loitm ;
 }
 
@@ -555,7 +562,7 @@ bool uiGroup::shrinkAllowed()
 }
 
 
-void uiGroup::attach_( constraintType c, uiObject *other, int margin,
+void uiGroup::attach_( ConstraintType c, uiObject *other, int margin,
 		       bool reciprocal )
 {
 #ifdef __debug__

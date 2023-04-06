@@ -1079,7 +1079,7 @@ void uiDialogBody::manageChld_( uiBaseObject& o, uiObjectBody& b )
 }
 
 
-void uiDialogBody::attachChild( constraintType tp, uiObject* child,
+void uiDialogBody::attachChild( ConstraintType tp, uiObject* child,
 				uiObject* other, int margin, bool reciprocal )
 {
     if ( !child || initing_ ) return;

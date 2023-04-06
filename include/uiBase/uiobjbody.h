@@ -29,10 +29,9 @@ mFDQtclass(QWidget)
 
 mExpClass(uiBase) uiObjectBody : public uiBody, public NamedCallBacker
 {
-friend class		i_uiLayoutItem;
-
 protected:
 			uiObjectBody(uiParent*,const char* nm);
+			mOD_DisableCopy(uiObjectBody)
 public:
 
     virtual		~uiObjectBody();
@@ -73,9 +72,9 @@ public:
 
     virtual int		nrTxtLines() const	{ return -1; }
 
-    void		attach(constraintType,uiObject* other=nullptr,
+    void		attach(ConstraintType,uiObject* other=nullptr,
 			       int margin=-1,bool reciprocal=true);
-    void		attach(constraintType,uiParent* other=nullptr,
+    void		attach(ConstraintType,uiParent* other=nullptr,
 			       int margin=-1,bool reciprocal=true);
 
     void		uisetFont(const uiFont&);
@@ -137,8 +136,6 @@ protected:
 
     void		doDisplay(CallBacker*);
 
-    void		loitemDeleted()		{ layoutitem_ = nullptr; }
-
 private:
 
     i_LayoutItem*	layoutitem_		= nullptr;
@@ -171,6 +168,7 @@ private:
 
     void		gtFntWdtHgt() const;
     void		getSzHint();
+    void		itemDelCB(CallBacker*);
 
 #ifdef USE_DISPLAY_TIMER
     Timer*		displaytimer_		= nullptr;

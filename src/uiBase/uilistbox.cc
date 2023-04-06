@@ -643,7 +643,7 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
 
     uiLabel* labl = new uiLabel( this, mToUiStringTodo(ptr) );
     lbls_ += labl;
-    constraintType lblct = alignedBelow;
+    ConstraintType lblct = alignedBelow;
     switch ( pos )
     {
     case LeftTop:

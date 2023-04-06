@@ -10,14 +10,16 @@ ________________________________________________________________________
 #include "uilayout.h"
 
 
-uiConstraint::uiConstraint( constraintType tp, i_LayoutItem* o, int marg )
+uiConstraint::uiConstraint( ConstraintType tp, i_LayoutItem* oth, int marg )
     : type_(tp)
-    , other_(o)
+    , other_(oth)
     , margin_(marg)
     , enabled_(true)
 {
     if ( !other_ && (type_<leftBorder || type_>hCentered) )
-    { pErrMsg("No attachment defined!!"); }
+    {
+	pErrMsg("No attachment defined!!");
+    }
 }
 
 

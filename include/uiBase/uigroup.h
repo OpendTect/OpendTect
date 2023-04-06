@@ -58,6 +58,7 @@ public:
 			uiGroup(uiParent*,const char* nm="uiGroup",
 				bool manage=true);
     virtual		~uiGroup();
+			mOD_DisableCopy(uiGroup)
 
     inline operator	const uiGroupObj*() const { return grpobj_; }
     inline operator	uiGroupObj*() 		{ return grpobj_; }
@@ -114,7 +115,7 @@ protected:
     uiGroupParentBody*	body_;
 
     uiObject*		mainobject() override		{ return grpobj_; }
-    void		attach_( constraintType, uiObject *oth, int margin=-1,
+    void		attach_( ConstraintType, uiObject *oth, int margin=-1,
 				bool reciprocal=true) override;
 
     virtual void	reDraw_( bool deep )		{}

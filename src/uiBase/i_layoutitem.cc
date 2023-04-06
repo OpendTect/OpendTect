@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "i_layout.h"
 
 #include "uilayout.h"
-#include "uimainwin.h"
 #include "uiobjbody.h"
 
 #include "envvars.h"
@@ -722,7 +721,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 }
 
 
-void i_LayoutItem::attach( constraintType type, i_LayoutItem* other,
+void i_LayoutItem::attach( ConstraintType type, i_LayoutItem* other,
 			   int margn, bool reciprocal )
 {
     if ( type != ensureLeftOf )
@@ -845,7 +844,7 @@ bool i_LayoutItem::isAligned() const
 {
     for ( int idx=0; idx<constraintlist_.size(); idx++ )
     {
-	constraintType tp = constraintlist_[idx].type_;
+	ConstraintType tp = constraintlist_[idx].type_;
 	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true;
     }
@@ -897,7 +896,6 @@ const QWidget* i_LayoutItem::managewidg_() const
 // i_uiLayoutItem
 i_uiLayoutItem::~i_uiLayoutItem()
 {
-    uiobjbody_.loitemDeleted();
 }
 
 

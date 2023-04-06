@@ -38,6 +38,7 @@ mExpClass(uiBase) uiObject : public uiBaseObject
 
 public:
 			~uiObject();
+			mOD_DisableCopy(uiObject)
 
 /*! \brief How should the object's size behave?
     Undef       : use default.
@@ -120,10 +121,10 @@ public:
     margin=-2 stretches the object to fill the parent's border. This looks nice
     with separators.
 */
-    void		attach(constraintType,int margin=-1);
-    void		attach(constraintType,uiObject*,int margin=-1,
+    void		attach(ConstraintType,int margin=-1);
+    void		attach(ConstraintType,uiObject*,int margin=-1,
 				bool reciprocal=true);
-    void		attach(constraintType,uiParent*,int margin=-1,
+    void		attach(ConstraintType,uiParent*,int margin=-1,
 				bool reciprocal=true);
 
     static void		setTabOrder(uiObject* first,uiObject* second);
