@@ -186,7 +186,7 @@ public:
 			CallBacker(const CallBacker&);
     virtual		~CallBacker();
 
-    CallBacker&		operator =(const CallBacker&);
+    CallBacker&		operator =(const CallBacker&) = delete;
 
     bool		attachCB(const NotifierAccess&,const CallBack&,
 				 bool onlyifnew=false) const;

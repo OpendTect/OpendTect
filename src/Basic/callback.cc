@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "notify.h"
 
 #include "thread.h"
-#include "ptrman.h"
-#include "manobjectset.h"
 
 
 #define mOneMilliSecond 0.001
@@ -31,10 +29,9 @@ static QEvent::Type the_qevent_type = QEvent::None;
 class QCallBackEventReceiver : public QObject
 {
 public:
-
-
-QCallBackEventReceiver( ThreadID threadid )
-    : receiverlock_( true )
+QCallBackEventReceiver( ThreadID threadid, QObject* p=nullptr )
+    : QObject(p)
+    , receiverlock_( true )
     , threadid_( threadid )
 {
     cbers_.setNullAllowed();
@@ -43,7 +40,7 @@ QCallBackEventReceiver( ThreadID threadid )
 bool event( QEvent* ev ) override
 {
     if ( ev->type() != the_qevent_type )
-	return false;
+	return QObject::event( ev );
 
     Locker locker( receiverlock_ );
     if ( !queue_.isEmpty() )
@@ -257,12 +254,6 @@ CallBacker::~CallBacker()
 	detachAllNotifiers();
     }
 # endif
-}
-
-
-CallBacker& CallBacker::operator =( const CallBacker& )
-{
-    return *this;
 }
 
 
@@ -624,7 +615,7 @@ void CallBackSet::transferTo( CallBackSet& to, const CallBacker* only_for,
 
 	if ( only_for && cbobj != only_for )
 	    continue;
-	else if ( not_for && cbobj == not_for )
+	if ( not_for && cbobj == not_for )
 	    continue;
 
 	if ( !to.isPresent(cb) )
@@ -638,8 +629,8 @@ void CallBackSet::transferTo( CallBackSet& to, const CallBacker* only_for,
 //---- NotifierAccess
 
 NotifierAccess::NotifierAccess( const NotifierAccess& na )
-    : cber_( na.cber_ )
-    , cbs_(*new CallBackSet(na.cbs_) )
+    : cbs_(*new CallBackSet(na.cbs_) )
+    , cber_( na.cber_ )
 {
     cbs_.ref();
 }
