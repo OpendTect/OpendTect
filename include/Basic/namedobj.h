@@ -68,9 +68,10 @@ mExpClass(Basic) NamedCallBacker : public CallBacker
 				 , public NamedObject
 {
 public:
-
 			NamedCallBacker(const char* nm=0);
 			NamedCallBacker(const NamedCallBacker&);
+
+    NamedCallBacker&	operator=(const NamedCallBacker&) = delete;
 
     inline bool		operator ==( const NamedCallBacker& oth ) const
 			{ return name_ == oth.getName(); }
