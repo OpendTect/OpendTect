@@ -26,7 +26,9 @@ public:
 				uiIcon();
 				uiIcon(const char* icon_identifier);
 				uiIcon(const uiIcon&);
-				~uiIcon();
+    virtual			~uiIcon();
+
+    uiIcon&			operator=(const uiIcon&) = delete;
 
     void			setIdentifier(const char*);
     bool			isEmpty() const;

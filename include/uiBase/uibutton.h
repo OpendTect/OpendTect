@@ -32,6 +32,7 @@ mExpClass(uiBase) uiButton : public uiObject
 {
 public:
     virtual		~uiButton();
+			mOD_DisableCopy(uiButton)
 
     virtual void	setText(const uiString&);
     const uiString&	text() const			{ return text_; }
@@ -97,6 +98,7 @@ public:
 				     const char* iconnm,const CallBack&,
 				     bool immediate);
 			~uiPushButton();
+			mOD_DisableCopy(uiPushButton)
 
     void		setDefault(bool yn=true);
     void		click() override;
@@ -126,6 +128,7 @@ public:
 			uiRadioButton(uiParent*,const uiString&,
 				      const CallBack&);
 			~uiRadioButton();
+			mOD_DisableCopy(uiRadioButton)
 
     bool		isChecked() const;
     virtual void	setChecked(bool yn=true);
@@ -148,6 +151,7 @@ public:
 			uiCheckBox(uiParent*,const uiString&,
 				   const CallBack&);
 			~uiCheckBox();
+			mOD_DisableCopy(uiCheckBox)
 
     bool		isChecked() const;
     void		setChecked(bool yn=true);
@@ -175,6 +179,7 @@ public:
 
 			uiButtonMessenger();
     virtual		~uiButtonMessenger();
+			mOD_DisableCopy(uiButtonMessenger)
 
     //! Button signals emitted by Qt.
     enum notifyTp       { clicked, pressed, released, toggled };

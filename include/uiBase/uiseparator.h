@@ -23,6 +23,7 @@ public:
 				    OD::Orientation ori=OD::Horizontal,
 				    bool raised=true);
 			~uiSeparator();
+			mOD_DisableCopy(uiSeparator)
 
     void		setRaised(bool);
 

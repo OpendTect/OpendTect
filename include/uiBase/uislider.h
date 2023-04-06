@@ -28,6 +28,7 @@ mExpClass(uiBase) uiSliderObj : public uiObject
 public:
 			uiSliderObj(uiParent*,const char* nm);
 			~uiSliderObj();
+			mOD_DisableCopy(uiSliderObj)
 
     uiSliderBody&	body()		{ return *body_; }
 
@@ -66,6 +67,7 @@ public:
 
 			uiSlider(uiParent*,const Setup&,const char* nm=0);
 			~uiSlider();
+			mOD_DisableCopy(uiSlider)
 
     enum		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2,
 				      Right=Below, Both=3 };

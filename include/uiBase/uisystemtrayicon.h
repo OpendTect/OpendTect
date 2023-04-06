@@ -24,6 +24,7 @@ public:
 
 			uiSystemTrayIcon(const uiIcon&);
 			~uiSystemTrayIcon();
+			mOD_DisableCopy(uiSystemTrayIcon)
 
     void		setIcon(const uiIcon&);
     void		setToolTip(const uiString&);

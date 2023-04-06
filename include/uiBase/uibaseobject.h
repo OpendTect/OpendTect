@@ -17,8 +17,8 @@ mFDQtclass(QWidget)
 mExpClass(uiBase) uiBaseObject : public NamedCallBacker
 {
 public:
-				uiBaseObject(const char* nm, uiBody* = 0);
     virtual			~uiBaseObject();
+				mOD_DisableCopy(uiBaseObject)
 
 				// implementation: uiobj.cc
     void			finalize();
@@ -63,7 +63,9 @@ public:
     void			finalise()		{ finalize(); }
     mDeprecated("Use finalized()")
     bool			finalised() const	{ return finalized(); }
+
 protected:
+				uiBaseObject(const char* nm,uiBody* =nullptr);
 
     void			setBody( uiBody* b )	{ body_ = b; }
 

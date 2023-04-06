@@ -17,7 +17,6 @@ class ODTableView;
 class ODStyledItemDelegate;
 class QByteArray;
 class QSortFilterProxyModel;
-class QVariant;
 
 
 mExpClass(uiBase) uiTableView : public uiObject
@@ -30,6 +29,7 @@ public:
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
+				mOD_DisableCopy(uiTableView)
 
     void			setModel(TableModel*);
     void			saveHorizontalHeaderState();

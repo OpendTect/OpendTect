@@ -42,6 +42,7 @@ public:
 
 			uiColTabItem(const Setup&);
 			~uiColTabItem();
+			mOD_DisableCopy(uiColTabItem)
 
     Setup&		setup()		{ return setup_; }
     const Setup&	setup() const	{ return setup_; }

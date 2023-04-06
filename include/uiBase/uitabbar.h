@@ -25,6 +25,7 @@ friend class		uiTabStack;
 public:
 			uiTabBar(uiParent*,const char* nm,
 				 const CallBack* cb=0);
+			mOD_DisableCopy(uiTabBar)
 
     int			addTab(uiTab*);
     void		removeTab(uiTab*);
@@ -70,6 +71,7 @@ friend class		uiTabBar;
 public:
 			uiTab(uiGroup&,const uiString& caption);
     virtual		~uiTab();
+			mOD_DisableCopy(uiTab)
 
     void		setCaption(const uiString&);
     const uiString&	getCaption() const		{ return caption_; }

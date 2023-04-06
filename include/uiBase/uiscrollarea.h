@@ -20,6 +20,7 @@ friend class		ODScrollArea;
 public:
 			uiScrollArea(uiParent*,const char* nm="uiScrollArea");
 			~uiScrollArea();
+			mOD_DisableCopy(uiScrollArea)
 
     void		setObject(uiObject*);
     uiObject*		getObject();

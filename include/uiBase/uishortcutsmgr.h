@@ -102,6 +102,7 @@ mExpClass(uiBase) uiShortcutsMgr : public CallBacker
 public:
 			uiShortcutsMgr();
 			~uiShortcutsMgr();
+			mOD_DisableCopy(uiShortcutsMgr)
 
     const uiShortcutsList& getList(const char* key) const;
     bool		setList(const uiShortcutsList&,bool usr=true);

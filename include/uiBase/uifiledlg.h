@@ -49,6 +49,7 @@ public:
 			const uiString& caption=uiString::emptyString());
 						//!< Always AnyFile
     virtual		~uiFileDialog();
+			mOD_DisableCopy(uiFileDialog)
 
     virtual int		go();
 

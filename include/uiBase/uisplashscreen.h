@@ -20,6 +20,7 @@ mExpClass(uiBase) uiSplashScreen
 public:
 				uiSplashScreen(const uiPixmap&);
 				~uiSplashScreen();
+				mOD_DisableCopy(uiSplashScreen)
 
     void			show();
     void			finish(uiMainWin*);

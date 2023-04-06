@@ -24,6 +24,7 @@ mExpClass(uiBase) uiDial : public uiObject
 public:
 			uiDial(uiParent*,const char* nm="Dial");
 			~uiDial();
+			mOD_DisableCopy(uiDial)
 
     void		setValue(int);
     int			getValue() const;
@@ -89,6 +90,7 @@ public:
 
 			uiDialExtra(uiParent*,const Setup&, const char* nm);
 			~uiDialExtra();
+			mOD_DisableCopy(uiDialExtra)
 
     uiDial*		dial()		{ return dial_; }
     uiLabel*		label()		{ return lbl_; }

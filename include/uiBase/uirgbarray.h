@@ -21,7 +21,8 @@ public:
 			uiRGBArray(bool withalpha);
 			uiRGBArray(const OD::RGBImage&);
 			uiRGBArray(const char* filename);
-    virtual		~uiRGBArray();
+			~uiRGBArray();
+			mOD_DisableCopy(uiRGBArray)
 
     OD::Color		get(int,int) const override;
     bool		set(int,int,const OD::Color&) override;
@@ -60,6 +61,7 @@ mExpClass(uiBase) uiRGBImageLoader : public OD::RGBImageLoader
 { mODTextTranslationClass(uiRGBImageLoader)
 public:
 			~uiRGBImageLoader();
+			mOD_DisableCopy(uiRGBImageLoader)
 
     static void		initClass();
 

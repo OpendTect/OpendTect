@@ -217,9 +217,9 @@ protected:
 mExpClass(uiBase) uiUserShowWait
 {
 public:
-
 			uiUserShowWait(uiParent*,const uiString&,int sbfld=0);
 			~uiUserShowWait();
+			mOD_DisableCopy(uiUserShowWait)
 
     void		setMessage(const uiString&);
     void		readyNow();

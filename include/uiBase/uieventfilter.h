@@ -24,8 +24,9 @@ class uiBaseObject;
 mExpClass(uiBase) uiEventFilter : public CallBacker
 {
 public:
-				uiEventFilter();
-    virtual			~uiEventFilter();
+			uiEventFilter();
+			~uiEventFilter();
+			mOD_DisableCopy(uiEventFilter)
 
     enum EventType {
 	None,

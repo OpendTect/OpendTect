@@ -23,6 +23,7 @@ mExpClass(uiBase) uiTextEditBase : public uiObject
 {
 public:
 			~uiTextEditBase();
+			mOD_DisableCopy(uiTextEditBase)
 
     void		setEmpty();
     void		readFromFile(const char*,int linecutlen=0);

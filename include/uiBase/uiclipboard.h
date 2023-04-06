@@ -23,6 +23,7 @@ mExpClass(uiBase) uiClipboard
 public:
 			uiClipboard();
     virtual		~uiClipboard();
+			mOD_DisableCopy(uiClipboard)
 
     static void		setText(const uiString&);
     static void		setText(const char*);

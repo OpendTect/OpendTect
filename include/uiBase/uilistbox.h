@@ -59,6 +59,7 @@ mExpClass(uiBase) uiListBoxObj : public uiObject
 public:
 			uiListBoxObj(uiParent*,const char* nm,OD::ChoiceMode);
 			~uiListBoxObj();
+			mOD_DisableCopy(uiListBoxObj)
 
     uiListBoxBody&	body()		{ return *body_; }
 
@@ -108,6 +109,7 @@ public:
 				  OD::ChoiceMode cm=OD::ChooseOnlyOne);
 			uiListBox(uiParent*,const Setup&,const char* nm=0);
     virtual		~uiListBox();
+			mOD_DisableCopy(uiListBox)
 
     uiListBoxObj*	box()				{ return lb_; }
     uiGroup*		checkGroup()			{ return checkgrp_; }

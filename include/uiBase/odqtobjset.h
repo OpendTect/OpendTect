@@ -17,6 +17,7 @@ mClass(uiBase) ODQtObjectSet
 public:
 			ODQtObjectSet()		{}
 			~ODQtObjectSet()	{}
+			mOD_DisableCopy(ODQtObjectSet)
 
    int			size() const		{ return odobjs_.size(); }
 

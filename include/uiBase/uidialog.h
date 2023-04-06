@@ -98,6 +98,8 @@ public:
 
 			uiDialog(uiParent*,const Setup&);
 			~uiDialog();
+			mOD_DisableCopy(uiDialog)
+
     const Setup&	setup() const;
 
     int			go();

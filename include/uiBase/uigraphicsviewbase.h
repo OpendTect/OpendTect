@@ -29,6 +29,7 @@ friend class uiGraphicsViewBody;
 public:
 				uiGraphicsViewBase(uiParent*,const char*);
 				~uiGraphicsViewBase();
+				mOD_DisableCopy(uiGraphicsViewBase)
 
     void			setScene(uiGraphicsScene&);
 				//!<Scene becomes mine
@@ -139,6 +140,7 @@ mExpClass(uiBase) uiGraphicsViewMask : public uiGraphicsItem
 public:
 				uiGraphicsViewMask(uiGraphicsViewBase&);
 				~uiGraphicsViewMask();
+				mOD_DisableCopy(uiGraphicsViewMask)
 
     void			setBorder(int);
     int				border() const;

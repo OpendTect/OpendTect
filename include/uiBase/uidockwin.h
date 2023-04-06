@@ -22,8 +22,8 @@ mExpClass(uiBase) uiDockWin : public uiParent
 public:
 			uiDockWin(uiParent* parnt=0,
 			    const uiString& caption=uiString::emptyString() );
-
-    virtual		~uiDockWin();
+			~uiDockWin();
+			mOD_DisableCopy(uiDockWin)
 
     void		setGroup(uiGroup*);
     void		setObject(uiObject*);

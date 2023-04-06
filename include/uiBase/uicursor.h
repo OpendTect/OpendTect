@@ -29,8 +29,9 @@ public:
     static MouseCursor::Shape overrideCursorShape();
 
 protected:
-		~uiCursorManager();
-		uiCursorManager();
+			~uiCursorManager();
+			uiCursorManager();
+			mOD_DisableCopy(uiCursorManager)
 
     void	setOverrideShape(MouseCursor::Shape,bool replace) override;
     void	setOverrideCursor(const MouseCursor&,bool replace) override;

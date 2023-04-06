@@ -22,6 +22,7 @@ mExpClass(uiBase) uiVirtualKeyboard : public uiMainWin
 public:
     				uiVirtualKeyboard(uiObject&,int x,int y);
 				~uiVirtualKeyboard();
+				mOD_DisableCopy(uiVirtualKeyboard)
 
     bool			enterPressed() const;
 

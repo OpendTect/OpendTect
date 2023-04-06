@@ -28,6 +28,7 @@ public:
 			}
 			~uiObjBodyImpl()
 			{}
+			mOD_DisableCopy(uiObjBodyImpl)
 
     const QWidget*	qwidget_() const override { return this; }
     virtual void	setFont( const QFont& )

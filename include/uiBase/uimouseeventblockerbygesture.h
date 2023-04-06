@@ -25,6 +25,7 @@ mExpClass(uiBase) uiMouseEventBlockerByGestures : public CallBacker
 public:
 				uiMouseEventBlockerByGestures(int delay_ms=-1);
 				~uiMouseEventBlockerByGestures();
+				mOD_DisableCopy(uiMouseEventBlockerByGestures)
 
     void			attachToQObj(QObject*);
     void			attach(uiBaseObject*);

@@ -127,6 +127,7 @@ public:
 			uiTable(uiParent*,const Setup&,const char* nm);
 			uiTable(uiParent*,const char* nm);
     virtual		~uiTable();
+			mOD_DisableCopy(uiTable)
 
     const char*		text(const RowCol&) const;
     void		setText(const RowCol&,const char*);

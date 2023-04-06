@@ -27,6 +27,7 @@ public:
 						const uiString& title=
 						       uiString::emptyString());
 				~uiMdiAreaWindow();
+				mOD_DisableCopy(uiMdiAreaWindow)
 
     void			setTitle(const uiString&);
     const uiString&		getTitle() const { return title_; }
@@ -68,6 +69,7 @@ friend class		i_MdiAreaMessenger;
 public:
 			uiMdiArea(uiParent*,const char* nm="uiMdiArea");
 			~uiMdiArea();
+			mOD_DisableCopy(uiMdiArea)
 
     void		tileHorizontal();
     void		tileVertical();

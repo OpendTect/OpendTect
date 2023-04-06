@@ -56,6 +56,8 @@ public:
 			uiTextValidator(const uiTextValidator& textvl);
 			~uiTextValidator();
 
+    uiTextValidator&	operator=(const uiTextValidator&) = delete;
+
     static uiTextValidator getDefault();
 
     BufferStringSet	regexchars_;

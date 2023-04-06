@@ -32,7 +32,8 @@ public:
 				   const char* nm="uiTreeView",
 				   int preferredNrLines=0,
 				   bool rootdecorated=true);
-    virtual		~uiTreeView();
+			~uiTreeView();
+			mOD_DisableCopy(uiTreeView)
 
     bool		isEmpty() const override;
     void		setEmpty();
@@ -232,7 +233,8 @@ public:
 
 			uiTreeViewItem(uiTreeViewItem* parent,const Setup&);
 			uiTreeViewItem(uiTreeView* parent,const Setup&);
-    virtual		~uiTreeViewItem();
+			~uiTreeViewItem();
+			mOD_DisableCopy(uiTreeViewItem)
 
     mQtclass(QTreeWidgetItem*)	qItem()			{ return qtreeitem_; }
     const mQtclass(QTreeWidgetItem*) qItem() const	{ return qtreeitem_; }

@@ -19,6 +19,7 @@ mExpClass(uiBase) uiObjectStack : public uiObject
 public:
 			uiObjectStack(uiParent*,const char*);
 			~uiObjectStack();
+			mOD_DisableCopy(uiObjectStack)
 
     int			addObject(uiObject*);
     int			addGroup(uiGroup*);

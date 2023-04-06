@@ -24,6 +24,7 @@ public:
 			uiLabel(uiParent*,const uiString&,uiObject*);
 			uiLabel(uiParent*,const uiString&,uiGroup*);
 			~uiLabel();
+			mOD_DisableCopy(uiLabel)
 
 /*! \brief set text on label
 

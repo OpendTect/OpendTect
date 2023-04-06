@@ -26,6 +26,7 @@ mExpClass(uiBase) uiCalendar : public uiObject
 public:
 			uiCalendar(uiParent*);
 			~uiCalendar();
+			mOD_DisableCopy(uiCalendar)
 
     void		setDate(const DateInfo&);
     DateInfo		getDate() const;
@@ -47,6 +48,7 @@ public:
 			uiDateSel(uiParent*,const uiString& label,
 				  const DateInfo* = nullptr );
 			~uiDateSel();
+			mOD_DisableCopy(uiDateSel)
 
     void		setDate(const DateInfo&);
     bool		getDate(DateInfo&,bool doui) const;

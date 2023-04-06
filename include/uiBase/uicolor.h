@@ -68,6 +68,7 @@ public:
 				uiColorInput(uiParent*,const Setup&,
 					     const char* nm=nullptr);
 				~uiColorInput();
+				mOD_DisableCopy(uiColorInput)
 
     const OD::Color&		color() const	{ return color_; }
     void			setColor(const OD::Color&);

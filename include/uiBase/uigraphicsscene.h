@@ -35,6 +35,7 @@ mExpClass(uiBase) uiGraphicsScene : public NamedCallBacker
 public:
 				uiGraphicsScene(const char*);
 				~uiGraphicsScene();
+				mOD_DisableCopy(uiGraphicsScene)
 
     void			removeAllItems();
     uiGraphicsItem*		removeItem(uiGraphicsItem*);

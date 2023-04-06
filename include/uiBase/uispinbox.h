@@ -25,6 +25,7 @@ public:
 			uiSpinBox(uiParent*,int nrdecimals=0,
 				  const char* nm="SpinBox");
 			~uiSpinBox();
+			mOD_DisableCopy(uiSpinBox)
 
     void		setReadOnly(bool yn);
     bool		isReadOnly() const;

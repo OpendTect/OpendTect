@@ -31,6 +31,7 @@ public:
 			uiButtonGroup(uiParent*,const char* nm,
 				      OD::Orientation);
 			~uiButtonGroup();
+			mOD_DisableCopy(uiButtonGroup)
 
     void		selectButton(int id);
     int			selectedId() const;

@@ -32,6 +32,7 @@ public:
 					     const uiString& tooltip,
 					     const CallBack&);
 				~uiToolButton();
+				mOD_DisableCopy(uiToolButton)
 
     static uiToolButton*	getStd(uiParent*,OD::StdActionType,
 					const CallBack&,const uiString& ttip);

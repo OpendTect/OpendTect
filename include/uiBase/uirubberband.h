@@ -18,8 +18,9 @@ mFDQtclass(QWidget)
 mExpClass(uiBase) uiRubberBand
 {
 public:
-			uiRubberBand(QWidget* p);
-			~uiRubberBand();
+			uiRubberBand(QWidget*);
+    virtual		~uiRubberBand();
+			mOD_DisableCopy(uiRubberBand)
 
     void		start(mQtclass(QMouseEvent*));
     void		extend(mQtclass(QMouseEvent*));

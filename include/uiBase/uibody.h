@@ -17,6 +17,7 @@ mExpClass(uiBase) uiBody
 {
 public:
     virtual			~uiBody();
+				mOD_DisableCopy(uiBody)
 
     virtual void		finalize()				{}
     virtual bool		finalized() const	{ return false; }
@@ -49,6 +50,7 @@ mClass(uiBase) uiBodyImpl : public uiBody
 {
 public:
     virtual		~uiBodyImpl()			{ delete qthing_; }
+			mOD_DisableCopy(uiBodyImpl)
 
     T*			qthing()			{ return qthing_; }
     const T*		qthing() const			{ return qthing_; }

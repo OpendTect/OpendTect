@@ -32,6 +32,7 @@ public:
 			uiTabStack(uiParent*,const char* nm,
 				   bool manage=true);
 			~uiTabStack();
+			mOD_DisableCopy(uiTabStack)
 
 			// use this as parent for groups to add
     uiGroup*		tabGroup()			{ return tabgrp_; }

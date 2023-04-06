@@ -37,6 +37,7 @@ mExpClass(uiBase) uiSplitter : public uiObject
 public:
 			uiSplitter(uiParent*,const char* nm,OD::Orientation);
 			~uiSplitter();
+			mOD_DisableCopy(uiSplitter)
 
     void		addGroup(uiGroup*); //!< Group becomes my child
 

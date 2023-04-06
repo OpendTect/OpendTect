@@ -43,6 +43,7 @@ public:
 			uiAction(const MenuItem&);
 			uiAction(mQtclass(QAction*));
 			~uiAction();
+			mOD_DisableCopy(uiAction)
 
     void		setText(const uiString&);
     const uiString&	text() const;

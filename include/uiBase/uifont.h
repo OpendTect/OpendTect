@@ -46,7 +46,7 @@ public:
 
     FontData		fontData() const ;
     void		setFontData(const FontData&);
-                        //!< Updates internal QFont and QFontMetrics.
+			//!< Updates internal QFont and QFontMetrics.
     static void		setFontData(mQtclass(QFont)&,const FontData&);
     static void		getFontData(FontData&,const mQtclass(QFont)&);
     static mQtclass(QFont)* createQFont(const FontData&);
@@ -90,6 +90,8 @@ friend class	uiFontSettingsGroup;
 public:
 			uiFontList();
 			~uiFontList();
+			mOD_DisableCopy(uiFontList)
+
     static uiFontList&	getInst();
 
     int			nrKeys();

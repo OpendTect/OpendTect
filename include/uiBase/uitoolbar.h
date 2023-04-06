@@ -47,6 +47,7 @@ public:
 			uiToolBar(uiParent*,const char* nm,
 				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
+			mOD_DisableCopy(uiToolBar)
 
     uiParent*		parent()			{ return parent_; }
 

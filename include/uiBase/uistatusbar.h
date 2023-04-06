@@ -26,6 +26,7 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 
 public:
 			~uiStatusBar();
+			mOD_DisableCopy(uiStatusBar)
 
     int		addMsgFld(const uiString& lbltxt=uiString::emptyString(),
 			  const uiString& tooltip =uiString::emptyString(),
@@ -52,7 +53,7 @@ public:
 
 protected:
 
-                        uiStatusBar(uiMainWin*,const char*,
+			uiStatusBar(uiMainWin*,const char*,
 				    mQtclass(QStatusBar&));
 private:
 

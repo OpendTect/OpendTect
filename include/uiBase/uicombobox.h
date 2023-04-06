@@ -41,6 +41,7 @@ public:
 			uiComboBox(uiParent*,const EnumDef&,const char* nm);
 			/*!<EnumDef is assumed to remain in mem*/
     virtual		~uiComboBox();
+			mOD_DisableCopy(uiComboBox)
 
     void		setReadOnly(bool yn=true) override;
     bool		isReadOnly() const override;

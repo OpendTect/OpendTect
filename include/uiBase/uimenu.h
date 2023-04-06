@@ -40,6 +40,7 @@ protected:
 				uiMenuBar(uiParent*,const char* nm,
 					  mQtclass(QMenuBar)*);
 				~uiMenuBar();
+				mOD_DisableCopy(uiMenuBar)
 
     void			doInsertMenu(mQtclass(QMenu)*,
 				   mQtclass(QAction)* before) override;
@@ -66,6 +67,7 @@ public:
 			       const char* iconnm =nullptr);
 			uiMenu(const MenuItem&);
 			~uiMenu();
+			mOD_DisableCopy(uiMenu)
 
     bool		isMenu() const override		{ return true; }
 

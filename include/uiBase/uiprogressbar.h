@@ -19,6 +19,7 @@ public:
 			uiProgressBar(uiParent*,const char* nm="ProgressBar",
 				      int totalSteps=100,int progress=0);
 			~uiProgressBar();
+			mOD_DisableCopy(uiProgressBar)
 
     void		setProgress(int);
     int			progress() const;

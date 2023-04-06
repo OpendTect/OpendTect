@@ -27,6 +27,7 @@ mExpClass(uiBase) uiTrayDialog : public uiDialog
 public:
 			uiTrayDialog(uiParent*,const Setup&);
 			~uiTrayDialog();
+			mOD_DisableCopy(uiTrayDialog)
 
     void		setTrayIcon(const char*);
     void		setTrayToolTip(const uiString&);

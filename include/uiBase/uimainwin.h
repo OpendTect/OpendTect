@@ -63,6 +63,7 @@ public:
 				  int nrstatusflds=1,bool withmenubar=true,
 				  bool modal=false);
     virtual		~uiMainWin();
+			mOD_DisableCopy(uiMainWin)
 
     //! Dock Selector
     enum Dock
