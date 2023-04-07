@@ -100,11 +100,7 @@ public:
 			uiGroupParentBody(uiGroup&,uiGroupObjBody&,uiParent*,
 					  const char* nm="uiGroupObjBody");
 
-    virtual		~uiGroupParentBody()
-			{
-			    handle_.body_ = nullptr;
-			    delete lomngr_;
-			}
+    virtual		~uiGroupParentBody();
 
     void		setHSpacing( int space )
 			    { lomngr_->setHSpacing( space ); }
@@ -192,6 +188,14 @@ uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
 {
     lomngr_ = new i_LayoutMngr( objbdy.qwidget(), nm, objbdy );
     mAttachCB( lomngr_->objectToBeDeleted(), uiGroupParentBody::mngrDel );
+}
+
+
+uiGroupParentBody::~uiGroupParentBody()
+{
+    detachAllNotifiers();
+    handle_.body_ = nullptr;
+    delete lomngr_;
 }
 
 

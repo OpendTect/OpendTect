@@ -897,7 +897,6 @@ const QWidget* i_LayoutItem::managewidg_() const
 // i_uiLayoutItem
 i_uiLayoutItem::~i_uiLayoutItem()
 {
-    uiobjbody_.loitemDeleted();
 }
 
 

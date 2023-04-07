@@ -149,7 +149,15 @@ i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 	{ pErrMsg("Already have layout itm"); return layoutitem_ ; }
 
     layoutitem_ = mkLayoutItem_( mngr );
+    if ( layoutitem_ )
+	mAttachCB( layoutitem_->objectToBeDeleted(), uiObjectBody::itemDelCB );
     return layoutitem_;
+}
+
+
+void uiObjectBody::itemDelCB( CallBacker* )
+{
+    layoutitem_ = nullptr;
 }
 
 

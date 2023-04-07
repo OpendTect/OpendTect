@@ -171,6 +171,7 @@ private:
 
     void		gtFntWdtHgt() const;
     void		getSzHint();
+    void		itemDelCB(CallBacker*);
 
 #ifdef USE_DISPLAY_TIMER
     Timer*		displaytimer_		= nullptr;
