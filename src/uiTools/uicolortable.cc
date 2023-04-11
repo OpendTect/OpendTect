@@ -827,6 +827,8 @@ void uiColorTableToolBar::init()
     mAddTBObj( canvas_, 2 );
     mAddTBObj( maxfld_, 2 );
     tb->addObject( selfld_ );
+    tb->setTabOrder( minfld_, maxfld_ );
+    tb->setTabOrder( maxfld_, selfld_ );
 
     orientationChanged.notify( mCB(this,uiColorTable,orientationChgd) );
 }
