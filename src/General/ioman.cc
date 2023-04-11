@@ -856,7 +856,7 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
     if ( templs.isEmpty() )
     {
 	BufferString msg( "Translator Group '",ctio.ctxt_.trgroup_->groupName(),
-			  "is empty." );
+			  "' is empty." );
 	msg.add( ".\nCannot create a default write IOObj for " )
 	   .add( ctio.ctxt_.name() );
 	pErrMsg( msg ); return nullptr;
