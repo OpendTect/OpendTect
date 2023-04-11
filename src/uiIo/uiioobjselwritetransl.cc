@@ -26,8 +26,8 @@ mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
 uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
 							const Translator& trl )
     : uiGroup(p,BufferString("Write options group for ",trl.getDisplayName()))
-    , transl_(trl)
     , suggestedNameAvailble(this)
+    , transl_(trl)
 {
 }
 
@@ -42,8 +42,8 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 			const CtxtIOObj& ctio,
 			const BufferStringSet& transltoavoid, bool withopts )
     : uiGroup(p,"Write Translator selector")
-    , ctxt_(*new IOObjContext(ctio.ctxt_))
     , suggestedNameAvailble(this)
+    , ctxt_(*new IOObjContext(ctio.ctxt_))
 {
     optflds_.allowNull( true );
     const TranslatorGroup& trgrp = *ctio.ctxt_.trgroup_;
@@ -63,7 +63,8 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     {
 	if ( alltrs.isEmpty() )
 	{
-	    pErrMsg(BufferString("No translator for ",trgrp.groupName()));
+	    pErrMsg(BufferString("No '",trgrp.groupName(),
+				 "' translator found"));
 	}
 	return;
     }
