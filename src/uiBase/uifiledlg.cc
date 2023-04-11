@@ -31,24 +31,6 @@ mUseQtnamespace
 
 const char* uiFileDialog::filesep_ = ";";
 
-static bool sUseNativeDialog()
-{
-    mDefineStaticLocalObject( int, native, = -1 );
-    if ( native != -1 )
-	return bool(native);
-
-    native = 1;
-#ifdef __lux__
-    const BufferString xdgsessiondesktop = GetEnvVar( "XDG_SESSION_DESKTOP" );
-    const BufferString xdgcurrentdesktop = GetEnvVar( "XDG_CURRENT_DESKTOP" );
-    if ( xdgsessiondesktop.isEqual("gnome",OD::CaseInsensitive) ||
-	 xdgcurrentdesktop.isEqual("gnome",OD::CaseInsensitive) )
-	native = 0;
-#endif
-    return bool(native);
-}
-
-
 class ODFileDialog : public QFileDialog
 {
 public:
@@ -58,7 +40,7 @@ ODFileDialog( const QString& dirname, const QString& fltr, QWidget* p,
     : QFileDialog(p,caption,dirname,fltr)
 {
     setModal( true );
-    setOption( QFileDialog::DontUseNativeDialog, !sUseNativeDialog() );
+    setOption( QFileDialog::DontUseNativeDialog, !useNativeDialog() );
 }
 
 };

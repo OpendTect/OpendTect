@@ -89,6 +89,7 @@ bool uiColorInput::selectColor( OD::Color& col, uiParent* parnt,
     const int refnr = ::beginCmdRecEvent( utfwintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
+    qdlg.setOption( QColorDialog::DontUseNativeDialog, !useNativeDialog() );
     qdlg.setWindowTitle( toQString(wintitle) );
     if ( withtransp )
     {

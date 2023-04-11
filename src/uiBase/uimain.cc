@@ -848,3 +848,23 @@ bool isMainThreadCurrent()
 {
     return isMainThread( Threads::currentThread() );
 }
+
+
+bool useNativeDialog()
+{
+    mDefineStaticLocalObject( int, native, = -1 );
+    if ( native != -1 )
+	return bool(native);
+
+    native = 1;
+    if ( !__iswin__ )
+    {
+    const BufferString xdgsessiondesktop = GetEnvVar( "XDG_SESSION_DESKTOP" );
+    const BufferString xdgcurrentdesktop = GetEnvVar( "XDG_CURRENT_DESKTOP" );
+    if ( xdgsessiondesktop.isEqual("gnome",OD::CaseInsensitive) ||
+	 xdgcurrentdesktop.isEqual("gnome",OD::CaseInsensitive) )
+	native = 0;
+    }
+
+    return bool(native);
+}

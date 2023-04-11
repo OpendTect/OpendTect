@@ -92,6 +92,10 @@ protected:
 
     mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
+
+private:
+
+    void		initFromIcon(const char* icon_identifier);
 };
 
 
