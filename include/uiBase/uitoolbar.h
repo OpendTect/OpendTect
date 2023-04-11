@@ -98,6 +98,7 @@ public:
     bool		isVisible() const;
 
     void		addSeparator() { insertSeparator(); }
+    void		setTabOrder(uiObject*,uiObject*);
 
     void		clear();
 
@@ -112,6 +113,7 @@ public:
 
 protected:
 
+    mDeprecatedDef
     void			doInsertMenu(mQtclass(QMenu)*,
 					mQtclass(QAction)* before) override;
     void			doInsertAction(mQtclass(QAction)*,
@@ -126,7 +128,7 @@ protected:
 				{ handleFinalize( pre ); }
     void			handleFinalize(bool pre);
 
-    uiAction*			toolbarmenuaction_;
+    uiAction*			toolbarmenuaction_		= nullptr;
 
     mQtclass(QToolBar*)		qtoolbar_;
     i_ToolBarMessenger*		msgr_;

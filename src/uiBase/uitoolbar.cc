@@ -36,34 +36,33 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 
 uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 		      bool newline )
-    : uiParent(nm.getFullString(),0)
-    , parent_(parnt)
-    , tbarea_(tba)
+    : uiParent(nm.getFullString(),nullptr)
     , buttonClicked(this)
     , orientationChanged(this)
-    , toolbarmenuaction_(0)
-    , qtoolbar_(new QToolBar(toQString(nm), parnt ? parnt->getWidget() : 0))
+    , tbarea_(tba)
+    , parent_(parnt)
 {
     label_ = nm;
+
+    qtoolbar_ = new QToolBar( toQString(nm),
+			      parnt ? parnt->getWidget() : nullptr );
     qtoolbar_->setObjectName( toQString(nm) );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
     if ( uimw )
     {
-	if ( newline ) uimw->addToolBarBreak();
+	if ( newline )
+	    uimw->addToolBarBreak();
 	uimw->addToolBar( this );
     }
-
-    toolBars() += this;
 
     const int iconsz = uiObject::iconSize();
     qtoolbar_->setIconSize( QSize(iconsz,iconsz) );
 
-#ifdef __mac__
-    qtoolbar_->setStyleSheet( "background: gray;" );
-#endif
+    toolBars() += this;
 }
+
 
 uiToolBar::uiToolBar( uiParent* p, const char* nm, ToolBarArea d, bool newline )
     : uiToolBar(p,toUiString(nm),d,newline)
@@ -320,6 +319,12 @@ void uiToolBar::handleFinalize( bool pre )
 }
 
 
+void uiToolBar::setTabOrder( uiObject* obj1, uiObject* obj2 )
+{
+    qtoolbar_->setTabOrder( obj1->getWidget(), obj2->getWidget() );
+}
+
+
 void uiToolBar::clear()
 {
     removeAllActions();
@@ -338,8 +343,7 @@ void uiToolBar::translateText()
 }
 
 
-void uiToolBar::doInsertMenu(mQtclass(QMenu)* menu,
-			  mQtclass(QAction)* before)
+void uiToolBar::doInsertMenu( mQtclass(QMenu)*, mQtclass(QAction)* )
 {
     pErrMsg("Not implemented. Should not be called");
 }
@@ -376,13 +380,14 @@ void uiToolBar::getEntityList( ObjectSet<const CallBacker>& entities ) const
 
     for ( int actidx=0; actidx<qtoolbar_->actions().size(); actidx++ )
     {
-	QAction* qaction = qtoolbar_->actions()[actidx];
+	const QAction* qaction = qtoolbar_->actions().at( actidx );
 	const int id = getID( qaction );
 	const uiAction* action = const_cast<uiToolBar*>(this)->findAction( id );
 
 	if ( !action )
 	{
-	    const QWidget* qw = qtoolbar_->widgetForAction( qaction );
+	    const QWidget* qw =
+		qtoolbar_->widgetForAction( cCast(QAction*,qaction) );
 	    for ( int objidx=0; objidx<addedobjects_.size(); objidx++ )
 	    {
 		if ( qw==addedobjects_[objidx]->qwidget() )
