@@ -44,6 +44,7 @@ public:
 			SelSpec(const char* userref=nullptr,
 				DescID id=cAttribNotSel(),
 				bool isnla=false,const char* objectref=nullptr);
+			SelSpec(const SelSpec&);
     virtual		~SelSpec();
 
     const DescID&	id() const		{ return id_; }
@@ -54,6 +55,7 @@ public:
     const char*		defString() const	{ return defstring_; }
     const char*		zDomainKey() const	{ return zdomainkey_; }
 
+    SelSpec&		operator=(const SelSpec&);
     bool		operator==(const SelSpec&) const;
     bool		operator!=(const SelSpec&) const;
 
@@ -69,7 +71,7 @@ public:
 			    { zdomainkey_ = key; }
     void		setZDomainKey(const Desc&);
 
-    void		set( const char* r, DescID i, bool isnla,
+    void		set( const char* r, const DescID& i, bool isnla,
 			     const char* objr )
 			{ ref_ = r; id_ = i; isnla_ = isnla; objref_ = objr;
 			  defstring_ = ""; zdomainkey_ = ""; }

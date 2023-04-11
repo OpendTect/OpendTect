@@ -54,14 +54,37 @@ static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
 SelSpec::SelSpec( const char* ref, DescID id, bool nla, const char* objref )
     : ref_(ref)
+    , objref_(objref)
     , id_(id)
     , isnla_(nla)
-    , objref_(objref)
 {}
+
+
+SelSpec::SelSpec( const SelSpec& oth )
+{
+    *this = oth;
+}
 
 
 SelSpec::~SelSpec()
 {}
+
+
+SelSpec& SelSpec::operator=( const SelSpec& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    ref_ = oth.ref_;
+    objref_ = oth.objref_;
+    defstring_ = oth.defstring_;
+    zdomainkey_ = oth.zdomainkey_;
+    id_ = oth.id_;
+    isnla_ = oth.isnla_;
+    discrspec_ = oth.discrspec_;
+    is2d_ = oth.is2d_;
+    return *this;
+}
 
 
 bool SelSpec::operator==( const SelSpec& ss ) const
