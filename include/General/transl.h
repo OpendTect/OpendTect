@@ -279,19 +279,22 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Defines a simple empty TranslatorGroup class body
 #define mDefEmptyTranslatorGroupConstructor(clss) \
 	clss##TranslatorGroup() \
-	: TranslatorGroup(#clss)		{}
+	: TranslatorGroup(#clss)		{} \
+	mOD_DisableCopy(clss##TranslatorGroup)
 
   //! Convenience when the Translator base class is not interesting 4 u.
   //! Defines a simple empty Translator class body
 #define mDefEmptyTranslatorBaseConstructor(clss) \
 	clss##Translator( const char* nm, const char* unm ) \
-	: Translator(nm,unm)			{}
+	: Translator(nm,unm)			{} \
+	mOD_DisableCopy(clss##Translator)
 
   //! Convenience when the Translator is not interesting 4 u.
   //! Defines a simple empty Translator subclass body
 #define mDefEmptyTranslatorConstructor(spec,clss) \
 	spec##clss##Translator( const char* nm, const char* unm ) \
-	: clss##Translator(nm,unm)		{}
+	: clss##Translator(nm,unm)		{} \
+	mOD_DisableCopy(spec##clss##Translator)
 
   //! Convenient when the entire Translator concept is not interesting 4 u.
   //! Use this in your header file to comply with the concept, so you
