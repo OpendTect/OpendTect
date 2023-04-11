@@ -114,6 +114,7 @@ public:
     static const Coord3& udf();
     inline bool		isDefined() const;
     inline bool		isUdf() const		{ return !isDefined(); }
+    inline void		setUdf()		{ *this = udf(); }
     inline bool		isNull() const;
 
     const char*		toString() const;
