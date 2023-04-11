@@ -29,6 +29,8 @@ public:
 				uiTreeItem(const uiString& nm=
 					   uiString::emptyString() );
     virtual			~uiTreeItem();
+				mOD_DisableCopy(uiTreeItem)
+
     virtual void		prepareForShutdown();
 				/*!<Override if you want to popup dlg
 				    for saving various things (or similar) */
@@ -273,12 +275,14 @@ protected:
 mExpClass(uiTools) uiTreeItemFactory
 {
 public:
-    virtual		~uiTreeItemFactory();
-    virtual const char*	name() const			= 0;
-    virtual uiTreeItem*	create() const			= 0;
+    virtual			~uiTreeItemFactory();
+				mOD_DisableCopy(uiTreeItemFactory)
+
+    virtual const char*		name() const			= 0;
+    virtual uiTreeItem*		create() const			= 0;
 
 protected:
-			uiTreeItemFactory();
+				uiTreeItemFactory();
 };
 
 
@@ -287,6 +291,7 @@ mExpClass(uiTools) uiTreeFactorySet : public CallBacker
 public:
 				uiTreeFactorySet();
 				~uiTreeFactorySet();
+				mOD_DisableCopy(uiTreeFactorySet)
 
     void			addFactory(uiTreeItemFactory* ptr,
 					int placementindex=-1,

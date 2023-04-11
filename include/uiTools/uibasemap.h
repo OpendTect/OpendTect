@@ -23,6 +23,7 @@ mExpClass(uiTools) uiBasemapObject : public CallBacker
 public:
 				uiBasemapObject(BasemapObject*);
     virtual			~uiBasemapObject();
+				mOD_DisableCopy(uiBasemapObject)
 
     BasemapObject*		getObject();
 
@@ -73,6 +74,7 @@ mExpClass(uiTools) uiBasemap : public uiGroup
 public:
 				uiBasemap(uiParent*);
     virtual			~uiBasemap();
+				mOD_DisableCopy(uiBasemap)
 
     void			setView(const uiWorldRect&);
 
