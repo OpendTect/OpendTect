@@ -26,7 +26,7 @@ public:
 			DescID();
 			DescID(int id,bool isstored);
 			DescID(const DescID&);
-			~DescID();
+    virtual		~DescID();
 
     inline DescID&	operator =( const DescID& id )
 			{ id_ = id.id_; isstored_ = id.isstored_; return *this;}
