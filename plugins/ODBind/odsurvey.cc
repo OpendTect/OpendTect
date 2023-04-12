@@ -301,16 +301,16 @@ void odSurvey::activate() const {
     cursurvey_ = survey_;
 }
 
-void odSurvey::initModule( const char* odbindfnm )
+bool odSurvey::initModule( const char* odbindfnm )
 {
     if ( AreProgramArgsSet() )
-	return;
+	return true;
 
     const std::filesystem::path fp( odbindfnm );
     const int argc = GetArgC() < 0 ? 0 : GetArgC();
     SetBindings( fp.parent_path().string().c_str(), argc, GetArgV(), true,
 		 fp.string().c_str() );
-    InitBindings( moddeps, false );
+    return InitBindings( moddeps, false );
 }
 
 BufferStringSet* odSurvey::getNames( const char* basedir )
@@ -508,9 +508,9 @@ const char* survey_survtype( hSurvey self )
     return strdup( p->type().buf() );
 }
 
-void initModule( const char* odbindfnm )
+bool initModule( const char* odbindfnm )
 {
-    odSurvey::initModule( odbindfnm );
+    return odSurvey::initModule( odbindfnm );
 }
 
 void exitModule()
@@ -520,3 +520,20 @@ void exitModule()
 }
 
 
+
+const char* isValidSurveyDir( const char* loc )
+{
+    if ( !IOMan::isValidSurveyDir(loc) )
+	return "Specified location is not valud OpendTect survey directory";
+
+    return nullptr;
+}
+
+
+const char* isValidDataRoot( const char* loc )
+{
+    if ( !IOMan::isValidDataRoot(loc) )
+	return "Specified location is not valud OpendTect data root directory";
+
+    return nullptr;
+}
