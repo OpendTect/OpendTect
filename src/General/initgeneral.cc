@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "geojsonwriter.h"
 #include "geometryio.h"
 #include "googlexmlwriter.h"
+#include "imagedeftr.h"
 #include "ioobjselectiontransl.h"
 #include "mathformulatransl.h"
 #include "mathproperty.h"
@@ -71,4 +72,7 @@ mDefModInitFn(General)
     odSimpleTimeDepthModelTranslator::initClass();
     SimpleT2DTransform::initClass();
     SimpleD2TTransform::initClass();
+
+    ImageDefTranslatorGroup::initClass();
+    ODImageDefTranslator::initClass();
 }

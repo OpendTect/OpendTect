@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "visobject.h"
-#include "position.h"
+#include "coord.h"
+#include "multiid.h"
 
 namespace OD{ class RGBImage; }
 namespace osgGeo { class LayeredTexture; class TexturePlaneNode; }
@@ -18,7 +20,6 @@ namespace osgGeo { class LayeredTexture; class TexturePlaneNode; }
 
 namespace visBase
 {
-
 
 mExpClass(visBase) TopBotImage : public VisualObjectImpl
 {
@@ -29,6 +30,10 @@ public:
     void			setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
+
+    void			setImageID(const MultiID&);
+    MultiID			getImageID() const	{ return odimageid_; }
+
     void			setPos(const Coord3& tl,const Coord3& br);
     const Coord3&		topLeft() const	    { return pos0_; }
     const Coord3&		bottomRight() const { return pos1_; }
@@ -60,11 +65,10 @@ protected:
     Coord3			pos0_;
     Coord3			pos1_;
     BufferString		filenm_;
+    MultiID			odimageid_;
 
     static const char*		sKeyTopLeftCoord();
     static const char*		sKeyBottomRightCoord();
-    static const char*		sKeyFileNameStr();
-    static const char*		sKeyTransparencyStr();
 
     int					layerid_;
     osgGeo::LayeredTexture*		laytex_;

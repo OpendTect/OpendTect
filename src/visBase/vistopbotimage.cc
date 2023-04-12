@@ -8,11 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "vistopbotimage.h"
-#include "viscoord.h"
 #include "vismaterial.h"
 #include "vistransform.h"
 
 #include "filespec.h"
+#include "imagedeftr.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "odimage.h"
@@ -28,10 +29,8 @@ mCreateFactoryEntry( visBase::TopBotImage )
 namespace visBase
 {
 
-    const char* TopBotImage::sKeyTopLeftCoord()     { return "TopLeft"; }
-    const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; }
-    const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); }
-    const char*	TopBotImage::sKeyTransparencyStr()  { return "Transparency"; }
+const char* TopBotImage::sKeyTopLeftCoord()		{ return "TopLeft"; }
+const char*	TopBotImage::sKeyBottomRightCoord()	{ return "BotRight"; }
 
 
 TopBotImage::TopBotImage()
@@ -57,6 +56,19 @@ TopBotImage::~TopBotImage()
     if ( trans_ ) trans_->unRef();
     laytex_->unref();
     texplane_->unref();
+}
+
+
+void TopBotImage::setImageID( const MultiID& id )
+{
+    odimageid_ = id;
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    ImageDef def;
+    ODImageDefTranslator::readDef( def, *ioobj );
+    setRGBImageFromFile( def.filename_ );
+    const Coord3 tlcrd( def.tlcoord_.coord(), topLeft().z );
+    const Coord3 brcrd( def.brcoord_.coord(), bottomRight().z );
+    setPos( tlcrd, brcrd );
 }
 
 
@@ -236,11 +248,11 @@ void TopBotImage::fillPar( IOPar& iopar ) const
 
     iopar.set( sKeyTopLeftCoord(), pos0_ );
     iopar.set( sKeyBottomRightCoord(), pos1_ );
-    iopar.set( sKeyTransparencyStr(), getTransparency() );
+    iopar.set( sKey::Transparency(), getTransparency() );
 
     FileSpec fs( filenm_.buf() );
     fs.makePathsRelative();
-    iopar.set( sKeyFileNameStr(), fs.fileName() );
+    iopar.set( sKey::FileName(), fs.fileName() );
 }
 
 
@@ -253,11 +265,11 @@ bool TopBotImage::usePar( const IOPar& iopar )
     float transparency = 0;
     iopar.get( sKeyTopLeftCoord(), ltpos );
     iopar.get( sKeyBottomRightCoord(), brpos );
-    iopar.get( sKeyTransparencyStr(), transparency );
+    iopar.get( sKey::Transparency(), transparency );
 
     filenm_.setEmpty();
     BufferString relfnm;
-    iopar.get( sKeyFileNameStr(), relfnm  );
+    iopar.get( sKey::FileName(), relfnm  );
     if ( !relfnm.isEmpty() )
     {
 	const FileSpec fs( relfnm );

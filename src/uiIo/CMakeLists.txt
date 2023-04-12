@@ -22,23 +22,24 @@ set( OD_MODULE_SOURCES
 	uicreatepicks.cc
 	uidatapointset.cc
 	uidatapointsetcrossplot.cc
+	uidatapointsetcrossplotwin.cc
 	uidatapointsetman.cc
 	uidatapointsetmerger.cc
-	uidatapointsetcrossplotwin.cc
 	uidpsaddcolumndlg.cc
 	uidpscrossplotpropdlg.cc
 	uidpscrossplottools.cc
 	uidpsoverlayattrdlg.cc
 	uidpsrefineseldlg.cc
-	uidpsselgrpdlg.cc
 	uidpsselectednessdlg.cc
+	uidpsselgrpdlg.cc
 	uieditpdf.cc
 	uigeom2dsel.cc
 	uigraphicslegend.cc
-	uiimppickset.cc
-	uiimpexpselgrp.cc
-	uiimpexppdf.cc
+	uiimagesel.cc
 	uiimpexp2dgeom.cc
+	uiimpexppdf.cc
+	uiimpexpselgrp.cc
+	uiimppickset.cc
 	uiimppvds.cc
 	uiioobj.cc
 	uiioobjmanip.cc
@@ -57,8 +58,8 @@ set( OD_MODULE_SOURCES
 	uipointsetsel.cc
 	uiposfilterset.cc
 	uiposfiltgroup.cc
-	uiposprovider.cc
 	uiposprovgroup.cc
+	uiposprovider.cc
 	uiprobdenfuncgen.cc
 	uiprobdenfuncman.cc
 	uiprobdenfunvarsel.cc
