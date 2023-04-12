@@ -150,9 +150,8 @@ protected:
     int				waitsfordirectionid_	= -1;
     int				waitsforpositionid_	= -1;
 
-    TypeSet<int>		invalidpicks_;
-
     bool			showall_		= true;
+    bool			areallshown_		= true;
     VisID			mousepressid_;
     VisID			pickedsobjid_;
 				//!< Picked SurveyObject ID

@@ -20,8 +20,11 @@ ________________________________________________________________________
 #include "visemobjdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
+#include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandompos2body.h"
+#include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 #include "visevent.h"
 #include "vistransform.h"
 #include "visdragger.h"
@@ -606,11 +609,59 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 
 
 void PickSetDisplay::otherObjectsMoved(
-			const ObjectSet<const SurveyObject>& objs, VisID )
+			const ObjectSet<const SurveyObject>& objs,
+			VisID movedid )
 {
     mCheckReadyOnly(set_)
 
-    if ( showall_ && invalidpicks_.isEmpty() )
+    if ( showall_ && areallshown_ )
+	return;
+
+    const bool singleobjectmoved = movedid.isValid() && movedid != id();
+    ObjectSet<const SurveyObject> objstouse;
+    const SurveyObject* validmovedobj = nullptr;
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	mDynamicCastGet(const visBase::VisualObject*,vo,objs[idx])
+	if ( vo && singleobjectmoved && vo->id() == movedid )
+	    validmovedobj = objs[idx];
+
+	mDynamicCastGet(const PlaneDataDisplay*,planedisplay,objs[idx])
+	if ( planedisplay )
+	{
+	    objstouse += objs[idx];
+	    continue;
+	}
+
+	mDynamicCastGet(const EMObjectDisplay*,emobjdisplay,objs[idx])
+	if ( emobjdisplay && !emobjdisplay->displayedOnlyAtSections() )
+	{
+	    objstouse += objs[idx];
+	    continue;
+	}
+
+	mDynamicCastGet(const RandomTrackDisplay*,rtdisplay,objs[idx])
+	if ( rtdisplay )
+	{
+	    objstouse += objs[idx];
+	    continue;
+	}
+
+	mDynamicCastGet(const Seis2DDisplay*,seis2ddisplay,objs[idx])
+	if ( seis2ddisplay )
+	{
+	    objstouse += objs[idx];
+	    continue;
+	}
+
+	if ( validmovedobj == objs[idx] )
+	    validmovedobj = nullptr;
+    }
+
+    if ( singleobjectmoved && !validmovedobj )
+	return;
+
+    if ( objstouse.isEmpty() && showall_ == areallshown_ )
 	return;
 
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
@@ -620,20 +671,18 @@ void PickSetDisplay::otherObjectsMoved(
 	    showmarker = true;
 	else
 	{
-	    for ( int idy=0; idy<objs.size(); idy++ )
+	    for ( int idy=0; idy<objstouse.size(); idy++ )
 	    {
-		if ( updateMarkerAtSection(objs[idy],idx) )
+		if ( updateMarkerAtSection(objstouse[idy],idx) )
 		{
 		    showmarker = true;
 		    break;
 		}
 	    }
-	}
 
-	if ( showmarker )
-	    invalidpicks_ -= idx;
-	else
-	    invalidpicks_ += idx;
+	    if ( !showmarker && areallshown_ )
+		areallshown_ = false;
+	}
 
 	markerset_->turnMarkerOn( idx, showmarker );
 	markerset_->requestSingleRedraw();
