@@ -262,7 +262,7 @@ void ColTab::MapperSetup::triggerAutoscaleChange()
 
 
 ColTab::Mapper::Mapper()
-    : clipper_(new DataClipper)
+    : clipper_(nullptr)
     , clipperismine_(true)
 {
 }
@@ -278,13 +278,18 @@ ColTab::Mapper::Mapper( const Mapper& oth )
 ColTab::Mapper::Mapper( const Mapper& oth, bool shareclipper )
     : Mapper()
 {
-    *this = oth;
-    if ( shareclipper && clipperismine_ )
+    setup_ = oth.setup_;
+    arrnd_ = oth.arrnd_;
+    vs_ = oth.vs_;
+    dataptr_ = oth.dataptr_;
+    datasz_ = oth.datasz_;
+    if ( shareclipper )
     {
-	delete clipper_;
 	clipper_ = oth.clipper_;
 	clipperismine_ = false;
     }
+    else if ( oth.clipper_ )
+	clipper_ = new DataClipper( *oth.clipper_ );
 }
 
 
@@ -301,8 +306,8 @@ ColTab::Mapper& ColTab::Mapper::operator =( const Mapper& oth )
     {
 	setup_ = oth.setup_;
 	if ( clipperismine_ ) delete clipper_;
-	clipper_ = oth.clipperismine_ ? new DataClipper( *oth.clipper_ )
-				      : oth.clipper_;
+	clipper_ = oth.clipperismine_ && oth.clipper_ ?
+				new DataClipper( *oth.clipper_ ) : oth.clipper_;
 	clipperismine_ = oth.clipperismine_;
 	arrnd_ = oth.arrnd_;
 	vs_ = oth.vs_;
@@ -551,6 +556,12 @@ void ColTab::Mapper::update( bool full, TaskRunner* taskrun )
     }
 
     mWarnHistEqNotImpl
+
+    if ( !clipper_ )
+    {
+	clipper_ = new DataClipper;
+	clipperismine_ = true;
+    }
 
     DataClipper& clipper = *clipper_;
     if ( full || clipper.isEmpty() )
