@@ -66,7 +66,7 @@ public:
 				  const char* translkey, bool overwrite,
 				  BufferString& errmsg) const;
 
-    static void		initModule(const char*);
+    static bool		initModule(const char*);
     static BufferStringSet*	getNames(const char* data_root);
     static void		getInfos(OD::JSON::Array&, const char* data_root,
 				 const BufferStringSet&);
@@ -84,7 +84,7 @@ protected:
 typedef void* hStringSet;
 typedef void* hSurvey;
 
-mExternC(ODBind) void		initModule(const char*);
+mExternC(ODBind) bool		initModule(const char*);
 mExternC(ODBind) void		exitModule();
 mExternC(ODBind) hSurvey	survey_new(const char* basedir,
 					   const char* surveynm);
@@ -106,3 +106,7 @@ mExternC(ODBind) const char*	survey_infos(const char*, const hStringSet);
 mExternC(ODBind) hStringSet	survey_names(const char* basedir);
 mExternC(ODBind) const char*	survey_path(hSurvey);
 mExternC(ODBind) const char*	survey_survtype(hSurvey);
+mExternC(ODBind) const char*	isValidSurveyDir(const char*);
+			    //!< Full path to an OpendTect project directory
+mExternC(ODBind) const char*	isValidDataRoot(const char*);
+			    //!< Full path to a writable directory
