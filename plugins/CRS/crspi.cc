@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "legal.h"
 #include "od_istream.h"
 #include "oddirs.h"
-#include "survinfo.h"
 
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
@@ -30,7 +29,7 @@ mDefODPluginInfo(CRS)
 
 static mUnusedVar uiString* legalText()
 {
-    uiString* ret = new uiString;
+    auto* ret = new uiString;
     FilePath fp( mGetSetupFileName("CRS"), "COPYING" );
     if ( File::exists(fp.fullPath()) )
     {
@@ -46,15 +45,13 @@ static mUnusedVar uiString* legalText()
 namespace Coords
 { extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); } }
 
-bool initCRSPlugin( bool withdatabase )
+bool initCRSPlugin()
 {
 #ifdef OD_NO_PROJ
     return false;
 #else
     Coords::initCRSDatabase();
     Coords::ProjectionBasedSystem::initClass();
-    if ( withdatabase )
-	SI().readSavedCoordSystem();
 
     SetWGS84( Coords::Projection::sWGS84ProjDispString(),
 	      Coords::ProjectionBasedSystem::getWGS84LLSystem() );
@@ -66,12 +63,12 @@ bool initCRSPlugin( bool withdatabase )
 mDefODInitPlugin(CRS)
 {
     if ( !NeedDataBase() )
-
 	return nullptr;
+
 #ifndef OD_NO_PROJ
     legalInformation().addCreator( legalText, "PROJ" );
 #endif
-    initCRSPlugin( true );
+    initCRSPlugin();
 
     return nullptr;
 }

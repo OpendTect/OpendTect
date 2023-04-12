@@ -514,7 +514,7 @@ void uiSeis2DLineNameSel::fillWithAll()
 
     BufferStringSet lnms;
     TypeSet<Pos::GeomID> geomids;
-    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GMAdmin().updateGeometries( nullptr );
     Survey::GM().getList( lnms, geomids, true );
     lnms.sort();
     fld_->addItems( lnms );

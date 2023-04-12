@@ -35,12 +35,11 @@ static int printUsage( const char* cmd )
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv, false );
+    SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
 
     OD::ModDeps().ensureLoaded( "uiIo" );
 
-    PIM().loadAuto( false );
     CommandLineParser clp( argc, argv );
     clp.setKeyHasValue( "geomtype" );
     clp.setKeyHasValue( "nrtrcs" );
@@ -85,6 +84,7 @@ int mProgMainFnName( int argc, char** argv )
     fnm.replace( "+x+", "*" );
     su.setFileName( fnm );
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiWellAttrib" );
     PtrMan<uiDialog> sgyex = new uiSEGYExamine( nullptr, su );
     app.setTopLevel( sgyex );

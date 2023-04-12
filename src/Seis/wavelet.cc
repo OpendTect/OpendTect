@@ -119,7 +119,7 @@ Wavelet::~Wavelet()
 
 IOObj* Wavelet::getIOObj( const char* waveletnm )
 {
-    if ( !waveletnm || !*waveletnm )
+    if ( !waveletnm || !*waveletnm || !IOMan::isOK() )
 	return nullptr;
 
     const IOObjContext ctxt( mIOObjContext(Wavelet) );

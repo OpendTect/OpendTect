@@ -8,10 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "stratunitrepos.h"
-#include "stratreftree.h"
+
+#include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "safefileio.h"
+#include "stratreftree.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -26,9 +28,13 @@ public:
 
 RefTreeMgr()
 {
-    mAttachCB( IOM().surveyChanged, RefTreeMgr::surveyChangedCB );
-    mAttachCB( IOM().applicationClosing, RefTreeMgr::surveyChangedCB );
-    mAttachCB( IOM().afterSurveyChange, RefTreeMgr::afterSurveyChangeCB );
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), RefTreeMgr::iomReadyCB );
 }
 
 
@@ -76,6 +82,25 @@ void ensurePresent( RefTree& rt )
 }
 
 
+static bool loadDefaultTree( RefTreeMgr* rtmgr )
+{
+    MultiID key = MultiID::udf();
+    SI().pars().get( sKeyDefaultTree(), key );
+    if ( key.isUdf() )
+	return false;
+
+    RepositoryAccess ra;
+    RefTree* tree = ra.read( key );
+    if ( rtmgr )
+	rtmgr->ensurePresent( *tree );
+    else
+	setRT( tree );
+
+    LevelSet* levels = LevelSet::read( key );
+    lvlSetMgr().setLVLS( levels );
+    return tree && levels;
+}
+
 private:
 
 void createTree()
@@ -92,14 +117,26 @@ void createTree()
 }
 
 
+void iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().surveyChanged, RefTreeMgr::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing, RefTreeMgr::surveyChangedCB );
+    mAttachCB( IOM().afterSurveyChange, RefTreeMgr::afterSurveyChangeCB );
+    afterSurveyChangeCB( nullptr );
+}
+
+
 void surveyChangedCB( CallBacker* )
 {
     rts_.erase();
 }
 
+
 void afterSurveyChangeCB( CallBacker* )
 {
-    Strat::loadDefaultTree();
+    mEnsureExecutedInMainThread( RefTreeMgr::afterSurveyChangeCB );
+    Threads::Locker locker( lock_ );
+    loadDefaultTree( this );
 }
 
     ManagedObjectSet<RefTree>	rts_;
@@ -118,7 +155,6 @@ static RefTreeMgr& refTreeMgr()
 void init()
 {
     refTreeMgr();
-    loadDefaultTree();
 }
 
 
@@ -152,18 +188,7 @@ const char* sKeyDefaultTree()
 
 bool loadDefaultTree()
 {
-    MultiID key = MultiID::udf();
-    SI().pars().get( sKeyDefaultTree(), key );
-    if ( key.isUdf() )
-	return false;
-
-    RepositoryAccess ra;
-    RefTree* tree = ra.read( key );
-    Strat::setRT( tree );
-
-    Strat::LevelSet* levels = LevelSet::read( key );
-    Strat::lvlSetMgr().setLVLS( levels );
-    return tree && levels;
+    return RefTreeMgr::loadDefaultTree( nullptr );
 }
 
 

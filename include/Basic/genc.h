@@ -113,15 +113,16 @@ inline void EmptyFunction()			{}
 mGlobal(Basic) bool SetBindings(const char* odbindir,int argc,char** argv,
 			bool needdatabase,const char* bindinglibfnm =nullptr);
 /*!< Sets the Basic library, one must provide a valid path to the folder
-   containing the OpendTect binaries. Additional arguments can be provided,
-   for instance to set the dataroot and survey:
-   --dataroot "C:\\surveys" --survey F3_Demo
+   containing the OpendTect binaries. Additional arguments can be provided.
    \param bindinglibfnm Full path to the binding library. The library
-   shortest file basename will be used to set the application name
+   shortest file basename will be used to set the application name.
+   Initializes the most basic modules, up to and including 'Network'
 */
 mGlobal(Basic) bool InitBindings(const char** moddeps,bool forgui=false);
-/*!< Initialized the basic modules, and auto-loads plugins if needed,
+/*!< Initializes a list of basic modules, and auto-loads plugins if needed,
 *    providing that ALO files exists.
+     Bindings that require project data should call setDBMDataSource
+     before calling InitBindings
 */
 mGlobal(Basic) void CloseBindings();
 /*!< If you no longer need bindings to OpendTect, this will make

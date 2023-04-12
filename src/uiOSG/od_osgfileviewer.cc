@@ -7,25 +7,25 @@ ________________________________________________________________________
 
 -*/
 
-#include "prog.h"
+#include "odgraphicswindow.h"
+
 #include "uimain.h"
 
 #include "commandlineparser.h"
 #include "file.h"
 #include "moddepmgr.h"
-#include "odgraphicswindow.h"
+#include "prog.h"
 
 #include <QApplication>
 #include <QFileDialog>
 
-#include <osgViewer/Viewer>
-#include <osgGA/TrackballManipulator>
-
-#include <osg/Version>
-#include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
-#include <osgManipulator/TabBoxDragger>
+#include <osg/ShapeDrawable>
+#include <osg/Version>
 #include <osgDB/ReadFile>
+#include <osgGA/TrackballManipulator>
+#include <osgManipulator/TabBoxDragger>
+#include <osgViewer/Viewer>
 
 int mProgMainFnName( int argc, char** argv )
 {
@@ -36,9 +36,7 @@ int mProgMainFnName( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded( "uiTools" );
 
-    PIM().loadAuto( false );
-
-    CommandLineParser clp( argc, argv );
+    const CommandLineParser clp( argc, argv );
     BufferStringSet files;
     clp.getNormalArguments( files );
     BufferString file;
@@ -65,14 +63,15 @@ int mProgMainFnName( int argc, char** argv )
     viewer->setCameraManipulator( new osgGA::TrackballManipulator );
     setViewer( viewer.get() );
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiOSG" );
-    PtrMan<ODGLWidget> glw = new ODGLWidget;
-    PtrMan<ODGraphicsWindow> graphicswin = new ODGraphicsWindow( glw );
+    PtrMan<ODGLWidget> topdlg = new ODGLWidget;
+    PtrMan<ODGraphicsWindow> graphicswin = new ODGraphicsWindow( topdlg );
     viewer->getCamera()->setViewport(
-		    new osg::Viewport(0, 0, glw->width(), glw->height() ) );
+		    new osg::Viewport(0, 0, topdlg->width(), topdlg->height()));
     viewer->getCamera()->setGraphicsContext( graphicswin );
     PIM().loadAuto( true );
-    glw->show();
+    topdlg->show();
 
     return app.exec();
 }

@@ -291,7 +291,9 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     if ( !ioobj )
 	return nullptr;
 
-    IOM().commitChanges( *ioobj );
+    if ( IOMan::isOK() )
+	IOM().commitChanges( *ioobj );
+
     su.fp_.fillPar( ioobj->pars() );
     SeisStoreAccess::Setup ssasu( *ioobj.ptr(), &su.geomtype_ );
     if ( su.fp_.getCoordSys() )

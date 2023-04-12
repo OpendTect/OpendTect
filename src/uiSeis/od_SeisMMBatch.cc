@@ -7,9 +7,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimain.h"
 #include "uiseismmproc.h"
 
+#include "uimain.h"
+
+#include "commandlineparser.h"
 #include "iopar.h"
 #include "moddepmgr.h"
 #include "prog.h"
@@ -18,21 +20,23 @@ ________________________________________________________________________
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv, false );
+    SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
 
     OD::ModDeps().ensureLoaded( "uiIo" );
 
-    PIM().loadAuto( false );
+    const CommandLineParser clp( argc, argv );
     IOPar jobpars;
-    if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
-	return 1;
+    const uiRetVal uirv = uiMMBatchJobDispatcher::initMMProgram( clp, jobpars );
+    if ( !uirv.isOK() )
+	{ od_cerr() << uirv.getText() << od_endl; return 1; }
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiSeis" );
-    PtrMan<uiDialog> smmp = new uiSeisMMProc( nullptr, jobpars );
-    app.setTopLevel( smmp );
+    PtrMan<uiDialog> topdlg = new uiSeisMMProc( nullptr, jobpars );
+    app.setTopLevel( topdlg );
     PIM().loadAuto( true );
-    smmp->show();
+    topdlg->show();
 
     return app.exec();
 }

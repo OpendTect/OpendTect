@@ -37,7 +37,7 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 mDefSimpleTranslatorSelector(AttribDescSet);
 
 #define mDestroyWorkers \
-{ deleteAndZeroPtr( proc ); }
+{ deleteAndNullPtr( proc ); }
 
 
 #define mRetFileProb(fdesc,fnm,s) \

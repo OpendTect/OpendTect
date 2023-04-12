@@ -49,12 +49,12 @@ int ODSysAdmMain( uiMain& app )
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiSysAdm" );
-    PtrMan<uiODSysAdm> odsa = new uiODSysAdm( app );
-    mainODSysAdmMainWin( odsa, true );
-    app.setTopLevel( odsa.ptr() );
-    uiMSG().setMainWin( odsa.ptr() );
+    PtrMan<uiODSysAdm> topdlg = new uiODSysAdm( app );
+    mainODSysAdmMainWin( topdlg, true );
+    app.setTopLevel( topdlg.ptr() );
+    uiMSG().setMainWin( topdlg.ptr() );
     PIM().loadAuto( true );
-    odsa->show();
+    topdlg->show();
 
     return app.exec();
 }

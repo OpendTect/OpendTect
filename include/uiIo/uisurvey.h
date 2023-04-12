@@ -43,7 +43,14 @@ public:
 			//!< checks whether given type has support
 			//!< returns whether user wants to continue
 
+    static bool		ensureGoodSurveySetup(uiRetVal&,uiParent* =nullptr);
+    static bool		ensureValidDataRoot(uiRetVal&,uiParent* =nullptr);
+    mDeprecated("Provide uiRetVal")
     static bool		ensureValidDataRoot();
+    enum SurvSelState	{ InvalidSurvey, SameSurvey, NewExisting,
+			  NewFresh, SurveyRemoved };
+    static SurvSelState ensureValidSurveyDir(uiRetVal&,uiParent* =nullptr);
+    static SurvSelState& lastSurveyState();
 
     /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
     struct Util
@@ -126,6 +133,9 @@ protected:
 private:
     void		fillLeftGroup(uiGroup*);
     void		fillRightGroup(uiGroup*);
+
+    static bool		Convert_OD4_Data_To_OD5();
+    static bool		Convert_OD4_Body_To_OD5();
 };
 
 
@@ -170,3 +180,7 @@ private:
     void		zdomainChg(CallBacker*);
 
 };
+
+#define mIfIOMNotOK( act ) \
+    if ( !uiSurvey::ensureGoodSurveySetup(uirv) ) \
+	{ if ( !uirv.isOK() ) uiMSG().error( uirv ); act; }

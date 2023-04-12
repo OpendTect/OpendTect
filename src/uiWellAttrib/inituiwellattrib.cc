@@ -7,15 +7,28 @@ ________________________________________________________________________
 
 -*/
 
+#include "genc.h"
+#include "ioman.h"
 #include "moddepmgr.h"
-
 #include "uiodstratlayermodelmgr.h"
 #include "uiwelllogattrib.h"
+
+void initUISLM( CallBacker* )
+{
+    uiStratLayerModelManager::initClass();
+}
 
 mDefModInitFn(uiWellAttrib)
 {
     mIfNotFirstTime( return );
 
-    uiStratLayerModelManager::initClass();
+    if ( NeedDataBase() )
+    {
+	if ( IOMan::isOK() )
+	    initUISLM( nullptr );
+	else
+	    IOMan::iomReady().notify( mSCB(initUISLM) );
+    }
+
     uiWellLogAttrib::initClass();
 }

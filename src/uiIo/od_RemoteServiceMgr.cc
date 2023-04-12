@@ -79,28 +79,29 @@ int mProgMainFnName( int argc, char** argv )
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
+    app.setIcon( "rsm" );
     ApplicationData::setApplicationName( "OpendTect RemoteServiceMgr" );
 
     OD::ModDeps().ensureLoaded( "uiTools" );
 
-    PIM().loadAuto( false );
-    CommandLineParser clp( argc, argv );
+    const CommandLineParser clp( argc, argv );
     if ( clp.hasKey("help") )
     {
 	od_cout() << uiRemoteServiceMgr::getHelp() << od_endl;
 	return 0;
     }
 
-    const uiRetVal uirv = IOM().setDataSource( clp );
+    const uiRetVal uirv = IOMan::setDataSource_( clp );
     if ( !uirv.isOK() )
 	return 1;
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiIo" );
-    PtrMan<uiRemoteServiceMgr> mw = new uiRemoteServiceMgr( nullptr );
-    app.setTopLevel( mw );
+    PtrMan<uiRemoteServiceMgr> topdlg = new uiRemoteServiceMgr( nullptr );
+    app.setTopLevel( topdlg );
     PIM().loadAuto( true );
-    mw->show();
-    mw->processCommandLine();
+    topdlg->show();
+    topdlg->processCommandLine();
 
     return app.exec();
 }
@@ -113,7 +114,6 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
 {
     setCtrlStyle( CloseOnly );
     setTrayToolTip( tr("OpendTect Remote Service Manager") );
-    setIcon( uiPixmap("rsm") );
 
     datarootsel_ = new uiDataRootSel( this );
     auto* buttons =  new uiButtonGroup( this, "buttons", OD::Horizontal );

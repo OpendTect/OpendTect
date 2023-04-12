@@ -7,7 +7,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "moddepmgr.h"
 #include "embodytr.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
@@ -22,10 +21,35 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfaceposprov.h"
 #include "emsurfacetr.h"
+#include "genc.h"
 #include "horizongridder.h"
 #include "lmkemfaulttransl.h"
+#include "moddepmgr.h"
 #include "uistrings.h"
 #include "zdomain.h"
+
+using boolFromVoidFn = bool(*)();
+using boolFromStringFn = bool(*)(uiString&);
+mGlobal(General) void setConvBody_General_Fns(boolFromVoidFn,boolFromStringFn);
+
+extern bool EM_Get_Body_Conversion_Status();
+extern bool EM_Convert_Body_To_OD5(uiString&);
+
+namespace EM
+{
+
+static bool Get_Body_Conversion_Status()
+{
+    return EM_Get_Body_Conversion_Status();
+}
+
+static bool Convert_Body_To_OD5( uiString& msg )
+{
+    return EM_Convert_Body_To_OD5( msg );
+}
+
+} // namespace EM
+
 
 mDefModInitFn(EarthModel)
 {
@@ -73,4 +97,10 @@ mDefModInitFn(EarthModel)
 					"ms",1000) );
     ZDomain::Def::add( new ZDomain::Def("Depth-Flattened",uiStrings::sDepth(),
 					"",1) );
+
+    if ( NeedDataBase() )
+    {
+	setConvBody_General_Fns( EM::Get_Body_Conversion_Status,
+				 EM::Convert_Body_To_OD5 );
+    }
 }

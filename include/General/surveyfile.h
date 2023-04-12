@@ -33,24 +33,32 @@ class TaskRunner;
 mExpClass(General) SurveyFile
 { mODTextTranslationClass(SurveyFile);
 public:
-		SurveyFile(const char*,bool automount=false);
-		SurveyFile(const char*,const char*);
+		SurveyFile(const char* zipfile,bool automount=false);
+		mDeprecatedObs
+		SurveyFile(const char* zipfile,const char*);
 		~SurveyFile();
 
     uiRetVal	activate();
+    uiRetVal	deactivate();
     uiRetVal	save(TaskRunner* trun=nullptr);
     uiRetVal	mount(bool isNew=false, TaskRunner* trun=nullptr);
     uiRetVal	unmount(bool save=true, TaskRunner* trun=nullptr);
+
     bool	isMounted() const	{ return mounted_; }
     bool	isOK() const		{ return lasterrs_.isOK(); }
+    bool	isManaged() const;
 
     BufferString	getTempBaseDir() const	{ return tmpbasedir_; }
     BufferString	getSurveyDir() const	{ return surveydirnm_; }
     BufferString	getSurveyFile() const	{ return surveyfile_; }
+    const BufferString	getZipArchiveLocation() const
+						    { return surveyfile_;  }
     uiRetVal		errMsg() const		{ return lasterrs_; }
 
+    void		setManaged(bool yn);
+
     static const char* extStr()		{ return "odz"; }
-    static const char* bckupExtStr()	{ return BufferString(extStr(),"_bck");}
+    static const char* bckupExtStr();
     static BufferString filtStr();
 
 protected:
@@ -60,7 +68,8 @@ protected:
     bool		mounted_ = false;
     uiRetVal		lasterrs_;
 
-    void	readSurveyDirNameFromFile();
+    void		readSurveyDirNameFromFile();
+    bool		createSurvey(TaskRunner*);
 
 };
 
@@ -68,8 +77,9 @@ protected:
 mExpClass(General) EmptyTempSurvey
 { mODTextTranslationClass(EmptyTempSurvey)
 public:
-			EmptyTempSurvey(const char* surveybaseloc=nullptr,
-			    const char* surveynm=nullptr,bool ismanaged=true);
+			EmptyTempSurvey(const char* survnm=nullptr,
+					const char* dataroot=nullptr,
+					bool automount=false);
 			EmptyTempSurvey(const OD::JSON::Object&);
 			~EmptyTempSurvey();
 
@@ -77,6 +87,7 @@ public:
     static const char*	    sKeySaveLoc()   { return "Save Location"; }
 
     uiRetVal		activate();
+    uiRetVal		deactivate();
     uiRetVal		save(TaskRunner* trun=nullptr);
     uiRetVal		mount(bool isNew=false, TaskRunner* trun=nullptr);
     uiRetVal		unmount(bool save=true, TaskRunner* trun=nullptr);
@@ -84,19 +95,24 @@ public:
 						    { return zipfileloc_;  }
     void		setSaveLocation(const char* saveloc);
 
-    inline void		setManaged(bool ismanaged) { ismanaged_ = ismanaged; }
+    inline void		setManaged( bool ismanaged ) { ismanaged_ = ismanaged; }
 
     bool		isMounted() const	{ return mounted_; }
-    bool		isOK() const		{ return lasterrs_.isOK(); }
+    bool		isOK() const;
+    bool		isManaged() const	{ return ismanaged_; }
 
-    BufferString	getTempBaseDir() const	{ return tmpbasedir_; }
-    BufferString	getSurveyDir() const	{ return surveydirnm_; }
-    BufferString	getSurveyFile() const	{ return surveyfile_; }
+    BufferString	getTempBaseDir() const;
+    BufferString	getSurveyDir() const;
+    BufferString	getSurveyNm() const	{ return surveydirnm_; }
+
     uiRetVal		errMsg() const		{ return lasterrs_; }
     uiRetVal		warningMsg() const	{ return lastwarning_; }
 
+    mDeprecatedObs
+    BufferString	getSurveyFile() const	{ return surveyfile_; }
 
 protected:
+
     bool		    createOMFFile();
     bool		    createTempSurveySetup(bool hasomf);
     bool		    fillSurveyInfo(const OD::JSON::Object* obj);

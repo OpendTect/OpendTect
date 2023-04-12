@@ -197,7 +197,7 @@ protected:
 
 
 /* 0=No old 2D data, 1=First time conversion, 2=Incremental conversion. */
-mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
+mGlobal(Seis) int Seis_Get_2D_Data_Conversion_Status()
 {
     bool hasold2d = false;
     bool has2dps = false;
@@ -237,8 +237,8 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     return hasold2d && newdel.isEmpty() ? 1 : 2;
 }
 
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
-							TaskRunner* taskrnr )
+mGlobal(Seis) void Seis_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
+							  TaskRunner* taskrnr )
 {
     OD_2DLineSetTo2DDataSetConverter converter;
     converter.doConversion( errmsg, taskrnr );

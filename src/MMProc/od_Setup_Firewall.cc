@@ -125,8 +125,9 @@ int mProgMainFnName( int argc, char** argv )
     SetProgramArgs( argc, argv, false );
     OD::ModDeps().ensureLoaded( "Network" );
 
-    PIM().loadAuto( false );
     CommandLineParser parser( argc, argv );
+
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "MMProc" );
     PIM().loadAuto( true );
 

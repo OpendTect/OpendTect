@@ -7,27 +7,57 @@ ________________________________________________________________________
 
 -*/
 
+#include "genc.h"
+#include "ioman.h"
 #include "moddepmgr.h"
-#include "timedepthconv.h"
-#include "seisseqio.h"
-#include "segytr.h"
-#include "seiscbvs.h"
-#include "seisblockstr.h"
 #include "seis2dlineio.h"
-#include "seispscubetr.h"
-#include "segydirecttr.h"
-#include "segydirect2d.h"
-#include "synthseis.h"
-#include "waveletio.h"
+#include "seis2dto3dinterpol.h"
+#include "seisblockstr.h"
+#include "seiscbvs.h"
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
-#include "seis2dto3dinterpol.h"
 #include "seisposprovider.h"
-
+#include "seispscubetr.h"
+#include "seisseqio.h"
+#include "segydirect2d.h"
+#include "segydirecttr.h"
+#include "segytr.h"
+#include "synthseis.h"
+#include "timedepthconv.h"
+#include "waveletio.h"
 #include "uistrings.h"
+
+using intFromVoidFn = int(*)();
+using voidFromuiStringFn = void(*)(uiString&,TaskRunner*);
+mGlobal(General) void setConv2DSeis_General_Fns(intFromVoidFn,
+						voidFromuiStringFn);
+extern int Seis_Get_2D_Data_Conversion_Status();
+extern void Seis_Convert_2DLineSets_To_2DDataSets(uiString&,TaskRunner*);
 
 uiString SeisTrcTranslatorGroup::sTypeName( int num )
 { return uiStrings::sVolDataName(false,true,false,false,false); }
+
+namespace Seis
+{
+
+static void seisUpdateGeoms( CallBacker* )
+{
+    Survey::GMAdmin().updateGeometries( nullptr );
+    //Those using a transl from Seis.
+}
+
+static int Get_2D_Data_Conversion_Status()
+{
+    return Seis_Get_2D_Data_Conversion_Status();
+}
+
+static void Convert_2DLineSets_To_2DDataSets( uiString& msg,
+					      TaskRunner* taskrunner )
+{
+    Seis_Convert_2DLineSets_To_2DDataSets( msg, taskrunner );
+}
+
+} // namespace Seis
 
 defineTranslatorGroup(SeisTrc,"Seismic Data");
 defineTranslator(CBVS,SeisTrc,"CBVS");
@@ -102,7 +132,16 @@ mDefModInitFn(Seis)
 	synthgenfact.setDefaultName( defidx );
     }
 
-    Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
+    if ( NeedDataBase() )
+    {
+	if ( IOMan::isOK() )
+	    Seis::seisUpdateGeoms( nullptr );
+	else
+	    IOMan::iomReady().notify( mSCB(Seis::seisUpdateGeoms) );
+
+	setConv2DSeis_General_Fns( Seis::Get_2D_Data_Conversion_Status,
+				   Seis::Convert_2DLineSets_To_2DDataSets );
+    }
 
     Seis2DTo3DInterPolImpl::initClass();
     Pos::SeisProvider3D::initClass();

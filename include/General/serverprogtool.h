@@ -72,6 +72,7 @@ public:
     od_istream&		inStream() const;
     od_ostream&		outStream() const;
 
+    static const char*	sListSurvCmd()	    { return "list-surveys"; }
     static const char*	sListUsrCmd()	    { return "list"; }
     static const char*	sExistsUsrCmd()     { return "exists"; }
     static const char*	sInfoUsrCmd()	    { return "info"; }

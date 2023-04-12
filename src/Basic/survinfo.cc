@@ -572,34 +572,34 @@ ManagedObjectSet<SurveyInfo>& survInfoStack()
 
 const SurveyInfo& SI()
 {
-    int cursurvinfoidx = survInfoStack().size() - 1;
-    if ( cursurvinfoidx < 0 )
+    if ( survInfoStack().isEmpty() )
     {
 	SurveyInfo* newsi = SurveyInfo::readDirectory( GetDataDir() );
 	if ( !newsi )
 	    newsi = new SurveyInfo;
 
-	survInfoStack() += newsi;
-	cursurvinfoidx = survInfoStack().size() - 1;
+	survInfoStack().add( newsi );
     }
 
-    return *survInfoStack()[cursurvinfoidx];
+    return *survInfoStack().last();
 }
 
 
 void SurveyInfo::pushSI( SurveyInfo* newsi )
 {
-    if ( !newsi )
-	pFreeFnErrMsg("Null survinfo pushed");
+    if ( newsi )
+	survInfoStack().add( newsi );
     else
-	survInfoStack() += newsi;
+	pFreeFnErrMsg("Null survinfo pushed");
 }
 
 
 SurveyInfo* SurveyInfo::popSI()
 {
-    return survInfoStack().isEmpty() ? 0
-	 : survInfoStack().removeSingle( survInfoStack().size()-1 );
+    if ( !survInfoStack().isEmpty() )
+	survInfoStack().pop();
+
+    return nullptr;
 }
 
 
@@ -1580,7 +1580,7 @@ bool SurveyInfo::writeJSON( const char* basedir ) const
 }
 
 
-bool SurveyInfo::writeSurveyFile(const char* basedir, bool isjson) const
+bool SurveyInfo::writeSurveyFile( const char* basedir, bool isjson ) const
 {
     if ( !basedir || !*basedir )
 	basedir = GetBaseDataDir();
@@ -1776,7 +1776,6 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
     }
     else if ( astream )
     {
-	astream->putYN( sKeyXYInFt(), xyInFeet() );
 	astream->put( sKeySeismicRefDatum(), seisrefdatum_ );
 	if ( ll2c_.isOK() )
 	    astream->put( sKeyLatLongAnchor, ll2c_.toString() );

@@ -36,14 +36,18 @@ ________________________________________________________________________
 #include "transl.h"
 #include "uistrings.h"
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
+#include "hiddenparam.h"
+
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+
+static HiddenParam<IOMan,SurveyDiskLocation*> prevrootdiriommgr_(nullptr);
 
 class IOMManager : public CallBacker
 {
 public:
 
-    IOMManager()
-	: iom_(*new IOMan())
+    IOMManager( const FilePath& rootdir )
+	: iom_(*new IOMan(rootdir))
     {
 	mAttachCB( iom_.applicationClosing, IOMManager::closedCB );
     }
@@ -54,7 +58,12 @@ public:
 	delete& iom_;
     }
 
-    void init()	    { iom_.init(); }
+    void init( uiRetVal& uirv )
+    {
+	iom_.init();
+	if ( iom_.isBad() )
+	    uirv = iom_.uiMessage();
+    }
 
     IOMan& IOM()	    { return iom_; }
 
@@ -73,6 +82,7 @@ private:
 
     void    closedCB( CallBacker* )
     {
+	prevrootdiriommgr_.removeAndDeleteParam( &iom_ );
 	closed_ = true;
     }
 
@@ -95,13 +105,30 @@ void applicationClosing()
 static const MultiID emptykey( "-1.-1" );
 
 
+IOMan& IOM( const FilePath& rootdir, uiRetVal& uirv )
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    if ( !theinstmgr )
+    {
+	theinstmgr = new IOMManager( rootdir );
+	theinstmgr->init( uirv );
+	NotifyExitProgram( applicationClosing );
+	IOMan::iomReady().trigger();
+    }
+
+    return theinstmgr->IOM();
+}
+
+
 IOMan& IOM()
 {
     Threads::Locker locker( IOMManager::lock_ );
     if ( !theinstmgr )
     {
-	theinstmgr = new IOMManager;
-	theinstmgr->init();
+	FilePath dummyfp;
+	theinstmgr = new IOMManager( dummyfp );
+	pFreeFnErrMsg( "Should not be reached before "
+		       "IOMan::setDataSource_ is called" );
 	NotifyExitProgram( applicationClosing );
     }
 
@@ -110,9 +137,10 @@ IOMan& IOM()
 
 
 
-IOMan::IOMan( const char* rd )
+IOMan::IOMan( const FilePath& rootdir )
     : NamedCallBacker("IO Manager")
-    , lock_(Threads::Lock(false))
+    , rootdir_(rootdir.fullPath())
+    , lock_(false)
     , newIODir(this)
     , entryRemoved(this)
     , entryAdded(this)
@@ -122,6 +150,26 @@ IOMan::IOMan( const char* rd )
     , afterSurveyChange(this)
     , applicationClosing(this)
 {
+    prevrootdiriommgr_.setParam( this, nullptr );
+    SetCurBaseDataDir( rootdir.pathOnly().buf() );
+    SurveyInfo::deleteInstance();
+    SurveyInfo::setSurveyName( rootdir.baseName().buf() );
+}
+
+
+IOMan::IOMan( const char* rd )
+    : NamedCallBacker("IO Manager")
+    , lock_(false)
+    , newIODir(this)
+    , entryRemoved(this)
+    , entryAdded(this)
+    , entryChanged(this)
+    , surveyToBeChanged(this)
+    , surveyChanged(this)
+    , afterSurveyChange(this)
+    , applicationClosing(this)
+{
+    prevrootdiriommgr_.setParam( this, nullptr );
     rootdir_ = rd && *rd ? rd : GetDataDir();
     if ( !File::isDirectory(rootdir_) )
 	rootdir_ = GetBaseDataDir();
@@ -130,27 +178,27 @@ IOMan::IOMan( const char* rd )
 
 void IOMan::init()
 {
+    const FilePath rootdir( rootdir_ );
+    const SurveyDiskLocation rootdirsdl( rootdir );
     state_ = Bad;
-    if ( rootdir_.isEmpty() )
-    {
-	msg_ = tr("Survey Data Root is not set");
-	return;
-    }
+    if ( rootdirsdl.basePath().isEmpty() || rootdirsdl.dirName().isEmpty() )
+	{ msg_ = tr("Survey Data Root is not set"); return; }
 
-    if ( !File::isDirectory(rootdir_) )
+    const BufferString rootdirnm( rootdir.fullPath() );
+    if ( !File::isDirectory(rootdirnm.str()) )
     {
 	msg_ = tr("Survey Data Root does not exist or is not a folder:\n%1")
-		.arg(rootdir_);
+		.arg(rootdirnm.str());
 	return;
     }
 
     if ( !to(emptykey,true) )
     {
-        FilePath surveyfp( GetDataDir(), ".omf" );
-        if ( File::exists(surveyfp.fullPath().buf()) )
+	FilePath surveyfp( rootdirnm.str(), ".omf" );
+	if ( surveyfp.exists() )
         {
 	    msg_ = tr("Warning: Invalid '.omf' found in:\n%1.\n"
-		    "This survey is corrupt.").arg( rootdir_ );
+		    "This survey is corrupt.").arg( rootdirnm.str() );
 	    return;
         }
 
@@ -160,7 +208,7 @@ void IOMan::init()
 	if ( !to(emptykey,true) )
         {
 	    msg_ = tr("Warning: Invalid or no '.omf' found in:\n%1.\n"
-		    "This survey is corrupt.").arg( rootdir_ );
+		    "This survey is corrupt.").arg( rootdirnm.str() );
 	    return;
         }
     }
@@ -171,7 +219,7 @@ void IOMan::init()
     const int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = nullptr;
     bool needwrite = false;
-    FilePath rootfp( rootdir_, "X" );
+    FilePath rootfp( rootdirnm.str(), "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
 	auto stdseltyp = sCast(IOObjContext::StdSelType,idx);
@@ -189,8 +237,7 @@ void IOMan::init()
 	FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
 			  "X" );
 	basicfp.setFileName( dd->dirnm_ );
-	BufferString basicdirnm = basicfp.fullPath();
-	if ( !File::exists(basicdirnm) )
+	if ( !basicfp.exists() )
 	    // Oh? So this is removed from the Basic Survey
 	    // Let's hope they know what they're doing
 	    { prevdd = dd; continue; }
@@ -198,7 +245,7 @@ void IOMan::init()
 	rootfp.setFileName( dd->dirnm_ );
 	BufferString dirnm = rootfp.fullPath();
 
-#define mErrMsgRet(s) msg_ = s; ErrMsg(message()); state_ = Bad; return
+#define mErrMsgRet(s) msg_ = s; ErrMsg(uiMessage()); state_ = Bad; return
 	if ( !File::exists(dirnm) )
 	{
 	    // This directory should have been in the survey.
@@ -209,7 +256,7 @@ void IOMan::init()
 		mErrMsgRet( tr("Corrupt survey: missing directory: %1")
 			    .arg(dirnm) );
 	    }
-	    else if ( !File::copy(basicdirnm,dirnm) )
+	    else if ( !File::copy(basicfp.fullPath().buf(),dirnm) )
 	    {
 		mErrMsgRet( tr("Cannot create directory: %1.\n"
 			    "You probably do not have write permissions in %2.")
@@ -219,9 +266,9 @@ void IOMan::init()
 
 	// So, we have copied the directory.
 	// Now create an entry in the root omf
-	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
+	auto* iosd = new IOSubDir( dd->dirnm_ );
 	iosd->key_ = dd->id_;
-	iosd->dirnm_ = rootdir_;
+	iosd->dirnm_ = rootdirnm.str();
 	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id_) )
 					: dirptr_->main();
 	int idxof = dirptr_->objs_.indexOf( (IOObj*)previoobj );
@@ -237,40 +284,52 @@ void IOMan::init()
 	to( emptykey, true );
     }
 
-    Survey::GMAdmin().fillGeometries(nullptr);
+    Survey::GMAdmin().fillGeometries( nullptr );
+}
+
+
+bool IOMan::isOK()
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    return theinstmgr.ptr() && !IOM().isBad();
+}
+
+
+bool IOMan::close( bool dotrigger )
+{
+    if ( dotrigger && !isBad() )
+	surveyToBeChanged.trigger();
+
+    if ( changeSurveyBlocked() )
+    {
+	setChangeSurveyBlocked( false );
+	return false;
+    }
+
+    TranslatorGroup::clearSelHists();
+
+    deleteAndNullPtr( dirptr_ );
+    survchgblocked_ = false;
+    state_ = IOMan::NeedInit;
+
+    return true;
 }
 
 
 void IOMan::reInit( bool dotrigger )
 {
-    if ( dotrigger && !IOM().isBad() )
-	IOM().surveyToBeChanged.trigger();
-
-    if ( IOM().changeSurveyBlocked() )
-    {
-	IOM().setChangeSurveyBlocked(false);
+    if ( !close(dotrigger) )
 	return;
-    }
-
-    TranslatorGroup::clearSelHists();
-
-    deleteAndZeroPtr( dirptr_ );
-    survchgblocked_ = false;
-    state_ = IOMan::NeedInit;
-
-    rootdir_ = GetDataDir();
-    if ( !File::isDirectory(rootdir_) )
-	rootdir_ = GetBaseDataDir();
 
     init();
-    if ( !IOM().isBad() )
+    if ( !isBad() )
     {
 	SurveyInfo::setSurveyName( SI().getDirName() );
 	setupCustomDataDirs(-1);
 	if ( dotrigger )
 	{
-	    IOM().surveyChanged.trigger();
-	    IOM().afterSurveyChange.trigger();
+	    surveyChanged.trigger();
+	    afterSurveyChange.trigger();
 	}
 
 	ResetDefaultDirs();
@@ -281,6 +340,8 @@ void IOMan::reInit( bool dotrigger )
 IOMan::~IOMan()
 {
     delete dirptr_;
+    if ( prevrootdiriommgr_.hasParam(this) )
+	prevrootdiriommgr_.removeAndDeleteParam( this );
 }
 
 
@@ -290,16 +351,34 @@ bool IOMan::isReady() const
 }
 
 
+Notifier<IOMan>& IOMan::iomReady()
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    static PtrMan<Notifier<IOMan> > thenotif_;
+    if ( !thenotif_ )
+	thenotif_ = new Notifier<IOMan>( nullptr );
+
+    return *thenotif_.ptr();
+}
+
+
 bool IOMan::newSurvey( SurveyInfo* newsi )
 {
     SurveyInfo::deleteInstance();
     if ( !newsi )
-	SurveyInfo::setSurveyName( "" );
-    else
     {
-	SurveyInfo::setSurveyName( newsi->getDirName() );
-	SurveyInfo::pushSI( newsi );
+	SurveyInfo::setSurveyName( "" );
+	IOM().close( true );
+	return true;
     }
+
+    const FilePath rootdir( IOM().rootDir() );
+    const SurveyDiskLocation rootdirsdl( rootdir );
+    if ( IOMan::isOK() && newsi->getDataDirName() != rootdirsdl.basePath() )
+	pFreeFnErrMsg("Incorrect switching to another data root");
+
+    SurveyInfo::setSurveyName( newsi->getDirName() );
+    SurveyInfo::pushSI( newsi );
 
     IOM().reInit( true );
     return !IOM().isBad();
@@ -308,11 +387,22 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
 
 bool IOMan::setSurvey( const char* survname )
 {
-    SurveyInfo::deleteInstance();
-    SurveyInfo::setSurveyName( survname );
+    Threads::Locker locker( IOMManager::lock_ );
+    if ( !theinstmgr )
+	{ pFreeFnErrMsg("Data root has not been set"); }
 
-    IOM().reInit( true );
-    return !IOM().isBad();
+    locker.unlockNow();
+
+    const FilePath rootdir( IOM().rootDir() );
+    const SurveyDiskLocation& rootdirsdl( rootdir );
+    if ( !IOM().isBad() && rootdirsdl.dirName() == survname )
+	return true;
+
+    const FilePath fp( rootdirsdl.basePath(), survname );
+    if ( !isValidSurveyDir(fp.fullPath()) )
+	return false;
+
+    return IOM().setRootDir( fp, true ).isOK();
 }
 
 
@@ -321,6 +411,7 @@ void IOMan::surveyParsChanged()
     IOM().surveyToBeChanged.trigger();
     if ( IOM().changeSurveyBlocked() )
 	{ IOM().setChangeSurveyBlocked(false); return; }
+
     IOM().surveyChanged.trigger();
     IOM().afterSurveyChange.trigger();
 }
@@ -328,7 +419,11 @@ void IOMan::surveyParsChanged()
 
 const char* IOMan::surveyName() const
 {
-    return GetSurveyName();
+    mDeclStaticString(ret);
+    const FilePath rootdir( rootdir_ );
+    const SurveyDiskLocation rootdirsdl( rootdir );
+    ret = rootdirsdl.dirName();
+    return ret.buf();
 }
 
 
@@ -353,7 +448,7 @@ static bool validOmf( const char* dir )
 
 #define mErrRetNotODDir(fname) \
     { \
-        errmsg = "$DTECT_DATA="; errmsg += GetBaseDataDir(); \
+	errmsg = "Survey Data Root: "; errmsg += GetBaseDataDir(); \
         errmsg += "\nThis is not a valid OpendTect data storage directory."; \
 	if ( fname ) \
 	    { errmsg += "\n[Cannot find: "; errmsg += fname; errmsg += "]"; } \
@@ -362,14 +457,30 @@ static bool validOmf( const char* dir )
 
 bool IOMan::validSurveySetup( BufferString& errmsg )
 {
-    errmsg = "";
     const BufferString basedatadir( GetBaseDataDir() );
     if ( basedatadir.isEmpty() )
-	mErrRet("Please set the environment variable DTECT_DATA.")
+	mErrRet("No Survey Data Root found in the user settings, "
+		"or provided the command line (--dataroot dir), "
+		"or provided using the environment variable DTECT_DATA")
     else if ( !File::exists(basedatadir) )
 	mErrRetNotODDir(nullptr)
     else if ( !validOmf(basedatadir) )
 	mErrRetNotODDir(".omf")
+
+    const BufferString surveynm( SurveyInfo::curSurveyName() );
+    if ( surveynm.isEmpty() )
+    {
+	// Survey name in ~/.od/survey is invalid or absent. If there, remove it
+	const BufferString survfname = SurveyInfo::surveyFileName();
+	if ( File::exists(survfname) && !File::remove(survfname) )
+	{
+	    errmsg.set( "The file: '" ).add( survfname )
+		  .add( "' contains an invalid survey.\n\n"
+			"Please remove this file" );
+	}
+
+	return false;
+    }
 
     const BufferString projdir = GetDataDir();
     if ( projdir != basedatadir && File::isDirectory(projdir) )
@@ -380,12 +491,11 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 					   fullPath() );
 	if ( !noomf && !nosurv )
 	{
-	    if ( !IOM().isBad() )
+	    if ( IOMan::isOK() )
 		return true; // This is normal
 
 	    // But what's wrong here? In any case - survey is not good.
 	}
-
 	else
 	{
 	    BufferString msg;
@@ -404,29 +514,73 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	}
     }
 
-    // Survey name in ~/.od/survey is invalid or absent. If there, lose it ...
-    const BufferString survfname = SurveyInfo::surveyFileName();
-    if ( File::exists(survfname) && !File::remove(survfname) )
-    {
-	errmsg.set( "The file:\n" ).add( survfname )
-	    .add( "\ncontains an invalid survey.\n\nPlease remove this file" );
-	return false;
-    }
-
     SurveyInfo::setSurveyName( "" ); // force user-set of survey
+    if ( !IOMan::isOK() )
+	return false;
 
     IOM().reInit( false );
-    return true;
+    const bool isok = !IOM().isBad();
+    if ( !isok )
+	errmsg = IOM().message();
+
+    return isok;
 }
 
 
-bool IOMan::setRootDir( const char* dirnm )
+bool IOMan::setRootDir( const char* rootdirstr )
 {
     Threads::Locker lock( lock_ );
-    if ( !dirnm || rootdir_==dirnm ) return true;
-    if ( !File::isDirectory(dirnm) ) return false;
-    rootdir_ = dirnm;
-    return setDir( rootdir_ );
+    FilePath dirfp;
+    bool ischecked = false;
+    if ( rootdirstr && *rootdirstr )
+	dirfp.set( rootdirstr );
+    else
+    {
+	dirfp.set( GetDataDir() );
+	ischecked = true;
+    }
+
+    return setRootDir( dirfp, ischecked ).isOK();
+}
+
+
+static uiRetVal lastiomsmsg_;
+
+uiRetVal IOMan::setRootDir( const FilePath& dirfp, bool ischecked )
+{
+    Threads::Locker lock( lock_ );
+    const BufferString dirnm = dirfp.fullPath();
+    if ( dirnm.isEmpty() )
+	return tr( "Cannot set IOM Root Dir with empty path" );
+
+    FilePath rootdir( rootdir_ );
+    uiRetVal uirv;
+    if ( dirnm == rootdir.fullPath() )
+	return uirv;
+
+    if ( !ischecked && !isValidSurveyDir(dirnm.str()) )
+    {
+	uirv = lastiomsmsg_;
+	return uirv;
+    }
+
+    rootdir_.set( dirnm.str() );
+    rootdir.set( dirnm.str() );
+    const SurveyDiskLocation rootdirsdl( rootdir );
+    SetCurBaseDataDir( rootdirsdl.basePath() );
+
+    SurveyInfo::deleteInstance();
+    SurveyInfo::setSurveyName( rootdirsdl.dirName() );
+
+    reInit( true );
+    uirv = msg_;
+    if ( !uirv.isOK() )
+	return uirv;
+
+    if ( !setDir(nullptr) )
+	uirv = msg_;
+
+    return uirv;
 }
 
 
@@ -434,7 +588,9 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 {
     if ( isBad() )
     {
-	if ( !to("0",true) || isBad() ) return false;
+	if ( !to("0",true) || isBad() )
+	    return false;
+
 	return to( sd, true );
     }
     else if ( !forcereread )
@@ -445,11 +601,11 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 	    return true;
     }
 
-    const char* dirnm = sd ? sd->dirName() : rootdir_.buf();
-    if ( !File::isDirectory(dirnm) )
+    const BufferString dirnm( sd ? sd->dirName() : rootdir_.buf() );
+    if ( !File::isDirectory(dirnm.buf()) )
 	return false;
 
-    return setDir( dirnm );
+    return setDir( dirnm.buf() );
 }
 
 
@@ -717,7 +873,7 @@ const char* IOMan::nameOf( const char* id ) const
     IOObj* ioobj = get( ky );
     ret.setEmpty();
     if ( !ioobj )
-	{ ret = "ID=<"; ret += id; ret += ">"; }
+	ret.set( "ID=<" ).add( id ).add( ">" );
     else
     {
 	ret = ioobj->name();
@@ -748,7 +904,7 @@ void IOMan::getObjectNames( const DBKeySet& keys, BufferStringSet& nms )
 
 const char* IOMan::curDirName() const
 {
-    return dirptr_ ? dirptr_->dirName() : (const char*)rootdir_;
+    return dirptr_ ? dirptr_->dirName() : rootdir_.buf();
 }
 
 
@@ -761,21 +917,32 @@ const MultiID& IOMan::key() const
 bool IOMan::setDir( const char* dirname )
 {
     Threads::Locker lock( lock_ );
-    if ( !dirname ) dirname = rootdir_;
-    if ( !dirname || !*dirname )
-	return false;
+    BufferString dirnm( dirname );
+    if ( dirnm.isEmpty() )
+	dirnm.set( rootdir_.buf() );
 
-    IODir* newdirptr = new IODir( dirname );
-    if ( !newdirptr ) return false;
+    if ( dirnm.isEmpty() )
+    {
+	msg_ = tr("Cannot set directory from empty string");
+	return false;
+    }
+
+    PtrMan<IODir> newdirptr = new IODir( dirnm.str() );
+    if ( !newdirptr )
+    {
+	msg_ = tr("Cannot switch to database directory '%1'").arg( dirname );
+	return false;
+    }
+
     if ( newdirptr->isBad() )
     {
-	delete newdirptr;
+	msg_ = tr("Cannot switch to database directory '%1'").arg( dirname );
 	return false;
     }
 
     bool needtrigger = dirptr_;
     delete dirptr_;
-    dirptr_ = newdirptr;
+    dirptr_ = newdirptr.release();
     curlvl_ = levelOf( curDirName() );
 
     lock.unlockNow();
@@ -859,7 +1026,7 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
     if ( templs.isEmpty() )
     {
 	BufferString msg( "Translator Group '",ctio.ctxt_.trgroup_->groupName(),
-			  "is empty." );
+			  "' is empty." );
 	msg.add( ".\nCannot create a default write IOObj for " )
 	   .add( ctio.ctxt_.name() );
 	pErrMsg( msg ); return nullptr;
@@ -1165,11 +1332,13 @@ bool IOMan::isPresent( const char* objname, const char* tgname ) const
 int IOMan::levelOf( const char* dirnm ) const
 {
     Threads::Locker lock( lock_ );
-    if ( !dirnm ) return 0;
+    if ( !dirnm )
+	return 0;
 
-    int lendir = StringView(dirnm).size();
+    int lendir = StringView( dirnm ).size();
     int lenrootdir = rootdir_.size();
-    if ( lendir <= lenrootdir ) return 0;
+    if ( lendir <= lenrootdir )
+	return 0;
 
     int lvl = 0;
     const char* ptr = ((const char*)dirnm) + lenrootdir;
@@ -1385,7 +1554,7 @@ void IOMan::setupCustomDataDirs( int taridx )
 
 IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 {
-    IOSubDir* sd = new IOSubDir( cdd.dirname_ );
+    auto* sd = new IOSubDir( cdd.dirname_ );
     sd->setDirName( IOM().rootDir() );
     sd->setKey( cdd.selkey_ );
     sd->isbad_ = false;
@@ -1393,24 +1562,21 @@ IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 }
 
 
-bool IOMan::isValidDataRoot( const char* d )
+bool IOMan::isValidDataRoot( const char* basedatadir )
 {
-    FilePath fp( d ? d : GetBaseDataDir() );
-    const BufferString dirnm( fp.fullPath() );
-    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
+    Threads::Locker locker( IOMManager::lock_ );
+    uiRetVal& uirv = lastiomsmsg_.setOK();
+    uirv = SurveyInfo::isValidDataRoot( basedatadir );
+    if ( !uirv.isOK() )
 	return false;
 
-    fp.add( ".omf" );
-    if ( !File::exists(fp.fullPath()) )
-	return false;
+    const IODir datarootdir( basedatadir );
+    if ( datarootdir.isEmpty() )
+	uirv = tr("Data root folder '%1' is empty").arg( basedatadir );
+    else if ( datarootdir.isBad() || !datarootdir.get("Appl dir","Appl") )
+	uirv = tr("Data root folder '%1' seems corrupted").arg( basedatadir );
 
-    fp.setFileName( ".survey" );
-    if ( File::exists(fp.fullPath()) )
-	ErrMsg( "Warning: .survey file found in Data Root");
-
-    IODir datarootdir( fp.pathOnly().buf() );
-    return !datarootdir.isBad() && !datarootdir.isEmpty() &&
-	datarootdir.get("Appl dir","Appl");
+    return uirv.isOK();
 }
 
 
@@ -1418,81 +1584,122 @@ bool IOMan::prepareDataRoot( const char* dirnm )
 {
     const BufferString stdomf( mGetSetupFileName("omf") );
     const BufferString datarootomf = FilePath( dirnm ).add( ".omf" ).fullPath();
-    return File::copy( stdomf, datarootomf ) && isValidDataRoot( dirnm );
+    if ( !File::copy(stdomf,datarootomf) )
+       return false;
+
+    Threads::Locker locker( IOMManager::lock_ );
+    lastiomsmsg_.setOK();
+    return isValidDataRoot( dirnm );
 }
 
 
-bool IOMan::isValidSurveyDir( const char* d )
+bool IOMan::isValidSurveyDir( const char* surveydir )
 {
-    FilePath fp( d );
-    fp.add( ".omf" );
-    if ( !File::exists(fp.fullPath()) )
-	return false;
+    Threads::Locker locker( IOMManager::lock_ );
+    uiRetVal& uirv  = lastiomsmsg_.setOK();
+    uirv = SurveyInfo::isValidSurveyDir( surveydir );
+    return uirv.isOK();
+}
 
-    fp.setFileName( ".survey" );
-    if ( !File::exists(fp.fullPath()) )
-	return false;
 
-    fp.setFileName( "Seismics" );
-    if ( !File::isDirectory(fp.fullPath()) )
-	return false;
-
-    return true;
+uiRetVal IOMan::isValidMsg()
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    return lastiomsmsg_;
 }
 
 
 uiRetVal IOMan::setDataSource( const char* dataroot, const char* survdir,
 			       bool refresh )
 {
-    uiRetVal uirv;
-    bool res = setRootDir( dataroot );
-    if ( res )
-	res = setSurvey( survdir );
+    return setDataSource_( dataroot, survdir, refresh );
+}
 
-    if ( !res )
-	uirv.set( toUiString("Can not set DataRoot and Survey") );
 
-    return uirv;
+uiRetVal IOMan::setDataSource_( const char* dataroot, const char* survdir,
+			       bool /* refresh */ )
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    uiRetVal& uirv = lastiomsmsg_.setOK();
+    if ( isValidDataRoot(dataroot) )
+	SetCurBaseDataDir( dataroot );
+    else
+	return uirv;
+
+    const SurveyDiskLocation sdl( survdir, dataroot );
+    const BufferString iomrootdir = sdl.fullPath();
+    if ( !isValidSurveyDir(iomrootdir.buf()) )
+	return uirv;
+
+    const FilePath rootdirfp( iomrootdir.buf() );
+    if ( !theinstmgr )
+    {
+	IOM( rootdirfp, uirv );
+	locker.unlockNow();
+	return uirv;
+    }
+
+    return IOM().setRootDir( rootdirfp, true );
 }
 
 
 uiRetVal IOMan::setDataSource( const char* fullpath, bool refresh )
 {
-    FilePath fp( fullpath );
-    const BufferString pathnm( fp.pathOnly() );
-    const BufferString filenm( fp.fileName() );
-    return setDataSource( pathnm, filenm, refresh );
+    return setDataSource_( fullpath, refresh );
+}
+
+
+uiRetVal IOMan::setDataSource_( const char* fullpath, bool refresh )
+{
+    const FilePath fp( fullpath );
+    return setDataSource_( fp.pathOnly().buf(), fp.fileName().buf(), refresh );
 }
 
 
 uiRetVal IOMan::setDataSource( const IOPar& iop, bool refresh )
 {
-    return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()),
-			  refresh );
+    BufferString dataroot, survdir;
+    if ( !iop.get(sKey::DataRoot(),dataroot) )
+	dataroot.set( GetBaseDataDir() );
+
+    if ( !iop.get(sKey::Survey(),survdir) )
+	survdir.set( SurveyInfo::curSurveyName() );
+
+    return setDataSource_( dataroot.buf(), survdir.buf(), refresh );
 }
 
 
 uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 {
-    bool usecur = true;
-    bool needtempsurvey = clp.hasKey( CommandLineParser::sNeedTempSurv() );
-    BufferString newpath;
+    return setDataSource_( clp, refresh );
+}
+
+
+uiRetVal IOMan::setDataSource_( const CommandLineParser& clp, bool refresh )
+{
+    BufferString dataroot, survdir;
+    const bool hasdataroot = clp.getVal( CommandLineParser::sDataRootArg(),
+					 dataroot );
+    const bool hassurveynm = clp.getVal( CommandLineParser::sSurveyArg(),
+					 survdir );
+    const bool needtempsurvey = clp.hasKey( CommandLineParser::sNeedTempSurv());
     if ( needtempsurvey )
     {
-	BufferString surveynm;
-	BufferString surveyloc;
-	clp.getVal( CommandLineParser::sSurveyArg(), surveynm );
-	clp.getVal( CommandLineParser::sDataRootArg(), surveyloc );
-	EmptyTempSurvey tempsurvey( surveyloc, surveynm );
-	tempsurvey.mount();
-	FilePath fp( tempsurvey.getTempBaseDir() );
-	fp.add( tempsurvey.getSurveyDir() );
-	newpath = fp.fullPath();
-    }
-    else
-	newpath = clp.getFullSurveyPath( &usecur );
+	EmptyTempSurvey tempsurvey( survdir.buf(), dataroot.buf() );
+	const uiRetVal uirv = tempsurvey.mount();
+	if ( !uirv.isOK() )
+	    return uirv;
 
-    return setDataSource( newpath, refresh );
+	return tempsurvey.activate();
+    }
+
+    if ( !hasdataroot )
+	dataroot.set( GetBaseDataDir() );
+
+    if ( !hassurveynm )
+	survdir.set( SurveyInfo::curSurveyName() );
+
+    return setDataSource_( dataroot.buf(), survdir.buf(), refresh );
 }
 
 
@@ -1506,7 +1713,13 @@ BufferString IOMan::fullSurveyPath() const
 bool IOMan::recordDataSource( const SurveyDiskLocation& sdl,
 			      uiRetVal& uirv ) const
 {
-    const bool survok = writeSettingsSurveyFile( sdl.dirName(), uirv );
+    return recordDataSource_( sdl, uirv );
+}
+
+
+bool IOMan::recordDataSource_( const SurveyDiskLocation& sdl, uiRetVal& uirv )
+{
+    const bool survok = writeSettingsSurveyFile_( sdl.dirName(), uirv );
     const bool datadirok = SetSettingsDataDir( sdl.basePath(), uirv );
     return survok && datadirok;
 }
@@ -1514,6 +1727,12 @@ bool IOMan::recordDataSource( const SurveyDiskLocation& sdl,
 
 bool IOMan::writeSettingsSurveyFile( const char* surveydirnm,
 				     uiRetVal& uirv ) const
+{
+    return writeSettingsSurveyFile_( surveydirnm, uirv );
+}
+
+
+bool IOMan::writeSettingsSurveyFile_( const char* surveydirnm, uiRetVal& uirv )
 {
     const BufferString survfnm( SurveyInfo::surveyFileName() );
     if ( survfnm.isEmpty() )
@@ -1597,9 +1816,9 @@ IODir* IOMan::getDir( const MultiID& mid ) const
 
 BufferString IOMan::getNewTempDataRootDir()
 {
-    const BufferString tmpdataroot = FilePath::getTempFullPath( nullptr,
-								nullptr );
-    if ( !File::createDir( tmpdataroot ) )
+    const BufferString tmpdataroot =
+		       FilePath::getTempFullPath( "dataroot", nullptr );
+    if ( !File::createDir(tmpdataroot) )
 	return BufferString::empty();
 
     if ( !prepareDataRoot(tmpdataroot) )
@@ -1616,59 +1835,158 @@ mExternC(General) const char* setDBMDataSource( const char* fullpath,
 						bool refresh )
 {
     mDeclStaticString(ret);
-    const uiRetVal uirv = IOM().setDataSource( fullpath, refresh );
+    const uiRetVal uirv = IOMan::setDataSource_( fullpath, refresh );
     ret = uirv.getText();
     return ret.buf();
 }
 
 
+bool IOMan::isUsingTempSurvey() const
+{
+    return prevrootdiriommgr_.getParam( this );
+}
+
+
 void IOMan::setTempSurvey( const SurveyDiskLocation& sdl )
 {
-    SetCurBaseDataDirOverrule( sdl.basePath() );
-    SurveyInfo::setSurveyName( sdl.dirName() );
-    IOM().setRootDir( GetDataDir() );
+    IOM().setTempSurvey_( sdl );
+}
+
+
+uiRetVal IOMan::setTempSurvey_( const SurveyDiskLocation& sdl )
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    uiRetVal& uirv = lastiomsmsg_.setOK();
+
+    const BufferString dataroot( sdl.basePath() );
+    if ( !isValidDataRoot(dataroot) )
+	return uirv;
+
+    const BufferString iomrootdir( sdl.fullPath() );
+    if ( !isValidSurveyDir(iomrootdir.buf()) )
+	return uirv;
+
+    prevrootdiriommgr_.deleteAndNullPtrParam( this );
+    prevrootdiriommgr_.setParam( this, new SurveyDiskLocation( rootdir_ ) );
+    const FilePath fp( iomrootdir.buf() );
+    return setRootDir( fp, true );
 }
 
 
 void IOMan::cancelTempSurvey()
 {
-    SetCurBaseDataDirOverrule( "" );
-    SurveyInfo::setSurveyName( "" );
-    IOM().setRootDir( GetDataDir() );
+    IOM().cancelTempSurvey_();
 }
 
+
+uiRetVal IOMan::cancelTempSurvey_()
+{
+    uiRetVal uirv;
+    if ( !prevrootdiriommgr_.getParam(this) )
+    {
+	uirv = tr("Cannot cancel temp survey: No valid project before");
+	return uirv;
+    }
+
+    const FilePath fp( prevrootdiriommgr_.getParam(this)->fullPath() );
+    uirv = setRootDir( fp );
+    prevrootdiriommgr_.deleteAndNullPtrParam( this );
+    return uirv;
+}
+
+
+HiddenParam<SurveyChanger,uiRetVal*> surveychangermsgmgr_(nullptr);
 
 // SurveyChanger
 SurveyChanger::SurveyChanger( const SurveyDiskLocation& sdl )
 {
-    needscleanup_ = false;
+    surveychangermsgmgr_.setParam( this, new uiRetVal );
     if ( sdl.isCurrentSurvey() )
 	return;
 
-    SurveyDiskLocation cursdl = changedToSurvey();
+    const FilePath curfp( IOM().rootDir() );
+    const SurveyDiskLocation cursdl( curfp );
     if ( cursdl != sdl )
-    {
-	IOMan::setTempSurvey( sdl );
-	needscleanup_ = true;
-    }
+	*surveychangermsgmgr_.getParam( this ) = IOM().setTempSurvey_( sdl );
 }
 
 
 SurveyChanger::~SurveyChanger()
 {
-    if ( needscleanup_ )
-	IOMan::cancelTempSurvey();
+    surveychangermsgmgr_.removeAndDeleteParam( this );
+    if ( hasChanged() )
+	IOM().cancelTempSurvey_();
 }
 
 
 bool SurveyChanger::hasChanged()
 {
-    return !changedToSurvey().isCurrentSurvey();
+    return IOM().isUsingTempSurvey();
+}
+
+
+uiRetVal SurveyChanger::message() const
+{
+    return *surveychangermsgmgr_.getParam( this );
 }
 
 
 SurveyDiskLocation SurveyChanger::changedToSurvey()
 {
-    const FilePath fp( GetDataDir() );
+    const FilePath fp( IOM().rootDir() );
     return SurveyDiskLocation( fp );
+}
+
+
+static int noConv2DSeisStatusFn( void ) { return 0; }
+static void noConv2DSeisFn(uiString&,TaskRunner*)	{}
+using intFromVoidFn = int(*)();
+using voidFromuiStringFn = void(*)(uiString&,TaskRunner*);
+static intFromVoidFn localconv2dseisstatusfn_ = noConv2DSeisStatusFn;
+static voidFromuiStringFn localconv2dseisfn_ = noConv2DSeisFn;
+
+mGlobal(General) void setConv2DSeis_General_Fns(intFromVoidFn,
+						voidFromuiStringFn);
+void setConv2DSeis_General_Fns( intFromVoidFn convstatusfn,
+				voidFromuiStringFn convfn )
+{
+    localconv2dseisstatusfn_ = convstatusfn;
+    localconv2dseisfn_ = convfn;
+}
+
+mGlobal(General) int OD_Get_2D_Data_Conversion_Status()
+{
+    return (*localconv2dseisstatusfn_)();
+}
+
+mGlobal(General) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
+							   TaskRunner* taskrnr )
+{
+    (*localconv2dseisfn_)( errmsg, taskrnr );
+}
+
+static bool noBodyStatusFn( void )	{ return true; }
+static bool noBodyConvFn(uiString&)	{ return true; }
+using boolFromVoidFn = bool(*)();
+using boolFromStringFn = bool(*)(uiString&);
+static boolFromVoidFn localbodyconvstatusfn_ = noBodyStatusFn;
+static boolFromStringFn localbodyconvfn_ = noBodyConvFn;
+
+mGlobal(General) void setConvBody_General_Fns(boolFromVoidFn,boolFromStringFn);
+
+void setConvBody_General_Fns( boolFromVoidFn convstatusfn,
+			      boolFromStringFn convfn )
+{
+    localbodyconvstatusfn_ = convstatusfn;
+    localbodyconvfn_ = convfn;
+}
+
+mGlobal(General) bool OD_Get_Body_Conversion_Status()
+{
+    return (*localbodyconvstatusfn_)();
+}
+
+mGlobal(General) bool OD_Convert_Body_To_OD5( uiString& msg )
+{
+    return (*localbodyconvfn_)( msg );
 }

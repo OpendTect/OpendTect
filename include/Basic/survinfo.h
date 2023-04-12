@@ -204,7 +204,11 @@ private:
     Pos::IdxPair2Coord::DirTransform rdytr_;
 
 				// For IOMan only
-    static void			setSurveyName(const char*);
+    static void			setSurveyName(const char* surveydirnm);
+				/*<!Switching to another survey within the same
+				    data root, i.e. a valid data root must have
+				    been set before. Argument:
+				    Survey directory name (not a full path) */
 				// friends only
     static const char*		surveyFileName();
 
@@ -326,9 +330,14 @@ public:
     void		update3DGeometry();
 
     static uiRetVal	isValidDataRoot(const char*);
+			/*!< Full path to a writable directory
+			     Exclusively for usage in modules below General */
     static uiRetVal	isValidSurveyDir(const char*);
+			/*!< Full path to an OpendTect project directory
+			     Exclusively for usage in modules below General */
 
     static const char*	curSurveyName();
+			//!< Survey directory name (not a full path)
 
 			// No, you really don't need these!
     static void		pushSI(SurveyInfo*);
@@ -342,7 +351,8 @@ mGlobal(Basic) const SurveyInfo& SI();
 mGlobal(Basic) inline SurveyInfo& eSI()
 			{ return const_cast<SurveyInfo&>(SI()); }
 
-mExternC( Basic ) const char* GetSurveyName(void);
+mExternC(Basic) const char* GetSurveyName(void);
+			//!< Survey directory name (not a full path)
 
 
 namespace Survey {

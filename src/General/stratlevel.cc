@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "dirlist.h"
+#include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -49,8 +50,13 @@ Level& Level::dummy()
 Strat::LevelSetMgr::LevelSetMgr()
     : curChanged(this)
 {
-    mAttachCB( IOM().surveyChanged, LevelSetMgr::surveyChangedCB );
-    mAttachCB( IOM().applicationClosing, LevelSetMgr::surveyChangedCB );
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), LevelSetMgr::iomReadyCB );
 }
 
 
@@ -143,6 +149,13 @@ void Strat::LevelSetMgr::createSet()
     }
 
     lss_.add( ls );
+}
+
+
+void Strat::LevelSetMgr::iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().surveyChanged, LevelSetMgr::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing, LevelSetMgr::surveyChangedCB );
 }
 
 
@@ -708,7 +721,7 @@ Strat::LevelSet* Strat::LevelSet::read( const MultiID& key )
 
     auto* ret = new LevelSet;
     if ( !ret->readFrom(fp.fullPath()) )
-	deleteAndZeroPtr( ret );
+	deleteAndNullPtr( ret );
 
     if ( ret )
 	ret->dbky_ = key;

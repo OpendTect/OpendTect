@@ -8,11 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "posimpexppars.h"
-#include "survinfo.h"
-#include "keystrs.h"
+
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "perthreadrepos.h"
+#include "survinfo.h"
 
 
 const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }
@@ -22,14 +24,12 @@ const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr(); }
 
 const PosImpExpPars& PosImpExpPars::SVY()
 {
-    mDefineStaticLocalObject( PtrMan<PosImpExpPars>, thinst, = 0 );
+    mDefineStaticLocalObject( PtrMan<PosImpExpPars>, thinst, = nullptr );
     if ( !thinst )
     {
-	PosImpExpPars* newthinst = new PosImpExpPars;
-	newthinst->getFromSI();
-
-	if ( thinst.setIfNull(newthinst,true) )
-	    IOM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
+	auto* newthinst = new PosImpExpPars;
+	if ( thinst.setIfNull(newthinst,true) && NeedDataBase() )
+	    IOMan::iomReady().notify( mSCB( PosImpExpPars::iomReadyCB ) );
 
     }
     return *thinst;
@@ -38,6 +38,13 @@ const PosImpExpPars& PosImpExpPars::SVY()
 PosImpExpPars& PosImpExpPars::getSVY()
 {
     return const_cast<PosImpExpPars&>( SVY() );
+}
+
+
+void PosImpExpPars::iomReadyCB( CallBacker* )
+{
+    IOM().afterSurveyChange.notify( mCB(&getSVY(),PosImpExpPars,survChg) );
+    getSVY().survChg( nullptr );
 }
 
 

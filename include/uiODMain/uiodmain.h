@@ -116,7 +116,9 @@ private:
 
     mGlobal(uiODMain) friend int ODMain(uiMain&);
 
+    mDeprecatedObs
     bool		ensureGoodDataDir();
+    mDeprecatedObs
     bool		ensureGoodSurveySetup();
     bool		buildUI();
     void		initScene();

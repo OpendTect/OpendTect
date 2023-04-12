@@ -81,6 +81,7 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "od_helpids.h"
 
+
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
 	, applservice_(*new uiODApplService(&a,*this))
@@ -116,8 +117,6 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	attrserv_->setAttrsNeedUpdt();
 	tmpprevsurvinfo_.refresh();
     }
-
-    appl_.afterPopup.notify( mCB(this,uiODApplMgr,mainWinUpCB) );
 
     IOM().surveyToBeChanged.notify(
 			mCB(this,uiODApplMgr,surveyToBeChanged),true );
@@ -155,12 +154,8 @@ MouseCursorExchange& uiODApplMgr::mouseCursorExchange()
 { return mousecursorexchange_; }
 
 
-void uiODApplMgr::mainWinUpCB( CallBacker* cb )
+void uiODApplMgr::mainWinUpCB( CallBacker* )
 {
-    if ( !Convert_OD4_Data_To_OD5() )
-	manageSurvey();
-
-    Convert_OD4_Body_To_OD5();
 }
 
 
@@ -194,111 +189,16 @@ void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
 }
 
 
-extern int OD_Get_2D_Data_Conversion_Status();
-extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg,TaskRunner*);
-
 bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 {
-    const int status = OD_Get_2D_Data_Conversion_Status();
-    if ( !status )
-	return true;
-
-    if ( status == 3 ) // Pre 4.2 surveys
-    {
-	uiString msg( tr( "The survey %1 appears to be too old. "
-		"Please open this survey first in OpendTect 4.6 to update "
-		"its database before using it in later versions of OpendTect." )
-		.arg(IOM().surveyName()) );
-	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
-			     uiStrings::sExitOD() ) )
-	    return false;
-
-	uiMain::instance().exit();
-    }
-
-    if ( status == 1 )
-    {
-	uiString msg( tr("The database of survey '%1' is still '4.6' or lower. "
-		"It will now be converted. "
-		"This may take some time depending on the amount of data. "
-		"Note that after the conversion you will not be able to use "
-		"this 2D data in 5.0 or older versions of OpendTect.")
-		.arg(IOM().surveyName()) );
-
-	const int res = uiMSG().question( msg, tr("Convert now"),
-					  tr("Select another survey"),
-					  uiStrings::sExitOD() );
-	if ( res < 0 )
-	    uiMain::instance().exit();
-
-	if ( !res )
-	{
-	    uiMSG().message( tr("Please note that you can copy the survey "
-				"using 'Copy Survey' tool in the "
-				"'Survey Setup and Selection' window.") );
-	    return false;
-	}
-    }
-
-    uiString errmsg;
-    if ( !Survey::GMAdmin().fetchFrom2DGeom(errmsg) )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
-
-    uiTaskRunner taskrnr( ODMainWin(), false );
-    OD_Convert_2DLineSets_To_2DDataSets( errmsg, &taskrnr );
-    if ( !errmsg.isEmpty() )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
-
-    return true;
+    return false;
 }
 
-
-extern bool OD_Get_Body_Conversion_Status();
-extern bool OD_Convert_Body_To_OD5( uiString& errmsg );
 
 bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 {
-    const bool status = OD_Get_Body_Conversion_Status();
-    if ( !status )
-	return true;
-
-    uiString msg( tr("OpendTect has a new geobody format. "
-		"All the old geo-bodies of survey '%1' will now be converted. "
-		"Note that after the conversion, you will still be able to use "
-		"those geo-bodies in OpendTect 4.6.0, but only in patch p or "
-		"later.").arg(IOM().surveyName()) );
-
-    const int res = uiMSG().question( msg, tr("Convert now"),
-					   tr("Do it later"),
-					   uiStrings::sExitOD() );
-    if ( res < 0 )
-	uiMain::instance().exit();
-
-    if ( !res )
-    {
-	uiMSG().message( tr("Please note that you will not be able to use "
-			    "any of the old geo-bodies in this survey.") );
-	return false;
-    }
-
-    uiString errmsg;
-    if ( !OD_Convert_Body_To_OD5(errmsg) )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
-    else
-	uiMSG().message( tr("All the geo-bodies have been converted!") );
-    return true;
+    return false;
 }
-
-
 
 
 int uiODApplMgr::selectSurvey( uiParent* p )
@@ -312,33 +212,8 @@ int uiODApplMgr::selectSurvey( uiParent* p )
 
 int uiODApplMgr::manSurv( uiParent* p )
 {
-    BufferString prevnm = GetDataDir();
-    bool isconvpending = OD_Get_2D_Data_Conversion_Status()==1;
-    if ( !p ) p = ODMainWin();
-    while ( true )
-    {
-	uiSurvey dlg( p );
-	if ( !p )
-	    dlg.setModal( true );
-	if ( !dlg.go() )
-	{
-	    if ( isconvpending )
-		continue;
-	    if ( dlg.currentSurvRemoved() )
-		return 4;
-
-	    return 0;
-	}
-	else if ( !Convert_OD4_Data_To_OD5() )
-	{
-	    isconvpending = true;
-	    continue;
-	}
-	else if ( prevnm == GetDataDir() )
-	    return 1;
-	else
-	    return dlg.freshSurveySelected() ? 3 : 2;
-    }
+    uiRetVal uirv;
+    return uiSurvey::ensureValidSurveyDir( uirv, p );
 }
 
 
@@ -381,11 +256,11 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 	{ IOM().setChangeSurveyBlocked( true ); return; }
 
     if ( nlaserv_ ) nlaserv_->reset();
-    deleteAndZeroPtr( attrserv_ );
-    deleteAndZeroPtr( emattrserv_ );
-    deleteAndZeroPtr( volprocserv_ );
-    deleteAndZeroPtr( mpeserv_ );
-    deleteAndZeroPtr( wellserv_ );
+    deleteAndNullPtr( attrserv_ );
+    deleteAndNullPtr( emattrserv_ );
+    deleteAndNullPtr( volprocserv_ );
+    deleteAndNullPtr( mpeserv_ );
+    deleteAndNullPtr( wellserv_ );
     if ( appl_.sceneMgrAvailable() )
 	sceneMgr().cleanUp( false );
 }
@@ -505,7 +380,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 
     uiSingleGroupDlg dlg( &appl_, setup );
 
-    uiZAxisTransformSel* uitrans = SI().zIsTime()
+    auto* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
 				   ZDomain::sKeyDepth(), true, false, is2d )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
@@ -1318,13 +1193,15 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	if ( !isok || mIsUdf(textureidx) )
 	{
 	    uiTreeItem* parent = sceneMgr().findItem(visid);
-	    if ( !mIsUdf(emattrserv_->attribIdx() ) )
+	    if ( parent && !mIsUdf(emattrserv_->attribIdx()) )
 	    {
 		uiTreeItem* itm = parent->lastChild();
 		while ( true )
 		{
-		    uiTreeItem* nxt = itm->siblingAbove();
-		    if ( !nxt ) break;
+		    uiTreeItem* nxt = itm ? itm->siblingAbove() : nullptr;
+		    if ( !nxt )
+			break;
+
 		    itm = nxt;
 		}
 

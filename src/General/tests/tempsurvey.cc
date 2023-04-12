@@ -7,47 +7,57 @@ ________________________________________________________________________
 
 -*/
 
-#include "testprog.h"
+#include "surveyfile.h"
 
 #include "file.h"
 #include "filepath.h"
-#include "surveyfile.h"
-#include "ptrman.h"
-#include "od_istream.h"
+#include "ioman.h"
+#include "moddepmgr.h"
+#include "testprog.h"
 #include "ziputils.h"
 
-//Test for creating empty survey
-bool testTempSurvey( EmptyTempSurvey& tempsurvey )
+bool testTempSurvey( EmptyTempSurvey& surv )
 {
-    mRunStandardTest( tempsurvey.isOK(), "Creating Empty Survey" );
+    mRunStandardTest( surv.isOK(), "Constructed Survey" );
 
-    uiRetVal ret = tempsurvey.mount();
-    mRunStandardTest( !ret.isError(), "Mounting Empty Survey" );
+    uiRetVal ret = surv.mount();
+    mRunStandardTestWithError( ret.isOK() && surv.isMounted(), "Mount",
+			       ret.getText() );
 
-    ret = tempsurvey.save();
-    mRunStandardTest( !ret.isError(), "Saving Empty Survey" );
+    ret = surv.activate();
+    mRunStandardTestWithError( ret.isOK(), "Activate", ret.getText() );
 
-    ret = tempsurvey.unmount();
-    mRunStandardTest( !ret.isError(), "UnMounting Empty Survey" );
+    ret = surv.save();
+    mRunStandardTestWithError( ret.isOK(), "Save", ret.getText() );
+
+    ret = surv.unmount( false );
+    mRunStandardTestWithError( ret.isOK() && !surv.isMounted(), "Unmount",
+			       ret.getText() );
 
     return true;
 }
 
-//Test for Zipping existing survey, unzipping, mouting and unmounting a survey
-bool testZipSurvey( SurveyFile& survfile )
+
+bool testZipSurvey( SurveyFile& surv )
 {
-    uiRetVal ret = survfile.mount();
-    mRunStandardTest( !ret.isError(), "Mounting Zipped Survey" );
+    mRunStandardTest( surv.isOK(), "Constructed Survey" );
 
-    ret = survfile.save();
-    mRunStandardTest( !ret.isError(), "Saving Zipped Survey" );
+    uiRetVal ret = surv.mount();
+    mRunStandardTestWithError( ret.isOK() && surv.isMounted(), "Mount",
+			       ret.getText() );
 
-    ret = survfile.unmount( false );
-    mRunStandardTest( !ret.isError(), "UnMounting Zipped Survey" );
+    ret = surv.activate();
+    mRunStandardTestWithError( ret.isOK(), "Activate", ret.getText() );
+
+    ret = surv.save();
+    mRunStandardTestWithError( ret.isOK(), "Save", ret.getText() );
+
+    ret = surv.unmount( false );
+    mRunStandardTestWithError( ret.isOK() && !surv.isMounted(), "Unmount",
+			       ret.getText() );
 
     return true;
 }
-
 
 
 //Main Program
@@ -55,27 +65,32 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    logStream() << "------------Creating Temporary Survey------------" <<
-								    od_endl;
-    EmptyTempSurvey tempsurvey;
+    OD::ModDeps().ensureLoaded( "General" );
+
+    const bool managed = !clParser().hasKey( "keep" );
+
+    tstStream() << "--------Temporary Empty Survey-------------" << od_endl;
+    EmptyTempSurvey tempsurvey( "Temporary test project" );
+    tempsurvey.setManaged( managed );
     if ( !testTempSurvey(tempsurvey) )
     {
-	errStream() << tempsurvey.errMsg();
+	tstStream( true ) << tempsurvey.errMsg() << od_endl;
 	return 1;
     }
 
+    tstStream() << "-------Temporary Survey from zip file-------" << od_endl;
     SurveyFile surveyfile( tempsurvey.getZipArchiveLocation() );
-    logStream() << "------------UnZipping Temporary Survey------------" <<
-								    od_endl;
+    surveyfile.setManaged( managed );
     if ( !testZipSurvey(surveyfile) )
     {
-	errStream() << surveyfile.errMsg();
+	tstStream( true ) << surveyfile.errMsg() << od_endl;
 	return 1;
     }
 
-    if ( !clParser().hasKey("keep") )
+    if ( managed )
     {
 	File::removeDir( tempsurvey.getTempBaseDir() );
+	File::removeDir( surveyfile.getTempBaseDir() );
 	FilePath fp( tempsurvey.getZipArchiveLocation() );
 	File::remove( fp.fullPath() );
 	fp.setExtension( SurveyFile::bckupExtStr() );

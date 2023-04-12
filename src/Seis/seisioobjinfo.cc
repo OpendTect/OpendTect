@@ -179,8 +179,8 @@ SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
-    : ioobj_(IOM().get(id))
 {
+    ioobj_ = IOMan::isOK() ? IOM().get(id) : nullptr;
     setType();
 }
 
@@ -188,33 +188,36 @@ SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
 SeisIOObjInfo::SeisIOObjInfo( const DBKey& dbkey )
 {
     surveychanger_ = new SurveyChanger( dbkey.surveyDiskLocation() );
-    ioobj_ = IOM().get( dbkey );
+    ioobj_ = IOMan::isOK() ? IOM().get( dbkey ) : nullptr;
     setType();
 }
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
-	: geomtype_(geomtype)
-	, ioobj_(nullptr)
+    : geomtype_(geomtype)
+    , ioobj_(nullptr)
 {
-    IOM().to( IOObjContext::Seis );
-    switch ( geomtype_ )
+    if ( IOMan::isOK() )
     {
-	case Seis::Vol:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc) );
-	break;
+	IOM().to( IOObjContext::Seis );
+	switch ( geomtype_ )
+	{
+	    case Seis::Vol:
+	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc) );
+	    break;
 
-	case Seis::VolPS:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS3D) );
-	break;
+	    case Seis::VolPS:
+	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS3D) );
+	    break;
 
-	case Seis::Line:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc2D) );
-	break;
+	    case Seis::Line:
+	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc2D) );
+	    break;
 
-	case Seis::LinePS:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS2D) );
-	break;
+	    case Seis::LinePS:
+	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS2D) );
+	    break;
+	}
     }
 
     setType();
@@ -224,8 +227,12 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
     : ioobj_(nullptr)
 {
-    IOM().to( IOObjContext::Seis );
-    ioobj_ = IOM().getLocal( ioobjnm, nullptr );
+    if ( IOMan::isOK() )
+    {
+	IOM().to( IOObjContext::Seis );
+	ioobj_ = IOM().getLocal( ioobjnm, nullptr );
+    }
+
     setType();
 }
 

@@ -83,12 +83,12 @@ const char* SurveyInfo::curSurveyName()
 
     od_istream strm( SurveyInfo::surveyFileName() );
     if ( !strm.isOK() )
-	return 0;
+	return nullptr;
 
     strm.getLine( cur_survey_name );
     cur_survey_name.trimBlanks();
     if ( cur_survey_name.isEmpty() )
-	return 0;
+	return nullptr;
 
     if ( od_debug_isOn(DBG_SETTINGS) )
 	mPrDebug( "SurveyInfo::curSurveyName", cur_survey_name );
@@ -108,64 +108,44 @@ mExternC(Basic) const char* GetSurveyName()
 /* 'survey data' scope */
 
 
-static BufferString basedatadiroverrule;
+static BufferString basedatadir;
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
-mExternC(Basic) void SetCurBaseDataDirOverrule( const char* dirnm )
-{
-    mDefineStaticLocalObject(Threads::Mutex, mutex, );
-    Threads::MutexLocker lock(mutex);
-    basedatadiroverrule = dirnm;
-}
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
 {
-#ifdef __win__
-    const BufferString windirnm( FilePath(dirnm).fullPath(FilePath::Windows) );
-    SetEnvVar( "DTECT_WINDATA", windirnm );
-    if ( GetOSEnvVar( "DTECT_DATA" ) )
-	SetEnvVar( "DTECT_DATA", windirnm );
-#else
-    SetEnvVar( "DTECT_DATA", dirnm );
-#endif
+    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    Threads::MutexLocker lock(mutex);
+    if ( dirnm && *dirnm )
+	basedatadir.set( dirnm );
+    else
+	basedatadir.setEmpty();
 }
 
 mExternC(Basic) const char* GetBaseDataDir()
 {
+    if ( !basedatadir.isEmpty() )
+	return basedatadir.buf();
+
     const char* dir;
-    if ( !basedatadiroverrule.isEmpty() )
-	return basedatadiroverrule.buf();
-
 #ifdef __win__
-
     dir = GetEnvVar( "DTECT_WINDATA" );
     if ( !dir )
     {
 	dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
 	if ( !dir )
 	    dir = getCleanWinPath( GetSettingsDataDir() );
-
-	if ( dir && *dir )
-	    SetEnvVar( "DTECT_WINDATA", dir );
     }
-
 #else
-
     dir = GetEnvVar( "DTECT_DATA" );
     if ( !dir )
-    {
 	dir = GetSettingsDataDir();
-	if ( dir && *dir )
-	    SetEnvVar( "DTECT_DATA", dir );
-    }
-
 #endif
 
-    if ( !dir ) return 0;
+    if ( !dir )
+	return nullptr;
 
-    mDeclStaticString( ret );
-    ret = dir;
-    return ret.buf();
+    basedatadir.set( dir );
+    return basedatadir.buf();
 }
 
 
@@ -173,7 +153,7 @@ mExternC(Basic) const char* GetDataDir()
 {
     const char* basedir = GetBaseDataDir();
     if ( !basedir || !*basedir )
-	return 0;
+	return nullptr;
 
     const char* survnm = GetSurveyName();
     if ( !survnm || !*survnm )

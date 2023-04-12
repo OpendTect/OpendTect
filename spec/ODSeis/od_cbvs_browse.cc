@@ -63,12 +63,12 @@ int mProgMainFnName( int argc, char** argv )
 	return 1;
     }
 
-    PIM().loadAuto( false );
-    CommandLineParser clp( argc, argv );
-    const uiRetVal uirv = IOM().setDataSource( clp );
+    const CommandLineParser clp( argc, argv );
+    const uiRetVal uirv = IOMan::setDataSource_( clp );
     if ( !uirv.isOK() )
 	return 1;
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "Seis" );
     PIM().loadAuto( true );
 

@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "propertyref.h"
 
 #include "ascstream.h"
+#include "genc.h"
 #include "globexpr.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -70,15 +71,27 @@ PropRef_Thick_Man()
 {
     ref_ = new ThicknessPropertyRef();
     setZUnit();
-    IOM().afterSurveyChange.notify( mCB(this,PropRef_Thick_Man,setZUnit) );
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), PropRef_Thick_Man::iomReadyCB );
 }
 
 
 ~PropRef_Thick_Man()
 {
+    detachAllNotifiers();
     thickness_proprefman_is_deleting_thickness = true;
     ref_->disp_.defval_ = nullptr;
     delete ref_;
+}
+
+void iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().afterSurveyChange, PropRef_Thick_Man::setZUnit );
 }
 
 
@@ -510,7 +523,7 @@ void PropertyRef::usePar( const IOPar& iop )
     }
 
     if ( disp_.defval_ && mathdef_ )
-	deleteAndZeroPtr( disp_.defval_ ); //Keep only one possibility
+	deleteAndNullPtr( disp_.defval_ ); //Keep only one possibility
 }
 
 
@@ -631,13 +644,25 @@ public:
 
 PropertyRefSetMgr()
 {
-    IOM().surveyChanged.notify( mCB(this,PropertyRefSetMgr,doNull) );
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), PropertyRefSetMgr::iomReadyCB );
 }
 
 
 ~PropertyRefSetMgr()
 {
+    detachAllNotifiers();
     delete prs_;
+}
+
+void iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().surveyChanged, PropertyRefSetMgr::doNull );
 }
 
 void doNull( CallBacker* )

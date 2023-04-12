@@ -91,6 +91,7 @@ protected:
     bool		forread_;
     ConstRefMan<Coords::CoordSystem> coordsys_;
 
+    void		iomReadyCB(CallBacker*);
     void		onSurveyChgCB(CallBacker*);
 
 };

@@ -165,13 +165,12 @@ void IODirEntryList::sort()
     BufferStringSet nms; const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
 	nms.add( (*this)[idx]->name() );
-    int* idxs = nms.getSortIndexes();
 
+    ConstArrPtrMan<int> idxs = nms.getSortIndexes();
     ObjectSet<IODirEntry> tmp( *this );
     erase();
     for ( int idx=0; idx<sz; idx++ )
 	*this += tmp[ idxs[idx] ];
-    delete [] idxs;
 }
 
 

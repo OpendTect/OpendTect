@@ -264,7 +264,7 @@ void ServiceMgrBase::stopServer( bool islocal )
                 pFDebugMsg( DGB_SERVICES,
                     BufferString( "Stopping listening to: ",
                         getAuthority( true ).toString() ) );
-            deleteAndZeroPtr( localserver_ );
+	    deleteAndNullPtr( localserver_ );
         }
         else
         {
@@ -272,7 +272,7 @@ void ServiceMgrBase::stopServer( bool islocal )
                 pFDebugMsg( DGB_SERVICES,
                     BufferString( "Stopping listening to: ",
                         getAuthority( false ).toString() ) );
-            deleteAndZeroPtr( tcpserver_ );
+	    deleteAndNullPtr( tcpserver_ );
         }
     }
 }
@@ -516,7 +516,7 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 	{
 	    NotifyStopper ns( pytha.envChange );
 	    if ( activatefp.isEmpty() )
-		deleteAndZeroPtr( pytha.activatefp_ );
+		deleteAndNullPtr( pytha.activatefp_ );
 	    else if ( pytha.activatefp_ )
 		*pytha.activatefp_ = activatefp;
 	    else
@@ -546,12 +546,8 @@ void ServiceMgrBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 uiRetVal ServiceMgrBase::survChangedReq( const OD::JSON::Object& reqobj )
 {
     const FilePath surveydir = reqobj.getFilePath( sKey::Survey() );
-    const bool success = IOM().setRootDir( surveydir.pathOnly() ) &&
-            IOM().setSurvey( surveydir.fileName() );
-    if ( !success )
-        return uiRetVal( toUiString(IOM().message()) );
-
-    return uiRetVal::OK();
+    const uiRetVal uirv = IOMan::setDataSource_( surveydir.fullPath() );
+    return uirv;
 }
 
 

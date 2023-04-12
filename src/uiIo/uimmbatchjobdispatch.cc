@@ -8,78 +8,97 @@ ________________________________________________________________________
 -*/
 
 #include "uimmbatchjobdispatch.h"
-#include "uigeninput.h"
-#include "uilistbox.h"
-#include "uicombobox.h"
-#include "uislider.h"
-#include "uilabel.h"
-#include "uiseparator.h"
-#include "uibutton.h"
-#include "uitextedit.h"
-#include "uitextfile.h"
-#include "uiprogressbar.h"
-#include "uitaskrunner.h"
-#include "uistatusbar.h"
-#include "uimsg.h"
-#include "timer.h"
-#include "timefun.h"
-#include "oddirs.h"
+
+#include "commandlineparser.h"
 #include "envvars.h"
+#include "genc.h"
 #include "hostdata.h"
-#include "batchjobdispatch.h"
-#include "jobrunner.h"
+#include "ioman.h"
 #include "jobdescprov.h"
 #include "jobinfo.h"
-#include "od_iostream.h"
-#include "genc.h"
-#include "ioman.h"
+#include "jobrunner.h"
+#include "mousecursor.h"
 #include "netsocket.h"
+#include "od_iostream.h"
+#include "oddirs.h"
+#include "oscommand.h"
+#include "plugins.h"
 #include "survinfo.h"
 #include "systeminfo.h"
-#include "plugins.h"
+#include "timefun.h"
+#include "timer.h"
 
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uiprogressbar.h"
+#include "uiseparator.h"
+#include "uislider.h"
+#include "uistatusbar.h"
+#include "uitaskrunner.h"
+#include "uitextedit.h"
+#include "uitextfile.h"
+
+
+uiRetVal uiMMBatchJobDispatcher::initMMProgram( const CommandLineParser& clp,
+						IOPar& jobpars )
+{
+    clp.setKeyHasValue( CommandLineParser::sDataRootArg() );
+    clp.setKeyHasValue( CommandLineParser::sSurveyArg() );
+    clp.setKeyHasValue( "parfile" );
+    uiRetVal uirv;
+
+    const OD::String& execnm = clp.getExecutableName();
+
+    BufferString parfilenm;
+    if ( !clp.getVal("parfile",parfilenm) )
+    {
+	BufferStringSet normalargs;
+	clp.getNormalArguments( normalargs );
+	if ( normalargs.isEmpty() )
+	    return od_static_tr( "uiMMBatchJobDispatcher",
+				 "Usage: %1 parfile" ).arg( execnm );
+
+	parfilenm = *normalargs.first();
+    }
+
+    od_istream strm( parfilenm );
+    if ( !strm.isOK() )
+	return od_static_tr( "uiMMBatchJobDispatcher",
+		"%1: Cannot open parameter file: %2").arg( execnm )
+						     .arg( strm.errMsg() );
+
+    jobpars.read( strm, sKey::Pars() );
+    strm.close();
+    if ( jobpars.isEmpty() )
+	return od_static_tr( "uiMMBatchJobDispatcher",
+			     "%1: Invalid parameter file").arg( execnm );
+
+    jobpars.set( sKey::FileName(), parfilenm.buf() );
+
+    BufferString dataroot, survdir;
+    if ( !clp.getVal(CommandLineParser::sDataRootArg(),dataroot) ||
+	 !jobpars.get(sKey::DataRoot(),dataroot) )
+	dataroot.set( GetBaseDataDir() );
+
+    if ( !clp.getVal(CommandLineParser::sSurveyArg(),survdir) ||
+	 !jobpars.get(sKey::Survey(),survdir) )
+	survdir.set( SurveyInfo::curSurveyName() );
+
+
+    return IOMan::setDataSource_( dataroot.buf(), survdir.buf() );
+}
 
 
 bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
-						IOPar& jobpars )
+					    IOPar& jobpars )
 {
-    const StringView arg1( argv[1] );
-    if ( argc < 2 )
-    {
-	od_cout() << "Usage: " << argv[0] << " parfile" << od_endl;
-	return false;
-    }
-
-    FilePath fp( argv[1] );
-    const BufferString parfnm( fp.fullPath() );
-    od_istream strm( parfnm );
-    if ( !strm.isOK() )
-    {
-	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
-	return false;
-    }
-
-    jobpars.read( strm, sKey::Pars() );
-    if ( jobpars.isEmpty() )
-    {
-	od_cout() << argv[0] << ": Invalid parameter file"
-		  << parfnm << od_endl;
-	return false;
-    }
-    strm.close();
-
-    BufferString res = jobpars.find( sKey::DataRoot() );
-    if ( !res.isEmpty() && SI().getDataDirName() != res )
-	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
-
-    res = jobpars.find( sKey::Survey() );
-    if ( !res.isEmpty() && SI().getDirName() != res && !IOMan::setSurvey(res) )
-	return false;
-
-    PIM().loadAuto( false );
-    jobpars.set( sKey::FileName(), parfnm );
-
-    return true;
+    const CommandLineParser clp( argc, argv );
+    const uiRetVal uirv = initMMProgram( clp, jobpars );
+    return uirv.isOK();
 }
 
 
@@ -272,7 +291,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 					.arg(clienthost) );
 	setCancelText( uiStrings::sClose() );
 	button(OK)->display( false );
-	deleteAndZeroPtr( jobrunner_ );
+	deleteAndNullPtr( jobrunner_ );
 	return;
     }
 
@@ -312,7 +331,7 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 
     if ( jobrunner_->nextStep() == Executor::ErrorOccurred() )
     {
-	deleteAndZeroPtr( jobrunner_ );
+	deleteAndNullPtr( jobrunner_ );
 	addbut_->setSensitive( true );
 	return;
     }
@@ -586,7 +605,7 @@ bool uiMMBatchJobDispatcher::wrapUp()
     clearAliveDisp();
 
     removeTempResults();
-    deleteAndZeroPtr( jobrunner_ );
+    deleteAndNullPtr( jobrunner_ );
     return true;
 }
 

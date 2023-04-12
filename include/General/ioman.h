@@ -45,6 +45,8 @@ mExpClass(General) IOMan final : public NamedCallBacker
 { mODTextTranslationClass(IOMan);
 public:
 
+    static bool		isOK();
+
     bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
     const OD::String&	message() const		{ return msg_.getFullString(); }
@@ -87,6 +89,7 @@ public:
     const MultiID&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir_; }
+			//!< Full path to the root of the current project
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
@@ -147,13 +150,24 @@ public:
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
 
+    static Notifier<IOMan>& iomReady();
+
     static bool		isValidDataRoot(const char* dirnm);
+			//!< Full path to a writable directory
     static bool		isValidSurveyDir(const char* dirnm);
+			//!< Full path to an OpendTect project directory
+    static uiRetVal	isValidMsg();
     static bool		prepareDataRoot(const char* dirnm);
     static BufferString getNewTempDataRootDir();
 
+    uiRetVal		setTempSurvey_(const SurveyDiskLocation&);
+    uiRetVal		cancelTempSurvey_();
+
+    mDeprecated("Use IOM().setTempSurvey_")
     static void		setTempSurvey(const SurveyDiskLocation&);
+    mDeprecated("Use IOM().cancelTempSurvey")
     static void		cancelTempSurvey();
+    bool		isUsingTempSurvey() const;
 
 private:
 
@@ -169,21 +183,28 @@ private:
 
     void		init();
     void		reInit(bool dotrigger);
+    bool		close(bool dotrigger);
+
 			IOMan(const char* rd=0);
+			IOMan(const FilePath& rootdir);
 			~IOMan();
 
     static IOMan*	theinst_;
     static void		setupCustomDataDirs(int);
 
+    uiRetVal		setRootDir(const FilePath&,bool ischecked=false);
+			//!< fullPath to the survey directory
     bool		setDir(const char*);
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
     bool		doReloc(const MultiID&,Translator*,
-	    			IOStream&,IOStream&);
+				IOStream&,IOStream&);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
+    mDeprecated("Use IOMan::writeSettingsSurveyFile_")
     bool		writeSettingsSurveyFile(const char* dirnm,
 						uiRetVal&) const;
+    static bool		writeSettingsSurveyFile_(const char* dirnm,uiRetVal&);
     void		applClosing() { applicationClosing.trigger(); }
     void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
 				 int translidxingroup=-1);
@@ -199,7 +220,11 @@ public:
 
     // Don't use these functions unless you really know what you're doing
 
+    mDeprecated("Use SurveyChanger class or setDataSource_")
     bool		setRootDir(const char*);
+			/*!< fullPath to the survey directory
+			     pass nullptr to use GetDataDir	 */
+
     static bool		validSurveySetup(BufferString& errmsg);
     static IOSubDir*	getIOSubDir(const CustomDirData&);
 
@@ -216,15 +241,27 @@ public:
     static void		surveyParsChanged();
 			/*! Triggers the post-survey change notifiers */
 
+    static uiRetVal	setDataSource_(const char* dataroot,const char* survdir,
+				      bool refresh=false);
+    static uiRetVal	setDataSource_(const CommandLineParser&,
+				      bool refresh=false);
+    static uiRetVal	setDataSource_(const char* fullpath,bool refresh=false);
+    mDeprecated("Use IOMan::setDataSource_")
     uiRetVal		setDataSource(const char* dataroot,const char* survdir,
 				      bool refresh=false);
+    mDeprecated("Use IOMan::setDataSource_")
     uiRetVal		setDataSource(const char* fullpath,bool refresh=false);
+    mDeprecated("Use IOMan::setDataSource_")
     uiRetVal		setDataSource(const IOPar&,bool refresh=false);
+    mDeprecated("Use IOMan::setDataSource_")
     uiRetVal		setDataSource(const CommandLineParser&,
 				      bool refresh=false);
+    mDeprecatedObs
     BufferString	fullSurveyPath() const;
+    mDeprecated("Use IOMan::recordDataSource_")
     bool		recordDataSource(const SurveyDiskLocation&,
 					 uiRetVal&) const;
+    static bool		recordDataSource_(const SurveyDiskLocation&,uiRetVal&);
 			/*!< records dataroot in settings,
 			     and project in survey file */
     IODir*		getDir(const char* trlgrpnm) const;
@@ -242,6 +279,8 @@ mExpClass(General) SurveyChanger
 public:
 				SurveyChanger(const SurveyDiskLocation&);
 				~SurveyChanger();
+
+    uiRetVal			message() const;
 
     static bool			hasChanged();
     static SurveyDiskLocation	changedToSurvey();

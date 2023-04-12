@@ -22,12 +22,14 @@ class uiSurveySelect;
 mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
 { mODTextTranslationClass(uiSelObjFromOtherSurvey);
 public:
-    			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
+			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
 			//IOobj constr.
-    			~uiSelObjFromOtherSurvey();
+			~uiSelObjFromOtherSurvey();
 
     void		setDirToCurrentSurvey();
+    mDeprecated("Provide SurveyDiskLocation")
     void		setDirToOtherSurvey();
+    void		setDirToOtherSurvey(const SurveyDiskLocation&);
 
     void		getIOObjFullUserExpression(BufferString& exp) const
 			{ exp = fulluserexpression_; }

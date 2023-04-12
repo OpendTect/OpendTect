@@ -51,7 +51,7 @@ static bool isPotentialDataDir( const char* path )
     DirList surveydirlist( path, File::DirsInDir );
     for ( int idx=0; idx<surveydirlist.size(); idx++ )
     {
-	if ( SurveyInfo::isValidSurveyDir(surveydirlist.fullPath(idx)).isOK() )
+	if ( IOMan::isValidSurveyDir(surveydirlist.fullPath(idx)) )
 	    return File::isWritable( path );
     }
 

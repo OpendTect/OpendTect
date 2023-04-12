@@ -80,7 +80,7 @@ void MMPServer::newConnectionCB( CallBacker* )
     if ( !conn->isOK() )
     {
 	errmsg_.add( conn->errMsg() );
-	deleteAndZeroPtr( conn );
+	deleteAndNullPtr( conn );
 	return;
     }
 
@@ -135,7 +135,7 @@ void MMPServer::connClosedCB( CallBacker* cb )
 
     mDetachCB(conn->packetArrived, MMPServer::packetArrivedCB);
     mDetachCB(conn->connectionClosed, MMPServer::connClosedCB);
-    deleteAndZeroPtr(conn);
+    deleteAndNullPtr(conn);
     if ( !errmsg_.isOK() )
 	logMsg.trigger( errmsg_ );
 }
@@ -168,19 +168,19 @@ void MMPServer::handleStatusRequest( const OD::JSON::Object& req )
 }
 
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
-
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 void MMPServer::handleSetDataRootRequest( const OD::JSON::Object& req )
 {
     OD::JSON::Object paramobj;
     if ( req.isPresent(sDataRoot()) )
     {
-	FilePath drfp = req.getFilePath( sDataRoot() );
-	BufferString ddr( drfp.fullPath() );
+	const FilePath drfp = req.getFilePath( sDataRoot() );
+	const BufferString ddr( drfp.fullPath() );
 	if ( IOMan::isValidDataRoot(ddr) )
 	{
-	    SetCurBaseDataDirOverrule( ddr );
+	    SetCurBaseDataDir( ddr );
+	    //TODO: set to IOM() instead?
 	    dataRootChg.trigger();
 	    paramobj.set( sOK(), "" );
 	    const FilePath logfp( thisservice_.logFnm() );
@@ -189,13 +189,12 @@ void MMPServer::handleSetDataRootRequest( const OD::JSON::Object& req )
 	else
 	    paramobj.set( sError(), "Not a valid data root" );
     }
-    uiRetVal uirv = sendResponse( sSetDataRoot(), paramobj );
+
+    const uiRetVal uirv = sendResponse( sSetDataRoot(), paramobj );
     if ( !uirv.isOK() )
 	logMsg.trigger( uirv );
 }
 
-
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 uiRetVal MMPServer::doHandleRequest( const OD::JSON::Object& request )
 {
@@ -226,6 +225,7 @@ uiRetVal MMPServer::doHandleRequest( const OD::JSON::Object& request )
 	    else
 		paramobj.set( sError(), "Not a valid data root" );
 	}
+
 	uirv = sendResponse( sCheckDataRoot(), paramobj );
     }
     else if ( request.isPresent(sGetLogFile()) )

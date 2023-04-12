@@ -40,15 +40,24 @@ extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 static const char* doSetRootDataDir( const char* inpdatadir )
 {
+    mDeclStaticString(msg);
     BufferString datadir = inpdatadir;
 
     if ( !IOMan::isValidDataRoot(datadir) )
-	return "Provided folder name is not a valid OpendTect Survey Data Root";
+    {
+	msg = IOMan::isValidMsg().getText();
+	return msg.buf();
+    }
 
     SetCurBaseDataDir( datadir );
     uiRetVal uirv;
-    return SetSettingsDataDir( datadir, uirv ) ? nullptr
-					    : "Cannot write user settings file";
+    if ( !SetSettingsDataDir(datadir,uirv) )
+    {
+	msg = uirv.getText();
+	return msg.buf();
+    }
+
+    return nullptr;
 }
 
 
@@ -132,6 +141,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	oddirnm = "ODData";
 	basedirnm = GetPersonalDir();
     }
+
     setTitleText( titletxt );
 
     const uiString basetxt = tr("Survey Data Root");
@@ -150,7 +160,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     updateListFld();
     dirlistfld_->resizeToContents();
 
-    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
+    auto* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( sortgrp, uiToolButton::UpArrow,uiStrings::sMoveUp(),
 		      mCB(this,uiSetDataDir,rootMoveUpCB) );
     new uiToolButton( sortgrp, uiToolButton::DownArrow, uiStrings::sMoveDown(),
@@ -373,8 +383,8 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    else
 	    {
 		uiString msg = tr("The target folder:\n%1"
-		    "\nis not an OpendTect Data Root folder."
-		    "\nIt already contains files though."
+		    "\nis not an OpendTect Data Root folder. "
+		    "It already contains files though."
 		    "\n\nDo you want to convert this folder into an "
 		    "OpendTect Data Root?"
 		    "\n(this process will not remove the existing files)")
@@ -427,7 +437,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     uiGetChoice uigc( par, opts, uiStrings::phrSelect(tr("next action")) );
     OSRPageShower ps;
     uiPushButton* pb = new uiPushButton( &uigc,
-				 tr("visit OSR web site (for free surveys)"),
+				 tr("visit TerraNubis (for free surveys)"),
 				 mCB(&ps,OSRPageShower,go), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
     if ( !uigc.go() || uigc.choice() == 0 )

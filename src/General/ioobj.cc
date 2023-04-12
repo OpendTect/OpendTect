@@ -156,11 +156,11 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 
     astream.next();
     if ( *astream.keyWord() != '$' )
-	deleteAndZeroPtr( objptr );
+	deleteAndNullPtr( objptr );
     else
     {
 	if ( !objptr->getFrom(astream) || objptr->isBad() )
-	    deleteAndZeroPtr( objptr );
+	    deleteAndNullPtr( objptr );
 	else
 	{
 	    while ( *astream.keyWord() == '#' )
@@ -371,7 +371,7 @@ bool IOObj::isInCurrentSurvey() const
 {
     FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
     FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
-    return orgfp.isSubDirOf(cursurvfp);
+    return orgfp.isSubDirOf( cursurvfp );
 }
 
 

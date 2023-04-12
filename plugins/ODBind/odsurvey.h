@@ -40,15 +40,15 @@ namespace OD{
 
 class odSurvey {
 public:
-    odSurvey(const char* basedir, const char* surveynm);
-    ~odSurvey();
+			odSurvey(const char* basedir,const char* surveynm);
+			~odSurvey();
 
     BufferString	type() const;
     bool		has2D() const;
     bool		has3D() const;
     BufferString	get_crsCode() const;
     BufferString	surveyPath() const;
-    void		activate() const;
+    bool		activate() const;
     const SurveyInfo&	si() const { activate(); return SI(); }
 
     void		getInfo(OD::JSON::Object&) const;

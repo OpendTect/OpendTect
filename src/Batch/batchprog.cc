@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "batchserviceservermgr.h"
 #include "commandlineparser.h"
 #include "debug.h"
-#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
@@ -26,10 +25,11 @@ ________________________________________________________________________
 #include "netserver.h"
 #include "odjson.h"
 #include "oscommand.h"
+#include "od_ostream.h"
 #include "plugins.h"
 #include "pythonaccess.h"
 #include "sighndl.h"
-#include "od_ostream.h"
+#include "survinfo.h"
 #include "timer.h"
 
 #ifndef __win__
@@ -57,7 +57,7 @@ mDefineEnumUtils(BatchProgram,Status,"Batch program status")
     "Opening log stream failed", "Opening log stream OK",
     "Waiting for instructions", "Work started", "Work error",
     "Work paused", "More work to do", "Work finished OK",
-    "Process killed", "Lock file created", 0
+    "Process killed", "Lock file created", nullptr
 };
 
 
@@ -115,7 +115,7 @@ BatchProgram::~BatchProgram()
     else
 	strm_->close();
 
-    deleteAndZeroPtr( clparser_ );
+    deleteAndNullPtr( clparser_ );
     delete iopar_;
     delete comm_;
     deepErase( requests_ );
@@ -167,15 +167,15 @@ bool BatchProgram::parseArguments()
 {
     delete clparser_;
 
-    OD::ModDeps().ensureLoaded( "Batch" );
-
 #   define mGetKeyedVal(ky,val) \
 	clparser_->setKeyHasValue( ky() ); \
 	clparser_->getVal( ky(), val )
 
     clparser_ = new CommandLineParser;
     clparser_->setKeyHasValue( sKeyDataDir() );
+    clparser_->setKeyHasValue( CommandLineParser::sDataRootArg() );
     clparser_->setKeyHasValue( sKeySurveyDir() );
+    clparser_->setKeyHasValue( CommandLineParser::sSurveyArg() );
     clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
     clparser_->setKeyHasValue( sKeyODServer() );
     clparser_->setKeyHasValue( sKeyPort() );
@@ -248,7 +248,7 @@ bool BatchProgram::parseArguments()
 	odstrm.close();
     }
 
-    if ( iopar_->size() == 0 && !simplebatch )
+    if ( iopar_->isEmpty() && !simplebatch )
     {
 	errorMsg( tr("%1: Invalid input file %2")
 		    .arg( clparser_->getExecutableName() )
@@ -260,29 +260,23 @@ bool BatchProgram::parseArguments()
     if ( res.isEmpty() )
 	iopar_->set( sKey::LogFile(), od_stream::sStdIO() );
 
-#define mSetDataRootVar(str) \
-	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
+    BufferString dataroot, survdir;
+    if ( !clparser_->getVal(sKeyDataDir(),dataroot) &&
+	 !iopar_->get(sKey::DataRoot(),dataroot) &&
+	 !clparser_->getVal(CommandLineParser::sDataRootArg(),dataroot) )
+	dataroot.set( GetBaseDataDir() );
 
-    if ( clparser_->getVal(sKeyDataDir(),res) && File::isDirectory(res) )
-    {
-	mSetDataRootVar( res );
-	iopar_->set( sKey::DataRoot(), res );
-    }
-    else if ( iopar_->get(sKey::DataRoot(),res) &&
-						    File::isDirectory(res) )
-	mSetDataRootVar( res );
+    if ( !clparser_->getVal(sKeySurveyDir(),survdir) &&
+	 !iopar_->get(sKey::Survey(),survdir) &&
+	 !clparser_->getVal(CommandLineParser::sSurveyArg(),survdir) )
+	survdir.set( SurveyInfo::curSurveyName() );
 
-    if ( simplebatch && clparser_->getVal(sKeySurveyDir(),res) )
-	iopar_->set( sKey::Survey(), res );
-    else if ( !iopar_->get(sKey::Survey(),res) )
+    const uiRetVal uirv = IOMan::setDataSource_( dataroot.buf(), survdir.buf());
+    if ( !uirv.isOK() )
     {
-	errorMsg( tr("Invalid parameter file %1\nSurvey key is missing.")
-			.arg( parfilnm ) );
+	errorMsg( uirv );
 	return false;
     }
-
-    if ( res.isEmpty() || !IOM().setSurvey(res) )
-	{ errorMsg( tr("Cannot set the survey") ); return false; }
 
     killNotify( true );
     return true;
@@ -329,7 +323,7 @@ bool BatchProgram::initLogging()
 	{
 	    od_cerr() << name() << ": Cannot open window for output" << od_endl;
 	    od_cerr() << "Using std output instead" << od_endl;
-	    deleteAndZeroPtr( strm_ );
+	    deleteAndNullPtr( strm_ );
 	    res = 0;
 	}
     }
@@ -349,7 +343,7 @@ bool BatchProgram::initLogging()
 		od_cerr() << name() << ": Cannot open log file" << od_endl;
 		od_cerr() << "Using stdoutput instead" << od_endl;
 	    }
-	    deleteAndZeroPtr( strm_ );
+	    deleteAndNullPtr( strm_ );
 	    strm_ = &od_cout();
 	    strmismine_ = false;
 	}
@@ -503,7 +497,7 @@ void BatchProgram::doFinalize()
     if ( thread_ )
     {
 	thread_->waitForFinish();
-	deleteAndZeroPtr( thread_ );
+	deleteAndNullPtr( thread_ );
     }
 }
 
