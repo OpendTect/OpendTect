@@ -159,17 +159,18 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( is2d )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
+    const BufferStringSet trnotallowed( "SEGYDirect" );
     uiSeisSel::Setup copysu( gt );
-    copysu.enabotherdomain( true ).withinserters( false );
+    copysu.enabotherdomain( true ).withwriteopts(true)
+	  .trsnotallwed(trnotallowed);
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
-    ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
     outimpfld_->attach( alignedBelow, attgrp );
     if ( !is2d )
 	outimpfld_->setInputText( objname_ );
 
     uiSeisSel::Setup scansu( gt );
-    scansu.enabotherdomain( true ).withwriteopts( false );
+    scansu.enabotherdomain( true ).withwriteopts( true );
     ctxt.toselect_.allownonuserselectable_ = true;
     ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
     outscanfld_ = new uiSeisSel( this, ctxt, scansu );
