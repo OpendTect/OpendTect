@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 
+#include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "executor.h"
@@ -137,11 +138,12 @@ bool writeScriptFile( const char* scrfnm, const char* desc )
 
     strm << "#!/bin/csh -f " << od_endl;
 
-    strm << "setenv DTECT_DATA " << dataroot_ << od_endl;
     mSetEnvVar("LD_LIBRARY_PATH")
     mSetEnvVar("OD_APPL_PLUGIN_DIR")
     mSetEnvVar("OD_USER_PLUGIN_DIR")
     strm << getExecScript(instdir_) << " " << prognm_ << " \\" << od_endl;
+    strm << "--" << CommandLineParser::sDataRootArg();
+    strm << " " << dataroot_ << " \\" << od_endl;
     FilePath fp( scrfnm );
     fp.setExtension( ".par" );
     strm << getClusterPath(fp.fullPath().buf()) << od_endl;

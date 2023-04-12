@@ -8,11 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "posimpexppars.h"
-#include "survinfo.h"
-#include "keystrs.h"
+
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "perthreadrepos.h"
+#include "survinfo.h"
 
 
 const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }
@@ -22,17 +24,8 @@ const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr(); }
 
 const PosImpExpPars& PosImpExpPars::SVY()
 {
-    mDefineStaticLocalObject( PtrMan<PosImpExpPars>, thinst, = 0 );
-    if ( !thinst )
-    {
-	PosImpExpPars* newthinst = new PosImpExpPars;
-	newthinst->getFromSI();
-
-	if ( thinst.setIfNull(newthinst,true) )
-	    IOM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
-
-    }
-    return *thinst;
+    static PtrMan<PosImpExpPars> thinst = new PosImpExpPars();
+    return *thinst.ptr();
 }
 
 PosImpExpPars& PosImpExpPars::getSVY()
@@ -41,10 +34,39 @@ PosImpExpPars& PosImpExpPars::getSVY()
 }
 
 
+PosImpExpPars::PosImpExpPars()
+    : CallBacker()
+    , binidoffs_(BinID::noStepout())
+    , coordoffs_(0.,0.)
+{
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), PosImpExpPars::iomReadyCB );
+}
+
+
+PosImpExpPars::~PosImpExpPars()
+{
+    detachAllNotifiers();
+}
+
+
+void PosImpExpPars::iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().afterSurveyChange, PosImpExpPars::survChg );
+    survChg( nullptr );
+}
+
+
 void PosImpExpPars::getFromSI()
 {
     clear();
-    usePar( SI().pars() );
+    if ( IOMan::isOK() )
+	usePar( SI().pars() );
 }
 
 

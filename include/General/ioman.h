@@ -8,22 +8,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ctxtioobj.h"
-#include "multiid.h"
-#include "namedobj.h"
 #include "surveydisklocation.h"
 
 class CommandLineParser;
-class CtxtIOObj;
 class IODir;
 class IOMManager;
-class IOObj;
 class IOObjContext;
 class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
-class SurveyDiskLocation;
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -44,6 +38,8 @@ mGlobal(General) const char* setDBMDataSource(const char* fullpath,
 mExpClass(General) IOMan final : public NamedCallBacker
 { mODTextTranslationClass(IOMan);
 public:
+
+    static bool		isOK();
 
     bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
@@ -85,8 +81,9 @@ public:
 			     EMHorizon3DTranslatorGroup::sGroupName().str() */
 
     const MultiID&	key() const;		//!< of current IODir
-    const char*		curDirName() const;	//!< OS dir name
-    const char*		rootDir() const		{ return rootdir_; }
+    BufferString	curDirName() const;	//!< OS dir name
+    const SurveyDiskLocation& rootDir() const		{ return rootdir_; }
+			//!< Full path to the root of the current project
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
@@ -98,8 +95,8 @@ public:
 
     bool		to(IOObjContext::StdSelType,bool force_reread=false);
     bool		to(const MultiID&,bool force_reread=false);
-    bool		toRoot(bool force_reread=false)
-			{ return to(0,force_reread); }
+    bool		toRoot( bool force_reread=false )
+			{ return to( 0, force_reread ); }
 
     void		getEntry(CtxtIOObj&,bool newistmp=false,
 				 int translidxingroup=-1);
@@ -111,16 +108,14 @@ public:
     bool		permRemove(const MultiID&);
 				//!< Removes only entry in IODir
 
-    const char*		surveyName() const;
+    BufferString	surveyName() const;
 
     mExpClass(General) CustomDirData
     {
     public:
-			CustomDirData( int dirkey, const char* dirnm,
-					const char* desc="Custom data" )
-			    : selkey_(dirkey,0)
-			    , dirname_(dirnm)
-			    , desc_(desc)		{}
+			CustomDirData(int dirkey,const char* dirnm,
+				      const char* desc="Custom data");
+			~CustomDirData();
 
 	MultiID		selkey_; //!< Make sure your selkey.groupID() > 200000
 				 //!< Lower than that will be refused!
@@ -137,9 +132,9 @@ public:
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
-    CNotifier<IOMan, const MultiID&>	entryRemoved;
-    CNotifier<IOMan, const MultiID&>	entryAdded;
-    CNotifier<IOMan, const MultiID&>	entryChanged;
+    CNotifier<IOMan,const MultiID&>	entryRemoved;
+    CNotifier<IOMan,const MultiID&>	entryAdded;
+    CNotifier<IOMan,const MultiID&>	entryChanged;
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
@@ -147,19 +142,25 @@ public:
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
 
-    static bool		isValidDataRoot(const char* dirnm);
-    static bool		isValidSurveyDir(const char* dirnm);
+    static Notifier<IOMan>& iomReady();
+
+    static uiRetVal	isValidDataRoot(const char* dirnm);
+			//!< Full path to a writable directory
+    static uiRetVal	isValidSurveyDir(const char* dirnm);
+			//!< Full path to an OpendTect project directory
     static bool		prepareDataRoot(const char* dirnm);
     static BufferString getNewTempDataRootDir();
 
-    static void		setTempSurvey(const SurveyDiskLocation&);
-    static void		cancelTempSurvey();
+    uiRetVal		setTempSurvey(const SurveyDiskLocation&);
+    uiRetVal		cancelTempSurvey();
+    bool		isUsingTempSurvey() const { return prevrootdir_; }
 
 private:
 
     enum State		{ Bad, NeedInit, Good };
 
-    BufferString	rootdir_;
+    SurveyDiskLocation	rootdir_;
+    SurveyDiskLocation* prevrootdir_ = nullptr;
     State		state_ = NeedInit;
     IODir*		dirptr_ = nullptr;
     int			curlvl_;
@@ -167,23 +168,25 @@ private:
     bool		survchgblocked_ = false;
     mutable Threads::Lock lock_;
 
-    void		init();
-    void		reInit(bool dotrigger);
-			IOMan(const char* rd=0);
+			IOMan(const FilePath& rootdir);
 			~IOMan();
 
-    static IOMan*	theinst_;
+    uiRetVal		init();
+    uiRetVal		reInit(bool dotrigger);
+    bool		close(bool dotrigger);
+
     static void		setupCustomDataDirs(int);
 
-    bool		setDir(const char*);
+    uiRetVal		setRootDir(const FilePath&,bool ischecked=false);
+			//!< fullPath to the survey directory
+    uiRetVal		setDir(const char*);
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
     bool		doReloc(const MultiID&,Translator*,
-	    			IOStream&,IOStream&);
+				IOStream&,IOStream&);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
-    bool		writeSettingsSurveyFile(const char* dirnm,
-						uiRetVal&) const;
+    static bool		writeSettingsSurveyFile(const char* dirnm,uiRetVal&);
     void		applClosing() { applicationClosing.trigger(); }
     void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
 				 int translidxingroup=-1);
@@ -199,7 +202,6 @@ public:
 
     // Don't use these functions unless you really know what you're doing
 
-    bool		setRootDir(const char*);
     static bool		validSurveySetup(BufferString& errmsg);
     static IOSubDir*	getIOSubDir(const CustomDirData&);
 
@@ -207,23 +209,22 @@ public:
 					{ survchgblocked_ = yn; }
     bool		changeSurveyBlocked() const
 					{ return survchgblocked_; }
-    static bool		newSurvey(SurveyInfo* newsi=0);
+    static uiRetVal	newSurvey(SurveyInfo* newsi=nullptr);
 			/*!< set new SurveyInfo; force re-read the data tree. */
-    static bool		setSurvey(const char*);
+    static uiRetVal	setSurvey(const char* surveydirnm);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
     static void		surveyParsChanged();
 			/*! Triggers the post-survey change notifiers */
 
-    uiRetVal		setDataSource(const char* dataroot,const char* survdir,
+    static uiRetVal	setDataSource(const char* dataroot,const char* survdir,
 				      bool refresh=false);
-    uiRetVal		setDataSource(const char* fullpath,bool refresh=false);
-    uiRetVal		setDataSource(const IOPar&,bool refresh=false);
-    uiRetVal		setDataSource(const CommandLineParser&,
+    static uiRetVal	setDataSource(const char* fullpath,bool refresh=false);
+    static uiRetVal	setDataSource(const IOPar&,bool refresh=false);
+    static uiRetVal	setDataSource(const CommandLineParser&,
 				      bool refresh=false);
-    bool		recordDataSource(const SurveyDiskLocation&,
-					 uiRetVal&) const;
+    static bool		recordDataSource(const SurveyDiskLocation&,uiRetVal&);
 			/*!< records dataroot in settings,
 			     and project in survey file */
     IODir*		getDir(const char* trlgrpnm) const;
@@ -242,9 +243,13 @@ public:
 				SurveyChanger(const SurveyDiskLocation&);
 				~SurveyChanger();
 
+    uiRetVal			message() const { return msg_; }
+
     static bool			hasChanged();
     static SurveyDiskLocation	changedToSurvey();
 
 private:
-    bool			needscleanup_	= false;
+
+    uiRetVal			msg_;
+
 };

@@ -8,18 +8,20 @@ ________________________________________________________________________
 -*/
 
 #include "segyfiledef.h"
-#include "segyhdr.h"
+
+#include "ctxtioobj.h"
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "oddirs.h"
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "separstr.h"
-#include "ctxtioobj.h"
-#include "seistrctr.h"
+#include "oddirs.h"
 #include "perthreadrepos.h"
+#include "seistrctr.h"
+#include "separstr.h"
+#include "segyhdr.h"
 
 namespace SEGY
 {
@@ -51,7 +53,7 @@ static const char* allsegyfmtoptions[] = {
 	"3 - Integer (16 bits)",
 	"5 - IEEE float (32 bits)",
 	"8 - Signed char (8 bits)",
-	0
+	nullptr
 };
 
 SEGY::FileSpec::FileSpec( const char* fnm )
@@ -96,23 +98,30 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
 {
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
-    if ( !iostrm )
+    if ( iostrm )
 	iostrm->fileSpec().fillPar( iop );
 }
 
 
 SEGY::FilePars::FilePars( bool forread )
-    : fmt_(forread?0:1)
+    : fmt_(forread ? 0 : 1)
     , forread_(forread)
 {
-    mAttachCB(IOM().surveyToBeChanged, FilePars::onSurveyChgCB);
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), FilePars::iomReadyCB );
 }
 
 
 SEGY::FilePars::FilePars( const FilePars& oth )
 {
     *this = oth;
-    mAttachCB(IOM().surveyToBeChanged, FilePars::onSurveyChgCB);
+    if ( NeedDataBase() && IOMan::isOK() )
+	mAttachCB(IOM().surveyToBeChanged, FilePars::onSurveyChgCB);
 }
 
 
@@ -136,10 +145,15 @@ SEGY::FilePars& SEGY::FilePars::operator=( const FilePars& oth )
 }
 
 
-void SEGY::FilePars::onSurveyChgCB(CallBacker*)
+void SEGY::FilePars::iomReadyCB( CallBacker* )
 {
-    if ( coordsys_.ptr() == SI().getCoordSystem().ptr() )
-	coordsys_ = nullptr;
+    mAttachCB( IOM().surveyToBeChanged, FilePars::onSurveyChgCB );
+}
+
+
+void SEGY::FilePars::onSurveyChgCB( CallBacker* )
+{
+    coordsys_ = nullptr;
 }
 
 

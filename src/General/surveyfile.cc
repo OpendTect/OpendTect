@@ -22,13 +22,238 @@ ________________________________________________________________________
 #include "uistringset.h"
 #include "ziputils.h"
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
-SurveyCreator::SurveyCreator( const char* survfilenm, const char* surveyname )
-    : surveyfile_(survfilenm)
-    , surveydirnm_(surveyname)
-{}
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
+SurveyCreator::SurveyCreator( const char* survnm, const char* dr,
+			      bool ismanaged )
+    : surveynm_(survnm)
+    , ismanaged_(ismanaged)
+{
+    if ( surveynm_.isEmpty() )
+	surveynm_ = "Temporary Survey";
+
+    BufferString dataroot( dr );
+    if ( dataroot.isEmpty() )
+    {
+	const CommandLineParser clp;
+	BufferString clpdr;
+	if ( clp.getVal(CommandLineParser::sDataRootArg(),clpdr) &&
+	     IOMan::isValidDataRoot(clpdr.buf()).isOK() )
+	    dataroot.set( clpdr.buf() );
+    }
+
+    if ( dataroot.isEmpty() )
+    {
+	dataroot = IOMan::getNewTempDataRootDir();
+	owndataroot_ = !dataroot.isEmpty() && File::exists( dataroot.buf() );
+    }
+
+    BufferString surveydirnm = surveynm_;
+    surveydirnm.trimBlanks().clean();
+
+    const uiRetVal uirv = IOMan::isValidDataRoot( dataroot );
+    if ( uirv.isOK() )
+	surveyloc_ = new SurveyDiskLocation( surveydirnm.buf(), dataroot.buf());
+    else
+	lasterrs_ = tr("Cannot set a temporary data root");
+}
+
+
+SurveyCreator::~SurveyCreator()
+{
+    if ( mounted_ )
+	unmount( false );
+
+    if ( surveyloc_ && ismanaged_ && owndataroot_ &&
+	 File::exists(surveyloc_->basePath().buf()) )
+	File::removeDir( surveyloc_->basePath().buf() );
+
+    delete changer_;
+    delete surveyloc_;
+}
+
+
+bool SurveyCreator::isOK() const
+{
+    if ( !surveyloc_ || !lasterrs_.isOK() )
+	return false;
+
+    if ( mounted_ )
+    {
+	const uiRetVal uirv =
+			IOMan::isValidSurveyDir(surveyloc_->fullPath().str());
+	if ( !uirv.isOK() )
+	    lasterrs_ = uirv;
+    }
+
+    return lasterrs_.isOK();
+}
+
+
+BufferString SurveyCreator::getTempBaseDir() const
+{
+    BufferString ret;
+    if ( surveyloc_ )
+	ret.set( surveyloc_->basePath() );
+
+    return ret;
+}
+
+
+BufferString SurveyCreator::getSurveyDir() const
+{
+    BufferString ret;
+    if ( surveyloc_ )
+	ret.set( surveyloc_->dirName() );
+
+    return ret;
+}
+
+
+uiRetVal SurveyCreator::mount( bool isnew, TaskRunner* trun )
+{
+    if ( !surveyloc_ )
+	return lasterrs_;
+
+    if ( isnew && !surveyloc_->exists() )
+    {
+	lasterrs_ = tr("Temporary project creation failed."
+			    "\nTarget folder no longer exists at '%1'")
+					    .arg( surveyloc_->fullPath() );
+	return lasterrs_;
+    }
+    else if ( !isnew && surveyloc_->exists() )
+    {
+	lasterrs_ = tr("Temporary project creation failed."
+		"\nTarget folder exists at '%1'").arg( surveyloc_->fullPath() );
+	return lasterrs_;
+    }
+
+    if ( !isnew )
+    {
+	if ( !createSurvey(trun) )
+	    return lasterrs_;
+    }
+
+    if ( lasterrs_.isOK() )
+	mounted_ = true;
+
+    return lasterrs_;
+}
+
+
+uiRetVal SurveyCreator::activate()
+{
+    if ( !surveyloc_ )
+	return lasterrs_;
+
+    if ( !mounted_ )
+    {
+	lasterrs_.set( tr("%1 is not mounted").arg(surveyloc_->fullPath()) );
+	return lasterrs_;
+    }
+
+    deleteAndNullPtr( changer_ );
+    if ( IOMan::isOK() )
+    {
+	changer_ = new SurveyChanger( *surveyloc_ );
+	lasterrs_ = changer_->message();
+    }
+    else
+	lasterrs_ = IOMan::setDataSource( surveyloc_->fullPath() );
+
+    return lasterrs_;
+}
+
+uiRetVal SurveyCreator::deactivate()
+{
+    const bool hasprevious = changer_;
+    deleteAndNullPtr( changer_ );
+    if ( !hasprevious )
+    {
+	SetCurBaseDataDir( nullptr );
+	IOMan::newSurvey( nullptr );
+    }
+
+    return uiRetVal::OK();
+}
+
+
+uiRetVal SurveyCreator::save( TaskRunner* trun )
+{
+    if ( !surveyloc_ )
+	return lasterrs_;
+
+    if ( !mounted_ )
+    {
+	lasterrs_ = tr("%1 is not mounted").arg( surveyloc_->fullPath() );
+	return lasterrs_;
+    }
+
+    if ( !isOK() )
+	return lasterrs_;
+
+    BufferString backupfile;
+    const BufferString targetzipfnm = getZipArchiveLocation();
+    if ( targetzipfnm.isEmpty() )
+    {
+	lasterrs_ = tr("Cannot save project: No output path provided");
+	return lasterrs_;
+    }
+
+    if ( File::exists(targetzipfnm.buf()) &&
+	 File::isReadable(targetzipfnm.buf()) )
+    {
+	FilePath backup_fp( targetzipfnm );
+	backup_fp.setExtension( bckupExtStr() );
+	backupfile = backup_fp.fullPath();
+	if ( File::exists(backupfile.buf()) )
+	    File::remove( backupfile.buf() );
+
+	File::rename( targetzipfnm.buf(), backupfile.buf() );
+    }
+
+    uiString errmsg;
+    if ( !ZipUtils::makeZip(targetzipfnm.buf(),surveyloc_->fullPath(),
+			    errmsg,trun) )
+    {
+	lasterrs_.set( errmsg );
+	if ( File::exists(backupfile.buf()) &&
+	     File::remove(targetzipfnm.buf()) )
+	    File::rename( backupfile.buf(), targetzipfnm.buf() );
+    }
+
+    return lasterrs_;
+}
+
+
+uiRetVal SurveyCreator::unmount( bool dosave, TaskRunner* /* trun */ )
+{
+    if ( !surveyloc_ )
+	return lasterrs_;
+
+    if ( surveyloc_->isCurrentSurvey() )
+	deactivate();
+
+    if ( surveyloc_->exists() && dosave )
+	lasterrs_ = save();
+
+    if ( !mounted_ )
+	return lasterrs_;
+
+    if ( ismanaged_ && owndataroot_ &&
+	 File::exists(surveyloc_->basePath().buf()) )
+	File::removeDir( surveyloc_->basePath().buf() );
+
+    mounted_ = false;
+
+    return lasterrs_;
+}
+
+
+
+// SurveyFile
 
 BufferString SurveyFile::filtStr()
 {
@@ -39,33 +264,25 @@ BufferString SurveyFile::filtStr()
 }
 
 
-SurveyFile::SurveyFile( const char* survfilenm, bool automount )
-    : SurveyCreator(survfilenm,nullptr)
+SurveyFile::SurveyFile( const char* survfilenm, bool automount, bool ismanaged )
+    : SurveyCreator(nullptr,nullptr,ismanaged)
+    , surveyfile_(survfilenm)
 {
     readSurveyDirNameFromFile();
     if ( automount && isOK() )
-	    mount();
-}
-
-
-SurveyFile::SurveyFile( const char* survfilenm, const char* surveyname )
-    : SurveyCreator(survfilenm,surveyname)
-{
+	mount();
 }
 
 
 SurveyFile::~SurveyFile()
 {
-    if ( mounted_ )
-	unmount( false, nullptr );
 }
 
 
 void SurveyFile::readSurveyDirNameFromFile()
 {
     lasterrs_.setEmpty();
-    surveydirnm_.setEmpty();
-    if ( surveyfile_.isEmpty() || !File::exists(surveyfile_) )
+    if ( surveyfile_.isEmpty() || !File::exists(surveyfile_.buf()) )
     {
 	lasterrs_.set( uiStrings::phrCannotOpenForRead( surveyfile_ ) );
 	return;
@@ -73,7 +290,7 @@ void SurveyFile::readSurveyDirNameFromFile()
 
     BufferStringSet fnms;
     uiString errmsg;
-    if ( !ZipUtils::makeFileList(surveyfile_, fnms, errmsg) )
+    if ( !ZipUtils::makeFileList(surveyfile_,fnms,errmsg) )
     {
 	lasterrs_.set( errmsg );
 	return;
@@ -85,7 +302,7 @@ void SurveyFile::readSurveyDirNameFromFile()
 	return;
     }
 
-    const BufferString survnm( fnms.get(0) );
+    BufferString survnm( fnms.get(0) );
     const BufferString omf( survnm, ".omf" );
     const bool isvalidsurvey = fnms.indexOf( omf ) > -1;
     if ( !isvalidsurvey )
@@ -94,374 +311,198 @@ void SurveyFile::readSurveyDirNameFromFile()
 	return;
     }
 
-    surveydirnm_ = survnm;
+    if ( survnm.last() == '/' )
+	survnm.last() = '\0';
+
+    if ( surveyloc_ )
+	surveyloc_->setDirName( survnm );
+
+    surveynm_.set( survnm );
+}
+
+
+bool SurveyFile::createSurvey( TaskRunner* trun )
+{
+    lasterrs_.setEmpty();
+    if ( !File::exists(surveyfile_) )
+    {
+	lasterrs_.set(
+		tr("Cannot mount file: %1 does not exist").arg(surveyfile_) );
+	return false;
+    }
+
+    uiString errmsg;
+    const BufferString tmpbasedir = surveyloc_->basePath();
+    if ( !ZipUtils::unZipArchive(surveyfile_,tmpbasedir.buf(),errmsg,trun) )
+    {
+	lasterrs_.set( errmsg );
+	return false;
+    }
+
+    return lasterrs_.isOK();
 }
 
 
 uiRetVal SurveyFile::activate()
 {
-    lasterrs_.setEmpty();
-    if ( !mounted_ )
-    {
-	lasterrs_.set( tr("%1 is not mounted").arg(surveyfile_) );
-	return lasterrs_;
-    }
+    const uiRetVal uirv = SurveyCreator::activate();
+    if ( uirv.isOK() )
+	surveynm_ = SI().name();
 
-    SetCurBaseDataDirOverrule( tmpbasedir_ );
-    IOM().setDataSource( tmpbasedir_, surveydirnm_, true );
-    IOM().setSurvey( surveydirnm_ );
-    return lasterrs_;
-}
-
-
-uiRetVal SurveyFile::save( TaskRunner* trun )
-{
-    lasterrs_.setEmpty();
-    FilePath surfp( tmpbasedir_, surveydirnm_ );
-    if ( !mounted_ || !File::exists(surfp.fullPath()) )
-    {
-	lasterrs_.set( tr("%1 is not mounted").arg(surveyfile_) );
-	return lasterrs_;
-    }
-
-    BufferString backupFile;
-    if ( File::exists(surveyfile_) && File::isReadable(surveyfile_) )
-    {
-	FilePath backup_fp( surveyfile_ );
-	backup_fp.setExtension( bckupExtStr() );
-	backupFile = backup_fp.fullPath();
-	if ( File::exists( backupFile ) )
-	    File::remove( backupFile );
-
-	File::rename( surveyfile_, backupFile );
-    }
-
-    uiString errmsg;
-    if ( !ZipUtils::makeZip(surveyfile_,surfp.fullPath(),errmsg,trun) )
-    {
-	lasterrs_.set( errmsg );
-	if ( File::exists(backupFile) && File::remove(surveyfile_) )
-	    File::rename( backupFile, surveyfile_ );
-    }
-
-    return lasterrs_;
-}
-
-
-uiRetVal SurveyFile::mount( bool isnew, TaskRunner* trun )
-{
-    lasterrs_.setEmpty();
-    if ( !isnew && !File::exists(surveyfile_) )
-    {
-	lasterrs_.set(
-		tr("Cannot mount file: %1 does not exist").arg(surveyfile_) );
-	return lasterrs_;
-    }
-
-    if ( tmpbasedir_.isEmpty() )
-    {
-	tmpbasedir_ = IOM().getNewTempDataRootDir();
-	if ( tmpbasedir_.isEmpty() )
-	{
-	    lasterrs_.set( tr("Cannot create temporary data root") );
-	    return lasterrs_;
-	}
-    }
-
-    if ( !isnew )
-    {
-	uiString errmsg;
-	if ( !ZipUtils::unZipArchive(surveyfile_, tmpbasedir_, errmsg, trun) )
-	{
-	    lasterrs_.set( errmsg );
-	    File::removeDir( tmpbasedir_ );
-	    tmpbasedir_.setEmpty();
-	    mounted_ = false;
-	    return lasterrs_;
-	}
-    }
-
-    mounted_ = true;
-    return lasterrs_;
-}
-
-
-uiRetVal SurveyFile::unmount( bool saveIt, TaskRunner* trun )
-{
-    lasterrs_.setEmpty();
-    const FilePath surfp( tmpbasedir_, surveydirnm_ );
-    if ( mounted_ && File::exists(surfp.fullPath()) && saveIt
-							&& !save(trun).isOK() )
-	return lasterrs_;
-
-    File::removeDir( tmpbasedir_ );
-    tmpbasedir_.setEmpty();
-    mounted_ = false;
-
-    return lasterrs_;
+    return uirv;
 }
 
 
 
-EmptyTempSurvey::EmptyTempSurvey( const char* surveybaseloc,
-					const char* surveynm, bool ismanaged )
-    : SurveyCreator(surveybaseloc,surveynm)
-    , si_(SurveyInfo())
-    , ismanaged_(ismanaged)
+// EmptyTempSurvey
+
+EmptyTempSurvey::EmptyTempSurvey( const char* survnm, const char* dataroot,
+				  bool automount, bool ismanaged )
+    : SurveyCreator(survnm,dataroot,ismanaged)
 {
-    tmpbasedir_ = surveybaseloc;
-    initSurvey();
+    setSaveLocation( nullptr );
+    if ( automount && isOK() )
+	mount();
 }
 
 
-EmptyTempSurvey::EmptyTempSurvey( const OD::JSON::Object& obj )
-    : SurveyCreator(nullptr,nullptr)
-    , si_(SurveyInfo())
+EmptyTempSurvey::EmptyTempSurvey( const OD::JSON::Object& obj, bool automount,
+				  bool ismanaged )
+    : SurveyCreator(
+	    obj.getStringValue(CommandLineParser::sSurveyArg()).buf(),
+	    obj.getStringValue(CommandLineParser::sDataRootArg()).buf(),
+	    ismanaged)
 {
-    tmpbasedir_ = obj.getStringValue( CommandLineParser::sDataRootArg() );
-    surveydirnm_ = obj.getStringValue( CommandLineParser::sSurveyArg() );
-    saveloc_ = obj.getStringValue( sKeySaveLoc() );
-    initSurvey( &obj );
+    createpars_ = obj.clone();
+    const BufferString saveloc = obj.getStringValue( sKeySaveLoc() );
+    setSaveLocation( saveloc.isEmpty() ? nullptr : saveloc.buf() );
+
+    if ( automount && isOK() )
+	mount();
 }
 
 
 EmptyTempSurvey::~EmptyTempSurvey()
 {
-    if ( ismanaged_ )
-	return;
-
-    if ( File::exists(tmpbasedir_) )
-	File::removeDir( tmpbasedir_ );
-
-    if ( !origsurveyfp_.isEmpty() )
-	IOM().setSurvey( origsurveyfp_ );
+    delete createpars_;
 }
 
 
-bool EmptyTempSurvey::initSurvey( const OD::JSON::Object* obj )
+bool EmptyTempSurvey::createSurvey( TaskRunner* /* trun */ )
 {
-    if ( surveydirnm_.isEmpty() )
-	surveydirnm_ = "TemporarySurvey";
-
-    if ( tmpbasedir_.isEmpty() || !File::isWritable(tmpbasedir_) )
-    {
-	lastwarning_ = tr("Write location was not writable, "
-			    "creating directory at tempoarary location");
-	tmpbasedir_ = IOM().getNewTempDataRootDir();
-	surveyfile_ = tmpbasedir_;
-    }
-
-    if ( !ismanaged_ && File::exists(tmpbasedir_) )
-    {
-	lastwarning_ = tr("%1 is not empty, "
-	"might contain previous survey which might be lost.").arg(tmpbasedir_);
-    }
-    else if ( !File::createDir(tmpbasedir_) )
-    {
-	lasterrs_ = tr("Failed to create temporary survey data");
-	return false;
-    }
-
-    si_.setName( surveydirnm_ );
-    FilePath fp( tmpbasedir_, surveydirnm_ );
-    si_.disklocation_ = SurveyDiskLocation( fp );
-    const bool hasomf = File::exists(
-				    FilePath(tmpbasedir_,".omf").fullPath() );
-    if ( !createTempSurveySetup(hasomf) )
-	return false;
-
-    return fillSurveyInfo( obj );
-}
-
-
-bool EmptyTempSurvey::createOMFFile()
-{
-    if ( IOM().isValidDataRoot(tmpbasedir_) )
-	return true;
-
-    return IOMan::prepareDataRoot( tmpbasedir_ );
-}
-
-
-bool EmptyTempSurvey::createTempSurveySetup( bool hasomf )
-{
-    if ( !hasomf && !createOMFFile() )
-    {
-	lasterrs_ =
-	    tr("Failed to create resource files at the specified location");
-	return false;
-    }
-
-    const BufferString fnmin =
+    const BufferString basicsurv =
 			mGetSetupFileName( SurveyInfo::sKeyBasicSurveyName() );
-    const BufferString fnmout = FilePath( tmpbasedir_ )
-					    .add( surveydirnm_ ).fullPath();
-    if ( File::exists(fnmout) )
+    if ( !File::exists(basicsurv) )
     {
-	lasterrs_ = tr("Folder creation failed."
-	    "\nTarget folder exists at %1.").arg(tmpbasedir_);
+	lasterrs_ = uiStrings::phrCannotRead( basicsurv.buf() );
 	return false;
     }
 
-    const bool isok = File::copy( fnmin, fnmout );
-    if ( !isok || !File::exists(fnmout) )
+    const BufferString newsurv = surveyloc_->fullPath();
+    BufferString emsg;
+    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(), &emsg );
+    if ( !isok || !File::exists(newsurv.buf()) )
     {
-	lasterrs_ = tr("Failed to create temporary survey at %1")
-						    .arg( tmpbasedir_ );
+	lasterrs_ = tr("Failed to mount temporary survey at '%1' with error %2")
+						    .arg( newsurv.buf() )
+						    .arg( emsg.buf() );
 	return false;
     }
 
-    return true;
+    return writeSurveyInfo();
 }
 
 
-
-bool EmptyTempSurvey::fillSurveyInfo( const OD::JSON::Object* obj )
+bool EmptyTempSurvey::writeSurveyInfo()
 {
-    TrcKeyZSampling cs;
+    const OD::JSON::Object* obj = createpars_;
+    SurveyInfo si = SurveyInfo::empty();
+    si.setName( surveynm_.buf() );
+    si.disklocation_ = *surveyloc_;
+
+    TrcKeyZSampling cs( false );
     TrcKeySampling& hs = cs.hsamp_;
+    Coord crd[3];
     if ( obj )
     {
 	const BufferString zdom( obj->getStringValue(sKey::ZDomain()) );
 	const bool istime = zdom.isEqual( sKey::Time() );
 	const bool isfeet = obj->getBoolValue( SurveyInfo::sKeyDpthInFt() );
-	si_.setZUnit( istime, isfeet );
-	si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), isfeet );
+	si.setXYInFeet( false );
+	si.setZUnit( istime, isfeet );
+	si.getPars().setYN( SurveyInfo::sKeyDpthInFt(), isfeet );
+	const double srd = obj->getDoubleValue(
+				    SurveyInfo::sKeySeismicRefDatum() );
+	si.setSeismicReferenceDatum( srd );
 	hs.start_.inl() = obj->getDoubleValue( sKey::FirstInl() );
 	hs.start_.crl() = obj->getDoubleValue( sKey::FirstCrl() );
 	hs.stop_.inl() = obj->getDoubleValue( sKey::LastInl() );
 	hs.stop_.crl() = obj->getDoubleValue( sKey::LastCrl() );
 	hs.step_.inl() = obj->getDoubleValue( sKey::StepInl() );
 	hs.step_.crl() = obj->getDoubleValue( sKey::StepCrl() );
-	const double srd = obj->getDoubleValue(
-	    SurveyInfo::sKeySeismicRefDatum() );
-	si_.setSeismicReferenceDatum( srd );
+	//TODO: set crd[0]. crd[1], crd[2]
 	const int crsid = obj->getIntValue( sKeyCRSID() );
 	if ( crsid >= 0 )
 	{
 	    IOPar crspar;
-
-	    crspar.set( "System name", "ProjectionBased System" );
-	    crspar.set( "Projection.ID", crsid );
+	    crspar.set( Coords::CoordSystem::sKeyFactoryName(),
+			sKey::ProjSystem() );
+	    crspar.set( IOPar::compKey(sKey::Projection(),sKey::ID()), crsid );
 	    RefMan<Coords::CoordSystem> coordsys =
-		Coords::CoordSystem::createSystem( crspar );
-	    si_.setCoordSystem( coordsys );
-	    si_.setXYInFeet( coordsys->isFeet() );
+				Coords::CoordSystem::createSystem( crspar );
+	    si.setCoordSystem( coordsys );
+	    si.setXYInFeet( coordsys->isFeet() );
 	}
 	else
 	{
 	    RefMan<Coords::CoordSystem> coordsys =
-		Coords::CoordSystem::getWGS84LLSystem();
-	    si_.setCoordSystem( coordsys );
-	    si_.setXYInFeet( coordsys->isFeet() );
+				Coords::CoordSystem::getWGS84LLSystem();
+	    si.setCoordSystem( coordsys );
+	    si.setXYInFeet( coordsys->isFeet() );
 	}
     }
     else
     {
-	si_.setZUnit( true );
-	si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), false );
-	si_.setXYInFeet( false );
-	si_.setSeismicReferenceDatum( 0 );
-	si_.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
-	hs.start_.inl() = 0;
-	hs.start_.crl() = 0;
-	hs.stop_.inl() = 1000000;
-	hs.stop_.crl() = 1000000;
-	hs.step_.inl() = 1;
-	hs.step_.crl() = 1;
+	si.setXYInFeet( false );
+	si.setZUnit( true );
+	si.getPars().setYN( SurveyInfo::sKeyDpthInFt(), false );
+	si.setSeismicReferenceDatum( 0. );
+	hs.start_.inl() = hs.start_.crl() = 0;
+	hs.stop_.inl() = hs.stop_.crl() = 1000000;
+	hs.step_.inl() = hs.step_.crl() = 1;
+	crd[0] = Coord( 0., 0. );
+	crd[1] = Coord( 1000000000., 1000000000. );
+	crd[2] = Coord( 0., 1000000000. );
+	si.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
     }
 
-    si_.setRange( cs, false );
-    si_.setRange( cs, true );
-    Coord crd[3];
-    crd[0] = si_.transform( cs.hsamp_.start_ );
-    crd[1] = si_.transform( cs.hsamp_.stop_ );
-    crd[2] = si_.transform(
-	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
+    si.setRange( cs, false );
+    si.setRange( cs, true );
     BinID bid[2];
     bid[0].inl() = cs.hsamp_.start_.inl();
     bid[0].crl() = cs.hsamp_.start_.crl();
     bid[1].inl() = cs.hsamp_.stop_.inl();
     bid[1].crl() = cs.hsamp_.stop_.crl();
-    si_.set3PtsWithMsg( crd, bid, cs.hsamp_.stop_.crl() );
-    return si_.write( si_.diskLocation().basePath() );
-}
+    si.set3PtsWithMsg( crd, bid, cs.hsamp_.stop_.crl() );
 
-
-uiRetVal EmptyTempSurvey::mount( bool, TaskRunner* )
-{
-    origsurveyfp_ = SI().diskLocation().fullPath();
-    IOM().setTempSurvey( si_.diskLocation() );
-    BufferString errmsg;
-    if ( !IOM().validSurveySetup(errmsg) )
-    {
-	lasterrs_ = toUiString( errmsg );
-	IOM().setSurvey( origsurveyfp_ );
-	origsurveyfp_.setEmpty();
-    }
-
-    return lasterrs_;
-}
-
-
-uiRetVal EmptyTempSurvey::unmount( bool dosave, TaskRunner* )
-{
-    IOM().cancelTempSurvey();
-    origsurveyfp_.setEmpty();
-    if ( dosave )
-	return save();
-
-    if ( !ismanaged_ )
-	File::removeDir( tmpbasedir_ );
-
-    return lasterrs_;
+    return si.write( surveyloc_->basePath().buf() );
 }
 
 
 void EmptyTempSurvey::setSaveLocation( const char* saveloc )
 {
-    saveloc_.setEmpty();
-    saveloc_.set( saveloc );
-}
-
-uiRetVal EmptyTempSurvey::activate()
-{
-    return lasterrs_;
-}
-
-
-uiRetVal EmptyTempSurvey::save( TaskRunner* )
-{
-    if ( saveloc_.isEmpty() )
+    if ( saveloc && *saveloc )
     {
-	lastwarning_ = tr("Location to save project not specified, "
-	    "it will be saved as zip folder at %1").arg( File::getTempPath() );
-	saveloc_.set( File::getTempPath() );
+	zipfileloc_.set( saveloc );
+	return;
     }
 
-    if ( !File::isWritable(saveloc_) )
-    {
-	lasterrs_.set(
-		    tr("User has no write permission at %1").arg(saveloc_) );
-	return lasterrs_;
-    }
+    if ( !surveyloc_ )
+	return;
 
-    if ( File::exists(surveyfile_) && File::isReadable(surveyfile_) )
-    {
-	FilePath backup_fp( saveloc_, "SurveySetup" );
-	backup_fp.setExtension( "zip" );
-	zipfileloc_ = backup_fp.fullPath();
-	if ( File::exists( zipfileloc_ ) )
-	    File::remove( zipfileloc_ );
-    }
-
-    uiString errmsg;
-    if ( !ZipUtils::makeZip(zipfileloc_,surveyfile_,errmsg) )
-    {
-	lasterrs_.set( errmsg );
-	if ( File::exists(zipfileloc_) )
-	    File::removeDir( zipfileloc_ );
-    }
-
-    return lasterrs_;
+    FilePath savefp( surveyloc_->basePath() );
+    savefp.setFileName( nullptr );
+    const BufferString savenm = FilePath::getTempFileName("project", extStr() );
+    savefp.add( savenm.buf() );
+    zipfileloc_.set( savefp.fullPath() );
 }

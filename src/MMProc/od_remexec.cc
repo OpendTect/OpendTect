@@ -180,9 +180,9 @@ int mProgMainFnName( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded( "Network" );
 
-    PIM().loadAuto( false );
     CommandLineParser clp( argc, argv );
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "MMProc" );
     od_ostream& strm = od_ostream::logStream();
     PtrMan<RemExecHandler> handler = new RemExecHandler( clp, strm );

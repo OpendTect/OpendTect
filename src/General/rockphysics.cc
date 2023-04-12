@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "rockphysics.h"
 
 #include "ascstream.h"
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -353,14 +354,25 @@ public:
 
 RockPhysicsFormulaMgr()
 {
-    mAttachCB( IOM().surveyToBeChanged, RockPhysicsFormulaMgr::doNull );
-    mAttachCB( IOM().applicationClosing, RockPhysicsFormulaMgr::doNull );
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), RockPhysicsFormulaMgr::iomReadyCB );
 }
 
 ~RockPhysicsFormulaMgr()
 {
     detachAllNotifiers();
     delete fms_;
+}
+
+void iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().surveyToBeChanged, RockPhysicsFormulaMgr::doNull );
+    mAttachCB( IOM().applicationClosing, RockPhysicsFormulaMgr::doNull );
 }
 
 void doNull( CallBacker* )

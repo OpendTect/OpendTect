@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "ioobjselectiontransl.h"
 #include "mathformulatransl.h"
 #include "mathproperty.h"
+#include "oddirs.h"
+#include "plugins.h"
 #include "preloads.h"
 #include "rangeposprovider.h"
 #include "simpletimedepthmodel.h"
@@ -75,4 +77,9 @@ mDefModInitFn(General)
 
     ImageDefTranslatorGroup::initClass();
     ODImageDefTranslator::initClass();
+
+    BufferString libnm; libnm.setMinBufSize( 32 );
+    SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );
+    const FilePath libfp( GetLibPlfDir(), libnm );
+    PIM().load( libfp.fullPath() );
 }

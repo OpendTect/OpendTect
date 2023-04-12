@@ -96,7 +96,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    FilePath fp( ioobj->fullUserExpr(false) );
 	    if ( !fp.isAbsolute() )
 	    {
-		fp.set( IOM().rootDir() );
+		fp.set( IOM().rootDir().fullPath() );
 		fp.add( ioobj->dirName() );
 		fp.add( ioobj->fullUserExpr(false) );
 	    }
@@ -256,7 +256,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    FilePath fp( ioobj->fullUserExpr(false) );
 	    if ( !fp.isAbsolute() )
 	    {
-		fp.set( IOM().rootDir() );
+		fp.set( IOM().rootDir().fullPath() );
 		fp.add( ioobj->dirName() );
 		fp.add( ioobj->fullUserExpr(false) );
 	    }

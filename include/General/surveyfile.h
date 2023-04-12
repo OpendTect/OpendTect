@@ -13,8 +13,9 @@ ________________________________________________________________________
 
 #include "uistringset.h"
 
+class SurveyChanger;
 class TaskRunner;
-namespace OD{ namespace JSON{ class Object; }}
+namespace OD { namespace JSON { class Object; } }
 
 /*!\brief Utility class to work with OpendTect survey/project zip files.
 
@@ -30,58 +31,85 @@ survey without saving.
 */
 
 mExpClass(General) SurveyCreator
-{
+{ mODTextTranslationClass(SurveyCreator)
 public:
-			virtual ~SurveyCreator() {}
 
-    virtual uiRetVal	activate()					  = 0;
-    virtual uiRetVal	save(TaskRunner* trun=nullptr)			  = 0;
-    virtual uiRetVal	mount(bool isnew=false, TaskRunner* trun=nullptr) = 0;
-    virtual uiRetVal	unmount(bool save=true, TaskRunner* trun=nullptr) = 0;
+    virtual		~SurveyCreator();
+
+    virtual uiRetVal	mount(bool isnew=false,TaskRunner* =nullptr);
+			//<! Creates the project at the target location
+    virtual uiRetVal	activate();
+			//<! The project becomes the current project for IOM()
+    virtual uiRetVal	deactivate();
+			//<! Restores the previous active project (if any)
+    virtual uiRetVal	save(TaskRunner* =nullptr);
+			//<! Saves the mounted project in it current state
+    virtual uiRetVal	unmount(bool save=true,TaskRunner* =nullptr);
+			//<! Removes the entire data root folder
+
+    inline void		setManaged( bool yn )	{ ismanaged_ = yn; }
+			/*<! Managed projects get deleted with their data root
+			     upon unmounting. */
+
+    bool		isOK() const;
     bool		isMounted() const	{ return mounted_; }
-    bool		isOK() const		{ return lasterrs_.isOK(); }
+    bool		isManaged() const	{ return ismanaged_; }
 
-    BufferString	getTempBaseDir() const	{ return tmpbasedir_; }
-    BufferString	getSurveyDir() const	{ return surveydirnm_; }
-    BufferString	getSurveyFile() const	{ return surveyfile_; }
+    BufferString	getTempBaseDir() const;
+			/*<! Full path to the temporary folder containing the
+			     project data */
+    BufferString	getSurveyDir() const;
+			//<! Survey directory name (only), not a full path
+    BufferString	getSurveyNm() const	{ return surveynm_; }
+
     uiRetVal		errMsg() const		{ return lasterrs_; }
     uiRetVal		warningMsg() const	{ return lastwarning_; }
 
-    virtual const BufferString	getZipArchiveLocation() const = 0;
-protected:
-				SurveyCreator(const char*,const char*);
+    virtual BufferString getZipArchiveLocation() const			= 0;
+    static const char*	extStr()			{ return "odz"; }
+    static BufferString bckupExtStr()
+				{ return BufferString( extStr(), "_bck" ); }
 
-    BufferString		tmpbasedir_;
-    BufferString		surveyfile_;
-    BufferString		surveydirnm_;
-    bool			mounted_ = false;
-    uiRetVal			lasterrs_;
-    uiRetVal			lastwarning_;
+protected:
+			SurveyCreator(const char* survnm,const char* dataroot,
+				      bool ismanaged);
+
+    virtual bool	createSurvey(TaskRunner*)			= 0;
+
+    BufferString	surveynm_;
+    SurveyDiskLocation* surveyloc_	= nullptr;
+    bool		ismanaged_	= true;
+    bool		owndataroot_	= false;
+    bool		mounted_ = false;
+    SurveyChanger*	changer_	= nullptr;
+
+    mutable uiRetVal	lasterrs_;
+    mutable uiRetVal	lastwarning_;
 };
 
 
 mExpClass(General) SurveyFile : public SurveyCreator
-{ mODTextTranslationClass(SurveyFile);
+{ mODTextTranslationClass(SurveyFile)
 public:
-		SurveyFile(const char*,bool automount=false);
-		SurveyFile(const char*,const char*);
-		~SurveyFile() override;
+			SurveyFile(const char* zipfile,bool automount=false,
+				   bool ismanaged=true);
+			mOD_DisableCopy(SurveyFile);
+			~SurveyFile();
 
-    uiRetVal	activate() override;
-    uiRetVal	save(TaskRunner* trun=nullptr) override;
-    uiRetVal	mount(bool isNew=false, TaskRunner* trun=nullptr) override;
-    uiRetVal	unmount(bool save=true, TaskRunner* trun=nullptr) override;
-    const BufferString	getZipArchiveLocation() const override
-						    { return surveyfile_;  }
-    static const char*	extStr()	{ return "odz"; }
-    static BufferString bckupExtStr()
-				{ return BufferString( extStr(), "_bck" ); }
+    uiRetVal		activate() override;
+
+    BufferString	getSurveyFile() const		{ return surveyfile_; }
+    BufferString	getZipArchiveLocation() const override
+							{ return surveyfile_;  }
 
     static BufferString filtStr();
 
 protected:
 
     void		readSurveyDirNameFromFile();
+    bool		createSurvey(TaskRunner*) override;
+
+    BufferString	surveyfile_;
 
 };
 
@@ -89,34 +117,29 @@ protected:
 mExpClass(General) EmptyTempSurvey : public SurveyCreator
 { mODTextTranslationClass(EmptyTempSurvey)
 public:
-			    EmptyTempSurvey(const char* surveybaseloc=nullptr,
-			    const char* surveynm=nullptr,bool ismanaged=true);
-			    EmptyTempSurvey(const OD::JSON::Object&);
-			    ~EmptyTempSurvey() override;
 
-    static const char*	    sKeyCRSID()     { return "CRSID"; }
-    static const char*	    sKeySaveLoc()   { return "Save Location"; }
+			EmptyTempSurvey(const char* survnm =nullptr,
+					const char* dataroot =nullptr,
+					bool automount=false,
+					bool ismanaged=true);
+			EmptyTempSurvey(const OD::JSON::Object&,
+					bool automount=false,
+					bool ismanaged=false);
+			mOD_DisableCopy(EmptyTempSurvey);
+			~EmptyTempSurvey();
 
-    uiRetVal	activate() override;
-    uiRetVal	save(TaskRunner* trun=nullptr) override;
-    uiRetVal	mount(bool isNew=false, TaskRunner* trun=nullptr) override;
-    uiRetVal	unmount(bool save=true, TaskRunner* trun=nullptr) override;
-    const BufferString	getZipArchiveLocation() const override
+    BufferString	getZipArchiveLocation() const override
 						{ return zipfileloc_;  }
-    void	setSaveLocation(const char* saveloc);
+    void		setSaveLocation(const char* saveloc =nullptr);
 
-    inline void setManaged(bool ismanaged) { ismanaged_ = ismanaged; }
-
+    static const char*	sKeyCRSID()	{ return "CRSID"; }
+    static const char*	sKeySaveLoc()	{ return "Save Location"; }
 
 protected:
-    bool		    createOMFFile();
-    bool		    createTempSurveySetup(bool hasomf);
-    bool		    fillSurveyInfo(const OD::JSON::Object* obj);
-    bool		    initSurvey(const OD::JSON::Object* obj=nullptr);
 
-    BufferString		origsurveyfp_;
-    SurveyInfo			si_;
-    bool			ismanaged_	= true;
-    BufferString		saveloc_;
-    BufferString		zipfileloc_;
+    bool		createSurvey(TaskRunner*) override;
+    bool		writeSurveyInfo();
+
+    OD::JSON::Object*	createpars_	= nullptr;
+    BufferString	zipfileloc_;
 };

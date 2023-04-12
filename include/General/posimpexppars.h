@@ -19,7 +19,7 @@ ________________________________________________________________________
    On import (i.e. `inward'), the 'scale' is applied before the 'offset', hence
    offset must be in units of the scaled values. On export, the offset
    is subtracted first (of course).
- 
+
  */
 
 #define mPIEP PosImpExpPars::SVY()
@@ -68,20 +68,24 @@ public:
 
 protected:
 
-    int			binidscale_;
+    void		iomReadyCB(CallBacker*);
+
+    int			binidscale_ = 1;
     BinID		binidoffs_;
-    int			trcnrscale_;
-    int			trcnroffs_;
-    double		coordscale_;
+    int			trcnrscale_ = 1;
+    int			trcnroffs_ = 0;
+    double		coordscale_ = 1.;
     Coord		coordoffs_;
-    float		zscale_;
-    float		zoffs_;
-    float		offsscale_;
-    float		offsoffs_;
+    float		zscale_ = 1.;
+    float		zoffs_ = 0.;
+    float		offsscale_ = 1.;
+    float		offsoffs_ = 0.;
 
 public:
 
-    			PosImpExpPars()			{ clear(); }
+			PosImpExpPars();
+			~PosImpExpPars();
+
     void		clear()
 			{
 			    binidscale_ = 1;	binidoffs_ = BinID::noStepout();

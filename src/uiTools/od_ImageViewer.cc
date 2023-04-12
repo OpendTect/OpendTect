@@ -29,8 +29,7 @@ int mProgMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "Network" );
     OD::ModDeps().ensureLoaded( "uiBase" );
 
-    PIM().loadAuto( false );
-    CommandLineParser clp( argc, argv );
+    const CommandLineParser clp( argc, argv );
     BufferStringSet args;
     clp.getNormalArguments( args );
 
@@ -55,16 +54,17 @@ int mProgMainFnName( int argc, char** argv )
 
     const BufferString title = args.size() > 1 ? args.get(1).buf() : fnm.buf();
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiTools" );
-    PtrMan<uiMainWin> mw = new uiMainWin( nullptr, toUiString(title.buf()) );
+    PtrMan<uiMainWin> topmw = new uiMainWin( nullptr, toUiString(title.buf()) );
     uiPixmap pm( fnm );
-    PtrMan<uiGraphicsView> view = new uiGraphicsView( mw, "Graphics Viewer" );
+    PtrMan<uiGraphicsView> view = new uiGraphicsView( topmw, "Graphics Viewer");
     view->setPrefWidth( pm.width() );
     view->setPrefHeight( pm.height() );
     view->scene().addItem( new uiPixmapItem(pm) );
-    app.setTopLevel( mw );
+    app.setTopLevel( topmw );
     PIM().loadAuto( true );
-    mw->show();
+    topmw->show();
 
     return app.exec();
 }

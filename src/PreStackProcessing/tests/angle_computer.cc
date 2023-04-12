@@ -218,6 +218,7 @@ bool testAnglesForDifferentSurveys()
 	     .add( "F3_Test_Survey_DepthFT" )
 	     .add( "F3_Test_Survey_DepthFT__XYinft_" );
     const int nrsurveys = survnames.size();
+    SurveyDiskLocation sdl( IOM().rootDir() );
 
     const double zstart = 0.;
     TypeSet<StepInterval<double> > zrgs;
@@ -231,7 +232,9 @@ bool testAnglesForDifferentSurveys()
     for ( int idx=0; idx<nrsurveys; idx++ )
     {
 	const BufferString& survnm = survnames.get( idx );
-	IOM().setSurvey( survnm );
+	sdl.setDirName( survnm.buf() );
+	SurveyChanger changer( sdl );
+
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
 
@@ -263,8 +266,8 @@ bool testAnglesForDifferentSurveys()
 	    od_cout() << " : Computer did not succeed in making angle data\n";
 	    return false;
 	}
-	else if ( !compareAngles(*angles,zids[idx/2],!SI().zIsTime(),
-				 SI().zInFeet()) )
+
+	if ( !compareAngles(*angles,zids[idx/2],!SI().zIsTime(),SI().zInFeet()))
 	{
 	    od_cout() << survnm << " : Angle computer computed wrong values\n";
 	    return false;

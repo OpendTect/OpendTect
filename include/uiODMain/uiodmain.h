@@ -116,8 +116,6 @@ private:
 
     mGlobal(uiODMain) friend int ODMain(uiMain&);
 
-    bool		ensureGoodDataDir();
-    bool		ensureGoodSurveySetup();
     bool		buildUI();
     void		initScene();
 

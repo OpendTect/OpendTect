@@ -94,10 +94,11 @@ static void setBatchPriority( int argc, char** argv, float priority, int pid )
 void Execute_batch( int* pargc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "Network" );
-    PIM().loadAuto( false );
     if ( !BP().init() )
 	return;
 
+    PIM().loadAuto( false );
+    OD::ModDeps().ensureLoaded( "Batch" );
     PIM().loadAuto( true );
 #ifdef __win__
     setBatchPriority( *pargc, argv, BP().getPriority() );

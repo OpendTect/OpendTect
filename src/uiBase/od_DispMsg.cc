@@ -25,11 +25,11 @@ int mProgMainFnName( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded( "General" );
 
-    PIM().loadAuto( false );
-    CommandLineParser parser( argc, argv );
+    const CommandLineParser parser( argc, argv );
     if ( parser.nrArgs()<1 )
 	return 1;
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiBase" );
     PIM().loadAuto( true );
 

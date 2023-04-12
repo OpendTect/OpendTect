@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratsynthgenparams.h"
 
+#include "genc.h"
 #include "ioman.h"
 #include "prestackanglemute.h"
 #include "propertyref.h"
@@ -171,6 +172,7 @@ void SynthGenParams::setDefaultValues()
 			: defsyntgennm.str() );
     }
 
+    const SurveyInfo& si = IOMan::isOK() ? SI() : SurveyInfo::empty();
     if ( isZeroOffset() )
     {
 	ReflCalc1D::setIOParsToSingleAngle( reflpars_ );
@@ -197,20 +199,23 @@ void SynthGenParams::setDefaultValues()
 	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	    offsets += offsetrg.atIndex( idx );
 	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
-	raypars_.set( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+	raypars_.set( RayTracer1D::sKeyOffsetInFeet(), si.xyInFeet() );
     }
 
     if ( isRawOutput() )
     {
 	setReqType();
-	const TranslatorGroup& wvlttrgrp = WaveletTranslatorGroup::theInst();
-	const BufferString keystr( wvlttrgrp.getSurveyDefaultKey() );
-	MultiID wvltkey;
-	PtrMan<IOObj> wvltobj = SI().getPars().get( keystr, wvltkey )
-			      ? IOM().get( wvltkey )
-			      : IOM().getFirst( wvlttrgrp.ioCtxt() );
-	if ( wvltobj )
-	    setWavelet( wvltobj->name() );
+	if ( IOMan::isOK() )
+	{
+	    const TranslatorGroup& wvlttrgrp =WaveletTranslatorGroup::theInst();
+	    const BufferString keystr( wvlttrgrp.getSurveyDefaultKey() );
+	    MultiID wvltkey;
+	    PtrMan<IOObj> wvltobj = si.getPars().get( keystr, wvltkey )
+				  ? IOM().get( wvltkey )
+				  : IOM().getFirst( wvlttrgrp.ioCtxt() );
+	    if ( wvltobj )
+		setWavelet( wvltobj->name() );
+	}
     }
     else
 	deleteAndNullPtr( reqtype_ );

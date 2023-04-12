@@ -36,14 +36,20 @@ public:
 			uiSurvey(uiParent*);
 			~uiSurvey();
 
-    static void		getSurveyList(BufferStringSet&,const char* dataroot=0,
-				      const char* excludenm=0);
+    static void		getSurveyList(BufferStringSet&,
+				      const char* dataroot=nullptr,
+				      const char* excludenm=nullptr);
 
     static bool		survTypeOKForUser(bool is2d);
 			//!< checks whether given type has support
 			//!< returns whether user wants to continue
 
-    static bool		ensureValidDataRoot();
+    static bool		ensureGoodSurveySetup(uiRetVal&,uiParent* =nullptr);
+    static bool		ensureValidDataRoot(uiRetVal&,uiParent* =nullptr);
+    enum SurvSelState	{ InvalidSurvey, SameSurvey, NewExisting,
+			  NewFresh, SurveyRemoved };
+    static SurvSelState ensureValidSurveyDir(uiRetVal&,uiParent* =nullptr);
+    static SurvSelState& lastSurveyState();
 
     /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
     struct Util
@@ -72,18 +78,18 @@ public:
 
 protected:
 
-    SurveyInfo*		cursurvinfo_;
+    SurveyInfo*		cursurvinfo_ = nullptr;
     const BufferString	orgdataroot_;
     BufferString	dataroot_;
     BufferString	initialsurveyname_;
-    uiSurveyMap*	survmap_;
-    IOPar*		impiop_;
-    uiSurvInfoProvider*	impsip_;
+    uiSurveyMap*	survmap_ = nullptr;
+    IOPar*		impiop_ = nullptr;
+    uiSurvInfoProvider* impsip_ = nullptr;
     BufferStringSet	surveynames_;
     BufferStringSet	surveydirs_;
 
     uiDataRootSel*	datarootsel_;
-    uiListBox*		dirfld_;
+    uiListBox*		dirfld_ = nullptr;
     uiButton*		editbut_;
     uiButton*		rmbut_;
     ObjectSet<uiButton>	utilbuts_;
@@ -92,9 +98,9 @@ protected:
     uiTextEdit*		logfld_;
     StringPairSet	infoset_;
 
-    bool		parschanged_; //!< of initial survey only
-    bool		cursurvremoved_;
-    bool		freshsurveyselected_;
+    bool		parschanged_ = false; //!< of initial survey only
+    bool		cursurvremoved_ = false;
+    bool		freshsurveyselected_ = false;
 
     bool		acceptOK(CallBacker*) override;
     bool		rejectOK(CallBacker*) override;
@@ -126,6 +132,9 @@ protected:
 private:
     void		fillLeftGroup(uiGroup*);
     void		fillRightGroup(uiGroup*);
+
+    static bool		Convert_OD4_Data_To_OD5();
+    static bool		Convert_OD4_Body_To_OD5();
 };
 
 
@@ -145,7 +154,7 @@ public:
     bool		acceptOK(CallBacker*) override;
 
     ObjectSet<uiSurvInfoProvider> sips_;
-    int			sipidx_;
+    int			sipidx_ = -1;
 
 private:
 
@@ -170,3 +179,7 @@ private:
     void		zdomainChg(CallBacker*);
 
 };
+
+#define mIfIOMNotOK( act ) \
+    if ( !uiSurvey::ensureGoodSurveySetup(uirv) ) \
+	{ if ( !uirv.isOK() ) uiMSG().error( uirv ); act; }

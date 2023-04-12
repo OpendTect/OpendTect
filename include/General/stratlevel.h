@@ -200,6 +200,7 @@ private:
     LevelSet&		curSet();
     void		ensurePresent(LevelSet&);
     void		createSet();
+    void		iomReadyCB(CallBacker*);
     void		surveyChangedCB(CallBacker*);
 
     ManagedObjectSet<LevelSet>	lss_;

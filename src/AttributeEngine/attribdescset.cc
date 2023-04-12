@@ -1042,7 +1042,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
 				  const BufferString& compnm )
 {
     BufferString objnm;
-    if ( multiid.isDatabaseID() )
+    if ( multiid.isDatabaseID() && IOMan::isOK() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( multiid );
 	if ( !ioobj )

@@ -176,7 +176,9 @@ BufferString odSurvey::surveyPath() const
 BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
 {
     BufferStringSet* res = nullptr;
-    activate();
+    if ( !activate() )
+	return res;
+
     const PtrMan<IODir> dbdir = IOM().getDir( trgrpnm );
     if ( dbdir )
     {
@@ -197,7 +199,9 @@ BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
 
 void odSurvey::getObjInfos( OD::JSON::Object& jsobj, const char* trgrpnm ) const
 {
-    activate();
+    if ( !activate() )
+	return;
+
     const PtrMan<IODir> dbdir = IOM().getDir( trgrpnm );
     auto* ids = new OD::JSON::Array( OD::JSON::String);
     auto* nms = new OD::JSON::Array( OD::JSON::String);
@@ -239,8 +243,7 @@ void odSurvey::getObjInfos( OD::JSON::Object& jsobj, const char* trgrpnm ) const
 
 bool odSurvey::isObjPresent( const char* objname, const char* trgrpnm ) const
 {
-    activate();
-    return IOM().isPresent( objname, trgrpnm );
+    return activate() && IOM().isPresent( objname, trgrpnm );
 }
 
 
@@ -292,14 +295,23 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 
 extern "C" { mGlobal(General) const char* setDBMDataSource(const char*, bool); }
 
-void odSurvey::activate() const {
-    if (basedir_==curbasedir_ && survey_==cursurvey_)
-        return;
+bool odSurvey::activate() const
+{
+    const bool hasiom = IOMan::isOK();
+    if ( basedir_==curbasedir_ && survey_==cursurvey_ && hasiom )
+	return true;
 
-    setDBMDataSource( FilePath(basedir_, survey_).fullPath(), true );
+    const char* uirv = setDBMDataSource(
+			  FilePath(basedir_, survey_).fullPath(), hasiom );
+    if ( uirv || *uirv )
+	return false;
+
     curbasedir_ = basedir_;
     cursurvey_ = survey_;
+
+    return hasiom ? true : InitBindings( moddeps, false );
 }
+
 
 bool odSurvey::initModule( const char* odbindfnm )
 {
@@ -310,13 +322,13 @@ bool odSurvey::initModule( const char* odbindfnm )
     const int argc = GetArgC() < 0 ? 0 : GetArgC();
     SetBindings( fp.parent_path().string().c_str(), argc, GetArgV(), true,
 		 fp.string().c_str() );
-    return InitBindings( moddeps, false );
+    return true;
 }
 
 BufferStringSet* odSurvey::getNames( const char* basedir )
 {
     BufferStringSet* dirnms = nullptr;
-    if ( IOMan::isValidDataRoot(basedir) )
+    if ( IOMan::isValidDataRoot(basedir).isOK() )
     {
 	dirnms = new BufferStringSet;
 	SurveyDiskLocation::listSurveys( *dirnms, basedir );
@@ -343,7 +355,7 @@ void odSurvey::getInfos( OD::JSON::Array& jsarr, const char* basedir,
     BufferStringSet nms;
     PtrMan<BufferStringSet> allnms = getNames( basedir );
     if ( fornames.isEmpty() )
- 	nms = *allnms;
+	nms = *allnms;
     else
 	nms = getCommonItems( *allnms, fornames );
 
@@ -353,10 +365,10 @@ void odSurvey::getInfos( OD::JSON::Array& jsarr, const char* basedir,
 	odSurvey survey( basedir, *nm );
 	OD::JSON::Object info;
 	survey.getInfo( info );
- 	if ( info.isEmpty() )
- 	    continue;
+	if ( info.isEmpty() )
+	    continue;
 
- 	jsarr.add( info.clone() );
+	jsarr.add( info.clone() );
      }
 }
 
@@ -367,7 +379,7 @@ void odSurvey::getFeatures( OD::JSON::Object& jsobj, const char* basedir,
     BufferStringSet nms;
     PtrMan<BufferStringSet> allnms = getNames( basedir );
     if ( fornames.isEmpty() )
- 	nms = *allnms;
+	nms = *allnms;
     else
 	nms = getCommonItems( *allnms, fornames );
 
@@ -378,10 +390,10 @@ void odSurvey::getFeatures( OD::JSON::Object& jsobj, const char* basedir,
 	odSurvey survey( basedir, *nm );
 	OD::JSON::Object info;
 	survey.getFeature( info );
- 	if ( info.isEmpty() )
- 	    continue;
+	if ( info.isEmpty() )
+	    continue;
 
- 	features->add( info.clone() );
+	features->add( info.clone() );
      }
 
     jsobj.set( "type", "FeatureCollection" );
@@ -515,7 +527,9 @@ bool initModule( const char* odbindfnm )
 
 void exitModule()
 {
-    IOM().applicationClosing.trigger();
+    if ( IOMan::isOK() )
+	IOM().applicationClosing.trigger();
+
     CloseBindings();
 }
 
@@ -523,17 +537,23 @@ void exitModule()
 
 const char* isValidSurveyDir( const char* loc )
 {
-    if ( !IOMan::isValidSurveyDir(loc) )
-	return "Specified location is not valud OpendTect survey directory";
+    mDeclStaticString( ret );
+    const uiRetVal uirv = IOMan::isValidSurveyDir( loc );
+    if ( uirv.isOK() )
+	return nullptr;
 
-    return nullptr;
+    ret.set( uirv.getText().buf() );
+    return ret.buf();
 }
 
 
 const char* isValidDataRoot( const char* loc )
 {
-    if ( !IOMan::isValidDataRoot(loc) )
-	return "Specified location is not valud OpendTect data root directory";
+    mDeclStaticString( ret );
+    const uiRetVal uirv = IOMan::isValidDataRoot( loc );
+    if ( uirv.isOK() )
+	return nullptr;
 
-    return nullptr;
+    ret.set( uirv.getText().buf() );
+    return ret.buf();
 }

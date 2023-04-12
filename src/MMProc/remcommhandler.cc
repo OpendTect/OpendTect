@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "remcommhandler.h"
 
+#include "commandlineparser.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
@@ -56,6 +57,9 @@ void RemCommHandler::dataRootChgCB( CallBacker* )
 
 void RemCommHandler::startJobCB( CallBacker* cb )
 {
+    if ( !cb || !cb->isCapsule() )
+	return;
+
     mCBCapsuleUnpack(const OD::JSON::Object&,reqobj,cb);
 
     writeLog( BufferString("Start Job: \n",reqobj.dumpJSon()) );
@@ -87,15 +91,13 @@ void RemCommHandler::startJobCB( CallBacker* cb )
 
     OS::MachineCommand machcomm( procfile );
     if ( !hostnm.isEmpty() )
-	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
-			      hostnm, OS::OldStyle );
+	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(), hostnm );
     if ( !portnm.isEmpty() )
-	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(),
-			      portnm, OS::OldStyle );
+	machcomm.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(), portnm );
     if ( !jobid.isEmpty() )
-	machcomm.addKeyedArg( "jobid", jobid, OS::OldStyle );
+	machcomm.addKeyedArg( OS::MachineCommand::sKeyJobID(), jobid );
 
-    machcomm.addKeyedArg( "DTECT_DATA", GetBaseDataDir(), OS::OldStyle );
+    machcomm.addKeyedArg( CommandLineParser::sDataRootArg(), GetBaseDataDir() );
     machcomm.addArg( parfile );
 
     OS::CommandLauncher cl( machcomm );

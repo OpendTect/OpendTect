@@ -17,19 +17,20 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
+class SurveyChanger;
 class uiSurveySelect;
 
 mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
 { mODTextTranslationClass(uiSelObjFromOtherSurvey);
 public:
-    			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
+			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
 			//IOobj constr.
-    			~uiSelObjFromOtherSurvey();
+			~uiSelObjFromOtherSurvey();
 
     void		setDirToCurrentSurvey();
-    void		setDirToOtherSurvey();
+    void		setDirToOtherSurvey(const SurveyDiskLocation&);
 
-    void		getIOObjFullUserExpression(BufferString& exp) const
+    void		getIOObjFullUserExpression( BufferString& exp ) const
 			{ exp = fulluserexpression_; }
 
 protected:
@@ -37,7 +38,7 @@ protected:
     uiSurveySelect*	selfld_;
     CtxtIOObj&		ctio_;
     BufferString	fulluserexpression_;
-    BufferString	othersurveyrootdir_;
+    SurveyChanger*	changer_ = nullptr;
 
     bool		acceptOK(CallBacker*) override;
 };

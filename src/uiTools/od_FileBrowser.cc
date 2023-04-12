@@ -50,8 +50,7 @@ int mProgMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "Network" );
     OD::ModDeps().ensureLoaded( "uiBase" );
 
-    PIM().loadAuto( false );
-    CommandLineParser clp( argc, argv );
+    const CommandLineParser clp( argc, argv );
     const int nrargs = clp.nrArgs();
     if ( nrargs < 1 )
 	mErrRet()
@@ -95,15 +94,15 @@ int mProgMainFnName( int argc, char** argv )
     if ( clp.getVal(File::ViewPars::sKeyStyle(),stl) )
 	parseEnum( stl.str(), vp.style_ );
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiTools" );
-
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
-    PtrMan<uiDialog> dlg = new uiTextFileDlg( nullptr, vp, fdsetup, fnm );
-    dlg->setActivateOnFirstShow();
-    app.setTopLevel( dlg );
+    PtrMan<uiDialog> topdlg = new uiTextFileDlg( nullptr, vp, fdsetup, fnm );
+    topdlg->setActivateOnFirstShow();
+    app.setTopLevel( topdlg );
     PIM().loadAuto( true );
-    dlg->show();
+    topdlg->show();
 
     return app.exec();
 }

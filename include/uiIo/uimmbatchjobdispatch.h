@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 
+class CommandLineParser;
 class Executor;
 class HostDataList;
 class JobRunner;
@@ -32,7 +33,7 @@ mExpClass(uiIo) uiMMBatchJobDispatcher : public uiDialog
 public:
 			~uiMMBatchJobDispatcher();
 
-    static bool		initMMProgram(int argc,char** argv,IOPar& jobpars);
+    static uiRetVal	initMMProgram(const CommandLineParser&,IOPar& jobpars);
 
 protected:
 
@@ -99,5 +100,10 @@ private:
     void		clearAliveDisp();
     bool		wrapUp();
     void		removeTempResults();
+
+public:
+
+    mDeprecated("Use CommandLineParser")
+    static bool		initMMProgram(int argc,char** argv,IOPar& jobpars);
 
 };

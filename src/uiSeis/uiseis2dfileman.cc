@@ -54,7 +54,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
     setCtrlStyle( CloseOnly );
-    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GMAdmin().updateGeometries( nullptr );
 
     objinfo_ = new uiSeisIOObjInfo( ioobj );
     dataset_ = new Seis2DDataSet( ioobj );

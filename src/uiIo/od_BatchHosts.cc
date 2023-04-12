@@ -7,8 +7,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimain.h"
 #include "uibatchhostsdlg.h"
+
+#include "uimain.h"
+
 
 #include "moddepmgr.h"
 #include "prog.h"
@@ -23,11 +25,11 @@ int mProgMainFnName( int argc, char** argv )
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiIo" );
-    PtrMan<uiDialog> dlg = new uiBatchHostsDlg( nullptr );
-    dlg->setActivateOnFirstShow();
-    app.setTopLevel( dlg );
+    PtrMan<uiDialog> topdlg = new uiBatchHostsDlg( nullptr );
+    topdlg->setActivateOnFirstShow();
+    app.setTopLevel( topdlg );
     PIM().loadAuto( true );
-    dlg->show();
+    topdlg->show();
 
     return app.exec();
 }

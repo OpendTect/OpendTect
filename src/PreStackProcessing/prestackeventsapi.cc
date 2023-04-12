@@ -140,11 +140,8 @@ PreStack::EventsAPIMgr::~EventsAPIMgr()
 
 int PreStack::EventsAPIMgr::setSurvey( const char* dataroot, const char* survey)
 {
-    if ( !IOM().setRootDir( dataroot ) )
-	return -1;
-
-    IOMan::setSurvey( survey );
-    return 0;
+    const uiRetVal uirv = IOMan::setDataSource( dataroot, survey );
+    return uirv.isOK() ? 0 : -1;
 }
 
 

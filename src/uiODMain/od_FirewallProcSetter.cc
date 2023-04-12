@@ -145,9 +145,7 @@ int mProgMainFnName( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded( "uiTools" );
 
-    PIM().loadAuto( false );
-
-    CommandLineParser parser( argc, argv );
+    const CommandLineParser parser( argc, argv );
     if ( parser.hasKey("help") || parser.hasKey("h") )
     {
 	printBatchUsage();
@@ -174,15 +172,16 @@ int mProgMainFnName( int argc, char** argv )
     if ( !parser.getVal(pyflag(),pythonpath) && !File::isDirectory(pythonpath) )
 	errocc = true;
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
-    PtrMan<uiFirewallProcSetter> fwdlg = nullptr;
+    PtrMan<uiFirewallProcSetter> topdlg = nullptr;
     if ( errocc )
     {
-	fwdlg = new uiFirewallProcSetter( nullptr );
-	app.setTopLevel( fwdlg );
+	topdlg = new uiFirewallProcSetter( nullptr );
+	app.setTopLevel( topdlg );
 	PIM().loadAuto( true );
 
-	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( fwdlg,
+	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( topdlg,
 						    path, pythonpath, type );
 	dlg->setActivateOnFirstShow();
 	dlg->showAlwaysOnTop();
@@ -204,9 +203,8 @@ int mProgMainFnName( int argc, char** argv )
 	    return 0;
 	}
 
-	fwdlg->updateUI( path, pythonpath, opertype );
-	fwdlg->setActivateOnFirstShow();
-
+	topdlg->updateUI( path, pythonpath, opertype );
+	topdlg->setActivateOnFirstShow();
     }
     else
     {
@@ -217,12 +215,13 @@ int mProgMainFnName( int argc, char** argv )
 	if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
 	    return 0;
 
-	fwdlg = new uiFirewallProcSetter( nullptr,
-					    opertype, &path, &pythonpath );
-	app.setTopLevel( fwdlg );
+	topdlg = new uiFirewallProcSetter( nullptr, opertype, &path,
+					   &pythonpath );
+	app.setTopLevel( topdlg );
 	PIM().loadAuto( true );
     }
 
-    fwdlg->show();
+    topdlg->show();
+
     return app.exec();
 }

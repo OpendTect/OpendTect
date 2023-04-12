@@ -369,9 +369,9 @@ uiString IOObj::phrCannotWriteToDB() const
 
 bool IOObj::isInCurrentSurvey() const
 {
-    FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
+    FilePath cursurvfp( IOM().rootDir().fullPath() ); cursurvfp.makeCanonical();
     FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
-    return orgfp.isSubDirOf(cursurvfp);
+    return orgfp.isSubDirOf( cursurvfp );
 }
 
 

@@ -233,15 +233,14 @@ int ODMain( uiMain& app )
     splash->show();
     splash->showMessage( "Loading plugins ..." );
 
-    PIM().loadAuto( false, !skippluginsel );
-    CommandLineParser clp;
-    IOM().setDataSource( clp );
+    const CommandLineParser clp;
+    uirv = IOMan::setDataSource( clp );
+    mIfIOMNotOK( return 1 )
 
+    PIM().loadAuto( false, !skippluginsel );
     OD::ModDeps().ensureLoaded( "uiODMain" );
     PtrMan<uiODMain> odmain = new uiODMain( app );
     manODMainWin( odmain.ptr(), true );
-    if ( !odmain->ensureGoodSurveySetup() )
-	return 1;
 
     PIM().loadAuto( true, !skippluginsel );
 
@@ -290,8 +289,15 @@ uiODMain::uiODMain( uiMain& a )
 	statustt.append( tr("| CPU: Used/Available") );
     statusBar()->setToolTip( mMemStatusFld, statustt );
     statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
-    memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
+    mAttachCB( memtimer_.tick, uiODMain::memTimerCB );
     memtimer_.start( 1000 );
+
+    if ( uiSurvey::lastSurveyState() == uiSurvey::NewFresh )
+    {
+	neednewsurvinit_ = true;
+	newsurvinittimer_.start( 200, true );
+	mAttachCB( newsurvinittimer_.tick, uiODMain::newSurvInitTimerCB );
+    }
 
     if ( !useallcpus )
 	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
@@ -316,65 +322,6 @@ uiODMain::~uiODMain()
     delete scenemgr_;
     delete viewer2dmgr_;
     delete applmgr_;
-}
-
-
-
-bool uiODMain::ensureGoodDataDir()
-{
-    while ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
-    {
-	uiSetDataDir dlg( this );
-	if ( !dlg.go() )
-	{
-	    if ( uiMSG().askGoOn( tr("Without a valid data root, %1 "
-				     "cannot start.\nDo you wish to exit?")
-					.arg(programname_) ) )
-		return false;
-	}
-	else if ( uiSetDataDir::setRootDataDir(this,dlg.selectedDir()) )
-	    break;
-    }
-
-    return true;
-}
-
-
-bool uiODMain::ensureGoodSurveySetup()
-{
-    if ( !ensureGoodDataDir() )
-	return false;
-
-    BufferString errmsg;
-    int res = 0;
-    if ( !IOMan::validSurveySetup(errmsg) )
-    {
-	std::cerr << errmsg.buf() << std::endl;
-	uiMSG().error( toUiString(errmsg) );
-	return false;
-    }
-    else if ( !IOM().isReady() )
-    {
-	while ( res == 0 )
-	{
-	    res = uiODApplMgr::manageSurvey();
-	    if ( res == 0 && uiMSG().askGoOn( tr("Without a valid survey, %1 "
-				     "cannot start.\nDo you wish to exit?")
-				     .arg( programname_ )) )
-		return false;
-	}
-    }
-    else
-	res = 1;
-
-    if ( res == 3 )
-    {
-	neednewsurvinit_ = true;
-	newsurvinittimer_.start( 200, true );
-	newsurvinittimer_.tick.notify( mCB(this,uiODMain,newSurvInitTimerCB) );
-    }
-
-    return true;
 }
 
 
@@ -493,7 +440,7 @@ class uiODMainAutoSessionDlg : public uiDialog
 { mODTextTranslationClass(uiODMainAutoSessionDlg);
 public:
 
-uiODMainAutoSessionDlg( uiODMain* p )
+uiODMainAutoSessionDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Auto-load session"),mNoDlgTitle,
 				 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
@@ -502,10 +449,10 @@ uiODMainAutoSessionDlg( uiODMain* p )
 
     usefld_ = new uiGenInput( this, tr("Auto-load session mode"),
 	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
-    usefld_->valueChanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    mAttachCB( usefld_->valueChanged, uiODMainAutoSessionDlg::useChg );
     doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
 				BoolInpSpec(!id.isUdf()) );
-    doselfld_->valueChanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    mAttachCB( doselfld_->valueChanged, uiODMainAutoSessionDlg::useChg );
     doselfld_->attach( alignedBelow, usefld_ );
 
     IOObjContext ctxt = mIOObjContext( ODSession );
@@ -518,7 +465,17 @@ uiODMainAutoSessionDlg( uiODMain* p )
 				  BoolInpSpec(true) );
     loadnowfld_->attach( alignedBelow, sessionfld_ );
 
-    postFinalize().notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    mAttachCB( postFinalize(), uiODMainAutoSessionDlg::initDlg );
+}
+
+~uiODMainAutoSessionDlg()
+{
+    detachAllNotifiers();
+}
+
+void initDlg( CallBacker* )
+{
+    useChg( nullptr );
 }
 
 void useChg( CallBacker* )
@@ -687,6 +644,7 @@ void uiODMain::afterStartupCB( CallBacker* )
 
 void uiODMain::newSurvInitTimerCB( CallBacker* )
 {
+    mDetachCB( newsurvinittimer_.tick, uiODMain::newSurvInitTimerCB );
     if ( neednewsurvinit_ )
 	applMgr().setZStretch();
 }

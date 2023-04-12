@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 extern "C" {
 
-/* Functions delivering files/directies in the 'survey data' scope */
+/* Functions delivering files/directories in the 'survey data' scope */
 
 mGlobal(Basic) const char* GetBaseDataDir(void);
 /*!< Base data directory: DTECT_[WIN]DATA or from User Settings. */
@@ -27,7 +27,7 @@ mGlobal(Basic) const char* GetProcFileName(const char*);
 /*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */
 
 
-/* Functions delivering files/directies in the 'sytem' scope */
+/* Functions delivering files/directories in the 'system' scope */
 
 mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
 /*!< Directory of the installed software = $DTECT_[WIN]APPL
@@ -155,7 +155,7 @@ mGlobal(Basic) const char* GetUserNm(void);
 /*!< user's name */
 
 
-    /* Functions delivering files/directies in the 'user-specific' scope */
+    /* Functions delivering files/directories in the 'user-specific' scope */
 mGlobal(Basic) const char* GetPersonalDir(void);
 /*!< Directory for personal settings: 'Home directory'
 

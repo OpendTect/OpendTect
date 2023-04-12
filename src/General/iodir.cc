@@ -43,7 +43,7 @@ IODir::IODir( const MultiID& ky )
     FilePath fp( dirname_ );
     if ( !fp.isAbsolute() )
     {
-	fp.set( IOM().rootDir() ).add( dirname_ );
+	fp.set( IOM().rootDir().fullPath() ).add( dirname_ );
 	dirname_ = fp.fullPath();
     }
     delete ioobj;
@@ -202,7 +202,7 @@ IOObj* IODir::getObj( const DBKey& ky )
 
 IOObj* IODir::getObj( const MultiID& ky )
 {
-    BufferString dirnm( IOM().rootDir() );
+    BufferString dirnm( IOM().rootDir().fullPath() );
     return getIOObj( dirnm.buf(), ky );
 }
 

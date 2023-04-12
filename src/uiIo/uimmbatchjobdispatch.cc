@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uimmbatchjobdispatch.h"
 
+#include "commandlineparser.h"
 #include "envvars.h"
 #include "genc.h"
 #include "hostdata.h"
@@ -42,47 +43,62 @@ ________________________________________________________________________
 #include "uitextfile.h"
 
 
-
-bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
+uiRetVal uiMMBatchJobDispatcher::initMMProgram( const CommandLineParser& clp,
 						IOPar& jobpars )
 {
-    const StringView arg1( argv[1] );
-    if ( argc < 2 )
+    clp.setKeyHasValue( CommandLineParser::sDataRootArg() );
+    clp.setKeyHasValue( CommandLineParser::sSurveyArg() );
+    clp.setKeyHasValue( "parfile" );
+    uiRetVal uirv;
+
+    const OD::String& execnm = clp.getExecutableName();
+
+    BufferString parfilenm;
+    if ( !clp.getVal("parfile",parfilenm) )
     {
-	od_cout() << "Usage: " << argv[0] << " parfile" << od_endl;
-	return false;
+	BufferStringSet normalargs;
+	clp.getNormalArguments( normalargs );
+	if ( normalargs.isEmpty() )
+	    return od_static_tr( "uiMMBatchJobDispatcher",
+				 "Usage: %1 parfile" ).arg( execnm );
+
+	parfilenm = *normalargs.first();
     }
 
-    FilePath fp( argv[1] );
-    const BufferString parfnm( fp.fullPath() );
-    od_istream strm( parfnm );
+    od_istream strm( parfilenm );
     if ( !strm.isOK() )
-    {
-	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
-	return false;
-    }
+	return od_static_tr( "uiMMBatchJobDispatcher",
+		"%1: Cannot open parameter file: %2").arg( execnm )
+						     .arg( strm.errMsg() );
 
     jobpars.read( strm, sKey::Pars() );
-    if ( jobpars.isEmpty() )
-    {
-	od_cout() << argv[0] << ": Invalid parameter file"
-		  << parfnm << od_endl;
-	return false;
-    }
     strm.close();
+    if ( jobpars.isEmpty() )
+	return od_static_tr( "uiMMBatchJobDispatcher",
+			     "%1: Invalid parameter file").arg( execnm );
 
-    BufferString res = jobpars.find( sKey::DataRoot() );
-    if ( !res.isEmpty() && SI().getDataDirName() != res )
-	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
+    jobpars.set( sKey::FileName(), parfilenm.buf() );
 
-    res = jobpars.find( sKey::Survey() );
-    if ( !res.isEmpty() && SI().getDirName() != res && !IOMan::setSurvey(res) )
-	return false;
+    BufferString dataroot, survdir;
+    if ( !clp.getVal(CommandLineParser::sDataRootArg(),dataroot) ||
+	 !jobpars.get(sKey::DataRoot(),dataroot) )
+	dataroot.set( GetBaseDataDir() );
 
-    PIM().loadAuto( false );
-    jobpars.set( sKey::FileName(), parfnm );
+    if ( !clp.getVal(CommandLineParser::sSurveyArg(),survdir) ||
+	 !jobpars.get(sKey::Survey(),survdir) )
+	survdir.set( SurveyInfo::curSurveyName() );
 
-    return true;
+
+    return IOMan::setDataSource( dataroot.buf(), survdir.buf() );
+}
+
+
+bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
+					    IOPar& jobpars )
+{
+    const CommandLineParser clp( argc, argv );
+    const uiRetVal uirv = initMMProgram( clp, jobpars );
+    return uirv.isOK();
 }
 
 

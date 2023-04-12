@@ -49,8 +49,7 @@ uiDataRootSel::~uiDataRootSel()
 }
 
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
-
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 void uiDataRootSel::dataRootSelCB( CallBacker* )
 {
@@ -59,7 +58,7 @@ void uiDataRootSel::dataRootSelCB( CallBacker* )
 	return;
 
     dataroot_ = dlg.selectedDir();
-    SetCurBaseDataDirOverrule( dataroot_ );
+    SetCurBaseDataDir( dataroot_ );
     datarootlbl_->setText( dataroot_ );
     selectionChanged.trigger();
 }

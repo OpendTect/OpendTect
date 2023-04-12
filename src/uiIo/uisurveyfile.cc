@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "uitaskrunner.h"
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 uiSurveyFile::uiSurveyFile( uiParent* p )
     : parent_(p)
@@ -49,12 +49,10 @@ bool uiSurveyFile::newFile()
 
     FilePath openfile_fp = FilePath( fdlg.fileName() );
     openfile_fp.setExtension( SurveyFile::extStr() );
-    BufferString surveyname = openfile_fp.baseName();
 
     uiTaskRunner uitr( parent_ );
-    PtrMan<SurveyFile> newsurvey = new SurveyFile( openfile_fp.fullPath(),
-						   surveyname.buf() );
-    if ( !newsurvey->mount(true, &uitr).isOK() )
+    PtrMan<SurveyFile> newsurvey = new SurveyFile( openfile_fp.fullPath() );
+    if ( !newsurvey->mount(true,&uitr).isOK() )
     {
 	uiMSG().errorWithDetails( newsurvey->errMsg() );
 	return false;
@@ -70,6 +68,7 @@ bool uiSurveyFile::newFile()
 	return false;
     }
 
+    const BufferString surveyname = newsurvey->getSurveyNm();
     newsurvinfo->setName( surveyname );
     BufferString dataroot( newsurvey->getTempBaseDir() );
     uiStartNewSurveySetup setup_dlg( parent_, dataroot, *newsurvinfo );
@@ -100,7 +99,7 @@ bool uiSurveyFile::newFile()
 	return false;
     }
 
-    SetCurBaseDataDirOverrule( dataroot );
+    SetCurBaseDataDir( dataroot );
     uiSurveyInfoEditor info_dlg( parent_, *(newsurvinfo.release()), true );
     info_dlg.setNameandPathSensitive( false, false );
     if ( !info_dlg.isOK() || !info_dlg.go() )

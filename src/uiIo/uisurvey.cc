@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uisetdatadir.h"
@@ -44,6 +45,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "moddepmgr.h"
 #include "mousecursor.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -51,6 +53,8 @@ ________________________________________________________________________
 #include "surveydisklocation.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+
+#include <iostream>
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
@@ -193,13 +197,12 @@ bool acceptOK( CallBacker* ) override
 // uiStartNewSurveySetup
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
-	: uiDialog(p,Setup(tr("Create New Survey"),
-			   tr("Specify new survey parameters"),
-			   mODHelpKey(mStartNewSurveySetupHelpID)))
-	, survinfo_(survinfo)
-	, dataroot_(dataroot)
-	, sips_(uiSurveyInfoEditor::survInfoProvs())
-	, sipidx_(-1)
+    : uiDialog(p,Setup(tr("Create New Survey"),
+		       tr("Specify new survey parameters"),
+		       mODHelpKey(mStartNewSurveySetupHelpID)))
+    , survinfo_(survinfo)
+    , dataroot_(dataroot)
+    , sips_(uiSurveyInfoEditor::survInfoProvs())
 {
     setOkText( uiStrings::sNext() );
 
@@ -212,7 +215,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() ).
 			addItem( uiStrings::sWells() ).displayIdx( 2, false );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
-    pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
+    mAttachCB( pol2dfld_->changed, uiStartNewSurveySetup::pol2dChg );
     pol2dfld_->attach( alignedBelow, survnmfld_ );
 
     for ( int idx=0; idx<sips_.size(); idx++ )
@@ -228,8 +231,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     zistimefld_ = new uiGenInput( this, tr("Z Domain"),
 		BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
-    zistimefld_->valueChanged.notify(
-			mCB(this,uiStartNewSurveySetup,zdomainChg) );
+    mAttachCB( zistimefld_->valueChanged, uiStartNewSurveySetup::zdomainChg );
     zistimefld_->attach( alignedBelow, sipfld_ );
 
     zinfeetfld_ = new uiGenInput( this, tr("Depth unit"),
@@ -242,7 +244,9 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
 
 uiStartNewSurveySetup::~uiStartNewSurveySetup()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiStartNewSurveySetup::setSurveyNameFld( const char* name, bool canedit )
@@ -413,14 +417,6 @@ uiSurvey::uiSurvey( uiParent* p )
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
     , initialsurveyname_(GetSurveyName())
-    , cursurvinfo_(0)
-    , survmap_(0)
-    , dirfld_(0)
-    , impiop_(0)
-    , impsip_(0)
-    , parschanged_(false)
-    , cursurvremoved_(false)
-    , freshsurveyselected_(false)
 {
     setVideoKey( mODVideoKey(mSurveyHelpID) );
 
@@ -438,51 +434,51 @@ uiSurvey::uiSurvey( uiParent* p )
     auto* topgrp = new uiGroup( this, "Top Group" );
 
     datarootsel_ = new uiDataRootSel( topgrp );
-    mAttachCB(datarootsel_->selectionChanged,uiSurvey::dataRootChgCB);
+    mAttachCB( datarootsel_->selectionChanged,uiSurvey::dataRootChgCB );
 
     auto* settbut = new uiToolButton( topgrp, "settings",
 				      tr("General Settings"),
 				      mCB(this,uiSurvey,odSettsButPush) );
     settbut->attach( rightOf, datarootsel_ );
 
-    uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
+    auto* sep1 = new uiSeparator( topgrp, "Separator 1" );
     sep1->attach( stretchedBelow, datarootsel_ );
 
-    uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
-    uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
+    auto* leftgrp = new uiGroup( topgrp, "Survey selection left" );
+    auto* rightgrp = new uiGroup( topgrp, "Survey selection right" );
 
     fillLeftGroup( leftgrp );
     fillRightGroup( rightgrp );
     leftgrp->attach( ensureBelow, sep1 );
     rightgrp->attach( rightOf, leftgrp );
 
-    uiTabStack* tabs = new uiTabStack( this, "Info tabs" );
+    auto* tabs = new uiTabStack( this, "Info tabs" );
 
-    uiGroup* infogrp = new uiGroup( tabs->tabGroup(), "Info Group" );
+    auto* infogrp = new uiGroup( tabs->tabGroup(), "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info", true );
     infofld_->setPrefHeightInChar( 10 );
     infofld_->setStretch( 2, 2 );
     tabs->addTab( infogrp, uiStrings::sInformation(), "info" );
 
-    uiGroup* notesgrp = new uiGroup( tabs->tabGroup(), "Notes Group" );
+    auto* notesgrp = new uiGroup( tabs->tabGroup(), "Notes Group" );
     notesfld_ = new uiTextEdit( notesgrp, "Survey Notes" );
     notesfld_->setPrefHeightInChar( 10 );
     notesfld_->setStretch( 2, 2 );
     tabs->addTab( notesgrp, tr("Notes"), "notes" );
 
-    uiGroup* loggrp = new uiGroup( tabs->tabGroup(), "Log Group" );
+    auto* loggrp = new uiGroup( tabs->tabGroup(), "Log Group" );
     logfld_ = new uiTextEdit( loggrp, "Survey Log", true );
     logfld_->setPrefHeightInChar( 10 );
     logfld_->setStretch( 2, 2 );
     tabs->addTab( loggrp, tr("Log"), "logfile" );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    auto* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );
     splitter->addGroup( tabs );
 
     putToScreen();
     setOkText( uiStrings::sSelect() );
-    mAttachCB(postFinalize(),uiSurvey::selChange);
+    mAttachCB( postFinalize(), uiSurvey::selChange );
 }
 
 
@@ -515,13 +511,12 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 {
     dirfld_ = new uiListBox( grp, "Surveys" );
     updateSurvList();
-    dirfld_->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
-    dirfld_->doubleClicked.notify( mCB(this,uiSurvey,accept) );
+    mAttachCB( dirfld_->selectionChanged, uiSurvey::selChange );
+    mAttachCB( dirfld_->doubleClicked, uiSurvey::accept );
     dirfld_->setHSzPol( uiObject::WideVar );
     dirfld_->setStretch( 2, 2 );
 
-    uiButtonGroup* butgrp =
-	new uiButtonGroup( grp, "Buttons", OD::Vertical );
+    auto* butgrp = new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
     new uiToolButton( butgrp, "addnew", uiStrings::phrCreate(mJoinUiStrs(sNew(),
 				sSurvey())), mCB(this,uiSurvey,newButPushed) );
@@ -621,30 +616,6 @@ static void copyFolderIconIfMissing( const char* basedir, const char* survdir )
 }
 
 
-void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
-				const char* excludenm )
-{
-    BufferString basedir = dataroot;
-    if ( basedir.isEmpty() )
-	basedir = GetBaseDataDir();
-
-    DirList dl( basedir, File::DirsInDir );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const BufferString& dirnm = dl.get( idx );
-	if ( excludenm && dirnm == excludenm )
-	    continue;
-
-	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
-	if ( !File::exists(fp.fullPath()) )
-	    continue;
-
-	list.add( dirnm );
-	copyFolderIconIfMissing( basedir, dirnm );
-    }
-
-    list.sort();
-}
 
 
 void uiSurvey::updateSurveyNames()
@@ -674,42 +645,6 @@ void uiSurvey::updateSurveyNames()
 }
 
 
-bool uiSurvey::survTypeOKForUser( bool is2d )
-{
-    const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
-    if ( !dowarn ) return true;
-
- uiString warnmsg = tr("Your survey is set up as '%1 data\nyou will have to "
-		       "change the survey setup.\n\nDo you wish to continue?")
-		  .arg(is2d ? tr("3-D only'.\nTo be able to actually use 2-D")
-			    : tr("2-D only'.\nTo be able to actually use 3-D"));
-
-    return uiMSG().askContinue( warnmsg );
-}
-
-
-bool uiSurvey::ensureValidDataRoot()
-{
-    while ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
-    {
-	uiSetDataDir dlg( nullptr );
-	dlg.setModal( true );
-	if ( !dlg.go() )
-	{
-	    const BufferString appnm = ApplicationData::applicationName();
-	    if ( uiMSG().askGoOn( tr("Without a valid Survey Data Root,\n"
-				     "'%1' cannot start.\nDo you wish to exit?")
-					.arg(appnm) ) )
-		return false;
-	}
-	else if ( uiSetDataDir::setRootDataDir(nullptr,dlg.selectedDir()) )
-	    break;
-    }
-
-    return true;
-}
-
-
 void uiSurvey::updateDataRootInSettings()
 {
     Settings::common().set( "Default DATA directory", dataroot_ );
@@ -719,14 +654,11 @@ void uiSurvey::updateDataRootInSettings()
 }
 
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
-#define mRetExitWin { SetCurBaseDataDirOverrule( "" ); return true; }
-
-
 bool uiSurvey::acceptOK( CallBacker* )
 {
     if ( !dirfld_ )
-	mRetExitWin
+	return true;
+
     if ( dirfld_->isEmpty() )
 	mErrRet(tr("Please create a survey (or press Cancel)"))
 
@@ -738,7 +670,13 @@ bool uiSurvey::acceptOK( CallBacker* )
     if ( !writeSurvInfoFileIfCommentChanged() )
 	mErrRet(uiString::empty())
     if ( samedataroot && samesurvey && !parschanged_ )
-	mRetExitWin
+    {
+	uiRetVal uirv;
+	if ( !IOMan::isOK() )
+	    IOMan::setDataSource( dataroot_.buf(), selsurv.buf(), false );
+
+	return uirv.isOK();
+    }
 
     if ( !checkSurveyName() )
 	mErrRet(uiString::empty())
@@ -746,7 +684,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     // Step 2: write default/current survey file and record data root preference
     uiRetVal uirv;
     const SurveyDiskLocation sdl( selectedSurveyName(), dataroot_ );
-    if ( !IOM().recordDataSource(sdl,uirv) )
+    if ( !IOMan::recordDataSource(sdl,uirv) )
     {
 	if ( !uirv.isOK() )
 	     uiMSG().error( uirv );
@@ -763,25 +701,30 @@ bool uiSurvey::acceptOK( CallBacker* )
     }
     else
     {
-	if ( !samedataroot )
+	if ( !samedataroot && !uiSetDataDir::setRootDataDir(this,dataroot_) )
+	    return false;
+
+	const bool newdr = !samedataroot || initialsurveyname_.isEmpty() ||
+			   !IOMan::isOK();
+	if ( (newdr && IOMan::setDataSource(sdl.fullPath()).isOK()) ||
+	     (!newdr && IOMan::newSurvey(cursurvinfo_).isOK()) )
 	{
-	    if ( !uiSetDataDir::setRootDataDir(this,dataroot_) )
-		return false;
-	}
-	if ( IOMan::newSurvey(cursurvinfo_) )
-	{
-	    cursurvinfo_ = 0; // it's not ours anymore
+	    if ( newdr )
+		deleteAndNullPtr( cursurvinfo_ );
+	    else
+		cursurvinfo_ = nullptr; // it's not ours anymore
+
 	    if ( survmap_ )
-		survmap_->setSurveyInfo( 0 );
+		survmap_->setSurveyInfo( nullptr );
 	}
 	else
 	{
 	    const SurveyInfo* si = &SI();
 	    if ( cursurvinfo_ == si )
 	    {
-		cursurvinfo_ = 0;
+		cursurvinfo_ = nullptr;
 		if ( survmap_ )
-		    survmap_->setSurveyInfo( 0 );
+		    survmap_->setSurveyInfo( nullptr );
 	    }
 
 	    const bool isblocked = IOM().message().isEmpty();
@@ -804,7 +747,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	}
     }
 
-    mRetExitWin
+    return true;
 }
 
 
@@ -820,7 +763,7 @@ bool uiSurvey::rejectOK( CallBacker* )
 	return uiMSG().askGoOn( msg );
     }
 
-    mRetExitWin
+    return true;
 }
 
 
@@ -838,7 +781,7 @@ void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
     if ( updscreen )
 	putToScreen();
     else if ( survmap_ )
-	survmap_->setSurveyInfo( 0 );
+	survmap_->setSurveyInfo( nullptr );
 }
 
 
@@ -847,9 +790,9 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
     if ( !cursurvinfo_ )
 	return;
 
-    FilePath fp( cursurvinfo_->diskLocation().fullPath() );
+    const FilePath fp( cursurvinfo_->diskLocation().fullPath() );
     const bool haverem = File::removeDir( fp.fullPath() );
-    setCurrentSurvInfo( 0, false );
+    setCurrentSurvInfo( nullptr, false );
     readSurvInfoFromFile();
     if ( !errmsg.isEmpty()  )
     {
@@ -1208,7 +1151,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
     if ( !dlg.isOK() )
 	return false;
 
-    dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
+    mAttachCB( dlg.survParChanged, uiSurvey::updateInfo );
     if ( !dlg.go() )
     {
 	if ( !isnew )
@@ -1223,7 +1166,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
     updateSurvList();
     dirfld_->setCurrentItem( dlg.dirName() );
 
-    impiop_ = dlg.impiop_; dlg.impiop_ = 0;
+    impiop_ = dlg.impiop_; dlg.impiop_ = nullptr;
     impsip_ = dlg.lastsip_;
 
     return true;
@@ -1383,6 +1326,281 @@ bool uiSurvey::writeSurvInfoFileIfCommentChanged()
     cursurvinfo_->setComment( notesfld_->text() );
     if ( !cursurvinfo_->write( dataroot_ ) )
 	mErrRet(tr("Failed to write survey info.\nNo changes committed."))
+
+    return true;
+}
+
+
+// static tools
+
+extern int OD_Get_2D_Data_Conversion_Status();
+extern void OD_Convert_2DLineSets_To_2DDataSets(uiString&,TaskRunner*);
+
+bool uiSurvey::Convert_OD4_Data_To_OD5()
+{
+    OD::ModDeps().ensureLoaded( "Seis" );
+
+    const int status = OD_Get_2D_Data_Conversion_Status();
+    if ( status == 0 )
+	return true;
+
+    if ( status == 3 ) // Pre 4.2 surveys
+    {
+	uiString msg( tr( "The survey %1 appears to be too old. "
+		"Please open this survey first in OpendTect 4.6 to update "
+		"its database before using it in later versions of OpendTect." )
+		.arg(SurveyInfo::curSurveyName()) );
+	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
+			     uiStrings::sExitOD() ) )
+	    return false;
+
+	uiMain::instance().exit();
+    }
+
+    if ( status == 1 )
+    {
+	uiString msg( tr("The database of survey '%1' is still '4.6' or lower. "
+		"It will now be converted. "
+		"This may take some time depending on the amount of data. "
+		"Note that after the conversion you will not be able to use "
+		"this 2D data in 5.0 or older versions of OpendTect.")
+		.arg(SurveyInfo::curSurveyName()) );
+
+	const int res = uiMSG().question( msg, tr("Convert now"),
+					  tr("Select another survey"),
+					  uiStrings::sExitOD() );
+	if ( res < 0 )
+	    uiMain::instance().exit();
+
+	if ( !res )
+	{
+	    uiMSG().message( tr("Please note that you can copy the survey "
+				"using 'Copy Survey' tool in the "
+				"'Survey Setup and Selection' window.") );
+	    return false;
+	}
+    }
+
+    uiString errmsg;
+    if ( !Survey::GMAdmin().fetchFrom2DGeom(errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    uiTaskRunner taskrnr( uiMain::instance().topLevel(), false );
+    OD_Convert_2DLineSets_To_2DDataSets( errmsg, &taskrnr );
+    if ( !errmsg.isEmpty() )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    return true;
+}
+
+
+extern bool OD_Get_Body_Conversion_Status();
+extern bool OD_Convert_Body_To_OD5(uiString&);
+
+bool uiSurvey::Convert_OD4_Body_To_OD5()
+{
+    OD::ModDeps().ensureLoaded( "EarthModel" );
+
+    const bool status = OD_Get_Body_Conversion_Status();
+    if ( status == 0 )
+	return true;
+
+    const uiString msg( tr("OpendTect has a new geobody format. "
+		"All the old geo-bodies of survey '%1' will now be converted. "
+		"Note that after the conversion, you will still be able to use "
+		"those geo-bodies in OpendTect 4.6.0, but only in patch p or "
+		"later.").arg(SurveyInfo::curSurveyName()) );
+
+    const int res = uiMSG().question( msg, tr("Convert now"),
+					   tr("Do it later"),
+					   uiStrings::sExitOD() );
+    if ( res < 0 )
+	uiMain::instance().exit();
+
+    if ( !res )
+    {
+	uiMSG().message( tr("Please note that you will not be able to use "
+			    "any of the old geo-bodies in this survey.") );
+	return false;
+    }
+
+    uiString errmsg;
+    if ( !OD_Convert_Body_To_OD5(errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    uiMSG().message( tr("All the geo-bodies have been converted!") );
+
+    return true;
+}
+
+
+void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
+			      const char* excludenm )
+{
+    BufferString basedir = dataroot;
+    if ( basedir.isEmpty() )
+	basedir = GetBaseDataDir();
+
+    DirList dl( basedir, File::DirsInDir );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString& dirnm = dl.get( idx );
+	if ( excludenm && dirnm == excludenm )
+	    continue;
+
+	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
+	if ( !File::exists(fp.fullPath()) )
+	    continue;
+
+	list.add( dirnm );
+	copyFolderIconIfMissing( basedir, dirnm );
+    }
+
+    list.sort();
+}
+
+
+bool uiSurvey::survTypeOKForUser( bool is2d )
+{
+    const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
+    if ( !dowarn )
+	return true;
+
+    const uiString warnmsg = tr("Your survey is set up as '%1 data\n"
+				"you will have to change the survey setup.\n\n"
+				"Do you wish to continue?")
+		  .arg(is2d ? tr("3-D only'.\nTo be able to actually use 2-D")
+			    : tr("2-D only'.\nTo be able to actually use 3-D"));
+
+    return uiMSG().askContinue( warnmsg );
+}
+
+
+bool uiSurvey::ensureValidDataRoot( uiRetVal& uirv, uiParent* p )
+{
+    while ( !IOMan::isValidDataRoot(GetBaseDataDir()).isOK() )
+    {
+	uiSetDataDir dlg( p );
+	if ( !p )
+	    dlg.setModal( true );
+
+	if ( !dlg.go() )
+	{
+	    const BufferString appnm = ApplicationData::applicationName();
+	    if ( uiMSG().askGoOn( tr("Without a valid Survey Data Root,\n"
+				     "'%1' cannot start.\nDo you wish to exit?")
+					.arg(appnm) ) )
+	    {
+		uirv.setOK();
+		return false;
+	    }
+	}
+	else if ( uiSetDataDir::setRootDataDir(p,dlg.selectedDir()) )
+	    break;
+    }
+
+    uirv.setOK();
+    return true;
+}
+
+
+uiSurvey::SurvSelState& uiSurvey::lastSurveyState()
+{
+    static uiSurvey::SurvSelState ret;
+    return ret;
+}
+
+
+uiSurvey::SurvSelState uiSurvey::ensureValidSurveyDir( uiRetVal& uirv,
+						       uiParent* p )
+{
+    if ( !p )
+	p = uiMain::instance().topLevel();
+
+    BufferString prevnm = GetDataDir();
+    uiSurvey::SurvSelState& res = lastSurveyState();
+    while ( true )
+    {
+	uiSurvey dlg( p );
+	if ( !p )
+	    dlg.setModal( true );
+
+	if ( !dlg.go() )
+	{
+	    res = dlg.currentSurvRemoved() ? SurveyRemoved : InvalidSurvey;
+	    return res;
+	}
+	else
+	{
+	    while ( true )
+	    {
+		if ( !Convert_OD4_Data_To_OD5() )
+		{
+		    Threads::sleep( 0.1 );
+		    continue;
+		}
+
+		Convert_OD4_Body_To_OD5();
+		break;
+	    }
+
+	    res = prevnm == GetDataDir() ? SameSurvey
+		: dlg.freshSurveySelected() ? NewFresh : NewExisting;
+	    return res;
+	}
+    }
+}
+
+
+bool uiSurvey::ensureGoodSurveySetup( uiRetVal& uirv, uiParent* p )
+{
+    if ( !p )
+	p = uiMain::instance().topLevel();
+
+    if ( !ensureValidDataRoot(uirv,p) )
+	return false;
+
+    BufferString errmsg;
+    if ( IOMan::validSurveySetup(errmsg) )
+    {
+	while( true )
+	{
+	    if ( !Convert_OD4_Data_To_OD5() )
+	    {
+		Threads::sleep( 0.1 );
+		continue;
+	    }
+
+	    Convert_OD4_Body_To_OD5();
+	    break;
+	}
+	return true;
+    }
+
+    SurvSelState res = InvalidSurvey;
+    const BufferString programname = ApplicationData::applicationName();
+    if ( !IOMan::isOK() )
+    {
+	while ( res == InvalidSurvey )
+	{
+	    res = ensureValidSurveyDir( uirv, p );
+	    if ( res == InvalidSurvey &&
+		 uiMSG().askGoOn(od_static_tr("uiSurvey::ensureGoodSurveySetup",
+				  "Without a valid survey, %1 "
+				  "cannot start.\nDo you wish to exit?")
+			.arg( programname )) )
+		return false;
+	}
+    }
 
     return true;
 }

@@ -7,32 +7,29 @@ ________________________________________________________________________
 
 -*/
 
-#include "moddepmgr.h"
 #include "indexedshape.h"
-#include "ioman.h"
-#include "polyposprovider.h"
-#include "tableposprovider.h"
+#include "moddepmgr.h"
 #include "picksettr.h"
+#include "polyposprovider.h"
 #include "posvecdatasettr.h"
 #include "probdenfunctr.h"
 #include "randomlinetr.h"
+#include "tableposprovider.h"
 
 mDefModInitFn(Geometry)
 {
     mIfNotFirstTime( return );
 
-    IOM(); //Trigger createion & reading of geometries
-
     PickSetTranslatorGroup::initClass();
     PosVecDataSetTranslatorGroup::initClass();
     ProbDenFuncTranslatorGroup::initClass();
     RandomLineSetTranslatorGroup::initClass();
-    
+
     dgbPickSetTranslator::initClass();
     odPosVecDataSetTranslator::initClass();
     odProbDenFuncTranslator::initClass();
     dgbRandomLineSetTranslator::initClass();
-    
+
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
 

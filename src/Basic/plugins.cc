@@ -594,6 +594,19 @@ bool PluginManager::load( const char* libnm )
 	}
     }
 
+    mDefineStaticLocalObject(bool,shw_load,
+			     = GetEnvVarYN("OD_SHOW_PLUGIN_LOAD"));
+    if ( shw_load && data && data->isloaded_ )
+    {
+	BufferString msg;
+	if ( data->sla_ )
+	    msg = "Successfully loaded plugin '";
+	else
+	    msg = "Failed to load plugin '";
+	msg += userName(data->name_); msg += "'";
+	UsrMsg( msg );
+    }
+
     return true;
 }
 

@@ -32,7 +32,6 @@ static const char* sErrKey = "ERR";
 
 ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
     : jsonroot_(*new JSONObject)
-    , jsonmode_(true)
     , timer_(*new Timer("Server tool"))
 {
     if ( !ApplicationData::hasInstance() )
@@ -43,8 +42,15 @@ ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
     OD::ModDeps().ensureLoaded( "General" );
     SetEnvVar( "OD_DISABLE_APPLOCKER_TEST", "Yes" );
 
+    clp_ = new CommandLineParser( argc, argv );
+    if ( !clp_->hasKey(sListSurvCmd()) )
+    {
+	const uiRetVal uirv = IOMan::setDataSource( *clp_ );
+	if ( !uirv.isOK() )
+	    od_cout() << uirv.getText() << od_endl;
+    }
+
     PIM().loadAuto( false );
-    clp_ = new CommandLineParser;
     if ( moddep && *moddep )
 	OD::ModDeps().ensureLoaded( moddep );
 
@@ -84,15 +90,10 @@ void ServerProgTool::initParsing( int protnr, bool setdatasrc )
 	setDBMDataSource();
 }
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 void ServerProgTool::setDBMDataSource()
 {
-    FilePath fp ( clp().getFullSurveyPath() );
-    BufferString dataroot = fp.pathOnly();
-    if ( !dataroot.isEmpty() )
-	SetCurBaseDataDirOverrule( dataroot );
-    uiRetVal uirv = IOM().setDataSource( clp() );
+    const uiRetVal uirv = IOMan::setDataSource( clp() );
     if ( !uirv.isOK() )
 	respondError( toString(uirv) );
 }

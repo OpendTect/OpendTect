@@ -66,7 +66,8 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
 
     int curset = 0;
-    if ( maycd_ && FilePath(iodir.dirName()) != FilePath(IOM().rootDir()) )
+    if ( maycd_ && FilePath(iodir.dirName()) !=
+		   FilePath(IOM().rootDir().fullPath()) )
     {
         *this += new IODirEntry( 0 );
 	curset++;

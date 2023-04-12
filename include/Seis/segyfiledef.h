@@ -8,15 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "filespec.h"
+#include "binid.h"
 #include "callback.h"
 #include "coord.h"
+#include "coordsystem.h"
+#include "filespec.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "segythdef.h"
-#include "binid.h"
-#include "coordsystem.h"
 #include "survinfo.h"
 
 class IOObj;
@@ -35,8 +34,8 @@ mExpClass(Seis) FileSpec : public ::FileSpec
 {
 public:
 
-			FileSpec( const char* fnm=0 );
-			FileSpec( const IOPar& iop );
+			FileSpec(const char* fnm=nullptr);
+			FileSpec(const IOPar&);
 			~FileSpec();
 
     IOObj*		getIOObj(bool temporary) const;
@@ -83,14 +82,16 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		getReport(IOPar&,bool isrev0) const;
-    void		setCoordSys(const Coords::CoordSystem* crs)
+    void		setCoordSys( const Coords::CoordSystem* crs )
 							    { coordsys_ = crs; }
     ConstRefMan<Coords::CoordSystem> getCoordSys() const;
+
 protected:
 
     bool		forread_;
     ConstRefMan<Coords::CoordSystem> coordsys_;
 
+    void		iomReadyCB(CallBacker*);
     void		onSurveyChgCB(CallBacker*);
 
 };

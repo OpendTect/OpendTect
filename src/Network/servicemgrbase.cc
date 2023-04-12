@@ -534,12 +534,8 @@ void ServiceMgrBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 uiRetVal ServiceMgrBase::survChangedReq( const OD::JSON::Object& reqobj )
 {
     const FilePath surveydir = reqobj.getFilePath( sKey::Survey() );
-    const bool success = IOM().setRootDir( surveydir.pathOnly() ) &&
-            IOM().setSurvey( surveydir.fileName() );
-    if ( !success )
-        return uiRetVal( toUiString(IOM().message()) );
-
-    return uiRetVal::OK();
+    const uiRetVal uirv = IOMan::setDataSource( surveydir.fullPath() );
+    return uirv;
 }
 
 

@@ -50,7 +50,7 @@ static bool isPotentialDataDir( const char* path )
     DirList surveydirlist( path, File::DirsInDir );
     for ( int idx=0; idx<surveydirlist.size(); idx++ )
     {
-	if ( SurveyInfo::isValidSurveyDir(surveydirlist.fullPath(idx)).isOK() )
+	if ( IOMan::isValidSurveyDir(surveydirlist.fullPath(idx)).isOK() )
 	    return File::isWritable( path );
     }
 
@@ -196,7 +196,8 @@ void uiSurveySelectDlg::fillSurveyList()
     bool useparent = false;
     while ( !datarootisvalid && !dataroot.isEmpty() )
     {
-	datarootisvalid = IOMan::isValidDataRoot( dataroot );
+	const uiRetVal uirv = IOMan::isValidDataRoot( dataroot );
+	datarootisvalid = uirv.isOK();
 	if ( !datarootisvalid && isPotentialDataDir(dataroot) )
 	{
 	    datarootisvalid = true;
@@ -312,7 +313,7 @@ bool uiSurveySelect::getFullSurveyPath( BufferString& fullpath ) const
     }
 
     BufferString path( fp.pathOnly() ), survnm( fp.fileName() );
-    const bool isdatadir = IOMan::isValidDataRoot( path );
+    const bool isdatadir = IOMan::isValidDataRoot( path ).isOK();
     fullpath = makeFullSurveyPath( survnm, path );
     return isdatadir && !fullpath.isEmpty() ? true : false;
 }

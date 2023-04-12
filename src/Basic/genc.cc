@@ -830,26 +830,6 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
-static bool checkDataRoot()
-{
-    BufferString dataroot = GetBaseDataDir();
-
-    CommandLineParser parser;
-    parser.setKeyHasValue( CommandLineParser::sDataRootArg() );
-    if ( parser.getVal(CommandLineParser::sDataRootArg(),dataroot) )
-	dataroot = File::linkEnd( dataroot );
-
-    const uiRetVal uirv = SurveyInfo::isValidDataRoot( dataroot );
-    if ( !uirv.isOK() )
-    {
-	ErrMsg( BufferString( argv_[0], ": ", uirv.getText() ) );
-	return false;
-    }
-
-    return true;
-}
-
-
 mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
 {
     char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
@@ -863,8 +843,6 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
 
     od_putProgInfo( argc_, argv_ );
     needdataroot_ = ddrequired;
-    if ( needdataroot_ && !checkDataRoot() )
-	return false;
 
 #ifdef __unix__
     FilePath fp( GetFullExecutablePath() );
@@ -1052,6 +1030,9 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
     SetRunContext( OD::BatchProgCtxt );
     const bool ret = SetProgramArgs( newargc, newargv, needdatabase );
     delete [] newargv;
+
+    OD::ModDeps().ensureLoaded( "Network" );
+
     return ret;
 }
 

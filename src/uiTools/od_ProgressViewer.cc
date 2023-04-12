@@ -401,8 +401,7 @@ int mProgMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "Network" );
     OD::ModDeps().ensureLoaded( "uiBase" );
 
-    PIM().loadAuto( false );
-    CommandLineParser clp( argc, argv );
+    const CommandLineParser clp( argc, argv );
     if ( argc < 2 )
 	mErrRet(printBatchUsage( clp.getExecutableName() ))
 
@@ -437,11 +436,13 @@ int mProgMainFnName( int argc, char** argv )
 	}
     }
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiTools" );
-    PtrMan<uiMainWin> pv = new uiProgressViewer( nullptr, inpfile, pid, delay);
-    app.setTopLevel( pv );
+    PtrMan<uiMainWin> topmw = new uiProgressViewer( nullptr, inpfile, pid,
+						    delay);
+    app.setTopLevel( topmw );
     PIM().loadAuto( true );
-    pv->show();
+    topmw->show();
 
     return app.exec();
 }

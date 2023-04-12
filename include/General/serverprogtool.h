@@ -34,10 +34,10 @@ public:
     void		exitProgram(bool success) const;
 
 #   define		mDeclServerProgToolSetFn( typ ) \
-    void		set(const char* keyw,typ,JSONObject* jobj=0)
+    void		set(const char* keyw,typ,JSONObject* =nullptr)
 #   define		mDeclServerProgToolSetArrFn( typ ) \
     void		set(const char* keyw,const typ*,size_type, \
-			    JSONObject* jobj=0)
+			    JSONObject* =nullptr)
 
 #   define		mDeclServerProgToolSetFns( typ ) \
 			mDeclServerProgToolSetFn(typ); \
@@ -50,7 +50,8 @@ public:
 			mDeclServerProgToolSetFn(const DBKeySet&);
 			mDeclServerProgToolSetFn(bool);
 			mDeclServerProgToolSetFn(const BoolTypeSet&);
-    void		set(const char*,const bool*,size_type,JSONObject* o=0);
+    void		set(const char*,const bool*,size_type,
+			    JSONObject* =nullptr);
 			mDeclServerProgToolSetFns(od_int16);
 			mDeclServerProgToolSetFns(od_uint16);
 			mDeclServerProgToolSetFns(od_int32);
@@ -72,6 +73,7 @@ public:
     od_istream&		inStream() const;
     od_ostream&		outStream() const;
 
+    static const char*	sListSurvCmd()	    { return "list-surveys"; }
     static const char*	sListUsrCmd()	    { return "list"; }
     static const char*	sExistsUsrCmd()     { return "exists"; }
     static const char*	sInfoUsrCmd()	    { return "info"; }
@@ -88,7 +90,7 @@ protected:
     void		initParsing(int protocolnr,bool setdatasrc=true);
 
     CommandLineParser*	clp_;
-    bool		jsonmode_;
+    bool		jsonmode_ = true;
     JSONObject&		jsonroot_;
     IOPar		iop_;
     int			protocolnr_		    = 0;

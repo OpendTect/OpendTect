@@ -27,7 +27,7 @@ static const int cProtocolNr = 1;
 
 static const char* sStatusCmd		= "status";
 static const char* sListCmd		= ServerProgTool::sListUsrCmd();
-static const char* sListSurvCmd		= "list-surveys";
+static const char* sListSurveyCmd	= ServerProgTool::sListSurvCmd();
 static const char* sExistsCmd		= ServerProgTool::sExistsUsrCmd();
 static const char* sInfoCmd		= ServerProgTool::sInfoUsrCmd();
 static const char* sAllCmd		= ServerProgTool::sAllUsrCmd();
@@ -280,7 +280,7 @@ BufferString DBManServerTool::getSpecificUsage() const
 {
     BufferString ret;
     addToUsageStr( ret, sStatusCmd, "" );
-    addToUsageStr( ret, sListSurvCmd, "" );
+    addToUsageStr( ret, sListSurveyCmd, "" );
     addToUsageStr( ret, sListCmd, "trl_group_name" );
     addToUsageStr( ret, sAllCmd, "output information for all groups" );
     addToUsageStr( ret, sExistsCmd, "obj_name [--trl-grp trl_group_name]" );
@@ -296,25 +296,23 @@ int mProgMainFnName( int argc, char** argv )
 {
     ApplicationData app;
     DBManServerTool st( argc, argv );
-    CommandLineParser& clp = st.clp();
+    const CommandLineParser& clp = st.clp();
 
-    if ( clp.hasKey(sListSurvCmd) )
+    if ( clp.hasKey(sListSurveyCmd) )
     {
 	st.listSurveys();
 	return app.exec();
     }
 
-    st.setDBMDataSource();
-
-    const bool isbad = IOM().isBad();
+    const bool isbad = !IOMan::isOK();
     if ( isbad || clp.hasKey(sStatusCmd) )
     {
 	if ( isbad )
 	    st.respondError( "Data Store cannot be initialized" );
 	else
 	{
-	    st.set( sKey::Survey(), IOM().surveyName() );
-	    st.set( sKey::DataRoot(), IOM().rootDir() );
+	    st.set( sKey::DataRoot(), IOM().rootDir().basePath().buf() );
+	    st.set( sKey::Survey(), IOM().surveyName().buf() );
 	}
 	st.respondInfo( !isbad );
 	return app.exec();

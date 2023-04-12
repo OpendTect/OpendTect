@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "oddirs.h"
 #endif
 
+#include <iostream>
+
 extern int ODMain(uiMain&);
 
 
@@ -44,10 +46,10 @@ int mProgMainFnName( int argc, char** argv )
     const char* msg =
 	    "OpendTect can be run under one of three licenses:"
 	    " (GPL, Commercial, Academic).\n"
-	    "Please consult http://opendtect.org/OpendTect_license.txt.";
+	    "Please consult https://dgbes.com/licensing.\n";
 
     OD::SetGlobalLogFile( nullptr );
-    UsrMsg( msg );
+    std::cout << msg;
 
     return ODMain( app );
 }

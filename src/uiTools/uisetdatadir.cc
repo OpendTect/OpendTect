@@ -39,15 +39,24 @@ extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 static const char* doSetRootDataDir( const char* inpdatadir )
 {
+    mDeclStaticString(msg);
     BufferString datadir = inpdatadir;
 
-    if ( !IOMan::isValidDataRoot(datadir) )
-	return "Provided folder name is not a valid OpendTect Survey Data Root";
+    uiRetVal uirv = IOMan::isValidDataRoot( datadir );
+    if ( !uirv.isOK() )
+    {
+	msg = uirv.getText();
+	return msg.buf();
+    }
 
     SetCurBaseDataDir( datadir );
-    uiRetVal uirv;
-    return SetSettingsDataDir( datadir, uirv ) ? nullptr
-					    : "Cannot write user settings file";
+    if ( !SetSettingsDataDir(datadir,uirv) )
+    {
+	msg = uirv.getText();
+	return msg.buf();
+    }
+
+    return nullptr;
 }
 
 
@@ -85,12 +94,13 @@ static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
-	: uiDialog(p,uiDialog::Setup(tr("Set OpendTect's Survey Data Root"),
+    : uiDialog(p,uiDialog::Setup(tr("Set OpendTect's Survey Data Root"),
 				     tr("Specify a Data Root folder"),
 				     mODHelpKey(mSetDataDirHelpID) ))
-	, curdatadir_(GetBaseDataDir())
+    , curdatadir_(GetBaseDataDir())
 {
-    const bool oldok = IOMan::isValidDataRoot( curdatadir_ );
+    const uiRetVal uirv = IOMan::isValidDataRoot( curdatadir_ );
+    const bool oldok = uirv.isOK();
     BufferString oddirnm, basedirnm;
     uiString titletxt;
 
@@ -131,6 +141,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	oddirnm = "ODData";
 	basedirnm = GetPersonalDir();
     }
+
     setTitleText( titletxt );
 
     const uiString basetxt = tr("Survey Data Root");
@@ -149,7 +160,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     updateListFld();
     dirlistfld_->resizeToContents();
 
-    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
+    auto* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( sortgrp, uiToolButton::UpArrow,uiStrings::sMoveUp(),
 		      mCB(this,uiSetDataDir,rootMoveUpCB) );
     new uiToolButton( sortgrp, uiToolButton::DownArrow, uiStrings::sMoveDown(),
@@ -244,7 +255,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	 !File::isDirectory(seldir_) )
 	mErrRet( tr("Please enter a valid (existing) location") )
 
-    if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
+    if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_).isOK() )
     {
 	writeSettings();
 	return true;
@@ -330,7 +341,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(datadir)) )
     }
 
-    while ( !IOMan::isValidDataRoot(datadir) )
+    while ( !IOMan::isValidDataRoot(datadir).isOK() )
     {
 	if ( !File::isDirectory(datadir) )
 	   mErrRet(tr("A file (not a folder) with this name already exists"))
@@ -363,7 +374,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    bool hasvalidsurveys = false;
 	    for ( int idx=0; idx<survdl.size(); idx++ )
 	    {
-		if ( IOMan::isValidSurveyDir(survdl.fullPath(idx)) )
+		if ( IOMan::isValidSurveyDir(survdl.fullPath(idx)).isOK() )
 		    hasvalidsurveys = true;
 	    }
 
