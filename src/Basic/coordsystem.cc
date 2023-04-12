@@ -42,6 +42,9 @@ CoordSystem::~CoordSystem()
 
 bool CoordSystem::operator==( const CoordSystem& oth ) const
 {
+    if ( this == &oth )
+	return true;
+
     IOPar myiop; fillPar( myiop );
     IOPar othiop; oth.fillPar( othiop );
     return myiop == othiop;
