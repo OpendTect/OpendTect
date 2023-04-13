@@ -199,6 +199,7 @@ EmptyTempSurvey::EmptyTempSurvey( const char* surveybaseloc,
     , ismanaged_(ismanaged)
 {
     tmpbasedir_ = surveybaseloc;
+    surveydirnm_ = surveynm;
     initSurvey();
 }
 
