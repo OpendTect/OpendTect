@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
+#include <cmath>
+
 #define NOMINMAX	// Otherwise Windows will define min/max
 
 #if defined(_MSC_VER) && _MSC_VER == 1500 // && _MSC_FULL_VER >= 150030729
@@ -23,7 +25,7 @@ ________________________________________________________________________
 #endif
 
 #define snprintf	_snprintf
-#define isnan		_isnan
+#define isnan		std::isnan
 
 #define strncasecmp	_strnicmp
 #define strcasecmp	stricmp

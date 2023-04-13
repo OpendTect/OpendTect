@@ -12,8 +12,7 @@ ________________________________________________________________________
 #include "odversion.h"
 #include "plfdefs.h"
 
-#include <stdexcept>
-#include <new>
+#include <utility>
 
 
 //--- FP rounding and equality

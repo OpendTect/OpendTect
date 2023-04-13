@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "stringview.h"
 #include "string2.h"
 
+#include <string>
+
 class QString;
 
 /*!

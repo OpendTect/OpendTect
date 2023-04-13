@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "survinfo.h" // fallback with pErrMsg only
 
 #include <ctype.h>
-#include <math.h>
 
 #define mUdfIdx mUdf(IdxPair::IdxType)
 static const IdxPair udfidxpair( mUdfIdx, mUdfIdx );
