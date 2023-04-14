@@ -27,6 +27,7 @@ mExpClass(Basic) Task : public NamedCallBacker
 public:
 
     virtual		~Task();
+			mOD_DisableCopy(Task)
 
     virtual void	setProgressMeter(ProgressMeter*)	{}
 			//!<Must be called before execute()

@@ -127,12 +127,14 @@ Task* Smoother::createTask()
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !input || !output )
-	return 0;
+	return nullptr;
 
-    Smoother3D<float>* task = new Smoother3D<float>( *smoother_ );
+    IOPar pars;
+    smoother_->fillPar( pars );
+    auto* task = new Smoother3D<float>;
+    task->usePar( pars );
     task->setInput( input->data(0) );
     task->setOutput( output->data(0) );
-
     return task;
 }
 

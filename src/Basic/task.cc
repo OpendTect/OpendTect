@@ -442,13 +442,6 @@ ParallelTask::ParallelTask( const char* nm )
 {}
 
 
-ParallelTask::ParallelTask( const ParallelTask& t )
-    : ReportingTask( t.name() )
-    , nrdone_( -1 )
-    , totalnrcache_( -1 )
-{}
-
-
 ParallelTask::~ParallelTask()
 {}
 
