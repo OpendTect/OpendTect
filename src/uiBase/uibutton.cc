@@ -385,7 +385,6 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm )
     : uiButton(p,nm,nullptr,mkbody(p,nm))
     , immediate_(true)
 {
-    updateText();
     setMinimumHeight( 23 );
     setMinimumWidth( 80 );
 }
@@ -395,6 +394,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm, bool ia )
     : uiPushButton(p,nm)
 {
     immediate_ = ia;
+    updateText();
     setDefaultStyleSheet();
 }
 
@@ -404,6 +404,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
     : uiPushButton(p,nm)
 {
     immediate_ = ia;
+    updateText();
     setDefaultStyleSheet();
     activated.notify( cb );
 }
@@ -414,6 +415,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
     : uiPushButton(p,nm)
 {
     immediate_ = ia;
+    updateText();
     setPixmap( pm );
     setDefaultStyleSheet();
 }
@@ -424,6 +426,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
     : uiPushButton(p,nm)
 {
     immediate_ = ia;
+    updateText();
     setPixmap( pm );
     setDefaultStyleSheet();
     activated.notify( cb );
@@ -435,6 +438,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
     : uiPushButton(p,nm)
 {
     immediate_ = ia;
+    updateText();
     setIcon( iconnm );
     setDefaultStyleSheet();
 }
@@ -445,6 +449,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
     : uiPushButton(p,nm)
 {
     immediate_ = ia;
+    updateText();
     setIcon( iconnm );
     setDefaultStyleSheet();
     activated.notify( cb );
