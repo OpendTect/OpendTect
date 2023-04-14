@@ -689,6 +689,8 @@ void PickSetDisplay::otherObjectsMoved(
     }
 
     updateLineAtSection();
+    if ( showall_ )
+	areallshown_ = true;
 }
 
 
