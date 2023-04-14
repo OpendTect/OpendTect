@@ -761,7 +761,7 @@ int getIndexInStringArrCI( const char* text, const char* const * namearr,
 }
 
 
-int getIndexInStringArrCI( const char* text, const BufferStringSet nameset,
+int getIndexInStringArrCI( const char* text, const BufferStringSet& nameset,
 			   int startnr, int nrchar, int notfoundidx )
 {
     /* some sanity */
