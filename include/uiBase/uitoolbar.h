@@ -97,6 +97,7 @@ public:
     bool		isVisible() const;
 
     void		addSeparator() { insertSeparator(); }
+    void		setTabOrder(uiObject*,uiObject*);
 
     void		clear();
 

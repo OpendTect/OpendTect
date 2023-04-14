@@ -54,7 +54,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     mDynamicCastGet(uiMainWin*,uimw,parnt)
     if ( uimw )
     {
-	if ( newline ) uimw->addToolBarBreak();
+	if ( newline )
+	    uimw->addToolBarBreak();
 	uimw->addToolBar( this );
     }
 
@@ -325,6 +326,12 @@ void uiToolBar::handleFinalize( bool pre )
 }
 
 
+void uiToolBar::setTabOrder( uiObject* obj1, uiObject* obj2 )
+{
+    qtoolbar_->setTabOrder( obj1->getWidget(), obj2->getWidget() );
+}
+
+
 void uiToolBar::clear()
 {
     removeAllActions();
@@ -381,13 +388,14 @@ void uiToolBar::getEntityList( ObjectSet<const CallBacker>& entities ) const
 
     for ( int actidx=0; actidx<qtoolbar_->actions().size(); actidx++ )
     {
-	QAction* qaction = qtoolbar_->actions()[actidx];
+	const QAction* qaction = qtoolbar_->actions().at( actidx );
 	const int id = getID( qaction );
 	const uiAction* action = const_cast<uiToolBar*>(this)->findAction( id );
 
 	if ( !action )
 	{
-	    const QWidget* qw = qtoolbar_->widgetForAction( qaction );
+	    const QWidget* qw =
+		qtoolbar_->widgetForAction( cCast(QAction*,qaction) );
 	    for ( int objidx=0; objidx<addedobjects_.size(); objidx++ )
 	    {
 		if ( qw==addedobjects_[objidx]->qwidget() )
