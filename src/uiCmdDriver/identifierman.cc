@@ -125,10 +125,12 @@ bool IdentifierManager::findCurIdent( const char* name, bool followlinks,
 	if ( name != unscopedname )
 	    curlevel_ = 0;
 
-	curident_ = 0;
+	curident_ = nullptr;
 	for ( int idx=0; idx<identifiers_[curlevel_]->size(); idx++ )
 	{
 	    curident_ = (*identifiers_[curlevel_])[idx];
+	    if ( !curident_ )
+		continue;
 
 	    if ( SearchKey(unscopedname,false).isMatching(curident_->name_) )
 	    {
@@ -145,7 +147,7 @@ bool IdentifierManager::findCurIdent( const char* name, bool followlinks,
 		break;
 	    }
 
-	    curident_ = 0;
+	    curident_ = nullptr;
 	}
 
 	if ( curlevel_==0 || (singlescope && !curident_) )
@@ -198,7 +200,9 @@ void IdentifierManager::unset( const char* name, bool followlinks )
 
 #define mRefreshPlaceholder( idm, name, scopedkey, functioncall ) \
 \
-    if ( mMatchCI(name, scopedkey) || mMatchCI(name, scopedkey+1) ) \
+    str1 = scopedkey; \
+    str2 = scopedkey; \
+    if ( mMatchCI(name,str1) || mMatchCI(name,++str2) ) \
     { \
 	BufferString filepath( functioncall ); \
 	mDressUserInputString( filepath, sInputStr ); \
@@ -214,6 +218,8 @@ bool IdentifierManager::doesExist( const char* name ) const
     if ( isdef && !curident_->refresh_ )
 	return true;
 
+    const char* str1 = nullptr;
+    const char* str2 = nullptr;
     mRefreshPlaceholder( idm, name, "@BASEDIR", GetBaseDataDir() );
     mRefreshPlaceholder( idm, name, "@DATADIR", GetDataDir() );
     mRefreshPlaceholder( idm, name, "@PROCDIR", GetProcFileName(0) );
