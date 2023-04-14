@@ -151,6 +151,9 @@ protected:
     int				waitsforpositionid_	= -1;
 
     TypeSet<int>		invalidpicks_;
+    				/*!< Replaced by areallshown_ in main branch
+				 * Here only the first element used (as bool)
+				 * invalidpicks_[0] == 0 <==> areallshown_ */
 
     bool			showall_		= true;
     VisID			mousepressid_;

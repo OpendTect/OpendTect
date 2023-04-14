@@ -57,6 +57,7 @@ static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 LocationDisplay::LocationDisplay()
     : VisualObjectImpl( true )
     , manip_( this )
+    , invalidpicks_(1,0)
 {
     sower_ = new Sower( this );
     sower_->ref();
@@ -185,7 +186,6 @@ void LocationDisplay::fullRedraw( CallBacker* )
     }
 
     getMaterial()->setColor( set_->disp_.color_ );
-    invalidpicks_.erase();
 
     if ( set_->isEmpty() )
     {
@@ -202,15 +202,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Pick::Location loc = set_->get( idx );
-	if ( !transformPos(loc) )
-	{
-	    invalidpicks_ += idx;
-	}
-	else
-	{
-	    invalidpicks_ -= idx;
-	}
-
+	transformPos( loc );
 	setPosition( idx, loc );
     }
 }
@@ -624,31 +616,15 @@ void LocationDisplay::locChg( CallBacker* cb )
 	    return;
 
 	Pick::Location loc = set_->get( pickidx );
-	if ( !transformPos(loc) )
-	{
-	    invalidpicks_ += cd->loc_;
-	}
-
+	transformPos( loc );
 	setPosition( cd->loc_,loc, true );
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::ToBeRemoved )
-    {
 	removePosition( cd->loc_ );
-	invalidpicks_ -= cd->loc_;
-    }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
     {
 	Pick::Location loc = set_->get( cd->loc_ );
-	if ( !transformPos(loc) )
-	{
-	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
-		invalidpicks_ += cd->loc_;
-	}
-	else
-	{
-	    invalidpicks_ -= cd->loc_;
-	}
-
+	transformPos( loc );
 	setPosition( cd->loc_, loc );
     }
 }
@@ -678,11 +654,7 @@ void LocationDisplay::bulkLocChg( CallBacker* cb )
 		return;
 
 	    Pick::Location loc = set_->get( pickidx );
-	    if ( !transformPos(loc) )
-	    {
-		invalidpicks_ += pickidx;
-	    }
-
+	    transformPos( loc );
 	    setPosition( pickidx, loc, true );
 	}
     }
@@ -693,7 +665,6 @@ void LocationDisplay::bulkLocChg( CallBacker* cb )
 	{
 	    const int pickidx = pickidxs[pidx];
 	    removePosition( pickidx );
-	    invalidpicks_ -= pickidx;
 	}
     }
 }
@@ -886,8 +857,6 @@ void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 void LocationDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, VisID )
 {
-    if ( showall_ && invalidpicks_.isEmpty() ) return;
-
 }
 
 
