@@ -50,7 +50,7 @@ static const char* moddeps[] =
 {
     "EarthModel",
 //    "Seis",
-//    "Well",
+    "Well",
     nullptr
 };
 

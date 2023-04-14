@@ -23,9 +23,9 @@ import sys
 If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.
 
 ```python
-odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
+#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
+#sys.path.insert(0,odpy_path)
 data_root = '/mnt/Data/seismic/ODData'
-sys.path.insert(0,odpy_path)
 os.environ["DTECT_DATA"] = data_root
 ```
 

@@ -14,7 +14,6 @@ def test_Horizon3D_class(data_root):
     f3demo = odb.Survey(data_root, "F3_Demo_2020")
     hors = odb.Horizon3D.names(f3demo)
     assert 'Demo 4 --> Truncation' in hors
-    assert 'Demo 4 --> Truncation' in odb.Horizon3D.infos(f3demo)['name']
     hor = odb.Horizon3D(f3demo, 'Trim_D0 --> FS4')
     assert hor.info() ==    {
                                 'name': 'Trim_D0 --> FS4',

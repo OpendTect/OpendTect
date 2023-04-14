@@ -291,7 +291,7 @@ class Survey(object):
             stringset_add(fornmsptr, nm.encode())
         infolist = pyjsonstr(Survey._infos(basedir.encode(), fornmsptr ))
         stringset_del(fornmsptr)
-        return {key: [i[key] for i in infolist] for key in infolist[0]}
+        return infolist
 
     @staticmethod
     def infos_dataframe(basedir: str, fornms: list=[]):
@@ -310,7 +310,8 @@ class Survey(object):
 
         """
         from pandas import DataFrame
-        return DataFrame(Survey.infos(basedir, fornms))
+        infolist = Survey.infos(basedir, fornms)
+        return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
 
 
     @staticmethod
@@ -436,7 +437,7 @@ class _SurveyObject(object):
             stringset_add(fornmsptr, nm.encode())
         infolist = pyjsonstr(clss._infos(survey._handle, fornmsptr ))
         stringset_del(fornmsptr)
-        return {key: [i[key] for i in infolist] for key in infolist[0]}
+        return infolist
 
     @classmethod
     def infos_dataframe(clss, survey: Survey, fornms: list=[]) ->dict:
@@ -455,7 +456,8 @@ class _SurveyObject(object):
 
         """
         from pandas import DataFrame
-        return DataFrame(clss.infos(survey, fornms))
+        infolist =  clss.infos(survey, fornms)
+        return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
 
     @classmethod
     def names(clss, survey: Survey) ->list[str]:
@@ -776,3 +778,125 @@ class Horizon3D(_SurveyObject):
 Horizon3D._initbindings('horizon3d')
 
 
+class Well(_SurveyObject):
+    """
+    A class for an OpendTect Well
+    """
+    @classmethod
+    def _initbindings(clss, bindnm):
+        clss._initbasebindings(bindnm)
+        clss._lognames = wrap_function(LIBODB, f'{bindnm}_lognames', ct.c_void_p, [ct.c_void_p])
+        clss._loginfo = wrap_function(LIBODB, f'{bindnm}_loginfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
+        clss._markernames = wrap_function(LIBODB, f'{bindnm}_markernames', ct.c_void_p, [ct.c_void_p])
+        clss._markerinfo = wrap_function(LIBODB, f'{bindnm}_markerinfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
+        clss._track = wrap_function(LIBODB, f'{bindnm}_gettrack', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._tvdss = wrap_function(LIBODB, f'{bindnm}_tvdss', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
+        clss._tvd = wrap_function(LIBODB, f'{bindnm}_tvd', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
+
+    @property
+    def log_names(self) ->list[str]:
+        """list[str]: Names of well logs in this well (readonly)"""
+        return pystrlist(self._lognames(self._handle))
+
+    @property
+    def marker_names(self) ->list[str]:
+        """list[str]: Names of well logs in this well (readonly)"""
+        return pystrlist(self._markernames(self._handle))
+
+    def log_info(self, forlognms: list=[]) ->dict:
+        """Return basic information for all or a subset of logs in this well.
+        
+        Returns
+        -------
+        dict
+
+        """
+        fornmsptr = stringset_new()
+        for nm in forlognms:
+            stringset_add(fornmsptr, nm.encode())
+        infolist = pyjsonstr(self._loginfo(self._handle, fornmsptr ))
+        stringset_del(fornmsptr)
+        return infolist
+
+    def log_info_dataframe(self, forlognms: list=[]) ->dict:
+        """Return basic information for all or a subset of logs in this well.
+        
+        Returns
+        -------
+        Pandas Dataframe
+
+        """
+        from pandas import DataFrame
+        infolist = self.log_info(forlognms)
+        return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
+
+    def marker_info(self, forlognms: list=[]) ->dict:
+        """Return basic information for all or a subset of markers in this well.
+        
+        Returns
+        -------
+        dict
+
+        """
+        fornmsptr = stringset_new()
+        for nm in forlognms:
+            stringset_add(fornmsptr, nm.encode())
+        infolist = pyjsonstr(self._markerinfo(self._handle, fornmsptr ))
+        stringset_del(fornmsptr)
+        return infolist
+
+    def marker_info_dataframe(self, forlognms: list=[]) ->dict:
+        """Return basic information for all or a subset of markers in this well.
+        
+        Returns
+        -------
+        Pandas Dataframe
+
+        """
+        from pandas import DataFrame
+        infolist = self.marker_info(forlognms)
+        return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
+
+    def track(self):
+        """Return dict of numpy arrays with the well track.
+
+        Returns
+        -------
+        dict
+
+        """
+        allocator = NumpyAllocator()
+        self._track(self._handle, allocator.cfunc)
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
+
+        res =   {
+                    'dah': allocator.allocated_arrays[0],
+                    'tvdss': allocator.allocated_arrays[1],
+                    'x': allocator.allocated_arrays[2],
+                    'y': allocator.allocated_arrays[3]
+                }
+        return res;
+
+    def track_dataframe(self):
+        """Return Pandas Dataframe with the well track.
+
+        Returns
+        -------
+        Pandas Dataframe
+
+        """
+        from pandas import DataFrame
+        return DataFrame(self.track()) 
+
+    def tvdss(self, dah: float):
+        tvdss = ct.c_float()
+        self._tvdss(self._handle, dah, ct.byref(tvdss))
+        return tvdss.value
+
+    def tvd(self, dah: float):
+        tvd = ct.c_float()
+        self._tvd(self._handle, dah, ct.byref(tvd))
+        return tvd.value
+
+Well._initbindings('well')

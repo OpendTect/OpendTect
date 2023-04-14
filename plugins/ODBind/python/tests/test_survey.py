@@ -13,7 +13,6 @@ def data_root():
 
 def test_Survey_class(data_root):
     assert 'F3_Demo_2020' in odb.Survey.names(data_root)
-    assert 'F3_Demo_2020' in odb.Survey.infos(data_root)['name']
     f3demo = odb.Survey(data_root, "F3_Demo_2020")
     info =  {
                 'name': "F3_Demo_2020",
