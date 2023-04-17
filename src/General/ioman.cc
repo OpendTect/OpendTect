@@ -1675,6 +1675,20 @@ uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 }
 
 
+EmptyTempSurvey& StartupSurvey( const char* surveydir, const char* dataroot )
+{
+    static PtrMan<EmptyTempSurvey> theinst =
+				   new EmptyTempSurvey( surveydir, dataroot );
+    return *theinst.ptr();
+}
+
+
+static void UnmountStartupSurvey( CallBacker* )
+{
+    StartupSurvey( nullptr, nullptr ).unmount( false );
+}
+
+
 uiRetVal IOMan::setDataSource_( const CommandLineParser& clp, bool refresh )
 {
     BufferString dataroot, survdir;
@@ -1685,12 +1699,15 @@ uiRetVal IOMan::setDataSource_( const CommandLineParser& clp, bool refresh )
     const bool needtempsurvey = clp.hasKey( CommandLineParser::sNeedTempSurv());
     if ( needtempsurvey )
     {
-	EmptyTempSurvey tempsurvey( survdir.buf(), dataroot.buf() );
-	const uiRetVal uirv = tempsurvey.mount();
+	EmptyTempSurvey& tempsurvey =
+			 StartupSurvey( survdir.buf(), dataroot.buf() );
+	uiRetVal uirv = tempsurvey.mount();
 	if ( !uirv.isOK() )
 	    return uirv;
 
-	return tempsurvey.activate();
+	uirv = tempsurvey.activate();
+	if ( uirv.isOK() && isOK() )
+	    IOM().applicationClosing.notify( mSCB(UnmountStartupSurvey) );
     }
 
     if ( !hasdataroot )

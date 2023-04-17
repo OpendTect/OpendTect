@@ -46,19 +46,36 @@ static SurveyDiskLocation* init( const char* survnm, const char* dr,
 	    dataroot.set( clpdr.buf() );
     }
 
+    lasterrs_ = od_static_tr("TempSurvey", "Cannot set a temporary data root");
     if ( dataroot.isEmpty() )
     {
 	dataroot = IOMan::getNewTempDataRootDir();
 	owndataroot_ = !dataroot.isEmpty() && File::exists( dataroot.buf() );
     }
+    else
+    {
+	const bool hasexisting = File::exists( dataroot.buf() );
+	owndataroot_ = !hasexisting;
+	if ( !hasexisting && !File::createDir(dataroot.buf()) )
+	    return nullptr;
+
+	if ( !IOMan::prepareDataRoot(dataroot.buf()) )
+	{
+	    if ( !hasexisting )
+		File::removeDir( dataroot.buf() );
+	    return nullptr;
+	}
+    }
 
     BufferString surveydirnm = surveynm_;
     surveydirnm.trimBlanks().clean();
 
-    if ( IOMan::isValidDataRoot(dataroot) )
-	return new SurveyDiskLocation( surveydirnm.buf(), dataroot.buf());
+    if ( IOMan::isValidDataRoot(dataroot.buf()) )
+    {
+	lasterrs_.setEmpty();
+	return new SurveyDiskLocation( surveydirnm.buf(), dataroot.buf() );
+    }
 
-    lasterrs_ = od_static_tr("TempSurvey", "Cannot set a temporary data root");
     return nullptr;
 }
 
@@ -342,7 +359,7 @@ uiRetVal SurveyFile::unmount( bool dosave, TaskRunner* /* trun */ )
     if ( !surveyloc_ )
 	return lasterrs_;
 
-    if ( surveyloc_->isCurrentSurvey() )
+    if ( isManaged() && surveyloc_->isCurrentSurvey() )
 	deactivate();
 
     if ( surveyloc_->exists() && dosave )
@@ -606,7 +623,7 @@ uiRetVal EmptyTempSurvey::unmount( bool dosave, TaskRunner* trun )
     if ( !surveyloc_ )
 	return lasterrs_;
 
-    if ( surveyloc_->isCurrentSurvey() )
+    if ( isManaged() && surveyloc_->isCurrentSurvey() )
 	deactivate();
 
     if ( surveyloc_->exists() && dosave )
