@@ -97,7 +97,7 @@ void CBVSSeisTrcTranslator::destroyVars( int )
 {
     deleteAndZeroPtr( rdmgr_ );
     deleteAndZeroPtr( wrmgr_ );
-    deleteAndZeroArrPtr( compsel_ );
+    deleteAndNullArrPtr( compsel_ );
 }
 
 
@@ -432,7 +432,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     {
 	float spnr = mUdf(float);
 	if ( ti.trcKey().geometry().as2D()->getPosByTrcNr(ti.trcNr(),
-		    					  ti.coord,spnr)
+							  ti.coord,spnr)
 	     && !mIsUdf(spnr) )
 	    ti.refnr = spnr;
     }

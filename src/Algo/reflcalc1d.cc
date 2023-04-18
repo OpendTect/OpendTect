@@ -238,7 +238,7 @@ bool ReflCalc1D::doPrepare( int /* nrthreads */ )
     depths_ = refmodel_->getDefaultModel().getDepths()+1;
     twt_ = refmodel_->getDefaultModel().getTimes()+1;
 
-    deleteAndZeroArrPtr( reflectivities_ );
+    deleteAndNullArrPtr( reflectivities_ );
     mTryAlloc( reflectivities_, float_complex*[nrmodels] );
     if ( !reflectivities_ )
 	return false;

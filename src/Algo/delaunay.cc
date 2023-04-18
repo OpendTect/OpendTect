@@ -43,7 +43,7 @@ od_int64 DelaunayTriangulator::nrIterations() const
 bool DelaunayTriangulator::doPrepare( int nrthreads )
 {
     const od_int64 nrcoords = nrIterations();
-    deleteAndZeroArrPtr( permutation_ );
+    deleteAndNullArrPtr( permutation_ );
 
     if ( !israndom_ )
     {

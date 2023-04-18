@@ -42,7 +42,7 @@ bool HorizonTileRenderPreparer:: doPrepare( int nrthreads )
     barrier_.setNrThreads( nrthreads );
     nrthreadsfinishedwithres_ = 0;
 
-    deleteAndZeroArrPtr( permutation_ );
+    deleteAndNullArrPtr( permutation_ );
     mTryAlloc( permutation_, od_int64[nrtiles_] );
     if ( !permutation_ )
 	return false;

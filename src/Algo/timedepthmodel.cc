@@ -59,7 +59,7 @@ TimeDepthModel& TimeDepthModel::operator=( const TimeDepthModel& oth )
 	    OD::sysMemCopy( depths_, oth.depths_, nrbytes );
 	else
 	{
-	    deleteAndZeroArrPtr( times_ );
+	    deleteAndNullArrPtr( times_ );
 	    errmsg_ = uiStrings::phrCannotAllocateMemory( nrbytes );
 	    return *this;
 	}
@@ -77,7 +77,7 @@ TimeDepthModel& TimeDepthModel::operator=( const TimeDepthModel& oth )
 void TimeDepthModel::setEmpty()
 {
     sz_ = 0;
-    deleteAndZeroArrPtr( times_ );
+    deleteAndNullArrPtr( times_ );
     if ( owndepths_ )
 	delete [] depths_;
     depths_ = nullptr;
@@ -211,7 +211,7 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
     if ( !times_ )
     {
 	errmsg_ = tr("Out of memory");
-	deleteAndZeroArrPtr( depths_ ) ;
+	deleteAndNullArrPtr( depths_ ) ;
 	return false;
     }
 

@@ -269,7 +269,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
     zerooffstwt_ = refmodel_->getDefaultModel().getTimes()+1;
 
     sinarr_ = refmodel_->sinarr_;
-    deleteAndZeroArrPtr( reflectivities_ );
+    deleteAndNullArrPtr( reflectivities_ );
     if ( refmodel_->hasReflectivities() )
     {
 	if ( refmodel_->nrRefModels() != nrmodels )
@@ -289,7 +289,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
 bool RayTracer1D::doFinish( bool success )
 {
-    deleteAndZeroArrPtr( velmax_ );
+    deleteAndNullArrPtr( velmax_ );
     if ( success )
 	msg_.setEmpty();
 

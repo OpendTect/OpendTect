@@ -155,9 +155,9 @@ void SeisTrcTranslator::cleanUp()
     deleteAndZeroPtr( storbuf_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
-    deleteAndZeroArrPtr( inpfor_ );
-    deleteAndZeroArrPtr( inpcds_ );
-    deleteAndZeroArrPtr( outcds_ );
+    deleteAndNullArrPtr( inpfor_ );
+    deleteAndNullArrPtr( inpcds_ );
+    deleteAndNullArrPtr( outcds_ );
     deleteAndZeroPtr( trcscalebase_ );
     curtrcscalebase_ = nullptr;
     nrout_ = 0;
