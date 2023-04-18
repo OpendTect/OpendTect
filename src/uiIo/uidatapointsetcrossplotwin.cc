@@ -228,7 +228,7 @@ void uiDataPointSetCrossPlotWin::handleAxisChg( uiDataPointSet::TColID xcol,
     plotter().setCols( uiPointSet().dColID(xcol),
 	    uiPointSet().dColID(ycol), uiPointSet().dColID(y2col) );
     setButtonStatus();
-    deleteAndNullPtr( propdlg_ );
+    closeAndNullPtr( propdlg_ );
 }
 
 

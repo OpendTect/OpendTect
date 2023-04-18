@@ -198,7 +198,7 @@ void uiFreqTaperDlg::previewPushed( CallBacker* )
 			       : (lineposdlg.isInl() ? uiSliceSel::Inl
 						     : uiSliceSel::Crl);
     CallBack dummycb;
-    deleteAndNullPtr( posdlg_ );
+    delete posdlg_;
     posdlg_ = new uiSliceSelDlg( this, *tkzs_, *tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
     posdlg_->grp()->enableScrollButton( false );

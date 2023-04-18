@@ -505,7 +505,7 @@ void uiSynthSeis::getAdvancedPush( CallBacker* )
 	advdlg_ = new uiSynthSeisAdvancedDlg( *this );
 	if ( !advdlg_ || !advdlg_->isOK() )
 	{
-	    deleteAndNullPtr( advdlg_ );
+	    closeAndNullPtr( advdlg_ );
 	    return;
 	}
 

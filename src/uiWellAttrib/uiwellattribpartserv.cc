@@ -225,7 +225,7 @@ bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 {
     if ( crlogcubedlg_ && wellid!=crlogcubedlg_->currentKey() )
-	deleteAndNullPtr(crlogcubedlg_);
+	closeAndNullPtr( crlogcubedlg_ );
 
     if ( !crlogcubedlg_ )
     {

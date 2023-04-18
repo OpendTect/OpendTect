@@ -2364,13 +2364,13 @@ const ColTab::MapperSetup*
 
 void uiAttribPartServer::survChangedCB( CallBacker* )
 {
-    deleteAndNullPtr( manattribset2ddlg_ );
-    deleteAndNullPtr( manattribsetdlg_ );
-    deleteAndNullPtr( attrsetdlg_ );
-    deleteAndNullPtr( impattrsetdlg_ );
-    deleteAndNullPtr( volattrdlg_);
-    deleteAndNullPtr( multiattrdlg_);
-    deleteAndNullPtr( dataattrdlg_);
+    closeAndNullPtr( manattribset2ddlg_ );
+    closeAndNullPtr( manattribsetdlg_ );
+    closeAndNullPtr( attrsetdlg_ );
+    closeAndNullPtr( impattrsetdlg_ );
+    closeAndNullPtr( volattrdlg_);
+    closeAndNullPtr( multiattrdlg_);
+    closeAndNullPtr( dataattrdlg_);
 }
 
 
