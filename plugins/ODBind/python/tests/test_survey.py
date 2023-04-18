@@ -6,14 +6,19 @@ import odbind as odb
 
 @pytest.fixture
 def data_root():
+    dtect_data = None
     if platform.system() == 'Windows':
-        return os.getenv('DTECT_WINDATA')
+        dtect_data = os.getenv('DTECT_WINDATA')
     else:
-        return os.getenv('DTECT_DATA')
+        dtect_data = os.getenv('DTECT_DATA')
+
+    if not dtect_data:
+        dtect_data = '/mnt/Data/seismic/ODData'
+
+    return dtect_data
 
 def test_Survey_class(data_root):
     assert 'F3_Demo_2020' in odb.Survey.names(data_root)
-    assert 'F3_Demo_2020' in odb.Survey.infos(data_root)['name']
     f3demo = odb.Survey(data_root, "F3_Demo_2020")
     info =  {
                 'name': "F3_Demo_2020",

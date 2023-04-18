@@ -50,7 +50,7 @@ static const char* moddeps[] =
 {
     "EarthModel",
 //    "Seis",
-//    "Well",
+    "Well",
     nullptr
 };
 
@@ -303,7 +303,7 @@ bool odSurvey::activate() const
 
     const char* uirv = setDBMDataSource(
 			  FilePath(basedir_, survey_).fullPath(), hasiom );
-    if ( uirv || *uirv )
+    if ( !uirv )
 	return false;
 
     curbasedir_ = basedir_;

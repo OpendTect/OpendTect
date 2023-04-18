@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS EarthModel )
+set( OD_MODULE_DEPS EarthModel Well )
 
 set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
@@ -15,6 +15,7 @@ set( OD_MODULE_SOURCES
     odhorizon.cc
     odsurvey.cc
     odsurvey_object.cc
+    odwell.cc
 )
 
 OD_INIT_MODULE()

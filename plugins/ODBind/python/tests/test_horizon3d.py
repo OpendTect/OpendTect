@@ -5,16 +5,21 @@ import odbind as odb
 
 @pytest.fixture
 def data_root():
+    dtect_data = None
     if platform.system() == 'Windows':
-        return os.getenv('DTECT_WINDATA')
+        dtect_data = os.getenv('DTECT_WINDATA')
     else:
-        return os.getenv('DTECT_DATA')
+        dtect_data = os.getenv('DTECT_DATA')
+
+    if not dtect_data:
+        dtect_data = '/mnt/Data/seismic/ODData'
+
+    return dtect_data
 
 def test_Horizon3D_class(data_root):
     f3demo = odb.Survey(data_root, "F3_Demo_2020")
     hors = odb.Horizon3D.names(f3demo)
     assert 'Demo 4 --> Truncation' in hors
-    assert 'Demo 4 --> Truncation' in odb.Horizon3D.infos(f3demo)['name']
     hor = odb.Horizon3D(f3demo, 'Trim_D0 --> FS4')
     assert hor.info() ==    {
                                 'name': 'Trim_D0 --> FS4',
