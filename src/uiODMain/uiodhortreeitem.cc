@@ -330,7 +330,7 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( VisID visid, bool rgba, bool atsect,
 
 uiODHorizonTreeItem::~uiODHorizonTreeItem()
 {
-    closeAndNullPtr( dpspickdlg_ );
+    delete dpspickdlg_;
 }
 
 
@@ -664,7 +664,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==pickdatamnuitem_.id )
     {
-	deleteAndNullPtr( dpspickdlg_ );
+	delete dpspickdlg_;
 	dpspickdlg_ = new uiEMDataPointSetPickDlg( getUiParent(),
 						   hd->getSceneID(), emid_ );
 	mAttachCB( dpspickdlg_->readyForDisplay,

@@ -1143,10 +1143,10 @@ bool uiVisPartServer::deleteAllObjects()
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
-	deleteAndNullPtr( multirgeditwin_ );
+	closeAndNullPtr( multirgeditwin_ );
     }
 
-    deleteAndNullPtr( topbotdlg_ );
+    closeAndNullPtr( topbotdlg_ );
 
     scenes_.erase();
     nrscenesChange.trigger();

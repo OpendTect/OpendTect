@@ -384,7 +384,7 @@ void uiReflCalc1D::getAdvancedPush( CallBacker* )
 	advdlg_ = new uiReflCalcAdvancedDlg( *this );
 	if ( !advdlg_ || !advdlg_->isOK() )
 	{
-	    deleteAndNullPtr( advdlg_ );
+	    closeAndNullPtr( advdlg_ );
 	    return;
 	}
 

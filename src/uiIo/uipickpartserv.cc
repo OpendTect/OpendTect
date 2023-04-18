@@ -63,10 +63,10 @@ uiPickPartServer::~uiPickPartServer()
 
 void uiPickPartServer::survChangedCB( CallBacker* )
 {
-    deleteAndNullPtr( imppsdlg_ );
-    deleteAndNullPtr( exppsdlg_ );
-    deleteAndNullPtr( manpicksetsdlg_ );
-    deleteAndNullPtr( setmgrinfodlg_ );
+    closeAndNullPtr( imppsdlg_ );
+    closeAndNullPtr( exppsdlg_ );
+    closeAndNullPtr( manpicksetsdlg_ );
+    closeAndNullPtr( setmgrinfodlg_ );
 }
 
 

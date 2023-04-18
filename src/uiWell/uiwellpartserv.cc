@@ -100,18 +100,18 @@ void uiWellPartServer::survChangedCB( CallBacker* )
 
 void uiWellPartServer::cleanup()
 {
-    deleteAndNullPtr( manwelldlg_ );
-    deleteAndNullPtr( impsimpledlg_ );
-    deleteAndNullPtr( impbulktrackdlg_ );
-    deleteAndNullPtr( impbulkdirwelldlg_ );
-    deleteAndNullPtr( impbulklogdlg_ );
-    deleteAndNullPtr( impbulkmrkrdlg_ );
-    deleteAndNullPtr( impbulkd2tdlg_ );
-    deleteAndNullPtr( rdmlinedlg_ );
-    deleteAndNullPtr( wellexpdlg_ );
+    closeAndNullPtr( manwelldlg_ );
+    closeAndNullPtr( impsimpledlg_ );
+    closeAndNullPtr( impbulktrackdlg_ );
+    closeAndNullPtr( impbulkdirwelldlg_ );
+    closeAndNullPtr( impbulklogdlg_ );
+    closeAndNullPtr( impbulkmrkrdlg_ );
+    closeAndNullPtr( impbulkd2tdlg_ );
+    closeAndNullPtr( rdmlinedlg_ );
+    closeAndNullPtr( wellexpdlg_ );
     deepErase( wellpropdlgs_ );
     deepErase( wellpropcaches_ );
-    deleteAndNullPtr( wellmgrinfodlg_ );
+    closeAndNullPtr( wellmgrinfodlg_ );
 
     Well::MGR().cleanup();
 }

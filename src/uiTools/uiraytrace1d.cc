@@ -378,7 +378,7 @@ void uiRayTracer1D::getAdvancedPush( CallBacker* )
 	advdlg_ = new uiRayTracerAdvancedDlg( *this );
 	if ( !advdlg_ || !advdlg_->isOK() )
 	{
-	    deleteAndNullPtr( advdlg_ );
+	    closeAndNullPtr( advdlg_ );
 	    return;
 	}
 
