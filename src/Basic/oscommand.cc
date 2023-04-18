@@ -659,9 +659,9 @@ PID_Type OS::CommandLauncher::processID() const
 
 void OS::CommandLauncher::reset()
 {
-    deleteAndZeroPtr( stderror_ );
-    deleteAndZeroPtr( stdoutput_ );
-    deleteAndZeroPtr( stdinput_ );
+    deleteAndNullPtr( stderror_ );
+    deleteAndNullPtr( stdoutput_ );
+    deleteAndNullPtr( stdinput_ );
 
     stderrorbuf_ = 0;
     stdoutputbuf_ = 0;
@@ -673,7 +673,7 @@ void OS::CommandLauncher::reset()
 	manageQProcess( process_ );
 	process_ = nullptr;
     }
-    deleteAndZeroPtr( process_ );
+    deleteAndNullPtr( process_ );
 #endif
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
@@ -969,7 +969,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	    stdinputbuf_->detachDevice( false );
 	}
 
-	deleteAndZeroPtr( process_ );
+	deleteAndNullPtr( process_ );
 
 	return res;
     }

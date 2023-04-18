@@ -73,7 +73,7 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
 uiTaskRunner::~uiTaskRunner()
 {
     if ( thread_ )
-	{ thread_->waitForFinish(); deleteAndZeroPtr(thread_); }
+	{ thread_->waitForFinish(); deleteAndNullPtr(thread_); }
     delete &tim_;
 }
 

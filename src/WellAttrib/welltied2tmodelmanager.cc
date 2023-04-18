@@ -140,7 +140,7 @@ void WellTie::D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     if ( d2t->size() < 2 )
 	{ delete d2t; return; }
 
-    deleteAndZeroPtr( prvd2t_ );
+    deleteAndNullPtr( prvd2t_ );
     if ( d2T() )
 	prvd2t_ =  new Well::D2TModel( *d2T() );
 
@@ -186,7 +186,7 @@ bool WellTie::D2TModelMgr::commitToWD()
 	return false;
 
     if ( wd_ ) wd_->d2tchanged.trigger();
-    deleteAndZeroPtr( orgd2t_ );
+    deleteAndNullPtr( orgd2t_ );
 
     return true;
 }

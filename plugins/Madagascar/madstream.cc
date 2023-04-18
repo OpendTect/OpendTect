@@ -92,11 +92,11 @@ MadStream::MadStream( IOPar& par )
 
 MadStream::~MadStream()
 {
-    deleteAndZeroPtr( istrm_ );
+    deleteAndNullPtr( istrm_ );
     if ( ostrm_ )
     {
 	ostrm_->flush();
-        deleteAndZeroPtr(ostrm_);
+        deleteAndNullPtr(ostrm_);
     }
 
     delete seisrdr_; delete seiswrr_;
@@ -179,7 +179,7 @@ void MadStream::initRead( IOPar* par )
 	if ( insrc.isEmpty() || insrc == sKeyStdIn )
 	    return;
 
-        deleteAndZeroPtr( istrm_ );
+        deleteAndNullPtr( istrm_ );
 
 	istrm_ = new od_istream( insrc );
 	if ( !istrm_->isOK() )

@@ -104,7 +104,7 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
     ProbDenFunc1D::usePar( par );
     par.get( sKey::Average(), exp_ );
     par.get( sKey::StdDev(), std_ );
-    deleteAndZeroPtr( rgen_ );
+    deleteAndNullPtr( rgen_ );
     return true;
 }
 
@@ -169,8 +169,8 @@ bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
     par.get( sKey::Average(), exp0_, exp1_ );
     par.get( sKey::StdDev(), std0_, std1_ );
     par.get( "Correlation", cc_ );
-    deleteAndZeroPtr( rgen0_ );
-    deleteAndZeroPtr( rgen1_ );
+    deleteAndNullPtr( rgen0_ );
+    deleteAndNullPtr( rgen1_ );
     return true;
 }
 
@@ -442,7 +442,7 @@ static void fillCorrMat( Array2DMatrix<float>& mat )
 void GaussianNDProbDenFunc::prepareRandDrawing() const
 {
     GaussianNDProbDenFunc& self = *const_cast<GaussianNDProbDenFunc*>( this );
-    deleteAndZeroPtr( self.cholesky_ );
+    deleteAndNullPtr( self.cholesky_ );
 
     const int nrdims = nrDims();
     if ( corrs_.size() >= nrdims )
@@ -459,7 +459,7 @@ void GaussianNDProbDenFunc::prepareRandDrawing() const
 	fillCorrMat( corrmat );
 	self.cholesky_ = new Array2DMatrix<float>( nrdims );
 	if ( !corrmat.getCholesky(*self.cholesky_) )
-	    { deleteAndZeroPtr( self.cholesky_ ); }
+	    { deleteAndNullPtr( self.cholesky_ ); }
     }
 }
 

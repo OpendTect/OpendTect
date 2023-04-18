@@ -523,7 +523,7 @@ void uiStratDrawer::drawColumns()
     if ( nrcols && data_.nrUnits(0) == 0 )
 	drawEmptyText();
     else
-	deleteAndZeroPtr( emptyitm_ );
+	deleteAndNullPtr( emptyitm_ );
 }
 
 
@@ -533,8 +533,8 @@ void uiStratDrawer::eraseAll()
     {
 	ColumnItem* colitm = colitms_[idx];
 
-	deleteAndZeroPtr( colitm->borderitm_ );
-	deleteAndZeroPtr( colitm->bordertxtitm_ );
+	deleteAndNullPtr( colitm->borderitm_ );
+	deleteAndNullPtr( colitm->bordertxtitm_ );
 	colitm->txtitms_.erase();
 	colitm->lvlitms_.erase();
 	colitm->unititms_.erase();
@@ -613,7 +613,7 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 
 void uiStratDrawer::drawEmptyText()
 {
-    deleteAndZeroPtr( emptyitm_ );
+    deleteAndNullPtr( emptyitm_ );
 
     int x = xax_->getPix( 0 );
     if ( !colitms_.isEmpty() )

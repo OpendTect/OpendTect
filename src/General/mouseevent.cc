@@ -156,7 +156,7 @@ void MouseEvent::setTabletInfo( const TabletInfo* newtabinf )
     }
     else if ( tabletinfo_ )
     {
-	deleteAndZeroPtr( tabletinfo_ );
+	deleteAndNullPtr( tabletinfo_ );
     }
 }
 

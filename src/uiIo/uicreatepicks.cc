@@ -207,7 +207,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
     if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
 				 &taskrunner, true) )
     {
-	deleteAndZeroPtr( dps_ );
+	deleteAndNullPtr( dps_ );
 	return false;
     }
 
@@ -225,14 +225,14 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
 	if ( !uiMSG().askGoOn(msg) )
 	{
 	    mRestorCursor();
-	    deleteAndZeroPtr( dps_ );
+	    deleteAndNullPtr( dps_ );
 	    return false;
 	}
     }
 
     if ( dps_->isEmpty() )
     {
-	deleteAndZeroPtr( dps_ );
+	deleteAndNullPtr( dps_ );
 	mErrRet(tr("No matching locations found"))
     }
 

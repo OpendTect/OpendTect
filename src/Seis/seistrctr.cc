@@ -152,13 +152,13 @@ void SeisTrcTranslator::cleanUp()
 
     headerdonenew_ = false;
     datareaddone_ = false;
-    deleteAndZeroPtr( storbuf_ );
+    deleteAndNullPtr( storbuf_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
     deleteAndNullArrPtr( inpfor_ );
     deleteAndNullArrPtr( inpcds_ );
     deleteAndNullArrPtr( outcds_ );
-    deleteAndZeroPtr( trcscalebase_ );
+    deleteAndNullPtr( trcscalebase_ );
     curtrcscalebase_ = nullptr;
     nrout_ = 0;
     errmsg_.setEmpty();
@@ -181,7 +181,7 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
     read_mode = rm;
     if ( !initConn(c) || !initRead_() )
     {
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -214,7 +214,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     if ( !initConn(c) || !initWrite_(trc) )
     {
-	deleteAndZeroPtr( conn_ );
+	deleteAndNullPtr( conn_ );
 	return false;
     }
 
@@ -298,7 +298,7 @@ bool SeisTrcTranslator::commitSelections()
     if ( !storbuf_->allOk() )
     {
 	errmsg_ = tr("Out of memory");
-	deleteAndZeroPtr( storbuf_ );
+	deleteAndNullPtr( storbuf_ );
 	return false;
     }
 

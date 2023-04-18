@@ -461,7 +461,7 @@ WellTie::DataWriter::~DataWriter()
 
 void WellTie::DataWriter::setWellWriter()
 {
-    deleteAndZeroPtr( wtr_ );
+    deleteAndNullPtr( wtr_ );
     IOObj* ioobj = IOM().get( wellid_ );
     if ( ioobj && wd_ )
     {

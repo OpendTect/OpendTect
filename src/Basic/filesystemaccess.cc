@@ -528,7 +528,7 @@ StreamData LocalFileSystemAccess::createOStream( const char* uri,
 #endif
 
     if ( !impl->ostrm_ || !impl->ostrm_->good() )
-	deleteAndZeroPtr( impl->ostrm_ );
+	deleteAndNullPtr( impl->ostrm_ );
 
     res.setImpl( impl );
 
@@ -568,7 +568,7 @@ StreamData LocalFileSystemAccess::createIStream( const char* uri,
     if ( binary )
 	openmode = openmode | std::ios_base::binary;
 
-    deleteAndZeroPtr( impl->istrm_ );
+    deleteAndNullPtr( impl->istrm_ );
 #ifdef __msvc__
     impl->istrm_ = new std::winifstream( impl->fname_, openmode );
 #else
@@ -576,7 +576,7 @@ StreamData LocalFileSystemAccess::createIStream( const char* uri,
 #endif
 
     if ( !impl->istrm_ || !impl->istrm_->good() )
-	deleteAndZeroPtr( impl->istrm_ );
+	deleteAndNullPtr( impl->istrm_ );
 
     res.setImpl( impl );
     return res;

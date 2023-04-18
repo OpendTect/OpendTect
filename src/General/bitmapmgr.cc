@@ -46,10 +46,10 @@ void BitMapMgr::clearAll()
 {
     Threads::Locker locker( lock_ );
 
-    deleteAndZeroPtr( bmp_ );
-    deleteAndZeroPtr( pos_ );
-    deleteAndZeroPtr( data_ );
-    deleteAndZeroPtr( gen_ );
+    deleteAndNullPtr( bmp_ );
+    deleteAndNullPtr( pos_ );
+    deleteAndNullPtr( data_ );
+    deleteAndNullPtr( gen_ );
 
     datapack_ = nullptr;
 }
@@ -179,7 +179,7 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
     {
-	deleteAndZeroPtr( bmp_ );
+	deleteAndNullPtr( bmp_ );
 	updlckr.unlockNow();
 	return false;
     }

@@ -537,7 +537,7 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
     ostream_ = new od_ostream( outfnm );
     if ( !ostream_->isOK() )
     {
-	deleteAndZeroPtr( ostream_ );
+	deleteAndNullPtr( ostream_ );
 	mErrRetWithMsg(uiStrings::phrCannotOpenOutpFile());
     }
 

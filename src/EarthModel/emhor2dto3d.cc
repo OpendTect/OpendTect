@@ -115,7 +115,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	msg_ = curinterp_->uiMessage();
 	if ( !res )
 	{
-	    deleteAndZeroPtr( curinterp_ );
+	    deleteAndNullPtr( curinterp_ );
 	    deepErase( sd_ );
 	}
     }

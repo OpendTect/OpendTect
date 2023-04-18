@@ -352,8 +352,8 @@ int ODMad::ProcExec::nextStep()
 {
     if ( stage_ == Finish || !madstream_ || !madstream_->getNextTrace(trc_) )
     {
-	deleteAndZeroPtr( procstream_ );
-	deleteAndZeroPtr( plotstream_ );
+	deleteAndNullPtr( procstream_ );
+	deleteAndNullPtr( plotstream_ );
 	if ( progmeter_ ) progmeter_->setFinished();
 	return Executor::Finished();
     }

@@ -50,7 +50,7 @@ AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
 
 
 #define mRemoveAnnotItem( item )\
-{ view_.scene().removeItem( item ); deleteAndZeroPtr( item ); }
+{ view_.scene().removeItem( item ); deleteAndNullPtr( item ); }
 
 AxesDrawer::~AxesDrawer()
 {

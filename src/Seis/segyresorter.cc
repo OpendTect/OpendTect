@@ -136,13 +136,13 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     if ( drdr_ && drdr_->errMsg().isSet() )
     {
 	msg_ = drdr_->errMsg();
-	deleteAndZeroPtr( drdr_ );
+	deleteAndNullPtr( drdr_ );
     }
 
     if ( dDef().isEmpty() )
     {
 	msg_ = tr("Empty input scan");
-	deleteAndZeroPtr( drdr_ );
+	deleteAndNullPtr( drdr_ );
     }
 
     if ( !drdr_ )

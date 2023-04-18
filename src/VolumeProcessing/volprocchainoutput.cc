@@ -73,7 +73,7 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
     if ( chainid_.isUdf() || chainid_.isUdf() )
     {
 	if ( chainpar_ )
-	    deleteAndZeroPtr( chainpar_ );
+	    deleteAndNullPtr( chainpar_ );
 
 	chainpar_ = iop.subselect( sKey::Chain() );
 	if ( !chainpar_ ) return;
@@ -126,7 +126,7 @@ void VolProc::ChainOutput::controlWork( Control ctrl )
 
 void VolProc::ChainOutput::createNewChainExec()
 {
-    deleteAndZeroPtr( chainexec_ );
+    deleteAndNullPtr( chainexec_ );
     if ( chain_ )
 	unRefAndZeroPtr( chain_ );
 
@@ -218,7 +218,7 @@ int VolProc::ChainOutput::nextStep()
 	    if ( !neednextchunk_ )
 	    {	//We just did the last step of the last chunk
 		setProgressMeter( nullptr );
-		deleteAndZeroPtr( chainexec_ );
+		deleteAndNullPtr( chainexec_ );
 	    }
 	}
 
@@ -276,7 +276,7 @@ int VolProc::ChainOutput::getChain()
     chainpar_ = new IOPar;
     chain_->fillPar( *chainpar_ );
     if ( chainpar_->isEmpty() )
-	deleteAndZeroPtr( chainpar_ );
+	deleteAndNullPtr( chainpar_ );
 
     return MoreToDo();
 }
@@ -455,7 +455,7 @@ void workFinished( CallBacker* cb )
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = tr("Error during background write");
     }
-    deleteAndZeroPtr( work_ );
+    deleteAndNullPtr( work_ );
     co_.reportFinished( *this );
 }
 

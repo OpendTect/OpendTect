@@ -92,7 +92,7 @@ bool StreamConn::forWrite() const
 void StreamConn::close()
 {
     if ( strm_ && mine_ )
-	deleteAndZeroPtr( strm_ );
+	deleteAndNullPtr( strm_ );
 }
 
 

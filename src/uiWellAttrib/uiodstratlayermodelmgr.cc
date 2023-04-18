@@ -53,7 +53,7 @@ void uiStratLayerModelManager::survChg( CallBacker* )
     if ( dlg_ )
 	dlg_->saveGenDescIfNecessary( false );
 
-    closeAndZeroPtr( dlg_ );
+    closeAndNullPtr( dlg_ );
 }
 
 
@@ -174,7 +174,7 @@ void uiStratLayerModelManager::launchLayerModel( const char* modnm, int opt,
 	dlg_->show();
     }
     else
-	closeAndZeroPtr( dlg_ );
+	closeAndNullPtr( dlg_ );
 }
 
 

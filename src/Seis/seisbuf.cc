@@ -631,7 +631,7 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 {
     Threads::Locker lckr( updateLock() );
 
-    deleteAndZeroPtr( arr2d_ );
+    deleteAndNullPtr( arr2d_ );
     posfld_ = fld;
     gt_ = gt;
     const int tbufsz = tbuf ? tbuf->size() : 0;

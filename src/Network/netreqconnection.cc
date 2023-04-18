@@ -99,11 +99,11 @@ RequestConnection::~RequestConnection()
 	eventloop_->exit();
 
 	socketthread_->waitForFinish();
-	deleteAndZeroPtr( socketthread_ );
+	deleteAndNullPtr( socketthread_ );
     }
     else
     {
-	deleteAndZeroPtr( socket_, ownssocket_ );
+	deleteAndNullPtr( socket_, ownssocket_ );
     }
 
     if ( !receivedpackets_.isEmpty() )
@@ -164,8 +164,8 @@ void RequestConnection::socketThreadFunc( CallBacker* )
     lock_.unLock();
 
     removeReceiverForCurrentThread();
-    deleteAndZeroPtr( eventloop_ );
-    deleteAndZeroPtr( socket_, ownssocket_ );
+    deleteAndNullPtr( eventloop_ );
+    deleteAndNullPtr( socket_, ownssocket_ );
 }
 
 

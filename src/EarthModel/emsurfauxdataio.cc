@@ -72,7 +72,7 @@ bool dgbSurfDataWriter::writeHeader()
     stream_ = new od_ostream( filename_ );
     if ( !stream_ || !stream_->isOK() )
     {
-	deleteAndZeroPtr( stream_ );
+	deleteAndNullPtr( stream_ );
 	return false;
     }
 
@@ -122,7 +122,7 @@ bool dgbSurfDataWriter::writeDummyHeader( const char* fnm, const char* attrnm )
 
 #define mErrRetWrite(msg) \
 { errmsg_ = msg; File::remove(filename_.buf()); \
-    deleteAndZeroPtr( stream_ ); return ErrorOccurred(); }
+    deleteAndNullPtr( stream_ ); return ErrorOccurred(); }
 
 
 int dgbSurfDataWriter::nextStep()
@@ -140,7 +140,7 @@ int dgbSurfDataWriter::nextStep()
 		sectionindex_++;
 		if ( sectionindex_ >= surf_.nrSections() )
 		{
-		    deleteAndZeroPtr( stream_ );
+		    deleteAndNullPtr( stream_ );
 		    return Finished();
 		}
 	    }
@@ -182,7 +182,7 @@ int dgbSurfDataWriter::nextStep()
 
 	    if ( subids_.isEmpty() )
 	    {
-		deleteAndZeroPtr( stream_ );
+		deleteAndNullPtr( stream_ );
 		return Finished();
 	    }
 
@@ -367,11 +367,11 @@ uiString dgbSurfDataReader::sHorizonData()
 #ifdef __debug__
 #   define mErrRetRead(msg) { \
     if ( !msg.isEmpty() ) errmsg_ = msg; \
-    deleteAndZeroPtr( stream_ ); \
+    deleteAndNullPtr( stream_ ); \
     surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
 #else
     #define mErrRetRead(msg) { \
-    deleteAndZeroPtr( stream_ ); \
+    deleteAndNullPtr( stream_ ); \
     surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
 #endif
 
@@ -379,11 +379,11 @@ uiString dgbSurfDataReader::sHorizonData()
 #ifdef __debug__
 #   define mErrRetReadNoDeleteAux(msg) { \
     if ( !msg.isEmpty() ) errmsg_ = msg; \
-    deleteAndZeroPtr( stream_ ); \
+    deleteAndNullPtr( stream_ ); \
     return ErrorOccurred(); }
 #else
 #define mErrRetReadNoDeleteAux(msg) { \
-    deleteAndZeroPtr( stream_ ); \
+    deleteAndNullPtr( stream_ ); \
     return ErrorOccurred(); }
 #endif
 
@@ -406,7 +406,7 @@ int dgbSurfDataReader::nextStep()
 		sectionindex_++;
 		if ( sectionindex_ >= nrsections_ || nrsections_ < 0 )
 		{
-		    deleteAndZeroPtr( stream_ );
+		    deleteAndNullPtr( stream_ );
 		    return Finished();
 		}
 	    }
@@ -415,7 +415,7 @@ int dgbSurfDataReader::nextStep()
 		readInt( nrsections_ );
 		if ( stream_->atEOF() )
 		{
-		    deleteAndZeroPtr( stream_ );
+		    deleteAndNullPtr( stream_ );
 		    return Finished();
 		}
 
@@ -428,7 +428,7 @@ int dgbSurfDataReader::nextStep()
 	    const bool res = !readInt(cursec) || !readInt(valsleftonsection_);
 	    if ( stream_->atEOF() )
 	    {
-		deleteAndZeroPtr( stream_ );
+		deleteAndNullPtr( stream_ );
 		return Finished();
 	    }
 

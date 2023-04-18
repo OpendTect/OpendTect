@@ -184,7 +184,7 @@ void WellTie::uiTieWinMGRDlg::delWins()
     while ( !welltiedlgset_.isEmpty() )
     {
 	uiTieWin* tiedlg = welltiedlgset_.pop();
-	closeAndZeroPtr( tiedlg );
+	closeAndNullPtr( tiedlg );
     }
 }
 

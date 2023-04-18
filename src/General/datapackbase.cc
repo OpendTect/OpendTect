@@ -448,8 +448,8 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
 SeisDataPack::~SeisDataPack()
 {
     deepErase( arrays_ );
-    deleteAndZeroPtr( zdomaininfo_ );
-    deleteAndZeroPtr( scaler_ );
+    deleteAndNullPtr( zdomaininfo_ );
+    deleteAndNullPtr( scaler_ );
 }
 
 
@@ -658,7 +658,7 @@ void SeisDataPack::setScaler( const Scaler& scaler )
 
 void SeisDataPack::deleteScaler()
 {
-    deleteAndZeroPtr( scaler_ );
+    deleteAndNullPtr( scaler_ );
 }
 
 

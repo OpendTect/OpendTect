@@ -112,7 +112,7 @@ void SeisIOSimple::Data::setResampler( SeisResampler* r )
 
 void SeisIOSimple::Data::clear( bool survchg )
 {
-    deleteAndZeroPtr( resampler_ );
+    deleteAndNullPtr( resampler_ );
     nrdef_.start = 1; nrdef_.step = 1;
     if ( !survchg )
 	return;

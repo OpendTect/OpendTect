@@ -77,7 +77,7 @@ bool DBKey::operator !=( const DBKey& oth ) const
 
 void DBKey::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
 {
-    deleteAndZeroPtr( survloc_ );
+    deleteAndNullPtr( survloc_ );
     if ( !sdl.isCurrentSurvey() )
     {
 	survloc_ = new SurveyDiskLocation;
@@ -95,7 +95,7 @@ const SurveyDiskLocation& DBKey::surveyDiskLocation() const
 
 void DBKey::clearSurveyDiskLocation()
 {
-    deleteAndZeroPtr( survloc_ );
+    deleteAndNullPtr( survloc_ );
 }
 
 
@@ -118,7 +118,7 @@ BufferString DBKey::toString( bool withsurvloc ) const
 bool DBKey::fromString( const char* str )
 {
     setUdf();
-    deleteAndZeroPtr( survloc_ );
+    deleteAndNullPtr( survloc_ );
 
     BufferString keystr( str );
     if ( keystr.isEmpty() )

@@ -87,7 +87,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
-	deleteAndZeroPtr( wrr_ );
+	deleteAndNullPtr( wrr_ );
 	return;
     }
 
@@ -157,7 +157,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
-	deleteAndZeroPtr( wrr_ );
+	deleteAndNullPtr( wrr_ );
 	return;
     }
 

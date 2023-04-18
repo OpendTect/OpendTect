@@ -115,7 +115,7 @@ void uiGatherDisplay::setPosition( const BinID& bid,
 	else *zrg_ = *zrg;
     }
     else if ( zrg_ )
-	deleteAndZeroPtr( zrg_ );
+	deleteAndNullPtr( zrg_ );
 }
 
 

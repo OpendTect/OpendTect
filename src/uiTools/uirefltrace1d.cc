@@ -384,14 +384,14 @@ void uiReflCalc1D::getAdvancedPush( CallBacker* )
 	advdlg_ = new uiReflCalcAdvancedDlg( *this );
 	if ( !advdlg_ || !advdlg_->isOK() )
 	{
-	    deleteAndZeroPtr( advdlg_ );
+	    deleteAndNullPtr( advdlg_ );
 	    return;
 	}
 
 	if ( lastiop_ )
 	{
 	    advdlg_->usePar( *lastiop_ );
-	    deleteAndZeroPtr( lastiop_ );
+	    deleteAndNullPtr( lastiop_ );
 	}
 
 	mAttachCB( advdlg_->parsChanged, uiReflCalc1D::parsChangedCB );

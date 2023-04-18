@@ -29,8 +29,8 @@ CommandTask::CommandTask( const OS::MachineCommand& mc,
 			  const char* workdir )
     : CommandTask(mc, OS::CommandExecPars(lt), inpythonenv)
 {
-    deleteAndZeroPtr( stdoutput_ );
-    deleteAndZeroPtr( stderror_ );
+    deleteAndNullPtr( stdoutput_ );
+    deleteAndNullPtr( stderror_ );
     if ( workdir )
 	execpars_.workingdir( workdir );
 
@@ -43,8 +43,8 @@ CommandTask::CommandTask( const OS::MachineCommand& mc,
 			  const char* workdir )
     : CommandTask(mc, OS::CommandExecPars(OS::Wait4Finish), inpythonenv)
 {
-    deleteAndZeroPtr( stdoutput_ );
-    deleteAndZeroPtr( stderror_ );
+    deleteAndNullPtr( stdoutput_ );
+    deleteAndNullPtr( stderror_ );
     if ( readstdoutput )
 	stdoutput_ = new BufferString;
     if ( readstderror )

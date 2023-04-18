@@ -403,7 +403,7 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
 void uiWellLogCalc::deleteLog( TypeSet<InpData>& inpdatas )
 {
     for ( int idx=0; idx<inpdatas.size(); idx++ )
-	deleteAndZeroPtr( inpdatas[idx].wl_ );
+	deleteAndNullPtr( inpdatas[idx].wl_ );
 }
 
 

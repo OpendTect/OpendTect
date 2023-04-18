@@ -521,7 +521,7 @@ void SeisSingleTraceProc::wrapUp()
 	wrr_->close();
 
     deepErase( rdrs_ );
-    deleteAndZeroPtr( wrr_ );
+    deleteAndNullPtr( wrr_ );
 }
 
 

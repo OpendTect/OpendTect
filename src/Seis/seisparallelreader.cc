@@ -902,7 +902,7 @@ bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
     initialized_ = false;
     const bool success = Executor::goImpl( strm, first, last, delay );
     Threads::WorkManager::twm().emptyQueue( queueid_, success );
-    deleteAndZeroPtr( seissummary_ );
+    deleteAndNullPtr( seissummary_ );
 
     return success;
 }
@@ -999,7 +999,7 @@ bool Seis::SequentialReader::init()
     seissummary_ = is2d_ ? new ObjectSummary( *ioobj_, tkzs_.hsamp_.getGeomID())
 			 : new ObjectSummary( *ioobj_ );
     if ( !seissummary_ || !seissummary_->isOK() )
-	{ deleteAndZeroPtr(seissummary_); return false; }
+	{ deleteAndNullPtr(seissummary_); return false; }
 
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
     TrcKeyZSampling seistkzs( tkzs_ );

@@ -162,7 +162,7 @@ void Scene::setup()
 
 #define mRemoveSelector \
 unRefAndZeroPtr( polyselector_ ); \
-deleteAndZeroPtr( coordselector_ )
+deleteAndNullPtr( coordselector_ )
 
 Scene::~Scene()
 {

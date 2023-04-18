@@ -30,7 +30,7 @@ Stack::~Stack()
 
 
 #define mErrRet(s) \
-{ deleteAndZeroPtr( muter_ ); errmsg_ = s; return false; }
+{ deleteAndNullPtr( muter_ ); errmsg_ = s; return false; }
 
 
 void Stack::setOffsetRange( const Interval<float>* offrg )
@@ -41,7 +41,7 @@ void Stack::setOffsetRange( const Interval<float>* offrg )
 	else *offsetrg_ = *offrg;
     }
     else
-	deleteAndZeroPtr( offsetrg_ );
+	deleteAndNullPtr( offsetrg_ );
 }
 
 

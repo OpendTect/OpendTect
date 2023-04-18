@@ -51,7 +51,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 	if ( emsg )
 	{
 	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
-	    strm.addErrMsgTo(*emsg); 
+	    strm.addErrMsgTo(*emsg);
 	}
 	return 0;
     }
@@ -122,7 +122,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 	if ( emsg )
 	{
 	    *emsg = uiStrings::phrCannotOpen( toUiString(fnm) );
-	    strm.addErrMsgTo(*emsg); 
+	    strm.addErrMsgTo(*emsg);
 	}
 	return false;
     }
@@ -141,7 +141,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
 	return nullptr;
 
     if ( !pdf->readBulk(strm,binary_) )
-	deleteAndZeroPtr( pdf );
+	deleteAndNullPtr( pdf );
 
     return pdf;
 }
@@ -177,7 +177,7 @@ ProbDenFunc* odProbDenFuncTranslator::readInfo( od_istream& strm )
 	return nullptr;
 
     if ( !pdf->usePar(par) )
-	deleteAndZeroPtr( pdf );
+	deleteAndNullPtr( pdf );
 
     binary_ = false;
     par.getYN( sKey::Binary(), binary_ );

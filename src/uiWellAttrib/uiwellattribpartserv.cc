@@ -109,12 +109,12 @@ void uiWellAttribPartServer::xplotCB( CallBacker* )
 
 void uiWellAttribPartServer::cleanUp()
 {
-    deleteAndZeroPtr( attrset_ );
-    closeAndZeroPtr( xplotwin2d_ );
-    closeAndZeroPtr( xplotwin3d_ );
-    closeAndZeroPtr( welltiedlg_ );
-    closeAndZeroPtr( crlogcubedlg_ );
-    closeAndZeroPtr( wellto2ddlg_ );
+    deleteAndNullPtr( attrset_ );
+    closeAndNullPtr( xplotwin2d_ );
+    closeAndNullPtr( xplotwin3d_ );
+    closeAndNullPtr( welltiedlg_ );
+    closeAndNullPtr( crlogcubedlg_ );
+    closeAndNullPtr( wellto2ddlg_ );
 }
 
 
@@ -225,7 +225,7 @@ bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 {
     if ( crlogcubedlg_ && wellid!=crlogcubedlg_->currentKey() )
-	deleteAndZeroPtr(crlogcubedlg_);
+	deleteAndNullPtr(crlogcubedlg_);
 
     if ( !crlogcubedlg_ )
     {

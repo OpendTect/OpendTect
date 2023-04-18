@@ -85,7 +85,7 @@ void uiMadagascarLink::cleanup()
 {
     if ( madwin_ )
 	madwin_->askSave( false );
-    closeAndZeroPtr( madwin_ );
+    closeAndNullPtr( madwin_ );
     uiPluginInitMgr::cleanup();
 }
 

@@ -57,7 +57,7 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 	    return *this;
 	}
 
-	deleteAndZeroPtr( mutex_ );
+	deleteAndNullPtr( mutex_ );
     }
     else if ( splock_ )
     {
@@ -67,7 +67,7 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 	    return *this;
 	}
 
-	deleteAndZeroPtr( splock_ );
+	deleteAndNullPtr( splock_ );
     }
     else
     {
@@ -77,7 +77,7 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 	    return *this;
 	}
 
-	deleteAndZeroPtr( rwlock_ );
+	deleteAndNullPtr( rwlock_ );
     }
 
     mutex_ = oth.mutex_ ? new Mutex(oth.mutex_->isRecursive()) : nullptr;
@@ -91,9 +91,9 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 Threads::Lock::~Lock()
 {
     //Put to zero to force crash if used again.
-    deleteAndZeroPtr( mutex_ );
-    deleteAndZeroPtr( splock_ );
-    deleteAndZeroPtr( rwlock_ );
+    deleteAndNullPtr( mutex_ );
+    deleteAndNullPtr( splock_ );
+    deleteAndNullPtr( rwlock_ );
 }
 
 
@@ -272,8 +272,8 @@ Threads::Mutex::Mutex( bool recursive )
 
 Threads::Mutex::~Mutex()
 {
-    deleteAndZeroPtr( qmutex_ );
-    deleteAndZeroPtr( qrecursivemutex_ );
+    deleteAndNullPtr( qmutex_ );
+    deleteAndNullPtr( qrecursivemutex_ );
 
 #ifdef __debug__
     if ( lockingthread_ )
@@ -779,7 +779,7 @@ Threads::ConditionVar::~ConditionVar()
     if (count_)
 	pErrMsg("Deleting condition variable with waiting threads.");
 # endif
-    deleteAndZeroPtr( cond_ );
+    deleteAndNullPtr( cond_ );
 #endif
 }
 
@@ -881,7 +881,7 @@ Threads::Thread::~Thread()
 {
 #ifndef OD_NO_QT
     thread_->wait();
-    deleteAndZeroPtr( thread_ );
+    deleteAndNullPtr( thread_ );
 #endif
 }
 

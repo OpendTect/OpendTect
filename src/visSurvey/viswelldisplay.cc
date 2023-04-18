@@ -124,7 +124,7 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 
 void WellDisplay::saveDispProp( const Well::Data* wd )
 {
-    deleteAndZeroPtr( dispprop_ );
+    deleteAndNullPtr( dispprop_ );
     if ( wd )
 	dispprop_ = new Well::DisplayProperties( wd->displayProperties() );
 }

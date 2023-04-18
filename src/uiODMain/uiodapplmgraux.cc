@@ -138,21 +138,21 @@ void uiODApplMgrDispatcher::survChg( bool before )
 
 void uiODApplMgrDispatcher::deleteDlgs()
 {
-    closeAndZeroPtr( convposdlg_ );
-    closeAndZeroPtr( mandpsdlg_ );
-    closeAndZeroPtr( manpropsdlg_ );
-    closeAndZeroPtr( man2dgeomdlg_ );
-    closeAndZeroPtr( manpdfdlg_ );
-    closeAndZeroPtr( mansessiondlg_ );
-    closeAndZeroPtr( impcrossplotdlg_ );
-    closeAndZeroPtr( impmutedlg_ );
-    closeAndZeroPtr( imppdfdlg_ );
-    closeAndZeroPtr( exppdfdlg_ );
-    closeAndZeroPtr( impvelfunc_ );
-    closeAndZeroPtr( exp2dgeomdlg_ );
-    closeAndZeroPtr( imp2dgeomdlg_ );
-    closeAndZeroPtr( batchprocps2ddlg_ );
-    closeAndZeroPtr( batchprocps3ddlg_ );
+    closeAndNullPtr( convposdlg_ );
+    closeAndNullPtr( mandpsdlg_ );
+    closeAndNullPtr( manpropsdlg_ );
+    closeAndNullPtr( man2dgeomdlg_ );
+    closeAndNullPtr( manpdfdlg_ );
+    closeAndNullPtr( mansessiondlg_ );
+    closeAndNullPtr( impcrossplotdlg_ );
+    closeAndNullPtr( impmutedlg_ );
+    closeAndNullPtr( imppdfdlg_ );
+    closeAndNullPtr( exppdfdlg_ );
+    closeAndNullPtr( impvelfunc_ );
+    closeAndNullPtr( exp2dgeomdlg_ );
+    closeAndNullPtr( imp2dgeomdlg_ );
+    closeAndNullPtr( batchprocps2ddlg_ );
+    closeAndNullPtr( batchprocps3ddlg_ );
 }
 
 

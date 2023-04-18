@@ -70,7 +70,7 @@ bool ODGoogle::KMLWriter::close()
     if ( strm_ && strm_->isOK() )
     {
 	strm() << "</Document>\n</kml>" << od_endl;
-	deleteAndZeroPtr( strm_ );
+	deleteAndNullPtr( strm_ );
     }
     else
 	return false;

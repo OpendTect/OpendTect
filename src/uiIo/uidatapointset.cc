@@ -354,7 +354,7 @@ void uiDataPointSet::mkToolBars()
 			     tr("Toggle show Z column"), true );
 
     showbidsfld_ = new uiCheckBox( disptb_,
-	    		is2D() ? tr("Show Line/Trace") : tr("Show Inl/Crl") );
+			is2D() ? tr("Show Line/Trace") : tr("Show Inl/Crl") );
     showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
     showbidsfld_->setChecked( showbids_ );
     disptb_->addObject( showbidsfld_ );
@@ -531,7 +531,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 	tbl_->setText( rc, Survey::GM().getName(dps_.geomID(drid)) );
     else
 	tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 );
-    
+
     rc.col()++;
     tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 2 );
     rc.col()++;
@@ -1073,9 +1073,9 @@ void uiDataPointSet::statsClose( CallBacker* )
 
 #define mGetHPosName( dcid ) ( did == -nrPosCols() ) ? \
 	( showbids_ ? (dps_.is2D() ? sKey::LineName() : sKey::Inline()) \
-	  	    : sKey::XCoord() ) : \
+		    : sKey::XCoord() ) : \
 	( showbids_ ? (dps_.is2D() ? sKey::TraceNr() : sKey::Crossline()) \
-	  	    : sKey::YCoord() )
+		    : sKey::YCoord() )
 
 #define mIsZ( dcid ) dcid == -1
 
@@ -1354,8 +1354,8 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 {
     removeSelPts( nullptr );
 
-    closeAndZeroPtr( xplotwin_ );
-    closeAndZeroPtr( statswin_ );
+    closeAndNullPtr( xplotwin_ );
+    closeAndNullPtr( statswin_ );
     return true;
 }
 

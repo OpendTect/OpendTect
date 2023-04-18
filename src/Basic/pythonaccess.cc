@@ -480,7 +480,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
     else
     {
 	notrigger = !activatefp_ && virtenvnm_.isEmpty() && venvnm.isEmpty();
-	deleteAndZeroPtr( activatefp_ );
+	deleteAndNullPtr( activatefp_ );
 	virtenvnm_.setEmpty();
     }
 

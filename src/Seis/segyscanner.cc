@@ -83,7 +83,7 @@ void SEGY::Scanner::closeTr()
 {
     if ( !tr_ ) return;
     trwarns_.add( tr_->warnings(), true );
-    deleteAndZeroPtr( tr_ );
+    deleteAndNullPtr( tr_ );
 }
 
 

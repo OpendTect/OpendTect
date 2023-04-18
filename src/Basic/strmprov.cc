@@ -156,7 +156,7 @@ static const char* extractHostName( const char* str, BufferString& hnm )
 void StreamProvider::set( const char* inp )
 {
     fname_.setEmpty();
-    deleteAndZeroPtr( mc_ );
+    deleteAndNullPtr( mc_ );
 
     BufferString workstr( inp );
     workstr.trimBlanks();
@@ -201,7 +201,7 @@ void StreamProvider::set( const char* inp )
 void StreamProvider::setFileName( const char* fnm )
 {
     fname_.set( fnm );
-    deleteAndZeroPtr( mc_ );
+    deleteAndNullPtr( mc_ );
     workingdir_.setEmpty();
 }
 

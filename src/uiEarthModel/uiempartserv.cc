@@ -138,26 +138,26 @@ void uiEMPartServer::survChangedCB( CallBacker* )
 
 void uiEMPartServer::cleanup()
 {
-    deleteAndZeroPtr( imphorattrdlg_ );
-    deleteAndZeroPtr( imphorgeomdlg_ );
-    deleteAndZeroPtr( impzmapdlg_ );
-    deleteAndZeroPtr( impfltdlg_ );
-    deleteAndZeroPtr( impbulkfltdlg_ );
-    deleteAndZeroPtr( impfltsetdlg_ );
-    deleteAndZeroPtr( impbulkhordlg_ );
-    deleteAndZeroPtr( exphordlg_ );
-    deleteAndZeroPtr( exp2dhordlg_ );
-    deleteAndZeroPtr( expfltdlg_ );
-    deleteAndZeroPtr( expfltsetdlg_ );
-    deleteAndZeroPtr( man3dhordlg_ );
-    deleteAndZeroPtr( man2dhordlg_ );
-    deleteAndZeroPtr( man3dfaultdlg_ );
-    deleteAndZeroPtr( manfssdlg_ );
-    deleteAndZeroPtr( manfltsetdlg_ );
-    deleteAndZeroPtr( manbodydlg_ );
-    deleteAndZeroPtr( crhordlg_ );
-    deleteAndZeroPtr( impbulkfssdlg_ );
-    deleteAndZeroPtr( impbulk2dhordlg_ );
+    deleteAndNullPtr( imphorattrdlg_ );
+    deleteAndNullPtr( imphorgeomdlg_ );
+    deleteAndNullPtr( impzmapdlg_ );
+    deleteAndNullPtr( impfltdlg_ );
+    deleteAndNullPtr( impbulkfltdlg_ );
+    deleteAndNullPtr( impfltsetdlg_ );
+    deleteAndNullPtr( impbulkhordlg_ );
+    deleteAndNullPtr( exphordlg_ );
+    deleteAndNullPtr( exp2dhordlg_ );
+    deleteAndNullPtr( expfltdlg_ );
+    deleteAndNullPtr( expfltsetdlg_ );
+    deleteAndNullPtr( man3dhordlg_ );
+    deleteAndNullPtr( man2dhordlg_ );
+    deleteAndNullPtr( man3dfaultdlg_ );
+    deleteAndNullPtr( manfssdlg_ );
+    deleteAndNullPtr( manfltsetdlg_ );
+    deleteAndNullPtr( manbodydlg_ );
+    deleteAndNullPtr( crhordlg_ );
+    deleteAndNullPtr( impbulkfssdlg_ );
+    deleteAndNullPtr( impbulk2dhordlg_ );
     deepErase( variodlgs_ );
 }
 
@@ -329,7 +329,7 @@ bool uiEMPartServer::export2DHorizon( bool bulk )
 bool uiEMPartServer::export3DHorizon( bool bulk )
 {
     if ( exphordlg_ && exphordlg_->isBulk()!=bulk )
-	deleteAndZeroPtr( exphordlg_ );
+	deleteAndNullPtr( exphordlg_ );
 
     if ( !exphordlg_ )
     {
@@ -427,7 +427,7 @@ void uiEMPartServer::importBulk2DFaultStickset()
 bool uiEMPartServer::exportFault( bool single )
 {
     if ( expfltdlg_ && expfltdlg_->isBulk()==single )
-	deleteAndZeroPtr( expfltdlg_ );
+	deleteAndNullPtr( expfltdlg_ );
 
     if ( !expfltdlg_ )
 	expfltdlg_ = new uiExportFault( parent(),
@@ -439,7 +439,7 @@ bool uiEMPartServer::exportFault( bool single )
 bool uiEMPartServer::exportFaultStickSet( bool single )
 {
     if ( expfltstickdlg_ && expfltstickdlg_->isBulk()==single )
-	deleteAndZeroPtr( expfltstickdlg_ );
+	deleteAndNullPtr( expfltstickdlg_ );
 
     if ( !expfltstickdlg_ )
 	expfltstickdlg_ = new uiExportFault( parent(),

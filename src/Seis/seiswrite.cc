@@ -130,9 +130,9 @@ bool SeisTrcWriter::close()
 	}
     }
 
-    deleteAndZeroPtr( putter_ );
-    deleteAndZeroPtr( pswriter_ );
-    deleteAndZeroPtr( gidp_ );
+    deleteAndNullPtr( putter_ );
+    deleteAndNullPtr( pswriter_ );
+    deleteAndNullPtr( gidp_ );
     psioprov_ = nullptr;
     ret &= SeisStoreAccess::close();
 
@@ -143,7 +143,7 @@ bool SeisTrcWriter::close()
 void SeisTrcWriter::updateLineData()
 {
     const Pos::GeomID gid = geomID();
-    deleteAndZeroPtr( linedata_ );
+    deleteAndNullPtr( linedata_ );
     spnrs_.setEmpty();
 
     if ( is2D() || Survey::is2DGeom(gid) )
@@ -429,7 +429,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	{
 	    errmsg_ = strl()->errMsg();
 	    strl()->close();
-	    deleteAndZeroPtr( trl_ );
+	    deleteAndNullPtr( trl_ );
 	    return false;
 	}
     }
