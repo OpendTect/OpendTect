@@ -211,13 +211,18 @@ void ODMainProgramRestarter()
 int ODMain( uiMain& app )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
-    OD::ModDeps().ensureLoaded( "uiBase" );
+    OD::ModDeps().ensureLoaded( "uiIo" );
 
     uiDialog::setTitlePos( uiDialog::LeftSide );
 
     PtrMan<ApplicationData> bapp = new ApplicationData();
+
+    const CommandLineParser clp;
+    uiRetVal uirv = IOMan::setDataSource( clp );
+    mIfIOMNotOK( return 1 )
+
     checkScreenRes();
-    uiRetVal uirv;
+    uirv.setOK();
     bool skippluginsel = false;
     if ( !doProductSelection(skippluginsel,uirv) )
     {
@@ -232,10 +237,6 @@ int ODMain( uiMain& app )
     PtrMan<uiSplashScreen> splash = new uiSplashScreen( pm );
     splash->show();
     splash->showMessage( "Loading plugins ..." );
-
-    const CommandLineParser clp;
-    uirv = IOMan::setDataSource( clp );
-    mIfIOMNotOK( return 1 )
 
     PIM().loadAuto( false, !skippluginsel );
     OD::ModDeps().ensureLoaded( "uiODMain" );
