@@ -170,7 +170,7 @@ void uiSEGYReadFinisher::crSeisFields()
 	outimpfld_->setInputText( objname_ );
 
     uiSeisSel::Setup scansu( gt );
-    scansu.enabotherdomain( true ).withwriteopts( true );
+    scansu.enabotherdomain( true ).withwriteopts( false );
     ctxt.toselect_.allownonuserselectable_ = true;
     ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
     outscanfld_ = new uiSeisSel( this, ctxt, scansu );

@@ -1010,6 +1010,12 @@ void uiTreeViewItem::setPixmap( int column, const uiPixmap& pm )
 void uiTreeViewItem::setPixmap( int column, const OD::Color& col,
 				int width, int height )
 {
+    if ( col == OD::Color::NoColor() )
+    {
+	qItem()->setIcon( column, QPixmap() );
+	return;
+    }
+
     uiPixmap pm( width, height );
     pm.fill( col );
     setPixmap( column, pm );
