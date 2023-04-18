@@ -38,8 +38,9 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "randcolor.h"
 #include "od_iostream.h"
+#include "od_helpids.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "timedepthmodel.h"
@@ -47,15 +48,14 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
+#include "wellimpasc.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
-#include "welltransl.h"
 #include "wellreader.h"
-#include "wellwriter.h"
+#include "welltransl.h"
 #include "welltrack.h"
-#include "wellimpasc.h"
-#include "od_helpids.h"
+#include "wellwriter.h"
 
 
 static const int nremptyrows = 5;
@@ -2484,11 +2484,10 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     for ( const auto* wd : wds )
 	wellnms.addIfNew( wd->name() );
 
-    bulkmode_ = new uiGenInput( this, tr("Edit in"),
-				      BoolInpSpec(false,tr("Bulk mode"),
-						  tr("Single Well mode")) );
+    applytobut_ = new uiRadioButton( this,
+			     tr("Apply changes to all wells in the list") );
     auto* sep = new uiSeparator( this );
-    sep->attach( stretchedBelow, bulkmode_ );
+    sep->attach( stretchedBelow, applytobut_ );
     welllist_ = new uiListBox( this, "Wells" );
     welllist_->addLabel( tr("Select Well"),
 			 uiListBox::AboveMid );
@@ -2507,7 +2506,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 	tables_ += table;
     }
 
-    mAttachCB( bulkmode_->valueChanged, uiWellDefMnemLogDlg::changeModeCB );
+    mAttachCB( applytobut_->activated, uiWellDefMnemLogDlg::changeModeCB );
     mAttachCB( welllist_->selectionChanged,
 	       uiWellDefMnemLogDlg::wellChangedCB );
     mAttachCB( postFinalize(), uiWellDefMnemLogDlg::initDlg );
@@ -2529,9 +2528,9 @@ void uiWellDefMnemLogDlg::initDlg( CallBacker* )
 
 void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
 {
-    if ( bulkmode_->getBoolValue() )
+    if ( applytobut_->isChecked() )
     {
-	uiMSG().warning( tr("When editing in bulk mode, changes to a mnemonic"),
+	uiMSG().warning( tr("When editing in this mode, changes to a mnemonic"),
 			 tr("will be applied to all the wells, which contain"),
 			 tr("the specified mnemonic"), true );
     }
@@ -2540,7 +2539,7 @@ void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
 
 void uiWellDefMnemLogDlg::logChangedCB( CallBacker* )
 {
-    if ( !bulkmode_->getBoolValue() )
+    if ( !applytobut_->isChecked() )
 	return;
 
     const int curwell = welllist_->currentItem();

@@ -25,6 +25,7 @@ class uiComboBox;
 class uiLabel;
 class uiMultiWellSel;
 class uiPushButton;
+class uiRadioButton;
 class uiTable;
 class uiTableImpDataSel;
 class uiTextBrowser;
@@ -321,7 +322,7 @@ protected:
 
 
     uiListBox*			welllist_;
-    uiGenInput*			bulkmode_;
+    uiRadioButton*		applytobut_;
     uiGroup*			tablegrp_;
     ObjectSet<Tables>		tables_;
 
