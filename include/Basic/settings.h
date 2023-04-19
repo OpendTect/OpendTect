@@ -75,6 +75,8 @@ private:
 mExternC(Basic) const char* GetSettingsDataDir(void);
 mGlobal(Basic) bool SetSettingsDataDir(const char*,uiRetVal&);
 
+mExternC(Basic) const char* GetSettingsSurveyDir(void);
+
 
 //!> macro for easy set to Settings::common()
 #define mSettUse(fn,basekey,key,value) \

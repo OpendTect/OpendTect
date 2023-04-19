@@ -40,8 +40,8 @@ namespace OD{
 
 class odSurvey {
 public:
-			odSurvey(const char* basedir,const char* surveynm);
-			~odSurvey();
+		    odSurvey(const char* surveynm, const char* basedir=nullptr);
+		    ~odSurvey();
 
     BufferString	type() const;
     bool		has2D() const;
@@ -67,11 +67,11 @@ public:
 				  BufferString& errmsg) const;
 
     static bool		initModule(const char*);
-    static BufferStringSet*	getNames(const char* data_root);
-    static void		getInfos(OD::JSON::Array&, const char* data_root,
-				 const BufferStringSet&);
-    static void		getFeatures(OD::JSON::Object&, const char* data_root,
-				    const BufferStringSet&);
+    static BufferStringSet*	getNames(const char* data_root=nullptr);
+    static void		getInfos(OD::JSON::Array&, const BufferStringSet&,
+				 const char* data_root=nullptr);
+    static void		getFeatures(OD::JSON::Object&, const BufferStringSet&,
+				    const char* data_root=nullptr);
     static BufferStringSet	getCommonItems(const BufferStringSet&,
 					       const BufferStringSet&);
 
@@ -86,8 +86,8 @@ typedef void* hSurvey;
 
 mExternC(ODBind) bool		initModule(const char*);
 mExternC(ODBind) void		exitModule();
-mExternC(ODBind) hSurvey	survey_new(const char* basedir,
-					   const char* surveynm);
+mExternC(ODBind) hSurvey	survey_new(const char* surveynm,
+					   const char* basedir);
 mExternC(ODBind) void		survey_del(hSurvey);
 mExternC(ODBind) void		survey_bin(hSurvey, double x, double y,
 					   int* iline, int* xline);
@@ -96,13 +96,15 @@ mExternC(ODBind) void		survey_bincoords(hSurvey, double x, double y,
 mExternC(ODBind) void		survey_coords(hSurvey, int iline, int xline,
 					      double* x, double* y);
 mExternC(ODBind) const char*	survey_feature(hSurvey);
-mExternC(ODBind) const char*	survey_features(const char*, const hStringSet);
+mExternC(ODBind) const char*	survey_features(const hStringSet,
+						const char* basedir);
 mExternC(ODBind) bool		survey_has2d(hSurvey);
 mExternC(ODBind) bool		survey_has3d(hSurvey);
 mExternC(ODBind) bool		survey_hasobject(hSurvey, const char* objname,
 						 const char* trgrpnm);
 mExternC(ODBind) const char*	survey_info(hSurvey);
-mExternC(ODBind) const char*	survey_infos(const char*, const hStringSet);
+mExternC(ODBind) const char*	survey_infos(const hStringSet,
+					     const char* basedir);
 mExternC(ODBind) hStringSet	survey_names(const char* basedir);
 mExternC(ODBind) const char*	survey_path(hSurvey);
 mExternC(ODBind) const char*	survey_survtype(hSurvey);

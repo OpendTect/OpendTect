@@ -1,19 +1,10 @@
 import pytest
-import os
-import platform
 import json
 import odbind as odb
 
-@pytest.fixture
-def data_root():
-    if platform.system() == 'Windows':
-        return os.getenv('DTECT_WINDATA')
-    else:
-        return os.getenv('DTECT_DATA')
-
-def test_Survey_class(data_root):
-    assert 'F3_Demo_2020' in odb.Survey.names(data_root)
-    f3demo = odb.Survey(data_root, "F3_Demo_2020")
+def test_Survey_class():
+    assert 'F3_Demo_2020' in odb.Survey.names()
+    f3demo = odb.Survey("F3_Demo_2020")
     info =  {
                 'name': "F3_Demo_2020",
                 'type': "2D3D",

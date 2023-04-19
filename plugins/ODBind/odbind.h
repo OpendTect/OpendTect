@@ -24,6 +24,8 @@ ________________________________________________________________________________
 #include "gendefs.h"
 
 mExternC(ODBind) void		cstring_del(char*);
+mExternC(ODBind) const char*	getUserDataDir();
+mExternC(ODBind) const char*	getUserSurvey();
 
 typedef void* (*hAllocator)(int, int*, char);
 

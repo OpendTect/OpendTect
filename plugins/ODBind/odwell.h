@@ -52,10 +52,9 @@ public:
 
     void		getTrack(hAllocator);
 
-   //  py::dict    getLogs(py::list lognms, float zstep=0.5,
-			// SampleMode samplemode=Upscale);
-   //  py::object  getLogsDF(py::list lognms, float zstep=0.5,
-			//   SampleMode samplemode=Upscale);
+    void		getLogs(hAllocator, const BufferStringSet&,
+				OD::JSON::Array&,
+				float zstep=0.5, SampleMode samplemode=Upscale);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getFeature(OD::JSON::Object&,
@@ -76,11 +75,11 @@ mExternC(ODBind) const char*	well_loginfo(hWell, const hStringSet);
 mExternC(ODBind) hStringSet	well_markernames(hWell);
 mExternC(ODBind) const char*	well_markerinfo(hWell, const hStringSet);
 mExternC(ODBind) void		well_gettrack(hWell, hAllocator);
+mExternC(ODBind) const char*	well_getlogs(hWell, hAllocator,
+					     const hStringSet, float zstep,
+					     bool upscale);
 mExternC(ODBind) void		well_tvd(hWell, const float dah, float* tvd);
 mExternC(ODBind) void		well_tvdss(hWell, const float dah,
 					   float* tvdss);
-
-// mExternC(ODBind) void		well_gettrack(hWell, hAllocator);
-// mExternC(ODBind) void		well_getlogs(hWell, hAllocator, const hStringSet lognms, float zstep);
 
 

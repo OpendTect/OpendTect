@@ -1,18 +1,10 @@
 import pytest
-import os
-import platform
 import json
+import numpy as np
 import odbind as odb
 
-@pytest.fixture
-def data_root():
-    if platform.system() == 'Windows':
-        return os.getenv('DTECT_WINDATA')
-    else:
-        return os.getenv('DTECT_DATA')
-
-def test_Well_class(data_root):
-    f3demo = odb.Survey(data_root, "F3_Demo_2020")
+def test_Well_class():
+    f3demo = odb.Survey("F3_Demo_2020")
     wells = odb.Well.names(f3demo)
     assert 'F02-1' in wells
     well = odb.Well(f3demo, 'F03-4')
@@ -88,3 +80,12 @@ def test_Well_class(data_root):
     assert well.track()['tvdss'][9] == pytest.approx(965.8301, rel=0.01)
     assert well.track()['x'][9] == pytest.approx(623255.70, rel=0.01)
     assert well.track()['y'][9] == pytest.approx(6082596.34, rel=0.01)
+    logs, uom = well.logs(['Density','Sonic'], zstep=500.1, upscale=False)
+    assert np.allclose(logs['dah'], np.array([0., 500.1, 1000.2, 1500.3]), equal_nan=True)
+    assert np.allclose(logs['Density'], np.array([np.nan, 2.1078, 2.2417, 2.003]), equal_nan=True)
+    assert np.allclose(logs['Sonic'], np.array([np.nan, np.nan, 126.61453, 167.94113]), equal_nan=True)
+    assert uom == ['m', 'g/cc', 'us/ft']
+    logs, uom = well.logs(['Density','Sonic'], zstep=500.1, upscale=True)
+    assert np.allclose(logs['dah'], np.array([0., 500.1, 1000.2, 1500.3]), equal_nan=True)
+    assert np.allclose(logs['Density'], np.array([2.1116648, 2.1382186, 2.1459596, 2.1021001]), equal_nan=True)
+    assert np.allclose(logs['Sonic'], np.array([np.nan, 140.28456, 143.23149, 150.78096]), equal_nan=True)

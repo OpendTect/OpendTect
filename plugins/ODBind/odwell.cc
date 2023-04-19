@@ -183,6 +183,81 @@ void odWell::getTrack( hAllocator allocator )
 }
 
 
+void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
+		      OD::JSON::Array& jsarr, float zstep,
+		      SampleMode samplemode )
+{
+    survey_.activate();
+    jsarr.setEmpty();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::getLogs - invalid welldata object.";
+	return;
+    }
+
+    BufferStringSet nms;
+    PtrMan<BufferStringSet> allnms = getLogNames();
+    if ( lognms.isEmpty() )
+	nms = *allnms;
+    else
+	nms = odSurvey::getCommonItems( *allnms, lognms );
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    StepInterval<float> dahrg;
+    dahrg.setUdf();
+    dahrg.step = getConvertedValue( zstep, zduom, zsuom );
+    for ( const auto* lognm : nms )
+    {
+	auto* log = wd_->logs().getLog( lognm->buf() );
+	if (log)
+	    dahrg.include(log->dahRange());
+    }
+
+    const int ndim = 1;
+    int dims[ndim];
+    bool first = true;
+    for ( const auto* lognm : nms )
+    {
+	const auto* log = wd_->getLog( lognm->buf() );
+	if ( log )
+	{
+	    PtrMan<Well::Log> outlog;
+	    if (samplemode==Upscale)
+		outlog = log->upScaleLog( dahrg );
+	    else
+		outlog = log->sampleLog( dahrg );
+
+	    dims[0] = outlog->size();
+	    if ( first )
+	    {
+		float* dah_data = reinterpret_cast<float*>(
+						allocator(ndim, dims, 'f') );
+		for ( int idx=0; idx<outlog->size(); idx++ )
+		    *dah_data++ = getConvertedValue( outlog->dah(idx), zsuom,
+						     zduom );
+
+		first = false;
+		OD::JSON::Object loginfo;
+		loginfo.set( "dah",
+			     UnitOfMeasure::surveyDefDepthUnit()->getLabel() );
+		jsarr.add( loginfo.clone() );
+	    }
+
+	    float* log_data = reinterpret_cast<float*>(
+						allocator(ndim, dims, 'f') );
+	    for ( int idx=0; idx<outlog->size();idx++ )
+		*log_data++ = mIsUdf(outlog->value(idx)) ? nanf("") :
+							    outlog->value(idx);
+
+	    OD::JSON::Object loginfo;
+	    loginfo.set( lognm->buf(), log->unitMeasLabel() );
+	    jsarr.add( loginfo.clone() );
+	}
+    }
+}
+
+
 void odWell::getInfo( OD::JSON::Object& jsobj ) const
 {
     survey_.activate();
@@ -297,6 +372,22 @@ void well_gettrack( hWell self, hAllocator allocator )
     auto* p = reinterpret_cast<odWell*>(self);
     if ( p )
 	p->getTrack( allocator );
+}
+
+
+const char* well_getlogs( hWell self, hAllocator allocator,
+			  const hStringSet lognms,
+			  float zstep, bool upscale )
+{
+    auto* p = reinterpret_cast<odWell*>(self);
+    const auto* nms = reinterpret_cast<BufferStringSet*>(lognms);
+    if ( !p || !nms )
+	return nullptr;
+
+    OD::JSON::Array jsarr( true );
+    p->getLogs( allocator, *nms, jsarr, zstep,
+				upscale ? odWell::Upscale : odWell::Sample );
+    return strdup( jsarr.dumpJSon().buf() );
 }
 
 

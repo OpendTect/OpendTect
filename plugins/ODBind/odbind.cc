@@ -25,6 +25,7 @@ ________________________________________________________________________________
 #include "genc.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "settings.h"
 #include "sharedlibs.h"
 
 #include <string.h>
@@ -35,6 +36,16 @@ void cstring_del( char* str )
 {
     if ( str )
 	std::free( str );
+}
+
+const char* getUserDataDir()
+{
+    return strdup( GetSettingsDataDir() );
+}
+
+const char* getUserSurvey()
+{
+    return strdup( GetSettingsSurveyDir() );
 }
 
 hStringSet stringset_new()
