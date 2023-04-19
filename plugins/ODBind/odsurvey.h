@@ -110,3 +110,5 @@ mExternC(ODBind) const char*	isValidSurveyDir(const char*);
 			    //!< Full path to an OpendTect project directory
 mExternC(ODBind) const char*	isValidDataRoot(const char*);
 			    //!< Full path to a writable directory
+mExternC(ODBind) const char*	survey_createtemp(const char* surveynm,
+							const char* basedir);

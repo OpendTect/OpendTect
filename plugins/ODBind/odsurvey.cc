@@ -37,6 +37,7 @@ ________________________________________________________________________________
 #include "oscommand.h"
 #include "plugins.h"
 #include "safefileio.h"
+#include "surveyfile.h"
 #include "survinfo.h"
 #include "transl.h"
 
@@ -303,7 +304,7 @@ bool odSurvey::activate() const
 
     const char* uirv = setDBMDataSource(
 			  FilePath(basedir_, survey_).fullPath(), hasiom );
-    if ( !uirv )
+    if ( uirv && *uirv )
 	return false;
 
     curbasedir_ = basedir_;
@@ -556,4 +557,18 @@ const char* isValidDataRoot( const char* loc )
 
     ret.set( uirv.getText().buf() );
     return ret.buf();
+}
+
+
+const char* survey_createtemp( const char* surveynm, const char* bsedir )
+{
+    EmptyTempSurvey tempsurvey( surveynm, bsedir, true, false );
+    if ( !tempsurvey.isOK() )
+    {
+	mDeclStaticString( errmsg );
+	errmsg.set( tempsurvey.errMsg().getText().buf() );
+	return errmsg.buf();
+    }
+
+    return nullptr;
 }
