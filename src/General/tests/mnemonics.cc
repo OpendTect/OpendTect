@@ -24,6 +24,7 @@ static bool testRanges()
     mRunStandardTest( pr &&
 		      pr->disp_.typicalrange_ == Interval<float>(40.f,140.f),
 		      "Typical range for Sonic PropertyRef" );
+
     return true;
 }
 
@@ -377,6 +378,21 @@ static bool testFindProp()
 }
 
 
+static bool testCustomMn()
+{
+    const Mnemonic* eimn = MNC().getByName( "EI", false );
+    mRunStandardTest( eimn && eimn->isTemplate(),
+		      "EI Mnemonic is default template" );
+
+    PtrMan<Mnemonic> eei15mn = Mnemonic::getFromTemplate( *eimn,
+				"EEI 15", Repos::Survey );
+    mRunStandardTest( eei15mn && !eei15mn->isTemplate(),
+			"EEI 15 Mnemonic is not a default mnemonic" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -386,7 +402,8 @@ int mTestMainFnName( int argc, char** argv )
 	 !testPropertyRefSet() ||
 	 !testPropertyRefSelection() ||
 	 !testElasticPropSelection() ||
-	 !testFindProp() )
+	 !testFindProp() ||
+	 !testCustomMn() )
 	return 1;
 
     return 0;

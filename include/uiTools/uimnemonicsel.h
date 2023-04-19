@@ -15,7 +15,10 @@ ________________________________________________________________________
 
 #include "mnemonics.h"
 
+class uiButtonGroup;
 class uiListBox;
+class uiMnSelFlds;
+class uiTable;
 
 
 /*!\brief Selector for Mnemonics */
@@ -96,4 +99,41 @@ protected:
 
     bool			acceptOK(CallBacker*) override;
 
+};
+
+
+mExpClass(uiTools) uiCustomMnemonicsSel : public uiDialog
+{ mODTextTranslationClass(uiCustomMnemonicsSel)
+public:
+				uiCustomMnemonicsSel(uiParent*);
+				~uiCustomMnemonicsSel();
+
+private:
+
+    void			initDlg(CallBacker*);
+    void			addRowButCB(CallBacker*);
+    void			addRowTblRowCB(CallBacker*);
+    void			removeButCB(CallBacker*);
+    void			removeTblRowCB(CallBacker*);
+    void			removeTblSelCB(CallBacker*);
+    void			cellEditCB(CallBacker*);
+    void			saveButCB(CallBacker*);
+
+    void			removeEntries(const TypeSet<int>& rows);
+    void			getEntries(ObjectSet<Mnemonic>&,
+					   bool forrestore=false) const;
+    bool			commitEntries(ObjectSet<Mnemonic>&,
+					      bool forrestore=false);
+    void			doRead();
+    bool			doSave(ObjectSet<Mnemonic>&,bool restore=false);
+
+    bool			rejectOK(CallBacker*) override;
+    bool			acceptOK(CallBacker*) override;
+
+    ObjectSet<uiMnSelFlds>	selflds_;
+    uiTable*			tbl_;
+    uiButtonGroup*		bgrp_;
+
+    bool			dontshowmgr_ = false;
+    MnemonicSelection		originalcustommns_;
 };

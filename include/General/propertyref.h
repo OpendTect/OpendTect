@@ -143,6 +143,14 @@ public:
     bool		subselect(PropertyRef::StdType,
 				  ObjectSet<const PropertyRef>&)const;
 
+    void		erase() override;
+    PropertyRef*	pop() override;
+    PropertyRef*	removeSingle(int,bool keep_order=true) override;
+    void		removeRange(int,int) override;
+    PropertyRef*	replace(int,PropertyRef*) override;
+    PropertyRef*	removeAndTake(int,bool keep_order=true) override;
+    ManagedObjectSetBase<PropertyRef>&	operator -=(PropertyRef*) override;
+
 private:
 			PropertyRefSet();
 			mOD_DisableCopy(PropertyRefSet);
@@ -155,6 +163,8 @@ private:
     void		readFrom(ascistream&,Repos::Source);
     bool		writeTo(ascostream&) const;
     bool		save(Repos::Source) const;
+
+    static void		removeCache(const PropertyRef*);
 
     friend class PropertyRefSetMgr;
     friend class uiManPROPS;

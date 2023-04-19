@@ -872,6 +872,14 @@ bool PropertyRefSet::subselect( PropertyRef::StdType proptype,
 }
 
 
+void PropertyRefSet::erase()
+{
+    getPropLookupCache( true ).clear();
+    getPropLookupCache( false ).clear();
+    return ManagedObjectSet<PropertyRef>::erase();
+}
+
+
 PropertyRefSet& PropertyRefSet::doAdd( PropertyRef* pr )
 {
     if ( !pr || getByName(pr->name(),false) )
@@ -882,6 +890,63 @@ PropertyRefSet& PropertyRefSet::doAdd( PropertyRef* pr )
 
     ObjectSet<PropertyRef>::doAdd( pr );
     return *this;
+}
+
+
+PropertyRef* PropertyRefSet::pop()
+{
+    if ( !isEmpty() )
+	removeCache( first() );
+
+    return ManagedObjectSet<PropertyRef>::pop();
+}
+
+
+PropertyRef* PropertyRefSet::removeSingle( int idx, bool keep_order )
+{
+    removeCache( get(idx) );
+    return ManagedObjectSet<PropertyRef>::removeSingle( idx, keep_order );
+}
+
+
+void PropertyRefSet::removeRange( int from, int to )
+{
+    for ( int idx=from; idx<=to; idx++ )
+	removeCache( get(idx) );
+
+    return ManagedObjectSet<PropertyRef>::removeRange( from, to );
+}
+
+
+PropertyRef* PropertyRefSet::replace( int idx, PropertyRef* oth )
+{
+    removeCache( get(idx) );
+    return ManagedObjectSet<PropertyRef>::replace( idx, oth );
+}
+
+
+PropertyRef* PropertyRefSet::removeAndTake( int idx, bool keep_order )
+{
+    removeCache( get(idx) );
+    return ManagedObjectSet<PropertyRef>::removeAndTake( idx, keep_order );
+}
+
+
+ManagedObjectSetBase<PropertyRef>& PropertyRefSet::operator -=( PropertyRef* pr)
+{
+    removeCache( pr );
+    return ManagedObjectSet<PropertyRef>::operator -=( pr );
+}
+
+
+void PropertyRefSet::removeCache( const PropertyRef* pr )
+{
+    if ( pr )
+    {
+	const QString qstr( pr->name() );
+	getPropLookupCache( true ).remove( qstr );
+	getPropLookupCache( false ).remove( qstr );
+    }
 }
 
 

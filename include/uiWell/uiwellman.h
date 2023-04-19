@@ -41,7 +41,7 @@ protected:
     uiListBox*			logsfld_;
     uiGroup*			logsgrp_;
 
-    bool			iswritable_;
+    bool			iswritable_ = true;
     RefObjectSet<Well::Data>	curwds_;
     ObjectSet<Well::Reader>	currdrs_;
     TypeSet<MultiID>		curmultiids_;
@@ -60,11 +60,12 @@ protected:
     uiToolButton*		logedbut_;
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
+    uiToolButton*		custommnsbut_;
     uiPushButton*		addlogsbut_;
     uiPushButton*		calclogsbut_;
     uiToolButton*		welltrackbut_;
-    uiToolButton*		d2tbut_;
-    uiToolButton*		csbut_;
+    uiToolButton*		d2tbut_ = nullptr;
+    uiToolButton*		csbut_ = nullptr;
     uiToolButton*		markerbut_;
 
     uiWellLogCalc*		welllogcalcdlg_ = nullptr;
@@ -94,6 +95,7 @@ protected:
     void			logUOMPush(CallBacker*);
     void			logMnemPush(CallBacker*);
     void			defMnemLogPush(CallBacker*);
+    void			customMnsPush(CallBacker*);
 
     void			edMarkers(CallBacker*);
     void			edWellTrack(CallBacker*);

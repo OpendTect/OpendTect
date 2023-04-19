@@ -10,8 +10,9 @@ ________________________________________________________________________
 #include "mnemonics.h"
 
 #include "ascstream.h"
-#include "ioman.h"
+#include "genc.h"
 #include "globexpr.h"
+#include "ioman.h"
 #include "odpair.h"
 #include "safefileio.h"
 #include "separstr.h"
@@ -162,6 +163,8 @@ Mnemonic& Mnemonic::operator =( const Mnemonic& oth )
 	aliases_ = oth.aliases_;
 	disp_ = oth.disp_;
 	uom_ = oth.uom_;
+	source_ = oth.source_;
+	origin_ = oth.origin_;
     }
     return *this;
 }
@@ -183,6 +186,20 @@ bool Mnemonic::operator ==( const Mnemonic& oth ) const
 bool Mnemonic::operator !=( const Mnemonic& oth ) const
 {
     return !(*this == oth);
+}
+
+
+Mnemonic* Mnemonic::getFromTemplate( const Mnemonic& oth,const char* customname,
+				     Repos::Source src )
+{
+    if ( !oth.isTemplate() )
+	return nullptr;
+
+    auto* ret = new Mnemonic( oth );
+    ret->setName( customname );
+    ret->source_ = src;
+    ret->origin_ = &oth;
+    return ret;
 }
 
 
@@ -359,6 +376,7 @@ const Mnemonic& Mnemonic::undef()
 	auto* newudf = new Mnemonic( "OTH", Other );
 	if ( udf.setIfNull(newudf,true) )
 	{
+	    newudf->source_ = Repos::ApplSetup;
 	    newudf->logtypename_ = "Other";
 	    BufferStringSet& aliases = newudf->aliases();
 	    aliases.add( "udf" ).add( "unknown" );
@@ -377,6 +395,7 @@ const Mnemonic& Mnemonic::distance()
 	auto* ret = new Mnemonic( "DIST", Dist );
 	if ( dist.setIfNull(ret,true) )
 	{
+	    ret->source_ = Repos::ApplSetup;
 	    ret->disp_.range_ = Interval<float>( 0.f, mUdf(float) );
 	    ret->disp_.typicalrange_ = Interval<float>( 0.f, mUdf(float) );
 	    /* NO default unit, as lateral (XY) and vertical(Z) distances
@@ -395,6 +414,7 @@ const Mnemonic& Mnemonic::volume()
 	auto* ret = new Mnemonic( "VOL", Volum );
 	if ( volume.setIfNull(ret,true) )
 	{
+	    ret->source_ = Repos::ApplSetup;
 	    ret->disp_.range_ = Interval<float>( 0.f, mUdf(float) );
 	    ret->disp_.typicalrange_ = Interval<float>( 0.f, mUdf(float) );
 	}
@@ -420,6 +440,20 @@ const Mnemonic& Mnemonic::defFracOrientation()
 { return *MNC().getByName( "FRACSTRIKE", false ); }
 
 
+using MnemonicsCache = QHash<QString,const Mnemonic*>;
+
+MnemonicsCache& getMnemonicLookupCache( bool matchaliases )
+{
+    if ( matchaliases )
+    {
+	mDefineStaticLocalObject( MnemonicsCache, macache, );
+	return macache;
+    }
+
+    mDefineStaticLocalObject( MnemonicsCache, cache, );
+    return cache;
+}
+
 //------- MnemonicSetMgr ----------
 
 class MnemonicSetMgr : public CallBacker
@@ -428,6 +462,13 @@ public:
 
 MnemonicSetMgr()
 {
+    if ( !NeedDataBase() )
+	return;
+
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), MnemonicSetMgr::iomReadyCB );
 }
 
 
@@ -438,10 +479,18 @@ MnemonicSetMgr()
 }
 
 
+void iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().surveyChanged, MnemonicSetMgr::removeSurveyMnemonics );
+    mAttachCB( IOM().afterSurveyChange, MnemonicSetMgr::addSurveyMnemonics );
+}
+
+
 void createSet()
 {
+    const Repos::Source src = Repos::ApplSetup;
     Repos::FileProvider rfp( filenamebase, true );
-    rfp.setSource( Repos::Source::ApplSetup );
+    rfp.setSource( src );
     rfp.next();
 
     const BufferString fnm( rfp.fileName() );
@@ -452,6 +501,7 @@ void createSet()
 	MnemonicSet* oldmns_ = mns_;
 	mns_ = new MnemonicSet;
 	mns_->readFrom( astrm );
+	mns_->setSource( src );
 	sfio.closeSuccess();
 	if ( mns_->isEmpty() )
 	{
@@ -459,11 +509,50 @@ void createSet()
 	    mns_ = oldmns_;
 	}
 	else
+	{
 	    delete oldmns_;
+	    addSurveyMnemonics( nullptr );
+	}
     }
 
     if ( !mns_ )
 	mns_ = new MnemonicSet;
+}
+
+void addSurveyMnemonics( CallBacker* )
+{
+    if ( !IOMan::isOK() || !mns_ )
+	return;
+
+    PtrMan<IOPar> iop = SI().getPars().subselect( sKey::Mnemonics() );
+    if ( !iop )
+	return;
+
+    int idx = 0;
+    while ( true )
+    {
+	FileMultiString fms;
+	if ( !iop->get(toString(idx++),fms) )
+	    return;
+	if ( fms.size() < 2 )
+	    continue;
+
+	const Mnemonic* origin = mns_->getByName( fms[1], false );
+	if ( !origin )
+	    continue;
+
+	mns_->add( Mnemonic::getFromTemplate( *origin, fms[0], Repos::Survey ));
+    }
+}
+
+void removeSurveyMnemonics( CallBacker* )
+{
+    if ( !mns_ )
+	return;
+
+    for ( int idx=mns_->size()-1; idx>=0; idx-- )
+	if ( !mns_->get(idx)->isTemplate() )
+	    mns_->removeSingle( idx );
 }
 
     MnemonicSet* mns_ = nullptr;
@@ -489,26 +578,76 @@ MnemonicSet::MnemonicSet()
 }
 
 
+void MnemonicSet::erase()
+{
+    getMnemonicLookupCache( true ).clear();
+    getMnemonicLookupCache( false ).clear();
+    return ManagedObjectSet<Mnemonic>::erase();
+}
+
+
+Mnemonic* MnemonicSet::pop()
+{
+    if ( !isEmpty() )
+	removeCache( first() );
+
+    return ManagedObjectSet<Mnemonic>::pop();
+}
+
+
+Mnemonic* MnemonicSet::removeSingle( int idx, bool keep_order )
+{
+    removeCache( get(idx) );
+    return ManagedObjectSet<Mnemonic>::removeSingle( idx, keep_order );
+}
+
+
+void MnemonicSet::removeRange( int from, int to )
+{
+    for ( int idx=from; idx<=to; idx++ )
+	removeCache( get(idx) );
+
+    return ManagedObjectSet<Mnemonic>::removeRange( from, to );
+}
+
+
+Mnemonic* MnemonicSet::replace( int idx, Mnemonic* oth )
+{
+    removeCache( get(idx) );
+    return ManagedObjectSet<Mnemonic>::replace( idx, oth );
+}
+
+
+Mnemonic* MnemonicSet::removeAndTake( int idx, bool keep_order )
+{
+    removeCache( get(idx) );
+    return ManagedObjectSet<Mnemonic>::removeAndTake( idx, keep_order );
+}
+
+
+ManagedObjectSetBase<Mnemonic>& MnemonicSet::operator -=( Mnemonic* mn )
+{
+    removeCache( mn );
+    return ManagedObjectSet<Mnemonic>::operator -=( mn );
+}
+
+
+void MnemonicSet::removeCache( const Mnemonic* mn )
+{
+    if ( mn )
+    {
+	const QString qstr( mn->name() );
+	getMnemonicLookupCache( true ).remove( qstr );
+	getMnemonicLookupCache( false ).remove( qstr );
+    }
+}
+
+
 Mnemonic* MnemonicSet::getByName( const char* nm, bool matchaliases )
 {
     const Mnemonic* ret =
 	const_cast<const MnemonicSet*>(this)->getByName( nm, matchaliases );
     return const_cast<Mnemonic*>( ret );
-}
-
-
-using MnemonicsCache = QHash<QString,const Mnemonic*>;
-
-MnemonicsCache& getMnemonicLookupCache( bool matchaliases )
-{
-    if ( matchaliases )
-    {
-	mDefineStaticLocalObject( MnemonicsCache, macache, );
-	return macache;
-    }
-
-    mDefineStaticLocalObject( MnemonicsCache, cache, );
-    return cache;
 }
 
 
@@ -603,6 +742,13 @@ void MnemonicSet::readFrom( ascistream& astrm )
 	    astrm.next();
 	}
     }
+}
+
+
+void MnemonicSet::setSource( Repos::Source src )
+{
+    for ( auto* mn : *this )
+	mn->source_ = src;
 }
 
 
