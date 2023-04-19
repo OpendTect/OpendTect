@@ -9,6 +9,9 @@ ________________________________________________________________________
 
 #include "wellman.h"
 
+#include "file.h"
+#include "filepath.h"
+#include "filesystemwatcher.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -21,9 +24,9 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "wellreader.h"
-#include "wellwriter.h"
 #include "welltrack.h"
 #include "welltransl.h"
+#include "wellwriter.h"
 
 
 Well::LoadReqs::LoadReqs( bool addall )
@@ -191,12 +194,80 @@ const UnitOfMeasure* Well::Man::depthstorageunit_ = nullptr;
 const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
 
 Well::Man::Man()
-{}
+{
+    addFileSystemWatchCB( nullptr );
+    getWellKeys( allwellsids_ );
+}
 
 
 Well::Man::~Man()
 {
+    detachAllNotifiers();
     cleanup();
+}
+
+
+void Well::Man::addFileSystemWatchCB( CallBacker* cb )
+{
+    mEnsureExecutedInMainThread( Man::addFileSystemWatchCB );
+    const FilePath welldir( wellDirPath() );
+    const FilePath wellomffp( welldir, ".omf" );
+    FSW().addPath(welldir.fullPath());
+    FSW().addFile(wellomffp.fullPath());
+    mAttachCB( FSW().fileChanged, Man::wellFilesChangedCB );
+    mAttachCB( FSW().directoryChanged, Man::wellDirChangedCB );
+}
+
+
+void Well::Man::wellFilesChangedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( BufferString, fpstr, cb );
+    const FilePath fp( fpstr );
+    const FilePath wellomffp( wellDirPath(), ".omf" );
+    if ( fp != wellomffp )
+	return;
+
+    TypeSet<MultiID> initwellids, currwellids;
+    initwellids = allwellsids_;
+    getWellKeys( currwellids );
+    allwellsids_ = currwellids;
+    if ( initwellids.size() > currwellids.size() )
+    {
+	initwellids.createDifference( currwellids );
+	for ( const auto& id : initwellids )
+	{
+	    if ( !isLoaded(id) )
+		continue;
+
+	    removeObject( id );
+	}
+    }
+    else if ( currwellids.size() > initwellids.size() )
+    {
+	currwellids.createDifference( initwellids );
+	for ( const auto& id : currwellids )
+	    get( id );
+    }
+    else
+	reloadAll();
+}
+
+
+void Well::Man::wellDirChangedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( BufferString, fpstr, cb );
+    const FilePath fp( fpstr );
+    const FilePath welldirfp( wellDirPath() );
+    if ( fp != welldirfp )
+	return;
+
+    reloadAll();
 }
 
 
@@ -367,6 +438,21 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
 }
 
 
+void Well::Man::reloadAll()
+{
+    isreloading_ = true;
+    for ( int idx=0; idx<wells_.size(); idx++ )
+    {
+	RefMan<Data> wd = wells_[idx];
+	NotifyStopper nslogschgd( wd->logschanged );
+	const MultiID& wid = wd->multiID();
+	reload( wid );
+    }
+
+    isreloading_ = false;
+}
+
+
 bool Well::Man::reloadDispPars( const MultiID& key, bool for2d )
 {
     const int wdidx = gtByKey( key );
@@ -418,6 +504,7 @@ int Well::Man::gtByKey( const MultiID& key ) const
 	if ( wells_[idx] && wells_[idx]->multiID() == key )
 	    return idx;
     }
+
     return -1;
 }
 
@@ -822,6 +909,7 @@ bool Well::Man::writeAndRegister( const MultiID& key ,
 	logadded = true;
     }
 
+    NotifyStopper fswns( FSW().directoryChanged );
     Well::Writer wtr( key, *wd );
     if ( !wtr.putLog(*currlogset.getLog(newlognm.buf())) )
     {
@@ -917,6 +1005,19 @@ void Well::Man::dumpMgrInfo( StringPairSet& infoset )
 			 nlogswithdata );
 	}
     }
+}
+
+
+const BufferString Well::Man::wellDirPath()
+{
+    const FilePath welldir( IOM().rootDir().fullPath(), sWellSubDir() );
+    return welldir.fullPath();
+}
+
+
+bool Well::Man::isReloading() const
+{
+    return isreloading_;
 }
 
 

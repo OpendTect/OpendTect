@@ -8,8 +8,9 @@ ________________________________________________________________________
 -*/
 
 #include "filesystemwatcher.h"
-#include "qfilesystemcomm.h"
 #include "bufstringset.h"
+#include "ptrman.h"
+#include "qfilesystemcomm.h"
 
 
 FileSystemWatcher::FileSystemWatcher()
@@ -28,9 +29,15 @@ FileSystemWatcher::~FileSystemWatcher()
 }
 
 
-void FileSystemWatcher::addFile( const char* fnm )
+bool FileSystemWatcher::addPath( const char* path )
 {
-    qfswatcher_->addPath( fnm );
+    return qfswatcher_->addPath( path );
+}
+
+
+bool FileSystemWatcher::addFile( const char* fnm )
+{
+    return qfswatcher_->addPath( fnm );
 }
 
 
@@ -38,6 +45,28 @@ void FileSystemWatcher::addFiles( const BufferStringSet& fnms )
 {
     for ( int idx=0; idx<fnms.size(); idx++ )
 	addFile( fnms.get(idx) );
+}
+
+
+const BufferStringSet FileSystemWatcher::files() const
+{
+    BufferStringSet files;
+    const QStringList filenms = qfswatcher_->files();
+    for ( const auto& nm : filenms )
+	files.add( BufferString(nm) );
+
+    return files;
+}
+
+
+const BufferStringSet FileSystemWatcher::directories() const
+{
+    BufferStringSet dirs;
+    const QStringList qdirs = qfswatcher_->directories();
+    for ( const auto& dir : qdirs )
+	dirs.add( BufferString(dir) );
+
+    return dirs;
 }
 
 
@@ -56,7 +85,6 @@ void FileSystemWatcher::removeFiles( const BufferStringSet& fnms )
 
 FileSystemWatcher& FSW()
 {
-    static FileSystemWatcher* fsw = nullptr;
-    if ( !fsw ) fsw = new FileSystemWatcher;
+    static PtrMan<FileSystemWatcher> fsw = new FileSystemWatcher;
     return *fsw;
 }

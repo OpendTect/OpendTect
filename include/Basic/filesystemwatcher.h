@@ -8,9 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
-#include "callback.h"
 #include "bufstring.h"
+#include "callback.h"
 #include "commondefs.h"
 
 class BufferStringSet;
@@ -29,21 +28,23 @@ public:
 				FileSystemWatcher();
 				~FileSystemWatcher();
 
-    void			addFile(const char*);
+    bool			addPath(const char*);
+				// -> Use when adding a directory
+    bool			addFile(const char*);
+				// -> Use when adding a file. Is essentially
+				// -> the same as addPath, but makes it easier
+				// -> to read.
     void			addFiles(const BufferStringSet&);
     void			removeFile(const char*);
     void			removeFiles(const BufferStringSet&);
 
-    const BufferString&		changedDir() const  { return chgddir_; }
-    const BufferString&		changedFile() const { return chgdfile_; }
+    const BufferStringSet	files() const;
+    const BufferStringSet	directories() const;
 
-    Notifier<FileSystemWatcher>	directoryChanged;
-    Notifier<FileSystemWatcher>	fileChanged;
+    CNotifier<FileSystemWatcher,BufferString>	directoryChanged;
+    CNotifier<FileSystemWatcher,BufferString>	fileChanged;
 
 protected:
-
-    BufferString		chgddir_;
-    BufferString		chgdfile_;
 
     QFileSystemWatcher*		qfswatcher_;
     QFileSystemWComm*		qfswatchercomm_;

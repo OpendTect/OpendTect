@@ -11,7 +11,9 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include <bitset>
 #include "bufstring.h"
+#include "bufstringset.h"
 #include "color.h"
+#include "callback.h"
 #include "ptrman.h"
 #include "refcount.h"
 #include "sets.h"
@@ -76,7 +78,7 @@ protected:
 \brief Well manager
 */
 
-mExpClass(Well) Man
+mExpClass(Well) Man : public CallBacker
 {
 public:
 			~Man();
@@ -128,7 +130,10 @@ public:
 					//!< Log becomes mine
     bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
 					//!< Returns empty set if all succeeded
+    bool		isReloading() const;
     static void		dumpMgrInfo(StringPairSet&);
+
+    static const BufferString	wellDirPath();
 
     const Mnemonic*	getMnemonicOfLog(const char* lognm) const;
 
@@ -144,10 +149,17 @@ protected:
 
     WeakPtrSet<Data>	wells_;
     BufferString	msg_;
+    TypeSet<MultiID>	allwellsids_;
+    bool		isreloading_		= false;
 
     int			gtByKey(const MultiID&) const;
     RefMan<Data>	addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
     bool		readReqData(const MultiID&,Data&,LoadReqs);
+    void		reloadAll();
+
+    void		addFileSystemWatchCB(CallBacker*);
+    void		wellDirChangedCB(CallBacker*);
+    void		wellFilesChangedCB(CallBacker*);
 
     static const UnitOfMeasure*	depthstorageunit_;
     static const UnitOfMeasure*	depthdisplayunit_;

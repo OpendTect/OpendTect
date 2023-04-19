@@ -1015,6 +1015,19 @@ int MultiWellReader::nextStep()
     const DBKey& wkey = keys_[sCast(int,nrdone_)];
     nrdone_++;
     RefMan<Well::Data> wd;
+    if ( !wds_.isEmpty() )
+    {
+	for ( const auto* wdata : wds_ )
+	{
+	    const int idx  = wds_.indexOf( wdata );
+	    if ( wdata->multiID() == wkey )
+	    {
+		wds_.removeSingle( idx );
+		break;
+	    }
+	}
+    }
+
     if ( wkey.isInCurrentSurvey() )
 	wd = Well::MGR().get( wkey, reqs_ );
     else
@@ -1050,6 +1063,6 @@ int MultiWellReader::nextStep()
     if ( !wd && wkey.isInCurrentSurvey() )
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
 
-    wds_ += wd;
+    wds_.addIfNew( wd );
     return MoreToDo();
 }

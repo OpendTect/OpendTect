@@ -38,14 +38,14 @@ private slots:
 
 void directoryChanged( const QString& path )
 {
-    fswatcher_->chgddir_ = path.toLatin1().constData();
-    fswatcher_->directoryChanged.trigger( *fswatcher_ );
+    const BufferString chgddir( path.toLatin1().constData() );
+    fswatcher_->directoryChanged.trigger( chgddir );
 }
 
 void fileChanged( const QString& fnm )
 {
-    fswatcher_->chgdfile_ = fnm.toLatin1().constData();
-    fswatcher_->fileChanged.trigger( *fswatcher_ );
+    const BufferString chgdfile( fnm.toLatin1().constData() );
+    fswatcher_->fileChanged.trigger( chgdfile );
 }
 
 private:
