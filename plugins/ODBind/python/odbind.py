@@ -91,11 +91,48 @@ init_module(libodbind.encode())
 atexit.register(exit_module)
 
 cstring_del = wrap_function(LIBODB, 'cstring_del', None, [ct.POINTER(ct.c_char_p)])
+_getdatadir = wrap_function(LIBODB, 'getUserDataDir', ct.POINTER(ct.c_char_p), [])
+_getsurvey = wrap_function(LIBODB, 'getUserSurvey', ct.POINTER(ct.c_char_p), [])
+
 def pystr(cstringptr: ct.POINTER(ct.c_char_p), autodel: bool=True) ->str:
+    """Convert char* to Python string with optional auto deletion of input char*
+
+    Parameters
+    ----------
+    cstringptr : ctypes.POINTER(ctypes.c_char_p)
+        the char* to convert
+    autodel : bool=True
+        (Optional) if True delete the input pointer after conversion
+
+    Returns
+    -------
+    str : the contents of the input pointer as a Python string
+
+    """
     pystring = ct.cast(cstringptr, ct.c_char_p).value.decode()
     if autodel:
         cstring_del(cstringptr)
     return pystring
+
+def get_user_datadir() ->str:
+    """Get the OpendTect data directory/folder from the user's OpendTect settings
+
+    Returns
+    -------
+    str : the OpendTect data directory from the user's OpendTect settings
+
+    """
+    return pystr(_getdatadir())
+
+def get_user_survey() ->str:
+    """Get the current OpendTect survey from the user's OpendTect settings
+
+    Returns
+    -------
+    str : the current OpendTect survey from the user's OpendTect settings
+
+    """
+    return pystr(_getsurvey())
 
 stringset_new = wrap_function(LIBODB, 'stringset_new', ct.c_void_p, [])
 stringset_copy = wrap_function(LIBODB, 'stringset_copy', ct.c_void_p, [ct.c_void_p])
@@ -104,12 +141,38 @@ stringset_size = wrap_function(LIBODB, 'stringset_size', ct.c_int, [ct.c_void_p]
 stringset_add = wrap_function(LIBODB, 'stringset_add', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
 stringset_get = wrap_function(LIBODB, 'stringset_get', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_int])
 def makestrlist(inlist: list) ->ct.c_void_p:
+    """Make a BufferStringSet from a Python list
+
+    Parameters
+    ----------
+    inlist : list
+        Input Python list
+    
+    Returns
+    -------
+    ctypes.c_void_p : a pointer to the new BufferStringSet
+
+    """
     res = stringset_new()
     for val in inlist:
         stringset_add(res, val)
     return res
 
 def pystrlist(stringsetptr: ct.c_void_p, autodel: bool=True) ->list[str]:
+    """Convert a BufferStringSet* to a Python list with optional automatic deletion
+
+    Parameters
+    ----------
+    stringsetptr : ctypes.c_void_p
+        the BufferStringSet* to convert
+    autodel : bool=True
+        (Optional) if True delete the input pointer after conversion
+
+    Returns
+    -------
+    list[str] : contents of the input pointer as a Python list of strings
+
+    """
     res = []
     for idx in range(stringset_size(stringsetptr)):
         res.append(pystr(stringset_get(stringsetptr, idx), False))
@@ -118,6 +181,20 @@ def pystrlist(stringsetptr: ct.c_void_p, autodel: bool=True) ->list[str]:
     return res
 
 def pyjsonstr(jsonstrptr: ct.POINTER(ct.c_char_p), autodel: bool=True):
+    """Convert a char* JSON string to a Python object with optional automatic deletion
+
+    Parameters
+    ----------
+    jsonstrptr : ctypes.POINTER(ctype.c_char_p)
+        the input JSON char* to convert
+    autodel : bool=True
+        (Optional) if True delete the input pointer after conversion
+
+    Returns
+    -------
+    list/dict : contents of the input pointer as a Python list/dict
+
+    """
     res = json.loads(ct.cast(jsonstrptr, ct.c_char_p).value.decode())
     if autodel:
         cstring_del(jsonstrptr)
@@ -134,28 +211,28 @@ class Survey(object):
     _bincoords = wrap_function(LIBODB, 'survey_bincoords', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
     _coords = wrap_function(LIBODB, 'survey_coords', None, [ct.c_void_p, ct.c_int, ct.c_int, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
     _feature = wrap_function(LIBODB, 'survey_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _features = wrap_function(LIBODB, 'survey_features', ct.POINTER(ct.c_char_p), [ct.c_char_p, ct.c_void_p])
+    _features = wrap_function(LIBODB, 'survey_features', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_char_p])
     _has2d = wrap_function(LIBODB, 'survey_has2d', ct.c_bool, [ct.c_void_p])
     _has3d = wrap_function(LIBODB, 'survey_has3d', ct.c_bool, [ct.c_void_p])
     _hasobject = wrap_function(LIBODB, 'survey_hasobject', ct.c_bool, [ct.c_void_p, ct.c_char_p, ct.c_char_p])
     _info = wrap_function(LIBODB, 'survey_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
-    _infos = wrap_function(LIBODB, 'survey_infos', ct.POINTER(ct.c_char_p), [ct.c_char_p, ct.c_void_p])
+    _infos = wrap_function(LIBODB, 'survey_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p,ct.c_char_p])
     _names = wrap_function(LIBODB, 'survey_names', ct.c_void_p, [ct.c_char_p])
     _path = wrap_function(LIBODB, 'survey_path', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _type = wrap_function(LIBODB, 'survey_survtype', ct.POINTER(ct.c_char_p), [ct.c_void_p])
 
-    def __init__(self, basedir, survey_name):
+    def __init__(self, survey_name: str, basedir: str=None):
         """Initialise an OpendTect survey object
 
         Parameters
         ----------
-        basedir : str
-            OpendTect root data folder
         survey_name : str
             OpendTect survey name
+        basedir : str = None
+            (Optional)OpendTect data directory/folder, defaults to location set in user's OpendTect settings
 
         """
-        self._handle = Survey._new(basedir.encode(), survey_name.encode())
+        self._handle = Survey._new(survey_name.encode(), basedir.encode() if basedir else None)
 
     def __del__(self):
         Survey._del(self._handle)
@@ -187,8 +264,7 @@ class Survey(object):
 
         Returns
         -------
-        tuple[int, int]
-            The nearest inline and crossline location to the given X and Y coordinates
+        tuple[int, int] : The nearest inline and crossline location to the given X and Y coordinates
 
         """ 
         iline = ct.c_int()
@@ -208,8 +284,7 @@ class Survey(object):
 
         Returns
         -------
-        tuple[float, float]
-            The decimal inline and crossline location equivalent to the given X and Y coordinates
+        tuple[float, float] : The decimal inline and crossline location equivalent to the given X and Y coordinates
 
         """
         iline = ct.c_double()
@@ -229,8 +304,7 @@ class Survey(object):
 
         Returns
         -------
-        tuple[float, float]
-            The X and Y coordinates equivalent to the given inline and crossline
+        tuple[float, float] : The X and Y coordinates equivalent to the given inline and crossline
 
         """
         x = ct.c_double()
@@ -255,31 +329,31 @@ class Survey(object):
         return pyjsonstr(Survey._info(self._handle))
 
     @staticmethod
-    def names(basedir: str) ->list[str]:
-        """ Return the names of all surveys in the given data root
+    def names(basedir: str=None) ->list[str]:
+        """ Return the names of all surveys
 
         Parameters
         ----------
-        basedir : str
-            The OpendTect data root
+        basedir : str=None
+            (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
 
         Returns
         -------
         list[str]
 
         """
-        return pystrlist(Survey._names(basedir.encode()))
+        return pystrlist(Survey._names(basedir.encode() if basedir else None))
 
     @staticmethod
-    def infos(basedir: str, fornms: list=[]) ->dict:
-        """ Return basic information for all or a subset of surveys in the given data root.
+    def infos(fornms: list=[], basedir: str=None) ->dict:
+        """ Return basic information for all or a subset of surveys
 
         Parameters
         ----------
-        basedir : str
-            The OpendTect data root
-        fornms : list[str]
-            A list of survey names to use, an empty list will give information for all surveys.
+        fornms : list[str]=[]
+            (Optional) a list of survey names to use. For an empty list information for all surveys is provided.
+        basedir : str=None
+            (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
             
         Returns
         -------
@@ -289,20 +363,20 @@ class Survey(object):
         fornmsptr = stringset_new()
         for nm in fornms:
             stringset_add(fornmsptr, nm.encode())
-        infolist = pyjsonstr(Survey._infos(basedir.encode(), fornmsptr ))
+        infolist = pyjsonstr(Survey._infos(fornmsptr, basedir.encode() if basedir else None))
         stringset_del(fornmsptr)
         return infolist
 
     @staticmethod
-    def infos_dataframe(basedir: str, fornms: list=[]):
-        """ Return basic information for all or a subset of surveys in the given data root as a Pandas DataFrame.
+    def infos_dataframe(fornms: list=[], basedir: str=None):
+        """ Return basic information for all or a subset of surveys as a Pandas DataFrame.
 
         Parameters
         ----------
-        basedir : str
-            The OpendTect data root
-        fornms : list[str]
-            A list of survey names to use, an empty list will give information for all surveys.
+        fornms : list[str]=[]
+            (Optional) a list of survey names to use. For an empty list information for all surveys is provided.
+        basedir : str=None
+            (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
             
         Returns
         -------
@@ -310,21 +384,21 @@ class Survey(object):
 
         """
         from pandas import DataFrame
-        infolist = Survey.infos(basedir, fornms)
+        infolist = Survey.infos(fornms, basedir)
         return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
 
 
     @staticmethod
-    def features(basedir: str, fornms: list=[]) ->str:
+    def features(fornms: list=[], basedir: str=None) ->str:
         """ Return a GeoJSON Feature Collection with the outlines and basic information for all 
-        or a subset of surveys in the given data root.
+        or a subset of surveys.
 
         Parameters
         ----------
-        basedir : str
-            The OpendTect data root
-        fornms : list[str]
-            A list of survey names to use, an empty list will give information for all surveys.
+        fornms : list[str]=[]
+            (Optional) a list of survey names to use. For an empty list information for all surveys is provided.
+        basedir : str=None
+            (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
             
         Returns
         -------
@@ -334,7 +408,7 @@ class Survey(object):
         fornmsptr = stringset_new()
         for nm in fornms:
             stringset_add(fornmsptr, nm.encode())
-        res = pystr(Survey._features(basedir.encode(), fornmsptr ))
+        res = pystr(Survey._features(fornmsptr, basedir.encode() if basedir else None ))
         stringset_del(fornmsptr)
         return res
 
@@ -362,9 +436,9 @@ class _SurveyObject(object):
         Parameters
         ----------
         survey : Survey
-            An OpendTect survey object
+            an OpendTect survey object
         name : str
-            OpendTect object name
+            an OpendTect object name
 
         """
 
@@ -789,7 +863,8 @@ class Well(_SurveyObject):
         clss._loginfo = wrap_function(LIBODB, f'{bindnm}_loginfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._markernames = wrap_function(LIBODB, f'{bindnm}_markernames', ct.c_void_p, [ct.c_void_p])
         clss._markerinfo = wrap_function(LIBODB, f'{bindnm}_markerinfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
-        clss._track = wrap_function(LIBODB, f'{bindnm}_gettrack', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._track = wrap_function(LIBODB, f'{bindnm}_gettrack', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._logs = wrap_function(LIBODB, f'{bindnm}_getlogs', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_void_p, ct.c_float, ct.c_bool])
         clss._tvdss = wrap_function(LIBODB, f'{bindnm}_tvdss', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._tvd = wrap_function(LIBODB, f'{bindnm}_tvd', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
 
@@ -803,8 +878,13 @@ class Well(_SurveyObject):
         """list[str]: Names of well logs in this well (readonly)"""
         return pystrlist(self._markernames(self._handle))
 
-    def log_info(self, forlognms: list=[]) ->dict:
+    def log_info(self, forlognms: list[str]=[]) ->dict:
         """Return basic information for all or a subset of logs in this well.
+
+        Parameters
+        ----------
+        forlognms : list[str]=[]
+            (Optional) a list of log names to use. For an empty list information for all logs in the well is provided.
         
         Returns
         -------
@@ -819,7 +899,12 @@ class Well(_SurveyObject):
         return infolist
 
     def log_info_dataframe(self, forlognms: list=[]) ->dict:
-        """Return basic information for all or a subset of logs in this well.
+        """Return basic information for all or a subset of logs in this well as a Pandas DataFrame.
+        
+        Parameters
+        ----------
+        forlognms : list[str]=[]
+            (Optional) a list of log names to use. For an empty list information for all logs in the well is provided.
         
         Returns
         -------
@@ -830,8 +915,13 @@ class Well(_SurveyObject):
         infolist = self.log_info(forlognms)
         return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
 
-    def marker_info(self, forlognms: list=[]) ->dict:
+    def marker_info(self, formarkernms: list[str]=[]) ->dict:
         """Return basic information for all or a subset of markers in this well.
+        
+        Parameters
+        ----------
+        formarkernms : list[str]=[]
+            (Optional) a list of marker names to use. For an empty list information for all markers in the well is provided.
         
         Returns
         -------
@@ -839,14 +929,19 @@ class Well(_SurveyObject):
 
         """
         fornmsptr = stringset_new()
-        for nm in forlognms:
+        for nm in formarkernms:
             stringset_add(fornmsptr, nm.encode())
         infolist = pyjsonstr(self._markerinfo(self._handle, fornmsptr ))
         stringset_del(fornmsptr)
         return infolist
 
-    def marker_info_dataframe(self, forlognms: list=[]) ->dict:
-        """Return basic information for all or a subset of markers in this well.
+    def marker_info_dataframe(self, formarkernms: list[str]=[]) ->dict:
+        """Return basic information for all or a subset of markers in this well as a Pandas DataFrame.
+        
+        Parameters
+        ----------
+        formarkernms : list[str]=[]
+            (Optional) a list of marker names to use. For an empty list information for all markers in the well is provided.
         
         Returns
         -------
@@ -854,7 +949,7 @@ class Well(_SurveyObject):
 
         """
         from pandas import DataFrame
-        infolist = self.marker_info(forlognms)
+        infolist = self.marker_info(formarkerms)
         return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
 
     def track(self):
@@ -879,22 +974,80 @@ class Well(_SurveyObject):
         return res;
 
     def track_dataframe(self):
-        """Return Pandas Dataframe with the well track.
+        """Return the well track as a Pandas DataFrame .
 
         Returns
         -------
-        Pandas Dataframe
+        Pandas DataFrame
 
         """
         from pandas import DataFrame
         return DataFrame(self.track()) 
 
+    def logs(self, lognms: list[str]=[], zstep: float=0.5, upscale: bool=True):
+        """Return dict of numpy arrays for all or a subset of logs in this well
+
+        Parameters
+        ----------
+        lognms : list[str] = []
+            list of log names or empty list for all
+        zstep : float = 0.5
+            (Optional) output sampling step in the surveys default depth unit
+        upscale : bool = True
+            (Optional) if True log is resampled by averaging over the step, otherwise use linear interpolation
+
+        Returns
+        -------
+        dict[np.arrays] keyed by the log names, 'dah' is the depth log
+        list[str] of the log unit of measures, there is one entry in the list for each array in the dict
+
+        """
+        lognmsptr = stringset_new()
+        for nm in lognms:
+            stringset_add(lognmsptr, nm.encode())
+
+        allocator = NumpyAllocator()
+        infolist = pyjsonstr(self._logs(self._handle, allocator.cfunc, lognmsptr, zstep, upscale))
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
+
+        logs = [key for item in infolist for key in item.keys()]
+        uoms = [val for item in infolist for val in item.values()]
+        data = { log: allocator.allocated_arrays[logs.index(log)] for log in logs }
+        return data, uoms
+
+    def logs_dataframe(self, lognms: list[str]=[], zstep: float=0.5, upscale: bool=True):
+        """Return all or a subset of logs in this well as a Pandas DataFrame
+
+        Parameters
+        ----------
+        lognms : list[str] = []
+            list of log names or empty list for all
+        zstep : float = 0.5
+            (Optional) output sampling step in the surveys default depth unit
+        upscale : bool = True
+            (Optional) if True log is resampled by averaging over the step, otherwise use linear interpolation
+
+        Returns
+        -------
+        Pandas DataFrame
+
+        """
+        from pandas import DataFrame, MultiIndex
+        data, uoms = self.logs(lognms, zstep, upscale)
+        df = DataFrame(data)
+        df.columns = MultiIndex.from_arrays((data.keys(), uoms))
+        return df
+
+
     def tvdss(self, dah: float):
+        """Return TVDSS for a MD/dah depth, all in the survey's default depth unit"""
         tvdss = ct.c_float()
         self._tvdss(self._handle, dah, ct.byref(tvdss))
         return tvdss.value
 
     def tvd(self, dah: float):
+        """Return a TVD for a MD/dah depth, all in the survey's default depth unit"""
         tvd = ct.c_float()
         self._tvd(self._handle, dah, ct.byref(tvd))
         return tvd.value

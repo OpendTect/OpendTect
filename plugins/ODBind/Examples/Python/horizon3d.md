@@ -15,18 +15,14 @@ jupyter:
 
 # Horizon3D Class - ODBind Python Bindings
 
-```python
-import os
-import sys
-```
 
 **If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.**
 
 ```python
-odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
-data_root = '/mnt/Data/seismic/ODData'
-sys.path.insert(0,odpy_path)
-os.environ["DTECT_DATA"] = data_root
+#import os
+#import sys
+#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
+#sys.path.insert(0,odpy_path)
 ```
 
 ```python
@@ -43,7 +39,7 @@ The user must create an **Horizon3D** object to access a specific 3D horizon. Th
 -   **Horizon3D.create( survey:odSurvey, horizon_name:str, iline_range:range, xline_range:range, overwrite:bool )** which creates a new 3D horizon called "horizon_name" with the specified extents. By default "overwrite" is set to false so if "horizon_name" already exists the statement will fail but if true any existing 3D horizon of the same name will be replaced.
 
 ```python
-f3demo = odb.Survey(data_root, 'F3_Demo_2020')
+f3demo = odb.Survey('F3_Demo_2020')
 ```
 
 ### Horizon3D.info() function
@@ -86,7 +82,7 @@ xr.plot.pcolormesh(hor, x='x', y='y')
 -  putz_bycoord(): takes a Numpy 2D array of z values, an array of X locations and an array of Y locations and saves it to an horizon
 -  put_xarray(): takes horizon Z values and locations from a XArray DataFrame and saves it to an horizon
 
-In all case values outside the creation limits of the horizon will be ignored.
+In all case values outside the creation limits of the horizon will be ignored. 
 
 ```python
 newhor = odb.Horizon3D.create(f3demo, 'newhor', [300,400,1], [500,700,1], True)

@@ -15,18 +15,14 @@ jupyter:
 
 # Well Class - ODBind Python Bindings
 
-```python
-import os
-import sys
-```
 
 **If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.**
 
 ```python
-#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
+#import os
+#import sys
+#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
 #sys.path.insert(0,odpy_path)
-data_root = '/mnt/Data/seismic/ODData'
-os.environ["DTECT_DATA"] = data_root
 ```
 
 ```python
@@ -43,7 +39,7 @@ The user must create an **Well** object to access a specific well. There are 2 c
 
 
 ```python
-f3demo = odb.Survey(data_root, 'F3_Demo_2020')
+f3demo = odb.Survey('F3_Demo_2020')
 ```
 
 ### Well.info() function
@@ -52,11 +48,6 @@ Returns basic information for a well in a Python dictionary
 ```python
 well = odb.Well(f3demo, 'F03-4')
 well.info()
-```
-
-```python
-penobscot = odb.Survey(data_root, 'Penobscot')
-odb.Well.names(penobscot)
 ```
 
 ### Well.feature function
@@ -100,18 +91,22 @@ well.marker_info(['FS6'])
 ```
 
 ### Well.track and Well.track_dataframe functions
-These return a dictionary and a Pandas DataFrame respectively with the well track fot the well.
+These return a dictionary and a Pandas DataFrame respectively with the well track for the well.
 
 ```python
 well.track_dataframe()
 ```
 
+### Well.logs and Well.logs_dataframe functions
+These return a dictionary and a Pandas DataFrame respectively with the well log data. The user can control the logs output, the zstep and how the logs are sampled. Sampling can be either by upscaling/averaging  or linear interpolation.
+
 ```python
-well.track()['y'][9]
+data, uom = well.logs(['Density','Sonic'], zstep=500.1, upscale=True)
+uom
 ```
 
 ```python
-well.tvdss(1000)
+well.logs_dataframe(['Density','Sonic','Gamma Ray'], zstep=10, upscale=False)
 ```
 
 ## Static methods

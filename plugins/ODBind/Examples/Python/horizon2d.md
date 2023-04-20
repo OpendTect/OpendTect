@@ -15,18 +15,13 @@ jupyter:
 
 # Horizon2D Class - ODBind Python Bindings
 
-```python
-import os
-import sys
-```
 
 **If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.**
 
 ```python
-odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
-data_root = '/mnt/Data/seismic/ODData'
-sys.path.insert(0,odpy_path)
-os.environ["DTECT_DATA"] = data_root
+#import os
+#import sysodpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
+#sys.path.insert(0,odpy_path)
 ```
 
 ```python
@@ -43,7 +38,7 @@ The user must create an **Horizon2D** object to access a specific 2D horizon. Th
 -   **Horizon2D.create( survey:odSurvey, horizon_name:str, creategeom:bool, overwrite:bool )** which creates a new 2D horizon called "horizon_name". By default "overwrite" is set to false so if "horizon_name" already exists the statement will fail but if true any existing 2D horizon of the same name will be replaced.
 
 ```python
-f3demo = odb.Survey(data_root, 'F3_Demo_2020')
+f3demo = odb.Survey('F3_Demo_2020')
 ```
 
 ### Horizon2D.info() function

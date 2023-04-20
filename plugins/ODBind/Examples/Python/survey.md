@@ -15,32 +15,34 @@ jupyter:
 
 # Survey Class - ODBind Python Bindings
 
-```python
-import os
-import sys
-```
 
 If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.
 
 ```python
+#import os
+#import sys
 #odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
 #sys.path.insert(0,odpy_path)
-data_root = '/mnt/Data/seismic/ODData'
-os.environ["DTECT_DATA"] = data_root
 ```
 
 ```python
 import odbind as odb
 ```
 
-## Survey class
-This class encapsulates an OpendTect project/survey. Creating a Survey object requires both the base data folder location and the project/survey name. The other data specific classes provided by the bindings require a Survey object for context.
+```python
+odb.get_user_datadir()
+```
 
-Various methods/properties are available to get information about the survey.
+## Survey class
+This class encapsulates an OpendTect project/survey. Creating a Survey object requires the project/survey name. Optionally a base data folder location can be included in the function parameters. If a base data folder is not provided the location stored in the users OpendTect settings is used.
+
+Note that **odb.Survey('F3_Demo_2020')** and **odb.Survey('F3_Demo_2020', odb.get_user_datadir())** are equivalent.
+
+The other data specific classes provided by the bindings require a Survey object for context. Various methods/properties are available to get information about the survey.
 
 ```python
-f3demo = odb.Survey(data_root, 'F3_Demo_2020')
-penobscot = odb.Survey(data_root, 'Penobscot')
+f3demo = odb.Survey('F3_Demo_2020')
+penobscot = odb.Survey('Penobscot')
 ```
 
 ### Survey.info() function
@@ -79,32 +81,38 @@ survmap
 ```
 
 ## Static methods
-A number of methods are provided to get information either for all or a selected number of surveys in a user provided data root.
+A number of methods are provided to get information either for all or a selected number of surveys.
 
 ### Survey.names() function
-Returns a python list with the names of all OpendTect surveys in the user supplied base data folder.
+Returns a python list with the names of all OpendTect surveys. Optionally  a base data folder location can be included in the function parameters. If a base data folder is not provided the location stored in the users OpendTect settings is used.
+
+Note that **odb.Survey.names()** and **odb.Survey.names(odb.get_user_datadir())** are equivalent. 
 
 ```python
-odb.Survey.names(data_root)
+odb.Survey.names(odb.get_user_datadir())
 ```
 
 ### Survey.infos() and Survey.infos_dataframe() functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed surveys (or all surveys if no list provided) in the user supplied base data folder.
+These return a dictionary and a Pandas DataFrame respectively with basic information for the listed surveys (or all surveys if no list provided). Optionally a base data folder location can be included in the function parameters. If a base data folder is not provided the location stored in the users OpendTect settings is used.
+
+Note that **odb.Survey.infos()** and **odb.Survey.infos([], odb.get_user_datadir())** are equivalent. 
 
 ```python tags=[]
-odb.Survey.infos(data_root, ['F3_Demo_2020', 'Penobscot'])
+odb.Survey.infos(['F3_Demo_2020', 'Penobscot'])
 ```
 
 ```python
-odb.Survey.infos_dataframe(data_root)
+odb.Survey.infos_dataframe()
 ```
 
 ### Survey.features() function
 
-Returns a GeoJSON feature collection for the listed surveys (or all surveys if no list provided) in the user supplied base data folder. This can be used to create map displays.
+Returns a GeoJSON feature collection for the listed surveys (or all surveys if no list provided). Optionally a base data folder location can be included in the function parameters. If a base data folder is not provided the location stored in the users OpendTect settings is used.
+
+Note that **odb.Survey.features()** and **odb.Survey.features([], odb.get_user_datadir())** are equivalent.
 
 ```python
-features = odb.Survey.features(data_root, ['F3_Demo_2020', 'Penobscot'])
+features = odb.Survey.features(['F3_Demo_2020', 'Penobscot'])
 features
 ```
 

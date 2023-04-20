@@ -32,11 +32,13 @@ ________________________________________________________________________________
 #include "iopar.h"
 #include "latlong.h"
 #include "moddepmgr.h"
+#include "oddirs.h"
 #include "odjson.h"
 #include "odruncontext.h"
 #include "oscommand.h"
 #include "plugins.h"
 #include "safefileio.h"
+#include "settings.h"
 #include "surveyfile.h"
 #include "survinfo.h"
 #include "transl.h"
@@ -56,8 +58,8 @@ static const char* moddeps[] =
 };
 
 
-odSurvey::odSurvey(const char* basedir, const char* surveynm)
-    : basedir_(basedir)
+odSurvey::odSurvey( const char* surveynm, const char* basedir)
+    : basedir_(basedir ? basedir : GetSettingsDataDir())
     , survey_(surveynm)
 {
     activate();
@@ -326,10 +328,11 @@ bool odSurvey::initModule( const char* odbindfnm )
     return true;
 }
 
-BufferStringSet* odSurvey::getNames( const char* basedir )
+BufferStringSet* odSurvey::getNames( const char* base )
 {
     BufferStringSet* dirnms = nullptr;
-    if ( IOMan::isValidDataRoot(basedir).isOK() )
+    BufferString basedir( base ? base : GetSettingsDataDir() );
+    if ( !basedir.isEmpty() && IOMan::isValidDataRoot(basedir).isOK() )
     {
 	dirnms = new BufferStringSet;
 	SurveyDiskLocation::listSurveys( *dirnms, basedir );
@@ -350,20 +353,24 @@ BufferStringSet odSurvey::getCommonItems( const BufferStringSet& list1,
 }
 
 
-void odSurvey::getInfos( OD::JSON::Array& jsarr, const char* basedir,
-			 const BufferStringSet& fornames )
+void odSurvey::getInfos( OD::JSON::Array& jsarr,
+			 const BufferStringSet& fornames, const char* base )
 {
     BufferStringSet nms;
+    jsarr.setEmpty();
+    BufferString basedir( base ? base : GetSettingsDataDir() );
+    if ( basedir.isEmpty() || !IOMan::isValidDataRoot(basedir).isOK() )
+	return;
+
     PtrMan<BufferStringSet> allnms = getNames( basedir );
     if ( fornames.isEmpty() )
 	nms = *allnms;
     else
 	nms = getCommonItems( *allnms, fornames );
 
-    jsarr.setEmpty();
     for ( const auto* nm : nms )
     {
-	odSurvey survey( basedir, *nm );
+	odSurvey survey( *nm, basedir );
 	OD::JSON::Object info;
 	survey.getInfo( info );
 	if ( info.isEmpty() )
@@ -374,21 +381,25 @@ void odSurvey::getInfos( OD::JSON::Array& jsarr, const char* basedir,
 }
 
 
-void odSurvey::getFeatures( OD::JSON::Object& jsobj, const char* basedir,
-			    const BufferStringSet& fornames )
+void odSurvey::getFeatures( OD::JSON::Object& jsobj,
+			    const BufferStringSet& fornames, const char* base )
 {
     BufferStringSet nms;
+    jsobj.setEmpty();
+    BufferString basedir( base ? base : GetSettingsDataDir() );
     PtrMan<BufferStringSet> allnms = getNames( basedir );
+    if ( basedir.isEmpty() || !IOMan::isValidDataRoot(basedir).isOK() )
+	return;
+
     if ( fornames.isEmpty() )
 	nms = *allnms;
     else
 	nms = getCommonItems( *allnms, fornames );
 
-    jsobj.setEmpty();
     auto* features = new OD::JSON::Array( true );
     for ( const auto* nm : nms )
     {
-	odSurvey survey( basedir, *nm );
+	odSurvey survey( *nm, basedir );
 	OD::JSON::Object info;
 	survey.getFeature( info );
 	if ( info.isEmpty() )
@@ -402,9 +413,9 @@ void odSurvey::getFeatures( OD::JSON::Object& jsobj, const char* basedir,
 }
 
 
-hSurvey survey_new( const char* basedir, const char* surveynm )
+hSurvey survey_new( const char* surveynm, const char* basedir )
 {
-    return new odSurvey( basedir, surveynm );
+    return new odSurvey( surveynm, basedir );
 }
 
 void survey_del( hSurvey self )
@@ -462,11 +473,11 @@ const char* survey_feature( hSurvey self )
     return strdup( jsobj.dumpJSon().buf() );
 }
 
-const char* survey_features( const char* basedir, const hStringSet forsurveys )
+const char* survey_features( const hStringSet forsurveys, const char* basedir )
 {
     const auto* p = reinterpret_cast<BufferStringSet*>(forsurveys);
     OD::JSON::Object jsobj;
-    odSurvey::getFeatures( jsobj, basedir, *p );
+    odSurvey::getFeatures( jsobj, *p, basedir );
     return strdup( jsobj.dumpJSon().buf() );
 }
 
@@ -496,11 +507,11 @@ const char* survey_info( hSurvey self )
     return strdup( jsobj.dumpJSon().buf() );
 }
 
-const char* survey_infos( const char* basedir, const hStringSet forsurveys )
+const char* survey_infos( const hStringSet forsurveys, const char* basedir )
 {
     const auto* p = reinterpret_cast<BufferStringSet*>(forsurveys);
     OD::JSON::Array jsarr( true );
-    odSurvey::getInfos( jsarr, basedir, *p );
+    odSurvey::getInfos( jsarr, *p, basedir );
     return strdup( jsarr.dumpJSon().buf() );
 }
 

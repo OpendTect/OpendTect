@@ -81,12 +81,13 @@ const char* SurveyInfo::curSurveyName()
     if ( !cur_survey_name.isEmpty() )
 	return cur_survey_name.buf();
 
-    od_istream strm( SurveyInfo::surveyFileName() );
+    od_istream strm( surveyFileName() );
     if ( !strm.isOK() )
 	return nullptr;
 
     strm.getLine( cur_survey_name );
     cur_survey_name.trimBlanks();
+
     if ( cur_survey_name.isEmpty() )
 	return nullptr;
 

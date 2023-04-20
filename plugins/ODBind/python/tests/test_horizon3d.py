@@ -1,23 +1,8 @@
 import pytest
-import os
-import platform
 import odbind as odb
 
-@pytest.fixture
-def data_root():
-    dtect_data = None
-    if platform.system() == 'Windows':
-        dtect_data = os.getenv('DTECT_WINDATA')
-    else:
-        dtect_data = os.getenv('DTECT_DATA')
-
-    if not dtect_data:
-        dtect_data = '/mnt/Data/seismic/ODData'
-
-    return dtect_data
-
-def test_Horizon3D_class(data_root):
-    f3demo = odb.Survey(data_root, "F3_Demo_2020")
+def test_Horizon3D_class():
+    f3demo = odb.Survey("F3_Demo_2020")
     hors = odb.Horizon3D.names(f3demo)
     assert 'Demo 4 --> Truncation' in hors
     hor = odb.Horizon3D(f3demo, 'Trim_D0 --> FS4')

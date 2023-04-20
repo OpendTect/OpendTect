@@ -278,3 +278,26 @@ bool SetSettingsDataDir( const char* dataroot, uiRetVal& uirv )
 
     return true;
 }
+
+
+mExternC(Basic) const char* GetSettingsSurveyDir()
+{
+    mDeclStaticString( ret );
+    FilePath fp( GetSettingsDir(), "survey" );
+    const char* ptr = GetSoftwareUser();
+    if ( ptr )
+	fp.setExtension( ptr );
+
+    od_istream strm( fp.fullPath() );
+    if ( !strm.isOK() )
+	return nullptr;
+
+    strm.getLine( ret );
+    ret.trimBlanks();
+    if ( ret.isEmpty() )
+	return nullptr;
+
+    return ret.buf();
+}
+
+
