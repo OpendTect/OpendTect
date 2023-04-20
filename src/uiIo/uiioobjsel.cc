@@ -165,7 +165,9 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 
 
 uiIOObjSelDlg::~uiIOObjSelDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 uiString uiIOObjSelDlg::selTxt( bool forread )
@@ -193,7 +195,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
     selgrp_->getListField()->resizeWidthToContents();
     statusBar()->setTxtAlign( 0, Alignment::Right );
-    selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
+    mAttachCB(selgrp_->newStatusMsg, uiIOObjSelDlg::statusMsgCB);
 
     int nr = setup_.multisel_ ? mPlural : 1;
 
@@ -226,8 +228,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
     setCaption( captn );
 
-    selgrp_->getListField()->doubleClicked.notify(
-	    mCB(this,uiDialog,accept) );
+    mAttachCB(selgrp_->getListField()->doubleClicked, uiDialog::accept);
 }
 
 
