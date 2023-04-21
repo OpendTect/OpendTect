@@ -24,10 +24,6 @@ Viewer2DGatherPainter::Viewer2DGatherPainter( FlatView::Viewer& v )
 
 Viewer2DGatherPainter::~Viewer2DGatherPainter()
 {
-    if ( inputwvagather_ )
-	DPM( DataPackMgr::FlatID() ).unRef(inputwvagather_->id());
-    if ( inputvdgather_ )
-	DPM( DataPackMgr::FlatID() ).unRef(inputvdgather_->id());
 }
 
 
@@ -48,7 +44,6 @@ void Viewer2DGatherPainter::setVDGather( DataPackID vdid )
     if ( inputvdgather_ )
     {
 	viewer_.removePack( inputvdgather_->id() );
-	DPM( DataPackMgr::FlatID() ).unRef( inputvdgather_->id() );
 	inputvdgather_ = nullptr;
     }
 
@@ -74,7 +69,6 @@ void Viewer2DGatherPainter::setWVAGather( DataPackID wvaid )
     if ( inputwvagather_ )
     {
 	viewer_.removePack( inputwvagather_->id() );
-	DPM( DataPackMgr::FlatID() ).unRef( inputwvagather_->id() );
 	inputwvagather_ = nullptr;
     }
 

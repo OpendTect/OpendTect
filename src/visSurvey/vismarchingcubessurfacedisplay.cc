@@ -425,7 +425,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     else
     {
 	while ( attrib>cache_.size() )
-	    cache_ += 0;
+	    cache_ += nullptr;
 	cache_ += ndps;
     }
 

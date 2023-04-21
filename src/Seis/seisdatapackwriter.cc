@@ -36,9 +36,9 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , dp_( &dp )
     , iterator_( dp.sampling().hsamp_ )
     , mid_( mid )
-    , posinfo_(0)
+    , posinfo_(nullptr)
     , compidxs_( compidxs )
-    , trc_( 0 )
+    , trc_(nullptr)
 {
     compscalers_.allowNull( true );
     obtainDP();
@@ -77,6 +77,9 @@ SeisDataPackWriter::~SeisDataPackWriter()
 
 void SeisDataPackWriter::getPosInfo()
 {
+    if ( !dp_ )
+	return;
+
     const PosInfo::CubeData* pi = dp_->getTrcsSampling();
     posinfo_ = pi;
     if ( pi && !pi->isFullyRectAndReg() )

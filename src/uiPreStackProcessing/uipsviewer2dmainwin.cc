@@ -1086,7 +1086,6 @@ DataPackID uiStoredViewer2DMainWin::getAngleData( DataPackID gatherid )
 	PreStack::Gather* anglegather =
 	     getAngleGather( *gather, *angledata, angleparams_->anglerange_ );
 	DPM( DataPackMgr::FlatID() ).add( anglegather );
-	DPM( DataPackMgr::FlatID() ).unRef( angledata->id() );
 	return anglegather->id();
     }
 
@@ -1249,7 +1248,6 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
-	DPM(DataPackMgr::FlatID()).unRef( anglegatherid );
     }
     else
 	gd->setVDGather( DataPackID::udf() );
