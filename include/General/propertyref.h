@@ -149,6 +149,8 @@ public:
     bool		subselect(PropertyRef::StdType,
 				  ObjectSet<const PropertyRef>&)const;
 
+    void		removeSingleWithCache(int);
+
 private:
 			PropertyRefSet();
 			mOD_DisableCopy(PropertyRefSet);
@@ -161,6 +163,8 @@ private:
     void		readFrom(ascistream&,Repos::Source);
     bool		writeTo(ascostream&) const;
     bool		save(Repos::Source) const;
+
+    static void		removeCache(const PropertyRef*);
 
     friend class PropertyRefSetMgr;
     friend class uiManPROPS;

@@ -98,3 +98,6 @@ protected:
     bool			acceptOK(CallBacker*) override;
 
 };
+
+
+mGlobal(uiTools) bool doCustomMnemonicEditDlg(uiParent*);

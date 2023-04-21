@@ -94,6 +94,7 @@ protected:
     void			logUOMPush(CallBacker*);
     void			logMnemPush(CallBacker*);
     void			defMnemLogPush(CallBacker*);
+    void			customMnsPush(CallBacker*);
 
     void			edMarkers(CallBacker*);
     void			edWellTrack(CallBacker*);

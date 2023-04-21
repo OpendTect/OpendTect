@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "namedobj.h"
 #include "ranges.h"
+#include "repos.h"
 #include "uistring.h"
 
 class UnitOfMeasure;
@@ -51,12 +52,17 @@ public:
 			Mnemonic(const Mnemonic& mnc);
     virtual		~Mnemonic();
 
+    static Mnemonic*	getFromTemplate(const Mnemonic&,const char* customname,
+					Repos::Source);
+
     Mnemonic&		operator =(const Mnemonic&);
     bool		operator ==(const Mnemonic&) const;
     bool		operator !=(const Mnemonic&) const;
     bool		matches(const char* nm,bool matchaliases,
 				float* matchval) const;
     bool		isCompatibleWith(const Mnemonic*) const;
+    bool		isTemplate() const;
+    const Mnemonic*	getOrigin() const;
     const char*		description() const;
 
     inline bool		isUdf() const	{ return *this == undef(); }
@@ -173,6 +179,8 @@ public:
     const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
     void		getNames(BufferStringSet&) const;
 
+    void		removeSingleWithCache(int);
+
 private:
 			MnemonicSet();
 			mOD_DisableCopy(MnemonicSet);
@@ -182,6 +190,9 @@ private:
     MnemonicSet&	doAdd(Mnemonic*) override;
 
     void		readFrom(ascistream&);
+    void		setSource(Repos::Source);
+
+    static void		removeCache(const Mnemonic*);
 
     friend class MnemonicSetMgr;
 

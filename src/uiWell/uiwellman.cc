@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
+#include "uimnemonicsel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uiwelldisplayserver.h"
@@ -107,9 +108,12 @@ uiWellMan::uiWellMan( uiParent* p )
     logmnembut_= butgrp->addButton( "mnemonics",
 					tr("View/edit mnemonic"),
 					mCB(this,uiWellMan,logMnemPush) );
-    defmnemlogbut_ = butgrp->addButton( "mnemonics",
+    defmnemlogbut_ = butgrp->addButton( "defmnemlog",
 					tr("Set/edit Default log for Mnemonic"),
 					mCB(this,uiWellMan,defMnemLogPush) );
+    butgrp->addButton( "mnemonicsadd",
+			tr("View/edit custom mnemonics"),
+			mCB(this,uiWellMan,customMnsPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
     logupbut_ = butgrp->addButton( "uparrow", uiStrings::sMoveUp(),
@@ -773,6 +777,12 @@ void uiWellMan::defMnemLogPush( CallBacker* )
 	return;
 
     wellsChgd();
+}
+
+
+void uiWellMan::customMnsPush( CallBacker* )
+{
+    doCustomMnemonicEditDlg( this );
 }
 
 

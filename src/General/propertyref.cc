@@ -903,6 +903,24 @@ PropertyRefSet& PropertyRefSet::doAdd( PropertyRef* pr )
 }
 
 
+void PropertyRefSet::removeSingleWithCache( int idx )
+{
+    removeCache( get(idx) );
+    removeSingle( idx );
+}
+
+
+void PropertyRefSet::removeCache( const PropertyRef* pr )
+{
+    if ( pr )
+    {
+	const QString qstr( pr->name() );
+	getPropLookupCache( true ).remove( qstr );
+	getPropLookupCache( false ).remove( qstr );
+    }
+}
+
+
 void PropertyRefSet::readFrom( ascistream& astrm, Repos::Source src )
 {
     deepErase( *this );
