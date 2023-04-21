@@ -664,37 +664,95 @@ SurveyInfo::~SurveyInfo()
 }
 
 
-SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
+SurveyInfo& SurveyInfo::operator =( const SurveyInfo& oth )
 {
-    if ( &si == this )
+    if ( &oth == this )
 	return *this;
 
-    setName( si.name() );
-    zdef_ = si.zdef_;
-    disklocation_ = si.disklocation_;
-    coordsystem_ = si.coordsystem_;
-    xyinfeet_ = si.xyinfeet_;
-    depthsinfeet_ = si.depthsinfeet_;
-    b2c_ = si.b2c_;
-    survdatatype_ = si.survdatatype_;
-    survdatatypeknown_ = si.survdatatypeknown_;
+    setName( oth.name() );
+    zdef_ = oth.zdef_;
+    disklocation_ = oth.disklocation_;
+    coordsystem_ = oth.coordsystem_;
+    xyinfeet_ = oth.xyinfeet_;
+    depthsinfeet_ = oth.depthsinfeet_;
+    b2c_ = oth.b2c_;
+    survdatatype_ = oth.survdatatype_;
+    survdatatypeknown_ = oth.survdatatypeknown_;
     for ( int idx=0; idx<3; idx++ )
     {
-	set3binids_[idx] = si.set3binids_[idx];
-	set3coords_[idx] = si.set3coords_[idx];
+	set3binids_[idx] = oth.set3binids_[idx];
+	set3coords_[idx] = oth.set3coords_[idx];
     }
 
-    tkzs_ = si.tkzs_;
-    wcs_ = si.wcs_;
-    pars_ = si.pars_;
-    ll2c_ = si.ll2c_;
+    tkzs_ = oth.tkzs_;
+    wcs_ = oth.wcs_;
+    pars_ = oth.pars_;
+    logpars_ = oth.logpars_;
+    ll2c_ = oth.ll2c_;
 
-    seisrefdatum_ = si.seisrefdatum_;
-    rdxtr_ = si.rdxtr_; rdytr_ = si.rdytr_;
-    sipnm_ = si.sipnm_;
+    seisrefdatum_ = oth.seisrefdatum_;
+    rdxtr_ = oth.rdxtr_;
+    rdytr_ = oth.rdytr_;
+    comment_ = oth.comment_;
+    sipnm_ = oth.sipnm_;
     update3DGeometry();
 
     return *this;
+}
+
+
+bool SurveyInfo::operator==( const SurveyInfo& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( name() != oth.name() ||
+	survdatatype_ != oth.survdatatype_ ||
+	survdatatypeknown_ != oth.survdatatypeknown_ ||
+	xyinfeet_ != oth.xyinfeet_ ||
+	depthsinfeet_ != oth.depthsinfeet_ ||
+	disklocation_ != oth.disklocation_ ||
+	zdef_ != oth.zdef_ ||
+	b2c_ != oth.b2c_ ||
+	tkzs_ != oth.tkzs_ ||
+	wcs_ != oth.wcs_ ||
+	comment_ != oth.comment_ ||
+	ll2c_ != oth.ll2c_ ||
+	sipnm_ != oth.sipnm_ )
+	return false;
+
+    if ( (coordsystem_.ptr() && !oth.coordsystem_.ptr()) ||
+	 (oth.coordsystem_.ptr() && !coordsystem_.ptr()) )
+	return false;
+
+    if ( coordsystem_.ptr() && *coordsystem_.ptr() !=
+			       *oth.coordsystem_.ptr() )
+	return false;
+
+    if ( !mIsEqual(seisrefdatum_,oth.seisrefdatum_,1e-1) )
+	return false;
+
+    for ( int idx=0; idx<3; idx++ )
+	if ( set3binids_[idx] != oth.set3binids_[idx] )
+	    return false;
+    for ( int idx=0; idx<3; idx++ )
+	if ( set3coords_[idx] != oth.set3coords_[idx] )
+	    return false;
+
+    return mIsEqual(rdxtr_.a,oth.rdxtr_.a,mDefEps) &&
+	   mIsEqual(rdxtr_.b,oth.rdxtr_.b,mDefEps) &&
+	   mIsEqual(rdxtr_.c,oth.rdxtr_.c,mDefEps) &&
+	   mIsEqual(rdytr_.a,oth.rdytr_.a,mDefEps) &&
+	   mIsEqual(rdytr_.b,oth.rdytr_.b,mDefEps) &&
+	   mIsEqual(rdytr_.c,oth.rdytr_.c,mDefEps) &&
+	   pars_ == oth.pars_ &&
+	   logpars_ == oth.logpars_;
+}
+
+
+bool SurveyInfo::operator!=( const SurveyInfo& oth ) const
+{
+    return !(*this == oth);
 }
 
 

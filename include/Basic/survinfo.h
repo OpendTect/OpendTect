@@ -46,6 +46,10 @@ mExpClass(Basic) SurveyInfo : public NamedCallBacker
 
 public:
 			~SurveyInfo();
+
+    bool		operator==(const SurveyInfo&) const;
+    bool		operator!=(const SurveyInfo&) const;
+
     bool		has2D() const;
     bool		has3D() const;
 

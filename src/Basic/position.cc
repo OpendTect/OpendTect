@@ -654,6 +654,12 @@ bool Pos::IdxPair2Coord::operator==( const Pos::IdxPair2Coord& oth ) const
 }
 
 
+bool Pos::IdxPair2Coord::operator!=( const Pos::IdxPair2Coord& oth ) const
+{
+    return !(*this == oth);
+}
+
+
 bool Pos::IdxPair2Coord::isNodeOn( const Pos::IdxPair2Coord& oth,
 				      int i0, int i1 ) const
 {
