@@ -28,6 +28,7 @@ public:
 			IdxPair2Coord()		{}
 
     bool		operator==(const IdxPair2Coord&) const;
+    bool		operator!=(const IdxPair2Coord&) const;
     bool		isSubsetOf(const IdxPair2Coord&) const;
     bool		isValid() const		{ return xtr.valid(ytr); }
     Coord		firstDir() const	{ return Coord(xtr.b,ytr.b); }

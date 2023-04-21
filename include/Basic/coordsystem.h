@@ -29,7 +29,8 @@ mExpClass(Basic) CoordSystem : public SharedObject
 {
 public:
 
-    bool			operator==(const CoordSystem&) const;
+    bool			operator ==(const CoordSystem&) const;
+    bool			operator !=(const CoordSystem&) const;
 
     static void			initRepository(NotifierAccess* =nullptr);
 				/*!<To be called from initGeneral with a

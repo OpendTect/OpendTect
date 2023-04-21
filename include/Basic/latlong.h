@@ -28,6 +28,7 @@ public:
 			    : lat_(ll.lat_), lng_(ll.lng_)	{}
 
     bool		operator ==(const LatLong&) const;
+    bool		operator !=(const LatLong&) const;
 
     explicit		LatLong( const Coord& c ) { *this = transform(c); }
 			//Using SI()
@@ -71,6 +72,10 @@ public:
 
 			LatLong2Coord();
 			LatLong2Coord(const Coord&,const LatLong&);
+
+    bool		operator ==(const LatLong2Coord&) const;
+    bool		operator !=(const LatLong2Coord&) const;
+
     bool		isOK() const	{ return !mIsUdf(lngdist_); }
 
     void		set(const LatLong&,const Coord&);

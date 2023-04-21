@@ -42,12 +42,18 @@ CoordSystem::~CoordSystem()
 
 bool CoordSystem::operator==( const CoordSystem& oth ) const
 {
-    if ( this == &oth )
+    if ( &oth == this )
 	return true;
 
     IOPar myiop; fillPar( myiop );
     IOPar othiop; oth.fillPar( othiop );
     return myiop == othiop;
+}
+
+
+bool CoordSystem::operator!=( const CoordSystem& oth ) const
+{
+    return !(*this == oth);
 }
 
 
