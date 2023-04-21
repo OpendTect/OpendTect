@@ -171,8 +171,10 @@ private:
 			IOMan(const FilePath& rootdir);
 			~IOMan();
 
-    uiRetVal		init();
-    uiRetVal		reInit(bool dotrigger);
+    uiRetVal		init(SurveyInfo* newsi);
+			//<! newsi becomes mine
+    uiRetVal		reInit(SurveyInfo* newsi);
+			//<! newsi becomes mine
     bool		close(bool dotrigger);
 
     static void		setupCustomDataDirs(int);
@@ -210,7 +212,9 @@ public:
     bool		changeSurveyBlocked() const
 					{ return survchgblocked_; }
     static uiRetVal	newSurvey(SurveyInfo* newsi=nullptr);
-			/*!< set new SurveyInfo; force re-read the data tree. */
+			/*!< set new SurveyInfo; force re-read the data tree.
+			     newsi becomes mine				 */
+    mDeprecated("Use IOMan::setDataSource")
     static uiRetVal	setSurvey(const char* surveydirnm);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the

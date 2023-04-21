@@ -83,7 +83,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 	if ( !File::exists(surveyfp) || !File::isDirectory(surveyfp) )
 	    mErrRet( "Given survey does not exist" );
 
-	IOMan::setSurvey( res );
+	IOMan::setDataSource( surveyfp.buf() );
     }
     else
     {
