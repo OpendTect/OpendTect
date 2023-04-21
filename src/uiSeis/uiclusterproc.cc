@@ -10,23 +10,24 @@ ________________________________________________________________________
 #include "uiclusterproc.h"
 
 #include "dirlist.h"
-#include "timer.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "manobjectset.h"
-#include "seistrctr.h"
-#include "od_istream.h"
-#include "strmoper.h"
-#include "survinfo.h"
-#include "strmprov.h"
-#include "envvars.h"
 #include "keystrs.h"
-#include "seissingtrcproc.h"
-#include "settings.h"
+#include "manobjectset.h"
+#include "od_istream.h"
+#include "oddirs.h"
 #include "paralleltask.h"
+#include "seissingtrcproc.h"
+#include "seistrctr.h"
+#include "settings.h"
+#include "strmoper.h"
+#include "strmprov.h"
+#include "survinfo.h"
+#include "timer.h"
 
 #include "uiclusterjobprov.h"
 #include "uilabel.h"
@@ -135,8 +136,9 @@ ClusterProc( const IOPar& pars )
 bool init()
 {
     const BufferString res = pars_.find( sKey::Survey() );
-    if ( !res.isEmpty() && SI().getDirName().isEqual(res) )
-	IOMan::setSurvey( res );
+    if ( !res.isEmpty() &&
+	 (!IOMan::isOK() || !SI().getDirName().isEqual(res)) )
+	IOMan::setDataSource_( GetBaseDataDir(), res.buf() );
 
     const BufferString scriptdir = pars_.find( "Script dir" );
     if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )

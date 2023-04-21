@@ -181,8 +181,14 @@ private:
     bool		survchgblocked_ = false;
     mutable Threads::Lock lock_;
 
+    mDeprecatedObs
     void		init();
+    void		init(SurveyInfo* newsi);
+			//<! newsi becomes mine
+    mDeprecatedObs
     void		reInit(bool dotrigger);
+    void		reInit(SurveyInfo* newsi);
+			//<! newsi becomes mine
     bool		close(bool dotrigger);
 
 			IOMan(const char* rd=0);
@@ -233,7 +239,9 @@ public:
     bool		changeSurveyBlocked() const
 					{ return survchgblocked_; }
     static bool		newSurvey(SurveyInfo* newsi=0);
-			/*!< set new SurveyInfo; force re-read the data tree. */
+			/*!< set new SurveyInfo; force re-read the data tree.
+			     newsi becomes mine				 */
+    mDeprecated("Use IOMan::setDataSource_")
     static bool		setSurvey(const char*);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the

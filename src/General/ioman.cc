@@ -60,7 +60,8 @@ public:
 
     void init( uiRetVal& uirv )
     {
-	iom_.init();
+	SurveyInfo* si = SurveyInfo::readDirectory( iom_.rootDir() );
+	iom_.init( si );
 	if ( iom_.isBad() )
 	    uirv = iom_.uiMessage();
     }
@@ -178,6 +179,13 @@ IOMan::IOMan( const char* rd )
 
 void IOMan::init()
 {
+    init( nullptr );
+}
+
+
+void IOMan::init( SurveyInfo* nwsi )
+{
+    PtrMan<SurveyInfo> newsi = nwsi;
     const FilePath rootdir( rootdir_ );
     const SurveyDiskLocation rootdirsdl( rootdir );
     state_ = Bad;
@@ -215,6 +223,13 @@ void IOMan::init()
 
     state_ = Good;
     curlvl_ = 0;
+    SetCurBaseDataDir( rootdirsdl.basePath().str() );
+    SurveyInfo::setSurveyName( rootdirsdl.dirName().str() );
+    if ( newsi )
+    {
+	SurveyInfo::deleteInstance();
+	SurveyInfo::pushSI( newsi.release() );
+    }
 
     const int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = nullptr;
@@ -316,15 +331,16 @@ bool IOMan::close( bool dotrigger )
 }
 
 
-void IOMan::reInit( bool dotrigger )
+void IOMan::reInit( SurveyInfo* nwsi )
 {
-    if ( !close(dotrigger) )
+    PtrMan<SurveyInfo> newsi = nwsi;
+    const bool dotrigger = newsi;
+    if ( !close(dotrigger) ) //Still notifying using previous survey
 	return;
 
-    init();
+    init( newsi.release() );
     if ( !isBad() )
     {
-	SurveyInfo::setSurveyName( SI().getDirName() );
 	setupCustomDataDirs(-1);
 	if ( dotrigger )
 	{
@@ -362,25 +378,25 @@ Notifier<IOMan>& IOMan::iomReady()
 }
 
 
-bool IOMan::newSurvey( SurveyInfo* newsi )
+bool IOMan::newSurvey( SurveyInfo* nwsi )
 {
-    SurveyInfo::deleteInstance();
+    PtrMan<SurveyInfo> newsi = nwsi;
     if ( !newsi )
     {
+	SurveyInfo::deleteInstance();
 	SurveyInfo::setSurveyName( "" );
 	IOM().close( true );
 	return true;
     }
 
     const FilePath rootdir( IOM().rootDir() );
-    const SurveyDiskLocation rootdirsdl( rootdir );
+    SurveyDiskLocation rootdirsdl( rootdir );
     if ( IOMan::isOK() && newsi->getDataDirName() != rootdirsdl.basePath() )
 	pFreeFnErrMsg("Incorrect switching to another data root");
 
-    SurveyInfo::setSurveyName( newsi->getDirName() );
-    SurveyInfo::pushSI( newsi );
-
-    IOM().reInit( true );
+    rootdirsdl.setDirName( newsi->getDirName() );
+    IOM().rootdir_.set( rootdirsdl.fullPath() );
+    IOM().reInit( newsi.release() );
     return !IOM().isBad();
 }
 
@@ -518,7 +534,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     if ( !IOMan::isOK() )
 	return false;
 
-    IOM().reInit( false );
+    IOM().reInit( nullptr );
     const bool isok = !IOM().isBad();
     if ( !isok )
 	errmsg = IOM().message();
@@ -565,14 +581,8 @@ uiRetVal IOMan::setRootDir( const FilePath& dirfp, bool ischecked )
     }
 
     rootdir_.set( dirnm.str() );
-    rootdir.set( dirnm.str() );
-    const SurveyDiskLocation rootdirsdl( rootdir );
-    SetCurBaseDataDir( rootdirsdl.basePath() );
-
-    SurveyInfo::deleteInstance();
-    SurveyInfo::setSurveyName( rootdirsdl.dirName() );
-
-    reInit( true );
+    SurveyInfo* newsi = SurveyInfo::readDirectory( dirnm.str() );
+    reInit( newsi );
     uirv = msg_;
     if ( !uirv.isOK() )
 	return uirv;
