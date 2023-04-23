@@ -329,10 +329,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 
 	dpm_.add( const_cast<RegularSeisDataPack*>(dp.ptr()) );
 	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
-	{
-	    dpm_.unRef( dp->id() );
 	    continue;
-	}
 
 	dp->ref();
 	packset += dp;
@@ -373,7 +370,9 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     , bytestocopy_(0)
 {
     worktkzs_ = out.sampling();
-    worktkzs_.limitTo( in.sampling(), true );
+    if ( !in_.sampling().getIntersection(out.sampling(),worktkzs_) )
+	worktkzs_.setEmpty();
+
     totalnr_ = worktkzs_.hsamp_.totalNr();
 
     const int nrcomps = out_.nrComponents();
@@ -395,6 +394,9 @@ bool doPrepare( int nrthreads ) override
 {
     if ( in_.isEmpty() || out_.isEmpty() )
 	return false;
+
+    if ( totalnr_ == 0 )
+	return true;
 
     for ( int idc=0; idc<out_.nrComponents(); idc++ )
     {
@@ -446,6 +448,9 @@ bool doPrepare( int nrthreads ) override
 
 bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 {
+    if ( totalnr_ == 0 )
+	return true;
+
     const TrcKeySampling intks = in_.sampling().hsamp_;
     const TrcKeySampling outtks = out_.sampling().hsamp_;
     const TrcKeySampling worktks = worktkzs_.hsamp_;
@@ -611,7 +616,8 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
     const char* category = SeisDataPack::categoryStr(
 			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
 			tkzs_.is2D() );
-    auto* output = new RegularSeisDataPack(category,&packset[0]->getDataDesc());
+    RefMan<RegularSeisDataPack> output =
+		new RegularSeisDataPack(category,&packset[0]->getDataDesc());
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
