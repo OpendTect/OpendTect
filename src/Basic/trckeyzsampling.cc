@@ -853,7 +853,7 @@ static bool intersectF( float start_1, float stop_1, float step_1,
     outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
     int nrstep_s = (int)( (outstop_ - outstart_ + Eps) / outstep_ );
     outstop_ = outstart_ + nrstep_s * outstep_;
-    return (outstop_-outstart_) > Eps;
+    return true;
 }
 
 
