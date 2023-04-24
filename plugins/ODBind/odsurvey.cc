@@ -39,6 +39,7 @@ ________________________________________________________________________________
 #include "plugins.h"
 #include "safefileio.h"
 #include "settings.h"
+#include "surveyfile.h"
 #include "survinfo.h"
 #include "transl.h"
 
@@ -536,6 +537,7 @@ bool initModule( const char* odbindfnm )
     return odSurvey::initModule( odbindfnm );
 }
 
+
 void exitModule()
 {
     if ( IOMan::isOK() )
@@ -565,4 +567,18 @@ const char* isValidDataRoot( const char* loc )
 
     ret.set( IOMan::isValidMsg().getText().buf() );
     return ret.buf();
+}
+
+
+const char* survey_createtemp( const char* surveynm, const char* bsedir )
+{
+    EmptyTempSurvey tempsurvey( surveynm, bsedir, false );
+    if ( !tempsurvey.isOK() )
+    {
+	mDeclStaticString( errmsg );
+	errmsg.set( tempsurvey.errMsg().getText().buf() );
+	return errmsg.buf();
+    }
+
+    return nullptr;
 }
