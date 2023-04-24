@@ -36,7 +36,7 @@ public:
     bool	message(const uiString&,
 			const uiString& part2,
 			const uiString& part3,
-			bool withdontshowatain );
+			bool withdontshowagain );
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
@@ -46,7 +46,7 @@ public:
     bool	warning(const uiString&,
 			const uiString& part2,
 			const uiString& part3,
-			bool withdontshowatain );
+			bool withdontshowagain );
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
@@ -56,7 +56,7 @@ public:
     bool	error(const uiString&,
 		      const uiString& part2,
 		      const uiString& part3,
-		      bool withdontshowatain );
+		      bool withdontshowagain );
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */

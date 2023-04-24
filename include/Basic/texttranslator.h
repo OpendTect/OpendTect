@@ -53,7 +53,7 @@ public:
 
     static bool			loadTranslations();
 				/*!<Can be called from executables to load
-				    The dGBCommon plugin, wich loads all
+				    The dGBCommon plugin, which loads all
 				    languages. */
 
 protected:
