@@ -2023,13 +2023,28 @@ void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
 	{
 	    rowidx++;
 	    const Mnemonic* mn = log->mnemonic();
+	    Mnemonic::StdType typ = Mnemonic::Other;
+	    bool usetype = false;
+	    bool isclass = false;
+	    if ( mn && !mn->isUdf() && mn->stdType() != Mnemonic::Other )
+	    {
+		isclass = mn->stdType() == Mnemonic::Class && log->isCode();
+		if ( isclass || (!isclass && log->haveUnit()) )
+		{
+		    typ = mn->stdType();
+		    usetype = true;
+		}
+	    }
+
 	    const UnitOfMeasure* uom = log->unitOfMeasure();
-	    uiUnitSel::Setup ussu( mn ? mn->stdType() : Mnemonic::Other,
-				   uiString::empty(), mn );
-	    ussu.selmnemtype( !mn || mn->isUdf() ||
-			       mn->stdType() == Mnemonic::Other )
-		.withnone( !mn && !uom );
+	    uiUnitSel::Setup ussu( typ, uiString::empty(),
+				   usetype ? mn : nullptr );
+	    ussu.selmnemtype( !usetype )
+		.withnone( !log->haveUnit() && !isclass );
 	    auto* unfld = new uiUnitSel( nullptr, ussu );
+	    if ( unfld->hasMnemonicSelection() )
+		unfld->setMnemonic( mn ? *mn : Mnemonic::undef() );
+
 	    unfld->setUnit( uom );
 	    unflds_ += unfld;
 	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
@@ -2130,7 +2145,7 @@ uiWellLogMnemDlg::uiWellLogMnemDlg( uiParent* p,
 				    ObjectSet<ObjectSet<Well::Log>>& wls,
 				    TypeSet<MultiID>& keys,
 				    const BufferStringSet& wellnms )
-    : uiDialog(p,uiDialog::Setup(tr("Set units of measure for logs"),
+    : uiDialog(p,uiDialog::Setup(tr("Set mnemonic for logs"),
 				 mNoDlgTitle,mNoHelpKey))
     , wls_( wls )
     , keys_( keys )
@@ -2176,12 +2191,24 @@ void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
 	{
 	    rowidx++;
 	    const Mnemonic* mn = log->mnemonic( true );
-	    uiMnemonicsSel::Setup mnsu( mn ? mn->stdType() : Mnemonic::Other,
+	    Mnemonic::StdType typ = Mnemonic::Other;
+	    bool usetype = false;
+	    if ( mn && !mn->isUdf() && mn->stdType() != Mnemonic::Other )
+	    {
+		const bool isclass = mn->stdType() == Mnemonic::Class &&
+				     log->isCode();
+		if ( isclass || (!isclass && log->haveUnit()) )
+		{
+		    typ = mn->stdType();
+		    usetype = true;
+		}
+	    }
+
+	    const MnemonicSelection mnsel( typ );
+	    uiMnemonicsSel::Setup mnsu( usetype ? &mnsel : nullptr,
 					uiString::empty() );
 	    auto* mnemfld = new uiMnemonicsSel( nullptr, mnsu );
-	    if ( mn )
-		mnemfld->setMnemonic( *mn );
-
+	    mnemfld->setMnemonic( mn ? *mn : Mnemonic::undef() );
 	    mnemflds_ += mnemfld;
 	    mneminfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
 	    mneminfotbl_->setText( RowCol(rowidx,1), log->name() );

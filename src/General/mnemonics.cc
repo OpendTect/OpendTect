@@ -967,7 +967,7 @@ const Mnemonic* MnemonicSelection::getGuessed( const char* nm,
 	}
     }
 
-    return ret ? ret : ( isEmpty() ? nullptr : first() );
+    return ret;
 }
 
 
