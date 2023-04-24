@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
+#include "odruncontext.h"
 #include "oscommand.h"
 #include "settings.h"
 #include "texttranslator.h"
@@ -521,7 +522,9 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     font_ = nullptr;
     setFont( *font() , true );
 
-    TextTranslateMgr::loadTranslations();
+    if ( OD::InNormalRunContext() || OD::InUiProgRunContext() ||
+	 OD::InSysAdmRunContext() )
+	TextTranslateMgr::loadTranslations();
 }
 
 
