@@ -56,6 +56,11 @@ public:
 				OD::JSON::Array&,
 				float zstep=0.5, SampleMode samplemode=Upscale);
 
+    void		putLog(const char* lognm, const float* dah,
+			       const float* logdata, uint32_t size,
+			       const char* uom=nullptr,
+			       const char* mnem=nullptr, bool overwrite=false);
+
     void		getInfo(OD::JSON::Object&) const override;
     void		getFeature(OD::JSON::Object&,
 				   bool towgs=true) const override;
@@ -78,6 +83,12 @@ mExternC(ODBind) void		well_gettrack(hWell, hAllocator);
 mExternC(ODBind) const char*	well_getlogs(hWell, hAllocator,
 					     const hStringSet, float zstep,
 					     bool upscale);
+mExternC(ODBind) void		well_putlog(hWell, const char* lognm,
+					    const float* dah,
+					    const float* logdata,
+					    uint32_t sz, const char* uom,
+					    const char* mnem, bool overwrite);
+mExternC(ODBind) bool		well_deletelogs(hWell, const hStringSet);
 mExternC(ODBind) void		well_tvd(hWell, const float dah, float* tvd);
 mExternC(ODBind) void		well_tvdss(hWell, const float dah,
 					   float* tvdss);

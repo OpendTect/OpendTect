@@ -27,7 +27,8 @@ jupyter:
 
 ```python
 import numpy as np
-import odbind as odb
+from odbind.survey import Survey
+from odbind.horizon3d import Horizon3D
 ```
 
 ## Horizon3D class
@@ -39,14 +40,14 @@ The user must create an **Horizon3D** object to access a specific 3D horizon. Th
 -   **Horizon3D.create( survey:odSurvey, horizon_name:str, iline_range:range, xline_range:range, overwrite:bool )** which creates a new 3D horizon called "horizon_name" with the specified extents. By default "overwrite" is set to false so if "horizon_name" already exists the statement will fail but if true any existing 3D horizon of the same name will be replaced.
 
 ```python
-f3demo = odb.Survey('F3_Demo_2020')
+f3demo = Survey('F3_Demo_2020')
 ```
 
 ### Horizon3D.info() function
 Returns basic information for a 3D horizon in a Python dictionary
 
 ```python
-mfs4 = odb.Horizon3D(f3demo, 'Demo 1 --> MFS4')
+mfs4 = Horizon3D(f3demo, 'Demo 1 --> MFS4')
 mfs4.info()
 ```
 
@@ -85,7 +86,7 @@ xr.plot.pcolormesh(hor, x='x', y='y')
 In all case values outside the creation limits of the horizon will be ignored. 
 
 ```python
-newhor = odb.Horizon3D.create(f3demo, 'newhor', [300,400,1], [500,700,1], True)
+newhor = Horizon3D.create(f3demo, 'newhor', [300,400,1], [500,700,1], True)
 ```
 
 ```python
@@ -95,7 +96,7 @@ newhor.put_xarray(newhor_z)
 ```
 
 ```python
-newhor_read = odb.Horizon3D(f3demo,'newhor')
+newhor_read = Horizon3D(f3demo,'newhor')
 newhor_read.info()
 ```
 
@@ -117,7 +118,7 @@ survmap
 A number of methods are provided to get information either for all or a selected number of 3D horizons in the user provided survey.
 
 ```python
-hors = odb.Horizon3D.names(f3demo)
+hors = Horizon3D.names(f3demo)
 hors
 ```
 
@@ -125,7 +126,7 @@ hors
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
 
 ```python tags=[]
-odb.Horizon3D.infos_dataframe(f3demo)
+Horizon3D.infos_dataframe(f3demo)
 ```
 
 ### Horizon3D.features() function
@@ -133,5 +134,5 @@ odb.Horizon3D.infos_dataframe(f3demo)
 Returns a GeoJSON feature collection for the listed horizons (or all horizons if no list provided) in the given survey. This can be used to create map displays.
 
 ```python tags=[]
-odb.Horizon3D.features(f3demo, hors[6:8])
+Horizon3D.features(f3demo, hors[6:8])
 ```

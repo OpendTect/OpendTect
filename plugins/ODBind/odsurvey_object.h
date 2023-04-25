@@ -41,6 +41,7 @@ public:
 
     bool		isOK() const	{ return errmsg_.isEmpty(); }
     BufferString	errMsg() const	{ return errmsg_; }
+    void		setErrMsg(const char* msg)	{ errmsg_ = msg; }
 
     BufferString	getName() const;
     virtual void	getInfo(OD::JSON::Object&) const = 0;
