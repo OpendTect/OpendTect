@@ -534,7 +534,7 @@ void uiIOObjSelGrp::mkManipulators()
 	 !uiIOObjInserter::isPresent(*ctio_.ctxt_.trgroup_) )
 	return;
 
-    auto* insbutgrp = new uiGroup( listfld_->parent(), "IOObj insert buttons" );
+    auto* insbutgrp = new uiGroup( listfld_, "IOObj insert buttons" );
     const ObjectSet<const Translator>& tpls = ctio_.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
@@ -569,7 +569,7 @@ void uiIOObjSelGrp::mkManipulators()
 	inserters_ += inserter;
     }
 
-    insbutgrp->attach( centeredLeftOf, listfld_ );
+    insbutgrp->attach( centeredLeftOf, listfld_->box() );
 }
 
 
