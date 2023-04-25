@@ -54,7 +54,7 @@ uiSizeSel::~uiSizeSel()
 
 void uiSizeSel::valueChangingCB( CallBacker* cb )
 {
-    const bool dosymm = symmfld_->isChecked();
+    const bool dosymm = symmfld_ ? symmfld_->isChecked() : false;
     if ( dosymm )
     {
 	const int sz = sCast(uiSpinBox*,cb)->getIntValue();
@@ -67,6 +67,7 @@ void uiSizeSel::valueChangingCB( CallBacker* cb )
 	    fld->setValue( sz );
 	}
     }
+
     valueChanging.trigger();
 }
 
