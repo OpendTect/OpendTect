@@ -551,6 +551,16 @@ void Well::Log::updateAfterValueChanges()
     }
 }
 
+
+void Well::Log::setValueRange( const Interval<float>& valrg )
+{
+    range_ = valrg;
+    if ( range_.isUdf() || isLoaded() )
+	return;
+
+    iscode_ = valIsCode(range_.start,1e-3f) && valIsCode(range_.stop,1e-3f);
+}
+
 #define mDefZStep 0.1524f
 #define mMaxGap 1.f
 void Well::Log::prepareForDisplay()
