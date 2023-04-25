@@ -27,6 +27,7 @@ If this notebook is not opened from OpendTect then the following paths should be
 
 ```python
 import odbind as odb
+from odbind.survey import Survey
 ```
 
 ```python
@@ -41,8 +42,8 @@ Note that **odb.Survey('F3_Demo_2020')** and **odb.Survey('F3_Demo_2020', odb.ge
 The other data specific classes provided by the bindings require a Survey object for context. Various methods/properties are available to get information about the survey.
 
 ```python
-f3demo = odb.Survey('F3_Demo_2020')
-penobscot = odb.Survey('Penobscot')
+f3demo = Survey('F3_Demo_2020')
+penobscot = Survey('Penobscot')
 ```
 
 ### Survey.info() function
@@ -89,7 +90,7 @@ Returns a python list with the names of all OpendTect surveys. Optionally  a bas
 Note that **odb.Survey.names()** and **odb.Survey.names(odb.get_user_datadir())** are equivalent. 
 
 ```python
-odb.Survey.names(odb.get_user_datadir())
+Survey.names(odb.get_user_datadir())
 ```
 
 ### Survey.infos() and Survey.infos_dataframe() functions
@@ -98,11 +99,11 @@ These return a dictionary and a Pandas DataFrame respectively with basic informa
 Note that **odb.Survey.infos()** and **odb.Survey.infos([], odb.get_user_datadir())** are equivalent. 
 
 ```python tags=[]
-odb.Survey.infos(['F3_Demo_2020', 'Penobscot'])
+Survey.infos(['F3_Demo_2020', 'Penobscot'])
 ```
 
 ```python
-odb.Survey.infos_dataframe()
+Survey.infos_dataframe()
 ```
 
 ### Survey.features() function
@@ -112,7 +113,7 @@ Returns a GeoJSON feature collection for the listed surveys (or all surveys if n
 Note that **odb.Survey.features()** and **odb.Survey.features([], odb.get_user_datadir())** are equivalent.
 
 ```python
-features = odb.Survey.features(['F3_Demo_2020', 'Penobscot'])
+features = Survey.features(['F3_Demo_2020', 'Penobscot'])
 features
 ```
 

@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS EarthModel Well )
+set( OD_MODULE_DEPS EarthModel Seis Well )
 
 set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
@@ -13,6 +13,8 @@ set( OD_MODULE_SOURCES
     odbind_pi.cc
     odbind.cc
     odhorizon.cc
+    odseismic_object.cc
+    odseismic_3d.cc
     odsurvey.cc
     odsurvey_object.cc
     odwell.cc
@@ -20,10 +22,18 @@ set( OD_MODULE_SOURCES
 
 OD_INIT_MODULE()
 
+set ( ODBIND_FILES
+    python/__init__.py
+    python/survey.py
+    python/horizon2d.py
+    python/horizon3d.py
+    python/seismic3d.py
+    python/well.py
+)
 if ( APPLE )
-    install ( FILES python/__init__.py python/odbind.py
-		DESTINATION Contents/Resources/bin/python/ )
+    install ( FILES ${ODBIND_FILES}
+		DESTINATION Contents/Resources/bin/python/odbind )
 else()
-    install ( FILES python/__init__.py python/odbind.py
-		DESTINATION bin/python/ )
+    install ( FILES ${ODBIND_FILES}
+		DESTINATION bin/python/odbind )
 endif()

@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.4
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -19,15 +19,16 @@ jupyter:
 **If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.**
 
 ```python
-#import os
-#import sys
-#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
-#sys.path.insert(0,odpy_path)
+import os
+import sys
+odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
+sys.path.insert(0,odpy_path)
 ```
 
 ```python
 import numpy as np
-import odbind as odb
+from odbind.survey import Survey
+from odbind.well import Well
 ```
 
 ## Well class
@@ -39,14 +40,14 @@ The user must create an **Well** object to access a specific well. There are 2 c
 
 
 ```python
-f3demo = odb.Survey('F3_Demo_2020')
+f3demo = Survey('F3_Demo_2020')
 ```
 
 ### Well.info() function
 Returns basic information for a well in a Python dictionary
 
 ```python
-well = odb.Well(f3demo, 'F03-4')
+well = Well(f3demo, 'F03-4')
 well.info()
 ```
 
@@ -109,11 +110,23 @@ uom
 well.logs_dataframe(['Density','Sonic','Gamma Ray'], zstep=10, upscale=False)
 ```
 
+### Well.put_log function
+Saves a log to the well.
+
+```python
+well.put_log('Double Density', data['dah'], data['Density']*2, 'g/cc', 'RHOB', True)
+well.log_info(['Double Density'])
+```
+
+```python tags=[]
+print( f'Density range: [{data["Density"].min()}, {data["Density"].max()}]')
+```
+
 ## Static methods
 A number of methods are provided to get information either for all or a selected number of wells in the user provided survey.
 
 ```python
-wells = odb.Well.names(f3demo)
+wells = Well.names(f3demo)
 wells
 ```
 
@@ -121,7 +134,7 @@ wells
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed wells (or all wells if no list provided) in the given survey.
 
 ```python tags=[]
-odb.Well.infos_dataframe(f3demo)
+Well.infos_dataframe(f3demo)
 ```
 
 ### Well.features() function
@@ -129,7 +142,7 @@ odb.Well.infos_dataframe(f3demo)
 Returns a GeoJSON feature collection for the listed wells (or all wells if no list provided) in the given survey. This can be used to create map displays.
 
 ```python tags=[]
-features = odb.Well.features(f3demo)
+features = Well.features(f3demo)
 features
 ```
 

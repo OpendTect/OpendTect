@@ -1,10 +1,10 @@
 import pytest
 import json
-import odbind as odb
+from odbind.survey import Survey
 
 def test_Survey_class():
-    assert 'F3_Demo_2020' in odb.Survey.names()
-    f3demo = odb.Survey("F3_Demo_2020")
+    assert 'F3_Demo_2020' in Survey.names()
+    f3demo = Survey("F3_Demo_2020")
     info =  {
                 'name': "F3_Demo_2020",
                 'type': "2D3D",

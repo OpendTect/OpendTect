@@ -258,6 +258,59 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 }
 
 
+void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
+		     uint32_t sz, const char* uom, const char* mnem,
+		     bool overwrite )
+{
+    survey_.activate();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::putLog - invalid welldata object.";
+	return;
+    }
+
+    if ( !overwrite && wd_->logs().isPresent(lognm) )
+	return;
+    else if ( wd_->logs().isPresent(lognm) )
+	Well::MGR().deleteLogs( wd_->multiID(), BufferStringSet(lognm) );
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    PtrMan<Well::Log> outlog = new Well::Log( lognm );
+    if ( uom )
+    {
+	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( uom );
+	outlog->setUnitOfMeasure( loguom );
+	if ( mnem )
+	{
+	    const BufferStringSet hintnms( lognm, mnem );
+	    const Mnemonic* mn = MnemonicSelection::getGuessed( lognm, loguom,
+								&hintnms );
+	    if ( mn && !mn->isUdf() )
+		outlog->setMnemonic( *mn );
+	}
+    }
+
+    for ( uint32_t idz=0; idz<sz; idz++ )
+    {
+	const float dep = getConvertedValue( *dah++, zduom, zsuom );
+	float logval = *logdata++;
+#ifdef __win__
+	if ( isnan(logval) )
+#else
+	if ( std::isnan(logval) )
+#endif
+	    logval = mUdf(float);
+
+	outlog->addValue( dep, logval );
+    }
+    outlog->updateAfterValueChanges();
+
+    if ( !Well::MGR().writeAndRegister(wd_->multiID(), outlog) )
+	errmsg_ = "odWell::putLog - saving log failed";
+}
+
+
 void odWell::getInfo( OD::JSON::Object& jsobj ) const
 {
     survey_.activate();
@@ -388,6 +441,31 @@ const char* well_getlogs( hWell self, hAllocator allocator,
     p->getLogs( allocator, *nms, jsarr, zstep,
 				upscale ? odWell::Upscale : odWell::Sample );
     return strdup( jsarr.dumpJSon().buf() );
+}
+
+
+void well_putlog( hWell self, const char* lognm, const float* dah,
+		  const float* logdata, uint32_t sz,
+		  const char* uom, const char* mnem, bool overwrite )
+{
+    auto* p = reinterpret_cast<odWell*>(self);
+    if  ( !p )
+	return;
+
+    p->putLog( lognm, dah, logdata, sz, uom, mnem, overwrite );
+}
+
+
+bool well_deletelogs( hWell self, const hStringSet lognms )
+{
+    auto* p = reinterpret_cast<odWell*>(self);
+    const auto* nms = reinterpret_cast<BufferStringSet*>(lognms);
+    if ( !p || !nms || !p->wd() ) return false;
+
+    if ( nms->isEmpty() )
+	return true;
+
+    return Well::MGR().deleteLogs( p->wd()->multiID(), *nms );
 }
 
 
