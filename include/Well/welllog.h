@@ -50,6 +50,7 @@ public:
 
     float		value( int idx ) const override { return vals_[idx]; }
     void		setValue(int idx,float val);
+    void		setValueRange(const Interval<float>&);
 
     float		getValue(float md,bool noudfs=false) const;
     void		addValue(float md,float val);
@@ -63,6 +64,7 @@ public:
     bool		insertAtDah(float md,float val) override;
     void		removeTopBottomUdfs();
 
+    mDeprecated("Use setValueRange")
     Interval<float>&	valueRange()			{ return range_; }
     const Interval<float>& valueRange() const		{ return range_; }
 
