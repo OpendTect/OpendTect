@@ -93,14 +93,17 @@ void uiUnitSel::init()
     {
 	mnfld_ = new uiComboBox( this, "Mnemonic" );
 	mAttachCB( mnfld_->selectionChanged, uiUnitSel::mnSelChg );
-	MnemonicSelection mns = setup_.mn_ &&
+	const MnemonicSelection mns = setup_.mn_ &&
 				setup_.mn_->stdType() != Mnemonic::Other
 			      ? MnemonicSelection( setup_.mn_->stdType() )
-			      : MnemonicSelection( setup_.ptype_ );
+			      : (setup_.ptype_ == Mnemonic::Other
+				? MnemonicSelection( nullptr )
+				: MnemonicSelection( setup_.ptype_ ));
 
 	BufferStringSet mnsnames;
 	for ( const auto* mn : mns )
 	    mnsnames.add( mn->name() );
+	mnsnames.sort();
 	mnfld_->addItems( mnsnames );
 	if ( setup_.mn_ )
 	{
@@ -158,7 +161,10 @@ void uiUnitSel::update()
 	setup_.ptype_ = (Mnemonic::StdType)propfld_->currentItem();
 
     if ( mnfld_ )
+    {
 	setup_.mn_ = MNC().getByName( mnfld_->text() );
+	setup_.ptype_ = setup_.mn_ ? setup_.mn_->stdType() : Mnemonic::Other;
+    }
 
     units_.erase();
     if ( setup_.mn_ )
