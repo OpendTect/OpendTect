@@ -88,6 +88,12 @@ static bool testLimitTo()
     mDeclTrcKeyZSampling( cs3, 2, 56, 2,
 			10, 100, 1,
 			1.0, 2.0, 0.004 );
+    mDeclTrcKeyZSampling( cs4, 20, 106, 2,
+			5, 45, 1,
+			2.5, 2.5, 0.004 );
+    mDeclTrcKeyZSampling( cs5, 120, 146, 2,
+			1, 9, 1,
+			1.5, 2.0, 0.004 );
     mDeclTrcKeyZSampling( cs1exp, 15, 63, 6,
 			10, 100, 1,
 			1.0, 2.0, 0.004 );
@@ -102,11 +108,14 @@ static bool testLimitTo()
 
     cs1.limitTo( cs2 );
     cs2.limitTo( cs3 );
+    cs4.limitTo( cs3 );
+    cs3.limitTo( cs5 );
     csvol.limitTo( csgeomexp );
     cswidevol.limitTo( csgeomexp );
     csgeom.limitTo( csgeomexp );
     csvol2.limitTo( csvolexp );
     if ( cs1 != cs1exp || cs2 != cs2exp ||
+	 !cs3.isEmpty() || !cs4.isEmpty() ||
 	 csvol != csvolexp || cswidevol != csvolexp ||
 	 csvol2 != csvolexp || csgeom != csgeomexp )
 	mRetResult( "testLimitTo" );

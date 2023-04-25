@@ -609,7 +609,12 @@ void Interval<T>::sort( bool asc )
 
 template <class T> inline
 void Interval<T>::limitTo( const Interval<T>& i )
-{ return BasicInterval<T>::limitTo_( i ); }
+{
+    if ( BasicInterval<T>::overlaps(i) )
+	BasicInterval<T>::limitTo_( i );
+    else
+	setUdf();
+}
 
 
 template <class T> inline
@@ -879,8 +884,12 @@ template <class T> inline
 void StepInterval<T>::limitTo( const Interval<T>& oth )
 {
     if ( !BasicInterval<T>::overlaps(oth) )
-	{ Interval<T>::start = Interval<T>::stop = oth.start; return; }
-    else if ( !oth.hasStep() )
+    {
+	setUdf();
+	return;
+    }
+
+    if ( !oth.hasStep() )
     {
 	const StepInterval<T> org( *this );
 	Interval<T>::limitTo_( oth );

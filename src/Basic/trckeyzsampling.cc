@@ -308,7 +308,7 @@ float TrcKeyZSampling::zAtIndex( int idx ) const
 
 
 bool TrcKeyZSampling::isEmpty() const
-{ return hsamp_.isEmpty(); }
+{ return hsamp_.isEmpty() || zsamp_.isUdf(); }
 
 
 bool TrcKeyZSampling::operator!=( const TrcKeyZSampling& tkzs ) const
@@ -352,8 +352,7 @@ void TrcKeyZSampling::include( const TrcKeyZSampling& c )
 
 bool TrcKeyZSampling::isDefined() const
 {
-    return hsamp_.isDefined() &&
-	!mIsUdf(zsamp_.start) && !mIsUdf(zsamp_.stop) && !mIsUdf(zsamp_.step);
+    return hsamp_.isDefined() && !zsamp_.isUdf();
 }
 
 
