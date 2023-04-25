@@ -19,6 +19,8 @@ mExpClass(uiTools) uiSizeSel : public uiGroup
 {
 public:
 			uiSizeSel(uiParent*,const uiString& lbl,int maxnrdim);
+			uiSizeSel(uiParent*,const uiString& lbl,int maxnrdim,
+				  bool withsymmfld);
 			~uiSizeSel();
 
     int			maxNrDim() const;
