@@ -22,12 +22,14 @@ public:
 HP_uiSizeSel()   {}
 ~HP_uiSizeSel()  {}
 
-    uiCheckBox*		symmfld_;
+    uiCheckBox*		symmfld_	= nullptr;
 };
 
 static HiddenParam<uiSizeSel,HP_uiSizeSel*> hp( nullptr );
 
-uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
+
+uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim,
+		      bool withsymmfld )
     : uiGroup(p,"Image Size Group")
     , valueChanging(this)
 {
@@ -47,14 +49,24 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
 	sizeflds_ += fld;
     }
 
-    hp.setParam( this, new HP_uiSizeSel );
-    auto* symmfld = new uiCheckBox( this, toUiString("Symmetric") );
-    symmfld->setChecked( false );
-    symmfld->attach( rightTo, sizeflds_.last() );
-    hp.getParam(this)->symmfld_ = symmfld;
+    if ( withsymmfld )
+    {
+	hp.setParam( this, new HP_uiSizeSel );
+	auto* symmfld = new uiCheckBox( this, toUiString("Symmetric") );
+	symmfld->setChecked( false );
+	symmfld->attach( rightTo, sizeflds_.last() );
+	hp.getParam(this)->symmfld_ = symmfld;
+    }
+    else
+	hp.setParam( this, nullptr );
 
     setHAlignObj( sizeflds_[0] );
 }
+
+
+uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
+    : uiSizeSel(p,lbl,maxnrdim,true)
+{}
 
 
 uiSizeSel::~uiSizeSel()
@@ -66,7 +78,8 @@ uiSizeSel::~uiSizeSel()
 
 void uiSizeSel::valueChangingCB( CallBacker* cb )
 {
-    const bool dosymm = hp.getParam(this)->symmfld_->isChecked();
+    const auto* hpobj = hp.getParam(this);
+    const bool dosymm = hpobj ? hpobj->symmfld_->isChecked() : false;
     if ( dosymm )
     {
 	const int sz = sCast(uiSpinBox*,cb)->getIntValue();
@@ -110,7 +123,9 @@ int uiSizeSel::currentNrDim() const
 
 void uiSizeSel::setSymmetric( bool yn )
 {
-    hp.getParam(this)->symmfld_->setChecked( yn );
+    const auto* hpobj = hp.getParam(this);
+    if ( hpobj )
+	hpobj->symmfld_->setChecked( yn );
 }
 
 
