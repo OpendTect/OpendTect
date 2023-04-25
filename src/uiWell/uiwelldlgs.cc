@@ -904,6 +904,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     tbl_->setColumnToolTip( getVintCol(),
 	    tr("Interval velocity above this control point (read-only)") );
     tbl_->setPrefWidth( 700 );
+    tbl_->setPrefHeight( 400 );
     tbl_->setTableReadOnly( !writable_ );
     tbl_->setSelectionBehavior( uiTable::SelectRows );
 
@@ -2000,9 +2001,6 @@ void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
 				    .fillrow(true)
 				    .removeselallowed(false),
 				"Units info" );
-    uominfotbl_->setPrefWidth( 520 );
-    uominfotbl_->setPrefHeight( 400 );
-    uominfotbl_->setTableReadOnly( true );
     uiStringSet collbls;
     collbls.add( tr("Well name") )
            .add( tr("Log name") )
@@ -2015,7 +2013,11 @@ void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
 	nrrows += logset->size();
 
     uominfotbl_->setNrRows( nrrows );
+    uominfotbl_->setPrefHeight( 400 );
+    uominfotbl_->setTableReadOnly( true );
+
     int rowidx = -1;
+    bool withmnsel = false;
     for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
     {
 	const ObjectSet<Well::Log>* logset = wls_[wlsidx];
@@ -2050,8 +2052,12 @@ void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
 	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
 	    uominfotbl_->setText( RowCol(rowidx,1), log->name() );
 	    uominfotbl_->setCellGroup( RowCol(rowidx,2), unfld );
+
+	    withmnsel = withmnsel || !usetype;
 	}
     }
+
+    uominfotbl_->setPrefWidth( withmnsel ? 720 : 520 );
 }
 
 
@@ -2168,13 +2174,10 @@ void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
 				    .fillrow(true)
 				    .removeselallowed(false),
 				"Units info" );
-    mneminfotbl_->setPrefWidth( 520 );
-    mneminfotbl_->setPrefHeight( 400 );
-    mneminfotbl_->setTableReadOnly( true );
     uiStringSet collbls;
     collbls.add( tr("Well name") )
 	   .add( tr("Log name") )
-	   .add( tr("Mnemonic") );
+	   .add( uiStrings::sMnemonic() );
     mneminfotbl_->setColumnLabels( collbls );
     mneminfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
     const int nrwls = wls_.size();
@@ -2183,6 +2186,10 @@ void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
 	nrrows += logset->size();
 
     mneminfotbl_->setNrRows( nrrows );
+    mneminfotbl_->setPrefWidth( 520 );
+    mneminfotbl_->setPrefHeight( 400 );
+    mneminfotbl_->setTableReadOnly( true );
+
     int rowidx = -1;
     for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
     {
@@ -2350,13 +2357,13 @@ uiTable* uiWellDefMnemLogDlg::Tables::createLogTable( uiGroup* tablegrp )
 						       .manualresize(true),
 			     "Set/Edit Default Well Logs" );
     uiStringSet lbls;
-    lbls.add( tr("Mnemonic") ).add( tr("Default Log") );
-    ret->setPrefWidth( 450 );
+    lbls.add( uiStrings::sMnemonic() ).add( tr("Default Log") );
     ret->setColumnLabels( lbls );
     ret->setColumnReadOnly( cMnemCol, false );
     ret->setColumnResizeMode( uiTable::ResizeToContents );
     ret->setRowResizeMode( uiTable::ResizeToContents );
     ret->setVSzPol( uiObject::MedVar );
+    ret->setPrefWidth( 450 );
     ret->display( false );
     ret->setColumnStretchable( cLogCol, true );
 
@@ -2402,6 +2409,8 @@ void uiWellDefMnemLogDlg::Tables::fillMnemRows()
     table_->setNrRows( nrrows );
     for ( int idx=0; idx<nrrows; idx++ )
 	table_->setText( RowCol(idx,cMnemCol), mnemlblset.get(idx) );
+
+    table_->setPrefHeight( 400 );
 }
 
 
@@ -2524,7 +2533,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 
     tablegrp_ = new uiGroup( this, "Table Group" );
     tablegrp_->attach( ensureBelow, sep );
-    tablegrp_->attach( centeredRightOf, welllist_ );
+    tablegrp_->attach( rightOf, welllist_ );
     for ( auto* wd : wds )
     {
 	auto* table = new Tables( *wd, tablegrp_, mns );
