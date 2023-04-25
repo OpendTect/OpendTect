@@ -66,9 +66,9 @@ mExternC(ODBind) hStringSet	seismic3d_compnames(hSeismic3D);
 
 mExternC(ODBind) void		seismic3d_getinlcrl(hSeismic3D, size_t, int*,
 						    int*);
-mExternC(ODBind) size_t		seismic3d_gettrcidx(hSeismic3D, int, int);
-mExternC(ODBind) size_t		seismic3d_nrbins(hSeismic3D);
-mExternC(ODBind) size_t		seismic3d_nrtrcs(hSeismic3D);
+mExternC(ODBind) od_int64	seismic3d_gettrcidx(hSeismic3D, int, int);
+mExternC(ODBind) od_int64	seismic3d_nrbins(hSeismic3D);
+mExternC(ODBind) od_int64	seismic3d_nrtrcs(hSeismic3D);
 
 
 

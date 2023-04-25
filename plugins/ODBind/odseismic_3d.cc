@@ -139,7 +139,7 @@ void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int* inl, int* crl )
 }
 
 
-size_t seismic3d_gettrcidx( hSeismic3D self, int iln, int crl )
+od_int64 seismic3d_gettrcidx( hSeismic3D self, int iln, int crl )
 {
     auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
@@ -154,7 +154,7 @@ size_t seismic3d_gettrcidx( hSeismic3D self, int iln, int crl )
 }
 
 
-size_t seismic3d_nrbins( hSeismic3D self )
+od_int64 seismic3d_nrbins( hSeismic3D self )
 {
     auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
@@ -168,7 +168,7 @@ size_t seismic3d_nrbins( hSeismic3D self )
 }
 
 
-size_t seismic3d_nrtrcs( hSeismic3D self )
+od_int64 seismic3d_nrtrcs( hSeismic3D self )
 {
     auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
