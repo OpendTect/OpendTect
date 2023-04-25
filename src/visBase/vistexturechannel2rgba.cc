@@ -180,8 +180,11 @@ ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
 
 
 int ColTabTextureChannel2RGBA::maxNrChannels() const
-{ return 8; }	/* Any number will do, because of automatic fallback to
-		   non-shader solution when exceeding nrTextureUnits(). */
+{
+    return 7;
+    // It seems that gl_MultiTexCoord0 is already in use. Therefor only
+    // 7 remaining. See shader code in osgGeo/LayeredTexture.cpp
+}
 
 
 ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
