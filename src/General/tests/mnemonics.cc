@@ -58,7 +58,7 @@ static bool testMnemonicsSel()
     mRunStandardTest( statsmnsel.size() == 5 &&
 		      statsmnsel.isPresent( &Mnemonic::defSW() ),
 		      "Saturation mnemonic selection" );
-    mRunStandardTest( percenttypesel.size() == 67,"Percent mnemonic selection");
+    mRunStandardTest( percenttypesel.size() == 69,"Percent mnemonic selection");
 
     return true;
 }
