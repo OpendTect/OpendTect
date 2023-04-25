@@ -692,8 +692,10 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 	    newlog->dahRange().set( astrm.getFValue(0), astrm.getFValue(1) );
 	}
 	if ( astrm.hasKeyword(Log::sKeyLogRange()) )
-	    newlog->valueRange().set( astrm.getFValue(0), astrm.getFValue(1) );
-
+	{
+	    const Interval<float> valrg( astrm.getFValue(0),astrm.getFValue(1));
+	    newlog->setValueRange( valrg );
+	}
     }
 
     newlog->setMnemonicLabel( mnnm.buf(), true );
@@ -721,8 +723,9 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     if ( !newlog )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
-    const bool udfranges = newlog->dahRange().isUdf()
-					     || newlog->valueRange().isUdf();
+    const Log* cnewlog = newlog;
+    const bool udfranges = cnewlog->dahRange().isUdf() ||
+			   cnewlog->valueRange().isUdf();
     if ( !needjustinfo || udfranges )
 	readLogData( *newlog, strm, bintype );
 

@@ -442,7 +442,7 @@ static bool valIsCode( float val, float eps )
     if ( mIsUdf(val) )
 	return true; //No reason for failure
 
-    return mIsEqual(val,mCast(float,mNINT32(val)),eps);
+    return val < 10000.f && mIsEqual(val,mCast(float,mNINT32(val)),eps);
 }
 
 
@@ -549,6 +549,16 @@ void Well::Log::updateAfterValueChanges()
 	if ( !valIsCode(val,1e-3f) )
 	    iscode_ = false;;
     }
+}
+
+
+void Well::Log::setValueRange( const Interval<float>& valrg )
+{
+    range_ = valrg;
+    if ( range_.isUdf() || isLoaded() )
+	return;
+
+    iscode_ = valIsCode(range_.start,1e-3f) && valIsCode(range_.stop,1e-3f);
 }
 
 #define mDefZStep 0.1524f
