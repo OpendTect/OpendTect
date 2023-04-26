@@ -238,7 +238,7 @@ static uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
 	    return itms[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -258,7 +258,7 @@ void uiODHorizonParentTreeItem::sort()
     }
 
     EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
-    uiTreeItem* previtm = 0;
+    uiTreeItem* previtm = nullptr;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
 	uiTreeItem* itm = gtItm( sortedmids[idx], children_ );
@@ -289,7 +289,8 @@ uiTreeItem*
     uiODHorizonTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
     const StringView objtype = uiVisEMObject::getObjectType(visid);
-    if ( !objtype ) return 0;
+    if ( !objtype )
+	return nullptr;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
 	ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -301,8 +302,7 @@ uiTreeItem*
 	return new uiODHorizonTreeItem( visid, rgba, atsection, true );
     }
 
-
-    return 0;
+    return nullptr;
 }
 
 
@@ -331,6 +331,7 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( VisID visid, bool rgba, bool atsect,
 
 uiODHorizonTreeItem::~uiODHorizonTreeItem()
 {
+    detachAllNotifiers();
     delete dpspickdlg_;
 }
 
@@ -374,7 +375,7 @@ void uiODHorizonTreeItem::initNotify()
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
 		    emd,visserv_->getObject(displayid_));
     if ( emd )
-	emd->changedisplay.notify( mCB(this,uiODHorizonTreeItem,dispChangeCB) );
+	mAttachCB( emd->changedisplay, uiODHorizonTreeItem::dispChangeCB );
 }
 
 
@@ -1060,7 +1061,9 @@ uiTreeItem*
 
 uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& objid )
     : uiODEarthModelSurfaceTreeItem( objid )
-{ initMenuItems(); }
+{
+    initMenuItems();
+}
 
 
 uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( VisID id, bool )
@@ -1072,7 +1075,9 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( VisID id, bool )
 
 
 uiODHorizon2DTreeItem::~uiODHorizon2DTreeItem()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiODHorizon2DTreeItem::initMenuItems()
@@ -1091,7 +1096,7 @@ void uiODHorizon2DTreeItem::initNotify()
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
 		    emd,visserv_->getObject(displayid_));
     if ( emd )
-	emd->changedisplay.notify(mCB(this,uiODHorizon2DTreeItem,dispChangeCB));
+	mAttachCB( emd->changedisplay, uiODHorizon2DTreeItem::dispChangeCB );
 }
 
 
