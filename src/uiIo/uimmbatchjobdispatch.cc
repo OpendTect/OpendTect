@@ -80,14 +80,13 @@ uiRetVal uiMMBatchJobDispatcher::initMMProgram( const CommandLineParser& clp,
     jobpars.set( sKey::FileName(), parfilenm.buf() );
 
     BufferString dataroot, survdir;
-    if ( !clp.getVal(CommandLineParser::sDataRootArg(),dataroot) ||
+    if ( !clp.getVal(CommandLineParser::sDataRootArg(),dataroot) &&
 	 !jobpars.get(sKey::DataRoot(),dataroot) )
 	dataroot.set( GetBaseDataDir() );
 
-    if ( !clp.getVal(CommandLineParser::sSurveyArg(),survdir) ||
+    if ( !clp.getVal(CommandLineParser::sSurveyArg(),survdir) &&
 	 !jobpars.get(sKey::Survey(),survdir) )
 	survdir.set( SurveyInfo::curSurveyName() );
-
 
     return IOMan::setDataSource_( dataroot.buf(), survdir.buf() );
 }
