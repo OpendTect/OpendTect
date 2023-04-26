@@ -39,8 +39,9 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "randcolor.h"
 #include "od_iostream.h"
+#include "od_helpids.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "timedepthmodel.h"
@@ -48,15 +49,14 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
+#include "wellimpasc.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
-#include "welltransl.h"
 #include "wellreader.h"
-#include "wellwriter.h"
+#include "welltransl.h"
 #include "welltrack.h"
-#include "wellimpasc.h"
-#include "od_helpids.h"
+#include "wellwriter.h"
 
 
 static const int nremptyrows = 5;
@@ -2320,6 +2320,7 @@ static const int cMnemCol   = 0;
 static const int cLogCol    = 1;
 static const char* sNone()  { return "None"; }
 
+static HiddenParam<uiWellDefMnemLogDlg,uiRadioButton*> applytobut_(nullptr);
 
 // ------ uiWellDefMnemLogDlg::Tables ------
 
@@ -2516,7 +2517,10 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 					  const MnemonicSelection* mns )
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
 				 mNoDlgTitle,mTODOHelpKey))
+    , bulkmode_( nullptr )
 {
+    applytobut_.setParam( this, new uiRadioButton(this,
+				tr("Apply changes to all wells in the list")) );
     RefObjectSet<Well::Data> wds;
     Well::LoadReqs loadreqs( Well::LogInfos );
     MultiWellReader wtrdr( keys, wds, loadreqs );
@@ -2529,11 +2533,9 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     for ( const auto* wd : wds )
 	wellnms.addIfNew( wd->name() );
 
-    bulkmode_ = new uiGenInput( this, tr("Edit in"),
-				      BoolInpSpec(false,tr("Bulk mode"),
-						  tr("Single Well mode")) );
+    uiRadioButton* applytobut = applytobut_.getParam(this);
     auto* sep = new uiSeparator( this );
-    sep->attach( stretchedBelow, bulkmode_ );
+    sep->attach( stretchedBelow, applytobut );
     welllist_ = new uiListBox( this, "Wells" );
     welllist_->addLabel( tr("Select Well"),
 			 uiListBox::AboveMid );
@@ -2552,7 +2554,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 	tables_ += table;
     }
 
-    mAttachCB( bulkmode_->valuechanged, uiWellDefMnemLogDlg::changeModeCB );
+    mAttachCB( applytobut->activated, uiWellDefMnemLogDlg::changeModeCB );
     mAttachCB( welllist_->selectionChanged,
 	       uiWellDefMnemLogDlg::wellChangedCB );
     mAttachCB( postFinalize(), uiWellDefMnemLogDlg::initDlg );
@@ -2563,6 +2565,7 @@ uiWellDefMnemLogDlg::~uiWellDefMnemLogDlg()
 {
     detachAllNotifiers();
     deepErase( tables_ );
+    applytobut_.removeParam( this );
 }
 
 
@@ -2574,9 +2577,10 @@ void uiWellDefMnemLogDlg::initDlg( CallBacker* )
 
 void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
 {
-    if ( bulkmode_->getBoolValue() )
+    uiRadioButton* applytobut = applytobut_.getParam(this);
+    if ( applytobut->isChecked() )
     {
-	uiMSG().warning( tr("When editing in bulk mode, changes to a mnemonic"),
+	uiMSG().warning( tr("When editing in this mode, changes to a mnemonic"),
 			 tr("will be applied to all the wells, which contain"),
 			 tr("the specified mnemonic"), true );
     }
@@ -2585,7 +2589,8 @@ void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
 
 void uiWellDefMnemLogDlg::logChangedCB( CallBacker* )
 {
-    if ( !bulkmode_->getBoolValue() )
+    uiRadioButton* applytobut = applytobut_.getParam(this);
+    if ( !applytobut->isChecked() )
 	return;
 
     const int curwell = welllist_->currentItem();
