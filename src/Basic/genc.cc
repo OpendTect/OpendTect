@@ -1047,7 +1047,7 @@ mExternC(Basic) bool InitBindings( const char** moddeps, bool forgui )
     }
 
     PIM().loadAuto( false );
-    while ( true )
+    while ( moddeps )
     {
 	const char* moddep = *moddeps++;
 	if ( !moddep || !*moddep )
