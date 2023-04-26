@@ -1,13 +1,14 @@
 import pytest
 import json
 import numpy as np
-import odbind as odb
+from odbind.survey import Survey
+from odbind.well import Well
 
 def test_Well_class():
-    f3demo = odb.Survey("F3_Demo_2020")
-    wells = odb.Well.names(f3demo)
+    f3demo = Survey("F3_Demo_2020")
+    wells = Well.names(f3demo)
     assert 'F02-1' in wells
-    well = odb.Well(f3demo, 'F03-4')
+    well = Well(f3demo, 'F03-4')
     info =  {
                 'name': 'F03-4',
                 'uwid': '',
@@ -38,7 +39,7 @@ def test_Well_class():
                                 }]
                 }
     assert json.loads(well.feature()) == feature
-    assert well.log_names == [
+    assert all(item in well.log_names for item in [
                                 'Density',
                                 'Sonic',
                                 'Gamma Ray',
@@ -50,7 +51,7 @@ def test_Well_class():
                                 'Vs_BLI',
                                 'Density_BLI',
                                 'Litholog (10=sand 15=silt 20=silty shale 30=shale)'
-                            ]
+                            ])
     assert well.log_info(['Density']) == [{
                                             'name': 'Density',
                                             'mnemonic': 'RHOB',
@@ -89,3 +90,23 @@ def test_Well_class():
     assert np.allclose(logs['dah'], np.array([0., 500.1, 1000.2, 1500.3]), equal_nan=True)
     assert np.allclose(logs['Density'], np.array([2.1116648, 2.1382186, 2.1459596, 2.1021001]), equal_nan=True)
     assert np.allclose(logs['Sonic'], np.array([np.nan, 140.28456, 143.23149, 150.78096]), equal_nan=True)
+    
+    if 'pytest' in well.log_names:
+        well.delete_logs(['pytest'])
+    dep = np.array([0.0, 500.0, 1000.0, 1500.0], dtype=np.float32)
+    logval = np.array([0.0, np.nan, 2.0, 3.0], dtype=np.float32)
+    well.put_log('pytest', dep, logval, 'g/cc', None)
+    logs, uom = well.logs(['pytest'], zstep=500.0, upscale=False)
+    assert np.allclose(logs['dah'], dep, equal_nan=True)
+    assert np.allclose(logs['pytest'], logval, equal_nan=True)
+
+    logval = np.array([0.0, 1.0, 2.0, 3.0], dtype=np.float32)
+    well.put_log('pytest', dep, logval, 'g/cc', None, True)
+    logs, uom = well.logs(['pytest'], zstep=500.0, upscale=False)
+    assert np.allclose(logs['dah'], dep, equal_nan=True)
+    assert np.allclose(logs['pytest'], logval, equal_nan=True)
+
+    well.delete_logs(['pytest'])
+    assert 'pytest' not in well.log_names
+    
+    

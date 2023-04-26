@@ -52,7 +52,7 @@ BufferString odSurvey::cursurvey_;
 static const char* moddeps[] =
 {
     "EarthModel",
-//    "Seis",
+    "Seis",
     "Well",
     nullptr
 };

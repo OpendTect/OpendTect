@@ -26,7 +26,8 @@ jupyter:
 
 ```python
 import numpy as np
-import odbind as odb
+from odbind.survey import Survey
+from odbind.horizon2d import Horizon2D
 ```
 
 ## Horizon2D class
@@ -38,14 +39,14 @@ The user must create an **Horizon2D** object to access a specific 2D horizon. Th
 -   **Horizon2D.create( survey:odSurvey, horizon_name:str, creategeom:bool, overwrite:bool )** which creates a new 2D horizon called "horizon_name". By default "overwrite" is set to false so if "horizon_name" already exists the statement will fail but if true any existing 2D horizon of the same name will be replaced.
 
 ```python
-f3demo = odb.Survey('F3_Demo_2020')
+f3demo = Survey('F3_Demo_2020')
 ```
 
 ### Horizon2D.info() function
 Returns basic information for a 2D horizon in a Python dictionary
 
 ```python
-gbase = odb.Horizon2D(f3demo, 'SSIS-Grid-Base')
+gbase = Horizon2D(f3demo, 'SSIS-Grid-Base')
 gbase.info()
 ```
 
@@ -109,7 +110,7 @@ survmap
 A number of methods are provided to get information either for all or a selected number of 2D horizons in the user provided survey.
 
 ```python
-hors = odb.Horizon2D.names(f3demo)
+hors = Horizon2D.names(f3demo)
 hors
 ```
 
@@ -117,12 +118,12 @@ hors
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
 
 ```python tags=[]
-odb.Horizon2D.infos_dataframe(f3demo)
+Horizon2D.infos_dataframe(f3demo)
 ```
 
 ### Horizon2D.features() function
 Returns a GeoJSON feature collection for the listed 2D horizons (or all 2D horizons if no list provided) in the given survey. This can be used to create map displays.
 
 ```python
-odb.Horizon2D.features(f3demo, hors[3:5])
+Horizon2D.features(f3demo, hors[3:5])
 ```
