@@ -92,7 +92,7 @@ public:
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);
-    void		setPrefWidthInChar(int);
+    virtual void	setPrefWidthInChar(int);
     void		setPrefWidthInChar(float);
     void		setMinimumWidth(int);
     void		setMaximumWidth(int);
@@ -101,7 +101,7 @@ public:
 
     int			prefVNrPics() const;
     virtual void	setPrefHeight(int);
-    void		setPrefHeightInChar(int);
+    virtual void	setPrefHeightInChar(int);
     void		setPrefHeightInChar(float);
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);

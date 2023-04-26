@@ -389,7 +389,7 @@ void uiTableBody::setPrefWidthInChars( int nrchars, int maxwidth )
 
     QHeaderView* hhdr = horizontalHeader();
     const QSize qsz = hhdr->sizeHint();
-    const float lookgoodfactor = 1.5;	// emperical
+    const float lookgoodfactor = 1.5;	// empirical
     const int charw = mCast( int, fontWidth() * lookgoodfactor );
     const int prefw = charw*nrchars + qsz.width();
     setPrefWidth( mMIN(prefw,maxwidth) );
@@ -755,22 +755,72 @@ int uiTable::nrRows() const		{ return body_->rowCount(); }
 int uiTable::nrCols() const		{ return body_->columnCount(); }
 
 
+void uiTable::setPrefWidth( int w )
+{
+    if ( nrCols() < 1 )
+    {
+	pErrMsg("Columns must be added first");
+	return;
+    }
+
+    if ( finalized() )
+    {
+	pErrMsg("Not allowed after finalize");
+	return;
+    }
+
+    uiObject::setPrefWidth( w );
+}
+
+
+void uiTable::setPrefHeight( int h )
+{
+    if ( nrRows() < 1 )
+    {
+	pErrMsg("Rows must be added first");
+	return;
+    }
+
+    if ( finalized() )
+    {
+	pErrMsg("Not allowed after finalize");
+	return;
+    }
+
+    uiObject::setPrefHeight( h );
+}
+
+
+void uiTable::setPrefHeightInChar( int nrchars )
+{
+    setPrefHeightInRows( nrchars );
+}
+
+
 void uiTable::setPrefHeightInRows( int nrrows )
 {
     const QList<QScreen*> screens = QGuiApplication::screens();
     if ( screens.isEmpty() )
 	return;
-    const QRect geom = screens[0]->availableVirtualGeometry();
+
+    const QRect geom = screens.first()->availableVirtualGeometry();
     body_->setPrefHeightInRows( nrrows, int(geom.height()*0.9) );
 }
 
 
 void uiTable::setPrefWidthInChars( int nrchars )
 {
+    setPrefWidthInChar( nrchars );
+}
+
+
+void uiTable::setPrefWidthInChar( int nrchars )
+{
     const QList<QScreen*> screens = QGuiApplication::screens();
     if ( screens.isEmpty() )
 	return;
-    const QRect geom = screens[0]->availableVirtualGeometry();
+
+    const QRect geom = screens.first()->availableVirtualGeometry();
     body_->setPrefWidthInChars( nrchars, int(geom.width()*0.9) );
 }
 

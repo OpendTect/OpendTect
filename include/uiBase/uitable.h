@@ -156,6 +156,10 @@ public:
     int			nrCols() const;
     void		setNrRows(int);
     void		setNrCols(int);
+    void		setPrefWidth(int) override;
+    void		setPrefWidthInChar(int) override;
+    void		setPrefHeight(int) override;
+    void		setPrefHeightInChar(int) override;
     void		setPrefHeightInRows(int);
 
     int			columnWidth(int) const;
@@ -384,5 +388,6 @@ public:
     float		getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
 
+    mDeprecated		("Use setPrefWidthInChar")
     void	       setPrefWidthInChars(int);
 };
