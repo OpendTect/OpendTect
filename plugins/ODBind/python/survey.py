@@ -7,6 +7,8 @@ class Survey(object):
     """
     _new = wrap_function(LIBODB, 'survey_new', ct.c_void_p, [ct.c_char_p, ct.c_char_p])
     _del = wrap_function(LIBODB, 'survey_del', None, [ct.c_void_p])
+    _errmsg = wrap_function(LIBODB, 'survey_errmsg', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+    _isok = wrap_function(LIBODB, 'survey_isok', ct.c_bool, [ct.c_void_p])
     _bin = wrap_function(LIBODB, 'survey_bin', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)])
     _bincoords = wrap_function(LIBODB, 'survey_bincoords', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
     _coords = wrap_function(LIBODB, 'survey_coords', None, [ct.c_void_p, ct.c_int, ct.c_int, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
@@ -33,6 +35,8 @@ class Survey(object):
 
         """
         self._handle = Survey._new(survey_name.encode(), basedir.encode() if basedir else None)
+        if not self._isok(self._handle):
+            raise ValueError(self._errmsg(self._handle))
 
     def __del__(self):
         Survey._del(self._handle)
