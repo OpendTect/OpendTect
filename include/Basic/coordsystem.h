@@ -49,6 +49,9 @@ public:
 
     static RefMan<CoordSystem>	createSystem(const IOPar&);
 				//!<Creates subclass with settings
+    static RefMan<CoordSystem>	createProjectionBasedSystem(const char* wkt,
+							BufferString& msgs);
+
     virtual CoordSystem*	clone() const				= 0;
     virtual CoordSystem*	getGeodeticSystem() const
 				{ return clone(); }
@@ -61,6 +64,10 @@ public:
     virtual bool		geographicTransformOK() const		= 0;
 
     virtual BufferString	getURNString() const = 0;
+    virtual BufferString	getWKTString() const
+					{ return BufferString::empty(); }
+    virtual bool		fromWKTString(const char*,BufferString& msg)
+				{ return false; }
 
     static Coord		convert(const Coord&,const CoordSystem& from,
 					const CoordSystem& to);
@@ -85,7 +92,7 @@ public:
     virtual bool		isGeodetic() const	{ return false; }
     virtual bool		isWGS84() const		{ return false; }
     virtual BufferString	getUnitName() const
-					    { return BufferString::empty(); }
+					{ return BufferString::empty(); }
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 

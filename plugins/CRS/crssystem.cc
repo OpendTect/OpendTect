@@ -17,7 +17,7 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem()
 }
 
 
-Coords::ProjectionBasedSystem::ProjectionBasedSystem( AuthorityCode code )
+Coords::ProjectionBasedSystem::ProjectionBasedSystem( const AuthorityCode& code)
 {
     setProjection( code );
 }
@@ -176,7 +176,8 @@ void Coords::ProjectionBasedSystem::doFillPar( IOPar& par ) const
 }
 
 
-bool Coords::ProjectionBasedSystem::setProjection( Coords::AuthorityCode code )
+bool Coords::ProjectionBasedSystem::setProjection(
+					const Coords::AuthorityCode& code )
 {
     proj_ = Coords::Projection::getByAuthCode( code );
     return proj_;
@@ -196,4 +197,17 @@ BufferString Coords::ProjectionBasedSystem::getURNString() const
 
     Coords::AuthorityCode code = proj_->authcode_;
     return code.toURNString();
+}
+
+
+BufferString Coords::ProjectionBasedSystem::getWKTString() const
+{
+    return proj_ ? proj_->getWKTString() : BufferString::empty();
+}
+
+
+bool Coords::ProjectionBasedSystem::fromWKTString( const char* wktstr,
+						   BufferString& msg )
+{
+    return proj_ ? proj_->fromWKTString( wktstr, msg ) : false;
 }

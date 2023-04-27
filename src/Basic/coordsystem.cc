@@ -141,6 +141,20 @@ RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 }
 
 
+RefMan<CoordSystem> CoordSystem::createProjectionBasedSystem( const char* wkt,
+							BufferString& msgs )
+{
+    RefMan<CoordSystem> res = factory().create( sKey::ProjSystem() );
+    if ( !res )
+	return nullptr;
+
+    if ( !res->fromWKTString(wkt,msgs) )
+	return nullptr;
+
+    return res;
+}
+
+
 Coord CoordSystem::convert( const Coord& in, const CoordSystem& from,
 			       const CoordSystem& to )
 {

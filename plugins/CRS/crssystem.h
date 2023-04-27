@@ -24,7 +24,7 @@ public:
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();
-				ProjectionBasedSystem(AuthorityCode);
+				ProjectionBasedSystem(const AuthorityCode&);
 				~ProjectionBasedSystem();
 
     CoordSystem*	clone() const override;
@@ -46,8 +46,10 @@ public:
     bool		isWGS84() const override;
     BufferString	getURNString() const override;
     BufferString	getUnitName() const override;
+    BufferString	getWKTString() const override;
+    bool		fromWKTString(const char*,BufferString& msg) override;
 
-    bool		setProjection(AuthorityCode);
+    bool		setProjection(const AuthorityCode&);
     const Projection*	getProjection() const;
 
     Coord		convertFrom(const Coord&,

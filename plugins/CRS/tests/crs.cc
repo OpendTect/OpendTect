@@ -150,7 +150,7 @@ static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
 }
 
 
-static bool testReversibility( Coords::AuthorityCode crsid )
+static bool testReversibility( const Coords::AuthorityCode& crsid )
 {
     const Coords::ProjectionBasedSystem pbs( crsid );
     if ( !pbs.isOK() )
