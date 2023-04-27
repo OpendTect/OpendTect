@@ -77,13 +77,17 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
     for ( int idx=0; idx<coordsystempars_.size(); idx++ )
     {
 	BufferString key;
-	if ( !coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(),
-					  key ) )
+	coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(), key );
+	if ( key == AnchorBasedXY::sFactoryKeyword() )
 	{
-	    coordsystempars_.removeSingle( idx );
-	    names.removeSingle( idx );
-	    idx--;
-	    continue;
+	    // Remove AnchorBased unless the current system is of this type
+	    if ( !fillfrom || key != fillfrom->factoryKeyword() )
+	    {
+		coordsystempars_.removeSingle( idx );
+		names.removeSingle( idx );
+		idx--;
+		continue;
+	    }
 	}
 
 	uiCoordSystem* systemui =
