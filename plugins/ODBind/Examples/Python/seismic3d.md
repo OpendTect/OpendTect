@@ -81,6 +81,12 @@ trace_count returns the estimated number of traces in the 3D seismic volume.
 print(vol.bin_count, vol.trace_count)
 ```
 
+### Seismic3D 
+
+```python
+vol.as_xarray(vol[500,:,:])['mdf2'].plot(y='z', yincrease=False, cmap='Greys')
+```
+
 ## Static methods
 A number of methods are provided to get information either for all or a selected number of wells in the user provided survey.
 

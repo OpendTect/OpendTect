@@ -43,6 +43,10 @@ public:
 		    odSurvey(const char* surveynm, const char* basedir=nullptr);
 		    ~odSurvey();
 
+    bool		isOK() const	{ return errmsg_.isEmpty(); }
+    BufferString	errMsg() const	{ return errmsg_; }
+    void		setErrMsg(const char* msg)	{ errmsg_ = msg; }
+
     BufferString	type() const;
     bool		has2D() const;
     bool		has3D() const;
@@ -76,7 +80,7 @@ public:
 					       const BufferStringSet&);
 
 protected:
-    BufferString	basedir_, survey_;
+    BufferString	basedir_, survey_, errmsg_;
     static BufferString curbasedir_, cursurvey_;
 
 };
@@ -103,6 +107,9 @@ mExternC(ODBind) bool		survey_has3d(hSurvey);
 mExternC(ODBind) bool		survey_hasobject(hSurvey, const char* objname,
 						 const char* trgrpnm);
 mExternC(ODBind) const char*	survey_info(hSurvey);
+mExternC(ODBind) const char*	survey_errmsg(hSurvey);
+mExternC(ODBind) bool		survey_isok(hSurvey);
+
 mExternC(ODBind) const char*	survey_infos(const hStringSet,
 					     const char* basedir);
 mExternC(ODBind) hStringSet	survey_names(const char* basedir);

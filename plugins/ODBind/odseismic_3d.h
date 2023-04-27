@@ -20,6 +20,7 @@ ________________________________________________________________________________
 
 -*/
 #include "odbindmod.h"
+#include "odbind.h"
 
 #include "ptrman.h"
 #include "trckeyzsampling.h"
@@ -44,6 +45,8 @@ public:
     ~odSeismic3D();
 
     int			getNrTraces() const;
+    void		getData(hAllocator, const TrcKeyZSampling&);
+
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool towgs) const override;
@@ -64,11 +67,17 @@ protected:
 mDeclareBaseBindings(Seismic3D, seismic3d)
 mExternC(ODBind) hStringSet	seismic3d_compnames(hSeismic3D);
 
+mExternC(ODBind) int		seismic3d_getzidx(hSeismic3D, float);
+mExternC(ODBind) float		seismic3d_getzval(hSeismic3D, int);
 mExternC(ODBind) void		seismic3d_getinlcrl(hSeismic3D, size_t, int*,
 						    int*);
 mExternC(ODBind) od_int64	seismic3d_gettrcidx(hSeismic3D, int, int);
 mExternC(ODBind) od_int64	seismic3d_nrbins(hSeismic3D);
 mExternC(ODBind) od_int64	seismic3d_nrtrcs(hSeismic3D);
+mExternC(ODBind) void		seismic3d_getdata(hSeismic3D, hAllocator,
+						  const int inl_rg[3],
+						  const int crl_rg[3],
+						  const int z_rg[3]);
 
 
 

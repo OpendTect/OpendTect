@@ -62,11 +62,20 @@ odSurvey::odSurvey( const char* surveynm, const char* basedir)
     : basedir_(basedir ? basedir : GetSettingsDataDir())
     , survey_(surveynm)
 {
+    errmsg_ = isValidDataRoot( basedir_.buf() );
+    if ( !isOK() )
+	return;
+
+    errmsg_ = isValidSurveyDir( FilePath(basedir_,survey_).fullPath() );
+    if ( !isOK() )
+	return;
+
     activate();
 }
 
 odSurvey::~odSurvey()
 {}
+
 
 BufferString odSurvey::type() const
 {
@@ -531,6 +540,21 @@ const char* survey_survtype( hSurvey self )
     const auto* p = reinterpret_cast<odSurvey*>(self);
     return strdup( p->type().buf() );
 }
+
+
+const char* survey_errmsg( hSurvey self )
+{
+    const auto* p = reinterpret_cast<odSurvey*>(self);
+    return p ? strdup( p->errMsg().buf() ) : nullptr;
+}
+
+
+bool survey_isok( hSurvey self )
+{
+    const auto* p = reinterpret_cast<odSurvey*>(self);
+    return p ? p->isOK() : false;
+}
+
 
 bool initModule( const char* odbindfnm )
 {

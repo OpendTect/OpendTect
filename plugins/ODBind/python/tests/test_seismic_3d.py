@@ -38,5 +38,8 @@ def test_Seismic3D_class():
                                 }]
                 }
     assert json.loads(vol.feature()) == feature
+
+    assert vol.trace_index(100,400) == 100
+    assert vol.bin(100) == (100,400)
     
     
