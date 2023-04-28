@@ -15,7 +15,8 @@ ________________________________________________________________________
 
 uiRGBAttrSelDlg::uiRGBAttrSelDlg( uiParent* p, const Attrib::DescSet& ds,
 				  Pos::GeomID geomid )
-    : uiDialog(p,Setup(tr("Select RGB Attributes"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Select RGB Attributes"),mNoDlgTitle,
+			mODHelpKey(mRGBAttrSelHelpID)))
 {
     rfld_ = new uiAttrSel( this, ds );
     rfld_->showSteeringData( true );

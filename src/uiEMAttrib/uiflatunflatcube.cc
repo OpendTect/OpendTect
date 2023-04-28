@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     : uiDialog(p,Setup(tr("Flatten / Unflatten Seismic Data"),
-		       mNoDlgTitle,mTODOHelpKey))
+		       mNoDlgTitle,mODHelpKey(mFlatUnflatCubeHelpID)))
 {
     setCtrlStyle( RunAndClose );
 

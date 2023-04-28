@@ -73,7 +73,7 @@ class uiSimpleTimeDepthTable : public uiDialog
 public:
 uiSimpleTimeDepthTable( uiParent* p, const MultiID& mid )
     : uiDialog(p,uiDialog::Setup(tr("Simple Time-Depth Model"),mNoDlgTitle,
-				mTODOHelpKey))
+				mODHelpKey(mSimpleTimeDepthTableHelpID)))
     , mid_(mid)
 {
     uiTable::Setup tblsu( mDefNrRows, 2 );

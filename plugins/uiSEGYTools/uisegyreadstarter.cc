@@ -769,7 +769,9 @@ public:
 
 uiSEGYHdrEntrySettings( uiParent* p )
     : uiDialog(p,Setup(tr("SEG-Y byte location scanning settings"),
-			mNoDlgTitle,mTODOHelpKey).savebutton(true))
+			mNoDlgTitle,
+			mODHelpKey(mSEGYHdrEntrySettingsHelpID))
+	       .savebutton(true))
 {
     const SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get();
     inlrgfld_ = new uiGenInput( this, tr("Usable In-line number range"),

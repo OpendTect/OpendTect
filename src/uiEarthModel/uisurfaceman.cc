@@ -950,7 +950,8 @@ class uiFltSetMan : public uiDialog
 public:
 uiFltSetMan( uiParent* p, const IOObj& ioobj )
     :uiDialog(p,uiDialog::Setup(tr("FaultSet management"),
-        uiStrings::phrManage( uiStrings::sFault(mPlural)),mTODOHelpKey ))
+	uiStrings::phrManage( uiStrings::sFault(mPlural)),
+			      mODHelpKey(mFltSetManHelpID) ))
     , ioobj_(ioobj)
     , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
 {

@@ -911,8 +911,8 @@ DirData( const char* wellnm )
 
 uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Directional Surveys"),
-				 mNoDlgTitle,mTODOHelpKey)
-				// mODHelpKey(mBulkDirectionalImportHelpID))
+				 mNoDlgTitle,
+				 mODHelpKey(mBulkDirectionalImportHelpID))
 			.modal(false))
     , fd_(BulkDirectionalAscIO::getDesc())
 {

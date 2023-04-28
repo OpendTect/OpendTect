@@ -38,6 +38,7 @@ ________________________________________________________________________
 #define		mNewSurveyByCopyHelpID				0x00003014
 #define		mStartNewSurveySetupHelpID			0x00003015
 #define		mSurveySelectDlgHelpID				0x00003016
+#define		mSurveyFileDlgHelpID				0x00003017
 // General Other 04
 #define		mSliceSelHelpID					0x00004001
 #define		mSliceScrollHelpID				0x00004002
@@ -53,6 +54,9 @@ ________________________________________________________________________
 #define		mhandleExistingGeometryHelpID			0x00004014
 #define		mSEGYReadStarterHelpID				0x00004015
 #define		mSingleBatchJobDispatcherParsHelpID		0x00004016
+#define		mTrc2SPHelpID					0x00004017
+#define		mSimpleTimeDepthTableHelpID			0x00004018
+#define		mSEGYHdrEntrySettingsHelpID			0x00004019
 //Object-Management 008
 // Object-Management Basic 00
 #define		mSetDataDirHelpID				0x00800001
@@ -148,6 +152,7 @@ ________________________________________________________________________
 #define		mAttribDescSetEddefaultSetHelpID		0x10101006
 #define		mTrcPositionDlgHelpID				0x10101007
 #define		mImpAttrSetHelpID				0x10101008
+#define		mRGBAttrSelHelpID				0x10101009
 // Attributes Output 02
 #define		mAttrVolOutHelpID				0x10102000
 #define		mRestartBatchDialogHelpID			0x10102001
@@ -308,6 +313,9 @@ ________________________________________________________________________
 #define		mFaultStickTransferDlgHelpID			0x10401008
 #define		mFaultOptSelHelpID				0x10401009
 #define		mBulkFaultImportHelpID				0x10401010
+#define		mFault2FaultSelHeplID				0x10401011
+#define		mCopyFaultSetHelpID				0x10401012
+#define		mFltSetManHelpID				0x10401013
 // Surfaces Manage 02
 #define		mSurfaceManHelpID				0x10402000
 #define		mSurface2DManHelpID				0x10402001
@@ -336,6 +344,7 @@ ________________________________________________________________________
 #define		mHorAttr2GeomHelpID				0x10404007
 #define		mHorGeom2AttrHelpID				0x10404008
 #define		muiEMDataPointSetPickDlgHelpID			0x10404009
+#define		mFlatUnflatCubeHelpID				0x10404010
 // Prestack events 05
 #define		mPreStackEventExportHelpID			0x10405000
 #define		mPreStackEventImportHelpID			0x10405001
@@ -366,6 +375,8 @@ ________________________________________________________________________
 #define		mBulkLogImportHelpID				0x10700011
 #define		mBulkMarkerImportHelpID				0x10700012
 #define		mBulkD2TModelImportHelpID			0x10700013
+#define		mBulkDirectionalImportHelpID			0x10700014
+#define		mLASWriterHelpID				0x10700015
 // Wells Manage 01
 #define		mWellManHelpID					0x10701000
 #define		mMarkerDlgHelpID				0x10701001
@@ -384,6 +395,9 @@ ________________________________________________________________________
 #define		mWellRockPhysLauncherHelpID			0x10701014
 #define		mWellCopyHelpID					0x10701015
 #define		mWellExpDlg					0x10701016
+#define		mMultiMnemonicsSelHelpID			0x10701017
+#define		mWellDefaultMnemonicLogHelpID			0x10701018
+#define		mSetD2TFromOtherWellHelpID			0x10701019
 // Wells Display 02
 #define		mWellDispPropDlgHelpID				0x10702000
 #define		mDispEditMarkerDlgHelpID			0x10702001
