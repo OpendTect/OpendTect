@@ -262,23 +262,15 @@ static FilePath getReplacePrefix( const FilePath& dir_,
 	return FilePath(dir_);
 
     // convert paths to Unix style
-    BufferString dir = dir_.fullPath( FilePath::Unix );
+    const BufferString dir = dir_.fullPath( FilePath::Unix );
     BufferString fromprefix = fromprefix_.fullPath( FilePath::Unix );
-    BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
-    BufferString tail = dir.find( fromprefix.buf() );
-    if ( tail.isEmpty() )
-    {
+    if ( !dir.contains(fromprefix.buf()) )
 	fromprefix.toLower();
-	tail = dir.find( fromprefix.buf() );
-    }
 
-    if ( tail.isEmpty() )
-	return FilePath(toprefix_);
-
-    tail += fromprefix.size();
-
-    BufferString ret = toprefix;
-    ret += tail;
+    const BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
+    BufferString ret( dir.buf() );
+    if ( toprefix != fromprefix )
+	ret.replace( fromprefix.buf(), toprefix.buf() );
 
     if ( mDebugOn )
     {
