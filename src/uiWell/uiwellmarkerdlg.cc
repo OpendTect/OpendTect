@@ -175,11 +175,11 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 			  const Well::D2TModel* d2t )
-	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
-				     mODHelpKey(mMarkerDlgHelpID)))
-	, track_(t)
-	, d2tmodel_(d2t)
-	, oldmrkrs_(nullptr)
+    : uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
+				 mODHelpKey(mMarkerDlgHelpID)))
+    , track_(t)
+    , d2tmodel_(d2t)
+    , oldmrkrs_(nullptr)
 {
     uiString title( toUiString("%1: %2") );
     title.arg( uiStrings::sWell() ).arg( t.name() );
@@ -190,16 +190,14 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 						.defrowlbl(true)
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
-    BufferStringSet header;
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
     table_->setColumnReadOnly( cColorCol, true );
     table_->setSelectionBehavior( uiTable::SelectRows );
-    table_->doubleClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
-    table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
-    table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
-    table_->setPrefWidth( 650 );
+    mAttachCB( table_->doubleClicked, uiMarkerDlg::mouseClick );
+    mAttachCB( table_->valueChanged, uiMarkerDlg::markerChangedCB );
+    mAttachCB( table_->rowInserted, uiMarkerDlg::markerAddedCB );
 
     auto* updatebut = new uiPushButton( this, tr("Update display"),
 			mCB(this,uiMarkerDlg,updateDisplayCB), true );
@@ -222,21 +220,23 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 			mCB(this,uiMarkerDlg,assignRandomColorsCB) );
     randclrbut->attach( rightOf, setregmarker );
 
-    unitfld_ = new uiCheckBox( this, tr("Z in Feet") );
+    unitfld_ = new uiCheckBox( this, tr("Z in Feet"),
+				mCB(this,uiMarkerDlg,unitChangedCB) );
     unitfld_->attach( rightAlignedBelow, table_ );
     unitfld_->setChecked( SI().depthsInFeet() );
-    unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
 
+    uiStringSet header;
     getColLabels( header );
-    table_->setColumnLabels( header.getUiStringSet() );
+    table_->setColumnLabels( header );
+    table_->setPrefWidth( 700 );
+    table_->setPrefHeightInRows( cNrEmptyRows*2 );
     table_->hideColumn( cTWTCol, !SI().zIsTime() );
-
-    setPrefWidthInChar( 60 );
 }
 
 
 uiMarkerDlg::~uiMarkerDlg()
 {
+    detachAllNotifiers();
     delete oldmrkrs_;
 }
 
@@ -281,7 +281,7 @@ bool uiMarkerDlg::getFromScreen()
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
     auto* levelsel = new uiStratLevelSel( 0, true, uiStrings::sEmptyString() );
-    levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
+    mAttachCB( levelsel->selChange, uiMarkerDlg::stratLvlChg );
     const int currentrow = table_->currentRow();
     const OD::Color defgreycol( 128, 128, 128 );
     table_->setCellGroup( RowCol(currentrow,cLevelCol), levelsel );
@@ -323,7 +323,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     if ( obj )
 	obj->setSensitive( true );
     else
-	markerAddedCB(0);
+	markerAddedCB( nullptr );
 }
 
 
@@ -419,12 +419,13 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp);
 	if ( !levelsel )
 	{
-	    levelsel = new uiStratLevelSel(0, true, uiStrings::sEmptyString());
-	    levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
+	    levelsel = new uiStratLevelSel( nullptr, true, uiString::empty() );
+	    mAttachCB( levelsel->selChange, uiMarkerDlg::stratLvlChg );
 	    table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	}
 
-	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx] : 0;
+	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx]
+							   : nullptr;
 	if ( marker )
 	{
 	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
@@ -628,7 +629,7 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	}
 
 	dah /= zfac;
-	Well::Marker* marker = new Well::Marker( markernm, dah );
+	auto* marker = new Well::Marker( markernm, dah );
 	marker->setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
 	uiGroup* grp = table_->getCellGroup( RowCol(rowidx,cLevelCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
@@ -868,7 +869,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     {
 	const float twt = d2tmodel_->getTime( dah, track_ );
 	table_->setValue( RowCol(row,cTWTCol),
-					 twt * SI().zDomain().userFactor(), 2 );
+			  twt * SI().zDomain().userFactor(), 2 );
     }
 
     return true;
@@ -879,20 +880,20 @@ Well::Marker* uiMarkerDlg::getMarker( int row, bool fromname ) const
 {
     Well::MarkerSet markers;
     if ( !getMarkerSet(markers) )
-	return 0;
+	return nullptr;
 
     const char* markernm = table_->text(RowCol(row,cNameCol));
     const float dah = table_->getFValue( RowCol(row,cDepthCol) );
     if ( (fromname && (!markernm || !*markernm)) ||
 	 (!fromname && mIsUdf(dah)) )
-	return 0;
+	return nullptr;
 
     const int markeridx = markers.getIdxAbove( dah / zFactor() );
     if ( ( fromname && !markers.getByName(markernm) ) ||
 	 (!fromname && !markers.validIdx(markeridx) ) )
-	return 0;
+	return nullptr;
 
-    Well::Marker* marker = new Well::Marker();
+    auto* marker = new Well::Marker();
     *marker = fromname ? *(markers.getByName( markernm ))
 		       : *(markers[markeridx]);
 
@@ -923,7 +924,7 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
 uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     : uiDialog(p,Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),mNoDlgTitle,
 		       mODHelpKey(mMarkerViewDlgHelpID)))
-    , table_(0)
+    , table_(nullptr)
     , wd_(&wd)
 {
     if ( !wd_ )
@@ -957,7 +958,7 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     }
 
 
-    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
+    auto* expbut = new uiPushButton( this, uiStrings::sExport(),
 				    mCB(this,uiMarkerViewDlg,exportCB), false );
     expbut->setIcon( "export" );
     expbut->attach( centeredBelow, table_ );
@@ -965,7 +966,9 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 
 
 uiMarkerViewDlg::~uiMarkerViewDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiMarkerViewDlg::exportCB( CallBacker* )
@@ -974,5 +977,5 @@ void uiMarkerViewDlg::exportCB( CallBacker* )
 	return;
 
     uiMarkerDlg::exportMarkerSet( this, wd_->markers(), wd_->track(),
-							      wd_->d2TModel() );
+				  wd_->d2TModel() );
 }
