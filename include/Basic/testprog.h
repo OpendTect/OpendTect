@@ -73,6 +73,10 @@ static inline CommandLineParser& clParser()
     int status
 
 # define mInitTestProg() mTestProgInits()
+# define mInitTestProgDR() \
+    od_init_test_program_dr( argc, argv, true ); \
+    the_testprog_parser_ = new CommandLineParser; \
+    quiet_ = clParser().hasKey( sKey::Quiet() );
 # define mInitBatchTestProg() \
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()
