@@ -121,11 +121,17 @@ void od_test_prog_crash_handler(int)
 
 void od_init_test_program(int argc, char** argv )
 {
-    SetProgramArgs( argc, argv, false );
-    signal(SIGSEGV, od_test_prog_crash_handler );
+    od_init_test_program_dr( argc, argv, false );
+}
+
+
+void od_init_test_program_dr( int argc, char** argv, bool withdatabase )
+{
+    SetProgramArgs( argc, argv, withdatabase );
+    signal( SIGSEGV, od_test_prog_crash_handler );
     DBG::setCrashOnProgError( true );
 
-    OD::ModDeps().ensureLoaded("Basic");
+    OD::ModDeps().ensureLoaded( "Basic" );
 }
 
 

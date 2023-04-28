@@ -53,6 +53,7 @@ extern "C" {
     mGlobal(Basic) void od_debug_putProgInfo(int,char**);
     mGlobal(Basic) void od_putProgInfo(int,char**);
     mGlobal(Basic) void od_init_test_program(int,char**);
+    mGlobal(Basic) void od_init_test_program_dr(int,char**,bool withdataroot);
 	/*!<Calls SetProgramArgs, sets crash on programmer error, and installs
 	    signal handling for crashes. */
 }
