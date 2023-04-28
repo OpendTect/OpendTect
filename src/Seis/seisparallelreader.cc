@@ -1071,6 +1071,7 @@ bool Seis::SequentialReader::init()
     nrdone_ = 0;
 
     seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
+    seistkzs.hsamp_.step_ = tkzs_.hsamp_.step_;
     rdr_.setSelData( new Seis::RangeSelData(seistkzs) );
     if ( !rdr_.prepareWork() )
     {
