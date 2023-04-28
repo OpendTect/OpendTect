@@ -652,7 +652,6 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     : uiDialog(p,Setup(tr("Edit Well log"),mNoDlgTitle,
 		       mODHelpKey(mWellLogEditorHelpID)))
     , log_(log)
-    , changed_(false)
     , valueChanged(this)
 {
     uiString dlgcaption = uiStrings::phrEdit(uiStrings::phrJoinStrings(
@@ -663,10 +662,9 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
-    table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
-    table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
-    table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
-    table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
+    mAttachCB( table_->rowDeleted, uiWellLogEditor::rowDelCB );
+    mAttachCB( table_->selectionDeleted, uiWellLogEditor::rowDelCB );
+    mAttachCB( table_->rowInserted, uiWellLogEditor::rowInsertCB );
 
     const bool depthsinfeet = SI().depthsInFeet();
     const uiString depthunitstr =
@@ -680,11 +678,13 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->setColumnLabels( colnms );
 
     fillTable();
+    mAttachCB( table_->valueChanged, uiWellLogEditor::valChgCB );
 }
 
 
 uiWellLogEditor::~uiWellLogEditor()
 {
+    detachAllNotifiers();
 }
 
 
@@ -715,6 +715,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 
     if ( rc.row()<0 || rc.row()>=log_.size() )
 	return;
+
     const bool mdchanged = rc.col() == 0;
     const float newval = table_->getFValue( rc );
     const float oldval = mdchanged ? log_.dah( rc.row() )
@@ -766,7 +767,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 
 void uiWellLogEditor::rowDelCB( CallBacker* )
 {
-    TypeSet<int> rowidxset = table_->getNotifRCs();
+    const TypeSet<int> rowidxset = table_->getNotifRCs();
     for( int idx=rowidxset.size()-1; idx>=0; idx-- )
     {
 	int rowidx = rowidxset[idx];
@@ -780,7 +781,7 @@ void uiWellLogEditor::rowDelCB( CallBacker* )
 void uiWellLogEditor::rowInsertCB( CallBacker* )
 {
     table_->setDefaultRowLabels();
-    int rownr = table_->currentRow();
+    const int rownr = table_->currentRow();
     float prevmdval = 0.f;
     float nextmdval = 0.f;
 

@@ -10,19 +10,14 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+
+#include "welldata.h"
 #include "wellmarker.h"
 
 class uiStratLevelSel;
 class uiCheckBox;
 class uiTable;
-namespace Well {
-    class D2TModel;
-    class Data;
-    class Marker;
-    class Track;
-    class MarkerSet;
-    class Reader;
-}
+namespace Well { class Reader; }
 
 /*! \brief Dialog for marker specifications */
 
@@ -40,19 +35,18 @@ public:
 						const Well::MarkerSet& mset,
 						const Well::Track& trck,
 						const Well::D2TModel* d2t,
-						uiCheckBox* cb=0 );
-protected:
+						uiCheckBox* =nullptr );
+private:
 
     uiTable*			table_;
     uiCheckBox*			unitfld_;
     const Well::Track&		track_;
     const Well::D2TModel*	d2tmodel_;
-    Well::MarkerSet*		oldmrkrs_;
+    Well::MarkerSet*		oldmrkrs_ = nullptr;
 
     //TODO will go with the Strat level Sel
 
     void			getColLabels(uiStringSet&) const;
-    void			getColLabels(BufferStringSet&) const;
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
     void			mouseClick(CallBacker*);
@@ -91,10 +85,10 @@ public:
 				uiMarkerViewDlg(uiParent*,const Well::Data&);
 				~uiMarkerViewDlg();
 
-protected:
+private:
 
     uiTable*			table_;
-    const Well::Data*		wd_;
+    ConstRefMan<Well::Data>	wd_ = nullptr;
 
     void			exportCB(CallBacker*);
 

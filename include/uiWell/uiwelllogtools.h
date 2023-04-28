@@ -139,6 +139,6 @@ protected:
     Well::Log&		log_;
     uiTable*		table_;
 
-    bool		changed_;
+    bool		changed_ = false;
 
 };
