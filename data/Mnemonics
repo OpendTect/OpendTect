@@ -1,6 +1,6 @@
 dTect V7.0.0
 Mnemonic
-Fri 06 Jan 2023, 14:08:12
+Fri 28 Apr 2023, 08:00:00
 !
 GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH`GR1`GRC`GAMMA
 POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`GammaRayPotassium
@@ -59,8 +59,8 @@ YME: Young's modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Young Modulus
 TWT: Two-way traveltime`Time`lin`````ms````Time
 OWT: One-way traveltime`Time`lin`````ms````
 CONF: Confidence`Other`Lin`````````
-BI: Brittleness index`Elastic Ratio`lin`````Ratio````
-TOC: Total Organic Carbon`Elastic Ratio`lin`````Ratio````
+BI: Brittleness index`Elastic Ratio`lin`````Ratio`72`209`204`
+TOC: Total Organic Carbon`Elastic Ratio`lin`````Ratio`255`215`0`
 PEF: Photoelectric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
 VALB: Volume Fraction of Albite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Valbite
 VANH: Volume of Anhydrite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vanhydrite
