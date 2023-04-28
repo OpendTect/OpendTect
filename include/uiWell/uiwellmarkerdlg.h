@@ -52,6 +52,7 @@ protected:
     //TODO will go with the Strat level Sel
 
     void			getColLabels(uiStringSet&) const;
+    mDeprecatedObs
     void			getColLabels(BufferStringSet&) const;
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
