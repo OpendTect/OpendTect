@@ -141,17 +141,36 @@ RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 }
 
 
-RefMan<CoordSystem> CoordSystem::createProjectionBasedSystem( const char* wkt,
-							BufferString& msgs )
+RefMan<CoordSystem> CoordSystem::createSystem( const char* str,
+					       BufferString& msgs )
 {
-    RefMan<CoordSystem> res = factory().create( sKey::ProjSystem() );
-    if ( !res )
-	return nullptr;
+    RefMan<CoordSystem> res;
+    RefMan<CoordSystem> cs;
+    const StringView textstr( str );
+    const BufferStringSet& factnms = factory().getNames();
+    for ( int idx=factnms.size()-1; idx>=0; idx-- )
+    {
+	if ( !textstr.startsWith(factnms.get(idx).str()) )
+	    continue;
 
-    if ( !res->fromWKTString(wkt,msgs) )
-	return nullptr;
+	cs = factory().create( factnms.get(idx).str() );
+	res = cs->fromString( str, &msgs );
+	return res;
+    }
 
-    return res;
+    for ( int idx=factnms.size()-1; idx>=0; idx-- )
+    {
+	cs = factory().create( factnms.get(idx).str() );
+	if ( !cs )
+	    continue;
+
+	res = cs->fromString( str, &msgs );
+	if ( res )
+	    return res;
+    }
+
+    //return empty UnlocatedXY ?
+    return nullptr;
 }
 
 
@@ -192,48 +211,6 @@ void CoordSystem::fillPar( IOPar& par ) const
 {
     par.set( sKeyFactoryName(), factoryKeyword() );
     doFillPar( par );
-}
-
-
-uiString CoordSystem::toUiString( const Coord& crd ) const
-{
-    return ::toUiString( toString(crd,false) );
-}
-
-
-BufferString CoordSystem::toString( const Coord& crd, bool withsystem ) const
-{
-    BufferString res;
-    const char* space = " ";
-    if ( withsystem )
-	res.add( factoryKeyword() ).add( space );
-
-    res.add( ::toString(crd.x) ).add( space );
-    res.add( ::toString(crd.y));
-
-    return res;
-}
-
-
-Coord CoordSystem::fromString( const char* str ) const
-{
-    const SeparString sepstr( str, ' ' );
-    const int nrparts = sepstr.size();
-
-    if ( nrparts==3 ) //With coord system name first
-    {
-	const BufferString system = sepstr[0];
-	if ( system != factoryKeyword() )
-	    return Coord::udf();
-    }
-    else if ( nrparts<2 )
-	return Coord::udf();
-
-    const BufferString xstr = sepstr[nrparts-2];
-    const BufferString ystr = sepstr[nrparts-1];
-
-    return Coord( toDouble(xstr,mUdf(double)),
-		  toDouble(ystr,mUdf(double)) );
 }
 
 
@@ -307,6 +284,8 @@ void UnlocatedXY::doFillPar( IOPar& par ) const
 }
 
 
+// AnchorBasedXY
+
 AnchorBasedXY::AnchorBasedXY()
     : lngdist_(mUdf(float))
 {
@@ -321,7 +300,7 @@ AnchorBasedXY::AnchorBasedXY( const LatLong& l, const Coord& c )
 
 CoordSystem* AnchorBasedXY::clone() const
 {
-    AnchorBasedXY* cp = new AnchorBasedXY( reflatlng_, refcoord_ );
+    auto* cp = new AnchorBasedXY( reflatlng_, refcoord_ );
     cp->isfeet_ = isfeet_;
     return cp;
 }
@@ -351,10 +330,10 @@ LatLong AnchorBasedXY::toGeographic( const Coord& c, bool ) const
 
     const double scalefac = isfeet_ ? mFromFeetFactorD : 1;
 
-    Coord coorddist( (c.x - refcoord_.x) * scalefac,
-		    (c.y - refcoord_.y) * scalefac );
+    const Coord coorddist( (c.x - refcoord_.x) * scalefac,
+			   (c.y - refcoord_.y) * scalefac );
     LatLong ll( reflatlng_.lat_ + coorddist.y / latdist,
-	       reflatlng_.lng_ + coorddist.x / lngdist_ );
+		reflatlng_.lng_ + coorddist.x / lngdist_ );
 
     if ( ll.lat_ > 90 )		ll.lat_ = 180 - ll.lat_;
     else if ( ll.lat_ < -90 )	ll.lat_ = -180 - ll.lat_;
@@ -372,9 +351,9 @@ Coord AnchorBasedXY::fromGeographic( const LatLong& ll, bool ) const
     const double scalefac = isfeet_ ? mFromFeetFactorD : 1;
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
-			      ll.lng_ - reflatlng_.lng_ );
+			       ll.lng_ - reflatlng_.lng_ );
     return Coord( refcoord_.x + latlongdist.lng_ * lngdist_ / scalefac,
-		 refcoord_.y + latlongdist.lat_ * latdist / scalefac );
+		  refcoord_.y + latlongdist.lat_ * latdist / scalefac );
 }
 
 
@@ -400,4 +379,47 @@ void AnchorBasedXY::doFillPar( IOPar& par ) const
     par.setYN( sKeyIsFeet, isfeet_ );
     par.set( sKeyRefLatLong, reflatlng_.lat_, reflatlng_.lng_ );
     par.set( sKeyRefCoord, refcoord_ );
+}
+
+
+BufferString AnchorBasedXY::toString( StringType /* typ */,
+				      bool withsystem ) const
+{
+    BufferString res;
+    if ( withsystem )
+	res.set( factoryKeyword() ).addSpace();
+
+    FileMultiString fms;
+    fms.add( reflatlng_.toString() ).add( refcoord_.toString() )
+       .add( isfeet_ ? "F" : "M" );
+    res.add( fms.str() );
+
+    return res;
+}
+
+
+RefMan<CoordSystem> AnchorBasedXY::fromString( const char* str,
+					       BufferString* msg ) const
+{
+    BufferString defstr( str );
+    if ( defstr.startsWith(factoryKeyword()) )
+	defstr.remove( factoryKeyword() ).trimBlanks();
+
+    const FileMultiString fms( defstr.buf() );
+    if ( fms.size() != 3 )
+	return nullptr;
+
+    const BufferString llstr = fms[0];
+    const BufferString crdstr = fms[1];
+    LatLong ll;
+    Coord crd;
+    ll.fromString( llstr.buf() );
+    crd.fromString( crdstr.buf() );
+    if ( ll.isUdf() || crd.isUdf() )
+	return nullptr;
+
+    RefMan<AnchorBasedXY> res = new AnchorBasedXY( ll, crd );
+    res->setIsFeet( fms[2] == "F" );
+
+    return res;
 }

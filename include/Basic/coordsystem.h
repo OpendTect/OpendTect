@@ -49,8 +49,8 @@ public:
 
     static RefMan<CoordSystem>	createSystem(const IOPar&);
 				//!<Creates subclass with settings
-    static RefMan<CoordSystem>	createProjectionBasedSystem(const char* wkt,
-							BufferString& msgs);
+    static RefMan<CoordSystem>	createSystem(const char* str,
+					     BufferString& msgs);
 
     virtual CoordSystem*	clone() const				= 0;
     virtual CoordSystem*	getGeodeticSystem() const
@@ -63,12 +63,6 @@ public:
 
     virtual bool		geographicTransformOK() const		= 0;
 
-    virtual BufferString	getURNString() const = 0;
-    virtual BufferString	getWKTString() const
-					{ return BufferString::empty(); }
-    virtual bool		fromWKTString(const char*,BufferString& msg)
-				{ return false; }
-
     static Coord		convert(const Coord&,const CoordSystem& from,
 					const CoordSystem& to);
 
@@ -77,15 +71,16 @@ public:
     virtual Coord		convertTo(const Coord&,
 					const CoordSystem& to) const;
 
-    virtual uiString		toUiString(const Coord&) const;
-    virtual BufferString	toString(const Coord&,
-					 bool withsystem=false) const;
+    enum StringType		{ Default, URN, WKT, JSON, URL };
+    virtual BufferString	toString(StringType=Default,
+					 bool withsystem=false) const	= 0;
 				/*!<Returns string. If withsystem is turned on
 				    it will start with the factory name of the
 				    system, followed by a space. */
-    virtual Coord		fromString(const char*) const;
+    virtual RefMan<CoordSystem> fromString(const char*,
+					   BufferString* msg=nullptr) const = 0;
 
-    virtual bool		isOrthogonal() const	= 0;
+    virtual bool		isOrthogonal() const			= 0;
     virtual bool		isProjection() const	{ return false; }
     virtual bool		isFeet() const		{ return false; }
     virtual bool		isMeter() const		{ return false; }
@@ -103,7 +98,7 @@ public:
     static BufferString		sWGS84ProjDispString();
 
 protected:
-    virtual			~CoordSystem();
+				~CoordSystem();
 
     virtual LatLong		toGeographic(const Coord&,
 					     bool wgs84) const		= 0;
@@ -140,8 +135,12 @@ public:
     bool		isOrthogonal() const override	{ return true; }
     bool		isFeet() const override		{ return isfeet_; }
     bool		isMeter() const override	{ return !isfeet_; }
-    BufferString	getURNString() const override
+    BufferString	toString(StringType=Default,
+				 bool withsystem=false) const override
 					    { return BufferString::empty(); }
+    RefMan<CoordSystem> fromString(const char*,
+				   BufferString* msg=nullptr) const override
+							{ return nullptr; }
 
 private:
 
@@ -182,8 +181,10 @@ public:
 
     const Coord&	refCoord() const { return refcoord_; }
     const LatLong&	refLatLong() const { return reflatlng_; }
-    BufferString	getURNString() const override
-					    { return BufferString::empty(); }
+    BufferString	toString(StringType=Default,
+				 bool withsystem=false) const override;
+    RefMan<CoordSystem> fromString(const char*,
+				   BufferString* msg=nullptr) const override;
 
 private:
 

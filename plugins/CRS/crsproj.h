@@ -40,8 +40,10 @@ public:
     static AuthorityCode	fromString(const char*);
     static AuthorityCode	sWGS84AuthCode();
 
+    static const char*	sKeyEPSG()		{ return "EPSG"; }
+
     BufferString	toString() const;
-    BufferString	toURNString();
+    BufferString	toURNString() const;
 
 protected:
 
@@ -72,10 +74,12 @@ public:
     virtual BufferString	getGeodeticProjDispString() const;
     static BufferString		sWGS84ProjDispString();
     virtual BufferString	getWKTString() const;
-    virtual bool		fromWKTString(const char*,BufferString& msg)
-				{ return false; }
+    virtual BufferString	getJSONString() const;
+    virtual BufferString	getURL() const;
 
     static Projection*		getByAuthCode(const AuthorityCode&);
+    static Projection*		fromString(const char*,BufferString& msg);
+
     static Coord		convert(const Coord&,const Projection& from,
 					const Projection& to);
     double			getConvFactorToM() const { return convfac_; }

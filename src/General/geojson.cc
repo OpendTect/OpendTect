@@ -148,8 +148,11 @@ OD::GeoJsonTree::Object* OD::GeoJsonTree::createCRSArray( Array* crsarr )
     Object* featobj = crsarr->add( new Object );
     featobj->set( "type", "name" );
 
+    const Coords::CoordSystem::StringType styp = Coords::CoordSystem::URN;
+    //TODO: Switch to URL
+
     Object* propobj = featobj->set( "properties", new Object );
-    propobj->set( "name", coordsys_->getURNString() );
+    propobj->set( "name", coordsys_->toString(styp) );
     return propobj;
 }
 
@@ -170,10 +173,13 @@ OD::GeoJsonTree::Array* OD::GeoJsonTree::createFeatCoordArray( Array* featarr,
     styleobj->set( "stroke-width", property.width_==0 ? 2 : property.width_ );
     styleobj->set( "fill-opacity", clr.t() );
 
+    const Coords::CoordSystem::StringType styp = Coords::CoordSystem::URN;
+    //TODO: Switch to URL
+
     Object* crsobj = featobj->set( "crs", new Object );
     crsobj->set( "type", "name" );
     Object* crspropobj = crsobj->set( "properties", new Object );
-    crspropobj->set( "name", coordsys_->getURNString() );
+    crspropobj->set( "name", coordsys_->toString(styp) );
 
     Object* geomobj = featobj->set( "geometry", new Object );
     geomobj->set( "type", typ );

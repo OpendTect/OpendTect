@@ -10,10 +10,11 @@ ________________________________________________________________________
 #include "testprog.h"
 
 #include "crssystem.h"
-#include "oddirs.h"
+#include "iopar.h"
 #include "moddepmgr.h"
+#include "oddirs.h"
+#include "odjson.h"
 #include "plugins.h"
-#include "survinfo.h"
 
 
 static const char* sKeyRepoNm = "EPSG";
@@ -27,6 +28,45 @@ static Coords::AuthorityCode cWGS84N20ID()
 { return Coords::AuthorityCode(sKeyRepoNm,32620); }
 static Coords::AuthorityCode cNAD27N20ID()
 { return Coords::AuthorityCode(sKeyRepoNm,26720); }
+static const char* ed50wkt =
+"PROJCRS[\"ED50 / UTM zone 31N\",\n"
+"    BASEGEOGCRS[\"ED50\",\n"
+"        DATUM[\"European Datum 1950\",\n"
+"            ELLIPSOID[\"International 1924\",6378388,297,\n"
+"                LENGTHUNIT[\"metre\",1]]],\n"
+"        PRIMEM[\"Greenwich\",0,\n"
+"            ANGLEUNIT[\"degree\",0.0174532925199433]],\n"
+"        ID[\"EPSG\",4230]],\n"
+"    CONVERSION[\"UTM zone 31N\",\n"
+"        METHOD[\"Transverse Mercator\",\n"
+"            ID[\"EPSG\",9807]],\n"
+"        PARAMETER[\"Latitude of natural origin\",0,\n"
+"            ANGLEUNIT[\"degree\",0.0174532925199433],\n"
+"            ID[\"EPSG\",8801]],\n"
+"        PARAMETER[\"Longitude of natural origin\",3,\n"
+"            ANGLEUNIT[\"degree\",0.0174532925199433],\n"
+"            ID[\"EPSG\",8802]],\n"
+"        PARAMETER[\"Scale factor at natural origin\",0.9996,\n"
+"            SCALEUNIT[\"unity\",1],\n"
+"            ID[\"EPSG\",8805]],\n"
+"        PARAMETER[\"False easting\",500000,\n"
+"            LENGTHUNIT[\"metre\",1],\n"
+"            ID[\"EPSG\",8806]],\n"
+"        PARAMETER[\"False northing\",0,\n"
+"            LENGTHUNIT[\"metre\",1],\n"
+"            ID[\"EPSG\",8807]]],\n"
+"    CS[Cartesian,2],\n"
+"        AXIS[\"(E)\",east,\n"
+"            ORDER[1],\n"
+"            LENGTHUNIT[\"metre\",1]],\n"
+"        AXIS[\"(N)\",north,\n"
+"            ORDER[2],\n"
+"            LENGTHUNIT[\"metre\",1]],\n"
+"    USAGE[\n"
+"        SCOPE[\"Engineering survey, topographic mapping.\"],\n"
+"        AREA[\"Europe - between 0°E and 6°E - Andorra; Denmark (North Sea); Germany offshore; Netherlands offshore; Norway including Svalbard - onshore and offshore; Spain - onshore (mainland and Balearic Islands); United Kingdom (UKCS) offshore.\"],\n"
+"        BBOX[38.56,0,82.45,6.01]],\n"
+"    ID[\"EPSG\",23031]]";
 
 static double mDefEpsCoord = 1e-3;
 
@@ -112,24 +152,13 @@ static const LatLong wgs84n20ll[] = { LatLong(44.1443427171,-60.0922380627) };
 static const Coord nad27n20xy[] = { Coord(732510.57,4891795.58) };
 static const LatLong nad27n20ll[] = { LatLong(44.1443174906,-60.0929967680) };
 
-#define mRunTest( func, desc ) \
-    if ( !(func) ) \
-    { \
-	errStream() << desc << "\tFAILED!\n"; \
-	return false; \
-    } \
-    else \
-    { \
-	logStream() << desc << "\tSUCCESS!\n"; \
-    }
-
 
 static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
 				const Coords::CoordSystem& pbs,
 				const char* desc )
 {
     const LatLong calcll = LatLong::transform( pos, false, &pbs );
-    mRunTest( ll == calcll, desc );
+    mRunStandardTest( ll == calcll, desc );
     return true;
 }
 
@@ -145,7 +174,7 @@ static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
 				const Coords::CoordSystem& pbs, bool wgs84,
 				const char* desc )
 {
-    mRunTest( coordIsEqual(LatLong::transform(ll,wgs84,&pbs),pos), desc );
+    mRunStandardTest( coordIsEqual(LatLong::transform(ll,wgs84,&pbs),pos),desc);
     return true;
 }
 
@@ -208,7 +237,7 @@ static bool testTransfer()
     if ( !wgs84n20pbs.isOK() || !nad27n20pbs.isOK() )
 	return false;
 
-   mRunTest( coordIsEqual(wgs84n20xy[0],
+   mRunStandardTest( coordIsEqual(wgs84n20xy[0],
 	    Coords::CoordSystem::convert(nad27n20xy[0],
 					nad27n20pbs,wgs84n20pbs)));*/
 
@@ -216,7 +245,8 @@ static bool testTransfer()
     for ( int idx=0; idx<sz; idx++ )
     {
 	const LatLong retll( LatLong::transform(ed50xy[idx],true,&ed50pbs) );
-	mRunTest( retll == ed50aswgs84ll[idx], "From ed50xy to ed50aswgs84ll" );
+	mRunStandardTest( retll == ed50aswgs84ll[idx],
+			  "From ed50xy to ed50aswgs84ll" );
 	if ( !testLatLongToCoord(retll,ed50towgs84xy[idx],wgs84pbs,true,
 		    "From ed50aswgs84ll to ed50towgs84xy") )
 	    return false;
@@ -224,16 +254,16 @@ static bool testTransfer()
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	mRunTest( coordIsEqual(ed50towgs84xy[idx],
+	mRunStandardTest( coordIsEqual(ed50towgs84xy[idx],
 		Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs84pbs)),
 		"From ed50xy to ed50towgs84xy" );
-	mRunTest( coordIsEqual(ed50towgs84xy[idx],
+	mRunStandardTest( coordIsEqual(ed50towgs84xy[idx],
 		  wgs84pbs.convertFrom(ed50xy[idx],ed50pbs)),
 	          "From ed50xy to ed50towgs84xy" );
-	mRunTest( coordIsEqual(wgs72xy[idx],
+	mRunStandardTest( coordIsEqual(wgs72xy[idx],
 		Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs72pbs)),
 		"From ed50xy to wgs72xy" );
-	mRunTest( coordIsEqual(wgs72xy[idx],
+	mRunStandardTest( coordIsEqual(wgs72xy[idx],
 		  wgs72pbs.convertFrom(ed50xy[idx],ed50pbs)),
 		  "From ed50xy to wgs72xy" );
     }
@@ -258,8 +288,8 @@ static bool meterAndFeetCheck()
 	crspar.update( "Projection.ID", toString(crsid) );
 	RefMan<Coords::CoordSystem> crs =
 				Coords::CoordSystem::createSystem( crspar );
-	mRunTest( crs, "Meter CRS is defined" );
-	mRunTest( crs->isMeter(), "Meter unit CRS returning meter" )
+	mRunStandardTest( crs, "Meter CRS is defined" );
+	mRunStandardTest( crs->isMeter(), "Meter unit CRS returning meter" )
     }
 
     TypeSet<int> feetCRSIDs;
@@ -276,8 +306,8 @@ static bool meterAndFeetCheck()
 	crspar.update( "Projection.ID", toString(crsid) );
 	RefMan<Coords::CoordSystem> crs =
 	    Coords::CoordSystem::createSystem( crspar );
-	mRunTest( crs, "Feet CRS is defined" );
-	mRunTest( crs->isFeet(), "Feet unit CRS returning feet" )
+	mRunStandardTest( crs, "Feet CRS is defined" );
+	mRunStandardTest( crs->isFeet(), "Feet unit CRS returning feet" )
     }
 
  //   TypeSet<int> yardCRSIDs;
@@ -287,8 +317,9 @@ static bool meterAndFeetCheck()
 	//crspar.update( "Projection.ID", toString(crsid) );
 	//RefMan<Coords::CoordSystem> crs =
 	//		    Coords::CoordSystem::createSystem( crspar );
-	//mRunTest( crs, "Yard CRS is defined" );
-	//mRunTest( crs->getUnitName().isEqual("yard",OD::CaseInsensitive),
+	//mRunStandardTest( crs, "Yard CRS is defined" );
+	//mRunStandardTest( crs->getUnitName().isEqual(
+	//					"yard",OD::CaseInsensitive),
 	//				    "Yard unit CRS returning yard" );
  //   } //UNABLE TO GET CORRECT CODE FOR CLARKE'S YARD AT PRESENT
 
@@ -301,7 +332,7 @@ static bool meterAndFeetCheck()
 	crspar.update( "Projection.ID", toString(crsid ));
 	RefMan<Coords::CoordSystem> crs =
 			    Coords::CoordSystem::createSystem( crspar );
-	mRunTest( !crs->isFeet() && !crs->isMeter(),
+	mRunStandardTest( !crs->isFeet() && !crs->isMeter(),
 				    "CRS unit different from meter and feet" )
     }
 
@@ -309,14 +340,108 @@ static bool meterAndFeetCheck()
 }
 
 
+static bool testCRSIO()
+{
+    const Coords::ProjectionBasedSystem ed50pbs( cED50ID() );
+    const Coords::Projection* ed50proj = ed50pbs.getProjection();
+    mRunStandardTest( ed50pbs.isOK() && ed50proj && ed50proj->isOK(),
+		      "Retrieve ED50 projection system" );
+
+    const BufferString authstr = ed50proj->authCode().toString();
+    const BufferString urnstr = ed50proj->authCode().toURNString();
+    const BufferString usernm = ed50proj->userName();
+    const BufferString dispstr = ed50proj->getProjDispString();
+    const BufferString geodispstr = ed50proj->getGeodeticProjDispString();
+    const BufferString wktstr = ed50proj->getWKTString();
+    const BufferString jsonstr = ed50proj->getJSONString();
+
+    BufferString jsonparsestr( jsonstr.buf() );
+    OD::JSON::Object jsonobj;
+    const uiRetVal uirv = jsonobj.parseJSon( jsonparsestr.getCStr(),
+					     jsonparsestr.size() );
+
+    mRunStandardTest( authstr == "EPSG`23031", "Authority string" );
+    mRunStandardTest( urnstr == "urn:ogc:def:crs:EPSG::23031", "URN string");
+    mRunStandardTest( usernm == "ED50 / UTM zone 31N", "User name" );
+    mRunStandardTest( dispstr == "[EPSG:23031] ED50 / UTM zone 31N",
+		      "Display string" );
+    mRunStandardTest( geodispstr == "[EPSG:4230] ED50",
+		      "Geodetic display string" );
+    const StringView ed50str( ed50wkt );
+    mRunStandardTest( wktstr == ed50wkt, "WKT string" );
+    mRunStandardTest( uirv.isOK() && jsonobj.getStringValue("name") == usernm,
+		      "JSON string - Name" )
+    const OD::JSON::Object* jsonidobj = jsonobj.getObject("id");
+    mRunStandardTest( jsonidobj && jsonidobj->getStringValue("authority") ==
+		      Coords::AuthorityCode::sKeyEPSG(),
+		      "JSON string - Authority" )
+    mRunStandardTest( jsonidobj->getIntValue("code") == 23031,
+		      "JSON string - Code" )
+
+    mRunStandardTest( ed50pbs.toString() == urnstr, "toString(Default)" );
+    mRunStandardTest( ed50pbs.toString(Coords::CoordSystem::URN) == urnstr,
+			"toString(URN)" );
+    mRunStandardTest( ed50pbs.toString(Coords::CoordSystem::WKT) == wktstr,
+			"toString(WKT)" );
+    BufferString teststr = ed50pbs.toString(Coords::CoordSystem::JSON);
+    mRunStandardTest( ed50pbs.toString(Coords::CoordSystem::JSON) == jsonstr,
+			"toString(JSON)" );
+
+    BufferString msg;
+    RefMan<Coords::CoordSystem> res =
+			Coords::CoordSystem::createSystem(authstr.buf(),msg);
+    mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
+			       "Coord system from authority string", msg.buf());
+
+    res = Coords::CoordSystem::createSystem( urnstr.buf(), msg );
+    mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
+			       "Coord system from URN string", msg.buf());
+
+    res = Coords::CoordSystem::createSystem( usernm.buf(), msg );
+    mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
+			       "Coord system from user name string", msg.buf());
+
+    res = Coords::CoordSystem::createSystem( wktstr.buf(), msg );
+    mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
+			       "Coord system from WKT string", msg.buf() );
+
+    res = Coords::CoordSystem::createSystem( jsonstr.buf(), msg );
+    mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
+			       "Coord system from JSON string", msg.buf() );
+
+    return true;
+}
+
+
+static bool testAnchorIO()
+{
+    const LatLong ll( 55.9059538, 9.11111 );
+    const Coord crd( 881810.46, 6212637.27 );
+    const Coords::AnchorBasedXY ed50abs( ll, crd );
+
+    const BufferString defstr( "[55.9059538,9.11111]`(881810.46,6212637.27)`M");
+    mRunStandardTest( ed50abs.toString() == defstr.buf(),
+		      "Anchor Based: toString(Default)" );
+
+    BufferString retstr( Coords::AnchorBasedXY::sFactoryKeyword() );
+    retstr.addSpace().add( defstr.buf() );
+
+    BufferString msg;
+    RefMan<Coords::CoordSystem> res =
+			Coords::CoordSystem::createSystem(retstr.buf(),msg);
+    mRunStandardTestWithError( res && res->isOK() && *res == ed50abs,
+			       "Coord system from authority string", msg.buf());
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
-    mInitTestProg();
+    mInitTestProgDR();
 
     PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded( "CRS" );
-    Coords::initCRSDatabase();
-    Coords::ProjectionBasedSystem::initClass();
+    OD::ModDeps().ensureLoaded( "General" );
     PIM().loadAuto( true );
 
     if ( !testReversibility(cWGS84ID()) ||
@@ -324,7 +449,9 @@ int mTestMainFnName( int argc, char** argv )
 	 !testReversibility(cWGS84N20ID()) ||
 	 !testReversibility(cNAD27N20ID()) ||
 	 !testTransfer() ||
-	 !meterAndFeetCheck() )
+	 !meterAndFeetCheck() ||
+	 !testCRSIO() ||
+	 !testAnchorIO() )
 	return 1;
 
     return 0;

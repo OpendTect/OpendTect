@@ -39,15 +39,23 @@ public:
 
     bool		geographicTransformOK() const override;
 
+    BufferString	toString(StringType=Default,
+				 bool withsystem=false) const override;
+			//!< Default for proj: URN
+    RefMan<CoordSystem> fromString(const char*,
+				   BufferString* msg=nullptr) const override;
+
     bool		isOrthogonal() const override;
     bool		isProjection() const override		{ return true; }
     bool		isFeet() const override;
     bool		isMeter() const override;
     bool		isWGS84() const override;
-    BufferString	getURNString() const override;
     BufferString	getUnitName() const override;
-    BufferString	getWKTString() const override;
-    bool		fromWKTString(const char*,BufferString& msg) override;
+
+    BufferString	getURNString() const;
+    BufferString	getWKTString() const;
+    BufferString	getJSONString() const;
+    BufferString	getUrl() const;
 
     bool		setProjection(const AuthorityCode&);
     const Projection*	getProjection() const;
