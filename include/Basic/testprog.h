@@ -62,8 +62,8 @@ static inline CommandLineParser& clParser()
     if ( status != 0 ) \
 	return status
 
-# define mTestProgInits() \
-    od_init_test_program( argc, argv ); \
+# define mTestProgInits( withdataroot ) \
+    od_init_test_program( argc, argv, withdataroot ); \
     the_testprog_parser_ = new CommandLineParser; \
     quiet_ = clParser().hasKey( sKey::Quiet() ); \
 
@@ -72,7 +72,8 @@ static inline CommandLineParser& clParser()
     tstStream() << "** '" << #mod << "' composite test\n\n"; \
     int status
 
-# define mInitTestProg() mTestProgInits()
+# define mInitTestProg() mTestProgInits( false )
+# define mInitTestProgDR() mTestProgInits( true )
 # define mInitBatchTestProg() \
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()
