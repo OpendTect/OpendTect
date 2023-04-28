@@ -110,7 +110,7 @@ void odSeismic3D::getData( hAllocator allocator,
     const int nrcomp = getNrComponents();
     const int ndim = dp->nrTrcs()==1 ? 1 : (tkz.isFlat() ? 2 : 3);
     const bool iszslice = ndim==2 && tkz.nrZ()==1;
-    int dims[ndim];
+    PtrMan<int> dims = new int[ndim];
     if ( ndim==1 )
 	dims[0] = tkz.nrZ();
     else if ( ndim==2 )
@@ -146,7 +146,7 @@ void odSeismic3D::getData( hAllocator allocator,
 	}
     }
     const int ndim_xy = ndim==3 || iszslice ? 2 : 1;
-    int dims_xy[ndim_xy];
+    PtrMan<int> dims_xy = new int[ndim_xy];
     if ( ndim_xy==1 )
 	dims_xy[0] = dp->nrTrcs();
     else
