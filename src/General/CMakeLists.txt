@@ -17,9 +17,14 @@ set( OD_MODULE_SOURCES
 	bidvsetarrayadapter.cc
 	bitmap2rgb.cc
 	bitmapmgr.cc
-	cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
-	cbvswriter.cc cbvswritemgr.cc
-	coltabindex.cc coltabmapper.cc coltabsequence.cc
+	cbvsinfo.cc
+	cbvsreader.cc
+	cbvsreadmgr.cc
+	cbvswritemgr.cc
+	cbvswriter.cc
+	coltabindex.cc
+	coltabmapper.cc
+	coltabsequence.cc
 	conn.cc
 	ctxtioobj.cc
 	databuf.cc
@@ -44,6 +49,7 @@ set( OD_MODULE_SOURCES
 	hdf5access.cc
 	helpview.cc
 	ibmformat.cc
+	imagedeftr.cc
 	iodir.cc
 	iodirentry.cc
 	ioman.cc

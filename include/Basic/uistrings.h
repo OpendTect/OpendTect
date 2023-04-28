@@ -400,6 +400,7 @@ public:
     static uiString sHost()		{ return tr("Host"); }
     static uiString sHostName()		{ return tr("Host Name"); }
     static uiString sID()		{ return tr("ID"); }
+    static uiString sImage(int n=1)	{ return tr("Image",0,n); }
     static uiString sImport()		{ return tr("Import"); }
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }

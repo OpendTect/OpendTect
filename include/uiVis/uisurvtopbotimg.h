@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 class uiSurvTopBotImageGrp;
 namespace visSurvey { class Scene; }
+namespace visBase { class TopBotImage; }
 
 
 /*! sets the top and/or bottom images. */
@@ -30,10 +31,13 @@ protected:
     uiSurvTopBotImageGrp*	topfld_;
     uiSurvTopBotImageGrp*	botfld_;
 
-    void		setOn(bool,bool);
-    void		setCoord(bool,const Coord3&, const Coord3&);
-    void		setTransparency(bool,float);
-    void		newFile(bool,const char*);
+    void			newImage(bool istop,const MultiID&);
+    void			setOn(bool istop,bool yn);
+    void			setZ(bool istop,float z);
+    void			setCoord(bool,const Coord3&, const Coord3&);
+    void			setTransparency(bool istop,float tp);
+    void			newFile(bool,const char*);
+    visBase::TopBotImage*	getImage(bool istop);
 
     friend class	uiSurvTopBotImageGrp;
 
