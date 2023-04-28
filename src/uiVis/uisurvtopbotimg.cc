@@ -10,7 +10,7 @@ ________________________________________________________________________
 #include "uisurvtopbotimg.h"
 #include "vistopbotimage.h"
 
-#include "uifileinput.h"
+#include "uiimagesel.h"
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uislider.h"
@@ -30,60 +30,38 @@ public:
 uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 			const StepInterval<float>& zrng )
     : uiGroup(p, istop ? "Top img grp" : "Bot img grp")
-    , dlg_(p)
     , istop_(istop)
+    , dlg_(p)
     , img_(p->scene_->getTopBotImage(istop))
     , zrng_(zrng)
 {
-    uiGroup* leftgrp = new uiGroup( this, "LeftGroup" );
-    uiFileInput::Setup su( uiFileDialog::Img ); su.defseldir( GetDataDir() );
-    fnmfld_ = new uiFileInput( leftgrp,
-	    istop_ ? tr("Top image") : tr("Bottom image"), su);
-    fnmfld_->setWithCheck( true );
-    fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
-    mAttachCB( fnmfld_->checked,uiSurvTopBotImageGrp::onOff );
-    fnmfld_->setChecked( img_ && img_->isOn() );
-
-#define mAddCoordchgCB( notif ) \
-     mAttachCB( notif, uiSurvTopBotImageGrp::coordChg );
+    uiImageSel::Setup su( istop_ ? tr("Top image") : tr("Bottom image" ) );
+    su.filldef(false).optional( true );
+    imagefld_ = new uiImageSel( this, true, su );
+    imagefld_->setChecked( img_ ? img_->isOn() : false );
+    mAttachCB( imagefld_->selectionDone, uiSurvTopBotImageGrp::newImage );
+    mAttachCB( imagefld_->optionalChecked, uiSurvTopBotImageGrp::onOff );
 
     uiSlider::Setup slsu( tr("Vertical position (Z)") );
-    slsu.withedit( true );
-    slsu.isvertical( true );
-    slsu.sldrsize( 100 );
-    zposfld_ = new uiSlider( this, slsu );
-    zposfld_->setInverted( true );
+    slsu.sldrsize(150).withedit( true );
+    zposfld_ = new uiSlider( this, slsu, "Z slider" );
     zposfld_->setScale( zrng_.step, zrng_.start );
     zposfld_->setInterval( zrng_ );
-    zposfld_->attach( rightOf, leftgrp );
+    zposfld_->attach( alignedBelow, imagefld_ );
     zposfld_->setValue( istop_ ? zrng_.start : zrng_.stop );
-    mAddCoordchgCB( zposfld_->valueChanged );
+    mAttachCB( zposfld_->valueChanged, uiSurvTopBotImageGrp::coordChg );
 
-    const Coord mincrd = SI().minCoord(true);
-    const Coord maxcrd = SI().maxCoord(true);
-    tlfld_ = new uiGenInput( leftgrp, tr("NorthWest (TopLeft) Coordinate"),
-			     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
-    tlfld_->setElemSzPol( uiObject::MedVar );
-    tlfld_->attach( alignedBelow, fnmfld_ );
-    mAddCoordchgCB( tlfld_->valuechanged );
-
-    brfld_ = new uiGenInput( leftgrp, tr("SouthEast (BottomRight) Coordinate"),
-			     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
-    brfld_->setElemSzPol( uiObject::MedVar );
-    brfld_->attach( alignedBelow, tlfld_ );
-    mAddCoordchgCB( brfld_->valuechanged );
-
-    transpfld_ = new uiSlider( leftgrp,
-			       uiSlider::Setup(uiStrings::sTransparency())
-						.sldrsize(150).withedit(true),
-			       "Transparency slider" );
-    transpfld_->attach( alignedBelow, brfld_ );
+    slsu.lbl_ = uiStrings::sTransparency();
+    transpfld_ = new uiSlider( this, slsu, "Transparency slider" );
+    transpfld_->attach( alignedBelow, zposfld_ );
     transpfld_->setMinValue( 0 );
     transpfld_->setMaxValue( 100 );
     transpfld_->setStep( 1 );
+    transpfld_->setNrDecimalsEditFld( 0 );
     mAttachCB( transpfld_->valueChanged, uiSurvTopBotImageGrp::transpChg );
     mAttachCB( postFinalize(), uiSurvTopBotImageGrp::finalizedCB );
 }
+
 
 ~uiSurvTopBotImageGrp()
 {
@@ -94,11 +72,6 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 void finalizedCB( CallBacker* )
 {
     fillCurrent();
-    const int nrdec = SI().nrXYDecimals();
-    tlfld_->setNrDecimals( nrdec, 0 );
-    tlfld_->setNrDecimals( nrdec, 1 );
-    brfld_->setNrDecimals( nrdec, 0 );
-    brfld_->setNrDecimals( nrdec, 1 );
 }
 
 void fillCurrent()
@@ -106,41 +79,41 @@ void fillCurrent()
     if ( !img_ )
 	return;
 
-    fnmfld_->setChecked( img_->isOn() );
-    fnmfld_->setFileName( img_->getImageFilename() );
-    tlfld_->setValue( img_->topLeft() );
-    brfld_->setValue( img_->bottomRight() );
+    imagefld_->setChecked( img_->isOn() );
+    imagefld_->setInput( img_->getImageID() );
     transpfld_->setValue( img_->getTransparency()*100 );
     zposfld_->setValue( mCast(float,img_->topLeft().z) );
 }
 
-void newFile( CallBacker* )
+void newImage( CallBacker* )
 {
-    dlg_->newFile( istop_, fnmfld_->fileName() );
+    dlg_->newImage( istop_, imagefld_->key() );
 }
 
 void onOff( CallBacker* )
 {
-    const bool ison = fnmfld_->isChecked();
+    const bool ison = imagefld_->isChecked();
     if ( !img_ && ison )
     {
 	dlg_->scene_->createTopBotImage( istop_ );
 	img_ = dlg_->scene_->getTopBotImage( istop_ );
-	coordChg( nullptr );
+
+	const Coord mincrd = SI().minCoord(true);
+	const Coord maxcrd = SI().maxCoord(true);
+	const double zval = zposfld_->getFValue();
+	const Coord3 tlcrd( mincrd.x, maxcrd.y, zval );
+	const Coord3 brcrd( maxcrd.x, mincrd.y, zval );
+	img_->setPos( tlcrd, brcrd );
     }
 
     dlg_->setOn( istop_, ison );
-    tlfld_->display( ison );
-    brfld_->display( ison );
     transpfld_->display( ison );
     zposfld_->display( ison );
 }
 
 void coordChg( CallBacker* )
 {
-    const Coord3 tlcoord( tlfld_->getCoord(), zposfld_->getFValue() );
-    const Coord3 brcoord( brfld_->getCoord(), zposfld_->getFValue() );
-    dlg_->setCoord( istop_, tlcoord, brcoord );
+    dlg_->setZ( istop_, zposfld_->getFValue() );
 }
 
 void transpChg( CallBacker* )
@@ -154,9 +127,7 @@ void transpChg( CallBacker* )
     uiSurvTopBotImageDlg* dlg_;
     visBase::TopBotImage* img_;
 
-    uiFileInput*	fnmfld_;
-    uiGenInput*		tlfld_;
-    uiGenInput*		brfld_;
+    uiImageSel*		imagefld_;
     uiSlider*		transpfld_;
     uiSlider*		zposfld_;
     const StepInterval<float>&	 zrng_;
@@ -199,17 +170,50 @@ uiSurvTopBotImageDlg::~uiSurvTopBotImageDlg()
 {}
 
 
-void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
+visBase::TopBotImage* uiSurvTopBotImageDlg::getImage( bool istop )
 {
-    if ( scene_->getTopBotImage(istop) )
-	scene_->getTopBotImage(istop)->setRGBImageFromFile( fnm );
+    return scene_->getTopBotImage( istop );
+}
+
+
+void uiSurvTopBotImageDlg::newImage( bool istop, const MultiID& mid )
+{
+    if ( getImage(istop) )
+	getImage(istop)->setImageID( mid );
 }
 
 
 void uiSurvTopBotImageDlg::setOn( bool istop, bool ison )
 {
+    if ( getImage(istop) )
+	getImage(istop)->turnOn( ison );
+}
+
+
+void uiSurvTopBotImageDlg::setZ( bool istop, float zval )
+{
+    auto* image = getImage( istop );
+    if ( !image )
+	return;
+
+    Coord3 tl = image->topLeft();
+    Coord3 br = image->bottomRight();
+    tl.z = br.z = zval;
+    image->setPos( tl, br );
+}
+
+
+void uiSurvTopBotImageDlg::setTransparency( bool istop, float val )
+{
+    if ( getImage(istop) )
+	getImage(istop)->setTransparency( val );
+}
+
+
+void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
+{
     if ( scene_->getTopBotImage(istop) )
-	scene_->getTopBotImage(istop)->turnOn( ison );
+	scene_->getTopBotImage(istop)->setRGBImageFromFile( fnm );
 }
 
 
@@ -218,11 +222,4 @@ void uiSurvTopBotImageDlg::setCoord( bool istop, const Coord3& tl,
 {
     if ( scene_->getTopBotImage(istop) )
 	scene_->getTopBotImage(istop)->setPos( tl, br );
-}
-
-
-void uiSurvTopBotImageDlg::setTransparency( bool istop, float val )
-{
-    if ( scene_->getTopBotImage(istop) )
-	scene_->getTopBotImage(istop)->setTransparency( val );
 }
