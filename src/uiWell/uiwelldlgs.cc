@@ -2516,7 +2516,8 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 					  const TypeSet<MultiID>& keys,
 					  const MnemonicSelection* mns )
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
-				 mNoDlgTitle,mTODOHelpKey))
+				 mNoDlgTitle,
+				 mODHelpKey(mWellDefaultMnemonicLogHelpID)))
     , bulkmode_( nullptr )
 {
     applytobut_.setParam( this, new uiRadioButton(this,
@@ -2676,7 +2677,8 @@ bool uiWellDefMnemLogDlg::rejectOK( CallBacker* )
 // uiSetD2TFromOtherWell
 
 uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
-    : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,
+		 mODHelpKey(mSetD2TFromOtherWellHelpID)))
 {
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
     mAttachCB( inpwellfld_->selectionDone, uiSetD2TFromOtherWell::inpSelCB );

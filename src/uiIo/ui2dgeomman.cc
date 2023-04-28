@@ -183,7 +183,7 @@ class uiTrc2SPDlg : public uiDialog
 public:
 uiTrc2SPDlg( uiParent* p )
 	: uiDialog(p,Setup(tr("Set Trace Number vs SP Number Relationship" ),
-			   mNoDlgTitle,mTODOHelpKey))
+			   mNoDlgTitle,mODHelpKey(mTrc2SPHelpID)))
 {
     dirfld_ = new uiGenInput( this, tr("Calculate"),
 	BoolInpSpec(true,uiStrings::sSPNumber(),uiStrings::sTraceNumber()) );

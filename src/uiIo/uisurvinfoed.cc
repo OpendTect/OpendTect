@@ -1186,7 +1186,7 @@ class uiSurveyFileDlg : public uiDialog
 public:
 uiSurveyFileDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Select Survey Setup file"),
-			mNoDlgTitle,mTODOHelpKey))
+			mNoDlgTitle,mODHelpKey(mSurveyFileDlgHelpID)))
 {
     inpfld_ = new uiFileInput( this, uiStrings::sSelect(),
 		uiFileInput::Setup().defseldir(GetBaseDataDir())

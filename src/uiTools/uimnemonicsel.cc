@@ -143,7 +143,7 @@ uiMultiMnemonicsSel::uiMultiMnemonicsSel( uiParent* p,
 					  MnemonicSelection& mns,
 					  const MnemonicSelection* mnsel )
     : uiDialog( p, uiDialog::Setup(tr("Multi-Mnemonic Selection"),
-		mNoDlgTitle,mTODOHelpKey) )
+		mNoDlgTitle,mODHelpKey(mMultiMnemonicsSelHelpID)) )
     , mns_(mns)
 {
     mnemlist_ = new uiListBox( this, "mnemonics", OD::ChooseZeroOrMore );
