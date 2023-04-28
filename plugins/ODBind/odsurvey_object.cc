@@ -36,7 +36,6 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
     : survey_(thesurvey)
     , name_(name)
 {
-    errmsg_.setEmpty();
     survey_.activate();
     ioobj_ = IOM().get( name, tgname );
     if ( !ioobj_ )
@@ -53,7 +52,6 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
     , name_(name)
     , overwrite_(overwrite)
 {
-    errmsg_.setEmpty();
     survey_.activate();
     ioobj_ = survey_.createObj( name, tgname, fmt, overwrite, errmsg_);
     if ( !ioobj_ || !errmsg_.isEmpty() )
@@ -72,7 +70,6 @@ odSurveyObject::odSurveyObject( const odSurveyObject& oth )
     , name_(oth.name_)
     , overwrite_(oth.overwrite_)
 {
-    errmsg_.setEmpty();
     survey_.activate();
     ioobj_ = oth.ioobj_->clone();
 }
