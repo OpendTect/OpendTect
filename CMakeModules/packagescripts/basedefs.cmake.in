@@ -40,5 +40,5 @@ if ( APPLE )
     set( OPENSSLLIBS libcrypto.1.1.dylib libssl.1.1.dylib )
 endif()
 
-set( PYTHONDIR odpy;safety;marshmallow;odbind.py )
+set( PYTHONDIR odpy;odbind;safety;marshmallow )
 set( PACK "base" )
