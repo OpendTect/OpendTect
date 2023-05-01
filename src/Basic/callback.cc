@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "notify.h"
 
 #include "thread.h"
-#include "ptrman.h"
-#include "manobjectset.h"
 
 
 #define mOneMilliSecond 0.001
@@ -31,10 +29,9 @@ static QEvent::Type the_qevent_type = QEvent::None;
 class QCallBackEventReceiver : public QObject
 {
 public:
-
-
-QCallBackEventReceiver( ThreadID threadid )
-    : receiverlock_( true )
+QCallBackEventReceiver( ThreadID threadid, QObject* p=nullptr )
+    : QObject(p)
+    , receiverlock_( true )
     , threadid_( threadid )
 {
     cbers_.setNullAllowed();
@@ -43,7 +40,7 @@ QCallBackEventReceiver( ThreadID threadid )
 bool event( QEvent* ev ) override
 {
     if ( ev->type() != the_qevent_type )
-	return false;
+	return QObject::event( ev );
 
     Locker locker( receiverlock_ );
     if ( !queue_.isEmpty() )
@@ -85,12 +82,9 @@ void add( const CallBack& cb, CallBacker* cber )
     Locker locker( receiverlock_ );
 
     if ( cbs_.isEmpty() )
-    {
 	QCoreApplication::postEvent( this, new QEvent(the_qevent_type) );
-    }
 
     toremove_.addIfNew( cb.cbObj() );
-
     cbs_ += cb;
     cbers_ += cber;
 }
@@ -173,13 +167,11 @@ static ObjectSet<QCallBackEventReceiver>& cbRcvrs()
 
 static QCallBackEventReceiver* getQCBER( ThreadID threadid )
 {
-    for (int idx = 0; idx < cbRcvrs().size(); idx++)
-    {
-	if (cbRcvrs()[idx]->threadID() == threadid )
-	    return cbRcvrs()[idx];
-    }
+    for ( auto* cbrec : cbRcvrs() )
+	if ( cbrec->threadID() == threadid )
+	    return cbrec;
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -192,7 +184,7 @@ void CallBacker::createReceiverForCurrentThread()
     if ( getQCBER(curthread) )
 	return;
 
-    QCallBackEventReceiver* res = new QCallBackEventReceiver(curthread);
+    auto* res = new QCallBackEventReceiver( curthread );
     cbRcvrs() += res;
 }
 
@@ -449,7 +441,7 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 #ifdef OD_NO_QT
     return false;
 #else
-    return addToThread( mainthread_, cb, cber);
+    return addToThread( mainthread_, cb, cber );
 #endif
 }
 
@@ -457,10 +449,10 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 bool CallBack::addToThread( ThreadID threadid, const CallBack& cb,
 			    CallBacker* cber )
 {
-    Locker locker(cb_rcvrs_lock_);
+    Locker locker( cb_rcvrs_lock_ );
     QCallBackEventReceiver* rec = getQCBER(threadid);
 
-    if (!rec)
+    if ( !rec )
     {
 	pFreeFnErrMsg("Thread does not have a receiver. Create in the thread "
 		  "by calling CallBacker::createReceiverForCurrentThread()");
@@ -477,10 +469,8 @@ bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
 #ifndef OD_NO_QT
     if ( mainthread_!=Threads::currentThread() )
     {
-	if (!addToThread(mainthread_, cb, cber))
-	{
-	    pFreeFnErrMsg("Main thread not initialized.");
-	}
+	if ( !addToThread(mainthread_,cb,cber) )
+	    { pFreeFnErrMsg("Main thread not initialized."); }
 
 	return true;
     }
@@ -492,7 +482,7 @@ bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
 
 bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 {
-    if ( addToMainThread( cb, cber ) )
+    if ( addToMainThread(cb,cber) )
 	return false;
 
     cb.doCall( cber );
@@ -503,9 +493,9 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 void CallBack::removeFromThreadCalls( const CallBacker* cber )
 {
 #ifndef OD_NO_QT
-    Locker locker(cb_rcvrs_lock_);
-    for (int idx = 0; idx < cbRcvrs().size(); idx++)
-	cbRcvrs()[idx]->removeBy(cber);
+    Locker locker( cb_rcvrs_lock_ );
+    for ( auto* cbrec : cbRcvrs() )
+	cbrec->removeBy( cber );
 #endif
 }
 
@@ -618,7 +608,7 @@ void CallBackSet::transferTo( CallBackSet& to, const CallBacker* only_for,
 
 	if ( only_for && cbobj != only_for )
 	    continue;
-	else if ( not_for && cbobj == not_for )
+	if ( not_for && cbobj == not_for )
 	    continue;
 
 	if ( !to.isPresent(cb) )
@@ -632,8 +622,8 @@ void CallBackSet::transferTo( CallBackSet& to, const CallBacker* only_for,
 //---- NotifierAccess
 
 NotifierAccess::NotifierAccess( const NotifierAccess& na )
-    : cber_( na.cber_ )
-    , cbs_(*new CallBackSet(na.cbs_) )
+    : cbs_(*new CallBackSet(na.cbs_) )
+    , cber_( na.cber_ )
 {
     cbs_.ref();
 }
