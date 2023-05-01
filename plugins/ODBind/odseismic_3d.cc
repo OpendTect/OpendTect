@@ -40,7 +40,6 @@ mDefineEnumUtils(odSeismic3D, Seis3DFormat, "Output format/translator")
 odSeismic3D::odSeismic3D( const odSurvey& thesurvey, const char* name )
     : odSeismicObject(thesurvey, name, sKeyTranslatorGrp())
 {
-    errmsg_.setEmpty();
     survey_.activate();
     SeisIOObjInfo seisinfo( name_, Seis::GeomType::Vol );
     seisinfo.getRanges( tkz_ );
@@ -52,7 +51,6 @@ odSeismic3D::odSeismic3D( const odSurvey& survey, const char* name,
     : odSeismicObject(survey, name, sKeyTranslatorGrp(), overwrite,
 		      toString(fmt))
 {
-    errmsg_.setEmpty();
     tkz_.setEmpty();
     const Seis::GeomType gt = Seis::GeomType::Vol;
     writer_ = new SeisTrcWriter( *ioobj_, &gt );
@@ -139,11 +137,11 @@ void odSeismic3D::getData( hAllocator allocator,
 	const auto array = dp->data( cidx );
 	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
 	const float* indata = array.getData();
-	for ( size_t idx=0; idx<array.totalSize(); idx++)
-	{
-	    const float val = *indata++;
-	    *outdata++ = mIsUdf(val) ? valnan : val;
-	}
+	MemCopier<float> copier( outdata, indata, array.totalSize() );
+	copier.execute();
+	MemValReplacer<float> udfrepl( outdata, mUdf(float), valnan,
+				   array.totalSize() );
+	udfrepl.execute();
     }
     const int ndim_xy = ndim==3 || iszslice ? 2 : 1;
     PtrMan<int> dims_xy = new int[ndim_xy];
@@ -173,7 +171,9 @@ void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
     jsobj.set( "name", getName().buf() );
     jsobj.set( "inl_range", tkz_.hsamp_.lineRange() );
     jsobj.set( "crl_range", tkz_.hsamp_.trcRange() );
-    jsobj.set( "z_range", tkz_.zsamp_ );
+    StepInterval<float> zrg = tkz_.zsamp_;
+    zrg.scale( SI().showZ2UserFactor() );
+    jsobj.set( "z_range", zrg );
     jsobj.set( "comp_count", getNrComponents() );
     jsobj.set( "storage_dtype", getDtypeStr().buf() );
     jsobj.set( "nrsamp", tkz_.nrZ() );
@@ -233,14 +233,15 @@ int seismic3d_getzidx( hSeismic3D self, float zval )
     if  ( !p )
 	return -1;
 
+    const float z = zval/SI().showZ2UserFactor();
     const auto& tkz = p->tkz();
-    if ( tkz.isEmpty() || !tkz.zsamp_.includes(zval, false) )
+    if ( tkz.isEmpty() || !tkz.zsamp_.includes(z, false) )
     {
 	p->setErrMsg( "invalid z value location.");
 	return -1;
     }
 
-    return tkz.zIdx( zval );
+    return tkz.zIdx( z );
 }
 
 
@@ -257,7 +258,7 @@ float seismic3d_getzval( hSeismic3D self, int zidx )
 	return std::nanf("");
     }
 
-    return tkz.zAtIndex( zidx );
+    return tkz.zAtIndex( zidx )*SI().showZ2UserFactor();
 }
 
 
@@ -316,7 +317,7 @@ void seismic3d_getdata( hSeismic3D self, hAllocator allocator,
     linerg.limitTo( tkz.hsamp_.lineRange() );
     StepInterval<int> trcrg( crl_rg[0], crl_rg[1], crl_rg[2] );
     trcrg.limitTo( tkz.hsamp_.trcRange() );
-    StepInterval<float> zrg( tkz.zAtIndex(z_rg[0]), tkz.zAtIndex(z_rg[1]-1),
+    StepInterval<float> zrg( tkz.zAtIndex(z_rg[0]), tkz.zAtIndex(z_rg[1]),
 			     z_rg[2]*tkz.zsamp_.step );
     zrg.limitTo( tkz.zsamp_ );
     TrcKeyZSampling tkztoload;
