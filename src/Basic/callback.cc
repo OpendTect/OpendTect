@@ -82,12 +82,9 @@ void add( const CallBack& cb, CallBacker* cber )
     Locker locker( receiverlock_ );
 
     if ( cbs_.isEmpty() )
-    {
 	QCoreApplication::postEvent( this, new QEvent(the_qevent_type) );
-    }
 
     toremove_.addIfNew( cb.cbObj() );
-
     cbs_ += cb;
     cbers_ += cber;
 }
@@ -170,13 +167,11 @@ static ObjectSet<QCallBackEventReceiver>& cbRcvrs()
 
 static QCallBackEventReceiver* getQCBER( ThreadID threadid )
 {
-    for (int idx = 0; idx < cbRcvrs().size(); idx++)
-    {
-	if (cbRcvrs()[idx]->threadID() == threadid )
-	    return cbRcvrs()[idx];
-    }
+    for ( auto* cbrec : cbRcvrs() )
+	if ( cbrec->threadID() == threadid )
+	    return cbrec;
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -189,7 +184,7 @@ void CallBacker::createReceiverForCurrentThread()
     if ( getQCBER(curthread) )
 	return;
 
-    QCallBackEventReceiver* res = new QCallBackEventReceiver(curthread);
+    auto* res = new QCallBackEventReceiver( curthread );
     cbRcvrs() += res;
 }
 
@@ -446,7 +441,7 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 #ifdef OD_NO_QT
     return false;
 #else
-    return addToThread( mainthread_, cb, cber);
+    return addToThread( mainthread_, cb, cber );
 #endif
 }
 
@@ -454,10 +449,10 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 bool CallBack::addToThread( ThreadID threadid, const CallBack& cb,
 			    CallBacker* cber )
 {
-    Locker locker(cb_rcvrs_lock_);
+    Locker locker( cb_rcvrs_lock_ );
     QCallBackEventReceiver* rec = getQCBER(threadid);
 
-    if (!rec)
+    if ( !rec )
     {
 	pFreeFnErrMsg("Thread does not have a receiver. Create in the thread "
 		  "by calling CallBacker::createReceiverForCurrentThread()");
@@ -474,10 +469,8 @@ bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
 #ifndef OD_NO_QT
     if ( mainthread_!=Threads::currentThread() )
     {
-	if (!addToThread(mainthread_, cb, cber))
-	{
-	    pFreeFnErrMsg("Main thread not initialized.");
-	}
+	if ( !addToThread(mainthread_,cb,cber) )
+	    { pFreeFnErrMsg("Main thread not initialized."); }
 
 	return true;
     }
@@ -489,7 +482,7 @@ bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
 
 bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 {
-    if ( addToMainThread( cb, cber ) )
+    if ( addToMainThread(cb,cber) )
 	return false;
 
     cb.doCall( cber );
@@ -500,9 +493,9 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 void CallBack::removeFromThreadCalls( const CallBacker* cber )
 {
 #ifndef OD_NO_QT
-    Locker locker(cb_rcvrs_lock_);
-    for (int idx = 0; idx < cbRcvrs().size(); idx++)
-	cbRcvrs()[idx]->removeBy(cber);
+    Locker locker( cb_rcvrs_lock_ );
+    for ( auto* cbrec : cbRcvrs() )
+	cbrec->removeBy( cber );
 #endif
 }
 
