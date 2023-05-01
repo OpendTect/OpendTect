@@ -70,7 +70,7 @@ BufferStringSet* odEMObject::getAttribNames() const
     BufferStringSet* names = nullptr;
     survey_.activate();
 
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( !eminfo.isOK() )
 	return names;
 
@@ -82,7 +82,7 @@ BufferStringSet* odEMObject::getAttribNames() const
 
 int odEMObject::getNrAttributes() const
 {
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( !eminfo.isOK() )
 	return 0;
 
@@ -98,7 +98,7 @@ odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name )
     if ( !ioobj_ )
 	return;
 
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( eminfo.isOK() )
 	tk_.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     else
@@ -132,7 +132,7 @@ void odHorizon3D::save()
     survey_.activate();
     if ( ioobj_ && array_ && writecount_ )
     {
-	EM::IOObjInfo eminfo( ioobj_ );
+	const EM::IOObjInfo eminfo( ioobj_ );
 	RefMan<EM::Horizon3D> hor3d;
 	if ( eminfo.isOK() && eminfo.isHorizon() )
 	{
@@ -180,8 +180,11 @@ void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
     jsobj.set( "crl_range", tk_.trcRange() );
     if ( ioobj_ )
     {
-	EM::IOObjInfo eminfo( ioobj_ );
-	jsobj.set( "z_range", eminfo.getZRange() );
+	const EM::IOObjInfo eminfo( ioobj_ );
+	Interval<float> zrg = eminfo.getZRange();
+	zrg.start *= SI().showZ2UserFactor();
+	zrg.stop *= SI().showZ2UserFactor();
+	jsobj.set( "z_range", zrg );
     }
     jsobj.set( "attrib_count", getNrAttributes() );
 
@@ -367,7 +370,7 @@ odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
     if ( !ioobj_ )
 	return;
 
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( !eminfo.isOK() )
     {
 	if ( errmsg_.isEmpty() )
@@ -439,7 +442,7 @@ void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
 {
     survey_.activate();
     jsobj.setEmpty();
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( !eminfo.isOK() )
 	return;
 
@@ -454,7 +457,7 @@ BufferStringSet* odHorizon2D::getLineNames() const
 {
     survey_.activate();
     BufferStringSet* names = nullptr;
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( !eminfo.isOK() )
 	return names;
 
@@ -475,7 +478,7 @@ int odHorizon2D::getNrLines() const
 {
     survey_.activate();
     TypeSet<Pos::GeomID> geomids;
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( eminfo.isOK() )
 	eminfo.getGeomIDs( geomids );
 
@@ -486,7 +489,7 @@ int odHorizon2D::getNrLines() const
 void odHorizon2D::getLineIDs( int num, int* ids ) const
 {
     survey_.activate();
-    EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj_ );
     if ( eminfo.isOK() )
     {
 	TypeSet<Pos::GeomID> geomids;
