@@ -390,9 +390,6 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     const bool is2d = res;
     setLinesTrcRngs( trcranges );
 
-    for ( int idx=0; idx<nrAuxVals(); idx++ )
-	auxdatasel_ += idx;
-
     par_->get( sKeyDBInfo(), dbinfo_ );
 
     if ( version_==1 )
