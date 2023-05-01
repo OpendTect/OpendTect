@@ -32,6 +32,7 @@ ________________________________________________________________________________
 #include "tracedata.h"
 
 
+
 mDefineEnumUtils(odSeismic3D, Seis3DFormat, "Output format/translator")
     {"CBVS", mSEGYDirectTranslNm, nullptr };
 
@@ -75,6 +76,91 @@ int odSeismic3D::getNrTraces() const
     SeisIOObjInfo seisinfo( name_, Seis::GeomType::Vol );
     seisinfo.getDefSpaceInfo( si );
     return si.expectednrtrcs;
+}
+
+
+void odSeismic3D::getData( hAllocator allocator,
+			   const TrcKeyZSampling& tkzforload )
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !ioobj_ )
+    {
+	errmsg_ = "invalid ioobj.";
+	return;
+    }
+
+    if ( tkzforload.isEmpty() || !tkz_.includes(tkzforload) )
+    {
+	errmsg_ = "invalid data request.";
+	return;
+    }
+
+    Seis::SequentialReader rdr( *ioobj_, &tkzforload );
+    if ( !rdr.execute() )
+    {
+	errmsg_ = "reading seismic volume failed.";
+	return;
+    }
+
+    ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
+    const TrcKeyZSampling& tkz = dp->sampling();
+    const int nrcomp = getNrComponents();
+    const int ndim = dp->nrTrcs()==1 ? 1 : (tkz.isFlat() ? 2 : 3);
+    const bool iszslice = ndim==2 && tkz.nrZ()==1;
+    PtrMan<int> dims = new int[ndim];
+    if ( ndim==1 )
+	dims[0] = tkz.nrZ();
+    else if ( ndim==2 )
+    {
+	if ( iszslice )
+	{
+	    dims[0] = tkz.nrLines();
+	    dims[1] = tkz.nrTrcs();
+	}
+	else
+	{
+	    dims[0] = dp->nrTrcs();
+	    dims[1] = tkz.nrZ();
+	}
+    }
+    else
+    {
+	dims[0] = tkz.nrLines();
+	dims[1] = tkz.nrTrcs();
+	dims[2] = tkz.nrZ();
+    }
+
+    const float valnan = std::nanf("");
+    for ( int cidx=0; cidx<nrcomp; cidx++ )
+    {
+	const auto array = dp->data( cidx );
+	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+	const float* indata = array.getData();
+	for ( size_t idx=0; idx<array.totalSize(); idx++)
+	{
+	    const float val = *indata++;
+	    *outdata++ = mIsUdf(val) ? valnan : val;
+	}
+    }
+    const int ndim_xy = ndim==3 || iszslice ? 2 : 1;
+    PtrMan<int> dims_xy = new int[ndim_xy];
+    if ( ndim_xy==1 )
+	dims_xy[0] = dp->nrTrcs();
+    else
+    {
+	dims_xy[0] = tkz.nrLines();
+	dims_xy[1] = tkz.nrTrcs();
+    }
+    double* xdata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* ydata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    for ( int idx=0; idx<dp->nrTrcs(); idx++ )
+    {
+	const TrcKey trckey = dp->getTrcKey( idx );
+	const Coord pos = trckey.getCoord();
+	*xdata++ = pos.x;
+	*ydata++ = pos.y;
+    }
 }
 
 
@@ -139,6 +225,40 @@ void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int* inl, int* crl )
 }
 
 
+int seismic3d_getzidx( hSeismic3D self, float zval )
+{
+    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if  ( !p )
+	return -1;
+
+    const auto& tkz = p->tkz();
+    if ( tkz.isEmpty() || !tkz.zsamp_.includes(zval, false) )
+    {
+	p->setErrMsg( "invalid z value location.");
+	return -1;
+    }
+
+    return tkz.zIdx( zval );
+}
+
+
+float seismic3d_getzval( hSeismic3D self, int zidx )
+{
+    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if  ( !p )
+	return std::nanf("");
+
+    const auto& tkz = p->tkz();
+    if ( tkz.isEmpty() || zidx<0 || zidx>tkz.nrZ() )
+    {
+	p->setErrMsg( "invalid z index.");
+	return std::nanf("");
+    }
+
+    return tkz.zAtIndex( zidx );
+}
+
+
 od_int64 seismic3d_gettrcidx( hSeismic3D self, int iln, int crl )
 {
     auto* p = reinterpret_cast<odSeismic3D*>(self);
@@ -148,7 +268,10 @@ od_int64 seismic3d_gettrcidx( hSeismic3D self, int iln, int crl )
     const auto& tkz = p->tkz();
     const TrcKey trckey( BinID( iln, crl ) );
     if ( tkz.isEmpty() || !tkz.hsamp_.includes(trckey) )
+    {
+	p->setErrMsg( "invalid iln,crl location.");
 	return -1;
+    }
 
     return tkz.hsamp_.globalIdx( trckey );
 }
@@ -175,6 +298,30 @@ od_int64 seismic3d_nrtrcs( hSeismic3D self )
 	return -1;
 
     return p->getNrTraces();
+}
+
+
+void seismic3d_getdata( hSeismic3D self, hAllocator allocator,
+			const int inl_rg[3], const int crl_rg[3],
+			const int z_rg[3] )
+{
+    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if  ( !p )
+	return;
+
+    const auto& tkz = p->tkz();
+    StepInterval<int> linerg( inl_rg[0], inl_rg[1], inl_rg[2] );
+    linerg.limitTo( tkz.hsamp_.lineRange() );
+    StepInterval<int> trcrg( crl_rg[0], crl_rg[1], crl_rg[2] );
+    trcrg.limitTo( tkz.hsamp_.trcRange() );
+    StepInterval<float> zrg( tkz.zAtIndex(z_rg[0]), tkz.zAtIndex(z_rg[1]-1),
+			     z_rg[2]*tkz.zsamp_.step );
+    zrg.limitTo( tkz.zsamp_ );
+    TrcKeyZSampling tkztoload;
+    tkztoload.hsamp_.setLineRange( linerg );
+    tkztoload.hsamp_.setTrcRange( trcrg );
+    tkztoload.zsamp_ = zrg;
+    p->getData( allocator, tkztoload );
 }
 
 
