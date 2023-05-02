@@ -389,7 +389,7 @@ void uiTableBody::setPrefWidthInChars( int nrchars, int maxwidth )
 
     QHeaderView* hhdr = horizontalHeader();
     const QSize qsz = hhdr->sizeHint();
-    const float lookgoodfactor = 1.5;	// empirical
+    const float lookgoodfactor = 1.1;	// empirical
     const int charw = mCast( int, fontWidth() * lookgoodfactor );
     const int prefw = charw*nrchars + qsz.width();
     setPrefWidth( mMIN(prefw,maxwidth) );
