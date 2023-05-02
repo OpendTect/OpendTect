@@ -994,6 +994,9 @@ void uiIOObjSelGrp::addEntryToListBox( const MultiID& mid )
     NotifyStopper ns1( listfld_->selectionChanged );
     NotifyStopper ns2( listfld_->itemChosen );
     const EntryData* ed = dataset_.getDataFor( mid );
+    if ( !ed )
+	return;
+
     const BufferString& dispnm = ed->getDispNm();
     listfld_->addItem( dispnm );
     if ( requireIcon() )
@@ -1148,8 +1151,28 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     {
 	selChg( nullptr );
 	mAttachCB( IOM().entryAdded, uiIOObjSelGrp::objInserted );
+	mAttachCB( IOM().implUpdated(), uiIOObjSelGrp::listUpdatedCB);
+	mAttachCB( IOM().entryRemoved, uiIOObjSelGrp::implRemovedListUpdate);
     }
 
+}
+
+
+void uiIOObjSelGrp::listUpdatedCB( CallBacker* cb )
+{
+    NotifyStopper ns1( listfld_->selectionChanged );
+    NotifyStopper ns2( listfld_->itemChosen );
+    NotifyStopper ns3( itemAdded );
+    objInserted( cb );
+}
+
+
+void uiIOObjSelGrp::implRemovedListUpdate( CallBacker* cb )
+{
+    NotifyStopper ns1(listfld_->selectionChanged);
+    NotifyStopper ns2(listfld_->itemChosen);
+    NotifyStopper ns3(itemRemoved);
+    objRemoved( cb );
 }
 
 

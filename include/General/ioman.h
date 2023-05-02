@@ -143,6 +143,7 @@ public:
     CNotifier<IOMan, const MultiID&>	entryRemoved;
     CNotifier<IOMan, const MultiID&>	entryAdded;
     CNotifier<IOMan, const MultiID&>	entryChanged;
+    CNotifier<IOMan,const MultiID&>&	implUpdated();
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
@@ -168,6 +169,7 @@ public:
     mDeprecated("Use IOM().cancelTempSurvey")
     static void		cancelTempSurvey();
     bool		isUsingTempSurvey() const;
+
 
 private:
 
