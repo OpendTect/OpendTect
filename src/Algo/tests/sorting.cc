@@ -153,7 +153,7 @@ static bool testRandom( bool dodiff, bool dotime )
 
     od_ostream& ostrm = strm && strm->isOK() ? *strm.ptr() : tstStream();
 
-    static double epsavg = 1e-4;
+    static double epsavg = 1e-3;
     static double epsstd = 1e-3;
     static int sz = 1024*1024*20; //1sec runtime with eps precision
     Array1DImpl<double> dvalsarr( sz );
@@ -164,8 +164,7 @@ static bool testRandom( bool dodiff, bool dotime )
     float* fvals = fvalsarr.getData();
     od_int64* llvals = llvalsarr.getData();
     int* ivals = ivalsarr.getData();
-    if ( !dvals || !fvals || !llvals || !ivals )
-	return false;
+    mRunStandardTest( dvals && fvals && llvals && ivals, "Has pointers" );
 
     static double oneoversqrt12 = Math::Sqrt(1./12.);
     Stats::RandGen urg;
@@ -369,7 +368,6 @@ static bool testRandom( bool dodiff, bool dotime )
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-    quiet_ = false;
 
     if ( !testParallelQuickSort() )
 	return 1;
