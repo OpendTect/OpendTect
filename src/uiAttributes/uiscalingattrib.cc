@@ -112,7 +112,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 
     table->setNrCols( 3 );
     table->setNrRows( initnrrows );
-    const uiString zunstr = SI().getUiZUnitString();
+    const uiString zunstr = SI().getUiZUnitString(false);
     table->setColumnLabel( 0, uiStrings::sStart().withUnit( zunstr ) );
     table->setColumnLabel( 1, uiStrings::sStop().withUnit( zunstr ) );
     table->setColumnLabel( 2, uiStrings::sScale() );
