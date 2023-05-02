@@ -383,12 +383,11 @@ static bool testCRSIO()
 			"toString(URN)" );
     mRunStandardTest( ed50pbs.toString(Coords::CoordSystem::WKT) == wktstr,
 			"toString(WKT)" );
-    BufferString teststr = ed50pbs.toString(Coords::CoordSystem::JSON);
     mRunStandardTest( ed50pbs.toString(Coords::CoordSystem::JSON) == jsonstr,
 			"toString(JSON)" );
 
     BufferString msg;
-    RefMan<Coords::CoordSystem> res =
+    ConstRefMan<Coords::CoordSystem> res =
 			Coords::CoordSystem::createSystem(authstr.buf(),msg);
     mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
 			       "Coord system from authority string", msg.buf());
@@ -427,7 +426,7 @@ static bool testAnchorIO()
     retstr.addSpace().add( defstr.buf() );
 
     BufferString msg;
-    RefMan<Coords::CoordSystem> res =
+    ConstRefMan<Coords::CoordSystem> res =
 			Coords::CoordSystem::createSystem(retstr.buf(),msg);
     mRunStandardTestWithError( res && res->isOK() && *res == ed50abs,
 			       "Coord system from authority string", msg.buf());
