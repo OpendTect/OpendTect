@@ -247,6 +247,8 @@ protected:
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
     void		ctxtChgCB(CallBacker*);
+    void		listUpdatedCB(CallBacker*);
+    void		implRemovedListUpdate(CallBacker*);
 
 private:
 

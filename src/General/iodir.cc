@@ -404,6 +404,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
 	  && curleafid > curid_ )
 	    curid_ = curleafid;
     }
+
     fms += curid_;
     astream.put( "ID", fms );
     astream.newParagraph();
@@ -417,7 +418,9 @@ bool IODir::wrOmf( od_ostream& strm ) const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* obj = objs_[idx];
-	if ( obj == mymain ) continue;
+	if ( obj == mymain )
+	    continue;
+
 	if ( obj->isSubdir() && !obj->put(astream) )
 	    mErrRet()
     }
@@ -425,7 +428,9 @@ bool IODir::wrOmf( od_ostream& strm ) const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* obj = objs_[idx];
-	if ( obj == mymain ) continue;
+	if ( obj == mymain )
+	    continue;
+
 	if ( !obj->isSubdir() && !obj->put(astream) )
 	    mErrRet()
     }

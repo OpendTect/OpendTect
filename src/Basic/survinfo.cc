@@ -1268,6 +1268,7 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
 
     wcs_.hsamp_.step_ = tkzs_.hsamp_.step_;
     wcs_.zsamp_.step = tkzs_.zsamp_.step;
+    update3DGeometry();
 }
 
 
@@ -1556,6 +1557,7 @@ uiString SurveyInfo::set3PtsWithMsg( const Coord c[3], const BinID b[2],
     set3coords_[0] = c[0];
     set3coords_[1] = c[1];
     set3coords_[2] = c[2];
+    update3DGeometry();
     return uiString::empty();
 }
 
@@ -1563,7 +1565,7 @@ uiString SurveyInfo::set3PtsWithMsg( const Coord c[3], const BinID b[2],
 void SurveyInfo::gen3Pts()
 {
     set3binids_[0] = tkzs_.hsamp_.start_;
-    set3binids_[1] = tkzs_.hsamp_.stop_;
+    set3binids_[1]  = tkzs_.hsamp_.stop_;
     set3binids_[2] = BinID( tkzs_.hsamp_.start_.inl(),
 			    tkzs_.hsamp_.stop_.crl() );
     set3coords_[0] = transform( set3binids_[0] );

@@ -145,7 +145,6 @@ void uiCoordSystemSelGrp::createGeodeticUI()
 			toUiString(Coords::CoordSystem::sWGS84ProjDispString()),
 			uiStrings::sOther()) );
     mAttachCB( wgs84selfld_->valuechanged, uiCoordSystemSelGrp::wgs84Sel );
-
     auto* uillsys = getGeodecticCoordSystemFld( this );
     uillsys->attach( alignedBelow, wgs84selfld_ );
     uillsys->display( false );
@@ -240,7 +239,9 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 	uics->display( hit );
 	if ( hit )
 	{
-	    coordsystemsel_->setValue( idx );
+	    if ( coordsystemsel_ )
+		coordsystemsel_->setValue( idx );
+
 	    uics->initFields( &crs );
 	}
     }
