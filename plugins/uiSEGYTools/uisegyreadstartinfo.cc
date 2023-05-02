@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uilineedit.h"
-#include "uisegydef.h"
 #include "uisegyimptype.h"
-#include "uiseparator.h"
 #include "uispinbox.h"
 #include "uitable.h"
 
@@ -181,25 +179,11 @@ void setEntries( const SEGY::HdrEntryDataSet& ds )
 uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
 					  const SEGY::ImpType* imptyp )
     : uiGroup(p,"SEGY read start info")
-    , loaddef_(scd)
-    , loaddefcache_(*new SEGY::LoadDef(scd))
     , loaddefChanged(this)
     , revChanged(this)
-    , parsbeingset_(false)
-    , xcoordbytefld_(nullptr)
-    , ycoordbytefld_(nullptr)
-    , inlbytefld_(nullptr)
-    , crlbytefld_(nullptr)
-    , refnrbytefld_(nullptr)
-    , trcnrbytefld_(nullptr)
-    , trcnrsrcfld_(nullptr)
-    , trcnrgengrp_(nullptr)
-    , psoffsrcfld_(nullptr)
-    , offsetbytefld_(nullptr)
-    , azimuthbytefld_(nullptr)
-    , offsgengrp_(nullptr)
+    , loaddef_(scd)
+    , loaddefcache_(*new SEGY::LoadDef(scd))
     , inptypfixed_(imptyp)
-    , nrunswappedfmts_(5)
     , sBytePos(tr("From header"))
 {
     nrrows_ = mNrInfoRows;
@@ -219,7 +203,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     tbl_->setColumnLabel( mUseTxtCol, uiStrings::sSource() );
     tbl_->setColumnLabel( mUseCol, tr("Actually use") );
     tbl_->setColumnStretchable( mItemCol, false );
-    tbl_->setColumnStretchable( mQSResCol, true );
+    tbl_->setColumnStretchable( mQSResCol, false );
     tbl_->setColumnStretchable( mUseTxtCol, false );
     tbl_->setColumnStretchable( mUseCol, true );
     tbl_->setPrefWidthInChar( 120 );
@@ -599,6 +583,8 @@ void uiSEGYReadStartInfo::updateCellTexts()
     if ( !is2d )
 	setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mAzimuthRow, isps ? sBytePos : uiString::empty() );
+
+    tbl_->resizeColumnToContents( mQSResCol );
 }
 
 
