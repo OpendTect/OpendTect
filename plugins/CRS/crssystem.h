@@ -24,7 +24,7 @@ public:
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();
-				ProjectionBasedSystem(AuthorityCode);
+				ProjectionBasedSystem(const AuthorityCode&);
 				~ProjectionBasedSystem();
 
     CoordSystem*	clone() const override;
@@ -39,15 +39,25 @@ public:
 
     bool		geographicTransformOK() const override;
 
+    BufferString	toDescString(StringType=Default,
+				 bool withsystem=false) const;
+			//!< Default: URN
+    RefMan<CoordSystem> fromDescString(const char*,
+				       BufferString* msg=nullptr) const;
+
     bool		isOrthogonal() const override;
     bool		isProjection() const override		{ return true; }
     bool		isFeet() const override;
     bool		isMeter() const override;
     bool		isWGS84() const override;
-    BufferString	getURNString() const override;
     BufferString	getUnitName() const override;
 
-    bool		setProjection(AuthorityCode);
+    BufferString	getURNString() const override;
+    BufferString	getWKTString() const;
+    BufferString	getJSONString() const;
+    BufferString	getUrl() const;
+
+    bool		setProjection(const AuthorityCode&);
     const Projection*	getProjection() const;
 
     Coord		convertFrom(const Coord&,

@@ -49,6 +49,8 @@ public:
 
     static RefMan<CoordSystem>	createSystem(const IOPar&);
 				//!<Creates subclass with settings
+    static RefMan<CoordSystem>	createSystem(const char* str,
+					     BufferString& msgs);
     virtual CoordSystem*	clone() const				= 0;
     virtual CoordSystem*	getGeodeticSystem() const
 				{ return clone(); }
@@ -59,6 +61,10 @@ public:
     virtual bool		isOK() const				= 0;
 
     virtual bool		geographicTransformOK() const		= 0;
+
+    enum StringType		{ Default, URN, WKT, JSON, URL };
+    BufferString		getDescString(StringType=Default,
+					      bool withsystem=false) const;
 
     virtual BufferString	getURNString() const = 0;
 
@@ -85,7 +91,7 @@ public:
     virtual bool		isGeodetic() const	{ return false; }
     virtual bool		isWGS84() const		{ return false; }
     virtual BufferString	getUnitName() const
-					    { return BufferString::empty(); }
+					{ return BufferString::empty(); }
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
@@ -94,6 +100,10 @@ public:
 
     static CoordSystem*		getWGS84LLSystem();
     static BufferString		sWGS84ProjDispString();
+    static const char*		sKeyURN();
+    static const char*		sKeyWKT();
+    static const char*		sKeyJSON();
+    static const char*		sKeyURL();
 
 protected:
     virtual			~CoordSystem();

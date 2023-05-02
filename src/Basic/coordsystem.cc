@@ -15,6 +15,10 @@ ________________________________________________________________________
 
 static const BufferString coordsysfactorynm_( "System name" );
 static const BufferString coordsysusrnm_( "Description" );
+const char* Coords::CoordSystem::sKeyURN() { return "urnstring"; }
+const char* Coords::CoordSystem::sKeyWKT() { return "wktstring"; }
+const char* Coords::CoordSystem::sKeyJSON() { return "jsonstring"; }
+const char* Coords::CoordSystem::sKeyURL() { return "urlstring"; }
 const char* Coords::CoordSystem::sKeyFactoryName() { return coordsysfactorynm_;}
 const char* Coords::CoordSystem::sKeyUiName() { return coordsysusrnm_; }
 
@@ -138,6 +142,60 @@ RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 	return nullptr;
 
     return res;
+}
+
+
+RefMan<CoordSystem> CoordSystem::createSystem( const char* str,
+					       BufferString& /* msg */ )
+{
+    RefMan<CoordSystem> res = factory().create( sKey::ProjSystem() );
+    if ( !res )
+	return nullptr;
+
+    BufferString descstr( str );
+    descstr.trimBlanks();
+    const StringView type( descstr.startsWith("PROJCRS") ? sKeyWKT()
+							 : sKeyURN() );
+
+    IOPar iop;
+    iop.set( sKeyFactoryName(), res->factoryKeyword() );
+    iop.set( sKey::Type(), type.buf() );
+    iop.set( sKey::Desc(), str );
+    if ( !res->usePar(iop) )
+	return nullptr;
+
+    return res;
+}
+
+
+BufferString CoordSystem::getDescString( StringType strtype,
+					 bool withsystem ) const
+{
+    BufferString type;
+    if ( strtype == Default )
+	type = sKey::Default();
+    else if ( strtype == URN )
+	type = sKeyURN();
+    else if ( strtype == WKT )
+	type = sKeyWKT();
+    else if ( strtype == JSON )
+	type = sKeyJSON();
+    else if ( strtype == URL )
+	type = sKeyURL();
+
+    IOPar iop;
+    iop.set( sKey::Type(), type.buf() );
+    fillPar( iop );
+    if ( !iop.isPresent(sKey::Desc()) )
+	return BufferString::empty();
+
+    BufferString ret;
+    if ( withsystem )
+	ret.add( factoryKeyword() ).addSpace();
+
+    ret.add( iop.find(sKey::Desc()) );
+
+    return ret;
 }
 
 
