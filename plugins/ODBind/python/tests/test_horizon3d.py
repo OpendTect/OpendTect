@@ -7,12 +7,13 @@ def test_Horizon3D_class():
     hors = Horizon3D.names(f3demo)
     assert 'Demo 4 --> Truncation' in hors
     hor = Horizon3D(f3demo, 'Trim_D0 --> FS4')
-    assert hor.info() ==    {
-                                'name': 'Trim_D0 --> FS4',
-                                'inl_range': [104, 747, 1],
-                                'crl_range': [303, 1247, 1],
-                                'z_range': [0.574454009532928, 1.126021027565],
-                                'attrib_count': 0
-                            }
+
+    info = hor.info()
+    assert info['name'] == 'Trim_D0 --> FS4'
+    assert info['inl_range'] == [104, 747, 1]
+    assert info['crl_range'] == [303, 1247, 1]
+    assert info['z_range'] == pytest.approx([574.454, 1126.021])
+    assert info['attrib_count'] == 0
+
     assert hor.attribnames == []
     assert 'SD_44Hz[-8,24ms]' in Horizon3D(f3demo, 'Demo 1 --> MFS4').attribnames

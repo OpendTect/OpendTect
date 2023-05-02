@@ -148,7 +148,7 @@ class Seismic3D(_SurveyObject):
         this_info = self.info()
         inlrg =  this_info['inl_range']
         crlrg =  this_info['crl_range']
-        zrg =  [0, this_info['nrsamp'], 1]
+        zrg =  [0, this_info['nrsamp']-1, 1]
         inls = None
         crls = None
         zs = None
@@ -191,7 +191,7 @@ class Seismic3D(_SurveyObject):
                                         crlrg[2] if not crls.step else crls.step]
         zrg = zrg if not zs else [  zrg[0] if not zs.start else zs.start,
                                     zrg[1] if not zs.stop else zs.stop,
-                                    zrg[2] if not zs.step else zs.stop]
+                                    zrg[2] if not zs.step else zs.step]
         allocator = NumpyAllocator()
         ct_inlrg = (ct.c_int * 3)(*inlrg)
         ct_crlrg = (ct.c_int * 3)(*crlrg)
@@ -204,11 +204,11 @@ class Seismic3D(_SurveyObject):
         comps = self.comp_names
         data = { comp: allocator.allocated_arrays[comps.index(comp)] for comp in comps }
         data['comp'] = comps
-        data['iline'] = inlrg[0] if inlrg[0]==inlrg[1] else [inl for inl in range(inlrg[0],inlrg[1]+inlrg[2],inlrg[2])]
-        data['xline'] = crlrg[0] if crlrg[0]==crlrg[1] else [crl for crl in range(crlrg[0],crlrg[1]+crlrg[2],crlrg[2])]
+        data['inl'] = inlrg[0] if inlrg[0]==inlrg[1] else [inl for inl in range(inlrg[0],inlrg[1]+inlrg[2],inlrg[2])]
+        data['crl'] = crlrg[0] if crlrg[0]==crlrg[1] else [crl for crl in range(crlrg[0],crlrg[1]+crlrg[2],crlrg[2])]
         data['x'] = allocator.allocated_arrays[-2]
         data['y'] = allocator.allocated_arrays[-1]
-        data['z'] = self.z_value(zrg[0]) if zrg[0]==zrg[1] else [self.z_value(z) for z in range(zrg[0],zrg[1],zrg[2])]
+        data['z'] = self.z_value(zrg[0]) if zrg[0]==zrg[1] else [self.z_value(z) for z in range(zrg[0],zrg[1]+zrg[2],zrg[2])]
         data['dims'] = dims
         return data
 
@@ -220,11 +220,11 @@ class Seismic3D(_SurveyObject):
         xyattrs = {'units': si['xyunit']}
         zattrs = {'units': si['zunit']}
         coords =    {
-                        'inl': data['iline'],
-                        'crl': data['xline'],
+                        'inl': data['inl'],
+                        'crl': data['crl'],
                         'x': data['x'][0] if len(data['x'])==1 else DataArray(data['x'], dims=dims_xy, attrs=xyattrs),
                         'y': data['y'][0] if len(data['y'])==1 else DataArray(data['y'], dims=dims_xy, attrs=xyattrs),
-                        'z': data['z'] if len(data['z'])==1 else DataArray(data['z'], dims=['z'], attrs=zattrs)
+                        'z': data['z'] if isinstance(data['z'],float) else DataArray(data['z'], dims=['z'], attrs=zattrs)
                     }
         attribs =   {
                         'description': name,

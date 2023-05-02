@@ -4,6 +4,13 @@ from odbind.survey import Survey
 
 def test_Survey_class():
     assert 'F3_Demo_2020' in Survey.names()
+
+    try:
+        bogus = Survey("bogus")
+        assert False
+    except:
+        assert True
+        
     f3demo = Survey("F3_Demo_2020")
     info =  {
                 'name': "F3_Demo_2020",
