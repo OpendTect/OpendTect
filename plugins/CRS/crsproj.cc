@@ -33,6 +33,7 @@ Coords::AuthorityCode&
 bool Coords::AuthorityCode::operator==( const AuthorityCode& oth ) const
 { return authority_ == oth.authority_ && code_ == oth.code_; }
 
+
 Coords::AuthorityCode Coords::AuthorityCode::fromString( const char* str )
 {
     const FileMultiString fms( str );
@@ -667,22 +668,23 @@ Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
 
 #else
 
-Coord Coords::Projection::convert( const Coord& pos,
-				   const Projection& from,
-				   const Projection& to )
+Coord Coords::Projection::convert( const Coord& /* pos */,
+				   const Projection& /* from */,
+				   const Projection& /* to */ )
 {
     return Coord::udf();
 }
 
 
-Coords::Projection* Coords::Projection::getByAuthCode( AuthorityCode code )
+Coords::Projection* Coords::Projection::getByAuthCode(
+					    const AuthorityCode& /* code */ )
 {
     return nullptr;
 }
 
 
-Coords::Projection* Coords::Projection::fromString( const char* str,
-						    BufferString& msg )
+Coords::Projection* Coords::Projection::fromString( const char* /* str */,
+						    BufferString& /* msg */ )
 {
     return nullptr;
 }
@@ -693,7 +695,7 @@ void Coords::initCRSDatabase()
 }
 
 
-Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
+Coords::CRSInfoList* Coords::getCRSInfoList( bool /* orthogonal */ )
 {
     return nullptr;
 }
