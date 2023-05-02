@@ -8,31 +8,38 @@ ________________________________________________________________________
 -*/
 
 #include "crsproj.h"
-#include "od_iostream.h"
 #include "bufstringset.h"
 #include "file.h"
 #include "filepath.h"
-#include "iopar.h"
 #include "oddirs.h"
 #include "odjson.h"
 #include "separstr.h"
-#include "typeset.h"
 #include "unitofmeasure.h"
 
-static StringView sKeyEPSG()		{ return StringView("EPSG"); }
 
 Coords::AuthorityCode Coords::AuthorityCode::sWGS84AuthCode()
-{ return Coords::AuthorityCode(sKeyEPSG(),4326); }
+{ return AuthorityCode(sKeyEPSG(),4326); }
 
-bool Coords::AuthorityCode::operator==( const Coords::AuthorityCode& oth ) const
+
+Coords::AuthorityCode&
+	Coords::AuthorityCode::operator=( const AuthorityCode& oth )
+{
+    authority_ = oth.authority_;
+    code_ = oth.code_;
+    return *this;
+}
+
+
+bool Coords::AuthorityCode::operator==( const AuthorityCode& oth ) const
 { return authority_ == oth.authority_ && code_ == oth.code_; }
+
 
 Coords::AuthorityCode Coords::AuthorityCode::fromString( const char* str )
 {
-    FileMultiString fms( str );
+    const FileMultiString fms( str );
     const bool hasauth = fms.size() == 2;
-    const BufferString authstr = hasauth ? fms[0] : sKeyEPSG();
-    return Coords::AuthorityCode( authstr, fms[hasauth ? 1 : 0].buf() );
+    const BufferString authstr = hasauth ? fms[0].buf() : sKeyEPSG();
+    return AuthorityCode( authstr, fms[hasauth ? 1 : 0].buf() );
 }
 
 
@@ -44,11 +51,10 @@ BufferString Coords::AuthorityCode::toString() const
 }
 
 
-BufferString Coords::AuthorityCode::toURNString()
+BufferString Coords::AuthorityCode::toURNString() const
 {
-    BufferString urnstr = "urn:ogc:def:crs:";
-    urnstr.add( authority_ ); urnstr.add( "::" );
-    urnstr.add( code_ );
+    BufferString urnstr( "urn:ogc:def:crs:" );
+    urnstr.add( authority_ ).add( "::" ).add( code_ );
     return urnstr;
 }
 
@@ -61,19 +67,29 @@ static const Coords::Projection* getWGS84Proj()
     return proj;
 }
 
-Coords::Projection::Projection( Coords::AuthorityCode code )
+
+// Projection
+
+Coords::Projection::Projection( const AuthorityCode& code )
     : authcode_(code)
-{}
+{
+}
+
 
 Coords::Projection::~Projection()
-{}
+{
+}
+
 
 bool Coords::Projection::isOK() const
-{ return false; }
+{
+    return false;
+}
+
 
 LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 {
-    const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
+    const Projection* proj = wgs84 ? getWGS84Proj() : this;
     if ( !proj || !proj->isOK() || crd.isUdf() )
 	return LatLong::udf();
 
@@ -83,20 +99,22 @@ LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 
 Coord Coords::Projection::fromGeographic( const LatLong& ll, bool wgs84 ) const
 {
-    const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
+    const Projection* proj = wgs84 ? getWGS84Proj() : this;
     if ( !proj || !proj->isOK() || ll.isUdf() )
 	return Coord::udf();
 
     return proj->transformTo( *this, ll );
 }
 
-Coord Coords::Projection::transformTo( const Coords::Projection& target,
+
+Coord Coords::Projection::transformTo( const Projection& target,
 				       LatLong ll ) const
 {
     return Coord::udf();
 }
 
-LatLong Coords::Projection::transformTo( const Coords::Projection& target,
+
+LatLong Coords::Projection::transformTo( const Projection& target,
 					 Coord pos ) const
 {
     return LatLong::udf();
@@ -108,36 +126,60 @@ bool Coords::Projection::isOrthogonal() const
     return true;
 }
 
+
 bool Coords::Projection::isFeet() const
 {
     return !isMeter();
 }
+
 
 bool Coords::Projection::isMeter() const
 {
     return true;
 }
 
+
 Coords::AuthorityCode Coords::Projection::getGeodeticAuthCode() const
 {
-    return Coords::AuthorityCode::sWGS84AuthCode();
+    return AuthorityCode::sWGS84AuthCode();
 }
+
 
 BufferString Coords::Projection::getProjDispString() const
 {
     return BufferString::empty();
 }
 
+
 BufferString Coords::Projection::getGeodeticProjDispString() const
 {
     return BufferString::empty();
 }
 
+
+BufferString Coords::Projection::getWKTString() const
+{
+    return BufferString::empty();
+}
+
+
+BufferString Coords::Projection::getJSONString() const
+{
+    return BufferString::empty();
+}
+
+
+BufferString Coords::Projection::getURL() const
+{
+    return BufferString::empty();
+}
+
+
 BufferString Coords::Projection::sWGS84ProjDispString()
 {
-    const Coords::Projection* wgs84proj = getWGS84Proj();
-    return wgs84proj ? wgs84proj->getProjDispString() :
-			Coords::AuthorityCode::sWGS84AuthCode().toString();
+    const Projection* wgs84proj = getWGS84Proj();
+    return wgs84proj ? wgs84proj->getProjDispString()
+		     : AuthorityCode::sWGS84AuthCode().toString();
 }
 
 #ifndef OD_NO_PROJ
@@ -149,8 +191,12 @@ namespace Coords
 class ProjProjection : public Projection
 {
 public:
-			ProjProjection(Coords::AuthorityCode);
+			ProjProjection(const AuthorityCode&);
+			ProjProjection(const AuthorityCode&,PJ&);
 			~ProjProjection();
+
+    static PJ*		fromString(const char*);
+    static PJ*		fromWKTString(const char*,BufferString& msg);
 
     const char*		userName() const override;
     bool		isOK() const override;
@@ -159,10 +205,13 @@ public:
     bool		isMeter() const override;
     bool		isFeet() const override;
 
-    Coords::AuthorityCode	getGeodeticAuthCode() const override;
+    AuthorityCode	getGeodeticAuthCode() const override;
 
     BufferString	getProjDispString() const override;
     BufferString	getGeodeticProjDispString() const override;
+    BufferString	getWKTString() const override;
+    BufferString	getJSONString() const override;
+    BufferString	getURL() const override;
 
     Coord		transformTo(const Projection&,LatLong) const override;
     LatLong		transformTo(const Projection&,Coord) const override;
@@ -171,14 +220,14 @@ public:
     inline PJ*		getLLProj() const
 			{ return llproj_ ? llproj_ : proj_; }
 
-protected:
+private:
 
-    bool		init();
+    void		init();
+    void		calcData();
 
     PJ*			proj_		= nullptr;
     PJ*			llproj_		= nullptr;
 
-    void		calcData();
 };
 
 } // namespace Coords
@@ -207,8 +256,17 @@ static Coord convertCoordFromPJToPJ( const Coord& pos, PJ* from, PJ* to )
 }
 
 
-Coords::ProjProjection::ProjProjection( Coords::AuthorityCode code )
+Coords::ProjProjection::ProjProjection( const AuthorityCode& code )
     : Projection(code)
+{
+    proj_ = proj_create( PJ_DEFAULT_CTX, authCode().toURNString().buf() );
+    init();
+}
+
+
+Coords::ProjProjection::ProjProjection( const AuthorityCode& code, PJ& proj )
+    : Projection(code)
+    , proj_(&proj)
 {
     init();
 }
@@ -221,9 +279,13 @@ Coords::ProjProjection::~ProjProjection()
 }
 
 
-const char* Coords::ProjProjection::userName() const
+void Coords::ProjProjection::init()
 {
-    return proj_ ? proj_get_name( proj_ ) : "Unknown";
+    if ( proj_ && !isLatLong() )
+    {
+	llproj_ = proj_crs_get_geodetic_crs( PJ_DEFAULT_CTX, proj_ );
+	calcData();
+    }
 }
 
 
@@ -233,27 +295,20 @@ bool Coords::ProjProjection::isOK() const
 }
 
 
-bool Coords::ProjProjection::init()
+const char* Coords::ProjProjection::userName() const
 {
-    proj_ = proj_create( PJ_DEFAULT_CTX, authCode().toURNString().buf() );
-    if ( proj_ && !isLatLong() )
-    {
-	llproj_ = proj_crs_get_geodetic_crs( PJ_DEFAULT_CTX, proj_ );
-	calcData();
-    }
-
-    return proj_;
+    return proj_ ? proj_get_name( proj_ ) : "Unknown";
 }
 
 
 Coords::AuthorityCode Coords::ProjProjection::getGeodeticAuthCode() const
 {
     if ( !llproj_ && (!proj_ || !isLatLong()) )
-	return Coords::AuthorityCode::sWGS84AuthCode();
+	return AuthorityCode::sWGS84AuthCode();
 
     PJ* llproj = getLLProj();
-    return Coords::AuthorityCode( proj_get_id_auth_name(llproj,0),
-				  proj_get_id_code(llproj,0) );
+    return AuthorityCode( proj_get_id_auth_name(llproj,0),
+			  proj_get_id_code(llproj,0) );
 }
 
 
@@ -282,6 +337,55 @@ BufferString Coords::ProjProjection::getGeodeticProjDispString() const
 	return BufferString::empty();
 
     return makeProjDispString( getLLProj() );
+}
+
+
+BufferString Coords::ProjProjection::getWKTString() const
+{
+    return proj_as_wkt( PJ_DEFAULT_CTX, proj_, PJ_WKT2_2019, nullptr );
+}
+
+
+BufferString Coords::ProjProjection::getJSONString() const
+{
+    return proj_as_projjson( PJ_DEFAULT_CTX, proj_, nullptr );
+}
+
+
+BufferString Coords::ProjProjection::getURL() const
+{
+    pErrMsg("Not implemented");
+    return nullptr;
+}
+
+
+PJ* Coords::ProjProjection::fromString( const char* str )
+{
+    return proj_create( PJ_DEFAULT_CTX, str );
+}
+
+
+PJ* Coords::ProjProjection::fromWKTString( const char* wktstr,
+					   BufferString& msg )
+{
+    PROJ_STRING_LIST warnings = nullptr;
+    PROJ_STRING_LIST errors = nullptr;
+
+    PJ* proj = proj_create_from_wkt( PJ_DEFAULT_CTX, wktstr, nullptr,
+				     &warnings, &errors );
+    BufferStringSet msgs;
+    for ( auto strs=warnings; strs && *strs; ++strs )
+	msgs.add( *strs );
+
+    for ( auto strs=errors; strs && *strs; ++strs )
+	msgs.add( *strs );
+
+    msg = msgs.cat();
+
+    proj_string_list_destroy( warnings );
+    proj_string_list_destroy( errors );
+
+    return proj;
 }
 
 
@@ -360,8 +464,8 @@ void Coords::ProjProjection::calcData()
 }
 
 
-Coord Coords::ProjProjection::transformTo( const Coords::Projection& target,
-					    LatLong ll ) const
+Coord Coords::ProjProjection::transformTo( const Projection& target,
+					   LatLong ll ) const
 {
     if ( !isOK() || !target.isOK() )
 	return Coord::udf();
@@ -377,8 +481,8 @@ Coord Coords::ProjProjection::transformTo( const Coords::Projection& target,
 }
 
 
-LatLong Coords::ProjProjection::transformTo( const Coords::Projection& target,
-					      Coord pos ) const
+LatLong Coords::ProjProjection::transformTo( const Projection& target,
+					     Coord pos ) const
 {
     if ( !isOK() || !target.isOK() )
 	return LatLong::udf();
@@ -398,8 +502,8 @@ bool Coords::ProjProjection::isOrthogonal() const
 
 
 Coord Coords::Projection::convert( const Coord& pos,
-				   const Coords::Projection& from,
-				   const Coords::Projection& to )
+				   const Projection& from,
+				   const Projection& to )
 {
     if ( pos.isUdf() )
 	return Coord::udf();
@@ -419,10 +523,39 @@ Coord Coords::Projection::convert( const Coord& pos,
 
 
 Coords::Projection* Coords::Projection::getByAuthCode(
-						Coords::AuthorityCode code )
+						const AuthorityCode& code )
 {
-    Coords::Projection* newproj = new Coords::ProjProjection( code );
+    auto* newproj = new Coords::ProjProjection( code );
     if ( !newproj->isOK() )
+    {
+	delete newproj;
+	return nullptr;
+    }
+
+    return newproj;
+}
+
+
+Coords::Projection* Coords::Projection::fromString( const char* str,
+						    BufferString& msg )
+{
+    const FileMultiString fms( str );
+    if ( fms.size() == 2  && fms[0] == AuthorityCode::sKeyEPSG() )
+    {
+	const AuthorityCode authority = AuthorityCode::fromString( str );
+	return getByAuthCode( authority );
+    }
+
+    PJ* proj = ProjProjection::fromString( str );
+    if ( !proj )
+	proj = ProjProjection::fromWKTString( str, msg );
+    if ( !proj )
+	return nullptr;
+
+    const AuthorityCode code( proj_get_id_auth_name(proj,0),
+			      proj_get_id_code(proj,0) );
+    auto* newproj = new Coords::ProjProjection( code, *proj );
+    if ( !newproj || !newproj->isOK() )
     {
 	delete newproj;
 	return nullptr;
@@ -535,16 +668,23 @@ Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
 
 #else
 
-Coord Coords::Projection::convert( const Coord& pos,
-				   const Coords::Projection& from,
-				   const Coords::Projection& to )
+Coord Coords::Projection::convert( const Coord& /* pos */,
+				   const Projection& /* from */,
+				   const Projection& /* to */ )
 {
     return Coord::udf();
 }
 
 
 Coords::Projection* Coords::Projection::getByAuthCode(
-						Coords::AuthorityCode code )
+					    const AuthorityCode& /* code */ )
+{
+    return nullptr;
+}
+
+
+Coords::Projection* Coords::Projection::fromString( const char* /* str */,
+						    BufferString& /* msg */ )
 {
     return nullptr;
 }
@@ -555,7 +695,7 @@ void Coords::initCRSDatabase()
 }
 
 
-Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
+Coords::CRSInfoList* Coords::getCRSInfoList( bool /* orthogonal */ )
 {
     return nullptr;
 }

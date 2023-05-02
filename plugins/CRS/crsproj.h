@@ -29,17 +29,21 @@ public:
 			    : authority_(auth),code_(::toString(code)) {}
 			AuthorityCode(const AuthorityCode& oth)
 			    : authority_(oth.authority_),code_(oth.code_) {}
+			~AuthorityCode()				{}
 
     const char*		authority() const { return authority_.buf(); }
     const char*		code() const	  { return code_.buf(); }
 
     bool		operator ==(const AuthorityCode&) const;
+    AuthorityCode&	operator=(const AuthorityCode&);
 
     static AuthorityCode	fromString(const char*);
     static AuthorityCode	sWGS84AuthCode();
 
+    static const char*	sKeyEPSG()		{ return "EPSG"; }
+
     BufferString	toString() const;
-    BufferString	toURNString();
+    BufferString	toURNString() const;
 
 protected:
 
@@ -51,9 +55,8 @@ protected:
 mExpClass(CRS) Projection
 { mODTextTranslationClass(Projection);
 public:
-
-				Projection(AuthorityCode);
     virtual			~Projection();
+				mOD_DisableCopy(Projection)
 
     AuthorityCode		authCode() const	{ return authcode_; }
     virtual const char*		userName() const	= 0;
@@ -70,13 +73,20 @@ public:
     virtual BufferString	getProjDispString() const;
     virtual BufferString	getGeodeticProjDispString() const;
     static BufferString		sWGS84ProjDispString();
+    virtual BufferString	getWKTString() const;
+    virtual BufferString	getJSONString() const;
+    virtual BufferString	getURL() const;
 
-    static Projection*		getByAuthCode(AuthorityCode);
+    static Projection*		getByAuthCode(const AuthorityCode&);
+    static Projection*		fromString(const char*,BufferString& msg);
+
     static Coord		convert(const Coord&,const Projection& from,
 					const Projection& to);
     double			getConvFactorToM() const { return convfac_; }
     const UnitOfMeasure*	getUOM() const { return uom_; }
+
 protected:
+				Projection(const AuthorityCode&);
 
     virtual LatLong		toGeographic(const Coord&,
 					     bool wgs84=false) const;
@@ -116,6 +126,7 @@ public:
 
 protected:
 				CRSInfoList()	{}
+				mOD_DisableCopy(CRSInfoList)
 
 };
 
