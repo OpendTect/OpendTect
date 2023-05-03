@@ -72,30 +72,27 @@ void CoordSystem::initRepository( NotifierAccess* na )
 }
 
 
-void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
-				uiStringSet& strings, ObjectSet<IOPar>& pars )
+void CoordSystem::getSystemNames( bool orthogonalonly,
+				  bool projectiononly,
+				  uiStringSet& strings, ObjectSet<IOPar>& pars )
 {
-    deepErase( pars );
-    strings.setEmpty();
-
     //Add all factory entries
-    const BufferStringSet factorynames = factory().getNames();
-    const uiStringSet factoryuinames = factory().getUserNames();
+    const BufferStringSet& factorynames = factory().getNames();
+    const uiStringSet& factoryuinames = factory().getUserNames();
 
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
-	mDeclareAndTryAlloc( PtrMan<IOPar>, systempar, IOPar );
+	PtrMan<IOPar> systempar = new IOPar;
 	if ( !systempar ) //out of memory
 	    continue;
 
-	systempar->set( sKeyFactoryName(), factorynames.get(idx) );
+	const char* factorykey = factorynames.get( idx ).buf();
+	systempar->set( sKeyFactoryName(), factorykey );
 	systempar->set( sKeyUiName(), factoryuinames[idx] );
-
-	if ( orthogonalonly || projectiononly )
+	if ( projectiononly )
 	{
-	    RefMan<CoordSystem> system = createSystem( *systempar );
-	    if ( !system || ( orthogonalonly && !system->isOrthogonal() )
-		    || ( projectiononly && !system->isProjection() ) )
+	    ConstRefMan<CoordSystem> projsystem = factory().create( factorykey);
+	    if ( !projsystem || !projsystem->isProjection() )
 		continue;
 	}
 
@@ -118,8 +115,8 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 
 	uiString uiname;
 	BufferString factoryname;
-	if ( !systempar->get( sKeyUiName(), uiname ) ||
-	     !systempar->get( sKeyFactoryName(), factoryname ) )
+	if ( !systempar->get(sKeyUiName(),uiname) ||
+	     !systempar->get(sKeyFactoryName(),factoryname) )
 	    continue;
 
 	pars += systempar.release();
@@ -135,10 +132,7 @@ RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 	return nullptr;
 
     RefMan<CoordSystem> res = factory().create( factorykey );
-    if ( !res )
-	return nullptr;
-
-    if ( !res->usePar(par) )
+    if ( !res || !res->usePar(par) || !res->isOK() )
 	return nullptr;
 
     return res;
@@ -154,8 +148,12 @@ RefMan<CoordSystem> CoordSystem::createSystem( const char* str,
 
     BufferString descstr( str );
     descstr.trimBlanks();
-    const StringView type( descstr.startsWith("PROJCRS") ? sKeyWKT()
-							 : sKeyURN() );
+    StringView type;
+    if ( descstr.startsWith("PROJCRS") || descstr.startsWith("PROJCS") ||
+	 descstr.startsWith("GEOCRS") || descstr.startsWith("GEOCS") )
+	type = sKeyWKT();
+    else
+	type = sKeyURN();
 
     IOPar iop;
     iop.set( sKeyFactoryName(), res->factoryKeyword() );

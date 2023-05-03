@@ -81,12 +81,6 @@ Coords::Projection::~Projection()
 }
 
 
-bool Coords::Projection::isOK() const
-{
-    return false;
-}
-
-
 LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 {
     const Projection* proj = wgs84 ? getWGS84Proj() : this;
@@ -118,24 +112,6 @@ LatLong Coords::Projection::transformTo( const Projection& target,
 					 Coord pos ) const
 {
     return LatLong::udf();
-}
-
-
-bool Coords::Projection::isOrthogonal() const
-{
-    return true;
-}
-
-
-bool Coords::Projection::isFeet() const
-{
-    return !isMeter();
-}
-
-
-bool Coords::Projection::isMeter() const
-{
-    return true;
 }
 
 
@@ -236,19 +212,14 @@ private:
 static Coord convertCoordFromPJToPJ( const Coord& pos, PJ* from, PJ* to )
 {
     PJ* pjtr = proj_create_crs_to_crs_from_pj( PJ_DEFAULT_CTX, from, to,
-						nullptr, nullptr );
+					       nullptr, nullptr );
     if ( !pjtr )
 	return Coord::udf();
 
-    PJ* pjtrnorm = proj_normalize_for_visualization( PJ_DEFAULT_CTX, pjtr );
-    proj_destroy( pjtr );
-    if ( !pjtrnorm )
-	return Coord::udf();
-
     const PJ_COORD inpcrd = proj_coord( pos.x, pos.y, 0, 0 );
-    PJ_COORD retcoord = proj_trans( pjtrnorm, PJ_FWD, inpcrd );
+    const PJ_COORD retcoord = proj_trans( pjtr, PJ_FWD, inpcrd );
 
-    proj_destroy( pjtrnorm );
+    proj_destroy( pjtr );
     if ( retcoord.v[0] == HUGE_VAL || retcoord.v[1] == HUGE_VAL )
 	return Coord::udf();
 
@@ -281,11 +252,13 @@ Coords::ProjProjection::~ProjProjection()
 
 void Coords::ProjProjection::init()
 {
-    if ( proj_ && !isLatLong() )
-    {
+    if ( !proj_ )
+	return;
+
+    if ( isOrthogonal() )
 	llproj_ = proj_crs_get_geodetic_crs( PJ_DEFAULT_CTX, proj_ );
-	calcData();
-    }
+
+    calcData();
 }
 
 
@@ -303,7 +276,7 @@ const char* Coords::ProjProjection::userName() const
 
 Coords::AuthorityCode Coords::ProjProjection::getGeodeticAuthCode() const
 {
-    if ( !llproj_ && (!proj_ || !isLatLong()) )
+    if ( !llproj_ && (!proj_ || isOrthogonal()) )
 	return AuthorityCode::sWGS84AuthCode();
 
     PJ* llproj = getLLProj();
@@ -333,7 +306,10 @@ BufferString Coords::ProjProjection::getProjDispString() const
 
 BufferString Coords::ProjProjection::getGeodeticProjDispString() const
 {
-    if ( !llproj_ && !isLatLong() )
+    if ( !isOrthogonal() && !isLatLong() )
+	return getProjDispString();
+
+    if ( !llproj_ && isOrthogonal() )
 	return BufferString::empty();
 
     return makeProjDispString( getLLProj() );
@@ -389,14 +365,23 @@ PJ* Coords::ProjProjection::fromWKTString( const char* wktstr,
 }
 
 
+bool Coords::ProjProjection::isOrthogonal() const
+{
+    if ( !proj_ )
+	return false;
+
+    const PJ_TYPE pjtype = proj_get_type( proj_ );
+    return pjtype == PJ_TYPE_PROJECTED_CRS;
+}
+
+
 bool Coords::ProjProjection::isLatLong() const
 {
     if ( !proj_ )
 	return false;
 
-    PJ_TYPE pjtype = proj_get_type( proj_ );
-    return pjtype == PJ_TYPE_GEOGRAPHIC_CRS ||
-	   pjtype == PJ_TYPE_GEOGRAPHIC_2D_CRS ||
+    const PJ_TYPE pjtype = proj_get_type( proj_ );
+    return pjtype == PJ_TYPE_GEOGRAPHIC_2D_CRS ||
 	   pjtype == PJ_TYPE_GEOGRAPHIC_3D_CRS;
 }
 
@@ -415,8 +400,8 @@ bool Coords::ProjProjection::isFeet() const
 
 void Coords::ProjProjection::calcData()
 {
-    BufferString str( proj_as_projjson(PJ_DEFAULT_CTX, proj_, nullptr) );
-    OD::JSON::Object obj( nullptr );
+    BufferString str = getJSONString();
+    OD::JSON::Object obj;
     const uiRetVal retval = obj.parseJSon( str.getCStr(), str.size() );
     if ( retval.isError() )
 	return;
@@ -429,8 +414,8 @@ void Coords::ProjProjection::calcData()
     if ( !crsarr || crsarr->isEmpty() )
 	return;
 
-    const OD::JSON::Object axisobj = crsarr->object( 0 );
-    OD::JSON::ValueSet::ValueType type = axisobj.valueType(
+    const OD::JSON::Object& axisobj = crsarr->object( 0 );
+    const OD::JSON::ValueSet::ValueType type = axisobj.valueType(
 						    axisobj.indexOf("unit") );
     BufferString unitstr;
     if ( type == OD::JSON::ValueSet::Data )
@@ -476,7 +461,7 @@ Coord Coords::ProjProjection::transformTo( const Projection& target,
     if ( !srcpj || !targetpj || targetproj->isLatLong() )
 	return Coord::udf();
 
-    const Coord pos( ll.lng_, ll.lat_ );
+    const Coord pos( ll.lat_, ll.lng_ );
     return convertCoordFromPJToPJ( pos, srcpj, targetpj );
 }
 
@@ -493,12 +478,8 @@ LatLong Coords::ProjProjection::transformTo( const Projection& target,
 	return LatLong::udf();
 
     const Coord llpos = convertCoordFromPJToPJ( pos, proj_, targetpj );
-    return LatLong( llpos.y, llpos.x );
+    return LatLong( llpos.x, llpos.y );
 }
-
-
-bool Coords::ProjProjection::isOrthogonal() const
-{ return !isLatLong();	}
 
 
 Coord Coords::Projection::convert( const Coord& pos,

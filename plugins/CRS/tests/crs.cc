@@ -164,10 +164,11 @@ static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
 }
 
 
-static bool coordIsEqual( const Coord pos1, const Coord pos2 )
+static bool coordIsEqual( const Coord pos1, const Coord pos2,
+			  double eps=mDefEpsCoord )
 {
-    return mIsEqual(pos1.x,pos2.x,mDefEpsCoord) &&
-	   mIsEqual(pos1.y,pos2.y,mDefEpsCoord);
+    return mIsEqual(pos1.x,pos2.x,eps) &&
+	   mIsEqual(pos1.y,pos2.y,eps);
 }
 
 
@@ -230,17 +231,17 @@ static bool testTransfer()
     if ( !wgs84pbs.isOK() || !ed50pbs.isOK() || !wgs72pbs.isOK() )
 	return false;
 
-/*
-   cross-conversions between NAD27 and WGS84 have severe errors >50m
-   in the current version we build against, thus disabled this test
-    const Coords::ProjectionBasedSystem wgs84n20pbs( cWGS84N20ID() );
-    const Coords::ProjectionBasedSystem nad27n20pbs( cNAD27N20ID() );
-    if ( !wgs84n20pbs.isOK() || !nad27n20pbs.isOK() )
-	return false;
+    {
+	const Coords::ProjectionBasedSystem wgs84n20pbs( cWGS84N20ID() );
+	const Coords::ProjectionBasedSystem nad27n20pbs( cNAD27N20ID() );
+	if ( !wgs84n20pbs.isOK() || !nad27n20pbs.isOK() )
+	    return false;
 
-   mRunStandardTest( coordIsEqual(wgs84n20xy[0],
-	    Coords::CoordSystem::convert(nad27n20xy[0],
-					nad27n20pbs,wgs84n20pbs)));*/
+	const Coord ret = Coords::CoordSystem::convert( nad27n20xy[0],
+						    nad27n20pbs, wgs84n20pbs );
+	mRunStandardTest( coordIsEqual(wgs84n20xy[0],ret,1e-2),
+			  "From nad27n20xy to wgs84n20xy" );
+    }
 
     const int sz = sizeof(wgs84xy) / sizeof(Coord);
     for ( int idx=0; idx<sz; idx++ )
@@ -273,11 +274,20 @@ static bool testTransfer()
 }
 
 
+static const char* getAuthString( int codeid )
+{
+    mDeclStaticString(ret);
+
+    FileMultiString fms;
+    fms.add( Coords::AuthorityCode::sKeyEPSG() ).add( codeid );
+    ret = fms.buf();
+    return ret.buf();
+}
+
+
 static bool meterAndFeetCheck()
 {
-    IOPar crspar;
-    crspar.set( "System name", "ProjectionBased System" );
-    crspar.set( "Projection.ID", 0 );
+    ConstRefMan<Coords::CoordSystem> crs; BufferString msg;
 
     TypeSet<int> meterCRSIDs;
     meterCRSIDs.add( 2991 );
@@ -286,10 +296,9 @@ static bool meterAndFeetCheck()
     meterCRSIDs.add( 29873 );
     for ( const auto& crsid : meterCRSIDs )
     {
-	crspar.update( "Projection.ID", toString(crsid) );
-	RefMan<Coords::CoordSystem> crs =
-				Coords::CoordSystem::createSystem( crspar );
-	mRunStandardTest( crs, "Meter CRS is defined" );
+	crs = Coords::CoordSystem::createSystem( getAuthString(crsid), msg );
+	mRunStandardTest( crs && crs->isOK() && crs->isProjection(),
+					  "Meter CRS is defined" );
 	mRunStandardTest( crs->isMeter(), "Meter unit CRS returning meter" )
     }
 
@@ -304,25 +313,22 @@ static bool meterAndFeetCheck()
     feetCRSIDs.add( 5754 ); //British Foot
     for ( const auto& crsid : feetCRSIDs )
     {
-	crspar.update( "Projection.ID", toString(crsid) );
-	RefMan<Coords::CoordSystem> crs =
-	    Coords::CoordSystem::createSystem( crspar );
-	mRunStandardTest( crs, "Feet CRS is defined" );
+	crs = Coords::CoordSystem::createSystem( getAuthString(crsid), msg );
+	mRunStandardTest( crs && crs->isOK() && crs->isProjection(),
+					 "Feet CRS is defined" );
 	mRunStandardTest( crs->isFeet(), "Feet unit CRS returning feet" )
     }
 
- //   TypeSet<int> yardCRSIDs;
- //   yardCRSIDs.add(9037); //Clarke's yard
- //   for ( const auto& crsid : feetCRSIDs )
- //   {
-	//crspar.update( "Projection.ID", toString(crsid) );
-	//RefMan<Coords::CoordSystem> crs =
-	//		    Coords::CoordSystem::createSystem( crspar );
-	//mRunStandardTest( crs, "Yard CRS is defined" );
-	//mRunStandardTest( crs->getUnitName().isEqual(
-	//					"yard",OD::CaseInsensitive),
-	//				    "Yard unit CRS returning yard" );
- //   } //UNABLE TO GET CORRECT CODE FOR CLARKE'S YARD AT PRESENT
+    TypeSet<int> yardCRSIDs;
+    yardCRSIDs.add( 27292 ); // NZGD49 / South Island Grid
+    for ( const auto& crsid : yardCRSIDs )
+    {
+	crs = Coords::CoordSystem::createSystem( getAuthString(crsid), msg );
+	mRunStandardTest( crs && crs->isOK() && crs->isProjection(),
+			  "Yard CRS is defined" );
+	mRunStandardTest( crs->getUnitName().isEqual("yd",OD::CaseInsensitive),
+			  "Yard unit CRS returning yard" );
+    }
 
     TypeSet<int> diffCRSIDs;
     diffCRSIDs.add( 3167 ); //chain unit of measure
@@ -330,11 +336,11 @@ static bool meterAndFeetCheck()
     diffCRSIDs.add( 29871 ); //chain unit of measure
     for ( const auto& crsid : diffCRSIDs )
     {
-	crspar.update( "Projection.ID", toString(crsid ));
-	RefMan<Coords::CoordSystem> crs =
-			    Coords::CoordSystem::createSystem( crspar );
+	crs = Coords::CoordSystem::createSystem( getAuthString(crsid), msg );
+	mRunStandardTest( crs && crs->isOK() && crs->isProjection(),
+			  "Chain CRS is defined" );
 	mRunStandardTest( !crs->isFeet() && !crs->isMeter(),
-				    "CRS unit different from meter and feet" )
+			  "CRS unit different from meter and feet" )
     }
 
     return true;

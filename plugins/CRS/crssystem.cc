@@ -41,7 +41,7 @@ Coords::CoordSystem* Coords::ProjectionBasedSystem::clone() const
 
 Coords::CoordSystem* Coords::ProjectionBasedSystem::getGeodeticSystem() const
 {
-    if ( !isOrthogonal() )
+    if ( isLatLong() )
 	return clone();
 
     auto* cp = new ProjectionBasedSystem;
@@ -62,8 +62,15 @@ BufferString Coords::ProjectionBasedSystem::summary() const
     if ( !proj_ )
 	return "No Projection Selected";
 
-    BufferString ret( isOrthogonal() ? "Projection: " : "Geodetic: " );
-    ret.add( proj_->getProjDispString() );
+    BufferString ret;
+    if ( isOrthogonal() )
+	ret.set( "Projection" );
+    else if ( isLatLong() )
+	ret.set( "Geodetic" );
+    else
+	ret.set( "Other projection" );
+
+    ret.add( ": " ).add( proj_->getProjDispString() );
     return ret;
 }
 
@@ -126,7 +133,13 @@ Coord Coords::ProjectionBasedSystem::convertTo(const Coord& incrd,
 
 bool Coords::ProjectionBasedSystem::isOrthogonal() const
 {
-    return !proj_ || proj_->isOrthogonal();
+    return proj_ ? proj_->isOrthogonal() : false;
+}
+
+
+bool Coords::ProjectionBasedSystem::isLatLong() const
+{
+    return proj_ ? proj_->isLatLong() : false;
 }
 
 
@@ -159,7 +172,7 @@ bool Coords::ProjectionBasedSystem::doUsePar( const IOPar& par )
 {
     BufferString authcodestr, typestr;
     if ( par.get(IOPar::compKey(sKey::Projection(),sKey::ID()),authcodestr) )
-	setProjection( Coords::AuthorityCode::fromString(authcodestr) );
+	setProjection( AuthorityCode::fromString(authcodestr) );
     else if ( par.get(sKey::Type(),typestr) )
     {
 	if ( typestr == CoordSystem::sKeyURN() ||

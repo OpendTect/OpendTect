@@ -393,6 +393,8 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
     case 'B' : case 'b' :
 	if ( caseInsensitiveEqual(nm,"British Foot") )
 	    return "ft";
+	if ( fsnm.startsWith("British yard",OD::CaseInsensitive) )
+	    return "yd";
     break;
     case 'F': case 'f':
 	if ( caseInsensitiveEqual(nm,"F",0)
