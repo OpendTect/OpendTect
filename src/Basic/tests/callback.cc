@@ -5,25 +5,27 @@
  * FUNCTION :
 -*/
 
-
 #include "notify.h"
 
 #include "applicationdata.h"
-#include "testprog.h"
-#include "threadwork.h"
 #include "atomic.h"
-#include "signal.h"
-#include "thread.h"
-#include "timer.h"
-#include <time.h>
 #include "ptrman.h"
-#include "applicationdata.h"
+#include "signal.h"
+#include "testprog.h"
+#include "thread.h"
+#include "threadwork.h"
+#include "timer.h"
+
+#include <time.h>
 
 
 class ClassWithNotifier : public CallBacker
 {
 public:
-				ClassWithNotifier() : notifier( this ) {}
+				ClassWithNotifier()
+				    : notifier( this )
+				{}
+
     Notifier<ClassWithNotifier>	notifier;
 };
 
@@ -34,7 +36,8 @@ public:
     NotifiedClass( NotifierAccess* a=nullptr )
 	: timer_("starter")
     {
-	if ( a ) mAttachCB( *a, NotifiedClass::callbackA );
+	if ( a )
+	    mAttachCB( *a, NotifiedClass::callbackA );
     }
 
     ~NotifiedClass()
@@ -47,7 +50,7 @@ public:
     {
 	retval_ = 1;
 	mAttachCB( timer_.tick, NotifiedClass::timerHit );
-	timer_.start( 0, true );
+	timer_.start( 100, true );
     }
 
     void callbackA( CallBacker* )
@@ -62,17 +65,18 @@ public:
 
     void timerHit( CallBacker* )
     {
-	logStream() << "[OK] Timer hit!" << od_endl;
+	tstStream() << "[OK] Timer hit!" << od_endl;
 	retval_ = 0;
 	CallBack::addToMainThread( mCB(this,NotifiedClass,closeTesterCB) );
     }
 
     void closeTesterCB( CallBacker* )
     {
+	tstStream() << "[OK] Closing in main thread" << od_endl;
 	ApplicationData::exit( retval_ );
     }
 
-    Threads::Atomic<int>	nrhits_ = 0;
+    Threads::Atomic<int> nrhits_ = 0;
     Timer	timer_;
     int		retval_ = -1;
 };
@@ -102,7 +106,7 @@ bool testNormalOp()
 
     notifier.notifier.enable();
 
-    NotifyStopper* stopper = new NotifyStopper( notifier.notifier );
+    auto* stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==3,
 		     "Notify-stopper on enabled notifier" );
@@ -135,9 +139,9 @@ bool testNormalOp()
 bool testAttach()
 {
     {
-	ClassWithNotifier* notifier = new ClassWithNotifier;
+	auto* notifier = new ClassWithNotifier;
 	NotifierAccess* naccess = &notifier->notifier;
-	NotifiedClass* notified = new NotifiedClass( naccess );
+	auto* notified = new NotifiedClass( naccess );
 
 	notifier->notifier.trigger();
 	mRunStandardTest( notified->nrhits_==1, "Normal attached callback" );
@@ -199,61 +203,73 @@ class InMainThreadTester : public CallBacker
 {
 public:
 
-    static bool	test()
+    static bool	test( InMainThreadTester& tester )
     {
-        ApplicationData app;
-        InMainThreadTester tester;
+	mRunStandardTest(
+	     CallBack::addToMainThread(
+				mCB( &tester,InMainThreadTester,eventLoopCB)),
+	     "Callback: add to main thread" );;
 
-        CallBack::addToMainThread(mCB( &tester,InMainThreadTester,eventLoopCB));
-
-        mRunStandardTest( !app.exec(), "Callback - in main thread");
         return true;
     }
 
-    void eventLoopCB(CallBacker*)
+    void eventLoopCB( CallBacker* )
     {
         if ( callingthread_ )
         {
-            ApplicationData::exit(
-                callingthread_==Threads::currentThread() ? 0 : 1 );
+	    tstStream(false) << "Should not be reached" << od_endl;
+            ApplicationData::exit( 1 );
+	    return;
         }
         else
         {
+	    tstStream() << "[OK] Callback: add worker from main thread"
+			<< od_endl;
+	    mainthread_ = Threads::currentThread();
             Threads::WorkManager::twm().addWork(
-                Threads::Work( mCB(this,InMainThreadTester,callBackFuncCB)) );
-
-            CallBack::addToMainThread(mCB(this,InMainThreadTester,eventLoopCB));
+                Threads::Work( mCB(this,InMainThreadTester,callBackFuncCB) ),
+		nullptr, Threads::WorkManager::cDefaultQueueID(), false, false,
+		true );
 	}
     }
 
     ~InMainThreadTester()
     {
         CallBack::removeFromThreadCalls( this );
-
     }
 
     void callBackFuncCB(CallBacker*)
     {
-        mEnsureExecutedInMainThread(InMainThreadTester::callBackFuncCB);
-        if ( callingthread_ )
-            return;
+	if ( Threads::currentThread() != mainthread_ )
+	{
+	    tstStream() << "[OK] Callback: initially called from work thread"
+			<< od_endl;
+	}
 
+        mEnsureExecutedInMainThread( InMainThreadTester::callBackFuncCB );
+        if ( callingthread_ )
+	{
+	    tstStream( false ) << "Should not be reached" << od_endl;
+            ApplicationData::exit( 1 );
+            return;
+	}
+
+	tstStream() << "[OK] Callback: Impl executed in main thread"
+		    << od_endl;
         callingthread_ = Threads::currentThread();
     }
 
 
+    Threads::Atomic<Threads::ThreadID>	mainthread_;
     Threads::Atomic<Threads::ThreadID>	callingthread_;
 };
 
 
-
-
-
 bool testEarlyDetach()
 {
-    ClassWithNotifier* notifier = new ClassWithNotifier;
+    auto* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
-    NotifiedClass* notified = new NotifiedClass( naccess );
+    auto* notified = new NotifiedClass( naccess );
 
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     notifier->notifier.trigger();
@@ -273,15 +289,15 @@ bool testEarlyDetach()
 
 bool testLateDetach()
 {
-    ClassWithNotifier* notifier = new ClassWithNotifier;
+    auto* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
-    NotifiedClass* notified = new NotifiedClass( naccess );
+    auto* notified = new NotifiedClass( naccess );
 
     delete notifier;
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     delete notified;
 
-    logStream() << "[OK] Detaching deleted notifier\n";
+    mRunStandardTest( true, "Detaching deleted notifier" );
 
     return true;
 }
@@ -289,15 +305,15 @@ bool testLateDetach()
 
 bool testDetachBeforeRemoval()
 {
-    ClassWithNotifier* notifier = new ClassWithNotifier;
+    auto* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
-    NotifiedClass* notified = new NotifiedClass( naccess );
+    auto* notified = new NotifiedClass( naccess );
 
     notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
     delete notified;
     delete notifier;
 
-    logStream() << "[OK] Detach before removal\n";
+    mRunStandardTest( true, "Detach before removal" );
 
     return true;
 }
@@ -310,11 +326,11 @@ class NotifierOwner : public CallBacker
 public:
 
     NotifierOwner()
-	: stopflag_( false ), seed_( 5323 )
     {
 	thread_ = new Threads::Thread( mCB(this,NotifierOwner,modifyNotifiers),
 					"NotifierOwner" );
     }
+
     ~NotifierOwner()
     {
 	lock_.lock();
@@ -363,7 +379,7 @@ public:
 	lock_.unLock();
     };
 
-    bool				stopflag_;
+    bool				stopflag_ = false;
     ObjectSet<ClassWithNotifier>	notifierclasses_;
     Threads::SpinLock			lock_;
 
@@ -375,7 +391,7 @@ private:
 	return seed_ % max;
     }
 
-    unsigned int			seed_;
+    unsigned int			seed_ = 5323;
     Threads::Thread*			thread_;
 };
 
@@ -384,7 +400,7 @@ class ReceiversOwner : public CallBacker
 {
 public:
     ReceiversOwner( NotifierOwner& no )
-	: stopflag_( false ), seed_( 1234 ), notifierowner_( no )
+	: notifierowner_(no)
     {
 	thread_ = new Threads::Thread(mCB(this,ReceiversOwner,modifyRecievers),
 					"ReceiversOwner" );
@@ -392,7 +408,12 @@ public:
 
     ~ReceiversOwner()
     {
-	stop();
+	lock_.lock();
+	stopflag_ = true;
+	lock_.unLock();
+	if ( thread_ ) thread_->waitForFinish();
+	delete thread_;
+	deepErase( receivers_ );
     }
 
     void stop()
@@ -401,8 +422,7 @@ public:
 	stopflag_ = true;
 	lock_.unLock();
 	if ( thread_ ) thread_->waitForFinish();
-	delete thread_;
-	thread_ = 0;
+	deleteAndZeroPtr( thread_ );
 	deepErase( receivers_ );
     }
 
@@ -423,7 +443,6 @@ public:
 	    receivers_ += createReceiver();
 	}
 
-
 	while ( !stopflag_ )
 	{
 	    lock_.unLock();
@@ -434,9 +453,9 @@ public:
 	lock_.unLock();
     };
 
-    NotifiedClass*			createReceiver()
+    NotifiedClass* createReceiver()
     {
-	NotifiedClass* res = new NotifiedClass;
+	auto* res = new NotifiedClass;
 
 	notifierowner_.lock_.lock();
 
@@ -454,10 +473,9 @@ public:
     }
 
     NotifierOwner&			notifierowner_;
-    bool				stopflag_;
+    bool				stopflag_ = false;
     ObjectSet<NotifiedClass>		receivers_;
     Threads::SpinLock			lock_;
-
 
 private:
 
@@ -467,7 +485,7 @@ private:
 	return seed_ % max;
     }
 
-    unsigned int			seed_;
+    unsigned int			seed_ = 1234;
     Threads::Thread*			thread_;
 };
 
@@ -483,8 +501,7 @@ void handler(int sig)
 
 bool testMulthThreadChaos()
 {
-    logStream() << "Multithreaded chaos:";
-    logStream().flush();
+    mRunStandardTest( true, "Multithreaded chaos start" );
 
     {
 	NotifierOwner notifierlist;
@@ -501,7 +518,7 @@ bool testMulthThreadChaos()
 	receiverslist.stop();
     } //All variables out of scope here
 
-    logStream() << " - [OK]\n";
+    mRunStandardTest( true, "Multithreaded chaos finished" );
     return true;
 }
 
@@ -516,11 +533,14 @@ int mTestMainFnName( int argc, char** argv )
       || !testLateDetach()
       || !testEarlyDetach()
       || !testDetachBeforeRemoval()
-      || !testMulthThreadChaos()
-      || !InMainThreadTester::test() )
+      || !testMulthThreadChaos() )
 	return 1;
 
     ApplicationData ad;
+    InMainThreadTester tester;
+    if ( !InMainThreadTester::test(tester) )
+	return 1;
+
     NotifiedClass rcvr;
     rcvr.setTimer();
     return ad.exec();
