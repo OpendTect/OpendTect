@@ -71,7 +71,6 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
     uiStringSet names;
     CoordSystem::getSystemNames( orthogonal, projectiononly,
 				 names, coordsystempars_ );
-
     coordsystemsuis_.setNullAllowed();
 
     for ( int idx=0; idx<coordsystempars_.size(); idx++ )
@@ -90,9 +89,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	    }
 	}
 
-	uiCoordSystem* systemui =
-		uiCoordSystem::factory().create( key, this );
-
+	uiCoordSystem* systemui = uiCoordSystem::factory().create( key, this );
 	coordsystemsuis_ += systemui;
 
 	if ( !systemui )
@@ -137,6 +134,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 
 uiCoordSystemSelGrp::~uiCoordSystemSelGrp()
 {
+    detachAllNotifiers();
 }
 
 
@@ -146,7 +144,7 @@ void uiCoordSystemSelGrp::createGeodeticUI()
 			BoolInpSpec(true,
 			toUiString(Coords::CoordSystem::sWGS84ProjDispString()),
 			uiStrings::sOther()) );
-    wgs84selfld_->valuechanged.notify( mCB(this,uiCoordSystemSelGrp,wgs84Sel) );
+    mAttachCB( wgs84selfld_->valuechanged, uiCoordSystemSelGrp::wgs84Sel );
 
     auto* uillsys = getGeodecticCoordSystemFld( this );
     uillsys->attach( alignedBelow, wgs84selfld_ );

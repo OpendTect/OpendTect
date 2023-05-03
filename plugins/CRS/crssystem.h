@@ -46,6 +46,7 @@ public:
 				       BufferString* msg=nullptr) const;
 
     bool		isOrthogonal() const override;
+    bool		isLatLong() const;
     bool		isProjection() const override		{ return true; }
     bool		isFeet() const override;
     bool		isMeter() const override;
