@@ -1,6 +1,6 @@
-dTect V5.0
+dTect V7.0
 Batch Programs
-Fri Sep 24 15:37:38 2010
+2023-04-18T14:11:20Z
 !
 od_cbvs_browse
 	Arg: M`FileRead`Cube to browse
