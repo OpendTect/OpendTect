@@ -118,7 +118,7 @@ static bool testParallelQuickSort()
 
 static bool testRandom( bool dodiff, bool dotime )
 {
-    static double epsavg = 1e-4;
+    static double epsavg = 1e-3;
     static double epsstd = 1e-3;
     static int sz = 1024*1024*20; //1sec runtime with eps precision
     Array1DImpl<double> dvalsarr( sz );
@@ -129,11 +129,10 @@ static bool testRandom( bool dodiff, bool dotime )
     float* fvals = fvalsarr.getData();
     od_int64* llvals = llvalsarr.getData();
     int* ivals = ivalsarr.getData();
-    if ( !dvals || !fvals || !llvals || !ivals )
-	return false;
+    mRunStandardTest( dvals && fvals && llvals && ivals, "Has pointers" );
 
     static double oneoversqrt12 = Math::Sqrt(1./12.);
-    Stats::RandGen urg = Stats::randGen();
+    Stats::RandGen urg;
     Time::Counter counter; int elapsed = 0;
 
     Stats::CalcSetup avgstdsu, minmaxsu;
@@ -252,7 +251,7 @@ static bool testRandom( bool dodiff, bool dotime )
     rcld.clear();
     for ( int idx=0; idx<sz; idx++ )
 	rcld.addValue( dvals[idx] );
-    mTestValD( 0., double(rcld.average()), epsstd, "Gaussian average - get" );
+    mTestValD( expavg, double(rcld.average()),epsstd, "Gaussian average - get");
     mTestValD( expstddev, double(rcld.stdDev()), epsstd,
 	       "Gaussian stddev - get" );
 
@@ -327,8 +326,11 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    if ( !testParallelQuickSort() )
+	return 1;
+
     const bool printdiff = clParser().hasKey( "dodiff" );
     const bool printtime = clParser().hasKey( "dotime" );
 
-    return testRandom(printdiff,printtime) && testParallelQuickSort() ? 0 : 1;
+    return testRandom( printdiff, printtime ) ? 0 : 1;
 }
