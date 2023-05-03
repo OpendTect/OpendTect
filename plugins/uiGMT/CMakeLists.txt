@@ -27,7 +27,9 @@ set( OD_MODULE_SOURCES
 	uigmtpi.cc
 	uigmtinfodlg.cc
 )
+
 set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+SET( OD_NO_ALO_ENTRY TRUE )
 
 OD_INIT_MODULE()
 
