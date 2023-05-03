@@ -139,7 +139,7 @@ else
     "${bindir}/${cmd}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
-	echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
+	echo "Test program ${cmd} returned ${result}, while ${expret} was expected"
 	exit 1
     endif
 endif
