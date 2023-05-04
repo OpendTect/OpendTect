@@ -1215,7 +1215,7 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 	return false;
 
     filenm_ = filedlg->inpfld_->fileName();
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::readDirectory( filenm_ );
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::readFile( filenm_ );
     if ( !survinfo )
 	return false;
 
