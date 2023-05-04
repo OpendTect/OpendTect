@@ -61,12 +61,12 @@ public:
     AuthorityCode		authCode() const	{ return authcode_; }
     virtual const char*		userName() const	= 0;
 
-    virtual bool		isOK() const;
+    virtual bool		isOK() const		{ return false; }
 
-    virtual bool		isOrthogonal() const;
+    virtual bool		isOrthogonal() const	{ return false; }
     virtual bool		isLatLong() const	{ return false; }
-    virtual bool		isFeet() const;
-    virtual bool		isMeter() const;
+    virtual bool		isFeet() const		{ return false; }
+    virtual bool		isMeter() const		{ return false; }
 
     virtual AuthorityCode	getGeodeticAuthCode() const;
 

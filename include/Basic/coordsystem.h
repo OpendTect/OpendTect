@@ -81,6 +81,7 @@ public:
 					   BufferString* msg=nullptr) const = 0;
 
     virtual bool		isOrthogonal() const			= 0;
+    virtual bool		isLatLong() const			= 0;
     virtual bool		isProjection() const	{ return false; }
     virtual bool		isFeet() const		{ return false; }
     virtual bool		isMeter() const		{ return false; }
@@ -132,7 +133,8 @@ public:
     bool		geographicTransformOK() const override { return false; }
 
     bool		isOK() const override		{ return true; }
-    bool		isOrthogonal() const override	{ return true; }
+    bool		isOrthogonal() const override	{ return false; }
+    bool		isLatLong() const override	{ return false; }
     bool		isFeet() const override		{ return isfeet_; }
     bool		isMeter() const override	{ return !isfeet_; }
     BufferString	toString(StringType=Default,
@@ -175,7 +177,8 @@ public:
     void		setLatLongEstimate(const LatLong&,const Coord&);
 
     bool		isOK() const override		{ return true; }
-    bool		isOrthogonal() const override	{ return true; }
+    bool		isOrthogonal() const override	{ return false; }
+    bool		isLatLong() const override	{ return false; }
     bool		isFeet() const override		{ return isfeet_; }
     bool		isMeter() const override	{ return !isfeet_; }
 
