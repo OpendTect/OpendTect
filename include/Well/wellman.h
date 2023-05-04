@@ -103,6 +103,8 @@ public:
     static bool		getWellNames(BufferStringSet&,bool onlyloaded=false);
     static bool		getAllMarkerNames(BufferStringSet&,
 					  bool onlyloaded=false);
+    static bool		getAllMarkerNames(BufferStringSet&,
+					  const RefObjectSet<const Data>&);
     static bool		getAllMarkerInfo(BufferStringSet&,
 					 TypeSet<OD::Color>&,
 				  bool onlyloaded=false);

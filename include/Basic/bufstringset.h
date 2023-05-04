@@ -159,6 +159,8 @@ mDefContainerSwapFunction( Basic, BufferStringSet )
 inline BufferString toString( const BufferStringSet& bss )
 { return bss.cat( " " ); }
 
+mGlobal(Basic) bool mergeOrderedStrings(const ObjectSet<BufferStringSet>& lists,
+					BufferStringSet& mergedlist);
 
 mDeprecated("Use setEmpty")
 mGlobal(Basic) void deepErase(BufferStringSet&);
