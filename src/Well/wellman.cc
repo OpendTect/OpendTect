@@ -461,19 +461,41 @@ bool Well::Man::getWellNames( BufferStringSet& wellnms, bool onlyloaded )
 }
 
 
-bool Well::Man::getAllMarkerNames( BufferStringSet& nms, bool onlyloaded )
+bool Well::Man::getAllMarkerNames( BufferStringSet& nms,
+				   const RefObjectSet<const Data>& wds )
 {
     nms.setEmpty();
+    ManagedObjectSet<BufferStringSet> wellmarkernames;
+    for ( auto* wd : wds )
+    {
+	auto* markernames = new BufferStringSet;
+	wd->markers().getNames( *markernames );
+	if ( markernames->isEmpty() )
+	    delete markernames;
+	else
+	    wellmarkernames.add( markernames );
+    }
+
+    if ( wellmarkernames.isEmpty() )
+	return false;
+
+    return mergeOrderedStrings( wellmarkernames, nms );
+}
+
+
+bool Well::Man::getAllMarkerNames( BufferStringSet& nms, bool onlyloaded )
+{
     TypeSet<MultiID> ids;
     MGR().getWellKeys( ids, onlyloaded );
+    RefObjectSet<const Data> wds;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	ConstRefMan<Data> wd = MGR().get( ids[idx], LoadReqs(Mrkrs) );
-	BufferStringSet markernms;
-	wd->markers().getNames( markernms );
-	nms.add( markernms, false );
+	if ( wd )
+	    wds.add( wd.ptr() );
     }
-    return !nms.isEmpty();
+
+    return getAllMarkerNames( nms, wds );
 }
 
 

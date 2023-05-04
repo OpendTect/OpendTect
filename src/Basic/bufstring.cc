@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "bufstringset.h"
+
+#include "arrayndimpl.h"
 #include "globexpr.h"
 #include "iopar.h"
 #include "od_ostream.h"
@@ -20,12 +22,12 @@ ________________________________________________________________________
 #include "uistring.h"
 
 #ifndef OD_NO_QT
+# include <QHash>
 # include <QString>
 # include <QStringList>
 #endif
 
 #include <string>
-
 
 BufferString::BufferString( int sz, bool /*mknull*/ )
     : buf_(nullptr)
@@ -589,7 +591,8 @@ bool BufferStringSet::operator !=( const BufferStringSet& oth ) const
 }
 
 
-idx_type BufferStringSet::indexOf( const char* str, OD::CaseSensitivity cs ) const
+idx_type BufferStringSet::indexOf( const char* str,
+				   OD::CaseSensitivity cs ) const
 {
     if ( str )
     {
@@ -650,7 +653,8 @@ BufferString BufferStringSet::getDispString( size_type maxnritems,
 
 idx_type BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 {
-    return nearestMatch( s, caseinsens ? OD::CaseInsensitive : OD::CaseSensitive );
+    return nearestMatch( s, caseinsens ? OD::CaseInsensitive
+					: OD::CaseSensitive );
 }
 
 
@@ -1114,6 +1118,93 @@ const BufferString* find( const BufferStringSet& bss, const char* nm )
     return find( bss.getStringSet(), nm );
 }
 
+
+bool mergeOrderedStrings( const ObjectSet<BufferStringSet>& lists,
+			  BufferStringSet& mergedlist )
+{
+    QHash<QString,int> indexmap;
+    ManagedObjectSet<TypeSet<int> > listrecs;
+    mergedlist.setEmpty();
+    int index = 0;
+    // Make index lists
+    for ( int idx=0; idx<lists.size(); idx++ )
+    {
+	const BufferStringSet& list = *lists.get( idx );
+	auto* listrec = new TypeSet<int>( list.size(), 0 );
+	for ( int idy=0; idy<list.size(); idy++ )
+	{
+	    const char* str = list.get( idy ).buf();
+	    if ( indexmap.contains(str) )
+		(*listrec)[idy] = indexmap.value( str );
+	    else
+	    {
+		(*listrec)[idy] = index;
+		mergedlist.add( str );
+		indexmap.insert( str, index++ );
+	    }
+	}
+
+	listrecs.add( listrec );
+    }
+
+    // Make two-way relationship map
+    Array2DImpl<int> relationmap( mergedlist.size(), mergedlist.size() );
+    TypeSet<int> confidence( mergedlist.size(), 0 );
+    relationmap.setAll( 0 );
+    for ( int idx=0; idx<listrecs.size(); idx++ )
+    {
+	const TypeSet<int>& listrec = *listrecs[idx];
+	for ( int idi=0; idi<listrec.size(); idi++ )
+	{
+	    const int index1 = listrec[idi];
+	    for ( int idj=idi+1; idj<listrec.size(); idj++ )
+	    {
+		const int index2 = listrec[idj];
+		relationmap.set( index1, index2,
+				 relationmap.get(index1,index2) + 1 );
+		relationmap.set( index2, index1,
+				 relationmap.get(index2,index1) - 1 );
+		confidence[index1]++;
+		confidence[index2]++;
+	    }
+	}
+    }
+
+    // Now sort
+    const ArrPtrMan<int> sortedconfidenceindexes =
+					getSortIndexes( confidence, false );
+    TypeSet<int> res;
+    for ( int idx=0; idx<mergedlist.size(); idx++ )
+    {
+	const int index1 = sortedconfidenceindexes[idx];
+	int score = 0;
+	int maxscore = 0;
+	int bestidx = res.size();
+	for ( int idy=res.size()-1; idy>=0; idy-- )
+	{
+	    const int index2 = res[idy];
+	    const int rel = relationmap.get( index1, index2 );
+	    if ( rel > 0 )
+		score++;
+	    else if ( rel < 0 )
+		score--;
+
+	    if ( score > maxscore )
+	    {
+		maxscore = score;
+		bestidx = idy;
+	    }
+	}
+
+	if ( bestidx == res.size() )
+	    res += index1;
+	else
+	    res.insert( bestidx, index1 );
+    }
+
+    mergedlist.useIndexes( res.arr() );
+    return true;
+}
 
 
 // StringPair
