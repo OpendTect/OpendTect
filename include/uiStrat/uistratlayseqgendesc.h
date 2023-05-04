@@ -65,8 +65,8 @@ protected:
     virtual const uiParent* getUiParent() const		= 0;
 
 private:
-    const Strat::LayerSequenceGenDesc* editedDesc() const
-			{ return nullptr; }
+    virtual const Strat::LayerSequenceGenDesc* editedDesc() const
+							{ return nullptr; }
 
 };
 

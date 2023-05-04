@@ -67,7 +67,8 @@ protected:
     virtual bool	laygenRemoveReq()		= 0;
 
 private:
-    const Strat::LayerSequenceGenDesc* editedDesc() const { return &editdesc_;}
+    const Strat::LayerSequenceGenDesc* editedDesc() const override
+							{ return &editdesc_;}
 
 };
 
