@@ -68,7 +68,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	welllistfld_ = new uiListBox( this, "Wells", OD::ChooseAtLeastOne );
 	welllistfld_->attach( ensureBelow, sep1 );
 	welllistfld_->attach( alignedBelow, attribfld_ );
-	welllistfld_->addItems( wellnames );
+	welllistfld_->addItems( wellnames_ );
     }
 
     if ( singlewell )
@@ -101,17 +101,21 @@ void uiCreateAttribLogDlg::init( CallBacker* )
 {
     Well::MarkerSet mrkrs;
     Well::LoadReqs lreqs( Well::Mrkrs );
+    RefObjectSet<const Well::Data> wds;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
 	const IOObj* ioobj = Well::findIOObj( wellnames_.get(idx), nullptr );
 	if ( !ioobj )
-	    return;
-	ConstRefMan<Well::Data> wdtmp = Well::MGR().get( ioobj->key(), lreqs );
-	if ( wdtmp )
-	    mrkrs.append( wdtmp->markers() );
+	    continue;
+
+	ConstRefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), lreqs );
+	if ( wd )
+	    wds.add( wd.ptr() );
     }
 
-    sort( mrkrs ); zrangeselfld_->setMarkers( mrkrs );
+    BufferStringSet allmarkernames;
+    Well::Man::getAllMarkerNames( allmarkernames, wds );
+    zrangeselfld_->setMarkers( allmarkernames );
 }
 
 
