@@ -676,9 +676,10 @@ const Mnemonic* Well::Log::guessMnemonic()
     if ( !mn )
 	mn = MnemonicSelection::getGuessed( nm, uom, &hintnms );
 
-    if ( mn && !mn->isUdf() )
-	setMnemonic( *mn );
+    if ( !mn )
+	mn = &Mnemonic::undef();
 
+    setMnemonic( *mn );
     return mn;
 }
 
