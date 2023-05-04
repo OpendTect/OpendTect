@@ -69,6 +69,10 @@ protected:
 private:
     const Strat::LayerSequenceGenDesc* editedDesc() const { return &editdesc_;}
 
+public:
+    const Strat::LayerSequenceGenDesc& getEditedDesc() const
+							{ return editdesc_; }
+
 };
 
 

@@ -158,6 +158,13 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 
 const Strat::LayerSequenceGenDesc& uiLayerSequenceGenDesc::currentDesc() const
 {
+    mDynamicCastGet(const uiExtLayerSequenceGenDesc*,extuidesc,this);
+    if ( extuidesc )
+    {
+	return extuidesc->needSave() ? extuidesc->getEditedDesc()
+				     : mNonConst(extuidesc)->desc();
+    }
+
     return !needSave() || !editedDesc() ? desc_ : *editedDesc();
 }
 
