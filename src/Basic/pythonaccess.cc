@@ -605,7 +605,14 @@ BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
 
 bool OD::PythonAccess::isModuleUsable( const char* nm ) const
 {
-    const BufferString importscript( "import ", nm );
+   BufferStringSet importscript;
+    if ( BufferString("pptx")==nm )
+    {
+	importscript.add( "import collections" );
+	importscript.add( "import collections.abc" );
+    }
+
+    importscript.add( BufferString("import ", nm) );
     return executeScript( importscript ) && lastOutput(true,nullptr).isEmpty();
 }
 
