@@ -1234,7 +1234,7 @@ void uiIOObjSelGrp::objRemoved( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack( const MultiID&, ky, cb );
-    if ( !ky.isUdf())
+    if ( !ky.isUdf() && ctio_.ctxt_.validObj(ky) )
 	removeEntry( ky );
 }
 
