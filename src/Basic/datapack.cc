@@ -30,7 +30,21 @@ const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 
 Threads::Lock DataPackMgr::mgrlistlock_;
-ObjectSet<DataPackMgr> DataPackMgr::mgrs_;
+
+mClass(Basic) DataPackMgrSet : public ObjectSet<DataPackMgr>
+{
+public:
+
+DataPackMgrSet()
+    : ObjectSet<DataPackMgr>()
+{}
+
+~DataPackMgrSet()
+{ deepErase(*this); }
+
+};
+
+DataPackMgrSet DataPackMgr::mgrs_;
 
 #ifdef __debug__
 # define mTrackDPMsg(msg) \
@@ -176,7 +190,7 @@ DataPackMgr* DataPackMgr::gtDPM( DataPackMgrID dpid, bool crnew )
 	return nullptr;
 
     auto* newmgr = new DataPackMgr( dpid );
-    mgrs_ += newmgr;
+    mgrs_.add( newmgr );
     return newmgr;
 }
 
@@ -199,7 +213,7 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
-    mDefineStaticLocalObject( PtrMan<DataPackMgr>, emptymgr, = 0 );
+    mDefineStaticLocalObject( PtrMan<DataPackMgr>, emptymgr, = nullptr );
     emptymgr = new DataPackMgr( manid );
     return *emptymgr;
 }
@@ -231,6 +245,8 @@ void DataPackMgr::dumpDPMs( od_ostream& strm )
     }
 }
 
+
+// DataPackMgr
 
 DataPackMgr::DataPackMgr( DataPackMgrID dpid )
     : id_(dpid)

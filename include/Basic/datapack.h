@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 
 class DataPackMgr;
+class DataPackMgrSet;
 class StringPairSet;
 
 using DataPackID = IntegerID<od_int32>;
@@ -272,7 +273,7 @@ private:
     void			packDeleted(CallBacker*);
 
     static Threads::Lock	mgrlistlock_;
-    static ObjectSet<DataPackMgr> mgrs_;
+    static DataPackMgrSet	mgrs_;
 
     mDeprecatedDef DataPack*	doObtain(DataPackMgrID,bool) const;
     mDeprecatedDef int		indexOf(DataPackMgrID) const;
