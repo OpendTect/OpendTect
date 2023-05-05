@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
+#include "uiwelldisplayserver.h"
 #include "uiwelllogcalc.h"
 #include "uiwelllogdisplay.h"
 
@@ -547,15 +548,11 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
     if ( lognm == sKeyPlsSel )
 	return;
 
-    const Well::Data* wd = Well::MGR().get( wellid_ );
-    if  ( !wd ) return;
-
-    const Well::LogSet& logs = wd->logs();
-    const Well::Log* wl = logs.getLog( lognm.buf() );
-    if ( !wl )
-	return; // the log was removed since popup of the window ... unlikely
-
-    (void)uiWellLogDispDlg::popupNonModal( this, wl );
+    DBKeySet wellkeys;
+    BufferStringSet lognms;
+    wellkeys.add( DBKey(wellid_) );
+    lognms.add( lognm );
+    GetWellDisplayServer().createMultiWellDisplay( this, wellkeys, lognms );
 }
 
 

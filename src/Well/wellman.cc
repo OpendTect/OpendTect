@@ -699,7 +699,8 @@ void Well::Man::getLogIDs( const MultiID& ky, const MnemonicSelection& mns,
     for ( const auto* mn : mns )
     {
 	const Log* log = wd->logs().getLog( *mn );
-	ids += wd->logs().indexOf( log->name() );
+	if ( log )
+	    ids += wd->logs().indexOf( log->name() );
     }
 }
 
