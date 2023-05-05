@@ -323,6 +323,8 @@ static void init( BufferString& script, const char* fnm, const char* lgfnm )
 	"strm.write( 'Executing: ' + sys.argv[0]  + '\\n\\n' )\n\n" );
 
     script.add(
+	"import collections\n"
+	"import collections.abc\n"
 	"from pptx import Presentation\n"
 	"from pptx.util import Inches, Cm\n"
 	"import os.path\n\n" );
