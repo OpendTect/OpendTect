@@ -152,7 +152,7 @@ private:
     bool		doUsePar(const IOPar&) override;
     void		doFillPar(IOPar&) const override;
 
-    bool		isfeet_;
+    bool		isfeet_ = false;
 };
 
 
