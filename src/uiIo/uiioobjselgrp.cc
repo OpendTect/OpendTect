@@ -1234,7 +1234,12 @@ void uiIOObjSelGrp::objRemoved( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack( const MultiID&, ky, cb );
-    if ( !ky.isUdf() && ctio_.ctxt_.validObj(ky) )
+    if ( ky.isUdf() || !ky.isDatabaseID() )
+	return;
+
+    const IOObjContext::StdDirData* stddata =
+			ctio_.ctxt_.getStdDirData( ctio_.ctxt_.stdseltype_ );
+    if ( stddata && ky.groupID() == stddata->groupID() )
 	removeEntry( ky );
 }
 
