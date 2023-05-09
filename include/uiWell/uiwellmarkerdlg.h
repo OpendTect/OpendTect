@@ -14,8 +14,9 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellmarker.h"
 
-class uiStratLevelSel;
 class uiCheckBox;
+class DisplayProperties;
+class uiStratLevelSel;
 class uiTable;
 namespace Well { class Reader; }
 
@@ -43,6 +44,7 @@ private:
     const Well::Track&		track_;
     const Well::D2TModel*	d2tmodel_;
     Well::MarkerSet*		oldmrkrs_ = nullptr;
+    Well::DisplayProperties*	olddisps_ = nullptr;
 
     //TODO will go with the Strat level Sel
 
@@ -63,6 +65,7 @@ private:
     float			zFactor() const;
     void			exportCB(CallBacker*);
     bool			getKey(MultiID&) const;
+    void			getUnselMarkerNames(BufferStringSet&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK(CallBacker*) override;
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);

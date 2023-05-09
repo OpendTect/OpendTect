@@ -107,6 +107,7 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 		}
 	    }
 	    attachCB( wd_->trackchanged, mCB(self,WellDisplay,fullRedraw) );
+	    attachCB( wd_->reloaded, mCB(self,WellDisplay,fullRedraw) );
 	    attachCB( wd_->markerschanged,mCB(self,WellDisplay,updateMarkers));
 	    attachCB( wd_->disp3dparschanged,mCB(self,WellDisplay,fullRedraw));
 	    if ( zistime_ )
