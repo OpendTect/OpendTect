@@ -140,7 +140,6 @@ void uiSynthParsGrp::initGrp( CallBacker* )
 
     ns.enableNotification();
     newSynthSelCB( nullptr );
-    needScaleCB( nullptr );
     namechanged_ = parschanged_ = false;
     //Keep last, as we do not want earlier notifications:
     mAttachCB( stratsynth_.newWvltUsed, uiSynthParsGrp::newWvltCB );
@@ -297,6 +296,7 @@ void uiSynthParsGrp::newSynthSelCB( CallBacker* )
     updatefld_->setSensitive( false );
     removefld_->setSensitive( synthnmlb_->size() > 1 );
     addnewfld_->setSensitive( synthnmlb_->size() < 1 );
+    needScaleCB( nullptr );
 }
 
 
@@ -376,12 +376,27 @@ void uiSynthParsGrp::removeSyntheticsCB( CallBacker* )
 void uiSynthParsGrp::needScaleCB( CallBacker* )
 {
     if ( synthnmlb_->isEmpty() )
+    {
 	scalefld_->setSensitive( false );
+	scalefld_->setText( tr("Scale") );
+    }
     else
     {
-	const bool needscale =
-			stratsynth_.getUnscaledSynthetics( nullptr, nullptr);
-	scalefld_->setSensitive( needscale );
+	const BufferString synthnm( synthnmlb_->getText() );
+	TypeSet<MultiID> wvltids;
+	bool needscale = stratsynth_.getUnscaledSynthetics( nullptr, &wvltids );
+	if ( needscale )
+	{
+	    SynthGenParams sgp;
+	    if ( getFromScreen(sgp) )
+	    {
+		const MultiID wvltid = sgp.getWaveletID();
+		needscale = wvltids.isPresent( wvltid );
+	    }
+	}
+
+	scalefld_->setSensitive( true );
+	scalefld_->setText( needscale ? tr("Scale") : tr("Re-Scale") );
     }
 }
 
@@ -390,7 +405,10 @@ void uiSynthParsGrp::scaleSyntheticsCB( CallBacker* )
 {
     const ScaleRes res = checkUnscaledWavelets( this, stratsynth_ );
     if ( isOK(res) && res != IGNORED )
-	scalefld_->setSensitive( false );
+    {
+	scalefld_->setSensitive( true );
+	scalefld_->setText( tr("Re-scale") );
+    }
 }
 
 
@@ -436,7 +454,14 @@ uiSynthParsGrp::ScaleRes uiSynthParsGrp::checkUnscaledWavelets( uiParent* p,
     TypeSet<MultiID> unscaledwvlts;
     if ( !synthmgr.getUnscaledSynthetics(&unscaledsynths,&unscaledwvlts) )
     {
-	uiMSG().message( tr("All synthetics use scaled wavelets") );
+	static bool dontshowallscaled = false;
+	if ( !dontshowallscaled )
+	{
+	    dontshowallscaled = 
+		uiMSG().message( tr("All synthetics use scaled wavelets"),
+		    uiString::empty(), uiString::empty(), true );
+	}
+
 	return ALLDONE;
     }
 
