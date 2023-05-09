@@ -279,7 +279,7 @@ int TrcKeyZSampling::trcIdx( int trcnr ) const
 
 
 int TrcKeyZSampling::zIdx( float z ) const
-{ return zsamp_.getIndex(z); }
+{ return zsamp_.nearestIndex(z); }
 
 
 int TrcKeyZSampling::nrLines() const
