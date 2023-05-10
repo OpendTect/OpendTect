@@ -444,7 +444,7 @@ Export_Basic od_ostream& logMsgStrm()
 	{
 	    errmsg.set( "Cannot create log file '" )
 		  .add( log_file_name_ ).add( "'" );
-	    logstrm = 0;
+	    logstrm = nullptr;
 	}
     }
 
@@ -512,7 +512,16 @@ void ErrMsg( const char* msg, bool isprogrammer )
 	else if ( msg && *msg )
 	{
 	    const char* start = *msg == '[' ? "" : "Err: ";
-	    OD::logMsgStrm() << start  << msg << od_endl;
+	    static int usestdout = -1;
+	    if ( usestdout == -1 )
+	    {
+		const StringView strmfnm( OD::logMsgStrm().fileName() );
+		usestdout = !strmfnm.isEmpty() &&
+			     strmfnm != od_stream::sStdIO() ? 1 : 0;
+	    }
+
+	    od_ostream& strm = usestdout==1 ? OD::logMsgStrm() : od_cerr();
+	    strm << start  << msg << od_endl;
 	}
     }
     else
