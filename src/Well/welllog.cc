@@ -667,17 +667,20 @@ const Mnemonic* Well::Log::guessMnemonic()
     if ( !uom && haveUnit() )
 	uom = UoMR().get( unitMeasLabel() );
 
-    const char* nm = mnemlbl_ == Mnemonic::undef().name() ? nullptr
-							  : mnemlbl_.buf();
     const BufferStringSet hintnms( name().str() );
     const Mnemonic* mn = nullptr;
-    if ( isCode() )
-	mn = MnemonicSelection::getGuessed( nm, Mnemonic::Class, &hintnms );
-    if ( !mn )
-	mn = MnemonicSelection::getGuessed( nm, uom, &hintnms );
-
-    if ( !mn )
+    if ( mnemlbl_ == Mnemonic::undef().name() )
 	mn = &Mnemonic::undef();
+    else
+    {
+	const char* nm = mnemlbl_.buf();
+	if ( isCode() )
+	    mn = MnemonicSelection::getGuessed( nm, Mnemonic::Class, &hintnms );
+	if ( !mn )
+	    mn = MnemonicSelection::getGuessed( nm, uom, &hintnms );
+	if ( !mn )
+	    mn = &Mnemonic::undef();
+    }
 
     setMnemonic( *mn );
     return mn;
