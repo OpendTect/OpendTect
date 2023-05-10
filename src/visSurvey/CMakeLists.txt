@@ -22,7 +22,6 @@ set( OD_MODULE_SOURCES
 	visimagedisplay.cc
 	vislocationdisplay.cc
 	vismarchingcubessurfacedisplay.cc
-	vismpe.cc
 	vismpeeditor.cc
 	vismpeseedcatcher.cc
 	vismultiattribsurvobj.cc

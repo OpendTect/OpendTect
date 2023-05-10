@@ -9,38 +9,24 @@ ________________________________________________________________________
 
 #include "uimpeman.h"
 
-#include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "emundo.h"
-#include "executor.h"
 #include "horizon2dseedpicker.h"
-#include "horizon3dseedpicker.h"
 #include "keyboardevent.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
-#include "seisdatapack.h"
-#include "seispreload.h"
-#include "selector.h"
 #include "survinfo.h"
 #include "timer.h"
 
-#include "uicombobox.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uistrings.h"
-#include "uitaskrunner.h"
-#include "uitoolbar.h"
 #include "uivispartserv.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
-#include "visrandomtrackdisplay.h"
-#include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visselman.h"
 #include "vistransform.h"
@@ -55,8 +41,8 @@ class LockedDisplayTimer : public CallBacker
 {
 public:
 LockedDisplayTimer()
-    : hd_(0)
-    , timer_(new Timer("Display Locked Nodes"))
+    : timer_(new Timer("Display Locked Nodes"))
+    , hd_(nullptr)
 {
     timer_->tick.notify( mCB(this,LockedDisplayTimer,hideCB) );
 }
@@ -105,13 +91,9 @@ void hideCB( CallBacker* )
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
-    , clickcatcher_(0)
     , visserv_(ps)
-    , seedpickwason_(false)
     , oldactivevol_(false)
-    , cureventnr_(mUdf(int))
     , lockeddisplaytimer_(new LockedDisplayTimer)
-    , sowingmode_(false)
 {
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );

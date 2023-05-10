@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "vishorizontexturehandler.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vismpe.h"
 #include "visplanedatadisplay.h"
 #include "vispointset.h"
 #include "vispolyline.h"
@@ -277,20 +276,20 @@ bool HorizonPathIntersector::doFinish( bool success )
 //==============================================================================
 
 HorizonDisplay::HorizonDisplay()
-    : parrowrg_( -1, -1, -1 )
-    , parcolrg_( -1, -1, -1 )
-    , curtextureidx_( 0 )
-    , resolution_( 0 )
-    , allowshading_( true )
-    , intersectionlinematerial_( 0 )
-    , displayintersectionlines_( true )
-    , enabletextureinterp_( true )
-    , displaysurfacegrid_( false )
+    : allowshading_( true )
     , translationpos_( Coord3::udf() )
-    , parentline_( 0 )
+    , intersectionlinematerial_( 0 )
     , selections_( 0 )
     , lockedpts_( 0 )
     , sectionlockedpts_( 0 )
+    , parentline_( 0 )
+    , parrowrg_( -1, -1, -1 )
+    , parcolrg_( -1, -1, -1 )
+    , enabletextureinterp_( true )
+    , resolution_( 0 )
+    , curtextureidx_( 0 )
+    , displayintersectionlines_( true )
+    , displaysurfacegrid_( false )
     , showlock_( false )
 {
     translation_ = visBase::Transformation::create();
@@ -1710,8 +1709,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		 section->getTransparency(idy)==255 )
 		continue;
 
-		islowest = false;
-		break;
+	    islowest = false;
+	    break;
 	}
 
 	if ( !islowest )
@@ -1878,9 +1877,6 @@ bool HorizonDisplay::isValidIntersectionObject(
 	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
 	mHandleIndex( plane )
 
-	mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
-	mHandleIndex( mped )
-
 	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, objs[idx] );
 	mHandleIndex( rtdisplay )
 
@@ -2036,18 +2032,6 @@ void HorizonDisplay::updateSectionSeeds(
 	    verticalsections += idx;
 	    if ( movedobj==plane->id() )
 		refresh = true;
-	}
-
-	mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
-	if ( mped && mped->isDraggerShown() )
-	{
-	    TrcKeyZSampling tkzs;
-	    if ( mped->getPlanePosition(tkzs) && tkzs.nrZ()!=1 )
-	    {
-		verticalsections += idx;
-		if ( movedobj==mped->id() )
-		    refresh = true;
-	    }
 	}
     }
 
@@ -2556,8 +2540,8 @@ HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
 	? (visBase::VertexShape*) visBase::PolyLine3D::create()
 	: (visBase::VertexShape*) visBase::PolyLine::create() )
     , markerset_( visBase::MarkerSet::create() )
-    , voiid_(-2)
     , zaxistransform_(0)
+    , voiid_(-2)
 {
     line_->ref();
     markerset_->ref();

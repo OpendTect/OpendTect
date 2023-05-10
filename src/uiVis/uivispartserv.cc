@@ -10,55 +10,48 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "attribsel.h"
-#include "binidvalset.h"
-#include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "flatview.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
+#include "od_helpids.h"
 #include "oddirs.h"
-#include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
+#include "zdomain.h"
 
 #include "uiattribtransdlg.h"
-#include "uitoolbutton.h"
 #include "uifiledlg.h"
+#include "uimapperrangeeditordlg.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
-#include "uimsg.h"
-#include "uimain.h"
 #include "uimpeman.h"
-#include "uimapperrangeeditordlg.h"
+#include "uimsg.h"
 #include "uiposprovider.h"
 #include "uiscenecolorbarmgr.h"
 #include "uisurvtopbotimg.h"
 #include "uitaskrunner.h"
-#include "uivisslicepos3d.h"
 #include "uitoolbar.h"
-#include "uivispickretriever.h"
-#include "uiviszstretchdlg.h"
 #include "uivisdirlightdlg.h"
+#include "uivispickretriever.h"
+#include "uivisslicepos3d.h"
+#include "uiviszstretchdlg.h"
 
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
-#include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
-#include "visselman.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
+#include "visselman.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "vistexturechannels.h"
-#include "vistransform.h"
-#include "vistransmgr.h"
-#include "zdomain.h"
-#include "od_helpids.h"
 
 
 int uiVisPartServer::evUpdateTree()			{ return 0; }
@@ -97,40 +90,40 @@ static const int cResolutionIdx = 500;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
+    , objectAdded(this)
+    , objectRemoved(this)
+    , keyEvent(this)
+    , mouseEvent(this)
+    , selectionmodeChange(this)
+    , planeMovedEvent(this)
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
     , toolbar_(0)
+    , multirgeditwin_(0)
+    , mapperrgeditinact_(false)
+    , xytmousepos_(Coord3::udf())
+    , zfactor_(1)
+    , mouseposstr_("")
+    , sceneeventsrc_(0)
+    , tracksetupactive_(false)
+    , topsetupgroupname_( 0 )
+    , viewmode_(false)
+    , workmode_(uiVisPartServer::Interactive)
+    , issolomode_(false)
+    , eventmutex_(*new Threads::Mutex)
+    , eventobjid_(-1)
+    , eventattrib_(-1)
+    , selattrib_(-1)
+    , seltype_((int)visBase::PolygonSelection::Off)
+    , selectionmode_(Polygon)
     , resetmanipmnuitem_(tr("Reset Manipulation"),cResetManipIdx)
     , changematerialmnuitem_(m3Dots(uiStrings::sProperties()),
 			     cPropertiesIdx)
     , resmnuitem_(tr("Resolution"),cResolutionIdx)
-    , eventmutex_(*new Threads::Mutex)
-    , tracksetupactive_(false)
-    , viewmode_(false)
-    , workmode_(uiVisPartServer::Interactive)
-    , issolomode_(false)
-    , eventobjid_(-1)
-    , eventattrib_(-1)
-    , selattrib_(-1)
-    , mouseposstr_("")
     , blockmenus_(false)
-    , xytmousepos_(Coord3::udf())
-    , zfactor_(1)
     , pickretriever_( new uiVisPickRetriever(this) )
     , nrscenesChange(this)
-    , keyEvent(this)
-    , mouseEvent(this)
-    , planeMovedEvent(this)
-    , seltype_((int)visBase::PolygonSelection::Off)
-    , multirgeditwin_(0)
-    , mapperrgeditinact_(false)
-    , dirlightdlg_(0)
     , mousecursorexchange_(0)
-    , objectAdded(this)
-    , objectRemoved(this)
-    , selectionmode_(Polygon)
-    , selectionmodeChange(this)
-    , topsetupgroupname_( 0 )
-    , sceneeventsrc_(0)
+    , dirlightdlg_(0)
 {
     changematerialmnuitem_.iconfnm = "disppars";
 
@@ -2039,14 +2032,6 @@ void uiVisPartServer::updateManipulatorStatus( visBase::DataObject* dobj,
     mDynamicCastGet( visSurvey::SurveyObject*, so, dobj );
     if ( !so )
 	return;
-
-    mDynamicCastGet( visSurvey::MPEDisplay*, mpedisp, so );
-    if ( mpedisp )
-    {
-	// Tells the tracker box not to hide in view mode
-	mpedisp->setPickable( workmode_==uiVisPartServer::Interactive );
-	return;
-    }
 
     const bool showmanipulator =  !so->isLocked() &&
 	workmode_==uiVisPartServer::Interactive &&

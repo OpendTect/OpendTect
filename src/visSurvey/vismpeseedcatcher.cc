@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "visselman.h"
-#include "vismpe.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "visplanedatadisplay.h"
@@ -37,11 +36,6 @@ namespace visSurvey
 MPEClickCatcher::MPEClickCatcher()
     : visBase::VisualObjectImpl( false )
     , click( this )
-    , eventcatcher_( 0 )
-    , transformation_( 0 )
-    , trackertype_( 0 )
-    , editor_( 0 )
-    , cureventinfo_( 0 )
     , endSowing( this )
     , sowing(this)
 {
@@ -50,9 +44,9 @@ MPEClickCatcher::MPEClickCatcher()
 
 MPEClickCatcher::~MPEClickCatcher()
 {
-    setSceneEventCatcher( 0 );
-    setDisplayTransformation( 0 );
-    setEditor( 0 );
+    setSceneEventCatcher( nullptr );
+    setDisplayTransformation( nullptr );
+    setEditor( nullptr );
 }
 
 
@@ -107,14 +101,6 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
     mCheckTracker( typ, Fault3D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
 
-#define mCheckMPEDisplay( typ, dataobj, mped, cs, legalclick ) \
-    mDynamicCastGet( MPEDisplay*, mped, dataobj ); \
-    TrcKeyZSampling cs; \
-    if ( !mped || !mped->isDraggerShown() || !mped->getPlanePosition(cs) ) \
-	mped = 0; \
-    bool legalclick = !mped; \
-    mCheckTracker( typ, Horizon3D, legalclick, cs.nrZ()!=1 );
-
 #define mCheckSeis2DDisplay( typ, dataobj, seis2ddisp, legalclick ) \
     mDynamicCastGet( Seis2DDisplay*, seis2ddisp, dataobj ); \
     if ( !seis2ddisp || !seis2ddisp->isOn() ) \
@@ -139,10 +125,6 @@ bool MPEClickCatcher::isClickable( const char* trackertype, VisID visid )
 
     mCheckPlaneDataDisplay( trackertype, dataobj, plane, legalclick1 );
     if ( plane && legalclick1 )
-	return true;
-
-    mCheckMPEDisplay( trackertype, dataobj, mpedisplay, cs, legalclick2 );
-    if ( mpedisplay && legalclick2 )
 	return true;
 
     mCheckSeis2DDisplay( trackertype, dataobj, seis2ddisp, legalclick3 );
@@ -295,17 +277,6 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 
 	    allowPickBasedReselection();
-	    click.trigger();
-	    eventcatcher_->setHandled();
-	    break;
-	}
-
-	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick2 );
-	if ( mpedisplay )
-	{
-	    info().setLegalClick( legalclick2 );
-	    info().setObjCS( cs );
-	    info().setObjDataSelSpec( *mpedisplay->getSelSpec(0) );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;

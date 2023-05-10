@@ -52,7 +52,7 @@ protected:
     uiParent*			parent_;
     uiVisPartServer*		visserv_;
 
-    visSurvey::MPEClickCatcher*	clickcatcher_;
+    visSurvey::MPEClickCatcher*	clickcatcher_			= nullptr;
     SceneID			clickablesceneid_;
 
     void			mouseEventCB(CallBacker*);
@@ -97,7 +97,7 @@ protected:
     EM::Horizon2D*		getSelectedHorizon2D();
     EM::Horizon3D*		getSelectedHorizon3D();
 
-    int				cureventnr_;
+    int				cureventnr_			= mUdf(int);
     void			beginSeedClickEvent(EM::EMObject*);
     void			endSeedClickEvent(EM::EMObject*);
     mDeprecated("Use other setUndoLevel")
@@ -114,8 +114,8 @@ protected:
     void			updatePatchDisplay();
     void			lockAll();
 
-    bool			seedpickwason_;
-    bool			sowingmode_;
+    bool			seedpickwason_			= false;
+    bool			sowingmode_			= false;
     TrcKeyZSampling		oldactivevol_;
     LockedDisplayTimer*		lockeddisplaytimer_;
 };

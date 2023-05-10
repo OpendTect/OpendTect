@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
 #include "vismarchingcubessurfacedisplay.h"
-#include "vismpe.h"
 #include "vismpeeditor.h"
 #include "vismpeseedcatcher.h"
 #include "vispicksetdisplay.h"
@@ -41,7 +40,6 @@ mDefModInitFn(visSurvey)
     visSurvey::Horizon2DDisplay::initClass();
     visSurvey::HorizonDisplay::initClass();
     visSurvey::MarchingCubesDisplay::initClass();
-    visSurvey::MPEDisplay::initClass();
     visSurvey::MPEEditor::initClass();
     visSurvey::MPEClickCatcher::initClass();
     visSurvey::PickSetDisplay::initClass();

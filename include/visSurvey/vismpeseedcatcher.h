@@ -173,13 +173,13 @@ protected:
     void			sowingEnd(CallBacker*);
     void			sowingCB(CallBacker*);
 
-    visBase::EventCatcher*	eventcatcher_;
-    const mVisTrans*		transformation_;
-    MPEEditor*			editor_;
-    const visBase::EventInfo*	cureventinfo_;
+    visBase::EventCatcher*	eventcatcher_		= nullptr;
+    const mVisTrans*		transformation_		= nullptr;
+    MPEEditor*			editor_			= nullptr;
+    const visBase::EventInfo*	cureventinfo_		= nullptr;
 
     MPEClickInfo		info_;
-    const char*			trackertype_;
+    const char*			trackertype_		= nullptr;
 };
 
 } // namespace visSurvey
