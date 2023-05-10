@@ -70,6 +70,7 @@ protected:
     float			zFactor() const;
     void			exportCB(CallBacker*);
     bool			getKey(MultiID&) const;
+    void			getUnselMarkerNames(BufferStringSet&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK(CallBacker*) override;
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);

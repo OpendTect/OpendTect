@@ -25,6 +25,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "file.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -57,6 +58,7 @@ static const int cTWTCol = 4;
 static const int cColorCol = 5;
 static const int cLevelCol = 6;
 
+static HiddenParam<uiMarkerDlg,Well::DisplayProperties*> olddisps_(nullptr);
 
 static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
 			     bool withlvls )
@@ -181,6 +183,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
     , d2tmodel_(d2t)
     , oldmrkrs_(nullptr)
 {
+    olddisps_.setParam( this, new Well::DisplayProperties() );
     uiString title( toUiString("%1: %2") );
     title.arg( uiStrings::sWell() ).arg( t.name() );
     setTitleText( title );
@@ -238,6 +241,7 @@ uiMarkerDlg::~uiMarkerDlg()
 {
     detachAllNotifiers();
     delete oldmrkrs_;
+    olddisps_.removeAndDeleteParam( this );
 }
 
 
@@ -404,11 +408,29 @@ int uiMarkerDlg::rowNrFor( uiStratLevelSel* lvlsel ) const
 
 void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 {
+    MultiID mid;
+    if ( !getKey(mid) )
+	return;
+
+    const Well::LoadReqs reqs( Well::Mrkrs, Well::DispProps3D );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( mid, reqs );
+    if ( !wd )
+    {
+	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
+	return;
+    }
+
+    Well::DisplayProperties* olddisps = olddisps_.getParam( this );
+    if ( !olddisps->isValid() )
+	*olddisps = wd->displayProperties();
+
     const int nrnew = markers.size();
     NotifyStopper notifystop( table_->valueChanged );
     int startrow = add ? getNrRows() : 0;
     const int nrrows = nrnew + startrow + cNrEmptyRows;
-    if ( !add ) table_->clearTable();
+    if ( !add )
+	table_->clearTable();
+
     table_->setNrRows( nrrows );
     const float zfac = zFactor();
     const float kbelev = track_.getKbElev();
@@ -444,7 +466,14 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 		table_->setValue( RowCol(irow,cTWTCol),
 					 twt * SI().zDomain().userFactor(),2  );
 	    }
+
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
+	    if ( wd->displayProperties().getMarkers()
+					.isSelected( marker->name()) )
+		table_->setCellChecked( RowCol(irow,cNameCol), true );
+	    else
+		table_->setCellChecked( RowCol(irow,cNameCol), false );
+
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
 	    if ( marker->levelID().isValid() )
 		updateFromLevel( irow, levelsel );
@@ -778,6 +807,16 @@ bool uiMarkerDlg::getKey( MultiID& mid ) const
 }
 
 
+void uiMarkerDlg::getUnselMarkerNames( BufferStringSet& nms ) const
+{
+    for ( int row=0; row<table_->nrRows(); row++ )
+    {
+	if ( !table_->isCellChecked(RowCol(row,cNameCol)) )
+	    nms.add( table_->text(RowCol(row,cNameCol)) );
+    }
+}
+
+
 void uiMarkerDlg::updateDisplayCB( CallBacker* )
 {
     MultiID mid;
@@ -792,8 +831,17 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     }
 
     getMarkerSet( wd->markers() );
-    BufferStringSet emptynms;
-    wd->displayProperties().setMarkerNames( emptynms, false );
+    BufferStringSet markernms, selmarkernms, unselmarkernms;
+    wd->markers().getNames( markernms );
+    getUnselMarkerNames( unselmarkernms );
+    if ( unselmarkernms.isEmpty() )
+    {
+	wd->displayProperties().setMarkerNames( BufferStringSet(), true );
+	wd->displayProperties().setMarkerNames( BufferStringSet(), false );
+    }
+    else
+	wd->displayProperties().setMarkerNames( unselmarkernms, false );
+
     wd->markerschanged.trigger();
 }
 
@@ -812,6 +860,13 @@ bool uiMarkerDlg::rejectOK( CallBacker* )
     {
 	deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
 	wd->markerschanged.trigger();
+    }
+
+    Well::DisplayProperties* olddisps = olddisps_.getParam( this );
+    if ( olddisps->isValid() )
+    {
+	wd->displayProperties() = *olddisps;
+	wd->disp3dparschanged.trigger();
     }
 
     return true;
