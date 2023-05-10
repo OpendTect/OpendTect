@@ -332,10 +332,10 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 
     SeparString sepstr( stormid.toString(), '|' );
 
-    if ( sepstr[1] && *sepstr[1] )
+    if ( !sepstr[1].isEmpty() )
 	attribname_ = sepstr[1];
 
-    if ( sepstr[2] && *sepstr[2] && isDataType(sepstr[2]) )
+    if ( !sepstr[2].isEmpty() && isDataType(sepstr[2]) )
 	datatype_ += sepstr[2];
 
     outppar->get( sKey::Names(), outpnames_ );

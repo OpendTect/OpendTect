@@ -126,7 +126,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( !newprov )
     {
 	StringView errmsg = desc.errMsg();
-	if ( errmsg )
+	if ( !errmsg.isEmpty() )
 	{
 	    if ( errmsg==DescSet::storedIDErrStr() && desc.isStored() )
 	    {

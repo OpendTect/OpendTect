@@ -287,8 +287,8 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 uiTreeItem*
     uiODHorizonTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
-    const StringView objtype = uiVisEMObject::getObjectType(visid);
-    if ( !objtype )
+    const StringView objtype = uiVisEMObject::getObjectType( visid );
+    if ( objtype.isEmpty() )
 	return nullptr;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,

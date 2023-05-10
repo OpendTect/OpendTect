@@ -118,7 +118,7 @@ SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
 					const SEGY::DirectDef& def, int filenr )
 {
     const StringView filename = def.fileName( filenr );
-    if ( !filename )
+    if ( filename.isEmpty() )
 	return nullptr;
 
     SEGY::FileSpec fs( filename );

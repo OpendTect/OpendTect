@@ -167,7 +167,7 @@ float FaultStickSetEditor::distToStick( int sticknr,
 	    return mUdf(float);
 
 	const StringView nm( fssg.pickedName(sticknr) );
-	if ( (pickednm || nm) && ( nm != pickednm ) )
+	if ( (pickednm || !nm.isNull()) && ( nm != pickednm ) )
 	   return mUdf(float);
     }
 

@@ -29,13 +29,14 @@ public:
 
     inline		StringView( const char* p = nullptr )
 			    : str_(p)		{}
+    inline		StringView( const StringView& oth )
+					 : str_(oth.str_)	{}
+			 ~StringView()				{}
 
     inline StringView&	operator=( const StringView& fs )
 						{ str_ = fs.str_; return *this;}
     inline StringView&	operator=( const char* p )
 						{ str_ = p; return *this; }
-    inline		operator const char*() const	{ return buf(); }
-
     inline bool		operator==( const StringView& fs ) const
 						{ return isEqual(fs.str_);}
     inline bool		operator!=( const StringView& fs ) const
@@ -51,8 +52,9 @@ public:
     bool		operator==(const BufferString&) const;
     bool		operator!=(const BufferString&) const;
 
-    inline		operator bool() const	{ return !isNull(); }
-    inline bool		operator !() const	{ return isNull(); }
+    inline		operator bool() const			= delete;
+    inline bool		operator !() const			= delete;
+
     inline bool		isNull() const		{ return !str_; }
     inline char		firstChar() const override
 						{ return str_ ? *str_ : '\0'; }

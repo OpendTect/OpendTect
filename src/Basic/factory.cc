@@ -32,10 +32,10 @@ BufferString& FactoryBase::errMsg() const
 void FactoryBase::addNames( const char* name, const uiString& username )
 {
     SeparString sep( name, cSeparator() );
-    names_.add( (const char*) sep[0] );
+    names_.add( sep[0] );
     aliases_.add( name );
     usernames_.add(
-	!username.isEmpty() ? username : toUiString((const char*) sep[0]));
+	!username.isEmpty() ? username : toUiString(sep[0]));
 }
 
 
@@ -43,10 +43,10 @@ void FactoryBase::setNames( int idx, const char* name,
 			    const uiString& username )
 {
     SeparString sep( name, cSeparator() );
-    (*names_[idx]) = (const char*) sep[0];
+    (*names_[idx]) = sep[0];
     (*aliases_[idx]) = name;
     usernames_[idx] =
-	!username.isEmpty() ? username : toUiString((const char*) sep[0]);
+	!username.isEmpty() ? username : toUiString(sep[0]);
 }
 
 

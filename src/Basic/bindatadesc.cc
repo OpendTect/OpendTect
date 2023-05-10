@@ -68,12 +68,12 @@ void BinDataDesc::set( const char* s )
 
     FileMultiString fms( s );
     StringView res = fms[0];
-    isint_ = *res != 'F' && *res != 'f';
+    isint_ = res.firstChar() != 'F' && res.firstChar() != 'f';
     res = fms[1];
-    issigned_ = *res == 'S' || *res == 's';
+    issigned_ = res.firstChar() == 'S' || res.firstChar() == 's';
     res = fms[2];
     if ( !res.isEmpty() )
-	nrbytes_ = nearestByteCount( isint_, toInt( res ) );
+	nrbytes_ = nearestByteCount( isint_, toInt(res.buf()) );
 }
 
 
