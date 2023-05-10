@@ -8,7 +8,7 @@
 include ( "CMakeModules/ODExternals.cmake" )
 
 DEFINE_GIT_EXTERNAL( odpy https://github.com/OpendTect/odpy.git od7.0 )
-DEFINE_GIT_EXTERNAL( safety https://github.com/pyupio/safety.git main )
+DEFINE_GIT_EXTERNAL( safety https://github.com/pyupio/safety.git 2.3.5 )
 DEFINE_GIT_EXTERNAL( marshmallow https://github.com/marshmallow-code/marshmallow.git dev )
 if ( BUILD_PROJ )
     DEFINE_GIT_EXTERNAL( proj https://github.com/OSGeo/PROJ.git 9.0.1 )
