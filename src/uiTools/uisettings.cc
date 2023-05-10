@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
+#include "uidesktopservices.h"
 #include "uigeninput.h"
 #include "uifileinput.h"
 #include "uilabel.h"
@@ -68,6 +69,7 @@ public:
 
 private:
     void		finalizeCB(CallBacker*);
+    void		pyupCB(CallBacker*);
     void		readSettings();
     void		saveSettings();
     void		modeCB(CallBacker*);
@@ -93,6 +95,9 @@ uiSafetyCheckDlg::uiSafetyCheckDlg( uiParent* p )
     safetybut->setMinimumHeight( 50 );
     safetybut->setMinimumWidth( 50 );
     safetybut->setFlat( true );
+    safetybut->setToolTip( tr("For more information on safety or to request\n"
+			      "an API key, click here to visit pyup.io") );
+    mAttachCB( safetybut->activated, uiSafetyCheckDlg::pyupCB );
 
     modefld_ = new uiGenInput( this, tr("Database"),
 			BoolInpSpec(true,tr("Commercial"),tr("Open-source")) );
@@ -136,6 +141,13 @@ uiSafetyCheckDlg::~uiSafetyCheckDlg()
 void uiSafetyCheckDlg::finalizeCB( CallBacker* )
 {
     readSettings();
+}
+
+
+void uiSafetyCheckDlg::pyupCB( CallBacker* )
+{
+    const char* url = "https://pyup.io/";
+    uiDesktopServices::openUrl( url );
 }
 
 
@@ -249,7 +261,12 @@ void uiSafetyCheckDlg::licenseCB( CallBacker* )
 
 void uiSafetyCheckDlg::saveCB( CallBacker* )
 {
-    uiFileDialog dlg( this, false, "safetyreport.txt" );
+    const char* defaultfilenm = "safetyreport.log";
+    const char* filter = "Log files (*.log)";
+    FilePath fp = GetPersonalDir();
+    fp.add( defaultfilenm );
+    uiFileDialog dlg( this, false, fp.fullPath(), filter );
+    dlg.setAllowAllExts( true );
     if ( !dlg.go() )
 	return;
 
