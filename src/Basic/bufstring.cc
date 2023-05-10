@@ -251,7 +251,7 @@ bool BufferString::setBufSize( unsigned int newlen )
     }
     else
     {
-	int newsz = (buf_ ? strlen( buf_ ) : 0) + 1;
+	size_t newsz = (buf_ ? strlen( buf_ ) : 0) + 1;
 	if ( newsz > newlen )
 	{
 	    newsz = newlen;
@@ -449,6 +449,7 @@ BufferString& BufferString::toUpper()
 
 BufferString& BufferString::toTitleCase()
 {
+    this->toLower();
     BufferStringSet words;
     words.unCat( this->buf(), " " );
     for ( auto* word : words )
