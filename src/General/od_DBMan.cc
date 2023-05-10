@@ -311,7 +311,8 @@ int mProgMainFnName( int argc, char** argv )
 	    st.respondError( "Data Store cannot be initialized" );
 	else
 	{
-	    st.set( sKey::DataRoot(), IOM().rootDir() );
+	    const FilePath rootdirfp( IOM().rootDir() );
+	    st.set( sKey::DataRoot(), rootdirfp.pathOnly().buf() );
 	    st.set( sKey::Survey(), IOM().surveyName() );
 	}
 	st.respondInfo( !isbad );
