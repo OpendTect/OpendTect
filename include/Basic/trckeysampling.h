@@ -36,6 +36,8 @@ public:
 			TrcKeySampling();
 			TrcKeySampling(const TrcKeySampling&);
 			TrcKeySampling(const Pos::GeomID&);
+    //Legacy. Will be removed
+    explicit		TrcKeySampling(bool settoSI);
 			~TrcKeySampling();
 
     bool		is2D() const	{ return ::is2D(survid_); }
@@ -159,8 +161,6 @@ public:
 			   idx==4: stop_.inl,stop_.crl
 			*/
 
-    //Legacy. Will be removed
-			TrcKeySampling(bool settoSI);
     StepInterval<int>	inlRange() const	{ return lineRange(); }
     StepInterval<int>	crlRange() const	{ return trcRange(); }
     void		setInlRange(const Interval<int>& rg) {setLineRange(rg);}

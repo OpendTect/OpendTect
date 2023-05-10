@@ -33,8 +33,8 @@ ________________________________________________________________________
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
 
 uiIOObjInserter::uiIOObjInserter( const Translator& trl )
-    : transl_(trl)
-    , objInserterd(this)
+    : objInserterd(this)
+    , transl_(trl)
     , ctxt_(*new IOObjContext(nullptr))
 {}
 
@@ -709,9 +709,9 @@ void uiIOObjSel::objInserted( CallBacker* cb )
 
 void uiIOObjSel::objSel()
 {
-    const char* ky = getKey();
-    if ( !ky || !*ky )
-	workctio_.setObj( 0 );
+    const MultiID ky( getKey() );
+    if ( ky.isUdf() )
+	workctio_.setObj( nullptr );
     else
 	workctio_.setObj( IOM().get(ky) );
 }

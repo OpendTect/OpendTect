@@ -1041,7 +1041,8 @@ void LocationDisplay::fillPar( IOPar& par ) const
     if ( picksetmgr_ )
     {
 	const int setidx = picksetmgr_->indexOf( *set_ );
-	par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_) : "" );
+	par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_)
+				     : MultiID::udf() );
 	par.set( sKeyMgrName(), picksetmgr_->name() );
     }
 

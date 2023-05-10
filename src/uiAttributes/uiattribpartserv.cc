@@ -214,9 +214,10 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 }
 
 
-bool uiAttribPartServer::addToDescSet( const char* key, bool is2d )
+bool uiAttribPartServer::addToDescSet( const char* keystr, bool is2d )
 {
     //TODO: think of it: stored data can  be at 2 places: also in attrib set...
+    const MultiID key( keystr );
     return eDSHolder().getDescSet(is2d,true)->getStoredID(key,-1,true)
 								.isValid();
 }

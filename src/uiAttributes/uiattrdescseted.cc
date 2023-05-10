@@ -346,7 +346,8 @@ void uiAttribDescSetEd::init()
 		    IOObj* ioobj = dlg.getObj();
 		    if ( dlg.isAuto() )
 		    {
-			MultiID id = ioobj ? ioobj->key() : "";
+			const MultiID id =
+				ioobj ? ioobj->key() : MultiID::udf();
 			SI().getPars().set( autoidkey, id );
 			SI().savePars();
 		    }

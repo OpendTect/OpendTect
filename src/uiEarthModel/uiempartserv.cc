@@ -989,7 +989,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	    EM::SurfaceIODataSelection sel( sd );
 	    dlg.getSelection( sel );
 
-	    key = dlg.ioObj() ? dlg.ioObj()->key() : "";
+	    key = dlg.ioObj() ? dlg.ioObj()->key() : MultiID::udf();
 	    exec = surface->geometry().saver( &sel, &key );
 	    if ( exec && dlg.replaceInTree() )
 		    surface->setMultiID( key );

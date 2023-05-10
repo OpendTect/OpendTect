@@ -302,8 +302,12 @@ bool CommandLineParser::getVal( const char* key, DBKey& dbkey,
 				bool acceptnone, int valnr ) const
 {
     BufferString str;
-    const bool res = getVal( key, str, acceptnone, valnr );
-    dbkey = res ? DBKey( str.buf() ) : DBKey::udf();
+    bool res = getVal( key, str, acceptnone, valnr );
+    if ( res )
+	res = dbkey.fromString( str.buf() );
+    else
+	dbkey.setUdf();
+
     return res;
 }
 

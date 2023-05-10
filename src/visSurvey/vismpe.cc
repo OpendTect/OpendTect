@@ -577,7 +577,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	newwidth.x = 0.1 * cube.hsamp_.step_.inl();
     if ( cube.hsamp_.nrCrl()==1 )
 	newwidth.y = 0.1 * cube.hsamp_.step_.crl();
-	if ( cube.zsamp_.nrSteps()==0 )
+    if ( cube.zsamp_.nrSteps()==0 )
 	newwidth.z = 0.1 * cube.zsamp_.step;
 
     boxdragger_->setWidth( newwidth );
@@ -918,7 +918,7 @@ void MPEDisplay::updateSlice()
     if ( ! setDataPackID( 0, engine_.getAttribCacheID( as_ ), 0 ) )
     {
 	turnOnSlice( false );
-	curtexturecs_=0;
+	curtexturecs_.setEmpty();
 	return;
     }
 

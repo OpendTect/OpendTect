@@ -107,9 +107,10 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
-    MultiID mid = inpdesc->getStoredID( false ).buf();
-    IOObj* inpobj = IOM().get( mid );
-    if ( !inpobj ) return;
+    const MultiID mid( inpdesc->getStoredID( false ).buf() );
+    ConstPtrMan<IOObj> inpobj = IOM().get( mid );
+    if ( !inpobj )
+	return;
 
     SeisIOObjInfo seisinfo( inpobj );
     if ( seisinfo.nrComponents() > 1 )
@@ -239,9 +240,10 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    formfld_->inpFld(varinpidx)->use( form_ );
 		    varinplastidx = varinpidx+1;
 
-		    MultiID mid = inpdsc->getStoredID( false ).buf();
-		    IOObj* inpobj = IOM().get( mid );
-		    if ( !inpobj ) break;
+		    const MultiID mid( inpdsc->getStoredID( false ).buf() );
+		    ConstPtrMan<IOObj> inpobj = IOM().get( mid );
+		    if ( !inpobj )
+			break;
 
 		    SeisIOObjInfo seisinfo( inpobj );
 		    if ( seisinfo.nrComponents() > 1 )

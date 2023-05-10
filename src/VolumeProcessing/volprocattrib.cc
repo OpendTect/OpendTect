@@ -168,7 +168,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     if ( !Attrib::Desc::getParamString( definition, sKeySetup(), midstring ) )
 	return false;
 
-    MultiID mid = midstring.buf();
+    const MultiID mid( midstring.buf() );
     PtrMan<IOObj>  ioobj = IOM().get( mid );
     if ( !ioobj )
     {

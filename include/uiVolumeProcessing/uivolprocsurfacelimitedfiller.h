@@ -57,22 +57,22 @@ protected:
     SurfaceLimitedFiller*	surfacefiller_;
     TypeSet<MultiID>		surfacelist_;
 
-    uiTable*			table_;
-    uiPushButton*		addbutton_;
-    uiPushButton*		removebutton_;
+    uiTable*			table_				= nullptr;
+    uiPushButton*		addbutton_			= nullptr;
+    uiPushButton*		removebutton_			= nullptr;
 
-    uiGenInput*			usestartvalfld_;
-    uiGenInput*			startvalfld_;
-    uiHorizonAuxDataSel*	startgridfld_;
+    uiGenInput*			usestartvalfld_			= nullptr;
+    uiGenInput*			startvalfld_			= nullptr;
+    uiHorizonAuxDataSel*	startgridfld_			= nullptr;
 
-    uiGenInput*			usegradientfld_;
-    uiGenInput*			gradientfld_;
-    uiGenInput*			gradienttypefld_;
-    uiHorizonAuxDataSel*	gradgridfld_;
+    uiGenInput*			usegradientfld_			= nullptr;
+    uiGenInput*			gradientfld_			= nullptr;
+    uiGenInput*			gradienttypefld_		= nullptr;
+    uiHorizonAuxDataSel*	gradgridfld_			= nullptr;
 
-    uiGenInput*			userefdepthfld_;
-    uiGenInput*			refdepthfld_;
-    uiIOObjSel*			refhorizonfld_;
+    uiGenInput*			userefdepthfld_			= nullptr;
+    uiGenInput*			refdepthfld_			= nullptr;
+    uiIOObjSel*			refhorizonfld_			= nullptr;
 };
 
 } // namespace VolProc

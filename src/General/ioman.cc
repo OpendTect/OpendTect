@@ -144,16 +144,16 @@ IOMan::CustomDirData::~CustomDirData()
 
 IOMan::IOMan( const FilePath& rootdir )
     : NamedCallBacker("IO Manager")
-    , rootdir_(rootdir)
-    , lock_(false)
-    , newIODir(this)
     , entryRemoved(this)
     , entryAdded(this)
     , entryChanged(this)
+    , newIODir(this)
     , surveyToBeChanged(this)
     , surveyChanged(this)
     , afterSurveyChange(this)
     , applicationClosing(this)
+    , rootdir_(rootdir)
+    , lock_(false)
 {
     SetCurBaseDataDir( rootdir.pathOnly().buf() );
     SurveyInfo::deleteInstance();
@@ -538,7 +538,7 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 {
     if ( isBad() )
     {
-	if ( !to("0",true) || isBad() )
+	if ( !to(MultiID("0"),true) || isBad() )
 	    return false;
 
 	return to( sd, true );

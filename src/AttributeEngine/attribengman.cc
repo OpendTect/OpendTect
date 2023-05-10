@@ -1407,10 +1407,11 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    DescID descid = DescID::undef();
 	    if ( refidx > -1 )
 	    {
-		FileMultiString fms( attrrefs.get(refidx) );
-		descid = const_cast<DescSet&>(descset).
-				getStoredID( fms[1].buf(), 0, true );
+		const FileMultiString fms( attrrefs.get(refidx) );
+		const MultiID key( fms[1].buf() );
+		descid = cCast(DescSet&,descset).getStoredID( key, 0, true );
 	    }
+
 	    if ( descid == DescID::undef() )
 		mErrRet( tr("Cannot find specified '%1'",
 			    " in object management").arg(nmstr));
@@ -1418,7 +1419,9 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    // Put the new DescID in coldef and in the refs
 	    BufferString tmpstr;
 	    const Attrib::Desc* desc = descset.getDesc( descid );
-	    if ( !desc ) mErrRet(toUiString("Huh?"));
+	    if ( !desc )
+		mErrRet(toUiString("Huh?"));
+
 	    desc->getDefStr( tmpstr );
 	    FileMultiString fms( tmpstr ); fms += descid.asInt();
 	    attrrefs.get(refidx) = fms;

@@ -88,17 +88,14 @@ void uiPreStackSel::setInput( const MultiID& mid )
 	seisinpfld_->setInput( mid );
     else
 	datapackinpfld_->setInput( DataPackMgr::nameOf( mid ) );
+
     selid_ = mid;
 }
 
 
 MultiID uiPreStackSel::getMultiID() const
 {
-    if ( dpfids_.isEmpty() )
-	return selid_;
-
-    BufferString mid( "#", selid_ );
-    return mid.buf();
+    return selid_;
 }
 
 

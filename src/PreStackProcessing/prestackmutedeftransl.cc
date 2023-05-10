@@ -154,7 +154,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     {
 	if ( astrm.hasKeyword(sKeyRefHor()) )
 	{
-	    MultiID hormid = astrm.value();
+	    const MultiID hormid( astrm.value() );
 	    md.setReferenceHorizon( hormid );
 	    astrm.next();
 	}

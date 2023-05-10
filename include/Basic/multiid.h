@@ -21,9 +21,9 @@ mExpClass(Basic) MultiID
 {
 public:
 			MultiID();
-			MultiID(int grpid,int objid);
+			MultiID(int grpid, int objid);
 			MultiID(const MultiID&);
-			MultiID(const char* idstr);
+    explicit		MultiID(const char* idstr);
 			MultiID(int grpid,int objid,int subgrpid,int subobjid);
     virtual		~MultiID();
 

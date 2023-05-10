@@ -83,7 +83,7 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
     while ( !atEndOfSection(astrm.next()) )
     {
 	chosennames_.add( astrm.keyWord() );
-	keys_.add( astrm.value() );
+	keys_.add( MultiID(astrm.value()) );
     }
 
     readDone.trigger();
@@ -122,7 +122,7 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 	    if ( nrkeys < 1 )
 		astrm.put( itmnm );
 	    else
-		astrm.put( itmnm, idx < nrkeys ? keys_.get(idx) : "-" );
+		astrm.put( itmnm, idx<nrkeys ? keys_.get(idx).toString() : "-");
 	}
     }
 

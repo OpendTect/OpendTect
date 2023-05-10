@@ -108,7 +108,10 @@ void PSAttrib::initClass()
 
 void PSAttrib::updateDesc( Desc& desc )
 {
-    const MultiID procid = desc.getValParam(preProcessStr())->getStringValue();
+    const auto* valpar = desc.getValParam( preProcessStr() );
+    const MultiID procid = valpar ? MultiID( valpar->getStringValue() )
+				  : MultiID::udf();
+
     const bool dopreproc = !procid.isUdf();
     desc.setParamEnabled( preProcessStr(), dopreproc );
 

@@ -48,13 +48,11 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 						bool is2d )
     : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), slf, is2d )
     , surfacefiller_(slf)
-    , table_(0)
-    , usestartvalfld_(0),usegradientfld_(0),gradienttypefld_(0)
-    , startgridfld_(0),gradgridfld_(0)
 {
     setHelpKey( mODHelpKey(mSurfaceLimitedFillerHelpID) );
 
-    if ( !surfacefiller_ ) return;
+    if ( !surfacefiller_ )
+	return;
 
     table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(true)
 	    .rightclickdisabled(true).selmode(uiTable::Single),
@@ -120,7 +118,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	startvalfld_->attach( alignedBelow, usestartvalfld_ );
 
 	const MultiID* starthorid = surfacefiller_->getStartValueHorizonID();
-	const MultiID& startmid = starthorid ? *starthorid : "-1";
+	const MultiID startmid = starthorid ? *starthorid : MultiID::udf();
 	startgridfld_ = new uiHorizonAuxDataSel( this, startmid,
 		slf->getStartAuxdataIdx(), &auxdatainfo );
 	startgridfld_->attach( alignedBelow, usestartvalfld_ );
@@ -140,7 +138,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	gradientfld_->attach( alignedBelow, usegradientfld_ );
 
 	const MultiID* gradhorid = surfacefiller_->getGradientHorizonID();
-	const MultiID& gradmid = gradhorid ? *gradhorid : "-1";
+	const MultiID gradmid = gradhorid ? *gradhorid : MultiID::udf();
 	gradgridfld_ = new uiHorizonAuxDataSel( this, gradmid,
 		slf->getGradAuxdataIdx(), &auxdatainfo );
 	gradgridfld_->attach( alignedBelow, usegradientfld_ );
@@ -163,7 +161,9 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     userefdepthfld_->attach( alignedBelow, gradientfld_ );
 
     float refdepth = surfacefiller_->getRefZValue();
-    if ( !mIsUdf(refdepth) ) refdepth *= SI().zDomain().userFactor();
+    if ( !mIsUdf(refdepth) )
+	refdepth *= SI().zDomain().userFactor();
+
     refdepthfld_ = new uiGenInput( this, ZDomain::SI().getLabel(),
 	    FloatInpSpec( refdepth ) );
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );

@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
-#include "globexpr.h"
 #include "keystrs.h"
 #include "multiid.h"
 #include "od_iostream.h"
@@ -23,7 +22,6 @@ ________________________________________________________________________
 #include "odversion.h"
 #include "perthreadrepos.h"
 #include "position.h"
-#include "samplingdata.h"
 #include "separstr.h"
 #include "timefun.h"
 
@@ -1109,7 +1107,12 @@ bool IOPar::get( const char* keyw, DBKeySet& keys ) const
 
     keys.erase();
     for ( auto str : strs )
-	keys.add( DBKey(str->str()) );
+    {
+	DBKey key;
+	if ( key.fromString(str->buf()) )
+	    keys.add( key );
+    }
+
     return true;
 }
 

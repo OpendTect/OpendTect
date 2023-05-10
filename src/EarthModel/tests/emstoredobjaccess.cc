@@ -33,7 +33,8 @@ static bool initLoader( EM::StoredObjAccess& soa )
 
     if ( soa.add( MultiID("100020.99795") ) )
 	mErrRet( "ID 100020.99795 should give error" );
-    soa.dismiss( "100020.99795" );
+
+    soa.dismiss( MultiID("100020.99795") );
 
     return true;
 }

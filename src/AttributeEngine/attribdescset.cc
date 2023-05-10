@@ -124,8 +124,8 @@ DescID DescSet::ensureDefStoredPresent() const
 	if ( allstored )
 	    const_cast<DescSet*>(this)->removeAll( false );
 
-	retid = const_cast<DescSet*>(this)->getStoredID( idstr.buf(), 0, true,
-							 true );
+	const MultiID key( idstr.buf() );
+	retid = const_cast<DescSet*>(this)->getStoredID( key, 0, true, true );
     }
 
     defidstr_ = idstr;
@@ -1181,7 +1181,8 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    {
 		const ValParam* keypar =
 			dsc.getValParam( StorageProvider::keyStr() );
-		PtrMan<IOObj> ioobj = IOM().get( keypar->getStringValue() );
+		const MultiID key( keypar->getStringValue() );
+		PtrMan<IOObj> ioobj = IOM().get( key );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
 	    }

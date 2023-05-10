@@ -38,7 +38,7 @@ public:
 			~TrcKeyZSampling();
 
 //    mDeprecated("Use TrcKeyZSampling(Pos::GeomID)")
-			TrcKeyZSampling(bool settoSI);
+    explicit		TrcKeyZSampling(bool settoSI);
 
     enum Dir		{ Inl=0, Crl=1, Z=2 };
 			mDeclareEnumUtils(Dir)
