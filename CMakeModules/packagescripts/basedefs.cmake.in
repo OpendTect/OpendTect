@@ -15,6 +15,8 @@ set( EXCLUDE_PLUGINS Hello uiHello Tut uiTut uiDPSDemo uiQtApp
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
 set( EXECLIST @OD_BASE_EXECUTABLE@ )
+set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain )
+list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
 
 #No need to include shell scripts in windows base package.
 set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
