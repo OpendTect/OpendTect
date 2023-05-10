@@ -529,11 +529,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     const bool iscarrieronly = ev.idstr_.isNumber( true );
     if ( !iscarrieronly )
     {
-#ifdef __lux32__
-	ev.idstr_ = toString((od_uint32) caller );
-#else
 	ev.idstr_ = toString((od_uint64) caller );
-#endif
 	msgnext = msg;
     }
 

@@ -447,12 +447,7 @@ int uiFileDialog::beginCmdRecEvent( const char* wintitle )
 
     BufferString msg( "QFileDlg " );
     msg += wintitle;
-
-#ifdef __lux32__
-    return carrier->beginCmdRecEvent( (od_uint32) this, msg );
-#else
     return carrier->beginCmdRecEvent( (od_uint64) this, msg );
-#endif
 
 }
 
@@ -469,12 +464,7 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 
     uiMainWin* carrier = uiMain::instance().topLevel();
     if ( carrier )
-#ifdef __lux32__
-	carrier->endCmdRecEvent( (od_uint32) this, refnr, msg );
-#else
 	carrier->endCmdRecEvent( (od_uint64) this, refnr, msg );
-#endif
-
 }
 
 
