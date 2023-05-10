@@ -29,7 +29,7 @@ static Coords::AuthorityCode cWGS84N20ID()
 { return Coords::AuthorityCode(sKeyRepoNm,32620); }
 static Coords::AuthorityCode cNAD27N20ID()
 { return Coords::AuthorityCode(sKeyRepoNm,26720); }
-static const char* ed50wkt =
+static const char* ed50ogcwkt2 =
 "PROJCRS[\"ED50 / UTM zone 31N\",\n"
 "    BASEGEOGCRS[\"ED50\",\n"
 "        DATUM[\"European Datum 1950\",\n"
@@ -68,6 +68,23 @@ static const char* ed50wkt =
 "        AREA[\"Europe - between 0°E and 6°E - Andorra; Denmark (North Sea); Germany offshore; Netherlands offshore; Norway including Svalbard - onshore and offshore; Spain - onshore (mainland and Balearic Islands); United Kingdom (UKCS) offshore.\"],\n"
 "        BBOX[38.56,0,82.45,6.01]],\n"
 "    ID[\"EPSG\",23031]]";
+
+static const char* ed50ogcwkt =
+"PROJCS[\"ED_1950_UTM_Zone_31N\","
+"GEOGCS[\"GCS_European_1950\","
+"DATUM[\"D_European_1950\","
+"SPHEROID[\"International_1924\",6378388.0,297.0]],"
+"PRIMEM[\"Greenwich\",0.0],"
+"UNIT[\"Degree\",0.0174532925199433]],"
+"PROJECTION[\"Transverse_Mercator\"],"
+"PARAMETER[\"False_Easting\",500000.0],"
+"PARAMETER[\"False_Northing\",0.0],"
+"PARAMETER[\"Central_Meridian\",3.0],"
+"PARAMETER[\"Scale_Factor\",0.9996],"
+"PARAMETER[\"Latitude_Of_Origin\",0.0],"
+"UNIT[\"Meter\",1.0],"
+"AUTHORITY[\"EPSG\",23031]]";
+
 
 static double mDefEpsCoord = 1e-3;
 
@@ -359,7 +376,7 @@ static bool testCRSIO()
     const BufferString usernm = ed50proj->userName();
     const BufferString dispstr = ed50proj->getProjDispString();
     const BufferString geodispstr = ed50proj->getGeodeticProjDispString();
-    const BufferString wktstr = ed50proj->getWKTString();
+    const BufferString ogcwkt2str = ed50proj->getWKTString();
     const BufferString jsonstr = ed50proj->getJSONString();
 
     BufferString jsonparsestr( jsonstr.buf() );
@@ -374,8 +391,8 @@ static bool testCRSIO()
 		      "Display string" );
     mRunStandardTest( geodispstr == "[EPSG:4230] ED50",
 		      "Geodetic display string" );
-    const StringView ed50str( ed50wkt );
-    mRunStandardTest( wktstr == ed50wkt, "WKT string" );
+    const StringView ed50str( ed50ogcwkt2 );
+    mRunStandardTest( ogcwkt2str == ed50ogcwkt2, "WKT string" );
     mRunStandardTest( uirv.isOK() && jsonobj.getStringValue("name") == usernm,
 		      "JSON string - Name" )
     const OD::JSON::Object* jsonidobj = jsonobj.getObject("id");
@@ -388,7 +405,7 @@ static bool testCRSIO()
     mRunStandardTest( ed50pbs.getDescString() == urnstr, "toString(Default)" );
     mRunStandardTest( ed50pbs.getDescString(Coords::CoordSystem::URN) == urnstr,
 			"toString(URN)" );
-    mRunStandardTest( ed50pbs.getDescString(Coords::CoordSystem::WKT) == wktstr,
+    mRunStandardTest( ed50pbs.getDescString(Coords::CoordSystem::WKT) == ogcwkt2str,
 			"toString(WKT)" );
     mRunStandardTest( ed50pbs.getDescString(Coords::CoordSystem::JSON)==jsonstr,
 			"toString(JSON)" );
@@ -407,13 +424,17 @@ static bool testCRSIO()
     mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
 			       "Coord system from user name string", msg.buf());
 
-    res = Coords::CoordSystem::createSystem( wktstr.buf(), msg );
+    res = Coords::CoordSystem::createSystem( ed50ogcwkt2, msg);
     mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
-			       "Coord system from WKT string", msg.buf() );
+			       "Coord system from OGC WKT2 string", msg.buf() );
 
     res = Coords::CoordSystem::createSystem( jsonstr.buf(), msg );
     mRunStandardTestWithError( res && res->isOK() && *res == ed50pbs,
 			       "Coord system from JSON string", msg.buf() );
+
+    res = Coords::CoordSystem::createSystem( ed50ogcwkt, msg );
+    mRunStandardTestWithError(res && res->isOK() && *res == ed50pbs,
+			"Coord system from OGC WKT string", msg.buf());
 
     return true;
 }
@@ -447,7 +468,7 @@ static bool testCRSRet()
 
     BufferString msg;
     ConstRefMan<Coords::CoordSystem> res =
-			Coords::CoordSystem::createSystem( ed50wkt, msg );
+			Coords::CoordSystem::createSystem( ed50ogcwkt2, msg );
     mRunStandardTestWithError( res && res->isOK() && res->isProjection(),
 			       "Coord system from WKT string", msg.buf() );
     const BufferString jsonstr = res->getDescString( Coords::CoordSystem::JSON);
