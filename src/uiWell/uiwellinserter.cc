@@ -45,7 +45,8 @@ uiToolButtonSetup* uiWellInserter::getButtonSetup() const
 void uiWellInserter::startRead( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
-    uiParent* par = but ? but->mainwin() : nullptr;
+    mDynamicCastGet(uiParent*,directpar,cb)
+    uiParent* par = but ? but->mainwin() : directpar ? directpar : nullptr;
     if ( !par )
 	return;
 
