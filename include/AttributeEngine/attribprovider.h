@@ -88,7 +88,7 @@ public:
     virtual bool		getPossibleVolume(int outp,TrcKeyZSampling&);
     const TrcKeyZSampling*		getPossibleVolume() const
 				{ return possiblevolume_; }
-    int				getTotalNrPos(bool);
+    int				getTotalNrPos(bool) const;
     void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
     virtual Pos::GeomID		getGeomID() const;

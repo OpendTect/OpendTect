@@ -1371,7 +1371,7 @@ const Interval<int>* Provider::desZSampMargin(int,int) const	{ return 0; }
 const Interval<int>* Provider::reqZSampMargin(int,int) const	{ return 0; }
 
 
-int Provider::getTotalNrPos( bool is2d )
+int Provider::getTotalNrPos( bool is2d ) const
 {
     if ( seldata_ && seldata_->type() == Seis::Table )
     {
