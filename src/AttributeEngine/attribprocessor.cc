@@ -10,14 +10,11 @@ ________________________________________________________________________
 #include "attribprocessor.h"
 
 #include "attribdesc.h"
-#include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
+#include "binidvalset.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
-#include "survgeom2d.h"
-#include "survinfo.h"
-#include "binidvalset.h"
 
 #include <limits.h>
 
@@ -27,22 +24,15 @@ namespace Attrib
 
 Processor::Processor( Desc& desc , const char* lk, uiString& err )
     : Executor("Attribute Processor")
-    , desc_(desc)
-    , provider_(Provider::create(desc,err))
-    , nriter_(0)
-    , nrdone_(0)
-    , isinited_(false)
-    , useshortcuts_(false)
     , moveonly(this)
+    , desc_(&desc)
+    , provider_(Provider::create(desc,err))
     , prevbid_(BinID::udf())
-    , sd_(0)
-    , showdataavailabilityerrors_(true)
 {
-    if ( !provider_ ) return;
-    provider_->ref();
-    desc_.ref();
+    if ( !provider_ )
+	return;
 
-    is2d_ = desc_.is2D();
+    is2d_ = desc_->is2D();
     if ( is2d_ )
 	provider_->setCurLineName( lk );
 }
@@ -50,19 +40,23 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
 
 Processor::~Processor()
 {
-    if ( provider_ )  { provider_->unRef(); desc_.unRef(); }
     deepUnRef( outputs_ );
 
-    if (sd_) delete sd_;
+    delete sd_;
 }
 
 
-bool Processor::isOK() const { return provider_ && provider_->isOK(); }
+bool Processor::isOK() const
+{
+    return provider_ && provider_->isOK();
+}
 
 
 void Processor::addOutput( Output* output )
 {
-    if ( !output ) return;
+    if ( !output )
+	return;
+
     output->ref();
     outputs_ += output;
 }
@@ -81,7 +75,8 @@ void Processor::setLineName( const char* lnm )
 
 int Processor::nextStep()
 {
-    if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred();
+    if ( !provider_ || outputs_.isEmpty() )
+	return ErrorOccurred();
 
     if ( !isinited_ )
 	init();
@@ -549,13 +544,13 @@ void Processor::addOutputInterest( int sel )
 
 const char* Processor::getAttribName() const
 {
-    return desc_.attribName();
+    return desc_->attribName();
 }
 
 
 const char* Processor::getAttribUserRef() const
 {
-    return desc_.userRef();
+    return desc_->userRef();
 }
 
 

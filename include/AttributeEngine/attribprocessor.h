@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
+
+#include "attribdesc.h"
 #include "executor.h"
 #include "binid.h"
 
-class TrcKeyZSampling;
 class SeisTrcInfo;
+class TrcKeyZSampling;
 namespace Seis { class SelData; }
 
 namespace Attrib
@@ -60,7 +62,7 @@ public:
     const char*			getAttribName() const;
     const char*			getAttribUserRef() const;
     Provider*			getProvider()		{ return provider_; }
-    ObjectSet<Output>	outputs_;
+    ObjectSet<Output>		outputs_;
 
     void			setRdmPaths(const TypeSet<BinID>& truepath,
 					    const TypeSet<BinID>& snappedpath);
@@ -75,21 +77,21 @@ protected:
     void		prepareForTableOutput();
     void		computeAndSetPosAndDesVol(TrcKeyZSampling&);
 
-    Desc&		desc_;
-    Provider*		provider_;
-    int			nriter_;
-    int			nrdone_;
-    bool		is2d_;
+    RefMan<Desc>	desc_;
+    RefMan<Provider>	provider_;
+    int			nriter_				= 0;
+    int			nrdone_				= 0;
+    bool		is2d_				= false;
     TypeSet<int>	outpinterest_;
     uiString		errmsg_;
-    bool		isinited_;
-    bool		useshortcuts_;
+    bool		isinited_			= false;
+    bool		useshortcuts_			= false;
 
     BinID		prevbid_;
-    Seis::SelData*	sd_;
+    Seis::SelData*	sd_				= nullptr;
 
     bool		isHidingDataAvailabilityError() const;
-    bool		showdataavailabilityerrors_;
+    bool		showdataavailabilityerrors_	= true;
 
 public:
     void		showDataAvailabilityErrors(bool yn);
