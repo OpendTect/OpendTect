@@ -42,6 +42,7 @@ mExpClass(AttributeEngine) Output : public ReferencedObject
 {
 public:
 				Output();
+				mOD_DisableCopy(Output)
 
     virtual bool		getDesiredVolume(TrcKeyZSampling&) const
 				{ return true; }
@@ -190,22 +191,21 @@ protected:
     MultiID&			storid_;
     TrcKeyZSampling		desiredvolume_;
     TypeSet< Interval<int> >	sampleinterval_;
-    IOPar*			auxpars_;
-    bool			is2d_;
+    IOPar*			auxpars_			= nullptr;
+    bool			is2d_				= false;
     uiString			errmsg_;
 
-    SeisTrc*			trc_;
-    SeisTrcWriter*		writer_;
-    BinID			prevpos_;
-    bool			storinited_;
+    SeisTrc*			trc_				= nullptr;
+    SeisTrcWriter*		writer_				= nullptr;
+    bool			storinited_			= false;
     BufferString		attribname_;
-    Scaler*			scaler_;
+    Scaler*			scaler_				= nullptr;
     TypeSet<Seis::DataType>	outptypes_;
-    bool			growtrctosi_;
+    bool			growtrctosi_			= false;
     BufferString		datatype_;
     BufferStringSet		outpnames_;
 
-    float			writez0shift_;
+    float			writez0shift_			= 0.f;
     friend class		Processor;
 
 public:

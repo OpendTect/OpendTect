@@ -251,16 +251,9 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 // SeisTrcStorOutput
 SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
 				      const Pos::GeomID geomid )
-    : desiredvolume_(cs)
-    , auxpars_(0)
-    , storid_(*new MultiID)
-    , writer_(0)
-    , trc_(0)
-    , prevpos_(-1,-1)
-    , storinited_(0)
+    : storid_(*new MultiID)
+    , desiredvolume_(cs)
     , errmsg_(uiString::emptyString())
-    , scaler_(0)
-    , growtrctosi_(false)
 {
     seldata_->setGeomID( geomid );
 }
