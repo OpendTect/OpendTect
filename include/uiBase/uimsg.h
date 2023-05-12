@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 
 #include "uistring.h"
+#include "callback.h"
 
 class BufferStringSet;
 class FileMultiString;
@@ -214,7 +215,7 @@ protected:
 
 */
 
-mExpClass(uiBase) uiUserShowWait
+mExpClass(uiBase) uiUserShowWait : public CallBacker
 {
 public:
 			uiUserShowWait(uiParent*,const uiString&,int sbfld=0);
@@ -227,6 +228,8 @@ public:
     uiStatusBar*	statusBar()	{ return sb_; }
 
 protected:
+
+    void		deleteSbCB(CallBacker*);
 
     uiStatusBar*	sb_;
     MouseCursorChanger*	mcc_;

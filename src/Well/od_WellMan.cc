@@ -81,9 +81,7 @@ WellServerTool::WellServerTool( int argc, char** argv )
 
 
 WellServerTool::~WellServerTool()
-{
-    Well::MGR().cleanup();
-}
+{}
 
 
 void WellServerTool::listWells()

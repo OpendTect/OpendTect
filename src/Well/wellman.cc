@@ -197,13 +197,14 @@ Well::Man::Man()
 {
     addFileSystemWatchCB( nullptr );
     getWellKeys( allwellsids_ );
+    mAttachCB( IOM().afterSurveyChange, Man::checkForUndeletedRef );
 }
 
 
 Well::Man::~Man()
 {
     detachAllNotifiers();
-    cleanup();
+    checkForUndeletedRef( nullptr );
 }
 
 
@@ -271,7 +272,7 @@ void Well::Man::wellDirChangedCB( CallBacker* cb )
 }
 
 
-void Well::Man::cleanup()
+void Well::Man::checkForUndeletedRef( CallBacker* )
 {
 #ifdef __debug__
     for ( int idx=0; idx<wells_.size(); idx++ )

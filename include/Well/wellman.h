@@ -83,7 +83,6 @@ mExpClass(Well) Man : public CallBacker
 public:
 			~Man();
 
-    void		cleanup();
     void		removeObject(const Data*);
     void		removeObject(const MultiID&);
     RefMan<Data>	get(const MultiID&);
@@ -154,6 +153,7 @@ protected:
     TypeSet<MultiID>	allwellsids_;
     bool		isreloading_		= false;
 
+    void		checkForUndeletedRef(CallBacker*);
     int			gtByKey(const MultiID&) const;
     RefMan<Data>	addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
     bool		readReqData(const MultiID&,Data&,LoadReqs);
