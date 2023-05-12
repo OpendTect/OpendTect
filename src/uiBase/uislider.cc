@@ -401,8 +401,9 @@ void uiSlider::editRetPress( CallBacker* )
 {
     if ( editfld_ )
 	setValue( editfld_->getFValue() );
+    else
+	valueChanged.trigger();
 
-    valueChanged.trigger();
     if ( valueChanged.cbs_.size() < 2 )
 	sliderReleased.trigger();
 }
