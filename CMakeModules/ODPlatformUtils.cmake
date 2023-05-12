@@ -53,9 +53,11 @@ if( UNIX ) #Apple and Linux
 
 	if ( ${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "arm64" )
 	    set ( OD_PLATFORM_LINK_OPTIONS "-arch arm64" )
+	    set ( OD_PLFSUBDIR macarm )
 	    add_definitions("-arch arm64")
 	else()
 	    set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
+	    set ( OD_PLFSUBDIR macintel )
 	    add_definitions("-arch x86_64")
 	endif()
 
@@ -64,8 +66,6 @@ if( UNIX ) #Apple and Linux
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
 	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
-
-	set ( OD_PLFSUBDIR mac )
 
     else() # Not Apple
 

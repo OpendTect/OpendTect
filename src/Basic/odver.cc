@@ -24,10 +24,10 @@ ________________________________________________________________________
 
 mDefineEnumUtils(OD::Platform,Type,"Platform")
 {
-	"Linux (64 bits)",
-	"Windows (32 bits)",
-	"Windows (64 bits)",
-	"Mac OS X",
+	"Linux",
+	"Windows",
+	"macOS (ARM)",
+	"macOS (Intel)",
 	nullptr
 };
 
@@ -67,9 +67,7 @@ static const char* sCompilerVersionUnkwown = "<unknown>";
 
 const char* GetGCCVersion()
 {
-#ifndef __GNUC__
-    return sCompilerVersionUnkwown;
-#else
+#ifdef __GNUC__
     mDeclStaticString( ret );
     if ( !ret.isEmpty() )
 	return ret.buf();
@@ -78,19 +76,21 @@ const char* GetGCCVersion()
        .add( __GNUC_MINOR__ ).add( "." )
        .add( __GNUC_PATCHLEVEL__ );
     return ret.buf();
+#else
+    return sCompilerVersionUnkwown;
 #endif
 }
 
 
 const char* GetMSVCVersion()
 {
-#ifndef __msvc__
-    return sKey::EmptyString();
-#else
+#ifdef __msvc__
     mDeclStaticString( ret );
     if ( !ret.isEmpty() ) return ret.buf();
     ret.set( _MSC_VER );
     return ret;
+#else
+    return sKey::EmptyString();
 #endif
 }
 
@@ -157,13 +157,36 @@ const char* GetMSVCVersionStr()
 }
 
 
+const char* GetClangVersion()
+{
+#ifdef __clang__
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() )
+	return ret.buf();
+
+    ret.set( __clang_major__ ).add( "." )
+       .add( __clang_minor__ ).add( "." )
+       .add( __clang_patchlevel__ );
+    return ret.buf();
+#else
+    return sCompilerVersionUnkwown;
+#endif
+}
+
+
 const char* GetCompilerVersionStr()
 {
     mDeclStaticString( ret );
 #ifdef __win__
     ret = GetMSVCVersionStr();
+
 #else
+# ifdef __clang__
+    ret.set( "Apple clang version " ).add( GetClangVersion() );
+# else
     ret.set( "GCC " ).add( GetGCCVersion() );
+# endif
+
 #endif
     return ret;
 }
@@ -189,9 +212,8 @@ const OD::Platform& OD::Platform::local()
 
 
 OD::Platform::Platform()
-    : type_(__ismac__ ?				     Mac
-		      : (__iswin__ ? (__is32bits__ ? Win32 : Win64)
-				   : Lin64))
+    : type_(__ismac__ ? (__isarm__ ? MacARM : MacIntel)
+		      : (__iswin__ ? Windows : Linux) )
 {
 }
 
@@ -204,15 +226,14 @@ OD::Platform::Platform( Type typ )
 
 const char* OD::Platform::shortName() const
 {
-    return isLinux()	?  "lux64"
-	: (isWindows()	? (type_ == Win32 ? "win32" : "win64")
-					  : "mac" );
+    return isMac() ? (type_ == MacARM ? "macarm" : "macintel")
+		   : (isWindows() ? "win64" : "lux64" );
 }
 
 
 const char* OD::Platform::osName() const
 {
-    return isLinux() ? "Linux" : (isWindows() ? "Windows" : "MacOS");
+    return isLinux() ? "Linux" : (isWindows() ? "Windows" : "macOS");
 }
 
 
@@ -225,13 +246,20 @@ void OD::Platform::set( const char* s, bool isshort )
 	parseEnumType( s, type_ );
     else
     {
-	const bool islin = *s == 'l';
-	const bool iswin = *s == 'w';
-	const bool is64 = *(s+strlen(s)-1) == '4';
+	const bool ismac = *s == 'm';
+	if ( ismac )
+	{
+	    const StringView str( s );
+	    if ( str == "macintel" )
+		type_ = MacIntel;
+	    else
+		type_ = MacARM;
 
-	type_ = islin ? Lin64
-	    : (iswin ? (is64 ? Win64 : Win32)
-		     : Mac);
+	    return;
+	}
+
+	const bool islin = *s == 'l';
+	type_ = islin ? Linux : Windows;
     }
 }
 
@@ -241,10 +269,9 @@ bool OD::Platform::isValidName( const char* s, bool isshort )
     if ( !s || !*s )	return false;
     if ( !isshort )	return TypeDef().isValidName( s );
 
-    const BufferString cmp(s);
-    return cmp == "lux64" || cmp == "win64"
-	|| cmp == "lux32" || cmp == "win32"
-	|| cmp == "mac";
+    const StringView cmp( s );
+    return cmp == "lux64" || cmp == "win64" ||
+	   cmp == "macarm" || cmp == "macintel";
 }
 
 

@@ -564,10 +564,10 @@ bool HostDataList::readOldHostFile( const char* fname )
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	HostData* newhd = new HostData( astrm.keyWord() );
+	auto* newhd = new HostData( astrm.keyWord() );
 	if ( *astrm.value() )
 	{
-	    SeparString val( astrm.value(), ':' );
+	    const SeparString val( astrm.value(), ':' );
 	    BufferString vstr;
 
 #define mGetVStr(valnr) \
@@ -578,7 +578,8 @@ bool HostDataList::readOldHostFile( const char* fname )
 		newhd->aliases_.add( vstr );
 
 	    mGetVStr(1);
-	    newhd->platform_.set( vstr == "win", false );
+	    newhd->platform_.setType( vstr == "win" ? OD::Platform::Windows
+						    : OD::Platform::Linux );
 
 	    mGetVStr(2);
 	    if ( !vstr.isEmpty() )

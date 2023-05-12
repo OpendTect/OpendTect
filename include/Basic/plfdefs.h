@@ -13,9 +13,9 @@ ________________________________________________________________________
 
 For every platform, one of the following variables must be set by cmake:
 
-	__lux64__, __lux32__	Linux
-	__win64__, __win32__	MS Windows
-	__mac__			Apple Mac OSX
+	__lux64__			Linux
+	__win64__			Windows
+	__macarm__, __macintel__	macOS
 
 Then you get:
 OS type:
@@ -23,22 +23,22 @@ OS type:
 	__unix__	Unix
 	__lux__		Linux
 	__win__		Windows
+	__mac__		macOS
 
 Platform:
 
-	__win32__	Windows 32 bits (x86)
-	__win64__	Windows 64 bits (AMD)
-	__lux32__	Linux 32 bits (x86)
-	__lux64__	Linux 64 bits (AMD)
-	__mac__		Mac
+	__win64__	Windows (x64)
+	__lux64__	Linux (x86_64)
+	__macarm__	macOS ARM (arm64)
+	__macintel__	macOS Intel (x86_64)
 
-	__plfsubdir__	String like "win32", "lux32" etc.
-	__plfname__	String like "MS Windows 32 bits", "Linux 32 bits"
+	__plfsubdir__	String like "win64", "lux64" etc.
 
 Compiler type:
 
 	__gnuc__	GNU gcc
 	__msvc__	MS Visual C++
+	__clang__	Apple clang
 
 Language:
 
@@ -52,9 +52,9 @@ Always defined:
 
 	__islittle__	'true' if little endian machine, false otherwise
 	__islinux__	'true' on Linux, 'false' otherwise
-	__is32bits__	'true' on 32 bits platforms, 'false' otherwise
-	__ismac__	'true' on Mac, 'false' otherwise
 	__iswin__	'true' on Windows, 'false' otherwise
+	__ismac__	'true' on macOS, 'false' otherwise
+	__isarm__	'true' on macOS ARM (arm64), 'false' otherwise
 
 */
 
@@ -65,62 +65,35 @@ Always defined:
 #undef __unix__
 #undef __win__
 
-#if defined( __win64__ ) || defined ( __win32__ )
+#if defined( __win64__ )
 # define __win__ 1
+# define __iswin__ true
+#else
+# define __iswin__ false
 #endif
 
-#if defined ( __lux32__ ) || defined ( __lux64__ )
+#if defined ( __lux64__ )
 # define __unix__ 1
 # define __lux__ 1
+# define __islinux__ true
+#else
+# define __islinux__ false
 #endif
 
-#if defined( __mac__ )
+#if defined( __macarm__ ) || defined ( __macintel__ )
 # define __unix__ 1
+# define __ismac__ true
+#else
+# define __ismac__ false
+#endif
 
-//This is a fix to fix the bug 6644037 at bugreport.apple.com
-//This bug makes the compiler not link the objectset's virtual functions under
-//some conditions.
-# if defined( __clang__)
-#  if ( __clang_major__==5 ) && ( __clang_minor__==1 )
-#    ifndef __MAC_LLVM_COMPILER_ERROR__
-#     define LLVM_ERROR
-#    endif
-#   endif
-#  endif
-#  if ( __clang_major__==6 ) && ( __clang_minor__==0 )
-#   ifndef __MAC_LLVM_COMPILER_ERROR__
-#    define LLVM_ERROR
-#   endif
-#  endif
-# endif
 
-# ifdef LLVM_ERROR
-#  pragma message "This version of clang is prone to errors " \
-		    "Set __MAC_LLVM_COMPILER_ERROR__ to fix it"
-# endif
 
 #ifndef __unix__
 #ifndef __win__
 # error "Platform not detected."
 #endif
 #endif
-
-#ifdef __lux__
-# define __islinux__ true
-#else
-# define __islinux__ false
-#endif
-#ifdef __mac__
-# define __ismac__ true
-#else
-# define __ismac__ false
-#endif
-#ifdef __win__
-# define __iswin__ true
-#else
-# define __iswin__ false
-#endif
-
 
 /*____________________________________________________________________________*/
 /* Machine type	*/
@@ -131,32 +104,22 @@ Always defined:
 # define __little__ 1
 # define __islittle__ true
 
-#ifdef __win32__
-# define __plfsubdir__	"win32"
-# define __plfname__	"MS Windows 32 bits"
-# define __is32bits__	true
-#endif
 #ifdef __win64__
 # define __plfsubdir__	"win64"
-# define __plfname__	"MS Windows 64 bits"
-# define __is32bits__	false
-#endif
-#ifdef __lux32__
-# define __plfsubdir__	"lux32"
-# define __plfname__	"Linux 32 bits"
-# define __is32bits__	true
+# define __isarm__	false
 #endif
 #ifdef __lux64__
 # define __plfsubdir__	"lux64"
-# define __plfname__	"Linux 64 bits"
-# define __is32bits__	false
+# define __isarm__	false
 #endif
-#ifdef __mac__
-# define __plfsubdir__	"mac"
-# define __plfname__	"Mac"
-# define __is32bits__	false
+#ifdef __macarm__
+# define __plfsubdir__	"macarm"
+# define __isarm__	true
 #endif
-
+#ifdef __macintel__
+# define __plfsubdir__	"macintel"
+# define __isarm__	false
+#endif
 /*____________________________________________________________________________*/
 /* Language type */
 
@@ -189,7 +152,7 @@ Always defined:
 # undef __gnuc__
 # define __gnuc__ 1
 #endif
-#if defined( __win__ ) || defined( WIN32 )
+#if defined( __win__ )
 # ifndef __gnuc__
 #  define __msvc__ 1
 # endif
