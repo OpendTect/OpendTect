@@ -17,9 +17,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uiworld2ui.h"
 
-#include "arrayndimpl.h"
-#include "arrayndalgo.h"
-#include "randcolor.h"
 #include "scaler.h"
 #include "windowfunction.h"
 
@@ -31,8 +28,6 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     : uiFuncDrawerBase(su)
     , uiGraphicsView( p, "" )
     , transform_(new uiWorld2Ui())
-    , polyitemgrp_(0)
-    , borderrectitem_(0)
 {
     setPrefHeight( su.canvasheight_ );
     setPrefWidth( su.canvaswidth_ );
@@ -54,19 +49,29 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     auto* yax = new uiAxisHandler( &scene(), asu );
     yax->setRange( su.yaxrg_ );
 
-    xax->setBegin( yax );		yax->setBegin( xax );
-    xax->setBounds( su.xaxrg_ );	yax->setBounds( su.yaxrg_ );
-    xax->setCaption( su.xaxcaption_ ); yax->setCaption( su.yaxcaption_ );
-    xax_ = xax;				yax_ = yax;
+    xax->setBegin( yax );
+    yax->setBegin( xax );
 
-    reSize.notify( mCB( this, uiFunctionDrawer, draw ) );
+    xax->setBounds( su.xaxrg_ );
+    yax->setBounds( su.yaxrg_ );
+
+    xax->setCaption( su.xaxcaption_ );
+    yax->setCaption( su.yaxcaption_ );
+
+    xax_ = xax;
+    yax_ = yax;
+
+    mAttachCB( reSize, uiFunctionDrawer::draw );
 }
 
 
 uiFunctionDrawer::~uiFunctionDrawer()
 {
+    detachAllNotifiers();
+
     delete transform_;
-    delete xax_; delete yax_;
+    delete xax_;
+    delete yax_;
 }
 
 
@@ -171,15 +176,16 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
 
 
 
+// uiFuncSelDraw
 uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFuncDrawerBase::Setup& su )
     : uiGroup(p)
     , funclistselChged(this)
 {
-    funclistfld_ = new uiListBox( this, "Function", OD::ChooseAtLeastOne );
+    funclistfld_ = new uiListBox( this, "Function", OD:: ChooseZeroOrMore);
     funclistfld_->attach( topBorder, 0 );
     funclistfld_->setHSzPol( uiObject::MedVar );
-    funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
-    funclistfld_->itemChosen.notify( mCB(this,uiFuncSelDraw,funcCheckChg) );
+    mAttachCB( funclistfld_->selectionChanged, uiFuncSelDraw::funcSelChg );
+    mAttachCB( funclistfld_->itemChosen, uiFuncSelDraw::funcCheckChg );
 
     view_ = GetFunctionDisplayServer().createFunctionDrawer( this, su );
     view_->uiobj()->attach( rightOf, funclistfld_ );
@@ -187,7 +193,9 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFuncDrawerBase::Setup& su )
 
 
 uiFuncSelDraw::~uiFuncSelDraw()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 int uiFuncSelDraw::getListSize() const
@@ -228,24 +236,33 @@ void uiFuncSelDraw::removeItem( int idx )
 
 void uiFuncSelDraw::funcCheckChg( CallBacker* cb )
 {
-    funclistselChged.trigger();
-
     TypeSet<int> selecteditems;
     funclistfld_->getChosen( selecteditems );
 
     view_->setSelItems( selecteditems );
     view_->draw( cb );
+
+    funclistselChged.trigger();
 }
 
 
-void uiFuncSelDraw::funcSelChg(CallBacker *)
+void uiFuncSelDraw::funcSelChg( CallBacker* cb )
 {
     const int nrchecked = funclistfld_->nrChosen();
-    if ( nrchecked > 1 ) return;
+    if ( nrchecked > 0 )
+	return;
 
     NotifyStopper ns1( funclistfld_->selectionChanged );
-    funclistfld_->chooseAll( false );
-    funclistfld_->setChosen( funclistfld_->currentItem() );
+    const int curitm = funclistfld_->currentItem();
+    if ( curitm < 0 )
+	return;
+
+    TypeSet<int> selecteditems;
+    selecteditems += curitm;
+    view_->setSelItems( selecteditems );
+    view_->draw( cb );
+
+    funclistselChged.trigger();
 }
 
 
@@ -271,6 +288,12 @@ void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
 void uiFuncSelDraw::getSelectedItems( TypeSet<int>& selitems ) const
 {
     funclistfld_->getChosen( selitems );
+    if ( !selitems.isEmpty() )
+	return;
+
+    const int curitm = funclistfld_->currentItem();
+    if ( curitm >= 0 )
+	selitems += curitm;
 }
 
 
@@ -280,7 +303,7 @@ void uiFuncSelDraw::setSelectedItems( const TypeSet<int>& selitems )
 }
 
 
-bool uiFuncSelDraw::isSelected( int idx) const
+bool uiFuncSelDraw::isSelected( int idx ) const
 {
     return funclistfld_->isChosen(idx);
 }
@@ -294,9 +317,10 @@ void uiFuncSelDraw::setSelected( int idx )
 
 const char* uiFuncSelDraw::getCurrentListName() const
 {
-    if ( funclistfld_->nrChosen() == 1 )
-	return funclistfld_->textOfItem( funclistfld_->currentItem() );
-    return 0;
+    TypeSet<int> selitems;
+    getSelectedItems( selitems );
+    return selitems.isEmpty() ? nullptr
+		: funclistfld_->textOfItem( selitems.first() );
 }
 
 
@@ -306,7 +330,6 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     : uiDialog( p, uiDialog::Setup(tr("Window/Taper display"),
 				   uiStrings::sEmptyString(),mNoHelpKey) )
     , variable_(variable)
-    , funcdrawer_(0)
 {
     setCtrlStyle( CloseOnly );
 
@@ -324,21 +347,22 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 
-    funcdrawer_->funclistselChged.notify(
-	    mCB(this,uiWindowFuncSelDlg,funcSelChg) );
+    mAttachCB( funcdrawer_->funclistselChged, uiWindowFuncSelDlg::funcSelChg );
 
     uiString tapertxt( tr("Taper Length (%)") );
     varinpfld_ = new uiGenInput( this, tapertxt, FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, funcdrawer_ );
     varinpfld_->setValue( variable_ * 100 );
-    varinpfld_->valueChanged.notify( mCB(this,uiWindowFuncSelDlg,funcSelChg) );
+    mAttachCB( varinpfld_->valueChanged, uiWindowFuncSelDlg::funcSelChg );
 
     setCurrentWindowFunc( winname, variable_ );
 }
 
 
 uiWindowFuncSelDlg::~uiWindowFuncSelDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
@@ -366,7 +390,6 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
     }
 
     varinpfld_->display( isvartappresent );
-    funcdrawer_->funcSelChg(0);
 }
 
 

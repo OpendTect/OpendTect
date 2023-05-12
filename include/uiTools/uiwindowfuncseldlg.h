@@ -50,8 +50,8 @@ public:
 protected:
 
     uiWorld2Ui*		transform_;
-    uiRectItem*		borderrectitem_;
-    uiGraphicsItemGroup* polyitemgrp_;
+    uiRectItem*		borderrectitem_			= nullptr;
+    uiGraphicsItemGroup* polyitemgrp_			= nullptr;
 
     void		createLine(DrawFunction*);
     void		setFrame();
@@ -86,9 +86,9 @@ public:
 
 protected:
 
-    uiFuncDrawerBase*	view_;
-    uiListBox*		funclistfld_;
-    TypeSet<OD::Color>	colors_;
+    uiFuncDrawerBase*		view_;
+    uiListBox*			funclistfld_;
+    TypeSet<OD::Color>		colors_;
     ObjectSet<FloatMathFunction> mathfunc_;
 };
 
