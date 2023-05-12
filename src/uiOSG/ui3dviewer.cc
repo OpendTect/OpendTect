@@ -176,6 +176,7 @@ const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
 
 ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody(parnt,0)
+    , viewalltimer_(new Timer)
     , handle_(h)
     , printpar_(*new IOPar)
     , wheeldisplaymode_((int)ui3DViewer::OnHover)
@@ -196,7 +197,6 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , visscenecoltab_(0)
     , keybindman_(*new KeyBindMan)
     , mapview_(false)
-    , viewalltimer_(new Timer)
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -1038,8 +1038,8 @@ OD::Color ui3DViewerBody::getBackgroundColor() const
 
 
 void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
-				  const osg::Vec3f& viewdir,
-				  bool usetruedir )
+				   const osg::Vec3f& viewdir,
+				   bool usetruedir, bool animate )
 {
     osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
 
@@ -1053,20 +1053,21 @@ void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
     }
 
     if ( manip )
-	manip->viewAll( view_, trueviewdir, updir, true );
+	manip->viewAll( view_, trueviewdir, updir, animate );
+
     requestRedraw();
 }
 
 
 void ui3DViewerBody::viewPlaneX()
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false, true );
 }
 
 
 void ui3DViewerBody::viewPlaneY()
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false, true );
 }
 
 
@@ -1085,19 +1086,19 @@ void ui3DViewerBody::viewPlaneZ()
 
     newup.normalize();
 
-    setCameraPos( newup, osg::Vec3d(0,0,1) , true );
+    setCameraPos( newup, osg::Vec3d(0,0,1) , true, true );
 }
 
 
-void ui3DViewerBody::viewPlaneN()
+void ui3DViewerBody::viewPlaneN( bool animate )
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,-1,0), true );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,-1,0), true, animate );
 }
 
 
 void ui3DViewerBody::viewPlaneYZ()
 {
-    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true );
+    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true, true );
 }
 
 
@@ -1117,11 +1118,11 @@ static void getInlCrlVec( osg::Vec3f& vec, bool inl )
 }
 
 
-void ui3DViewerBody::viewPlaneInl()
+void ui3DViewerBody::viewPlaneInl( bool animate )
 {
     osg::Vec3f inlvec;
     getInlCrlVec( inlvec, true );
-    setCameraPos( osg::Vec3f(0,0,1), inlvec, false );
+    setCameraPos( osg::Vec3f(0,0,1), inlvec, false, animate );
 }
 
 
@@ -1129,7 +1130,7 @@ void ui3DViewerBody::viewPlaneCrl()
 {
     osg::Vec3f crlvec;
     getInlCrlVec( crlvec, false );
-    setCameraPos( osg::Vec3f(0,0,1), crlvec, false );
+    setCameraPos( osg::Vec3f(0,0,1), crlvec, false, true );
 }
 
 
@@ -1437,7 +1438,7 @@ void ui3DViewerBody::setStartupView()
 	toHomePos();
     else
     {
-	SI().has3D() ? viewPlaneInl() : viewPlaneN();
+	SI().has3D() ? viewPlaneInl( true ) : viewPlaneN( true );
 	// animation should be finished before calling viewAll
 	viewalltimer_->start( 1000, true );
     }

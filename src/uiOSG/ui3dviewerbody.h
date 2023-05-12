@@ -86,9 +86,9 @@ public:
     void			viewPlaneX();
     void			viewPlaneY();
     void			viewPlaneZ();
-    void			viewPlaneInl();
+    void			viewPlaneInl(bool animate=true);
     void			viewPlaneCrl();
-    void			viewPlaneN();
+    void			viewPlaneN(bool animate=true);
     void			viewPlaneYZ();
 
     void			uiRotate(float angle,bool horizontal);
@@ -182,7 +182,9 @@ protected:
     osg::Camera*			getOsgCamera();
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
-						     const osg::Vec3f&,bool);
+						     const osg::Vec3f&,
+						     bool usetruedir,
+						     bool animate);
 
     Timer*				viewalltimer_;
     void				viewAllCB(CallBacker*);
