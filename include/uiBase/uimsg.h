@@ -223,10 +223,12 @@ public:
 
     void		setMessage(const uiString&);
     void		readyNow();
+    void		setStatusBarToNullptr();
 
     uiStatusBar*	statusBar()	{ return sb_; }
 
 protected:
+
 
     uiStatusBar*	sb_;
     MouseCursorChanger*	mcc_;

@@ -149,6 +149,12 @@ uiMainWinBody::~uiMainWinBody()
 }
 
 
+bool uiMainWinBody::isDeleteOnClose() const
+{
+    return testAttribute( Qt::WA_DeleteOnClose );
+}
+
+
 void uiMainWinBody::getTopLevelWindows( ObjectSet<uiMainWin>& list,
 					bool visibleonly )
 {
