@@ -112,8 +112,6 @@ void uiWellPartServer::cleanup()
     deepErase( wellpropdlgs_ );
     deepErase( wellpropcaches_ );
     closeAndNullPtr( wellmgrinfodlg_ );
-
-    Well::MGR().cleanup();
 }
 
 

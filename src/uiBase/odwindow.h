@@ -77,6 +77,7 @@ public:
 
     void		setModal(bool yn);
     bool		isModal() const			{ return modal_; }
+    bool		isDeleteOnClose() const;
 
     void		activateInGUIThread(const CallBack&,bool busywait);
 

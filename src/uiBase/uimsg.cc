@@ -737,14 +737,14 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
     : mcc_(new MouseCursorChanger(MouseCursor::Wait))
     , fldidx_(fldidx)
 {
-    uiMainWin* mw = 0;
+    uiMainWin* mw = nullptr;
     if ( p )
 	mw = p->mainwin();
     if ( !mw || !mw->statusBar() )
 	mw = uiMainWin::activeWindow();
     if ( !mw || !mw->statusBar() )
 	mw = uiMain::instance().topLevel();
-    sb_ = mw ? mw->statusBar() : 0;
+    sb_ = mw ? mw->statusBar() : nullptr;
     if ( sb_ )
 	sb_->getMessages( prevmessages_ );
 
@@ -757,6 +757,12 @@ uiUserShowWait::~uiUserShowWait()
     readyNow();
     if ( sb_ )
 	sb_->message( prevmessages_ );
+}
+
+
+void uiUserShowWait::setStatusBarToNullptr()
+{
+    sb_ = nullptr;
 }
 
 

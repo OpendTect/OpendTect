@@ -127,6 +127,7 @@ public:
 			//! automatically set by uiMain::setTopLevel
     void		setExitAppOnClose(bool yn);
     void		setDeleteOnClose(bool yn);
+    bool		isDeleteOnClose() const;
 
     void		removeDockWindow(uiDockWin*);
     void		addDockWindow(uiDockWin&,Dock);
@@ -271,9 +272,19 @@ public:
 template <class T>
 void closeAndNullPtr( T*& ptr )
 {
+    if ( !ptr )
+	return;
+
     auto* uimw = dCast( uiMainWin*, ptr );
-    if ( uimw )
-	uimw->forceClose();
+    if ( !uimw )
+	return;
+
+    const bool explicitdelete = !uimw->isModal() || uimw->isDeleteOnClose();
+    auto* winptr = uimw;
+    uimw->forceClose();
+    if ( explicitdelete )
+	delete winptr;
+
     ptr = nullptr;
 }
 

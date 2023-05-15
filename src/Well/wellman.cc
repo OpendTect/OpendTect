@@ -196,11 +196,17 @@ Well::Man::Man()
 
 Well::Man::~Man()
 {
-    cleanup();
+    checkForUndeletedRef();
 }
 
 
 void Well::Man::cleanup()
+{
+    checkForUndeletedRef();
+}
+
+
+void Well::Man::checkForUndeletedRef()
 {
 #ifdef __debug__
     for ( int idx=0; idx<wells_.size(); idx++ )

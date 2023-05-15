@@ -210,6 +210,10 @@ void uiMainWin::setDeleteOnClose( bool yn )
 { body_->setAttribute( Qt::WA_DeleteOnClose, yn ); }
 
 
+bool uiMainWin::isDeleteOnClose() const
+{ return body_->isDeleteOnClose(); }
+
+
 void uiMainWin::removeDockWindow( uiDockWin* dwin )
 { body_->removeDockWin( dwin ); }
 

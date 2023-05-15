@@ -81,6 +81,7 @@ mExpClass(Well) Man
 public:
 			~Man();
 
+
     void		cleanup();
     void		removeObject(const Data*);
     void		removeObject(const MultiID&);
@@ -162,6 +163,11 @@ public:
     static bool		getMarkerNames(BufferStringSet&);
     mDeprecated("Use writeAndRegister PtrMan<Log>& argument")
     bool		writeAndRegister(const MultiID&,const Log&);
+
+public:
+    void		checkForUndeletedRef();
+    //-> This is only public to preserve ABI compatibility, ideally should
+    //-> have been a CallBacker. This should not be used by plugins
 
 };
 
