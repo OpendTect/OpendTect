@@ -25,37 +25,35 @@ CommandTask::CommandTask( const OS::MachineCommand& mc,
 
 CommandTask::CommandTask( const OS::MachineCommand& mc,
 			  OS::LaunchType lt,
-			  bool inpythonenv,
-			  const char* workdir )
-    : CommandTask(mc, OS::CommandExecPars(lt), inpythonenv)
+			  bool inpythonenv, const char* workdir )
+    : Task()
+    , machcmd_(mc)
+    , execpars_(lt)
+    , inpythonenv_(inpythonenv)
 {
-    deleteAndNullPtr( stdoutput_ );
-    deleteAndNullPtr( stderror_ );
-    if ( workdir )
+    if ( workdir && *workdir )
 	execpars_.workingdir( workdir );
-
 }
 
 
 CommandTask::CommandTask( const OS::MachineCommand& mc,
-			  bool readstdoutput,bool readstderror,
+			  bool readstdoutput, bool readstderror,
 			  bool inpythonenv,
 			  const char* workdir )
-    : CommandTask(mc, OS::CommandExecPars(OS::Wait4Finish), inpythonenv)
+    : CommandTask(mc,OS::Wait4Finish,inpythonenv,workdir)
 {
-    deleteAndNullPtr( stdoutput_ );
-    deleteAndNullPtr( stderror_ );
     if ( readstdoutput )
 	stdoutput_ = new BufferString;
     if ( readstderror )
 	stderror_ = new BufferString;
-    if ( workdir )
-	execpars_.workingdir( workdir );
 }
 
 
 CommandTask::~CommandTask()
-{}
+{
+    delete stdoutput_;
+    delete stderror_;
+}
 
 
 bool CommandTask::execute()
@@ -63,15 +61,15 @@ bool CommandTask::execute()
     bool res = false;
     if ( inpythonenv_ )
     {
+	uiRetVal ret;
 	if ( stdoutput_ || stderror_ )
 	{
-	    BufferString out;
-	    res = OD::PythA().execute( machcmd_, out, stderror_ );
-	    if ( stdoutput_ )
-		stdoutput_->set( out );
+	    BufferString tmpstdout;
+	    BufferString& stdoutmsg = stdoutput_ ? *stdoutput_ : tmpstdout;
+	    res = OD::PythA().execute( machcmd_, stdoutmsg, ret, stderror_ );
 	}
 	else
-	    res = OD::PythA().execute( machcmd_, execpars_ );
+	    res = OD::PythA().execute( machcmd_, execpars_, ret );
     }
     else if ( stdoutput_ || stderror_ )
     {
@@ -90,19 +88,13 @@ bool CommandTask::execute()
 
 BufferString CommandTask::getStdOutput() const
 {
-    BufferString res;
-    if ( stdoutput_ )
-	res.set( *stdoutput_ );
-    return res;
+    return stdoutput_ ? *stdoutput_ : BufferString::empty();
 }
 
 
 BufferString CommandTask::getStdError() const
 {
-    BufferString res;
-    if ( stderror_ )
-	res.set( *stderror_ );
-    return res;
+    return stderror_ ? *stderror_ : BufferString::empty();
 }
 
 

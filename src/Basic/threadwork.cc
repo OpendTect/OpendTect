@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Threads
 {
 
-const Threads::WorkManager* thetwm = 0;
+const Threads::WorkManager* thetwm = nullptr;
 static Threads::Atomic<int> freetwmid( 0 );
 
 static void shutdownTWM()
@@ -48,14 +48,15 @@ Threads::WorkManager& WorkManager::twm()
 class SimpleWorker : public CallBacker
 { mODTextTranslationClass(SimpleWorker)
 public:
-			SimpleWorker() : exitstatus_( false )	{}
-    virtual		~SimpleWorker()				{}
+			SimpleWorker()				{}
+			~SimpleWorker()				{}
 
     void		runWork( Work& work, CallBack* cb )
 			{
 			    exitstatus_ = work.execute();
 			    fillMessage( work );
-			    if ( cb ) cb->doCall( this );
+			    if ( cb )
+				cb->doCall( this );
 			}
 
     bool		getExitStatus() const	{ return exitstatus_; }
@@ -70,7 +71,7 @@ protected:
     void		fillMessage( const ::Threads::Work& work )
 			{ msg_ = work.errMsg(); }
 
-    bool		exitstatus_;
+    bool		exitstatus_ = false;
     uiString		msg_;
 };
 
@@ -84,15 +85,15 @@ and the tasks to be performed.
 class WorkThread : public SimpleWorker
 {
 public:
-			WorkThread( WorkManager& );
+			WorkThread(WorkManager&);
 			~WorkThread();
 
 			//Interface from manager
     void		assignTask(const ::Threads::Work&,
-				   const CallBack& finishedcb, int queueid );
+				   const CallBack& finishedcb,int queueid);
 
 
-    void		cancelWork( const ::Threads::Work* );
+    void		cancelWork(const ::Threads::Work*);
 			//!< If working on this task, cancel it and continue.
 			//!< If a nullpointer is given, it will cancel
 			//!< regardless of which task we are working on
@@ -103,19 +104,19 @@ public:
 private:
 
     void		doWork(CallBacker*);
-    void		exitWork(CallBacker*);
+    void		exitWorkCB(CallBacker*);
 
     WorkManager&	manager_;
 
     ConditionVar&	controlcond_;	//Dont change this order!
 
-    bool		exitflag_;	//Set only from destructor
-    bool		cancelflag_;	//Cancel current work and continue
+    bool		exitflag_ = false;	//Set only from destructor
+    bool		cancelflag_ = false; //Cancel current work and continue
     ::Threads::Work	task_;
     CallBack		finishedcb_;
-    int			queueid_;
+    int			queueid_ = -1;
 
-    Thread*		thread_;
+    Thread*		thread_ = nullptr;
 
     long		spacefiller_[24];
 };
@@ -125,12 +126,8 @@ private:
 
 Threads::WorkThread::WorkThread( WorkManager& man )
     : SimpleWorker()
-    , manager_( man )
-    , controlcond_( *new Threads::ConditionVar )
-    , thread_( 0 )
-    , queueid_( -1 )
-    , exitflag_( false )
-    , cancelflag_( false )
+    , manager_(man)
+    , controlcond_(*new Threads::ConditionVar)
 {
     spacefiller_[0] = 0; //to avoid warning of unused
 
@@ -145,14 +142,14 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     //
 
     SignalHandling::startNotify( SignalHandling::Kill,
-				 mCB( this, WorkThread, exitWork ));
+				 mCB(this,WorkThread,exitWorkCB));
 }
 
 
 Threads::WorkThread::~WorkThread()
 {
     SignalHandling::stopNotify( SignalHandling::Kill,
-				 mCB( this, WorkThread, exitWork ));
+				mCB(this,WorkThread,exitWorkCB) );
 
     if ( thread_ )
     {
@@ -162,9 +159,9 @@ Threads::WorkThread::~WorkThread()
 	controlcond_.unLock();
 
 	thread_->waitForFinish();
-	delete thread_;
     }
 
+    delete thread_;
     delete &controlcond_;
 }
 
@@ -244,7 +241,7 @@ void Threads::WorkThread::cancelWork( const ::Threads::Work* canceltask )
 }
 
 
-void Threads::WorkThread::exitWork(CallBacker*)
+void Threads::WorkThread::exitWorkCB( CallBacker* )
 {
     controlcond_.lock();
     exitflag_ = true;
@@ -252,8 +249,7 @@ void Threads::WorkThread::exitWork(CallBacker*)
     controlcond_.unLock();
 
     thread_->waitForFinish();
-    delete thread_;
-    thread_ = 0;
+    deleteAndNullPtr( thread_ );
 }
 
 
@@ -296,7 +292,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
 
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	WorkThread* wt = new WorkThread( *this );
+	auto* wt = new WorkThread( *this );
 	threads_ += wt;
 	threadids_ += wt->threadID();
 	freethreads_ += wt;
@@ -308,7 +304,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
 
 Threads::WorkManager::~WorkManager()
 {
-    if ( this==thetwm && queueids_.size() )
+    if ( this==thetwm && !queueids_.isEmpty() )
     {
 	pErrMsg("Default queue is not empty. "
 		"Please call twm().shutdown() before exiting main program,"
@@ -326,7 +322,7 @@ void Threads::WorkManager::shutdown()
     isShuttingDown.trigger();
 
     while ( !queueids_.isEmpty() )
-	removeQueue( queueids_[0], false );
+	removeQueue( queueids_.last(), false );
 
     deepErase( threads_ );
 }
@@ -517,10 +513,9 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
     sw.runWork( taskcopy, cb )
 
 void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
-	CallBack* cb, int queueid, bool firstinline,
-	bool ignoreduplicates,
-	bool forcedifferentthread )
-
+				    CallBack* cb, int queueid, bool firstinline,
+				    bool ignoreduplicates,
+				    bool forcedifferentthread )
 {
     if ( queueid<0 )
 	queueid = cDefaultQueueID();
@@ -544,7 +539,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
     }
 
-    if ( ignoreduplicates && workload_.isPresent( newtask ) )
+    if ( ignoreduplicates && workload_.isPresent(newtask) )
 	return;
 
     const int nrfreethreads = freethreads_.size();
