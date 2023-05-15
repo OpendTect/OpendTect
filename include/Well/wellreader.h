@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "executor.h"
 
 #include "bufstring.h"
+#include "dbkey.h"
 #include "manobjectset.h"
 #include "ranges.h"
 #include "uistring.h"
@@ -104,10 +105,12 @@ protected:
 
     RefObjectSet<Well::Data>&	wds_;
     DBKeySet&			keys_;
+    od_int64			welladdedcount_		= 0;
+    od_int64			wellreloadedcount_	= 0;
     od_int64			nrwells_;
-    od_int64			nrdone_ = 0;
+    od_int64			nrdone_			= 0;
     uiString			errmsg_;
-    bool			allwellsread_ = true;
+    bool			allwellsread_		= true;
     const Well::LoadReqs	reqs_;
-    SurveyChanger*		chgr_ = nullptr;
+    SurveyChanger*		chgr_			= nullptr;
 };

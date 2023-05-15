@@ -1004,7 +1004,11 @@ int MultiWellReader::nextStep()
     if ( nrdone_ >= totalNr() )
     {
 	if ( wds_.size() != keys_.size() )
-	    allwellsread_ = false;
+	{
+	    const int nrwellsread = welladdedcount_ + wellreloadedcount_;
+	    if ( nrwellsread != keys_.size() )
+		allwellsread_ = false;
+	}
 
 	if  ( wds_.size() == 0 )
 	{
@@ -1018,6 +1022,7 @@ int MultiWellReader::nextStep()
     const DBKey& wkey = keys_[sCast(int,nrdone_)];
     nrdone_++;
     RefMan<Well::Data> wd;
+    bool needsreload = false;
     if ( !wds_.isEmpty() )
     {
 	for ( const auto* wdata : wds_ )
@@ -1026,6 +1031,7 @@ int MultiWellReader::nextStep()
 	    if ( wdata->multiID() == wkey )
 	    {
 		wds_.removeSingle( idx );
+		needsreload = true;
 		break;
 	    }
 	}
@@ -1067,5 +1073,6 @@ int MultiWellReader::nextStep()
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
 
     wds_.addIfNew( wd );
+    needsreload ? wellreloadedcount_++ : welladdedcount_++;
     return MoreToDo();
 }
