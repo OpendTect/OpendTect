@@ -44,28 +44,41 @@ namespace OD
 				    { return "Use_External_Python_Path"; }
 
 	uiRetVal	isUsable(bool force=false,
-				 const char* scriptstr=nullptr,
-				 const char* scriptexpectedout=nullptr) const;
+				 BufferString* stdoutstr =nullptr,
+				 BufferString* stderrstr =nullptr) const;
 
+			/* uiRetVal always contains the output of stderr
+			   if the execution failed */
+	bool		execute(const OS::MachineCommand&,uiRetVal&,
+				bool wait4finish=true,
+				BufferString* stdoutstr =nullptr,
+				BufferString* stderrstr =nullptr) const;
 	bool		execute(const OS::MachineCommand&,
-				bool wait4finish=true) const;
+				BufferString& stdoutstr,uiRetVal&,
+				BufferString* stderrstr =nullptr) const;
 	bool		execute(const OS::MachineCommand&,
-				BufferString& stdoutstr,
-				BufferString* stderrstr,
-				uiString* errmsg=nullptr) const;
-	bool		execute(const OS::MachineCommand&,
-				const OS::CommandExecPars&,
+				const OS::CommandExecPars&,uiRetVal&,
 				int* pid=nullptr,
-				uiString* errmsg=nullptr) const;
-	bool		executeScript(const char*,bool wait4finish=true) const;
+				BufferString* stdoutstr =nullptr,
+				BufferString* stderrstr =nullptr) const;
+	bool		executeScript(const char*,BufferString& stdoutstr,
+				      uiRetVal&,
+				      BufferString* stderrstr =nullptr) const;
+	bool		executeScript(const char*,bool wait4finish,uiRetVal&,
+				      BufferString* stdoutstr =nullptr,
+				      BufferString* stderrstr =nullptr) const;
 	bool		executeScript(const BufferStringSet&,
-				      bool wait4finish=true) const;
+				      BufferString& stdoutstr,uiRetVal&,
+				      BufferString* stderrstr =nullptr) const;
+	bool		executeScript(const BufferStringSet&,bool wait4finish,
+				      uiRetVal&,
+				      BufferString* stdoutstr =nullptr,
+				      BufferString* stderrstr =nullptr) const;
 
-	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
 	BufferString	pyVersion() const;
 	uiString	pySummary() const;
 
-	bool		isModuleUsable(const char* nm) const;
+	bool		isModuleUsable(const char* nm,uiRetVal&) const;
 
 	static BufferString	getDataTypeStr(OD::DataRepType);
 	static OD::DataRepType	getDataType(const char*);
@@ -80,6 +93,7 @@ namespace OD
 	static const char*	sKeyActivatePath();
 
 	Notifier<PythonAccess>	envChange;
+	CNotifier<PythonAccess,const uiRetVal&>& envVerified();
 
 	mStruct(Basic) ModuleInfo : NamedObject
 	{
@@ -94,6 +108,8 @@ namespace OD
 	};
 
 	uiRetVal	verifyEnvironment(const char* piname);
+			/*<! Non blocking, will trigger envVerified()
+			     when finished */
 	BufferString	getPacmanExecNm() const;
 	uiRetVal	updateModuleInfo(const char* defprog="pip",
 					 const char* defarg="list");
@@ -115,9 +131,13 @@ namespace OD
 				     OS::MachineCommand&) const;
 			/*<! MachineCommand for scripts installed using pip
 			     within a conda environment */
-	bool		openTerminal(const char* cmd,
+	bool		openTerminal(const char* cmd,uiRetVal&,
 				     const BufferStringSet* args=nullptr,
 				     const char* workdir=nullptr) const;
+
+	uiRetVal	setEnvironment(const FilePath* rootfp,
+				       const char* envnm);
+
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 	static void	GetPythonEnvPath(FilePath&);
 	static void	GetPythonEnvBinPath(FilePath&);
@@ -128,17 +148,14 @@ namespace OD
 	bool		isusable_ = false;
 	FilePath*	activatefp_ = nullptr;
 	BufferString	virtenvnm_;
-	mutable PtrMan<OS::CommandLauncher>	cl_;
-	mutable BufferString	laststdout_;
-	mutable BufferString	laststderr_;
-	mutable uiString	msg_;
+
 	BufferString	pythversion_;
 	static BufferStringSet pystartpath_;
 	ManagedObjectSet<ModuleInfo> moduleinfos_;
 
-	bool		isUsable_(bool force=false,
-				 const char* scriptstr=nullptr,
-				 const char* scriptexpectedout=nullptr);
+	bool		isUsable_(bool force,uiRetVal&,
+				  BufferString* stdoutstr =nullptr,
+				  BufferString* stderrstr =nullptr);
 	static bool	getInternalEnvironmentLocation(FilePath&,
 							   bool userdef);
 	static FilePath getInternalEnvPath(bool userdef);
@@ -150,9 +167,9 @@ namespace OD
 	static bool	getCondaEnvsFromTxt( BufferStringSet& );
 	static bool	getCondaEnvFromTxtPath( ObjectSet<FilePath>& );
 	bool		isEnvUsable(const FilePath* pythonenvfp,
-				    const char* envnm,
-				    const char* scriptstr,
-				    const char* scriptexpectedout);
+				    const char* envnm,uiRetVal&,
+				    BufferString* stdoutstr =nullptr,
+				    BufferString* stderrstr =nullptr);
 	static FilePath* getCommand(OS::MachineCommand&,
 				      bool background,
 				      const FilePath* activatefp,
@@ -163,16 +180,15 @@ namespace OD
 				  const char* envnm,
 				  FilePath& scriptfp);
 	static void		getPIDFromFile(const char* pidfnm,int* pid);
-	bool			doExecute(const OS::MachineCommand&,
+	uiRetVal		doExecute(const OS::MachineCommand&,
 				  const OS::CommandExecPars*,int* pid,
-				  const FilePath* activatefp,
-				  const char* envnm) const;
+				  const FilePath* activatefp,const char* envnm,
+				  BufferString* stdoutstr,
+				  BufferString* stderrstr) const;
 	static FilePath*	getActivateScript(const FilePath& root);
-	bool			retrievePythonVersionStr();
-	void			envChangeCB(CallBacker*);
-	mDeprecated("Use appToBeStartedCB")
-	void			pluginsLoaded(CallBacker*);
 	void			appToBeStartedCB(CallBacker*);
+	bool			retrievePythonVersionStr();
+	void			verifyEnvironmentCB(CallBacker*);
 	const BufferStringSet&	getBasePythonPath_() const;
 
 	void		    createFireWallExeList(ManagedObjectSet<FilePath>&);
@@ -182,8 +198,16 @@ namespace OD
 	mutable Threads::Lock	lock_;
 
     public:
+			//For specialists only
+
+	PythonSource	getPythonSource() const;
+	const FilePath* getActivateFp() const	{ return activatefp_; }
+	FilePath	getPythonEnvFp() const;
+	const char*	getEnvName() const	{ return virtenvnm_.buf(); }
 
 	static void	initClass();
+	static PythonSource getPythonSource(const FilePath* envrootfp);
+	static FilePath getPythonEnvFp(const FilePath& activatefp);
 	static void	setPythonActivator(const char*);
 	static const char* getPythonActivatorPath();
 	static bool	needCheckRunScript();
@@ -191,6 +215,60 @@ namespace OD
 	void		addBasePath(const FilePath&);
 			/*<! For plugins to update PYTHONPATH
 			     during initialization */
+
+    public:
+	mDeprecatedDef
+	uiRetVal	isUsable(bool force=false,
+				 const char* scriptstr=nullptr,
+				 const char* scriptexpectedout=nullptr) const;
+	mDeprecated("Use uiRetVal")
+	bool		execute(const OS::MachineCommand&,
+				bool wait4finish=true) const;
+	mDeprecated("Use uiRetVal")
+	bool		execute(const OS::MachineCommand&,
+				BufferString& stdoutstr,
+				BufferString* stderrstr,
+				uiString* errmsg=nullptr) const;
+	mDeprecated("Use uiRetVal")
+	bool		execute(const OS::MachineCommand&,
+				const OS::CommandExecPars&,
+				int* pid=nullptr,
+				uiString* errmsg=nullptr) const;
+	mDeprecated("Use uiRetVal")
+	bool		executeScript(const char*,bool wait4finish=true) const;
+	mDeprecated("Use uiRetVal")
+	bool		executeScript(const BufferStringSet&,
+				      bool wait4finish=true) const;
+	mDeprecated("Use uiRetVal")
+	bool		isModuleUsable(const char* nm) const;
+
+	mDeprecated("Use uiRetVal")
+	BufferString	lastOutput(bool stderrout,uiString* launchermsg) const;
+	mDeprecated("Use uiRetVal")
+	bool		openTerminal(const char* cmd,
+				     const BufferStringSet* args=nullptr,
+				     const char* workdir=nullptr) const;
+    private:
+	mDeprecatedObs
+	bool		isUsable_(bool force=false,
+				  const char* scriptstr=nullptr,
+				  const char* scriptexpectedout=nullptr);
+	mDeprecatedObs
+	bool		isEnvUsable(const FilePath* pythonenvfp,
+				    const char* envnm,const char* scriptstr,
+				    const char* scriptexpectedout);
+	mDeprecatedObs
+	bool			doExecute(const OS::MachineCommand&,
+				  const OS::CommandExecPars*,int* pid,
+				  const FilePath* activatefp,
+				  const char* envnm) const;
+	mDeprecated("Use appToBeStartedCB")
+	void			pluginsLoaded(CallBacker*);
+
+	mutable PtrMan<OS::CommandLauncher>	cl_;
+	mutable BufferString	laststdout_;
+	mutable BufferString	laststderr_;
+	mutable uiString	msg_;
 
     };
 

@@ -505,26 +505,27 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 {
     if ( reqobj.isPresent(sKey::FileName()) && reqobj.isPresent(sKey::Name()) )
     {
-	OD::PythonAccess& pytha = OD::PythA();
-	FilePath prevactivatefp;
-	if ( pytha.activatefp_ )
-	    prevactivatefp = *pytha.activatefp_;
-	const BufferString prevvirtenvnm( pytha.virtenvnm_ );
-	const FilePath activatefp = reqobj.getFilePath( sKey::FileName() );
-	const BufferString virtenvnm( reqobj.getStringValue(sKey::Name() ) );
-	if ( prevactivatefp != activatefp || prevvirtenvnm != virtenvnm )
+	const OD::PythonAccess& pytha = OD::PythA();
+	const OD::PythonSource src = pytha.getPythonSource();
+	FilePath prevenvrootfp; BufferString prevvirtenvnm;
+	if ( src != OD::System )
 	{
-	    NotifyStopper ns( pytha.envChange );
-	    if ( activatefp.isEmpty() )
-		deleteAndNullPtr( pytha.activatefp_ );
-	    else if ( pytha.activatefp_ )
-		*pytha.activatefp_ = activatefp;
+	    prevenvrootfp = pytha.getPythonEnvFp();
+	    prevvirtenvnm.set( pytha.getEnvName() );
+	}
+
+	const FilePath envrootfp = reqobj.getFilePath( sKey::FileName() );
+	const OD::PythonSource source =
+			OD::PythonAccess::getPythonSource( &envrootfp );
+	const BufferString virtenvnm( reqobj.getStringValue(sKey::Name() ) );
+	if ( source != src || prevenvrootfp != envrootfp ||
+	     prevvirtenvnm != virtenvnm )
+	{
+	    if ( source == OD::System )
+		return getNonConst( pytha ).setEnvironment( nullptr, nullptr );
 	    else
-		pytha.activatefp_ = new FilePath( activatefp );
-	    pytha.virtenvnm_ = virtenvnm;
-	    pytha.istested_ = true;
-	    pytha.isusable_ = true;
-	    pytha.envChangeCB( nullptr );
+		return getNonConst( pytha ).setEnvironment( &envrootfp,
+							    virtenvnm.buf() );
 	}
     }
 
@@ -535,11 +536,16 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 void ServiceMgrBase::getPythEnvRequestInfo( OD::JSON::Object& sinfo )
 {
     const OD::PythonAccess& pytha = OD::PythA();
-    if ( pytha.activatefp_ )
-        sinfo.set( sKey::FileName(), *pytha.activatefp_ );
-    else
-        sinfo.set( sKey::FileName(), BufferString::empty() );
-    sinfo.set( sKey::Name(), pytha.virtenvnm_ );
+    const OD::PythonSource src = pytha.getPythonSource();
+    FilePath envrootfp; BufferString virtenvnm;
+    if ( src != OD::System )
+    {
+	envrootfp = pytha.getPythonEnvFp();
+	virtenvnm.set( pytha.getEnvName() );
+    }
+
+    sinfo.set( sKey::FileName(), envrootfp );
+    sinfo.set( sKey::Name(), virtenvnm.buf() );
 }
 
 

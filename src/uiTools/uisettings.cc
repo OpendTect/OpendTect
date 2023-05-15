@@ -223,19 +223,18 @@ void uiSafetyCheckDlg::scan( const char* command )
 
     MouseCursorChanger mcc( MouseCursor::Wait );
     BufferString stdoutstr, stderrstr;
-    uiString errmsg;
-    const bool res = OD::PythA().execute( mc, stdoutstr, &stderrstr, &errmsg );
+    uiRetVal ret;
+    const bool res = OD::PythA().execute( mc, stdoutstr, ret, &stderrstr );
     if ( !res )
     {
-	if ( errmsg.isEmpty() )
-	    errmsg.set( tr("Cannot execute the safety command") );
-
-	uiMSG().error( errmsg );
+	uiRetVal uirv = tr("Cannot execute the safety command");
+	uirv.add( ret );
+	uiMSG().error( ret );
     }
 
-    outputfld_->setText(
-	!stdoutstr.isEmpty() ? stdoutstr.buf()
-			     : (!stderrstr.isEmpty() ? stderrstr.buf() : "") );
+    outputfld_->setText( stdoutstr.isEmpty()
+			   ? (stderrstr.isEmpty() ? "" : stderrstr.buf())
+			   : stdoutstr.buf() );
     savebut_->setSensitive( true );
 }
 
@@ -409,7 +408,8 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
     terminalRequested.trigger();
     BufferString errmsg;
     uiString launchermsg;
-    bool res = OD::PythA().openTerminal( cmd, &progargs, workingdir );
+    uiRetVal ret;
+    bool res = OD::PythA().openTerminal( cmd, ret, &progargs, workingdir );
     if ( !res )
     {
 	uiString firstmsg = tr( "Cannot launch terminal" );
@@ -422,10 +422,9 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 	}
 	else
 	{
-	    errmsg = OD::PythA().lastOutput( true, &launchermsg );
-	    if ( !errmsg.isEmpty() )
+	    if ( !ret.isOK() )
 		firstmsg.appendPhraseSameLine( tr(" withpython: %1")
-						.arg(errmsg) );
+						.arg(ret) );
 	}
 
 	if ( !res )
@@ -465,6 +464,16 @@ void uiSettingsMgr::loadToolBarCmds( uiMainWin& applwin )
 		    utilmnu->findAction( tr("Installation"))->getMenu() );
 	}
     }
+
+    updateUserCmdToolBar();
+    mAttachCBIfNotAttached( OD::PythA().envChange,
+			    uiSettingsMgr::updateUserCmdToolBarCB );
+}
+
+
+void uiSettingsMgr::updateUserCmdToolBarCB( CallBacker* )
+{
+    mEnsureExecutedInMainThread( uiSettingsMgr::updateUserCmdToolBarCB );
     updateUserCmdToolBar();
 }
 
@@ -663,18 +672,9 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
     if ( programArgs(idx) )
 	mc.addArgs( *programArgs(idx) );
 
-    if ( !OD::PythA().execute(mc,false) )
-    {
-	uiString launchermsg;
-	const BufferString errmsg = OD::PythA().lastOutput(true,&launchermsg);
-	uiRetVal uirv( launchermsg );
-	if ( !errmsg.isEmpty() )
-	    uirv.add( toUiString(errmsg) );
-
-	uiMSG().error(tr("Error starting %1").arg(mc.toString()),
-			      uirv);
-	return;
-    }
+    uiRetVal uirv;
+    if ( !OD::PythA().execute(mc,uirv,false) )
+	uiMSG().error( tr("Error starting %1").arg(mc.toString()), uirv );
 }
 
 
@@ -1584,7 +1584,7 @@ void uiPythonSettings::testPythonModules()
     uiUserShowWait usw( this,
 			tr("Retrieving list of installed Python modules") );
     ManagedObjectSet<OD::PythonAccess::ModuleInfo> modules;
-    const uiRetVal uirv( OD::PythA().getModules(modules) );
+    const uiRetVal uirv = OD::PythA().getModules( modules );
     if ( !uirv.isOK() )
     {
 	uiMSG().error( uirv );
@@ -1592,19 +1592,18 @@ void uiPythonSettings::testPythonModules()
     }
 
     BufferStringSet modstrs;
-    for ( auto module : modules )
-	modstrs.add( module->displayStr() );
+    for ( const auto* mod : modules )
+	modstrs.add( mod->displayStr() );
 
     usw.readyNow();
     uiDialog dlg( this, uiDialog::Setup(tr("Python Installation"),mNoDlgTitle,
 					mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
-    uiGenInput* pythfld = new uiGenInput( &dlg, tr("Using") );
+    auto* pythfld = new uiGenInput( &dlg, tr("Using") );
     pythfld->setText( OD::PythA().pyVersion() );
     pythfld->setReadOnly();
     pythfld->setElemSzPol( uiObject::Wide );
-    uiLabeledListBox* modfld =
-	new uiLabeledListBox( &dlg, tr("Detected modules") );
+    auto* modfld = new uiLabeledListBox( &dlg, tr("Detected modules") );
     modfld->addItems( modstrs );
     modfld->attach( alignedBelow, pythfld );
     dlg.go();
@@ -1616,14 +1615,11 @@ void uiPythonSettings::testCB(CallBacker*)
 	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
-    OD::PythA().istested_ = false;
-    if ( !OD::PythA().retrievePythonVersionStr() )
+    const uiRetVal ret = OD::PythA().isUsable( true, (BufferString*)nullptr );
+    if ( !ret.isOK() )
     {
-	uiString launchermsg;
-	uiRetVal uirv( tr("Cannot detect Python version:\n%1\n")
-		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
-	uirv.add( tr("Python environment not usable") )
-	    .add( launchermsg );
+	uiRetVal uirv = tr("Cannot detect Python version:");
+	uirv.add( ret ).add( tr("Python environment not usable") );
 	uiMSG().error( uirv );
 	return;
     }
@@ -1824,16 +1820,9 @@ bool uiPythonSettings::useScreen()
 
     needrestore_ = chgdsetts_;
     if ( commitSetts(*chgdsetts_) )
-	deleteAndNullPtr(chgdsetts_);
+	deleteAndNullPtr( chgdsetts_ );
 
-    if ( chgdsetts_ )
-	return false;
-
-    OD::PythA().istested_ = false;
-    OD::PythA().updatePythonPath();
-    uiSettsMgr().updateUserCmdToolBar();
-
-    return true;
+    return chgdsetts_ ? false : true;
 }
 
 bool uiPythonSettings::rejectOK( CallBacker* )
@@ -1842,12 +1831,7 @@ bool uiPythonSettings::rejectOK( CallBacker* )
 	return true;
 
     if ( commitSetts(initialsetts_) )
-    {
-	OD::PythA().istested_ = false;
-	OD::PythA().envChangeCB( nullptr );
-	OD::PythA().updatePythonPath();
-	uiSettsMgr().updateUserCmdToolBar();
-    }
+	OD::PythA().isUsable( true, (BufferString*)nullptr );
     else
 	uiMSG().warning( tr("Cannot restore the initial settings") );
 
@@ -1862,21 +1846,13 @@ bool uiPythonSettings::acceptOK( CallBacker* )
 	isok = useScreen();
 	ismodified = true;
     }
+
     needrestore_ = !isok;
     if ( isok )
     {
 	if ( ismodified )
-	{
-	    NotifyStopper ns( OD::PythA().envChange );
-	    OD::PythA().istested_ = false;
-	    OD::PythA().envChangeCB( nullptr );
-	    OD::PythA().updatePythonPath();
-	    ns.enableNotification();
-	    OD::PythA().envChange.trigger();
-	    needrestore_ = false;
-
-	    uiSettsMgr().updateUserCmdToolBar();
-	}
+	    needrestore_ = !OD::PythA().isUsable( true,
+				 (BufferString*)nullptr ).isOK();
     }
     else
 	uiMSG().warning( tr("Cannot use the new settings") );

@@ -226,6 +226,7 @@ public:
 				    double maxwaittm=20 /* seconds */);
 
     PID_Type		processID() const;
+    int			exitCode() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
     uiString		errorMsg() const	{ return errmsg_; }
 

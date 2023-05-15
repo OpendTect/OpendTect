@@ -44,6 +44,7 @@ private:
 			mOD_DisableCopy(uiSettingsMgr);
 
     void		keyPressedCB(CallBacker*);
+    void		updateUserCmdToolBarCB(CallBacker*);
     void		doTerminalCmdCB(CallBacker*);
     void		doToolBarCmdCB(CallBacker*);
     void		doPythonSettingsCB(CallBacker*);
