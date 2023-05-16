@@ -82,6 +82,7 @@ Always defined:
 
 #if defined( __macarm__ ) || defined ( __macintel__ )
 # define __unix__ 1
+# define __mac__ 1
 # define __ismac__ true
 #else
 # define __ismac__ false

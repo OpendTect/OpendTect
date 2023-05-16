@@ -56,7 +56,7 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 
     CallBackSet& cbs = SH().getCBL( et );
     if ( !cbs.isPresent(cb) ) cbs += cb;
-#ifndef __win__
+#ifdef __unix__
     if ( et == SignalHandling::Alarm )
     {
 	/* tell OS not to restart system calls if a signal is received */
@@ -113,7 +113,7 @@ SignalHandling::SignalHandling()
     {
     initFatalSignalHandling();
 
-#ifndef __win__
+#ifdef __unix__
     // Stuff to ignore
     mCatchSignal( SIGURG );	/* Urgent condition */
     mCatchSignal( SIGTTIN );	/* Background read */
@@ -186,7 +186,7 @@ void SignalHandling::handle( int signalnr )
 #endif
 					SH().doKill( signalnr );	break;
 
-#ifndef __win__
+#ifdef __unix__
     case SIGSTOP: case SIGTSTP:		SH().doStop( signalnr );	return;
     case SIGCONT:			SH().doCont();		return;
 
@@ -315,7 +315,7 @@ void SignalHandling::stopRemote( const char* mach, PID_Type pid, bool friendly,
 
 void SignalHandling::doCont()
 {
-#ifndef __win__
+#ifdef __unix__
     mCatchSignal( SIGSTOP );
 #endif
     contcbs_.doCall( this );
