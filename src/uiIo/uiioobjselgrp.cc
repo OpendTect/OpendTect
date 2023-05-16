@@ -1002,6 +1002,9 @@ void uiIOObjSelGrp::addEntryToListBox( const MultiID& mid )
     NotifyStopper ns1( listfld_->selectionChanged );
     NotifyStopper ns2( listfld_->itemChosen );
     const EntryData* ed = dataset_.getDataFor( mid );
+    if ( !ed )
+	return;
+
     const BufferString& dispnm = ed->getDispNm();
     listfld_->addItem( dispnm );
     if ( requireIcon() )
