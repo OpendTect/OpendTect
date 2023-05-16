@@ -305,6 +305,25 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 }
 
 
+void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
+{
+    if ( !objname || !trgrpnm || !TranslatorGroup::hasGroup(trgrpnm) )
+    {
+	errmsg_ = "invalid object or translator group name.";
+	return;
+    }
+
+    if ( isObjPresent(objname, trgrpnm) )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
+	if ( !IOM().implRemove(ioobj->key(), true) )
+	    errmsg_ = "cannot remove existing object.";
+    }
+    else
+	errmsg_ = "object does not exist.";
+}
+
+
 extern "C" { mGlobal(General) const char* setDBMDataSource(const char*, bool); }
 
 bool odSurvey::activate() const
@@ -353,9 +372,11 @@ BufferStringSet odSurvey::getCommonItems( const BufferStringSet& list1,
 					  const BufferStringSet& list2 )
 {
     BufferStringSet res;
-    for ( const auto* item : list1 )
+    const BufferStringSet& srclist = list1.size()<list2.size() ? list1 : list2;
+    const BufferStringSet& chklist = list1.size()<list2.size() ? list2 : list1;
+    for ( const auto* item : srclist )
     {
-	if ( list2.isPresent(item->buf()) )
+	if ( chklist.isPresent(item->buf()) )
 	    res.add( item->buf() );
     }
     return res;
@@ -419,6 +440,24 @@ void odSurvey::getFeatures( OD::JSON::Object& jsobj,
 
     jsobj.set( "type", "FeatureCollection" );
     jsobj.set( "features", features );
+}
+
+
+TrcKeyZSampling odSurvey::tkzFromRanges( const int32_t inlrg[3],
+					 const int32_t crlrg[3],
+					 const float zrg[3], bool zistime )
+{
+    StepInterval<int> linerg( inlrg[0], inlrg[1], inlrg[2] );
+    StepInterval<int> trcrg( crlrg[0], crlrg[1], crlrg[2] );
+    StepInterval<float> z_rg( zrg[0], zrg[1], zrg[2] );
+    const float zscale = zistime ? ZDomain::Time().userFactor()
+				    : ZDomain::Depth().userFactor();
+    z_rg.scale( 1.0/zscale );
+    TrcKeyZSampling tkz;
+    tkz.hsamp_.setLineRange( linerg );
+    tkz.hsamp_.setTrcRange( trcrg );
+    tkz.zsamp_ = z_rg;
+    return tkz;
 }
 
 
@@ -553,6 +592,19 @@ bool survey_isok( hSurvey self )
 {
     const auto* p = reinterpret_cast<odSurvey*>(self);
     return p ? p->isOK() : false;
+}
+
+void survey_zrange( hSurvey self, float* zrg )
+{
+    const auto* p = reinterpret_cast<odSurvey*>(self);
+    if ( !p ) return;
+
+    p->activate();
+    StepInterval<float> z = SI().zRange();
+    z.scale( SI().showZ2UserFactor() );
+    zrg[0] = z.start;
+    zrg[1] = z.stop;
+    zrg[2] = z.step;
 }
 
 

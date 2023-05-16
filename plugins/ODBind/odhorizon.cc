@@ -43,7 +43,7 @@ ________________________________________________________________________________
 //     template class __declspec(dllimport) ValueSeries<float>;
 // #endif
 
-const char* odHorizon3D::sKeyTranslatorGrp()
+const char* odHorizon3D::translatorGrp()
 {
     return EMHorizon3DTranslatorGroup::sGroupName();
 }
@@ -93,7 +93,7 @@ int odEMObject::getNrAttributes() const
 
 
 odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name )
-    : odEMObject(thesurvey, name, sKeyTranslatorGrp())
+    : odEMObject(thesurvey, name, translatorGrp())
 {
     if ( !ioobj_ )
 	return;
@@ -114,7 +114,7 @@ odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name )
 odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name,
 			  const StepInterval<int>& inl_rg,
 			  const StepInterval<int>& crl_rg, bool overwrite )
-    : odEMObject(thesurvey, name, sKeyTranslatorGrp(), overwrite)
+    : odEMObject(thesurvey, name, translatorGrp(), overwrite)
 {
     tk_.set( inl_rg, crl_rg );
     array_ = new Array2DImpl<float>( tk_.nrInl(), tk_.nrCrl() );
@@ -365,7 +365,7 @@ void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
 
 
 odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
-    : odEMObject(thesurvey, name, sKeyTranslatorGrp())
+    : odEMObject(thesurvey, name, translatorGrp())
 {
     if ( !ioobj_ )
 	return;
@@ -399,7 +399,7 @@ odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
 
 odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name,
 			  bool creategeom, bool overwrite )
-    : odEMObject(thesurvey, name, sKeyTranslatorGrp(), overwrite)
+    : odEMObject(thesurvey, name, translatorGrp(), overwrite)
     , creategeom_(creategeom)
 {
 

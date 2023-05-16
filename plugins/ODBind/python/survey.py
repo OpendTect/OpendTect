@@ -22,6 +22,7 @@ class Survey(object):
     _names = wrap_function(LIBODB, 'survey_names', ct.c_void_p, [ct.c_char_p])
     _path = wrap_function(LIBODB, 'survey_path', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _type = wrap_function(LIBODB, 'survey_survtype', ct.POINTER(ct.c_char_p), [ct.c_void_p])
+    _zrange = wrap_function(LIBODB, 'survey_zrange', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
 
     def __init__(self, survey_name: str, basedir: str=None):
         """Initialise an OpendTect survey object
@@ -35,11 +36,26 @@ class Survey(object):
 
         """
         self._handle = Survey._new(survey_name.encode(), basedir.encode() if basedir else None)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
     def __del__(self):
         Survey._del(self._handle)
+
+    @property
+    def handle(self) ->ct.c_void_p:
+        """ Return the ctypes pointer to the underlying C/C++ Survey object ."""
+        return self._handle
+
+    @property
+    def isok(self) ->bool:
+        """ Return the current status of the underlying C/C++ Survey object."""
+        return self._isok(self._handle)
+
+    @property
+    def errmsg(self) ->str:
+        """ Return the current error message string of the underlying C/C++ Survey object."""
+        return pystr(self._errmsg(self._handle))
 
     @property
     def has2d(self) ->bool:
@@ -55,6 +71,15 @@ class Survey(object):
     def survey_type(self) ->str:
         """str: Survey type: one of 2D, 3D or 2D3D (readonly)"""
         return pystr(Survey._type(self._handle))
+
+    @property
+    def zrange(self) ->list[float]:
+        """list[float]: Z range in survey definition (readonly)"""
+        zrg = [0.0, 0.0, 0.0]
+        ct_zrg = (ct.c_float * 3)(*zrg)
+
+        Survey._zrange(self._handle, ct_zrg)
+        return list(ct_zrg)
 
     def bin(self, x: float, y: float ) ->tuple[int, int]:
         """Return the nearest inline and crossline location to the given X and Y coordinates.
@@ -231,6 +256,7 @@ class _SurveyObject(object):
         clss._infos = odb.wrap_function(LIBODB, f'{bindnm}_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._isok = odb.wrap_function(LIBODB, f'{bindnm}_isok', ct.c_bool, [ct.c_void_p])
         clss._names = odb.wrap_function(LIBODB, f'{bindnm}_names', ct.c_void_p, [ct.c_void_p])
+        clss._removeobjs = odb.wrap_function(LIBODB, f'{bindnm}_removeobjs', None, [ct.c_void_p, ct.c_void_p])
 
     def __init__(self, survey: Survey, name: str):
         """Initialise an OpendTect object
@@ -243,11 +269,30 @@ class _SurveyObject(object):
             an OpendTect object name
 
         """
-
         self._survey = survey
         self._handle = self._newin( survey._handle, name.encode())
-        if not self._isok(self._handle):
-            raise TypeError(pystr(self._errmsg(self._handle)))
+        if not self.isok:
+            raise TypeError(self.errmsg)
+
+    @property
+    def survey(self) ->Survey: 
+        """ Return the Survey object that this item is from."""
+        return self._survey
+
+    @property
+    def handle(self) ->ct.c_void_p:
+        """ Return the ctypes pointer to the underlying C/C++ object ."""
+        return self._handle
+
+    @property
+    def isok(self) ->bool:
+        """ Return the current status of the underlying C/C++ object."""
+        return self._isok(self._handle)
+
+    @property
+    def errmsg(self) ->str:
+        """ Return the current error message string of the underlying C/C++ object."""
+        return pystr(self._errmsg(self._handle))
 
     def __del__(self):
         self._del(self._handle)
@@ -345,8 +390,26 @@ class _SurveyObject(object):
         list[str]
 
         """
-
         return pystrlist(clss._names(survey._handle))
+
+    @classmethod
+    def delete(clss, survey: Survey, nms: list[str]):
+        """Removes the listed objects from the given survey.
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        nms : list[str]
+            A list of object names to remove.
+
+        """
+
+        nmsptr = makestrlist(nms)
+        clss._removeobjs(survey._handle, nmsptr)
+        stringset_del(nmsptr)
+        if not survey.isok:
+            raise OSError(survey.errmsg) 
 
 
 

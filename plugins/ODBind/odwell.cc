@@ -33,7 +33,7 @@ ________________________________________________________________________________
 
 
 odWell::odWell( const odSurvey& thesurvey, const char* name )
-    : odSurveyObject(thesurvey, name, sKeyTranslatorGrp())
+    : odSurveyObject(thesurvey, name, translatorGrp())
 {
     if ( !ioobj_ )
 	return;

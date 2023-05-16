@@ -69,8 +69,10 @@ class Horizon3D(_SurveyObject):
         ct_inlrg = (ct.c_int * 3)(*inl_rg)
         ct_crlrg = (ct.c_int * 3)(*crl_rg)
         newhor._handle = clss._newout(survey._handle, name.encode(), ct_inlrg, ct_crlrg, overwrite)
-        if not clss._isok(newhor._handle):
-            raise TypeError(pystr(clss._errmsg(newhor._handle)))
+        if not newhor._handle or not survey.isok:
+            raise TypeError(survey.errmsg)
+        elif not newhor.isok:
+            raise TypeError(newhor.errmsg)
 
         return newhor
 
@@ -85,8 +87,8 @@ class Horizon3D(_SurveyObject):
 
         allocator = NumpyAllocator()
         self._getz(self._handle, allocator.cfunc)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
         return allocator.allocated_arrays[0]
      
@@ -101,8 +103,8 @@ class Horizon3D(_SurveyObject):
 
         allocator = NumpyAllocator()
         self._getxy(self._handle, allocator.cfunc)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
         return (allocator.allocated_arrays[:2])
 
@@ -153,8 +155,8 @@ class Horizon3D(_SurveyObject):
         npcrlines = crlines if isinstance(crlines, np.ndarray) else np.array(crlines, dtype=np.int32)
         shape = np.array(npdata.shape, dtype=np.uint32)
         self._putz(self._handle, shape, npdata, npinlines, npcrlines)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
     def put_xarray(self, data_array):
         """Save the 3D horizon Z values from the data_array XArray DataArray
@@ -170,8 +172,8 @@ class Horizon3D(_SurveyObject):
         npcrlines = data_array.coords['crl'].to_numpy().astype(dtype=np.int32)
         shape = np.array(npdata.shape, dtype=np.uint32)
         self._putz(self._handle, shape, npdata, npinlines, npcrlines)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
 
 Horizon3D._initbindings('horizon3d')
