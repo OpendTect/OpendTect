@@ -94,6 +94,10 @@ mDefModInitFn(Seis)
     SeisPS2DTranslatorGroup::initClass();
     WaveletTranslatorGroup::initClass();
     dgbWaveletTranslator::initClass();
+    TranslatorGroup& wavelettrgrp = WaveletTranslatorGroup::theInst();
+    wavelettrgrp.setDefTranslIdx(
+	wavelettrgrp.getTemplateIdx(dgbWaveletTranslator::getInstance()) );
+
     Seis::SynthGeneratorBasic::initClass();
     SyntheticDataParsTranslatorGroup::initClass();
     dgbSyntheticDataParsTranslator::initClass();
@@ -101,9 +105,17 @@ mDefModInitFn(Seis)
     // The order here is important!
     // The first one is the default unless explicitly changed.
     CBVSSeisTrcTranslator::initClass();
-    TwoDSeisTrcTranslator::initClass();
-    TwoDDataSeisTrcTranslator::initClass();
-    CBVSSeisTrc2DTranslator::initClass();
+    TranslatorGroup& seistrgrp = SeisTrcTranslatorGroup::theInst();
+    seistrgrp.setDefTranslIdx(
+	seistrgrp.getTemplateIdx(CBVSSeisTrcTranslator::getInstance()) );
+
+    TwoDSeisTrcTranslator::initClass(); //old translators
+    TwoDDataSeisTrcTranslator::initClass(); //old translators
+    CBVSSeisTrc2DTranslator::initClass(); //current translator
+    TranslatorGroup& seis2dtrgrp = SeisTrc2DTranslatorGroup::theInst();
+    seis2dtrgrp.setDefTranslIdx(
+	seis2dtrgrp.getTemplateIdx(CBVSSeisTrc2DTranslator::getInstance()) );
+
     SEGYSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
     SEGYDirectSeisTrc2DTranslator::initClass();
@@ -111,7 +123,15 @@ mDefModInitFn(Seis)
     BlocksSeisTrcTranslator::initClass();
 
     CBVSSeisPS3DTranslator::initClass();
+    TranslatorGroup& seisps3dtrgrp = SeisPS3DTranslatorGroup::theInst();
+    seisps3dtrgrp.setDefTranslIdx(
+	seisps3dtrgrp.getTemplateIdx(CBVSSeisPS3DTranslator::getInstance()));
+
     CBVSSeisPS2DTranslator::initClass();
+    TranslatorGroup& seisps2dtrgrp = SeisPS2DTranslatorGroup::theInst();
+    seisps2dtrgrp.setDefTranslIdx(
+	seisps2dtrgrp.getTemplateIdx(CBVSSeisPS2DTranslator::getInstance()) );
+
     SEGYDirectSeisPS3DTranslator::initClass();
     SEGYDirectSeisPS2DTranslator::initClass();
     SeisPSCubeSeisTrcTranslator::initClass();

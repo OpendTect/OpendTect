@@ -70,13 +70,33 @@ ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 }
 
 
+int TranslatorGroup::getTemplateIdx( const Translator* transl )
+{
+    int tridx = -1;
+    if ( !transl )
+	return tridx;
+
+    const OD::String& translnm = transl->userName();
+    for ( int idx=0; idx<templs_.size(); idx++ )
+    {
+	const Translator* trans = templs_.get( idx );
+	if ( translnm.isEqual(trans->userName()) )
+	{
+	    tridx = idx;
+	    break;
+	}
+    }
+
+    return tridx;
+}
+
+
 bool TranslatorGroup::add( Translator* tr )
 {
     if ( !tr )
 	return false;
 
     bool res = false;
-
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
 	const Translator* oldtr = templs_[idx];

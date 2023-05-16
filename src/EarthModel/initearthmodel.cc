@@ -64,11 +64,30 @@ mDefModInitFn(EarthModel)
     EMAnyHorizonTranslatorGroup::initClass();
 
     dgbEMHorizon3DTranslator::initClass();
+    TranslatorGroup& hor3dtrgrp = EMHorizon3DTranslatorGroup::theInst();
+    hor3dtrgrp.setDefTranslIdx(
+	hor3dtrgrp.getTemplateIdx(dgbEMHorizon3DTranslator::getInstance()) );
+
     dgbEMHorizon2DTranslator::initClass();
+    TranslatorGroup& hor2dtrgrp = EMHorizon2DTranslatorGroup::theInst();
+    hor2dtrgrp.setDefTranslIdx(
+	hor2dtrgrp.getTemplateIdx(dgbEMHorizon2DTranslator::getInstance()) );
+
     dgbEMFault3DTranslator::initClass();
+    TranslatorGroup& fault3dtrgrp = EMFault3DTranslatorGroup::theInst();
+    fault3dtrgrp.setDefTranslIdx(
+	fault3dtrgrp.getTemplateIdx(dgbEMFault3DTranslator::getInstance()) );
+
     dgbEMFaultSet3DTranslator::initClass();
+    TranslatorGroup& fltset3dtrgrp = EMFaultSet3DTranslatorGroup::theInst();
+    fltset3dtrgrp.setDefTranslIdx(
+      fltset3dtrgrp.getTemplateIdx(dgbEMFaultSet3DTranslator::getInstance()) );
+
     lmkEMFault3DTranslator::initClass();
     dgbEMFaultStickSetTranslator::initClass();
+    TranslatorGroup& fsstrgrp = EMFaultStickSetTranslatorGroup::theInst();
+    fsstrgrp.setDefTranslIdx(
+	fsstrgrp.getTemplateIdx(dgbEMFaultStickSetTranslator::getInstance()) );
 
     odEMBodyTranslator::initClass();
     mcEMBodyTranslator::initClass();
