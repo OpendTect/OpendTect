@@ -74,17 +74,37 @@ vol.comp_names
 ```
 
 ### Seismic3D.bin_count and trace_count properties
-bin_count return the number of inline, crossline bins in the area covered by the volume.
-trace_count returns the estimated number of traces in the 3D seismic volume.
+- bin_count returns the number of inline, crossline bin locations in the 3D seismic volume area.
+- trace_count returns the actual number of traces in the 3D seismic volume.
+
+Generally trace_count<=bin_count.
 
 ```python
 print(vol.bin_count, vol.trace_count)
 ```
 
-### Seismic3D 
+### Seismic3D.bin and trace_index functions
+- bin returns the inline and crossline location for a given trace index number
+- trace_index returns the trace_index for a give inline, crossline location
+
+The first trace of the volume has a trace_index of 0 and the last trace a trace_index of trace_count-1.
+Both functions will raise an IndexError if the inputs are invalid for the 3D seismic volume.
 
 ```python
-vol.as_xarray(vol[500,:,:])['mdf2'].plot(y='z', yincrease=False, cmap='Greys')
+vol.trace_index(100, 400)
+```
+
+```python
+vol.bin(100)
+```
+
+```python
+info, data = vol.volume[200:200,:,:]
+vol.as_xarray(info, data)
+```
+
+```python
+#Seismic3D.delete(f3demo, ['test_min','test_max'])
 ```
 
 ## Static methods
@@ -100,6 +120,7 @@ These return a dictionary and a Pandas DataFrame respectively with basic informa
 
 ```python tags=[]
 Seismic3D.infos_dataframe(f3demo)
+#Seismic3D.infos(f3demo)
 ```
 
 ### Seismic3D.features() function

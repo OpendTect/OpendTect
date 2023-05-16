@@ -30,6 +30,7 @@ ________________________________________________________________________________
 class odSurvey;
 class SeisTrcWriter;
 class SeisSequentialWriter;
+namespace PosInfo{ class CubeDataIndex; }
 
 
 class odSeismic3D : public odSeismicObject
@@ -40,44 +41,79 @@ public:
 
     odSeismic3D(const odSurvey& thesurvey, const char* name);
     odSeismic3D(const odSurvey& thesurvey, const char* name, Seis3DFormat fmt,
-		bool overwrite=false);
-    odSeismic3D(const odSeismic3D&);
+		const BufferStringSet& components,
+		const TrcKeyZSampling& tkz, bool zistime, bool overwrite);
     ~odSeismic3D();
 
-    int			getNrTraces() const;
-    void		getData(hAllocator, const TrcKeyZSampling&);
+    odSeismic3D(const odSeismic3D&) = delete;
+    odSeismic3D& operator= (const odSeismic3D&) = delete;
 
+    void		close();
+    BufferStringSet*	getCompNames() const;
+    int			getNrComponents() const	{ return components_.size(); }
+    od_int64		getNrTraces() const;
+    od_int64		getTrcNum(const BinID&) const;
+    BinID		getBinID(od_int64) const;
+    StepInterval<float>	getZrange() const;
+    StepInterval<float>	getZrange(const SeisIOObjInfo&) const;
+    void		getData(hAllocator, const TrcKeyZSampling&) const;
+    void		putData(const float** data, const TrcKeyZSampling&);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool towgs) const override;
 
     const TrcKeyZSampling&	tkz() const	{ return tkz_; }
 
-    static const char*	sKeyTranslatorGrp()	{ return "Seismic Data"; }
+    static const char*	translatorGrp()		{return "Seismic Data";}
 
 protected:
-    TrcKeyZSampling		tkz_;
-    StepInterval<float>		zputrg_;
-    SeisTrcWriter*		writer_ = nullptr;
-    size_t			writecount_ = 0;
-    SeisSequentialWriter*	sequentialwriter_ = nullptr;
+    PtrMan<PosInfo::CubeDataIndex>	cubeidx_;
+    PtrMan<SeisTrcWriter>		writer_;
+    PtrMan<SeisSequentialWriter>	sequentialwriter_;
+    BufferStringSet			components_;
+    TrcKeyZSampling			tkz_;
+    size_t				writecount_ = 0;
+
+    int					makeDims(const TrcKeyZSampling&,
+						 TypeSet<int>& dims) const;
 
 };
 
 mDeclareBaseBindings(Seismic3D, seismic3d)
+mExternC(ODBind) hSeismic3D	seismic3d_newout(hSurvey, const char* name,
+						 const char* format,
+						 hStringSet compnames,
+						 const int32_t inlrg[3],
+						 const int32_t crlrg[3],
+						 const float zrg[3],
+						 bool zistime,
+						 bool overwrite);
+mExternC(ODBind) void		seismic3d_close(hSeismic3D);
 mExternC(ODBind) hStringSet	seismic3d_compnames(hSeismic3D);
-
 mExternC(ODBind) int		seismic3d_getzidx(hSeismic3D, float);
-mExternC(ODBind) float		seismic3d_getzval(hSeismic3D, int);
-mExternC(ODBind) void		seismic3d_getinlcrl(hSeismic3D, size_t, int*,
-						    int*);
-mExternC(ODBind) od_int64	seismic3d_gettrcidx(hSeismic3D, int, int);
+mExternC(ODBind) float		seismic3d_getzval(hSeismic3D, int32_t);
+mExternC(ODBind) void		seismic3d_getinlcrl(hSeismic3D, size_t,
+						    int32_t*, int32_t*);
+mExternC(ODBind) od_int64	seismic3d_gettrcidx(hSeismic3D, int32_t,
+						    int32_t);
 mExternC(ODBind) od_int64	seismic3d_nrbins(hSeismic3D);
 mExternC(ODBind) od_int64	seismic3d_nrtrcs(hSeismic3D);
+mExternC(ODBind) void		seismic3d_zrange(hSeismic3D, float zrg[3]);
+mExternC(ODBind) bool		seismic3d_validrange(hSeismic3D,
+						     const int32_t inlrg[3],
+						     const int32_t crlrg[3],
+						     const float zrg[3]);
+mExternC(ODBind) bool		seismic3d_zistime(hSeismic3D);
 mExternC(ODBind) void		seismic3d_getdata(hSeismic3D, hAllocator,
-						  const int inl_rg[3],
-						  const int crl_rg[3],
-						  const int z_rg[3]);
+						  const int32_t inlrg[3],
+						  const int32_t crlrg[3],
+						  const float zrg[3]);
+mExternC(ODBind) void		seismic3d_putdata(hSeismic3D,
+						  const float** data,
+						  const int32_t inlrg[3],
+						  const int32_t crlrg[3],
+						  const float zrg[3]);
+
 
 
 

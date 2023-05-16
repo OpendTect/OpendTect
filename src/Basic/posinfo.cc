@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "survinfo.h"
 #include "od_iostream.h"
-#include "math2.h"
 
 
 int PosInfo::LineData::size() const

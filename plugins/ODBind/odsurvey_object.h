@@ -37,11 +37,13 @@ public:
     odSurveyObject(const odSurvey&, const char*, const char*, bool,
 		   const char* fmt=nullptr);
     virtual ~odSurveyObject();
-    odSurveyObject(const odSurveyObject&);
+
+    odSurveyObject(const odSurveyObject&) = delete;
+    odSurveyObject& operator= (const odSurveyObject&) = delete;
 
     bool		isOK() const	{ return errmsg_.isEmpty(); }
     BufferString	errMsg() const	{ return errmsg_; }
-    void		setErrMsg(const char* msg)	{ errmsg_ = msg; }
+    void		setErrMsg(const char* msg) const { errmsg_ = msg; }
 
     BufferString	getName() const;
     virtual void	getInfo(OD::JSON::Object&) const = 0;
@@ -50,6 +52,10 @@ public:
 
     const IOObj&	ioobj() const	{ return *ioobj_; }
     const odSurvey&	survey() const	{ return survey_; }
+    bool		isReadOnly() const 	{ return readonly_; }
+    bool		canRead() const;
+    bool		canWrite() const;
+    bool		zIsTime() const		{ return zistime_; }
 
     template<typename T>
     static bool		isPresent(const odSurvey&, const char* objname);
@@ -61,20 +67,18 @@ public:
     template<typename T>
     static void		getFeatures(OD::JSON::Object&, const odSurvey& survey,
 				    const BufferStringSet&);
-
-    static const char*	sKeyTranslatorGrp()	{ return "Survey Object"; }
-
-    // static py::tuple	tkzsToTuple(const TrcKeyZSampling&,
-				//     const StepInterval<float>&);
-    // static TrcKeyZSampling	tkzsFromTuple(const py::tuple&,
-				// 	      const TrcKeyZSampling&);
+    template<typename T>
+    static void		removeObjects(const odSurvey& survey,
+				      const BufferStringSet&);
 
 protected:
-    const odSurvey&	survey_;
-    BufferString	name_;
-    PtrMan<IOObj>	ioobj_;
-    bool		overwrite_ = false;
-    BufferString	errmsg_;
+    const odSurvey&		survey_;
+    BufferString		name_;
+    PtrMan<IOObj>		ioobj_;
+    bool			overwrite_ = false;
+    bool			readonly_ = true;
+    bool			zistime_;
+    mutable BufferString	errmsg_;
 
 };
 
@@ -82,14 +86,14 @@ protected:
 template<typename T>
 bool odSurveyObject::isPresent( const odSurvey& survey, const char* objname )
 {
-    return survey.isObjPresent( objname, T::sKeyTranslatorGrp() );
+    return survey.isObjPresent( objname, T::translatorGrp() );
 }
 
 
 template<typename T>
 BufferStringSet* odSurveyObject::getNames( const odSurvey& survey )
 {
-    return survey.getObjNames( T::sKeyTranslatorGrp() );
+    return survey.getObjNames( T::translatorGrp() );
 }
 
 
@@ -147,6 +151,16 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     jsobj.set( "features", features );
 }
 
+
+template<typename T>
+void odSurveyObject::removeObjects( const odSurvey& survey,
+				    const BufferStringSet& objnames  )
+{
+    for ( const auto* name : objnames )
+	survey.removeObj( *name, T::translatorGrp() );
+}
+
+
 //
 // Use mDeclareBaseBindings(Horizon3D, horizon3d) in the .h file
 //
@@ -164,7 +178,8 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     mExternC(ODBind) const char* bindnm##_info(h##classnm); \
     mExternC(ODBind) const char* bindnm##_infos(hSurvey, const hStringSet); \
     mExternC(ODBind) bool bindnm##_isok(h##classnm); \
-    mExternC(ODBind) hStringSet bindnm##_names(hSurvey);
+    mExternC(ODBind) hStringSet bindnm##_names(hSurvey); \
+    mExternC(ODBind) void bindnm##_removeobjs(hSurvey, const hStringSet);
 
 //
 // Use mDefineBaseBindings(Horizon3D, horizon3d) in the .cc file
@@ -177,7 +192,8 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     } \
     void bindnm##_del( h##classnm self ) \
     { \
-	delete reinterpret_cast<od##classnm*>(self); \
+	auto* p = reinterpret_cast<od##classnm*>(self); \
+	if ( p ) delete p; \
     } \
     const char* bindnm##_errmsg( h##classnm self ) \
     { \
@@ -188,7 +204,7 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     { \
 	const auto* p = reinterpret_cast<od##classnm*>(self); \
 	OD::JSON::Object jsobj; \
-	if ( !p ) return nullptr; \
+	if ( !p || !p->canRead() ) return nullptr; \
 	p->getFeature( jsobj ); \
 	return strdup( jsobj.dumpJSon().buf() ); \
     } \
@@ -228,4 +244,12 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
 	const auto* p = reinterpret_cast<odSurvey*>(survey); \
 	if ( !p ) return nullptr; \
 	return od##classnm::getNames<od##classnm>( *p ); \
+    } \
+    void bindnm##_removeobjs( hSurvey survey, const hStringSet objnms ) \
+    { \
+	const auto* p = reinterpret_cast<odSurvey*>(survey); \
+	const auto* nms = reinterpret_cast<BufferStringSet*>(objnms); \
+	if ( !p || !nms ) return; \
+	od##classnm::removeObjects<od##classnm>( *p, *nms ); \
     }
+

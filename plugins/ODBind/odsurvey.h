@@ -69,6 +69,8 @@ public:
     IOObj*		createObj(const char* objname, const char* trgrpnm,
 				  const char* translkey, bool overwrite,
 				  BufferString& errmsg) const;
+    void		removeObj(const char* objname,
+				  const char* trgrpnm) const;
 
     static bool		initModule(const char*);
     static BufferStringSet*	getNames(const char* data_root=nullptr);
@@ -78,10 +80,15 @@ public:
 				    const char* data_root=nullptr);
     static BufferStringSet	getCommonItems(const BufferStringSet&,
 					       const BufferStringSet&);
+    static TrcKeyZSampling	tkzFromRanges(const int32_t inlrg[3],
+					      const int32_t crlrg[3],
+					      const float zrg[3],
+					      bool zistime);
 
 protected:
-    BufferString	basedir_, survey_, errmsg_;
-    static BufferString curbasedir_, cursurvey_;
+    BufferString		basedir_, survey_;
+    mutable BufferString	errmsg_;
+    static BufferString 	curbasedir_, cursurvey_;
 
 };
 
@@ -115,6 +122,8 @@ mExternC(ODBind) const char*	survey_infos(const hStringSet,
 mExternC(ODBind) hStringSet	survey_names(const char* basedir);
 mExternC(ODBind) const char*	survey_path(hSurvey);
 mExternC(ODBind) const char*	survey_survtype(hSurvey);
+mExternC(ODBind) void		survey_zrange(hSurvey, float* zrg);
+
 mExternC(ODBind) const char*	isValidSurveyDir(const char*);
 			    //!< Full path to an OpendTect project directory
 mExternC(ODBind) const char*	isValidDataRoot(const char*);

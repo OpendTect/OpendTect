@@ -66,8 +66,7 @@ public:
 				   bool towgs=true) const override;
     void		getPoints(OD::JSON::Array&, bool) const override;
 
-    static const char*	sKeyTranslatorGrp()	{ return "Well"; }
-
+    static const char*	translatorGrp()		{ return "Well"; }
 
 protected:
     RefMan<Well::Data>	wd_;

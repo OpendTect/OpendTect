@@ -23,6 +23,7 @@ ________________________________________________________________________________
 #include "odsurvey_object.h"
 
 class odSurvey;
+class SeisIOObjInfo;
 
 class odSeismicObject : public odSurveyObject
 {
@@ -33,12 +34,13 @@ public:
 		    const char* tgname, bool overwrite, const char* fmt);
     ~odSeismicObject();
 
-    BufferStringSet*	getCompNames(int lineid=-1) const;
+    odSeismicObject(const odSeismicObject&) = delete;
+    odSeismicObject& operator= (const odSeismicObject&) = delete;
+
     BufferString	getDtypeStr() const;
-    int			getNrComponents() const;
+    BufferString	getDtypeStr(const SeisIOObjInfo&) const;
 
 protected:
-
 };
 
 

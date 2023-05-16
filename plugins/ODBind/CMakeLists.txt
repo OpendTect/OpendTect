@@ -18,6 +18,7 @@ set( OD_MODULE_SOURCES
     odsurvey.cc
     odsurvey_object.cc
     odwell.cc
+    cubedataidx.cc
 )
 
 OD_INIT_MODULE()

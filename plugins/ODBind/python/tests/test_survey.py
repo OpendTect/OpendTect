@@ -13,7 +13,7 @@ def test_Survey_class():
         
     f3demo = Survey("F3_Demo_2020")
     info =  {
-                'name': "F3_Demo_2020",
+                'name': "F3 Demo 2020",
                 'type': "2D3D",
                 'crs': "EPSG:23031",
                 'xyunit': 'm',
@@ -38,4 +38,5 @@ def test_Survey_class():
     assert json.loads(f3demo.feature()) == feature
     assert f3demo.has2d == True
     assert f3demo.has3d == True
+    assert f3demo.zrange == pytest.approx([0, 1848, 4])
 

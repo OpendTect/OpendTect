@@ -25,16 +25,15 @@ ________________________________________________________________________________
 #include "ioobj.h"
 #include "odjson.h"
 #include "ranges.h"
-//#include "segydirecttr.h"
 #include "trckeyzsampling.h"
 
-#include <string.h>
-#include <stdexcept>
 
 odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
 				const char* tgname )
     : survey_(thesurvey)
     , name_(name)
+    , readonly_(true)
+    , zistime_(SI().zIsTime())
 {
     survey_.activate();
     ioobj_ = IOM().get( name, tgname );
@@ -51,6 +50,8 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
     : survey_(thesurvey)
     , name_(name)
     , overwrite_(overwrite)
+    , readonly_(false)
+    , zistime_(SI().zIsTime())
 {
     survey_.activate();
     ioobj_ = survey_.createObj( name, tgname, fmt, overwrite, errmsg_);
@@ -65,80 +66,10 @@ odSurveyObject::~odSurveyObject()
 {}
 
 
-odSurveyObject::odSurveyObject( const odSurveyObject& oth )
-    : survey_(oth.survey_)
-    , name_(oth.name_)
-    , overwrite_(oth.overwrite_)
-{
-    survey_.activate();
-    ioobj_ = oth.ioobj_->clone();
-}
-
-
 BufferString odSurveyObject::getName() const
 {
     return name_;
 }
-
-// py::tuple odSurveyObject::tkzsToTuple( const TrcKeyZSampling& tkzs,
-// 				       const StepInterval<float>& ztempl )
-// {
-//     const StepInterval<int> linerg = tkzs.hsamp_.lineRange();
-//     py::slice iln( linerg.start, linerg.stop, linerg.step );
-//     const StepInterval<int> trcrg = tkzs.hsamp_.trcRange();
-//     py::slice xln( trcrg.start, trcrg.stop, trcrg.step );
-//     const StepInterval<float> zrg = tkzs.zsamp_;
-//     py::slice z( ztempl.getIndex(zrg.start),
-// 		 ztempl.getIndex(zrg.stop), 1 );
-//
-//     return make_tuple( iln, xln, z );
-// }
-//
-//
-// TrcKeyZSampling odSurveyObject::tkzsFromTuple( const py::tuple& pos,
-// 					       const TrcKeyZSampling& templ )
-// {
-//     TrcKeyZSampling tkzs( templ );
-//
-//     const int nslice = pos.size();
-//     if ( nslice>=1 )
-//     {
-// 	py::slice iln = py::cast<py::slice>( pos[0] );
-// 	const StepInterval<int> linerg = templ.hsamp_.lineRange();
-// 	StepInterval<py::ssize_t> inprg;
-// 	PySlice_Unpack( (PYBIND11_SLICE_OBJECT *) iln.ptr(), &inprg.start,
-// 			&inprg.stop, &inprg.step );
-// 	inprg.limitTo_( linerg );
-// 	tkzs.hsamp_.setLineRange( StepInterval<int>(inprg.start, inprg.stop,
-// 						    inprg.step) );
-//     }
-//     if ( nslice>=2 )
-//     {
-// 	py::slice crl = py::cast<py::slice>( pos[1] );
-// 	const StepInterval<int> trcrg = templ.hsamp_.trcRange();
-// 	StepInterval<py::ssize_t> inprg;
-// 	PySlice_Unpack( (PYBIND11_SLICE_OBJECT *) crl.ptr(), &inprg.start,
-// 			&inprg.stop, &inprg.step );
-// 	inprg.limitTo_( trcrg );
-// 	tkzs.hsamp_.setTrcRange( StepInterval<int>(inprg.start,
-// 						   inprg.stop,
-// 						   inprg.step) );
-//     }
-//     if ( nslice>=3 )
-//     {
-// 	py::slice z = py::cast<py::slice>( pos[2] );
-// 	const StepInterval<float> zrg = templ.zsamp_;
-// 	StepInterval<py::ssize_t> inprg;
-// 	PySlice_Unpack( (PYBIND11_SLICE_OBJECT *) z.ptr(), &inprg.start,
-// 			&inprg.stop, &inprg.step );
-//	tkzs.zsamp_.set( templ.zAtIndex(inprg.start),
-//			templ.zAtIndex(inprg.stop), zrg.step );
-// 	tkzs.zsamp_.limitTo( zrg );
-//     }
-//     tkzs.normalize();
-//
-//     return tkzs;
-// }
 
 
 void odSurveyObject::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
@@ -156,3 +87,30 @@ void odSurveyObject::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
     geom->set( "coordinates", rings );
     jsobj.set( "geometry", geom );
 }
+
+
+bool odSurveyObject::canRead() const
+{
+    if ( !readonly_ )
+    {
+	errmsg_ = "cannot read, object is write only.";
+	return false;
+    }
+
+    return true;
+}
+
+
+bool odSurveyObject::canWrite() const
+{
+    if ( readonly_ )
+    {
+	errmsg_ = "cannot write, object is read only.";
+	return false;
+    }
+
+    return true;
+}
+
+
+
