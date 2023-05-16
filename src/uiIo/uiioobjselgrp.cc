@@ -183,6 +183,19 @@ EntryDataSet& EntryDataSet::updateMID( const MultiID& mid, EntryData* ed )
 }
 
 
+const TypeSet<MultiID>& EntryDataSet::ioobjIds( bool reread ) const
+{
+    if ( reread || livemids_.size() != this->size() )
+    {
+	livemids_.setEmpty();
+	for ( const auto* ed : *this )
+	    livemids_.add( ed->getMID() );
+    }
+
+    return livemids_;
+}
+
+
 TypeSet<MultiID> EntryDataSet::getIOObjIds( bool reread ) const
 {
     if ( reread || livemids_.size() != this->size() )
@@ -193,6 +206,23 @@ TypeSet<MultiID> EntryDataSet::getIOObjIds( bool reread ) const
     }
 
     return livemids_;
+}
+
+
+const TypeSet<int>& EntryDataSet::defaultIdxs( bool reread ) const
+{
+    if ( reread || defaultidxs_.size() != this->size() )
+    {
+	defaultidxs_.setEmpty();
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const auto* ed = get( idx );
+	    if ( ed->isDef() )
+		defaultidxs_.add( idx );
+	}
+    }
+
+    return defaultidxs_;
 }
 
 
@@ -610,7 +640,7 @@ MultiID uiIOObjSelGrp::currentID() const
 
 MultiID uiIOObjSelGrp::chosenID( int objnr ) const
 {
-    const TypeSet<MultiID> mids = getIOObjIds();
+    const TypeSet<MultiID>& mids = ioobjIds();
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
 	if ( isChosen(idx) )
@@ -1033,7 +1063,7 @@ void uiIOObjSelGrp::fillListBox()
 	}
     }
 
-    const TypeSet<int> defaultidxs = dataset_.getDefaultIdxs();
+    const TypeSet<int>& defaultidxs = dataset_.defaultIdxs();
     for ( const auto& idx : defaultidxs )
 	listfld_->setBold( idx, true );
 
@@ -1296,7 +1326,7 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 	return;
 
     lbchoiceio_->keys().setEmpty();
-    const TypeSet<MultiID>& mids = getIOObjIds();
+    const TypeSet<MultiID>& mids = ioobjIds();
     for ( int idx=0; idx< mids.size(); idx++ )
 	lbchoiceio_->keys().add( mids[idx] );
 }
@@ -1333,7 +1363,13 @@ void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
 }
 
 
+const TypeSet<MultiID>& uiIOObjSelGrp::ioobjIds() const
+{
+    return dataset_.ioobjIds();
+}
+
+
 TypeSet<MultiID> uiIOObjSelGrp::getIOObjIds() const
 {
-    return dataset_.getIOObjIds();
+    return dataset_.ioobjIds();
 }
