@@ -181,7 +181,6 @@ public:
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     void		displayManipGroup(bool yn,bool shrink=false);
-    //const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
 
     void		setConfirmOverwrite( bool yn )
 				{ setup_.confirmoverwrite_ = yn; }
