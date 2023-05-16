@@ -194,8 +194,8 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
-							       botnm, true );
+	const Interval<float> markerrg =
+			getDepthRangeFromMarkers( wd, topnm, botnm, false );
 	if ( markerrg.isUdf() )
 	{
 	    for ( int lidx=0; lidx<alllognms.size(); lidx++ )
@@ -244,8 +244,8 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
-							       botnm, true );
+	const Interval<float> markerrg =
+			getDepthRangeFromMarkers( wd, topnm, botnm, false );
 	if ( markerrg.isUdf() )
 	{
 	    for ( int mnidx=0; mnidx<mns.size(); mnidx++ )
@@ -295,7 +295,6 @@ void WellDataFilter::getLogPresenceFromValFilter(
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	{
-
 	    for ( int lidx=0; lidx<alllognms.size(); lidx++ )
 		presence.set( widx, lidx, perc );
 	}
