@@ -1062,11 +1062,12 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 	templtr = ctio.ctxt_.trgroup_->templates()[translidx];
     else if ( !ctio.ctxt_.deftransl_.isEmpty() )
 	templtr = ctio.ctxt_.trgroup_->getTemplate(ctio.ctxt_.deftransl_,true);
+
     if ( !templtr )
     {
 	translidx = ctio.ctxt_.trgroup_->defTranslIdx();
-	if ( mIsValidTransl(templs[translidx]) )
-	templtr = templs[translidx];
+	if ( (translidx>=0) && mIsValidTransl(templs[translidx]) )
+	    templtr = templs[translidx];
 	else
 	{
 	    for ( int idx=0; idx<templs.size(); idx++ )

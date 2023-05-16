@@ -19,6 +19,9 @@ mDefModInitFn(Well)
 
     WellTranslatorGroup::initClass();
     odWellTranslator::initClass();
+    TranslatorGroup& welltrgrp = WellTranslatorGroup::theInst();
+    welltrgrp.setDefTranslIdx(
+		welltrgrp.getTemplateIdx(odWellTranslator::getInstance()) );
     
     WellT2DTransform::initClass();
     Pos::WellProvider3D::initClass();

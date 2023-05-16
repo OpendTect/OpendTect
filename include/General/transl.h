@@ -60,6 +60,7 @@ public:
     virtual uiString		typeName(int num=1) const = 0;
     virtual Translator*		make(const char*,bool usrnm) const;
     const Translator*		getTemplate(const char*,bool usrnm) const;
+    int				getTemplateIdx(const Translator*);
 
     const ObjectSet<const Translator>& templates() const { return templs_; }
 
