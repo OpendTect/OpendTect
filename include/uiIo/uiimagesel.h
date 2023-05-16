@@ -20,11 +20,25 @@ class uiGenInput;
 mExpClass(uiIo) uiImageSel : public uiIOObjSel
 { mODTextTranslationClass(uiImageSel)
 public:
+    mExpClass(uiIo) Setup : public uiIOObjSel::Setup
+    {
+    public:
+			Setup(const uiString& seltxt=uiString::empty())
+			    : uiIOObjSel::Setup(seltxt)
+			    , withimport_(true)
+			    , withedit_(true)
+			{}
+			~Setup()
+			{}
+			mDefSetupMemb(bool,withimport)
+			mDefSetupMemb(bool,withedit)
+    };
 			uiImageSel(uiParent*,bool forread,const Setup& ={});
 			~uiImageSel();
 
 private:
     void		importCB(CallBacker*);
+    void		editCB(CallBacker*);
 };
 
 
@@ -45,4 +59,21 @@ private:
     uiGenInput*		tlcrdfld_;
     uiGenInput*		brcrdfld_;
     uiImageSel*		outputfld_;
+};
+
+
+mExpClass(uiIo) uiEditImageDlg : public uiDialog
+{ mODTextTranslationClass(uiImportImageDlg)
+public:
+			uiEditImageDlg(uiParent*,const IOObj&);
+			~uiEditImageDlg();
+
+private:
+    void		finalizeCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
+    uiGenInput*		tlcrdfld_;
+    uiGenInput*		brcrdfld_;
+
+    const IOObj&	ioobj_;
 };

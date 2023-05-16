@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uifileinput.h"
+#include "uimenu.h"
 #include "uimsg.h"
 
 
@@ -29,12 +30,33 @@ uiImageSel::uiImageSel( uiParent* p, bool forread, const Setup& su )
 	setLabelText( forread ? uiStrings::phrInput( uiStrings::sImage() )
 			      : uiStrings::phrOutput( uiStrings::sImage() ) );
 
-    if ( forread )
+    if ( !forread )
+	return;
+
+    uiPushButton* importeditbut = nullptr;
+    if ( su.withimport_ && su.withedit_ )
     {
-	auto* but = new uiPushButton( this, uiStrings::sImport(), false );
-	but->attach( rightOf, this->selbut_ );
-	mAttachCB( but->activated, uiImageSel::importCB );
+	importeditbut = new uiPushButton( this, tr("Import/Edit"), false );
+	auto* mnu = new uiMenu;
+	mnu->insertAction( new uiAction(uiStrings::sCreate(),
+		    mCB(this,uiImageSel,importCB),"import") );
+	mnu->insertAction( new uiAction(uiStrings::sEdit(),
+		    mCB(this,uiImageSel,editCB),"edit") );
+	importeditbut->setMenu( mnu );
     }
+    else if ( su.withimport_ )
+    {
+	importeditbut = new uiPushButton( this, uiStrings::sImport(), false );
+	mAttachCB( importeditbut->activated, uiImageSel::importCB );
+    }
+    else if ( su.withedit_ )
+    {
+	importeditbut = new uiPushButton( this, uiStrings::sEdit(), false );
+	mAttachCB( importeditbut->activated, uiImageSel::editCB );
+    }
+
+    if ( importeditbut )
+	importeditbut->attach( rightOf, this->selbut_ );
 }
 
 
@@ -51,6 +73,23 @@ void uiImageSel::importCB( CallBacker* )
 	return;
 
     setInput( dlg.getKey() );
+    selectionDone.trigger();
+}
+
+
+void uiImageSel::editCB( CallBacker* )
+{
+    const IOObj* curioobj = ioobj( true );
+    if ( !curioobj )
+    {
+	uiMSG().error( tr("Please select or import an image first") );
+	return;
+    }
+
+    uiEditImageDlg dlg( this, *curioobj );
+    if ( !dlg.go() )
+	return;
+
     selectionDone.trigger();
 }
 
@@ -79,7 +118,7 @@ uiImportImageDlg::uiImportImageDlg( uiParent* p )
     brcrdfld_->setElemSzPol( uiObject::MedVar );
     brcrdfld_->attach( alignedBelow, tlcrdfld_ );
 
-    outputfld_ = new uiImageSel( this, false, uiIOObjSel::Setup() );
+    outputfld_ = new uiImageSel( this, false, uiImageSel::Setup() );
     outputfld_->attach( alignedBelow, brcrdfld_ );
 
     mAttachCB( postFinalize(), uiImportImageDlg::finalizeCB );
@@ -152,4 +191,58 @@ void uiImportImageDlg::fileSelectedCB( CallBacker* )
 MultiID uiImportImageDlg::getKey() const
 {
     return outputfld_->key();
+}
+
+
+// uiEditImageDlg
+
+uiEditImageDlg::uiEditImageDlg( uiParent* p, const IOObj& ioobj )
+    : uiDialog(p,Setup(tr("Edit Image"),mNoDlgTitle,mTODOHelpKey))
+    , ioobj_(ioobj)
+{
+    setOkCancelText( uiStrings::sEdit(), uiStrings::sClose() );
+
+    ImageDef def;
+    ODImageDefTranslator::readDef( def, ioobj );
+
+    tlcrdfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) coordinate"),
+			     PositionInpSpec(def.tlcoord_) );
+    tlcrdfld_->setElemSzPol( uiObject::MedVar );
+
+    brcrdfld_ = new uiGenInput( this, tr("SouthEast (BottomRight) coordinate"),
+			     PositionInpSpec(def.brcoord_) );
+    brcrdfld_->setElemSzPol( uiObject::MedVar );
+    brcrdfld_->attach( alignedBelow, tlcrdfld_ );
+
+    mAttachCB( postFinalize(), uiEditImageDlg::finalizeCB );
+}
+
+
+uiEditImageDlg::~uiEditImageDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void uiEditImageDlg::finalizeCB( CallBacker* )
+{
+    const int nrdec = SI().nrXYDecimals();
+    tlcrdfld_->setNrDecimals( nrdec, 0 );
+    tlcrdfld_->setNrDecimals( nrdec, 1 );
+    brcrdfld_->setNrDecimals( nrdec, 0 );
+    brcrdfld_->setNrDecimals( nrdec, 1 );
+}
+
+
+bool uiEditImageDlg::acceptOK( CallBacker* )
+{
+    ImageDef def;
+    ODImageDefTranslator::readDef( def, ioobj_ );
+
+    def.tlcoord_.coord() = tlcrdfld_->getCoord();
+    def.brcoord_.coord() = brcrdfld_->getCoord();
+    if ( !ODImageDefTranslator::writeDef(def,ioobj_) )
+	return false;
+
+    return true;
 }
