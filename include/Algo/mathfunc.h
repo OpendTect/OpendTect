@@ -157,7 +157,7 @@ public:
     void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
     bool		isEmpty() const		{ return x_.isEmpty(); }
-    void		add(xT x,yT y);
+    void		add(xT x,yT y,bool checkforduplicates=true);
     void		remove(int idx);
     yT			getValue( xT x ) const override
 			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
@@ -398,24 +398,33 @@ int BendPointBasedMathFunction<mXT,mYT>::baseIdx( mXT x ) const
 
 
 template <class mXT, class mYT> inline
-void BendPointBasedMathFunction<mXT,mYT>::add( mXT x, mYT y )
+void BendPointBasedMathFunction<mXT,mYT>::add( mXT x, mYT y,
+						bool checkforduplicates )
 {
-    if ( mIsUdf(x) ) return;
-    if ( x_.isPresent(x) ) return;
+    if ( mIsUdf(x) )
+	return;
+
+    if ( checkforduplicates && x_.isPresent(x) )
+	return;
 
     const int baseidx = baseIdx( x );
-    x_ += x; y_ += y;
+    x_ += x;
+    y_ += y;
 
     const int sz = x_.size();
     if ( baseidx > sz - 3 )
 	return;
 
-    mXT prevx = x; mYT prevy = y;
+    mXT prevx = x;
+    mYT prevy = y;
     for ( int idx=baseidx+1; idx<sz; idx++ )
     {
-	mXT tmpx = x_[idx]; mYT tmpy = y_[idx];
-	x_[idx] = prevx; y_[idx] = prevy;
-	prevx = tmpx; prevy = tmpy;
+	mXT tmpx = x_[idx];
+	mYT tmpy = y_[idx];
+	x_[idx] = prevx;
+	y_[idx] = prevy;
+	prevx = tmpx;
+	prevy = tmpy;
     }
 }
 

@@ -365,7 +365,7 @@ bool FFTFilter::interpUdf( Array1DImpl<float>& outp, bool isimag )
 	const bool validval = !mIsUdf(val);
 	isudf[idx] = !validval;
 	if ( validval )
-	    data.add( mCast(float,idx), val );
+	    data.add( sCast(float,idx), val, false );
     }
 
     if ( data.isEmpty() )

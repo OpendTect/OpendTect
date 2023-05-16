@@ -760,7 +760,7 @@ void ElasticModel::interpolate( bool dovp, bool doden, bool dovs )
 		val = layer.getFracAzi();
 
 	    if ( !mIsUdf(val) )
-		data.add( (float)idx, val );
+		data.add( (float)idx, val, false );
 	}
 
 	if ( data.isEmpty() )
