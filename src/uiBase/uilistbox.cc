@@ -1783,8 +1783,13 @@ int uiListBox::nrChecked() const
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
+    const bool blockstate = lb_->body().blockSignals( true );
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
+
+    lb_->body().blockSignals( blockstate );
+    selectionChanged.trigger();
+    itemChosen.trigger( -1 );
 }
 
 

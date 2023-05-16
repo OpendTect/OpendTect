@@ -72,26 +72,33 @@ protected:
 mExpClass(uiIo) EntryDataSet : public ManagedObjectSet<EntryData>
 {
 public:
-			EntryDataSet();
-			~EntryDataSet();
+				EntryDataSet();
+				~EntryDataSet();
 
-    const EntryData*	getDataFor(const MultiID&) const;
-    EntryData*		getDataFor(const MultiID&);
-    EntryDataSet&	add(const MultiID&,bool isdef=false);
-    EntryDataSet&	add(const MultiID&,const BufferString&,
-				const BufferString&,bool isdef = false);
-    EntryDataSet&	removeMID(const MultiID&);
-    EntryDataSet&	updateMID(const MultiID&, EntryData*);
+    const EntryData*		getDataFor(const MultiID&) const;
+    EntryData*			getDataFor(const MultiID&);
+    EntryDataSet&		add(const MultiID&,bool isdef=false);
+    EntryDataSet&		add(const MultiID&,const BufferString&,
+				    const BufferString&,bool isdef=false);
+    EntryDataSet&		removeMID(const MultiID&);
+    EntryDataSet&		updateMID(const MultiID&, EntryData*);
 
-    TypeSet<MultiID>	getIOObjIds(bool reread=false) const;
-    TypeSet<int>	getDefaultIdxs(bool reread=false) const;
-    BufferStringSet	getIOObjNms() const;
-    BufferStringSet	getDispNms() const;
-    BufferStringSet	getIconNms() const;
-    int			indexOfMID(const MultiID& mid) const;
-    int			indexOfNm(const BufferString&,bool isdispnm) const;
+    const TypeSet<MultiID>&	ioobjIds(bool reread=false) const;
+    const TypeSet<int>&		defaultIdxs(bool reread=false) const;
 
-    void		erase() override;
+    mDeprecated("Use ioobjIds")
+    TypeSet<MultiID>		getIOObjIds(bool reread=false) const;
+    mDeprecated("Use defaultIdxs")
+    TypeSet<int>		getDefaultIdxs(bool reread=false) const;
+
+    BufferStringSet		getIOObjNms() const;
+    BufferStringSet		getDispNms() const;
+    BufferStringSet		getIconNms() const;
+    int				indexOfMID(const MultiID& mid) const;
+    int				indexOfNm(const BufferString&,
+					  bool isdispnm) const;
+
+    void			erase() override;
 
 protected:
 
@@ -162,6 +169,8 @@ public:
     void		setChosen(int,bool yn=true);
     void		setChosen(const TypeSet<MultiID>&);
     void		chooseAll(bool yn=true);
+    const TypeSet<MultiID>&	ioobjIds() const;
+    mDeprecated("Use ioobjIds()")
     TypeSet<MultiID>	getIOObjIds() const;
 
     bool		updateCtxtIOObj(); //!< mostly interesting for write
@@ -176,7 +185,6 @@ public:
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     void		displayManipGroup(bool yn,bool shrink=false);
-    //const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
 
     void		setConfirmOverwrite( bool yn )
 				{ setup_.confirmoverwrite_ = yn; }

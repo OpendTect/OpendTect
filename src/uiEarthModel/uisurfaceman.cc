@@ -869,7 +869,7 @@ bool acceptOK( CallBacker* ) override
 
 void uiSurfaceMan::stratSel( CallBacker* )
 {
-    const TypeSet<MultiID>& ids = selgrp_->getIOObjIds();
+    const TypeSet<MultiID>& ids = selgrp_->ioobjIds();
     uiSurfaceStratDlg dlg( this, ids );
     dlg.go();
 }
