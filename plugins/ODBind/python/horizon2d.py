@@ -72,8 +72,8 @@ class Horizon2D(_SurveyObject):
 
         allocator = NumpyAllocator()
         self._getz(self._handle, allocator.cfunc, lineid)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
         return allocator.allocated_arrays[0]
      
@@ -88,8 +88,8 @@ class Horizon2D(_SurveyObject):
 
         allocator = NumpyAllocator()
         self._getxy(self._handle, allocator.cfunc, lineid)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
         return (allocator.allocated_arrays[:3])
 

@@ -20,14 +20,17 @@ ________________________________________________________________________________
 -*/
 #include "odseismic_3d.h"
 #include "odsurvey.h"
+#include "cubedataidx.h"
 
 #include "ioman.h"
 #include "ioobj.h"
+#include "posinfo.h"
 #include "seisdatapack.h"
 #include "segydirecttr.h"
 #include "seisioobjinfo.h"
 #include "seisparallelreader.h"
 #include "seistrc.h"
+#include "seisread.h"
 #include "seiswrite.h"
 #include "tracedata.h"
 
@@ -38,51 +41,179 @@ mDefineEnumUtils(odSeismic3D, Seis3DFormat, "Output format/translator")
 
 
 odSeismic3D::odSeismic3D( const odSurvey& thesurvey, const char* name )
-    : odSeismicObject(thesurvey, name, sKeyTranslatorGrp())
+    : odSeismicObject(thesurvey, name, translatorGrp())
 {
-    survey_.activate();
-    SeisIOObjInfo seisinfo( name_, Seis::GeomType::Vol );
+    const Seis::GeomType gt = Seis::GeomType::Vol;
+    SeisTrcReader rdr( *ioobj_, &gt );
+    if ( !rdr.isOK() )
+    {
+	errmsg_ = "unable to open SeisTrcReader\n";
+	errmsg_.add( rdr.errMsg().getString() );
+	return;
+    }
+
+    PosInfo::CubeData cubedata;
+    if ( !rdr.get3DGeometryInfo(cubedata) )
+    {
+	errmsg_ = "unable to access 3D geometry information.";
+	return;
+    }
+
+    cubeidx_ = new PosInfo::CubeDataIndex( cubedata );
+    const SeisIOObjInfo seisinfo( ioobj_ );
     seisinfo.getRanges( tkz_ );
+    zistime_ = seisinfo.isTime();
+    seisinfo.getComponentNames( components_ );
+
 }
 
 
 odSeismic3D::odSeismic3D( const odSurvey& survey, const char* name,
-			  Seis3DFormat fmt, bool overwrite )
-    : odSeismicObject(survey, name, sKeyTranslatorGrp(), overwrite,
+			  Seis3DFormat fmt, const BufferStringSet& components,
+			  const TrcKeyZSampling& tkz,
+			  bool zistime, bool overwrite )
+    : odSeismicObject(survey, name, translatorGrp(), overwrite,
 		      toString(fmt))
+    , tkz_(tkz)
 {
-    tkz_.setEmpty();
     const Seis::GeomType gt = Seis::GeomType::Vol;
     writer_ = new SeisTrcWriter( *ioobj_, &gt );
+    if ( !writer_ || !writer_->isOK() )
+    {
+	errmsg_ = "unable to open SeisTrcWriter\n";
+	if ( !writer_ )
+	    errmsg_.add( writer_->errMsg().getString() );
+	return;
+    }
+
+    zistime_ = zistime;
+    components_.add( components, true );
+    const PosInfo::CubeData cubedata( tkz.hsamp_.start_, tkz.hsamp_.stop_,
+				tkz.hsamp_.step_);
+    cubeidx_ = new PosInfo::CubeDataIndex( cubedata );
 }
-
-
-odSeismic3D::odSeismic3D( const odSeismic3D& oth )
-    : odSeismicObject(oth)
-    , tkz_(oth.tkz_)
-{}
-
 
 
 odSeismic3D::~odSeismic3D()
 {
+    close();
 }
 
 
-int odSeismic3D::getNrTraces() const
+void odSeismic3D::close()
+{
+    if ( sequentialwriter_ )
+    {
+	sequentialwriter_->finishWrite();
+	sequentialwriter_ = nullptr;
+    }
+
+    if ( writer_ )
+    {
+	writer_ = nullptr;
+	if ( writecount_==0 && ioobj_ )
+	    IOM().implRemove( *ioobj_ );
+
+	writecount_ = 0;
+    }
+}
+
+
+BufferStringSet* odSeismic3D::getCompNames() const
+{
+    auto* nms = new BufferStringSet;
+    nms->add( components_, true );
+    return nms;
+}
+
+
+od_int64 odSeismic3D::getNrTraces() const
+{
+    return cubeidx_ ? cubeidx_->lastTrc()+1 : -1;
+}
+
+
+od_int64 odSeismic3D::getTrcNum( const BinID& bid ) const
+{
+    errmsg_.setEmpty();
+    const od_int64 trcnum = cubeidx_ ? cubeidx_->trcNumber( bid ) : -1;
+    if ( trcnum==-1 )
+	errmsg_ = "invalid bin location.";
+
+    return trcnum;
+}
+
+
+BinID odSeismic3D::getBinID( od_int64 trcnum ) const
+{
+    errmsg_.setEmpty();
+    const BinID bid = cubeidx_ ? cubeidx_->binID( trcnum ) : BinID::udf();
+    if ( bid.isUdf() )
+	errmsg_ = "invalid trace number.";
+
+    return bid;
+}
+
+
+StepInterval<float> odSeismic3D::getZrange() const
 {
     survey_.activate();
-    SeisIOObjInfo::SpaceInfo si;
-    SeisIOObjInfo seisinfo( name_, Seis::GeomType::Vol );
-    seisinfo.getDefSpaceInfo( si );
-    return si.expectednrtrcs;
+    PtrMan<SeisIOObjInfo> info = new SeisIOObjInfo(ioobj_);
+    return getZrange( *info );
+}
+
+
+StepInterval<float> odSeismic3D::getZrange(const SeisIOObjInfo& info) const
+{
+    errmsg_.setEmpty();
+    const ZDomain::Def& zdef = info.zDomainDef();
+    StepInterval<float> zrg = tkz_.zsamp_;
+    zrg.scale( zdef.userFactor() );
+    return zrg;
+}
+
+
+int odSeismic3D::makeDims( const TrcKeyZSampling& tkz,
+			   TypeSet<int>& dims ) const
+{
+    errmsg_.setEmpty();
+    dims.setEmpty();
+    const int total_trcs = tkz.hsamp_.totalNr();
+    const int ndim = total_trcs==1 ? 1 : (tkz.isFlat() ? 2 : 3);
+    const bool iszslice = ndim==2 && tkz.nrZ()==1;
+    if ( ndim==1 )
+	dims += tkz.nrZ();
+    else if ( ndim==2 )
+    {
+	if ( iszslice )
+	{
+	    dims += tkz.nrLines();
+	    dims += tkz.nrTrcs();
+	}
+	else
+	{
+	    dims += total_trcs;
+	    dims += tkz.nrZ();
+	}
+    }
+    else
+    {
+	dims += tkz.nrLines();
+	dims += tkz.nrTrcs();
+	dims += tkz.nrZ();
+    }
+
+    return ndim;
 }
 
 
 void odSeismic3D::getData( hAllocator allocator,
-			   const TrcKeyZSampling& tkzforload )
+			   const TrcKeyZSampling& tkzforload ) const
 {
     errmsg_.setEmpty();
+    if ( !canRead() )
+	return;
+
     survey_.activate();
     if ( !ioobj_ )
     {
@@ -90,7 +221,7 @@ void odSeismic3D::getData( hAllocator allocator,
 	return;
     }
 
-    if ( tkzforload.isEmpty() || !tkz_.includes(tkzforload) )
+    if ( tkzforload.isEmpty() )
     {
 	errmsg_ = "invalid data request.";
 	return;
@@ -106,36 +237,15 @@ void odSeismic3D::getData( hAllocator allocator,
     ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
     const TrcKeyZSampling& tkz = dp->sampling();
     const int nrcomp = getNrComponents();
-    const int ndim = dp->nrTrcs()==1 ? 1 : (tkz.isFlat() ? 2 : 3);
+    TypeSet<int> dims;
+    const int ndim = makeDims( tkz, dims );
     const bool iszslice = ndim==2 && tkz.nrZ()==1;
-    PtrMan<int> dims = new int[ndim];
-    if ( ndim==1 )
-	dims[0] = tkz.nrZ();
-    else if ( ndim==2 )
-    {
-	if ( iszslice )
-	{
-	    dims[0] = tkz.nrLines();
-	    dims[1] = tkz.nrTrcs();
-	}
-	else
-	{
-	    dims[0] = dp->nrTrcs();
-	    dims[1] = tkz.nrZ();
-	}
-    }
-    else
-    {
-	dims[0] = tkz.nrLines();
-	dims[1] = tkz.nrTrcs();
-	dims[2] = tkz.nrZ();
-    }
-
     const float valnan = std::nanf("");
     for ( int cidx=0; cidx<nrcomp; cidx++ )
     {
 	const auto array = dp->data( cidx );
-	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims.arr(),
+							     'f') );
 	const float* indata = array.getData();
 	MemCopier<float> copier( outdata, indata, array.totalSize() );
 	copier.execute();
@@ -164,18 +274,89 @@ void odSeismic3D::getData( hAllocator allocator,
 }
 
 
+void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
+{
+    errmsg_.setEmpty();
+    if ( !canWrite() )
+	return;
+
+    survey_.activate();
+    if ( !ioobj_ )
+    {
+	errmsg_ = "invalid ioobj.";
+	return;
+    }
+
+    if ( !writer_ )
+    {
+	errmsg_ = "no SeisTrcWriter.";
+	return;
+    }
+
+    if ( writecount_==0 )
+    {
+	writer_->setComponentNames( components_ );
+	sequentialwriter_ = new SeisSequentialWriter( writer_ );
+    }
+
+    if ( !sequentialwriter_ )
+    {
+	errmsg_ = "no SeisSequentialWriter.";
+	return;
+    }
+
+    const SamplingData<float> sd( tkz_.zsamp_ );
+    const int nrcomp = getNrComponents();
+    for ( od_int64 idx=0; idx<tkz.hsamp_.totalNr(); idx++ )
+    {
+	const TrcKey trckey = tkz.hsamp_.trcKeyAt( idx );
+	if ( !tkz_.hsamp_.includes(trckey, false) )
+	    continue;
+
+	auto* trc = new SeisTrc( tkz_.nrZ() );
+	trc->setNrComponents( nrcomp, DataCharacteristics::F32 );
+	trc->info().setTrcKey( trckey );
+	trc->info().coord = trckey.getCoord();
+	trc->info().sampling = sd;
+	for ( int icomp=0; icomp<nrcomp; icomp++ )
+	{
+	    const float* compdata = data[icomp];
+	    const int idxstart = idx*tkz.nrZ();
+	    for ( int iz=0; iz<tkz_.nrZ(); iz++ )
+	    {
+		const int altiz = mNINT32( tkz.zsamp_.getfIndex(
+							tkz_.zAtIndex(iz)) );
+		float val = mUdf(float);
+		if ( altiz>=0 && altiz<tkz.nrZ() )
+		{
+		    val = compdata[idxstart + altiz];
+		    if ( !Math::IsNormalNumber(val) )
+			val = mUdf(float);
+		}
+
+		trc->set( iz, val, icomp );
+	    }
+	}
+	sequentialwriter_->announceTrace( trc->info().binID() );
+	sequentialwriter_->submitTrace( trc, true );
+	writecount_++;
+    }
+}
+
+
 void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
+    survey_.activate();
+    const SeisIOObjInfo seisinfo( ioobj_ );
+    const ZDomain::Def& zdef = seisinfo.zDomainDef();
     jsobj.set( "name", getName().buf() );
     jsobj.set( "inl_range", tkz_.hsamp_.lineRange() );
     jsobj.set( "crl_range", tkz_.hsamp_.trcRange() );
-    StepInterval<float> zrg = tkz_.zsamp_;
-    zrg.scale( SI().showZ2UserFactor() );
-    jsobj.set( "z_range", zrg );
+    jsobj.set( "z_range", getZrange(seisinfo) );
+    jsobj.set( "zunit", zdef.unitStr() );
     jsobj.set( "comp_count", getNrComponents() );
-    jsobj.set( "storage_dtype", getDtypeStr().buf() );
+    jsobj.set( "storage_dtype", getDtypeStr(seisinfo).buf() );
     jsobj.set( "nrsamp", tkz_.nrZ() );
     jsobj.set( "bin_count", tkz_.hsamp_.totalNr() );
     jsobj.set( "trc_count", getNrTraces() );
@@ -184,6 +365,9 @@ void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
 
 void odSeismic3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    if ( !canRead() )
+	return;
+
     survey_.activate();
     TypeSet<Coord> coords;
     TrcKeySampling tk = tkz_.hsamp_;
@@ -198,9 +382,41 @@ void odSeismic3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 mDefineBaseBindings(Seismic3D, seismic3d)
 
-hStringSet seismic3d_compnames( hSeismic3D self )
+
+hSeismic3D seismic3d_newout( hSurvey survey, const char* name,
+			     const char* format, hStringSet compnames,
+			     const int32_t inlrg[3], const int32_t crlrg[3],
+			     const float zrg[3], bool zistime, bool overwrite )
+{
+    auto* p = reinterpret_cast<odSurvey*>(survey);
+    const auto* nms = reinterpret_cast<BufferStringSet*>(compnames);
+    if ( !p || !nms ) return nullptr;
+
+    TrcKeyZSampling tkz = odSurvey::tkzFromRanges( inlrg, crlrg, zrg, zistime );
+    odSeismic3D::Seis3DFormat fmt;
+    if ( odSeismic3D::parseEnum(format, fmt) )
+	return new odSeismic3D( *p, name, fmt, *nms, tkz, zistime, overwrite );
+    else
+    {
+	p->setErrMsg("invalid output format");
+	return nullptr;
+    }
+}
+
+
+void seismic3d_close( hSeismic3D self )
 {
     auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if  ( !p )
+	return;
+
+    p->close();
+}
+
+
+hStringSet seismic3d_compnames( hSeismic3D self )
+{
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return nullptr;
 
@@ -208,81 +424,68 @@ hStringSet seismic3d_compnames( hSeismic3D self )
 }
 
 
-void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int* inl, int* crl )
+void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int32_t* inl,
+			  int32_t* crl )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return;
 
-    const auto& tkz = p->tkz();
-    if ( tkz.isEmpty() || traceidx<0 || traceidx>=tkz.hsamp_.totalNr() )
-    {
-	p->setErrMsg( "invalid trace index" );
-	return;
-    }
-
-    const TrcKey pos = tkz.hsamp_.trcKeyAt( traceidx );
-    *inl = pos.lineNr();
-    *crl = pos.trcNr();
+    const BinID bid = p->getBinID( traceidx );
+    *inl = bid.inl();
+    *crl = bid.crl();
 }
 
 
 int seismic3d_getzidx( hSeismic3D self, float zval )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
-    const float z = zval/SI().showZ2UserFactor();
-    const auto& tkz = p->tkz();
-    if ( tkz.isEmpty() || !tkz.zsamp_.includes(z, false) )
+    const auto& zrg = p->getZrange();
+    if ( !zrg.includes(zval, false) )
     {
 	p->setErrMsg( "invalid z value location.");
 	return -1;
     }
 
-    return tkz.zIdx( z );
+    return zrg.getIndex( zval );
 }
 
 
-float seismic3d_getzval( hSeismic3D self, int zidx )
+float seismic3d_getzval( hSeismic3D self, int32_t zidx )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return std::nanf("");
 
     const auto& tkz = p->tkz();
-    if ( tkz.isEmpty() || zidx<0 || zidx>tkz.nrZ() )
+    if ( tkz.isEmpty() || zidx<0 || zidx>=tkz.nrZ() )
     {
 	p->setErrMsg( "invalid z index.");
 	return std::nanf("");
     }
 
-    return tkz.zAtIndex( zidx )*SI().showZ2UserFactor();
+    const auto& zrg = p->getZrange();
+    return zrg.atIndex( zidx );
 }
 
 
-od_int64 seismic3d_gettrcidx( hSeismic3D self, int iln, int crl )
+od_int64 seismic3d_gettrcidx( hSeismic3D self, int32_t iln, int32_t crl )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
-    const auto& tkz = p->tkz();
-    const TrcKey trckey( BinID( iln, crl ) );
-    if ( tkz.isEmpty() || !tkz.hsamp_.includes(trckey) )
-    {
-	p->setErrMsg( "invalid iln,crl location.");
-	return -1;
-    }
-
-    return tkz.hsamp_.globalIdx( trckey );
+    const BinID bid( iln, crl );
+    return p->getTrcNum( bid );
 }
 
 
 od_int64 seismic3d_nrbins( hSeismic3D self )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
@@ -296,7 +499,7 @@ od_int64 seismic3d_nrbins( hSeismic3D self )
 
 od_int64 seismic3d_nrtrcs( hSeismic3D self )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
@@ -304,27 +507,66 @@ od_int64 seismic3d_nrtrcs( hSeismic3D self )
 }
 
 
-void seismic3d_getdata( hSeismic3D self, hAllocator allocator,
-			const int inl_rg[3], const int crl_rg[3],
-			const int z_rg[3] )
+void seismic3d_zrange( hSeismic3D self, float zrg[3] )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
-    if  ( !p )
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if ( !p ) return;
+
+    const auto& z_rg = p->getZrange();
+    zrg[0] = z_rg.start;
+    zrg[1] = z_rg.stop;
+    zrg[2] = z_rg.step;
+}
+
+
+bool seismic3d_validrange( hSeismic3D self, const int32_t inlrg[3],
+			   const int32_t crlrg[3], const float zrg[3] )
+{
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if ( !p ) return false;
+
+    TrcKeyZSampling tkztochk = odSurvey::tkzFromRanges( inlrg, crlrg, zrg,
+							p->zIsTime() ) ;
+    return p->tkz().includes( tkztochk );
+}
+
+
+bool seismic3d_zistime( hSeismic3D self )
+{
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if ( !p ) return false;
+
+    return p->zIsTime();
+}
+
+
+void seismic3d_getdata( hSeismic3D self, hAllocator allocator,
+			const int32_t inlrg[3], const int32_t crlrg[3],
+			const float zrg[3] )
+{
+    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if  ( !p || !p->canRead() )
 	return;
 
-    const auto& tkz = p->tkz();
-    StepInterval<int> linerg( inl_rg[0], inl_rg[1], inl_rg[2] );
-    linerg.limitTo( tkz.hsamp_.lineRange() );
-    StepInterval<int> trcrg( crl_rg[0], crl_rg[1], crl_rg[2] );
-    trcrg.limitTo( tkz.hsamp_.trcRange() );
-    StepInterval<float> zrg( tkz.zAtIndex(z_rg[0]), tkz.zAtIndex(z_rg[1]),
-			     z_rg[2]*tkz.zsamp_.step );
-    zrg.limitTo( tkz.zsamp_ );
-    TrcKeyZSampling tkztoload;
-    tkztoload.hsamp_.setLineRange( linerg );
-    tkztoload.hsamp_.setTrcRange( trcrg );
-    tkztoload.zsamp_ = zrg;
+    TrcKeyZSampling tkztoload = odSurvey::tkzFromRanges( inlrg, crlrg, zrg,
+							 p->zIsTime() ) ;
+    tkztoload.limitTo( p->tkz() );
     p->getData( allocator, tkztoload );
+}
+
+
+void seismic3d_putdata( hSeismic3D self,
+			const float** data,
+		        const int32_t inlrg[3], const int32_t crlrg[3],
+			const float zrg[3] )
+{
+    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    if  ( !p || !p->canWrite() )
+	return;
+
+    TrcKeyZSampling tkztosave = odSurvey::tkzFromRanges( inlrg, crlrg, zrg,
+							 p->zIsTime() ) ;
+    p->putData( data, tkztosave );
 }
 
 

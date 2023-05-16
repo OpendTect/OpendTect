@@ -202,4 +202,15 @@ def pyjsonstr(jsonstrptr: ct.POINTER(ct.c_char_p), autodel: bool=True):
         cstring_del(jsonstrptr)
     return res
 
+def unpack_slice(rgs: slice, rg: list[int]) ->list[int]:
+    """Unpack a slice optionally replacing missing values using contents of rg"""
+    outrg = rg if not rgs else [rg[0] if not rgs.start else rgs.start, 
+                                rg[1] if not rgs.stop else rgs.stop, 
+                                rg[2] if not rgs.step else rgs.step]
+    return outrg
+
+def is_none_slice(x: slice) ->bool:
+    """Return True if all slice components are None"""
+    return x==slice(None, None, None)
+
 __all__ = ['survey', 'horizon2d', 'horizon3d', 'well']

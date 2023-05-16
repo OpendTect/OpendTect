@@ -67,7 +67,7 @@ public:
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool) const override;
 
-    static const char*	sKeyTranslatorGrp();
+    static const char*	translatorGrp();
 
 protected:
     TrcKeySampling		tk_;
@@ -99,7 +99,7 @@ public:
 				   bool towgs=true) const override;
     void		getPoints(OD::JSON::Array&, bool) const override;
 
-    static const char*	sKeyTranslatorGrp()	{ return "2D Horizon"; }
+    static const char*	translatorGrp()		{ return "2D Horizon"; }
 
 protected:
     RefMan<EM::Horizon2D>	hor_;

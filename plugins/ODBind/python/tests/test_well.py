@@ -60,6 +60,8 @@ def test_Well_class():
                                             'log_range': [1.926, 2.3105]
                                         }]
     assert well.marker_names == [
+                                    'Seasurface',
+                                    'MFS11',
                                     'FS11',
                                     'MFS10',
                                     'MFS9',

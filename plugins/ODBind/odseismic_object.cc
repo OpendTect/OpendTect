@@ -27,6 +27,8 @@ odSeismicObject::odSeismicObject( const odSurvey& thesurvey, const char* name,
 				  const char* tgname )
     : odSurveyObject(thesurvey, name, tgname)
 {
+    SeisIOObjInfo seisinfo( ioobj_ );
+
 }
 
 
@@ -42,37 +44,19 @@ odSeismicObject::~odSeismicObject()
 {}
 
 
-int odSeismicObject::getNrComponents() const
-{
-    survey_.activate();
-    SeisIOObjInfo seisinfo( ioobj_ );
-    return seisinfo.nrComponents();
-}
-
-
 BufferString odSeismicObject::getDtypeStr() const
 {
     survey_.activate();
+    PtrMan<SeisIOObjInfo> info = new SeisIOObjInfo(ioobj_);
+    return getDtypeStr( *info );
+}
+
+
+BufferString odSeismicObject::getDtypeStr( const SeisIOObjInfo& info ) const
+{
     DataCharacteristics dc;
-    SeisIOObjInfo seisinfo( ioobj_ );
-    seisinfo.getDataChar( dc );
+    info.getDataChar( dc );
     BufferString res;
     dc.toString( res );
     return res;
 }
-
-
-BufferStringSet* odSeismicObject::getCompNames( int lineid ) const
-{
-    survey_.activate();
-    BufferStringSet* nms = new BufferStringSet;
-    SeisIOObjInfo seisinfo( ioobj_ );
-    if( lineid==-1 )
-	seisinfo.getComponentNames( *nms );
-    else
-	seisinfo.getComponentNames( *nms, Pos::GeomID(lineid) );
-
-    return nms;
-}
-
-

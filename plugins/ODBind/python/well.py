@@ -117,7 +117,7 @@ class Well(_SurveyObject):
         allocator = NumpyAllocator()
         self._track(self._handle, allocator.cfunc)
         if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+            raise ValueError(pystr(self._errmsg(self._handle)))
 
         res =   {
                     'dah': allocator.allocated_arrays[0],
@@ -160,8 +160,8 @@ class Well(_SurveyObject):
         allocator = NumpyAllocator()
         infolist = pyjsonstr(self._logs(self._handle, allocator.cfunc, lognmsptr, zstep, upscale))
         stringset_del(lognmsptr)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
         logs = [key for item in infolist for key in item.keys()]
         uoms = [val for item in infolist for val in item.values()]
@@ -215,8 +215,8 @@ class Well(_SurveyObject):
 
         self._putlog(self._handle, lognm.encode(), dah, logdata, dah.size, uom.encode() if uom else None, 
                      mnem.encode() if mnem else None, overwrite)
-        if not self._isok(self._handle):
-            raise ValueError(self._errmsg(self._handle))
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
     def delete_logs(self, lognms: list[str]=[]):
         """Delete the listed log names from the well
