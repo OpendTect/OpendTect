@@ -739,7 +739,7 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
     if ( sb_ )
     {
 	sb_->getMessages( prevmessages_ );
-	mAttachCB(sb_->objectToBeDeleted(), uiUserShowWait::deleteSbCB);
+	mAttachCB( sb_->objectToBeDeleted(), uiUserShowWait::deleteSbCB );
     }
 
     setMessage( msg );
@@ -748,6 +748,7 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
 
 uiUserShowWait::~uiUserShowWait()
 {
+    detachAllNotifiers();
     readyNow();
     if ( sb_ )
 	sb_->message( prevmessages_ );
