@@ -1783,8 +1783,16 @@ int uiListBox::nrChecked() const
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
+    NotifyStopper ns1( selectionChanged );
+    NotifyStopper ns2( itemChosen );
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
+
+    ns1.enableNotification();
+    ns2.enableNotification();
+
+    selectionChanged.trigger();
+    itemChosen.trigger( -1 );
 }
 
 

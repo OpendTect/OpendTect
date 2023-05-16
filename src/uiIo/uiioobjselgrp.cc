@@ -178,7 +178,7 @@ EntryDataSet& EntryDataSet::updateMID( const MultiID& mid, EntryData* ed )
 }
 
 
-TypeSet<MultiID> EntryDataSet::getIOObjIds( bool reread ) const
+const TypeSet<MultiID>& EntryDataSet::getIOObjIds( bool reread ) const
 {
     if ( reread || livemids_.size() != this->size() )
     {
@@ -191,7 +191,7 @@ TypeSet<MultiID> EntryDataSet::getIOObjIds( bool reread ) const
 }
 
 
-TypeSet<int> EntryDataSet::getDefaultIdxs( bool reread ) const
+const TypeSet<int>& EntryDataSet::getDefaultIdxs( bool reread ) const
 {
     if ( reread || defaultidxs_.size() != this->size() )
     {
@@ -618,7 +618,7 @@ MultiID uiIOObjSelGrp::currentID() const
 
 MultiID uiIOObjSelGrp::chosenID( int objnr ) const
 {
-    const TypeSet<MultiID> mids = getIOObjIds();
+    const TypeSet<MultiID>& mids = getIOObjIds();
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
 	if ( isChosen(idx) )
@@ -1039,7 +1039,7 @@ void uiIOObjSelGrp::fillListBox()
 	}
     }
 
-    const TypeSet<int> defaultidxs = dataset_.getDefaultIdxs();
+    const TypeSet<int>& defaultidxs = dataset_.getDefaultIdxs();
     for ( const auto& idx : defaultidxs )
 	listfld_->setBold( idx, true );
 
@@ -1314,7 +1314,7 @@ void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
 }
 
 
-TypeSet<MultiID> uiIOObjSelGrp::getIOObjIds() const
+const TypeSet<MultiID>& uiIOObjSelGrp::getIOObjIds() const
 {
     return dataset_.getIOObjIds();
 }
