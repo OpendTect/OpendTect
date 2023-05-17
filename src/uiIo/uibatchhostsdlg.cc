@@ -640,11 +640,10 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     if ( !System::isValidIPAddress(ipaddress) )
     {
 	uiMSG().error( tr("Invalid IP address") );
-	return;
+	table_->clearCell( curcell );
     }
 
     hd.setIPAddress( ipaddress );
-
     if ( autohostbox_->isChecked() )
     {
 	setHostName( *table_, row, hd );
