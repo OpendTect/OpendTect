@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -961,6 +962,9 @@ MultiWellReader::MultiWellReader( const TypeSet<MultiID>& ids,
 }
 
 
+static HiddenParam<MultiWellReader,int> welladdedcount_(0);
+static HiddenParam<MultiWellReader,int> wellreloadedcount_(0);
+
 MultiWellReader::MultiWellReader( const DBKeySet& keys,
 				  RefObjectSet<Well::Data>& wds,
 				  const Well::LoadReqs reqs )
@@ -970,6 +974,8 @@ MultiWellReader::MultiWellReader( const DBKeySet& keys,
     , nrwells_(keys.size())
     , reqs_(reqs)
 {
+    welladdedcount_.setParam( this, 0 );
+    wellreloadedcount_.setParam( this, 0 );
     if ( !keys_.isEmpty() )
 	IOM().to( keys_.first() );
 
@@ -983,6 +989,8 @@ MultiWellReader::~MultiWellReader()
 {
     delete chgr_;
     delete &keys_;
+    welladdedcount_.removeParam( this );
+    wellreloadedcount_.removeParam( this );
 }
 
 
@@ -1001,10 +1009,17 @@ uiString MultiWellReader::uiNrDoneText() const
 
 int MultiWellReader::nextStep()
 {
+    int& wellreloadedcount
+		= const_cast<int&>( wellreloadedcount_.getParam(this) );
+    int& welladdedcount = const_cast<int&>( welladdedcount_.getParam(this) );
     if ( nrdone_ >= totalNr() )
     {
 	if ( wds_.size() != keys_.size() )
-	    allwellsread_ = false;
+	{
+	    const int nrwellsread = welladdedcount + wellreloadedcount;
+	    if ( nrwellsread != keys_.size() )
+		allwellsread_ = false;
+	}
 
 	if  ( wds_.size() == 0 )
 	{
@@ -1018,6 +1033,21 @@ int MultiWellReader::nextStep()
     const DBKey& wkey = keys_[sCast(int,nrdone_)];
     nrdone_++;
     RefMan<Well::Data> wd;
+    bool needsreload = false;
+    if ( !wds_.isEmpty() )
+    {
+	for ( const auto* wdata : wds_ )
+	{
+	    const int idx  = wds_.indexOf( wdata );
+	    if ( wdata->multiID() == wkey )
+	    {
+		wds_.removeSingle( idx );
+		needsreload = true;
+		break;
+	    }
+	}
+    }
+
     if ( wkey.isInCurrentSurvey() )
 	wd = Well::MGR().get( wkey, reqs_ );
     else
@@ -1053,6 +1083,7 @@ int MultiWellReader::nextStep()
     if ( !wd && wkey.isInCurrentSurvey() )
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
 
-    wds_ += wd;
+    wds_.addIfNew( wd );
+    needsreload ? wellreloadedcount++ : welladdedcount++;
     return MoreToDo();
 }
