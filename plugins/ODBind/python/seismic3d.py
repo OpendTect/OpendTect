@@ -2,9 +2,14 @@ import numpy as np
 import ctypes as ct
 from collections import namedtuple
 from collections.abc import Sequence
+from enum import Enum
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del, unpack_slice, is_none_slice 
 from odbind.survey import Survey, _SurveyObject
 
+class SliceType(Enum):
+    Inline = 0
+    Crossline = 1
+    ZSlice = 2
 
 class Seismic3D(_SurveyObject):
     """
@@ -16,7 +21,7 @@ class Seismic3D(_SurveyObject):
         clss._initbasebindings(bindnm)
         clss._newout = wrap_function(LIBODB, f'{bindnm}_newout', ct.c_void_p, [ct.c_void_p, ct.c_char_p, ct.c_char_p, ct.c_void_p,
                                                                                 ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), 
-                                                                                ct.POINTER(ct.c_float), ct.c_bool])
+                                                                                ct.POINTER(ct.c_float), ct.c_bool, ct.c_bool])
         clss._close = wrap_function(LIBODB, f'{bindnm}_close', None, [ct.c_void_p])
         clss._compnames = wrap_function(LIBODB, f'{bindnm}_compnames', ct.c_void_p, [ct.c_void_p])
         clss._nrbins = wrap_function(LIBODB, f'{bindnm}_nrbins', ct.c_int, [ct.c_void_p])
@@ -49,7 +54,9 @@ class Seismic3D(_SurveyObject):
         super(Seismic3D, self).__init__(survey, name)
         self._trace = Trace3D(self)
         self._volume = Volume3D(self)
-        self._iline = Inline3D(self)
+        self._iline = Slice3D(self, SliceType.Inline)
+        self._xline = Slice3D(self, SliceType.Crossline)
+        self._zslice = Slice3D(self, SliceType.ZSlice)
 
     @property
     def bin_count(self) ->int:
@@ -102,7 +109,7 @@ class Seismic3D(_SurveyObject):
         
         Returns
         -------
-        Inline3D : an object providing [inline_number] and [inline_slice] indexing
+        Slice3D : an object providing [inline_number] and [inline_slice] indexing
             into an OpendTect 3D seismic volume.
 
         """
@@ -111,6 +118,40 @@ class Seismic3D(_SurveyObject):
     @iline.setter
     def iline(self, val):
         self.iline[:] = val 
+
+    @property
+    def xline(self):
+        """
+        Return object for crossline mode access to the OpendTect seismc volume.
+        
+        Returns
+        -------
+        Slice3D : object providing [crossline_number] and [crossline_slice] indexing
+            into an OpendTect 3D seismic volume.
+
+        """
+        return self._xline
+
+    @xline.setter
+    def xline(self, val):
+        self.xline[:] = val 
+
+    @property
+    def zslice(self):
+        """
+        Return object for Z slice mode access to the OpendTect seismc volume.
+        
+        Returns
+        -------
+        Slice3D : an object providing [zslice_number] and [zslice_slice] indexing
+            into an OpendTect 3D seismic volume.
+
+        """
+        return self._zslice
+
+    @zslice.setter
+    def zslice(self, val):
+        self.zslice[:] = val 
 
     @property
     def trace_count(self) ->int:
@@ -138,7 +179,7 @@ class Seismic3D(_SurveyObject):
 
     @classmethod
     def create(clss, survey: Survey, name: str, inl_rg: list[int], crl_rg: list[int], z_rg: list[float], components: list[str]=['Component 1'], 
-                format: str='CBVS', zistime: bool=True, overwrite: bool=False):
+                fmt: str='CBVS', zistime: bool=True, overwrite: bool=False):
         """Create a new OpendTect 3D seismic volume object
 
         Parameters
@@ -166,12 +207,13 @@ class Seismic3D(_SurveyObject):
         """
 
         newseis = clss.__new__(clss)
+        newseis._handle = None
         newseis._survey = survey
         ct_inlrg = (ct.c_int * 3)(*inl_rg)
         ct_crlrg = (ct.c_int * 3)(*crl_rg)
         ct_zrg = (ct.c_float * 3)(*z_rg)
         compnmsptr = makestrlist(components)
-        newseis._handle = clss._newout(survey._handle, name.encode(), format.encode(), compnmsptr, ct_inlrg, ct_crlrg, ct_zrg, zistime, overwrite)
+        newseis._handle = clss._newout(survey._handle, name.encode(), fmt.encode(), compnmsptr, ct_inlrg, ct_crlrg, ct_zrg, zistime, overwrite)
         stringset_del(compnmsptr)
         if not newseis._handle or not survey.isok:
             raise TypeError(survey.errmsg)
@@ -180,8 +222,9 @@ class Seismic3D(_SurveyObject):
 
         newseis._trace = Trace3D(newseis)
         newseis._volume = Volume3D(newseis)
-
-
+        newseis._iline = Slice3D(newseis, SliceType.Inline)
+        newseis._xline = Slice3D(newseis, SliceType.Crossline)
+        newseis._zslice = Slice3D(newseis, SliceType.ZSlice)
         return newseis
 
     def __enter__(self):
@@ -464,6 +507,13 @@ class Seismic3D(_SurveyObject):
                     }
         return Dataset(data_vars={dv: (info['dims'], data[idx]) for idx, dv in enumerate(info['comp'])}, coords=coords, attrs=attribs)
 
+    def is_seisdata(self, data: tuple[list[np.ndarray], dict]) ->bool:
+        return  isinstance(data, (list, tuple,)) \
+                and len(data)==2 \
+                and isinstance(data[0], list) \
+                and isinstance(data[1], dict) \
+                and all(isinstance(itm, np.ndarray) for itm in data[0])
+
 Seismic3D._initbindings('seismic3d')
 
 class Trace3D(Sequence):
@@ -483,14 +533,12 @@ class Trace3D(Sequence):
 
         return i
 
-    def is_tracedata(self, trc: tuple[list[np.ndarray], dict]) ->bool:
-        return  isinstance(trc, (list, tuple,)) \
-                and len(trc)==2 \
-                and isinstance(trc[0], list) \
-                and isinstance(trc[1], dict) \
-                and all(isinstance(itm, np.ndarray) for itm in trc[0]) \
-                and 'iline' in trc[1] and isinstance(trc[1]['iline'], int) \
-                and 'xline' in trc[1] and isinstance(trc[1]['xline'], int)
+    def is_tracedata(self, data: tuple[list[np.ndarray], dict]) ->bool:
+        zdim = 'twt' if self.seis3d.zistime else 'depth'
+        return  self.seis3d.is_seisdata(data) \
+                and 'iline' in data[1] and isinstance(data[1]['iline'], int) \
+                and 'xline' in data[1] and isinstance(data[1]['xline'], int) \
+                and zdim in data[1] and isinstance(data[1][zdim], list) 
 
     def __getitem__(self, idx):
         """Either trace[trace_number], trace[inl, crl], trace[trace_number_slice] or trace[inline_slice, crossline_slice]
@@ -642,48 +690,77 @@ class Trace3D(Sequence):
         """x.__len__() <==> len(x)"""
         return self.seis3d.trace_count
 
-class Inline3D(Sequence):
-    def __init__(self, seis: Seismic3D ):
+class Slice3D(Sequence):
+    def __init__(self, seis: Seismic3D, slice_type: SliceType ):
         self._seis3d = seis
+        self._slicetype = slice_type
 
     @property
     def seis3d(self) ->Seismic3D:
         return self._seis3d
-        
+
     def __len__(self):
         """x.__len__() <==> len(x)"""
-        inlrg = self.seis3d.ranges.inlrg
-        return (inlrg[1]-inlrg[0])//inlrg[2] + 1
+        sampling = self.seis3d.ranges
+        sdx = self._slicetype
+        if sdx==SliceType.ZSlice:
+            return int((sampling.zrg[1]-sampling.zrg[0])/sampling.zrg[2]) + 1
+        else:
+            return (sampling[sidx][1]-sampling[sidx][0])//sampling[sidx][2] + 1
+
+    def is_slicedata(self, data: tuple[list[np.ndarray], dict]) ->bool:
+        zdim = 'twt' if self.seis3d.zistime else 'depth'
+        return  self.seis3d.is_seisdata(data) \
+                and 'iline' in data[1] and isinstance(data[1]['iline'], int if self._slicetype==SliceType.Inline else list) \
+                and 'xline' in data[1] and isinstance(data[1]['xline'], int if self._slicetype==SliceType.Crossline else list) \
+                and zdim in data[1] and isinstance(data[1][zdim], float if self._slicetype==SliceType.ZSlice else list)
+
+    def slicerg_for(self, idx: int) ->tuple[list]:
+        sampling = self.seis3d.ranges
+        sdx = self._slicetype
+        inlrg = sampling.inlrg
+        crlrg = sampling.crlrg
+        zrg = sampling.zrg
+        if sdx==SliceType.ZSlice:
+            zval = self.seis3d.z_value(idx)
+            zrg = [zval, zval, zrg[2]]
+        elif sdx==SliceType.Inline:
+            inlrg = [idx, idx, 1]
+        else:
+            crlrg = [idx, idx, 1]
+
+        return inlrg, crlrg, zrg
+
+
 
     def __getitem__(self, idx):
-        """Either iline[inline_number] or iline[inline_number_slice]
+        """Either [number] or [number_slice] for slice types of inline, crossline or zsclice.
 
-        [inline_number] returns a single inline.
-        [slice] return a generator for a range of inline numbers.
+        [number] returns a single inline, crossline or zslice depending on the slice type.
+        [number_slice] return a generator for a range of inline, crossline or zslice numbers depending on the slice type.
+        For Z slices the index is the sample index. 
 
-        Reads all components and various supporting data and returns a tuple of:
+        Reads all samples, all components and various supporting data for the slice and returns a tuple of:
         -  a list of numpy arrays, one for each seismic component
         -  a Python dict with information about the data
 
         The information dict has the following keys and data:
         -  'comp': list[str] of the seismic component names
-        -  'iline': int
-        -  'xline': list[int] with the crossline start, stop and step
+        -  'iline': int (for inline slice) or list[int] with the inline start, stop and step
+        -  'xline': int (for crossline slice) or list[int] with the crossline start, stop and step
         -  'x': double | np.ndarray(double) with the x coordinates of the traces  
         -  'y': double | np.ndarray(double) with the y coordinates of the traces
-        -  'twt' | 'depth': list[float] with the Z start, stop and step
-        -  'dims': ['xline', 'twt|depth']
+        -  'twt' | 'depth': float (for z slice) or list[float] with the Z start, stop and step
+        -  'dims': ['iline|xline', 'twt|depth'] for inline or crossline slices or ['iline', 'zline'] for z slices
         
-        It should be noted that: 
-        - returns all traces, all z samples and all components on the inline.
-        - the slice ranges are inclusive of both ends. This is consistent with the definition of ranges in OpendTect but
+        Note the ranges are inclusive of both ends. This is consistent with the definition of ranges in OpendTect but
         not Python where slices normally exclude the end index.
 
-        The returned numpy arrays will have axes ordered as crossline, z.
+        The returned numpy arrays will have axes ordered as inline, crossline, z.
 
         Examples:
-            [200] return inline 200 from the volume
-            [400:500] returns a generator for inlines 400 to 500
+            [200] return inline, crossline or zslice 200 from the seismic volume.
+            [400:500] returns a generator for inlines, crosslines or zslices 400 to 500
             [400:500:5] returns a generator for inlines 400, 405, 410,..., 495, 500
         
         Parameters
@@ -697,22 +774,44 @@ class Inline3D(Sequence):
         generator of tuple[list[np.ndarrays], dict]
 
         """
-        sampling = self.seis3d.ranges
-        crlrg = sampling.crlrg
-        zrg = sampling.zrg
         if isinstance(idx, int):
-            return self.seis3d.getdata([idx, idx, 1], crlrg, zrg)
+            inlrg, crlrg, zrg = self.slicerg_for(idx)
+            return self.seis3d.getdata(inlrg, crlrg, zrg)
         elif isinstance(idx, slice):
-            inlrg = unpack_slice(idx, sampling.inlrg)
+            sampling = self.seis3d.ranges
+            sdx = self._slicetype
+            mainrg = []
+            if sdx==SliceType.ZSlice:
+                zrg = sampling.zrg
+                mainrg = [self.seis3d.z_index(zrg[0]), self.seis3d.z_index(zrg[1]), 1]
+            elif sdx==SliceType.Inline:
+                mainrg = sampling.inlrg
+            else:
+                mainrg = sampling.crlrg
+
+            slrg = unpack_slice(idx, mainrg)
             def gen():
-                for inl in range(inlrg[0], inlrg[1]+inlrg[2],inlrg[2]):
-                    data = self.seis3d.getdata([inl,inl,1], crlrg, zrg)
+                for sdx in range(slrg[0], slrg[1]+slrg[2],slrg[2]):
+                    inlrg, crlrg, zrg = self.slicerg_for(sdx)
+                    data = self.seis3d.getdata(inlrg, crlrg, zrg)
                     yield data
 
             return gen()
         else:
             raise TypeError('index should be [inline_number] or [inline_slice].')
-    
+
+    def __setitem__(self, idx, data):
+        """Write a slice to the associated OpendTect 3D seismic volume. Only supports index mode iline|xline|zslice[:].
+
+        """
+        if self.is_slicedata(data):
+            if isinstance(idx, slice) and is_none_slice(idx):
+                self.seis3d.putdata(*data)
+            else:
+                raise TypeError('index should be [:].')
+        else:
+            raise TypeError(f'expected input of tuple[list[np.ndarray], dict] but got {data}')
+
 class Volume3D():
     def __init__(self, seis: Seismic3D ):
         self._seis3d = seis
@@ -721,16 +820,12 @@ class Volume3D():
     def seis3d(self) ->Seismic3D:
         return self._seis3d
 
-    def is_volumedata(self, vol: tuple[list[np.ndarray], dict]) ->bool:
+    def is_volumedata(self, data: tuple[list[np.ndarray], dict]) ->bool:
         zdim = 'twt' if self.seis3d.zistime else 'depth'
-        return  isinstance(vol, (list, tuple,)) \
-                and len(vol)==2 \
-                and isinstance(vol[0], list) \
-                and isinstance(vol[1], dict) \
-                and all(isinstance(itm, np.ndarray) for itm in vol[0]) \
-                and 'iline' in vol[1] and isinstance(vol[1]['iline'], list) \
-                and 'xline' in vol[1] and isinstance(vol[1]['xline'], list) \
-                and zdim in vol[1] and isinstance(vol[1][zdim], list) 
+        return  self.seis3d.is_seisdata(data) \
+                and 'iline' in data[1] and isinstance(data[1]['iline'], list) \
+                and 'xline' in data[1] and isinstance(data[1]['xline'], list) \
+                and zdim in data[1] and isinstance(data[1][zdim], list) 
 
     def __getitem__(self, idx):
         """Get a rectangular subvolume using either volume(inline_slice, crossline_slice, Z_range_list) or volume(inline_slice, crossline_slice, zsample_slice)

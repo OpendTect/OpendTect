@@ -295,7 +295,8 @@ class _SurveyObject(object):
         return pystr(self._errmsg(self._handle))
 
     def __del__(self):
-        self._del(self._handle)
+        if self._handle:
+            self._del(self._handle)
 
     def feature(self) ->dict:
         """ Return a GeoJSON feature for the object
