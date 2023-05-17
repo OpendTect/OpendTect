@@ -944,6 +944,9 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 
 
 // MultiWellReader
+static HiddenParam<MultiWellReader,int> welladdedcount_(0);
+static HiddenParam<MultiWellReader,int> wellreloadedcount_(0);
+
 MultiWellReader::MultiWellReader( const TypeSet<MultiID>& ids,
 				  RefObjectSet<Well::Data>& wds,
 				  const Well::LoadReqs reqs )
@@ -953,6 +956,8 @@ MultiWellReader::MultiWellReader( const TypeSet<MultiID>& ids,
     , reqs_(reqs)
     , keys_( *new DBKeySet() )
 {
+    welladdedcount_.setParam( this, 0 );
+    wellreloadedcount_.setParam( this, 0 );
     for ( const auto& id : ids )
 	keys_ += DBKey( id );
 
@@ -961,9 +966,6 @@ MultiWellReader::MultiWellReader( const TypeSet<MultiID>& ids,
 	IOM().to( keys_.first() );
 }
 
-
-static HiddenParam<MultiWellReader,int> welladdedcount_(0);
-static HiddenParam<MultiWellReader,int> wellreloadedcount_(0);
 
 MultiWellReader::MultiWellReader( const DBKeySet& keys,
 				  RefObjectSet<Well::Data>& wds,
