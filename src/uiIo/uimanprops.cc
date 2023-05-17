@@ -645,10 +645,12 @@ void uiSelectPropRefsGrp::fillList()
 	const char* nm = dispnms.get( idx ).buf();
 	const bool issel = prsel_.getByName( nm, false );
 	propfld_->setChosen( idx, issel );
-	if ( issel && firstsel < 0 ) firstsel = idx;
+	if ( issel && firstsel < 0 )
+	    firstsel = idx;
     }
 
     propfld_->setCurrentItem( firstsel < 0 ? 0 : firstsel );
+    propfld_->resizeToContents();
 }
 
 
