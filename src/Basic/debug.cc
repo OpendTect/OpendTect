@@ -52,8 +52,9 @@ ________________________________________________________________________
 #endif
 
 
-static const char* sStdErr = "stderr";
-static BufferString log_file_name_ = sStdErr;
+static const char* sStdIO = od_stream::sStdIO();
+static const char* sStdErr = od_stream::sStdErr();
+static BufferString log_file_name_ = sStdIO;
 static bool crash_on_programmer_error_ = false;
 static PtrMan<od_ostream> dbg_log_strm_ = nullptr;
 
@@ -409,7 +410,9 @@ Export_Basic od_ostream& logMsgStrm()
     if ( logstrm )
 	return *logstrm;
 
-    if ( GetEnvVarYN("OD_LOG_STDERR") )
+    if ( GetEnvVarYN("OD_LOG_STDOUT") )
+	log_file_name_.set( sStdIO );
+    else if ( GetEnvVarYN("OD_LOG_STDERR") )
 	log_file_name_.set( sStdErr );
 
     BufferString errmsg;
