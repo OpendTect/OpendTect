@@ -192,7 +192,7 @@ public:
 private:
 			mOD_DisableCopy(ConstArrPtrMan<T>);
 
-    static void		deleteFunc( T* p )    { delete p; }
+    static void		deleteFunc( T* p )    { delete [] p; }
 };
 
 
