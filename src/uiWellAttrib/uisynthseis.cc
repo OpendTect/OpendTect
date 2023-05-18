@@ -21,9 +21,9 @@ ________________________________________________________________________
 uiMultiSynthSeisSel::Setup::Setup( const char* wvltseltxt )
     : uiSeisWaveletSel::Setup(wvltseltxt)
     , withzeroff_(true)
+    , withps_(true)
     , withelasticstack_(canDoElastic())
     , withelasticgather_(canDoElastic())
-    , withps_(true)
 {
 }
 
@@ -80,9 +80,9 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su )
 uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
 					  bool withderived )
     : uiGroup(p)
-    , typedef_(*new EnumDef(SynthGenParams::SynthTypeDef()))
     , selectionChanged(this)
     , parsChanged(this)
+    , typedef_(*new EnumDef(SynthGenParams::SynthTypeDef()))
 {
     const EnumDef synthdef = SynthGenParams::SynthTypeDef();
     topgrp_ = new uiGroup( this, "Top group" );

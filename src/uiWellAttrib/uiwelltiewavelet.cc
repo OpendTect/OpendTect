@@ -104,9 +104,9 @@ bool WellTie::uiWaveletView::isInitialWvltActive() const
 
 WellTie::uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     : uiGroup(p)
+    , wvltChged(this)
     , isactive_(isactive)
     , wvlt_(wvlt)
-    , wvltChged(this)
 {
     viewer_ = new uiFlatViewer( this );
 

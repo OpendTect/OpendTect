@@ -10,9 +10,8 @@ ________________________________________________________________________
 #include "uicreateattriblogdlg.h"
 
 #include "attribsel.h"
-#include "ioman.h"
 #include "ioobj.h"
-#include "strmprov.h"
+#include "od_helpids.h"
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -24,13 +23,11 @@ ________________________________________________________________________
 
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 #include "uilistbox.h"
-#include "uimultiwelllogsel.h"
 #include "uimsg.h"
+#include "uimultiwelllogsel.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
 
 
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
@@ -40,11 +37,11 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup(tr("Create Attribute Log"),mNoDlgTitle,
 				 mODHelpKey(mCreateAttribLogDlgHelpID)))
-    , wellnames_(wellnames)
-    , singlewell_(singlewell)
-    , sellogidx_(-1)
     , attribfld_(0)
-    , datasetup_(AttribLogCreator::Setup( attrib, 0 ))
+    , wellnames_(wellnames)
+    , sellogidx_(-1)
+    , singlewell_(singlewell)
+    , datasetup_(AttribLogCreator::Setup(attrib,0))
 {
     uiWellExtractParams::Setup wsu;
     wsu.withzstep_ = true; wsu.withzintime_ = false;

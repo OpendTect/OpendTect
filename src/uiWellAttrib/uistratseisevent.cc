@@ -9,18 +9,18 @@ ________________________________________________________________________
 
 #include "uistratseisevent.h"
 
-#include "uibutton.h"
-#include "uigeninput.h"
-#include "uiioobjsel.h"
-#include "uilabel.h"
-#include "uistratlvlsel.h"
-#include "uimsg.h"
-#include "uistrings.h"
-#include "emsurfacetr.h"
 #include "emioobjinfo.h"
+#include "emsurfacetr.h"
 #include "stratlevel.h"
 #include "survinfo.h"
 #include "valseriesevent.h"
+
+#include "uibutton.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uistratlvlsel.h"
+#include "uistrings.h"
 
 #define mToSecFactorF	0.001f
 
@@ -30,9 +30,9 @@ ________________________________________________________________________
 uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
 					const Strat::LevelID& deflvlid )
     : uiGroup(p,"Strat Level With Horizon Group")
-    , lvlid_(deflvlid)
     , levelSel(this)
     , horSel(this)
+    , lvlid_(deflvlid)
 {
     lvlsel_ = new uiStratLevelSel( this, false, tr("Reference level"));
 
@@ -144,9 +144,9 @@ uiStratSeisEvent::Setup::~Setup()
 
 uiStratSeisEvent::uiStratSeisEvent( uiParent* p, const Setup& su )
     : uiGroup(p,"Strat Seis Event Specification Group")
+    , anyChange(this)
     , setup_(su)
     , evtype_( VSEvent::TypeDef() )
-    , anyChange(this)
 {
     if ( setup_.sellevel_ )
 	levelfld_ = new uiStratLevelSel( this, false, tr("Reference level" ) );

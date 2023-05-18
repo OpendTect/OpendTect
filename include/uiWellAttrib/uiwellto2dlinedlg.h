@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uistring.h"
-#include "bufstringset.h"
+
 class IOObj;
 class uiCheckBox;
 class uiGenInput;
@@ -41,7 +41,7 @@ protected:
     uiCheckBox*		dispfld_;
 
     uiPushButton*	previewbutton_;
-    Geometry::RandomLine* rl_ = nullptr;
+    Geometry::RandomLine* rl_					= nullptr;
     uiSeisRandTo2DBase* randto2dlinefld_;
     uiWellSelGrp*	wellselgrp_;
 

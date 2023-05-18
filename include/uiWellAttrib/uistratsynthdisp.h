@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 
 #include "uigroup.h"
-#include "stratlevel.h"
 #include "stratsynth.h"
 
 class uiFlatViewer;

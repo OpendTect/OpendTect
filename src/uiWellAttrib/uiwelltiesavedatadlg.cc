@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "waveletio.h"
 #include "wellextractdata.h"
 #include "welltiedata.h"
-#include "welltiesetup.h"
 #include "welllog.h"
 #include "welldata.h"
 #include "welllogset.h"
@@ -27,7 +26,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
-#include "uitable.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 

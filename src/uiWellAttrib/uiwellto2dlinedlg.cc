@@ -12,19 +12,14 @@ ________________________________________________________________________
 #include "ui2dgeomman.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uigroup.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uiseisrandto2dline.h"
 #include "uiwellrdmlinedlg.h"
 
-#include "ctxtioobj.h"
-#include "randomlinetr.h"
 #include "seisrandlineto2d.h"
 #include "survgeometry.h"
-#include "survgeom2d.h"
-#include "posinfo2d.h"
 #include "survinfo.h"
 
 #include <math.h>
@@ -35,8 +30,8 @@ uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create 2D line"),
 				 tr("Select wells to set up the 2D line path"),
 				 mODHelpKey(mWellto2DLineDlgHelpID)))
-    , wellselgrp_(new uiWellSelGrp(this))
     , wantspreview_(this)
+    , wellselgrp_(new uiWellSelGrp(this))
 {
     createFields();
     attachFields();

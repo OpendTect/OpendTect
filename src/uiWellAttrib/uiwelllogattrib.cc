@@ -12,16 +12,11 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "ioobj.h"
-#include "ptrman.h"
-#include "welldata.h"
-#include "welllogset.h"
 #include "wellman.h"
 
 #include "uiattribfactory.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
-#include "uimsg.h"
 #include "uiwellsel.h"
 #include "od_helpids.h"
 
@@ -92,13 +87,13 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
 }
 
 
-bool uiWellLogAttrib::setInput( const Desc& desc )
+bool uiWellLogAttrib::setInput( const Desc& )
 {
     return true;
 }
 
 
-bool uiWellLogAttrib::setOutput( const Attrib::Desc& desc )
+bool uiWellLogAttrib::setOutput( const Attrib::Desc& )
 {
     return true;
 }
@@ -117,18 +112,18 @@ bool uiWellLogAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiWellLogAttrib::getInput( Desc& desc )
+bool uiWellLogAttrib::getInput( Desc& )
 {
     return true;
 }
 
 
-bool uiWellLogAttrib::getOutput( Attrib::Desc& desc )
+bool uiWellLogAttrib::getOutput( Attrib::Desc& )
 {
     return true;
 }
 
 
-void uiWellLogAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+void uiWellLogAttrib::getEvalParams( TypeSet<EvalParam>& ) const
 {
 }

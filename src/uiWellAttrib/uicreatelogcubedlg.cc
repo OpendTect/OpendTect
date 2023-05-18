@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
 #include "uispinbox.h"
-#include "uitaskrunner.h"
 #include "uistring.h"
+#include "uitaskrunner.h"
 
 #include "createlogcube.h"
 #include "multiid.h"

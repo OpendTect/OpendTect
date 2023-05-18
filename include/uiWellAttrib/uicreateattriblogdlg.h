@@ -26,8 +26,9 @@ mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
 public:
 				uiCreateAttribLogDlg(uiParent*,
 						     const BufferStringSet&,
-					             const Attrib::DescSet*,
-						     const NLAModel*,bool);
+						     const Attrib::DescSet*,
+						     const NLAModel*,
+						     bool singlewell);
 				~uiCreateAttribLogDlg();
 
 protected:

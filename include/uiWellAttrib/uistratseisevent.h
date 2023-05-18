@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "stratseisevent.h"
 #include "uistring.h"
+
 class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;

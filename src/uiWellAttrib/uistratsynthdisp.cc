@@ -11,16 +11,13 @@ ________________________________________________________________________
 
 #include "uicombobox.h"
 #include "uiflatviewer.h"
-#include "uiflatviewmainwin.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uilineedit.h"
-#include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
 #include "uislider.h"
-#include "uispinbox.h"
 #include "uistratlaymodtools.h"
 #include "uisynthgendlg.h"
 #include "uitaskrunner.h"
@@ -30,13 +27,10 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "dataclipper.h"
 #include "ioobj.h"
-#include "flatposdata.h"
 #include "flatviewzoommgr.h"
 #include "prestackgather.h"
-#include "propertyref.h"
 #include "ptrman.h"
 #include "seisbufadapters.h"
-#include "seistrc.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -102,8 +96,8 @@ public:
     };
 
 SynthSpecificPars( SynthID sid, uiFlatViewer* vwr )
-    : vwr_(vwr)
-    , id_(sid)
+    : id_(sid)
+    , vwr_(vwr)
 {
 }
 

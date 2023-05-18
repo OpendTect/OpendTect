@@ -12,11 +12,11 @@ ________________________________________________________________________
 #include "ui2dgeomman.h"
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseislinesel.h"
-#include "uiseissel.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
@@ -27,19 +27,13 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "prestackgather.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
-#include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 #include "stratlevel.h"
 #include "stratsynthexp.h"
-#include "syntheticdataimpl.h"
-#include "velocitycalc.h"
-#include "zdomain.h"
 #include "od_helpids.h"
 
 
@@ -57,8 +51,8 @@ public:
 uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
 		    const BufferStringSet& nms )
     : uiCheckedCompoundParSel( p, seltxt, false, uiStrings::sSelect() )
-    , nms_(nms)
     , nm_(seltxt)
+    , nms_(nms)
 {
     mAttachCB( butPush, uiStratSynthOutSel::selItems );
 }

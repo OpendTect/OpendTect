@@ -15,10 +15,8 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uifunctiondisplay.h"
 #include "uilabel.h"
-#include "uirgbarraycanvas.h"
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
-#include "uiworld2ui.h"
 
 #include "flatposdata.h"
 #include "seistrc.h"
@@ -31,8 +29,6 @@ ________________________________________________________________________
 #include "wellmarker.h"
 
 #include "welltiedata.h"
-#include "welltiegeocalculator.h"
-#include "welltiepickset.h"
 #include "welltrack.h"
 
 
@@ -41,15 +37,15 @@ ________________________________________________________________________
 // WellTie::uiTieView
 
 WellTie::uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data)
-    : vwr_(vwr)
+    : infoMsgChanged(this)
+    , vwr_(vwr)
     , parent_(p)
-    , trcbuf_(*new SeisTrcBuf(true))
     , params_(data.dispparams_)
     , data_(data)
-    , synthpickset_(data.pickdata_.synthpicks_)
-    , seispickset_(data.pickdata_.seispicks_)
     , zrange_(data.getTraceRange())
-    , infoMsgChanged(this)
+    , seispickset_(data.pickdata_.seispicks_)
+    , synthpickset_(data.pickdata_.synthpicks_)
+    , trcbuf_(*new SeisTrcBuf(true))
 {
     initFlatViewer();
     initLogViewers();

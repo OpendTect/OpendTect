@@ -13,33 +13,27 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attribsel.h"
-#include "attribstorprovider.h"
 #include "datacoldef.h"
 #include "executor.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "iopar.h"
-#include "survinfo.h"
 #include "keystrs.h"
-#include "posinfo.h"
+#include "mousecursor.h"
+#include "posfilter.h"
 #include "posvecdataset.h"
-#include "posfilterset.h"
 #include "seisioobjinfo.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllog.h"
 #include "wellman.h"
-#include "wellmarker.h"
 
-#include "mousecursor.h"
-#include "uiposfilterset.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
-#include "uicombobox.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
+#include "uiposfilterset.h"
 #include "uitaskrunner.h"
-#include "unitofmeasure.h"
 
 
 using namespace Attrib;
@@ -185,7 +179,8 @@ bool uiWellLogExtractGrp::extractWellData( const TypeSet<MultiID>& ioobjids,
 					     ObjectSet<DataPointSet>& dpss )
 {
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
-    wts.for2d_ = false; wts.lognms_ = lognms;
+    wts.for2d_ = false;
+    wts.lognms_ = lognms;
     wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getFValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();

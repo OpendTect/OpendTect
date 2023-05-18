@@ -539,8 +539,8 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 				     uiString::emptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
 				.modal(false))
-    , server_(server)
     , redrawNeeded(this)
+    , server_(server)
     , data_(server_.data())
 {
     setCtrlStyle( CloseOnly );

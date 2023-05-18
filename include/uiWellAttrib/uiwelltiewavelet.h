@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 
-#include "uidialog.h"
 #include "uigroup.h"
 #include "uistring.h"
 

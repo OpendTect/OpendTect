@@ -10,11 +10,8 @@ ________________________________________________________________________
 #include "uisynthgendlg.h"
 
 #include "uibuttongroup.h"
-#include "uicombobox.h"
 #include "uielasticpropsel.h"
-#include "uigeninput.h"
 #include "uiioobjseldlg.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
@@ -31,8 +28,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "stratlayermodel.h"
 #include "stratsynth.h"
-#include "syntheticdataimpl.h"
-#include "synthseis.h"
 #include "wavelet.h"
 
 
@@ -46,9 +41,9 @@ ________________________________________________________________________
 
 uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth::DataMgr& gp )
     : uiGroup(p,"Synthetic Seismic Parameters")
-    , stratsynth_(gp)
     , synthAdded(this)
     , synthSelected(this)
+    , stratsynth_(gp)
 {
     auto* leftgrp = new uiGroup( this, "left group" );
     auto* butgrp = new uiButtonGroup( leftgrp, "actions", OD::Horizontal );

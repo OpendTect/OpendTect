@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiamplspectrum.h"
 #include "uibuttongroup.h"
-#include "uichecklist.h"
 #include "uicreateattriblogdlg.h"
 #include "uicreatelogcubedlg.h"
 #include "uimsg.h"
@@ -23,12 +22,10 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
-#include "datapointset.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "nlamodel.h"
 #include "ptrman.h"
-#include "randcolor.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"

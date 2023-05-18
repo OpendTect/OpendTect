@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uiwelltieeventstretch.h"
 
 #include "arrayndimpl.h"
-#include "interpol1d.h"
 #include "idxable.h"
 #include "survinfo.h"
 #include "welld2tmodel.h"
@@ -23,9 +22,9 @@ ________________________________________________________________________
 
 WellTie::EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr )
     : pmgr_(pmgr)
+    , d2tmgr_(d2tmgr)
     , synthpickset_(pmgr_.synthPickSet())
     , seispickset_(pmgr_.seisPickSet())
-    , d2tmgr_(d2tmgr)
 {
 }
 

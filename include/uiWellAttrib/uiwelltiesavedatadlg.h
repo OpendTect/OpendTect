@@ -9,11 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uicreatelogcubedlg.h"
 #include "uidialog.h"
-#include "uigroup.h"
-
-#include "bufstringset.h"
 
 class uiCheckBox;
 class uiCheckList;

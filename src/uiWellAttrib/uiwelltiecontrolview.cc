@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uiwelltiecontrolview.h"
 
-#include "ioman.h"
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
@@ -20,11 +19,10 @@ ________________________________________________________________________
 #include "welltiesetup.h"
 
 #include "uiflatviewer.h"
+#include "uigraphicsview.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
-#include "uirgbarraycanvas.h"
 #include "uiseparator.h"
-#include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiwelldispprop.h"
@@ -44,11 +42,11 @@ WellTie::uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 				       uiFlatViewer* vwr, Server& server )
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
 			         .withcoltabed(false).withsnapshot(false))
+    , redrawNeeded(this)
+    , redrawAnnotNeeded(this)
     , toolbar_(tb)
     , curview_(uiWorldRect(0,0,0,0))
     , server_(server)
-    , redrawNeeded(this)
-    , redrawAnnotNeeded(this)
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -123,7 +121,7 @@ bool WellTie::uiControlView::checkIfInside( double xpos, double zpos )
 }
 
 
-void WellTie::uiControlView::rubBandCB( CallBacker* cb )
+void WellTie::uiControlView::rubBandCB( CallBacker* )
 {
     setSelView();
     rubberBandUsed.trigger();
@@ -201,8 +199,8 @@ public :
 	: uiDialog(p,uiDialog::Setup(tr("Display Markers/Horizons"),
 				     uiString::emptyString(),mNoHelpKey)
 		.modal(false))
-	, pms_(pms)
 	, redrawneeded_(this)
+	, pms_(pms)
     {
 	setCtrlStyle( CloseOnly );
 	uiGroup* topgrp = new uiGroup( this, "top group" );

@@ -15,12 +15,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "settings.h"
 #include "stratlayseqgendesc.h"
-#include "stratlayermodel.h"
-#include "stratlaygen.h"
-#include "strattransl.h"
-#include "stratlaymodgen.h"
 #include "stratreftree.h"
-#include "stratsynth.h"
 
 #include "uichecklist.h"
 #include "uilistbox.h"
@@ -28,11 +23,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uistratbasiclayseqgendesc.h"
-#include "uistratlaymodtools.h"
-#include "uistratsimplelaymoddisp.h"
-#include "uistratsynthcrossplot.h"
 #include "uistrattreewin.h"
-#include "uistrings.h"
 
 
 uiStratLayerModelManager::uiStratLayerModelManager()

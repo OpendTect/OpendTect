@@ -12,47 +12,31 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "ctxtioobj.h"
 #include "elasticpropsel.h"
-#include "envvars.h"
-#include "executor.h"
 #include "ioobj.h"
-#include "ioman.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
-#include "od_iostream.h"
-#include "seistrc.h"
-#include "separstr.h"
-#include "settings.h"
-#include "stratlayseqgendesc.h"
-#include "stratlaygen.h"
 #include "stratlayermodel.h"
+#include "stratlaygen.h"
 #include "stratlaymodgen.h"
-#include "strattransl.h"
+#include "stratlayseqgendesc.h"
 #include "stratreftree.h"
 #include "stratsynth.h"
-#include "survinfo.h"
+#include "strattransl.h"
 #include "unitofmeasure.h"
-#include "wavelet.h"
 
-#include "uichecklist.h"
-#include "uifileinput.h"
 #include "uiflatviewer.h"
-#include "uiflatviewstdcontrol.h"
-#include "uiflatviewwin.h"
-#include "uigeninput.h"
 #include "uigroup.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
-#include "uilistbox.h"
-#include "uimultiflatviewcontrol.h"
 #include "uimsg.h"
+#include "uimultiflatviewcontrol.h"
 #include "uisaveimagedlg.h"
-#include "uiselsimple.h"
-#include "uispinbox.h"
 #include "uisplitter.h"
 #include "uistatusbar.h"
 #include "uistratbasiclayseqgendesc.h"
+#include "uistratlayermodel.h"
+#include "uistratlaymoddisp.h"
 #include "uistratlaymodtools.h"
-#include "uistratsimplelaymoddisp.h"
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
 #include "uistrattreewin.h"
@@ -74,11 +58,11 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiString::empty(),1,true)
-    , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
-    , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , lms_(*new Strat::LayerModelSuite)
     , beforeSave(this)
     , afterRetrieve(this)
+    , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
+    , lms_(*new Strat::LayerModelSuite)
+    , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , nrmodels_(0)
 {
     setDeleteOnClose( true );

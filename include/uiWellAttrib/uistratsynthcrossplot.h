@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 
 #include "uidialog.h"
-#include "datapack.h"
 #include "stratlevel.h"
 #include "uistring.h"
 

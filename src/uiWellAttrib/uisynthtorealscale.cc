@@ -9,19 +9,16 @@ ________________________________________________________________________
 
 #include "uisynthtorealscale.h"
 
-#include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "executor.h"
 #include "survinfo.h"
 #include "polygon.h"
-#include "position.h"
-#include "prestackgather.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "seisbufadapters.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "stratlevel.h"
@@ -31,7 +28,6 @@ ________________________________________________________________________
 #include "syntheticdataimpl.h"
 #include "picksettr.h"
 #include "wavelet.h"
-#include "waveletio.h"
 #include "ioman.h"
 
 #include "uislider.h"
@@ -63,8 +59,8 @@ public:
 uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     : uiGroup(p,nm)
     , usrval_(mUdf(float))
-    , usrValChanged(this)
     , markerlineitem_(0)
+    , usrValChanged(this)
 {
     uiFunctionDisplay::Setup su;
     su.annoty( false ).noyaxis( true ).noy2axis( true ).drawgridlines( false );
@@ -144,8 +140,8 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 			mNoDlgTitle,mODHelpKey(mSynthToRealScaleHelpID) ))
     , is2d_(is2d)
     , stratsynth_(synthmgr)
-    , seisev_(*new Strat::SeisEvent)
     , inpwvltid_(wid)
+    , seisev_(*new Strat::SeisEvent)
 {
 #define mNoDealRet(cond,msg) \
     if ( cond ) \
@@ -389,10 +385,10 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     : Executor( "Collect Amplitudes" )
     , dlg_(d)
     , rdr_(r)
-    , msg_(tr("Collecting"))
-    , nrdone_(0)
-    , totalnr_(-1)
-    , seldata_(0)
+	, seldata_(0)
+	, msg_(tr("Collecting"))
+	, nrdone_(0)
+	, totalnr_(-1)
 {
     if ( dlg_.polygon_ )
 	seldata_ = new Seis::PolySelData( *dlg_.polygon_ );
