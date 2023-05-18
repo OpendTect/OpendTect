@@ -40,12 +40,12 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 		      bool newline )
     : uiParent(nm.getFullString(),0)
-    , parent_(parnt)
-    , tbarea_(tba)
     , buttonClicked(this)
     , orientationChanged(this)
     , toolbarmenuaction_(0)
     , qtoolbar_(new QToolBar(toQString(nm), parnt ? parnt->getWidget() : 0))
+    , tbarea_(tba)
+    , parent_(parnt)
 {
     label_ = nm;
     qtoolbar_->setObjectName( toQString(nm) );
@@ -181,39 +181,43 @@ uiString uiToolBar::getDispNm() const
     return label_;
 }
 
-#define mHandleErr(erraction) \
-    if ( !action ) \
-    { \
-	pErrMsg("Action not found"); \
-	erraction; \
-    }
 
-#define mGetConstAction( erraction ) \
-    const uiAction* action = findAction( id );\
-    mHandleErr(erraction)
+uiAction* uiToolBar::myFindAction( int id )
+{
+    auto* action = cCast(uiAction*,findAction(id));
+    if ( !action )
+	 pErrMsg("Action not found");
 
-#define mGetAction( erraction ) \
-    uiAction* action = const_cast<uiAction*>( findAction(id) ); \
-    mHandleErr(erraction)
+    return action;
+}
+
+
+const uiAction* uiToolBar::myFindAction( int id ) const
+{
+    return cCast(uiToolBar*,this)->myFindAction( id );
+}
+
 
 void uiToolBar::turnOn( int id, bool yn )
 {
-    mGetAction( return );
-    action->setChecked( yn );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setChecked( yn );
 }
+
 
 bool uiToolBar::isOn( int id ) const
 {
-    mGetConstAction( return false );
-    return action->isChecked();
+    const uiAction* action = myFindAction( id );
+    return action ? action->isChecked() : false;
 }
 
 
 void uiToolBar::setSensitive( int id, bool yn )
 {
-    mGetAction( return );
-
-    action->setEnabled( yn );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setEnabled( yn );
 }
 
 
@@ -222,48 +226,59 @@ void uiToolBar::setSensitive( bool yn )
     qtoolbar_->setEnabled( yn );
 }
 
+
 bool uiToolBar::isSensitive() const
-{ return qtoolbar_->isEnabled(); }
+{
+    return qtoolbar_->isEnabled();
+}
 
 
 void uiToolBar::setToolTip( int id, const uiString& tip )
 {
-    mGetAction( return );
-    action->setToolTip( tip );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setToolTip( tip );
 }
 
 void uiToolBar::setShortcut( int id, const char* sc )
 {
-    mGetAction( return );
-    action->setShortcut( sc );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setShortcut( sc );
 }
 
 
 void uiToolBar::setToggle( int id, bool yn )
 {
-    mGetAction( return );
-    action->setCheckable( yn );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setCheckable( yn );
 }
 
 
 void uiToolBar::setIcon( int id, const char* fnm )
 {
-    mGetAction( return );
-    action->setIcon( fnm );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setIcon( fnm );
 }
 
 
 void uiToolBar::setIcon( int id, const uiIcon& icon )
 {
-    mGetAction( return );
-    action->setIcon( icon );
+    auto* action = myFindAction( id );
+    if ( action )
+	action->setIcon( icon );
 }
 
 
 void uiToolBar::setButtonMenu( int id, uiMenu* mnu,
 			       uiToolButton::PopupMode mode )
 {
-    mGetAction( return );
+    auto* action = myFindAction( id );
+    if ( !action )
+	return;
+
     action->setMenu( mnu );
     QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
     mDynamicCastGet(QToolButton*,qtb,qw)
@@ -350,8 +365,7 @@ void uiToolBar::translateText()
 }
 
 
-void uiToolBar::doInsertMenu(mQtclass(QMenu)* menu,
-			  mQtclass(QAction)* before)
+void uiToolBar::doInsertMenu( mQtclass(QMenu)*, mQtclass(QAction)* )
 {
     pErrMsg("Not implemented. Should not be called");
 }
