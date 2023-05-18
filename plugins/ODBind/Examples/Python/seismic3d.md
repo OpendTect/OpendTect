@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -98,15 +98,6 @@ vol.trace_index(100, 400)
 vol.bin(100)
 ```
 
-```python
-info, data = vol.volume[200:200,:,:]
-vol.as_xarray(info, data)
-```
-
-```python
-#Seismic3D.delete(f3demo, ['test_min','test_max'])
-```
-
 ## Static methods
 A number of methods are provided to get information either for all or a selected number of wells in the user provided survey.
 
@@ -118,7 +109,7 @@ vols
 ### Seismic3D.infos() and Seismic3D.infos_dataframe() functions
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed 3D seismic volumes (or all volumes if no list provided) in the given survey.
 
-```python tags=[]
+```python
 Seismic3D.infos_dataframe(f3demo)
 #Seismic3D.infos(f3demo)
 ```
@@ -127,7 +118,7 @@ Seismic3D.infos_dataframe(f3demo)
 
 Returns a GeoJSON feature collection for the listed 3D seismic volumes (or all volumes if no list provided) in the given survey. This can be used to create map displays.
 
-```python tags=[]
+```python
 features = Seismic3D.features(f3demo,['1 Original Seismics', '6 Wheeler-stratal-slicing'])
 features
 ```
