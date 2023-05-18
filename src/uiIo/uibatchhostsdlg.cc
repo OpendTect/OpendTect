@@ -636,7 +636,8 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     if ( !System::isValidIPAddress(ipaddress) )
     {
 	uiMSG().error( tr("Invalid IP address") );
-	return;
+	table_->clearCell( curcell );
+	table_->clearCell( RowCol(row, sDispNameCol) );
     }
 
     hd.setIPAddress( ipaddress );
