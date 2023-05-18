@@ -181,29 +181,29 @@ const Strat::LevelSet& Strat::LVLS()
 
 Strat::Level::Level( const char* nm, const OD::Color& col, LevelID newid )
     : NamedCallBacker(nm)
+    , changed(this)
     , id_(newid)
     , color_(col)
     , pars_(*new IOPar)
-    , changed(this)
 {
 }
 
 
 Strat::Level::Level( const Level& oth, int lvlid )
-    : NamedCallBacker(oth)
+    : NamedCallBacker(oth.name())
+    , changed(this)
     , id_(lvlid)
     , color_(oth.color_)
     , pars_(*new IOPar(oth.pars_))
-    , changed(this)
 {
 }
 
 
 Strat::Level::Level( const Level& oth )
-    : NamedCallBacker(oth)
+    : NamedCallBacker(oth.name())
+    , changed(this)
     , id_(0)
     , pars_(*new IOPar(oth.pars_))
-    , changed(this)
 {
     *this = oth;
 }
@@ -330,20 +330,20 @@ void Strat::Level::usePar( const IOPar& iop )
 
 Strat::LevelSet::LevelSet( int idnr )
     : NamedCallBacker("")
-    , curlevelid_(idnr)
     , changed(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
+    , curlevelid_(idnr)
 {
 }
 
 
 Strat::LevelSet::LevelSet( const LevelSet& oth )
-    : NamedCallBacker(oth)
-    , curlevelid_(0)
+    : NamedCallBacker(oth.name())
     , changed(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
+    , curlevelid_(0)
 {
     *this = oth;
 }

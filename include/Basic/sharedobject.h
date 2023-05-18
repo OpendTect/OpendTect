@@ -19,7 +19,6 @@ mExpClass(Basic) SharedObject : public NamedCallBacker
 {
 public:
 				SharedObject(const char* nm=nullptr);
-				SharedObject(const SharedObject&);
 
     static Notifier<SharedObject>&	instanceCreated();
 

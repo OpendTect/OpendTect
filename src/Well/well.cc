@@ -255,22 +255,22 @@ void Well::DahObj::updateDahRange()
 
 
 Well::Data::Data( const char* nm )
-    : info_(nm)
-    , track_(*new Well::Track)
-    , logs_(*new Well::LogSet)
-    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
-    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
-    , d2tmodel_(nullptr)
-    , csmodel_(nullptr)
-    , markers_(*new MarkerSet)
-    , d2tchanged(this)
+    : d2tchanged(this)
     , csmdlchanged(this)
     , markerschanged(this)
     , trackchanged(this)
-    , disp2dparschanged(this)
     , disp3dparschanged(this)
+    , disp2dparschanged(this)
     , logschanged(this)
     , reloaded(this)
+    , info_(nm)
+    , track_(*new Well::Track)
+    , logs_(*new Well::LogSet)
+    , d2tmodel_(nullptr)
+    , csmodel_(nullptr)
+    , markers_(*new MarkerSet)
+    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
+    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     mAttachCB( lvlset.levelToBeRemoved, Data::levelToBeRemoved );
@@ -579,8 +579,34 @@ Well::Info::Info( const char* nm )
 {}
 
 
+Well::Info::Info( const Well::Info& oth )
+    : Info(oth.name())
+{
+    *this = oth;
+}
+
+
 Well::Info::~Info()
 {}
+
+
+Well::Info& Well::Info::operator=( const Info& oth )
+{
+    name_ = oth.name_;
+    uwid_ = oth.uwid_;
+    oper_ = oth.oper_;
+    field_ = oth.field_;
+    county_ = oth.county_;
+    state_ = oth.state_;
+    province_ = oth.province_;
+    country_ = oth.country_;
+    source_ = oth.source_;
+    welltype_ = oth.welltype_;
+    surfacecoord_ = oth.surfacecoord_;
+    replvel_ = oth.replvel_;
+    groundelev_ = oth.groundelev_;
+    return *this;
+}
 
 
 bool Well::Info::isLoaded() const

@@ -40,10 +40,10 @@ namespace Pick
 // Pick::SetMgr
 static ObjectSet<SetMgr>& setMgrs()
 {
-    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<SetMgr> >, mgrs, = 0 );
+    mDefineStaticLocalObject( PtrMan<ObjectSet<SetMgr> >, mgrs, = 0 );
     if ( !mgrs )
     {
-	mgrs = new ManagedObjectSet<SetMgr>;
+	mgrs = new ObjectSet<SetMgr>;
 	mgrs->add( new SetMgr(nullptr) );
     }
 

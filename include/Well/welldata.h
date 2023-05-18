@@ -41,9 +41,11 @@ class DisplayProperties;
 mExpClass(Well) Info : public NamedCallBacker
 { mODTextTranslationClass(Well::Info)
 public:
-
 			Info(const char* nm);
+			Info(const Info&);
 			~Info();
+
+    Info&		operator=(const Info&);
 
     enum InfoType	{ None, Name, UWID, WellType, TD, KB, GroundElev,
 			  MarkerDepth, SurfCoord, SurfBinID, Operator, Field,

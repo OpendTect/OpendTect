@@ -606,13 +606,13 @@ SurveyInfo* SurveyInfo::popSI()
 mDefineInstanceCreatedNotifierAccess(SurveyInfo)
 
 SurveyInfo::SurveyInfo()
-    : tkzs_(*new TrcKeyZSampling(false))
+    : zdef_(*new ZDomain::Def(ZDomain::Time()) )
+    , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
-    , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
-    , workRangeChg(this)
     , survdatatype_(OD::Both2DAnd3D)
+    , workRangeChg(this)
 {
     rdxtr_.b = rdytr_.c = 1;
     for ( int idx=0; idx<3; idx++ )
@@ -632,11 +632,11 @@ SurveyInfo::SurveyInfo()
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
-    : NamedCallBacker( si )
+    : NamedCallBacker( si.name() )
+    , zdef_(*new ZDomain::Def( si.zDomain() ) )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
-    , zdef_(*new ZDomain::Def( si.zDomain() ) )
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
 {
@@ -808,7 +808,7 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
 }
 
 
-SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
+SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& )
 {
     FilePath diskloc = obj.getFilePath( sKeySurvDiskLoc() );
     PtrMan<SurveyInfo> si = new SurveyInfo;

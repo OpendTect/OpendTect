@@ -16,13 +16,6 @@ SharedObject::SharedObject( const char* nm )
 }
 
 
-SharedObject::SharedObject( const SharedObject& oth )
-    : NamedCallBacker(oth)
-{
-    instanceCreated().trigger( this );
-}
-
-
 SharedObject::~SharedObject()
 {
     sendDelNotif();

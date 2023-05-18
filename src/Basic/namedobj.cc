@@ -46,14 +46,6 @@ NamedCallBacker::NamedCallBacker( const char* nm )
 }
 
 
-NamedCallBacker::NamedCallBacker( const NamedCallBacker& oth )
-    : NamedObject(oth)
-    , delnotif_(this)
-    , delalreadytriggered_(false)
-{
-}
-
-
 void NamedCallBacker::sendDelNotif() const
 {
     if ( !delalreadytriggered_ )

@@ -69,9 +69,7 @@ mExpClass(Basic) NamedCallBacker : public CallBacker
 {
 public:
 			NamedCallBacker(const char* nm=0);
-			NamedCallBacker(const NamedCallBacker&);
-
-    NamedCallBacker&	operator=(const NamedCallBacker&) = delete;
+			mOD_DisableCopy(NamedCallBacker)
 
     inline bool		operator ==( const NamedCallBacker& oth ) const
 			{ return name_ == oth.getName(); }
