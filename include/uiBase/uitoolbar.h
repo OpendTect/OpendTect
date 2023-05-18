@@ -111,6 +111,8 @@ public:
     Notifier<uiToolBar>		orientationChanged;
 
 protected:
+    uiAction*			myFindAction(int id);
+    const uiAction*		myFindAction(int id) const;
 
     void			doInsertMenu(mQtclass(QMenu)*,
 					mQtclass(QAction)* before) override;
