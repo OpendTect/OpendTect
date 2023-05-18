@@ -32,7 +32,7 @@ ________________________________________________________________________
   will map values in range [8,Inf] on [8,10].
 
   By default, the Squeezer will behave like a 'Clipper'. You have to use
-  setUntouchedRange() to get proper squeezing behaviour.
+  setUntouchedRange() to get proper squeezing behavior.
 */
 
 template <class T>

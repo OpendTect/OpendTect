@@ -52,7 +52,7 @@ void SetColorActivator::actCB( CallBacker* )
 
 bool ColorOkCmd::act( const char* parstr )
 {
-    if ( uiMainWin::activeModalType() != uiMainWin::Colour )
+    if ( uiMainWin::activeModalType() != uiMainWin::Color )
     {
 	mWinErrStrm << "Command requires open QColorDialog" << od_endl;
 	return false;

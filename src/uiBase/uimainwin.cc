@@ -356,14 +356,14 @@ void uiMainWin::showAndActivate()
 
 void uiMainWin::setActivateOnFirstShow( bool yn )
 {
-    setActivateBehaviour( yn ? OD::AlwaysActivateWindow
+    setActivateBehavior( yn ? OD::AlwaysActivateWindow
 			     : OD::DefaultActivateWindow );
 }
 
 
 static OD::WindowActivationBehavior activateAct = OD::DefaultActivateWindow;
 
-void uiMainWin::setActivateBehaviour(
+void uiMainWin::setActivateBehavior(
 		    OD::WindowActivationBehavior activateact )
 {
 #ifdef __win__
@@ -379,7 +379,7 @@ void uiMainWin::setActivateBehaviour(
 }
 
 
-OD::WindowActivationBehavior uiMainWin::getActivateBehaviour()
+OD::WindowActivationBehavior uiMainWin::getActivateBehavior()
 {
     return activateAct;
 }
@@ -457,7 +457,7 @@ uiMainWin::ActModalTyp uiMainWin::activeModalType()
     if ( dynamic_cast<uiMainWinBody*>(amw) )	return Main;
     if ( dynamic_cast<QMessageBox*>(amw) )	return Message;
     if ( dynamic_cast<QFileDialog*>(amw) )	return File;
-    if ( dynamic_cast<QColorDialog*>(amw) )	return Colour;
+    if ( dynamic_cast<QColorDialog*>(amw) )	return Color;
     if ( dynamic_cast<QFontDialog*>(amw) )	return Font;
 
     return Unknown;
@@ -530,7 +530,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 	return buttext;
     }
 
-    if ( typ==Colour || typ==Font || typ==File )
+    if ( typ==Color || typ==Font || typ==File )
     {
 	if ( buttonnr == 0 ) return "Cancel";
 	if ( buttonnr == 1 ) return typ==File ? "Ok" : "OK";

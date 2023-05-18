@@ -51,7 +51,7 @@ public:
 
     static bool		isQuestionName(const char*,CmdDriver&);
 
-    enum FormTag	{ NoForm=0, Text, Number, Colour, Value, Angle,
+    enum FormTag	{ NoForm=0, Text, Number, Color, Value, Angle,
 			  Minimum, Maximum, Step, Percentage, FilePath };
 
 protected:
@@ -648,7 +648,7 @@ protected:
     if ( mMatchCI(formword,"Number") && fms.indexOf("Number")>=0 ) \
 	form = Number; \
     if ( mMatchCI(formword,"Color") && fms.indexOf("Color")>=0 ) \
-	form = Colour; \
+	form = Color; \
     if ( mMatchCI(formword,"Value") && fms.indexOf("Value")>=0 ) \
 	form = Value; \
     if ( mMatchCI(formword,"Angle") && fms.indexOf("Angle")>=0 ) \

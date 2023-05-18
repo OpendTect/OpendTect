@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief The OpendTect service manager
  Manage communication between ODMain and external services/apps so that
- the external app can show behaviour/state consistent with ODMain. Items
+ the external app can show behavior/state consistent with ODMain. Items
  communicated by ODMain are:
  - ODMain is closing
  - ODMain mainwindow has been raised or hidden

@@ -22,7 +22,7 @@ class BufferStringSet;
  - Unrel: all boxes can be on or off
  - NotAll: Not all boxes can be on
  - AtLeastOne: Not all boxes can be off
- - OneOnly: radio-behaviour (but the items still are check boxes)
+ - OneOnly: radio-behavior (but the items still are check boxes)
  - MaybeOne: also radio, but also allowing no choice at all
  - Chain: next is only available if previous is checked:
    -- Chain1st: 1st check determines availability of all others

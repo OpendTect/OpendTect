@@ -17,7 +17,7 @@ class uiGraphicsScene;
 
 /*!
 \brief Convenient base class to carry axis data:
-  1) the AxisHandler which handles the behaviour and positioning of an axis
+  1) the AxisHandler which handles the behavior and positioning of an axis
      in a 2D plot
   2) axis scaling parameters
   3) axis ranges

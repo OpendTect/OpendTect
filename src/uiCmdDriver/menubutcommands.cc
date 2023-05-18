@@ -445,7 +445,7 @@ bool GetButtonCmd::act( const char* parstr )
 	uibut ? const_cast<uiButton*>(uibut)->text().getFullString().str() : 0);
     mGetColorString( uicolinp->color(), uicolinp, colorstr );
     mParForm( answer, form, text, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -462,7 +462,7 @@ bool GetButtonCmd::actQDlgButton( const char* parstr )
     const char* text = buttexts.get( butsfound[0] );
     wildcardMan().check( mSearchKey(keys[0]), text );
     mParForm( answer, form, text, "255`255`255`255" );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 

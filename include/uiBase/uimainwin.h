@@ -169,7 +169,7 @@ public:
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 
-    enum   ActModalTyp	{ None=0, Main, Message, File, Colour, Font, Unknown };
+    enum   ActModalTyp	{ None=0, Main, Message, File, Color, Font, Unknown };
     static ActModalTyp	activeModalType();
     static uiMainWin*	activeModalWindow();
     static const char*	activeModalQDlgTitle();
@@ -265,8 +265,8 @@ public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
-    static void		setActivateBehaviour(OD::WindowActivationBehavior);
-    static OD::WindowActivationBehavior getActivateBehaviour();
+    static void		setActivateBehavior(OD::WindowActivationBehavior);
+    static OD::WindowActivationBehavior getActivateBehavior();
 
 };
 

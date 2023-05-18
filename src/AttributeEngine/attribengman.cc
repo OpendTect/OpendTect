@@ -748,7 +748,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		else
 		{
 		    BufferString rawnmbufstr;
-	    //because constructor has strange behaviour with embeded strings
+	    //because constructor has strange behavior with embeded strings
 		    rawnmbufstr += inpname;
 		    rawnmbufstr.unEmbed( '[', ']' );
 		    if ( rawnmbufstr.buf() && inpname &&

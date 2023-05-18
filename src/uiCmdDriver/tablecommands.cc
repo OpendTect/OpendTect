@@ -759,8 +759,8 @@ bool CurTableRowCmd::act( const char* parstr )
     const OD::Color color = uitable->getHeaderBackground( rc.col(), true );
     mGetColorString( color, rc.col()>=0, colorstr );
     mParForm( answer, form, text, countRows(uitable,rc.row()) );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -785,8 +785,8 @@ bool CurTableColCmd::act( const char* parstr )
     const OD::Color color = uitable->getHeaderBackground( rc.col(), false );
     mGetColorString( color, rc.col()>=0, colorstr );
     mParForm( answer, form, text, countCols(uitable,rc.col()) );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -818,8 +818,8 @@ bool CurTableItemCmd::act( const char* parstr )
     mGetTableItemNr( uitable, rc, itemnr );
     mGetColorString( uitable->getColor(rc), rc.col()>=0, colorstr );
     mParForm( answer, form, uitable->text(rc), itemnr );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -853,8 +853,8 @@ bool GetTableRowCmd::act( const char* parstr )
     mGetColorString(uitable->getHeaderBackground(rc.col(),true),
 		    true, colorstr);
     mParForm( answer, form, text, countRows(uitable,rc.row()) );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -888,8 +888,8 @@ bool GetTableColCmd::act( const char* parstr )
     mGetColorString(uitable->getHeaderBackground(rc.col(),false),
 		    true, colorstr);
     mParForm( answer, form, text, countRows(uitable,rc.col()) );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -920,8 +920,8 @@ bool GetTableItemCmd::act( const char* parstr )
     mGetTableItemNr( uitable, rc, itemnr );
     mGetColorString( uitable->getColor(rc), true, colorstr );
     mParForm( answer, form, uitable->text(rc), itemnr );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 

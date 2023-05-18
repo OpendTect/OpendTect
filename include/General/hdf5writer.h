@@ -59,7 +59,7 @@ public:
 				const ArrayNDInfo& addedsz,
 				const ArrayNDInfo& changedir,
 				PtrMan<ArrayNDInfo>* existsinfo =nullptr);
-			//!<param changedir: Array reshaping behaviour
+			//!<param changedir: Array reshaping behavior
 			//! for each dimension: -1 = shrink, 0 = no change
 			//! 1 = grow
     uiRetVal		createDataSetIfMissing(const DataSetKey&,ODDataType,

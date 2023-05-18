@@ -387,7 +387,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 		   mousepos.x(), mousepos.y(), delta.y() );
     mousehandler_.triggerWheel( me );
 /*
-  uncomment this conditional to have the default wheel event behaviour, that is,
+  uncomment this conditional to have the default wheel event behavior, that is,
   when scrolling up, scene moves down. When scrolling down, scene moves up.
 */
 //    if ( !handle_.scrollZoomEnabled() )

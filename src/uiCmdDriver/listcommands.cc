@@ -481,8 +481,8 @@ bool CurListItemCmd::act( const char* parstr )
     const char* text = uilist->textOfItem( curidx );
     mGetColorString( uilist->getColor(curidx), curidx>=0, colorstr );
     mParForm( answer, form, text, curidx+1 );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 
@@ -504,8 +504,8 @@ bool GetListItemCmd::act( const char* parstr )
     const char* text = uilist->textOfItem( itemidxs[0] );
     mGetColorString( uilist->getColor(itemidxs[0]), true, colorstr );
     mParForm( answer, form, text, itemidxs[0]+1 );
-    mParExtraForm( answer, form, Colour, colorstr );
-    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Colour );
+    mParExtraForm( answer, form, Color, colorstr );
+    mParEscIdentPost( identname.buf(), answer.buf(), parnext, form!=Color );
     return true;
 }
 

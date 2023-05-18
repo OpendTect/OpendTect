@@ -225,7 +225,7 @@ protected:
 
 
 /*!  handles the MenuItem insertion automaticly. If the menu is selected,
-     a callback is triggered. Default behaviour is that the menu item is added
+     a callback is triggered. Default behavior is that the menu item is added
      every time the menu is built, and that it's enabled but not checked.
      That can be changes by setting the doadd_, isenabled_ and ischecked_ or
      by an inheriting object in the shouldAddMenu(), shouldBeEnabled() and

@@ -17,9 +17,9 @@ namespace Geometry
 {
 
 /*!
-  \brief A curve that is defined by regularly sampled positions.  
+  \brief A curve that is defined by regularly sampled positions.
 
-  The curve's behaviour between the positions is determined by a function of a
+  The curve's behavior between the positions is determined by a function of a
   parameter u: (x(u), y(u), z(u)). The samplerange is determined by
   parameterRange().  The curve is guaranteed to be continious within its
   parameter range, and if isCircular() returns true, it connects between
