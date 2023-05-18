@@ -1508,7 +1508,7 @@ bool uiPythonSettings::commitSetts( const IOPar& iop )
 {
     Settings& setts = Settings::fetch( iop.name() );
     setts.IOPar::operator =( iop );
-    if ( !setts.write() )
+    if ( !setts.write(false) )
     {
 	uiMSG().error( tr( "Cannot write %1" ).arg( setts.name() ) );
 	return false;
