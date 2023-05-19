@@ -12,20 +12,15 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uichecklist.h"
 #include "uiclipboard.h"
-#include "uicombobox.h"
 #include "uiconvpos.h"
 #include "uidatarootsel.h"
-#include "uidesktopservices.h"
 #include "uifileinput.h"
-#include "uifont.h"
 #include "uigroup.h"
+#include "uihelpview.h"
 #include "uilabel.h"
-#include "uilatlong2coord.h"
-#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uimain.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uiseparator.h"
 #include "uisetdatadir.h"
 #include "uisettings.h"
@@ -41,29 +36,23 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "ui2dsip.h"
 
-#include "angles.h"
 #include "applicationdata.h"
 #include "ctxtioobj.h"
 #include "dirlist.h"
-#include "envvars.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "helpview.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
-#include "latlong.h"
 #include "moddepmgr.h"
 #include "mousecursor.h"
 #include "oddirs.h"
-#include "odver.h"
-#include "od_ostream.h"
 #include "od_helpids.h"
 #include "settings.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
-#include "systeminfo.h"
 #include "trckeyzsampling.h"
 
 #include <iostream>
@@ -212,10 +201,10 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     : uiDialog(p,Setup(tr("Create New Survey"),
 		       tr("Specify new survey parameters"),
 		       mODHelpKey(mStartNewSurveySetupHelpID)))
-    , survinfo_(survinfo)
-    , dataroot_(dataroot)
     , sips_(uiSurveyInfoEditor::survInfoProvs())
     , sipidx_(-1)
+    , dataroot_(dataroot)
+    , survinfo_(survinfo)
 {
     setOkText( uiStrings::sNext() );
 
@@ -427,14 +416,14 @@ void uiStartNewSurveySetup::zdomainChg( CallBacker* )
 uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
+    , cursurvinfo_(0)
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
     , initialsurveyname_(GetSurveyName())
-    , cursurvinfo_(0)
     , survmap_(0)
-    , dirfld_(0)
     , impiop_(0)
     , impsip_(0)
+    , dirfld_(0)
     , parschanged_(false)
     , cursurvremoved_(false)
     , freshsurveyselected_(false)
@@ -525,9 +514,11 @@ uiSurvey::~uiSurvey()
 }
 
 
-static void osrbuttonCB( CallBacker* )
+static void terraNubisCB( CallBacker* )
 {
-    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
+    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+			WebsiteHelp::sKeyFreeProjects() );
+    HelpProvider::provideHelp( key );
 }
 
 
@@ -555,8 +546,8 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 	tr("Extract survey from zip archive"),
 	mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
-	tr("Share surveys through the OpendTect Seismic Repository"),
-	mSCB(osrbuttonCB) );
+	tr("Download surveys from TerraNubis"),
+	mSCB(terraNubisCB) );
     rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
@@ -684,7 +675,9 @@ bool uiSurvey::acceptOK( CallBacker* )
 	return true;
 
     if ( dirfld_->isEmpty() )
-	mErrRet(tr("Please create a survey (or press Cancel)"))
+	mErrRet(tr("Please create/unzip a survey (or press Cancel).\n"
+		   "Note that public domain surveys can be downloaded"
+		   " from TerraNubis."))
 
     const BufferString selsurv( selectedSurveyName() );
     const bool samedataroot = dataroot_ == orgdataroot_;
@@ -991,8 +984,8 @@ void uiSurvey::exportButPushed( CallBacker* )
 			  tr("You can share surveys to Open Seismic Repository."
 			   "To know more ") );
     sharfld->attach( leftAlignedBelow,  fnmfld );
-    uiPushButton* osrbutton =
-	new uiPushButton( &dlg, tr("Click here"), mSCB(osrbuttonCB), false );
+    auto* osrbutton = new uiPushButton( &dlg, tr("Click here"),
+					mSCB(terraNubisCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
@@ -1006,7 +999,7 @@ void uiSurvey::exportButPushed( CallBacker* )
 }
 
 
-void uiSurvey::dataRootChgCB( CallBacker* cb )
+void uiSurvey::dataRootChgCB( CallBacker* )
 {
     dataroot_ = datarootsel_->getDataRoot();
     updateSurvList();

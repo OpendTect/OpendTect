@@ -11,17 +11,17 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "uidesktopservices.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
+#include "uihelpview.h"
 #include "uilistbox.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uisurveyzip.h"
 #include "uitoolbutton.h"
 
 #include "dirlist.h"
-#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "odinst.h"
 #include "od_helpids.h"
 #include "settings.h"
-#include "ziputils.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -95,10 +94,10 @@ static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
-	: uiDialog(p,uiDialog::Setup(tr("Set OpendTect's Survey Data Root"),
+    : uiDialog(p,uiDialog::Setup(tr("Set OpendTect's Survey Data Root"),
 				     tr("Specify a Data Root folder"),
 				     mODHelpKey(mSetDataDirHelpID) ))
-	, curdatadir_(GetBaseDataDir())
+    , curdatadir_(GetBaseDataDir())
 {
     const bool oldok = IOMan::isValidDataRoot( curdatadir_ );
     BufferString oddirnm, basedirnm;
@@ -149,7 +148,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
     basedirfld_->setStretch( 2, 0 );
-    mAttachCB( basedirfld_->valuechanged, uiSetDataDir::rootCheckCB );
+    mAttachCB( basedirfld_->valueChanged, uiSetDataDir::rootCheckCB );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
     dirlistfld_ = new uiListBox( this, su );
@@ -415,6 +414,14 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 }
 
 
+static void terraNubisCB( CallBacker* )
+{
+    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+		      WebsiteHelp::sKeyFreeProjects() );
+    HelpProvider::provideHelp( key );
+}
+
+
 void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 {
     if ( !par ) return;
@@ -427,18 +434,10 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 	opts.add("Install the F3 Demo Survey from the OpendTect installation");
     opts.add( "Unzip a survey zip file" );
 
-    struct OSRPageShower : public CallBacker
-    {
-	void go( CallBacker* )
-	{
-	    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
-	}
-    };
     uiGetChoice uigc( par, opts, uiStrings::phrSelect(tr("next action")) );
-    OSRPageShower ps;
-    uiPushButton* pb = new uiPushButton( &uigc,
-				 tr("visit TerraNubis (for free surveys)"),
-				 mCB(&ps,OSRPageShower,go), true );
+    auto* pb = new uiPushButton( &uigc,
+			tr("visit TerraNubis (for public domain surveys)"),
+			mSCB(terraNubisCB), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
     if ( !uigc.go() || uigc.choice() == 0 )
 	return;
@@ -459,7 +458,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 
 
 using fromFromSdlUiParSdlPtrFn = bool(*)(SurveyDiskLocation&,uiParent*,
-                            const SurveyDiskLocation*,uiDialog::DoneResult* );
+			const SurveyDiskLocation*,uiDialog::DoneResult* );
 static fromFromSdlUiParSdlPtrFn dosurvselfn_ = nullptr;
 
 mGlobal(uiTools) void setGlobal_uiTools_SurvSelFns(fromFromSdlUiParSdlPtrFn);
@@ -469,14 +468,14 @@ void setGlobal_uiTools_SurvSelFns( fromFromSdlUiParSdlPtrFn dosurvselfn )
 }
 
 extern "C" {
-    mGlobal(uiTools) bool doSurveySelectionDlg(SurveyDiskLocation&,uiParent*,
-                                     const SurveyDiskLocation*,
-                                     uiDialog::DoneResult*);
+mGlobal(uiTools) bool doSurveySelectionDlg(SurveyDiskLocation&,uiParent*,
+					const SurveyDiskLocation*,
+					uiDialog::DoneResult*);
 }
 
 mExternC(uiTools) bool doSurveySelectionDlg( SurveyDiskLocation& newsdl,
-                                uiParent* p, const SurveyDiskLocation* cursdl,
-                                uiDialog::DoneResult* doneres )
+				uiParent* p, const SurveyDiskLocation* cursdl,
+				uiDialog::DoneResult* doneres )
 {
     return dosurvselfn_ ? (*dosurvselfn_)(newsdl,p,cursdl,doneres) : false;
 }
