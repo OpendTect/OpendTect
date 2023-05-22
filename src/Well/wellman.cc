@@ -268,7 +268,8 @@ void Well::Man::wellDirChangedCB( CallBacker* cb )
     if ( fp != welldirfp )
 	return;
 
-    reloadAll();
+    pErrMsg("reloadAll disabled");
+//    reloadAll();
 }
 
 
