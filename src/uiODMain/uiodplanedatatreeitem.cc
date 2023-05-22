@@ -163,7 +163,7 @@ bool uiODPlaneDataTreeItem::init()
     if ( !displayid_.isValid() )
     {
 	RefMan<visSurvey::PlaneDataDisplay> pdd =
-	    new visSurvey::PlaneDataDisplay;
+					    new visSurvey::PlaneDataDisplay;
 	displayid_ = pdd->id();
 	if ( type_ == RGBA )
 	{

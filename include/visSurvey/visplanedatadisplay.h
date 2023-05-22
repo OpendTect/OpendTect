@@ -98,8 +98,8 @@ public:
 
     bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPackID		getDataPackID(int attrib) const override;
-    DataPackID		getDisplayedDataPackID(
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
 					      int attrib) const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
@@ -172,6 +172,12 @@ protected:
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =0);
+    ConstRefMan<RegularSeisDataPack> getDataPack(int attrib) const;
+    RefMan<RegularSeisDataPack> getDataPack(int attrib);
+    ConstRefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib) const;
+    RefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib);
+    bool			setDataPack(int attrib,RegularSeisDataPack*,
+					    TaskRunner*);
     void			updateMainSwitch();
     void			setScene(Scene*) override;
     void			setSceneEventCatcher(
