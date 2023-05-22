@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "odinst.h"
 #include "od_helpids.h"
 #include "settings.h"
-#include "ziputils.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -415,6 +414,14 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 }
 
 
+static void terraNubisCB( CallBacker* )
+{
+    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+		      WebsiteHelp::sKeyFreeProjects() );
+    HelpProvider::provideHelp( key );
+}
+
+
 void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 {
     if ( !par ) return;
@@ -427,20 +434,10 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 	opts.add("Install the F3 Demo Survey from the OpendTect installation");
     opts.add( "Unzip a survey zip file" );
 
-    struct OSRPageShower : public CallBacker
-    {
-	void go( CallBacker* )
-	{
-	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
-			       WebsiteHelp::sKeyFreeProjects() );
-	    HelpProvider::provideHelp( key );
-	}
-    };
     uiGetChoice uigc( par, opts, uiStrings::phrSelect(tr("next action")) );
-    OSRPageShower ps;
-    uiPushButton* pb = new uiPushButton( &uigc,
-				 tr("visit TerraNubis (for free surveys)"),
-				 mCB(&ps,OSRPageShower,go), true );
+    auto* pb = new uiPushButton( &uigc,
+			tr("visit TerraNubis (for public domain surveys)"),
+			mSCB(terraNubisCB), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
     if ( !uigc.go() || uigc.choice() == 0 )
 	return;

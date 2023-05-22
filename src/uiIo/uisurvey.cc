@@ -10,13 +10,12 @@ ________________________________________________________________________
 #include "uisurvey.h"
 
 #include "uibuttongroup.h"
-#include "uichecklist.h"
 #include "uiclipboard.h"
 #include "uiconvpos.h"
 #include "uidatarootsel.h"
-#include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uigroup.h"
+#include "uihelpview.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimain.h"
@@ -34,7 +33,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
-#include "ui2dsip.h"
 
 #include "applicationdata.h"
 #include "ctxtioobj.h"
@@ -200,9 +198,9 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     : uiDialog(p,Setup(tr("Create New Survey"),
 		       tr("Specify new survey parameters"),
 		       mODHelpKey(mStartNewSurveySetupHelpID)))
-    , survinfo_(survinfo)
-    , dataroot_(dataroot)
     , sips_(uiSurveyInfoEditor::survInfoProvs())
+    , dataroot_(dataroot)
+    , survinfo_(survinfo)
 {
     setOkText( uiStrings::sNext() );
 
@@ -463,9 +461,11 @@ uiSurvey::~uiSurvey()
 }
 
 
-static void osrbuttonCB( CallBacker* )
+static void terraNubisCB( CallBacker* )
 {
-    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
+    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+			WebsiteHelp::sKeyFreeProjects() );
+    HelpProvider::provideHelp( key );
 }
 
 
@@ -493,8 +493,8 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 	tr("Extract survey from zip archive"),
 	mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
-	tr("Share surveys through the OpendTect Seismic Repository"),
-	mSCB(osrbuttonCB) );
+	tr("Download surveys from TerraNubis"),
+	mSCB(terraNubisCB) );
     rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
@@ -622,7 +622,9 @@ bool uiSurvey::acceptOK( CallBacker* )
 	return true;
 
     if ( dirfld_->isEmpty() )
-	mErrRet(tr("Please create a survey (or press Cancel)"))
+	mErrRet(tr("Please create/unzip a survey (or press Cancel).\n"
+		   "Note that public domain surveys can be downloaded"
+		   " from TerraNubis."))
 
     const BufferString selsurv( selectedSurveyName() );
     const bool samedataroot = dataroot_ == orgdataroot_;
@@ -929,8 +931,8 @@ void uiSurvey::exportButPushed( CallBacker* )
 			  tr("You can share surveys to Open Seismic Repository."
 			   "To know more ") );
     sharfld->attach( leftAlignedBelow,  fnmfld );
-    uiPushButton* osrbutton =
-	new uiPushButton( &dlg, tr("Click here"), mSCB(osrbuttonCB), false );
+    auto* osrbutton = new uiPushButton( &dlg, tr("Click here"),
+					mSCB(terraNubisCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
@@ -944,7 +946,7 @@ void uiSurvey::exportButPushed( CallBacker* )
 }
 
 
-void uiSurvey::dataRootChgCB( CallBacker* cb )
+void uiSurvey::dataRootChgCB( CallBacker* )
 {
     dataroot_ = datarootsel_->getDataRoot();
     updateSurvList();
