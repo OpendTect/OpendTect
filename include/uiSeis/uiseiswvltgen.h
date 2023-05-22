@@ -43,7 +43,7 @@ mExpClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
 { mODTextTranslationClass(uiSeisWvltGen);
 public:
 			uiSeisWvltGen(uiParent*);
-			~uiSeisWvltGen(){};
+			~uiSeisWvltGen();
 
 protected:
 
@@ -53,6 +53,8 @@ protected:
     uiGenInput*		peakamplfld_;
 
     bool		acceptOK(CallBacker*) override;
+    void		initUI(CallBacker*);
+    void		typeChgCB(CallBacker*);
 };
 
 
