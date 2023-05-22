@@ -11,21 +11,20 @@ ________________________________________________________________________
 
 #include "applicationdata.h"
 #include "ascstream.h"
-#include "bufstringset.h"
+#include "commandlaunchmgr.h"
 #include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "genc.h"
 #include "oddirs.h"
 #include "odplatform.h"
-#include "oscommand.h"
 #include "separstr.h"
 #include "plugins.h"
 #include "procdescdata.h"
 #include "settingsaccess.h"
 #include "string2.h"
+#include "threadwork.h"
 #include "timefun.h"
 #include "timer.h"
 #include "uistrings.h"
@@ -57,9 +56,9 @@ const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
 #ifdef __win__
     return "python.exe";
 #else
-    if (v3)
+    if ( v3 )
 	return "python3";
-    else if (v2)
+    else if ( v2 )
 	return "python2";
     else
 	return "python";
@@ -83,6 +82,8 @@ void EnumDefImpl<OD::PythonSource>::init()
 
 OD::PythonAccess::PythonAccess()
     : envChange(this)
+    , envVerified(this)
+    , lock_(Threads::Lock::SmallWork)
 {
     mAttachCB( ApplicationData::applicationToBeStarted(),
 	       PythonAccess::appToBeStartedCB );
@@ -145,7 +146,8 @@ void OD::PythonAccess::updatePythonPath() const
 	    const FilePath fp( settpathstr->buf() );
 	    if ( !fp.exists() )
 		continue;
-	    const_cast<OD::PythonAccess&>(*this).addBasePath(fp);
+
+	    mSelf().addBasePath( fp );
 	}
     }
 }
@@ -239,10 +241,7 @@ void OD::PythonAccess::initClass()
 BufferString OD::PythonAccess::pyVersion() const
 {
     if ( pythversion_.isEmpty() )
-    {
-	PythonAccess& acc = const_cast<PythonAccess&>( *this );
-	acc.retrievePythonVersionStr();
-    }
+	mSelf().retrievePythonVersionStr();
 
     return pythversion_;
 }
@@ -271,55 +270,49 @@ uiString OD::PythonAccess::pySummary() const
 }
 
 
-uiRetVal OD::PythonAccess::isUsable( bool force, const char* scriptstr,
-				     const char* scriptexpectedout ) const
+uiRetVal OD::PythonAccess::isUsable( bool force, BufferString* stdoutstr,
+				     BufferString* stderrstr ) const
 {
-    if ( !force && istested_ )
-    {
-	uiRetVal ret;
-	if ( !isusable_ && msg_.isEmpty() )
-	    ret.add( tr("Cannot run Python") );
-	return ret;
-    }
-
-    PythonAccess& pytha = const_cast<PythonAccess&>( *this );
-    const bool isusable = pytha.isUsable_( force, scriptstr,
-							scriptexpectedout );
-    if ( isusable )
-	return uiRetVal::OK();
-
-    uiString clmsg;
-    const BufferString stdoutstr( lastOutput(true,&clmsg) );
-    const BufferString stderrstr( lastOutput(false,nullptr) );
+    if ( !force && istested_ && !isusable_ )
+	return tr("Python environment is not usable");
 
     uiRetVal ret;
-    if ( !clmsg.isEmpty() )
-	ret.add( clmsg );
-    if ( !stdoutstr.isEmpty() )
-	ret.add( toUiString(stdoutstr) );
-    if ( !stderrstr.isEmpty() )
-	ret.add( toUiString(stderrstr) );
-    return ret;
+    BufferString tmpstderr;
+    BufferString& stderrmsg = stderrstr ? *stderrstr : tmpstderr;
+    if ( !mSelf().isUsable_(force,ret,stdoutstr,&stderrmsg) )
+    {
+	uiRetVal uirv = tr("Python environment is not usable");
+	if ( !ret.isOK() )
+	    uirv.add( ret );
+	return uirv;
+    }
+
+    return uiRetVal::OK();
 }
 
 
-bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
-				 const char* scriptexpectedout )
+bool OD::PythonAccess::isUsable_( bool force, uiRetVal& ret,
+				  BufferString* stdoutstr,
+				  BufferString* stderrstr )
 {
+    Threads::Locker locker( lock_ );
     if ( !force && istested_ )
 	return isusable_;
 
+    istested_ = true;
+    isusable_ = false;
+    if ( force )
     {
-	Threads::Locker locker( lock_ );
-	istested_ = true;
-	isusable_ = false;
+	pythversion_.setEmpty();
+	moduleinfos_.setEmpty();
     }
+
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source = hasInternalEnvironment(false) ? Internal : System;
     PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
     if ( source == System )
-	return isEnvUsable(nullptr,nullptr,scriptstr,scriptexpectedout);
+	return isEnvUsable( nullptr, nullptr, ret, stdoutstr, stderrstr );
 
     PtrMan<FilePath> externalroot = nullptr;
     PtrMan<BufferString> virtenvnm;
@@ -330,9 +323,9 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 	{
 	    if ( !File::exists(virtenvloc) || !File::isDirectory(virtenvloc) )
 	    {
-		msg_ = tr("Selected custom python environment does "
-			  "not exist:\n'%1'").arg( virtenvloc );
-		return false;
+		ret = tr("Selected custom python environment does "
+			 "not exist:\n'%1'").arg( virtenvloc );
+		return ret.isOK();
 	    }
 
 	    externalroot = new FilePath( virtenvloc );
@@ -347,23 +340,23 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
     if ( !getSortedVirtualEnvironmentLoc(pythonenvsfp,envnms,virtenvnm,
 					 externalroot) )
     {
-	msg_ = source == Custom
+	const uiString msg = source == Custom
 	     ? tr("Custom environment [%1] does not exist")
 		    .arg( virtenvnm->isEmpty() ? "base" : virtenvnm->buf() )
 	     : tr("Internal environments are not usable");
-	return false;
+	ret = msg;
+	return ret.isOK();
     }
 
     for ( int idx=0; idx<pythonenvsfp.size(); idx++ )
     {
 	const FilePath* pythonenvfp = pythonenvsfp[idx];
 	const BufferString& envnm = envnms.get( idx );
-	if ( isEnvUsable(pythonenvfp,envnm.buf(),scriptstr,scriptexpectedout) )
+	if ( isEnvUsable(pythonenvfp,envnm.buf(),ret,stdoutstr,stderrstr) )
 	    return true;
     }
 
-    msg_ = tr("Internal environments are not usable");
-
+    ret = tr("Internal environments are not usable");
     return false;
 }
 
@@ -422,12 +415,67 @@ FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 }
 
 
-bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
-				    const char* envnm,
-				    const char* scriptstr,
-				    const char* scriptexpectedout )
+OD::PythonSource OD::PythonAccess::getPythonSource() const
+{
+    return getPythonSource( activatefp_ );
+}
+
+
+FilePath OD::PythonAccess::getPythonEnvFp() const
+{
+    if ( !activatefp_ )
+	return FilePath();
+
+    const FilePath envrootfp = getPythonEnvFp( *activatefp_ );
+    return getPythonEnvFp( envrootfp );
+}
+
+
+OD::PythonSource OD::PythonAccess::getPythonSource( const FilePath* envrootfp )
+{
+    if ( !envrootfp || envrootfp->isEmpty() )
+	return System;
+
+    ManagedObjectSet<FilePath> fps;
+    BufferStringSet envnms;
+    getSortedVirtualEnvironmentLoc( fps, envnms );
+    for ( const auto* fp : fps )
+	if ( *fp == *envrootfp )
+	    return Internal;
+
+    return Custom;
+}
+
+
+FilePath OD::PythonAccess::getPythonEnvFp( const FilePath& activatefp )
+{
+    if ( activatefp.isEmpty() || activatefp.nrLevels() < 3 )
+	return FilePath();
+
+    FilePath rootfp( activatefp );
+    rootfp.setFileName( nullptr ).setFileName( nullptr );
+    return rootfp;
+}
+
+
+uiRetVal OD::PythonAccess::setEnvironment( const FilePath* pythonenvfp,
+					   const char* envnm )
 {
     Threads::Locker locker( lock_ );
+    istested_ = true;
+    isusable_ = false;
+    pythversion_.setEmpty();
+    moduleinfos_.setEmpty();
+    uiRetVal ret;
+    return isEnvUsable( pythonenvfp, envnm, ret ) ? uiRetVal::OK() : ret;
+}
+
+
+bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
+				    const char* envnm, uiRetVal& ret,
+				    BufferString* stdoutstr,
+				    BufferString* stderrstr )
+{
     PtrMan<FilePath> activatefp;
     BufferString venvnm( envnm );
     if ( pythonenvfp )
@@ -435,36 +483,26 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	if ( !pythonenvfp->exists() )
 	    return false;
 
-	activatefp = getActivateScript( FilePath( pythonenvfp->fullPath() ) );
+	activatefp = getActivateScript( *pythonenvfp );
 	if ( !activatefp )
 	    return false;
     }
 
     OS::MachineCommand cmd( sPythonExecNm(true) );
-    const bool doscript = scriptstr && *scriptstr;
-    if ( doscript )
-	cmd.addArg( "-c" ).addArg( scriptstr );
-    else
-	cmd.addFlag( "version" );
+    cmd.addFlag( "version" );
 
+    BufferString tmpstdout, tmpstderr;
+    BufferString& stdoutmsg = stdoutstr ? *stdoutstr : tmpstdout;
+    BufferString& stderrmsg = stderrstr ? *stderrstr : tmpstderr;
     mDefineStaticLocalObject(bool, force_external,
 				= GetEnvVarYN("OD_FORCE_PYTHON_ENV_OK") );
-    bool res = force_external ? true
-	     : doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm );
-    if ( !res )
-	return false;
+    if ( !force_external )
+    {
+	ret = doExecute( cmd, nullptr, nullptr, activatefp.ptr(), venvnm,
+			 &stdoutmsg, &stderrmsg );
+    }
 
-#ifdef __debug__
-    if ( res && laststderr_.contains("(PE) HiddenParam") )
-	laststderr_.setEmpty();
-#endif
-
-    const bool testscriptout = scriptexpectedout && *scriptexpectedout;
-    res = doscript ?  (testscriptout ? laststdout_ ==
-				       StringView(scriptexpectedout)
-				     : res)
-		   : laststderr_.isEmpty();
-    if ( !res && !force_external )
+    if ( !ret.isOK() )
 	return false;
 
     bool notrigger;
@@ -484,126 +522,104 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	virtenvnm_.setEmpty();
     }
 
-    if ( pythversion_.isEmpty() && moduleinfos_.isEmpty() )
+    const bool firstinit = pythversion_.isEmpty() && moduleinfos_.isEmpty();
+    if ( firstinit )
 	notrigger = false;
 
-    msg_.setEmpty();
     isusable_ = true;
     if ( !notrigger )
-	envChangeCB(nullptr);
+    {
+	pythversion_ = stdoutmsg;
+	updatePythonPath();
+	Threads::Locker locker( lock_, Threads::Locker::DontWaitForLock );
+	locker.unlockNow();
+	envChange.trigger();
+    }
 
     return isusable_;
 }
 
 
-bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
-				bool wait4finish ) const
+bool OD::PythonAccess::execute( const OS::MachineCommand& cmd, uiRetVal& ret,
+				bool wait4finish, BufferString* stdoutstr,
+				BufferString* stderrstr ) const
 {
     OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish : OS::RunInBG );
-    execpars.createstreams_ = true;
-    return execute( cmd, execpars );
+    execpars.createstreams( true );
+    return execute( cmd, execpars, ret, nullptr, stdoutstr, stderrstr );
 }
 
 
 bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
-				BufferString& stdoutstr,
-				BufferString* stderrstr,
-				uiString* errmsg ) const
+				BufferString& stdoutstr, uiRetVal& ret,
+				BufferString* stderrstr ) const
 {
-    Threads::Locker locker( lock_ );
-    if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
+    if ( !mSelf().isUsable_(!istested_,ret,&stdoutstr,stderrstr) )
 	return false;
 
-    const bool res = doExecute( cmd, nullptr, nullptr, activatefp_,
-				virtenvnm_.buf() );
-    if ( &stdoutstr != &laststdout_ )
-	stdoutstr = laststdout_;
-    if ( stderrstr && &laststderr_ != stderrstr )
-	stderrstr->set( laststderr_ );
-    if ( errmsg )
-	*errmsg = msg_;
-
-    return res;
+    ret = doExecute( cmd, nullptr, nullptr, activatefp_, virtenvnm_.buf(),
+		     &stdoutstr, stderrstr );
+    return ret.isOK();
 }
 
 
 bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				const OS::CommandExecPars& pars,
-				int* pid, uiString* errmsg ) const
+				uiRetVal& ret, int* pid,
+				BufferString* stdoutstr,
+				BufferString* stderrstr ) const
 {
-    Threads::Locker locker( lock_ );
-    if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
+    if ( !mSelf().isUsable_(!istested_,ret,stdoutstr,stderrstr) )
 	return false;
 
-    const bool res = doExecute( cmd, &pars, pid, activatefp_,virtenvnm_.buf());
-    if ( errmsg )
-	*errmsg = msg_;
-
-    return res;
+    ret = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf(),
+		     stdoutstr, stderrstr );
+    return ret.isOK();
 }
 
 
 bool OD::PythonAccess::executeScript( const char* scriptstr,
-				      bool wait4finish ) const
+				      BufferString& stdoutstr, uiRetVal& ret,
+				      BufferString* stderrstr ) const
 {
-    OS::MachineCommand mc( sPythonExecNm(true), "-c", scriptstr );
-    OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish
-					      : OS::RunInBG );
-    execpars.createstreams( true );
-    return execute( mc, execpars );
+    const OS::MachineCommand mc( sPythonExecNm(true), "-c", scriptstr );
+    return execute( mc, stdoutstr, ret, stderrstr );
+}
+
+
+bool OD::PythonAccess::executeScript( const char* scriptstr, uiRetVal& ret,
+				      bool wait4finish,
+				      BufferString* stdoutstr,
+				      BufferString* stderrstr ) const
+{
+    if ( wait4finish && stdoutstr )
+	return executeScript( scriptstr, *stdoutstr, ret, stderrstr );
+
+    const OS::MachineCommand mc( sPythonExecNm(true), "-c", scriptstr );
+    return execute( mc, ret, wait4finish, stdoutstr, stderrstr );
 }
 
 
 bool OD::PythonAccess::executeScript( const BufferStringSet& scriptstrs,
-				      bool wait4finish ) const
+				      BufferString& stdoutstr, uiRetVal& ret,
+				      BufferString* stderrstr ) const
 {
-    return executeScript( BufferString(scriptstrs.cat(";")),
-			  wait4finish );
+    return executeScript( BufferString(scriptstrs.cat(";")), stdoutstr, ret,
+			  stderrstr );
 }
 
 
-BufferString OD::PythonAccess::lastOutput( bool stderrout, uiString* msg ) const
+bool OD::PythonAccess::executeScript( const BufferStringSet& scriptstrs,
+				      uiRetVal& ret, bool wait4finish,
+				      BufferString* stdoutstr,
+				      BufferString* stderrstr ) const
 {
-    if ( cl_.ptr() )
-    {
-	OS::CommandLauncher* cl = cl_.ptr();
-	if ( msg && !cl->errorMsg().isEmpty() )
-	    *msg = cl->errorMsg();
-
-	BufferString ret;
-	if ( stderrout )
-	{
-	    if ( cl->getStdError() )
-	    {
-		cl->getStdError()->getAll( ret );
-		if ( ret.isEmpty() && !laststderr_.isEmpty() )
-		    ret = laststderr_;
-	    }
-	    else
-		ret = laststderr_;
-	}
-	else
-	{
-	    if ( cl->getStdOutput() )
-	    {
-		cl->getStdOutput()->getAll( ret );
-		if ( ret.isEmpty() && !laststdout_.isEmpty() )
-		    ret = laststdout_;
-	    }
-	    else
-		ret = laststdout_;
-	}
-
-	return ret;
-    }
-
-    if ( msg )
-	*msg = msg_;
-    return stderrout ? laststderr_ : laststdout_;
+    return executeScript( BufferString(scriptstrs.cat(";")), ret, wait4finish,
+			  stdoutstr, stderrstr );
 }
 
 
-bool OD::PythonAccess::isModuleUsable( const char* nm ) const
+bool OD::PythonAccess::isModuleUsable( const char* nm, uiRetVal& ret ) const
 {
    BufferStringSet importscript;
     if ( BufferString("pptx")==nm )
@@ -613,7 +629,7 @@ bool OD::PythonAccess::isModuleUsable( const char* nm ) const
     }
 
     importscript.add( BufferString("import ", nm) );
-    return executeScript( importscript ) && lastOutput(true,nullptr).isEmpty();
+    return executeScript( importscript, ret );
 }
 
 
@@ -891,25 +907,20 @@ void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int* pid )
 }
 
 
-bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
+uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 				  const OS::CommandExecPars* execpars, int* pid,
-				  const FilePath* activatefp,
-				  const char* envnm ) const
+				  const FilePath* activatefp, const char* envnm,
+				  BufferString* stdoutstr,
+				  BufferString* stderrstr ) const
 {
-    Threads::Locker locker( lock_ );
-
-    laststdout_.setEmpty();
-    laststderr_.setEmpty();
-    msg_.setEmpty();
-
     FilePath scriptfp;
     const bool background = execpars && execpars->launchtype_ >= OS::RunInBG;
-    cl_ = getLauncher( cmd, background, activatefp, envnm, scriptfp );
-    if ( !cl_.ptr() )
+    PtrMan<OS::CommandLauncher> cl =
+		    getLauncher( cmd, background, activatefp, envnm, scriptfp );
+    if ( !cl.ptr() )
     {
-	msg_ = tr("Cannot create launcher for command '%1'")
+	return tr("Cannot create launcher for command '%1'")
 		    .arg( cmd.toString(execpars) );
-	return false;
     }
 
     BufferStringSet origpythonpathdirs;
@@ -918,10 +929,19 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     pythonpathdirs.add( pystartpath_, false );
     SetEnvVarDirList( sKeyPythonPathEnvStr(), pythonpathdirs, false );
 
-    const bool res = execpars ? cl_->execute( *execpars )
-			      : cl_->execute( laststdout_, &laststderr_ );
+    bool res;
+    if ( execpars )
+	res = cl->execute( *execpars );
+    else if ( stdoutstr )
+	res = cl->execute( *stdoutstr, stderrstr );
+    else
+    {
+	BufferString tmpstdout;
+	res = cl->execute( tmpstdout, stderrstr );
+    }
+
     if ( pid )
-	*pid = cl_->processID();
+	*pid = cl->processID();
 
     if ( origpythonpathdirs.isEmpty() )
 	UnsetOSEnvVar( sKeyPythonPathEnvStr() );
@@ -937,15 +957,30 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 	    File::remove( scriptfp.fullPath() );
     }
 
-    if ( !res )
+    uiRetVal ret;
+    if ( res && execpars && stdoutstr && cl->getStdOutput() )
+	cl->getStdOutput()->getAll( *stdoutstr );
+
+    if ( !res && !cl->errorMsg().isEmpty() )
+	ret = tr("Cannot execute '%1'").arg( cmd.toString(execpars) );
+
+    if ( cl->getStdError() )
     {
-	if ( cl_->errorMsg().isEmpty() )
-	    msg_ = uiStrings::phrCannotStart( ::toUiString(cmd.program()) );
+	BufferString stderrorret;
+	if ( stderrstr )
+	    stderrorret.set( stderrstr->buf() );
 	else
-	    msg_ = cl_->errorMsg();
+	    cl->getStdError()->getAll( stderrorret );
+
+#ifdef __debug__
+    if ( stderrorret.contains("(PE) HiddenParam") )
+	stderrorret.setEmpty();
+#endif
+	if ( !stderrorret.isEmpty() )
+	    ret.add( ::toUiString(stderrorret.str()) );
     }
 
-    return res;
+    return ret;
 }
 
 
@@ -1289,33 +1324,27 @@ bool OD::PythonAccess::hasInternalEnvironment( bool userdef )
 
 bool OD::PythonAccess::retrievePythonVersionStr()
 {
-    Threads::Locker locker( lock_ );
-    if ( !isUsable_(!istested_) )
+    const bool nottested = !istested_;
+    uiRetVal ret;
+    if ( !isUsable_(nottested,ret) )
 	return false;
 
-    OS::MachineCommand cmd( sPythonExecNm(true), "--version" );
-    BufferString laststdout, laststderr;
-    const bool res = execute( cmd, laststdout, &laststderr );
+    if ( nottested )
+	return !pythversion_.isEmpty();
+
+    OS::MachineCommand cmd( sPythonExecNm(true) );
+    cmd.addFlag( "version" );
+    BufferString stdoutstr, stderrstr;
+    const bool res = execute( cmd, stdoutstr, ret, &stderrstr );
     if ( res )
     {
-	if ( !laststdout.isEmpty() )
-	    pythversion_ = laststdout;
-	else if ( !laststderr.isEmpty() )
-	    pythversion_ = laststderr;
+	if ( !stdoutstr.isEmpty() )
+	    pythversion_ = stdoutstr;
+	else if ( !stderrstr.isEmpty() )
+	    pythversion_ = stderrstr;
     }
 
     return !pythversion_.isEmpty();
-}
-
-
-void OD::PythonAccess::envChangeCB( CallBacker* )
-{
-    retrievePythonVersionStr();
-    const uiRetVal uirv = updateModuleInfo( nullptr );
-    if ( !uirv.isOK() )
-	msg_.append( uirv );
-
-    envChange.trigger();
 }
 
 
@@ -1325,26 +1354,86 @@ void OD::PythonAccess::appToBeStartedCB( CallBacker* )
 }
 
 
+namespace OD {
+class PyEnvWork : public Task
+{
+public:
+
+PyEnvWork( const char* piname, const CallBack& cb )
+    : piname_(piname)
+    , obj_(const_cast<CallBacker*>(cb.cbObj()))
+    , cbf_(cb.cbFn())
+{}
+
+bool execute() override
+{
+    (obj_->*cbf_)( this );
+    return true;
+}
+
+const char* getPIName() const
+{
+    return piname_.buf();
+}
+
+private:
+    BufferString piname_;
+    CallBacker* obj_;
+    CallBackFunction cbf_;
+};
+
+} // namespace OD
+
+
 uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 {
-    Threads::Locker locker( lock_ );
-    if ( !isUsable_(!istested_) )
+    const CallBack cb = mCB(this,PythonAccess,verifyEnvironmentCB);
+    auto* pywk = new PyEnvWork( piname, cb );
+    Threads::WorkManager::twm().addWork( Threads::Work(*pywk,true), nullptr,
+	Threads::CommandLaunchMgr::getMgr().wmQueueID(), false, false, true );
+
+    return uiRetVal::OK();
+}
+
+
+void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
+{
+    mDynamicCastGet(PyEnvWork*,pyenvwk,cb);
+    if ( !pyenvwk )
     {
-	uiRetVal ret = tr("Could not detect a valid Python installation:\n%1")
-		.arg( lastOutput(true,nullptr) );
-	return ret.add( tr("Python environment not usable") );
+	envVerified.trigger( uiStrings::sInvalid() );
+	return;
     }
 
-    if ( !msg_.isEmpty() )
-	return uiRetVal( msg_ );
+    uiRetVal ret;
+    if ( !isUsable_(!istested_,ret) )
+    {
+	uiRetVal uirv = tr("Could not detect a valid Python installation:");
+	uirv.add( ret );
+	envVerified.trigger( uirv );
+	return;
+    }
+
+    Threads::Locker locker( lock_ );
+    if ( moduleinfos_.isEmpty() )
+    {
+	ret = updateModuleInfo( nullptr );
+	if ( !ret.isOK() )
+	{
+	    envVerified.trigger( ret );
+	    return;
+	}
+    }
+    locker.unlockNow();
 
     FilePath fp( mGetSWDirDataDir() );
     fp.add( "Python" );
+    const char* piname = pyenvwk->getPIName();
     BufferString genericName( piname );
     genericName.add( "_requirements" );
     BufferString platSpecificName( piname );
     platSpecificName.add( "_requirements_" )
-		    .add(Platform::local().shortName());
+		    .add( Platform::local().shortName() );
 
     fp.add( platSpecificName ).setExtension( "txt" );
     if ( !fp.exists() )
@@ -1352,18 +1441,24 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 	fp.setFileName( genericName );
 	fp.setExtension( "txt" );
 	if ( !fp.exists() )
-	    return uiRetVal( uiStrings::phrFileDoesNotExist(fp.fullPath()) );
+	{
+	    ret = uiStrings::phrFileDoesNotExist( fp.fullPath() );
+	    envVerified.trigger( ret );
+	    return;
+	}
     }
 
     od_istream strm( fp.fullPath() );
     if ( !strm.isOK() )
-	return uiRetVal( tr("Can't open requirements file: %1").arg(
-			    fp.fullPath() ) );
+    {
+	ret = tr("Can't open requirements file: %1").arg( fp.fullPath() );
+	envVerified.trigger( ret );
+	return;
+    }
 
     BufferString line;
     bool newlinefound = true;
     int lnum = 1;
-    uiRetVal retval;
     while ( strm.isOK() )
     {
 	strm.getLine( line, &newlinefound );
@@ -1380,18 +1475,22 @@ uiRetVal OD::PythonAccess::verifyEnvironment( const char* piname )
 
 	const BufferString modname = modulestr.get(0).trimBlanks().toLower();
 	if ( modulestr.size() == 1 )
-	    retval.add( hasModule( modname ) );
+	    ret.add( hasModule( modname ) );
 	else if (modulestr.size() >= 2 )
 	{
 	    const BufferString ver = modulestr.get( 1 ).trimBlanks();
-	    retval.add( hasModule( modname, ver ) );
-	} else
-	    retval.add( tr("Python requirements file: %1 error at line: %2"
+	    ret.add( hasModule( modname, ver ) );
+	}
+	else
+	{
+	    ret.add( tr("Python requirements file: %1 error at line: %2"
 			    ).arg( fp.fullPath() ).arg( lnum ) );
+	}
+
 	lnum++;
     };
 
-    return retval;
+    envVerified.trigger( ret );
 }
 
 
@@ -1492,21 +1591,27 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
     if ( mc.args().isEmpty() )
 	return uiRetVal( tr("Invalid command: %1").arg(mc.program()) );
 
-    BufferString laststdout, laststderr;
-    bool res = execute( mc, laststdout, &laststderr );
+    uiRetVal ret;
+    BufferString stdoutstr;
+    bool res = execute( mc, stdoutstr, ret );
+    if ( !ApplicationData::hasInstance() )
+	return uiStrings::sClose();
+
 #ifdef __unix__
     if ( !res && StringView(mc.program()) == StringView("pip") )
     {
 	mc.setProgram( "pip3" );
-	res = execute( mc, laststdout, &laststderr );
+	res = execute( mc, stdoutstr, ret );
+	if ( !ApplicationData::hasInstance() )
+	    return uiStrings::sClose();
     }
 #endif
     BufferStringSet modstrs;
-    modstrs.unCat( laststdout );
+    modstrs.unCat( stdoutstr );
     if ( !res || modstrs.isEmpty() )
     {
 	return uiRetVal( tr("Cannot generate a list of python modules:\n%1")
-			    .arg(laststderr) );
+			    .arg(ret) );
     }
 
     for ( auto* modstr : modstrs )
@@ -1517,9 +1622,6 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 	moduleinfos_.add( new ModuleInfo( modstr->trimBlanks().toLower() ) );
     }
 
-    laststdout_.setEmpty();
-    laststderr_.setEmpty();
-
     return uiRetVal::OK();
 }
 
@@ -1527,18 +1629,20 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 {
     uiRetVal retval;
+    Threads::Locker locker( lock_ );
     if ( moduleinfos_.isEmpty() )
     {
 	retval = updateModuleInfo( nullptr );
 	if ( !retval.isOK() )
 	    return retval;
     }
+    locker.unlockNow();
 
     mods.setEmpty();
-    for ( const auto* module : moduleinfos_ )
+    for ( const auto* mod : moduleinfos_ )
     {
-	auto* minfo = new ModuleInfo( module->name() );
-	minfo->versionstr_ = module->versionstr_;
+	auto* minfo = new ModuleInfo( mod->name() );
+	minfo->versionstr_ = mod->versionstr_;
 	mods.add( minfo );
     }
 
@@ -1581,15 +1685,18 @@ void OD::PythonAccess::setForScript( const char* scriptnm,
 }
 
 
-bool OD::PythonAccess::openTerminal( const char* cmdstr,
+bool OD::PythonAccess::openTerminal( const char* cmdstr, uiRetVal& ret,
 				     const BufferStringSet* args,
 				     const char* workingdirstr ) const
 {
     if ( !cmdstr || !*cmdstr )
     {
-	laststderr_ = "[Internal] No terminal name provided";
+	ret = tr("No terminal name provided");
 	return false;
     }
+
+    if ( !mSelf().isUsable_(!istested_,ret) )
+	return false;
 
     BufferString prognm( cmdstr );
     bool iswindowsterminal = false;
@@ -1618,7 +1725,7 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr,
     }
 
     pars.workingdir( workingdir );
-    return execute( mc, pars );
+    return execute( mc, pars, ret );
 }
 
 
@@ -1768,39 +1875,22 @@ static BufferStringSet removeDirScript( const BufferString& path )
 
 uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 {
-    uiRetVal retval;
     if ( !File::isDirectory(path) )
-	{pFreeFnErrMsg("Not a directory"); }
+	{ pFreeFnErrMsg("Not a directory"); }
+
     if ( !File::isWritable(path) )
-    {
-	retval.add( uiStrings::phrCannotRemove(::toUiString(path)) );
-	return retval;
-    }
+	return uiStrings::phrCannotRemove( ::toUiString(path) );
 
-    retval = PythA().isUsable();
-    bool ret;
-    if ( retval.isOK() )
-    {
-	retval.setEmpty();
-	ret = PythA().executeScript( removeDirScript(path), waitforfin );
-
-	uiString errmsg;
-	const BufferString errstr = PythA().lastOutput( true, &errmsg );
-	if ( !errmsg.isEmpty() )
-	    retval.add( errmsg );
-	if ( !errstr.isEmpty() )
-	{
-	    errmsg.setEmpty();
-	    retval.add(  errmsg.append( errstr ) );
-	}
-    }
+    bool res; uiRetVal ret;
+    if ( PythA().isUsable().isOK() )
+	res = PythA().executeScript( removeDirScript(path), ret, waitforfin );
     else
-	ret = File::removeDir( path );
+	res = File::removeDir( path );
 
-    if ( !ret )
-	retval.add( uiStrings::phrCannotRemove(uiStrings::sFolder()) );
+    if ( !res )
+	ret.add( uiStrings::phrCannotRemove(uiStrings::sFolder()) );
 
-    return retval;
+    return ret;
 }
 
 } // namespace OD

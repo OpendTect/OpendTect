@@ -82,6 +82,20 @@ bool testRemoveDir( const char* path, bool expectedres )
     return ret;
 }
 
+static bool testHasModules()
+{
+    uiRetVal ret;
+    mRunStandardTestWithError( OD::PythA().isModuleUsable( "numpy", ret ),
+			       "Has numpy", ret.getText() );
+    mRunStandardTestWithError( OD::PythA().isModuleUsable( "pptx", ret ),
+			       "Has python-pptx", ret.getText() );
+    mRunStandardTestWithError( !OD::PythA().isModuleUsable( "modnotexist", ret),
+			   "Does not have non-existent module", ret.getText() );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -89,8 +103,7 @@ int mTestMainFnName( int argc, char** argv )
     const uiRetVal uirv = OD::PythA().isUsable();
     if ( !uirv.isOK() )
     {
-	logStream() << "Python link is not usable" << od_newline;
-	logStream() << toString(uirv) << od_endl;
+	tstStream( true ) << toString(uirv) << od_endl;
 	return 1;
     }
 
@@ -101,6 +114,9 @@ int mTestMainFnName( int argc, char** argv )
 
     File::makeWritable( path, true, true );
     if ( !testRemoveDir(path,true) )
+	return 1;
+
+    if ( !testHasModules() )
 	return 1;
 
     return 0;

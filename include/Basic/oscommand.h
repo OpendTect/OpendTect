@@ -226,6 +226,7 @@ public:
 				    double maxwaittm=20 /* seconds */);
 
     PID_Type		processID() const;
+    int			exitCode() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
     uiString		errorMsg() const	{ return errmsg_; }
 
@@ -258,16 +259,17 @@ protected:
     uiString		errmsg_;
     const BufferString	odprogressviewer_;
 
-    QProcess*		process_;
-    PID_Type		pid_;
+    QProcess*		process_ = nullptr;
+    PID_Type		pid_ = 0;
+    int			exitcode_ = mUdf(int);
 
-    od_istream*		stdoutput_;
-    od_istream*		stderror_;
-    od_ostream*		stdinput_;
+    od_istream*		stdoutput_ = nullptr;
+    od_istream*		stderror_ = nullptr;
+    od_ostream*		stdinput_ = nullptr;
 
-    qstreambuf*		stdoutputbuf_;
-    qstreambuf*		stderrorbuf_;
-    qstreambuf*		stdinputbuf_;
+    qstreambuf*		stdoutputbuf_ = nullptr;
+    qstreambuf*		stderrorbuf_ = nullptr;
+    qstreambuf*		stdinputbuf_ = nullptr;
 
 };
 

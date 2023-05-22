@@ -72,7 +72,7 @@ private:
     ObjectSet<QProcess>		processes_;
 };
 
-static PtrMan<QProcessManager> processmanager = 0;
+static PtrMan<QProcessManager> processmanager;
 Threads::Lock QProcessManager::lock_( true );
 
 void DeleteProcesses()
@@ -611,17 +611,8 @@ BufferString OS::MachineCommand::runAndCollectOutput( BufferString* errmsg )
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
     : odprogressviewer_(FilePath(GetExecPlfDir(),sODProgressViewerProgName)
 			    .fullPath())
-    , process_( 0 )
-    , stderror_( 0 )
-    , stdoutput_( 0 )
-    , stdinput_( 0 )
-    , stderrorbuf_( 0 )
-    , stdoutputbuf_( 0 )
-    , stdinputbuf_( 0 )
-    , pid_( 0 )
     , machcmd_(mc)
 {
-    reset();
 }
 
 
@@ -657,15 +648,21 @@ PID_Type OS::CommandLauncher::processID() const
 }
 
 
+int OS::CommandLauncher::exitCode() const
+{
+    return exitcode_;
+}
+
+
 void OS::CommandLauncher::reset()
 {
     deleteAndNullPtr( stderror_ );
     deleteAndNullPtr( stdoutput_ );
     deleteAndNullPtr( stdinput_ );
 
-    stderrorbuf_ = 0;
-    stdoutputbuf_ = 0;
-    stdinputbuf_ = 0;
+    stderrorbuf_ = nullptr;
+    stdoutputbuf_ = nullptr;
+    stdinputbuf_ = nullptr;
 
 #ifndef OD_NO_QT
     if ( process_ && process_->state()!=QProcess::NotRunning )
@@ -678,6 +675,7 @@ void OS::CommandLauncher::reset()
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
+    exitcode_ = mUdf(int);
 }
 
 
@@ -705,13 +703,13 @@ bool OS::CommandLauncher::execute( BufferString& out, BufferString* err,
     if ( workdir && *workdir )
 	execpars.workingdir( workdir );
 
-    if ( !execute(execpars) )
-	return false;
-
-    getStdOutput()->getAll( out );
+    const bool res = execute( execpars );
+    if ( res )
+	getStdOutput()->getAll( out );
     if ( err )
 	getStdError()->getAll( *err );
-    return true;
+
+    return res;
 }
 
 
@@ -777,10 +775,11 @@ bool OS::CommandLauncher::startServer( bool ispyth, const char* stdoutfnm,
     if ( stderrfnm )
 	execpars.stderrfnm( stderrfnm );
 
+    uiRetVal ret;
     pid_ = -1;
     if ( ispyth )
     {
-	if ( !OD::PythA().execute(machcmd_,execpars,&pid_,&errmsg_) )
+	if ( !OD::PythA().execute(machcmd_,execpars,ret,&pid_) )
 	    pid_ = -1;
     }
     else
@@ -813,7 +812,7 @@ bool OS::CommandLauncher::startServer( bool ispyth, const char* stdoutfnm,
     if ( !wasalive && !isProcessAlive(pid_) )
     {
 	if ( ispyth )
-	    errmsg_ = toUiString(OD::PythA().lastOutput(true,nullptr));
+	    errmsg_ = ret.messages().cat();
 
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = tr("Server process (%1) exited early")
@@ -961,7 +960,13 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	if ( process_->state()==QProcess::Running )
 	    process_->waitForFinished(-1);
 
-	const bool res = process_->exitStatus()==QProcess::NormalExit;
+	bool res = process_->exitStatus() == QProcess::NormalExit;
+	if ( res )
+	{
+	    exitcode_ = process_->exitCode();
+	    res = exitcode_ == 0;
+	}
+
 	if ( createstreams )
 	{
 	    stderrorbuf_->detachDevice( true );

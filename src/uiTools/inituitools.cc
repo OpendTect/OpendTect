@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiinterpollayermodel.h"
 #include "uiraytrace1d.h"
 #include "uirefltrace1d.h"
-#include "uisettings.h"
 
 mDefModInitFn(uiTools)
 {
@@ -35,6 +34,4 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
-
-    uiSettsMgr();
 }

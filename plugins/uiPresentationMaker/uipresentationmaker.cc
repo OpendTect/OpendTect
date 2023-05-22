@@ -278,11 +278,15 @@ void uiPresentationMakerDlg::checkCB( CallBacker* )
 
 bool uiPresentationMakerDlg::checkInstallation()
 {
-    if ( !OD::PythA().isModuleUsable("pptx") )
+    uiRetVal ret;
+    if ( !OD::PythA().isModuleUsable("pptx",ret) )
     {
-	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
-			  "Please click the Help button for more information\n"
-			  "on how to install the python-pptx package.") );
+	uiRetVal uirv = tr("Could not detect a valid "
+			   "python-pptx installation.");
+	uirv.add( tr("Please click the Help button for more information\n"
+		    "on how to install the python-pptx package.") );
+	uirv.add( ret );
+	uiMSG().errorWithDetails( uirv );
 	return false;
     }
     return true;
@@ -556,13 +560,17 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     specs_.getPythonScript( script );
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
+    strm.close();
 
     OS::MachineCommand mc( OD::PythonAccess::sPythonExecNm(true) );
     mc.addArg( scriptfp.fullPath() );
-    if ( !OD::PythA().execute(mc) )
+    uiRetVal ret;
+    if ( OD::PythA().execute(mc,ret) )
+	File::remove( scriptfp.fullPath() );
+    else
     {
-	uiMSG().error( tr("Could not execute\n: "),
-		uiString().set( toUiString(mc.toString()) ),
+	uiMSG().error( tr("Could not execute\n: %1").arg( mc.toString() ),
+		ret,
 		tr("\nPlease check the log for error messages.") );
 	return;
     }

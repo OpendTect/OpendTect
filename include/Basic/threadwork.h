@@ -189,6 +189,8 @@ mExpClass(Basic) Work
 { mODTextTranslationClass(Work)
 public:
     inline		Work();
+    virtual		~Work();
+
     inline		Work(const CallBack&);
     inline		Work(CallBacker* o,TaskFunction f);
     inline		Work(StaticTaskFunction f);
@@ -198,7 +200,7 @@ public:
     inline const Task*	getTask() const;
 
     inline bool		isOK() const;
-    inline bool		execute();
+    virtual bool	execute();
     inline uiString	errMsg() const	{ return msg_; }
 
 private:
@@ -208,7 +210,7 @@ private:
     CallBackFunction	cbf_;
     TaskFunction	tf_;
     StaticTaskFunction	stf_;
-    bool		takeover_=false;
+    bool		takeover_ = false;
 
     uiString		msg_;
 
@@ -272,7 +274,7 @@ inline bool Threads::Work::execute()
 	return res;
     }
 
-    (obj_->*cbf_)( 0 );
+    (obj_->*cbf_)( nullptr );
 
     return true;
 }
