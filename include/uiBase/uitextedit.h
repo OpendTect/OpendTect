@@ -96,6 +96,10 @@ public:
 
     void		ignoreWheelEvents(bool);
 
+    enum WrapMode	{ NoWrap=0, WordWrap, ManualWrap, WrapAnyWhere,
+			  WrapAtWordBoundary };
+    void		setWordWrapMode(WrapMode);
+
 protected:
 
     mQtclass(QTextEdit&)	qte() override;

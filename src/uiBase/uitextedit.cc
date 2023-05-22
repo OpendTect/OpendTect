@@ -38,12 +38,12 @@ mUseQtnamespace
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
-    , defaultwidth_(600)
-    , defaultheight_(450)
     , textChanged(this)
     , sliderPressed(this)
     , sliderReleased(this)
     , copyAvailable(this)
+    , defaultwidth_(600)
+    , defaultheight_(450)
 {
     setFont( FontList().get(FontData::Fixed) );
     setPrefWidth( defaultwidth_ );
@@ -399,6 +399,12 @@ QTextEdit& uiTextEdit::qte()
 void uiTextEdit::ignoreWheelEvents( bool yn )
 {
     body_->ignoreWheelEvents( yn );
+}
+
+
+void uiTextEdit::setWordWrapMode( WrapMode mode )
+{
+    body_->setWordWrapMode( QTextOption::WrapMode(mode) );
 }
 
 
