@@ -133,10 +133,10 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
     if ( store2prefpos )
 	curpos( preferred ) = itmgeom;
 
+#ifdef __debug__
     if ( objLayouted() )
 	objLayouted()->triggerSetGeometry( this, itmgeom );
 
-#ifdef __debug__
     if ( lyoutdbg )
     {
 	od_cout() << "Setting layout on: ";
