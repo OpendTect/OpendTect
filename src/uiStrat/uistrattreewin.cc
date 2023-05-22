@@ -9,28 +9,20 @@ ________________________________________________________________________
 
 #include "uistrattreewin.h"
 
-#include "compoundkey.h"
-#include "file.h"
 #include "filepath.h"
-#include "iodir.h"
-#include "iodirentry.h"
 #include "ioman.h"
-#include "oddirs.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
-#include "survinfo.h"
+#include "stratlevel.h"
 #include "stratreftree.h"
 #include "strattreetransl.h"
 #include "stratunitrepos.h"
+#include "survinfo.h"
 
-#include "uicolor.h"
 #include "uidialog.h"
-#include "uifileinput.h"
-#include "uigeninput.h"
 #include "uigroup.h"
 #include "uiioobjseldlg.h"
 #include "uimain.h"
-#include "uimenu.h"
 #include "uimsg.h"
 #include "uiparent.h"
 #include "uiselsimple.h"
@@ -183,9 +175,15 @@ void uiStratTreeWin::saveLegacyTrees()
 	if ( !ctio.ioobj_ )
 	    continue;
 
-	const bool writeok = repos_.write( *rt, ctio.ioobj_->key() );
-	if ( !writeok )
+	const MultiID key = ctio.ioobj_->key();
+	bool saveok = repos_.write( *rt, key );
+	if ( !saveok )
 	    continue;
+
+	const LevelSet& levelset = LVLS();
+	saveok = LevelSet::write( levelset, key );
+	if ( saveok )
+	    treekey_ = key;
 
 	showmsg = true;
 
