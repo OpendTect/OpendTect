@@ -1074,7 +1074,7 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     }
 
     vwr_->enableChange( updateview );
-    if ( preserveview )
+    if ( preserveview && !isEmpty(curview) )
 	vwr_->setView( curview );
     else
 	vwr_->setViewToBoundingBox();
@@ -1643,7 +1643,6 @@ void uiStratSynthDisp::synthRenamedCB( CallBacker* cb )
 
 	    if ( dp != &sd->getPack() )
 		dp->setName( newnm );
-
 	}
     }
 }
