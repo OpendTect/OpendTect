@@ -81,6 +81,8 @@ private:
 						     const StratSynth::DataMgr&,
 						     const MultiID& unscaledid,
 						     MultiID& scaleid);
+    static ScaleRes		doScaling(uiParent*,StratSynth::DataMgr&,
+					  const TypeSet<MultiID>& wvltids);
 
     StratSynth::DataMgr&	stratsynth_;
     uiListBox*			synthnmlb_;
