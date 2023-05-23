@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "ioman.h"
@@ -787,6 +788,9 @@ void uiODMain::checkUpdateAvailable()
     OS::MachineCommand mc;
     ODInst::getMachComm( relrootdir, mc );
     mc.addFlag( "updcheck_report" );
+    if ( mc.isBad() || !File::exists(mc.program()) )
+	return;
+
     auto& mgr = Threads::CommandLaunchMgr::getMgr();
     CallBack cb( mCB(this,uiODMain,updateStatusCB) );
     mgr.execute( mc, true, true, &cb );
