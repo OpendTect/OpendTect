@@ -84,6 +84,9 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
 
     // The uiFileDialog should make sure an actual existing file is selected
     uiTaskRunner taskrunner( par, false ); uiString emsg;
+    if ( !par )
+	taskrunner.setModal( false );
+
     if ( !ZipUtils::unZipArchive(zipfnm,destdir,emsg,&taskrunner) )
     {
 	uiStringSet detailedmsg;
