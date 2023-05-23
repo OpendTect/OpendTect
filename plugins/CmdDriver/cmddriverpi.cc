@@ -51,13 +51,6 @@ void init() override
 	return;
 
     mgr_ = &uiCmdDriverMgr::getMgr( true );
-}
-
-
-void dTectMenuChanged() override
-{
-    if ( !ODMainWin() )
-	return;
 
     auto* cmdmnuitm = new uiAction( m3Dots( uiCmdDriverMgr::usrDispNm() ),
 				    mCB(mgr_,uiCmdDriverMgr,showDlgCB) );
@@ -67,6 +60,7 @@ void dTectMenuChanged() override
 		m3Dots(toUiString("Command Driver Script Runner")),
 		mCB(mgr_,uiCmdDriverMgr,showScriptRunnerCB) );
     appl_.menuMgr().toolsMnu()->insertAction( mnuitm );
+
 }
 
 
