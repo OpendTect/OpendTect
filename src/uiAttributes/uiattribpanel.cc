@@ -47,6 +47,14 @@ uiAttribPanel::~uiAttribPanel()
 
 FlatDataPack* uiAttribPanel::computeAttrib()
 {
+    RefMan<FlatDataPack> dp = computeAttribute();
+    dp.setNoDelete( true );
+    return dp;
+}
+
+
+RefMan<FlatDataPack> uiAttribPanel::computeAttribute()
+{
     if ( !dset_ )
     {
 	uiMSG().error( tr("No valid AttributeSet found") );
@@ -75,9 +83,10 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     if ( !TaskRunner::execute( &dlg, *proc ) )
 	return nullptr;
 
-    FlatDataPack* fdpack = is2d ? createFDPack( *d2dh )
-				: createFDPack( aem, proc );
-    if ( !fdpack ) return nullptr;
+    RefMan<FlatDataPack> fdpack = is2d ? createFDPack( *d2dh )
+				       : createFDPack( aem, proc );
+    if ( !fdpack )
+	return nullptr;
 
     fdpack->setName( getPackName() );
     DPM(DataPackMgr::FlatID()).add( fdpack );
@@ -87,7 +96,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 
 EngineMan* uiAttribPanel::createEngineMan()
 {
-    EngineMan* aem = new EngineMan;
+    auto* aem = new EngineMan;
 
     TypeSet<SelSpec> attribspecs;
     SelSpec sp( nullptr, attribid_ );
@@ -119,7 +128,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 						  Processor* proc ) const
 {
-    const RegularSeisDataPack* output = aem->getDataPackOutput( *proc );
+    ConstRefMan<RegularSeisDataPack> output = aem->getDataPackOutput( *proc );
     return output ? new RegularFlatDataPack(*output,-1) : nullptr;
 }
 
@@ -133,7 +142,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	flatvwin_->viewer().setPack( FlatView::Viewer::VD, fdpack->id() );
     else
     {
-	flatvwin_ = new uiFlatViewMainWin( nullptr,
+	flatvwin_ = new uiFlatViewMainWin( parent_,
 			uiFlatViewMainWin::Setup(toUiString(getPanelName())));
 	uiFlatViewer& vwr = flatvwin_->viewer();
 	vwr.setInitialSize( uiSize(400,600) );
@@ -148,6 +157,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
 		uiFlatViewStdControl::Setup(nullptr).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
+	flatvwin_->showAlwaysOnTop();
     }
 
     flatvwin_->show();
@@ -165,7 +175,7 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     delete dset_;
     dset_ = dset;
 
-    FlatDataPack* fdpack = computeAttrib();
+    RefMan<FlatDataPack> fdpack = computeAttribute();
     if ( fdpack )
 	createAndDisplay2DViewer( fdpack );
     else
