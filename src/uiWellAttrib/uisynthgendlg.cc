@@ -10,11 +10,8 @@ ________________________________________________________________________
 #include "uisynthgendlg.h"
 
 #include "uibuttongroup.h"
-#include "uicombobox.h"
 #include "uielasticpropsel.h"
-#include "uigeninput.h"
 #include "uiioobjseldlg.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
@@ -31,8 +28,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "stratlayermodel.h"
 #include "stratsynth.h"
-#include "syntheticdataimpl.h"
-#include "synthseis.h"
 #include "wavelet.h"
 
 
@@ -46,9 +41,9 @@ ________________________________________________________________________
 
 uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth::DataMgr& gp )
     : uiGroup(p,"Synthetic Seismic Parameters")
-    , stratsynth_(gp)
     , synthAdded(this)
     , synthSelected(this)
+    , stratsynth_(gp)
 {
     auto* leftgrp = new uiGroup( this, "left group" );
     auto* butgrp = new uiButtonGroup( leftgrp, "actions", OD::Horizontal );
@@ -403,7 +398,13 @@ void uiSynthParsGrp::needScaleCB( CallBacker* )
 
 void uiSynthParsGrp::scaleSyntheticsCB( CallBacker* )
 {
-    const ScaleRes res = checkUnscaledWavelets( this, stratsynth_ );
+    SynthGenParams sgp;
+    if ( !getFromScreen(sgp) )
+	return;
+
+    const MultiID wvltid = sgp.getWaveletID();
+    TypeSet<MultiID> toscalewvltids; toscalewvltids += wvltid;
+    const ScaleRes res = doScaling( this, stratsynth_, toscalewvltids );
     if ( isOK(res) && res != IGNORED )
     {
 	scalefld_->setSensitive( true );
@@ -448,7 +449,7 @@ bool uiSynthParsGrp::isOK( ScaleRes res )
 
 
 uiSynthParsGrp::ScaleRes uiSynthParsGrp::checkUnscaledWavelets( uiParent* p,
-					StratSynth::DataMgr& synthmgr )
+						StratSynth::DataMgr& synthmgr )
 {
     RefObjectSet<const SyntheticData> unscaledsynths;
     TypeSet<MultiID> unscaledwvlts;
@@ -457,7 +458,7 @@ uiSynthParsGrp::ScaleRes uiSynthParsGrp::checkUnscaledWavelets( uiParent* p,
 	static bool dontshowallscaled = false;
 	if ( !dontshowallscaled )
 	{
-	    dontshowallscaled = 
+	    dontshowallscaled =
 		uiMSG().message( tr("All synthetics use scaled wavelets"),
 		    uiString::empty(), uiString::empty(), true );
 	}
@@ -482,11 +483,19 @@ uiSynthParsGrp::ScaleRes uiSynthParsGrp::checkUnscaledWavelets( uiParent* p,
 	return IGNORED;
     else if ( choice == 1 )
     {
-	for ( auto& wvltid : unscaledwvlts )
+	for ( const auto& wvltid : unscaledwvlts )
 	    Wavelet::markScaled( wvltid );
 	return MARKED;
     }
 
+    return doScaling( p, synthmgr, unscaledwvlts );
+}
+
+
+uiSynthParsGrp::ScaleRes uiSynthParsGrp::doScaling( uiParent* p,
+					StratSynth::DataMgr& synthmgr,
+					const TypeSet<MultiID>& unscaledwvlts )
+{
     ScaleRes res = SCALED;
     for ( const auto& wvltid : unscaledwvlts )
     {
