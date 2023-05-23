@@ -719,9 +719,9 @@ bool OS::CommandLauncher::execute( BufferString& out, BufferString* err,
 	execpars.workingdir( workdir );
 
     const bool res = execute( execpars );
-    if ( res )
+    if ( res && getStdOutput() )
 	getStdOutput()->getAll( out );
-    if ( err )
+    if ( err && getStdError() )
 	getStdError()->getAll( *err );
 
     return res;
