@@ -36,7 +36,9 @@ public:
 
 protected:
 
+    mDeprecated("Use computeAttribute()")
     FlatDataPack*		computeAttrib();
+    RefMan<FlatDataPack>	computeAttribute();
     Attrib::EngineMan*		createEngineMan();
     virtual void		createAndDisplay2DViewer(FlatDataPack*);
     RefMan<FlatDataPack>	createFDPack(const Attrib::Data2DHolder&) const;
