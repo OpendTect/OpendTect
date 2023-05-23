@@ -35,7 +35,7 @@ public:
 
 protected:
 
-    FlatDataPack*		computeAttrib();
+    RefMan<FlatDataPack>	computeAttrib();
     Attrib::EngineMan*		createEngineMan();
     virtual void		createAndDisplay2DViewer(FlatDataPack*);
     RefMan<FlatDataPack>	createFDPack(const Attrib::Data2DHolder&) const;

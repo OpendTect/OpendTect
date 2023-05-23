@@ -47,7 +47,7 @@ uiAttribPanel::~uiAttribPanel()
 }
 
 
-FlatDataPack* uiAttribPanel::computeAttrib()
+RefMan<FlatDataPack> uiAttribPanel::computeAttrib()
 {
     if ( !dset_ )
     {
@@ -77,9 +77,10 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     if ( !TaskRunner::execute( &dlg, *proc ) )
 	return nullptr;
 
-    FlatDataPack* fdpack = is2d ? createFDPack( *d2dh )
-				: createFDPack( aem, proc );
-    if ( !fdpack ) return nullptr;
+    RefMan<FlatDataPack> fdpack = is2d ? createFDPack( *d2dh )
+				       : createFDPack( aem, proc );
+    if ( !fdpack )
+	return nullptr;
 
     fdpack->setName( getPackName() );
     DPM(DataPackMgr::FlatID()).add( fdpack );
@@ -121,7 +122,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 						  Processor* proc ) const
 {
-    const RegularSeisDataPack* output = aem->getDataPackOutput( *proc );
+    ConstRefMan<RegularSeisDataPack> output = aem->getDataPackOutput( *proc );
     return output ? new RegularFlatDataPack(*output,-1) : nullptr;
 }
 
@@ -135,7 +136,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	flatvwin_->viewer().setPack( FlatView::Viewer::VD, fdpack->id() );
     else
     {
-	flatvwin_ = new uiFlatViewMainWin( nullptr,
+	flatvwin_ = new uiFlatViewMainWin( parent_,
 			uiFlatViewMainWin::Setup(toUiString(getPanelName())));
 	uiFlatViewer& vwr = flatvwin_->viewer();
 	vwr.setInitialSize( uiSize(400,600) );
@@ -150,6 +151,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
 		uiFlatViewStdControl::Setup(nullptr).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
+	flatvwin_->showAlwaysOnTop();
     }
 
     flatvwin_->show();
@@ -167,7 +169,7 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     delete dset_;
     dset_ = dset;
 
-    FlatDataPack* fdpack = computeAttrib();
+    RefMan<FlatDataPack> fdpack = computeAttrib();
     if ( fdpack )
 	createAndDisplay2DViewer( fdpack );
     else
