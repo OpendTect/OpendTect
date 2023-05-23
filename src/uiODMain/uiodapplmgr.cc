@@ -494,15 +494,16 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
     {
 	case uiVisPartServer::Cube :
 	{
-	    TrcKeyZSampling cs = visserv_->getTrcKeyZSampling( visid, attrib );
-	    if ( !cs.isDefined() )
+	    const TrcKeyZSampling tkzs =
+				visserv_->getTrcKeyZSampling( visid, attrib );
+	    if ( !tkzs.isDefined() )
 		return false;
 
 	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		Attrib::ExtAttribCalc* calc =
-			    Attrib::ExtAttrFact().create( 0, myas[0], false );
+			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
 		if ( !calc )
 		{
 		    uiString errstr(tr("Selected attribute '%1'\nis not present"
@@ -514,7 +515,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 
 		uiTaskRunner progm( &appl_ );
 		const DataPackID dpid =
-		    calc->createAttrib( cs, cacheid, &progm );
+				 calc->createAttrib( tkzs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );
@@ -530,7 +531,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 	    }
 
 	    attrserv_->setTargetSelSpecs( myas );
-	    const DataPackID newid = attrserv_->createOutput( cs, cacheid );
+	    const DataPackID newid = attrserv_->createOutput( tkzs, cacheid );
 
 	    if ( newid == DataPack::cNoID() )
 	    {
@@ -542,7 +543,9 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		return false;
 	    }
 
-	    visserv_->setDataPackID( visid, attrib, newid );
+	    if ( visserv_->setDataPackID(visid,attrib,newid) )
+		DPM( DataPackMgr::SeisID() ).unRef( newid );
+
 	    res = true;
 	    break;
 	}
@@ -568,7 +571,8 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 	    res = true;
 	    if ( !newid.isValid() )
 		res = false;
-	    visserv_->setDataPackID( visid, attrib, newid );
+	    if ( visserv_->setDataPackID(visid, attrib, newid) )
+		DPM( DataPackMgr::SeisID() ).unRef( newid );
 	    break;
 	}
 	case uiVisPartServer::RandomPos :
