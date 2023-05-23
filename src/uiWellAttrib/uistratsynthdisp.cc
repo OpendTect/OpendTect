@@ -26,6 +26,7 @@ ________________________________________________________________________
 
 #include "coltabsequence.h"
 #include "dataclipper.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "flatviewzoommgr.h"
 #include "prestackgather.h"
@@ -192,6 +193,7 @@ void initFrom( const SyntheticData& sd )
 
     delete prevtype_;
     prevtype_ = new SynthGenParams::SynthType( sd.synthType() );
+    prevwvltrms_ = getWvltRMS( sd.getGenParams().getWaveletID() );
 
     inited_ = true;
 }
@@ -217,6 +219,29 @@ void update()
 }
 
 
+static float getWvltRMS( const MultiID& wvltid )
+{
+    if ( wvltid.isUdf() )
+	return mUdf(float);
+
+    PtrMan<IOObj> ioobj = IOM().get( wvltid );
+    if ( !ioobj )
+	return mUdf(float);
+
+    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    if ( !wvlt )
+	return mUdf(float);
+
+    const float* wvltamps = wvlt->samples();
+    const int sz =  wvlt->size();
+    float ret = 0.f;
+    for ( int idx=0; idx<sz; idx++ )
+	ret += wvltamps[idx] * wvltamps[idx];
+
+    return Math::Sqrt( ret );
+}
+
+
 void setMappers( const SyntheticData& sd )
 {
     const SynthGenParams& sgp = sd.getGenParams();
@@ -226,6 +251,16 @@ void setMappers( const SyntheticData& sd )
 	const SynthGenParams prevsgp( *prevtype_ );
 	sametype = sgp.isRawOutput() && prevsgp.isRawOutput()
 		 ? true : sgp.synthtype_ == prevsgp.synthtype_;
+	if ( sametype && sgp.isRawOutput() && !mIsUdf(prevwvltrms_) )
+	{
+	    const float wvltrms = getWvltRMS( sd.getGenParams().getWaveletID());
+	    if ( !mIsUdf(wvltrms) )
+	    {
+		const float rmsratio = wvltrms / prevwvltrms_;
+		if ( rmsratio < 0.7 || rmsratio > 1.3f )
+		    sametype = false;
+	    }
+	}
     }
 
     wvamapper_ = new ColTab::Mapper();
@@ -414,6 +449,7 @@ private:
     bool			inited_ = false;
     StepInterval<float>		offsetrg_;
     SynthGenParams::SynthType*	prevtype_ = nullptr;
+    float			prevwvltrms_ = mUdf(float);
     ColTab::MapperSetup		prevwvasu_;
     ColTab::MapperSetup		prevvdsu_;
     float			prevoverlap_ = mUdf(float);
