@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uihelpview.h"
 #include "uilistbox.h"
-#include "uimain.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uisurveyzip.h"
@@ -100,7 +99,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     , curdatadir_(GetBaseDataDir())
 {
     const bool oldok = IOMan::isValidDataRoot( curdatadir_ );
-    BufferString oddirnm, basedirnm;
+    BufferString basedirnm;
     uiString titletxt;
 
     if ( !curdatadir_.isEmpty() )
@@ -117,9 +116,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 			"Please locate a valid Data Root folder or\n"
 			"select a recent Data Root");
 
-	    FilePath fp( curdatadir_ );
-	    oddirnm = fp.fileName();
-	    basedirnm = fp.pathOnly();
+	    basedirnm = curdatadir_;
 	}
     }
     else
@@ -137,8 +134,8 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	    "'base' data store will be."
 #endif
 	    );
-	oddirnm = "ODData";
-	basedirnm = GetPersonalDir();
+	const FilePath fp( GetPersonalDir(), "ODData" );
+	basedirnm = fp.fullPath();
     }
 
     setTitleText( titletxt );
@@ -250,9 +247,27 @@ void uiSetDataDir::rootRemoveCB( CallBacker* )
 bool uiSetDataDir::acceptOK( CallBacker* )
 {
     seldir_ = basedirfld_->text();
-    if ( seldir_.isEmpty() || !File::exists(seldir_) ||
-	 !File::isDirectory(seldir_) )
+    if ( seldir_.isEmpty() ||
+	 (File::exists(seldir_) && !File::isDirectory(seldir_)) )
 	mErrRet( tr("Please enter a valid (existing) location") )
+    else if ( !File::isDirectory(seldir_) )
+    {
+	const FilePath fp( seldir_ );
+	const BufferString selbasedir = fp.pathOnly();
+	if ( File::isDirectory(selbasedir.buf()) &&
+	     File::isWritable(selbasedir.str()) &&
+	     !File::exists(seldir_.str()) )
+	{
+	    if ( uiMSG().askGoOn(tr("Directory '%1' does not exists")
+				    .arg(seldir_),
+				uiStrings::sCreate(), uiStrings::sCancel()) )
+		File::createDir( seldir_ );
+	    else
+		return false;
+	}
+	else
+	    mErrRet( tr("Please enter a valid (existing) location") )
+    }
 
     if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
     {
@@ -315,13 +330,23 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
     const char* retmsg = doSetRootDataDir( datadir );
-    if ( !retmsg ) return true;
+    if ( !retmsg )
+    {
+	const DirList survdl( datadir, File::DirsInDir );
+	for ( int idx=0; idx<survdl.size(); idx++ )
+	{
+	    if ( IOMan::isValidSurveyDir(survdl.fullPath(idx)) )
+		return true;
+	}
+
+	offerUnzipSurv( par, datadir );
+	return true;
+    }
 
     const BufferString stdomf( mGetSetupFileName("omf") );
 
 #define mCrOmfFname FilePath( datadir ).add( ".omf" ).fullPath()
     BufferString omffnm = mCrOmfFname;
-    bool offerunzipsurv = false;
 
     if ( !File::exists(datadir) )
     {
@@ -340,6 +365,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(datadir)) )
     }
 
+    bool offerunzipsurv = false;
     while ( !IOMan::isValidDataRoot(datadir) )
     {
 	if ( !File::isDirectory(datadir) )
@@ -369,7 +395,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	offerunzipsurv = true;
 	if ( !DirList(datadir).isEmpty() )
 	{
-	    DirList survdl( datadir, File::DirsInDir );
+	    const DirList survdl( datadir, File::DirsInDir );
 	    bool hasvalidsurveys = false;
 	    for ( int idx=0; idx<survdl.size(); idx++ )
 	    {
@@ -424,36 +450,52 @@ static void terraNubisCB( CallBacker* )
 
 void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 {
-    if ( !par ) return;
-
     BufferString zipfilenm = getInstalledDemoSurvey();
-    const bool havedemosurv = !zipfilenm.isEmpty();
+    const bool havedemosurv = File::exists( zipfilenm.buf() );
     BufferStringSet opts;
-    opts.add( "I will set up a new survey myself" );
     if ( havedemosurv )
 	opts.add("Install the F3 Demo Survey from the OpendTect installation");
     opts.add( "Unzip a survey zip file" );
+    opts.add( "I will set up a new survey myself" );
 
     uiGetChoice uigc( par, opts, uiStrings::phrSelect(tr("next action")) );
     auto* pb = new uiPushButton( &uigc,
 			tr("visit TerraNubis (for public domain surveys)"),
 			mSCB(terraNubisCB), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
-    if ( !uigc.go() || uigc.choice() == 0 )
+    if ( !par )
+	uigc.setModal( true );
+
+    if ( uigc.go() == uiDialog::Rejected || uigc.choice() == opts.size()-1 )
 	return;
 
-    if ( (havedemosurv && uigc.choice() == 2) ||
-	 (!havedemosurv && uigc.choice() == 1))
+    if ( (havedemosurv && uigc.choice() == 1) ||
+	 (!havedemosurv && uigc.choice() == 0) )
     {
 	uiFileDialog dlg( par, true, "", "*.zip", tr("Select zip file") );
-	dlg.setDirectory( datadir );
 	if ( !dlg.go() )
 	    return;
 
 	zipfilenm = dlg.fileName();
+	if ( !File::exists(zipfilenm.buf()) )
+	    return;
     }
 
-    (void)uiSurvey_UnzipFile( par, zipfilenm, datadir );
+    const bool isstartsurv = havedemosurv && uigc.choice() == 0;
+    FilePath startsurvcp;
+    if ( isstartsurv )
+    {
+	startsurvcp.set( datadir )
+		   .add( FilePath(zipfilenm).fileName() );
+	if ( !File::copy(zipfilenm.str(),startsurvcp.fullPath()) )
+	    return;
+
+	zipfilenm = startsurvcp.fullPath();
+    }
+
+    (void)uiSurvey_UnzipFile( par, zipfilenm.str(), datadir );
+    if ( isstartsurv )
+	File::remove( startsurvcp.fullPath() );
 }
 
 
