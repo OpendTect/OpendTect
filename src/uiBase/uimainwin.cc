@@ -312,6 +312,12 @@ uiRect uiMainWin::geometry( bool frame ) const
 }
 
 
+void uiMainWin::setGeometry( const uiRect& rect )
+{
+    body_->setGeometry( rect.left(), rect.top(), rect.width(), rect.height() );
+}
+
+
 bool uiMainWin::doSetWindowFlags( od_uint32 todoflagi, bool setyn )
 {
     const Qt::WindowFlags todoflag( todoflagi );
