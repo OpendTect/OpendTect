@@ -12,10 +12,10 @@ else()
     set ( GIT_EXEC "git" ) # In user-defined path
     execute_process(
 	COMMAND ${GIT_EXEC} --version
-		RESULT_VARIABLE RESULT
+		RESULT_VARIABLE STATUS
 		OUTPUT_VARIABLE GIT_VERSION_STRING
 		OUTPUT_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE )
-    if ( NOT ${RESULT} EQUAL 0 )
+    if ( NOT ${STATUS} EQUAL 0 )
 	message ( FATAL_ERROR "git not found: Install it and re-configure." )
     endif()
 endif()
@@ -27,11 +27,21 @@ else()
 endif()
 
 macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
+    set( ISTAG FALSE )
+    set( branchtag "branch" )
+    set( extra_args ${ARGN} )
+    foreach( optional_arg ${extra_args} )
+	if ( ${optional_arg} STREQUAL "TAG" )
+	    set( ISTAG TRUE )
+	    set( branchtag "tag" )
+	    break()
+	endif()
+    endforeach()
     SET( URL ${URL_STR} )
     execute_process(
 	COMMAND ${GET_GIT_URL}
 	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	    RESULT_VARIABLE RESULT
+	    RESULT_VARIABLE STATUS
 	    OUTPUT_VARIABLE MAIN_URL
 	    OUTPUT_STRIP_TRAILING_WHITESPACE )
     STRING( FIND "${MAIN_URL}" "git@github.com" USE_SSH_URL )
@@ -46,10 +56,10 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	execute_process(
 	    COMMAND ${GET_GIT_URL}
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
-		RESULT_VARIABLE RESULT
+		RESULT_VARIABLE STATUS
 		OUTPUT_VARIABLE OLDURL
 		OUTPUT_STRIP_TRAILING_WHITESPACE )
-	if ( NOT OLDURL STREQUAL "${URL}" )
+	if ( NOT ${OLDURL} STREQUAL ${URL} )
 	    message( STATUS "Removing external/${DIR} having URL ${OLDURL}" )
 	    file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
 	else()
@@ -57,10 +67,14 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 		COMMAND ${GIT_EXEC} symbolic-ref --short HEAD 
 		    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
 		    OUTPUT_VARIABLE OLDBRANCH
-		    RESULT_VARIABLE RESULT
+		    ERROR_QUIET
+		    RESULT_VARIABLE STATUS
 		    OUTPUT_STRIP_TRAILING_WHITESPACE )
-	    if ( NOT OLDBRANCH STREQUAL ${BRANCH} )
-		message( STATUS "Removing external/${DIR} branch ${OLDBRANCH}" )
+	    if ( ${STATUS} EQUAL 0 AND ISTAG )
+		STRING( REPLACE "heads/" "" OLDBRANCH ${OLDBRANCH} )
+	    endif()
+	    if ( NOT ${STATUS} EQUAL 0 OR NOT ${OLDBRANCH} STREQUAL ${BRANCH} )
+		message( STATUS "Removing external/${DIR} ${branchtag} ${OLDBRANCH}" )
 		file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
 	    endif()
 	endif() 
@@ -74,11 +88,19 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 		ERROR_VARIABLE OUTPUT
 		RESULT_VARIABLE STATUS )
 	if ( ${STATUS} EQUAL 0 )
-	    message(STATUS "git checkout success for: ${URL}, branch ${BRANCH}")
+	    message(STATUS "git checkout success for: ${URL}, ${branchtag} ${BRANCH}")
 	else()
 	    message( SEND_ERROR "git cmd=${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}" )
 	    message( SEND_ERROR "git workdir=${CMAKE_SOURCE_DIR}/external" )
 	    message( FATAL_ERROR "git checkout failed" )
+	endif()
+	if ( ISTAG )
+	    execute_process(
+		COMMAND ${GIT_EXEC} checkout -b ${BRANCH}
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+		OUTPUT_QUIET
+		ERROR_QUIET
+	    )
 	endif()
     else()
 	execute_process(
