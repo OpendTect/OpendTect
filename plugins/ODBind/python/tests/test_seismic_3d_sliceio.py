@@ -64,3 +64,45 @@ def test_Seismic3D_class():
         vals.append(sl[0][325,475])
     assert z == [400., 420., 440.]
     assert vals == pytest.approx([-1485., 259., 3839.])
+
+    with Seismic3D.create(f3demo,'pytest',[200,210,1],[400,410,1],[200,400,4],['comp1'],'CBVS', True, True) as newvol:
+        newvol.iline[:] = vol.iline[200:210]
+
+    newvol = Seismic3D(f3demo,'pytest')
+    info =  {
+                'name': 'pytest',
+                'inl_range': [200, 210, 1],
+                'crl_range': [400, 410, 1],
+                'z_range': [200., 400., 4.],
+                'zunit' : 'ms',
+                'comp_count': 1,
+                'storage_dtype': 'Float`Signed`4`IEEE`Yes',
+                'nrsamp': 51,
+                'bin_count': 121,
+                'trc_count': 121,
+            }
+    assert newvol.info() == info
+    trc,_ = newvol.trace[205,405]
+    assert trc[0][0::20]==pytest.approx(np.array([-78., 530., -1106.], dtype=np.float32))
+    Seismic3D.delete(f3demo, ['pytest'])
+
+    with Seismic3D.create(f3demo,'pytest',[200,210,1],[400,410,1],[200,400,4],['comp1'],'CBVS', True, True) as newvol:
+        newvol.xline[:] = vol.xline[400:410]
+
+    newvol = Seismic3D(f3demo,'pytest')
+    info =  {
+                'name': 'pytest',
+                'inl_range': [200, 210, 1],
+                'crl_range': [400, 410, 1],
+                'z_range': [200., 400., 4.],
+                'zunit' : 'ms',
+                'comp_count': 1,
+                'storage_dtype': 'Float`Signed`4`IEEE`Yes',
+                'nrsamp': 51,
+                'bin_count': 121,
+                'trc_count': 121,
+            }
+    assert newvol.info() == info
+    trc,_ = newvol.trace[205,405]
+    assert trc[0][0::20]==pytest.approx(np.array([-78., 530., -1106.], dtype=np.float32))
+    Seismic3D.delete(f3demo, ['pytest'])

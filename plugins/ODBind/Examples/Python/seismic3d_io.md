@@ -44,7 +44,7 @@ The information dict has the following keys and data:
 -  'comp': list[str] of the seismic component names
 -  'iline': int (for inline slice) or list[int] with the inline start, stop and step
 -  'xline': int (for crossline slice) or list[int] with the crossline start, stop and step
--  'x': double | np.ndarray(double) with the x coordinates of the traces  
+-  'x': double | np.ndarray(double) with the x coordinates of the traces
 -  'y': double | np.ndarray(double) with the y coordinates of the traces
 -  'twt' | 'depth': float (for z slice) or list[float] with the Z start, stop and step
 -  'dims': ['iline|xline', 'twt|depth'] for inline or crossline slices or ['iline', 'zline'] for z slices
@@ -61,7 +61,7 @@ The **Seismic3D.as_xarray** method can be used to convert the output from the in
 
 ## Slice Access Mode
 ### Inline Slices
-Indiviudal inlines can be accessed by vol.iline[400] or a series of inline slices can be accessed by vol.iline[200:220:10]:
+Indiviudal inlines can be accessed by vol.iline[inline_number] or a series of inline slices can be accessed by vol.iline[start_inline:stop_inline:step_inline]:
 
 ```python
 inln = vol.as_xarray(*vol.iline[400])
@@ -76,7 +76,7 @@ for iln, ax in zip(vol.iline[200:220:10],axs):
 ```
 
 ### Crossline Access Mode
-Indiviudal crosslines can be accessed by vol.xline[400] or a series of crossline slices can be accessed by vol.xline[200:220:10]:
+Indiviudal crosslines can be accessed by vol.xline[crossline_numer] or a series of crossline slices can be accessed by vol.xline[start_crossline:stop_crossline:step_corssline]:
 
 ```python
 xrxln = vol.as_xarray(*vol.xline[400])
@@ -84,7 +84,7 @@ xr.plot.imshow(xrxln['mdf2'], x='iline', y='twt', yincrease=False, cmap='Greys')
 ```
 
 ### Z Slice Access Mode
-Indiviudal Z slices can be accessed by vol.zslice[200] or a series of crossline slices can be accessed by vol.xline[200:220:10]:
+Indiviudal Z slices can be accessed by vol.zslice[zslice_number] or a series of Z slices can be accessed by vol.zslice[start_zslice:stop_zslice:step_zslice]:
 
 ```python
 zsl = vol.as_xarray(*vol.zslice[200])
@@ -98,13 +98,26 @@ Z=0 and sampled at a step of 4 the corresponding zsample_slice would be 25:50:5.
 
 Examples:
 -  vol[:,:,:], vol[:,:] or vol[:]  is the entire volume
--  vol[300:350] is all traces for inlines 300 to 350 
+-  vol[300:350] is all traces for inlines 300 to 350
 -  vol[300:350:2]  is all traces from every second inline from 300 to 350
--  vol[:,300:350:2] is all traces from every second crossline from 300 to 350 
--  vol[:,:,100:200] is 101 samples (400-800ms for a time volume starting at 0 witha z step of 4ms) from all traces in the volume 
+-  vol[:,300:350:2] is all traces from every second crossline from 300 to 350
+-  vol[:,:,100:200] is 101 samples (400-800ms for a time volume starting at 0 witha z step of 4ms) from all traces in the volume
 -  vol[300:350,500:600,[400,800,4]] is samples between 400 and 800ms for all traces from inlines 300-350 and crosslines 500-600
 
 ```python
 subvol = vol.as_xarray(*vol.volume[200:300,400:600,[800,900,4]])
 xr.plot.pcolormesh(subvol['mdf2'][:,:,0], x='cdp_x', y='cdp_y',cmap='Greys')
+```
+
+### Trace Access Mode
+Individual traces can be accessed by vol.trace[trace_numer], vol.trace[inline_number, crossline_number], vol.trace[trace_number_slice] or vol.trace[inline_slice, crossline_slice].
+- [trace_number] returns a single trace, negative indices wrap around.
+- [inl, crl] return the single trace at the given iln, crl location. Negatice indices don't wrap. An Index Error exception is raised if the given inl, crl pair are outside the volume .
+- [trace_number_slice] return a generator for a range of trace numbers.
+- [inline_slice, crossline_slice] return a generator for all traces in a rectangular subvolume where the 2 slices specify the inline and crossline ranges.
+
+
+```python
+trc = vol.as_xarray(*vol.trace[200])
+trc['mdf2'].plot()
 ```
