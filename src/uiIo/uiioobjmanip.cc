@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "uibuttongroup.h"
 #include "uifiledlg.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -297,7 +298,11 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 					       .arg(ioobj.uiName());
     uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(), sName()),
 			new StringInpSpec(ioobj.name()) );
-    if ( !dlg.go() ) return false;
+    if ( dlg.getFld() )
+	dlg.getFld()->setStretch( 2, 0 );
+
+    if ( !dlg.go() )
+	return false;
 
     BufferString newnm = dlg.text();
     if ( subj_.names().isPresent(newnm) )
