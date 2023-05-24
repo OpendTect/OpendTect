@@ -32,7 +32,7 @@ const char* SynthGenParams::sKeySynthPar()
 mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 {
     "Zero Offset Stack",
-    "Elastic Stack",
+    "Extended Elastic Stack",
     "Elastic Gather",
     "Pre Stack",
     "Strat Property",
