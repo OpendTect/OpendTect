@@ -149,10 +149,6 @@ class Seismic3D(_SurveyObject):
         """
         return self._zslice
 
-    @zslice.setter
-    def zslice(self, val):
-        self.zslice[:] = val 
-
     @property
     def trace_count(self) ->int:
         """int : Expected number of traces in this seismic volume."""
@@ -810,7 +806,11 @@ class Slice3D(Sequence):
             else:
                 raise TypeError('index should be [:].')
         else:
-            raise TypeError(f'expected input of tuple[list[np.ndarray], dict] but got {data}')
+            try:
+                for datum in data:
+                    self[:] = datum
+            except:
+                raise TypeError(f'expected input of tuple[list[np.ndarray], dict] but got {data}')
 
 class Volume3D():
     def __init__(self, seis: Seismic3D ):
