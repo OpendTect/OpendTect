@@ -655,7 +655,7 @@ uiSize uiMain::getScreenSize( int screennr, bool available ) const
 {
     const QScreen* qscreen = getScreen( screennr );
     if ( !qscreen )
-        return uiSize( mUdf(int), mUdf(int) );
+	return uiSize::udf();
 
     const QRect qrect = available ? qscreen->availableGeometry()
 				  : qscreen->geometry();
@@ -667,7 +667,7 @@ uiSize uiMain::desktopSize() const
 {
     QScreen* screen = QGuiApplication::primaryScreen();
     if ( !screen )
-	return uiSize( mUdf(int), mUdf(int) );
+	return uiSize::udf();
 
     return uiSize( screen->geometry().width(), screen->geometry().height() );
 }
