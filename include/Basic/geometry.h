@@ -92,6 +92,14 @@ public:
     inline Size2D<T>&	operator+=(const Size2D<T>&);
     inline Size2D<T>&	operator-=(const Size2D<T>&);
 
+    inline bool		isUdf() const
+			{ return mIsUdf(width_) || mIsUdf(height_); }
+    inline void		setUdf()
+			{ width_ = height_ = mUdf(T); }
+    static Size2D	udf()
+			{ return Size2D(mUdf(T),mUdf(T)); }
+
+
 protected:
 
     T	width_;
