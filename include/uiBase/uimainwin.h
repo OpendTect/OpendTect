@@ -157,6 +157,7 @@ public:
     void		setCornerPos(int x,int y);
 			//!Position of top-left corner in screen pixel coords
     uiRect		geometry(bool frame=true) const;
+    void		setGeometry(const uiRect&);
 
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
