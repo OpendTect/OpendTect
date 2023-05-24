@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
-#include "file.h"
 #include "msgh.h"
 #include "q_uiimpl.h"
 #include "texttranslator.h"
@@ -316,6 +315,12 @@ uiRect uiMainWin::geometry( bool frame ) const
     //QRect qrect = frame ? body_->frameGeometry() : body_->geometry();
     uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
     return rect;
+}
+
+
+void uiMainWin::setGeometry( const uiRect& rect )
+{
+    body_->setGeometry( rect.left(), rect.top(), rect.width(), rect.height() );
 }
 
 
