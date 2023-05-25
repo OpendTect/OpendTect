@@ -921,9 +921,13 @@ void uiStratSynthDisp::handleChange( od_uint32 ctyp )
 void uiStratSynthDisp::reDisp( bool preserveview )
 {
     NotifyStopper ns( control_->zoomChanged, this );
-    if ( preserveview && (initialboundingbox_.height() > 0 ||
-			  initialboundingbox_.width() > 0) )
-	vwr_->setView( initialboundingbox_ );
+    if ( preserveview )
+    {
+	const uiWorldRect curview = vwr_->curView();
+	if ( isEmpty(curview) && (initialboundingbox_.height() > 0 ||
+				  initialboundingbox_.width() > 0) )
+	    vwr_->setView( initialboundingbox_ );
+    }
 
     od_uint32 ctyp = 0;
     if ( wvaselfld_->curID() == vdselfld_->curID() )
@@ -1342,6 +1346,7 @@ void uiStratSynthDisp::curModEdChgCB( CallBacker* )
 	return;
 
     reDisp();
+
     if ( wvaselfld_->isNoneSelected() && vdselfld_->isNoneSelected() )
 	return;
 
@@ -1357,7 +1362,13 @@ void uiStratSynthDisp::curModEdChgCB( CallBacker* )
     dispzrg.sort();
     const ZSampling synthzrg = sd->zRange();
     if ( synthzrg.start < dispzrg.start || synthzrg.stop > dispzrg.stop )
-	vwr_->setViewToBoundingBox();
+    {
+	initialboundingbox_.setTop( synthzrg.start );
+	initialboundingbox_.setBottom( synthzrg.stop );
+    }
+
+    /*TODO: Find a way to set the cancel zoom icon active (except in the rare
+    case where the previous view is equal to initialboundingbox_) */
 }
 
 
