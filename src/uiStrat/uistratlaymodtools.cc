@@ -527,17 +527,6 @@ uiStratLayModFRPropSelector::Setup::~Setup()
 
 // uiStratLayModFRPropSelector
 
-#define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
-    auto* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
-    propnm##fld_ = lblbox##propnm->box(); \
-    const PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
-    for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
-	if ( subsel##propnm[idx] )\
-	    propnm##fld_->addItem( toUiString(subsel##propnm[idx]->name()) );\
-    if ( prevbox )\
-	lblbox##propnm->attach( alignedBelow, (uiObject*)prevbox );
-
-
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 					const PropertyRefSelection& proprefsel,
 				const uiStratLayModFRPropSelector::Setup& set )
@@ -547,15 +536,16 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 				    "Please specify which one to use as: "),
 		 mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
 {
-    mCreatePropSelFld(den, tr("Reference for Density"), Mnemonic::Den,
-			nullptr);
-    mCreatePropSelFld(vp, tr("Reference for Vp"), Mnemonic::Vel, lblboxden);
-    uiLabeledComboBox* prevfld = lblboxvp;
+    uiLabeledComboBox* lastbox = nullptr;
+    denfld_ = createPropSelFld( tr("Reference for Density"), proprefsel,
+				Mnemonic::defDEN(), lastbox );
+    vpfld_ = createPropSelFld( tr("Reference for Vp"), proprefsel,
+			       Mnemonic::defPVEL(), lastbox );
     ePROPS().ensureHasElasticProps( set.withswave_ );
     if ( set.withswave_ )
     {
-	mCreatePropSelFld(vs, tr("Reference for Vs"), Mnemonic::Vel, prevfld );
-	prevfld = lblboxvs;
+	vsfld_ = createPropSelFld( tr("Reference for Vs"), proprefsel,
+				   Mnemonic::defSVEL(), lastbox );
 	const PropertyRef* svelpr =
 				proprefsel.getByMnemonic( Mnemonic::defSVEL() );
 	if ( svelpr )
@@ -564,9 +554,9 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 
     if ( set.withinitsat_ )
     {
-	mCreatePropSelFld( initialsat, tr("Reference for Initial Saturation"),
-			   Mnemonic::Volum, prevfld );
-	prevfld = lblboxinitialsat;
+	initialsatfld_ = createPropSelFld(
+				tr("Reference for Initial Saturation"),
+				proprefsel, Mnemonic::defSW(), lastbox );
 	const PropertyRef* swpr = proprefsel.getByMnemonic( Mnemonic::defSW() );
 	if ( swpr )
 	    setInitialSatProp( swpr->name() );
@@ -574,9 +564,8 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 
     if ( set.withfinalsat_ )
     {
-	mCreatePropSelFld( finalsat, tr("Reference for Final Saturation"),
-			   Mnemonic::Volum, prevfld );
-	prevfld = lblboxfinalsat;
+	finalsatfld_ = createPropSelFld( tr("Reference for Final Saturation"),
+				proprefsel, Mnemonic::defSW(), lastbox );
 	const PropertyRef* swpr = proprefsel.getByMnemonic( Mnemonic::defSW() );
 	if ( swpr )
 	    setFinalSatProp( swpr->name() );
@@ -584,8 +573,8 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 
     if ( set.withpor_ )
     {
-	mCreatePropSelFld( porosity, tr("Reference for Porosity"),
-			   Mnemonic::Volum, prevfld );
+	porosityfld_ = createPropSelFld( tr("Reference for Porosity"),
+				proprefsel, Mnemonic::defPHI(), lastbox );
 	const PropertyRef* porpr = proprefsel.getByMnemonic(Mnemonic::defPHI());
 	if ( porpr )
 	    setPorProp( porpr->name() );
@@ -618,6 +607,32 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 
 uiStratLayModFRPropSelector::~uiStratLayModFRPropSelector()
 {
+}
+
+
+uiComboBox* uiStratLayModFRPropSelector::createPropSelFld(
+			      const uiString& lbl,
+			      const PropertyRefSelection& proprefsel,
+			      const Mnemonic& mn,
+			      uiLabeledComboBox*& prevlblbox )
+{
+    auto* lblbox = new uiLabeledComboBox( this, lbl );
+    auto* propfld = lblbox->box();
+
+    const MnemonicSelection mnsel = MnemonicSelection::getGroupFor( mn );
+    const PropertyRefSelection subselprs = proprefsel.subselect( mn.stdType() );
+    for ( const auto* pr : subselprs )
+    {
+	if ( pr && mnsel.isPresent(&pr->mn()) )
+	    propfld->addItem( pr->name() );
+    }
+
+    if ( prevlblbox )
+	lblbox->attach( alignedBelow, prevlblbox );
+
+    prevlblbox = lblbox;
+
+    return propfld;
 }
 
 
