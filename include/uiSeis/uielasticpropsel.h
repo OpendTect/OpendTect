@@ -110,7 +110,7 @@ protected:
     BufferStringSet		propnms_;
 
     ObjectSet<uiElasticPropSelGrp> propflds_;
-    uiTabStack*			ts_;
+    uiTabStack*			ts_			= nullptr;
     CtxtIOObj&			ctio_;
 
     const PropertyRefSelection& prs_;
@@ -122,9 +122,9 @@ protected:
 
     void			updateFields();
     bool			openPropSel();
-    void                        openPropSelCB(CallBacker*) { openPropSel(); }
+    void			openPropSelCB(CallBacker*) { openPropSel(); }
     bool			savePropSel();
-    void                        savePropSelCB(CallBacker*) { savePropSel(); }
+    void			savePropSelCB(CallBacker*) { savePropSel(); }
     bool			acceptOK(CallBacker*) override;
     bool			rejectOK(CallBacker*) override;
     void			elasticPropSelectionChanged(CallBacker*);

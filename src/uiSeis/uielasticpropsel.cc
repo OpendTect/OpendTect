@@ -370,6 +370,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 
     if ( orgpropnms_.isEmpty() )
 	mErrRet( tr("No property found"), return );
+
     propnms_ = orgpropnms_;
 
     ts_ = new uiTabStack( this, "Property selection tab stack" );
@@ -419,11 +420,16 @@ uiElasticPropSelDlg::~uiElasticPropSelDlg()
 
 
 void uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
-{ screenSelectionChanged(); }
+{
+    screenSelectionChanged();
+}
 
 
 bool uiElasticPropSelDlg::screenSelectionChanged()
 {
+    if ( !ts_ ) // when no properties found
+	return false;
+
     NotifyStopper ns( ts_->selChange() );
     propnms_ = orgpropnms_;
     for ( int idx=0; idx<propflds_.size(); idx++ )
