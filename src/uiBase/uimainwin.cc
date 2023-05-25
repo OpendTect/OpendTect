@@ -318,6 +318,23 @@ void uiMainWin::setGeometry( const uiRect& rect )
 }
 
 
+void uiMainWin::setSizeRelativeToScreen( float width, float height )
+{
+    if ( width<0.05 || width>1 )
+	width = 1;
+    if ( height<0.05 || height>1 )
+	height = 1;
+
+    uiSize screensz = uiMain::instance().desktopSize();
+    if ( mIsUdf(screensz.width()) )
+	screensz = uiMain::instance().getScreenSize( 0, true );
+
+    if ( !mIsUdf(screensz.width()) )
+	setGeometry( uiRect(0,0,width*screensz.width(),
+			    height*screensz.height()) );
+}
+
+
 bool uiMainWin::doSetWindowFlags( od_uint32 todoflagi, bool setyn )
 {
     const Qt::WindowFlags todoflag( todoflagi );

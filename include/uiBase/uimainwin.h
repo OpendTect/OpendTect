@@ -160,6 +160,8 @@ public:
 			//!Position of top-left corner in screen pixel coords
     uiRect		geometry(bool frame=true) const;
     void		setGeometry(const uiRect&);
+    void		setSizeRelativeToScreen(float width,float height);
+			//!< width=.75 means 75% of screenwidth
 
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
