@@ -74,6 +74,16 @@ void Strat::LayerSequence::setXPos( float xpos )
 }
 
 
+void Strat::LayerSequence::setStartDepth( float z, bool only )
+{
+    z0_ = z;
+    if ( only )
+	return;
+
+    prepareUse();
+}
+
+
 const Strat::RefTree& Strat::LayerSequence::refTree() const
 {
     return isEmpty() ? RT() : layers_[0]->refTree();
