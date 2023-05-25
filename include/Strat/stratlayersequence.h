@@ -92,6 +92,9 @@ protected:
     float		z0_ = 0.f;
     PropertyRefSelection	props_;
 
+public:
+    void		setStartDepthOnly( float z ) { z0_ = z; }
+
 };
 
 } // namespace Strat
