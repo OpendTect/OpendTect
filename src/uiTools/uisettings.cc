@@ -1101,17 +1101,16 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     , enablemipmapping_(true)
     , anisotropicpower_(4)
 {
-    uiLabel* shadinglbl = new uiLabel( this,
-				tr("Use OpenGL shading when available:") );
     setts_.getYN( SettingsAccess::sKeyUseSurfShaders(), usesurfshaders_ );
-    usesurfshadersfld_ = new uiGenInput( this, tr("for surface rendering"),
-					 BoolInpSpec(usesurfshaders_) );
-    usesurfshadersfld_->attach( ensureBelow, shadinglbl );
+    usesurfshadersfld_ = new uiGenInput( this,
+				tr("Use OpenGL shading for surface rendering"),
+				BoolInpSpec(usesurfshaders_) );
 
     setts_.getYN( SettingsAccess::sKeyUseVolShaders(), usevolshaders_ );
-    usevolshadersfld_ = new uiGenInput( this, tr("for volume rendering"),
-					BoolInpSpec(usevolshaders_) );
-    usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_, 0 );
+    usevolshadersfld_ = new uiGenInput( this,
+				tr("Use OpenGL shading for volume rendering"),
+				BoolInpSpec(usevolshaders_) );
+    usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
 
     uiLabeledComboBox* lcb =
 	new uiLabeledComboBox( this, tr("Default texture resolution") );
