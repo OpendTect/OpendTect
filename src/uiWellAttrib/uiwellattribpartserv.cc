@@ -106,6 +106,7 @@ void uiWellAttribPartServer::xplotCB( CallBacker* )
 
 void uiWellAttribPartServer::cleanUp()
 {
+    nlamodel_ = nullptr;
     deleteAndNullPtr( attrset_ );
     closeAndNullPtr( xplotwin2d_ );
     closeAndNullPtr( xplotwin3d_ );
