@@ -283,7 +283,7 @@ static BufferString getInfoText( const IOObj& ioobj )
 
 	    StepInterval<float> zrg = cs.zsamp_;
 	    zrg.scale( zddef.userFactor() );
-	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
+	    const int nrdec = SI().nrZDecimals();
 	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
 		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
 		.add(" - ").add( zrg.stop, nrdec )
