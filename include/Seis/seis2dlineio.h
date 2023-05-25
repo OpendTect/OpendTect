@@ -37,7 +37,6 @@ public:
 mExpClass(Seis) Seis2DLinePutter
 { mODTextTranslationClass(Seis2DLinePutter);
 public:
-			Seis2DLinePutter();
     virtual		~Seis2DLinePutter();
 
     virtual bool	put(const SeisTrc&)	= 0;
@@ -49,6 +48,8 @@ public:
     virtual int		nrWritten() const	= 0;
     virtual void	setComponentNames(const BufferStringSet&){};
 
+protected:
+			Seis2DLinePutter();
 };
 
 

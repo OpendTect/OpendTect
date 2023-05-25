@@ -64,10 +64,10 @@ public:
     bool		put(const SeisTrc&) override;
     bool		close() override;
 
-    int					nrwr_ = 0;
+    int					nrwr_			= 0;
     BufferString			fname_;
     uiString				errmsg_;
-    SEGYSeisTrcTranslator*		tr_;
+    SEGYSeisTrcTranslator*		tr_			= nullptr;
     BinID				bid_;
     DataCharacteristics::UserType	preseldt_;
 

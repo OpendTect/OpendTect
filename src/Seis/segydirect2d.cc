@@ -309,8 +309,8 @@ Seis2DLinePutter* SEGYDirect2DLineIOProvider::getPutter( const IOObj& obj,
 
 SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
 					    Pos::GeomID geomid )
-    : preseldt_(DataCharacteristics::Auto)
-    , fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
+    : fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
+    , preseldt_(DataCharacteristics::Auto)
 {
     bid_.row() = geomid.asInt();
     FilePath fp( fname_ );
@@ -330,6 +330,9 @@ SEGYDirect2DLinePutter::~SEGYDirect2DLinePutter()
 
 bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 {
+    if ( !tr_ )
+	return false;
+
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
     bid_.trcNr() = info.trcNr();
     const SeisTrcInfo::IdxType oldtrcnr = info.trcNr();
@@ -370,13 +373,16 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 	    .arg( tr_->errMsg() );
 	return false;
     }
+
     return true;
 }
 
 
 bool SEGYDirect2DLinePutter::close()
 {
-    if ( !tr_ ) return true;
+    if ( !tr_ )
+	return true;
+
     tr_->setIs2D( true );
     bool ret = tr_->close();
     if ( ret ) errmsg_ = tr_->errMsg();
@@ -388,6 +394,8 @@ const char* SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID()
 { return "SEGY Direct ID"; }
 
 
+
+// SEGYDirectSurvGeom2DTranslator
 SEGYDirectSurvGeom2DTranslator::SEGYDirectSurvGeom2DTranslator(const char* s1,
 							       const char* s2)
     : SurvGeom2DTranslator(s1,s2)
