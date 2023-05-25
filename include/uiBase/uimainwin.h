@@ -228,7 +228,7 @@ protected:
 
     virtual bool	closeOK()	{return true;}//!< confirm window close
 
-			uiMainWin(uiString,uiParent*);
+			uiMainWin(const uiString&,uiParent*);
     uiObject*		mainobject() override;
 
     void		saveSettings();
@@ -245,9 +245,9 @@ protected:
 			{ setForceFinalize( yn ); }
     void		setContentsMargins(int l,int t,int r,int b);
 
-    uiMainWinBody*	body_;
+    uiMainWinBody*	body_				= nullptr;
     uiParent*		parent_;
-    Timer*		afterpopuptimer_;
+    Timer*		afterpopuptimer_		= nullptr;
 
     PopupArea		popuparea_;
 
