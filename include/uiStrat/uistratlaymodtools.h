@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "stratlevel.h"
 #include "uistring.h"
 
+class Mnemonic;
 class uiComboBox;
 class uiLabel;
+class uiLabeledComboBox;
 class uiSpinBox;
 class uiStratLevelSel;
 class uiToolButton;
@@ -197,6 +199,10 @@ public:
 
 protected:
 
+    uiComboBox*		createPropSelFld(const uiString& lbl,
+					 const PropertyRefSelection&,
+					 const Mnemonic&,
+					 uiLabeledComboBox*& prevbox);
     bool		acceptOK(CallBacker*) override;
 
     uiComboBox*		vpfld_;
