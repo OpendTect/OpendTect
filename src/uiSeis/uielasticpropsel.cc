@@ -155,7 +155,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 
     formfld_ = new uiGenInput( this, tr("Formula ") );
     formfld_->attach( alignedBelow, selmathfld_ );
-    mAttachCB( formfld_->valuechanged, uiElasticPropSelGrp::selFormulaChgCB );
+    mAttachCB( formfld_->valueChanged, uiElasticPropSelGrp::selFormulaChgCB );
 
     singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
     singleinpfld_->attach( alignedBelow, selmathfld_ );
@@ -361,6 +361,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
     , prs_(prs)
     , elpropsel_(elsel)
     , orgelpropsel_(elsel)
+    , ts_(nullptr)
 {
     for ( const auto* pr : prs_ )
     {
@@ -370,6 +371,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 
     if ( orgpropnms_.isEmpty() )
 	mErrRet( tr("No property found"), return );
+
     propnms_ = orgpropnms_;
 
     ts_ = new uiTabStack( this, "Property selection tab stack" );
@@ -419,11 +421,16 @@ uiElasticPropSelDlg::~uiElasticPropSelDlg()
 
 
 void uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
-{ screenSelectionChanged(); }
+{
+    screenSelectionChanged();
+}
 
 
 bool uiElasticPropSelDlg::screenSelectionChanged()
 {
+    if ( !ts_ ) // when no properties found
+	return false;
+
     NotifyStopper ns( ts_->selChange() );
     propnms_ = orgpropnms_;
     for ( int idx=0; idx<propflds_.size(); idx++ )
