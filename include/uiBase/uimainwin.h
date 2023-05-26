@@ -278,7 +278,10 @@ void closeAndNullPtr( T*& ptr )
 
     auto* uimw = dCast( uiMainWin*, ptr );
     if ( !uimw )
+    {
+	pFreeFnErrMsg("Pointer is not a uiMainWin");
 	return;
+    }
 
     const bool explicitdelete = !uimw->isModal() || uimw->isDeleteOnClose();
     auto* winptr = uimw;
