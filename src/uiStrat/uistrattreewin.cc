@@ -175,7 +175,7 @@ void uiStratTreeWin::saveLegacyTrees()
 	if ( !rt || !rt->hasChildren() )
 	    continue;
 
-	CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
+	CtxtIOObj ctio( StratTreeNTranslatorGroup::ioContext() );
 	ctio.ioobj_ = nullptr;
 	const char* locstr = idx==0 ? "Home" : (idx==1 ? "Survey" : "DataRoot");
 	ctio.setName( BufferString("Stratigraphy from ",locstr," folder") );
@@ -406,7 +406,7 @@ void uiStratTreeWin::openTree()
     if ( !askSave() )
 	return;
 
-    CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
+    CtxtIOObj ctio( StratTreeNTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
     ctio.fillDefault();
     uiIOObjSelDlg dlg( this, ctio, tr("Open Stratigraphic Framework") );
@@ -473,7 +473,7 @@ bool uiStratTreeWin::save( bool saveas )
     MultiID key = treekey_;
     if ( key.isUdf() || saveas )
     {
-	CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
+	CtxtIOObj ctio( StratTreeNTranslatorGroup::ioContext() );
 	ctio.ctxt_.forread_ = false;
 	uiIOObjSelDlg dlg( this, ctio, tr("Save Stratigraphic Framework") );
 	if ( !dlg.go() || !dlg.ioObj() )
