@@ -726,7 +726,7 @@ void Well::Log::setMnemonicLabel( const char* mnem, bool setifnull )
 
     if ( setifnull || !mn_ )
     {
-	guessMnemonic();
+	getGuessedMnemonic();
 	return;
     }
 
