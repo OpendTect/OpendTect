@@ -760,7 +760,7 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
 
     psgrp_ = new uiGroup( vwrgrp, "Pre-Stack controls group" );
     auto* psvwbut = new uiToolButton( psgrp_, "nonmocorr64",
-				tr("View PreStack Offset Display Panel"),
+				tr("View Prestack Offset Display Panel"),
 				mCB(this,uiStratSynthDisp,viewPSCB) );
     const int slsz = initialsz_.height() - uiObject::iconSize();
     uiSlider::Setup slsu;
