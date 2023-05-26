@@ -181,29 +181,29 @@ const Strat::LevelSet& Strat::LVLS()
 
 Strat::Level::Level( const char* nm, const OD::Color& col, LevelID newid )
     : NamedCallBacker(nm)
+    , changed(this)
     , id_(newid)
     , color_(col)
     , pars_(*new IOPar)
-    , changed(this)
 {
 }
 
 
 Strat::Level::Level( const Level& oth, int lvlid )
-    : NamedCallBacker(oth)
+    : NamedCallBacker(oth.name())
+    , changed(this)
     , id_(lvlid)
     , color_(oth.color_)
     , pars_(*new IOPar(oth.pars_))
-    , changed(this)
 {
 }
 
 
 Strat::Level::Level( const Level& oth )
-    : NamedCallBacker(oth)
+    : NamedCallBacker(oth.name())
+    , changed(this)
     , id_(0)
     , pars_(*new IOPar(oth.pars_))
-    , changed(this)
 {
     *this = oth;
 }
@@ -330,17 +330,16 @@ void Strat::Level::usePar( const IOPar& iop )
 
 Strat::LevelSet::LevelSet( int idnr )
     : NamedCallBacker("")
-    , curlevelid_(idnr)
     , changed(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
+    , curlevelid_(idnr)
 {
 }
 
 
 Strat::LevelSet::LevelSet( const LevelSet& oth )
-    : NamedCallBacker(oth)
-    , curlevelid_(0)
+    : NamedCallBacker(oth.name())
     , changed(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
@@ -534,8 +533,9 @@ Strat::LevelID Strat::LevelSet::doSet( const Strat::Level& lvl,
     else
     {
 	if ( isnew ) *isnew = true;
-	if ( lvl.id().asInt() < curlevelid_ )
+	if ( lvl.id().isUdf() || lvl.id().asInt() < curlevelid_ )
 	    const_cast<Level&>( lvl ).setID( LevelID(++curlevelid_) );
+
 	chglvl = new Level( lvl );
 	lvls_.add( chglvl );
 	levelAdded.trigger( chglvl->id() );
@@ -590,18 +590,18 @@ void Strat::LevelSet::getFromStream( ascistream& astrm, bool isold )
 
 	Level lvl( nullptr, OD::Color() );
 	lvl.usePar( iop );
-	if ( lvl.id().isValid() )
-	{
-	    if ( isold )
-	    {
-		// Remove legacy keys
-		lvl.pars_.removeWithKey( "Unit" );
-		lvl.pars_.removeWithKey( "Time" );
-	    }
+	if ( lvl.id().isUdf() )
+	     lvl.setID( LevelID(++curlevelid_) );
 
-	    doSet( lvl );
-	    curlevelid_.setIfLarger( lvl.id().asInt()+1 );
+	if ( isold )
+	{
+	    // Remove legacy keys
+	    lvl.pars_.removeWithKey( "Unit" );
+	    lvl.pars_.removeWithKey( "Time" );
 	}
+
+	doSet( lvl );
+	curlevelid_.setIfLarger( lvl.id().asInt()+1 );
     }
 }
 
