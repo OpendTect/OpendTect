@@ -69,6 +69,7 @@ void selItems( CallBacker* )
     uiDialog dlg( parent(), su );
     auto* lb = new uiListBox( &dlg, nm_.getFullString(), OD::ChooseAtLeastOne );
     lb->addItems( nms_ );
+    lb->resizeToContents();
 
     if ( itmsarelevels_ )
     {
@@ -76,7 +77,7 @@ void selItems( CallBacker* )
 	for ( int idx=0; idx<nms_.size(); idx++ )
 	{
 	    const Strat::LevelID id = lvls.getIDByName( nms_.get(idx).buf() );
-	    lb->setColor( idx, lvls.colorOf(id) );
+	    lb->setPixmap( idx, lvls.colorOf(id) );
 	}
     }
 
@@ -142,7 +143,7 @@ BufferString getSummary() const override
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p,
 					const StratSynth::DataMgr& dm )
-    : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
+    : uiDialog(p,uiDialog::Setup(tr("Save Synthetic Seismic Data and Horizons"),
 				 mNoDlgTitle,
 				 mODHelpKey(mStratSynthExportHelpID) ) )
     , datamgr_(dm.getProdMgr())
@@ -180,7 +181,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p,
     if ( !postnms.isEmpty() )
     {
 	poststcksel_ = new uiStratSynthOutSel( selgrp,
-					tr("Post-stack line data"), postnms );
+					tr("Poststack line data"), postnms );
 	repludfsfld_ = new uiCheckBox( selgrp, tr("Fill undefs") );
 	repludfsfld_->setChecked( true );
 	repludfsfld_->attach( rightOf, poststcksel_ );
