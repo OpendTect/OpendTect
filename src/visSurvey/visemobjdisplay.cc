@@ -226,8 +226,12 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 
 void EMObjectDisplay::removeEMStuff()
 {
-    while ( posattribs_.size() )
-	showPosAttrib( posattribs_[0], false );
+    posattribs_.erase();
+    while( !posattribmarkers_.isEmpty() )
+    {
+	removeChild( posattribmarkers_.first()->osgNode() );
+	posattribmarkers_.removeSingle(0)->unRef();
+    }
 
     if ( editor_ )
     {
