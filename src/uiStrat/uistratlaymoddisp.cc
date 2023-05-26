@@ -16,29 +16,28 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiioobjsel.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
+#include "uistrateditlayer.h"
 #include "uistratlaymodtools.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
-#include "uistrateditlayer.h"
-#include "uimenu.h"
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
 #include "flatposdata.h"
 #include "flatviewaxesdrawer.h"
 #include "od_helpids.h"
-#include "od_ostream.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlevel.h"
 #include "stratlith.h"
-#include "strattransl.h"
 #include "stratreftree.h"
+#include "strattransl.h"
 #include "survinfo.h"
 
 
@@ -813,18 +812,20 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     DPM( DataPackMgr::FlatID() ).add( fvdp_ );
     vwr_.setPack( dest, fvdp_->id() );
 
-    const int sz = 25;
-    auto* savebut = new uiToolButton( this, "save", tr("Save pseudo-wells"),
+    const int sz = 25; // looks best
+    auto* savebut = new uiToolButton( this, "save",
+				tr("Save all pseudo-wells"),
 				mCB(this,uiStratSimpleLayerModelDisp,saveCB) );
     savebut->setMaximumHeight( sz );
     savebut->setMaximumWidth( sz );
-    savebut->attach( rightBorder, 6 );
-    savebut->attach( topBorder, 2 );
-    auto* openbut = new uiToolButton( this, "open", tr("Open pseudo-wells"),
+    savebut->attach( rightBorder, 6 ); // for a single pixel spacing
+    savebut->attach( topBorder, 2 ); // for a single pixel spacing
+    auto* openbut = new uiToolButton( this, "open",
+				tr("Open saved pseudo-wells"),
 				mCB(this,uiStratSimpleLayerModelDisp,openCB) );
     openbut->setMaximumHeight( sz );
     openbut->setMaximumWidth( sz );
-    openbut->attach( leftOf, savebut, 2 );
+    openbut->attach( leftOf, savebut, 2 ); // for a single pixel spacing
 }
 
 
