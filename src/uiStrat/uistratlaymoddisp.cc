@@ -363,9 +363,11 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
     else
     {
 	laymodfld_ = new uiIOObjSel( this, ctxt );
+#ifdef __debug__
 	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
 				       BoolInpSpec(sPresMath) );
 	presmathfld_->attach( alignedBelow, laymodfld_ );
+#endif
     }
 
     mAttachCB( postFinalize(), uiStratLayerModelDispIO::finalizeCB );
@@ -568,7 +570,7 @@ bool acceptOK( CallBacker* ) override
 	if ( !astrm.putHeader("PseudoWells") )
 	    mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
 
-	sPresMath = presmathfld_->getBoolValue();
+	sPresMath = presmathfld_ ? presmathfld_->getBoolValue() : false;
 	if ( !lm_.write(strm,0,sPresMath) )
 	    mErrRet( tr("Unknown error during write") )
     }
