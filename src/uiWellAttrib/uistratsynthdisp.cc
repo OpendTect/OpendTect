@@ -336,7 +336,9 @@ void useWVADispPars( const FlatView::DataDispPars::WVA& wvapars )
     if ( !id_.isValid() )
 	return;
 
-    wvamapper_->setup_ = wvapars.mappersetup_;
+    if ( wvamapper_ )
+	wvamapper_->setup_ = wvapars.mappersetup_;
+
     overlap_ = wvapars.overlap_;
 }
 
@@ -346,7 +348,9 @@ void useVDDispPars( const FlatView::DataDispPars::VD& vdpars )
     if ( !id_.isValid() )
 	return;
 
-    vdmapper_->setup_ = vdpars.mappersetup_;
+    if ( vdmapper_ )
+	vdmapper_->setup_ = vdpars.mappersetup_;
+
     ctab_ = vdpars.ctab_;
 }
 
