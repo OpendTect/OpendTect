@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiioobjsel.h"
-#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
@@ -24,25 +23,23 @@ ________________________________________________________________________
 #include "uistratlaymodtools.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
-#include "envvars.h"
 #include "flatposdata.h"
 #include "flatviewaxesdrawer.h"
-#include "keystrs.h"
 #include "od_helpids.h"
 #include "od_iostream.h"
-#include "oddirs.h"
-#include "property.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlevel.h"
+#include "stratlith.h"
 #include "stratreftree.h"
 #include "strattransl.h"
 #include "survinfo.h"
-#include "unitofmeasure.h"
+
 
 #define mDispEach() tools_.dispEach()
 #define mUseLithCols() tools_.dispLith()
@@ -62,14 +59,14 @@ ________________________________________________________________________
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelSuite& lms)
     : uiGroup(t.parent(),"LayerModel display")
-    , tools_(t)
-    , lms_(lms)
-    , zinfeet_(SI().depthsInFeet())
-    , vwr_(*new uiFlatViewer(this))
     , sequenceSelected(this)
     , genNewModelNeeded(this)
     , sequencesAdded(this)
     , infoChanged(this)
+    , lms_(lms)
+    , tools_(t)
+    , vwr_(*new uiFlatViewer(this))
+    , zinfeet_(SI().depthsInFeet())
 {
     vwr_.setInitialSize( initialSize() );
     vwr_.setStretch( 2, 2 );
@@ -261,7 +258,7 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 }
 
 
-void uiStratLayerModelDisp::modelChangedCB( CallBacker* cb )
+void uiStratLayerModelDisp::modelChangedCB( CallBacker* )
 {
     handleModelChange();
 }
@@ -331,11 +328,11 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
     {
 	inputfld_ = new uiGenInput( this, tr("Saved in v6.4 or earlier"),
 				BoolInpSpec(false,uiStrings::sEmptyString()) );
-	mAttachCB( inputfld_->valuechanged, uiStratLayerModelDispIO::inputCB );
+	mAttachCB( inputfld_->valueChanged, uiStratLayerModelDispIO::inputCB );
 
 	filefld_ = new uiFileInput( this, uiStrings::sFileName() );
 	filefld_->attach( alignedBelow, inputfld_ );
-	mAttachCB( filefld_->valuechanged, uiStratLayerModelDispIO::selCB );
+	mAttachCB( filefld_->valueChanged, uiStratLayerModelDispIO::selCB );
 
 	laymodfld_ = new uiIOObjSel( this, ctxt );
 	laymodfld_->attach( alignedBelow, inputfld_ );
@@ -347,12 +344,12 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 
 	eachfld_ = new uiGenInput( this, tr("Read each"),
 				   IntInpSpec(sUseEach,1,1000) );
-	mAttachCB( eachfld_->valuechanging, uiStratLayerModelDispIO::nrCB );
+	mAttachCB( eachfld_->valueChanging, uiStratLayerModelDispIO::nrCB );
 	eachfld_->attach( alignedBelow, infofld_ );
 
 	startatfld_ = new uiGenInput( this, tr("Start at"),
 				      IntInpSpec(sStartAt,1,100000) );
-	mAttachCB( startatfld_->valuechanging, uiStratLayerModelDispIO::nrCB );
+	mAttachCB( startatfld_->valueChanging, uiStratLayerModelDispIO::nrCB );
 	startatfld_->attach( rightTo, eachfld_ );
 
 	nrreadfld_ = new uiGenInput( this, tr("Models to read" ) );
@@ -366,9 +363,11 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
     else
     {
 	laymodfld_ = new uiIOObjSel( this, ctxt );
+#ifdef __debug__
 	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
 				       BoolInpSpec(sPresMath) );
 	presmathfld_->attach( alignedBelow, laymodfld_ );
+#endif
     }
 
     mAttachCB( postFinalize(), uiStratLayerModelDispIO::finalizeCB );
@@ -571,7 +570,7 @@ bool acceptOK( CallBacker* ) override
 	if ( !astrm.putHeader("PseudoWells") )
 	    mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
 
-	sPresMath = presmathfld_->getBoolValue();
+	sPresMath = presmathfld_ ? presmathfld_->getBoolValue() : false;
 	if ( !lm_.write(strm,0,sPresMath) )
 	    mErrRet( tr("Unknown error during write") )
     }
@@ -814,6 +813,21 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     fvdp_->setName( "Simple Layer Model Display BackDrop" );
     DPM( DataPackMgr::FlatID() ).add( fvdp_ );
     vwr_.setPack( dest, fvdp_->id() );
+
+    const int sz = 25; // looks best
+    auto* savebut = new uiToolButton( this, "save",
+				tr("Save all pseudo-wells"),
+				mCB(this,uiStratSimpleLayerModelDisp,saveCB) );
+    savebut->setMaximumHeight( sz );
+    savebut->setMaximumWidth( sz );
+    savebut->attach( rightBorder, 6 ); // for a single pixel spacing
+    savebut->attach( topBorder, 2 ); // for a single pixel spacing
+    auto* openbut = new uiToolButton( this, "open",
+				tr("Open saved pseudo-wells"),
+				mCB(this,uiStratSimpleLayerModelDisp,openCB) );
+    openbut->setMaximumHeight( sz );
+    openbut->setMaximumWidth( sz );
+    openbut->attach( leftOf, savebut, 2 ); // for a single pixel spacing
 }
 
 
@@ -1231,6 +1245,9 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 		continue;
 	}
 
+	if ( !seq.propertyRefs().validIdx(dispprop) )
+	    continue;
+
 	const PropertyRef& pr = *seq.propertyRefs().get( dispprop );
 	for ( int ilay=0; ilay<nrlayers; ilay++ )
 	{
@@ -1335,4 +1352,22 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     fvdp_->posData().setRange( true,
 			StepInterval<double>( 1, nrseqs<2 ? 1 : nrseqs, 1 ) );
     fvdp_->posData().setRange( false, zrg );
+}
+
+
+void uiStratSimpleLayerModelDisp::openCB( CallBacker* )
+{
+    if ( layerads_.isEmpty() )
+    {
+	uiMSG().error( tr("Please open a Layer Model Description first") );
+	return;
+    }
+
+    doLayerModelIO( true );
+}
+
+
+void uiStratSimpleLayerModelDisp::saveCB( CallBacker* )
+{
+    doLayerModelIO( false );
 }

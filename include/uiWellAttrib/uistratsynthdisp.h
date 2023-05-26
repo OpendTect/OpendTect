@@ -112,6 +112,7 @@ protected:
     void		offsSliderChgCB(CallBacker*);
     void		viewPSCB(CallBacker*);
     void		setPSVwrDataCB(CallBacker*);
+    void		exportCB(CallBacker*);
 
     void		viewChgCB(CallBacker*);
     void		lvlChgCB(CallBacker*);

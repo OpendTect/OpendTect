@@ -12,11 +12,11 @@ ________________________________________________________________________
 #include "ui2dgeomman.h"
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseislinesel.h"
-#include "uiseissel.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
@@ -27,19 +27,13 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "prestackgather.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
-#include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 #include "stratlevel.h"
 #include "stratsynthexp.h"
-#include "syntheticdataimpl.h"
-#include "velocitycalc.h"
-#include "zdomain.h"
 #include "od_helpids.h"
 
 
@@ -57,8 +51,8 @@ public:
 uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
 		    const BufferStringSet& nms )
     : uiCheckedCompoundParSel( p, seltxt, false, uiStrings::sSelect() )
-    , nms_(nms)
     , nm_(seltxt)
+    , nms_(nms)
 {
     mAttachCB( butPush, uiStratSynthOutSel::selItems );
 }
@@ -75,6 +69,7 @@ void selItems( CallBacker* )
     uiDialog dlg( parent(), su );
     auto* lb = new uiListBox( &dlg, nm_.getFullString(), OD::ChooseAtLeastOne );
     lb->addItems( nms_ );
+    lb->resizeToContents();
 
     if ( itmsarelevels_ )
     {
@@ -82,7 +77,7 @@ void selItems( CallBacker* )
 	for ( int idx=0; idx<nms_.size(); idx++ )
 	{
 	    const Strat::LevelID id = lvls.getIDByName( nms_.get(idx).buf() );
-	    lb->setColor( idx, lvls.colorOf(id) );
+	    lb->setPixmap( idx, lvls.colorOf(id) );
 	}
     }
 
@@ -148,7 +143,7 @@ BufferString getSummary() const override
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p,
 					const StratSynth::DataMgr& dm )
-    : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
+    : uiDialog(p,uiDialog::Setup(tr("Save Synthetic Seismic Data and Horizons"),
 				 mNoDlgTitle,
 				 mODHelpKey(mStratSynthExportHelpID) ) )
     , datamgr_(dm.getProdMgr())
@@ -156,7 +151,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p,
     crnewfld_ = new uiGenInput( this, tr("2D Line"),
 			     BoolInpSpec(true,uiStrings::phrCreate(
 			     uiStrings::sNew()), tr("Use existing")) );
-    mAttachCB( crnewfld_->valuechanged, uiStratSynthExport::crNewChg );
+    mAttachCB( crnewfld_->valueChanged, uiStratSynthExport::crNewChg );
 
     newlinenmfld_ = new uiGenInput( this, mJoinUiStrs(sNew(),sLineName()),
 				    StringInpSpec() );
@@ -186,7 +181,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p,
     if ( !postnms.isEmpty() )
     {
 	poststcksel_ = new uiStratSynthOutSel( selgrp,
-					tr("Post-stack line data"), postnms );
+					tr("Poststack line data"), postnms );
 	repludfsfld_ = new uiCheckBox( selgrp, tr("Fill undefs") );
 	repludfsfld_->setChecked( true );
 	repludfsfld_->attach( rightOf, poststcksel_ );
@@ -246,7 +241,7 @@ void uiStratSynthExport::fillGeomGroup()
     if ( haverl )
 	inpspec.addString( uiStrings::sRandomLine() );
     geomsel_ = new uiGenInput( geomgrp_, tr("Geometry for line"), inpspec );
-    mAttachCB( geomsel_->valuechanged, uiStratSynthExport::geomSel );
+    mAttachCB( geomsel_->valueChanged, uiStratSynthExport::geomSel );
     geomgrp_->setHAlignObj( geomsel_ );
 
     Coord startcoord, stopcoord;

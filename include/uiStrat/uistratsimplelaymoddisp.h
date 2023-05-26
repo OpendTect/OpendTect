@@ -58,4 +58,6 @@ protected:
     void		dispLithChg() override;
     void		handleClick(bool dble) override;
 
+    void		openCB(CallBacker*);
+    void		saveCB(CallBacker*);
 };

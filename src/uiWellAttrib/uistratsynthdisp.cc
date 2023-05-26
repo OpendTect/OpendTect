@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uipsviewer2dmainwin.h"
 #include "uislider.h"
 #include "uistratlaymodtools.h"
+#include "uistratsynthexport.h"
 #include "uisynthgendlg.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
@@ -26,9 +27,9 @@ ________________________________________________________________________
 
 #include "coltabsequence.h"
 #include "dataclipper.h"
+#include "flatviewzoommgr.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "flatviewzoommgr.h"
 #include "prestackgather.h"
 #include "ptrman.h"
 #include "seisbufadapters.h"
@@ -758,10 +759,22 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
 
+    const int sz = 25; // looks best
+    auto* exportbut = new uiToolButton( vwrgrp, "export",
+				uiStrings::phrExport(tr("Synthetic Data")),
+				mCB(this,uiStratSynthDisp,exportCB) );
+    exportbut->setMaximumHeight( sz );
+    exportbut->setMaximumWidth( sz );
+    exportbut->attach( rightBorder, 6 ); // for a single pixel spacing
+    exportbut->attach( topBorder, 2 ); // for a single pixel spacing
+
     psgrp_ = new uiGroup( vwrgrp, "Pre-Stack controls group" );
     auto* psvwbut = new uiToolButton( psgrp_, "nonmocorr64",
-				tr("View PreStack Offset Display Panel"),
+				tr("View Prestack Offset Display Panel"),
 				mCB(this,uiStratSynthDisp,viewPSCB) );
+    psvwbut->setMaximumHeight( sz );
+    psvwbut->setMaximumWidth( sz );
+
     const int slsz = initialsz_.height() - uiObject::iconSize();
     uiSlider::Setup slsu;
     slsu.isvertical( true ).sldrsize( slsz );
@@ -770,7 +783,8 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
     offsslider_->attach( ensureBelow, psvwbut );
     offsslider_->slider()->setVSzPol( uiObject::WideVar );
     offsslider_->slider()->setPrefWidth( uiObject::iconSize() );
-    psgrp_->attach( rightBorder );
+    psgrp_->attach( rightBorder, 2 );
+    psgrp_->attach( ensureBelow, exportbut );
     psgrp_->setStretch( 0, 2 );
 }
 
@@ -1776,6 +1790,13 @@ void uiStratSynthDisp::updateOffSliderTxt()
 {
     offsslider_->setToolTip( toUiString("%1: %2")
 			     .arg( uiStrings::sOffset() ).arg( curoffs_ ) );
+}
+
+
+void uiStratSynthDisp::exportCB( CallBacker* )
+{
+    uiStratSynthExport dlg( this, datamgr_ );
+    dlg.go();
 }
 
 
