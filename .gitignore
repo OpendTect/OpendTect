@@ -119,6 +119,7 @@ qtcsettings.cmake
 .directory
 
 #Other
+data/DemoSurveys/
 relinfo/ver.*
 
 #Platform dependent files
