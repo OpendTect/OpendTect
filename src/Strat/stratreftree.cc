@@ -8,14 +8,100 @@ ________________________________________________________________________
 -*/
 
 #include "stratreftree.h"
+
+#include "ascstream.h"
+#include "file.h"
+#include "filepath.h"
+#include "separstr.h"
 #include "strattreetransl.h"
 #include "stratunitrefiter.h"
-#include "ascstream.h"
-#include "separstr.h"
 
-mDefSimpleTranslators(StratTree,"Stratigraphic Tree",od,Mdl)
 
 static const char* sKeyStratTree =	"Stratigraphic Tree";
+
+mDefEmptyTranslatorBundle( StratTree, od, Mdl, "od", sKeyStratTree,
+			   StratTreeTranslator::sStratTree )
+
+bool StratTreeTranslator::implRename( const IOObj* ioobj,
+				      const char* newnm ) const
+{
+    if ( !ioobj )
+	return false;
+
+    const char* assocext = associatedFileExt();
+    FilePath origmainfp( ioobj->mainFileName() );
+    FilePath origassocfp( getAssociatedFileName(*ioobj,assocext) );
+    origmainfp.setExtension( ".bak", false );
+    origassocfp.setExtension( ".bak", false );
+    if ( !renameAssociatedFile( ioobj->mainFileName(), assocext, newnm ) ||
+	 !Translator::implRename(ioobj,newnm) )
+	return false;
+
+    FilePath newmainfp( newnm );
+    FilePath newassocfp( newnm );
+    newmainfp.setExtension( ".bak", false );
+    newassocfp.setExtension( assocext ).setExtension( ".bak", false );
+    if ( origmainfp.exists() )
+	File::rename( origmainfp.fullPath(), newmainfp.fullPath() );
+    if ( origassocfp.exists() )
+	File::rename( origassocfp.fullPath(), newassocfp.fullPath() );
+
+    return true;
+}
+
+
+bool StratTreeTranslator::implRemove( const IOObj* ioobj, bool ) const
+{
+    if ( !ioobj )
+	return false;
+
+    const char* assocext = associatedFileExt();
+    FilePath mainfp( ioobj->mainFileName() );
+    FilePath assocfp( getAssociatedFileName(*ioobj,assocext) );
+    if ( !removeAssociatedFile(ioobj->mainFileName(),assocext) ||
+	 !Translator::implRemove(ioobj) )
+	return false;
+
+    mainfp.setExtension( ".bak", false );
+    assocfp.setExtension( ".bak", false );
+    if ( mainfp.exists() )
+	File::remove( mainfp.fullPath() );
+    if ( assocfp.exists() )
+	File::remove( assocfp.fullPath() );
+
+    return true;
+}
+
+
+bool StratTreeTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
+{
+    if ( !ioobj )
+	return false;
+
+    const char* assocext = associatedFileExt();
+    FilePath mainfp( ioobj->mainFileName() );
+    FilePath assocfp( getAssociatedFileName(*ioobj,assocext) );
+    if ( !setPermAssociatedFile(ioobj->mainFileName(),assocext,!yn) ||
+	 !Translator::implSetReadOnly(ioobj,yn) )
+	return false;
+
+    mainfp.setExtension( ".bak", false );
+    assocfp.setExtension( ".bak", false );
+    if ( mainfp.exists() )
+	File::makeWritable( mainfp.fullPath(), !yn, false );
+    if ( assocfp.exists() )
+	File::makeWritable( assocfp.fullPath(), !yn, false );
+
+    return true;
+}
+
+
+const char* StratTreeTranslator::associatedFileExt()
+{
+    return "stratlevels";
+}
+
+
 static const char* sKeyLith =		"Lithology";
 static const char* sKeyContents =	"Contents";
 static const char* sKeyUnits =		"Units";
