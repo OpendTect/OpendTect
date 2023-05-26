@@ -175,9 +175,9 @@ protected:
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;
 
-    const mVisTrans*			transformation_;
-    ZAxisTransform*			zaxistransform_;
-    visBase::EventCatcher*		eventcatcher_;
+    const mVisTrans*			transformation_		= nullptr;
+    ZAxisTransform*			zaxistransform_		= nullptr;
+    visBase::EventCatcher*		eventcatcher_		= nullptr;
 
     ObjectSet<visBase::MarkerSet>	posattribmarkers_;
 
@@ -185,12 +185,12 @@ protected:
     TypeSet<int>			parposattrshown_;
 
     EM::EMManager&			em_;
-    EM::EMObject*			emobject_;
+    EM::EMObject*			emobject_		= nullptr;
     MultiID				parmid_;
     BufferStringSet			parsections_;
 
-    MPEEditor*				editor_;
-    visBase::TextureChannel2RGBA*	channel2rgba_;
+    MPEEditor*				editor_			= nullptr;
+    visBase::TextureChannel2RGBA*	channel2rgba_		= nullptr;
 					//set in usePar,
 					//should be nil when given
 					//to channels_.
@@ -198,14 +198,14 @@ protected:
     TypeSet<EM::SectionID>		addsectionids_;
 
     mutable OD::Color			nontexturecol_;
-    mutable bool			nontexturecolisset_;
+    mutable bool			nontexturecolisset_	= false;
     visBase::DrawStyle*			drawstyle_;
-    bool				displayonlyatsections_;
-    bool				enableedit_;
-    bool				restoresessupdate_;
+    bool				displayonlyatsections_	= false;
+    bool				enableedit_		= false;
+    bool				restoresessupdate_	= false;
 
-    bool				burstalertison_;
-    bool				ctrldown_;
+    bool				burstalertison_		= false;
+    bool				ctrldown_		= false;
     TypeSet<EM::SubID>			selectionids_;
     EMChangeData			emchangedata_;
 

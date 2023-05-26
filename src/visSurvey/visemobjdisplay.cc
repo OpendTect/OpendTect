@@ -51,23 +51,11 @@ const char* EMObjectDisplay::sKeyPosAttrShown() { return "Pos Attribs shown"; }
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
-    , em_( EM::EMM() )
-    , emobject_( 0 )
-    , editor_( 0 )
-    , eventcatcher_( 0 )
-    , transformation_( 0 )
-    , zaxistransform_( 0 )
-    , displayonlyatsections_( false )
-    , hasmoved( this )
-    , changedisplay( this )
-    , locknotifier( this )
-    , drawstyle_( new visBase::DrawStyle )
-    , nontexturecolisset_( false )
-    , enableedit_( false )
-    , restoresessupdate_( false )
-    , burstalertison_( false )
-    , channel2rgba_( 0 )
-    , ctrldown_( false )
+    , changedisplay(this)
+    , hasmoved(this)
+    , locknotifier(this)
+    , em_(EM::EMM())
+    , drawstyle_(new visBase::DrawStyle)
 {
     parposattrshown_.erase();
 
@@ -85,17 +73,14 @@ EMObjectDisplay::~EMObjectDisplay()
 {
     turnOnSelectionMode( false );
 
-    if ( channel2rgba_ ) channel2rgba_->unRef();
-    channel2rgba_ = 0;
+    unRefAndNullPtr( channel2rgba_ );
 
     removeNodeState( drawstyle_ );
-    drawstyle_->unRef();
-    drawstyle_ = 0;
+    unRefAndNullPtr( drawstyle_ );
 
-    if ( transformation_ ) transformation_->unRef();
+    unRefAndNullPtr( transformation_ );
 
-    setSceneEventCatcher( 0 );
-
+    setSceneEventCatcher( nullptr );
 
     if ( posattribs_.size() || editor_ || emobject_ )
     {
@@ -104,7 +89,7 @@ EMObjectDisplay::~EMObjectDisplay()
 	removeEMStuff(); //Lets hope for the best.
     }
 
-    for ( int idx= 0; idx < posattribmarkers_.size(); idx++ )
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	removeChild( posattribmarkers_[idx]->osgNode() );
 	posattribmarkers_.removeSingle(idx)->unRef();
@@ -118,9 +103,11 @@ EMObjectDisplay::~EMObjectDisplay()
 
 bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
-    if ( channel2rgba_ ) channel2rgba_->unRef();
+    if ( channel2rgba_ )
+	channel2rgba_->unRef();
     channel2rgba_ = t;
-    if ( channel2rgba_ ) channel2rgba_->ref();
+    if ( channel2rgba_ )
+	channel2rgba_->ref();
 
     return true;
 }
@@ -136,14 +123,17 @@ const mVisTrans* EMObjectDisplay::getDisplayTransformation() const
 
 void EMObjectDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ ) transformation_->unRef();
+    if ( transformation_ )
+	transformation_->unRef();
     transformation_ = nt;
-    if ( transformation_ ) transformation_->ref();
+    if ( transformation_ )
+	transformation_->ref();
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
 	posattribmarkers_[idx]->setDisplayTransformation(transformation_);
 
-    if ( editor_ ) editor_->setDisplayTransformation(transformation_);
+    if ( editor_ )
+	editor_->setDisplayTransformation( transformation_ );
 }
 
 
@@ -223,14 +213,17 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 
 void EMObjectDisplay::removeEMStuff()
 {
-    while ( posattribs_.size() )
-	showPosAttrib( posattribs_[0], false );
+    posattribs_.erase();
+    while( !posattribmarkers_.isEmpty() )
+    {
+	removeChild( posattribmarkers_.first()->osgNode() );
+	posattribmarkers_.removeSingle(0)->unRef();
+    }
 
     if ( editor_ )
     {
 	removeChild( editor_->osgNode() );
-	editor_->unRef();
-	editor_ = 0;
+	unRefAndNullPtr( editor_ );
     }
 
     if ( emobject_ )
@@ -241,8 +234,7 @@ void EMObjectDisplay::removeEMStuff()
 	if ( trackeridx >= 0 )
 	    MPE::engine().removeEditor(emobject_->id());
 
-	emobject_->unRef();
-	emobject_ = 0;
+	unRefAndNullPtr( emobject_ );
     }
 }
 
