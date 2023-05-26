@@ -363,7 +363,7 @@ bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     astrm.put( sKey::Name(), wl.name() );
-    const bool havemnemonics = wl.haveMnemonic();
+    const bool havemnemonics = !StringView(wl.mnemonicLabel()).isEmpty();
     const bool haveunits = wl.haveUnit();
     const bool havepars = !wl.pars().isEmpty();
     if ( havemnemonics )

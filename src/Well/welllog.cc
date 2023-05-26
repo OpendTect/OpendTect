@@ -183,7 +183,7 @@ void Well::LogSet::removeTopBottomUdfs()
 void Well::LogSet::getAllAvailMnems( MnemonicSelection& mns ) const
 {
     for ( const auto* log : logs_ )
-	if ( log->mnemonic(true) )
+	if ( log->mnemonic(false) )
 	    mns.addIfNew( log->mnemonic() );
 }
 
@@ -703,13 +703,17 @@ void Well::Log::setMnemonic( const Mnemonic& mn )
 void Well::Log::setMnemonicLabel( const char* mnem, bool setifnull )
 {
     const StringView mnnm( mnem );
-    if ( (mnnm.isEmpty() && setifnull) || mnnm == Mnemonic::undef().name() )
+    if ( mnnm.isEmpty() )
     {
-	mnemlbl_.set( mnem );
-	const Mnemonic* mn = getGuessedMnemonic();
-	if ( !mn )
-	    mnemlbl_.setEmpty();
+	mn_ = nullptr;
+	mnemlbl_.setEmpty();
+	return;
+    }
 
+    if ( mnnm == Mnemonic::undef().name() )
+    {
+	mn_ = &Mnemonic::undef();
+	mnemlbl_.set( mnem );
 	return;
     }
 
@@ -717,6 +721,12 @@ void Well::Log::setMnemonicLabel( const char* mnem, bool setifnull )
     if ( mn )
     {
 	setMnemonic( *mn );
+	return;
+    }
+
+    if ( setifnull || !mn_ )
+    {
+	guessMnemonic();
 	return;
     }
 
