@@ -343,7 +343,6 @@ Strat::LevelSet::LevelSet( const LevelSet& oth )
     , changed(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
-    , curlevelid_(0)
 {
     *this = oth;
 }
@@ -534,8 +533,9 @@ Strat::LevelID Strat::LevelSet::doSet( const Strat::Level& lvl,
     else
     {
 	if ( isnew ) *isnew = true;
-	if ( lvl.id().asInt() < curlevelid_ )
+	if ( lvl.id().isUdf() || lvl.id().asInt() < curlevelid_ )
 	    const_cast<Level&>( lvl ).setID( LevelID(++curlevelid_) );
+
 	chglvl = new Level( lvl );
 	lvls_.add( chglvl );
 	levelAdded.trigger( chglvl->id() );
@@ -590,18 +590,18 @@ void Strat::LevelSet::getFromStream( ascistream& astrm, bool isold )
 
 	Level lvl( nullptr, OD::Color() );
 	lvl.usePar( iop );
-	if ( lvl.id().isValid() )
-	{
-	    if ( isold )
-	    {
-		// Remove legacy keys
-		lvl.pars_.removeWithKey( "Unit" );
-		lvl.pars_.removeWithKey( "Time" );
-	    }
+	if ( lvl.id().isUdf() )
+	     lvl.setID( LevelID(++curlevelid_) );
 
-	    doSet( lvl );
-	    curlevelid_.setIfLarger( lvl.id().asInt()+1 );
+	if ( isold )
+	{
+	    // Remove legacy keys
+	    lvl.pars_.removeWithKey( "Unit" );
+	    lvl.pars_.removeWithKey( "Time" );
 	}
+
+	doSet( lvl );
+	curlevelid_.setIfLarger( lvl.id().asInt()+1 );
     }
 }
 

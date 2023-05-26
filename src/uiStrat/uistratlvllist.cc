@@ -163,20 +163,20 @@ void uiStratLvlList::editLevel( bool create )
 	lvldlg.setLvlInfo( oldnm, lvl.color() );
     }
 
-    if ( lvldlg.go() )
-    {
-	BufferString nm;
-	OD::Color col;
-	lvldlg.getLvlInfo( nm, col );
-	if ( !nm.isEmpty() && oldnm != nm && lvls.isPresent(nm) )
-	{
-	    uiMSG().error( tr("Level name is empty or already exists") );
-	    return;
-	}
+    if ( lvldlg.go() == uiDialog::Rejected )
+	return;
 
-	lvl.setName( nm.buf() );
-	lvl.setColor( col );
-	lvls.set( lvl );
-	anychange_ = true;
+    BufferString nm;
+    OD::Color col;
+    lvldlg.getLvlInfo( nm, col );
+    if ( !nm.isEmpty() && oldnm != nm && lvls.isPresent(nm) )
+    {
+	uiMSG().error( tr("Level name is empty or already exists") );
+	return;
     }
+
+    lvl.setName( nm.buf() );
+    lvl.setColor( col );
+    lvls.set( lvl );
+    anychange_ = true;
 }
