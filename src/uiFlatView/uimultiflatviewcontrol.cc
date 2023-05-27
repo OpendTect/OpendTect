@@ -62,9 +62,7 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	return false;
 
     const uiWorldRect& wr = activevwr->curView();
-    float srdval = SI().seismicReferenceDatum();
-    if ( SI().depthsInFeet() )
-	srdval *= mToFeetFactorF;
+    const float zshift = -1.f * mCast(float,SI().seismicReferenceDatum());
 
     if ( d2tmodels_.isEmpty() )
     {
@@ -100,8 +98,12 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 				    mCast(float,wr.bottom()) );
 	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
 				      d2tmodels_[0]->getDepth(timerg.stop) );
-	    if ( !depthrg.isUdf() && SI().depthsInFeet() )
-		depthrg.scale( mToFeetFactorF );
+	    if ( !depthrg.isUdf() )
+	    {
+		if ( SI().depthsInFeet() )
+		    depthrg.scale( mToFeetFactorF );
+		depthrg.shift( zshift );
+	    }
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];
@@ -111,12 +113,11 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		{
 		    if ( SI().depthsInFeet() )
 			curdepthrg.scale( mToFeetFactorF );
+		    curdepthrg.shift( zshift );
 		    depthrg.include( curdepthrg );
 		}
 	    }
 
-	    if ( isFlattened() && !depthrg.isUdf() )
-		depthrg.shift( srdval );
 	    viewwr.setTop( depthrg.start );
 	    viewwr.setBottom( depthrg.stop );
 	}
@@ -124,19 +125,17 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
 				     mCast(float,wr.bottom()) );
-	    if ( isFlattened() )
-		depthrg.shift( -srdval );
-
+	    depthrg.shift( -zshift );
 	    if ( SI().depthsInFeet() )
 		depthrg.scale( mFromFeetFactorF );
 
 	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
-				      d2tmodels_[0]->getTime(depthrg.stop) );
+				     d2tmodels_[0]->getTime(depthrg.stop) );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];
 		Interval<double> curtimerg( d2t.getTime(depthrg.start),
-					     d2t.getTime(depthrg.stop) );
+					    d2t.getTime(depthrg.stop) );
 		if ( !curtimerg.isUdf() )
 		    timerg.include( curtimerg );
 	    }

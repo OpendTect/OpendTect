@@ -1438,7 +1438,7 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
 	const Strat::Layer& lay = *layers.get( idx );
 	float thickness = lay.thickness();
 	if ( idx == firstidx )
-	    thickness -= srddepth - lay.zTop();
+	    thickness += lay.zTop() - srddepth;
 	if ( thickness < 1e-4f )
 	    continue;
 
