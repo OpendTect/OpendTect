@@ -11,10 +11,12 @@ ________________________________________________________________________
 #include "picksetmgr.h"
 
 #include "datapointset.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "oddirs.h"
 #include "polygon.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -25,7 +27,14 @@ ________________________________________________________________________
 #include <ctype.h>
 #include <iostream>
 
-static const char* sKeyStartIdx()	{ return "Start index"; }
+static const char*	    sKeyStartIdx()  { return "Start index"; }
+static OD::Color	    defcolor()	    { return OD::Color::Red(); }
+static int		    defPixSz()	    { return 3; }
+static MarkerStyle3D::Type  defMarkerStyl() { return MarkerStyle3D::Point; }
+static OD::LineStyle	    defLineStyle()
+{
+    return OD::LineStyle( OD::LineStyle::Solid, defPixSz(), defcolor() );
+}
 
 int Pick::Set::getSizeThreshold()
 {
@@ -320,6 +329,18 @@ BufferString SetMgr::getDispFileName( const MultiID& mid )
 
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "disp" );
+    if ( fp.nrLevels() <= 1 )
+    {
+	const IOObjContext::StdDirData* dirdata =
+			IOObjContext::getStdDirData( IOObjContext::Loc );
+	BufferString dirpath;
+	if ( dirdata )
+	    dirpath = dirdata->dirnm_;
+
+	const FilePath locfp( GetDataDir(), dirpath );
+	fp.setPath( locfp.fullPath() );
+    }
+
     return fp.fullPath();
 }
 
@@ -673,13 +694,14 @@ static int getNearestLocation( const PicksType& ps,
 
 // Pick::Set
     mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
-{ "None", "Open", "Close", 0 };
+{ "None", "Open", "Close", nullptr };
 
 Set::Set( const char* nm )
     : SharedObject(nm)
     , pars_(*new IOPar)
     , readonly_(false)
 {
+    setDefaultDispPars();
 }
 
 
@@ -966,6 +988,20 @@ bool Set::usePar( const IOPar& par )
 }
 
 
+void Set::setDefaultDispPars()
+{
+    disp_.color_ = defcolor();
+    disp_.fillcolor_ = defcolor();
+    disp_.pixsize_ = defPixSz();
+    disp_.markertype_ = defMarkerStyl();
+    disp_.linestyle_ = defLineStyle();
+    if ( isPolygon() )
+	disp_.connect_ = Disp::Close;
+    else
+	disp_.connect_ = Disp::None;
+}
+
+
 void Set::fillDisplayPars( IOPar& par ) const
 {
     BufferString colstr, fillcolstr;
@@ -993,38 +1029,39 @@ void Set::fillDisplayPars( IOPar& par ) const
 bool Set::useDisplayPars( const IOPar& par )
 {
     BufferString colstr;
-    if ( par.get(sKey::Color(),colstr) )
+    const bool hascolor = par.get( sKey::Color(), colstr );
+    if ( hascolor )
 	disp_.color_.use( colstr.buf() );
-    else
-	disp_.color_ = OD::Color::Red(); //change default color from none to red
 
     BufferString fillcolstr;
     if ( par.get(sKeyFillColor(),fillcolstr) )
 	disp_.fillcolor_.use( fillcolstr.buf() );
-    else
-	disp_.fillcolor_ = OD::Color::Red();
 
-    disp_.pixsize_ = 3;
-    par.get( sKey::Size(), disp_.pixsize_ );
-    par.get( sKeyMarkerType(), disp_.markertype_ );
+    const bool hasdispsz = par.hasKey( sKey::Size() );
+    if ( hasdispsz )
+	par.get( sKey::Size(), disp_.pixsize_ );
+
+    if ( par.hasKey(sKeyMarkerType()) )
+	par.get( sKeyMarkerType(), disp_.markertype_ );
 
     BufferString lsstr;
     if ( par.get(sKey::LineStyle(),lsstr) )
 	disp_.linestyle_.fromString( lsstr );
-    else
+    else if ( hasdispsz && hascolor )
 	disp_.linestyle_ = OD::LineStyle( OD::LineStyle::Solid,
 					 disp_.pixsize_,disp_.color_ );
 
     par.getYN( sKeyFill(), disp_.dofill_ );
-
     bool doconnect;
     par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
-    if ( doconnect ) disp_.connect_ = Disp::Close;
+    if ( doconnect )
+	disp_.connect_ = Disp::Close;
     else
     {
 	if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),disp_.connect_))
 	    disp_.connect_ = Disp::None;
     }
+
     return true;
 }
 
