@@ -1186,6 +1186,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
     if ( !validids.isEmpty() )
 	sd = datamgr_.getDataSet( validids.first() );
 
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     if ( sd )
     {
 	const Strat::LevelID sellvlid = edtools_.selLevelID();
@@ -1231,7 +1232,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 		if ( mIsUdf(depth) || !d2tmdl )
 		    continue;
 
-		const float time = d2tmdl->getTime( depth );
+		const float time = d2tmdl->getTime( depth + srd );
 		if ( mIsUdf(time) )
 		    continue;
 
@@ -2066,10 +2067,11 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     const TimeDepthModel* d2tmdl = sd ? sd->getTDModel( seqidx ) : nullptr;
     const Strat::LayerModel& laymod = datamgr_.layerModel();
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     if ( d2tmdl )
     {
 	const float realzval = zval / SI().showZ2UserFactor();
-	const float depth = d2tmdl->getDepth( realzval );
+	const float depth = d2tmdl->getDepth( realzval ) - srd;
 	const Strat::LayerSequence& curseq = laymod.sequence( seqidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
 	{
