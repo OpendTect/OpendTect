@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 
 #include "scaler.h"
-#include "survinfo.h"
 #include "timedepthmodel.h"
 
 
@@ -34,6 +33,18 @@ MFVCViewManager::~MFVCViewManager()
 void MFVCViewManager::setD2TModels(const ObjectSet<const TimeDepthModel>& d2tms)
 {
     d2tmodels_ = d2tms;
+}
+
+
+void MFVCViewManager::setDepthShift( float shift )
+{
+    zshift_ = mIsUdf(shift) ? 0.f : shift;
+}
+
+
+void MFVCViewManager::setZFactor( float scale )
+{
+    zfactor_ = mIsUdf(scale) ? 1.f : scale;
 }
 
 
@@ -62,10 +73,6 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	return false;
 
     const uiWorldRect& wr = activevwr->curView();
-    float srdval = SI().seismicReferenceDatum();
-    if ( SI().depthsInFeet() )
-	srdval *= mToFeetFactorF;
-
     if ( d2tmodels_.isEmpty() )
     {
 	const uiWorldRect& mainbbox = activevwr->boundingBox();
@@ -100,8 +107,11 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 				    mCast(float,wr.bottom()) );
 	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
 				      d2tmodels_[0]->getDepth(timerg.stop) );
-	    if ( !depthrg.isUdf() && SI().depthsInFeet() )
-		depthrg.scale( mToFeetFactorF );
+	    if ( !depthrg.isUdf() )
+	    {
+		depthrg.scale( zfactor_ );
+		depthrg.shift( zshift_ );
+	    }
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];
@@ -109,14 +119,12 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 					     d2t.getDepth(timerg.stop) );
 		if ( !curdepthrg.isUdf() )
 		{
-		    if ( SI().depthsInFeet() )
-			curdepthrg.scale( mToFeetFactorF );
+		    curdepthrg.scale( zfactor_ );
+		    curdepthrg.shift( zshift_ );
 		    depthrg.include( curdepthrg );
 		}
 	    }
 
-	    if ( isFlattened() && !depthrg.isUdf() )
-		depthrg.shift( srdval );
 	    viewwr.setTop( depthrg.start );
 	    viewwr.setBottom( depthrg.stop );
 	}
@@ -124,14 +132,11 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
 				     mCast(float,wr.bottom()) );
-	    if ( isFlattened() )
-		depthrg.shift( -srdval );
-
-	    if ( SI().depthsInFeet() )
-		depthrg.scale( mFromFeetFactorF );
+	    depthrg.shift( -zshift_ );
+	    depthrg.scale( 1.f/zfactor_ );
 
 	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
-				      d2tmodels_[0]->getTime(depthrg.stop) );
+				     d2tmodels_[0]->getTime(depthrg.stop) );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];

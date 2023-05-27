@@ -32,9 +32,15 @@ public:
     void		setFlattened( bool flattened )
 			{ isflattened_ = flattened; }
     bool		isFlattened() const	{ return isflattened_; }
+
+    void		setDepthShift(float);
+    void		setZFactor(float);
+
 protected:
     BoolTypeSet					zintimeflags_;
     ObjectSet<const TimeDepthModel>		d2tmodels_;
+    float					zshift_ = 0.f;
+    float					zfactor_ = 1.f;
     ObjectSet<const uiFlatViewer>		vwrs_;
     bool					isflattened_ = false;
 };
@@ -61,6 +67,10 @@ public:
 			{ viewmgr_.setViewerType( vwr, isintime ); }
     void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
 			{ viewmgr_.setD2TModels( d2t ); }
+    void		setDepthShift( float shift )
+			{ viewmgr_.setDepthShift( shift ); }
+    void		setZFactor( float scale )
+			{ viewmgr_.setZFactor( scale ); }
     void		setFlattened( bool flattened )
 			{ viewmgr_.setFlattened( flattened ); }
 

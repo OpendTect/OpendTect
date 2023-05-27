@@ -762,6 +762,13 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
 
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
+    float zshift = -1.f * mCast(float,SI().seismicReferenceDatum());
+    if ( SI().depthsInFeet() )
+    {
+	zshift *= mToFeetFactorF;
+	control_->setZFactor( mToFeetFactorF );
+    }
+    control_->setDepthShift( zshift );
 
     const int sz = 25; // looks best
     auto* exportbut = new uiToolButton( vwrgrp, "export",
@@ -1186,6 +1193,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
     if ( !validids.isEmpty() )
 	sd = datamgr_.getDataSet( validids.first() );
 
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     if ( sd )
     {
 	const Strat::LevelID sellvlid = edtools_.selLevelID();
@@ -1231,7 +1239,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 		if ( mIsUdf(depth) || !d2tmdl )
 		    continue;
 
-		const float time = d2tmdl->getTime( depth );
+		const float time = d2tmdl->getTime( depth + srd );
 		if ( mIsUdf(time) )
 		    continue;
 
@@ -2066,10 +2074,11 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     const TimeDepthModel* d2tmdl = sd ? sd->getTDModel( seqidx ) : nullptr;
     const Strat::LayerModel& laymod = datamgr_.layerModel();
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     if ( d2tmdl )
     {
 	const float realzval = zval / SI().showZ2UserFactor();
-	const float depth = d2tmdl->getDepth( realzval );
+	const float depth = d2tmdl->getDepth( realzval ) - srd;
 	const Strat::LayerSequence& curseq = laymod.sequence( seqidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
 	{
