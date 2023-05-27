@@ -145,6 +145,7 @@ private:
     void		addUndoEvent(EventType,int,const Pick::Location&);
     void		addBulkUndoEvent(EventType,const TypeSet<int>&,
 					 const TypeSet<Pick::Location>&);
+    void		setDefaultDispPars();
 
     TypeSet<int>	startidxs_;
     bool		readonly_;
