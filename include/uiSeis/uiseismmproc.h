@@ -27,16 +27,16 @@ public:
 
 protected:
 
-    SeisJobExecProv*	jobprov_;
-    uiSeisIOObjInfo*	outioobjinfo_;
-    const bool		is2d_;
+    SeisJobExecProv*	jobprov_    = nullptr;
+    uiSeisIOObjInfo*	outioobjinfo_ = nullptr;
+    const bool		is2d_	    = false;
     const BufferString	parfnm_;
-    bool		lsfileemitted_;
+    bool		lsfileemitted_ = false;
     int			nrinlperjob_;
 
-    uiIOFileSelect*	tmpstordirfld_;
-    uiGenInput*		inlperjobfld_;
-    uiCheckBox*		saveasdeffld_;
+    uiIOFileSelect*	tmpstordirfld_	= nullptr;
+    uiGenInput*		inlperjobfld_	= nullptr;
+    uiCheckBox*		saveasdeffld_	= nullptr;
 
     bool	initWork(bool) override;
     bool	prepareCurrentJob() override;

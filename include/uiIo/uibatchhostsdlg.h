@@ -40,6 +40,8 @@ protected:
 
     HostDataList&	hostdatalist_;
     TypeSet<Status>	hoststatus_;
+    BufferString	localaddr_;
+    int			prefixlength_		= -1;
     bool		readonly_		= false;
 
     void		fillTable();

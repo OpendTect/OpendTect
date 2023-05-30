@@ -10,8 +10,10 @@ ________________________________________________________________________
 #include "netserver.h"
 
 #include "commandlineparser.h"
+#include "debug.h"
 #include "envvars.h"
 #include "genc.h"
+#include "hostdata.h"
 #include "netsocket.h"
 #include "oscommand.h"
 #include "separstr.h"
@@ -24,6 +26,39 @@ ________________________________________________________________________
 
 
 static Threads::Atomic<PortNr_Type> lastusableport_ = 0;
+
+namespace Network
+{
+
+static const HostData* getLocalHostData( uiString& errmsg )
+{
+    static PtrMan<HostData> localhd_;
+    static bool inited = false;
+    if ( !inited )
+    {
+	inited = true;
+	const HostDataList hdl( false );
+	const HostData* localhd = hdl.localHost();
+	if ( localhd && !localhd->connAddress().isEmpty() )
+	{
+	    localhd_ = new HostData( *localhd );
+	    if ( !localhd_->isStaticIP() )
+		localhd_->setIPAddress( System::localAddress() );
+
+	    if ( !System::isLocalAddressInUse(localhd_->getIPAddress()) )
+		localhd_ = nullptr;
+	}
+
+	/*TODO: invalidate localhd_ upon QNetworkSettingsManager
+	*	currentWiredConnectionChanged,
+	*	currentWifiConnectionChange,
+		interfacesChanged		    */
+    }
+
+    return localhd_.ptr();
+}
+
+} // namespace Network
 
 
 PortNr_Type Network::getNextCandidatePort()
@@ -351,12 +386,23 @@ BufferString Network::Authority::getConnHost( ConnType typ ) const
 	 ((hostisaddress_ && !isAnyQAddr(qhostaddr_)) || !hostisaddress_) )
 	return BufferString::empty();
 
+    static uiString errmsg;
+    const HostData* localhd = getLocalHostData( errmsg );
+    if ( !localhd && DBG::isOn(DBG_MM) )
+	DBG::message( DBG_MM, ::toString(errmsg) );
+
     BufferString ret;
     switch ( typ )
     {
-	case FQDN:		ret.set( System::localFullHostName() ); break;
-	case HostName:		ret.set( System::localHostName() ); break;
-	case IPv4Address:	ret.set( System::localAddress() ); break;
+	case FQDN:
+	    ret.set( localhd ? localhd->getHostName( true )
+			     : System::localFullHostName() ); break;
+	case HostName:
+	    ret.set( localhd ? localhd->getHostName( false )
+			     : System::localHostName() ); break;
+	case IPv4Address:
+	    ret.set( localhd ? localhd->getIPAddress()
+			     : System::localAddress() ); break;
 	default: break;
     }
 

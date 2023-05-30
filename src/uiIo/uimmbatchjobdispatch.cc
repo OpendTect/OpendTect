@@ -231,7 +231,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     progbar_->attach( widthSameAs, progrfld_ );
     progbar_->attach( alignedBelow, progrfld_ );
 
-    mAttachCB( postFinalize(), uiMMBatchJobDispatcher::initWin );
+    mAttachCB( postFinalize(), uiMMBatchJobDispatcher::initDlgCB );
+    mAttachCB( afterPopup, uiMMBatchJobDispatcher::afterPopupCB );
 }
 
 
@@ -246,10 +247,28 @@ uiMMBatchJobDispatcher::~uiMMBatchJobDispatcher()
 }
 
 
-void uiMMBatchJobDispatcher::initWin( CallBacker* cb )
+void uiMMBatchJobDispatcher::initDlgCB( CallBacker* cb )
 {
     jrpSel( cb );
     setCaption( basecaption_ );
+}
+
+
+void uiMMBatchJobDispatcher::afterPopupCB( CallBacker* )
+{
+    const HostDataList hdl( false );
+    uiStringSet msgs;
+    if ( !hdl.isOK(msgs) )
+    {
+	const bool cont =
+	    uiMSG().askContinue( tr("Invalid configuration detected\n%1")
+		.arg(msgs.cat()));
+	if ( !cont )
+	{
+	    reject( nullptr );
+	    return;
+	}
+    }
 }
 
 

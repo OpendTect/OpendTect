@@ -80,7 +80,8 @@ private:
     bool		rejectOK(CallBacker*) override;
     bool		acceptOK(CallBacker*) override;
 
-    void		initWin(CallBacker*);
+    void		initDlgCB(CallBacker*);
+    void		afterPopupCB(CallBacker*);
     void		doCycle(CallBacker*);
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);

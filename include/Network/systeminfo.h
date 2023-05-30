@@ -32,6 +32,8 @@ namespace System
 					     Should not be used to make a
 					     connection */
     mGlobal(Network) const char*	localAddress(bool ipv4only=true);
+    mGlobal(Network) bool		isLocalAddressInUse(
+						const char* ipaddr=nullptr);
 
     mGlobal(Network) const char*	hostName(const char* ip);
     mGlobal(Network) const char*	hostAddress(const char* hostname,

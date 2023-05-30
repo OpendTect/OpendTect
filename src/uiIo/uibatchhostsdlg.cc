@@ -30,12 +30,13 @@ ________________________________________________________________________
 
 #include <limits>
 
-static const int sModeCol	= 0;
-static const int sIPCol		= 1;
-static const int sHostNameCol	= 2;
-static const int sDispNameCol	= 3;
-static const int sPlfCol	= 4;
-static const int sStatusCol	= 5;
+static const int sDefNrRows	= 8;
+static const int sStatusCol	= 0;
+static const int sModeCol	= 1;
+static const int sIPCol		= 2;
+static const int sHostNameCol	= 3;
+static const int sDispNameCol	= 4;
+static const int sPlfCol	= 5;
 static const int sDataRootCol	= 6;
 
 mDefineEnumUtils(uiBatchHostsDlg,HostLookupMode,"Host resolution")
@@ -71,9 +72,18 @@ void EnumDefImpl<uiBatchHostsDlg::Status>::init()
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Setup Distributed Computing"),mNoDlgTitle,
-		       mODHelpKey(mBatchHostsDlgHelpID)))
+		       mODHelpKey(mBatchHostsDlgHelpID))
+			.nrstatusflds(p ? 0 : 1))
     , hostdatalist_(*new HostDataList(true))
 {
+    const HostData* localhd = hostdatalist_.localHost();
+    if ( localhd )
+    {
+	const int idx = hostdatalist_.indexOf( localhd );
+	HostData* reclocalhd = hostdatalist_.removeAndTake( idx );
+	hostdatalist_.add( reclocalhd );
+    }
+
     const char* bhfnm = hostdatalist_.getBatchHostsFilename();
     const FilePath bhfp = bhfnm;
     const BufferString datadir = bhfp.pathOnly();
@@ -103,14 +113,15 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 
     const uiTable::SelectionMode selmode =
 		readonly_ ? uiTable::NoSelection : uiTable::Multi;
-    uiTable::Setup tsu( -1, 6 );
+    uiTable::Setup tsu( sDefNrRows, sDataRootCol );
     tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(selmode);
     table_ = new uiTable( this, tsu, "Batch Hosts" );
+    table_->setLeftHeaderHidden( true );
     uiStringSet collbls;
-    collbls.add( tr("Host Lookup Mode") ).add( tr("IP address") )
-	.add( uiStrings::sHostName() ).add( tr("Display Name") )
-	.add( uiStrings::sPlatform() ).add( uiStrings::sStatus() )
-	.add( tr("Survey Data Root") );
+    collbls.add( uiStrings::sStatus() ).add( tr("Host Lookup Mode") )
+	   .add( tr("IP address") ).add( uiStrings::sHostName() )
+	   .add( tr("Display Name") ).add( uiStrings::sPlatform() )
+	   .add( tr("Survey Data Root") );
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );
@@ -122,13 +133,13 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->attach( leftAlignedBelow, filefld );
 
     autohostbox_ = new uiCheckBox( this,
-	tr("Automatically fill in IP address or Hostname") );
+		    tr("Automatically fill in IP address or Hostname") );
     autohostbox_->setChecked( true );
     autohostbox_->attach( alignedBelow, table_ );
     autohostbox_->setSensitive( !readonly_ );
 
     autoinfobox_ = new uiCheckBox( this,
-	tr("Automatically fill in Platform and Data Root") );
+		    tr("Automatically fill in Platform and Data Root") );
     autoinfobox_->setChecked( false );
     autoinfobox_->attach( rightOf, autohostbox_ );
     autoinfobox_->setSensitive( !readonly_ );
@@ -177,7 +188,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	infofld->setText( infotxt );
     }
 
-    mAttachCB(afterPopup, uiBatchHostsDlg::initUI);
+    mAttachCB( postFinalize(), uiBatchHostsDlg::initUI );
 }
 
 
@@ -378,12 +389,20 @@ void uiBatchHostsDlg::fillTable()
 
     const int nrhosts = hostdatalist_.size();
     table_->setNrRows( nrhosts );
-    if ( nrhosts<4 )
-	table_->setPrefHeightInRows( 4 );
+    if ( nrhosts<sDefNrRows )
+	table_->setPrefHeightInRows( sDefNrRows );
 
     for ( int idx=0; idx<nrhosts; idx++ )
     {
 	HostData* hd = hostdatalist_[idx];
+	if ( hd->isLocalHost() )
+	{
+	    table_->hideRow( idx, true );
+	    setStatus( *table_, idx,
+		    hoststatus_.validIdx(idx) ? hoststatus_[idx] : Unknown );
+	    continue;
+	}
+
 	setLookupMode( *table_, idx, *hd, readonly_ );
 	setHostName( *table_, idx, *hd );
 	setIPAddress( *table_, idx, *hd );
@@ -487,14 +506,27 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 {
     uiRetVal uirv;
     uiUserShowWait usw( this, tr("Testing remote hosts") );
+    uiStringSet msgs;
+    const bool listok = hostdatalist_.isOK( msgs, false,
+					    &localaddr_, &prefixlength_ );
+    if ( !listok )
+    {
+	uiMSG().errorWithDetails( msgs,
+	    tr("Invalid configuration, please check your network settings") );
+	return;
+    }
+
     for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
 	auto* hd = hostdatalist_[idx];
+	if ( hd->isLocalHost() )
+	    continue;
+
 	uiString errmsg;
-	if ( !hd->isOK(errmsg) )
+	if ( !hd->isOK(errmsg,localaddr_.buf(),prefixlength_) )
 	{
 	    uirv.add( errmsg );
-	    setStatus( *table_, idx, Unknown, uiPhraseSet(errmsg) );
+	    setStatus( *table_, idx, Error, uiPhraseSet(errmsg) );
 	    continue;
 	}
 
@@ -571,7 +603,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 
     if ( !uirv.isOK() )
 	uiMSG().errorWithDetails( uirv,
-			uiStrings::phrCheck(uiStrings::sSettings()) );
+	    tr("Invalid configuration, please check your network settings") );
 }
 
 
@@ -616,7 +648,7 @@ void uiBatchHostsDlg::checkHostData( int row )
 {
     HostData& hd = *hostdatalist_[row];
     uiString errmsg;
-    const bool isok = hd.isOK( errmsg );
+    const bool isok = hd.isOK( errmsg, localaddr_, prefixlength_ );
     const bool isstaticip = hd.isStaticIP();
     table_->setCellReadOnly( RowCol(row,sIPCol), !isstaticip );
     table_->setCellReadOnly( RowCol(row,sHostNameCol), isstaticip );

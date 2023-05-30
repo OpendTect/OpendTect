@@ -548,8 +548,8 @@ bool acceptOK( CallBacker* ) override
 	if ( !machine )
 	    return false;
 
-	uiString msg;
-	if ( !machine->isOK(msg) )
+	uiString msg; BufferString localaddr; int prefixlength = -1;
+	if ( !machine->isOK(msg,localaddr.buf(),prefixlength) )
 	    return false;
 
 	sjd_.remotehost_.set( machine->connAddress() );

@@ -35,6 +35,45 @@ ________________________________________________________________________
 # include <netdb.h>
 #endif
 
+#include <QHostAddress>
+#include <QNetworkInterface>
+
+namespace System
+{
+
+static bool getLocalNetMask( const char* localaddr,
+			     QHostAddress& qnetmask, int& prefixlength )
+{
+    const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
+    for ( const auto& qni : allif )
+    {
+	if ( !qni.isValid() )
+	    continue;
+
+	const QNetworkInterface::InterfaceFlags flags = qni.flags();
+	if ( !flags.testFlag(QNetworkInterface::IsUp) ||
+	     !flags.testFlag(QNetworkInterface::IsRunning) )
+	    continue;
+
+	const QList<QNetworkAddressEntry> entries = qni.addressEntries();
+	for ( const auto& ent : entries )
+	{
+	    const QHostAddress addr = ent.ip();
+	    const BufferString addrstr( addr.toString() );
+	    if ( addrstr == localaddr )
+	    {
+		qnetmask = ent.netmask();
+		prefixlength = ent.prefixLength();
+		return true;
+	    }
+	}
+    }
+
+    return false;
+}
+
+} // namespace System
+
 #define mDebugOn        (DBG::isOn(DBG_FILEPATH))
 
 static const char* sKeyDispName()	{ return "Display Name"; }
@@ -58,22 +97,32 @@ HostData::HostData( const char* nm, const HostData& localhost,
 
 
 HostData::HostData( const HostData& oth )
-    : aliases_(oth.aliases_)
-    , platform_(oth.platform_)
-    , appl_pr_(oth.appl_pr_)
-    , data_pr_(oth.data_pr_)
-    , localhd_(oth.localhd_)
-    , staticip_(oth.staticip_)
 {
-    if ( oth.isStaticIP() )
-	init( oth.ipaddress_ );
-    else
-	init( oth.hostname_ );
+    *this = oth;
 }
 
 
 HostData::~HostData()
-{}
+{
+}
+
+
+HostData& HostData::operator=( const HostData& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    staticip_ = oth.staticip_;
+    hostname_ = oth.hostname_;
+    ipaddress_ = oth.ipaddress_;
+    aliases_ = oth.aliases_;
+    platform_ = oth.platform_;
+    appl_pr_ = oth.appl_pr_;
+    data_pr_ = oth.data_pr_;
+    localhd_ = oth.localhd_;
+
+    return *this;
+}
 
 
 const char* HostData::localHostName()
@@ -239,18 +288,18 @@ void HostData::init( const char* nm )
 	    is_ip_adrr = false;
     }
 
-    if ( !is_ip_adrr )
-    {
-	char* dot = name.find( '.' );
-	if ( dot ) { *dot ='\0'; addAlias(nm); }
-	setHostName( name );
-    }
-    else
+    if ( is_ip_adrr )
     {
 	setIPAddress( name );
 	name = getHostName();
 	char* dot = name.find( '.' );
 	if ( dot ) { *dot ='\0'; addAlias(name); }
+    }
+    else
+    {
+	char* dot = name.find( '.' );
+	if ( dot ) { *dot ='\0'; addAlias(nm); }
+	setHostName( name );
     }
 }
 
@@ -299,14 +348,39 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 
-bool HostData::isOK( uiString& errmsg ) const
+bool HostData::isOK( uiString& errmsg, const char* localaddr,
+		     int prefixlength ) const
 {
-    if ( !staticip_ && BufferString(getIPAddress()).isEmpty() )
-	errmsg.append( "Hostname lookup failed; " );
+    const BufferString nodenm( connAddress() );
+    uiString endmsg;
     if ( staticip_ && BufferString(getHostName()).isEmpty() )
-	errmsg.append( "IP address lookup failed; " );
+	endmsg = tr( "IP address lookup failed" );
+    if ( !staticip_ && BufferString(getIPAddress()).isEmpty() )
+	endmsg = tr( "Hostname lookup failed" );
+
+    if ( !endmsg.isEmpty() )
+	errmsg = tr("Host '%1': %2").arg( nodenm ).arg( endmsg );
+
+    if ( prefixlength == -1 )
+	return errmsg.isEmpty();
+
+    const QHostAddress qlocaladdr( localaddr );
+    const BufferString nodeaddr( getIPAddress() ); //Always IP
+    const QHostAddress qnodeaddr( nodeaddr.buf() );
+    if ( !qnodeaddr.isInSubnet(qlocaladdr,prefixlength) )
+	errmsg.appendPhrase(
+		tr("Host '%1' with IP address '%2' does not belong "
+		   "to the same subnet "
+		   "as the localhost with IP address '%3'")
+		    .arg( nodenm ).arg( nodeaddr ).arg( localaddr ) );
 
     return errmsg.isEmpty();
+}
+
+
+bool HostData::isLocalHost() const
+{
+    return this == localhd_;
 }
 
 
@@ -405,12 +479,9 @@ HostDataList::~HostDataList()
 bool HostDataList::refresh( bool foredit )
 {
     readHostFile( batchhostsfnm_ );
-
+    handleLocal();
     if ( !foredit )
-    {
-	handleLocal();
 	initDataRoot();
-    }
 
     return true;
 }
@@ -687,6 +758,12 @@ void HostDataList::dump( od_ostream& strm ) const
 }
 
 
+const HostData* HostDataList::localHost() const
+{
+    return isEmpty() ? nullptr : first()->localhd_;
+}
+
+
 bool HostDataList::isMostlyStaticIP() const
 {
     int nrstatic = 0, nrdns = 0;
@@ -716,6 +793,7 @@ void HostDataList::handleLocal()
 	if ( hd->isKnownAs(localhoststd) ||
 	     hd->isKnownAs("localhost.localdomain") )
 	{
+	    hd->localhd_ = hd;
 	    // Ensure this is the first entry
 	    if ( idx != 0 )
 	    {
@@ -729,6 +807,7 @@ void HostDataList::handleLocal()
 	else if ( hd->isKnownAs(hnm) || hd->isKnownAs(fqhnm) )
 	{
 	    hd->addAlias( localhoststd );
+	    hd->localhd_ = hd;
 	    // Ensure this is the first entry
 	    if ( idx != 0 )
 	    {
@@ -746,19 +825,25 @@ void HostDataList::handleLocal()
 
     if ( !localhd )
     {
-	const bool useipaddr = isMostlyStaticIP();
-	localhd = useipaddr ? new HostData( System::hostAddress(fqhnm) )
-			    : new HostData( fqhnm );
-	localhd->addAlias( localhoststd );
+	localhd = new HostData( nullptr );
+	localhd->setIPAddress( System::localAddress() );
+	localhd->aliases_.add( localhoststd );
+	localhd->localhd_ = localhd;
 	insertAt( localhd, 0 );
     }
 
     HostData& lochd = *first();
-    if ( fqhnm != lochd.getHostName() )
+    if ( !lochd.isStaticIP() && hnm != lochd.getHostName(false) )
     {
-	BufferString oldnm = lochd.getHostName();
-	lochd.setHostName( fqhnm );
-	lochd.addAlias( oldnm );
+	const BufferString oldnm( lochd.getHostName(false) );
+	if ( isMostlyStaticIP() )
+	    lochd.setIPAddress( System::localAddress() );
+	else
+	    lochd.setHostName( hnm );
+
+	if ( !oldnm.isEmpty() )
+	    lochd.addAlias( oldnm.buf() );
+
 	for ( int idx=lochd.aliases_.size()-1; idx>=0; idx-- )
 	{
 	    if ( lochd.aliases_.get(idx) == hnm ||
@@ -819,23 +904,62 @@ void HostDataList::fill( BufferStringSet& bss, bool inclocalhost ) const
 
 
 const char* HostDataList::getBatchHostsFilename() const
-{ return batchhostsfnm_.buf(); }
-
-
-bool HostDataList::isOK( uiStringSet& errors ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    return batchhostsfnm_.buf();
+}
+
+
+bool HostDataList::isOK( uiStringSet& errors, bool testall,
+			BufferString* localaddrret, int* prefixlengthret ) const
+{
+    const BufferString localaddr( System::localAddress() );
+    if ( localaddrret )
+	localaddrret->set( localaddr.buf() );
+
+    QHostAddress qnetmask; int prefixlength = -1;
+    if ( localaddr.isEmpty() )
+	errors.add( tr("Cannot determine Ip address of the localhost") );
+    else
     {
-	uiString msg;
-	if ( !(*this)[idx]->isOK(msg) )
+	const bool hasprefix =
+	    System::getLocalNetMask( localaddr.str(), qnetmask, prefixlength )
+	    && prefixlength != -1;
+	if ( prefixlengthret )
+	    *prefixlengthret = prefixlength;
+
+	if ( !hasprefix )
 	{
-	    uiString fullmsg = tr("Host %1: %2").arg( idx+1 ).arg( msg );
-	    errors.add( fullmsg );
+	    errors.add( tr("Cannot determine the network interface"
+			   "of the localhost") );
+	    return false;
 	}
     }
 
-    if ( errors.isEmpty() ) return true;
+    const HostData* localhost = localHost();
+    if ( localhost )
+    {
+	const BufferString ipaddr( localhost->getIPAddress() );
+	if ( !System::isLocalAddressInUse(ipaddr.buf()) )
+	{
+	    errors.add( tr("The IP address '%1' for the local host is "
+			   "currently not valid").arg(ipaddr) );
+	}
+    }
+    else
+	errors.add( tr("Cannot fetch the configuration of the local host") );
 
-    errors.insert( 0, tr("Errors in Host information") );
-    return false;
+    if ( !testall )
+	return true;
+
+    for ( const auto* hd : *this )
+    {
+	if ( hd->isLocalHost() )
+	    continue;
+
+	uiString msg;
+	if ( !hd->isOK(msg,localaddr.str(),prefixlength) )
+	    errors.add( msg );
+    }
+
+    return errors.isEmpty();
 }
