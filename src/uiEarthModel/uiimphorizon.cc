@@ -409,10 +409,9 @@ bool uiImportHorizon::doScan()
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf, importindepth );
     if ( !scanner_->uiMessage().isEmpty() )
     {
-	const bool res = uiMSG().askGoOn( tr("%1\nDo you want to continue?")
-				.arg(scanner_->uiMessage()),
-				tr("Continue with current Selection"),
-				tr("I want to change the format definition") );
+	const bool res = uiMSG().askGoOn( scanner_->uiMessage(),
+				tr("Continue with selected Z unit"),
+				tr("I want to change the Format definition") );
 	if ( !res )
 	    return false;
     }
