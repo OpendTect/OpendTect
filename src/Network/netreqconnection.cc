@@ -335,10 +335,10 @@ void RequestConnection::sendQueueCB(CallBacker*)
 bool RequestConnection::sendPacket( const RequestPacket& pkt,
 				    bool waitforfinish )
 {
-    if ( !pkt.isOK() )
+    if ( !pkt.isOK() || !socketthread_ || !socket_ )
 	return false;
 
-    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+    if ( Threads::currentThread()!=socket_->thread() )
 	return false;
 
     Threads::MutexLocker locker( lock_ );
