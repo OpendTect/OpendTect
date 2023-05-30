@@ -282,25 +282,6 @@ void HorizonScanner::transformZIfNeeded( const BinID& bid, float& zval ) const
 }
 
 
-static const UnitOfMeasure* getSuggestedZUnit( const UnitOfMeasure* zunit,
-						float scalefac )
-{
-    if ( !zunit )
-	return nullptr;
-
-    ObjectSet<const UnitOfMeasure> zunits;
-    UoMR().getRelevant( Mnemonic::Time, zunits );
-    const double fac = zunit->scaler().factor * scalefac;
-    for ( int idx=0; idx<zunits.size(); idx++ )
-    {
-	if ( mIsEqual(zunits[idx]->scaler().factor,fac,fac/100) )
-	    return zunits[idx];
-    }
-
-    return nullptr;
-}
-
-
 const Interval<float> HorizonScanner::getReasonableZRange() const
 {
     Interval<float> validrg( SI().zRange(false) );
@@ -336,14 +317,11 @@ bool HorizonScanner::analyzeData()
 
     const bool hastransform = transform_ != nullptr;
     const bool zistime = !isZInDepth();
-    const bool tryscale = isgeom_ && zistime && !hastransform;
-    const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
-    const float zscalefac = zistime && selzunit == UoMR().get("s")
-						? 1000.0f : 0.001f;
+    const bool checkifzisvalid = isgeom_ && zistime && !hastransform;
     Interval<float> validrg( getReasonableZRange() );
     int maxcount = 100;
-    int count, nrxy, nrbid, nrscale, nrnoscale;
-    count = nrxy = nrbid = nrscale = nrnoscale = 0;
+    int count, nrxy, nrbid, nrvalid, nrnotvalid;
+    count = nrxy = nrbid = nrvalid = nrnotvalid = 0;
     Coord crd;
     float val;
     TypeSet<float> data;
@@ -386,9 +364,10 @@ bool HorizonScanner::analyzeData()
 	    }
 	}
 
-	if ( !tryscale )
+	if ( !checkifzisvalid )
 	{
-	    if ( validplacement ) count++;
+	    if ( validplacement )
+		count++;
 	    continue;
 	}
 
@@ -398,16 +377,11 @@ bool HorizonScanner::analyzeData()
 	bool validvert = false;
 	if ( !mIsUdf(val) )
 	{
+	    validvert = true;
 	    if ( validrg.includes(val,false) )
-	    {
-		nrnoscale++;
-		validvert = true;
-	    }
-	    else if ( validrg.includes(val*zscalefac,false) )
-	    {
-		nrscale++;
-		validvert = true;
-	    }
+		nrvalid++;
+	    else
+		nrnotvalid++;
 	}
 
 	if ( validplacement && validvert )
@@ -423,16 +397,13 @@ bool HorizonScanner::analyzeData()
 		     .arg( apparentisxy ? "X/Y" : "Inl/Crl" );
     }
 
-    const UnitOfMeasure* suggestedzunit = nullptr;
-    if ( tryscale && nrscale > nrnoscale )
-	suggestedzunit = getSuggestedZUnit( selzunit, zscalefac );
-
-    if ( suggestedzunit )
+    if ( checkifzisvalid && nrnotvalid>nrvalid )
     {
-	uiString zmsg = tr("You have selected Z in %1, "
-			   "but the Z values in file appear to be in %2." )
-			   .arg( selzunit->name() )
-			   .arg( suggestedzunit->name() );
+	const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
+	uiString zmsg = tr("You have selected Z in %1. "
+			   "In this unit many Z values\n"
+			   "appear to be outside the survey range.")
+			   .arg( selzunit->name() );
 	if ( curmsg_.isEmpty() )
 	    curmsg_ = zmsg;
 	else
