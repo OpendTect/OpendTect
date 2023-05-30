@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
+#include "file.h"
 #include "keystrs.h"
 #include "multiid.h"
 #include "od_iostream.h"
@@ -1415,6 +1416,9 @@ void IOPar::getParsFrom( const char* str )
 
 bool IOPar::read( const char* fnm, const char* typ, bool chktyp )
 {
+    if ( !File::exists(fnm) )
+	return false;
+
     od_istream strm( fnm );
     return read( strm, typ, chktyp );
 }
