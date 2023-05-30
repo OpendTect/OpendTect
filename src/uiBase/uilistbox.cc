@@ -1741,7 +1741,7 @@ void uiListBox::setAllItemsChecked( bool yn )
     if ( lastchg < 0 )
 	return;
 
-    const bool blockstate = lb_->body().blockSignals( true );
+    QSignalBlocker signalblocker( lb_->body() );
     for ( int idx=0; idx<=lastchg; idx++ )
     {
 	uiListBoxItem* itm = lb_->body().items_[idx];
@@ -1752,7 +1752,7 @@ void uiListBox::setAllItemsChecked( bool yn )
 	}
     }
 
-    lb_->body().blockSignals( blockstate );
+    signalblocker.unblock();
     selectionChanged.trigger();
     itemChosen.trigger( -1 );
 }
@@ -1783,14 +1783,11 @@ int uiListBox::nrChecked() const
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
-    NotifyStopper ns1( selectionChanged );
-    NotifyStopper ns2( itemChosen );
+    QSignalBlocker signalblocker( lb_->body() );
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
 
-    ns1.enableNotification();
-    ns2.enableNotification();
-
+    signalblocker.unblock();
     selectionChanged.trigger();
     itemChosen.trigger( -1 );
 }
@@ -1798,8 +1795,13 @@ void uiListBox::setCheckedItems( const BufferStringSet& itms )
 
 void uiListBox::setCheckedItems( const TypeSet<int>& itms )
 {
+    QSignalBlocker signalblocker( lb_->body() );
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(idx) );
+
+    signalblocker.unblock();
+    selectionChanged.trigger();
+    itemChosen.trigger( -1 );
 }
 
 
