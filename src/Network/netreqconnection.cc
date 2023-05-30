@@ -338,7 +338,8 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
     if ( !pkt.isOK() )
 	return false;
 
-    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+    if ( !socketthread_ && socket_ &&
+				Threads::currentThread()!=socket_->thread() )
 	return false;
 
     Threads::MutexLocker locker( lock_ );
