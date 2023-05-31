@@ -8,28 +8,27 @@ ________________________________________________________________________
 -*/
 
 #include "posinfodetector.h"
-#include "trckeyzsampling.h"
-#include "posidxpair2coord.h"
+
 #include "binidsorting.h"
-#include "keystrs.h"
 #include "iopar.h"
-#include "perthreadrepos.h"
+#include "posidxpair2coord.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 
 PosInfo::Detector::Detector( const Setup& su )
-	: sorting_(*new BinIDSorting(su.is2d_))
-	, sortanal_(0)
-	, setup_(su)
-	, errmsg_(tr("No positions found"))
+    : setup_(su)
+    , sorting_(*new BinIDSorting(su.is2d_))
+    , sortanal_(0)
+    , errmsg_(tr("No positions found"))
 {
     reInit();
 }
 
 PosInfo::Detector::Detector( const Detector& oth )
-	: sorting_(*new BinIDSorting(oth.is2D()))
-	, setup_(oth.is2D())
-	, sortanal_(0)
+    : setup_(oth.is2D())
+    , sorting_(*new BinIDSorting(oth.is2D()))
+    , sortanal_(0)
 {
     *this = oth;
 }
@@ -91,7 +90,7 @@ PosInfo::Detector& PosInfo::Detector::operator =( const PosInfo::Detector& oth )
     firstduppos_ = oth.firstduppos_;
     firstaltnroffs_ = oth.firstaltnroffs_;
 
-    delete sortanal_; sortanal_ = 0;
+    deleteAndNullPtr( sortanal_ );
     if ( oth.sortanal_ )
 	sortanal_ = new BinIDSortingAnalyser( *oth.sortanal_ );
     cbobuf_ = oth.cbobuf_;
@@ -750,17 +749,19 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
 
 
 template <class T>
-static BufferString getRangeStr( T start, T stop )
+static BufferString getRangeStr( T start, T stop, int nrdec )
 {
     BufferString ret;
     T diff = stop - start;
     if ( mIsZero(diff,0.0001) )
-	{ ret += start; ret += " [all equal]"; }
+	ret.add(start,nrdec).add( " [all equal]" );
     else
     {
-	if ( diff < 0 ) diff = -diff;
-	ret += start; ret += " - "; ret += stop;
-	ret += " (d="; ret += diff; ret += ")";
+	if ( diff < 0 )
+	    diff = -diff;
+
+	ret.add(start,nrdec).add(" - ").add(stop,nrdec);
+	ret.add(" (d=").add(diff,nrdec).add(")");
     }
     return ret;
 }
@@ -798,8 +799,10 @@ void PosInfo::Detector::report( IOPar& iop ) const
 
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
-    iop.set( "X-Coordinate range", getRangeStr(mincoord_.x,maxcoord_.x) );
-    iop.set( "Y-Coordinate range", getRangeStr(mincoord_.y,maxcoord_.y) );
+    iop.set( "X-Coordinate range", getRangeStr(mincoord_.x,maxcoord_.x,
+					       SI().nrXYDecimals()) );
+    iop.set( "Y-Coordinate range", getRangeStr(mincoord_.y,maxcoord_.y,
+					      SI().nrXYDecimals()) );
     if ( setup_.is2d_ )
     {
 	iop.set( "Trace numbers",
@@ -821,8 +824,8 @@ void PosInfo::Detector::report( IOPar& iop ) const
     }
     if ( setup_.isps_ )
     {
-	iop.set( "Offsets", getRangeStr(offsrg_.start,offsrg_.stop) );
-	iop.set( "Azimuths", getRangeStr(azimuthrg_.start,azimuthrg_.stop) );
+	iop.set( "Offsets", getRangeStr(offsrg_.start,offsrg_.stop,2) );
+	iop.set( "Azimuths", getRangeStr(azimuthrg_.start,azimuthrg_.stop,2) );
 	if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else
