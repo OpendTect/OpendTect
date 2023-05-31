@@ -594,7 +594,10 @@ bool uiOD2DLineTreeItem::init()
 	    mCB(this,uiOD2DLineTreeItem,getNewData) );
 
     if ( rgba_ )
+    {
 	selectRGBA( geomid_ );
+	s2d->showPanel( true );
+    }
 
     return uiODDisplayTreeItem::init();
 }

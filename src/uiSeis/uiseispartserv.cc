@@ -431,9 +431,10 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 	   .add( "Load default data" )
 	   .add( "Select attribute" )
 	   .add( "Color blended" );
-    uiGenInput* optfld =
+    auto* optfld =
 	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
     optfld->setValue( seis2dloadaction );
+    optfld->setElemSzPol( uiObject::Wide );
     optfld->attach( alignedBelow, lchfld );
     cursorchgr.restore();
     if ( !dlg.go() )
