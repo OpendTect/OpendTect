@@ -222,6 +222,7 @@ public:
 			FaultTrcDataProvider();
 			FaultTrcDataProvider(Pos::GeomID);
     virtual		~FaultTrcDataProvider();
+			mOD_DisableCopy(FaultTrcDataProvider)
 
     bool		init(const TypeSet<MultiID>&,const TrcKeySampling&,
 			     TaskRunner* =0);
