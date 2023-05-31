@@ -27,6 +27,7 @@ mClass(Basic) BasicInterval
 {
 public:
     inline			BasicInterval();
+    inline			BasicInterval(const BasicInterval<T>&);
     inline			BasicInterval(const T& start,const T& stop);
     inline BasicInterval<T>&	operator=(const BasicInterval<T>&);
 
@@ -125,8 +126,8 @@ public:
 };
 
 
-typedef Interval<int>	SampleGate;
-typedef Interval<float> ZGate;
+using SampleGate = Interval<int>;
+using ZGate = Interval<float>;
 
 
 /*!\brief Interval with step. */
@@ -135,7 +136,6 @@ template <class T>
 mClass(Basic) StepInterval : public Interval<T>
 {
 public:
-
     inline		StepInterval();
     inline		StepInterval(const T& start,const T& stop,
 				     const T& step);
@@ -408,12 +408,20 @@ int BasicInterval<T>::indexOnOrAfter( X x, const T& step, float eps ) const
 
 
 template <class T> inline BasicInterval<T>::BasicInterval()
-    : start(0), stop(0)		{}
+    : start(0), stop(0)
+{}
 
 
 template <class T> inline
 BasicInterval<T>::BasicInterval( const T& t1, const T& t2 )
-    : start(t1), stop(t2)	{}
+    : start(t1), stop(t2)
+{}
+
+
+template <class T> inline
+BasicInterval<T>::BasicInterval( const BasicInterval<T>& oth )
+    : start(oth.start), stop(oth.stop)
+{}
 
 
 template <class T> inline
