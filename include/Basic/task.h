@@ -32,8 +32,8 @@ public:
     virtual void	setProgressMeter(ProgressMeter*)	{}
 			//!<Must be called before execute()
 
-    virtual uiString	uiMessage() const; //!< will be message() again in 7.x
-    virtual uiString	uiNrDoneText() const; //!< will be nrDoneText() in 7.x
+    virtual uiString	uiMessage() const;
+    virtual uiString	uiNrDoneText() const;
     virtual od_int64	nrDone() const			{ return -1; }
 			/*!<\note nrDone is only used for displaying progress
 				  and will be compared to totalNr to show
@@ -46,9 +46,7 @@ public:
     virtual uiRetVal	errorWithDetails() const
 			{ return uiRetVal(uiMessage()); }
 
-    static uiString	stdNrDoneText() { return tr("Nr Done"); }
     static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
-			//< will disappear
 
     virtual bool	execute()		= 0;
 
@@ -64,14 +62,14 @@ protected:
 				Task(const char* nm=nullptr);
     virtual bool		shouldContinue();
 					//!<\returns wether we should continue
-    Control			control_;
-    Threads::ConditionVar*	workcontrolcondvar_;
+    Control			control_			= Task::Run;
+    Threads::ConditionVar*	workcontrolcondvar_		= nullptr;
 
 private:
 
-    //In 7.0, this function will return a uiString
+    mDeprecated("Use uiMessage")
     virtual const char* message() const			{ return nullptr; }
-    //In 7.0, this function will return a uiString
+    mDeprecated("Use uiNrDoneText")
     virtual const char* nrDoneText() const		{ return nullptr; }
 
 };
@@ -85,6 +83,7 @@ mExpClass(Basic) ReportingTask : public Task
 {
 public:
     virtual		~ReportingTask();
+			mOD_DisableCopy(ReportingTask)
 
     void		getProgress(const ReportingTask&);
 
@@ -209,6 +208,7 @@ public:
 
 			TaskRunner() : execres_(false)	{}
     virtual		~TaskRunner()			{}
+			mOD_DisableCopy(TaskRunner)
 
     virtual bool	execute(Task& t)
 			{ return (execres_ = t.execute()); }

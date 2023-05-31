@@ -22,13 +22,13 @@ ________________________________________________________________________
 
 Task::Task( const char* nm )
     : NamedCallBacker( nm )
-    , workcontrolcondvar_( 0 )
-    , control_( Task::Run )
 {}
 
 
 Task::~Task()
-{ delete workcontrolcondvar_; }
+{
+    delete workcontrolcondvar_;
+}
 
 
 void Task::enableWorkControl( bool yn )
@@ -40,10 +40,7 @@ void Task::enableWorkControl( bool yn )
     if ( yn )
 	workcontrolcondvar_ = new Threads::ConditionVar;
     else
-    {
-	delete workcontrolcondvar_;
-	workcontrolcondvar_ = 0;
-    }
+	deleteAndNullPtr( workcontrolcondvar_ );
 }
 
 
@@ -108,6 +105,7 @@ bool Task::shouldContinue()
 }
 
 
+mStartAllowDeprecatedSection
 
 uiString Task::uiMessage() const
 {
@@ -135,6 +133,8 @@ uiString Task::uiNrDoneText() const
 
     return uiStdNrDoneText();
 }
+
+mStopAllowDeprecatedSection
 
 
 
@@ -261,16 +261,15 @@ Task::Control TaskGroup::getState() const
 
 void TaskGroup::setParallel(bool)
 {
-    pErrMsg("Not implemented. Perhaps you should do it?");
-    pErrMsg("'No No, Not Me!'");
+    pErrMsg("Not implemented.");
 }
 
 
 
 ReportingTask::ReportingTask( const char* nm )
     : Task(nm)
-    , lastupdate_(Time::getMilliSeconds())
     , progressUpdated(this)
+    , lastupdate_(Time::getMilliSeconds())
 {
 }
 
