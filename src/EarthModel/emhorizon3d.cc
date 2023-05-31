@@ -1747,11 +1747,12 @@ bool Horizon3DAscIO::isXY() const
 
 const UnitOfMeasure* Horizon3DAscIO::getSelZUnit() const
 {
-    const UnitOfMeasure* ret = units_.size() > 2 ? units_[2] : nullptr;
-    if ( !ret )
-	ret = UnitOfMeasure::surveyDefTimeUnit();
+    const UnitOfMeasure* selunit = fd_.bodyinfos_.validIdx(1) ?
+	fd_.bodyinfos_[1]->selection_.unit_ : nullptr;
+    if ( !selunit )
+	selunit = UnitOfMeasure::surveyDefTimeUnit();
 
-    return ret;
+    return selunit;
 }
 
 

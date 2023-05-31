@@ -71,22 +71,22 @@ protected:
     const Interval<float>	getReasonableZRange() const;
 
     mutable int			totalnr_;
-    int				nrdone_;
+    int				nrdone_			= 0;
     PosInfo::Detector&		dtctor_;
-    EM::Horizon3DAscIO*		ascio_;
+    EM::Horizon3DAscIO*		ascio_			= nullptr;
     BufferStringSet		filenames_;
-    int				fileidx_;
+    int				fileidx_		= 0;
     BufferStringSet		rejectedlines_;
 
-    bool			firsttime_;
+    bool			firsttime_		= true;
     bool			isgeom_;
-    bool			isxy_;
-    bool			selxy_;
-    bool			doscale_;
+    bool			isxy_			= false;
+    bool			selxy_			= false;
+    bool			doscale_		= false;
     TypeSet<Interval<float> >	valranges_;
     Table::FormatDesc&		fd_;
 
-    BinIDValueSet*		bvalset_;
+    BinIDValueSet*		bvalset_		= nullptr;
     ObjectSet<BinIDValueSet>	sections_;
 
     ZAxisTransform*		transform_	= nullptr;

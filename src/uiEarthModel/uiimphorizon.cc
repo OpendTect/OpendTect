@@ -58,9 +58,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
 				 mODHelpKey(mImportHorAttribHelpID) )
 				 .modal(false))
-    , isgeom_(isgeom)
-    , fd_(*EM::Horizon3DAscIO::getDesc())
     , importReady(this)
+    , fd_(*EM::Horizon3DAscIO::getDesc())
+    , isgeom_(isgeom)
 {
     setVideoKey( mODVideoKey(mImportHorAttribHelpID) );
     setCaption(isgeom ? uiStrings::phrImport(uiStrings::sHorizon()) :
@@ -340,10 +340,9 @@ bool uiImportHorizon::doScan()
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_, nullptr, zindepth );
     if ( !scanner_->uiMessage().isEmpty() )
     {
-	const bool res = uiMSG().askGoOn( tr("%1\nDo you want to continue?")
-				.arg(scanner_->uiMessage()),
-				tr("Continue with current Selection"),
-				tr("I want to change the format definition") );
+	const bool res = uiMSG().askGoOn( scanner_->uiMessage(),
+				tr("Continue with selected Z unit"),
+				tr("I want to change the Format definition") );
 	if ( !res )
 	    return false;
     }
