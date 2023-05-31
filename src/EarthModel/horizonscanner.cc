@@ -183,7 +183,10 @@ void HorizonScanner::report( IOPar& iopar ) const
 					->getUserValueFromSI( zrg.stop );
 	}
 
-	iopar.set( zrgkey, zrg );
+	BufferString zrgstr;
+	zrgstr.add( zrg.start, SI().nrZDecimals() ).add( " - " )
+	      .add( zrg.stop, SI().nrZDecimals() );
+	iopar.set( zrgkey, zrgstr );
     }
 
     if ( valranges_.size() > firstattribidx )
