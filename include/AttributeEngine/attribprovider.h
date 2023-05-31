@@ -44,6 +44,7 @@ mODTextTranslationClass(Attrib::Provider)
     friend class		ProviderTask;
 
 public:
+				mOD_DisableCopy(Provider)
 
     static Provider*		create(Desc&,uiString& errmsg);
 				/*!< Also creates all inputs, the input's

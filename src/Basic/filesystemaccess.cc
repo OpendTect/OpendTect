@@ -55,6 +55,7 @@ static ObjectSet<const OD::FileSystemAccess> systemaccesses_;
 class LocalFileSystemAccess : public OD::FileSystemAccess
 { mODTextTranslationClass(LocalFileSystemAccess);
 public:
+			LocalFileSystemAccess() = default;
 
     static const char*	sFactoryKeyword() { return "file"; }
     static uiString	sFactoryUserName() { return tr("Local"); }
@@ -91,7 +92,7 @@ public:
 private:
 
     static OD::FileSystemAccess*	createInstance()
-				{ return new LocalFileSystemAccess; }
+					{ return new LocalFileSystemAccess(); }
 };
 
 // Set up a mechanism to run initClass once. Since this will likely be done

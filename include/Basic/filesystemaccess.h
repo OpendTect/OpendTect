@@ -30,6 +30,7 @@ namespace OD
 mExpClass(Basic) FileSystemAccess
 {
 public:
+				mOD_DisableCopy(FileSystemAccess)
 
     static const FileSystemAccess&	get(const char* fnm);
 			    /*!<Looks at first part of filename to determine
@@ -96,7 +97,7 @@ public:
     const BufferString& errMsg() const			{ return errmsg_; }
 
 protected:
-
+					FileSystemAccess() = default;
     virtual				~FileSystemAccess() {}
     static const FileSystemAccess&	gtByProt(BufferString&);
 
