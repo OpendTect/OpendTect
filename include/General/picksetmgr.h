@@ -149,5 +149,5 @@ inline SetMgr& Mgr();
 
 inline Pick::SetMgr& Pick::Mgr()
 {
-    return SetMgr::getMgr(0);
+    return SetMgr::getMgr( nullptr );
 }
