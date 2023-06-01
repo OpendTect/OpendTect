@@ -29,15 +29,18 @@ public:
 
     void			getWellsFromLogs(
 					const BufferStringSet& lognms,
-					BufferStringSet& wellnms) const;
+					BufferStringSet& wellnms,
+					bool basedonset=true) const;
     void			getWellsFromMnems(
 					const MnemonicSelection& mns,
-					BufferStringSet& wellnms) const;
+					BufferStringSet& wellnms,
+					bool basedonset=true) const;
     void			getWellsWithNoLogs(
 					BufferStringSet& wellnms) const;
     void			getWellsFromMarkers(
 					const BufferStringSet& markernms,
-					BufferStringSet& wellnms) const;
+					BufferStringSet& wellnms,
+					bool basedonset=true) const;
     void			getMarkersLogsMnemsFromWells(
 					const BufferStringSet& wellnms,
 					BufferStringSet& lognms,

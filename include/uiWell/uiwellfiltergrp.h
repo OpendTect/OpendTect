@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 
+class uiComboBox;
 class uiListBox;
 class uiListBoxFilter;
 class uiTableView;
@@ -95,6 +96,7 @@ protected:
     void			selButPush(CallBacker*);
     void			selChgCB(CallBacker*);
     void			markerSelChgCB(CallBacker*);
+    void			fromSelTypeChgdCB(CallBacker*);
     void			fillListBoxes();
     void			fillInitSelection(const BufferStringSet& wllnms,
 						  const BufferStringSet& lognms,
@@ -124,6 +126,8 @@ protected:
 	BufferStringSet			markernms_;
     };
 
+    uiGroup*			maingrp_;
+    uiGroup*			optionsgrp_;
     uiListBox*			welllist_;
     uiListBox*			logormnslist_;
     uiListBoxFilter*		logormnsfilter_;
@@ -133,7 +137,9 @@ protected:
     uiToolButton*		fromwellbut_;
     uiToolButton*		fromlogormnsbut_;
     uiToolButton*		frommarkerbut_;
+    uiComboBox*			seloptionscb_;
     OD::Orientation		orient_;
     InitDesc			initdesc_;
+    bool			basedonentireset_ = true;
 
 };
