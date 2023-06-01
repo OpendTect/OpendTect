@@ -548,8 +548,12 @@ bool acceptOK( CallBacker* ) override
 	if ( !machine )
 	    return false;
 
+	const char* defaultdataroot = machine->isWindows()
+				    ? hdl_.winDataRoot()
+				    : hdl_.unixDataRoot();
+
 	uiString msg; BufferString localaddr; int prefixlength = -1;
-	if ( !machine->isOK(msg,localaddr.buf(),prefixlength) )
+	if ( !machine->isOK(msg,defaultdataroot,localaddr.buf(),prefixlength) )
 	    return false;
 
 	sjd_.remotehost_.set( machine->connAddress() );

@@ -532,14 +532,19 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	return;
     }
 
+    const char* defwindataroot = hostdatalist_.winDataRoot();
+    const char* defunixdataroot = hostdatalist_.unixDataRoot();
+
     for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
 	auto* hd = hostdatalist_[idx];
 	if ( hd->isLocalHost() )
 	    continue;
 
+	const char* defaultdataroot = hd->isWindows() ? defwindataroot
+						      : defunixdataroot;
 	uiString errmsg;
-	if ( !hd->isOK(errmsg,localaddr_.buf(),prefixlength_) )
+	if ( !hd->isOK(errmsg,defaultdataroot,localaddr_.buf(),prefixlength_) )
 	{
 	    uirv.add( errmsg );
 	    setStatus( *table_, idx, Error, uiPhraseSet(errmsg) );
@@ -555,23 +560,26 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	const BufferString remhostaddress( hd->connAddress() );
 	const Network::Authority auth( remhostaddress,
 				       RemoteJobExec::remoteHandlerPort() );
-	MMPServerClient mmpserver( auth );
-	if ( mmpserver.isOK() )
+	MMPServerClient mmpclient( auth );
+	if ( mmpclient.isOK() )
 	{
-	    const Network::Service& serv = mmpserver.serverService();
-	    BufferString plfname( mmpserver.serverPlatform().longName() );
-	    BufferString authstr( serv.getAuthority().toString() );
-	    BufferString drstr( mmpserver.serverDataRoot() );
+	    const Network::Service& serv = mmpclient.serverService();
+	    const OD::Platform odplf = mmpclient.serverPlatform();
+	    const BufferString authstr( serv.getAuthority().toString() );
+	    const BufferString drstr( mmpclient.serverDataRoot() );
 	    BufferString defdrstr( hd->getDataRoot().fullPath() );
+	    if ( defdrstr.isEmpty() )
+		defdrstr.set( defaultdataroot );
+
 	    if ( autoinfobox_->isChecked() && !readonly_ )
 	    {
-		hd->setPlatform( mmpserver.serverPlatform() );
+		hd->setPlatform( mmpclient.serverPlatform() );
 		setPlatform( *table_, idx, *hd, readonly_ );
 	    }
-	    else if ( plfname!=hd->getPlatform().longName() )
+	    else if ( odplf != hd->getPlatform() )
 	    {
 		uiRetVal msg( tr("%1 - platform name conflict: %2 vs %3")
-			    .arg(authstr).arg(plfname)
+			    .arg(authstr).arg(odplf.longName())
 			    .arg(hd->getPlatform().longName()) );
 		uirv.add( msg );
 		setStatus( *table_, idx, Error, msg );
@@ -590,36 +598,52 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 		hd->setDataRoot( FilePath(drstr) );
 		setDataRoot( *table_, idx, *hd, readonly_ );
 	    }
-	    else if ( drstr!=defdrstr &&
-				     !mmpserver.validServerDataRoot(defdrstr) )
+	    else if ( drstr != defdrstr )
 	    {
-		uiRetVal msg( tr("%1 - default data root not present")
-								.arg(authstr) );
-		uirv.add( msg );
-		setStatus( *table_, idx, Error, msg );
-		continue;
+		if ( mmpclient.validServerDataRoot(defdrstr) )
+		{
+		    if ( !mmpclient.setServerDataRoot(defdrstr) )
+		    {
+			uiRetVal msg( tr("Cannot set Survey Data root to '%2' "
+				       " on the node %2").arg(remhostaddress) );
+			uirv.add( msg );
+			setStatus( *table_, idx, Error, msg );
+			continue;
+		    }
+		}
+		else
+		{
+		    uiRetVal msg( tr("Survey Data root '%2' is not valid "
+				     "on the node %3")
+				    .arg(authstr).arg(defdrstr)
+				    .arg(remhostaddress) );
+		    uirv.add( msg );
+		    setStatus( *table_, idx, Error, msg );
+		    continue;
+		}
 	    }
 
 	    BufferString infostr;
 	    infostr.add("Authority:").addTab().add(authstr).addNewLine();
 	    infostr.add("PID:").addTab().add(serv.PID()).addNewLine();
-	    infostr.add("Platform:").addTab().add(plfname).addNewLine();
+	    infostr.add("Platform:").addTab()
+		   .add(odplf.longName()).addNewLine();
 	    infostr.add("ODVersion:").addTab();
-	    infostr.add(mmpserver.serverODVer()).addNewLine();
+	    infostr.add(mmpclient.serverODVer()).addNewLine();
 	    infostr.add("Data Root:").addTab();
-	    infostr.add(mmpserver.serverDataRoot()).addNewLine();
+	    infostr.add(mmpclient.serverDataRoot()).addNewLine();
 	    setStatus( *table_, idx, OK, uiPhraseSet(::toUiString(infostr)) );
 	}
 	else
 	{
-	    uirv.add( mmpserver.errMsg() );
-	    setStatus( *table_, idx, Error, mmpserver.errMsg() );
+	    uirv.add( mmpclient.errMsg() );
+	    setStatus( *table_, idx, Error, mmpclient.errMsg() );
 	}
     }
 
     if ( !uirv.isOK() )
 	uiMSG().errorWithDetails( uirv,
-	    tr("Invalid configuration, please check your network settings") );
+	    tr("Some/all tests failed, please check your configuration") );
 }
 
 
@@ -664,9 +688,13 @@ void uiBatchHostsDlg::checkHostData( int row )
 {
     HostData& hd = *hostdatalist_[row];
     uiString errmsg;
+    const char* defaultdataroot = hd.isWindows()
+				? hostdatalist_.winDataRoot()
+				: hostdatalist_.unixDataRoot();
     BufferString& localaddr_ = getBatchHostsDlgLocalAddr();
     int& prefixlength_ = getBatchHostsDlgPrefix();
-    const bool isok = hd.isOK( errmsg, localaddr_, prefixlength_ );
+    const bool isok = hd.isOK( errmsg, defaultdataroot, localaddr_,
+			       prefixlength_ );
     const bool isstaticip = hd.isStaticIP();
     table_->setCellReadOnly( RowCol(row,sIPCol), !isstaticip );
     table_->setCellReadOnly( RowCol(row,sHostNameCol), isstaticip );
@@ -691,6 +719,7 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     }
 
     hd.setIPAddress( ipaddress );
+
     if ( autohostbox_->isChecked() )
     {
 	setHostName( *table_, row, hd );

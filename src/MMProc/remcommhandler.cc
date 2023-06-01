@@ -30,7 +30,7 @@ RemCommHandler::RemCommHandler( PortNr_Type port )
     , server_(*new MMPServer(port))
     , logstrm_(*new od_ostream)
 {
-    createLogFile();
+    createLogFile( false );
     writeLog( BufferString("Starting: ", GetFullExecutablePath()) );
     writeLog( BufferString("Using DataRoot: ", GetBaseDataDir()) );
     mAttachCB( server_.startJob, RemCommHandler::startJobCB );
@@ -50,7 +50,7 @@ RemCommHandler::~RemCommHandler()
 
 void RemCommHandler::dataRootChgCB( CallBacker* )
 {
-    createLogFile();
+    createLogFile( true );
     writeLog( BufferString("New DataRoot: ", GetBaseDataDir()) );
 }
 
@@ -152,8 +152,18 @@ void RemCommHandler::getLogFileCB( CallBacker* )
 
 void RemCommHandler::createLogFile()
 {
+    createLogFile( false );
+}
+
+
+void RemCommHandler::createLogFile( bool removeold )
+{
     if ( !logfilename_.isEmpty() )
+    {
 	logstrm_.close();
+        if ( removeold && File::exists(logfilename_.buf()) )
+	    File::remove( logfilename_.buf() );
+    }
 
     FilePath logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();
