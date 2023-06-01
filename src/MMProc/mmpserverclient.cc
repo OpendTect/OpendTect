@@ -181,13 +181,18 @@ OD::JSON::Object MMPServerClient::sendRequest( const Authority& auth,
 {
     OD::JSON::Object response;
     errmsg_.setEmpty();
-    const BufferString svrstr( sMMPServer(), " at ", auth.toString() );
+    const BufferString remotehostnm( auth.getHost() );
 
     RequestConnection conn( auth, false, timeout_ );
     if ( !conn.isOK() )
     {
-	errmsg_= tr("Cannot connect to %1").arg(svrstr);
-	errmsg_.add( conn.errMsg() );
+	errmsg_= tr("Cannot connect to the remote node %1: %2")
+			.arg( remotehostnm ).arg(conn.errMsg());
+	errmsg_.add( tr("Ensure that the od_remoteservice daemon "
+			"is started on %1 and that the port %2 is open on "
+			"this machine").arg( remotehostnm )
+				       .arg( auth.getPort() ) );
+
 	errorNotice.trigger();
 	return response;
     }
@@ -200,7 +205,7 @@ OD::JSON::Object MMPServerClient::sendRequest( const Authority& auth,
     packet->setIsNewRequest();
     if ( !conn.sendPacket(*packet) )
     {
-	errmsg_ = tr("Cannot send packet to %1").arg(svrstr);
+	errmsg_ = tr("Cannot send packet to %1").arg(remotehostnm);
 	errmsg_.add( conn.errMsg() );
 	errmsg_.add( tr("Packet content: %1").arg(request.dumpJSon()) );
 	errorNotice.trigger();
@@ -211,7 +216,7 @@ OD::JSON::Object MMPServerClient::sendRequest( const Authority& auth,
 							    timeout_ );
     if ( !rcvpack )
     {
-	errmsg_ = tr("No response from %1").arg(svrstr);
+	errmsg_ = tr("No response from %1").arg(remotehostnm);
 	errorNotice.trigger();
 	return response;
     }
@@ -225,7 +230,7 @@ OD::JSON::Object MMPServerClient::sendRequest( const Authority& auth,
     }
     else if ( response.isPresent(sError()) )
     {
-	errmsg_ =  tr("Error response from %1").arg(svrstr);
+	errmsg_ =  tr("Error response from %1").arg(remotehostnm);
 	errmsg_.add( tr("Response: %1").arg( response.dumpJSon() ) );
 	errorNotice.trigger();
 	return response;

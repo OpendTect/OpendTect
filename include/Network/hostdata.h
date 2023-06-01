@@ -86,8 +86,8 @@ public:
 			{ return localhd_ ? *localhd_ : *this; }
     bool		isLocalHost() const;
 
-    bool		isOK(uiString& errmsg,const char* localaddr,
-			     int prefixlength) const;
+    bool		isOK(uiString& errmsg,const char* defaultdataroot,
+			     const char* localaddr,int prefixlength) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

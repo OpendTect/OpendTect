@@ -348,8 +348,8 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 
-bool HostData::isOK( uiString& errmsg, const char* localaddr,
-		     int prefixlength ) const
+bool HostData::isOK( uiString& errmsg, const char* defaultdataroot,
+		     const char* localaddr, int prefixlength ) const
 {
     const BufferString nodenm( connAddress() );
     uiString endmsg;
@@ -360,6 +360,11 @@ bool HostData::isOK( uiString& errmsg, const char* localaddr,
 
     if ( !endmsg.isEmpty() )
 	errmsg = tr("Host '%1': %2").arg( nodenm ).arg( endmsg );
+
+    const StringView defdataroot( defaultdataroot );
+    if ( data_pr_.isEmpty() && defdataroot.isEmpty() )
+	errmsg.appendPhrase(
+		tr("Host '%1': Survey Data Root is not set").arg(nodenm) );
 
     if ( prefixlength == -1 )
 	return errmsg.isEmpty();
@@ -956,8 +961,10 @@ bool HostDataList::isOK( uiStringSet& errors, bool testall,
 	if ( hd->isLocalHost() )
 	    continue;
 
+	const char* defaultdataroot = hd->isWindows() ? win_data_pr_.buf()
+						      : unx_data_pr_.buf();
 	uiString msg;
-	if ( !hd->isOK(msg,localaddr.str(),prefixlength) )
+	if ( !hd->isOK(msg,defaultdataroot,localaddr.str(),prefixlength) )
 	    errors.add( msg );
     }
 

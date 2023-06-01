@@ -10,7 +10,9 @@ ________________________________________________________________________
 #include "remcommhandler.h"
 
 #include "applicationdata.h"
+#include "commandlineparser.h"
 #include "genc.h"
+#include "ioman.h"
 #include "moddepmgr.h"
 #include "prog.h"
 #include "remjobexec.h"
@@ -19,10 +21,15 @@ ________________________________________________________________________
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::BatchProgCtxt )
-    SetProgramArgs( argc, argv, false );
+    SetProgramArgs( argc, argv, true );
     ApplicationData app;
 
     OD::ModDeps().ensureLoaded( "Network" );
+
+    const CommandLineParser clp( argc, argv );
+    const uiRetVal uirv = IOMan::setDataSource( clp );
+    if ( !uirv.isOK() )
+	return 1;
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "MMProc" );

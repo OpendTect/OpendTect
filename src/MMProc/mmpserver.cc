@@ -181,7 +181,7 @@ void MMPServer::handleSetDataRootRequest( const OD::JSON::Object& req )
 	if ( uirv.isOK() )
 	{
 	    SetCurBaseDataDir( ddr );
-	    //TODO: set to IOM() instead?
+	    //TODO: set to IOM() instead? Must have a survey as well then
 	    dataRootChg.trigger();
 	    paramobj.set( sOK(), "" );
 	    const FilePath logfp( thisservice_.logFnm() );

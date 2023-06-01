@@ -39,5 +39,5 @@ protected:
     void		dataRootChgCB(CallBacker*);
     void		startJobCB(CallBacker*);
     void		writeLogCB(CallBacker*);
-    void		createLogFile();
+    void		createLogFile(bool removeold=false);
 };

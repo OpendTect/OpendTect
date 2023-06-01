@@ -50,7 +50,7 @@ RemCommHandler::~RemCommHandler()
 
 void RemCommHandler::dataRootChgCB( CallBacker* )
 {
-    createLogFile();
+    createLogFile( true );
     writeLog( BufferString("New DataRoot: ", GetBaseDataDir()) );
 }
 
@@ -150,10 +150,14 @@ void RemCommHandler::getLogFileCB( CallBacker* )
 }
 
 
-void RemCommHandler::createLogFile()
+void RemCommHandler::createLogFile( bool removeold )
 {
     if ( !logfilename_.isEmpty() )
+    {
 	logstrm_.close();
+        if ( removeold && File::exists(logfilename_.buf()) )
+	    File::remove( logfilename_.buf() );
+    }
 
     FilePath logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();

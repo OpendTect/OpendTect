@@ -34,6 +34,8 @@ public:
 
     bool		operator ==( const Platform& p ) const
 			{ return type_ == p.type_; }
+    bool		operator !=( const Platform& p ) const
+			{ return type_ != p.type_; }
     bool		operator ==( const Platform::Type& t ) const
 			{ return type_ == t; }
 

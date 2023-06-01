@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "file.h"
 #include "filepath.h"
+#include "filesystemwatcher.h"
 #include "ioman.h"
 #include "mmpserverclient.h"
 #include "moddepmgr.h"
@@ -57,13 +58,16 @@ protected:
     uiPushButton*	stopbut_;
     uiPushButton*	reloadlogbut_;
 
-    MMPServerClient&	mmpserver_;
+    MMPServerClient	mmpclient_;
+    FileSystemWatcher*	logfsw_		= nullptr;
+    BufferString	logfilewatched_;
 
     void		startCB(CallBacker*);
     void		stopCB(CallBacker*);
     void		reloadlogCB(CallBacker*);
     void		showErrorCB(CallBacker*);
     void		logFileChgCB(CallBacker*);
+    void		logFileUpdCB(CallBacker*);
     void		changeDataRootCB(CallBacker*);
     void		updateCB(CallBacker*);
     void		exitCB(CallBacker*) override;
@@ -110,7 +114,7 @@ int mProgMainFnName( int argc, char** argv )
 uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     : uiTrayDialog(p,Setup(tr("Remote Service Manager"), uiString::empty(),
 			   mNoHelpKey))
-    , mmpserver_(*new MMPServerClient(RemoteJobExec::remoteHandlerPort()))
+    , mmpclient_(RemoteJobExec::remoteHandlerPort())
 {
     setCtrlStyle( CloseOnly );
     setTrayToolTip( tr("OpendTect Remote Service Manager") );
@@ -129,10 +133,10 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     textbox_ = new uiTextFile( this, nullptr, su );
     textbox_->uiObj()->attach( centeredBelow, buttons );
 
-    mAttachCB(mmpserver_.errorNotice, uiRemoteServiceMgr::showErrorCB);
-    mAttachCB(mmpserver_.logFileChg, uiRemoteServiceMgr::logFileChgCB);
-    mAttachCB(datarootsel_->selectionChanged,
-	      uiRemoteServiceMgr::changeDataRootCB);
+    mAttachCB( mmpclient_.errorNotice, uiRemoteServiceMgr::showErrorCB );
+    mAttachCB( mmpclient_.logFileChg, uiRemoteServiceMgr::logFileChgCB );
+    mAttachCB( datarootsel_->selectionChanged,
+	       uiRemoteServiceMgr::changeDataRootCB );
     logFileChgCB( nullptr );
     updateCB( nullptr );
 }
@@ -141,13 +145,13 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
 uiRemoteServiceMgr::~uiRemoteServiceMgr()
 {
     detachAllNotifiers();
-    delete &mmpserver_;
+    delete logfsw_;
 }
 
 
 void uiRemoteServiceMgr::startCB( CallBacker* )
 {
-    if ( mmpserver_.serverService().isAlive() )
+    if ( mmpclient_.serverService().isAlive() )
     {
 	uiMSG().error( tr("Remote service is already running") );
 	return;
@@ -172,7 +176,7 @@ void uiRemoteServiceMgr::startCB( CallBacker* )
     if ( cl.execute(pars) )
     {
 	sleepSeconds( 1 );
-	mmpserver_.refresh();
+	mmpclient_.refresh();
 	logFileChgCB( nullptr );
     }
     else
@@ -185,45 +189,100 @@ void uiRemoteServiceMgr::startCB( CallBacker* )
 
 void uiRemoteServiceMgr::stopCB( CallBacker* )
 {
-    if ( !mmpserver_.serverService().isAlive() )
+    if ( !mmpclient_.serverService().isAlive() )
     {
 	uiMSG().error( tr("Remote service is not running") );
 	return;
     }
-    mmpserver_.stopServer( false );
 
+    mmpclient_.stopServer( true );
+    if ( logfsw_ )
+	mDetachCB( logfsw_->fileChanged, uiRemoteServiceMgr::logFileUpdCB );
+
+    deleteAndNullPtr( logfsw_ );
+    logfilewatched_.setEmpty();
     updateCB( nullptr );
+    textbox_->open( nullptr );
 }
 
 
 void uiRemoteServiceMgr::reloadlogCB( CallBacker* )
 {
-    if ( mmpserver_.serverService().isAlive() )
+    if ( mmpclient_.serverService().isAlive() )
 	textbox_->reLoad();
 }
 
 
 void uiRemoteServiceMgr::showErrorCB( CallBacker* )
 {
-    uiMSG().errorWithDetails( mmpserver_.errMsg().messages() );
+    uiMSG().errorWithDetails( mmpclient_.errMsg().messages() );
 }
 
 
 void uiRemoteServiceMgr::logFileChgCB( CallBacker* )
 {
-    textbox_->open( mmpserver_.serverService().logFnm() );
+    const BufferString logfnm( mmpclient_.serverService().logFnm() );
+    textbox_->open( logfnm.buf() );
+    if ( !File::exists(logfnm.buf()) || logfnm == logfilewatched_ )
+	return;
+
+    delete logfsw_;
+    logfsw_ = new FileSystemWatcher();
+    logfilewatched_ = logfnm.buf();
+    logfsw_->addFile( logfilewatched_.buf() );
+    mAttachCB( logfsw_->fileChanged, uiRemoteServiceMgr::logFileUpdCB );
+}
+
+
+void uiRemoteServiceMgr::logFileUpdCB( CallBacker* )
+{
+    const BufferString logfnm( mmpclient_.serverService().logFnm() );
+    if ( File::exists(logfnm.buf()) )
+	return;
+
+    FilePath olddrfp( logfnm );
+    olddrfp.setFileName( nullptr ).setFileName( nullptr );
+    const BufferString olddr = olddrfp.fullPath();
+    mmpclient_.refresh();
+    const BufferString newdr = mmpclient_.serverDataRoot();
+    if ( newdr == olddr || !File::isDirectory(newdr) )
+	return;
+
+    if ( logfsw_ )
+	mDetachCB( logfsw_->fileChanged, uiRemoteServiceMgr::logFileUpdCB );
+
+    delete logfsw_;
+    logfsw_ = new FileSystemWatcher();
+    logfilewatched_ = mmpclient_.serverService().logFnm();
+    logfsw_->addFile( logfilewatched_.buf() );
+    mAttachCB( logfsw_->fileChanged, uiRemoteServiceMgr::logFileUpdCB );
+
+    NotifyStopper ns( datarootsel_->selectionChanged );
+    datarootsel_->setDataRoot( newdr.buf() );
+    logFileChgCB( nullptr );
 }
 
 
 void uiRemoteServiceMgr::changeDataRootCB( CallBacker* )
 {
-    mmpserver_.setServerDataRoot( datarootsel_->getDataRoot() );
+    if ( !mmpclient_.serverService().isAlive() )
+	return;
+
+    mmpclient_.setServerDataRoot( datarootsel_->getDataRoot() );
+    if ( logfsw_ )
+	mDetachCB( logfsw_->fileChanged, uiRemoteServiceMgr::logFileUpdCB );
+
+    delete logfsw_;
+    logfsw_ = new FileSystemWatcher();
+    logfilewatched_ = mmpclient_.serverService().logFnm();
+    logfsw_->addFile( logfilewatched_.buf() );
+    mAttachCB( logfsw_->fileChanged, uiRemoteServiceMgr::logFileUpdCB );
 }
 
 
 void uiRemoteServiceMgr::updateCB( CallBacker*)
 {
-    const bool isalive = mmpserver_.serverService().isAlive();
+    const bool isalive = mmpclient_.serverService().isAlive();
     startbut_->setSensitive( !isalive );
     stopbut_->setSensitive( isalive );
     reloadlogbut_->setSensitive( isalive );
@@ -237,7 +296,7 @@ void uiRemoteServiceMgr::updateCB( CallBacker*)
 void uiRemoteServiceMgr::exitCB( CallBacker* )
 {
     showCB( nullptr );
-    if ( mmpserver_.serverService().isAlive() )
+    if ( mmpclient_.serverService().isAlive() )
     {
 	if ( uiMSG().askGoOn(tr("Confirm Exit of %1").arg(caption())) )
 	    stopCB( nullptr );
