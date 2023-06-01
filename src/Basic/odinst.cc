@@ -72,7 +72,7 @@ ODInst::RelType ODInst::getRelType()
     const BufferString reltxtfnm( relinfofp.fullPath() );
     od_istream strm( reltxtfnm );
     if ( !strm.isOK() )
-	return ODInst::Other;
+	return ODInst::OtherRelease;
 
     BufferString appnm, relstr;
     strm.getWord( appnm, false );
@@ -80,7 +80,7 @@ ODInst::RelType ODInst::getRelType()
     const int relsz = relstr.size();
     if ( appnm[0] != '[' || relsz < 4 || relstr[0] != '('
 	|| relstr[relsz-1] != ']' || relstr[relsz-2] != ')' )
-	return ODInst::Other;
+	return ODInst::OtherRelease;
 
     relstr[relsz-2] = '\0';
     return ODInst::parseEnumRelType( relstr.buf()+1 );

@@ -42,7 +42,7 @@ namespace ODInst
     enum AutoInstType		{ UseManager, InformOnly, FullAuto, NoAuto  };
 				mDeclareNameSpaceEnumUtils(Basic,AutoInstType)
     enum RelType		{ Stable, Development, PreStable,
-				  PreDevelopment, Ancient, Other };
+				  PreDevelopment, Ancient, OtherRelease };
 				mDeclareNameSpaceEnumUtils(Basic,RelType)
     /*!
 	Policy: Externally, policy can be fixed using OD_INSTALLER_POLICY
