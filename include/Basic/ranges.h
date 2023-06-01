@@ -143,6 +143,7 @@ public:
     inline		StepInterval( const StepInterval<T>& si )
 			: Interval<T>(si), step(si.step)	{}
     inline StepInterval<T>& operator=(const Interval<T>&);
+    inline StepInterval<T>& operator=(const StepInterval<T>&);
 
     inline bool		isUdf() const override;
     void		setUdf() override;
@@ -670,6 +671,11 @@ StepInterval<T>::StepInterval( const Interval<T>& intv )
 template <class T>
 inline StepInterval<T>& StepInterval<T>::operator=( const Interval<T>& intv )
 { assign( *this, intv ); return *this; }
+
+
+template <class T>
+inline StepInterval<T>& StepInterval<T>::operator=( const StepInterval<T>& oth )
+{ assign( *this, oth ); return *this; }
 
 
 template <class T> inline
