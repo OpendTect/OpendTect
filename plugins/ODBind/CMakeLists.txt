@@ -15,6 +15,7 @@ set( OD_MODULE_SOURCES
     odhorizon.cc
     odseismic_object.cc
     odseismic_3d.cc
+    odseismic_2d.cc
     odsurvey.cc
     odsurvey_object.cc
     odwell.cc
@@ -29,6 +30,7 @@ set ( ODBIND_FILES
     python/horizon2d.py
     python/horizon3d.py
     python/seismic3d.py
+    python/seismic2d.py
     python/well.py
 )
 if ( APPLE )

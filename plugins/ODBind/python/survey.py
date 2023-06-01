@@ -257,6 +257,8 @@ class _SurveyObject(object):
         clss._isok = odb.wrap_function(LIBODB, f'{bindnm}_isok', ct.c_bool, [ct.c_void_p])
         clss._names = odb.wrap_function(LIBODB, f'{bindnm}_names', ct.c_void_p, [ct.c_void_p])
         clss._removeobjs = odb.wrap_function(LIBODB, f'{bindnm}_removeobjs', None, [ct.c_void_p, ct.c_void_p])
+        clss._zistime = odb.wrap_function(LIBODB, f'{bindnm}_zistime', ct.c_bool, [ct.c_void_p])
+
 
     def __init__(self, survey: Survey, name: str):
         """Initialise an OpendTect object
@@ -293,6 +295,14 @@ class _SurveyObject(object):
     def errmsg(self) ->str:
         """ Return the current error message string of the underlying C/C++ object."""
         return pystr(self._errmsg(self._handle))
+
+    @property
+    def zistime(self) ->bool:
+        res = self._zistime(self._handle)
+        if not self.isok:
+            raise ValueError(self.errmsg)
+
+        return res
 
     def __del__(self):
         if self._handle:
