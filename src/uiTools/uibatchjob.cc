@@ -15,17 +15,15 @@ ________________________________________________________________________
 #include "batchprogtracker.h"
 #include "clientservicebase.h"
 #include "errmsg.h"
-#include "file.h"
 #include "genc.h"
 #include "hostdata.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "netserver.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 #include "singlebatchjobdispatch.h"
 
 #include "uibutton.h"
-#include "uicombobox.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -550,8 +548,8 @@ bool acceptOK( CallBacker* ) override
 	if ( !machine )
 	    return false;
 
-	uiString msg;
-	if ( !machine->isOK(msg) )
+	uiString msg; BufferString localaddr; int prefixlength = -1;
+	if ( !machine->isOK(msg,localaddr.buf(),prefixlength) )
 	    return false;
 
 	sjd_.remotehost_.set( machine->connAddress() );

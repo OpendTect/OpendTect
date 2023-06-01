@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "applicationdata.h"
+#include "hostdata.h"
 #include "moddepmgr.h"
 #include "netreqpacket.h"
 #include "netreqconnection.h"
@@ -37,7 +38,8 @@ static void printBatchUsage()
     strm << "Server application with listening socket\n\n";
     strm << "optional arguments:\n";
     strm << "  -h, --help\t\tshow this help message and exit\n\n";
-    strm << "  --" << portkey << " PORT\t\tPort to listen on (default: 37504)\n";
+    strm << "  --" << portkey << " PORT\t\tPort to listen"
+				 " on (default: 37504)\n";
     strm << "  --" << tcp6key << "\t\tlisten only on IPv6 interfaces\n";
     strm << "  --" << tcp4key << "\t\tlisten only on IPv4 interfaces\n";
     strm << "  --" << localstr << "\t\tlisten on localhost only";
@@ -51,8 +53,7 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( PortNr_Type port, Network::SpecAddr addr,
-		       unsigned short timeout )
+    RequestEchoServer( PortNr_Type port, SpecAddr addr, unsigned short timeout )
 	: server_(port,addr)
 	, timeout_( timeout )
     {
@@ -160,7 +161,7 @@ private:
     void closeServerCB( CallBacker* )
     {
 	deepErase( conns_ );
-	ApplicationData::exit( 0 );
+	ApplicationData::exit( exitstatus_ );
     }
 
     void timerTick( CallBacker* )
@@ -173,20 +174,44 @@ private:
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
 
-	if ( !server_.isOK() )
+	if ( server_.isOK() && !inited_ )
+	{
+	    const Authority auth = server_.getAuthority();
+	    tstStream() << "Server listening with authority "
+		    << auth.toString() << od_newline;
+	    tstStream() << "Server listening with connection authority "
+		    << auth.getConnHost( Authority::IPv4 ) << od_endl;
+	    uiStringSet msgs;
+	    const HostDataList hdl( false );
+	    const bool res = hdl.isOK( msgs, true );
+	    if ( !res )
+	    {
+		errStream() << "Configuration error: "
+		    << toString( msgs.cat() ) << od_endl;
+		exitstatus_ = 1;
+		CallBack::addToMainThread(
+		    mCB(this,RequestEchoServer,closeServerCB) );
+	    }
+	}
+	else if ( !server_.isOK() )
 	{
 	    errStream() << "Server error: "
 		        << toString(server_.errMsg()) << od_endl;
+	    exitstatus_ = 2;
 	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB) );
 	}
+
+	inited_ = true;
     }
 
 
     RequestServer			server_;
+    bool				inited_ = false;
     Timer				timer_;
     time_t				lastactivity_;
     time_t				timeout_;
+    int					exitstatus_ = 0;
     ObjectSet<RequestConnection>	conns_;
 };
 
