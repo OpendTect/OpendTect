@@ -27,8 +27,6 @@ odSeismicObject::odSeismicObject( const odSurvey& thesurvey, const char* name,
 				  const char* tgname )
     : odSurveyObject(thesurvey, name, tgname)
 {
-    SeisIOObjInfo seisinfo( ioobj_ );
-
 }
 
 
