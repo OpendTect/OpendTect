@@ -15,12 +15,12 @@ ________________________________________________________________________
 #include "datainterp.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfacegeometry.h"
-#include "parametricsurface.h"
-#include "od_iostream.h"
-#include "survinfo.h"
-#include "iopar.h"
 #include "file.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "parametricsurface.h"
+#include "streamconn.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 
@@ -67,8 +67,39 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 }
 
 
+static BufferString getFreeFileName( const IOObj& ioobj )
+{
+    PtrMan<StreamConn> conn =
+	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
+    if ( !conn )
+	return "";
+
+    const int maxnrfiles = 1024; // just a big number to make this loop end
+    for ( int idx=0; idx<maxnrfiles; idx++ )
+    {
+	BufferString fnm =
+	    dgbSurfDataWriter::createHovName( conn->fileName(), idx );
+	if ( !File::exists(fnm.buf()) )
+	    return fnm;
+    }
+
+    return "";
+}
+
+
 bool dgbSurfDataWriter::writeHeader()
 {
+    if ( filename_.isEmpty() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( surf_.multiID() );
+	if ( !ioobj )
+	    return false;
+
+	filename_ = getFreeFileName( *ioobj );
+	if ( filename_.isEmpty() )
+	    return false;
+    }
+
     stream_ = new od_ostream( filename_ );
     if ( !stream_ || !stream_->isOK() )
     {
