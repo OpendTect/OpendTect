@@ -108,6 +108,7 @@ public:
     void		fillDisplayPars(IOPar&) const;
     bool		useDisplayPars(const IOPar&);
     bool		writeDisplayPars() const;
+    void		setDefaultDispPars();
 
     void		removeSingleWithUndo(int);
     void		insertWithUndo(int,const Pick::Location&);
@@ -145,7 +146,6 @@ private:
     void		addUndoEvent(EventType,int,const Pick::Location&);
     void		addBulkUndoEvent(EventType,const TypeSet<int>&,
 					 const TypeSet<Pick::Location>&);
-    void		setDefaultDispPars();
 
     TypeSet<int>	startidxs_;
     bool		readonly_;

@@ -177,6 +177,7 @@ int SetMgr::indexOf( const char* nm ) const
 	if ( pss_[idx]->name() == nm )
 	    return idx;
     }
+
     return -1;
 }
 
@@ -198,7 +199,8 @@ ConstRefMan<Set> SetMgr::find( const MultiID& ky ) const
 MultiID* SetMgr::find( const Set& st ) const
 {
     const int idx = indexOf( st );
-    return idx < 0 ? 0 : const_cast<MultiID*>( &ids_[idx] );
+    return idx < 0 ? const_cast<MultiID*>(&MultiID::udf()) :
+				    const_cast<MultiID*>(&ids_[idx]);
 }
 
 
@@ -325,7 +327,7 @@ BufferString SetMgr::getDispFileName( const MultiID& mid )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj)
-	return "";
+	return BufferString::empty();
 
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "disp" );
@@ -867,11 +869,17 @@ bool Set::is2D() const
 
 bool Set::isPolygon() const
 {
-    const BufferString typ = pars_.find( sKey::Type() );
+    BufferString typ = pars_.find( sKey::Type() );
+    if ( typ.isEmpty() )
+    {
+	PtrMan<IOObj> obj = IOM().get( name(), nullptr );
+	if ( obj )
+	    obj->pars().get( sKey::Type(), typ );
+    }
+
     return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
 			 : typ.isEqual( sKey::Polygon() );
 }
-
 
 
 void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
@@ -1052,14 +1060,18 @@ bool Set::useDisplayPars( const IOPar& par )
 					 disp_.pixsize_,disp_.color_ );
 
     par.getYN( sKeyFill(), disp_.dofill_ );
-    bool doconnect;
-    par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
-    if ( doconnect )
-	disp_.connect_ = Disp::Close;
-    else
+    if ( par.hasKey(sKeyConnect()) )
     {
-	if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),disp_.connect_))
-	    disp_.connect_ = Disp::None;
+	bool doconnect = false;
+	par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
+	if ( doconnect )
+	    disp_.connect_ = Disp::Close;
+	else
+	{
+	    if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),
+							    disp_.connect_) )
+		disp_.connect_ = Disp::None;
+	}
     }
 
     return true;
@@ -1068,10 +1080,13 @@ bool Set::useDisplayPars( const IOPar& par )
 
 bool Set::writeDisplayPars() const
 {
+    const MultiID& mid = Pick::Mgr().get( *this );
+    if ( mid.isUdf() )
+	return false;
+
     IOPar par;
     fillDisplayPars( par );
-    const MultiID& mid = Pick::Mgr().get( *this );
-    return !mid.isUdf() ? Pick::Mgr().writeDisplayPars( mid, par ) : false;
+    return Pick::Mgr().writeDisplayPars( mid, par );
 }
 
 

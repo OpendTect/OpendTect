@@ -45,8 +45,11 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     bs = tr->read( ps, *conn, checkdir );
 
     IOPar disppars;
-    if ( Pick::Mgr().readDisplayPars(ioobj->key(),disppars) )
+    const MultiID& mid = ioobj->key();
+    if ( Pick::Mgr().readDisplayPars(mid,disppars) )
 	ps.useDisplayPars( disppars );
+    else
+	ps.setDefaultDispPars();
 
     return bs.isEmpty();
 }
@@ -139,10 +142,12 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
     }
     else // New format
     {
-	IOPar iopar; iopar.getFrom( astrm );
-	ps.usePar( iopar );
-	const OD::GeomSystem gs( ps.geomSystem() );
+	IOPar iopar;
+	iopar.getFrom( astrm );
+	if ( !iopar.isEmpty() )
+	    ps.usePar( iopar );
 
+	const OD::GeomSystem gs( ps.geomSystem() );
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
