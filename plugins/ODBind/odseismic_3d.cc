@@ -531,15 +531,6 @@ bool seismic3d_validrange( hSeismic3D self, const int32_t inlrg[3],
 }
 
 
-bool seismic3d_zistime( hSeismic3D self )
-{
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
-    if ( !p ) return false;
-
-    return p->zIsTime();
-}
-
-
 void seismic3d_getdata( hSeismic3D self, hAllocator allocator,
 			const int32_t inlrg[3], const int32_t crlrg[3],
 			const float zrg[3] )

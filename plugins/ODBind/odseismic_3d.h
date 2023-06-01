@@ -103,7 +103,6 @@ mExternC(ODBind) bool		seismic3d_validrange(hSeismic3D,
 						     const int32_t inlrg[3],
 						     const int32_t crlrg[3],
 						     const float zrg[3]);
-mExternC(ODBind) bool		seismic3d_zistime(hSeismic3D);
 mExternC(ODBind) void		seismic3d_getdata(hSeismic3D, hAllocator,
 						  const int32_t inlrg[3],
 						  const int32_t crlrg[3],

@@ -31,7 +31,6 @@ class Seismic3D(_SurveyObject):
         clss._gettrcidx = wrap_function(LIBODB, f'{bindnm}_gettrcidx', ct.c_int, [ct.c_void_p, ct.c_int, ct.c_int])
         clss._getinlcrl = wrap_function(LIBODB, f'{bindnm}_getinlcrl', None, [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)])
         clss._zrange = wrap_function(LIBODB, f'{bindnm}_zrange', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
-        clss._zistime = wrap_function(LIBODB, f'{bindnm}_zistime', ct.c_bool, [ct.c_void_p])
         clss._getdata = wrap_function(LIBODB, f'{bindnm}_getdata', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE,
                                                                             ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.c_float)                    
                                                                         ])
@@ -155,14 +154,6 @@ class Seismic3D(_SurveyObject):
         res = self._nrtrcs(self._handle)
         if not self.isok:
             raise IndexError(self.errmsg)
-
-        return res
-
-    @property
-    def zistime(self) ->bool:
-        res = self._zistime(self._handle)
-        if not self.isok:
-            raise ValueError(self.errmsg)
 
         return res
 
