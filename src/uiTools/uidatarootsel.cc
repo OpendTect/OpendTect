@@ -51,16 +51,25 @@ uiDataRootSel::~uiDataRootSel()
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
+void uiDataRootSel::setDataRoot( const char* dataroot )
+{
+    if ( dataroot_ == dataroot )
+	return;
+
+    dataroot_.set( dataroot );
+    SetCurBaseDataDir( dataroot_ );
+    datarootlbl_->setText( dataroot_ );
+    selectionChanged.trigger();
+}
+
+
 void uiDataRootSel::dataRootSelCB( CallBacker* )
 {
     uiSetDataDir dlg( this );
     if ( !dlg.go() || dataroot_ == dlg.selectedDir() )
 	return;
 
-    dataroot_ = dlg.selectedDir();
-    SetCurBaseDataDir( dataroot_ );
-    datarootlbl_->setText( dataroot_ );
-    selectionChanged.trigger();
+    setDataRoot( dlg.selectedDir() );
 }
 
 

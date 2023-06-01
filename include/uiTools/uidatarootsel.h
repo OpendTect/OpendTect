@@ -23,6 +23,7 @@ public:
 				~uiDataRootSel();
 
     BufferString		getDataRoot() const	{ return dataroot_; }
+    void			setDataRoot(const char*);
 
     Notifier<uiDataRootSel>	selectionChanged;
 protected:

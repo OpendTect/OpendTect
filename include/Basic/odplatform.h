@@ -27,14 +27,16 @@ public:
     enum Type	{ Lin64, Win32, Win64, Mac };
 		mDeclareEnumUtils(Type)
 
-    		Platform();		//!< This platform
+		Platform();		//!< This platform
 		Platform(Type);		//!< That platform
 		Platform( const char* s, bool isshortnm )
 					{ set(s,isshortnm); }
 		Platform( bool iswin, bool is32, bool ismac=false )
-		    			{ set(iswin,is32,ismac); }
+					{ set(iswin,is32,ismac); }
     bool	operator ==( const Platform& p ) const
 					{ return type_ == p.type_; }
+    bool	operator !=( const Platform& p ) const
+					{ return type_ != p.type_; }
     bool	operator ==( const Platform::Type& t ) const
 					{ return type_ == t; }
 
@@ -45,7 +47,7 @@ public:
     static bool	isValidName(const char*,bool isshortnm);
     void	set(const char*,bool isshortnm);
     inline void	set( bool iswin, bool is32, bool ismac=false )
-    		{ type_ = ismac ? Mac : (iswin	? (is32 ? Win32 : Win64)
+		{ type_ = ismac ? Mac : (iswin	? (is32 ? Win32 : Win64)
 						: Lin64 ); }
 
     inline bool	isWindows() const

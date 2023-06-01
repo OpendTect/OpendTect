@@ -39,5 +39,7 @@ protected:
     void		dataRootChgCB(CallBacker*);
     void		startJobCB(CallBacker*);
     void		writeLogCB(CallBacker*);
+    mDeprecated("Provide removeold argument")
     void		createLogFile();
+    void		createLogFile(bool removeold);
 };
