@@ -92,7 +92,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
 
 #define mRetInvJobSpec(s) \
     { \
-	delete outioobjinfo_; outioobjinfo_ = 0; \
+	deleteAndNullPtr( outioobjinfo_ ); \
 	new uiLabel( this, s ); \
 	return; \
     }
@@ -110,7 +110,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , saveasdeffld_(nullptr)
 {
     setOkText( uiStrings::sClose() );
-    setCancelText( uiString::emptyString() );
+    setCancelText( uiString::empty() );
 
     if ( parfnm_.isEmpty() )
 	mRetInvJobSpec(tr("Invalid job specification file pass."
@@ -153,11 +153,11 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	    tmpstordir = fp.fullPath();
 	}
 
-	uiObject* inlperjobattach = 0;
+	uiObject* inlperjobattach = nullptr;
 	if ( doresume )
 	{
 	    uiString msg = uiStrings::sTmpStor();
-	    uiLabel* tmpstorloc = new uiLabel( specparsgroup_, msg );
+	    auto* tmpstorloc = new uiLabel( specparsgroup_, msg );
 
 	    inlperjobattach = new uiLabel( specparsgroup_,
 						    toUiString(tmpstordir) );
@@ -235,9 +235,9 @@ bool uiSeisMMProc::initWork( bool retry )
 
     delete jobrunner_;
     jobrunner_ = jobprov_->getRunner( nrinlperjob_ );
-    if (jobprov_->errMsg().isSet())
+    if ( jobprov_->errMsg().isSet() )
     {
-	delete jobrunner_; jobrunner_ = 0;
+	deleteAndNullPtr( jobrunner_ );
 	errmsg_ = jobprov_->errMsg();
 	return false;
     }

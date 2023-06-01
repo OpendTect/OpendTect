@@ -30,13 +30,15 @@ class ShareData;
 */
 
 mExpClass(Network) HostData
-{
+{ mODTextTranslationClass(HostData)
 public:
 			HostData(const char* nm);
 			HostData(const char* nm,const HostData& localhost,
 				 const OD::Platform&);
 			HostData(const HostData&);
     virtual		~HostData();
+
+    HostData&		operator=(const HostData&);
 
     enum PathType	{ Appl, Data };
 
@@ -82,8 +84,12 @@ public:
 			{ localhd_ = &hd; }
     const HostData&	localHost() const
 			{ return localhd_ ? *localhd_ : *this; }
+    bool		isLocalHost() const;
 
+    mDeprecated("Provide localaddr")
     bool		isOK(uiString& errmsg) const;
+    bool		isOK(uiString& errmsg,const char* localaddr,
+			     int prefixlength) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -131,7 +137,7 @@ public:
 
     bool		refresh(bool foredit=false);
 
-
+    const HostData*	localHost() const;
     bool		isMostlyStaticIP() const;
 
     HostData*		find( const char* nm )	{ return findHost(nm); }
@@ -143,7 +149,11 @@ public:
     const char*		getBatchHostsFilename() const;
     bool		writeHostFile(const char* fnm);
     void		fillFromNetwork(); // Unix only
+    mDeprecated("Provide testall argument")
     bool		isOK(uiStringSet&) const;
+    bool		isOK(uiStringSet&,bool testall,
+			     BufferString* localaddr =nullptr,
+			     int* prefixlength =nullptr) const;
 
 protected:
 
@@ -162,6 +172,7 @@ protected:
     HostData*		findHost(const char*);
     const HostData*	findHost(const char*) const;
     BufferString	batchhostsfnm_;
+
 };
 
 #undef mRetNoneIfEmpty

@@ -312,8 +312,10 @@ const char* GetLocalHostName()
 	ret->set( localhostnameoverrule );
 
 #ifndef OD_NO_QT
-# if QT_VERSION >= 0x050600
-    const BufferString hostnm( QSysInfo::machineHostName() );
+# if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    BufferString hostnm( QSysInfo::machineHostName() );
+    char* dot = hostnm.find( '.' );
+    if ( dot ) { *dot ='\0'; }
     ret->set( hostnm );
 # else
     GetLocalHostNameNoQt( ret );

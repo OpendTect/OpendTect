@@ -51,14 +51,14 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 	return false;
 
     const QAbstractSocket::NetworkLayerProtocol protocol = addr.protocol();
-#if QT_VERSION >= 0x050B00
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
     if ( addr.isGlobal() )
 	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
 		: protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
-#elif QT_VERSION >= 0x050600
+#elif QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     if ( addr.isMulticast() )
 	return false;
-#elif QT_VERSION >= 0x050000
+#elif QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     if ( addr.isLoopback() )
 	return false;
 #endif
@@ -158,22 +158,101 @@ const char* localHostNameWoDomain()
 const char* localAddress( bool ipv4only )
 {
     mDeclStaticString( str );
-    str = hostAddress( localHostName(), ipv4only );
-    if ( !str.isEmpty() )
-	return str.buf();
+    str.setEmpty(); // Network configuration may change during runtime
 
-    // Fallback implementation for some new OS/hardware
-    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
-    for ( const auto& addr : addresses )
+    const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
+    QHostAddress ethaddr, wifiaddr, loopbackaddr, otheraddr;
+    for ( const auto& qni : allif )
     {
-	if ( !isAcceptable(addr,ipv4only) )
+	if ( !qni.isValid() )
 	    continue;
 
-	str = addr.toString();
-	break;
+	const QNetworkInterface::InterfaceFlags flags = qni.flags();
+	if ( !flags.testFlag(QNetworkInterface::IsUp) ||
+	     !flags.testFlag(QNetworkInterface::IsRunning) )
+	    continue;
+
+	const QList<QNetworkAddressEntry> entries = qni.addressEntries();
+	if ( entries.isEmpty() )
+	    continue;
+
+	const QNetworkInterface::InterfaceType typ = qni.type();
+	for ( const auto& ent : entries )
+	{
+	    const QHostAddress addr = ent.ip();
+	    if ( !isAcceptable(addr,ipv4only) )
+		continue;
+
+	    if ( typ == QNetworkInterface::Ethernet )
+	    {
+		if ( ethaddr.isNull() )
+		    ethaddr = addr;
+		break;
+	    }
+
+	    if ( typ == QNetworkInterface::Wifi ||
+		 typ == QNetworkInterface::Ieee80211 )
+	    {
+		if ( wifiaddr.isNull() )
+		    wifiaddr = addr;
+		break;
+	    }
+
+	    if ( typ == QNetworkInterface::Loopback )
+	    {
+		if ( loopbackaddr.isNull() )
+		    loopbackaddr = addr;
+		break;
+	    }
+
+	    if ( otheraddr.isNull() )
+		otheraddr = addr;
+
+	    break;
+	}
     }
 
-    return str.buf();
+    if ( !ethaddr.isNull() )
+	str.set( ethaddr.toString() );
+    else if ( !wifiaddr.isNull() )
+	str.set( wifiaddr.toString() );
+    else if ( !otheraddr.isNull() )
+	str.set(otheraddr.toString());
+    else if ( !loopbackaddr.isNull() )
+	str.set( loopbackaddr.toString() );
+
+     return str.buf();
+}
+
+
+bool isLocalAddressInUse( const char* ipaddr )
+{
+    BufferString localaddr(ipaddr);
+    if ( localaddr.isEmpty() )
+	localaddr.set( localAddress() );
+
+    const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
+    for ( const auto& qni : allif )
+    {
+	if ( !qni.isValid() )
+	    continue;
+
+	const QNetworkInterface::InterfaceFlags flags = qni.flags();
+	if ( !flags.testFlag(QNetworkInterface::IsUp) ||
+	     !flags.testFlag(QNetworkInterface::IsRunning) )
+	    continue;
+
+	const QList<QNetworkAddressEntry> entries = qni.addressEntries();
+	for ( const auto& ent : entries )
+	{
+	    const QHostAddress qaddr = ent.ip();
+	    const BufferString addr( qaddr.toString() );
+	    if ( addr == localaddr )
+		return true;
+	}
+    }
+
+    return false;
 }
 
 
@@ -271,17 +350,17 @@ bool isValidIPAddress( const char* host_ip )
 void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 		   bool onlyactive )
 {
-    QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
-    for ( int idx=0; idx<allif.size(); idx++ )
+    const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
+    for ( const auto& qni : allif )
     {
-	QNetworkInterface& qni = allif[idx];
-	QNetworkInterface::InterfaceFlags flags = qni.flags();
-	if ( !qni.isValid() || !flags.testFlag(QNetworkInterface::CanBroadcast)
-			  || !flags.testFlag(QNetworkInterface::CanMulticast) )
+	const QNetworkInterface::InterfaceFlags flags = qni.flags();
+	if ( !qni.isValid() ||
+	     !flags.testFlag(QNetworkInterface::CanBroadcast) ||
+	     !flags.testFlag(QNetworkInterface::CanMulticast) )
 	    continue;
 
-	if ( onlyactive && ( !flags.testFlag(QNetworkInterface::IsUp)
-			     || !flags.testFlag(QNetworkInterface::IsRunning)) )
+	if ( onlyactive && ( !flags.testFlag(QNetworkInterface::IsUp) ||
+			     !flags.testFlag(QNetworkInterface::IsRunning)) )
 	    continue;
 
 	if ( qni.name().isEmpty() || qni.hardwareAddress().isEmpty() )
