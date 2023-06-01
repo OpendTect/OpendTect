@@ -360,8 +360,8 @@ void uiODMenuMgr::fillImportMenu()
 	mImpBulkHorAsciiMnuIm );
     imphor->addMenu( imphor3Dasc );
     insertAction( imphor, m3Dots(tr("From ZMap")), mImpHorZMapMnuItm );
-    insertAction( imphor, have2d ? m3Dots(tr("Attributes 3D")) :
-		   m3Dots(tr("Attributes")), mImpHorAsciiAttribMnuItm, ascic );
+    insertAction( imphor, have2d ? m3Dots(tr("Horizon Data 3D")) :
+		  m3Dots(tr("Horizon Data")), mImpHorAsciiAttribMnuItm, ascic );
 
     auto* impfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     insertAction( impfltasc, m3Dots(tr("Single Fault")), mImpFaultMnuItm );
