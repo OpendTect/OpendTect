@@ -223,6 +223,9 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
     if ( !auxdata_[sectionidx] )
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
+    if ( dataidx >= auxdata_[sectionidx]->nrVals() )
+	auxdata_[sectionidx]->setNrVals( dataidx + 1 );
+
     const BinID geomrc( posid.getRowCol() );
     if ( geomrc.isUdf() )
 	return;
