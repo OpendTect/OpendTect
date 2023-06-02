@@ -114,6 +114,7 @@ CTestCustom.cmake
 *.db
 .vs/*
 qtcsettings.cmake
+.qtc/*
 .cmake/*
 
 
