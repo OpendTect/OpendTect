@@ -9,6 +9,13 @@ ________________________________________________________________________
 
 #include "odplugin.h"
 #include "hdf5accessimpl.h"
+#include "legal.h"
+
+
+static uiString* legalText()
+{
+    return legalText( "hdf5" );
+}
 
 
 mDefODPluginEarlyLoad(ODHDF5)
@@ -32,5 +39,6 @@ mDefODPluginInfo(ODHDF5)
 mDefODInitPlugin(ODHDF5)
 {
     HDF5::AccessProviderImpl::initHDF5();
+    legalInformation().addCreator( legalText, "HDF5" );
     return nullptr;
 }
