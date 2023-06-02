@@ -9,7 +9,7 @@
 
 SET( LIBLIST omf ColTabs MouseControls BatchPrograms
 	     FileFormats UnitsOfMeasure Properties odSettings welldispSettings
-	     EnvVars ShortCuts *.ico *.png RockPhysics ModDeps.od
+	     EnvVars ShortCuts *.ico *.png qtdefaultstate.ini RockPhysics ModDeps.od
 	     Mnemonics )
 set( DATADIRLIST Attribs BasicSurvey CRS icons.Default Strat Scripts )
 set( PYTHONREQLIST
