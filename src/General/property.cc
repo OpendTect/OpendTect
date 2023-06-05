@@ -367,7 +367,7 @@ const Math::SpecVarSet& MathProperty::getSpecVars()
 }
 
 
-HiddenParam<MathProperty,int> mathpropisfromrphymgr_(0);
+static HiddenParam<MathProperty,int> mathpropisfromrphymgr_(0);
 
 MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)

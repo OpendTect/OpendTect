@@ -149,7 +149,7 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
 
 Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 {
-    erase();
+    deepErase( *this );
 }
 
 
@@ -378,18 +378,9 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
 
 mDefineInstanceCreatedNotifierAccess(Strat::SingleLayerGenerator)
 
-Strat::SingleLayerGenerator::SingleLayerGenerator(
-	const SingleLayerGenerator& laygen )
-    : unit_(laygen.unit_ )
-    , content_( laygen.content_ )
-    , props_( laygen.props_ )
-{
-    mTriggerInstanceCreatedNotifier();
-}
-
-
 Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
-    : unit_(ur)
+    : LayerGenerator()
+    , unit_(ur)
     , content_(&Strat::Content::unspecified())
 {
     props_.add( new ValueProperty(PropertyRef::thickness()) );
@@ -397,8 +388,32 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
 }
 
 
+Strat::SingleLayerGenerator::SingleLayerGenerator(
+					const SingleLayerGenerator& oth )
+{
+    *this = oth;
+    mTriggerInstanceCreatedNotifier();
+}
+
+
 Strat::SingleLayerGenerator::~SingleLayerGenerator()
-{}
+{
+}
+
+
+Strat::SingleLayerGenerator& Strat::SingleLayerGenerator::operator =(
+					const SingleLayerGenerator& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    setGenDesc( mNonConst(oth.gendesc_) );
+    unit_ = oth.unit_;
+    props_ = oth.props_;
+    content_ = oth.content_;
+
+    return *this;
+}
 
 
 Strat::LayerGenerator* Strat::SingleLayerGenerator::createClone() const
