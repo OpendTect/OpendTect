@@ -14,7 +14,6 @@ macro( OD_CREATE_PACKAGE_DEFINITION )
     configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/basedefs.cmake.in"
 		    "${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/basedefs.cmake"
 		    @ONLY )
-
 endmacro()
 
 
@@ -22,12 +21,6 @@ macro( OD_ADD_PACKAGES_TARGET )
     if ( NOT DEFINED PACKAGE_DIR )
 	set( PACKAGE_DIR "${CMAKE_SOURCE_DIR}/../packages" )
 	get_filename_component( PACKAGE_DIR "${PACKAGE_DIR}" ABSOLUTE )
-    endif()
-    FIND_OD_PLUGIN( "ODHDF5" )
-    if ( ODHDF5_FOUND )
-	set( INCLUDE_ODHDF5 "YES" )
-    else()
-	set( INCLUDE_ODHDF5 "NO" )
     endif()
 
     if ( "${MAIN_GIT_BRANCH}" STREQUAL "main" )
@@ -49,9 +42,10 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DBINARY_DIR=${CMAKE_BINARY_DIR}
 	    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
 	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-	    -DINCLUDE_ODHDF5=${INCLUDE_ODHDF5}
 	    -DMATLAB_DIR=${MATLAB_DIR}
 	    -DOD_ENABLE_BREAKPAD=${OD_ENABLE_BREAKPAD}
+	    -DOD_NO_PROJ=${OD_NO_PROJ}
+	    -DSQLITE_DIR=${SQLITE_DIR}
 	    -DBREAKPAD_DIR=${BREAKPAD_DIR}
 	    -DPACKAGE_DIR=${PACKAGE_DIR}
 	    -DBUILD_DOCUMENTATION=${BUILD_DOCUMENTATION}
