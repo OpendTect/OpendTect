@@ -23,6 +23,7 @@ set( OD_MODULE_SOURCES
 )
 
 set( OD_TEST_PROGS
+	layergen.cc
         layermodel.cc
 )
 

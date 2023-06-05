@@ -580,6 +580,7 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
     }
     else
     {
+	NotifyStopper nselprop( stratsynth_.elPropSelChanged );
 	const SynthID sdid = stratsynth_.addSynthetic( sgp );
 	if ( !sdid.isValid() )
 	    mErrRet( stratsynth_.errMsg(), return )

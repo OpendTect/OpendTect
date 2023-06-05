@@ -25,6 +25,7 @@ public:
 
 			SingleLayerGenerator(const LeafUnitRef* =nullptr);
 			SingleLayerGenerator(const SingleLayerGenerator&);
+    SingleLayerGenerator& operator =(const SingleLayerGenerator&);
 			~SingleLayerGenerator();
 
     bool		canBeCloned() const override	{ return true; }

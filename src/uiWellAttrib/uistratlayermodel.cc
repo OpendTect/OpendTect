@@ -291,6 +291,7 @@ void uiStratLayerModel::elasticPropsCB( CallBacker* )
 
     descdisp_->setNeedSave( true );
     descdisp_->setEditDesc();
+    descdisp_->descHasChanged();
 }
 
 
@@ -364,7 +365,7 @@ bool uiStratLayerModel::saveGenDesc() const
     if ( !strm.isOK() )
 	uiMSG().error( uiStrings::sCantOpenOutpFile() );
     else if ( !desc.putTo(strm) )
-	uiMSG().error(desc_.errMsg());
+	uiMSG().error( desc_.errMsg() );
     else
     {
 	rv = true;
@@ -408,11 +409,11 @@ bool uiStratLayerModel::doLoadGenDesc()
     if ( !strm.isOK() )
 	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }
 
-    deepErase( desc_ );
+    desc_.setEmpty();
     MouseCursorChanger mcch( MouseCursor::Wait );
     const bool rv = desc_.getFrom( strm );
     if ( !rv )
-	uiMSG().error(desc_.errMsg());
+	uiMSG().error( desc_.errMsg() );
     strm.close();
 
     //Before calculation
@@ -614,7 +615,7 @@ IOPar uiStratLayerModel::getSynthPars() const
     const IOPar& wbpars = desc_.getWorkBenchParams();
     IOPar ret;
 
-    const MultiID descky = desc_.elasticPropSel();
+    const MultiID& descky = desc_.elasticPropSel();
     if ( !descky.isUdf() )
 	ret.set( ElasticPropSelection::sKeyElasticPropSel(), descky );
 

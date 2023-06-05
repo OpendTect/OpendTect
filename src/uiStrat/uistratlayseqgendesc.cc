@@ -215,6 +215,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 uiExtLayerSequenceGenDesc::~uiExtLayerSequenceGenDesc()
 {
     detachAllNotifiers();
+    delete &editdesc_;
 }
 
 
