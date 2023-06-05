@@ -43,6 +43,9 @@ ________________________________________________________________________
 
 mGlobal(Basic) ::Factory<uiString>& legalInformation();
 
+mGlobal(Basic) uiString* legalText(const char* libnm_or_legaltxtpath);
+//!<If libnm, reads legal text from data/Legal/libnm/LICENSE.txt
+
 mGlobal(Basic) uiString gplV3Text();
 //!<Gnu Public License V3 text
 

@@ -34,7 +34,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endif()
 
 	COPY_THIRDPARTYLIBS()
-	set( LIBLIST ${LIBLIST};${PLUGINS} )
+	list( APPEND LIBLIST ${PLUGINS} )
     elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
 	file( GLOB OD_PYBIND_LIBS
 	      LIST_DIRECTORIES FALSE
@@ -110,10 +110,8 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endif()
     endif()
 
-    if( WIN32 )
-	if( ${PACKAGE_NAME} STREQUAL "base" )
-	    set( EXECLIST "${EXECLIST};${WINEXECLIST}" )
-	endif()
+    if ( WIN32 AND ${PACKAGE_NAME} STREQUAL "base" )
+	list( APPEND EXECLIST ${WINEXECLIST} )
     endif()
 
     if ( ("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
@@ -163,6 +161,10 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
 	      DESTINATION ${COPYTODATADIR}/data )
     endforeach()
+    foreach( LEGALDIR ${LEGALLIST} )
+	file( COPY ${COPYFROMDATADIR}/data/Legal/${LEGALDIR}
+	      DESTINATION ${COPYTODATADIR}/data/Legal )
+    endforeach()
     if ( DEFINED PYTHONREQLIST )
 	foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
 	    file( COPY "${COPYFROMDATADIR}/data/Python/${PYTHONREQFNM}.txt"
@@ -170,6 +172,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endforeach()
     endif()
     unset( PYTHONREQLIST )
+    unset( LEGALLIST )
     unset( DATADIRLIST )
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
@@ -357,6 +360,10 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
 	      DESTINATION ${COPYTODATADIR}/data )
     endforeach()
+    foreach( LEGALDIR ${LEGALLIST} )
+	file( COPY ${COPYFROMDATADIR}/data/Legal/${LEGALDIR}
+	      DESTINATION ${COPYTODATADIR}/data/Legal )
+    endforeach()
     if ( DEFINED PYTHONREQLIST )
 	foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
 	    file( COPY "${COPYFROMDATADIR}/data/Python/${PYTHONREQFNM}.txt"
@@ -364,6 +371,7 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 	endforeach()
     endif()
     unset( PYTHONREQLIST )
+    unset( LEGALLIST )
     unset( DATADIRLIST )
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )

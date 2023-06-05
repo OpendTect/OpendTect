@@ -9,6 +9,10 @@ ________________________________________________________________________
 
 #include "legal.h"
 
+#include "filepath.h"
+#include "od_istream.h"
+#include "oddirs.h"
+
 static PtrMan< ::Factory<uiString> > inst;
 
 ::Factory<uiString>& legalInformation()
@@ -20,6 +24,27 @@ static PtrMan< ::Factory<uiString> > inst;
     }
 
     return *inst;
+}
+
+
+uiString* legalText( const char* libnm_or_legaltxtpath )
+{
+    uiString* res = new uiString;
+    FilePath fp( libnm_or_legaltxtpath );
+    if ( !fp.exists() ) // it's a libnm only. Look in default location
+    {
+	fp.set( mGetSWDirDataDir() )
+	  .add( "Legal" ).add( libnm_or_legaltxtpath ).add( "LICENSE.txt" );
+	if ( !fp.exists() )
+	    return res;
+    }
+
+    BufferString txt;
+    od_istream strm( fp.fullPath() );
+    if ( strm.getAll(txt) )
+	*res = toUiString( txt );
+
+    return res;
 }
 
 
