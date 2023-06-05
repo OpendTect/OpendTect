@@ -41,6 +41,17 @@ static uiString* qtLegalText()
 #endif
 
 
+static uiString* zlibLegalText()
+{
+    return legalText("zlib");
+}
+
+static uiString* opensslLegalText()
+{
+    return legalText("openssl");
+}
+
+
 mDefModInitFn(Basic)
 {
     mIfNotFirstTime( return );
@@ -65,6 +76,9 @@ mDefModInitFn(Basic)
 #ifndef OD_NO_QT
     legalInformation().addCreator( qtLegalText, "Qt" );
 #endif
+
+    legalInformation().addCreator( zlibLegalText, "zlib" );
+    legalInformation().addCreator( opensslLegalText, "OpenSSL" );
 
     OD::loadLocalization();
     OD::PythA().initClass();

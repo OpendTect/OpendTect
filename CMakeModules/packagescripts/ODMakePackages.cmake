@@ -7,6 +7,13 @@
 # CMake script to build a release
 #
 
+if ( POLICY CMP0011 )
+    cmake_policy( SET CMP0011 NEW )
+endif()
+if ( POLICY CMP0057 )
+    cmake_policy( SET CMP0057 NEW )
+endif()
+
 if ( "${OpendTect_DIR}" STREQUAL "" )
     set( OpendTect_DIR "${SOURCE_DIR}" )
 endif()

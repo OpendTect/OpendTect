@@ -13,9 +13,9 @@ configure_file (${CMAKE_SOURCE_DIR}/CMakeModules/templates/.arcconfig.in
 		${CMAKE_SOURCE_DIR}/.arcconfig @ONLY )
 
 function( get_buildinsrc REQUIRED_ARG )
-    if ( NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
-	get_filename_component( SRCDIR ${CMAKE_SOURCE_DIR} REALPATH )
-	get_filename_component( BINDIR ${CMAKE_BINARY_DIR} REALPATH )
+    if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
+	get_filename_component( SRCDIR "${CMAKE_SOURCE_DIR}" REALPATH )
+	get_filename_component( BINDIR "${CMAKE_BINARY_DIR}" REALPATH )
 	if ( NOT ${SRCDIR} STREQUAL ${BINDIR} )
 	    set(${REQUIRED_ARG} False PARENT_SCOPE )
 	else()
@@ -128,46 +128,24 @@ else()
 	  PATTERN ".gitignore" EXCLUDE )
 endif()
 
-file( GLOB RELINFOFILES ${CMAKE_SOURCE_DIR}/relinfo/*.txt )
-if ( APPLE )
-    install ( FILES ${RELINFOFILES} DESTINATION Contents/Resources/relinfo )
-else()
-    install ( FILES ${RELINFOFILES} DESTINATION ./relinfo )
-endif()
+file( GLOB RELINFOFILES "${CMAKE_SOURCE_DIR}/relinfo/*.txt" )
+install ( FILES ${RELINFOFILES} DESTINATION "${MISC_INSTALL_PREFIX}/relinfo" )
 
 #Install python module
 if ( EXISTS "${CMAKE_SOURCE_DIR}/external/odpy" )
-    if ( APPLE )
-	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy/odpy"
-		  DESTINATION Contents/Resources/bin/python
-		  PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-    else()
-	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy/odpy"
-		  DESTINATION "bin/python"
-		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-    endif()
+    install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy/odpy"
+	      DESTINATION "${MISC_INSTALL_PREFIX}/bin/python"
+	      PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
 endif()
 if ( EXISTS "${CMAKE_SOURCE_DIR}/external/safety" )
-    if ( APPLE )
-	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety/safety"
-		  DESTINATION Contents/Resources/bin/python
-		  PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-    else()
-	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety/safety"
-		  DESTINATION "bin/python"
-		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-    endif()
+    install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety/safety"
+	      DESTINATION "${MISC_INSTALL_PREFIX}/bin/python"
+	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
 endif()
 if ( EXISTS "${CMAKE_SOURCE_DIR}/external/marshmallow" )
-    if ( APPLE )
-	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow/src/marshmallow"
-		  DESTINATION Contents/Resources/bin/python
-		  PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-    else()
-	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow/src/marshmallow"
-		  DESTINATION "bin/python"
-		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-    endif()
+    install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow/src/marshmallow"
+	      DESTINATION "${MISC_INSTALL_PREFIX}/bin/python"
+	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
 endif()
 
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
@@ -288,8 +266,8 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
 			    EXCLUDE PATTERN CMakeFiles EXCLUDE )
 
-    #Installing cmake genetated files from CMAKE_BINARY_DIR directory
-    if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
+    #Installing cmake generated files from CMAKE_BINARY_DIR directory
+    if ( NOT ${BUILDINSRC} )
 	install( DIRECTORY ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR}/include
 		       ${CMAKE_BINARY_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
 		 DESTINATION ${MISC_INSTALL_PREFIX}/

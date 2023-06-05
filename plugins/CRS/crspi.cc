@@ -10,12 +10,8 @@ ________________________________________________________________________
 #include "odplugin.h"
 
 #include "crssystem.h"
-#include "file.h"
-#include "filepath.h"
 #include "genc.h"
 #include "legal.h"
-#include "od_istream.h"
-#include "oddirs.h"
 
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
@@ -27,20 +23,16 @@ mDefODPluginInfo(CRS)
 }
 
 
-static mUnusedVar uiString* legalText()
+static mUnusedVar uiString* projLegalText()
 {
-    auto* ret = new uiString;
-    FilePath fp( mGetSetupFileName("CRS"), "COPYING" );
-    if ( File::exists(fp.fullPath()) )
-    {
-	BufferString legaltxt;
-	od_istream strm( fp.fullPath() );
-	if ( strm.getAll(legaltxt) )
-	    *ret = toUiString( legaltxt );
-    }
-
-    return ret;
+    return legalText("proj");
 }
+
+static mUnusedVar uiString* sqliteLegalText()
+{
+    return legalText("sqlite");
+}
+
 
 namespace Coords
 { extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); } }
@@ -66,7 +58,8 @@ mDefODInitPlugin(CRS)
 	return nullptr;
 
 #ifndef OD_NO_PROJ
-    legalInformation().addCreator( legalText, "PROJ" );
+    legalInformation().addCreator( projLegalText, "PROJ" );
+    legalInformation().addCreator( sqliteLegalText, "SQLite" );
 #endif
     initCRSPlugin();
 
