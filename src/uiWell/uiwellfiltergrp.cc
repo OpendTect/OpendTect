@@ -463,7 +463,7 @@ void uiWellFilterGrp::markerZoneFilter( const BufferString& topnm,
     MnemonicSelection mns;
     markernms.add( topnm ).add( botnm );
     Well::WellDataFilter wdf( *initdesc.wds_ );
-    wdf.getWellsFromMarkers( markernms, wellnms );
+    wdf.getWellSelFromMarkers( markernms, wellnms );
     if ( initdesc.logmode_ )
     {
 	wdf.getLogsInMarkerZone( wellnms, topnm, botnm, lognms );
