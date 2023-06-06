@@ -101,6 +101,9 @@ protected:
     uiString				msg_;
     bool				allwellswritten_ = true;
 
+    mDeprecated("Use doStore")
     bool		store(const MultiID&, const Well::Data&,
 					const StoreReqs);
+    bool		doStore(const MultiID&, const Well::Data&,
+					const StoreReqs&);
 };
