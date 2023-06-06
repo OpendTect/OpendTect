@@ -27,17 +27,24 @@ public:
 				WellDataFilter(const ObjectSet<Well::Data>&);
 				~WellDataFilter();
 
-    void			getWellsFromLogs(
+
+    void			getWellSelFromLogs(
 					const BufferStringSet& lognms,
-					BufferStringSet& wellnms) const;
-    void			getWellsFromMnems(
+					BufferStringSet& wellnms,
+					bool basedonset=true) const;
+    void			getWellSelFromMnems(
 					const MnemonicSelection& mns,
-					BufferStringSet& wellnms) const;
+					BufferStringSet& wellnms,
+					bool basedonset=true) const;
+
     void			getWellsWithNoLogs(
 					BufferStringSet& wellnms) const;
-    void			getWellsFromMarkers(
+
+	void			getWellSelFromMarkers(
 					const BufferStringSet& markernms,
-					BufferStringSet& wellnms) const;
+					BufferStringSet& wellnms,
+					bool basedonset=true) const;
+
     void			getMarkersLogsMnemsFromWells(
 					const BufferStringSet& wellnms,
 					BufferStringSet& lognms,
@@ -96,6 +103,24 @@ private:
 					bool vertical) const;
 
     const ObjectSet<Well::Data>&	allwds_;
+
+public:
+
+    mDeprecated( "Use getWellSelFromLogs" )
+    void			getWellsFromLogs(
+					const BufferStringSet & lognms,
+					BufferStringSet & wellnms ) const;
+
+    mDeprecated("Use getWellSelFromMnems")
+    void			getWellsFromMnems(
+					const MnemonicSelection& mns,
+					BufferStringSet& wellnms) const;
+
+    mDeprecated( "Use getWellSelFromMarkers" )
+    void			getWellsFromMarkers(
+					const BufferStringSet& markernms,
+					BufferStringSet& wellnms) const;
+
 };
 
 } // namespace Well

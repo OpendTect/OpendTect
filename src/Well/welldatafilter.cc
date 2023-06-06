@@ -30,24 +30,41 @@ WellDataFilter::WellDataFilter( const ObjectSet<Well::Data>& wds )
 WellDataFilter::~WellDataFilter()
 {}
 
-
 void WellDataFilter::getWellsFromLogs( const BufferStringSet& lognms,
 				       BufferStringSet& wellnms ) const
+{
+    getWellSelFromLogs( lognms, wellnms );
+}
+
+
+void WellDataFilter::getWellSelFromLogs( const BufferStringSet& lognms,
+				       BufferStringSet& wellnms,
+				       bool shouldhavewholeset ) const
 {
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const Well::Data* wd = allwds_[widx];
 	const Well::LogSet& lis = wd->logs();
 	BufferStringSet wdlognms; lis.getNames( wdlognms );
-	bool addwell = true;
+	bool addwell = false;
 	for ( int lidx=0; lidx<lognms.size(); lidx++ )
 	{
 	    const bool wdhaslog = wdlognms.isPresent( lognms.get(lidx) );
-	    if ( wdhaslog )
+	    if ( !wdhaslog && shouldhavewholeset )
+	    {
+		addwell = false;
+		break;
+	    }
+	    else if ( wdhaslog && !shouldhavewholeset )
+	    {
+		addwell = true;
+		break;
+	    }
+	    else if ( wdhaslog && shouldhavewholeset )
+	    {
+		addwell = true;
 		continue;
-
-	    addwell = false;
-	    break;
+	    }
 	}
 
 	if ( addwell )
@@ -57,21 +74,39 @@ void WellDataFilter::getWellsFromLogs( const BufferStringSet& lognms,
 
 
 void WellDataFilter::getWellsFromMnems( const MnemonicSelection& mns,
-				       BufferStringSet& wellnms ) const
+					BufferStringSet& wellnms ) const
+{
+    getWellSelFromMnems( mns, wellnms );
+}
+
+
+void WellDataFilter::getWellSelFromMnems( const MnemonicSelection& mns,
+				       BufferStringSet& wellnms,
+				       bool shouldhavewholeset ) const
 {
     for ( const auto* wd : allwds_ )
     {
 	const Well::LogSet& lis = wd->logs();
 	MnemonicSelection wdmns; lis.getAllAvailMnems( wdmns );
-	bool addwell = true;
+	bool addwell = false;
 	for ( const auto* mn : mns )
 	{
 	    const bool wdhasmn = wdmns.isPresent( mn );
-	    if ( wdhasmn )
+	    if (!wdhasmn && shouldhavewholeset)
+	    {
+		addwell = false;
+		break;
+	    }
+	    else if (wdhasmn && !shouldhavewholeset)
+	    {
+		addwell = true;
+		break;
+	    }
+	    else if (wdhasmn && shouldhavewholeset)
+	    {
+		addwell = true;
 		continue;
-
-	    addwell = false;
-	    break;
+	    }
 	}
 
 	if ( addwell )
@@ -93,12 +128,20 @@ void WellDataFilter::getWellsWithNoLogs( BufferStringSet& wellnms ) const
 void WellDataFilter::getWellsFromMarkers( const BufferStringSet& markernms,
 					  BufferStringSet& wellnms ) const
 {
+    getWellSelFromMarkers( markernms, wellnms );
+}
+
+
+void WellDataFilter::getWellSelFromMarkers( const BufferStringSet& markernms,
+					  BufferStringSet& wellnms,
+					  bool shouldhavewholeset ) const
+{
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const Well::Data* wd = allwds_[widx];
 	const Well::MarkerSet& ms = wd->markers();
 	BufferStringSet wdmarkernms; ms.getNames( wdmarkernms );
-	bool addwell = true;
+	bool addwell = false;
 	for ( int midx=0; midx<markernms.size(); midx++ )
 	{
 	    const BufferString& markernm = markernms.get( midx );
@@ -106,11 +149,21 @@ void WellDataFilter::getWellsFromMarkers( const BufferStringSet& markernms,
 			markernm==Well::ZRangeSelector::sKeyDataStart() ||
 			markernm==Well::ZRangeSelector::sKeyDataEnd() ||
 			wdmarkernms.isPresent( markernm );
-	    if ( wdhasmrkr )
+	    if (!wdhasmrkr && shouldhavewholeset)
+	    {
+		addwell = false;
+		break;
+	    }
+	    else if (wdhasmrkr && !shouldhavewholeset)
+	    {
+		addwell = true;
+		break;
+	    }
+	    else if (wdhasmrkr && shouldhavewholeset)
+	    {
+		addwell = true;
 		continue;
-
-	    addwell = false;
-	    break;
+	    }
 	}
 
 	if ( addwell )
