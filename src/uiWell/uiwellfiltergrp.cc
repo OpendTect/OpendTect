@@ -13,10 +13,12 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "uiioobjselgrp.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uilistboxfilter.h"
 #include "uimsg.h"
 #include "uimnemonicsel.h"
+#include "uiseparator.h"
 #include "uistatusbar.h"
 #include "uitoolbutton.h"
 #include "wellman.h"
@@ -45,7 +47,9 @@ public:
 
 
 static HiddenParam<uiWellFilterGrp,InitDesc*> hp( nullptr );
-
+static HiddenParam<uiWellFilterGrp,uiComboBox*> selopscbhp( nullptr );
+static HiddenParam<uiWellFilterGrp,int> basedonentiresethp( 1 );
+static const int cSelWellsEntireSet = 0;
 
 uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     : uiGroup(p)
@@ -53,44 +57,67 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     , markerSelectionChg(this)
 {
     hp.setParam( this, new InitDesc );
+    selopscbhp.setParam( this, nullptr );
+    basedonentiresethp.setParam( this, 1 );
 
+    auto* maingrp = new uiGroup( this, "Main group" );
     const bool hor = orient_ == OD::Horizontal;
     const IOObjContext ctxt = mIOObjContext( Well );
     uiIOObjSelGrp::Setup suw( OD::ChooseZeroOrMore );
     suw.withinserters(false);
-    uiIOObjSelGrp* welllistselgrp = new uiIOObjSelGrp( this, ctxt, suw );
+    uiIOObjSelGrp* welllistselgrp = new uiIOObjSelGrp( maingrp, ctxt, suw );
     welllistselgrp->displayManipGroup( false, true );
     welllist_ = welllistselgrp->getListField();
     welllist_->chooseAll();
     welllist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
 
-    logormnslist_ = new uiListBox( this, "logs", OD::ChooseZeroOrMore );
+    logormnslist_ = new uiListBox( maingrp, "logs", OD::ChooseZeroOrMore );
     logormnsfilter_ = new uiListBoxFilter( *logormnslist_ );
     logormnslist_->setHSzPol( uiObject::Wide );
     logormnslist_->attach( hor ? rightOf : alignedBelow, welllistselgrp );
     logormnslist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
 
-    markerlist_ = new uiListBox( this, "markers", OD::ChooseZeroOrMore );
+    markerlist_ = new uiListBox( maingrp, "markers", OD::ChooseZeroOrMore );
     markerfilter_ = new uiListBoxFilter( *markerlist_ );
     markerlist_->attach( hor ? rightOf : alignedBelow, logormnslist_ );
     markerlist_->setHSzPol( uiObject::Wide );
     markerlist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
 
     CallBack cb = mCB(this,uiWellFilterGrp,selButPush);
-    fromwellbut_ = new uiToolButton( this,
+    fromwellbut_ = new uiToolButton( maingrp,
 		 hor ? uiToolButton::RightArrow : uiToolButton::DownArrow,
 		tr("Show logs/markers present selected wells"), cb );
     fromwellbut_->attach(hor ? centeredBelow : centeredRightOf, welllistselgrp);
-    fromlogormnsbut_ = new uiToolButton( this,
+    fromlogormnsbut_ = new uiToolButton( maingrp,
 		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
 		tr("Show wells which have selected logs/mnemonics"), cb );
     fromlogormnsbut_->attach( hor ? centeredBelow : centeredRightOf,
 	    		      logormnslist_ );
-    frommarkerbut_ = new uiToolButton( this,
+    frommarkerbut_ = new uiToolButton( maingrp,
 		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
 		tr("Show wells which have selected markers"), cb );
     frommarkerbut_->attach( hor ? centeredBelow : centeredRightOf,
 			    markerlist_ );
+
+    if ( hor )
+    {
+	uiSeparator* sep = new uiSeparator( this );
+	sep->attach( centeredBelow, maingrp );
+
+	auto* optionsgrp = new uiGroup( this, "Selection options goup" );
+	uiLabel* lbl = new uiLabel( optionsgrp,
+		    tr( "Make Well selection from Logs/markers based on: " ) );
+	uiStringSet strs( tr( "Entire selected logs/markers set" ),
+			  tr( "Selected logs/markers individually" ) );
+	auto* seloptionscb = new uiComboBox( optionsgrp,
+					strs, "Selection options" );
+	seloptionscb->setStretch( 0, 0 );
+	optionsgrp->attach( ensureBelow, sep );
+	seloptionscb->attach( rightOf, lbl );
+	mAttachCB( seloptionscb->selectionChanged,
+		   uiWellFilterGrp::fromSelTypeChgdCB );
+	selopscbhp.setParam( this, seloptionscb );
+    }
 
     mAttachCB( welllistselgrp->selectionChanged, uiWellFilterGrp::selChgCB );
     mAttachCB( logormnslist_->selectionChanged, uiWellFilterGrp::selChgCB );
@@ -124,6 +151,7 @@ uiWellFilterGrp::~uiWellFilterGrp()
 {
     detachAllNotifiers();
     hp.removeAndDeleteParam( this );
+    selopscbhp.removeParam( this );
 }
 
 
@@ -492,6 +520,20 @@ void uiWellFilterGrp::logValRangeFilter( const MnemonicSelection& mns,
 }
 
 
+void uiWellFilterGrp::fromSelTypeChgdCB( CallBacker* )
+{
+    uiComboBox* seloptionscb = selopscbhp.getParam( this );
+    if ( !seloptionscb )
+	return;
+
+    const int seloption = seloptionscb->currentItem();
+    if ( seloption == cSelWellsEntireSet )
+	basedonentiresethp.setParam( this, 1 );
+    else
+	basedonentiresethp.setParam( this, 0 );
+}
+
+
 void uiWellFilterGrp::selChgCB( CallBacker* )
 {
     const InitDesc& initdesc = *hp.getParam(this);
@@ -522,7 +564,8 @@ void uiWellFilterGrp::markerSelChgCB( CallBacker* )
 
 void uiWellFilterGrp::selButPush( CallBacker* cb )
 {
-    const InitDesc& initdesc = *hp.getParam(this);
+    const InitDesc& initdesc = *hp.getParam( this );
+    const bool basedonentireset = basedonentiresethp.getParam(this) == 1;
     mDynamicCastGet(uiToolButton*,but,cb)
     BufferStringSet wellnames, lognames, markernames;
     MnemonicSelection mns;
@@ -550,7 +593,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
 	if ( initdesc.logmode_ )
 	{
 	    logormnslist_->getChosen( lognames );
-	    wdf.getWellsFromLogs( lognames, wellnames );
+	    wdf.getWellSelFromLogs( lognames, wellnames, basedonentireset );
 	}
 	else
 	{
@@ -559,7 +602,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
 	    for ( const auto* mnnm : mnnms )
 		mns.addIfNew( initdesc.mns_.getByName(*mnnm) );
 
-	    wdf.getWellsFromMnems( mns, wellnames );
+	    wdf.getWellSelFromMnems( mns, wellnames, basedonentireset );
 	}
 
 	welllist_->setChosen( wellnames );
@@ -567,7 +610,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
     else if ( but == frommarkerbut_ )
     {
 	markerlist_->getChosen( markernames );
-	wdf.getWellsFromMarkers( markernames, wellnames );
+	wdf.getWellSelFromMarkers( markernames, wellnames, basedonentireset );
 	welllist_->setChosen( wellnames );
     }
 }

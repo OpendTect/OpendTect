@@ -96,8 +96,8 @@ protected:
     void			selButPush(CallBacker*);
     void			selChgCB(CallBacker*);
     void			markerSelChgCB(CallBacker*);
-
     bool			getLogMode() const;
+    void			fromSelTypeChgdCB(CallBacker*);
     void			fillListBoxes();
     void			fillInitSelection(const BufferStringSet& wllnms,
 						  const BufferStringSet& lognms,
