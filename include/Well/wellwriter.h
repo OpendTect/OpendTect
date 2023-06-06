@@ -102,5 +102,5 @@ protected:
     bool				allwellswritten_ = true;
 
     bool		store(const MultiID&, const Well::Data&,
-					const StoreReqs);
+					const StoreReqs&);
 };

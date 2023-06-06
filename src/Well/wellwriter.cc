@@ -698,7 +698,7 @@ int MultiWellWriter::nextStep()
 	return MoreToDo();
     }
 
-    if ( !store(wd->multiID(),*wd,reqs_[nrdone_]) )
+    if ( !store(wd->multiID(),*wd,*reqs_[nrdone_]) )
 	allwellswritten_ = false;
 
     nrdone_++;
@@ -707,7 +707,7 @@ int MultiWellWriter::nextStep()
 
 
 bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
-						 const StoreReqs reqs )
+						 const StoreReqs& reqs )
 {
     Well::Writer wrtr( key, wd );
     if ( reqs.includes(Well::Inf) || reqs.includes(Well::Trck) )
