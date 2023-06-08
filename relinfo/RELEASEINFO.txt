@@ -2,20 +2,20 @@ Opendtect 7.X release info
 
 Build platforms/distributions:
 
-Linux 64   : CentOS Linux release 7.2.1511
-Mac	   : Mac OS X 10.14.6 (Mojave)
-Windows 64 : Windows Server 2012
+Linux   : CentOS Linux release 7.2.1511
+macOS   : macOS 10.12 (Monterey)
+Windows : Windows Server 2012
 
 
 Compiler:
 
-Linux: gcc/g++ 5.4.0
-Mac: SDK 10.14
-Windows 64: Visual Studio 2022 (version 17.3)
+Linux   : gcc/g++ 9.4.0
+Mac     : SDK 10.15
+Windows : Visual Studio 2022 (version 17.4.3)
 
 
 OpenSource packages/versions used:
 
 Qt: 5.15.2
 OpenSceneGraph: 3.6.5
-HDF5 (optional): 1.12.2
+HDF5 (optional): 1.14.0
