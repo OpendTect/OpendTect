@@ -1,4 +1,0 @@
-OpendTect V7.0.x : Release info
-
-
-----
