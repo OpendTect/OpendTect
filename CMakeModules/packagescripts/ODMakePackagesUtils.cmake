@@ -305,7 +305,6 @@ endmacro( COPY_MAC_SYSTEMLIBS )
 
 
 macro( CREATE_BASEPACKAGES PACKAGE_NAME )
-    set( RELFILENAM RELEASE )
     string( FIND ${PACKAGE_NAME} "dgb" STATUS )
     if( ${STATUS} EQUAL "0" )
 	set( ODDGBSTR "dgb" )
@@ -325,7 +324,6 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 	    file( RENAME "${COPYTODATADIR}_TMP" "${COPYTODATADIR}" )
 	endif()
 
-	set( RELFILENAM ${RELFILENAM}.${ODDGBSTR}.txt )
 	file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
 	foreach( QMFILE ${QMFILES} )
 	    get_filename_component( QMFILENM ${QMFILE} NAME )
@@ -337,13 +335,10 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 	set( ODDGBSTR "od" )
 	file( COPY ${COPYFROMDATADIR}/relinfo/README.txt
 	      DESTINATION ${COPYTODATADIR}/relinfo )
-	set( RELFILENAM ${RELFILENAM}.txt )
 	file( COPY ${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
 	      DESTINATION ${COPYTODATADIR}/doc/ReleaseInfo )
     endif()
 
-    file( COPY ${COPYFROMDATADIR}/relinfo/${RELFILENAM}
-	  DESTINATION ${COPYTODATADIR}/doc/ReleaseInfo )
     file( COPY ${COPYFROMDATADIR}/doc/Videos.${ODDGBSTR}
 	  DESTINATION ${COPYTODATADIR}/doc )
 
