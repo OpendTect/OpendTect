@@ -3,13 +3,13 @@ Opendtect 7.0 release info
 Build platforms/distributions:
 
 Linux   : CentOS Linux release 7.2.1511
-macOS   : macOS 10.12 (Monterey)
+macOS   : macOS 12.10 (Monterey)
 Windows : Windows Server 2012
 
 
 Compiler:
 
-Linux   : gcc/g++ 9.4.0
+Linux   : gcc/g++ 9.5.0
 Mac     : SDK 10.15
 Windows : Visual Studio 2022 (version 17.4.3)
 
