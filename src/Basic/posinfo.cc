@@ -344,11 +344,11 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 	    if ( segstop > hs.stop_.crl() )
 	    {
 		int newstop = hs.stop_.crl();
-		int diff = segstop - newstop;
+		int diff = newstop - seg.start;
 		if ( diff % seg.step )
 		{
-		    diff += seg.step - diff % seg.step;
-		    newstop = segstop - diff;
+		    diff = (diff/seg.step+1)*seg.step;
+		    newstop = seg.start + diff;
 		}
 
 		if ( isrev )
