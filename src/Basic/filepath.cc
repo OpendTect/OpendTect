@@ -677,7 +677,9 @@ void FilePath::trueDirIfLink()
 #ifdef __win__
     //TODO Launching OpendTect is taking too much time on windows platform.
     // Hence added a temporary fix. Need to find solution.
-    static bool supportwinlinks = GetEnvVarYN( "OD_ALLOW_WINDOWS_LINKS" );
+    static bool supportwinlinks = AreProgramArgsSet()
+		   ? GetEnvVarYN("OD_ALLOW_WINDOWS_LINKS")
+		   : false;
     if ( !supportwinlinks )
 	return;
 
