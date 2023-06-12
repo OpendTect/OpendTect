@@ -40,4 +40,5 @@ protected:
     void		exButPush(CallBacker*);
     bool		acceptOK(CallBacker*) override;
     void		filenmUpd(CallBacker*);
+    void		displayText(const char* txt,const char* commandtxt);
 };
