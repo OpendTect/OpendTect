@@ -8,26 +8,29 @@ ________________________________________________________________________
 -*/
 
 #include "uibatchprogs.h"
-#include "uifileinput.h"
-#include "uitextfile.h"
-#include "uicombobox.h"
-#include "uitextedit.h"
+
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
+#include "uifont.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
+#include "uistatusbar.h"
+#include "uitextedit.h"
+#include "uitextfile.h"
+
 #include "ascstream.h"
+#include "dirlist.h"
+#include "envvars.h"
 #include "file.h"
-#include "filepath.h"
 #include "manobjectset.h"
+#include "od_helpids.h"
 #include "od_istream.h"
-#include "iopar.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "progressmeter.h"
 #include "separstr.h"
-#include "envvars.h"
-#include "dirlist.h"
-
-#include "od_helpids.h"
 
 
 class BatchProgPar
@@ -38,9 +41,9 @@ public:
 
     enum Type		{ FileRead, FileWrite, Words, QWord };
 
-    Type		type;
-    bool		mandatory;
-    BufferString	desc;
+    Type		type_;
+    bool		mandatory_;
+    BufferString	desc_;
 
     static Type		getType( const char* s )
 			{
@@ -56,10 +59,13 @@ public:
 
 BatchProgPar::BatchProgPar( const char* val )
 {
-    FileMultiString fms( val );
-    mandatory = *fms[0] == 'M';
-    type = getType( fms[1] );
-    desc = fms[2];
+    const FileMultiString fms( val );
+    if ( fms.size() > 0 )
+	mandatory_ = *fms[0] == 'M';
+    if ( fms.size() > 1 )
+	type_ = getType( fms[1] );
+    if ( fms.size() > 2 )
+	desc_ = fms[2];
 }
 
 
@@ -70,15 +76,16 @@ public:
     enum UIType			{ NoUI, TxtUI, HasUI };
 
 				BatchProgInfo( const char* nm )
-				: name(nm), issys(false), uitype_(NoUI) {}
-				~BatchProgInfo()	 { deepErase(args); }
+				    : name_(nm)
+				{}
 
-    BufferString		name;
-    ObjectSet<BatchProgPar>	args;
-    BufferString		comments;
-    BufferString		exampleinput;
-    bool			issys;
-    UIType			uitype_;
+    BufferString		name_;
+    ManagedObjectSet<BatchProgPar> args_;
+    BufferString		comments_;
+    BufferString		exampleinput_;
+    bool			issys_ = false;
+    UIType			uitype_ = NoUI;
+    bool			getstdout_ = false;
 
 };
 
@@ -111,7 +118,7 @@ BatchProgInfoList::BatchProgInfoList()
 	}
 
 	dirnm = mGetSWDirDataDir();
-	DirList dlrel( dirnm, File::FilesInDir, searchkey );
+	const DirList dlrel( dirnm, File::FilesInDir, searchkey );
 	for ( int idx=0; idx<dlrel.size(); idx++ )
 	    getEntries( dlrel.fullPath(idx) );
     }
@@ -120,36 +127,37 @@ BatchProgInfoList::BatchProgInfoList()
 
 void BatchProgInfoList::getEntries( const char* fnm )
 {
-    if ( File::isEmpty(fnm) )
+    if ( !File::exists(fnm) || File::isEmpty(fnm) )
 	return;
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	return;
 
     ascistream astrm( strm, true );
-
     while ( astrm.type() != ascistream::EndOfFile )
     {
 	if ( atEndOfSection(astrm.next()) )
 	    continue;
 
 	const bool issys = astrm.hasValue("Sys");
-	BatchProgInfo* bpi = new BatchProgInfo(astrm.keyWord());
-	if ( issys ) bpi->issys = true;
+	auto* bpi = new BatchProgInfo( astrm.keyWord() );
+	if ( issys )
+	    bpi->issys_ = true;
 
 	while ( !atEndOfSection(astrm.next()) )
 	{
 	    if ( astrm.hasKeyword("ExampleInput") )
-		bpi->exampleinput = astrm.value();
+		bpi->exampleinput_ = astrm.value();
 	    else if ( astrm.hasKeyword("Arg") )
-		bpi->args += new BatchProgPar( astrm.value() );
+		bpi->args_.add( new BatchProgPar( astrm.value() ) );
 	    else if ( astrm.hasKeyword("Comment") )
 	    {
 		char* ptr = const_cast<char*>(astrm.value());
 		while ( *ptr && *ptr == '>' ) *ptr++ = ' ';
-		if ( !bpi->comments.isEmpty() )
-		    bpi->comments += "\n";
-		bpi->comments += astrm.value();
+		if ( !bpi->comments_.isEmpty() )
+		    bpi->comments_.addNewLine();
+		bpi->comments_ += astrm.value();
 	    }
 	    else if ( astrm.hasKeyword("UI") )
 	    {
@@ -158,9 +166,14 @@ void BatchProgInfoList::getEntries( const char* fnm )
 			     : (firstchar=='Y'	? BatchProgInfo::HasUI
 						: BatchProgInfo::NoUI);
 	    }
+	    else if ( astrm.hasKeyword("Stdout") )
+	    {
+		bpi->getstdout_ = astrm.getYN();
+	    }
 	}
 
-	if ( bpi ) *this += bpi;
+	if ( bpi )
+	   add( bpi );
     }
 }
 
@@ -170,9 +183,9 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	       tr("Specify batch program and parameters"),
 	       mODHelpKey(mBatchProgLaunchHelpID) ) )
     , pil_(*new BatchProgInfoList)
-    , progfld_(0)
-    , browser_(0)
-    , exbut_(0)
+    , progfld_(nullptr)
+    , browser_(nullptr)
+    , exbut_(nullptr)
 {
     if ( pil_.size() < 1 )
     {
@@ -181,15 +194,15 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
                               " file in application"));
 	return;
     }
+
     setCtrlStyle( RunAndClose );
 
-    uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Batch program") );
+    auto* lcc = new uiLabeledComboBox( this, tr("Batch program") );
     progfld_ = lcc->box();
     for ( int idx=0; idx<pil_.size(); idx++ )
-	progfld_->addItem( toUiString(pil_[idx]->name) );
+	progfld_->addItem( toUiString(pil_[idx]->name_) );
     progfld_->setCurrentItem( 0 );
-    progfld_->selectionChanged.notify(
-			mCB(this,uiBatchProgLaunch,progSel) );
+    mAttachCB( progfld_->selectionChanged, uiBatchProgLaunch::progSel );
     progfld_->setHSzPol( uiObject::WideVar );
 
     commfld_ = new uiTextEdit( this, "Comments" );
@@ -200,27 +213,27 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     for ( int ibpi=0; ibpi<pil_.size(); ibpi++ )
     {
 	const BatchProgInfo& bpi = *pil_[ibpi];
-	ObjectSet<uiGenInput>* inplst = new ObjectSet<uiGenInput>;
-	inps_ += inplst;
-	for ( int iarg=0; iarg<bpi.args.size(); iarg++ )
+	auto* inplst = new ObjectSet<uiGenInput>;
+	inps_.add( inplst );
+	for ( int iarg=0; iarg<bpi.args_.size(); iarg++ )
 	{
 	    uiString txt;
-	    const BatchProgPar& bpp = *bpi.args[iarg];
-	    if ( !bpp.mandatory )
-		txt = toUiString("[%1]").arg(mToUiStringTodo(bpp.desc));
+	    const BatchProgPar& bpp = *bpi.args_[iarg];
+	    if ( bpp.mandatory_ )
+		txt = mToUiStringTodo(bpp.desc_);
 	    else
-		txt = mToUiStringTodo(bpp.desc);
+		txt = toUiString("[%1]").arg(mToUiStringTodo(bpp.desc_));
 
 	    uiGenInput* newinp;
-	    if ( bpp.type == BatchProgPar::Words ||
-		 bpp.type == BatchProgPar::QWord )
+	    if ( bpp.type_ == BatchProgPar::Words ||
+		 bpp.type_ == BatchProgPar::QWord )
 		newinp = new uiGenInput( this, txt );
 	    else
 	    {
 		BufferString filt;
-		if ( bpp.desc == "Parameter file" )
+		if ( bpp.desc_ == "Parameter file" )
 		    filt = "Parameter files (*.par)";
-		bool forread = bpp.type == BatchProgPar::FileRead;
+		bool forread = bpp.type_ == BatchProgPar::FileRead;
 		newinp = new uiFileInput( this, txt,
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(forread).filter(filt.buf()) );
@@ -233,9 +246,10 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 		newinp->attach( alignedBelow, lcc );
 		newinp->attach( ensureBelow, commfld_ );
 	    }
-	    (*inplst) += newinp;
+
+	    inplst->add( newinp );
 	}
-	if ( !bpi.exampleinput.isEmpty() )
+	if ( !bpi.exampleinput_.isEmpty() )
 	{
 	    if ( !exbut_ )
 	    {
@@ -249,14 +263,16 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	}
     }
 
-
-    postFinalize().notify( mCB(this,uiBatchProgLaunch,progSel) );
+    mAttachCB( postFinalize(), uiBatchProgLaunch::progSel );
 }
 
 
 uiBatchProgLaunch::~uiBatchProgLaunch()
 {
-    if ( browser_ ) browser_->reject(0);
+    detachAllNotifiers();
+    if ( browser_ )
+	browser_->reject();
+
     delete &pil_;
 }
 
@@ -265,7 +281,7 @@ void uiBatchProgLaunch::progSel( CallBacker* )
 {
     const int selidx = progfld_->currentItem();
     const BatchProgInfo& bpi = *pil_[selidx];
-    commfld_->setText( bpi.comments );
+    commfld_->setText( bpi.comments_ );
 
     for ( int ilst=0; ilst<inps_.size(); ilst++ )
     {
@@ -275,7 +291,7 @@ void uiBatchProgLaunch::progSel( CallBacker* )
     }
 
     if ( exbut_ )
-	exbut_->display( !bpi.exampleinput.isEmpty() );
+	exbut_->display( !bpi.exampleinput_.isEmpty() );
 }
 
 
@@ -283,13 +299,14 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 {
     const int selidx = progfld_->currentItem();
     const BatchProgInfo& bpi = *pil_[selidx];
-    if ( bpi.exampleinput.isEmpty() )
+    if ( bpi.exampleinput_.isEmpty() )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
-    BufferString sourceex( mGetSetupFileName(bpi.exampleinput) );
+
+    BufferString sourceex( mGetSetupFileName(bpi.exampleinput_) );
     if ( File::isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 
-    BufferString targetex = GetProcFileName( bpi.exampleinput );
+    BufferString targetex = GetProcFileName( bpi.exampleinput_ );
     if ( !File::exists(targetex) )
     {
 	File::copy( sourceex, targetex );
@@ -301,16 +318,17 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     else
     {
 	browser_ = new uiTextFileDlg( this, targetex );
-	browser_->editor()->fileNmChg.notify(
-				mCB(this,uiBatchProgLaunch,filenmUpd) );
+	mAttachCB( browser_->editor()->fileNmChg, uiBatchProgLaunch::filenmUpd);
     }
+
     browser_->show();
 }
 
 
 bool uiBatchProgLaunch::acceptOK( CallBacker* )
 {
-    if ( !progfld_ ) return true;
+    if ( !progfld_ )
+	return true;
 
     const int selidx = progfld_->currentItem();
     const BatchProgInfo& bpi = *pil_[selidx];
@@ -343,19 +361,31 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	    val = inp->text();
 	    if ( val.isEmpty() )
 		continue;
-	    if ( bpi.args[iinp]->type == BatchProgPar::QWord )
+	    if ( bpi.args_[iinp]->type_ == BatchProgPar::QWord )
 		val.quote();
 	}
 
 	mc.addArg( val );
     }
 
-    OS::CommandExecPars execpars( OS::RunInBG );
-    execpars.needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
-	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
-	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
+    bool res = false;
+    OS::CommandExecPars execpars;
+    if ( bpi.getstdout_ )
+    {
+	BufferString stdoutstr, stderrstr;
+	res = mc.execute( stdoutstr, &stderrstr );
+	if ( res && !stdoutstr.isEmpty() )
+	    displayText( stdoutstr.str(), mc.toString(&execpars) );
+    }
+    else
+    {
+	execpars = OS::CommandExecPars( OS::RunInBG );
+	execpars.createstreams( bpi.uitype_ == BatchProgInfo::NoUI )
+		.isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI );
+	res = mc.execute( execpars );
+    }
 
-    if ( !mc.execute(execpars) )
+    if ( !res )
 	uiMSG().error(tr("Cannot execute command:\n%1")
 			.arg(mc.toString(&execpars)));
 
@@ -379,4 +409,71 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 	if ( finp )
 	    finp->setText( uitf->fileName() );
     }
+}
+
+
+class uiTextViewerWin : public uiMainWin
+{ mODTextTranslationClass(uiTextViewer)
+public:
+			uiTextViewerWin(uiParent*,const char* txt,
+					const uiString& sbtxt);
+			~uiTextViewerWin();
+private:
+
+    void		initWinCB(CallBacker*);
+
+    uiTextBrowser*	txtfld_;
+    uiString		sbtxt_;
+
+};
+
+
+uiTextViewerWin::uiTextViewerWin( uiParent* p, const char* txt,
+				  const uiString& sbtxt )
+    : uiMainWin(p,tr("Command output viewer"),1,false)
+    , sbtxt_(sbtxt)
+{
+    txtfld_ = new uiTextBrowser( this, "Command Output" );
+    uiFont& fnt = FontList().add( "Non-prop",
+			FontData(FontData::defaultPointSize(),"Courier") );
+    txtfld_->setFont( fnt );
+
+    //Ensure we have space for 80 chars
+    const int nrchars = TextStreamProgressMeter::cNrCharsPerRow()+5;
+    mAllocVarLenArr( char, str, nrchars+1 );
+    OD::memSet( str, ' ', nrchars );
+    str[nrchars] = '\0';
+
+    int deswidth = fnt.width( mToUiStringTodo(str) );
+    const int desktopwidth = uiMain::instance().desktopSize().hNrPics();
+    if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
+	deswidth = desktopwidth;
+
+    if ( deswidth > txtfld_->defaultWidth() )
+	txtfld_->setPrefWidth( deswidth );
+
+    txtfld_->setText( txt );
+    mAttachCB( postFinalize(), uiTextViewerWin::initWinCB );
+}
+
+
+uiTextViewerWin::~uiTextViewerWin()
+{
+    detachAllNotifiers();
+}
+
+
+void uiTextViewerWin::initWinCB( CallBacker* )
+{
+    if ( statusBar() && !sbtxt_.isEmpty() )
+	statusBar()->message( sbtxt_ );
+}
+
+
+void uiBatchProgLaunch::displayText( const char* txt, const char* commandtxt )
+{
+    const uiString sbtxt = tr("Output of: '%1'").arg( commandtxt );
+    auto* txtwin = new uiTextViewerWin( this, txt, sbtxt );
+    txtwin->setDeleteOnClose( true );
+    txtwin->show();
 }
