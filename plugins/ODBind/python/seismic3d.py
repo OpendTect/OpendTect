@@ -460,10 +460,10 @@ class Seismic3D(_SurveyObject):
 
         Parameters
         ----------
-        info : dict
-            as returned by the _getdata_byrange method, at minimum require 'iline, 'xline' and 'twt|depth' fields
         data : list[np.ndarray]
             seismic data for each of the components, in iline, xline, z axis order
+        info : dict
+            as returned by the _getdata_byrange method, at minimum require 'iline, 'xline' and 'twt|depth' fields
 
         Returns
         -------

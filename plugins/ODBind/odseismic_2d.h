@@ -49,6 +49,8 @@ public:
     BufferStringSet*	getLineNames() const;
     void		getLineInfo(OD::JSON::Array&,
 				    const BufferStringSet&) const;
+    void		getData(hAllocator, const char* line,
+				float zrg[3]) const;
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getFeature(OD::JSON::Object&,
@@ -63,8 +65,13 @@ protected:
 
 mDeclareBaseBindings(Seismic2D, seismic2d)
 mExternC(ODBind) void		seismic2d_close(hSeismic2D);
+mExternC(ODBind) hStringSet	seismic2d_compnames(hSeismic2D);
 mExternC(ODBind) hStringSet	seismic2d_linenames(hSeismic2D);
-mExternC(ODBind) const char*	seismic2d_lineinfo(hSeismic2D, const hStringSet);
+mExternC(ODBind) const char*	seismic2d_lineinfo(hSeismic2D,
+						   const hStringSet);
+mExternC(ODBind) void		seismic2d_getdata(hSeismic2D, hAllocator,
+						  const char* linenm,
+						  float zrg[3]);
 
 
 

@@ -380,6 +380,54 @@ void odWell::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 }
 
 
+BufferStringSet* odWell::getCommonMarkerNames( const odSurvey& survey,
+					       const BufferStringSet& fornames )
+{
+    BufferStringSet nms;
+    PtrMan<BufferStringSet> allnms = getNames<odWell>( survey );
+    if ( fornames.isEmpty() )
+	nms = *allnms;
+    else
+	nms = odSurvey::getCommonItems( *allnms, fornames );
+
+    BufferStringSet common;
+    for ( const auto* nm : nms )
+    {
+	odWell well( survey, *nm );
+	PtrMan<BufferStringSet> marknms = well.getMarkerNames();
+	if ( common.isEmpty() )
+	    common = *marknms;
+	else
+	    common = odSurvey::getCommonItems( *marknms, common );
+    }
+    return common.clone();
+}
+
+
+BufferStringSet* odWell::getCommonLogNames( const odSurvey& survey,
+					       const BufferStringSet& fornames )
+{
+    BufferStringSet nms;
+    PtrMan<BufferStringSet> allnms = getNames<odWell>( survey );
+    if ( fornames.isEmpty() )
+	nms = *allnms;
+    else
+	nms = odSurvey::getCommonItems( *allnms, fornames );
+
+    BufferStringSet common;
+    for ( const auto* nm : nms )
+    {
+	odWell well( survey, *nm );
+	PtrMan<BufferStringSet> lognms = well.getLogNames();
+	if ( common.isEmpty() )
+	    common = *lognms;
+	else
+	    common = odSurvey::getCommonItems( *lognms, common );
+    }
+    return common.clone();
+}
+
+
 mDefineBaseBindings(Well, well)
 
 hStringSet well_lognames( hWell self )
@@ -493,3 +541,22 @@ void well_tvd( hWell self, const float dah, float* tvd )
 						p->wd()->track().getKbElev();
     *tvd = getConvertedValue( tvdstored, zsuom, zduom );
 }
+
+
+hStringSet well_commonlognames( hSurvey surv, const hStringSet nms )
+{
+    auto* p = reinterpret_cast<odSurvey*>(surv);
+    auto* fornms = reinterpret_cast<BufferStringSet*>(nms);
+    if ( !p || !fornms ) return nullptr;
+    return odWell::getCommonLogNames( *p, *fornms);
+}
+
+
+hStringSet well_commonmarkernames( hSurvey surv, const hStringSet nms )
+{
+    auto* p = reinterpret_cast<odSurvey*>(surv);
+    auto* fornms = reinterpret_cast<BufferStringSet*>(nms);
+    if ( !p || !fornms ) return nullptr;
+    return odWell::getCommonMarkerNames( *p, *fornms);
+}
+
