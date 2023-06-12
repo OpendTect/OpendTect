@@ -62,9 +62,6 @@ odSeismic3D::odSeismic3D( const odSurvey& thesurvey, const char* name )
     cubeidx_ = new PosInfo::CubeDataIndex( cubedata );
     const SeisIOObjInfo seisinfo( ioobj_ );
     seisinfo.getRanges( tkz_ );
-    zistime_ = seisinfo.isTime();
-    seisinfo.getComponentNames( components_ );
-
 }
 
 
@@ -72,8 +69,8 @@ odSeismic3D::odSeismic3D( const odSurvey& survey, const char* name,
 			  Seis3DFormat fmt, const BufferStringSet& components,
 			  const TrcKeyZSampling& tkz,
 			  bool zistime, bool overwrite )
-    : odSeismicObject(survey, name, translatorGrp(), overwrite,
-		      toString(fmt))
+    : odSeismicObject(survey, name, components, translatorGrp(), toString(fmt),
+		      zistime, overwrite)
     , tkz_(tkz)
 {
     const Seis::GeomType gt = Seis::GeomType::Vol;
@@ -86,8 +83,6 @@ odSeismic3D::odSeismic3D( const odSurvey& survey, const char* name,
 	return;
     }
 
-    zistime_ = zistime;
-    components_.add( components, true );
     const PosInfo::CubeData cubedata( tkz.hsamp_.start_, tkz.hsamp_.stop_,
 				tkz.hsamp_.step_);
     cubeidx_ = new PosInfo::CubeDataIndex( cubedata );
@@ -116,14 +111,6 @@ void odSeismic3D::close()
 
 	writecount_ = 0;
     }
-}
-
-
-BufferStringSet* odSeismic3D::getCompNames() const
-{
-    auto* nms = new BufferStringSet;
-    nms->add( components_, true );
-    return nms;
 }
 
 

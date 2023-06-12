@@ -13,7 +13,7 @@ jupyter:
     name: python3
 ---
 
-# Seismic3D Class - ODBind Python Bindings
+# Seismic2D Class - ODBind Python Bindings
 
 
 **If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.**
@@ -27,6 +27,8 @@ jupyter:
 
 ```python
 import numpy as np
+from matplotlib import pyplot as plt
+import xarray as xr
 from odbind.survey import Survey
 from odbind.seismic2d import Seismic2D
 ```
@@ -66,6 +68,14 @@ folium.GeoJson(feature, popup=folium.GeoJsonPopup(fields=['name'])).add_to(datam
 datamap
 ```
 
+### Seismic2D.comp_names property
+
+Return a list of the component names in the 2D seismic dataset.
+
+```python
+Seismic2D(f3demo,'Steering_2D').comp_names
+```
+
 ### Seismic2D.line_names property
 Return a list of the seismic lines in the 2D seismic dataset.
 
@@ -80,8 +90,13 @@ These return a dictionary and a Pandas DataFrame respectively with basic informa
 data.line_info_dataframe()
 ```
 
+```python
+xrline = data.as_xarray(*data.getdata('SSIS-Grid-Strike4'))
+xr.plot.imshow(xrline['Component 1'], x='trc', y='twt', yincrease=False, cmap='Greys')
+```
+
 ## Static methods
-A number of methods are provided to get information either for all or a selected number of wells in the user provided survey.
+A number of methods are provided to get information either for all or a selected number of 2D seismic datasets in the user provided survey.
 
 ```python
 datasets = Seismic2D.names(f3demo)
