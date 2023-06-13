@@ -28,10 +28,10 @@ public:
 
 protected:
 
-    uiComboBox*		progfld_;
+    uiComboBox*		progfld_ = nullptr;
     uiTextEdit*		commfld_;
-    uiTextFileDlg*	browser_;
-    uiPushButton*	exbut_;
+    uiTextFileDlg*	browser_ = nullptr;
+    uiPushButton*	exbut_ = nullptr;
     ObjectSet< ObjectSet<uiGenInput> > inps_;
 
     BatchProgInfoList&	pil_;
@@ -40,4 +40,5 @@ protected:
     void		exButPush(CallBacker*);
     bool		acceptOK(CallBacker*) override;
     void		filenmUpd(CallBacker*);
+    void		displayText(const char* txt,const char* commandtxt);
 };

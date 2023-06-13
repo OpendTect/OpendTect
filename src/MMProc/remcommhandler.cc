@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "ioman.h"
 #include "mmpkeystr.h"
 #include "mmpserver.h"
 #include "od_iostream.h"
@@ -174,4 +175,22 @@ void RemCommHandler::writeLog( const char* msg )
 {
     logstrm_ << Time::getDateTimeString() << od_endl;
     logstrm_ << msg <<od_endl;
+}
+
+
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+
+uiRetVal RemCommHandler::parseArgs( const CommandLineParser& clp )
+{
+    clp.setKeyHasValue( CommandLineParser::sDataRootArg() );
+
+    BufferString dataroot;
+    if ( !clp.getVal(CommandLineParser::sDataRootArg(),dataroot) )
+	dataroot.set( GetBaseDataDir() );
+
+    const uiRetVal uirv = IOMan::isValidDataRoot( dataroot.buf() );
+    if ( uirv.isOK() )
+	SetCurBaseDataDir( dataroot.str() );
+
+    return uirv;
 }

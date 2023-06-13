@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "netservice.h"
 #include "networkcommon.h"
 #include "prog.h"
+#include "remcommhandler.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "remjobexec.h"
@@ -62,6 +63,7 @@ protected:
     FileSystemWatcher*	logfsw_		= nullptr;
     BufferString	logfilewatched_;
 
+    void		initDlg(CallBacker*);
     void		startCB(CallBacker*);
     void		stopCB(CallBacker*);
     void		reloadlogCB(CallBacker*);
@@ -81,7 +83,7 @@ protected:
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
     app.setIcon( "rsm" );
     ApplicationData::setApplicationName( "OpendTect RemoteServiceMgr" );
@@ -95,9 +97,7 @@ int mProgMainFnName( int argc, char** argv )
 	return 0;
     }
 
-    const uiRetVal uirv = IOMan::setDataSource( clp );
-    if ( !uirv.isOK() )
-	return 1;
+    RemCommHandler::parseArgs( clp );
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiIo" );
@@ -120,6 +120,10 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     setTrayToolTip( tr("OpendTect Remote Service Manager") );
 
     datarootsel_ = new uiDataRootSel( this );
+    const BufferString dataroot = mmpclient_.serverDataRoot();
+    if ( IOMan::isValidDataRoot(dataroot.buf()).isOK() )
+	datarootsel_->setDataRoot( dataroot.str() );
+
     auto* buttons =  new uiButtonGroup( this, "buttons", OD::Horizontal );
     startbut_ = new uiPushButton( buttons, uiStrings::sStart(),
 				  mCB(this,uiRemoteServiceMgr,startCB), false );
@@ -137,8 +141,8 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     mAttachCB( mmpclient_.logFileChg, uiRemoteServiceMgr::logFileChgCB );
     mAttachCB( datarootsel_->selectionChanged,
 	       uiRemoteServiceMgr::changeDataRootCB );
-    logFileChgCB( nullptr );
-    updateCB( nullptr );
+
+    mAttachCB( postFinalize(), uiRemoteServiceMgr::initDlg );
 }
 
 
@@ -146,6 +150,13 @@ uiRemoteServiceMgr::~uiRemoteServiceMgr()
 {
     detachAllNotifiers();
     delete logfsw_;
+}
+
+
+void uiRemoteServiceMgr::initDlg( CallBacker* )
+{
+    logFileChgCB( nullptr );
+    updateCB( nullptr );
 }
 
 

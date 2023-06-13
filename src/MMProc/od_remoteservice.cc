@@ -7,34 +7,46 @@ ________________________________________________________________________
 
 -*/
 
-#include "remcommhandler.h"
-
 #include "applicationdata.h"
 #include "commandlineparser.h"
 #include "genc.h"
 #include "ioman.h"
 #include "moddepmgr.h"
 #include "prog.h"
+#include "remcommhandler.h"
 #include "remjobexec.h"
 
 
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::BatchProgCtxt )
-    SetProgramArgs( argc, argv, true );
+    SetProgramArgs( argc, argv, false );
     ApplicationData app;
 
     OD::ModDeps().ensureLoaded( "Network" );
 
+    const PortNr_Type remport = RemoteJobExec::remoteHandlerPort();
     const CommandLineParser clp( argc, argv );
-    const uiRetVal uirv = IOMan::setDataSource( clp );
-    if ( !uirv.isOK() )
+
+    uiString msg;
+    if ( !Network::isPortFree(remport,&msg) )
+    {
+	od_cerr() << toString(msg) << od_newline;
+	od_cerr() << "There is probably already an instance running of ";
+	od_cerr() << clp.getExecutableName() << od_endl;
 	return 1;
+    }
+
+    const uiRetVal uirv = RemCommHandler::parseArgs( clp );
+    if ( !uirv.isOK() )
+    {
+	od_cerr() << uirv.getText() << od_endl;
+	return 1;
+    }
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "MMProc" );
-    PtrMan<RemCommHandler> handler = new RemCommHandler(
-					RemoteJobExec::remoteHandlerPort() );
+    PtrMan<RemCommHandler> handler = new RemCommHandler( remport );
     PIM().loadAuto( true );
     const bool ret = handler ? app.exec() : 1;
     handler = nullptr;

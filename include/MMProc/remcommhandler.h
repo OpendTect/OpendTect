@@ -27,6 +27,8 @@ public:
 
     void		writeLog(const char* msg);
 
+    static uiRetVal	parseArgs(const CommandLineParser&);
+
 protected:
 			mOD_DisableCopy(RemCommHandler);
 
