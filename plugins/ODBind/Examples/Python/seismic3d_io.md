@@ -31,9 +31,9 @@ vol = Seismic3D(f3demo, '4 Dip steered median filter')
 - volume for access to sub-volumes
 
 Use the indexing operator [] with these properties to select the data to access, eg iline[300], volume[200:300,300:500,100:200]. In the case of Inline and Crossline slices
-the numbers used in the index used are the actual inline and crossline numbers. In the case of Z slices the numbers used in the index are the sample numbers. These indices
+the numbers used in the index are the actual inline and crossline numbers. In the case of Z slices the numbers used in the index are the sample numbers. These indices
 mostly behave like Python indexing except:
--  negative indices do not have special meaaning (access from end of data)
+-  negative indices do not have special meaning (eg access from end of data)
 -  the range implied by a slice includes both endpoints (compared with Python which excludes the slice.stop index)
 
 All components of the seismic data are returned as a tuple of:
@@ -61,7 +61,7 @@ The **Seismic3D.as_xarray** method can be used to convert the output from the in
 
 ## Slice Access Mode
 ### Inline Slices
-Indiviudal inlines can be accessed by vol.iline[inline_number] or a series of inline slices can be accessed by vol.iline[start_inline:stop_inline:step_inline]:
+Indiviudal inlines can be accessed by vol.iline[inline_number] or a series of inline slices can be accessed by vol.iline[start_inline:stop_inline:step_inline]. The latter returns a generator for the specified inlines:
 
 ```python
 inln = vol.as_xarray(*vol.iline[400])
@@ -76,7 +76,7 @@ for iln, ax in zip(vol.iline[200:220:10],axs):
 ```
 
 ### Crossline Access Mode
-Indiviudal crosslines can be accessed by vol.xline[crossline_numer] or a series of crossline slices can be accessed by vol.xline[start_crossline:stop_crossline:step_corssline]:
+Indiviudal crosslines can be accessed by vol.xline[crossline_numer] or a series of crossline slices can be accessed by vol.xline[start_crossline:stop_crossline:step_crossline]. The latter returns a generator for the specified crosslines:
 
 ```python
 xrxln = vol.as_xarray(*vol.xline[400])
@@ -84,7 +84,7 @@ xr.plot.imshow(xrxln['mdf2'], x='iline', y='twt', yincrease=False, cmap='Greys')
 ```
 
 ### Z Slice Access Mode
-Indiviudal Z slices can be accessed by vol.zslice[zslice_number] or a series of Z slices can be accessed by vol.zslice[start_zslice:stop_zslice:step_zslice]:
+Indiviudal Z slices can be accessed by vol.zslice[zslice_number] or a series of Z slices can be accessed by vol.zslice[start_zslice:stop_zslice:step_zslice]. The latter returns a generator for the specified z slices.:
 
 ```python
 zsl = vol.as_xarray(*vol.zslice[200])
@@ -120,4 +120,40 @@ Individual traces can be accessed by vol.trace[trace_numer], vol.trace[inline_nu
 ```python
 trc = vol.as_xarray(*vol.trace[200])
 trc['mdf2'].plot()
+```
+
+## Creating and Writing 3D Seismic Data
+
+The Seismic3D class includes the create static method to create a new 3D seismic volume in the specified survey.
+
+For example the following creates a new 3D seismic dataset in the F3_Demo_2020 survey with:
+- Inline range of 200-300, step 1
+- Crossline range of 400-500, step1
+- Z range of 200-400, step 4
+- Single component called "comp1"
+- Data will be stored in CBVS format
+- Dataset Z domain is TWT
+- If a dataset of the same name already exists it will be overwritten
+
+
+```python
+newvol = Seismic3D.create(f3demo,'new seismic volume',[200,300,1],[400,500,1],[200,400,4],['comp1'],'CBVS', True, True)
+newvol.info()
+```
+
+```python
+newvol.close()
+```
+
+This can be used with the Python "with" context manager to streamline data io.
+
+```python
+with Seismic3D.create(f3demo,'new seismic volume',[200,300,1],[400,500,1],[200,400,4],['comp1'],'CBVS', True, True) as newvol:
+    newvol.iline[:] = vol.iline[200:300]
+```
+
+```python
+newvol = Seismic3D(f3demo, 'new seismic volume')
+zsl = newvol.as_xarray(*newvol.zslice[50])
+xr.plot.pcolormesh(zsl['comp1'], x='iline', y='xline', cmap='Greys')
 ```

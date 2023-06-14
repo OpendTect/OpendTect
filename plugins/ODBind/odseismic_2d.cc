@@ -24,6 +24,10 @@ ________________________________________________________________________________
 #include "segydirecttr.h"
 #include "seisioobjinfo.h"
 #include "seis2ddata.h"
+#include "seis2dlineio.h"
+#include "seisbuf.h"
+#include "seisinfo.h"
+#include "seistrc.h"
 #include "survgeom2d.h"
 
 
@@ -42,8 +46,9 @@ odSeismic2D::odSeismic2D( const odSurvey& thesurvey, const char* name )
 odSeismic2D::odSeismic2D( const odSurvey& survey, const char* name,
 			  Seis2DFormat fmt, const BufferStringSet& components,
 			  bool zistime, bool overwrite )
-    : odSeismicObject(survey, name, translatorGrp(), overwrite,
-		      toString(fmt))
+    : odSeismicObject(survey, name, components, translatorGrp(), toString(fmt),
+		      zistime, overwrite)
+    , seisdata_(new Seis2DDataSet(*ioobj_))
 {
 }
 
@@ -107,6 +112,87 @@ void odSeismic2D::getLineInfo( OD::JSON::Array& jsarr,
 }
 
 
+
+void odSeismic2D::getData( hAllocator allocator, const char* linenm,
+			   float zrg[3] ) const
+{
+    errmsg_.setEmpty();
+    if ( !canRead() )
+	return;
+
+    survey_.activate();
+    if ( !ioobj_ )
+    {
+	errmsg_ = "invalid ioobj.";
+	return;
+    }
+
+    if ( !seisdata_->isPresent(linenm) )
+    {
+	errmsg_ = "invalid data request.";
+	return;
+    }
+
+    Pos::GeomID geomid = seisdata_->geomID( seisdata_->indexOf(linenm) );
+    SeisTrcBuf tbuf( true );
+    PtrMan<Executor>ex = seisdata_->lineFetcher( geomid, tbuf );
+    if ( !ex->execute() || tbuf.isEmpty() )
+    {
+	errmsg_ = "error reading 2D seismic data.";
+	return;
+    }
+
+    const int ntrc = tbuf.size();
+    const int nsamp = tbuf.get(0)->size();
+    const int nrcomp = getNrComponents();
+    StepInterval<float> zrange = tbuf.get(0)->zRange();
+    const SeisIOObjInfo info( ioobj_ );
+    const ZDomain::Def& zdef = info.zDomainDef();
+    zrange.scale( zdef.userFactor() );
+    zrg[0] = zrange.start;
+    zrg[1] = zrange.stop;
+    zrg[2] = zrange.step;
+
+    const int ndim = 2;
+    PtrMan<int> dims = new int[ndim];
+    dims[0] = ntrc;
+    dims[1] = nsamp;
+    const float valnan = std::nanf("");
+    for ( int cidx=0; cidx<nrcomp; cidx++ )
+    {
+	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+	for ( int tidx=0; tidx<ntrc; tidx++ )
+	{
+	    const SeisTrc* trc = tbuf.get( tidx );
+	    for ( int zidx=0; zidx<nsamp; zidx++ )
+	    {
+		float val = trc->get( zidx, cidx );
+		if ( mIsUdf(val) )
+		    val = valnan;
+
+		*outdata++ = val;
+	    }
+	}
+    }
+
+    const int ndim_xy = 1;
+    PtrMan<int> dims_xy = new int[ndim_xy];
+    dims_xy[0] = tbuf.size();
+    int* trcdata = reinterpret_cast<int*>(allocator(ndim_xy, dims_xy, 'i'));
+    float* refdata = reinterpret_cast<float*>(allocator(ndim_xy, dims_xy, 'f'));
+    double* xdata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* ydata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    for ( int tidx=0; tidx<ntrc; tidx++ )
+    {
+	const SeisTrcInfo& trc = tbuf.get( tidx )->info();
+	*trcdata++ = trc.trcNr();
+	*refdata++ = trc.refnr;
+	*xdata++ = trc.coord.x;
+	*ydata++ = trc.coord.y;
+    }
+}
+
+
 void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
 {
     jsobj.setEmpty();
@@ -116,6 +202,7 @@ void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
     jsobj.set( "name", getName().buf() );
     jsobj.set( "line_count", getNrLines() );
     jsobj.set( "zunit", zdef.unitStr() );
+    jsobj.set( "comp_count", getNrComponents() );
     jsobj.set( "storage_dtype", getDtypeStr(seisinfo).buf() );
 }
 
@@ -166,6 +253,16 @@ void seismic2d_close( hSeismic2D self )
 }
 
 
+hStringSet seismic2d_compnames( hSeismic2D self )
+{
+    const auto* p = reinterpret_cast<odSeismic2D*>(self);
+    if  ( !p )
+	return nullptr;
+
+    return p->getCompNames();
+}
+
+
 hStringSet seismic2d_linenames( hSeismic2D self )
 {
     const auto* p = reinterpret_cast<odSeismic2D*>(self);
@@ -186,6 +283,16 @@ const char* seismic2d_lineinfo( hSeismic2D self, const hStringSet fornms )
     return strdup( jsarr.dumpJSon().buf() );
 }
 
+
+void seismic2d_getdata( hSeismic2D self, hAllocator allocator,
+			const char* linenm, float zrg[3] )
+{
+    const auto* p = reinterpret_cast<odSeismic2D*>(self);
+    if  ( !p || !p->canRead() )
+	return;
+
+    p->getData( allocator, linenm, zrg );
+}
 
 
 

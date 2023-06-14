@@ -25,6 +25,8 @@ class Well(_SurveyObject):
         clss._dellogs = wrap_function(LIBODB, f'{bindnm}_deletelogs', ct.c_bool, [ct.c_void_p, ct.c_void_p])
         clss._tvdss = wrap_function(LIBODB, f'{bindnm}_tvdss', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._tvd = wrap_function(LIBODB, f'{bindnm}_tvd', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
+        clss._commonmarkernames = wrap_function(LIBODB, f'{bindnm}_commonmarkernames', ct.c_void_p, [ct.c_void_p, ct.c_void_p])
+        clss._commonlognames = wrap_function(LIBODB, f'{bindnm}_commonlognames', ct.c_void_p, [ct.c_void_p, ct.c_void_p])
 
     @property
     def log_names(self) ->list[str]:
@@ -236,7 +238,6 @@ class Well(_SurveyObject):
         stringset_del(lognmsptr)
         return res
 
-
     def tvdss(self, dah: float):
         """Return TVDSS for a MD/dah depth, all in the survey's default depth unit"""
         tvdss = ct.c_float()
@@ -248,6 +249,26 @@ class Well(_SurveyObject):
         tvd = ct.c_float()
         self._tvd(self._handle, dah, ct.byref(tvd))
         return tvd.value
+
+    @staticmethod
+    def common_markers(survey: Survey, forwells: list[str]=[] ):
+        """Return list of markers common to the listed wells or all wells in the survey
+
+        Parameters
+        ----------
+        survey : Survey
+            the OpendTect survey object
+        forwells : list[str]
+            list of well names to consider
+
+        Returns
+        -------
+
+        """
+        wellnmsptr = makestrlist(forwells)
+        res = pystrlist(self._commonmakernames(survey._handle, wellnmsptr))
+        stringset_del(wellnmsptr)
+        return res
 
 Well._initbindings('well')
  

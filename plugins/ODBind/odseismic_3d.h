@@ -49,8 +49,6 @@ public:
     odSeismic3D& operator= (const odSeismic3D&) = delete;
 
     void		close();
-    BufferStringSet*	getCompNames() const;
-    int			getNrComponents() const	{ return components_.size(); }
     od_int64		getNrTraces() const;
     od_int64		getTrcNum(const BinID&) const;
     BinID		getBinID(od_int64) const;
@@ -70,7 +68,6 @@ protected:
     PtrMan<PosInfo::CubeDataIndex>	cubeidx_;
     PtrMan<SeisTrcWriter>		writer_;
     PtrMan<SeisSequentialWriter>	sequentialwriter_;
-    BufferStringSet			components_;
     TrcKeyZSampling			tkz_;
     size_t				writecount_ = 0;
 

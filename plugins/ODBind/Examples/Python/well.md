@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -118,7 +118,7 @@ well.put_log('Double Density', data['dah'], data['Density']*2, 'g/cc', 'RHOB', T
 well.log_info(['Double Density'])
 ```
 
-```python tags=[]
+```python
 print( f'Density range: [{data["Density"].min()}, {data["Density"].max()}]')
 ```
 
@@ -133,7 +133,7 @@ wells
 ### Well.infos() and Well.infos_dataframe() functions
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed wells (or all wells if no list provided) in the given survey.
 
-```python tags=[]
+```python
 Well.infos_dataframe(f3demo)
 ```
 
@@ -141,7 +141,7 @@ Well.infos_dataframe(f3demo)
 
 Returns a GeoJSON feature collection for the listed wells (or all wells if no list provided) in the given survey. This can be used to create map displays.
 
-```python tags=[]
+```python
 features = Well.features(f3demo)
 features
 ```

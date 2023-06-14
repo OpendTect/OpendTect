@@ -31,7 +31,8 @@ public:
     odSeismicObject(const odSurvey& thesurvey, const char* name,
 		    const char* tgname);
     odSeismicObject(const odSurvey& thesurvey, const char* name,
-		    const char* tgname, bool overwrite, const char* fmt);
+		    const BufferStringSet& components, const char* tgname,
+		    const char* fmt, bool zistime, bool overwrite);
     ~odSeismicObject();
 
     odSeismicObject(const odSeismicObject&) = delete;
@@ -40,7 +41,11 @@ public:
     BufferString	getDtypeStr() const;
     BufferString	getDtypeStr(const SeisIOObjInfo&) const;
 
+    int			getNrComponents() const	{ return components_.size(); }
+    BufferStringSet*	getCompNames() const;
+
 protected:
+    BufferStringSet	components_;
 };
 
 

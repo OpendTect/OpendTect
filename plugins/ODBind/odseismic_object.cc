@@ -27,14 +27,20 @@ odSeismicObject::odSeismicObject( const odSurvey& thesurvey, const char* name,
 				  const char* tgname )
     : odSurveyObject(thesurvey, name, tgname)
 {
+    const SeisIOObjInfo seisinfo( ioobj_ );
+    zistime_ = seisinfo.isTime();
+    seisinfo.getComponentNames( components_ );
 }
 
 
 odSeismicObject::odSeismicObject( const odSurvey& thesurvey, const char* name,
-				  const char* tgname, bool overwrite,
-				  const char* fmt )
+				  const BufferStringSet& components,
+				  const char* tgname, const char* fmt,
+				  bool zistime, bool overwrite )
     : odSurveyObject(thesurvey, name, tgname, overwrite, fmt)
 {
+    zistime_ = zistime;
+    components_.add( components, true );
 }
 
 
@@ -58,3 +64,14 @@ BufferString odSeismicObject::getDtypeStr( const SeisIOObjInfo& info ) const
     dc.toString( res );
     return res;
 }
+
+
+BufferStringSet* odSeismicObject::getCompNames() const
+{
+    auto* nms = new BufferStringSet;
+    nms->add( components_, true );
+    return nms;
+}
+
+
+

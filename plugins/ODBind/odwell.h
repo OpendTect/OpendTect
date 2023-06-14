@@ -67,6 +67,10 @@ public:
     void		getPoints(OD::JSON::Array&, bool) const override;
 
     static const char*	translatorGrp()		{ return "Well"; }
+    static BufferStringSet*	getCommonMarkerNames(const odSurvey& suvey,
+						     const BufferStringSet&);
+    static BufferStringSet*	getCommonLogNames(const odSurvey& suvey,
+						  const BufferStringSet&);
 
 protected:
     RefMan<Well::Data>	wd_;
@@ -91,5 +95,8 @@ mExternC(ODBind) bool		well_deletelogs(hWell, const hStringSet);
 mExternC(ODBind) void		well_tvd(hWell, const float dah, float* tvd);
 mExternC(ODBind) void		well_tvdss(hWell, const float dah,
 					   float* tvdss);
+mExternC(ODBind) hStringSet	well_commonlognames(hSurvey, const hStringSet);
+mExternC(ODBind) hStringSet	well_commonmarkernames(hSurvey,
+						       const hStringSet);
 
 

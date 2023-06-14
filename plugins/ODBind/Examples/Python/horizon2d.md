@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -78,13 +78,11 @@ Return the line name for the given lineid
 gbase.linename(3)
 ```
 
-<!-- #region tags=[] -->
 ### Horizon2D.getz(lineid), Horizon2D.getxy(lineid) and Horizon2D.get_xarray(lineid) functions
 
 -  getz(): return a Numpy 1D array with the horizon Z values for the given lineid
 -  getxy(): return a tuple of Numpy 1D arrays with the X coordinates, Y coordinates and trace numbers of the horizon z values for the given lineid
 -  get_xarray(): return an XArray DataArray with the horizon X, Y, trace numbers and Z values for the given lineid
-<!-- #endregion -->
 
 ```python
 import xarray as xr
@@ -117,7 +115,7 @@ hors
 ### Horizon2D.infos() and Horizon2D.infos_dataframe() functions
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
 
-```python tags=[]
+```python
 Horizon2D.infos_dataframe(f3demo)
 ```
 
