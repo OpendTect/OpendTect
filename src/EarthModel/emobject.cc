@@ -771,20 +771,14 @@ bool EMObject::usePar( const IOPar& par )
 	if ( !par.get(attribkey.buf(),attrib) )
 	    continue;
 
-	TypeSet<int> sections;
 	TypeSet<SubID> subids;
-
-	BufferString sectionkey = attribkey;
-	sectionkey += posattrsectionstr();
 
 	BufferString subidkey = attribkey;
 	subidkey += posattrposidstr();
 
-	par.get( sectionkey.buf(), sections );
 	par.get( subidkey.buf(), subids );
 
-	const int minsz = mMIN( sections.size(), subids.size() );
-	for ( int idy=0; idy<minsz; idy++ )
+	for ( int idy=0; idy<subids.size(); idy++ )
 	{
 	    if ( !isDefined(subids[idy]) )
 		continue;
@@ -820,6 +814,12 @@ void EMObject::fillPar( IOPar& par ) const
 	BufferString subidkey = attribkey;
 	subidkey += posattrposidstr();
 	par.set( subidkey.buf(), subids );
+
+	// Needed while reading the seeds in pre-7.0 versions
+	TypeSet<int> sectionids( pids->size(), EM::SectionID::def().asInt() );
+	BufferString sectionidkey = attribkey;
+	sectionidkey += posattrsectionstr();
+	par.set( sectionidkey, sectionids );
     }
 
     par.set( nrposattrstr(), keyid );
