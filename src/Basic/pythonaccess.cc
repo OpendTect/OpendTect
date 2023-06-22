@@ -417,7 +417,11 @@ FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 
 OD::PythonSource OD::PythonAccess::getPythonSource() const
 {
-    return getPythonSource( activatefp_ );
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    PythonSource source = hasInternalEnvironment(false) ? Internal : System;
+    OD::PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
+    return source;
 }
 
 
