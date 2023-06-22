@@ -9,23 +9,6 @@ set( OD_FOLDER "Base" )
 set( OD_USEQT Core )
 set( OD_USEBREAKPAD TRUE )
 
-if ( UNIX )
-    option( OD_ENABLE_MEMDEBUGGER_CODE
-	    "Enable code that gives less false memory violation positives" OFF )
-    if ( OD_ENABLE_MEMDEBUGGER_CODE )
-	add_definitions("-DmMEM_DEBUGGER")
-    endif()
-endif( UNIX )
-if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
-    add_definitions( -D__odpy_dir__="${CMAKE_SOURCE_DIR}/external/odpy" )
-endif()
-if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
-    add_definitions( -D__safety_dir__="${CMAKE_SOURCE_DIR}/external/safety" )
-endif()
-if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow" )
-    add_definitions( -D__marshmallow_dir__="${CMAKE_SOURCE_DIR}/external/marshmallow/src" )
-endif()
-
 set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
@@ -157,30 +140,44 @@ if ( ITTNOTIFY_FOUND )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
 endif()
 
-if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
+if ( UNIX )
+    option( OD_ENABLE_MEMDEBUGGER_CODE
+	    "Enable code that gives less false memory violation positives" OFF )
+    if ( OD_ENABLE_MEMDEBUGGER_CODE )
+	list ( APPEND OD_MODULE_COMPILE_DEFINITIONS "mMEM_DEBUGGER" )
+    endif()
+endif( UNIX )
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
+    list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
+	   "__odpy_dir__=\"${CMAKE_SOURCE_DIR}/external/odpy\"" )
+endif()
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
+    list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
+	   "__safety_dir__=\"${CMAKE_SOURCE_DIR}/external/safety\"" )
+endif()
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow" )
+    list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
+	   "__marshmallow_dir__=\"${CMAKE_SOURCE_DIR}/external/marshmallow/src\"" )
+endif()
+
+if ( NOT ${BUILDINSRC} )
     if ( UNIX )
 	set( FILEEXT sh )
     else()
 	set( FILEEXT cmd )
     endif()
-    execute_process(
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		    "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
-		    "${PROJECT_BINARY_DIR}/testscripts/script with space.${FILEEXT}" )
-    execute_process(
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
-                    "${PROJECT_BINARY_DIR}/testscripts/count_to_1000.csh" )
+    file( COPY "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
+	  DESTINATION "${PROJECT_BINARY_DIR}/testscripts" )
+    file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
+	  DESTINATION "${PROJECT_BINARY_DIR}/testscripts" )
 
     if ( UNIX )
 	set( FILEEXT sh )
     else()
 	set( FILEEXT bat )
     endif()
-    execute_process(
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		    "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
-		    "${PROJECT_BINARY_DIR}/bin/od_external.${FILEEXT}" )
+    file( COPY "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
+	  DESTINATION "${PROJECT_BINARY_DIR}/bin" )
 endif()
 
 OD_INIT_MODULE()

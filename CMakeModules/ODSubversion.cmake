@@ -68,7 +68,6 @@ macro( OD_SETUP_EXTERNALS )
     if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
 	execute_process(
 	    COMMAND ${CMAKE_COMMAND}
-		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		-DOpendTect_DIR=${OpendTect_DIR}
 		-DOD_NO_OSG=${OD_NO_OSG}
 		-DPROJ_DIR=${PROJ_DIR}

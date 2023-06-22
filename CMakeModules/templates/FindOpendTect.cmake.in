@@ -13,10 +13,6 @@ set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )
 set( OpendTect_VERSION_PATCH @OpendTect_VERSION_PATCH@ )
 set( OpendTect_FULL_VERSION "@OpendTect_FULL_VERSION@" )
 
-if ( NOT DEFINED CMAKE_BUILD_TYPE )
-    set( CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" )
-endif()
-
 set( QT_DIR @QT_DIR@ )
 set( QT_VERSION_MAJOR @QT_VERSION_MAJOR@ )
 set( USE_QtWebEngine @USE_QtWebEngine@ )
@@ -49,17 +45,8 @@ if ( NOT ONLY_SET_VAR )
     include( ${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )
 
     #Set the linker path to OpendTect's libraries
-    link_directories( ${OD_BINARY_BASEDIR}/${OD_LIB_OUTPUT_RELPATH} )
+    link_directories( "${OD_BINARY_BASEDIR}/${OD_LIBRARY_DIRECTORY}" )
 endif()
-
-#As backup, link to release
-set ( RELEASE_RELPATH "bin/${OD_PLFSUBDIR}/Release" )
-if ( NOT ( OD_LIB_OUTPUT_RELPATH STREQUAL RELEASE_RELPATH ) )
-    if ( EXISTS ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
-	link_directories( ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
-    endif()
-endif()
-unset( RELEASE_RELPATH )
 
 #List of all modules
 set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
@@ -81,6 +68,5 @@ set( OD_PLUGINS_NAMES_od @PLUGINS@ )
 #Externals setup for all modules
 @MODULES_SETUP@
 
-set( OD_THIRD_PARTY_FILES @OD_THIRD_PARTY_FILES@ )
 set( OD_QTPLUGINS @OD_QTPLUGINS@ )
 set( OD_QT_TRANSLATION_FILES @OD_QT_TRANSLATION_FILES@ )

@@ -183,6 +183,7 @@ macro( COPY_THIRDPARTYLIBS )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
     list( APPEND SSLLIBS ${OPENSSLLIBS} )
     set( FONTLIBS fontconfig;freetype;png15;png16 )
+    #TODO: recover OD_THIRD_PARTY_FILES
     foreach( LIB ${OD_THIRD_PARTY_FILES} )
 	string( FIND ${LIB} "Qt" ISQTLIB )
 	if ( APPLE AND NOT ${ISQTLIB} EQUAL -1 )

@@ -24,13 +24,13 @@ set( OD_MODULE_SOURCES
 	geeditorimpl.cc
 	geom2dintersections.cc
 	geomelement.cc
+	horizon2dline.cc
+	horizon3dtesselator.cc
 	impbodyplaneintersect.cc
 	indexedshape.cc
 	initgeometry.cc
 	marchingcubes.cc
 	marchingcubeseditor.cc
-	horizon2dline.cc
-	horizon3dtesselator.cc
 	parametriccurve.cc
 	parametricsurface.cc
 	picksettr.cc

@@ -19,6 +19,7 @@ macro( OD_FIND_OSGDIR )
 	endif()
 	get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
     endif()
+    set(ENV{OSG_DIR} "${OSG_DIR}")
 endmacro(OD_FIND_OSGDIR)
 
 macro( OD_CONF_OSGGEO )
@@ -30,11 +31,11 @@ macro( OD_CONF_OSGGEO )
 	${EXTGENERATOR}
 	${EXTPLFARCH}
 	${EXTPLFTOOLSET}
-	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-	"-DCMAKE_CXX_FLAGS=${CMAKE_EXT_CXX_FLAGS}"
-	"-DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_EXT_CXX_FLAGS_RELEASE}"
-	"-DCMAKE_MODULE_LINKER_FLAGS_RELEASE=${CMAKE_EXT_LINKER_FLAGS_RELEASE}"
-	"-DCMAKE_SHARED_LINKER_FLAGS_RELEASE=${CMAKE_EXT_LINKER_FLAGS_RELEASE}"
+	"-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
+	"-DCMAKE_CXX_FLAGS_DEBUG=${CMAKE_CXX_FLAGS_DEBUG}"
+	"-DCMAKE_CXX_FLAGS_MINSIZEREL=${CMAKE_CXX_FLAGS_MINSIZEREL}"
+	"-DCMAKE_CXX_FLAGS_RELWITHDEBINFO=${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
+	"-DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}"
 	"-DQTDIR=${QTDIR}"
 	"-DOSG_DIR=${OSG_DIR}"
 	-DOSGGEO_LIB_POSTFIX=
@@ -55,25 +56,52 @@ macro( OD_BUILD_OSGGEO )
     execute_process(
 	COMMAND "${CMAKE_COMMAND}"
 	--build "${OSGGEO_EXT_DIR}"
-	--config ${CMAKE_BUILD_TYPE}
+	--config Debug
 	--target install
 	--clean-first
 	WORKING_DIRECTORY "${OSGGEO_EXT_DIR}"
 	ERROR_VARIABLE ERROUTPUT
 	RESULT_VARIABLE STATUS )
     if ( ${STATUS} EQUAL 0 )
-	set( OD_OSGGEO_ISBUILT TRUE )
+	execute_process(
+	    COMMAND "${CMAKE_COMMAND}"
+	    --build "${OSGGEO_EXT_DIR}"
+	    --config RelWithDebInfo
+	    --target install
+	    WORKING_DIRECTORY "${OSGGEO_EXT_DIR}"
+	    ERROR_VARIABLE ERROUTPUT
+	    RESULT_VARIABLE STATUS )
+	if ( ${STATUS} EQUAL 0 )
+	    set( OD_OSGGEO_ISBUILT TRUE )
+	else()
+	    message( SEND_ERROR "${ERROUTPUT}" )
+	endif()
     else()
 	message( SEND_ERROR "${ERROUTPUT}" )
     endif()
 endmacro(OD_BUILD_OSGGEO)
 
+macro( OD_POSTBUILD_OSGGEO )
+    if ( OD_ENABLE_BREAKPAD AND EXISTS "${BREAKPAD_DUMPSYMS_EXECUTABLE}" )
+	osggeo_get_symbols()
+    endif()
+    if ( "${CTEST_MODEL}" STREQUAL "Experimental" OR
+	 "${CTEST_MODEL}" STREQUAL "Nightly" )
+	OD_STRIP_OSGGEO()
+    endif()
+endmacro(OD_POSTBUILD_OSGGEO)
+
 macro( OD_STRIP_OSGGEO )
+    if ( WIN32 )
+	set( osg_config "install" )
+    else()
+	set( osg_config "install/strip" )
+    endif()
     execute_process(
 	COMMAND "${CMAKE_COMMAND}"
 	--build "${OSGGEO_EXT_DIR}"
-	--config ${CMAKE_BUILD_TYPE}
-	--target "install/strip"
+	--config Release
+	--target "${osg_config}"
 	WORKING_DIRECTORY "${OSGGEO_EXT_DIR}"
 	ERROR_VARIABLE ERROUTPUT
 	RESULT_VARIABLE STATUS )
@@ -82,94 +110,182 @@ macro( OD_STRIP_OSGGEO )
     endif()
 endmacro(OD_STRIP_OSGGEO)
 
-macro( OSGGEO_GET_SYMBOLS )
-    if ( EXISTS "${OSGGEO_LIBRARY_DEBUG}" )
-	get_filename_component( LIBNM "${OSGGEO_LIBRARY_DEBUG}" NAME )
-	if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_DEBUG}/symbols/${LIBNM}" )
-	    file(REMOVE_RECURSE "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_DEBUG}/symbols/${LIBNM}" )
-	endif()
-	if ( WIN32 )
-	    get_filename_component( LIBBASENM "${OSGGEO_LIBRARY_DEBUG}" NAME_WE )
-	    set( SYMLIBNM "${OSGGEO_DIR}/bin/${LIBBASENM}.dll" )
-	else()
-	    set( SYMLIBNM "${OSGGEO_LIBRARY_DEBUG}" )
-	endif()
-	execute_process( COMMAND ${CMAKE_COMMAND}
-		"-DLIBRARY=${SYMLIBNM}"
-		"-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}"
-		-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
-		ERROR_VARIABLE ERROUTPUT
-		RESULT_VARIABLE STATUS )
-	if ( ${STATUS} EQUAL 0 )
-	    if ( WIN32 )
-		file(COPY "${OSGGEO_DIR}/bin/symbols"
-		     DESTINATION "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_DEBUG}" )
-	    else()
-		file(COPY "${OSGGEO_DIR}/lib/symbols"
-		     DESTINATION "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_DEBUG}" )
+function( osggeo_get_symbols )
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0017 NEW)
+    find_package( OpenSceneGraph QUIET COMPONENTS osgGeo )
+    cmake_policy(POP)
+    if( NOT OSGGEO_FOUND )
+	message( FATAL_ERROR "OpenSceneGraph-osgGeo not found" )
+    endif()
+    OD_OSG_CREATETARGETS( osgGeo )
+    get_target_property( OSGGEO_CONFIGS osg::osgGeo IMPORTED_CONFIGURATIONS )
+    foreach( config ${OSGGEO_CONFIGS} )
+	get_target_property( OSGGEO_LIBRARY osg::osgGeo IMPORTED_LOCATION_${config} )
+	if ( EXISTS "${OSGGEO_LIBRARY}" )
+	    if ( UNIX )
+		get_target_property( OSGGEO_SONAME osg::osgGeo IMPORTED_SONAME_${config} )
+		get_filename_component( OSGGEO_LIBRARY "${OSGGEO_LIBRARY}" DIRECTORY )
+		set( OSGGEO_LIBRARY "${OSGGEO_LIBRARY}/${OSGGEO_SONAME}" )
 	    endif()
+	    execute_process( COMMAND ${CMAKE_COMMAND}
+		    "-DLIBRARY=${OSGGEO_LIBRARY}"
+		    "-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}"
+		    -P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+		    ERROR_VARIABLE ERROUTPUT
+		    RESULT_VARIABLE STATUS )
+	    if ( NOT ${STATUS} EQUAL 0 )
+		message( WARNING "Error generating symbols for osgGeo: ${ERROUTPUT}" )
+	    endif()
+	endif()
+	unset( OSGGEO_LIBRARY )
+    endforeach()
+    unset( OSGGEO_CONFIGS )
+endfunction(osggeo_get_symbols)
+
+macro( OD_OSGGEO_COPYSYMBOLS ODMODNM )
+    if ( WIN32 )
+	if ( CMAKE_VERSION VERSION_GREATER_EQUAL 3.27 )
+	    set( OSGGEO_SYMBS_INPPATH "${OSGGEO_DIR}/bin/symbols/$<TARGET_IMPORT_FILE_BASE_NAME:osg::osgGeo>.pdb" )
+	    set( OSGGEO_SYMBS_OUTPATH "${OD_RUNTIME_DIRECTORY}/symbols/$<TARGET_IMPORT_FILE_BASE_NAME:osg::osgGeo>.pdb" )
 	else()
-	    message( WARNING "Error generating symbols for osgGeo: ${ERROUTPUT}" )
+	    get_target_property( OSGGEO_FILENAME_DEBUG osg::osgGeo IMPORTED_LOCATION_DEBUG )
+	    get_target_property( OSGGEO_FILENAME_RELEASE osg::osgGeo IMPORTED_LOCATION_RELWITHDEBINFO )
+	    if ( NOT OSGGEO_FILENAME_RELEASE )
+		get_target_property( OSGGEO_FILENAME_RELEASE osg::osgGeo IMPORTED_LOCATION_RELEASE )
+	    endif()
+	    if ( NOT OSGGEO_FILENAME_DEBUG )
+		set( OSGGEO_FILENAME_DEBUG "${OSGGEO_FILENAME_RELEASE}" )
+	    endif()
+	    get_filename_component( OSGGEO_FILENAME_RELEASE "${OSGGEO_FILENAME_RELEASE}" NAME_WE )
+	    get_filename_component( OSGGEO_FILENAME_DEBUG "${OSGGEO_FILENAME_DEBUG}" NAME_WE )
+	    set( OSGGEO_SYMBS_INPPATH "${OSGGEO_DIR}/bin/symbols/$<IF:$<CONFIG:Debug>,${OSGGEO_FILENAME_DEBUG},${OSGGEO_FILENAME_RELEASE}>.pdb" )
+	    set( OSGGEO_SYMBS_OUTPATH "${OD_RUNTIME_DIRECTORY}/symbols/$<IF:$<CONFIG:Debug>,${OSGGEO_FILENAME_DEBUG},${OSGGEO_FILENAME_RELEASE}>.pdb" )
+	    unset( OSGGEO_FILENAME_DEBUG )
+	    unset( OSGGEO_FILENAME_RELEASE )
+	endif()
+    else()
+	if ( CMAKE_VERSION VERSION_GREATER_EQUAL 3.27 )
+	    set( OSGGEO_SYMBS_INPPATH "${OSGGEO_DIR}/lib/symbols/$<TARGET_SONAME_IMPORT_FILE_NAME:osg::osgGeo>" )
+	    set( OSGGEO_SYMBS_OUTPATH "${OD_LIBRARY_DIRECTORY}/symbols/$<TARGET_SONAME_IMPORT_FILE_NAME:osg::osgGeo>" )
+	else()
+	    get_target_property( OSGGEO_SONAME_DEBUG osg::osgGeo IMPORTED_SONAME_DEBUG )
+	    get_target_property( OSGGEO_SONAME_RELEASE osg::osgGeo IMPORTED_SONAME_RELWITHDEBINFO )
+	    if ( NOT OSGGEO_SONAME_RELEASE )
+		get_target_property( OSGGEO_SONAME_RELEASE osg::osgGeo IMPORTED_SONAME_RELEASE )
+	    endif()
+	    if ( NOT OSGGEO_SONAME_DEBUG )
+		set( OSGGEO_SONAME_DEBUG ${OSGGEO_SONAME_RELEASE} )
+	    endif()
+	    set( OSGGEO_SYMBS_INPPATH "${OSGGEO_DIR}/lib/symbols/$<IF:$<CONFIG:Debug>,${OSGGEO_SONAME_DEBUG},${OSGGEO_SONAME_RELEASE}>" )
+	    set( OSGGEO_SYMBS_OUTPATH "${OD_LIBRARY_DIRECTORY}/symbols/$<IF:$<CONFIG:Debug>,${OSGGEO_SONAME_DEBUG},${OSGGEO_SONAME_RELEASE}>" )
+	    unset( OSGGEO_SONAME_DEBUG )
+	    unset( OSGGEO_SONAME_RELEASE )
 	endif()
     endif()
-    if ( EXISTS "${OSGGEO_LIBRARY_RELEASE}" )
-	get_filename_component( LIBNM "${OSGGEO_LIBRARY_RELASE}" NAME )
-	if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_RELEASE}/symbols/${LIBNM}" )
-	    file(REMOVE_RECURSE "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_RELEASE}/symbols/${LIBNM}" )
+    add_custom_command( TARGET ${ODMODNM} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${OSGGEO_SYMBS_INPPATH}" "${OSGGEO_SYMBS_OUTPATH}"
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}" )
+endmacro()
+
+macro( OD_OSG_CREATETARGETS OSGMODULES )
+    foreach( OSGMODULE ${OSGMODULES} )
+	if ( TARGET osg::${OSGMODULE} )
+	    continue()
 	endif()
-	if ( WIN32 )
-	    get_filename_component( LIBBASENM "${OSGGEO_LIBRARY_RELEASE}" NAME_WE )
-	    set( SYMLIBNM "${OSGGEO_DIR}/bin/${LIBBASENM}.dll" )
-	else()
-	    set( SYMLIBNM "${OSGGEO_LIBRARY_RELEASE}" )
+	string( TOUPPER ${OSGMODULE} OSGMOD )
+	add_library( osg::${OSGMODULE} SHARED IMPORTED GLOBAL )
+	if ( ${OSGMOD}_LIBRARY_RELEASE )
+	    list( APPEND ${OSGMOD}_CONFIGS RELEASE )
 	endif()
-	execute_process( COMMAND ${CMAKE_COMMAND}
-		"-DLIBRARY=${SYMLIBNM}"
-		"-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}"
-		-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
-		ERROR_VARIABLE ERROUTPUT
-		RESULT_VARIABLE STATUS )
-	if ( ${STATUS} EQUAL 0 )
-	    if ( WIN32 )
-		file(COPY "${OSGGEO_DIR}/bin/symbols"
-		     DESTINATION "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_RELEASE}" )
-	    else()
-		file(COPY "${OSGGEO_DIR}/lib/symbols"
-		     DESTINATION "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_RELEASE}" )
+	if ( ${OSGMOD}_LIBRARY_DEBUG )
+	    list( APPEND ${OSGMOD}_CONFIGS DEBUG )
+	endif()
+	if ( NOT ${OSGMOD}_CONFIGS )
+	    message( FATAL_ERROR "${OSGMOD}_LIBRARY configurations not found" )
+	endif()
+	foreach( config ${${OSGMOD}_CONFIGS} )
+	    set( ${OSGMOD}_LOCATION_${config} "${${OSGMOD}_LIBRARY_${config}}" )
+	    if ( UNIX )
+		if ( IS_SYMLINK "${${OSGMOD}_LOCATION_${config}}" )
+		    file( READ_SYMLINK "${${OSGMOD}_LOCATION_${config}}" ${OSGMOD}_SONAME_${config} )
+		else()
+		    get_filename_component( ${OSGMOD}_SONAME_${config} "${${OSGMOD}_LOCATION_${config}}" NAME )
+		endif()
 	    endif()
-	else()
-	    message( WARNING "Error generating symbols for osgGeo: ${ERROUTPUT}" )
+	    get_filename_component( ${OSGMOD}_LOCATION_${config} "${${OSGMOD}_LOCATION_${config}}" REALPATH )
+	    set( ${OSGMOD}_LIB_LOCATION_${config} "${${OSGMOD}_LOCATION_${config}}" )
+	    if ( WIN32 )
+		od_get_dll( "${${OSGMOD}_LIB_LOCATION_${config}}" ${OSGMOD}_LOCATION_${config} )
+	    endif()
+	    if ( NOT ${OSGMOD}_LOCATION AND EXISTS "${${OSGMOD}_LOCATION_${config}}" )
+		set( ${OSGMOD}_LOCATION "${${OSGMOD}_LOCATION_${config}}" )
+	    endif()
+	endforeach()
+	if ( NOT ${OSGMOD}_LOCATION )
+	    message( FATAL_ERROR "${OSGMOD}_LIBRARY not found" )
 	endif()
+	set_target_properties( osg::${OSGMODULE} PROPERTIES
+		IMPORTED_LOCATION ${${OSGMOD}_LOCATION}
+		IMPORTED_CONFIGURATIONS "${${OSGMOD}_CONFIGS}"
+		MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+		MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
+		INTERFACE_INCLUDE_DIRECTORIES "${${OSGMOD}_INCLUDE_DIR}" )
+	unset( ${OSGMOD}_LOCATION )
+	foreach( config ${${OSGMOD}_CONFIGS} )
+	    if ( ${OSGMOD}_LOCATION_${config} )
+		set_target_properties( osg::${OSGMODULE} PROPERTIES
+		      IMPORTED_LOCATION_${config} "${${OSGMOD}_LOCATION_${config}}" )
+		if ( WIN32 )
+		    set_target_properties( osg::${OSGMODULE} PROPERTIES
+			  IMPORTED_IMPLIB_${config} "${${OSGMOD}_LIB_LOCATION_${config}}" )
+		else()
+		    set_target_properties( osg::${OSGMODULE} PROPERTIES
+			  IMPORTED_SONAME_${config} ${${OSGMOD}_SONAME_${config}} )
+		endif()
+	    endif()
+	    unset( ${OSGMOD}_LOCATION_${config} )
+	    unset( ${OSGMOD}_LIB_LOCATION_${config} )
+	    unset( ${OSGMOD}_SONAME_${config} )
+	endforeach()
+	unset( ${OSGMOD}_CONFIGS )
+	unset( ${OSGMOD}_INCLUDE_DIR CACHE )
+	unset( ${OSGMOD}_LIBRARY_DEBUG CACHE )
+	unset( ${OSGMOD}_LIBRARY_RELEASE CACHE )
+    endforeach()
+
+    if ( UNIX AND osgText IN_LIST OSGMODULES )
+	add_fontconfig( OSG_TEXT_IMPORTED_OBJECTS )
+	set_target_properties( osg::osgText PROPERTIES
+	    IMPORTED_OBJECTS "${OSG_TEXT_IMPORTED_OBJECTS}" )
+	unset( OSG_TEXT_IMPORTED_OBJECTS )
     endif()
-endmacro(OSGGEO_GET_SYMBOLS)
+endmacro()
 
 macro( OD_FIND_OSG )
-    set(ENV{OSG_DIR} "${OSG_DIR}")
 
-    if ( APPLE )
-	set( OSGGEO_DIR "${OSGGEO_EXT_DIR}/inst/Contents/Frameworks" )
-	set( OSGGEO_INCLUDE_DIR "${OSGGEO_DIR}/../Resources/include" )
-	list( APPEND CMAKE_MODULE_PATH "${OSGGEO_DIR}/../Resources/share/CMakeModules" )
-    else()
-	set( OSGGEO_DIR "${OSGGEO_EXT_DIR}/inst" )
-	set( OSGGEO_INCLUDE_DIR "${OSGGEO_DIR}/include" )
-	list( APPEND CMAKE_MODULE_PATH "${OSGGEO_DIR}/share/CMakeModules" )
-    endif()
+    cmake_policy(PUSH)
     cmake_policy(SET CMP0017 NEW)
-
-    find_package( OpenSceneGraph QUIET COMPONENTS osgDB osgGA osgUtil osgManipulator osgWidget osgViewer osgVolume osgText osgSim osgGeo )
-
+    set( OSG_FIND_MODULES osgDB;osgGA;osgUtil;osgManipulator;osgWidget;osgViewer;osgVolume;osgText;osgSim;osgGeo )
+    find_package( OpenSceneGraph QUIET COMPONENTS ${OSG_FIND_MODULES} GLOBAL )
+    cmake_policy(POP)
     if ( NOT OSG_FOUND )
 	message( FATAL_ERROR "Cannot find/use the OSG installation" )
+    elseif ( NOT OPENTHREADS_FOUND )
+	message( FATAL_ERROR "Cannot find/use the OpenThreads library" )
     elseif( NOT OSGGEO_FOUND )
 	message( FATAL_ERROR "OpenSceneGraph-osgGeo not found" )
     endif()
+
+    set( OSGMODULES osg "${OSG_FIND_MODULES}" OpenThreads )
+    OD_OSG_CREATETARGETS( "${OSGMODULES}" )
+
 endmacro(OD_FIND_OSG)
 
 macro( OD_ADD_OSG )
-    if ( OD_NO_OSG )
-	add_definitions( -DOD_NO_OSG )
-    else()
+
+    if ( NOT OD_NO_OSG )
 	OD_FIND_OSGDIR()
 
 	set( OSGGEO_EXT_DIR "${OD_BINARY_BASEDIR}/external/osgGeo" )
@@ -180,77 +296,46 @@ macro( OD_ADD_OSG )
 	    OD_BUILD_OSGGEO()
 	endif()
 
-	OD_FIND_OSG()
+	if ( APPLE )
+	    set( OSGGEO_DIR "${OSGGEO_EXT_DIR}/inst/Contents/Frameworks" )
+	    set( OSGGEO_INCLUDE_DIR "${OSGGEO_EXT_DIR}/inst/Contents/Resources/include" )
+	    list( APPEND CMAKE_MODULE_PATH "${OSGGEO_EXT_DIR}/inst/Contents/Resources/share/CMakeModules" )
+	else()
+	    set( OSGGEO_DIR "${OSGGEO_EXT_DIR}/inst" )
+	    set( OSGGEO_INCLUDE_DIR "${OSGGEO_DIR}/include" )
+	    list( APPEND CMAKE_MODULE_PATH "${OSGGEO_DIR}/share/CMakeModules" )
+	endif()
+
 	if ( OD_OSGGEO_ISBUILT )
-	    if ( EXISTS "${BREAKPAD_DUMPSYMS_EXECUTABLE}" )
-		OSGGEO_GET_SYMBOLS()
-	    endif()
-	    if ( UNIX )
-		OD_STRIP_OSGGEO()
-	    endif()
+	    OD_POSTBUILD_OSGGEO()
 	    unset( OD_OSGGEO_ISBUILT )
 	endif()
 
-	unset( OSG_DIR CACHE )
-    endif(OD_NO_OSG)
+    endif()
 
 endmacro(OD_ADD_OSG)
 
 macro(OD_SETUP_OSG)
 
-    if( OD_USEOSG )
-	if ( NOT EXISTS "${OSG_INCLUDE_DIR}" OR
-	     NOT EXISTS "${OSGGEO_INCLUDE_DIR}" )
-	    message( FATAL_ERROR "osg/osgGeo is NOT a valid target" )
-	endif()
-
-	list(APPEND OD_MODULE_INCLUDESYSPATH
-		${OSGGEO_INCLUDE_DIR}
-		${OSG_INCLUDE_DIR} )
-
-	if ( OD_EXTRA_OSGFLAGS )
-	    add_definitions( ${OD_EXTRA_OSGFLAGS} )
-	endif ( OD_EXTRA_OSGFLAGS )
-
-	set(OSGMODULES
-		OSG
-		OSGDB
-		OSGGA
-		OSGUTIL
-		OSGMANIPULATOR
-		OSGWIDGET
-		OSGVIEWER
-		OSGVOLUME
-		OPENTHREADS
-		OSGTEXT
-		OSGSIM
-		OSGGEO )
-
-	foreach( OSGMODULE ${OSGMODULES} )
-	    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-		if ( ${OSGMODULE}_LIBRARY_RELEASE )
-		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_RELEASE} )
-		elseif ( ${OSGMODULE}_LIBRARY_DEBUG )
-		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_DEBUG} )
-		else()
-		    message(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
-		endif()
-	    elseif ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-		if ( ${OSGMODULE}_LIBRARY_DEBUG )
-		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY_DEBUG} )
-		elseif ( ${OSGMODULE}_LIBRARY )
-		    list(APPEND OD_OSG_LIBS ${${OSGMODULE}_LIBRARY} )
-		else()
-		    message(FATAL_ERROR "${OSGMODULE}_LIBRARY_DEBUG is missing")
-		endif()
+    if ( OD_NO_OSG )
+	list ( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_NO_OSG" )
+    else()
+	if( OD_USEOSG )
+	    if ( NOT TARGET osg::osg OR NOT TARGET osg::osgGeo )
+		OD_FIND_OSG()
 	    endif()
-	endforeach()
+	    if ( NOT TARGET osg::osg OR NOT TARGET osg::osgGeo )
+		message( FATAL_ERROR "osg/osgGeo is NOT a valid target" )
+	    endif()
 
-	list ( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
-	if ( UNIX )
-	    add_fontconfig( OD_MODULE_EXTERNAL_LIBS "${OD_MODULE_EXTERNAL_LIBS}" )
+	    if ( OD_EXTRA_OSGFLAGS )
+		list( APPEND OD_MODULE_COMPILE_OPTIONS "${OD_EXTRA_OSGFLAGS}" )
+	    endif ( OD_EXTRA_OSGFLAGS )
+
+	    foreach( OSGMODULE ${OSGMODULES} )
+		list ( APPEND OD_MODULE_EXTERNAL_LIBS osg::${OSGMODULE} )
+	    endforeach()
 	endif()
     endif()
-
 
 endmacro(OD_SETUP_OSG)

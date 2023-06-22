@@ -16,7 +16,7 @@ set( OD_MODULE_SOURCES
 
 if( USESQL )
     set( OD_USEQT Sql )
-    ADD_DEFINITIONS( "-D__have_qsql__" )
+    set( OD_MODULE_COMPILE_DEFINITIONS "__have_qsql__" )
 else()
     set( OD_USEQT Core )
 endif()

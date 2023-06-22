@@ -22,4 +22,10 @@ if ( uiODMain_FOUND )
 
     OD_INIT_MODULE()
 
+else()
+
+    get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
+    list( REMOVE_ITEM PLUGINS ${OD_MODULE_NAME} )
+    set( PLUGINS ${PLUGINS} PARENT_SCOPE )
+
 endif()

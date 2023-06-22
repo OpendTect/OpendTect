@@ -1,7 +1,6 @@
 # - Create launchers to set working directory, env. vars, etc.
 #
 #  include(CreateLaunchers) - to make these available
-#  guess_runtime_library_dirs(<outputvarname> [<extralibrary> ...])
 #  create_default_target_launcher(<targetname>
 #    [COMMAND <target command>]
 #    [ARGS <args...>]
@@ -25,8 +24,6 @@
 #    [ENVIRONMENT <VAR=value> [<VAR=value>...]])
 #    - sets GENERIC_LAUNCHER_COMMAND and GENERIC_LAUNCHER_FAIL_REGULAR_EXPRESSION
 #
-# Requires these CMake modules:
-#  CleanDirectoryList
 #
 # Requires CMake 2.6 or newer (uses the 'function' command)
 #
@@ -51,8 +48,6 @@ set(__create_launchers YES)
 if(POLICY CMP0053)
     cmake_policy(SET CMP0053 NEW)
 endif()
-
-include( "${OpendTect_DIR}/CMakeModules/CleanDirectoryList.cmake" )
 
 # We must run the following at "include" time, not at function call time,
 # to find the path to this module rather than the path to a calling list file
@@ -164,8 +159,16 @@ macro(_launcher_process_args)
         if(NOT EXISTS "${_path}") #this is not a file so lets leave it as is
             set(_path ${_dlldir})
         endif()
-        set(_runtime_lib_dirs "${_runtime_lib_dirs}${_path}${_pathdelim}")
+	if ( _runtime_lib_dirs )
+	    set( _runtime_lib_dirs "${_runtime_lib_dirs}${_pathdelim}${_path}" )
+	else()
+	    set( _runtime_lib_dirs "${_path}" )
+	endif()
     endforeach()
+    if ( _runtime_lib_dirs STREQUAL "" AND
+	 CMAKE_VERSION GREATER_EQUAL 3.27 )
+	set( _runtime_lib_dirs "$<LIST:REMOVE_DUPLICATES,${_runtime_lib_dirs}>" )
+    endif()
 
     if(NOT WORKING_DIRECTORY)
         set(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -195,9 +198,9 @@ macro(_launcher_process_args)
     set(LAUNCHERSCRIPT_COMMAND_ARGUMENTS "${ARGS} ${FWD_ARGS}")
 
     if(WIN32)
-        if(_runtime_lib_dirs)
+	if( _runtime_lib_dirs )
             set(RUNTIME_LIBRARIES_ENVIRONMENT
-                "PATH=${_runtime_lib_dirs}$<SEMICOLON>%PATH%")
+		"PATH=${_runtime_lib_dirs}${_pathdelim}%PATH%")
         endif()
         file(READ "${_launchermoddir}/launcher.env.cmd.in" _cmdenv)
     else()
@@ -242,7 +245,7 @@ macro(_launcher_produce_vcproj_user)
         set(config_types)
         if(CMAKE_CONFIGURATION_TYPES)
             foreach(config_type ${CMAKE_CONFIGURATION_TYPES})
-                set(config_types ${config_types} ${config_type})
+		list(APPEND config_types ${config_type})
             endforeach()
         else()
             set(config_types ${CMAKE_BUILD_TYPE})
@@ -275,7 +278,7 @@ macro(_launcher_produce_vcproj_user)
             ${TARGET_CMAKE_FILES}.${VCPROJ_TYPE}.${USERFILE_EXTENSION}.config
             @ONLY)
 
-        #now we are looping thtough each config type loading the previous ones output, hopefully execution order stays the same as the generation request
+	#now we are looping through each config type loading the previous ones output, hopefully execution order stays the same as the generation request
         set(launcher_last_config)
         foreach(USERFILE_CONFIGNAME ${config_types})
             if(NOT launcher_last_config)
@@ -310,8 +313,8 @@ endmacro()
 
 macro(_launcher_configure_executable _src _tmp _target _config)
     if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
-	    set(RUNTIME_PATH_DTECT
-		    "PATH=$ENV{DTECT_BINDIR}/${_config}$<SEMICOLON>%PATH%")
+	set(RUNTIME_PATH_DTECT
+		    "PATH=$ENV{DTECT_BINDIR}/${_config}${_pathdelim}%PATH%")
 	string(CONFIGURE "@USERFILE_ENV_COMMANDS_ORIG@${RUNTIME_PATH_DTECT}"
 		     USERFILE_ENV_COMMANDS @ONLY)
     endif()
@@ -324,7 +327,7 @@ macro(_launcher_configure_executable _src _tmp _target _config)
         INPUT "${_tmp}"
         CONDITION $<CONFIG:${_config}>)
     #we lose the ability to change the file permissions as there is no support there in file(GENERATE) (although it has been requested)
-    #and nothing runs after file(GENERATE) durning the cmake call
+    #and nothing runs after file(GENERATE) during the cmake call
     #	file(COPY "${_tmp}"
     #	    DESTINATION "${_targetpath}"
     #	    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

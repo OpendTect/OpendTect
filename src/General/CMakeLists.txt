@@ -120,12 +120,12 @@ list( APPEND OD_TEST_PROGS
 )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 
-if ( CMAKE_COMPILER_IS_GNUCC )
-    if ( CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4" )
-	message( "Turning down optimizations on ibmformat.cc to avoid "
+if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+    if ( CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.2 )
+	message( STATUS "Turning down optimizations on ibmformat.cc to avoid "
 		 "compiler problems." )
 	set_source_files_properties( ibmformat.cc PROPERTIES COMPILE_FLAGS -O )
     endif()
-endif ( CMAKE_COMPILER_IS_GNUCC )
+endif()
 
 OD_INIT_MODULE()

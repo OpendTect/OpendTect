@@ -592,14 +592,10 @@ static void getHomeDir( BufferString& homedir )
 
 mExternC(Basic) const char* GetBinSubDir()
 {
-#ifndef __debug__
-# ifdef __hassymbols__
-    return "RelWithDebInfo";
-# else
-    return "Release";
-# endif
-#else
+#ifdef __debug__
     return "Debug";
+#else
+    return "Release";
 #endif
 }
 

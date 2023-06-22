@@ -14,7 +14,9 @@ set( OD_MODULE_SOURCES
 	batchserviceservermgr.cc
 )
 
-set( OD_MODULE_LINK_OPTIONS ${OD_SUPPRESS_UNDEF_FLAGS} )
-ADD_DEFINITIONS( -D_CONSOLE )
+set( OD_MODULE_COMPILE_DEFINITIONS "_CONSOLE" )
+if ( APPLE )
+    set( OD_MODULE_LINK_OPTIONS "-flat_namespace" "undefined" "suppress" )
+endif()
 
 OD_INIT_MODULE()

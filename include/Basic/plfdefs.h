@@ -11,13 +11,13 @@ ________________________________________________________________________
 
 /*!
 
-For every platform, one of the following variables must be set by cmake:
+For every platform, the following variables get set:
 
 	__lux64__			Linux
 	__win64__			Windows
 	__macarm__, __macintel__	macOS
 
-Then you get:
+Together with:
 OS type:
 
 	__unix__	Unix
@@ -65,24 +65,34 @@ Always defined:
 #undef __unix__
 #undef __win__
 
-#if defined( __win64__ )
+#if defined( _WIN32 ) || defined( WIN32 ) || \
+    defined( __CYGWIN__ ) || defined( __MINGW32__ )
 # define __win__ 1
+# define __win64__ 1
 # define __iswin__ true
 #else
 # define __iswin__ false
 #endif
 
-#if defined ( __lux64__ )
+#if defined ( __linux__ )
 # define __unix__ 1
 # define __lux__ 1
+# define __lux64__ 1
 # define __islinux__ true
 #else
 # define __islinux__ false
 #endif
 
-#if defined( __macarm__ ) || defined ( __macintel__ )
+#if defined( __APPLE__ )
 # define __unix__ 1
 # define __mac__ 1
+# if defined( __x86_64__ )
+# define __macintel__ 1
+# elif defined( __aarch64__ )
+# define __macarm__ 1
+# else
+#  error "APPLE platform not detected"
+# endif
 # define __ismac__ true
 #else
 # define __ismac__ false
@@ -90,10 +100,8 @@ Always defined:
 
 
 
-#ifndef __unix__
-#ifndef __win__
+#if !defined(__unix__) && !defined(__win__)
 # error "Platform not detected."
-#endif
 #endif
 
 /*____________________________________________________________________________*/
@@ -163,6 +171,11 @@ Always defined:
 # define __cygwin__ 1
 #endif
 
+/*____________________________________________________________________________*/
+/* Configuration type */
+#ifndef NDEBUG
+# define __debug__
+#endif
 
 #undef mUnusedVar
 #if defined( __gnuc__ )

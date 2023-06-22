@@ -7,7 +7,7 @@
 # Main CMake file
 #
 
-cmake_minimum_required ( VERSION 3.14.7 )
+cmake_minimum_required ( VERSION 3.24.0 )
 
 set( MAIN_GIT_BRANCH main )
 

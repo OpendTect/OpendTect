@@ -14,7 +14,8 @@ ________________________________________________________________________
 //that this module is dependent on.
 //
 
-#if defined( __win64__ ) || defined ( __win32__ )
+#if defined( _WIN32 ) || defined( WIN32 ) || \
+    defined( __CYGWIN__ ) || defined( __MINGW32__ )
 # define do_import_export
 #else
 # ifdef do_import_export

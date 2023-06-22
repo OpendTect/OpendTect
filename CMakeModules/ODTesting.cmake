@@ -61,7 +61,7 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     set ( TEST_ARGS --command ${TEST_NAME} )
 
     list ( APPEND TEST_ARGS --wdir "${PROJECT_OUTPUT_DIR}"
-		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
+		    --config $<CONFIG> --plf ${OD_PLFSUBDIR}
 		    --quiet )
     if ( WIN32 )
 	ADD_RUNTIME_PATHS()
@@ -172,7 +172,7 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
     set ( TEST_ARGS --command test_exit_program )
 
     list ( APPEND TEST_ARGS --wdir "${OD_BINARY_BASEDIR}"
-		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
+		    --config $<CONFIG> --plf ${OD_PLFSUBDIR}
 		    --expected-result 1
 		    --quiet )
     set( OD_MODULE_RUNTIMEPATH "${QTDIR}/bin" )

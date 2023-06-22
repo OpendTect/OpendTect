@@ -7,7 +7,7 @@
 
 macro( OD_FIND_QTDIR )
     if ( NOT DEFINED QTDIR )
-	find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core )
+	find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core GLOBAL )
 	if ( EXISTS "${QT_DIR}" AND IS_DIRECTORY "${QT_DIR}" )
 	    get_filename_component( QTDIR ${QT_DIR} DIRECTORY )
 	    get_filename_component( QTDIR ${QTDIR} DIRECTORY )
@@ -69,17 +69,16 @@ endmacro(QT_INSTALL_PLUGINS)
 
 macro( QT_SETUP_CORE_INTERNALS )
     OD_FIND_QTDIR()
-    OD_INSTALL_RESSOURCE( "${QTDIR}/bin/qt.conf" ${CMAKE_BUILD_TYPE} )
+    install( FILES "${QTDIR}/bin/qt.conf"
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}" )
 
     if ( APPLE )
 	set ( TRANSCOREDESTDIR Contents/PlugIns )
     else()
 	set ( TRANSCOREDESTDIR bin/${OD_PLFSUBDIR} )
     endif()
-
     install( DIRECTORY "${QTDIR}/translations"
 		 DESTINATION ${TRANSCOREDESTDIR}
-		 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 		 USE_SOURCE_PERMISSIONS
 		 FILES_MATCHING
 		 PATTERN "qt_*.qm"
@@ -94,7 +93,7 @@ macro( QT_SETUP_CORE_INTERNALS )
 	install( CODE "
 	    execute_process(
 		COMMAND ${CMAKE_COMMAND} -E create_symlink
-			${CMAKE_BUILD_TYPE} lib
+			\"$<IF:$<CONFIG:Debug>,Debug,Release>\" lib
 		WORKING_DIRECTORY
 			\"${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}\" ) " )
     endif()
@@ -124,9 +123,8 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 
     if ( NOT APPLE )
 	install( DIRECTORY ${QTDIR}/resources
-		DESTINATION bin/${OD_PLFSUBDIR}
-		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		USE_SOURCE_PERMISSIONS )
+		 DESTINATION bin/${OD_PLFSUBDIR}
+		 USE_SOURCE_PERMISSIONS )
     endif()
 
     if ( APPLE )
@@ -137,12 +135,13 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 
     install( DIRECTORY ${QTDIR}/translations
 	    DESTINATION ${TRANSWEBENGDESTDIR}
-	    CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 	    USE_SOURCE_PERMISSIONS
 	    FILES_MATCHING
 	    PATTERN "qtwebengine_*.qm"
 	    PATTERN "qtwebengine_locales/*.pak" )
-    file( GLOB WEBENGINE_TRANSLATION_FILES  ${QTDIR}/translations/qtwebengine_*.qm ${QTDIR}/translations/qtwebengine_locales/*.pak )
+    file( GLOB WEBENGINE_TRANSLATION_FILES
+		${QTDIR}/translations/qtwebengine_*.qm
+		${QTDIR}/translations/qtwebengine_locales/*.pak )
 
     foreach( WEBTRANSLATIONFILE ${WEBENGINE_TRANSLATION_FILES} )
 	get_filename_component( FILENM ${WEBTRANSLATIONFILE} NAME )
@@ -150,14 +149,11 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     endforeach()
     set( OD_QT_TRANSLATION_FILES ${OD_QT_TRANSLATION_FILES} PARENT_SCOPE )
 
-    if ( APPLE )
-	#TODO
-    elseif ( WIN32 )
-	set( QTPOSTFIX "" )
-	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-	    set( QTPOSTFIX "d" )
-	endif()
-	OD_INSTALL_PROGRAM( "${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe" )
+    if ( WIN32 )
+	install( PROGRAMS "${QTDIR}/bin/QtWebEngineProcess$<$<CONFIG:Debug>:d>.exe"
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}" )
+    elseif ( APPLE )
+	#TODO: Does it exist at all?
     else()
 	install( PROGRAMS "${QTDIR}/libexec/QtWebEngineProcess"
 		 DESTINATION bin/${OD_PLFSUBDIR}/libexec )
@@ -170,10 +166,6 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     set( OD_QTPLUGINS ${OD_QTPLUGINS} PARENT_SCOPE )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
-macro( QT_SETUP_XCBQPA_EXTERNALS )
-    add_fontconfig( OD_MODULE_EXTERNAL_RUNTIME_LIBS "${OD_MODULE_EXTERNAL_RUNTIME_LIBS}" )
-endmacro(QT_SETUP_XCBQPA_EXTERNALS)
-
 macro( QT_SETUP_CORE_EXTERNALS )
     if ( UNIX AND NOT APPLE )
         OD_FIND_QTDIR()
@@ -182,38 +174,84 @@ macro( QT_SETUP_CORE_EXTERNALS )
 	foreach( LIBNM ${LIBNMS} )
 	    set( FILENM "${QTDIR}/lib/libicu${LIBNM}.so.${ICU_VERSION_MAJOR}" )
 	    if ( EXISTS "${FILENM}" )
-		list ( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${FILENM}" )
+		list ( APPEND QT_CORE_ICU_OBJECTS "${FILENM}" )
 	    endif()
 	endforeach()
 	#TODO: add libm, libpcre, libz ??
+	get_target_property( QT_CORE_IMPORTED_OBJECTS Qt${QT_VERSION_MAJOR}::Core
+			     IMPORTED_OBJECTS )
+	if ( QT_CORE_IMPORTED_OBJECTS )
+	    list( APPEND QT_CORE_IMPORTED_OBJECTS "${QT_CORE_ICU_OBJECTS}" )
+	    list( REMOVE_DUPLICATES QT_CORE_IMPORTED_OBJECTS )
+	else()
+	    set( QT_CORE_IMPORTED_OBJECTS "${QT_CORE_ICU_OBJECTS}" )
+	endif()
+	set_target_properties( Qt${QT_VERSION_MAJOR}::Core PROPERTIES
+		IMPORTED_OBJECTS "${QT_CORE_IMPORTED_OBJECTS}" )
+	unset( QT_CORE_ICU_OBJECTS )
+	unset( QT_CORE_IMPORTED_OBJECTS )
     endif()
 endmacro(QT_SETUP_CORE_EXTERNALS)
 
 macro( QT_SETUP_GUI_EXTERNALS )
+    OD_FIND_QTDIR()
+    get_target_property( QT_GUI_IMPORTED_OBJECTS Qt${QT_VERSION_MAJOR}::Gui
+			 IMPORTED_OBJECTS )
     if ( WIN32 )
-	OD_FIND_QTDIR()
-	list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS
-		${Qt${QT_VERSION_MAJOR}Gui_EGL_LIBRARIES}
-		${Qt${QT_VERSION_MAJOR}Gui_OPENGL_LIBRARIES}
-		"${QTDIR}/bin/d3dcompiler_47.dll"
-		"${QTDIR}/bin/opengl32sw.dll" )
-    elseif ( NOT APPLE )
-	QT_SETUP_XCBQPA_EXTERNALS()
+	get_target_property( QT_GUI_CONFIGS Qt${QT_VERSION_MAJOR}::Gui
+			     IMPORTED_CONFIGURATIONS )
+	foreach( config ${QT_GUI_CONFIGS} )
+	    get_target_property( QT_GUI_LINKDEPS_${config} Qt${QT_VERSION_MAJOR}::Gui
+				 IMPORTED_LINK_DEPENDENT_LIBRARIES_${config} )
+	    if ( QT_GUI_LINKDEPS_${config} )
+		foreach( QT_GUI_LINKDEP_${config} ${QT_GUI_LINKDEPS_${config}} )
+		    get_target_property( QT_GUI_LINKDEP_LOCATION_${config} ${QT_GUI_LINKDEP_${config}}
+					 IMPORTED_LOCATION_${config} )
+		    if ( QT_GUI_LINKDEP_LOCATION_${config} )
+			list( APPEND QT_GUI_IMPORTED_OBJECTS_${config} "${QT_GUI_LINKDEP_LOCATION_${config}}" )
+		    endif()
+		endforeach()
+		if ( NOT "${QT_GUI_IMPORTED_OBJECTS_${config}}" STREQUAL "" )
+		    set_target_properties( Qt${QT_VERSION_MAJOR}::Gui PROPERTIES
+			IMPORTED_OBJECTS_${config} "${QT_GUI_IMPORTED_OBJECTS_${config}}" )
+		endif()
+		unset( QT_GUI_IMPORTED_OBJECTS_${config} )
+	    endif()
+	    unset( QT_GUI_LINKDEPS_${config} )
+	endforeach()
+	unset( QT_GUI_CONFIGS )
+	set( QT_GUI_ADDS "${QTDIR}/bin/d3dcompiler_47.dll" "${QTDIR}/bin/opengl32sw.dll" )
+    elseif ( UNIX AND NOT APPLE )
+	#Only because of XcbQpa
+	add_fontconfig( QT_GUI_ADDS )
     endif()
+
+    if ( QT_GUI_ADDS )
+	if ( QT_GUI_IMPORTED_OBJECTS )
+	    list( APPEND QT_GUI_IMPORTED_OBJECTS ${QT_GUI_ADDS} )
+	else()
+	    set( QT_GUI_IMPORTED_OBJECTS ${QT_GUI_ADDS} )
+	endif()
+	unset( QT_GUI_ADDS )
+	list( REMOVE_DUPLICATES QT_GUI_IMPORTED_OBJECTS )
+	set_target_properties( Qt${QT_VERSION_MAJOR}::Gui PROPERTIES
+		    IMPORTED_OBJECTS "${QT_GUI_IMPORTED_OBJECTS}" )
+    endif()
+    unset( QT_GUI_IMPORTED_OBJECTS )
 endmacro(QT_SETUP_GUI_EXTERNALS)
 
 macro( OD_ADD_QT )
-    if ( OD_NO_QT )
-	add_definitions( -DOD_NO_QT )
-    else()
+
+    if ( NOT OD_NO_QT )
 	OD_FIND_QTDIR()
 
 	list ( APPEND CMAKE_PREFIX_PATH "${QTDIR}" )
-	find_package( QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core )
+	find_package( QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core GLOBAL )
 	find_package( Qt${QT_VERSION_MAJOR}
 		COMPONENTS Core LinguistTools
-	       	PATHS "${QTDIR}"
-	       	NO_DEFAULT_PATH )
+		PATHS "${QTDIR}"
+		NO_DEFAULT_PATH
+		GLOBAL )
 
 	if ( NOT Qt${QT_VERSION_MAJOR}_FOUND )
 	    message( FATAL_ERROR "Cannot find/use the Qt installation" )
@@ -227,17 +265,17 @@ macro( OD_ADD_QT )
 
 	unset( QTDIR CACHE )
 
-    endif(OD_NO_QT)
+    endif()
 
 endmacro(OD_ADD_QT)
 
 macro( QT_DTECT_WEBENGINE )
     if ( NOT DEFINED CACHE{USE_QtWebEngine} OR
 	 (DEFINED CACHE{USE_QtWebEngine} AND "$CACHE{USE_QtWebEngine}") )
-	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS WebEngineWidgets )
+	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS WebEngineWidgets GLOBAL )
 	if ( Qt${QT_VERSION_MAJOR}WebEngineWidgets_FOUND )
 	    set( USE_QtWebEngine ON CACHE BOOL "Build with Qt WebEngineWidgets" FORCE )
-	    add_definitions( -D__withqtwebengine__ )
+	    list( APPEND OD_MODULE_COMPILE_DEFINITIONS "__withqtwebengine__" )
 	else()
 	    set( USE_QtWebEngine OFF CACHE BOOL "Build with Qt WebEngineWidgets" FORCE )
 	endif()
@@ -246,7 +284,7 @@ endmacro(QT_DTECT_WEBENGINE)
 
 macro( QT_DTECT_CHARTS )
     if ( QT_VERSION_MAJOR EQUAL 5 )
-	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Charts )
+	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Charts GLOBAL )
     endif()
 endmacro()
 
@@ -280,8 +318,8 @@ macro( OD_ADD_QTMODS )
 
     set( LINKMODS "" )
     if ( NOT "${OD_USEQT}" STREQUAL "" )
-	find_package( QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core )
-	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS ${OD_USEQT} )
+	find_package( QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core GLOBAL )
+	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS ${OD_USEQT} GLOBAL )
 
 	foreach( QTMOD ${OD_USEQT} )
 	    get_link_libraries( DEPLINKMODS Qt${QT_VERSION_MAJOR}::${QTMOD} )
@@ -307,11 +345,11 @@ macro( OD_ADD_QTMODS )
 
     set( INSTMODS "" )
     if ( NOT "${OD_INSTQT}" STREQUAL "" )
-	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS ${OD_INSTQT} )
+	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS ${OD_INSTQT} GLOBAL )
 
 	foreach( QTMOD ${OD_INSTQT} )
 	    if ( NOT Qt${QT_VERSION_MAJOR}${QTMOD}_FOUND )
-		find_package( Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ${OD_INSTQT} )
+		find_package( Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ${OD_INSTQT} GLOBAL )
 	    endif()
 	    get_link_libraries( INSTMODS Qt${QT_VERSION_MAJOR}::${QTMOD} )
 	    list ( REMOVE_DUPLICATES INSTMODS )
@@ -344,36 +382,38 @@ endmacro( OD_ADD_QTMODS )
 
 macro( OD_SETUP_QT )
 
-    set( CMAKE_AUTOMOC ON)
-    OD_ADD_QTMODS()
-    foreach( QTCOMP ${OD_ALLQTCOMPS} )
-	if ( NOT TARGET ${QTCOMP} )
-	    message( FATAL_ERROR "${QTCOMP} is NOT a valid target" )
+    if ( OD_NO_QT )
+	list( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_NO_QT" )
+    else()
+	set( CMAKE_AUTOMOC ON)
+	OD_ADD_QTMODS()
+	foreach( QTCOMP ${OD_ALLQTCOMPS} )
+	    if ( NOT TARGET ${QTCOMP} )
+		message( FATAL_ERROR "${QTCOMP} is NOT a valid target" )
+	    endif()
+	endforeach()
+
+	foreach ( QTMOD ${LINKMODS} )
+	    get_target_property( INCLUDEDIR ${QTMOD} INTERFACE_INCLUDE_DIRECTORIES )
+	endforeach()
+
+	if ( LINKMODS )
+	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${LINKMODS} )
 	endif()
-    endforeach()
+	if ( Qt${QT_VERSION_MAJOR}::Core IN_LIST LINKMODS )
+	    QT_SETUP_CORE_EXTERNALS()
+	endif()
+	if ( Qt${QT_VERSION_MAJOR}::Gui IN_LIST LINKMODS )
+	    QT_SETUP_GUI_EXTERNALS()
+	endif()
+	if ( INSTMODS )
+	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS ${INSTMODS} )
+	endif()
 
-    foreach ( QTMOD ${LINKMODS} )
-	get_target_property( INCLUDEDIR ${QTMOD} INTERFACE_INCLUDE_DIRECTORIES )
-	list( APPEND OD_MODULE_INCLUDESYSPATH ${INCLUDEDIR} )
-    endforeach()
-
-    list( REMOVE_DUPLICATES OD_MODULE_INCLUDESYSPATH )
-    if ( LINKMODS )
-	list( APPEND OD_MODULE_EXTERNAL_LIBS ${LINKMODS} )
+	if ( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
+	    list( APPEND OD_MODULE_COMPILE_OPTIONS "/wd4481" )
+	endif()
     endif()
-    if ( Qt${QT_VERSION_MAJOR}::Core IN_LIST LINKMODS )
-	QT_SETUP_CORE_EXTERNALS()
-    endif()
-    if ( Qt${QT_VERSION_MAJOR}::Gui IN_LIST LINKMODS )
-	QT_SETUP_GUI_EXTERNALS()
-    endif()
-    if ( INSTMODS )
-	list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS ${INSTMODS} )
-    endif()
-
-    if ( WIN32 )
-	set ( CMAKE_CXX_FLAGS "/wd4481 ${CMAKE_CXX_FLAGS}" )
-    endif( WIN32 )
 
 endmacro(OD_SETUP_QT)
 
@@ -392,8 +432,9 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	COMMENT "Compiling translations" )
 	unset( CMAKE_FOLDER )
     
-	install(DIRECTORY data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
-          FILES_MATCHING PATTERN "*.qm")
+	install( DIRECTORY data/localizations
+		 DESTINATION "${MISC_INSTALL_PREFIX}/data/localizations"
+		 FILES_MATCHING PATTERN "*.qm")
 	
     endif()
 endmacro( SETUP_QT_TRANSLATION )

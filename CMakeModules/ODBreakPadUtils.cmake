@@ -5,81 +5,69 @@
 #________________________________________________________________________
 #
 
+macro( OD_SETUP_BREAKPAD_TARGET TRGT )
+    if( BREAKPAD${MOD}_RELEASE AND EXISTS "${BREAKPAD${MOD}_RELEASE}" )
+	list( APPEND BREAKPAD_CONFIGS RELEASE )
+	set( BREAKPAD_LOCATION_RELEASE "${BREAKPAD${MOD}_RELEASE}" )
+	set( BREAKPAD_LOCATION "${BREAKPAD_LOCATION_RELEASE}" )
+	unset( BREAKPAD${MOD}_RELEASE CACHE )
+    endif()
+    if ( BREAKPAD${MOD}_DEBUG AND EXISTS "${BREAKPAD${MOD}_DEBUG}" )
+	list( APPEND BREAKPAD_CONFIGS DEBUG )
+	set( BREAKPAD_LOCATION_DEBUG "${BREAKPAD${MOD}_DEBUG}" )
+	if ( NOT BREAKPAD_LOCATION )
+	    set( BREAKPAD_LOCATION "${BREAKPAD_LOCATION_DEBUG}" )
+	endif()
+	unset( BREAKPAD${MOD}_DEBUG CACHE )
+    endif()
+    if ( NOT BREAKPAD_LOCATION )
+	message( FATAL_ERROR "BREAKPAD${MOD} (${LIBNAME}) is missing" )
+    endif()
+    if ( NOT IS_DIRECTORY "${BREAKPAD_DIR}/include/breakpad" )
+	message( FATAL_ERROR "Cannot find breakpad header files at ${BREAKPAD_DIR}/include/breakpad" )
+    endif()
+    add_library( breakpad::${TRGT} STATIC IMPORTED GLOBAL )
+    set_target_properties( breakpad::${TRGT} PROPERTIES
+	IMPORTED_LOCATION "${BREAKPAD_LOCATION}"
+	IMPORTED_CONFIGURATIONS "${BREAKPAD_CONFIGS}"
+	INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_DIR}/include/breakpad" )
+    unset( BREAKPAD_LOCATION )
+    foreach( config ${BREAKPAD_CONFIGS} )
+	set_target_properties( breakpad::${TRGT} PROPERTIES
+		IMPORTED_LOCATION_${config} "${BREAKPAD_LOCATION_${config}}" )
+	unset( BREAKPAD_LOCATION_${config} )
+    endforeach()
+    unset( BREAKPAD_CONFIGS )
+endmacro()
+
 macro( OD_ADD_BREAKPAD )
    if ( OD_ENABLE_BREAKPAD )
 	set( BREAKPAD_DIR "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
 	if( WIN32 )
-	    find_library( BREAKPADLIB_DEBUG NAMES exception_handler 
-		      PATHS ${BREAKPAD_DIR}/lib/Debug
-		      REQUIRED )
-	    find_library( BREAKPADLIB_RELEASE NAMES exception_handler 
-		PATHS ${BREAKPAD_DIR}/lib/Release
-		      REQUIRED )
-	    find_library( BREAKPADCOMMONLIB_DEBUG NAMES common 
-		PATHS ${BREAKPAD_DIR}/lib/Debug
-		      REQUIRED )
-	    find_library( BREAKPADCOMMONLIB_RELEASE NAMES common 
-		PATHS ${BREAKPAD_DIR}/lib/Release
-		      REQUIRED )
-	    find_library( BREAKPADCLIENTLIB_DEBUG NAMES crash_generation_client 
-		PATHS ${BREAKPAD_DIR}/lib/Debug
-		      REQUIRED )
-	    find_library( BREAKPADCLIENTLIB_RELEASE NAMES crash_generation_client 
-		PATHS ${BREAKPAD_DIR}/lib/Release
-		      REQUIRED )
-
-	    set(BREAKPADMODULES LIB COMMONLIB CLIENTLIB )
-	    foreach( MOD ${BREAKPADMODULES} )
-		if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-		    if ( BREAKPAD${MOD}_RELEASE )
-			list(APPEND OD_BREAKPADLIBS ${BREAKPAD${MOD}_RELEASE} )
-		    elseif( BREAKPAD${MOD}_DEBUG )
-			list(APPEND OD_BREAKPADLIBS ${BREAKPAD${MOD}_DEBUG} )
-	            else()
-			message( FATAL_ERROR "BREAKPAD${MOD} is missing" )
-		    endif()
-		elseif( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-		    if ( BREAKPAD${MOD}_DEBUG )
-			list(APPEND OD_BREAKPADLIBS ${BREAKPAD${MOD}_DEBUG} )
-		    elseif( BREAKPAD${MOD}_RELEASE )
-			list(APPEND OD_BREAKPADLIBS ${BREAKPAD${MOD}_RELEASE} )
-	    	    else()
-			message( FATAL_ERROR "BREAKPAD${MOD} is missing" )
-		    endif()
-		endif()
-		unset( BREAKPAD${MOD}_DEBUG CACHE )
-		unset( BREAKPAD${MOD}_RELEASE CACHE )
-	    endforeach()
-	elseif( APPLE )
-	    #TODO
-	else() # Linux
-	    set(BREAKPADMODULES LIB CLIENTLIB )
-	    find_library( BREAKPADLIB NAMES breakpad
-		      PATHS ${BREAKPAD_DIR}/lib
-		      REQUIRED )
-	    find_library( BREAKPADCLIENTLIB NAMES breakpad_client
-		      PATHS ${BREAKPAD_DIR}/lib
-		      REQUIRED )
-	    list(APPEND OD_BREAKPADLIBS ${BREAKPADLIBS} ${BREAKPADCLIENTLIB} )
-	    unset( BREAKPADLIBS CACHE )
-	    unset( BREAKPADCLIENTLIB CACHE )
+	    set( BREAKPADMODULES COMMON CLIENT HANDLER )
+	    set( BREAKPADNAMES common crash_generation_client exception_handler )
+	    set( BREAKPADCOMPS breakpad client handler )
+	else()
+	    set( BREAKPADMODULES COMMON CLIENT )
+	    set( BREAKPADNAMES libbreakpad.a libbreakpad_client.a )
+	    set( BREAKPADCOMPS breakpad client )
 	endif()
 
-	find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms 
-		  PATHS ${BREAKPAD_DIR}/bin )
+	foreach( MOD LIBNAME TRGT IN ZIP_LISTS BREAKPADMODULES BREAKPADNAMES BREAKPADCOMPS )
+	    find_library( BREAKPAD${MOD}_RELEASE NAMES ${LIBNAME}
+			  PATHS "${BREAKPAD_DIR}"
+			  PATH_SUFFIXES lib lib/Release )
+	    find_library( BREAKPAD${MOD}_DEBUG NAMES ${LIBNAME}
+			  PATHS "${BREAKPAD_DIR}"
+			  PATH_SUFFIXES lib/Debug )
+	    OD_SETUP_BREAKPAD_TARGET( ${TRGT} )
+	endforeach()
 
-	if ( UNIX )
-	    find_program( BREAKPAD_STACKWALK_EXECUTABLE NAMES minidump_stackwalk 
-		  PATHS ${BREAKPAD_DIR}/bin )
-	    OD_INSTALL_PROGRAM( "${BREAKPAD_STACKWALK_EXECUTABLE}" )
-	endif( UNIX )
-	
-	install( DIRECTORY "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_DEBUG}/symbols"
-		 DESTINATION "${OD_LIB_INSTALL_PATH_DEBUG}"
-		 CONFIGURATIONS Debug )
-	install( DIRECTORY "${OD_BINARY_BASEDIR}/${OD_LIB_RELPATH_RELEASE}/symbols"
-		 DESTINATION "${OD_LIB_INSTALL_PATH_RELEASE}"
-		 CONFIGURATIONS Release )
+	find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms
+		      PATHS ${BREAKPAD_DIR}/bin )
+
+	install( DIRECTORY "${OD_BINARY_BASEDIR}/${OD_RUNTIME_DIRECTORY}/symbols"
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}" )
 
    endif()
 endmacro(OD_ADD_BREAKPAD)
@@ -88,10 +76,22 @@ macro( OD_SETUP_BREAKPAD )
 
     if( OD_ENABLE_BREAKPAD )
 
-	list(APPEND OD_MODULE_INCLUDESYSPATH
-		    "${BREAKPAD_DIR}/include/breakpad" )
-	list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
+	if ( NOT TARGET breakpad::breakpad )
+	    message( STATUS "Cannot link against breakpad::breakpad" )
+	endif()
+	if ( NOT TARGET breakpad::client )
+	    message( STATUS "Cannot link against breakpad::client" )
+	endif()
+	if ( WIN32 AND NOT TARGET breakpad::handler )
+	    message( STATUS "Cannot link against breakpad::handler" )
+	endif()
 
+	list(APPEND OD_MODULE_EXTERNAL_LIBS
+			breakpad::breakpad
+			breakpad::client )
+	if ( WIN32 )
+	    list(APPEND OD_MODULE_EXTERNAL_LIBS breakpad::handler )
+	endif()
 	add_definitions( -DHAS_BREAKPAD )
 
     endif(OD_ENABLE_BREAKPAD)
@@ -99,8 +99,7 @@ macro( OD_SETUP_BREAKPAD )
 endmacro(OD_SETUP_BREAKPAD)
 
 macro ( OD_GENERATE_SYMBOLS TRGT )
-    if ( BREAKPAD_DUMPSYMS_EXECUTABLE )
-
+    if ( OD_ENABLE_BREAKPAD AND EXISTS "${BREAKPAD_DUMPSYMS_EXECUTABLE}" )
 	#Method to create timestamp file (and symbols). Will only trigger if out of date
 	add_custom_command( TARGET ${TRGT} POST_BUILD 
 		COMMAND ${CMAKE_COMMAND}
@@ -109,6 +108,5 @@ macro ( OD_GENERATE_SYMBOLS TRGT )
 			-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
 		DEPENDS ${TRGT}
 		COMMENT "Generating symbols for ${TRGT}" )
-
-    endif( BREAKPAD_DUMPSYMS_EXECUTABLE )
+    endif()
 endmacro()

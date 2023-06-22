@@ -20,10 +20,6 @@ ________________________________________________________________________
 # undef Interval
 #endif
 
-#ifdef _DEBUG
-# define __debug__
-#endif
-
 #define snprintf	_snprintf
 #define isnan		std::isnan
 

@@ -95,7 +95,7 @@ macro( OD_ADD_PROJ )
 	    set ( PROJ_DIR "${PROJ_DIR}/lib/cmake/proj" )
 	endif()
 
-	find_package( PROJ QUIET )
+	find_package( PROJ QUIET GLOBAL )
 
 	if ( NOT PROJ_FOUND )
 	    set( PROJ_DIR "" CACHE PATH "Proj location" )
@@ -107,9 +107,8 @@ endmacro(OD_ADD_PROJ)
 
 macro(OD_SETUP_PROJ)
 
-    if ( EXISTS "${PROJ_INCLUDE_DIRS}" )
+    if ( TARGET ${PROJ_LIBRARIES} )
 	if ( OD_LINKPROJ )
-	    list( APPEND OD_MODULE_INCLUDESYSPATH "${PROJ_INCLUDE_DIRS}" )
 	    list( APPEND OD_MODULE_EXTERNAL_LIBS "${PROJ_LIBRARIES}" )
 	elseif ( OD_USEPROJ )
 	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS "${PROJ_LIBRARIES}" )
@@ -117,17 +116,10 @@ macro(OD_SETUP_PROJ)
     endif()
 
     if ( OD_LINKPROJ OR OD_USEPROJ )
-	if ( APPLE )
-	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
-		     DESTINATION Contents/Resources/data/CRS )
-	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
-		     DESTINATION Contents/Resources/data/CRS )
-	else()
-	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
-		     DESTINATION data/CRS )
-	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
-		     DESTINATION data/CRS )
-	endif()
+	install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+		 DESTINATION "${OD_DATA_INSTALL_RELPATH}/CRS" )
+	install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
+		 DESTINATION "${OD_DATA_INSTALL_RELPATH}/CRS" )
 
     endif()
 
