@@ -62,15 +62,14 @@ void uiToolBarCommandEditor::initui( const uiString& seltxt,
 				     const BufferStringSet& paths,
 				     bool withcheck )
 {
-    uiLabeledComboBox* lblcb = nullptr;
+    uiStringSet uinames;
     if ( !commands_.isEmpty() )
-    {
-	uiStringSet uinames( commands_.getUiNames() );
-	uinames.add( uiStrings::sOther() );
-	lblcb = new uiLabeledComboBox( this, uinames, seltxt );
-	lblcb->setStretch( 2, 1 );
-	exeselfld_ = lblcb->box();
-    }
+	uinames.add( commands_.getUiNames() );
+
+    uinames.add( uiStrings::sOther() );
+    auto* lblcb = new uiLabeledComboBox( this, uinames, seltxt );
+    lblcb->setStretch( 2, 1 );
+    exeselfld_ = lblcb->box();
 
     uiFileInput::Setup su;
     su.defseldir( paths.isEmpty() ? GetSoftwareDir(true) :

@@ -1492,11 +1492,11 @@ void uiPythonSettings::usePar( const IOPar& par )
     }
     custompathfld_->setChecked( pathpar );
 
-    updateIDEfld();
     PtrMan<IOPar> idepar = par.subselect( sKey::PythonIDE() );
     if ( idepar )
 	pyidefld_->usePar( *idepar );
     pyidefld_->setChecked( idepar );
+    updateIDEfld();
 
     PtrMan<IOPar> termpar = par.subselect( sKey::PythonTerm() );
     if ( termpar )
@@ -1770,6 +1770,10 @@ bool uiPythonSettings::getPythonEnvBinPath( BufferString& pybinpath ) const
 
 void uiPythonSettings::updateIDEfld()
 {
+    getChanges();
+    if ( !useScreen() )
+	return;
+
     pyidefld_->updateCmdList( getPythonIDECommands() );
 }
 
@@ -1864,9 +1868,12 @@ bool uiPythonSettings::acceptOK( CallBacker* )
 CommandDefs uiPythonSettings::getPythonIDECommands()
 {
     BufferStringSet paths;
-    FilePath pybinpath;
-    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
-    paths.add( pybinpath.fullPath() );
+    if ( OD::PythA().getPythonSource()!=OD::System )
+    {
+	FilePath pybinpath;
+	OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
+	paths.add( pybinpath.fullPath() );
+    }
 
     const BufferStringSet spyderargs( "--new-instance" );
 
