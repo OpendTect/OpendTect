@@ -652,8 +652,9 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
     endif()
 
     ADD_TEST_PROGRAM( ${TEST_NAME} )
-
     set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_NAME} )
+    unset( PARAMETER_FILE )
+    unset ( TEST_NAME )
 endforeach()
 
 

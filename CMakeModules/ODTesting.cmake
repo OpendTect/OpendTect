@@ -8,7 +8,6 @@
 
 set ( OD_TESTDATA_DIR "" CACHE PATH "Test data location" )
 
-
 if ( UNIX )
     set ( VALGRIND_PROGRAM "" CACHE PATH "Location of valgrind" )
 endif()
@@ -61,8 +60,11 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     set ( TEST_ARGS --command ${TEST_NAME} )
 
     list ( APPEND TEST_ARGS --wdir "${PROJECT_OUTPUT_DIR}"
-		    --config $<CONFIG> --plf ${OD_PLFSUBDIR}
+		    --config "$<IF:$<CONFIG:Debug>,Debug,Release>" --plf ${OD_PLFSUBDIR}
 		    --quiet )
+    if ( TEST_EXPECTEDRES )
+	list ( APPEND TEST_ARGS --expected-result ${TEST_EXPECTEDRES} )
+    endif()
     if ( WIN32 )
 	ADD_RUNTIME_PATHS()
     else()
@@ -92,8 +94,6 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     endif()
 
 endmacro()
-
-
 
 macro ( OD_ADD_KEYWORD_TEST KW NM MSG)
     if ( (NOT DEFINED WIN32) AND (NOT DEFINED APPLE) )
@@ -131,7 +131,6 @@ macro ( OD_ADD_REGEXP_TEST KW NM MSG)
     endif()
 endmacro()
 
-
 macro ( OD_ADD_LOCAL_STATIC_TEST )
     if ( (NOT DEFINED WIN32) AND (NOT DEFINED APPLE) )
 	set( NM "local_static" )
@@ -159,34 +158,6 @@ macro ( OD_ADD_LINEEND_TEST )
 	add_test( FileEndTest ${CMD} )
  
     endif()
-endmacro()
-
-
-macro ( OD_ADD_EXIT_PROGRAM_TEST )
-    set ( APPEND TEST_ARGS --command test_exit_program )
-    if ( WIN32 )
-	set( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.cmd" )
-    else()
-	set( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.csh" )
-    endif()
-    set ( TEST_ARGS --command test_exit_program )
-
-    list ( APPEND TEST_ARGS --wdir "${OD_BINARY_BASEDIR}"
-		    --config $<CONFIG> --plf ${OD_PLFSUBDIR}
-		    --expected-result 1
-		    --quiet )
-    set( OD_MODULE_RUNTIMEPATH "${QTDIR}/bin" )
-    if ( WIN32 )
-	ADD_RUNTIME_PATHS()
-    else()
-	list ( APPEND TEST_ARGS
-		    --oddir ${OD_BINARY_BASEDIR} )
-	if ( NOT APPLE )
-	    ADD_CXX_LD_LIBRARY_PATH()
-	endif()
-    endif()
-
-    add_test( test_exit_program "${TEST_COMMAND}" ${TEST_ARGS}  )
 endmacro()
 
 macro ( OD_ADD_LINT_TEST )

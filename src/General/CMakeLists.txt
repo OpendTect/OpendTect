@@ -129,3 +129,6 @@ if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 endif()
 
 OD_INIT_MODULE()
+
+set( TEST_EXPECTEDRES "1" )
+ADD_TEST_PROGRAM( "test_exit_program" )
