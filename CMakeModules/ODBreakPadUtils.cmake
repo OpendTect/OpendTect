@@ -6,6 +6,7 @@
 #
 
 macro( OD_SETUP_BREAKPAD_TARGET TRGT )
+
     if( BREAKPAD${MOD}_RELEASE AND EXISTS "${BREAKPAD${MOD}_RELEASE}" )
 	list( APPEND BREAKPAD_CONFIGS RELEASE )
 	set( BREAKPAD_LOCATION_RELEASE "${BREAKPAD${MOD}_RELEASE}" )
@@ -21,36 +22,52 @@ macro( OD_SETUP_BREAKPAD_TARGET TRGT )
 	unset( BREAKPAD${MOD}_DEBUG CACHE )
     endif()
     if ( NOT BREAKPAD_LOCATION )
-	message( FATAL_ERROR "BREAKPAD${MOD} (${LIBNAME}) is missing" )
-    endif()
-    if ( NOT IS_DIRECTORY "${BREAKPAD_DIR}/include/breakpad" )
-	message( FATAL_ERROR "Cannot find breakpad header files at ${BREAKPAD_DIR}/include/breakpad" )
-    endif()
-    add_library( breakpad::${TRGT} STATIC IMPORTED GLOBAL )
-    set_target_properties( breakpad::${TRGT} PROPERTIES
-	IMPORTED_LOCATION "${BREAKPAD_LOCATION}"
-	IMPORTED_CONFIGURATIONS "${BREAKPAD_CONFIGS}"
-	INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_DIR}/include/breakpad" )
-    unset( BREAKPAD_LOCATION )
-    foreach( config ${BREAKPAD_CONFIGS} )
+	message( SEND_ERROR "BREAKPAD${MOD} (${LIBNAME}) is missing" )
+    elseif ( NOT IS_DIRECTORY "${BREAKPAD_DIR}/include/breakpad" )
+	message( SEND_ERROR "Cannot find breakpad header files at ${BREAKPAD_DIR}/include/breakpad" )
+	unset( BREAKPAD_LOCATION )
+    else()
+	add_library( breakpad::${TRGT} STATIC IMPORTED GLOBAL )
 	set_target_properties( breakpad::${TRGT} PROPERTIES
-		IMPORTED_LOCATION_${config} "${BREAKPAD_LOCATION_${config}}" )
-	unset( BREAKPAD_LOCATION_${config} )
-    endforeach()
+	    IMPORTED_LOCATION "${BREAKPAD_LOCATION}"
+	    IMPORTED_CONFIGURATIONS "${BREAKPAD_CONFIGS}"
+	    INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_DIR}/include/breakpad" )
+	unset( BREAKPAD_LOCATION )
+	foreach( config ${BREAKPAD_CONFIGS} )
+	    set_target_properties( breakpad::${TRGT} PROPERTIES
+		    IMPORTED_LOCATION_${config} "${BREAKPAD_LOCATION_${config}}" )
+	    unset( BREAKPAD_LOCATION_${config} )
+	endforeach()
+    endif()
     unset( BREAKPAD_CONFIGS )
-endmacro()
+
+endmacro(OD_SETUP_BREAKPAD_TARGET)
+
+macro ( OD_GENERATE_SYMBOLS TRGT )
+    if ( OD_ENABLE_BREAKPAD AND EXISTS "${BREAKPAD_DUMPSYMS_EXECUTABLE}" )
+	#Method to create timestamp file (and symbols). Will only trigger if out of date
+	add_custom_command( TARGET ${TRGT} POST_BUILD 
+		COMMAND ${CMAKE_COMMAND}
+			-DLIBRARY=$<TARGET_FILE:${TRGT}>
+			-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+			-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+		DEPENDS ${TRGT}
+		COMMENT "Generating symbols for ${TRGT}" )
+    endif()
+endmacro(OD_GENERATE_SYMBOLS)
 
 macro( OD_ADD_BREAKPAD )
+
    if ( OD_ENABLE_BREAKPAD )
 	set( BREAKPAD_DIR "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
+	set( BREAKPADMODULES COMMON CLIENT )
+	set( BREAKPADCOMPS breakpad client )
 	if( WIN32 )
-	    set( BREAKPADMODULES COMMON CLIENT HANDLER )
+	    list( APPEND HANDLER )
+	    list( APPEND BREAKPADCOMPS handler )
 	    set( BREAKPADNAMES common crash_generation_client exception_handler )
-	    set( BREAKPADCOMPS breakpad client handler )
 	else()
-	    set( BREAKPADMODULES COMMON CLIENT )
 	    set( BREAKPADNAMES libbreakpad.a libbreakpad_client.a )
-	    set( BREAKPADCOMPS breakpad client )
 	endif()
 
 	foreach( MOD LIBNAME TRGT IN ZIP_LISTS BREAKPADMODULES BREAKPADNAMES BREAKPADCOMPS )
@@ -69,44 +86,22 @@ macro( OD_ADD_BREAKPAD )
 	install( DIRECTORY "${OD_BINARY_BASEDIR}/${OD_RUNTIME_DIRECTORY}/symbols"
 		 DESTINATION "${OD_RUNTIME_DIRECTORY}" )
 
-   endif()
+   endif(OD_ENABLE_BREAKPAD)
+
 endmacro(OD_ADD_BREAKPAD)
 
 macro( OD_SETUP_BREAKPAD )
 
-    if( OD_ENABLE_BREAKPAD )
+    if ( OD_ENABLE_BREAKPAD )
+	foreach( COMP ${BREAKPADCOMPS} )
+	    if ( TARGET breakpad::${COMP} )
+		list( APPEND OD_MODULE_EXTERNAL_LIBS breakpad::${COMP} )
+	    else()
+		message( SEND_ERROR "Cannot link against breakpad::${COMP}" )
+	    endif()
+	endforeach()
 
-	if ( NOT TARGET breakpad::breakpad )
-	    message( STATUS "Cannot link against breakpad::breakpad" )
-	endif()
-	if ( NOT TARGET breakpad::client )
-	    message( STATUS "Cannot link against breakpad::client" )
-	endif()
-	if ( WIN32 AND NOT TARGET breakpad::handler )
-	    message( STATUS "Cannot link against breakpad::handler" )
-	endif()
-
-	list(APPEND OD_MODULE_EXTERNAL_LIBS
-			breakpad::breakpad
-			breakpad::client )
-	if ( WIN32 )
-	    list(APPEND OD_MODULE_EXTERNAL_LIBS breakpad::handler )
-	endif()
-	add_definitions( -DHAS_BREAKPAD )
-
+	list( APPEND OD_MODULE_COMPILE_DEFINITIONS "HAS_BREAKPAD" )
     endif(OD_ENABLE_BREAKPAD)
 
 endmacro(OD_SETUP_BREAKPAD)
-
-macro ( OD_GENERATE_SYMBOLS TRGT )
-    if ( OD_ENABLE_BREAKPAD AND EXISTS "${BREAKPAD_DUMPSYMS_EXECUTABLE}" )
-	#Method to create timestamp file (and symbols). Will only trigger if out of date
-	add_custom_command( TARGET ${TRGT} POST_BUILD 
-		COMMAND ${CMAKE_COMMAND}
-			-DLIBRARY=$<TARGET_FILE:${TRGT}>
-			-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
-			-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
-		DEPENDS ${TRGT}
-		COMMENT "Generating symbols for ${TRGT}" )
-    endif()
-endmacro()

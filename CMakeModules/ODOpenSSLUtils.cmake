@@ -5,23 +5,8 @@
 #________________________________________________________________________
 #
 
-macro( OD_ADD_QTOPENSSL_HINT )
-    if ( EXISTS "${QT_DIR}" )
-	get_filename_component( QTINSTDIR ${QT_DIR} REALPATH )
-	set( OPENSSL_HINT_DIR "${QTINSTDIR}/../../../../../Tools/OpenSSL" )
-	get_filename_component( OPENSSL_HINT_DIR ${OPENSSL_HINT_DIR} REALPATH )
-	if ( EXISTS ${OPENSSL_HINT_DIR} )
-	    set( OPENSSL_ROOT_DIR ${OPENSSL_HINT_DIR} )
-	    if ( WIN32 )
-		set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/Win_x64 )
-	    elseif( NOT DEFINED APPLE )
-		set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/binary )
-	    endif( WIN32 )
-	endif()
-    endif( EXISTS "${QT_DIR}" )
-endmacro( OD_ADD_QTOPENSSL_HINT )
-
 macro( OD_SETUP_OPENSSL_TARGET TRGT )
+
     get_target_property( OPENSSL_CONFIGS ${TRGT} IMPORTED_CONFIGURATIONS )
     get_target_property( OPENSSL_LOCATION ${TRGT} IMPORTED_LOCATION )
     foreach( config ${OPENSSL_CONFIGS} )
@@ -64,9 +49,32 @@ macro( OD_SETUP_OPENSSL_TARGET TRGT )
 			       IMPORTED_IMPLIB "${OPENSSL_IMPLIB_LOCATION}" )
 	unset( OPENSSL_IMPLIB_LOCATION )
     endif()
-endmacro( OD_SETUP_OPENSSL_TARGET )
+
+endmacro(OD_SETUP_OPENSSL_TARGET)
+
+macro( OD_ADD_QTOPENSSL_HINT )
+    if ( EXISTS "${QT_DIR}" )
+	get_filename_component( QTINSTDIR ${QT_DIR} REALPATH )
+	set( OPENSSL_HINT_DIR "${QTINSTDIR}/../../../../../Tools/OpenSSL" )
+	get_filename_component( OPENSSL_HINT_DIR ${OPENSSL_HINT_DIR} REALPATH )
+	if ( EXISTS ${OPENSSL_HINT_DIR} )
+	    set( OPENSSL_ROOT_DIR ${OPENSSL_HINT_DIR} )
+	    if ( WIN32 )
+		set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/Win_x64 )
+	    elseif( NOT DEFINED APPLE )
+		set( OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}/binary )
+	    endif( WIN32 )
+	endif()
+    endif( EXISTS "${QT_DIR}" )
+endmacro( OD_ADD_QTOPENSSL_HINT )
+
+macro( OD_SETUP_OPENSSLCOMP COMP )
+    list( APPEND OD_MODULE_COMPILE_DEFINITIONS
+	  "__OpenSSL_${COMP}_LIBRARY__=\"$<TARGET_FILE:OpenSSL::${COMP}>\"" )
+endmacro(OD_SETUP_OPENSSLCOMP)
 
 macro( OD_FIND_OPENSSL )
+
     if ( NOT TARGET OpenSSL::SSL OR NOT TARGET OpenSSL::Crypto )
 	find_package( OpenSSL 1.1.1 QUIET COMPONENTS SSL Crypto GLOBAL )
 	if ( NOT TARGET OpenSSL::SSL OR NOT TARGET OpenSSL::Crypto )
@@ -81,42 +89,38 @@ macro( OD_FIND_OPENSSL )
 	OD_SETUP_OPENSSL_TARGET( OpenSSL::SSL )
 	OD_SETUP_OPENSSL_TARGET( OpenSSL::Crypto )
     endif()
+
 endmacro(OD_FIND_OPENSSL)
-
-macro( OD_SETUP_OPENSSLCOMP COMP )
-
-    if ( TARGET OpenSSL::${COMP} )
-	list( APPEND OD_MODULE_COMPILE_DEFINITIONS
-	      "__OpenSSL_${COMP}_LIBRARY__=\"$<TARGET_FILE:OpenSSL::${COMP}>\"" )
-    else()
-	message( WARNING "OpenSSL component ${COMP} is not available.")
-    endif()
-
-endmacro( OD_SETUP_OPENSSLCOMP )
 
 macro( OD_SETUP_CRYPTO )
 
-    if ( EXISTS "${OPENSSL_CRYPTO_LIBRARY}" )
+    if ( OPENSSL_FOUND AND TARGET OpenSSL::Crypto )
 	if ( OD_LINKCRYPTO )
 	    list( APPEND OD_MODULE_EXTERNAL_LIBS OpenSSL::Crypto )
 	elseif ( OD_USECRYPTO )
 	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS OpenSSL::Crypto )
 	    OD_SETUP_OPENSSLCOMP( Crypto )
 	endif()
+    else()
+	set( OPENSSL_ROOT_DIR "" CACHE PATH "OpenSSL Location" )
+	message( SEND_ERROR "Cannot find/use the OpenSSL installation" )
     endif()
 
-endmacro( OD_SETUP_CRYPTO )
+endmacro(OD_SETUP_CRYPTO)
 
 macro( OD_SETUP_OPENSSL )
 
-    if ( EXISTS "${OPENSSL_SSL_LIBRARY}" )
+    if ( OPENSSL_FOUND AND TARGET OpenSSL::SSL )
 	if ( OD_LINKOPENSSL )
 	    list( APPEND OD_MODULE_EXTERNAL_LIBS OpenSSL::SSL )
 	elseif( OD_USEOPENSSL )
 	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS OpenSSL::SSL )
 	    OD_SETUP_OPENSSLCOMP( SSL )
 	endif()
+    else()
+	set( OPENSSL_ROOT_DIR "" CACHE PATH "OpenSSL Location" )
+	message( SEND_ERROR "Cannot find/use the OpenSSL installation" )
     endif()
 
-endmacro( OD_SETUP_OPENSSL )
+endmacro(OD_SETUP_OPENSSL)
 
