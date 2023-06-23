@@ -18,6 +18,12 @@ macro( OD_SETUP_ZLIB_TARGET )
     endif()
 endmacro(OD_SETUP_ZLIB_TARGET)
 
+macro( OD_CLEANUP_ZLIB )
+    unset( ZLIB_INCLUDE_DIR CACHE )
+    unset( ZLIB_LIBRARY_DEBUG CACHE )
+    unset( ZLIB_LIBRARY_RELEASE CACHE )
+endmacro(OD_CLEANUP_ZLIB)
+
 macro( OD_FIND_ZLIB )
 
     if ( NOT ZLIB_FOUND )
@@ -39,6 +45,9 @@ macro( OD_FIND_ZLIB )
 
 	if ( NOT ZLIB_FOUND )
 	    find_package( ZLIB QUIET GLOBAL )
+	endif()
+	if ( NOT ZLIB_FOUND )
+	    OD_CLEANUP_ZLIB()
 	endif()
     endif()
 
