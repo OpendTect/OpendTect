@@ -24,6 +24,8 @@ public:
 			Wavelet(const char* nm=0);
 			Wavelet(bool ricker_else_sinc,float fpeak,
 				float sample_intv=mUdf(float),float scale=1);
+			Wavelet( const TypeSet<float>& freq,
+				 float sample_intv=mUdf(float),float scale=1);
 			Wavelet(const Wavelet&);
     Wavelet&		operator=(const Wavelet&);
     virtual		~Wavelet();

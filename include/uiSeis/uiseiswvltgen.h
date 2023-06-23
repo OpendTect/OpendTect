@@ -42,6 +42,7 @@ protected:
 mExpClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
 { mODTextTranslationClass(uiSeisWvltGen);
 public:
+			mDeprecated ("Use uiSeisWvltGenerator");
 			uiSeisWvltGen(uiParent*);
 			~uiSeisWvltGen(){};
 
@@ -53,6 +54,25 @@ protected:
     uiGenInput*		peakamplfld_;
 
     bool		acceptOK(CallBacker*) override;
+};
+
+
+mExpClass(uiSeis) uiSeisWvltGenerator : public uiSeisWvltCreate
+{ mODTextTranslationClass(uiSeisWvltGenerator);
+public:
+			uiSeisWvltGenerator(uiParent*);
+			~uiSeisWvltGenerator();
+
+protected:
+
+    uiGenInput*		isrickfld_;
+    uiGenInput*		freqfld_;
+    uiGenInput*		srfld_;
+    uiGenInput*		peakamplfld_;
+
+    bool		acceptOK(CallBacker*) override;
+    void		initUI(CallBacker*);
+    void		typeChgCB(CallBacker*);
 };
 
 

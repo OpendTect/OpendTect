@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "ctxtioobj.h"
+#include "fftfilter.h"
 #include "fourier.h"
 #include "hilberttransform.h"
 #include "ascstream.h"
@@ -81,6 +82,40 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 	}
 	pos += dpos_;
     }
+}
+
+
+Wavelet::Wavelet( const TypeSet<float>& freq, float sr, float scale )
+    : dpos_(sr)
+{
+    if ( mIsUdf(dpos_) )
+	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
+    if ( mIsUdf(scale) )
+	scale = 1;
+
+    cidx_ = (int)( ( 1 + 1. / ((freq[1]+freq[2])/2.f*dpos_) ) )*2+1;
+    BufferString nm( "Bandpass (" );
+    for ( const auto& f : freq )
+    {
+	nm += f;
+	nm += "-";
+    }
+    nm.last() = ')';
+    setName( nm );
+
+    int lw = 1 + 2*cidx_;
+    reSize( lw );
+    FFTFilter filt( lw, dpos_ );
+    filt.setBandPass( freq[0], freq[1], freq[2], freq[3] );
+    Array1DImpl<float> wave( lw );
+    wave.setAll( 0.f );
+    wave.set( cidx_, 1.0f );
+    filt.apply( wave );
+    const ArrayNDWindow timewindow( Array1DInfoImpl(sz_), false );
+    timewindow.apply( &wave );
+    OD::memCopy( samps_, wave.arr(), sz_*sizeof(float) );
+    normalize();
+    transform( 0.f, scale );
 }
 
 

@@ -72,6 +72,7 @@ static float getFreqScaler()
    */
 }
 
+
 uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     : uiSeisWvltCreate(p,uiDialog::Setup(tr("Create Wavelet"),
 				 tr("Specify wavelet creation parameters"),
@@ -122,6 +123,122 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 
     Wavelet wvlt( isrickfld_->getBoolValue(), freq, sr, peakampl );
     return putWvlt( wvlt );
+}
+
+
+uiSeisWvltGenerator::uiSeisWvltGenerator( uiParent* p )
+    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Create Wavelet"),
+				 tr("Specify wavelet creation parameters"),
+				 mODHelpKey(mSeisWvltManCrWvltHelpID) ))
+{
+    isrickfld_ = new uiGenInput( this, tr("Wavelet type"),
+				BoolInpSpec(true,tr("Ricker"),tr("Bandpass")) );
+
+    const float sisr = SI().zStep();
+    const float deffrq = sCast( float, mNINT32(getFreqScaler()*0.1f/sisr) );
+    // 20% of nyquist frequency
+
+    uiString txt = tr("%1 (%2)")
+	.arg( SI().zIsTime() ? uiStrings::sFrequency()
+			     : uiStrings::sWaveNumber() )
+	.arg( SI().zIsTime() ? "Hz" : SI().depthsInFeet() ? "/miles" : "/km" );
+    freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq),
+			       FloatInpSpec(deffrq), FloatInpSpec(deffrq));
+    freqfld_->addInput( FloatInpSpec(deffrq) );
+    freqfld_->attach( alignedBelow, isrickfld_ );
+
+    const float usrsr = sisr * SI().zDomain().userFactor();
+    txt = tr("Sample interval %1").arg(SI().getUiZUnitString());
+    srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
+    srfld_->attach( alignedBelow, freqfld_ );
+
+    peakamplfld_ = new uiGenInput(this, tr("Peak amplitude"), FloatInpSpec(1));
+    peakamplfld_->attach( alignedBelow, srfld_ );
+
+    wvltfld_->attach( alignedBelow, peakamplfld_ );
+    mAttachCB(postFinalize(), uiSeisWvltGenerator::initUI);
+}
+
+
+uiSeisWvltGenerator::~uiSeisWvltGenerator()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSeisWvltGenerator::initUI( CallBacker* )
+{
+    mAttachCB(isrickfld_->valueChanged, uiSeisWvltGenerator::typeChgCB);
+    typeChgCB( nullptr );
+}
+
+
+void uiSeisWvltGenerator::typeChgCB( CallBacker* )
+{
+    const bool isrick = isrickfld_->getBoolValue();
+    freqfld_->displayField( true, 0, 0);
+    freqfld_->displayField( !isrick, 0, 1);
+    freqfld_->displayField( !isrick, 0, 2);
+    freqfld_->displayField( !isrick, 0, 3);
+    const float sisr = SI().zStep();
+    const float deffrq = sCast( float, mNINT32(getFreqScaler()*0.1f/sisr) );
+    if ( isrick )
+	freqfld_->setValue( deffrq, 0 );
+    else
+    {
+	freqfld_->setValue( deffrq*0.25f, 0 );
+	freqfld_->setValue( deffrq*0.5f, 1 );
+	freqfld_->setValue( deffrq*2.0f, 2 );
+	freqfld_->setValue( deffrq*4.0f, 3 );
+    }
+}
+
+
+bool uiSeisWvltGenerator::acceptOK( CallBacker* )
+{
+    const bool isrick = isrickfld_->getBoolValue();
+    const int nrfreq = isrick ? 1 : 4;
+    TypeSet<float> freq;
+    bool isvalid = false;
+    float last = 0.f;
+    const float freqscalar = getFreqScaler();
+    for ( int ifr=0; ifr<nrfreq; ifr++	)
+    {
+	freq += freqfld_->getFValue( ifr ) / freqscalar;
+	isvalid = !mIsUdf(freq[ifr]) && freq[ifr]>0.f && freq[ifr]>last;
+	last = freq[ifr];
+    }
+
+    float sr = srfld_->getFValue();
+    const float peakampl = peakamplfld_->getFValue();
+
+    if ( mIsUdf(sr) || sr <= 0 )
+	mErrRet( tr("The sample interval is not valid") )
+    else if ( peakampl == 0 )
+	mErrRet( tr("The peak amplitude must be non-zero") )
+    else if ( !isvalid )
+    {
+	if ( isrick )
+	    mErrRet( tr("The frequency must be positive") )
+	else
+	    mErrRet( tr("The frequencies must be positive and increasing") )
+    }
+
+    sr /= SI().zDomain().userFactor();
+
+    bool res;
+    if ( isrickfld_->getBoolValue() )
+    {
+	Wavelet wvlt( true, freq[0], sr, peakampl );
+	res = putWvlt( wvlt );
+    }
+    else
+    {
+	Wavelet wvlt( freq, sr, peakampl );
+	res = putWvlt( wvlt );
+    }
+
+    return res;
 }
 
 
