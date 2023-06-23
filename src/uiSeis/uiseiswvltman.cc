@@ -140,7 +140,7 @@ void uiSeisWvltMan::impPush( CallBacker* )
 
 void uiSeisWvltMan::crPush( CallBacker* )
 {
-    uiSeisWvltGen dlg( this );
+    uiSeisWvltGenerator dlg( this );
     if ( dlg.go() )
 	selgrp_->fullUpdate( dlg.storeKey() );
 }
