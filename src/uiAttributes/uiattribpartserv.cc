@@ -2300,6 +2300,10 @@ void uiAttribPartServer::fillPar( IOPar& iopar, bool is2d,
     const DescSet* ads = DSHolder().getDescSet( is2d, isstored );
     if ( ads && !ads->isEmpty() )
 	ads->fillPar( iopar );
+
+    const MultiID mid = DSHolder().getDescSetMan( is2d )->attrsetid_;
+    if ( IOM().isPresent(mid) )
+	iopar.set( sKey::ID(), mid );
 }
 
 
@@ -2334,6 +2338,10 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d,
 				   : uiStrings::s3D());
 	uiMSG().errorWithDetails( errmsgs, basemsg );
     }
+
+    MultiID mid;
+    if ( iopar.get(sKey::ID(), mid) && IOM().isPresent(mid) )
+	eDSHolder().getDescSetMan( is2d )->attrsetid_ = mid;
 
     set2DEvent( is2d );
     sendEvent( evNewAttrSet() );
