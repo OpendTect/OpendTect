@@ -16,7 +16,7 @@ set( OD_MODULE_SOURCES
 
 set( OD_MODULE_COMPILE_DEFINITIONS "_CONSOLE" )
 if ( APPLE )
-    set( OD_MODULE_LINK_OPTIONS "-flat_namespace" "undefined" "suppress" )
+    set( OD_MODULE_LINK_OPTIONS "-flat_namespace" "-undefined" "suppress" )
 endif()
 
 OD_INIT_MODULE()
