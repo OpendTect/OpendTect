@@ -90,11 +90,11 @@ float SlideLayout::availableHeigth() const
 
 // SlideContent
 SlideContent::SlideContent( const char* title, const char* imgfnm )
-    : title_(title)
-    , imagefnm_(imgfnm)
+    : imagefnm_(imgfnm)
     , imagesz_(0,0)
     , imagepos_(0,0)
 {
+    setTitle( title );
 }
 
 
@@ -103,7 +103,10 @@ SlideContent::~SlideContent()
 
 
 void SlideContent::setTitle( const char* title )
-{ title_ = title; }
+{
+    title_ = title;
+    title_.remove( "'" );
+}
 
 
 bool SlideContent::setImageSizePos( const SlideLayout& layout )
@@ -279,7 +282,10 @@ void PresentationSpec::removeSlide( int idx )
 { delete slides_.removeSingle( idx ); }
 
 void PresentationSpec::setTitle( const char* title )
-{ title_ = title; }
+{
+    title_ = title;
+    title_.remove( "'" );
+}
 
 
 void PresentationSpec::setSlideTitle( int idx, const char* title )
