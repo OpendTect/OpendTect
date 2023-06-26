@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "testprog.h"
 
 
-static const char* smallfname = "http://intranet/testing/ctest/test_file";
+static const char* smallfname = "http://oldintranet.dgbes.com/testing/ctest/test_file";
 static const char* bigfname = "http://opendtect.org/tmp/f3_fake_2d_ps_seis.zip";
 static od_stream::Count bigsz = 10556039;
 
