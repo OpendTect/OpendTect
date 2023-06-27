@@ -769,6 +769,8 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 						attribcachedatapackids_[idx] );
 	    if ( rsdp )
 		return idx;
+
+	    continue;
 	}
 
 	if ( attribcachespecs_[idx]->geomid_ != activeGeomID() )
