@@ -737,14 +737,21 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 
 	    auto sdp = dpm_.get<RegularSeisDataPack>(
 						attribcachedatapackids_[idx] );
-	    if ( !sdp )
-		continue;
+	    if ( sdp )
+	    {
+		TrcKeySampling cachedcs = sdp->sampling().hsamp_;
+		if ( cachedcs.includes(activevolume_.hsamp_) )
+		    return idx;
+		else
+		    continue;
+	    }
 
-	    TrcKeySampling cachedcs = sdp->sampling().hsamp_;
-	    if ( cachedcs.includes(activevolume_.hsamp_) )
+	    auto rsdp = dpm_.get<RandomSeisDataPack>(
+						attribcachedatapackids_[idx] );
+	    if ( rsdp )
 		return idx;
-	    else
-		continue;
+
+	    continue;
 	}
 
 	if ( attribcachespecs_[idx]->geomid_ != activeGeomID() )
