@@ -705,8 +705,9 @@ DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
-    ConstRefMan<RegularSeisDataPack> dp = attrserv->createOutput( tkzs,
-								  nullptr );
+    const DataPackID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
+
+    auto dp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>( dpid );
     if ( !dp )
 	return DataPack::cNoID();
 
