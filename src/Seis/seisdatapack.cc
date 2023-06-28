@@ -724,6 +724,9 @@ float SeisFlatDataPack::nrKBytes() const
 void SeisFlatDataPack::setPosData()
 {
     const TrcKeyPath& path = getPath();
+    if ( path.isEmpty() )
+	return;
+
     const int nrtrcs = path.size();
     float* pos = new float[nrtrcs];
     pos[0] = 0;
