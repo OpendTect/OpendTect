@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "posinfo2d.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
@@ -548,7 +547,6 @@ int nextStep() override
 
 SeisFixedCubeProvider::SeisFixedCubeProvider( const MultiID& key )
     : tkzs_(false)
-    , data_(0)
     , ioobj_(IOM().get(key))
     , trcdist_(SI().crlDistance())
 {
@@ -563,7 +561,9 @@ SeisFixedCubeProvider::~SeisFixedCubeProvider()
 
 
 uiString SeisFixedCubeProvider::errMsg() const
-{ return errmsg_; }
+{
+    return errmsg_;
+}
 
 
 void SeisFixedCubeProvider::clear()
@@ -575,16 +575,17 @@ void SeisFixedCubeProvider::clear()
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    delete data_->get( idx, idy );
 
-    delete data_;
-    data_ = 0;
+    deleteAndNullPtr( data_ );
 }
 
 
 bool SeisFixedCubeProvider::isEmpty() const
-{ return !data_; }
+{
+    return !data_;
+}
 
 
-bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
+bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID& geomid )
 {
     trcdist_ = SI().crlDistance();
     const SeisIOObjInfo si( ioobj_->key() );
@@ -617,15 +618,17 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 }
 
 
-bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs,
-				     TaskRunner* taskr)
-{ return readData( cs, Survey::GM().cUndefGeomID(), taskr ); }
+bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
+				      TaskRunner* taskr )
+{
+    return readData( cs, Survey::GM().cUndefGeomID(), taskr );
+}
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid,
+				      const Pos::GeomID& geomid,
 				      TaskRunner* taskr )
 {
     if ( !ioobj_ )
@@ -671,7 +674,7 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
     if ( !data_ || !tkzs_.hsamp_.includes(bid) )
-	return 0;
+	return nullptr;
 
     return data_->get( tkzs_.inlIdx(bid.inl()), tkzs_.crlIdx(bid.crl()) );
 }

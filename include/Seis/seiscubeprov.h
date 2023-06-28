@@ -143,9 +143,9 @@ public:
 
     void		clear();
     bool		isEmpty() const;
-    bool		readData(const TrcKeyZSampling&,TaskRunner* tr=0);
+    bool		readData(const TrcKeyZSampling&,TaskRunner* =nullptr);
     bool		readData(const TrcKeyZSampling&,
-				 const Pos::GeomID geomid, TaskRunner* tr = 0);
+				const Pos::GeomID&,TaskRunner* =nullptr);
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(int trcnr) const;
@@ -154,12 +154,12 @@ public:
 
 protected:
 
-    Array2D<SeisTrc*>*	data_;
+    Array2D<SeisTrc*>*	data_					= nullptr;
 
     TrcKeyZSampling	tkzs_;
     IOObj*		ioobj_;
     uiString		errmsg_;
     float		trcdist_;
 
-    bool		calcTrcDist(const Pos::GeomID);
+    bool		calcTrcDist(const Pos::GeomID&);
 };
