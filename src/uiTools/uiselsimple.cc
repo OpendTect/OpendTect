@@ -76,18 +76,22 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
 	listfld_ = new uiListBox( this );
 	for ( int idx=0; idx<sup.items_.size(); idx++ )
 	    listfld_->addItem( mToUiStringTodo(sup.items_.get(idx)) );
+
 	if ( !sup.deflt_.isEmpty() )
 	    listfld_->setCurrentItem( sup.deflt_.buf() );
 	else
 	    listfld_->setCurrentItem( 0 );
+
 	listfld_->selectionChanged.notify( mCB(this,uiGetObjectName,selChg) );
 	listfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
+	listfld_->resizeToContents();
     }
 
     BufferString defnm( sup.deflt_ );
     if ( defnm.isEmpty() && listfld_ )
 	defnm = sup.items_.get(0);
     inpfld_ = new uiGenInput( this, sup.inptxt_, defnm );
+    inpfld_->setStretch( 2, 2 );
     inpfld_->setDefaultTextValidator();
 
     if ( listfld_ )
