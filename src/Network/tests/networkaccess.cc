@@ -28,7 +28,7 @@ static BufferString intranetHost()
     mDeclStaticString(res);
     if ( res.isEmpty() )
     {
-	res.set( "intranet" );
+	res.set( "oldintranet.dgbes.com" );
 	const BufferString addr( System::hostAddress(res.buf()) );
 	if ( addr.isEmpty() )
 	    res.set( "192.168.0.245" );
@@ -92,7 +92,7 @@ bool testDownloadToFile()
 
 bool testFileUpload()
 {
-    const BufferString url = intranetUrl( "php_do_not_delete_it.php" );
+    const BufferString url = intranetUrl( "file_uploadtest.php" );
     const char* remotefn( "test_file" );
     uiString err;
     IOPar postvars;
@@ -110,7 +110,7 @@ bool testQueryUpload()
     const char* report = "This is test report";
     IOPar querypars;
     querypars.set( "report", report );
-    const BufferString url = intranetUrl( "php_do_not_delete_it_2.php" );
+    const BufferString url = intranetUrl( "query_uploadtest.php" );
     uiString err;
     mRunStandardTestWithError( Network::uploadQuery( url, querypars, err ),
 		BufferString( prefix_, "UploadQuery"), toString(err) );
