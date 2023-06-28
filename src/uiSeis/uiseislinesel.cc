@@ -630,6 +630,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     uiListBox::Setup su( cm, tr("Select Lines") );
     lnmsfld_ = new uiListBox( this, su );
     lnmsfld_->addItems( lnms );
+    lnmsfld_->resizeToContents();
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
 
