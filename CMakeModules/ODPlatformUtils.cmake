@@ -48,8 +48,6 @@ if( UNIX )
 	    set ( CMAKE_CXX_FLAGS
 		  "${CMAKE_CXX_FLAGS} -D__MAC_LLVM_COMPILER_ERROR__" )
 	endif()
-	set( CMAKE_MACOSX_RPATH TRUE )
-	set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
 	if ( CMAKE_GENERATOR STREQUAL "Xcode" )
 	    set( OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS yes )
 	endif()

@@ -8,14 +8,22 @@
 #
 
 #OpendTect modules and plugins
-set( ODLIBLIST @OD_CORE_MODULE_NAMES_od@ )
+set( LIBLIST @OD_CORE_MODULE_NAMES_od@ )
 
-set( ODPLUGINS @OD_PLUGINS@ )
+set( PLUGINS @OD_PLUGINS@ )
+set( EXCLUDE_PLUGINS uiQtApp uiCrashMe uiCOLOP )
+list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
-set( SPECSOURCES @OD_SPECPROGS@ )
+set( SPECMODS @OD_SPECPROGS@ )
 
 set( EXECLIST @OD_BASE_EXECUTABLE@ )
+set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain )
+list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
 
-set( SPECFILES "" )
+#TODO update condition when the debug libraries get an actual debug postfix
+if ( ${PACKAGE_TYPE} STREQUAL "Devel" AND NOT APPLE )
+    set( THIRDPARTY_LIBS "${OD_THIRDPARTY_LIBS}" )
+    list( APPEND EXECLIST "qt.conf" )
+endif()
 
-set( PACK "devel" )
+set( PACK devel )

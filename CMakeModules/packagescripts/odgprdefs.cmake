@@ -7,6 +7,5 @@
 # CMake script to define gpr package variables
 #
 
-SET( LIBLIST uiImpGPR )
-SET( EXECLIST "" )
-SET( PACK "odgpr")
+set( PLUGINS uiImpGPR )
+set( PACK odgpr )

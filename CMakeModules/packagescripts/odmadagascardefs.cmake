@@ -7,6 +7,6 @@
 # CMake script to define package variables
 #
 
-SET( LIBLIST Madagascar uiMadagascar MadagascarAttribs MadagascarAttribs )
-SET( EXECLIST od_madexec )
-SET( PACK "odmadagascar")
+set( PLUGINS Madagascar uiMadagascar MadagascarAttribs uiMadagascarAttribs )
+set( EXECLIST od_madexec )
+set( PACK odmadagascar )

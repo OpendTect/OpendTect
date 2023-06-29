@@ -115,11 +115,7 @@ static void loadOpenSSL()
 	return;
 
     //Load first crypto, then ssl
-#ifdef __mac__
-    const BufferString ssldir( "../Resources/OpenSSL" );
-#else
     const BufferString ssldir( "OpenSSL" );
-#endif
     mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
 	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__,ssldir) );
 # ifdef __OpenSSL_SSL_LIBRARY__

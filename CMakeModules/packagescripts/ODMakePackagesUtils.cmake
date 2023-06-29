@@ -4,621 +4,456 @@
 # License:      https://dgbes.com/index.php/licensing
 #________________________________________________________________________
 #
-# CMake script to build a release
+# CMake script with all macros used for the packaging
 #
 
-macro ( CREATE_PACKAGE PACKAGE_NAME )
-    if( ${PACKAGE_NAME} STREQUAL "base" )
-	if( UNIX )
-	    if ( APPLE )
-		file( COPY ${COPYFROMDATADIR}/qt_menu.nib
-		      DESTINATION ${COPYTODATADIR} )
-		file( COPY ${COPYFROMDATADIR}/od.icns
-		      DESTINATION ${COPYTODATADIR} )
-	    else()
-		file(COPY "${COPYFROMLIBDIR}/../lib"
-		     DESTINATION "${COPYTOLIBDIR}/../" )
-	    endif()
-	endif()
-
-	file(COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
-	     DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
-	     FILES_MATCHING PATTERN lmutil* )
-
-	if( NOT "${MATLAB_DIR}" STREQUAL "" )
-	    if ( NOT EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB" )
-		message( FATAL_ERROR "MATLAB directory not found" )
-	    endif()
-	    file( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
-		  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-	endif()
-
-	COPY_THIRDPARTYLIBS()
-	list( APPEND LIBLIST ${PLUGINS} )
-    elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
-	file( GLOB OD_PYBIND_LIBS
-	      LIST_DIRECTORIES FALSE
-	      RELATIVE "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}"
-	      "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/odpybind.*.*" )
-	if ( NOT "${OD_PYBIND_LIBS}" STREQUAL "" )
-	    list( APPEND OD_THIRD_PARTY_FILES ${OD_PYBIND_LIBS} )
-	endif()
-	COPY_THIRDPARTYLIBS()
-    endif()
-
-    #TODO Need to check whether we need to use this macro on MAC.
-    if ( APPLE AND SYSTEMLIBS ) #TODO Need to check whether we	need to use this macro on MAC.
-	COPY_MAC_SYSTEMLIBS()
-	unset( SYSTEMLIBS )
-    endif()
-
-    foreach( LIB ${LIBLIST} )
-	if( WIN32 )
-	    set( LIBNM "${LIB}.dll" )
-	    #Stripping not required on windows
-	elseif( APPLE )
-	    set( LIBNM "lib${LIB}.dylib" )
-	    execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIBNM} )
-	    #Not using breakpad on MAC
-	else()
-	    set( LIBNM "lib${LIB}.so")
-	endif()
-	if ( ("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
-	      NOT "${PACKAGE_NAME}" STREQUAL "devel") OR
-	     ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND
-	      "${PACKAGE_NAME}" STREQUAL "devel") )
-	    file( COPY ${COPYFROMLIBDIR}/${LIBNM}
-		  DESTINATION ${COPYTOLIBDIR} )
-	endif()
-
-	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
-	     NOT "${PACKAGE_NAME}" STREQUAL "devel" )
-	    file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${LIB}.alo )
-	    foreach( ALOFILE ${ALOFILES} )
-		file( COPY ${ALOFILE}
-		      DESTINATION ${COPYTODATADIR}/plugins/${OD_PLFSUBDIR} )
-	    endforeach()
-	endif()
-    endforeach()
-
-    foreach( PYDIR ${PYTHONDIR} )
-	file( COPY ${COPYFROMDATADIR}/bin/python/${PYDIR}
-	      DESTINATION ${COPYTODATADIR}/bin/python )
-    endforeach()
+macro( CLEAN_PACK_VARIABLES )
+    unset( PACK )
+    unset( LIBLIST )
+    unset( EXECLIST )
+    unset( EXCLUDE_EXECS )
+    unset( PLUGINS )
+    unset( EXCLUDE_PLUGINS )
+    unset( SPECMODS )
+# root files
+    unset( SPECFILES )
+# data files
+    unset( DATALIST )
+    unset( LEGALLIST )
+    unset( PYTHONREQLIST )
+# bin/script files
+# provide file names (only) from the bin folder
+    unset( ODSCRIPTS )
     unset( PYTHONDIR )
-
-    if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
-#Install lm
-	foreach( SPECFILE ${SPECFILES} )
-	     file( COPY ${COPYFROMDATADIR}/${SPECFILE}
-		   DESTINATION ${COPYTODATADIR} )
-	endforeach()
-
-	file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
-	      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
-	      FILES_MATCHING PATTERN dgbld*
-			     PATTERN lmgrd*
-			     PATTERN lmtools* )
-	if ( WIN32 )
-	    file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/odExternal
-		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
-		  PATTERN "*dd.exe" EXCLUDE
-		  PATTERN "*rd.exe" EXCLUDE )
-	elseif( NOT APPLE )
-	    file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
-		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
-	endif()
-    endif()
-
-    if ( WIN32 AND ${PACKAGE_NAME} STREQUAL "base" )
-	list( APPEND EXECLIST ${WINEXECLIST} )
-    endif()
-
-    if ( ("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
-	  NOT "${PACKAGE_NAME}" STREQUAL "devel") OR
-	 ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND
-	  "${PACKAGE_NAME}" STREQUAL "devel") )
-	foreach( EXE ${EXECLIST} )
-	    if( WIN32 )
-		file( COPY ${COPYFROMLIBDIR}/${EXE}.exe
-		      DESTINATION ${COPYTOLIBDIR} )
-	    elseif( APPLE )
-		execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMEXEDIR}/${EXE} )
-		file( COPY ${COPYFROMEXEDIR}/${EXE}
-		      DESTINATION ${COPYTOEXEDIR} )
-	    else()
-		file( COPY ${COPYFROMLIBDIR}/${EXE}
-		      DESTINATION ${COPYTOLIBDIR} )
-	    endif()
-	endforeach()
-    endif()
-
-    if( ${PACKAGE_NAME} STREQUAL "base" )
-	foreach( SPECFILE ${SPECFILES} )
-	     file( COPY ${COPYFROMDATADIR}/${SPECFILE}
-		   DESTINATION ${COPYTODATADIR} )
-	endforeach()
-	foreach( FILES ${ODSCRIPTS} )
-	     file( GLOB SCRIPTS ${COPYFROMDATADIR}/bin/${FILES} )
-	     foreach( SCRIPT ${SCRIPTS} )
-		file( COPY ${SCRIPT}
-		      DESTINATION ${COPYTODATADIR}/bin )
-	     endforeach()
-	endforeach()
-
-	if( WIN32 )
-	    file( COPY ${COPYFROMLIBDIR}/od_main_debug.bat
-		  DESTINATION ${COPYTOLIBDIR} )
-	endif()
-    endif()
-    foreach( EXTERNALLIB ${EXTERNALLIBS} )
-	file( COPY ${COPYFROMLIBDIR}/${EXTERNALLIB}
-	      DESTINATION ${COPYTOLIBDIR} )
-    endforeach()
-    set( EXTERNALLIBS "")
-
-    foreach( DATADIR ${DATADIRLIST} )
-	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
-	      DESTINATION ${COPYTODATADIR}/data )
-    endforeach()
-    foreach( LEGALDIR ${LEGALLIST} )
-	file( COPY ${COPYFROMDATADIR}/data/Legal/${LEGALDIR}
-	      DESTINATION ${COPYTODATADIR}/data/Legal )
-    endforeach()
-    if ( DEFINED PYTHONREQLIST )
-	foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
-	    file( COPY "${COPYFROMDATADIR}/data/Python/${PYTHONREQFNM}.txt"
-		  DESTINATION "${COPYTODATADIR}/data/Python" )
-	endforeach()
-    endif()
-    unset( PYTHONREQLIST )
-    unset( LEGALLIST )
-    unset( DATADIRLIST )
-
-    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( CREATE_PACKAGE )
-
-
-macro( COPY_THIRDPARTYLIBS )
-    list( APPEND SYSLIBS ${SYSTEMLIBS} )
-    list( APPEND SSLLIBS ${OPENSSLLIBS} )
-    set( FONTLIBS fontconfig;freetype;png15;png16 )
-    #TODO: recover OD_THIRD_PARTY_FILES
-    foreach( LIB ${OD_THIRD_PARTY_FILES} )
-	string( FIND ${LIB} "Qt" ISQTLIB )
-	if ( APPLE AND NOT ${ISQTLIB} EQUAL -1 )
-	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
-				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
-				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
-	    file( COPY ${COPYFROMLIBDIR}/${LIB}
-		  DESTINATION ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
-	else()
-	    if ( WIN32 )
-		get_filename_component( PDBFILE ${LIB} LAST_EXT )
-		if( ${PDBFILE} STREQUAL ".pdb" )
-		    continue()
-		endif()
-	    else()
-		if ( APPLE )
-		    execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
-		else()
-		    list( FIND SYSLIBS "${LIB}" ITEMIDX )
-		    if ( NOT ${ITEMIDX} EQUAL -1 )
-			if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
-			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
-			endif()
-
-			file( COPY ${COPYFROMLIBDIR}/${LIB}
-			      DESTINATION ${COPYTOLIBDIR}/systemlibs )
-			continue()
-		    endif()
-
-		    foreach( FONTLIB ${FONTLIBS} )
-			string( FIND ${LIB} ${FONTLIB} ISFONTLIB )
-			if ( NOT ISFONTLIB EQUAL -1 )
-			    file( COPY ${COPYFROMLIBDIR}/${FONTLIB}
-				  DESTINATION ${COPYTOLIBDIR} )
-			    break()
-			endif()
-		    endforeach()
-		    if ( NOT ISFONTLIB EQUAL -1 )
-			continue()
-		    endif()
-		endif()
-
-		list( FIND SSLLIBS "${LIB}" ITEMIDX )
-		if ( NOT ${ITEMIDX} EQUAL -1 )
-		    if ( APPLE )
-			if( NOT EXISTS ${COPYTODATADIR}/OpenSSL )
-			    file( MAKE_DIRECTORY ${COPYTODATADIR}/OpenSSL )
-			endif()
-			file( COPY ${COPYFROMLIBDIR}/${LIB}
-			      DESTINATION ${COPYTODATADIR}/OpenSSL )
-		    else()
-			if( NOT EXISTS ${COPYTOLIBDIR}/OpenSSL )
-			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/OpenSSL )
-			endif()
-			file( COPY ${COPYFROMLIBDIR}/${LIB}
-			      DESTINATION ${COPYTOLIBDIR}/OpenSSL )
-		    endif()
-		    continue()
-		endif()
-	    endif()
-
-	    file( COPY ${COPYFROMLIBDIR}/${LIB}
-		  DESTINATION ${COPYTOLIBDIR} )
-	endif()
-
-    endforeach()
-
-    foreach( ODPLUGIN ${OD_QTPLUGINS} )
-	if ( "${ODPLUGIN}" STREQUAL "resources" )
-	    if ( APPLE )
-		file( COPY ${COPYFROMLIBDIR}/../PlugIns/resources
-		      DESTINATION ${COPYTOLIBDIR}/../PlugIns )
-	    else()
-		file( COPY ${COPYFROMLIBDIR}/../resources
-		      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
-	    endif()
-	else()
-	    if ( APPLE )
-		file( COPY ${COPYFROMLIBDIR}/../PlugIns/${ODPLUGIN}
-		      DESTINATION ${COPYTOLIBDIR}/../PlugIns )
-	    else()
-		file( COPY ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
-		      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/plugins )
-	    endif()
-	endif()
-    endforeach()
-
-    foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
-	get_filename_component( QTWEB_LOCALS_FILE ${TRANSLATION_FILE} EXT )
-	if( ${QTWEB_LOCALS_FILE} STREQUAL ".pak" )
-	    if ( APPLE )
-		file( COPY ${COPYFROMLIBDIR}/../PlugIns/translations/qtwebengine_locales/${TRANSLATION_FILE}
-		      DESTINATION ${COPYTOLIBDIR}/../PlugIns/translations/qtwebengine_locales )
-	    else()
-		file( COPY ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
-		      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/qtwebengine_locales )
-	    endif()
-	else()
-	    if ( APPLE )
-		file( COPY ${COPYFROMLIBDIR}/../PlugIns/translations/${TRANSLATION_FILE}
-		      DESTINATION ${COPYTOLIBDIR}/../PlugIns/translations )
-	    else()
-		file( COPY ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
-		      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
-	    endif()
-	endif()
-    endforeach()
-
-endmacro( COPY_THIRDPARTYLIBS )
-
-macro( COPY_MAC_SYSTEMLIBS )
-    if( APPLE )
-	foreach( SYSLIB ${SYSTEMLIBS} )
-	    execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${SYSLIB} )
-	    file( COPY ${COPYFROMLIBDIR}/${SYSLIB}
-		  DESTINATION ${COPYTOLIBDIR} )
-	endforeach()
-    endif()
-endmacro( COPY_MAC_SYSTEMLIBS )
-
-
-macro( CREATE_BASEPACKAGES PACKAGE_NAME )
-    string( FIND ${PACKAGE_NAME} "dgb" STATUS )
-    if( ${STATUS} EQUAL "0" )
-	set( ODDGBSTR "dgb" )
-
-	#add the base translation to basedata, not dgbbasedata
-	if( APPLE )
-	    file( RENAME "${PACKAGE_DIR}/${REL_DIR}" "${PACKAGE_DIR}/${REL_DIR}_TMP" )
-	    file( COPY "${COPYFROMDATADIR}/data/localizations/od_en_US.qm"
-		  DESTINATION "${COPYTODATADIR}/data/localizations" )
-	    ZIPPACKAGE( "basedata_mac.zip" ${REL_DIR} ${PACKAGE_DIR} )
-	    file( RENAME "${PACKAGE_DIR}/${REL_DIR}_TMP" "${PACKAGE_DIR}/${REL_DIR}" )
-	else()
-	    file( RENAME "${COPYTODATADIR}" "${COPYTODATADIR}_TMP" )
-	    file( COPY "${COPYFROMDATADIR}/data/localizations/od_en_US.qm"
-		  DESTINATION "${COPYTODATADIR}/data/localizations" )
-	    ZIPPACKAGE( "basedata.zip" ${REL_DIR} ${PACKAGE_DIR} )
-	    file( RENAME "${COPYTODATADIR}_TMP" "${COPYTODATADIR}" )
-	endif()
-
-	file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
-	foreach( QMFILE ${QMFILES} )
-	    get_filename_component( QMFILENM ${QMFILE} NAME )
-	    file( COPY "${COPYFROMDATADIR}/data/localizations/${QMFILENM}"
-		  DESTINATION "${COPYTODATADIR}/data/localizations"
-		  PATTERN "od_en_US*" EXCLUDE )
-	 endforeach()
-    else()
-	set( ODDGBSTR "od" )
-	file( COPY ${COPYFROMDATADIR}/relinfo/README.txt
-	      DESTINATION ${COPYTODATADIR}/relinfo )
-	file( COPY ${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
-	      DESTINATION ${COPYTODATADIR}/doc/ReleaseInfo )
-    endif()
-
-    file( COPY ${COPYFROMDATADIR}/doc/Videos.${ODDGBSTR}
-	  DESTINATION ${COPYTODATADIR}/doc )
-
-    foreach( LIBS ${LIBLIST} )
-	file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
-	foreach( DATA ${DATAFILES} )
-	    get_filename_component( DATALIBNM ${DATA} NAME )
-	    file( COPY ${COPYFROMDATADIR}/data/${DATALIBNM}
-		  DESTINATION ${COPYTODATADIR}/data )
-	 endforeach()
-    endforeach()
-
-    foreach( DATADIR ${DATADIRLIST} )
-	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
-	      DESTINATION ${COPYTODATADIR}/data )
-    endforeach()
-    foreach( LEGALDIR ${LEGALLIST} )
-	file( COPY ${COPYFROMDATADIR}/data/Legal/${LEGALDIR}
-	      DESTINATION ${COPYTODATADIR}/data/Legal )
-    endforeach()
-    if ( DEFINED PYTHONREQLIST )
-	foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
-	    file( COPY "${COPYFROMDATADIR}/data/Python/${PYTHONREQFNM}.txt"
-		  DESTINATION "${COPYTODATADIR}/data/Python" )
-	endforeach()
-    endif()
-    unset( PYTHONREQLIST )
-    unset( LEGALLIST )
-    unset( DATADIRLIST )
-
-    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( CREATE_BASEPACKAGES )
-
+# any other file or directory
+# boths lists OTHERFILES and OTHERFILESDEST must have the same size
+# and should use absolute file paths
+    unset( OTHERFILES )
+    unset( OTHERFILESDEST )
+    unset( THIRDPARTY_LIBS )
+    unset( THIRDPARTY_TARGETS )
+    unset( NO_QTTRANSLATIONS )
+    unset( QTPLUGINS )
+endmacro(CLEAN_PACK_VARIABLES)
 
 macro( INIT_DESTINATIONDIR PACKAGE_NAME )
-    set( PACKAGE_FILENAME ${PACKAGE_NAME} )
-    set( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
-    set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
-    if( ${PACKAGE_NAME} STREQUAL "basedata" )
-	set( VER_FILENAME "basedata" )
-	set( PACKAGE_FILENAME "basedata.zip" )
-	if( APPLE )
-	    set( PACKAGE_FILENAME "basedata_mac.zip" )
-	    set( VER_FILENAME "basedata_mac" )
+    if( "${PACKAGE_NAME}" MATCHES "basedata$" OR "${PACKAGE_NAME}" MATCHES "doc$" )
+	set( VER_FILENAME "${PACKAGE_NAME}" )
+	if ( APPLE )
+	    set ( VER_FILENAME "${VER_FILENAME}_mac" )
 	endif()
-    elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-	set( VER_FILENAME "dgbbasedata" )
-	set( PACKAGE_FILENAME "dgbbasedata.zip" )
-	if( APPLE )
-	    set( PACKAGE_FILENAME "dgbbasedata_mac.zip" )
-	    set( VER_FILENAME "dgbbasedata_mac" )
-	endif()
-    elseif( ${PACKAGE_NAME} STREQUAL "doc" )
-	set( VER_FILENAME "doc" )
-	set( PACKAGE_FILENAME "doc.zip" )
-	if( APPLE )
-	    set( PACKAGE_FILENAME "doc_mac.zip" )
-	    set( VER_FILENAME "doc_mac" )
-	endif()
-    elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-	set( VER_FILENAME "dgbdoc" )
-	set( PACKAGE_FILENAME "dgbdoc.zip" )
-	if( APPLE )
-	    set( PACKAGE_FILENAME "dgbdoc_mac.zip" )
-	    set( VER_FILENAME "dgbdoc_mac" )
-	endif()
-    elseif( ${PACKAGE_NAME} STREQUAL "classdoc" )
-	set( VER_FILENAME "classdoc" )
-	set( PACKAGE_FILENAME "classdoc.zip" )
-	if( APPLE )
-	    set( PACKAGE_FILENAME "classdoc_mac.zip" )
-	    set( VER_FILENAME "classdoc_mac" )
-	endif()
+	set( PACKAGE_FILENAME "${VER_FILENAME}.zip" )
+    else()
+	set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
+	set( PACKAGE_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}.zip" )
     endif()
 
-    if( NOT EXISTS ${PACKAGE_DIR} )
-	file( MAKE_DIRECTORY ${PACKAGE_DIR} )
-    endif()
-
-    #Store OpendTect_INST_DIR in another variable to handle installation directory on MAC platform
-    set( REL_DIR "${OpendTect_INST_DIR}" )
-    set( FULLVER_NAME "${OpendTect_FULL_VERSION}" )
-    if( APPLE )
-	set( REL_DIR "OpendTect\ ${REL_DIR}.app/Contents" )
+    if( NOT EXISTS "${PACKAGE_DIR}" )
+	file( MAKE_DIRECTORY "${PACKAGE_DIR}" )
     endif()
 
     set( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
-    if( EXISTS "${DESTINATION_DIR}" )
+    if( IS_DIRECTORY "${DESTINATION_DIR}" )
 	file( REMOVE_RECURSE "${DESTINATION_DIR}" )
     endif()
 
-    if ( NOT APPLE )
-	if( NOT ${PACKAGE_NAME} STREQUAL "basedata" AND
-	    NOT ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-	    file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
-	    set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
-	    set( COPYTOLIBDIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+    if ( APPLE )
+	set( MISC_INSTALL_PREFIX "/Contents/Resources" )
+    endif()
+    set( COPYFROMDIR "${CMAKE_INSTALL_PREFIX}${MISC_INSTALL_PREFIX}" )
+    set( COPYTODIR "${DESTINATION_DIR}${MISC_INSTALL_PREFIX}" )
+    set( COPYFROMSCRIPTSDIR "${COPYFROMDIR}/bin" )
+    set( COPYTOSCRIPTSDIR "${COPYTODIR}/bin" )
+    set( COPYFROMDATADIR "${COPYFROMDIR}/data" )
+    set( COPYTODATADIR "${COPYTODIR}/data" )
+    set( COPYFROMLIBDIR "${CMAKE_INSTALL_PREFIX}/${OD_LIBRARY_DIRECTORY}" )
+    set( COPYTOLIBDIR "${DESTINATION_DIR}/${OD_LIBRARY_DIRECTORY}" )
+    set( COPYFROMLOCDIR "${CMAKE_INSTALL_PREFIX}/${OD_LOCATION_DIRECTORY}" )
+    set( COPYTOLOCDIR "${DESTINATION_DIR}/${OD_LOCATION_DIRECTORY}" )
+    set( COPYFROMEXEDIR "${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}" )
+    set( COPYTOEXEDIR "${DESTINATION_DIR}/${OD_RUNTIME_DIRECTORY}" )
+
+    if( NOT ( (NOT "${PACKAGE_TYPE}" STREQUAL "Devel") AND "${PACKAGE_NAME}" STREQUAL "devel") )
+	if ( EXISTS "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
+	    file( REMOVE_RECURSE "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
 	endif()
 
-	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX} )
-	set( COPYTODATADIR ${DESTINATION_DIR} )
+	file( WRITE "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" ${FULLVER_NAME} )
+	file( APPEND "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" "\n" )
+    endif()
+
+    message( STATUS "Preparing package ${VER_FILENAME} ......" )
+endmacro(INIT_DESTINATIONDIR)
+
+macro( COPY_LIB )
+    if ( APPLE AND IS_DIRECTORY "${COPYFROMLOCDIR}/${LIBNM}" )
+	file( COPY "${COPYFROMLOCDIR}/${LIBNM}"
+	      DESTINATION "${COPYTOLOCDIR}"
+	      FILES_MATCHING
+	      PATTERN "*"
+	      PATTERN "Headers" EXCLUDE
+	      PATTERN "Helpers" EXCLUDE
+	      PATTERN "Resources/icudtl.dat" EXCLUDE
+	      PATTERN "Resources/*.pak" EXCLUDE
+	      PATTERN "Resources/*.prl" EXCLUDE
+	      PATTERN "Resources/qtwebengine_locales" EXCLUDE )
     else()
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}
-			     ${DESTINATION_DIR}/MacOS ${DESTINATION_DIR}/Frameworks )
-	set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/Contents/Frameworks )
-	set( COPYTOLIBDIR ${DESTINATION_DIR}/Frameworks )
-	set( COPYFROMEXEDIR ${CMAKE_INSTALL_PREFIX}/Contents/MacOS )
-	set( COPYTOEXEDIR ${DESTINATION_DIR}/MacOS )
-	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX}/Contents/Resources )
-	set( COPYTODATADIR ${DESTINATION_DIR}/Resources )
+	file( COPY "${COPYFROMLOCDIR}/${LIBNM}"
+	      DESTINATION "${COPYTOLOCDIR}"
+	      FOLLOW_SYMLINK_CHAIN )
     endif()
+endmacro()
 
-    if( NOT ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
-	      "${PACKAGE_NAME}" STREQUAL "devel") )
-	if ( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-	    file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-	endif()
-
-	file( WRITE ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
-	file( APPEND ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
-	if( APPLE )
-	    file( COPY ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist
-		  DESTINATION ${DESTINATION_DIR} )
-	endif()
-    endif()
-
-
-    if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR
-	 "${PACKAGE_NAME}" STREQUAL "devel" )
-	message( STATUS "Preparing package ${VER_FILENAME}.zip ......" )
-    endif()
-endmacro( INIT_DESTINATIONDIR )
-
-
-macro( CREATE_DEVELPACKAGES )
-    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-	COPY_THIRDPARTYLIBS()
-	file( MAKE_DIRECTORY ${COPYFROMDATADIR}/doc
-			     ${COPYTODATADIR}/doc/Programmer)
-	file( COPY ${SOURCE_DIR}/CMakeLists.txt
-	      DESTINATION ${COPYTODATADIR} )
-	file( COPY ${COPYFROMDATADIR}/doc/Programmer/batchprogexample
-		   ${COPYFROMDATADIR}/doc/Programmer/pluginexample
-	      DESTINATION ${COPYTODATADIR}/doc/Programmer )
-	file( COPY ${COPYFROMDATADIR}/dtect
-	      DESTINATION ${COPYTODATADIR} )
-
-	foreach( SPECFILE ${SPECFILES} )
-	    file( COPY ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
-		  DESTINATION ${COPYTODATADIR}/doc )
-	endforeach()
-
-	file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
-	foreach( HTMLFILE ${HTMLFILES} )
-	    file( COPY ${HTMLFILE}
-		  DESTINATION ${COPYTODATADIR}/doc/Programmer )
-	endforeach()
-	file( GLOB PNGFILES ${SOURCE_DIR}/doc/Programmer/*.png )
-	foreach( PNGFILE ${PNGFILES} )
-	    file( COPY ${PNGFILE}
-		  DESTINATION ${COPYTODATADIR}/doc/Programmer )
-	endforeach()
-
-	foreach( DIR CMakeModules include src plugins spec )
-	    if( "${DIR}" STREQUAL "plugins" )
-		foreach( ODPLUGIN ${ODPLUGINS} )
-		    file( COPY ${COPYFROMDATADIR}/plugins/${ODPLUGIN}
-			  DESTINATION ${COPYTODATADIR}/plugins )
-		endforeach()
+macro( COPY_THIRDPARTYLIBS )
+    foreach( LIBNM ${THIRDPARTY_LIBS} )
+	if ( UNIX )
+	    if( "${LIBNM}" MATCHES "^libssl" OR "${LIBNM}" MATCHES "^libcrypto" )
+		set( _INST_DIR "OpenSSL" )
 	    else()
-		file( COPY ${COPYFROMDATADIR}/${DIR}
-		      DESTINATION ${COPYTODATADIR} )
+		get_filename_component( _INST_DIR ${LIBNM} DIRECTORY )
+		get_filename_component( LIBNM ${LIBNM} NAME )
 	    endif()
+	endif()
+	if ( "${_INST_DIR}" STREQUAL "" )
+	    COPY_LIB()
+	else()
+	    file( COPY "${COPYFROMLOCDIR}/${_INST_DIR}/${LIBNM}"
+		  DESTINATION "${COPYTOLOCDIR}/${_INST_DIR}"
+		  FOLLOW_SYMLINK_CHAIN )
+	endif()
+	unset( _INST_DIR )
+    endforeach()
+
+    if ( THIRDPARTY_TARGETS OR QTPLUGINS )
+	COPY_QTFILES()
+    endif()
+
+endmacro(COPY_THIRDPARTYLIBS)
+
+macro(COPY_QTFILES)
+
+    foreach( TRGT ${THIRDPARTY_TARGETS} )
+	if ( "${TRGT}" MATCHES "^Qt.*::Core$" )
+	    COPY_QTCORE()
+	    break()
+	endif()
+    endforeach()
+
+    foreach( TRGT ${THIRDPARTY_TARGETS} )
+	if ( "${TRGT}" MATCHES "^Qt.*::WebEngineCore$" )
+	    COPY_QTWEBENGINE()
+	    break()
+	endif()
+    endforeach()
+
+    foreach( QTPLUGIN ${QTPLUGINS} )
+	if ( ${QTPLUGIN}_FILTER )
+	    file( COPY "${COPYFROMEXEDIR}/../plugins/${QTPLUGIN}"
+		  DESTINATION "${COPYTOEXEDIR}/../plugins"
+		  FILES_MATCHING
+		  PATTERN "*${${QTPLUGIN}_FILTER}.*" )
+	else()
+	    file( COPY "${COPYFROMEXEDIR}/../plugins/${QTPLUGIN}"
+		  DESTINATION "${COPYTOEXEDIR}/../plugins" )
+	endif()
+    endforeach()
+
+endmacro(COPY_QTFILES)
+
+macro( COPY_QTCORE )
+
+    file( COPY "${COPYFROMEXEDIR}/qt.conf"
+	  DESTINATION "${COPYTOEXEDIR}" )
+
+    if( UNIX )
+	if ( APPLE )
+	    file( COPY "${COPYFROMDIR}/qt_menu.nib"
+		  DESTINATION "${COPYTODIR}" )
+	else()
+	    file(COPY "${COPYFROMEXEDIR}/../lib"
+		 DESTINATION "${COPYTOEXEDIR}/../" )
+	endif()
+    endif()
+
+    if ( NOT NO_QTTRANSLATIONS )
+	file( GLOB TRANSLATION_FILES
+		"${COPYFROMEXEDIR}/../translations/qt_*.qm"
+		"${COPYFROMEXEDIR}/../translations/qtbase_*.qm" )
+	file( COPY ${TRANSLATION_FILES}
+	      DESTINATION "${COPYTOEXEDIR}/../translations" )
+	unset( TRANSLATION_FILES )
+    endif()
+
+endmacro( COPY_QTCORE )
+
+macro( COPY_QTWEBENGINE )
+
+    if ( NOT NO_QTTRANSLATIONS )
+	file( GLOB WEBENGINE_TRANSLATION_FILES
+		"${COPYFROMEXEDIR}/../translations/qtwebengine_*.qm" )
+	file( COPY ${WEBENGINE_TRANSLATION_FILES}
+	      DESTINATION "${COPYTOEXEDIR}/../translations" )
+	unset( WEBENGINE_TRANSLATION_FILES )
+
+	file( GLOB WEBENGINE_RESOURCES_FILES
+		"${COPYFROMEXEDIR}/../resources/icudtl.dat"
+		"${COPYFROMEXEDIR}/../resources/qtwebengine_*.pak" )
+	file( COPY ${WEBENGINE_RESOURCES_FILES}
+	      DESTINATION "${COPYTOEXEDIR}/../resources" )
+	unset( WEBENGINE_RESOURCES_FILES )
+    endif()
+
+    if ( WIN32 )
+	file( COPY "${COPYFROMEXEDIR}/QtWebEngineProcess.exe"
+	      DESTINATION "${COPYTOEXEDIR}" )
+    elseif ( APPLE )
+	file( COPY "${COPYFROMEXEDIR}/../Helpers/QtWebEngineProcess.app"
+	      DESTINATION "${COPYTOEXEDIR}/../Helpers" )
+    else()
+	file( COPY "${COPYFROMEXEDIR}/../libexec/QtWebEngineProcess"
+	      DESTINATION "${COPYTOEXEDIR}/../libexec" )
+    endif()
+
+endmacro(COPY_QTWEBENGINE)
+
+macro( COPY_DATAFILES )
+
+    foreach( SPECFILE ${SPECFILES} )
+	 file( COPY "${COPYFROMDIR}/${SPECFILE}"
+	       DESTINATION "${COPYTODIR}" )
+    endforeach()
+
+    foreach( DATADIR ${DATALIST} )
+	file( COPY "${COPYFROMDATADIR}/${DATADIR}"
+	      DESTINATION "${COPYTODATADIR}" )
+    endforeach()
+
+    foreach ( PYTHONREQFNM ${PYTHONREQLIST} )
+	file( COPY "${COPYFROMDATADIR}/Python/${PYTHONREQFNM}.txt"
+	      DESTINATION "${COPYTODATADIR}/Python" )
+    endforeach()
+
+    foreach( LEGALDIR ${LEGALLIST} )
+	file( COPY "${COPYFROMDATADIR}/Legal/${LEGALDIR}"
+	      DESTINATION "${COPYTODATADIR}/Legal" )
+    endforeach()
+
+endmacro(COPY_DATAFILES)
+
+macro( CREATE_PACKAGE PACKAGE_NAME )
+
+    #TODO update condition when the debug libraries get an actual debug postfix
+    #and when the link libraries get separated from the applications
+    if ( (${PACKAGE_TYPE} STREQUAL "Devel" AND NOT APPLE ) OR
+	 NOT ${PACKAGE_NAME} STREQUAL "devel" )
+	set( COPY_TARGETS TRUE )
+    endif()
+
+    foreach( LIB IN LISTS LIBLIST PLUGINS SPECMODS )
+	if( WIN32 )
+	    set( LIBNM "${LIB}.dll" )
+	elseif( APPLE )
+	    set( LIBNM "lib${LIB}.dylib" )
+	else()
+	    set( LIBNM "lib${LIB}.so")
+	endif()
+
+	if ( EXISTS "${COPYFROMLOCDIR}/${LIBNM}" )
+	    if ( COPY_TARGETS )
+		COPY_LIB()
+	    endif()
+
+	    if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" )
+		file( COPY "${COPYFROMLIBDIR}/${LIB}.lib"
+		      DESTINATION "${COPYTOLIBDIR}" )
+		file( COPY "${COPYFROMLOCDIR}/${LIB}.pdb"
+		      DESTINATION "${COPYTOLOCDIR}" )
+	    endif()
+	endif()
+
+    endforeach()
+
+    if ( NOT "${PACKAGE_NAME}" STREQUAL "devel" )
+	foreach( PLUGIN ${PLUGINS} )
+	    file( COPY "${COPYFROMDIR}/plugins/${OD_PLFSUBDIR}"
+		  DESTINATION "${COPYTODIR}/plugins"
+		  FILES_MATCHING
+		  PATTERN "*.${PLUGIN}.alo"
+		  PATTERN "test_*.*.alo" EXCLUDE )
 	endforeach()
+    endif()
 
+    foreach( EXEC ${EXECLIST} )
+	set( EXECFILE "${EXEC}" )
 	if ( WIN32 )
-	    file( COPY ${SOURCE_DIR}/bin/od_cr_dev_env.bat
-		  DESTINATION ${DESTINATION_DIR}/bin )
-	else()
-	    file( COPY ${COPYFROMDATADIR}/bin/od_cr_dev_env.csh
-		  DESTINATION ${COPYTODATADIR} )
+	    get_filename_component( exec_ext ${EXEC} EXT )
+	    if ( "${exec_ext}" STREQUAL "" )
+		set( EXECFILE "${EXEC}.exe" )
+		set( PDB_FILE "${EXEC}.pdb" )
+	    endif()
+	    unset( exec_ext )
 	endif()
+
+	if ( COPY_TARGETS )
+	    file( COPY "${COPYFROMEXEDIR}/${EXECFILE}"
+		  DESTINATION "${COPYTOEXEDIR}" )
+	endif()
+	if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" )
+	    file( COPY "${COPYFROMEXEDIR}/${PDB_FILE}"
+		  DESTINATION "${COPYTOEXEDIR}" )
+	endif()
+
+	unset( EXECFILE )
+	unset( PDB_FILE )
+    endforeach()
+
+    COPY_DATAFILES()
+
+    foreach( FILES ${ODSCRIPTS} )
+	file( GLOB SCRIPTS "${COPYFROMSCRIPTSDIR}/${FILES}" )
+	file( COPY ${SCRIPTS}
+	      DESTINATION "${COPYTOSCRIPTSDIR}" )
+    endforeach()
+
+    foreach( PYDIR ${PYTHONDIR} )
+	file( COPY "${COPYFROMSCRIPTSDIR}/python/${PYDIR}"
+	      DESTINATION "${COPYTOSCRIPTSDIR}/python" )
+    endforeach()
+
+    foreach( FILEORDIR DESTDIR IN ZIP_LISTS OTHERFILES OTHERFILESDEST )
+	file( COPY "${FILEORDIR}"
+	      DESTINATION "${DESTDIR}" )
+    endforeach()
+
+    if ( THIRDPARTY_LIBS )
+	COPY_THIRDPARTYLIBS()
     endif()
 
-    if( WIN32 )
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+    if ( ${PACKAGE_NAME} STREQUAL "devel" AND "${PACKAGE_TYPE}" STREQUAL "Devel" )
+	CREATE_DEVELPACKAGE()
+    endif()
+endmacro(CREATE_PACKAGE)
 
-	set( DEVELLIBS ${ODLIBLIST} ${ODPLUGINS} ${SPECSOURCES} )
-	#Copying dll, pdb and lib files.
-	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-	    foreach( DLIB ${DEVELLIBS} )
-		if ( EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${DLIB}.lib" )
-		    #Some modules have no library
-		    file( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${DLIB}.lib
-			  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
-		endif()
-	    endforeach()
-	else()
-	    foreach( DLIB ${DEVELLIBS} )
-		file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${DLIB}.* )
-		string( TOLOWER ${DLIB} PDBLIB )
-		file( GLOB PDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${PDBLIB}.* )
-		set( FILES ${FILES} ${PDBFILES} )
-		foreach( FIL ${FILES} )
-		    if ( EXISTS "${FIL}" ) #Some modules have no library
-			file( COPY ${FIL}
-			      DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
-		    endif()
-		endforeach()
-	    endforeach()
-
-	    #Copying executables and pdb files
-	    foreach( EXELIB ${EXECLIST} )
-		file( GLOB EXEFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${EXELIB}.* )
-		string( TOLOWER ${EXELIB} EXEPDBLIB )
-		file( GLOB EXEPDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${EXEPDBLIB}.* )
-		set( EXEILES ${EXEFILES} ${EXEPDBFILES} )
-		foreach( ELIB ${EXEILES} )
-		    file( COPY ${ELIB}
-			  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
-		endforeach()
-	    endforeach()
+macro( CREATE_BASEPACKAGE PACKAGE_NAME )
+    if( ${PACKAGE_NAME} STREQUAL "basedata" )
+	set( ODDGBSTR "od" )
+	file( COPY "${COPYFROMDIR}/relinfo/README.txt"
+	      DESTINATION "${COPYTODIR}/relinfo" )
+	file( COPY "${COPYFROMDIR}/relinfo/RELEASEINFO.txt"
+	      DESTINATION "${COPYTODIR}/doc/ReleaseInfo" )
+	if ( APPLE )
+	    file( COPY "${CMAKE_INSTALL_PREFIX}/Contents/Info.plist"
+		  DESTINATION "${DESTINATION_DIR}/Contents" )
 	endif()
+    elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
+	set( ODDGBSTR "dgb" )
+	#add the base translation to basedata, not dgbbasedata
+	if ( IS_DIRECTORY "${DESTINATION_DIR}" )
+	    file( RENAME "${DESTINATION_DIR}" "${DESTINATION_DIR}_TMP" )
+	endif()
+	if( APPLE )
+	    set( BASEDATAPACKAGE "basedata_mac.zip" )
+	else()
+	    set( BASEDATAPACKAGE "basedata.zip" )
+	endif()
+	file( COPY "${COPYFROMDATADIR}/localizations/od_en_US.qm"
+	      DESTINATION "${COPYTODATADIR}/localizations" )
+	ZIPPACKAGE( "${BASEDATAPACKAGE}" "${REL_DIR}" "${PACKAGE_DIR}" )
+	unset( BASEDATAPACKAGE )
+	if ( IS_DIRECTORY "${DESTINATION_DIR}_TMP" )
+	    file( RENAME "${DESTINATION_DIR}_TMP" "${DESTINATION_DIR}" )
+	endif()
+
+	file( GLOB QMFILES ${COPYFROMDATADIR}/localizations/*.qm )
+	foreach( QMFILE ${QMFILES} )
+	    get_filename_component( QMFILENM ${QMFILE} NAME )
+	    file( COPY "${COPYFROMDATADIR}/localizations/${QMFILENM}"
+		  DESTINATION "${COPYTODATADIR}/localizations"
+		  PATTERN "od_en_US*" EXCLUDE )
+	 endforeach()
+    else()
+	message( FATAL_ERROR "Should not be reached" )
     endif()
 
-    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( CREATE_DEVELPACKAGES )
+    file( COPY "${COPYFROMDIR}/doc/Videos.${ODDGBSTR}"
+	  DESTINATION "${COPYTODIR}/doc" )
 
-macro( CREATE_DOCPACKAGES PACKAGE_NAME )
+    COPY_DATAFILES()
+endmacro(CREATE_BASEPACKAGE)
+
+macro( CREATE_DEVELPACKAGE )
+    if ( WIN32 )
+	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.bat"
+	      DESTINATION "${COPYTOSCRIPTSDIR}" )
+    else()
+	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.csh"
+	      DESTINATION "${COPYTODIR}" )
+    endif()
+
+    foreach( PLUGIN ${PLUGINS} )
+	file( COPY "${COPYFROMDIR}/plugins/${PLUGIN}"
+	      DESTINATION "${COPYTODIR}/plugins" )
+    endforeach()
+
+    foreach( DIR CMakeModules include src spec )
+	file( COPY "${COPYFROMDIR}/${DIR}"
+	      DESTINATION "${COPYTODIR}" )
+    endforeach()
+
+    file( COPY "${COPYFROMDIR}/CMakeLists.txt"
+	  DESTINATION "${COPYTODIR}" )
+    file( COPY "${COPYFROMDIR}/doc/Programmer/batchprogexample"
+	       "${COPYFROMDIR}/doc/Programmer/pluginexample"
+	  DESTINATION "${COPYTODIR}/doc/Programmer" )
+    file( COPY "${COPYFROMDIR}/dtect"
+	  DESTINATION "${COPYTODIR}" )
+
+    file( GLOB HTMLFILES "${BINARY_DIR}/doc/Programmer/*.html" )
+    file( COPY ${HTMLFILES}
+	  DESTINATION "${COPYTODIR}/doc/Programmer" )
+    file( GLOB PNGFILES "${SOURCE_DIR}/doc/Programmer/*.png" )
+    file( COPY ${PNGFILES}
+	  DESTINATION "${COPYTODIR}/doc/Programmer" )
+endmacro(CREATE_DEVELPACKAGE)
+
+macro( CREATE_DOCPACKAGE PACKAGE_NAME )
     if( WIN32 )
 	if( ${PACKAGE_NAME} STREQUAL "doc" )
-	    file( COPY ${CMAKE_INSTALL_PREFIX}/doc/od_userdoc
-		  DESTINATION ${DESTINATION_DIR}/doc )
+	    file( COPY "${COPYFROMDIR}/doc/od_userdoc"
+		  DESTINATION "${COPYTODIR}/doc" )
 	elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-	    file( COPY ${CMAKE_INSTALL_PREFIX}/doc/dgb_userdoc
-		  DESTINATION ${DESTINATION_DIR}/doc )
-	    file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/doc/flexnet* )
-	    foreach( FIL ${FILES} )
-		file( COPY ${FIL}
-		      DESTINATION ${DESTINATION_DIR}/doc )
-	    endforeach()
+	    file( COPY "${COPYFROMDIR}/doc/dgb_userdoc"
+		  DESTINATION "${COPYTODIR}/doc" )
+	    file( GLOB FILES "${COPYFROMDIR}/doc/flexnet*" )
+	    file( COPY ${FILES}
+		  DESTINATION "${COPYTODIR}/doc" )
 	endif()
     else()
 	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
-	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated )
-		file( COPY ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated
-		      DESTINATION ${DESTINATION_DIR}/doc/Programmer )
+	    if( EXISTS "${COPYFROMDIR}/doc/Programmer/Generated" )
+		file( COPY "${COPYFROMDIR}/doc/Programmer/Generated"
+		      DESTINATION "${COPYTODIR}/doc/Programmer" )
 	    else()
 		message( FATAL_ERROR "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
 	    endif()
 	endif()
     endif()
-    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( CREATE_DOCPACKAGES )
+
+    execute_process( COMMAND "$<IF:$<STREQUAL:${PACK},classdoc>,${CLASSDOC_SCRIPT_LOCATION},${USERDOC_SCRIPT_LOCATION}>"
+		     ${PACKAGE_NAME} WORKING_DIRECTORY "${PACKAGE_DIR}" )
+endmacro(CREATE_DOCPACKAGE)
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
-    if( WIN32 )
-	execute_process( COMMAND ${OpendTect_DIR}/bin/win64/zip -r -q -u
-				 "${PACKAGE_FILENAME}" ${REL_DIR}
-				 WORKING_DIRECTORY ${PACKAGE_DIR}
-				 RESULT_VARIABLE STATUS
-				 OUTPUT_VARIABLE OUTVAR
-				 ERROR_VARIABLE ERRVAR )
-    else()
-	execute_process( COMMAND zip -r -q -u -y
-				 "${PACKAGE_FILENAME}" ${REL_DIR}
-				 WORKING_DIRECTORY ${PACKAGE_DIR}
-				 RESULT_VARIABLE STATUS
-				 OUTPUT_VARIABLE OUTVAR
-				 ERROR_VARIABLE ERRVAR )
-    endif()
+    execute_process( COMMAND "${ZIP_EXEC}" u -tzip -mmt -mx5 -r -ba -bso0 -bd
+			     "${PACKAGE_FILENAME}" "${REL_DIR}"
+			     WORKING_DIRECTORY "${PACKAGE_DIR}"
+			     RESULT_VARIABLE STATUS
+			     OUTPUT_VARIABLE OUTVAR
+			     ERROR_VARIABLE ERRVAR )
 
-    #Error code 12 == "Nothing to do": can be ignored
-    if( NOT ${STATUS} EQUAL "0" AND NOT ${STATUS} EQUAL "12" )
+    if( NOT ${STATUS} EQUAL 0 )
 	message( FATAL_ERROR "Failed to create zip file ${PACKAGE_FILENAME}: ${STATUS}" )
     endif()
 
     file( REMOVE_RECURSE "${PACKAGE_DIR}/${REL_DIR}" )
-endmacro( ZIPPACKAGE )
-
+endmacro(ZIPPACKAGE)

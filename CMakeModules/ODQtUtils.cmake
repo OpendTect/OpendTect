@@ -30,17 +30,11 @@ macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
 endmacro(ADD_TO_LIST_IF_NEW)
 
 macro( QT_INSTALL_PLUGINS )
-    if ( APPLE )
-	set ( DESTDIR Contents/PlugIns )
-    else()
-	set ( DESTDIR bin/${OD_PLFSUBDIR}/plugins )
-    endif()
-
     OD_FIND_QTDIR()
     foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
 	install( DIRECTORY "${QTDIR}/plugins/${QTPLUGIN}"
-	     DESTINATION ${DESTDIR}
-	     CONFIGURATIONS Release
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins"
+	     CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
 	     USE_SOURCE_PERMISSIONS 
 	     FILES_MATCHING
 	     PATTERN "*.so"
@@ -52,7 +46,7 @@ macro( QT_INSTALL_PLUGINS )
 	     PATTERN "*_debug*" EXCLUDE
 	     PATTERN "*.dSYM" EXCLUDE )
 	install( DIRECTORY "${QTDIR}/plugins/${QTPLUGIN}"
-	     DESTINATION ${DESTDIR}
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins"
 	     CONFIGURATIONS Debug
 	     USE_SOURCE_PERMISSIONS 
 	     FILES_MATCHING
@@ -69,26 +63,18 @@ endmacro(QT_INSTALL_PLUGINS)
 
 macro( QT_SETUP_CORE_INTERNALS )
     OD_FIND_QTDIR()
-    install( FILES "${QTDIR}/bin/qt.conf"
-	     DESTINATION "${OD_RUNTIME_DIRECTORY}" )
-
+    set( QTCONFTXT "[Paths]\nPrefix=..\n" )
     if ( APPLE )
-	set ( TRANSCOREDESTDIR Contents/PlugIns )
-    else()
-	set ( TRANSCOREDESTDIR bin/${OD_PLFSUBDIR} )
+	set( QTCONFTXT "${QTCONFTXT}Translations=Contents/translations\n" )
     endif()
-    install( DIRECTORY "${QTDIR}/translations"
-		 DESTINATION ${TRANSCOREDESTDIR}
-		 USE_SOURCE_PERMISSIONS
-		 FILES_MATCHING
-		 PATTERN "qt_*.qm"
-		 PATTERN "qtbase_*.qm" )
+    install( CODE "
+	     file( WRITE \"${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) " )
 
-    file( GLOB TRANSLATION_FILES  ${QTDIR}/translations/qt_*.qm ${QTDIR}/translations/qtbase_*.qm)
-    foreach( TRANSLATIONFILE ${TRANSLATION_FILES} )
-	get_filename_component( FILENM ${TRANSLATIONFILE} NAME )
-	list( APPEND OD_QT_TRANSLATION_FILES ${FILENM} )
-    endforeach()
+    file( GLOB TRANSLATION_FILES ${QTDIR}/translations/qt_*.qm
+				 ${QTDIR}/translations/qtbase_*.qm )
+    install( FILES ${TRANSLATION_FILES}
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+
     if ( UNIX AND NOT APPLE )
 	install( CODE "
 	    execute_process(
@@ -121,49 +107,39 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     list( APPEND QT_REQ_PLUGINS bearer;position )
     QT_INSTALL_PLUGINS()
 
-    if ( NOT APPLE )
-	install( DIRECTORY ${QTDIR}/resources
-		 DESTINATION bin/${OD_PLFSUBDIR}
-		 USE_SOURCE_PERMISSIONS )
-    endif()
+    file( GLOB WEBENGINE_TRANSLATION_FILES "${QTDIR}/translations/qtwebengine_*.qm" )
+    install( FILES ${WEBENGINE_TRANSLATION_FILES}
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
 
     if ( APPLE )
-	set ( TRANSWEBENGDESTDIR Contents/PlugIns )
+	set( WEBENGINE_RESOURCES_DIR "${QTDIR}/lib/QtWebEngineCore.framework/Resources" )
+	set( WEBENGINE_LOCALES_DIR "${WEBENGINE_RESOURCES_DIR}" )
     else()
-	set ( TRANSWEBENGDESTDIR bin/${OD_PLFSUBDIR} )
+	set( WEBENGINE_RESOURCES_DIR "${QTDIR}/resources" )
+	set( WEBENGINE_LOCALES_DIR "${QTDIR}/translations" )
     endif()
 
-    install( DIRECTORY ${QTDIR}/translations
-	    DESTINATION ${TRANSWEBENGDESTDIR}
-	    USE_SOURCE_PERMISSIONS
-	    FILES_MATCHING
-	    PATTERN "qtwebengine_*.qm"
-	    PATTERN "qtwebengine_locales/*.pak" )
-    file( GLOB WEBENGINE_TRANSLATION_FILES
-		${QTDIR}/translations/qtwebengine_*.qm
-		${QTDIR}/translations/qtwebengine_locales/*.pak )
+    install( DIRECTORY "${WEBENGINE_LOCALES_DIR}/qtwebengine_locales"
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
 
-    foreach( WEBTRANSLATIONFILE ${WEBENGINE_TRANSLATION_FILES} )
-	get_filename_component( FILENM ${WEBTRANSLATIONFILE} NAME )
-	list( APPEND OD_QT_TRANSLATION_FILES ${FILENM} )
-    endforeach()
-    set( OD_QT_TRANSLATION_FILES ${OD_QT_TRANSLATION_FILES} PARENT_SCOPE )
+    file( GLOB WEBENGINE_RESOURCES_FILES
+		"${WEBENGINE_RESOURCES_DIR}/icudtl.dat"
+		"${WEBENGINE_RESOURCES_DIR}/qtwebengine_*.pak" )
+    install( FILES ${WEBENGINE_RESOURCES_FILES}
+	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../resources" )
 
     if ( WIN32 )
 	install( PROGRAMS "${QTDIR}/bin/QtWebEngineProcess$<$<CONFIG:Debug>:d>.exe"
 		 DESTINATION "${OD_RUNTIME_DIRECTORY}" )
     elseif ( APPLE )
-	#TODO: Does it exist at all?
+	install( DIRECTORY "${QTDIR}/lib/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app"
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../Helpers" )
     else()
 	install( PROGRAMS "${QTDIR}/libexec/QtWebEngineProcess"
-		 DESTINATION bin/${OD_PLFSUBDIR}/libexec )
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../libexec" )
     endif()
+    # include qwebengine_convert_dict ?
 
-    if ( NOT APPLE )
-	list( APPEND OD_QTPLUGINS resources )
-    endif()
-
-    set( OD_QTPLUGINS ${OD_QTPLUGINS} PARENT_SCOPE )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
 macro( QT_SETUP_CORE_EXTERNALS )
@@ -439,9 +415,9 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	COMMENT "Compiling translations" )
 	unset( CMAKE_FOLDER )
     
-	install( DIRECTORY data/localizations
-		 DESTINATION "${MISC_INSTALL_PREFIX}/data/localizations"
-		 FILES_MATCHING PATTERN "*.qm")
+	install( DIRECTORY "data/localizations"
+		 DESTINATION "${OD_DATA_INSTALL_RELPATH}/localizations"
+		 FILES_MATCHING PATTERN "*.qm" )
 	
     endif()
 endmacro( SETUP_QT_TRANSLATION )
