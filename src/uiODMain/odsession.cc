@@ -8,17 +8,15 @@ ________________________________________________________________________
 -*/
 
 #include "odsession.h"
+#include "odsessionfact.h"
 
 #include "ascstream.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
-#include "odver.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "uistrings.h"
-#include "uitextedit.h"
 #include "od_helpids.h"
 
 
