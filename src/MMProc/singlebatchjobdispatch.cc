@@ -124,7 +124,7 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
 				    ioparfp,msg) )
 	    { DBG::message(msg); return false; }
 
-	FilePath logfp( ioparfp );
+	FilePath logfp( basefp );
 	logfp.setExtension( "log" );
 	logfile = logfp.fullPath();
     }
@@ -145,8 +145,7 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
     if ( batchid )
 	JobDispatcher::addIDTo( *batchid, mc );
 
-    if ( execlocal || !exechost->isWindows() )
-	jobspec_.execpars_.monitorfnm( logfile );
+    jobspec_.execpars_.monitorfnm( logfile );
 
     if ( DBG::isOn(DBG_MM) )
     {
