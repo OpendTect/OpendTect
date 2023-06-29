@@ -22,10 +22,9 @@ namespace Coords { class CoordSystem; }
 mExpClass(Basic) LatLong
 {
 public:
-			LatLong( double la=0, double lo=0 )
-			    : lat_(la), lng_(lo)  {}
-			LatLong( const LatLong& ll )
-			    : lat_(ll.lat_), lng_(ll.lng_)	{}
+			LatLong(double la=0,double lo=0);
+			LatLong(const LatLong&);
+			~LatLong();
 
     bool		operator ==(const LatLong&) const;
     bool		operator !=(const LatLong&) const;
@@ -69,9 +68,9 @@ protected:
 mExpClass(Basic) LatLong2Coord
 {
 public:
-
 			LatLong2Coord();
 			LatLong2Coord(const Coord&,const LatLong&);
+			~LatLong2Coord();
 
     bool		operator ==(const LatLong2Coord&) const;
     bool		operator !=(const LatLong2Coord&) const;

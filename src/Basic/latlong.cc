@@ -20,6 +20,22 @@ ________________________________________________________________________
 const double cAvgEarthRadius = 6367450;
 
 // LatLong
+LatLong::LatLong( double la, double lo )
+    : lat_(la)
+    , lng_(lo)
+{}
+
+
+LatLong::LatLong( const LatLong& ll )
+    : lat_(ll.lat_)
+    , lng_(ll.lng_)
+{}
+
+
+LatLong::~LatLong()
+{}
+
+
 bool LatLong::operator==( const LatLong& oth ) const
 {
     if ( &oth == this )
@@ -244,6 +260,10 @@ LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
 {
     set( l, c );
 }
+
+
+LatLong2Coord::~LatLong2Coord()
+{}
 
 
 bool LatLong2Coord::operator==( const LatLong2Coord& oth ) const
