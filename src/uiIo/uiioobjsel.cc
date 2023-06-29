@@ -132,12 +132,6 @@ uiIOObjRetDlg::uiIOObjRetDlg( uiParent* p, const Setup& s )
 uiIOObjRetDlg::~uiIOObjRetDlg()
 {}
 
-#define mConstructorInitListStart(c) \
-    uiIOObjRetDlg(p,uiDialog::Setup(selTxt(c.forread_), \
-		    mNoDlgTitle,getHelpKey(c.forread_)) \
-	    .nrstatusflds(1)) \
-    , selgrp_(nullptr)
-
 
 static HelpKey getHelpKey( bool forread )
 {
@@ -148,7 +142,10 @@ static HelpKey getHelpKey( bool forread )
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
-    : mConstructorInitListStart(ctio.ctxt_)
+    : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctio.ctxt_.forread_),
+				      mNoDlgTitle,
+				      getHelpKey(ctio.ctxt_.forread_))
+			.nrstatusflds(1))
     , setup_( ttxt )
 {
     init( ctio );
@@ -157,7 +154,10 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
-    : mConstructorInitListStart(ctio.ctxt_)
+    : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctio.ctxt_.forread_),
+				      mNoDlgTitle,
+				      getHelpKey(ctio.ctxt_.forread_))
+			.nrstatusflds(1))
     , setup_( su )
 {
     init( ctio );
@@ -193,7 +193,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.withinserters( setup_.withinserters_ );
     sgsu.trsnotallwed( setup_.trsnotallwed_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
-    selgrp_->getListField()->resizeWidthToContents();
+    selgrp_->getListField()->resizeToContents();
     statusBar()->setTxtAlign( 0, Alignment::Right );
     mAttachCB(selgrp_->newStatusMsg, uiIOObjSelDlg::statusMsgCB);
 

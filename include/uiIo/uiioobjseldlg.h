@@ -80,7 +80,7 @@ protected:
     void		statusMsgCB(CallBacker*);
 
     Setup		setup_;
-    uiIOObjSelGrp*	selgrp_;
+    uiIOObjSelGrp*	selgrp_					= nullptr;
 
 private:
 
