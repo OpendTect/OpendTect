@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "testprog.h"
 
 
-static FilePath tempfile;
+static FilePath tempfile_;
 static BufferString prefix_;
 
 static BufferString intranetHost()
@@ -83,7 +83,7 @@ bool testDownloadToFile()
     const char* url = "https://opendtect.org/dlsites.txt";
     uiString err;
     mRunStandardTestWithError(
-	    Network::downloadFile( url, tempfile.fullPath(), err ),
+	    Network::downloadFile( url, tempfile_.fullPath(), err ),
 	    BufferString( prefix_, "Download to file"), toString(err) );
 
     return true;
@@ -97,7 +97,7 @@ bool testFileUpload()
     uiString err;
     IOPar postvars;
     mRunStandardTestWithError(
-    Network::uploadFile( url.buf(), tempfile.fullPath(), remotefn,
+    Network::uploadFile( url.buf(), tempfile_.fullPath(), remotefn,
 			"dumpfile", postvars, err ),
 	    BufferString( prefix_, "Upload file "), toString(err) );
 
@@ -167,7 +167,7 @@ void threadCB(CallBacker*)
 {
     prefix_ = "[From Thread] ";
     threadres = runTests();
-    File::remove( tempfile.fullPath() );
+    File::remove( tempfile_.fullPath() );
 }
 
 
@@ -175,7 +175,7 @@ void loopCB(CallBacker*)
 {
     prefix_ = "[With eventloop] ";
     const bool res = runTests();
-    File::remove( tempfile.fullPath() );
+    File::remove( tempfile_.fullPath() );
     ApplicationData::exit( res ? 0 : 1 );
 }
 
@@ -186,18 +186,11 @@ int mTestMainFnName( int argc, char** argv )
     ApplicationData app;
     OD::ModDeps().ensureLoaded( "Network" );
 
-    prefix_ = "[Without eventloop] ";
-
-    tempfile = FilePath::getTempDir();
-    mRunStandardTest( !tempfile.isEmpty(), "Temp-dir generation" );
+    tempfile_ = FilePath::getTempDir();
+    mRunStandardTest( !tempfile_.isEmpty(), "Temp-dir generation" );
 
     BufferString filename( toString(GetPID()), "_dlsites.txt" );
-    tempfile.add( filename );
-
-    bool res = runTests();
-    File::remove( tempfile.fullPath() );
-    if ( !res )
-	return 1;
+    tempfile_.add( filename );
 
     Threads::Thread thread( mSCB( threadCB ), "test_networkaccess thread" );
     thread.waitForFinish();
