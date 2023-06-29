@@ -206,7 +206,9 @@ void uiProgressViewer::handleProcessStatus()
     if ( procstatus_ == None )
     {
 	sleepSeconds( 1 );
-	if ( haveProcess() )
+	FilePath lockfp( filenm_ );
+	lockfp.setExtension( "lock" );
+	if ( haveProcess() || lockfp.exists() )
 	    return;
 
 	if ( !File::exists(filenm_) )
