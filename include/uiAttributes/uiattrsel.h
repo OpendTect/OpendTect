@@ -84,7 +84,6 @@ public:
 		    , ignoreid_(Attrib::DescID::undef())
 		    , isinp4otherattrib_(false)
 		    , showsteeringdata_(false)
-		    , geomid_(mUdfGeomID)
 		{}
 		~Setup()
 		{}

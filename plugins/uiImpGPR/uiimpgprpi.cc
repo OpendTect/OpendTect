@@ -145,7 +145,7 @@ bool acceptOK( CallBacker* )
     if ( lnm.isEmpty() ) mErrRet(tr("Please enter the output line name"))
 
     Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm );
-    if (  geomid == mUdfGeomID )
+    if (  geomid.isUdf() )
 	return false;
 
     const IOObj* ioobj = outfld_->ioobj();

@@ -571,7 +571,6 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     , ioobj_( IOM().get( mid ) )
     , isvol_(isvol)
     , is2d_(is2d)
-    , geomid_(mUdfGeomID)
 {
     if ( !ioobj_ )
     {

@@ -94,7 +94,6 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , pinfo_(*new SeisPacketInfo)
     , trcblock_(*new SeisTrcBuf(false))
     , lastinlwritten_(SI().sampling(false).hsamp_.start_.inl())
-    , geomid_(mUdfGeomID)
     , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
     , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
     , warnings_(*new BufferStringSet)
@@ -726,7 +725,7 @@ void SeisTrcTranslator::usePar( const IOPar& iop )
     if ( !seistrpar->getYN(sKeyIs2D(),is_2d) )
 	is_2d = Seis::is2DGeom( *seistrpar );
 
-    Pos::GeomID gid = mUdfGeomID;;
+    Pos::GeomID gid;
     if ( seistrpar->get(sKey::GeomID(),gid) && Survey::isValidGeomID(gid) )
 	setCurGeomID( gid );
 

@@ -185,7 +185,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	if ( lnmfld_ )
 	{
 	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	    if ( geomid == mUdfGeomID )
+	    if ( geomid.isUdf() )
 		geomid = Geom2DImpHandler::getGeomID( lnm );
 
 	    js.pars_.set( sKey::GeomID(), geomid );

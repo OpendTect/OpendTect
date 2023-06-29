@@ -379,7 +379,7 @@ bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
 	return false;
 
     const float zwidth = rp.zrg_.width( false );
-    Pos::GeomID geomid = mUdfGeomID;
+    Pos::GeomID geomid;
     ps.setCapacity( rp.nr_ );
     Stats::RandGen gen;
     for ( int ipt=0; ipt<rp.nr_; ipt++ )

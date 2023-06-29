@@ -47,7 +47,7 @@ Seis2DLineGetter::~Seis2DLineGetter()
 Pos::GeomID Seis2DLineGetter::geomID() const
 {
     return translator() ? translator()->curGeomID()
-			: (seldata_ ? seldata_->geomID() : mUdfGeomID);
+			: (seldata_ ? seldata_->geomID() : mUdf(Pos::GeomID));
 }
 
 
@@ -239,7 +239,7 @@ bool SeisTrc2DTranslator::initRead_()
     else
 	geomid_ = dset.geomID(0);
 
-    if ( geomid_!=mUdfGeomID && dset.indexOf(geomid_)<0 )
+    if ( geomid_.isValid() && dset.indexOf(geomid_)<0 )
     {
 	errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_.asInt());
 	return false;

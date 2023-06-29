@@ -214,7 +214,9 @@ mGlobal(Basic) void sortByLinename(TypeSet<Pos::GeomID>&,
 mExpClass(Basic) GeometryReader
 {
 public:
-    virtual		~GeometryReader()		{}
+    virtual		~GeometryReader();
+			mOD_DisableCopy(GeometryReader)
+
 			mDefineFactoryInClass(GeometryReader,factory)
 
     virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
@@ -223,6 +225,9 @@ public:
 				    TaskRunner*) const { return true; }
     virtual bool	updateGeometries(ObjectSet<Geometry>&,TaskRunner*) const
 							{ return true; }
+
+protected:
+			GeometryReader();
 };
 
 
@@ -230,7 +235,9 @@ public:
 mExpClass(Basic) GeometryWriter
 {
 public:
-    virtual		~GeometryWriter()		{}
+    virtual		~GeometryWriter();
+			mOD_DisableCopy(GeometryWriter)
+
 			mDefineFactoryInClass(GeometryWriter,factory)
 
     virtual bool	write(Geometry&,uiString&,
@@ -240,11 +247,8 @@ public:
 			{ return Pos::GeomID::udf(); }
     virtual bool	removeEntry(const char*) const	{ return 0; }
 
+protected:
+			GeometryWriter();
 };
 
 } // namespace Survey
-
-
-#define mUdfGeomID		Survey::GeometryManager::cUndefGeomID()
-#define mIsUdfGeomID(geomid)	(geomid == mUdfGeomID)
-//To cut the long story short.

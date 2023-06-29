@@ -313,7 +313,7 @@ bool dgbEMSurfaceTranslator::prepRead()
     {
 	const Pos::GeomID geomid = reader_->lineGeomID( idx );
 	const BufferString linenm = reader_->lineName( idx );
-	if ( mIsUdfGeomID(geomid) || linenm.isEmpty() )
+	if ( mIsUdf(geomid) || linenm.isEmpty() )
 	    continue;
 
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);

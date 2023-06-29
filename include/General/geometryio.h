@@ -21,7 +21,9 @@ namespace Survey
 mExpClass(General) GeometryWriter2D : public GeometryWriter
 {
 public:
-				GeometryWriter2D(){};
+				GeometryWriter2D();
+				~GeometryWriter2D();
+
     static GeometryWriter*	create2DWriter()
 				{ return new GeometryWriter2D; }
     static void			initClass();
@@ -40,7 +42,9 @@ public:
 mExpClass(General) GeometryWriter3D : public GeometryWriter
 {
 public:
-				GeometryWriter3D(){};
+				GeometryWriter3D();
+				~GeometryWriter3D();
+
     static GeometryWriter*	create3DWriter()
 				{ return new GeometryWriter3D; }
     static void			initClass();
@@ -56,7 +60,9 @@ public:
 mExpClass(General) GeometryReader2D : public GeometryReader
 {
 public:
-				GeometryReader2D(){};
+				GeometryReader2D();
+				~GeometryReader2D();
+
     static GeometryReader*	create2DReader()
 				{ return new GeometryReader2D; }
     static void			initClass();
@@ -78,12 +84,12 @@ public:
 mExpClass(General) GeometryReader3D : public GeometryReader
 {
 public:
-				GeometryReader3D(){};
+				GeometryReader3D();
+				~GeometryReader3D();
+
     static GeometryReader*	create3DReader()
 				{ return new GeometryReader3D; }
     static void			initClass();
-
-
 };
 
 } // namespace Survey

@@ -621,7 +621,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     if ( meh->event().leftButton() )
     {
 	if ( curvwr.appearance().annot_.editable_ ||
-	     curvwr2d->geomID()!=mUdfGeomID || (x1auxposidx<0 && x2auxposidx<0))
+	     curvwr2d->geomID().isValid() || (x1auxposidx<0 && x2auxposidx<0))
 	    return;
 
 	const bool isx1auxannot = x1auxposidx>=0;

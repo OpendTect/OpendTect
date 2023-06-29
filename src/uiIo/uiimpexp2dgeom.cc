@@ -123,7 +123,7 @@ bool uiImp2DGeom::acceptOK( CallBacker* )
 
 	const BufferString linenm = ioobj->name();
 	const Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    return false;
 
 	RefMan<Survey::Geometry2D> geom2d;

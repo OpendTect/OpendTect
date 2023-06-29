@@ -204,7 +204,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
 
 Pos::GeomID uiSeisTransfer::curGeomID() const
 {
-    Pos::GeomID geomid = mUdfGeomID;
+    Pos::GeomID geomid;
     if ( setup_.is2d_ )
     {
 	uiSeis2DSubSel* sel2d = const_cast<uiSeisTransfer*>( this )->selFld2D();

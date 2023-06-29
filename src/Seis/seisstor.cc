@@ -42,7 +42,6 @@ const char* SeisStoreAccess::sKeyHeader()
 
 SeisStoreAccess::Setup::Setup( const IOObj& ioobj, const Seis::GeomType* gt )
     : ioobj_(ioobj.clone())
-    , geomid_(mUdfGeomID)
     , compnr_(-1)
 {
     const bool tempobj = ioobj.isTmp();
@@ -345,7 +344,7 @@ Pos::GeomID SeisStoreAccess::geomID() const
 	return Survey::GM().getGeomID( ioobj_->name() );
     }
 
-    return mUdfGeomID;
+    return mUdf(Pos::GeomID);
 }
 
 

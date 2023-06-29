@@ -51,8 +51,6 @@ ________________________________________________________________________
 
 #include "coordsystem.h"
 
-#define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
-
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
 {
     const Seis::GeomType gt = fs.geomType();
@@ -500,7 +498,7 @@ bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
     if ( isnew )
 	geomid = Geom2DImpHandler::getGeomID( lnm );
 
-    if ( geomid == mUdfGeomID )
+    if ( geomid.isUdf() )
 	mErrRet( errmsg )
 
     return true;
@@ -687,7 +685,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 					     bool& isnewline )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    if ( geomid == mUdfGeomID )
+    if ( geomid.isUdf() )
 	return true;
 
     isnewline = false;

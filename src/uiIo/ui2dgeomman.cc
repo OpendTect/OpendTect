@@ -473,7 +473,7 @@ Geom2DImpHandler::~Geom2DImpHandler()
 Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( nm );
-    if (  geomid == mUdfGeomID )
+    if (  geomid.isUdf() )
 	return createNewGeom( nm );
 
     if ( ovwok || confirmOverwrite(nm) )
@@ -491,12 +491,12 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( nms.get(idx) );
-	if ( geomid != mUdfGeomID )
+	if ( geomid.isValid() )
 	    existingidxs += idx;
 	else
 	{
 	    geomid = createNewGeom( nms.get(idx) );
-	    if ( geomid == mUdfGeomID )
+	    if ( geomid.isUdf() )
 		return false;
 	}
 

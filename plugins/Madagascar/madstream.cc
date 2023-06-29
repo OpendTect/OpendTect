@@ -245,7 +245,7 @@ void MadStream::initWrite( IOPar* par )
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     PtrMan<Seis::SelData> seldata = subpar ? Seis::SelData::get(*subpar)
 					   : nullptr;
-    const Pos::GeomID geomid = seldata ? seldata->geomID() : mUdfGeomID;
+    const Pos::GeomID geomid = seldata ? seldata->geomID() : mUdf(Pos::GeomID);
     if ( !isps_ )
     {
 	seiswrr_ = new SeisTrcWriter( *ioobj, geomid, &gt );

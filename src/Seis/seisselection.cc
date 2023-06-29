@@ -373,7 +373,7 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
     if ( iop.get(IOPar::compKey(sKey::TrcRange(),0),trcrg) )
     {
 	BufferString linenm;
-	Pos::GeomID gid = mUdfGeomID;
+	Pos::GeomID gid;
 	if ( iop.get(sKey::LineKey(),linenm) && !linenm.isEmpty() )
 	    gid = Survey::GM().getGeomID( linenm );
 

@@ -140,7 +140,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	mErrRet( tr("Selected Random line is empty") );
 
     Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );
-    if ( geomid == mUdfGeomID )
+    if ( geomid.isUdf() )
 	return false;
 
     const IOObj* inobj = basegrp_->getInputIOObj();

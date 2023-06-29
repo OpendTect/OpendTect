@@ -174,7 +174,7 @@ bool Seis2DGridCreator::init( const IOPar& par )
 Pos::GeomID Seis2DGridCreator::getGeomID( const char* linenm )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-    const bool ispresent = geomid != mUdfGeomID;
+    const bool ispresent = geomid.isValid();
     if ( ispresent )
     {
 	Survey::Geometry2D& geom2d = Survey::GMAdmin().get2D( geomid );
@@ -188,7 +188,7 @@ Pos::GeomID Seis2DGridCreator::getGeomID( const char* linenm )
     uiString errmsg;
     geomid = Survey::GMAdmin().addNewEntry( newgeom2d, errmsg );
     newgeom2d->unRef();
-    if ( geomid == mUdfGeomID )
+    if ( geomid.isUdf() )
 	failedlines_.add( linenm );
 
     return geomid;
@@ -229,7 +229,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	BufferString linenm;
 	linenm.add( inlstr ).add( inlines[idx] );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	add( new Seis2DLineCreator(input,cs,output,geomid) );
@@ -259,7 +259,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	BufferString linenm;
 	linenm.add( crlstr ).add( crosslines[idx] );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	add( new Seis2DLineCreator(input,cs,output,geomid) );
@@ -310,7 +310,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	BufferString linenm;
 	linenm.add( parstr ).add( idx );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	RefMan<Geometry::RandomLine> rdl = new Geometry::RandomLine;
@@ -329,7 +329,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	BufferString linenm;
 	linenm.add( perstr ).add( idx );
 	const Pos::GeomID geomid = getGeomID( linenm.buf() );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	RefMan<Geometry::RandomLine> rdl = new Geometry::RandomLine;

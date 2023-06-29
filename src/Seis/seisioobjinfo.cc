@@ -995,7 +995,7 @@ void SeisIOObjInfo::getDataSetInfoForLine( const Pos::GeomID& geomid,
 					   BufferStringSet& datasets,
 					   const Opts2D& o2d )
 {
-    if ( geomid == mUdfGeomID )
+    if ( geomid.isUdf() )
 	return;
 
     IOObjContext ctxt( mIOObjContext(SeisTrc2D) );

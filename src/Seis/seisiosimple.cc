@@ -44,9 +44,8 @@ ________________________________________________________________________
 
 
 SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
-    : subselpars_(*new IOPar("subsel"))
-    , geom_(gt)
-    , geomid_(mUdfGeomID)
+    : geom_(gt)
+    , subselpars_(*new IOPar("subsel"))
 {
     clear(true);
     if ( filenm && *filenm )

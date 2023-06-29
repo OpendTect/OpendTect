@@ -1002,11 +1002,11 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	for ( int iln=0; iln<dataset_->nrLines(); iln++ )
 	{
 	    const Pos::GeomID selgeomid = SeisStoreAccess::geomID();
-	    if ( !mIsUdfGeomID(selgeomid) && selgeomid != dataset_->geomID(iln))
+	    if ( !mIsUdf(selgeomid) && selgeomid != dataset_->geomID(iln))
 		continue;
 
 	    Pos::GeomID geomid =
-		mIsUdfGeomID(selgeomid) ? dataset_->geomID( iln ) : selgeomid;
+		mIsUdf(selgeomid) ? dataset_->geomID( iln ) : selgeomid;
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			    Survey::GM().getGeometry(geomid))
 	    if ( !geom2d )

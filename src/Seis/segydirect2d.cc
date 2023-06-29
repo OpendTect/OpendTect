@@ -36,17 +36,17 @@ int SEGYDirect2DLineIOProvider::factid_
 
 static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 {
-    Pos::GeomID geomid = mUdfGeomID;
+    Pos::GeomID geomid;
     BufferString basenm = FilePath(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
     if ( !capstr )
 	return geomid;
 
     capstr++;
-    geomid.set( toInt(capstr,mUdfGeomID.asInt()) );
+    geomid.set( toInt(capstr,mUdf(Pos::GeomID).asInt()) );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		     Survey::GM().getGeometry(geomid) );
-    return geom2d ? geomid : mUdfGeomID;
+    return geom2d ? geomid : mUdf(Pos::GeomID);
 }
 
 
@@ -138,7 +138,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	FilePath fp( dl.fullPath(idx) );
@@ -163,7 +163,7 @@ bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	geomids += geomid;

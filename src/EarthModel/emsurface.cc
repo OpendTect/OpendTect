@@ -92,7 +92,7 @@ void SurfaceIOData::use( const Surface& surf )
 	{
 	    const Pos::GeomID geomid = emgeom.geomID( idx );
 	    const BufferString linenm = emgeom.lineName( idx );
-	    if ( mIsUdfGeomID(geomid) || linenm.isEmpty() )
+	    if ( mIsUdf(geomid) || linenm.isEmpty() )
 		continue;
 
 	    linenames.add( linenm );

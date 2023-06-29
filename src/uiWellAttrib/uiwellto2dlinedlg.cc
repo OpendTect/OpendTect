@@ -169,7 +169,7 @@ bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
 	return false;
 
     Pos::GeomID geomid = Geom2DImpHandler::getGeomID( rl_->name() );
-    if ( geomid == mUdfGeomID )
+    if ( geomid.isUdf() )
 	return false;
 
     SeisRandLineTo2D exec( *randto2dlinefld_->getInputIOObj(),

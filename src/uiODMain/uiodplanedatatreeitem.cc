@@ -181,7 +181,7 @@ bool uiODPlaneDataTreeItem::init()
 	if ( type_ == Select )
 	    displayGuidance();
 	if ( type_ == RGBA )
-	    selectRGBA( mUdfGeomID );
+	    selectRGBA( mUdf(Pos::GeomID) );
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,

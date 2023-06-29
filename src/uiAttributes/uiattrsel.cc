@@ -659,7 +659,6 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
     , usedasinput_(isinp4otherattrib)
     , showsteeringdata_(false)
     , seltype_(-1)
-    , geomid_(mUdfGeomID)
 {
     attrdata_.attribid_ = curid;
     updateInput();
@@ -677,7 +676,6 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
     , usedasinput_(isinp4otherattrib)
     , showsteeringdata_(false)
     , seltype_(-1)
-    , geomid_(mUdfGeomID)
 {
     updateInput();
     inp_->setEditable( true );

@@ -237,7 +237,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 	if ( !linepar || linepar->isEmpty() )
 	    break;
 
-	Pos::GeomID geomid = mUdfGeomID;
+	Pos::GeomID geomid;
 	if ( !linepar->get(sKey::GeomID(),geomid) || !Survey::is2DGeom(geomid) )
 	    continue;
 

@@ -82,7 +82,7 @@ const char* Horizon2DGeometry::lineName( int lidx ) const
 Pos::GeomID Horizon2DGeometry::geomID( int lineidx ) const
 {
     const Geometry::Horizon2DLine* hor2dline = geometryElement();
-    return hor2dline ? hor2dline->geomID( lineidx ) : mUdfGeomID;
+    return hor2dline ? hor2dline->geomID( lineidx ) : mUdf(Pos::GeomID);
 }
 
 

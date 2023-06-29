@@ -34,11 +34,10 @@ ________________________________________________________________________
 SeisTrcWriter::SeisTrcWriter( const MultiID& dbkey, Seis::GeomType gt,
 			      const GeomIDProvider* lprov )
     : SeisStoreAccess(dbkey,gt)
-    , auxpars_(*new IOPar)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
+    , auxpars_(*new IOPar)
     , gidp_(lprov)
-    , prevgeomid_(mUdfGeomID)
 {
 }
 
@@ -46,11 +45,10 @@ SeisTrcWriter::SeisTrcWriter( const MultiID& dbkey, Seis::GeomType gt,
 SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, const Seis::GeomType* gt,
 			      const GeomIDProvider* lprov )
     : SeisStoreAccess(&ioobj,gt)
-    , auxpars_(*new IOPar)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
+    , auxpars_(*new IOPar)
     , gidp_(lprov)
-    , prevgeomid_(mUdfGeomID)
 {
 }
 
@@ -59,32 +57,29 @@ SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, Pos::GeomID gid,
 			      const Seis::GeomType* gt,
 			      const GeomIDProvider* lprov )
     : SeisStoreAccess(&ioobj,gid,gt)
-    , auxpars_(*new IOPar)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
+    , auxpars_(*new IOPar)
     , gidp_(lprov)
-    , prevgeomid_(mUdfGeomID)
 {
 }
 
 
 SeisTrcWriter::SeisTrcWriter( const SeisStoreAccess::Setup& ssasu )
     : SeisStoreAccess(ssasu)
-    , auxpars_(*new IOPar)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
-    , prevgeomid_(mUdfGeomID)
+    , auxpars_(*new IOPar)
 {
 }
 
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioobj, const GeomIDProvider* lprov )
     : SeisStoreAccess(ioobj,nullptr)
-    , auxpars_(*new IOPar)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
+    , auxpars_(*new IOPar)
     , gidp_(lprov)
-    , prevgeomid_(mUdfGeomID)
 {
 }
 

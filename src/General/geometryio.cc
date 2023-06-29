@@ -134,6 +134,16 @@ protected:
 };
 
 
+// GeometryWriter2D
+GeometryWriter2D::GeometryWriter2D()
+    : GeometryWriter()
+{}
+
+
+GeometryWriter2D::~GeometryWriter2D()
+{}
+
+
 void GeometryWriter2D::initClass()
 { GeometryWriter::factory().addCreator( create2DWriter, sKey::TwoD() ); }
 
@@ -182,10 +192,30 @@ IOObj* GeometryWriter2D::createEntry( const char* name ) const
 }
 
 
+// GeometryWriter3D
+GeometryWriter3D::GeometryWriter3D()
+    : GeometryWriter()
+{}
+
+
+GeometryWriter3D::~GeometryWriter3D()
+{}
+
+
 void GeometryWriter3D::initClass()
 {
     GeometryWriter::factory().addCreator( create3DWriter, sKey::ThreeD() );
 }
+
+
+// GeometryReader2D
+GeometryReader2D::GeometryReader2D()
+    : GeometryReader()
+{}
+
+
+GeometryReader2D::~GeometryReader2D()
+{}
 
 
 bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
@@ -226,6 +256,16 @@ void GeometryReader2D::initClass()
 {
     GeometryReader::factory().addCreator( create2DReader, sKey::TwoD() );
 }
+
+
+// GeometryReader3D
+GeometryReader3D::GeometryReader3D()
+    : GeometryReader()
+{}
+
+
+GeometryReader3D::~GeometryReader3D()
+{}
 
 
 void GeometryReader3D::initClass()

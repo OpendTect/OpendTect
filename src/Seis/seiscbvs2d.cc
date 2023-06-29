@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "executor.h"
 #include "survgeom2d.h"
-#include "survinfo.h"
 #include "keystrs.h"
 #include "file.h"
 #include "filepath.h"
@@ -33,15 +32,17 @@ int SeisCBVS2DLineIOProvider::factid_
 
 static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 {
-    Pos::GeomID geomid = mUdfGeomID;
+    Pos::GeomID geomid;
     BufferString basenm = FilePath(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
-    if ( !capstr ) return geomid;
+    if ( !capstr )
+	return geomid;
+
     capstr++;
     geomid.fromString( capstr );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		     Survey::GM().getGeometry(geomid) );
-    return geom2d ? geomid : mUdfGeomID;
+    return geom2d ? geomid : mUdf(Pos::GeomID);
 }
 
 
@@ -140,7 +141,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	FilePath fp( dl.fullPath(idx) );
@@ -173,7 +174,7 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( geomid.isUdf() )
 	    continue;
 
 	geomids += geomid;

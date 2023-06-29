@@ -23,6 +23,23 @@ namespace Survey
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 
+
+GeometryReader::GeometryReader()
+{}
+
+
+GeometryReader::~GeometryReader()
+{}
+
+
+GeometryWriter::GeometryWriter()
+{}
+
+
+GeometryWriter::~GeometryWriter()
+{}
+
+
 static PtrMan<GeometryManager>* thegeommgr = nullptr;
 
 static void deleteGeometryManager()
@@ -91,7 +108,6 @@ void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
 
 
 Geometry::Geometry()
-    : id_(mUdfGeomID)
 {
 }
 

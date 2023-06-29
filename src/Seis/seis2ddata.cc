@@ -15,15 +15,8 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survgeom.h"
 #include "linesetposinfo.h"
-#include "ioman.h"
-#include "safefileio.h"
-#include "ascstream.h"
 #include "binidvalset.h"
-#include "posinfo2dsurv.h"
-#include "dirlist.h"
 #include "survinfo.h"
-#include "file.h"
-#include "filepath.h"
 #include "keystrs.h"
 #include "od_ostream.h"
 
@@ -40,8 +33,8 @@ Seis2DDataSet::Seis2DDataSet( const IOObj& ioobj )
 
 Seis2DDataSet::Seis2DDataSet( const Seis2DDataSet& s2dds )
     : NamedObject(s2dds.name())
-    , datatype_(s2dds.dataType())
     , ioobj_(*s2dds.ioobj_.clone())
+    , datatype_(s2dds.dataType())
 {
     init();
 }
@@ -81,7 +74,7 @@ const char* Seis2DDataSet::lineName( int idx ) const
 { return Survey::GM().getName( geomID(idx) ); }
 
 Pos::GeomID Seis2DDataSet::geomID( int idx ) const
-{ return geomids_.validIdx(idx) ? geomids_[idx] : mUdfGeomID; }
+{ return geomids_.validIdx(idx) ? geomids_[idx] : mUdf(Pos::GeomID); }
 
 int Seis2DDataSet::indexOf( Pos::GeomID geomid ) const
 { return geomids_.indexOf( geomid ); }
