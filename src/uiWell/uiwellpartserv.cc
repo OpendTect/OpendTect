@@ -632,16 +632,8 @@ void uiWellPartServer::selectWellCoordsForRdmLine()
 {
     delete rdmlinedlg_;
     rdmlinedlg_ = new uiWell2RandomLineDlg( parent(), this );
-    rdmlinedlg_->objectToBeDeleted().notify(
-			mCB(this,uiWellPartServer,rdmlnDlgDeleted));
-    rdmlinedlg_->windowClosed.notify(mCB(this,uiWellPartServer,rdmlnDlgClosed));
-    rdmlinedlg_->go();
-}
-
-
-void uiWellPartServer::rdmlnDlgDeleted( CallBacker* )
-{
-    rdmlinedlg_ = 0;
+    mAttachCB( rdmlinedlg_->windowClosed, uiWellPartServer::rdmlnDlgClosed );
+    rdmlinedlg_->show();
 }
 
 

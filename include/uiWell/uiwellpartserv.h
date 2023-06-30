@@ -126,7 +126,6 @@ protected:
 
     void			cleanup();
     void			importReadyCB(CallBacker*);
-    void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
     void			saveWellDispProps(CallBacker*);
     void			saveAllWellDispProps();
