@@ -58,7 +58,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
-#include "odsessionfact.h"
+#include "odsession.h"
 #include "odsysmem.h"
 #include "odver.h"
 #include "plugins.h"

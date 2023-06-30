@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "odsession.h"
-#include "odsessionfact.h"
 
 #include "ascstream.h"
 #include "ioobj.h"
@@ -214,6 +213,12 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
 	SI().savePars();
     }
 }
+
+
+defineTranslatorGroup(ODSession,"Session setup")
+uiString ODSessionTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sSession(num); }
+defineTranslator(dgb,ODSession,mDGBKey)
 
 mDefSimpleTranslatorSelector(ODSession);
 mDefSimpleTranslatorioContext(ODSession,Misc)
