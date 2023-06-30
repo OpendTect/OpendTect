@@ -96,6 +96,13 @@ if( UNIX )
 	set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign ${CMAKE_C_FLAGS}" )
 	set ( CMAKE_C_FLAGS "-Wstrict-aliasing -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
 
+	foreach( config DEBUG;RELWITHDEBINFO )
+	    if ( "${CMAKE_CXX_FLAGS_${config}}" MATCHES "-g" )
+		string( REPLACE "-g" "-ggdb3" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" )
+		set( CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" CACHE STRING "Flags used by the CXX compiler during ${config} builds." FORCE )
+	    endif()
+	endforeach()
+
     elseif( CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR
 	    CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM" )
 
@@ -166,6 +173,12 @@ else() # windows
     endif()
     if ( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
 	list ( APPEND OD_PLATFORM_COMPILE_OPTIONS "/Zc:__cplusplus" )
+	foreach( config DEBUG;RELWITHDEBINFO )
+	    if ( "${CMAKE_CXX_FLAGS_${config}}" MATCHES "/Zi" )
+		string( REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" )
+		set( CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" CACHE STRING "Flags used by the CXX compiler during ${config} builds." FORCE )
+	    endif()
+	endforeach()
     endif()
 
     set ( OD_STATIC_EXTENSION ".lib" )
@@ -185,14 +198,6 @@ macro( OD_SETUP_DEBUGFLAGS )
 	    list ( APPEND OD_MODULE_LINK_OPTIONS "/debug" )
 	elseif ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 	    list ( APPEND OD_MODULE_COMPILE_OPTIONS "-ggdb3" )
-	endif()
-    else()
-	if ( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-	    list ( APPEND OD_MODULE_COMPILE_OPTIONS
-		   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:/Z7>" )
-	elseif ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
-	    list ( APPEND OD_MODULE_COMPILE_OPTIONS
-		   "$<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:-ggdb3>" )
 	endif()
     endif()
 
