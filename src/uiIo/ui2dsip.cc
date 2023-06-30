@@ -224,22 +224,13 @@ class uiNavReadDlg : public uiImp2DGeom
 { mODTextTranslationClass(uiNavReadDlg)
 public:
 uiNavReadDlg( uiParent* p )
-    : uiImp2DGeom(p)
+    : uiImp2DGeom(p,"",true)
 {
     setModal( true );
     setOkCancelText( uiStrings::sContinue(), uiStrings::sCancel() );
 
-    singlemultifld_->valuechanged.notify( mCB(this,uiNavReadDlg,singmultCB2) );
-    linefld_->display( false );
-
     crssel_ = new Coords::uiCoordSystemSel( this );
     crssel_->attach( alignedBelow, dataselfld_ );
-}
-
-
-void singmultCB2( CallBacker* )
-{
-    linefld_->display( false );
 }
 
 

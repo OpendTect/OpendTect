@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 
 // uiImp2DGeom
-uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
+uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm, bool forsurveysetup )
     : uiDialog(p,uiDialog::Setup(tr("Import New Line Geometry"),
 				 mNoDlgTitle,
 				 mODHelpKey(mGeom2DImpDlgHelpID)))
@@ -63,7 +63,8 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
 	attachobj = singlemultifld_->attachObj();
 
 	mAttachCB( fnmfld_->valuechanged, uiImp2DGeom::fileSelCB );
-	linefld_ = new uiGeom2DSel( this, false );
+	if ( !forsurveysetup )
+	    linefld_ = new uiGeom2DSel( this, false );
     }
 
     dataselfld_ = new uiTableImpDataSel( this, *geomfd_, mNoHelpKey );
@@ -71,6 +72,12 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
 
     if ( linefld_ )
 	linefld_->attach( alignedBelow, dataselfld_ );
+}
+
+
+uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
+    : uiImp2DGeom(p,lnm,false)
+{
 }
 
 
@@ -95,7 +102,9 @@ void uiImp2DGeom::fileSelCB( CallBacker* )
 void uiImp2DGeom::singmultCB( CallBacker* )
 {
     const bool singleline = singlemultifld_->getBoolValue();
-    linefld_->display( singleline );
+    if ( linefld_ )
+	linefld_->display( singleline );
+
     Geom2dAscIO::fillDesc( *geomfd_, !singleline );
 }
 
@@ -115,7 +124,7 @@ bool uiImp2DGeom::acceptOK( CallBacker* )
     if ( !linenm_.isEmpty() )
 	return true;
 
-    if ( singlemultifld_->getBoolValue() )
+    if ( singlemultifld_->getBoolValue() && linefld_ )
     {
 	const IOObj* ioobj = linefld_->ioobj();
 	if ( !ioobj )
