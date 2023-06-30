@@ -300,7 +300,8 @@ Table::TargetInfo*
 	auto* form = new TargetInfo::Form( sKeyLatLong(), StringInpSpec() );
 	form->add( StringInpSpec() );
 	ti->add( form );
-	if ( wcrs && ti->selection_.coordsys_->isProjection() )
+	if ( wcrs && ti->selection_.coordsys_ &&
+		ti->selection_.coordsys_->isProjection() )
 	    ti->selection_.llsys_ =
 		ti->selection_.coordsys_->getGeodeticSystem();
     }

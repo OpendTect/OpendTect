@@ -22,6 +22,8 @@ namespace Table { class FormatDesc; }
 mExpClass(uiIo) uiImp2DGeom : public uiDialog
 { mODTextTranslationClass(uiImp2DGeom)
 public:
+				uiImp2DGeom(uiParent*,const char* lnm,
+					    bool forsurveysetup);
 				uiImp2DGeom(uiParent*,const char* lnm=0);
 				~uiImp2DGeom();
 
