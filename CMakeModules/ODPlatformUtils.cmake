@@ -97,7 +97,7 @@ if( UNIX )
 	set ( CMAKE_C_FLAGS "-Wstrict-aliasing -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
 
 	foreach( config DEBUG;RELWITHDEBINFO )
-	    if ( "${CMAKE_CXX_FLAGS_${config}}" MATCHES "-g" )
+	    if ( "${CMAKE_CXX_FLAGS_${config}}" MATCHES "-g" AND NOT "${CMAKE_CXX_FLAGS_${config}}" MATCHES "-ggdb3" )
 		string( REPLACE "-g" "-ggdb3" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" )
 		set( CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" CACHE STRING "Flags used by the CXX compiler during ${config} builds." FORCE )
 	    endif()
