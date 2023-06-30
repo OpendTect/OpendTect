@@ -462,7 +462,7 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
 }
 
 
-void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
+void uiWell2RandomLineDlg::previewPush( CallBacker* )
 {
     wellserv_->sendPreviewEvent();
 }
