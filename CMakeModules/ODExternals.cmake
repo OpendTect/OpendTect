@@ -51,7 +51,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	SET( URL ${NEWURL} )
     endif()
 
-    if ( EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
+    if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}" )
 	# Check URL and Branch of the old checkout
 	execute_process(
 	    COMMAND ${GET_GIT_URL}
@@ -75,15 +75,18 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	    endif()
 	    if ( NOT ${STATUS} EQUAL 0 OR NOT ${OLDBRANCH} STREQUAL ${BRANCH} )
 		message( STATUS "Removing external/${DIR} ${branchtag} ${OLDBRANCH}" )
-		file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
+		file ( REMOVE_RECURSE "${CMAKE_SOURCE_DIR}/external/${DIR}" )
+		if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/external/${DIR}" )
+		    file ( REMOVE_RECURSE "${OD_BINARY_BASEDIR}/external/${DIR}" )
+		endif()
 	    endif()
 	endif() 
     endif()
 
-    if ( NOT EXISTS ${CMAKE_SOURCE_DIR}/external/${DIR} )
+    if ( NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}" )
 	execute_process(
 	    COMMAND ${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external"
 		OUTPUT_VARIABLE OUTPUT
 		ERROR_VARIABLE OUTPUT
 		RESULT_VARIABLE STATUS )
@@ -105,7 +108,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
     else()
 	execute_process(
 	    COMMAND ${GIT_EXEC} pull
-	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+	    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}"
 	    OUTPUT_VARIABLE OUTPUT
 	    ERROR_VARIABLE OUTPUT
 	    RESULT_VARIABLE STATUS )
