@@ -83,7 +83,7 @@ Configure CMake ensuring to set the following variables:
 
 - QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
 - OSG_DIR="OpenSceneGraph install location"
-- PROJ_DIR="PROJ install location" or BUILD_PROJ=ON or OD_NO_PROJ=ON to disable it
+- PROJ_DIR="PROJ install location" or OD_NO_PROJ=ON to disable it
 - SQLITE_DIR="SQLITE install location" (optional, but required by Proj)
 - HDF5_ROOT="HDF5 install location" (optional)
 
@@ -95,7 +95,7 @@ Configure CMake ensuring to set the following variables:
 
 - QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
 - OSG_DIR="OpenSceneGraph install location"
-- PROJ_DIR="PROJ install location" or BUILD_PROJ=ON or OD_NO_PROJ=ON to disable it
+- PROJ_DIR="PROJ install location" or OD_NO_PROJ=ON to disable it
 - SQLITE_DIR="SQLITE install location" (optional, but required by Proj)
 - HDF5_ROOT="HDF5 install location" (optional)
 - OpenGL\_GL\_PREFERENCE=LEGACY 
