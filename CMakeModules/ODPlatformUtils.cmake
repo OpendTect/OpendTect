@@ -5,6 +5,29 @@
 #________________________________________________________________________
 #
 
+macro( OD_SETUP_DEBUG_FLAGS_GLOBAL )
+
+    foreach( LANG C CXX )
+	if ( CMAKE_${LANG}_COMPILER_ID STREQUAL "MSVC" )
+	    foreach( config DEBUG;RELWITHDEBINFO )
+		if ( "${CMAKE_${LANG}_FLAGS_${config}}" MATCHES "/Zi" )
+		    string( REPLACE "/Zi" "/Z7" CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" )
+		    set( CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" CACHE STRING "Flags used by the ${LANG} compiler during ${config} builds." FORCE )
+		endif()
+	    endforeach()
+	elseif ( CMAKE_${LANG}_COMPILER_ID STREQUAL "GNU" )
+	    foreach( config DEBUG;RELWITHDEBINFO )
+		if ( "${CMAKE_${LANG}_FLAGS_${config}}" MATCHES "-g" AND NOT "${CMAKE_${LANG}_FLAGS_${config}}" MATCHES "-ggdb3" )
+		    string( REPLACE "-g" "-ggdb3" CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" )
+		    set( CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" CACHE STRING "Flags used by the ${LANG} compiler during ${config} builds." FORCE )
+		endif()
+	    endforeach()
+	endif()
+    endforeach()
+
+endmacro(OD_SETUP_DEBUG_FLAGS_GLOBAL)
+
+
 #Discover 64 or 32 bits
 set ( OD_64BIT TRUE )
 if ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
@@ -21,6 +44,7 @@ set ( SET_SYMBOLS -D__hassymbols__ )
 set ( SET_DEBUG -D__debug__ )
 set ( SHLIB_EXTENSION dll )
 
+OD_SETUP_DEBUG_FLAGS_GLOBAL()
 set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
@@ -138,8 +162,8 @@ if( UNIX ) #Apple and Linux
 	set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign ${CMAKE_C_FLAGS}" )
 	set ( CMAKE_C_FLAGS "-Wstrict-aliasing -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
 
-	set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
-	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
+	set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
+	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG}" )
 
     else() # Intel compiler
 	set ( CMAKE_SKIP_RPATH TRUE )
@@ -210,17 +234,6 @@ if(WIN32)
     if ( MSVC_VERSION VERSION_GREATER 1923 ) #Adding this flag if VS version is greater than 17 on win64 platform
 	set ( CMAKE_CXX_FLAGS  "/wd4723 ${CMAKE_CXX_FLAGS}" ) # potential divide by 0
     endif()
-
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS ${CMAKE_C_FLAGS} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE} )
-    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL} )
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
