@@ -5,6 +5,29 @@
 #________________________________________________________________________
 #
 
+macro( OD_SETUP_DEBUG_FLAGS_GLOBAL )
+
+    foreach( LANG C CXX )
+	if ( CMAKE_${LANG}_COMPILER_ID STREQUAL "MSVC" )
+	    foreach( config DEBUG;RELWITHDEBINFO )
+		if ( "${CMAKE_${LANG}_FLAGS_${config}}" MATCHES "/Zi" )
+		    string( REPLACE "/Zi" "/Z7" CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" )
+		    set( CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" CACHE STRING "Flags used by the ${LANG} compiler during ${config} builds." FORCE )
+		endif()
+	    endforeach()
+	elseif ( CMAKE_${LANG}_COMPILER_ID STREQUAL "GNU" )
+	    foreach( config DEBUG;RELWITHDEBINFO )
+		if ( "${CMAKE_${LANG}_FLAGS_${config}}" MATCHES "-g" AND NOT "${CMAKE_${LANG}_FLAGS_${config}}" MATCHES "-ggdb3" )
+		    string( REPLACE "-g" "-ggdb3" CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" )
+		    set( CMAKE_${LANG}_FLAGS_${config} "${CMAKE_${LANG}_FLAGS_${config}}" CACHE STRING "Flags used by the ${LANG} compiler during ${config} builds." FORCE )
+		endif()
+	    endforeach()
+	endif()
+    endforeach()
+
+endmacro(OD_SETUP_DEBUG_FLAGS_GLOBAL)
+
+
 if ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
     message( FATAL_ERROR "32-bit platforms are no longer supported" )
 endif()
@@ -77,6 +100,7 @@ if( UNIX )
     set (OD_STATIC_EXTENSION ".a")
     if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 
+	OD_SETUP_DEBUG_FLAGS_GLOBAL()
 	if ( NOT DEFINED OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS )
 	    set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wshadow -Wunused ${CMAKE_CXX_FLAGS}" )
 	endif()
@@ -95,13 +119,6 @@ if( UNIX )
 	set ( CMAKE_C_FLAGS "-Wmissing-declarations -Wunused -Wimplicit-int ${CMAKE_C_FLAGS}" )
 	set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign ${CMAKE_C_FLAGS}" )
 	set ( CMAKE_C_FLAGS "-Wstrict-aliasing -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
-
-	foreach( config DEBUG;RELWITHDEBINFO )
-	    if ( "${CMAKE_CXX_FLAGS_${config}}" MATCHES "-g" AND NOT "${CMAKE_CXX_FLAGS_${config}}" MATCHES "-ggdb3" )
-		string( REPLACE "-g" "-ggdb3" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" )
-		set( CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" CACHE STRING "Flags used by the CXX compiler during ${config} builds." FORCE )
-	    endif()
-	endforeach()
 
     elseif( CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR
 	    CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM" )
@@ -128,6 +145,7 @@ else() # windows
     endif()
     set( STACK_RESERVE_SIZE ${STACK_RESERVE_SIZE} CACHE STRING "Stack Reserve Size" )
 
+    OD_SETUP_DEBUG_FLAGS_GLOBAL()
     if ( CMAKE_GENERATOR MATCHES "Visual Studio" )
 	set ( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS}" )
     endif()
@@ -173,12 +191,6 @@ else() # windows
     endif()
     if ( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
 	list ( APPEND OD_PLATFORM_COMPILE_OPTIONS "/Zc:__cplusplus" )
-	foreach( config DEBUG;RELWITHDEBINFO )
-	    if ( "${CMAKE_CXX_FLAGS_${config}}" MATCHES "/Zi" )
-		string( REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" )
-		set( CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}" CACHE STRING "Flags used by the CXX compiler during ${config} builds." FORCE )
-	    endif()
-	endforeach()
     endif()
 
     set ( OD_STATIC_EXTENSION ".lib" )
@@ -201,4 +213,4 @@ macro( OD_SETUP_DEBUGFLAGS )
 	endif()
     endif()
 
-endmacro()
+endmacro(OD_SETUP_DEBUGFLAGS)
