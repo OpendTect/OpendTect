@@ -16,7 +16,7 @@ SET( INCLUDES
     ODZlibUtils
     ODProjUtils
     ODOpenSSLUtils
-    ODSqlite
+    ODSqliteUtils
     ODHDF5Utils
     ODBreakPadUtils
     ODMacroUtils

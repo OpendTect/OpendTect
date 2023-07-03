@@ -7,39 +7,26 @@
 
 macro( OD_SETUP_BREAKPAD_TARGET TRGT )
 
-    if( BREAKPAD${MOD}_RELEASE AND EXISTS "${BREAKPAD${MOD}_RELEASE}" )
-	list( APPEND BREAKPAD_CONFIGS RELEASE )
-	set( BREAKPAD_LOCATION_RELEASE "${BREAKPAD${MOD}_RELEASE}" )
-	set( BREAKPAD_LOCATION "${BREAKPAD_LOCATION_RELEASE}" )
-	unset( BREAKPAD${MOD}_RELEASE CACHE )
-    endif()
-    if ( BREAKPAD${MOD}_DEBUG AND EXISTS "${BREAKPAD${MOD}_DEBUG}" )
-	list( APPEND BREAKPAD_CONFIGS DEBUG )
-	set( BREAKPAD_LOCATION_DEBUG "${BREAKPAD${MOD}_DEBUG}" )
-	if ( NOT BREAKPAD_LOCATION )
-	    set( BREAKPAD_LOCATION "${BREAKPAD_LOCATION_DEBUG}" )
-	endif()
-	unset( BREAKPAD${MOD}_DEBUG CACHE )
-    endif()
-    if ( NOT BREAKPAD_LOCATION )
-	message( SEND_ERROR "BREAKPAD${MOD} (${LIBNAME}) is missing" )
-    elseif ( NOT IS_DIRECTORY "${BREAKPAD_DIR}/include/breakpad" )
+    if ( NOT IS_DIRECTORY "${BREAKPAD_DIR}/include/breakpad" )
 	message( SEND_ERROR "Cannot find breakpad header files at ${BREAKPAD_DIR}/include/breakpad" )
-	unset( BREAKPAD_LOCATION )
-    else()
+    elseif ( (BREAKPAD${MOD}_RELEASE AND EXISTS "${BREAKPAD${MOD}_RELEASE}") OR
+	     (BREAKPAD${MOD}_DEBUG AND EXISTS "${BREAKPAD${MOD}_DEBUG}") )
 	add_library( breakpad::${TRGT} STATIC IMPORTED GLOBAL )
-	set_target_properties( breakpad::${TRGT} PROPERTIES
-	    IMPORTED_LOCATION "${BREAKPAD_LOCATION}"
-	    IMPORTED_CONFIGURATIONS "${BREAKPAD_CONFIGS}"
-	    INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_DIR}/include/breakpad" )
-	unset( BREAKPAD_LOCATION )
-	foreach( config ${BREAKPAD_CONFIGS} )
-	    set_target_properties( breakpad::${TRGT} PROPERTIES
-		    IMPORTED_LOCATION_${config} "${BREAKPAD_LOCATION_${config}}" )
-	    unset( BREAKPAD_LOCATION_${config} )
+	foreach( config RELEASE;DEBUG )
+	    if ( BREAKPAD${MOD}_${config} AND EXISTS "${BREAKPAD${MOD}_${config}}" )
+		list( APPEND BREAKPAD_CONFIGS ${config} )
+		set_target_properties( breakpad::${TRGT} PROPERTIES
+			IMPORTED_LOCATION_${config} "${BREAKPAD${MOD}_${config}}" )
+		unset( BREAKPAD_LOCATION_${config} )
+	    endif()
+	    unset( BREAKPAD${MOD}_${config} CACHE )
 	endforeach()
+	set_target_properties( breakpad::${TRGT} PROPERTIES
+		IMPORTED_CONFIGURATIONS "${BREAKPAD_CONFIGS}"
+		INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_DIR}/include/breakpad" )
+	od_map_configurations( breakpad::${TRGT} )
+	unset( BREAKPAD_CONFIGS )
     endif()
-    unset( BREAKPAD_CONFIGS )
 
 endmacro(OD_SETUP_BREAKPAD_TARGET)
 

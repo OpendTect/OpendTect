@@ -13,6 +13,9 @@ macro( OD_FIND_PROJ )
 	endif()
 
 	find_package( PROJ QUIET GLOBAL )
+	if ( TARGET PROJ::proj )
+	    od_map_configurations( PROJ::proj )
+	endif()
     endif()
 
 endmacro(OD_FIND_PROJ)

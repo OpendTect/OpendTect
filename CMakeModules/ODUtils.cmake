@@ -257,6 +257,28 @@ function(od_get_dll _lib _dll)
     message( FATAL_ERROR "Cannot find DLL for library ${_lib}" )
 endfunction()
 
+function(od_map_configurations _trgt)
+    get_target_property( TRGT_CONFIGS ${_trgt} IMPORTED_CONFIGURATIONS )
+    if ( NOT TRGT_CONFIGS )
+	return()
+    endif()
+
+    set( _tconfigs RELWITHDEBINFO RELEASE )
+    set( _rconfigs RELEASE RELWITHDEBINFO )
+    foreach( _tconfig _rconfigs IN ZIP_LISTS _tconfigs _rconfigs )
+	if ( ${_tconfig} IN_LIST TRGT_CONFIGS )
+	    if ( NOT DEBUG IN_LIST TRGT_CONFIGS )
+		set_target_properties(${_trgt} PROPERTIES
+			MAP_IMPORTED_CONFIG_DEBUG ${_tconfig} )
+	    endif()
+	    set_target_properties(${_trgt} PROPERTIES
+		    MAP_IMPORTED_CONFIG_MINSIZEREL ${_tconfig}
+		    MAP_IMPORTED_CONFIG_${_rconfigs} ${_tconfig} )
+	    break()
+	endif()
+    endforeach()
+endfunction(od_map_configurations)
+
 macro( OD_INSTALL_LIBRARY LIBNM INSTDEST )
     if ( UNIX AND NOT APPLE )
 	set( FONTLIBS fontconfig;freetype;png15;png16 )
@@ -528,7 +550,7 @@ macro( testprops tgt )
 	MAP_IMPORTED_CONFIG_DEBUG
 	MAP_IMPORTED_CONFIG_MINSIZEREL
 	MAP_IMPORTED_CONFIG_RELWITHDEBINFO
-	MAP_IMPORTED_CONFIG_RELASE
+	MAP_IMPORTED_CONFIG_RELEASE
 	NAME
 	NO_SONAME
 	OUTPUT_NAME
