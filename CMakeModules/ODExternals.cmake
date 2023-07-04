@@ -62,6 +62,9 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	if ( NOT ${OLDURL} STREQUAL ${URL} )
 	    message( STATUS "Removing external/${DIR} having URL ${OLDURL}" )
 	    file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
+	    if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/external/${DIR}" )
+		file ( REMOVE_RECURSE "${OD_BINARY_BASEDIR}/external/${DIR}" )
+	    endif()
 	else()
 	    execute_process(
 		COMMAND ${GIT_EXEC} symbolic-ref --short HEAD 
