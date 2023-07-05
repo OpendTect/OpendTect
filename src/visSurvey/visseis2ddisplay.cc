@@ -375,6 +375,8 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPackID dpid,
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
+
+    panelstrip_->turnOn( true );
     return true;
 }
 
