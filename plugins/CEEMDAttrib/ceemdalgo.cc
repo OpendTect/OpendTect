@@ -402,7 +402,7 @@ bool DecompInput::decompositionLoop( ObjectSet<IMFComponent>& components,
 		    const float max = maxima.getValue(mCast(float,idx));
 		    mean = ( (max+min)/2 );
 		    const float val = values_[idx];
-		    dosift += ( (mean*mean) / (val*val));
+		    dosift = (mean*mean) / (val*val);
 		    values_[idx] = values_[idx] - mean;
 		}
 	    }
@@ -979,7 +979,7 @@ bool DecompInput::useGridding(
 			Array2D<float>& output, float startfreq, float endfreq,
 			float stepoutfreq ) const
 {
-    if ( realizations.size() > 3 )
+    if ( realizations.size() < 4 )
 	return false;
 
     const int fsize = realizations.first()->size();
@@ -1064,7 +1064,7 @@ bool DecompInput::usePolynomial(
 		    Array2D<float>& output, float startfreq, float endfreq,
 		    float stepoutfreq ) const
 {
-    if ( realizations.size() > 3 )
+    if ( realizations.size() < 4 )
 	return false;
 
     const int fsize = realizations.first()->size();
