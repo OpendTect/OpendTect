@@ -37,14 +37,10 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
-	: uiDialog(p,uiDialog::Setup(tr("Attribute cross-plotting"),
-		     tr("Select attributes and locations for cross-plot")
-		     ,mODHelpKey(mAttribCrossPlotHelpID) ).modal(false))
-	, ads_(*new Attrib::DescSet(d.is2D()))
-	, lnmfld_(0)
-	, curdps_(0)
-	, dpsdispmgr_(0)
-	, attrinfo_(0)
+    : uiDialog(p,uiDialog::Setup(tr("Attribute cross-plotting"),
+		 tr("Select attributes and locations for cross-plot")
+		 ,mODHelpKey(mAttribCrossPlotHelpID) ).modal(false))
+    , ads_(*new Attrib::DescSet(d.is2D()))
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttribute(mPlural),
@@ -359,5 +355,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 }
 
 
-const DataPointSet& uiAttribCrossPlot::getDPS() const
-{ return *curdps_; }
+ConstRefMan<DataPointSet> uiAttribCrossPlot::getDPS() const
+{
+    return curdps_;
+}

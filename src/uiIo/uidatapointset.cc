@@ -59,7 +59,7 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
+    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
 				    uiStrings::sEmptyString(),
 				    mNoHelpKey).modal(false))
     , plotter_(plotter)
@@ -70,16 +70,16 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     typefld_->valueChanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
 
     BufferStringSet colnms;
-    const DataPointSet& dps = plotter.dps();
-    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
-	colnms.add( dps.colName(colidx) );
+    ConstRefMan<DataPointSet> dps = plotter.dps();
+    for ( int colidx=0; colidx<dps->nrCols(); colidx++ )
+	colnms.add( dps->colName(colidx) );
 
     selfld_ = new uiLabeledComboBox(this, colnms, uiStrings::phrJoinStrings(
 				    uiStrings::sAttribute(), tr("to display")));
     selfld_->attach( alignedBelow, typefld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
-	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
+	const char* attrnm = dps->colName( prevdispprop->dpsColID() );
 	selfld_->box()->setCurrentItem( attrnm );
     }
 
@@ -101,9 +101,9 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 
 void attribChanged( CallBacker* )
 {
-    const DataPointSet& dps = plotter_.dps();
-    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->box()->text()) );
-    Interval<float> valrange = dps.bivSet().valRange( bivsidx );
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    const int bivsidx = dps->bivSetIdx( dps->indexOf(selfld_->box()->text()) );
+    Interval<float> valrange = dps->bivSet().valRange( bivsidx );
     coltabfld_->setInterval( valrange );
 }
 
@@ -157,31 +157,18 @@ uiDataPointSet::Setup::~Setup()
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su,
 				DataPointSetDisplayMgr* dpsmgr )
-	: uiDialog(p,su)
-	, dps_(*const_cast<DataPointSet*>(&dps))
-	, setup_(su)
-	, zfac_(mCast(float,SI().zDomain().userFactor()))
-	, zunitnm_(SI().getUiZUnitString(false))
-	, tbl_(0)
-	, unsavedchgs_(false)
-	, fillingtable_(true)
-	, showbids_(false)
-	, posdisptypechgd_(false)
-	, valueChanged(this)
-	, selPtsToBeShown(this)
-	, rowAdded(this)
-	, rowToBeRemoved(this)
-	, rowRemoved(this)
-	, xplotwin_(0)
-	, dpsdisppropdlg_(0)
-	, statswin_(0)
-	, dpsdispmgr_(dpsmgr)
-	, iotb_(0)
-	, disptb_(0)
-	, maniptb_(0)
-	, percfld_(0)
+    : uiDialog(p,su)
+    , valueChanged(this)
+    , selPtsToBeShown(this)
+    , rowAdded(this)
+    , rowToBeRemoved(this)
+    , rowRemoved(this)
+    , dps_(const_cast<DataPointSet*>(&dps))
+    , setup_(su)
+    , zfac_(mCast(float,SI().zDomain().userFactor()))
+    , zunitnm_(SI().getUiZUnitString(false))
+    , dpsdispmgr_(dpsmgr)
 {
-    dps_.ref();
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
     mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
 
@@ -204,7 +191,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->setLabelAlignment( Alignment::Left, true );
     tbl_->setFont( FontList().get(FontData::Fixed) );
     tbl_->setColumnResizeMode( uiTable::Interactive );
-    dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
+    dps_->dataSet().pars().get( sKeyGroups, grpnames_ );
 
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
@@ -219,18 +206,34 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     mTriggerInstanceCreatedNotifier();
 }
 
+
+uiDataPointSet::~uiDataPointSet()
+{
+    detachAllNotifiers();
+    deepErase( variodlgs_ );
+    removeSelPts( nullptr );
+    if ( xplotwin_ )
+	xplotwin_->close();
+    if ( statswin_ )
+	statswin_->close();
+}
+
+
 int uiDataPointSet::nrPosCols() const
-{ return dps_.nrFixedCols()-1; }
+{
+    return dps_->nrFixedCols()-1;
+}
+
 
 #define mCleanRunCalcs \
     deepErase( runcalcs_ ); \
-    const int nrcols = dps_.nrCols() + nrPosCols(); \
+    const int nrcols = dps_->nrCols() + nrPosCols(); \
     for ( int idx=0; idx<nrcols; idx++ ) \
 	runcalcs_ += 0
 
 #define mGetHPosVal( dcid, drid ) ( dcid == -nrPosCols() ) ? \
-	( showbids_ ? dps_.binID(drid).inl() : dps_.coord(drid).x ) : \
-	( showbids_ ? dps_.binID(drid).crl() : dps_.coord(drid).y )
+	( showbids_ ? dps_->binID(drid).inl() : dps_->coord(drid).x ) : \
+	( showbids_ ? dps_->binID(drid).crl() : dps_->coord(drid).y )
 
 int uiDataPointSet::initVars()
 {
@@ -248,7 +251,7 @@ int uiDataPointSet::initVars()
 
     mCleanRunCalcs;
 
-    eachrow_ = mCast( float, dps_.nrActive() / setup_.initialmaxnrlines_ );
+    eachrow_ = mCast( float, dps_->nrActive() / setup_.initialmaxnrlines_ );
     if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
     percentage_ = (float)100/eachrow_;
 
@@ -259,23 +262,9 @@ int uiDataPointSet::initVars()
 }
 
 
-uiDataPointSet::~uiDataPointSet()
-{
-    detachAllNotifiers();
-    deepErase( variodlgs_ );
-    removeSelPts( 0 );
-    if ( xplotwin_ )
-	xplotwin_->close();
-    if ( statswin_ )
-	statswin_->close();
-
-    dps_.unRef();
-}
-
-
 void uiDataPointSet::applClosingCB( CallBacker* )
 {
-    dpsdispmgr_ = 0;
+    dpsdispmgr_ = nullptr;
 }
 
 
@@ -358,7 +347,7 @@ void uiDataPointSet::mkToolBars()
 
     mAddButton( "statsinfo", showStatsWin,
 			     tr("Show histogram and stats for column"), false );
-    if ( dps_.group(0) < mUdf(od_uint16) && SI().zIsTime() )
+    if ( dps_->group(0) < mUdf(od_uint16) && SI().zIsTime() )
 	mAddButton( "variogram", compVertVariogram,
 		    tr("Compute variogram for column"), false );
     xplottbid_ = mAddButton( "xplot", showCrossPlot,
@@ -382,7 +371,7 @@ void uiDataPointSet::showZ( bool yn )
 
 void uiDataPointSet::updColNames()
 {
-    const int nrcols = dps_.nrCols() + nrPosCols();
+    const int nrcols = dps_->nrCols() + nrPosCols();
     const TColID zcid = 2;
     for ( TColID tid=0; tid<nrcols; tid++ )
     {
@@ -424,7 +413,7 @@ void uiDataPointSet::calcIdxs()
     const int orgtblsz = drowids_.size();
     drowids_.erase(); trowids_.erase(); sortidxs_.erase();
 
-    const int dpssz = dps_.size();
+    const int dpssz = dps_->size();
     if ( dpssz<0 )
     {
 	uiMSG().message( tr("DataPointSet too large, choose a subselection") );
@@ -436,8 +425,8 @@ void uiDataPointSet::calcIdxs()
     int dcountidx = 0;
     for ( int did=0; did<dpssz; did++ )
     {
-	const bool inact = dps_.isInactive(did);
-	const bool issel = dps_.isSelected(did);
+	const bool inact = dps_->isInactive(did);
+	const bool issel = dps_->isSelected(did);
 	if ( inact || (dcountidx < mNINT32(calcidx * eachrow_) && !issel) )
 	{
 	    if ( !inact )
@@ -522,10 +511,10 @@ void uiDataPointSet::fillPos( TRowID tid )
 {
     fillingtable_ = true;
     const DRowID drid = dRowID(tid);
-    const DataPointSet::Pos pos( dps_.pos(drid) );
+    const DataPointSet::Pos pos( dps_->pos(drid) );
     RowCol rc( tid, 0 );
     if ( is2D() && showbids_ )
-	tbl_->setText( rc, Survey::GM().getName(dps_.geomID(drid)) );
+	tbl_->setText( rc, Survey::GM().getName(dps_->geomID(drid)) );
     else
 	tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 );
     
@@ -541,7 +530,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 	tbl_->setValue( rc, iz * 0.01 );
     }
 
-    BufferString rownm = groupName( dps_.group(dRowID(tid)) );
+    BufferString rownm = groupName( dps_->group(dRowID(tid)) );
     if ( rownm.isEmpty() )
     {
 	if ( is2D() )
@@ -559,7 +548,7 @@ void uiDataPointSet::fillData( TRowID tid )
     RowCol rc( tid, nrPosCols() );
     const DRowID drid = dRowID(tid);
     fillingtable_ = true;
-    for ( DColID dcid=0; dcid<dps_.nrCols(); dcid++ )
+    for ( DColID dcid=0; dcid<dps_->nrCols(); dcid++ )
 	{ tbl_->setValue( rc, getVal(dcid,drid,true) ); rc.col()++; }
     fillingtable_ = false;
 }
@@ -576,7 +565,7 @@ void uiDataPointSet::handleAxisColChg()
 }
 
 
-void uiDataPointSet::initWin( CallBacker* c )
+void uiDataPointSet::initWin( CallBacker* )
 {
     setSortedCol( nrPosCols() );
     disptb_->setSensitive( xplottbid_, !xplotwin_ && (xcol_>=0 && (ycol_>=0 ||
@@ -622,11 +611,11 @@ void uiDataPointSet::selYCol( CallBacker* )
     {
 	ycol_ = tid;
 	plotpercentage_ =
-	    (float)100 / (float)(1+dps_.nrActive()/minptsfordensity);
+	    (float)100 / (float)(1+dps_->nrActive()/minptsfordensity);
     }
     else
     {
-	if ( dps_.nrActive()*2 > minptsfordensity )
+	if ( dps_->nrActive()*2 > minptsfordensity )
 	{
 	    uiString msg(tr("DataPoint set too large. The percentage of points "
 			    "displayed should be modified for acceptable "
@@ -637,13 +626,13 @@ void uiDataPointSet::selYCol( CallBacker* )
 				tr("Continue with no Y2")))
 	    {
 		plotpercentage_ =
-		    (float)100 / (float)(1+dps_.nrActive()*2/minptsfordensity);
+		    (float)100 / (float)(1+dps_->nrActive()*2/minptsfordensity);
 		y2col_ = tid;
 	    }
 	    else
 	    {
 		plotpercentage_ =
-		    (float)100 / (float)(1+dps_.nrActive()/minptsfordensity);
+		    (float)100 / (float)(1+dps_->nrActive()/minptsfordensity);
 		y2col_ = -1;
 	    }
 	}
@@ -762,6 +751,7 @@ void selTypeChanged( CallBacker* )
 					 seltypefld_->getBoolValue())), 0 );
 }
 
+
 bool acceptOK( CallBacker* ) override
 {
     DataPointSet::Pos pos;
@@ -790,10 +780,12 @@ bool acceptOK( CallBacker* ) override
     uiGenInput*		posinpfld_;
     uiGenInput*		zinpfld_;
     uiComboBox*		grpfld_;
-};
+
+}; // class uiSelectPosDlg
 
 
-void uiDataPointSet::rowAddedCB( CallBacker* cb )
+
+void uiDataPointSet::rowAddedCB( CallBacker* )
 {
     uiSelectPosDlg dlg( this, groupNames() );
     if ( dlg.go() )
@@ -848,7 +840,7 @@ void uiDataPointSet::handleGroupChg( uiDataPointSet::DRowID drid )
 {
     if ( drid < 1 )
 	return;
-    const int grp = dps_.group( drid );
+    const int grp = dps_->group( drid );
     if ( grp < 1 ) return;
     const char* grpnm = groupName( grp );
     if ( grpnm && *grpnm )
@@ -978,7 +970,7 @@ void uiDataPointSet::setCurrent( uiDataPointSet::DColID dcid,
 void uiDataPointSet::setCurrent( const DataPointSet::Pos& pos,
 				 uiDataPointSet::DColID dcid )
 {
-    setCurrent( dps_.find(pos), dcid );
+    setCurrent( dps_->find(pos), dcid );
 }
 
 
@@ -1007,16 +999,16 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
     if ( drid < 0 ) return;
 
     if ( setup_.directremove_ )
-	dps_.setInactive( drid, true );
+	dps_->setInactive( drid, true );
     else
     {
 	rowToBeRemoved.trigger( drid );
-	dps_.bivSet().remove( dps_.bvsPos(drid) );
+	dps_->bivSet().remove( dps_->bvsPos(drid) );
 	rowRemoved.trigger( drid );
     }
 
     if ( !setup_.directremove_ )
-	dps_.dataChanged();
+	dps_->dataChanged();
 
     const TRowID trid = tRowID( drid );
     if ( trid >= 0 )
@@ -1069,9 +1061,9 @@ void uiDataPointSet::statsClose( CallBacker* )
 
 
 #define mGetHPosName( dcid ) ( did == -nrPosCols() ) ? \
-	( showbids_ ? (dps_.is2D() ? sKey::LineName() : sKey::Inline()) \
+	( showbids_ ? (dps_->is2D() ? sKey::LineName() : sKey::Inline()) \
 	  	    : sKey::XCoord() ) : \
-	( showbids_ ? (dps_.is2D() ? sKey::TraceNr() : sKey::Crossline()) \
+	( showbids_ ? (dps_->is2D() ? sKey::TraceNr() : sKey::Crossline()) \
 	  	    : sKey::YCoord() )
 
 #define mIsZ( dcid ) dcid == -1
@@ -1081,8 +1073,8 @@ const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
     if ( did >= 0 )
     {
 	static BufferString colnm;
-	colnm = dps_.colName( did );
-	const UnitOfMeasure* uom = dps_.unit( did );
+	colnm = dps_->colName( did );
+	const UnitOfMeasure* uom = dps_->unit( did );
 	const BufferString symbolstr = uom ? uom->symbol() : "";
 	if ( !symbolstr.isEmpty() )
 	    colnm.addSpace().add( "(" ).add( symbolstr.buf() ).add( ")" );
@@ -1099,7 +1091,7 @@ const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 
 #define mGetRCIdx(dcid) \
     int rcidx = dcid; \
-    if ( rcidx < 0 ) rcidx = dps_.nrCols() - 1 - dcid
+    if ( rcidx < 0 ) rcidx = dps_->nrCols() - 1 - dcid
 
 Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 				uiDataPointSet::DColID dcid ) const
@@ -1123,9 +1115,9 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 	su.mReq(Count).mReq(Average).mReq(Median).mReq(StdDev);
 	su.setNeedSorted();
 	rc = new Stats::RunCalc<float>( su.mReq(Min).mReq(Max).mReq(RMS) );
-	for ( DRowID drid=0; drid<dps_.size(); drid++ )
+	for ( DRowID drid=0; drid<dps_->size(); drid++ )
 	{
-	    if ( !dps_.isInactive(drid) )
+	    if ( !dps_->isInactive(drid) )
 		rc->addValue( getVal( dcid, drid, true ) );
 	}
 	runcalcs_.replace( tcid, rc );
@@ -1152,7 +1144,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
     BufferString txt( "Column: ", userName(dcid) );
     if ( statscol_ >= 0 )
     {
-	const DataColDef& dcd = dps_.colDef( dcid );
+	const DataColDef& dcd = dps_->colDef( dcid );
 	if ( !dcd.ref_.startsWith("Storage id") && dcd.ref_ != dcd.name_ )
 	    txt.addNewLine().add( dcd.ref_ );
     }
@@ -1174,11 +1166,11 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 {
     if ( dcid >= 0 )
-	return dps_.value( dcid, drid );
+	return dps_->value( dcid, drid );
 
     if ( mIsZ(dcid) )
     {
-	const float val = dps_.z( drid );
+	const float val = dps_->z( drid );
 	if ( !foruser ) return val;
 	return val * zfac_;
     }
@@ -1199,7 +1191,7 @@ void uiDataPointSet::valChg( CallBacker* )
     const DColID dcid( dColID(cell.col()) );
     const DRowID drid( dRowID(cell.row()) );
 
-    afterchgdr_ = beforechgdr_ = dps_.dataRow( drid );
+    afterchgdr_ = beforechgdr_ = dps_->dataRow( drid );
     bool poschgd = false;
 
     if ( dcid >= 0 )
@@ -1242,14 +1234,14 @@ void uiDataPointSet::valChg( CallBacker* )
     if ( poschgd )
     {
 	rowToBeRemoved.trigger( drid );
-	dps_.bivSet().remove( dps_.bvsPos(drid) );
+	dps_->bivSet().remove( dps_->bvsPos(drid) );
 	rowRemoved.trigger( drid );
     }
 
-    bool setchg = dps_.setRow( afterchgdr_ ) || cell.col() == sortcol_;
+    bool setchg = dps_->setRow( afterchgdr_ ) || cell.col() == sortcol_;
     if ( setchg )
     {
-	dps_.dataChanged(); redoAll();
+	dps_->dataChanged(); redoAll();
 	setCurrent( afterchgdr_.pos_, dcid );
     }
 
@@ -1276,7 +1268,7 @@ void uiDataPointSet::eachChg( CallBacker* )
     {
 	eachrow_ = neweachrow;
 	redoAll();
-	if ( !dps_.isEmpty() )
+	if ( !dps_->isEmpty() )
 	    setCurrent( 0, 0 );
     }
 }
@@ -1284,8 +1276,8 @@ void uiDataPointSet::eachChg( CallBacker* )
 
 void uiDataPointSet::addRow( const DataPointSet::DataRow& datarow )
 {
-    dps_.addRow( datarow );
-    dps_.dataChanged();
+    dps_->addRow( datarow );
+    dps_->dataChanged();
     unsavedchgs_ = true;
     reDoTable();
 }
@@ -1318,7 +1310,7 @@ const char* uiDataPointSet::groupName( int idx ) const
 
 bool uiDataPointSet::is2D() const
 {
-    return dps_.is2D();
+    return dps_->is2D();
 }
 
 
@@ -1389,11 +1381,10 @@ void uiDataPointSet::retrieve( CallBacker* )
     }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
-					     dps_.isMinimal() );
+    RefMan<DataPointSet> newdps =
+	new DataPointSet( pvds, dps_->is2D(), dps_->isMinimal() );
     if ( newdps->isEmpty() )
     {
-	delete newdps;
 	uiMSG().error( tr("Data set is not suitable") );
 	return;
     }
@@ -1401,10 +1392,10 @@ void uiDataPointSet::retrieve( CallBacker* )
     setCaption( tr("Cross-plot Data: %1").arg(seldlg.ioObj()->uiName()) );
     removeSelPts( 0 );
     tbl_->clearTable();
-    dps_ = *newdps;
-    delete newdps;
+    dps_ = newdps;
+    newdps = nullptr;
     grpnames_.erase();
-    dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
+    dps_->dataSet().pars().get( sKeyGroups, grpnames_ );
 
     const int nrcols = initVars();
     tbl_->setNrRows( size() );
@@ -1503,22 +1494,22 @@ void uiDataPointSet::save( CallBacker* )
 
 bool uiDataPointSet::doSave()
 {
-    if ( dps_.nrActive() < 1 ) return true;
+    if ( dps_->nrActive() < 1 ) return true;
 
     uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type()) );
     if ( !uidpss.go() )
 	return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    DataPointSet savedps( dps_ );
-    savedps.dataSet().pars() = storepars_;
+    RefMan<DataPointSet> savedps = new DataPointSet( dps_ );
+    savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
-	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
+	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
 
-    savedps.purgeInactive();
+    savedps->purgeInactive();
     BufferString errmsg;
     const bool ret =
-	savedps.dataSet().putTo( uidpss.fname_, errmsg, uidpss.istab_ );
+	savedps->dataSet().putTo( uidpss.fname_, errmsg, uidpss.istab_ );
     MouseCursorManager::restoreOverride();
     uiMainWin* mw = uiMSG().setMainWin( this );
     if ( !ret )
@@ -1587,7 +1578,7 @@ void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
     else
 	dispprop = new DataPointSetDisplayProp(
 		dpsdisppropdlg_->ctSeq(), dpsdisppropdlg_->ctMapperSetup(),
-		dps_.indexOf(dpsdisppropdlg_->colName()) );
+		dps_->indexOf(dpsdisppropdlg_->colName()) );
 
     setDisp( dispprop );
 }
@@ -1599,11 +1590,11 @@ void uiDataPointSet::setDisp( DataPointSetDisplayProp* dispprop )
     dpsdispmgr_->clearDispProp();
     dpsdispmgr_->setDispProp( dispprop );
 
-    int dpsid = dpsdispmgr_->getDisplayID(dps_);
+    int dpsid = dpsdispmgr_->getDisplayID(*dps_);
     if ( dpsid < 0 )
-	dpsid = dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), dps_);
+	dpsid = dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(),*dps_);
     else
-	dpsdispmgr_->updateDisplay( dpsdispmgr_->getDisplayID(dps_), dps_ );
+	dpsdispmgr_->updateDisplay( dpsdispmgr_->getDisplayID(*dps_), *dps_ );
 
     dpsdispmgr_->unLock();
 }
@@ -1613,7 +1604,7 @@ void uiDataPointSet::removeSelPts( CallBacker* )
 {
     if ( !dpsdispmgr_ ) return;
 
-    const int dpsid = dpsdispmgr_->getDisplayID( dps_ );
+    const int dpsid = dpsdispmgr_->getDisplayID( *dps_ );
     if ( dpsid < 0 ) return;
 
     dpsdispmgr_->removeDisplay( dpsid );
@@ -1657,18 +1648,18 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	{
 	    nrrem++;
 	    if ( setup_.directremove_ )
-		dps_.setInactive( dRowID(irow), true );
+		dps_->setInactive( dRowID(irow), true );
 	    else
 	    {
 		rowToBeRemoved.trigger( dRowID(irow) );
-		dps_.bivSet().remove( dps_.bvsPos(dRowID(irow)) );
+		dps_->bivSet().remove( dps_->bvsPos(dRowID(irow)) );
 		rowRemoved.trigger( dRowID(irow) );
 	    }
 	}
     }
 
     if ( !setup_.directremove_ )
-	dps_.dataChanged();
+	dps_->dataChanged();
     if ( nrrem < 1 )
     {
 	uiMSG().message(tr("Please select the row(s) you want to remove."
@@ -1693,21 +1684,21 @@ void uiDataPointSet::removeHiddenRows()
 	    RowCol(selrange->firstrow_,sortcol_) );
     valrange.stop = tbl_->getFValue(
 	    RowCol(selrange->lastrow_,sortcol_) );
-    for ( int drowid=0; drowid<dps_.size(); drowid++ )
+    for ( int drowid=0; drowid<dps_->size(); drowid++ )
     {
 	float val;
 	if ( sortcol_ == 2 )
-	    val = dps_.z( drowid );
+	    val = dps_->z( drowid );
 	else if ( sortcol_ == 1 )
 	    val = mCast(float,mGetHPosVal(-nrPosCols()+1,drowid));
 	else if ( sortcol_ == 0 )
 	    val = mCast(float,mGetHPosVal(-nrPosCols(),drowid));
 	else
-	    val = dps_.value( dColID(sortcol_), drowid );
+	    val = dps_->value( dColID(sortcol_), drowid );
 
 	if ( valrange.includes(val,true) || (valrange.start==val)
 					 || (valrange.stop==val) )
-	    dps_.setInactive( drowid, true );
+	    dps_->setInactive( drowid, true );
 	continue;
 
     }
@@ -1741,10 +1732,10 @@ void uiDataPointSet::calcSelectedness()
 
 void uiDataPointSet::addColumn( CallBacker* )
 {
-    uiDataPointSet::DColID dcid=-dps_.nrFixedCols()+1;
+    uiDataPointSet::DColID dcid=-dps_->nrFixedCols()+1;
     BufferStringSet colnames;
     TypeSet<int> dcids;
-    for ( ; dcid<dps_.nrCols(); dcid++ )
+    for ( ; dcid<dps_->nrCols(); dcid++ )
     {
 	colnames.add( userName(dcid) );
 	dcids += dcid;
@@ -1754,8 +1745,8 @@ void uiDataPointSet::addColumn( CallBacker* )
     dlg.setColInfos( colnames, dcids );
     if ( dlg.go() )
     {
-	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
-	BinIDValueSet& bvs = dps_.bivSet();
+	dps_->dataSet().add(new DataColDef(dlg.newAttribName()));
+	BinIDValueSet& bvs = dps_->bivSet();
 	BinIDValueSet::SPos pos;
 	TypeSet<int> colids = dlg.usedColIDs();
 	Math::Expression* mathobj = dlg.mathObject();
@@ -1765,16 +1756,16 @@ void uiDataPointSet::addColumn( CallBacker* )
 	    BinID curbid;
 	    TypeSet<float> vals;
 	    bvs.get( pos, curbid, vals );
-	    DataPointSet::RowID rid = dps_.getRowID( pos );
+	    DataPointSet::RowID rid = dps_->getRowID( pos );
 
 	    for ( int idx=0; idx<colids.size(); idx++ )
 	    {
 		float yval = mUdf(float);
 		if ( colids[idx] >= 0 )
-		    yval = dps_.value( colids[idx], rid );
+		    yval = dps_->value( colids[idx], rid );
 		else if ( colids[idx] == -1 )
 		{
-		    yval = dps_.z( rid );
+		    yval = dps_->z( rid );
 		    if ( !mIsUdf(yval) )
 			yval *= zfac_;
 		}
@@ -1789,7 +1780,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	}
 
 	unsavedchgs_ = true;
-	dps_.dataChanged();
+	dps_->dataChanged();
 	tbl_->setColumnLabel(
 		tbl_->nrCols()-1, toUiString(dlg.newAttribName()) );
 	reDoTable();
@@ -1828,12 +1819,12 @@ void uiDataPointSet::removeColumn( CallBacker* )
 
     unsavedchgs_ = true;
     tbl_->removeColumn( tbl_->currentCol() );
-    dps_.dataSet().removeColumn( tcolid+1 );
+    dps_->dataSet().removeColumn( tcolid+1 );
     if ( xcol_>tcolid ) xcol_--;
     if ( ycol_>tcolid ) ycol_--;
     if ( y2col_>tcolid ) y2col_--;
     mCleanRunCalcs;
-    dps_.dataChanged();
+    dps_->dataChanged();
     reDoTable();
 }
 
@@ -1844,12 +1835,12 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     if ( dcid<1 )
 	return uiMSG().error( tr("Please select an attribute column") );
 
-    dps_.dataSet().pars().set( sKeyGroups, grpnames_ );
+    dps_->dataSet().pars().set( sKeyGroups, grpnames_ );
     int nrgroups = 0;
-    for ( DataPointSet::RowID irow=0; irow<dps_.size(); irow++ )
+    for ( DataPointSet::RowID irow=0; irow<dps_->size(); irow++ )
     {
-	if ( dps_.group(irow) > nrgroups )
-	    nrgroups = dps_.group(irow);
+	if ( dps_->group(irow) > nrgroups )
+	    nrgroups = dps_->group(irow);
     }
 
     uiVariogramDlg varsettings( parent(), true );
@@ -1858,7 +1849,7 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 
     BufferString errmsg;
     bool msgiserror = true;
-    VertVariogramComputer vvc( dps_, dcid, varsettings.getStep(),
+    VertVariogramComputer vvc( *dps_, dcid, varsettings.getStep(),
 			      varsettings.getMaxRg(), varsettings.getFold(),
 			      nrgroups, errmsg, msgiserror );
     if ( !vvc.isOK() )

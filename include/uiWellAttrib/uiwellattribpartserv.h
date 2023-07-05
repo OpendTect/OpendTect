@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class BufferStringSet;
-class DataPointSet;
 class DataPointSetDisplayMgr;
 class NLAModel;
 class uiCreateLogCubeDlg;

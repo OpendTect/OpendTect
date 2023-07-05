@@ -12,20 +12,20 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "bufstringset.h"
+#include "datapointset.h"
 #include "enums.h"
 #include "trckeysampling.h"
 #include "uigeninput.h"
 
-class uiComboBox;
+class EnumDef;
 class uiColorInput;
-class uiPosSubSel;
+class uiComboBox;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiListBox;
-class uiPosProvider;
 class uiPosFilterSetSel;
-class DataPointSet;
-class EnumDef;
+class uiPosProvider;
+class uiPosSubSel;
 namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
@@ -100,7 +100,7 @@ protected:
     uiPosProvider*	posprovfld_;
     uiGenInput*		maxnrpickfld_;
     uiPosFilterSetSel*	posfiltfld_;
-    DataPointSet*	dps_;
+    RefMan<DataPointSet> dps_;
 
     bool		acceptOK(CallBacker*) override;
     void		posProvChgCB(CallBacker*);

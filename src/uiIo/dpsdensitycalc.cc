@@ -26,7 +26,7 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    ArrayND<float>& freqdata,
 				    CalcAreaType areatype )
     : ParallelTask( "Calculating Density" )
-    , dps_( dps )
+    , dps_( &dps )
     , freqdata_( freqdata )
     , axisdatas_( axisdatas )
     , nrdims_( axisdatas_.size() )
@@ -50,7 +50,7 @@ uiString DPSDensityCalcND::uiNrDoneText() const
 
 od_int64 DPSDensityCalcND::nrIterations() const
 {
-    return dps_.size();
+    return dps_->size();
 }
 
 
@@ -68,14 +68,15 @@ bool DPSDensityCalcND::setFreqValue( const int* indexs )
 float DPSDensityCalcND::getVal( int dcid, int drid ) const
 {
     if ( dcid >= 0 )
-	return dps_.value( dcid, drid );
+	return dps_->value( dcid, drid );
+
     else if ( dcid == -1 )
     {
-	const float val = dps_.z( drid );
+	const float val = dps_->z( drid );
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return dcid == (float) ( -3 ? dps_->coord(drid).x : dps_->coord(drid).y );
 }
 
 
@@ -99,11 +100,11 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     {
 	nrdone_++;
 	DataPointSet::RowID dpsrid = mCast(DataPointSet::RowID,rid);
-	if ( dps_.isInactive(dpsrid) ||
-	     (grp_>0 && dps_.group(dpsrid) != grp_) )
+	if ( dps_->isInactive(dpsrid) ||
+	     (grp_>0 && dps_->group(dpsrid) != grp_) )
 	    continue;
 
-	const bool isselected = dps_.isSelected( dpsrid );
+	const bool isselected = dps_->isSelected( dpsrid );
 	if ( (areatype_==DPSDensityCalcND::Selected && !isselected) ||
 	     (areatype_==DPSDensityCalcND::NonSelected && isselected) )
 	    continue;

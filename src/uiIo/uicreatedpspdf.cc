@@ -51,7 +51,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , restrictedmode_(restricted)
-    , dps_(dps)
+    , dps_(&dps)
 {
     enableSaveButton( tr("View/Edit after creation") );
     createDefaultUI();
@@ -72,15 +72,15 @@ void uiCreateDPSPDF::createDefaultUI()
 
     TypeSet<int> colids;
     BufferStringSet colnames;
-    uiDataPointSet::DColID dcid=-dps_.nrFixedCols()+1;
-    for ( ; dcid<dps_.nrCols(); dcid++ )
+    uiDataPointSet::DColID dcid=-dps_->nrFixedCols()+1;
+    for ( ; dcid<dps_->nrCols(); dcid++ )
     {
 	if ( restrictedmode_ && (dcid<-1 || dcid==0) )
 	    continue;
 	if ( dcid<0 )
 	    colnames.add( dcid==-1 ? "Z" : dcid==-3 ? "X-Coord" : "Y-Coord" );
 	else
-	    colnames.add( dps_.colName(dcid) );
+	    colnames.add( dps_->colName(dcid) );
 	colids += dcid;
     }
 
@@ -129,8 +129,8 @@ void uiCreateDPSPDF::createDefaultUI()
 	uiStrings::phrOutput(uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
-    int nrattribs = dps_.nrCols();
-    if ( StringView(dps_.colName(0)) == sKey::MD() )
+    int nrattribs = dps_->nrCols();
+    if ( StringView(dps_->colName(0)) == sKey::MD() )
 	nrattribs--;
 
     for ( int idx=1; idx<=2; idx++ )
@@ -151,14 +151,14 @@ uiCreateDPSPDF::~uiCreateDPSPDF()
 float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 {
     if ( dcid >= 0 )
-	return dps_.value( dcid, drid );
+	return dps_->value( dcid, drid );
     else if ( dcid == -1 )
     {
-	const float val = dps_.z( drid );
+	const float val = dps_->z( drid );
 	return val*SI().zDomain().userFactor();
     }
 
-    return float( dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return float( dcid == -3 ? dps_->coord(drid).x : dps_->coord(drid).y );
 }
 
 
@@ -184,7 +184,7 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
 
     if ( !isaxisshown )
     {
-	for ( int rid=0; rid<dps_.size(); rid++ )
+	for ( int rid=0; rid<dps_->size(); rid++ )
 	{
 	    DataPointSet::ColID dcolid = varselfld->selColID();
 	    const float val = getVal(dcolid,rid);
@@ -241,8 +241,8 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	const BufferString colnm = probflds_[dimnr]->selColName();
 	prdf->setDimName( dimnr, colnm );
 
-	const DataPointSet::ColID colid = dps_.indexOf( colnm.buf() );
-	const DataColDef& coldef = dps_.colDef( colid );
+	const DataPointSet::ColID colid = dps_->indexOf( colnm.buf() );
+	const DataColDef& coldef = dps_->colDef( colid );
 	if ( coldef.unit_ )
 	    prdf->setUOMSymbol( dimnr, coldef.unit_->getLabel() );
 
@@ -263,7 +263,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
     if ( createfrmfld_ )
 	DPSDensityCalcND::parseEnum( createfrmfld_->text(), areatype );
 
-    DPSDensityCalcND denscalc( dps_, axisparams, pdf.getData(), areatype );
+    DPSDensityCalcND denscalc( *dps_, axisparams, pdf.getData(), areatype );
     if ( plotter_ )
 	denscalc.setGroup( plotter_->curGroup() );
 

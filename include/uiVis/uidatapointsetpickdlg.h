@@ -10,13 +10,13 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uidialog.h"
-#include "emobject.h"
-#include "sets.h"
+
+#include "datapointset.h"
+#include "emposid.h"
 
 class uiTable;
 class uiToolBar;
 class Array2DInterpol;
-class DataPointSet;
 
 namespace Pick { class SetMgr; }
 namespace visSurvey { class PickSetDisplay; }
@@ -28,7 +28,7 @@ public:
     virtual		~uiDataPointSetPickDlg();
 
 protected:
-			uiDataPointSetPickDlg(uiParent*,SceneID sceneid);
+			uiDataPointSetPickDlg(uiParent*,const SceneID&);
 
     void		initPickSet();
     void		updateDPS();
@@ -52,13 +52,13 @@ protected:
     VisID		sceneid_;
     uiTable*		table_;
     uiToolBar*		tb_;
-    DataPointSet&	dps_;
+    RefMan<DataPointSet> dps_;
     TypeSet<float>	values_;
-    visSurvey::PickSetDisplay* psd_;
+    visSurvey::PickSetDisplay* psd_				= nullptr;
     Pick::SetMgr&	picksetmgr_;
     int			pickbutid_;
     int			savebutid_;
-    bool		changed_;
+    bool		changed_				= false;
 };
 
 
@@ -66,21 +66,21 @@ mExpClass(uiVis) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
 {
 mODTextTranslationClass(uiEMDataPointSetPickDlg)
 public:
-			uiEMDataPointSetPickDlg(uiParent*,SceneID sceneid,
-						EM::ObjectID);
+			uiEMDataPointSetPickDlg(uiParent*,const SceneID&,
+						const EM::ObjectID&);
 			~uiEMDataPointSetPickDlg();
 
-    const DataPointSet&	getData() const		{ return emdps_; }
+    const DataPointSet*	getData() const		{ return emdps_; }
     Notifier<uiEMDataPointSetPickDlg> readyForDisplay;
 
 protected:
 
-    DataPointSet&	emdps_;
+    RefMan<DataPointSet> emdps_;
     EM::ObjectID	emid_;
-    Array2DInterpol*	interpol_;
+    Array2DInterpol*	interpol_				= nullptr;
 
     int			addSurfaceData();
-    int			dataidx_;
+    int			dataidx_				= -1;
 
     virtual void	cleanUp();
     void		interpolateCB(CallBacker*);

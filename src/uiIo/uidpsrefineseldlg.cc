@@ -103,10 +103,10 @@ void uiDPSRefineSelDlg::updateDisplay()
     const int nrvars = mathobj_->nrVariables();
     vartable_->setNrRows( nrvars );
 
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    uiDataPointSet::DColID dcid = -dps->nrFixedCols()+1;
     colnms_.setEmpty();
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    for ( ; dcid<dps->nrCols(); dcid++ )
 	colnms_.add( plotter_.uidps().userName(dcid) );
 
 
@@ -141,9 +141,9 @@ bool uiDPSRefineSelDlg::acceptOK( CallBacker* )
     }
 
     TypeSet<int> colids;
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    uiDataPointSet::DColID dcid = -dps->nrFixedCols()+1;
+    for ( ; dcid<dps->nrCols(); dcid++ )
 	colids += dcid;
 
     int nrvars = mathobj_->nrVariables();

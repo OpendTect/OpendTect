@@ -206,7 +206,6 @@ uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
 
 uiIsochronMakerDlg::~uiIsochronMakerDlg()
 {
-    delete dps_;
 }
 
 

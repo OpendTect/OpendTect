@@ -126,7 +126,7 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
 			.arg(toUiString(dps.dataSet().colDef(colid).name_)))
 			,mODHelpKey(mHorAttr2GeomHelpID)) )
     , hor_(hor)
-    , dps_(dps)
+    , dps_(&dps)
     , colid_(colid-dps.nrFixedCols())
     , msfld_(0)
 {
@@ -161,10 +161,10 @@ uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
 		    int colid, float zfac, bool isdel )
     : Executor("Horizon geometry from attribute")
     , hor_(h)
-    , dps_(dps)
+    , dps_(&dps)
     , it_(h.createIterator(0))
-    , stepnr_(0)
     , colid_(colid)
+    , stepnr_(0)
     , isdelta_(isdel)
     , zfac_(zfac)
     , horarray_(0)
@@ -212,7 +212,7 @@ int nextStep() override
 	}
 
 	const BinID bid = pid.getRowCol();
-	DataPointSet::RowID rid = dps_.findFirst( bid );
+	DataPointSet::RowID rid = dps_->findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
 	if ( rid < 0 )
 	{
@@ -221,7 +221,7 @@ int nextStep() override
 	}
 	else
 	{
-	    float newz = dps_.value( colid_, rid );
+	    float newz = dps_->value( colid_, rid );
 	    if ( mIsUdf(newz) && isdelta_ )
 		newz = 0;
 
@@ -257,7 +257,7 @@ void fillHorizonArray()
 }
 
     EM::Horizon3D&		hor_;
-    const DataPointSet&		dps_;
+    ConstRefMan<DataPointSet>	dps_;
     EM::EMObjectIterator*	it_;
     const int			colid_;
     od_int64			stepnr_;
@@ -267,11 +267,15 @@ void fillHorizonArray()
     Array2D<float>*		horarray_;
     TrcKeySampling		hortks_;
     uiString			uimsg_;
-};
+
+}; // class uiHorAttr2GeomExe
 
 
-bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
+bool uiHorAttr2Geom::acceptOK( CallBacker* )
 {
+    if ( !dps_ )
+	return false;
+
     mGetZFac( 0.001f );
     const bool isdelta = isdeltafld_->getBoolValue();
 
@@ -282,8 +286,10 @@ bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
     if ( !savefldgrp_->overwriteHorizon() )
 	mDynamicCast( EM::Horizon3D*, usedhor, savefldgrp_->getNewHorizon() );
 
-    if ( !usedhor ) return false;
-    uiHorAttr2GeomExec exec( *usedhor, dps_, colid_, zfac, isdelta );
+    if ( !usedhor )
+	return false;
+
+    uiHorAttr2GeomExec exec( *usedhor, *dps_, colid_, zfac, isdelta );
     uiTaskRunner taskrunner( this );
     const bool res = TaskRunner::execute( &taskrunner, exec )
 	&& savefldgrp_->saveHorizon();

@@ -40,7 +40,7 @@ public:
 
 protected:
     const uiDataPointSet&		uidps_;
-    const DataPointSet&			dps_;
+    ConstRefMan<DataPointSet>		dps_;
     Array2DImpl<int>*			densitydata_	= nullptr;
     int					maxval_		= 1;
     double				binsizex_;
@@ -64,7 +64,7 @@ DensityCalc::DensityCalc( const uiDataPointSet& uidps,
     , x_(x)
     , y_(y)
 {
-    totalnr_ = dps_.size();
+    totalnr_ = dps_->size();
 
     densitydata_ = new Array2DImpl<int>( nrbins.first(), nrbins.second() );
     densitydata_->setAll( 0 );
@@ -86,7 +86,7 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
     for ( ; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( dps_.isInactive(rid) )
+	if ( dps_->isInactive(rid) )
 	    continue;
 
 	const float xval = uidps_.getValue( x_.colid_, rid, true );

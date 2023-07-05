@@ -7,21 +7,18 @@ ________________________________________________________________________
 
 -*/
 
+#include "array2dinterpol.h"
+#include "arraynd.h"
 #include "attribdesc.h"
 #include "attribdescid.h"
 #include "attribdescset.h"
-#include "attribdescsettr.h"
 #include "attribengman.h"
 #include "attriboutput.h"
 #include "attribprocessor.h"
 #include "attribsel.h"
-#include "attribstorprovider.h"
-
-#include "array2dinterpol.h"
-#include "arraynd.h"
 #include "batchprog.h"
+#include "commandlineparser.h"
 #include "datapointset.h"
-#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonutils.h"
 #include "emmanager.h"
@@ -30,20 +27,13 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "linesetposinfo.h"
-#include "posinfo2d.h"
+#include "moddepmgr.h"
 #include "posprovider.h"
 #include "progressmeter.h"
 #include "seisbuf.h"
-#include "seisioobjinfo.h"
-#include "seisjobexecprov.h"
 #include "seistrc.h"
 #include "seiswrite.h"
-#include "separstr.h"
 #include "survinfo.h"
-#include "survgeom2d.h"
-#include "moddepmgr.h"
-#include "commandlineparser.h"
 
 using namespace Attrib;
 using namespace EM;
@@ -533,7 +523,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		TypeSet<DataPointSet::DataRow> startset;
 		BufferStringSet valnms;
 		valnms.add("z2");
-		DataPointSet* dtps = new DataPointSet( startset, valnms, true );
+		RefMan<DataPointSet> dtps =
+				new DataPointSet( startset, valnms, true );
 
 		linepar->get( sKey::GeomID(), geomid );
 		hsamp.start_.inl() = hsamp.stop_.inl() = 0;
@@ -553,8 +544,6 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 		if ( !process(strm,proc,is2d,attribrefs,outpid,&seisoutp) )
 		    return false;
-
-		delete dtps;
 	    }
 	}
 	else

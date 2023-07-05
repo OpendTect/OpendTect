@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "dpsdispmgr.h"
 #include "visobject.h"
 #include "vissurvobj.h"
+
+#include "datapointset.h"
+#include "dpsdispmgr.h"
 #include "vistransform.h"
 
-class DataPointSet;
 class Executor;
 
 namespace visBase { class PointSet; class Transformation; }

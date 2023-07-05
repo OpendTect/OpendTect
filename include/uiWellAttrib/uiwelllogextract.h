@@ -9,17 +9,20 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
-#include "datapointset.h"
 #include "uigroup.h"
 
-class IOObj;
-class uiListBox;
-class uiGenInput;
-class DataPointSetDisplayMgr;
+#include "datapointset.h"
+
 class BufferStringSet;
+class DataPointSetDisplayMgr;
+class IOObj;
+
 class uiDataPointSet;
+class uiGenInput;
+class uiListBox;
 class uiMultiWellLogSel;
 class uiPosFilterSetSel;
+
 namespace Attrib { class DescSet; }
 
 

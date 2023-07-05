@@ -217,7 +217,7 @@ void PickSetTranslator::createBinIDValueSets(
 
 
 void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
-					     ObjectSet<DataPointSet>& dpss,
+					     RefObjectSet<DataPointSet>& dpss,
 					     bool is2d, bool mini )
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )

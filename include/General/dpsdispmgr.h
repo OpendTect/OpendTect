@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "generalmod.h"
 #include "callback.h"
+
 #include "bufstringset.h"
 #include "color.h"
 #include "coltabsequence.h"

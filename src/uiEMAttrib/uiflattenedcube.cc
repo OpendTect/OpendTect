@@ -9,38 +9,36 @@ ________________________________________________________________________
 
 #include "uiflattenedcube.h"
 
-#include "emmanager.h"
-#include "emhorizon3d.h"
-#include "emsurfaceposprov.h"
-#include "seistrctr.h"
-#include "seistrc.h"
-#include "seisread.h"
-#include "seiswrite.h"
-#include "seisselectionimpl.h"
-#include "survinfo.h"
-#include "executor.h"
 #include "datapointset.h"
-
-#include "uiseissel.h"
-#include "uigeninput.h"
-#include "uitaskrunner.h"
-#include "uilabel.h"
-#include "uimsg.h"
+#include "emmanager.h"
+#include "emsurfaceposprov.h"
+#include "executor.h"
 #include "mousecursor.h"
 #include "od_helpids.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
+#include "seistrc.h"
+#include "seiswrite.h"
+#include "survinfo.h"
+
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiseissel.h"
+#include "uitaskrunner.h"
 
 #include <math.h>
 
 
 uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
-	: uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
-			   .arg(uiStrings::sSeismic().toLower())),
-			   uiStrings::phrCreate(tr("Seismic flattened on '%2'")
-			   .arg(mToUiStringTodo(getHorNm(horid))))
-			  , mODHelpKey(mFlattenedCubeHelpID) ))
-	, hormid_(EM::EMM().getMultiID(horid))
-	, pp_(*new Pos::EMSurfaceProvider3D)
-	, seisselin_(0)
+    : uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
+		       .arg(uiStrings::sSeismic().toLower())),
+		       uiStrings::phrCreate(tr("Seismic flattened on '%2'")
+		       .arg(mToUiStringTodo(getHorNm(horid))))
+		      , mODHelpKey(mFlattenedCubeHelpID) ))
+    , seisselin_(0)
+    , hormid_(EM::EMM().getMultiID(horid))
+    , pp_(*new Pos::EMSurfaceProvider3D)
 {
     IOPar iop;
     iop.set( IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider::id1Key()),
@@ -117,11 +115,11 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
     , rdr_(rdr)
     , wrr_(wrr)
     , pp_(pp)
-    , msg_(tr("Creating cube"))
+    , zval_(zval)
+    , horzrg_(hz)
     , nrdone_(0)
     , totnr_(mCast(int,pp.estNrPos()))
-    , horzrg_(hz)
-    , zval_(zval)
+    , msg_(tr("Creating cube"))
 {
 }
 
@@ -187,13 +185,13 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
     uiTaskRunner taskrunner( this );
-    DataPointSet dps( pp_.is2D(), true );
-    if ( !dps.extractPositions(pp_,ObjectSet<DataColDef>(),0,&taskrunner) )
+    RefMan<DataPointSet> dps = new DataPointSet( pp_.is2D(), true );
+    if ( !dps->extractPositions(pp_,ObjectSet<DataColDef>(),0,&taskrunner) )
 	return false;
 
     const float zwdth = SI().zRange(false).width();
     const Interval<float> maxzrg( -zwdth, zwdth );
-    auto* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
+    auto* tsd = new Seis::TableSelData( dps->bivSet(), &maxzrg );
     SeisTrcReader rdr( inioobj );
     rdr.setSelData( tsd );
     SeisTrcWriter wrr( outioobj );

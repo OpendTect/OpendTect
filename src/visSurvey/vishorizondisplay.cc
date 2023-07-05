@@ -919,35 +919,37 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
-    DataPointSet positions( pts, defs, false, true );
+    RefMan<DataPointSet> positions = new DataPointSet( pts, defs, false, true );
 
     const DataColDef siddef( sKeySectionID() );
-    if ( positions.dataSet().findColDef(siddef,PosVecDataSet::NameExact)==-1 )
-	positions.dataSet().add( new DataColDef(siddef) );
+    int col = positions->dataSet().findColDef( siddef,PosVecDataSet::NameExact);
+    if ( col==-1 )
+	positions->dataSet().add( new DataColDef(siddef) );
 
     const DataColDef zvalsdef( sKeyZValues() );
-    if ( positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact)==-1 )
-	positions.dataSet().add( new DataColDef(zvalsdef) );
+    col = positions->dataSet().findColDef( zvalsdef, PosVecDataSet::NameExact );
+    if ( col==-1 )
+	positions->dataSet().add( new DataColDef(zvalsdef) );
 
-    getRandomPos( positions, 0 );
+    getRandomPos( *positions, 0 );
 
-    if ( !positions.size() ) return;
+    if ( !positions->size() ) return;
 
-    BinIDValueSet& bivs = positions.bivSet();
+    BinIDValueSet& bivs = positions->bivSet();
     if ( bivs.nrVals()!=3 )
     {
 	pErrMsg( "Hmm" );
 	return;
     }
 
-    int zcol= positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact);
-    if ( zcol==-1 )
-	zcol = 2;
+    col = positions->dataSet().findColDef( zvalsdef, PosVecDataSet::NameExact );
+    if ( col==-1 )
+	col = 2;
 
-    ZValSetter zvalssetter( bivs, zcol, zaxistransform_ );
+    ZValSetter zvalssetter( bivs, col, zaxistransform_ );
     zvalssetter.execute();
 
-    setRandomPosData( channel, &positions, 0 );
+    setRandomPosData( channel, positions, 0 );
 }
 
 
@@ -1467,19 +1469,19 @@ void HorizonDisplay::updateAuxData()
 	const int cidx = getChannelIndex( auxdatanm );
 	if ( cidx==-1 ) continue;
 
-	DataPointSet dps( false, true );
-	dps.dataSet().add( new DataColDef(sKeySectionID()) );
-	dps.dataSet().add( new DataColDef(auxdatanm) );
+	RefMan<DataPointSet> dps = new DataPointSet( false, true );
+	dps->dataSet().add( new DataColDef(sKeySectionID()) );
+	dps->dataSet().add( new DataColDef(auxdatanm) );
 
 	BinIDValueSet::SPos pos;
 	while ( auxdata[0]->next(pos) )
 	{
 	    auxvals[2] = auxdata[0]->getVal( pos, idx );
-	    dps.bivSet().add( auxdata[0]->getIdxPair(pos), auxvals );
+	    dps->bivSet().add( auxdata[0]->getIdxPair(pos), auxvals );
 	}
 
-	dps.dataChanged();
-	setRandomPosData( cidx, &dps, 0 );
+	dps->dataChanged();
+	setRandomPosData( cidx, dps, 0 );
 	selectTexture( cidx, 0 );
     }
 }

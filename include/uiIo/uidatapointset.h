@@ -14,18 +14,19 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "iopar.h"
 
-class uiTable;
-class uiSpinBox;
-class uiCheckBox;
-class uiToolBar;
-class uiIOObjSelDlg;
-class uiStatsDisplayWin;
-class uiDataPointSetCrossPlotWin;
-class uiDPSDispPropDlg;
-class uiVariogramDisplay;
-
 class DataPointSetDisplayMgr;
 class DataPointSetDisplayProp;
+
+class uiCheckBox;
+class uiDPSDispPropDlg;
+class uiDataPointSetCrossPlotWin;
+class uiIOObjSelDlg;
+class uiSpinBox;
+class uiStatsDisplayWin;
+class uiTable;
+class uiToolBar;
+class uiVariogramDisplay;
+
 namespace Stats { template <class T> class RunCalc; }
 
 /*!\brief Edit DataPointSet.
@@ -67,8 +68,8 @@ public:
 					      DataPointSetDisplayMgr* mgr=0);
 				~uiDataPointSet();
 
-    DataPointSet&		pointSet()	{ return dps_; }
-    const DataPointSet&		pointSet() const { return dps_; }
+    RefMan<DataPointSet>	pointSet()	{ return dps_; }
+    ConstRefMan<DataPointSet>	pointSet() const { return dps_; }
 
     bool			is2D() const;
     int				size() const	{ return drowids_.size(); }
@@ -125,7 +126,7 @@ public:
     void			reDoTable();
     bool			posDispTypeChgd()   { return posdisptypechgd_; }
 
-    int			getSelectionGroupIdx(int selaareaid) const;
+    int				getSelectionGroupIdx(int selaareaid) const;
 
     const DataPointSetDisplayMgr* displayMgr() const	{ return dpsdispmgr_; }
     void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )
@@ -140,7 +141,7 @@ public:
 
 protected:
 
-    DataPointSet&		dps_;
+    RefMan<DataPointSet>	dps_;
     Setup			setup_;
     float			zfac_;
     uiString			zunitnm_;
@@ -163,26 +164,26 @@ protected:
     mutable ObjectSet<Stats::RunCalc<float> > runcalcs_;
     DataPointSet::DataRow	beforechgdr_;
     DataPointSet::DataRow	afterchgdr_;
-    bool			unsavedchgs_;
-    bool			fillingtable_;
-    bool			showbids_;
-    bool			posdisptypechgd_;
+    bool			unsavedchgs_			= false;
+    bool			fillingtable_			= true;
+    bool			showbids_			= false;
+    bool			posdisptypechgd_		= false;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
     static const char*		sKeyMinDPPts()
 				{ return "Minimum pts for Density Plot"; }
-    uiTable*			tbl_;
-    uiToolBar*			iotb_;
-    uiToolBar*			disptb_;
-    uiToolBar*			maniptb_;
-    uiSpinBox*			percfld_;
+    uiTable*			tbl_				= nullptr;
+    uiToolBar*			iotb_				= nullptr;
+    uiToolBar*			disptb_				= nullptr;
+    uiToolBar*			maniptb_			= nullptr;
+    uiSpinBox*			percfld_			= nullptr;
     uiCheckBox*			showbidsfld_;
     int				xplottbid_;
     int				dispxytbid_;
     int				dispztbid_;
-    uiIOObjSelDlg*		curseldlg_;
-    uiDPSDispPropDlg*		dpsdisppropdlg_;
+    uiIOObjSelDlg*		curseldlg_			= nullptr;
+    uiDPSDispPropDlg*		dpsdisppropdlg_			= nullptr;
 
     void			mkToolBars();
 
@@ -229,7 +230,7 @@ protected:
     void			addColumn(CallBacker*);
     void			removeColumn(CallBacker*);
     void			compVertVariogram(CallBacker*);
-    void                        chgPosDispType(CallBacker*);
+    void			chgPosDispType(CallBacker*);
 
     bool			acceptOK(CallBacker*) override;
     bool			rejectOK(CallBacker*) override;
@@ -237,13 +238,13 @@ protected:
     void			applClosingCB(CallBacker*);
 
     friend class		uiDataPointSetCrossPlotter;
-    uiDataPointSetCrossPlotWin*	xplotwin_;
+    uiDataPointSetCrossPlotWin*	xplotwin_			= nullptr;
     void			xplotSelChg(CallBacker*);
     void			xplotRemReq(CallBacker*);
     void			xplotClose(CallBacker*);
     void			getXplotPos(DColID&,DRowID&) const;
 
-    uiStatsDisplayWin*		statswin_;
+    uiStatsDisplayWin*		statswin_			= nullptr;
     void			statsClose(CallBacker*);
     void			showStats(DColID);
 
@@ -252,7 +253,7 @@ protected:
     void			setStatsMarker(DRowID);
     void			handleGroupChg(DRowID);
 
-    ObjectSet<uiVariogramDisplay>       variodlgs_;
+    ObjectSet<uiVariogramDisplay>	variodlgs_;
 
 private:
 

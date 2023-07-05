@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uidatapointsetpickdlg.h"
 
 #include "uiarray2dinterpol.h"
+#include "uidatapointsetman.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -20,11 +21,10 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "vispicksetdisplay.h"
 #include "visselman.h"
-#include "uidatapointsetman.h"
 
-#include "arrayndimpl.h"
 #include "array2dinterpol.h"
 #include "arrayndalgo.h"
+#include "arrayndimpl.h"
 #include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
 #include "datacoldef.h"
@@ -32,20 +32,18 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
-#include "keystrs.h"
 #include "pickset.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 
 
-uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, SceneID sceneid )
+uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p,
+					      const SceneID& sceneid )
     : uiDialog(p,Setup(tr("DataPointSet picking"),mNoDlgTitle,
 			mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
-    , dps_(*new DataPointSet(false,false))
+    , dps_(new DataPointSet(false,false))
     , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))
-    , psd_(0)
-    , changed_(false)
 {
     setCtrlStyle( CloseOnly );
 
@@ -69,7 +67,7 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, SceneID sceneid )
     table_->valueChanged.notify( mCB(this,uiDataPointSetPickDlg,valChgCB) );
     table_->rowClicked.notify( mCB(this,uiDataPointSetPickDlg,rowClickCB) );
 
-    dps_.dataSet().add( new DataColDef("Value") );
+    dps_->dataSet().add( new DataColDef("Value") );
     initPickSet();
     updateButtons();
 
@@ -102,7 +100,7 @@ void uiDataPointSetPickDlg::objSelCB( CallBacker* )
 void uiDataPointSetPickDlg::cleanUp()
 {
     table_->clearTable();
-    delete &dps_;
+    dps_ = nullptr;
 
     visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -182,16 +180,17 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
 
     values_.erase();
     pickset->setEmpty();
-    DataPointSet newdps( pvds, false );
-    for ( int idx=0; idx<newdps.size(); idx++ )
+    RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
+    for ( int idx=0; idx<newdps->size(); idx++ )
     {
-	const DataPointSet::Pos pos( newdps.pos(idx) );
+	const DataPointSet::Pos pos( newdps->pos(idx) );
 	Pick::Location loc( pos.coord(), pos.z() );
 	pickset->add( loc );
-	values_ += newdps.value(0,idx);
+	values_ += newdps->value(0,idx);
     }
 
-    if ( psd_ ) psd_->redrawAll();
+    if ( psd_ )
+	psd_->redrawAll();
 
     updateDPS();
     updateTable();
@@ -222,7 +221,7 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
 
     PosVecDataSet pvds;
     uiString errmsg;
-    const bool rv = dps_.dataSet().putTo( ioobj->fullUserExpr(true),
+    const bool rv = dps_->dataSet().putTo( ioobj->fullUserExpr(true),
 					  errmsg, false );
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
@@ -240,13 +239,13 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
 
     const int row = table_->notifiedCell().row();
     const float val = table_->getFValue(RowCol(row,5) );
-    dps_.setValue( 0, row, val );
-    dps_.dataChanged();
+    dps_->setValue( 0, row, val );
+    dps_->dataChanged();
 
     Pick::Set* set = psd_ ? psd_->getSet() : 0;
     if ( !set ) return;
 
-    const DataPointSet::Pos pos( dps_.pos(row) );
+    const DataPointSet::Pos pos( dps_->pos(row) );
     const Coord3 dpscrd( pos.coord(), pos.z() );
     double mindist = mUdf( double );
     int locidx = -1;
@@ -268,7 +267,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
 void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 {
 //    mCBCapsuleUnpack(int,row,cb);
-//    const DataPointSet::Pos pos( dps_.pos(row) );
+//    const DataPointSet::Pos pos( dps_->pos(row) );
 //    TODO: Highlight this pick in 3D scene
 }
 
@@ -316,11 +315,11 @@ void uiDataPointSetPickDlg::updateButtons()
 
 void uiDataPointSetPickDlg::updateDPS()
 {
-    dps_.clearData();
+    dps_->clearData();
     const Pick::Set* set = psd_ ? psd_->getSet() : 0;
     if ( !set )
     {
-	dps_.dataChanged();
+	dps_->dataChanged();
 	return;
     }
 
@@ -330,10 +329,10 @@ void uiDataPointSetPickDlg::updateDPS()
 	pos.set( set->getPos(idx) );
 	DataPointSet::DataRow row( pos );
 	row.data_ += values_[idx];
-	dps_.addRow( row );
+	dps_->addRow( row );
     }
 
-    dps_.dataChanged();
+    dps_->dataChanged();
 }
 
 
@@ -341,18 +340,18 @@ void uiDataPointSetPickDlg::updateTable()
 {
     NotifyStopper ns( table_->valueChanged );
     table_->clearTable();
-    if ( table_->nrRows() < dps_.size() )
-	table_->setNrRows( dps_.size() );
+    if ( table_->nrRows() < dps_->size() )
+	table_->setNrRows( dps_->size() );
 
-    for ( int idx=0; idx<dps_.size(); idx++ )
+    for ( int idx=0; idx<dps_->size(); idx++ )
     {
-	const DataPointSet::Pos pos( dps_.pos(idx) );
+	const DataPointSet::Pos pos( dps_->pos(idx) );
 	table_->setValue( RowCol(idx,0), pos.lineNr() );
 	table_->setValue( RowCol(idx,1), pos.trcNr() );
 	table_->setValue( RowCol(idx,2), pos.coord().x );
 	table_->setValue( RowCol(idx,3), pos.coord().y );
 	table_->setValue( RowCol(idx,4), pos.z() );
-	table_->setValue( RowCol(idx,5), dps_.value(0,idx) );
+	table_->setValue( RowCol(idx,5), dps_->value(0,idx) );
     }
 }
 
@@ -365,14 +364,13 @@ bool uiDataPointSetPickDlg::acceptOK( CallBacker* )
 
 
 // uiEMDataPointSetPickDlg
-uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, SceneID sceneid,
-						  EM::ObjectID emid )
+uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
+						  const SceneID& sceneid,
+						  const EM::ObjectID& emid )
     : uiDataPointSetPickDlg(p,sceneid)
-    , emid_(emid)
-    , emdps_(*new DataPointSet(false,true))
     , readyForDisplay(this)
-    , interpol_(0)
-    , dataidx_(-1)
+    , emdps_(new DataPointSet(false,true))
+    , emid_(emid)
 {
     setCaption( toUiString("Surface data picking") );
 
@@ -386,8 +384,8 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, SceneID sceneid,
 				mCB(this,uiEMDataPointSetPickDlg,settCB) );
     settbut->attach( rightOf, interpolbut );
 
-    emdps_.dataSet().add( new DataColDef("Section ID") );
-    emdps_.dataSet().add( new DataColDef("AuxData") );
+    emdps_->dataSet().add( new DataColDef("Section ID") );
+    emdps_->dataSet().add( new DataColDef("AuxData") );
 
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -413,7 +411,7 @@ void uiEMDataPointSetPickDlg::cleanUp()
 
 int uiEMDataPointSetPickDlg::addSurfaceData()
 {
-    emdps_.clearData();
+    emdps_->clearData();
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 
@@ -430,10 +428,10 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 	auxvals[0] = (float) hor3d->getPos( pid ).z;
 	auxvals[2] = mUdf( float );
 	BinID bid = BinID::fromInt64( pid.subID() );
-	emdps_.bivSet().add( bid, auxvals );
+	emdps_->bivSet().add( bid, auxvals );
     }
 
-    emdps_.dataChanged();
+    emdps_->dataChanged();
     return 1;
 }
 
@@ -450,12 +448,12 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
     int nrcrl = tks_.nrCrl();
     Array2DImpl<float> arr( nrinl, nrcrl );
     arr.setAll( mUdf(float) );
-    for ( int idx=0; idx<dps_.size(); idx++ )
+    for ( int idx=0; idx<dps_->size(); idx++ )
     {
-	DataPointSet::Pos pos = dps_.pos( idx );
+	DataPointSet::Pos pos = dps_->pos( idx );
 	const int inlidx = tks_.inlIdx( pos.lineNr() );
 	const int crlidx = tks_.crlIdx( pos.trcNr() );
-	const float* vals = dps_.getValues( idx );
+	const float* vals = dps_->getValues( idx );
 	arr.set( inlidx, crlidx, vals[0] );
     }
 
@@ -466,7 +464,7 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
     if ( !uitr.execute(*interpol_) )
 	return;
 
-    BinIDValueSet& bivs = emdps_.bivSet();
+    BinIDValueSet& bivs = emdps_->bivSet();
     BIDValSetArrAdapter adapter( bivs, 2, tks_.step_ );
     Array2DCopier<float> copier( arr, tks_, tks_, adapter );
     copier.executeParallel( true );

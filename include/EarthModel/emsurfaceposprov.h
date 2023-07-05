@@ -11,15 +11,15 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "posprovider.h"
 
-#include "emposid.h"
-#include "trckeysampling.h"
-#include "multiid.h"
+#include "datapointset.h"
 #include "embody.h"
+#include "emposid.h"
 #include "keystrs.h"
+#include "multiid.h"
 #include "sortedlist.h"
+#include "trckeysampling.h"
 #include <tuple>
 
-class DataPointSet;
 
 namespace EM { class RowColIterator; class Region3D; class Surface; }
 namespace Stats { class RandGen; }
@@ -230,15 +230,11 @@ public:
     Coord		curCoord() const override
 				{ return Provider3D::curCoord(); }
 
-    const DataPointSet& dataPointSet( bool nr1 ) const
-				{ return nr1 ? dpssurf1_ : dpssurf2_; }
-
     mEMSurfaceProviderDefFnsBase
 
 protected:
-
-    DataPointSet&		dpssurf1_;
-    DataPointSet&		dpssurf2_;
+    RefMan<DataPointSet>	dpssurf1_;
+    RefMan<DataPointSet>	dpssurf2_;
 
     void			mkDPS(const EM::Surface&,DataPointSet&);
 

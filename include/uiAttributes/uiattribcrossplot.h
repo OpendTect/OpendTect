@@ -9,17 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "bufstringset.h"
-
-
 #include "uidialog.h"
 
-class DataPointSet;
+#include "bufstringset.h"
+#include "datapointset.h"
+
 class DataPointSetDisplayMgr;
 class uiDataPointSet;
-class uiPosProvider;
-class uiPosFilterSetSel;
 class uiListBox;
+class uiPosFilterSetSel;
+class uiPosProvider;
 namespace Attrib { class DescSet; class SelInfo; }
 
 
@@ -27,7 +26,7 @@ mExpClass(uiAttributes) uiAttribCrossPlot : public uiDialog
 { mODTextTranslationClass(uiAttribCrossPlot);
 public:
 					uiAttribCrossPlot(uiParent*,
-						  const Attrib::DescSet&);
+						const Attrib::DescSet&);
 					~uiAttribCrossPlot();
 
     void				setDescSet(const Attrib::DescSet&);
@@ -35,12 +34,12 @@ public:
 					    DataPointSetDisplayMgr* dispmgr )
 					{ dpsdispmgr_ = dispmgr; }
 
-    const DataPointSet&			getDPS() const;
+    ConstRefMan<DataPointSet>		getDPS() const;
 
 protected:
 
     const Attrib::DescSet& 		ads_;
-    Attrib::SelInfo*			attrinfo_;
+    Attrib::SelInfo*			attrinfo_		= nullptr;
     TypeSet<int>			selidxs_;
     TypeSet<MultiID>			selids_;
     TypeSet<BufferStringSet>		linenmsset_;
@@ -48,9 +47,9 @@ protected:
     uiListBox*				attrsfld_;
     uiPosProvider*			posprovfld_;
     uiPosFilterSetSel*			posfiltfld_;
-    uiListBox*				lnmfld_;
-    DataPointSet*			curdps_;
-    DataPointSetDisplayMgr*		dpsdispmgr_;
+    uiListBox*				lnmfld_			= nullptr;
+    RefMan<DataPointSet>		curdps_;
+    DataPointSetDisplayMgr*		dpsdispmgr_		= nullptr;
     ObjectSet<uiDataPointSet>		dpsset_;
 
     void				adsChg();

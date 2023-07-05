@@ -11,15 +11,16 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 
+#include "datapointset.h"
+
 class ArrayNDProbDenFunc;
 class BufferStringSet;
-class DataPointSet;
 class ProbDenFunc;
 
 class uiComboBox;
+class uiDataPointSetCrossPlotter;
 class uiGenInput;
 class uiIOObjSel;
-class uiDataPointSetCrossPlotter;
 class uiPrDenFunVarSel;
 
 /*!
@@ -52,7 +53,7 @@ protected:
     uiComboBox*			createoffld_;
     uiGenInput*			nrbinfld_;
     const uiDataPointSetCrossPlotter* plotter_ = nullptr;
-    const DataPointSet&		dps_;
+    ConstRefMan<DataPointSet>	dps_;
 
     void			createDefaultUI();
     bool			createPDF();

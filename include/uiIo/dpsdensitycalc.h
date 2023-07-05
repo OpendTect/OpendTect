@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "datapointset.h"
-#include "ranges.h"
 #include "enums.h"
+#include "ranges.h"
 
 mClass(uiIo) DPSDensityCalcND : public ParallelTask
 { mODTextTranslationClass(DPSDensityCalcND);
@@ -46,7 +46,7 @@ public:
 				       od_int64 stop,int) override;
 
 protected:
-    const DataPointSet&			dps_;
+    ConstRefMan<DataPointSet>		dps_;
     ArrayND<float>&			freqdata_;
     ObjectSet<AxisParam>		axisdatas_;
     int					nrdims_;

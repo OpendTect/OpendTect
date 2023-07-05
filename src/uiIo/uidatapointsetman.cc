@@ -9,21 +9,21 @@ ________________________________________________________________________
 
 #include "uidatapointsetman.h"
 
-#include "uidatapointsetmerger.h"
-#include "uilistbox.h"
-#include "uitextedit.h"
-#include "uiioobjselgrp.h"
-#include "uiioobjseldlg.h"
-#include "uiioobjmanip.h"
-#include "uimsg.h"
-#include "uistrings.h"
-
 #include "bufstring.h"
 #include "datapointset.h"
+#include "od_helpids.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "ptrman.h"
-#include "od_helpids.h"
+
+#include "uidatapointsetmerger.h"
+#include "uiioobjmanip.h"
+#include "uiioobjseldlg.h"
+#include "uiioobjselgrp.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uistrings.h"
+#include "uitextedit.h"
 
 static const int cPrefWidth = 75;
 
@@ -57,7 +57,7 @@ uiDataPointSetMan::~uiDataPointSetMan()
 
 #define mGetDPS(dps) \
     PosVecDataSet pvds; \
-    DataPointSet* dps = 0; \
+    RefMan<DataPointSet> dps = 0; \
     mDynamicCast(PosVecDataSetTranslator*, \
 		 PtrMan<PosVecDataSetTranslator> pvdstr, \
 		 curioobj_ ? curioobj_->createTranslator() : 0); \
@@ -72,7 +72,8 @@ uiDataPointSetMan::~uiDataPointSetMan()
 void uiDataPointSetMan::mergePush( CallBacker* )
 {
     mGetDPS(dps);
-    if ( !dps ) return;
+    if ( !dps )
+	return;
 
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
@@ -92,11 +93,18 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     BufferString errmsg;
     bool rv = spvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     if ( !rv )
-    { uiMSG().error( mToUiStringTodo(errmsg) ); return; }
-    if ( spvds.data().isEmpty() )
-    { uiMSG().error(sSelDataSetEmpty()); return; }
+    {
+	uiMSG().error( mToUiStringTodo(errmsg) );
+	return;
+    }
 
-    DataPointSet* sdps =
+    if ( spvds.data().isEmpty() )
+    {
+	uiMSG().error(sSelDataSetEmpty());
+	return;
+    }
+
+    RefMan<DataPointSet> sdps =
 	new DataPointSet( spvds, dps->is2D(), dps->isMinimal() );
     sdps->setName( seldlg.ioObj()->name() );
 
@@ -109,13 +117,18 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
 void uiDataPointSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ )
+    {
+	setInfo( "" );
+	return;
+    }
 
     BufferString txt;
     txt += getFileInfo();
 
     mGetDPS(dps);
-    if ( !dps ) return;
+    if ( !dps )
+	return;
 
     txt += "\nProperties: \n";
     for ( int colnr=0; colnr<dps->nrCols(); colnr++ )
@@ -129,6 +142,5 @@ void uiDataPointSetMan::mkFileInfo()
 	txt += "\n";
     }
 
-    delete dps;
     setInfo( txt );
 }

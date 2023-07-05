@@ -11,9 +11,8 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "transl.h"
 
-class Executor;
-class DataPointSet;
 class BufferStringSet;
+class Executor;
 class WellDataIOProvider;
 
 namespace Well { class Data; }

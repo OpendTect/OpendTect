@@ -857,10 +857,10 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	DataPointSet vals( false, true );
-	vals.bivSet().setNrVals( 3 );
-	visserv->getRandomPosCache( visid, attribnr, vals );
-	if ( vals.size() )
+	RefMan<DataPointSet> vals = new DataPointSet( false, true );
+	vals->bivSet().setNrVals( 3 );
+	visserv->getRandomPosCache( visid, attribnr, *vals );
+	if ( vals->size() )
 	{
 	    BufferString auxdatanm;
 	    const bool saved =
@@ -898,9 +898,9 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	TypeSet<float> shifts;
-	DataPointSet vals( false, true );
-	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	setDataPointSet( vals );
+	RefMan<DataPointSet> vals = new DataPointSet( false, true );
+	applMgr()->EMServer()->getAllAuxData( emid_, *vals, &shifts );
+	setDataPointSet( *vals );
 
 	//mDynamicCastGet( visSurvey::FaultDisplay*, visflt,
 	//	visserv->getObject(visid) );

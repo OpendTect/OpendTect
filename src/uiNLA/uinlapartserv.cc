@@ -10,35 +10,31 @@ ________________________________________________________________________
 #include "uinlapartserv.h"
 
 #include "binidvalset.h"
-#include "ctxtioobj.h"
 #include "datacoldef.h"
+#include "datapointset.h"
 #include "debug.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "nlacrdesc.h"
 #include "nladataprep.h"
+#include "nlamodel.h"
 #include "od_helpids.h"
 #include "picksettr.h"
 #include "posvecdataset.h"
-#include "posvecdatasettr.h"
-#include "datapointset.h"
 #include "ptrman.h"
-#include "seisioobjinfo.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "varlenarray.h"
 #include "wellextractdata.h"
 
 #include "uicombobox.h"
-#include "uihistogramdisplay.h"
-#include "uistatsdisplay.h"
-#include "uitaskrunner.h"
-#include "uigeninput.h"
 #include "uidatapointset.h"
+#include "uigeninput.h"
+#include "uihistogramdisplay.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uistatsdisplay.h"
 #include "uistrings.h"
+#include "uitaskrunner.h"
 
 #include <iostream>
 
@@ -81,13 +77,25 @@ bool uiNLAPartServer::willDoExtraction() const
 }
 
 
+const char* uiNLAPartServer::modelName() const
+{
+    return getModel().name();
+}
+
+
+IOPar& uiNLAPartServer::modelPars() const
+{
+    return const_cast<NLAModel&>(getModel()).pars();
+}
+
+
 const BufferStringSet& uiNLAPartServer::modelInputs() const
 {
     return getModel().design().inputs_;
 }
 
 
-void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
+void uiNLAPartServer::getDataPointSets( RefObjectSet<DataPointSet>& dpss ) const
 {
     const NLACreationDesc& crdesc = creationDesc();
 
@@ -104,7 +112,8 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	ts->usePar( crdesc.pars );
 	uiTaskRunner uiex( appserv().parent() );
 	if ( !TaskRunner::execute(&uiex,*ts) )
-	    deepErase( dpss );
+	    dpss.erase();
+
 	delete ts;
     }
 
@@ -252,7 +261,7 @@ bool acceptOK( CallBacker* ) override
 };
 
 
-bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
+bool uiNLAPartServer::extractDirectData( RefObjectSet<DataPointSet>& dpss )
 {
     const NLACreationDesc& crdesc = creationDesc();
     if ( dpss.size() != crdesc.outids.size() )
@@ -363,7 +372,7 @@ bool acceptOK( CallBacker* ) override
 
 
 const uiString uiNLAPartServer::convertToClasses(
-					const ObjectSet<DataPointSet>& dpss,
+					const RefObjectSet<DataPointSet>& dpss,
 					const int firstgooddps )
 {
     const int valnr = dpss[firstgooddps]->dataSet().data().nrVals() - 1;
@@ -537,7 +546,7 @@ RefMan<DataPointSet> uiNLAPartServer::gtDps() const
 }
 
 
-uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
+uiString uiNLAPartServer::prepareInputData( RefObjectSet<DataPointSet>& dpss )
 {
     const NLACreationDesc& crdesc = creationDesc();
 

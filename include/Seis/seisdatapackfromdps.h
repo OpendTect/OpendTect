@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "seismod.h"
 
+#include "datapointset.h"
 #include "paralleltask.h"
 
 class BufferStringSet;
-class DataPointSet;
 class RegularSeisDataPack;
 
 /*!
@@ -38,7 +38,7 @@ protected:
 
     TypeSet<int>		selcols_;
     TypeSet<int>		selcomps_;
-    const DataPointSet&		dps_;
-    RegularSeisDataPack&		dp_;
+    ConstRefMan<DataPointSet>	dps_;
+    RegularSeisDataPack&	dp_;
 
 };

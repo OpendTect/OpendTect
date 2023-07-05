@@ -25,12 +25,12 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 {
     setCtrlStyle( CloseOnly );
 
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    uiDataPointSet::DColID dcid = -dps->nrFixedCols()+1;
     colids_ += mUdf(int);
     BufferStringSet colnames;
     colnames.add( "None" );
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    for ( ; dcid<dps->nrCols(); dcid++ )
     {
 	colids_ += dcid;
 	colnames.add( userName(dcid) );
@@ -102,7 +102,7 @@ uiDPSOverlayPropDlg::~uiDPSOverlayPropDlg()
 const char* uiDPSOverlayPropDlg::userName( int did ) const
 {
     if ( did >= 0 )
-	return plotter_.dps().colName( did );
+	return plotter_.dps()->colName( did );
     else if ( did == -1 )
 	return "Z";
     else

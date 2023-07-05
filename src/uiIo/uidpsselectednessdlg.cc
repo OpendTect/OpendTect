@@ -86,15 +86,15 @@ void uiDPSSelectednessDlg::show3DSceneClicked( CallBacker* )
 
 void uiDPSSelectednessDlg::addColumn()
 {
-    DataPointSet& dps = plotter_.dps();
-    dps.dataSet().add( new DataColDef(nmfld_->text()) );
-    for ( uiDataPointSet::DRowID rid=0; rid<dps.size(); rid++ )
+    RefMan<DataPointSet> dps = plotter_.dps();
+    dps->dataSet().add( new DataColDef(nmfld_->text()) );
+    for ( uiDataPointSet::DRowID rid=0; rid<dps->size(); rid++ )
     {
 	const bool isy1 = selaxisfld_ && selaxisfld_->attachObj()->isDisplayed()
 	    			? selaxisfld_->getBoolValue() : true;
 	const float val = plotter_.getSelectedness( rid, !isy1 );
-	BinIDValueSet& bvs = dps.bivSet();
-	BinIDValueSet::SPos pos = dps.bvsPos( rid );
+	BinIDValueSet& bvs = dps->bivSet();
+	BinIDValueSet::SPos pos = dps->bvsPos( rid );
 	BinID curbid;
 	TypeSet<float> vals;
 	bvs.get( pos, curbid, vals );
@@ -102,7 +102,7 @@ void uiDPSSelectednessDlg::addColumn()
 	bvs.set( pos, vals );
     }
 
-    dps.dataChanged();
+    dps->dataChanged();
     plotter_.uidps().reDoTable();
 }
 
@@ -111,11 +111,11 @@ void uiDPSSelectednessDlg::showOverlayAttrib()
 {
     if ( !showoverlayfld_->isChecked() ) return;
 
-    const DataPointSet& dps = plotter_.dps();
-    const int dpscolid = dps.indexOf( nmfld_->text() );
-    const int bvscolid = dps.bivSetIdx( dpscolid );
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    const int dpscolid = dps->indexOf( nmfld_->text() );
+    const int bvscolid = dps->bivSetIdx( dpscolid );
     ColTab::MapperSetup mapsu;
-    mapsu.range_ = dps.bivSet().valRange( bvscolid );
+    mapsu.range_ = dps->bivSet().valRange( bvscolid );
     
     if ( selaxisfld_ && !selaxisfld_->getBoolValue() )
     {
@@ -141,11 +141,11 @@ void uiDPSSelectednessDlg::showIn3DScene()
 {
     if ( !showin3dscenefld_->isChecked() ) return;
 
-    const DataPointSet& dps = plotter_.dps();
-    const int dpscolid = dps.indexOf( nmfld_->text() );
-    const int bvscolid = dps.bivSetIdx( dpscolid );
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    const int dpscolid = dps->indexOf( nmfld_->text() );
+    const int bvscolid = dps->bivSetIdx( dpscolid );
     ColTab::MapperSetup mapsu;
-    mapsu.range_ = dps.bivSet().valRange( bvscolid );
+    mapsu.range_ = dps->bivSet().valRange( bvscolid );
     
     DataPointSetDisplayProp* dispprop =
 	new DataPointSetDisplayProp( coltabfld_->colTabSeq(), mapsu, dpscolid );
@@ -155,10 +155,10 @@ void uiDPSSelectednessDlg::showIn3DScene()
 
 bool uiDPSSelectednessDlg::acceptOK( CallBacker* )
 {
-    DataPointSet& dps = plotter_.dps();
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
     BufferStringSet colnms;
-    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
-	colnms.add( dps.colName(colidx) );
+    for ( int colidx=0; colidx<dps->nrCols(); colidx++ )
+	colnms.add( dps->colName(colidx) );
 
     if ( colnms.isPresent(nmfld_->text()) )
     {

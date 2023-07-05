@@ -51,7 +51,7 @@ public:
 					     ObjectSet<BinIDValueSet>&);
 			//!< Utility function
     static void		createDataPointSets(const BufferStringSet&,
-					     ObjectSet<DataPointSet>&,
+					     RefObjectSet<DataPointSet>&,
 					     bool is2d,bool mini=false);
 			//!< Utility function
     static ODPolygon<float>* getPolygon(const IOObj&,BufferString& errmsg);

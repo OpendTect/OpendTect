@@ -188,7 +188,6 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 
     strm << "\nFetching horizon positions ...\n" ;
     TextStreamProgressMeter pm( strm );
-    deepErase( data );
 
     DataPointSet* res = 0;
     if ( hor2d && geomid != Survey::GeometryManager::cUndefGeomID() )
@@ -401,8 +400,8 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 				   const Interval<float>& extraz,
 				   Pos::GeomID geomid )
 {
-    ObjectSet<DataPointSet> possurf0;
-    ObjectSet<DataPointSet> possurf1;
+    RefObjectSet<DataPointSet> possurf0;
+    RefObjectSet<DataPointSet> possurf1;
     getExactCoords( strm, *(midset[0]), geomid, horsamp, possurf0 );
     bool use2hor = midset.size() == 2;
 

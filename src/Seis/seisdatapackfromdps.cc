@@ -17,14 +17,15 @@ ________________________________________________________________________
 #define mZColID 9999
 
 SeisDataPackFromDPS::SeisDataPackFromDPS( const DataPointSet& dps,
-						RegularSeisDataPack& dp,
+					  RegularSeisDataPack& dp,
 					  const BufferStringSet& colnames )
     : ParallelTask("Extracting Seismic Cube")
-    , dps_(dps),dp_(dp)
+    , dps_(&dps)
+    , dp_(dp)
 {
     for ( int idx=0; idx<colnames.size(); idx++ )
     {
-	DataPointSet::ColID colid = dps_.indexOf( colnames.get(idx) );
+	DataPointSet::ColID colid = dps_->indexOf( colnames.get(idx) );
 	if ( colid < 0 )
 	{
 	    if ( colnames.get(idx) == "Z" )
@@ -50,7 +51,7 @@ SeisDataPackFromDPS::~SeisDataPackFromDPS()
 
 od_int64 SeisDataPackFromDPS::nrIterations() const
 {
-    return dps_.size();
+    return dps_->size();
 }
 
 
@@ -74,14 +75,14 @@ bool SeisDataPackFromDPS::doWork( od_int64 start, od_int64 stop, int threadidx )
 	DataPointSet::ColID colid = selcols_[compidx];
 	for ( int idx=mCast(int,start); idx<=stop; idx++ )
 	{
-	    const TrcKey tkpos( dps_.binID(idx) );
+	    const TrcKey tkpos( dps_->binID(idx) );
 	    const int globidx = dp_.getGlobalIdx( tkpos );
 	    if ( globidx < 0 )
 		continue;
 
-	    const float zval = dps_.z( idx );
+	    const float zval = dps_->z( idx );
 	    data[globidx*nrsamps + zsamp.nearestIndex(zval)] =
-		colid == mZColID ? zval : dps_.value( colid, idx );
+		colid == mZColID ? zval : dps_->value( colid, idx );
 	}
     }
 

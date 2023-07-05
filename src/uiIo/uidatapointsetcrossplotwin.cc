@@ -38,22 +38,23 @@ uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
 
 uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     : uiMainWin(&uidps,toUiString("%1 - %2").arg(uiStrings::sCrossPlot())
-					.arg(uidps.pointSet().name()),2,false)
+				.arg(uidps.pointSet()->name()),2,false)
     , uidps_(uidps)
     , plotter_(*new uiDataPointSetCrossPlotter(this,uidps,defsetup_))
-    , disptb_(*new uiToolBar(this,tr("%1 %2 %3")
-				     .arg(uiStrings::sCrossPlot())
-				     .arg(uiStrings::sDisplay())
-				     .arg(uiStrings::sToolbar())))
-    , seltb_(*new uiToolBar(this,uiStrings::phrCrossPlot(mJoinUiStrs(
-				 sSelection(),sToolbar()))))
-    , maniptb_(*new uiToolBar(this,uiStrings::phrCrossPlot(
-	  uiStrings::phrJoinStrings(tr("Manipulation"), uiStrings::sToolbar())),
-	  uiToolBar::Left))
-    , colortb_(*new uiColorTableToolBar(this,ColTab::Sequence("Rainbow"),true))
     , propdlg_(nullptr)
     , selgrpdlg_(nullptr)
     , refineseldlg_(nullptr)
+    , disptb_(*new uiToolBar(this,tr("%1 %2 %3")
+					   .arg(uiStrings::sCrossPlot())
+					   .arg(uiStrings::sDisplay())
+					   .arg(uiStrings::sToolbar())))
+    , seltb_(*new uiToolBar(this,uiStrings::phrCrossPlot(mJoinUiStrs(
+					  sSelection(),sToolbar()))))
+    , maniptb_(*new uiToolBar(this,uiStrings::phrCrossPlot(
+			uiStrings::phrJoinStrings(tr("Manipulation"),
+						  uiStrings::sToolbar())),
+			uiToolBar::Left))
+    , colortb_(*new uiColorTableToolBar(this,ColTab::Sequence("Rainbow"),true))
     , grpfld_(nullptr)
     , wantnormalplot_(false)
     , showselptswstbid_(-1)
@@ -70,8 +71,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	minptsfordensity_ = cMinPtsForDensity;
     }
 
-    const int nrpts = plotter_.y2_.axis_ ? uidps.pointSet().nrActive()*2
-					 : uidps.pointSet().nrActive();
+    const int nrpts = plotter_.y2_.axis_ ? uidps.pointSet()->nrActive()*2
+					 : uidps.pointSet()->nrActive();
     const float perc = float( 100/(1 + nrpts/minptsfordensity_) );
 
     uiLabel* lbl = new uiLabel( 0, uiStrings::sShow() );
@@ -388,9 +389,9 @@ bool acceptOk( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
 {
     BufferStringSet colnames;
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    uiDataPointSet::DColID dcid = -dps->nrFixedCols()+1;
+    for ( ; dcid<dps->nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
 
     if ( !refineseldlg_ )
@@ -474,8 +475,8 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 
     const int estpts =
 	mNINT32( ((!disptb_.isOn(showy2tbid_) && !plotter_.y2_.axis_)
-	    ? uidps_.pointSet().nrActive()
-	    : uidps_.pointSet().nrActive()*2)*plotter_.plotperc_/100.f );
+		? uidps_.pointSet()->nrActive()
+		: uidps_.pointSet()->nrActive()*2)*plotter_.plotperc_/100.f );
 
     Settings& setts = Settings::common();
     if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
@@ -550,9 +551,9 @@ void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
 void uiDataPointSetCrossPlotWin::exportPDF( CallBacker* )
 {
     BufferStringSet colnames;
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    uiDataPointSet::DColID dcid=-dps->nrFixedCols()+1;
+    for ( ; dcid<dps->nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
 
     uiCreateDPSPDF dlg( this, &plotter_ );
@@ -563,12 +564,14 @@ void uiDataPointSetCrossPlotWin::exportPDF( CallBacker* )
 void uiDataPointSetCrossPlotWin::manageSel( CallBacker* )
 {
     BufferStringSet colnames;
-    const DataPointSet& dps = plotter_.dps();
-    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
-    for ( ; dcid<dps.nrCols(); dcid++ )
+    ConstRefMan<DataPointSet> dps = plotter_.dps();
+    uiDataPointSet::DColID dcid=-dps->nrFixedCols()+1;
+    for ( ; dcid<dps->nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
+
     if ( !selgrpdlg_ )
 	selgrpdlg_ = new uiDPSSelGrpDlg( plotter_, colnames );
+
     selgrpdlg_->go();
 }
 

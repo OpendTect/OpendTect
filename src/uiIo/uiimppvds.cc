@@ -95,11 +95,11 @@ bool uiImpPVDS::acceptOK( CallBacker* )
     if ( !strm.isOK() )
 	mErrRet(uiStrings::sCantOpenInpFile())
 
-    DataPointSet dps( is2d_ );
+    RefMan<DataPointSet> dps = new DataPointSet( is2d_ );
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rv = getData( strm, fd_, dps );
+    bool rv = getData( strm, fd_, *dps );
     MouseCursorManager::restoreOverride();
-    if ( !rv || !writeData(dps,*ioobj) )
+    if ( !rv || !writeData(*dps,*ioobj) )
 	return false;
 
     uiString msg = tr("Cross-plot Data successfully imported."

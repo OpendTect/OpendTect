@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+#include "visobject.h"
+#include "vissurvobj.h"
+
 #include "attribsel.h"
 #include "datapointset.h"
 #include "emposid.h"
-#include "visobject.h"
-#include "vissurvobj.h"
 
 
 namespace Geometry { class ExplicitIndexedShape; }

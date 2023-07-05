@@ -310,7 +310,7 @@ bool uiWellLogExtractGrp::extractDPS()
     if ( ads_ )
 	addDCDs( attrsfld_, dcds,  attrnms );
 
-    ObjectSet<DataPointSet> dpss;
+    RefObjectSet<DataPointSet> dpss;
     if ( !extractWellData(ioobjids,lognms,dpss) )
 	mErrRet(uiStrings::sEmptyString())
 
@@ -379,7 +379,7 @@ bool uiWellLogExtractGrp::extractDPS()
 	}
     }
 
-    deepErase( dpss );
+    dpss.erase();
     curdps_->dataChanged();
     MouseCursorManager::restoreOverride();
     if ( curdps_->isEmpty() )

@@ -245,7 +245,7 @@ protected:
 
     const TrcKeyZSampling	getCS();
 
-    DataPointSet*		poszvalues_;
+    RefMan<DataPointSet>	poszvalues_;
     float			stdtrcsz_;
     float			stdstarttime_;
     float			outval_;
@@ -398,7 +398,7 @@ public:
 protected:
 				~TableOutput();
 
-    DataPointSet&		datapointset_;
+    RefMan<DataPointSet>	dps_;
 
     bool			arebiddupl_;
     int				firstattrcol_;

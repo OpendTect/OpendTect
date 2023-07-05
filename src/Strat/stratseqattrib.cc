@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "stratlayseqattrib.h"
 
 #include "ascstream.h"
-#include "datapointset.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "propertyref.h"
@@ -37,10 +36,11 @@ mDefineEnumUtils(Strat::LaySeqAttrib,Transform,"Value Transformation")
 Strat::LaySeqAttrib::LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
 				   const char* nm )
     : NamedObject(nm)
-    , set_(&s), prop_(p)
+    , prop_(p)
     , islocal_(false)
     , transform_(Pow)
     , transformval_(mUdf(float))
+    , set_(&s)
 {}
 
 
@@ -405,7 +405,7 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
 			 DataPointSet& res )
     : Executor("Attribute extraction")
     , lm_(lm)
-    , dps_(res)
+    , dps_(&res)
     , seqidx_(0)
     , msg_(tr("Extracting layer attributes"))
     , stoplvl_(0)
@@ -413,7 +413,7 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     for ( int idx=0; idx<lsas.size(); idx++ )
     {
 	const LaySeqAttrib& lsa = *lsas[idx];
-	const int dpsidx = dps_.indexOf( lsa.name() );
+	const int dpsidx = dps_->indexOf( lsa.name() );
 	if ( dpsidx < 0 )
 	    continue;
 
@@ -439,23 +439,23 @@ od_int64 Strat::LayModAttribCalc::totalNr() const
 
 int Strat::LayModAttribCalc::nextStep()
 {
-    const int dpssz = dps_.size();
+    const int dpssz = dps_->size();
     if ( dpssz < 1 )
 	mErrRet(tr("No data points for extraction"))
     if ( seqidx_ >= lm_.size() )
 	return Finished();
 
-    const int dpsdepthidx = dps_.indexOf( sKey::Depth() );
+    const int dpsdepthidx = dps_->indexOf( sKey::Depth() );
     if ( dpsdepthidx<0 )
 	mErrRet( tr("No depth data found") )
     const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
     uiString errmsg = tr("No extraction interval specified "
                          "for pseudo-well number %1");
     DataPointSet::RowID dpsrid = 0;
-    while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
+    while ( dpsrid < dpssz && dps_->trcNr(dpsrid) != seqidx_ + 1 )
 	dpsrid++;
 
-    const int dpthidx = dps_.indexOf( sKey::Depth() );
+    const int dpthidx = dps_->indexOf( sKey::Depth() );
     if ( dpthidx < 0 )
 	mErrRet(tr("No 'Depth' column in input data"))
 
@@ -464,10 +464,10 @@ int Strat::LayModAttribCalc::nextStep()
     const float stoplvldpth = stoplvl_ ? seq.depthPositionOf( *stoplvl_ )
 					: mUdf(float);
 
-    while ( dpsrid < dpssz && dps_.trcNr(dpsrid) == seqidx_ + 1 )
+    while ( dpsrid < dpssz && dps_->trcNr(dpsrid) == seqidx_ + 1 )
     {
-	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
-	float* dpsvals = dps_.getValues( dpsrid );
+	DataPointSet::DataRow dr( dps_->dataRow(dpsrid) );
+	float* dpsvals = dps_->getValues( dpsrid );
 	float z = dpsvals[dpthidx];
 	if ( zinft )
 	   z *= mFromFeetFactorF;
@@ -508,7 +508,7 @@ int Strat::LayModAttribCalc::nextStep()
 	}
 
 	if ( paststop )
-	    dps_.setInactive( dpsrid, true );
+	    dps_->setInactive( dpsrid, true );
 	else
 	{
 	    for ( int idx=0; idx<dpscidxs_.size(); idx++ )
@@ -540,7 +540,7 @@ void Strat::LayModAttribCalc::setExtrGates(
 bool Strat::LayModAttribCalc::doFinish( bool success, od_ostream* )
 {
     if ( success )
-	dps_.purgeInactive();
+	dps_->purgeInactive();
 
     return success;
 }

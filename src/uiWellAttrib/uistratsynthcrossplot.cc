@@ -169,8 +169,8 @@ uiStratSynthCrossplot::~uiStratSynthCrossplot()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); deleteAndNullPtr( dps ); return dps; }
-#define mpErrRet(s) { pErrMsg(s); deleteAndNullPtr( dps ); return dps; }
+#define mErrRet(s) { uiMSG().error(s); dps = nullptr; return dps; }
+#define mpErrRet(s) { pErrMsg(s); dps = nullptr; return dps; }
 
 DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
@@ -186,7 +186,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    const_cast<Attrib::DescSet*>(&seisattrs)->removeDesc(tmpdesc->id());
     }
 
-    DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup(),false);
+    RefMan<DataPointSet> dps =
+		seisattrs.createDataPointSet(Attrib::DescSetup(),false);
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return nullptr; }
 

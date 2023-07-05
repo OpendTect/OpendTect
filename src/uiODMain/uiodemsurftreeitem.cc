@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uiodemsurftreeitem.h"
 
 #include "datapointset.h"
-#include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
 #include "emioobjinfo.h"
@@ -19,15 +18,12 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
-#include "posvecdataset.h"
-#include "survinfo.h"
 #include "threadwork.h"
 #include "timefun.h"
 
 #include "uiattribpartserv.h"
-#include "uiempartserv.h"
 #include "uiemattribpartserv.h"
-#include "uimenu.h"
+#include "uiempartserv.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
@@ -61,6 +57,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , emid_(nemid)
     , uivisemobj_(0)
     , createflatscenemnuitem_(tr("Create Flattened Scene"))
+    , istrackingallowed_(true)
     , savemnuitem_(uiStrings::sSave(),-800)
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()),-850)
     , enabletrackingmnuitem_(tr("Enable Tracking"))
@@ -68,7 +65,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , reloadmnuitem_(uiStrings::sReload(),-750)
     , trackmenuitem_(uiStrings::sTracking())
     , starttrackmnuitem_(m3Dots(tr("Start Tracking")))
-    , istrackingallowed_(true)
 {
     savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
@@ -503,14 +499,14 @@ void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 
     for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
     {
-	DataPointSet dps( false, true );
+	RefMan<DataPointSet> dps = new DataPointSet( false, true );
 	float shift;
-	applMgr()->EMServer()->getAuxData( emid_, idx, dps, shift );
+	applMgr()->EMServer()->getAuxData( emid_, idx, *dps, shift );
 	uiODDataTreeItem* itm = addAttribItem();
 	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,dataitm,itm);
 	if ( !dataitm ) continue;
 
-	dataitm->setDataPointSet( dps );
+	dataitm->setDataPointSet( *dps );
 	dataitm->setChecked( false, true );
     }
 }
@@ -526,8 +522,8 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Horizon Data")))
     , loadsurfacedatamnuitem_(m3Dots(tr("Horizon Data")))
     , algomnuitem_(uiStrings::sTools())
-    , filtermnuitem_(m3Dots(uiStrings::sFiltering()))
     , fillholesmnuitem_(m3Dots(uiStrings::sGridding()))
+    , filtermnuitem_(m3Dots(uiStrings::sFiltering()))
     , horvariogrammnuitem_(m3Dots(tr("Variogram")))
     , attr2geommnuitm_(m3Dots(tr("Set Z values")))
     , changed_(false)
@@ -608,9 +604,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	DataPointSet vals( false, true );
-	vals.bivSet().setNrVals( 3 );
-	visserv->getRandomPosCache( visid, attribnr, vals );
+	RefMan<DataPointSet> vals = new DataPointSet( false, true );
+	vals->bivSet().setNrVals( 3 );
+	visserv->getRandomPosCache( visid, attribnr, *vals );
 	mDynamicCastGet(visSurvey::Scene*,scene, visserv->getObject(sceneID()));
 	bool isdttransform = false;
 	BufferString zaxstrstr;
@@ -620,7 +616,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    isdttransform = ( zaxstrstr == ZDomain::sKeyDepth() )  ||
 					   ( zaxstrstr == ZDomain::sKeyTime() );
 	}
-	if ( vals.size() )
+
+	if ( vals->size() )
 	{
 	    BufferString auxdatanm;  auxdatanm = name_.getFullString();
 	    if ( auxdatanm == sKey::ZValue() && isdttransform )
@@ -630,7 +627,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	    const float shift = (float) visserv->getTranslation( visid ).z;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
-	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
+	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, *vals,
 		    auxdatanm, validx, shift );
 	    if ( auxnr<0 )
 	    {
@@ -682,20 +679,20 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	bool res = false;
-	DataPointSet vals( false, true );
-	visserv->getRandomPosCache( visid, attribnr, vals );
+	RefMan<DataPointSet> vals = new DataPointSet( false, true );
+	visserv->getRandomPosCache( visid, attribnr, *vals );
 	if ( mnuid==filtermnuitem_.id )
 	    res = applMgr()->EMServer()->filterAuxData( emid_,
-				    name_.getFullString(), vals);
+				    name_.getFullString(), *vals);
 	else if ( mnuid==fillholesmnuitem_.id )
 	    res = applMgr()->EMServer()->
-			interpolateAuxData( emid_,name_.getFullString(), vals);
+			interpolateAuxData( emid_,name_.getFullString(), *vals);
 	else if ( mnuid==horvariogrammnuitem_.id )
 	    res = applMgr()->EMServer()->
-		computeVariogramAuxData( emid_, name_.getFullString(), vals );
+		computeVariogramAuxData( emid_, name_.getFullString(), *vals );
 	else if ( mnuid==attr2geommnuitm_.id )
 	    res = applMgr()->EMServer()->
-		attr2Geom( emid_, name_.getFullString(), vals );
+		attr2Geom( emid_, name_.getFullString(), *vals );
 
 	if ( !res || mnuid==horvariogrammnuitem_.id )
 	    return;
@@ -703,7 +700,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_.getFullString(),
 				Attrib::SelSpec::cOtherAttrib()) );
-	visserv->setRandomPosData( visid, attribnr, &vals );
+	visserv->setRandomPosData( visid, attribnr, vals );
 	changed_ = true;
     }
 }
@@ -730,9 +727,9 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
     cs.hsamp_.set( loadrrg, loadcrg );
 
     TypeSet<float> shifts;
-    DataPointSet vals( false, true );
-    applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts, &cs );
-    setDataPointSet( vals );
+    RefMan<DataPointSet> vals = new DataPointSet( false, true );
+    applMgr()->EMServer()->getAllAuxData( emid_, *vals, &shifts, &cs );
+    setDataPointSet( *vals );
     vishor->setAttribShift( attribNr(), shifts );
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

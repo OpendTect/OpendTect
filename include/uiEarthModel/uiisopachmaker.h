@@ -10,14 +10,14 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-
 #include "uigroup.h"
+
+#include "datapointset.h"
 #include "emobject.h"
 
 class uiBatchJobDispatcherSel;
-class uiIOObjSel;
 class uiGenInput;
-class DataPointSet;
+class uiIOObjSel;
 
 
 /*! \brief Create isochron as attribute of horizon */
@@ -78,6 +78,6 @@ protected:
     bool		acceptOK(CallBacker*) override;
     bool		doWork();
 
-    uiIsochronMakerGrp* grp_;
-    DataPointSet*	dps_;
+    uiIsochronMakerGrp*		grp_;
+    RefMan<DataPointSet>	dps_;
 };

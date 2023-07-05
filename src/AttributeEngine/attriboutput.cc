@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "convmemvalseries.h"
 #include "ioman.h"
-#include "posinfo2d.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
@@ -22,9 +21,8 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "seiswrite.h"
 #include "separstr.h"
-#include "survgeom2d.h"
 #include "survinfo.h"
-#include "trigonometry.h"
+
 
 namespace Attrib
 {
@@ -1161,14 +1159,14 @@ bool Trc2DVarZStorOutput::finishWrite()
 
 // TableOutput
 TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
-    : datapointset_(datapointset)
+    : dps_(&datapointset)
     , firstattrcol_(firstcol)
     , mediandisttrcs_(mUdf(float))
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
     ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBinIDs(true);
-    ((Seis::TableSelData*)seldata_)->binidValueSet() = datapointset_.bivSet();
+    ((Seis::TableSelData*)seldata_)->binidValueSet() = dps_->bivSet();
 
     arebiddupl_ = areBIDDuplicated();
 }
@@ -1180,7 +1178,7 @@ TableOutput::~TableOutput()
 
 bool TableOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
 {
-    return datapointset_.getRange( tkzs );
+    return dps_->getRange( tkzs );
 }
 
 
@@ -1194,31 +1192,31 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
     const TrcKey tkey = info.trcKey();
-    const BinID dpsbid = tkey.is2D() == datapointset_.is2D() ? tkey.position()
+    const BinID dpsbid = tkey.is2D() == dps_->is2D() ? tkey.position()
 					: SI().transform( tkey.getCoord() );
-    DataPointSet::RowID rid = datapointset_.findFirst( dpsbid );
+    DataPointSet::RowID rid = dps_->findFirst( dpsbid );
     if ( rid < 0 )
 	return;
 
     const int desnrvals = desoutputs_.size() + firstattrcol_;
-    if ( datapointset_.nrCols() < desnrvals )
-	datapointset_.bivSet().setNrVals(desnrvals+datapointset_.nrFixedCols());
+    if ( dps_->nrCols() < desnrvals )
+	dps_->bivSet().setNrVals(desnrvals+dps_->nrFixedCols());
 
     if ( !arebiddupl_ )
     {
-	float* vals = datapointset_.getValues( rid );
-	computeAndSetVals( data, refstep, datapointset_.z(rid), vals );
+	float* vals = dps_->getValues( rid );
+	computeAndSetVals( data, refstep, dps_->z(rid), vals );
 	return;
     }
 
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    for ( int idx=rid; idx<datapointset_.size(); idx++ )
+    for ( int idx=rid; idx<dps_->size(); idx++ )
     {
-	if ( datapointset_.binID(idx) != dpsbid )
+	if ( dps_->binID(idx) != dpsbid )
 	    break;
 
-	const float zval = datapointset_.z(idx);
-	float* vals = datapointset_.getValues( idx );
+	const float zval = dps_->z(idx);
+	float* vals = dps_->getValues( idx );
 	int lowz;
 	DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
 	const int highz = lowz + 1;
@@ -1245,22 +1243,22 @@ void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
 
 bool TableOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::SPos pos = datapointset_.bivSet().find( bid );
+    BinIDValueSet::SPos pos = dps_->bivSet().find( bid );
     return pos.isValid();
 }
 
 
 bool TableOutput::wantsOutput( const Coord& coord ) const
 {
-    return datapointset_.findFirst( coord ) > -1;
+    return dps_->findFirst( coord ) > -1;
 }
 
 
 bool TableOutput::wantsOutput( const TrcKey& tkey ) const
 {
-    return tkey.is2D() == datapointset_.is2D() ?
-			datapointset_.findFirst( tkey ) > -1 :
-			datapointset_.findFirst( tkey.getCoord() ) > -1;
+    return tkey.is2D() == dps_->is2D() ?
+			dps_->findFirst( tkey ) > -1 :
+			dps_->findFirst( tkey.getCoord() ) > -1;
 }
 
 
@@ -1276,14 +1274,14 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 {
     TypeSet< Interval<int> > sampleinterval;
 
-    const BinIDValueSet& bvs = datapointset_.bivSet();
+    const BinIDValueSet& bvs = dps_->bivSet();
     BinIDValueSet::SPos pos = bvs.find( bid );
 
-    DataPointSet::RowID rid = datapointset_.getRowID( pos );
+    DataPointSet::RowID rid = dps_->getRowID( pos );
     while ( pos.isValid() && bid == bvs.getBinID(pos) )
     {
 	addLocalInterval( sampleinterval, exactz, rid, zstep );
-	datapointset_.bivSet().next( pos );
+	dps_->bivSet().next( pos );
 	rid++;
     }
 
@@ -1296,7 +1294,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						TypeSet<float>& exactz) const
 {
     TrcKey tkey;
-    tkey.setIs2D( datapointset_.is2D() ).setFrom( coord );
+    tkey.setIs2D( dps_->is2D() ).setFrom( coord );
     return getLocalZRanges( tkey, zstep, exactz );
 }
 
@@ -1309,16 +1307,16 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     if ( tkey.isUdf() )
 	return sampleinterval;
 
-    const BinID dpsbid = tkey.is2D() == datapointset_.is2D() ? tkey.position()
+    const BinID dpsbid = tkey.is2D() == dps_->is2D() ? tkey.position()
 					: SI().transform( tkey.getCoord() );
-    DataPointSet::RowID rid = datapointset_.findFirst( dpsbid );
+    DataPointSet::RowID rid = dps_->findFirst( dpsbid );
     if ( rid < 0 )
 	return sampleinterval;
 
     addLocalInterval( sampleinterval, exactz, rid, zstep );
-    for ( int idx=rid+1; idx<datapointset_.size(); idx++ )
+    for ( int idx=rid+1; idx<dps_->size(); idx++ )
     {
-	if ( datapointset_.binID(idx) != dpsbid )
+	if ( dps_->binID(idx) != dpsbid )
 	    break;
 	
 	addLocalInterval( sampleinterval, exactz, idx, zstep );
@@ -1332,7 +1330,7 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
 				    TypeSet<float>& exactz,
 				    int rid, float zstep ) const
 {
-    const float zval = datapointset_.z(rid);
+    const float zval = dps_->z(rid);
     int zidx;
     DataHolder::getExtraZAndSampIdxFromExactZ( zval, zstep, zidx );
     Interval<int> interval( zidx, zidx );
@@ -1349,12 +1347,12 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
 
 bool TableOutput::areBIDDuplicated() const
 {
-    if ( datapointset_.isEmpty() ) return false;
+    if ( dps_->isEmpty() ) return false;
 
-    BinID prevbid( datapointset_.binID(0) );
-    for ( int idx=1; idx<datapointset_.size(); idx++ )
+    BinID prevbid( dps_->binID(0) );
+    for ( int idx=1; idx<dps_->size(); idx++ )
     {
-	const BinID bid( datapointset_.binID(idx) );
+	const BinID bid( dps_->binID(idx) );
 	if ( bid == prevbid ) return true;
 	prevbid = bid;
     }

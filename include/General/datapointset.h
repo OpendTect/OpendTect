@@ -147,7 +147,7 @@ public:
 					bool minimal=false);
 			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
 			DataPointSet(const DataPointSet&);
-    virtual		~DataPointSet();
+
     DataPointSet&	operator =(const DataPointSet&);
     bool		is2D() const		{ return is2d_; }
     bool		isMinimal() const	{ return minimal_; }
@@ -249,6 +249,7 @@ public:
 
 
 protected:
+			~DataPointSet();
 
     PosVecDataSet&		data_;
     TypeSet<BinIDValueSet::SPos> bvsidxs_;

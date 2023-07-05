@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uiodhortreeitem.h"
 
-#include "bendpointfinder.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -17,15 +16,15 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "mpeengine.h"
-#include "randomlinegeom.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
 
 #include "uiattribpartserv.h"
 #include "uicalcpoly2horvol.h"
 #include "uidatapointsetpickdlg.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
-#include "uiflattenedcube.h"
 #include "uihor2dfrom3ddlg.h"
 #include "uihorizonrelations.h"
 #include "uiisopachmaker.h"
@@ -37,19 +36,15 @@ ________________________________________________________________________
 #include "uiodcontourtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
-#include "uitaskrunner.h"
-#include "uitreeview.h"
+#include "uistrings.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
-#include "uistrings.h"
 
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
-#include "vissurvscene.h"
 #include "visrgbatexturechannel2rgba.h"
-#include "zaxistransform.h"
-#include "od_helpids.h"
+#include "vissurvscene.h"
 
 
 #define mAddIdx		0
@@ -78,10 +73,10 @@ CNotifier<uiODHorizonParentTreeItem,uiMenu*>&
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODParentTreeItem(tr("3D Horizon"))
+    , handleMenu(this)
     , newmenu_(uiStrings::sNew())
     , trackitem_(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx)
     , constzitem_(m3Dots(tr("With Constant Z")),mConstIdx)
-    , handleMenu(this)
 {
     if ( SI().has3D() )
 	newmenu_.addItem( &trackitem_ );
@@ -446,15 +441,15 @@ bool uiODHorizonTreeItem::init()
 		if ( auxdatatype==EM::SurfaceAuxData::AutoShow ||
 		     (auxdatatype==EM::SurfaceAuxData::Tracking && istracking) )
 		{
-		    DataPointSet vals( false, true );
+		    RefMan<DataPointSet> vals = new DataPointSet( false, true );
 		    float shift;
-		    applMgr()->EMServer()->getAuxData(emid_, idx, vals, shift);
+		    applMgr()->EMServer()->getAuxData(emid_, idx, *vals, shift);
 
 		    uiODDataTreeItem* itm = addAttribItem();
 		    mDynamicCastGet( uiODEarthModelSurfaceDataTreeItem*,
 				     emitm, itm );
 		    if ( emitm )
-			emitm->setDataPointSet( vals );
+			emitm->setDataPointSet( *vals );
 		}
 	    }
 	}
@@ -886,7 +881,11 @@ void uiODHorizonTreeItem::dataReadyCB( CallBacker* )
     uiODDataTreeItem* itm = addAttribItem();
     mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
     if ( emitm && dpspickdlg_ )
-	emitm->setDataPointSet( dpspickdlg_->getData() );
+    {
+	ConstRefMan<DataPointSet> dps = dpspickdlg_->getData();
+	if ( dps )
+	    emitm->setDataPointSet( *dps );
+    }
 }
 
 

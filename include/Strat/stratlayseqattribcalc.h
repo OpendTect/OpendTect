@@ -9,10 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
-#include "stattype.h"
-#include "ranges.h"
 #include "executor.h"
-class DataPointSet;
+
+#include "datapointset.h"
+#include "ranges.h"
+#include "stattype.h"
 
 namespace Strat
 {
@@ -91,7 +92,7 @@ protected:
     ObjectSet<LaySeqAttribCalc> calcs_;
     od_int64			seqidx_;
     TypeSet<int>		dpscidxs_;
-    DataPointSet&		dps_;
+    RefMan<DataPointSet>	dps_;
     uiString			msg_;
     ObjectSet<ExtrGateSet>	extrgates_;
     const Strat::Level*		stoplvl_;

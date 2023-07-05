@@ -40,15 +40,15 @@ const char* EMSurfaceProvider::extraZKey()	{ return "Extra Z"; }
 
 
 EMSurfaceProvider::EMSurfaceProvider()
-    : hs_(SI().sampling(false).hsamp_)
-    , zstep_(SI().zRange(true).step)
+    : zstep_(SI().zRange(true).step)
     , extraz_(0,0)
+    , hs_(SI().sampling(false).hsamp_)
     , zrg1_(0,0)
     , zrg2_(0,0)
-    , curz_(mUdf(float))
-    , curzrg_(0,0)
-    , nrsamples_(mUdf(int))
     , gen_(*new Stats::RandGen())
+    , curzrg_(0,0)
+    , curz_(mUdf(float))
+    , nrsamples_(mUdf(int))
 {}
 
 
@@ -576,22 +576,20 @@ void EMSurfaceProvider2D::initClass()
 
 // ***** EMSurface2DProvider3D ****
 EMSurface2DProvider3D::EMSurface2DProvider3D()
-    :dpssurf1_(*new DataPointSet(true,true))
-    ,dpssurf2_(*new DataPointSet(true,true))
+    : dpssurf1_(new DataPointSet(true,true))
+    , dpssurf2_(new DataPointSet(true,true))
 {}
 
 
 EMSurface2DProvider3D::~EMSurface2DProvider3D()
 {
-    delete &dpssurf1_;
-    delete &dpssurf2_;
 }
 
 
 EMSurface2DProvider3D::EMSurface2DProvider3D(
 	const EMSurface2DProvider3D& p )
-    : dpssurf1_(*new DataPointSet(true,false))
-    , dpssurf2_(*new DataPointSet(true,false))
+    : dpssurf1_(new DataPointSet(true,false))
+    , dpssurf2_(new DataPointSet(true,false))
 {
     *this = p;
 }
@@ -634,9 +632,10 @@ bool EMSurface2DProvider3D::initialize( TaskRunner* taskr )
     if ( !EMSurfaceProvider::initialize(taskr) || !surf1_ )
 	return false;
 
-    mkDPS( *surf1_, dpssurf1_ );
+    mkDPS( *surf1_, *dpssurf1_ );
     if ( surf2_ )
-	mkDPS( *surf2_, dpssurf2_ );
+	mkDPS( *surf2_, *dpssurf2_ );
+
     return true;
 }
 
@@ -652,20 +651,23 @@ bool EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
     if ( !surf1_ )
 	return false;
 
-    const DataPointSet::RowID rid1 = dpssurf1_.findFirst( bid );
+    const DataPointSet::RowID rid1 = dpssurf1_->findFirst( bid );
     if ( rid1 < 0 )
 	return false;
+
     DataPointSet::RowID rid2 = -1;
     if ( surf2_ )
     {
-	rid2 = dpssurf2_.findFirst( bid );
+	rid2 = dpssurf2_->findFirst( bid );
 	if ( rid2 < 0 )
 	    return false;
     }
 
-    Interval<float> zrg( dpssurf1_.z(rid1), 0 ); zrg.stop = zrg.start;
+    Interval<float> zrg( dpssurf1_->z(rid1), 0 );
+    zrg.stop = zrg.start;
     if ( rid2 >= 0 )
-	zrg.include( dpssurf2_.z(rid2), false );
+	zrg.include( dpssurf2_->z(rid2), false );
+
     zrg += extraz_;
     zrg.widen( SI().zStep() * .5f, false );
     return zrg.includes( z, false );
@@ -683,12 +685,12 @@ EMImplicitBodyProvider::EMImplicitBodyProvider()
     : tkzs_(true)
     , imparr_(0)
     , threshold_(0)
-    , embody_(0)
     , useinside_(true)
     , bbox_(false)
-    , initializedbody_(false)
+    , embody_(0)
     , curbid_(-1,-1)
     , curz_(mUdf(float))
+    , initializedbody_(false)
 {}
 
 
@@ -697,12 +699,12 @@ EMImplicitBodyProvider::EMImplicitBodyProvider(
     : tkzs_(ep.tkzs_)
     , imparr_(ep.imparr_)
     , threshold_(ep.threshold_)
-    , embody_(ep.embody_)
     , useinside_(ep.useinside_)
     , bbox_(ep.bbox_)
-    , initializedbody_(ep.initializedbody_)
+    , embody_(ep.embody_)
     , curbid_(ep.curbid_)
     , curz_(ep.curz_)
+    , initializedbody_(ep.initializedbody_)
 {}
 
 
@@ -948,16 +950,16 @@ bool EMImplicitBodyProvider::toNextZ()
 
 // EMRegion3DProvider
 EMRegion3DProvider::EMRegion3DProvider()
-    : useinside_(true)
-    , bbox_(false)
+    : bbox_(false)
     , region_(*new EM::Region3D)
+    , useinside_(true)
 {}
 
 
 EMRegion3DProvider::EMRegion3DProvider(  const EMRegion3DProvider& ep )
-    : useinside_(ep.useinside_)
-    , bbox_(ep.bbox_)
+    : bbox_(ep.bbox_)
     , region_(*new EM::Region3D)
+    , useinside_(ep.useinside_)
 {}
 
 

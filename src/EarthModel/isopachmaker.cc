@@ -34,13 +34,13 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 			    const EM::Horizon3D& hor2,
 			    const char* attrnm, int dataidx, DataPointSet* dps )
     : Executor("Creating Isochron")
+    , msg_(tr("Creating Isochron"))
+    , sidcolidx_(mUdf(int))
+    , dataidx_(dataidx)
     , hor1_(hor1)
     , hor2_(hor2)
-    , msg_(tr("Creating Isochron"))
-    , dataidx_(dataidx)
     , dps_(dps)
     , inmsec_(false)
-    , sidcolidx_(mUdf(int))
 {
     iter_ = hor1.createIterator();
     totnr_ = iter_->approximateSize();

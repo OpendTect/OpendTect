@@ -10,18 +10,18 @@ ________________________________________________________________________
 
 #include "uinlamod.h"
 #include "uiapplserv.h"
-#include "uistring.h"
+
+#include "bufstringset.h"
 #include "datapointset.h"
 #include "multiid.h"
-#include "nlamodel.h"
-#include "bufstringset.h"
 #include "uistring.h"
 
-class DataPointSet;
 class DataPointSetDisplayMgr;
-class uiDataPointSet;
 class PosVecDataSet;
 class NLACreationDesc;
+class NLAModel;
+
+class uiDataPointSet;
 
 /*!
 \brief Service provider for application level - Non-Linear Analysis.
@@ -47,10 +47,8 @@ public:
     virtual const NLAModel& getModel() const		= 0;
     virtual const NLACreationDesc& creationDesc() const	= 0;
 
-    virtual const char*	modelName() const
-			{ return getModel().name(); }
-    virtual IOPar&	modelPars() const
-			{ return const_cast<NLAModel&>(getModel()).pars(); }
+    virtual const char*	modelName() const;
+    virtual IOPar&	modelPars() const;
     bool		willDoExtraction() const;
     const BufferStringSet& modelInputs() const;
 
@@ -93,8 +91,8 @@ public:
     virtual void	doStore()			= 0;
 
 
-    void		getDataPointSets(ObjectSet<DataPointSet>&) const;
-    uiString		prepareInputData(ObjectSet<DataPointSet>&);
+    void		getDataPointSets(RefObjectSet<DataPointSet>&) const;
+    uiString		prepareInputData(RefObjectSet<DataPointSet>&);
 
     void		set2DEvent( bool is2d )		{ is2d_ = is2d; }
     bool		is2DEvent()			{ return is2d_; }
@@ -112,8 +110,8 @@ protected:
     DataPointSetDisplayMgr* dpsdispmgr_;
     void		writeSets(CallBacker*);
 
-    bool		extractDirectData(ObjectSet<DataPointSet>&);
-    const uiString	convertToClasses(const ObjectSet<DataPointSet>&,int);
+    bool		extractDirectData(RefObjectSet<DataPointSet>&);
+    const uiString	convertToClasses(const RefObjectSet<DataPointSet>&,int);
     bool		doDPSDlg();
 
     struct LithCodeData

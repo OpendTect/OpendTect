@@ -144,7 +144,6 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
 uiGenPosPicks::uiGenPosPicks( uiParent* p )
     : uiCreatePicks(p,false,false)
     , posprovfld_(nullptr)
-    , dps_(nullptr)
 {
     uiPosProvider::Setup psu( false, true, true );
     psu.seltxt( tr("Generate locations by") )
@@ -163,7 +162,6 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
 
 uiGenPosPicks::~uiGenPosPicks()
 {
-    delete dps_;
 }
 
 
@@ -195,7 +193,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
     if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
 				 &taskrunner, true) )
     {
-	deleteAndNullPtr( dps_ );
+	dps_ = nullptr;
 	return false;
     }
 
@@ -213,14 +211,14 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
 	if ( !uiMSG().askGoOn(msg) )
 	{
 	    mRestorCursor();
-	    deleteAndNullPtr( dps_ );
+	    dps_ = nullptr;
 	    return false;
 	}
     }
 
     if ( dps_->isEmpty() )
     {
-	deleteAndNullPtr( dps_ );
+	dps_ = nullptr;
 	mErrRet(tr("No matching locations found"))
     }
 

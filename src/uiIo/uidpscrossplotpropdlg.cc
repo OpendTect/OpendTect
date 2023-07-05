@@ -648,14 +648,14 @@ void getRmsError( bool isy2 )
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2? 2:1);
 
     Math::Expression* mathobj = isy2 ? mathobj1_ : mathobj_;
-    const BinIDValueSet& bvs = dps_.bivSet();
+    const BinIDValueSet& bvs = dps_->bivSet();
     BinIDValueSet::SPos pos;
     bool shwrmserr = true;
     double sqsumerr = 0.0;
     int count = 0;
     while ( bvs.next(pos,false) )
     {
-	DataPointSet::RowID rid = dps_.getRowID( pos );
+	DataPointSet::RowID rid = dps_->getRowID( pos );
 	const float xval = plotter_.getVal( horz.colid_, rid );
 	const float yval = plotter_.getVal( vert.colid_, rid );
 	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
@@ -759,7 +759,7 @@ bool acceptOK() override
 }
 
     uiDataPointSetCrossPlotter&	plotter_;
-    const DataPointSet&		dps_;
+    ConstRefMan<DataPointSet>	dps_;
 
     bool			hasy2_;
     bool			exp1plotted_		= true;

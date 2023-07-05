@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "trckeyzsampling.h"
-#include "paralleltask.h"
 
-class ZAxisTransform;
-class DataPointSet;
+#include "datapointset.h"
+#include "paralleltask.h"
+#include "trckeyzsampling.h"
+
 class BinIDValueSet;
+class ZAxisTransform;
 
 /*!
 \brief Generates a DataPointSet with untransformed z-values corresponding to
@@ -45,5 +46,5 @@ protected:
     TrcKeySamplingIterator 	iter_;
     TrcKeyZSampling		tkzs_;
     ZAxisTransform&		transform_;
-    DataPointSet*		dps_;
+    RefMan<DataPointSet>	dps_;
 };

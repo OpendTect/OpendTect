@@ -42,19 +42,19 @@ using namespace Attrib;
 
 uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			      const DescSet* a, const NLAModel* n, float vel )
-	: uiDialog(p,uiDialog::Setup(tr("Add direction to PointSet"),
-				     tr("Specify directions for points"),
-				     mODHelpKey(mSetPickDirsHelpID) ))
-	, ps_( s )
-	, ads_( a ? new DescSet(*a) : new DescSet(false) )
-	, nlamdl_( n )
-	, dirinpfld_( 0 )
-	, phifld_( 0 )
-	, thetafld_( 0 )
-	, steerfld_( 0 )
-	, usesteering_( true )
-	, createdset_( 0 )
-	, velocity_(vel)
+    : uiDialog(p,uiDialog::Setup(tr("Add direction to PointSet"),
+				 tr("Specify directions for points"),
+				 mODHelpKey(mSetPickDirsHelpID) ))
+    , ps_( s )
+    , ads_( a ? new DescSet(*a) : new DescSet(false) )
+    , createdset_( 0 )
+    , nlamdl_( n )
+    , usesteering_( true )
+    , phifld_( 0 )
+    , thetafld_( 0 )
+    , dirinpfld_( 0 )
+    , steerfld_( 0 )
+    , velocity_(vel)
 {
     const bool is2d = ads_ ? ads_->is2D() : false;
 
@@ -135,20 +135,20 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     mAddColDef( "crline", thetafld_ )
 
     TypeSet<DataPointSet::Pos> positions;
-    DataPointSet dps( pts, dcds, ads_->is2D() );
+    RefMan<DataPointSet> dps = new DataPointSet( pts, dcds, ads_->is2D() );
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
 	const Pick::Location& pl = ps_.get( idx );
 	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos()) );
-	dps.addRow( dtrow );
+	dps->addRow( dtrow );
 	positions += dtrow.pos_;
     }
 
-    dps.dataChanged();
-    if ( !getAndCheckAttribSelection( dps ) )
+    dps->dataChanged();
+    if ( !getAndCheckAttribSelection( *dps ) )
 	return false;
 
-    bool success = extractDipOrAngl( dps );
+    bool success = extractDipOrAngl( *dps );
     if ( !success )
 	mErrRet( tr("Cannot calculate attributes at these positions") );
 
@@ -157,10 +157,10 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     {
 	float phi = 0;
 	float theta = 0;
-	DataPointSet::RowID rid = dps.find( positions[idx] );
+	DataPointSet::RowID rid = dps->find( positions[idx] );
 
-	float inldip = dps.value( 0, rid )/2;
-	float crldip = dps.value( 1, rid )/2;
+	float inldip = dps->value( 0, rid )/2;
+	float crldip = dps->value( 1, rid )/2;
 
 	if ( mIsUdf(inldip) || mIsUdf(crldip) )
 	    inldip = crldip = 0;
@@ -174,8 +174,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    phi = Math::toRadians( (float) dps.value( 0, rid ) );
-	    theta = Math::toRadians( (float) dps.value( 1, rid ) );
+	    phi = Math::toRadians( (float) dps->value( 0, rid ) );
+	    theta = Math::toRadians( (float) dps->value( 1, rid ) );
 	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );

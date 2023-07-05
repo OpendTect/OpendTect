@@ -9,15 +9,13 @@ ________________________________________________________________________
 
 #include "variogramcomputers.h"
 
-#include "arrayndimpl.h"
 #include "arrayndalgo.h"
+#include "arrayndimpl.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "datapointset.h"
-#include "executor.h"
 #include "interpol1d.h"
 #include "posvecdataset.h"
-#include "ptrman.h"
 #include "statrand.h"
 #include "statruncalc.h"
 #include "survinfo.h"

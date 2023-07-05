@@ -11,9 +11,10 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uiselsimple.h"
 
+#include "datapointset.h"
+
 class uiGenInput;
 class uiHorSaveFieldGrp;
-class DataPointSet;
 namespace EM { class Horizon3D; }
 
 
@@ -52,15 +53,14 @@ public:
 
 protected:
 
-    EM::Horizon3D&	hor_;
-    const DataPointSet&	dps_;
-    int			colid_;
+    EM::Horizon3D&		hor_;
+    ConstRefMan<DataPointSet>	dps_;
+    int				colid_;
 
-    uiGenInput*		isdeltafld_;
-    uiGenInput*		msfld_;
-    uiHorSaveFieldGrp*	savefldgrp_;
+    uiGenInput*			isdeltafld_;
+    uiGenInput*			msfld_;
+    uiHorSaveFieldGrp*		savefldgrp_;
 
-    bool		acceptOK(CallBacker*) override;
-
+    bool			acceptOK(CallBacker*) override;
 
 };

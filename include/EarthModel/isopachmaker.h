@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
+#include "datapointset.h"
 #include "executor.h"
 
 class od_ostream;
-class DataPointSet;
 namespace EM { class Horizon3D; class EMObjectIterator; }
 
 mExpClass(EarthModel) IsochronMaker : public Executor
@@ -50,7 +50,7 @@ protected:
     int				dataidx_;
     const EM::Horizon3D&	hor1_;
     const EM::Horizon3D&	hor2_;
-    DataPointSet*		dps_;
+    RefMan<DataPointSet>	dps_;
     EM::EMObjectIterator*	iter_;
     bool			inmsec_;
 };

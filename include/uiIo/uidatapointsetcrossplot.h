@@ -180,8 +180,8 @@ public:
 				{ modcolidxs_ = ids; }
     const TypeSet<int>&		modifiedColIds() const	{ return modcolidxs_; }
 
-    const DataPointSet&		dps() const		{ return dps_; }
-    DataPointSet&		dps()			{ return dps_; }
+    ConstRefMan<DataPointSet>	dps() const		{ return dps_; }
+    RefMan<DataPointSet>	dps()			{ return dps_; }
 
     const uiDataPointSet&	uidps() const		{ return uidps_; }
     uiDataPointSet&		uidps()			{ return uidps_; }
@@ -273,7 +273,7 @@ protected:
     int				y4colid_		= mUdf(int);
 
     uiDataPointSet&		uidps_;
-    DataPointSet&		dps_;
+    RefMan<DataPointSet>	dps_;
     Setup			setup_;
     Math::Expression*		mathobj_		= nullptr;
     BufferString		mathobjstr_;
