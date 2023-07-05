@@ -157,7 +157,7 @@ void doWork( CallBacker* )
     par.set( sParFile(), parfp );
 
     const Network::Authority auth( remhostaddress,
-				   RemoteJobExec::remoteHandlerPort() );
+				   RemoteJobExec::getLocalHandlerPort() );
     PtrMan<RemoteJobExec> rje = new RemoteJobExec( auth );
     rje->addPar( par );
     ApplicationData::exit( rje->launchProc() ? 0 : 1 );
