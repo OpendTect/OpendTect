@@ -67,6 +67,10 @@ CommandDefs::CommandDefs( const CommandDefs& oth )
 }
 
 
+CommandDefs::~CommandDefs()
+{}
+
+
 bool CommandDefs::checkCommandExists( const char* command,
 				      const BufferStringSet& paths )
 {
@@ -88,6 +92,9 @@ const CommandDefs& CommandDefs::getTerminalCommands(
 
 CommandDefs& CommandDefs::operator=( const CommandDefs& oth )
 {
+    if ( this == &oth )
+	return *this;
+
     BufferStringSet::operator=( oth );
     prognames_ = oth.prognames_;
     deepCopy( progargs_, oth.progargs_ );

@@ -36,6 +36,10 @@ CommandLineParser::CommandLineParser()
 }
 
 
+CommandLineParser::~CommandLineParser()
+{}
+
+
 const OD::String& CommandLineParser::getExecutable() const
 { return executable_; }
 

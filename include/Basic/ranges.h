@@ -29,6 +29,8 @@ public:
     inline			BasicInterval();
     inline			BasicInterval(const BasicInterval<T>&);
     inline			BasicInterval(const T& start,const T& stop);
+    inline virtual		~BasicInterval();
+
     inline BasicInterval<T>&	operator=(const BasicInterval<T>&);
 
     inline void			set(const T& start,const T& stop);
@@ -107,11 +109,11 @@ mClass(Basic) Interval : public BasicInterval<T>
 public:
 
     inline		Interval() : BasicInterval<T>()	{}
-    inline virtual	~Interval()	{}
     inline		Interval(const T& start,const T& stop);
     inline		Interval(const BasicInterval<T>&);
-    inline
-    virtual Interval<T>* clone() const;
+    inline		~Interval()	{}
+
+    inline virtual Interval<T>* clone() const;
 
     virtual bool inline	isUdf() const;
     virtual void	setUdf();
@@ -386,10 +388,31 @@ inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 
 
 // ---------------- BasicInterval ---------------------
+template <class T> inline
+BasicInterval<T>::BasicInterval()
+    : start(0), stop(0)
+{}
+
+
+template <class T> inline
+BasicInterval<T>::BasicInterval( const T& t1, const T& t2 )
+    : start(t1), stop(t2)
+{}
+
+
+template <class T> inline
+BasicInterval<T>::BasicInterval( const BasicInterval<T>& oth )
+    : start(oth.start), stop(oth.stop)
+{}
+
+
 
 template <class T>
-inline BasicInterval<T>&
-BasicInterval<T>::operator=( const BasicInterval<T>& intv )
+BasicInterval<T>::~BasicInterval()
+{}
+
+template <class T> inline
+BasicInterval<T>& BasicInterval<T>::operator=( const BasicInterval<T>& intv )
 { start = intv.start; stop = intv.stop; return *this; }
 
 
@@ -406,23 +429,6 @@ int BasicInterval<T>::indexOnOrAfter( X x, const T& step, float eps ) const
 {
     return SamplingData<T>( start, step ).indexOnOrAfter( x, eps );
 }
-
-
-template <class T> inline BasicInterval<T>::BasicInterval()
-    : start(0), stop(0)
-{}
-
-
-template <class T> inline
-BasicInterval<T>::BasicInterval( const T& t1, const T& t2 )
-    : start(t1), stop(t2)
-{}
-
-
-template <class T> inline
-BasicInterval<T>::BasicInterval( const BasicInterval<T>& oth )
-    : start(oth.start), stop(oth.stop)
-{}
 
 
 template <class T> inline

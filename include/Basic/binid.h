@@ -23,6 +23,7 @@ public:
     inline			BinID(IdxType i,IdxType x);
     inline			BinID(const Pos::IdxPair&);
     inline			BinID(const BinID&);
+    inline			~BinID();
 
 				// aliases for first
     inline IdxType&		inl()		{ return first; }
@@ -78,6 +79,10 @@ BinID::BinID( const BinID& bid )
     : Pos::IdxPair(bid.inl(),bid.crl())
 {
 }
+
+
+BinID::~BinID()
+{}
 
 
 inline const BinID& BinID::operator+=( const BinID& bid )

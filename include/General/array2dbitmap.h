@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "generalmod.h"
+
 #include "ranges.h"
 #include "arraynd.h"
 #include "dataclipper.h"
@@ -26,6 +26,7 @@ mStruct(General) A2DBitMapGenPars
 {
 		A2DBitMapGenPars();
     virtual	~A2DBitMapGenPars();
+		mOD_DisableCopy(A2DBitMapGenPars)
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
     bool	autoscale_;	//!< If not, use the scale_
@@ -49,6 +50,7 @@ public:
 
 			A2DBitMapInpData(const Array2D<float>&);
     virtual		~A2DBitMapInpData();
+			mOD_DisableCopy(A2DBitMapInpData)
 
     const Array2D<float>& data() const	{ return data_; }
     Interval<float>	scale(const Interval<float>& clipratio,
@@ -105,6 +107,7 @@ public:
 			A2DBitMapPosSetup(const Array2DInfo&,float* dim0pos=0);
 				// If passed, dim0pos becomes mine
     virtual		~A2DBitMapPosSetup();
+			mOD_DisableCopy(A2DBitMapPosSetup)
 
     void		setDim0Positions(float* dim0positions);
 				//!< dim0posistions will become mine
@@ -170,8 +173,8 @@ protected:
 mExpClass(General) A2DBitMapGenerator
 {
 public:
-
     virtual		~A2DBitMapGenerator();
+			mOD_DisableCopy(A2DBitMapGenerator)
 
     void		setBitMap(A2DBitMap&);
     A2DBitMap&		bitmap()		{ return *bitmap_; }

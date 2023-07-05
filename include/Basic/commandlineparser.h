@@ -52,6 +52,8 @@ public:
 				CommandLineParser();
 				/*!<Actual command line is used, i.e. the one
 				    set by SetProgramArgs */
+    virtual			~CommandLineParser();
+				mOD_DisableCopy(CommandLineParser)
 
     void			setKeyHasValue(const char* key,
 					       int nrvals=1) const;

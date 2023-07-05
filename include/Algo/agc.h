@@ -8,9 +8,12 @@ ________________________________________________________________________
 
 -*/
 
+#include "algomod.h"
+#include "paralleltask.h"
+
 #include "sorting.h"
 #include "thread.h"
-#include "paralleltask.h"
+#include "ranges.h"
 #include "valseries.h"
 
 /*!
@@ -23,6 +26,7 @@ mClass(Algo) AGC : public ParallelTask
 public:
 			AGC();
 			~AGC();
+
     void		setInput(const ValueSeries<T>&,int sz);
     void		setOutput(ValueSeries<T>&);
 			//!<Output can be the same as input
@@ -186,7 +190,8 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
 	    nrenergies++;
 	}
 
-	if ( nrenergies ) energysum /= nrenergies;
+	if ( nrenergies != 0 )
+	    energysum /= nrenergies;
 
 	float outputval = 0;
 	if ( energysum>=energymute_ && energysum>0 )

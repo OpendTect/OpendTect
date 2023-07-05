@@ -17,7 +17,8 @@ mExpClass(Basic) CommandDefs : public BufferStringSet
 {
 public:
 			CommandDefs();
-			CommandDefs(const CommandDefs& oth);
+			CommandDefs(const CommandDefs&);
+			~CommandDefs();
 
     CommandDefs&	operator=(const CommandDefs&);
 
