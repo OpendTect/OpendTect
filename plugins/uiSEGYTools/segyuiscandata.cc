@@ -309,7 +309,8 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
 	ti.calcCoord();
     else if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
     {
-	if ( coordsys_ && !(*SI().getCoordSystem() == *coordsys_) )
+	if ( coordsys_ && SI().getCoordSystem() &&
+				*SI().getCoordSystem() != *coordsys_ )
 	    ti.coord = SI().getCoordSystem()->convertFrom(ti.coord,*coordsys_);
 	ti.setPos( SI().transform( ti.coord ) );
     }
