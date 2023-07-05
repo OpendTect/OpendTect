@@ -50,8 +50,6 @@ protected:
 mExpClass(uiViewer2D) EMDataObject : public DataObject
 {
 public:
-			~EMDataObject();
-
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
@@ -64,6 +62,7 @@ public:
 protected:
 			EMDataObject(uiFlatViewWin*,
 				     const ObjectSet<uiFlatViewAuxDataEditor>&);
+			~EMDataObject();
 
     uiFlatViewWin*	viewerwin_;
     EM::ObjectID	emid_;
@@ -80,9 +79,9 @@ public: \
 static void initClass(); \
 static clss* create(uiFlatViewWin*,\
 		    const ObjectSet<uiFlatViewAuxDataEditor>&); \
-~clss(); \
 protected: \
 clss(uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&); \
+~clss(); \
 private: \
 static DataObject* createInternal(uiFlatViewWin*, \
 				const ObjectSet<uiFlatViewAuxDataEditor>&);
