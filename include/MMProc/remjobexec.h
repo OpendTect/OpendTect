@@ -30,6 +30,10 @@ public:
 
     bool		launchProc() const;
     void		addPar(const OD::JSON::Object&);
+    static PortNr_Type	getLocalHandlerPort();
+    static PortNr_Type	legacyRemoteHandlerPort();
+    static PortNr_Type	stdRemoteHandlerPort();
+    mDeprecated("Use getLocalHandlerPort")
     static PortNr_Type	remoteHandlerPort()
 					    { return mCast(PortNr_Type,5050); }
     static const char*	remoteHandlerName()	{ return "od_remoteservice"; }

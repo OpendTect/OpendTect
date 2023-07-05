@@ -114,7 +114,7 @@ int mProgMainFnName( int argc, char** argv )
 uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
     : uiTrayDialog(p,Setup(tr("Remote Service Manager"), uiString::empty(),
 			   mNoHelpKey))
-    , mmpclient_(RemoteJobExec::remoteHandlerPort())
+    , mmpclient_(RemoteJobExec::getLocalHandlerPort())
 {
     setCtrlStyle( CloseOnly );
     setTrayToolTip( tr("OpendTect Remote Service Manager") );
@@ -169,7 +169,7 @@ void uiRemoteServiceMgr::startCB( CallBacker* )
     }
 
     uiString errmsg;
-    const PortNr_Type rsport = RemoteJobExec::remoteHandlerPort();
+    const PortNr_Type rsport = mmpclient_.serverService().port();
     if ( !Network::isPortFree(rsport, &errmsg) )
     {
 	uiMSG().errorWithDetails( uiStringSet(errmsg),

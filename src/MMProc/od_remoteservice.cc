@@ -25,7 +25,7 @@ int mProgMainFnName( int argc, char** argv )
 
     OD::ModDeps().ensureLoaded( "Network" );
 
-    const PortNr_Type remport = RemoteJobExec::remoteHandlerPort();
+    const PortNr_Type remport = RemoteJobExec::getLocalHandlerPort();
     const CommandLineParser clp( argc, argv );
 
     uiString msg;
