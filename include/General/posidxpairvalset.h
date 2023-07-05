@@ -274,7 +274,6 @@ protected:
     void		updNearest(const IdxPair&,const SPos&,
 				   od_int64&,SPos&) const;
 
-    friend class		DataPointSet;
     friend class		PosVecDataSet;
 
 };
