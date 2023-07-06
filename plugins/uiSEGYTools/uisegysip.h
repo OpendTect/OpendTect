@@ -46,3 +46,5 @@ private:
     RefMan<Coords::CoordSystem> coordsystem_;
 
 };
+
+mExternC(uiSEGYTools) void uiSEGYToolsInitSIP();

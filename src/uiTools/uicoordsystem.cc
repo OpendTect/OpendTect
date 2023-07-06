@@ -226,6 +226,7 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 	    coordsystemsuis_[0]->initFields( &crs );
 
 	wgs84Sel( nullptr );
+	crs.unRef();
 	return;
     }
 
