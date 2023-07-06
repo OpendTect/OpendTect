@@ -712,11 +712,6 @@ inline StepInterval<T>& StepInterval<T>::operator=( const StepInterval<T>& intv)
 }
 
 
-template <class T>
-inline StepInterval<T>& StepInterval<T>::operator=( const StepInterval<T>& oth )
-{ assign( *this, oth ); return *this; }
-
-
 template <class T> inline
 bool StepInterval<T>::isUdf() const
 { return Interval<T>::isUdf() || mIsUdf(step); }
