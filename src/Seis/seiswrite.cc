@@ -115,7 +115,7 @@ bool SeisTrcWriter::close()
 	Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
 	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 
-	if ( geom2d && geom2d->data().isEmpty() )
+	if ( geom2d && geom2d->data().isEmpty() && linedata_ )
 	{
 	    uiString st;
 	    geom2d->dataAdmin() = *linedata_;
