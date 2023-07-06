@@ -127,6 +127,11 @@ public:
     static const Mnemonic& defSI();
     static const Mnemonic& defVEL(); //For Time-depth work
     static const Mnemonic& defTime(); //TWT
+    static const Mnemonic& defMD();
+    static const Mnemonic& defTVD();
+    static const Mnemonic& defTVDSS();
+    static const Mnemonic& defTVDSD();
+    static const Mnemonic& defTVDGL();
 
     static const char*	sKeyMnemonic();
 
