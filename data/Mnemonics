@@ -58,6 +58,15 @@ BMK: Bulk modulus`Pressure`lin`0`500`0`100`GPa`100`255`155`Incompressibility
 YME: Young's modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Young Modulus
 TWT: Two-way traveltime`Time`lin`````ms````Time
 OWT: One-way traveltime`Time`lin`````ms````
+MD: Measured Depth`Distance/Depth`Lin`````m````Depth
+TVD: True Vertical Depth`Distance/Depth`Lin`````m````
+TVDSS:  True Vertical Depth Subsea`Distance/Depth`Lin`````m````
+TVDSD:  True Vertical Depth below Seismic Datum`Distance/Depth`Lin`````m````
+TVDGL:  True Vertical Depth below Ground Level`Distance/Depth`Lin`````m````
+DX:  Welltrack X Offset`Distance/Depth`Lin`````m````
+DY:  Welltrack Y Offset`Distance/Depth`Lin`````m````
+DEV: Welltrack Deviation`Angle`Lin`0`90`0`90`Degrees````Deviation
+AZIM: Welltrack Azimuth`Angle`Lin`0`360`0`360`Degrees````Azimuth
 CONF: Confidence`Other`Lin`````````
 BI: Brittleness index`Elastic Ratio`lin`````Ratio`72`209`204`
 TOC: Total Organic Carbon`Elastic Ratio`lin`````Ratio`255`215`0`

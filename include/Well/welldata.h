@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "wellman.h"
 
 
+class Mnemonic;
+
 namespace Well
 {
 
@@ -50,7 +52,7 @@ public:
 			  County, State, Province, Country };
 			mDeclareEnumUtils(InfoType)
 
-    enum DepthType	{ MD, TVD, TVDSS, TVDSD, TWT };
+    enum DepthType	{ MD, TVD, TVDSS, TVDSD, TWT, TVDGL };
 			mDeclareEnumUtils(DepthType)
 
     static const char*	sKeyTVD()	{ return "True Vertical Depth [TVD]"; }
@@ -87,6 +89,8 @@ public:
     static const char*	sKeyKBElev();
     static const char*	sKeyTD();
     static const char*	sKeyTVDSS();
+    static const char*	sKeyTVDSD();
+    static const char*	sKeyTVDGL();
     static const char*	sKeyReplVel();
     static const char*	sKeyGroundElev();
     static const char*	sKeyMarkerDepth();
@@ -104,8 +108,12 @@ public:
     static uiString	sKBElev();
     static uiString	sTD();
     static uiString	sTVDSS();
+    static uiString	sTVDSD();
+    static uiString	sTVDGL();
     static uiString	sReplVel();
     static uiString	sGroundElev();
+
+    static bool		isDepth(const Mnemonic&, DepthType&);
 };
 
 
