@@ -227,6 +227,7 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 	    coordsystemsuis_[0]->initFields( &crs );
 
 	wgs84Sel( nullptr );
+	crs.unRef();
 	return;
     }
 
@@ -240,7 +241,9 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 	uics->display( hit );
 	if ( hit )
 	{
-	    coordsystemsel_->setValue( idx );
+	    if ( coordsystemsel_ )
+		coordsystemsel_->setValue( idx );
+
 	    uics->initFields( &crs );
 	}
     }

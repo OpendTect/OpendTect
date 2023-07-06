@@ -27,6 +27,7 @@ data/Python/dgbpro_requirements.txt
 data/Python/machine_learning_requirements.txt
 data/Python/machine_learning_requirements_optional.txt
 data/Python/odpybind_requirements.txt
+data/SurveyProviders
 doc/Videos.dgb
 doc/od_userdoc
 test/

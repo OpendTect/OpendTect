@@ -20,9 +20,12 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitblimpexpdatasel.h"
 
-#include "file.h"
+#include "dirlist.h"
+#include "filepath.h"
 #include "od_helpids.h"
+#include "oddirs.h"
 #include "posinfo2d.h"
+#include "sharedlibs.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "tabledef.h"
@@ -158,6 +161,43 @@ bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
     crd[1] = cmax;
     crd[2] = Coord( c0.x, cmax.y );
     return true;
+}
+
+
+void uiSurvInfoProvider::addPluginsInfoProviders()
+{
+    const FilePath sipdatafp( mGetSWDirDataDir(), "SurveyProviders" );
+    if ( !sipdatafp.exists() )
+	return;
+
+    using VoidVoidFn = void(*)(void);
+    const DirList dl( sipdatafp.fullPath(), File::FilesInDir, "*.txt" );
+    BufferString libname;
+    libname.setBufSize( 256 );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const FilePath dirname( dl.get( idx ).buf() );
+	const BufferString piname = dirname.baseName();
+	if ( piname.isEmpty() )
+	    continue;
+
+	libname.setEmpty();
+	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
+				     libname.bufSize() );
+	const FilePath fp( GetLibPlfDir(), libname );
+	if ( !fp.exists() )
+	    continue;
+
+	const SharedLibAccess pisha( fp.fullPath() );
+	if ( !pisha.isOK() )
+	    return;
+
+	const BufferString sipfuncnm( piname.str(), "InitSIP" );
+	VoidVoidFn sipinitfn = (VoidVoidFn)pisha.getFunction( sipfuncnm.str() );
+	if ( sipinitfn )
+	    (*sipinitfn)();
+	//Do NOT close the handle, as the plugin must remain loaded
+    }
 }
 
 #define cDefaultZMaxS 6.0f

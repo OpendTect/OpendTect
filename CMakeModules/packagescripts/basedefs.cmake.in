@@ -44,12 +44,24 @@ else()
     endif()
 endif()
 
+if ( APPLE )
+    list( APPEND OTHERFILES "${COPYFROMDIR}/../Info.plist" )
+    list( APPEND OTHERFILESDEST "${COPYTODIR}/../" )
+endif()
+
 set( LMUTIL "${COPYFROMSCRIPTSDIR}/${OD_PLFSUBDIR}/lm.dgb/lmutil" )
 if ( WIN32 )
     set( LMUTIL "${LMUTIL}.exe" )
 endif()
 list( APPEND OTHERFILES "${LMUTIL}" )
 list( APPEND OTHERFILESDEST "${COPYTOSCRIPTSDIR}/${OD_PLFSUBDIR}/lm.dgb" )
+
+set( SURV_PROVS "${COPYFROMDATADIR}/SurveyProviders/uiSEGYTools.txt"
+		"${COPYFROMDATADIR}/SurveyProviders/uiWell.txt" )
+foreach( SURV_PROV ${SURV_PROVS} )
+    list( APPEND OTHERFILES "${SURV_PROV}" )
+    list( APPEND OTHERFILESDEST "${COPYTODATADIR}/SurveyProviders" )
+endforeach()
 
 if ( MATLABLink IN_LIST PLUGINS )
     set( EXECDIRS MATLAB )

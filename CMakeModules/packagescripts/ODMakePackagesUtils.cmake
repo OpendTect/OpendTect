@@ -341,10 +341,6 @@ macro( CREATE_BASEPACKAGE PACKAGE_NAME )
 	      DESTINATION "${COPYTODIR}/relinfo" )
 	file( COPY "${COPYFROMDIR}/relinfo/RELEASEINFO.txt"
 	      DESTINATION "${COPYTODIR}/doc/ReleaseInfo" )
-	if ( APPLE )
-	    file( COPY "${CMAKE_INSTALL_PREFIX}/Contents/Info.plist"
-		  DESTINATION "${DESTINATION_DIR}/Contents" )
-	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
 	set( ODDGBSTR "dgb" )
 	#add the base translation to basedata, not dgbbasedata

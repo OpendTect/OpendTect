@@ -62,23 +62,23 @@ uiString uiSurveyInfoEditor::getCoordString( bool infeet )
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
-	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
-				     mNoDlgTitle,
-				     mODHelpKey(mSurveyInfoEditorHelpID))
-					.nrstatusflds(1))
-	, survParChanged(this)
-	, si_(si)
-	, orgdirname_(si_.getDirName().buf())
-	, rootdir_(GetBaseDataDir())
-	, isnew_(isnew)
-	, impiop_(nullptr)
-	, lastsip_(nullptr)
-	, coordsystem_(si.getCoordSystem())
-	, x0fld_(nullptr)
-	, topgrp_(nullptr)
-	, sipfld_(nullptr)
-	, xyinftfld_(nullptr)
-	, dirnamechanged(false)
+    : uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
+				 mNoDlgTitle,
+				 mODHelpKey(mSurveyInfoEditorHelpID))
+				    .nrstatusflds(1))
+    , survParChanged(this)
+    , si_(si)
+    , orgdirname_(si_.getDirName().buf())
+    , rootdir_(GetBaseDataDir())
+    , isnew_(isnew)
+    , impiop_(nullptr)
+    , lastsip_(nullptr)
+    , coordsystem_(si.getCoordSystem())
+    , x0fld_(nullptr)
+    , topgrp_(nullptr)
+    , sipfld_(nullptr)
+    , xyinftfld_(nullptr)
+    , dirnamechanged(false)
 {
     orgstorepath_ = si_.getDataDirName().buf();
 
@@ -124,15 +124,16 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     pathfld_->attach( alignedBelow, survnmfld_ );
     pathfld_->setElemSzPol( uiObject::Wide );
 
-#ifdef __win__
-    pathfld_->setSensitive( false );
-#else
-    uiButton* pathbut = uiButton::getStd( topgrp_, OD::Select,
+    if ( __iswin__ )
+	pathfld_->setSensitive( false );
+    else
+    {
+	uiButton* pathbut = uiButton::getStd( topgrp_, OD::Select,
 			      mCB(this,uiSurveyInfoEditor,pathbutPush), false );
-    pathbut->attach( rightOf, pathfld_ );
-#endif
+	pathbut->attach( rightOf, pathfld_ );
+    }
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
+    auto* lcb = new uiLabeledComboBox( topgrp_,
 				SurveyInfo::Pol2D3DNames(), tr("Survey type") );
     lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
 
@@ -142,7 +143,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     else
 	topgrp_->setHAlignObj( lcb );
 
-    uiSeparator* horsep1 = new uiSeparator( this, "Hor sep 1" );
+    auto* horsep1 = new uiSeparator( this, "Hor sep 1" );
     horsep1->attach( stretchedBelow, topgrp_, -2 );
 
     tabs_ = new uiTabStack( this, "Survey setup" );
@@ -163,7 +164,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 uiSurveyInfoEditor::~uiSurveyInfoEditor()
 {
     detachAllNotifiers();
-
     delete impiop_;
     if ( isnew_ )
 	SurveyInfo::popSI();
@@ -181,8 +181,8 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     const int nrprovs = sips_.size();
     if ( nrprovs < 1 ) return;
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
-					    tr("Ranges/coordinate settings") );
+    auto* lcb = new uiLabeledComboBox( topgrp_,
+				       tr("Ranges/coordinate settings") );
     lcb->attach( alignedBelow, att );
     sipfld_ = lcb->box();
     sipfld_->addItem( tr("Enter below") );
@@ -215,7 +215,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 {
     rangegrp_ = new uiGroup( tabs_->tabGroup(), "Survey ranges" );
 
-    uiLabel* dummy = new uiLabel( rangegrp_, uiStrings::sEmptyString() );
+    auto* dummy = new uiLabel( rangegrp_, uiString::empty() );
 
     const Interval<int> startstoprg( -mUdf(int), mUdf(int) );
     const Interval<int> steprg( 1, mUdf(int) );
@@ -225,14 +225,14 @@ void uiSurveyInfoEditor::mkRangeGrp()
     inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"), iis );
     mAttachCB( inlfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     inlfld_->attach( alignedBelow, dummy );
-    nrinlslbl_ = new uiLabel( rangegrp_, uiStrings::sEmptyString() );
+    nrinlslbl_ = new uiLabel( rangegrp_, uiString::empty() );
     nrinlslbl_->setStretch( 2, 0 );
     nrinlslbl_->attach( rightTo, inlfld_ );
 
     iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
     crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"), iis );
     mAttachCB( crlfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
-    nrcrlslbl_ = new uiLabel( rangegrp_, uiStrings::sEmptyString() );
+    nrcrlslbl_ = new uiLabel( rangegrp_, uiString::empty() );
     nrcrlslbl_->setStretch( 2, 0 );
     nrcrlslbl_->attach( rightTo, crlfld_ );
 
@@ -282,7 +282,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
     iis.setLimits( inlcrlvals, -1 );
 
     crdgrp_ = new uiGroup( tabs_->tabGroup(), "Coordinate settings" );
-    uiLabel* dummy = new uiLabel( crdgrp_, uiStrings::sEmptyString() );
+    auto* dummy = new uiLabel( crdgrp_, uiString::empty() );
     iis.setName("Inl Position1",0).setName("Crl Position1",1);
     ic0fld_ = new uiGenInput( crdgrp_, tr("First In-line/Cross-line"), iis );
     mAttachCB( ic0fld_->valueChanging, uiSurveyInfoEditor::ic0ChgCB );
@@ -339,7 +339,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
 void uiSurveyInfoEditor::mkTransfGrp()
 {
     trgrp_ = new uiGroup( tabs_->tabGroup(), "I/C to X/Y transformation" );
-    uiLabel* dummy = new uiLabel( trgrp_, uiStrings::sEmptyString() );
+    auto* dummy = new uiLabel( trgrp_, uiString::empty() );
     x0fld_ = new uiGenInput ( trgrp_, tr("X = "), DoubleInpSpec().setName("X"));
     x0fld_->setElemSzPol( uiObject::SmallVar );
     x0fld_->attach( alignedBelow, dummy );
@@ -864,8 +864,9 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     IOPar& pars = si_.getLogPars();
     sip->fillLogPars( pars );
     PtrMan<IOPar> crspar = sip->getCoordSystemPars();
-    RefMan<Coords::CoordSystem> coordsys =
-		crspar ? Coords::CoordSystem::createSystem( *crspar ) : 0;
+    RefMan<Coords::CoordSystem> coordsys;
+    if ( crspar )
+	coordsys = Coords::CoordSystem::createSystem( *crspar );
 
     if ( !coordsys )
     {
@@ -889,7 +890,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     {
 	si_.setCoordSystem( coordsys );
 	coordsystem_ = coordsys;
-	crssel_->fillFromSI();
+	crssel_->fillFrom( *coordsys.ptr() );
     }
 
     const bool xyinfeet = si_.getCoordSystem()->isFeet();

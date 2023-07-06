@@ -81,5 +81,6 @@ mDefModInitFn(General)
     BufferString libnm; libnm.setMinBufSize( 32 );
     SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );
     const FilePath libfp( GetLibPlfDir(), libnm );
-    PIM().load( libfp.fullPath() );
+    if ( libfp.exists() )
+	PIM().load( libfp.fullPath() );
 }

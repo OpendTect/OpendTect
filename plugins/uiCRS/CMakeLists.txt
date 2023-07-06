@@ -13,11 +13,4 @@ set( OD_MODULE_SOURCES
 	uicrspi.cc
 )
 
-if ( NOT OD_NO_PROJ )
-    set ( OD_PLUGIN_ALO_EXEC
-	${OD_MAIN_EXEC}
-	${DGB_ML_UIEXECS}
-    )
-endif()
-
 OD_INIT_MODULE()

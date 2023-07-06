@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uisurveyselect.h"
 
 #include "envvars.h"
+#include "genc.h"
 #include "mmbatchjobdispatch.h"
 #include "settings.h"
 
@@ -84,8 +85,13 @@ mDefModInitFn(uiIo)
     uiSimpleTimeDepthTransform::initClass();
 
     setGlobal_uiTools_SurvSelFns( doSurveySelection );
+
+    if ( !NeedDataBase() )
+	return;
+
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
-    uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider);
+    uiSurveyInfoEditor::addInfoProvider( new uiNavSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );
     uiSurveyInfoEditor::addInfoProvider( new uiSurveyFileSIP );
+    uiSurvInfoProvider::addPluginsInfoProviders();
 }
