@@ -877,3 +877,12 @@ macro( OD_EXPORT_SETUP )
 	endif()
    endforeach()
 endmacro()
+
+macro( OD_INSTALL_SIP )
+    if ( NOT IS_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/SurveyProviders" )
+	file( MAKE_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/SurveyProviders" )
+    endif()
+    file( TOUCH "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/SurveyProviders/${OD_MODULE_NAME}.txt" )
+    install( FILES "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/SurveyProviders/${OD_MODULE_NAME}.txt"
+	     DESTINATION "${OD_DATA_INSTALL_RELPATH}/SurveyProviders" )
+endmacro(OD_INSTALL_SIP)

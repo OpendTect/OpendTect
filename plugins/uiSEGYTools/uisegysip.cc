@@ -8,11 +8,23 @@ ________________________________________________________________________
 -*/
 
 #include "uisegysip.h"
+
 #include "uisegymultilinesel.h"
 #include "uisegyreadstarter.h"
 #include "uisegyreadfinisher.h"
+#include "uisegysipclassic.h"
+#include "uisurvinfoed.h"
 
+#include "envvars.h"
 #include "segyhdrdef.h"
+
+
+void uiSEGYToolsInitSIP()
+{
+    uiSurveyInfoEditor::addInfoProvider(new uiSEGYSurvInfoProvider);
+    if ( GetEnvVarYN( "OD_ENABLE_SEGY_CLASSIC" ) )
+	uiSurveyInfoEditor::addInfoProvider(new uiSEGYClassicSurvInfoProvider);
+}
 
 
 uiSEGYSurvInfoProvider::uiSEGYSurvInfoProvider()

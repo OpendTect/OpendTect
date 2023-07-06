@@ -45,3 +45,5 @@ protected:
     RefMan<Coords::CoordSystem>		coordsystem_;
     BufferStringSet			filenms_;
 };
+
+mExternC(uiWell) void uiWellInitSIP();

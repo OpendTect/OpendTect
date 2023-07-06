@@ -8,8 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
-#include "uilassip.h"
-#include "uisurvinfoed.h"
+
 #include "uiwellposprov.h"
 #include "uiwellt2dconv.h"
 #include "uiwellwriteopts.h"
@@ -24,6 +23,4 @@ mDefModInitFn(uiWell)
 
     uiODWellWriteOpts::initClass();
     uiWellInserter::initClass();
-
-    uiSurveyInfoEditor::addInfoProvider(new uiLASSurvInfoProvider);
 }

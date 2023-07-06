@@ -198,3 +198,9 @@ IOPar* uiLASSurvInfoProvider::getCoordSystemPars() const
     coordsystem_->fillPar( *crspar );
     return crspar;
 }
+
+
+void uiWellInitSIP()
+{
+    uiSurveyInfoEditor::addInfoProvider(new uiLASSurvInfoProvider);
+}

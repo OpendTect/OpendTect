@@ -17,6 +17,11 @@ ________________________________________________________________________
 #include "uiraytrace1d.h"
 #include "uirefltrace1d.h"
 
+#include "filepath.h"
+#include "genc.h"
+#include "oddirs.h"
+#include "plugins.h"
+
 mDefModInitFn(uiTools)
 {
     mIfNotFirstTime( return );
@@ -34,4 +39,13 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
+
+    if ( !NeedDataBase() )
+	return;
+
+    BufferString libnm; libnm.setMinBufSize( 32 );
+    SharedLibAccess::getLibName( "uiCRS", libnm.getCStr(), libnm.bufSize() );
+    const FilePath libfp( GetLibPlfDir(), libnm );
+    if ( libfp.exists() )
+	PIM().load( libfp.fullPath() );
 }

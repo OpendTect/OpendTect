@@ -84,6 +84,8 @@ public:
 					  double gridspacing);
 				//!<Calculates sampling and 3 corner coordinates
 
+    static void			addPluginsInfoProviders();
+
 protected:
 				uiSurvInfoProvider();
 };

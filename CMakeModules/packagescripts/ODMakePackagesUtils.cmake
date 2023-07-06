@@ -21,6 +21,11 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    endif()
 	endif()
 
+	file( GLOB SURV_PROVS "${COPYFROMDATADIR}/data/SurveyProviders/uiSEGYTools.txt"
+		"${COPYFROMDATADIR}/data/SurveyProviders/uiWell.txt" )
+	file( COPY ${SURV_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/SurveyProviders" )
+
 	file(COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 	     DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
 	     FILES_MATCHING PATTERN lmutil* )
@@ -36,6 +41,10 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	COPY_THIRDPARTYLIBS()
 	list( APPEND LIBLIST ${PLUGINS} )
     elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
+	file( GLOB SURV_PROVS "${COPYFROMDATADIR}/data/SurveyProviders/uidGB*.txt" )
+	file( COPY ${SURV_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/SurveyProviders" )
+
 	file( GLOB OD_PYBIND_LIBS
 	      LIST_DIRECTORIES FALSE
 	      RELATIVE "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}"
