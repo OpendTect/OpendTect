@@ -294,7 +294,7 @@ const QTranslator*
 {
     return languages_.validIdx(currentlanguageidx_)
 	? languages_[currentlanguageidx_]->getTranslator( application )
-	: 0;
+	: nullptr;
 }
 
 
@@ -303,9 +303,9 @@ const QLocale* TextTranslateMgr::getQLocale() const
 #ifndef OD_NO_QT
     return languages_.validIdx(currentlanguageidx_)
 	? &languages_[currentlanguageidx_]->getLanguageLocale()
-        : 0;
+        : nullptr;
 #else
-    return 0;
+    return nullptr;
 #endif
 }
 
@@ -324,7 +324,8 @@ bool TextTranslateMgr::loadTranslations()
     libname.setBufSize( 256 );
     SharedLibAccess::getLibName( "dGBCommon",
 			libname.getCStr(), libname.bufSize() );
-    return PIM().load( FilePath( GetLibPlfDir(), libname ).fullPath() );
+    const FilePath fp( GetLibPlfDir(), libname );
+    return fp.exists() ? PIM().load( fp.fullPath() ) : false;
 }
 
 
