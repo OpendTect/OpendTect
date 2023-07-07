@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "procdescdata.h"
 #include "settingsaccess.h"
 #include "string2.h"
+#include "survinfo.h"
 #include "threadwork.h"
 #include "timefun.h"
 #include "timer.h"
@@ -958,6 +959,17 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 	    const BufferString prognm( mc.program() );
 	    if ( __iswin__ )
 	    {
+		const SurveyDiskLocation& sdl = SI().diskLocation();
+		const uiRetVal uirv =
+			    SurveyInfo::isValidDataRoot( sdl.basePath() );
+		if ( uirv.isOK() && sdl.exists() )
+		{
+		    cmdret.addKeyedArg( CommandLineParser::sDataRootArg(),
+				        sdl.basePath() );
+		    cmdret.addKeyedArg( CommandLineParser::sSurveyArg(),
+				        sdl.dirName() );
+		}
+
 		if ( background )
 		{
 		    scriptfp = new FilePath(
