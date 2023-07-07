@@ -2439,10 +2439,14 @@ void uiWellDefMnemLogDlg::Tables::fillLogRows()
 
 void uiWellDefMnemLogDlg::Tables::defLogChangedCB( CallBacker* cb )
 {
-    const int currow = table_->currentRow();
+    mDynamicCastGet( uiComboBox*, deflogfld, cb )
+    if (!deflogfld)
+	return;
+
+    const int currow = deflogsflds_.indexOf( deflogfld );
     changedmn_ = const_cast<Mnemonic*>( availmnems_.get(currow) );
-    const int curritem = deflogsflds_.get(currow)->currentItem();
-    const BufferString lognm( deflogsflds_.get(currow)->textOfItem(curritem) );
+    const int curritem = deflogfld->currentItem();
+    const BufferString lognm( deflogfld->textOfItem(curritem) );
     changedlog_ = wd_->logs().getLog( lognm.buf() );
 }
 
