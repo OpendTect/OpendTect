@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "mmpkeystr.h"
 #include "mmpserverclient.h"
+#include "networkcommon.h"
 #include "netsocket.h"
 
 
@@ -66,3 +67,28 @@ void RemoteJobExec::checkConnection()
 	OD::DisplayErrorMessage( errmsg );
     }
 }
+
+
+PortNr_Type RemoteJobExec::legacyRemoteHandlerPort()
+{
+    return mCast(PortNr_Type,5050);
+}
+
+
+PortNr_Type RemoteJobExec::stdRemoteHandlerPort()
+{
+    return mCast(PortNr_Type,15050);
+}
+
+
+PortNr_Type RemoteJobExec::getLocalHandlerPort()
+{
+    mDefineStaticLocalObject( PortNr_Type, remport,
+		      = Network::isPortFree(legacyRemoteHandlerPort()) ?
+						  legacyRemoteHandlerPort() :
+						  stdRemoteHandlerPort() );
+    return remport;
+}
+
+
+

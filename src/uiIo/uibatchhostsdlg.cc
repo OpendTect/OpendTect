@@ -542,22 +542,27 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	}
 
 	const BufferString remhostaddress( hd->connAddress() );
+	const Network::Authority legacy_auth( remhostaddress,
+				   RemoteJobExec::legacyRemoteHandlerPort() );
 	const Network::Authority auth( remhostaddress,
-				       RemoteJobExec::remoteHandlerPort() );
-	MMPServerClient mmpclient( auth );
-	if ( mmpclient.isOK() )
+				   RemoteJobExec::stdRemoteHandlerPort() );
+	PtrMan<MMPServerClient> mmpclient = new MMPServerClient( legacy_auth );
+	if ( !mmpclient->isOK() )
+	    mmpclient = new MMPServerClient( auth );
+
+	if ( mmpclient->isOK() )
 	{
-	    const Network::Service& serv = mmpclient.serverService();
-	    const OD::Platform odplf = mmpclient.serverPlatform();
+	    const Network::Service& serv = mmpclient->serverService();
+	    const OD::Platform odplf = mmpclient->serverPlatform();
 	    const BufferString authstr( serv.getAuthority().toString() );
-	    const BufferString drstr( mmpclient.serverDataRoot() );
+	    const BufferString drstr( mmpclient->serverDataRoot() );
 	    BufferString defdrstr( hd->getDataRoot().fullPath() );
 	    if ( defdrstr.isEmpty() )
 		defdrstr.set( defaultdataroot );
 
 	    if ( autoinfobox_->isChecked() && !readonly_ )
 	    {
-		hd->setPlatform( mmpclient.serverPlatform() );
+		hd->setPlatform( mmpclient->serverPlatform() );
 		setPlatform( *table_, idx, *hd, readonly_ );
 	    }
 	    else if ( odplf != hd->getPlatform() )
@@ -584,9 +589,9 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	    }
 	    else if ( drstr != defdrstr )
 	    {
-		if ( mmpclient.validServerDataRoot(defdrstr) )
+		if ( mmpclient->validServerDataRoot(defdrstr) )
 		{
-		    if ( !mmpclient.setServerDataRoot(defdrstr) )
+		    if ( !mmpclient->setServerDataRoot(defdrstr) )
 		    {
 			uiRetVal msg( tr("Cannot set Survey Data root to '%2' "
 				       " on the node %2").arg(remhostaddress) );
@@ -613,15 +618,15 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	    infostr.add("Platform:").addTab()
 		   .add(odplf.longName()).addNewLine();
 	    infostr.add("ODVersion:").addTab();
-	    infostr.add(mmpclient.serverODVer()).addNewLine();
+	    infostr.add(mmpclient->serverODVer()).addNewLine();
 	    infostr.add("Data Root:").addTab();
-	    infostr.add(mmpclient.serverDataRoot()).addNewLine();
+	    infostr.add(mmpclient->serverDataRoot()).addNewLine();
 	    setStatus( *table_, idx, OK, uiPhraseSet(::toUiString(infostr)) );
 	}
 	else
 	{
-	    uirv.add( mmpclient.errMsg() );
-	    setStatus( *table_, idx, Error, mmpclient.errMsg() );
+	    uirv.add( mmpclient->errMsg() );
+	    setStatus( *table_, idx, Error, mmpclient->errMsg() );
 	}
     }
 
