@@ -180,6 +180,8 @@ public:
     int				insertAction(const MenuItem&);
 
     bool			isMenu() const;
+    uiMenu*			addMenu(uiMenu*,const uiAction* before);
+				/*!<Becomes mine. Returns pointer to menu. */
     uiMenu*			addMenu(uiMenu*,const uiMenu* before = 0);
 				/*!<Becomes mine. Returns pointer to menu. */
 
