@@ -341,7 +341,7 @@ void uiODMenuMgr::fillImportMenu()
 		 mImpSeisCBVSMnuItm );
     insertAction( impcbvsseis, m3Dots(tr("From Other Survey")),
 		 mImpSeisCBVSOtherSurvMnuItm );
-    impseis->addMenu( impcbvsseis );
+    impseis->addMenu( impcbvsseis, impseissimple );
 
     if ( have2d )
     {

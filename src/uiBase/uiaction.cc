@@ -584,7 +584,7 @@ int uiActionContainer::getFreeID() const
 
 int uiActionContainer::insertAction( const MenuItem& itm )
 {
-    return insertAction( new uiAction(itm), itm.id, 0 );
+    return insertAction( new uiAction(itm), itm.id );
 }
 
 
@@ -653,25 +653,51 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 
 int uiActionContainer::insertItem( uiMenu* mnu )
 {
-    addMenu( mnu, nullptr );
+    addMenu( mnu );
     const uiAction* menuaction = findAction( mnu );
     return menuaction->getID();
 }
 
 
-uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
+uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiAction* before )
 {
-    uiAction* submenuitem = new uiAction( mnu->text() );
+    if ( before && before->getMenu() )
+	return addMenu( mnu, before->getMenu() );
+
+    auto* submenuitem = new uiAction( mnu->text() );
     submenuitem->setMenu( mnu );
 
-    uiAction* beforeaction = nullptr;
+    const uiAction* beforeaction = nullptr;
     if ( before )
     {
-	for ( int idx=0; idx<actions_.size(); idx++ )
+	for ( const auto* action : actions_ )
 	{
-	    if ( actions_[idx]->getMenu() == before )
+	    if ( action == before )
 	    {
-		beforeaction = actions_[idx];
+		beforeaction = action;
+		break;
+	    }
+	}
+    }
+
+    insertAction( submenuitem, -1, beforeaction );
+    return mnu;
+}
+
+
+uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
+{
+    auto* submenuitem = new uiAction( mnu->text() );
+    submenuitem->setMenu( mnu );
+
+    const uiAction* beforeaction = nullptr;
+    if ( before )
+    {
+	for ( const auto* action : actions_ )
+	{
+	    if ( action->getMenu() == before )
+	    {
+		beforeaction = action;
 		break;
 	    }
 	}
