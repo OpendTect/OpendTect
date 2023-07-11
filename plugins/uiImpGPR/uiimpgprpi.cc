@@ -31,9 +31,6 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-static const char* menunm = "GPR: DZT ...";
-
-
 mDefODPluginInfo(uiImpGPR)
 {
     static PluginInfo retpi(
@@ -46,7 +43,7 @@ mDefODPluginInfo(uiImpGPR)
 
 
 class uiImpGPRMgr :  public uiPluginInitMgr
-{
+{ mODTextTranslationClass(uiImpGPRMgr)
 public:
 
 			uiImpGPRMgr();
@@ -64,22 +61,24 @@ uiImpGPRMgr::uiImpGPRMgr()
     init();
 }
 
+#define mImpGPTDZT 5001
 
 void uiImpGPRMgr::dTectMenuChanged()
 {
-    appl().menuMgr().getMnu( true, uiODApplMgr::Seis )->insertAction(
-	new uiAction(toUiString(menunm),mCB(this,uiImpGPRMgr,doWork),"gpr") );
+    uiMenu* impseismnu = appl_.menuMgr().getMnu( true, uiODApplMgr::Seis );
+    const CallBack cb = mCB(this,uiImpGPRMgr,doWork);
+    impseismnu->insertAction( new uiAction(m3Dots(tr("GPR: DZT")),cb,"gpr"),
+			      mImpGPTDZT );
 }
 
 
 class uiDZTImporter : public uiDialog
-{ mODTextTranslationClass(uiDZTImporter);
+{ mODTextTranslationClass(uiDZTImporter)
 public:
 
 uiDZTImporter( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrImport(tr("GPR-DZT Seismics")),mNoDlgTitle,
                         mODHelpKey(mDZTImporterHelpID) ))
-    , inpfld_(0)
 {
     setOkText( uiStrings::sImport() );
 
@@ -163,7 +162,7 @@ bool acceptOK( CallBacker* )
     return TaskRunner::execute( &taskrunner, importer );
 }
 
-    uiFileInput*	inpfld_;
+    uiFileInput*	inpfld_ = nullptr;
     uiGenInput*		lnmfld_;
     uiGenInput*		nrdeffld_;
     uiGenInput*		startposfld_;

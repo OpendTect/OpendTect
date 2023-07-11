@@ -181,6 +181,8 @@ public:
     int				insertAction(const MenuItem&);
 
     virtual bool		isMenu() const		{ return false; }
+    uiMenu*			addMenu(uiMenu*,const uiAction* before);
+				/*!<Becomes mine. Returns pointer to menu. */
     uiMenu*			addMenu(uiMenu*,const uiMenu* before =nullptr);
 				/*!<Becomes mine. Returns pointer to menu. */
 

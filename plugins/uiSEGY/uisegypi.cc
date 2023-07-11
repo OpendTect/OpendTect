@@ -122,8 +122,10 @@ void uiSEGYMgr::dTectMenuChanged()
     const bool have2d = IOM().isBad() || SI().has2D();
     const bool only2d = !IOM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr.getMnu( true, uiODApplMgr::Seis );
+    const uiAction* beforeact = impseismnu->isEmpty() ? nullptr
+			      : impseismnu->actions().first();
     auto* impsgymnu = new uiMenu( &appl(), sSEGYString(true), segyiconid_ );
-    impseismnu->addMenu( impsgymnu );
+    impseismnu->addMenu( impsgymnu, beforeact );
     uiMenu* expseismnu = mnumgr.getMnu( false, uiODApplMgr::Seis );
     uiMenu* expsgymnu = expseismnu->addMenu(
 			new uiMenu( &appl(), sSEGYString(true), segyiconid_ ),
