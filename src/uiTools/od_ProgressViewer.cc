@@ -208,8 +208,13 @@ void uiProgressViewer::handleProcessStatus()
 	sleepSeconds( 1 );
 	FilePath lockfp( filenm_ );
 	lockfp.setExtension( "lock" );
-	if ( haveProcess() || lockfp.exists() )
+	if ( haveProcess() )
 	    return;
+	else if ( lockfp.exists() )
+	{
+	    procstatus_ = Running;
+	    return;
+	}
 
 	if ( !File::exists(filenm_) )
 	    procstatus_ = AbnormalEnd;

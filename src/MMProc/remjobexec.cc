@@ -91,4 +91,8 @@ PortNr_Type RemoteJobExec::getLocalHandlerPort()
 }
 
 
-
+bool RemoteJobExec::remoteHostOK( const Network::Authority& auth )
+{
+    MMPServerClient mmpserver( auth );
+    return mmpserver.isOK();
+}
