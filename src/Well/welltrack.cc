@@ -380,6 +380,26 @@ Coord3 Well::Track::getPos( float dh ) const
 }
 
 
+float Well::Track::getDepth( const Well::Data& wd, float dah,
+			     Well::Info::DepthType dtyp )
+{
+    const Well::Track& trk = wd.track();
+    const Well::D2TModel* d2t = wd.d2TModel();
+    const float kb = trk.getKbElev();
+    const float srd = SI().seismicReferenceDatum();
+    const float gl = wd.info().groundelev_;
+    const float zpos = trk.getPos(dah).z;
+    const float z = dtyp==Well::Info::MD ? dah :
+		    dtyp==Well::Info::TVD ? zpos+kb :
+		    dtyp==Well::Info::TVDSS ? zpos :
+		    dtyp==Well::Info::TVDSD ? zpos+srd :
+		    dtyp==Well::Info::TVDGL ? zpos+gl :
+		    d2t ? d2t->getTime(dah,trk) : mUdf(float);
+
+    return z;
+}
+
+
 mDefParallelCalc6Pars(Dah2Tvd,
 		  od_static_tr("Dah2Tvd", "Dah to TVD conversion"),
 		      const float*, daharr, const Well::Track&, track,

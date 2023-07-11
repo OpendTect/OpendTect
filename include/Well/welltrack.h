@@ -64,6 +64,8 @@ public:
 
     Coord3		getPos(float d_ah) const;
     const TypeSet<Coord3>& getAllPos() const { return pos_; }
+    static float	getDepth(const Data&, float d_ah,
+				 Info::DepthType dtype=Info::TVDSS);
 
     void		getAllTVD(int sz,const float* md,
 				  const UnitOfMeasure* in,float* tvd,

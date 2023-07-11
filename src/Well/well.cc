@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bendpointfinder.h"
 #include "idxable.h"
 #include "iopar.h"
+#include "mnemonics.h"
 #include "stratlevel.h"
 #include "uistrings.h"
 #include "wellman.h"
@@ -36,6 +37,8 @@ const char* Well::Info::sKeyCoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeyWellType()	{ return "WellType"; }
 const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
 const char* Well::Info::sKeyTVDSS()	{ return "Z [TVDSS]"; }
+const char* Well::Info::sKeyTVDSD()	{ return "TVDSD"; }
+const char* Well::Info::sKeyTVDGL()	{ return "TVDGL"; }
 const char* Well::Info::sKeyKBElev()
 	{ return "Reference Datum Elevation [KB]"; }
 const char* Well::Info::sKeyReplVel()
@@ -62,20 +65,21 @@ uiString Well::Info::sGroundElev()
 	{ return tr("Ground Level Elevation [GL]"); }
 uiString Well::Info::sTD()
 	{ return tr("Total Depth [TD]"); }
-uiString Well::Info::sTVDSS()
-	{ return tr("Z [TVDSS]"); }
 
 mDefineEnumUtils(Well::Info, DepthType, "Depth type")
-{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(), "TVDSD",
-  sKey::TWT(), nullptr };
+{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(),
+  Well::Info::sKeyTVDSD(), sKey::TWT(), Well::Info::sKeyTVDGL(), nullptr
+};
+
  template <>
  void EnumDefImpl<Well::Info::DepthType>::init()
  {
      uistrings_ += uiStrings::sMD();
      uistrings_ += uiStrings::sTVD();
      uistrings_ += uiStrings::sTVDSS();
-     uistrings_ += ::toUiString( "TVDSD");
+     uistrings_ += uiStrings::sTVDSD();
      uistrings_ += uiStrings::sTWT();
+     uistrings_ += uiStrings::sTVDRelGL();
  }
 
 
@@ -107,6 +111,26 @@ int Well::Info::legacyLogWidthFactor()
    const int legacylogwidthfac = mNINT32(survfac*43/1000);
    //hack 43 best factor based on F3_Demo
    return legacylogwidthfac!=0 ? legacylogwidthfac : 1;
+}
+
+
+bool Well::Info::isDepth( const Mnemonic& mn, Well::Info::DepthType& dt )
+{
+    bool isdepth = true;
+    if ( &mn==&Mnemonic::defMD() )
+	dt = Well::Info::MD;
+    else if ( &mn==&Mnemonic::defTVD() )
+	dt = Well::Info::TVD;
+    else if ( &mn==&Mnemonic::defTVDSS() )
+	dt = Well::Info::TVDSS;
+    else if ( &mn==&Mnemonic::defTVDSD() )
+	dt = Well::Info::TVDSD;
+    else if ( &mn==&Mnemonic::defTVDGL() )
+	dt = Well::Info::TVDGL;
+    else
+	isdepth = false;
+
+    return isdepth;
 }
 
 

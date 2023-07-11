@@ -438,7 +438,11 @@ const Mnemonic& Mnemonic::defFracDensity()
 { return *MNC().getByName( "FRACRHO", false ); }
 const Mnemonic& Mnemonic::defFracOrientation()
 { return *MNC().getByName( "FRACSTRIKE", false ); }
-
+const Mnemonic& Mnemonic::defMD() { return *MNC().getByName("MD",false); }
+const Mnemonic& Mnemonic::defTVD() { return *MNC().getByName("TVD",false); }
+const Mnemonic& Mnemonic::defTVDSS() { return *MNC().getByName("TVDSS",false); }
+const Mnemonic& Mnemonic::defTVDSD() { return *MNC().getByName("TVDSD",false); }
+const Mnemonic& Mnemonic::defTVDGL() { return *MNC().getByName("TVDGL",false); }
 
 using MnemonicsCache = QHash<QString,const Mnemonic*>;
 
