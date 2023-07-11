@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "hostdata.h"
 #include "mmpserverclient.h"
+#include "oddirs.h"
 #include "od_helpids.h"
 #include "remjobexec.h"
 #include "systeminfo.h"
@@ -83,6 +84,11 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	HostData* reclocalhd = hostdatalist_.removeAndTake( idx );
 	hostdatalist_.add( reclocalhd );
     }
+
+    if ( !__iswin__ && BufferString(hostdatalist_.unixDataRoot()).isEmpty() )
+	hostdatalist_.setUnixDataRoot( GetBaseDataDir() );
+    else if ( __iswin__ && BufferString(hostdatalist_.winDataRoot()).isEmpty() )
+	hostdatalist_.setWinDataRoot( GetBaseDataDir() );
 
     const char* bhfnm = hostdatalist_.getBatchHostsFilename();
     const FilePath bhfp = bhfnm;
@@ -609,8 +615,9 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 		{
 		    if ( !mmpclient->setServerDataRoot(defdrstr) )
 		    {
-			uiRetVal msg( tr("Cannot set Survey Data root to '%2' "
-				       " on the node %2").arg(remhostaddress) );
+			uiRetVal msg( tr("Cannot set Survey Data root to '%1' "
+				       " on the node %2").arg(defdrstr)
+				       .arg(remhostaddress) );
 			uirv.add( msg );
 			setStatus( *table_, idx, Error, msg );
 			continue;
@@ -618,9 +625,8 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 		}
 		else
 		{
-		    uiRetVal msg( tr("Survey Data root '%2' is not valid "
-				     "on the node %3")
-				    .arg(authstr).arg(defdrstr)
+		    uiRetVal msg( tr("Survey Data root '%1' is not valid "
+				     "on the node %2").arg(defdrstr)
 				    .arg(remhostaddress) );
 		    uirv.add( msg );
 		    setStatus( *table_, idx, Error, msg );
