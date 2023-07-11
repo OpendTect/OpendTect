@@ -998,7 +998,9 @@ bool Set::usePar( const IOPar& par )
 
 void Set::setDefaultDispPars()
 {
-    disp_.color_ = defcolor();
+    if ( disp_.color_ == OD::Color::NoColor() )
+	disp_.color_ = defcolor();
+
     disp_.fillcolor_ = defcolor();
     disp_.pixsize_ = defPixSz();
     disp_.markertype_ = defMarkerStyl();
