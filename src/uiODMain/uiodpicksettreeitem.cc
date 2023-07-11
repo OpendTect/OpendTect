@@ -297,8 +297,13 @@ bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
+    const OD::Color orgcolor( set_->disp_.color_ );
     uiPickPropDlg dlg( getUiParent(), *set_ , psd );
-    return dlg.go();
+    const bool ret = dlg.go();
+    if ( set_->disp_.color_ != orgcolor )
+	updateColumnText( uiODSceneMgr::cColorColumn() );
+
+    return ret;
 }
 
 
