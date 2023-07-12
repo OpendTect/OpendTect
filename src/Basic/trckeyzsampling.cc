@@ -178,6 +178,19 @@ static bool intersectF( float start_1, float stop_1, float step_1,
 }
 
 
+static bool intersectFIgnoreSteps( float start_1, float stop_1,
+				   float start_2, float stop_2,
+				   float& outstart_, float& outstop_ )
+{
+    if ( stop_1-start_2 < mDefEps || start_1-stop_2 > mDefEps )
+	return false;
+
+    outstart_ = start_1 < start_2 ? start_2 : start_1;
+    outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
+    return (outstop_-outstart_) > Eps;
+}
+
+
 void TrcKeyZSampling::set2DDef()
 {
     hsamp_.set2DDef();
@@ -220,16 +233,23 @@ static void normalizeZ( StepInterval<float>& zsamp )
 
 
 bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
-				    TrcKeyZSampling& out ) const
+				    TrcKeyZSampling& out,
+				    bool ignoresteps ) const
 {
-    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_) )
+    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_,ignoresteps) )
 	return false;
 
-    StepInterval<float> zsamp1( tkzs.zsamp_ );	normalizeZ( zsamp1 );
-    StepInterval<float> zsamp2( zsamp_ );	normalizeZ( zsamp2 );
-    return intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
-		       zsamp2.start, zsamp2.stop, zsamp2.step,
-		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
+    StepInterval<float> zsamp1( tkzs.zsamp_ );
+    normalizeZ( zsamp1 );
+    StepInterval<float> zsamp2( zsamp_ );
+    normalizeZ( zsamp2 );
+    return ignoresteps ?
+	intersectFIgnoreSteps( zsamp1.start, zsamp1.stop,
+				zsamp2.start, zsamp2.stop,
+				out.zsamp_.start, out.zsamp_.stop )
+	: intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
+		      zsamp2.start, zsamp2.stop, zsamp2.step,
+		      out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
 }
 
 

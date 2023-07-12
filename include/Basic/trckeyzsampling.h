@@ -76,7 +76,8 @@ public:
     bool		isDefined() const;
     bool		includes(const TrcKeyZSampling&) const;
     bool		getIntersection(const TrcKeyZSampling&,
-					TrcKeyZSampling&) const;
+					TrcKeyZSampling&,
+					bool ignoresteps=false) const;
 			//!< Returns false if intersection is empty
     void		include(const TrcKey&,float z);
     void		include(const TrcKeyZSampling&);

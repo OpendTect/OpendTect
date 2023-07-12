@@ -369,7 +369,7 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     , bytestocopy_(0)
 {
     worktkzs_ = out.sampling();
-    if ( !in_.sampling().getIntersection(out.sampling(),worktkzs_) )
+    if ( !in_.sampling().getIntersection(out.sampling(),worktkzs_,true) )
 	worktkzs_.setEmpty();
 
     totalnr_ = worktkzs_.hsamp_.totalNr();

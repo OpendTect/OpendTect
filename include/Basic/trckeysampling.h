@@ -126,7 +126,8 @@ public:
     bool		overlaps(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
     bool		getInterSection(const TrcKeySampling&,
-					TrcKeySampling&) const;
+					TrcKeySampling&,
+					bool ignoresteps=false) const;
 			    //!< Returns false if intersection is empty
 
     BinID		getNearest(const BinID&) const;
