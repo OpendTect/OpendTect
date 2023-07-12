@@ -73,6 +73,10 @@ public:
     bool		getIntersection(const TrcKeyZSampling&,
 					TrcKeyZSampling&) const;
 			//!< Returns false if intersection is empty
+    bool		getIntersection(const TrcKeyZSampling&,
+					TrcKeyZSampling&,
+					bool ignoresteps) const;
+			//!< Returns false if intersection is empty
     void		include(const TrcKey&,float z);
     void		include(const TrcKeyZSampling&);
     void		limitTo(const TrcKeyZSampling&,bool ignoresteps=false);

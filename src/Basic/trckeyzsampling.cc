@@ -803,6 +803,20 @@ static bool intersect(	int start_1, int stop_1, int step_1,
     return outstop_ >= outstart_;
 }
 
+
+static bool intersectIgnoreSteps( int start_1, int stop_1,
+				  int start_2, int stop_2,
+				  int& outstart_, int& outstop_ )
+{
+    if ( stop_1 < start_2 || start_1 > stop_2 )
+	return false;
+
+    outstart_ = start_1 < start_2 ? start_2 : start_1;
+    outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
+    return outstop_ >= outstart_;
+}
+
+
 #define Eps 2e-5
 
 inline bool IsZero( float f, float eps=Eps )
@@ -857,27 +871,45 @@ static bool intersectF( float start_1, float stop_1, float step_1,
 }
 
 
+static bool intersectFIgnoreSteps( float start_1, float stop_1,
+				   float start_2, float stop_2,
+				   float& outstart_, float& outstop_ )
+{
+    if ( stop_1-start_2 < mDefEps || start_1-stop_2 > mDefEps )
+	return false;
+
+    outstart_ = start_1 < start_2 ? start_2 : start_1;
+    outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
+    return (outstop_-outstart_) > Eps;
+}
+
+
 bool TrcKeySampling::overlaps( const TrcKeySampling& oth,
 			       bool ignoresteps ) const
 {
-    if ( ignoresteps )
-    {
-	const StepInterval<int> othlinerg( oth.lineRange() ),
-				othtrcrg( oth.trcRange() );
-	return othlinerg.overlaps( lineRange() ) &&
-	       othtrcrg.overlaps( trcRange() );
-    }
-
     TrcKeySampling intertks;
-    return getInterSection( oth, intertks );
+    return getInterSection( oth, intertks, ignoresteps );
 }
 
 
 bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
-				   TrcKeySampling& out ) const
+				   TrcKeySampling& out,
+				   bool ignoresteps ) const
 {
     TrcKeySampling tks1( tks ); tks1.normalize();
     TrcKeySampling tks2( *this ); tks2.normalize();
+
+    if ( ignoresteps )
+    {
+	const bool success =
+	    intersectIgnoreSteps( tks1.start_.inl(), tks1.stop_.inl(),
+				  tks2.start_.inl(), tks2.stop_.inl(),
+				  out.start_.inl(), out.stop_.inl() ) &&
+	    intersectIgnoreSteps( tks1.start_.crl(), tks1.stop_.crl(),
+				  tks2.start_.crl(), tks2.stop_.crl(),
+				  out.start_.crl(), out.stop_.crl() );
+	return success;
+    }
 
     const StepInterval<int> linerg1( tks1.lineRange() );
     const StepInterval<int> linerg2( tks2.lineRange() );
@@ -894,6 +926,13 @@ bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
     }
 
     return success;
+}
+
+
+bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
+				   TrcKeySampling& out ) const
+{
+    return getInterSection( tks, out, false );
 }
 
 
@@ -1171,16 +1210,30 @@ static void normalizeZ( StepInterval<float>& zsamp )
 
 
 bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
-				    TrcKeyZSampling& out ) const
+					TrcKeyZSampling& out,
+					bool ignoresteps ) const
 {
-    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_) )
+    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_,ignoresteps) )
 	return false;
 
-    StepInterval<float> zsamp1( tkzs.zsamp_ );	normalizeZ( zsamp1 );
-    StepInterval<float> zsamp2( zsamp_ );	normalizeZ( zsamp2 );
-    return intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
+    StepInterval<float> zsamp1( tkzs.zsamp_ );
+    normalizeZ( zsamp1 );
+    StepInterval<float> zsamp2( zsamp_ );
+    normalizeZ( zsamp2 );
+    return ignoresteps ?
+	intersectFIgnoreSteps( zsamp1.start, zsamp1.stop,
+			       zsamp2.start, zsamp2.stop,
+			       out.zsamp_.start, out.zsamp_.stop )
+	: intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
 		       zsamp2.start, zsamp2.stop, zsamp2.step,
 		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
+}
+
+
+bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
+				    TrcKeyZSampling& out ) const
+{
+    return getIntersection( tkzs, out, false );
 }
 
 
