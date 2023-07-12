@@ -762,6 +762,62 @@ bool FlatView::Viewer::enableChange( bool yn )
 }
 
 
+void FlatView::Viewer::setPack( VwrDest dest, RefMan<FlatDataPack> fdp,
+				bool usedefs )
+{
+    if ( dest == None )
+	return;
+
+    const bool wva = dest == WVA || dest == Both;
+    const bool vd = dest == VD || dest == Both;
+    ConstRefMan<FlatDataPack> curwva, curvd;
+    if ( wva )
+	curwva = getPack( wva ).get();
+    if ( vd )
+	curvd = getPack( vd ).get();
+
+    if ( (dest == WVA && fdp == curwva) ||
+	 (dest == VD && fdp == curvd) ||
+	 (dest == Both && fdp == curwva && fdp == curvd) )
+	return;
+
+    BufferString category;
+    if ( !fdp )
+    {
+	if ( wva )
+	    wvapack_ = nullptr;
+	if ( vd )
+	    vdpack_ = nullptr;
+    }
+    else
+    {
+	if ( wva )
+	    wvapack_ = WeakPtr<FlatDataPack>( fdp );
+	if ( vd )
+	    vdpack_ = WeakPtr<FlatDataPack>( fdp );
+    }
+
+    if ( usedefs )
+	useStoredDefaults( fdp->category() );
+
+    FlatView::Annotation& annot = appearance().annot_;
+    if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
+    {
+	annot.x1_.name_ = fdp->dimName( true );
+	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
+	setAnnotChoice( altdimnms.indexOf(annot.x1_.name_) );
+    }
+
+    if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
+    {
+	annot.x2_.name_ = fdp->dimName( false );
+	annot.x2_.annotinint_ = fdp->dimValuesInInt( annot.x2_.name_ );
+    }
+
+    handleChange( BitmapData );
+}
+
+
 void FlatView::Viewer::setPack( VwrDest dest, ::DataPackID id, bool usedefs )
 {
     if ( dest == None )

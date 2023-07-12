@@ -62,6 +62,11 @@ ________________________________________________________________________
 #include "view2ddata.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<uiODViewer2D,RefMan<SeisFlatDataPack>> hp_wvadp_(nullptr);
+static HiddenParam<uiODViewer2D,RefMan<SeisFlatDataPack>> hp_vddp_(nullptr);
+
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
 
@@ -96,6 +101,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_.set( vwrid++ );
+
+    hp_wvadp_.setParam( this, nullptr );
+    hp_vddp_.setParam( this, nullptr );
 
     setWinTitle( true );
 
@@ -155,6 +163,11 @@ uiODViewer2D::~uiODViewer2D()
     }
     delete marker_;
     delete viewwin();
+
+    hp_wvadp_.setParam( this, nullptr );
+    hp_vddp_.setParam( this, nullptr );
+    hp_wvadp_.removeParam( this );
+    hp_vddp_.removeParam( this );
 }
 
 
@@ -254,6 +267,74 @@ void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 }
 
 
+void uiODViewer2D::makeUpView( RefMan<FlatDataPack> fdp,
+			       FlatView::Viewer::VwrDest dst )
+{
+    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+    mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
+
+    const bool isnew = !viewwin();
+    if ( isnew )
+    {
+	if ( regfdp && regfdp->is2D() )
+	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
+	else if ( !mapdp )
+	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
+
+	isvertical_ = seisfdp && seisfdp->isVertical();
+	if ( regfdp )
+	    setTrcKeyZSampling( regfdp->sampling() );
+	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
+    }
+
+    if ( regfdp )
+    {
+	const TrcKeyZSampling& cs = regfdp->sampling();
+	if ( tkzs_.isFlat() || !cs.includes(tkzs_) )
+	{
+	    int nrtrcs;
+	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
+		nrtrcs = cs.hsamp_.nrTrcs();
+	    else
+		nrtrcs = cs.hsamp_.nrLines();
+	    //nrTrcs() or nrLines() return value 1 means start=stop
+	    if ( nrtrcs < 2 )
+	    {
+		uiMSG().error( tr("No data available for current %1 position")
+		    .arg(TrcKeyZSampling::toUiString(tkzs_.defaultDir())) );
+		return;
+	    }
+	}
+	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
+    }
+
+    if ( !isVertical() && !mapdp && regfdp )
+    {
+	fdp = createMapDataPackRM( *regfdp );
+	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
+    }
+
+    setDataPack( fdp, dst, isnew );
+    adjustOthrDisp( dst, isnew );
+
+    //updating stuff
+    if ( treetp_ )
+    {
+	treetp_->updSelSpec( &wvaselspec_, true );
+	treetp_->updSelSpec( &vdselspec_, false );
+	treetp_->updSampling( tkzs_, true );
+    }
+
+    if ( isnew )
+	viewwin()->start();
+
+    if ( viewwin()->dockParent() )
+	viewwin()->dockParent()->raise();
+
+}
+
+
 void uiODViewer2D::makeUpView( DataPackID packid,
 			       FlatView::Viewer::VwrDest dst )
 {
@@ -336,13 +417,44 @@ void uiODViewer2D::adjustOthrDisp( FlatView::Viewer::VwrDest dest, bool isnew )
     if ( !slicepos_ ) return;
     const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     const bool newcs = ( cs != tkzs_ );
-    const bool wva =	dest == FlatView::Viewer::WVA;
+    const bool wva = dest == FlatView::Viewer::WVA;
 
-    const DataPackID othrdpid = newcs ? createDataPack(!wva)
-					: getDataPackID(!wva);
-    if ( newcs && (othrdpid != DataPack::cNoID()) )
-    { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
-    setDataPack( othrdpid, !wva, isnew );
+    RefMan<FlatDataPack> othrdp;
+    othrdp = newcs ? createDataPackRM(!wva) : getDataPack(!wva);
+    if ( newcs && othrdp )
+	setTrcKeyZSampling( cs );
+
+    setDataPack( othrdp, !wva, isnew );
+}
+
+
+void uiODViewer2D::setDataPack( RefMan<FlatDataPack> fdp,
+				FlatView::Viewer::VwrDest dest, bool isnew )
+{
+    if ( !fdp ) return;
+
+    if ( dest == FlatView::Viewer::WVA || dest == FlatView::Viewer::Both )
+	hp_wvadp_.setParam( this, fdp );
+
+    if ( dest == FlatView::Viewer::VD || dest == FlatView::Viewer::Both )
+	hp_vddp_.setParam( this, fdp );
+
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	vwr.setPack( dest, fdp, isnew );
+    }
+
+    dataChanged.trigger( this );
+}
+
+
+void uiODViewer2D::setDataPack( RefMan<FlatDataPack> fdp, bool wva,
+				bool isnew )
+{
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+				  !wva || (isnew && wvaselspec_==vdselspec_) );
+    setDataPack( fdp, dest, isnew );
 }
 
 
@@ -675,12 +787,161 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
     setTrcKeyZSampling( tkzs, &taskr );
     const uiFlatViewer& vwr = viewwin()->viewer(0);
     if ( vdselspec_==wvaselspec_ )
-	makeUpView( createDataPack(false), FlatView::Viewer::Both );
+	makeUpView( createDataPackRM(false), FlatView::Viewer::Both );
     else if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
 	makeUpView( createDataPack(false), FlatView::Viewer::VD );
     else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
 	makeUpView( createDataPack(true), FlatView::Viewer::WVA );
+
     posChanged.trigger();
+}
+
+
+RefMan<SeisFlatDataPack> uiODViewer2D::getDataPack( bool wva ) const
+{
+    if ( wva && hp_wvadp_.getParam(this) )
+	return hp_wvadp_.getParam( this );
+    else if ( !wva && hp_vddp_.getParam(this) )
+	return hp_vddp_.getParam( this );
+
+    return createDataPackRM( wva );
+}
+
+
+RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM( bool wva ) const
+{
+    return createDataPackRM( selSpec(wva) );
+}
+
+
+RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
+					const Attrib::SelSpec& selspec ) const
+{
+   TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
+    if ( !tkzs.isFlat() ) return nullptr;
+
+    RefMan<ZAxisTransform> zat = getZAxisTransform();
+    if ( zat && !selspec.isZTransformed() )
+    {
+	if ( tkzs.nrZ() == 1 )
+	    return createDataPackForTransformedZSliceRM( selspec );
+	tkzs.zsamp_.setFrom( zat->getZInterval(true) );
+	tkzs.zsamp_.step = SI().zStep();
+    }
+
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+    attrserv->setTargetSelSpec( selspec );
+    auto dp = attrserv->createOutput( tkzs, nullptr );
+    if ( !dp )
+	return nullptr;
+
+    return createFlatDataPackRM( *dp, 0 );
+}
+
+
+RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM( DataPackID dpid,
+								int comp ) const
+{
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+    if ( !seisdp )
+	return nullptr;
+
+    return createFlatDataPackRM( *seisdp, comp );
+}
+
+
+RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM(
+					const SeisDataPack& dp, int comp ) const
+{
+    ConstRefMan<SeisDataPack> seisdp( &dp );
+    if ( !seisdp->validComp(comp) )
+	return nullptr;
+
+    const StringView zdomainkey( seisdp->zDomain().key() );
+    const bool alreadytransformed =
+	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
+    if ( datatransform_ && !alreadytransformed )
+    {
+	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	transformer.setInput( seisdp.ptr() );
+	transformer.setInterpolate( true );
+	transformer.execute();
+	if ( transformer.getOutput() )
+	    seisdp = transformer.getOutput();
+    }
+
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    RefMan<SeisFlatDataPack> seisfdp;
+    if ( regsdp )
+	seisfdp = new RegularFlatDataPack( *regsdp, comp );
+    else if ( randsdp )
+	seisfdp = new RandomFlatDataPack( *randsdp, comp );
+
+    if ( !seisfdp )
+	return nullptr;
+
+    return seisfdp;
+}
+
+
+RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackForTransformedZSliceRM(
+					const Attrib::SelSpec& selspec ) const
+{
+    if ( !hasZAxisTransform() || selspec.isZTransformed() )
+	return nullptr;
+
+    const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
+					    : tkzs_;
+    if ( tkzs.nrZ() != 1 ) return nullptr;
+
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+    attrserv->setTargetSelSpec( selspec );
+
+    RefMan<DataPointSet> data = new DataPointSet(false,true);
+    ZAxisTransformPointGenerator generator( *datatransform_ );
+    generator.setInput( tkzs );
+    generator.setOutputDPS( *data );
+    generator.execute();
+
+    const int firstcol = data->nrCols();
+    BufferStringSet userrefs; userrefs.add( selspec.userRef() );
+    data->dataSet().add( new DataColDef(userrefs.get(0)) );
+    if ( !attrserv->createOutput(*data,firstcol) )
+	return nullptr;
+
+    auto dp = RegularSeisDataPack::createDataPackForZSliceRM(
+	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
+    return createFlatDataPackRM( *dp, 0 );
+}
+
+
+RefMan<MapDataPack> uiODViewer2D::createMapDataPackRM(
+					    const RegularFlatDataPack& rsdp )
+{
+    const TrcKeyZSampling& tkzs = rsdp.sampling();
+    StepInterval<double> inlrg, crlrg;
+    inlrg.setFrom( tkzs.hsamp_.inlRange() );
+    crlrg.setFrom( tkzs.hsamp_.crlRange() );
+
+    BufferStringSet dimnames;
+    dimnames.add("X").add("Y").add(sKey::Inline()).add(sKey::Crossline());
+
+    Array2DSlice<float> slice2d( rsdp.data() );
+    slice2d.setDimMap( 0, 0 );
+    slice2d.setDimMap( 1, 1 );
+    slice2d.setPos( 2, 0 );
+    slice2d.init();
+
+    RefMan<MapDataPack> mdp =
+	new MapDataPack( "ZSlice", new Array2DImpl<float>( slice2d ) );
+    if ( !mdp )
+	return nullptr;
+
+    mdp->setName( rsdp.name() );
+    mdp->setProps( inlrg, crlrg, true, &dimnames );
+    return mdp;
 }
 
 
@@ -720,7 +981,9 @@ DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
     if ( !dp )
 	return DataPack::cNoID();
 
-    return createFlatDataPack( *dp, 0 );
+    DataPackID fdpid = createFlatDataPack( *dp, 0 );
+    DPM(DataPackMgr::SeisID()).unRef( dpid );
+    return fdpid;
 }
 
 

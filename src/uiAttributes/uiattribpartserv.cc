@@ -767,9 +767,9 @@ static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 }
 
 
-ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
-				const TrcKeyZSampling& tkzs,
-				const RegularSeisDataPack* cache )
+RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
+					    const TrcKeyZSampling& tkzs,
+					    const RegularSeisDataPack* cache )
 {
     uiMsgMainWinSetter mwsetter( sCast(uiMainWin*,parent()) );
 
@@ -1086,6 +1086,81 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
      DPSOutputCreator dpsmaker( dpss, firstcol, *this );
      uiTaskRunner taskrunner( parent() );
      return TaskRunner::execute( &taskrunner, dpsmaker );
+}
+
+
+RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
+				const Interval<float>& zrg, RandomLineID rdlid )
+{
+    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
+    if ( !rdmline )
+	return nullptr;
+
+    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
+    const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
+	: attrds->getDesc(targetspecs_[0].id());
+
+    if ( targetdesc )
+    {
+	const MultiID mid( targetdesc->getStoredID().buf() );
+	ConstRefMan<RegularSeisDataPack> sdp =
+			Seis::PLDM().get<RegularSeisDataPack>( mid );
+	if ( sdp )
+	{
+	    BufferStringSet componentnames;
+	    for ( int idx=0; idx<targetspecs_.size(); idx++ )
+		componentnames.add( targetspecs_[idx].userRef() );
+
+	    return RandomSeisDataPack::createDataPackFromRM( *sdp, rdlid, zrg,
+							     &componentnames );
+	}
+    }
+
+    TrcKeyPath knots, trckeys;
+    rdmline->allNodePositions( knots );
+    rdmline->getPathBids( knots, trckeys );
+
+    if ( trckeys.isEmpty() )
+	return nullptr;
+
+    snapToValidRandomTraces( trckeys, targetdesc );
+
+    BinIDValueSet bidset( 2, false );
+    for ( const auto& tk : trckeys )
+	bidset.add( tk.position(), zrg.start, zrg.stop );
+
+    SeisTrcBuf output( true );
+    if ( !createOutput(bidset,output,knots,trckeys) || output.isEmpty() )
+	return nullptr;
+
+    RefMan<RandomSeisDataPack> newpack =
+		new RandomSeisDataPack( SeisDataPack::categoryStr(true,false) );
+    if ( !newpack )
+	return nullptr;
+
+    newpack->setRandomLineID( rdlid );
+    newpack->setPath( trckeys );
+    newpack->setZRange( output.get(0)->zRange() );
+    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
+    {
+	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
+	    continue;
+
+	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
+	{
+	    const int trcidx = output.find( trckeys[idy].position() );
+	    const SeisTrc* trc = trcidx<0 ? nullptr : output.get( trcidx );
+	    if ( !trc ) continue;
+	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
+		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
+	}
+    }
+
+    newpack->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
+    newpack->setName( targetspecs_[0].userRef() );
+    return newpack;
 }
 
 

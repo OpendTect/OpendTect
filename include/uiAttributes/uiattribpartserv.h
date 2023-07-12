@@ -33,6 +33,7 @@ class DataPointSetDisplayMgr;
 class IOObj;
 class NLAModel;
 class DataPointSet;
+class RandomSeisDataPack;
 class RegularSeisDataPack;
 class SeisTrcBuf;
 class TaskRunner;
@@ -115,7 +116,7 @@ public:
 			    { return targetspecs_; }
 
     DataPackID	createOutput(const TrcKeyZSampling&,DataPackID);
-    ConstRefMan<RegularSeisDataPack>	createOutput(const TrcKeyZSampling&,
+    RefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
 				 const RegularSeisDataPack* prevslcs=nullptr);
     bool		createOutput(DataPointSet&,int firstcol =0,
 				     bool showprogress=true);
@@ -280,6 +281,8 @@ public:
 
     static uiAttribPartServer*	getInst();
 
+    RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
+			    const Interval<float>& zrg, RandomLineID rdlid);
     DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    RandomLineID rdlid);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,

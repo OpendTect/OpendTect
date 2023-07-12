@@ -56,6 +56,18 @@ public:
 
     void			dumpInfo(StringPairSet&) const override;
 
+    static RefMan<RegularSeisDataPack> createDataPackForZSliceRM(
+					    const BinIDValueSet*,
+					    const TrcKeyZSampling&,
+					    const ZDomain::Info&,
+					    const BufferStringSet* nms=nullptr);
+				/*!< Creates RegularSeisDataPack from
+				BinIDValueSet for z-slices in z-axis transformed
+				domain. nrComponents() in the created datapack
+				will be one less than BinIDValueSet::nrVals(),
+				as the	z-component is not used. \param nms is
+				for passing component names. */
+
     static DataPackID		createDataPackForZSlice(const BinIDValueSet*,
 						const TrcKeyZSampling&,
 						const ZDomain::Info&,
@@ -118,6 +130,12 @@ public:
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 						   RandomLineID rdmlineid,
 						   const Interval<float>& zrg);
+
+    static RefMan<RandomSeisDataPack> createDataPackFromRM(
+						    const RegularSeisDataPack&,
+						    RandomLineID rdmlineid,
+						    const Interval<float>& zrg,
+						    const BufferStringSet* nms);
 
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 					       RandomLineID rdmlineid,
