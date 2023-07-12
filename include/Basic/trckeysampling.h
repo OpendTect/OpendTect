@@ -126,6 +126,9 @@ public:
     bool		getInterSection(const TrcKeySampling&,
 					TrcKeySampling&) const;
 			    //!< Returns false if intersection is empty
+    bool		getInterSection(const TrcKeySampling&,
+					TrcKeySampling&,bool ignoresteps) const;
+			    //!< Returns false if intersection is empty
 
     BinID		getNearest(const BinID&) const;
     TrcKey		getNearest(const TrcKey&) const;
