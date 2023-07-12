@@ -37,6 +37,7 @@ public:
     static PortNr_Type	remoteHandlerPort()
 					    { return mCast(PortNr_Type,5050); }
     static const char*	remoteHandlerName()	{ return "od_remoteservice"; }
+    static bool		remoteHostOK(const Network::Authority&);
 
 protected:
 

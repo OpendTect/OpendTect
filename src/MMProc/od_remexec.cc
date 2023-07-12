@@ -156,8 +156,22 @@ void doWork( CallBacker* )
     const FilePath parfp( normalarguments.get(0) );
     par.set( sParFile(), parfp );
 
-    const Network::Authority auth( remhostaddress,
-				   RemoteJobExec::getLocalHandlerPort() );
+    Network::Authority auth( remhostaddress,
+				   RemoteJobExec::stdRemoteHandlerPort() );
+    if ( !RemoteJobExec::remoteHostOK(auth) )
+    {
+	BufferString errmsg( "Cannot make connection to: ", auth.toString() );
+	auth = Network::Authority( remhostaddress,
+				   RemoteJobExec::legacyRemoteHandlerPort() );
+	if ( !RemoteJobExec::remoteHostOK(auth) )
+	{
+	    if ( !errmsg.isEmpty() )
+		errmsg.addNewLine();
+	    errmsg.add( "Cannot make connection to: " ).add( auth.toString() );
+	    OD::DisplayErrorMessage( errmsg );
+	}
+    }
+
     PtrMan<RemoteJobExec> rje = new RemoteJobExec( auth );
     rje->addPar( par );
     ApplicationData::exit( rje->launchProc() ? 0 : 1 );

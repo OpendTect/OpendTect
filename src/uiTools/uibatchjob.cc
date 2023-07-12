@@ -424,7 +424,7 @@ bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p, Batch::ID* jobid )
     if ( !sjd_.remotehost_.isEmpty() )
     {
 	hdl_.refresh();
-	const HostData* localhost = hdl_.find(BufferString(GetLocalHostName()));
+	const HostData* localhost = hdl_.localHost();
 	if ( !localhost )
 	{
 	    uiMSG().error( tr("Cannot find configuration for localhost") );
