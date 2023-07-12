@@ -274,7 +274,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
-    DataPackID dpid = DataPack::cNoID();
+    ConstRefMan<SeisDataPack> dp;
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
@@ -291,13 +291,13 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	    return Viewer2DID::udf();
 
 	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
-	dpid = attrserv->createRdmTrcsOutput(
-		posdatasel.tkzs_.zsamp_, rdmline->ID() );
+	dp = attrserv->createRdmTrcsOutputRM( posdatasel.tkzs_.zsamp_,
+					      rdmline->ID() );
     }
     else
-	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
+	dp = attrserv->createOutput( posdatasel.tkzs_ );
 
-    if ( dpid==DataPack::cNoID() )
+    if ( !dp )
 	return Viewer2DID::udf();
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
@@ -309,9 +309,8 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM( *dp, 0),
 		       FlatView::Viewer::Both );
-    DPM(DataPackMgr::SeisID()).unRef( dpid );
     vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dest );
 
@@ -371,14 +370,13 @@ void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid,
 	vwr2d->setSelSpec( as, dest );
 
     const int version = visServ().currentVersion( visid, attribid );
-    const DataPackID dpid = vwr2d->createFlatDataPack( id, version );
     if ( isnewvwr )
-	vwr2d->makeUpView( dpid, FlatView::Viewer::Both );
+	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id, version),
+			   FlatView::Viewer::Both );
     else
-	vwr2d->makeUpView( dpid, dest );
+	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id, version), dest );
 
     vwr2d->setWinTitle( true );
-
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
     {
