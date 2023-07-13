@@ -108,6 +108,7 @@ void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
 
 
 Geometry::Geometry()
+    : sampling_(false)
 {
 }
 
