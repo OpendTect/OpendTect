@@ -2308,14 +2308,14 @@ void uiAttribPartServer::fillPar( IOPar& iopar, bool is2d,
 
 
 void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d,
-				 bool isstored )
+				 bool isstored, uiStringSet& errmsgs )
 {
     DescSet* ads = eDSHolder().getDescSet( is2d, isstored );
     if ( !ads )
 	return;
 
-    uiStringSet errmsgs;
     const int odversion = iopar.odVersion();
+    uiStringSet locmsg;
     if ( isstored && odversion<411 ) // backward compatibility v<4.1.1
     {
 	DescSet* adsnonstored = eDSHolder().getDescSet( is2d, false );
@@ -2329,14 +2329,14 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d,
 	}
     }
     else
-	ads->usePar( iopar, &errmsgs );
+	ads->usePar( iopar, &locmsg );
 
-    if ( !errmsgs.isEmpty() )
+    if ( !locmsg.isEmpty() )
     {
-	uiString basemsg = tr("Error during restore of %1 Attribute Set")
-			 .arg(is2d ? uiStrings::s2D()
-				   : uiStrings::s3D());
-	uiMSG().errorWithDetails( errmsgs, basemsg );
+	errmsgs.add( tr("Error during restore of %1 Attribute Set")
+						 .arg(is2d ? uiStrings::s2D()
+						   : uiStrings::s3D()) );
+	errmsgs.add( locmsg );
     }
 
     MultiID mid;
@@ -2345,6 +2345,17 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d,
 
     set2DEvent( is2d );
     sendEvent( evNewAttrSet() );
+}
+
+
+void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d,
+				 bool isstored )
+{
+    uiStringSet errmsgs;
+    usePar( iopar, is2d, isstored, errmsgs );
+
+    if ( !errmsgs.isEmpty() )
+	uiMSG().errorWithDetails( errmsgs );
 }
 
 
