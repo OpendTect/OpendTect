@@ -177,6 +177,7 @@ public:
 
     void		fillPar(IOPar&,bool,bool) const;
     void		usePar(const IOPar&,bool,bool);
+    void		usePar(const IOPar&,bool,bool, uiStringSet&);
 
     void		setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
 			{ dpsdispmgr_ = dispmgr; }
