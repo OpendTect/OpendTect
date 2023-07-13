@@ -789,9 +789,9 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
     if ( vdselspec_==wvaselspec_ )
 	makeUpView( createDataPackRM(false), FlatView::Viewer::Both );
     else if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
-	makeUpView( createDataPack(false), FlatView::Viewer::VD );
+	makeUpView( createDataPackRM(false), FlatView::Viewer::VD );
     else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
-	makeUpView( createDataPack(true), FlatView::Viewer::WVA );
+	makeUpView( createDataPackRM(true), FlatView::Viewer::WVA );
 
     posChanged.trigger();
 }

@@ -362,6 +362,8 @@ public:
     enum		VwrDest { WVA, VD, Both, None };
     static VwrDest	getDest(bool dowva,bool dovd);
 
+    bool		hasPack( bool wva ) const
+			{ return getPack( wva ).get(); }
     void		setPack(VwrDest,RefMan<FlatDataPack>,
 				bool usedefs=true);
 			//!< Sets datapack to use on either wva or vd or both
@@ -467,9 +469,6 @@ private:
     bool			canhandlechange_ = true;
 
 public:
-    mDeprecated("No longer required")
-    bool		hasPack( bool wva ) const
-			{ return packID(wva)!=DataPack::cNoID(); }
     mDeprecated("No longer required")
     DataPackID		packID(bool wva) const;
     mDeprecated("No longer required")
