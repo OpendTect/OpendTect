@@ -67,13 +67,11 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
 	dp_ = new SeisTrcBufDataPack( tbuf, geom, type, cat, compnr );
     dp_->setName( dpname );
 
-    DPM( DataPackMgr::FlatID() ).add( dp_ );
     const FlatView::DataDispPars& ddpars = viewer().appearance().ddpars_;
-    viewer().addPack( dp_->id() );
     const FlatView::Viewer::VwrDest dest =
 	  FlatView::Viewer::getDest( ddpars.wva_.show_, ddpars.vd_.show_ );
     if ( dest != FlatView::Viewer::None )
-	viewer().usePack( dest, dp_->id() );
+	viewer().setPack( dest, dp_ );
 
     int w = 200 + 2*sz; if ( w > 600 ) w = 600;
     int h = 150 + 5*tbuf.first()->size(); if ( h > 500 ) h = 500;

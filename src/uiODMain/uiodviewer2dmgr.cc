@@ -238,7 +238,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 {
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
-    vwr2d->makeUpView( vwr2d->createFlatDataPack(dpid,0),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(dpid,0),
 		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
 

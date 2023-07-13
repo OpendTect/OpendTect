@@ -177,21 +177,12 @@ void uiODView2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 
 void uiODView2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
 {
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
-	const TypeSet<DataPackID> ids = vwr.availablePacks();
-	for ( int idx=0; idx<ids.size(); idx++ )
-	    if ( ids[idx]!=vwr.packID(false) && ids[idx]!=vwr.packID(true) )
-		vwr.removePack( ids[idx] );
-    }
-
     Attrib::SelSpec& selspec = viewer2D()->selSpec( false );
     if ( selspec.isZTransformed() ) return;
 
-    const DataPackID dpid = createDataPack( selspec );
-    if ( dpid != DataPack::cNoID() )
-	viewer2D()->makeUpView( dpid, FlatView::Viewer::VD );
+    auto dp = createDataPackRM( selspec );
+    if ( dp )
+	viewer2D()->makeUpView( dp, FlatView::Viewer::VD );
 }
 
 
@@ -294,9 +285,8 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     if ( !stored && !attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	return false;
 
-    const DataPackID dpid =
-	createDataPack( selas, attrbnm.buf(), steering, stored );
-    if ( dpid == DataPack::cNoID() ) return false;
+    auto fdp = createDataPackRM( selas, attrbnm.buf(), steering, stored );
+    if ( !fdp ) return false;
 
     viewer2D()->setSelSpec( &selas, FlatView::Viewer::VD );
     if ( !viewer2D()->useStoredDispPars(FlatView::Viewer::VD) )
@@ -317,8 +307,63 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	ddpars.vd_.show_ = true;
     }
 
-    viewer2D()->makeUpView( dpid, FlatView::Viewer::VD );
+    viewer2D()->makeUpView( fdp, FlatView::Viewer::VD );
     return true;
+}
+
+
+RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
+			Attrib::SelSpec& selas, const BufferString& attrbnm,
+			const bool steering, const bool stored )
+{
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
+    if ( !dp ) return nullptr;
+
+    uiAttribPartServer* attrserv = applMgr()->attrServer();
+    attrserv->setTargetSelSpec( selas );
+
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,dp.ptr());
+    if ( regfdp && regfdp->is2D() )
+    {
+	if ( stored )
+	{
+	    const SeisIOObjInfo objinfo( attrbnm, Seis::Line );
+	    if ( !objinfo.ioObj() )
+		return nullptr;
+
+	    Attrib::DescID attribid = attrserv->getStoredID(
+			    objinfo.ioObj()->key(), true, steering ? 1 : 0 );
+	    selas.set( attrbnm, attribid, false, 0 );
+	    selas.set2DFlag();
+
+	    const Attrib::DescSet* ds =
+			Attrib::DSHolder().getDescSet( true, true );
+	    if ( !ds ) return nullptr;
+
+	    selas.setRefFromID( *ds );
+	    selas.setUserRef( attrbnm );
+
+	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+	    if ( !targetdesc )
+		return nullptr;
+
+	    BufferString defstring;
+	    targetdesc->getDefStr( defstring );
+	    selas.setDefString( defstring );
+	    attrserv->setTargetSelSpec( selas );
+	}
+    }
+    else if ( randfdp )
+    {
+	auto rdp = attrserv->createRdmTrcsOutputRM( randfdp->zRange(),
+						randfdp->getRandomLineID() );
+
+	return viewer2D()->createFlatDataPackRM( *rdp, 0 );
+    }
+
+    return viewer2D()->createDataPackRM( selas );
 }
 
 

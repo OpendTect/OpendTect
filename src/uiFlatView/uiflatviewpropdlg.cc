@@ -193,6 +193,24 @@ void uiFlatViewDataDispPropTab::dispSel( CallBacker* )
 }
 
 
+void uiFlatViewDataDispPropTab::setDataName( bool wva )
+{
+    if ( vwr_.hasPack(wva) )
+    {
+	auto dp = vwr_.getPack( wva ).get();
+	if ( dp )
+	{
+	    if ( !dispfld_->isPresent(dp->name()) )
+	    {
+		dispfld_->addItem( mToUiStringTodo(dp->name()) );
+		if ( dp->name() == dataName() )
+		    dispfld_->setCurrentItem( dispfld_->size() - 1 );
+	    }
+	}
+    }
+}
+
+
 void uiFlatViewDataDispPropTab::setDataNames()
 {
     if ( !showdisplayfield_ )
@@ -200,16 +218,8 @@ void uiFlatViewDataDispPropTab::setDataNames()
 
     dispfld_->setEmpty();
     dispfld_->addItem( uiStrings::sNone() );
-    for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
-    {
-	auto dp = dpm_.getDP( vwr_.availablePacks()[idx]);
-	if ( dp )
-	{
-	    dispfld_->addItem( mToUiStringTodo(dp->name()) );
-	    if ( dp->name() == dataName() )
-		dispfld_->setCurrentItem( dispfld_->size() - 1 );
-	}
-    }
+    setDataName( true );
+    setDataName( false );
     mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
     const bool wva = wvatab ? true : false;
     if ( (wva && !vwr_.appearance().ddpars_.wva_.show_) ||
@@ -278,15 +288,14 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     const BufferString datanm( dispfld_->text() );
     bool updated = false;
     const bool canchanged = vwr_.enableChange( false );
-    for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
-    {
-	auto dp = dpm_.getDP(vwr_.availablePacks()[idx]);
-	if ( dp && dp->name() == datanm )
-	{
-	    vwr_.usePack( dest, dp->id(), false );
-	    updated = true;
-	}
-    }
+
+    auto dp_wva = vwr_.getPack( true ).get();
+    auto dp_vd = vwr_.getPack( false ).get();
+    if ( wva && dp_vd && dp_vd->name()==datanm )
+	vwr_.setPack( dest, dp_vd, false );
+
+    if ( !wva && dp_wva && dp_wva->name()==datanm )
+	vwr_.setPack( dest, dp_wva, false );
 
     vwr_.enableChange( canchanged );
     if ( updated )
@@ -956,8 +965,7 @@ void uiFlatViewPropDlg::finalizeCB( CallBacker* )
 {
     putAllToScreen();
     const bool wva = vwr_.appearance().ddpars_.wva_.allowuserchange_;
-    if ( wva && vwr_.packID(true)==DataPack::cNoID() &&
-		vwr_.packID(false)!=DataPack::cNoID() )
+    if ( wva && !vwr_.getPack(true).get() && !vwr_.getPack(false).get() )
     {
 	showGroup( 1 );
     }

@@ -54,6 +54,7 @@ mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 public:
 			~uiFlatViewDataDispPropTab();
 
+    void		setDataName(bool);
     void		setDataNames();
     virtual void	setData()			= 0;
     bool		doDisp() const;
