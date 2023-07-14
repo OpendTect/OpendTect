@@ -574,6 +574,7 @@ void uiODMain::doRestoreSession()
     restoringsess_ = true;
 
     sessionRestoreEarly.trigger();
+    uiStringSet errmsgs;
     applMgr().EMServer()->usePar( cursession_->empars() );
     applMgr().seisServer()->usePar( cursession_->seispars() );
     if ( applMgr().nlaServer() )
@@ -581,16 +582,16 @@ void uiODMain::doRestoreSession()
     if ( SI().has2D() )
     {
 	applMgr().attrServer()->usePar( cursession_->attrpars(true,false),
-					true, false );
+					true, false, errmsgs );
 	applMgr().attrServer()->usePar( cursession_->attrpars(true,true),
-					true, true );
+					true, true, errmsgs );
     }
     if ( SI().has3D() )
     {
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),
-					false, false );
+					false, false, errmsgs );
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),
-					false, true );
+					false, true, errmsgs );
     }
     applMgr().mpeServer()->usePar( cursession_->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
@@ -613,6 +614,11 @@ void uiODMain::doRestoreSession()
 
     restoringsess_ = false;
     MouseCursorManager::restoreOverride();
+    if ( !errmsgs.isEmpty() )
+    {
+	uiString basemsg = tr("Errors during session restore");
+	uiMSG().errorWithDetails( errmsgs, basemsg );
+    }
 }
 
 
