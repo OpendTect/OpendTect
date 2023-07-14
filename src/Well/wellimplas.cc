@@ -9,17 +9,10 @@ ________________________________________________________________________
 
 #include "wellimpasc.h"
 
-#include "sorting.h"
-#include "strmprov.h"
-#include "tabledef.h"
 #include "unitofmeasure.h"
-#include "varlenarray.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "welld2tmodel.h"
-#include "wellmarker.h"
-#include "idxable.h"
 #include "od_istream.h"
 
 #include <math.h>

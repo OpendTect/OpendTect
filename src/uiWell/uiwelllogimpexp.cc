@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistring.h"
 #include "uitable.h"
-#include "uiunitsel.h"
 #include "uiwellsel.h"
 
 #include "oddirs.h"
@@ -32,10 +31,8 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellreader.h"
 #include "wellwriter.h"
 #include "ioobj.h"
-#include "ioman.h"
 
 
 static const float defundefval = -999.25;

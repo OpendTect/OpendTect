@@ -43,9 +43,13 @@ uiLASWriter::uiLASWriter( uiParent* p )
     logsfld_->attach( alignedBelow, wellfld_ );
     mAttachCB( logsfld_->selectionChanged, uiLASWriter::logSelCB );
 
+    lognmfld_ = new uiGenInput( this, tr("In LAS file MNEM column write"),
+			BoolInpSpec(true,tr("Mnemonic"),tr("Log name")) );
+    lognmfld_->attach( alignedBelow, logsfld_ );
+
     mdrangefld_ = new uiGenInput( this, tr("MD range"),
 				 FloatInpIntervalSpec(true) );
-    mdrangefld_->attach( alignedBelow, logsfld_ );
+    mdrangefld_->attach( alignedBelow, lognmfld_ );
     mdrangefld_->setValue( SI().depthsInFeet() ? 0.5f : 0.1524f, 2 );
 
     zunitfld_ = new uiComboBox( this, "Z units" );
@@ -63,6 +67,7 @@ uiLASWriter::uiLASWriter( uiParent* p )
     colwidthfld_->attach( rightOf, nullfld_ );
 
     lasfld_ = new uiASCIIFileInput( this, false );
+    lasfld_->setTitleText( tr("Output LAS file") );
     lasfld_->setFilter( Well::LASImporter::fileFilter() );
     lasfld_->setDefaultExtension( "las" );
     lasfld_->attach( alignedBelow, nullfld_ );
@@ -109,6 +114,7 @@ void uiLASWriter::wellSelCB( CallBacker* )
     Well::MGR().getLogNamesByID( wellid, lognms );
     lognms.sort();
     logsfld_->addItems( lognms );
+    logsfld_->resizeToContents();
 
     const FilePath fp = ioobj->fullUserExpr();
     BufferString fnm( fp.baseName(), "_logs" );
@@ -183,6 +189,7 @@ bool uiLASWriter::acceptOK( CallBacker* )
     laswriter.setZInFeet( zunitfld_->currentItem()==1 );
     laswriter.setMDRange( mdrangefld_->getFStepInterval() );
     laswriter.setColumnWidth( colwidthfld_->getIntValue() );
+    laswriter.writeLogName( !lognmfld_->getBoolValue() );
     bool res = laswriter.execute();
     if ( !res )
     {

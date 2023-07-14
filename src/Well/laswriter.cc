@@ -161,8 +161,12 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
 	const Well::Log& log = logs_.getLog( idx );
 	BufferString uomstr = log.unitMeasLabel();
 	uomstr.remove( ' ' );
-	strm << create( log.mnemonicLabel(), uomstr,
-			"", BufferString(toString(idx+1)," ",log.name()) );
+	if ( writelognm_ )
+	    strm << create( log.name(), uomstr, "",
+			BufferString(toString(idx+1)," ",log.mnemonicLabel()) );
+	else
+	    strm << create( log.mnemonicLabel(), uomstr, "",
+			BufferString(toString(idx+1)," ",log.name()) );
     }
 
     strm << "#\n";
@@ -173,7 +177,19 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
 bool LASWriter::writeParameterInfoSection( od_ostream& strm )
 {
 // optional
+    BufferString kbstr, glstr;
+    kbstr.set( wd_->track().getKbElev(), cNrMDDecimals );
+    if ( mIsUdf(wd_->info().groundelev_) )
+	glstr.set( nullvalue_ );
+    else
+	glstr.set( wd_->info().groundelev_, cNrMDDecimals );
+
+    const char* depthunit = zinfeet_ ? "F" : "M";
     strm << "~Parameter Information Section\n";
+    strm << "#MNEM.UNIT           VALUE             DESCRIPTION\n";
+    strm << "#_________         __________          ___________\n";
+    strm << create( "EKB", depthunit, kbstr, "Elevation Kelly Bushing" ).buf();
+    strm << create( "EGL", depthunit, glstr, "Elevation Ground Level" ).buf();
     strm << "#\n";
     return true;
 }

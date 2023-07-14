@@ -34,6 +34,7 @@ protected:
 
     uiWellSel*		wellfld_;
     uiListBox*		logsfld_;
+    uiGenInput*		lognmfld_;
     uiGenInput*		mdrangefld_;
     uiComboBox*		zunitfld_;
     uiGenInput*		nullfld_;

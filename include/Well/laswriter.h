@@ -29,6 +29,7 @@ public:
     void		setMDRange(const StepInterval<float>&);
     void		setZInFeet( bool yn )		{ zinfeet_ = yn; }
     void		setColumnWidth( int w )		{ columnwidth_ = w; }
+    void		writeLogName(bool yn)		{ writelognm_ = yn; }
 
     od_int64		totalNr() const  override	{ return totalnr_; }
     od_int64		nrDone() const override		{ return nrdone_; }
@@ -50,10 +51,11 @@ protected:
 
     StepInterval<float> mdrg_;
     BufferString	nullvalue_;
-    bool		zinfeet_	= false;
+    bool		zinfeet_			= false;
+    bool		writelognm_			= false;
 
-    od_int64		totalnr_	= 1;
-    od_int64		nrdone_		= 0;
+    od_int64		totalnr_			= 1;
+    od_int64		nrdone_				= 0;
 
-    int			columnwidth_	= 12;
+    int			columnwidth_			= 12;
 };
