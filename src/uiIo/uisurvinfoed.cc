@@ -773,7 +773,7 @@ bool uiSurveyInfoEditor::setRanges()
     si_.setZUnit( zistime, zinfeet );
     si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
 
-    const float srd = refdatumfld_->getFValue();
+    const float srd = refdatumfld_->getFValue( 0, 0.f );
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
 						       : UoMR().get( "Feet" );
     const UnitOfMeasure* displayuom = !zinfeet ? UoMR().get( "Meter" )
@@ -1025,7 +1025,7 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
     const bool showdepthinft = !depthdispfld_->getBoolValue();
     refdatumfld_->setTitleText( getSRDString(showdepthinft) );
-    float refdatum = refdatumfld_->getFValue();
+    float refdatum = refdatumfld_->getFValue( 0, 0.f );
     refdatum *= showdepthinft ? mToFeetFactorF : mFromFeetFactorF;
     refdatumfld_->setValue( refdatum );
 }
@@ -1036,8 +1036,7 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* )
     const UnitOfMeasure* prevdisplayuom = depthdispfld_->getBoolValue()
 					? UoMR().get( "Meter" )
 					: UoMR().get( "Feet" );
-    const float oldsrduser = refdatumfld_->getFValue();
-
+    const float oldsrduser = refdatumfld_->getFValue( 0, 0.f );
     const bool zintime = zunitfld_->currentItem() == 0;
     const bool zinft = zunitfld_->currentItem() == 2;
     const bool xyinft = xyInFeet();
