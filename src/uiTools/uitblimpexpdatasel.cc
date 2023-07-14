@@ -72,12 +72,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :
 			   tr("%1").arg(tinf_.name());
 	uiLabel* lbl = new uiLabel( this, lbltxt );
-	if ( formfld_ )
-	    lbl->attach( rightOf, formfld_ );
 	rightmostleftfld_ = lbl;
     }
-    else
-	rightmostleftfld_ = formfld_;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
@@ -93,6 +89,9 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 
 	mkColFlds( iform );
     }
+
+    if ( formfld_ && rightmostfld_ )
+	formfld_->attach( rightOf, rightmostfld_ );
 
     const int formnr = tinf_.selection_.form_;
     if ( formnr>=0 && formnr<tinf_.nrForms() && formfld_ )
@@ -670,7 +669,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrtypefld_->valuechanged.notify( typchgcb );
 
     uiToolButton* button = new uiToolButton( this, "open",
-				tr("Selecting existing format"),
+				tr("Select existing format"),
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setPrefWidthInChar( 6 );
     button->attach( rightOf, hdrtypefld_ );

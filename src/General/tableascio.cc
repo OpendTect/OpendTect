@@ -282,7 +282,7 @@ Table::TargetInfo*
 				   ConstRefMan<Coords::CoordSystem> crs )
 {
     const ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
-    TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
+    TargetInfo* ti = new TargetInfo( "Position", DoubleInpSpec(), reqspec );
     ti->form(0).setName( sKeyXY() );
     ti->form(0).add( DoubleInpSpec() );
     if ( wcrs )
