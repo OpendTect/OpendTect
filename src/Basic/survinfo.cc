@@ -842,6 +842,9 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& )
     si->tkzs_.normalize();
     si->wcs_ = si->tkzs_;
     si->seisrefdatum_ = obj.getDoubleValue( sKeySeismicRefDatum() );
+    if ( mIsUdf(si->seisrefdatum_) )
+	si->seisrefdatum_ = 0.f;
+
     Survey::fillSetPtsFromObj( obj, *si );
     Survey::fillDirTransformFromObj( obj, *si );
     Survey::setUnitsFromObj( obj, *si );
