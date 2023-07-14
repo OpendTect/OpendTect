@@ -29,6 +29,7 @@ mExpClass(uiIo) uiIOObjInserter : public CallBacker
 public:
 			uiIOObjInserter(const Translator&);
     virtual		~uiIOObjInserter();
+			mOD_DisableCopy(uiIOObjInserter)
 
     mDefineFactoryInClasswKW( uiIOObjInserter, factory, factoryName() )
 
