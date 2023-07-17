@@ -130,13 +130,22 @@ uiString uiGLInfo::getMessage( bool* warning )
 	    "Intel card found. If your computer has multiple graphics cards,\n"
 	    "consider switching from the integrated graphics.") );
     }
+    else if ( stringStartsWithCI("ati",allinfo[0]->buf()) ||
+	      stringStartsWithCI("amd",allinfo[0]->buf()) )
+    {
+	msg.append( "\n", true );
+	msg.append( tr(
+		"AMD card found. Video cards by AMD are not supported.\n"
+		"Your card may work, but OpendTect will likely experience 3D\n"
+		"visualization issues. If your computer also has an NVIDIA\n"
+		"card, make sure OpendTect will use this NVIDIA card.") );
+    }
     else if ( stringStartsWithCI("microsoft",allinfo[0]->buf()) ||
 	      stringStartsWithCI("gdi",allinfo[1]->buf()) )
     {
 	msg.append( "\n", true );
 	msg.append( tr(
-	    "No graphics card found or no drivers have been installed.\n"
-	    "Please check our system requirements.") );
+	    "No graphics card found or no drivers have been installed.") );
     }
     else if ( *allinfo[2] == "?" )
     {
@@ -146,6 +155,9 @@ uiString uiGLInfo::getMessage( bool* warning )
     }
     else
 	*warning = false;
+
+    if ( *warning )
+	msg.append( tr("\n\nPlease check our System Requirements.") );
 
     return msg;
 }
