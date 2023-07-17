@@ -58,7 +58,7 @@ public:
 
     virtual void	display( bool yn, bool shrk=false,
 				 bool maximize=false )
-			    { finalize(); mIfMO()->display(yn,shrk,maximize); }
+			    { mIfMO()->display(yn,shrk,maximize); }
     bool		isDisplayed() const	  { mRetMO(isDisplayed,false); }
 
     void		setFocus()                { mIfMO()->setFocus(); }

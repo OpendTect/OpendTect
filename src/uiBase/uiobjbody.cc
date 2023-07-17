@@ -85,9 +85,6 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximized )
 
 void uiObjectBody::doDisplay( CallBacker* )
 {
-    if ( !finalized_ )
-	finalize();
-
     if ( display_ )
     {
 	is_hidden_ = false;
