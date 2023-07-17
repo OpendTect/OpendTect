@@ -92,6 +92,7 @@ void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
 
 Geometry::Geometry()
     : id_(mUdfGeomID)
+    , sampling_(false)
 {
 }
 
