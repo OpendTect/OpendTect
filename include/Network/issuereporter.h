@@ -38,6 +38,7 @@ public:
     uiString			getMessage() const	{ return message_; }
 				//!<Message coming back from website (if any).
 
+    bool			use(const char* filename,bool isbinary=true);
     bool			parseCommandLine();
 
 protected:
