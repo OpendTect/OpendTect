@@ -27,10 +27,24 @@ ________________________________________________________________________
 
 #include <fstream>
 
+namespace System
+{
+    static const char* sKeyReportHost()
+    { return "http://backend.opendtect.org"; }
+
+    static const char* sKeyReportScript()
+    { return "/backendscripts/crashreport.php"; }
+} // namespace System
+
 System::IssueReporter::IssueReporter( const char* host, const char* path )
     : host_(host)
     , path_(path)
 {
+    if ( host_.isEmpty() )
+	host_ = sKeyReportHost();
+
+    if ( path_.isEmpty() )
+	path_ = sKeyReportScript();
 }
 
 
@@ -62,7 +76,6 @@ bool System::IssueReporter::readReport( const char* filename )
     od_istream fstream( filename );
     if ( fstream.isBad() )
 	mStreamError( tr("open") );
-
 
     report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
 
@@ -139,6 +152,21 @@ bool System::IssueReporter::send()
 }
 
 
+bool System::IssueReporter::use( const char* filename, bool isbinary )
+{
+    if ( !File::exists(filename) )
+	return false;
+
+    isbinary_ = isbinary;
+    if ( !setDumpFileName(filename) )
+	return false;
+
+    fillBasicReport( filename );
+
+    return isbinary_ ? true : readReport( filename );
+}
+
+
 bool System::IssueReporter::parseCommandLine()
 {
     CommandLineParser parser;
@@ -161,9 +189,6 @@ bool System::IssueReporter::parseCommandLine()
 		     .arg( hostkey ).arg( pathkey );
 	return false;
     }
-
-    host_ = "http://backend.opendtect.org";
-    path_ = "/backendscripts/crashreport.php";
 
     const BufferString& filename = normalargs.get( 0 );
 
