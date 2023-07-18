@@ -29,6 +29,7 @@ public:
     void		setMDRange(const StepInterval<float>&);
     void		setZInFeet( bool yn )		{ zinfeet_ = yn; }
     void		setColumnWidth( int w )		{ columnwidth_ = w; }
+    void		writeLogName(bool yn);
 
     od_int64		totalNr() const  override	{ return totalnr_; }
     od_int64		nrDone() const override		{ return nrdone_; }
