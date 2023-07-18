@@ -14,12 +14,16 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uihistogramdisplay.h"
 #include "uistrings.h"
+#include "uitoolbutton.h"
 
 #include "datapackbase.h"
+#include "hiddenparam.h"
 #include "mousecursor.h"
 #include "keystrs.h"
 #include <math.h>
 
+static HiddenParam<uiHistogramSel,uiObjectItem*> hp_resetbutton( nullptr );
+static HiddenParam<uiHistogramSel,Interval<float>*> hp_initialcliprg( nullptr );
 
 uiHistogramSel::uiHistogramSel( uiParent* p,
 				const uiHistogramDisplay::Setup& su, int id )
@@ -31,6 +35,8 @@ uiHistogramSel::uiHistogramSel( uiParent* p,
     , slidertextpol_(uiHistogramSel::Always)
     , rangeChanged(this)
 {
+    hp_initialcliprg.setParam( this,
+			       new Interval<float>(Interval<float>::udf()) );
     uiHistogramDisplay::Setup hsu( su );
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
@@ -46,6 +52,8 @@ uiHistogramSel::uiHistogramSel( uiParent* p,
     xax_ = histogramdisp_->xAxis();
 
     init();
+
+    postFinalize().notify( mCB(this,uiHistogramSel,finalizedCB) );
 }
 
 
@@ -53,6 +61,8 @@ uiHistogramSel::~uiHistogramSel()
 {
     detachAllNotifiers();
 
+    hp_resetbutton.removeParam( this );
+    hp_initialcliprg.removeAndDeleteParam( this );
     delete minhandle_; delete maxhandle_;
     delete minvaltext_; delete maxvaltext_;
 }
@@ -128,6 +138,14 @@ void uiHistogramSel::init()
     maxhandle_->setPenStyle( ls );
     maxhandle_->setCursor( cursor );
     maxhandle_->setZValue( zval+2 );
+
+    auto* button = new uiToolButton( nullptr, "refresh", tr("Reset selection"),
+				     mCB(this,uiHistogramSel,resetPressed) );
+    auto* buttonitem = scene.addItem( new uiObjectItem(button) );
+    buttonitem->setZValue( zval+2 );
+    buttonitem->setObjectSize( 25, 25 ); // looks best
+    buttonitem->setItemIgnoresTransformations( true );
+    hp_resetbutton.setParam( this, buttonitem );
 }
 
 
@@ -189,6 +207,15 @@ void uiHistogramSel::drawAgain()
     drawText();
     drawLines();
     drawPixmaps();
+
+    hp_resetbutton.getParam(this)->
+		setPos( 2, histogramdisp_->viewHeight() - 27 );
+}
+
+
+void uiHistogramSel::finalizedCB( CallBacker* cb )
+{
+    *hp_initialcliprg.getParam(this) = cliprg_;
 }
 
 
@@ -329,4 +356,11 @@ void uiHistogramSel::histDRChanged( CallBacker* cb )
     minhandle_->setLine( startpix_, 0, startpix_, height );
     maxhandle_->setLine( stoppix_, 0, stoppix_, height );
     useClipRange();
+}
+
+
+void uiHistogramSel::resetPressed( CallBacker* )
+{
+    setSelRange( *hp_initialcliprg.getParam(this) );
+    rangeChanged.trigger();
 }
