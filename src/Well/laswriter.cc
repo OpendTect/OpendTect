@@ -10,12 +10,16 @@ ________________________________________________________________________
 #include "laswriter.h"
 
 #include "dateinfo.h"
+#include "hiddenparam.h"
 #include "od_ostream.h"
 #include "string2.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welltrack.h"
+
+
+static HiddenParam<LASWriter,char> hp_writelognm(0);
 
 static const int cNrMDDecimals = 4;
 static const int cNrXYDecimals = 3;
@@ -39,12 +43,15 @@ LASWriter::LASWriter( const Well::Data& wd, const BufferStringSet& lognms,
 
     mdrg_ = logs_.dahInterval();
     mdrg_.step = 0.1524f;
+
+    hp_writelognm.setParam( this, false );
 }
 
 
 LASWriter::~LASWriter()
 {
     delete &logs_;
+    hp_writelognm.removeParam( this );
 }
 
 
@@ -57,6 +64,12 @@ void LASWriter::setMDRange( const StepInterval<float>& rg )
 void LASWriter::setNullValue( const char* nv )
 {
     nullvalue_ = nv;
+}
+
+
+void LASWriter::writeLogName( bool yn )
+{
+    hp_writelognm.setParam( this, yn );
 }
 
 
@@ -161,8 +174,12 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
 	const Well::Log& log = logs_.getLog( idx );
 	BufferString uomstr = log.unitMeasLabel();
 	uomstr.remove( ' ' );
-	strm << create( log.mnemonicLabel(), uomstr,
-			"", BufferString(toString(idx+1)," ",log.name()) );
+	if ( hp_writelognm.getParam(this) )
+	    strm << create( log.name(), uomstr, "",
+			BufferString(toString(idx+1)," ",log.mnemonicLabel()) );
+	else
+	    strm << create( log.mnemonicLabel(), uomstr, "",
+			BufferString(toString(idx+1)," ",log.name()) );
     }
 
     strm << "#\n";
@@ -173,7 +190,19 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
 bool LASWriter::writeParameterInfoSection( od_ostream& strm )
 {
 // optional
+    BufferString kbstr, glstr;
+    kbstr.set( wd_->track().getKbElev(), cNrMDDecimals );
+    if ( mIsUdf(wd_->info().groundelev_) )
+	glstr.set( nullvalue_ );
+    else
+	glstr.set( wd_->info().groundelev_, cNrMDDecimals );
+
+    const char* depthunit = zinfeet_ ? "F" : "M";
     strm << "~Parameter Information Section\n";
+    strm << "#MNEM.UNIT           VALUE             DESCRIPTION\n";
+    strm << "#_________         __________          ___________\n";
+    strm << create( "EKB", depthunit, kbstr, "Elevation Kelly Bushing" ).buf();
+    strm << create( "EGL", depthunit, glstr, "Elevation Ground Level" ).buf();
     strm << "#\n";
     return true;
 }

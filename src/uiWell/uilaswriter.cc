@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiwellsel.h"
 
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "laswriter.h"
 #include "oddirs.h"
@@ -26,6 +27,8 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "wellreader.h"
 
+
+static HiddenParam<uiLASWriter,uiGenInput*> hp_lognmfld( nullptr );
 
 uiLASWriter::uiLASWriter( uiParent* p )
     : uiDialog(p,Setup(tr("Export to LAS"),mNoDlgTitle,
@@ -43,9 +46,14 @@ uiLASWriter::uiLASWriter( uiParent* p )
     logsfld_->attach( alignedBelow, wellfld_ );
     mAttachCB( logsfld_->selectionChanged, uiLASWriter::logSelCB );
 
+    auto* lognmfld = new uiGenInput( this, tr("In LAS file MNEM column write"),
+			BoolInpSpec(true,tr("Mnemonic"),tr("Log name")) );
+    lognmfld->attach( alignedBelow, logsfld_ );
+    hp_lognmfld.setParam( this, lognmfld );
+
     mdrangefld_ = new uiGenInput( this, tr("MD range"),
 				 FloatInpIntervalSpec(true) );
-    mdrangefld_->attach( alignedBelow, logsfld_ );
+    mdrangefld_->attach( alignedBelow, lognmfld );
     mdrangefld_->setValue( SI().depthsInFeet() ? 0.5f : 0.1524f, 2 );
 
     zunitfld_ = new uiComboBox( this, "Z units" );
@@ -63,6 +71,7 @@ uiLASWriter::uiLASWriter( uiParent* p )
     colwidthfld_->attach( rightOf, nullfld_ );
 
     lasfld_ = new uiASCIIFileInput( this, false );
+    lasfld_->setTitleText( tr("Output LAS file") );
     lasfld_->setFilter( Well::LASImporter::fileFilter() );
     lasfld_->setDefaultExtension( "las" );
     lasfld_->attach( alignedBelow, nullfld_ );
@@ -74,6 +83,8 @@ uiLASWriter::uiLASWriter( uiParent* p )
 uiLASWriter::~uiLASWriter()
 {
     detachAllNotifiers();
+
+    hp_lognmfld.removeParam( this );
 }
 
 
@@ -97,7 +108,7 @@ void uiLASWriter::wellSelCB( CallBacker* )
     if ( wellid.isUdf() )
 	return;
 
-    const Well::LoadReqs reqs( Well::Trck, Well::LogInfos );
+    const Well::LoadReqs reqs( Well::Inf, Well::Trck, Well::LogInfos );
     wd_ = Well::MGR().get( wellid, reqs );
     if ( !wd_ )
     {
@@ -109,6 +120,7 @@ void uiLASWriter::wellSelCB( CallBacker* )
     Well::MGR().getLogNamesByID( wellid, lognms );
     lognms.sort();
     logsfld_->addItems( lognms );
+    logsfld_->resizeToContents();
 
     const FilePath fp = ioobj->fullUserExpr();
     BufferString fnm( fp.baseName(), "_logs" );
@@ -183,6 +195,7 @@ bool uiLASWriter::acceptOK( CallBacker* )
     laswriter.setZInFeet( zunitfld_->currentItem()==1 );
     laswriter.setMDRange( mdrangefld_->getFStepInterval() );
     laswriter.setColumnWidth( colwidthfld_->getIntValue() );
+    laswriter.writeLogName( !hp_lognmfld.getParam(this)->getBoolValue() );
     bool res = laswriter.execute();
     if ( !res )
     {
