@@ -102,7 +102,7 @@ void uiLASWriter::wellSelCB( CallBacker* )
     if ( wellid.isUdf() )
 	return;
 
-    const Well::LoadReqs reqs( Well::Trck, Well::LogInfos );
+    const Well::LoadReqs reqs( Well::Inf, Well::Trck, Well::LogInfos );
     wd_ = Well::MGR().get( wellid, reqs );
     if ( !wd_ )
     {
