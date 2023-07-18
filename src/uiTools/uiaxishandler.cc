@@ -733,7 +733,7 @@ void uiAxisHandler::updateName()
 	const bool isleft = setup_.side_ == uiRect::Left;
 	const int vnamepos = namepos - fontheight;
 	pt.x = isleft ? vnamepos : width_-vnamepos;
-	pt.y = pixAfter() + axsz_/2 + fontheight;
+	pt.y = pixAfter() + axsz_/2 + annots_.font().width(setup_.caption_);
 
 	al.set( Alignment::Bottom );
 	al.set( Alignment::Left );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uihistogramdisplay.h"
 #include "uistrings.h"
+#include "uitoolbutton.h"
 
 #include "datapackbase.h"
 #include "mousecursor.h"
@@ -25,6 +26,7 @@ uiHistogramSel::uiHistogramSel( uiParent* p,
 				const uiHistogramDisplay::Setup& su, int id )
     : uiGroup( p, "Histogram with slider" )
     , id_(id)
+    , initialcliprg_(Interval<float>::udf())
     , startpix_(mUdf(int))
     , stoppix_(mUdf(int))
     , mousedown_(false)
@@ -46,6 +48,8 @@ uiHistogramSel::uiHistogramSel( uiParent* p,
     xax_ = histogramdisp_->xAxis();
 
     init();
+
+    postFinalize().notify( mCB(this,uiHistogramSel,finalizedCB) );
 }
 
 
@@ -128,6 +132,13 @@ void uiHistogramSel::init()
     maxhandle_->setPenStyle( ls );
     maxhandle_->setCursor( cursor );
     maxhandle_->setZValue( zval+2 );
+
+    auto* button = new uiToolButton( nullptr, "refresh", tr("Reset selection"),
+				     mCB(this,uiHistogramSel,resetPressed) );
+    resetbutton_ = scene.addItem( new uiObjectItem(button) );
+    resetbutton_->setZValue( zval+2 );
+    resetbutton_->setObjectSize( 25, 25 ); // looks best
+    resetbutton_->setItemIgnoresTransformations( true );
 }
 
 
@@ -189,6 +200,14 @@ void uiHistogramSel::drawAgain()
     drawText();
     drawLines();
     drawPixmaps();
+
+    resetbutton_->setPos( 2, histogramdisp_->viewHeight() - 27 );
+}
+
+
+void uiHistogramSel::finalizedCB( CallBacker* cb )
+{
+    initialcliprg_ = cliprg_;
 }
 
 
@@ -329,4 +348,11 @@ void uiHistogramSel::histDRChanged( CallBacker* cb )
     minhandle_->setLine( startpix_, 0, startpix_, height );
     maxhandle_->setLine( stoppix_, 0, stoppix_, height );
     useClipRange();
+}
+
+
+void uiHistogramSel::resetPressed( CallBacker* )
+{
+    setSelRange( initialcliprg_ );
+    rangeChanged.trigger();
 }

@@ -13,9 +13,10 @@ ________________________________________________________________________
 #include "uihistogramdisplay.h"
 #include "datapack.h"
 
+class uiObjectItem;
 
 mExpClass(uiTools) uiHistogramSel : public uiGroup
-{
+{ mODTextTranslationClass(uiHistogramSel);
 public:
     				uiHistogramSel(uiParent*,
 					       const uiHistogramDisplay::Setup&,
@@ -58,9 +59,11 @@ protected:
     uiLineItem*			maxhandle_;
     uiTextItem*			minvaltext_;
     uiTextItem*			maxvaltext_;
+    uiObjectItem*		resetbutton_;
 
     Interval<float>		datarg_;
     Interval<float>		cliprg_;
+    Interval<float>		initialcliprg_;
     int				startpix_;
     int				stoppix_;
 
@@ -76,9 +79,11 @@ protected:
     void			init();
     bool			changeLinePos(bool pressedonly=false);
 
+    void			finalizedCB(CallBacker*);
     void			mousePressed(CallBacker*);
     void			mouseMoved(CallBacker*);
     void			mouseReleased(CallBacker*);
+    void			resetPressed(CallBacker*);
 
     void			histogramResized(CallBacker*);
     void			histDRChanged(CallBacker*);
