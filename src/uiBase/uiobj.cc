@@ -345,7 +345,6 @@ void uiObject::translateText()
 
 void uiObject::display( bool yn, bool shrink, bool maximize )
 {
-    finalize();
     objBody()->display( yn, shrink, maximize );
 }
 
