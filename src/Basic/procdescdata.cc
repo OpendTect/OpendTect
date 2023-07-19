@@ -7,10 +7,13 @@ ________________________________________________________________________
 
 -*/
 
+#include "procdescdata.h"
+
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "procdescdata.h"
+#include "pythonaccess.h"
 #include "uistrings.h"
 
 
@@ -126,13 +129,11 @@ bool ProcDesc::Data::hasWorkToDo( const BufferString& pypath, bool toadd )
 
 
     FilePath fp( pypath );
-    fp.add( "envs" );
-
+    fp.add("envs");
     for ( int idx=pyprocnms.size()-1; idx>=0; idx-- )
     {
 	const FilePath pyexefp( fp.fullPath(), pyprocnms.get(idx),
-								"python.exe" );
-
+							    "python.exe" );
 	if ( !File::exists(pyexefp.fullPath()) )
 	{
 	    pyprocnms.removeSingle( idx );
@@ -351,4 +352,21 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 	return ProcDesc::DataEntry::Remove;
     else
 	return ProcDesc::DataEntry::AddNRemove;
+}
+
+
+void gatherFireWallProcInf()
+{
+    const FilePath fp( GetSoftwareDir(false), "data", "FireWall" );
+    const DirList filelist( fp.fullPath().buf(), File::FilesInDir );
+    for ( int idx=0; idx<filelist.size(); idx++ )
+    {
+	const BufferString& filefp = filelist.fullPath( idx );
+	IOPar par;
+	par.read( filefp, nullptr );
+	const int typeidx = ProcDesc::DataEntry::TypeDef().indexOf(
+	    par.find(sKey::Type()) );
+	ePDD().add( par.find(sKey::Name()), toUiString(par.find("Def")),
+	    ProcDesc::DataEntry::TypeDef().getEnumForIndex(typeidx) );
+    }
 }

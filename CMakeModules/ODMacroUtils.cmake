@@ -518,9 +518,11 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
 	    install( FILES "$<TARGET_PDB_FILE:${TARGET_NAME}>"
 		     DESTINATION "${OD_RUNTIME_DIRECTORY}" )
 	endif()
-
 	OD_GENERATE_SYMBOLS( ${TARGET_NAME} )
     endforeach()
+    if ( WIN32 AND NOT "${OD_FIREWALL_EXCEPTION_EXEC}" STREQUAL "" AND NOT "${OD_FIREWALL_EXECEP_DESC}" STREQUAL "" )
+	OD_INSTALL_FIREWALL_RULES()
+    endif()
 
 endif()
 
@@ -845,3 +847,26 @@ macro( OD_INSTALL_SIP )
     install( FILES "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/SurveyProviders/${OD_MODULE_NAME}.txt"
 	     DESTINATION "${OD_DATA_INSTALL_RELPATH}/SurveyProviders" )
 endmacro(OD_INSTALL_SIP)
+
+macro( OD_INSTALL_FIREWALL_RULES  )
+    if ( NOT IS_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/FireWall" )
+	file( MAKE_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/FireWall" )
+    endif()
+    foreach( FW_CC_EXEC_NM FW_EXEC_DEF IN ZIP_LISTS OD_FIREWALL_EXCEPTION_EXEC OD_FIREWALL_EXECEP_DESC )
+	if( "${FW_CC_EXEC_NM}" STREQUAL "" )
+		MESSAGE( WARNING "${FW_CC_EXEC_NM} IS EMPTY" )
+	    break()
+	elseif( "${FW_EXEC_DEF}" STREQUAL "" )
+	    message( FATAL_ERROR "Definition for ${FW_CC_EXEC_NM} not found" )
+	    break()
+	endif()
+	string( REPLACE ".cc" "" FW_EXEC_NM ${FW_CC_EXEC_NM} )
+	set( filestr "" )
+	string( APPEND filestr "Name: ${FW_EXEC_NM}\n" )
+	string( APPEND filestr "Def: \"${FW_EXEC_DEF}\"\n" )
+	string( APPEND filestr "Type: ${OD_FIREWALL_TYPE}\n" )
+	file( WRITE "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/FireWall/${FW_EXEC_NM}.txt" "${filestr}" )
+	install( FILES "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/FireWall/${FW_EXEC_NM}.txt"
+		DESTINATION "${OD_DATA_INSTALL_RELPATH}/FireWall" )
+    endforeach()
+endmacro( OD_INSTALL_FIREWALL_RULES )

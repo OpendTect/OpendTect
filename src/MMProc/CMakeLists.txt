@@ -24,8 +24,12 @@ set( OD_MODULE_SOURCES
 	singlebatchjobdispatch.cc
 )
 
+set( OD_FIREWALL_EXCEPTION_EXEC od_remoteservice.cc )
+set( OD_FIREWALL_EXECEP_DESC "Distributed Computing Service" )
+set( OD_FIREWALL_TYPE OD )
+
 set( OD_MODULE_PROGS
-	od_remoteservice.cc
+	${OD_FIREWALL_EXCEPTION_EXEC}
 	od_remexec.cc
 )
 

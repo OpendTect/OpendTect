@@ -26,9 +26,4 @@ mDefModInitFn(uiODMain)
     uiKeyBindingSettingsGroup::initClass();
     VolProc::uiDataTreeItem::initClass();
     uiContourTreeItem::initClass();
-
-#ifdef __win__
-    ePDD().add( ePDD().sKeyODExecNm(), uiODMain::sODDesc(),
-						ProcDesc::DataEntry::OD );
-#endif
 }

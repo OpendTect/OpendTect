@@ -81,3 +81,4 @@ namespace ProcDesc
 
 mGlobal(Basic) ProcDesc::Data&		    ePDD();
 mGlobal(Basic) const ProcDesc::Data&	    PDD();
+mGlobal(Basic) void			    gatherFireWallProcInf();

@@ -141,6 +141,8 @@ namespace OD
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 	static void	GetPythonEnvPath(FilePath&);
 	static void	GetPythonEnvBinPath(FilePath&);
+	static void	reReadFWRules(const BufferString& fpstr);
+	static uiString firewallDesc();
 
     private:
 
