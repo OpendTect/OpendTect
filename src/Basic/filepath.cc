@@ -481,7 +481,7 @@ const OD::String& FilePath::dir( int nr ) const
 BufferString FilePath::dirUpTo( int lvl ) const
 {
     const int nrlvls = lvls_.size();
-    if ( lvl < 0 || lvl > nrlvls-1 )
+    if ( lvl > nrlvls-1 )
 	lvl = nrlvls - 1;
 
     const bool isuri = isURI();
