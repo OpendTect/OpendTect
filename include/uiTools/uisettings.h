@@ -174,14 +174,16 @@ protected:
     uiGenInput*		iconszfld_;
     uiGenInput*		showinlprogressfld_;
     uiGenInput*		showcrlprogressfld_;
+    uiGenInput*		showzprogressfld_;
     uiGenInput*		showrdlprogressfld_;
     uiGenInput*		virtualkeyboardfld_;
 
     int			iconsz_;
-    bool		showinlprogress_;
-    bool		showcrlprogress_;
-    bool		showrdlprogress_;
-    bool		enabvirtualkeyboard_;
+    bool		showinlprogress_		= true;
+    bool		showcrlprogress_		= true;
+    bool		showzprogress_			= true;
+    bool		showrdlprogress_		= true;
+    bool		enabvirtualkeyboard_		= false;
 };
 
 

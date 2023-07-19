@@ -962,10 +962,6 @@ mUpdateSettings( const OD::String&, set )
 uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,tr("General"),setts)
     , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
-    , showinlprogress_(true)
-    , showcrlprogress_(true)
-    , showrdlprogress_(true)
-    , enabvirtualkeyboard_(false)
 {
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );
@@ -992,10 +988,15 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 					  BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 
+    setts_.getYN( SettingsAccess::sKeyShowZProgress(), showzprogress_ );
+    showzprogressfld_ = new uiGenInput( this, uiStrings::sZSlice(mPlural),
+					  BoolInpSpec(showzprogress_) );
+    showzprogressfld_->attach( alignedBelow, showcrlprogressfld_ );
+
     setts_.getYN( SettingsAccess::sKeyShowRdlProgress(), showrdlprogress_ );
     showrdlprogressfld_ = new uiGenInput( this, uiStrings::sRandomLine(mPlural),
 					  BoolInpSpec(showrdlprogress_) );
-    showrdlprogressfld_->attach( alignedBelow, showcrlprogressfld_ );
+    showrdlprogressfld_->attach( alignedBelow, showzprogressfld_ );
 }
 
 
@@ -1028,6 +1029,8 @@ bool uiGeneralSettingsGroup::acceptOK()
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowCrlProgress() );
+    updateSettings( showzprogress_, showzprogressfld_->getBoolValue(),
+		    SettingsAccess::sKeyShowZProgress() );
     updateSettings( showrdlprogress_, showrdlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowRdlProgress() );
     updateSettings( enabvirtualkeyboard_, virtualkeyboardfld_->getBoolValue(),

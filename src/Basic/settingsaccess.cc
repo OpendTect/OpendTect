@@ -24,6 +24,9 @@ const char* SettingsAccess::sKeyShowInlProgress()
 const char* SettingsAccess::sKeyShowCrlProgress()
 { return "dTect.Show crl progress"; }
 
+const char* SettingsAccess::sKeyShowZProgress()
+{ return "dTect.Show z progress"; }
+
 const char* SettingsAccess::sKeyShowRdlProgress()
 { return "dTect.Show rdl progress"; }
 

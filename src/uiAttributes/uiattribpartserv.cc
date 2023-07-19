@@ -783,6 +783,10 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     const bool isnla = targetspecs_[0].isNLA();
     bool atsamplepos = true;
 
+    bool showzprogress = true;
+    Settings::common().getYN( SettingsAccess::sKeyShowZProgress(),
+			      showzprogress );
+
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     ConstRefMan<RegularSeisDataPack> preloadeddatapack;
     if ( targetdesc )
@@ -809,8 +813,9 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 		rdr.setSelData( new Seis::RangeSelData(tkzs) );
 		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
 				SeisDataPack::categoryStr(false,false) );
-		uiTaskRunner taskr( parent() );
-		if ( rdr.getDataPack(*sdp,&taskr) )
+		uiTaskRunner uitaskr( parent() );
+		TaskRunner* taskr = showzprogress ? &uitaskr : nullptr;
+		if ( rdr.getDataPack(*sdp,taskr) )
 		    return sdp;
 	    }
 
