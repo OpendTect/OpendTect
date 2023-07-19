@@ -9,13 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "uiobj.h"
+#include "uibaseobject.h"
+
+#include "uigeom.h"
 #include "uilayout.h"
 
 class MouseCursor;
+class uiFont;
+class uiMainWin;
 class uiObjectBody;
 class uiObject;
-class uiMainWin;
 class uiParentBody;
 
 
@@ -42,68 +45,47 @@ public:
     const uiParentBody*	pbody() const
 			{ return const_cast<uiParent*>(this)->pbody(); }
 
+    void		attach(ConstraintType,int margin=-1);
+    void		attach(ConstraintType,uiParent* oth,int margin=-1,
+				bool reciprocal=true);
+    void		attach(ConstraintType,uiObject* oth,int margin=-1,
+				bool reciprocal=true);
 
-#define mIfMO()		if ( mainObject() ) mainObject()
-#define mRetMO(fn,val)	return mainObject() ? mainObject()->fn() : val;
+    virtual void	display(bool yn,bool shrk=false,bool maximize=false);
+    bool		isDisplayed() const;
 
-    void		attach( ConstraintType t, int margin=-1 )
-			{ mIfMO()->attach(t,margin); }
-    void		attach( ConstraintType t, uiParent* oth, int margin=-1,
-				bool reciprocal=true)
-			{ attach(t,oth->mainObject(),margin,reciprocal); }
-    void		attach( ConstraintType t, uiObject* oth, int margin=-1,
-				bool reciprocal=true)
-			{ attach_(t,oth,margin,reciprocal); }
+    void		setFocus();
+    bool		hasFocus() const;
 
+    void		setSensitive(bool yn=true);
+    bool		sensitive() const;
 
-    virtual void	display( bool yn, bool shrk=false,
-				 bool maximize=false )
-			    { mIfMO()->display(yn,shrk,maximize); }
-    bool		isDisplayed() const	  { mRetMO(isDisplayed,false); }
+    const uiFont*	font() const;
+    void		setFont(const uiFont&);
+    void		setCaption(const uiString&);
+    void		setCursor(const MouseCursor&);
 
-    void		setFocus()                { mIfMO()->setFocus(); }
-    bool		hasFocus() const	  { mRetMO(hasFocus,false); }
+    uiSize		actualSize( bool include_border) const;
 
-    void		setSensitive(bool yn=true){ mIfMO()->setSensitive(yn); }
-    bool		sensitive() const	  { mRetMO(sensitive,false); }
+    int			prefHNrPics() const;
+    int			prefVNrPics() const;
+    void		setPrefHeight(int h);
+    void		setPrefWidth(int w);
+    void		setPrefHeightInChar(int h);
+    void		setPrefHeightInChar(float h);
+    void		setPrefWidthInChar(float w);
+    void		setPrefWidthInChar(int w);
 
-    const uiFont*	font() const		  { mRetMO(font,0); }
-    void		setFont( const uiFont& f) { mIfMO()->setFont(f); }
-    void		setCaption(const uiString& c) { mIfMO()->setCaption(c);}
-    void		setCursor(const MouseCursor& c) {mIfMO()->setCursor(c);}
+    virtual void	reDraw(bool deep);
+    void		shallowRedraw(CallBacker*);
+    void		deepRedraw(CallBacker*);
 
-    uiSize		actualSize( bool include_border) const
-			{
-			    if ( mainObject() )
-				return mainObject()->actualSize(include_border);
-			    return uiSize();
-			}
-
-    int			prefHNrPics() const	  { mRetMO(prefHNrPics, -1 ); }
-    int			prefVNrPics() const	  { mRetMO(prefVNrPics,-1); }
-    void		setPrefHeight( int h )    { mIfMO()->setPrefHeight(h); }
-    void		setPrefWidth( int w )     { mIfMO()->setPrefWidth(w); }
-    void		setPrefHeightInChar( int h )
-			    { mIfMO()->setPrefWidthInChar(h); }
-    void		setPrefHeightInChar( float h )
-			    { mIfMO()->setPrefHeightInChar(h); }
-    void		setPrefWidthInChar( float w )
-			    { mIfMO()->setPrefWidthInChar(w); }
-    void		setPrefWidthInChar( int w )
-			    { mIfMO()->setPrefWidthInChar(w); }
-
-    virtual void	reDraw( bool deep )	  { mIfMO()->reDraw( deep ); }
-    void		shallowRedraw( CallBacker* =0 )         {reDraw(false);}
-    void		deepRedraw( CallBacker* =0 )            {reDraw(true); }
-
-    void		setStretch( int h, int v ){ mIfMO()->setStretch(h,v); }
-    int			stretch( bool h ) const
-			{ return mainObject() ? mainObject()->stretch(h) : 0; }
+    void		setStretch(int h,int v);
+    int			stretch(bool h) const;
 
     OD::Color		backgroundColor() const;
     OD::Color		roBackgroundColor() const;
-    void		setBackgroundColor( const OD::Color& c )
-			    { mIfMO()->setBackgroundColor(c); }
+    void		setBackgroundColor(const OD::Color&);
 
     void		translateText() override;
 
@@ -112,14 +94,10 @@ protected:
 			~uiParent();
 			mOD_DisableCopy(uiParent)
 
-    virtual void	attach_(ConstraintType t, uiObject* oth, int margin=-1,
-				bool reciprocal=true)
-			{ mIfMO()->attach(t,oth,margin,reciprocal); }
+    virtual void	attach_(ConstraintType,uiObject* oth,int margin=-1,
+				bool reciprocal=true);
 
-#undef mIfMO
-#undef mRetMO
-
-    virtual uiObject*	mainobject()	{ return 0; }
+    virtual uiObject*	mainobject()			{ return nullptr; }
 
 public:
     mDeprecated("Use actualSize")

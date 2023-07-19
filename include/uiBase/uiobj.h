@@ -10,21 +10,25 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uibaseobject.h"
+
 #include "uigeom.h"
 #include "uilayout.h"
 #include "uistring.h"
+
 #include "color.h"
 
 mFDQtclass(QWidget)
 mFDQtclass(QString)
+
 class MouseCursor;
+class i_LayoutItem;
+
 class uiFont;
+class uiMainWin;
+class uiObjEventFilter;
 class uiObjectBody;
 class uiParent;
-class uiMainWin;
-class i_LayoutItem;
 class uiPixmap;
-class uiObjEventFilter;
 
 
 /*!

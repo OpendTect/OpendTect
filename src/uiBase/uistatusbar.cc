@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uibody.h"
 #include "uimainwin.h"
 #include "uimain.h"
+#include "uiobj.h"
 #include "uistrings.h"
 #include "envvars.h"
 

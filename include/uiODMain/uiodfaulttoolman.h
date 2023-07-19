@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+#include "uidialog.h"
 
 #include "bufstringset.h"
+#include "color.h"
 #include "emposid.h"
-#include "multiid.h"
 #include "timer.h"
-#include "uidialog.h"
 
 
 class uiCheckBox;

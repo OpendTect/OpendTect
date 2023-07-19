@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+#include "uiparent.h"
 
 #include "odcommonenums.h"
-#include "uiparent.h"
 #include "uistring.h"
 
 mFDQtclass(QWidget)
@@ -22,10 +22,12 @@ class uiMainWinBody;
 class uiMenu;
 class uiMenuBar;
 class uiObject;
+class uiPixmap;
 class uiStatusBar;
 class uiToolBar;
-class Timer;
+
 class BufferStringSet;
+class Timer;
 
 /*!
 \brief User interface main window.

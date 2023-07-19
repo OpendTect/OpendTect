@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+
+#include "color.h"
 #include "ptrman.h"
 
 class uiTabStack;

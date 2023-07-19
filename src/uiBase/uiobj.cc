@@ -9,17 +9,15 @@ ________________________________________________________________________
 
 #include "uiobj.h"
 #include "uiobjbody.h"
-#include "uicursor.h"
-#include "uimainwin.h"
-#include "i_layoutitem.h"
-#include "uimain.h"
-#include "uigroup.h"
-#include "uitreeview.h"
 
 #include "color.h"
+#include "i_layoutitem.h"
 #include "settingsaccess.h"
-#include "timer.h"
-#include "perthreadrepos.h"
+
+#include "uicursor.h"
+#include "uimain.h"
+#include "uimainwin.h"
+#include "uitreeview.h"
 
 #include "q_uiimpl.h"
 
@@ -195,7 +193,7 @@ protected:
 };
 
 
-bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* ev )
+bool uiObjEventFilter::eventFilter( QObject*, QEvent* ev )
 {
     if ( ev && ev->type() == mUsrEvLongTabletPress )
     {

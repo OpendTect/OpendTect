@@ -30,6 +30,202 @@ uiParentBody* uiParent::pbody()
 }
 
 
+void uiParent::attach( ConstraintType tp, int margin )
+{
+    if ( mainObject() )
+	mainObject()->attach( tp, margin );
+}
+
+
+void uiParent::attach( ConstraintType tp, uiParent* oth, int margin,
+			bool reciprocal )
+{
+    attach( tp, oth->mainObject(), margin, reciprocal );
+}
+
+
+void uiParent::attach( ConstraintType tp, uiObject* oth, int margin,
+			bool reciprocal )
+{
+    attach_( tp, oth, margin, reciprocal );
+}
+
+
+void uiParent::display( bool yn, bool shrink, bool maximize )
+{
+    if ( mainObject() )
+	mainObject()->display( yn, shrink, maximize );
+}
+
+
+bool uiParent::isDisplayed() const
+{
+    return mainObject() ? mainObject()->isDisplayed() : false;
+}
+
+
+void uiParent::setFocus()
+{
+    if ( mainObject() )
+	mainObject()->setFocus();
+}
+
+
+bool uiParent::hasFocus() const
+{
+    return mainObject() ? mainObject()->hasFocus() : false;
+}
+
+
+void uiParent::setSensitive( bool yn )
+{
+    if ( mainObject() )
+	mainObject()->setSensitive(yn);
+}
+
+
+bool uiParent::sensitive() const
+{
+    return mainObject() ? mainObject()->sensitive() : false;
+}
+
+
+const uiFont* uiParent::font() const
+{
+    return mainObject() ? mainObject()->font() : nullptr;
+}
+
+
+void uiParent::setFont( const uiFont& font )
+{
+    if ( mainObject() )
+	mainObject()->setFont( font );
+}
+
+
+void uiParent::setCaption( const uiString& str )
+{
+    if ( mainObject() )
+	mainObject()->setCaption( str );
+}
+
+
+void uiParent::setCursor( const MouseCursor& cursor )
+{
+    if ( mainObject() )
+	mainObject()->setCursor( cursor );
+}
+
+
+uiSize uiParent::actualSize( bool include_border) const
+{
+    if ( mainObject() )
+	return mainObject()->actualSize(include_border);
+    return uiSize();
+}
+
+
+int uiParent::prefHNrPics() const
+{
+    return mainObject() ? mainObject()->prefHNrPics() : -1;
+}
+
+
+int uiParent::prefVNrPics() const
+{
+    return mainObject() ? mainObject()->prefVNrPics() : -1;
+}
+
+
+void uiParent::setPrefHeight( int h )
+{
+    if ( mainObject() )
+	mainObject()->setPrefHeight( h );
+}
+
+
+void uiParent::setPrefWidth( int w )
+{
+    if ( mainObject() )
+	mainObject()->setPrefWidth( w );
+}
+
+
+void uiParent::setPrefHeightInChar( int h )
+{
+    if ( mainObject() )
+	mainObject()->setPrefWidthInChar( h );
+}
+
+
+void uiParent::setPrefHeightInChar( float h )
+{
+    if ( mainObject() )
+	mainObject()->setPrefHeightInChar( h );
+}
+
+
+void uiParent::setPrefWidthInChar( float w )
+{
+    if ( mainObject() )
+	mainObject()->setPrefWidthInChar( w );
+}
+
+
+void uiParent::setPrefWidthInChar( int w )
+{
+    if ( mainObject() )
+	mainObject()->setPrefWidthInChar( w );
+}
+
+
+void uiParent::reDraw( bool deep )
+{
+    if ( mainObject() )
+	mainObject()->reDraw( deep );
+}
+
+
+void uiParent::shallowRedraw( CallBacker* )
+{
+    reDraw(false);
+}
+
+
+void uiParent::deepRedraw( CallBacker* )
+{
+    reDraw( true );
+}
+
+
+void uiParent::setStretch( int h, int v )
+{
+    if ( mainObject() )
+	mainObject()->setStretch( h, v );
+}
+
+
+int uiParent::stretch( bool h ) const
+{
+    return mainObject() ? mainObject()->stretch( h ) : 0;
+}
+
+
+void uiParent::setBackgroundColor( const OD::Color& color )
+{
+    if ( mainObject() )
+	mainObject()->setBackgroundColor( color );
+}
+
+
+void uiParent::attach_( ConstraintType tp, uiObject* oth, int margin,
+			bool reciprocal )
+{
+    if ( mainObject() )
+	mainObject()->attach( tp, oth, margin, reciprocal );
+}
+
+
 void uiParent::addChild( uiBaseObject& child )
 {
     mDynamicCastGet(uiBaseObject*,thisuiobj,this);
@@ -225,7 +421,7 @@ void uiCentralWidgetBody::attachChild( ConstraintType tp, uiObject* child,
     if ( !centralwidget_ || !child || initing_ )
 	return;
 
-    centralwidget_->attachChild( tp, child, other, margin, reciprocal);
+    centralwidget_->attachChild( tp, child, other, margin, reciprocal );
 }
 
 
