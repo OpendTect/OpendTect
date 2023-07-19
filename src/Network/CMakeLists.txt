@@ -49,11 +49,6 @@ set ( OD_MODULE_TESTPROGS
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc webstreamsource.cc )
 
-if ( UNIX )
-    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/backend-server/upload.sh.in
-		    ${CMAKE_BINARY_DIR}/dtect/backend-server-upload.sh @ONLY )
-endif( UNIX )
-
 OD_INIT_MODULE()
 
 # The test programs are independant, but it is handy to compile the server app
