@@ -82,7 +82,6 @@ CMakeModules/Doxyfile
 doc/Programmer/*.html
 doc/Programmer/Generated
 doc/Programmer/sitemap.txt
-dtect/backend-server-upload.sh
 CMakeDoxy*
 
 
