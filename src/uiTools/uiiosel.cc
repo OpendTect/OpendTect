@@ -8,15 +8,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiiosel.h"
-#include "uicombobox.h"
+
+#include "file.h"
+#include "iopar.h"
+#include "keystrs.h"
+
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uifiledlg.h"
 #include "uilabel.h"
 #include "uilineedit.h"
-#include "uifiledlg.h"
-#include "iopar.h"
-#include "file.h"
-#include "keystrs.h"
-#include "settings.h"
 
 IOPar& uiIOFileSelect::ixtablehistory()
 { return *new IOPar("IXTable selection history"); }
@@ -41,15 +42,15 @@ uiObject* uiIOSelect::endObj( bool left )
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
-	: uiGroup(p)
-	, doselcb_(butcb)
-	, selectionDone(this)
-	, optionalChecked(this)
-	, keepmytxt_(su.keepmytxt_)
-	, optbox_(0)
-	, selbut_(0)
-	, lbl_(0)
-	, haveempty_(su.withclear_)
+    : uiGroup(p)
+    , selectionDone(this)
+    , optionalChecked(this)
+    , haveempty_(su.withclear_)
+    , keepmytxt_(su.keepmytxt_)
+    , doselcb_(butcb)
+    , selbut_(0)
+    , lbl_(0)
+    , optbox_(0)
 {
     inp_ = new uiComboBox( this,
 			BufferString("Select ",su.seltxt_.getFullString()) );
@@ -123,7 +124,7 @@ void uiIOSelect::addExtSelBut( uiButton* but )
 }
 
 
-void uiIOSelect::doFinalize( CallBacker* cb )
+void uiIOSelect::doFinalize( CallBacker* )
 {
     if ( selbut_ )
 	selbut_->attach( rightOf, inp_ );
@@ -486,7 +487,7 @@ uiIOFileSelect::~uiIOFileSelect()
 {}
 
 
-void uiIOFileSelect::doFileSel( CallBacker* c )
+void uiIOFileSelect::doFileSel( CallBacker* )
 {
     uiString caption = uiStrings::phrSelect(labelText());
     uiFileDialog fd( this, forread, getInput(),

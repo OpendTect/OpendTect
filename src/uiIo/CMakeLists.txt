@@ -42,6 +42,7 @@ set( OD_MODULE_SOURCES
 	uiimppickset.cc
 	uiimppvds.cc
 	uiioobj.cc
+	uiioobjinserter.cc
 	uiioobjmanip.cc
 	uiioobjsel.cc
 	uiioobjselgrp.cc

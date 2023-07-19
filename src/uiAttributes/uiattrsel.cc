@@ -172,15 +172,13 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
     if ( ctio )
     {
-	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
-						   OD::Vertical );
 	const BufferStringSet nms;
-	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
-					    extselbuts_, nms );
+	uiButton* but = uiIOObjInserter::createInsertButton( this, *ctio,
+							    inserters_, nms );
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserterd, uiAttrSelDlg::objInserted );
 
-	butgrp->attach( ensureBelow, selgrp_ );
+	but->attach( ensureBelow, selgrp_ );
     }
 
     int seltyp = 0;
@@ -657,8 +655,8 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
-    , showsteeringdata_(false)
     , seltype_(-1)
+    , showsteeringdata_(false)
 {
     attrdata_.attribid_ = curid;
     updateInput();
@@ -674,8 +672,8 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
-    , showsteeringdata_(false)
     , seltype_(-1)
+    , showsteeringdata_(false)
 {
     updateInput();
     inp_->setEditable( true );
