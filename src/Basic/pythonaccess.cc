@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "odplatform.h"
+#include "procdescdata.h"
 #include "separstr.h"
 #include "settings.h"
 #include "string2.h"

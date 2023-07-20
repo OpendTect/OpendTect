@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "transl.h"
 
 #include "uimenu.h"

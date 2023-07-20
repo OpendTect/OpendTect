@@ -12,9 +12,8 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include "oddirs.h"
-#include "pythonaccess.h"
-#include "uistrings.h"
 
 
 mDefineEnumUtils(ProcDesc::DataEntry,Type,"Type")

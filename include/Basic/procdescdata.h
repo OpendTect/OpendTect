@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "enums.h"
-#include "factory.h"
-#include "objectset.h"
+#include "manobjectset.h"
 
 class BufferStringSet;
 class uiString;
