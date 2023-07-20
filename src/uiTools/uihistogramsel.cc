@@ -215,7 +215,7 @@ void uiHistogramSel::drawAgain()
 
 void uiHistogramSel::finalizedCB( CallBacker* cb )
 {
-    *hp_initialcliprg.getParam(this) = cliprg_;
+    setDefaultSelRange( cliprg_ );
 }
 
 
@@ -239,11 +239,24 @@ void uiHistogramSel::setSelRange( const Interval<float>& rg )
     drawAgain();
 }
 
+
+void uiHistogramSel::setDefaultSelRange( const Interval<float>& rg )
+{
+    *hp_initialcliprg.getParam(this) = rg;
+}
+
+
 void uiHistogramSel::setSliderTextPolicy( uiHistogramSel::SliderTextPolicy pol )
-{ slidertextpol_ = pol; }
+{
+    slidertextpol_ = pol;
+}
+
 
 uiHistogramSel::SliderTextPolicy uiHistogramSel::sliderTextPolicy() const
-{ return slidertextpol_; }
+{
+    return slidertextpol_;
+}
+
 
 bool uiHistogramSel::changeLinePos( bool firstclick )
 {
