@@ -11,17 +11,23 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 
 #include "datapointset.h"
+#include "emhorizon3d.h"
 #include "executor.h"
 
 class od_ostream;
 namespace EM { class Horizon3D; class EMObjectIterator; }
 
+
+// Will calculate the distance between hor2 and hor1 (hor2-hor1).
+// When signed_=false (default) the result is the absolute value
+
 mExpClass(EarthModel) IsochronMaker : public Executor
 { mODTextTranslationClass(IsochronMaker)
 public:
-			IsochronMaker(const EM::Horizon3D&,const EM::Horizon3D&,
+			IsochronMaker(const EM::Horizon3D& hor1,
+				      const EM::Horizon3D& hor2,
 				      const char* attrnm,int dataidx,
-				      DataPointSet* dps=0);
+				      DataPointSet* dps=nullptr);
 			~IsochronMaker();
 
     int			nextStep() override;
@@ -32,6 +38,7 @@ public:
     od_int64		nrDone() const override		{ return nrdone_; }
     od_int64		totalNr() const override	{ return totnr_; }
 
+    void		useSignedValue( bool yn )	{ signed_ = yn; }
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
 				      bool overwrite,od_ostream* strm=0);
@@ -48,9 +55,10 @@ protected:
 
     int				sidcolidx_;
     int				dataidx_;
-    const EM::Horizon3D&	hor1_;
-    const EM::Horizon3D&	hor2_;
+    ConstRefMan<EM::Horizon3D>	hor1_;
+    ConstRefMan<EM::Horizon3D>	hor2_;
     RefMan<DataPointSet>	dps_;
     EM::EMObjectIterator*	iter_;
-    bool			inmsec_;
+    bool			inmsec_			= false;
+    bool			signed_			= false;
 };

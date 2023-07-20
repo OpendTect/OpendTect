@@ -37,8 +37,8 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
     , msg_(tr("Creating Isochron"))
     , sidcolidx_(mUdf(int))
     , dataidx_(dataidx)
-    , hor1_(hor1)
-    , hor2_(hor2)
+    , hor1_(&hor1)
+    , hor2_(&hor2)
     , dps_(dps)
     , inmsec_(false)
 {
@@ -81,7 +81,7 @@ int IsochronMaker::nextStep()
     }
 
     const Geometry::BinIDSurface* hor2geom =
-			hor2_.geometry().geometryElement();
+				hor2_->geometry().geometryElement();
     for ( int idx=0; idx<sBlockSize; idx++ )
     {
 	const EM::PosID posid = iter_->next();
@@ -90,16 +90,16 @@ int IsochronMaker::nextStep()
 	    return finishWork();
 
 	const EM::SubID subid = posid.subID();
-	const Coord3 pos1( hor1_.getPos( subid ) );
+	const Coord3 pos1( hor1_->getPos( subid ) );
 	const float z1 = float( pos1.z );
 	if ( mIsUdf(z1) )
 	{
 	    if ( dataidx_ != -1 )
-		hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
+		hor1_->auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
 	    continue;
 	}
 
-	float z2 = float( hor2_.getPos(subid).z );
+	float z2 = float( hor2_->getPos(subid).z );
 	if ( mIsUdf(z2) )
 	{
 	    const BinID bid = BinID::fromInt64( subid );
@@ -108,17 +108,17 @@ int IsochronMaker::nextStep()
 	    if ( mIsUdf(z2) )
 	    {
 		if ( dataidx_ != -1 )
-		    hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
+		    hor1_->auxdata.setAuxDataVal( dataidx_, posid, mUdf(float));
 		continue;
 	    }
 	}
 
-	float th = z1 > z2 ? z1 - z2 : z2 - z1;
+	float th = signed_ ? z2 - z1 : Math::Abs( z2 - z1 );
 	if ( inmsec_ )
 	    th *= 1000;
 
 	if ( dataidx_ != -1 )
-	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th );
+	    hor1_->auxdata.setAuxDataVal( dataidx_, posid, th );
 
 	if ( dps_ && !mIsUdf(startsourceidx) )
 	{
