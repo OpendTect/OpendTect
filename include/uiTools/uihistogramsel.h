@@ -43,6 +43,7 @@ public:
     void			setDataRange(const Interval<float>&);
     const Interval<float>&	getSelRange() const	{ return cliprg_; }
     void			setSelRange(const Interval<float>&);
+    void			setDefaultSelRange(const Interval<float>&);
 
     uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
 

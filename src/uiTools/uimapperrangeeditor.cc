@@ -70,6 +70,7 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
     const Interval<float> rg = ctmapper_->range_;
     cliprg_.start = rg.isRev() ? rg.stop : rg.start;
     cliprg_.stop = rg.isRev() ? rg.start : rg.stop;
+    setDefaultSelRange( cliprg_ );
     drawAgain();
 }
 
