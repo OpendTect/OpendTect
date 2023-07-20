@@ -8,12 +8,16 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
+
 #include "uidialog.h"
-#include "uitextedit.h"
 #include "uimsg.h"
-#include "survinfo.h"
-#include "settings.h"
+#include "uitextedit.h"
+
+#include "keystrs.h"
 #include "od_strstream.h"
+#include "settings.h"
+#include "survinfo.h"
+
 
 static const char* sKeyZInFeet = "Z in feet";
 static const char* sKeyIsVSP = "Is Zero-offset VSP";

@@ -9,18 +9,19 @@ ________________________________________________________________________
 
 #include "emsurface.h"
 
-#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "emsurfaceauxdata.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "posfilter.h"
 #include "posinfo2dsurv.h"
+#include "trckeyzsampling.h"
 
 
 static const char* sDbInfo = "DB Info";
@@ -349,5 +350,19 @@ Horizon::Horizon( EMManager& emm )
 
 Horizon::~Horizon()
 {}
+
+
+void Horizon::fillPar( IOPar& par ) const
+{
+    Surface::fillPar( par );
+    par.set( sKey::StratRef(), stratlevelid_ );
+}
+
+
+bool Horizon::usePar( const IOPar& par )
+{
+    par.get( sKey::StratRef(), stratlevelid_ );
+    return Surface::usePar( par );
+}
 
 } // namespace EM

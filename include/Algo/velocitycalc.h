@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "factory.h"
+#include "keystrs.h"
 #include "samplingdata.h"
 #include "uistring.h"
 

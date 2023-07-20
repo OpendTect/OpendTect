@@ -7,15 +7,16 @@ ________________________________________________________________________
 
 -*/
 
-#define mNrExtraZDec 3
-
 #include "flatview.h"
+
 #include "flatposdata.h"
-#include "arrayndimpl.h"
-#include "settings.h"
-#include "zaxistransform.h"
+#include "keystrs.h"
 #include "randcolor.h"
+#include "settings.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
+
+#define mNrExtraZDec 3
 
 namespace FlatView
 {

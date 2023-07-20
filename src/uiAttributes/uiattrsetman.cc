@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
+#include "keystrs.h"
 #include "od_helpids.h"
 #include "survinfo.h"
 

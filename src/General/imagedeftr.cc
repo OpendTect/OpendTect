@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "imagedeftr.h"
 
 #include "file.h"
+#include "keystrs.h"
 #include "uistrings.h"
 
 

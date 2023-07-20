@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "ascstream.h"
 #include "ctxtioobj.h"
+#include "keystrs.h"
 
 #include "uilistbox.h"
 #include "uiioobjseldlg.h"
@@ -23,10 +24,10 @@ ________________________________________________________________________
 static const char* sDefault()		{ return "Default"; }
 
 uiListBoxChoiceIO::uiListBoxChoiceIO( uiListBox& lb, const char* omftypekey )
-    : ctio_(*mMkCtxtIOObj(IOObjSelection))
-    , lb_(lb)
-    , storeRequested(this)
+    : storeRequested(this)
     , readDone(this)
+    , lb_(lb)
+    , ctio_(*mMkCtxtIOObj(IOObjSelection))
 {
     if ( omftypekey && *omftypekey )
 	ctio_.ctxt_.toselect_.require_.add( sKey::Type(), omftypekey );

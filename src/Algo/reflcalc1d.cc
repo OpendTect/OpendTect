@@ -10,7 +10,7 @@ ________________________________________________________________________
 #include "reflcalc1d.h"
 
 #include "ailayer.h"
-#include "uistrings.h"
+#include "keystrs.h"
 
 mImplFactory(ReflCalc1D,ReflCalc1D::factory)
 

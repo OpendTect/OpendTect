@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "uistrings.h"
 
 uiString EMBodyTranslatorGroup::sTypeName( int num )

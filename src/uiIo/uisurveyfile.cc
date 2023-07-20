@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "surveyfile.h"
 #include "survinfo.h"

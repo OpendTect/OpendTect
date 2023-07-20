@@ -11,12 +11,10 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
 #include "ioman.h"
-#include "od_iostream.h"
+#include "keystrs.h"
 #include "posinfo2d.h"
 #include "survgeom2d.h"
-#include "survinfo.h"
 #include "uistrings.h"
 
 static const char* sKeyFileType()	{ return "2D Geometry"; }

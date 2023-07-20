@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "ptrman.h"
 #include "rowcolsurface.h"
 #include "selector.h"

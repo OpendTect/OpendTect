@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "strmprov.h"
 #include "uistrings.h"
 

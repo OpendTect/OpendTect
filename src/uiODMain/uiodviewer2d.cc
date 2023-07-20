@@ -18,49 +18,47 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
 #include "uimpepartserv.h"
+#include "uimsg.h"
 #include "uiodmain.h"
-#include "uiodviewer2dmgr.h"
 #include "uiodscenemgr.h"
-#include "uiodvw2dtreeitem.h"
-#include "uiodvw2dhor3dtreeitem.h"
-#include "uiodvw2dhor2dtreeitem.h"
-#include "uiodvw2dfaulttreeitem.h"
-#include "uiodvw2dfaultsstreeitem.h"
+#include "uiodviewer2dmgr.h"
 #include "uiodvw2dfaultss2dtreeitem.h"
+#include "uiodvw2dfaultsstreeitem.h"
+#include "uiodvw2dfaulttreeitem.h"
+#include "uiodvw2dhor2dtreeitem.h"
+#include "uiodvw2dhor3dtreeitem.h"
 #include "uiodvw2dpicksettreeitem.h"
-#include "uipixmap.h"
+#include "uiodvw2dtreeitem.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "uimsg.h"
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "mouseevent.h"
-#include "scaler.h"
+#include "od_helpids.h"
+#include "posvecdataset.h"
+#include "randomlinegeom.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "seisioobjinfo.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "datacoldef.h"
-#include "datapointset.h"
-#include "posvecdataset.h"
-#include "randomlinegeom.h"
-
+#include "view2ddata.h"
+#include "view2ddataman.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
-#include "view2ddataman.h"
-#include "view2ddata.h"
-#include "od_helpids.h"
+
 
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
@@ -68,31 +66,31 @@ static void initSelSpec( Attrib::SelSpec& as )
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
 uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
-    : appl_(appl)
-    , visid_(visid)
-    , vdselspec_(*new Attrib::SelSpec)
-    , wvaselspec_(*new Attrib::SelSpec)
-    , viewwin_(nullptr)
-    , slicepos_(nullptr)
-    , viewstdcontrol_(nullptr)
-    , datamgr_(new View2D::DataManager)
-    , tifs_(0)
-    , treetp_(0)
-    , polyseltbid_(-1)
-    , voiidx_(-1)
-    , basetxt_(tr("2D Viewer - "))
-    , initialcentre_(uiWorldPoint::udf())
-    , initialx1pospercm_(mUdf(float))
-    , initialx2pospercm_(mUdf(float))
-    , isvertical_(true)
-    , ispolyselect_(true)
-    , viewWinAvailable(this)
+    : viewWinAvailable(this)
     , viewWinClosed(this)
     , dataChanged(this)
     , posChanged(this)
+    , visid_(visid)
+    , slicepos_(nullptr)
+    , viewstdcontrol_(nullptr)
+    , wvaselspec_(*new Attrib::SelSpec)
+    , vdselspec_(*new Attrib::SelSpec)
+    , datamgr_(new View2D::DataManager)
+    , tifs_(0)
+    , treetp_(0)
+    , viewwin_(nullptr)
     , mousecursorexchange_(0)
     , marker_(0)
     , datatransform_(0)
+    , basetxt_(tr("2D Viewer - "))
+    , appl_(appl)
+    , voiidx_(-1)
+    , initialcentre_(uiWorldPoint::udf())
+    , initialx1pospercm_(mUdf(float))
+    , initialx2pospercm_(mUdf(float))
+    , polyseltbid_(-1)
+    , ispolyselect_(true)
+    , isvertical_(true)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_.set( vwrid++ );
@@ -960,7 +958,7 @@ void uiODViewer2D::trackSetupCB( CallBacker* )
 }
 
 
-void uiODViewer2D::selectionMode( CallBacker* cb )
+void uiODViewer2D::selectionMode( CallBacker* )
 {
     if ( !viewstdcontrol_ || !viewstdcontrol_->editToolBar() )
 	return;

@@ -10,10 +10,9 @@ ________________________________________________________________________
 #include "visobject.h"
 
 #include "iopar.h"
-#include "visdataman.h"
+#include "keystrs.h"
 #include "visevent.h"
 #include "vismaterial.h"
-#include "vistransform.h"
 
 #include <osg/Group>
 #include <osg/BlendFunc>
@@ -28,8 +27,8 @@ const char* VisualObjectImpl::sKeyIsOn()	{ return "Is on"; }
 
 VisualObject::VisualObject( bool issel )
     : isselectable(issel)
-    , deselnotifier(this)
     , selnotifier(this)
+    , deselnotifier(this)
     , rightClick(this)
     , rcevinfo(0)
 {}
@@ -41,9 +40,9 @@ VisualObject::~VisualObject()
 
 VisualObjectImpl::VisualObjectImpl( bool issel )
     : VisualObject( issel )
-    , osgroot_( new osg::Group )
     , material_( 0 )
     , righthandsystem_( true )
+    , osgroot_( new osg::Group )
 {
     setOsgNode( osgroot_ );
 }

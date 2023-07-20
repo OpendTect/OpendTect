@@ -9,15 +9,17 @@ ________________________________________________________________________
 
 #include "seisblocks.h"
 #include "seismemblocks.h"
-#include "envvars.h"
-#include "datainterp.h"
-#include "oddirs.h"
-#include "scaler.h"
-#include "genc.h"
-#include "survinfo.h"
-#include "survgeom3d.h"
+
 #include "coordsystem.h"
+#include "datainterp.h"
+#include "envvars.h"
+#include "keystrs.h"
+#include "oddirs.h"
 #include "posidxpairdataset.h"
+#include "scaler.h"
+#include "survgeom3d.h"
+#include "survinfo.h"
+
 
 static const Seis::Blocks::SzType cVersion	= 1;
 static const Seis::Blocks::SzType cDefDim	= 64;

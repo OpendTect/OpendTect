@@ -59,6 +59,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "od_helpids.h"

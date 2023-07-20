@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "fourier.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "muter.h"
 #include "raytracerrunner.h"
 #include "reflcalcrunner.h"

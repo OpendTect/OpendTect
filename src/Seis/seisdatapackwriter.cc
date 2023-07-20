@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "posinfo.h"
 #include "scaler.h"
 #include "seisdatapack.h"
@@ -19,7 +20,6 @@ ________________________________________________________________________
 #include "seisselectionimpl.h"
 #include "seiswrite.h"
 #include "seistrc.h"
-#include "seistrctr.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "uistrings.h"
@@ -30,15 +30,15 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 				  const RegularSeisDataPack& dp,
 				  const TypeSet<int>& compidxs )
     : Executor( "Attribute volume writer" )
-    , nrdone_( 0 )
-    , tks_( dp.sampling().hsamp_ )
-    , totalnr_( (int) dp.sampling().hsamp_.totalNr() )
-    , dp_( &dp )
-    , iterator_( dp.sampling().hsamp_ )
-    , mid_( mid )
-    , posinfo_(nullptr)
     , compidxs_( compidxs )
+    , mid_( mid )
+    , dp_( &dp )
+    , nrdone_( 0 )
+    , totalnr_( (int) dp.sampling().hsamp_.totalNr() )
+    , iterator_( dp.sampling().hsamp_ )
+    , posinfo_(nullptr)
     , trc_(nullptr)
+    , tks_( dp.sampling().hsamp_ )
 {
     getPosInfo();
     compscalers_.allowNull( true );

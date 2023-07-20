@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "enums.h"
 
+#include "keystrs.h"
 #include "string2.h"
 
 EnumDef::EnumDef()

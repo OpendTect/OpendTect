@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class LineKey;
+class TrcKey;
 namespace Pos { class Provider; }
 
 

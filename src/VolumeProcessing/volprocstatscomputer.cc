@@ -10,12 +10,10 @@ ________________________________________________________________________
 #include "volprocstatscomputer.h"
 
 #include "arrayndimpl.h"
-#include "flatposdata.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "paralleltask.h"
 #include "seisdatapack.h"
-#include "statruncalc.h"
-#include "threadlock.h"
 
 namespace VolProc
 {
@@ -128,9 +126,9 @@ StatsCalculatorTask::StatsCalculatorTask( const Array3D<float>& input,
     , output_( output )
     , stepout_( stepout )
     , nzsampextra_ ( nzsampextra )
+    , statstype_(statstype)
     , tkzsin_( tkzsin )
     , tkzsout_( tkzsout )
-    , statstype_(statstype)
 {
     shape_ = sKeyEllipse();	//only possible choice for now
     totalnr_ = output.info().getSize(0) * output.info().getSize(1);

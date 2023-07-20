@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "volprocchain.h"
 
+#include "keystrs.h"
 
 namespace VolProc
 {

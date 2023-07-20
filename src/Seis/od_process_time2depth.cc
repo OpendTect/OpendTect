@@ -10,20 +10,21 @@ ________________________________________________________________________
 #include "batchprog.h"
 #include "process_time2depth.h"
 
-#include "trckeyzsampling.h"
 #include "ioman.h"
-#include "iopar.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
 #include "multiid.h"
 #include "progressmeter.h"
 #include "seisioobjinfo.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
-#include "timedepthconv.h"
-#include "moddepmgr.h"
+#include "trckeyzsampling.h"
 #include "unitofmeasure.h"
+#include "veldesc.h"
+#include "zaxistransform.h"
 
-#include "prog.h"
 
 
 mLoad2Modules("Seis","Well")

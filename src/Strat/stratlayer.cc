@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratlayer.h"
 
+#include "keystrs.h"
 #include "mathformula.h"
 #include "mathproperty.h"
 #include "stratreftree.h"

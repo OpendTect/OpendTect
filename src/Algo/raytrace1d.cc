@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "raytrace1d.h"
 
 #include "ailayer.h"
+#include "keystrs.h"
 #include "sorting.h"
 #include "uistrings.h"
 #include "zoeppritzcoeff.h"

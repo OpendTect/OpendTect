@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "fontdata.h"
-#include "namedobj.h"
+
 #include "color.h"
 #include "draw.h"
+#include "fontdata.h"
+#include "keystrs.h"
 #include "ranges.h"
-#include "survinfo.h"
 
 #include "bufstringset.h"
 
@@ -165,25 +165,25 @@ public:
 	const char*	subjectName() const override { return "Log"; }
 	void		setTo(const Data*,const Log&,bool forceifmissing=false);
 
-	BufferString	name_ = sKey::None();
-	BufferString	fillname_ = sKey::None();
-	float           cliprate_ = 0.f;
-	Interval<float> range_ = Interval<float>::udf();
-	Interval<float> fillrange_ = Interval<float>::udf();
-	bool		isleftfill_ = false;
-	bool		isrightfill_ = false;
-	bool		islogarithmic_ = false;
-	bool		islogreverted_ = false;
-	bool		issinglecol_ = false;
-	bool		isdatarange_ = true;
-	bool		iscoltabflipped_ = false;
-	int		repeat_ = 5;
-	float		repeatovlap_ = 50.f; //%
-	OD::Color	linecolor_ = OD::Color::Red();
-	OD::Color	seiscolor_ = OD::Color::White();
-	BufferString    seqname_ = "Rainbow";
+	BufferString	name_			= sKey::None();
+	BufferString	fillname_		= sKey::None();
+	float		cliprate_		= 0.f;
+	Interval<float> range_			= Interval<float>::udf();
+	Interval<float> fillrange_		= Interval<float>::udf();
+	bool		isleftfill_		= false;
+	bool		isrightfill_		= false;
+	bool		islogarithmic_		= false;
+	bool		islogreverted_		= false;
+	bool		issinglecol_		= false;
+	bool		isdatarange_		= true;
+	bool		iscoltabflipped_	= false;
+	int		repeat_			= 5;
+	float		repeatovlap_		= 50.f; //%
+	OD::Color	linecolor_		= OD::Color::Red();
+	OD::Color	seiscolor_		= OD::Color::White();
+	BufferString	seqname_		= "Rainbow";
 	int		logwidth_;
-	int		style_ = 0;
+	int		style_			= 0;
 
     private:
 

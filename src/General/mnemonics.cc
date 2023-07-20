@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "genc.h"
-#include "globexpr.h"
+#include "keystrs.h"
 #include "ioman.h"
 #include "odpair.h"
 #include "safefileio.h"

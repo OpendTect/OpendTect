@@ -8,16 +8,18 @@ ________________________________________________________________________
 -*/
 
 #include "basemap.h"
+
 #include "coord.h"
+#include "keystrs.h"
 #include "task.h"
 
 
 
 BasemapObject::BasemapObject( const char* nm )
     : NamedCallBacker(nm)
-    , changed(this)
     , leftClicked(this)
     , rightClicked(this)
+    , changed(this)
     , stylechanged(this)
     , zvalueChanged(this)
     , nameChanged(this)

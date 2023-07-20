@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 
 #include "envvars.h"
-#include "segyhdrdef.h"
+#include "keystrs.h"
 
 
 void uiSEGYToolsInitSIP()

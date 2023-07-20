@@ -10,11 +10,13 @@ ________________________________________________________________________
 #include "datainterp.h"
 
 #include "datachar.h"
-#include "iopar.h"
 #include "genc.h"
 #include "ibmformat.h"
-#include "separstr.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "od_istream.h"
+#include "separstr.h"
+
 #include <limits>
 
 mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {

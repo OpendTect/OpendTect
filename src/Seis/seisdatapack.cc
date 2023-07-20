@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "flatview.h"
+#include "keystrs.h"
 #include "paralleltask.h"
 #include "posinfo.h"
 #include "randomlinegeom.h"

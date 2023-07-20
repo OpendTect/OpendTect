@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "convmemvalseries.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"

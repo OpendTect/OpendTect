@@ -9,18 +9,13 @@ ________________________________________________________________________
 
 #include "seissingtrcproc.h"
 
-#include "coordsystem.h"
 #include "ioobj.h"
-#include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
+#include "keystrs.h"
 #include "multiid.h"
 #include "ptrman.h"
 #include "scaler.h"
-#include "seisioobjinfo.h"
 #include "seispacketinfo.h"
-#include "seispsioprov.h"
-#include "seispswrite.h"
 #include "seisread.h"
 #include "seisresampler.h"
 #include "seisselection.h"
@@ -37,15 +32,15 @@ SeisSingleTraceProc::SeisSingleTraceProc( const SeisStoreAccess::Setup& inpsu,
 					  const SeisStoreAccess::Setup& outsu,
 					  const char* nm, const uiString& msg )
     : Executor(nm)
-    , execnm_(nm)
-    , initmsg_(msg)
+    , traceselected_(this)
+    , proctobedone_(this)
     , inpsetup_(inpsu)
     , outsetup_(outsu)
     , intrc_(*new SeisTrc)
+    , execnm_(nm)
+    , initmsg_(msg)
     , wrrkey_(*new MultiID)
     , fillhs_(true)
-    , traceselected_(this)
-    , proctobedone_(this)
 {
     if ( outsu.ioobj_ )
 	wrrkey_ = outsu.ioobj_->key();

@@ -9,15 +9,12 @@ ________________________________________________________________________
 
 #include "volprocvolreader.h"
 
-#include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
-#include "seistrctr.h"
-#include "seistrc.h"
 #include "seisparallelreader.h"
 #include "survgeom2d.h"
 #include "unitofmeasure.h"

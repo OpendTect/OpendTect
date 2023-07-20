@@ -20,8 +20,8 @@ ________________________________________________________________________
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "bendpointfinder.h"
 #include "color.h"
+#include "keystrs.h"
 #include "mousecursor.h"
 #include "seisdatapackzaxistransformer.h"
 #include "survgeom2d.h"
@@ -44,17 +44,17 @@ const char* Seis2DDisplay::sKeyShowPanel()	{ return "Show panel"; }
 const char* Seis2DDisplay::sKeyShowPolyLine()	{ return "Show polyline"; }
 
 Seis2DDisplay::Seis2DDisplay()
-    : transformation_(0)
-    , geometry_(*new PosInfo::Line2DData)
-    , panelstrip_(visBase::TexturePanelStrip::create())
+    : prevtrcidx_(0)
     , polyline_(visBase::PolyLine::create())
+    , panelstrip_(visBase::TexturePanelStrip::create())
+    , geometry_(*new PosInfo::Line2DData)
+    , maxtrcnrrg_(0,mUdf(int),1)
+    , transformation_(0)
     , linename_(visBase::Text2::create())
     , geomchanged_(this)
     , geomidchanged_(this)
-    , maxtrcnrrg_(0,mUdf(int),1)
     , datatransform_(0)
     , voiidx_(-1)
-    , prevtrcidx_(0)
     , pixeldensity_( getDefaultPixelDensity() )
 {
     datapacks_.setNullAllowed();

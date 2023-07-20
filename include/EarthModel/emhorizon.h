@@ -69,17 +69,8 @@ public:
     Strat::LevelID	stratLevelID() const
 			{ return stratlevelid_; }
 
-    void		fillPar( IOPar& par ) const override
-			{
-			    Surface::fillPar( par );
-			    par.set( sKey::StratRef(), stratlevelid_ );
-			}
-
-    bool		usePar( const IOPar& par ) override
-			{
-			    par.get( sKey::StratRef(), stratlevelid_ );
-			    return Surface::usePar( par );
-			}
+    void		fillPar( IOPar& par ) const override;
+    bool		usePar( const IOPar& par ) override;
 
     virtual OD::GeomSystem getSurveyID() const				= 0;
 

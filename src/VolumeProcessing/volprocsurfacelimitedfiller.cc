@@ -10,19 +10,19 @@ ________________________________________________________________________
 #include "volprocsurfacelimitedfiller.h"
 
 #include "arrayndimpl.h"
-#include "binidvalset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
-#include "separstr.h"
+#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "executor.h"
+#include "keystrs.h"
 #include "mousecursor.h"
 #include "seisdatapack.h"
+#include "separstr.h"
 #include "survinfo.h"
 
 namespace VolProc
@@ -42,20 +42,20 @@ static const char*	sKeyHorInterFiller()	{ return "HorInterFiller"; }
 
 
 SurfaceLimitedFiller::SurfaceLimitedFiller()
-    : fixedstartval_( 2000 )
-    , fixedgradient_( mCast(float,SI().zDomain().userFactor()) )
-    , refz_( 0 )
-    , gradhorizon_( 0 )
-    , refhorizon_( 0 )
-    , starthorizon_( 0 )
-    , usebottomval_( false  )
-    , usegradient_( true )
-    , usestartval_( true )
-    , userefz_( true )
-    , gradvertical_( true )
-    , startauxdataselidx_( -1 )
+    : gradhorizon_( 0 )
     , gradauxdataselidx_( -1 )
     , gradauxidx_( -1 )
+    , fixedgradient_( mCast(float,SI().zDomain().userFactor()) )
+    , usegradient_( true )
+    , gradvertical_( true )
+    , starthorizon_( 0 )
+    , startauxdataselidx_( -1 )
+    , fixedstartval_( 2000 )
+    , usestartval_( true )
+    , refhorizon_( 0 )
+    , refz_( 0 )
+    , userefz_( true )
+    , usebottomval_( false  )
 {
     hors_.allowNull( true );
     faults_.allowNull( true );

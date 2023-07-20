@@ -10,7 +10,7 @@ ________________________________________________________________________
 #include "reflectivitymodel.h"
 
 #include "iopar.h"
-#include "manobjectset.h"
+#include "keystrs.h"
 #include "odmemory.h"
 #include "raytrace1d.h"
 #include "reflcalc1d.h"

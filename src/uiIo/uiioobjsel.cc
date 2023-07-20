@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "linekey.h"
 #include "transl.h"
 

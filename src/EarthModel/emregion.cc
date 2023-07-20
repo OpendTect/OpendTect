@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "faulttrace.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "uistrings.h"
 
 

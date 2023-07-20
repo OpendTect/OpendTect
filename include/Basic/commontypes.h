@@ -15,10 +15,6 @@ class IOPar;
 class BinID;
 class Coord;
 class Coord3;
-class TrcKey;
-class IdxPair;
-class MultiID;
-class StringView;
 class BufferString;
 namespace OD { class String; }
 template<class T> class TypeSet;

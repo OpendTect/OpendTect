@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "pickset.h"
 #include "streamconn.h"
 #include "survinfo.h"
@@ -130,8 +131,8 @@ public:
 
     RandomPosBodyWriter( RandomPosBody& rdposbody, Conn* conn )
 	: Executor( "RandomPos Writer" )
-	, conn_( conn )
 	, rdposbody_( rdposbody )
+	, conn_( conn )
 	, nrdone_( 0 )
     {
 	if ( !conn_->forWrite() || !conn_->isStream() )

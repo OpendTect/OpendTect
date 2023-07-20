@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "statruncalc.h"
 #include "executor.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "rowcol.h"
+
 #include <math.h>
 
 /*!

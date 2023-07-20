@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
+#include "keystrs.h"
 #include "ioman.h"
 #include "mousecursor.h"
 #include "nlamodel.h"

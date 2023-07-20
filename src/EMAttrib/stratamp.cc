@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "od_ostream.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"

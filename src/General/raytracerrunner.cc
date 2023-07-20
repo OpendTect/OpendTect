@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 const char* RayTracerRunner::sKeyParallel()	{ return "parallel"; }
 

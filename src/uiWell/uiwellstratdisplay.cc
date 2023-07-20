@@ -13,17 +13,18 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 
 #include "stratreftree.h"
+#include "survinfo.h"
 #include "welldata.h"
-#include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 
+
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,uiWellDahDisplay::Setup())
+    , stratgen_(0)
     , data_(StratDispData())
     , drawer_(uiStratDrawer(scene(),data_))
-    , stratgen_(0)
     , transparency_(0)
 {
     drawer_.setNewAxis( new uiAxisHandler(scene_,

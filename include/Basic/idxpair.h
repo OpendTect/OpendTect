@@ -17,8 +17,6 @@ ________________________________________________________________________
 
 
 typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
-typedef IdxPair IdxPairDelta;
-typedef IdxPair IdxPairStep;
 
 
 /*!\brief A pair of numbers; base class for BinID et al. */

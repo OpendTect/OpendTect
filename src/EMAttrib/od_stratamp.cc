@@ -9,19 +9,17 @@ ________________________________________________________________________
 
 #include "batchprog.h"
 
-#include "attribstorprovider.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emsurface.h"
-#include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "genc.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
 #include "multiid.h"
 #include "stratamp.h"
 #include "stattype.h"
-#include "moddepmgr.h"
 
 #include <iostream>
 

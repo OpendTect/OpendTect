@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 class IOObj;
+class MultiID;
 class VelocityDesc;
 
 /*! Writes velocity information to an IOObj. */

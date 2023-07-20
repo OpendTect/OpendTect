@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "mpeengine.h"
 #include "threadwork.h"
 #include "timefun.h"

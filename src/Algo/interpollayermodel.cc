@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "interpollayermodel.h"
 
 #include "iopar.h"
+#include "keystrs.h"
 #include "math2.h"
 
 // InterpolationLayerModel

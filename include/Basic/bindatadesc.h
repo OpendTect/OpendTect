@@ -11,6 +11,9 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
+
+class BufferString;
+
 #define mDeclBinDataDescConstr(T,ii,is) \
 	BinDataDesc( const T* ) { set( ii, is, sizeof(T) ); } \
 	BinDataDesc( const T& ) { set( ii, is, sizeof(T) ); }

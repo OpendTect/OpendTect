@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "fftfilter.h"
 #include "hilbertattrib.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "prestackanglecomputer.h"
 #include "prestackgather.h"
 #include "prestackprop.h"
@@ -51,8 +52,7 @@ int StratSynth::DataMgr::gtActualLMIdx( int lmsidx ) const
 
 
 StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
-    : lms_(lms)
-    , entryAdded(this)
+    : entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
     , entryDisabled(this)
@@ -60,6 +60,7 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
     , elPropSelChanged(this)
     , newWvltUsed(this)
     , wvltScalingDone(this)
+    , lms_(lms)
 {
     for ( int idx=0; idx<nrLayerModels(); idx++ )
 	addLayModelSets();
@@ -69,9 +70,7 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
 
 
 StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
-    : lms_(oth.lms_)
-    , calceach_(calceach)
-    , entryAdded(this)
+    : entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
     , entryDisabled(this)
@@ -79,6 +78,8 @@ StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
     , elPropSelChanged(this)
     , newWvltUsed(this)
     , wvltScalingDone(this)
+    , lms_(oth.lms_)
+    , calceach_(calceach)
 {
     ids_ = oth.ids_;
     genparams_ = oth.genparams_;
@@ -191,7 +192,7 @@ void StratSynth::DataMgr::addLayModelSets( bool withmod )
 }
 
 
-void StratSynth::DataMgr::lmsEdChgCB( CallBacker* cb )
+void StratSynth::DataMgr::lmsEdChgCB( CallBacker* )
 {
     const int nrnow = lmdatasets_.size();
     for ( int idx=nrnow-1; idx>=1; idx-- )

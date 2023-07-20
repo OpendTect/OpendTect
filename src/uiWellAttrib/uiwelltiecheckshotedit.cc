@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiwelldlgs.h"
 
 #include "od_helpids.h"
+#include "survinfo.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellmarker.h"

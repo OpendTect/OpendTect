@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "binid.h"
 
 class SeisTrcInfo;
+class TrcKey;
 class TrcKeyZSampling;
 namespace Seis { class SelData; }
 

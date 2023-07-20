@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iostrm.h"
 #include "iox.h"
+#include "keystrs.h"
 #include "od_iostream.h"
 #include "systeminfo.h"
 

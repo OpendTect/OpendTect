@@ -19,11 +19,13 @@ ________________________________________________________________________
 #include "samplingdata.h"
 
 class BufferStringSet;
+class ODHashMap;
 class SeparString;
+class TrcKey;
 class ascistream;
 class ascostream;
-class ODHashMap;
 class uiString;
+
 namespace OD
 {
     namespace JSON

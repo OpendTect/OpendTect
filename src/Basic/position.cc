@@ -9,16 +9,16 @@ ________________________________________________________________________
 
 #include "position.h"
 #include "binidvalue.h"
-#include "posidxpair2coord.h"
 
 #include "bufstring.h"
+#include "keystrs.h"
 #include "math2.h"
-#include "rowcol.h"
+#include "posidxpair2coord.h"
 #include "string2.h"
-#include "undefval.h"
 #include "survgeom2d.h"
-#include "trckeyvalue.h"
 #include "survinfo.h" // fallback with pErrMsg only
+#include "trckeyvalue.h"
+#include "undefval.h"
 
 #include <ctype.h>
 

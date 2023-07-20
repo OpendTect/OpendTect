@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "tutvolproc.h"
 
 #include "arrayndimpl.h"
+#include "keystrs.h"
 #include "seisdatapack.h"
 
 

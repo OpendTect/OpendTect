@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "datachar.h"
 #include "datainterp.h"
-#include "emfaultstickset.h"
 #include "emfault3d.h"
+#include "emfaultstickset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "empolygonbody.h"
@@ -27,12 +27,13 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "ptrman.h"
 #include "streamconn.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "unitofmeasure.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
 
 #include <limits.h>
 
@@ -1450,10 +1451,10 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 				    const Surface& surface,
 				    bool binary )
     : ExecutorGroup( "Surface Writer" )
-    , surface_(surface)
-    , filetype_(filetype)
-    , binary_(binary)
     , objectmid_(ioobj ? ioobj->key() : MultiID::udf() )
+    , surface_(surface)
+    , binary_(binary)
+    , filetype_(filetype)
 {
     init( ioobj ? ioobj->fullUserExpr(false) : 0 );
 }
@@ -1464,10 +1465,10 @@ dgbSurfaceWriter::dgbSurfaceWriter( const char* fulluserexpr,
 				    const Surface& surface,
 				    bool binary )
     : ExecutorGroup( "Surface Writer" )
-    , surface_(surface)
-    , filetype_(filetype)
-    , binary_(binary)
     , objectmid_(MultiID::udf())
+    , surface_(surface)
+    , binary_(binary)
+    , filetype_(filetype)
 {
     init( fulluserexpr );
 }

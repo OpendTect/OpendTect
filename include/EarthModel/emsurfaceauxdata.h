@@ -14,9 +14,10 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "uistring.h"
 
+class BinIDValueSet;
 class Executor;
 class IOObj;
-class BinIDValueSet;
+class TrcKey;
 class TrcKeySampling;
 
 template <class T> class Array2D;

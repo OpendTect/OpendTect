@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "crsproj.h"
 #include "coordsystem.h"
 
+#include "keystrs.h"
+
 
 namespace Coords
 {

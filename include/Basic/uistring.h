@@ -11,9 +11,9 @@ ________________________________________________________________________
 #include "string2.h"
 #include "threadlock.h"
 #include "bufstring.h"
-#include "keystrs.h"
 
 class BufferStringSet;
+class Coord;
 class uiStringData;
 class uiStringSet;
 class uiRetVal;

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uitoolbutton.h"
 
+#include "keystrs.h"
 
 uiFontSelGrp::uiFontSelGrp( uiParent* p, const uiString& lbl, bool withcol,
 			    OD::Color defcol )

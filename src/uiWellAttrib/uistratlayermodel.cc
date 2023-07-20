@@ -9,14 +9,15 @@ ________________________________________________________________________
 
 #include "uistratlayermodel.h"
 
-#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "elasticpropsel.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "stratlayermodel.h"
-#include "stratlaygen.h"
 #include "stratlaymodgen.h"
 #include "stratlayseqgendesc.h"
 #include "stratreftree.h"

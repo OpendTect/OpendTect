@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllogset.h"
 #include "settings.h"
+#include "survinfo.h"
 #include "keystrs.h"
 
 
