@@ -187,7 +187,7 @@ static bool intersectFIgnoreSteps( float start_1, float stop_1,
 
     outstart_ = start_1 < start_2 ? start_2 : start_1;
     outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
-    return (outstop_-outstart_) > Eps;
+    return (outstop_ - outstart_) >= -mDefEps;
 }
 
 
