@@ -15,9 +15,33 @@ ________________________________________________________________________
 
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
-    : lnm_(lnm)
-    , zrg_(SI().sampling(false).zsamp_)
+    : zrg_(SI().sampling(false).zsamp_)
+    , lnm_(lnm)
 {
+}
+
+
+PosInfo::Line2DData::Line2DData( const Line2DData& l2d )
+{
+    *this = l2d;
+}
+
+
+PosInfo::Line2DData::~Line2DData()
+{}
+
+
+PosInfo::Line2DData& PosInfo::Line2DData::operator=( const Line2DData& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    zrg_ = oth.zrg_;
+    lnm_ = oth.lnm_;
+    posns_ = oth.posns_;
+    bendpoints_ = oth.bendpoints_;
+
+    return *this;
 }
 
 

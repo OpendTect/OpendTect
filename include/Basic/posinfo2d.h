@@ -62,11 +62,10 @@ mExpClass(Basic) Line2DData
 {
 public:
 			Line2DData(const char* lnm=0);
+			Line2DData(const Line2DData&);
+    virtual		~Line2DData();
 
-			Line2DData(const Line2DData& l2d)
-			: zrg_(l2d.zRange())
-			, lnm_(l2d.lineName())
-			, posns_(l2d.positions()){}
+    Line2DData&		operator=(const Line2DData&);
 
     const StepInterval<float>& zRange() const		{ return zrg_; }
     const OD::String&	lineName() const		{ return lnm_; }
