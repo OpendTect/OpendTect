@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uiodhelpmenumgr.h"
 
 #include "uidialog.h"
-#include "uidesktopservices.h"
 #include "uigeninput.h"
 #include "uihelpview.h"
 #include "uilabel.h"
@@ -21,11 +20,9 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 #include "buildinfo.h"
-#include "filepath.h"
 #include "file.h"
 #include "legal.h"
 #include "oddirs.h"
-#include "od_istream.h"
 #include "odver.h"
 #include "oscommand.h"
 #include "osgver.h"
@@ -41,8 +38,8 @@ ________________________________________________________________________
 
 
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
-    : helpmnu_( mm->helpMnu() )
-    , mnumgr_( mm )
+    : mnumgr_( mm )
+    , helpmnu_( mm->helpMnu() )
 {
     docmnu_ = new uiMenu( tr("Documentation") );
     helpmnu_->addMenu( docmnu_ );
@@ -173,6 +170,7 @@ uiString uiODHelpMenuMgr::getAboutString()
 
     str.add( "Based on Qt " ).add( GetQtVersion() )
        .add( ", OSG " ).add( GetOSGVersion() ).add( ",<br>" )
+       .add( "OpenSSL ").add( mOPENSSL_VERSION ).add( ",<br>" )
        .add( GetCompilerVersionStr() ).add( "<br><br>" );
 
     str.add( mCOPYRIGHT_STRING ).add( "<br>" )
