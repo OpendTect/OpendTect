@@ -32,5 +32,5 @@ protected:
     uiFileInput*	maddatafld_;
     uiGenInput*		dowigglesfld_;
     IOPar		iop_;
-    SeisTrcBufDataPack* bufdtpack_;
+    RefMan<SeisTrcBufDataPack> bufdtpack_;
 };

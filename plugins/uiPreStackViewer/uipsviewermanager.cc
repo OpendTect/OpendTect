@@ -436,11 +436,11 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    ConstRefMan<FlatDataPack>fdp = DPM(DataPackMgr::FlatID()).
+    RefMan<FlatDataPack>fdp = DPM(DataPackMgr::FlatID()).
 							get<FlatDataPack>(dpid);
     if ( !fdp ) return nullptr;
 
-    vwr.setPack( FlatView::Viewer::VD, dpid, true );
+    vwr.setPack( FlatView::Viewer::VD, fdp, true );
     int pw = 400 + 5 * fdp->data().info().getSize( 0 );
     if ( pw > 800 ) pw = 800;
 

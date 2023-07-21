@@ -14,12 +14,16 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "wavelet.h"
 
+#include "hiddenparam.h"
+static HiddenParam<uiSeisSingleTraceDisplay,RefMan<FlatDataPack>>
+							    hp_fdp_(nullptr);
 
 uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     : uiFlatViewer(p)
     , compnr_(0)
     , curid_(DataPack::cNoID())
 {
+    hp_fdp_.setParam( this, nullptr );
     FlatView::Appearance& app = appearance();
     app.annot_.x1_.name_ = " ";
     app.annot_.x2_.name_ = " ";
@@ -37,7 +41,10 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
 
 
 uiSeisSingleTraceDisplay::~uiSeisSingleTraceDisplay()
-{}
+{
+    hp_fdp_.setParam( this, nullptr );
+    hp_fdp_.removeParam( this );
+}
 
 
 void uiSeisSingleTraceDisplay::cleanUp()
@@ -52,23 +59,23 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 {
     cleanUp();
 
+    RefMan<FlatDataPack> dp;
     if ( wvlt )
     {
 	const int wvltsz = wvlt->size();
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
 	auto* fva2d = new Array2DImpl<float>( 1, wvltsz );
-	auto* dp = new FlatDataPack( "Wavelet", fva2d );
+	dp = new FlatDataPack( "Wavelet", fva2d );
 	OD::memCopy( fva2d->getData(), wvlt->samples(), wvltsz*sizeof(float) );
-	dp->setName( wvlt->name() );
-	DPM( DataPackMgr::FlatID() ).add( dp );
 	curid_ = dp->id();
 	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
 	if ( SI().zIsTime() ) posns.scale( zfac );
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( FlatView::Viewer::WVA, curid_, false );
+    hp_fdp_.setParam( this, dp );
+    setPack( FlatView::Viewer::WVA, dp, false );
     addRefZ( 0 );
 
     handleChange( sCast(od_uint32,FlatView::Viewer::All) );
@@ -80,18 +87,18 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 {
     cleanUp();
 
+    RefMan<FlatDataPack> dp;
     if ( trc )
     {
 	const int trcsz = trc->size();
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
 	auto* fva2d = new Array2DImpl<float>( 1, trcsz );
-	auto* dp = new FlatDataPack( "Wavelet", fva2d );
+	dp = new FlatDataPack( "Wavelet", fva2d );
 	float* ptr = fva2d->getData();
 	for ( int idx=0; idx<trcsz; idx++ )
 	    *ptr++ = trc->get( idx, compnr_ );
 	dp->setName( nm );
-	DPM( DataPackMgr::FlatID() ).add( dp );
 	curid_ = dp->id();
 	StepInterval<double> posns( trc->samplePos(0), trc->samplePos(trcsz-1),
 				    trc->info().sampling.step );
@@ -99,7 +106,8 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( FlatView::Viewer::WVA, curid_, false );
+    hp_fdp_.setParam( this, dp );
+    setPack( FlatView::Viewer::WVA, dp, false );
 
     if ( trc )
     {

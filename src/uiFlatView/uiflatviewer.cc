@@ -243,7 +243,7 @@ void uiFlatViewer::removePack( ::DataPackID dpid )
 	bitmapdisp_->setDataPack( nullptr, false );
 
     FlatView::Viewer::removePack( dpid );
-    if ( ids_.isEmpty() )
+    if ( !hasPack(true) && !hasPack(false) )
 	wr_ = uiWorldRect( 0., 0., 1., 1. );
 }
 

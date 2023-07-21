@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Executor;
+class FlatDataPack;
 
 namespace EM { class EMObject; }
 namespace Geometry { class Element; }
@@ -133,6 +134,9 @@ public:
 							 int idx,bool);
 				/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
+    RefMan<FlatDataPack>	getSeedPosDataPackRM(const TrcKey&,float z,
+					int nrtrcs,
+					const StepInterval<float>& zrg) const;
     DataPackID		getSeedPosDataPack(const TrcKey&,float z,
 					int nrtrcs,
 					const StepInterval<float>& zrg) const;

@@ -929,19 +929,20 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 }
 
 
-DataPackID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
+RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
+						   int nrtrcs,
 					const StepInterval<float>& zintv ) const
 {
     TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
-    if ( specs.isEmpty() ) return DataPack::cNoID();
+    if ( specs.isEmpty() ) return nullptr;
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPackID pldpid = getAttribCacheID( specs[0] );
     auto sdp = dpm.get<SeisDataPack>( pldpid );
-    if ( !sdp ) return DataPack::cNoID();
+    if ( !sdp ) return nullptr;
 
     const int globidx = sdp->getNearestGlobalIdx( tk );
-    if ( globidx < 0 ) return DataPack::cNoID();
+    if ( globidx < 0 ) return nullptr;
 
     StepInterval<float> zintv2 = zintv; zintv2.step = sdp->zRange().step;
     const int nrz = zintv2.nrSteps() + 1;
@@ -974,11 +975,19 @@ DataPackID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     zrg.stop = mCast(double,zsamp.atIndex(zidx0+nrz-1));
     zrg.step = mCast(double,zsamp.step);
 
-    FlatDataPack* fdp = new FlatDataPack( "Seismics", seeddata );
+    RefMan<FlatDataPack> fdp = new FlatDataPack( "Seismics", seeddata );
     fdp->posData().setRange( true, trcrg );
     fdp->posData().setRange( false, zrg );
-    DPM(DataPackMgr::FlatID()).add( fdp );
-    return fdp->id();
+    return fdp;
+}
+
+
+DataPackID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
+					const StepInterval<float>& zintv ) const
+{
+    auto dp = getSeedPosDataPackRM( tk, z, nrtrcs,zintv );
+    DPM(DataPackMgr::FlatID()).add( dp );
+    return dp->id();
 }
 
 

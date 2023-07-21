@@ -116,7 +116,9 @@ public:
 			    { return targetspecs_; }
 
     DataPackID	createOutput(const TrcKeyZSampling&,DataPackID);
-    RefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
+    ConstRefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
+				 const RegularSeisDataPack* prevslcs=nullptr);
+    RefMan<RegularSeisDataPack> createOutputRM(const TrcKeyZSampling&,
 				 const RegularSeisDataPack* prevslcs=nullptr);
     bool		createOutput(DataPointSet&,int firstcol =0,
 				     bool showprogress=true);
@@ -131,6 +133,12 @@ public:
     DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TrcKeyPath& path,
 					    TrcKeyPath& trueknotspos);
+    static RefMan<RegularSeisDataPack> createDataPackFor2DRM(
+					    const Attrib::Data2DHolder& input,
+					    const TrcKeyZSampling& outputsamp,
+					    const ZDomain::Def& zdef,
+				    const BufferStringSet* compnames=nullptr);
+    mDeprecated("Use version returning RefMan<RegularSeisDataPack>")
     static DataPackID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,

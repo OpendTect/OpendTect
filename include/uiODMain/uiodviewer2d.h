@@ -57,7 +57,7 @@ public:
     Viewer2DID			ID() const	{ return id_; }
     VisID			visID() const	{ return visid_; }
 
-    void			makeUpView(RefMan<FlatDataPack>,
+    void			makeUpView(FlatDataPack*,
 					   FlatView::Viewer::VwrDest);
     void			setSelSpec(const Attrib::SelSpec*,
 					   FlatView::Viewer::VwrDest);
@@ -263,7 +263,6 @@ protected:
     bool			ispolyselect_;
     bool			isvertical_;
 
-    mDeprecated("use createDataForTransformedZSliceRM" );
     DataPackID			createDataPackForTransformedZSlice(
 						const Attrib::SelSpec&) const;
     RefMan<SeisFlatDataPack>	createDataPackForTransformedZSliceRM(
@@ -272,18 +271,15 @@ protected:
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
-    void			setDataPack(RefMan<FlatDataPack>,
+    void			setDataPack(FlatDataPack*,
 					    FlatView::Viewer::VwrDest,
 					    bool isnew);
-    void			setDataPack(RefMan<FlatDataPack>,bool wva,
+    void			setDataPack(FlatDataPack*,bool wva,
 					    bool isnew);
-    mDeprecated("Use version taking ConstRefMan argument")
     void			setDataPack(DataPackID,bool wva,bool isnew);
-    mDeprecated("Use version taking ConstRefMan argument")
     void			setDataPack(DataPackID,
 					    FlatView::Viewer::VwrDest,
 					    bool isnew);
-    mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			adjustOthrDisp(bool wva,bool isnew);
     void			adjustOthrDisp(FlatView::Viewer::VwrDest,
 					       bool isnew);
@@ -304,37 +300,31 @@ protected:
     void			mouseMoveCB(CallBacker*);
 
 public:
-    mDeprecated("Use version with ConstRefMan argument")
     void			makeUpView(DataPackID,
 					  FlatView::Viewer::VwrDest);
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     mDeprecated("Use makeUpView")
     virtual void		setUpView(DataPackID,bool wva);
-    mDeprecated("Use getDataPack" );
     DataPackID			getDataPackID(bool wva) const;
 				/*!<Returns DataPackID of specified display if
 				it has a valid one. Returns DataPackID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
-    mDeprecated("Use createDataPackRM" );
     DataPackID			createDataPack(bool wva) const
 				{ return createDataPack(selSpec(wva)); }
-    mDeprecated("Use createDataPackRM" );
     DataPackID			createDataPack(const Attrib::SelSpec&) const;
 				/*!< Creates RegularFlatDataPack by getting
 				TrcKeyZSampling from slicepos_. Uses the
 				existing TrcKeyZSampling, if there is no
 				slicepos_. Also transforms data if the 2D Viewer
 				hasZAxisTransform(). */
-    mDeprecated("No longer used")
     DataPackID			createFlatDataPack(DataPackID,int comp) const;
 				/*!< Creates a FlatDataPack from SeisDataPack.
 				Either a transformed or a non-transformed
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
-    mDeprecated("Use createFlatDataPackRM" );
     DataPackID			createFlatDataPack(const SeisDataPack&,
 						   int comp) const;
 				/*!< Creates a FlatDataPack from SeisDataPack.
@@ -342,7 +332,6 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
-    mDeprecated("Use createMapDataPackRM")
     DataPackID			createMapDataPack(const RegularFlatDataPack&);
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     bool			useStoredDispPars(bool wva);

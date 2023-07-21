@@ -19,6 +19,9 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uimsg.h"
 
+#include "hiddenparam.h"
+static HiddenParam<MPE::uiPreviewGroup,RefMan<FlatDataPack>> hp_fdp_(nullptr);
+
 
 namespace MPE
 {
@@ -30,6 +33,7 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
     , nrtrcs_(mUdf(int))
     , mousedown_(false)
 {
+    hp_fdp_.setParam( this, nullptr );
     wvafld_ = new uiCheckList( this, uiCheckList::OneMinimum,
 			       OD::Horizontal );
     wvafld_->addItem( tr("WVA") ).addItem( tr("VD") );
@@ -92,6 +96,8 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
 
 uiPreviewGroup::~uiPreviewGroup()
 {
+    hp_fdp_.setParam( this, nullptr );
+    hp_fdp_.removeParam( this );
 }
 
 
@@ -145,11 +151,11 @@ void uiPreviewGroup::updateViewer()
     zintv.scale( 1.f/SI().zDomain().userFactor() );
     zintv.step = SI().zStep();
 
-    const DataPackID dpid =
-	MPE::engine().getSeedPosDataPack( tk, z, nrtrcs_, zintv );
+    auto dp = MPE::engine().getSeedPosDataPackRM( tk, z, nrtrcs_, zintv );
+    hp_fdp_.setParam( this, dp );
 
     const bool canupdate = vwr_->enableChange( false );
-    vwr_->setPack( FlatView::Viewer::Both, dpid );
+    vwr_->setPack( FlatView::Viewer::Both, dp );
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
 				     wvafld_->isChecked(1) );
     vwr_->setViewToBoundingBox();

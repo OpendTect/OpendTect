@@ -749,9 +749,11 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 
     const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
     if ( curvwr.isVisible(true) )
-	vwr2d->makeUpView( vwr2d->createDataPack(true), FlatView::Viewer::WVA );
+	vwr2d->makeUpView( vwr2d->createDataPackRM(true),
+			   FlatView::Viewer::WVA );
     else if ( curvwr.isVisible(false) )
-	vwr2d->makeUpView( vwr2d->createDataPack(false), FlatView::Viewer::VD );
+	vwr2d->makeUpView( vwr2d->createDataPackRM(false),
+			   FlatView::Viewer::VD );
 
     if ( vwr2d->viewControl() && control )
 	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );
